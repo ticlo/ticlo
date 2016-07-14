@@ -4,13 +4,12 @@ var assert = require('assert');
 
 const RefList = require('../lib/util/RefList').RefList;
 
-describe('RefList', function () {
-
+describe("RefList", function () {
     it('iteration', function () {
         /** @type {RefList<int>} */
         let list = new RefList();
         /** @type {Array<RefListRef<int>>} */
-        var nodes = [];
+        let nodes = [];
         for (let i = 0; i < 5; ++i) {
             nodes.push(list.add(i));
         }
@@ -40,7 +39,7 @@ describe('RefList', function () {
         /** @type {RefList<int>} */
         let list = new RefList();
         /** @type {Array<RefListRef<int>>} */
-        var nodes = [];
+        let nodes = [];
         for (let i = 0; i < 10; ++i) {
             nodes.push(list.add(i));
         }
@@ -68,7 +67,7 @@ describe('RefList', function () {
         /** @type {RefList<int>} */
         let list = new RefList();
         /** @type {Array<RefListRef<int>>} */
-        var nodes = [];
+        let nodes = [];
         for (let i = 0; i < 10; ++i) {
             nodes.push(list.add(i));
         }
