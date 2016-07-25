@@ -1,13 +1,17 @@
-
 var assert = require('assert');
+const Block = require('../lib/core/Block').Block;
+const BlockRoot = require('../lib/core/BlockRoot').BlockRoot;
 
-describe('basic class test', function(){
+describe("Basic", function () {
     it('instanceof', function(){
-        const Block = require('../lib/core/Block').Block;
-        const BlockRoot = require('../lib/core/BlockRoot').BlockRoot;
 
         let b = new BlockRoot(null, 1);
 
         assert(b instanceof(Block));
     });
+
 });
+
+
+
+

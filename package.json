@@ -1,10 +1,10 @@
 {
-  "name": "breezio",
+  "name": "breezeflow",
   "version": "0.0.1",
-  "description": "breezio runtime",
+  "description": "breezeflow runtime",
   "repository": {
     "type": "git",
-    "url": "https://github.com/breez-io/breezio.git"
+    "url": "https://github.com/breezeflow/breezeflow.git"
   },
   "author": {
     "name": "Rick Zhou",
