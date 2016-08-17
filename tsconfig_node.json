@@ -1,0 +1,16 @@
+{
+  "files" : [
+    "src/breezeflow.ts",
+    "typings/index.d.ts"
+  ],
+  "compilerOptions": {
+    "module": "system",
+    "target": "es6",
+    "noImplicitAny": true,
+    "sourceMap": true,
+    "outFile": "build/breezeflow.js"
+  },
+  "exclude": [
+    "node_modules"
+  ]
+}

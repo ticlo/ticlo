@@ -1,11 +1,12 @@
 const assert = require('assert');
 
-const Block = require('../lib/core/Block').Block;
-const BlockRoot = require('../lib/core/BlockRoot').BlockRoot;
-const Loop = require('../lib/core/Loop').Loop;
-const Types = require('../lib/core/Types').Types;
-const Add = require('../lib/logic/basic/Add').Add;
-const Subtract = require('../lib/logic/basic/Subtract').Subtract;
+const Bz = require('../build/breezeflow');
+const Block = Bz.Block;
+const BlockRoot = Bz.BlockRoot;
+const Loop = Bz.Loop;
+const Types = Bz.Types;
+const Add = Bz.Add;
+const Subtract = Bz.Subtract;
 
 describe("basic", function () {
     it('add', function () {

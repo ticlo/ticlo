@@ -1,8 +1,9 @@
 'use strict';
 
-var assert = require('assert');
+const assert = require('assert');
 
-const RefList = require('../lib/util/RefList').RefList;
+const Bz = require('../build/breezeflow');
+const RefList = Bz.RefList;
 
 describe("RefList", function () {
     it('iteration', function () {
