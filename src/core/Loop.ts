@@ -1,5 +1,4 @@
-/// <reference path="../breezeflow.ts" />
-module BreezeFlow {
+module breezeflow {
 
     /**
      * priority 0: fast block

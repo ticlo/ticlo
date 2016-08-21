@@ -1,5 +1,4 @@
-/// <reference path="../../breezeflow.ts" />
-module BreezeFlow {
+module breezeflow {
 
     export class Add extends BaseLogic2 {
         constructor(block: Block) {

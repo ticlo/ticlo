@@ -16,10 +16,11 @@
     "express-ws": "^2.0.0-rc.1"
   },
   "devDependencies": {
-    "mocha": "^2.5.3"
+    "mocha": "^2.5.3",
+    "ts-module-opt" : "^0.0.1"
   },
   "scripts": {
     "test": "mocha test",
-    "build_typescript_node": "tsc -p tsconfig_node.json"
+    "build-src": "node node_modules/ts-module-opt/bin/run.js -r typings/index.d.ts src"
   }
 }

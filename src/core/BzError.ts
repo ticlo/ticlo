@@ -1,5 +1,4 @@
-/// <reference path="../breezeflow.ts" />
-module BreezeFlow {
+module breezeflow {
     class BzError {
         type: string;
         message: string;

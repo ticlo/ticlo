@@ -1,5 +1,4 @@
-/// <reference path="../breezeflow.ts" />
-module BreezeFlow {
+module breezeflow {
     const _types: {[key: string]: Type} = {};
 
     let _typesFinalized = false;

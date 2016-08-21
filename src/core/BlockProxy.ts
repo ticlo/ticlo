@@ -1,5 +1,4 @@
-/// <reference path="../breezeflow.ts" />
-module BreezeFlow {
+module breezeflow {
     const BlockProxy = {
         get: function (block: Block, field: string): any {
             let prop = block._props[field];

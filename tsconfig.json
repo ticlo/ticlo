@@ -1,5 +1,6 @@
 {
   "files" : [
+    "src/breezeflow.ts",
     "typings/index.d.ts"
   ],
   "compilerOptions": {

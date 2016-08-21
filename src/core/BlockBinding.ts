@@ -1,5 +1,4 @@
-/// <reference path="../breezeflow.ts" />
-module BreezeFlow {
+module breezeflow {
 
     class RefListBindingWrapper implements RefListRef<IListen> {
         _list: RefList<IListen>;

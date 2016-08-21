@@ -1,5 +1,4 @@
-/// <reference path="../breezeflow.ts" />
-module BreezeFlow {
+module breezeflow {
     export class BlockChild extends BlockProperty {
         constructor(block: Block, name: string) {
             super(block, name);

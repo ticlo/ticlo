@@ -1,5 +1,4 @@
-/// <reference path="../breezeflow.ts" />
-module BreezeFlow {
+module breezeflow {
     export class RefListRef<ValueType> {
         _list: RefList<ValueType>;
         value: ValueType;
