@@ -63,15 +63,15 @@ module breezeflow {
             // to be mixin
         };
 
-        static _addLinkSetNodeWrapper(list: RefList<IListen>, val: IListen): RefListBindingWrapper {
+        private static _addLinkSetNodeWrapper(list: RefList<IListen>, val: IListen): RefListBindingWrapper {
             let wrapper = new RefListBindingWrapper(list, val);
             RefList.insertBefore(wrapper, list._head);
             return wrapper;
         }
 
-        unListen(wrapper: RefListBindingWrapper) {
-            if (wrapper._parkedRef) {
-                wrapper._parkedRef.remove();
+        unListen(wrapper: RefListRef<IListen>) {
+            if ((wrapper as RefListBindingWrapper)._parkedRef) {
+                (wrapper as RefListBindingWrapper)._parkedRef.remove();
             }
             if (this._listeners.isEmpty()) {
                 this._listeners = null;
@@ -131,7 +131,7 @@ module breezeflow {
         }
         ;
 
-        boundPropChanged(wrapper: RefListBindingWrapper): void {
+        private boundPropChanged(wrapper: RefListBindingWrapper): void {
             if (wrapper._parkedRef) {
                 wrapper.remove();
             }

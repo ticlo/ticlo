@@ -1,9 +1,5 @@
 module breezeflow {
-    /**
-     * @extends {Logic}
-     * @constructor
-     * @param {Block} block
-     */
+
     export class BaseLogic2 extends Logic {
         _input0: BlockInput;
         _input1: BlockInput;

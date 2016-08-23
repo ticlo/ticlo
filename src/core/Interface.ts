@@ -7,9 +7,6 @@ module breezeflow {
         destroy(): void;
     }
 
-    /**
-     * @interface
-     */
     export class IDispatch {
 
         _listeners: RefList<IListen> = null;

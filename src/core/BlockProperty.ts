@@ -1,11 +1,5 @@
 module breezeflow {
-    /**
-     * @constructor
-     * @implements {IDispatch}
-     * @implements {IListen}
-     * @param {Block} block
-     * @param {string} name
-     */
+
     export class BlockProperty implements IDispatch {
 
         _block: Block;

@@ -1,8 +1,5 @@
 module breezeflow {
-    /**
-     * @constructor
-     * @param {string} name
-     */
+
     export class Type {
         _Class: LogicType = null;
         _name: string;

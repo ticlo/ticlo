@@ -24,11 +24,6 @@ module breezeflow {
             this._pOut = this.getProp('<<');
         }
 
-        /**
-         *
-         * @param {string} field
-         * @return {BlockProperty}
-         */
         getProp(field: string) {
             if (this._props.hasOwnProperty(field)) {
                 return this._props[field];
@@ -232,9 +227,6 @@ module breezeflow {
             }
         };
 
-        /**
-         * @param {function(new:Logic, Block)} Class
-         */
         updateLogic(Class: LogicType): void {
             if (this._logic) {
                 this._logic.destroy();
@@ -249,7 +241,6 @@ module breezeflow {
             }
         };
 
-
         _initSysOutput(field: string, prop: BlockOutput): void {
             // TODO
         };
@@ -258,5 +249,4 @@ module breezeflow {
             //TODO
         };
     }
-
 }
