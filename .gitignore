@@ -33,10 +33,7 @@ node_modules
 .node_repl_history
 /.idea
 /playground.js
-/build
+build
 /src/*.js
-/src/*/*.js
-/src/*/*/*.js
-/src/*/*/*/*.js
 *.js.map
 /typings
