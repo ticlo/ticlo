@@ -12,6 +12,7 @@ module breezeflow {
                 _types[name] = type;
             }
             type.update(Class);
+            Class.prototype.type = name;
         };
 
         static listen(name: string, block: Block): RefListRef<Block> {

@@ -1,15 +1,13 @@
 const assert = require('assert');
 
 const Bz = require('../src/breezeflow.js');
-const Block = Bz.Block;
+
 const BlockRoot = Bz.BlockRoot;
 const Loop = Bz.Loop;
-const Types = Bz.Types;
-const Add = Bz.Add;
-const Subtract = Bz.Subtract;
+
 
 describe("basic", function () {
-    it('add', function () {
+    it('add2', function () {
         var model = new BlockRoot();
 
         let aBlock = model.createBlock('a');
@@ -36,7 +34,7 @@ describe("basic", function () {
         assert.equal(aBlock.getValue('<out'), 6, 'update type after value, 2.5+3.5==6');
     });
 
-    it('subtract', function () {
+    it('subtract2', function () {
         var model = new BlockRoot();
 
         let aBlock = model.createBlock('a');
@@ -55,5 +53,27 @@ describe("basic", function () {
         aBlock.setValue('>1', 't');
         Loop.run();
         assert.equal(isNaN(aBlock.getValue('<out')), true, 'isNaN(5-t) == true');
+    });
+
+    it('addN', function () {
+        var model = new BlockRoot();
+
+        let aBlock = model.createBlock('a');
+
+        aBlock.setValue('>>type', 'add');
+        aBlock.setValue('>0', 2);
+        aBlock.setValue('>1', 3);
+        aBlock.setValue('>2', 4);
+        aBlock.setValue('>size', 3);
+        Loop.run();
+        assert.equal(aBlock.getValue('<out'), 9, '2+3+4 == 9');
+
+        aBlock.setValue('>size', 2);
+        Loop.run();
+        assert.equal(aBlock.getValue('<out'), 5, 'change size of add block at runtime');
+
+        aBlock.setValue('>1', 't');
+        Loop.run();
+        assert.equal(isNaN(aBlock.getValue('<out')), true, 'isNaN(2+t) == true');
     });
 });

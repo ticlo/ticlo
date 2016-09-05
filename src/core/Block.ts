@@ -8,10 +8,15 @@ module breezeflow {
         _props: {[key: string]: BlockProperty} = {};
         _bindings: {[key: string]: BlockBinding} = {};
         _logic: Logic = null;
+        /// register to type change
         _typeRef: RefListRef<Block> = null;
+
         _loopRef: RefListRef<Block> = null;
-        _loopRun: boolean = null;
+        _loopRun: boolean = false;
+        _loopRunning: boolean = false;
         _pOut: BlockOutput;
+
+        _proxy: Object = null;
 
         constructor(root: BlockRoot, prop: BlockProperty) {
 
@@ -24,7 +29,14 @@ module breezeflow {
             this._pOut = this.getProp('<<');
         }
 
-        getProp(field: string) {
+        getProxy(): Object {
+            if (!this._proxy) {
+                this._proxy = new Proxy(this, BlockProxy);
+            }
+            return this._proxy;
+        }
+
+        getProp(field: string): BlockProperty {
             if (this._props.hasOwnProperty(field)) {
                 return this._props[field];
             }
@@ -161,7 +173,9 @@ module breezeflow {
 
         run(): void {
             this._loopRun = true;
+            this._loopRunning = true;
             let out = this._logic.run(null);
+            this._loopRunning = false;
             if (out == null) {
                 out = new BzEvent();
             }

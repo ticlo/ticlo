@@ -2,7 +2,7 @@ module breezeflow {
 
     export class Logic implements IDestroyable {
         _block: Block;
-        name: string;
+        type: string;
         priority: number;
         initRun: boolean;
 
@@ -10,19 +10,19 @@ module breezeflow {
             this._block = block;
         }
 
-        static _logic_sample_descriptor = {
+        static _logic_sample_descriptor: LogicDesc = {
             'inputs': [{'name': '>input', 'type': 'string', 'editor': 'enum[a,b,c]'}],
             'outputs': [{'name': '<output', 'type': 'number'}],
             'attributes': [{'name': '@attribute', 'type': 'number'}],
         };
 
-        getDescriptor(): {} {
+        getDescriptor(): LogicDesc {
             return Logic._logic_sample_descriptor;
         };
 
         // return true when it needs to be put in queue
         inputChanged(input: BlockInput, val: any): boolean {
-            return false;
+            return true;
         };
 
         // return stream output
@@ -31,19 +31,27 @@ module breezeflow {
         };
 
         checkInitRun(): boolean {
-            return false;
+            return true;
         };
 
-        checkInitTrigger(loading: boolean) {
+        checkInitTrigger(loading: boolean): void {
 
         };
+
+        blockCommand(command: string, params: Object): void {
+
+        }
+
+        propCommand(command: string, field: string, params: Object): void {
+
+        }
 
         destroy(): void {
         };
 
 
     }
-    Logic.prototype.name = '';
+    Logic.prototype.type = '';
 
     Logic.prototype.priority = 0;
 

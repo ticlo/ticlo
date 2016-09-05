@@ -1,6 +1,6 @@
 module breezeflow {
 
-    export class Add extends BaseLogic2 {
+    export class Add2 extends BaseLogic2 {
         constructor(block: Block) {
             super(block);
         }
@@ -16,6 +16,5 @@ module breezeflow {
             }
         };
     }
-    Add.prototype.name = '+';
-    Types.add('+', Add);
+    Types.add('+', Add2);
 }

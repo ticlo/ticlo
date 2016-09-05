@@ -14,22 +14,22 @@ module breezeflow {
         }
 
 
-        static _descriptor = {
-            'name': '+',
-            'inputs': [{'name': '>0', 'type': 'number'}, {'name': '>1', 'type': 'number'}],
-            'outputs': [{'name': '<out', 'type': 'number'}],
+        static _descriptor: LogicDesc = {
+            'inputs': [
+                {'name': '>0', 'type': 'number'},
+                {'name': '>1', 'type': 'number'}
+            ],
+            'outputs': [
+                {'name': '<out', 'type': 'number'}
+            ],
         };
 
-        getDescriptor() {
+        getDescriptor(): LogicDesc {
             return BaseLogic2._descriptor
         };
 
         checkInitRun(): boolean {
             return this._input0._value != null || this._input1._value != null;
-        };
-
-        inputChanged(input: BlockInput, val: any) {
-            return true;
         };
 
     }
