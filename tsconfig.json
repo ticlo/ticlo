@@ -1,6 +1,7 @@
 {
   "files" : [
-    "src/breezeflow.ts",
+    "src/bzflow/bzflow.ts",
+    "src/bzconnect/bzconnect.ts",
     "typings/index.d.ts"
   ],
   "compilerOptions": {

@@ -2,7 +2,7 @@
 
 const assert = require('assert');
 
-const Bz = require('../src/breezeflow.js');
+const Bz = require('../src/bzflow/bzflow.js');
 const RefList = Bz.RefList;
 
 describe("RefList", function () {

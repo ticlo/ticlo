@@ -16,10 +16,10 @@
   },
   "devDependencies": {
     "mocha": "^2.5.3",
-    "ts-module-opt" : "^0.1.2"
+    "ts-module-opt" : "^0.1.5"
   },
   "scripts": {
     "test": "mocha test",
-    "build-src": "node node_modules/ts-module-opt/bin/run.js -d -r typings/index.d.ts src"
+    "build-src": "node node_modules/ts-module-opt/bin/run.js -d -r typings/index.d.ts src/bzflow"
   }
 }

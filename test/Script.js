@@ -1,6 +1,6 @@
 const assert = require('assert');
 
-const Bz = require('../src/breezeflow.js');
+const Bz = require('../src/bzflow/bzflow.js');
 const Block = Bz.Block;
 const BlockRoot = Bz.BlockRoot;
 const Loop = Bz.Loop;
