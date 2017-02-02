@@ -97,12 +97,7 @@ module bzflow {
                     this._iter = this._iter._next;
                 }
             } else if (ref === this._iterEnd) {
-                if (this._iter === this._iterEnd) {
-                    this._iter = null;
-                    this._iterEnd = null;
-                } else {
-                    this._iterEnd = this._iterEnd._prev;
-                }
+                this._iterEnd = this._iterEnd._prev;
             }
             ref._next._prev = ref._prev;
             ref._prev._next = ref._next;
