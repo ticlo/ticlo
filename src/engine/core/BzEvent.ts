@@ -1,5 +1,5 @@
 module bzflow {
-    export class BzEvent {
+    export class TcEvent {
         tick: number;
 
         constructor() {
@@ -11,7 +11,7 @@ module bzflow {
             if (val == null) {
                 return false;
             }
-            if (val instanceof BzEvent) {
+            if (val instanceof TcEvent) {
                 return val.tick == Loop.tick;
             }
             return true;

@@ -31,14 +31,14 @@ module bzflow {
                     try {
                         this._compiledFunction = new Function(this._script._value);
                     } catch (err) {
-                        return new BzError(SCRIPT_ERROR, err.toString());
+                        return new TcError(SCRIPT_ERROR, err.toString());
                     }
                     let rslt: any;
                     try {
                         rslt = this._compiledFunction.apply(this._block.getProxy());
                     } catch (err) {
                         this._compiledFunction = null;
-                        return new BzError(SCRIPT_ERROR, err.toString());
+                        return new TcError(SCRIPT_ERROR, err.toString());
                     }
                     if (typeof rslt == 'function') {
                         // let the function run again
@@ -56,7 +56,7 @@ module bzflow {
                 try {
                     rslt = this._runFunction.apply(this._block.getProxy());
                 } catch (err) {
-                    return new BzError(SCRIPT_ERROR, err.toString());
+                    return new TcError(SCRIPT_ERROR, err.toString());
                 }
                 return rslt;
             }

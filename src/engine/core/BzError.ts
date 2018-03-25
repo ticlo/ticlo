@@ -1,5 +1,5 @@
 module bzflow {
-    export class BzError {
+    export class TcError {
         type: string;
         message: string;
 

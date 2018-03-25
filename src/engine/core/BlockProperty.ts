@@ -1,4 +1,3 @@
-module bzflow {
 
     export class BlockProperty implements IDispatch {
 
@@ -99,4 +98,3 @@ module bzflow {
     }
     BlockProperty.prototype.updateValue = IDispatch.prototype.updateValue;
     BlockProperty.prototype.onDispatch = IDispatch.prototype.onDispatch;
-}

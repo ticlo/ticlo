@@ -1,10 +1,10 @@
 {
-  "name": "breezeflow",
+  "name": "ticlo",
   "version": "0.0.1",
-  "description": "breezeflow runtime",
+  "description": "ticlo runtime",
   "repository": {
     "type": "git",
-    "url": "https://github.com/breezeflow/breezeflow.git"
+    "url": "https://github.com/ticlo/ticlo.git"
   },
   "author": {
     "name": "Rick Zhou",
@@ -15,11 +15,9 @@
 
   },
   "devDependencies": {
-    "mocha": "^2.5.3",
-    "ts-module-opt" : "^0.1.5"
+    "mocha": "^2.5.3"
   },
   "scripts": {
-    "test": "mocha test",
-    "build-src": "node node_modules/ts-module-opt/bin/run.js -d -r typings/index.d.ts src/bzflow"
+    "test": "mocha test"
   }
 }

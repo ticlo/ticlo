@@ -1,4 +1,3 @@
-module bzflow {
 
     export class Block {
         _root: BlockRoot;
@@ -177,7 +176,7 @@ module bzflow {
             let out = this._logic.run(null);
             this._loopRunning = false;
             if (out == null) {
-                out = new BzEvent();
+                out = new TcEvent();
             }
             this._pOut.updateValue(out);
         };
@@ -214,9 +213,9 @@ module bzflow {
 
         onRun(val: any): void {
             if (this._logic && this._mode !== 'disabled') {
-                if (val instanceof BzError) {
+                if (val instanceof TcError) {
                     this._pOut.updateValue(val);
-                } else if (BzEvent.isValid(val)) {
+                } else if (TcEvent.isValid(val)) {
                     this._loopRun = true;
                     let out = this._logic.run(val);
                     if (out == null) {
@@ -228,7 +227,7 @@ module bzflow {
         };
 
         onTrigger(val: any): void {
-            if (this._logic && BzEvent.isValid(val)) {
+            if (this._logic && TcEvent.isValid(val)) {
                 this.trigger();
             }
         };
@@ -267,4 +266,4 @@ module bzflow {
             //TODO
         };
     }
-}
+

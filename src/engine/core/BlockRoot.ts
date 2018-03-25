@@ -1,4 +1,4 @@
-module bzflow {
+
 
     export class BlockRoot extends Block {
         constructor() {
@@ -8,4 +8,3 @@ module bzflow {
             this._prop = new BlockChild(this, '');
         }
     }
-}

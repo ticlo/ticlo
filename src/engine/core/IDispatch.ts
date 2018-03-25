@@ -1,4 +1,3 @@
-module bzflow {
 
     export interface IListen {
         onChange(val: any): void;
@@ -9,7 +8,7 @@ module bzflow {
 
     export class IDispatch {
 
-        _listeners: RefList<IListen> = null;
+        _listeners: set<IListen> = null;
         _block: Block = null;
         _value: any = null;
 
@@ -55,4 +54,3 @@ module bzflow {
         });
     }
 
-}
