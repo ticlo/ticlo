@@ -1,133 +1,117 @@
-module bzflow {
-
-    /**
-     * priority 0: fast block
-     */
-    const _loopBlocks0: RefList<Block> = new RefList<Block>();
-
-    let _loopBlocks0Current: RefListRef<Block> = _loopBlocks0._head;
-
-    /**
-     * priority 1: heavy block
-     */
-    const _loopBlocks1: RefList<Block> = new RefList<Block>();
+import {Block} from "./Block";
 
 
-    let _loopBlocks1Current: RefListRef<Block> = _loopBlocks0._head;
+export class Loop {
 
-    /**
-     * priority 2: async block
-     */
-    const _loopBlocks2: RefList<Block> = new RefList<Block>();
+  private _tick: number = 0;
+  get tick(): number {
+    return this._tick;
+  }
 
-    let _loopBlocks2Current: RefListRef<Block> = _loopBlocks0._head;
+  private _pendingBlocks: Block[] = [];
 
-    let _loopTimeout: number = -1;
-    let _loopingPriority: number = 0;
+  private _logicQueue0: Block[] = [];
+  private _logicQueue1: Block[] = [];
+  private _logicQueue2: Block[] = [];
 
+  private _loopTimeout: number = -1;
 
-    export class Loop {
-
-        static tick: number = 0;
-
-        static addBlock(block: Block) {
-            if (block._logic) {
-                let priority = block._logic.priority;
-                switch (priority) {
-                    case 0:
-                        block._loopRef = new RefListRef(_loopBlocks0, block);
-                        RefList.insertBefore(block._loopRef, _loopBlocks0Current);
-                        block._loopRun = false;
-                        _loopingPriority = 0;
-                        break;
-                    case 1:
-                        block._loopRef = new RefListRef(_loopBlocks1, block);
-                        RefList.insertBefore(block._loopRef, _loopBlocks1Current);
-                        block._loopRun = false;
-                        if (_loopingPriority > 1) {
-                            _loopingPriority = 1;
-                        }
-                        break;
-                    case 2:
-                        block._loopRef = new RefListRef(_loopBlocks2, block);
-                        RefList.insertBefore(block._loopRef, _loopBlocks2Current);
-                        block._loopRun = false;
-                        break;
-                }
-                if (_loopTimeout < 0) {
-                    _loopTimeout = setTimeout(Loop.run, 0);
-                }
-            }
-
-
-        };
-
-
-        static start() {
-            if (_loopTimeout < 0) {
-                _loopTimeout = setTimeout(Loop.run, 0);
-            }
-        };
-
-        static runBlock(ref: RefListRef<Block>) {
-            let block = ref.value;
-            if (block._loopRun) {
-                ref.remove();
-                block._loopRef = null;
-            } else {
-                block.run();
-            }
-        };
-
-        static run() {
-            _loopTimeout = -1;
-
-            let head0 = _loopBlocks0._head;
-            let head1 = _loopBlocks1._head;
-            let head2 = _loopBlocks2._head;
-
-            whileLoop:while (true) {
-                while (true) {
-                    _loopBlocks0Current = head0._next;
-                    if (_loopBlocks0Current === head0) {
-                        break;
-                    } else {
-                        Loop.runBlock(_loopBlocks0Current);
-                    }
-                }
-
-                _loopingPriority = 1;
-                while (true) {
-                    _loopBlocks1Current = head1._next;
-                    if (_loopBlocks1Current === head1) {
-                        break;
-                    } else {
-                        Loop.runBlock(_loopBlocks1Current);
-                    }
-                    if (_loopingPriority === 0) {
-                        _loopBlocks1Current = head1._next;
-                        continue whileLoop;
-                    }
-                }
-
-                _loopingPriority = 2;
-                while (true) {
-                    _loopBlocks2Current = head2._next;
-                    if (_loopBlocks2Current === head2) {
-                        break;
-                    } else {
-                        Loop.runBlock(_loopBlocks2Current);
-                    }
-                    if (_loopingPriority !== 2) {
-                        _loopBlocks2Current = head2._next;
-                        continue whileLoop;
-                    }
-                }
-                break;
-            }
-
-            Loop.tick++;
-        };
-
+  private _schedule() {
+    if (this._loopTimeout < 0) {
+      this._loopTimeout = setTimeout(() => this._run(), 0);
     }
+  }
+
+  add(block: Block) {
+    if (block._queued) return;
+    block._queued = true;
+    this._pendingBlocks.push(block);
+    this._schedule();
+  }
+
+  private _addBlocks(priority: number) {
+    let priorityChanged = false;
+    for (let i = this._pendingBlocks.length - 1; i >= 0; --i) {
+      let block = this._pendingBlocks[i];
+      if (block._logic) {
+        let priority = block._logic.priority;
+        switch (priority) {
+          case 0:
+            this._logicQueue0.push(block);
+            block._queueDone = false;
+            if (priority > 0) {
+              priorityChanged = true;
+            }
+            break;
+          case 1:
+            this._logicQueue1.push(block);
+            block._queueDone = false;
+            if (priority > 1) {
+              priorityChanged = true;
+            }
+            break;
+          case 2:
+            this._logicQueue2.push(block);
+            block._queueDone = false;
+            break;
+        }
+      }
+    }
+    // clear pending blocks
+    this._pendingBlocks.length = 0;
+
+    return priorityChanged;
+  };
+
+  // return true when priority changed
+  private _runBlock(block: Block, priority: number) {
+    block.run();
+    if (this._pendingBlocks.length) {
+      return this._addBlocks(priority);
+    }
+    return false;
+  }
+
+  private _run() {
+    this._addBlocks(0);
+
+    whileLoop:while (true) {
+      while (this._logicQueue0.length) {
+        let block = this._logicQueue0[this._logicQueue0.length - 1];
+        if (block._queueDone) {
+          this._logicQueue0.pop();
+          block._queued = false;
+        } else {
+          this._runBlock(block, 0);
+        }
+      }
+
+      while (this._logicQueue1.length) {
+        let block = this._logicQueue1[this._logicQueue1.length - 1];
+        if (block._queueDone) {
+          this._logicQueue1.pop();
+          block._queued = false;
+        } else if (this._runBlock(block, 1)) {
+          continue whileLoop;
+        }
+      }
+      while (this._logicQueue2.length) {
+        let block = this._logicQueue2[this._logicQueue2.length - 1];
+        if (block._queueDone) {
+          this._logicQueue2.pop();
+          block._queued = false;
+        } else if (this._runBlock(block, 2)) {
+          continue whileLoop;
+        }
+      }
+      break;
+    }
+
+    this._loopTimeout = -1;
+
+    // a almost unique id
+    if (++this._tick == Number.MAX_SAFE_INTEGER) {
+      this._tick = Number.MIN_SAFE_INTEGER;
+    }
+  }
 }

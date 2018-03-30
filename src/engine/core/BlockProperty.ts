@@ -1,100 +1,72 @@
+import {ValueDispatcher, IListen} from "Dispatcher";
+import {Block} from "Block"
 
-    export class BlockProperty implements IDispatch {
+export class BlockProperty extends ValueDispatcher implements IListen {
 
-        _block: Block;
-        _name: string;
-        _listeners: RefList<IListen> = null;
-        _bindingPath: string = null;
-        _pendingDispatch: boolean = false;
+  protected _block: Block;
+  protected _name: string;
+  protected _bindingPath: string = null;
+  protected _bindingSource: ValueDispatcher = null;
 
-        _bindingRef: RefListRef<IListen> = null;
+  protected _saved: any = null;
 
-        _value: any = null;
-        _saved: any = null;
+  constructor(block: Block, name: string) {
+    super();
+    this._block = block;
+    this._name = name;
+  }
 
-        constructor(block: Block, name: string) {
+  onChange(val: any): void {
+    this.updateValue(val);
+  };
 
-            this._block = block;
-            this._name = name;
-        }
-
-        updateValue(val: any): boolean {
-            return false; // to be mixin
-        }
-
-        onDispatch(listener: IListen): void {
-            // to be mixin
-        }
-
-        dispatch() {
-            if (this._listeners) {
-                this._listeners.forEach(this.onDispatch, this);
-            }
-            this._pendingDispatch = false;
-        };
-
-        listen(listener: IListen): RefListRef<IListen> {
-            if (this._listeners == null) {
-                this._listeners = new RefList<IListen>(BlockProperty.prototype.unListen.bind(this));
-            }
-            let r = this._listeners.addValue(listener);
-            listener.onChange(this._value);
-            return r;
-        };
-
-        unListen(ref: RefListRef<IListen>): void {
-            if (this._listeners.isEmpty()) {
-                //TODO check destroy
-            }
-        };
-
-        onChange(val: any): void {
-            this.updateValue(val);
-        };
-
-        setValue(val: any): void {
-            if (this._bindingRef) {
-                this._bindingRef.remove();
-                this._bindingPath = null;
-                this._bindingRef = null
-            }
-            if (val !== this._saved) {
-                this._saved = val;
-            }
-            this.updateValue(val);
-        };
-
-        getValue(): void {
-            return this._value;
-        };
-
-        setBinding(path: string): void {
-            if (path === this._bindingPath) return;
-
-            if (this._bindingRef !== null) {
-                this._bindingRef.remove();
-            }
-            this._saved = null;
-            this._bindingPath = path;
-            this._pendingDispatch = true;
-
-            if (path !== null) {
-                this._bindingRef = this._block.createBinding(path, this);
-            } else {
-                this._bindingRef = null;
-                this.updateValue(null);
-            }
-            if (this._pendingDispatch) {
-                // notify binding changes to links
-                this.dispatch();
-            }
-        };
-
-        _load(val: any): void {
-            this._saved = val;
-            this._value = val;
-            this.dispatch();
-        };
+  setValue(val: any): void {
+    if (this._bindingSource) {
+      this._bindingSource.unlisten(this);
+      this._bindingPath = null;
+      this._bindingSource = null
     }
-    BlockProperty.prototype.updateValue = IDispatch.prototype.updateValue;
-    BlockProperty.prototype.onDispatch = IDispatch.prototype.onDispatch;
+    if (val !== this._saved) {
+      this._saved = val;
+    }
+    this.onChange(val);
+  };
+
+  getValue(): void {
+    return this._value;
+  };
+
+  setBinding(path: string): void {
+    if (path === this._bindingPath) return;
+
+    if (this._bindingSource !== null) {
+      this._bindingSource.unlisten(this);
+    }
+    this._saved = null;
+    this._bindingPath = path;
+
+    if (path !== null) {
+      this._bindingSource = this._block.createBinding(path, this);
+    } else {
+      this._bindingSource = null;
+      this.onChange(null);
+    }
+  };
+
+  _load(val: any): void {
+    this.onChange(val);
+    this._saved = val;
+  };
+}
+
+export class BlockInput extends BlockProperty {
+  constructor(block: Block, name: string) {
+    super(block, name);
+  }
+
+  onChange(val: any): void {
+    if (this.updateValue(val)) {
+      this._block.inputChanged(this, val);
+    }
+  };
+}

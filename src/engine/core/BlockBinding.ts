@@ -1,163 +1,92 @@
-module bzflow {
+import {ValueDispatcher, IListen} from "Dispatcher";
+import {Block} from "Block"
+import {BlockProperty} from "BlockProperty"
 
-    class RefListBindingWrapper implements RefListRef<IListen> {
-        _list: RefList<IListen>;
-        value: IListen;
-        _next: RefListRef<IListen> = null;
-        _prev: RefListRef<IListen> = null;
-        _parkedRef: RefListRef<IListen> = null;
 
-        constructor(list: RefList<IListen>, val: IListen) {
-            this._list = list;
-            this.value = val;
-        }
+export class BlockBinding extends ValueDispatcher implements IListen {
 
-        removed(): boolean {
-            return false;// to be mixin
-        }
+  private _block: Block;
+  private _path: string;
+  private _field: string;
 
-        remove(): void {
-            // to be mixin
-        };
+  private _source: any = null;
 
-        static destroy(wrapper: RefListBindingWrapper) {
-            if (wrapper._parkedRef) {
-                wrapper._parkedRef.remove();
-            }
-        };
+  _parent: ValueDispatcher = null;
+
+  private _prop: BlockProperty = null;
+
+  constructor(block: Block, path: string, field: string) {
+    super();
+    this._block = block;
+    this._path = path;
+    this._field = field;
+  }
+
+  unlisten(listener: IListen) {
+    this._listeners.delete(listener);
+    if (this._prop != null) {
+      this._prop.unlisten(listener);
     }
-
-
-    export class BlockBinding implements IDispatch, IListen {
-        _listeners: RefList<IListen> = null;
-
-        _block: Block;
-        _name: string;
-
-        _value: any = null;
-
-        _source: any = null;
-
-        _parentRef: RefListRef<IListen> = null;
-
-        _prop: BlockProperty = null;
-        _boundPropChanged: (value: RefListRef<IListen>)=>void;
-
-        constructor(block: Block, name: string) {
-            this._block = block;
-            this._name = name;
-
-            this._boundPropChanged = BlockBinding.prototype.boundPropChanged.bind(this);
-        }
-
-
-        updateValue(val: any): boolean {
-            return false; // to be mixin
-        };
-
-        dispatch(): void {
-            // to be mixin
-        };
-
-        onDispatch(listener: IListen): void {
-            // to be mixin
-        };
-
-        private static _addLinkSetNodeWrapper(list: RefList<IListen>, val: IListen): RefListBindingWrapper {
-            let wrapper = new RefListBindingWrapper(list, val);
-            RefList.insertBefore(wrapper, list._head);
-            return wrapper;
-        }
-
-        unListen(wrapper: RefListRef<IListen>) {
-            if ((wrapper as RefListBindingWrapper)._parkedRef) {
-                (wrapper as RefListBindingWrapper)._parkedRef.remove();
-            }
-            if (this._listeners.isEmpty()) {
-                this._listeners = null;
-                //TODO destroy
-            }
-        }
-        ;
-
-        listen(listener: IListen): RefListRef<IListen> {
-            if (this._listeners == null) {
-                this._listeners = new RefList<IListen>(BlockBinding.prototype.unListen.bind(this));
-            }
-            let wrapper = BlockBinding._addLinkSetNodeWrapper(this._listeners, listener);
-
-            if (this._prop != null) {
-                wrapper._parkedRef = this._prop.listen(listener);
-            } else {
-                listener.onChange(this._value);
-            }
-            return wrapper;
-        }
-        ;
-
-
-        onChange(val: any): any {
-            if (this._source === val) {
-                return;
-            }
-            this._source = val;
-            if (val instanceof Block) {
-                this._propChanged(val.getProp(this._name));
-            } else {
-                let bindingChanged = this._propChanged(null);
-                let valueUpdated: boolean;
-                if (val != null && val.__proto__ === Object.prototype && val.hasOwnProperty(this._name)) {
-                    // drill down into object children
-                    valueUpdated = this.updateValue(val[this._name]);
-                } else {
-                    valueUpdated = this.updateValue(null);
-                }
-                if (bindingChanged && !valueUpdated) {
-                    // binding changed to null but value was not updated
-                    // need an extra update on the value
-                    this.dispatch();
-                }
-            }
-        }
-        ;
-
-        _propChanged(prop: BlockProperty): boolean {
-            if (prop == this._prop) return false;
-            this._prop = prop;
-            if (this._listeners) {
-                this._listeners.forEachRef(this._boundPropChanged);
-            }
-            return true;
-        }
-        ;
-
-        private boundPropChanged(wrapper: RefListBindingWrapper): void {
-            if (wrapper._parkedRef) {
-                wrapper.remove();
-            }
-            if (this._prop) {
-                wrapper._parkedRef = this._prop.listen(wrapper.value);
-            } else {
-                wrapper._parkedRef = null;
-            }
-        }
-        ;
-
-        destroy() {
-            if (this._listeners) {
-                this._listeners.forEach(null, RefListBindingWrapper.destroy);
-                this._listeners.clear();
-            }
-            if (this._parentRef) {
-                this._parentRef.remove();
-            }
-        }
-        ;
-
+    if (this._listeners.size == 0) {
+      this.destroy();
     }
-    BlockBinding.prototype.updateValue = IDispatch.prototype.updateValue;
-    BlockBinding.prototype.dispatch = IDispatch.prototype.dispatch;
-    BlockBinding.prototype.onDispatch = IDispatch.prototype.onDispatch;
+  }
 
 
+  listen(listener: IListen) {
+    this._listeners.add(listener);
+    if (this._prop != null) {
+      this._prop.listen(listener);
+    } else if (!this._updating) {
+      // skip extra update if it's already in updating iteration
+      listener.onChange(this._value);
+    }
+  }
+
+  onChange(val: any): any {
+    if (this._source === val) {
+      return;
+    }
+    this._source = val;
+    if (val instanceof Block) {
+      this._propChanged(val.getProp(this._field));
+    } else {
+      this._propChanged(null);
+      if (val != null && typeof val === 'object' && val.hasOwnProperty(this._field)) {
+        // drill down into object children
+        this.updateValue(val[this._field]);
+      } else {
+        this.updateValue(null);
+      }
+    }
+  }
+
+  private _propChanged(prop: BlockProperty): boolean {
+    if (prop === this._prop) return false;
+    if (this._prop) {
+      for (let listener of this._listeners) {
+        this._prop.unlisten(listener);
+      }
+    }
+    this._prop = prop;
+    if (this._prop) {
+      this._value = undefined;
+      for (let listener of this._listeners) {
+        this._prop.listen(listener);
+      }
+    } else {
+      this._value = null;
+    }
+    return true;
+  }
+
+  destroy() {
+    this._propChanged(null);
+    if (this._parent) {
+      this._parent.unlisten(this);
+    }
+    this._block.removeBinding(this._path);
+  }
 }
+
+

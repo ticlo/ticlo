@@ -1,4 +1,3 @@
-module bzflow {
     export interface BlockProxyStructure {
         inputs?: Object;
         outputs?: Object;
@@ -69,5 +68,3 @@ module bzflow {
         }
     };
 
-
-}
