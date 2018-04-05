@@ -38,5 +38,4 @@ export class Job extends Block {
 
   // event loop
 
-
 }

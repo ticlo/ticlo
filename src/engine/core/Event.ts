@@ -1,4 +1,4 @@
-import { Loop } from "./Loop";
+import {Loop} from "./Loop";
 
 export class Event {
   tick: number;
@@ -13,10 +13,10 @@ export class Event {
       return false;
     }
     if (val instanceof Event) {
-      return val.tick == Loop.tick;
+      return val.tick === Loop.tick;
     }
     return true;
-  };
+  }
 
 }
 

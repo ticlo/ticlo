@@ -98,18 +98,4 @@ export class BlockIO extends BlockProperty {
       this.onChange(val);
     }
   }
-
-}
-
-export class BlockControl extends BlockProperty {
-  constructor(block: Block, name: string) {
-    super(block, name);
-  }
-
-  onChange(val: any): void {
-    if (this.updateValue(val)) {
-      this._block.inputChanged(this, val);
-    }
-  }
-
 }
