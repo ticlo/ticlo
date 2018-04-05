@@ -1,26 +1,22 @@
-export interface IListen {
+export interface Listener {
   onChange(val: any): void;
 }
 
-export interface IDestroyable {
-  destroy(): void;
-}
+export interface Dispatcher {
+  listen(listener: Listener): void ;
 
-export interface IDispatcher {
-  listen(listener: IListen): void ;
-
-  unlisten(listener: IListen): void;
+  unlisten(listener: Listener): void;
 
   updateValue(val: any): boolean ;
 }
 
-export class ValueDispatcher implements IDispatcher {
+export class ValueDispatcher implements Dispatcher {
 
-  protected _listeners: Set<IListen> = new Set<IListen>();
+  protected _listeners: Set<Listener> = new Set<Listener>();
   protected _updating = false;
-  protected _value: any = null;
+  _value: any = null;
 
-  listen(listener: IListen) {
+  listen(listener: Listener) {
     this._listeners.add(listener);
     if (!this._updating) {
       // skip extra update if it's already in updating iteration
@@ -28,7 +24,7 @@ export class ValueDispatcher implements IDispatcher {
     }
   }
 
-  unlisten(listener: IListen) {
+  unlisten(listener: Listener) {
     this._listeners.delete(listener);
   }
 

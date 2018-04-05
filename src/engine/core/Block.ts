@@ -1,40 +1,48 @@
-import {BlockProperty, BlockInput} from "BlockProperty"
-import {BlockBinding} from "BlockBinding"
-import {Job} from "Job"
-import {Logic} from "Logic"
-import {IListen} from "Dispatcher";
+import {BlockProperty, BlockIO, BlockControl, BlockAttribute} from "./BlockProperty";
+import {BlockBinding} from "./BlockBinding";
+import {Job} from "./Job";
+import {Logic, LogicGenerator} from "./Logic";
+import {Listener, ValueDispatcher} from "./Dispatcher";
+
+import {Class, Classes} from "./Class";
+import {Loop} from "./Loop";
+import {Event, LogicResult} from "./Event";
+
+type BlockMode = 'auto' | 'manual' | 'disabled' | 'sync';
 
 export class Block {
   _job: Job;
   _prop: BlockProperty;
   _gen: number;
-  _mode: string = 'auto';
+
+  _mode: BlockMode = 'auto';
+
   _props: { [key: string]: BlockProperty } = {};
   _bindings: { [key: string]: BlockBinding } = {};
   _logic: Logic = null;
-  /// register to type change
+  _className: string = null;
+  _class: Class = null;
 
-  _queued: boolean = false;
-  _queueDone: boolean = false;
-  _running: boolean = false;
-  _pOut: BlockOutput;
+  _queued = false;
+  _queueDone = false;
+  _running = false;
+
+  _pOnDone: BlockControl;
 
   _proxy: Object = null;
 
-  constructor(root: BlockRoot, prop: BlockProperty) {
+  constructor(job: Job, prop: BlockProperty) {
 
-    this._job = root;
+    this._job = job;
 
     this._prop = prop;
 
     this._gen = Loop.tick;
-
-    this._pOut = this.getProp('<<');
   }
 
   getProxy(): Object {
     if (!this._proxy) {
-      this._proxy = new Proxy(this, BlockProxy);
+      this._proxy = new Proxy(this, blockProxy);
     }
     return this._proxy;
   }
@@ -48,54 +56,53 @@ export class Block {
     }
     let firstChar = field.charCodeAt(0);
     let prop: BlockProperty;
-    if (firstChar == 62) { // >
-      prop = new BlockInput(this, field);
-    } else if (firstChar == 60) { // <
-      prop = new BlockOutput(this, field);
-      let secondChar = field.charCodeAt(1);
-      if (secondChar == 60) { // <<
-        this._initSysOutput(field, prop);
-      }
-    } else if (firstChar == 64) { // @
-      prop = new BlockMeta(this, field);
+    if (firstChar === 35) { // # controls
+      prop = new BlockControl(this, field);
+    } else if (firstChar === 33) { // ! attributes
+      prop = new BlockProperty(this, field);
     } else {
-      prop = new BlockChild(this, field);
+      prop = new BlockIO(this, field);
     }
     this._props[field] = prop;
     return prop;
-  };
+  }
 
-  createBinding(path: string, listener: IListen): IDispatch {
+  createBinding(path: string, listener: Listener): ValueDispatcher {
     let pos = path.lastIndexOf('.');
     if (pos < 0) {
-      return this.getProp(path).listen(listener);
+      let prop = this.getProp(path);
+      prop.listen(listener);
+      return prop;
     }
     if (this._bindings.hasOwnProperty(path)) {
-      return this._bindings[path].listen(listener);
+      let binding = this._bindings[path];
+      binding.listen(listener);
+      return binding;
     }
     let parentPath = path.substring(0, pos);
+    let field = path.substring(pos + 1);
 
-    let binding = new BlockBinding(this, path);
+    let binding = new BlockBinding(this, path, field);
     this._bindings[path] = binding;
 
     binding._parent = this.createBinding(parentPath, binding);
+    binding.listen(listener);
+    return binding;
+  }
 
-    return binding.listen(listener);
-  };
-
-  removeBinding(path: string) {
+  _removeBinding(path: string) {
     delete this._bindings[path];
   }
 
 
   load(map: { [key: string]: any }) {
     this._load(map);
-  };
+  }
 
   _load(map: { [key: string]: any }) {
-    let pendingType: string;
+    let pendingClass: string;
     for (let key in map) {
-      if (key !== '>>type') {
+      if (key !== '#class') {
         if (key.charCodeAt(0) === 126) { // ~ for binding
           let val = map[key];
           if (typeof val === 'string') {
@@ -106,171 +113,179 @@ export class Block {
           this.getProp('key')._load(map[key]);
         }
       } else {
-        pendingType = map['>>type'];
+        pendingClass = map['#class'];
       }
     }
-    if (pendingType) {
-      this.setValue('>>type', pendingType);
+    if (pendingClass) {
+      this.setValue('#class', pendingClass);
     }
-  };
-
+  }
 
   merge(map: { [key: string]: any }) {
-
-  };
+    // TODO
+  }
 
   setValue(field: string, val: any): void {
     this.getProp(field).setValue(val);
-  };
+  }
 
   updateValue(field: string, val: any): void {
     this.getProp(field).updateValue(val);
-  };
+  }
 
   setBinding(field: string, path: string): void {
     this.getProp(field).setBinding(path);
-  };
+  }
 
   getValue(field: string): any {
     if (this._props.hasOwnProperty(field)) {
       return this._props[field]._value;
     }
     return null;
-  };
+  }
 
   createBlock(field: string): Block {
-    let firstChar = field.charCodeAt(0);
-    if (firstChar < 60 || firstChar > 64) {
+    if (field.charCodeAt(0) > 35) {
       let prop = this.getProp(field);
-      if (prop._value == null || prop._value._prop !== prop) {
+      if (!(prop._value instanceof Block) || prop._value._prop !== prop) {
         let block = new Block(this._job, prop);
         prop.setValue(block);
         return block;
       }
     }
     return null;
-  };
+  }
 
-  inputChanged(input: BlockInput, val: any): void {
-    if (input._isSysInput) {
-      let inputName = input._name;
-      switch (inputName) {
-        case '>>':
-          this.onRun(val);
-          break;
-        case '>>type':
-          this.typeChanged(val);
-          break;
-        case '>>trigger':
-          this.onTrigger(val);
-          break;
-        case '>>mode': // auto, delayed, trigger, disabled
-          this.onMode(val);
-          break;
-      }
-    } else if (this._logic) {
-      if (this._logic.inputChanged(input, val)) {
-        if (this._mode !== 'manual') {
-          this.trigger();
-        }
+  controlChanged(input: BlockIO, val: any) {
+    switch (input._name) {
+      case '#call':
+        this._onCall(val);
+        break;
+      case '#class':
+        this.classChanged(val);
+        break;
+      // case '#trigger':
+      //   this.onTrigger(val);
+      //   break;
+      case '#mode': // auto, delayed, trigger, disabled
+        this._modeChanged(val);
+        break;
+    }
+  }
+
+  inputChanged(input: BlockIO, val: any) {
+    if (this._logic) {
+      if (this._mode === 'auto' && this._logic.inputChanged(input, val)) {
+        this._queueLogic();
       }
     }
-  };
+  }
 
   run(): void {
+    if (!this._job.enabled) {
+      return;
+    }
     this._queueDone = true;
     this._running = true;
-    let out = this._logic.run(null);
+    let result = this._logic.run(null);
     this._running = false;
-    if (out == null) {
-      out = new TcEvent();
-    }
-    this._pOut.updateValue(out);
-  };
-
-  trigger(): void {
-    if (!this._loopRef) {
-      switch (this._mode) {
-        case 'disabled':
-          return;
-        case 'delayed':
-          if (this._gen !== Loop.tick) {
-            return;
-          }
+    if (this._pOnDone) {
+      if (result === null) {
+        result = new LogicResult();
       }
-      Loop.addBlock(this);
+      this._pOnDone.updateValue(result);
     }
-  };
+  }
 
-  onMode(mode: any) {
+
+  _modeChanged(mode: any) {
     switch (mode) {
-      case 'trigger':
-      case 'delayed':
-        this._mode = mode;
-        break;
+      case 'manual':
+      case 'sync':
       case 'disabled':
-      case 'false':
-      case false:
-        this._mode = 'disabled';
+        this._mode = mode;
         break;
       default:
         this._mode = 'auto';
     }
-  };
+  }
 
-  onRun(val: any): void {
+  _onCall(val: any): void {
     if (this._logic && this._mode !== 'disabled') {
-      if (val instanceof TcError) {
-        this._pOut.updateValue(val);
-      } else if (TcEvent.isValid(val)) {
-        this._loopRun = true;
-        let out = this._logic.run(val);
-        if (out == null) {
-          out = val;
+      if (this._mode === 'sync') {
+        if (Event.isValid(val)) {
+          if (LogicResult.isError(val)) {
+            if (this._pOnDone) {
+              this._pOnDone.updateValue(val);
+            }
+          } else {
+            this.run();
+          }
         }
-        this._pOut.updateValue(out);
+      } else {
+        this._queueLogic();
       }
     }
-  };
+  }
 
-  onTrigger(val: any): void {
-    if (this._logic && TcEvent.isValid(val)) {
-      this.trigger();
+  _queueLogic() {
+    // put it in queue
+    if (!this._queued) {
+      this._job.queueBlock(this);
     }
-  };
+  }
 
-  typeChanged(typeName: string) {
-    if (this._typeRef) {
-      this._typeRef.remove();
+
+  classChanged(className: any) {
+    if (className === this._className) return;
+    if (this._class) {
+      this._class.remove(this);
     }
-    if (typeof(typeName) === 'string') {
-      this._typeRef = Types.listen(typeName, this);
+    if (typeof(className) === 'string') {
+      this._class = Classes.listen(className, this);
     } else {
-      this._typeRef = null;
+      this._class = null;
       this.updateLogic(null);
     }
-  };
+  }
 
-  updateLogic(Class: LogicType): void {
+  updateLogic(generator: LogicGenerator): void {
     if (this._logic) {
       this._logic.destroy();
     }
-    if (Class) {
-      this._logic = new Class(this);
+    if (generator) {
+      this._logic = new generator(this);
       if (this._logic.checkInitRun()) {
-        this.trigger();
+        this._queueLogic();
       }
     } else {
       this._logic = null;
     }
-  };
+  }
 
-  _initSysOutput(field: string, prop: BlockOutput): void {
-    // TODO
-  };
 
   destroy(): void {
-    //TODO
-  };
+    // TODO
+  }
 }
+
+const blockProxy = {
+  get(block: Block, field: string, receiver: Object): any {
+    let prop = block._props[field];
+    if (prop) {
+      let val = prop._value;
+      if (val instanceof Block) {
+        return prop._value.getProxy();
+      }
+      return val;
+    }
+    return null;
+  },
+
+  set(block: Block, field: string, value: any, receiver: Object): boolean {
+    let prop = block.getProp(field);
+    prop.updateValue(value);
+    return true;
+  }
+};
 

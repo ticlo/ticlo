@@ -1,9 +1,9 @@
-import {ValueDispatcher, IListen} from "Dispatcher";
-import {Block} from "Block"
-import {BlockProperty} from "BlockProperty"
+import {ValueDispatcher, Listener} from "./Dispatcher";
+import {Block} from "./Block";
+import {BlockProperty} from "./BlockProperty";
 
 
-export class BlockBinding extends ValueDispatcher implements IListen {
+export class BlockBinding extends ValueDispatcher implements Listener {
 
   private _block: Block;
   private _path: string;
@@ -22,18 +22,18 @@ export class BlockBinding extends ValueDispatcher implements IListen {
     this._field = field;
   }
 
-  unlisten(listener: IListen) {
+  unlisten(listener: Listener) {
     this._listeners.delete(listener);
-    if (this._prop != null) {
+    if (this._prop !== null) {
       this._prop.unlisten(listener);
     }
-    if (this._listeners.size == 0) {
+    if (this._listeners.size === 0) {
       this.destroy();
     }
   }
 
 
-  listen(listener: IListen) {
+  listen(listener: Listener) {
     this._listeners.add(listener);
     if (this._prop != null) {
       this._prop.listen(listener);
@@ -85,7 +85,7 @@ export class BlockBinding extends ValueDispatcher implements IListen {
     if (this._parent) {
       this._parent.unlisten(this);
     }
-    this._block.removeBinding(this._path);
+    this._block._removeBinding(this._path);
   }
 }
 

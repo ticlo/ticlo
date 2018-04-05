@@ -1,6 +1,8 @@
 {
   "compilerOptions": {
-    "target": "es6",
+    "target": "es5",
+    "module": "commonjs",
+    "moduleResolution": "node",
     "lib": [
       "es6",
       "dom"
@@ -9,6 +11,7 @@
     "noImplicitAny": true,
     "sourceMap": false
   },
+  "compileOnSave": true,
   "include": [
     "src/**/*"
   ],

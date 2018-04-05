@@ -5,14 +5,13 @@ export interface PropDesc {
 }
 
 export interface PropGroupDesc {
-  group: string,
-  size: string,
-  fields: Array<PropDesc>
+  group: string;
+  size: string;
+  fields: PropDesc[];
 }
 
 export interface LogicDesc {
-  inputs?: Array<PropDesc | PropGroupDesc>;
-  outputs?: Array<PropDesc | PropGroupDesc>;
-  attributes?: Array<PropDesc>;
+  inputs?: (PropDesc | PropGroupDesc)[];
+  outputs?: (PropDesc | PropGroupDesc)[];
+  attributes?: (PropDesc)[];
 }
-

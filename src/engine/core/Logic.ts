@@ -1,12 +1,10 @@
-import {Block} from "Block"
-import {BlockProperty} from "BlockProperty"
-import {LogicDesc} from "Descriptor"
-import {IDestroyable} from "Dispatcher"
+import {Block} from "./Block";
+import {BlockProperty} from "./BlockProperty";
+import {LogicDesc} from "./Descriptor";
 
-
-export class Logic implements IDestroyable {
+export class Logic {
   _block: Block;
-  type: string;
+  class: string;
   priority: number;
   initRun: boolean;
 
@@ -19,43 +17,42 @@ export class Logic implements IDestroyable {
   // return true when it needs to be put in queue
   inputChanged(input: BlockProperty, val: any): boolean {
     return true;
-  };
+  }
 
   // return stream output
   run(val: any): any {
-    // example
-  };
+    // to be overridden
+  }
 
   checkInitRun(): boolean {
     return true;
-  };
+  }
 
   checkInitTrigger(loading: boolean): void {
-
-  };
+    // to be overridden
+  }
 
   blockCommand(command: string, params: Object): void {
-
+    // to be overridden
   }
 
   propCommand(command: string, field: string, params: Object): void {
-
+    // to be overridden
   }
 
   destroy(): void {
-  };
+    // to be overridden
+  }
 
 
 }
 
-Logic.prototype.type = '';
+Logic.prototype.class = '';
 
 Logic.prototype.priority = 0;
 
 Logic.prototype.descriptor = {
-  'inputs': [],
-  'outputs': [],
-  'attributes': [],
+  inputs: [], outputs: [], attributes: [],
 };
 
 /**
@@ -63,4 +60,4 @@ Logic.prototype.descriptor = {
  */
 Logic.prototype.initRun = false;
 
-export type LogicType = new (block: Block) => Logic;
+export type LogicGenerator = new (block: Block) => Logic;

@@ -1,20 +1,18 @@
 import {Block} from "./Block";
 
-
 export class Loop {
-
-  private _tick: number = 0;
-  get tick(): number {
+  private static _tick = 0;
+  static get tick(): number {
     return this._tick;
   }
 
-  private _pendingBlocks: Block[] = [];
+  private _queueWait: Block[] = [];
 
-  private _logicQueue0: Block[] = [];
-  private _logicQueue1: Block[] = [];
-  private _logicQueue2: Block[] = [];
+  private _queue0: Block[] = [];
+  private _queue1: Block[] = [];
+  private _queue2: Block[] = [];
 
-  private _loopTimeout: number = -1;
+  private _loopTimeout = -1;
 
   private _schedule() {
     if (this._loopTimeout < 0) {
@@ -22,83 +20,91 @@ export class Loop {
     }
   }
 
-  add(block: Block) {
+  // manage the queue directly from loop
+  _queue(block: Block) {
     if (block._queued) return;
     block._queued = true;
-    this._pendingBlocks.push(block);
+    this._queueWait.push(block);
     this._schedule();
   }
 
-  private _addBlocks(priority: number) {
+  // assume queue was initially managed by Job, so _queued must be true
+  _addFromJob(block: Block) {
+    if (!block._queued) return;
+    this._queueWait.push(block);
+    this._schedule();
+  }
+
+  private _splitQueue(priority: number) {
     let priorityChanged = false;
-    for (let i = this._pendingBlocks.length - 1; i >= 0; --i) {
-      let block = this._pendingBlocks[i];
+    for (let i = this._queueWait.length - 1; i >= 0; --i) {
+      let block = this._queueWait[i];
       if (block._logic) {
         let priority = block._logic.priority;
         switch (priority) {
           case 0:
-            this._logicQueue0.push(block);
+            this._queue0.push(block);
             block._queueDone = false;
             if (priority > 0) {
               priorityChanged = true;
             }
             break;
           case 1:
-            this._logicQueue1.push(block);
+            this._queue1.push(block);
             block._queueDone = false;
             if (priority > 1) {
               priorityChanged = true;
             }
             break;
           case 2:
-            this._logicQueue2.push(block);
+            this._queue2.push(block);
             block._queueDone = false;
             break;
         }
       }
     }
     // clear pending blocks
-    this._pendingBlocks.length = 0;
+    this._queueWait.length = 0;
 
     return priorityChanged;
-  };
+  }
 
   // return true when priority changed
   private _runBlock(block: Block, priority: number) {
     block.run();
-    if (this._pendingBlocks.length) {
-      return this._addBlocks(priority);
+    if (this._queueWait.length) {
+      return this._splitQueue(priority);
     }
     return false;
   }
 
   private _run() {
-    this._addBlocks(0);
+    this._splitQueue(0);
 
-    whileLoop:while (true) {
-      while (this._logicQueue0.length) {
-        let block = this._logicQueue0[this._logicQueue0.length - 1];
+    whileLoop: while (true) {
+      while (this._queue0.length) {
+        let block = this._queue0[this._queue0.length - 1];
         if (block._queueDone) {
-          this._logicQueue0.pop();
+          this._queue0.pop();
           block._queued = false;
         } else {
           this._runBlock(block, 0);
         }
       }
 
-      while (this._logicQueue1.length) {
-        let block = this._logicQueue1[this._logicQueue1.length - 1];
+      while (this._queue1.length) {
+        let block = this._queue1[this._queue1.length - 1];
         if (block._queueDone) {
-          this._logicQueue1.pop();
+          this._queue1.pop();
           block._queued = false;
         } else if (this._runBlock(block, 1)) {
           continue whileLoop;
         }
       }
-      while (this._logicQueue2.length) {
-        let block = this._logicQueue2[this._logicQueue2.length - 1];
+      while (this._queue2.length) {
+        let block = this._queue2[this._queue2.length - 1];
         if (block._queueDone) {
-          this._logicQueue2.pop();
+          this._queue2.pop();
           block._queued = false;
         } else if (this._runBlock(block, 2)) {
           continue whileLoop;
@@ -109,9 +115,19 @@ export class Loop {
 
     this._loopTimeout = -1;
 
-    // a almost unique id
-    if (++this._tick == Number.MAX_SAFE_INTEGER) {
-      this._tick = Number.MIN_SAFE_INTEGER;
+    // almost unique id
+    if (++Loop._tick === Number.MAX_SAFE_INTEGER) {
+      Loop._tick = Number.MIN_SAFE_INTEGER;
     }
+  }
+
+  static _instance = new Loop();
+
+  static queueJob(block: Block) {
+    Loop._instance._addFromJob(block);
+  }
+
+  static run() {
+    Loop._instance._run();
   }
 }
