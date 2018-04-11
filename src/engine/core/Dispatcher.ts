@@ -3,18 +3,18 @@ export interface Listener {
 }
 
 export interface Dispatcher {
-  listen(listener: Listener): void ;
+  listen(listener: Listener): void;
 
   unlisten(listener: Listener): void;
 
-  updateValue(val: any): boolean ;
+  updateValue(val: any): boolean;
 }
 
 export class ValueDispatcher implements Dispatcher {
 
   protected _listeners: Set<Listener> = new Set<Listener>();
   protected _updating = false;
-  _value: any = null;
+  _value: any;
 
   listen(listener: Listener) {
     this._listeners.add(listener);

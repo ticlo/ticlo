@@ -24,7 +24,7 @@ export class BlockBinding extends ValueDispatcher implements Listener {
 
   unlisten(listener: Listener) {
     this._listeners.delete(listener);
-    if (this._prop !== null) {
+    if (this._prop != null) {
       this._prop.unlisten(listener);
     }
     if (this._listeners.size === 0) {

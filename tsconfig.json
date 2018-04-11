@@ -1,15 +1,14 @@
 {
   "compilerOptions": {
-    "target": "es5",
+    "target": "es6",
     "module": "commonjs",
     "moduleResolution": "node",
     "lib": [
-      "es6",
-      "dom"
+      "es6"
     ],
     "alwaysStrict": true,
     "noImplicitAny": true,
-    "sourceMap": false
+    "sourceMap": true
   },
   "compileOnSave": true,
   "include": [

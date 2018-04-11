@@ -5,7 +5,7 @@ import {Loop} from "./Loop";
 export class Job extends Block {
 
   private _queueWait: Block[] = [];
-  private _enabled = true;
+  _enabled: boolean = true;
 
   set enabled(val: boolean) {
     if (this._enabled === val) return;

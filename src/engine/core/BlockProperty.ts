@@ -5,8 +5,8 @@ export class BlockProperty extends ValueDispatcher implements Listener {
 
   protected _block: Block;
   _name: string;
-  protected _bindingPath: string = null;
-  protected _bindingSource: ValueDispatcher = null;
+  protected _bindingPath: string;
+  protected _bindingSource: ValueDispatcher;
 
   protected _saved: any = null;
 
@@ -19,6 +19,19 @@ export class BlockProperty extends ValueDispatcher implements Listener {
   onChange(val: any): void {
     this.updateValue(val);
   }
+
+  updateValue(val: any): boolean {
+    if (this._value === val) {
+      return false;
+    }
+    if (this._value instanceof Block && this._value._prop === this) {
+      this._value.destroy();
+    }
+    this._value = val;
+    this._dispatch();
+    return true;
+  }
+
 
   setValue(val: any): void {
     if (this._bindingSource) {
@@ -39,50 +52,18 @@ export class BlockProperty extends ValueDispatcher implements Listener {
   setBinding(path: string): void {
     if (path === this._bindingPath) return;
 
-    if (this._bindingSource !== null) {
+    if (this._bindingSource != null) {
       this._bindingSource.unlisten(this);
     }
     this._saved = null;
     this._bindingPath = path;
 
-    if (path !== null) {
+    if (path != null) {
       this._bindingSource = this._block.createBinding(path, this);
     } else {
       this._bindingSource = null;
       this.onChange(null);
     }
-  }
-
-  _load(val: any): void {
-    this._saved = val;
-    this.onChange(val);
-
-  }
-}
-
-export type BlockAttribute = BlockProperty;
-
-export class BlockIO extends BlockProperty {
-  constructor(block: Block, name: string) {
-    super(block, name);
-  }
-
-  onChange(val: any): void {
-    if (this.updateValue(val)) {
-      this._block.inputChanged(this, val);
-    }
-  }
-
-  updateValue(val: any): any {
-    if (this._value === val) {
-      return false;
-    }
-    if (this._value instanceof Block && this._value._prop === this) {
-      this._value.destroy();
-    }
-    this._value = val;
-    this._dispatch();
-    return true;
   }
 
   _load(val: any): void {
@@ -96,6 +77,30 @@ export class BlockIO extends BlockProperty {
     } else {
       this._saved = val;
       this.onChange(val);
+    }
+  }
+}
+
+export class BlockIO extends BlockProperty {
+  constructor(block: Block, name: string) {
+    super(block, name);
+  }
+
+  onChange(val: any): void {
+    if (this.updateValue(val)) {
+      this._block.inputChanged(this, val);
+    }
+  }
+}
+
+export class BlockControl extends BlockProperty {
+  constructor(block: Block, name: string) {
+    super(block, name);
+  }
+
+  onChange(val: any): void {
+    if (this.updateValue(val)) {
+      this._block.controlChanged(this, val);
     }
   }
 }

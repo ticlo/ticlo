@@ -1,17 +1,20 @@
+export type ValueType = 'number' | 'string' | 'bool' | 'map' | 'array' | 'dynamic';
+
 export interface PropDesc {
   name: string;
-  type: string;
+  type: ValueType;
   editor?: string;
 }
 
 export interface PropGroupDesc {
   group: string;
-  size: string;
-  fields: PropDesc[];
+  type: ValueType;
+  editor?: string;
+  length?: number;
 }
 
 export interface LogicDesc {
   inputs?: (PropDesc | PropGroupDesc)[];
-  outputs?: (PropDesc | PropGroupDesc)[];
+  outputs?: PropDesc[];
   attributes?: (PropDesc)[];
 }

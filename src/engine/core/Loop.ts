@@ -12,10 +12,11 @@ export class Loop {
   private _queue1: Block[] = [];
   private _queue2: Block[] = [];
 
-  private _loopTimeout = -1;
+  // for both browser and node
+  private _loopTimeout: any;
 
   private _schedule() {
-    if (this._loopTimeout < 0) {
+    if (!(this._loopTimeout)) {
       this._loopTimeout = setTimeout(() => this._run(), 0);
     }
   }
@@ -35,6 +36,7 @@ export class Loop {
     this._schedule();
   }
 
+  // return true when running priority need to change
   private _splitQueue(priority: number) {
     let priorityChanged = false;
     for (let i = this._queueWait.length - 1; i >= 0; --i) {
@@ -113,7 +115,7 @@ export class Loop {
       break;
     }
 
-    this._loopTimeout = -1;
+    this._loopTimeout = null;
 
     // almost unique id
     if (++Loop._tick === Number.MAX_SAFE_INTEGER) {

@@ -1,16 +1,16 @@
-import {BlockProperty, BlockIO, BlockControl, BlockAttribute} from "./BlockProperty";
+import {BlockControl, BlockProperty, BlockIO} from "./BlockProperty";
 import {BlockBinding} from "./BlockBinding";
 import {Job} from "./Job";
-import {Logic, LogicGenerator} from "./Logic";
+import {LogicData, Logic, LogicGenerator} from "./Logic";
 import {Listener, ValueDispatcher} from "./Dispatcher";
 
 import {Class, Classes} from "./Class";
 import {Loop} from "./Loop";
 import {Event, LogicResult} from "./Event";
 
-type BlockMode = 'auto' | 'manual' | 'disabled' | 'sync';
+export type BlockMode = 'auto' | 'manual' | 'disabled' | 'sync';
 
-export class Block {
+export class Block implements LogicData {
   _job: Job;
   _prop: BlockProperty;
   _gen: number;
@@ -27,7 +27,7 @@ export class Block {
   _queueDone = false;
   _running = false;
 
-  _pOnDone: BlockControl;
+  _pOnDone: BlockProperty;
 
   _proxy: Object = null;
 
@@ -56,10 +56,16 @@ export class Block {
     }
     let firstChar = field.charCodeAt(0);
     let prop: BlockProperty;
-    if (firstChar === 35) { // # controls
-      prop = new BlockControl(this, field);
-    } else if (firstChar === 33) { // ! attributes
-      prop = new BlockProperty(this, field);
+    if (firstChar < 36) {
+      if (firstChar === 35) {
+        // # controls
+        prop = new BlockControl(this, field);
+      } else {
+        // ! metadata
+        prop = new BlockProperty(this, field);
+      }
+
+
     } else {
       prop = new BlockIO(this, field);
     }
@@ -133,6 +139,10 @@ export class Block {
     this.getProp(field).updateValue(val);
   }
 
+  output(val: any): void {
+    this.getProp('output').updateValue(val);
+  }
+
   setBinding(field: string, path: string): void {
     this.getProp(field).setBinding(path);
   }
@@ -141,7 +151,7 @@ export class Block {
     if (this._props.hasOwnProperty(field)) {
       return this._props[field]._value;
     }
-    return null;
+    return undefined;
   }
 
   createBlock(field: string): Block {
@@ -181,16 +191,16 @@ export class Block {
     }
   }
 
-  run(): void {
-    if (!this._job.enabled) {
+  run() {
+    this._queueDone = true;
+    if (!this._job._enabled) {
       return;
     }
-    this._queueDone = true;
     this._running = true;
-    let result = this._logic.run(null);
+    let result = this._logic.run();
     this._running = false;
     if (this._pOnDone) {
-      if (result === null) {
+      if (result == null) {
         result = new LogicResult();
       }
       this._pOnDone.updateValue(result);
@@ -255,7 +265,7 @@ export class Block {
     }
     if (generator) {
       this._logic = new generator(this);
-      if (this._logic.checkInitRun()) {
+      if (this._logic.checkInitRun(this._mode)) {
         this._queueLogic();
       }
     } else {

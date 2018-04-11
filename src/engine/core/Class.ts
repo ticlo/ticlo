@@ -39,6 +39,7 @@ let _typesFinalized = false;
 
 export class Classes {
   static add(name: string, cls: LogicGenerator) {
+    cls.prototype.className = name;
     let type = _types[name];
 
     if (!type) {

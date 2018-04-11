@@ -1,31 +1,38 @@
-import {Block} from "./Block";
-import {BlockProperty} from "./BlockProperty";
+import {BlockIO} from "./BlockProperty";
 import {LogicDesc} from "./Descriptor";
+import {BlockMode} from "./Block";
+
+export interface LogicData {
+  output(value: any): void;
+
+  getValue(field: string): any;
+
+  updateValue(field: string, val: any): void;
+}
 
 export class Logic {
-  _block: Block;
-  class: string;
+  _data: LogicData;
+  className: string;
   priority: number;
-  initRun: boolean;
 
-  constructor(block: Block) {
-    this._block = block;
+  constructor(block: LogicData) {
+    this._data = block;
   }
 
   descriptor: LogicDesc;
 
   // return true when it needs to be put in queue
-  inputChanged(input: BlockProperty, val: any): boolean {
+  inputChanged(input: BlockIO, val: any): boolean {
     return true;
   }
 
   // return stream output
-  run(val: any): any {
+  run(): any {
     // to be overridden
   }
 
-  checkInitRun(): boolean {
-    return true;
+  checkInitRun(mode: BlockMode): boolean {
+    return mode === 'auto';
   }
 
   checkInitTrigger(loading: boolean): void {
@@ -44,10 +51,9 @@ export class Logic {
     // to be overridden
   }
 
-
 }
 
-Logic.prototype.class = '';
+Logic.prototype.className = '';
 
 Logic.prototype.priority = 0;
 
@@ -55,9 +61,4 @@ Logic.prototype.descriptor = {
   inputs: [], outputs: [], attributes: [],
 };
 
-/**
- * whether the logic should be run right after it's created
- */
-Logic.prototype.initRun = false;
-
-export type LogicGenerator = new (block: Block) => Logic;
+export type LogicGenerator = new (block: Object) => Logic;

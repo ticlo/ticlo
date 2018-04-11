@@ -65,13 +65,20 @@
     "no-double-space": true,
     "no-in-operator": true,
     "no-increment-decrement": true,
-    "no-inferrable-types": true,
+    "no-inferrable-types": [
+      true,
+      "ignore-params",
+      "ignore-properties"
+    ],
     "no-internal-module": true,
     "no-null-keyword": false,
     "no-switch-case-fall-through": true,
     "no-trailing-whitespace": [
       true,
-      "ignore-template-strings"
+      "ignore-comments",
+      "ignore-jsdoc",
+      "ignore-template-strings",
+      "ignore-blank-lines"
     ],
     "no-type-assertion-whitespace": true,
     "no-unnecessary-qualifier": true,
