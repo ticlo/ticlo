@@ -10,10 +10,10 @@ export interface PropGroupDesc {
   group: string;
   type: ValueType;
   editor?: string;
-  length?: number;
 }
 
 export interface LogicDesc {
+  useLength?: boolean;
   inputs?: (PropDesc | PropGroupDesc)[];
   outputs?: PropDesc[];
   attributes?: (PropDesc)[];

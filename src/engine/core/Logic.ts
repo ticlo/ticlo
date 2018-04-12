@@ -1,13 +1,22 @@
-import {BlockIO} from "./BlockProperty";
+import {BlockIO, BlockProperty} from "./BlockProperty";
 import {LogicDesc} from "./Descriptor";
 import {BlockMode} from "./Block";
 
 export interface LogicData {
-  output(value: any): void;
-
   getValue(field: string): any;
 
   updateValue(field: string, val: any): void;
+
+  // a simple way of calling updateValue('output', value)
+  output(value: any): void;
+
+  getLength(): number;
+
+  // get the property when it's a block, otherwise return null
+  getProperty(field: string): BlockProperty;
+
+  // get a Object that allows script to direct access its field,
+  getRawObject(): any;
 }
 
 export class Logic {
@@ -33,10 +42,6 @@ export class Logic {
 
   checkInitRun(mode: BlockMode): boolean {
     return mode === 'auto';
-  }
-
-  checkInitTrigger(loading: boolean): void {
-    // to be overridden
   }
 
   blockCommand(command: string, params: Object): void {

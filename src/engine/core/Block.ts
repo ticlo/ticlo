@@ -1,4 +1,5 @@
-import {BlockControl, BlockProperty, BlockIO} from "./BlockProperty";
+import {BlockProperty, BlockPropertyHelper, BlockIO} from "./BlockProperty";
+import {BlockCallControl, BlockClassControl, BlockLengthControl, BlockModeControl} from "./BlockControls";
 import {BlockBinding} from "./BlockBinding";
 import {Job} from "./Job";
 import {LogicData, Logic, LogicGenerator} from "./Logic";
@@ -27,8 +28,6 @@ export class Block implements LogicData {
   _queueDone = false;
   _running = false;
 
-  _pOnDone: BlockProperty;
-
   _proxy: Object = null;
 
   constructor(job: Job, prop: BlockProperty) {
@@ -40,14 +39,14 @@ export class Block implements LogicData {
     this._gen = Loop.tick;
   }
 
-  getProxy(): Object {
+  getRawObject(): any {
     if (!this._proxy) {
       this._proxy = new Proxy(this, blockProxy);
     }
     return this._proxy;
   }
 
-  getProp(field: string): BlockProperty {
+  getProperty(field: string): BlockProperty {
     if (this._props.hasOwnProperty(field)) {
       return this._props[field];
     }
@@ -56,16 +55,31 @@ export class Block implements LogicData {
     }
     let firstChar = field.charCodeAt(0);
     let prop: BlockProperty;
-    if (firstChar < 36) {
-      if (firstChar === 35) {
-        // # controls
-        prop = new BlockControl(this, field);
-      } else {
-        // ! metadata
-        prop = new BlockProperty(this, field);
+
+    if (firstChar === 35) {
+      // # controls
+      switch (field) {
+        case '#class':
+          prop = new BlockClassControl(this, field);
+          break;
+        case '#mode':
+          prop = new BlockModeControl(this, field);
+          break;
+        case '#call':
+          prop = new BlockCallControl(this, field);
+          break;
+        case '#length':
+          prop = new BlockLengthControl(this, field);
+          break;
+        default:
+          prop = new BlockProperty(this, field);
       }
-
-
+    } else if (firstChar === 33) {
+      // ! property helper
+      prop = new BlockPropertyHelper(this, field);
+    } else if (firstChar === 64) {
+      // @ attribute
+      prop = new BlockProperty(this, field);
     } else {
       prop = new BlockIO(this, field);
     }
@@ -76,7 +90,7 @@ export class Block implements LogicData {
   createBinding(path: string, listener: Listener): ValueDispatcher {
     let pos = path.lastIndexOf('.');
     if (pos < 0) {
-      let prop = this.getProp(path);
+      let prop = this.getProperty(path);
       prop.listen(listener);
       return prop;
     }
@@ -116,7 +130,7 @@ export class Block implements LogicData {
             this.setBinding(name, val);
           }
         } else {
-          this.getProp('key')._load(map[key]);
+          this.getProperty('key')._load(map[key]);
         }
       } else {
         pendingClass = map['#class'];
@@ -132,19 +146,19 @@ export class Block implements LogicData {
   }
 
   setValue(field: string, val: any): void {
-    this.getProp(field).setValue(val);
+    this.getProperty(field).setValue(val);
   }
 
   updateValue(field: string, val: any): void {
-    this.getProp(field).updateValue(val);
+    this.getProperty(field).updateValue(val);
   }
 
   output(val: any): void {
-    this.getProp('output').updateValue(val);
+    this.getProperty('output').updateValue(val);
   }
 
   setBinding(field: string, path: string): void {
-    this.getProp(field).setBinding(path);
+    this.getProperty(field).setBinding(path);
   }
 
   getValue(field: string): any {
@@ -156,7 +170,7 @@ export class Block implements LogicData {
 
   createBlock(field: string): Block {
     if (field.charCodeAt(0) > 35) {
-      let prop = this.getProp(field);
+      let prop = this.getProperty(field);
       if (!(prop._value instanceof Block) || prop._value._prop !== prop) {
         let block = new Block(this._job, prop);
         prop.setValue(block);
@@ -164,23 +178,6 @@ export class Block implements LogicData {
       }
     }
     return null;
-  }
-
-  controlChanged(input: BlockIO, val: any) {
-    switch (input._name) {
-      case '#call':
-        this._onCall(val);
-        break;
-      case '#class':
-        this.classChanged(val);
-        break;
-      // case '#trigger':
-      //   this.onTrigger(val);
-      //   break;
-      case '#mode': // auto, delayed, trigger, disabled
-        this._modeChanged(val);
-        break;
-    }
   }
 
   inputChanged(input: BlockIO, val: any) {
@@ -199,11 +196,11 @@ export class Block implements LogicData {
     this._running = true;
     let result = this._logic.run();
     this._running = false;
-    if (this._pOnDone) {
+    if (this._props['#pipe']) {
       if (result == null) {
         result = new LogicResult();
       }
-      this._pOnDone.updateValue(result);
+      this._props['#pipe'].updateValue(result);
     }
   }
 
@@ -225,15 +222,17 @@ export class Block implements LogicData {
       if (this._mode === 'sync') {
         if (Event.isValid(val)) {
           if (LogicResult.isError(val)) {
-            if (this._pOnDone) {
-              this._pOnDone.updateValue(val);
+            if (this._props['#pipe']) {
+              this._props['#pipe'].updateValue(val);
             }
           } else {
             this.run();
           }
         }
       } else {
-        this._queueLogic();
+        if (LogicResult.isValid(val)) {
+          this._queueLogic();
+        }
       }
     }
   }
@@ -246,7 +245,7 @@ export class Block implements LogicData {
   }
 
 
-  classChanged(className: any) {
+  _classChanged(className: any) {
     if (className === this._className) return;
     if (this._class) {
       this._class.remove(this);
@@ -257,6 +256,22 @@ export class Block implements LogicData {
       this._class = null;
       this.updateLogic(null);
     }
+  }
+
+  _cachedLength: number = NaN;
+
+  _lengthChanged(length: any) {
+    let newLen = Number(length);
+    if (newLen !== this._cachedLength && (newLen === newLen || this._cachedLength === this._cachedLength)) {
+      this._cachedLength = newLen;
+      if (this._logic && this._logic.descriptor.useLength && this._mode === 'auto') {
+        this._queueLogic();
+      }
+    }
+  }
+
+  getLength(): number {
+    return this._cachedLength;
   }
 
   updateLogic(generator: LogicGenerator): void {
@@ -293,7 +308,7 @@ const blockProxy = {
   },
 
   set(block: Block, field: string, value: any, receiver: Object): boolean {
-    let prop = block.getProp(field);
+    let prop = block.getProperty(field);
     prop.updateValue(value);
     return true;
   }

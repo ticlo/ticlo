@@ -14,10 +14,11 @@ export class Loop {
 
   // for both browser and node
   private _loopTimeout: any;
+  private _loopRunning: boolean = false;
 
   private _schedule() {
-    if (!(this._loopTimeout)) {
-      this._loopTimeout = setTimeout(() => this._run(), 0);
+    if (!(this._loopTimeout || this._loopRunning)) {
+      this._loopTimeout = setTimeout(() => this._runTimer(), 0);
     }
   }
 
@@ -80,7 +81,13 @@ export class Loop {
     return false;
   }
 
+  private _runTimer() {
+    this._loopTimeout = null;
+    this._run();
+  }
+
   private _run() {
+    this._loopRunning = true;
     this._splitQueue(0);
 
     whileLoop: while (true) {
@@ -115,12 +122,11 @@ export class Loop {
       break;
     }
 
-    this._loopTimeout = null;
-
     // almost unique id
     if (++Loop._tick === Number.MAX_SAFE_INTEGER) {
       Loop._tick = Number.MIN_SAFE_INTEGER;
     }
+    this._loopRunning = false;
   }
 
   static _instance = new Loop();

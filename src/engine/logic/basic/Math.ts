@@ -1,13 +1,11 @@
 import {Classes} from "../../core/Class";
-import {Block} from "../../core/Block";
-import {Logic} from "../../core/Logic";
+import {Logic, LogicData} from "../../core/Logic";
 import {LogicDesc} from "../../core/Descriptor";
 
 const descriptorN: LogicDesc = {
+  useLength: true,
   inputs: [
-    {
-      group: '', type: 'number'
-    }
+    {group: '', type: 'number'}
   ],
   outputs: [
     {name: 'output', type: 'number'}
@@ -15,9 +13,8 @@ const descriptorN: LogicDesc = {
 };
 const descriptor2: LogicDesc = {
   inputs: [
-    {
-      group: '', type: 'number', length: 2
-    }
+    {name: '0', type: 'number'},
+    {name: '1', type: 'number'}
   ],
   outputs: [
     {name: 'output', type: 'number'}
@@ -26,12 +23,12 @@ const descriptor2: LogicDesc = {
 
 
 export class Add extends Logic {
-  constructor(block: Block) {
+  constructor(block: LogicData) {
     super(block);
   }
 
   run(): any {
-    let len = this._data.getValue('length');
+    let len = this._data.getLength();
     if (!(len >= 0)) {
       len = 2;
     }
@@ -58,12 +55,12 @@ Classes.add('add', Add);
 
 
 export class Multiply extends Logic {
-  constructor(block: Block) {
+  constructor(block: LogicData) {
     super(block);
   }
 
   run(): any {
-    let len = this._data.getValue('length');
+    let len = this._data.getLength();
     if (!(len >= 0)) {
       len = 2;
     }
@@ -90,7 +87,7 @@ Classes.add('multiply', Multiply);
 
 
 export class Subtract extends Logic {
-  constructor(block: Block) {
+  constructor(block: LogicData) {
     super(block);
   }
 
@@ -111,7 +108,7 @@ Classes.add('subtract', Subtract);
 
 
 export class Divide extends Logic {
-  constructor(block: Block) {
+  constructor(block: LogicData) {
     super(block);
   }
 

@@ -49,7 +49,7 @@ export class BlockBinding extends ValueDispatcher implements Listener {
     }
     this._source = val;
     if (val instanceof Block) {
-      this._propChanged(val.getProp(this._field));
+      this._propChanged(val.getProperty(this._field));
     } else {
       this._propChanged(null);
       if (val != null && typeof val === 'object' && val.hasOwnProperty(this._field)) {

@@ -67,7 +67,7 @@ export class BlockProperty extends ValueDispatcher implements Listener {
   }
 
   _load(val: any): void {
-    if (val instanceof Object && val.hasOwnProperty('#type')) {
+    if (val instanceof Object && val != null && val.hasOwnProperty('#class')) {
       let block = new Block(this._block._job, this);
       this._saved = block;
       this._value = block;
@@ -93,14 +93,10 @@ export class BlockIO extends BlockProperty {
   }
 }
 
-export class BlockControl extends BlockProperty {
+// holds helper logic that output to another property of its owner
+// property name is `!${relatedPropertyName}`
+export class BlockPropertyHelper extends BlockProperty {
   constructor(block: Block, name: string) {
     super(block, name);
-  }
-
-  onChange(val: any): void {
-    if (this.updateValue(val)) {
-      this._block.controlChanged(this, val);
-    }
   }
 }

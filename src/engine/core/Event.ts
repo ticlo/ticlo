@@ -30,7 +30,22 @@ export class LogicResult extends Event {
     this.detail = detail;
   }
 
-  static isError(input: any) {
-    return input instanceof LogicResult && input.type != null;
+  static isError(val: any) {
+    return val instanceof LogicResult && val.type != null;
+  }
+
+  // is valid event and not error
+  static isValidCall(val: any) {
+    if (val == null) {
+      return false;
+    }
+
+    if (val instanceof Event) {
+      if (val instanceof LogicResult && val.type != null) {
+        return false;
+      }
+      return val.tick === Loop.tick;
+    }
+    return true;
   }
 }
