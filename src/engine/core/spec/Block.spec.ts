@@ -1,7 +1,7 @@
 import * as assert from "assert";
-import {Block} from "../Block";
+import { Block } from "../Block";
 
-import {Job} from "../Job";
+import { Job } from "../Job";
 
 describe("Block", () => {
 

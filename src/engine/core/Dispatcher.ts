@@ -1,4 +1,6 @@
 export interface Listener {
+  onSourceChange(prop: Dispatcher): void;
+
   onChange(val: any): void;
 }
 
@@ -18,6 +20,7 @@ export class ValueDispatcher implements Dispatcher {
 
   listen(listener: Listener) {
     this._listeners.add(listener);
+    listener.onSourceChange(this);
     if (!this._updating) {
       // skip extra update if it's already in updating iteration
       listener.onChange(this._value);

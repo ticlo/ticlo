@@ -1,5 +1,5 @@
-import {ValueDispatcher, Listener} from "./Dispatcher";
-import {Block} from "./Block";
+import { ValueDispatcher, Listener, Dispatcher } from "./Dispatcher";
+import { Block } from "./Block";
 
 export class BlockProperty extends ValueDispatcher implements Listener {
 
@@ -15,7 +15,9 @@ export class BlockProperty extends ValueDispatcher implements Listener {
     this._block = block;
     this._name = name;
   }
-
+  onSourceChange(prop: Dispatcher) {
+    // do nothing
+  }
   onChange(val: any): void {
     this.updateValue(val);
   }
@@ -68,7 +70,7 @@ export class BlockProperty extends ValueDispatcher implements Listener {
 
   _load(val: any): void {
     if (val instanceof Object && val != null && val.hasOwnProperty('#class')) {
-      let block = new Block(this._block._job, this);
+      let block = new Block(this._block._job, this._block, this);
       this._saved = block;
       this._value = block;
       block._load(val);

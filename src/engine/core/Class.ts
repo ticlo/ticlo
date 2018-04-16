@@ -1,5 +1,5 @@
-import {Block} from "./Block";
-import {Logic, LogicGenerator} from "./Logic";
+import { Block } from "./Block";
+import { Logic, LogicGenerator } from "./Logic";
 
 export class Class {
   _generator: LogicGenerator = null;

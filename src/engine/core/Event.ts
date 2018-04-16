@@ -1,4 +1,4 @@
-import {Loop} from "./Loop";
+import { Loop } from "./Loop";
 
 export class Event {
   tick: number;

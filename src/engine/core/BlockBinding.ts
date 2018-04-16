@@ -1,6 +1,6 @@
-import {ValueDispatcher, Listener} from "./Dispatcher";
-import {Block} from "./Block";
-import {BlockProperty} from "./BlockProperty";
+import { ValueDispatcher, Listener, Dispatcher } from "./Dispatcher";
+import { Block } from "./Block";
+import { BlockProperty } from "./BlockProperty";
 
 
 export class BlockBinding extends ValueDispatcher implements Listener {
@@ -43,6 +43,10 @@ export class BlockBinding extends ValueDispatcher implements Listener {
     }
   }
 
+  onSourceChange(source: Dispatcher) {
+    // do nothing
+  }
+
   onChange(val: any): any {
     if (this._source === val) {
       return;
@@ -66,6 +70,7 @@ export class BlockBinding extends ValueDispatcher implements Listener {
     if (this._prop) {
       for (let listener of this._listeners) {
         this._prop.unlisten(listener);
+        listener.onSourceChange(null);
       }
     }
     this._prop = prop;

@@ -1,7 +1,7 @@
-import {Classes} from "../../core/Class";
-import {Logic, LogicData} from "../../core/Logic";
-import {BlockIO, BlockProperty} from "../../core/BlockProperty";
-import {LogicResult} from "../../core/Event";
+import { Classes } from "../../core/Class";
+import { Logic, LogicData } from "../../core/Logic";
+import { BlockIO, BlockProperty } from "../../core/BlockProperty";
+import { LogicResult } from "../../core/Event";
 
 const SCRIPT_ERROR = 'scriptError';
 

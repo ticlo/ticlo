@@ -1,7 +1,7 @@
 import * as assert from "assert";
 import "../Math";
-import {Job} from "../../../core/Job";
-import {Loop} from "../../../core/Loop";
+import { Job } from "../../../core/Job";
+import { Loop } from "../../../core/Loop";
 
 describe("Math", () => {
 

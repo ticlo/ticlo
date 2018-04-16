@@ -1,6 +1,5 @@
 {
   "extends": "tslint:latest",
-  //"rulesDirectory": "built/local/tslint/rules",
   "rules": {
     "no-unnecessary-type-assertion-2": true,
     "array-type": [
@@ -12,10 +11,6 @@
         [
           "Object",
           "Avoid using the `Object` type. Did you mean `object`?"
-        ],
-        [
-          "Function",
-          "Avoid using the `Function` type. Prefer a specific function type, like `() => void`, or use `ts.AnyFunction`."
         ],
         [
           "Boolean",
@@ -149,14 +144,10 @@
       "check-format",
       "allow-leading-underscore"
     ],
-    // TODO
     "arrow-parens": false,
-    // [true, "ban-single-arg-parens"]
     "arrow-return-shorthand": false,
-    "ban-types": false,
     "forin": false,
     "member-access": false,
-    // [true, "no-public"]
     "no-conditional-assignment": false,
     "no-console": false,
     "no-debugger": false,

@@ -1,18 +1,19 @@
-import {BlockProperty, BlockPropertyHelper, BlockIO} from "./BlockProperty";
-import {BlockCallControl, BlockClassControl, BlockLengthControl, BlockModeControl} from "./BlockControls";
-import {BlockBinding} from "./BlockBinding";
-import {Job} from "./Job";
-import {LogicData, Logic, LogicGenerator} from "./Logic";
-import {Listener, ValueDispatcher} from "./Dispatcher";
+import { BlockProperty, BlockPropertyHelper, BlockIO } from "./BlockProperty";
+import { BlockCallControl, BlockClassControl, BlockLengthControl, BlockModeControl } from "./BlockControls";
+import { BlockBinding } from "./BlockBinding";
+import { Job } from "./Job";
+import { LogicData, Logic, LogicGenerator } from "./Logic";
+import { Listener, ValueDispatcher } from "./Dispatcher";
 
-import {Class, Classes} from "./Class";
-import {Loop} from "./Loop";
-import {Event, LogicResult} from "./Event";
+import { Class, Classes } from "./Class";
+import { Loop } from "./Loop";
+import { Event, LogicResult } from "./Event";
 
 export type BlockMode = 'auto' | 'manual' | 'disabled' | 'sync';
 
 export class Block implements LogicData {
   _job: Job;
+  _parent: Block;
   _prop: BlockProperty;
   _gen: number;
 
@@ -24,19 +25,38 @@ export class Block implements LogicData {
   _className: string = null;
   _class: Class = null;
 
+  _called = false;
   _queued = false;
   _queueDone = false;
   _running = false;
 
-  _proxy: Object = null;
+  _proxy: object = null;
 
-  constructor(job: Job, prop: BlockProperty) {
+  constructor(job: Job, parent: Block, prop: BlockProperty) {
 
     this._job = job;
-
+    this._parent = parent;
     this._prop = prop;
 
     this._gen = Loop.tick;
+  }
+
+  _passThroughLogic: boolean;
+  _loop: Loop;
+  queueBlock(block: Block) {
+    if (this._loop == null) {
+      if (this._passThroughLogic) {
+        this._parent.queueBlock(block);
+      } else {
+        this._loop = new Loop((loop: Loop) => {
+          if (!this._queued) {
+            loop._loopScheduled = true;
+            this._parent.queueBlock(this);
+          }
+        });
+      }
+    }
+    this._loop.queueBlock(block);
   }
 
   getRawObject(): any {
@@ -172,7 +192,7 @@ export class Block implements LogicData {
     if (field.charCodeAt(0) > 35) {
       let prop = this.getProperty(field);
       if (!(prop._value instanceof Block) || prop._value._prop !== prop) {
-        let block = new Block(this._job, prop);
+        let block = new Block(this._job, this, prop);
         prop.setValue(block);
         return block;
       }
@@ -193,15 +213,24 @@ export class Block implements LogicData {
     if (!this._job._enabled) {
       return;
     }
-    this._running = true;
-    let result = this._logic.run();
-    this._running = false;
-    if (this._props['#pipe']) {
-      if (result == null) {
-        result = new LogicResult();
-      }
-      this._props['#pipe'].updateValue(result);
+
+    if (this._loop) {
+      this._loop._runSchedule();
     }
+
+    if (this._called) {
+      this._running = true;
+      let result = this._logic.run();
+      this._running = false;
+      if (this._props['#pipe']) {
+        if (result == null) {
+          result = new LogicResult();
+        }
+        this._props['#pipe'].updateValue(result);
+      }
+      this._called = false;
+    }
+
   }
 
 
@@ -238,9 +267,10 @@ export class Block implements LogicData {
   }
 
   _queueLogic() {
+    this._called = true;
     // put it in queue
     if (!this._queued) {
-      this._job.queueBlock(this);
+      this._parent.queueBlock(this);
     }
   }
 
@@ -250,7 +280,7 @@ export class Block implements LogicData {
     if (this._class) {
       this._class.remove(this);
     }
-    if (typeof(className) === 'string') {
+    if (typeof (className) === 'string') {
       this._class = Classes.listen(className, this);
     } else {
       this._class = null;
@@ -268,6 +298,26 @@ export class Block implements LogicData {
         this._queueLogic();
       }
     }
+  }
+
+  _controlPriority: number = -1;
+  _subQueuePriority: number = -1;
+  _priorityChanged(priority: any) {
+    if (priority >= 0 && priority <= 5) {
+      this._controlPriority = Number(priority);
+    }
+  }
+  getPriority(): number {
+    if (this._controlPriority >= 0) {
+      return this._controlPriority;
+    }
+    if (this._logic) {
+      return this._logic.priority;
+    }
+    if (this._loop && this._loop.isWaiting()) {
+      return 5;
+    }
+    return -1;
   }
 
   getLength(): number {
@@ -295,7 +345,7 @@ export class Block implements LogicData {
 }
 
 const blockProxy = {
-  get(block: Block, field: string, receiver: Object): any {
+  get(block: Block, field: string, receiver: object): any {
     let prop = block._props[field];
     if (prop) {
       let val = prop._value;
@@ -307,7 +357,7 @@ const blockProxy = {
     return null;
   },
 
-  set(block: Block, field: string, value: any, receiver: Object): boolean {
+  set(block: Block, field: string, value: any, receiver: object): boolean {
     let prop = block.getProperty(field);
     prop.updateValue(value);
     return true;

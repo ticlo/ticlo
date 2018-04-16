@@ -1,44 +1,45 @@
-module bzconnect {
+import { Connection } from "../common/Connection";
+import { WatchObjectCallback, WatchValueCallback } from "./Watch";
 
-    export class ControlClient {
+export class ControlClient {
 
-        _conn: Connection;
+    _conn: Connection;
 
-        constructor(connect: Connection) {
-            this._conn = connect;
-        }
+    constructor(connect: Connection) {
+        this._conn = connect;
+    }
 
-        setValue(path: string, val: any): void {
-            this._conn.send([0, 'set', path, val]);
-        }
+    setValue(path: string, val: any): void {
+        this._conn.send([0, 'set', path, val]);
+    }
 
-        updateValue(path: string, val: any): void {
-            this._conn.send([0, 'update', path, val]);
-        }
+    updateValue(path: string, val: any): void {
+        this._conn.send([0, 'update', path, val]);
+    }
 
-        setBinding(path: string, binding: string): void {
-            this._conn.send([0, 'bind', path, binding]);
-        }
+    setBinding(path: string, binding: string): void {
+        this._conn.send([0, 'bind', path, binding]);
+    }
 
-        createBlock(path: string): void {
-            this._conn.send([0, 'create', path]);
-        }
+    createBlock(path: string): void {
+        this._conn.send([0, 'create', path]);
+    }
 
 
-        watchObject(path: string, callback: WatchObjectCallback): void {
+    watchObject(path: string, callback: WatchObjectCallback): void {
+        //
+    }
 
-        }
+    unwatchObject(path: string): void {
+        //
+    }
 
-        unwatchObject(path: string): void {
+    watchProperty(path: string, fields: string[], callback: WatchValueCallback): void {
+        //
+    }
 
-        }
-
-        watchProperty(path: string, fields: Array<string>, callback: WatchValueCallback): void {
-
-        }
-
-        unwatchProperty(path: string, fields: Array<string>): void {
-
-        }
+    unwatchProperty(path: string, fields: string[]): void {
+        //
     }
 }
+

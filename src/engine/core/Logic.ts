@@ -1,6 +1,6 @@
-import {BlockIO, BlockProperty} from "./BlockProperty";
-import {LogicDesc} from "./Descriptor";
-import {BlockMode} from "./Block";
+import { BlockIO, BlockProperty } from "./BlockProperty";
+import { LogicDesc } from "./Descriptor";
+import { BlockMode } from "./Block";
 
 export interface LogicData {
   getValue(field: string): any;

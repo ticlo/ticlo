@@ -1,5 +1,5 @@
-import {Block} from "./Block";
-import {BlockProperty} from "./BlockProperty";
+import { Block } from "./Block";
+import { BlockProperty } from "./BlockProperty";
 
 export class BlockClassControl extends BlockProperty {
   constructor(block: Block, name: string) {
@@ -45,6 +45,18 @@ export class BlockLengthControl extends BlockProperty {
   onChange(val: any): void {
     if (this.updateValue(val)) {
       this._block._lengthChanged(val);
+    }
+  }
+}
+
+export class BlockPriorityControl extends BlockProperty {
+  constructor(block: Block, name: string) {
+    super(block, name);
+  }
+
+  onChange(val: any): void {
+    if (this.updateValue(val)) {
+      this._block._priorityChanged(val);
     }
   }
 }

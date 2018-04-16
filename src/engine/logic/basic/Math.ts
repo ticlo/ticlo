@@ -1,28 +1,28 @@
-import {Classes} from "../../core/Class";
-import {Logic, LogicData} from "../../core/Logic";
-import {LogicDesc} from "../../core/Descriptor";
+import { Classes } from "../../core/Class";
+import { Logic, LogicData } from "../../core/Logic";
+import { LogicDesc } from "../../core/Descriptor";
 
 const descriptorN: LogicDesc = {
   useLength: true,
   inputs: [
-    {group: '', type: 'number'}
+    { group: '', type: 'number' }
   ],
   outputs: [
-    {name: 'output', type: 'number'}
+    { name: 'output', type: 'number' }
   ],
 };
 const descriptor2: LogicDesc = {
   inputs: [
-    {name: '0', type: 'number'},
-    {name: '1', type: 'number'}
+    { name: '0', type: 'number' },
+    { name: '1', type: 'number' }
   ],
   outputs: [
-    {name: 'output', type: 'number'}
+    { name: 'output', type: 'number' }
   ],
 };
 
 
-export class Add extends Logic {
+export class AddLogic extends Logic {
   constructor(block: LogicData) {
     super(block);
   }
@@ -49,12 +49,12 @@ export class Add extends Logic {
   }
 }
 
-Add.prototype.priority = 0;
-Add.prototype.descriptor = descriptorN;
-Classes.add('add', Add);
+AddLogic.prototype.priority = 0;
+AddLogic.prototype.descriptor = descriptorN;
+Classes.add('add', AddLogic);
 
 
-export class Multiply extends Logic {
+export class MultiplyLogic extends Logic {
   constructor(block: LogicData) {
     super(block);
   }
@@ -81,12 +81,12 @@ export class Multiply extends Logic {
   }
 }
 
-Multiply.prototype.priority = 0;
-Multiply.prototype.descriptor = descriptorN;
-Classes.add('multiply', Multiply);
+MultiplyLogic.prototype.priority = 0;
+MultiplyLogic.prototype.descriptor = descriptorN;
+Classes.add('multiply', MultiplyLogic);
 
 
-export class Subtract extends Logic {
+export class SubtractLogic extends Logic {
   constructor(block: LogicData) {
     super(block);
   }
@@ -102,12 +102,12 @@ export class Subtract extends Logic {
   }
 }
 
-Subtract.prototype.priority = 0;
-Subtract.prototype.descriptor = descriptor2;
-Classes.add('subtract', Subtract);
+SubtractLogic.prototype.priority = 0;
+SubtractLogic.prototype.descriptor = descriptor2;
+Classes.add('subtract', SubtractLogic);
 
 
-export class Divide extends Logic {
+export class DivideLogic extends Logic {
   constructor(block: LogicData) {
     super(block);
   }
@@ -123,6 +123,6 @@ export class Divide extends Logic {
   }
 }
 
-Divide.prototype.priority = 0;
-Divide.prototype.descriptor = descriptor2;
-Classes.add('divide', Divide);
+DivideLogic.prototype.priority = 0;
+DivideLogic.prototype.descriptor = descriptor2;
+Classes.add('divide', DivideLogic);

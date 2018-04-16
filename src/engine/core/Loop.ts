@@ -1,4 +1,4 @@
-import {Block} from "./Block";
+import { Block } from "./Block";
 
 export class Loop {
   private static _tick = 0;
@@ -8,33 +8,30 @@ export class Loop {
 
   private _queueWait: Block[] = [];
 
-  private _queue0: Block[] = [];
-  private _queue1: Block[] = [];
-  private _queue2: Block[] = [];
+  private _queue: Block[][] = [[], [], [], [], [], []];
+
 
   // for both browser and node
-  private _loopTimeout: any;
-  private _loopRunning: boolean = false;
+  _loopScheduled: any;
+  _loopRunning: boolean = false;
 
-  private _schedule() {
-    if (!(this._loopTimeout || this._loopRunning)) {
-      this._loopTimeout = setTimeout(() => this._runTimer(), 0);
-    }
+  private _schedule: (loop: Loop) => void;
+
+  constructor(schedule: (loop: Loop) => void) {
+    this._schedule = schedule;
   }
 
-  // manage the queue directly from loop
-  _queue(block: Block) {
+  queueBlock(block: Block) {
     if (block._queued) return;
     block._queued = true;
     this._queueWait.push(block);
-    this._schedule();
+    if (!(this._loopScheduled || this._loopRunning)) {
+      this._schedule(this);
+    }
   }
-
-  // assume queue was initially managed by Job, so _queued must be true
-  _addFromJob(block: Block) {
-    if (!block._queued) return;
-    this._queueWait.push(block);
-    this._schedule();
+  // wait to be run
+  isWaiting(): boolean {
+    return this._queueWait.length > 0;
   }
 
   // return true when running priority need to change
@@ -42,28 +39,15 @@ export class Loop {
     let priorityChanged = false;
     for (let i = this._queueWait.length - 1; i >= 0; --i) {
       let block = this._queueWait[i];
-      if (block._logic) {
-        let priority = block._logic.priority;
-        switch (priority) {
-          case 0:
-            this._queue0.push(block);
-            block._queueDone = false;
-            if (priority > 0) {
-              priorityChanged = true;
-            }
-            break;
-          case 1:
-            this._queue1.push(block);
-            block._queueDone = false;
-            if (priority > 1) {
-              priorityChanged = true;
-            }
-            break;
-          case 2:
-            this._queue2.push(block);
-            block._queueDone = false;
-            break;
+      let blockPriority = block.getPriority();
+      if (blockPriority >= 0 && blockPriority <= 5) {
+        this._queue[blockPriority].push(block);
+        block._queueDone = false;
+        if (priority > blockPriority) {
+          priorityChanged = true;
         }
+      } else {
+        block._queueDone = true;
       }
     }
     // clear pending blocks
@@ -81,42 +65,38 @@ export class Loop {
     return false;
   }
 
-  private _runTimer() {
-    this._loopTimeout = null;
-    this._run();
+  _runSchedule() {
+    if (this._loopScheduled) {
+      this._loopScheduled = null;
+      this._run();
+    }
   }
 
-  private _run() {
+  _run() {
     this._loopRunning = true;
     this._splitQueue(0);
 
     whileLoop: while (true) {
-      while (this._queue0.length) {
-        let block = this._queue0[this._queue0.length - 1];
+      let queue0 = this._queue[0];
+      while (queue0.length) {
+        let block = queue0[queue0.length - 1];
         if (block._queueDone) {
-          this._queue0.pop();
+          queue0.pop();
           block._queued = false;
         } else {
           this._runBlock(block, 0);
         }
       }
-
-      while (this._queue1.length) {
-        let block = this._queue1[this._queue1.length - 1];
-        if (block._queueDone) {
-          this._queue1.pop();
-          block._queued = false;
-        } else if (this._runBlock(block, 1)) {
-          continue whileLoop;
-        }
-      }
-      while (this._queue2.length) {
-        let block = this._queue2[this._queue2.length - 1];
-        if (block._queueDone) {
-          this._queue2.pop();
-          block._queued = false;
-        } else if (this._runBlock(block, 2)) {
-          continue whileLoop;
+      for (let p = 1; p <= 5; ++p) {
+        let queueP = this._queue[p];
+        while (queueP.length) {
+          let block = queueP[queueP.length - 1];
+          if (block._queueDone) {
+            queueP.pop();
+            block._queued = false;
+          } else if (this._runBlock(block, 1)) {
+            continue whileLoop;
+          }
         }
       }
       break;
@@ -129,11 +109,9 @@ export class Loop {
     this._loopRunning = false;
   }
 
-  static _instance = new Loop();
-
-  static queueJob(block: Block) {
-    Loop._instance._addFromJob(block);
-  }
+  static _instance = new Loop((loop: Loop) => {
+    loop._loopScheduled = setTimeout(() => loop._runSchedule(), 0);
+  });
 
   static run() {
     Loop._instance._run();
