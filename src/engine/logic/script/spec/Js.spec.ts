@@ -1,7 +1,6 @@
 import * as assert from "assert";
 import "../Js";
-import { Job } from "../../../core/Job";
-import { Loop } from "../../../core/Loop";
+import { Job, Root } from "../../../core/Job";
 
 describe("Script", () => {
     it('basic', () => {
@@ -11,7 +10,7 @@ describe("Script", () => {
 
         aBlock.setValue('#class', 'js');
         aBlock.setValue('script', 'this["out1"] = 321');
-        Loop.run();
+        Root.run();
 
         assert.equal(aBlock.getValue('out1'), 321, 'basic script output');
     });
@@ -23,7 +22,7 @@ describe("Script", () => {
 
         aBlock.setValue('#class', 'js');
         aBlock.setValue('script', 'return function(){this["out2"] = 456}');
-        Loop.run();
+        Root.run();
 
         assert.equal(aBlock.getValue('out2'), 456, 'basic script output');
     });

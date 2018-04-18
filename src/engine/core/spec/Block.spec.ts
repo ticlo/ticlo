@@ -18,6 +18,14 @@ describe("Block", () => {
     block.setValue('@c', 468);
     root.setBinding('@d', 'obj.@c');
     assert.equal(root.getValue('@d'), 468, 'path binding');
+
+    block.setBinding('@e', '#parent.@b');
+    assert.equal(block.getValue('@e'), 357, 'parent binding');
+
+    block.setBinding('@f', '#job.@a');
+    assert.equal(block.getValue('@f'), 357, 'job binding');
   });
+
+  
 
 });

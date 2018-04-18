@@ -9,7 +9,7 @@ export class Job extends Block {
 
   constructor() {
     super(null, null, null);
-    this._job = Root.instance;
+    this._job = this;
     this._parent = Root.instance;
 
     this._prop = new BlockProperty(this, '');
@@ -20,13 +20,17 @@ export class Job extends Block {
 
 export class Root extends Job {
 
-  static readonly instance: Root = new Root();
+  private static _instance: Root = new Root();
+  static get instance() { return this._instance; }
+  static run() {
+    this._instance._loop._run();
+  }
 
   constructor() {
     super();
-    this._job = this;
     this._parent = this;
-    this._loop = Loop._instance;
+    this._loop = new Loop((loop: Loop) => {
+      loop._loopScheduled = setTimeout(() => loop._runSchedule(), 0);
+    });
   }
 }
-

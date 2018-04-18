@@ -114,6 +114,16 @@ export class Block implements LogicData {
       prop.listen(listener);
       return prop;
     }
+
+    if (path.startsWith("#")) {
+      if (path.startsWith("#parent.")) {
+        return this._parent.createBinding(path.substring(8), listener);
+      }
+      if (path.startsWith('#job.')) {
+        return this._job.createBinding(path.substring(5), listener);
+      }
+    }
+
     if (this._bindings.hasOwnProperty(path)) {
       let binding = this._bindings[path];
       binding.listen(listener);

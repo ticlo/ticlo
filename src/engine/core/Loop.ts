@@ -108,12 +108,4 @@ export class Loop {
     }
     this._loopRunning = false;
   }
-
-  static _instance = new Loop((loop: Loop) => {
-    loop._loopScheduled = setTimeout(() => loop._runSchedule(), 0);
-  });
-
-  static run() {
-    Loop._instance._run();
-  }
 }
