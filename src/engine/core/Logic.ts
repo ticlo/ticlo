@@ -44,11 +44,11 @@ export class Logic {
     return mode === 'auto';
   }
 
-  blockCommand(command: string, params: Object): void {
+  blockCommand(command: string, params: { [key: string]: any }): void {
     // to be overridden
   }
 
-  propCommand(command: string, field: string, params: Object): void {
+  propCommand(command: string, field: string, params: { [key: string]: any }): void {
     // to be overridden
   }
 

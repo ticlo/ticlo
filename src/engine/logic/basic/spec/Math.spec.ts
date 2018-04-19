@@ -1,13 +1,13 @@
-import * as assert from "assert";
+import { assert } from "chai";
 import "../Math";
 import { Job, Root } from "../../../core/Job";
 
 describe("Math", () => {
 
   it('basic add', () => {
-    let root = new Job();
+    let job = new Job();
 
-    let aBlock = root.createBlock('a');
+    let aBlock = job.createBlock('a');
 
     aBlock.setValue('#class', 'add');
     aBlock.setValue('0', 2);
@@ -22,7 +22,7 @@ describe("Math", () => {
     Root.run();
     assert.equal(aBlock.getValue('output'), 7, 'update parameter, 4+3 == 5');
 
-    aBlock = root.createBlock('a2');
+    aBlock = job.createBlock('a2');
 
     // set class last
     aBlock.setValue('0', 2.5);
@@ -34,9 +34,9 @@ describe("Math", () => {
   });
 
   it('add multiple', () => {
-    let root = new Job();
+    let job = new Job();
 
-    let aBlock = root.createBlock('a');
+    let aBlock = job.createBlock('a');
 
     aBlock.setValue('#class', 'add');
     aBlock.setValue('0', 2);
@@ -60,9 +60,9 @@ describe("Math", () => {
   });
 
   it('subtract', () => {
-    let root = new Job();
+    let job = new Job();
 
-    let aBlock = root.createBlock('a');
+    let aBlock = job.createBlock('a');
 
     aBlock.setValue('#class', 'subtract');
     aBlock.setValue('0', 7);
@@ -72,9 +72,9 @@ describe("Math", () => {
   });
 
   it('divide', () => {
-    let root = new Job();
+    let job = new Job();
 
-    let aBlock = root.createBlock('a');
+    let aBlock = job.createBlock('a');
 
     aBlock.setValue('#class', 'divide');
     aBlock.setValue('0', 7);
@@ -84,9 +84,9 @@ describe("Math", () => {
   });
 
   it('multiply', () => {
-    let root = new Job();
+    let job = new Job();
 
-    let aBlock = root.createBlock('a');
+    let aBlock = job.createBlock('a');
 
     aBlock.setValue('#class', 'multiply');
     aBlock.setValue('0', 2);

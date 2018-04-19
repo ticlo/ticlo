@@ -6,10 +6,9 @@ export class BlockClassControl extends BlockProperty {
     super(block, name);
   }
 
-  onChange(val: any): void {
-    if (this.updateValue(val)) {
-      this._block._classChanged(val);
-    }
+  _valueChanged() {
+
+    this._block._classChanged(this._value);
   }
 }
 
@@ -18,10 +17,8 @@ export class BlockCallControl extends BlockProperty {
     super(block, name);
   }
 
-  onChange(val: any): void {
-    if (this.updateValue(val)) {
-      this._block._onCall(val);
-    }
+  _valueChanged() {
+    this._block._onCall(this._value);
   }
 }
 
@@ -30,10 +27,8 @@ export class BlockModeControl extends BlockProperty {
     super(block, name);
   }
 
-  onChange(val: any): void {
-    if (this.updateValue(val)) {
-      this._block._modeChanged(val);
-    }
+  _valueChanged() {
+    this._block._modeChanged(this._value);
   }
 }
 
@@ -42,10 +37,8 @@ export class BlockLengthControl extends BlockProperty {
     super(block, name);
   }
 
-  onChange(val: any): void {
-    if (this.updateValue(val)) {
-      this._block._lengthChanged(val);
-    }
+  _valueChanged() {
+    this._block._lengthChanged(this._value);
   }
 }
 
@@ -54,9 +47,7 @@ export class BlockPriorityControl extends BlockProperty {
     super(block, name);
   }
 
-  onChange(val: any): void {
-    if (this.updateValue(val)) {
-      this._block._priorityChanged(val);
-    }
+  _valueChanged() {
+    this._block._priorityChanged(this._value);
   }
 }

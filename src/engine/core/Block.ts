@@ -1,5 +1,11 @@
 import { BlockProperty, BlockPropertyHelper, BlockIO } from "./BlockProperty";
-import { BlockCallControl, BlockClassControl, BlockLengthControl, BlockModeControl } from "./BlockControls";
+import {
+  BlockCallControl,
+  BlockClassControl,
+  BlockLengthControl,
+  BlockModeControl,
+  BlockPriorityControl
+} from "./BlockControls";
 import { BlockBinding } from "./BlockBinding";
 import { Job } from "./Job";
 import { LogicData, Logic, LogicGenerator } from "./Logic";
@@ -43,6 +49,7 @@ export class Block implements LogicData {
 
   _passThroughLogic: boolean;
   _loop: Loop;
+
   queueBlock(block: Block) {
     if (this._loop == null) {
       if (this._passThroughLogic) {
@@ -90,6 +97,9 @@ export class Block implements LogicData {
           break;
         case '#length':
           prop = new BlockLengthControl(this, field);
+          break;
+        case '#priority':
+          prop = new BlockPriorityControl(this, field);
           break;
         default:
           prop = new BlockProperty(this, field);
@@ -312,11 +322,13 @@ export class Block implements LogicData {
 
   _controlPriority: number = -1;
   _subQueuePriority: number = -1;
+
   _priorityChanged(priority: any) {
     if (priority >= 0 && priority <= 5) {
       this._controlPriority = Number(priority);
     }
   }
+
   getPriority(): number {
     if (this._controlPriority >= 0) {
       return this._controlPriority;

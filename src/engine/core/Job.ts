@@ -14,8 +14,6 @@ export class Job extends Block {
 
     this._prop = new BlockProperty(this, '');
   }
-
-
 }
 
 export class Root extends Job {

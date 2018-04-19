@@ -1,4 +1,4 @@
-import * as assert from "assert";
+import { assert } from "chai";
 import { Block } from "../Block";
 
 import { Job } from "../Job";
@@ -26,6 +26,5 @@ describe("Block", () => {
     assert.equal(block.getValue('@f'), 357, 'job binding');
   });
 
-  
 
 });

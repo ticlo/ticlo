@@ -1,12 +1,12 @@
-import * as assert from "assert";
+import { assert } from "chai";
 import "../Js";
 import { Job, Root } from "../../../core/Job";
 
 describe("Script", () => {
     it('basic', () => {
-        let root = new Job();
+        let job = new Job();
 
-        let aBlock = root.createBlock('a');
+        let aBlock = job.createBlock('a');
 
         aBlock.setValue('#class', 'js');
         aBlock.setValue('script', 'this["out1"] = 321');
@@ -16,9 +16,9 @@ describe("Script", () => {
     });
 
     it('nested function', () => {
-        let root = new Job();
+        let job = new Job();
 
-        let aBlock = root.createBlock('a');
+        let aBlock = job.createBlock('a');
 
         aBlock.setValue('#class', 'js');
         aBlock.setValue('script', 'return function(){this["out2"] = 456}');

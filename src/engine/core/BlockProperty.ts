@@ -15,14 +15,20 @@ export class BlockProperty extends ValueDispatcher implements Listener {
     this._block = block;
     this._name = name;
   }
+
   onSourceChange(prop: Dispatcher) {
     // do nothing
   }
-  onChange(val: any): void {
-    this.updateValue(val);
+
+  _valueChanged(): void {
+    // to be overridden
   }
 
   updateValue(val: any): boolean {
+    return this.onChange(val);
+  }
+
+  onChange(val: any): boolean {
     if (this._value === val) {
       return false;
     }
@@ -30,6 +36,7 @@ export class BlockProperty extends ValueDispatcher implements Listener {
       this._value.destroy();
     }
     this._value = val;
+    this._valueChanged();
     this._dispatch();
     return true;
   }
@@ -88,10 +95,8 @@ export class BlockIO extends BlockProperty {
     super(block, name);
   }
 
-  onChange(val: any): void {
-    if (this.updateValue(val)) {
-      this._block.inputChanged(this, val);
-    }
+  _valueChanged(): void {
+    this._block.inputChanged(this, this._value);
   }
 }
 
