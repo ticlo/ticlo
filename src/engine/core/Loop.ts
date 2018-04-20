@@ -8,7 +8,7 @@ export class Loop {
 
   private _queueWait: Block[] = [];
 
-  private _queue: Block[][] = [[], [], [], [], [], []];
+  private _queue: Block[][] = [[], [], [], []];
 
 
   // for both browser and node
@@ -40,7 +40,7 @@ export class Loop {
     for (let i = this._queueWait.length - 1; i >= 0; --i) {
       let block = this._queueWait[i];
       let blockPriority = block.getPriority();
-      if (blockPriority >= 0 && blockPriority <= 5) {
+      if (blockPriority >= 0 && blockPriority <= 3) {
         this._queue[blockPriority].push(block);
         block._queueDone = false;
         if (priority > blockPriority) {
@@ -87,7 +87,7 @@ export class Loop {
           this._runBlock(block, 0);
         }
       }
-      for (let p = 1; p <= 5; ++p) {
+      for (let p = 1; p <= 3; ++p) {
         let queueP = this._queue[p];
         while (queueP.length) {
           let block = queueP[queueP.length - 1];

@@ -324,7 +324,7 @@ export class Block implements LogicData {
   _subQueuePriority: number = -1;
 
   _priorityChanged(priority: any) {
-    if (priority >= 0 && priority <= 5) {
+    if (priority >= 0 && priority <= 3) {
       this._controlPriority = Number(priority);
     }
   }
@@ -337,7 +337,7 @@ export class Block implements LogicData {
       return this._logic.priority;
     }
     if (this._loop && this._loop.isWaiting()) {
-      return 5;
+      return 3;
     }
     return -1;
   }
