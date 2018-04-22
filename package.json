@@ -17,12 +17,28 @@
     "@types/mocha": "^5.2.0",
     "@types/node": "^9.6.6",
     "chai": "^4.1.2",
+    "coveralls": "^3.0.0",
     "mocha": "^5.1.1",
+    "nyc": "^11.7.1",
     "ts-node": "^5.0.1",
     "tslint": "^5.9.1",
     "typescript": "^2.8.3"
   },
   "scripts": {
-    "test": "mocha -r ts-node/register src/**/*.spec.ts"
+    "test" : "nyc mocha -r ts-node/register src/**/*.spec.ts",
+    "coverage": "nyc report --reporter=text-lcov | coveralls",
+    "mocha-test": "mocha -r ts-node/register src/**/*.spec.ts"
+  },
+  "nyc": {
+    "extension": [
+      ".ts"
+    ],
+    "include": [
+      "src/**/*.ts"
+    ],
+    "exclude": [
+      "src/**/*.spec.ts"
+    ],
+    "all": true
   }
 }
