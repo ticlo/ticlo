@@ -1,7 +1,5 @@
-import { Classes } from "../../../core/Class";
-import { Logic, LogicData } from "../../../core/Logic";
-import { LogicDesc } from "../../../core/Descriptor";
-import { AddLogic } from "../Math";
+import { Classes } from "../Class";
+import { Logic, LogicData } from "../Logic";
 
 
 export class TestLogicRunner extends Logic {

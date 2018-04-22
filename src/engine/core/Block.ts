@@ -58,7 +58,9 @@ export class Block implements LogicData {
         this._loop = new Loop((loop: Loop) => {
           if (!this._queued) {
             loop._loopScheduled = true;
-            this._parent.queueBlock(this);
+            if (this._mode === 'auto') {
+              this._parent.queueBlock(this);
+            }
           }
         });
       }
@@ -220,6 +222,18 @@ export class Block implements LogicData {
     return null;
   }
 
+  updateBlock(field: string): Block {
+    if (field.charCodeAt(0) > 35) {
+      let prop = this.getProperty(field);
+      if (!(prop._value instanceof Block) || prop._value._prop !== prop) {
+        let block = new Block(this._job, this, prop);
+        prop.updateValue(block);
+        return block;
+      }
+    }
+    return null;
+  }
+
   inputChanged(input: BlockIO, val: any) {
     if (this._logic) {
       if (this._mode === 'auto' && this._logic.inputChanged(input, val)) {
@@ -242,11 +256,11 @@ export class Block implements LogicData {
       this._running = true;
       let result = this._logic.run();
       this._running = false;
-      if (this._props['#pipe']) {
+      if (this._props['#emit']) {
         if (result == null) {
           result = new LogicResult();
         }
-        this._props['#pipe'].updateValue(result);
+        this._props['#emit'].updateValue(result);
       }
       this._called = false;
     }
@@ -263,6 +277,9 @@ export class Block implements LogicData {
         break;
       default:
         this._mode = 'auto';
+        if (this._logic) {
+          this._queueLogic();
+        }
     }
   }
 
@@ -271,10 +288,11 @@ export class Block implements LogicData {
       if (this._mode === 'sync') {
         if (Event.isValid(val)) {
           if (LogicResult.isError(val)) {
-            if (this._props['#pipe']) {
-              this._props['#pipe'].updateValue(val);
+            if (this._props['#emit']) {
+              this._props['#emit'].updateValue(val);
             }
           } else {
+            this._called = true;
             this.run();
           }
         }

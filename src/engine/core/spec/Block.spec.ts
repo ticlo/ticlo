@@ -11,9 +11,10 @@ describe("Block", () => {
     root.setBinding('@b', '@a');
     assert.equal(root.getValue('@b'), 357, 'basic binding');
 
-    root.createBlock('obj');
-    let block = root.getValue('obj');
+    let block = root.createBlock('obj');
     assert.equal(block instanceof Block, true, 'createBlock');
+    assert.equal(block, root.getValue('obj'), 'get child block');
+
 
     block.setValue('@c', 468);
     root.setBinding('@d', 'obj.@c');

@@ -1,8 +1,8 @@
 import { assert } from "chai";
 import { TestLogicRunner } from "./TestLogic";
-import { Job, Root } from "../../../core/Job";
+import { Job, Root } from "../Job";
 
-describe("Priority", () => {
+describe("BlockPriority", () => {
 
   it('basic logic order', () => {
     let job = new Job();
@@ -56,6 +56,7 @@ describe("Priority", () => {
     assert.deepEqual(TestLogicRunner.logs,
       ['p0', 'p1', 'p2', 'p3'],
       'logic should run in the same order as their priority');
-
+    TestLogicRunner.clearLog();
+    
   });
 });
