@@ -57,6 +57,6 @@ describe("BlockPriority", () => {
       ['p0', 'p1', 'p2', 'p3'],
       'logic should run in the same order as their priority');
     TestLogicRunner.clearLog();
-    
+
   });
 });

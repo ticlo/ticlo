@@ -27,16 +27,17 @@ export class Block implements LogicData {
 
   _props: { [key: string]: BlockProperty } = {};
   _bindings: { [key: string]: BlockBinding } = {};
-  _logic: Logic = null;
-  _className: string = null;
-  _class: Class = null;
+  _logic: Logic;
+  _className: string;
+  _class: Class;
 
-  _called = false;
-  _queued = false;
-  _queueDone = false;
-  _running = false;
+  _called: boolean;
+  _queued: boolean;
+  _queueDone: boolean;
+  _running: boolean;
+  _destroyed: boolean;
 
-  _proxy: object = null;
+  _proxy: object;
 
   constructor(job: Job, parent: Block, prop: BlockProperty) {
 
@@ -76,6 +77,9 @@ export class Block implements LogicData {
   }
 
   getProperty(field: string): BlockProperty {
+    if (this._destroyed) {
+      throw new Error("getProperty called after destroy");
+    }
     if (this._props.hasOwnProperty(field)) {
       return this._props[field];
     }
@@ -120,6 +124,9 @@ export class Block implements LogicData {
   }
 
   createBinding(path: string, listener: Listener): ValueDispatcher {
+    if (this._destroyed) {
+      throw new Error("createBinding called after destroy");
+    }
     let pos = path.lastIndexOf('.');
     if (pos < 0) {
       let prop = this.getProperty(path);
@@ -380,6 +387,22 @@ export class Block implements LogicData {
 
 
   destroy(): void {
+    if (this._destroyed) {
+      return;
+    }
+    this._destroyed = true;
+    if (this._class) {
+      this._class.remove(this);
+      this._class = null;
+    }
+    for (let name in this._props) {
+      this._props[name].destroy();
+    }
+    for (let path in this._bindings) {
+      this._bindings[path].destroy();
+    }
+    this._props = null;
+    this._bindings = null;
     // TODO
   }
 }

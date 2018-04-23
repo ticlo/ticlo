@@ -20,7 +20,7 @@ export class BlockProperty extends ValueDispatcher implements Listener {
     // do nothing
   }
 
-  _valueChanged(): void {
+  _valueChanged() {
     // to be overridden
   }
 
@@ -42,7 +42,7 @@ export class BlockProperty extends ValueDispatcher implements Listener {
   }
 
 
-  setValue(val: any): void {
+  setValue(val: any) {
     if (this._bindingSource) {
       this._bindingSource.unlisten(this);
       this._bindingPath = null;
@@ -54,11 +54,11 @@ export class BlockProperty extends ValueDispatcher implements Listener {
     this.onChange(val);
   }
 
-  getValue(): void {
+  getValue() {
     return this._value;
   }
 
-  setBinding(path: string): void {
+  setBinding(path: string) {
     if (path === this._bindingPath) return;
 
     if (this._bindingSource != null) {
@@ -75,18 +75,27 @@ export class BlockProperty extends ValueDispatcher implements Listener {
     }
   }
 
-  _load(val: any): void {
+  _load(val: any) {
     if (val instanceof Object && val != null && val.hasOwnProperty('#class')) {
       let block = new Block(this._block._job, this._block, this);
       this._saved = block;
-      this._value = block;
       block._load(val);
-      this._value = null; // set to null so the next line will update
       this.onChange(block);
     } else {
       this._saved = val;
       this.onChange(val);
     }
+  }
+
+  destroy() {
+    if (this._bindingSource != null) {
+      this._bindingSource.unlisten(this);
+      this._bindingSource = null;
+    }
+    if (this._value instanceof Block && this._value._prop === this) {
+      this._value.destroy();
+    }
+    // TODO ?
   }
 }
 
@@ -95,7 +104,7 @@ export class BlockIO extends BlockProperty {
     super(block, name);
   }
 
-  _valueChanged(): void {
+  _valueChanged() {
     this._block.inputChanged(this, this._value);
   }
 }
