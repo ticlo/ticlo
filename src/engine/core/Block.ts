@@ -8,16 +8,16 @@ import {
 } from "./BlockControls";
 import { BlockBinding } from "./BlockBinding";
 import { Job } from "./Job";
-import { LogicData, Logic, LogicGenerator } from "./Logic";
+import { FunctionData, BlockFunction, FunctionGenerator } from "./BlockFunction";
 import { Listener, ValueDispatcher } from "./Dispatcher";
 
 import { Class, Classes } from "./Class";
 import { Loop } from "./Loop";
-import { Event, LogicResult } from "./Event";
+import { Event, FunctionResult } from "./Event";
 
 export type BlockMode = 'auto' | 'manual' | 'disabled' | 'sync';
 
-export class Block implements LogicData {
+export class Block implements FunctionData {
   _job: Job;
   _parent: Block;
   _prop: BlockProperty;
@@ -27,7 +27,7 @@ export class Block implements LogicData {
 
   _props: { [key: string]: BlockProperty } = {};
   _bindings: { [key: string]: BlockBinding } = {};
-  _logic: Logic;
+  _function: BlockFunction;
   _className: string;
   _class: Class;
 
@@ -48,12 +48,12 @@ export class Block implements LogicData {
     this._gen = Loop.tick;
   }
 
-  _passThroughLogic: boolean;
+  _passThroughFunction: boolean;
   _loop: Loop;
 
   queueBlock(block: Block) {
     if (this._loop == null) {
-      if (this._passThroughLogic) {
+      if (this._passThroughFunction) {
         this._parent.queueBlock(block);
       } else {
         this._loop = new Loop((loop: Loop) => {
@@ -242,9 +242,9 @@ export class Block implements LogicData {
   }
 
   inputChanged(input: BlockIO, val: any) {
-    if (this._logic) {
-      if (this._mode === 'auto' && this._logic.inputChanged(input, val)) {
-        this._queueLogic();
+    if (this._function) {
+      if (this._mode === 'auto' && this._function.inputChanged(input, val)) {
+        this._queueFunction();
       }
     }
   }
@@ -261,11 +261,11 @@ export class Block implements LogicData {
 
     if (this._called) {
       this._running = true;
-      let result = this._logic.run();
+      let result = this._function.call();
       this._running = false;
       if (this._props['#emit']) {
         if (result == null) {
-          result = new LogicResult();
+          result = new FunctionResult();
         }
         this._props['#emit'].updateValue(result);
       }
@@ -284,17 +284,17 @@ export class Block implements LogicData {
         break;
       default:
         this._mode = 'auto';
-        if (this._logic) {
-          this._queueLogic();
+        if (this._function) {
+          this._queueFunction();
         }
     }
   }
 
   _onCall(val: any): void {
-    if (this._logic && this._mode !== 'disabled') {
+    if (this._function && this._mode !== 'disabled') {
       if (this._mode === 'sync') {
         if (Event.isValid(val)) {
-          if (LogicResult.isError(val)) {
+          if (FunctionResult.isError(val)) {
             if (this._props['#emit']) {
               this._props['#emit'].updateValue(val);
             }
@@ -304,14 +304,14 @@ export class Block implements LogicData {
           }
         }
       } else {
-        if (LogicResult.isValid(val)) {
-          this._queueLogic();
+        if (FunctionResult.isValid(val)) {
+          this._queueFunction();
         }
       }
     }
   }
 
-  _queueLogic() {
+  _queueFunction() {
     this._called = true;
     // put it in queue
     if (!this._queued) {
@@ -329,7 +329,7 @@ export class Block implements LogicData {
       this._class = Classes.listen(className, this);
     } else {
       this._class = null;
-      this.updateLogic(null);
+      this.updateFunction(null);
     }
   }
 
@@ -339,8 +339,8 @@ export class Block implements LogicData {
     let newLen = Number(length);
     if (newLen !== this._cachedLength && (newLen === newLen || this._cachedLength === this._cachedLength)) {
       this._cachedLength = newLen;
-      if (this._logic && this._logic.descriptor.useLength && this._mode === 'auto') {
-        this._queueLogic();
+      if (this._function && this._function.descriptor.useLength && this._mode === 'auto') {
+        this._queueFunction();
       }
     }
   }
@@ -358,8 +358,8 @@ export class Block implements LogicData {
     if (this._controlPriority >= 0) {
       return this._controlPriority;
     }
-    if (this._logic) {
-      return this._logic.priority;
+    if (this._function) {
+      return this._function.priority;
     }
     if (this._loop && this._loop.isWaiting()) {
       return 3;
@@ -371,17 +371,17 @@ export class Block implements LogicData {
     return this._cachedLength;
   }
 
-  updateLogic(generator: LogicGenerator): void {
-    if (this._logic) {
-      this._logic.destroy();
+  updateFunction(generator: FunctionGenerator): void {
+    if (this._function) {
+      this._function.destroy();
     }
     if (generator) {
-      this._logic = new generator(this);
-      if (this._logic.checkInitRun(this._mode)) {
-        this._queueLogic();
+      this._function = new generator(this);
+      if (this._function.checkInitRun(this._mode)) {
+        this._queueFunction();
       }
     } else {
-      this._logic = null;
+      this._function = null;
     }
   }
 

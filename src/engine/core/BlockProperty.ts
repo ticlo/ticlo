@@ -109,7 +109,7 @@ export class BlockIO extends BlockProperty {
   }
 }
 
-// holds helper logic that output to another property of its owner
+// holds helper function that output to another property of its owner
 // property name is `!${relatedPropertyName}`
 export class BlockPropertyHelper extends BlockProperty {
   constructor(block: Block, name: string) {

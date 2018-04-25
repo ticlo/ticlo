@@ -1,12 +1,13 @@
 import { assert } from "chai";
-import { TestLogicRunner } from "./TestLogic";
+import { TestFunctionRunner } from "./TestFunction";
 import { Job, Root } from "../Job";
 
 describe("BlockPriority", () => {
 
-  it('basic logic order', () => {
-    let job = new Job();
+  it('basic function order', () => {
+    TestFunctionRunner.clearLog();
 
+    let job = new Job();
 
     let p0 = job.createBlock('p0');
     let p1 = job.createBlock('p1');
@@ -24,12 +25,12 @@ describe("BlockPriority", () => {
     p2.setValue('#class', 'test-runner');
     Root.run();
 
-    assert.deepEqual(TestLogicRunner.logs,
+    assert.deepEqual(TestFunctionRunner.logs,
       ['p3', 'p0', 'p1', 'p2'],
-      'logic should run in the same order as class is set');
-    TestLogicRunner.clearLog();
+      'function should run in the same order as class is set');
+    TestFunctionRunner.clearLog();
 
-    assert.deepEqual(TestLogicRunner.logs, [], 'logs should be cleared');
+    assert.deepEqual(TestFunctionRunner.logs, [], 'logs should be cleared');
 
     p3.updateValue('#call', {});
     p1.updateValue('#call', {});
@@ -37,10 +38,10 @@ describe("BlockPriority", () => {
     p0.updateValue('#call', {});
     Root.run();
 
-    assert.deepEqual(TestLogicRunner.logs,
+    assert.deepEqual(TestFunctionRunner.logs,
       ['p3', 'p1', 'p2', 'p0'],
-      'logic should run in the same order as they are called');
-    TestLogicRunner.clearLog();
+      'function should run in the same order as they are called');
+    TestFunctionRunner.clearLog();
 
     p1.setValue('#priority', 1);
     p3.setValue('#priority', 3);
@@ -53,10 +54,41 @@ describe("BlockPriority", () => {
     p0.updateValue('#call', {});
     Root.run();
 
-    assert.deepEqual(TestLogicRunner.logs,
+    assert.deepEqual(TestFunctionRunner.logs,
       ['p0', 'p1', 'p2', 'p3'],
-      'logic should run in the same order as their priority');
-    TestLogicRunner.clearLog();
+      'function should run in the same order as their priority');
+
+  });
+
+  it('order from binding', () => {
+    let job = new Job();
+
+    let p2 = job.createBlock('p2');
+    let p0 = job.createBlock('p0');
+    let p1 = job.createBlock('p1');
+    let p3 = job.createBlock('p3');
+
+    p3.setValue('@log', 'p3');
+    p0.setValue('@log', 'p0');
+    p2.setValue('@log', 'p2');
+    p1.setValue('@log', 'p1');
+
+    p1.setBinding('input', '#parent.p0.input');
+    p2.setBinding('input', '#parent.p1.input');
+    p3.setBinding('input', '#parent.p2.input');
+
+    p3.setValue('#class', 'test-runner');
+    p0.setValue('#class', 'test-runner');
+    p1.setValue('#class', 'test-runner');
+    p2.setValue('#class', 'test-runner');
+    Root.run();
+    TestFunctionRunner.clearLog();
+
+    p0.updateValue('input', {});
+    Root.run();
+    assert.deepEqual(TestFunctionRunner.logs,
+      ['p0', 'p1', 'p2', 'p3'],
+      'function should run in the same order as binding chain');
 
   });
 });

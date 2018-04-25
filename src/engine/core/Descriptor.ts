@@ -12,7 +12,7 @@ export interface PropGroupDesc {
   editor?: string;
 }
 
-export interface LogicDesc {
+export interface FunctionDesc {
   useLength?: boolean;
   inputs?: (PropDesc | PropGroupDesc)[];
   outputs?: PropDesc[];

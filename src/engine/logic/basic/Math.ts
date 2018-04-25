@@ -1,33 +1,33 @@
 import { Classes } from "../../core/Class";
-import { Logic, LogicData } from "../../core/Logic";
-import { LogicDesc } from "../../core/Descriptor";
+import { BlockFunction, FunctionData } from "../../core/BlockFunction";
+import { FunctionDesc } from "../../core/Descriptor";
 
-const descriptorN: LogicDesc = {
+const descriptorN: FunctionDesc = {
   useLength: true,
   inputs: [
-    { group: '', type: 'number' }
+    {group: '', type: 'number'}
   ],
   outputs: [
-    { name: 'output', type: 'number' }
+    {name: 'output', type: 'number'}
   ],
 };
-const descriptor2: LogicDesc = {
+const descriptor2: FunctionDesc = {
   inputs: [
-    { name: '0', type: 'number' },
-    { name: '1', type: 'number' }
+    {name: '0', type: 'number'},
+    {name: '1', type: 'number'}
   ],
   outputs: [
-    { name: 'output', type: 'number' }
+    {name: 'output', type: 'number'}
   ],
 };
 
 
-export class AddLogic extends Logic {
-  constructor(block: LogicData) {
+export class AddFunction extends BlockFunction {
+  constructor(block: FunctionData) {
     super(block);
   }
 
-  run(): any {
+  call(): any {
     let len = this._data.getLength();
     if (!(len >= 0)) {
       len = 2;
@@ -49,17 +49,17 @@ export class AddLogic extends Logic {
   }
 }
 
-AddLogic.prototype.priority = 0;
-AddLogic.prototype.descriptor = descriptorN;
-Classes.add('add', AddLogic);
+AddFunction.prototype.priority = 0;
+AddFunction.prototype.descriptor = descriptorN;
+Classes.add('add', AddFunction);
 
 
-export class MultiplyLogic extends Logic {
-  constructor(block: LogicData) {
+export class MultiplyFunction extends BlockFunction {
+  constructor(block: FunctionData) {
     super(block);
   }
 
-  run(): any {
+  call(): any {
     let len = this._data.getLength();
     if (!(len >= 0)) {
       len = 2;
@@ -81,17 +81,17 @@ export class MultiplyLogic extends Logic {
   }
 }
 
-MultiplyLogic.prototype.priority = 0;
-MultiplyLogic.prototype.descriptor = descriptorN;
-Classes.add('multiply', MultiplyLogic);
+MultiplyFunction.prototype.priority = 0;
+MultiplyFunction.prototype.descriptor = descriptorN;
+Classes.add('multiply', MultiplyFunction);
 
 
-export class SubtractLogic extends Logic {
-  constructor(block: LogicData) {
+export class SubtractFunction extends BlockFunction {
+  constructor(block: FunctionData) {
     super(block);
   }
 
-  run(): any {
+  call(): any {
     let v0 = this._data.getValue('0');
     let v1 = this._data.getValue('1');
     if (v0 == null || v1 == null) {
@@ -102,17 +102,17 @@ export class SubtractLogic extends Logic {
   }
 }
 
-SubtractLogic.prototype.priority = 0;
-SubtractLogic.prototype.descriptor = descriptor2;
-Classes.add('subtract', SubtractLogic);
+SubtractFunction.prototype.priority = 0;
+SubtractFunction.prototype.descriptor = descriptor2;
+Classes.add('subtract', SubtractFunction);
 
 
-export class DivideLogic extends Logic {
-  constructor(block: LogicData) {
+export class DivideFunction extends BlockFunction {
+  constructor(block: FunctionData) {
     super(block);
   }
 
-  run(): any {
+  call(): any {
     let v0 = this._data.getValue('0');
     let v1 = this._data.getValue('1');
     if (v0 == null || v1 == null) {
@@ -123,6 +123,6 @@ export class DivideLogic extends Logic {
   }
 }
 
-DivideLogic.prototype.priority = 0;
-DivideLogic.prototype.descriptor = descriptor2;
-Classes.add('divide', DivideLogic);
+DivideFunction.prototype.priority = 0;
+DivideFunction.prototype.descriptor = descriptor2;
+Classes.add('divide', DivideFunction);

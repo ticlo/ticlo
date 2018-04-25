@@ -1,8 +1,8 @@
 import { BlockIO, BlockProperty } from "./BlockProperty";
-import { LogicDesc } from "./Descriptor";
+import { FunctionDesc } from "./Descriptor";
 import { BlockMode } from "./Block";
 
-export interface LogicData {
+export interface FunctionData {
   getValue(field: string): any;
 
   updateValue(field: string, val: any): void;
@@ -19,16 +19,16 @@ export interface LogicData {
   getRawObject(): any;
 }
 
-export class Logic {
-  _data: LogicData;
+export class BlockFunction {
+  _data: FunctionData;
   className: string;
   priority: number;
 
-  constructor(block: LogicData) {
+  constructor(block: FunctionData) {
     this._data = block;
   }
 
-  descriptor: LogicDesc;
+  descriptor: FunctionDesc;
 
   // return true when it needs to be put in queue
   inputChanged(input: BlockIO, val: any): boolean {
@@ -36,7 +36,7 @@ export class Logic {
   }
 
   // return stream output
-  run(): any {
+  call(): any {
     // to be overridden
   }
 
@@ -58,12 +58,12 @@ export class Logic {
 
 }
 
-Logic.prototype.className = '';
+BlockFunction.prototype.className = '';
 
-Logic.prototype.priority = 0;
+BlockFunction.prototype.priority = 0;
 
-Logic.prototype.descriptor = {
+BlockFunction.prototype.descriptor = {
   inputs: [], outputs: [], attributes: [],
 };
 
-export type LogicGenerator = new (block: Object) => Logic;
+export type FunctionGenerator = new (block: Object) => BlockFunction;

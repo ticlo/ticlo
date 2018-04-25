@@ -1,8 +1,8 @@
 import { Block } from "./Block";
-import { Logic, LogicGenerator } from "./Logic";
+import { BlockFunction, FunctionGenerator } from "./BlockFunction";
 
 export class Class {
-  _generator: LogicGenerator = null;
+  _generator: FunctionGenerator = null;
   _name: string;
   _blocks: Set<Block> = new Set<Block>();
   _isStatic: boolean;
@@ -12,15 +12,15 @@ export class Class {
     this._isStatic = !name.includes(':');
   }
 
-  update(generator: LogicGenerator) {
+  update(generator: FunctionGenerator) {
     this._generator = generator;
     for (let block of this._blocks) {
-      block.updateLogic(this._generator);
+      block.updateFunction(this._generator);
     }
   }
 
   add(block: Block) {
-    block.updateLogic(this._generator);
+    block.updateFunction(this._generator);
     if (this._isStatic && this._generator) {
       return null;
     } else {
@@ -38,7 +38,7 @@ const _types: { [key: string]: Class } = {};
 let _typesFinalized = false;
 
 export class Classes {
-  static add(name: string, cls: LogicGenerator) {
+  static add(name: string, cls: FunctionGenerator) {
     cls.prototype.className = name;
     let type = _types[name];
 

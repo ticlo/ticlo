@@ -1,11 +1,12 @@
 import { assert } from "chai";
-import { TestLogicRunner } from "./TestLogic";
+import { TestFunctionRunner } from "./TestFunction";
 import { Job, Root } from "../Job";
 
 describe("BlockMode", () => {
   it('basic block mode', () => {
-    let job = new Job();
+    TestFunctionRunner.clearLog();
 
+    let job = new Job();
 
     let block = job.createBlock('obj');
     block.setValue('#mode', 'manual');
@@ -14,40 +15,40 @@ describe("BlockMode", () => {
     block.setValue('input', {});
 
     Root.run();
-    assert.isEmpty(TestLogicRunner.logs,
-      'manual mode should not trigger logic');
+    assert.isEmpty(TestFunctionRunner.logs,
+      'manual mode should not trigger function');
 
     block.setValue('#call', {});
 
     Root.run();
-    assert.deepEqual(TestLogicRunner.logs, ['obj'],
+    assert.deepEqual(TestFunctionRunner.logs, ['obj'],
       'manual mode should trigger block when called');
-    TestLogicRunner.clearLog();
+    TestFunctionRunner.clearLog();
 
     block.setValue('#mode', 'auto');
     Root.run();
-    assert.deepEqual(TestLogicRunner.logs, ['obj'],
-      'change mode should trigger logic');
-    TestLogicRunner.clearLog();
+    assert.deepEqual(TestFunctionRunner.logs, ['obj'],
+      'change mode should trigger function');
+    TestFunctionRunner.clearLog();
 
     block.setValue('input', {});
     Root.run();
-    assert.deepEqual(TestLogicRunner.logs, ['obj'],
+    assert.deepEqual(TestFunctionRunner.logs, ['obj'],
       'auto mode should trigger block when io property changed');
-    TestLogicRunner.clearLog();
+    TestFunctionRunner.clearLog();
 
     block.setValue('#mode', 'disabled');
     block.setValue('#call', {});
     block.setValue('input', {});
     Root.run();
-    assert.isEmpty(TestLogicRunner.logs,
-      'disable mode logic should never run');
+    assert.isEmpty(TestFunctionRunner.logs,
+      'disable mode function should never run');
 
     block.setValue('#mode', 'sync');
     block.setValue('#call', {});
-    assert.deepEqual(TestLogicRunner.logs, ['obj'],
-      'sync mode should run logic instantly when called');
-    TestLogicRunner.clearLog();
+    assert.deepEqual(TestFunctionRunner.logs, ['obj'],
+      'sync mode should run function instantly when called');
+    TestFunctionRunner.clearLog();
 
   });
 });

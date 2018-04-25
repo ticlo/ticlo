@@ -21,7 +21,7 @@ export class Event {
 }
 
 
-export class LogicResult extends Event {
+export class FunctionResult extends Event {
 
   detail: string;
 
@@ -31,7 +31,7 @@ export class LogicResult extends Event {
   }
 
   static isError(val: any) {
-    return val instanceof LogicResult && val.type != null;
+    return val instanceof FunctionResult && val.type != null;
   }
 
   // is valid event and not error
@@ -41,7 +41,7 @@ export class LogicResult extends Event {
     }
 
     if (val instanceof Event) {
-      if (val instanceof LogicResult && val.type != null) {
+      if (val instanceof FunctionResult && val.type != null) {
         return false;
       }
       return val.tick === Loop.tick;
