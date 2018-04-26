@@ -1,6 +1,6 @@
 import { assert } from "chai";
 import "../Js";
-import { Job, Root } from "../../../core/Job";
+import { Job, Root } from "../../../block/Job";
 
 describe("Script", () => {
   it('basic', () => {

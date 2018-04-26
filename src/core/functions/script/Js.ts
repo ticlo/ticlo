@@ -1,7 +1,7 @@
-import { Classes } from "../../core/Class";
-import { BlockFunction, FunctionData } from "../../core/BlockFunction";
-import { BlockIO, BlockProperty } from "../../core/BlockProperty";
-import { FunctionResult } from "../../core/Event";
+import { Classes } from "../../block/Class";
+import { BlockFunction, FunctionData } from "../../block/BlockFunction";
+import { BlockIO, BlockProperty } from "../../block/BlockProperty";
+import { FunctionResult } from "../../block/Event";
 
 const SCRIPT_ERROR = 'scriptError';
 

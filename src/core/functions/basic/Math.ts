@@ -1,6 +1,6 @@
-import { Classes } from "../../core/Class";
-import { BlockFunction, FunctionData } from "../../core/BlockFunction";
-import { FunctionDesc } from "../../core/Descriptor";
+import { Classes } from "../../block/Class";
+import { BlockFunction, FunctionData } from "../../block/BlockFunction";
+import { FunctionDesc } from "../../block/Descriptor";
 
 const descriptorN: FunctionDesc = {
   useLength: true,

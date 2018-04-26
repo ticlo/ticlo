@@ -1,5 +1,5 @@
 
-import { Listener } from "../core/Dispatcher";
+import { Listener } from "../block/Dispatcher";
 
 export class Command {
 
