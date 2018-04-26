@@ -3,12 +3,12 @@ import { Block } from "./Block";
 
 export class BlockProperty extends ValueDispatcher implements Listener {
 
-  protected _block: Block;
+  _block: Block;
   _name: string;
-  protected _bindingPath: string;
-  protected _bindingSource: ValueDispatcher;
+  _bindingPath: string;
+  _bindingSource: ValueDispatcher;
 
-  protected _saved: any = null;
+  _saved: any = null;
 
   constructor(block: Block, name: string) {
     super();
@@ -75,6 +75,15 @@ export class BlockProperty extends ValueDispatcher implements Listener {
     }
   }
 
+  _save(): any {
+    if (this._saved != null) {
+      if (this._saved instanceof Block) {
+        return this._saved._save();
+      }
+      return this._saved;
+    }
+  }
+
   _load(val: any) {
     if (val instanceof Object && val != null && val.hasOwnProperty('#class')) {
       let block = new Block(this._block._job, this._block, this);
@@ -82,6 +91,31 @@ export class BlockProperty extends ValueDispatcher implements Listener {
       block._load(val);
       this.onChange(block);
     } else {
+      this._saved = val;
+      this.onChange(val);
+    }
+  }
+
+  _liveUpdate(val: any) {
+    if (this._bindingPath != null) {
+      // clear binding
+      if (this._bindingSource != null) {
+        this._bindingSource.unlisten(this);
+      }
+      this._bindingSource = null;
+      this._bindingPath = null;
+    }
+    if (val instanceof Object && val != null && val.hasOwnProperty('#class')) {
+      if (this._saved instanceof Block) {
+        this._saved._liveUpdate(val);
+      } else {
+        // just do a normal loading
+        let block = new Block(this._block._job, this._block, this);
+        this._saved = block;
+        block._load(val);
+        this.onChange(block);
+      }
+    } else if (val !== this._saved) {
       this._saved = val;
       this.onChange(val);
     }

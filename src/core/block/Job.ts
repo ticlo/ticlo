@@ -14,12 +14,27 @@ export class Job extends Block {
 
     this._prop = new BlockProperty(this, '');
   }
+
+  save(): { [key: string]: any } {
+    return this._save();
+  }
+
+  load(map: { [key: string]: any }) {
+    this._load(map);
+  }
+
+  liveUpdate(map: { [key: string]: any }) {
+    this._liveUpdate(map);
+  }
 }
 
 export class Root extends Job {
 
   private static _instance: Root = new Root();
-  static get instance() { return this._instance; }
+  static get instance() {
+    return this._instance;
+  }
+
   static run() {
     this._instance._loop._run();
   }

@@ -1,6 +1,7 @@
 import { assert } from "chai";
 import "../Js";
 import { Job, Root } from "../../../block/Job";
+import { Block } from "../../../block/Block";
 
 describe("Script", () => {
   it('basic', () => {
@@ -29,5 +30,15 @@ describe("Script", () => {
     aBlock.updateValue('#call', {});
     Root.run();
     assert.equal(aBlock.getValue('out2'), 458, 'nested function script local value');
+
+    // save load
+    let saved = job._save();
+    let job2 = new Job();
+    job2.load(saved);
+
+    let aBlock2 = job2.getValue('a');
+    assert.instanceOf(aBlock2, Block, "load add block from saved data");
+    Root.run();
+    assert.equal(aBlock2.getValue('out2'), 457, 'run script function after loading saved data');
   });
 });

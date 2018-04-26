@@ -1,6 +1,7 @@
 import { assert } from "chai";
 import "../Math";
 import { Job, Root } from "../../../block/Job";
+import { Block } from "../../../block/Block";
 
 describe("Math", () => {
 
@@ -31,6 +32,16 @@ describe("Math", () => {
 
     Root.run();
     assert.equal(aBlock.getValue('output'), 6, 'update type after value, 2.5+3.5==6');
+
+    // save load
+    let saved = job._save();
+    let job2 = new Job();
+    job2.load(saved);
+
+    let aBlock2 = job2.getValue('a2');
+    assert.instanceOf(aBlock2, Block, "load add block from saved data");
+    Root.run();
+    assert.equal(aBlock2.getValue('output'), 6, 'run add function after loading saved data');
   });
 
   it('add multiple', () => {

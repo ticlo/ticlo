@@ -163,13 +163,24 @@ export class Block implements FunctionData {
     delete this._bindings[path];
   }
 
-
-  load(map: { [key: string]: any }) {
-    this._load(map);
+  _save(): { [key: string]: any } {
+    let result: { [key: string]: any } = {};
+    for (let name in this._props) {
+      let prop = this._props[name];
+      if (prop._bindingPath) {
+        result[`~${name}`] = prop._bindingPath;
+      } else {
+        let saved = prop._save();
+        if (saved != null) {
+          result[name] = saved;
+        }
+      }
+    }
+    return result;
   }
 
   _load(map: { [key: string]: any }) {
-    let pendingClass: string;
+    let pendingClass: any;
     for (let key in map) {
       if (key !== '#class') {
         if (key.charCodeAt(0) === 126) { // ~ for binding
@@ -179,7 +190,7 @@ export class Block implements FunctionData {
             this.setBinding(name, val);
           }
         } else {
-          this.getProperty('key')._load(map[key]);
+          this.getProperty(key)._load(map[key]);
         }
       } else {
         pendingClass = map['#class'];
@@ -190,8 +201,29 @@ export class Block implements FunctionData {
     }
   }
 
-  merge(map: { [key: string]: any }) {
-    // TODO
+  // load the data but keep runtime values
+  _liveUpdate(map: { [key: string]: any }) {
+    let pendingClass: any = map['#class'];
+    if (pendingClass !== this._className) {
+      // clear the class first so other property change won't cause a function call
+      this._classChanged(null);
+    }
+    for (let key in map) {
+      if (key !== '#class') {
+        if (key.charCodeAt(0) === 126) { // ~ for binding
+          let val = map[key];
+          if (typeof val === 'string') {
+            let name = key.substring(1);
+            this.setBinding(name, val);
+          }
+        } else {
+          this.getProperty(key)._liveUpdate(map[key]);
+        }
+      }
+    }
+    if (pendingClass !== this._className) {
+      this.setValue('#class', pendingClass);
+    }
   }
 
   setValue(field: string, val: any): void {
