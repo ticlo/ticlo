@@ -9,7 +9,7 @@ describe("BlockMode", () => {
     let job = new Job();
 
     let block = job.createBlock('obj');
-    block.setValue('#mode', 'manual');
+    block.setValue('#mode', 'onCall');
     block.setValue('@log', 'obj');
     block.setValue('#class', 'test-runner');
     block.setValue('input', {});
@@ -25,7 +25,7 @@ describe("BlockMode", () => {
       'manual mode should trigger block when called');
     TestFunctionRunner.clearLog();
 
-    block.setValue('#mode', 'auto');
+    block.setValue('#mode', 'always');
     Root.run();
     assert.deepEqual(TestFunctionRunner.logs, ['obj'],
       'change mode should trigger function');

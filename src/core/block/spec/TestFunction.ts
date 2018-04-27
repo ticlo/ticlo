@@ -14,8 +14,8 @@ export class TestFunctionRunner extends BlockFunction {
     super(block);
   }
 
-  call(): any {
-    TestFunctionRunner.logs.push(this._data.getValue('@log'));
+  call(data: FunctionData): any {
+    TestFunctionRunner.logs.push(data.getValue('@log'));
   }
 }
 

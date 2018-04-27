@@ -27,24 +27,24 @@ export class AddFunction extends BlockFunction {
     super(block);
   }
 
-  call(): any {
-    let len = this._data.getLength();
+  call(data: FunctionData): any {
+    let len = data.getLength();
     if (!(len >= 0)) {
       len = 2;
     }
     if (len > 0) {
       let sum = 0;
       for (let i = 0; i < len; ++i) {
-        let val = this._data.getValue(String(i));
+        let val = data.getValue(String(i));
         if (val == null) {
-          this._data.output(null);
+          data.output(null);
           return;
         }
         sum += Number(val);
       }
-      this._data.output(sum);
+      data.output(sum);
     } else {
-      this._data.output(null);
+      data.output(null);
     }
   }
 }
@@ -59,24 +59,24 @@ export class MultiplyFunction extends BlockFunction {
     super(block);
   }
 
-  call(): any {
-    let len = this._data.getLength();
+  call(data: FunctionData): any {
+    let len = data.getLength();
     if (!(len >= 0)) {
       len = 2;
     }
     if (len > 0) {
       let product = 1;
       for (let i = 0; i < len; ++i) {
-        let val = this._data.getValue(String(i));
+        let val = data.getValue(String(i));
         if (val == null) {
-          this._data.output(null);
+          data.output(null);
           return;
         }
         product *= Number(val);
       }
-      this._data.output(product);
+      data.output(product);
     } else {
-      this._data.output(null);
+      data.output(null);
     }
   }
 }
@@ -91,13 +91,13 @@ export class SubtractFunction extends BlockFunction {
     super(block);
   }
 
-  call(): any {
-    let v0 = this._data.getValue('0');
-    let v1 = this._data.getValue('1');
+  call(data: FunctionData): any {
+    let v0 = data.getValue('0');
+    let v1 = data.getValue('1');
     if (v0 == null || v1 == null) {
-      this._data.output(null);
+      data.output(null);
     } else {
-      this._data.output(Number(v0) - Number(v1));
+      data.output(Number(v0) - Number(v1));
     }
   }
 }
@@ -112,13 +112,13 @@ export class DivideFunction extends BlockFunction {
     super(block);
   }
 
-  call(): any {
-    let v0 = this._data.getValue('0');
-    let v1 = this._data.getValue('1');
+  call(data: FunctionData): any {
+    let v0 = data.getValue('0');
+    let v1 = data.getValue('1');
     if (v0 == null || v1 == null) {
-      this._data.output(null);
+      data.output(null);
     } else {
-      this._data.output(Number(v0) / Number(v1));
+      data.output(Number(v0) / Number(v1));
     }
   }
 }

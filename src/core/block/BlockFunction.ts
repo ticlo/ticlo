@@ -23,6 +23,7 @@ export class BlockFunction {
   _data: FunctionData;
   className: string;
   priority: number;
+  defaultMode: BlockMode;
 
   constructor(block: FunctionData) {
     this._data = block;
@@ -36,7 +37,7 @@ export class BlockFunction {
   }
 
   // return stream output
-  call(): any {
+  call(data: FunctionData): any {
     // to be overridden
   }
 
@@ -59,11 +60,10 @@ export class BlockFunction {
 }
 
 BlockFunction.prototype.className = '';
-
 BlockFunction.prototype.priority = 0;
-
+BlockFunction.prototype.defaultMode = 'always';
 BlockFunction.prototype.descriptor = {
   inputs: [], outputs: [], attributes: [],
 };
 
-export type FunctionGenerator = new (block: Object) => BlockFunction;
+export type FunctionGenerator = new (block: FunctionData) => BlockFunction;

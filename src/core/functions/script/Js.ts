@@ -25,7 +25,7 @@ export class JsFunction extends BlockFunction {
     return true;
   }
 
-  call(): any {
+  call(data: FunctionData): any {
     if (!this._compiledFunction) {
       if (typeof this._script._value === 'string') {
         try {
@@ -35,7 +35,7 @@ export class JsFunction extends BlockFunction {
         }
         let rslt: any;
         try {
-          rslt = this._compiledFunction.apply(this._data.getRawObject());
+          rslt = this._compiledFunction.apply(data.getRawObject());
         } catch (err) {
           this._compiledFunction = null;
           return new FunctionResult(SCRIPT_ERROR, err.toString());
@@ -54,7 +54,7 @@ export class JsFunction extends BlockFunction {
     if (this._runFunction) {
       let rslt: any;
       try {
-        rslt = this._runFunction.apply(this._data.getRawObject());
+        rslt = this._runFunction.apply(data.getRawObject());
       } catch (err) {
         return new FunctionResult(SCRIPT_ERROR, err.toString());
       }

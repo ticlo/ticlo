@@ -15,7 +15,7 @@ import { Class, Classes } from "./Class";
 import { Loop } from "./Loop";
 import { Event, FunctionResult } from "./Event";
 
-export type BlockMode = 'auto' | 'manual' | 'disabled' | 'sync';
+export type BlockMode = 'auto' | 'always' | 'onChange' | 'onCall' | 'sync' | 'disabled';
 
 export class Block implements FunctionData {
   _job: Job;
@@ -24,6 +24,8 @@ export class Block implements FunctionData {
   _gen: number;
 
   _mode: BlockMode = 'auto';
+  _callOnChange: boolean = true;
+  _callOnLoad: boolean = false;
 
   _props: { [key: string]: BlockProperty } = {};
   _bindings: { [key: string]: BlockBinding } = {};
@@ -59,7 +61,7 @@ export class Block implements FunctionData {
         this._loop = new Loop((loop: Loop) => {
           if (!this._queued) {
             loop._loopScheduled = true;
-            if (this._mode === 'auto') {
+            if (this._callOnChange) {
               this._parent.queueBlock(this);
             }
           }
@@ -275,7 +277,7 @@ export class Block implements FunctionData {
 
   inputChanged(input: BlockIO, val: any) {
     if (this._function) {
-      if (this._mode === 'auto' && this._function.inputChanged(input, val)) {
+      if (this._callOnChange && this._function.inputChanged(input, val)) {
         this._queueFunction();
       }
     }
@@ -293,7 +295,7 @@ export class Block implements FunctionData {
 
     if (this._called) {
       this._running = true;
-      let result = this._function.call();
+      let result = this._function.call(this);
       this._running = false;
       if (this._props['#emit']) {
         if (result == null) {
@@ -308,17 +310,44 @@ export class Block implements FunctionData {
 
 
   _modeChanged(mode: any) {
+    if (mode === this._mode) {
+      return;
+    }
     switch (mode) {
-      case 'manual':
+      case 'always':
+      case 'onChange':
+      case 'onCall':
       case 'sync':
       case 'disabled':
         this._mode = mode;
         break;
-      default:
-        this._mode = 'auto';
-        if (this._function) {
-          this._queueFunction();
+      default: {
+        if (this._mode === 'auto') {
+          return;
         }
+        this._mode = 'auto';
+      }
+    }
+    this._configMode();
+    if (this._callOnLoad && this._function != null) {
+      this._function.call(this);
+    }
+  }
+
+  _configMode() {
+    let resolvedMode = this._mode;
+    if (this._mode === 'auto' && this._function != null) {
+      resolvedMode = this._function.defaultMode;
+    }
+    if (resolvedMode === 'always') {
+      this._callOnChange = true;
+      this._callOnLoad = true;
+    } else if (resolvedMode === 'onChange' || resolvedMode === 'auto') {
+      this._callOnChange = true;
+      this._callOnLoad = false;
+    } else {
+      this._callOnChange = false;
+      this._callOnLoad = false;
     }
   }
 
@@ -371,7 +400,7 @@ export class Block implements FunctionData {
     let newLen = Number(length);
     if (newLen !== this._cachedLength && (newLen === newLen || this._cachedLength === this._cachedLength)) {
       this._cachedLength = newLen;
-      if (this._function && this._function.descriptor.useLength && this._mode === 'auto') {
+      if (this._function && this._function.descriptor.useLength && this._callOnChange) {
         this._queueFunction();
       }
     }
@@ -409,11 +438,19 @@ export class Block implements FunctionData {
     }
     if (generator) {
       this._function = new generator(this);
-      if (this._function.checkInitRun(this._mode)) {
+      if (this._mode === 'auto') {
+        this._configMode();
+      }
+      if (this._callOnLoad) {
         this._queueFunction();
       }
     } else {
       this._function = null;
+      if (this._mode === 'auto') {
+        // fast version of this._configMode();
+        this._callOnChange = true;
+        this._callOnLoad = false;
+      }
     }
   }
 
