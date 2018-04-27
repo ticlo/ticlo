@@ -27,7 +27,7 @@ export class AddFunction extends BlockFunction {
     super(block);
   }
 
-  call(data: FunctionData): any {
+  run(data: FunctionData): any {
     let len = data.getLength();
     if (!(len >= 0)) {
       len = 2;
@@ -59,7 +59,7 @@ export class MultiplyFunction extends BlockFunction {
     super(block);
   }
 
-  call(data: FunctionData): any {
+  run(data: FunctionData): any {
     let len = data.getLength();
     if (!(len >= 0)) {
       len = 2;
@@ -91,7 +91,7 @@ export class SubtractFunction extends BlockFunction {
     super(block);
   }
 
-  call(data: FunctionData): any {
+  run(data: FunctionData): any {
     let v0 = data.getValue('0');
     let v1 = data.getValue('1');
     if (v0 == null || v1 == null) {
@@ -112,7 +112,7 @@ export class DivideFunction extends BlockFunction {
     super(block);
   }
 
-  call(data: FunctionData): any {
+  run(data: FunctionData): any {
     let v0 = data.getValue('0');
     let v1 = data.getValue('1');
     if (v0 == null || v1 == null) {

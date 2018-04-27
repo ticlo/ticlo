@@ -6,6 +6,7 @@ import { Loop } from "./Loop";
 export class Job extends Block {
 
   _enabled: boolean = true;
+  _loading: boolean = false;
 
   constructor() {
     super(null, null, null);
@@ -20,11 +21,15 @@ export class Job extends Block {
   }
 
   load(map: { [key: string]: any }) {
+    this._loading = true;
     this._load(map);
+    this._loading = false;
   }
 
   liveUpdate(map: { [key: string]: any }) {
+    this._loading = true;
     this._liveUpdate(map);
+    this._loading = false;
   }
 }
 

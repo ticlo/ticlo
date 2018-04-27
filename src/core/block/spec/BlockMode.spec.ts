@@ -1,6 +1,7 @@
 import { assert } from "chai";
 import { TestFunctionRunner } from "./TestFunction";
 import { Job, Root } from "../Job";
+import { Block } from "../Block";
 
 describe("BlockMode", () => {
   it('basic block mode', () => {
@@ -25,10 +26,15 @@ describe("BlockMode", () => {
       'manual mode should trigger block when called');
     TestFunctionRunner.clearLog();
 
+    block.setValue('#mode', 'onChange');
+    Root.run();
+    assert.deepEqual(TestFunctionRunner.logs, [],
+      'change mode to onChange should not trigger function');
+
     block.setValue('#mode', 'always');
     Root.run();
     assert.deepEqual(TestFunctionRunner.logs, ['obj'],
-      'change mode should trigger function');
+      'change mode to always should trigger function');
     TestFunctionRunner.clearLog();
 
     block.setValue('input', {});
@@ -50,5 +56,52 @@ describe("BlockMode", () => {
       'sync mode should run function instantly when called');
     TestFunctionRunner.clearLog();
 
+  });
+
+  it('block mode on load', () => {
+    TestFunctionRunner.clearLog();
+
+    let job = new Job();
+
+    let b0 = job.createBlock('always');
+    b0.setValue('#mode', 'always');
+    let b1 = job.createBlock('onChange');
+    b1.setValue('#mode', 'onChange');
+    let b2 = job.createBlock('onCall');
+    b2.setValue('#mode', 'onCall');
+    let b3 = job.createBlock('sync');
+    b3.setValue('#mode', 'sync');
+    let b4 = job.createBlock('disabled');
+    b4.setValue('#mode', 'disabled');
+
+    b0.setValue('@log', 'b0');
+    b0.setValue('#class', 'test-runner');
+    b0.setValue('input', {});
+    b1.setValue('@log', 'b1');
+    b1.setValue('#class', 'test-runner');
+    b1.setValue('input', {});
+    b2.setValue('@log', 'b2');
+    b2.setValue('#class', 'test-runner');
+    b2.setValue('input', {});
+    b3.setValue('@log', 'b3');
+    b3.setValue('#class', 'test-runner');
+    b3.setValue('input', {});
+    b4.setValue('@log', 'b4');
+    b4.setValue('#class', 'test-runner');
+    b4.setValue('input', {});
+
+    Root.run();
+    assert.deepEqual(TestFunctionRunner.logs, ['b0', 'b1'],
+      'mode always and onChange should be called');
+    TestFunctionRunner.clearLog();
+
+    let saved = job._save();
+    let job2 = new Job();
+    job2.load(saved);
+
+    Root.run();
+    assert.deepEqual(TestFunctionRunner.logs, ['b0'],
+      'mode always should be called after load');
+    TestFunctionRunner.clearLog();
   });
 });

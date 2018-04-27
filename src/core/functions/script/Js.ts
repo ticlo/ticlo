@@ -25,7 +25,7 @@ export class JsFunction extends BlockFunction {
     return true;
   }
 
-  call(data: FunctionData): any {
+  run(data: FunctionData): any {
     if (!this._compiledFunction) {
       if (typeof this._script._value === 'string') {
         try {

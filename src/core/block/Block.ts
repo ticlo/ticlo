@@ -62,6 +62,8 @@ export class Block implements FunctionData {
           if (!this._queued) {
             loop._loopScheduled = true;
             if (this._callOnChange) {
+              // put in queue, but _called is not set to true
+              // only run the sub loop, not the function
               this._parent.queueBlock(this);
             }
           }
@@ -276,10 +278,8 @@ export class Block implements FunctionData {
   }
 
   inputChanged(input: BlockIO, val: any) {
-    if (this._function) {
-      if (this._callOnChange && this._function.inputChanged(input, val)) {
-        this._queueFunction();
-      }
+    if (this._function && this._function.inputChanged(input, val)) {
+      this._queueFunctionOnChange();
     }
   }
 
@@ -295,7 +295,7 @@ export class Block implements FunctionData {
 
     if (this._called) {
       this._running = true;
-      let result = this._function.call(this);
+      let result = this._function.run(this);
       this._running = false;
       if (this._props['#emit']) {
         if (result == null) {
@@ -330,7 +330,7 @@ export class Block implements FunctionData {
     }
     this._configMode();
     if (this._callOnLoad && this._function != null) {
-      this._function.call(this);
+      this._function.run(this);
     }
   }
 
@@ -372,6 +372,17 @@ export class Block implements FunctionData {
     }
   }
 
+  _queueFunctionOnChange() {
+    if (this._callOnChange) {
+      this._called = true;
+      if (!this._queued) {
+        if (this._callOnLoad || !this._job._loading) {
+          this._parent.queueBlock(this);
+        }
+      }
+    }
+  }
+
   _queueFunction() {
     this._called = true;
     // put it in queue
@@ -400,8 +411,8 @@ export class Block implements FunctionData {
     let newLen = Number(length);
     if (newLen !== this._cachedLength && (newLen === newLen || this._cachedLength === this._cachedLength)) {
       this._cachedLength = newLen;
-      if (this._function && this._function.descriptor.useLength && this._callOnChange) {
-        this._queueFunction();
+      if (this._function && this._function.descriptor.useLength) {
+        this._queueFunctionOnChange();
       }
     }
   }
