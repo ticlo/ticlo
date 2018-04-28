@@ -24,41 +24,41 @@ export class JsFunction extends BlockFunction {
   }
 
   run(data: FunctionData): any {
-    if (!this._runFunction) {
-      let script = data.getValue('script');
-      if (typeof script === 'string') {
-        try {
-          this._compiledFunction = new Function(script);
-        } catch (err) {
-          return new FunctionResult(SCRIPT_ERROR, err.toString());
-        }
-        let rslt: any;
-        try {
-          rslt = this._compiledFunction.apply(data.getRawObject());
-        } catch (err) {
-          this._compiledFunction = null;
-          return new FunctionResult(SCRIPT_ERROR, err.toString());
-        }
-        if (typeof rslt === 'function') {
-          // let the function run again
-          this._runFunction = rslt;
+    if (this._runFunction == null) {
+      if (this._compiledFunction == null) {
+        let script = data.getValue('script');
+        if (typeof script === 'string') {
+          try {
+            this._compiledFunction = new Function(script);
+          } catch (err) {
+            return new FunctionResult(SCRIPT_ERROR, err.toString());
+          }
         } else {
-          this._runFunction = this._compiledFunction;
-          return rslt;
+          return null;
         }
-      } else {
-        return null;
       }
-    }
-    if (this._runFunction) {
-      let rslt: any;
+      let rslt;
       try {
-        rslt = this._runFunction.apply(data.getRawObject());
+        rslt = this._compiledFunction.apply(data.getRawObject());
       } catch (err) {
+        this._compiledFunction = null;
         return new FunctionResult(SCRIPT_ERROR, err.toString());
       }
-      return rslt;
+      if (typeof rslt === 'function') {
+        // let the function run again
+        this._runFunction = rslt;
+      } else {
+        this._runFunction = this._compiledFunction;
+        return rslt;
+      }
     }
+    let rslt: any;
+    try {
+      rslt = this._runFunction.apply(data.getRawObject());
+    } catch (err) {
+      return new FunctionResult(SCRIPT_ERROR, err.toString());
+    }
+    return rslt;
   }
 
   static registerJsClass(className: string,
