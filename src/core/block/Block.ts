@@ -4,7 +4,8 @@ import {
   BlockClassControl,
   BlockLengthControl,
   BlockModeControl,
-  BlockPriorityControl
+  BlockPriorityControl,
+  BlockReadOnlyControl
 } from "./BlockControls";
 import { BlockBinding } from "./BlockBinding";
 import { Job } from "./Job";
@@ -110,6 +111,12 @@ export class Block implements FunctionData {
           break;
         case '#priority':
           prop = new BlockPriorityControl(this, field);
+          break;
+        case '#parent':
+          prop = new BlockReadOnlyControl(this, field, this._parent);
+          break;
+        case '#job':
+          prop = new BlockReadOnlyControl(this, field, this._job);
           break;
         default:
           prop = new BlockProperty(this, field);
@@ -258,6 +265,12 @@ export class Block implements FunctionData {
   getValue(field: string): any {
     if (this._props.hasOwnProperty(field)) {
       return this._props[field]._value;
+    } else if (field.startsWith('#')) {
+      switch (field) {
+        case '#parent':
+        case '#job':
+          return this.getProperty(field).getValue();
+      }
     }
     return undefined;
   }
