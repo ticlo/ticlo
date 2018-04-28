@@ -10,7 +10,8 @@ describe("Script", () => {
     let aBlock = job.createBlock('a');
 
     aBlock.setValue('#class', 'js');
-    aBlock.setValue('script', 'this["out1"] = 321');
+    aBlock.setValue('script', 'this["out1"] = this["in1"]');
+    aBlock.setValue('in1', 321);
     Root.run();
 
     assert.equal(aBlock.getValue('out1'), 321, 'basic script output');

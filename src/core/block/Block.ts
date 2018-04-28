@@ -212,6 +212,7 @@ export class Block implements FunctionData {
       // clear the class first so other property change won't cause a function call
       this._classChanged(null);
     }
+    let loadedFields: { [key: string]: any } = {'#class': true};
     for (let key in map) {
       if (key !== '#class') {
         if (key.charCodeAt(0) === 126) { // ~ for binding
@@ -219,10 +220,18 @@ export class Block implements FunctionData {
           if (typeof val === 'string') {
             let name = key.substring(1);
             this.setBinding(name, val);
+            loadedFields[key] = true;
           }
         } else {
           this.getProperty(key)._liveUpdate(map[key]);
+          loadedFields[key] = true;
         }
+      }
+    }
+    for (let key in this._props) {
+      // clear properties that don't exist in saved data
+      if (!loadedFields.hasOwnProperty(key)) {
+        this._props[key].clear();
       }
     }
     if (pendingClass !== this._className) {
@@ -394,6 +403,7 @@ export class Block implements FunctionData {
 
   _classChanged(className: any) {
     if (className === this._className) return;
+    this._className = className;
     if (this._class) {
       this._class.remove(this);
     }

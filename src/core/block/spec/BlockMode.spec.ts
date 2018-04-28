@@ -104,4 +104,60 @@ describe("BlockMode", () => {
       'mode always should be called after load');
     TestFunctionRunner.clearLog();
   });
+
+  it('block mode on liveUpdate', () => {
+    TestFunctionRunner.clearLog();
+
+    let job = new Job();
+
+    let b0 = job.createBlock('b0');
+    b0.setValue('#mode', 'always');
+    let b1 = job.createBlock('b1');
+    b1.setValue('#mode', 'onChange');
+
+    b0.setValue('@log', 'b0');
+    b0.setValue('#class', 'test-runner');
+    b0.setValue('input', 1);
+    b1.setValue('@log', 'b1');
+    b1.setValue('#class', 'test-runner');
+    b1.setValue('input', 1);
+    Root.run();
+    assert.deepEqual(TestFunctionRunner.logs, ['b0', 'b1'],
+      'first snapshot');
+    TestFunctionRunner.clearLog();
+
+    let save1 = job.save();
+
+    let b2 = job.createBlock('b2');
+    b2.setValue('#mode', 'always');
+    let b3 = job.createBlock('b3');
+    b3.setValue('#mode', 'onChange');
+
+    b0.setValue('input', 2);
+    b1.setValue('input', 2);
+    b2.setValue('@log', 'b2');
+    b2.setValue('#class', 'test-runner');
+    b2.setValue('input', 2);
+    b3.setValue('@log', 'b3');
+    b3.setValue('#class', 'test-runner');
+    b3.setValue('input', 2);
+
+    Root.run();
+    assert.deepEqual(TestFunctionRunner.logs, ['b0', 'b1', 'b2', 'b3'],
+      'second snapshot');
+    TestFunctionRunner.clearLog();
+    let save2 = job.save();
+
+    job.liveUpdate(save1);
+    Root.run();
+    assert.deepEqual(TestFunctionRunner.logs, ['b0'],
+      'undo to first snapshot');
+    TestFunctionRunner.clearLog();
+
+    job.liveUpdate(save2);
+    Root.run();
+    assert.deepEqual(TestFunctionRunner.logs, ['b0', 'b2'],
+      'redo to second snapshot');
+    TestFunctionRunner.clearLog();
+  });
 });

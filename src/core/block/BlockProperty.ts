@@ -43,7 +43,7 @@ export class BlockProperty extends ValueDispatcher implements Listener {
 
 
   setValue(val: any) {
-    if (this._bindingSource) {
+    if (this._bindingPath) {
       this._bindingSource.unlisten(this);
       this._bindingPath = null;
       this._bindingSource = null;
@@ -52,6 +52,13 @@ export class BlockProperty extends ValueDispatcher implements Listener {
       this._saved = val;
     }
     this.onChange(val);
+  }
+
+  // clear saved value and binding path
+  clear() {
+    if (this._bindingPath || this._saved) {
+      this.setValue(null);
+    }
   }
 
   getValue() {
