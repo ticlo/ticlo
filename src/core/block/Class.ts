@@ -46,8 +46,8 @@ export class Classes {
       type = new Class(name);
       _types[name] = type;
     }
-    type.update(cls);
     cls.prototype.type = name;
+    type.update(cls);
   }
 
   static listen(name: string, block: Block): Class {

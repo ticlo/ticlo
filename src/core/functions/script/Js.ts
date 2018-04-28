@@ -2,23 +2,21 @@ import { Classes } from "../../block/Class";
 import { BlockFunction, FunctionData } from "../../block/BlockFunction";
 import { BlockIO, BlockProperty } from "../../block/BlockProperty";
 import { FunctionResult } from "../../block/Event";
+import { BlockMode } from "../../block/Block";
 
 const SCRIPT_ERROR = 'scriptError';
 
 export class JsFunction extends BlockFunction {
-
-  _script: BlockProperty;
 
   _compiledFunction: Function;
   _runFunction: Function;
 
   constructor(block: FunctionData) {
     super(block);
-    this._script = block.getProperty('script');
   }
 
   inputChanged(input: BlockIO, val: any): boolean {
-    if (input === this._script) {
+    if (input._name === 'script') {
       this._compiledFunction = null;
       this._runFunction = null;
     }
@@ -26,10 +24,11 @@ export class JsFunction extends BlockFunction {
   }
 
   run(data: FunctionData): any {
-    if (!this._compiledFunction) {
-      if (typeof this._script._value === 'string') {
+    if (!this._runFunction) {
+      let script = data.getValue('script');
+      if (typeof script === 'string') {
         try {
-          this._compiledFunction = new Function(this._script._value);
+          this._compiledFunction = new Function(script);
         } catch (err) {
           return new FunctionResult(SCRIPT_ERROR, err.toString());
         }
@@ -59,6 +58,28 @@ export class JsFunction extends BlockFunction {
         return new FunctionResult(SCRIPT_ERROR, err.toString());
       }
       return rslt;
+    }
+  }
+
+  static registerJsClass(className: string,
+                         script: string,
+                         defaultMode: BlockMode = 'always',
+                         defaultPriority: number = 1) {
+    try {
+      let compiledFunction = new Function(script);
+
+      class CustomScriptFunction extends JsFunction {
+        constructor(block: FunctionData) {
+          super(block);
+          this._compiledFunction = compiledFunction;
+          this.priority = defaultPriority;
+          this.defaultMode = defaultMode;
+        }
+      }
+
+      Classes.add(className, CustomScriptFunction);
+    } catch (err) {
+      // TODO log?
     }
   }
 }

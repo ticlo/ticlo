@@ -1,5 +1,5 @@
 import { assert } from "chai";
-import "../Js";
+import { JsFunction } from "../Js";
 import { Job, Root } from "../../../block/Job";
 import { Block } from "../../../block/Block";
 
@@ -41,5 +41,19 @@ describe("Script", () => {
     assert.instanceOf(aBlock2, Block, "load add block from saved data");
     Root.run();
     assert.equal(aBlock2.getValue('out2'), 457, 'run script function after loading saved data');
+  });
+
+  it('js class', () => {
+    let job = new Job();
+
+    let aBlock = job.createBlock('a');
+    aBlock.setValue('in1', 321);
+    aBlock.setValue('#class', ':myJs');
+
+    JsFunction.registerJsClass(':myJs', 'this["out1"] = this["in1"]');
+
+    Root.run();
+    assert.equal(aBlock.getValue('out1'), 321, 'basic script output');
+
   });
 });

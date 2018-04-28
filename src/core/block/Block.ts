@@ -432,7 +432,7 @@ export class Block implements FunctionData {
 
   _priorityChanged(priority: any) {
     if (priority >= 0 && priority <= 3) {
-      this._controlPriority = Number(priority);
+      this._controlPriority = Math.round(priority);
     }
   }
 
