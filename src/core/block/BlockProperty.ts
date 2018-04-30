@@ -34,6 +34,9 @@ export class BlockProperty extends ValueDispatcher implements Listener {
     }
     if (this._value instanceof Block && this._value._prop === this) {
       this._value.destroy();
+      if (this._saved === this._value) {
+        this._saved = null;
+      }
     }
     this._value = val;
     this._valueChanged();
@@ -136,6 +139,10 @@ export class BlockProperty extends ValueDispatcher implements Listener {
     if (this._value instanceof Block && this._value._prop === this) {
       this._value.destroy();
     }
+    for (let listener of this._listeners) {
+      listener.onSourceChange(null);
+    }
+    this._listeners = null;
     // TODO ?
   }
 }

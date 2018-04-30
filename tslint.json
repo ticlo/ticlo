@@ -136,7 +136,7 @@
     ],
     "object-literal-key-quotes": [
       true,
-      "consistent-as-needed"
+      "consistent"
     ],
     "variable-name": [
       true,

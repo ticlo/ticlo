@@ -24,6 +24,7 @@ export class Loop {
   queueBlock(block: Block) {
     if (block._queued) return;
     block._queued = true;
+    block._queueDone = false;
     this._queueWait.push(block);
     if (!(this._loopScheduled || this._loopRunning)) {
       this._schedule(this);
@@ -42,7 +43,6 @@ export class Loop {
       let blockPriority = block.getPriority();
       if (blockPriority >= 0 && blockPriority <= 3) {
         this._queue[blockPriority].push(block);
-        block._queueDone = false;
         if (priority > blockPriority) {
           priorityChanged = true;
         }

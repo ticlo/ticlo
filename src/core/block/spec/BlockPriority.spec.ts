@@ -73,9 +73,9 @@ describe("BlockPriority", () => {
     p2.setValue('@log', 'p2');
     p1.setValue('@log', 'p1');
 
-    p1.setBinding('input', '#parent.p0.input');
-    p2.setBinding('input', '#parent.p1.input');
-    p3.setBinding('input', '#parent.p2.input');
+    p1.setBinding('input', '##.p0.input');
+    p2.setBinding('input', '##.p1.input');
+    p3.setBinding('input', '##.p2.input');
 
     p3.setValue('#class', 'test-runner');
     p0.setValue('#class', 'test-runner');

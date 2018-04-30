@@ -9,18 +9,18 @@ describe("BlockControl", () => {
 
     let block = job.createBlock('obj');
 
-    assert.equal(block.getValue('#parent'), job, 'get #parent');
-    assert.equal(block.getValue('#job'), job, 'get #job');
+    assert.equal(block.getValue('##'), job, 'get ##');
+    assert.equal(block.getValue('###'), job, 'get ###');
 
-    block.setValue('#parent', 1);
-    assert.equal(block.getValue('#parent'), job, 'readonly property setValue');
+    block.setValue('##', 1);
+    assert.equal(block.getValue('##'), job, 'readonly property setValue');
 
-    block.updateValue('#parent', 1);
-    assert.equal(block.getValue('#parent'), job, 'readonly property updateValue');
+    block.updateValue('##', 1);
+    assert.equal(block.getValue('##'), job, 'readonly property updateValue');
 
     block.setValue('a', 1);
-    block.setBinding('#parent', 'a');
-    assert.equal(block.getValue('#parent'), job, 'readonly property setBinding');
+    block.setBinding('##', 'a');
+    assert.equal(block.getValue('##'), job, 'readonly property setBinding');
 
   });
 });

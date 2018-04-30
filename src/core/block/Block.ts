@@ -1,9 +1,9 @@
 import { BlockProperty, BlockPropertyHelper, BlockIO } from "./BlockProperty";
 import {
   BlockCallControl,
-  BlockClassControl,
+  BlockClassControl, BlockInputControl,
   BlockLengthControl,
-  BlockModeControl,
+  BlockModeControl, BlockOutputControl,
   BlockPriorityControl,
   BlockReadOnlyControl
 } from "./BlockControls";
@@ -61,8 +61,8 @@ export class Block implements FunctionData {
       } else {
         this._loop = new Loop((loop: Loop) => {
           if (!this._queued) {
-            loop._loopScheduled = true;
             if (this._callOnChange) {
+              loop._loopScheduled = true;
               // put in queue, but _called is not set to true
               // only run the sub loop, not the function
               this._parent.queueBlock(this);
@@ -109,13 +109,19 @@ export class Block implements FunctionData {
         case '#length':
           prop = new BlockLengthControl(this, field);
           break;
+        case '#input':
+          prop = new BlockInputControl(this, field);
+          break;
+        case '#output':
+          prop = new BlockOutputControl(this, field);
+          break;
         case '#priority':
           prop = new BlockPriorityControl(this, field);
           break;
-        case '#parent':
+        case '##':
           prop = new BlockReadOnlyControl(this, field, this._parent);
           break;
-        case '#job':
+        case '###':
           prop = new BlockReadOnlyControl(this, field, this._job);
           break;
         default:
@@ -146,11 +152,11 @@ export class Block implements FunctionData {
     }
 
     if (path.startsWith("#")) {
-      if (path.startsWith("#parent.")) {
-        return this._parent.createBinding(path.substring(8), listener);
+      if (path.startsWith("##.")) {
+        return this._parent.createBinding(path.substring(3), listener);
       }
-      if (path.startsWith('#job.')) {
-        return this._job.createBinding(path.substring(5), listener);
+      if (path.startsWith('###.')) {
+        return this._job.createBinding(path.substring(4), listener);
       }
     }
 
@@ -247,18 +253,30 @@ export class Block implements FunctionData {
   }
 
   setValue(field: string, val: any): void {
+    if (this._destroyed) {
+      throw new Error("setValue called after destroy");
+    }
     this.getProperty(field).setValue(val);
   }
 
   updateValue(field: string, val: any): void {
+    if (this._destroyed) {
+      throw new Error("updateValue called after destroy");
+    }
     this.getProperty(field).updateValue(val);
   }
 
   output(val: any): void {
+    if (this._destroyed) {
+      throw new Error("output called after destroy");
+    }
     this.getProperty('output').updateValue(val);
   }
 
   setBinding(field: string, path: string): void {
+    if (this._destroyed) {
+      throw new Error("setBinding called after destroy");
+    }
     this.getProperty(field).setBinding(path);
   }
 
@@ -267,8 +285,8 @@ export class Block implements FunctionData {
       return this._props[field]._value;
     } else if (field.startsWith('#')) {
       switch (field) {
-        case '#parent':
-        case '#job':
+        case '##':
+        case '###':
           return this.getProperty(field).getValue();
       }
     }
@@ -276,25 +294,11 @@ export class Block implements FunctionData {
   }
 
   createBlock(field: string): Block {
-    if (field.charCodeAt(0) > 35) {
-      let prop = this.getProperty(field);
-      if (!(prop._value instanceof Block) || prop._value._prop !== prop) {
-        let block = new Block(this._job, this, prop);
-        prop.setValue(block);
-        return block;
-      }
-    }
-    return null;
-  }
-
-  updateBlock(field: string): Block {
-    if (field.charCodeAt(0) > 35) {
-      let prop = this.getProperty(field);
-      if (!(prop._value instanceof Block) || prop._value._prop !== prop) {
-        let block = new Block(this._job, this, prop);
-        prop.updateValue(block);
-        return block;
-      }
+    let prop = this.getProperty(field);
+    if (!(prop._value instanceof Block) || prop._value._prop !== prop) {
+      let block = new Block(this._job, this, prop);
+      prop.setValue(block);
+      return block;
     }
     return null;
   }
@@ -498,15 +502,20 @@ export class Block implements FunctionData {
       this._class.remove(this);
       this._class = null;
     }
+
+    // properties are destroyed but not removed
+    // the final clean up is handled by GC
+    // if the block is still kept in memory, it's still possible to save it after destroy
     for (let name in this._props) {
       this._props[name].destroy();
     }
+
     for (let path in this._bindings) {
       this._bindings[path].destroy();
     }
-    this._props = null;
     this._bindings = null;
-    // TODO
+    this._callOnChange = false;
+    this._queueDone = true;
   }
 }
 

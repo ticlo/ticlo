@@ -61,7 +61,7 @@ export class JsFunction extends BlockFunction {
     return rslt;
   }
 
-  static registerJsClass(className: string,
+  static registerClass(className: string,
                          script: string,
                          defaultMode: BlockMode = 'always',
                          defaultPriority: number = 1) {

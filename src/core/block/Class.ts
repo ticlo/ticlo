@@ -9,7 +9,7 @@ export class Class {
 
   constructor(name: string) {
     this._name = name;
-    this._isStatic = !name.includes(':');
+    this._isStatic = !name.includes('/');
   }
 
   update(generator: FunctionGenerator) {

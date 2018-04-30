@@ -41,10 +41,6 @@ export class BlockFunction {
     // to be overridden
   }
 
-  checkInitRun(mode: BlockMode): boolean {
-    return mode === 'auto';
-  }
-
   blockCommand(command: string, params: { [key: string]: any }): void {
     // to be overridden
   }
@@ -59,7 +55,6 @@ export class BlockFunction {
 
 }
 
-BlockFunction.prototype.className = '';
 BlockFunction.prototype.priority = 0;
 BlockFunction.prototype.defaultMode = 'always';
 BlockFunction.prototype.descriptor = {

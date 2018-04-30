@@ -20,10 +20,10 @@ describe("Block", () => {
     root.setBinding('@d', 'obj.@c');
     assert.equal(root.getValue('@d'), 468, 'path binding');
 
-    block.setBinding('@e', '#parent.@b');
+    block.setBinding('@e', '##.@b');
     assert.equal(block.getValue('@e'), 357, 'parent binding');
 
-    block.setBinding('@f', '#job.@a');
+    block.setBinding('@f', '###.@a');
     assert.equal(block.getValue('@f'), 357, 'job binding');
   });
 

@@ -1,0 +1,69 @@
+import { Classes } from "../block/Class";
+import { BlockFunction, FunctionData } from "../block/BlockFunction";
+import { FunctionDesc } from "../block/Descriptor";
+import { BlockIO } from "../block/BlockProperty";
+import { Block, BlockMode } from "../block/Block";
+import { Job } from "../block/Job";
+
+
+export class NestedJob extends BlockFunction {
+
+  _nested: Job;
+  _saved: { [key: string]: any };
+
+  constructor(block: FunctionData, data: { [key: string]: any }) {
+    super(block);
+    this._saved = data;
+
+  }
+
+  inputChanged(input: BlockIO, val: any): boolean {
+    return false;
+  }
+
+  run(data: FunctionData): any {
+    if (data instanceof Block) {
+      this._nested = new Job(data);
+      // the first round of queue is hardcoded here
+      this._nested._queued = true;
+      data.updateValue('#impl', this._nested);
+      this._nested.load(this._saved);
+      this._nested.updateValue('#input', data);
+
+      if (this._nested._loop) {
+        // run the nested loop
+        this._nested._loop._loopScheduled = true;
+        this._nested.run();
+      }
+      // clear the queue status of the nested job
+      this._nested._queued = false;
+    }
+  }
+
+  destroy(): void {
+    if (this._nested) {
+      if (this._data instanceof Block && !this._data._destroyed) {
+        this._data.updateValue('#impl', null);
+      }
+      this._nested.destroy();
+      this._nested = null;
+    }
+  }
+
+  static registerClass(className: string,
+                       data: { [key: string]: any },
+                       defaultMode: BlockMode = 'always',
+                       defaultPriority: number = 1) {
+    class CustomNestedJob extends NestedJob {
+      constructor(block: FunctionData) {
+        super(block, data);
+        this.priority = defaultPriority;
+        this.defaultMode = defaultMode;
+      }
+    }
+
+    // TODO descriptor
+    Classes.add(className, CustomNestedJob);
+  }
+}
+

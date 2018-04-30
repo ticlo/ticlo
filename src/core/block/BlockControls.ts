@@ -53,6 +53,18 @@ export class BlockPriorityControl extends BlockProperty {
   }
 }
 
+export class BlockInputControl extends BlockProperty {
+  constructor(block: Block, name: string) {
+    super(block, name);
+  }
+}
+
+export class BlockOutputControl extends BlockProperty {
+  constructor(block: Block, name: string) {
+    super(block, name);
+  }
+}
+
 
 export class BlockReadOnlyControl extends BlockProperty {
   constructor(block: Block, name: string, value?: any) {

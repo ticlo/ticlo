@@ -8,10 +8,10 @@ export class Job extends Block {
   _enabled: boolean = true;
   _loading: boolean = false;
 
-  constructor() {
+  constructor(parent: Block = Root.instance) {
     super(null, null, null);
     this._job = this;
-    this._parent = Root.instance;
+    this._parent = parent;
 
     this._prop = new BlockProperty(this, '');
   }

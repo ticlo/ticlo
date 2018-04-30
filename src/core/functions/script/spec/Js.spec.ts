@@ -3,7 +3,7 @@ import { JsFunction } from "../Js";
 import { Job, Root } from "../../../block/Job";
 import { Block } from "../../../block/Block";
 
-describe("Script", () => {
+describe("Js", () => {
   it('basic', () => {
     let job = new Job();
 
@@ -48,9 +48,9 @@ describe("Script", () => {
 
     let aBlock = job.createBlock('a');
     aBlock.setValue('in1', 321);
-    aBlock.setValue('#class', ':myJs');
+    aBlock.setValue('#class', '/Js/class1');
 
-    JsFunction.registerJsClass(':myJs', 'this["out1"] = this["in1"]');
+    JsFunction.registerClass('/Js/class1', 'this["out1"] = this["in1"]');
 
     Root.run();
     assert.equal(aBlock.getValue('out1'), 321, 'basic script output');
