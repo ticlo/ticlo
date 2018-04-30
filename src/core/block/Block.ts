@@ -499,6 +499,10 @@ export class Block implements FunctionData {
     }
     this._destroyed = true;
     if (this._class) {
+      if (this._function) {
+        this._function.destroy();
+        this._function = null;
+      }
       this._class.remove(this);
       this._class = null;
     }
@@ -514,7 +518,6 @@ export class Block implements FunctionData {
       this._bindings[path].destroy();
     }
     this._bindings = null;
-    this._callOnChange = false;
     this._queueDone = true;
   }
 }
