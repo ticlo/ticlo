@@ -197,48 +197,37 @@ export class Block implements FunctionData {
   }
 
   _load(map: { [key: string]: any }) {
-    let pendingClass: any;
     for (let key in map) {
-      if (key !== '#class') {
-        if (key.charCodeAt(0) === 126) { // ~ for binding
-          let val = map[key];
-          if (typeof val === 'string') {
-            let name = key.substring(1);
-            this.setBinding(name, val);
-          }
-        } else {
-          this.getProperty(key)._load(map[key]);
+      if (key.charCodeAt(0) === 126) { // ~ for binding
+        let val = map[key];
+        if (typeof val === 'string') {
+          let name = key.substring(1);
+          this.setBinding(name, val);
         }
       } else {
-        pendingClass = map['#class'];
+        this.getProperty(key)._load(map[key]);
       }
     }
-    if (pendingClass) {
-      this.setValue('#class', pendingClass);
+    if (this._pendingGenerator) {
+      this.updateFunction(this._pendingGenerator);
+      this._pendingGenerator = null;
     }
   }
 
   // load the data but keep runtime values
   _liveUpdate(map: { [key: string]: any }) {
-    let pendingClass: any = map['#class'];
-    if (pendingClass !== this._className) {
-      // clear the class first so other property change won't cause a function call
-      this._classChanged(null);
-    }
     let loadedFields: { [key: string]: any } = {'#class': true};
     for (let key in map) {
-      if (key !== '#class') {
-        if (key.charCodeAt(0) === 126) { // ~ for binding
-          let val = map[key];
-          if (typeof val === 'string') {
-            let name = key.substring(1);
-            this.setBinding(name, val);
-            loadedFields[key] = true;
-          }
-        } else {
-          this.getProperty(key)._liveUpdate(map[key]);
+      if (key.charCodeAt(0) === 126) { // ~ for binding
+        let val = map[key];
+        if (typeof val === 'string') {
+          let name = key.substring(1);
+          this.setBinding(name, val);
           loadedFields[key] = true;
         }
+      } else {
+        this.getProperty(key)._liveUpdate(map[key]);
+        loadedFields[key] = true;
       }
     }
     for (let key in this._props) {
@@ -247,8 +236,9 @@ export class Block implements FunctionData {
         this._props[key].clear();
       }
     }
-    if (pendingClass !== this._className) {
-      this.setValue('#class', pendingClass);
+    if (this._pendingGenerator) {
+      this.updateFunction(this._pendingGenerator);
+      this._pendingGenerator = null;
     }
   }
 
@@ -470,17 +460,29 @@ export class Block implements FunctionData {
     return this._cachedLength;
   }
 
+  _pendingGenerator: FunctionGenerator;
+
   updateFunction(generator: FunctionGenerator): void {
     if (this._function) {
       this._function.destroy();
     }
     if (generator) {
-      this._function = new generator(this);
-      if (this._mode === 'auto') {
-        this._configMode();
-      }
-      if (this._callOnLoad) {
-        this._queueFunction();
+      if (this._job._loading && generator !== this._pendingGenerator) {
+        // when function changed during load() or liveUpdate()
+        // don't create the function until loading is done
+        this._pendingGenerator = generator;
+        if (this._function) {
+          this._called = false;
+          this._function = null;
+        }
+      } else {
+        this._function = new generator(this);
+        if (this._mode === 'auto') {
+          this._configMode();
+        }
+        if (this._callOnLoad) {
+          this._queueFunction();
+        }
       }
     } else {
       this._function = null;
