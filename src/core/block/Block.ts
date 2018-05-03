@@ -1,9 +1,11 @@
 import { BlockProperty, BlockPropertyHelper, BlockIO } from "./BlockProperty";
 import {
   BlockCallControl,
-  BlockClassControl, BlockInputControl,
+  BlockClassControl,
+  BlockInputControl,
   BlockLengthControl,
-  BlockModeControl, BlockOutputControl,
+  BlockModeControl,
+  BlockOutputControl,
   BlockPriorityControl,
   BlockReadOnlyControl
 } from "./BlockControls";

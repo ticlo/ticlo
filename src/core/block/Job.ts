@@ -1,6 +1,7 @@
 import { Block } from "./Block";
-import { BlockProperty } from "./BlockProperty";
+import { BlockIO, BlockProperty } from "./BlockProperty";
 import { Loop } from "./Loop";
+import { FunctionOutput } from "./BlockFunction";
 
 
 export class Job extends Block {
@@ -8,13 +9,25 @@ export class Job extends Block {
   _enabled: boolean = true;
   _loading: boolean = false;
 
-  constructor(parent: Block = Root.instance) {
+  _outputObj: FunctionOutput;
+
+  constructor(parent: Block = Root.instance, output?: FunctionOutput) {
     super(null, null, null);
     this._job = this;
     this._parent = parent;
+    this._outputObj = output;
 
     this._prop = new BlockProperty(this, '');
   }
+
+  // return true when the related output block need to be put in queue
+  outputChanged(input: BlockIO, val: any): boolean {
+    if (this._outputObj) {
+      this._outputObj.updateValue(input._name, val);
+    }
+    return false;
+  }
+
 
   save(): { [key: string]: any } {
     return this._save();

@@ -5,8 +5,17 @@ import { BlockIO } from "../block/BlockProperty";
 import { Block, BlockMode } from "../block/Block";
 import { Job } from "../block/Job";
 
-class OutputFunction extends BlockFunction {
+export class OutputFunction extends BlockFunction {
   constructor(block: FunctionData) {
     super(block);
   }
+
+  // return true when it needs to be put in queue
+  inputChanged(input: BlockIO, val: any): boolean {
+    return input._block._job.outputChanged(input, val);
+  }
+
 }
+
+OutputFunction.prototype.priority = 3;
+Classes.add('output', OutputFunction);

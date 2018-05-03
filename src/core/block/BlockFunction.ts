@@ -2,15 +2,22 @@ import { BlockIO, BlockProperty } from "./BlockProperty";
 import { FunctionDesc } from "./Descriptor";
 import { BlockMode } from "./Block";
 
-export interface FunctionData {
-  getValue(field: string): any;
+export interface FunctionOutput {
 
   updateValue(field: string, val: any): void;
 
   // a simple way of calling updateValue('output', value)
   output(value: any): void;
+}
+
+export interface FunctionInput {
+
+  getValue(field: string): any;
 
   getLength(): number;
+}
+
+export interface FunctionData extends FunctionInput, FunctionOutput {
 
   // get the property when it's a block, otherwise return null
   getProperty(field: string): BlockProperty;

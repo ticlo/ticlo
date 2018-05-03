@@ -23,7 +23,7 @@ export class NestedJob extends BlockFunction {
 
   run(data: FunctionData): any {
     if (data instanceof Block) {
-      this._nested = new Job(data);
+      this._nested = new Job(data, data);
       // the first round of queue is hardcoded here
       this._nested._queued = true;
       data.updateValue('#impl', this._nested);
