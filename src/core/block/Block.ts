@@ -91,21 +91,17 @@ export class Block implements FunctionData {
     let lastIdx = path.length - 1;
     let block: Block = this;
     for (let i = 0; i < lastIdx; ++i) {
-      let property = block._props[path[i]];
+      let property = block.getProperty(path[i], false);
       if (property && property._value instanceof Block) {
         block = property._value;
       } else {
         return null;
       }
     }
-    if (create) {
-      return block.getProperty(path[lastIdx]);
-    }
-    return block._props[path[lastIdx]];
+    return block.getProperty(path[lastIdx], create);
   }
 
-  getProperty(field: string): BlockProperty {
-
+  getProperty(field: string, create: boolean = true): BlockProperty {
 
     if (this._destroyed) {
       throw new Error("getProperty called after destroy");
@@ -113,13 +109,16 @@ export class Block implements FunctionData {
     if (this._props.hasOwnProperty(field)) {
       return this._props[field];
     }
-    if (field === '') {
+    if (field === '' || field === '#') {
       return this._prop;
     }
     let firstChar = field.charCodeAt(0);
     let prop: BlockProperty;
 
     if (firstChar === 35) {
+      if (!create && field.charCodeAt(0) !== 35) {
+        return null;
+      }
       // # controls
       switch (field) {
         case '#class':
@@ -152,6 +151,8 @@ export class Block implements FunctionData {
         default:
           prop = new BlockProperty(this, field);
       }
+    } else if (!create) {
+      return null;
     } else if (firstChar === 33) {
       // ! property helper
       prop = new BlockPropertyHelper(this, field);
@@ -296,14 +297,9 @@ export class Block implements FunctionData {
   }
 
   getValue(field: string): any {
-    if (this._props.hasOwnProperty(field)) {
-      return this._props[field]._value;
-    } else if (field.startsWith('#')) {
-      switch (field) {
-        case '##':
-        case '###':
-          return this.getProperty(field).getValue();
-      }
+    let prop = this.getProperty(field, false);
+    if (prop) {
+      return prop.getValue();
     }
     return undefined;
   }

@@ -20,7 +20,7 @@ export interface FunctionInput {
 export interface FunctionData extends FunctionInput, FunctionOutput {
 
   // get the property when it's a block, otherwise return null
-  getProperty(field: string): BlockProperty;
+  getProperty(field: string, create: boolean): BlockProperty;
 
   // get a Object that allows script to direct access its field,
   getRawObject(): any;
