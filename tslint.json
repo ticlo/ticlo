@@ -149,6 +149,7 @@
     "forin": false,
     "member-access": false,
     "no-conditional-assignment": false,
+    "no-this-assignment": false,
     "no-console": false,
     "no-debugger": false,
     "no-empty-interface": false,

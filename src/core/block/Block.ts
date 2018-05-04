@@ -83,7 +83,30 @@ export class Block implements FunctionData {
     return this._proxy;
   }
 
+  queryProperty(path: string, create: boolean = false): BlockProperty {
+    return this._queryProperty(path.split('.'), create);
+  }
+
+  _queryProperty(path: string[], create: boolean): BlockProperty {
+    let lastIdx = path.length - 1;
+    let block: Block = this;
+    for (let i = 0; i < lastIdx; ++i) {
+      let property = block._props[path[i]];
+      if (property && property._value instanceof Block) {
+        block = property._value;
+      } else {
+        return null;
+      }
+    }
+    if (create) {
+      return block.getProperty(path[lastIdx]);
+    }
+    return block._props[path[lastIdx]];
+  }
+
   getProperty(field: string): BlockProperty {
+
+
     if (this._destroyed) {
       throw new Error("getProperty called after destroy");
     }
