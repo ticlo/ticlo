@@ -109,47 +109,48 @@ export class Block implements FunctionData {
     if (this._props.hasOwnProperty(field)) {
       return this._props[field];
     }
-    if (field === '' || field === '#') {
+    if (field === '') {
       return this._prop;
     }
     let firstChar = field.charCodeAt(0);
     let prop: BlockProperty;
 
     if (firstChar === 35) {
-      if (!create && field.charCodeAt(0) !== 35) {
-        return null;
-      }
       // # controls
-      switch (field) {
-        case '#class':
-          prop = new BlockClassControl(this, field);
-          break;
-        case '#mode':
-          prop = new BlockModeControl(this, field);
-          break;
-        case '#call':
-          prop = new BlockCallControl(this, field);
-          break;
-        case '#length':
-          prop = new BlockLengthControl(this, field);
-          break;
-        case '#input':
-          prop = new BlockInputControl(this, field);
-          break;
-        case '#output':
-          prop = new BlockOutputControl(this, field);
-          break;
-        case '#priority':
-          prop = new BlockPriorityControl(this, field);
-          break;
-        case '##':
-          prop = new BlockReadOnlyControl(this, field, this._parent);
-          break;
-        case '###':
-          prop = new BlockReadOnlyControl(this, field, this._job);
-          break;
-        default:
-          prop = new BlockProperty(this, field);
+      if (field === '##') { // parent
+        prop = new BlockReadOnlyControl(this, field, this._parent);
+      } else if (field === '###') { // job
+        prop = new BlockReadOnlyControl(this, field, this._job);
+      } else if (field === '#') { // this
+        prop = new BlockReadOnlyControl(this, field, this);
+      } else if (!create) {
+        return null;
+      } else {
+        switch (field) {
+          case '#class':
+            prop = new BlockClassControl(this, field);
+            break;
+          case '#mode':
+            prop = new BlockModeControl(this, field);
+            break;
+          case '#call':
+            prop = new BlockCallControl(this, field);
+            break;
+          case '#length':
+            prop = new BlockLengthControl(this, field);
+            break;
+          case '#input':
+            prop = new BlockInputControl(this, field);
+            break;
+          case '#output':
+            prop = new BlockOutputControl(this, field);
+            break;
+          case '#priority':
+            prop = new BlockPriorityControl(this, field);
+            break;
+          default:
+            prop = new BlockProperty(this, field);
+        }
       }
     } else if (!create) {
       return null;
