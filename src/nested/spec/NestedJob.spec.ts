@@ -62,4 +62,26 @@ describe("NestedJob", () => {
 
     assert.equal(aBlock.getValue('out1'), 3, 'output from nested logic');
   });
+
+  it('namespace', () => {
+    let job = new Job();
+
+    let aBlock = job.createBlock('a');
+    aBlock.setValue('in0', 2);
+    aBlock.setValue('#class', 'job_test_namespace/class1');
+
+    let jobData1 = {
+      'nest': {'#class': '/class2', '~in1': '##.#input.in0'},
+      '#output': {'#class': 'output', '~out1': '##.nest.out2'}
+    };
+    let jobData2 = {
+      'add': {'#class': 'add', '~0': '##.#input.in1', '1': 1},
+      '#output': {'#class': 'output', '~out2': '##.add.output'}
+    };
+    NestedJob.registerClass('job_test_namespace/class1', jobData1);
+    NestedJob.registerClass('job_test_namespace/class2', jobData2);
+    Root.run();
+
+    assert.equal(aBlock.getValue('out1'), 3, 'output from 2 layer of  nested logic');
+  });
 });

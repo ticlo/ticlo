@@ -51,6 +51,12 @@ export class Classes {
   }
 
   static listen(name: string, block: Block): Class {
+    if (!name) {
+      return;
+    }
+    if (name.startsWith('/') && block._job._namespace) {
+      name = block._job._namespace + name;
+    }
     let type = _types[name];
 
     if (!type) {

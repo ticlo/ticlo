@@ -7,7 +7,7 @@ import { Job } from "../block/Job";
 
 
 export class NestedJob extends BlockFunction {
-
+  _namespace: string;
   _nested: Job;
   _saved: { [key: string]: any };
 
@@ -24,6 +24,7 @@ export class NestedJob extends BlockFunction {
   run(data: FunctionData): any {
     if (data instanceof Block) {
       this._nested = new Job(data, data);
+      this._nested._namespace = this._namespace;
       // the first round of queue is hardcoded here
       this._nested._queued = true;
       data.updateValue('#impl', this._nested);
@@ -54,11 +55,18 @@ export class NestedJob extends BlockFunction {
                        data: { [key: string]: any },
                        defaultMode: BlockMode = 'always',
                        defaultPriority: number = 1) {
+    let namespace: string;
+    let slashPos = className.indexOf('/');
+    if (slashPos > 0) {
+      namespace = className.substr(0, slashPos);
+    }
+
     class CustomNestedJob extends NestedJob {
       constructor(block: FunctionData) {
         super(block, data);
         this.priority = defaultPriority;
         this.defaultMode = defaultMode;
+        this._namespace = namespace;
       }
     }
 

@@ -6,6 +6,8 @@ import { FunctionOutput } from "./BlockFunction";
 
 export class Job extends Block {
 
+  _namespace: string;
+
   _enabled: boolean = true;
   _loading: boolean = false;
 
