@@ -1,24 +1,24 @@
-export interface Listener {
-  onSourceChange(prop: Dispatcher): void;
+export interface Listener<T> {
+  onSourceChange(prop: Dispatcher<T>): void;
 
-  onChange(val: any): void;
+  onChange(val: T): void;
 }
 
-export interface Dispatcher {
-  listen(listener: Listener): void;
+export interface Dispatcher<T> {
+  listen(listener: Listener<T>): void;
 
-  unlisten(listener: Listener): void;
+  unlisten(listener: Listener<T>): void;
 
-  updateValue(val: any): boolean;
+  updateValue(val: T): boolean;
 }
 
-export class ValueDispatcher implements Dispatcher {
+export class ValueDispatcher<T> implements Dispatcher<T> {
 
-  protected _listeners: Set<Listener> = new Set<Listener>();
+  protected _listeners: Set<Listener<T>> = new Set<Listener<T>>();
   protected _updating = false;
-  _value: any;
+  _value: T;
 
-  listen(listener: Listener) {
+  listen(listener: Listener<T>) {
     this._listeners.add(listener);
     listener.onSourceChange(this);
     if (!this._updating) {
@@ -27,11 +27,11 @@ export class ValueDispatcher implements Dispatcher {
     }
   }
 
-  unlisten(listener: Listener) {
+  unlisten(listener: Listener<T>) {
     this._listeners.delete(listener);
   }
 
-  updateValue(val: any): boolean {
+  updateValue(val: T): boolean {
     if (this._value === val) {
       return false;
     }

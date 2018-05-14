@@ -1,12 +1,13 @@
 import { ValueDispatcher, Listener, Dispatcher } from "./Dispatcher";
 import { Block } from "./Block";
+import { isSavedBlock } from "../util/Types";
 
-export class BlockProperty extends ValueDispatcher implements Listener {
+export class BlockProperty extends ValueDispatcher<any> implements Listener<any> {
 
   _block: Block;
   _name: string;
   _bindingPath: string;
-  _bindingSource: ValueDispatcher;
+  _bindingSource: ValueDispatcher<any>;
 
   _saved: any = null;
 
@@ -16,7 +17,7 @@ export class BlockProperty extends ValueDispatcher implements Listener {
     this._name = name;
   }
 
-  onSourceChange(prop: Dispatcher) {
+  onSourceChange(prop: Dispatcher<any>) {
     // do nothing
   }
 
@@ -95,7 +96,8 @@ export class BlockProperty extends ValueDispatcher implements Listener {
   }
 
   _load(val: any) {
-    if (val instanceof Object && val != null && val.hasOwnProperty('#class')) {
+    if (val instanceof Object && val != null
+      && (val.hasOwnProperty('#class') || val.hasOwnProperty('~#class'))) {
       let block = new Block(this._block._job, this._block, this);
       this._saved = block;
       block._load(val);
@@ -115,7 +117,7 @@ export class BlockProperty extends ValueDispatcher implements Listener {
       this._bindingSource = null;
       this._bindingPath = null;
     }
-    if (val instanceof Object && val != null && val.hasOwnProperty('#class')) {
+    if (isSavedBlock(val)) {
       if (this._saved instanceof Block) {
         this._saved._liveUpdate(val);
       } else {

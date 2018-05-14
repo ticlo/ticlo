@@ -3,7 +3,7 @@ import { Block } from "./Block";
 import { BlockProperty } from "./BlockProperty";
 
 
-export class BlockBinding extends ValueDispatcher implements Listener {
+export class BlockBinding extends ValueDispatcher<any> implements Listener<any> {
 
   private _block: Block;
   private _path: string;
@@ -11,7 +11,7 @@ export class BlockBinding extends ValueDispatcher implements Listener {
 
   private _source: any = null;
 
-  _parent: ValueDispatcher = null;
+  _parent: ValueDispatcher<any> = null;
 
   private _prop: BlockProperty = null;
 
@@ -22,7 +22,7 @@ export class BlockBinding extends ValueDispatcher implements Listener {
     this._field = field;
   }
 
-  unlisten(listener: Listener) {
+  unlisten(listener: Listener<any>) {
     this._listeners.delete(listener);
     if (this._prop != null) {
       this._prop.unlisten(listener);
@@ -33,7 +33,7 @@ export class BlockBinding extends ValueDispatcher implements Listener {
   }
 
 
-  listen(listener: Listener) {
+  listen(listener: Listener<any>) {
     this._listeners.add(listener);
     if (this._prop != null) {
       this._prop.listen(listener);
@@ -43,7 +43,7 @@ export class BlockBinding extends ValueDispatcher implements Listener {
     }
   }
 
-  onSourceChange(source: Dispatcher) {
+  onSourceChange(source: Dispatcher<any>) {
     // do nothing
   }
 

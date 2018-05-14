@@ -52,10 +52,6 @@ export class BlockFunction {
     // to be overridden
   }
 
-  propCommand(command: string, field: string, params: { [key: string]: any }): void {
-    // to be overridden
-  }
-
   destroy(): void {
     // to be overridden
   }

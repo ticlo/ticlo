@@ -2,16 +2,15 @@ import { Classes } from "../block/Class";
 import { BlockFunction, FunctionData } from "../block/BlockFunction";
 import { FunctionDesc } from "../block/Descriptor";
 import { BlockIO } from "../block/BlockProperty";
-import { Block, BlockMode } from "../block/Block";
+import { Block, BlockMode, SavedData } from "../block/Block";
 import { Job } from "../block/Job";
-
 
 export class NestedJob extends BlockFunction {
   _namespace: string;
   _nested: Job;
-  _saved: { [key: string]: any };
+  _saved: SavedData;
 
-  constructor(block: FunctionData, data: { [key: string]: any }) {
+  constructor(block: FunctionData, data: SavedData) {
     super(block);
     this._saved = data;
 
@@ -52,7 +51,7 @@ export class NestedJob extends BlockFunction {
   }
 
   static registerClass(className: string,
-                       data: { [key: string]: any },
+                       data: SavedData,
                        defaultMode: BlockMode = 'always',
                        defaultPriority: number = 1) {
     let namespace: string;

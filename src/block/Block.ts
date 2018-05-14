@@ -12,15 +12,22 @@ import {
 import { BlockBinding } from "./BlockBinding";
 import { Job } from "./Job";
 import { FunctionData, BlockFunction, FunctionGenerator } from "./BlockFunction";
-import { Listener, ValueDispatcher } from "./Dispatcher";
-
+import { Dispatcher, Listener, ValueDispatcher } from "./Dispatcher";
 import { Class, Classes } from "./Class";
 import { Loop } from "./Loop";
 import { Event, FunctionResult } from "./Event";
+import { DataMap } from "../util/Types";
 
 export type BlockMode = 'auto' | 'always' | 'onChange' | 'onCall' | 'sync' | 'disabled';
 
-export class Block implements FunctionData {
+export class BlockChildChange {
+  key: string;
+  // true : created
+  // false : removed
+  created: boolean;
+}
+
+export class Block implements FunctionData, Listener<FunctionGenerator> {
   _job: Job;
   _parent: Block;
   _prop: BlockProperty;
@@ -167,7 +174,7 @@ export class Block implements FunctionData {
     return prop;
   }
 
-  createBinding(path: string, listener: Listener): ValueDispatcher {
+  createBinding(path: string, listener: Listener<any>): ValueDispatcher<any> {
     if (this._destroyed) {
       throw new Error("createBinding called after destroy");
     }
@@ -207,12 +214,16 @@ export class Block implements FunctionData {
     delete this._bindings[path];
   }
 
-  _save(): { [key: string]: any } {
-    let result: { [key: string]: any } = {};
+  _save(): DataMap {
+    let result: DataMap = {'#class': null};
     for (let name in this._props) {
       let prop = this._props[name];
+
       if (prop._bindingPath) {
         result[`~${name}`] = prop._bindingPath;
+        if (name === '#class') {
+          delete result['#class'];
+        }
       } else {
         let saved = prop._save();
         if (saved != null) {
@@ -223,7 +234,7 @@ export class Block implements FunctionData {
     return result;
   }
 
-  _load(map: { [key: string]: any }) {
+  _load(map: DataMap) {
     for (let key in map) {
       if (key.charCodeAt(0) === 126) { // ~ for binding
         let val = map[key];
@@ -236,14 +247,14 @@ export class Block implements FunctionData {
       }
     }
     if (this._pendingGenerator) {
-      this.updateFunction(this._pendingGenerator);
+      this.onChange(this._pendingGenerator);
       this._pendingGenerator = null;
     }
   }
 
   // load the data but keep runtime values
-  _liveUpdate(map: { [key: string]: any }) {
-    let loadedFields: { [key: string]: any } = {'#class': true};
+  _liveUpdate(map: DataMap) {
+    let loadedFields: DataMap = {'#class': true};
     for (let key in map) {
       if (key.charCodeAt(0) === 126) { // ~ for binding
         let val = map[key];
@@ -264,7 +275,7 @@ export class Block implements FunctionData {
       }
     }
     if (this._pendingGenerator) {
-      this.updateFunction(this._pendingGenerator);
+      this.onChange(this._pendingGenerator);
       this._pendingGenerator = null;
     }
   }
@@ -434,13 +445,13 @@ export class Block implements FunctionData {
     if (className === this._className) return;
     this._className = className;
     if (this._class) {
-      this._class.remove(this);
+      this._class.unlisten(this);
     }
     if (typeof (className) === 'string') {
       this._class = Classes.listen(className, this);
     } else {
       this._class = null;
-      this.updateFunction(null);
+      this.onChange(null);
     }
   }
 
@@ -484,7 +495,11 @@ export class Block implements FunctionData {
 
   _pendingGenerator: FunctionGenerator;
 
-  updateFunction(generator: FunctionGenerator): void {
+  onSourceChange(prop: Dispatcher<FunctionGenerator>): void {
+    // not needed
+  }
+
+  onChange(generator: FunctionGenerator): void {
     if (this._function) {
       this._function.destroy();
     }
@@ -516,6 +531,14 @@ export class Block implements FunctionData {
     }
   }
 
+  // _childrenWatch: ValueDispatcher<BlockChildChange>;
+  //
+  // watch(listener: Listener<BlockChildChange>) {
+  //   if (this._childrenWatch == null) {
+  //     this._childrenWatch = new ValueDispatcher<BlockChildChange>();
+  //   }
+  //   this._childrenWatch.listen()
+  // }
 
   destroy(): void {
     if (this._destroyed) {
@@ -527,7 +550,7 @@ export class Block implements FunctionData {
         this._function.destroy();
         this._function = null;
       }
-      this._class.remove(this);
+      this._class.unlisten(this);
       this._class = null;
     }
 
