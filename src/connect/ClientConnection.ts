@@ -4,8 +4,7 @@ import { Uid } from "../util/Uid";
 import { DataMap, isSavedBlock } from "../util/Types";
 import { Block } from "../block/Block";
 
-
-interface ClientCallbacks {
+export interface ClientCallbacks {
   onDone?(): void;
 
   onUpdate?(response: DataMap): void;
@@ -36,7 +35,7 @@ class ClientRequest extends ConnectionSend implements ClientCallbacks {
 
   onError(error: string, data?: DataMap): void {
     if (this._callbacks.onError) {
-      this._callbacks.onError(error, this._data);
+      this._callbacks.onError(error, data || this._data);
     }
   }
 }
@@ -133,6 +132,7 @@ export class ClientConnection extends Connection {
     for (let key in this.requests) {
       this.requests[key].onError('disconnected');
     }
+    super.destroy();
   }
 
   onData(response: DataMap) {
@@ -159,11 +159,11 @@ export class ClientConnection extends Connection {
   }
 
   simpleRequest(data: DataMap, callbacks: ClientCallbacks) {
-    let promise: Promise<void>;
+    let promise: Promise<any>;
     if (callbacks == null) {
       promise = new Promise(function (resolve, reject) {
         callbacks = {
-          onDone: resolve, onError: reject
+          onDone: resolve, onUpdate: resolve, onError: reject
         };
       });
     }
@@ -203,6 +203,7 @@ export class ClientConnection extends Connection {
       let data = {cmd: 'subscribe', path, id};
       let req = new SubscribeRequest(data, callbacks);
       this.requests[id] = req;
+      this.subscribes[path] = req;
       this.addSend(req);
     }
   }

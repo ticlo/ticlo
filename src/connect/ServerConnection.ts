@@ -110,6 +110,7 @@ export class ServerConnection extends Connection {
       this.requests[key].close();
     }
     this.requests = null;
+    super.destroy();
   }
 
   addRequest(id: string, req: ServerRequest) {

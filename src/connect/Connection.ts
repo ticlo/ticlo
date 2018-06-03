@@ -66,6 +66,13 @@ export class Connection {
     this.doSend(sending);
     this._waitingReceive = true;
   }
+
+  destroy() {
+    if (this._scheduled) {
+      clearTimeout(this._scheduled);
+    }
+    this._sending = null;
+  }
 }
 
 export class ConnectionSend extends ConnectionSendingData {
