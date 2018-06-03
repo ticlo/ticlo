@@ -1,9 +1,10 @@
 import { Block } from "./Block";
+import { Uid } from "../util/Uid";
 
 export class Loop {
-  private static _tick = 0;
-  static get tick(): number {
-    return this._tick;
+  private static _uid = new Uid();
+  static get uid(): string {
+    return Loop._uid.current;
   }
 
   private _queueWait: Block[] = [];
@@ -30,6 +31,7 @@ export class Loop {
       this._schedule(this);
     }
   }
+
   // wait to be run
   isWaiting(): boolean {
     return this._queueWait.length > 0;
@@ -102,10 +104,8 @@ export class Loop {
       break;
     }
 
-    // almost unique id
-    if (++Loop._tick === Number.MAX_SAFE_INTEGER) {
-      Loop._tick = Number.MIN_SAFE_INTEGER;
-    }
+    Loop._uid.next();
+
     this._loopRunning = false;
   }
 }

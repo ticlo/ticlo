@@ -9,7 +9,7 @@ describe("Js", () => {
 
     let aBlock = job.createBlock('a');
 
-    aBlock.setValue('#class', 'js');
+    aBlock.setValue('#is', 'js');
     aBlock.setValue('script', 'this["out1"] = this["in1"]');
     aBlock.setValue('in1', 321);
     Root.run();
@@ -22,7 +22,7 @@ describe("Js", () => {
 
     let aBlock = job.createBlock('a');
 
-    aBlock.setValue('#class', 'js');
+    aBlock.setValue('#is', 'js');
     aBlock.setValue('script', 'let temp = 456; return function(){this["out2"] = ++temp;}');
 
     Root.run();
@@ -48,7 +48,7 @@ describe("Js", () => {
 
     let aBlock = job.createBlock('a');
     aBlock.setValue('in1', 321);
-    aBlock.setValue('#class', '/Js/class1');
+    aBlock.setValue('#is', '/Js/class1');
 
     JsFunction.registerClass('/Js/class1', 'this["out1"] = this["in1"]');
 

@@ -50,11 +50,16 @@ function truncateArray(val: any[], maxSize: number): [any[], number] {
 // if object is big, truncated it into around 1K~2K characters
 export function truncateObj(val: any, maxSize: number = 1024): [any, number] {
   if (typeof val === 'object') {
+    if (val == null) {
+      return [val, 4];
+    }
     if (Array.isArray(val)) {
       return truncateArray(val, maxSize);
-    } else if (val.__proto__ === Object.prototype) {
+    }
+    if (val.__proto__ === Object.prototype) {
       return truncateMap(val, maxSize);
-    } else {
+    }
+    {
       return [TRUNCATED, 1];
     }
   } else if (typeof val === 'string') {

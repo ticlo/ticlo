@@ -5,7 +5,7 @@ export class Event {
   type: string;
 
   constructor(type: string = null) {
-    this.tick = Loop.tick;
+    this.tick = Loop.uid;
   }
 
   static isValid(val: any) {
@@ -13,7 +13,7 @@ export class Event {
       return false;
     }
     if (val instanceof Event) {
-      return val.tick === Loop.tick;
+      return val.tick === Loop.uid;
     }
     return true;
   }
@@ -44,7 +44,7 @@ export class FunctionResult extends Event {
       if (val instanceof FunctionResult && val.type != null) {
         return false;
       }
-      return val.tick === Loop.tick;
+      return val.tick === Loop.uid;
     }
     return true;
   }

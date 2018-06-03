@@ -14,11 +14,11 @@ describe("NestedJob", () => {
 
     let aBlock = job.createBlock('a');
 
-    aBlock.setValue('#class', '/NestedJob/class1');
+    aBlock.setValue('#is', '/NestedJob/class1');
 
     let jobData: SavedData = {
-      '#class': null,
-      'runner': {'#class': 'test-runner', '@log': 'nest1', '~#call': '##.#input.in1'}
+      '#is': null,
+      'runner': {'#is': 'test-runner', '@log': 'nest1', '~#call': '##.#input.in1'}
     };
     NestedJob.registerClass('/NestedJob/class1', jobData);
 
@@ -39,7 +39,7 @@ describe("NestedJob", () => {
     TestFunctionRunner.clearLog();
 
     aBlock.setValue('in1', 2);
-    aBlock.setValue('#class', null);
+    aBlock.setValue('#is', null);
     Root.run();
     assert.isEmpty(TestFunctionRunner.logs, 'nested job destroy');
 
@@ -51,12 +51,12 @@ describe("NestedJob", () => {
 
     let aBlock = job.createBlock('a');
 
-    aBlock.setValue('#class', '/NestedJob/class2');
+    aBlock.setValue('#is', '/NestedJob/class2');
 
     let jobData: SavedData = {
-      '#class': null,
-      'add': {'#class': 'add', '~0': '##.#input.in1', '1': 1},
-      '#output': {'#class': 'output', '~out1': '##.add.output'}
+      '#is': null,
+      'add': {'#is': 'add', '~0': '##.#input.in1', '1': 1},
+      '#output': {'#is': 'output', '~out1': '##.add.output'}
     };
     NestedJob.registerClass('/NestedJob/class2', jobData);
     aBlock.setValue('in1', 2);
@@ -70,17 +70,17 @@ describe("NestedJob", () => {
 
     let aBlock = job.createBlock('a');
     aBlock.setValue('in0', 2);
-    aBlock.setValue('#class', 'job_test_namespace/class1');
+    aBlock.setValue('#is', 'job_test_namespace/class1');
 
     let jobData1: SavedData = {
-      '#class': null,
-      'nest': {'#class': '/class2', '~in1': '##.#input.in0'},
-      '#output': {'#class': 'output', '~out1': '##.nest.out2'}
+      '#is': null,
+      'nest': {'#is': '/class2', '~in1': '##.#input.in0'},
+      '#output': {'#is': 'output', '~out1': '##.nest.out2'}
     };
     let jobData2: SavedData = {
-      '#class': null,
-      'add': {'#class': 'add', '~0': '##.#input.in1', '1': 1},
-      '#output': {'#class': 'output', '~out2': '##.add.output'}
+      '#is': null,
+      'add': {'#is': 'add', '~0': '##.#input.in1', '1': 1},
+      '#output': {'#is': 'output', '~out2': '##.add.output'}
     };
     NestedJob.registerClass('job_test_namespace/class1', jobData1);
     NestedJob.registerClass('job_test_namespace/class2', jobData2);

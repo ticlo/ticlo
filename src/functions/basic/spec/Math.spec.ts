@@ -10,7 +10,7 @@ describe("Math", () => {
 
     let aBlock = job.createBlock('a');
 
-    aBlock.setValue('#class', 'add');
+    aBlock.setValue('#is', 'add');
     aBlock.setValue('0', 2);
     aBlock.setValue('1', 3);
 
@@ -28,7 +28,7 @@ describe("Math", () => {
     // set class last
     aBlock.setValue('0', 2.5);
     aBlock.setValue('1', 3.5);
-    aBlock.setValue('#class', 'add');
+    aBlock.setValue('#is', 'add');
 
     Root.run();
     assert.equal(aBlock.getValue('output'), 6, 'update type after value, 2.5+3.5==6');
@@ -49,7 +49,7 @@ describe("Math", () => {
 
     let aBlock = job.createBlock('a');
 
-    aBlock.setValue('#class', 'add');
+    aBlock.setValue('#is', 'add');
     aBlock.setValue('0', 2);
     aBlock.setValue('1', 3);
     aBlock.setValue('2', 4);
@@ -75,7 +75,7 @@ describe("Math", () => {
 
     let aBlock = job.createBlock('a');
 
-    aBlock.setValue('#class', 'subtract');
+    aBlock.setValue('#is', 'subtract');
     aBlock.setValue('0', 7);
     aBlock.setValue('1', 3);
     Root.run();
@@ -87,7 +87,7 @@ describe("Math", () => {
 
     let aBlock = job.createBlock('a');
 
-    aBlock.setValue('#class', 'divide');
+    aBlock.setValue('#is', 'divide');
     aBlock.setValue('0', 7);
     aBlock.setValue('1', 2);
     Root.run();
@@ -99,7 +99,7 @@ describe("Math", () => {
 
     let aBlock = job.createBlock('a');
 
-    aBlock.setValue('#class', 'multiply');
+    aBlock.setValue('#is', 'multiply');
     aBlock.setValue('0', 2);
     aBlock.setValue('1', 3);
     aBlock.setValue('2', 5);

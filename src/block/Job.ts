@@ -13,13 +13,14 @@ export class Job extends Block {
 
   _outputObj: FunctionOutput;
 
-  constructor(parent: Block = Root.instance, output?: FunctionOutput) {
-    super(null, null, null);
+  constructor(parent: Block = Root.instance, output?: FunctionOutput, property?: BlockProperty) {
+    super(null, null, property);
     this._job = this;
     this._parent = parent;
     this._outputObj = output;
-
-    this._prop = new BlockProperty(this, '');
+    if (!property) {
+      this._prop = new BlockProperty(this, '');
+    }
   }
 
   // return true when the related output block need to be put in queue
@@ -65,5 +66,15 @@ export class Root extends Job {
     this._loop = new Loop((loop: Loop) => {
       loop._loopScheduled = setTimeout(() => loop._runSchedule(), 0);
     });
+  }
+
+  addJob(name?: string): Job {
+    if (!name) {
+      name = Block.nextUid();
+    }
+    let prop = this.getProperty(name);
+    let newJob = new Job(this, null, prop);
+    prop.setValue(newJob);
+    return newJob;
   }
 }

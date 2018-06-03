@@ -17,21 +17,28 @@ import { Class, Classes } from "./Class";
 import { Loop } from "./Loop";
 import { Event, FunctionResult } from "./Event";
 import { DataMap } from "../util/Types";
+import { Uid } from "../util/Uid";
 
 export type BlockMode = 'auto' | 'always' | 'onChange' | 'onCall' | 'sync' | 'disabled';
 
-export class BlockChildChange {
-  key: string;
-  // true : created
-  // false : removed
-  created: boolean;
+export interface BlockChildWatch {
+  // change = true, child block created
+  // change = false, child block removed
+  changed(key: string, change: boolean): void;
 }
 
 export class Block implements FunctionData, Listener<FunctionGenerator> {
+  private static _uid = new Uid();
+
+  static nextUid(): string {
+    return Block._uid.next();
+  }
+
+  _blockId = Block.nextUid();
+
   _job: Job;
   _parent: Block;
   _prop: BlockProperty;
-  _gen: number;
 
   _mode: BlockMode = 'auto';
   _callOnChange: boolean = true;
@@ -57,7 +64,10 @@ export class Block implements FunctionData, Listener<FunctionGenerator> {
     this._parent = parent;
     this._prop = prop;
 
-    this._gen = Loop.tick;
+    if (prop) {
+      this._prop._block.onChildAdded(this._prop._name);
+    }
+
   }
 
   _passThroughFunction: boolean;
@@ -134,7 +144,7 @@ export class Block implements FunctionData, Listener<FunctionGenerator> {
         return null;
       } else {
         switch (field) {
-          case '#class':
+          case '#is':
             prop = new BlockClassControl(this, field);
             break;
           case '#mode':
@@ -215,14 +225,14 @@ export class Block implements FunctionData, Listener<FunctionGenerator> {
   }
 
   _save(): DataMap {
-    let result: DataMap = {'#class': null};
+    let result: DataMap = {'#is': null};
     for (let name in this._props) {
       let prop = this._props[name];
 
       if (prop._bindingPath) {
         result[`~${name}`] = prop._bindingPath;
-        if (name === '#class') {
-          delete result['#class'];
+        if (name === '#is') {
+          delete result['#is'];
         }
       } else {
         let saved = prop._save();
@@ -254,7 +264,7 @@ export class Block implements FunctionData, Listener<FunctionGenerator> {
 
   // load the data but keep runtime values
   _liveUpdate(map: DataMap) {
-    let loadedFields: DataMap = {'#class': true};
+    let loadedFields: DataMap = {'#is': true};
     for (let key in map) {
       if (key.charCodeAt(0) === 126) { // ~ for binding
         let val = map[key];
@@ -531,14 +541,37 @@ export class Block implements FunctionData, Listener<FunctionGenerator> {
     }
   }
 
-  // _childrenWatch: ValueDispatcher<BlockChildChange>;
-  //
-  // watch(listener: Listener<BlockChildChange>) {
-  //   if (this._childrenWatch == null) {
-  //     this._childrenWatch = new ValueDispatcher<BlockChildChange>();
-  //   }
-  //   this._childrenWatch.listen()
-  // }
+  _watchers: Set<BlockChildWatch>;
+
+  watch(watcher: BlockChildWatch) {
+    if (this._watchers == null) {
+      this._watchers = new Set<BlockChildWatch>();
+    }
+    this._watchers.add(watcher);
+  }
+
+  unwatch(watcher: BlockChildWatch) {
+    this._watchers.delete(watcher);
+    if (this._watchers.size === 0) {
+      this._watchers = null;
+    }
+  }
+
+  onChildAdded(key: string) {
+    if (this._watchers) {
+      for (let watcher of this._watchers) {
+        watcher.changed(key, true);
+      }
+    }
+  }
+
+  onChildRemoved(key: string) {
+    if (this._watchers) {
+      for (let watcher of this._watchers) {
+        watcher.changed(key, false);
+      }
+    }
+  }
 
   destroy(): void {
     if (this._destroyed) {

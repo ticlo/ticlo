@@ -1,6 +1,15 @@
 import { ValueDispatcher, Listener, Dispatcher } from "./Dispatcher";
-import { Block } from "./Block";
+import { Block, BlockChildWatch } from "./Block";
 import { isSavedBlock } from "../util/Types";
+
+export interface BlockPropertyEvent {
+  error?: string;
+  bind?: string | null;
+}
+
+export interface BlockPropertySubscriber {
+  onPropertyEvent(change: BlockPropertyEvent): void;
+}
 
 export class BlockProperty extends ValueDispatcher<any> implements Listener<any> {
 
@@ -38,6 +47,7 @@ export class BlockProperty extends ValueDispatcher<any> implements Listener<any>
       if (this._saved === this._value) {
         this._saved = null;
       }
+      this._block.onChildRemoved(this._name);
     }
     this._value = val;
     this._valueChanged();
@@ -48,9 +58,14 @@ export class BlockProperty extends ValueDispatcher<any> implements Listener<any>
 
   setValue(val: any) {
     if (this._bindingPath) {
-      this._bindingSource.unlisten(this);
+      if (this._bindingSource) {
+        this._bindingSource.unlisten(this);
+      }
       this._bindingPath = null;
       this._bindingSource = null;
+      if (this._subscribers) {
+        this.addEvent({bind: null});
+      }
     }
     if (val !== this._saved) {
       this._saved = val;
@@ -84,6 +99,9 @@ export class BlockProperty extends ValueDispatcher<any> implements Listener<any>
       this._bindingSource = null;
       this.onChange(null);
     }
+    if (this._subscribers) {
+      this.addEvent({bind: path});
+    }
   }
 
   _save(): any {
@@ -97,7 +115,7 @@ export class BlockProperty extends ValueDispatcher<any> implements Listener<any>
 
   _load(val: any) {
     if (val instanceof Object && val != null
-      && (val.hasOwnProperty('#class') || val.hasOwnProperty('~#class'))) {
+      && (val.hasOwnProperty('#is') || val.hasOwnProperty('~#is'))) {
       let block = new Block(this._block._job, this._block, this);
       this._saved = block;
       block._load(val);
@@ -111,11 +129,14 @@ export class BlockProperty extends ValueDispatcher<any> implements Listener<any>
   _liveUpdate(val: any) {
     if (this._bindingPath != null) {
       // clear binding
-      if (this._bindingSource != null) {
+      if (this._bindingSource) {
         this._bindingSource.unlisten(this);
       }
       this._bindingSource = null;
       this._bindingPath = null;
+      if (this._subscribers) {
+        this.addEvent({bind: null});
+      }
     }
     if (isSavedBlock(val)) {
       if (this._saved instanceof Block) {
@@ -133,6 +154,28 @@ export class BlockProperty extends ValueDispatcher<any> implements Listener<any>
     }
   }
 
+  _subscribers: Set<BlockPropertySubscriber>;
+
+  subscribe(subscriber: BlockPropertySubscriber) {
+    if (this._subscribers == null) {
+      this._subscribers = new Set<BlockPropertySubscriber>();
+    }
+    this._subscribers.add(subscriber);
+  }
+
+  unsubscribe(subscriber: BlockPropertySubscriber) {
+    this._subscribers.delete(subscriber);
+    if (this._subscribers.size === 0) {
+      this._subscribers = null;
+    }
+  }
+
+  addEvent(event: BlockPropertyEvent) {
+    for (let subscriber of this._subscribers) {
+      subscriber.onPropertyEvent(event);
+    }
+  }
+
   destroy() {
     if (this._bindingSource != null) {
       this._bindingSource.unlisten(this);
@@ -145,6 +188,7 @@ export class BlockProperty extends ValueDispatcher<any> implements Listener<any>
       listener.onSourceChange(null);
     }
     this._listeners = null;
+    this._subscribers = null;
     // TODO ?
   }
 }

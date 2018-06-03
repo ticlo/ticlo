@@ -19,10 +19,10 @@ describe("BlockPriority", () => {
     p2.setValue('@log', 'p2');
     p3.setValue('@log', 'p3');
 
-    p3.setValue('#class', 'test-runner');
-    p0.setValue('#class', 'test-runner');
-    p1.setValue('#class', 'test-runner');
-    p2.setValue('#class', 'test-runner');
+    p3.setValue('#is', 'test-runner');
+    p0.setValue('#is', 'test-runner');
+    p1.setValue('#is', 'test-runner');
+    p2.setValue('#is', 'test-runner');
     Root.run();
 
     assert.deepEqual(TestFunctionRunner.logs,
@@ -77,10 +77,10 @@ describe("BlockPriority", () => {
     p2.setBinding('input', '##.p1.input');
     p3.setBinding('input', '##.p2.input');
 
-    p3.setValue('#class', 'test-runner');
-    p0.setValue('#class', 'test-runner');
-    p1.setValue('#class', 'test-runner');
-    p2.setValue('#class', 'test-runner');
+    p3.setValue('#is', 'test-runner');
+    p0.setValue('#is', 'test-runner');
+    p1.setValue('#is', 'test-runner');
+    p2.setValue('#is', 'test-runner');
     Root.run();
     TestFunctionRunner.clearLog();
 
