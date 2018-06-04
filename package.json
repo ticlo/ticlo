@@ -25,19 +25,19 @@
     "typescript": "^2.8.3"
   },
   "scripts": {
-    "test": "nyc mocha -r ts-node/register src/**/*.spec.ts",
+    "test": "nyc mocha -r ts-node/register src/engine/**/*.spec.ts",
     "coverage": "nyc report --reporter=text-lcov | coveralls",
-    "mocha-test": "mocha -r ts-node/register src/**/*.spec.ts"
+    "mocha-test": "mocha -r ts-node/register src/engine/**/*.spec.ts"
   },
   "nyc": {
     "extension": [
       ".ts"
     ],
     "include": [
-      "src/**/*.ts"
+      "src/engine/**/*.ts"
     ],
     "exclude": [
-      "src/**/*.d.ts"
+      "src/engine/**/*.d.ts"
     ],
     "all": true
   }
