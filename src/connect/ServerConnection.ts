@@ -121,58 +121,58 @@ export class ServerConnection extends Connection {
   }
 
   onData(request: DataMap) {
-    if (typeof request.cmd === 'string'
-      && typeof request.path === 'string'
-      && typeof request.id === 'string') {
-      let result: string | ServerRequest;
-      switch (request.cmd) {
-        case 'close' : {
-          this.close(request.id);
-          break;
-        }
-        case 'set': {
-          result = this.setValue(request.path, request.value);
-          break;
-        }
-        case 'get': {
-          result = this.getValue(request.path);
-          break;
-        }
-        case 'bind': {
-          result = this.setBinding(request.path, request.from);
-          break;
-        }
-        case 'update': {
-          result = this.updateValue(request.path, request.value);
-          break;
-        }
-        case 'create' : {
-          result = this.createBlock(request.path);
-          break;
-        }
-        case 'command' : {
-          break;
-        }
-        case 'subscribe' : {
-          result = this.subscribeProperty(request.path, request.id);
-          break;
-        }
-        case 'watch' : {
-          break;
-        }
-        case 'listClasses' : {
-          break;
-        }
-        case 'addClass': {
-          break;
-        }
+    if (typeof request.cmd === 'string' && typeof request.id === 'string') {
+      if (request.cmd === 'close') {
+        this.close(request.id);
+        return;
       }
-      if (result instanceof ServerRequest) {
-        this.addRequest(request.id, result);
-      } else if (result) {
-        this.sendError(request.id, result);
-      } else {
-        this.sendDone(request.id);
+      if (typeof request.path === 'string') {
+        let result: string | ServerRequest;
+        switch (request.cmd) {
+          case 'set': {
+            result = this.setValue(request.path, request.value);
+            break;
+          }
+          case 'get': {
+            result = this.getValue(request.path);
+            break;
+          }
+          case 'bind': {
+            result = this.setBinding(request.path, request.from);
+            break;
+          }
+          case 'update': {
+            result = this.updateValue(request.path, request.value);
+            break;
+          }
+          case 'create' : {
+            result = this.createBlock(request.path);
+            break;
+          }
+          case 'command' : {
+            break;
+          }
+          case 'subscribe' : {
+            result = this.subscribeProperty(request.path, request.id);
+            break;
+          }
+          case 'watch' : {
+            break;
+          }
+          case 'listClasses' : {
+            break;
+          }
+          case 'addClass': {
+            break;
+          }
+        }
+        if (result instanceof ServerRequest) {
+          this.addRequest(request.id, result);
+        } else if (result) {
+          this.sendError(request.id, result);
+        } else {
+          this.sendDone(request.id);
+        }
       }
     }
   }
