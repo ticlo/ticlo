@@ -56,6 +56,7 @@ describe("Connection", () => {
     client.setValue('job2.p1', 'world');
     await client.setBinding('job2.p', 'p1');
     assert.equal(callbacks.promise, cachedPromise, "promise shouldn't be updated after unsubscribe");
+    assert.isEmpty(job.getProperty('p')._listeners, 'property not listened after unsubscribe');
   });
 
 });

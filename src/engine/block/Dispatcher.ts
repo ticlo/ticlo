@@ -14,8 +14,8 @@ export interface Dispatcher<T> {
 
 export class ValueDispatcher<T> implements Dispatcher<T> {
 
-  protected _listeners: Set<Listener<T>> = new Set<Listener<T>>();
-  protected _updating = false;
+  _listeners: Set<Listener<T>> = new Set<Listener<T>>();
+  _updating = false;
   _value: T;
 
   listen(listener: Listener<T>) {
