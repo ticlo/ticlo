@@ -23,7 +23,7 @@ describe("Connection", () => {
     assert.equal(result.value, null, 'subscribe null');
 
     client.setValue('job1.block1.0', 2);
-    client.setValue('job1.block1.1', 3);
+    client.updateValue('job1.block1.1', 3);
     result = await callbacks.promise;
     assert.equal(result.value, 5, 'subscribe basic logic result');
 
@@ -57,6 +57,11 @@ describe("Connection", () => {
     await client.setBinding('job2.p', 'p1');
     assert.equal(callbacks.promise, cachedPromise, "promise shouldn't be updated after unsubscribe");
     assert.isEmpty(job.getProperty('p')._listeners, 'property not listened after unsubscribe');
+
+    // clean up
+    callbacks.cancel();
+    client.destroy();
+    Root.instance.setValue('job2', null);
   });
 
 });
