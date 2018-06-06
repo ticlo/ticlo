@@ -104,6 +104,7 @@ class ServerWatch extends ServerRequest implements BlockChildWatch, Listener<any
     this.block = block;
     prop.listen(this);
     block.watch(this);
+    this.connection.addSend(this);
   }
 
   // Listener.onSourceChange
@@ -228,6 +229,7 @@ export class ServerConnection extends Connection {
             break;
           }
           case 'watch' : {
+            result = this.watchBlock(request.path, request.id);
             break;
           }
           case 'listClasses' : {

@@ -1,5 +1,4 @@
 import { Connection, ConnectionSend } from "./Connection";
-import { WatchObjectCallback, WatchValueCallback } from "./Watch";
 import { Uid } from "../util/Uid";
 import { DataMap, isSavedBlock } from "../util/Types";
 import { Block } from "../block/Block";
@@ -107,6 +106,32 @@ class SubscribeRequest extends MergedClientRequest {
   }
 }
 
+class WatchRequest extends MergedClientRequest {
+  _cachedMap: { [key: string]: string } = {};
+
+  add(callbacks: ClientCallbacks) {
+    super.add(callbacks);
+    if (callbacks.onUpdate) {
+      callbacks.onUpdate({update: this._cachedMap, cache: this._cachedMap});
+    }
+  }
+
+  onUpdate(response: DataMap): void {
+    if (response.changes instanceof Object) {
+      let map = response.changes;
+      for (let key in map) {
+        let id = map[key];
+        if (id == null) {
+          delete this._cachedMap[key];
+        } else {
+          this._cachedMap[key] = id;
+        }
+      }
+    }
+    super.onUpdate({...response, cache: this._cachedMap});
+  }
+}
+
 export class ClientConnection extends Connection {
 
   uid: Uid = new Uid();
@@ -114,9 +139,9 @@ export class ClientConnection extends Connection {
   // id as key
   requests: { [key: string]: ClientCallbacks } = {};
   // path as key
-  subscribes: { [key: string]: MergedClientRequest } = {};
+  subscribes: { [key: string]: SubscribeRequest } = {};
   // path as key
-  watches: { [key: string]: MergedClientRequest } = {};
+  watches: { [key: string]: WatchRequest } = {};
 
   constructor() {
     super();
@@ -161,7 +186,7 @@ export class ClientConnection extends Connection {
   simpleRequest(data: DataMap, callbacks: ClientCallbacks) {
     let promise: Promise<any>;
     if (callbacks == null) {
-      promise = new Promise(function (resolve, reject) {
+      promise = new Promise((resolve, reject) => {
         callbacks = {
           onDone: resolve, onUpdate: resolve, onError: reject
         };
@@ -222,20 +247,30 @@ export class ClientConnection extends Connection {
     }
   }
 
-  watchObject(path: string, callback: WatchObjectCallback): void {
-    //
+  watch(path: string, callbacks: ClientCallbacks) {
+    if (this.watches.hasOwnProperty(path)) {
+      this.watches[path].add(callbacks);
+    } else {
+      let id = this.uid.next();
+      let data = {cmd: 'watch', path, id};
+      let req = new WatchRequest(data, callbacks);
+      this.requests[id] = req;
+      this.watches[path] = req;
+      this.addSend(req);
+    }
   }
 
-  unwatchObject(path: string): void {
-    //
-  }
-
-  watchProperty(path: string, fields: string[], callback: WatchValueCallback): void {
-    //
-  }
-
-  unwatchProperty(path: string, fields: string[]): void {
-    //
+  unwatch(path: string, callbacks: ClientCallbacks): void {
+    let req = this.watches[path];
+    if (req) {
+      req.remove(callbacks);
+      if (req.isEmpty()) {
+        let id = req._data.id;
+        req._data = {cmd: 'close', id};
+        this.addSend(req);
+        delete this.watches[path];
+        delete this.requests[id];
+      }
+    }
   }
 }
-

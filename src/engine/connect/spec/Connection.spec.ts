@@ -9,7 +9,7 @@ const initAdd = AddFunction;
 
 describe("Connection", () => {
 
-  it('basic', async () => {
+  it('subscribe', async () => {
     let job = Root.instance.addJob('job1');
     let [server, client] = makeLocalConnection(Root.instance);
 
@@ -33,7 +33,7 @@ describe("Connection", () => {
     Root.instance.setValue('job1', null);
   });
 
-  it('binding', async () => {
+  it('subscribe binding', async () => {
     let job = Root.instance.addJob('job2');
     let [server, client] = makeLocalConnection(Root.instance);
 
@@ -66,4 +66,40 @@ describe("Connection", () => {
     Root.instance.setValue('job2', null);
   });
 
+  it('watch', async () => {
+    let job = Root.instance.addJob('job3');
+    let [server, client] = makeLocalConnection(Root.instance);
+
+    let child0 = job.createBlock('c0');
+
+    let callbacks = new AsyncClientPromise();
+    client.watch('job3', callbacks);
+    let result = await callbacks.promise;
+    assert.deepEqual(result.changes, {'c0': child0._blockId}, 'initial value');
+    assert.deepEqual(result.cache, {'c0': child0._blockId}, 'initial cache');
+
+    let child1 = job.createBlock('c1');
+
+    result = await callbacks.promise;
+    assert.deepEqual(result.changes, {'c1': child1._blockId}, 'add block changes');
+    assert.deepEqual(result.cache, {'c0': child0._blockId, 'c1': child1._blockId}, 'add block cache');
+
+    client.setValue('job3.c0', null);
+    result = await callbacks.promise;
+    assert.deepEqual(result.changes, {'c0': null}, 'remove block changes');
+    assert.deepEqual(result.cache, {'c1': child1._blockId}, 'add block cache');
+
+    let cachedPromise = callbacks.promise;
+
+    client.unwatch('job3', callbacks);
+
+    await client.createBlock('job3.c2');
+    assert.equal(callbacks.promise, cachedPromise, "promise shouldn't be updated after unwatch");
+    assert.isNull(job._watchers, 'job not watched after unwatch');
+
+    // clean up
+    callbacks.cancel();
+    client.destroy();
+    Root.instance.setValue('job3', null);
+  });
 });
