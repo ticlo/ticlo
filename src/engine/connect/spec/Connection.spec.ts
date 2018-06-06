@@ -37,24 +37,26 @@ describe("Connection", () => {
     let job = Root.instance.addJob('job2');
     let [server, client] = makeLocalConnection(Root.instance);
 
+    client.setBinding('job2.p', 'p0');
+
     let callbacks = new AsyncClientPromise();
     client.subscribe('job2.p', callbacks);
     let result = await callbacks.promise;
     assert.equal(result.value, null, 'initial value');
-    assert.equal(result.bindingPath, null, 'initial binding');
+    assert.equal(result.bindingPath, 'p0', 'initial binding');
 
-    client.setValue('job2.p0', 'hello');
-    client.setBinding('job2.p', 'p0');
+    client.setValue('job2.p1', 'hello');
+    client.setBinding('job2.p', 'p1');
     result = await callbacks.promise;
     assert.equal(result.value, 'hello', 'change value');
-    assert.equal(result.bindingPath, 'p0', 'change binding');
+    assert.equal(result.bindingPath, 'p1', 'change binding');
 
     let cachedPromise = callbacks.promise;
 
     client.unsubscribe('job2.p', callbacks);
 
-    client.setValue('job2.p1', 'world');
-    await client.setBinding('job2.p', 'p1');
+    client.setValue('job2.p2', 'world');
+    await client.setBinding('job2.p', 'p2');
     assert.equal(callbacks.promise, cachedPromise, "promise shouldn't be updated after unsubscribe");
     assert.isEmpty(job.getProperty('p')._listeners, 'property not listened after unsubscribe');
 

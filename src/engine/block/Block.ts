@@ -22,9 +22,8 @@ import { Uid } from "../util/Uid";
 export type BlockMode = 'auto' | 'always' | 'onChange' | 'onCall' | 'sync' | 'disabled';
 
 export interface BlockChildWatch {
-  // change = true, child block created
-  // change = false, child block removed
-  changed(key: string, change: boolean): void;
+  // id = null, child removed
+  onChildChange(key: string, block: Block): void;
 }
 
 export class Block implements FunctionData, Listener<FunctionGenerator> {
@@ -65,7 +64,7 @@ export class Block implements FunctionData, Listener<FunctionGenerator> {
     this._prop = prop;
 
     if (prop) {
-      this._prop._block.onChildAdded(this._prop._name);
+      this._prop._block.onChildAdded(this._prop._name, this);
     }
 
   }
@@ -557,10 +556,10 @@ export class Block implements FunctionData, Listener<FunctionGenerator> {
     }
   }
 
-  onChildAdded(key: string) {
+  onChildAdded(key: string, block: Block) {
     if (this._watchers) {
       for (let watcher of this._watchers) {
-        watcher.changed(key, true);
+        watcher.onChildChange(key, block);
       }
     }
   }
@@ -568,7 +567,7 @@ export class Block implements FunctionData, Listener<FunctionGenerator> {
   onChildRemoved(key: string) {
     if (this._watchers) {
       for (let watcher of this._watchers) {
-        watcher.changed(key, false);
+        watcher.onChildChange(key, null);
       }
     }
   }

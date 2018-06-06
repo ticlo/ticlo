@@ -1,9 +1,10 @@
 import { Connection, ConnectionSendingData, ConnectionSend } from "./Connection";
-import { BlockProperty, BlockPropertyEvent, BlockPropertySubscriber } from "../block/BlockProperty";
+import { BlockIO, BlockProperty, BlockPropertyEvent, BlockPropertySubscriber } from "../block/BlockProperty";
 import { Root } from "../block/Job";
 import { DataMap, isSavedBlock, truncateObj } from "../util/Types";
-import { Block } from "../block/Block";
-import { Dispatcher, Listener } from "../block/Dispatcher";
+import { Block, BlockChildWatch } from "../block/Block";
+import { Dispatcher, Listener, ValueDispatcher } from "../block/Dispatcher";
+import Property = Chai.Property;
 
 class ServerRequest extends ConnectionSendingData {
   id: string;
@@ -16,9 +17,8 @@ class ServerRequest extends ConnectionSendingData {
 }
 
 class ServerSubscribe extends ServerRequest implements BlockPropertySubscriber, Listener<any> {
-  id: string;
-  connection: ServerConnection;
   property: BlockProperty;
+  source: ValueDispatcher<any>;
 
   valueChanged = false;
   events: BlockPropertyEvent[] = [];
@@ -28,8 +28,11 @@ class ServerSubscribe extends ServerRequest implements BlockPropertySubscriber, 
     this.id = id;
     this.connection = conn;
     this.property = prop;
-    prop.listen(this);
     prop.subscribe(this);
+    if (prop._bindingPath) {
+      // add event for current bindingPath
+      this.events.push({bind: prop._bindingPath});
+    }
   }
 
   onSourceChange(prop: Dispatcher<any>) {
@@ -82,15 +85,83 @@ class ServerSubscribe extends ServerRequest implements BlockPropertySubscriber, 
   }
 
   close() {
-    this.property.unlisten(this);
-    this.property.unsubscribe(this);
+    this.source.unlisten(this);
+    if (!this.property._block._destroyed) {
+      this.property.unsubscribe(this);
+    }
   }
 }
 
-class ServerWatch extends ServerRequest {
+class ServerWatch extends ServerRequest implements BlockChildWatch, Listener<any> {
+  property: BlockProperty;
+  block: Block;
+
+  constructor(conn: ServerConnection, id: string, prop: BlockProperty, block: Block) {
+    super();
+    this.id = id;
+    this.connection = conn;
+    this.property = prop;
+    this.block = block;
+    prop.listen(this);
+    block.watch(this);
+  }
+
+  // Listener.onSourceChange
+  onSourceChange(prop: Dispatcher<any>): void {
+    // Do nothing
+  }
+
+  // Listener.onChange
+  onChange(val: any): void {
+    if (val !== this.block) {
+      this.connection.sendError(this.id, "block changed");
+      this.close();
+    }
+  }
+
+  _pendingChanges: { [key: string]: string } = null;
+
+  // BlockChildWatch
+  onChildChange(key: string, block: Block) {
+    if (this._pendingChanges) {
+      if (block) {
+        this._pendingChanges[key] = block._blockId;
+      } else {
+        this._pendingChanges[key] = null;
+      }
+    }
+    this.connection.addSend(this);
+  }
+
+  getSendingData(): { data: DataMap, size: number } {
+    let changes: { [key: string]: string };
+    if (this._pendingChanges) {
+      changes = this._pendingChanges;
+    } else {
+      changes = {};
+      for (let name in this.block._props) {
+        let p = this.block._props[name];
+        if (p._value instanceof Block && p instanceof BlockIO) {
+          changes[name] = (p._value as Block)._blockId;
+        }
+      }
+    }
+    this._pendingChanges = {};
+    let size = 0;
+    for (let name in changes) {
+      size += name.length;
+      if (changes[name]) {
+        size += changes[name].length;
+      } else {
+        size += 4;
+      }
+    }
+    return {data: {id: this.id, cmd: 'update', changes}, size};
+  }
 
   close() {
-    //TODO
+    this.property.unlisten(this);
+    this.block.unwatch(this);
   }
 }
 
@@ -253,14 +324,21 @@ export class ServerConnection extends Connection {
   subscribeProperty(path: string, id: string): string | ServerSubscribe {
     let property = this.root.queryProperty(path, true);
     if (property) {
-      return new ServerSubscribe(this, id, property);
+      let subscriber = new ServerSubscribe(this, id, property);
+      subscriber.source = this.root.createBinding(path, subscriber);
+      return subscriber;
     } else {
       return 'invalid path';
     }
   }
 
-  watchBlock(path: string) {
-    // TODO
+  watchBlock(path: string, id: string): string | ServerWatch {
+    let property = this.root.queryProperty(path, true);
+    if (property && property._value instanceof Block) {
+      return new ServerWatch(this, id, property, property._value);
+    } else {
+      return 'invalid path';
+    }
   }
 
   blockCommand(path: string, command: string, params: DataMap) {
