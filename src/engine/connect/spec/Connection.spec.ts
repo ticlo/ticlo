@@ -9,7 +9,7 @@ const initAdd = AddFunction;
 
 describe("Connection", () => {
 
-  it('basic', async function () {
+  it('basic', async () => {
     let job = Root.instance.addJob('job1');
     let [server, client] = makeLocalConnection(Root.instance);
 
@@ -33,7 +33,7 @@ describe("Connection", () => {
     Root.instance.setValue('job1', null);
   });
 
-  it('binding', async function () {
+  it('binding', async () => {
     let job = Root.instance.addJob('job2');
     let [server, client] = makeLocalConnection(Root.instance);
 

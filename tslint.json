@@ -146,7 +146,6 @@
     ],
     "arrow-parens": false,
     "arrow-return-shorthand": false,
-    "only-arrow-functions": false,
     "forin": false,
     "member-access": false,
     "no-conditional-assignment": false,

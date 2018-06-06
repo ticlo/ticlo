@@ -29,6 +29,7 @@ function replacer(key: string, value: any): any {
   return value;
 }
 
+// a special Json encoder that allows NaN and Infinity
 export class TJson {
   static parse(str: string): any {
     return JSON.parse(str, reviver);
