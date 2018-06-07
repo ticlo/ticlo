@@ -550,6 +550,9 @@ export class Block implements FunctionData, Listener<FunctionGenerator> {
   }
 
   unwatch(watcher: BlockChildWatch) {
+    if (this._destroyed) {
+      return;
+    }
     this._watchers.delete(watcher);
     if (this._watchers.size === 0) {
       this._watchers = null;
@@ -586,6 +589,9 @@ export class Block implements FunctionData, Listener<FunctionGenerator> {
       this._class = null;
     }
 
+    for (let path in this._bindings) {
+      this._bindings[path].destroy();
+    }
     // properties are destroyed but not removed
     // the final clean up is handled by GC
     // if the block is still kept in memory, it's still possible to save it after destroy
@@ -593,11 +599,9 @@ export class Block implements FunctionData, Listener<FunctionGenerator> {
       this._props[name].destroy();
     }
 
-    for (let path in this._bindings) {
-      this._bindings[path].destroy();
-    }
     this._bindings = null;
     this._queueDone = true;
+    this._watchers = null;
   }
 }
 

@@ -164,6 +164,9 @@ export class BlockProperty extends ValueDispatcher<any> implements Listener<any>
   }
 
   unsubscribe(subscriber: BlockPropertySubscriber) {
+    if (!this._subscribers) {
+      return;
+    }
     this._subscribers.delete(subscriber);
     if (this._subscribers.size === 0) {
       this._subscribers = null;
@@ -173,6 +176,12 @@ export class BlockProperty extends ValueDispatcher<any> implements Listener<any>
   addEvent(event: BlockPropertyEvent) {
     for (let subscriber of this._subscribers) {
       subscriber.onPropertyEvent(event);
+    }
+  }
+
+  unlisten(listener: Listener<any>) {
+    if (this._listeners) {
+      this._listeners.delete(listener);
     }
   }
 

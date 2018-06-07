@@ -23,12 +23,14 @@ export class BlockBinding extends ValueDispatcher<any> implements Listener<any> 
   }
 
   unlisten(listener: Listener<any>) {
-    this._listeners.delete(listener);
-    if (this._prop != null) {
-      this._prop.unlisten(listener);
-    }
-    if (this._listeners.size === 0) {
-      this.destroy();
+    if (this._listeners) {
+      this._listeners.delete(listener);
+      if (this._prop != null) {
+        this._prop.unlisten(listener);
+      }
+      if (this._listeners.size === 0) {
+        this.destroy();
+      }
     }
   }
 
@@ -91,6 +93,7 @@ export class BlockBinding extends ValueDispatcher<any> implements Listener<any> 
       this._parent.unlisten(this);
     }
     this._block._removeBinding(this._path);
+    this._listeners = null;
   }
 }
 

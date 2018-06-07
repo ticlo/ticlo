@@ -3,7 +3,6 @@ import { DataMap } from "../../util/Types";
 
 export class AsyncClientPromise implements ClientCallbacks {
   resolve: Function;
-  reject: Function;
 
   firstPromise: Promise<any>;
   promise: Promise<any>;
@@ -15,14 +14,12 @@ export class AsyncClientPromise implements ClientCallbacks {
 
   cancel() {
     this.promise = null;
-    this.reject = null;
     this.resolve = null;
   }
 
   _resetPromise() {
     this.promise = new Promise<any>((resolve, reject) => {
       this.resolve = resolve;
-      this.reject = reject;
     });
   }
 
@@ -41,8 +38,8 @@ export class AsyncClientPromise implements ClientCallbacks {
   }
 
   onError(error: string, data?: DataMap) {
-    if (this.reject) {
-      this.reject(error);
+    if (this.resolve) {
+      this.resolve(new Error(error));
       this._resetPromise();
     }
   }

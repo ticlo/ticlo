@@ -38,7 +38,7 @@ class ServerSubscribe extends ServerRequest implements BlockPropertySubscriber, 
   onSourceChange(prop: Dispatcher<any>) {
     if (prop !== this.property) {
       this.connection.sendError(this.id, "source changed");
-      this.close();
+      this.connection.close(this.id);
     }
   }
 
@@ -93,30 +93,33 @@ class ServerSubscribe extends ServerRequest implements BlockPropertySubscriber, 
 }
 
 class ServerWatch extends ServerRequest implements BlockChildWatch, Listener<any> {
-  property: BlockProperty;
   block: Block;
+  property: BlockProperty;
+  source: ValueDispatcher<any>;
 
-  constructor(conn: ServerConnection, id: string, prop: BlockProperty, block: Block) {
+  constructor(conn: ServerConnection, id: string, block: Block, prop: BlockProperty) {
     super();
     this.id = id;
     this.connection = conn;
-    this.property = prop;
     this.block = block;
-    prop.listen(this);
+    this.property = prop;
     block.watch(this);
     this.connection.addSend(this);
   }
 
   // Listener.onSourceChange
   onSourceChange(prop: Dispatcher<any>): void {
-    // Do nothing
+    if (prop !== this.property) {
+      this.connection.sendError(this.id, "source changed");
+      this.connection.close(this.id);
+    }
   }
 
   // Listener.onChange
   onChange(val: any): void {
     if (val !== this.block) {
       this.connection.sendError(this.id, "block changed");
-      this.close();
+      this.connection.close(this.id);
     }
   }
 
@@ -161,7 +164,7 @@ class ServerWatch extends ServerRequest implements BlockChildWatch, Listener<any
   }
 
   close() {
-    this.property.unlisten(this);
+    this.source.unlisten(this);
     this.block.unwatch(this);
   }
 }
@@ -337,7 +340,9 @@ export class ServerConnection extends Connection {
   watchBlock(path: string, id: string): string | ServerWatch {
     let property = this.root.queryProperty(path, true);
     if (property && property._value instanceof Block) {
-      return new ServerWatch(this, id, property, property._value);
+      let watch = new ServerWatch(this, id, property._value, property);
+      watch.source = this.root.createBinding(path, watch);
+      return watch;
     } else {
       return 'invalid path';
     }
