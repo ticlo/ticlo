@@ -5,10 +5,12 @@ export class AsyncClientPromise implements ClientCallbacks {
   resolve: Function;
   reject: Function;
 
+  firstPromise: Promise<any>;
   promise: Promise<any>;
 
   constructor() {
     this._resetPromise();
+    this.firstPromise = this.promise;
   }
 
   cancel() {

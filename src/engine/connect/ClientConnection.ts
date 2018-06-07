@@ -40,6 +40,7 @@ class ClientRequest extends ConnectionSend implements ClientCallbacks {
 }
 
 class MergedClientRequest extends ConnectionSend implements ClientCallbacks {
+  _hasUpdate: boolean;
   _callbackSet: Set<ClientCallbacks> = new Set();
 
   constructor(data: DataMap, callbacks: ClientCallbacks) {
@@ -90,7 +91,7 @@ class SubscribeRequest extends MergedClientRequest {
 
   add(callbacks: ClientCallbacks) {
     super.add(callbacks);
-    if (callbacks.onUpdate) {
+    if (callbacks.onUpdate && this._hasUpdate) {
       callbacks.onUpdate({value: this._cachedValue, bindingPath: this._cachedBinding, events: []});
     }
   }
@@ -102,6 +103,7 @@ class SubscribeRequest extends MergedClientRequest {
     if (response.hasOwnProperty('bindingPath')) {
       this._cachedBinding = response.bindingPath;
     }
+    this._hasUpdate = true;
     super.onUpdate(response);
   }
 }
@@ -111,8 +113,8 @@ class WatchRequest extends MergedClientRequest {
 
   add(callbacks: ClientCallbacks) {
     super.add(callbacks);
-    if (callbacks.onUpdate) {
-      callbacks.onUpdate({update: this._cachedMap, cache: this._cachedMap});
+    if (callbacks.onUpdate && this._hasUpdate) {
+      callbacks.onUpdate({changes: this._cachedMap, cache: this._cachedMap});
     }
   }
 
@@ -128,6 +130,7 @@ class WatchRequest extends MergedClientRequest {
         }
       }
     }
+    this._hasUpdate = true;
     super.onUpdate({...response, cache: this._cachedMap});
   }
 }
