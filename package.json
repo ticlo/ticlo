@@ -29,17 +29,5 @@
     "test": "cross-env NODE_ENV=TEST nyc mocha -r ts-node/register src/engine/**/*.spec.ts",
     "coverage": "nyc report --reporter=text-lcov | coveralls",
     "mocha-test": "cross-env NODE_ENV=TEST mocha -r ts-node/register src/engine/**/*.spec.ts"
-  },
-  "nyc": {
-    "extension": [
-      ".ts"
-    ],
-    "include": [
-      "src/engine/**/*.ts"
-    ],
-    "exclude": [
-      "src/engine/**/*.d.ts"
-    ],
-    "all": true
   }
 }
