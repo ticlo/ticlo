@@ -1044,6 +1044,10 @@ json-stringify-safe@~5.0.1:
   version "5.0.1"
   resolved "https://registry.yarnpkg.com/json-stringify-safe/-/json-stringify-safe-5.0.1.tgz#1296a2d58fd45f19a0f6ce01d65701e2c735b6eb"
 
+jsonesc@0.1.0:
+  version "0.1.0"
+  resolved "https://registry.yarnpkg.com/jsonesc/-/jsonesc-0.1.0.tgz#acba4c3b430e986d3b14a88e632aa3e946edb083"
+
 jsprim@^1.2.2:
   version "1.4.1"
   resolved "https://registry.yarnpkg.com/jsprim/-/jsprim-1.4.1.tgz#313e66bc1e5cc06e438bc1b7499c2e5c56acb6a2"

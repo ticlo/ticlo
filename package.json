@@ -11,7 +11,9 @@
     "email": "rinick@gmail.com"
   },
   "license": "Apache-2.0",
-  "dependencies": {},
+  "dependencies": {
+    "jsonesc": "0.1.0"
+  },
   "devDependencies": {
     "@types/chai": "^4.1.3",
     "@types/mocha": "^5.2.0",
