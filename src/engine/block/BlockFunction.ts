@@ -1,4 +1,4 @@
-import { BlockIO, BlockProperty } from "./BlockProperty";
+import { BlockIO, BlockProperty, Block$Property } from "./BlockProperty";
 import { FunctionDesc } from "./Descriptor";
 import { BlockMode } from "./Block";
 
@@ -42,6 +42,12 @@ export class BlockFunction {
   inputChanged(input: BlockIO, val: any): boolean {
     return true;
   }
+
+  // return true when it needs to be put in queue
+  input$Changed(input: Block$Property, val: any): boolean {
+    return false;
+  }
+
 
   // return stream output
   run(data: FunctionData): any {

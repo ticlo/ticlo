@@ -1,4 +1,4 @@
-import { BlockProperty, BlockPropertyHelper, BlockIO } from "./BlockProperty";
+import { BlockProperty, BlockPropertyHelper, BlockIO, Block$Property } from "./BlockProperty";
 import {
   BlockCallControl,
   BlockClassControl,
@@ -170,14 +170,26 @@ export class Block implements FunctionData, Listener<FunctionGenerator> {
       }
     } else if (!create) {
       return null;
-    } else if (firstChar === 33) {
-      // ! property helper
-      prop = new BlockPropertyHelper(this, field);
-    } else if (firstChar === 64) {
-      // @ attribute
-      prop = new BlockProperty(this, field);
     } else {
-      prop = new BlockIO(this, field);
+      switch (firstChar) {
+        case 33: {
+          // ! property helper
+          prop = new BlockPropertyHelper(this, field);
+          break;
+        }
+        case 64 : {
+          // @ attribute
+          prop = new BlockProperty(this, field);
+          break;
+        }
+        case 36 : {
+          // $ secondary IO
+          prop = new Block$Property(this, field);
+          break;
+        }
+        default:
+          prop = new BlockIO(this, field);
+      }
     }
     this._props[field] = prop;
     return prop;
@@ -337,6 +349,12 @@ export class Block implements FunctionData, Listener<FunctionGenerator> {
 
   inputChanged(input: BlockIO, val: any) {
     if (this._function && this._function.inputChanged(input, val)) {
+      this._queueFunctionOnChange();
+    }
+  }
+
+  input$Changed(input: Block$Property, val: any) {
+    if (this._function && this._function.input$Changed(input, val)) {
       this._queueFunctionOnChange();
     }
   }

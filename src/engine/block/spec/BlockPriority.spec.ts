@@ -91,4 +91,28 @@ describe("BlockPriority", () => {
       'function should run in the same order as binding chain');
 
   });
+
+  it('$property', () => {
+    let job = new Job();
+
+    let p0 = job.createBlock('p0');
+
+    p0.setValue('@log', 'p0');
+
+    p0.setValue('#is', 'test-runner');
+    Root.run();
+    TestFunctionRunner.clearLog();
+
+    p0.setValue('$run', true);
+    Root.run();
+    assert.deepEqual(TestFunctionRunner.logs,
+      ['p0'], 'function is run when input$Changed return true');
+    TestFunctionRunner.clearLog();
+
+    p0.setValue('$dontrun', true);
+    Root.run();
+    assert.isEmpty(TestFunctionRunner.logs,
+      'function is not run when input$Changed return false');
+
+  });
 });

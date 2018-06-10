@@ -203,12 +203,14 @@ export class BlockProperty extends ValueDispatcher<any> implements Listener<any>
 }
 
 export class BlockIO extends BlockProperty {
-  constructor(block: Block, name: string) {
-    super(block, name);
-  }
-
   _valueChanged() {
     this._block.inputChanged(this, this._value);
+  }
+}
+
+export class Block$Property extends BlockProperty {
+  _valueChanged() {
+    this._block.input$Changed(this, this._value);
   }
 }
 
