@@ -15,7 +15,7 @@ function truncateMap(val: DataMap, maxSize: number): [any, number] {
   let count = 0;
   for (let key in val) {
     ++count;
-    if (total >= maxSize || count > 10) {
+    if (total >= maxSize || count > 9) {
       if (count < 5) {
         result[key] = TRUNCATED;
         continue;

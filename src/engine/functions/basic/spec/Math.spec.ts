@@ -68,6 +68,10 @@ describe("Math", () => {
     aBlock.setValue('#length', 2);
     Root.run();
     assert.equal(aBlock.getValue('output'), 5, 'length back to 2, 2+3 == 5');
+
+    aBlock.setValue('#length', 0);
+    Root.run();
+    assert.equal(aBlock.getValue('output'), null, 'return null when add nothing');
   });
 
   it('subtract', () => {
@@ -80,6 +84,10 @@ describe("Math", () => {
     aBlock.setValue('1', 3);
     Root.run();
     assert.equal(aBlock.getValue('output'), 4, '7-3 == 4');
+
+    aBlock.setValue('1', null);
+    Root.run();
+    assert.equal(aBlock.getValue('output'), null, '7-null == null');
   });
 
   it('divide', () => {
@@ -92,6 +100,10 @@ describe("Math", () => {
     aBlock.setValue('1', 2);
     Root.run();
     assert.equal(aBlock.getValue('output'), 3.5, '7/2 == 3.5');
+
+    aBlock.setValue('1', null);
+    Root.run();
+    assert.equal(aBlock.getValue('output'), null, '7/null == null');
   });
 
   it('multiply', () => {
@@ -106,6 +118,14 @@ describe("Math", () => {
     aBlock.setValue('#length', 3);
     Root.run();
     assert.equal(aBlock.getValue('output'), 30, '2*3*5 == 30');
+
+    aBlock.setValue('#length', -1);
+    Root.run();
+    assert.equal(aBlock.getValue('output'), 6, 'when length is invalid, use length=2');
+
+    aBlock.setValue('#length', 0);
+    Root.run();
+    assert.equal(aBlock.getValue('output'), null, 'return null when multiply nothing');
   });
 
 });
