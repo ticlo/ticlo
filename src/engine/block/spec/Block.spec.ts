@@ -25,6 +25,9 @@ describe("Block", () => {
 
     block.setBinding('@f', '###.@a');
     assert.equal(block.getValue('@f'), 357, 'job binding');
+
+    job.setBinding('@d', null);
+    assert.equal(job.getValue('@d'), null, 'clear binding');
   });
 
   it('query property', () => {

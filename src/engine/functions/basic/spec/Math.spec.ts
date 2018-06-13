@@ -119,6 +119,10 @@ describe("Math", () => {
     Root.run();
     assert.equal(aBlock.getValue('output'), 30, '2*3*5 == 30');
 
+    aBlock.setValue('2', null);
+    Root.run();
+    assert.equal(aBlock.getValue('output'), null, '2*3*null == null');
+
     aBlock.setValue('#length', -1);
     Root.run();
     assert.equal(aBlock.getValue('output'), 6, 'when length is invalid, use length=2');

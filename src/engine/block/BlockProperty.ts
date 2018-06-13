@@ -67,9 +67,7 @@ export class BlockProperty extends ValueDispatcher<any> implements Listener<any>
         this.addEvent({bind: null});
       }
     }
-    if (val !== this._saved) {
-      this._saved = val;
-    }
+    this._saved = val;
     this.onChange(val);
   }
 

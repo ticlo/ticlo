@@ -120,7 +120,7 @@ describe("BlockMode", () => {
     b0.setValue('input', 1);
     b1.setValue('@log', 'b1');
     b1.setValue('#is', 'test-runner');
-    b1.setValue('input', 1);
+    b1.setBinding('input', '##.b0.input');
     Root.run();
     assert.deepEqual(TestFunctionRunner.logs, ['b0', 'b1'],
       'first snapshot');
