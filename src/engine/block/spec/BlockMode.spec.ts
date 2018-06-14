@@ -152,6 +152,8 @@ describe("BlockMode", () => {
     Root.run();
     assert.deepEqual(TestFunctionRunner.logs, ['b0'],
       'undo to first snapshot');
+    let save1New = job.save();
+    assert.deepEqual(save1, save1New, 'saved data should be same after live update');
     TestFunctionRunner.clearLog();
 
     job.liveUpdate(save2);

@@ -282,7 +282,7 @@ export class Block implements FunctionData, Listener<FunctionGenerator> {
         if (typeof val === 'string') {
           let name = key.substring(1);
           this.setBinding(name, val);
-          loadedFields[key] = true;
+          loadedFields[name] = true;
         }
       } else {
         this.getProperty(key)._liveUpdate(map[key]);
