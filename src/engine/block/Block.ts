@@ -23,7 +23,7 @@ export type BlockMode = 'auto' | 'always' | 'onChange' | 'onCall' | 'sync' | 'di
 
 export interface BlockChildWatch {
   // id = null, child removed
-  onChildChange(key: string, block: Block): void;
+  onChildChange(property: BlockIO, block: Block, saved: boolean): void;
 }
 
 export class Block implements FunctionData, Listener<FunctionGenerator> {
@@ -57,16 +57,10 @@ export class Block implements FunctionData, Listener<FunctionGenerator> {
 
   _proxy: object;
 
-  constructor(job: Job, parent: Block, prop: BlockProperty) {
-
+  constructor(job: Job, parent: Block, prop: BlockProperty, save: boolean = true) {
     this._job = job;
     this._parent = parent;
     this._prop = prop;
-
-    if (prop) {
-      this._prop._block.onChildAdded(this._prop._name, this);
-    }
-
   }
 
   _passThroughFunction: boolean;
@@ -339,12 +333,21 @@ export class Block implements FunctionData, Listener<FunctionGenerator> {
 
   createBlock(field: string): Block {
     let prop = this.getProperty(field);
-    if (!(prop._value instanceof Block) || prop._value._prop !== prop) {
+    if (!(prop._saved instanceof Block) || prop._saved._prop !== prop) {
       let block = new Block(this._job, this, prop);
       prop.setValue(block);
+      this.onChildAdded(prop, block, true);
       return block;
     }
     return null;
+  }
+
+  createTempBlock(field: string): Block {
+    let prop = this.getProperty(field);
+    let block = new Block(this._job, this, prop);
+    prop.updateValue(block);
+    this.onChildAdded(prop, block, false);
+    return block;
   }
 
   inputChanged(input: BlockIO, val: any) {
@@ -577,18 +580,18 @@ export class Block implements FunctionData, Listener<FunctionGenerator> {
     }
   }
 
-  onChildAdded(key: string, block: Block) {
+  onChildAdded(property: BlockIO, block: Block, saved: boolean) {
     if (this._watchers) {
       for (let watcher of this._watchers) {
-        watcher.onChildChange(key, block);
+        watcher.onChildChange(property, block, saved);
       }
     }
   }
 
-  onChildRemoved(key: string) {
+  onChildRemoved(property: BlockIO, saved: boolean) {
     if (this._watchers) {
       for (let watcher of this._watchers) {
-        watcher.onChildChange(key, null);
+        watcher.onChildChange(property, null, saved);
       }
     }
   }

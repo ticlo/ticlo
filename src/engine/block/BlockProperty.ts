@@ -46,8 +46,10 @@ export class BlockProperty extends ValueDispatcher<any> implements Listener<any>
       this._value.destroy();
       if (this._saved === this._value) {
         this._saved = null;
+        this._block.onChildRemoved(this, true);
+      } else {
+        this._block.onChildRemoved(this, false);
       }
-      this._block.onChildRemoved(this._name);
     }
     this._value = val;
     this._valueChanged();
@@ -67,8 +69,8 @@ export class BlockProperty extends ValueDispatcher<any> implements Listener<any>
         this.addEvent({bind: null});
       }
     }
-    this._saved = val;
     this.onChange(val);
+    this._saved = val;
   }
 
   // clear saved value and binding path
@@ -88,7 +90,6 @@ export class BlockProperty extends ValueDispatcher<any> implements Listener<any>
     if (this._bindingSource != null) {
       this._bindingSource.unlisten(this);
     }
-    this._saved = null;
     this._bindingPath = path;
 
     if (path != null) {
@@ -100,6 +101,7 @@ export class BlockProperty extends ValueDispatcher<any> implements Listener<any>
     if (this._subscribers) {
       this.addEvent({bind: path});
     }
+    this._saved = null;
   }
 
   _save(): any {
@@ -115,12 +117,13 @@ export class BlockProperty extends ValueDispatcher<any> implements Listener<any>
     if (val instanceof Object && val != null
       && (val.hasOwnProperty('#is') || val.hasOwnProperty('~#is'))) {
       let block = new Block(this._block._job, this._block, this);
-      this._saved = block;
       block._load(val);
       this.onChange(block);
+      this._saved = block;
+      this._block.onChildAdded(this, block, true);
     } else {
-      this._saved = val;
       this.onChange(val);
+      this._saved = val;
     }
   }
 
@@ -142,13 +145,14 @@ export class BlockProperty extends ValueDispatcher<any> implements Listener<any>
       } else {
         // just do a normal loading
         let block = new Block(this._block._job, this._block, this);
-        this._saved = block;
         block._load(val);
         this.onChange(block);
+        this._saved = block;
+        this._block.onChildAdded(this, block, true);
       }
     } else if (val !== this._saved) {
-      this._saved = val;
       this.onChange(val);
+      this._saved = val;
     }
   }
 

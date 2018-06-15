@@ -126,15 +126,18 @@ class ServerWatch extends ServerRequest implements BlockChildWatch, Listener<any
   _pendingChanges: { [key: string]: string } = null;
 
   // BlockChildWatch
-  onChildChange(key: string, block: Block) {
+  onChildChange(property: BlockIO, block: Block, saved: boolean) {
+    if (!saved) {
+      return;
+    }
     if (this._pendingChanges) {
       if (block) {
-        this._pendingChanges[key] = block._blockId;
+        this._pendingChanges[property._name] = block._blockId;
       } else {
-        this._pendingChanges[key] = null;
+        this._pendingChanges[property._name] = null;
       }
+      this.connection.addSend(this);
     }
-    this.connection.addSend(this);
   }
 
   getSendingData(): { data: DataMap, size: number } {
@@ -145,7 +148,7 @@ class ServerWatch extends ServerRequest implements BlockChildWatch, Listener<any
       changes = {};
       for (let name in this.block._props) {
         let p = this.block._props[name];
-        if (p._value instanceof Block && p instanceof BlockIO) {
+        if (p._value instanceof Block && p._value === p._saved && p instanceof BlockIO) {
           changes[name] = (p._value as Block)._blockId;
         }
       }
@@ -235,7 +238,11 @@ export class ServerConnection extends Connection {
             result = this.watchBlock(request.path, request.id);
             break;
           }
-          case 'listClasses' : {
+          case 'list' : {
+            result = this.listBlock(request.path);
+            break;
+          }
+          case 'synClasses' : {
             break;
           }
           case 'addClass': {
@@ -324,6 +331,10 @@ export class ServerConnection extends Connection {
     } else {
       return 'invalid path';
     }
+  }
+
+  listBlock(path: string): string {
+    return '';
   }
 
   subscribeProperty(path: string, id: string): string | ServerSubscribe {
