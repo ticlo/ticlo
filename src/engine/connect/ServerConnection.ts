@@ -148,7 +148,7 @@ class ServerWatch extends ServerRequest implements BlockChildWatch, Listener<any
       changes = {};
       for (let name in this.block._props) {
         let p = this.block._props[name];
-        if (p._value instanceof Block && p._value === p._saved && p instanceof BlockIO) {
+        if (p._saved instanceof Block && p instanceof BlockIO) {
           changes[name] = (p._value as Block)._blockId;
         }
       }
