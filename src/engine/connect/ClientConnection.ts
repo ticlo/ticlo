@@ -223,6 +223,10 @@ export class ClientConnection extends Connection {
     return this.simpleRequest({cmd: 'create', path}, callbacks);
   }
 
+  listChildren(path: string, filter?: string, callbacks?: ClientCallbacks) {
+    return this.simpleRequest({cmd: 'list', path, filter}, callbacks);
+  }
+
   subscribe(path: string, callbacks: ClientCallbacks) {
     if (this.subscribes.hasOwnProperty(path)) {
       this.subscribes[path].add(callbacks);

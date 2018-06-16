@@ -121,4 +121,26 @@ describe("Connection", () => {
     client.destroy();
     Root.instance.setValue('Connection3', null);
   });
+
+  it('list', async () => {
+    let job = Root.instance.addJob('Connection4');
+    let [server, client] = makeLocalConnection(Root.instance);
+
+    for (let i = 0; i < 100; ++i) {
+      job.createBlock('a' + i);
+      job.createBlock('b' + i);
+    }
+
+    let result1 = await client.listChildren('Connection4');
+    assert.equal(Object.keys(result1.children).length, 16, 'list api show no more than 16 children');
+    assert.equal(result1.count, 200, 'list return number of all children');
+
+    let result2 = await client.listChildren('Connection4', 'a\\d+');
+    assert.equal(Object.keys(result2.children).length, 16, 'list with filter show no more than 16 children');
+    assert.equal(result2.count, 100, 'list return number of filtered children');
+
+
+    client.destroy();
+    Root.instance.setValue('Connection4', null);
+  });
 });

@@ -205,7 +205,7 @@ export class ServerConnection extends Connection {
         return;
       }
       if (typeof request.path === 'string') {
-        let result: string | ServerRequest;
+        let result: string | DataMap | ServerRequest;
         switch (request.cmd) {
           case 'set': {
             result = this.setValue(request.path, request.value);
@@ -239,7 +239,7 @@ export class ServerConnection extends Connection {
             break;
           }
           case 'list' : {
-            result = this.listBlock(request.path);
+            result = this.listChildren(request.path, request.filter);
             break;
           }
           case 'synClasses' : {
@@ -252,7 +252,11 @@ export class ServerConnection extends Connection {
         if (result instanceof ServerRequest) {
           this.addRequest(request.id, result);
         } else if (result) {
-          this.sendError(request.id, result);
+          if (typeof result === 'string') {
+            this.sendError(request.id, result);
+          } else {
+            this.sendFinal(request.id, result);
+          }
         } else {
           this.sendDone(request.id);
         }
@@ -267,6 +271,11 @@ export class ServerConnection extends Connection {
   sendDone(id: string) {
     this.addSend(new ConnectionSend({'cmd': 'done', 'id': id}));
   }
+
+  sendFinal(id: string, data: DataMap) {
+    this.addSend(new ConnectionSend({...data, 'cmd': 'final', 'id': id}));
+  }
+
 
   close(id: string) {
     if (this.requests.hasOwnProperty(id)) {
@@ -333,8 +342,32 @@ export class ServerConnection extends Connection {
     }
   }
 
-  listBlock(path: string): string {
-    return '';
+  listChildren(path: string, filter: string): string | DataMap {
+    let property = this.root.queryProperty(path, true);
+    if (property && property._value instanceof Block) {
+      let block = property._value;
+      let filterRegex: RegExp;
+      let children: DataMap = {};
+      if (filter) {
+        filterRegex = new RegExp(filter);
+      }
+      let count = 0;
+      for (let name in block._props) {
+        let p = block._props[name];
+        if (p._value instanceof Block && p instanceof BlockIO) {
+          if (!filterRegex || filterRegex.test(name)) { // filter
+            if (count < 16) {
+              children[name] = (p._value as Block)._blockId;
+            }
+            ++count;
+          }
+        }
+      }
+      return {children, count};
+    } else {
+      return 'invalid path';
+    }
+
   }
 
   subscribeProperty(path: string, id: string): string | ServerSubscribe {
