@@ -29,6 +29,14 @@ export class Classes {
     type.updateValue(cls);
   }
 
+  static clear(name: string) {
+    let type = _types[name];
+
+    if (type) {
+      type.updateValue(null);
+    }
+  }
+
   static listen(name: string, block: Block): Class {
     if (!name) {
       return;

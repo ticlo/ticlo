@@ -34,10 +34,15 @@ export class TestAsyncFunction extends BlockFunction {
     TestAsyncFunction.asyncLog.length = 0;
   }
 
+  timeOut: any;
+  reject: Function;
+
   run(data: FunctionData): any {
+    this.cancel();
     let promise = new Promise((resolve, reject) => {
+      this.reject = reject;
       TestAsyncFunction.syncLog.push(data.getValue('@log'));
-      setTimeout(() => {
+      this.timeOut = setTimeout(() => {
         TestAsyncFunction.asyncLog.push(data.getValue('@log'));
         data.asyncEmit();
         resolve();
@@ -45,6 +50,18 @@ export class TestAsyncFunction extends BlockFunction {
     });
     data.updateValue('@promise', promise);
     return NOT_READY;
+  }
+
+  cancel() {
+    if (this.timeOut) {
+      clearTimeout(this.timeOut);
+      this.timeOut = null;
+      this.reject();
+    }
+  }
+
+  destroy() {
+    this.cancel();
   }
 }
 

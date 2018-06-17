@@ -372,7 +372,9 @@ export class Block implements FunctionData, Listener<FunctionGenerator> {
   }
 
   cancel() {
-
+    if (this._function) {
+      this._function.cancel();
+    }
   }
 
   run() {
@@ -385,23 +387,20 @@ export class Block implements FunctionData, Listener<FunctionGenerator> {
       this._loop._runSchedule();
     }
 
-    if (!this._function) {
-      this._called = false;
-    }
-
-    if (this._called) {
-      this._running = true;
-      let result = this._function.run(this);
-      this._running = false;
-      if (this._props['#emit']) {
-        if (result == null) {
-          result = new Event('complete');
+    if (this._function) {
+      if (this._called) {
+        this._running = true;
+        let result = this._function.run(this);
+        this._running = false;
+        if (this._props['#emit']) {
+          if (result == null) {
+            result = new Event('complete');
+          }
+          this._props['#emit'].updateValue(result);
         }
-        this._props['#emit'].updateValue(result);
+        this._called = false;
       }
-      this._called = false;
     }
-
   }
 
 
@@ -457,8 +456,8 @@ export class Block implements FunctionData, Listener<FunctionGenerator> {
             break;
           }
           case Event.ERROR: {
+            this.cancel();
             if (this._props['#emit']) {
-              this.cancel();
               this._props['#emit'].updateValue(val);
             }
             break;
@@ -572,8 +571,9 @@ export class Block implements FunctionData, Listener<FunctionGenerator> {
           this._queueFunction();
         }
       }
-    } else {
+    } else if (this._function) {
       this._function = null;
+      this._called = false;
       if (this._mode === 'auto') {
         // fast version of this._configMode();
         this._callOnChange = true;

@@ -2,6 +2,7 @@ import { assert } from "chai";
 import { JsFunction } from "../Js";
 import { Job, Root } from "../../../block/Job";
 import { Block } from "../../../block/Block";
+import { Classes } from "../../../block/Class";
 
 describe("Js", () => {
   it('basic', () => {
@@ -55,5 +56,20 @@ describe("Js", () => {
     Root.run();
     assert.equal(aBlock.getValue('out1'), 321, 'basic script output');
 
+  });
+
+  it('unregister class', () => {
+    let job = new Job();
+
+    let aBlock = job.createBlock('a');
+    aBlock.setValue('#is', '/Js/class2');
+    JsFunction.registerClass('/Js/class2', 'this["out1"] = 1');
+
+    assert(aBlock._called, 'script is called');
+    Classes.clear('/Js/class2');
+    Root.run();
+    assert(!aBlock._called, 'script is no longer called');
+    assert(!aBlock._queued, 'script is no longer _queued');
+    assert.isUndefined(aBlock.getValue('out1'), 'clear class after called');
   });
 });

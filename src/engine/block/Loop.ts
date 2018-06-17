@@ -49,7 +49,7 @@ export class Loop {
           priorityChanged = true;
         }
       } else {
-        block._queueDone = true;
+        block._queued = false;
       }
     }
     // clear pending blocks

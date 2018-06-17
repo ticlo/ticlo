@@ -1,6 +1,7 @@
 import { assert } from "chai";
 import { TestAsyncFunction } from "./TestFunction";
 import { Job, Root } from "../Job";
+import { ErrorEvent } from "../Event";
 
 describe("AsyncFunction", () => {
   beforeEach(() => {
@@ -25,6 +26,30 @@ describe("AsyncFunction", () => {
     assert.isEmpty(TestAsyncFunction.asyncLog, 'async not finished');
     await block.getValue('@promise');
     assert.deepEqual(TestAsyncFunction.asyncLog, ['obj'], 'triggered');
+  });
+
+  it('cancel call', async () => {
+    let job = new Job();
+
+    let block = job.createBlock('obj');
+    block.setValue('#mode', 'sync');
+    block.setValue('@log', 'obj');
+    block.setValue('#is', 'async-function');
+    block.setValue('#call', {});
+
+    assert.deepEqual(TestAsyncFunction.syncLog, ['obj'], 'triggered');
+    assert.isEmpty(TestAsyncFunction.asyncLog, 'async not finished');
+
+    block.setValue('#call', new ErrorEvent('error'));
+
+    try {
+      await block.getValue('@promise');
+      /* istanbul ignore next */
+      assert(false, 'promise should be rejected');
+    } catch (err) {
+      // ignore
+    }
+    assert.deepEqual(TestAsyncFunction.asyncLog, [], 'async call canceled');
   });
 
   it('chain async call', async () => {
@@ -54,5 +79,18 @@ describe("AsyncFunction", () => {
 
     await block2.getValue('@promise');
     assert.deepEqual(TestAsyncFunction.asyncLog, ['obj2'], 'block2 run');
+    TestAsyncFunction.clearLog();
+
+    block2.updateValue('#call', {});
+    block1.setValue('#call', new ErrorEvent('error'));
+    try {
+      await block1.getValue('@promise');
+      /* istanbul ignore next */
+      assert(false, 'promise should be rejected');
+    } catch (err) {
+      // ignore
+    }
+    assert.deepEqual(TestAsyncFunction.syncLog, ['obj2'], 'block2 triggered');
+    assert.deepEqual(TestAsyncFunction.asyncLog, [], 'error from block1 cancels block2');
   });
 });
