@@ -6,9 +6,6 @@ import { Block, BlockMode } from "../block/Block";
 import { Job } from "../block/Job";
 
 export class OutputFunction extends BlockFunction {
-  constructor(block: FunctionData) {
-    super(block);
-  }
 
   // return true when it needs to be put in queue
   inputChanged(input: BlockIO, val: any): boolean {

@@ -8,8 +8,7 @@
     ],
     "alwaysStrict": true,
     "noImplicitAny": true,
-    "sourceMap": true,
-    "inlineSourceMap": true
+    "sourceMap": true
   },
   "compileOnSave": true,
   "include": [

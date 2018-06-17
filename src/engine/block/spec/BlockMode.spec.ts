@@ -1,11 +1,18 @@
 import { assert } from "chai";
-import { TestFunctionRunner } from "./TestFunction";
+import { TestAsyncFunction, TestFunctionRunner } from "./TestFunction";
 import { Job, Root } from "../Job";
 import { Block } from "../Block";
 
 describe("BlockMode", () => {
-  it('basic block mode', () => {
+  beforeEach(() => {
     TestFunctionRunner.clearLog();
+  });
+
+  afterEach(() => {
+    TestFunctionRunner.clearLog();
+  });
+
+  it('basic block mode', () => {
 
     let job = new Job();
 
@@ -54,12 +61,10 @@ describe("BlockMode", () => {
     block.setValue('#call', {});
     assert.deepEqual(TestFunctionRunner.logs, ['obj'],
       'sync mode should run function instantly when called');
-    TestFunctionRunner.clearLog();
 
   });
 
   it('block mode on load', () => {
-    TestFunctionRunner.clearLog();
 
     let job = new Job();
 
@@ -102,11 +107,9 @@ describe("BlockMode", () => {
     Root.run();
     assert.deepEqual(TestFunctionRunner.logs, ['b0'],
       'mode always should be called after load');
-    TestFunctionRunner.clearLog();
   });
 
   it('block mode on liveUpdate', () => {
-    TestFunctionRunner.clearLog();
 
     let job = new Job();
 
@@ -160,6 +163,5 @@ describe("BlockMode", () => {
     Root.run();
     assert.deepEqual(TestFunctionRunner.logs, ['b0', 'b2'],
       'redo to second snapshot');
-    TestFunctionRunner.clearLog();
   });
 });

@@ -1,6 +1,7 @@
 import { BlockIO, BlockProperty, Block$Property } from "./BlockProperty";
 import { FunctionDesc } from "./Descriptor";
 import { BlockMode } from "./Block";
+import { Event } from "./Event";
 
 export interface FunctionOutput {
 
@@ -24,6 +25,9 @@ export interface FunctionData extends FunctionInput, FunctionOutput {
 
   // get a Object that allows script to direct access its field,
   getRawObject(): any;
+
+  // dispatch a update event after async operation
+  asyncEmit(event?: Event): void;
 }
 
 export class BlockFunction {
@@ -51,6 +55,11 @@ export class BlockFunction {
 
   // return stream output
   run(data: FunctionData): any {
+    // to be overridden
+  }
+
+  // cancel any async operation
+  cancel(): void {
     // to be overridden
   }
 

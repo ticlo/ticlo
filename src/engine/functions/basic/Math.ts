@@ -23,10 +23,6 @@ const descriptor2: FunctionDesc = {
 
 
 export class AddFunction extends BlockFunction {
-  constructor(block: FunctionData) {
-    super(block);
-  }
-
   run(data: FunctionData): any {
     let len = data.getLength();
     if (!(len >= 0)) {
@@ -55,10 +51,6 @@ Classes.add('add', AddFunction);
 
 
 export class MultiplyFunction extends BlockFunction {
-  constructor(block: FunctionData) {
-    super(block);
-  }
-
   run(data: FunctionData): any {
     let len = data.getLength();
     if (!(len >= 0)) {
@@ -87,10 +79,6 @@ Classes.add('multiply', MultiplyFunction);
 
 
 export class SubtractFunction extends BlockFunction {
-  constructor(block: FunctionData) {
-    super(block);
-  }
-
   run(data: FunctionData): any {
     let v0 = data.getValue('0');
     let v1 = data.getValue('1');
@@ -108,10 +96,6 @@ Classes.add('subtract', SubtractFunction);
 
 
 export class DivideFunction extends BlockFunction {
-  constructor(block: FunctionData) {
-    super(block);
-  }
-
   run(data: FunctionData): any {
     let v0 = data.getValue('0');
     let v1 = data.getValue('1');

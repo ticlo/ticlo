@@ -15,7 +15,7 @@ import { FunctionData, BlockFunction, FunctionGenerator } from "./BlockFunction"
 import { Dispatcher, Listener, ValueDispatcher } from "./Dispatcher";
 import { Class, Classes } from "./Class";
 import { Loop } from "./Loop";
-import { Event, FunctionResult } from "./Event";
+import { Event } from "./Event";
 import { DataMap } from "../util/Types";
 import { Uid } from "../util/Uid";
 
@@ -91,6 +91,15 @@ export class Block implements FunctionData, Listener<FunctionGenerator> {
       this._proxy = new Proxy(this, blockProxy);
     }
     return this._proxy;
+  }
+
+  asyncEmit(event?: Event) {
+    if (this._props['#emit']) {
+      if (!event) {
+        event = new Event('asyncComplete');
+      }
+      this._props['#emit'].updateValue(event);
+    }
   }
 
   queryProperty(path: string, create: boolean = false): BlockProperty {
@@ -362,6 +371,10 @@ export class Block implements FunctionData, Listener<FunctionGenerator> {
     }
   }
 
+  cancel() {
+
+  }
+
   run() {
     this._queueDone = true;
     if (!this._job._enabled) {
@@ -372,13 +385,17 @@ export class Block implements FunctionData, Listener<FunctionGenerator> {
       this._loop._runSchedule();
     }
 
+    if (!this._function) {
+      this._called = false;
+    }
+
     if (this._called) {
       this._running = true;
       let result = this._function.run(this);
       this._running = false;
       if (this._props['#emit']) {
         if (result == null) {
-          result = new FunctionResult();
+          result = new Event('complete');
         }
         this._props['#emit'].updateValue(result);
       }
@@ -433,18 +450,22 @@ export class Block implements FunctionData, Listener<FunctionGenerator> {
   _onCall(val: any): void {
     if (this._function && this._mode !== 'disabled') {
       if (this._mode === 'sync') {
-        if (Event.isValid(val)) {
-          if (FunctionResult.isError(val)) {
-            if (this._props['#emit']) {
-              this._props['#emit'].updateValue(val);
-            }
-          } else {
+        switch (Event.check(val)) {
+          case Event.OK : {
             this._called = true;
             this.run();
+            break;
+          }
+          case Event.ERROR: {
+            if (this._props['#emit']) {
+              this.cancel();
+              this._props['#emit'].updateValue(val);
+            }
+            break;
           }
         }
       } else {
-        if (FunctionResult.isValid(val)) {
+        if (Event.check(val) === Event.OK) {
           this._queueFunction();
         }
       }

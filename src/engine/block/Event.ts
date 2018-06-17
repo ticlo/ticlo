@@ -1,28 +1,42 @@
 import { Loop } from "./Loop";
 
-export class Event {
-  tick: number;
-  type: string;
-
-  constructor(type: string = null) {
-    this.tick = Loop.uid;
-  }
-
-  static isValid(val: any) {
-    if (val == null) {
-      return false;
-    }
-    if (val instanceof Event) {
-      return val.tick === Loop.uid;
-    }
-    return true;
-  }
+export enum EventResult {
 
 }
 
+export class Event {
+  static readonly OK = 0;
+  static readonly ERROR = 1;
+  static readonly INVALID = 2;
 
-export class FunctionResult extends Event {
+  loopId: string;
+  type: string;
 
+  constructor(type?: string) {
+    this.type = type;
+    this.loopId = Loop.uid;
+  }
+
+  static check(val: any): number {
+    if (val == null) {
+      return Event.INVALID;
+    }
+    if (val instanceof Event) {
+      return val.check();
+    }
+    return Event.OK;
+  }
+
+  check(): number {
+    if (this.loopId === Loop.uid) {
+      return Event.OK;
+    }
+    return Event.INVALID;
+  }
+}
+
+
+export class ErrorEvent extends Event {
   detail: string;
 
   constructor(type: string = null, detail: string = null) {
@@ -30,22 +44,20 @@ export class FunctionResult extends Event {
     this.detail = detail;
   }
 
-  static isError(val: any) {
-    return val instanceof FunctionResult && val.type != null;
-  }
-
-  // is valid event and not error
-  static isValidCall(val: any) {
-    if (val == null) {
-      return false;
-    }
-
-    if (val instanceof Event) {
-      if (val instanceof FunctionResult && val.type != null) {
-        return false;
-      }
-      return val.tick === Loop.uid;
-    }
-    return true;
+  check(): number {
+    return Event.ERROR;
   }
 }
+
+export class NotReady extends Event {
+  constructor() {
+    super('notReady');
+  }
+
+  // shouldn't trigger the next block
+  check(): number {
+    return Event.INVALID;
+  }
+}
+
+export const NOT_READY = new NotReady();

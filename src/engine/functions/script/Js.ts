@@ -1,7 +1,7 @@
 import { Classes } from "../../block/Class";
 import { BlockFunction, FunctionData } from "../../block/BlockFunction";
 import { BlockIO, BlockProperty } from "../../block/BlockProperty";
-import { FunctionResult } from "../../block/Event";
+import { ErrorEvent } from "../../block/Event";
 import { BlockMode } from "../../block/Block";
 
 const SCRIPT_ERROR = 'scriptError';
@@ -11,9 +11,6 @@ export class JsFunction extends BlockFunction {
   _compiledFunction: Function;
   _runFunction: Function;
 
-  constructor(block: FunctionData) {
-    super(block);
-  }
 
   inputChanged(input: BlockIO, val: any): boolean {
     if (input._name === 'script') {
@@ -31,7 +28,7 @@ export class JsFunction extends BlockFunction {
           try {
             this._compiledFunction = new Function(script);
           } catch (err) {
-            return new FunctionResult(SCRIPT_ERROR, err.toString());
+            return new ErrorEvent(SCRIPT_ERROR, err.toString());
           }
         } else {
           return null;
@@ -42,7 +39,7 @@ export class JsFunction extends BlockFunction {
         rslt = this._compiledFunction.apply(data.getRawObject());
       } catch (err) {
         this._compiledFunction = null;
-        return new FunctionResult(SCRIPT_ERROR, err.toString());
+        return new ErrorEvent(SCRIPT_ERROR, err.toString());
       }
       if (typeof rslt === 'function') {
         // let the function run again
@@ -56,15 +53,15 @@ export class JsFunction extends BlockFunction {
     try {
       rslt = this._runFunction.apply(data.getRawObject());
     } catch (err) {
-      return new FunctionResult(SCRIPT_ERROR, err.toString());
+      return new ErrorEvent(SCRIPT_ERROR, err.toString());
     }
     return rslt;
   }
 
   static registerClass(className: string,
-                         script: string,
-                         defaultMode: BlockMode = 'always',
-                         defaultPriority: number = 1) {
+                       script: string,
+                       defaultMode: BlockMode = 'always',
+                       defaultPriority: number = 1) {
     try {
       let compiledFunction = new Function(script);
 
