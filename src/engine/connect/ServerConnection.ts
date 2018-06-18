@@ -236,7 +236,7 @@ export class ServerConnection extends Connection {
             break;
           }
           case 'list' : {
-            result = this.listChildren(request.path, request.filter);
+            result = this.listChildren(request.path, request.filter, request.max);
             break;
           }
           case 'synClasses' : {
@@ -339,8 +339,11 @@ export class ServerConnection extends Connection {
     }
   }
 
-  listChildren(path: string, filter: string): string | DataMap {
+  listChildren(path: string, filter: string, max: number): string | DataMap {
     let property = this.root.queryProperty(path, true);
+    if (!(max > 0 && max < 1024)) {
+      max = 16;
+    }
     if (property && property._value instanceof Block) {
       let block = property._value;
       let filterRegex: RegExp;
@@ -353,7 +356,7 @@ export class ServerConnection extends Connection {
         let p = block._props[name];
         if (p._value instanceof Block && p instanceof BlockIO) {
           if (!filterRegex || filterRegex.test(name)) { // filter
-            if (count < 16) {
+            if (count < max) {
               children[name] = (p._value as Block)._blockId;
             }
             ++count;

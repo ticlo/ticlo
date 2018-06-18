@@ -131,14 +131,13 @@ describe("Connection", () => {
       job.createBlock('b' + i);
     }
 
-    let result1 = await client.listChildren('Connection4');
-    assert.equal(Object.keys(result1.children).length, 16, 'list api show no more than 16 children');
+    let result1 = await client.listChildren('Connection4', null, 32);
+    assert.equal(Object.keys(result1.children).length, 32, 'list should show 32 children');
     assert.equal(result1.count, 200, 'list return number of all children');
 
-    let result2 = await client.listChildren('Connection4', 'a\\d+');
-    assert.equal(Object.keys(result2.children).length, 16, 'list with filter show no more than 16 children');
+    let result2 = await client.listChildren('Connection4', 'a\\d+', 9999);
+    assert.equal(Object.keys(result2.children).length, 16, 'list more than 1024, fallback to 16');
     assert.equal(result2.count, 100, 'list return number of filtered children');
-
 
     client.destroy();
     Root.instance.setValue('Connection4', null);
