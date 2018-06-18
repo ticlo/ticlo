@@ -126,10 +126,7 @@ class ServerWatch extends ServerRequest implements BlockChildWatch, Listener<any
   _pendingChanges: { [key: string]: string } = null;
 
   // BlockChildWatch
-  onChildChange(property: BlockIO, block: Block, saved: boolean) {
-    if (!saved) {
-      return;
-    }
+  onChildChange(property: BlockIO, block: Block) {
     if (this._pendingChanges) {
       if (block) {
         this._pendingChanges[property._name] = block._blockId;

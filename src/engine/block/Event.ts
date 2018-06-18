@@ -1,9 +1,5 @@
 import { Loop } from "./Loop";
 
-export enum EventResult {
-
-}
-
 export class Event {
   static readonly OK = 0;
   static readonly ERROR = 1;
