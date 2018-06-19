@@ -46,6 +46,7 @@ export class TestAsyncFunction extends BlockFunction {
         TestAsyncFunction.asyncLog.push(data.getValue('@log'));
         data.asyncEmit();
         resolve();
+        this.timeOut = null;
       }, 1);
     });
     data.updateValue('@promise', promise);
@@ -56,7 +57,7 @@ export class TestAsyncFunction extends BlockFunction {
     if (this.timeOut) {
       clearTimeout(this.timeOut);
       this.timeOut = null;
-      this.reject();
+      this.reject(new Error());
     }
   }
 

@@ -84,7 +84,8 @@ describe("AsyncFunction", () => {
     TestAsyncFunction.clearLog();
 
     block2.updateValue('#call', {});
-    block1.setValue('#call', new ErrorEvent('error'));
+    // call with error later, when Promise is being awaited
+    setTimeout(() => block1.setValue('#call', new ErrorEvent('error')), 0);
     try {
       await block1.getValue('@promise');
       /* istanbul ignore next */
