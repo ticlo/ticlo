@@ -26,6 +26,8 @@ describe("AsyncFunction", () => {
     assert.isEmpty(TestAsyncFunction.asyncLog, 'async not finished');
     await block.getValue('@promise');
     assert.deepEqual(TestAsyncFunction.asyncLog, ['obj'], 'triggered');
+
+    block.setValue('obj', null);
   });
 
   it('cancel call', async () => {
