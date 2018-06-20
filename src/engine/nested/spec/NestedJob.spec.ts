@@ -1,10 +1,11 @@
 import { assert } from "chai";
 import { NestedJob } from "../NestedJob";
 import { Job, Root } from "../../block/Job";
-import { Block, SavedData } from "../../block/Block";
+import { Block } from "../../block/Block";
 import { TestFunctionRunner } from "../../block/spec/TestFunction";
 import "../../functions/basic/Math";
 import "../Output";
+import { DataMap } from "../../util/Types";
 
 describe("NestedJob", () => {
 
@@ -16,7 +17,7 @@ describe("NestedJob", () => {
 
     aBlock.setValue('#is', '/NestedJob/class1');
 
-    let jobData: SavedData = {
+    let jobData: DataMap = {
       '#is': null,
       'runner': {'#is': 'test-runner', '@log': 'nest1', '~#call': '##.#input.in1'}
     };
@@ -53,7 +54,7 @@ describe("NestedJob", () => {
 
     aBlock.setValue('#is', '/NestedJob/class2');
 
-    let jobData: SavedData = {
+    let jobData: DataMap = {
       '#is': null,
       'add': {'#is': 'add', '~0': '##.#input.in1', '1': 1},
       '#output': {'#is': 'output', '~out1': '##.add.output'}
@@ -72,12 +73,12 @@ describe("NestedJob", () => {
     aBlock.setValue('in0', 2);
     aBlock.setValue('#is', 'job_test_namespace/class1');
 
-    let jobData1: SavedData = {
+    let jobData1: DataMap = {
       '#is': null,
       'nest': {'#is': '/class2', '~in1': '##.#input.in0'},
       '#output': {'#is': 'output', '~out1': '##.nest.out2'}
     };
-    let jobData2: SavedData = {
+    let jobData2: DataMap = {
       '#is': null,
       'add': {'#is': 'add', '~0': '##.#input.in1', '1': 1},
       '#output': {'#is': 'output', '~out2': '##.add.output'}
