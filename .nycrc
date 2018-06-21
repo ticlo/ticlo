@@ -8,5 +8,7 @@
   "exclude": [
     "src/engine/**/*.d.ts"
   ],
-  "all": true
+  "all": true,
+  "sourceMap": false,
+  "instrument": false
 }
