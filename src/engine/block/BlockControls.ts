@@ -14,6 +14,12 @@ export class BlockCallControl extends BlockProperty {
   }
 }
 
+export class BlockSyncControl extends BlockProperty {
+  _valueChanged() {
+    this._block._syncChanged(this._value);
+  }
+}
+
 export class BlockModeControl extends BlockProperty {
   _valueChanged() {
     this._block._modeChanged(this._value);

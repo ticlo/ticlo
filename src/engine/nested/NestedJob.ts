@@ -23,7 +23,7 @@ export class NestedJob extends BlockFunction {
 
   run(data: FunctionData): any {
     if (data instanceof Block) {
-      this._nested = new Job(data, data);
+      this._nested = new Job(data, data, data.getProperty('#impl'));
       this._nested._namespace = this._namespace;
       // the first round of queue is hardcoded here
       this._nested._queued = true;
@@ -46,7 +46,6 @@ export class NestedJob extends BlockFunction {
       if (this._data instanceof Block && !this._data._destroyed) {
         this._data.updateValue('#impl', null);
       }
-      this._nested.destroy();
       this._nested = null;
     }
   }

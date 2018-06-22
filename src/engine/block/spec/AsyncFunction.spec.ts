@@ -34,7 +34,7 @@ describe("AsyncFunction", () => {
     let job = new Job();
 
     let block = job.createBlock('obj');
-    block.setValue('#mode', 'sync');
+    block.setValue('#sync', true);
     block.setValue('@log', 'obj');
     block.setValue('#is', 'async-function');
     block.setValue('#call', {});
@@ -58,12 +58,12 @@ describe("AsyncFunction", () => {
     let job = new Job();
 
     let block1 = job.createBlock('obj1');
-    block1.setValue('#mode', 'sync');
+    block1.setValue('#sync', true);
     block1.setValue('@log', 'obj1');
     block1.setValue('#is', 'async-function');
 
     let block2 = job.createBlock('obj2');
-    block2.setValue('#mode', 'sync');
+    block2.setValue('#sync', true);
     block2.setValue('@log', 'obj2');
     block2.setValue('#is', 'async-function');
     block2.setBinding('#call', '##.obj1.#emit');

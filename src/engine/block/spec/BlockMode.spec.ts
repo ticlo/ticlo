@@ -57,7 +57,8 @@ describe("BlockMode", () => {
     assert.isEmpty(TestFunctionRunner.logs,
       'disable mode function should never run');
 
-    block.setValue('#mode', 'sync');
+    block.setValue('#mode', 'onCall');
+    block.setValue('#sync', true);
     block.setValue('#call', {});
     assert.deepEqual(TestFunctionRunner.logs, ['obj'],
       'sync mode should run function instantly when called');
@@ -75,7 +76,8 @@ describe("BlockMode", () => {
     let b2 = job.createBlock('onCall');
     b2.setValue('#mode', 'onCall');
     let b3 = job.createBlock('sync');
-    b3.setValue('#mode', 'sync');
+    b3.setValue('#mode', 'onCall');
+    b3.setValue('#sync', true);
     let b4 = job.createBlock('disabled');
     b4.setValue('#mode', 'disabled');
 

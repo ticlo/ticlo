@@ -66,4 +66,6 @@ export class TestAsyncFunction extends BlockFunction {
   }
 }
 
+TestAsyncFunction.prototype.defaultMode = 'onCall';
+
 Classes.add('async-function', TestAsyncFunction);

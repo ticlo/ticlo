@@ -2,6 +2,7 @@ import { BlockProperty, BlockPropertyHelper, BlockIO, Block$Property } from "./B
 import {
   BlockCallControl,
   BlockClassControl,
+  BlockSyncControl,
   BlockInputControl,
   BlockLengthControl,
   BlockModeControl,
@@ -19,7 +20,7 @@ import { Event } from "./Event";
 import { DataMap } from "../util/Types";
 import { Uid } from "../util/Uid";
 
-export type BlockMode = 'auto' | 'always' | 'onChange' | 'onCall' | 'sync' | 'disabled';
+export type BlockMode = 'auto' | 'always' | 'onChange' | 'onCall' | 'disabled';
 
 export interface BlockChildWatch {
   // id = null, child removed
@@ -42,6 +43,7 @@ export class Block implements FunctionData, Listener<FunctionGenerator> {
   _mode: BlockMode = 'auto';
   _callOnChange: boolean = true;
   _callOnLoad: boolean = false;
+  _sync: boolean = false;
 
   _props: { [key: string]: BlockProperty } = {};
   _bindings: { [key: string]: BlockBinding } = {};
@@ -154,6 +156,9 @@ export class Block implements FunctionData, Listener<FunctionGenerator> {
             break;
           case '#call':
             prop = new BlockCallControl(this, field);
+            break;
+          case '#sync':
+            prop = new BlockSyncControl(this, field);
             break;
           case '#length':
             prop = new BlockLengthControl(this, field);
@@ -411,7 +416,6 @@ export class Block implements FunctionData, Listener<FunctionGenerator> {
       case 'always':
       case 'onChange':
       case 'onCall':
-      case 'sync':
       case 'disabled':
         this._mode = mode;
         break;
@@ -447,7 +451,7 @@ export class Block implements FunctionData, Listener<FunctionGenerator> {
 
   _onCall(val: any): void {
     if (this._function && this._mode !== 'disabled') {
-      if (this._mode === 'sync') {
+      if (this._sync) {
         switch (Event.check(val)) {
           case Event.OK : {
             this._called = true;
@@ -489,6 +493,9 @@ export class Block implements FunctionData, Listener<FunctionGenerator> {
     }
   }
 
+  _syncChanged(sync: any) {
+    this._sync = !!sync;
+  }
 
   _classChanged(className: any) {
     if (className === this._className) return;
