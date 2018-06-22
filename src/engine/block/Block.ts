@@ -454,8 +454,15 @@ export class Block implements FunctionData, Listener<FunctionGenerator> {
       if (this._sync) {
         switch (Event.check(val)) {
           case Event.OK : {
-            this._called = true;
-            this.run();
+            if (this._callOnChange && !this._called) {
+              // pass the event if there is nothing to run
+              if (this._props['#emit']) {
+                this._props['#emit'].updateValue(val);
+              }
+            } else {
+              this._called = true;
+              this.run();
+            }
             break;
           }
           case Event.ERROR: {

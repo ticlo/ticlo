@@ -56,13 +56,6 @@ describe("BlockMode", () => {
     Root.run();
     assert.isEmpty(TestFunctionRunner.logs,
       'disable mode function should never run');
-
-    block.setValue('#mode', 'onCall');
-    block.setValue('#sync', true);
-    block.setValue('#call', {});
-    assert.deepEqual(TestFunctionRunner.logs, ['obj'],
-      'sync mode should run function instantly when called');
-
   });
 
   it('block mode on load', () => {
