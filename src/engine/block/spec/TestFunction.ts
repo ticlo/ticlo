@@ -49,7 +49,7 @@ export class TestAsyncFunction extends BlockFunction {
         this.timeOut = null;
       }, 1);
     });
-    data.updateValue('@promise', promise);
+    data.output(promise, '@promise');
     return NOT_READY;
   }
 

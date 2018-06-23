@@ -26,7 +26,7 @@ export class Job extends Block {
   // return true when the related output block need to be put in queue
   outputChanged(input: BlockIO, val: any): boolean {
     if (this._outputObj) {
-      this._outputObj.updateValue(input._name, val);
+      this._outputObj.output(val, input._name);
     }
     return false;
   }

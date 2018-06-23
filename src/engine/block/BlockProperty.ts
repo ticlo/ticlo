@@ -54,6 +54,11 @@ export class BlockProperty extends ValueDispatcher<any> implements Listener<any>
     this._dispatch();
     return true;
   }
+  // output the value but doesn't notify the function
+  // to be overriden in BlockIo
+  setOutput(val: any): boolean {
+    return this.onChange(val);
+  }
 
 
   setValue(val: any) {
@@ -64,7 +69,7 @@ export class BlockProperty extends ValueDispatcher<any> implements Listener<any>
       this._bindingPath = null;
       this._bindingSource = null;
       if (this._subscribers) {
-        this.addEvent({bind: null});
+        this.addEvent({ bind: null });
       }
     }
     this.onChange(val);
@@ -97,7 +102,7 @@ export class BlockProperty extends ValueDispatcher<any> implements Listener<any>
       this.onChange(null);
     }
     if (this._subscribers) {
-      this.addEvent({bind: path});
+      this.addEvent({ bind: path });
     }
     this._saved = null;
   }
@@ -134,7 +139,7 @@ export class BlockProperty extends ValueDispatcher<any> implements Listener<any>
       this._bindingSource = null;
       this._bindingPath = null;
       if (this._subscribers) {
-        this.addEvent({bind: null});
+        this.addEvent({ bind: null });
       }
     }
     if (isSavedBlock(val)) {
@@ -204,7 +209,19 @@ export class BlockProperty extends ValueDispatcher<any> implements Listener<any>
 
 export class BlockIO extends BlockProperty {
   _valueChanged() {
-    this._block.inputChanged(this, this._value);
+    if (!this._outputing) {
+      this._block.inputChanged(this, this._value);
+    }
+  }
+
+  _outputing: boolean;
+
+  // outputs the value but doesn't notify the function
+  setOutput(val: any): boolean {
+    this._outputing = true;
+    let changed = this.onChange(val);
+    this._outputing = false;
+    return changed;
   }
 }
 

@@ -4,11 +4,8 @@ import { BlockMode } from "./Block";
 import { Event } from "./Event";
 
 export interface FunctionOutput {
-
-  updateValue(field: string, val: any): void;
-
-  // a simple way of calling updateValue('output', value)
-  output(value: any): void;
+  // field is 'output' by default
+  output(value: any, field?: string): void;
 }
 
 export interface FunctionInput {

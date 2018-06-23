@@ -185,12 +185,12 @@ export class Block implements FunctionData, Listener<FunctionGenerator> {
           prop = new BlockPropertyHelper(this, field);
           break;
         }
-        case 64 : {
+        case 64: {
           // @ attribute
           prop = new BlockProperty(this, field);
           break;
         }
-        case 36 : {
+        case 36: {
           // $ secondary IO
           prop = new Block$Property(this, field);
           break;
@@ -244,7 +244,7 @@ export class Block implements FunctionData, Listener<FunctionGenerator> {
   }
 
   _save(): DataMap {
-    let result: DataMap = {'#is': null};
+    let result: DataMap = { '#is': null };
     for (let name in this._props) {
       let prop = this._props[name];
 
@@ -283,7 +283,7 @@ export class Block implements FunctionData, Listener<FunctionGenerator> {
 
   // load the data but keep runtime values
   _liveUpdate(map: DataMap) {
-    let loadedFields: DataMap = {'#is': true};
+    let loadedFields: DataMap = { '#is': true };
     for (let key in map) {
       if (key.charCodeAt(0) === 126) { // ~ for binding
         let val = map[key];
@@ -323,11 +323,11 @@ export class Block implements FunctionData, Listener<FunctionGenerator> {
     this.getProperty(field).updateValue(val);
   }
 
-  output(val: any): void {
+  output(val: any, field: string = 'output'): void {
     if (this._destroyed) {
       throw new Error("output called after destroy");
     }
-    this.getProperty('output').updateValue(val);
+    this.getProperty(field).setOutput(val);
   }
 
   setBinding(field: string, path: string): void {
@@ -453,7 +453,7 @@ export class Block implements FunctionData, Listener<FunctionGenerator> {
     if (this._function && this._mode !== 'disabled') {
       if (this._sync) {
         switch (Event.check(val)) {
-          case Event.OK : {
+          case Event.OK: {
             if (this._callOnChange && !this._called) {
               // pass the event if there is nothing to run
               if (this._props['#emit']) {
@@ -614,18 +614,22 @@ export class Block implements FunctionData, Listener<FunctionGenerator> {
     }
   }
 
-  onChildAdded(property: BlockIO, block: Block) {
-    if (this._watchers) {
-      for (let watcher of this._watchers) {
-        watcher.onChildChange(property, block);
+  onChildAdded(property: BlockProperty, block: Block) {
+    if (property instanceof BlockIO) {
+      if (this._watchers) {
+        for (let watcher of this._watchers) {
+          watcher.onChildChange(property, block);
+        }
       }
     }
   }
 
-  onChildRemoved(property: BlockIO) {
-    if (this._watchers) {
-      for (let watcher of this._watchers) {
-        watcher.onChildChange(property, null);
+  onChildRemoved(property: BlockProperty) {
+    if (property instanceof BlockIO) {
+      if (this._watchers) {
+        for (let watcher of this._watchers) {
+          watcher.onChildChange(property, null);
+        }
       }
     }
   }
