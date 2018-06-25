@@ -3,8 +3,8 @@
 
 ### Block Mode
 
-|| always | onChange|onCall | disabled |
-|:---:|:---:|:---:|:---:|:---:|:---:|
+| | always | onChange | onCall | disabled |
+| :---: | :---: | :---: | :---: | :---: |
 |#call is triggered|✔️|✔️|✔️|❌|
 |input is changed|✔️|✔️|❌|❌|
 |block is deserialized<br>or liveupdated|✔️|❌|❌|❌|

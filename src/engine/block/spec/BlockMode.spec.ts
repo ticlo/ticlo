@@ -159,4 +159,38 @@ describe("BlockMode", () => {
     assert.deepEqual(TestFunctionRunner.logs, ['b0', 'b2'],
       'redo to second snapshot');
   });
+
+  it('binding route change', () => {
+    let job = new Job();
+
+    let block = job.createBlock('obj');
+    block.setValue('#mode', 'onCall');
+    block.setValue('@log', 'obj');
+    block.setValue('#is', 'test-runner');
+    block.setBinding('#call', '#');
+    assert.equal(block.getValue('#call'), block);
+    Root.run();
+    TestFunctionRunner.clearLog();
+
+    let blockA = block.createBlock('a');
+    blockA.setBinding('@parent', '##');
+    block.setBinding('@child', 'a');
+    block.setBinding('#call', '@child.@parent');
+    Root.run();
+    assert.equal(block.getValue('#call'), block);
+    assert.isEmpty(TestFunctionRunner.logs, 'change binding path but not value should not trigger function');
+
+    let blockB = block.createBlock('b');
+    blockB.setBinding('@parent', '##');
+    block.setBinding('@child', 'b');
+    Root.run();
+    assert.equal(block.getValue('#call'), block);
+    assert.isEmpty(TestFunctionRunner.logs, 'change binding path but not value should not trigger function');
+
+    block.updateValue('@child', { '@parent': block });
+    Root.run();
+    assert.equal(block.getValue('#call'), block);
+    assert.isEmpty(TestFunctionRunner.logs, 'change binding path but not value should not trigger function');
+
+  });
 });

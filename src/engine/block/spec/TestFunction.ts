@@ -70,20 +70,20 @@ export class TestAsyncFunction extends BlockFunction {
 
 
 export const voidListeners = {
-  /* istanbul ignore next */
   onSourceChange(prop: Dispatcher<any>) {
+    /* istanbul ignore next */
     throw new Error('should not be called');
   },
-  /* istanbul ignore next */
   onChange(val: any) {
+    /* istanbul ignore next */
     throw new Error('should not be called');
   },
-  /* istanbul ignore next */
   onPropertyEvent(change: BlockPropertyEvent) {
+    /* istanbul ignore next */
     throw new Error('should not be called');
   },
-  /* istanbul ignore next */
   onChildChange(property: BlockIO, block: Block) {
+    /* istanbul ignore next */
     throw new Error('should not be called');
   }
 };
