@@ -1,7 +1,9 @@
 import { Classes } from "../Class";
 import { BlockFunction, FunctionData } from "../BlockFunction";
-import { Block$Property } from "../BlockProperty";
+import { Block$Property, BlockIO, BlockPropertyEvent } from "../BlockProperty";
 import { NOT_READY } from "../Event";
+import { Dispatcher } from "../Dispatcher";
+import { Block } from "../Block";
 
 
 export class TestFunctionRunner extends BlockFunction {
@@ -65,6 +67,26 @@ export class TestAsyncFunction extends BlockFunction {
     this.cancel();
   }
 }
+
+
+export const voidListeners = {
+  /* istanbul ignore next */
+  onSourceChange(prop: Dispatcher<any>) {
+    throw new Error('should not be called');
+  },
+  /* istanbul ignore next */
+  onChange(val: any) {
+    throw new Error('should not be called');
+  },
+  /* istanbul ignore next */
+  onPropertyEvent(change: BlockPropertyEvent) {
+    throw new Error('should not be called');
+  },
+  /* istanbul ignore next */
+  onChildChange(property: BlockIO, block: Block) {
+    throw new Error('should not be called');
+  }
+};
 
 TestAsyncFunction.prototype.defaultMode = 'onCall';
 

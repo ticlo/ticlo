@@ -11,7 +11,7 @@ import {
   BlockReadOnlyControl
 } from "./BlockControls";
 import { BlockBinding } from "./BlockBinding";
-import { Job } from "./Job";
+import { Job, Root } from "./Job";
 import { FunctionData, BlockFunction, FunctionGenerator } from "./BlockFunction";
 import { Dispatcher, Listener, ValueDispatcher } from "./Dispatcher";
 import { Class, Classes } from "./Class";
@@ -19,6 +19,7 @@ import { Loop } from "./Loop";
 import { Event } from "./Event";
 import { DataMap } from "../util/Types";
 import { Uid } from "../util/Uid";
+import { voidProperty } from "./Void";
 
 export type BlockMode = 'auto' | 'always' | 'onChange' | 'onCall' | 'disabled';
 
@@ -59,7 +60,7 @@ export class Block implements FunctionData, Listener<FunctionGenerator> {
 
   _proxy: object;
 
-  constructor(job: Job, parent: Block, prop: BlockProperty, save: boolean = true) {
+  constructor(job: Job, parent: Block, prop: BlockProperty) {
     this._job = job;
     this._parent = parent;
     this._prop = prop;
@@ -125,7 +126,11 @@ export class Block implements FunctionData, Listener<FunctionGenerator> {
   getProperty(field: string, create: boolean = true): BlockProperty {
 
     if (this._destroyed) {
-      throw new Error("getProperty called after destroy");
+      if (Root.instance._strictMode) {
+        throw new Error("getProperty called after destroy");
+      } else {
+        return voidProperty;
+      }
     }
     if (this._props.hasOwnProperty(field)) {
       return this._props[field];
@@ -205,7 +210,11 @@ export class Block implements FunctionData, Listener<FunctionGenerator> {
 
   createBinding(path: string, listener: Listener<any>): ValueDispatcher<any> {
     if (this._destroyed) {
-      throw new Error("createBinding called after destroy");
+      if (Root.instance._strictMode) {
+        throw new Error("createBinding called after destroy");
+      } else {
+        return voidProperty;
+      }
     }
     let pos = path.lastIndexOf('.');
     if (pos < 0) {
@@ -310,30 +319,18 @@ export class Block implements FunctionData, Listener<FunctionGenerator> {
   }
 
   setValue(field: string, val: any): void {
-    if (this._destroyed) {
-      throw new Error("setValue called after destroy");
-    }
     this.getProperty(field).setValue(val);
   }
 
   updateValue(field: string, val: any): void {
-    if (this._destroyed) {
-      throw new Error("updateValue called after destroy");
-    }
     this.getProperty(field).updateValue(val);
   }
 
   output(val: any, field: string = 'output'): void {
-    if (this._destroyed) {
-      throw new Error("output called after destroy");
-    }
     this.getProperty(field).setOutput(val);
   }
 
   setBinding(field: string, path: string): void {
-    if (this._destroyed) {
-      throw new Error("setBinding called after destroy");
-    }
     this.getProperty(field).setBinding(path);
   }
 
@@ -598,6 +595,12 @@ export class Block implements FunctionData, Listener<FunctionGenerator> {
   _watchers: Set<BlockChildWatch>;
 
   watch(watcher: BlockChildWatch) {
+    if (this._destroyed) {
+      if (Root.instance._strictMode) {
+        throw new Error("watch called after destroy");
+      }
+      return;
+    }
     if (this._watchers == null) {
       this._watchers = new Set<BlockChildWatch>();
     }

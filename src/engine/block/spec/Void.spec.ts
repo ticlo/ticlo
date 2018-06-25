@@ -4,6 +4,7 @@ import { voidProperty } from "../Void";
 import { Job } from "../Job";
 import { BlockPropertyEvent } from "../BlockProperty";
 import { Dispatcher } from "../Dispatcher";
+import { voidListeners } from "./TestFunction";
 
 describe("VoidProperty", () => {
 
@@ -15,24 +16,10 @@ describe("VoidProperty", () => {
     voidProperty.setBinding('a');
     assert.isUndefined(voidProperty.getValue(), 'void property never change value');
 
-    voidProperty.listen({
-      onSourceChange(prop: Dispatcher<any>) {
-        /* istanbul ignore next */
-        throw new Error('should not be called');
-      },
-      onChange(val: any) {
-        /* istanbul ignore next */
-        throw new Error('should not be called');
-      }
-    });
+    voidProperty.listen(voidListeners);
     assert.isEmpty(voidProperty._listeners, 'void property wont listen');
 
-    voidProperty.subscribe({
-      onPropertyEvent(change: BlockPropertyEvent) {
-        /* istanbul ignore next */
-        throw new Error('should not be called');
-      }
-    });
+    voidProperty.subscribe(voidListeners);
     assert.isUndefined(voidProperty._subscribers, 'void property wont subscribe');
 
     assert.throw(() => voidProperty._save(), 'Can not save destroyed property');

@@ -60,6 +60,8 @@ export class Root extends Job {
     this._instance._loop._run();
   }
 
+  _strictMode: boolean = process.env.NODE_ENV.toLowerCase() === 'test';
+
   constructor() {
     super();
     this._parent = this;
