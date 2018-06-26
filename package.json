@@ -29,8 +29,10 @@
     "typescript": "2.9.2"
   },
   "scripts": {
-    "test": "cross-env NODE_ENV=TEST nyc -s mocha -r ts-node/register --recursive src/engine/**/*.spec.ts && cross-env NODE_ENV=TEST nyc --nycrc-path .nycrc2 mocha -r ts-node/register --recursive src/engine/**/*.spec.ts",
+    "nyc-cache": "nyc -s --nycrc-path cache.nycrc mocha src/common/**/*.spec.ts",
+    "test-nyc-strict": "NODE_ENV=TEST nyc mocha src/common/**/*.spec.ts && nyc report --reporter=text-lcov | coveralls",
+    "test-nyc": "nyc mocha src/common/**/*.spec.ts && nyc report --reporter=text-lcov | coveralls",
     "coverage": "nyc report --reporter=text-lcov | coveralls",
-    "mocha-test": "cross-env NODE_ENV=TEST mocha -r ts-node/register src/engine/**/*.spec.ts"
+    "test": "cross-env NODE_ENV=TEST mocha src/common/**/*.spec.ts"
   }
 }

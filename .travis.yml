@@ -1,4 +1,7 @@
 language: node_js
 node_js:
   - "8"
-after_success: npm run coverage
+script:
+  - yarn run nyc-cache
+  - yarn run test-nyc-strict
+  - yarn run test-nyc
