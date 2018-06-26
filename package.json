@@ -30,8 +30,8 @@
   },
   "scripts": {
     "nyc-cache": "nyc -s --nycrc-path cache.nycrc mocha src/common/**/*.spec.ts",
-    "test-nyc-strict": "cross-env NODE_ENV=TEST nyc mocha src/common/**/*.spec.ts && nyc report --reporter=text-lcov | coveralls",
-    "test-nyc": "nyc mocha src/common/**/*.spec.ts && nyc report --reporter=text-lcov | coveralls",
+    "test-nyc-strict": "cross-env NODE_ENV=TEST nyc mocha src/common/**/*.spec.ts",
+    "test-nyc": "nyc --clean=false mocha src/common/**/*.spec.ts",
     "coverage": "nyc report --reporter=text-lcov | coveralls",
     "test": "cross-env NODE_ENV=TEST mocha src/common/**/*.spec.ts"
   }
