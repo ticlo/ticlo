@@ -25,7 +25,7 @@ export type BlockMode = 'auto' | 'always' | 'onChange' | 'onCall' | 'disabled';
 
 export interface BlockChildWatch {
   // id = null, child removed
-  onChildChange(property: BlockIO, block: Block): void;
+  onChildChange(property: BlockIO, block: Block, saved: boolean): void;
 }
 
 export class Block implements FunctionData, Listener<FunctionGenerator> {
@@ -347,7 +347,7 @@ export class Block implements FunctionData, Listener<FunctionGenerator> {
     if (!(prop._saved instanceof Block) || prop._saved._prop !== prop) {
       let block = new Block(this._job, this, prop);
       prop.setValue(block);
-      this.onChildAdded(prop, block);
+      this.onChildAdded(prop, block, true);
       return block;
     }
     return null;
@@ -357,6 +357,7 @@ export class Block implements FunctionData, Listener<FunctionGenerator> {
     let prop = this.getProperty(field);
     let block = new Block(this._job, this, prop);
     prop.updateValue(block);
+    this.onChildAdded(prop, block, false);
     return block;
   }
 
@@ -617,21 +618,21 @@ export class Block implements FunctionData, Listener<FunctionGenerator> {
     }
   }
 
-  onChildAdded(property: BlockProperty, block: Block) {
+  onChildAdded(property: BlockProperty, block: Block, saved: boolean) {
     if (property instanceof BlockIO) {
       if (this._watchers) {
         for (let watcher of this._watchers) {
-          watcher.onChildChange(property, block);
+          watcher.onChildChange(property, block, saved);
         }
       }
     }
   }
 
-  onChildRemoved(property: BlockProperty) {
+  onChildRemoved(property: BlockProperty, saved: boolean) {
     if (property instanceof BlockIO) {
       if (this._watchers) {
         for (let watcher of this._watchers) {
-          watcher.onChildChange(property, null);
+          watcher.onChildChange(property, null, saved);
         }
       }
     }

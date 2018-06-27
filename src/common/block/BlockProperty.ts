@@ -46,7 +46,9 @@ export class BlockProperty extends ValueDispatcher<any> implements Listener<any>
       this._value.destroy();
       if (this._saved === this._value) {
         this._saved = null;
-        this._block.onChildRemoved(this);
+        this._block.onChildRemoved(this, true);
+      } else {
+        this._block.onChildRemoved(this, false);
       }
     }
     this._value = val;
@@ -123,7 +125,7 @@ export class BlockProperty extends ValueDispatcher<any> implements Listener<any>
       block._load(val);
       this.onChange(block);
       this._saved = block;
-      this._block.onChildAdded(this, block);
+      this._block.onChildAdded(this, block, true);
     } else {
       this.onChange(val);
       this._saved = val;
@@ -151,7 +153,7 @@ export class BlockProperty extends ValueDispatcher<any> implements Listener<any>
         block._load(val);
         this.onChange(block);
         this._saved = block;
-        this._block.onChildAdded(this, block);
+        this._block.onChildAdded(this, block, true);
       }
     } else if (val !== this._saved) {
       this.onChange(val);
