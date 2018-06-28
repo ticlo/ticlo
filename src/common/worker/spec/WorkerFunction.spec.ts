@@ -1,5 +1,5 @@
 import { assert } from "chai";
-import { NestedJob } from "../NestedJob";
+import { WorkerFunction } from "../WorkerFunction";
 import { Job, Root } from "../../block/Job";
 import { Block } from "../../block/Block";
 import { TestFunctionRunner } from "../../block/spec/TestFunction";
@@ -7,7 +7,7 @@ import "../../functions/basic/Math";
 import "../Output";
 import { DataMap } from "../../util/Types";
 
-describe("NestedJob", () => {
+describe("WorkerFunction", () => {
 
   it('basic', () => {
     TestFunctionRunner.clearLog();
@@ -15,21 +15,21 @@ describe("NestedJob", () => {
 
     let aBlock = job.createBlock('a');
 
-    aBlock.setValue('#is', '/NestedJob/class1');
+    aBlock.setValue('#is', '/WorkerFunction/class1');
 
     let jobData: DataMap = {
       '#is': null,
       'runner': {'#is': 'test-runner', '@log': 'nest1', '~#call': '##.#input.in1'}
     };
-    NestedJob.registerClass('/NestedJob/class1', jobData);
+    WorkerFunction.registerClass('/WorkerFunction/class1', jobData);
 
     Root.run();
     assert.deepEqual(TestFunctionRunner.logs, ['nest1'],
       'nested job should be created');
     TestFunctionRunner.clearLog();
 
-    let impl: Job = aBlock.getValue('#impl')  as Job;
-    assert.instanceOf(impl, Job, 'get #impl of nested job');
+    let impl: Job = aBlock.getValue('$worker')  as Job;
+    assert.instanceOf(impl, Job, 'get $worker of nested job');
 
     assert.deepEqual(impl.save(), jobData, 'serialize nested job');
 
@@ -52,14 +52,14 @@ describe("NestedJob", () => {
 
     let aBlock = job.createBlock('a');
 
-    aBlock.setValue('#is', '/NestedJob/class2');
+    aBlock.setValue('#is', '/WorkerFunction/class2');
 
     let jobData: DataMap = {
       '#is': null,
       'add': {'#is': 'add', '~0': '##.#input.in1', '1': 1},
       '#output': {'#is': 'output', '~out1': '##.add.output'}
     };
-    NestedJob.registerClass('/NestedJob/class2', jobData);
+    WorkerFunction.registerClass('/WorkerFunction/class2', jobData);
     aBlock.setValue('in1', 2);
     Root.run();
 
@@ -83,8 +83,8 @@ describe("NestedJob", () => {
       'add': {'#is': 'add', '~0': '##.#input.in1', '1': 1},
       '#output': {'#is': 'output', '~out2': '##.add.output'}
     };
-    NestedJob.registerClass('job_test_namespace/class1', jobData1);
-    NestedJob.registerClass('job_test_namespace/class2', jobData2);
+    WorkerFunction.registerClass('job_test_namespace/class1', jobData1);
+    WorkerFunction.registerClass('job_test_namespace/class2', jobData2);
     Root.run();
 
     assert.equal(aBlock.getValue('out1'), 3, 'output from 2 layer of  nested logic');

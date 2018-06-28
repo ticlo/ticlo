@@ -6,7 +6,7 @@ import { Block, BlockMode } from "../block/Block";
 import { Job } from "../block/Job";
 import { DataMap } from "../util/Types";
 
-export class NestedJob extends BlockFunction {
+export class WorkerFunction extends BlockFunction {
   _namespace: string;
   _nested: Job;
   _saved: DataMap;
@@ -23,11 +23,11 @@ export class NestedJob extends BlockFunction {
 
   run(data: FunctionData): any {
     if (data instanceof Block) {
-      this._nested = new Job(data, data, data.getProperty('#impl'));
+      this._nested = new Job(data, data, data.getProperty('$worker'));
       this._nested._namespace = this._namespace;
       // the first round of queue is hardcoded here
       this._nested._queued = true;
-      data.updateValue('#impl', this._nested);
+      data.updateValue('$worker', this._nested);
       this._nested.load(this._saved);
       this._nested.updateValue('#input', data);
 
@@ -44,7 +44,7 @@ export class NestedJob extends BlockFunction {
   destroy(): void {
     if (this._nested) {
       if (this._data instanceof Block && !this._data._destroyed) {
-        this._data.updateValue('#impl', null);
+        this._data.updateValue('$worker', null);
       }
       this._nested = null;
     }
@@ -60,7 +60,7 @@ export class NestedJob extends BlockFunction {
       namespace = className.substr(0, slashPos);
     }
 
-    class CustomNestedJob extends NestedJob {
+    class CustomNestedJob extends WorkerFunction {
       constructor(block: FunctionData) {
         super(block, data);
         this.priority = defaultPriority;
