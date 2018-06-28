@@ -42,20 +42,31 @@ export class BlockProperty extends ValueDispatcher<any> implements Listener<any>
     if (this._value === val) {
       return false;
     }
-    if (this._value instanceof Block && this._value._prop === this) {
-      this._value.destroy();
-      if (this._saved === this._value) {
-        this._saved = null;
-        this._block.onChildRemoved(this, true);
-      } else {
-        this._block.onChildRemoved(this, false);
-      }
+    if (this._value instanceof Block) {
+      this._onChildRemoved();
     }
     this._value = val;
     this._valueChanged();
     this._dispatch();
+    if (this._value instanceof Block) {
+      this._onChildAdded();
+    }
     return true;
   }
+
+  _onChildAdded() {
+    // to be overridden
+  }
+
+  _onChildRemoved() {
+    if (this._value._prop === this) {
+      this._value.destroy();
+    }
+    if (this._saved === this._value) {
+      this._saved = null;
+    }
+  }
+
   // output the value but doesn't notify the function
   // to be overriden in BlockIo
   setOutput(val: any): boolean {
@@ -125,7 +136,6 @@ export class BlockProperty extends ValueDispatcher<any> implements Listener<any>
       block._load(val);
       this.onChange(block);
       this._saved = block;
-      this._block.onChildAdded(this, block, true);
     } else {
       this.onChange(val);
       this._saved = val;
@@ -153,7 +163,6 @@ export class BlockProperty extends ValueDispatcher<any> implements Listener<any>
         block._load(val);
         this.onChange(block);
         this._saved = block;
-        this._block.onChildAdded(this, block, true);
       }
     } else if (val !== this._saved) {
       this.onChange(val);
@@ -217,6 +226,23 @@ export class BlockIO extends BlockProperty {
   }
 
   _outputing: boolean;
+
+  _onChildAdded() {
+    this._block.onChildChanged(this, this._value, this._value._temp);
+  }
+
+  _onChildRemoved() {
+    if (this._value._prop === this) {
+      this._value.destroy();
+    }
+    if (this._saved === this._value) {
+      this._saved = null;
+      this._block.onChildChanged(this, null, false);
+    } else {
+      this._block.onChildChanged(this, null, true);
+    }
+
+  }
 
   // outputs the value but doesn't notify the function
   setOutput(val: any): boolean {

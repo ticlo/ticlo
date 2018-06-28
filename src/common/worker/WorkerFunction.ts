@@ -23,7 +23,7 @@ export class WorkerFunction extends BlockFunction {
 
   run(data: FunctionData): any {
     if (data instanceof Block) {
-      this._nested = new Job(data, data, data.getProperty('$worker'));
+      this._nested = new Job(data, data, data.getProperty('$worker'), true);
       this._nested._namespace = this._namespace;
       // the first round of queue is hardcoded here
       this._nested._queued = true;

@@ -31,7 +31,7 @@ class ServerSubscribe extends ServerRequest implements BlockPropertySubscriber, 
     prop.subscribe(this);
     if (prop._bindingPath) {
       // add event for current bindingPath
-      this.events.push({bind: prop._bindingPath});
+      this.events.push({ bind: prop._bindingPath });
     }
   }
 
@@ -53,7 +53,7 @@ class ServerSubscribe extends ServerRequest implements BlockPropertySubscriber, 
   }
 
   getSendingData(): { data: DataMap, size: number } {
-    let data: DataMap = {id: this.id, cmd: 'update'};
+    let data: DataMap = { id: this.id, cmd: 'update' };
     let total = 0;
     if (this.valueChanged) {
       let [value, size] = truncateObj(this.property.getValue());
@@ -81,7 +81,7 @@ class ServerSubscribe extends ServerRequest implements BlockPropertySubscriber, 
     if (bindingChanged) {
       data.bindingPath = this.property._bindingPath;
     }
-    return {data, size: total};
+    return { data, size: total };
   }
 
   close() {
@@ -126,8 +126,8 @@ class ServerWatch extends ServerRequest implements BlockChildWatch, Listener<any
   _pendingChanges: { [key: string]: string } = null;
 
   // BlockChildWatch
-  onChildChange(property: BlockIO, block: Block, saved: boolean) {
-    if (!saved) {
+  onChildChange(property: BlockIO, block: Block, temp: boolean) {
+    if (temp) {
       return;
     }
     if (this._pendingChanges) {
@@ -163,7 +163,7 @@ class ServerWatch extends ServerRequest implements BlockChildWatch, Listener<any
         size += 4;
       }
     }
-    return {data: {id: this.id, cmd: 'update', changes}, size};
+    return { data: { id: this.id, cmd: 'update', changes }, size };
   }
 
   close() {
@@ -265,15 +265,15 @@ export class ServerConnection extends Connection {
   }
 
   sendError(id: string, msg: string) {
-    this.addSend(new ConnectionSend({'cmd': 'error', 'id': id, 'msg': msg}));
+    this.addSend(new ConnectionSend({ 'cmd': 'error', 'id': id, 'msg': msg }));
   }
 
   sendDone(id: string) {
-    this.addSend(new ConnectionSend({'cmd': 'done', 'id': id}));
+    this.addSend(new ConnectionSend({ 'cmd': 'done', 'id': id }));
   }
 
   sendFinal(id: string, data: DataMap) {
-    this.addSend(new ConnectionSend({...data, 'cmd': 'final', 'id': id}));
+    this.addSend(new ConnectionSend({ ...data, 'cmd': 'final', 'id': id }));
   }
 
 
@@ -366,7 +366,7 @@ export class ServerConnection extends Connection {
           }
         }
       }
-      return {children, count};
+      return { children, count };
     } else {
       return 'invalid path';
     }

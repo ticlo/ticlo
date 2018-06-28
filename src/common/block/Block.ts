@@ -24,8 +24,7 @@ import { voidProperty } from "./Void";
 export type BlockMode = 'auto' | 'always' | 'onChange' | 'onCall' | 'disabled';
 
 export interface BlockChildWatch {
-  // id = null, child removed
-  onChildChange(property: BlockIO, block: Block, saved: boolean): void;
+  onChildChange(property: BlockIO, block: Block, temp: boolean): void;
 }
 
 export class Block implements FunctionData, Listener<FunctionGenerator> {
@@ -36,6 +35,9 @@ export class Block implements FunctionData, Listener<FunctionGenerator> {
   }
 
   _blockId = Block.nextUid();
+
+  // temporary block wont be saved and cant be shown in the block editor UI
+  _temp: boolean;
 
   _job: Job;
   _parent: Block;
@@ -60,10 +62,11 @@ export class Block implements FunctionData, Listener<FunctionGenerator> {
 
   _proxy: object;
 
-  constructor(job: Job, parent: Block, prop: BlockProperty) {
+  constructor(job: Job, parent: Block, prop: BlockProperty, temp?: boolean) {
     this._job = job;
     this._parent = parent;
     this._prop = prop;
+    this._temp = temp;
   }
 
   _passThroughFunction: boolean;
@@ -347,7 +350,6 @@ export class Block implements FunctionData, Listener<FunctionGenerator> {
     if (!(prop._saved instanceof Block) || prop._saved._prop !== prop) {
       let block = new Block(this._job, this, prop);
       prop.setValue(block);
-      this.onChildAdded(prop, block, true);
       return block;
     }
     return null;
@@ -355,9 +357,8 @@ export class Block implements FunctionData, Listener<FunctionGenerator> {
 
   createTempBlock(field: string): Block {
     let prop = this.getProperty(field);
-    let block = new Block(this._job, this, prop);
+    let block = new Block(this._job, this, prop, true);
     prop.updateValue(block);
-    this.onChildAdded(prop, block, false);
     return block;
   }
 
@@ -528,8 +529,8 @@ export class Block implements FunctionData, Listener<FunctionGenerator> {
     }
   }
 
+  // value from #priority
   _controlPriority: number = -1;
-  _subQueuePriority: number = -1;
 
   _priorityChanged(priority: any) {
     if (priority >= 0 && priority <= 3) {
@@ -618,25 +619,14 @@ export class Block implements FunctionData, Listener<FunctionGenerator> {
     }
   }
 
-  onChildAdded(property: BlockProperty, block: Block, saved: boolean) {
-    if (property instanceof BlockIO) {
-      if (this._watchers) {
-        for (let watcher of this._watchers) {
-          watcher.onChildChange(property, block, saved);
-        }
+  onChildChanged(property: BlockIO, block: Block, temp: boolean) {
+    if (this._watchers) {
+      for (let watcher of this._watchers) {
+        watcher.onChildChange(property, block, temp);
       }
     }
   }
 
-  onChildRemoved(property: BlockProperty, saved: boolean) {
-    if (property instanceof BlockIO) {
-      if (this._watchers) {
-        for (let watcher of this._watchers) {
-          watcher.onChildChange(property, null, saved);
-        }
-      }
-    }
-  }
 
   destroy(): void {
     if (this._destroyed) {
@@ -687,4 +677,3 @@ const blockProxy = {
     return true;
   }
 };
-

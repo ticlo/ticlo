@@ -13,8 +13,8 @@ export class Job extends Block {
 
   _outputObj: FunctionOutput;
 
-  constructor(parent: Block = Root.instance, output?: FunctionOutput, property?: BlockProperty) {
-    super(null, null, property);
+  constructor(parent: Block = Root.instance, output?: FunctionOutput, property?: BlockProperty, temp?: boolean) {
+    super(null, null, property, temp);
     this._job = this;
     this._parent = parent;
     this._outputObj = output;
@@ -78,5 +78,18 @@ export class Root extends Job {
     let newJob = new Job(this, null, prop);
     prop.setValue(newJob);
     return newJob;
+  }
+
+  save(): { [key: string]: any } {
+    // not allowed
+    return null;
+  }
+
+  load(map: { [key: string]: any }) {
+    // not allowed
+  }
+
+  liveUpdate(map: { [key: string]: any }) {
+    // not allowed
   }
 }
