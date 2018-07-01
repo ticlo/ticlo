@@ -9,11 +9,11 @@ import { DataMap } from "../util/Types";
 export class WorkerFunction extends BlockFunction {
   _namespace: string;
   _nested: Job;
-  _saved: DataMap;
+  _src: DataMap;
 
   constructor(block: FunctionData, data: DataMap) {
     super(block);
-    this._saved = data;
+    this._src = data;
 
   }
 
@@ -23,12 +23,8 @@ export class WorkerFunction extends BlockFunction {
 
   run(data: FunctionData): any {
     if (data instanceof Block) {
-      this._nested = new Job(data, data, data.getProperty('$worker'), true);
-      this._nested._namespace = this._namespace;
-      // the first round of queue is hardcoded here
-      this._nested._queued = true;
-      data.updateValue('$worker', this._nested);
-      this._nested.load(this._saved);
+      this._nested = data.createTempJob('$worker', this._src, this._namespace);
+
       this._nested.updateValue('#input', data);
 
       if (this._nested._loop) {
@@ -60,17 +56,18 @@ export class WorkerFunction extends BlockFunction {
       namespace = className.substr(0, slashPos);
     }
 
-    class CustomNestedJob extends WorkerFunction {
+    class CustomWorkerFunction extends WorkerFunction {
       constructor(block: FunctionData) {
         super(block, data);
         this.priority = defaultPriority;
         this.defaultMode = defaultMode;
-        this._namespace = namespace;
       }
     }
 
+    CustomWorkerFunction.prototype._namespace = namespace;
+
     // TODO descriptor
-    Classes.add(className, CustomNestedJob);
+    Classes.add(className, CustomWorkerFunction);
   }
 }
 

@@ -20,7 +20,7 @@ describe("Block Child Watch", () => {
     assert.deepEqual(watchLog, [['a', true, false]], 'new block');
     watchLog = [];
 
-    job.createTempBlock('a');
+    job.createTempJob('a');
     assert.deepEqual(watchLog, [['a', false, false], ['a', true, true]], 'replace with temp block');
     watchLog = [];
 
@@ -32,7 +32,7 @@ describe("Block Child Watch", () => {
     assert.deepEqual(watchLog, [['a', false, false]], 'remove block');
     watchLog = [];
 
-    job.createTempBlock('a');
+    job.createTempJob('a');
     assert.deepEqual(watchLog, [['a', true, true]], 'new temp block');
     watchLog = [];
 

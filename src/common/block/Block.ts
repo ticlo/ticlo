@@ -4,6 +4,7 @@ import {
   BlockClassControl,
   BlockSyncControl,
   BlockInputControl,
+  BlockDoneControl,
   BlockLengthControl,
   BlockModeControl,
   BlockOutputControl,
@@ -49,6 +50,8 @@ export class Block implements FunctionData, Listener<FunctionGenerator> {
   _sync: boolean = false;
 
   _props: { [key: string]: BlockProperty } = {};
+  // a cache for blockIO, generated on demand
+  _ioProps: { [key: string]: BlockIO };
   _bindings: { [key: string]: BlockBinding } = {};
   _function: BlockFunction;
   _className: string;
@@ -99,7 +102,7 @@ export class Block implements FunctionData, Listener<FunctionGenerator> {
     return this._proxy;
   }
 
-  asyncEmit(event?: Event) {
+  emit(event?: any) {
     if (this._props['#emit']) {
       if (!event) {
         event = new Event('asyncComplete');
@@ -177,6 +180,9 @@ export class Block implements FunctionData, Listener<FunctionGenerator> {
           case '#output':
             prop = new BlockOutputControl(this, field);
             break;
+          case '#done':
+            prop = new BlockDoneControl(this, field);
+            break;
           case '#priority':
             prop = new BlockPriorityControl(this, field);
             break;
@@ -205,6 +211,9 @@ export class Block implements FunctionData, Listener<FunctionGenerator> {
         }
         default:
           prop = new BlockIO(this, field);
+          if (this._ioProps) {
+            this._ioProps[field] = prop as BlockIO;
+          }
       }
     }
     this._props[field] = prop;
@@ -355,11 +364,17 @@ export class Block implements FunctionData, Listener<FunctionGenerator> {
     return null;
   }
 
-  createTempBlock(field: string): Block {
+  createTempJob(field: string, src?: DataMap, namespace?: string): Job {
     let prop = this.getProperty(field);
-    let block = new Block(this._job, this, prop, true);
-    prop.updateValue(block);
-    return block;
+    let job = new Job(this, this, prop, true);
+    prop.updateValue(job);
+    if (src) {
+      job._namespace = namespace;
+      // the first round of queue is hardcoded here
+      job._queued = true;
+      job.load(src);
+    }
+    return job;
   }
 
   inputChanged(input: BlockIO, val: any) {
@@ -624,6 +639,21 @@ export class Block implements FunctionData, Listener<FunctionGenerator> {
       for (let watcher of this._watchers) {
         watcher.onChildChange(property, block, temp);
       }
+    }
+  }
+
+  forEach(callback: (field: string, prop: BlockIO) => void) {
+    if (!this._ioProps) {
+      this._ioProps = {};
+      for (let field in this._props) {
+        let prop = this._props[field];
+        if (prop instanceof BlockIO) {
+          this._ioProps[field] = prop;
+        }
+      }
+    }
+    for (let field in this._ioProps) {
+      callback(field, this._ioProps[field]);
     }
   }
 

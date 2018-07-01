@@ -46,7 +46,7 @@ export class TestAsyncFunction extends BlockFunction {
       TestAsyncFunction.syncLog.push(data.getValue('@log'));
       this.timeOut = setTimeout(() => {
         TestAsyncFunction.asyncLog.push(data.getValue('@log'));
-        data.asyncEmit();
+        data.emit();
         resolve();
         this.timeOut = null;
       }, 1);

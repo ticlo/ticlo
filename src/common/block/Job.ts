@@ -31,6 +31,12 @@ export class Job extends Block {
     return false;
   }
 
+  onDone(val: any) {
+    if (this._outputObj) {
+      this._outputObj.emit(val);
+    }
+  }
+
 
   save(): { [key: string]: any } {
     return this._save();

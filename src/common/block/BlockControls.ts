@@ -1,6 +1,7 @@
 import { Block } from "./Block";
 import { BlockProperty } from "./BlockProperty";
 import { Listener } from "./Dispatcher";
+import { Job } from "./Job";
 
 export class BlockClassControl extends BlockProperty {
   _valueChanged() {
@@ -42,6 +43,14 @@ export class BlockInputControl extends BlockProperty {
 }
 
 export class BlockOutputControl extends BlockProperty {
+}
+
+export class BlockDoneControl extends BlockProperty {
+  _valueChanged() {
+    if (this._block instanceof Job) {
+      this._block.onDone(this._value);
+    }
+  }
 }
 
 

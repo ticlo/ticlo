@@ -146,12 +146,11 @@ class ServerWatch extends ServerRequest implements BlockChildWatch, Listener<any
       changes = this._pendingChanges;
     } else {
       changes = {};
-      for (let name in this.block._props) {
-        let p = this.block._props[name];
-        if (p._saved instanceof Block && p instanceof BlockIO) {
-          changes[name] = (p._value as Block)._blockId;
+      this.block.forEach((field: string, prop: BlockIO) => {
+        if (prop._saved instanceof Block) {
+          changes[field] = (prop._value as Block)._blockId;
         }
-      }
+      });
     }
     this._pendingChanges = {};
     let size = 0;
@@ -355,17 +354,16 @@ export class ServerConnection extends Connection {
         filterRegex = new RegExp(filter);
       }
       let count = 0;
-      for (let name in block._props) {
-        let p = block._props[name];
-        if (p._value instanceof Block && p instanceof BlockIO) {
-          if (!filterRegex || filterRegex.test(name)) { // filter
+      block.forEach((field: string, prop: BlockIO) => {
+        if (prop._value instanceof Block) {
+          if (!filterRegex || filterRegex.test(field)) { // filter
             if (count < max) {
-              children[name] = (p._value as Block)._blockId;
+              children[field] = (prop._value as Block)._blockId;
             }
             ++count;
           }
         }
-      }
+      });
       return { children, count };
     } else {
       return 'invalid path';

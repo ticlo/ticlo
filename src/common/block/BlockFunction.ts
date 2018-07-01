@@ -6,6 +6,9 @@ import { Event } from "./Event";
 export interface FunctionOutput {
   // field is 'output' by default
   output(value: any, field?: string): void;
+
+  // dispatch a update event after async operation
+  emit(event?: any): void;
 }
 
 export interface FunctionInput {
@@ -22,9 +25,6 @@ export interface FunctionData extends FunctionInput, FunctionOutput {
 
   // get a Object that allows script to direct access its field,
   getRawObject(): any;
-
-  // dispatch a update event after async operation
-  asyncEmit(event?: Event): void;
 }
 
 export class BlockFunction {
