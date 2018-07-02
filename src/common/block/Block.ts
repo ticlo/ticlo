@@ -70,6 +70,8 @@ export class Block implements FunctionData, Listener<FunctionGenerator> {
     this._parent = parent;
     this._prop = prop;
     this._temp = temp;
+    // #is should always be initialized
+    this.getProperty('#is');
   }
 
   _passThroughFunction: boolean;
