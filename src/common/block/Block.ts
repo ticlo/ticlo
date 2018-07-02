@@ -265,18 +265,15 @@ export class Block implements FunctionData, Listener<FunctionGenerator> {
   }
 
   _save(): DataMap {
-    let result: DataMap = { '#is': null };
+    let result: DataMap = {};
     for (let name in this._props) {
       let prop = this._props[name];
 
       if (prop._bindingPath) {
         result[`~${name}`] = prop._bindingPath;
-        if (name === '#is') {
-          delete result['#is'];
-        }
       } else {
         let saved = prop._save();
-        if (saved != null) {
+        if (saved !== undefined) {
           result[name] = saved;
         }
       }
@@ -653,7 +650,10 @@ export class Block implements FunctionData, Listener<FunctionGenerator> {
       }
     }
     for (let field in this._ioProps) {
-      callback(field, this._ioProps[field]);
+      let prop = this._ioProps[field];
+      if (prop._value !== undefined) {
+        callback(field, prop);
+      }
     }
   }
 

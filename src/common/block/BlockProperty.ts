@@ -18,7 +18,7 @@ export class BlockProperty extends ValueDispatcher<any> implements Listener<any>
   _bindingPath: string;
   _bindingSource: ValueDispatcher<any>;
 
-  _saved: any = null;
+  _saved: any;
 
   constructor(block: Block, name: string) {
     super();
@@ -63,7 +63,7 @@ export class BlockProperty extends ValueDispatcher<any> implements Listener<any>
       this._value.destroy();
     }
     if (this._saved === this._value) {
-      this._saved = null;
+      this._saved = undefined;
     }
   }
 
@@ -92,7 +92,7 @@ export class BlockProperty extends ValueDispatcher<any> implements Listener<any>
   // clear saved value and binding path
   clear() {
     if (this._bindingPath || this._saved) {
-      this.setValue(null);
+      this.setValue(undefined);
     }
   }
 
@@ -112,16 +112,16 @@ export class BlockProperty extends ValueDispatcher<any> implements Listener<any>
       this._bindingSource = this._block.createBinding(path, this);
     } else {
       this._bindingSource = null;
-      this.onChange(null);
+      this.onChange(undefined);
     }
     if (this._subscribers) {
       this.addEvent({ bind: path });
     }
-    this._saved = null;
+    this._saved = undefined;
   }
 
   _save(): any {
-    if (this._saved != null) {
+    if (this._saved !== undefined) {
       if (this._saved instanceof Block) {
         return this._saved._save();
       }
@@ -130,7 +130,7 @@ export class BlockProperty extends ValueDispatcher<any> implements Listener<any>
   }
 
   _load(val: any) {
-    if (val instanceof Object && val != null
+    if (val instanceof Object && val !== undefined
       && (val.hasOwnProperty('#is') || val.hasOwnProperty('~#is'))) {
       let block = new Block(this._block._job, this._block, this);
       block._load(val);
@@ -236,7 +236,7 @@ export class BlockIO extends BlockProperty {
       this._value.destroy();
     }
     if (this._saved === this._value) {
-      this._saved = null;
+      this._saved = undefined;
       this._block.onChildChanged(this, null, false);
     } else {
       this._block.onChildChanged(this, null, true);

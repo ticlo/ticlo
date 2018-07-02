@@ -1,9 +1,23 @@
+import { Job } from "./Job";
 import { Block } from "./Block";
 import { BlockProperty } from "./BlockProperty";
-import { Listener } from "./Dispatcher";
-import { Job } from "./Job";
 
 export class BlockClassControl extends BlockProperty {
+
+  _savedRaw: any = null;
+
+  get _saved(): any {
+    return this._savedRaw;
+  }
+
+  set _saved(val: any) {
+    if (val === undefined) {
+      this._savedRaw = null;
+    } else {
+      this._savedRaw = val;
+    }
+  }
+
   _valueChanged() {
     this._block._classChanged(this._value);
   }
