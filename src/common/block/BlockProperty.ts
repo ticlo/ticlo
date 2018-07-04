@@ -30,7 +30,7 @@ export class BlockProperty extends ValueDispatcher<any> implements Listener<any>
     // do nothing
   }
 
-  _valueChanged() {
+  _valueChanged(saved?: boolean) {
     // to be overridden
   }
 
@@ -38,33 +38,25 @@ export class BlockProperty extends ValueDispatcher<any> implements Listener<any>
     return this.onChange(val);
   }
 
-  onChange(val: any): boolean {
+  onChange(val: any, save?: boolean): boolean {
     if (this._value === val) {
       return false;
     }
     if (this._value instanceof Block) {
-      this._onChildRemoved();
+      if (this._value._prop === this) {
+        this._value.destroy();
+      }
+      if (this._saved === this._value) {
+        this._saved = undefined;
+      }
     }
     this._value = val;
-    this._valueChanged();
+    if (save) {
+      this._saved = val;
+    }
+    this._valueChanged(save);
     this._dispatch();
-    if (this._value instanceof Block) {
-      this._onChildAdded();
-    }
     return true;
-  }
-
-  _onChildAdded() {
-    // to be overridden
-  }
-
-  _onChildRemoved() {
-    if (this._value._prop === this) {
-      this._value.destroy();
-    }
-    if (this._saved === this._value) {
-      this._saved = undefined;
-    }
   }
 
   // output the value but doesn't notify the function
@@ -85,8 +77,7 @@ export class BlockProperty extends ValueDispatcher<any> implements Listener<any>
         this.addEvent({ bind: null });
       }
     }
-    this.onChange(val);
-    this._saved = val;
+    this.onChange(val, true);
   }
 
   // clear saved value and binding path
@@ -110,14 +101,14 @@ export class BlockProperty extends ValueDispatcher<any> implements Listener<any>
 
     if (path != null) {
       this._bindingSource = this._block.createBinding(path, this);
+      this._saved = undefined;
     } else {
       this._bindingSource = null;
-      this.onChange(undefined);
+      this.onChange(undefined, true);
     }
     if (this._subscribers) {
       this.addEvent({ bind: path });
     }
-    this._saved = undefined;
   }
 
   _save(): any {
@@ -134,11 +125,9 @@ export class BlockProperty extends ValueDispatcher<any> implements Listener<any>
       && (val.hasOwnProperty('#is') || val.hasOwnProperty('~#is'))) {
       let block = new Block(this._block._job, this._block, this);
       block._load(val);
-      this.onChange(block);
-      this._saved = block;
+      this.onChange(block, true);
     } else {
-      this.onChange(val);
-      this._saved = val;
+      this.onChange(val, true);
     }
   }
 
@@ -161,12 +150,10 @@ export class BlockProperty extends ValueDispatcher<any> implements Listener<any>
         // just do a normal loading
         let block = new Block(this._block._job, this._block, this);
         block._load(val);
-        this.onChange(block);
-        this._saved = block;
+        this.onChange(block, true);
       }
     } else if (val !== this._saved) {
-      this.onChange(val);
-      this._saved = val;
+      this.onChange(val, true);
     }
   }
 
@@ -219,30 +206,16 @@ export class BlockProperty extends ValueDispatcher<any> implements Listener<any>
 }
 
 export class BlockIO extends BlockProperty {
-  _valueChanged() {
+  _valueChanged(saved?: boolean) {
     if (!this._outputing) {
       this._block.inputChanged(this, this._value);
+    }
+    if (this._block._watchers) {
+      this._block._onChildChanged(this, saved);
     }
   }
 
   _outputing: boolean;
-
-  _onChildAdded() {
-    this._block.onChildChanged(this, this._value, this._value._temp);
-  }
-
-  _onChildRemoved() {
-    if (this._value._prop === this) {
-      this._value.destroy();
-    }
-    if (this._saved === this._value) {
-      this._saved = undefined;
-      this._block.onChildChanged(this, null, false);
-    } else {
-      this._block.onChildChanged(this, null, true);
-    }
-
-  }
 
   // outputs the value but doesn't notify the function
   setOutput(val: any): boolean {
@@ -254,8 +227,20 @@ export class BlockIO extends BlockProperty {
 }
 
 export class Block$Property extends BlockProperty {
+  _outputing: boolean;
+
   _valueChanged() {
-    this._block.input$Changed(this, this._value);
+    if (!this._outputing) {
+      this._block.input$Changed(this, this._value);
+    }
+  }
+
+  // outputs the value but doesn't notify the function
+  setOutput(val: any): boolean {
+    this._outputing = true;
+    let changed = this.onChange(val);
+    this._outputing = false;
+    return changed;
   }
 }
 

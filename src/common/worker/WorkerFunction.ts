@@ -23,7 +23,7 @@ export class WorkerFunction extends BlockFunction {
 
   run(data: FunctionData): any {
     if (data instanceof Block) {
-      this._nested = data.createTempJob('$worker', this._src, this._namespace);
+      this._nested = data.createOutputJob('$worker', this._src, this._namespace);
 
       this._nested.updateValue('#input', data);
 

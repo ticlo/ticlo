@@ -10,34 +10,34 @@ describe("Block Child Watch", () => {
 
     let watchLog: any[] = [];
     let watch = {
-      onChildChange(property: BlockIO, block: Block, temp: boolean) {
-        watchLog.push([property._name, block != null, Boolean(temp)]);
+      onChildChange(property: BlockIO, saved: boolean) {
+        watchLog.push([property._name, property._value != null, Boolean(saved)]);
       }
     };
     job.watch(watch);
 
     job.createBlock('a');
-    assert.deepEqual(watchLog, [['a', true, false]], 'new block');
+    assert.deepEqual(watchLog, [['a', true, true]], 'new block');
     watchLog = [];
 
-    job.createTempJob('a');
-    assert.deepEqual(watchLog, [['a', false, false], ['a', true, true]], 'replace with temp block');
+    job.createOutputBlock('a');
+    assert.deepEqual(watchLog, [['a', true, false]], 'replace with temp block');
     watchLog = [];
 
     job.createBlock('a');
-    assert.deepEqual(watchLog, [['a', false, true], ['a', true, false]], 'replace with normal block');
+    assert.deepEqual(watchLog, [['a', true, true]], 'replace with normal block');
     watchLog = [];
 
     job.setValue('a', null);
-    assert.deepEqual(watchLog, [['a', false, false]], 'remove block');
+    assert.deepEqual(watchLog, [['a', false, true]], 'remove block');
     watchLog = [];
 
-    job.createTempJob('a');
-    assert.deepEqual(watchLog, [['a', true, true]], 'new temp block');
+    job.createOutputBlock('a');
+    assert.deepEqual(watchLog, [['a', true, false]], 'new temp block');
     watchLog = [];
 
     job.setBinding('a', 'b');
-    assert.deepEqual(watchLog, [['a', false, true]], 'remove block with binding');
+    assert.deepEqual(watchLog, [['a', false, false]], 'remove block with binding');
     watchLog = [];
   });
 });

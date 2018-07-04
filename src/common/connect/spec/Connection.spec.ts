@@ -94,7 +94,7 @@ describe("Connection", () => {
     assert.deepEqual(result2.cache, { 'c0': child0._blockId }, 'initial cache');
 
     let child1 = job.createBlock('c1');
-    job.createTempJob('t1'); // temp block shouldn't show in watch result
+    job.createOutputBlock('t1'); // temp block shouldn't show in watch result
 
     [result1, result2] = await Promise.all([callbacks1.promise, callbacks2.promise]);
     assert.deepEqual(result1.changes, { 'c1': child1._blockId }, 'add block changes');

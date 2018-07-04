@@ -25,7 +25,7 @@ import { voidProperty } from "./Void";
 export type BlockMode = 'auto' | 'always' | 'onChange' | 'onCall' | 'disabled';
 
 export interface BlockChildWatch {
-  onChildChange(property: BlockIO, block: Block, temp: boolean): void;
+  onChildChange(property: BlockIO, saved?: boolean): void;
 }
 
 export class Block implements FunctionData, Listener<FunctionGenerator> {
@@ -363,10 +363,17 @@ export class Block implements FunctionData, Listener<FunctionGenerator> {
     return null;
   }
 
-  createTempJob(field: string, src?: DataMap, namespace?: string): Job {
+  createOutputBlock(field: string): Block {
+    let prop = this.getProperty(field);
+    let block = new Block(this._job, this, prop, true);
+    prop.setOutput(block);
+    return block;
+  }
+
+  createOutputJob(field: string, src?: DataMap, namespace?: string): Job {
     let prop = this.getProperty(field);
     let job = new Job(this, this, prop, true);
-    prop.updateValue(job);
+    prop.setOutput(job);
     if (src) {
       job._namespace = namespace;
       // the first round of queue is hardcoded here
@@ -633,11 +640,9 @@ export class Block implements FunctionData, Listener<FunctionGenerator> {
     }
   }
 
-  onChildChanged(property: BlockIO, block: Block, temp: boolean) {
-    if (this._watchers) {
-      for (let watcher of this._watchers) {
-        watcher.onChildChange(property, block, temp);
-      }
+  _onChildChanged(property: BlockIO, saved?: boolean) {
+    for (let watcher of this._watchers) {
+      watcher.onChildChange(property, saved);
     }
   }
 
