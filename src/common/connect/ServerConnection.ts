@@ -124,19 +124,22 @@ class ServerWatch extends ServerRequest implements BlockChildWatch, Listener<any
   }
 
   _pendingChanges: { [key: string]: string } = null;
+  _cached: { [key: string]: boolean } = {};
 
   // BlockChildWatch
-  onChildChange(property: BlockIO, block: Block, temp: boolean) {
-    if (temp) {
-      return;
-    }
+  onChildChange(property: BlockIO, saved?: boolean) {
     if (this._pendingChanges) {
-      if (block) {
-        this._pendingChanges[property._name] = block._blockId;
+      let val = property._saved;
+      if (saved && val instanceof Block) {
+        this._pendingChanges[property._name] = val._blockId;
+        this.connection.addSend(this);
       } else {
-        this._pendingChanges[property._name] = null;
+        if (this._cached.hasOwnProperty(property._name)) {
+          delete this._cached[property._name];
+          this._pendingChanges[property._name] = null;
+          this.connection.addSend(this);
+        }
       }
-      this.connection.addSend(this);
     }
   }
 
@@ -149,6 +152,7 @@ class ServerWatch extends ServerRequest implements BlockChildWatch, Listener<any
       this.block.forEach((field: string, prop: BlockIO) => {
         if (prop._saved instanceof Block) {
           changes[field] = (prop._value as Block)._blockId;
+          this._cached[field] = true;
         }
       });
     }

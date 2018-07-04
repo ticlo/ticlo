@@ -82,7 +82,7 @@ export const voidListeners = {
     /* istanbul ignore next */
     throw new Error('should not be called');
   },
-  onChildChange(property: BlockIO, block: Block) {
+  onChildChange(property: BlockIO, saved?: boolean) {
     /* istanbul ignore next */
     throw new Error('should not be called');
   }
