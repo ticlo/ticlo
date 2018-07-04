@@ -4,17 +4,17 @@ import { BlockProperty } from "./BlockProperty";
 
 export class BlockClassControl extends BlockProperty {
 
-  _savedRaw: any = null;
-
-  get _saved(): any {
-    return this._savedRaw;
+  constructor(block: Block, name: string) {
+    super(block, name);
+    this._value = '';
+    this._saved = '';
   }
 
-  set _saved(val: any) {
-    if (val === undefined) {
-      this._savedRaw = null;
+  onChange(val: any, save?: boolean): boolean {
+    if (val == null) {
+      return super.onChange('', save);
     } else {
-      this._savedRaw = val;
+      return super.onChange(val, save);
     }
   }
 

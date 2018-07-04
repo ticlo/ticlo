@@ -18,7 +18,7 @@ describe("WorkerFunction", () => {
     aBlock.setValue('#is', '/WorkerFunction/class1');
 
     let jobData: DataMap = {
-      '#is': null,
+      '#is': '',
       'runner': {'#is': 'test-runner', '@log': 'nest1', '~#call': '##.#input.in1'}
     };
     WorkerFunction.registerClass('/WorkerFunction/class1', jobData);
@@ -55,7 +55,7 @@ describe("WorkerFunction", () => {
     aBlock.setValue('#is', '/WorkerFunction/class2');
 
     let jobData: DataMap = {
-      '#is': null,
+      '#is': '',
       'add': {'#is': 'add', '~0': '##.#input.in1', '1': 1},
       '#output': {'#is': 'output', '~out1': '##.add.output'}
     };
@@ -74,12 +74,12 @@ describe("WorkerFunction", () => {
     aBlock.setValue('#is', 'job_test_namespace/class1');
 
     let jobData1: DataMap = {
-      '#is': null,
+      '#is': '',
       'nest': {'#is': '/class2', '~in1': '##.#input.in0'},
       '#output': {'#is': 'output', '~out1': '##.nest.out2'}
     };
     let jobData2: DataMap = {
-      '#is': null,
+      '#is': '',
       'add': {'#is': 'add', '~0': '##.#input.in1', '1': 1},
       '#output': {'#is': 'output', '~out2': '##.add.output'}
     };

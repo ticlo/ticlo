@@ -530,7 +530,7 @@ export class Block implements FunctionData, Listener<FunctionGenerator> {
     if (this._class) {
       this._class.unlisten(this);
     }
-    if (typeof (className) === 'string') {
+    if (className && typeof (className) === 'string') {
       this._class = Classes.listen(className, this);
     } else {
       this._class = null;

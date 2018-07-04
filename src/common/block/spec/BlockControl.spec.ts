@@ -29,15 +29,15 @@ describe("BlockControl", () => {
 
     let block = job.createBlock('obj');
 
-    assert.equal(block.getValue('#is'), null, '#is null by default');
+    assert.equal(block.getValue('#is'), '', '#is "" by default');
 
     block.setValue('@is', 'add');
     block.setBinding('#is', '@is');
     assert.equal(block.getValue('#is'), 'add', '#is with binding');
-    assert.deepEqual(job.save(), { '#is': null, 'obj': { '@is': 'add', '~#is': '@is' } }, 'save #is');
+    assert.deepEqual(job.save(), { '#is': '', 'obj': { '@is': 'add', '~#is': '@is' } }, 'save #is');
 
     block.setBinding('#is', null);
-    assert.equal(block.getValue('#is'), null, '#is revert back to null after unbind');
-    assert.deepEqual(job.save(), { '#is': null, 'obj': { '@is': 'add', '#is': null } }, 'save #is');
+    assert.equal(block.getValue('#is'), '', '#is revert back to "" after unbind');
+    assert.deepEqual(job.save(), { '#is': '', 'obj': { '@is': 'add', '#is': '' } }, 'save #is');
   });
 });
