@@ -24,16 +24,7 @@ export class WorkerFunction extends BlockFunction {
   run(data: FunctionData): any {
     if (data instanceof Block) {
       this._nested = data.createOutputJob('$worker', this._src, this._namespace);
-
       this._nested.updateValue('#input', data);
-
-      if (this._nested._loop) {
-        // run the nested loop
-        this._nested._loop._loopScheduled = true;
-        this._nested.run();
-      }
-      // clear the queue status of the nested job
-      this._nested._queued = false;
     }
   }
 

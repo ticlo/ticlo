@@ -361,8 +361,6 @@ export class Block implements Runnable, FunctionData, Listener<FunctionGenerator
     prop.setOutput(job);
     if (src) {
       job._namespace = namespace;
-      // the first round of queue is hardcoded here
-      job._queued = true;
       job.load(src);
     }
     return job;
