@@ -46,7 +46,16 @@ describe("MapFunction", () => {
 
     assert.equal(bBlock.queryProperty('$output.obj1.v').getValue(), 2, 'basic Map chain');
     assert.equal(cBlock.queryProperty('$output.obj2.v').getValue(), 6, 'basic Map chain');
-    assert.equal(cBlock.queryProperty('$output.obj3.v').getValue(), 8, 'basic Map chain from Object');
+    assert.equal(cBlock.queryProperty('$output.obj3.v').getValue(), 8, 'basic Map chain on Child Object');
+
+    bBlock.updateValue('$src', {
+      '#is': '',
+      'subtract': { '#is': 'subtract', '~0': '##.#input.v', '1': 5 },
+      '#output': { '#is': 'output', '~v': '##.subtract.output' }
+    });
+    Root.run();
+    assert.equal(cBlock.queryProperty('$output.obj2.v').getValue(), -6, 'Map chain $src changed');
+    assert.equal(cBlock.queryProperty('$output.obj3.v').getValue(), -4, 'Map chain $src changed on Child Object');
   });
 
   it('watch object', () => {
