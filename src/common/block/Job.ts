@@ -1,10 +1,12 @@
-import { Block } from "./Block";
+import { Block, Runnable } from "./Block";
 import { BlockIO, BlockProperty } from "./BlockProperty";
 import { Loop } from "./Loop";
 import { FunctionOutput } from "./BlockFunction";
 
 
 export class Job extends Block {
+
+  _loop: Loop;
 
   _namespace: string;
 
@@ -21,6 +23,24 @@ export class Job extends Block {
     if (!property) {
       this._prop = new BlockProperty(this, '');
     }
+
+    if (parent) {
+      let parentJob = parent._job;
+      this._loop = new Loop((loop: Loop) => {
+        if (!this._queued) {
+          if (this._callOnChange) {
+            loop._loopScheduled = true;
+            // put in queue, but _called is not set to true
+            // only run the sub loop, not the function
+            parentJob.queueBlock(this._loop);
+          }
+        }
+      });
+    }
+  }
+
+  queueBlock(block: Runnable) {
+    this._loop.queueBlock(block);
   }
 
   // return true when the related output block need to be put in queue
@@ -63,7 +83,7 @@ export class Root extends Job {
   }
 
   static run() {
-    this._instance._loop._run();
+    this._instance._loop._resolve();
   }
 
   _strictMode: boolean = (process.env.NODE_ENV || '').toLowerCase() === 'test';
@@ -72,7 +92,7 @@ export class Root extends Job {
     super();
     this._parent = this;
     this._loop = new Loop((loop: Loop) => {
-      loop._loopScheduled = setTimeout(() => loop._runSchedule(), 0);
+      loop._loopScheduled = setTimeout(() => loop.run(), 0);
     });
   }
 

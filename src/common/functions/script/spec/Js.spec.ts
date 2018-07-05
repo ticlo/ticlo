@@ -65,10 +65,9 @@ describe("Js", () => {
     aBlock.setValue('#is', '/Js/class2');
     JsFunction.registerClass('/Js/class2', 'this["out1"] = 1');
 
-    assert(aBlock._called, 'script is called');
+    assert(aBlock._queued, 'script is _queued');
     Classes.clear('/Js/class2');
     Root.run();
-    assert(!aBlock._called, 'script is no longer called');
     assert(!aBlock._queued, 'script is no longer _queued');
     assert.isUndefined(aBlock.getValue('out1'), 'clear class after called');
   });

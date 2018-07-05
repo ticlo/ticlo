@@ -1,15 +1,23 @@
-import { Block } from "./Block";
+import { Runnable } from "./Block";
 import { Uid } from "../util/Uid";
 
-export class Loop {
+export class Loop implements Runnable {
   private static _uid = new Uid();
   static get uid(): string {
     return Loop._uid.current;
   }
 
-  private _queueWait: Block[] = [];
+  // as Runnable
+  _queued: boolean;
+  _queueToRun: boolean;
 
-  private _queue: Block[][] = [[], [], [], []];
+  getPriority(): number {
+    return 3;
+  }
+
+  private _queueWait: Runnable[] = [];
+
+  private _queue: Runnable[][] = [[], [], [], []];
 
 
   // for both browser and node
@@ -22,10 +30,10 @@ export class Loop {
     this._schedule = schedule;
   }
 
-  queueBlock(block: Block) {
+  queueBlock(block: Runnable) {
     if (block._queued) return;
     block._queued = true;
-    block._queueDone = false;
+    block._queueToRun = true;
     this._queueWait.push(block);
     if (!(this._loopScheduled || this._loopRunning)) {
       this._schedule(this);
@@ -59,7 +67,7 @@ export class Loop {
   }
 
   // return true when priority changed
-  private _runBlock(block: Block, priority: number) {
+  private _runBlock(block: Runnable, priority: number) {
     block.run();
     if (this._queueWait.length) {
       return this._splitQueue(priority);
@@ -67,14 +75,15 @@ export class Loop {
     return false;
   }
 
-  _runSchedule() {
+  run() {
+    this._queueToRun = false;
     if (this._loopScheduled) {
       this._loopScheduled = null;
-      this._run();
+      this._resolve();
     }
   }
 
-  _run() {
+  _resolve() {
     this._loopRunning = true;
     this._splitQueue(0);
 
@@ -82,22 +91,24 @@ export class Loop {
       let queue0 = this._queue[0];
       while (queue0.length) {
         let block = queue0[queue0.length - 1];
-        if (block._queueDone) {
+        if (block._queueToRun) {
+          this._runBlock(block, 0);
+        } else {
           queue0.pop();
           block._queued = false;
-        } else {
-          this._runBlock(block, 0);
         }
       }
       for (let p = 1; p <= 3; ++p) {
         let queueP = this._queue[p];
         while (queueP.length) {
           let block = queueP[queueP.length - 1];
-          if (block._queueDone) {
+          if (block._queueToRun) {
+            if (this._runBlock(block, p)) {
+              continue whileLoop;
+            }
+          } else {
             queueP.pop();
             block._queued = false;
-          } else if (this._runBlock(block, 1)) {
-            continue whileLoop;
           }
         }
       }

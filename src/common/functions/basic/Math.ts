@@ -5,24 +5,28 @@ import { FunctionDesc } from "../../block/Descriptor";
 const descriptorN: FunctionDesc = {
   useLength: true,
   inputs: [
-    {group: '', type: 'number'}
+    { group: '', type: 'number' }
   ],
   outputs: [
-    {name: 'output', type: 'number'}
+    { name: 'output', type: 'number' }
   ],
 };
 const descriptor2: FunctionDesc = {
   inputs: [
-    {name: '0', type: 'number'},
-    {name: '1', type: 'number'}
+    { name: '0', type: 'number' },
+    { name: '1', type: 'number' }
   ],
   outputs: [
-    {name: 'output', type: 'number'}
+    { name: 'output', type: 'number' }
   ],
 };
 
 
 export class AddFunction extends BlockFunction {
+  constructor(block: FunctionData) {
+    super(block);
+  }
+
   run(data: FunctionData): any {
     let len = data.getLength();
     if (!(len >= 0)) {

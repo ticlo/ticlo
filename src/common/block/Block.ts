@@ -28,7 +28,16 @@ export interface BlockChildWatch {
   onChildChange(property: BlockIO, saved?: boolean): void;
 }
 
-export class Block implements FunctionData, Listener<FunctionGenerator> {
+export interface Runnable {
+  _queued: boolean;
+  _queueToRun: boolean;
+
+  getPriority(): number;
+
+  run(): void;
+}
+
+export class Block implements Runnable, FunctionData, Listener<FunctionGenerator> {
   private static _uid = new Uid();
 
   static nextUid(): string {
@@ -57,9 +66,8 @@ export class Block implements FunctionData, Listener<FunctionGenerator> {
   _className: string;
   _class: Class;
 
-  _called: boolean;
   _queued: boolean;
-  _queueDone: boolean;
+  _queueToRun: boolean;
   _running: boolean;
   _destroyed: boolean;
 
@@ -72,29 +80,6 @@ export class Block implements FunctionData, Listener<FunctionGenerator> {
     this._temp = temp;
     // #is should always be initialized
     this.getProperty('#is');
-  }
-
-  _passThroughFunction: boolean;
-  _loop: Loop;
-
-  queueBlock(block: Block) {
-    if (this._loop == null) {
-      if (this._passThroughFunction) {
-        this._parent.queueBlock(block);
-      } else {
-        this._loop = new Loop((loop: Loop) => {
-          if (!this._queued) {
-            if (this._callOnChange) {
-              loop._loopScheduled = true;
-              // put in queue, but _called is not set to true
-              // only run the sub loop, not the function
-              this._parent.queueBlock(this);
-            }
-          }
-        });
-      }
-    }
-    this._loop.queueBlock(block);
   }
 
   getRawObject(): any {
@@ -402,27 +387,20 @@ export class Block implements FunctionData, Listener<FunctionGenerator> {
   }
 
   run() {
-    this._queueDone = true;
+    this._queueToRun = false;
     if (!this._job._enabled) {
       return;
     }
 
-    if (this._loop) {
-      this._loop._runSchedule();
-    }
-
     if (this._function) {
-      if (this._called) {
-        this._running = true;
-        let result = this._function.run(this);
-        this._running = false;
-        if (this._props['#emit']) {
-          if (result == null) {
-            result = new Event('complete');
-          }
-          this._props['#emit'].updateValue(result);
+      this._running = true;
+      let result = this._function.run(this);
+      this._running = false;
+      if (this._props['#emit']) {
+        if (result == null) {
+          result = new Event('complete');
         }
-        this._called = false;
+        this._props['#emit'].updateValue(result);
       }
     }
   }
@@ -474,13 +452,12 @@ export class Block implements FunctionData, Listener<FunctionGenerator> {
       if (this._sync) {
         switch (Event.check(val)) {
           case Event.OK: {
-            if (this._callOnChange && !this._called) {
+            if (this._callOnChange && !this._queueToRun) {
               // pass the event if there is nothing to run
               if (this._props['#emit']) {
                 this._props['#emit'].updateValue(val);
               }
             } else {
-              this._called = true;
               this.run();
             }
             break;
@@ -503,20 +480,18 @@ export class Block implements FunctionData, Listener<FunctionGenerator> {
 
   _queueFunctionOnChange() {
     if (this._callOnChange) {
-      this._called = true;
       if (!this._queued) {
         if (this._callOnLoad || !this._job._loading) {
-          this._parent.queueBlock(this);
+          this._job.queueBlock(this);
         }
       }
     }
   }
 
   _queueFunction() {
-    this._called = true;
     // put it in queue
     if (!this._queued) {
-      this._parent.queueBlock(this);
+      this._job.queueBlock(this);
     }
   }
 
@@ -566,9 +541,6 @@ export class Block implements FunctionData, Listener<FunctionGenerator> {
     if (this._function) {
       return this._function.priority;
     }
-    if (this._loop && this._loop.isWaiting()) {
-      return 3;
-    }
     return -1;
   }
 
@@ -592,7 +564,7 @@ export class Block implements FunctionData, Listener<FunctionGenerator> {
         // don't create the function until loading is done
         this._pendingGenerator = generator;
         if (this._function) {
-          this._called = false;
+          this._queueToRun = false;
           this._function = null;
         }
       } else {
@@ -606,7 +578,7 @@ export class Block implements FunctionData, Listener<FunctionGenerator> {
       }
     } else if (this._function) {
       this._function = null;
-      this._called = false;
+      this._queueToRun = false;
       if (this._mode === 'auto') {
         // fast version of this._configMode();
         this._callOnChange = true;
@@ -690,7 +662,7 @@ export class Block implements FunctionData, Listener<FunctionGenerator> {
     }
 
     this._bindings = null;
-    this._queueDone = true;
+    this._queueToRun = false;
     this._watchers = null;
   }
 }
