@@ -23,10 +23,6 @@ const descriptor2: FunctionDesc = {
 
 
 export class AddFunction extends BlockFunction {
-  constructor(block: FunctionData) {
-    super(block);
-  }
-
   run(data: FunctionData): any {
     let len = data.getLength();
     if (!(len >= 0)) {

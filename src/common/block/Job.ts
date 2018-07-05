@@ -58,18 +58,28 @@ export class Job extends Block {
   }
 
 
-  save(): { [key: string]: any } {
-    return this._save();
+  save(wrap?: boolean): { [key: string]: any } {
+    if (wrap) {
+      return { '#': this._save() };
+    } else {
+      return this._save();
+    }
   }
 
   load(map: { [key: string]: any }) {
     this._loading = true;
+    if (map.hasOwnProperty('#')) {
+      map = map['#'];
+    }
     this._load(map);
     this._loading = false;
   }
 
   liveUpdate(map: { [key: string]: any }) {
     this._loading = true;
+    if (map.hasOwnProperty('#')) {
+      map = map['#'];
+    }
     this._liveUpdate(map);
     this._loading = false;
   }
