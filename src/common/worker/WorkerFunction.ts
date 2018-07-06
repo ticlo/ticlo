@@ -31,7 +31,7 @@ export class WorkerFunction extends BlockFunction {
   destroy(): void {
     if (this._nested) {
       if (this._data instanceof Block && !this._data._destroyed) {
-        this._data.updateValue('$worker', null);
+        this._data.updateValue('$worker', undefined);
       }
       this._nested = null;
     }
