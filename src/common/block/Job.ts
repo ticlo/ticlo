@@ -1,12 +1,12 @@
 import { Block, Runnable } from "./Block";
 import { BlockIO, BlockProperty } from "./BlockProperty";
-import { Loop } from "./Loop";
+import { Resolver } from "./Resolver";
 import { FunctionOutput } from "./BlockFunction";
 
 
 export class Job extends Block {
 
-  _loop: Loop;
+  _resolver: Resolver;
 
   _namespace: string;
 
@@ -26,13 +26,13 @@ export class Job extends Block {
 
     if (parent) {
       let parentJob = parent._job;
-      this._loop = new Loop((loop: Loop) => {
+      this._resolver = new Resolver((resolver: Resolver) => {
         if (!this._queued) {
           if (this._callOnChange) {
-            loop._loopScheduled = true;
+            resolver._loopScheduled = true;
             // put in queue, but _called is not set to true
-            // only run the sub loop, not the function
-            parentJob.queueBlock(this._loop);
+            // only run the sub resolver, not the function
+            parentJob.queueBlock(this._resolver);
           }
         }
       });
@@ -40,7 +40,7 @@ export class Job extends Block {
   }
 
   queueBlock(block: Runnable) {
-    this._loop.queueBlock(block);
+    this._resolver.queueBlock(block);
   }
 
   // return true when the related output block need to be put in queue
@@ -83,7 +83,7 @@ export class Root extends Job {
   }
 
   static run() {
-    this._instance._loop._resolve();
+    this._instance._resolver._resolve();
   }
 
   _strictMode: boolean = (process.env.NODE_ENV || '').toLowerCase() === 'test';
@@ -91,8 +91,8 @@ export class Root extends Job {
   constructor() {
     super();
     this._parent = this;
-    this._loop = new Loop((loop: Loop) => {
-      loop._loopScheduled = setTimeout(() => loop.run(), 0);
+    this._resolver = new Resolver((resolver: Resolver) => {
+      resolver._loopScheduled = setTimeout(() => resolver.run(), 0);
     });
   }
 

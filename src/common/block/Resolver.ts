@@ -1,10 +1,10 @@
 import { Runnable } from "./Block";
 import { Uid } from "../util/Uid";
 
-export class Loop implements Runnable {
+export class Resolver implements Runnable {
   private static _uid = new Uid();
   static get uid(): string {
-    return Loop._uid.current;
+    return Resolver._uid.current;
   }
 
   // as Runnable
@@ -22,11 +22,11 @@ export class Loop implements Runnable {
 
   // for both browser and node
   _loopScheduled: any;
-  _loopRunning: boolean = false;
+  _resolving: boolean = false;
 
-  private _schedule: (loop: Loop) => void;
+  private _schedule: (resolver: Resolver) => void;
 
-  constructor(schedule: (loop: Loop) => void) {
+  constructor(schedule: (resolver: Resolver) => void) {
     this._schedule = schedule;
   }
 
@@ -35,7 +35,7 @@ export class Loop implements Runnable {
     block._queued = true;
     block._queueToRun = true;
     this._queueWait.push(block);
-    if (!(this._loopScheduled || this._loopRunning)) {
+    if (!(this._loopScheduled || this._resolving)) {
       this._schedule(this);
     }
   }
@@ -84,10 +84,10 @@ export class Loop implements Runnable {
   }
 
   _resolve() {
-    this._loopRunning = true;
+    this._resolving = true;
     this._splitQueue(0);
 
-    whileLoop: while (true) {
+    whileResolver: while (true) {
       let queue0 = this._queue[0];
       while (queue0.length) {
         let block = queue0[queue0.length - 1];
@@ -104,7 +104,7 @@ export class Loop implements Runnable {
           let block = queueP[queueP.length - 1];
           if (block._queueToRun) {
             if (this._runBlock(block, p)) {
-              continue whileLoop;
+              continue whileResolver;
             }
           } else {
             queueP.pop();
@@ -115,8 +115,8 @@ export class Loop implements Runnable {
       break;
     }
 
-    Loop._uid.next();
+    Resolver._uid.next();
 
-    this._loopRunning = false;
+    this._resolving = false;
   }
 }

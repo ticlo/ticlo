@@ -1,4 +1,4 @@
-import { Loop } from "./Loop";
+import { Resolver } from "./Resolver";
 
 export class Event {
   static readonly OK = 0;
@@ -10,7 +10,7 @@ export class Event {
 
   constructor(type?: string) {
     this.type = type;
-    this.loopId = Loop.uid;
+    this.loopId = Resolver.uid;
   }
 
   static check(val: any): number {
@@ -24,7 +24,7 @@ export class Event {
   }
 
   check(): number {
-    if (this.loopId === Loop.uid) {
+    if (this.loopId === Resolver.uid) {
       return Event.OK;
     }
     return Event.INVALID;

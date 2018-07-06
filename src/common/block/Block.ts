@@ -16,7 +16,7 @@ import { Job, Root } from "./Job";
 import { FunctionData, BlockFunction, FunctionGenerator } from "./BlockFunction";
 import { Dispatcher, Listener, ValueDispatcher } from "./Dispatcher";
 import { Class, Classes } from "./Class";
-import { Loop } from "./Loop";
+import { Resolver } from "./Resolver";
 import { Event } from "./Event";
 import { DataMap } from "../util/Types";
 import { Uid } from "../util/Uid";
