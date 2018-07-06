@@ -1,6 +1,6 @@
-import { ValueDispatcher, Listener, Dispatcher } from "./Dispatcher";
-import { Block, BlockChildWatch } from "./Block";
-import { isSavedBlock } from "../util/Types";
+import {ValueDispatcher, Listener, Dispatcher} from "./Dispatcher";
+import {Block, BlockChildWatch} from "./Block";
+import {isSavedBlock} from "../util/Types";
 
 export interface BlockPropertyEvent {
   error?: string;
@@ -74,7 +74,7 @@ export class BlockProperty extends ValueDispatcher<any> implements Listener<any>
       this._bindingPath = null;
       this._bindingSource = null;
       if (this._subscribers) {
-        this.addEvent({ bind: null });
+        this.addEvent({bind: null});
       }
     }
     this.onChange(val, true);
@@ -107,7 +107,7 @@ export class BlockProperty extends ValueDispatcher<any> implements Listener<any>
       this.onChange(undefined, true);
     }
     if (this._subscribers) {
-      this.addEvent({ bind: path });
+      this.addEvent({bind: path});
     }
   }
 
@@ -117,7 +117,7 @@ export class BlockProperty extends ValueDispatcher<any> implements Listener<any>
         return this._saved._save();
       }
       if (isSavedBlock(this._saved)) {
-        return { '#is': this._saved };
+        return {'#is': this._saved};
       }
       return this._saved;
     }
@@ -146,7 +146,7 @@ export class BlockProperty extends ValueDispatcher<any> implements Listener<any>
       this._bindingSource = null;
       this._bindingPath = null;
       if (this._subscribers) {
-        this.addEvent({ bind: null });
+        this.addEvent({bind: null});
       }
     }
     if (isSavedBlock(val)) {

@@ -1,8 +1,8 @@
-import { assert } from "chai";
-import { JsFunction } from "../Js";
-import { Job, Root } from "../../../block/Job";
-import { Block } from "../../../block/Block";
-import { Classes } from "../../../block/Class";
+import {assert} from "chai";
+import {JsFunction} from "../Js";
+import {Job, Root} from "../../../block/Job";
+import {Block} from "../../../block/Block";
+import {Classes} from "../../../block/Class";
 
 describe("Js", () => {
   it('basic', () => {

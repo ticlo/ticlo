@@ -1,7 +1,7 @@
-import { Connection, ConnectionSend } from "./Connection";
-import { Uid } from "../util/Uid";
-import { DataMap, isSavedBlock } from "../util/Types";
-import { Block } from "../block/Block";
+import {Connection, ConnectionSend} from "./Connection";
+import {Uid} from "../util/Uid";
+import {DataMap, isSavedBlock} from "../util/Types";
+import {Block} from "../block/Block";
 
 export interface ClientCallbacks {
   onDone?(): void;
@@ -109,7 +109,7 @@ class SubscribeRequest extends MergedClientRequest {
 }
 
 class WatchRequest extends MergedClientRequest {
-  _cachedMap: { [key: string]: string } = {};
+  _cachedMap: {[key: string]: string} = {};
 
   add(callbacks: ClientCallbacks) {
     super.add(callbacks);
@@ -140,11 +140,11 @@ export class ClientConnection extends Connection {
   uid: Uid = new Uid();
 
   // id as key
-  requests: { [key: string]: ClientCallbacks } = {};
+  requests: {[key: string]: ClientCallbacks} = {};
   // path as key
-  subscribes: { [key: string]: SubscribeRequest } = {};
+  subscribes: {[key: string]: SubscribeRequest} = {};
   // path as key
-  watches: { [key: string]: WatchRequest } = {};
+  watches: {[key: string]: WatchRequest} = {};
 
   constructor() {
     super();

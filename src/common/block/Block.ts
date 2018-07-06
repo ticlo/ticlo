@@ -1,4 +1,4 @@
-import { BlockProperty, BlockPropertyHelper, BlockIO, Block$Property } from "./BlockProperty";
+import {BlockProperty, BlockPropertyHelper, BlockIO, Block$Property} from "./BlockProperty";
 import {
   BlockCallControl,
   BlockClassControl,
@@ -11,16 +11,16 @@ import {
   BlockPriorityControl,
   BlockReadOnlyControl
 } from "./BlockControls";
-import { BlockBinding } from "./BlockBinding";
-import { Job, Root } from "./Job";
-import { FunctionData, BlockFunction, FunctionGenerator } from "./BlockFunction";
-import { Dispatcher, Listener, ValueDispatcher } from "./Dispatcher";
-import { Class, Classes } from "./Class";
-import { Resolver } from "./Resolver";
-import { Event } from "./Event";
-import { DataMap } from "../util/Types";
-import { Uid } from "../util/Uid";
-import { voidProperty } from "./Void";
+import {BlockBinding} from "./BlockBinding";
+import {Job, Root} from "./Job";
+import {FunctionData, BlockFunction, FunctionGenerator} from "./BlockFunction";
+import {Dispatcher, Listener, ValueDispatcher} from "./Dispatcher";
+import {Class, Classes} from "./Class";
+import {Resolver} from "./Resolver";
+import {Event} from "./Event";
+import {DataMap} from "../util/Types";
+import {Uid} from "../util/Uid";
+import {voidProperty} from "./Void";
 
 export type BlockMode = 'auto' | 'always' | 'onChange' | 'onCall' | 'disabled';
 
@@ -58,10 +58,10 @@ export class Block implements Runnable, FunctionData, Listener<FunctionGenerator
   _callOnLoad: boolean = false;
   _sync: boolean = false;
 
-  _props: { [key: string]: BlockProperty } = {};
+  _props: {[key: string]: BlockProperty} = {};
   // a cache for blockIO, generated on demand
-  _ioProps: { [key: string]: BlockIO };
-  _bindings: { [key: string]: BlockBinding } = {};
+  _ioProps: {[key: string]: BlockIO};
+  _bindings: {[key: string]: BlockBinding} = {};
   _function: BlockFunction;
   _className: string;
   _class: Class;
@@ -288,7 +288,7 @@ export class Block implements Runnable, FunctionData, Listener<FunctionGenerator
 
   // load the data but keep runtime values
   _liveUpdate(map: DataMap) {
-    let loadedFields: DataMap = { '#is': true };
+    let loadedFields: DataMap = {'#is': true};
     for (let key in map) {
       if (key.charCodeAt(0) === 126) { // ~ for binding
         let val = map[key];

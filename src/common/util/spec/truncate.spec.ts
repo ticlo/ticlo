@@ -1,5 +1,5 @@
-import { assert } from "chai";
-import { truncateObj, TRUNCATED, DataMap } from '../Types';
+import {assert} from "chai";
+import {truncateObj, TRUNCATED, DataMap} from '../Types';
 
 
 describe("truncateObj", () => {

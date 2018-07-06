@@ -1,7 +1,7 @@
-import { Block, Runnable } from "./Block";
-import { BlockIO, BlockProperty } from "./BlockProperty";
-import { Resolver } from "./Resolver";
-import { FunctionOutput } from "./BlockFunction";
+import {Block, Runnable} from "./Block";
+import {BlockIO, BlockProperty} from "./BlockProperty";
+import {Resolver} from "./Resolver";
+import {FunctionOutput} from "./BlockFunction";
 
 
 export class Job extends Block {
@@ -58,17 +58,17 @@ export class Job extends Block {
   }
 
 
-  save(): { [key: string]: any } {
+  save(): {[key: string]: any} {
     return this._save();
   }
 
-  load(map: { [key: string]: any }) {
+  load(map: {[key: string]: any}) {
     this._loading = true;
     this._load(map);
     this._loading = false;
   }
 
-  liveUpdate(map: { [key: string]: any }) {
+  liveUpdate(map: {[key: string]: any}) {
     this._loading = true;
     this._liveUpdate(map);
     this._loading = false;
@@ -106,16 +106,16 @@ export class Root extends Job {
     return newJob;
   }
 
-  save(): { [key: string]: any } {
+  save(): {[key: string]: any} {
     // not allowed
     return null;
   }
 
-  load(map: { [key: string]: any }) {
+  load(map: {[key: string]: any}) {
     // not allowed
   }
 
-  liveUpdate(map: { [key: string]: any }) {
+  liveUpdate(map: {[key: string]: any}) {
     // not allowed
   }
 }

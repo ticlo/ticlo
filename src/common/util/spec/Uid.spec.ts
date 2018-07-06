@@ -1,5 +1,5 @@
-import { assert } from "chai";
-import { Uid } from '../Uid';
+import {assert} from "chai";
+import {Uid} from '../Uid';
 
 describe("Uid", () => {
 

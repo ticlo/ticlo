@@ -1,6 +1,6 @@
-import { Block } from "./Block";
-import { BlockFunction, FunctionGenerator } from "./BlockFunction";
-import { ValueDispatcher } from "./Dispatcher";
+import {Block} from "./Block";
+import {BlockFunction, FunctionGenerator} from "./BlockFunction";
+import {ValueDispatcher} from "./Dispatcher";
 
 
 export class Class extends ValueDispatcher<FunctionGenerator> {
@@ -12,7 +12,7 @@ export class Class extends ValueDispatcher<FunctionGenerator> {
   }
 }
 
-const _types: { [key: string]: Class } = {};
+const _types: {[key: string]: Class} = {};
 
 let _typesFinalized = false;
 

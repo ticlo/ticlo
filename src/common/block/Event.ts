@@ -1,4 +1,4 @@
-import { Resolver } from "./Resolver";
+import {Resolver} from "./Resolver";
 
 export class Event {
   static readonly OK = 0;

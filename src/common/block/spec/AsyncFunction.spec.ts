@@ -1,7 +1,7 @@
-import { assert } from "chai";
-import { TestAsyncFunction } from "./TestFunction";
-import { Job, Root } from "../Job";
-import { ErrorEvent } from "../Event";
+import {assert} from "chai";
+import {TestAsyncFunction} from "./TestFunction";
+import {Job, Root} from "../Job";
+import {ErrorEvent} from "../Event";
 
 describe("AsyncFunction", () => {
   beforeEach(() => {

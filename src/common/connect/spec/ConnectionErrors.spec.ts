@@ -1,9 +1,9 @@
-import { assert } from "chai";
-import { Root } from "../../block/Job";
-import { makeLocalConnection } from "../LocalConnection";
-import { AddFunction } from "../../functions/basic/Math";
-import { DataMap } from "../../util/Types";
-import { AsyncClientPromise } from "./AsyncClientPromise";
+import {assert} from "chai";
+import {Root} from "../../block/Job";
+import {makeLocalConnection} from "../LocalConnection";
+import {AddFunction} from "../../functions/basic/Math";
+import {DataMap} from "../../util/Types";
+import {AsyncClientPromise} from "./AsyncClientPromise";
 
 const initAdd = AddFunction;
 

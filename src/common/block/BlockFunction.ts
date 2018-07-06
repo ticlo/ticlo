@@ -1,7 +1,7 @@
-import { BlockIO, BlockProperty, Block$Property } from "./BlockProperty";
-import { FunctionDesc } from "./Descriptor";
-import { BlockMode } from "./Block";
-import { Event } from "./Event";
+import {BlockIO, BlockProperty, Block$Property} from "./BlockProperty";
+import {FunctionDesc} from "./Descriptor";
+import {BlockMode} from "./Block";
+import {Event} from "./Event";
 
 export interface FunctionOutput {
   // field is 'output' by default
@@ -60,7 +60,7 @@ export class BlockFunction {
     // to be overridden
   }
 
-  blockCommand(command: string, params: { [key: string]: any }): void {
+  blockCommand(command: string, params: {[key: string]: any}): void {
     // to be overridden
   }
 

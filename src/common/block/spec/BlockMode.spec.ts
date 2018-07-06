@@ -1,7 +1,7 @@
-import { assert } from "chai";
-import { TestAsyncFunction, TestFunctionRunner } from "./TestFunction";
-import { Job, Root } from "../Job";
-import { Block } from "../Block";
+import {assert} from "chai";
+import {TestAsyncFunction, TestFunctionRunner} from "./TestFunction";
+import {Job, Root} from "../Job";
+import {Block} from "../Block";
 
 describe("BlockMode", () => {
   beforeEach(() => {
@@ -187,7 +187,7 @@ describe("BlockMode", () => {
     assert.equal(block.getValue('#call'), block);
     assert.isEmpty(TestFunctionRunner.logs, 'change binding path but not value should not trigger function');
 
-    block.updateValue('@child', { '@parent': block });
+    block.updateValue('@child', {'@parent': block});
     Root.run();
     assert.equal(block.getValue('#call'), block);
     assert.isEmpty(TestFunctionRunner.logs, 'change binding path but not value should not trigger function');

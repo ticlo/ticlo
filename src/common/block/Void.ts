@@ -1,5 +1,5 @@
-import { BlockProperty, BlockPropertyEvent, BlockPropertySubscriber } from "./BlockProperty";
-import { Listener } from "./Dispatcher";
+import {BlockProperty, BlockPropertyEvent, BlockPropertySubscriber} from "./BlockProperty";
+import {Listener} from "./Dispatcher";
 
 
 class VoidProperty extends BlockProperty {

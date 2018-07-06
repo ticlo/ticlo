@@ -1,11 +1,11 @@
-import { Classes } from "../block/Class";
-import { BlockFunction, FunctionData } from "../block/BlockFunction";
-import { FunctionDesc } from "../block/Descriptor";
-import { Block$Property, BlockIO } from "../block/BlockProperty";
-import { Block, BlockChildWatch, BlockMode } from "../block/Block";
-import { Job } from "../block/Job";
-import { DataMap } from "../util/Types";
-import { OutputFunction } from "./Output";
+import {Classes} from "../block/Class";
+import {BlockFunction, FunctionData} from "../block/BlockFunction";
+import {FunctionDesc} from "../block/Descriptor";
+import {Block$Property, BlockIO} from "../block/BlockProperty";
+import {Block, BlockChildWatch, BlockMode} from "../block/Block";
+import {Job} from "../block/Job";
+import {DataMap} from "../util/Types";
+import {OutputFunction} from "./Output";
 
 export class MapFunction extends BlockFunction implements BlockChildWatch {
 
@@ -16,7 +16,7 @@ export class MapFunction extends BlockFunction implements BlockChildWatch {
   _watchedInput: Block;
   _outputBlock: Block;
 
-  _workers: { [key: string]: Job };
+  _workers: {[key: string]: Job};
 
   inputChanged(input: BlockIO, val: any): boolean {
     return false;

@@ -1,9 +1,9 @@
-import { Classes } from "../Class";
-import { BlockFunction, FunctionData } from "../BlockFunction";
-import { Block$Property, BlockIO, BlockPropertyEvent } from "../BlockProperty";
-import { NOT_READY } from "../Event";
-import { Dispatcher } from "../Dispatcher";
-import { Block } from "../Block";
+import {Classes} from "../Class";
+import {BlockFunction, FunctionData} from "../BlockFunction";
+import {Block$Property, BlockIO, BlockPropertyEvent} from "../BlockProperty";
+import {NOT_READY} from "../Event";
+import {Dispatcher} from "../Dispatcher";
+import {Block} from "../Block";
 
 
 export class TestFunctionRunner extends BlockFunction {

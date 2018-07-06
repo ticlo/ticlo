@@ -1,8 +1,8 @@
-import { assert } from "chai";
-import { TestAsyncFunction, TestFunctionRunner } from "./TestFunction";
-import { Job, Root } from "../Job";
-import { Block } from "../Block";
-import { ErrorEvent } from "../Event";
+import {assert} from "chai";
+import {TestAsyncFunction, TestFunctionRunner} from "./TestFunction";
+import {Job, Root} from "../Job";
+import {Block} from "../Block";
+import {ErrorEvent} from "../Event";
 
 describe("SyncMode", () => {
   beforeEach(() => {

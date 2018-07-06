@@ -1,9 +1,9 @@
-import { assert } from "chai";
-import { Root } from "../../block/Job";
-import { makeLocalConnection } from "../LocalConnection";
-import { AddFunction } from "../../functions/basic/Math";
-import { DataMap } from "../../util/Types";
-import { AsyncClientPromise } from "./AsyncClientPromise";
+import {assert} from "chai";
+import {Root} from "../../block/Job";
+import {makeLocalConnection} from "../LocalConnection";
+import {AddFunction} from "../../functions/basic/Math";
+import {DataMap} from "../../util/Types";
+import {AsyncClientPromise} from "./AsyncClientPromise";
 
 const initAdd = AddFunction;
 
@@ -84,28 +84,28 @@ describe("Connection", () => {
     let callbacks1 = new AsyncClientPromise();
     client.watch('Connection3', callbacks1);
     let result1 = await callbacks1.promise;
-    assert.deepEqual(result1.changes, { 'c0': child0._blockId }, 'initial value');
-    assert.deepEqual(result1.cache, { 'c0': child0._blockId }, 'initial cache');
+    assert.deepEqual(result1.changes, {'c0': child0._blockId}, 'initial value');
+    assert.deepEqual(result1.cache, {'c0': child0._blockId}, 'initial cache');
 
     let callbacks2 = new AsyncClientPromise();
     client.watch('Connection3', callbacks2);
     let result2 = await callbacks2.firstPromise;
-    assert.deepEqual(result2.changes, { 'c0': child0._blockId }, 'initial value');
-    assert.deepEqual(result2.cache, { 'c0': child0._blockId }, 'initial cache');
+    assert.deepEqual(result2.changes, {'c0': child0._blockId}, 'initial value');
+    assert.deepEqual(result2.cache, {'c0': child0._blockId}, 'initial cache');
 
     let child1 = job.createBlock('c1');
     job.createOutputBlock('t1'); // temp block shouldn't show in watch result
 
     [result1, result2] = await Promise.all([callbacks1.promise, callbacks2.promise]);
-    assert.deepEqual(result1.changes, { 'c1': child1._blockId }, 'add block changes');
-    assert.deepEqual(result1.cache, { 'c0': child0._blockId, 'c1': child1._blockId }, 'add block cache');
-    assert.deepEqual(result2.changes, { 'c1': child1._blockId }, 'add block changes');
-    assert.deepEqual(result2.cache, { 'c0': child0._blockId, 'c1': child1._blockId }, 'add block cache');
+    assert.deepEqual(result1.changes, {'c1': child1._blockId}, 'add block changes');
+    assert.deepEqual(result1.cache, {'c0': child0._blockId, 'c1': child1._blockId}, 'add block cache');
+    assert.deepEqual(result2.changes, {'c1': child1._blockId}, 'add block changes');
+    assert.deepEqual(result2.cache, {'c0': child0._blockId, 'c1': child1._blockId}, 'add block cache');
 
     client.setValue('Connection3.c0', null);
     result1 = await callbacks1.promise;
-    assert.deepEqual(result1.changes, { 'c0': null }, 'remove block changes');
-    assert.deepEqual(result1.cache, { 'c1': child1._blockId }, 'add block cache');
+    assert.deepEqual(result1.changes, {'c0': null}, 'remove block changes');
+    assert.deepEqual(result1.cache, {'c1': child1._blockId}, 'add block cache');
 
     let cachedPromise1 = callbacks1.promise;
 

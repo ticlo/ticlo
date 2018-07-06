@@ -1,8 +1,8 @@
-import { assert } from "chai";
-import { Block } from "../Block";
+import {assert} from "chai";
+import {Block} from "../Block";
 
-import { Job } from "../Job";
-import { BlockIO } from "../BlockProperty";
+import {Job} from "../Job";
+import {BlockIO} from "../BlockProperty";
 
 describe("Block Child Watch", () => {
   it('basic', () => {

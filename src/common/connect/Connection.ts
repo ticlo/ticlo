@@ -1,8 +1,8 @@
-import { DataMap } from "../util/Types";
+import {DataMap} from "../util/Types";
 
 export class ConnectionSendingData {
   /* istanbul ignore next */
-  getSendingData(): { data: DataMap, size: number } {
+  getSendingData(): {data: DataMap, size: number} {
     // to be overridden
     throw new Error("not implemented");
   }
@@ -83,7 +83,7 @@ export class ConnectionSend extends ConnectionSendingData {
     this._data = data;
   }
 
-  getSendingData(): { data: DataMap, size: number } {
+  getSendingData(): {data: DataMap, size: number} {
     let size = 0;
     for (let key in this._data) {
       let v = this._data[key];

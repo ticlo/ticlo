@@ -1,11 +1,11 @@
-import { assert } from "chai";
-import { Block } from "../Block";
+import {assert} from "chai";
+import {Block} from "../Block";
 
-import { Job, Root } from "../Job";
-import { Dispatcher } from "../Dispatcher";
-import { voidProperty } from "../Void";
-import { BlockIO } from "../BlockProperty";
-import { voidListeners } from "./TestFunction";
+import {Job, Root} from "../Job";
+import {Dispatcher} from "../Dispatcher";
+import {voidProperty} from "../Void";
+import {BlockIO} from "../BlockProperty";
+import {voidListeners} from "./TestFunction";
 
 describe("Destroyed Block", () => {
 

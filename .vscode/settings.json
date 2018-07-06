@@ -1,11 +1,12 @@
 {
-    "files.exclude": {
-        "**/.git": true,
-        "**/*.js.map": true,
-        "**/*.js": {
-            "when": "$(basename).ts"
-        }
-    },
-    "files.eol": "\n",
-    "editor.tabSize": 2
+  "files.exclude": {
+    "**/.git": true,
+    "**/*.js.map": true,
+    "**/*.js": {
+      "when": "$(basename).ts"
+    }
+  },
+  "files.eol": "\n",
+  "editor.tabSize": 2,
+  "typescript.format.insertSpaceAfterOpeningAndBeforeClosingNonemptyBraces": false
 }

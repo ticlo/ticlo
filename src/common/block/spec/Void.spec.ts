@@ -1,10 +1,10 @@
-import { assert } from "chai";
-import { voidProperty } from "../Void";
+import {assert} from "chai";
+import {voidProperty} from "../Void";
 
-import { Job } from "../Job";
-import { BlockPropertyEvent } from "../BlockProperty";
-import { Dispatcher } from "../Dispatcher";
-import { voidListeners } from "./TestFunction";
+import {Job} from "../Job";
+import {BlockPropertyEvent} from "../BlockProperty";
+import {Dispatcher} from "../Dispatcher";
+import {voidListeners} from "./TestFunction";
 
 describe("VoidProperty", () => {
 

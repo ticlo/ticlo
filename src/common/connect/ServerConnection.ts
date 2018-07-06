@@ -1,9 +1,9 @@
-import { Connection, ConnectionSendingData, ConnectionSend } from "./Connection";
-import { BlockIO, BlockProperty, BlockPropertyEvent, BlockPropertySubscriber } from "../block/BlockProperty";
-import { Root } from "../block/Job";
-import { DataMap, isSavedBlock, truncateObj } from "../util/Types";
-import { Block, BlockChildWatch } from "../block/Block";
-import { Dispatcher, Listener, ValueDispatcher } from "../block/Dispatcher";
+import {Connection, ConnectionSendingData, ConnectionSend} from "./Connection";
+import {BlockIO, BlockProperty, BlockPropertyEvent, BlockPropertySubscriber} from "../block/BlockProperty";
+import {Root} from "../block/Job";
+import {DataMap, isSavedBlock, truncateObj} from "../util/Types";
+import {Block, BlockChildWatch} from "../block/Block";
+import {Dispatcher, Listener, ValueDispatcher} from "../block/Dispatcher";
 import Property = Chai.Property;
 
 class ServerRequest extends ConnectionSendingData {
@@ -31,7 +31,7 @@ class ServerSubscribe extends ServerRequest implements BlockPropertySubscriber, 
     prop.subscribe(this);
     if (prop._bindingPath) {
       // add event for current bindingPath
-      this.events.push({ bind: prop._bindingPath });
+      this.events.push({bind: prop._bindingPath});
     }
   }
 
@@ -52,8 +52,8 @@ class ServerSubscribe extends ServerRequest implements BlockPropertySubscriber, 
     this.connection.addSend(this);
   }
 
-  getSendingData(): { data: DataMap, size: number } {
-    let data: DataMap = { id: this.id, cmd: 'update' };
+  getSendingData(): {data: DataMap, size: number} {
+    let data: DataMap = {id: this.id, cmd: 'update'};
     let total = 0;
     if (this.valueChanged) {
       let [value, size] = truncateObj(this.property.getValue());
@@ -81,7 +81,7 @@ class ServerSubscribe extends ServerRequest implements BlockPropertySubscriber, 
     if (bindingChanged) {
       data.bindingPath = this.property._bindingPath;
     }
-    return { data, size: total };
+    return {data, size: total};
   }
 
   close() {
@@ -123,8 +123,8 @@ class ServerWatch extends ServerRequest implements BlockChildWatch, Listener<any
     }
   }
 
-  _pendingChanges: { [key: string]: string } = null;
-  _cached: { [key: string]: boolean } = {};
+  _pendingChanges: {[key: string]: string} = null;
+  _cached: {[key: string]: boolean} = {};
 
   // BlockChildWatch
   onChildChange(property: BlockIO, saved?: boolean) {
@@ -143,8 +143,8 @@ class ServerWatch extends ServerRequest implements BlockChildWatch, Listener<any
     }
   }
 
-  getSendingData(): { data: DataMap, size: number } {
-    let changes: { [key: string]: string };
+  getSendingData(): {data: DataMap, size: number} {
+    let changes: {[key: string]: string};
     if (this._pendingChanges) {
       changes = this._pendingChanges;
     } else {
@@ -166,7 +166,7 @@ class ServerWatch extends ServerRequest implements BlockChildWatch, Listener<any
         size += 4;
       }
     }
-    return { data: { id: this.id, cmd: 'update', changes }, size };
+    return {data: {id: this.id, cmd: 'update', changes}, size};
   }
 
   close() {
@@ -178,7 +178,7 @@ class ServerWatch extends ServerRequest implements BlockChildWatch, Listener<any
 export class ServerConnection extends Connection {
   root: Root;
 
-  requests: { [key: string]: ServerRequest } = {};
+  requests: {[key: string]: ServerRequest} = {};
 
   constructor(root: Root) {
 
@@ -268,15 +268,15 @@ export class ServerConnection extends Connection {
   }
 
   sendError(id: string, msg: string) {
-    this.addSend(new ConnectionSend({ 'cmd': 'error', 'id': id, 'msg': msg }));
+    this.addSend(new ConnectionSend({'cmd': 'error', 'id': id, 'msg': msg}));
   }
 
   sendDone(id: string) {
-    this.addSend(new ConnectionSend({ 'cmd': 'done', 'id': id }));
+    this.addSend(new ConnectionSend({'cmd': 'done', 'id': id}));
   }
 
   sendFinal(id: string, data: DataMap) {
-    this.addSend(new ConnectionSend({ ...data, 'cmd': 'final', 'id': id }));
+    this.addSend(new ConnectionSend({...data, 'cmd': 'final', 'id': id}));
   }
 
 
@@ -368,7 +368,7 @@ export class ServerConnection extends Connection {
           }
         }
       });
-      return { children, count };
+      return {children, count};
     } else {
       return 'invalid path';
     }

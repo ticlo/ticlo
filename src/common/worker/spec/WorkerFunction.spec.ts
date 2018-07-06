@@ -1,11 +1,11 @@
-import { assert } from "chai";
-import { Job, Root } from "../../block/Job";
-import { WorkerFunction } from "../WorkerFunction";
-import { Block } from "../../block/Block";
-import { TestFunctionRunner } from "../../block/spec/TestFunction";
+import {assert} from "chai";
+import {Job, Root} from "../../block/Job";
+import {WorkerFunction} from "../WorkerFunction";
+import {Block} from "../../block/Block";
+import {TestFunctionRunner} from "../../block/spec/TestFunction";
 import "../../functions/basic/Math";
 import "../Output";
-import { DataMap } from "../../util/Types";
+import {DataMap} from "../../util/Types";
 
 describe("WorkerFunction", () => {
 

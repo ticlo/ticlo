@@ -1,5 +1,5 @@
-import { Runnable } from "./Block";
-import { Uid } from "../util/Uid";
+import {Runnable} from "./Block";
+import {Uid} from "../util/Uid";
 
 export class Resolver implements Runnable {
   private static _uid = new Uid();

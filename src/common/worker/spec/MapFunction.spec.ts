@@ -1,10 +1,10 @@
-import { assert } from "chai";
-import { Job, Root } from "../../block/Job";
-import { Block } from "../../block/Block";
-import { TestFunctionRunner } from "../../block/spec/TestFunction";
+import {assert} from "chai";
+import {Job, Root} from "../../block/Job";
+import {Block} from "../../block/Block";
+import {TestFunctionRunner} from "../../block/spec/TestFunction";
 import "../../functions/basic/Math";
 import "../MapFunction";
-import { DataMap } from "../../util/Types";
+import {DataMap} from "../../util/Types";
 
 describe("MapFunction", () => {
 
@@ -16,9 +16,9 @@ describe("MapFunction", () => {
     let cBlock = job.createBlock('c');
     aBlock._load({
       '#is': '',
-      'obj1': { '#is': '', 'v': 1 },
-      'obj2': { '#is': '', 'v': 2 },
-      'obj3': { 'v': 3 }
+      'obj1': {'#is': '', 'v': 1},
+      'obj2': {'#is': '', 'v': 2},
+      'obj3': {'v': 3}
     });
     bBlock._load({
       '#is': 'map',
@@ -26,8 +26,8 @@ describe("MapFunction", () => {
       '$src': {
         '#is': {
           '#is': '',
-          'add': { '#is': 'add', '~0': '##.#input.v', '1': 1 },
-          '#output': { '#is': 'output', '~v': '##.add.output' }
+          'add': {'#is': 'add', '~0': '##.#input.v', '1': 1},
+          '#output': {'#is': 'output', '~v': '##.add.output'}
         }
       }
     });
@@ -37,8 +37,8 @@ describe("MapFunction", () => {
       '$src': {
         '#is': {
           '#is': '',
-          'multiply': { '#is': 'multiply', '~0': '##.#input.v', '1': 2 },
-          '#output': { '#is': 'output', '~v': '##.multiply.output' }
+          'multiply': {'#is': 'multiply', '~0': '##.#input.v', '1': 2},
+          '#output': {'#is': 'output', '~v': '##.multiply.output'}
         }
       }
     });
@@ -50,8 +50,8 @@ describe("MapFunction", () => {
 
     bBlock.updateValue('$src', {
       '#is': '',
-      'subtract': { '#is': 'subtract', '~0': '##.#input.v', '1': 5 },
-      '#output': { '#is': 'output', '~v': '##.subtract.output' }
+      'subtract': {'#is': 'subtract', '~0': '##.#input.v', '1': 5},
+      '#output': {'#is': 'output', '~v': '##.subtract.output'}
     });
     Root.run();
     assert.equal(cBlock.queryProperty('$output.obj2.v').getValue(), -6, 'Map chain $src changed');
@@ -63,15 +63,15 @@ describe("MapFunction", () => {
 
     let bBlock = job.createBlock('b');
 
-    job.updateValue('a', { 'obj1': { 'v': 1 } });
+    job.updateValue('a', {'obj1': {'v': 1}});
     bBlock._load({
       '#is': 'map',
       '~$input': '##.a',
       '$src': {
         '#is': {
           '#is': '',
-          'add': { '#is': 'add', '~0': '##.#input.v', '1': 1 },
-          '#output': { '#is': 'output', '~v': '##.add.output' }
+          'add': {'#is': 'add', '~0': '##.#input.v', '1': 1},
+          '#output': {'#is': 'output', '~v': '##.add.output'}
         }
       }
     });
