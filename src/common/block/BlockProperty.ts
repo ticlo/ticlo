@@ -116,13 +116,19 @@ export class BlockProperty extends ValueDispatcher<any> implements Listener<any>
       if (this._saved instanceof Block) {
         return this._saved._save();
       }
+      if (isSavedBlock(this._saved)) {
+        return { '#is': this._saved };
+      }
       return this._saved;
     }
   }
 
   _load(val: any) {
-    if (val instanceof Object && val !== undefined
-      && (val.hasOwnProperty('#is') || val.hasOwnProperty('~#is'))) {
+    if (isSavedBlock(val)) {
+      if (typeof val['#is'] === 'object') {
+        this.onChange(val['#is'], true);
+        return;
+      }
       let block = new Block(this._block._job, this._block, this);
       block._load(val);
       this.onChange(block, true);
@@ -144,6 +150,10 @@ export class BlockProperty extends ValueDispatcher<any> implements Listener<any>
       }
     }
     if (isSavedBlock(val)) {
+      if (typeof val['#is'] === 'object') {
+        this.onChange(val['#is'], true);
+        return;
+      }
       if (this._saved instanceof Block) {
         this._saved._liveUpdate(val);
       } else {

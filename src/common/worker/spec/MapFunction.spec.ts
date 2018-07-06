@@ -24,7 +24,7 @@ describe("MapFunction", () => {
       '#is': 'map',
       '~$input': '##.a',
       '$src': {
-        '#': {
+        '#is': {
           '#is': '',
           'add': { '#is': 'add', '~0': '##.#input.v', '1': 1 },
           '#output': { '#is': 'output', '~v': '##.add.output' }
@@ -35,7 +35,7 @@ describe("MapFunction", () => {
       '#is': 'map',
       '~$input': '##.b.$output',
       '$src': {
-        '#': {
+        '#is': {
           '#is': '',
           'multiply': { '#is': 'multiply', '~0': '##.#input.v', '1': 2 },
           '#output': { '#is': 'output', '~v': '##.multiply.output' }
@@ -68,7 +68,7 @@ describe("MapFunction", () => {
       '#is': 'map',
       '~$input': '##.a',
       '$src': {
-        '#': {
+        '#is': {
           '#is': '',
           'add': { '#is': 'add', '~0': '##.#input.v', '1': 1 },
           '#output': { '#is': 'output', '~v': '##.add.output' }

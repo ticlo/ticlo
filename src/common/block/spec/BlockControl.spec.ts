@@ -38,6 +38,6 @@ describe("BlockControl", () => {
 
     block.setBinding('#is', null);
     assert.equal(block.getValue('#is'), '', '#is revert back to "" after unbind');
-    assert.deepEqual(job.save(true), { '#': { '#is': '', 'obj': { '@is': 'add', '#is': '' } } }, 'save with wrapper');
+    assert.deepEqual(job.save(), { '#is': '', 'obj': { '@is': 'add', '#is': '' } }, 'save #is');
   });
 });
