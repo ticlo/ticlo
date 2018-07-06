@@ -55,7 +55,7 @@ export function truncateObj(val: any, maxSize: number = 1024): [any, number] {
     if (Array.isArray(val)) {
       return truncateArray(val, maxSize);
     }
-    if (val.__proto__ === Object.prototype) {
+    if (val.constructor === Object) {
       return truncateMap(val, maxSize);
     }
     {

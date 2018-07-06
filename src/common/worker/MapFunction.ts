@@ -34,7 +34,7 @@ export class MapFunction extends BlockFunction implements BlockChildWatch {
   }
 
   _inputChanged(val: any): boolean {
-    if (!(val == null || val instanceof Block || val.__proto__ === Object.prototype)) {
+    if (!(val == null || val instanceof Block || val.constructor === Object)) {
       // validate the input
       val = null;
     }
@@ -47,7 +47,7 @@ export class MapFunction extends BlockFunction implements BlockChildWatch {
 
   _sourceChanged(val: any): boolean {
     // TODO allow string src for class name
-    if (val != null && val.__proto__ === Object.prototype) {
+    if (val != null && val.constructor === Object) {
       this._src = val;
       this._srcChanged = true;
       return true;
@@ -72,7 +72,7 @@ export class MapFunction extends BlockFunction implements BlockChildWatch {
           return;
         }
       }
-      if (this._input.__proto__ === Object.prototype) {
+      if (this._input.constructor === Object) {
         this._watchObject(this._input);
       } else if (this._input instanceof Block) {
         this._watchBlock(this._input);
