@@ -115,5 +115,9 @@ describe("MapFunction", () => {
     assert.isUndefined(bBlock.queryProperty('output.obj1').getValue(), 'update input');
     assert.equal(bBlock.queryProperty('output.obj2.v').getValue(), 3, 'update input');
     assert.equal(bBlock.queryProperty('output.obj3.v').getValue(), 4, 'update input');
+
+    bBlock.setValue('#is', '');
+    assert.isUndefined(bBlock.queryProperty('output').getValue(), 'destroy MapFunction');
+    assert.isUndefined(bBlock.queryProperty('#func').getValue(), 'destroy MapFunction');
   });
 });

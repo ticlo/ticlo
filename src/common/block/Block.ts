@@ -274,6 +274,7 @@ export class Block implements Runnable, FunctionData, Listener<FunctionGenerator
         this.getProperty(key)._load(map[key]);
       }
     }
+    // function should change after all the properties
     if (this._pendingGenerator) {
       this.onChange(this._pendingGenerator);
       this._pendingGenerator = null;
@@ -302,6 +303,7 @@ export class Block implements Runnable, FunctionData, Listener<FunctionGenerator
         this._props[key].clear();
       }
     }
+    // function should change after all the properties
     if (this._pendingGenerator) {
       this.onChange(this._pendingGenerator);
       this._pendingGenerator = null;
@@ -543,6 +545,9 @@ export class Block implements Runnable, FunctionData, Listener<FunctionGenerator
   onChange(generator: FunctionGenerator): void {
     if (this._function) {
       this._function.destroy();
+      if (this._props.hasOwnProperty('#func')) {
+        this._props['#func'].setValue(undefined);
+      }
     }
     if (generator) {
       if (this._job._loading && generator !== this._pendingGenerator) {

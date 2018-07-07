@@ -26,15 +26,6 @@ export class WorkerFunction extends BlockFunction {
     this._funcJob.updateValue('#input', data);
   }
 
-  destroy(): void {
-    if (this._funcJob) {
-      if (!(this._data as Block)._destroyed) {
-        this._data.output(undefined, '#func');
-      }
-      this._funcJob = null;
-    }
-  }
-
   static registerClass(className: string,
                        data: DataMap,
                        defaultMode: BlockMode = 'always',

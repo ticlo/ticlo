@@ -208,10 +208,6 @@ export class MapFunction extends BlockFunction implements BlockChildWatch {
       if (this._outputBlock) {
         this._data.output(undefined, 'output');
       }
-      if (this._funcBlock) {
-        this._data.output(undefined, '#func');
-
-      }
     }
     this._outputBlock = null;
     this._funcBlock = null;
