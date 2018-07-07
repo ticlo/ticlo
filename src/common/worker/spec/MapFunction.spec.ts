@@ -120,4 +120,43 @@ describe("MapFunction", () => {
     assert.isUndefined(bBlock.queryProperty('output').getValue(), 'destroy MapFunction');
     assert.isUndefined(bBlock.queryProperty('#func').getValue(), 'destroy MapFunction');
   });
+
+  it('map primitive types', () => {
+    let job = new Job();
+
+    let aBlock = job.createBlock('a');
+    let bBlock = job.createBlock('b');
+    aBlock._load({
+      '#is': '',
+      'v1': 1,
+      'v2': "2"
+    });
+    bBlock._load({
+      '#is': 'map',
+      '~input': '##.a',
+      'src': {
+        '#is': {
+          '#is': '',
+          'add': {'#is': 'add', '~0': '##.#input', '1': 1},
+          '~#output': 'add.output'
+        }
+      }
+    });
+
+    Root.run();
+    assert.equal(bBlock.queryProperty('output.v1').getValue(), 2);
+
+    aBlock.setValue('v3', 3);
+    aBlock.setValue('v1', undefined);
+
+    Root.run();
+    assert.isUndefined(bBlock.queryProperty('output.v1').getValue());
+    assert.equal(bBlock.queryProperty('output.v2').getValue(), 3);
+    assert.equal(bBlock.queryProperty('output.v3').getValue(), 4);
+
+    job.setValue('a', 1);
+
+    Root.run();
+    assert.isUndefined(bBlock.queryProperty('output').getValue(), 'clear output when source is no longer Object or Block');
+  });
 });

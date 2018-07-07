@@ -102,7 +102,7 @@ export class MapFunction extends BlockFunction implements BlockChildWatch {
   _checkChanges() {
     for (let key of this._childChanges) {
       let val = this._watchedInput.getValue(key);
-      if (val != null && typeof val === 'object') {
+      if (val !== undefined) {
         if (this._workers.hasOwnProperty(key)) {
           this._workers[key].updateValue('#input', val);
         } else {
@@ -125,17 +125,21 @@ export class MapFunction extends BlockFunction implements BlockChildWatch {
       let oldWorkers = this._workers;
       this._workers = {};
       for (let key in obj) {
+        let input = obj[key];
+        if (input === undefined) {
+          continue;
+        }
         if (oldWorkers.hasOwnProperty(key)) {
-          oldWorkers[key].updateValue('#input', obj[key]);
+          oldWorkers[key].updateValue('#input', input);
           this._workers[key] = oldWorkers[key];
           delete oldWorkers[key];
         } else {
-          this._addWorker(key, obj[key]);
+          this._addWorker(key, input);
         }
       }
       for (let key in oldWorkers) {
         oldWorkers[key].destroy();
-        this._data.output(undefined, key);
+        this._funcBlock.output(undefined, key);
         this._outputBlock.setValue(key, undefined);
       }
     } else {
@@ -152,9 +156,7 @@ export class MapFunction extends BlockFunction implements BlockChildWatch {
     this._workers = {};
     this._watchedInput = block;
     block.forEach((field: string, prop: BlockIO) => {
-      if (prop._value != null && typeof prop._value === 'object') {
-        this._addWorker(field, prop._value);
-      }
+      this._addWorker(field, prop._value);
     });
     block.watch(this);
   }
