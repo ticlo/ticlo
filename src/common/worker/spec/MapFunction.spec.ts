@@ -22,8 +22,8 @@ describe("MapFunction", () => {
     });
     bBlock._load({
       '#is': 'map',
-      '~$input': '##.a',
-      '$src': {
+      '~input': '##.a',
+      'src': {
         '#is': {
           '#is': '',
           'add': {'#is': 'add', '~0': '##.#input.v', '1': 1},
@@ -33,8 +33,8 @@ describe("MapFunction", () => {
     });
     cBlock._load({
       '#is': 'map',
-      '~$input': '##.b.$output',
-      '$src': {
+      '~input': '##.b.output',
+      'src': {
         '#is': {
           '#is': '',
           'multiply': {'#is': 'multiply', '~0': '##.#input.v', '1': 2},
@@ -44,18 +44,18 @@ describe("MapFunction", () => {
     });
     Root.run();
 
-    assert.equal(bBlock.queryProperty('$output.obj1.v').getValue(), 2, 'basic Map chain');
-    assert.equal(cBlock.queryProperty('$output.obj2.v').getValue(), 6, 'basic Map chain');
-    assert.equal(cBlock.queryProperty('$output.obj3.v').getValue(), 8, 'basic Map chain on child Object');
+    assert.equal(bBlock.queryProperty('output.obj1.v').getValue(), 2, 'basic Map chain');
+    assert.equal(cBlock.queryProperty('output.obj2.v').getValue(), 6, 'basic Map chain');
+    assert.equal(cBlock.queryProperty('output.obj3.v').getValue(), 8, 'basic Map chain on child Object');
 
-    bBlock.updateValue('$src', {
+    bBlock.updateValue('src', {
       '#is': '',
       'subtract': {'#is': 'subtract', '~0': '##.#input.v', '1': 5},
       '#output': {'#is': 'output', '~v': '##.subtract.output'}
     });
     Root.run();
-    assert.equal(cBlock.queryProperty('$output.obj2.v').getValue(), -6, 'Map chain $src changed');
-    assert.equal(cBlock.queryProperty('$output.obj3.v').getValue(), -4, 'Map chain $src changed on child Object');
+    assert.equal(cBlock.queryProperty('output.obj2.v').getValue(), -6, 'Map chain src changed');
+    assert.equal(cBlock.queryProperty('output.obj3.v').getValue(), -4, 'Map chain src changed on child Object');
 
     aBlock.setValue('obj2', undefined);
     let obj4 = aBlock.createBlock('obj4');
@@ -63,9 +63,9 @@ describe("MapFunction", () => {
     aBlock.updateValue('obj5', {'v': 5});
     Root.run();
 
-    assert.isUndefined(cBlock.queryProperty('$output.obj2').getValue(), 'remove object');
-    assert.equal(cBlock.queryProperty('$output.obj4.v').getValue(), -2, 'add watch child');
-    assert.equal(cBlock.queryProperty('$output.obj5.v').getValue(), 0, 'add watch child Object');
+    assert.isUndefined(cBlock.queryProperty('output.obj2').getValue(), 'remove object');
+    assert.equal(cBlock.queryProperty('output.obj4.v').getValue(), -2, 'add watch child');
+    assert.equal(cBlock.queryProperty('output.obj5.v').getValue(), 0, 'add watch child Object');
   });
 
   it('watch object', () => {
@@ -76,8 +76,8 @@ describe("MapFunction", () => {
     job.updateValue('a', {'obj1': {'v': 1}, 'obj2': {'v': 2}});
     bBlock._load({
       '#is': 'map',
-      '~$input': '##.a',
-      '$src': {
+      '~input': '##.a',
+      'src': {
         '#is': {
           '#is': '',
           'add': {'#is': 'add', '~0': '##.#input.v', '1': 1},
@@ -87,12 +87,12 @@ describe("MapFunction", () => {
     });
 
     Root.run();
-    assert.equal(bBlock.queryProperty('$output.obj1.v').getValue(), 2, 'basic Map on Object');
+    assert.equal(bBlock.queryProperty('output.obj1.v').getValue(), 2, 'basic Map on Object');
 
     job.updateValue('a', {'obj3': {'v': 3}, 'obj2': {'v': 2}});
     Root.run();
-    assert.isUndefined(bBlock.queryProperty('$output.obj1').getValue(), 'update input');
-    assert.equal(bBlock.queryProperty('$output.obj2.v').getValue(), 3, 'update input');
-    assert.equal(bBlock.queryProperty('$output.obj3.v').getValue(), 4, 'update input');
+    assert.isUndefined(bBlock.queryProperty('output.obj1').getValue(), 'update input');
+    assert.equal(bBlock.queryProperty('output.obj2.v').getValue(), 3, 'update input');
+    assert.equal(bBlock.queryProperty('output.obj3.v').getValue(), 4, 'update input');
   });
 });

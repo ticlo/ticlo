@@ -28,8 +28,8 @@ describe("WorkerFunction", () => {
       'nested job should be created');
     TestFunctionRunner.clearLog();
 
-    let impl: Job = aBlock.getValue('$worker')  as Job;
-    assert.instanceOf(impl, Job, 'get $worker of nested job');
+    let impl: Job = aBlock.getValue('#func')  as Job;
+    assert.instanceOf(impl, Job, 'get #func of nested job');
 
     assert.deepEqual(impl.save(), jobData, 'serialize nested job');
 

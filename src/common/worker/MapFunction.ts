@@ -1,7 +1,7 @@
 import {Classes} from "../block/Class";
 import {BlockFunction, FunctionData} from "../block/BlockFunction";
 import {FunctionDesc} from "../block/Descriptor";
-import {Block$Property, BlockIO} from "../block/BlockProperty";
+import {BlockIO} from "../block/BlockProperty";
 import {Block, BlockChildWatch, BlockMode} from "../block/Block";
 import {Job} from "../block/Job";
 import {DataMap} from "../util/Types";
@@ -16,23 +16,22 @@ export class MapFunction extends BlockFunction implements BlockChildWatch {
   _input: any;
   _inputChanged: boolean;
   _watchedInput: Block;
+
+  _funcBlock: Block;
   _outputBlock: Block;
 
   _workers: {[key: string]: Job};
 
   inputChanged(input: BlockIO, val: any): boolean {
-    return false;
-  }
-
-  input$Changed(input: Block$Property, val: any): boolean {
     switch (input._name) {
-      case '$input': {
+      case 'input': {
         return this._onInputChange(input._value);
       }
-      case '$src': {
+      case 'src': {
         return this._onSourceChange(input._value);
       }
     }
+    return false;
   }
 
   _onInputChange(val: any): boolean {
@@ -64,6 +63,9 @@ export class MapFunction extends BlockFunction implements BlockChildWatch {
   }
 
   run(data: FunctionData): any {
+    if (!this._funcBlock || this._funcBlock._destroyed) {
+      this._funcBlock = (data as Block).createOutputBlock('#func');
+    }
     if (this._srcChanged) {
       this._clearWorkers();
       this._srcChanged = false;
@@ -158,27 +160,26 @@ export class MapFunction extends BlockFunction implements BlockChildWatch {
   }
 
   _removeWorker(key: string) {
-    this._workers[key].destroy();
-    this._data.output(undefined, key);
+    this._funcBlock.output(undefined, key);
     this._outputBlock.setValue(key, undefined);
   }
 
   _addWorker(key: string, input: any) {
-    let child = (this._data as Block).createOutputJob(key, this._src, (this._data as Block)._job._namespace);
+    let child = this._funcBlock.createOutputJob(key, this._src, (this._data as Block)._job._namespace);
     this._workers[key] = child;
     child.updateValue('#input', input);
-    this._outputBlock.setBinding(key, `##.${key}.#output`);
+    this._outputBlock.setBinding(key, `##.#func.${key}.#output`);
   }
 
   _createOutputBlock() {
     if (!this._outputBlock) {
-      this._outputBlock = (this._data as Block).createOutputBlock('$output');
+      this._outputBlock = (this._data as Block).createOutputBlock('output');
     }
   }
 
   _removeOutputBlock() {
     if (this._outputBlock) {
-      this._data.output(undefined, '$output');
+      this._data.output(undefined, 'output');
       this._outputBlock = null;
     }
   }
@@ -203,7 +204,17 @@ export class MapFunction extends BlockFunction implements BlockChildWatch {
 
   destroy(): void {
     this._clearWorkers();
-    this._removeOutputBlock();
+    if (!(this._data as Block)._destroyed) {
+      if (this._outputBlock) {
+        this._data.output(undefined, 'output');
+      }
+      if (this._funcBlock) {
+        this._data.output(undefined, '#func');
+
+      }
+    }
+    this._outputBlock = null;
+    this._funcBlock = null;
   }
 }
 

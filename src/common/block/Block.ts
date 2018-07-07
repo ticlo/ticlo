@@ -1,4 +1,4 @@
-import {BlockProperty, BlockPropertyHelper, BlockIO, Block$Property} from "./BlockProperty";
+import {BlockProperty, BlockPropertyHelper, BlockIO} from "./BlockProperty";
 import {
   BlockCallControl,
   BlockClassControl,
@@ -16,7 +16,6 @@ import {Job, Root} from "./Job";
 import {FunctionData, BlockFunction, FunctionGenerator} from "./BlockFunction";
 import {Dispatcher, Listener, ValueDispatcher} from "./Dispatcher";
 import {Class, Classes} from "./Class";
-import {Resolver} from "./Resolver";
 import {Event} from "./Event";
 import {DataMap} from "../util/Types";
 import {Uid} from "../util/Uid";
@@ -191,11 +190,6 @@ export class Block implements Runnable, FunctionData, Listener<FunctionGenerator
           prop = new BlockProperty(this, field);
           break;
         }
-        case 36: {
-          // $ secondary IO
-          prop = new Block$Property(this, field);
-          break;
-        }
         default:
           prop = new BlockIO(this, field);
           if (this._ioProps) {
@@ -368,12 +362,6 @@ export class Block implements Runnable, FunctionData, Listener<FunctionGenerator
 
   inputChanged(input: BlockIO, val: any) {
     if (this._function && this._function.inputChanged(input, val)) {
-      this._queueFunctionOnChange();
-    }
-  }
-
-  input$Changed(input: Block$Property, val: any) {
-    if (this._function && this._function.input$Changed(input, val)) {
       this._queueFunctionOnChange();
     }
   }

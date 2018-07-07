@@ -236,24 +236,6 @@ export class BlockIO extends BlockProperty {
   }
 }
 
-export class Block$Property extends BlockProperty {
-  _outputing: boolean;
-
-  _valueChanged() {
-    if (!this._outputing) {
-      this._block.input$Changed(this, this._value);
-    }
-  }
-
-  // outputs the value but doesn't notify the function
-  setOutput(val: any): boolean {
-    this._outputing = true;
-    let changed = this.onChange(val);
-    this._outputing = false;
-    return changed;
-  }
-}
-
 // holds helper function that output to another property of its owner
 // property name is `!${relatedPropertyName}`
 export class BlockPropertyHelper extends BlockProperty {

@@ -107,12 +107,5 @@ describe("BlockPriority", () => {
     Root.run();
     assert.deepEqual(TestFunctionRunner.logs,
       ['p0'], 'function is run when input$Changed return true');
-    TestFunctionRunner.clearLog();
-
-    p0.setValue('$dontrun', true);
-    Root.run();
-    assert.isEmpty(TestFunctionRunner.logs,
-      'function is not run when input$Changed return false');
-
   });
 });

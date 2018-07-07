@@ -1,6 +1,6 @@
 import {Classes} from "../Class";
 import {BlockFunction, FunctionData} from "../BlockFunction";
-import {Block$Property, BlockIO, BlockPropertyEvent} from "../BlockProperty";
+import {BlockIO, BlockPropertyEvent} from "../BlockProperty";
 import {NOT_READY} from "../Event";
 import {Dispatcher} from "../Dispatcher";
 import {Block} from "../Block";
@@ -16,10 +16,6 @@ export class TestFunctionRunner extends BlockFunction {
 
   run(data: FunctionData): any {
     TestFunctionRunner.logs.push(data.getValue('@log'));
-  }
-
-  input$Changed(input: Block$Property, val: any): boolean {
-    return (input._name === '$run');
   }
 }
 

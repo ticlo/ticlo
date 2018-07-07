@@ -8,7 +8,7 @@ import {DataMap} from "../util/Types";
 
 export class WorkerFunction extends BlockFunction {
   _namespace: string;
-  _nested: Job;
+  _funcJob: Job;
   _src: DataMap;
 
   constructor(block: FunctionData, data: DataMap) {
@@ -22,18 +22,16 @@ export class WorkerFunction extends BlockFunction {
   }
 
   run(data: FunctionData): any {
-    if (data instanceof Block) {
-      this._nested = data.createOutputJob('$worker', this._src, this._namespace);
-      this._nested.updateValue('#input', data);
-    }
+    this._funcJob = (data as Block).createOutputJob('#func', this._src, this._namespace);
+    this._funcJob.updateValue('#input', data);
   }
 
   destroy(): void {
-    if (this._nested) {
-      if (this._data instanceof Block && !this._data._destroyed) {
-        this._data.updateValue('$worker', undefined);
+    if (this._funcJob) {
+      if (!(this._data as Block)._destroyed) {
+        this._data.output(undefined, '#func');
       }
-      this._nested = null;
+      this._funcJob = null;
     }
   }
 
