@@ -84,7 +84,7 @@ describe("MapFunction", () => {
 
     Root.run();
 
-    assert.isUndefined(cBlock.queryProperty('output').getValue(), 'parent chain map removed');
+    assert.isUndefined(cBlock.queryProperty('output').getValue(), 'output is removed when input is empty');
 
     assert.isEmpty(TestFunctionRunner.logs, 'worker should not run after destroyed');
   });

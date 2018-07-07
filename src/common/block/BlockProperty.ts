@@ -39,7 +39,7 @@ export class BlockProperty extends ValueDispatcher<any> implements Listener<any>
   }
 
   onChange(val: any, save?: boolean): boolean {
-    if (this._value === val) {
+    if (Object.is(this._value, val)) {
       return false;
     }
     if (this._value instanceof Block) {

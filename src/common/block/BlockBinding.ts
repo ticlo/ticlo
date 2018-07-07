@@ -50,7 +50,7 @@ export class BlockBinding extends ValueDispatcher<any> implements Listener<any> 
   }
 
   onChange(val: any): any {
-    if (this._source === val) {
+    if (Object.is(this._source, val)) {
       return;
     }
     this._source = val;
@@ -82,7 +82,9 @@ export class BlockBinding extends ValueDispatcher<any> implements Listener<any> 
         this._prop.listen(listener);
       }
     } else {
-      this._value = undefined;
+      // set to this doesn't make much sense
+      // it just forces the next updateValue to ignore current value
+      this._value = this; // "this" doesn't make sense
     }
     return true;
   }

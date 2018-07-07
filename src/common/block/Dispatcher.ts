@@ -32,7 +32,7 @@ export class ValueDispatcher<T> implements Dispatcher<T> {
   }
 
   updateValue(val: T): boolean {
-    if (this._value === val) {
+    if (Object.is(this._value, val)) {
       return false;
     }
     this._value = val;

@@ -45,4 +45,18 @@ describe("Block", () => {
     assert.equal(job.queryProperty('block1.block2.###').getValue(), job, 'query job');
   });
 
+  it('destroy binding chain', () => {
+    let job = new Job();
+    let block1 = job.createBlock('block1');
+    let block1c = block1.createOutputBlock('c');
+    let block2 = job.createBlock('block2');
+    block2.setBinding('c', '##.block1.c');
+
+    assert.equal(block2.getValue('c'), block1c, 'setup binding chain');
+
+    job.updateValue('block1', undefined);
+
+    assert.equal(block2.getValue('c'), undefined, 'destroy binding chain');
+  });
+
 });
