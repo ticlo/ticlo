@@ -637,14 +637,14 @@ export class Block implements Runnable, FunctionData, Listener<FunctionGenerator
       this._class = null;
     }
 
-    for (let path in this._bindings) {
-      this._bindings[path].destroy();
-    }
     // properties are destroyed but not removed
     // the final clean up is handled by GC
     // if the block is still kept in memory, it's still possible to save it after destroy
     for (let name in this._props) {
       this._props[name].destroy();
+    }
+    for (let path in this._bindings) {
+      this._bindings[path].destroy();
     }
 
     this._bindings = null;

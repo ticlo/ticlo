@@ -62,7 +62,7 @@ export class BlockBinding extends ValueDispatcher<any> implements Listener<any> 
         // drill down into object children
         this.updateValue(val[this._field]);
       } else {
-        this.updateValue(null);
+        this.updateValue(undefined);
       }
     }
   }
@@ -82,7 +82,7 @@ export class BlockBinding extends ValueDispatcher<any> implements Listener<any> 
         this._prop.listen(listener);
       }
     } else {
-      this._value = null;
+      this._value = undefined;
     }
     return true;
   }

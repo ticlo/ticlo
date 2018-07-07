@@ -63,7 +63,7 @@ export class MapFunction extends BlockFunction implements BlockChildWatch {
   }
 
   run(data: FunctionData): any {
-    if (!this._funcBlock || this._funcBlock._destroyed) {
+    if (!this._funcBlock) {
       this._funcBlock = (data as Block).createOutputBlock('#func');
     }
     if (this._srcChanged) {
