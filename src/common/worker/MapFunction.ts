@@ -4,7 +4,7 @@ import {FunctionDesc} from "../block/Descriptor";
 import {BlockIO} from "../block/BlockProperty";
 import {Block, BlockChildWatch, BlockMode} from "../block/Block";
 import {Job} from "../block/Job";
-import {DataMap} from "../util/Types";
+import {DataMap, isSavedBlock} from "../util/Types";
 import {OutputFunction} from "./Output";
 import {Event} from "../block/Event";
 
@@ -35,7 +35,7 @@ export class MapFunction extends BlockFunction implements BlockChildWatch {
   }
 
   _onInputChange(val: any): boolean {
-    if (!(val == null || val instanceof Block || val.constructor === Object)) {
+    if (!Object.isExtensible(val)) {
       // validate the input
       val = null;
     }
@@ -49,7 +49,7 @@ export class MapFunction extends BlockFunction implements BlockChildWatch {
 
   _onSourceChange(val: any): boolean {
     // TODO allow string src for class name
-    if (val != null && val.constructor === Object) {
+    if (isSavedBlock(val)) {
       this._src = val;
       this._srcChanged = true;
       return true;
@@ -79,11 +79,11 @@ export class MapFunction extends BlockFunction implements BlockChildWatch {
     this._inputChanged = false;
     // watch input when input changed or src changed
     if (this._input != null) {
-      if (this._input.constructor === Object) {
-        this._watchObject(this._input);
-        return;
-      } else if (this._input instanceof Block) {
+      if (this._input instanceof Block) {
         this._watchBlock(this._input);
+        return;
+      } else {
+        this._watchObject(this._input);
         return;
       }
     }

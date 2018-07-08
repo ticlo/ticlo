@@ -119,7 +119,7 @@ class WatchRequest extends MergedClientRequest {
   }
 
   onUpdate(response: DataMap): void {
-    if (response.changes instanceof Object) {
+    if (Object.isExtensible(response.changes)) {
       let map = response.changes;
       for (let key in map) {
         let id = map[key];

@@ -5,7 +5,7 @@ export interface DataMap {
 export const TRUNCATED = '·∙·'; // '\u00b7\u2219\u00b7'
 
 export function isSavedBlock(val: any): boolean {
-  return val instanceof Object && (val.hasOwnProperty('#is') || val.hasOwnProperty('~#is'));
+  return Object.isExtensible(val) && (val.hasOwnProperty('#is') || val.hasOwnProperty('~#is'));
 }
 
 function truncateMap(val: DataMap, maxSize: number): [any, number] {
