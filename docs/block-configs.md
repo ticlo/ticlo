@@ -1,10 +1,12 @@
-## #is
+## Basic Configs
+
+### #is
 **type**: string | object
 `#is` define the function that will be attached to the block.
 * When value is string, it is the global function name.
-* When value is object, it will be deserialized as a child block in the `#func` control
+* When value is object, it will be deserialized as a child block in the `#func` config
 
-## #mode
+### #mode
 **type**: 'always' | 'onChange' | 'onCall' | 'disabled' | null
 
 ### Block Mode
@@ -15,17 +17,17 @@
 |input is changed|✔️|✔️|-|-|
 |block is deserialized|✔️|-|-|-|
 
-* By default, block mode is defined in the block function. you can override block mode by changing the `#mode` control value
+* By default, block mode is defined in the block function. you can override block mode by changing the `#mode` config value
 
 
-## #sync
+### #sync
 **type**: boolean
 
 * When `#sync`=**true**, the block will be run as soon as `#call` is changed, before any other property change or block queue taking effect
 
 
-## #call
-**type**: any
+### #call
+**type**: trigger
 
 Queue the block in the resolver to run it asynchronously, or run it instantly when `#sync`=**true**
 
@@ -33,7 +35,25 @@ Queue the block in the resolver to run it asynchronously, or run it instantly wh
 * Event can directly `#call` a block when it just gets dispatched. But if it's stored in a property and being set to #call later, the block will ignore it.
 
 
-## #func
+### #func
 **type**: Block
 
 A temporary block maintained by the block function, block will always destroy the #func block when function changed
+
+## Worker Configs
+
+these configs are only used in worker related functions
+
+### #input
+**type**: any
+the input data of the worker
+
+### #output
+**type**: any
+the output data of the worker
+
+### #ready
+**type**: trigger
+indicate when the worker's task is finished and the output data is ready
+
+required in MapObject and MapStream

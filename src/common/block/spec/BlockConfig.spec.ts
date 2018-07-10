@@ -2,7 +2,7 @@ import {assert} from "chai";
 import {TestFunctionRunner} from "./TestFunction";
 import {Job, Root} from "../Job";
 
-describe("BlockControl", () => {
+describe("BlockConfig", () => {
 
   it('readonly control', () => {
     let job = new Job();

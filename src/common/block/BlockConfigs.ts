@@ -2,7 +2,7 @@ import {Job} from "./Job";
 import {Block} from "./Block";
 import {BlockProperty} from "./BlockProperty";
 
-export class BlockClassControl extends BlockProperty {
+export class BlockClassConfig extends BlockProperty {
 
   constructor(block: Block, name: string) {
     super(block, name);
@@ -23,43 +23,43 @@ export class BlockClassControl extends BlockProperty {
   }
 }
 
-export class BlockCallControl extends BlockProperty {
+export class BlockCallConfig extends BlockProperty {
   _valueChanged() {
     this._block._onCall(this._value);
   }
 }
 
-export class BlockSyncControl extends BlockProperty {
+export class BlockSyncConfig extends BlockProperty {
   _valueChanged() {
     this._block._syncChanged(this._value);
   }
 }
 
-export class BlockModeControl extends BlockProperty {
+export class BlockModeConfig extends BlockProperty {
   _valueChanged() {
     this._block._modeChanged(this._value);
   }
 }
 
-export class BlockLengthControl extends BlockProperty {
+export class BlockLengthConfig extends BlockProperty {
   _valueChanged() {
     this._block._lengthChanged(this._value);
   }
 }
 
-export class BlockPriorityControl extends BlockProperty {
+export class BlockPriorityConfig extends BlockProperty {
   _valueChanged() {
     this._block._priorityChanged(this._value);
   }
 }
 
-export class BlockInputControl extends BlockProperty {
+export class BlockInputConfig extends BlockProperty {
 }
 
-export class BlockOutputControl extends BlockProperty {
+export class BlockOutputConfig extends BlockProperty {
 }
 
-export class BlockDoneControl extends BlockProperty {
+export class BlockDoneConfig extends BlockProperty {
   _valueChanged() {
     if (this._block instanceof Job) {
       this._block.onDone(this._value);
@@ -68,7 +68,7 @@ export class BlockDoneControl extends BlockProperty {
 }
 
 
-export class BlockReadOnlyControl extends BlockProperty {
+export class BlockReadOnlyConfig extends BlockProperty {
   constructor(block: Block, name: string, value?: any) {
     super(block, name);
     this._value = value;

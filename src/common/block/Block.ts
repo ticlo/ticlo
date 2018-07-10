@@ -1,16 +1,16 @@
 import {BlockProperty, BlockPropertyHelper, BlockIO} from "./BlockProperty";
 import {
-  BlockCallControl,
-  BlockClassControl,
-  BlockSyncControl,
-  BlockInputControl,
-  BlockDoneControl,
-  BlockLengthControl,
-  BlockModeControl,
-  BlockOutputControl,
-  BlockPriorityControl,
-  BlockReadOnlyControl
-} from "./BlockControls";
+  BlockCallConfig,
+  BlockClassConfig,
+  BlockSyncConfig,
+  BlockInputConfig,
+  BlockDoneConfig,
+  BlockLengthConfig,
+  BlockModeConfig,
+  BlockOutputConfig,
+  BlockPriorityConfig,
+  BlockReadOnlyConfig
+} from "./BlockConfigs";
 import {BlockBinding} from "./BlockBinding";
 import {Job, Root} from "./Job";
 import {FunctionData, BlockFunction, FunctionGenerator} from "./BlockFunction";
@@ -136,41 +136,41 @@ export class Block implements Runnable, FunctionData, Listener<FunctionGenerator
     if (firstChar === 35) {
       // # controls
       if (field === '##') { // parent
-        prop = new BlockReadOnlyControl(this, field, this._parent);
+        prop = new BlockReadOnlyConfig(this, field, this._parent);
       } else if (field === '###') { // job
-        prop = new BlockReadOnlyControl(this, field, this._job);
+        prop = new BlockReadOnlyConfig(this, field, this._job);
       } else if (field === '#') { // this
-        prop = new BlockReadOnlyControl(this, field, this);
+        prop = new BlockReadOnlyConfig(this, field, this);
       } else if (!create) {
         return null;
       } else {
         switch (field) {
           case '#is':
-            prop = new BlockClassControl(this, field);
+            prop = new BlockClassConfig(this, field);
             break;
           case '#mode':
-            prop = new BlockModeControl(this, field);
+            prop = new BlockModeConfig(this, field);
             break;
           case '#call':
-            prop = new BlockCallControl(this, field);
+            prop = new BlockCallConfig(this, field);
             break;
           case '#sync':
-            prop = new BlockSyncControl(this, field);
+            prop = new BlockSyncConfig(this, field);
             break;
           case '#length':
-            prop = new BlockLengthControl(this, field);
+            prop = new BlockLengthConfig(this, field);
             break;
           case '#input':
-            prop = new BlockInputControl(this, field);
+            prop = new BlockInputConfig(this, field);
             break;
           case '#output':
-            prop = new BlockOutputControl(this, field);
+            prop = new BlockOutputConfig(this, field);
             break;
           case '#done':
-            prop = new BlockDoneControl(this, field);
+            prop = new BlockDoneConfig(this, field);
             break;
           case '#priority':
-            prop = new BlockPriorityControl(this, field);
+            prop = new BlockPriorityConfig(this, field);
             break;
           default:
             prop = new BlockProperty(this, field);
