@@ -668,7 +668,7 @@ const blockProxy = {
       }
       return val;
     }
-    return null;
+    return undefined;
   },
 
   set(block: Block, field: string, value: any, receiver: object): boolean {
