@@ -4,7 +4,7 @@ import {
   BlockClassConfig,
   BlockSyncConfig,
   BlockInputConfig,
-  BlockDoneConfig,
+  BlockReadyConfig,
   BlockLengthConfig,
   BlockModeConfig,
   BlockOutputConfig,
@@ -28,8 +28,8 @@ export interface BlockChildWatch {
 }
 
 export interface Runnable {
-  _queued: boolean = false;
-  _queueToRun: boolean = false;
+  _queued: boolean;
+  _queueToRun: boolean;
 
   getPriority(): number;
 
@@ -69,11 +69,10 @@ export class Block implements Runnable, FunctionData, Listener<FunctionGenerator
 
   _proxy: object;
 
-  constructor(job: Job, parent: Block, prop: BlockProperty, temp?: boolean) {
+  constructor(job: Job, parent: Block, prop: BlockProperty) {
     this._job = job;
     this._parent = parent;
     this._prop = prop;
-    this._temp = temp;
     // #is should always be initialized
     this.getProperty('#is');
   }
@@ -163,8 +162,8 @@ export class Block implements Runnable, FunctionData, Listener<FunctionGenerator
           case '#output':
             prop = new BlockOutputConfig(this, field);
             break;
-          case '#done':
-            prop = new BlockDoneConfig(this, field);
+          case '#ready':
+            prop = new BlockReadyConfig(this, field);
             break;
           case '#priority':
             prop = new BlockPriorityConfig(this, field);
@@ -343,14 +342,14 @@ export class Block implements Runnable, FunctionData, Listener<FunctionGenerator
 
   createOutputBlock(field: string): Block {
     let prop = this.getProperty(field);
-    let block = new Block(this._job, this, prop, true);
+    let block = new Block(this._job, this, prop);
     prop.setOutput(block);
     return block;
   }
 
   createOutputJob(field: string, src?: DataMap, namespace?: string): Job {
     let prop = this.getProperty(field);
-    let job = new Job(this, this, prop, true);
+    let job = new Job(this, this, prop);
     prop.setOutput(job);
     if (src) {
       job._namespace = namespace;

@@ -59,10 +59,10 @@ export class BlockInputConfig extends BlockProperty {
 export class BlockOutputConfig extends BlockProperty {
 }
 
-export class BlockDoneConfig extends BlockProperty {
+export class BlockReadyConfig extends BlockProperty {
   _valueChanged() {
     if (this._block instanceof Job) {
-      this._block.onDone(this._value);
+      this._block.onReady(this._value);
     }
   }
 }

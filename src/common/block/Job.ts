@@ -15,8 +15,8 @@ export class Job extends Block {
 
   _outputObj: FunctionOutput;
 
-  constructor(parent: Block = Root.instance, output?: FunctionOutput, property?: BlockProperty, temp?: boolean) {
-    super(null, null, property, temp);
+  constructor(parent: Block = Root.instance, output?: FunctionOutput, property?: BlockProperty) {
+    super(null, null, property);
     this._job = this;
     this._parent = parent;
     this._outputObj = output;
@@ -51,7 +51,7 @@ export class Job extends Block {
     return false;
   }
 
-  onDone(val: any) {
+  onReady(val: any) {
     if (this._outputObj) {
       this._outputObj.emit(val);
     }
