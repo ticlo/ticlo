@@ -28,8 +28,8 @@ export interface BlockChildWatch {
 }
 
 export interface Runnable {
-  _queued: boolean;
-  _queueToRun: boolean;
+  _queued: boolean = false;
+  _queueToRun: boolean = false;
 
   getPriority(): number;
 
@@ -44,9 +44,6 @@ export class Block implements Runnable, FunctionData, Listener<FunctionGenerator
   }
 
   _blockId = Block.nextUid();
-
-  // temporary block wont be saved and cant be shown in the block editor UI
-  _temp: boolean;
 
   _job: Job;
   _parent: Block;
@@ -65,10 +62,10 @@ export class Block implements Runnable, FunctionData, Listener<FunctionGenerator
   _className: string;
   _class: Class;
 
-  _queued: boolean;
-  _queueToRun: boolean;
-  _running: boolean;
-  _destroyed: boolean;
+  _queued: boolean = false;
+  _queueToRun: boolean = false;
+  _running: boolean = false;
+  _destroyed: boolean = false;
 
   _proxy: object;
 

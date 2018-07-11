@@ -40,7 +40,7 @@ class ClientRequest extends ConnectionSend implements ClientCallbacks {
 }
 
 class MergedClientRequest extends ConnectionSend implements ClientCallbacks {
-  _hasUpdate: boolean;
+  _hasUpdate: boolean = false;
   _callbackSet: Set<ClientCallbacks> = new Set();
 
   constructor(data: DataMap, callbacks: ClientCallbacks) {

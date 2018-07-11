@@ -8,8 +8,8 @@ export class Resolver implements Runnable {
   }
 
   // as Runnable
-  _queued: boolean;
-  _queueToRun: boolean;
+  _queued: boolean = false;
+  _queueToRun: boolean = false;
 
   getPriority(): number {
     return 3;

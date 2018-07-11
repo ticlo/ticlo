@@ -225,7 +225,7 @@ export class BlockIO extends BlockProperty {
     }
   }
 
-  _outputing: boolean;
+  _outputing: boolean = false;
 
   // outputs the value but doesn't notify the function
   setOutput(val: any): boolean {
