@@ -157,6 +157,31 @@ describe("MapFunction", () => {
     job.setValue('a', 1);
 
     Root.run();
-    assert.isUndefined(bBlock.queryProperty('output').getValue(), 'clear output when source is no longer Object or Block');
+    assert.isUndefined(bBlock.queryProperty('output').getValue(), 'clear output when input is no longer Object or Block');
+  });
+
+  it('clear map src', () => {
+    let job = new Job();
+
+    let aBlock = job.createBlock('a');
+    let bBlock = job.createBlock('b');
+    aBlock._load({'v1': 1});
+    bBlock._load({
+      '#is': 'map',
+      '~input': '##.a',
+      'src': {
+        '#is': {
+          '#is': '',
+          '~#output': '#input'
+        }
+      }
+    });
+
+    Root.run();
+    assert.equal(bBlock.queryProperty('output.v1').getValue(), 1);
+
+    bBlock.setValue('src', null);
+    Root.run();
+    assert.isUndefined(bBlock.queryProperty('output').getValue(), 'clear output when src is invalid');
   });
 });

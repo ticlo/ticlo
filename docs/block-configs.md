@@ -9,7 +9,7 @@
 ### #mode
 **type**: 'always' | 'onChange' | 'onCall' | 'disabled' | null
 
-### Block Mode
+**Block Modes:**
 
 | | always | onChange | onCall | disabled |
 | :---: | :---: | :---: | :---: | :---: |

@@ -7,14 +7,16 @@ import {Job} from "../block/Job";
 import {DataMap, isSavedBlock} from "../util/Types";
 import {OutputFunction} from "./Output";
 import {Event} from "../block/Event";
+import {MapImpl} from "./MapImpl";
 
 export class MapFunction extends BlockFunction implements BlockChildWatch {
 
   _src: DataMap;
-  _srcChanged: boolean;
+  _srcChanged: boolean = false;
+  _onSourceChange!: (val: any) => boolean;
 
   _input: any;
-  _inputChanged: boolean;
+  _inputChanged: boolean = false;
   _watchedInput: Block;
 
   _funcBlock: Block;
@@ -47,21 +49,6 @@ export class MapFunction extends BlockFunction implements BlockChildWatch {
     return false;
   }
 
-  _onSourceChange(val: any): boolean {
-    // TODO allow string src for class name
-    if (isSavedBlock(val)) {
-      this._src = val;
-      this._srcChanged = true;
-      return true;
-    }
-    if (this._src) {
-      this._src = undefined;
-      this._srcChanged = true;
-      return true;
-    }
-    return false;
-  }
-
   run(data: FunctionData): any {
     if (!this._funcBlock) {
       this._funcBlock = (data as Block).createOutputBlock('#func');
@@ -76,15 +63,17 @@ export class MapFunction extends BlockFunction implements BlockChildWatch {
       // since input is changed
       this._clearWorkers();
     }
-    this._inputChanged = false;
-    // watch input when input changed or src changed
-    if (this._input != null) {
-      if (this._input instanceof Block) {
-        this._watchBlock(this._input);
-        return;
-      } else {
-        this._watchObject(this._input);
-        return;
+    if (this._src) {
+      this._inputChanged = false;
+      // watch input when input changed or src changed
+      if (this._input != null) {
+        if (this._input instanceof Block) {
+          this._watchBlock(this._input);
+          return;
+        } else {
+          this._watchObject(this._input);
+          return;
+        }
       }
     }
     this._removeOutputBlock();
@@ -215,6 +204,9 @@ export class MapFunction extends BlockFunction implements BlockChildWatch {
     this._funcBlock = null;
   }
 }
+
+// implements from MapImpl
+MapFunction.prototype._onSourceChange = MapImpl.prototype._onSourceChange;
 
 MapFunction.prototype.priority = 3;
 Classes.add('map', MapFunction);
