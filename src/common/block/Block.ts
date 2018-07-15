@@ -4,7 +4,7 @@ import {
   BlockClassConfig,
   BlockSyncConfig,
   BlockInputConfig,
-  BlockReadyConfig,
+  BlockWaitingConfig,
   BlockLengthConfig,
   BlockModeConfig,
   BlockOutputConfig,
@@ -16,7 +16,7 @@ import {Job, Root} from "./Job";
 import {FunctionData, BlockFunction, FunctionGenerator} from "./BlockFunction";
 import {Dispatcher, Listener, ValueDispatcher} from "./Dispatcher";
 import {Class, Classes} from "./Class";
-import {Event} from "./Event";
+import {Event, NOT_READY} from "./Event";
 import {DataMap} from "../util/Types";
 import {Uid} from "../util/Uid";
 import {voidProperty} from "./Void";
@@ -93,6 +93,23 @@ export class Block implements Runnable, FunctionData, Listener<FunctionGenerator
     }
   }
 
+  wait(val: any, emit?: any): void {
+    this.getProperty('#waiting').setOutput(val);
+    if (!val) {
+      // emit a value when it's no longer waiting
+      if (this._props['#emit']) {
+        if (emit === undefined) {
+          emit = new Event('asyncComplete');
+        }
+        this._props['#emit'].updateValue(emit);
+      }
+    }
+  }
+
+  onWait(val: any): void {
+    // to be overridden
+  }
+
   queryProperty(path: string, create: boolean = false): BlockProperty {
     return this._queryProperty(path.split('.'), create);
   }
@@ -163,7 +180,7 @@ export class Block implements Runnable, FunctionData, Listener<FunctionGenerator
             prop = new BlockOutputConfig(this, field);
             break;
           case '#ready':
-            prop = new BlockReadyConfig(this, field);
+            prop = new BlockWaitingConfig(this, field);
             break;
           case '#priority':
             prop = new BlockPriorityConfig(this, field);
@@ -381,8 +398,12 @@ export class Block implements Runnable, FunctionData, Listener<FunctionGenerator
       let result = this._function.run(this);
       this._running = false;
       if (this._props['#emit']) {
-        if (result == null) {
-          result = new Event('complete');
+        if (result === undefined) {
+          if (this.getValue('#waiting')) {
+            result = NOT_READY;
+          } else {
+            result = new Event('complete');
+          }
         }
         this._props['#emit'].updateValue(result);
       }

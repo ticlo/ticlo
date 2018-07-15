@@ -51,9 +51,9 @@ export class Job extends Block {
     return false;
   }
 
-  onReady(val: any) {
+  onWait(val: any) {
     if (this._outputObj) {
-      this._outputObj.emit(val);
+      this._outputObj.wait(val);
     }
   }
 

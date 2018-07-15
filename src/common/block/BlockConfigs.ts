@@ -1,4 +1,3 @@
-import {Job} from "./Job";
 import {Block} from "./Block";
 import {BlockProperty} from "./BlockProperty";
 
@@ -59,11 +58,9 @@ export class BlockInputConfig extends BlockProperty {
 export class BlockOutputConfig extends BlockProperty {
 }
 
-export class BlockReadyConfig extends BlockProperty {
+export class BlockWaitingConfig extends BlockProperty {
   _valueChanged() {
-    if (this._block instanceof Job) {
-      this._block.onReady(this._value);
-    }
+    this._block.onWait(this._value);
   }
 }
 

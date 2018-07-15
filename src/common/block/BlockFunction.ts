@@ -7,8 +7,9 @@ export interface FunctionOutput {
   // field is 'output' by default
   output(value: any, field?: string): void;
 
-  // dispatch a update event after async operation
-  emit(event?: any): void;
+  // notify the output if function is waiting for callback
+  // when waiting state is false, emit will be output to the #emit config
+  wait(val: any, emit?: any): void;
 }
 
 export interface FunctionInput {
