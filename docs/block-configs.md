@@ -40,6 +40,13 @@ Queue the block in the resolver to run it asynchronously, or run it instantly wh
 
 A temporary block maintained by the block function, block will always destroy the #func block when function changed
 
+### #waiting
+**type**: boolean
+indicate when the worker's task is finished and the output data is ready
+
+in MapObject and MapStream function, the #waiting config is used to determine if the current worker is ready and can be destroyed/reused
+
+
 ## Worker Configs
 
 these configs are only used in worker related functions
@@ -52,8 +59,4 @@ the input data of the worker
 **type**: any
 the output data of the worker
 
-### #ready
-**type**: trigger
-indicate when the worker's task is finished and the output data is ready
 
-required in MapObject and MapStream
