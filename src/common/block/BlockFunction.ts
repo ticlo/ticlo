@@ -1,6 +1,6 @@
 import {BlockIO, BlockProperty} from "./BlockProperty";
 import {FunctionDesc} from "./Descriptor";
-import {BlockMode} from "./Block";
+import {BlockMode, Block} from "./Block";
 import {Event} from "./Event";
 
 export interface FunctionOutput {
@@ -29,12 +29,12 @@ export interface FunctionData extends FunctionInput, FunctionOutput {
 }
 
 export class BlockFunction {
-  _data: FunctionData;
+  _data: Block;
   className: string;
   priority: number;
   defaultMode: BlockMode;
 
-  constructor(block: FunctionData) {
+  constructor(block: Block) {
     this._data = block;
   }
 

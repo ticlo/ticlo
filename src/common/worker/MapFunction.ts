@@ -82,7 +82,7 @@ export class MapFunction extends BlockFunction implements BlockChildWatch {
   onChildChange(property: BlockIO, saved?: boolean) {
     this._childChanges.add(property._name);
     if (this._childChanges.size === 1) {
-      (this._data as Block)._onCall(new Event('childChanged'));
+      this._data._onCall(new Event('childChanged'));
     }
   }
 
@@ -156,7 +156,7 @@ export class MapFunction extends BlockFunction implements BlockChildWatch {
   }
 
   _addWorker(key: string, input: any) {
-    let child = this._funcBlock.createOutputJob(key, this._src, (this._data as Block)._job._namespace);
+    let child = this._funcBlock.createOutputJob(key, this._src, this._data._job._namespace);
     this._workers[key] = child;
     child.updateValue('#input', input);
     this._outputBlock.setBinding(key, `##.#func.${key}.#output`);
@@ -164,7 +164,7 @@ export class MapFunction extends BlockFunction implements BlockChildWatch {
 
   _createOutputBlock() {
     if (!this._outputBlock) {
-      this._outputBlock = (this._data as Block).createOutputBlock('output');
+      this._outputBlock = this._data.createOutputBlock('output');
     }
   }
 
@@ -195,7 +195,7 @@ export class MapFunction extends BlockFunction implements BlockChildWatch {
 
   destroy(): void {
     this._clearWorkers();
-    if (!(this._data as Block)._destroyed) {
+    if (!this._data._destroyed) {
       if (this._outputBlock) {
         this._data.output(undefined, 'output');
       }
