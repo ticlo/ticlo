@@ -27,7 +27,7 @@ describe("AsyncFunction", () => {
     await block.getValue('@promise');
     assert.deepEqual(TestAsyncFunction.asyncLog, ['obj'], 'triggered');
 
-    block.setValue('obj', null);
+    job.setValue('obj', null);
   });
 
   it('cancel call', async () => {

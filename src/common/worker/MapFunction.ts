@@ -202,6 +202,7 @@ export class MapFunction extends BlockFunction implements BlockChildWatch {
     }
     this._outputBlock = null;
     this._funcBlock = null;
+    super.destroy();
   }
 }
 

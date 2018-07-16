@@ -61,6 +61,7 @@ export class TestAsyncFunction extends BlockFunction {
 
   destroy() {
     this.cancel();
+    super.destroy();
   }
 }
 

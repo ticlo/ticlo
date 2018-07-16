@@ -34,7 +34,7 @@ export class BlockFunction {
   priority: number;
   defaultMode: BlockMode;
 
-  constructor(block: Block) {
+  constructor(block?: Block) {
     this._data = block;
   }
 
@@ -60,7 +60,7 @@ export class BlockFunction {
   }
 
   destroy(): void {
-    // to be overridden
+    this._data = undefined;
   }
 
 }
