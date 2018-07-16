@@ -33,9 +33,9 @@ export class Event {
 
 
 export class ErrorEvent extends Event {
-  detail: string;
+  detail: any;
 
-  constructor(type: string = null, detail: string = null) {
+  constructor(type: string = null, detail?: any) {
     super(type);
     this.detail = detail;
   }

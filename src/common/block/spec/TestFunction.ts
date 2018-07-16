@@ -42,13 +42,12 @@ export class TestAsyncFunction extends BlockFunction {
       TestAsyncFunction.syncLog.push(data.getValue('@log'));
       this.timeOut = setTimeout(() => {
         TestAsyncFunction.asyncLog.push(data.getValue('@log'));
-        data.wait(undefined);
         resolve();
         this.timeOut = null;
       }, 1);
     });
     data.output(promise, '@promise');
-    data.wait(true);
+    return promise;
   }
 
   cancel() {

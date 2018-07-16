@@ -16,7 +16,7 @@ import {Job, Root} from "./Job";
 import {FunctionData, BlockFunction, FunctionGenerator} from "./BlockFunction";
 import {Dispatcher, Listener, ValueDispatcher} from "./Dispatcher";
 import {Class, Classes} from "./Class";
-import {Event, NOT_READY} from "./Event";
+import {ErrorEvent, Event, NOT_READY} from "./Event";
 import {DataMap} from "../util/Types";
 import {Uid} from "../util/Uid";
 import {voidProperty} from "./Void";
@@ -34,6 +34,41 @@ export interface Runnable {
   getPriority(): number;
 
   run(): void;
+}
+
+class PromiseWrapper {
+  _block: Block;
+  _done: any;
+
+  constructor(block: Block) {
+    this._block = block;
+  }
+
+  listen(promise: Promise<any>) {
+    this._block.output(true, '#waiting');
+    promise.then((val: any) => this.onResolve(val)).catch((reason: any) => this.onError(reason));
+  }
+
+  onResolve(val: any) {
+    if (this._block._funcPromise === this) {
+      if (val === undefined) {
+        this._block.output(new Event('complete'), '#emit');
+      } else {
+        this._block.output(val, '#emit');
+      }
+      this._block.output(undefined, '#waiting');
+      this._block._funcPromise = undefined;
+    }
+
+  }
+
+  onError(reason: any) {
+    if (this._block._funcPromise === this) {
+      this._block.output(new ErrorEvent('rejected', reason), '#emit');
+      this._block.output(undefined, '#waiting');
+      this._block._funcPromise = undefined;
+    }
+  }
 }
 
 export class Block implements Runnable, FunctionData, Listener<FunctionGenerator> {
@@ -59,11 +94,15 @@ export class Block implements Runnable, FunctionData, Listener<FunctionGenerator
   _ioProps: {[key: string]: BlockIO};
   _bindings: {[key: string]: BlockBinding} = {};
   _function: BlockFunction;
+  _funcPromise: PromiseWrapper;
   _className: string;
   _class: Class;
 
+  // queued in Resolver
   _queued: boolean = false;
+  // something to run, if equals to false, Resolve will skip the block
   _queueToRun: boolean = false;
+
   _running: boolean = false;
   _destroyed: boolean = false;
 
@@ -384,6 +423,7 @@ export class Block implements Runnable, FunctionData, Listener<FunctionGenerator
   cancel() {
     if (this._function) {
       this._function.cancel();
+      this._funcPromise = undefined;
     }
   }
 
@@ -399,11 +439,15 @@ export class Block implements Runnable, FunctionData, Listener<FunctionGenerator
       this._running = false;
       if (this._props['#emit']) {
         if (result === undefined) {
-          if (this.getValue('#waiting')) {
-            result = NOT_READY;
-          } else {
-            result = new Event('complete');
+          result = new Event('complete');
+        } else if (result.constructor === Promise) {
+          this._funcPromise = new PromiseWrapper(this);
+          this._funcPromise.listen(result);
+          if (this._funcPromise === null) {
+            // promise already done after listen;
+            return;
           }
+          result = NOT_READY;
         }
         this._props['#emit'].updateValue(result);
       }
@@ -562,6 +606,7 @@ export class Block implements Runnable, FunctionData, Listener<FunctionGenerator
   onChange(generator: FunctionGenerator): void {
     if (this._function) {
       this._function.destroy();
+      this._funcPromise = undefined;
       if (this._props.hasOwnProperty('#func')) {
         this._props['#func'].setValue(undefined);
       }
@@ -654,6 +699,7 @@ export class Block implements Runnable, FunctionData, Listener<FunctionGenerator
       if (this._function) {
         this._function.destroy();
         this._function = null;
+        this._funcPromise = undefined;
       }
       this._class.unlisten(this);
       this._class = null;

@@ -51,7 +51,12 @@ export class Job extends Block {
     return false;
   }
 
+
+  // whether job is waiting for unfinished work
+  _waiting: boolean = false;
+
   onWait(val: any) {
+    this._waiting = Boolean(val);
     if (this._outputObj) {
       this._outputObj.wait(val);
     }
