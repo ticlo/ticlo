@@ -93,7 +93,7 @@ export class MapFunction extends BlockFunction implements BlockChildWatch {
       let val = this._watchedInput.getValue(key);
       if (val !== undefined) {
         if (this._workers.hasOwnProperty(key)) {
-          this._workers[key].updateValue('#input', val);
+          this._workers[key].updateInput(val);
         } else {
           this._addWorker(key, val);
         }
@@ -119,7 +119,7 @@ export class MapFunction extends BlockFunction implements BlockChildWatch {
           continue;
         }
         if (oldWorkers.hasOwnProperty(key)) {
-          oldWorkers[key].updateValue('#input', input);
+          oldWorkers[key].updateInput(input);
           this._workers[key] = oldWorkers[key];
           delete oldWorkers[key];
         } else {
@@ -158,7 +158,7 @@ export class MapFunction extends BlockFunction implements BlockChildWatch {
   _addWorker(key: string, input: any) {
     let child = this._funcBlock.createOutputJob(key, this._src, this._data._job._namespace);
     this._workers[key] = child;
-    child.updateValue('#input', input);
+    child.updateInput(input);
     this._outputBlock.setBinding(key, `##.#func.${key}.#output`);
   }
 

@@ -11,7 +11,7 @@ export class WorkerFunction extends BlockFunction {
   _funcJob: Job;
   _src: DataMap;
 
-  constructor(block: FunctionData, data: DataMap) {
+  constructor(block: Block, data: DataMap) {
     super(block);
     this._src = data;
 
@@ -23,7 +23,7 @@ export class WorkerFunction extends BlockFunction {
 
   run(data: FunctionData): any {
     this._funcJob = (data as Block).createOutputJob('#func', this._src, this._namespace);
-    this._funcJob.updateValue('#input', data);
+    this._funcJob.updateInput(data);
   }
 
   static registerClass(className: string,
@@ -37,7 +37,7 @@ export class WorkerFunction extends BlockFunction {
     }
 
     class CustomWorkerFunction extends WorkerFunction {
-      constructor(block: FunctionData) {
+      constructor(block: Block) {
         super(block, data);
         this.priority = defaultPriority;
         this.defaultMode = defaultMode;

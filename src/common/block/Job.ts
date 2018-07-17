@@ -51,6 +51,14 @@ export class Job extends Block {
     return false;
   }
 
+  updateInput(val: any) {
+    let prop = this.getProperty('#input');
+    if (prop._value !== undefined) {
+      prop.updateValue(undefined);
+    }
+    prop.updateValue(val);
+  }
+
 
   // whether job is waiting for unfinished work
   _waiting: boolean = false;
