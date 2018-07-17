@@ -45,18 +45,18 @@ class PromiseWrapper {
   }
 
   listen(promise: Promise<any>) {
-    this._block.output(true, '#waiting');
+    this._block.updateValue('#waiting', true);
     promise.then((val: any) => this.onResolve(val)).catch((reason: any) => this.onError(reason));
   }
 
   onResolve(val: any) {
     if (this._block._funcPromise === this) {
       if (val === undefined) {
-        this._block.output(new Event('complete'), '#emit');
+        this._block.updateValue('#emit', new Event('complete'));
       } else {
-        this._block.output(val, '#emit');
+        this._block.updateValue('#emit', val);
       }
-      this._block.output(undefined, '#waiting');
+      this._block.updateValue('#waiting', undefined);
       this._block._funcPromise = undefined;
     }
 
@@ -64,8 +64,8 @@ class PromiseWrapper {
 
   onError(reason: any) {
     if (this._block._funcPromise === this) {
-      this._block.output(new ErrorEvent('rejected', reason), '#emit');
-      this._block.output(undefined, '#waiting');
+      this._block.updateValue('#emit', new ErrorEvent('rejected', reason));
+      this._block.updateValue('#waiting', undefined);
       this._block._funcPromise = undefined;
     }
   }
