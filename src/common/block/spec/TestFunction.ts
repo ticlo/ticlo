@@ -21,16 +21,19 @@ export class TestFunctionRunner extends BlockFunction {
 
 Classes.add('test-runner', TestFunctionRunner);
 
-
-export class TestAsyncFunction extends BlockFunction {
-
+export class TestAsyncFunctionLog {
   static syncLog: any[] = [];
   static asyncLog: any[] = [];
 
   static clearLog() {
-    TestAsyncFunction.syncLog.length = 0;
-    TestAsyncFunction.asyncLog.length = 0;
+    TestAsyncFunctionLog.syncLog.length = 0;
+    TestAsyncFunctionLog.asyncLog.length = 0;
   }
+
+}
+
+// async function that returns Promise
+export class TestAsyncFunctionPromise extends BlockFunction {
 
   timeOut: any;
   reject: Function;
@@ -39,9 +42,9 @@ export class TestAsyncFunction extends BlockFunction {
     this.cancel();
     let promise = new Promise((resolve, reject) => {
       this.reject = reject;
-      TestAsyncFunction.syncLog.push(this._data.getValue('@log'));
+      TestAsyncFunctionLog.syncLog.push(this._data.getValue('@log'));
       this.timeOut = setTimeout(() => {
-        TestAsyncFunction.asyncLog.push(this._data.getValue('@log'));
+        TestAsyncFunctionLog.asyncLog.push(this._data.getValue('@log'));
         resolve();
         this.timeOut = null;
       }, 1);
@@ -64,8 +67,34 @@ export class TestAsyncFunction extends BlockFunction {
   }
 }
 
+TestAsyncFunctionPromise.prototype.defaultMode = 'onCall';
+Classes.add('async-function-promise', TestAsyncFunctionPromise);
 
-export const voidListeners = {
+
+// async function that manually call block.wait, and return NOT_READY
+export class TestAsyncFunctionManual extends TestAsyncFunctionPromise {
+  run(): any {
+    this.cancel();
+    let promise = new Promise((resolve, reject) => {
+      this.reject = reject;
+      TestAsyncFunctionLog.syncLog.push(this._data.getValue('@log'));
+      this.timeOut = setTimeout(() => {
+        TestAsyncFunctionLog.asyncLog.push(this._data.getValue('@log'));
+        resolve();
+        this.timeOut = null;
+        this._data.wait(false);
+      }, 1);
+    });
+    this._data.updateValue('@promise', promise);
+    this._data.wait(true);
+    return NOT_READY;
+  }
+}
+
+TestAsyncFunctionManual.prototype.defaultMode = 'onCall';
+Classes.add('async-function-manual', TestAsyncFunctionManual);
+
+export const VoidListeners = {
   onSourceChange(prop: Dispatcher<any>) {
     /* istanbul ignore next */
     throw new Error('should not be called');
@@ -83,7 +112,3 @@ export const voidListeners = {
     throw new Error('should not be called');
   }
 };
-
-TestAsyncFunction.prototype.defaultMode = 'onCall';
-
-Classes.add('async-function', TestAsyncFunction);

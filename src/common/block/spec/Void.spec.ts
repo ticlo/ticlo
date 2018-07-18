@@ -4,7 +4,7 @@ import {voidProperty} from "../Void";
 import {Job} from "../Job";
 import {BlockPropertyEvent} from "../BlockProperty";
 import {Dispatcher} from "../Dispatcher";
-import {voidListeners} from "./TestFunction";
+import {VoidListeners} from "./TestFunction";
 
 describe("VoidProperty", () => {
 
@@ -16,10 +16,10 @@ describe("VoidProperty", () => {
     voidProperty.setBinding('a');
     assert.isUndefined(voidProperty.getValue(), 'void property never change value');
 
-    voidProperty.listen(voidListeners);
+    voidProperty.listen(VoidListeners);
     assert.isEmpty(voidProperty._listeners, 'void property wont listen');
 
-    voidProperty.subscribe(voidListeners);
+    voidProperty.subscribe(VoidListeners);
     assert.isUndefined(voidProperty._subscribers, 'void property wont subscribe');
 
     assert.throw(() => voidProperty._save(), 'Can not save destroyed property');
