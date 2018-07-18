@@ -14,8 +14,8 @@ export class TestFunctionRunner extends BlockFunction {
     TestFunctionRunner.logs.length = 0;
   }
 
-  run(data: FunctionData): any {
-    TestFunctionRunner.logs.push(data.getValue('@log'));
+  run(): any {
+    TestFunctionRunner.logs.push(this._data.getValue('@log'));
   }
 }
 
@@ -35,13 +35,13 @@ export class TestAsyncFunction extends BlockFunction {
   timeOut: any;
   reject: Function;
 
-  run(data: FunctionData): any {
+  run(): any {
     this.cancel();
     let promise = new Promise((resolve, reject) => {
       this.reject = reject;
-      TestAsyncFunction.syncLog.push(data.getValue('@log'));
+      TestAsyncFunction.syncLog.push(this._data.getValue('@log'));
       this.timeOut = setTimeout(() => {
-        TestAsyncFunction.asyncLog.push(data.getValue('@log'));
+        TestAsyncFunction.asyncLog.push(this._data.getValue('@log'));
         resolve();
         this.timeOut = null;
       }, 1);

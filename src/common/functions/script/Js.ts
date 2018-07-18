@@ -27,10 +27,10 @@ export class JsFunction extends BlockFunction {
     return true;
   }
 
-  run(data: FunctionData): any {
+  run(): any {
     if (this._runFunction == null) {
       if (this._compiledFunction == null) {
-        let script = data.getValue('script');
+        let script = this._data.getValue('script');
         if (typeof script === 'string') {
           try {
             this._compiledFunction = new Function(script);

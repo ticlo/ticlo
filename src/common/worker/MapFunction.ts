@@ -49,9 +49,9 @@ export class MapFunction extends BlockFunction implements BlockChildWatch {
     return false;
   }
 
-  run(data: FunctionData): any {
+  run(): any {
     if (!this._funcBlock) {
-      this._funcBlock = (data as Block).createOutputBlock('#func');
+      this._funcBlock = this._data.createOutputBlock('#func');
     }
     if (this._srcChanged) {
       this._clearWorkers();

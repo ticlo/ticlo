@@ -21,9 +21,9 @@ export class WorkerFunction extends BlockFunction {
     return false;
   }
 
-  run(data: FunctionData): any {
-    this._funcJob = (data as Block).createOutputJob('#func', this._src, this._namespace);
-    this._funcJob.updateInput(data);
+  run(): any {
+    this._funcJob = this._data.createOutputJob('#func', this._src, this._namespace);
+    this._funcJob.updateInput(this._data);
   }
 
   static registerClass(className: string,

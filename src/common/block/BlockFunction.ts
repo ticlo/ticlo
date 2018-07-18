@@ -44,7 +44,7 @@ export class BlockFunction {
   }
 
   // return stream output
-  run(data: FunctionData): any {
+  run(): any {
     // to be overridden
   }
 

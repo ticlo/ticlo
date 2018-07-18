@@ -428,7 +428,7 @@ export class Block implements Runnable, FunctionData, Listener<FunctionGenerator
 
     if (this._function) {
       this._running = true;
-      let result = this._function.run(this);
+      let result = this._function.run();
       this._running = false;
       if (this._props['#emit']) {
         if (result === undefined) {
@@ -468,7 +468,7 @@ export class Block implements Runnable, FunctionData, Listener<FunctionGenerator
     }
     this._configMode();
     if (this._callOnLoad && this._function != null) {
-      this._function.run(this);
+      this._function.run();
     }
   }
 
