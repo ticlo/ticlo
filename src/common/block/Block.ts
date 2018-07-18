@@ -116,13 +116,6 @@ export class Block implements Runnable, FunctionData, Listener<FunctionGenerator
     this.getProperty('#is');
   }
 
-  getRawObject(): any {
-    if (!this._proxy) {
-      this._proxy = new Proxy(this, blockProxy);
-    }
-    return this._proxy;
-  }
-
   emit(event?: any) {
     if (this._props['#emit']) {
       if (!event) {
@@ -671,15 +664,19 @@ export class Block implements Runnable, FunctionData, Listener<FunctionGenerator
     }
   }
 
+  _initIoCache() {
+    this._ioProps = {};
+    for (let field in this._props) {
+      let prop = this._props[field];
+      if (prop instanceof BlockIO) {
+        this._ioProps[field] = prop;
+      }
+    }
+  }
+
   forEach(callback: (field: string, prop: BlockIO) => void) {
     if (!this._ioProps) {
-      this._ioProps = {};
-      for (let field in this._props) {
-        let prop = this._props[field];
-        if (prop instanceof BlockIO) {
-          this._ioProps[field] = prop;
-        }
-      }
+      this._initIoCache();
     }
     for (let field in this._ioProps) {
       let prop = this._ioProps[field];
@@ -688,7 +685,6 @@ export class Block implements Runnable, FunctionData, Listener<FunctionGenerator
       }
     }
   }
-
 
   destroy(): void {
     if (this._destroyed) {
@@ -721,22 +717,4 @@ export class Block implements Runnable, FunctionData, Listener<FunctionGenerator
   }
 }
 
-const blockProxy = {
-  get(block: Block, field: string, receiver: object): any {
-    let prop = block._props[field];
-    if (prop) {
-      let val = prop._value;
-      if (val instanceof Block) {
-        return prop._value.getProxy();
-      }
-      return val;
-    }
-    return undefined;
-  },
 
-  set(block: Block, field: string, value: any, receiver: object): boolean {
-    let prop = block.getProperty(field);
-    prop.updateValue(value);
-    return true;
-  }
-};

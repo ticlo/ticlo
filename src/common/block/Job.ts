@@ -51,9 +51,10 @@ export class Job extends Block {
     return false;
   }
 
-  updateInput(val: any) {
+  // make sure the input triggers a change
+  updateInput(val: any, forceUpdate: boolean = false) {
     let prop = this.getProperty('#input');
-    if (prop._value !== undefined) {
+    if (forceUpdate && Object.is(val, prop._value)) {
       prop.updateValue(undefined);
     }
     prop.updateValue(val);

@@ -2,7 +2,8 @@ import {Classes} from "../../block/Class";
 import {BlockFunction, FunctionData} from "../../block/BlockFunction";
 import {BlockIO, BlockProperty} from "../../block/BlockProperty";
 import {ErrorEvent} from "../../block/Event";
-import {BlockMode} from "../../block/Block";
+import {Block, BlockMode} from "../../block/Block";
+import {BlockDeepProxy} from "../../block/BlockProxy";
 
 const SCRIPT_ERROR = 'scriptError';
 
@@ -11,6 +12,12 @@ export class JsFunction extends BlockFunction {
   _compiledFunction: Function;
   _runFunction: Function;
 
+  _proxy: object;
+
+  constructor(block: Block) {
+    super(block);
+    this._proxy = new Proxy(block, BlockDeepProxy);
+  }
 
   inputChanged(input: BlockIO, val: any): boolean {
     if (input._name === 'script') {
@@ -36,7 +43,7 @@ export class JsFunction extends BlockFunction {
       }
       let rslt;
       try {
-        rslt = this._compiledFunction.apply(data.getRawObject());
+        rslt = this._compiledFunction.apply(this._proxy);
       } catch (err) {
         this._compiledFunction = null;
         return new ErrorEvent(SCRIPT_ERROR, err.toString());
@@ -51,7 +58,7 @@ export class JsFunction extends BlockFunction {
     }
     let rslt: any;
     try {
-      rslt = this._runFunction.apply(data.getRawObject());
+      rslt = this._runFunction.apply(this._proxy);
     } catch (err) {
       return new ErrorEvent(SCRIPT_ERROR, err.toString());
     }
@@ -66,7 +73,7 @@ export class JsFunction extends BlockFunction {
       let compiledFunction = new Function(script);
 
       class CustomScriptFunction extends JsFunction {
-        constructor(block: FunctionData) {
+        constructor(block: Block) {
           super(block);
           this._compiledFunction = compiledFunction;
           this.priority = defaultPriority;

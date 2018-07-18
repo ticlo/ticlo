@@ -142,7 +142,8 @@
       true,
       "ban-keywords",
       "check-format",
-      "allow-leading-underscore"
+      "allow-leading-underscore",
+      "allow-pascal-case"
     ],
     "arrow-parens": false,
     "arrow-return-shorthand": false,
