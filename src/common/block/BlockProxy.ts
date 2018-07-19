@@ -2,12 +2,6 @@ import {Block} from "./Block";
 import {BlockReadOnlyConfig} from "./BlockConfigs";
 import {BlockIO} from "./BlockProperty";
 
-
-function hasOwnProperty(field: string): boolean {
-  let prop = (this as Block).getProperty(field, false);
-  return (prop && prop._value !== undefined);
-}
-
 export const BlockProxy = {
   get(block: Block, field: string, receiver: object): any {
     let prop = block._props[field];
