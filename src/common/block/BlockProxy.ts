@@ -1,5 +1,12 @@
 import {Block} from "./Block";
+import {BlockReadOnlyConfig} from "./BlockConfigs";
+import {BlockIO} from "./BlockProperty";
 
+
+function hasOwnProperty(field: string): boolean {
+  let prop = (this as Block).getProperty(field, false);
+  return (prop && prop._value !== undefined);
+}
 
 export const BlockProxy = {
   get(block: Block, field: string, receiver: object): any {
@@ -24,13 +31,28 @@ export const BlockProxy = {
     if (!block._ioProps) {
       block._initIoCache();
     }
-    for (let field in this._ioProps) {
-      let prop = this._ioProps[field];
+    for (let field in block._ioProps) {
+      let prop = block._ioProps[field];
       if (prop._value !== undefined) {
         result.push(field);
       }
     }
     return result;
+  },
+  isExtensible(block: Block) {
+    return true;
+  },
+  has(block: Block, field: string): boolean {
+    let prop = block.getProperty(field, false);
+    return (prop && prop._value !== undefined);
+  },
+  getOwnPropertyDescriptor(block: Block, field: string): PropertyDescriptor | undefined {
+    let prop = block.getProperty(field, false);
+    if (prop && prop._value !== undefined) {
+      let isIOProp = prop instanceof BlockIO;
+      return {writable: !(prop instanceof BlockReadOnlyConfig), enumerable: isIOProp, configurable: isIOProp};
+    }
+    return undefined;
   }
 };
 
@@ -38,11 +60,11 @@ export const BlockDeepProxy = {
   ...BlockProxy,
 
   get(block: Block, field: string, receiver: object): any {
-    let prop = block._props[field];
+    let prop = block.getProperty(field, false);
     if (prop) {
       let val = prop._value;
       if (val instanceof Block) {
-        return prop._value.getProxy();
+        return new Proxy(prop._value, BlockDeepProxy);
       }
       return val;
     }

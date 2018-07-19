@@ -66,7 +66,7 @@ describe("MapFunction", () => {
     assert.equal(cBlock.queryProperty('output.obj2.v').getValue(), -6, 'Map chain src changed');
     assert.equal(cBlock.queryProperty('output.obj3.v').getValue(), -4, 'Map chain src changed on child Object');
 
-    aBlock.setValue('obj2', undefined);
+    aBlock.deleteValue('obj2');
     let obj4 = aBlock.createBlock('obj4');
     obj4.setValue('v', 4);
     aBlock.updateValue('obj5', {'v': 5});
@@ -147,7 +147,7 @@ describe("MapFunction", () => {
     assert.equal(bBlock.queryProperty('output.v1').getValue(), 2);
 
     aBlock.setValue('v3', 3);
-    aBlock.setValue('v1', undefined);
+    aBlock.deleteValue('v1');
 
     Root.run();
     assert.isUndefined(bBlock.queryProperty('output.v1').getValue());

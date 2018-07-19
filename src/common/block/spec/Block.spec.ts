@@ -54,7 +54,7 @@ describe("Block", () => {
 
     assert.equal(block2.getValue('c'), block1c, 'setup binding chain');
 
-    job.updateValue('block1', undefined);
+    job.deleteValue('block1');
 
     assert.equal(block2.getValue('c'), undefined, 'destroy binding chain');
   });

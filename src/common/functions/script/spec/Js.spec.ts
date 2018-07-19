@@ -1,6 +1,6 @@
 import {assert} from "chai";
-import {JsFunction} from "../Js";
 import {Job, Root} from "../../../block/Job";
+import {JsFunction} from "../Js";
 import {Block} from "../../../block/Block";
 import {Classes} from "../../../block/Class";
 

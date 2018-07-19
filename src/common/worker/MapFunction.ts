@@ -129,7 +129,7 @@ export class MapFunction extends BlockFunction implements BlockChildWatch {
       for (let key in oldWorkers) {
         oldWorkers[key].destroy();
         this._funcBlock.output(undefined, key);
-        this._outputBlock.setValue(key, undefined);
+        this._outputBlock.deleteValue(key);
       }
     } else {
       this._workers = {};
@@ -152,7 +152,7 @@ export class MapFunction extends BlockFunction implements BlockChildWatch {
 
   _removeWorker(key: string) {
     this._funcBlock.output(undefined, key);
-    this._outputBlock.setValue(key, undefined);
+    this._outputBlock.deleteValue(key);
   }
 
   _addWorker(key: string, input: any) {

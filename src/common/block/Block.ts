@@ -367,6 +367,13 @@ export class Block implements Runnable, FunctionData, Listener<FunctionGenerator
     this.getProperty(field).setOutput(val);
   }
 
+  deleteValue(field: string): void {
+    let prop = this.getProperty(field, false);
+    if (prop) {
+      return prop.setValue(undefined);
+    }
+  }
+
   setBinding(field: string, path: string): void {
     this.getProperty(field).setBinding(path);
   }
@@ -600,9 +607,7 @@ export class Block implements Runnable, FunctionData, Listener<FunctionGenerator
     if (this._function) {
       this._function.destroy();
       this._funcPromise = undefined;
-      if (this._props.hasOwnProperty('#func')) {
-        this._props['#func'].setValue(undefined);
-      }
+      this.deleteValue('#func');
     }
     if (generator) {
       if (this._job._loading && generator !== this._pendingGenerator) {
