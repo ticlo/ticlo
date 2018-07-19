@@ -1,5 +1,5 @@
 import {Block} from "./Block";
-import {BlockFunction, FunctionGenerator} from "./BlockFunction";
+import {FunctionGenerator} from "./BlockFunction";
 import {ValueDispatcher} from "./Dispatcher";
 
 

@@ -26,7 +26,50 @@ export interface FunctionData extends FunctionInput, FunctionOutput {
 
 }
 
-export class BlockFunction {
+export class BaseFunction {
+  _data: FunctionData;
+  className: string;
+  priority: number;
+  defaultMode: BlockMode;
+
+  constructor(block?: FunctionData) {
+    this._data = block;
+  }
+
+  descriptor: FunctionDesc;
+
+  // return true when it needs to be put in queue
+  inputChanged(input: BlockIO, val: any): boolean {
+    return true;
+  }
+
+  // return stream output
+  run(): any {
+    // to be overridden
+  }
+
+  // cancel any async operation
+  cancel(): void {
+    // to be overridden
+  }
+
+  blockCommand(command: string, params: {[key: string]: any}): void {
+    // to be overridden
+  }
+
+  destroy(): void {
+    this._data = undefined;
+  }
+}
+
+BaseFunction.prototype.priority = 0;
+BaseFunction.prototype.defaultMode = 'always';
+BaseFunction.prototype.descriptor = {
+  inputs: [], outputs: [], attributes: [],
+};
+
+
+export class BlockFunction implements BaseFunction {
   _data: Block;
   className: string;
   priority: number;
@@ -63,10 +106,10 @@ export class BlockFunction {
 
 }
 
-BlockFunction.prototype.priority = 0;
+BlockFunction.prototype.priority = 1;
 BlockFunction.prototype.defaultMode = 'always';
 BlockFunction.prototype.descriptor = {
   inputs: [], outputs: [], attributes: [],
 };
 
-export type FunctionGenerator = new (block: FunctionData) => BlockFunction;
+export type FunctionGenerator = new (block: FunctionData) => BaseFunction;

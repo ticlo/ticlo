@@ -1,12 +1,12 @@
 import {Classes} from "../Class";
-import {BlockFunction, FunctionData} from "../BlockFunction";
+import {BaseFunction, FunctionData} from "../BlockFunction";
 import {BlockIO, BlockPropertyEvent} from "../BlockProperty";
 import {NOT_READY} from "../Event";
 import {Dispatcher} from "../Dispatcher";
 import {Block} from "../Block";
 
 
-export class TestFunctionRunner extends BlockFunction {
+export class TestFunctionRunner extends BaseFunction {
 
   static logs: any[] = [];
 
@@ -33,7 +33,7 @@ export class TestAsyncFunctionLog {
 }
 
 // async function that returns Promise
-export class TestAsyncFunctionPromise extends BlockFunction {
+export class TestAsyncFunctionPromise extends BaseFunction {
 
   timeOut: any;
   reject: Function;
@@ -49,7 +49,7 @@ export class TestAsyncFunctionPromise extends BlockFunction {
         this.timeOut = null;
       }, 1);
     });
-    this._data.updateValue('@promise', promise);
+    this._data.output(promise, '@promise');
     return promise;
   }
 
@@ -85,7 +85,7 @@ export class TestAsyncFunctionManual extends TestAsyncFunctionPromise {
         this._data.wait(false);
       }, 1);
     });
-    this._data.updateValue('@promise', promise);
+    this._data.output(promise, '@promise');
     this._data.wait(true);
     return NOT_READY;
   }

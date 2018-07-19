@@ -13,7 +13,7 @@ import {
 } from "./BlockConfigs";
 import {BlockBinding} from "./BlockBinding";
 import {Job, Root} from "./Job";
-import {FunctionData, BlockFunction, FunctionGenerator} from "./BlockFunction";
+import {FunctionData, FunctionGenerator, BaseFunction} from "./BlockFunction";
 import {Dispatcher, Listener, ValueDispatcher} from "./Dispatcher";
 import {Class, Classes} from "./Class";
 import {ErrorEvent, Event, NOT_READY} from "./Event";
@@ -93,7 +93,7 @@ export class Block implements Runnable, FunctionData, Listener<FunctionGenerator
   // a cache for blockIO, generated on demand
   _ioProps: {[key: string]: BlockIO};
   _bindings: {[key: string]: BlockBinding} = {};
-  _function: BlockFunction;
+  _function: BaseFunction;
   _funcPromise: PromiseWrapper;
   _className: string;
   _class: Class;
