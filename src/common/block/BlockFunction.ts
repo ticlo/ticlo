@@ -68,6 +68,7 @@ BaseFunction.prototype.descriptor = {
   inputs: [], outputs: [], attributes: [],
 };
 
+export const PureFunction = BaseFunction;
 
 export class BlockFunction implements BaseFunction {
   _data: Block;
