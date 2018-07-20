@@ -2,6 +2,8 @@ import {Block} from "./Block";
 import {BlockReadOnlyConfig} from "./BlockConfigs";
 import {BlockIO} from "./BlockProperty";
 
+const defaultPropertyDescriptor = {writable: true, enumerable: true, configurable: true};
+
 export const BlockProxy = {
   get(block: Block, field: string, receiver: object): any {
     let prop = block._props[field];
@@ -41,12 +43,7 @@ export const BlockProxy = {
     return (prop && prop._value !== undefined);
   },
   getOwnPropertyDescriptor(block: Block, field: string): PropertyDescriptor | undefined {
-    let prop = block.getProperty(field, false);
-    if (prop && prop._value !== undefined) {
-      let isIOProp = prop instanceof BlockIO;
-      return {writable: !(prop instanceof BlockReadOnlyConfig), enumerable: isIOProp, configurable: isIOProp};
-    }
-    return undefined;
+    return defaultPropertyDescriptor;
   }
 };
 
