@@ -121,15 +121,18 @@ export class MapFunction extends BlockFunction implements BlockChildWatch {
         if (oldWorkers.hasOwnProperty(key)) {
           oldWorkers[key].updateInput(input);
           this._workers[key] = oldWorkers[key];
-          delete oldWorkers[key];
+          oldWorkers[key] = undefined;
         } else {
           this._addWorker(key, input);
         }
       }
       for (let key in oldWorkers) {
-        oldWorkers[key].destroy();
-        this._funcBlock.output(undefined, key);
-        this._outputBlock.deleteValue(key);
+        let oldWorker = oldWorkers[key];
+        if (oldWorker) {
+          oldWorker.destroy();
+          this._funcBlock.deleteValue(key);
+          this._outputBlock.deleteValue(key);
+        }
       }
     } else {
       this._workers = {};
@@ -151,7 +154,7 @@ export class MapFunction extends BlockFunction implements BlockChildWatch {
   }
 
   _removeWorker(key: string) {
-    this._funcBlock.output(undefined, key);
+    this._funcBlock.deleteValue(key);
     this._outputBlock.deleteValue(key);
   }
 
@@ -170,7 +173,7 @@ export class MapFunction extends BlockFunction implements BlockChildWatch {
 
   _removeOutputBlock() {
     if (this._outputBlock) {
-      this._data.output(undefined, 'output');
+      this._data.deleteValue('output');
       this._outputBlock = null;
     }
   }
@@ -197,7 +200,7 @@ export class MapFunction extends BlockFunction implements BlockChildWatch {
     this._clearWorkers();
     if (!this._data._destroyed) {
       if (this._outputBlock) {
-        this._data.output(undefined, 'output');
+        this._data.deleteValue('output');
       }
     }
     this._outputBlock = null;
