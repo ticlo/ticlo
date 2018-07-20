@@ -1,5 +1,5 @@
 import {assert} from "chai";
-import {Job} from "../Job";
+import {Job, Root} from "../Job";
 import {BlockDeepProxy} from "../BlockProxy";
 
 describe("BlockProxy", () => {
@@ -28,5 +28,20 @@ describe("BlockProxy", () => {
     }
     keys.sort();
     assert.deepEqual(keys, ['v2', 'v4']);
+
+    job.deleteValue('b');
+
+    // block is destroyed
+    // Proxy should act like an empty Object
+
+    let keepStrictMode = Root.instance._strictMode;
+    Root.instance._strictMode = false;
+
+    assert.equal(b['###'], undefined, 'destroyed block should clear proxy');
+    b.v2 = 22;
+    assert.equal(b.v2, undefined);
+    assert.deepEqual(Object.keys(b), []);
+
+    Root.instance._strictMode = keepStrictMode;
   });
 });
