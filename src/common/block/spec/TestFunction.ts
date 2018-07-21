@@ -1,5 +1,5 @@
 import {Classes} from "../Class";
-import {BaseFunction, FunctionData} from "../BlockFunction";
+import {BaseFunction, BlockFunction, FunctionData, PureFunction} from "../BlockFunction";
 import {BlockIO, BlockPropertyEvent} from "../BlockProperty";
 import {NOT_READY} from "../Event";
 import {Dispatcher} from "../Dispatcher";
@@ -33,8 +33,7 @@ export class TestAsyncFunctionLog {
 }
 
 // async function that returns Promise
-export class TestAsyncFunctionPromise extends BaseFunction {
-
+export class TestAsyncFunctionPromise extends PureFunction {
   timeOut: any;
   reject: Function;
 
@@ -72,7 +71,10 @@ Classes.add('async-function-promise', TestAsyncFunctionPromise);
 
 
 // async function that manually call block.wait, and return NOT_READY
-export class TestAsyncFunctionManual extends TestAsyncFunctionPromise {
+export class TestAsyncFunctionManual extends BlockFunction {
+  timeOut: any;
+  reject: Function;
+
   run(): any {
     this.cancel();
     let promise = new Promise((resolve, reject) => {
@@ -88,6 +90,19 @@ export class TestAsyncFunctionManual extends TestAsyncFunctionPromise {
     this._data.output(promise, '@promise');
     this._data.wait(true);
     return NOT_READY;
+  }
+
+  cancel() {
+    if (this.timeOut) {
+      clearTimeout(this.timeOut);
+      this.timeOut = null;
+      this.reject(new Error());
+    }
+  }
+
+  destroy() {
+    this.cancel();
+    super.destroy();
   }
 }
 

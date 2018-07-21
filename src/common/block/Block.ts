@@ -13,7 +13,7 @@ import {
 } from "./BlockConfigs";
 import {BlockBinding} from "./BlockBinding";
 import {Job, Root} from "./Job";
-import {FunctionData, FunctionGenerator, BaseFunction} from "./BlockFunction";
+import {FunctionData, FunctionGenerator, BaseFunction, FunctionOutput, JobOutput} from "./BlockFunction";
 import {Dispatcher, Listener, ValueDispatcher} from "./Dispatcher";
 import {Class, Classes} from "./Class";
 import {ErrorEvent, Event, NOT_READY} from "./Event";
@@ -403,9 +403,9 @@ export class Block implements Runnable, FunctionData, Listener<FunctionGenerator
     return block;
   }
 
-  createOutputJob(field: string, src?: DataMap, namespace?: string): Job {
+  createOutputJob(field: string, src?: DataMap, output?: JobOutput, namespace?: string): Job {
     let prop = this.getProperty(field);
-    let job = new Job(this, this, prop);
+    let job = new Job(this, output, prop);
     prop.setOutput(job);
     if (src) {
       job._namespace = namespace;

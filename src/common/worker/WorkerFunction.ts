@@ -22,7 +22,7 @@ export class WorkerFunction extends BlockFunction {
   }
 
   run(): any {
-    this._funcJob = this._data.createOutputJob('#func', this._src, this._namespace);
+    this._funcJob = this._data.createOutputJob('#func', this._src, this._data, this._namespace);
     this._funcJob.updateInput(this._data);
   }
 

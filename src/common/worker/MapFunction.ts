@@ -159,7 +159,7 @@ export class MapFunction extends BlockFunction implements BlockChildWatch {
   }
 
   _addWorker(key: string, input: any) {
-    let child = this._funcBlock.createOutputJob(key, this._src, this._data._job._namespace);
+    let child = this._funcBlock.createOutputJob(key, this._src, null, this._data._job._namespace);
     this._workers[key] = child;
     child.updateInput(input);
     this._outputBlock.setBinding(key, `##.#func.${key}.#output`);

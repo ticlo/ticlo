@@ -1,7 +1,7 @@
 import {Block, Runnable} from "./Block";
 import {BlockIO, BlockProperty} from "./BlockProperty";
 import {Resolver} from "./Resolver";
-import {FunctionOutput} from "./BlockFunction";
+import {FunctionOutput, JobOutput} from "./BlockFunction";
 
 
 export class Job extends Block {
@@ -13,9 +13,9 @@ export class Job extends Block {
   _enabled: boolean = true;
   _loading: boolean = false;
 
-  _outputObj: FunctionOutput;
+  _outputObj?: JobOutput;
 
-  constructor(parent: Block = Root.instance, output?: FunctionOutput, property?: BlockProperty) {
+  constructor(parent: Block = Root.instance, output?: JobOutput, property?: BlockProperty) {
     super(null, null, property);
     this._job = this;
     this._parent = parent;
