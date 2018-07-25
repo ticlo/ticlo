@@ -23,7 +23,7 @@ export interface FunctionData extends FunctionInput, FunctionOutput {
 export interface JobOutput extends FunctionOutput {
   // notify the output if function is waiting for callback
   // when waiting state is false, emit will be output to the #emit config
-  wait(val: any, emit?: any): void;
+  wait(val: boolean, emit?: any): void;
 }
 
 export class BaseFunction {
@@ -44,7 +44,7 @@ export class BaseFunction {
   }
 
   // return stream output
-  run(): any {
+  run(called: boolean): any {
     // to be overridden
   }
 
@@ -88,7 +88,7 @@ export class BlockFunction implements BaseFunction {
   }
 
   // return stream output
-  run(): any {
+  run(called: boolean): any {
     // to be overridden
   }
 

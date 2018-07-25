@@ -14,7 +14,7 @@ export class TestFunctionRunner extends BaseFunction {
     TestFunctionRunner.logs.length = 0;
   }
 
-  run(): any {
+  run(called: boolean): any {
     TestFunctionRunner.logs.push(this._data.getValue('@log'));
   }
 }
@@ -37,7 +37,7 @@ export class TestAsyncFunctionPromise extends PureFunction {
   timeOut: any;
   reject: Function;
 
-  run(): any {
+  run(called: boolean): any {
     this.cancel();
     let promise = new Promise((resolve, reject) => {
       this.reject = reject;

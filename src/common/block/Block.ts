@@ -85,8 +85,8 @@ export class Block implements Runnable, FunctionData, Listener<FunctionGenerator
   _prop: BlockProperty;
 
   _mode: BlockMode = 'auto';
-  _callOnChange: boolean = true;
-  _callOnLoad: boolean = false;
+  _runOnChange: boolean = true;
+  _runOnLoad: boolean = false;
   _sync: boolean = false;
 
   _props: {[key: string]: BlockProperty} = {};
@@ -435,7 +435,8 @@ export class Block implements Runnable, FunctionData, Listener<FunctionGenerator
 
     if (this._function) {
       this._running = true;
-      let result = this._function.run();
+      let result = this._function.run(this._called);
+      this._called = false;
       this._running = false;
       if (this._props['#emit']) {
         if (result === undefined) {
@@ -474,8 +475,8 @@ export class Block implements Runnable, FunctionData, Listener<FunctionGenerator
       }
     }
     this._configMode();
-    if (this._callOnLoad && this._function != null) {
-      this._function.run();
+    if (this._runOnLoad && this._function != null) {
+      this._queueFunction();
     }
   }
 
@@ -485,28 +486,31 @@ export class Block implements Runnable, FunctionData, Listener<FunctionGenerator
       resolvedMode = this._function.defaultMode;
     }
     if (resolvedMode === 'always') {
-      this._callOnChange = true;
-      this._callOnLoad = true;
+      this._runOnChange = true;
+      this._runOnLoad = true;
     } else if (resolvedMode === 'onChange' || resolvedMode === 'auto') {
-      this._callOnChange = true;
-      this._callOnLoad = false;
+      this._runOnChange = true;
+      this._runOnLoad = false;
     } else {
-      this._callOnChange = false;
-      this._callOnLoad = false;
+      this._runOnChange = false;
+      this._runOnLoad = false;
     }
   }
+
+  _called = false;
 
   _onCall(val: any): void {
     if (this._function && this._mode !== 'disabled') {
       if (this._sync) {
         switch (Event.check(val)) {
           case Event.OK: {
-            if (this._callOnChange && !this._queueToRun) {
-              // pass the event if there is nothing to run
+            if (this._runOnChange && !this._queueToRun) {
+              // if sync block has mode onChange, it can't be called synchronisly without a change
               if (this._props['#emit']) {
                 this._props['#emit'].updateValue(val);
               }
             } else {
+              this._called = true;
               this.run();
             }
             break;
@@ -521,6 +525,7 @@ export class Block implements Runnable, FunctionData, Listener<FunctionGenerator
         }
       } else {
         if (Event.check(val) === Event.OK) {
+          this._called = true;
           this._queueFunction();
         }
       }
@@ -528,9 +533,9 @@ export class Block implements Runnable, FunctionData, Listener<FunctionGenerator
   }
 
   _queueFunctionOnChange() {
-    if (this._callOnChange) {
+    if (this._runOnChange) {
       if (!this._queued) {
-        if (this._callOnLoad || !this._job._loading) {
+        if (this._runOnLoad || !this._job._loading) {
           this._job.queueBlock(this);
         }
       }
@@ -608,6 +613,7 @@ export class Block implements Runnable, FunctionData, Listener<FunctionGenerator
       this._function.destroy();
       this._funcPromise = undefined;
       this.deleteValue('#func');
+      this._called = false;
     }
     if (generator) {
       if (this._job._loading && generator !== this._pendingGenerator) {
@@ -623,7 +629,7 @@ export class Block implements Runnable, FunctionData, Listener<FunctionGenerator
         if (this._mode === 'auto') {
           this._configMode();
         }
-        if (this._callOnLoad) {
+        if (this._runOnLoad) {
           this._queueFunction();
         }
       }
@@ -632,8 +638,8 @@ export class Block implements Runnable, FunctionData, Listener<FunctionGenerator
       this._queueToRun = false;
       if (this._mode === 'auto') {
         // fast version of this._configMode();
-        this._callOnChange = true;
-        this._callOnLoad = false;
+        this._runOnChange = true;
+        this._runOnLoad = false;
       }
     }
   }
@@ -701,6 +707,7 @@ export class Block implements Runnable, FunctionData, Listener<FunctionGenerator
         this._function.destroy();
         this._function = null;
         this._funcPromise = undefined;
+        this._called = false;
       }
       this._class.unlisten(this);
       this._class = null;
