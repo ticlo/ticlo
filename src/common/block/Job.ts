@@ -28,7 +28,7 @@ export class Job extends Block {
       let parentJob = parent._job;
       this._resolver = new Resolver((resolver: Resolver) => {
         if (!this._queued) {
-          if (this._callOnChange) {
+          if (this._runOnChange) {
             resolver._loopScheduled = true;
             // put in queue, but _called is not set to true
             // only run the sub resolver, not the function
