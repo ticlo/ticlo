@@ -3,10 +3,10 @@ import {Job, Root} from "../../block/Job";
 import {Block} from "../../block/Block";
 import {TestFunctionRunner} from "../../block/spec/TestFunction";
 import "../../functions/basic/Math";
-import "../MapFunction";
+import "../ForEachFunction";
 import {DataMap} from "../../util/Types";
 
-describe("MapFunction", () => {
+describe("ForEachFunction", () => {
 
   it('chain block', () => {
     TestFunctionRunner.clearLog();
@@ -22,7 +22,7 @@ describe("MapFunction", () => {
       'obj3': {'v': 3}
     });
     bBlock._load({
-      '#is': 'map',
+      '#is': 'foreach',
       '~input': '##.a',
       'src': {
         '#is': {
@@ -34,7 +34,7 @@ describe("MapFunction", () => {
       }
     });
     cBlock._load({
-      '#is': 'map',
+      '#is': 'foreach',
       '~input': '##.b.output',
       'src': {
         '#is': {
@@ -49,9 +49,9 @@ describe("MapFunction", () => {
     assert.lengthOf(TestFunctionRunner.logs, 3, 'worker run 3 times');
     TestFunctionRunner.clearLog();
 
-    assert.equal(bBlock.queryProperty('output.obj1.v').getValue(), 2, 'basic Map chain');
-    assert.equal(cBlock.queryProperty('output.obj2.v').getValue(), 6, 'basic Map chain');
-    assert.equal(cBlock.queryProperty('output.obj3.v').getValue(), 8, 'basic Map chain on child Object');
+    assert.equal(bBlock.queryProperty('output.obj1.v').getValue(), 2, 'basic ForEach chain');
+    assert.equal(cBlock.queryProperty('output.obj2.v').getValue(), 6, 'basic ForEach chain');
+    assert.equal(cBlock.queryProperty('output.obj3.v').getValue(), 8, 'basic ForEach chain on child Object');
 
     bBlock.updateValue('src', {
       '#is': '',
@@ -63,8 +63,8 @@ describe("MapFunction", () => {
     assert.lengthOf(TestFunctionRunner.logs, 3, 'worker run 3 times');
     TestFunctionRunner.clearLog();
 
-    assert.equal(cBlock.queryProperty('output.obj2.v').getValue(), -6, 'Map chain src changed');
-    assert.equal(cBlock.queryProperty('output.obj3.v').getValue(), -4, 'Map chain src changed on child Object');
+    assert.equal(cBlock.queryProperty('output.obj2.v').getValue(), -6, 'ForEach chain src changed');
+    assert.equal(cBlock.queryProperty('output.obj3.v').getValue(), -4, 'ForEach chain src changed on child Object');
 
     aBlock.deleteValue('obj2');
     let obj4 = aBlock.createBlock('obj4');
@@ -96,7 +96,7 @@ describe("MapFunction", () => {
 
     job.updateValue('a', {'obj1': {'v': 1}, 'obj2': {'v': 2}});
     bBlock._load({
-      '#is': 'map',
+      '#is': 'foreach',
       '~input': '##.a',
       'src': {
         '#is': {
@@ -108,7 +108,7 @@ describe("MapFunction", () => {
     });
 
     Root.run();
-    assert.equal(bBlock.queryProperty('output.obj1.v').getValue(), 2, 'basic Map on Object');
+    assert.equal(bBlock.queryProperty('output.obj1.v').getValue(), 2, 'basic ForEach on Object');
 
     job.updateValue('a', {'obj3': {'v': 3}, 'obj2': {'v': 2}});
     Root.run();
@@ -117,11 +117,11 @@ describe("MapFunction", () => {
     assert.equal(bBlock.queryProperty('output.obj3.v').getValue(), 4, 'update input');
 
     bBlock.setValue('#is', '');
-    assert.isUndefined(bBlock.queryProperty('output').getValue(), 'destroy MapFunction');
-    assert.isUndefined(bBlock.queryProperty('#func').getValue(), 'destroy MapFunction');
+    assert.isUndefined(bBlock.queryProperty('output').getValue(), 'destroy ForEachFunction');
+    assert.isUndefined(bBlock.queryProperty('#func').getValue(), 'destroy ForEachFunction');
   });
 
-  it('map primitive types', () => {
+  it('foreach primitive types', () => {
     let job = new Job();
 
     let aBlock = job.createBlock('a');
@@ -132,7 +132,7 @@ describe("MapFunction", () => {
       'v2': "2"
     });
     bBlock._load({
-      '#is': 'map',
+      '#is': 'foreach',
       '~input': '##.a',
       'src': {
         '#is': {
@@ -160,14 +160,14 @@ describe("MapFunction", () => {
     assert.isUndefined(bBlock.queryProperty('output').getValue(), 'clear output when input is no longer Object or Block');
   });
 
-  it('clear map src', () => {
+  it('clear foreach src', () => {
     let job = new Job();
 
     let aBlock = job.createBlock('a');
     let bBlock = job.createBlock('b');
     aBlock._load({'v1': 1});
     bBlock._load({
-      '#is': 'map',
+      '#is': 'foreach',
       '~input': '##.a',
       'src': {
         '#is': {

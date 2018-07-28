@@ -9,7 +9,7 @@ import {OutputFunction} from "./Output";
 import {Event} from "../block/Event";
 import {MapImpl} from "./MapImpl";
 
-export class MapFunction extends BlockFunction implements BlockChildWatch {
+export class ForEachFunction extends BlockFunction implements BlockChildWatch {
 
   _src: DataMap;
   _srcChanged: boolean = false;
@@ -210,7 +210,7 @@ export class MapFunction extends BlockFunction implements BlockChildWatch {
 }
 
 // implements from MapImpl
-MapFunction.prototype._onSourceChange = MapImpl.prototype._onSourceChange;
+ForEachFunction.prototype._onSourceChange = MapImpl.prototype._onSourceChange;
 
-MapFunction.prototype.priority = 3;
-Classes.add('map', MapFunction);
+ForEachFunction.prototype.priority = 3;
+Classes.add('foreach', ForEachFunction);
