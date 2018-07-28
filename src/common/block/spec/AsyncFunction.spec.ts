@@ -44,15 +44,9 @@ for (let className of ['async-function-promise', 'async-function-manual']) {
       assert.deepEqual(TestAsyncFunctionLog.syncLog, ['obj'], 'triggered');
       assert.isEmpty(TestAsyncFunctionLog.asyncLog, 'async not finished');
 
+      assert.notEqual(block.getValue('#waiting'), undefined, 'is waiting after called');
       block.setValue('#call', new ErrorEvent('error'));
-
-      try {
-        await block.getValue('@promise');
-        /* istanbul ignore next */
-        assert(false, 'promise should be rejected');
-      } catch (err) {
-        // ignore
-      }
+      assert.isUndefined(block.getValue('#waiting'), 'not waiting after canceled');
       assert.deepEqual(TestAsyncFunctionLog.asyncLog, [], 'async call canceled');
     });
 
@@ -86,22 +80,11 @@ for (let className of ['async-function-promise', 'async-function-manual']) {
       TestAsyncFunctionLog.clearLog();
 
       block2.updateValue('#call', {});
-      // call with error later, when Promise is being awaited
+      assert.notEqual(block2.getValue('#waiting'), undefined, 'is waiting after called');
+
       block1.setValue('#call', new ErrorEvent('error'));
-      try {
-        await block1.getValue('@promise');
-        /* istanbul ignore next */
-        assert(false, 'promise should be rejected');
-      } catch (err) {
-        // ignore
-      }
-      try {
-        await block2.getValue('@promise');
-        /* istanbul ignore next */
-        assert(false, 'promise should be rejected');
-      } catch (err) {
-        // ignore
-      }
+      assert.isUndefined(block2.getValue('#waiting'), 'block1 cancels block2');
+
       assert.deepEqual(TestAsyncFunctionLog.syncLog, ['obj2'], 'block2 triggered');
       assert.deepEqual(TestAsyncFunctionLog.asyncLog, [], 'error from block1 cancels block2');
     });

@@ -9,7 +9,7 @@ import {
   BlockModeConfig,
   BlockOutputConfig,
   BlockPriorityConfig,
-  BlockReadOnlyConfig
+  BlockReadOnlyConfig, BlockCancelConfig
 } from "./BlockConfigs";
 import {BlockBinding} from "./BlockBinding";
 import {Job, Root} from "./Job";
@@ -129,10 +129,7 @@ export class Block implements Runnable, FunctionData, Listener<FunctionGenerator
     this.getProperty('#waiting').setOutput(val);
     if (!val) {
       // emit a value when it's no longer waiting
-      if (this._props['#emit']) {
-        if (emit === undefined) {
-          emit = new Event('asyncComplete');
-        }
+      if (emit !== undefined && this._props['#emit']) {
         this._props['#emit'].updateValue(emit);
       }
     }
@@ -140,6 +137,12 @@ export class Block implements Runnable, FunctionData, Listener<FunctionGenerator
 
   onWait(val: any): void {
     // to be overridden
+  }
+
+  onCancel(val: any): void {
+    if (this._function && Event.check(val) === Event.OK) {
+      this._cancelFunction();
+    }
   }
 
   queryProperty(path: string, create: boolean = false): BlockProperty {
@@ -211,8 +214,11 @@ export class Block implements Runnable, FunctionData, Listener<FunctionGenerator
           case '#output':
             prop = new BlockOutputConfig(this, field);
             break;
-          case '#ready':
+          case '#waiting':
             prop = new BlockWaitingConfig(this, field);
+            break;
+          case '#cancel':
+            prop = new BlockCancelConfig(this, field);
             break;
           case '#priority':
             prop = new BlockPriorityConfig(this, field);
@@ -420,10 +426,11 @@ export class Block implements Runnable, FunctionData, Listener<FunctionGenerator
     }
   }
 
-  cancel() {
+  _cancelFunction() {
     if (this._function) {
       this._function.cancel();
       this._funcPromise = undefined;
+      this.updateValue('#waiting', undefined);
     }
   }
 
@@ -438,17 +445,18 @@ export class Block implements Runnable, FunctionData, Listener<FunctionGenerator
       let result = this._function.run(this._called);
       this._called = false;
       this._running = false;
+      if (result && result.constructor === Promise) {
+        this._funcPromise = new PromiseWrapper(this);
+        this._funcPromise.listen(result);
+        if (this._funcPromise === null) {
+          // promise already done after listen;
+          return;
+        }
+        result = NOT_READY;
+      }
       if (this._props['#emit']) {
         if (result === undefined) {
           result = new Event('complete');
-        } else if (result.constructor === Promise) {
-          this._funcPromise = new PromiseWrapper(this);
-          this._funcPromise.listen(result);
-          if (this._funcPromise === null) {
-            // promise already done after listen;
-            return;
-          }
-          result = NOT_READY;
         }
         this._props['#emit'].updateValue(result);
       }
@@ -516,7 +524,7 @@ export class Block implements Runnable, FunctionData, Listener<FunctionGenerator
             break;
           }
           case Event.ERROR: {
-            this.cancel();
+            this._cancelFunction();
             if (this._props['#emit']) {
               this._props['#emit'].updateValue(val);
             }
@@ -613,6 +621,7 @@ export class Block implements Runnable, FunctionData, Listener<FunctionGenerator
       this._function.destroy();
       this._funcPromise = undefined;
       this.deleteValue('#func');
+      this.updateValue('#waiting', undefined);
       this._called = false;
     }
     if (generator) {

@@ -1,7 +1,7 @@
 import {Classes} from "../Class";
 import {BaseFunction, BlockFunction, FunctionData, PureFunction} from "../BlockFunction";
 import {BlockIO, BlockPropertyEvent} from "../BlockProperty";
-import {NOT_READY} from "../Event";
+import {Event, NOT_READY} from "../Event";
 import {Dispatcher} from "../Dispatcher";
 import {Block} from "../Block";
 
@@ -56,7 +56,6 @@ export class TestAsyncFunctionPromise extends PureFunction {
     if (this.timeOut) {
       clearTimeout(this.timeOut);
       this.timeOut = null;
-      this.reject(new Error());
     }
   }
 
@@ -84,7 +83,7 @@ export class TestAsyncFunctionManual extends BlockFunction {
         TestAsyncFunctionLog.asyncLog.push(this._data.getValue('@log'));
         resolve();
         this.timeOut = null;
-        this._data.wait(false);
+        this._data.wait(false, new Event('complete'));
       }, 1);
     });
     this._data.output(promise, '@promise');
@@ -96,7 +95,6 @@ export class TestAsyncFunctionManual extends BlockFunction {
     if (this.timeOut) {
       clearTimeout(this.timeOut);
       this.timeOut = null;
-      this.reject(new Error());
     }
   }
 

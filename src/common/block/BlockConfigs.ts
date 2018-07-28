@@ -64,6 +64,11 @@ export class BlockWaitingConfig extends BlockProperty {
   }
 }
 
+export class BlockCancelConfig extends BlockProperty {
+  _valueChanged() {
+    this._block.onCancel(this._value);
+  }
+}
 
 export class BlockReadOnlyConfig extends BlockProperty {
   constructor(block: Block, name: string, value?: any) {
