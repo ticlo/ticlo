@@ -3,7 +3,7 @@ import {Resolver} from "./Resolver";
 export class Event {
   static readonly OK = 0;
   static readonly ERROR = 1;
-  static readonly INVALID = 2;
+  static readonly VOID = 2; // void event should be ignored
 
   loopId: string;
   type: string;
@@ -15,7 +15,7 @@ export class Event {
 
   static check(val: any): number {
     if (val == null) {
-      return Event.INVALID;
+      return Event.VOID;
     }
     if (val instanceof Event) {
       return val.check();
@@ -27,7 +27,7 @@ export class Event {
     if (this.loopId === Resolver.uid) {
       return Event.OK;
     }
-    return Event.INVALID;
+    return Event.VOID;
   }
 }
 
@@ -52,7 +52,7 @@ export class NotReady extends Event {
 
   // shouldn't trigger the next block
   check(): number {
-    return Event.INVALID;
+    return Event.VOID;
   }
 }
 
