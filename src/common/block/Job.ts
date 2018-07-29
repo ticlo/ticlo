@@ -2,6 +2,7 @@ import {Block, Runnable} from "./Block";
 import {BlockIO, BlockProperty} from "./BlockProperty";
 import {Resolver} from "./Resolver";
 import {FunctionOutput, JobOutput} from "./BlockFunction";
+import {Event} from "./Event";
 
 
 export class Job extends Block {
@@ -29,7 +30,6 @@ export class Job extends Block {
       this._resolver = new Resolver((resolver: Resolver) => {
         if (!this._queued) {
           if (this._runOnChange) {
-            resolver._loopScheduled = true;
             // put in queue, but _called is not set to true
             // only run the sub resolver, not the function
             parentJob.queueBlock(this._resolver);
@@ -71,6 +71,10 @@ export class Job extends Block {
     }
   }
 
+  cancel() {
+    this.getProperty('#cancel').updateValue(new Event('cancel'));
+  }
+
 
   save(): {[key: string]: any} {
     return this._save();
@@ -106,7 +110,12 @@ export class Root extends Job {
     super();
     this._parent = this;
     this._resolver = new Resolver((resolver: Resolver) => {
-      resolver._loopScheduled = setTimeout(() => resolver.run(), 0);
+      resolver._queued = true;
+      resolver._queueToRun = true;
+      setTimeout(() => {
+        resolver.run();
+        resolver._queued = false;
+      }, 0);
     });
   }
 

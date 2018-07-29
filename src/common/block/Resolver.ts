@@ -20,8 +20,6 @@ export class Resolver implements Runnable {
   private _queue: Runnable[][] = [[], [], [], []];
 
 
-  // for both browser and node
-  _loopScheduled: any;
   _resolving: boolean = false;
 
   private _schedule: (resolver: Resolver) => void;
@@ -35,7 +33,7 @@ export class Resolver implements Runnable {
     block._queued = true;
     block._queueToRun = true;
     this._queueWait.push(block);
-    if (!(this._loopScheduled || this._resolving)) {
+    if (!(this._queued || this._resolving)) {
       this._schedule(this);
     }
   }
@@ -77,8 +75,7 @@ export class Resolver implements Runnable {
 
   run() {
     this._queueToRun = false;
-    if (this._loopScheduled) {
-      this._loopScheduled = null;
+    if (this._queued) {
       this._resolve();
     }
   }
