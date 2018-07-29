@@ -16,7 +16,7 @@ import {Job, Root} from "./Job";
 import {FunctionData, FunctionGenerator, BaseFunction, FunctionOutput, JobOutput} from "./BlockFunction";
 import {Dispatcher, Listener, ValueDispatcher} from "./Dispatcher";
 import {Class, Classes} from "./Class";
-import {ErrorEvent, Event, NOT_READY} from "./Event";
+import {ErrorEvent, Event, EventType, NOT_READY} from "./Event";
 import {DataMap} from "../util/Types";
 import {Uid} from "../util/Uid";
 import {voidProperty} from "./Void";
@@ -140,8 +140,8 @@ export class Block implements Runnable, FunctionData, Listener<FunctionGenerator
   }
 
   onCancel(val: any): void {
-    if (this._function && Event.check(val) === Event.OK) {
-      this._cancelFunction();
+    if (this._function && Event.check(val) === EventType.TRIGGER) {
+      this._cancelFunction(EventType.TRIGGER);
     }
   }
 
@@ -426,9 +426,9 @@ export class Block implements Runnable, FunctionData, Listener<FunctionGenerator
     }
   }
 
-  _cancelFunction() {
+  _cancelFunction(reason: EventType) {
     if (this._function) {
-      this._function.cancel();
+      this._function.cancel(reason);
       this._funcPromise = undefined;
       this.updateValue('#waiting', undefined);
     }
@@ -441,10 +441,13 @@ export class Block implements Runnable, FunctionData, Listener<FunctionGenerator
     }
 
     if (this._function) {
+      if (this._called && this.getValue('#waiting')) {
+        this._cancelFunction(EventType.VOID);
+      }
       this._running = true;
-      let result = this._function.run(this._called);
-      this._called = false;
+      let result = this._function.run();
       this._running = false;
+      this._called = false;
       if (result && result.constructor === Promise) {
         this._funcPromise = new PromiseWrapper(this);
         this._funcPromise.listen(result);
@@ -511,7 +514,7 @@ export class Block implements Runnable, FunctionData, Listener<FunctionGenerator
     if (this._function && this._mode !== 'disabled') {
       if (this._sync) {
         switch (Event.check(val)) {
-          case Event.OK: {
+          case EventType.TRIGGER: {
             if (this._runOnChange && !this._queueToRun) {
               // if sync block has mode onChange, it can't be called synchronisly without a change
               if (this._props['#emit']) {
@@ -523,8 +526,8 @@ export class Block implements Runnable, FunctionData, Listener<FunctionGenerator
             }
             break;
           }
-          case Event.ERROR: {
-            this._cancelFunction();
+          case EventType.ERROR: {
+            this._cancelFunction(EventType.ERROR);
             if (this._props['#emit']) {
               this._props['#emit'].updateValue(val);
             }
@@ -532,7 +535,7 @@ export class Block implements Runnable, FunctionData, Listener<FunctionGenerator
           }
         }
       } else {
-        if (Event.check(val) === Event.OK) {
+        if (Event.check(val) === EventType.TRIGGER) {
           this._called = true;
           this._queueFunction();
         }

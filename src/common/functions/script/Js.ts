@@ -27,7 +27,7 @@ export class JsFunction extends BlockFunction {
     return true;
   }
 
-  run(called: boolean): any {
+  run(): any {
     if (this._runFunction == null) {
       if (this._compiledFunction == null) {
         let script = this._data.getValue('script');

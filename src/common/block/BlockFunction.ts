@@ -1,7 +1,7 @@
 import {BlockIO, BlockProperty} from "./BlockProperty";
 import {FunctionDesc} from "./Descriptor";
 import {BlockMode, Block} from "./Block";
-import {Event} from "./Event";
+import {Event, EventType} from "./Event";
 
 export interface FunctionOutput {
   // field is 'output' by default
@@ -44,12 +44,12 @@ export class BaseFunction {
   }
 
   // return stream output
-  run(called: boolean): any {
+  run(): any {
     // to be overridden
   }
 
   // cancel any async operation
-  cancel(): void {
+  cancel(reason: EventType = EventType.TRIGGER): void {
     // to be overridden
   }
 
@@ -88,12 +88,13 @@ export class BlockFunction implements BaseFunction {
   }
 
   // return stream output
-  run(called: boolean): any {
+  run(): any {
     // to be overridden
   }
 
   // cancel any async operation
-  cancel(): void {
+  // explicitly will be true when #cancel is triggered
+  cancel(reason: EventType = EventType.TRIGGER): void {
     // to be overridden
   }
 

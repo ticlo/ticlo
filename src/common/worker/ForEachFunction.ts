@@ -6,7 +6,7 @@ import {Block, BlockChildWatch, BlockMode} from "../block/Block";
 import {Job} from "../block/Job";
 import {DataMap, isSavedBlock} from "../util/Types";
 import {OutputFunction} from "./Output";
-import {Event} from "../block/Event";
+import {Event, EventType} from "../block/Event";
 import {MapImpl} from "./MapImpl";
 
 export class ForEachFunction extends BlockFunction implements BlockChildWatch {
@@ -49,7 +49,7 @@ export class ForEachFunction extends BlockFunction implements BlockChildWatch {
     return false;
   }
 
-  run(called: boolean): any {
+  run(): any {
     if (!this._funcBlock) {
       this._funcBlock = this._data.createOutputBlock('#func');
     }
@@ -192,7 +192,7 @@ export class ForEachFunction extends BlockFunction implements BlockChildWatch {
     }
   }
 
-  cancel(): void {
+  cancel(reason: EventType = EventType.TRIGGER): void {
     this._clearWorkers();
   }
 

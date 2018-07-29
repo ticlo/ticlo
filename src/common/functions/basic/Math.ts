@@ -23,7 +23,7 @@ const descriptor2: FunctionDesc = {
 
 
 export class AddFunction extends PureFunction {
-  run(called: boolean): any {
+  run(): any {
     let len = this._data.getLength();
     if (!(len >= 0)) {
       len = 2;
@@ -51,7 +51,7 @@ Classes.add('add', AddFunction);
 
 
 export class MultiplyFunction extends PureFunction {
-  run(called: boolean): any {
+  run(): any {
     let len = this._data.getLength();
     if (!(len >= 0)) {
       len = 2;
@@ -79,7 +79,7 @@ Classes.add('multiply', MultiplyFunction);
 
 
 export class SubtractFunction extends PureFunction {
-  run(called: boolean): any {
+  run(): any {
     let v0 = this._data.getValue('0');
     let v1 = this._data.getValue('1');
     if (v0 == null || v1 == null) {
@@ -96,7 +96,7 @@ Classes.add('subtract', SubtractFunction);
 
 
 export class DivideFunction extends PureFunction {
-  run(called: boolean): any {
+  run(): any {
     let v0 = this._data.getValue('0');
     let v1 = this._data.getValue('1');
     if (v0 == null || v1 == null) {

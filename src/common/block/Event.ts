@@ -1,9 +1,13 @@
 import {Resolver} from "./Resolver";
 
+export enum EventType {
+  TRIGGER = 0,
+  ERROR = 1,
+  VOID = 2 // void event should be ignored
+}
+
 export class Event {
-  static readonly OK = 0;
-  static readonly ERROR = 1;
-  static readonly VOID = 2; // void event should be ignored
+
 
   loopId: string;
   type: string;
@@ -13,21 +17,21 @@ export class Event {
     this.loopId = Resolver.uid;
   }
 
-  static check(val: any): number {
+  static check(val: any): EventType {
     if (val == null) {
-      return Event.VOID;
+      return EventType.VOID;
     }
     if (val instanceof Event) {
       return val.check();
     }
-    return Event.OK;
+    return EventType.TRIGGER;
   }
 
   check(): number {
     if (this.loopId === Resolver.uid) {
-      return Event.OK;
+      return EventType.TRIGGER;
     }
-    return Event.VOID;
+    return EventType.VOID;
   }
 }
 
@@ -40,8 +44,8 @@ export class ErrorEvent extends Event {
     this.detail = detail;
   }
 
-  check(): number {
-    return Event.ERROR;
+  check(): EventType {
+    return EventType.ERROR;
   }
 }
 
@@ -51,8 +55,8 @@ export class NotReady extends Event {
   }
 
   // shouldn't trigger the next block
-  check(): number {
-    return Event.VOID;
+  check(): EventType {
+    return EventType.VOID;
   }
 }
 

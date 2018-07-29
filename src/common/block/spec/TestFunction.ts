@@ -1,7 +1,7 @@
 import {Classes} from "../Class";
 import {BaseFunction, BlockFunction, FunctionData, PureFunction} from "../BlockFunction";
 import {BlockIO, BlockPropertyEvent} from "../BlockProperty";
-import {Event, NOT_READY} from "../Event";
+import {Event, EventType, NOT_READY} from "../Event";
 import {Dispatcher} from "../Dispatcher";
 import {Block} from "../Block";
 
@@ -14,7 +14,7 @@ export class TestFunctionRunner extends BaseFunction {
     TestFunctionRunner.logs.length = 0;
   }
 
-  run(called: boolean): any {
+  run(): any {
     TestFunctionRunner.logs.push(this._data.getValue('@log'));
   }
 }
@@ -37,8 +37,7 @@ export class TestAsyncFunctionPromise extends PureFunction {
   timeOut: any;
   reject: Function;
 
-  run(called: boolean): any {
-    this.cancel();
+  run(): any {
     let promise = new Promise((resolve, reject) => {
       this.reject = reject;
       TestAsyncFunctionLog.syncLog.push(this._data.getValue('@log'));
@@ -52,7 +51,7 @@ export class TestAsyncFunctionPromise extends PureFunction {
     return promise;
   }
 
-  cancel() {
+  cancel(reason: EventType = EventType.TRIGGER) {
     if (this.timeOut) {
       clearTimeout(this.timeOut);
       this.timeOut = null;
@@ -75,7 +74,6 @@ export class TestAsyncFunctionManual extends BlockFunction {
   reject: Function;
 
   run(): any {
-    this.cancel();
     let promise = new Promise((resolve, reject) => {
       this.reject = reject;
       TestAsyncFunctionLog.syncLog.push(this._data.getValue('@log'));
@@ -91,7 +89,7 @@ export class TestAsyncFunctionManual extends BlockFunction {
     return NOT_READY;
   }
 
-  cancel() {
+  cancel(reason: EventType = EventType.TRIGGER) {
     if (this.timeOut) {
       clearTimeout(this.timeOut);
       this.timeOut = null;
