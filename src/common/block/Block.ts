@@ -13,7 +13,7 @@ import {
 } from "./BlockConfigs";
 import {BlockBinding} from "./BlockBinding";
 import {Job, Root} from "./Job";
-import {FunctionData, FunctionGenerator, BaseFunction, FunctionOutput, JobOutput} from "./BlockFunction";
+import {FunctionData, FunctionGenerator, BaseFunction, FunctionOutput} from "./BlockFunction";
 import {Dispatcher, Listener, ValueDispatcher} from "./Dispatcher";
 import {Class, Classes} from "./Class";
 import {ErrorEvent, Event, EventType, NOT_READY} from "./Event";
@@ -98,6 +98,10 @@ export class Block implements Runnable, FunctionData, Listener<FunctionGenerator
   _className: string;
   _class: Class;
 
+
+  // whether the block has a function running async job
+  _waiting: boolean = false;
+
   // queued in Resolver
   _queued: boolean = false;
   // something to run, if equals to false, Resolve will skip the block
@@ -126,7 +130,7 @@ export class Block implements Runnable, FunctionData, Listener<FunctionGenerator
   }
 
   wait(val: any, emit?: any): void {
-    this.getProperty('#waiting').setOutput(val);
+    this.updateValue('#waiting', val);
     if (!val) {
       // emit a value when it's no longer waiting
       if (emit !== undefined && this._props['#emit']) {
@@ -135,8 +139,8 @@ export class Block implements Runnable, FunctionData, Listener<FunctionGenerator
     }
   }
 
-  onWait(val: any): void {
-    // to be overridden
+  onWait(val: any) {
+    this._waiting = Boolean(val);
   }
 
   onCancel(val: any): void {
@@ -147,6 +151,14 @@ export class Block implements Runnable, FunctionData, Listener<FunctionGenerator
 
   queryProperty(path: string, create: boolean = false): BlockProperty {
     return this._queryProperty(path.split('.'), create);
+  }
+
+  queryValue(path: string): any {
+    let prop = this._queryProperty(path.split('.'), false);
+    if (prop) {
+      return prop._value;
+    }
+    return undefined;
   }
 
   _queryProperty(path: string[], create: boolean): BlockProperty {
@@ -409,7 +421,7 @@ export class Block implements Runnable, FunctionData, Listener<FunctionGenerator
     return block;
   }
 
-  createOutputJob(field: string, src?: DataMap, output?: JobOutput, namespace?: string): Job {
+  createOutputJob(field: string, src?: DataMap, output?: FunctionOutput, namespace?: string): Job {
     let prop = this.getProperty(field);
     let job = new Job(this, output, prop);
     prop.setOutput(job);
@@ -441,7 +453,7 @@ export class Block implements Runnable, FunctionData, Listener<FunctionGenerator
     }
 
     if (this._function) {
-      if (this._called && this.getValue('#waiting')) {
+      if (this._called && this._waiting) {
         this._cancelFunction(EventType.VOID);
       }
       this._running = true;

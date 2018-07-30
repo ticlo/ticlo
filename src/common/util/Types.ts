@@ -1,3 +1,6 @@
+import {Block} from "../block/Block";
+import {BlockIO} from "../block/BlockProperty";
+
 export interface DataMap {
   [key: string]: any;
 }
@@ -78,4 +81,23 @@ export function truncateObj(val: any, maxSize: number = 1024): [any, number] {
 
 export function serializeFull(val: any): any {
 
+}
+
+export function convertToObject(val: any, recursive: boolean = false): any {
+  if (val instanceof Block) {
+    let result: any = {};
+    val.forEach((field: string, prop: BlockIO) => {
+      if (recursive && prop._value instanceof Block) {
+        if (prop._saved === prop._value) {
+          result[field] = convertToObject(prop._value, true);
+        } else {
+          result[field] = null;
+        }
+      } else {
+        result[field] = prop._value;
+      }
+    });
+    return result;
+  }
+  return val;
 }

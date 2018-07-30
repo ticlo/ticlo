@@ -1,7 +1,7 @@
 import {Block, Runnable} from "./Block";
 import {BlockIO, BlockProperty} from "./BlockProperty";
 import {Resolver} from "./Resolver";
-import {FunctionOutput, JobOutput} from "./BlockFunction";
+import {FunctionOutput} from "./BlockFunction";
 import {Event} from "./Event";
 
 
@@ -14,9 +14,9 @@ export class Job extends Block {
   _enabled: boolean = true;
   _loading: boolean = false;
 
-  _outputObj?: JobOutput;
+  _outputObj?: FunctionOutput;
 
-  constructor(parent: Block = Root.instance, output?: JobOutput, property?: BlockProperty) {
+  constructor(parent: Block = Root.instance, output?: FunctionOutput, property?: BlockProperty) {
     super(null, null, property);
     this._job = this;
     this._parent = parent;
@@ -60,21 +60,9 @@ export class Job extends Block {
     prop.updateValue(val);
   }
 
-
-  // whether job is waiting for unfinished work
-  _waiting: boolean = false;
-
-  onWait(val: any) {
-    this._waiting = Boolean(val);
-    if (this._outputObj) {
-      this._outputObj.wait(val);
-    }
-  }
-
   cancel() {
     this.getProperty('#cancel').updateValue(new Event('cancel'));
   }
-
 
   save(): {[key: string]: any} {
     return this._save();
@@ -90,6 +78,10 @@ export class Job extends Block {
     this._loading = true;
     this._liveUpdate(map);
     this._loading = false;
+  }
+
+  set onResolved(func: () => void) {
+    this._resolver.onResolved = func;
   }
 }
 
@@ -117,6 +109,9 @@ export class Root extends Job {
         resolver._queued = false;
       }, 0);
     });
+    this.onResolved = () => {
+      Event._uid.next();
+    };
   }
 
   addJob(name?: string): Job {

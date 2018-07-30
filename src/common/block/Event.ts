@@ -1,4 +1,5 @@
 import {Resolver} from "./Resolver";
+import {Uid} from "../util/Uid";
 
 export enum EventType {
   TRIGGER = 0,
@@ -8,13 +9,17 @@ export enum EventType {
 
 export class Event {
 
+  static _uid = new Uid();
+  static get uid(): string {
+    return Event._uid.current;
+  }
 
   loopId: string;
   type: string;
 
   constructor(type?: string) {
     this.type = type;
-    this.loopId = Resolver.uid;
+    this.loopId = Event.uid;
   }
 
   static check(val: any): EventType {
@@ -28,7 +33,7 @@ export class Event {
   }
 
   check(): number {
-    if (this.loopId === Resolver.uid) {
+    if (this.loopId === Event.uid) {
       return EventType.TRIGGER;
     }
     return EventType.VOID;

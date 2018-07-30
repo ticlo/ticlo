@@ -2,10 +2,6 @@ import {Runnable} from "./Block";
 import {Uid} from "../util/Uid";
 
 export class Resolver implements Runnable {
-  private static _uid = new Uid();
-  static get uid(): string {
-    return Resolver._uid.current;
-  }
 
   // as Runnable
   _queued: boolean = false;
@@ -22,10 +18,17 @@ export class Resolver implements Runnable {
 
   _resolving: boolean = false;
 
+  _onResolved?: () => void;
+
   private _schedule: (resolver: Resolver) => void;
 
   constructor(schedule: (resolver: Resolver) => void) {
     this._schedule = schedule;
+  }
+
+  set onResolved(func: () => void) {
+    this._onResolved = func;
+    this._schedule(this);
   }
 
   queueBlock(block: Runnable) {
@@ -112,8 +115,10 @@ export class Resolver implements Runnable {
       break;
     }
 
-    Resolver._uid.next();
-
     this._resolving = false;
+
+    if (this._onResolved) {
+      this._onResolved();
+    }
   }
 }

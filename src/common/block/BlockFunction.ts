@@ -20,12 +20,6 @@ export interface FunctionData extends FunctionInput, FunctionOutput {
   getProperty(field: string, create: boolean): BlockProperty;
 }
 
-export interface JobOutput extends FunctionOutput {
-  // notify the output if function is waiting for callback
-  // when waiting state is false, emit will be output to the #emit config
-  wait(val: boolean, emit?: any): void;
-}
-
 export class BaseFunction {
   _data: FunctionData;
   className: string;
