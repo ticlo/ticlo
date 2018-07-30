@@ -6,7 +6,7 @@ import "../../functions/basic/Math";
 import "../MapFunction";
 import {DataMap} from "../../util/Types";
 
-describe("MapFunction", () => {
+describe("MapFunction Basic", () => {
 
   it('basic', () => {
     TestFunctionRunner.clearLog();
@@ -128,6 +128,38 @@ describe("MapFunction", () => {
 
     assert.deepEqual(bBlock.getValue('output'), {'v1': 2, 'v2': 5, 'v4': 6});
     assert.equal(bBlock.queryValue('#func.v3.#output'), 4, 'unused worker is still kept');
+  });
+
+  it('conversion from/to Block', () => {
+    TestFunctionRunner.clearLog();
+    let job = new Job();
+
+    let aBlock = job.createBlock('a');
+    let bBlock = job.createBlock('b');
+
+    aBlock._load({
+      '#is': '',
+      'obj1': {'#is': '', 'v': 1},
+      'obj2': {'#is': '', 'v': 2},
+      'obj3': {'v': 3}
+    });
+
+    bBlock._load({
+      '#is': 'map',
+      'reuseWorker': 'reuse',
+      '~input': '##.a',
+      'src': {
+        '#is': {
+          '#is': '',
+          'add': {'#is': 'add', '~0': '##.#input.v', '1': 1},
+          '#output': {'#is': 'output', '~v': '##.add.output'}
+        }
+      }
+    });
+
+    Root.run();
+
+    assert.deepEqual(bBlock.getValue('output'), {'obj1': {'v': 2}, 'obj2': {'v': 3}, 'obj3': {'v': 4}});
   });
 
 });
