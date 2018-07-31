@@ -16,6 +16,7 @@ export interface Dispatcher<T> {
 
 export interface Destroyable {
   destroy(): void;
+
   isDestroyed(): boolean;
 }
 
@@ -109,13 +110,12 @@ export class ListenPromise<T> implements Listener<T> {
       }
     }
   }
+
   destroy() {
-    if (this._valid) {
-      if (this._source) {
-        this._source.unlisten(this);
-      }
-      this._valid = false;
+    if (this._source) {
+      this._source.unlisten(this);
     }
+    this._valid = false;
   }
 }
 

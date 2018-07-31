@@ -1,10 +1,11 @@
 import {assert} from "chai";
 import {Job, Root} from "../../block/Job";
 import {Block} from "../../block/Block";
-import {TestFunctionRunner} from "../../block/spec/TestFunction";
+import {TestFunctionRunner, TestAsyncFunctionPromise} from "../../block/spec/TestFunction";
 import "../../functions/basic/Math";
 import "../MapFunction";
 import {DataMap} from "../../util/Types";
+
 
 describe("MapFunction Basic", () => {
 
@@ -160,6 +161,50 @@ describe("MapFunction Basic", () => {
     Root.run();
 
     assert.deepEqual(bBlock.getValue('output'), {'obj1': {'v': 2}, 'obj2': {'v': 3}, 'obj3': {'v': 4}});
+  });
+
+  it('async worker', async () => {
+    TestFunctionRunner.clearLog();
+    let job = new Job();
+
+    job.setValue('a', {
+      'v1': 1,
+      'v2': 2,
+      'v3': 3
+    });
+
+    let bBlock = job.createBlock('b');
+
+    bBlock._load({
+      '#is': 'map',
+      '~input': '##.a',
+      'src': {
+        '#is': {
+          '#is': '',
+          'async': {'#is': 'async-function-promise', '~#call': '##.#input'},
+          'add': {'#is': 'add', '#mode': 'onCall', '~#call': '##.async.#emit', '~0': '##.#input', '1': 1},
+          '~#waiting': 'async.#waiting',
+          '~#output': 'add.output'
+        }
+      }
+    });
+
+    Root.run();
+
+    assert.isUndefined(bBlock.getValue('output'), 'async worker should not finish right after run');
+
+    assert.deepEqual(await bBlock.waitNextValue('output'), {'v1': 2, 'v2': 3, 'v3': 4}, 'async workers finish');
+
+    job.setValue('a', {
+      'v1': 1,
+      'v2': 4,
+      'v4': 5
+    });
+
+    Root.run();
+
+    assert.deepEqual(await bBlock.waitNextValue('output'), {'v1': 2, 'v2': 5, 'v4': 6});
+
   });
 
 });
