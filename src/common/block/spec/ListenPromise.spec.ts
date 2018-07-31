@@ -11,18 +11,25 @@ describe("ListenPromise", () => {
     setTimeout(() => job.setValue('a', 1), 0);
     assert.equal(await job.waitValue('a'), 1);
 
-    {
-      let timer;
-      let count = 0;
-      timer = setInterval(() => job.setValue('b', ++count), 1);
-      let result = await job.waitValue('b', (val) => val > 5);
-      assert.equal(result, 6, 'listen promise with validator');
-      clearInterval(timer);
-    }
+    assert.equal(await job.waitValue('a'), 1, 'wait current value');
+    setTimeout(() => job.setValue('a', 2), 0);
+    assert.equal(await job.waitNextValue('a'), 2, 'wait next value');
+
 
     setTimeout(() => job.setValue('c', new ErrorEvent('')), 0);
     assert.instanceOf(await shouldReject(job.waitValue('c')), ErrorEvent,
       'waitValue should be rejected on ErrorEvent');
+  });
+
+  it('validator', async () => {
+    let job = new Job();
+
+    let timer;
+    let count = 0;
+    timer = setInterval(() => job.setValue('b', ++count), 1);
+    let result = await job.waitValue('b', (val) => val > 5);
+    assert.equal(result, 6, 'listen promise with validator');
+    clearInterval(timer);
   });
 
   it('destroyed dispatcher', async () => {

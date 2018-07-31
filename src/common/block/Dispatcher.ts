@@ -61,7 +61,8 @@ export abstract class ValueDispatcher<T> implements Dispatcher<T> {
 export class ListenPromise<T> implements Listener<T> {
 
   // if source is set, it will be managed by the listener and unlistened automaticly
-  source: ValueDispatcher<T> & Destroyable;
+  _source: ValueDispatcher<T> & Destroyable;
+  _valid = false;
   _promise: Promise<T>;
   _validator?: (val: T) => EventType | boolean;
   _resolve: (value?: T | PromiseLike<T>) => void;
@@ -76,8 +77,8 @@ export class ListenPromise<T> implements Listener<T> {
   }
 
   onSourceChange(prop: Dispatcher<T>): void {
-    if (this._promise && prop == null) {
-      if (!this.source || this.source.isDestroyed()) {
+    if (this._valid && prop == null) {
+      if (!this._source || this._source.isDestroyed()) {
         // if source is destroyed, reject the promise
         this._reject(new ErrorEvent('value source disappear'));
         this.destroy();
@@ -86,32 +87,34 @@ export class ListenPromise<T> implements Listener<T> {
   }
 
   onChange(val: T): void {
-    let result: EventType | boolean;
-    if (this._validator) {
-      result = this._validator(val);
-    } else {
-      result = Event.check(val);
-    }
-    switch (result) {
-      case true:
-      case EventType.TRIGGER: {
-        this._resolve(val);
-        this.destroy();
-        return;
+    if (this._valid) {
+      let result: EventType | boolean;
+      if (this._validator) {
+        result = this._validator(val);
+      } else {
+        result = Event.check(val);
       }
-      case EventType.ERROR: {
-        this._reject(val);
-        this.destroy();
-        return;
+      switch (result) {
+        case true:
+        case EventType.TRIGGER: {
+          this._resolve(val);
+          this.destroy();
+          return;
+        }
+        case EventType.ERROR: {
+          this._reject(val);
+          this.destroy();
+          return;
+        }
       }
     }
   }
   destroy() {
-    if (this._promise) {
-      if (this.source) {
-        this.source.unlisten(this);
+    if (this._valid) {
+      if (this._source) {
+        this._source.unlisten(this);
       }
-      this._promise = null;
+      this._valid = false;
     }
   }
 }

@@ -310,7 +310,15 @@ export class Block implements Runnable, FunctionData, Listener<FunctionGenerator
 
   waitValue(path: string, validator?: (val: any) => EventType | boolean): Promise<any> {
     let listenPromise = new ListenPromise(validator);
-    listenPromise.source = this.createBinding(path, listenPromise);
+    listenPromise._valid = true;
+    listenPromise._source = this.createBinding(path, listenPromise);
+    return listenPromise._promise;
+  }
+
+  waitNextValue(path: string, validator?: (val: any) => EventType | boolean): Promise<any> {
+    let listenPromise = new ListenPromise(validator);
+    listenPromise._source = this.createBinding(path, listenPromise);
+    listenPromise._valid = true;
     return listenPromise._promise;
   }
 

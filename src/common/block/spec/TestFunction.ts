@@ -128,6 +128,7 @@ export const VoidListeners = {
 export function shouldReject(promise: Promise<any>): Promise<any> {
   return new Promise<any>((resolve, reject) => {
     promise.then((val) => {
+        /* istanbul ignore next */
         reject(val);
       }, (err) => {
         resolve(err);
