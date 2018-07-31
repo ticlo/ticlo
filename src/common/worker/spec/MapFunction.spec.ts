@@ -131,7 +131,7 @@ describe("MapFunction Basic", () => {
     assert.equal(bBlock.queryValue('#func.v3.#output'), 4, 'unused worker is still kept');
   });
 
-  it('conversion from/to Block', () => {
+  it('conversion from Block', () => {
     TestFunctionRunner.clearLog();
     let job = new Job();
 

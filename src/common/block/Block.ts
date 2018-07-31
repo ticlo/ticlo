@@ -1,16 +1,5 @@
 import {BlockProperty, BlockPropertyHelper, BlockIO} from "./BlockProperty";
-import {
-  BlockCallConfig,
-  BlockClassConfig,
-  BlockSyncConfig,
-  BlockInputConfig,
-  BlockWaitingConfig,
-  BlockLengthConfig,
-  BlockModeConfig,
-  BlockOutputConfig,
-  BlockPriorityConfig,
-  BlockReadOnlyConfig, BlockCancelConfig
-} from "./BlockConfigs";
+import {ConfigGenerators, BlockReadOnlyConfig} from "./BlockConfigs";
 import {BlockBinding} from "./BlockBinding";
 import {Job, Root} from "./Job";
 import {FunctionData, FunctionGenerator, BaseFunction, FunctionOutput} from "./BlockFunction";
@@ -195,48 +184,25 @@ export class Block implements Runnable, FunctionData, Listener<FunctionGenerator
 
     if (firstChar === 35) {
       // # controls
-      if (field === '##') { // parent
-        prop = new BlockReadOnlyConfig(this, field, this._parent);
-      } else if (field === '###') { // job
-        prop = new BlockReadOnlyConfig(this, field, this._job);
-      } else if (field === '#') { // this
-        prop = new BlockReadOnlyConfig(this, field, this);
-      } else if (!create) {
-        return null;
-      } else {
-        switch (field) {
-          case '#is':
-            prop = new BlockClassConfig(this, field);
-            break;
-          case '#mode':
-            prop = new BlockModeConfig(this, field);
-            break;
-          case '#call':
-            prop = new BlockCallConfig(this, field);
-            break;
-          case '#sync':
-            prop = new BlockSyncConfig(this, field);
-            break;
-          case '#length':
-            prop = new BlockLengthConfig(this, field);
-            break;
-          case '#input':
-            prop = new BlockInputConfig(this, field);
-            break;
-          case '#output':
-            prop = new BlockOutputConfig(this, field);
-            break;
-          case '#waiting':
-            prop = new BlockWaitingConfig(this, field);
-            break;
-          case '#cancel':
-            prop = new BlockCancelConfig(this, field);
-            break;
-          case '#priority':
-            prop = new BlockPriorityConfig(this, field);
-            break;
-          default:
+      switch (field) {
+        case '##':
+          prop = new BlockReadOnlyConfig(this, field, this._parent);
+          break;
+        case '###':
+          prop = new BlockReadOnlyConfig(this, field, this._job);
+          break;
+        case '#':
+          prop = new BlockReadOnlyConfig(this, field, this);
+          break;
+        default: {
+          if (!create) {
+            return null;
+          }
+          if (field in ConfigGenerators) {
+            prop = new ConfigGenerators[field](this, field);
+          } else {
             prop = new BlockProperty(this, field);
+          }
         }
       }
     } else if (!create) {

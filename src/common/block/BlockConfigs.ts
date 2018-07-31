@@ -1,7 +1,8 @@
 import {Block} from "./Block";
 import {BlockProperty} from "./BlockProperty";
+import {BaseFunction, FunctionData} from "./BlockFunction";
 
-export class BlockClassConfig extends BlockProperty {
+class BlockClassConfig extends BlockProperty {
 
   constructor(block: Block, name: string) {
     super(block, name);
@@ -22,49 +23,49 @@ export class BlockClassConfig extends BlockProperty {
   }
 }
 
-export class BlockCallConfig extends BlockProperty {
+class BlockCallConfig extends BlockProperty {
   _valueChanged() {
     this._block._onCall(this._value);
   }
 }
 
-export class BlockSyncConfig extends BlockProperty {
+class BlockSyncConfig extends BlockProperty {
   _valueChanged() {
     this._block._syncChanged(this._value);
   }
 }
 
-export class BlockModeConfig extends BlockProperty {
+class BlockModeConfig extends BlockProperty {
   _valueChanged() {
     this._block._modeChanged(this._value);
   }
 }
 
-export class BlockLengthConfig extends BlockProperty {
+class BlockLengthConfig extends BlockProperty {
   _valueChanged() {
     this._block._lengthChanged(this._value);
   }
 }
 
-export class BlockPriorityConfig extends BlockProperty {
+class BlockPriorityConfig extends BlockProperty {
   _valueChanged() {
     this._block._priorityChanged(this._value);
   }
 }
 
-export class BlockInputConfig extends BlockProperty {
+class BlockInputConfig extends BlockProperty {
 }
 
-export class BlockOutputConfig extends BlockProperty {
+class BlockOutputConfig extends BlockProperty {
 }
 
-export class BlockWaitingConfig extends BlockProperty {
+class BlockWaitingConfig extends BlockProperty {
   _valueChanged() {
     this._block.onWait(this._value);
   }
 }
 
-export class BlockCancelConfig extends BlockProperty {
+class BlockCancelConfig extends BlockProperty {
   _valueChanged() {
     this._block.onCancel(this._value);
   }
@@ -97,3 +98,17 @@ export class BlockReadOnlyConfig extends BlockProperty {
   //   }
   // }
 }
+
+
+export const ConfigGenerators: {[key: string]: new (block: Block, field: string) => BlockProperty} = {
+  '#is': BlockClassConfig,
+  '#mode': BlockModeConfig,
+  '#call': BlockCallConfig,
+  '#sync': BlockSyncConfig,
+  '#length': BlockLengthConfig,
+  '#input': BlockInputConfig,
+  '#output': BlockOutputConfig,
+  '#waiting': BlockWaitingConfig,
+  '#cancel': BlockCancelConfig,
+  '#priority': BlockPriorityConfig,
+};
