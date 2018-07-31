@@ -20,7 +20,7 @@ describe("Destroyed Block", () => {
 
       job.setValue('a', null);
 
-      assert(block._destroyed, 'block should be destroyed');
+      assert(block.isDestroyed(), 'block should be destroyed');
 
       assert.throw(() => block.getProperty('a'));
       assert.throw(() => block.setValue('a', 1));
@@ -46,7 +46,7 @@ describe("Destroyed Block", () => {
 
     job.setValue('a', null);
 
-    assert(block._destroyed, 'block should be destroyed');
+    assert(block.isDestroyed(), 'block should be destroyed');
 
     assert.equal(block.getProperty('a'), voidProperty);
     assert.equal(block.createBinding('##', propB), voidProperty);

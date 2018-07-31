@@ -1,4 +1,4 @@
-import {ValueDispatcher, Listener, Dispatcher} from "./Dispatcher";
+import {ValueDispatcher, Listener, Dispatcher, Destroyable} from "./Dispatcher";
 import {Block, BlockChildWatch} from "./Block";
 import {isSavedBlock} from "../util/Types";
 
@@ -11,7 +11,7 @@ export interface BlockPropertySubscriber {
   onPropertyEvent(change: BlockPropertyEvent): void;
 }
 
-export class BlockProperty extends ValueDispatcher<any> implements Listener<any> {
+export class BlockProperty extends ValueDispatcher<any> implements Listener<any>, Destroyable {
 
   _block: Block;
   _name: string;
@@ -212,6 +212,9 @@ export class BlockProperty extends ValueDispatcher<any> implements Listener<any>
     this._listeners = null;
     this._subscribers = null;
     // TODO ?
+  }
+  isDestroyed() {
+    return this._block._destroyed;
   }
 }
 

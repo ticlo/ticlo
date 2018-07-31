@@ -14,7 +14,7 @@ import {
 import {BlockBinding} from "./BlockBinding";
 import {Job, Root} from "./Job";
 import {FunctionData, FunctionGenerator, BaseFunction, FunctionOutput} from "./BlockFunction";
-import {Dispatcher, Listener, ValueDispatcher} from "./Dispatcher";
+import {Dispatcher, Listener, ValueDispatcher, ListenPromise, Destroyable} from "./Dispatcher";
 import {Class, Classes} from "./Class";
 import {ErrorEvent, Event, EventType, NOT_READY} from "./Event";
 import {DataMap} from "../util/Types";
@@ -71,7 +71,7 @@ class PromiseWrapper {
   }
 }
 
-export class Block implements Runnable, FunctionData, Listener<FunctionGenerator> {
+export class Block implements Runnable, FunctionData, Listener<FunctionGenerator>, Destroyable {
   private static _uid = new Uid();
 
   static nextUid(): string {
@@ -264,7 +264,7 @@ export class Block implements Runnable, FunctionData, Listener<FunctionGenerator
     return prop;
   }
 
-  createBinding(path: string, listener: Listener<any>): ValueDispatcher<any> {
+  createBinding(path: string, listener: Listener<any>): ValueDispatcher<any> & Destroyable {
     if (this._destroyed) {
       if (Root.instance._strictMode) {
         throw new Error("createBinding called after destroy");
@@ -306,6 +306,12 @@ export class Block implements Runnable, FunctionData, Listener<FunctionGenerator
 
   _removeBinding(path: string) {
     delete this._bindings[path];
+  }
+
+  waitValue(path: string, validator?: (val: any) => EventType | boolean): Promise<any> {
+    let listenPromise = new ListenPromise(validator);
+    listenPromise.source = this.createBinding(path, listenPromise);
+    return listenPromise._promise;
   }
 
   _save(): DataMap {
@@ -750,6 +756,10 @@ export class Block implements Runnable, FunctionData, Listener<FunctionGenerator
     this._bindings = null;
     this._queueToRun = false;
     this._watchers = null;
+  }
+
+  isDestroyed() {
+    return this._destroyed;
   }
 }
 

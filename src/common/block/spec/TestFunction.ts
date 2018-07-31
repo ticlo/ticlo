@@ -4,6 +4,7 @@ import {BlockIO, BlockPropertyEvent} from "../BlockProperty";
 import {Event, EventType, NOT_READY} from "../Event";
 import {Dispatcher} from "../Dispatcher";
 import {Block} from "../Block";
+import {error} from "util";
 
 
 export class TestFunctionRunner extends BaseFunction {
@@ -123,3 +124,14 @@ export const VoidListeners = {
     throw new Error('should not be called');
   }
 };
+
+export function shouldReject(promise: Promise<any>): Promise<any> {
+  return new Promise<any>((resolve, reject) => {
+    promise.then((val) => {
+        reject(val);
+      }, (err) => {
+        resolve(err);
+      }
+    );
+  });
+}
