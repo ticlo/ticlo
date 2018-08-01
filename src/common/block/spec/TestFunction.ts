@@ -48,7 +48,6 @@ export class TestAsyncFunctionPromise extends PureFunction {
         this.timeOut = null;
       }, 1);
     });
-    this._data.output(promise, '@promise');
     return promise;
   }
 
@@ -85,7 +84,6 @@ export class TestAsyncFunctionManual extends BlockFunction {
         this._data.wait(false, new Event('complete'));
       }, 1);
     });
-    this._data.output(promise, '@promise');
     this._data.wait(true);
     return NOT_READY;
   }

@@ -1,5 +1,5 @@
 import {assert} from "chai";
-import {TestAsyncFunctionLog} from "./TestFunction";
+import {TestAsyncFunctionLog, shouldReject} from "./TestFunction";
 import {Job, Root} from "../Job";
 import {ErrorEvent} from "../Event";
 
@@ -26,7 +26,7 @@ for (let className of ['async-function-promise', 'async-function-manual']) {
 
       assert.deepEqual(TestAsyncFunctionLog.syncLog, ['obj'], 'triggered');
       assert.isEmpty(TestAsyncFunctionLog.asyncLog, 'async not finished');
-      await block.getValue('@promise');
+      await block.waitNextValue('#emit');
       assert.deepEqual(TestAsyncFunctionLog.asyncLog, ['obj'], 'triggered');
 
       job.setValue('obj', null);
@@ -70,25 +70,26 @@ for (let className of ['async-function-promise', 'async-function-manual']) {
       assert.isEmpty(TestAsyncFunctionLog.asyncLog, 'async not finished');
       TestAsyncFunctionLog.clearLog();
 
-      await block1.getValue('@promise');
+      await block1.waitNextValue('#emit');
       assert.deepEqual(TestAsyncFunctionLog.asyncLog, ['obj1'], 'block1 async finish');
       assert.deepEqual(TestAsyncFunctionLog.syncLog, ['obj2'], 'block2 triggered');
       TestAsyncFunctionLog.clearLog();
 
-      await block2.getValue('@promise');
+      await block2.waitNextValue('#emit');
       assert.deepEqual(TestAsyncFunctionLog.asyncLog, ['obj2'], 'block2 run');
       TestAsyncFunctionLog.clearLog();
 
       block2.updateValue('#call', {});
       assert.notEqual(block2.getValue('#waiting'), undefined, 'is waiting after called');
 
+      let block2EmitPromise = block2.waitNextValue('#emit');
+      // #emit need to have binding before next line, otherwise it wont emit
       block1.setValue('#call', new ErrorEvent('error'));
       assert.isUndefined(block2.getValue('#waiting'), 'block1 cancels block2');
+      assert.instanceOf(await shouldReject(block2EmitPromise), ErrorEvent, 'block2 should emit error');
 
       assert.deepEqual(TestAsyncFunctionLog.syncLog, ['obj2'], 'block2 triggered');
       assert.deepEqual(TestAsyncFunctionLog.asyncLog, [], 'error from block1 cancels block2');
     });
   });
-
-
 }
