@@ -93,8 +93,18 @@ export class Root extends Job {
   }
 
   static run() {
-    this._instance._resolver._resolve();
+    this._instance._run();
   }
+
+  _run = () => {
+    this._resolver.run();
+    this._resolver._queued = false;
+    Event._uid.next();
+    for (let onResolved of Resolver._finalResolved) {
+      onResolved();
+    }
+    Resolver._finalResolved.clear();
+  };
 
   _strictMode: boolean = (process.env.NODE_ENV || '').toLowerCase() === 'test';
 
@@ -104,14 +114,8 @@ export class Root extends Job {
     this._resolver = new Resolver((resolver: Resolver) => {
       resolver._queued = true;
       resolver._queueToRun = true;
-      setTimeout(() => {
-        resolver.run();
-        resolver._queued = false;
-      }, 0);
+      setTimeout(this._run, 0);
     });
-    this.onResolved = () => {
-      Event._uid.next();
-    };
   }
 
   addJob(name?: string): Job {

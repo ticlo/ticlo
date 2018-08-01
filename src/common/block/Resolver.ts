@@ -3,6 +3,8 @@ import {Uid} from "../util/Uid";
 
 export class Resolver implements Runnable {
 
+  static _finalResolved: Set<() => void> = new Set<() => void>();
+
   // as Runnable
   _queued: boolean = false;
   _queueToRun: boolean = false;
@@ -118,7 +120,7 @@ export class Resolver implements Runnable {
     this._resolving = false;
 
     if (this._onResolved) {
-      this._onResolved();
+      Resolver._finalResolved.add(this._onResolved);
     }
   }
 }
