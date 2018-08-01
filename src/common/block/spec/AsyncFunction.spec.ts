@@ -1,7 +1,7 @@
 import {assert} from "chai";
-import {TestAsyncFunctionLog, shouldReject} from "./TestFunction";
+import {TestAsyncFunctionLog, shouldReject, shouldTimeout} from "./TestFunction";
 import {Job, Root} from "../Job";
-import {ErrorEvent} from "../Event";
+import {ErrorEvent, Event} from "../Event";
 
 for (let className of ['async-function-promise', 'async-function-manual']) {
 
@@ -90,6 +90,21 @@ for (let className of ['async-function-promise', 'async-function-manual']) {
 
       assert.deepEqual(TestAsyncFunctionLog.syncLog, ['obj2'], 'block2 triggered');
       assert.deepEqual(TestAsyncFunctionLog.asyncLog, [], 'error from block1 cancels block2');
+    });
+
+    it('cancel async call', async () => {
+      let job = new Job();
+
+      let block1 = job.createBlock('obj1');
+      block1.setValue('#sync', true);
+      block1.setValue('@log', 'obj1');
+      block1.setValue('#is', className);
+
+      let emitPromise = block1.waitNextValue('#emit');
+      block1.setValue('#call', {});
+      block1.setValue('#cancel', {});
+      await shouldTimeout(emitPromise, 20);
+
     });
   });
 }
