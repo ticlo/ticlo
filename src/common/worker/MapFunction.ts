@@ -27,7 +27,7 @@ class MapWorkerOutput implements FunctionOutput {
   _onReady: (output: MapWorkerOutput, timeout: boolean) => void;
 
   constructor(key: string, field: string, timeoutSeconds: number,
-              onReady: (output: MapWorkerOutput, timeout: boolean) => void) {
+    onReady: (output: MapWorkerOutput, timeout: boolean) => void) {
     this.key = key;
     this.field = field;
     this._onReady = onReady;
@@ -283,12 +283,14 @@ export class MapFunction extends BlockFunction implements MapImpl {
   // return true when there is no more input
   _updateWorkerInput(worker: Job): boolean {
     if (this._threadTarget === ThreadTarget.Array) {
+      ++this._waitingWorker;
       (worker._outputObj as MapWorkerOutput).reset(`${this._pendingIdx}`, this._timeout, this._onWorkerReady);
       worker.updateInput(this._input[this._pendingIdx], true);
       this._pendingIdx++;
       return this._pendingIdx === (this._input as any[]).length;
     } else {
       let key = this._pendingKeys.pop();
+      ++this._waitingWorker;
       (worker._outputObj as MapWorkerOutput).reset(key, this._timeout, this._onWorkerReady);
       worker.updateInput(this._input[key], true);
       return this._pendingKeys.length === 0;
@@ -296,21 +298,19 @@ export class MapFunction extends BlockFunction implements MapImpl {
   }
 
   _runThread() {
+    if (!this._workers) {
+      this._workers = {};
+    }
     let idx = 0;
     for (; idx < this._thread; ++idx) {
       let worker = this._workers[idx];
-      if (worker) {
-        if (!(worker._outputObj as MapWorkerOutput)._onReady) {
-          if (this._updateWorkerInput(worker)) {
-            // no more input
-            break;
-          }
-        } else {
-          worker = this._addWorker(`${idx}`, undefined, undefined);
-          if (this._updateWorkerInput(worker)) {
-            // no more input
-            break;
-          }
+      if (!worker) {
+        worker = this._addWorker(`${idx}`, undefined, undefined);
+      }
+      if (!(worker._outputObj as MapWorkerOutput)._onReady) {
+        if (this._updateWorkerInput(worker)) {
+          // no more input
+          break;
         }
       }
     }
@@ -367,7 +367,11 @@ export class MapFunction extends BlockFunction implements MapImpl {
   }
 
   _addWorker(key: string, field: string, input: any): Job {
-    let output = new MapWorkerOutput(key, field, this._timeout, this._onWorkerReady);
+    let onWorkerReady = this._onWorkerReady;
+    if (input === undefined) {
+      onWorkerReady = undefined;
+    }
+    let output = new MapWorkerOutput(key, field, this._timeout, onWorkerReady);
     let child = this._funcBlock.createOutputJob(key, this._src, output, this._data._job._namespace);
     child.onResolved = () => {
       if (!child._waiting) {
