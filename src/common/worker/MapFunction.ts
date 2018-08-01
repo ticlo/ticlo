@@ -27,12 +27,14 @@ class MapWorkerOutput implements FunctionOutput {
   _onReady: (output: MapWorkerOutput, timeout: boolean) => void;
 
   constructor(key: string, field: string, timeoutSeconds: number,
-    onReady: (output: MapWorkerOutput, timeout: boolean) => void) {
+              onReady: (output: MapWorkerOutput, timeout: boolean) => void) {
     this.key = key;
     this.field = field;
-    this._onReady = onReady;
-    if (timeoutSeconds > 0) {
-      this._timeout = setTimeout(this.onTimeout, timeoutSeconds * 1000);
+    if (field !== undefined) {
+      this._onReady = onReady;
+      if (timeoutSeconds > 0) {
+        this._timeout = setTimeout(this.onTimeout, timeoutSeconds * 1000);
+      }
     }
   }
 
@@ -367,11 +369,7 @@ export class MapFunction extends BlockFunction implements MapImpl {
   }
 
   _addWorker(key: string, field: string, input: any): Job {
-    let onWorkerReady = this._onWorkerReady;
-    if (input === undefined) {
-      onWorkerReady = undefined;
-    }
-    let output = new MapWorkerOutput(key, field, this._timeout, onWorkerReady);
+    let output = new MapWorkerOutput(key, field, this._timeout, this._onWorkerReady);
     let child = this._funcBlock.createOutputJob(key, this._src, output, this._data._job._namespace);
     child.onResolved = () => {
       if (!child._waiting) {
