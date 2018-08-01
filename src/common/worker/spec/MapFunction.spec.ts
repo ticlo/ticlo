@@ -47,6 +47,8 @@ describe("MapFunction Basic", () => {
 
     assert.deepEqual(bBlock.getValue('output'), {'v1': 2, 'v2': 5, 'v4': 6});
 
+    // delete job;
+    job.deleteValue('b');
   });
 
   it('reuse worker', () => {
@@ -88,6 +90,9 @@ describe("MapFunction Basic", () => {
 
     assert.deepEqual(bBlock.getValue('output'), {'v1': 2, 'v2': 5, 'v4': 6});
     assert.isUndefined(bBlock.queryValue('#func.v3.#output'), 'unused worker should be removed');
+
+    // delete job;
+    job.deleteValue('b');
   });
 
   it('persist worker', () => {
@@ -129,6 +134,9 @@ describe("MapFunction Basic", () => {
 
     assert.deepEqual(bBlock.getValue('output'), {'v1': 2, 'v2': 5, 'v4': 6});
     assert.equal(bBlock.queryValue('#func.v3.#output'), 4, 'unused worker is still kept');
+
+    // delete job;
+    job.deleteValue('b');
   });
 
   it('conversion from Block', () => {
@@ -161,6 +169,9 @@ describe("MapFunction Basic", () => {
     Root.run();
 
     assert.deepEqual(bBlock.getValue('output'), {'obj1': {'v': 2}, 'obj2': {'v': 3}, 'obj3': {'v': 4}});
+
+    // delete job;
+    job.deleteValue('b');
   });
 
   it('async worker', async () => {
@@ -204,6 +215,9 @@ describe("MapFunction Basic", () => {
     Root.run();
 
     assert.deepEqual(await bBlock.waitNextValue('output'), {'v1': 2, 'v2': 5, 'v4': 6});
+
+    // delete job;
+    job.deleteValue('b');
 
   });
 
