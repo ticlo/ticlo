@@ -1,10 +1,11 @@
 import {assert} from "chai";
 import {Job, Root} from "../../block/Job";
 import {Block} from "../../block/Block";
-import {TestFunctionRunner, TestAsyncFunctionPromise} from "../../block/spec/TestFunction";
+import {TestFunctionRunner, TestAsyncFunctionPromise, shouldTimeout} from "../../block/spec/TestFunction";
 import "../../functions/basic/Math";
 import "../MapFunction";
 import {DataMap} from "../../util/Types";
+import {ErrorEvent} from "../../block/Event";
 
 
 describe("MapFunction Basic", () => {
@@ -219,6 +220,42 @@ describe("MapFunction Basic", () => {
     // delete job;
     job.deleteValue('b');
 
+  });
+
+  it('timeout', async () => {
+    TestFunctionRunner.clearLog();
+    let job = new Job();
+
+    job.setValue('a', {
+      'v1': 1,
+      'v2': 2
+    });
+
+    let bBlock = job.createBlock('b');
+
+    bBlock._load({
+      '#is': 'map',
+      '~input': '##.a',
+      'src': {
+        '#is': {
+          '#is': '',
+          '#waiting': true
+        }
+      }
+    });
+
+    // without timeout, block would never have output
+    await shouldTimeout(bBlock.waitNextValue('output'), 10);
+
+    bBlock.setValue('timeout', 0.01);
+
+    let output = await bBlock.waitNextValue('output');
+
+    assert.instanceOf(output.v1, ErrorEvent, 'value is timeout error');
+    assert.instanceOf(output.v2, ErrorEvent, 'value is timeout error');
+
+    // delete job;
+    job.deleteValue('b');
   });
 
 });

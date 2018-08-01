@@ -39,11 +39,13 @@ class MapWorkerOutput implements FunctionOutput {
   }
 
   updateTimeOut(seconds: number) {
-    if (this._timeout) {
-      clearTimeout(this._timeout);
-    }
-    if (seconds > 0) {
-      this._timeout = setTimeout(this.onTimeout, seconds * 1000);
+    if (this._onReady) {
+      if (this._timeout) {
+        clearTimeout(this._timeout);
+      }
+      if (seconds > 0) {
+        this._timeout = setTimeout(this.onTimeout, seconds * 1000);
+      }
     }
   }
 
@@ -180,7 +182,7 @@ export class MapFunction extends BlockFunction implements MapImpl {
         this._onInputChange(this._data.getValue('#input'));
       }
     } else if (this._timeoutChanged) {
-      // TODO update timeout on existing workers
+      this._updateWorkerTimeout(this._timeout);
     }
 
     // clear running workers update on sync run
@@ -205,14 +207,13 @@ export class MapFunction extends BlockFunction implements MapImpl {
       if (this._waitingWorker === 0) {
         this._data.output(this._output);
         this._input = undefined;
-        if (!this._reuseWorker) {
-          this._clearWorkers();
-        }
         // don't return, allow it to continue working on next pendingInput
       } else {
         // there are still waiting worker, dont run
         return;
       }
+    } else if (this._waitingWorker > 0) {
+      return;
     }
 
     if (!this._reuseWorker) {
@@ -296,6 +297,17 @@ export class MapFunction extends BlockFunction implements MapImpl {
       (worker._outputObj as MapWorkerOutput).reset(key, this._timeout, this._onWorkerReady);
       worker.updateInput(this._input[key], true);
       return this._pendingKeys.length === 0;
+    }
+  }
+
+  _updateWorkerTimeout(seconds: number) {
+    if (this._workers) {
+      for (let key in this._workers) {
+        let worker = this._workers[key];
+        if (worker) {
+          (worker._outputObj as MapWorkerOutput).updateTimeOut(seconds);
+        }
+      }
     }
   }
 
