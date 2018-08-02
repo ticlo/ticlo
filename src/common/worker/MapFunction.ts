@@ -216,14 +216,17 @@ export class MapFunction extends BlockFunction implements MapImpl {
       return;
     }
 
-    if (!this._reuseWorker) {
+
+    if (!this._pendingInput) {
+      if (this._reuseWorker !== 'persist') {
+        this._clearWorkers();
+      }
+      // nothing to run
+      return;
+    } else if (!this._reuseWorker) {
       this._clearWorkers();
     }
 
-    if (!this._pendingInput) {
-      // no input change
-      return;
-    }
     this._data.wait(true);
 
     this._input = this._pendingInput;
@@ -266,7 +269,7 @@ export class MapFunction extends BlockFunction implements MapImpl {
     }
     this._waitingWorker--;
     if (this._threadTarget) {
-      if (output.key as any >= this._thread) {
+      if (!this._reuseWorker || output.key as any >= this._thread) {
         // remove thread worker if the idx is more than max allowed thread
         this._removeWorker(output.key);
       }

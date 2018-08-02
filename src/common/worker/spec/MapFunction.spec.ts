@@ -9,9 +9,16 @@ import {ErrorEvent} from "../../block/Event";
 
 
 describe("MapFunction Basic", () => {
+  beforeEach(() => {
+    TestFunctionRunner.clearLog();
+  });
+
+  afterEach(() => {
+    TestFunctionRunner.clearLog();
+  });
 
   it('basic', () => {
-    TestFunctionRunner.clearLog();
+
     let job = new Job();
 
     job.setValue('a', {
@@ -28,6 +35,7 @@ describe("MapFunction Basic", () => {
       'src': {
         '#is': {
           '#is': '',
+          'runner': {'#is': 'test-runner', '#mode': 'always', '@log': 0},
           'add': {'#is': 'add', '~0': '##.#input', '1': 1},
           '~#output': 'add.output'
         }
@@ -48,12 +56,14 @@ describe("MapFunction Basic", () => {
 
     assert.deepEqual(bBlock.getValue('output'), {'v1': 2, 'v2': 5, 'v4': 6});
 
+    assert.lengthOf(TestFunctionRunner.popLogs(), 6);
+
     // delete job;
     job.deleteValue('b');
   });
 
   it('reuse worker', () => {
-    TestFunctionRunner.clearLog();
+
     let job = new Job();
 
     job.setValue('a', {
@@ -71,6 +81,7 @@ describe("MapFunction Basic", () => {
       'src': {
         '#is': {
           '#is': '',
+          'runner': {'#is': 'test-runner', '#mode': 'always', '@log': 0},
           'add': {'#is': 'add', '~0': '##.#input', '1': 1},
           '~#output': 'add.output'
         }
@@ -92,12 +103,15 @@ describe("MapFunction Basic", () => {
     assert.deepEqual(bBlock.getValue('output'), {'v1': 2, 'v2': 5, 'v4': 6});
     assert.isUndefined(bBlock.queryValue('#func.v3.#output'), 'unused worker should be removed');
 
+    assert.lengthOf(TestFunctionRunner.popLogs(), 4);
+
+
     // delete job;
     job.deleteValue('b');
   });
 
   it('persist worker', () => {
-    TestFunctionRunner.clearLog();
+
     let job = new Job();
 
     job.setValue('a', {
@@ -115,6 +129,7 @@ describe("MapFunction Basic", () => {
       'src': {
         '#is': {
           '#is': '',
+          'runner': {'#is': 'test-runner', '#mode': 'always', '@log': 0},
           'add': {'#is': 'add', '~0': '##.#input', '1': 1},
           '~#output': 'add.output'
         }
@@ -136,12 +151,14 @@ describe("MapFunction Basic", () => {
     assert.deepEqual(bBlock.getValue('output'), {'v1': 2, 'v2': 5, 'v4': 6});
     assert.equal(bBlock.queryValue('#func.v3.#output'), 4, 'unused worker is still kept');
 
+    assert.lengthOf(TestFunctionRunner.popLogs(), 4);
+
+
     // delete job;
     job.deleteValue('b');
   });
 
   it('conversion from Block', () => {
-    TestFunctionRunner.clearLog();
     let job = new Job();
 
     let aBlock = job.createBlock('a');
@@ -176,7 +193,7 @@ describe("MapFunction Basic", () => {
   });
 
   it('async worker', async () => {
-    TestFunctionRunner.clearLog();
+
     let job = new Job();
 
     job.setValue('a', {
@@ -193,6 +210,7 @@ describe("MapFunction Basic", () => {
       'src': {
         '#is': {
           '#is': '',
+          'runner': {'#is': 'test-runner', '#mode': 'always', '@log': 0},
           'async': {'#is': 'async-function-promise', '~#call': '##.#input'},
           'add': {'#is': 'add', '#mode': 'onCall', '~#call': '##.async.#emit', '~0': '##.#input', '1': 1},
           '~#waiting': 'async.#waiting',
@@ -217,13 +235,15 @@ describe("MapFunction Basic", () => {
 
     assert.deepEqual(await bBlock.waitNextValue('output'), {'v1': 2, 'v2': 5, 'v4': 6});
 
+    assert.lengthOf(TestFunctionRunner.popLogs(), 6);
+
+
     // delete job;
     job.deleteValue('b');
 
   });
 
   it('timeout', async () => {
-    TestFunctionRunner.clearLog();
     let job = new Job();
 
     job.setValue('a', {
@@ -257,5 +277,6 @@ describe("MapFunction Basic", () => {
     // delete job;
     job.deleteValue('b');
   });
+
 
 });
