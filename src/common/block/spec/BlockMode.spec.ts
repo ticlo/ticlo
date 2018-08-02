@@ -29,9 +29,8 @@ describe("BlockMode", () => {
     block.setValue('#call', {});
 
     Root.run();
-    assert.deepEqual(TestFunctionRunner.logs, ['obj'],
+    assert.deepEqual(TestFunctionRunner.popLogs(), ['obj'],
       'manual mode should trigger block when called');
-    TestFunctionRunner.clearLog();
 
     block.setValue('#mode', 'onChange');
     Root.run();
@@ -40,15 +39,13 @@ describe("BlockMode", () => {
 
     block.setValue('#mode', 'always');
     Root.run();
-    assert.deepEqual(TestFunctionRunner.logs, ['obj'],
+    assert.deepEqual(TestFunctionRunner.popLogs(), ['obj'],
       'change mode to always should trigger function');
-    TestFunctionRunner.clearLog();
 
     block.setValue('input', {});
     Root.run();
-    assert.deepEqual(TestFunctionRunner.logs, ['obj'],
+    assert.deepEqual(TestFunctionRunner.popLogs(), ['obj'],
       'auto mode should trigger block when io property changed');
-    TestFunctionRunner.clearLog();
 
     block.setValue('#mode', 'disabled');
     block.setValue('#call', {});
@@ -91,9 +88,8 @@ describe("BlockMode", () => {
     b4.setValue('input', {});
 
     Root.run();
-    assert.deepEqual(TestFunctionRunner.logs, ['b0', 'b1'],
+    assert.deepEqual(TestFunctionRunner.popLogs(), ['b0', 'b1'],
       'mode always and onChange should be called');
-    TestFunctionRunner.clearLog();
 
     let saved = job._save();
     let job2 = new Job();
@@ -120,9 +116,8 @@ describe("BlockMode", () => {
     b1.setValue('#is', 'test-runner');
     b1.setBinding('input', '##.b0.input');
     Root.run();
-    assert.deepEqual(TestFunctionRunner.logs, ['b0', 'b1'],
+    assert.deepEqual(TestFunctionRunner.popLogs(), ['b0', 'b1'],
       'first snapshot');
-    TestFunctionRunner.clearLog();
 
     let save1 = job.save();
 
@@ -141,9 +136,8 @@ describe("BlockMode", () => {
     b3.setValue('input', 2);
 
     Root.run();
-    assert.deepEqual(TestFunctionRunner.logs, ['b0', 'b1', 'b2', 'b3'],
+    assert.deepEqual(TestFunctionRunner.popLogs(), ['b0', 'b1', 'b2', 'b3'],
       'second snapshot');
-    TestFunctionRunner.clearLog();
     let save2 = job.save();
 
     job.liveUpdate(save1);

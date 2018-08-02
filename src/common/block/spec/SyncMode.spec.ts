@@ -53,14 +53,12 @@ describe("SyncMode", () => {
     block3.setBinding('#call', '##.obj2.#emit');
 
     block1.setValue('#call', {});
-    assert.deepEqual(TestFunctionRunner.logs, ['obj1', 'obj2', 'obj3'],
+    assert.deepEqual(TestFunctionRunner.popLogs(), ['obj1', 'obj2', 'obj3'],
       'sync mode should run chained functions instantly when called');
-    TestFunctionRunner.clearLog();
 
     block1.setValue('#call', {});
-    assert.deepEqual(TestFunctionRunner.logs, ['obj1', 'obj3'],
+    assert.deepEqual(TestFunctionRunner.popLogs(), ['obj1', 'obj3'],
       'sync call should skip block that doesn\'t need update');
-    TestFunctionRunner.clearLog();
 
     block1.setValue('#call', new ErrorEvent('error'));
     assert.isEmpty(TestFunctionRunner.logs,

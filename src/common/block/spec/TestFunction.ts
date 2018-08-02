@@ -11,6 +11,12 @@ export class TestFunctionRunner extends BaseFunction {
 
   static logs: any[] = [];
 
+  static popLogs(): any[] {
+    let result = TestFunctionRunner.logs;
+    TestFunctionRunner.logs = [];
+    return result;
+  }
+
   static clearLog() {
     TestFunctionRunner.logs.length = 0;
   }

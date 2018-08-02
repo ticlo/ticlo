@@ -24,9 +24,8 @@ describe("WorkerFunction", () => {
     WorkerFunction.registerClass('/WorkerFunction/class1', jobData);
 
     Root.run();
-    assert.deepEqual(TestFunctionRunner.logs, ['nest1'],
+    assert.deepEqual(TestFunctionRunner.popLogs(), ['nest1'],
       'nested job should be created');
-    TestFunctionRunner.clearLog();
 
     let impl: Job = aBlock.getValue('#func')  as Job;
     assert.instanceOf(impl, Job, 'get #func of nested job');
@@ -35,9 +34,8 @@ describe("WorkerFunction", () => {
 
     aBlock.setValue('in1', 1);
     Root.run();
-    assert.deepEqual(TestFunctionRunner.logs, ['nest1'],
+    assert.deepEqual(TestFunctionRunner.popLogs(), ['nest1'],
       'nested job triggered with binding');
-    TestFunctionRunner.clearLog();
 
     aBlock.setValue('in1', 2);
     aBlock.setValue('#is', null);

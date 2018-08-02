@@ -46,8 +46,7 @@ describe("ForEachFunction", () => {
     });
     Root.run();
 
-    assert.lengthOf(TestFunctionRunner.logs, 3, 'worker run 3 times');
-    TestFunctionRunner.clearLog();
+    assert.lengthOf(TestFunctionRunner.popLogs(), 3, 'worker run 3 times');
 
     assert.equal(bBlock.queryProperty('output.obj1.v').getValue(), 2, 'basic ForEach chain');
     assert.equal(cBlock.queryProperty('output.obj2.v').getValue(), 6, 'basic ForEach chain');
@@ -60,8 +59,7 @@ describe("ForEachFunction", () => {
       '#output': {'#is': 'output', '~v': '##.subtract.output'}
     });
     Root.run();
-    assert.lengthOf(TestFunctionRunner.logs, 3, 'worker run 3 times');
-    TestFunctionRunner.clearLog();
+    assert.lengthOf(TestFunctionRunner.popLogs(), 3, 'worker run 3 times');
 
     assert.equal(cBlock.queryProperty('output.obj2.v').getValue(), -6, 'ForEach chain src changed');
     assert.equal(cBlock.queryProperty('output.obj3.v').getValue(), -4, 'ForEach chain src changed on child Object');
@@ -72,8 +70,7 @@ describe("ForEachFunction", () => {
     aBlock.updateValue('obj5', {'v': 5});
 
     Root.run();
-    assert.lengthOf(TestFunctionRunner.logs, 2, 'worker run twice on 2 change items');
-    TestFunctionRunner.clearLog();
+    assert.lengthOf(TestFunctionRunner.popLogs(), 2, 'worker run twice on 2 change items');
 
     assert.isUndefined(cBlock.queryProperty('output.obj2').getValue(), 'remove object');
     assert.equal(cBlock.queryProperty('output.obj4.v').getValue(), -2, 'add watch child');
