@@ -330,5 +330,104 @@ describe("MapFunction Basic", () => {
     job.deleteValue('b');
   });
 
+  it('cancel worker', async () => {
 
+    let job = new Job();
+
+    job.setValue('a', {
+      'v1': 1,
+      'v2': 2,
+      'v3': 3
+    });
+
+    let bBlock = job.createBlock('b');
+
+    bBlock._load({
+      '#is': 'map',
+      '~input': '##.a',
+      'src': {
+        '#is': {
+          '#is': '',
+          'runner': {'#is': 'test-runner', '#mode': 'always', '@log': 0},
+          'async': {'#is': 'async-function-promise', '~#call': '##.#input'},
+          'add': {'#is': 'add', '#mode': 'onCall', '~#call': '##.async.#emit', '~0': '##.#input', '1': 1},
+          '~#waiting': 'async.#waiting',
+          '~#output': 'add.output'
+        }
+      }
+    });
+
+    Root.run();
+
+    bBlock.setValue('#cancel', {});
+    await shouldTimeout(bBlock.waitNextValue('output'), 10);
+
+    assert.lengthOf(TestFunctionRunner.popLogs(), 3);
+
+    job.setValue('a', {
+      'v1': 1,
+      'v2': 4,
+      'v4': 5
+    });
+
+    Root.run();
+
+    assert.deepEqual(await bBlock.waitNextValue('output'), {'v1': 2, 'v2': 5, 'v4': 6});
+
+    assert.lengthOf(TestFunctionRunner.popLogs(), 3);
+
+    // delete job;
+    job.deleteValue('b');
+
+  });
+
+  it('cancel worker reuse', async () => {
+
+    let job = new Job();
+
+    job.setValue('a', {
+      'v1': 1,
+      'v2': 2,
+      'v3': 3
+    });
+
+    let bBlock = job.createBlock('b');
+
+    bBlock._load({
+      '#is': 'map',
+      'reuseWorker': 'reuse',
+      '~input': '##.a',
+      'src': {
+        '#is': {
+          '#is': '',
+          'runner': {'#is': 'test-runner', '#mode': 'always', '@log': 0},
+          'async': {'#is': 'async-function-promise', '~#call': '##.#input'},
+          'add': {'#is': 'add', '#mode': 'onCall', '~#call': '##.async.#emit', '~0': '##.#input', '1': 1},
+          '~#waiting': 'async.#waiting',
+          '~#output': 'add.output'
+        }
+      }
+    });
+
+    Root.run();
+
+    assert.lengthOf(TestFunctionRunner.popLogs(), 3);
+    bBlock.setValue('#cancel', {});
+
+    job.setValue('a', {
+      'v1': 1,
+      'v2': 4,
+      'v4': 5
+    });
+
+    Root.run();
+
+    assert.deepEqual(await bBlock.waitValue('output'), {'v1': 2, 'v2': 5, 'v4': 6});
+
+    assert.lengthOf(TestFunctionRunner.popLogs(), 1);
+
+    // delete job;
+    job.deleteValue('b');
+
+  });
 });
