@@ -4,7 +4,7 @@ import {Block} from "../Block";
 
 describe("Block", () => {
 
-  it('basic', () => {
+  it('basic binding', () => {
     let job = new Job();
     job.setValue('@a', 357);
     job.setBinding('@b', '@a');
@@ -13,7 +13,7 @@ describe("Block", () => {
     let block = job.createBlock('obj');
     assert.equal(block instanceof Block, true, 'createBlock');
     assert.equal(block, job.getValue('obj'), 'get child block');
-
+    // assert.equal(block.getValue(''), block, 'self property');
 
     block.setValue('@c', 468);
     job.setBinding('@d', 'obj.@c');

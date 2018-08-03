@@ -176,9 +176,11 @@ export class Block implements Runnable, FunctionData, Listener<FunctionGenerator
     if (this._props.hasOwnProperty(field)) {
       return this._props[field];
     }
-    if (field === '') {
-      return this._prop;
-    }
+
+    // if (field === '') { // comment out self property for now
+    //   return this._prop;
+    // }
+
     let firstChar = field.charCodeAt(0);
     let prop: BlockProperty;
 
