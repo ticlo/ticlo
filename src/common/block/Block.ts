@@ -109,15 +109,6 @@ export class Block implements Runnable, FunctionData, Listener<FunctionGenerator
     this.getProperty('#is');
   }
 
-  emit(event?: any) {
-    if (this._props['#emit']) {
-      if (!event) {
-        event = new Event('asyncComplete');
-      }
-      this._props['#emit'].updateValue(event);
-    }
-  }
-
   wait(val: any, emit?: any): void {
     this.updateValue('#waiting', val);
     if (!val) {
