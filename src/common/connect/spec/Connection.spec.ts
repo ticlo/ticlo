@@ -15,7 +15,7 @@ describe("Connection", () => {
 
     client.createBlock('Connection1.block1');
     await client.setValue('Connection1.block1.#is', 'add');
-    assert.equal(job.queryProperty("block1.#is").getValue(), 'add', 'basic set');
+    assert.equal(job.queryValue("block1.#is"), 'add', 'basic set');
 
     let callbacks = new AsyncClientPromise();
     client.subscribe('Connection1.block1.output', callbacks);

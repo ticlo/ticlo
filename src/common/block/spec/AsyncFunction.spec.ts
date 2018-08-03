@@ -100,9 +100,14 @@ for (let className of ['async-function-promise', 'async-function-manual']) {
       block1.setValue('#-log', 'obj1');
       block1.setValue('#is', className);
 
-      let emitPromise = block1.waitValue('#emit');
+      block1.setValue('#cancel', 1);
       block1.setValue('#call', {});
-      block1.setValue('#cancel', {});
+      await block1.waitNextValue('#emit');
+      assert.deepEqual(TestAsyncFunctionLog.asyncLog, ['obj1'], 'cancel should not affect next run');
+
+      let emitPromise = block1.waitNextValue('#emit');
+      block1.setValue('#call', {});
+      block1.setValue('#cancel', 2);
       await shouldTimeout(emitPromise, 20);
     });
 

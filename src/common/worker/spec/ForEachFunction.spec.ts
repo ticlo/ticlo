@@ -48,9 +48,9 @@ describe("ForEachFunction", () => {
 
     assert.lengthOf(TestFunctionRunner.popLogs(), 3, 'worker run 3 times');
 
-    assert.equal(bBlock.queryProperty('output.obj1.v').getValue(), 2, 'basic ForEach chain');
-    assert.equal(cBlock.queryProperty('output.obj2.v').getValue(), 6, 'basic ForEach chain');
-    assert.equal(cBlock.queryProperty('output.obj3.v').getValue(), 8, 'basic ForEach chain on child Object');
+    assert.equal(bBlock.queryValue('output.obj1.v'), 2, 'basic ForEach chain');
+    assert.equal(cBlock.queryValue('output.obj2.v'), 6, 'basic ForEach chain');
+    assert.equal(cBlock.queryValue('output.obj3.v'), 8, 'basic ForEach chain on child Object');
 
     bBlock.updateValue('src', {
       '#is': '',
@@ -61,8 +61,8 @@ describe("ForEachFunction", () => {
     Root.run();
     assert.lengthOf(TestFunctionRunner.popLogs(), 3, 'worker run 3 times');
 
-    assert.equal(cBlock.queryProperty('output.obj2.v').getValue(), -6, 'ForEach chain src changed');
-    assert.equal(cBlock.queryProperty('output.obj3.v').getValue(), -4, 'ForEach chain src changed on child Object');
+    assert.equal(cBlock.queryValue('output.obj2.v'), -6, 'ForEach chain src changed');
+    assert.equal(cBlock.queryValue('output.obj3.v'), -4, 'ForEach chain src changed on child Object');
 
     aBlock.deleteValue('obj2');
     let obj4 = aBlock.createBlock('obj4');
@@ -72,16 +72,16 @@ describe("ForEachFunction", () => {
     Root.run();
     assert.lengthOf(TestFunctionRunner.popLogs(), 2, 'worker run twice on 2 change items');
 
-    assert.isUndefined(cBlock.queryProperty('output.obj2').getValue(), 'remove object');
-    assert.equal(cBlock.queryProperty('output.obj4.v').getValue(), -2, 'add watch child');
-    assert.equal(cBlock.queryProperty('output.obj5.v').getValue(), 0, 'add watch child Object');
+    assert.isUndefined(cBlock.queryValue('output.obj2'), 'remove object');
+    assert.equal(cBlock.queryValue('output.obj4.v'), -2, 'add watch child');
+    assert.equal(cBlock.queryValue('output.obj5.v'), 0, 'add watch child Object');
 
     job.updateValue('b', null);
     aBlock.updateValue('obj6', {'v': 6});
 
     Root.run();
 
-    assert.isUndefined(cBlock.queryProperty('output').getValue(), 'output is removed when input is empty');
+    assert.isUndefined(cBlock.queryValue('output'), 'output is removed when input is empty');
 
     assert.isEmpty(TestFunctionRunner.logs, 'worker should not run after destroyed');
   });
@@ -105,17 +105,17 @@ describe("ForEachFunction", () => {
     });
 
     Root.run();
-    assert.equal(bBlock.queryProperty('output.obj1.v').getValue(), 2, 'basic ForEach on Object');
+    assert.equal(bBlock.queryValue('output.obj1.v'), 2, 'basic ForEach on Object');
 
     job.updateValue('a', {'obj3': {'v': 3}, 'obj2': {'v': 2}});
     Root.run();
-    assert.isUndefined(bBlock.queryProperty('output.obj1').getValue(), 'update input');
-    assert.equal(bBlock.queryProperty('output.obj2.v').getValue(), 3, 'update input');
-    assert.equal(bBlock.queryProperty('output.obj3.v').getValue(), 4, 'update input');
+    assert.isUndefined(bBlock.queryValue('output.obj1'), 'update input');
+    assert.equal(bBlock.queryValue('output.obj2.v'), 3, 'update input');
+    assert.equal(bBlock.queryValue('output.obj3.v'), 4, 'update input');
 
     bBlock.setValue('#is', '');
-    assert.isUndefined(bBlock.queryProperty('output').getValue(), 'destroy ForEachFunction');
-    assert.isUndefined(bBlock.queryProperty('#func').getValue(), 'destroy ForEachFunction');
+    assert.isUndefined(bBlock.queryValue('output'), 'destroy ForEachFunction');
+    assert.isUndefined(bBlock.queryValue('#func'), 'destroy ForEachFunction');
   });
 
   it('foreach primitive types', () => {
@@ -141,20 +141,20 @@ describe("ForEachFunction", () => {
     });
 
     Root.run();
-    assert.equal(bBlock.queryProperty('output.v1').getValue(), 2);
+    assert.equal(bBlock.queryValue('output.v1'), 2);
 
     aBlock.setValue('v3', 3);
     aBlock.deleteValue('v1');
 
     Root.run();
-    assert.isUndefined(bBlock.queryProperty('output.v1').getValue());
-    assert.equal(bBlock.queryProperty('output.v2').getValue(), 3);
-    assert.equal(bBlock.queryProperty('output.v3').getValue(), 4);
+    assert.isUndefined(bBlock.queryValue('output.v1'));
+    assert.equal(bBlock.queryValue('output.v2'), 3);
+    assert.equal(bBlock.queryValue('output.v3'), 4);
 
     job.setValue('a', 1);
 
     Root.run();
-    assert.isUndefined(bBlock.queryProperty('output').getValue(), 'clear output when input is no longer Object or Block');
+    assert.isUndefined(bBlock.queryValue('output'), 'clear output when input is no longer Object or Block');
   });
 
   it('clear foreach src', () => {
@@ -175,10 +175,10 @@ describe("ForEachFunction", () => {
     });
 
     Root.run();
-    assert.equal(bBlock.queryProperty('output.v1').getValue(), 1);
+    assert.equal(bBlock.queryValue('output.v1'), 1);
 
     bBlock.setValue('src', null);
     Root.run();
-    assert.isUndefined(bBlock.queryProperty('output').getValue(), 'clear output when src is invalid');
+    assert.isUndefined(bBlock.queryValue('output'), 'clear output when src is invalid');
   });
 });
