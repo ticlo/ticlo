@@ -100,7 +100,7 @@ for (let className of ['async-function-promise', 'async-function-manual']) {
       block1.setValue('#-log', 'obj1');
       block1.setValue('#is', className);
 
-      let emitPromise = block1.waitNextValue('#emit');
+      let emitPromise = block1.waitValue('#emit');
       block1.setValue('#call', {});
       block1.setValue('#cancel', {});
       await shouldTimeout(emitPromise, 20);
@@ -116,7 +116,21 @@ for (let className of ['async-function-promise', 'async-function-manual']) {
       block1.setValue('#is', className);
 
       block1.setValue('#call', {});
-      await shouldReject(block1.waitNextValue('#emit'));
+      await shouldReject(block1.waitValue('#emit'));
     });
+
+    it('async emit custom value', async () => {
+      let job = new Job();
+
+      let block1 = job.createBlock('obj1');
+      block1.setValue('#sync', true);
+      block1.setValue('#-log', 'obj1');
+      block1.setValue('#-resolve', 'ticlo');
+      block1.setValue('#is', className);
+
+      block1.setValue('#call', {});
+      assert.equal(await block1.waitValue('#emit'), 'ticlo');
+    });
+
   });
 }

@@ -51,9 +51,9 @@ export class TestAsyncFunctionPromise extends PureFunction {
       this.timeOut = setTimeout(() => {
         TestAsyncFunctionLog.asyncLog.push(this._data.getValue('#-log'));
         if (this._data.getValue('#-reject')) {
-          reject('#-reject');
+          reject(this._data.getValue('#-reject'));
         } else {
-          resolve();
+          resolve(this._data.getValue('#-resolve'));
         }
         this.timeOut = null;
       }, 1);
@@ -87,9 +87,13 @@ export class TestAsyncFunctionManual extends BlockFunction {
     this.timeOut = setTimeout(() => {
       TestAsyncFunctionLog.asyncLog.push(this._data.getValue('#-log'));
       if (this._data.getValue('#-reject')) {
-        this._data.wait(false, new ErrorEvent('reject'));
+        this._data.wait(false, new ErrorEvent('#-reject'));
       } else {
-        this._data.wait(false, new Event('complete'));
+        if (this._data.getValue('#-resolve')) {
+          this._data.wait(false, this._data.getValue('#-resolve'));
+        } else {
+          this._data.wait(false, new Event('complete'));
+        }
       }
       this.timeOut = null;
     }, 1);
