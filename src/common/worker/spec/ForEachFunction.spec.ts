@@ -27,7 +27,7 @@ describe("ForEachFunction", () => {
       'src': {
         '#is': {
           '#is': '',
-          'test': {'#is': 'test-runner', '~@log': '##.#input.v'},
+          'test': {'#is': 'test-runner', '~#-log': '##.#input.v'},
           'add': {'#is': 'add', '~0': '##.#input.v', '1': 1},
           '#output': {'#is': 'output', '~v': '##.add.output'}
         }
@@ -54,7 +54,7 @@ describe("ForEachFunction", () => {
 
     bBlock.updateValue('src', {
       '#is': '',
-      'test': {'#is': 'test-runner', '~@log': '##.#input.v'},
+      'test': {'#is': 'test-runner', '~#-log': '##.#input.v'},
       'subtract': {'#is': 'subtract', '~0': '##.#input.v', '1': 5},
       '#output': {'#is': 'output', '~v': '##.subtract.output'}
     });

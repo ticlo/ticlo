@@ -19,7 +19,7 @@ describe("WorkerFunction", () => {
 
     let jobData: DataMap = {
       '#is': '',
-      'runner': {'#is': 'test-runner', '@log': 'nest1', '~#call': '##.#input.in1'}
+      'runner': {'#is': 'test-runner', '#-log': 'nest1', '~#call': '##.#input.in1'}
     };
     WorkerFunction.registerClass('/WorkerFunction/class1', jobData);
 

@@ -40,7 +40,7 @@ describe("MapFunction Thread", () => {
       'src': {
         '#is': {
           '#is': '',
-          'runner': {'#is': 'test-runner', '#mode': 'always', '@log': 0},
+          'runner': {'#is': 'test-runner', '#mode': 'always', '#-log': 0},
           'add': {'#is': 'add', '~0': '##.#input', '1': 1},
           '~#output': 'add.output'
         }
@@ -98,7 +98,7 @@ describe("MapFunction Thread", () => {
       'src': {
         '#is': {
           '#is': '',
-          'runner': {'#is': 'test-runner', '#mode': 'always', '@log': 0},
+          'runner': {'#is': 'test-runner', '#mode': 'always', '#-log': 0},
           'async': {'#is': 'async-function-promise', '~#call': '##.#input'},
           'add': {'#is': 'add', '#mode': 'onCall', '~#call': '##.async.#emit', '~0': '##.#input', '1': 1},
           '~#waiting': 'async.#waiting',
@@ -158,7 +158,7 @@ describe("MapFunction Thread", () => {
       'src': {
         '#is': {
           '#is': '',
-          'runner': {'#is': 'test-runner', '#mode': 'always', '@log': 0},
+          'runner': {'#is': 'test-runner', '#mode': 'always', '#-log': 0},
           'async': {'#is': 'async-function-promise', '~#call': '##.#input'},
           'add': {'#is': 'add', '#mode': 'onCall', '~#call': '##.async.#emit', '~0': '##.#input', '1': 1},
           '~#waiting': 'async.#waiting',
@@ -218,7 +218,7 @@ describe("MapFunction Thread", () => {
       'src': {
         '#is': {
           '#is': '',
-          'runner': {'#is': 'test-runner', '#mode': 'always', '@log': 0},
+          'runner': {'#is': 'test-runner', '#mode': 'always', '#-log': 0},
           'async': {'#is': 'async-function-promise', '~#call': '##.#input'},
           'add': {'#is': 'add', '#mode': 'onCall', '~#call': '##.async.#emit', '~0': '##.#input', '1': 1},
           '~#waiting': 'async.#waiting',
@@ -274,7 +274,7 @@ describe("MapFunction Thread", () => {
       'src': {
         '#is': {
           '#is': '',
-          'runner': {'#is': 'test-runner', '#mode': 'always', '@log': 0},
+          'runner': {'#is': 'test-runner', '#mode': 'always', '#-log': 0},
           'async': {'#is': 'async-function-promise', '~#call': '##.#input'},
           'add': {'#is': 'add', '#mode': 'onCall', '~#call': '##.async.#emit', '~0': '##.#input', '1': 1},
           '~#waiting': 'async.#waiting',

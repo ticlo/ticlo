@@ -19,7 +19,7 @@ describe("SyncMode", () => {
 
     let block = job.createBlock('obj');
     block.setValue('#mode', 'onCall');
-    block.setValue('@log', 'obj');
+    block.setValue('#-log', 'obj');
     block.setValue('#is', 'test-runner');
     block.setValue('#sync', true);
     block.setValue('#call', {});
@@ -34,20 +34,20 @@ describe("SyncMode", () => {
 
     let block1 = job.createBlock('obj1');
     block1.setValue('#mode', 'onCall');
-    block1.setValue('@log', 'obj1');
+    block1.setValue('#-log', 'obj1');
     block1.setValue('#is', 'test-runner');
     block1.setValue('#sync', true);
 
     let block2 = job.createBlock('obj2');
     block2.setValue('#mode', 'always');
-    block2.setValue('@log', 'obj2');
+    block2.setValue('#-log', 'obj2');
     block2.setValue('#is', 'test-runner');
     block2.setValue('#sync', true);
     block2.setBinding('#call', '##.obj1.#emit');
 
     let block3 = job.createBlock('obj3');
     block3.setValue('#mode', 'onCall');
-    block3.setValue('@log', 'obj3');
+    block3.setValue('#-log', 'obj3');
     block3.setValue('#is', 'test-runner');
     block3.setValue('#sync', true);
     block3.setBinding('#call', '##.obj2.#emit');

@@ -18,7 +18,7 @@ describe("BlockMode", () => {
 
     let block = job.createBlock('obj');
     block.setValue('#mode', 'onCall');
-    block.setValue('@log', 'obj');
+    block.setValue('#-log', 'obj');
     block.setValue('#is', 'test-runner');
     block.setValue('input', {});
 
@@ -71,19 +71,19 @@ describe("BlockMode", () => {
     let b4 = job.createBlock('disabled');
     b4.setValue('#mode', 'disabled');
 
-    b0.setValue('@log', 'b0');
+    b0.setValue('#-log', 'b0');
     b0.setValue('#is', 'test-runner');
     b0.setValue('input', {});
-    b1.setValue('@log', 'b1');
+    b1.setValue('#-log', 'b1');
     b1.setValue('#is', 'test-runner');
     b1.setValue('input', {});
-    b2.setValue('@log', 'b2');
+    b2.setValue('#-log', 'b2');
     b2.setValue('#is', 'test-runner');
     b2.setValue('input', {});
-    b3.setValue('@log', 'b3');
+    b3.setValue('#-log', 'b3');
     b3.setValue('#is', 'test-runner');
     b3.setValue('input', {});
-    b4.setValue('@log', 'b4');
+    b4.setValue('#-log', 'b4');
     b4.setValue('#is', 'test-runner');
     b4.setValue('input', {});
 
@@ -109,10 +109,10 @@ describe("BlockMode", () => {
     let b1 = job.createBlock('b1');
     b1.setValue('#mode', 'onChange');
 
-    b0.setValue('@log', 'b0');
+    b0.setValue('#-log', 'b0');
     b0.setValue('#is', 'test-runner');
     b0.setValue('input', 1);
-    b1.setValue('@log', 'b1');
+    b1.setValue('#-log', 'b1');
     b1.setValue('#is', 'test-runner');
     b1.setBinding('input', '##.b0.input');
     Root.run();
@@ -128,10 +128,10 @@ describe("BlockMode", () => {
 
     b0.setValue('input', 2);
     b1.setValue('input', 2);
-    b2.setValue('@log', 'b2');
+    b2.setValue('#-log', 'b2');
     b2.setValue('#is', 'test-runner');
     b2.setValue('input', 2);
-    b3.setValue('@log', 'b3');
+    b3.setValue('#-log', 'b3');
     b3.setValue('#is', 'test-runner');
     b3.setValue('input', 2);
 
@@ -159,7 +159,7 @@ describe("BlockMode", () => {
 
     let block = job.createBlock('obj');
     block.setValue('#mode', 'onCall');
-    block.setValue('@log', 'obj');
+    block.setValue('#-log', 'obj');
     block.setValue('#is', 'test-runner');
     block.setBinding('#call', '#');
     assert.equal(block.getValue('#call'), block);

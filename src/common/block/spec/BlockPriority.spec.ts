@@ -14,10 +14,10 @@ describe("BlockPriority", () => {
     let p2 = job.createBlock('p2');
     let p3 = job.createBlock('p3');
 
-    p0.setValue('@log', 'p0');
-    p1.setValue('@log', 'p1');
-    p2.setValue('@log', 'p2');
-    p3.setValue('@log', 'p3');
+    p0.setValue('#-log', 'p0');
+    p1.setValue('#-log', 'p1');
+    p2.setValue('#-log', 'p2');
+    p3.setValue('#-log', 'p3');
 
     p3.setValue('#is', 'test-runner');
     p0.setValue('#is', 'test-runner');
@@ -68,10 +68,10 @@ describe("BlockPriority", () => {
     let p1 = job.createBlock('p1');
     let p3 = job.createBlock('p3');
 
-    p3.setValue('@log', 'p3');
-    p0.setValue('@log', 'p0');
-    p2.setValue('@log', 'p2');
-    p1.setValue('@log', 'p1');
+    p3.setValue('#-log', 'p3');
+    p0.setValue('#-log', 'p0');
+    p2.setValue('#-log', 'p2');
+    p1.setValue('#-log', 'p1');
 
     p1.setBinding('input', '##.p0.input');
     p2.setBinding('input', '##.p1.input');
@@ -97,7 +97,7 @@ describe("BlockPriority", () => {
 
     let p0 = job.createBlock('p0');
 
-    p0.setValue('@log', 'p0');
+    p0.setValue('#-log', 'p0');
 
     p0.setValue('#is', 'test-runner');
     Root.run();

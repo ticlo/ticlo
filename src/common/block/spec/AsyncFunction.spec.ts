@@ -19,7 +19,7 @@ for (let className of ['async-function-promise', 'async-function-manual']) {
 
       let block = job.createBlock('obj');
       block.setValue('#mode', 'onCall');
-      block.setValue('@log', 'obj');
+      block.setValue('#-log', 'obj');
       block.setValue('#is', className);
       block.setValue('#call', {});
       Root.run();
@@ -37,7 +37,7 @@ for (let className of ['async-function-promise', 'async-function-manual']) {
 
       let block = job.createBlock('obj');
       block.setValue('#sync', true);
-      block.setValue('@log', 'obj');
+      block.setValue('#-log', 'obj');
       block.setValue('#is', className);
       block.setValue('#call', {});
 
@@ -55,12 +55,12 @@ for (let className of ['async-function-promise', 'async-function-manual']) {
 
       let block1 = job.createBlock('obj1');
       block1.setValue('#sync', true);
-      block1.setValue('@log', 'obj1');
+      block1.setValue('#-log', 'obj1');
       block1.setValue('#is', className);
 
       let block2 = job.createBlock('obj2');
       block2.setValue('#sync', true);
-      block2.setValue('@log', 'obj2');
+      block2.setValue('#-log', 'obj2');
       block2.setValue('#is', className);
       block2.setBinding('#call', '##.obj1.#emit');
 
@@ -97,14 +97,26 @@ for (let className of ['async-function-promise', 'async-function-manual']) {
 
       let block1 = job.createBlock('obj1');
       block1.setValue('#sync', true);
-      block1.setValue('@log', 'obj1');
+      block1.setValue('#-log', 'obj1');
       block1.setValue('#is', className);
 
       let emitPromise = block1.waitNextValue('#emit');
       block1.setValue('#call', {});
       block1.setValue('#cancel', {});
       await shouldTimeout(emitPromise, 20);
+    });
 
+    it('reject async call', async () => {
+      let job = new Job();
+
+      let block1 = job.createBlock('obj1');
+      block1.setValue('#sync', true);
+      block1.setValue('#-log', 'obj1');
+      block1.setValue('#-reject', true);
+      block1.setValue('#is', className);
+
+      block1.setValue('#call', {});
+      await shouldReject(block1.waitNextValue('#emit'));
     });
   });
 }
