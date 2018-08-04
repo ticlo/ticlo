@@ -42,11 +42,11 @@ export class Resolver implements Runnable {
       this._schedule(this);
     }
   }
-
-  // wait to be run
-  isWaiting(): boolean {
-    return this._queueWait.length > 0;
-  }
+  
+  // // wait to be run
+  // isWaiting(): boolean {
+  //   return this._queueWait.length > 0;
+  // }
 
   // return true when running priority need to change
   private _splitQueue(priority: number) {
