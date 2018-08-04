@@ -61,6 +61,8 @@ describe("Block", () => {
   });
 
   it('trivial', () => {
+    assert.isNull(Root.instance.save(), 'root can not be saved');
+
     let job = Root.instance.addJob();
 
     let subjob = job.createOutputBlock('sub');
@@ -68,7 +70,8 @@ describe("Block", () => {
     Root.run();
     assert.equal(job.queryValue('sub.output'), 3, 'not load src directly in createOutputBloc, load sub job later');
 
-    Root.instance.deleteValue(job._prop._name); // delete job with auto assigned name
+    Root.instance.deleteValue(job._prop._name);
+    assert.isTrue(subjob.isDestroyed(), 'delete job with auto assigned name');
   });
 
 });

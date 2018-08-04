@@ -42,7 +42,7 @@ export class Resolver implements Runnable {
       this._schedule(this);
     }
   }
-  
+
   // // wait to be run
   // isWaiting(): boolean {
   //   return this._queueWait.length > 0;

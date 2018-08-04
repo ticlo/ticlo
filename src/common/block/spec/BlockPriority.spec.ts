@@ -4,8 +4,15 @@ import {Job, Root} from "../Job";
 
 describe("BlockPriority", () => {
 
-  it('basic function order', () => {
+  beforeEach(() => {
     TestFunctionRunner.clearLog();
+  });
+
+  afterEach(() => {
+    TestFunctionRunner.clearLog();
+  });
+
+  it('basic function order', () => {
 
     let job = new Job();
 
@@ -25,12 +32,11 @@ describe("BlockPriority", () => {
     p2.setValue('#is', 'test-runner');
     Root.run();
 
-    assert.deepEqual(TestFunctionRunner.logs,
+    assert.deepEqual(TestFunctionRunner.popLogs(),
       ['p3', 'p0', 'p1', 'p2'],
       'function should run in the same order as class is set');
-    TestFunctionRunner.clearLog();
 
-    assert.deepEqual(TestFunctionRunner.logs, [], 'logs should be cleared');
+    assert.deepEqual(TestFunctionRunner.popLogs(), [], 'logs should be cleared');
 
     p3.updateValue('#call', {});
     p1.updateValue('#call', {});
@@ -38,10 +44,9 @@ describe("BlockPriority", () => {
     p0.updateValue('#call', {});
     Root.run();
 
-    assert.deepEqual(TestFunctionRunner.logs,
+    assert.deepEqual(TestFunctionRunner.popLogs(),
       ['p3', 'p1', 'p2', 'p0'],
       'function should run in the same order as they are called');
-    TestFunctionRunner.clearLog();
 
     p1.setValue('#priority', 1);
     p3.setValue('#priority', 3);
@@ -54,7 +59,7 @@ describe("BlockPriority", () => {
     p0.updateValue('#call', {});
     Root.run();
 
-    assert.deepEqual(TestFunctionRunner.logs,
+    assert.deepEqual(TestFunctionRunner.popLogs(),
       ['p0', 'p1', 'p2', 'p3'],
       'function should run in the same order as their priority');
 
@@ -67,6 +72,11 @@ describe("BlockPriority", () => {
     let p0 = job.createBlock('p0');
     let p1 = job.createBlock('p1');
     let p3 = job.createBlock('p3');
+
+    p3.setValue('#mode', 'onChange');
+    p0.setValue('#mode', 'onChange');
+    p2.setValue('#mode', 'onChange');
+    p1.setValue('#mode', 'onChange');
 
     p3.setValue('#-log', 'p3');
     p0.setValue('#-log', 'p0');
@@ -82,30 +92,45 @@ describe("BlockPriority", () => {
     p1.setValue('#is', 'test-runner');
     p2.setValue('#is', 'test-runner');
     Root.run();
-    TestFunctionRunner.clearLog();
 
     p0.updateValue('input', {});
     Root.run();
-    assert.deepEqual(TestFunctionRunner.logs,
+    assert.deepEqual(TestFunctionRunner.popLogs(),
       ['p0', 'p1', 'p2', 'p3'],
       'function should run in the same order as binding chain');
 
   });
 
-  it('$property', () => {
+  it('priority change during resolving', () => {
     let job = new Job();
 
     let p0 = job.createBlock('p0');
+    let p1 = job.createBlock('p1');
+    let p2 = job.createBlock('p2');
 
     p0.setValue('#-log', 'p0');
+    p1.setValue('#-log', 'p1');
+    p2.setValue('#-log', 'p2');
+
+    p0.setValue('#mode', 'onChange');
+    p1.setValue('#mode', 'onChange');
+    p2.setValue('#mode', 'onChange');
+
+    p0.setBinding('#call', '##.p2.#call');
+    p2.setBinding('#call', '##.p1.#emit');
 
     p0.setValue('#is', 'test-runner');
-    Root.run();
-    TestFunctionRunner.clearLog();
+    p1.setValue('#is', 'test-runner');
+    p2.setValue('#is', 'test-runner');
 
-    p0.setValue('$run', true);
+    p0.setValue('#priority', 0);
+    p1.setValue('#priority', 1);
+    p2.setValue('#priority', 2);
+
+    p1.setValue('#call', {});
     Root.run();
-    assert.deepEqual(TestFunctionRunner.logs,
-      ['p0'], 'function is run when input$Changed return true');
+    assert.deepEqual(TestFunctionRunner.popLogs(),
+      ['p1', 'p0', 'p2'],
+      'next priority to run in resolver changes during iteration');
   });
 });
