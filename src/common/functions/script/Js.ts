@@ -39,7 +39,7 @@ export class JsFunction extends BlockFunction {
           try {
             this._compiledFunction = new Function(script);
           } catch (err) {
-            return new ErrorEvent(SCRIPT_ERROR, err.toString());
+            return new ErrorEvent(SCRIPT_ERROR, err);
           }
         } else if (script === undefined) {
           return NOT_READY;
@@ -52,7 +52,7 @@ export class JsFunction extends BlockFunction {
         rslt = this._compiledFunction.apply(this._proxy);
       } catch (err) {
         this._compiledFunction = null;
-        return new ErrorEvent(SCRIPT_ERROR, err.toString());
+        return new ErrorEvent(SCRIPT_ERROR, err);
       }
       if (typeof rslt === 'function') {
         // let the function run again

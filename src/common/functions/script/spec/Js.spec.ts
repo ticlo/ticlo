@@ -1,10 +1,10 @@
 import {assert} from "chai";
 import {Job, Root} from "../../../block/Job";
-import {JsFunction} from "../Js";
 import {Block} from "../../../block/Block";
 import {Classes} from "../../../block/Class";
 import {shouldReject, shouldTimeout} from "../../../block/spec/TestFunction";
 import {NOT_READY} from "../../../block/Event";
+import "../Js";
 
 describe("Js", () => {
   it('basic', () => {
@@ -73,6 +73,11 @@ describe("Js", () => {
     cBlock.setValue('#is', 'js');
     cBlock.setValue('script', true); // invalid script
     await shouldReject(cBlock.waitNextValue('#emit'));
+
+    let dBlock = job.createBlock('d');
+    dBlock.setValue('#is', 'js');
+    dBlock.setValue('script', '}'); // invalid script
+    await shouldReject(dBlock.waitNextValue('#emit'));
   });
 
 });
