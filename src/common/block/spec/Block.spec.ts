@@ -1,6 +1,7 @@
 import {assert} from "chai";
 import {Job, Root} from "../Job";
 import {Block} from "../Block";
+import {Dispatcher} from "../Dispatcher";
 
 describe("Block", () => {
 
@@ -58,6 +59,38 @@ describe("Block", () => {
     job.deleteValue('block1');
 
     assert.equal(block2.getValue('c'), undefined, 'destroy binding chain');
+  });
+
+  it('update listener within listener', () => {
+    let job = new Job();
+    let listener1 = {
+      value: 0,
+      onSourceChange(prop: Dispatcher<any>) {
+        // do nothing
+      },
+      onChange(val: any): void {
+        this.value = val;
+        if (val > 1) {
+          job.createBinding('a', listener2);
+        }
+      }
+    };
+    let listener2 = {
+      value: 0,
+      onSourceChange(prop: Dispatcher<any>) {
+        // do nothing
+      },
+      onChange(val: any) {
+        this.value = val;
+        binding1.unlisten(listener1);
+      }
+    };
+    let binding1 = job.createBinding('a', listener1);
+    job.setValue('a', 17);
+    assert.equal(listener2.value, 17, 'listener2 should be bound');
+    job.setValue('a', 19);
+    assert.equal(listener2.value, 19);
+    assert.equal(listener1.value, 17, 'listener1 should be unbound');
   });
 
   it('trivial', () => {
