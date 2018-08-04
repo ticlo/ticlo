@@ -3,6 +3,8 @@ import {Job, Root} from "../../../block/Job";
 import {JsFunction} from "../Js";
 import {Block} from "../../../block/Block";
 import {Classes} from "../../../block/Class";
+import {shouldReject, shouldTimeout} from "../../../block/spec/TestFunction";
+import {NOT_READY} from "../../../block/Event";
 
 describe("Js", () => {
   it('basic', () => {
@@ -44,31 +46,33 @@ describe("Js", () => {
     assert.equal(aBlock2.getValue('out2'), 457, 'run script function after loading saved data');
   });
 
-  it('js class', () => {
+  it('errors', async () => {
     let job = new Job();
 
     let aBlock = job.createBlock('a');
-    aBlock.setValue('in1', 321);
-    aBlock.setValue('#is', '/Js/class1');
+    aBlock.setValue('#is', 'js');
+    aBlock.setValue('script', 'throw new Error("")');
+    await shouldReject(aBlock.waitNextValue('#emit'));
 
-    JsFunction.registerClass('/Js/class1', 'this["out1"] = this["in1"]');
+    aBlock.deleteValue('#emit');
+    aBlock.setValue('script', undefined);
+    await shouldTimeout(aBlock.waitNextValue('#emit'), 5);
+    assert.isUndefined(aBlock.getValue('#emit'), 'changing script to undefined should not trigger it');
 
-    Root.run();
-    assert.equal(aBlock.getValue('out1'), 321, 'basic script output');
+    aBlock.setValue('#call', {});
+    await shouldTimeout(aBlock.waitNextValue('#emit'), 5); // NOT_READY won't resolve the promise
+    assert.equal(aBlock.getValue('#emit'), NOT_READY, 'called without script should return NOT_READY');
 
+    let bBlock = job.createBlock('b');
+    bBlock.setValue('#is', 'js');
+    bBlock.setValue('script', 'return function(){throw new Error("");}'); // nested function
+    await shouldReject(bBlock.waitNextValue('#emit'));
+
+
+    let cBlock = job.createBlock('c');
+    cBlock.setValue('#is', 'js');
+    cBlock.setValue('script', true); // invalid script
+    await shouldReject(cBlock.waitNextValue('#emit'));
   });
 
-  it('unregister class', () => {
-    let job = new Job();
-
-    let aBlock = job.createBlock('a');
-    aBlock.setValue('#is', '/Js/class2');
-    JsFunction.registerClass('/Js/class2', 'this["out1"] = 1');
-
-    assert(aBlock._queued, 'script is _queued');
-    Classes.clear('/Js/class2');
-    Root.run();
-    assert(!aBlock._queued, 'script is no longer _queued');
-    assert.isUndefined(aBlock.getValue('out1'), 'clear class after called');
-  });
 });

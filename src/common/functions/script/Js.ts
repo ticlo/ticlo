@@ -1,7 +1,7 @@
 import {Classes} from "../../block/Class";
 import {BlockFunction, FunctionData} from "../../block/BlockFunction";
 import {BlockIO, BlockProperty} from "../../block/BlockProperty";
-import {ErrorEvent} from "../../block/Event";
+import {ErrorEvent, NOT_READY} from "../../block/Event";
 import {Block, BlockMode} from "../../block/Block";
 import {BlockDeepProxy} from "../../block/BlockProxy";
 
@@ -23,8 +23,12 @@ export class JsFunction extends BlockFunction {
     if (input._name === 'script') {
       this._compiledFunction = null;
       this._runFunction = null;
+      if (val === undefined) {
+        // do not trigger the script to run
+        return false;
+      }
     }
-    return true;
+    return Boolean(this._runFunction);
   }
 
   run(): any {
@@ -37,8 +41,10 @@ export class JsFunction extends BlockFunction {
           } catch (err) {
             return new ErrorEvent(SCRIPT_ERROR, err.toString());
           }
+        } else if (script === undefined) {
+          return NOT_READY;
         } else {
-          return null;
+          return new ErrorEvent(SCRIPT_ERROR, 'script is not string');
         }
       }
       let rslt;
