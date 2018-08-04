@@ -45,7 +45,7 @@ for (let className of ['async-function-promise', 'async-function-manual']) {
       assert.isEmpty(TestAsyncFunctionLog.asyncLog, 'async not finished');
 
       assert.notEqual(block.getValue('#waiting'), undefined, 'is waiting after called');
-      block.setValue('#call', new ErrorEvent('error'));
+      block.setValue('#call', new ErrorEvent(''));
       assert.isUndefined(block.getValue('#waiting'), 'not waiting after canceled');
       assert.deepEqual(TestAsyncFunctionLog.asyncLog, [], 'async call canceled');
     });
@@ -84,7 +84,7 @@ for (let className of ['async-function-promise', 'async-function-manual']) {
 
       let block2EmitPromise = block2.waitNextValue('#emit');
       // #emit need to have binding before next line, otherwise it wont emit
-      block1.setValue('#call', new ErrorEvent('error'));
+      block1.setValue('#call', new ErrorEvent(''));
       assert.isUndefined(block2.getValue('#waiting'), 'block1 cancels block2');
       assert.instanceOf(await shouldReject(block2EmitPromise), ErrorEvent, 'block2 should emit error');
 

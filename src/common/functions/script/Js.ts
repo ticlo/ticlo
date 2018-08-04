@@ -66,7 +66,7 @@ export class JsFunction extends BlockFunction {
     try {
       rslt = this._runFunction.apply(this._proxy);
     } catch (err) {
-      return new ErrorEvent(SCRIPT_ERROR, err.toString());
+      return new ErrorEvent(SCRIPT_ERROR, err);
     }
     return rslt;
   }

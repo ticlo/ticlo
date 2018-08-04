@@ -60,7 +60,7 @@ describe("SyncMode", () => {
     assert.deepEqual(TestFunctionRunner.popLogs(), ['obj1', 'obj3'],
       'sync call should skip block that doesn\'t need update');
 
-    block1.setValue('#call', new ErrorEvent('error'));
+    block1.setValue('#call', new ErrorEvent(''));
     assert.isEmpty(TestFunctionRunner.logs,
       'error should not trigger chained blocks');
     assert.instanceOf(block3.getValue('#call'), ErrorEvent,

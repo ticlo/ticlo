@@ -17,7 +17,7 @@ export class Event {
   loopId: string;
   type: string;
 
-  constructor(type?: string) {
+  constructor(type: string) {
     this.type = type;
     this.loopId = Event.uid;
   }
@@ -44,7 +44,7 @@ export class Event {
 export class ErrorEvent extends Event {
   detail: any;
 
-  constructor(type: string = null, detail?: any) {
+  constructor(type: string, detail?: any) {
     super(type);
     this.detail = detail;
   }

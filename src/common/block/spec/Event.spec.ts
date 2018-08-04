@@ -22,12 +22,12 @@ describe("Event", () => {
     block.setValue('#-log', 'obj');
     block.setValue('#is', 'test-runner');
 
-    let event = new Event();
+    let event = new Event('');
     block.setValue('#call', event);
     Root.run();
     assert.deepEqual(TestFunctionRunner.popLogs(), ['obj']);
 
-    block.setValue('#call', new Event());
+    block.setValue('#call', new Event(''));
     Root.run();
     assert.deepEqual(TestFunctionRunner.popLogs(), ['obj']);
 
