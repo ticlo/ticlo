@@ -99,7 +99,7 @@ describe("MapFunction Thread", () => {
         '#is': {
           '#is': '',
           'runner': {'#is': 'test-runner', '#mode': 'always', '#-log': 0},
-          'async': {'#is': 'async-function-promise', '~#call': '##.#input'},
+          'async': {'#is': 'async-function-manual', '~#call': '##.#input'},
           'add': {'#is': 'add', '#mode': 'onCall', '~#call': '##.async.#emit', '~0': '##.#input', '1': 1},
           '~#waiting': 'async.#waiting',
           '~#output': 'add.output'

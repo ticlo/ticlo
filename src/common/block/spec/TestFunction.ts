@@ -96,7 +96,7 @@ export class TestAsyncFunctionManual extends BlockFunction {
         }
       }
       this.timeOut = null;
-    }, 1);
+    }, Math.random() * 3);
 
     this._data.wait(true);
     return NOT_READY;
