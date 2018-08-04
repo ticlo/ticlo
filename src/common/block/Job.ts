@@ -28,13 +28,7 @@ export class Job extends Block {
     if (parent) {
       let parentJob = parent._job;
       this._resolver = new Resolver((resolver: Resolver) => {
-        if (!this._queued) {
-          if (this._runOnChange) {
-            // put in queue, but _called is not set to true
-            // only run the sub resolver, not the function
-            parentJob.queueBlock(this._resolver);
-          }
-        }
+        parentJob.queueBlock(this._resolver);
       });
     }
   }
