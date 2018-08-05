@@ -1,5 +1,5 @@
 import {ValueDispatcher, Listener, Dispatcher, Destroyable} from "./Dispatcher";
-import {Block, BlockChildWatch} from "./Block";
+import {Block, BlockBindingSource, BlockChildWatch} from "./Block";
 import {isSavedBlock} from "../util/Types";
 
 export interface BlockPropertyEvent {
@@ -11,12 +11,12 @@ export interface BlockPropertySubscriber {
   onPropertyEvent(change: BlockPropertyEvent): void;
 }
 
-export class BlockProperty extends ValueDispatcher<any> implements Listener<any>, Destroyable {
+export class BlockProperty extends ValueDispatcher<any> implements Listener<any>, BlockBindingSource {
 
   _block: Block;
   _name: string;
   _bindingPath: string;
-  _bindingSource: ValueDispatcher<any>;
+  _bindingSource: BlockBindingSource;
 
   _saved: any;
 
@@ -25,6 +25,10 @@ export class BlockProperty extends ValueDispatcher<any> implements Listener<any>
     this._block = block;
     this._name = name;
   }
+
+  // getProperty() {
+  //   return this;
+  // }
 
   onSourceChange(prop: Dispatcher<any>) {
     // do nothing
@@ -213,6 +217,7 @@ export class BlockProperty extends ValueDispatcher<any> implements Listener<any>
     this._subscribers = null;
     // TODO ?
   }
+
   isDestroyed() {
     return this._block._destroyed;
   }
@@ -236,13 +241,5 @@ export class BlockIO extends BlockProperty {
     let changed = this.onChange(val);
     this._outputing = false;
     return changed;
-  }
-}
-
-// holds helper function that output to another property of its owner
-// property name is `!${relatedPropertyName}`
-export class BlockPropertyHelper extends BlockProperty {
-  constructor(block: Block, name: string) {
-    super(block, name);
   }
 }

@@ -12,12 +12,14 @@ describe("BlockProxy", () => {
     bBlock.setValue('v2', 2);
     bBlock.setValue('v3', 3);
     bBlock.deleteValue('v3');
-    bBlock.setValue('v4', '4');
-
+    bBlock.setValue('@v', '0'); // block attribute should not be iterated
+    bBlock.createBlock('+v4').setValue('v', 4); // block helper should not be iterated
+    bBlock.setBinding('v4', '+v4.v');
     let b: any = new Proxy(bBlock, BlockDeepProxy);
 
     assert.equal(b['###'].v1, 1);
     assert.equal(b.v2, 2);
+    assert.equal(b['@v'], 0);
     assert.equal(('v3' in b), false);
     assert.equal(Object.prototype.hasOwnProperty.call(b, 'v4'), true);
     assert.equal(Object.isExtensible(b), true);

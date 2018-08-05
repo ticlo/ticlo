@@ -1,4 +1,5 @@
 import {Event, ErrorEvent, EventType} from "./Event";
+import {BlockBindingSource} from "./Block";
 
 export interface Listener<T> {
   onSourceChange(prop: Dispatcher<T>): void;
@@ -62,7 +63,7 @@ export abstract class ValueDispatcher<T> implements Dispatcher<T> {
 export class ListenPromise<T> implements Listener<T> {
 
   // if source is set, it will be managed by the listener and unlistened automaticly
-  _source: ValueDispatcher<T> & Destroyable;
+  _source: BlockBindingSource;
   _valid = false;
   _promise: Promise<T>;
   _validator?: (val: T) => EventType | boolean;

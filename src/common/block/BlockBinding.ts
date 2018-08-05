@@ -1,9 +1,9 @@
 import {ValueDispatcher, Listener, Dispatcher, Destroyable} from "./Dispatcher";
-import {Block} from "./Block";
+import {Block, BlockBindingSource} from "./Block";
 import {BlockProperty} from "./BlockProperty";
 
 
-export class BlockBinding extends ValueDispatcher<any> implements Listener<any>, Destroyable {
+export class BlockBinding extends ValueDispatcher<any> implements Listener<any>, BlockBindingSource {
 
   private _block: Block;
   private _path: string;
@@ -11,7 +11,7 @@ export class BlockBinding extends ValueDispatcher<any> implements Listener<any>,
 
   private _source: any = null;
 
-  _parent: ValueDispatcher<any> = null;
+  _parent: BlockBindingSource = null;
 
   private _prop: BlockProperty = null;
 
@@ -21,6 +21,10 @@ export class BlockBinding extends ValueDispatcher<any> implements Listener<any>,
     this._path = path;
     this._field = field;
   }
+
+  // getProperty() {
+  //   return this._prop;
+  // }
 
   unlisten(listener: Listener<any>) {
     if (this._listeners) {

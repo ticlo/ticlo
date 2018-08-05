@@ -1,4 +1,4 @@
-import {BlockProperty, BlockPropertyHelper, BlockIO} from "./BlockProperty";
+import {BlockProperty, BlockIO} from "./BlockProperty";
 import {ConfigGenerators, BlockReadOnlyConfig} from "./BlockConfigs";
 import {BlockBinding} from "./BlockBinding";
 import {Job, Root} from "./Job";
@@ -23,6 +23,10 @@ export interface Runnable {
   getPriority(): number;
 
   run(): void;
+}
+
+export interface BlockBindingSource extends Dispatcher<any>, Destroyable {
+  // getProperty(): BlockProperty;
 }
 
 class PromiseWrapper {
@@ -202,12 +206,9 @@ export class Block implements Runnable, FunctionData, Listener<FunctionGenerator
       return null;
     } else {
       switch (firstChar) {
-        case 33: {
-          // ! property helper
-          prop = new BlockPropertyHelper(this, field);
-          break;
-        }
+        case 43:
         case 64: {
+          // + property helper
           // @ attribute
           prop = new BlockProperty(this, field);
           break;
@@ -223,7 +224,7 @@ export class Block implements Runnable, FunctionData, Listener<FunctionGenerator
     return prop;
   }
 
-  createBinding(path: string, listener: Listener<any>): ValueDispatcher<any> & Destroyable {
+  createBinding(path: string, listener: Listener<any>): BlockBindingSource {
     if (this._destroyed) {
       if (Root.instance._strictMode) {
         throw new Error("createBinding called after destroy");
