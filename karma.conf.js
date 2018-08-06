@@ -17,7 +17,8 @@ module.exports = function (config) {
                 }
             }
         },
-        reporters: ["karma-typescript"],
+        singleRun: true,
+        reporters: ["progress", "karma-typescript"],
         browsers: ["ChromeHeadless"]
     });
 };
