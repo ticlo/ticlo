@@ -1,7 +1,7 @@
 import {assert} from "chai";
 import {Block} from "../Block";
 
-import {Job, Root} from "../Job";
+import {Job, Root} from "../Block";
 import {Dispatcher} from "../Dispatcher";
 import {voidProperty} from "../Void";
 import {BlockIO} from "../BlockProperty";

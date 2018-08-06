@@ -1,5 +1,5 @@
 import {assert, AssertionError} from "chai";
-import {Job} from "../Job";
+import {Job} from "../Block";
 import {ErrorEvent} from "../Event";
 import {shouldReject} from "./TestFunction";
 

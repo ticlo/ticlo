@@ -1,6 +1,6 @@
 import {assert} from "chai";
 import {TestAsyncFunctionPromise, TestFunctionRunner} from "./TestFunction";
-import {Job, Root} from "../Job";
+import {Job, Root} from "../Block";
 import {Block} from "../Block";
 
 describe("BlockMode", () => {

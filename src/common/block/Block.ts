@@ -1,7 +1,6 @@
 import {BlockProperty, BlockIO} from "./BlockProperty";
 import {ConfigGenerators, BlockReadOnlyConfig} from "./BlockConfigs";
 import {BlockBinding} from "./BlockBinding";
-import {Job, Root} from "./Job";
 import {FunctionData, FunctionGenerator, BaseFunction, FunctionOutput} from "./BlockFunction";
 import {Dispatcher, Listener, ValueDispatcher, ListenPromise, Destroyable} from "./Dispatcher";
 import {Class, Classes} from "./Class";
@@ -9,6 +8,7 @@ import {ErrorEvent, Event, EventType, NOT_READY} from "./Event";
 import {DataMap} from "../util/Types";
 import {Uid} from "../util/Uid";
 import {voidProperty} from "./Void";
+import {Resolver} from "./Resolver";
 
 export type BlockMode = 'auto' | 'always' | 'onChange' | 'onCall' | 'disabled';
 
@@ -728,6 +728,137 @@ export class Block implements Runnable, FunctionData, Listener<FunctionGenerator
 
   isDestroyed() {
     return this._destroyed;
+  }
+}
+
+export class Job extends Block {
+
+  _resolver: Resolver;
+
+  _namespace: string;
+
+  _enabled: boolean = true;
+  _loading: boolean = false;
+
+  _outputObj?: FunctionOutput;
+
+  constructor(parent: Block = Root.instance, output?: FunctionOutput, property?: BlockProperty) {
+    super(null, null, property);
+    this._job = this;
+    this._parent = parent;
+    this._outputObj = output;
+    if (!property) {
+      this._prop = new BlockProperty(this, '');
+    }
+
+    if (parent) {
+      let parentJob = parent._job;
+      this._resolver = new Resolver((resolver: Resolver) => {
+        parentJob.queueBlock(this._resolver);
+      });
+    }
+  }
+
+  queueBlock(block: Runnable) {
+    this._resolver.queueBlock(block);
+  }
+
+  // return true when the related output block need to be put in queue
+  outputChanged(input: BlockIO, val: any): boolean {
+    if (this._outputObj) {
+      this._outputObj.output(val, input._name);
+    }
+    return false;
+  }
+
+  // make sure the input triggers a change
+  updateInput(val: any, forceUpdate: boolean = false) {
+    let prop = this.getProperty('#input');
+    if (forceUpdate && Object.is(val, prop._value)) {
+      prop.updateValue(undefined);
+    }
+    prop.updateValue(val);
+  }
+
+  cancel() {
+    this.getProperty('#cancel').updateValue(new Event('cancel'));
+  }
+
+  save(): {[key: string]: any} {
+    return this._save();
+  }
+
+  load(map: {[key: string]: any}) {
+    this._loading = true;
+    this._load(map);
+    this._loading = false;
+  }
+
+  liveUpdate(map: {[key: string]: any}) {
+    this._loading = true;
+    this._liveUpdate(map);
+    this._loading = false;
+  }
+
+  set onResolved(func: () => void) {
+    this._resolver.onResolved = func;
+  }
+}
+
+export class Root extends Job {
+
+  private static _instance: Root = new Root();
+  static get instance() {
+    return this._instance;
+  }
+
+  static run() {
+    this._instance._run();
+  }
+
+  _run = () => {
+    this._resolver.run();
+    this._resolver._queued = false;
+    Event._uid.next();
+    for (let onResolved of Resolver._finalResolved) {
+      onResolved();
+    }
+    Resolver._finalResolved.clear();
+  };
+
+  _strictMode: boolean = (process.env.NODE_ENV || '').toLowerCase() === 'test';
+
+  constructor() {
+    super();
+    this._parent = this;
+    this._resolver = new Resolver((resolver: Resolver) => {
+      resolver._queued = true;
+      resolver._queueToRun = true;
+      setTimeout(this._run, 0);
+    });
+  }
+
+  addJob(name?: string): Job {
+    if (!name) {
+      name = Block.nextUid();
+    }
+    let prop = this.getProperty(name);
+    let newJob = new Job(this, null, prop);
+    prop.setValue(newJob);
+    return newJob;
+  }
+
+  save(): {[key: string]: any} {
+    // not allowed
+    return null;
+  }
+
+  load(map: {[key: string]: any}) {
+    // not allowed
+  }
+
+  liveUpdate(map: {[key: string]: any}) {
+    // not allowed
   }
 }
 

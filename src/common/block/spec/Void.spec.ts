@@ -1,7 +1,7 @@
 import {assert} from "chai";
 import {voidProperty} from "../Void";
 
-import {Job} from "../Job";
+import {Job} from "../Block";
 import {BlockPropertyEvent} from "../BlockProperty";
 import {Dispatcher} from "../Dispatcher";
 import {VoidListeners} from "./TestFunction";

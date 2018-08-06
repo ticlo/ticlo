@@ -1,5 +1,5 @@
 import {assert} from "chai";
-import {Job, Root} from "../../block/Job";
+import {Job, Root} from "../../block/Block";
 import {WorkerFunction} from "../WorkerFunction";
 import {Block} from "../../block/Block";
 import {TestFunctionRunner} from "../../block/spec/TestFunction";

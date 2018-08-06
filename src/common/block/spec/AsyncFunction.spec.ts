@@ -1,6 +1,6 @@
 import {assert} from "chai";
 import {TestAsyncFunctionLog, shouldReject, shouldTimeout} from "./TestFunction";
-import {Job, Root} from "../Job";
+import {Job, Root} from "../Block";
 import {ErrorEvent, Event} from "../Event";
 
 for (let className of ['async-function-promise', 'async-function-manual']) {

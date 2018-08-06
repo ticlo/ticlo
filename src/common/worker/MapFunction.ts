@@ -3,7 +3,7 @@ import {BlockFunction, FunctionData, FunctionOutput} from "../block/BlockFunctio
 import {FunctionDesc} from "../block/Descriptor";
 import {BlockIO, BlockProperty} from "../block/BlockProperty";
 import {Block, BlockChildWatch, BlockMode} from "../block/Block";
-import {Job} from "../block/Job";
+import {Job} from "../block/Block";
 import {convertToObject, DataMap, isSavedBlock} from "../util/Types";
 import {OutputFunction} from "./Output";
 import {ErrorEvent, Event, EventType} from "../block/Event";

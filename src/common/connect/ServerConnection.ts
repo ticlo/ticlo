@@ -1,6 +1,6 @@
 import {Connection, ConnectionSendingData, ConnectionSend} from "./Connection";
 import {BlockIO, BlockProperty, BlockPropertyEvent, BlockPropertySubscriber} from "../block/BlockProperty";
-import {Root} from "../block/Job";
+import {Root} from "../block/Block";
 import {DataMap, isSavedBlock, truncateObj} from "../util/Types";
 import {Block, BlockBindingSource, BlockChildWatch} from "../block/Block";
 import {Dispatcher, Listener, ValueDispatcher} from "../block/Dispatcher";

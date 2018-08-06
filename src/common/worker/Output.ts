@@ -3,7 +3,7 @@ import { BlockFunction, FunctionData } from "../block/BlockFunction";
 import { FunctionDesc } from "../block/Descriptor";
 import { BlockIO } from "../block/BlockProperty";
 import { Block, BlockMode } from "../block/Block";
-import { Job } from "../block/Job";
+import { Job } from "../block/Block";
 
 export class OutputFunction extends BlockFunction {
 

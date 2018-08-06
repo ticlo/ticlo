@@ -2,7 +2,7 @@ import {Classes} from "../block/Class";
 import {BlockFunction, FunctionData} from "../block/BlockFunction";
 import {FunctionDesc} from "../block/Descriptor";
 import {BlockIO} from "../block/BlockProperty";
-import {Job} from "../block/Job";
+import {Job} from "../block/Block";
 import {Block, BlockMode} from "../block/Block";
 import {DataMap} from "../util/Types";
 

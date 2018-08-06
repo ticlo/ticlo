@@ -1,6 +1,6 @@
 import {assert} from "chai";
 import "../Math";
-import {Job, Root} from "../../../block/Job";
+import {Job, Root} from "../../../block/Block";
 import {Block} from "../../../block/Block";
 
 describe("Math", () => {

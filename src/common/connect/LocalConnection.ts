@@ -1,6 +1,6 @@
 import {ServerConnection} from "./ServerConnection";
 import {ClientConnection} from "./ClientConnection";
-import {Root} from "../block/Job";
+import {Root} from "../block/Block";
 import {DataMap} from "../util/Types";
 
 class LocalServerConnection extends ServerConnection {

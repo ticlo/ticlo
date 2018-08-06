@@ -1,5 +1,5 @@
 import {assert} from "chai";
-import {Job, Root} from "../Job";
+import {Job, Root} from "../Block";
 import {BlockDeepProxy} from "../BlockProxy";
 
 describe("BlockProxy", () => {
