@@ -1,7 +1,12 @@
 language: node_js
 node_js:
   - "10"
+addons:
+  chrome: stable
+cache:
+  yarn: true
 script:
   - yarn run nyc-cache
   - yarn run test-nyc-strict
   - yarn run test-nyc
+  - yarn run test-karma

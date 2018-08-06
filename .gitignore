@@ -15,10 +15,9 @@ node_modules
 .npm
 
 # Optional REPL history
-.node_repl_history
-.nyc_output
+/.nyc_output
+/.karma_coverage
 /.idea
 build
-coverage
 /src/**/*.js
 *.js.map

@@ -8,9 +8,16 @@ module.exports = function (config) {
             "**/*.ts": ["karma-typescript"]
         },
         karmaTypescriptConfig: {
-            tsconfig: './tsconfig.json'
+            tsconfig: './tsconfig.json',
+            reports: {
+                "lcovonly": {
+                    "directory": ".karma_coverage",
+                    "subdirectory": "lcov",
+                    "filename": "lcov.txt"
+                }
+            }
         },
-        reporters: ["dots", "karma-typescript"],
-        browsers: ["Chrome"]
+        reporters: ["karma-typescript"],
+        browsers: ["ChromeHeadless"]
     });
 };
