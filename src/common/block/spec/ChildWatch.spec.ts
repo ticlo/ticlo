@@ -1,6 +1,4 @@
 import {assert} from "chai";
-import {Block} from "../Block";
-
 import {Job} from "../Block";
 import {BlockIO} from "../BlockProperty";
 

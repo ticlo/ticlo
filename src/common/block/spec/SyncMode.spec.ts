@@ -1,7 +1,6 @@
 import {assert} from "chai";
 import {TestAsyncFunctionPromise, TestFunctionRunner} from "./TestFunction";
 import {Job, Root} from "../Block";
-import {Block} from "../Block";
 import {ErrorEvent} from "../Event";
 
 describe("SyncMode", () => {

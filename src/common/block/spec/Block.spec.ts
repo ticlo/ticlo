@@ -1,6 +1,5 @@
 import {assert} from "chai";
-import {Job, Root} from "../Block";
-import {Block} from "../Block";
+import {Job, Root, Block} from "../Block";
 import {Dispatcher} from "../Dispatcher";
 
 describe("Block", () => {
