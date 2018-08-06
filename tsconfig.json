@@ -4,7 +4,8 @@
     "module": "commonjs",
     "moduleResolution": "node",
     "lib": [
-      "es2017"
+      "es2017",
+      "dom"
     ],
     "alwaysStrict": true,
     "noImplicitAny": true,
