@@ -2,7 +2,7 @@ import {Connection, ConnectionSendingData, ConnectionSend} from "./Connection";
 import {BlockIO, BlockProperty, BlockPropertyEvent, BlockPropertySubscriber} from "../block/BlockProperty";
 import {Root} from "../block/Job";
 import {DataMap, isSavedBlock, truncateObj} from "../util/Types";
-import {Block, BlockChildWatch} from "../block/Block";
+import {Block, BlockBindingSource, BlockChildWatch} from "../block/Block";
 import {Dispatcher, Listener, ValueDispatcher} from "../block/Dispatcher";
 import Property = Chai.Property;
 
@@ -18,7 +18,7 @@ class ServerRequest extends ConnectionSendingData {
 
 class ServerSubscribe extends ServerRequest implements BlockPropertySubscriber, Listener<any> {
   property: BlockProperty;
-  source: ValueDispatcher<any>;
+  source: BlockBindingSource;
 
   valueChanged = false;
   events: BlockPropertyEvent[] = [];

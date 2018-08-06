@@ -25,7 +25,7 @@ export interface Runnable {
   run(): void;
 }
 
-export interface BlockBindingSource extends Dispatcher<any>, Destroyable {
+export interface BlockBindingSource extends ValueDispatcher<any>, Destroyable {
   // getProperty(): BlockProperty;
 }
 
