@@ -1,24 +1,20 @@
 module.exports = function (config) {
     config.set({
-        frameworks: ["mocha", "karma-typescript"],
+        frameworks: ["mocha"],
+        // preprocessors: {
+        //     'build/**/!(*spec).js': ['coverage']
+        // },
         files: [
-            {pattern: "src/common/**/*.ts"}
+            'build/specs.js'
         ],
-        preprocessors: {
-            "**/*.ts": ["karma-typescript"]
-        },
-        karmaTypescriptConfig: {
-            tsconfig: './tsconfig.json',
+        plugins: ['karma-remap-istanbul', 'karma-mocha', 'karma-chrome-launcher'],
+        reporters: ['dots', 'karma-remap-istanbul'],
+        remapIstanbulReporter: {
             reports: {
-                "lcovonly": {
-                    "directory": ".karma_coverage",
-                    "subdirectory": "lcov",
-                    "filename": "lcov.txt"
-                }
+                "lcovonly": ".karma_coverage/lcov.txt"
             }
         },
         singleRun: true,
-        reporters: ["dots", "karma-typescript"],
         browsers: ["ChromeHeadless"]
     });
 };
