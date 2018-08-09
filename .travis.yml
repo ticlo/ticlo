@@ -12,3 +12,4 @@ script:
   - yarn run test-nyc
   - yarn run bundle-spec
   - yarn run test-karma && cat .karma_coverage/lcov.txt | yarn run coveralls
+  - head -30 ./.karma_coverage/lcov.txt
