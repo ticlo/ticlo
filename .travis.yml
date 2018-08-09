@@ -7,9 +7,6 @@ addons:
 cache:
   yarn: true
 script:
-  - yarn run nyc-cache
-  - yarn run test-nyc-strict
-  - yarn run test-nyc
   - yarn run bundle-spec
   - yarn run test-karma && cat .karma_coverage/lcov.txt | yarn run coveralls
   - head -30 ./.karma_coverage/lcov.txt
