@@ -2,6 +2,7 @@
   "compilerOptions": {
     "target": "es2017",
     "module": "commonjs",
+    "jsx": "react",
     "moduleResolution": "node",
     "lib": [
       "es2017",
