@@ -6,6 +6,8 @@ addons:
   chrome: stable
 cache:
   yarn: true
+notifications:
+  webhooks: https://coveralls.io/webhook?repo_token=COVERALLS_REPO_TOKEN
 script:
   - yarn run nyc-cache
   - yarn run test-nyc-strict
