@@ -153,6 +153,7 @@ export class ClientConnection extends Connection {
   /* istanbul ignore next */
   disconnect(): void {
     // to be overridden
+    /* istanbul ignore next */
     throw new Error("not implemented");
   }
 

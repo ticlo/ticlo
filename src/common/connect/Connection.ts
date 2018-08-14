@@ -4,6 +4,7 @@ export class ConnectionSendingData {
   /* istanbul ignore next */
   getSendingData(): {data: DataMap, size: number} {
     // to be overridden
+    /* istanbul ignore next */
     throw new Error("not implemented");
   }
 }
@@ -17,12 +18,14 @@ export class Connection {
   /* istanbul ignore next */
   doSend(datas: DataMap[]): void {
     // to be overridden
+    /* istanbul ignore next */
     throw new Error("not implemented");
   }
 
   /* istanbul ignore next */
   onData(data: DataMap): void {
     // to be overridden
+    /* istanbul ignore next */
     throw new Error("not implemented");
   }
 
