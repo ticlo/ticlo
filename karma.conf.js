@@ -1,40 +1,28 @@
-let fixPathRegWin = /^\.\.\\test\/[\w]:\\/;
-let fixPathLinux = /^\.\.\/test\/home\//;
-
-function mapFileName(str) {
-    if (fixPathRegWin.test(str)) {
-        return str.substr(8);
-    } else if (fixPathLinux.test(str)) {
-        return str.substr(7);
-    }
-    return str;
-}
-
 module.exports = function (config) {
     config.set({
-        frameworks: ["mocha"],
-        preprocessors: {
-            'build/**/*.js': ['coverage']
-        },
+        frameworks: ["mocha", "karma-typescript"],
         files: [
-            'build/specs.js'
+            "src/common/**/*.ts"
         ],
-        plugins: ['karma-remap-istanbul', 'karma-mocha', 'karma-coverage', 'karma-chrome-launcher'],
-        reporters: ['dots', 'coverage', 'karma-remap-istanbul'],
-        coverageReporter: {
-            dir: '.karma_coverage',
-            reporters: [] // no default report
+        preprocessors: {
+            "src/common/**/*.ts": ["karma-typescript"]
         },
-        remapIstanbulReporter: {
+        karmaTypescriptConfig: {
+            tsconfig: './tsconfig.json',
             reports: {
-                "lcovonly": ".karma_coverage/lcov.txt"
-            },
-            remapOptions: {
-                mapFileName,
-                exclude: /node_module/
+                "lcovonly": {
+                    "directory": ".karma_coverage",
+                    "subdirectory": "lcov",
+                    "filename": "lcov.txt"
+                },
+                "html": {
+                    "directory": ".karma_coverage",
+                    "subdirectory": "html"
+                }
             }
         },
         singleRun: true,
+        reporters: ["dots", "karma-typescript"],
         browsers: ["ChromeHeadless"]
     });
 };
