@@ -11,13 +11,9 @@ module.exports = function (config) {
             tsconfig: './tsconfig.json',
             reports: {
                 "lcovonly": {
-                    "directory": ".karma_coverage",
-                    "subdirectory": "lcov",
-                    "filename": "lcov.txt"
-                },
-                "html": {
-                    "directory": ".karma_coverage",
-                    "subdirectory": "html"
+                    "directory": "coverage",
+                    "subdirectory": "chrome",
+                    "filename": "karma.log"
                 }
             }
         },

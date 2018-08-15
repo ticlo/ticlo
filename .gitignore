@@ -2,7 +2,7 @@
 node_modules
 
 /.nyc_output
-/.karma_coverage
+/coverage
 /.idea
 /.cache
 build
