@@ -11,4 +11,4 @@ script:
   - yarn run test-nyc-strict
   - yarn run test-nyc
   - yarn run test-karma
-  - yarn run lcov-result-merger 'coverage/**/*.txt' | yarn run coveralls
+  - yarn run lcov-result-merger 'coverage/**/*.log' | yarn run coveralls
