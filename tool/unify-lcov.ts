@@ -1,13 +1,30 @@
 import * as fs from 'fs';
 
-let karmalog: string = fs.readFileSync('coverage/chrome/karma.log', 'utf8');
 
+function fixReport(path: string) {
+  let originlog: string = fs.readFileSync(path, 'utf8');
+  let lastline = '';
+  let beginline = 0;
 
-function replacer(match: string, m1: string, m2: string, m3: string) {
-  return `${m1}${parseInt(m2) - 1}${m3}`;
+  function replacer(match: string, m1: string, m2: string, m3: string) {
+    if (match === 'end_of_record\n') {
+      lastline = '';
+      return match;
+    }
+    let n = parseInt(m2);
+    if (m1 !== lastline) {
+      lastline = m1;
+      beginline = n;
+    }
+    return `${m1}${n - beginline}${m3}`;
+  }
+
+  let fixedlog = originlog.replace(/(?:(BRDA:\d+,)(\d+)(,\d+,\d+\n)|end_of_record\n)/g, replacer);
+
+  fs.writeFileSync(path, fixedlog);
 
 }
 
-let fixedlog = karmalog.replace(/(BRDA:\d+,)(\d+)(,\d+,\d+\n)/g, replacer);
-
-fs.writeFileSync('coverage/chrome/karma.log', fixedlog);
+fixReport('coverage/chrome/karma.log');
+fixReport('coverage/nyc.log');
+fixReport('coverage/nyc-strict.log');
