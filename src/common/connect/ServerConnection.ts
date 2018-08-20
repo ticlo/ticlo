@@ -303,6 +303,7 @@ export class ServerConnection extends Connection {
   getValue(path: string): string {
     let property = this.root.queryProperty(path, true);
     if (property) {
+      // TODO
       return null;
     } else {
       return 'invalid path';

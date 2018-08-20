@@ -5,6 +5,7 @@ import {ErrorEvent, Event, EventType, NOT_READY} from "../Event";
 import {Dispatcher} from "../Dispatcher";
 import {Block} from "../Block";
 import {error} from "util";
+import {DataMap} from "../../util/Types";
 
 
 export class TestFunctionRunner extends BaseFunction {
@@ -132,6 +133,18 @@ export const VoidListeners = {
     throw new Error('should not be called');
   },
   onChildChange(property: BlockIO, saved?: boolean) {
+    /* istanbul ignore next */
+    throw new Error('should not be called');
+  },
+  onDone(): void {
+    /* istanbul ignore next */
+    throw new Error('should not be called');
+  },
+  onUpdate(response: DataMap): void {
+    /* istanbul ignore next */
+    throw new Error('should not be called');
+  },
+  onError(error: string, data?: DataMap): void {
     /* istanbul ignore next */
     throw new Error('should not be called');
   }

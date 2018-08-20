@@ -4,6 +4,7 @@ import {makeLocalConnection} from "../LocalConnection";
 import {AddFunction} from "../../functions/basic/Math";
 import {DataMap} from "../../util/Types";
 import {AsyncClientPromise} from "./AsyncClientPromise";
+import {VoidListeners} from "../../block/spec/TestFunction";
 
 const initAdd = AddFunction;
 
@@ -136,9 +137,13 @@ describe("Connection", () => {
     assert.equal(Object.keys(result1.children).length, 32, 'list should show 32 children');
     assert.equal(result1.count, 200, 'list return number of all children');
 
-    let result2 = await client.listChildren('Connection4', 'a\\d+', 9999);
-    assert.equal(Object.keys(result2.children).length, 16, 'list more than 1024, fallback to 16');
-    assert.equal(result2.count, 100, 'list return number of filtered children');
+    let id2: string = client.listChildren('Connection4', 'any', 32, VoidListeners) as string;
+    client.cancel(id2);
+
+    let result3 = await client.listChildren('Connection4', 'a\\d+', 9999);
+    assert.equal(Object.keys(result3.children).length, 16, 'list more than 1024, fallback to 16');
+    assert.equal(result3.count, 100, 'list return number of filtered children');
+
 
     client.destroy();
     Root.instance.setValue('Connection4', null);

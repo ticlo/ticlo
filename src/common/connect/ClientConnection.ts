@@ -187,7 +187,7 @@ export class ClientConnection extends Connection {
     }
   }
 
-  simpleRequest(data: DataMap, callbacks: ClientCallbacks) {
+  simpleRequest(data: DataMap, callbacks: ClientCallbacks): Promise<any> | string {
     let promise: Promise<any>;
     if (callbacks == null) {
       promise = new Promise((resolve, reject) => {
@@ -201,30 +201,34 @@ export class ClientConnection extends Connection {
     let req = new ClientRequest(data, callbacks);
     this.requests[id] = req;
     this.addSend(req);
-    return promise;
+    if (promise) {
+      return promise;
+    }
+    return id;
   }
 
-  setValue(path: string, value: any, callbacks?: ClientCallbacks) {
+  setValue(path: string, value: any, callbacks?: ClientCallbacks): Promise<any> | string {
     return this.simpleRequest({cmd: 'set', path, value}, callbacks);
   }
 
-  getValue(path: string, callbacks: ClientCallbacks): void {
+  getValue(path: string, callbacks: ClientCallbacks): Promise<any> | string {
     // TODO
+    return this.simpleRequest({cmd: 'get', path}, callbacks);
   }
 
-  updateValue(path: string, value: any, callbacks?: ClientCallbacks) {
+  updateValue(path: string, value: any, callbacks?: ClientCallbacks): Promise<any> | string {
     return this.simpleRequest({cmd: 'update', path, value}, callbacks);
   }
 
-  setBinding(path: string, from: string, callbacks?: ClientCallbacks) {
+  setBinding(path: string, from: string, callbacks?: ClientCallbacks): Promise<any> | string {
     return this.simpleRequest({cmd: 'bind', path, from}, callbacks);
   }
 
-  createBlock(path: string, callbacks?: ClientCallbacks) {
+  createBlock(path: string, callbacks?: ClientCallbacks): Promise<any> | string {
     return this.simpleRequest({cmd: 'create', path}, callbacks);
   }
 
-  listChildren(path: string, filter?: string, max: number = 16, callbacks?: ClientCallbacks) {
+  listChildren(path: string, filter?: string, max: number = 16, callbacks?: ClientCallbacks): Promise<any> | string {
     return this.simpleRequest({cmd: 'list', path, filter, max}, callbacks);
   }
 
@@ -279,6 +283,17 @@ export class ClientConnection extends Connection {
         delete this.watches[path];
         delete this.requests[id];
       }
+    }
+  }
+
+  _isCanceled(data: DataMap): boolean {
+    return data.cmd !== 'close' && this.requests[data.id] === undefined;
+  }
+
+  cancel(id: string) {
+    let req: DataMap = this.requests[id];
+    if (req && req.cmd !== 'subscribe' && req.cmd !== 'watch') {
+      delete this.requests[id];
     }
   }
 }
