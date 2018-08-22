@@ -82,10 +82,10 @@ export class Block implements Runnable, FunctionData, Listener<FunctionGenerator
   _runOnLoad: boolean = false;
   _sync: boolean = false;
 
-  _props: {[key: string]: BlockProperty} = {};
+  _props: Map<string, BlockProperty> = new Map();
   // a cache for blockIO, generated on demand
-  _ioProps: {[key: string]: BlockIO};
-  _bindings: {[key: string]: BlockBinding} = {};
+  _ioProps: Map<string, BlockIO>;
+  _bindings: Map<string, BlockBinding> = new Map();
   _function: BaseFunction;
   _funcPromise: PromiseWrapper;
   _className: string;
@@ -117,8 +117,8 @@ export class Block implements Runnable, FunctionData, Listener<FunctionGenerator
     this.updateValue('#waiting', val);
     if (!val) {
       // emit a value when it's no longer waiting
-      if (emit !== undefined && this._props['#emit']) {
-        this._props['#emit'].updateValue(emit);
+      if (emit !== undefined && this._props.get('#emit')) {
+        this._props.get('#emit').updateValue(emit);
       }
     }
   }
@@ -168,8 +168,8 @@ export class Block implements Runnable, FunctionData, Listener<FunctionGenerator
         return voidProperty;
       }
     }
-    if (this._props.hasOwnProperty(field)) {
-      return this._props[field];
+    if (this._props.has(field)) {
+      return this._props.get(field);
     }
 
     // if (field === '') { // comment out self property for now
@@ -216,11 +216,11 @@ export class Block implements Runnable, FunctionData, Listener<FunctionGenerator
         default:
           prop = new BlockIO(this, field);
           if (this._ioProps) {
-            this._ioProps[field] = prop as BlockIO;
+            this._ioProps.set(field, prop as BlockIO);
           }
       }
     }
-    this._props[field] = prop;
+    this._props.set(field, prop);
     return prop;
   }
 
@@ -248,8 +248,8 @@ export class Block implements Runnable, FunctionData, Listener<FunctionGenerator
       }
     }
 
-    if (this._bindings.hasOwnProperty(path)) {
-      let binding = this._bindings[path];
+    if (this._bindings.has(path)) {
+      let binding = this._bindings.get(path);
       binding.listen(listener);
       return binding;
     }
@@ -257,7 +257,7 @@ export class Block implements Runnable, FunctionData, Listener<FunctionGenerator
     let field = path.substring(pos + 1);
 
     let binding = new BlockBinding(this, path, field);
-    this._bindings[path] = binding;
+    this._bindings.set(path, binding);
 
     binding._parent = this.createBinding(parentPath, binding);
     binding.listen(listener);
@@ -265,7 +265,7 @@ export class Block implements Runnable, FunctionData, Listener<FunctionGenerator
   }
 
   _removeBinding(path: string) {
-    delete this._bindings[path];
+    this._bindings.delete(path);
   }
 
   waitValue(path: string, validator?: (val: any) => EventType | boolean): Promise<any> {
@@ -284,9 +284,7 @@ export class Block implements Runnable, FunctionData, Listener<FunctionGenerator
 
   _save(): DataMap {
     let result: DataMap = {};
-    for (let name in this._props) {
-      let prop = this._props[name];
-
+    for (let [name, prop] of this._props) {
       if (prop._bindingPath) {
         result[`~${name}`] = prop._bindingPath;
       } else {
@@ -334,10 +332,10 @@ export class Block implements Runnable, FunctionData, Listener<FunctionGenerator
         loadedFields[key] = true;
       }
     }
-    for (let key in this._props) {
+    for (let [key, prop] of this._props) {
       // clear properties that don't exist in saved data
       if (!loadedFields.hasOwnProperty(key)) {
-        this._props[key].clear();
+        prop.clear();
       }
     }
     // function should change after all the properties
@@ -443,11 +441,11 @@ export class Block implements Runnable, FunctionData, Listener<FunctionGenerator
         }
         result = NOT_READY;
       }
-      if (this._props['#emit']) {
+      if (this._props.get('#emit')) {
         if (result === undefined) {
           result = new Event('complete');
         }
-        this._props['#emit'].updateValue(result);
+        this._props.get('#emit').updateValue(result);
       }
     }
   }
@@ -503,8 +501,8 @@ export class Block implements Runnable, FunctionData, Listener<FunctionGenerator
           case EventType.TRIGGER: {
             if (this._runOnChange && !this._queueToRun) {
               // if sync block has mode onChange, it can't be called synchronisly without a change
-              if (this._props['#emit']) {
-                this._props['#emit'].updateValue(val);
+              if (this._props.has('#emit')) {
+                this._props.get('#emit').updateValue(val);
               }
             } else {
               this._called = true;
@@ -514,8 +512,8 @@ export class Block implements Runnable, FunctionData, Listener<FunctionGenerator
           }
           case EventType.ERROR: {
             this._cancelFunction(EventType.ERROR);
-            if (this._props['#emit']) {
-              this._props['#emit'].updateValue(val);
+            if (this._props.has('#emit')) {
+              this._props.get('#emit').updateValue(val);
             }
             break;
           }
@@ -674,11 +672,10 @@ export class Block implements Runnable, FunctionData, Listener<FunctionGenerator
   }
 
   _initIoCache() {
-    this._ioProps = {};
-    for (let field in this._props) {
-      let prop = this._props[field];
+    this._ioProps = new Map();
+    for (let [field, prop] of this._props) {
       if (prop instanceof BlockIO) {
-        this._ioProps[field] = prop;
+        this._ioProps.set(field, prop);
       }
     }
   }
@@ -687,8 +684,7 @@ export class Block implements Runnable, FunctionData, Listener<FunctionGenerator
     if (!this._ioProps) {
       this._initIoCache();
     }
-    for (let field in this._ioProps) {
-      let prop = this._ioProps[field];
+    for (let [field, prop] of this._ioProps) {
       if (prop._value !== undefined) {
         callback(field, prop);
       }
@@ -714,11 +710,11 @@ export class Block implements Runnable, FunctionData, Listener<FunctionGenerator
     // properties are destroyed but not removed
     // the final clean up is handled by GC
     // if the block is still kept in memory, it's still possible to save it after destroy
-    for (let name in this._props) {
-      this._props[name].destroy();
+    for (let [name, prop] of this._props) {
+      prop.destroy();
     }
-    for (let path in this._bindings) {
-      this._bindings[path].destroy();
+    for (let [path, binding] of this._bindings) {
+      binding.destroy();
     }
 
     this._bindings = null;

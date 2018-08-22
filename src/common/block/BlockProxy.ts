@@ -6,7 +6,7 @@ const defaultPropertyDescriptor = {writable: true, enumerable: true, configurabl
 
 export const BlockProxy = {
   get(block: Block, field: string, receiver: object): any {
-    let prop = block._props[field];
+    let prop = block._props.get(field);
     if (prop) {
       return prop._value;
     }
@@ -27,8 +27,7 @@ export const BlockProxy = {
     if (!block._ioProps) {
       block._initIoCache();
     }
-    for (let field in block._ioProps) {
-      let prop = block._ioProps[field];
+    for (let [field, prop] of block._ioProps) {
       if (prop._value !== undefined) {
         result.push(field);
       }

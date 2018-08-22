@@ -93,7 +93,7 @@ export class BlockReadOnlyConfig extends BlockProperty {
   // unlisten(listener: Listener) {
   //   super.unlisten(listener);
   //   if (this._listeners.size === 0) {
-  //     delete this._block._props[this._name];
+  //     delete this._block._props.get(this._name);
   //     this.destroy();
   //   }
   // }
