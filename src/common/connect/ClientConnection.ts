@@ -140,11 +140,11 @@ export class ClientConnection extends Connection {
   uid: Uid = new Uid();
 
   // id as key
-  requests: {[key: string]: ClientCallbacks} = {};
+  requests: Map<string, ClientCallbacks> = new Map();
   // path as key
-  subscribes: {[key: string]: SubscribeRequest} = {};
+  subscribes: Map<string, SubscribeRequest> = new Map();
   // path as key
-  watches: {[key: string]: WatchRequest} = {};
+  watches: Map<string, WatchRequest> = new Map();
 
   constructor() {
     super();
@@ -158,32 +158,32 @@ export class ClientConnection extends Connection {
   }
 
   destroy() {
-    for (let key in this.requests) {
-      this.requests[key].onError('disconnected');
+    for (let [key, req] of this.requests) {
+      req.onError('disconnected');
     }
     super.destroy();
   }
 
   onData(response: DataMap) {
-    if (typeof response.id === 'string' && this.requests.hasOwnProperty(response.id)) {
+    if (typeof response.id === 'string' && this.requests.has(response.id)) {
       switch (response.cmd) {
         case 'update': {
-          this.requests[response.id].onUpdate(response);
+          this.requests.get(response.id).onUpdate(response);
           return;
         }
         case 'final': {
-          this.requests[response.id].onUpdate(response);
-          this.requests[response.id].onDone();
+          this.requests.get(response.id).onUpdate(response);
+          this.requests.get(response.id).onDone();
           break;
         }
         case 'error': {
-          this.requests[response.id].onError(response.msg);
+          this.requests.get(response.id).onError(response.msg);
           break;
         }
         default: // 'done'
-          this.requests[response.id].onDone();
+          this.requests.get(response.id).onDone();
       }
-      delete this.requests[response.id];
+      this.requests.delete(response.id);
     }
   }
 
@@ -199,7 +199,7 @@ export class ClientConnection extends Connection {
     let id = this.uid.next();
     data.id = id;
     let req = new ClientRequest(data, callbacks);
-    this.requests[id] = req;
+    this.requests.set(id, req);
     this.addSend(req);
     if (promise) {
       return promise;
@@ -233,67 +233,67 @@ export class ClientConnection extends Connection {
   }
 
   subscribe(path: string, callbacks: ClientCallbacks) {
-    if (this.subscribes.hasOwnProperty(path)) {
-      this.subscribes[path].add(callbacks);
+    if (this.subscribes.has(path)) {
+      this.subscribes.get(path).add(callbacks);
     } else {
       let id = this.uid.next();
       let data = {cmd: 'subscribe', path, id};
       let req = new SubscribeRequest(data, callbacks);
-      this.requests[id] = req;
-      this.subscribes[path] = req;
+      this.requests.set(id, req);
+      this.subscribes.set(path, req);
       this.addSend(req);
     }
   }
 
   unsubscribe(path: string, callbacks: ClientCallbacks) {
-    let req = this.subscribes[path];
+    let req = this.subscribes.get(path);
     if (req) {
       req.remove(callbacks);
       if (req.isEmpty()) {
         let id = req._data.id;
         req._data = {cmd: 'close', id};
         this.addSend(req);
-        delete this.subscribes[path];
-        delete this.requests[id];
+        this.subscribes.delete(path);
+        this.requests.delete(id);
       }
     }
   }
 
   watch(path: string, callbacks: ClientCallbacks) {
-    if (this.watches.hasOwnProperty(path)) {
-      this.watches[path].add(callbacks);
+    if (this.watches.has(path)) {
+      this.watches.get(path).add(callbacks);
     } else {
       let id = this.uid.next();
       let data = {cmd: 'watch', path, id};
       let req = new WatchRequest(data, callbacks);
-      this.requests[id] = req;
-      this.watches[path] = req;
+      this.requests.set(id, req);
+      this.watches.set(path, req);
       this.addSend(req);
     }
   }
 
   unwatch(path: string, callbacks: ClientCallbacks): void {
-    let req = this.watches[path];
+    let req = this.watches.get(path);
     if (req) {
       req.remove(callbacks);
       if (req.isEmpty()) {
         let id = req._data.id;
         req._data = {cmd: 'close', id};
         this.addSend(req);
-        delete this.watches[path];
-        delete this.requests[id];
+        this.watches.delete(path);
+        this.requests.delete(id);
       }
     }
   }
 
   _isCanceled(data: DataMap): boolean {
-    return data.cmd !== 'close' && this.requests[data.id] === undefined;
+    return data.cmd !== 'close' && this.requests.get(data.id) === undefined;
   }
 
   cancel(id: string) {
-    let req: DataMap = this.requests[id];
+    let req: DataMap = this.requests.get(id);
     if (req && req.cmd !== 'subscribe' && req.cmd !== 'watch') {
-      delete this.requests[id];
+      this.requests.delete(id);
     }
   }
 }
