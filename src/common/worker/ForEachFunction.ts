@@ -2,8 +2,7 @@ import {Classes} from "../block/Class";
 import {BlockFunction, FunctionData} from "../block/BlockFunction";
 import {FunctionDesc} from "../block/Descriptor";
 import {BlockIO} from "../block/BlockProperty";
-import {Block, BlockChildWatch, BlockMode} from "../block/Block";
-import {Job} from "../block/Block";
+import {Block, BlockChildWatch, Job} from "../block/Block";
 import {DataMap, isSavedBlock} from "../util/Types";
 import {OutputFunction} from "./Output";
 import {Event, EventType} from "../block/Event";
@@ -22,7 +21,7 @@ export class ForEachFunction extends BlockFunction implements BlockChildWatch {
   _funcBlock: Block;
   _outputBlock: Block;
 
-  _workers: {[key: string]: Job};
+  _workers: Map<string, Job>;
 
   inputChanged(input: BlockIO, val: any): boolean {
     switch (input._name) {
@@ -92,13 +91,13 @@ export class ForEachFunction extends BlockFunction implements BlockChildWatch {
     for (let key of this._childChanges) {
       let val = this._watchedInput.getValue(key);
       if (val !== undefined) {
-        if (this._workers.hasOwnProperty(key)) {
-          this._workers[key].updateInput(val);
+        if (this._workers.has(key)) {
+          this._workers.get(key).updateInput(val);
         } else {
           this._addWorker(key, val);
         }
       } else {
-        if (this._workers.hasOwnProperty(key)) {
+        if (this._workers.has(key)) {
           this._removeWorker(key);
         }
       }
@@ -112,22 +111,21 @@ export class ForEachFunction extends BlockFunction implements BlockChildWatch {
     if (this._workers) {
       // update existing workers
       let oldWorkers = this._workers;
-      this._workers = {};
+      this._workers = new Map();
       for (let key in obj) {
         let input = obj[key];
         if (input === undefined) {
           continue;
         }
-        if (oldWorkers.hasOwnProperty(key)) {
-          oldWorkers[key].updateInput(input);
-          this._workers[key] = oldWorkers[key];
-          oldWorkers[key] = undefined;
+        if (oldWorkers.has(key)) {
+          oldWorkers.get(key).updateInput(input);
+          this._workers.set(key, oldWorkers.get(key));
+          oldWorkers.set(key, undefined);
         } else {
           this._addWorker(key, input);
         }
       }
-      for (let key in oldWorkers) {
-        let oldWorker = oldWorkers[key];
+      for (let [key, oldWorker] of oldWorkers) {
         if (oldWorker) {
           oldWorker.destroy();
           this._funcBlock.deleteValue(key);
@@ -135,7 +133,7 @@ export class ForEachFunction extends BlockFunction implements BlockChildWatch {
         }
       }
     } else {
-      this._workers = {};
+      this._workers = new Map();
       for (let key in obj) {
         this._addWorker(key, obj[key]);
       }
@@ -145,7 +143,7 @@ export class ForEachFunction extends BlockFunction implements BlockChildWatch {
   // when input is Block
   _watchBlock(block: Block) {
     this._createOutputBlock();
-    this._workers = {};
+    this._workers = new Map();
     this._watchedInput = block;
     block.forEach((field: string, prop: BlockIO) => {
       this._addWorker(field, prop._value);
@@ -160,7 +158,7 @@ export class ForEachFunction extends BlockFunction implements BlockChildWatch {
 
   _addWorker(key: string, input: any) {
     let child = this._funcBlock.createOutputJob(key, this._src, null, this._data._job._namespace);
-    this._workers[key] = child;
+    this._workers.set(key, child);
     child.updateInput(input);
     this._outputBlock.setBinding(key, `##.#func.${key}.#output`);
   }
@@ -180,7 +178,7 @@ export class ForEachFunction extends BlockFunction implements BlockChildWatch {
 
   _clearWorkers() {
     if (this._workers) {
-      for (let key in this._workers) {
+      for (let [key, worker] of this._workers) {
         this._removeWorker(key);
       }
       this._workers = null;
