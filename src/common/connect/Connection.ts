@@ -47,10 +47,6 @@ export class Connection {
     this._schedule();
   }
 
-  _isCanceled(data: DataMap): boolean {
-    return false;
-  }
-
   _schedule() {
     this._scheduled = setTimeout(() => {
       this._scheduled = null;
@@ -63,12 +59,10 @@ export class Connection {
     let sendingSize = 0;
     for (let s of this._sending) {
       let {data, size} = s.getSendingData();
-      if (this._isCanceled(data)) {
-        this._sending.delete(s);
-        continue;
+      if (data != null) {
+        sendingSize += size;
+        sending.push(data);
       }
-      sendingSize += size;
-      sending.push(data);
       this._sending.delete(s);
       if (size > 524288) {
         break;

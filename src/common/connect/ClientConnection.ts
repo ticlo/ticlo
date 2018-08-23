@@ -37,6 +37,10 @@ class ClientRequest extends ConnectionSend implements ClientCallbacks {
       this._callbacks.onError(error, data || this._data);
     }
   }
+
+  cancel() {
+    this._data = null;
+  }
 }
 
 class MergedClientRequest extends ConnectionSend implements ClientCallbacks {
@@ -286,13 +290,10 @@ export class ClientConnection extends Connection {
     }
   }
 
-  _isCanceled(data: DataMap): boolean {
-    return data.cmd !== 'close' && this.requests.get(data.id) === undefined;
-  }
-
   cancel(id: string) {
     let req: DataMap = this.requests.get(id);
-    if (req && req.cmd !== 'subscribe' && req.cmd !== 'watch') {
+    if (req instanceof ClientRequest) {
+      req.cancel();
       this.requests.delete(id);
     }
   }
