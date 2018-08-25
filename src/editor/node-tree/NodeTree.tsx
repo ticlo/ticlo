@@ -1,11 +1,22 @@
 import * as React from "react";
 import {ExpandState, TreeItem, renderTreeItem} from "../../ui/component/Tree";
 import VirtualList from "../../ui/component/Virtual";
+import {ClientConnection} from "../../common/connect/ClientConnection";
+import {DataMap} from "../../common/util/Types";
+
 
 class NodeTreeItem implements TreeItem {
   level: number;
   key: string;
+  childPrefix: string;
   name: string;
+
+  filter: string;
+  max: number = 16;
+  listingId: string;
+
+  connection: ClientConnection;
+
   opened: ExpandState = false;
 
   children?: NodeTreeItem[];
@@ -15,16 +26,27 @@ class NodeTreeItem implements TreeItem {
   // a callback to update UI state
   refreshListCallback: () => void;
 
-  constructor(name: string, refreshList: () => void, parent?: TreeItem) {
+  constructor(name: string, refreshList: () => void, parent?: NodeTreeItem) {
     if (!parent) {
       // root element;
       this.level = 0;
-      this.key = name;
+      if (name) {
+        this.key = name;
+        this.childPrefix = `${name}.`;
+        this.name = name.substr(name.indexOf('.') + 1);
+      } else {
+        this.key = '';
+        this.childPrefix = '';
+        this.name = 'Root';
+      }
     } else {
+      this.connection = parent.connection;
       this.level = parent.level + 1;
-      this.key = `${parent.key}.${name}`;
+      this.key = `${parent.childPrefix}${name}`;
+      this.childPrefix = `${this.key}.`;
+      this.name = name;
     }
-    this.name = name;
+
     this.refreshListCallback = refreshList;
   }
 
@@ -36,20 +58,22 @@ class NodeTreeItem implements TreeItem {
     if (this.opened === open) {
       return;
     }
+    if (this.listingId) {
+      this.connection.cancel(this.listingId);
+      this.listingId = null;
+    }
     if (open) {
       if (this.children) {
         this.opened = open;
         this.refreshListCallback();
       } else {
         this.opened = 'loading';
-        setTimeout(() => this.createChildren(), 300);
+        this.listingId = this.connection.listChildren(this.key, this.filter, this.max, this) as string;
       }
     } else {
       this.opened = false;
-      if (this.children && this.children.length) {
-        this.closeChildren();
-        this.refreshListCallback();
-      }
+      this.children = null;
+      this.refreshListCallback();
     }
 
     if (this.openedChangeCallback) {
@@ -57,41 +81,49 @@ class NodeTreeItem implements TreeItem {
     }
   }
 
-  closeChildren() {
-    if (this.children) {
-      for (let child of this.children) {
-        child.opened = false;
-        child.closeChildren();
-      }
-    }
-  }
 
-  createChildren() {
+  onUpdate(response: DataMap): void {
     if (!this.children) {
       this.children = [];
-      for (let i = 0; i < 6; ++i) {
-        let newItem = new NodeTreeItem(Math.random().toString(36).substr(-4), this.refreshListCallback, this);
-        this.children.push(newItem);
-      }
-      if (this.opened === 'loading') {
-        this.expand(true);
-      }
+    }
+    let children: DataMap = response.children;
+    for (let key in children) {
+      let newItem = new NodeTreeItem(key, this.refreshListCallback, this);
+      this.children.push(newItem);
+    }
+    if (this.opened === 'loading') {
+      this.expand(true);
     }
   }
 
+  onError(error: string, data?: DataMap): void {
+    // TODO: show error
+  }
 
-  addTo(list: NodeTreeItem[]) {
+  addToList(list: NodeTreeItem[]) {
     list.push(this);
     if (this.opened === true && this.children) {
       for (let child of this.children) {
-        child.addTo(list);
+        child.addToList(list);
       }
     }
   }
 
+  onAttachUI(): void {
+    // do nothing
+  }
+
+  onDetachUI(): void {
+    if (this.listingId) {
+      this.connection.cancel(this.listingId);
+      this.listingId = null;
+    }
+  }
 }
 
 interface Props {
+  conn: ClientConnection;
+  basePath: string;
   style?: React.CSSProperties;
 }
 
@@ -113,18 +145,17 @@ export default class NodeTree extends React.PureComponent<Props, State> {
   refreshList = () => {
     let list: NodeTreeItem[] = [];
     for (let item of this.rootList) {
-      item.addTo(list);
+      item.addToList(list);
     }
     this.setState({list});
   };
 
-  constructor(props: object) {
+  constructor(props: Props) {
     super(props);
     let list: NodeTreeItem[] = [];
-    for (let i = 0; i < 20; ++i) {
-      let newItem = new NodeTreeItem(Math.random().toString(36).substr(-4), this.refreshList);
-      list.push(newItem);
-    }
+    let rootNode = new NodeTreeItem(props.basePath, this.refreshList);
+    rootNode.connection = props.conn;
+    list.push(rootNode);
     this.rootList = list;
     this.state = {
       list,

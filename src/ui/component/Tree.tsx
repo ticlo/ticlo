@@ -11,6 +11,10 @@ export interface TreeItem {
 
   expand(open: boolean): void;
 
+  onAttachUI(): void;
+
+  onDetachUI(): void;
+
   openedChangeCallback?: () => void;
 
   // a callback to update UI state
@@ -40,10 +44,12 @@ export class ExpandIcon extends React.PureComponent<ExpandIconProps, object> {
     if (this.props.item !== this.currentItem) {
       if (this.currentItem && this.currentItem.openedChangeCallback === this.forceUpdateLambda) {
         this.currentItem.openedChangeCallback = undefined;
+        this.currentItem.onDetachUI();
       }
       this.currentItem = this.props.item;
       if (this.currentItem) {
         this.currentItem.openedChangeCallback = this.forceUpdateLambda;
+        this.currentItem.onAttachUI();
       }
     }
     this.opened = this.props.item.opened;
@@ -73,6 +79,7 @@ export class ExpandIcon extends React.PureComponent<ExpandIconProps, object> {
   componentWillUnmount() {
     if (this.currentItem && this.currentItem.openedChangeCallback === this.forceUpdateLambda) {
       this.currentItem.openedChangeCallback = undefined;
+      this.currentItem.onDetachUI();
     }
   }
 }
