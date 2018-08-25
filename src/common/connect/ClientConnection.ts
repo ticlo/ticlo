@@ -176,8 +176,9 @@ export class ClientConnection extends Connection {
           return;
         }
         case 'final': {
-          this.requests.get(response.id).onUpdate(response);
-          this.requests.get(response.id).onDone();
+          let req = this.requests.get(response.id);
+          req.onUpdate(response);
+          req.onDone();
           break;
         }
         case 'error': {

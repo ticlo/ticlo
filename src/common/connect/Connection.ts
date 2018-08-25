@@ -69,7 +69,9 @@ export class Connection {
       }
     }
     this.doSend(sending);
-    this._waitingReceive = true;
+    if (sending.length) {
+      this._waitingReceive = true;
+    }
   }
 
   destroy() {
