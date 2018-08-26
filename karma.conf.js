@@ -2,20 +2,39 @@ module.exports = function (config) {
     config.set({
         frameworks: ["mocha", "karma-typescript"],
         files: [
-            "src/common/**/*.ts"
+            "src/**/*.ts?(x)"
         ],
         preprocessors: {
-            "src/common/**/*.ts": ["karma-typescript"]
+            "src/**/*.ts?(x)": ["karma-typescript"]
         },
         karmaTypescriptConfig: {
-            tsconfig: './tsconfig.json',
             reports: {
                 "lcovonly": {
                     "directory": "coverage",
                     "subdirectory": "chrome",
                     "filename": "karma.log"
                 }
-            }
+            },
+            compilerOptions: {
+                "target": "es2015",
+                "module": "commonjs",
+                "jsx": "react",
+                "moduleResolution": "node",
+                "lib": [
+                    "es2017",
+                    "dom"
+                ],
+                "alwaysStrict": true,
+                "noImplicitAny": true,
+                "sourceMap": true
+            },
+            compileOnSave: true,
+            include: [
+                "src/**/*"
+            ],
+            exclude: [
+                "node_modules"
+            ]
         },
         singleRun: true,
         reporters: ["dots", "karma-typescript"],
