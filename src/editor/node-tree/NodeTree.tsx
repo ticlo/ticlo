@@ -128,7 +128,7 @@ interface Props {
 }
 
 interface State {
-  list: NodeTreeItem[];
+
   itemHeight: number;
   renderer: (idx: number, style: React.CSSProperties) => React.ReactNode;
 }
@@ -136,40 +136,39 @@ interface State {
 export default class NodeTree extends React.PureComponent<Props, State> {
   rootList: NodeTreeItem[] = [];
   state: State;
+  list: NodeTreeItem[] = [];
 
   renderChild(idx: number, style: React.CSSProperties): React.ReactNode {
-    return renderTreeItem(this.state.list[idx], style);
+    return renderTreeItem(this.list[idx], style);
   }
 
+  onListChange = () => this.forceUpdate();
 
-  refreshList = () => {
-    let list: NodeTreeItem[] = [];
+  refreshList() {
+    this.list.length = 0;
     for (let item of this.rootList) {
-      item.addToList(list);
+      item.addToList(this.list);
     }
-    this.setState({list});
-  };
+  }
 
   constructor(props: Props) {
     super(props);
-    let list: NodeTreeItem[] = [];
-    let rootNode = new NodeTreeItem(props.basePath, this.refreshList);
+    let rootNode = new NodeTreeItem(props.basePath, this.onListChange);
     rootNode.connection = props.conn;
-    list.push(rootNode);
-    this.rootList = list;
+    this.rootList.push(rootNode);
     this.state = {
-      list,
       itemHeight: 30,
       renderer: (i, style) => this.renderChild(i, style)
     };
   }
 
   render() {
+    this.refreshList();
     return (
       <VirtualList
         style={this.props.style}
         renderer={this.state.renderer}
-        itemCount={this.state.list.length}
+        itemCount={this.list.length}
         itemHeight={this.state.itemHeight}
       />
     );
