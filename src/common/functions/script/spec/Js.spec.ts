@@ -1,7 +1,7 @@
 import {assert} from "chai";
 import {Job, Root, Block} from "../../../block/Block";
 import {NOT_READY} from "../../../block/Event";
-import {shouldReject, shouldTimeout} from "../../../util/TestUtil";
+import {shouldReject, shouldTimeout} from "../../../util/test-util";
 import "../Js";
 
 describe("Js", () => {

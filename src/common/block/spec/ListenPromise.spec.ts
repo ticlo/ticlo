@@ -1,7 +1,7 @@
 import {assert, AssertionError} from "chai";
 import {Job} from "../Block";
 import {ErrorEvent} from "../Event";
-import {shouldReject} from "../../util/TestUtil";
+import {shouldReject} from "../../util/test-util";
 
 describe("ListenPromise", () => {
 

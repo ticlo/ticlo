@@ -5,7 +5,7 @@ import "../../functions/basic/Math";
 import "../MapFunction";
 import {DataMap} from "../../util/Types";
 import {ErrorEvent} from "../../block/Event";
-import {shouldTimeout} from "../../util/TestUtil";
+import {shouldTimeout} from "../../util/test-util";
 
 
 describe("MapFunction Basic", () => {

@@ -32,7 +32,6 @@ export default class VirtualList extends React.PureComponent<Props, State> {
     });
     if (window.hasOwnProperty('ResizeObserver')) {
       this.resizeObserver = new (window as any).ResizeObserver((resizes: any) => {
-        console.log('resize: ' + this.rootNode.offsetHeight);
         this.setState({
           height: this.rootNode.clientHeight
         });
@@ -81,7 +80,6 @@ export default class VirtualList extends React.PureComponent<Props, State> {
       );
     } else {
       // not mounted or not visible, create dummy div to measure size
-      console.log('clearall');
       return (
         <div ref={this.getRef} className='tclo-v-scroll' style={style}>
         </div >
