@@ -1,11 +1,11 @@
 import {assert} from "chai";
 import {Job, Root} from "../../block/Block";
-import {Block} from "../../block/Block";
-import {TestFunctionRunner, TestAsyncFunctionPromise, shouldTimeout} from "../../block/spec/TestFunction";
+import {TestFunctionRunner, TestAsyncFunctionPromise} from "../../block/spec/TestFunction";
 import "../../functions/basic/Math";
 import "../MapFunction";
 import {DataMap} from "../../util/Types";
 import {ErrorEvent} from "../../block/Event";
+import {shouldTimeout} from "../../util/TestUtil";
 
 
 describe("MapFunction Basic", () => {
