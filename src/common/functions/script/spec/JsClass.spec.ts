@@ -1,10 +1,7 @@
 import {assert} from "chai";
 import {Job, Root} from "../../../block/Block";
 import {JsFunction} from "../Js";
-import {Block} from "../../../block/Block";
 import {Classes} from "../../../block/Class";
-import {shouldReject, shouldTimeout} from "../../../block/spec/TestFunction";
-import {NOT_READY} from "../../../block/Event";
 
 describe("Js Class", () => {
 
