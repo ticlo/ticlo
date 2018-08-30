@@ -17,7 +17,7 @@ class NodeTreeItem implements TreeItem {
 
   connection: ClientConnection;
 
-  opened: ExpandState = false;
+  opened: ExpandState = 'closed';
 
   children?: NodeTreeItem[];
 
@@ -54,45 +54,55 @@ class NodeTreeItem implements TreeItem {
     return <span>{this.name}</span>;
   }
 
-  expand(open: boolean): void {
-    if (this.opened === open) {
-      return;
-    }
+  onClick() {
     if (this.listingId) {
       this.connection.cancel(this.listingId);
       this.listingId = null;
     }
-    if (open) {
-      if (this.children) {
-        this.opened = open;
-        this.refreshListCallback();
-      } else {
-        this.opened = 'loading';
-        this.listingId = this.connection.listChildren(this.key, this.filter, this.max, this) as string;
-      }
-    } else {
-      this.opened = false;
-      this.children = null;
-      this.refreshListCallback();
+    switch (this.opened) {
+      case 'opened':
+        this.close();
+        break;
+      case 'closed':
+      case 'empty':
+        this.open();
+        break;
     }
+  }
 
+  open() {
+    this.opened = 'loading';
+    this.listingId = this.connection.listChildren(this.key, this.filter, this.max, this) as string;
     if (this.openedChangeCallback) {
       this.openedChangeCallback();
     }
   }
 
+  close() {
+    this.opened = 'closed';
+    this.children = null;
+    this.refreshListCallback();
+    if (this.openedChangeCallback) {
+      this.openedChangeCallback();
+    }
+  }
 
   onUpdate(response: DataMap): void {
     if (!this.children) {
       this.children = [];
+    }
+    if (this.listingId) {
+      this.listingId = null;
     }
     let children: DataMap = response.children;
     for (let key in children) {
       let newItem = new NodeTreeItem(key, this.refreshListCallback, this);
       this.children.push(newItem);
     }
-    if (this.opened === 'loading') {
-      this.expand(true);
+    this.opened = 'opened';
+    this.refreshListCallback();
+    if (this.openedChangeCallback) {
+      this.openedChangeCallback();
     }
   }
 
@@ -102,7 +112,7 @@ class NodeTreeItem implements TreeItem {
 
   addToList(list: NodeTreeItem[]) {
     list.push(this);
-    if (this.opened === true && this.children) {
+    if (this.opened === 'opened' && this.children) {
       for (let child of this.children) {
         child.addToList(list);
       }

@@ -1,6 +1,6 @@
 import * as React from 'react';
 
-export type ExpandState = boolean | 'loading' | null;
+export type ExpandState = 'opened' | 'closed' | 'loading' | 'empty' | 'disabled';
 
 export interface TreeItem {
   level: number;
@@ -9,7 +9,7 @@ export interface TreeItem {
 
   renderer(): React.ReactNode | React.ReactNode[];
 
-  expand(open: boolean): void;
+  onClick(): void;
 
   onAttachUI(): void;
 
@@ -31,11 +31,7 @@ export class ExpandIcon extends React.PureComponent<ExpandIconProps, object> {
   currentItem?: TreeItem;
 
   clickHandler = (e: React.MouseEvent<HTMLElement>) => {
-    if (this.opened === false) {
-      this.props.item.expand(true);
-    } else if (this.opened === true) {
-      this.props.item.expand(false);
-    }
+    this.props.item.onClick();
   };
 
   opened?: ExpandState;
@@ -53,26 +49,41 @@ export class ExpandIcon extends React.PureComponent<ExpandIconProps, object> {
       }
     }
     this.opened = this.props.item.opened;
-    if (this.opened === 'loading') {
-      return (
-        <li
-          className="anticon anticon-loading anticon-spin ticl-icn-loading"
-        />
-      );
-    } else if (this.opened === null) {
-      return (
-        <li
-          className="anticon ticl-icn-expand"
-        />
-      );
-    } else {
-      return (
-        <li
-          onClick={this.clickHandler}
-          className="anticon anticon-caret-right ticl-icn-expand"
-          style={{transform: this.opened ? 'rotate(90deg)' : ''}}
-        />
-      );
+    switch (this.opened) {
+      case 'opened':
+        return (
+          <li
+            onClick={this.clickHandler}
+            className="anticon anticon-caret-right ticl-icn-expand"
+            style={{transform: 'rotate(90deg)'}}
+          />
+        );
+      case 'closed':
+        return (
+          <li
+            onClick={this.clickHandler}
+            className="anticon anticon-caret-right ticl-icn-expand"
+          />
+        );
+      case 'loading':
+        return (
+          <li
+            className="anticon anticon-loading anticon-spin ticl-icn-loading"
+          />
+        );
+      case 'empty' :
+        return (
+          <li
+            onClick={this.clickHandler}
+            className="anticon anticon-right ticl-icn-expand"
+          />
+        );
+      default:
+        return (
+          <li
+            className="anticon ticl-icn-expand"
+          />
+        );
     }
   }
 
