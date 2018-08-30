@@ -74,14 +74,14 @@ export default class VirtualList extends React.PureComponent<Props, State> {
       }
 
       return (
-        <div ref={this.getRef} className='tclo-v-scroll' style={style}>
-          <div className='tclo-v-scroll-content' style={{height: `${contentHeight}px`, paddingTop}}>{children}</div>
+        <div ref={this.getRef} className='ticl-v-scroll' style={style}>
+          <div className='ticl-v-scroll-content' style={{height: `${contentHeight}px`, paddingTop}}>{children}</div>
         </div >
       );
     } else {
       // not mounted or not visible, create dummy div to measure size
       return (
-        <div ref={this.getRef} className='tclo-v-scroll' style={style}>
+        <div ref={this.getRef} className='ticl-v-scroll' style={style}>
         </div >
       );
     }

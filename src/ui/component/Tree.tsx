@@ -56,20 +56,20 @@ export class ExpandIcon extends React.PureComponent<ExpandIconProps, object> {
     if (this.opened === 'loading') {
       return (
         <li
-          className="anticon anticon-loading anticon-spin tclo-icn-loading"
+          className="anticon anticon-loading anticon-spin ticl-icn-loading"
         />
       );
     } else if (this.opened === null) {
       return (
         <li
-          className="anticon tclo-icn-expand"
+          className="anticon ticl-icn-expand"
         />
       );
     } else {
       return (
         <li
           onClick={this.clickHandler}
-          className="anticon anticon-caret-right tclo-icn-expand"
+          className="anticon anticon-caret-right ticl-icn-expand"
           style={{transform: this.opened ? 'rotate(90deg)' : ''}}
         />
       );
