@@ -2,11 +2,18 @@
   cursor: default;
 }
 
+.ticl-tree-node-text {
+  margin: 0 4px 4px 4px;
+}
+
 .ticl-tree-node .ticl-iconbtn {
   color: var(--ticl--text-color-light);
+  opacity: 0;
   visibility: hidden;
+  transition: opacity 0.75s;
 }
 
 .ticl-tree-node:hover .ticl-iconbtn {
+  opacity: 1;
   visibility: visible;
 }

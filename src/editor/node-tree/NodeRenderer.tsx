@@ -164,7 +164,7 @@ export class NodeTreeRenderer extends React.Component<Props, State> {
     return (
       <div style={{...style, marginLeft}} className="ticl-tree-node">
         <ExpandIcon opened={this.state.opened} onClick={this.onExpandClicked}/>
-        {item.name}
+        <div className="ticl-tree-node-text">{item.name}</div>
         <Popover
           placement="right"
           overlayStyle={{background: "#FFF"}}
