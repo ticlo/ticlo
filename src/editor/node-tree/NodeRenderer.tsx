@@ -63,7 +63,7 @@ interface State {
 }
 
 
-export class NodeTreeRenderer extends React.PureComponent<Props, State> {
+export class NodeTreeRenderer extends React.Component<Props, State> {
 
   listingId: string;
 
@@ -143,6 +143,19 @@ export class NodeTreeRenderer extends React.PureComponent<Props, State> {
     super(props);
 
     this.state = {opened: props.item.opened};
+  }
+
+  shouldComponentUpdate(nextProps: Readonly<Props>, nextState: Readonly<State>, nextContext: any): boolean {
+    if (nextProps.item !== this.props.item) {
+      this.setState({opened: nextProps.item.opened});
+      if (this.listingId) {
+        this.props.connection.cancel(this.listingId);
+        this.listingId = null;
+      }
+    } else if (nextProps.style !== this.props.style || nextState.opened !== this.state.opened) {
+      return true;
+    }
+    return false;
   }
 
   render() {

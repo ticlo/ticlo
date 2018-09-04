@@ -1,3 +1,12 @@
+.ticl-tree-node {
+  cursor: default;
+}
+
 .ticl-tree-node .ticl-iconbtn {
   color: var(--ticl--text-color-light);
+  visibility: hidden;
+}
+
+.ticl-tree-node:hover .ticl-iconbtn {
+  visibility: visible;
 }
