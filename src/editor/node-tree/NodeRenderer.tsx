@@ -82,8 +82,26 @@ export class NodeTreeRenderer extends React.PureComponent<Props, State> {
         break;
     }
   };
+  onReloadClicked = () => {
+    if (this.listingId) {
+      this.props.connection.cancel(this.listingId);
+      this.listingId = null;
+    }
+    this.loadChildren();
+  };
 
   open() {
+    let {item} = this.props;
+    if (item.children) {
+      console.log('show');
+      this.showChildren();
+    } else {
+      console.log('reload');
+      this.loadChildren();
+    }
+  }
+
+  loadChildren() {
     let {item, connection} = this.props;
     this.listingId = connection.listChildren(item.key, item.filter, item.max, this) as string;
     this.setState({opened: 'loading'});
@@ -91,9 +109,15 @@ export class NodeTreeRenderer extends React.PureComponent<Props, State> {
 
   close() {
     this.props.item.opened = 'closed';
-    this.props.item.children = null;
     this.props.onListChange();
     this.setState({opened: "closed"});
+  }
+
+  showChildren() {
+    let {item} = this.props;
+    item.opened = 'opened';
+    this.setState({opened: 'opened'});
+    this.props.onListChange();
   }
 
   onUpdate(response: DataMap): void {
@@ -107,9 +131,7 @@ export class NodeTreeRenderer extends React.PureComponent<Props, State> {
       let newItem = new NodeTreeItem(key, item);
       item.children.push(newItem);
     }
-    item.opened = 'opened';
-    this.setState({opened: 'opened'});
-    this.props.onListChange();
+    this.showChildren();
   }
 
   onError(error: string, data?: DataMap): void {
@@ -127,7 +149,7 @@ export class NodeTreeRenderer extends React.PureComponent<Props, State> {
     let {item, style} = this.props;
     let marginLeft = item.level * 24;
     return (
-      <div style={{...style, marginLeft}}>
+      <div style={{...style, marginLeft}} className="ticl-tree-node">
         <ExpandIcon opened={this.state.opened} onClick={this.onExpandClicked}/>
         {item.name}
         <Popover
@@ -148,7 +170,7 @@ export class NodeTreeRenderer extends React.PureComponent<Props, State> {
         </Popover>
 
         <Tooltip title="Reload Data">
-          <div className="fas fa-sync-alt ticl-iconbtn"/>
+          <div className="fas fa-sync-alt ticl-iconbtn" onClick={this.onReloadClicked}/>
         </Tooltip>
 
       </div>
