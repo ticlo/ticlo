@@ -1,0 +1,164 @@
+import * as React from "react";
+
+import {Popover, Button, Input, Icon, Tooltip} from "antd";
+import {ExpandIcon, ExpandState} from "../../ui/component/Tree";
+import {DataMap} from "../../common/util/Types";
+import {ClientConnection} from "../../common/connect/ClientConnection";
+
+export class NodeTreeItem {
+  level: number;
+  key: string;
+  childPrefix: string;
+  name: string;
+
+  filter: string;
+  max: number = 16;
+
+  opened: ExpandState = 'closed';
+
+  children?: NodeTreeItem[];
+
+
+  constructor(name: string, parent?: NodeTreeItem) {
+    if (!parent) {
+      // root element;
+      this.level = 0;
+      if (name) {
+        this.key = name;
+        this.childPrefix = `${name}.`;
+        this.name = name.substr(name.indexOf('.') + 1);
+      } else {
+        this.key = '';
+        this.childPrefix = '';
+        this.name = 'Root';
+      }
+    } else {
+      this.level = parent.level + 1;
+      this.key = `${parent.childPrefix}${name}`;
+      this.childPrefix = `${this.key}.`;
+      this.name = name;
+    }
+  }
+
+
+  addToList(list: NodeTreeItem[]) {
+    list.push(this);
+    if (this.opened === 'opened' && this.children) {
+      for (let child of this.children) {
+        child.addToList(list);
+      }
+    }
+  }
+}
+
+interface Props {
+  item: NodeTreeItem;
+  style: React.CSSProperties;
+  onListChange: () => void;
+  connection: ClientConnection;
+}
+
+interface State {
+  opened: ExpandState;
+}
+
+
+export class NodeTreeRenderer extends React.PureComponent<Props, State> {
+
+  listingId: string;
+
+  onExpandClicked = () => {
+    if (this.listingId) {
+      this.props.connection.cancel(this.listingId);
+      this.listingId = null;
+    }
+    switch (this.state.opened) {
+      case 'opened':
+        this.close();
+        break;
+      case 'closed':
+      case 'empty':
+        this.open();
+        break;
+    }
+  };
+
+  open() {
+    let {item, connection} = this.props;
+    this.listingId = connection.listChildren(item.key, item.filter, item.max, this) as string;
+    this.setState({opened: 'loading'});
+  }
+
+  close() {
+    this.props.item.opened = 'closed';
+    this.props.item.children = null;
+    this.props.onListChange();
+    this.setState({opened: "closed"});
+  }
+
+  onUpdate(response: DataMap): void {
+    let {item} = this.props;
+    item.children = [];
+    if (this.listingId) {
+      this.listingId = null;
+    }
+    let children: DataMap = response.children;
+    for (let key in children) {
+      let newItem = new NodeTreeItem(key, item);
+      item.children.push(newItem);
+    }
+    item.opened = 'opened';
+    this.setState({opened: 'opened'});
+    this.props.onListChange();
+  }
+
+  onError(error: string, data?: DataMap): void {
+    // TODO: show error
+  }
+
+
+  constructor(props: Props) {
+    super(props);
+
+    this.state = {opened: props.item.opened};
+  }
+
+  render() {
+    let {item, style} = this.props;
+    let marginLeft = item.level * 24;
+    return (
+      <div style={{...style, marginLeft}}>
+        <ExpandIcon opened={this.state.opened} onClick={this.onExpandClicked}/>
+        {item.name}
+        <Popover
+          placement="right"
+          overlayStyle={{background: "#FFF"}}
+          style={{background: "#FFF"}}
+          content={
+            <Input
+              addonAfter={<Icon type="close" style={{color: "red"}}/>}
+              defaultValue="mysite"
+            />
+          }
+          trigger="click"
+        >
+          <Tooltip title="Search Children">
+            <div className="fas fa-search ticl-iconbtn"/>
+          </Tooltip>
+        </Popover>
+
+        <Tooltip title="Reload Data">
+          <div className="fas fa-sync-alt ticl-iconbtn"/>
+        </Tooltip>
+
+      </div>
+    );
+  }
+
+  componentWillUnmount() {
+    if (this.listingId) {
+      this.props.connection.cancel(this.listingId);
+      this.listingId = null;
+    }
+  }
+}

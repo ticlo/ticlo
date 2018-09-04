@@ -1,5 +1,8 @@
 {
-  "extends": ["tslint:latest", "tslint-react"],
+  "extends": [
+    "tslint:latest",
+    "tslint-react"
+  ],
   "rules": {
     "no-unnecessary-type-assertion-2": true,
     "array-type": [
@@ -179,6 +182,8 @@
     "no-reference": false,
     "object-literal-sort-keys": false,
     "one-variable-per-declaration": false,
-    "jsx-self-close": false
+    "jsx-self-close": false,
+    "jsx-no-multiline-js": false,
+    "jsx-alignment": false
   }
 }
