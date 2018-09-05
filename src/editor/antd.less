@@ -4,25 +4,6 @@
 @font-family-no-number: "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "WenQuanYi Micro Hei", Roboto, -apple-system, BlinkMacSystemFont, "Segoe UI", "Helvetica Neue", Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
 @font-family: @font-family-no-number;
 
-@primary-color: #60a0e0;
-@heading-color          : fade(#000, 90%);
-@text-color             : fade(#000, 75%);
-@text-color-secondary   : fade(#000, 50%);
-@text-color-light       : fade(#000, 35%);
-@heading-color-dark     : fade(#fff, 100%);
-@text-color-dark        : fade(#fff, 90%);
-@text-color-secondary-dark: fade(#fff, 75%);
+@import "style";
 
 
-// export global variables, so we won't need to import antdesign less file every where
-:root {
-  --ticl-primary-1: @primary-1;
-  --ticl-primary-2: @primary-2;
-  --ticl-primary-5: @primary-5;
-  --ticl-primary-6: @primary-6;
-  --ticl-primary-7: @primary-7;
-
-  --ticl-text-color: @text-color;
-  --ticl-text-color-secondary: @text-color-secondary;
-  --ticl--text-color-light: @text-color-light;
-}
