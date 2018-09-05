@@ -33,6 +33,7 @@ describe("NodeTree", () => {
         style={{width: '600px', height: '600px'}}
       />);
     await shouldHappen(() => div.hasChildNodes());
+    ReactDOM.unmountComponentAtNode(div);
   });
 
 });
