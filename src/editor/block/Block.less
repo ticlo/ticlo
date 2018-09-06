@@ -12,7 +12,6 @@
 
 .ticl-block-head {
   position: relative;
-  border-bottom: 1px solid #aaa;
   border-top-right-radius: 10px;
   height: 24px;
   padding: 2px 12px;
@@ -44,7 +43,7 @@
 }
 
 .ticl-block-selected {
-  box-shadow: 0 0 2px 2px #48c;
+  box-shadow: 0 0 3px 2px #ddd
 }
 
 .ticl-input-arrow {
@@ -67,4 +66,73 @@
   top: 7px;
   border: 1px solid #aaa;
   background: #f8f8f8;
+}
+
+// priority 0
+.ticl-block-pr0 {
+  border-color: @blue-5;
+}
+
+.ticl-block-pr0 > .ticl-block-head {
+  background: @blue-5;
+}
+
+.ticl-block-pr0.ticl-block-selected {
+  box-shadow: 0 0 3px 2px @blue-3;
+}
+
+// priority 1
+.ticl-block-pr1 {
+  border-color: @cyan-6;
+}
+
+.ticl-block-pr1 > .ticl-block-head {
+  background: @cyan-6;
+}
+
+.ticl-block-pr1.ticl-block-selected {
+  box-shadow: 0 0 3px 2px @cyan-3;
+}
+
+// priority 2
+@lime-6-7: mix(@lime-6, @lime-7, 50%);
+.ticl-block-pr2 {
+  border-color: @lime-6-7;
+}
+
+.ticl-block-pr2 > .ticl-block-head {
+  background: @lime-6-7;
+}
+
+.ticl-block-pr2.ticl-block-selected {
+  box-shadow: 0 0 3px 2px @lime-4;
+}
+
+// priority 3
+@vorange-6: mix(@volcano-5, @orange-6, 40%);
+@vorange-3: mix(@volcano-3, @orange-3, 50%);
+.ticl-block-pr3 {
+  border-color: @vorange-6;
+}
+
+.ticl-block-pr3 > .ticl-block-head {
+  background: @vorange-6;
+}
+
+.ticl-block-pr3.ticl-block-selected {
+  box-shadow: 0 0 3px 2px @vorange-3;
+}
+
+// repeaters
+@gold-6-7: mix(@gold-6, @gold-7, 80%);
+.ticl-block-prr {
+  border-color: @gold-6-7;
+}
+
+.ticl-block-prr > .ticl-block-head {
+  background: @gold-6-7;
+}
+
+.ticl-block-prr.ticl-block-selected {
+  box-shadow: 0 0 3px 2px @gold-3;
 }
