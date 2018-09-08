@@ -12,7 +12,7 @@
   },
   "license": "Apache-2.0",
   "dependencies": {
-    "jsonesc": "0.3.0",
+    "jsonesc": "0.4.0",
     "moment": "^2.22.2"
   },
   "devDependencies": {

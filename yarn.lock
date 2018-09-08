@@ -3583,9 +3583,9 @@ json5@^1.0.1:
   dependencies:
     minimist "^1.2.0"
 
-jsonesc@0.3.0:
-  version "0.3.0"
-  resolved "https://registry.yarnpkg.com/jsonesc/-/jsonesc-0.3.0.tgz#472afcea3ba4ed2928149f903ea468acc8fc244b"
+jsonesc@0.4.0:
+  version "0.4.0"
+  resolved "https://registry.yarnpkg.com/jsonesc/-/jsonesc-0.4.0.tgz#57e50cf23cb16566af9751c86c9b60eb476ae5e5"
 
 jsonify@~0.0.0:
   version "0.0.0"
