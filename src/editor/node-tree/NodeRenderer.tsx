@@ -1,9 +1,11 @@
 import * as React from "react";
 
-import {Popover, Button, Input, Icon, Tooltip} from "antd";
+import {Popover, Button, Input, Icon, Menu, InputNumber} from "antd";
 import {ExpandIcon, ExpandState} from "../../ui/component/Tree";
 import {DataMap} from "../../common/util/Types";
 import {ClientConnection} from "../../common/connect/ClientConnection";
+
+import Trigger from "rc-trigger";
 
 export class NodeTreeItem {
   level: number;
@@ -12,7 +14,7 @@ export class NodeTreeItem {
   name: string;
 
   filter: string;
-  max: number = 16;
+  max: number = 32;
 
   opened: ExpandState = 'closed';
 
@@ -60,12 +62,18 @@ interface Props {
 
 interface State {
   opened: ExpandState;
+  menuShown: boolean;
 }
 
 
 export class NodeTreeRenderer extends React.Component<Props, State> {
 
   listingId: string;
+
+  private _menu!: Trigger;
+  private getMenuRef = (trigger: Trigger): void => {
+    this._menu = trigger;
+  };
 
   onExpandClicked = () => {
     if (this.listingId) {
@@ -82,12 +90,13 @@ export class NodeTreeRenderer extends React.Component<Props, State> {
         break;
     }
   };
-  onReloadClicked = () => {
+  onReloadClicked = (event?: MouseEvent) => {
     if (this.listingId) {
       this.props.connection.cancel(this.listingId);
       this.listingId = null;
     }
     this.loadChildren();
+    this._menu.close();
   };
 
   open() {
@@ -120,6 +129,7 @@ export class NodeTreeRenderer extends React.Component<Props, State> {
     this.props.onListChange();
   }
 
+  // on children update
   onUpdate(response: DataMap): void {
     let {item} = this.props;
     item.children = [];
@@ -134,6 +144,7 @@ export class NodeTreeRenderer extends React.Component<Props, State> {
     this.showChildren();
   }
 
+  // on children error
   onError(error: string, data?: DataMap): void {
     // TODO: show error
   }
@@ -142,7 +153,7 @@ export class NodeTreeRenderer extends React.Component<Props, State> {
   constructor(props: Props) {
     super(props);
 
-    this.state = {opened: props.item.opened};
+    this.state = {opened: props.item.opened, menuShown: false};
   }
 
   shouldComponentUpdate(nextProps: Readonly<Props>, nextState: Readonly<State>, nextContext: any): boolean {
@@ -164,27 +175,47 @@ export class NodeTreeRenderer extends React.Component<Props, State> {
     return (
       <div style={{...style, marginLeft}} className="ticl-tree-node">
         <ExpandIcon opened={this.state.opened} onClick={this.onExpandClicked}/>
-        <div className="ticl-tree-node-text">{item.name}</div>
-        <Popover
-          placement="right"
-          overlayStyle={{background: "#FFF"}}
-          style={{background: "#FFF"}}
-          content={
-            <Input
-              addonAfter={<Icon type="close" style={{color: "red"}}/>}
-              defaultValue="mysite"
-            />
-          }
-          trigger="click"
-        >
-          <Tooltip title="Search Children">
-            <div className="fas fa-search ticl-iconbtn"/>
-          </Tooltip>
-        </Popover>
 
-        <Tooltip title="Reload Data">
-          <div className="fas fa-sync-alt ticl-iconbtn" onClick={this.onReloadClicked}/>
-        </Tooltip>
+        <Trigger
+          ref={this.getMenuRef}
+          prefixCls="ant-dropdown"
+          popupPlacement="bottomLeft"
+          action="contextMenu"
+          popupTransitionName="slide-up"
+          alignPoint={true}
+
+          popup={
+            <Menu prefixCls="ant-dropdown-menu" selectable={false}>
+              <Menu.Item onClick={this.onReloadClicked}>
+                <div className="fas fas fa-sync-alt ticl-icon"/>
+                Reload
+              </Menu.Item>
+              <Menu.Divider/>
+              <Menu.Item>
+                <div className="ticl-menu-title ">
+                  <div className="fas fa-search ticl-icon"/>
+                  Search Children:
+                </div>
+                <Input.Search
+                  placeholder="Filter"
+                />
+              </Menu.Item>
+              <Menu.Divider/>
+              <Menu.Item>
+                <div className="fas fa-search ticl-icon"/>
+                Max Children:
+                <InputNumber min={1} defaultValue={item.max}/>
+              </Menu.Item>
+
+            </Menu>
+          }
+          popupAlign={{
+            points: ['tl', 'bl'],
+            offset: [0, 3]
+          }}
+        >
+          <div className="ticl-tree-node-text">{item.name}</div>
+        </Trigger>
 
       </div>
     );

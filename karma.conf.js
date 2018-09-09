@@ -17,6 +17,7 @@ module.exports = function (config) {
             },
             compilerOptions: {
                 "target": "es2015",
+                "typeRoots" : ["node_modules/@types/", "src/@types/"],
                 "module": "commonjs",
                 "jsx": "react",
                 "moduleResolution": "node",
