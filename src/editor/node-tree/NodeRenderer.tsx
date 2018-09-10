@@ -1,11 +1,9 @@
 import * as React from "react";
 
-import {Popover, Button, Input, Icon, Menu, InputNumber} from "antd";
+import {Dropdown, Button, Input, Icon, Menu, InputNumber} from "antd";
 import {ExpandIcon, ExpandState} from "../../ui/component/Tree";
 import {DataMap} from "../../common/util/Types";
 import {ClientConnection} from "../../common/connect/ClientConnection";
-
-import Trigger from "rc-trigger";
 
 export class NodeTreeItem {
   level: number;
@@ -70,10 +68,6 @@ export class NodeTreeRenderer extends React.Component<Props, State> {
 
   listingId: string;
 
-  private _menu!: Trigger;
-  private getMenuRef = (trigger: Trigger): void => {
-    this._menu = trigger;
-  };
 
   onExpandClicked = () => {
     if (this.listingId) {
@@ -96,7 +90,6 @@ export class NodeTreeRenderer extends React.Component<Props, State> {
       this.listingId = null;
     }
     this.loadChildren();
-    this._menu.close();
   };
 
   open() {
@@ -176,46 +169,16 @@ export class NodeTreeRenderer extends React.Component<Props, State> {
       <div style={{...style, marginLeft}} className="ticl-tree-node">
         <ExpandIcon opened={this.state.opened} onClick={this.onExpandClicked}/>
 
-        <Trigger
-          ref={this.getMenuRef}
-          prefixCls="ant-dropdown"
-          popupPlacement="bottomLeft"
-          action="contextMenu"
-          popupTransitionName="slide-up"
-          alignPoint={true}
-
-          popup={
-            <Menu prefixCls="ant-dropdown-menu" selectable={false}>
-              <Menu.Item onClick={this.onReloadClicked}>
-                <div className="fas fas fa-sync-alt ticl-icon"/>
-                Reload
-              </Menu.Item>
-              <Menu.Divider/>
-              <Menu.Item>
-                <div className="ticl-menu-title ">
-                  <div className="fas fa-search ticl-icon"/>
-                  Search Children:
-                </div>
-                <Input.Search
-                  placeholder="Filter"
-                />
-              </Menu.Item>
-              <Menu.Divider/>
-              <Menu.Item>
-                <div className="fas fa-search ticl-icon"/>
-                Max Children:
-                <InputNumber min={1} defaultValue={item.max}/>
-              </Menu.Item>
-
-            </Menu>
-          }
-          popupAlign={{
-            points: ['tl', 'bl'],
-            offset: [0, 3]
-          }}
-        >
+        <Dropdown overlay={
+          <Menu prefixCls="ant-dropdown-menu" selectable={false}>
+            <Menu.Item onClick={this.onReloadClicked}>
+              <div className="fas fas fa-sync-alt ticl-icon"/>
+              Reload
+            </Menu.Item>
+          </Menu>
+        } trigger={['contextMenu']}>
           <div className="ticl-tree-node-text">{item.name}</div>
-        </Trigger>
+        </Dropdown>
 
       </div>
     );
