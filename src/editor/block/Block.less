@@ -1,3 +1,5 @@
+@import "../style";
+
 .ticl-block {
   box-sizing: border-box;
   margin: 0;
@@ -5,13 +7,13 @@
   list-style: none;
   background: #fff;
   border-radius: 0 12px 0;
-  border: 1px solid #a0a0a0;
+  border: 1px solid @ticl-color-prn;
   position: absolute;
   transition: all .2s;
 }
 
 .ticl-block-selected {
-  box-shadow: 0 0 3px 2px #ddd
+  box-shadow: 0 0 3px 2px @ticl-color-prn-light;
 }
 
 .ticl-block-head {
@@ -21,7 +23,7 @@
   padding: 2px 12px;
   background: #a0a0a0;
   color: white;
-  &>.tico {
+  & > .tico {
     position: absolute;
     right: 3px;
     top: 3px;
@@ -52,7 +54,7 @@
   width: 9px;
   height: 10px;
   top: 7px;
-  border: 1px solid #aaa;
+  border: 1px solid @ticl-color-prn;
   background: #f8f8f8;
 }
 
@@ -63,60 +65,56 @@
   width: 10px;
   height: 10px;
   top: 7px;
-  border: 1px solid #aaa;
+  border: 1px solid @ticl-color-prn;
   background: #f8f8f8;
 }
 
 .ticl-block-pr0 {
-  border-color: @blue-5;
-  &>.ticl-block-head {
-    background: @blue-5;
+  border-color: @ticl-color-pr0;
+  & > .ticl-block-head {
+    background: @ticl-color-pr0;
   }
   &.ticl-block-selected {
-    box-shadow: 0 0 3px 2px @blue-3;
+    box-shadow: 0 0 3px 2px @ticl-color-pr0-light;
   }
 }
 
 .ticl-block-pr1 {
-  border-color: @cyan-6;
-  &>.ticl-block-head {
-    background: @cyan-6;
+  border-color: @ticl-color-pr1;
+  & > .ticl-block-head {
+    background: @ticl-color-pr1;
   }
-  &1.ticl-block-selected {
-    box-shadow: 0 0 3px 2px @cyan-3;
+  &.ticl-block-selected {
+    box-shadow: 0 0 3px 2px @ticl-color-pr1-light;
   }
 }
 
 .ticl-block-pr2 {
-  @lime-6-7: mix(@lime-6, @lime-7, 50%);
-  border-color: @lime-6-7;
-  &>.ticl-block-head {
-    background: @lime-6-7;
+  border-color: @ticl-color-pr2;
+  & > .ticl-block-head {
+    background: @ticl-color-pr2;
   }
   &.ticl-block-selected {
-    box-shadow: 0 0 3px 2px @lime-4;
+    box-shadow: 0 0 3px 2px @ticl-color-pr2-light;
   }
 }
 
 .ticl-block-pr3 {
-  @vorange-6: mix(@red-4, @orange-6, 25%);
-  @vorange-3: mix(@red-2, @orange-3, 25%);
-  border-color: @vorange-6;
-  &>.ticl-block-head {
-    background: @vorange-6;
+  border-color: @ticl-color-pr3;
+  & > .ticl-block-head {
+    background: @ticl-color-pr3;
   }
   &.ticl-block-selected {
-    box-shadow: 0 0 3px 2px @vorange-3;
+    box-shadow: 0 0 3px 2px @ticl-color-pr3-light;
   }
 }
 
 .ticl-block-prr {
-  @gold-6-7: mix(@gold-6, @gold-7, 70%);
-  border-color: @gold-6-7;
-  &>.ticl-block-head {
-    background: @gold-6-7;
+  border-color: @ticl-color-prr;
+  & > .ticl-block-head {
+    background: @ticl-color-prr;
   }
   &.ticl-block-selected {
-    box-shadow: 0 0 3px 2px @gold-3;
+    box-shadow: 0 0 3px 2px @ticl-color-prr-light;
   }
 }
