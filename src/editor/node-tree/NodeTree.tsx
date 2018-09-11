@@ -26,8 +26,7 @@ export default class NodeTree extends React.PureComponent<Props, State> {
   renderChild(idx: number, style: React.CSSProperties): React.ReactNode {
     let item = this.list[idx];
     return (
-      <NodeTreeRenderer item={item} key={item.key} style={style} onListChange={this.forceUpdateLambda}
-                        connection={this.props.conn}/>
+      <NodeTreeRenderer item={item} key={item.key} style={style} />
     );
   }
 
@@ -43,6 +42,8 @@ export default class NodeTree extends React.PureComponent<Props, State> {
   constructor(props: Props) {
     super(props);
     let rootNode = new NodeTreeItem(props.basePath);
+    rootNode.connection = this.props.conn;
+    rootNode.onListChange = this.forceUpdateLambda;
     this.rootList.push(rootNode);
     this.state = {
       itemHeight: 30,

@@ -2,7 +2,7 @@ import * as React from 'react';
 
 export type ExpandState = 'opened' | 'closed' | 'loading' | 'empty' | 'disabled';
 
-export interface ExpandIconProps {
+interface ExpandIconProps {
   opened: ExpandState;
   onClick: React.MouseEventHandler<HTMLElement>;
 }
@@ -31,7 +31,7 @@ export class ExpandIcon extends React.PureComponent<ExpandIconProps, object> {
             className="anticon anticon-loading anticon-spin ticl-icn-loading"
           />
         );
-      case 'empty' :
+      case 'empty':
         return (
           <li
             onClick={this.props.onClick}
@@ -45,5 +45,60 @@ export class ExpandIcon extends React.PureComponent<ExpandIconProps, object> {
           />
         );
     }
+  }
+}
+
+export class TreeItem {
+  opened: ExpandState = 'closed';
+
+  children: TreeItem[] = null;
+
+  _renderer: TreeRenderer<any, any>;
+  attachedRenderer(renderer: TreeRenderer<any, any>) {
+    this._renderer = renderer;
+  }
+  detachRenderer(renderer: TreeRenderer<any, any>) {
+    if (this._renderer === renderer) {
+      this._renderer = null;
+    }
+  }
+  addToList(list: TreeItem[]) {
+    list.push(this);
+    if (this.opened === 'opened' && this.children) {
+      for (let child of this.children) {
+        child.addToList(list);
+      }
+    }
+  }
+  destroyChildren() {
+    if (this.children) {
+      for (let child of this.children) {
+        child.destroy();
+      }
+      this.children = null;
+    }
+  }
+  destroy() {
+    this.destroyChildren();
+  }
+}
+
+
+interface TreeRendererProps<T extends TreeItem> {
+  item: T;
+}
+
+export class TreeRenderer<P extends TreeRendererProps<any>, S> extends React.PureComponent<P, S> {
+  constructor(props: P) {
+    super(props);
+    this.props.item.attachedRenderer(this);
+  }
+  componentDidUpdate(prevProps: P) {
+    if (prevProps.item !== this.props.item) {
+      this.props.item.attachedRenderer(this);
+    }
+  }
+  componentWillUnmount() {
+    this.props.item.detachRenderer(this);
   }
 }

@@ -13,7 +13,7 @@ interface State {
   height: number;
 }
 
-export default class VirtualList extends React.PureComponent<Props, State> {
+export default class VirtualList extends React.Component<Props, State> {
   static defaultProps = {
 
   };
