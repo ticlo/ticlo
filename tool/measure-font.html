@@ -24,16 +24,33 @@
 </head>
 
 <body>
-  <span id="main"></span>
-  <script>
+<span id="main"></span>
+<script>
+  var widthTable = [];
+
+  function measure() {
     const span = document.querySelector('#main');
-    const widthTable = [];
+
     for (let i = 33; i < 127; ++i) {
-      span.innerText = String.fromCharCode(i);
-      widthTable[i] = span.offsetWidth;
+      let s = '';
+      for (let j = 0; j < 100; ++j) {
+        s += String.fromCharCode(i);
+      }
+      span.innerText = s;
+      widthTable[i] = span.offsetWidth / 100;
     }
+    let s = '';
+    for (let j = 0; j < 100; ++j) {
+      s += String.fromCharCode(33, 32);
+    }
+    s += 33;
+    span.innerText = s;
+    widthTable[32] = (span.offsetWidth - widthTable[33] * 101) / 100;
     span.innerText = JSON.stringify(widthTable);
-  </script>
+  }
+
+  setTimeout(measure, 100);
+</script>
 </body>
 
 </html>
