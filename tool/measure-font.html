@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width">
+  <title>Ticlo</title>
+  <link rel="stylesheet" href="../dist/antd.css">
+  <link rel="stylesheet" href="../dist/editor.css">
+  <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.0.12/css/all.css" crossorigin="anonymous">
+  <link href="https://fonts.googleapis.com/css?family=Fredoka+One" rel="stylesheet" crossorigin="anonymous">
+  <style>
+    body {
+      height: 100%;
+    }
+
+    #main {
+      font-size: 18px;
+      font-family: 'Fredoka One', cursive;
+      font-size: 18px;
+      line-height: 18px;
+    }
+  </style>
+</head>
+
+<body>
+  <span id="main"></span>
+  <script>
+    const span = document.querySelector('#main');
+    const widthTable = [];
+    for (let i = 33; i < 127; ++i) {
+      span.innerText = String.fromCharCode(i);
+      widthTable[i] = span.offsetWidth;
+    }
+    span.innerText = JSON.stringify(widthTable);
+  </script>
+</body>
+
+</html>
