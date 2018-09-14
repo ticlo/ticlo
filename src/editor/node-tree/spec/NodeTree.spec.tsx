@@ -1,14 +1,13 @@
 import {assert} from "chai";
 import * as React from 'react';
 import NodeTree from "../NodeTree";
-import * as ReactUtils from 'react-dom/test-utils';
 import {Block, Root} from "../../../common/block/Block";
 import {makeLocalConnection} from "../../../common/connect/LocalConnection";
 import {shouldHappen} from "../../../common/util/test-util";
 import * as ReactDOM from "react-dom";
 import {loadTemplate} from "../../../ui/util/test-util";
 
-describe("NodeTree", () => {
+describe("editor NodeTree", () => {
 
   let job = Root.instance.addJob('NodeTree');
 
@@ -31,7 +30,7 @@ describe("NodeTree", () => {
         conn={client}
         basePath="example"
         style={{width: '600px', height: '600px'}}
-      />);
+      />, 'editor');
     await shouldHappen(() => div.hasChildNodes());
     ReactDOM.unmountComponentAtNode(div);
   });

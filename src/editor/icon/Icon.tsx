@@ -30,8 +30,6 @@ function iconNameLength(str: string): [number, boolean] {
     if (offsetTable[code]) {
       needOffset = true;
     }
-    console.log(code);
-    console.log(measureTable[code]);
     width += measureTable[code];
   }
   return [width, needOffset];
@@ -55,12 +53,13 @@ export function TIcon(props: Props) {
           return (<div className={`tico ${iconType} fa-${iconName} ${additionalClass}`}/>);
         }
         break;
+      case 'material':
+        return (<div className={`tico tico-material ${additionalClass}`}>{iconName}</div>);
       case 'txt':
         if (iconName.length > 3) {
           iconName = iconName.substr(0, 3);
         }
         let [nameLen, needOffset] = iconNameLength(iconName);
-        console.log(nameLen);
         if (nameLen > 0) {
           if (nameLen <= 22) {
             if (needOffset) {
