@@ -59,6 +59,7 @@ export class BaseFunction {
 BaseFunction.prototype.priority = 0;
 BaseFunction.prototype.defaultMode = 'always';
 BaseFunction.prototype.descriptor = {
+  icon: '',
   inputs: [], outputs: [], attributes: [],
 };
 
@@ -105,6 +106,7 @@ export class BlockFunction implements BaseFunction {
 BlockFunction.prototype.priority = 1;
 BlockFunction.prototype.defaultMode = 'always';
 BlockFunction.prototype.descriptor = {
+  icon: '',
   inputs: [], outputs: [], attributes: [],
 };
 

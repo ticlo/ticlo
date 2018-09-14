@@ -55,7 +55,7 @@ describe("editor Icon", () => {
     assert.isTrue(icons[5].style.fontSize === '7px');
 
     assert.isTrue(icons[6].classList.contains('tico-txt'));
-    assert.equal(icons[6].innerText, '周');
+    assert.equal(icons[6].innerText, '文');
 
     // invalid icon input
     for (let i = 7; i < 11; ++i) {

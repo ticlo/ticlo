@@ -13,6 +13,7 @@ export interface PropGroupDesc {
 }
 
 export interface FunctionDesc {
+  icon: string;
   useLength?: boolean;
   inputs?: (PropDesc | PropGroupDesc)[];
   outputs?: PropDesc[];
