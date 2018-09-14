@@ -43,9 +43,10 @@ export function TIcon(props: Props) {
   }
   // TODO priority for repeater and group
 
-  let iconParts = icon.split(':');
-  if (iconParts.length === 2) {
-    let [iconType, iconName] = iconParts;
+  let colonPos = icon.indexOf(':');
+  if (colonPos > 0) {
+    let iconType = icon.substr(0, colonPos);
+    let iconName = icon.substr(colonPos + 1);
     switch (iconType) {
       case 'fas':
       case 'fab':
