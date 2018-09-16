@@ -16,7 +16,7 @@ describe("editor Icon", () => {
         <TIcon icon="txt:A"/>
         <TIcon icon="txt:ip"/>
         <TIcon icon="txt:WWWW"/>
-        <TIcon icon="txt:周"/>
+        <TIcon icon="txt:文"/>
 
         <TIcon icon="fab:space space"/>
         <TIcon icon={"txt:\t"}/>
@@ -52,6 +52,7 @@ describe("editor Icon", () => {
     assert.isTrue(icons[4].classList.contains('tico-yoff'));
 
     assert.isTrue(icons[5].classList.contains('tico-txt'));
+    assert.equal(icons[3].innerText, 'WWW', 'long string will be cut to 3 characters');
     assert.isTrue(icons[5].style.fontSize === '7px');
 
     assert.isTrue(icons[6].classList.contains('tico-txt'));
