@@ -4,6 +4,7 @@ import {BlockIO, BlockProperty} from "../../block/BlockProperty";
 import {ErrorEvent, NOT_READY} from "../../block/Event";
 import {Block, BlockMode} from "../../block/Block";
 import {BlockDeepProxy} from "../../block/BlockProxy";
+import {FunctionDesc} from "../../block/Descriptor";
 
 const SCRIPT_ERROR = 'scriptError';
 
@@ -71,10 +72,7 @@ export class JsFunction extends BlockFunction {
     return rslt;
   }
 
-  static registerClass(className: string,
-                       script: string,
-                       defaultMode: BlockMode = 'always',
-                       defaultPriority: number = 1) {
+  static registerClass(script: string, desc: FunctionDesc, namespace?: string) {
     try {
       let compiledFunction = new Function(script);
 
@@ -82,12 +80,21 @@ export class JsFunction extends BlockFunction {
         constructor(block: Block) {
           super(block);
           this._compiledFunction = compiledFunction;
-          this.priority = defaultPriority;
-          this.defaultMode = defaultMode;
+
         }
       }
 
-      Classes.add(className, CustomScriptFunction);
+      if (!desc.priority) {
+        desc.priority = 1;
+      }
+      if (!desc.mode) {
+        desc.mode = 'always';
+      }
+      CustomScriptFunction.prototype.priority = desc.priority;
+      CustomScriptFunction.prototype.defaultMode = desc.mode;
+      CustomScriptFunction.prototype.useLength = Boolean(desc.useLength);
+
+      Classes.add(CustomScriptFunction, desc, namespace);
     } catch (err) {
       // TODO log?
     }
@@ -96,4 +103,10 @@ export class JsFunction extends BlockFunction {
 
 JsFunction.prototype.priority = 1;
 
-Classes.add('js', JsFunction);
+Classes.add(JsFunction, {
+  id: 'js',
+  icon: 'txt:js',
+  inputs: [{
+    name: 'script', type: 'string'
+  }]
+});

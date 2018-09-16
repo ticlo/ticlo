@@ -22,15 +22,13 @@ export interface FunctionData extends FunctionInput, FunctionOutput {
 
 export class BaseFunction {
   _data: FunctionData;
-  className: string;
-  priority: number;
+  priority: 0 | 1 | 2 | 3;
   defaultMode: BlockMode;
+  useLength: boolean;
 
   constructor(block?: FunctionData) {
     this._data = block;
   }
-
-  descriptor: FunctionDesc;
 
   // return true when it needs to be put in queue
   inputChanged(input: BlockIO, val: any): boolean {
@@ -57,19 +55,16 @@ export class BaseFunction {
 }
 
 BaseFunction.prototype.priority = 0;
+BaseFunction.prototype.useLength = false;
 BaseFunction.prototype.defaultMode = 'always';
-BaseFunction.prototype.descriptor = {
-  icon: '',
-  inputs: [], outputs: [], attributes: [],
-};
 
 export const PureFunction = BaseFunction;
 
 export class BlockFunction implements BaseFunction {
   _data: Block;
-  className: string;
-  priority: number;
+  priority: 0 | 1 | 2 | 3;
   defaultMode: BlockMode;
+  useLength: boolean;
 
   constructor(block?: Block) {
     this._data = block;
@@ -104,10 +99,7 @@ export class BlockFunction implements BaseFunction {
 }
 
 BlockFunction.prototype.priority = 1;
+BaseFunction.prototype.useLength = false;
 BlockFunction.prototype.defaultMode = 'always';
-BlockFunction.prototype.descriptor = {
-  icon: '',
-  inputs: [], outputs: [], attributes: [],
-};
 
 export type FunctionGenerator = new (block: FunctionData) => BaseFunction;

@@ -211,4 +211,13 @@ export class ForEachFunction extends BlockFunction implements BlockChildWatch {
 ForEachFunction.prototype._onSourceChange = MapImpl.prototype._onSourceChange;
 
 ForEachFunction.prototype.priority = 3;
-Classes.add('foreach', ForEachFunction);
+Classes.add(ForEachFunction, {
+  id: 'foreach',
+  icon: 'material:hdr_strong',
+  style: 'repeater',
+  inputs: [
+    {name: 'input', type: 'dynamic'},
+    {name: 'src', type: 'dynamic'}
+  ],
+  outputs: [{name: 'output', type: 'dynamic'}]
+});

@@ -27,7 +27,7 @@ export class TestFunctionRunner extends BaseFunction {
   }
 }
 
-Classes.add('test-runner', TestFunctionRunner);
+Classes.add(TestFunctionRunner, {id: 'test-runner'});
 
 export class TestAsyncFunctionLog {
   static syncLog: any[] = [];
@@ -76,7 +76,7 @@ export class TestAsyncFunctionPromise extends PureFunction {
 }
 
 TestAsyncFunctionPromise.prototype.defaultMode = 'onCall';
-Classes.add('async-function-promise', TestAsyncFunctionPromise);
+Classes.add(TestAsyncFunctionPromise, {id: 'async-function-promise'});
 
 
 // async function that manually call block.wait, and return NOT_READY
@@ -117,7 +117,7 @@ export class TestAsyncFunctionManual extends BlockFunction {
 }
 
 TestAsyncFunctionManual.prototype.defaultMode = 'onCall';
-Classes.add('async-function-manual', TestAsyncFunctionManual);
+Classes.add(TestAsyncFunctionManual, {id: 'async-function-manual'});
 
 export const VoidListeners = {
   onSourceChange(prop: Dispatcher<any>) {

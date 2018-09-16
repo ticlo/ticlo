@@ -1,7 +1,6 @@
 import {assert} from "chai";
 import {Job, Root} from "../../block/Block";
 import {WorkerFunction} from "../WorkerFunction";
-import {Block} from "../../block/Block";
 import {TestFunctionRunner} from "../../block/spec/TestFunction";
 import "../../functions/basic/Math";
 import "../Output";
@@ -15,13 +14,13 @@ describe("WorkerFunction", () => {
 
     let aBlock = job.createBlock('a');
 
-    aBlock.setValue('#is', '/WorkerFunction/class1');
+    aBlock.setValue('#is', 'WorkerFunction:class1');
 
     let jobData: DataMap = {
       '#is': '',
       'runner': {'#is': 'test-runner', '#-log': 'nest1', '~#call': '##.#input.in1'}
     };
-    WorkerFunction.registerClass('/WorkerFunction/class1', jobData);
+    WorkerFunction.registerClass(jobData, {id: 'class1'}, 'WorkerFunction');
 
     Root.run();
     assert.deepEqual(TestFunctionRunner.popLogs(), ['nest1'],
@@ -50,14 +49,14 @@ describe("WorkerFunction", () => {
 
     let aBlock = job.createBlock('a');
 
-    aBlock.setValue('#is', '/WorkerFunction/class2');
+    aBlock.setValue('#is', 'WorkerFunction:class2');
 
     let jobData: DataMap = {
       '#is': '',
       'add': {'#is': 'add', '~0': '##.#input.in1', '1': 1},
       '#output': {'#is': 'output', '~out1': '##.add.output'}
     };
-    WorkerFunction.registerClass('/WorkerFunction/class2', jobData);
+    WorkerFunction.registerClass(jobData, {id: 'class2'}, 'WorkerFunction');
     aBlock.setValue('in1', 2);
     Root.run();
 
@@ -69,11 +68,11 @@ describe("WorkerFunction", () => {
 
     let aBlock = job.createBlock('a');
     aBlock.setValue('in0', 2);
-    aBlock.setValue('#is', 'job_test_namespace/class1');
+    aBlock.setValue('#is', 'test_namespace:class1');
 
     let jobData1: DataMap = {
       '#is': '',
-      'nest': {'#is': '/class2', '~in1': '##.#input.in0'},
+      'nest': {'#is': ':class2', '~in1': '##.#input.in0'},
       '#output': {'#is': 'output', '~out1': '##.nest.out2'}
     };
     let jobData2: DataMap = {
@@ -81,8 +80,8 @@ describe("WorkerFunction", () => {
       'add': {'#is': 'add', '~0': '##.#input.in1', '1': 1},
       '#output': {'#is': 'output', '~out2': '##.add.output'}
     };
-    WorkerFunction.registerClass('job_test_namespace/class1', jobData1);
-    WorkerFunction.registerClass('job_test_namespace/class2', jobData2);
+    WorkerFunction.registerClass(jobData1, {id: 'class1'}, 'test_namespace');
+    WorkerFunction.registerClass(jobData2, {id: 'class2'}, 'test_namespace');
     Root.run();
 
     assert.equal(aBlock.getValue('out1'), 3, 'output from 2 layer of  nested logic');

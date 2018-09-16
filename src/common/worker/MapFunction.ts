@@ -458,4 +458,18 @@ MapFunction.prototype._onReuseWorkerChange = MapImpl.prototype._onReuseWorkerCha
 MapFunction.prototype._onTimeoutChange = MapImpl.prototype._onTimeoutChange;
 
 MapFunction.prototype.priority = 3;
-Classes.add('map', MapFunction);
+Classes.add(MapFunction, {
+  id: 'map',
+  icon: 'material:hdr_strong',
+  style: 'repeater',
+  inputs: [
+    {name: 'input', type: 'dynamic'},
+    {name: 'src', type: 'dynamic'},
+    {name: 'thread', type: 'number'},
+    {name: 'reuseWorker', type: 'bool'},
+    {name: 'timeout', type: 'number'}
+  ],
+  outputs:
+    [{name: 'output', type: 'dynamic'}]
+})
+;

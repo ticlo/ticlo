@@ -1,9 +1,9 @@
-import { Classes } from "../block/Class";
-import { BlockFunction, FunctionData } from "../block/BlockFunction";
-import { FunctionDesc } from "../block/Descriptor";
-import { BlockIO } from "../block/BlockProperty";
-import { Block, BlockMode } from "../block/Block";
-import { Job } from "../block/Block";
+import {Classes} from "../block/Class";
+import {BlockFunction, FunctionData} from "../block/BlockFunction";
+import {FunctionDesc} from "../block/Descriptor";
+import {BlockIO} from "../block/BlockProperty";
+import {Block, BlockMode} from "../block/Block";
+
 
 export class OutputFunction extends BlockFunction {
 
@@ -15,4 +15,4 @@ export class OutputFunction extends BlockFunction {
 }
 
 OutputFunction.prototype.priority = 3;
-Classes.add('output', OutputFunction);
+Classes.add(OutputFunction, {id: 'output'});

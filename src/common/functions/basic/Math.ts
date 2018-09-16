@@ -3,6 +3,7 @@ import {PureFunction, FunctionData} from "../../block/BlockFunction";
 import {FunctionDesc} from "../../block/Descriptor";
 
 const descriptorN: FunctionDesc = {
+  id: '',
   icon: '',
   useLength: true,
   inputs: [
@@ -13,6 +14,7 @@ const descriptorN: FunctionDesc = {
   ],
 };
 const descriptor2: FunctionDesc = {
+  id: '',
   icon: '',
   inputs: [
     {name: '0', type: 'number'},
@@ -48,8 +50,12 @@ export class AddFunction extends PureFunction {
 }
 
 AddFunction.prototype.priority = 0;
-AddFunction.prototype.descriptor = {...descriptorN, icon: 'fas:plus'};
-Classes.add('add', AddFunction);
+AddFunction.prototype.useLength = true;
+Classes.add(AddFunction, {
+  ...descriptorN,
+  id: 'add',
+  icon: 'fas:plus'
+});
 
 
 export class MultiplyFunction extends PureFunction {
@@ -76,8 +82,12 @@ export class MultiplyFunction extends PureFunction {
 }
 
 MultiplyFunction.prototype.priority = 0;
-MultiplyFunction.prototype.descriptor = {...descriptorN, icon: 'fas:times'};
-Classes.add('multiply', MultiplyFunction);
+MultiplyFunction.prototype.useLength = true;
+Classes.add(MultiplyFunction, {
+  ...descriptorN,
+  id: 'multiply',
+  icon: 'fas:times'
+});
 
 
 export class SubtractFunction extends PureFunction {
@@ -93,8 +103,11 @@ export class SubtractFunction extends PureFunction {
 }
 
 SubtractFunction.prototype.priority = 0;
-SubtractFunction.prototype.descriptor = {...descriptor2, icon: 'fas:minus'};
-Classes.add('subtract', SubtractFunction);
+Classes.add(SubtractFunction, {
+  ...descriptor2,
+  id: 'subtract',
+  icon: 'fas:minus'
+});
 
 
 export class DivideFunction extends PureFunction {
@@ -110,5 +123,8 @@ export class DivideFunction extends PureFunction {
 }
 
 DivideFunction.prototype.priority = 0;
-DivideFunction.prototype.descriptor = {...descriptor2, icon: 'fas:divide'};
-Classes.add('divide', DivideFunction);
+Classes.add(DivideFunction, {
+  ...descriptor2,
+  id: 'divide',
+  icon: 'fas:divide'
+});

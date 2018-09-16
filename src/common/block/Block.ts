@@ -568,7 +568,7 @@ export class Block implements Runnable, FunctionData, Listener<FunctionGenerator
     let newLen = Number(length);
     if (newLen !== this._cachedLength && (newLen === newLen || this._cachedLength === this._cachedLength)) {
       this._cachedLength = newLen;
-      if (this._function && this._function.descriptor.useLength) {
+      if (this._function && this._function.useLength) {
         this._queueFunctionOnChange();
       }
     }
