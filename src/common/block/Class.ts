@@ -3,19 +3,22 @@ import {FunctionGenerator} from "./BlockFunction";
 import {ValueDispatcher} from "./Dispatcher";
 import {FunctionDesc} from "./Descriptor";
 
+interface DescListener {
+  onDescChange(id: string, desc: FunctionDesc): void;
+}
+
 
 export class Class extends ValueDispatcher<FunctionGenerator> {
-  _name: string;
+  _id: string;
+  _desc: FunctionDesc;
 
-  constructor(name: string) {
+  constructor(id: string) {
     super();
-    this._name = name;
+    this._id = id;
   }
 }
 
 const _types: {[key: string]: Class} = {};
-
-let _typesFinalized = false;
 
 export class Classes {
   static add(cls: FunctionGenerator, desc: FunctionDesc, namespace?: string) {
@@ -31,30 +34,63 @@ export class Classes {
     }
     cls.prototype.type = id;
     type.updateValue(cls);
+    type._desc = desc;
+    Classes.dispatchDescChange(id, desc);
   }
 
-  static clear(name: string) {
-    let type = _types[name];
+  static clear(id: string) {
+    let type = _types[id];
 
     if (type) {
       type.updateValue(null);
+      type._desc = null;
+      Classes.dispatchDescChange(id, null);
     }
   }
 
-  static listen(name: string, block: Block): Class {
-    if (!name) {
+  static listen(id: string, block: Block): Class {
+    if (!id) {
       return;
     }
-    if (name.startsWith(':') && block._job._namespace) {
-      name = block._job._namespace + name;
+    if (id.startsWith(':') && block._job._namespace) {
+      id = block._job._namespace + id;
     }
-    let type = _types[name];
+    let type = _types[id];
 
     if (!type) {
-      type = new Class(name);
-      _types[name] = type;
+      type = new Class(id);
+      _types[id] = type;
     }
     type.listen(block);
     return type;
+  }
+
+  static _listeners: Set<DescListener> = new Set<DescListener>();
+
+  static listenDesc(listener: DescListener): void {
+    Classes._listeners.add(listener);
+  }
+
+  static unlistenDescs(listener: DescListener): void {
+    Classes._listeners.delete(listener);
+  }
+
+  static dispatchDescChange(id: string, desc: FunctionDesc) {
+    for (let listener of Classes._listeners) {
+      listener.onDescChange(id, desc);
+    }
+  }
+
+  static getAllClassIds(): string[] {
+    return Object.keys(_types);
+  }
+
+  static getDesc(id: string): FunctionDesc {
+    let type = _types[id];
+
+    if (type) {
+      return type._desc;
+    }
+    return null;
   }
 }
