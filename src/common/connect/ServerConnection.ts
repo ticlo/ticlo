@@ -1,10 +1,11 @@
 import {Connection, ConnectionSendingData, ConnectionSend} from "./Connection";
 import {BlockIO, BlockProperty, BlockPropertyEvent, BlockPropertySubscriber} from "../block/BlockProperty";
-import {Root} from "../block/Block";
 import {DataMap, isSavedBlock, truncateObj} from "../util/Types";
-import {Block, BlockBindingSource, BlockChildWatch} from "../block/Block";
+import {Root, Block, BlockBindingSource, BlockChildWatch} from "../block/Block";
 import {Dispatcher, Listener, ValueDispatcher} from "../block/Dispatcher";
 import Property = Chai.Property;
+import {Classes, DescListener} from "../block/Class";
+import {FunctionDesc} from "../block/Descriptor";
 
 class ServerRequest extends ConnectionSendingData {
   id: string;
@@ -175,6 +176,46 @@ class ServerWatch extends ServerRequest implements BlockChildWatch, Listener<any
   }
 }
 
+class ServerDescWatcher extends ServerRequest implements DescListener {
+  pendingIds: Set<string>;
+
+  constructor(conn: ServerConnection, id: string) {
+    super();
+    this.id = id;
+    this.connection = conn;
+    this.pendingIds = new Set(Classes.getAllClassIds());
+    this.connection.addSend(this);
+  }
+
+  onDescChange(id: string, desc: FunctionDesc): void {
+    this.pendingIds.add(id);
+    this.connection.addSend(this);
+  }
+
+  getSendingData(): {data: DataMap, size: number} {
+    let changes = [];
+    let totalSize = 0;
+    for (let id of this.pendingIds) {
+      let [desc, size] = Classes.getDesc(id);
+      if (desc) {
+        changes.push(desc);
+        totalSize += size;
+      } else {
+        changes.push({id, removed: true});
+        totalSize += id.length + 10;
+      }
+      this.pendingIds.delete(id);
+      if (totalSize > 0x20000) {
+        break;
+      }
+    }
+    if (this.pendingIds.size !== 0) {
+      this.connection.addSend(this);
+    }
+    return {data: {id: this.id, cmd: 'update', changes}, size: totalSize};
+  }
+}
+
 export class ServerConnection extends Connection {
   root: Root;
 
@@ -245,10 +286,11 @@ export class ServerConnection extends Connection {
             result = this.listChildren(request.path, request.filter, request.max);
             break;
           }
-          case 'synClasses' : {
+          case 'addClass': {
             break;
           }
-          case 'addClass': {
+          case 'watchDesc' : {
+            result = this.watchDesc(request.id);
             break;
           }
         }
@@ -396,6 +438,10 @@ export class ServerConnection extends Connection {
     } else {
       return 'invalid path';
     }
+  }
+
+  watchDesc(id: string): ServerDescWatcher {
+    return new ServerDescWatcher(this, id);
   }
 
   blockCommand(path: string, command: string, params: DataMap) {

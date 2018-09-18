@@ -2,8 +2,10 @@ import {Block} from "./Block";
 import {FunctionGenerator} from "./BlockFunction";
 import {ValueDispatcher} from "./Dispatcher";
 import {FunctionDesc} from "./Descriptor";
+import JSON = Mocha.reporters.JSON;
+import JsonEsc from "jsonesc/dist";
 
-interface DescListener {
+export interface DescListener {
   onDescChange(id: string, desc: FunctionDesc): void;
 }
 
@@ -11,10 +13,20 @@ interface DescListener {
 export class Class extends ValueDispatcher<FunctionGenerator> {
   _id: string;
   _desc: FunctionDesc;
+  _descSize: number = 0;
 
   constructor(id: string) {
     super();
     this._id = id;
+  }
+
+  setDesc(desc?: FunctionDesc) {
+    this._desc = desc;
+    if (desc) {
+      this._descSize = JsonEsc.stringify(desc).length;
+    } else {
+      this._descSize = 0;
+    }
   }
 }
 
@@ -34,7 +46,7 @@ export class Classes {
     }
     cls.prototype.type = id;
     type.updateValue(cls);
-    type._desc = desc;
+    type.setDesc(desc);
     Classes.dispatchDescChange(id, desc);
   }
 
@@ -43,7 +55,7 @@ export class Classes {
 
     if (type) {
       type.updateValue(null);
-      type._desc = null;
+      type.setDesc(null);
       Classes.dispatchDescChange(id, null);
     }
   }
@@ -85,12 +97,12 @@ export class Classes {
     return Object.keys(_types);
   }
 
-  static getDesc(id: string): FunctionDesc {
+  static getDesc(id: string): [FunctionDesc, number] {
     let type = _types[id];
 
     if (type) {
-      return type._desc;
+      return [type._desc, type._descSize];
     }
-    return null;
+    return [null, 0];
   }
 }

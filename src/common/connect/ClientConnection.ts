@@ -2,6 +2,7 @@ import {Connection, ConnectionSend} from "./Connection";
 import {Uid} from "../util/Uid";
 import {DataMap, isSavedBlock} from "../util/Types";
 import {Block} from "../block/Block";
+import {FunctionDesc} from "../block/Descriptor";
 
 export interface ClientCallbacks {
   onDone?(): void;
@@ -139,6 +140,60 @@ class WatchRequest extends MergedClientRequest {
   }
 }
 
+type DescListener = (desc: FunctionDesc) => void;
+
+class DescRequest extends ConnectionSend implements ClientCallbacks {
+
+  listeners: Map<DescListener, string> = new Map<DescListener, string>();
+
+  cache: Map<string, FunctionDesc> = new Map<string, FunctionDesc>();
+
+  constructor(data: DataMap) {
+    super(data);
+  }
+
+  onDone(): void {
+
+  }
+
+  onUpdate(response: DataMap): void {
+    if (response.changes) {
+      for (let change of response.changes) {
+        if (change && 'id' in change) {
+          let id = change.id;
+          if ('remove' in change) {
+            this.cache.delete(id);
+            if (this.listeners.size) {
+              for (let [listener, lid] of this.listeners) {
+                if (id === lid) {
+                  listener(null);
+                }
+              }
+            }
+          } else {
+            this.cache.set(id, change);
+            if (this.listeners.size) {
+              for (let [listener, lid] of this.listeners) {
+                if (id === lid) {
+                  listener(change);
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+
+  onError(error: string, data?: DataMap): void {
+
+  }
+
+  cancel() {
+    this._data = null;
+  }
+}
+
 export class ClientConnection extends Connection {
 
   uid: Uid = new Uid();
@@ -150,8 +205,18 @@ export class ClientConnection extends Connection {
   // path as key
   watches: Map<string, WatchRequest> = new Map();
 
-  constructor() {
+  descReq: DescRequest;
+
+
+  constructor(watchDesc: boolean) {
     super();
+    if (watchDesc) {
+      let id = this.uid.next();
+      let data = {cmd: 'descReq', id};
+      this.descReq = new DescRequest(data);
+      this.requests.set(id, this.descReq);
+      this.addSend(this.descReq);
+    }
   }
 
   /* istanbul ignore next */
@@ -298,4 +363,14 @@ export class ClientConnection extends Connection {
       this.requests.delete(id);
     }
   }
+
+  watchDesc(id: string, listener: DescListener) {
+    this.descReq.listeners.set(listener, id);
+  }
+
+  unwatchDesc(listener: DescListener) {
+    this.descReq.listeners.delete(listener);
+  }
+
+
 }

@@ -64,7 +64,7 @@ export class Connection {
         sending.push(data);
       }
       this._sending.delete(s);
-      if (size > 524288) {
+      if (size > 0x80000) {
         break;
       }
     }
