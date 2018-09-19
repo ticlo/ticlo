@@ -31,7 +31,7 @@ describe("Connection", () => {
     // clean up
     callbacks.cancel();
     client.destroy();
-    Root.instance.setValue('Connection1', null);
+    Root.instance.deleteValue('Connection1');
   });
 
   it('multiple subscribe binding', async () => {
@@ -73,7 +73,7 @@ describe("Connection", () => {
     callbacks1.cancel();
     callbacks2.cancel();
     client.destroy();
-    Root.instance.setValue('Connection2', null);
+    Root.instance.deleteValue('Connection2');
   });
 
   it('multiple watch', async () => {
@@ -121,7 +121,7 @@ describe("Connection", () => {
     callbacks1.cancel();
     callbacks2.cancel();
     client.destroy();
-    Root.instance.setValue('Connection3', null);
+    Root.instance.deleteValue('Connection3');
   });
 
   it('list', async () => {
@@ -146,6 +146,6 @@ describe("Connection", () => {
 
 
     client.destroy();
-    Root.instance.setValue('Connection4', null);
+    Root.instance.deleteValue('Connection4');
   });
 });

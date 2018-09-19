@@ -45,6 +45,6 @@ describe("Connection Error", () => {
     callbacks2.cancel();
     callbacks3.cancel();
     client.destroy();
-    Root.instance.setValue('ConnectionError1', null);
+    Root.instance.deleteValue('ConnectionError1');
   });
 });
