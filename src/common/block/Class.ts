@@ -87,7 +87,7 @@ export class Classes {
     Classes._listeners.add(listener);
   }
 
-  static unlistenDescs(listener: DescListener): void {
+  static unlistenDesc(listener: DescListener): void {
     Classes._listeners.delete(listener);
   }
 

@@ -215,6 +215,10 @@ class ServerDescWatcher extends ServerRequest implements DescListener {
     }
     return {data: {id: this.id, cmd: 'update', changes}, size: totalSize};
   }
+
+  close() {
+    Classes.unlistenDesc(this);
+  }
 }
 
 export class ServerConnection extends Connection {
