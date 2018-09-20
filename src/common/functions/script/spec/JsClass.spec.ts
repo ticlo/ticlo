@@ -41,7 +41,9 @@ describe("Js Class", function () {
     let job = new Job();
 
     let aBlock = job.createBlock('a');
-    Classes.clear(''); // make sure it's not accidentally registered in other test
+    Classes.clear('');
+    assert.deepEqual(Classes.getDesc(''), [null, 0]);
     assert.isUndefined(Classes.listen('', aBlock), 'listen without class name');
+
   });
 });
