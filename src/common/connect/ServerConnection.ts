@@ -4,7 +4,7 @@ import {DataMap, isSavedBlock, truncateObj} from "../util/Types";
 import {Root, Block, BlockBindingSource, BlockChildWatch} from "../block/Block";
 import {Dispatcher, Listener, ValueDispatcher} from "../block/Dispatcher";
 import Property = Chai.Property;
-import {Classes, DescListener} from "../block/Class";
+import {Class, Classes, DescListener} from "../block/Class";
 import {FunctionDesc} from "../block/Descriptor";
 
 class ServerRequest extends ConnectionSendingData {
@@ -184,6 +184,7 @@ class ServerDescWatcher extends ServerRequest implements DescListener {
     this.id = id;
     this.connection = conn;
     this.pendingIds = new Set(Classes.getAllClassIds());
+    Classes.listenDesc(this);
     this.connection.addSend(this);
   }
 

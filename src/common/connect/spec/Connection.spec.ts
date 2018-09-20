@@ -6,6 +6,7 @@ import {AsyncClientPromise} from "./AsyncClientPromise";
 import {VoidListeners} from "../../block/spec/TestFunction";
 import {FunctionDesc} from "../../block/Descriptor";
 import {shouldHappen} from "../../util/test-util";
+import {JsFunction} from "../../functions/script/Js";
 
 
 describe("Connection", () => {
@@ -53,7 +54,7 @@ describe("Connection", () => {
 
     client.setValue('Connection2.p1', 'hello');
     client.setBinding('Connection2.p', 'p1');
-    [result1, result2] = await Promise.all([callbacks1.promise, callbacks2.promise])
+    [result1, result2] = await Promise.all([callbacks1.promise, callbacks2.promise]);
     assert.equal(result1.value, 'hello', 'change value');
     assert.equal(result1.bindingPath, 'p1', 'change binding');
     assert.equal(result2.value, 'hello', 'change value');
@@ -153,12 +154,28 @@ describe("Connection", () => {
     let job = Root.instance.addJob('Connection5');
     let [server, client] = makeLocalConnection(Root.instance, true);
 
-    let descResult: FunctionDesc;
-    client.watchDesc('add', (desc: FunctionDesc) => {
-      descResult = desc;
+    let descCustom: FunctionDesc;
+    client.watchDesc('Connection-watchDesc1', (desc: FunctionDesc) => {
+      descCustom = desc;
     });
-    await shouldHappen(() => descResult != null);
 
+    let descResult1: FunctionDesc;
+    client.watchDesc('add', (desc: FunctionDesc) => {
+      descResult1 = desc;
+    });
+    await shouldHappen(() => descResult1 != null);
+
+    // try it again
+    let descResult2: FunctionDesc;
+    client.watchDesc('add', (desc: FunctionDesc) => {
+      descResult2 = desc;
+    });
+    await shouldHappen(() => descResult2 != null);
+
+    assert.isNull(descCustom, 'custom class is not registered yet');
+    JsFunction.registerClass('this["out"] = 1', {id: 'Connection-watchDesc1'});
+    await shouldHappen(() => descCustom != null);
+    
     client.destroy();
     Root.instance.deleteValue('Connection5');
   });

@@ -36,7 +36,11 @@ export class Classes {
   static add(cls: FunctionGenerator, desc: FunctionDesc, namespace?: string) {
     desc.priority = cls.prototype.priority;
     desc.mode = cls.prototype.defaultMode;
-    desc.useLength = Boolean(cls.prototype.useLength);
+    if (cls.prototype.useLength) {
+      desc.useLength = true;
+    } else {
+      delete desc.useLength;
+    }
 
     let id = namespace ? `${namespace}:${desc.id}` : desc.id;
     let type = _types[id];

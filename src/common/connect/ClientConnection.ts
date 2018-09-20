@@ -366,6 +366,11 @@ export class ClientConnection extends Connection {
 
   watchDesc(id: string, listener: DescListener) {
     this.descReq.listeners.set(listener, id);
+    if (this.descReq.cache.has(id)) {
+      listener(this.descReq.cache.get(id));
+    } else {
+      listener(null);
+    }
   }
 
   unwatchDesc(listener: DescListener) {
