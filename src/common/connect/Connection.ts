@@ -49,8 +49,8 @@ export class Connection {
 
   _schedule() {
     this._scheduled = setTimeout(() => {
-      this._scheduled = null;
       this._doSend();
+      this._scheduled = null;
     }, 0);
   }
 
