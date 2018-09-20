@@ -3,9 +3,9 @@ import {Job, Root} from "../../../block/Block";
 import {JsFunction} from "../Js";
 import {Classes} from "../../../block/Class";
 
-describe("Js Class", () => {
+describe("Js Class", function() {
 
-  it('basic', () => {
+  it('basic', function() {
     let job = new Job();
 
     let aBlock = job.createBlock('a');
@@ -19,7 +19,7 @@ describe("Js Class", () => {
 
   });
 
-  it('unregister class', () => {
+  it('unregister class', function() {
     let job = new Job();
 
     let aBlock = job.createBlock('a');
@@ -34,7 +34,7 @@ describe("Js Class", () => {
   });
 
 
-  it('trivial', () => {
+  it('trivial', function() {
     let job = new Job();
 
     let aBlock = job.createBlock('a');

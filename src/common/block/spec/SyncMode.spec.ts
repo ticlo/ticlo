@@ -3,7 +3,7 @@ import {TestAsyncFunctionPromise, TestFunctionRunner} from "./TestFunction";
 import {Job, Root} from "../Block";
 import {ErrorEvent} from "../Event";
 
-describe("SyncMode", () => {
+describe("SyncMode", function() {
   beforeEach(() => {
     TestFunctionRunner.clearLog();
   });
@@ -12,7 +12,7 @@ describe("SyncMode", () => {
     TestFunctionRunner.clearLog();
   });
 
-  it('basic', () => {
+  it('basic', function() {
 
     let job = new Job();
 
@@ -27,7 +27,7 @@ describe("SyncMode", () => {
 
   });
 
-  it('chained', () => {
+  it('chained', function() {
 
     let job = new Job();
 

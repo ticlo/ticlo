@@ -6,9 +6,9 @@ import {BlockPropertyEvent} from "../BlockProperty";
 import {Dispatcher} from "../Dispatcher";
 import {VoidListeners} from "./TestFunction";
 
-describe("VoidProperty", () => {
+describe("VoidProperty", function() {
 
-  it('basic', () => {
+  it('basic', function() {
 
     voidProperty.setValue(1);
     assert.isUndefined(voidProperty.getValue(), 'void property never change value');

@@ -8,7 +8,7 @@ import {ErrorEvent} from "../../block/Event";
 import {shouldTimeout} from "../../util/test-util";
 
 
-describe("MapFunction Basic", () => {
+describe("MapFunction Basic", function() {
   beforeEach(() => {
     TestFunctionRunner.clearLog();
   });
@@ -17,7 +17,7 @@ describe("MapFunction Basic", () => {
     TestFunctionRunner.clearLog();
   });
 
-  it('basic', () => {
+  it('basic', function() {
 
     let job = new Job();
 
@@ -62,7 +62,7 @@ describe("MapFunction Basic", () => {
     job.deleteValue('b');
   });
 
-  it('reuse worker', () => {
+  it('reuse worker', function() {
 
     let job = new Job();
 
@@ -110,7 +110,7 @@ describe("MapFunction Basic", () => {
     job.deleteValue('b');
   });
 
-  it('persist worker', () => {
+  it('persist worker', function() {
 
     let job = new Job();
 
@@ -158,7 +158,7 @@ describe("MapFunction Basic", () => {
     job.deleteValue('b');
   });
 
-  it('conversion from Block', () => {
+  it('conversion from Block', function() {
     let job = new Job();
 
     let aBlock = job.createBlock('a');
@@ -192,7 +192,7 @@ describe("MapFunction Basic", () => {
     job.deleteValue('b');
   });
 
-  it('async worker', async () => {
+  it('async worker', async function() {
 
     let job = new Job();
 
@@ -243,7 +243,7 @@ describe("MapFunction Basic", () => {
 
   });
 
-  it('timeout', async () => {
+  it('timeout', async function() {
     let job = new Job();
 
     job.setValue('a', {
@@ -278,7 +278,7 @@ describe("MapFunction Basic", () => {
     job.deleteValue('b');
   });
 
-  it('input race', () => {
+  it('input race', function() {
 
     let job = new Job();
 
@@ -330,7 +330,7 @@ describe("MapFunction Basic", () => {
     job.deleteValue('b');
   });
 
-  it('cancel worker', async () => {
+  it('cancel worker', async function() {
 
     let job = new Job();
 
@@ -381,7 +381,7 @@ describe("MapFunction Basic", () => {
 
   });
 
-  it('cancel worker reuse', async () => {
+  it('cancel worker reuse', async function() {
 
     let job = new Job();
 

@@ -7,8 +7,8 @@ import {AsyncClientPromise} from "./AsyncClientPromise";
 
 const initAdd = AddFunction;
 
-describe("Connection Error", () => {
-  it('parent removed', async () => {
+describe("Connection Error", function() {
+  it('parent removed', async function() {
     let job = Root.instance.addJob('ConnectionError1');
     let [server, client] = makeLocalConnection(Root.instance);
     let a = job.createBlock('a');

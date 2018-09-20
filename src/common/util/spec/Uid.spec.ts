@@ -1,9 +1,9 @@
 import {assert} from "chai";
 import {Uid} from '../Uid';
 
-describe("Uid", () => {
+describe("Uid", function() {
 
-  it('uid', () => {
+  it('uid', function() {
     let uid = new Uid();
 
     assert.equal(uid.current, '0', 'initial value');

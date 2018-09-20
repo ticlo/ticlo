@@ -3,16 +3,16 @@ import {Job, Root} from "../Block";
 import {Event} from "../Event";
 import {TestFunctionRunner} from "./TestFunction";
 
-describe("Event", () => {
+describe("Event", function() {
 
-  it('Event Uid Change in Root', () => {
+  it('Event Uid Change in Root', function() {
     let uid = Event.uid;
     assert.equal(uid, Event.uid);
     Root.run();
     assert.notEqual(uid, Event.uid);
   });
 
-  it('event life cycle', () => {
+  it('event life cycle', function() {
     TestFunctionRunner.clearLog();
 
     let job = new Job();

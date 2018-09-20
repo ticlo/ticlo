@@ -3,9 +3,9 @@ import {Job} from "../Block";
 import {ErrorEvent} from "../Event";
 import {shouldReject} from "../../util/test-util";
 
-describe("ListenPromise", () => {
+describe("ListenPromise", function() {
 
-  it('basic', async () => {
+  it('basic', async function() {
     let job = new Job();
 
     setTimeout(() => job.setValue('a', 1), 0);
@@ -21,7 +21,7 @@ describe("ListenPromise", () => {
       'waitValue should be rejected on ErrorEvent');
   });
 
-  it('validator', async () => {
+  it('validator', async function() {
     let job = new Job();
 
     let timer;
@@ -32,7 +32,7 @@ describe("ListenPromise", () => {
     clearInterval(timer);
   });
 
-  it('destroyed dispatcher', async () => {
+  it('destroyed dispatcher', async function() {
     let job = new Job();
     let block = job.createBlock('a');
 

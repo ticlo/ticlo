@@ -6,9 +6,9 @@ import "../../functions/basic/Math";
 import "../Output";
 import {DataMap} from "../../util/Types";
 
-describe("WorkerFunction", () => {
+describe("WorkerFunction", function() {
 
-  it('basic', () => {
+  it('basic', function() {
     TestFunctionRunner.clearLog();
     let job = new Job();
 
@@ -44,7 +44,7 @@ describe("WorkerFunction", () => {
     assert.deepEqual(impl.save(), jobData, 'serialize nested job after destroy');
   });
 
-  it('output', () => {
+  it('output', function() {
     let job = new Job();
 
     let aBlock = job.createBlock('a');
@@ -63,7 +63,7 @@ describe("WorkerFunction", () => {
     assert.equal(aBlock.getValue('out1'), 3, 'output from nested logic');
   });
 
-  it('namespace', () => {
+  it('namespace', function() {
     let job = new Job();
 
     let aBlock = job.createBlock('a');

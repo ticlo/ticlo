@@ -2,9 +2,9 @@ import {assert} from "chai";
 import "../Math";
 import {Job, Root, Block} from "../../../block/Block";
 
-describe("Math", () => {
+describe("Math", function() {
 
-  it('basic add', () => {
+  it('basic add', function() {
     let job = new Job();
 
     let aBlock = job.createBlock('a');
@@ -43,7 +43,7 @@ describe("Math", () => {
     assert.equal(aBlock2.getValue('output'), 6, 'run add function after loading saved data');
   });
 
-  it('add multiple', () => {
+  it('add multiple', function() {
     let job = new Job();
 
     let aBlock = job.createBlock('a');
@@ -73,7 +73,7 @@ describe("Math", () => {
     assert.equal(aBlock.getValue('output'), null, 'return null when add nothing');
   });
 
-  it('subtract', () => {
+  it('subtract', function() {
     let job = new Job();
 
     let aBlock = job.createBlock('a');
@@ -89,7 +89,7 @@ describe("Math", () => {
     assert.equal(aBlock.getValue('output'), null, '7-null == null');
   });
 
-  it('divide', () => {
+  it('divide', function() {
     let job = new Job();
 
     let aBlock = job.createBlock('a');
@@ -105,7 +105,7 @@ describe("Math", () => {
     assert.equal(aBlock.getValue('output'), null, '7/null == null');
   });
 
-  it('multiply', () => {
+  it('multiply', function() {
     let job = new Job();
 
     let aBlock = job.createBlock('a');

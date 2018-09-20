@@ -7,7 +7,7 @@ import {shouldHappen} from "../../../common/util/test-util";
 import * as ReactDOM from "react-dom";
 import {loadTemplate} from "../../../ui/util/test-util";
 
-describe("editor NodeTree", () => {
+describe("editor NodeTree", function() {
 
   let job = Root.instance.addJob('NodeTree');
 
@@ -24,7 +24,7 @@ describe("editor NodeTree", () => {
 
   let [server, client] = makeLocalConnection(Root.instance);
 
-  it('basic', async () => {
+  it('basic', async function() {
     let [component, div] = loadTemplate(
       <NodeTree
         conn={client}

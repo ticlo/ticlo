@@ -7,7 +7,7 @@ import "../MapFunction";
 import {DataMap} from "../../util/Types";
 
 
-describe("MapFunction Thread", () => {
+describe("MapFunction Thread", function() {
 
   beforeEach(() => {
     TestFunctionRunner.clearLog();
@@ -25,7 +25,7 @@ describe("MapFunction Thread", () => {
     inputArr.push(i + 100);
   }
 
-  it('basic', async () => {
+  it('basic', async function() {
 
     let job = new Job();
 
@@ -83,7 +83,7 @@ describe("MapFunction Thread", () => {
     job.deleteValue('b');
   });
 
-  it('async worker', async () => {
+  it('async worker', async function() {
 
     let job = new Job();
 
@@ -142,7 +142,7 @@ describe("MapFunction Thread", () => {
     job.deleteValue('b');
   });
 
-  it('async worker reuse', async () => {
+  it('async worker reuse', async function() {
 
     let job = new Job();
 
@@ -202,7 +202,7 @@ describe("MapFunction Thread", () => {
     job.deleteValue('b');
   });
 
-  it('async worker persist', async () => {
+  it('async worker persist', async function() {
 
     let job = new Job();
 
@@ -259,7 +259,7 @@ describe("MapFunction Thread", () => {
     job.deleteValue('b');
   });
 
-  it('data race', async () => {
+  it('data race', async function() {
 
     let job = new Job();
 
