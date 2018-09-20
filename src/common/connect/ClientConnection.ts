@@ -212,7 +212,7 @@ export class ClientConnection extends Connection {
     super();
     if (watchDesc) {
       let id = this.uid.next();
-      let data = {cmd: 'descReq', id};
+      let data = {cmd: 'watchDesc', path: '', id};
       this.descReq = new DescRequest(data);
       this.requests.set(id, this.descReq);
       this.addSend(this.descReq);

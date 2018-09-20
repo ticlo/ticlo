@@ -58,12 +58,12 @@ export class Connection {
     let sending: DataMap[] = [];
     let sendingSize = 0;
     for (let s of this._sending) {
+      this._sending.delete(s);
       let {data, size} = s.getSendingData();
       if (data != null) {
         sendingSize += size;
         sending.push(data);
       }
-      this._sending.delete(s);
       if (size > 0x80000) {
         break;
       }

@@ -25,9 +25,9 @@ class LocalClientConnection extends ClientConnection {
   }
 }
 
-export function makeLocalConnection(root: Root): [ServerConnection, ClientConnection] {
+export function makeLocalConnection(root: Root, watchDesc: boolean = false): [ServerConnection, ClientConnection] {
   let server = new LocalServerConnection(root);
-  let client = new LocalClientConnection();
+  let client = new LocalClientConnection(watchDesc);
   server._client = client;
   client._server = server;
   return [server, client];

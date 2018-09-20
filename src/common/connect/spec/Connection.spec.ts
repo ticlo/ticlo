@@ -1,12 +1,12 @@
 import {assert} from "chai";
 import {Root} from "../../block/Block";
 import {makeLocalConnection} from "../LocalConnection";
-import {AddFunction} from "../../functions/basic/Math";
-import {DataMap} from "../../util/Types";
+import "../../functions/basic/Math";
 import {AsyncClientPromise} from "./AsyncClientPromise";
 import {VoidListeners} from "../../block/spec/TestFunction";
+import {FunctionDesc} from "../../block/Descriptor";
+import {shouldHappen} from "../../util/test-util";
 
-const initAdd = AddFunction;
 
 describe("Connection", () => {
 
@@ -147,5 +147,19 @@ describe("Connection", () => {
 
     client.destroy();
     Root.instance.deleteValue('Connection4');
+  });
+
+  it('watchDesc', async () => {
+    let job = Root.instance.addJob('Connection5');
+    let [server, client] = makeLocalConnection(Root.instance, true);
+
+    let descResult: FunctionDesc;
+    client.watchDesc('add', (desc: FunctionDesc) => {
+      descResult = desc;
+    });
+    await shouldHappen(() => descResult != null);
+
+    client.destroy();
+    Root.instance.deleteValue('Connection5');
   });
 });
