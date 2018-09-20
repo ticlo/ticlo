@@ -161,7 +161,7 @@ class DescRequest extends ConnectionSend implements ClientCallbacks {
       for (let change of response.changes) {
         if (change && 'id' in change) {
           let id = change.id;
-          if ('remove' in change) {
+          if ('removed' in change) {
             this.cache.delete(id);
             if (this.listeners.size) {
               for (let [listener, lid] of this.listeners) {

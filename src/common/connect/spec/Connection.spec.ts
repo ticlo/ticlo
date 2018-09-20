@@ -7,6 +7,7 @@ import {VoidListeners} from "../../block/spec/TestFunction";
 import {FunctionDesc} from "../../block/Descriptor";
 import {shouldHappen} from "../../util/test-util";
 import {JsFunction} from "../../functions/script/Js";
+import {Classes} from "../../block/Class";
 
 
 describe("Connection", function() {
@@ -175,7 +176,9 @@ describe("Connection", function() {
     assert.isNull(descCustom, 'custom class is not registered yet');
     JsFunction.registerClass('this["out"] = 1', {id: 'Connection-watchDesc1'});
     await shouldHappen(() => descCustom != null);
-    
+    Classes.clear('Connection-watchDesc1');
+    await shouldHappen(() => descCustom == null);
+
     client.destroy();
     Root.instance.deleteValue('Connection5');
   });
