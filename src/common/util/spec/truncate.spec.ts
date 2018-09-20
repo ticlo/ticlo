@@ -2,7 +2,7 @@ import {assert} from "chai";
 import {truncateObj, TRUNCATED, DataMap} from '../Types';
 
 
-describe("truncateObj", function() {
+describe("truncateObj", function () {
 
   let longstr = "1234567890";
   let bigObj: DataMap = {child: {}, arr: []};
@@ -13,19 +13,19 @@ describe("truncateObj", function() {
     bigObj.arr.push(longstr);
   }
 
-  it('big string', function() {
+  it('big string', function () {
     let tstr: string = truncateObj(longstr)[0] as string;
     assert.lengthOf(tstr, 131, 'length of str is 128 + 3 dot');
     assert(tstr.endsWith(TRUNCATED), `str ends with ${TRUNCATED}`);
   });
 
-  it('big obj', function() {
+  it('big obj', function () {
     let tobj: DataMap = truncateObj(bigObj)[0];
     assert(JSON.stringify(tobj).length < 2048, 'truncated object cannot be more than 2048 bytes');
     assert.lengthOf(Object.keys(tobj), 10, 'all 10 keys are in output');
   });
 
-  it('max number of item', function() {
+  it('max number of item', function () {
     let obj: any = {};
     let arr: any[] = [];
     for (let i = 0; i < 32; ++i) {

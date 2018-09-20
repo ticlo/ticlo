@@ -6,9 +6,9 @@ import "../../functions/basic/Math";
 import "../ForEachFunction";
 import {DataMap} from "../../util/Types";
 
-describe("ForEachFunction", function() {
+describe("ForEachFunction", function () {
 
-  it('chain block', function() {
+  it('chain block', function () {
     TestFunctionRunner.clearLog();
     let job = new Job();
 
@@ -86,7 +86,7 @@ describe("ForEachFunction", function() {
     assert.isEmpty(TestFunctionRunner.logs, 'worker should not run after destroyed');
   });
 
-  it('watch object', function() {
+  it('watch object', function () {
     let job = new Job();
 
     let bBlock = job.createBlock('b');
@@ -118,7 +118,7 @@ describe("ForEachFunction", function() {
     assert.isUndefined(bBlock.queryValue('#func'), 'destroy ForEachFunction');
   });
 
-  it('foreach primitive types', function() {
+  it('foreach primitive types', function () {
     let job = new Job();
 
     let aBlock = job.createBlock('a');
@@ -157,7 +157,7 @@ describe("ForEachFunction", function() {
     assert.isUndefined(bBlock.queryValue('output'), 'clear output when input is no longer Object or Block');
   });
 
-  it('clear foreach src', function() {
+  it('clear foreach src', function () {
     let job = new Job();
 
     let aBlock = job.createBlock('a');

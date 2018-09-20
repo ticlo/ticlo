@@ -5,9 +5,9 @@ import {voidProperty} from "../Void";
 import {BlockIO} from "../BlockProperty";
 import {VoidListeners} from "./TestFunction";
 
-describe("Destroyed Block", function() {
+describe("Destroyed Block", function () {
 
-  it('throw on destroyed block in strict mode', function() {
+  it('throw on destroyed block in strict mode', function () {
       let keepStrictMode = Root.instance._strictMode;
       Root.instance._strictMode = true;
 
@@ -33,7 +33,7 @@ describe("Destroyed Block", function() {
     }
   );
 
-  it('void on destroyed block in normal mode', function() {
+  it('void on destroyed block in normal mode', function () {
     let keepStrictMode = Root.instance._strictMode;
     Root.instance._strictMode = false;
 

@@ -2,9 +2,9 @@ import {assert} from "chai";
 import {TestFunctionRunner} from "./TestFunction";
 import {Job, Root} from "../Block";
 
-describe("BlockConfig", function() {
+describe("BlockConfig", function () {
 
-  it('readonly control', function() {
+  it('readonly control', function () {
     let job = new Job();
 
     let block = job.createBlock('obj');
@@ -24,7 +24,7 @@ describe("BlockConfig", function() {
 
   });
 
-  it('#is', function() {
+  it('#is', function () {
     let job = new Job();
 
     let block = job.createBlock('obj');

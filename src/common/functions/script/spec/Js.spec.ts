@@ -4,8 +4,8 @@ import {NOT_READY} from "../../../block/Event";
 import {shouldReject, shouldTimeout} from "../../../util/test-util";
 import "../Js";
 
-describe("Js", function() {
-  it('basic', function() {
+describe("Js", function () {
+  it('basic', function () {
     let job = new Job();
 
     let aBlock = job.createBlock('a');
@@ -18,7 +18,7 @@ describe("Js", function() {
     assert.equal(aBlock.getValue('out1'), 321, 'basic script output');
   });
 
-  it('nested function', function() {
+  it('nested function', function () {
     let job = new Job();
 
     let aBlock = job.createBlock('a');
@@ -44,7 +44,7 @@ describe("Js", function() {
     assert.equal(aBlock2.getValue('out2'), 457, 'run script function after loading saved data');
   });
 
-  it('errors', async function() {
+  it('errors', async function () {
     let job = new Job();
 
     let aBlock = job.createBlock('a');

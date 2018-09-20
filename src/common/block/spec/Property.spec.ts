@@ -1,6 +1,6 @@
 import {assert} from "chai";
 import {Job} from "../Block";
 
-describe("Property", function() {
+describe("Property", function () {
   // TODO
 });

@@ -2,7 +2,7 @@ import {assert} from "chai";
 import {TestFunctionRunner} from "./TestFunction";
 import {Job, Root} from "../Block";
 
-describe("BlockPriority", function() {
+describe("BlockPriority", function () {
 
   beforeEach(() => {
     TestFunctionRunner.clearLog();
@@ -12,7 +12,7 @@ describe("BlockPriority", function() {
     TestFunctionRunner.clearLog();
   });
 
-  it('basic function order', function() {
+  it('basic function order', function () {
 
     let job = new Job();
 
@@ -65,7 +65,7 @@ describe("BlockPriority", function() {
 
   });
 
-  it('order from binding', function() {
+  it('order from binding', function () {
     let job = new Job();
 
     let p2 = job.createBlock('p2');
@@ -101,7 +101,7 @@ describe("BlockPriority", function() {
 
   });
 
-  it('priority change during resolving', function() {
+  it('priority change during resolving', function () {
     let job = new Job();
 
     let p0 = job.createBlock('p0');

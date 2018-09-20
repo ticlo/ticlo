@@ -2,7 +2,7 @@ import {assert} from "chai";
 import {TestAsyncFunctionPromise, TestFunctionRunner} from "./TestFunction";
 import {Job, Root, Block} from "../Block";
 
-describe("BlockMode", function() {
+describe("BlockMode", function () {
   beforeEach(() => {
     TestFunctionRunner.clearLog();
   });
@@ -11,7 +11,7 @@ describe("BlockMode", function() {
     TestFunctionRunner.clearLog();
   });
 
-  it('basic block mode', function() {
+  it('basic block mode', function () {
 
     let job = new Job();
 
@@ -54,7 +54,7 @@ describe("BlockMode", function() {
       'disable mode function should never run');
   });
 
-  it('block mode on load', function() {
+  it('block mode on load', function () {
 
     let job = new Job();
 
@@ -99,7 +99,7 @@ describe("BlockMode", function() {
       'mode always should be called after load');
   });
 
-  it('block mode on liveUpdate', function() {
+  it('block mode on liveUpdate', function () {
 
     let job = new Job();
 
@@ -153,7 +153,7 @@ describe("BlockMode", function() {
       'redo to second snapshot');
   });
 
-  it('binding route change', function() {
+  it('binding route change', function () {
     let job = new Job();
 
     let block = job.createBlock('obj');

@@ -10,9 +10,9 @@ import {JsFunction} from "../../functions/script/Js";
 import {Classes} from "../../block/Class";
 
 
-describe("Connection", function() {
+describe("Connection", function () {
 
-  it('subscribe', async function() {
+  it('subscribe', async function () {
     let job = Root.instance.addJob('Connection1');
     let [server, client] = makeLocalConnection(Root.instance);
 
@@ -36,7 +36,7 @@ describe("Connection", function() {
     Root.instance.deleteValue('Connection1');
   });
 
-  it('multiple subscribe binding', async function() {
+  it('multiple subscribe binding', async function () {
     let job = Root.instance.addJob('Connection2');
     let [server, client] = makeLocalConnection(Root.instance);
 
@@ -78,7 +78,7 @@ describe("Connection", function() {
     Root.instance.deleteValue('Connection2');
   });
 
-  it('multiple watch', async function() {
+  it('multiple watch', async function () {
     let job = Root.instance.addJob('Connection3');
     let [server, client] = makeLocalConnection(Root.instance);
 
@@ -126,7 +126,7 @@ describe("Connection", function() {
     Root.instance.deleteValue('Connection3');
   });
 
-  it('list', async function() {
+  it('list', async function () {
     let job = Root.instance.addJob('Connection4');
     let [server, client] = makeLocalConnection(Root.instance);
 
@@ -151,7 +151,7 @@ describe("Connection", function() {
     Root.instance.deleteValue('Connection4');
   });
 
-  it('watchDesc', async function() {
+  it('watchDesc', async function () {
     let job = Root.instance.addJob('Connection5');
     let [server, client] = makeLocalConnection(Root.instance, true);
 

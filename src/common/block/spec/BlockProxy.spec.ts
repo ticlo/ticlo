@@ -2,9 +2,9 @@ import {assert} from "chai";
 import {Job, Root} from "../Block";
 import {BlockDeepProxy} from "../BlockProxy";
 
-describe("BlockProxy", function() {
+describe("BlockProxy", function () {
 
-  it('basic', function() {
+  it('basic', function () {
     let job = new Job();
     job.setValue('v1', 1);
 

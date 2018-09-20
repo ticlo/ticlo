@@ -8,7 +8,7 @@ import {ErrorEvent} from "../../block/Event";
 import {shouldTimeout} from "../../util/test-util";
 
 
-describe("MapFunction Basic", function() {
+describe("MapFunction Basic", function () {
   beforeEach(() => {
     TestFunctionRunner.clearLog();
   });
@@ -17,7 +17,7 @@ describe("MapFunction Basic", function() {
     TestFunctionRunner.clearLog();
   });
 
-  it('basic', function() {
+  it('basic', function () {
 
     let job = new Job();
 
@@ -62,7 +62,7 @@ describe("MapFunction Basic", function() {
     job.deleteValue('b');
   });
 
-  it('reuse worker', function() {
+  it('reuse worker', function () {
 
     let job = new Job();
 
@@ -110,7 +110,7 @@ describe("MapFunction Basic", function() {
     job.deleteValue('b');
   });
 
-  it('persist worker', function() {
+  it('persist worker', function () {
 
     let job = new Job();
 
@@ -158,7 +158,7 @@ describe("MapFunction Basic", function() {
     job.deleteValue('b');
   });
 
-  it('conversion from Block', function() {
+  it('conversion from Block', function () {
     let job = new Job();
 
     let aBlock = job.createBlock('a');
@@ -192,7 +192,7 @@ describe("MapFunction Basic", function() {
     job.deleteValue('b');
   });
 
-  it('async worker', async function() {
+  it('async worker', async function () {
 
     let job = new Job();
 
@@ -243,7 +243,7 @@ describe("MapFunction Basic", function() {
 
   });
 
-  it('timeout', async function() {
+  it('timeout', async function () {
     let job = new Job();
 
     job.setValue('a', {
@@ -278,7 +278,7 @@ describe("MapFunction Basic", function() {
     job.deleteValue('b');
   });
 
-  it('input race', function() {
+  it('input race', function () {
 
     let job = new Job();
 
@@ -330,7 +330,7 @@ describe("MapFunction Basic", function() {
     job.deleteValue('b');
   });
 
-  it('cancel worker', async function() {
+  it('cancel worker', async function () {
 
     let job = new Job();
 
@@ -381,7 +381,7 @@ describe("MapFunction Basic", function() {
 
   });
 
-  it('cancel worker reuse', async function() {
+  it('cancel worker reuse', async function () {
 
     let job = new Job();
 

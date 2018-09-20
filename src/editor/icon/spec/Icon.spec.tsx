@@ -5,9 +5,9 @@ import {shouldHappen} from "../../../common/util/test-util";
 import * as ReactDOM from "react-dom";
 import {loadTemplate} from "../../../ui/util/test-util";
 
-describe("editor Icon", function() {
+describe("editor Icon", function () {
 
-  it('basic', async function() {
+  it('basic', async function () {
     let [component, div] = loadTemplate(
       <div style={{position: 'absolute'}}>
         <TIcon icon="fab:git"/>
