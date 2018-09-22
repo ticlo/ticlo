@@ -68,7 +68,7 @@ export function TIcon(props: Props) {
             }
             return (<div className={`tico tico-txt ${additionalClass}`}>{iconName}</div>);
           } else {
-            let fontSize = Math.floor(2400 / nameLen) + '%';
+            let fontSize = Math.floor(24 * 18 / nameLen) + 'px';
             return (<div className={`tico tico-txt ${additionalClass}`} style={{fontSize}}>{iconName}</div>);
           }
         }

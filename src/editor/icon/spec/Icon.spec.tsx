@@ -53,7 +53,7 @@ describe("editor Icon", function () {
 
     assert.isTrue(icons[5].classList.contains('tico-txt'));
     assert.equal(icons[5].innerText, 'WWW', 'long string will be cut to 3 characters');
-    assert.isTrue(icons[5].style.fontSize === '7px');
+    assert.isTrue(icons[5].style.fontSize === '8px');
 
     assert.isTrue(icons[6].classList.contains('tico-txt'));
     assert.equal(icons[6].innerText, '文');

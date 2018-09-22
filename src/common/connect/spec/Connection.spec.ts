@@ -14,7 +14,7 @@ describe("Connection", function () {
 
   it('subscribe', async function () {
     let job = Root.instance.addJob('Connection1');
-    let [server, client] = makeLocalConnection(Root.instance);
+    let [server, client] = makeLocalConnection(Root.instance, false);
 
     client.createBlock('Connection1.block1');
     await client.setValue('Connection1.block1.#is', 'add');
@@ -38,7 +38,7 @@ describe("Connection", function () {
 
   it('multiple subscribe binding', async function () {
     let job = Root.instance.addJob('Connection2');
-    let [server, client] = makeLocalConnection(Root.instance);
+    let [server, client] = makeLocalConnection(Root.instance, false);
 
     client.setBinding('Connection2.p', 'p0');
 
@@ -80,7 +80,7 @@ describe("Connection", function () {
 
   it('multiple watch', async function () {
     let job = Root.instance.addJob('Connection3');
-    let [server, client] = makeLocalConnection(Root.instance);
+    let [server, client] = makeLocalConnection(Root.instance, false);
 
     let child0 = job.createBlock('c0');
 
@@ -128,7 +128,7 @@ describe("Connection", function () {
 
   it('list', async function () {
     let job = Root.instance.addJob('Connection4');
-    let [server, client] = makeLocalConnection(Root.instance);
+    let [server, client] = makeLocalConnection(Root.instance, false);
 
     for (let i = 0; i < 100; ++i) {
       job.createBlock('a' + i);
