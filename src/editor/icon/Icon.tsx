@@ -11,7 +11,7 @@ for (let charWithOff of [40, 41, 44, 59, 64, 91, 93, 103, 106, 112, 113, 121, 12
 
 interface Props {
   icon: string;
-  priority?: string | number;
+  style?: string | number;
 }
 
 // not an accurate way to measure a string
@@ -36,10 +36,10 @@ function iconNameLength(str: string): [number, boolean] {
 }
 
 export function TIcon(props: Props) {
-  let {icon, priority} = props;
+  let {icon, style} = props;
   let additionalClass = '';
-  if (priority != null) {
-    additionalClass = `tico-pr${priority}`;
+  if (style != null) {
+    additionalClass = `tico-pr${style}`;
   }
   // TODO priority for repeater and group
 
@@ -62,13 +62,13 @@ export function TIcon(props: Props) {
         }
         let [nameLen, needOffset] = iconNameLength(iconName);
         if (nameLen > 0) {
-          if (nameLen <= 22) {
+          if (nameLen <= 24) {
             if (needOffset) {
               additionalClass += ' tico-yoff';
             }
             return (<div className={`tico tico-txt ${additionalClass}`}>{iconName}</div>);
           } else {
-            let fontSize = Math.floor(18 * 22 / nameLen);
+            let fontSize = Math.floor(2400 / nameLen) + '%';
             return (<div className={`tico tico-txt ${additionalClass}`} style={{fontSize}}>{iconName}</div>);
           }
         }

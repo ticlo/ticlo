@@ -4,6 +4,8 @@ import {Dropdown, Button, Input, Icon, Menu, InputNumber} from "antd";
 import {ExpandIcon, ExpandState, TreeRenderer, TreeItem} from "../../ui/component/Tree";
 import {DataMap} from "../../common/util/Types";
 import {ClientConnection} from "../../common/connect/ClientConnection";
+import {TIcon} from "../icon/Icon";
+import {FunctionDesc} from "../../common/block/Descriptor";
 
 export class NodeTreeItem extends TreeItem {
   onListChange: () => void;
@@ -131,7 +133,8 @@ interface Props {
 }
 
 interface State {
-
+  icon: string;
+  iconStyle?: string;
 }
 
 export class NodeTreeRenderer extends TreeRenderer<Props, State> {
@@ -153,8 +156,31 @@ export class NodeTreeRenderer extends TreeRenderer<Props, State> {
 
   constructor(props: Props) {
     super(props);
-    this.state = {};
+    this.state = {icon: '', iconStyle: null};
+    let {item} = props;
+    item.connection.subscribe(`${item.key}.#is`, this);
   }
+
+  onUpdate(response: DataMap): void {
+    let {item} = this.props;
+    let className = response.value;
+    if (typeof className === 'string') {
+      console.log(className);
+      item.connection.watchDesc(className, this.descCallback);
+    } else {
+      item.connection.unwatchDesc(this.descCallback);
+    }
+  }
+
+  descCallback = (desc: FunctionDesc) => {
+    if (desc) {
+      console.log(desc);
+      this.setState({icon: desc.icon, iconStyle: desc.style ? desc.style.charAt(0) : `${desc.priority}`});
+    } else {
+      console.log('deec null');
+      this.setState({icon: '', iconStyle: null});
+    }
+  };
 
   render() {
     let {item, style} = this.props;
@@ -162,14 +188,14 @@ export class NodeTreeRenderer extends TreeRenderer<Props, State> {
     return (
       <div style={{...style, marginLeft}} className="ticl-tree-node">
         <ExpandIcon opened={item.opened} onClick={this.onExpandClicked}/>
-
+        <TIcon icon={this.state.icon} style={this.state.iconStyle}/>
         <Dropdown overlay={
           <Menu prefixCls="ant-dropdown-menu" selectable={false}>
             <Menu.Item onClick={this.onReloadClicked}>
               <div className="fas fa-sync-alt ticl-icon"/>
               Reload
             </Menu.Item>
-            <Menu.Item >
+            <Menu.Item>
               <div className="fas fa-search ticl-icon"/>
               Search
             </Menu.Item>
@@ -179,5 +205,12 @@ export class NodeTreeRenderer extends TreeRenderer<Props, State> {
         </Dropdown>
       </div>
     );
+  }
+
+  componentWillUnmount() {
+    let {item} = this.props;
+    item.connection.unsubscribe(`${item.key}.#is`, this);
+    item.connection.unwatchDesc(this.descCallback);
+    super.componentWillUnmount();
   }
 }
