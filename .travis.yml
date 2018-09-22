@@ -13,4 +13,5 @@ script:
   - yarn build-less
   - yarn test-karma
   - yarn ts-node tool/unify-lcov.ts
+after_success:
   - yarn lcov-result-merger 'coverage/**/*.log' | yarn run coveralls
