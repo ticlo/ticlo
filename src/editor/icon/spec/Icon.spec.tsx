@@ -15,12 +15,12 @@ describe("editor Icon", function () {
         <TIcon icon="material:radio_button_unchecked"/>
         <TIcon icon="txt:A"/>
         <TIcon icon="txt:ip"/>
-        <TIcon icon="txt:WWWW"/>
+        <TIcon icon="txt:WWW"/>
         <TIcon icon="txt:文"/>
+        <TIcon icon="txt:文文:12"/>
 
         <TIcon icon="fab:space space"/>
         <TIcon icon={"txt:\t"}/>
-        <TIcon icon="txt:"/>
         <TIcon icon="txt"/>
       </div>
       , 'editor');
@@ -52,14 +52,16 @@ describe("editor Icon", function () {
     assert.isTrue(icons[4].classList.contains('tico-yoff'));
 
     assert.isTrue(icons[5].classList.contains('tico-txt'));
-    assert.equal(icons[5].innerText, 'WWW', 'long string will be cut to 3 characters');
     assert.isTrue(icons[5].style.fontSize === '8px');
 
     assert.isTrue(icons[6].classList.contains('tico-txt'));
     assert.equal(icons[6].innerText, '文');
 
+    assert.isTrue(icons[7].classList.contains('tico-txt'));
+    assert.isTrue(icons[7].style.fontSize === '12px', 'override size');
+
     // invalid icon input
-    for (let i = 7; i < 11; ++i) {
+    for (let i = 8; i < 11; ++i) {
       assert.equal(icons[i].classList.length, 1, 'invalid icon has no other style');
     }
 

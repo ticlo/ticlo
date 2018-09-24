@@ -15,24 +15,43 @@ interface Props {
 }
 
 // not an accurate way to measure a string
-function iconNameLength(str: string): [number, boolean] {
+function iconNameLength(str: string): [string, number, boolean] {
+  let overrideSize = -1;
+  if (str.length > 2) {
+    let colonPos = str.indexOf(':');
+    if (colonPos > 0) {
+      overrideSize = parseInt(str.substr(colonPos + 1));
+      str = str.substr(0, colonPos);
+    }
+  }
   let size = str.length;
   let width = 0;
   let needOffset = false;
   for (let i = 0; i < size; ++i) {
     let code = str.charCodeAt(i);
     if (code < 32) {
-      return [-1, false];
+      return ['', -1, false];
     }
     if (code > 126) {
-      return [size * 18, false];
+      width += 18;
+    } else {
+      if (offsetTable[code]) {
+        needOffset = true;
+      }
+      width += measureTable[code];
     }
-    if (offsetTable[code]) {
-      needOffset = true;
-    }
-    width += measureTable[code];
   }
-  return [width, needOffset];
+  let fontSize = 18;
+  if (overrideSize > 0) {
+    fontSize = overrideSize;
+  } else if (width > 24) {
+    fontSize = Math.floor(24 * 18 / width);
+  }
+  if (fontSize !== 18) {
+    needOffset = false;
+  }
+
+  return [str, fontSize, needOffset];
 }
 
 export function TIcon(props: Props) {
@@ -60,16 +79,16 @@ export function TIcon(props: Props) {
         if (iconName.length > 3) {
           iconName = iconName.substr(0, 3);
         }
-        let [nameLen, needOffset] = iconNameLength(iconName);
-        if (nameLen > 0) {
-          if (nameLen <= 24) {
+        let [outName, fontSize, needOffset] = iconNameLength(iconName);
+        if (fontSize > 0) {
+          if (fontSize === 18) {
             if (needOffset) {
               additionalClass += ' tico-yoff';
             }
             return (<div className={`tico tico-txt ${additionalClass}`}>{iconName}</div>);
           } else {
-            let fontSize = Math.floor(24 * 18 / nameLen) + 'px';
-            return (<div className={`tico tico-txt ${additionalClass}`} style={{fontSize}}>{iconName}</div>);
+            return (
+              <div className={`tico tico-txt ${additionalClass}`} style={{fontSize: `${fontSize}px`}}>{iconName}</div>);
           }
         }
 
