@@ -153,23 +153,24 @@ export class NodeTreeRenderer extends TreeRenderer<Props, State> {
   onReloadClicked = (event?: MouseEvent) => {
     this.props.item.reload();
   };
+  subscriptionListener = {
+    onUpdate: (response: DataMap) => {
+      let {item} = this.props;
+      let className = response.value;
+      if (typeof className === 'string') {
+        console.log(className);
+        item.connection.watchDesc(className, this.descCallback);
+      } else {
+        item.connection.unwatchDesc(this.descCallback);
+      }
+    }
+  };
 
   constructor(props: Props) {
     super(props);
     this.state = {icon: '', iconStyle: null};
     let {item} = props;
-    item.connection.subscribe(`${item.key}.#is`, this);
-  }
-
-  onUpdate(response: DataMap): void {
-    let {item} = this.props;
-    let className = response.value;
-    if (typeof className === 'string') {
-      console.log(className);
-      item.connection.watchDesc(className, this.descCallback);
-    } else {
-      item.connection.unwatchDesc(this.descCallback);
-    }
+    item.connection.subscribe(`${item.key}.#is`, this.subscriptionListener);
   }
 
   descCallback = (desc: FunctionDesc) => {
@@ -209,7 +210,7 @@ export class NodeTreeRenderer extends TreeRenderer<Props, State> {
 
   componentWillUnmount() {
     let {item} = this.props;
-    item.connection.unsubscribe(`${item.key}.#is`, this);
+    item.connection.unsubscribe(`${item.key}.#is`, this.subscriptionListener);
     item.connection.unwatchDesc(this.descCallback);
     super.componentWillUnmount();
   }
