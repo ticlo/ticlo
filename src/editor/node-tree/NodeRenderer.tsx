@@ -1,7 +1,8 @@
 import * as React from "react";
 
 import {Dropdown, Button, Input, Icon, Menu, InputNumber} from "antd";
-import {ExpandIcon, ExpandState, TreeRenderer, TreeItem} from "../../ui/component/Tree";
+import {ExpandIcon, ExpandState, TreeItem} from "../../ui/component/Tree";
+import {PureDataRenderer} from "../../ui/component/DataRenderer";
 import {DataMap} from "../../common/util/Types";
 import {ClientConnection} from "../../common/connect/ClientConnection";
 import {TIcon} from "../icon/Icon";
@@ -137,7 +138,7 @@ interface State {
   iconStyle?: string;
 }
 
-export class NodeTreeRenderer extends TreeRenderer<Props, State> {
+export class NodeTreeRenderer extends PureDataRenderer<Props, State> {
 
   onExpandClicked = () => {
     switch (this.props.item.opened) {

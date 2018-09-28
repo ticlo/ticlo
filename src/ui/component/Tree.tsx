@@ -1,4 +1,5 @@
 import * as React from 'react';
+import {DataRendererItem, PureDataRenderer} from "./DataRenderer";
 
 export type ExpandState = 'opened' | 'closed' | 'loading' | 'empty' | 'disabled';
 
@@ -46,22 +47,10 @@ export function ExpandIcon(props: Props) {
   }
 }
 
-export class TreeItem {
+export class TreeItem extends DataRendererItem {
   opened: ExpandState = 'closed';
 
   children: TreeItem[] = null;
-
-  _renderer: TreeRenderer<any, any>;
-
-  attachedRenderer(renderer: TreeRenderer<any, any>) {
-    this._renderer = renderer;
-  }
-
-  detachRenderer(renderer: TreeRenderer<any, any>) {
-    if (this._renderer === renderer) {
-      this._renderer = null;
-    }
-  }
 
   addToList(list: TreeItem[]) {
     list.push(this);
@@ -83,27 +72,5 @@ export class TreeItem {
 
   destroy() {
     this.destroyChildren();
-  }
-}
-
-
-interface TreeRendererProps<T extends TreeItem> {
-  item: T;
-}
-
-export class TreeRenderer<P extends TreeRendererProps<any>, S> extends React.PureComponent<P, S> {
-  constructor(props: P) {
-    super(props);
-    this.props.item.attachedRenderer(this);
-  }
-
-  componentDidUpdate(prevProps: P) {
-    if (prevProps.item !== this.props.item) {
-      this.props.item.attachedRenderer(this);
-    }
-  }
-
-  componentWillUnmount() {
-    this.props.item.detachRenderer(this);
   }
 }
