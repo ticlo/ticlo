@@ -179,7 +179,6 @@ export class NodeTreeRenderer extends PureDataRenderer<Props, State> {
       console.log(desc);
       this.setState({icon: desc.icon, iconStyle: desc.style ? desc.style.charAt(0) : `${desc.priority}`});
     } else {
-      console.log('deec null');
       this.setState({icon: '', iconStyle: null});
     }
   };
