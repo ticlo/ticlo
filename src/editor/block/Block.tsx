@@ -125,6 +125,7 @@ export class BlockView extends PureDataRenderer<BlockViewProps, BlockViewState> 
     let {funcDesc} = this.state;
     return (
       <div
+        key={item.key}
         className={`ticl-block ${this.getFuncStyle()}${item.selected ? ' ticl-block-selected' : ''}`}
         style={{top: item.y, left: item.x, width: item.w}}
       >

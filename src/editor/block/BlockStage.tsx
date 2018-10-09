@@ -23,8 +23,19 @@ export default class BlockStage extends React.Component<Props, State> implements
   watchListener = {
     onUpdate: (response: DataMap) => {
       let changes = response.changes;
-      for (let key in changes) {
-
+      for (let name in changes) {
+        let change = changes[name];
+        if (change === null) {
+          if (this._blocks.has(name)) {
+            this._blocks.set(name, new BlockItem(`${this.props.basePath}.${name}`));
+            this.forceUpdate();
+          }
+        } else {
+          if (!this._blocks.has(name)) {
+            this._blocks.delete(name);
+            this.forceUpdate();
+          }
+        }
       }
     }
   };
@@ -47,11 +58,14 @@ export default class BlockStage extends React.Component<Props, State> implements
     let {style} = this.props;
 
     let children: React.ReactNode[] = [];
+    for (let [key, blockItem] of this._blocks) {
+      children.push(blockItem.render());
+    }
 
     return (
-        <div style={style} className="ticl-block-stage">
-
-        </div>
+      <div style={style} className="ticl-block-stage">
+        {children}
+      </div>
     );
   }
 
