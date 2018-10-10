@@ -60,6 +60,9 @@ export function TIcon(props: Props) {
   if (style != null) {
     additionalClass = `tico-pr${style}`;
   }
+  if (icon == null) {
+    icon = '';
+  }
   // TODO priority for repeater and group
 
   let colonPos = icon.indexOf(':');

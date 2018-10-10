@@ -1,7 +1,7 @@
 import * as React from "react";
 import {ClientConnection} from "../../common/connect/ClientConnection";
 import {DataMap} from "../../common/util/Types";
-import {BlockItem, LinkItem, FieldItem, Stage} from "./Block";
+import {BlockItem, LinkItem, FieldItem, Stage, BlockView} from "./Block";
 
 interface Props {
   conn: ClientConnection;
@@ -27,12 +27,12 @@ export default class BlockStage extends React.Component<Props, State> implements
         let change = changes[name];
         if (change === null) {
           if (this._blocks.has(name)) {
-            this._blocks.set(name, new BlockItem(`${this.props.basePath}.${name}`));
+            this._blocks.delete(name);
             this.forceUpdate();
           }
         } else {
           if (!this._blocks.has(name)) {
-            this._blocks.delete(name);
+            this._blocks.set(name, new BlockItem(this.props.conn, `${this.props.basePath}.${name}`));
             this.forceUpdate();
           }
         }
@@ -59,9 +59,9 @@ export default class BlockStage extends React.Component<Props, State> implements
 
     let children: React.ReactNode[] = [];
     for (let [key, blockItem] of this._blocks) {
-      children.push(blockItem.render());
+      children.push(<BlockView key={key} item={blockItem}/>);
     }
-
+    console.log(children);
     return (
       <div style={style} className="ticl-block-stage">
         {children}

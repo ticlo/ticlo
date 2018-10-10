@@ -22,7 +22,7 @@ ReactDOM.render(
     <div>
       <NodeTree conn={client} basePath="example" style={{width: '300px', height: '600px'}}/>
       <BlockStage conn={client} basePath="example"
-                  style={{width: '800px', height: '800px', left: '300px', position: 'absolute'}}/>
+                  style={{width: '800px', height: '800px', left: '300px', top: '0', position: 'absolute'}}/>
     </div>
   </div>,
   document.getElementById('app')

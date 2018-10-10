@@ -41,8 +41,9 @@ export class BlockItem extends DataRendererItem {
   fields: FieldItem[] = [];
   selected: boolean = false;
 
-  constructor(key: string) {
+  constructor(connection: ClientConnection, key: string) {
     super();
+    this.conn = connection;
     this.key = key;
     this.name = key.substr(key.indexOf('.') + 1);
   }
@@ -79,7 +80,8 @@ interface BlockViewState {
 }
 
 const defaultFuncDesc = {
-  id: ''
+  id: '',
+  icon: ''
 };
 
 
@@ -125,7 +127,6 @@ export class BlockView extends PureDataRenderer<BlockViewProps, BlockViewState> 
     let {funcDesc} = this.state;
     return (
       <div
-        key={item.key}
         className={`ticl-block ${this.getFuncStyle()}${item.selected ? ' ticl-block-selected' : ''}`}
         style={{top: item.y, left: item.x, width: item.w}}
       >
