@@ -1,6 +1,6 @@
 import {Connection, ConnectionSend} from "./Connection";
 import {Uid} from "../util/Uid";
-import {DataMap, isSavedBlock} from "../util/Types";
+import {DataMap, isSavedBlock, measureObj} from "../util/Types";
 import {Block} from "../block/Block";
 import {FunctionDesc} from "../block/Descriptor";
 
@@ -113,6 +113,37 @@ class SubscribeRequest extends MergedClientRequest {
   }
 }
 
+class SetRequest extends ConnectionSend {
+  path: string;
+  conn: ClientConnection;
+
+  constructor(path: string, value: any, id: string, conn: ClientConnection) {
+    super({cmd: 'set', id, path, value});
+    this.path = path;
+    this.conn = conn;
+  }
+
+  update(value: any) {
+    this._data.value = value;
+  }
+
+  getSendingData(): {data: DataMap, size: number} {
+    if (this.conn) {
+      this.conn.setRequests.delete(this.path);
+      this.conn = null;
+    }
+    return {data: this._data, size: measureObj(this._data, 0x80000)};
+  }
+
+  cancel() {
+    if (this.conn) {
+      this.conn.setRequests.delete(this.path);
+      this.conn = null;
+    }
+    this._data = null;
+  }
+}
+
 class WatchRequest extends MergedClientRequest {
   _cachedMap: {[key: string]: string} = {};
 
@@ -203,6 +234,8 @@ export class ClientConnection extends Connection {
   // path as key
   subscribes: Map<string, SubscribeRequest> = new Map();
   // path as key
+  setRequests: Map<string, SetRequest> = new Map();
+  // path as key
   watches: Map<string, WatchRequest> = new Map();
 
   descReq: DescRequest;
@@ -277,8 +310,26 @@ export class ClientConnection extends Connection {
     return id;
   }
 
-  setValue(path: string, value: any, callbacks?: ClientCallbacks): Promise<any> | string {
-    return this.simpleRequest({cmd: 'set', path, value}, callbacks);
+  // important request will always be sent
+  // unimportant request may be merged with other set request on same path
+  setValue(path: string, value: any, important?: boolean): Promise<any> | string {
+    if (important) {
+      if (this.setRequests.has(path)) {
+        this.setRequests.get(path).cancel();
+      }
+      return this.simpleRequest({cmd: 'set', path, value}, null);
+    }
+    if (this.setRequests.has(path)) {
+      let req = this.setRequests.get(path);
+      req.update(value);
+      return '';
+    } else {
+      let req = new SetRequest(path, value, this.uid.next(), this);
+      this.setRequests.set(path, req);
+      this.addSend(req);
+      return '';
+    }
+
   }
 
   getValue(path: string, callbacks: ClientCallbacks): Promise<any> | string {

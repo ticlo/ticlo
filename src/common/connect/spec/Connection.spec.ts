@@ -3,7 +3,7 @@ import {Root} from "../../block/Block";
 import {makeLocalConnection} from "../LocalConnection";
 import "../../functions/basic/Math";
 import {AsyncClientPromise} from "./AsyncClientPromise";
-import {VoidListeners} from "../../block/spec/TestFunction";
+import {VoidListeners, TestFunctionRunner} from "../../block/spec/TestFunction";
 import {FunctionDesc} from "../../block/Descriptor";
 import {shouldHappen} from "../../util/test-util";
 import {JsFunction} from "../../functions/script/Js";
@@ -17,7 +17,7 @@ describe("Connection", function () {
     let [server, client] = makeLocalConnection(Root.instance, false);
 
     client.createBlock('Connection1.block1');
-    await client.setValue('Connection1.block1.#is', 'add');
+    await client.setValue('Connection1.block1.#is', 'add', true);
     assert.equal(job.queryValue("block1.#is"), 'add', 'basic set');
 
     let callbacks = new AsyncClientPromise();
@@ -181,5 +181,32 @@ describe("Connection", function () {
 
     client.destroy();
     Root.instance.deleteValue('Connection5');
+  });
+
+  it('merge set request', async function () {
+    TestFunctionRunner.clearLog();
+
+    let job = Root.instance.addJob('Connection6');
+    let [server, client] = makeLocalConnection(Root.instance, false);
+
+
+    let b = job.createBlock('b');
+    b.setValue('#mode', 'onCall');
+    b.setValue('#sync', true);
+    b.setValue('#-log', 0);
+    b.setValue('#is', 'test-runner');
+
+    client.setValue('Connection6.b.#-log', 1);
+    client.setValue('Connection6.b.#call', {});
+    client.setValue('Connection6.b.#-log', 2, true);
+    client.setValue('Connection6.b.#call', {}, true);
+    client.setValue('Connection6.b.#-log', 3, true);
+    await client.setValue('Connection6.b.#call', {}, true);
+
+    assert.deepEqual(TestFunctionRunner.popLogs(), [2, 3],
+
+      'first snapshot');
+    client.destroy();
+    Root.instance.deleteValue('Connection6');
   });
 });

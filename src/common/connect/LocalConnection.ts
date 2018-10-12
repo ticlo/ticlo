@@ -7,6 +7,7 @@ class LocalServerConnection extends ServerConnection {
   _client: LocalClientConnection;
 
   doSend(datas: DataMap[]): void {
+    console.log(`server ${JSON.stringify(datas)}`);
     this._client.onReceive(datas);
   }
 
@@ -16,6 +17,7 @@ class LocalClientConnection extends ClientConnection {
   _server: LocalServerConnection;
 
   doSend(datas: DataMap[]): void {
+    console.log(`client ${JSON.stringify(datas)}`);
     this._server.onReceive(datas);
   }
 

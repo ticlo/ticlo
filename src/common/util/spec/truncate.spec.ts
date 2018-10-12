@@ -1,5 +1,5 @@
 import {assert} from "chai";
-import {truncateObj, TRUNCATED, DataMap} from '../Types';
+import {truncateObj, measureObj, TRUNCATED, DataMap} from '../Types';
 
 
 describe("truncateObj", function () {
@@ -35,4 +35,12 @@ describe("truncateObj", function () {
     assert.equal(Object.keys(truncateObj(obj)[0]).length, 10, 'truncated object cannot be more 10 keys');
     assert.equal(truncateObj(arr)[0].length, 10, 'truncated array cannot be more 10 items');
   });
+
+  it('measure object', function () {
+    let size1 = measureObj(bigObj, 1024);
+    assert.isAtLeast(size1, 1024);
+    let size2 = measureObj(bigObj, Infinity);
+    assert.isAbove(size2, size1, 'full size is bigger than limited measured size');
+  });
+
 });

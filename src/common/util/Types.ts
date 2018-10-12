@@ -61,9 +61,8 @@ export function truncateObj(val: any, maxSize: number = 1024): [any, number] {
     if (val.constructor === Object) {
       return truncateMap(val, maxSize);
     }
-    {
-      return [TRUNCATED, 1];
-    }
+    // TODO moment and binary
+    return [TRUNCATED, 4];
   } else if (typeof val === 'string') {
     if (val.length > maxSize / 2) {
       if (maxSize > 256) {
@@ -78,8 +77,46 @@ export function truncateObj(val: any, maxSize: number = 1024): [any, number] {
   }
 }
 
+function measureMap(val: DataMap, maxSize: number): number {
+  let total = 0;
+  for (let key in val) {
+    total += measureObj(val[key], maxSize);
+    total += key.length;
+    if (total >= maxSize) {
+      return total;
+    }
+  }
+  return total;
+}
 
-export function serializeFull(val: any): any {
+function measureArray(arr: any[], maxSize: number): number {
+  let total = 0;
+  for (let v of arr) {
+    total += measureObj(v);
+    if (total >= maxSize) {
+      return total;
+    }
+  }
+  return total;
+}
+
+// if object is big, measured it into around 1K~2K characters
+export function measureObj(val: any, maxSize: number = 1024): number {
+  if (typeof val === 'object') {
+    if (val == null) {
+      return 4;
+    }
+    if (Array.isArray(val)) {
+      return measureArray(val, maxSize);
+    }
+    if (val.constructor === Object) {
+      return measureMap(val, maxSize);
+    }
+    // TODO moment and binary
+  } else if (typeof val === 'string') {
+    return val.length;
+  }
+  return 4;
 
 }
 

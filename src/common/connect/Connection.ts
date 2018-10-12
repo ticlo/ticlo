@@ -64,7 +64,7 @@ export class Connection {
         sendingSize += size;
         sending.push(data);
       }
-      if (size > 0x80000) {
+      if (size >= 0x80000) {
         break;
       }
     }
@@ -94,6 +94,7 @@ export class ConnectionSend extends ConnectionSendingData {
     let size = 0;
     for (let key in this._data) {
       let v = this._data[key];
+      size += key.length;
       if (typeof v === 'string') {
         size += v.length;
       } else {
