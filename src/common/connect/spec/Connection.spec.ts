@@ -199,11 +199,15 @@ describe("Connection", function () {
     client.setValue('Connection6.b.#-log', 1);
     client.setValue('Connection6.b.#call', {});
     client.setValue('Connection6.b.#-log', 2, true);
-    client.setValue('Connection6.b.#call', {}, true);
-    client.setValue('Connection6.b.#-log', 3, true);
-    await client.setValue('Connection6.b.#call', {}, true);
+    let promise = client.setValue('Connection6.b.#call', {}, true);
+    client.setValue('Connection6.b.#-log', 3);
+    client.setValue('Connection6.b.#call', {});
+    client.setValue('Connection6.b.#-log', 4);
+    client.setValue('Connection6.b.#call', {});
 
-    assert.deepEqual(TestFunctionRunner.popLogs(), [2, 3],
+    await promise;
+
+    assert.deepEqual(TestFunctionRunner.popLogs(), [2, 4],
 
       'first snapshot');
     client.destroy();
