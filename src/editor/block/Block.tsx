@@ -88,17 +88,35 @@ const defaultFuncDesc = {
 export class BlockView extends PureDataRenderer<BlockViewProps, BlockViewState> {
   isListener = {
     onUpdate: (response: DataMap) => {
-
+      let {value} = response;
+      let {item} = this.props;
+      if (typeof value === 'string') {
+        item.conn.watchDesc(value, this.descListener);
+      }
     }
   };
   xywListener = {
     onUpdate: (response: DataMap) => {
-
+      let {value} = response;
+      let {item} = this.props;
+      if (Array.isArray(value) && (value[0] !== item.x || value[1] !== item.y || value[2] !== item.w)) {
+        item.x = value[0];
+        item.y = value[1];
+        item.w = value[2];
+        this.forceUpdate();
+      }
     }
   };
   pListener = {
     onUpdate: (response: DataMap) => {
 
+    }
+  };
+  descListener = (funcDesc: FunctionDesc) => {
+    if (funcDesc) {
+      this.setState({funcDesc});
+    } else {
+      this.setState({funcDesc: defaultFuncDesc});
     }
   };
 
@@ -140,6 +158,14 @@ export class BlockView extends PureDataRenderer<BlockViewProps, BlockViewState> 
         <div className='ticl-block-foot'/>
       </div>
     );
+  }
+
+  componentWillUnmount() {
+    let {item} = this.props;
+    item.conn.unsubscribe(`${item.key}.#is`, this.isListener);
+    item.conn.unsubscribe(`${item.key}.@b-xyw`, this.xywListener);
+    item.conn.unsubscribe(`${item.key}.@b-p`, this.pListener);
+    item.conn.unwatchDesc(this.descListener);
   }
 }
 

@@ -176,7 +176,6 @@ export class NodeTreeRenderer extends PureDataRenderer<Props, State> {
 
   descCallback = (desc: FunctionDesc) => {
     if (desc) {
-      console.log(desc);
       this.setState({icon: desc.icon, iconStyle: desc.style ? desc.style.charAt(0) : `${desc.priority}`});
     } else {
       this.setState({icon: '', iconStyle: null});
