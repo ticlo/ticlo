@@ -5,6 +5,7 @@ import {isSavedBlock} from "../util/Types";
 export interface BlockPropertyEvent {
   error?: string;
   bind?: string | null;
+  listener?: Listener<any> | null;
 }
 
 export interface BlockPropertySubscriber {
@@ -196,9 +197,24 @@ export class BlockProperty extends ValueDispatcher<any> implements Listener<any>
     }
   }
 
+  listen(listener: Listener<any>) {
+    this._listeners.add(listener);
+    listener.onSourceChange(this);
+    if (!this._updating) {
+      // skip extra update if it's already in updating iteration
+      listener.onChange(this._value);
+    }
+    if (this._subscribers) {
+      this.addEvent({listener});
+    }
+  }
+
   unlisten(listener: Listener<any>) {
     if (this._listeners) {
       this._listeners.delete(listener);
+      if (this._subscribers) {
+        this.addEvent({listener: null});
+      }
     }
   }
 

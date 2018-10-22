@@ -64,11 +64,16 @@ class ServerSubscribe extends ServerRequest implements BlockPropertySubscriber, 
     }
     let sendEvent: BlockPropertyEvent[] = [];
     let bindingChanged = false;
+    let listenerChanged = false;
     if (this.events.length) {
       for (let e of this.events) {
-        if (e.bind) {
+        if ('bind' in e) {
           // extract and merge binding event
           bindingChanged = true;
+          continue;
+        }
+        if ('listener' in e) {
+          listenerChanged = true;
           continue;
         }
         if (e.error) {
@@ -81,6 +86,16 @@ class ServerSubscribe extends ServerRequest implements BlockPropertySubscriber, 
     }
     if (bindingChanged) {
       data.bindingPath = this.property._bindingPath;
+    }
+    if (listenerChanged) {
+      let hasListener = false;
+      for (let listener of this.property._listeners) {
+        if (listener instanceof ValueDispatcher) {
+          hasListener = true;
+          break;
+        }
+      }
+      data.hasListener = hasListener;
     }
     return {data, size: total};
   }

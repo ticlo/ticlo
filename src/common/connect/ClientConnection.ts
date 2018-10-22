@@ -1,6 +1,6 @@
 import {Connection, ConnectionSend} from "./Connection";
 import {Uid} from "../util/Uid";
-import {DataMap, isSavedBlock, measureObj} from "../util/Types";
+import {DataMap, isSavedBlock, measureObjSize} from "../util/Types";
 import {Block} from "../block/Block";
 import {FunctionDesc} from "../block/Descriptor";
 
@@ -93,11 +93,17 @@ class MergedClientRequest extends ConnectionSend implements ClientCallbacks {
 class SubscribeRequest extends MergedClientRequest {
   _cachedValue: any;
   _cachedBinding: string;
+  _cachedHasListener = false;
 
   add(callbacks: ClientCallbacks) {
     super.add(callbacks);
     if (callbacks.onUpdate && this._hasUpdate) {
-      callbacks.onUpdate({value: this._cachedValue, bindingPath: this._cachedBinding, events: []});
+      callbacks.onUpdate({
+        value: this._cachedValue,
+        bindingPath: this._cachedBinding,
+        hasListener: this._cachedHasListener,
+        events: []
+      });
     }
   }
 
@@ -107,6 +113,9 @@ class SubscribeRequest extends MergedClientRequest {
     }
     if (response.hasOwnProperty('bindingPath')) {
       this._cachedBinding = response.bindingPath;
+    }
+    if (response.hasOwnProperty('hasListener')) {
+      this._cachedHasListener = response.hasListener;
     }
     this._hasUpdate = true;
     super.onUpdate(response);
@@ -132,7 +141,7 @@ class SetRequest extends ConnectionSend {
       this.conn.setRequests.delete(this.path);
       this.conn = null;
     }
-    return {data: this._data, size: measureObj(this._data, 0x80000)};
+    return {data: this._data, size: measureObjSize(this._data, 0x80000)};
   }
 
   cancel() {

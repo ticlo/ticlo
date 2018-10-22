@@ -8,6 +8,7 @@ import {FunctionDesc} from "../../block/Descriptor";
 import {shouldHappen} from "../../util/test-util";
 import {JsFunction} from "../../functions/script/Js";
 import {Classes} from "../../block/Class";
+import {DataMap} from "../../util/Types";
 
 
 describe("Connection", function () {
@@ -213,4 +214,29 @@ describe("Connection", function () {
     client.destroy();
     Root.instance.deleteValue('Connection6');
   });
+
+  it('subscribe listener', async function () {
+    let job = Root.instance.addJob('Connection7');
+    let [server, client] = makeLocalConnection(Root.instance, false);
+
+    let lastUpdate: DataMap;
+    let callbacks = {
+      onUpdate(response: DataMap) {
+        lastUpdate = response;
+      }
+    };
+
+    client.setValue('Connection7.v', 1);
+    client.subscribe('Connection7.v', callbacks);
+    await client.setBinding('Connection7.p', 'v');
+    assert.isTrue(lastUpdate.hasListener);
+    await client.setBinding('Connection7.p', null);
+    assert.isFalse(lastUpdate.hasListener);
+    client.unsubscribe('Connection7.v', callbacks);
+
+    client.destroy();
+    Root.instance.deleteValue('Connection7');
+  });
+
+
 });
