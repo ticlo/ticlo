@@ -80,7 +80,7 @@ export function truncateObj(val: any, maxSize: number = 1024): [any, number] {
 function measureMap(val: DataMap, maxSize: number): number {
   let total = 0;
   for (let key in val) {
-    total += measureObj(val[key], maxSize);
+    total += measureObjSize(val[key], maxSize);
     total += key.length;
     if (total >= maxSize) {
       return total;
@@ -92,7 +92,7 @@ function measureMap(val: DataMap, maxSize: number): number {
 function measureArray(arr: any[], maxSize: number): number {
   let total = 0;
   for (let v of arr) {
-    total += measureObj(v);
+    total += measureObjSize(v);
     if (total >= maxSize) {
       return total;
     }
@@ -101,7 +101,7 @@ function measureArray(arr: any[], maxSize: number): number {
 }
 
 // if object is big, measured it into around 1K~2K characters
-export function measureObj(val: any, maxSize: number = 1024): number {
+export function measureObjSize(val: any, maxSize: number = 1024): number {
   if (typeof val === 'object') {
     if (val == null) {
       return 4;

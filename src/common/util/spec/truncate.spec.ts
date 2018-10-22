@@ -1,5 +1,5 @@
 import {assert} from "chai";
-import {truncateObj, measureObj, TRUNCATED, DataMap} from '../Types';
+import {truncateObj, measureObjSize, TRUNCATED, DataMap} from '../Types';
 
 
 describe("truncateObj", function () {
@@ -37,9 +37,9 @@ describe("truncateObj", function () {
   });
 
   it('measure object', function () {
-    let size1 = measureObj(bigObj, 1024);
+    let size1 = measureObjSize(bigObj, 1024);
     assert.isAtLeast(size1, 1024);
-    let size2 = measureObj(bigObj, Infinity);
+    let size2 = measureObjSize(bigObj, Infinity);
     assert.isAbove(size2, size1, 'full size is bigger than limited measured size');
   });
 
