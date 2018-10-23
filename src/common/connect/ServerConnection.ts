@@ -89,10 +89,12 @@ class ServerSubscribe extends ServerRequest implements BlockPropertySubscriber, 
     }
     if (listenerChanged) {
       let hasListener = false;
-      for (let listener of this.property._listeners) {
-        if (listener instanceof ValueDispatcher) {
-          hasListener = true;
-          break;
+      if (this.property._listeners) {
+        for (let listener of this.property._listeners) {
+          if (listener instanceof ValueDispatcher) {
+            hasListener = true;
+            break;
+          }
         }
       }
       data.hasListener = hasListener;

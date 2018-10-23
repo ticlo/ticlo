@@ -4,6 +4,7 @@ import {DataMap} from "../../common/util/Types";
 import {DataRendererItem, PureDataRenderer} from "../../ui/component/DataRenderer";
 import {TIcon} from "../icon/Icon";
 import {FunctionDesc} from "../../common/block/Descriptor";
+import {compareArray} from "../../common/util/Compare";
 
 
 export interface Stage {
@@ -13,7 +14,8 @@ export interface Stage {
 }
 
 export class FieldItem extends DataRendererItem {
-  conn: ClientConnection;
+  block: BlockItem;
+  name: string;
   key: string;
   isInput: boolean;
   isOutput: boolean;
@@ -21,8 +23,20 @@ export class FieldItem extends DataRendererItem {
   inLink: LinkItem;
   bindBlock?: BlockItem;
 
+  conn() {
+    return this.block.conn;
+  }
+
+
+  constructor(block: BlockItem, name: string) {
+    super();
+    this.name = name;
+    this.block = block;
+    this.key = `${block.key}.name`;
+  }
+
   render(): React.ReactNode {
-    return <div className='ticl-block-row'/>;
+    return <FieldView item={this}/>;
   }
 }
 
@@ -38,7 +52,8 @@ export class BlockItem extends DataRendererItem {
   w: number = 0;
   key: string;
   name: string;
-  fields: FieldItem[] = [];
+  fields: string[] = [];
+  fieldItems: Map<string, FieldItem> = new Map<string, FieldItem>();
   selected: boolean = false;
 
   constructor(connection: ClientConnection, key: string) {
@@ -48,10 +63,42 @@ export class BlockItem extends DataRendererItem {
     this.name = key.substr(key.indexOf('.') + 1);
   }
 
+  setXYW(x: number, y: number, w: number) {
+    if (x !== this.x || y !== this.y || w !== this.y) {
+      this.x = x;
+      this.y = y;
+      this.w = w;
+      this.updateFieldPosition();
+      this._renderer.forceUpdate();
+    }
+  }
+
+  setP(fields: string[]) {
+    if (!compareArray(fields, this.fields)) {
+      for (let f of this.fields) {
+        if (!fields.includes(f)) {
+          this.fieldItems.delete(f);
+        }
+      }
+      this.fields = fields;
+      for (let f of fields) {
+        if (!this.fieldItems.has(f)) {
+          this.fieldItems.set(f, new FieldItem(this, f));
+        }
+      }
+      this.updateFieldPosition();
+      this._renderer.forceUpdate();
+    }
+  }
+
+  updateFieldPosition() {
+
+  }
+
   render(): React.ReactNode[] {
     let result: React.ReactNode[] = [];
     for (let field of this.fields) {
-      result.push(field.render());
+      result.push(this.fieldItems.get(field).render());
     }
     return result;
   }
@@ -67,7 +114,25 @@ interface FieldViewState {
 
 
 export class FieldView extends PureDataRenderer<FieldViewProps, FieldViewState> {
+  listener = {
+    onUpdate: (response: DataMap) => {
+      let {value} = response;
+      let {item} = this.props;
 
+    }
+  };
+
+  constructor(props: FieldViewProps) {
+    super(props);
+    this.state = {funcDesc: defaultFuncDesc};
+    let {item} = props;
+    item.conn().subscribe(item.key, this.listener);
+
+  }
+
+  render(): React.ReactNode {
+    return <div className='ticl-block-row'/>;
+  }
 }
 
 
@@ -99,17 +164,16 @@ export class BlockView extends PureDataRenderer<BlockViewProps, BlockViewState> 
     onUpdate: (response: DataMap) => {
       let {value} = response;
       let {item} = this.props;
-      if (Array.isArray(value) && (value[0] !== item.x || value[1] !== item.y || value[2] !== item.w)) {
-        item.x = value[0];
-        item.y = value[1];
-        item.w = value[2];
-        this.forceUpdate();
+      if (Array.isArray(value)) {
+        item.setXYW(...value as [number, number, number]);
       }
     }
   };
   pListener = {
     onUpdate: (response: DataMap) => {
-
+      if (Array.isArray(response.value)) {
+        this.props.item.setP(response.value);
+      }
     }
   };
   descListener = (funcDesc: FunctionDesc) => {
