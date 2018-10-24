@@ -674,6 +674,10 @@
   dependencies:
     commander "*"
 
+"@types/i18next@^11.9.3":
+  version "11.9.3"
+  resolved "https://registry.yarnpkg.com/@types/i18next/-/i18next-11.9.3.tgz#04d84c6539908ad69665d26d8967f942d1638550"
+
 "@types/karma@^3.0.0":
   version "3.0.0"
   resolved "https://registry.yarnpkg.com/@types/karma/-/karma-3.0.0.tgz#a9406fb7e4287a7b8e31ee8eafea552676c96958"
