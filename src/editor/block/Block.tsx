@@ -5,6 +5,7 @@ import {DataRendererItem, PureDataRenderer} from "../../ui/component/DataRendere
 import {TIcon} from "../icon/Icon";
 import {FunctionDesc} from "../../common/block/Descriptor";
 import {compareArray} from "../../common/util/Compare";
+import * as i18n from "i18next";
 
 
 export interface Stage {
@@ -36,7 +37,7 @@ export class FieldItem extends DataRendererItem {
   }
 
   render(): React.ReactNode {
-    return <FieldView item={this}/>;
+    return <FieldView key={this.key} item={this}/>;
   }
 }
 
@@ -131,7 +132,15 @@ export class FieldView extends PureDataRenderer<FieldViewProps, FieldViewState> 
   }
 
   render(): React.ReactNode {
-    return <div className='ticl-block-row'/>;
+    let {item} = this.props;
+    return (
+      <div className='ticl-block-field'>
+        <div className='ticl-block-field-name'>{item.name}</div>
+        <div className='ticl-block-field-value'/>
+        <div className='ticl-input-arrow'/>
+        <div className='ticl-output-arrow'/>
+      </div>
+    );
   }
 }
 

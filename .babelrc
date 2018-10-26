@@ -1,9 +1,16 @@
 {
-  "plugins": [
-    ["transform-runtime",
+  "presets": [
+    [
+      "env",
       {
-        "polyfill": false,
-        "regenerator": true
-      }]
+        "targets": {
+          "browsers": [
+            "last 1 Chrome version",
+            "last 1 edge version",
+            "last 1 firefox version"
+          ]
+        }
+      }
+    ]
   ]
 }

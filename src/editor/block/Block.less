@@ -25,8 +25,8 @@
   color: white;
   & > .tico {
     position: absolute;
-    right: 0px;
-    top: 0px;
+    right: 0;
+    top: 0;
   }
 }
 
@@ -34,11 +34,26 @@
   width: 100%;
 }
 
-.ticl-block-row {
+.ticl-block-field {
   position: relative;
   border-bottom: 1px solid #ddd;
   height: 24px;
   padding: 2px 12px;
+  display: flex;
+}
+
+.ticl-block-field-name {
+  border-right: 1px solid #f0f0f0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 80px;
+  flex: 0 1 50%;
+}
+
+.ticl-block-field-value {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  flex: 1 50%;
 }
 
 .ticl-block-foot {
