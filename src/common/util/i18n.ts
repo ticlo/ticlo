@@ -2,7 +2,9 @@ import {FunctionDesc} from "../block/Descriptor";
 import * as i18n from "i18next";
 
 export async function init(lng?: string) {
-  i18n.init({lng});
+  await new Promise((receive, reject) => {
+    i18n.init({lng}, receive);
+  });
 }
 
 const numberReg = /[0-9]/;
