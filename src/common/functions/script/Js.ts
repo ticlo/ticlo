@@ -104,7 +104,7 @@ export class JsFunction extends BlockFunction {
 JsFunction.prototype.priority = 1;
 
 Classes.add(JsFunction, {
-  id: 'js',
+  name: 'js',
   icon: 'txt:js',
   inputs: [{
     name: 'script', type: 'string'

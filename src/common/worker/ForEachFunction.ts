@@ -212,7 +212,7 @@ ForEachFunction.prototype._onSourceChange = MapImpl.prototype._onSourceChange;
 
 ForEachFunction.prototype.priority = 3;
 Classes.add(ForEachFunction, {
-  id: 'foreach',
+  name: 'foreach',
   icon: 'material:hdr_strong',
   style: 'repeater',
   inputs: [

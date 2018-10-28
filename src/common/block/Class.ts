@@ -36,13 +36,15 @@ export class Classes {
   static add(cls: FunctionGenerator, desc: FunctionDesc, namespace?: string) {
     desc.priority = cls.prototype.priority;
     desc.mode = cls.prototype.defaultMode;
+    desc.ns = namespace;
     if (cls.prototype.useLength) {
       desc.useLength = true;
     } else {
       delete desc.useLength;
     }
 
-    let id = namespace ? `${namespace}:${desc.id}` : desc.id;
+    let id = namespace ? `${namespace}:${desc.name}` : desc.name;
+    desc.id = id;
     let type = _types[id];
     if (!type) {
       type = new Class(id);

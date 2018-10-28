@@ -12,7 +12,7 @@ describe("Js Class", function () {
     aBlock.setValue('in1', 321);
     aBlock.setValue('#is', 'Js-class1');
 
-    JsFunction.registerClass('this["out1"] = this["in1"]', {id: 'Js-class1', priority: 1, mode: 'onCall'});
+    JsFunction.registerClass('this["out1"] = this["in1"]', {name: 'Js-class1', priority: 1, mode: 'onCall'});
 
     Root.run();
     assert.isUndefined(aBlock.getValue('out1'), 'no change yet');
@@ -27,7 +27,7 @@ describe("Js Class", function () {
 
     let aBlock = job.createBlock('a');
     aBlock.setValue('#is', 'Js-class2');
-    JsFunction.registerClass('this["out1"] = 1', {id: 'Js-class2'});
+    JsFunction.registerClass('this["out1"] = 1', {name: 'Js-class2'});
 
     assert(aBlock._queued, 'script is _queued');
     Classes.clear('Js-class2');

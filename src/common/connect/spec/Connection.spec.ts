@@ -175,7 +175,7 @@ describe("Connection", function () {
     await shouldHappen(() => descResult2 != null);
 
     assert.isNull(descCustom, 'custom class is not registered yet');
-    JsFunction.registerClass('this["out"] = 1', {id: 'Connection-watchDesc1'});
+    JsFunction.registerClass('this["out"] = 1', {name: 'Connection-watchDesc1'});
     await shouldHappen(() => descCustom != null);
     Classes.clear('Connection-watchDesc1');
     await shouldHappen(() => descCustom == null);

@@ -3,7 +3,7 @@ import {PureFunction, FunctionData} from "../../block/BlockFunction";
 import {FunctionDesc} from "../../block/Descriptor";
 
 const descriptorN: FunctionDesc = {
-  id: '',
+  name: '',
   icon: '',
   useLength: true,
   inputs: [
@@ -14,7 +14,7 @@ const descriptorN: FunctionDesc = {
   ],
 };
 const descriptor2: FunctionDesc = {
-  id: '',
+  name: '',
   icon: '',
   inputs: [
     {name: '0', type: 'number'},
@@ -53,7 +53,7 @@ AddFunction.prototype.priority = 0;
 AddFunction.prototype.useLength = true;
 Classes.add(AddFunction, {
   ...descriptorN,
-  id: 'add',
+  name: 'add',
   icon: 'fas:plus'
 });
 
@@ -85,7 +85,7 @@ MultiplyFunction.prototype.priority = 0;
 MultiplyFunction.prototype.useLength = true;
 Classes.add(MultiplyFunction, {
   ...descriptorN,
-  id: 'multiply',
+  name: 'multiply',
   icon: 'fas:times'
 });
 
@@ -105,7 +105,7 @@ export class SubtractFunction extends PureFunction {
 SubtractFunction.prototype.priority = 0;
 Classes.add(SubtractFunction, {
   ...descriptor2,
-  id: 'subtract',
+  name: 'subtract',
   icon: 'fas:minus'
 });
 
@@ -125,6 +125,6 @@ export class DivideFunction extends PureFunction {
 DivideFunction.prototype.priority = 0;
 Classes.add(DivideFunction, {
   ...descriptor2,
-  id: 'divide',
+  name: 'divide',
   icon: 'fas:divide'
 });

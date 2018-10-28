@@ -15,4 +15,4 @@ export class OutputFunction extends BlockFunction {
 }
 
 OutputFunction.prototype.priority = 3;
-Classes.add(OutputFunction, {id: 'output'});
+Classes.add(OutputFunction, {name: 'output'});

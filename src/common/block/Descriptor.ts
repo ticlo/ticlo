@@ -17,8 +17,9 @@ export interface PropGroupDesc {
 }
 
 export interface FunctionDesc {
-  id: string;
-  name?: string;
+  name: string;
+  ns?: string;
+  id?: string;
   help?: string;
   icon?: string;
   priority?: 0 | 1 | 2 | 3;
