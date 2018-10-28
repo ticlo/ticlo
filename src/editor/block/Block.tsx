@@ -154,7 +154,7 @@ interface BlockViewState {
 }
 
 const defaultFuncDesc = {
-  id: '',
+  name: '',
   icon: ''
 };
 
