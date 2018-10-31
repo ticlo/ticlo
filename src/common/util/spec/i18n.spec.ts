@@ -8,9 +8,9 @@ describe("i18n", function () {
     await i18n.init('en');
     i18next.addResourceBundle('en', 'ticlo-testi18n', {
       'aaa': {
-        '$': 'AAA',
+        '@name': 'AAA',
         'bbb': {
-          '$': 'BBB'
+          '@name': 'BBB'
         }
       }
     });
@@ -34,6 +34,6 @@ describe("i18n", function () {
     assert.equal(i18n.transLateProperty('aaa', 'bbb1'), 'bbb1');
 
     assert.equal(i18n.transLateProperty('aaa', 'bbb', 'testi18n'), 'BBB');
-    assert.equal(i18n.transLateProperty('aaa', 'bbb1', 'testi18n'), 'BBB 1');
+    assert.equal(i18n.transLateProperty('aaa', 'bbb1', 'testi18n'), 'BBB1');
   });
 });
