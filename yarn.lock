@@ -3129,6 +3129,10 @@ fast-deep-equal@^1.0.0:
   version "1.1.0"
   resolved "https://registry.yarnpkg.com/fast-deep-equal/-/fast-deep-equal-1.1.0.tgz#c053477817c86b51daa853c81e059b733d023614"
 
+fast-deep-equal@^2.0.1:
+  version "2.0.1"
+  resolved "https://registry.yarnpkg.com/fast-deep-equal/-/fast-deep-equal-2.0.1.tgz#7b05218ddf9667bf7f370bf7fdb2cb15fdd0aa49"
+
 fast-glob@^2.2.2:
   version "2.2.2"
   resolved "https://registry.yarnpkg.com/fast-glob/-/fast-glob-2.2.2.tgz#71723338ac9b4e0e2fff1d6748a2a13d5ed352bf"
@@ -4169,8 +4173,8 @@ json5@^1.0.1:
     minimist "^1.2.0"
 
 jsonesc@^0.4.0:
-  version "0.4.0"
-  resolved "https://registry.yarnpkg.com/jsonesc/-/jsonesc-0.4.0.tgz#57e50cf23cb16566af9751c86c9b60eb476ae5e5"
+  version "0.4.1"
+  resolved "https://registry.yarnpkg.com/jsonesc/-/jsonesc-0.4.1.tgz#64c390d6a7748e546cbbb8683bbd232090e0ef6b"
 
 jsonify@~0.0.0:
   version "0.0.0"
