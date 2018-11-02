@@ -91,34 +91,36 @@ class MergedClientRequest extends ConnectionSend implements ClientCallbacks {
 }
 
 class SubscribeRequest extends MergedClientRequest {
-  _cachedValue: any;
-  _cachedBinding: string;
-  _cachedHasListener = false;
+  _cache: {
+    value: any;
+    bindingPath: string;
+    hasListener: boolean
+  } = {
+    value: undefined,
+    bindingPath: null,
+    hasListener: false
+  };
+
 
   add(callbacks: ClientCallbacks) {
     super.add(callbacks);
     if (callbacks.onUpdate && this._hasUpdate) {
-      callbacks.onUpdate({
-        value: this._cachedValue,
-        bindingPath: this._cachedBinding,
-        hasListener: this._cachedHasListener,
-        events: []
-      });
+      callbacks.onUpdate(this._cache);
     }
   }
 
   onUpdate(response: DataMap): void {
     if (response.hasOwnProperty('value')) {
-      this._cachedValue = response.value;
+      this._cache.value = response.value;
     }
     if (response.hasOwnProperty('bindingPath')) {
-      this._cachedBinding = response.bindingPath;
+      this._cache.bindingPath = response.bindingPath;
     }
     if (response.hasOwnProperty('hasListener')) {
-      this._cachedHasListener = response.hasListener;
+      this._cache.hasListener = response.hasListener;
     }
     this._hasUpdate = true;
-    super.onUpdate(response);
+    super.onUpdate({...this._cache, update: response});
   }
 }
 

@@ -57,13 +57,18 @@ describe("Connection", function () {
     client.setValue('Connection2.p1', 'hello');
     client.setBinding('Connection2.p', 'p1');
     [result1, result2] = await Promise.all([callbacks1.promise, callbacks2.promise]);
-    assert.equal(result1.value, 'hello', 'change value');
-    assert.equal(result1.bindingPath, 'p1', 'change binding');
-    assert.equal(result2.value, 'hello', 'change value');
-    assert.equal(result2.bindingPath, 'p1', 'change binding for second subscribe');
 
+    let callbacks3 = new AsyncClientPromise();
+    client.subscribe('Connection2.p', callbacks3); // subscribe when local cache exists
+    let result3 = await callbacks3.firstPromise;
+
+    for (let obj of [result1, result2, result3, result1.update, result2.update]) {
+      assert.equal(obj.value, 'hello', 'change value');
+      assert.equal(obj.bindingPath, 'p1', 'change binding');
+    }
     let cachedPromise1 = callbacks1.promise;
 
+    client.unsubscribe('Connection2.p', callbacks3);
     client.unsubscribe('Connection2.p', callbacks2);
     client.unsubscribe('Connection2.p', callbacks1);
 
@@ -75,6 +80,7 @@ describe("Connection", function () {
     // clean up
     callbacks1.cancel();
     callbacks2.cancel();
+    callbacks3.cancel();
     client.destroy();
     Root.instance.deleteValue('Connection2');
   });
