@@ -120,7 +120,7 @@ class SubscribeRequest extends MergedClientRequest {
       this._cache.hasListener = response.hasListener;
     }
     this._hasUpdate = true;
-    super.onUpdate({...this._cache, update: response});
+    super.onUpdate({...this._cache, changes: response});
   }
 }
 

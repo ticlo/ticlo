@@ -62,7 +62,7 @@ describe("Connection", function () {
     client.subscribe('Connection2.p', callbacks3); // subscribe when local cache exists
     let result3 = await callbacks3.firstPromise;
 
-    for (let obj of [result1, result2, result3, result1.update, result2.update]) {
+    for (let obj of [result1, result2, result3, result1.changes, result2.changes]) {
       assert.equal(obj.value, 'hello', 'change value');
       assert.equal(obj.bindingPath, 'p1', 'change binding');
     }
