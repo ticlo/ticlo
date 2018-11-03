@@ -105,7 +105,7 @@ class SubscribeRequest extends MergedClientRequest {
   add(callbacks: ClientCallbacks) {
     super.add(callbacks);
     if (callbacks.onUpdate && this._hasUpdate) {
-      callbacks.onUpdate(this._cache);
+      callbacks.onUpdate({cache: this._cache});
     }
   }
 
@@ -120,7 +120,7 @@ class SubscribeRequest extends MergedClientRequest {
       this._cache.hasListener = response.hasListener;
     }
     this._hasUpdate = true;
-    super.onUpdate({...this._cache, changes: response});
+    super.onUpdate({cache: this._cache, change: response});
   }
 }
 

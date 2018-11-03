@@ -29,7 +29,7 @@ describe("Connection", function () {
     client.setValue('Connection1.block1.0', 2);
     client.updateValue('Connection1.block1.1', 3);
     result = await callbacks.promise;
-    assert.equal(result.value, 5, 'subscribe basic logic result');
+    assert.equal(result.change.value, 5, 'subscribe basic logic result');
 
     // clean up
     callbacks.cancel();
@@ -46,13 +46,13 @@ describe("Connection", function () {
     let callbacks1 = new AsyncClientPromise();
     client.subscribe('Connection2.p', callbacks1);
     let result1 = await callbacks1.promise;
-    assert.equal(result1.value, null, 'initial value');
-    assert.equal(result1.bindingPath, 'p0', 'initial binding');
+    assert.equal(result1.change.value, null, 'initial value');
+    assert.equal(result1.change.bindingPath, 'p0', 'initial binding');
 
     let callbacks2 = new AsyncClientPromise();
     client.subscribe('Connection2.p', callbacks2);
     let result2 = await callbacks2.firstPromise;
-    assert.equal(result1.bindingPath, 'p0', 'second subscribe');
+    assert.equal(result1.change.bindingPath, 'p0', 'second subscribe');
 
     client.setValue('Connection2.p1', 'hello');
     client.setBinding('Connection2.p', 'p1');
@@ -62,7 +62,7 @@ describe("Connection", function () {
     client.subscribe('Connection2.p', callbacks3); // subscribe when local cache exists
     let result3 = await callbacks3.firstPromise;
 
-    for (let obj of [result1, result2, result3, result1.changes, result2.changes]) {
+    for (let obj of [result1.cache, result2.cache, result3.cache, result1.change, result2.change]) {
       assert.equal(obj.value, 'hello', 'change value');
       assert.equal(obj.bindingPath, 'p1', 'change binding');
     }
@@ -235,9 +235,9 @@ describe("Connection", function () {
     client.setValue('Connection7.v', 1);
     client.subscribe('Connection7.v', callbacks);
     await client.setBinding('Connection7.p', 'v');
-    assert.isTrue(lastUpdate.hasListener);
+    assert.isTrue(lastUpdate.change.hasListener);
     await client.setBinding('Connection7.p', null);
-    assert.isFalse(lastUpdate.hasListener);
+    assert.isFalse(lastUpdate.change.hasListener);
     client.unsubscribe('Connection7.v', callbacks);
 
     client.destroy();
