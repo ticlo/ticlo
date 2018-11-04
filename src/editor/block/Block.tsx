@@ -6,6 +6,7 @@ import {TIcon} from "../icon/Icon";
 import {FunctionDesc} from "../../common/block/Descriptor";
 import {compareArray} from "../../common/util/Compare";
 import * as i18n from "i18next";
+import {transLateProperty} from "../../common/util/i18n";
 
 
 export interface Stage {
@@ -53,6 +54,7 @@ export class BlockItem extends DataRendererItem {
   w: number = 0;
   key: string;
   name: string;
+  desc: FunctionDesc = defaultFuncDesc;
   fields: string[] = [];
   fieldItems: Map<string, FieldItem> = new Map<string, FieldItem>();
   selected: boolean = false;
@@ -64,13 +66,21 @@ export class BlockItem extends DataRendererItem {
     this.name = key.substr(key.indexOf('.') + 1);
   }
 
+  setDesc(desc: FunctionDesc) {
+    if (desc !== this.desc) {
+      this.desc = desc;
+      this.forceUpdate();
+      this.forceUpdateFields();
+    }
+  }
+
   setXYW(x: number, y: number, w: number) {
     if (x !== this.x || y !== this.y || w !== this.y) {
       this.x = x;
       this.y = y;
       this.w = w;
+      this.forceUpdate();
       this.updateFieldPosition();
-      this._renderer.forceUpdate();
     }
   }
 
@@ -87,9 +97,13 @@ export class BlockItem extends DataRendererItem {
           this.fieldItems.set(f, new FieldItem(this, f));
         }
       }
+      this.forceUpdate();
       this.updateFieldPosition();
-      this._renderer.forceUpdate();
     }
+  }
+
+  forceUpdateFields() {
+
   }
 
   updateFieldPosition() {
@@ -110,11 +124,13 @@ interface FieldViewProps {
 }
 
 interface FieldViewState {
-
 }
 
 
 export class FieldView extends PureDataRenderer<FieldViewProps, FieldViewState> {
+
+  _value: any;
+
   listener = {
     onUpdate: (response: DataMap) => {
       let {value} = response;
@@ -133,9 +149,10 @@ export class FieldView extends PureDataRenderer<FieldViewProps, FieldViewState> 
 
   render(): React.ReactNode {
     let {item} = this.props;
+    let desc = item.block.desc;
     return (
       <div className='ticl-block-field'>
-        <div className='ticl-block-field-name'>{item.name}</div>
+        <div className='ticl-block-field-name'>{transLateProperty(desc.name, item.name, desc.ns)}</div>
         <div className='ticl-block-field-value'/>
         <div className='ticl-input-arrow'/>
         <div className='ticl-output-arrow'/>
@@ -150,7 +167,7 @@ interface BlockViewProps {
 }
 
 interface BlockViewState {
-  funcDesc: FunctionDesc;
+
 }
 
 const defaultFuncDesc = {
@@ -186,10 +203,11 @@ export class BlockView extends PureDataRenderer<BlockViewProps, BlockViewState> 
     }
   };
   descListener = (funcDesc: FunctionDesc) => {
+    let {item} = this.props;
     if (funcDesc) {
-      this.setState({funcDesc});
+      item.setDesc(funcDesc);
     } else {
-      this.setState({funcDesc: defaultFuncDesc});
+      item.setDesc(defaultFuncDesc);
     }
   };
 
@@ -203,7 +221,7 @@ export class BlockView extends PureDataRenderer<BlockViewProps, BlockViewState> 
   }
 
   getFuncStyle(): string {
-    let {style, priority} = this.state.funcDesc;
+    let {style, priority} = this.props.item.desc;
     if (style) {
       return 'ticl-block-pr' + style.substr(0, 1);
     }
@@ -215,14 +233,13 @@ export class BlockView extends PureDataRenderer<BlockViewProps, BlockViewState> 
 
   render() {
     let {item} = this.props;
-    let {funcDesc} = this.state;
     return (
       <div
         className={`ticl-block ${this.getFuncStyle()}${item.selected ? ' ticl-block-selected' : ''}`}
         style={{top: item.y, left: item.x, width: item.w}}
       >
         <div className='ticl-block-head'>
-          <TIcon icon={funcDesc.icon}/>
+          <TIcon icon={item.desc.icon}/>
           {item.name}
         </div>
         <div className='ticl-block-body'>

@@ -64,16 +64,16 @@ export class NodeTreeItem extends TreeItem {
       this.opened = 'loading';
       this.listingId = this.connection.listChildren(this.key, null, this.max, this) as string;
     }
-    if (this._renderer) {
-      this._renderer.forceUpdate();
+    if (this._renderers) {
+      this.forceUpdate();
     }
   }
 
   close() {
     this.cancelLoad();
     this.opened = 'closed';
-    if (this._renderer) {
-      this._renderer.forceUpdate();
+    if (this._renderers) {
+      this.forceUpdate();
     }
     if (this.onListChange && this.children && this.children.length) {
       this.onListChange();
@@ -84,8 +84,8 @@ export class NodeTreeItem extends TreeItem {
     this.cancelLoad();
     this.opened = 'loading';
     this.listingId = this.connection.listChildren(this.key, null, this.max, this) as string;
-    if (this._renderer) {
-      this._renderer.forceUpdate();
+    if (this._renderers) {
+      this.forceUpdate();
     }
   }
 
@@ -105,8 +105,8 @@ export class NodeTreeItem extends TreeItem {
     if (this.onListChange) {
       this.onListChange();
     }
-    if (this._renderer) {
-      this._renderer.forceUpdate();
+    if (this._renderers) {
+      this.forceUpdate();
     }
   }
 

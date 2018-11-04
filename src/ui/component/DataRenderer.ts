@@ -1,15 +1,19 @@
 import * as React from "react";
 
 export class DataRendererItem {
-  _renderer: PureDataRenderer<any, any>;
+  _renderers: Set<PureDataRenderer<any, any>> = new Set<PureDataRenderer<any, any>>();
 
   attachedRenderer(renderer: PureDataRenderer<any, any>) {
-    this._renderer = renderer;
+    this._renderers.add(renderer);
   }
 
   detachRenderer(renderer: PureDataRenderer<any, any>) {
-    if (this._renderer === renderer) {
-      this._renderer = null;
+    this._renderers.delete(renderer);
+  }
+
+  forceUpdate() {
+    for (let renderer of this._renderers) {
+      renderer.forceUpdate();
     }
   }
 }
@@ -27,6 +31,7 @@ export class PureDataRenderer<P extends DataRendererProps<any>, S> extends React
   componentDidUpdate(prevProps: P) {
     if (prevProps.item !== this.props.item) {
       this.props.item.attachedRenderer(this);
+      prevProps.item.detachRenderer(this);
     }
   }
 
