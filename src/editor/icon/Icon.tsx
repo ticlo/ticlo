@@ -15,7 +15,7 @@ interface Props {
 }
 
 // not an accurate way to measure a string
-function iconNameLength(str: string): [string, number, boolean] {
+function iconNameWidth(str: string): [string, number, boolean] {
   let overrideSize = -1;
   if (str.length > 2) {
     let colonPos = str.indexOf(':');
@@ -82,7 +82,7 @@ export function TIcon(props: Props) {
         if (iconName.length > 3) {
           iconName = iconName.substr(0, 3);
         }
-        let [outName, fontSize, needOffset] = iconNameLength(iconName);
+        let [outName, fontSize, needOffset] = iconNameWidth(iconName);
         if (fontSize > 0) {
           if (fontSize === 18) {
             if (needOffset) {

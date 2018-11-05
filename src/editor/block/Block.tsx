@@ -34,7 +34,7 @@ export class FieldItem extends DataRendererItem {
     super();
     this.name = name;
     this.block = block;
-    this.key = `${block.key}.name`;
+    this.key = `${block.key}.${name}`;
   }
 
   render(): React.ReactNode {
@@ -133,7 +133,7 @@ export class FieldView extends PureDataRenderer<FieldViewProps, FieldViewState> 
 
   listener = {
     onUpdate: (response: DataMap) => {
-      let {value} = response;
+      let {value} = response.cache;
       let {item} = this.props;
 
     }
@@ -179,7 +179,7 @@ const defaultFuncDesc = {
 export class BlockView extends PureDataRenderer<BlockViewProps, BlockViewState> {
   isListener = {
     onUpdate: (response: DataMap) => {
-      let {value} = response;
+      let {value} = response.cache;
       let {item} = this.props;
       if (typeof value === 'string') {
         item.conn.watchDesc(value, this.descListener);
@@ -188,7 +188,7 @@ export class BlockView extends PureDataRenderer<BlockViewProps, BlockViewState> 
   };
   xywListener = {
     onUpdate: (response: DataMap) => {
-      let {value} = response;
+      let {value} = response.cache;
       let {item} = this.props;
       if (Array.isArray(value)) {
         item.setXYW(...value as [number, number, number]);
@@ -197,8 +197,9 @@ export class BlockView extends PureDataRenderer<BlockViewProps, BlockViewState> 
   };
   pListener = {
     onUpdate: (response: DataMap) => {
-      if (Array.isArray(response.value)) {
-        this.props.item.setP(response.value);
+      let {value} = response.cache;
+      if (Array.isArray(value)) {
+        this.props.item.setP(value);
       }
     }
   };

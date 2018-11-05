@@ -157,7 +157,7 @@ export class NodeTreeRenderer extends PureDataRenderer<Props, State> {
   subscriptionListener = {
     onUpdate: (response: DataMap) => {
       let {item} = this.props;
-      let className = response.value;
+      let className = response.cache.value;
       if (typeof className === 'string') {
         console.log(className);
         item.connection.watchDesc(className, this.descCallback);
@@ -176,9 +176,9 @@ export class NodeTreeRenderer extends PureDataRenderer<Props, State> {
 
   descCallback = (desc: FunctionDesc) => {
     if (desc) {
-      this.setState({icon: desc.icon, iconStyle: desc.style ? desc.style.charAt(0) : `${desc.priority}`});
+      this.preSetState({icon: desc.icon, iconStyle: desc.style ? desc.style.charAt(0) : `${desc.priority}`});
     } else {
-      this.setState({icon: '', iconStyle: null});
+      this.preSetState({icon: '', iconStyle: null});
     }
   };
 
