@@ -8,22 +8,26 @@ import {TIcon} from "../../src/editor/icon/Icon";
 import '../../src/common/functions/basic/Math';
 import {sampleData} from "./sample-data";
 import BlockStage from "../../src/editor/block/BlockStage";
+import {initEditor} from "../../src/editor";
 
 
-let job = Root.instance.addJob('example');
-job.load(sampleData);
+(async () => {
+  await initEditor();
+  let job = Root.instance.addJob('example');
+  job.load(sampleData);
 
 
-let [server, client] = makeLocalConnection(Root.instance);
+  let [server, client] = makeLocalConnection(Root.instance);
 
-ReactDOM.render(
-  <div style={{height: '100%'}}>
+  ReactDOM.render(
+    <div style={{height: '100%'}}>
 
-    <div>
-      <NodeTree conn={client} basePath="example" style={{width: '300px', height: '600px'}}/>
-      <BlockStage conn={client} basePath="example"
-                  style={{width: '800px', height: '800px', left: '300px', top: '0', position: 'absolute'}}/>
-    </div>
-  </div>,
-  document.getElementById('app')
-);
+      <div>
+        <NodeTree conn={client} basePath="example" style={{width: '300px', height: '600px'}}/>
+        <BlockStage conn={client} basePath="example"
+                    style={{width: '800px', height: '800px', left: '300px', top: '0', position: 'absolute'}}/>
+      </div>
+    </div>,
+    document.getElementById('app')
+  );
+})();
