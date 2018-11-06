@@ -55,6 +55,7 @@
     "test-nyc": "nyc mocha src/common/**/*.spec.ts && nyc report --reporter=text-lcov > coverage/nyc.log",
     "test-karma": "karma start",
     "build-less": "lessc --js src/editor/antd.less dist/antd.css && lessc --js src/editor/editor.less dist/editor.css",
+    "build-icons": "node tool/build-icons",
     "build-i18n": "node tool/merge-lng",
     "test": "cross-env NODE_ENV=TEST mocha src/common/**/*.spec.ts"
   }

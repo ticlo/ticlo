@@ -12,36 +12,36 @@ export function ExpandIcon(props: Props) {
   switch (props.opened) {
     case 'opened':
       return (
-        <li
+        <div
           onClick={props.onClick}
-          className="anticon anticon-caret-right ticl-icn-expand"
+          className="ticl-tree-arr ticl-tree-arr-expand"
           style={{transform: 'rotate(90deg)'}}
         />
       );
     case 'closed':
       return (
-        <li
+        <div
           onClick={props.onClick}
-          className="anticon anticon-caret-right ticl-icn-expand"
+          className="ticl-tree-arr ticl-tree-arr-expand"
         />
       );
     case 'loading':
       return (
-        <li
-          className="anticon anticon-loading anticon-spin ticl-icn-loading"
+        <div
+          className="ticl-tree-arr ticl-tree-arr-loading"
         />
       );
     case 'empty':
       return (
-        <li
+        <div
           onClick={props.onClick}
-          className="anticon anticon-right ticl-icn-expand"
+          className="ticl-tree-arr ticl-tree-arr-empty"
         />
       );
     default:
       return (
-        <li
-          className="anticon ticl-icn-expand"
+        <div
+          className="ticl-tree-arr"
         />
       );
   }

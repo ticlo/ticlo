@@ -15,6 +15,7 @@
   "compileOnSave": true,
   "include": [
     "src/**/*",
+    "tool/**/*",
     "example/**/*",
     "playground/**/*"
   ],

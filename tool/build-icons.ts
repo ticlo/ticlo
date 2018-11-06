@@ -23,11 +23,11 @@ async function main() {
   let materialIcons: string[] = glob.sync(`icons/material/ic_*_48px.svg`);
   for (let path of materialIcons) {
     let data = fs.readFileSync(path, 'utf8').replace('<path ', '<path fill="#FFF" ')
-      .replace(/</g, '%3C').replace(/>/g, '%3D');
+      .replace(/</g, '%3C').replace(/>/g, '%3E');
     let name = path.substring(path.lastIndexOf('/ic_') + 4, path.length - 9);
     output.push(`
 .tico-material-${name} {
-  background: transparent url('data:image/svg+xml,${data}') 50% 50% / contain no-repeat;
+  background-image: url('data:image/svg+xml,${data}');
 }`);
   }
 
@@ -52,16 +52,16 @@ async function main() {
         continue;
     }
     let data = fs.readFileSync(path, 'utf8').replace('<path ', '<path fill="#FFF" ')
-      .replace(/</g, '%3C').replace(/>/g, '%3D');
+      .replace(/</g, '%3C').replace(/>/g, '%3E');
 
     output.push(`
 .tico-${group}-${name} {
-  background: transparent url('data:image/svg+xml,${data}') 50% 50% / contain no-repeat;
+  background-image: url('data:image/svg+xml,${data}');
 }`);
   }
 
 
-  fs.writeFileSync('dist/fonts.css', output.join('\n'));
+  fs.writeFileSync('dist/icons.css', output.join('\n'));
 }
 
 main();

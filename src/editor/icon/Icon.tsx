@@ -72,12 +72,17 @@ export function TIcon(props: Props) {
     switch (iconType) {
       case 'fas':
       case 'fab':
+      case 'fa':
+      case 'material':
         if (!iconName.includes(' ')) {
-          return (<div className={`tico ${iconType} fa-${iconName} ${additionalClass}`}/>);
+          return (
+            <div className={`tico ${additionalClass}`}>
+              <div className={`tico-icon-svg tico-${iconType}-${iconName}`}/>
+            </div>
+          );
         }
         break;
-      case 'material':
-        return (<div className={`tico tico-material ${additionalClass}`}>{iconName}</div>);
+
       case 'txt':
         if (iconName.length > 3) {
           iconName = iconName.substr(0, 3);

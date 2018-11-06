@@ -14,10 +14,10 @@ function loadOneCss(url: string) {
 
 function loadCssInHeader() {
   if (!(window as any).ticloCssLoaded) {
-    loadOneCss('https://use.fontawesome.com/releases/v5.3.1/css/all.css');
-    loadOneCss('https://fonts.googleapis.com/css?family=Fredoka+One|Material+Icons');
+    loadOneCss('https://fonts.googleapis.com/css?family=Fredoka+One');
     loadOneCss('/base/dist/antd.css');
     loadOneCss('/base/dist/editor.css');
+    loadOneCss('/base/dist/icons.css');
     (window as any).ticloCssLoaded = true;
   }
 }
