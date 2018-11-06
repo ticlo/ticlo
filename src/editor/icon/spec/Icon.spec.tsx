@@ -28,15 +28,12 @@ describe("editor Icon", function () {
     let icons: NodeListOf<HTMLDivElement> = document.querySelectorAll('.tico');
     assert.lengthOf(icons, 11);
 
-    assert.isTrue(icons[0].classList.contains('fab'));
-    assert.isTrue(icons[0].classList.contains('fa-git'));
+    assert.isTrue(icons[0].children[0].classList.contains('tico-fab-git'));
 
-    assert.isTrue(icons[1].classList.contains('fas'));
-    assert.isTrue(icons[1].classList.contains('fa-plus'));
+    assert.isTrue(icons[1].children[0].classList.contains('tico-fas-plus'));
     assert.isTrue(icons[1].classList.contains('tico-pr1'));
 
-    assert.isTrue(icons[2].classList.contains('tico-material'));
-    assert.equal(icons[2].innerText, 'radio_button_unchecked');
+    assert.isTrue(icons[2].children[0].classList.contains('tico-material-radio_button_unchecked'));
 
     icons[2].style.width = 'auto';
     await shouldHappen(() => {
