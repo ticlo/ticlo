@@ -20,7 +20,7 @@ describe("WorkerFunction", function () {
       '#is': '',
       'runner': {'#is': 'test-runner', '#-log': 'nest1', '~#call': '##.#input.in1'}
     };
-    WorkerFunction.registerClass(jobData, {name: 'class1'}, 'WorkerFunction');
+    WorkerFunction.registerType(jobData, {name: 'class1'}, 'WorkerFunction');
 
     Root.run();
     assert.deepEqual(TestFunctionRunner.popLogs(), ['nest1'],
@@ -56,7 +56,7 @@ describe("WorkerFunction", function () {
       'add': {'#is': 'add', '~0': '##.#input.in1', '1': 1},
       '#output': {'#is': 'output', '~out1': '##.add.output'}
     };
-    WorkerFunction.registerClass(jobData, {name: 'class2'}, 'WorkerFunction');
+    WorkerFunction.registerType(jobData, {name: 'class2'}, 'WorkerFunction');
     aBlock.setValue('in1', 2);
     Root.run();
 
@@ -80,8 +80,8 @@ describe("WorkerFunction", function () {
       'add': {'#is': 'add', '~0': '##.#input.in1', '1': 1},
       '#output': {'#is': 'output', '~out2': '##.add.output'}
     };
-    WorkerFunction.registerClass(jobData1, {name: 'class1'}, 'test_namespace');
-    WorkerFunction.registerClass(jobData2, {name: 'class2'}, 'test_namespace');
+    WorkerFunction.registerType(jobData1, {name: 'class1'}, 'test_namespace');
+    WorkerFunction.registerType(jobData2, {name: 'class2'}, 'test_namespace');
     Root.run();
 
     assert.equal(aBlock.getValue('out1'), 3, 'output from 2 layer of  nested logic');

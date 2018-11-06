@@ -1,4 +1,4 @@
-import {Classes} from "../block/Class";
+import {Types} from "../block/Type";
 import {BlockFunction, FunctionData} from "../block/BlockFunction";
 import {FunctionDesc} from "../block/Descriptor";
 import {BlockIO} from "../block/BlockProperty";
@@ -15,4 +15,4 @@ export class OutputFunction extends BlockFunction {
 }
 
 OutputFunction.prototype.priority = 3;
-Classes.add(OutputFunction, {name: 'output'});
+Types.add(OutputFunction, {name: 'output'});

@@ -1,4 +1,4 @@
-import {Classes} from "../block/Class";
+import {Types} from "../block/Type";
 import {BlockFunction, FunctionData} from "../block/BlockFunction";
 import {FunctionDesc} from "../block/Descriptor";
 import {BlockIO} from "../block/BlockProperty";
@@ -211,7 +211,7 @@ export class ForEachFunction extends BlockFunction implements BlockChildWatch {
 ForEachFunction.prototype._onSourceChange = MapImpl.prototype._onSourceChange;
 
 ForEachFunction.prototype.priority = 3;
-Classes.add(ForEachFunction, {
+Types.add(ForEachFunction, {
   name: 'foreach',
   icon: 'material:hdr_strong',
   style: 'repeater',

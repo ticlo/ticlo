@@ -1,4 +1,4 @@
-import {Classes} from "../block/Class";
+import {Types} from "../block/Type";
 import {BlockFunction, FunctionData, FunctionOutput} from "../block/BlockFunction";
 import {FunctionDesc} from "../block/Descriptor";
 import {BlockIO, BlockProperty} from "../block/BlockProperty";
@@ -458,7 +458,7 @@ MapFunction.prototype._onReuseWorkerChange = MapImpl.prototype._onReuseWorkerCha
 MapFunction.prototype._onTimeoutChange = MapImpl.prototype._onTimeoutChange;
 
 MapFunction.prototype.priority = 3;
-Classes.add(MapFunction, {
+Types.add(MapFunction, {
   name: 'map',
   icon: 'material:hdr_strong',
   style: 'repeater',

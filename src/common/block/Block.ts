@@ -3,7 +3,7 @@ import {ConfigGenerators, BlockReadOnlyConfig} from "./BlockConfigs";
 import {BlockBinding} from "./BlockBinding";
 import {FunctionData, FunctionGenerator, BaseFunction, FunctionOutput} from "./BlockFunction";
 import {Dispatcher, Listener, ValueDispatcher, ListenPromise, Destroyable} from "./Dispatcher";
-import {Class, Classes} from "./Class";
+import {Type, Types} from "./Type";
 import {ErrorEvent, Event, EventType, NOT_READY} from "./Event";
 import {DataMap} from "../util/Types";
 import {Uid} from "../util/Uid";
@@ -88,8 +88,8 @@ export class Block implements Runnable, FunctionData, Listener<FunctionGenerator
   _bindings: Map<string, BlockBinding> = new Map();
   _function: BaseFunction;
   _funcPromise: PromiseWrapper;
-  _className: string;
-  _class: Class;
+  _typeName: string;
+  _type: Type;
 
 
   // whether the block has a function running async job
@@ -548,16 +548,16 @@ export class Block implements Runnable, FunctionData, Listener<FunctionGenerator
     this._sync = !!sync;
   }
 
-  _classChanged(className: any) {
-    if (className === this._className) return;
-    this._className = className;
-    if (this._class) {
-      this._class.unlisten(this);
+  _typeChanged(typeName: any) {
+    if (typeName === this._typeName) return;
+    this._typeName = typeName;
+    if (this._type) {
+      this._type.unlisten(this);
     }
-    if (className && typeof (className) === 'string') {
-      this._class = Classes.listen(className, this);
+    if (typeName && typeof (typeName) === 'string') {
+      this._type = Types.listen(typeName, this);
     } else {
-      this._class = null;
+      this._type = null;
       this.onChange(null);
     }
   }
@@ -696,15 +696,15 @@ export class Block implements Runnable, FunctionData, Listener<FunctionGenerator
       return;
     }
     this._destroyed = true;
-    if (this._class) {
+    if (this._type) {
       if (this._function) {
         this._function.destroy();
         this._function = null;
         this._funcPromise = undefined;
         this._called = false;
       }
-      this._class.unlisten(this);
-      this._class = null;
+      this._type.unlisten(this);
+      this._type = null;
     }
 
     // properties are destroyed but not removed

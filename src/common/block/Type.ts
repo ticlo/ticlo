@@ -10,7 +10,7 @@ export interface DescListener {
 }
 
 
-export class Class extends ValueDispatcher<FunctionGenerator> {
+export class Type extends ValueDispatcher<FunctionGenerator> {
   _id: string;
   _desc: FunctionDesc;
   _descSize: number = 0;
@@ -30,9 +30,9 @@ export class Class extends ValueDispatcher<FunctionGenerator> {
   }
 }
 
-const _types: {[key: string]: Class} = {};
+const _types: {[key: string]: Type} = {};
 
-export class Classes {
+export class Types {
   static add(cls: FunctionGenerator, desc: FunctionDesc, namespace?: string) {
     desc.priority = cls.prototype.priority;
     desc.mode = cls.prototype.defaultMode;
@@ -47,13 +47,13 @@ export class Classes {
     desc.id = id;
     let type = _types[id];
     if (!type) {
-      type = new Class(id);
+      type = new Type(id);
       _types[id] = type;
     }
     cls.prototype.type = id;
     type.updateValue(cls);
     type.setDesc(desc);
-    Classes.dispatchDescChange(id, desc);
+    Types.dispatchDescChange(id, desc);
   }
 
   static clear(id: string) {
@@ -62,11 +62,11 @@ export class Classes {
     if (type) {
       type.updateValue(null);
       type.setDesc(null);
-      Classes.dispatchDescChange(id, null);
+      Types.dispatchDescChange(id, null);
     }
   }
 
-  static listen(id: string, block: Block): Class {
+  static listen(id: string, block: Block): Type {
     if (!id) {
       return;
     }
@@ -76,7 +76,7 @@ export class Classes {
     let type = _types[id];
 
     if (!type) {
-      type = new Class(id);
+      type = new Type(id);
       _types[id] = type;
     }
     type.listen(block);
@@ -86,20 +86,20 @@ export class Classes {
   static _listeners: Set<DescListener> = new Set<DescListener>();
 
   static listenDesc(listener: DescListener): void {
-    Classes._listeners.add(listener);
+    Types._listeners.add(listener);
   }
 
   static unlistenDesc(listener: DescListener): void {
-    Classes._listeners.delete(listener);
+    Types._listeners.delete(listener);
   }
 
   static dispatchDescChange(id: string, desc: FunctionDesc) {
-    for (let listener of Classes._listeners) {
+    for (let listener of Types._listeners) {
       listener.onDescChange(id, desc);
     }
   }
 
-  static getAllClassIds(): string[] {
+  static getAllTypeIds(): string[] {
     return Object.keys(_types);
   }
 

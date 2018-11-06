@@ -9,16 +9,16 @@ export async function init(lng?: string) {
 
 const numberReg = /[0-9]/;
 
-export function transLateClass(cls: string, namespace?: string): string {
-  if (!cls) {
+export function transLateType(type: string, namespace?: string): string {
+  if (!type) {
     return '';
   }
   let i18ns = namespace ? `ticlo-${namespace}` : 'ticlo-block';
-  return i18n.t(`${cls}.@name`, {ns: i18ns, defaultValue: cls});
+  return i18n.t(`${type}.@name`, {ns: i18ns, defaultValue: type});
 }
 
-export function transLateProperty(cls: string, name: string, namespace?: string): string {
-  if (!(name && cls)) {
+export function transLateProperty(type: string, name: string, namespace?: string): string {
+  if (!(name && type)) {
     return '';
   }
   let i18ns = namespace ? `ticlo-${namespace}` : 'ticlo-block';
@@ -26,8 +26,8 @@ export function transLateProperty(cls: string, name: string, namespace?: string)
   if (numMatch) {
     let baseName = name.substr(0, numMatch.index);
     let numStr = name.substr(numMatch.index);
-    return `${i18n.t(`${cls}.${baseName}.@name`, {ns: i18ns, defaultValue: baseName})}${numStr}`;
+    return `${i18n.t(`${type}.${baseName}.@name`, {ns: i18ns, defaultValue: baseName})}${numStr}`;
   } else {
-    return i18n.t(`${cls}.${name}.@name`, {ns: i18ns, defaultValue: name});
+    return i18n.t(`${type}.${name}.@name`, {ns: i18ns, defaultValue: name});
   }
 }

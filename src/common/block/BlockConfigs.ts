@@ -2,7 +2,7 @@ import {Block} from "./Block";
 import {BlockProperty} from "./BlockProperty";
 import {BaseFunction, FunctionData} from "./BlockFunction";
 
-class BlockClassConfig extends BlockProperty {
+class BlockTypeConfig extends BlockProperty {
 
   constructor(block: Block, name: string) {
     super(block, name);
@@ -19,7 +19,7 @@ class BlockClassConfig extends BlockProperty {
   }
 
   _valueChanged() {
-    this._block._classChanged(this._value);
+    this._block._typeChanged(this._value);
   }
 }
 
@@ -101,7 +101,7 @@ export class BlockReadOnlyConfig extends BlockProperty {
 
 
 export const ConfigGenerators: {[key: string]: new (block: Block, field: string) => BlockProperty} = {
-  '#is': BlockClassConfig,
+  '#is': BlockTypeConfig,
   '#mode': BlockModeConfig,
   '#call': BlockCallConfig,
   '#sync': BlockSyncConfig,

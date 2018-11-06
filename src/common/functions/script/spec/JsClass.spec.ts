@@ -1,18 +1,18 @@
 import {assert} from "chai";
 import {Job, Root} from "../../../block/Block";
 import {JsFunction} from "../Js";
-import {Classes} from "../../../block/Class";
+import {Types} from "../../../block/Type";
 
-describe("Js Class", function () {
+describe("Js Type", function () {
 
   it('basic', function () {
     let job = new Job();
 
     let aBlock = job.createBlock('a');
     aBlock.setValue('in1', 321);
-    aBlock.setValue('#is', 'Js-class1');
+    aBlock.setValue('#is', 'Js-type1');
 
-    JsFunction.registerClass('this["out1"] = this["in1"]', {name: 'Js-class1', priority: 1, mode: 'onCall'});
+    JsFunction.registerType('this["out1"] = this["in1"]', {name: 'Js-type1', priority: 1, mode: 'onCall'});
 
     Root.run();
     assert.isUndefined(aBlock.getValue('out1'), 'no change yet');
@@ -26,11 +26,11 @@ describe("Js Class", function () {
     let job = new Job();
 
     let aBlock = job.createBlock('a');
-    aBlock.setValue('#is', 'Js-class2');
-    JsFunction.registerClass('this["out1"] = 1', {name: 'Js-class2'});
+    aBlock.setValue('#is', 'Js-type2');
+    JsFunction.registerType('this["out1"] = 1', {name: 'Js-type2'});
 
     assert(aBlock._queued, 'script is _queued');
-    Classes.clear('Js-class2');
+    Types.clear('Js-type2');
     Root.run();
     assert(!aBlock._queued, 'script is no longer _queued');
     assert.isUndefined(aBlock.getValue('out1'), 'clear class after called');
@@ -41,9 +41,9 @@ describe("Js Class", function () {
     let job = new Job();
 
     let aBlock = job.createBlock('a');
-    Classes.clear('');
-    assert.deepEqual(Classes.getDesc(''), [null, 0]);
-    assert.isUndefined(Classes.listen('', aBlock), 'listen without class name');
+    Types.clear('');
+    assert.deepEqual(Types.getDesc(''), [null, 0]);
+    assert.isUndefined(Types.listen('', aBlock), 'listen without class name');
 
   });
 });

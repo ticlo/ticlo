@@ -1,4 +1,4 @@
-import {Classes} from "../../block/Class";
+import {Types} from "../../block/Type";
 import {BlockFunction, FunctionData} from "../../block/BlockFunction";
 import {BlockIO, BlockProperty} from "../../block/BlockProperty";
 import {ErrorEvent, NOT_READY} from "../../block/Event";
@@ -72,7 +72,7 @@ export class JsFunction extends BlockFunction {
     return rslt;
   }
 
-  static registerClass(script: string, desc: FunctionDesc, namespace?: string) {
+  static registerType(script: string, desc: FunctionDesc, namespace?: string) {
     try {
       let compiledFunction = new Function(script);
 
@@ -94,7 +94,7 @@ export class JsFunction extends BlockFunction {
       CustomScriptFunction.prototype.defaultMode = desc.mode;
       CustomScriptFunction.prototype.useLength = Boolean(desc.useLength);
 
-      Classes.add(CustomScriptFunction, desc, namespace);
+      Types.add(CustomScriptFunction, desc, namespace);
     } catch (err) {
       // TODO log?
     }
@@ -103,7 +103,7 @@ export class JsFunction extends BlockFunction {
 
 JsFunction.prototype.priority = 1;
 
-Classes.add(JsFunction, {
+Types.add(JsFunction, {
   name: 'js',
   icon: 'txt:js',
   inputs: [{

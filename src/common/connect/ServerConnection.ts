@@ -4,7 +4,7 @@ import {DataMap, isSavedBlock, truncateObj} from "../util/Types";
 import {Root, Block, BlockBindingSource, BlockChildWatch} from "../block/Block";
 import {Dispatcher, Listener, ValueDispatcher} from "../block/Dispatcher";
 import Property = Chai.Property;
-import {Class, Classes, DescListener} from "../block/Class";
+import {Type, Types, DescListener} from "../block/Type";
 import {FunctionDesc} from "../block/Descriptor";
 
 class ServerRequest extends ConnectionSendingData {
@@ -200,8 +200,8 @@ class ServerDescWatcher extends ServerRequest implements DescListener {
     super();
     this.id = id;
     this.connection = conn;
-    this.pendingIds = new Set(Classes.getAllClassIds());
-    Classes.listenDesc(this);
+    this.pendingIds = new Set(Types.getAllTypeIds());
+    Types.listenDesc(this);
     this.connection.addSend(this);
   }
 
@@ -214,7 +214,7 @@ class ServerDescWatcher extends ServerRequest implements DescListener {
     let changes = [];
     let totalSize = 0;
     for (let id of this.pendingIds) {
-      let [desc, size] = Classes.getDesc(id);
+      let [desc, size] = Types.getDesc(id);
       if (desc) {
         changes.push(desc);
         totalSize += size;
@@ -234,7 +234,7 @@ class ServerDescWatcher extends ServerRequest implements DescListener {
   }
 
   close() {
-    Classes.unlistenDesc(this);
+    Types.unlistenDesc(this);
   }
 }
 
@@ -308,7 +308,7 @@ export class ServerConnection extends Connection {
             result = this.listChildren(request.path, request.filter, request.max);
             break;
           }
-          case 'addClass': {
+          case 'addType': {
             break;
           }
           case 'watchDesc' : {

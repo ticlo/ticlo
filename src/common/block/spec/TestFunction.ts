@@ -1,4 +1,4 @@
-import {Classes} from "../Class";
+import {Types} from "../Type";
 import {BaseFunction, BlockFunction, FunctionData, PureFunction} from "../BlockFunction";
 import {BlockIO, BlockPropertyEvent} from "../BlockProperty";
 import {ErrorEvent, Event, EventType, NOT_READY} from "../Event";
@@ -27,7 +27,7 @@ export class TestFunctionRunner extends BaseFunction {
   }
 }
 
-Classes.add(TestFunctionRunner, {name: 'test-runner'});
+Types.add(TestFunctionRunner, {name: 'test-runner'});
 
 export class TestAsyncFunctionLog {
   static syncLog: any[] = [];
@@ -76,7 +76,7 @@ export class TestAsyncFunctionPromise extends PureFunction {
 }
 
 TestAsyncFunctionPromise.prototype.defaultMode = 'onCall';
-Classes.add(TestAsyncFunctionPromise, {name: 'async-function-promise'});
+Types.add(TestAsyncFunctionPromise, {name: 'async-function-promise'});
 
 
 // async function that manually call block.wait, and return NOT_READY
@@ -117,7 +117,7 @@ export class TestAsyncFunctionManual extends BlockFunction {
 }
 
 TestAsyncFunctionManual.prototype.defaultMode = 'onCall';
-Classes.add(TestAsyncFunctionManual, {name: 'async-function-manual'});
+Types.add(TestAsyncFunctionManual, {name: 'async-function-manual'});
 
 export const VoidListeners = {
   onSourceChange(prop: Dispatcher<any>) {

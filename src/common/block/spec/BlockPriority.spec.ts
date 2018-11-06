@@ -34,7 +34,7 @@ describe("BlockPriority", function () {
 
     assert.deepEqual(TestFunctionRunner.popLogs(),
       ['p3', 'p0', 'p1', 'p2'],
-      'function should run in the same order as class is set');
+      'function should run in the same order as type is set');
 
     assert.deepEqual(TestFunctionRunner.popLogs(), [], 'logs should be cleared');
 

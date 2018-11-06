@@ -1,4 +1,4 @@
-import {Classes} from "../block/Class";
+import {Types} from "../block/Type";
 import {BlockFunction, FunctionData} from "../block/BlockFunction";
 import {FunctionDesc} from "../block/Descriptor";
 import {BlockIO} from "../block/BlockProperty";
@@ -25,7 +25,7 @@ export class WorkerFunction extends BlockFunction {
     this._funcJob.updateInput(this._data);
   }
 
-  static registerClass(data: DataMap, desc: FunctionDesc, namespace?: string) {
+  static registerType(data: DataMap, desc: FunctionDesc, namespace?: string) {
 
     class CustomWorkerFunction extends WorkerFunction {
       constructor(block: Block) {
@@ -47,7 +47,7 @@ export class WorkerFunction extends BlockFunction {
     CustomWorkerFunction.prototype._namespace = namespace;
 
     // TODO descriptor
-    Classes.add(CustomWorkerFunction, desc, namespace);
+    Types.add(CustomWorkerFunction, desc, namespace);
   }
 }
 

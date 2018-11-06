@@ -18,11 +18,11 @@ describe("i18n", function () {
 
   it('class name', function () {
 
-    assert.equal(i18n.transLateClass(null), '');
-    assert.equal(i18n.transLateClass('aaa'), 'aaa');
+    assert.equal(i18n.transLateType(null), '');
+    assert.equal(i18n.transLateType('aaa'), 'aaa');
 
-    assert.equal(i18n.transLateClass(null, 'testi18n'), '');
-    assert.equal(i18n.transLateClass('aaa', 'testi18n'), 'AAA');
+    assert.equal(i18n.transLateType(null, 'testi18n'), '');
+    assert.equal(i18n.transLateType('aaa', 'testi18n'), 'AAA');
   });
 
   it('property name', function () {

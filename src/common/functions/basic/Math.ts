@@ -1,4 +1,4 @@
-import {Classes} from "../../block/Class";
+import {Types} from "../../block/Type";
 import {PureFunction, FunctionData} from "../../block/BlockFunction";
 import {FunctionDesc} from "../../block/Descriptor";
 
@@ -51,7 +51,7 @@ export class AddFunction extends PureFunction {
 
 AddFunction.prototype.priority = 0;
 AddFunction.prototype.useLength = true;
-Classes.add(AddFunction, {
+Types.add(AddFunction, {
   ...descriptorN,
   name: 'add',
   icon: 'fas:plus'
@@ -83,7 +83,7 @@ export class MultiplyFunction extends PureFunction {
 
 MultiplyFunction.prototype.priority = 0;
 MultiplyFunction.prototype.useLength = true;
-Classes.add(MultiplyFunction, {
+Types.add(MultiplyFunction, {
   ...descriptorN,
   name: 'multiply',
   icon: 'fas:times'
@@ -103,7 +103,7 @@ export class SubtractFunction extends PureFunction {
 }
 
 SubtractFunction.prototype.priority = 0;
-Classes.add(SubtractFunction, {
+Types.add(SubtractFunction, {
   ...descriptor2,
   name: 'subtract',
   icon: 'fas:minus'
@@ -123,7 +123,7 @@ export class DivideFunction extends PureFunction {
 }
 
 DivideFunction.prototype.priority = 0;
-Classes.add(DivideFunction, {
+Types.add(DivideFunction, {
   ...descriptor2,
   name: 'divide',
   icon: 'fas:divide'
