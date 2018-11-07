@@ -9,7 +9,7 @@ export async function init(lng?: string) {
 
 const numberReg = /[0-9]/;
 
-export function transLateType(type: string, namespace?: string): string {
+export function translateType(type: string, namespace?: string): string {
   if (!type) {
     return '';
   }
@@ -17,7 +17,7 @@ export function transLateType(type: string, namespace?: string): string {
   return i18n.t(`${type}.@name`, {ns: i18ns, defaultValue: type});
 }
 
-export function transLateProperty(type: string, name: string, namespace?: string): string {
+export function translateProperty(type: string, name: string, namespace?: string): string {
   if (!(name && type)) {
     return '';
   }

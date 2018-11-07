@@ -6,7 +6,7 @@ import {TIcon} from "../icon/Icon";
 import {FunctionDesc} from "../../common/block/Descriptor";
 import {compareArray} from "../../common/util/Compare";
 import * as i18n from "i18next";
-import {transLateProperty} from "../../common/util/i18n";
+import {translateProperty} from "../../common/util/i18n";
 
 
 export interface Stage {
@@ -152,7 +152,7 @@ export class FieldView extends PureDataRenderer<FieldViewProps, FieldViewState> 
     let desc = item.block.desc;
     return (
       <div className='ticl-block-field'>
-        <div className='ticl-block-field-name'>{transLateProperty(desc.name, item.name, desc.ns)}</div>
+        <div className='ticl-block-field-name'>{translateProperty(desc.name, item.name, desc.ns)}</div>
         <div className='ticl-block-field-value'/>
         <div className='ticl-input-arrow'/>
         <div className='ticl-output-arrow'/>
