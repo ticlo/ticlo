@@ -120,6 +120,7 @@ export function measureObjSize(val: any, maxSize: number = 1024): number {
 
 }
 
+// convert block to Object, used in MapFunction output
 export function convertToObject(val: any, recursive: boolean = false): any {
   if (val instanceof Block) {
     let result: any = {};

@@ -7,6 +7,8 @@ import {FunctionDesc} from "../../common/block/Descriptor";
 import {compareArray} from "../../common/util/Compare";
 import * as i18n from "i18next";
 import {translateProperty} from "../../common/util/i18n";
+import equal from "fast-deep-equal";
+import {toDisplay} from "../../ui/util/Types";
 
 
 export interface Stage {
@@ -29,6 +31,15 @@ export class FieldItem extends DataRendererItem {
     return this.block.conn;
   }
 
+  cache: any = {};
+  listener = {
+    onUpdate: (response: DataMap) => {
+      if (!equal(response.cache, this.cache)) {
+        this.cache = response.cache;
+        this.forceUpdate();
+      }
+    }
+  };
 
   constructor(block: BlockItem, name: string) {
     super();
@@ -39,6 +50,21 @@ export class FieldItem extends DataRendererItem {
 
   render(): React.ReactNode {
     return <FieldView key={this.key} item={this}/>;
+  }
+
+  attachedRenderer(renderer: PureDataRenderer<any, any>) {
+    if (this._renderers.size === 0) {
+      this.block.conn.subscribe(this.key, this.listener);
+    }
+    super.attachedRenderer(renderer);
+
+  }
+
+  detachRenderer(renderer: PureDataRenderer<any, any>) {
+    super.detachRenderer(renderer);
+    if (this._renderers.size === 0) {
+      this.block.conn.unsubscribe(this.key, this.listener);
+    }
   }
 }
 
@@ -129,31 +155,13 @@ interface FieldViewState {
 
 export class FieldView extends PureDataRenderer<FieldViewProps, FieldViewState> {
 
-  _value: any;
-
-  listener = {
-    onUpdate: (response: DataMap) => {
-      let {value} = response.cache;
-      let {item} = this.props;
-
-    }
-  };
-
-  constructor(props: FieldViewProps) {
-    super(props);
-    this.state = {funcDesc: defaultFuncDesc};
-    let {item} = props;
-    item.conn().subscribe(item.key, this.listener);
-
-  }
-
   render(): React.ReactNode {
     let {item} = this.props;
     let desc = item.block.desc;
     return (
       <div className='ticl-block-field'>
         <div className='ticl-block-field-name'>{translateProperty(desc.name, item.name, desc.ns)}</div>
-        <div className='ticl-block-field-value'/>
+        <div className='ticl-block-field-value'>{toDisplay(item.cache.value)}</div>
         <div className='ticl-input-arrow'/>
         <div className='ticl-output-arrow'/>
       </div>

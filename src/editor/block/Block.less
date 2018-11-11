@@ -53,7 +53,13 @@
 .ticl-block-field-value {
   overflow: hidden;
   text-overflow: ellipsis;
+  text-align: right;
   flex: 1 50%;
+  & > .string-quote {
+    color: #bbb;
+    display: inline-block;
+    transform: translate(0,-2px);
+  }
 }
 
 .ticl-block-foot {

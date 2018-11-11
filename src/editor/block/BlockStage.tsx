@@ -61,7 +61,6 @@ export default class BlockStage extends React.Component<Props, State> implements
     for (let [key, blockItem] of this._blocks) {
       children.push(<BlockView key={key} item={blockItem}/>);
     }
-    console.log(children);
     return (
       <div style={style} className="ticl-block-stage">
         {children}
