@@ -24,6 +24,7 @@ module.exports = function (config) {
         "module": "commonjs",
         "jsx": "react",
         "moduleResolution": "node",
+        "esModuleInterop": true,
         "lib": [
           "es2017",
           "dom"

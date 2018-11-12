@@ -1,5 +1,5 @@
 import {FunctionDesc} from "../block/Descriptor";
-import * as i18n from "i18next";
+import i18n from "i18next";
 
 export async function init(lng?: string) {
   await new Promise((receive, reject) => {
