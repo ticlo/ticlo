@@ -162,8 +162,8 @@ export class FieldView extends PureDataRenderer<FieldViewProps, FieldViewState> 
       <div className='ticl-block-field'>
         <div className='ticl-block-field-name'>{translateProperty(desc.name, item.name, desc.ns)}</div>
         <div className='ticl-block-field-value'>{toDisplay(item.cache.value)}</div>
-        <div className='ticl-input-arrow'/>
-        <div className='ticl-output-arrow'/>
+        <div className='ticl-inbound'/>
+        <div className='ticl-outbound'/>
       </div>
     );
   }

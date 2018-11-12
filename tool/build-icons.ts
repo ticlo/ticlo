@@ -22,7 +22,7 @@ async function main() {
 
   let materialIcons: string[] = glob.sync(`icons/material/ic_*_48px.svg`);
   for (let path of materialIcons) {
-    let data = fs.readFileSync(path, 'utf8').replace('<path ', '<path fill="#FFF" ')
+    let data = fs.readFileSync(path, 'utf8').replace('<path ', '<path fill="white" ')
       .replace(/</g, '%3C').replace(/>/g, '%3E');
     let name = path.substring(path.lastIndexOf('/ic_') + 4, path.length - 9);
     output.push(`
@@ -51,7 +51,7 @@ async function main() {
       default:
         continue;
     }
-    let data = fs.readFileSync(path, 'utf8').replace('<path ', '<path fill="#FFF" ')
+    let data = fs.readFileSync(path, 'utf8').replace('<path ', '<path fill="white" ')
       .replace(/</g, '%3C').replace(/>/g, '%3E');
 
     output.push(`
