@@ -5,11 +5,25 @@ export class DataRendererItem {
   _renderers: Set<PureDataRenderer<any, any>> = new Set<PureDataRenderer<any, any>>();
 
   attachedRenderer(renderer: PureDataRenderer<any, any>) {
+    if (this._renderers.size === 0) {
+      this.onAttached();
+    }
     this._renderers.add(renderer);
   }
 
   detachRenderer(renderer: PureDataRenderer<any, any>) {
     this._renderers.delete(renderer);
+    if (this._renderers.size === 0) {
+      this.onDetached();
+    }
+  }
+
+  onAttached() {
+    // to be overridden
+  }
+
+  onDetached() {
+    // to be overridden
   }
 
   forceUpdate() {

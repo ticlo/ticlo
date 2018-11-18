@@ -5,27 +5,72 @@ import {DataRendererItem, PureDataRenderer} from "../../ui/component/DataRendere
 import {TIcon} from "../icon/Icon";
 import {FunctionDesc} from "../../common/block/Descriptor";
 import {compareArray} from "../../common/util/Compare";
-import * as i18n from "i18next";
 import {translateProperty} from "../../common/util/i18n";
 import equal from "fast-deep-equal";
 import {toDisplay} from "../../ui/util/Types";
+import {WireItem} from "./Wire";
+import {resolve} from "../../common/util/Path";
 
+const fieldHeight = 24;
+const fieldCenter = 12.5;
 
 export interface Stage {
-  _blocks: Map<string, BlockItem>;
-  _links: Map<string, LinkItem>;
-  _fields: Map<string, FieldItem>;
+  linkField(sourceKey: string, targetField: FieldItem): void;
+
+  unlinkField(sourceKey: string, targetField: FieldItem): void;
+
+  registerField(key: string, item: FieldItem): void;
+
+  unregisterField(key: string, item: FieldItem): void;
+
+  forceUpdate(): void;
 }
 
 export class FieldItem extends DataRendererItem {
   block: BlockItem;
   name: string;
   key: string;
-  isInput: boolean;
-  isOutput: boolean;
-  outLink: LinkItem;
-  inLink: LinkItem;
+
   bindBlock?: BlockItem;
+
+  x: number = 0;
+  y: number = 0;
+  w: number = 0;
+
+  inWire?: WireItem;
+  outWires: Set<WireItem> = new Set<WireItem>();
+
+  _bindingPath?: string;
+
+  setBindingPath(str: string) {
+    if (str !== this._bindingPath) {
+      if (this._bindingPath) {
+        this.block.stage.unlinkField(resolve(this.block.key, this._bindingPath), this);
+      }
+      this._bindingPath = str;
+      if (this._bindingPath) {
+        this.block.stage.linkField(resolve(this.block.key, this._bindingPath), this);
+      }
+    }
+  }
+
+  // return y pos of next field
+  setXYW(x: number, y: number, w: number): number {
+    if (x !== this.x || y !== this.y || w !== this.y) {
+      this.x = x;
+      this.y = y;
+      this.w = w;
+      this.forceUpdate();
+      if (this.inWire) {
+        this.inWire.forceUpdate();
+      }
+      for (let outWire of this.outWires) {
+        outWire.forceUpdate();
+      }
+      // TODO update bindBlock
+    }
+    return y + fieldHeight;
+  }
 
   conn() {
     return this.block.conn;
@@ -36,6 +81,7 @@ export class FieldItem extends DataRendererItem {
     onUpdate: (response: DataMap) => {
       if (!equal(response.cache, this.cache)) {
         this.cache = response.cache;
+        this.setBindingPath(this.cache.bindingPath);
         this.forceUpdate();
       }
     }
@@ -46,35 +92,41 @@ export class FieldItem extends DataRendererItem {
     this.name = name;
     this.block = block;
     this.key = `${block.key}.${name}`;
+    this.block.conn.subscribe(this.key, this.listener);
+    this.block.stage.registerField(this.key, this);
+  }
+
+  destructor() {
+    this.block.conn.unsubscribe(this.key, this.listener);
+    this.block.stage.unregisterField(this.key, this);
+    if (this._bindingPath) {
+      this.block.stage.unlinkField(resolve(this.key, this._bindingPath), this);
+    }
   }
 
   render(): React.ReactNode {
     return <FieldView key={this.key} item={this}/>;
   }
 
-  attachedRenderer(renderer: PureDataRenderer<any, any>) {
-    if (this._renderers.size === 0) {
-      this.block.conn.subscribe(this.key, this.listener);
+  sourceChanged(source: FieldItem) {
+    if (source) {
+      if (this.inWire) {
+        this.inWire.setSource(source);
+      } else {
+        this.inWire = new WireItem(source, this);
+        this.block.stage.forceUpdate();
+      }
+    } else {
+      if (this.inWire) {
+        this.inWire = null;
+      }
     }
-    super.attachedRenderer(renderer);
-
   }
-
-  detachRenderer(renderer: PureDataRenderer<any, any>) {
-    super.detachRenderer(renderer);
-    if (this._renderers.size === 0) {
-      this.block.conn.unsubscribe(this.key, this.listener);
-    }
-  }
-}
-
-export class LinkItem {
-  fromProp: FieldItem;
-  toProp: FieldItem;
 }
 
 export class BlockItem extends DataRendererItem {
   conn: ClientConnection;
+  stage: Stage;
   x: number = 0;
   y: number = 0;
   w: number = 0;
@@ -84,10 +136,12 @@ export class BlockItem extends DataRendererItem {
   fields: string[] = [];
   fieldItems: Map<string, FieldItem> = new Map<string, FieldItem>();
   selected: boolean = false;
+  minimal: boolean = false;
 
-  constructor(connection: ClientConnection, key: string) {
+  constructor(connection: ClientConnection, stage: Stage, key: string) {
     super();
     this.conn = connection;
+    this.stage = stage;
     this.key = key;
     this.name = key.substr(key.indexOf('.') + 1);
   }
@@ -114,6 +168,7 @@ export class BlockItem extends DataRendererItem {
     if (!compareArray(fields, this.fields)) {
       for (let f of this.fields) {
         if (!fields.includes(f)) {
+          this.fieldItems.get(f).destructor();
           this.fieldItems.delete(f);
         }
       }
@@ -129,19 +184,39 @@ export class BlockItem extends DataRendererItem {
   }
 
   forceUpdateFields() {
-
+    for (let [key, item] of this.fieldItems) {
+      item.forceUpdate();
+    }
   }
 
   updateFieldPosition() {
-
+    let {x, y, w} = this;
+    y += fieldCenter;
+    if (this.minimal) {
+      w = fieldHeight;
+      for (let field of this.fields) {
+        this.fieldItems.get(field).setXYW(x, y, w);
+      }
+    } else {
+      y += fieldHeight;
+      for (let field of this.fields) {
+        y = this.fieldItems.get(field).setXYW(x, y, w);
+      }
+    }
   }
 
-  render(): React.ReactNode[] {
+  renderFields(): React.ReactNode[] {
     let result: React.ReactNode[] = [];
     for (let field of this.fields) {
       result.push(this.fieldItems.get(field).render());
     }
     return result;
+  }
+
+  onDetached() {
+    for (let [key, fieldItem] of this.fieldItems) {
+      fieldItem.destructor();
+    }
   }
 }
 
@@ -252,7 +327,7 @@ export class BlockView extends PureDataRenderer<BlockViewProps, BlockViewState> 
           {item.name}
         </div>
         <div className='ticl-block-body'>
-          {item.render()}
+          {item.renderFields()}
         </div>
         <div className='ticl-block-foot'/>
       </div>

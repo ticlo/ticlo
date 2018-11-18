@@ -9,7 +9,8 @@
   border-radius: 0 12px 0;
   border: 1px solid @ticl-color-prn;
   position: absolute;
-  transition: all .2s;
+  transition-property: border;
+  transition-duration: .2s;
 }
 
 .ticl-block-selected {
@@ -64,8 +65,15 @@
 
 .ticl-block-foot {
   position: relative;
-  height: 23px;
+  height: 20px;
   padding: 2px 12px;
+}
+
+.ticl-block-wire {
+  position: absolute;
+  fill: none;
+  stroke: #a0a0a0;
+  stroke-width: 1.5px;
 }
 
 .ticl-inbound {
