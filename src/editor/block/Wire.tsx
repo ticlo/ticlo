@@ -40,25 +40,17 @@ const wirePadding = 2;
 export class WireView extends PureDataRenderer<WireViewProps, WireViewState> {
   render() {
     let {source, target} = this.props.item;
-    let x0 = source.x + source.w;
+    let x0 = source.x + source.w + 4;
     let y0 = source.y;
     let x1 = target.x;
     let y1 = target.y;
-    let dy = Math.abs(y1 - y0);
-    let dx = Math.abs(x1 - x0);
-    if (dx < 100 && x1 < x0) dx = 100;
+    let wireSpread = Math.abs(x1 - x0) * 0.75;
+    if (wireSpread < 50 && x1 < x0) wireSpread = 50;
 
-    let wireSpread = Math.max(dx, dy) * 0.5;
-    if (wireSpread > dy) {
-      wireSpread = dy;
-    }
-    if (wireSpread < 50) {
-      wireSpread = 50;
-    }
     let minx = Math.min(x0, x1 - wireSpread) - wirePadding;
     let maxx = Math.max(x0 + wireSpread, x1) + wirePadding;
-    let miny = Math.min(y0, y1) - wireSpread;
-    let maxy = Math.max(y0, y1) + wireSpread;
+    let miny = Math.min(y0, y1) - wirePadding;
+    let maxy = Math.max(y0, y1) + wirePadding;
     x0 -= minx;
     x1 -= minx;
     y0 -= miny;

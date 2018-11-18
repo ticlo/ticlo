@@ -12,6 +12,7 @@ import {WireItem} from "./Wire";
 import {resolve} from "../../common/util/Path";
 
 const fieldHeight = 24;
+const minBlockHeight = 25;
 const fieldCenter = 12.5;
 
 export interface Stage {
@@ -136,7 +137,6 @@ export class BlockItem extends DataRendererItem {
   fields: string[] = [];
   fieldItems: Map<string, FieldItem> = new Map<string, FieldItem>();
   selected: boolean = false;
-  minimal: boolean = false;
 
   constructor(connection: ClientConnection, stage: Stage, key: string) {
     super();
@@ -192,8 +192,8 @@ export class BlockItem extends DataRendererItem {
   updateFieldPosition() {
     let {x, y, w} = this;
     y += fieldCenter;
-    if (this.minimal) {
-      w = fieldHeight;
+    if (!w) {
+      w = fieldHeight - 4;
       for (let field of this.fields) {
         this.fieldItems.get(field).setXYW(x, y, w);
       }
@@ -317,21 +317,35 @@ export class BlockView extends PureDataRenderer<BlockViewProps, BlockViewState> 
 
   render() {
     let {item} = this.props;
-    return (
-      <div
-        className={`ticl-block ${this.getFuncStyle()}${item.selected ? ' ticl-block-selected' : ''}`}
-        style={{top: item.y, left: item.x, width: item.w}}
-      >
-        <div className='ticl-block-head'>
-          <TIcon icon={item.desc.icon}/>
-          {item.name}
+    if (item.w) {
+      return (
+        <div
+          className={`ticl-block ${this.getFuncStyle()}${item.selected ? ' ticl-block-selected' : ''}`}
+          style={{top: item.y, left: item.x, width: item.w}}
+        >
+          <div className='ticl-block-head'>
+            <TIcon icon={item.desc.icon}/>
+            {item.name}
+          </div>
+          <div className='ticl-block-body'>
+            {item.renderFields()}
+          </div>
+          <div className='ticl-block-foot'/>
         </div>
-        <div className='ticl-block-body'>
-          {item.renderFields()}
+      );
+    } else {
+      return (
+        <div
+          className={`ticl-block ticl-block-min ${this.getFuncStyle()}${item.selected ? ' ticl-block-selected' : ''}`}
+          style={{top: item.y, left: item.x, width: minBlockHeight}}
+        >
+          <div className='ticl-block-head'>
+            <TIcon icon={item.desc.icon}/>
+          </div>
         </div>
-        <div className='ticl-block-foot'/>
-      </div>
-    );
+      );
+
+    }
   }
 
   componentWillUnmount() {

@@ -8,9 +8,16 @@ export const sampleData = {
   },
   subtract: {
     '#is': 'subtract',
-    '~0': '##.add.output',
-    '1': 2,
-    '@b-xyw': [300, 200, 150],
+    '~0': '##.add.1',
+    '~1': '##.add.output',
+    '@b-xyw': [300, 200],
+    '@b-p': ['0', '1', 'output']
+  },
+  multiply: {
+    '#is': 'multiply',
+    '~0': '##.add.1',
+    '~1': '##.subtract.output',
+    '@b-xyw': [400, 100, 150],
     '@b-p': ['0', '1', 'output']
   }
 };
