@@ -24,6 +24,8 @@ export interface Stage {
   unregisterField(key: string, item: FieldItem): void;
 
   forceUpdate(): void;
+
+  selectBlock(key: string, ctrl?: boolean, drag?: boolean): boolean;
 }
 
 export class FieldItem extends DataRendererItem {
@@ -151,6 +153,13 @@ export class BlockItem extends DataRendererItem {
       this.desc = desc;
       this.forceUpdate();
       this.forceUpdateFields();
+    }
+  }
+
+  setSelected(val: boolean) {
+    if (val !== this.selected) {
+      this.selected = val;
+      this.forceUpdate();
     }
   }
 
@@ -301,11 +310,22 @@ export class BlockView extends PureDataRenderer<BlockViewProps, BlockViewState> 
     }
   };
   onHeaderClick = (e: React.MouseEvent<HTMLDivElement>) => {
-
+    let {item} = this.props;
+    if (e.ctrlKey) {
+      item.stage.selectBlock(item.key, true);
+    } else {
+      item.stage.selectBlock(item.key);
+    }
   };
   onHeaderDragStart = (e: React.DragEvent<HTMLDivElement>) => {
     e.preventDefault();
-    //TODO custom drag
+    let {item} = this.props;
+    if (item.stage.selectBlock(item.key, false, true)) {
+      // TODO custom drag
+      // drag starts if block is selected
+      // when there is no block selected, the current block is automatically selected
+    }
+
   };
 
   constructor(props: BlockViewProps) {
@@ -354,7 +374,8 @@ export class BlockView extends PureDataRenderer<BlockViewProps, BlockViewState> 
           style={{top: item.y, left: item.x}}
         >
           <div className='ticl-block-min-bound'/>
-          <div className='ticl-block-head ticl-block-prbg'>
+          <div className='ticl-block-head ticl-block-prbg' onClick={this.onHeaderClick}
+               onDragStart={this.onHeaderDragStart} draggable={true}>
             <TIcon icon={item.desc.icon}/>
           </div>
         </div>

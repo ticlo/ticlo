@@ -22,6 +22,38 @@ export default class BlockStage extends React.Component<Props, State> implements
   _fields: Map<string, FieldItem> = new Map<string, FieldItem>();
   _fieldLinks: Map<string, Set<FieldItem>> = new Map<string, Set<FieldItem>>();
 
+  selectBlock(key: string, ctrl: boolean = false, drag: boolean = false): boolean {
+    if (this._blocks.has(key)) {
+      let block = this._blocks.get(key);
+      if (drag) {
+        if (!block.selected) {
+          let hasSelect = false;
+          for (let [blockKey, blockItem] of this._blocks) {
+            if (blockItem.selected) {
+              hasSelect = true;
+              break;
+            }
+          }
+          if (!hasSelect) {
+            block.setSelected(true);
+          }
+        }
+      } else if (ctrl) {
+        block.setSelected(!block.selected);
+      } else {
+        for (let [blockKey, blockItem] of this._blocks) {
+          if (key === blockKey) {
+            blockItem.setSelected(true);
+          } else {
+            blockItem.setSelected(false);
+          }
+        }
+      }
+      return block.selected;
+    }
+    return false;
+  }
+
   linkField(souceKey: string, targetField: FieldItem) {
     if (!this._fieldLinks.has(souceKey)) {
       this._fieldLinks.set(souceKey, new Set<FieldItem>());
@@ -72,7 +104,7 @@ export default class BlockStage extends React.Component<Props, State> implements
           }
         } else {
           if (!this._blocks.has(name)) {
-            this._blocks.set(name, new BlockItem(this.props.conn, this, `${this.props.basePath}.${name}`));
+            this._blocks.set(`${this.props.basePath}.${name}`, new BlockItem(this.props.conn, this, `${this.props.basePath}.${name}`));
             this.forceUpdate();
           }
         }
