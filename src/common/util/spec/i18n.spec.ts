@@ -1,5 +1,5 @@
 import {assert} from "chai";
-import i18n from "../i18n";
+import * as i18n from "../i18n";
 import i18next from "i18next";
 
 describe("i18n", function () {
