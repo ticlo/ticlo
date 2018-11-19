@@ -1,4 +1,4 @@
-import * as React from "react";
+import React from "react";
 import {ExpandState} from "../../ui/component/Tree";
 import VirtualList from "../../ui/component/Virtual";
 import {ClientConnection} from "../../common/connect/ClientConnection";

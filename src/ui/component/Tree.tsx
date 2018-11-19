@@ -1,4 +1,4 @@
-import * as React from 'react';
+import React from 'react';
 import {DataRendererItem, PureDataRenderer} from "./DataRenderer";
 
 export type ExpandState = 'opened' | 'closed' | 'loading' | 'empty' | 'disabled';

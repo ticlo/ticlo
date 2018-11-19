@@ -1,4 +1,4 @@
-import * as React from "react";
+import React from "react";
 import {ClientConnection} from "../../common/connect/ClientConnection";
 import {DataMap} from "../../common/util/Types";
 import {BlockItem, FieldItem, Stage, BlockView} from "./Block";

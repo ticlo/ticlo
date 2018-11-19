@@ -1,4 +1,4 @@
-import * as ReactDOM from "react-dom";
+import ReactDOM from "react-dom";
 
 function loadOneCss(url: string) {
   let head = document.querySelector('head');

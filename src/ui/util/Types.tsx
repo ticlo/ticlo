@@ -1,5 +1,5 @@
 import {TRUNCATED} from "../../common/util/Types";
-import * as React from "react";
+import React from "react";
 
 export function toDisplay(val: any): React.ReactNode | React.ReactNode[] {
   switch (typeof val) {

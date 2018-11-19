@@ -1,4 +1,4 @@
-import * as React from "react";
+import React from "react";
 
 import {Dropdown, Button, Input, Icon, Menu, InputNumber} from "antd";
 import {ExpandIcon, ExpandState, TreeItem} from "../../ui/component/Tree";

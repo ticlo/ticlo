@@ -1,8 +1,8 @@
 import {assert} from "chai";
-import * as React from 'react';
+import React from 'react';
 import {TIcon} from "../Icon";
 import {shouldHappen} from "../../../common/util/test-util";
-import * as ReactDOM from "react-dom";
+import ReactDOM from "react-dom";
 import {loadTemplate} from "../../../ui/util/test-util";
 
 describe("editor Icon", function () {

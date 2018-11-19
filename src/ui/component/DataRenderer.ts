@@ -1,4 +1,4 @@
-import * as React from "react";
+import React from "react";
 import {DataMap} from "../../common/util/Types";
 
 export class DataRendererItem {

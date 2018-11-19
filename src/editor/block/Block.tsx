@@ -1,4 +1,4 @@
-import * as React from "react";
+import React from "react";
 import {ClientConnection} from "../../common/connect/ClientConnection";
 import {DataMap} from "../../common/util/Types";
 import {DataRendererItem, PureDataRenderer} from "../../ui/component/DataRenderer";
@@ -300,6 +300,13 @@ export class BlockView extends PureDataRenderer<BlockViewProps, BlockViewState> 
       item.setDesc(defaultFuncDesc);
     }
   };
+  onHeaderClick = (e: React.MouseEvent<HTMLDivElement>) => {
+
+  };
+  onHeaderDragStart = (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    //TODO custom drag
+  };
 
   constructor(props: BlockViewProps) {
     super(props);
@@ -329,7 +336,8 @@ export class BlockView extends PureDataRenderer<BlockViewProps, BlockViewState> 
           className={`ticl-block ${this.getFuncStyle()}${item.selected ? ' ticl-block-selected' : ''}`}
           style={{top: item.y, left: item.x, width: item.w}}
         >
-          <div className='ticl-block-head ticl-block-prbg'>
+          <div className='ticl-block-head ticl-block-prbg' onClick={this.onHeaderClick}
+               onDragStart={this.onHeaderDragStart} draggable={true}>
             <TIcon icon={item.desc.icon}/>
             {item.name}
           </div>
