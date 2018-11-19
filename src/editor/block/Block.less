@@ -77,11 +77,22 @@
 }
 
 .ticl-block-min {
-  width: 25px;
-  height: 25px;
+  width: 24px;
+  height: 24px;
   & > .ticl-block-head {
     border-radius: 0 10px 0;
   }
+  border: none;
+}
+.ticl-block-min-bound {
+  left: -5px;
+  right: -5px;
+  top: 7px;
+  height: 10px;
+  border-radius: 5px;
+  position: absolute;
+  border: 1px solid @ticl-color-prn;
+  background: #f8f8f8;
 }
 .ticl-inbound {
   position: absolute;
@@ -107,7 +118,7 @@
 
 .ticl-block-pr0 {
   border-color: @ticl-color-pr0;
-  & > .ticl-block-head {
+  & > .ticl-block-prbg {
     background: @ticl-color-pr0;
   }
   &.ticl-block-selected {
@@ -117,7 +128,7 @@
 
 .ticl-block-pr1 {
   border-color: @ticl-color-pr1;
-  & > .ticl-block-head {
+  & > .ticl-block-prbg {
     background: @ticl-color-pr1;
   }
   &.ticl-block-selected {
@@ -127,7 +138,7 @@
 
 .ticl-block-pr2 {
   border-color: @ticl-color-pr2;
-  & > .ticl-block-head {
+  & > .ticl-block-prbg {
     background: @ticl-color-pr2;
   }
   &.ticl-block-selected {
@@ -137,7 +148,7 @@
 
 .ticl-block-pr3 {
   border-color: @ticl-color-pr3;
-  & > .ticl-block-head {
+  & > .ticl-block-prbg {
     background: @ticl-color-pr3;
   }
   &.ticl-block-selected {
@@ -147,7 +158,7 @@
 
 .ticl-block-prr {
   border-color: @ticl-color-prr;
-  & > .ticl-block-head {
+  & > .ticl-block-prbg {
     background: @ticl-color-prr;
   }
   &.ticl-block-selected {

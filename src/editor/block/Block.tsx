@@ -12,8 +12,7 @@ import {WireItem} from "./Wire";
 import {resolve} from "../../common/util/Path";
 
 const fieldHeight = 24;
-const minBlockHeight = 25;
-const fieldCenter = 12.5;
+const fieldYOffset = 12;
 
 export interface Stage {
   linkField(sourceKey: string, targetField: FieldItem): void;
@@ -131,6 +130,7 @@ export class BlockItem extends DataRendererItem {
   x: number = 0;
   y: number = 0;
   w: number = 0;
+  h: number = 0;
   key: string;
   name: string;
   desc: FunctionDesc = defaultFuncDesc;
@@ -191,17 +191,23 @@ export class BlockItem extends DataRendererItem {
 
   updateFieldPosition() {
     let {x, y, w} = this;
-    y += fieldCenter;
+
     if (!w) {
-      w = fieldHeight - 4;
+      y += fieldYOffset;
+      x -= 4;
+      w = fieldHeight + 5;
       for (let field of this.fields) {
         this.fieldItems.get(field).setXYW(x, y, w);
       }
+      this.h = fieldHeight;
     } else {
+      y += 1; // top border;
+      y += fieldYOffset;
       y += fieldHeight;
       for (let field of this.fields) {
         y = this.fieldItems.get(field).setXYW(x, y, w);
       }
+      this.h = y - fieldYOffset + 20; // footer height
     }
   }
 
@@ -238,7 +244,7 @@ export class FieldView extends PureDataRenderer<FieldViewProps, FieldViewState> 
         <div className='ticl-block-field-name'>{translateProperty(desc.name, item.name, desc.ns)}</div>
         <div className='ticl-block-field-value'>{toDisplay(item.cache.value)}</div>
         <div className='ticl-inbound'/>
-        <div className='ticl-outbound'/>
+        {(item.cache.hasListener) ? <div className='ticl-outbound'/> : null}
       </div>
     );
   }
@@ -323,7 +329,7 @@ export class BlockView extends PureDataRenderer<BlockViewProps, BlockViewState> 
           className={`ticl-block ${this.getFuncStyle()}${item.selected ? ' ticl-block-selected' : ''}`}
           style={{top: item.y, left: item.x, width: item.w}}
         >
-          <div className='ticl-block-head'>
+          <div className='ticl-block-head ticl-block-prbg'>
             <TIcon icon={item.desc.icon}/>
             {item.name}
           </div>
@@ -337,9 +343,10 @@ export class BlockView extends PureDataRenderer<BlockViewProps, BlockViewState> 
       return (
         <div
           className={`ticl-block ticl-block-min ${this.getFuncStyle()}${item.selected ? ' ticl-block-selected' : ''}`}
-          style={{top: item.y, left: item.x, width: minBlockHeight}}
+          style={{top: item.y, left: item.x}}
         >
-          <div className='ticl-block-head'>
+          <div className='ticl-block-min-bound'/>
+          <div className='ticl-block-head ticl-block-prbg'>
             <TIcon icon={item.desc.icon}/>
           </div>
         </div>
