@@ -323,7 +323,7 @@ export class ClientConnection extends Connection {
 
   // important request will always be sent
   // unimportant request may be merged with other set request on same path
-  setValue(path: string, value: any, important?: boolean): Promise<any> | string {
+  setValue(path: string, value: any, important: boolean = false): Promise<any> | string {
     if (important) {
       if (this.setRequests.has(path)) {
         this.setRequests.get(path).cancel();

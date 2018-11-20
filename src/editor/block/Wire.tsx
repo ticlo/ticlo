@@ -44,8 +44,14 @@ export class WireView extends PureDataRenderer<WireViewProps, WireViewState> {
     let y0 = source.y;
     let x1 = target.x;
     let y1 = target.y;
-    let wireSpread = Math.abs(x1 - x0) * 0.75;
-    if (wireSpread < 50 && x1 < x0) wireSpread = 50;
+    let wireSpread = Math.abs(x1 - x0) * 0.5;
+    if (wireSpread < 50) {
+      if (x1 < x0) {
+        wireSpread = 50;
+      } else {
+        wireSpread = 25 + Math.abs(wireSpread - 25);
+      }
+    }
 
     let minx = Math.min(x0, x1 - wireSpread) - wirePadding;
     let maxx = Math.max(x0 + wireSpread, x1) + wirePadding;

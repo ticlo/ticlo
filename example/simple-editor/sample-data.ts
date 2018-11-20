@@ -10,7 +10,7 @@ export const sampleData = {
     '#is': 'subtract',
     '~0': '##.add.1',
     '~1': '##.add.output',
-    '@b-xyw': [300, 200],
+    '@b-xyw': [300, 200, 0],
     '@b-p': ['0', '1', 'output']
   },
   multiply: {

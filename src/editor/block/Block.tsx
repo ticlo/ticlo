@@ -25,7 +25,11 @@ export interface Stage {
 
   forceUpdate(): void;
 
-  selectBlock(key: string, ctrl?: boolean, drag?: boolean): boolean;
+  selectBlock(key: string, ctrl?: boolean): void;
+
+  dragBlock(key: string, event: React.DragEvent): boolean;
+
+  isDragging(): boolean;
 }
 
 export class FieldItem extends DataRendererItem {
@@ -288,6 +292,10 @@ export class BlockView extends PureDataRenderer<BlockViewProps, BlockViewState> 
     onUpdate: (response: DataMap) => {
       let {value} = response.cache;
       let {item} = this.props;
+      if (item.selected && item.stage.isDragging()) {
+        // ignore xyw change from server during dragging
+        return;
+      }
       if (Array.isArray(value)) {
         item.setXYW(...value as [number, number, number]);
       }
@@ -320,12 +328,7 @@ export class BlockView extends PureDataRenderer<BlockViewProps, BlockViewState> 
   onHeaderDragStart = (e: React.DragEvent<HTMLDivElement>) => {
     e.preventDefault();
     let {item} = this.props;
-    if (item.stage.selectBlock(item.key, false, true)) {
-      // TODO custom drag
-      // drag starts if block is selected
-      // when there is no block selected, the current block is automatically selected
-    }
-
+    item.stage.dragBlock(item.key, e);
   };
 
   constructor(props: BlockViewProps) {

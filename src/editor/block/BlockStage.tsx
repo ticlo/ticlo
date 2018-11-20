@@ -16,31 +16,25 @@ interface State {
 
 export default class BlockStage extends React.Component<Props, State> implements Stage {
 
+  private _rootNode!: HTMLElement;
+  private getRef = (node: HTMLDivElement): void => {
+    this._rootNode = node;
+  };
 
   _blocks: Map<string, BlockItem> = new Map<string, BlockItem>();
   _wires: Map<string, WireItem> = new Map<string, WireItem>();
   _fields: Map<string, FieldItem> = new Map<string, FieldItem>();
   _fieldLinks: Map<string, Set<FieldItem>> = new Map<string, Set<FieldItem>>();
 
-  selectBlock(key: string, ctrl: boolean = false, drag: boolean = false): boolean {
+  selectBlock(key: string, ctrl: boolean = false) {
     if (this._blocks.has(key)) {
       let block = this._blocks.get(key);
-      if (drag) {
-        if (!block.selected) {
-          let hasSelect = false;
-          for (let [blockKey, blockItem] of this._blocks) {
-            if (blockItem.selected) {
-              hasSelect = true;
-              break;
-            }
-          }
-          if (!hasSelect) {
-            block.setSelected(true);
-          }
-        }
-      } else if (ctrl) {
+      if (ctrl) {
         block.setSelected(!block.selected);
       } else {
+        if (block.selected) {
+          return;
+        }
         for (let [blockKey, blockItem] of this._blocks) {
           if (key === blockKey) {
             blockItem.setSelected(true);
@@ -49,10 +43,57 @@ export default class BlockStage extends React.Component<Props, State> implements
           }
         }
       }
-      return block.selected;
+    }
+  }
+
+  _initDragPosition: [number, number];
+  _draggingBlocks?: [BlockItem, number, number][];
+
+  isDragging(): boolean {
+    return Boolean(this._draggingBlocks);
+  }
+
+  // drag a block, return true when the dragging is started
+  dragBlock(key: string, event: React.DragEvent): boolean {
+    if (this._draggingBlocks) {
+      this.onDragMouseUp(null);
+    }
+    this.selectBlock(key);
+    if (this._blocks.has(key)) {
+      this.selectBlock(key);
+      let block = this._blocks.get(key);
+      // cache the position of all dragging blocks
+      if (block.selected) {
+        this._initDragPosition = [event.clientX, event.clientY];
+
+        this._draggingBlocks = [];
+        for (let [blockKey, blockItem] of this._blocks) {
+          if (blockItem.selected) {
+            this._draggingBlocks.push([blockItem, blockItem.x, blockItem.y]);
+          }
+        }
+        this._rootNode.addEventListener('mousemove', this.onDragMouseMove);
+        document.body.addEventListener('mouseup', this.onDragMouseUp);
+        return true;
+      }
     }
     return false;
   }
+
+  onDragMouseMove = (e: MouseEvent) => {
+    console.log([e.clientY, this._initDragPosition[1]]);
+    let dx = e.clientX - this._initDragPosition[0];
+    let dy = e.clientY - this._initDragPosition[1];
+    for (let [block, x, y] of this._draggingBlocks) {
+      block.setXYW(x + dx, y + dy, block.w);
+      block.conn.setValue('@b-xyw', [block.x, block.y, block.w]);
+    }
+  };
+  onDragMouseUp = (e: MouseEvent) => {
+    this._draggingBlocks = null;
+    this._rootNode.removeEventListener('mousemove', this.onDragMouseMove);
+    document.body.removeEventListener('mouseup', this.onDragMouseUp);
+  };
 
   linkField(souceKey: string, targetField: FieldItem) {
     if (!this._fieldLinks.has(souceKey)) {
@@ -143,7 +184,7 @@ export default class BlockStage extends React.Component<Props, State> implements
     }
 
     return (
-      <div style={style} className="ticl-block-stage">
+      <div ref={this.getRef} style={style} className="ticl-block-stage">
         {children}
       </div>
     );
