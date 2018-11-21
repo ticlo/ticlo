@@ -37,6 +37,15 @@ interface WireViewState {
 
 const wirePadding = 2;
 
+// fix number format in svg
+function f(n: number): string {
+  if (Math.floor(n) === n) {
+    return n.toFixed(0);
+  } else {
+    return n.toFixed(2);
+  }
+}
+
 export class WireView extends PureDataRenderer<WireViewProps, WireViewState> {
   render() {
     let {source, target} = this.props.item;
@@ -54,16 +63,25 @@ export class WireView extends PureDataRenderer<WireViewProps, WireViewState> {
     let maxy = Math.max(y0, y1) + wirePadding;
 
     let xgap = 30;
-    let dy = Math.abs(y1 - y0)/2;
+    let dy = Math.abs(y1 - y0) / 2;
     if (xgap > dy) {
       xgap = dy;
     }
     if (x1 > x0 + xgap) {
       mx0 = x0 * 0.6 + x1 * 0.4;
       mx1 = x0 * 0.4 + x1 * 0.6;
+    } else if (x1 > x0) {
+      // make a smooth transition between the 2 algorithms;
+      let r = (x1 - x0) / xgap;
+      let offx = xgap + (x0 - x1) * 0.0625;
+      mx0 = (x0 * 0.6 + x1 * 0.4) * r + (x0 + offx) * (1 - r);
+      mx1 = (x0 * 0.4 + x1 * 0.6) * r + (x1 - offx) * (1 - r);
+      minx -= 15;
+      maxx += 15;
     } else {
-      mx0 = x0 + xgap + (x0 - x1) * 0.0625;
-      mx1 = x1 - xgap - (x0 - x1) * 0.0625;
+      let offx = xgap + (x0 - x1) * 0.0625;
+      mx0 = x0 + offx;
+      mx1 = x1 - offx;
       minx -= 15;
       maxx += 15;
     }
@@ -80,7 +98,7 @@ export class WireView extends PureDataRenderer<WireViewProps, WireViewState> {
       <svg width={maxx - minx} height={maxy - miny} className="ticl-block-wire" xmlns="http://www.w3.org/2000/svg"
            style={{left: minx, top: miny}}>
         <path
-          d={`M ${x0} ${y0} Q ${mx0} ${y0} ${midx} ${(y0 + y1) * 0.5} ${mx1} ${y1} ${x1} ${y1}`}/>
+          d={`M ${f(x0)} ${f(y0)} Q ${f(mx0)} ${f(y0)} ${f(midx)} ${f((y0 + y1) * 0.5)} ${f(mx1)} ${f(y1)} ${f(x1)} ${f(y1)}`}/>
       </svg>
     );
   }
