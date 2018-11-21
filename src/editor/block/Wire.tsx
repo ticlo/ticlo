@@ -44,28 +44,43 @@ export class WireView extends PureDataRenderer<WireViewProps, WireViewState> {
     let y0 = source.y;
     let x1 = target.x;
     let y1 = target.y;
-    let wireSpread = Math.abs(x1 - x0) * 0.5;
-    if (wireSpread < 50) {
-      if (x1 < x0) {
-        wireSpread = 50;
-      } else {
-        wireSpread = 25 + Math.abs(wireSpread - 25);
-      }
-    }
+    let midx = (x0 + x1) * 0.5;
+    let mx0: number;
+    let mx1: number;
 
-    let minx = Math.min(x0, x1 - wireSpread) - wirePadding;
-    let maxx = Math.max(x0 + wireSpread, x1) + wirePadding;
+    let minx = Math.min(x0, x1) - wirePadding;
+    let maxx = Math.max(x0, x1) + wirePadding;
     let miny = Math.min(y0, y1) - wirePadding;
     let maxy = Math.max(y0, y1) + wirePadding;
+
+    let xgap = 30;
+    let dy = Math.abs(y1 - y0)/2;
+    if (xgap > dy) {
+      xgap = dy;
+    }
+    if (x1 > x0 + xgap) {
+      mx0 = x0 * 0.6 + x1 * 0.4;
+      mx1 = x0 * 0.4 + x1 * 0.6;
+    } else {
+      mx0 = x0 + xgap + (x0 - x1) * 0.0625;
+      mx1 = x1 - xgap - (x0 - x1) * 0.0625;
+      minx -= 15;
+      maxx += 15;
+    }
+
     x0 -= minx;
     x1 -= minx;
+    midx -= minx;
+    mx0 -= minx;
+    mx1 -= minx;
     y0 -= miny;
     y1 -= miny;
 
     return (
       <svg width={maxx - minx} height={maxy - miny} className="ticl-block-wire" xmlns="http://www.w3.org/2000/svg"
            style={{left: minx, top: miny}}>
-        <path d={`M ${x0} ${y0} C ${x0 + wireSpread} ${y0} ${x1 - wireSpread} ${y1} ${x1} ${y1}`}/>
+        <path
+          d={`M ${x0} ${y0} Q ${mx0} ${y0} ${midx} ${(y0 + y1) * 0.5} ${mx1} ${y1} ${x1} ${y1}`}/>
       </svg>
     );
   }
