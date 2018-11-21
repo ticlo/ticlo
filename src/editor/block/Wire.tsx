@@ -62,7 +62,7 @@ export class WireView extends PureDataRenderer<WireViewProps, WireViewState> {
     let miny = Math.min(y0, y1) - wirePadding;
     let maxy = Math.max(y0, y1) + wirePadding;
 
-    let xgap = 30;
+    let xgap = 50;
     let dy = Math.abs(y1 - y0) / 2;
     if (xgap > dy) {
       xgap = dy;
@@ -76,14 +76,14 @@ export class WireView extends PureDataRenderer<WireViewProps, WireViewState> {
       let offx = xgap + (x0 - x1) * 0.0625;
       mx0 = (x0 * 0.6 + x1 * 0.4) * r + (x0 + offx) * (1 - r);
       mx1 = (x0 * 0.4 + x1 * 0.6) * r + (x1 - offx) * (1 - r);
-      minx -= 15;
-      maxx += 15;
+      minx -= 25;
+      maxx += 25;
     } else {
       let offx = xgap + (x0 - x1) * 0.0625;
       mx0 = x0 + offx;
       mx1 = x1 - offx;
-      minx -= 15;
-      maxx += 15;
+      minx -= 25;
+      maxx += 25;
     }
 
     x0 -= minx;
