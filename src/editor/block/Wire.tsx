@@ -67,12 +67,12 @@ export class WireView extends PureDataRenderer<WireViewProps, WireViewState> {
     if (xgap > dy) {
       xgap = dy;
     }
-    if (x1 > x0 + xgap) {
+    if (x1 > x0 + xgap * 2) {
       mx0 = x0 * 0.6 + x1 * 0.4;
       mx1 = x0 * 0.4 + x1 * 0.6;
     } else if (x1 > x0) {
       // make a smooth transition between the 2 algorithms;
-      let r = (x1 - x0) / xgap;
+      let r = (x1 - x0) * 0.5 / xgap;
       let offx = xgap + (x0 - x1) * 0.0625;
       mx0 = (x0 * 0.6 + x1 * 0.4) * r + (x0 + offx) * (1 - r);
       mx1 = (x0 * 0.4 + x1 * 0.6) * r + (x1 - offx) * (1 - r);

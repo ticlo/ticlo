@@ -3,6 +3,7 @@ import {ClientConnection} from "../../common/connect/ClientConnection";
 import {DataMap} from "../../common/util/Types";
 import {BlockItem, FieldItem, Stage, BlockView} from "./Block";
 import {WireItem, WireView} from "./Wire";
+import {getOffsetXY} from "../../ui/util/Position";
 
 interface Props {
   conn: ClientConnection;
@@ -58,13 +59,14 @@ export default class BlockStage extends React.Component<Props, State> implements
     if (this._draggingBlocks) {
       this.onDragMouseUp(null);
     }
+    let e = event.nativeEvent;
     this.selectBlock(key);
     if (this._blocks.has(key)) {
       this.selectBlock(key);
       let block = this._blocks.get(key);
       // cache the position of all dragging blocks
       if (block.selected) {
-        this._initDragPosition = [event.clientX, event.clientY];
+        this._initDragPosition = getOffsetXY(e.target as HTMLElement, this._rootNode, e.offsetX, e.offsetY);
 
         this._draggingBlocks = [];
         for (let [blockKey, blockItem] of this._blocks) {
@@ -81,9 +83,9 @@ export default class BlockStage extends React.Component<Props, State> implements
   }
 
   onDragMouseMove = (e: MouseEvent) => {
-    console.log([e.clientY, this._initDragPosition[1]]);
-    let dx = e.clientX - this._initDragPosition[0];
-    let dy = e.clientY - this._initDragPosition[1];
+    let [x, y] = getOffsetXY(e.target as HTMLElement, this._rootNode, e.offsetX, e.offsetY);
+    let dx = x - this._initDragPosition[0];
+    let dy = y - this._initDragPosition[1];
     for (let [block, x, y] of this._draggingBlocks) {
       block.setXYW(x + dx, y + dy, block.w);
       block.conn.setValue('@b-xyw', [block.x, block.y, block.w]);
