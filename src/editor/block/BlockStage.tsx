@@ -3,7 +3,6 @@ import {ClientConnection} from "../../common/connect/ClientConnection";
 import {DataMap} from "../../common/util/Types";
 import {BlockItem, FieldItem, Stage, BlockView} from "./Block";
 import {WireItem, WireView} from "./Wire";
-import {getOffsetXY} from "../../ui/util/Position";
 
 interface Props {
   conn: ClientConnection;
@@ -47,7 +46,7 @@ export default class BlockStage extends React.Component<Props, State> implements
     }
   }
 
-  _initDragPosition: [number, number];
+  _initDragPosition: [number, number, number, number];
   _draggingBlocks?: [BlockItem, number, number][];
 
   isDragging(): boolean {
@@ -66,7 +65,10 @@ export default class BlockStage extends React.Component<Props, State> implements
       let block = this._blocks.get(key);
       // cache the position of all dragging blocks
       if (block.selected) {
-        this._initDragPosition = getOffsetXY(e.target as HTMLElement, this._rootNode, e.offsetX, e.offsetY);
+        let rect = this._rootNode.getBoundingClientRect();
+        let scalex = this._rootNode.offsetWidth / rect.width;
+        let scaley = this._rootNode.offsetHeight / rect.height;
+        this._initDragPosition = [e.pageX, e.pageY, scalex, scaley];
 
         this._draggingBlocks = [];
         for (let [blockKey, blockItem] of this._blocks) {
@@ -83,9 +85,9 @@ export default class BlockStage extends React.Component<Props, State> implements
   }
 
   onDragMouseMove = (e: MouseEvent) => {
-    let [x, y] = getOffsetXY(e.target as HTMLElement, this._rootNode, e.offsetX, e.offsetY);
-    let dx = x - this._initDragPosition[0];
-    let dy = y - this._initDragPosition[1];
+    let [basex, basey, scalex, scaley] = this._initDragPosition;
+    let dx = (e.x - basex) * scalex;
+    let dy = (e.y - basey) * scaley;
     for (let [block, x, y] of this._draggingBlocks) {
       block.setXYW(x + dx, y + dy, block.w);
       block.conn.setValue('@b-xyw', [block.x, block.y, block.w]);
