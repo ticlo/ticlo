@@ -86,8 +86,8 @@ export default class BlockStage extends React.Component<Props, State> implements
 
   onDragMouseMove = (e: MouseEvent) => {
     let [basex, basey, scalex, scaley] = this._initDragPosition;
-    let dx = (e.x - basex) * scalex;
-    let dy = (e.y - basey) * scaley;
+    let dx = (e.pageX - basex) * scalex;
+    let dy = (e.pageY - basey) * scaley;
     for (let [block, x, y] of this._draggingBlocks) {
       block.setXYW(x + dx, y + dy, block.w);
       block.conn.setValue('@b-xyw', [block.x, block.y, block.w]);
