@@ -1,6 +1,7 @@
 import {TRUNCATED} from "../../common/util/Types";
 import React from "react";
 
+// display value in screen, avoid huge data in dmo to improve performance
 export function toDisplay(val: any): React.ReactNode | React.ReactNode[] {
   switch (typeof val) {
     case 'object':
@@ -32,5 +33,14 @@ export function toDisplay(val: any): React.ReactNode | React.ReactNode[] {
       return '';
     default:
       return `${val}`;
+  }
+}
+
+// fix number format in svg and css
+export function cssNumber(n: number): string {
+  if (Math.floor(n) === n) {
+    return n.toFixed(0);
+  } else {
+    return n.toFixed(2);
   }
 }

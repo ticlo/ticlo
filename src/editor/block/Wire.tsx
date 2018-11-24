@@ -1,6 +1,7 @@
 import React from "react";
 import {DataRendererItem, PureDataRenderer} from "../../ui/component/DataRenderer";
 import {FieldItem} from "./Block";
+import {cssNumber} from "../../ui/util/Types";
 
 export class WireItem extends DataRendererItem {
   source: FieldItem;
@@ -34,17 +35,7 @@ interface WireViewProps {
 interface WireViewState {
 }
 
-
 const wirePadding = 2;
-
-// fix number format in svg
-function f(n: number): string {
-  if (Math.floor(n) === n) {
-    return n.toFixed(0);
-  } else {
-    return n.toFixed(2);
-  }
-}
 
 export class WireView extends PureDataRenderer<WireViewProps, WireViewState> {
   render() {
@@ -98,7 +89,7 @@ export class WireView extends PureDataRenderer<WireViewProps, WireViewState> {
       <svg width={maxx - minx} height={maxy - miny} className="ticl-block-wire" xmlns="http://www.w3.org/2000/svg"
            style={{left: minx, top: miny}}>
         <path
-          d={`M ${f(x0)} ${f(y0)} Q ${f(mx0)} ${f(y0)} ${f(midx)} ${f((y0 + y1) * 0.5)} ${f(mx1)} ${f(y1)} ${f(x1)} ${f(y1)}`}/>
+          d={`M ${cssNumber(x0)} ${cssNumber(y0)} Q ${cssNumber(mx0)} ${cssNumber(y0)} ${cssNumber(midx)} ${cssNumber((y0 + y1) * 0.5)} ${cssNumber(mx1)} ${cssNumber(y1)} ${cssNumber(x1)} ${cssNumber(y1)}`}/>
       </svg>
     );
   }

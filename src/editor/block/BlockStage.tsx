@@ -3,6 +3,8 @@ import {ClientConnection} from "../../common/connect/ClientConnection";
 import {DataMap} from "../../common/util/Types";
 import {BlockItem, FieldItem, Stage, BlockView} from "./Block";
 import {WireItem, WireView} from "./Wire";
+import {getCurrentDragOffset, getInitDragState} from "../../ui/util/DragHelper";
+import {cssNumber} from "../../ui/util/Types";
 
 interface Props {
   conn: ClientConnection;
@@ -19,6 +21,11 @@ export default class BlockStage extends React.Component<Props, State> implements
   private _rootNode!: HTMLElement;
   private getRef = (node: HTMLDivElement): void => {
     this._rootNode = node;
+  };
+
+  private _selectRectNode!: HTMLElement;
+  private getSelectRectRef = (node: HTMLDivElement): void => {
+    this._selectRectNode = node;
   };
 
   _blocks: Map<string, BlockItem> = new Map<string, BlockItem>();
@@ -46,18 +53,17 @@ export default class BlockStage extends React.Component<Props, State> implements
     }
   }
 
-  _initDragPosition: [number, number, number, number];
+  _initDragState: [number, number, number, number];
   _draggingBlocks?: [BlockItem, number, number][];
+  _dragingSelect?: [number, number];
 
-  isDragging(): boolean {
+  isDraggingBlock(): boolean {
     return Boolean(this._draggingBlocks);
   }
 
   // drag a block, return true when the dragging is started
   dragBlock(key: string, event: React.DragEvent): boolean {
-    if (this._draggingBlocks) {
-      this.onDragMouseUp(null);
-    }
+    this.endDrag();
     let e = event.nativeEvent;
     this.selectBlock(key);
     if (this._blocks.has(key)) {
@@ -65,10 +71,7 @@ export default class BlockStage extends React.Component<Props, State> implements
       let block = this._blocks.get(key);
       // cache the position of all dragging blocks
       if (block.selected) {
-        let rect = this._rootNode.getBoundingClientRect();
-        let scalex = this._rootNode.offsetWidth / rect.width;
-        let scaley = this._rootNode.offsetHeight / rect.height;
-        this._initDragPosition = [e.pageX, e.pageY, scalex, scaley];
+        this._initDragState = getInitDragState(e, this._rootNode);
 
         this._draggingBlocks = [];
         for (let [blockKey, blockItem] of this._blocks) {
@@ -76,28 +79,89 @@ export default class BlockStage extends React.Component<Props, State> implements
             this._draggingBlocks.push([blockItem, blockItem.x, blockItem.y]);
           }
         }
-        this._rootNode.addEventListener('mousemove', this.onDragMouseMove);
-        document.body.addEventListener('mouseup', this.onDragMouseUp);
+        this._rootNode.addEventListener('mousemove', this.onDragBlockMove);
+        document.body.addEventListener('mouseup', this.onDragBlockEnd);
         return true;
       }
     }
     return false;
   }
 
-  onDragMouseMove = (e: MouseEvent) => {
-    let [basex, basey, scalex, scaley] = this._initDragPosition;
-    let dx = (e.pageX - basex) * scalex;
-    let dy = (e.pageY - basey) * scaley;
+  onDragBlockMove = (e: MouseEvent) => {
+    let [dx, dy] = getCurrentDragOffset(e, this._initDragState);
     for (let [block, x, y] of this._draggingBlocks) {
       block.setXYW(x + dx, y + dy, block.w);
       block.conn.setValue('@b-xyw', [block.x, block.y, block.w]);
     }
   };
-  onDragMouseUp = (e: MouseEvent) => {
+  onDragBlockEnd = (e?: MouseEvent) => {
     this._draggingBlocks = null;
-    this._rootNode.removeEventListener('mousemove', this.onDragMouseMove);
-    document.body.removeEventListener('mouseup', this.onDragMouseUp);
+    this._rootNode.removeEventListener('mousemove', this.onDragBlockMove);
+    document.body.removeEventListener('mouseup', this.onDragBlockEnd);
   };
+
+  onSelectRectDragStart = (event: React.MouseEvent) => {
+    if (event.target !== this._rootNode) {
+      // only allows background dragging
+      return;
+    }
+    event.preventDefault();
+    this.endDrag();
+    let e = event.nativeEvent;
+    this._initDragState = getInitDragState(e, this._rootNode);
+    this._dragingSelect = [e.offsetX, e.offsetY];
+    this._rootNode.addEventListener('mousemove', this.onDragSelectMove);
+    document.body.addEventListener('mouseup', this.onDragSelectDone);
+    this._selectRectNode.style.display = 'block';
+  };
+
+  onDragSelectMove = (e: MouseEvent) => {
+    let [dx, dy] = getCurrentDragOffset(e, this._initDragState);
+    let [x1, y1] = this._dragingSelect;
+    let x2 = dx + x1;
+    let y2 = dy + y1;
+    this._selectRectNode.style.left = `${cssNumber(Math.min(x1, x2))}px`;
+    this._selectRectNode.style.width = `${cssNumber(Math.abs(x1 - x2))}px`;
+    this._selectRectNode.style.top = `${cssNumber(Math.min(y1, y2))}px`;
+    this._selectRectNode.style.height = `${cssNumber(Math.abs(y1 - y2))}px`;
+  };
+  onDragSelectDone = (e: MouseEvent) => {
+    let [dx, dy] = getCurrentDragOffset(e, this._initDragState);
+    let [x1, y1] = this._dragingSelect;
+    let x2 = dx + x1;
+    let y2 = dy + y1;
+    let left = Math.min(x1, x2);
+    let right = Math.max(x1, x2);
+    let top = Math.min(y1, y2);
+    let bottom = Math.max(y1, y2);
+    for (let [blockKey, blockItem] of this._blocks) {
+      if (blockItem.x >= left && blockItem.w + blockItem.x <= right
+        && blockItem.y >= top && blockItem.h + blockItem.y <= bottom) {
+        blockItem.setSelected(true);
+      } else if (blockItem.selected && !e.shiftKey) {
+        blockItem.setSelected(false);
+      }
+    }
+    this.onDragSelectEnd();
+  };
+
+  onDragSelectEnd() {
+    this._selectRectNode.style.display = null;
+    this._selectRectNode.style.width = '0';
+    this._dragingSelect = null;
+    this._rootNode.removeEventListener('mousemove', this.onDragSelectMove);
+    document.body.removeEventListener('mouseup', this.onDragSelectDone);
+  }
+
+
+  endDrag() {
+    if (this._draggingBlocks) {
+      this.onDragBlockEnd();
+    }
+    if (this._dragingSelect) {
+      this.onDragSelectEnd();
+    }
+  }
 
   linkField(souceKey: string, targetField: FieldItem) {
     if (!this._fieldLinks.has(souceKey)) {
@@ -188,13 +252,16 @@ export default class BlockStage extends React.Component<Props, State> implements
     }
 
     return (
-      <div ref={this.getRef} style={style} className="ticl-block-stage">
+      <div ref={this.getRef} style={style} className="ticl-block-stage"
+           onMouseDown={this.onSelectRectDragStart} draggable={true}>
         {children}
+        <div ref={this.getSelectRectRef} className="ticl-block-select-rect"/>
       </div>
     );
   }
 
   componentWillUnmount() {
     this.props.conn.unwatch(this.props.basePath, this.watchListener);
+    this.endDrag();
   }
 }

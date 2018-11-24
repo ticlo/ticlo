@@ -29,7 +29,7 @@ export interface Stage {
 
   dragBlock(key: string, event: React.DragEvent): boolean;
 
-  isDragging(): boolean;
+  isDraggingBlock(): boolean;
 }
 
 export class FieldItem extends DataRendererItem {
@@ -206,21 +206,21 @@ export class BlockItem extends DataRendererItem {
     let {x, y, w} = this;
 
     if (!w) {
-      y += fieldYOffset;
+      let y1 = y + fieldYOffset;
       x -= 4;
       w = fieldHeight + 5;
       for (let field of this.fields) {
-        this.fieldItems.get(field).setXYW(x, y, w);
+        this.fieldItems.get(field).setXYW(x, y1, w);
       }
       this.h = fieldHeight;
     } else {
-      y += 1; // top border;
-      y += fieldYOffset;
-      y += fieldHeight;
+      let y1 = y + 1; // top border;
+      y1 += fieldYOffset;
+      y1 += fieldHeight;
       for (let field of this.fields) {
-        y = this.fieldItems.get(field).setXYW(x, y, w);
+        y1 = this.fieldItems.get(field).setXYW(x, y1, w);
       }
-      this.h = y - fieldYOffset + 20; // footer height
+      this.h = y1 - fieldYOffset + 20 - y; // footer height
     }
   }
 
@@ -292,7 +292,7 @@ export class BlockView extends PureDataRenderer<BlockViewProps, BlockViewState> 
     onUpdate: (response: DataMap) => {
       let {value} = response.cache;
       let {item} = this.props;
-      if (item.selected && item.stage.isDragging()) {
+      if (item.selected && item.stage.isDraggingBlock()) {
         // ignore xyw change from server during dragging
         return;
       }
