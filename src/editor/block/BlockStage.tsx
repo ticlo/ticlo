@@ -62,29 +62,20 @@ export default class BlockStage extends React.Component<Props, State> implements
   }
 
   // drag a block, return true when the dragging is started
-  dragBlock(key: string, event: React.DragEvent): boolean {
+  dragStart(event: React.MouseEvent) {
     this.endDrag();
     let e = event.nativeEvent;
-    this.selectBlock(key);
-    if (this._blocks.has(key)) {
-      this.selectBlock(key);
-      let block = this._blocks.get(key);
-      // cache the position of all dragging blocks
-      if (block.selected) {
-        this._initDragState = getInitDragState(e, this._rootNode);
+    // cache the position of all dragging blocks
+    this._initDragState = getInitDragState(e, this._rootNode);
 
-        this._draggingBlocks = [];
-        for (let [blockKey, blockItem] of this._blocks) {
-          if (blockItem.selected) {
-            this._draggingBlocks.push([blockItem, blockItem.x, blockItem.y]);
-          }
-        }
-        this._rootNode.addEventListener('mousemove', this.onDragBlockMove);
-        document.body.addEventListener('mouseup', this.onDragBlockEnd);
-        return true;
+    this._draggingBlocks = [];
+    for (let [blockKey, blockItem] of this._blocks) {
+      if (blockItem.selected) {
+        this._draggingBlocks.push([blockItem, blockItem.x, blockItem.y]);
       }
     }
-    return false;
+    document.body.addEventListener('mousemove', this.onDragBlockMove);
+    document.body.addEventListener('mouseup', this.onDragBlockEnd);
   }
 
   onDragBlockMove = (e: MouseEvent) => {
@@ -96,21 +87,23 @@ export default class BlockStage extends React.Component<Props, State> implements
   };
   onDragBlockEnd = (e?: MouseEvent) => {
     this._draggingBlocks = null;
-    this._rootNode.removeEventListener('mousemove', this.onDragBlockMove);
+    document.body.removeEventListener('mousemove', this.onDragBlockMove);
     document.body.removeEventListener('mouseup', this.onDragBlockEnd);
   };
 
   onSelectRectDragStart = (event: React.MouseEvent) => {
+    event.preventDefault();
+
     if (event.target !== this._rootNode) {
       // only allows background dragging
       return;
     }
-    event.preventDefault();
+
     this.endDrag();
     let e = event.nativeEvent;
     this._initDragState = getInitDragState(e, this._rootNode);
     this._dragingSelect = [e.offsetX, e.offsetY];
-    this._rootNode.addEventListener('mousemove', this.onDragSelectMove);
+    document.body.addEventListener('mousemove', this.onDragSelectMove);
     document.body.addEventListener('mouseup', this.onDragSelectDone);
     this._selectRectNode.style.display = 'block';
   };
@@ -134,11 +127,12 @@ export default class BlockStage extends React.Component<Props, State> implements
     let right = Math.max(x1, x2);
     let top = Math.min(y1, y2);
     let bottom = Math.max(y1, y2);
+    let addToSelect = e.shiftKey || e.ctrlKey;
     for (let [blockKey, blockItem] of this._blocks) {
       if (blockItem.x >= left && blockItem.w + blockItem.x <= right
         && blockItem.y >= top && blockItem.h + blockItem.y <= bottom) {
         blockItem.setSelected(true);
-      } else if (blockItem.selected && !e.shiftKey) {
+      } else if (blockItem.selected && !addToSelect) {
         blockItem.setSelected(false);
       }
     }
@@ -149,7 +143,7 @@ export default class BlockStage extends React.Component<Props, State> implements
     this._selectRectNode.style.display = null;
     this._selectRectNode.style.width = '0';
     this._dragingSelect = null;
-    this._rootNode.removeEventListener('mousemove', this.onDragSelectMove);
+    document.body.removeEventListener('mousemove', this.onDragSelectMove);
     document.body.removeEventListener('mouseup', this.onDragSelectDone);
   }
 
@@ -253,7 +247,7 @@ export default class BlockStage extends React.Component<Props, State> implements
 
     return (
       <div ref={this.getRef} style={style} className="ticl-block-stage"
-           onMouseDown={this.onSelectRectDragStart} draggable={true}>
+           onMouseDown={this.onSelectRectDragStart}>
         {children}
         <div ref={this.getSelectRectRef} className="ticl-block-select-rect"/>
       </div>

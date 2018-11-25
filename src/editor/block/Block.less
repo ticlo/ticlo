@@ -19,6 +19,7 @@
 
 .ticl-block-head {
   position: relative;
+  user-select: none;
   border-top-right-radius: 10px;
   height: 24px;
   padding: 2px 12px;
@@ -67,6 +68,22 @@
   position: relative;
   height: 20px;
   padding: 2px 12px;
+}
+
+.ticl-width-drag {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  width: 16px;
+  height: 20px;
+  font-family: 'Fredoka One', monospace;
+  color: #ccc;
+  text-align: center;
+  font-size: 14px;
+  cursor: ew-resize;
+  &::after {
+    content: ">";
+  }
 }
 
 .ticl-block-wire {
