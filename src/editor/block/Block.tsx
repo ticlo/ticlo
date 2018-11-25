@@ -366,13 +366,13 @@ export class BlockView extends PureDataRenderer<BlockViewProps, BlockViewState> 
     }
   };
 
-  onDragWEnd = (e: MouseEvent) => {
+  onDragWEnd = (e?: MouseEvent) => {
     if (this._initDragWState) {
       this._initDragWState = null;
       document.body.removeEventListener('mousemove', this.onDragWMove);
       document.body.removeEventListener('mouseup', this.onDragWEnd);
     }
-  }
+  };
 
 
   constructor(props: BlockViewProps) {
