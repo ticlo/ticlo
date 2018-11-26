@@ -3,7 +3,7 @@ import {ClientConnection} from "../../common/connect/ClientConnection";
 import {DataMap} from "../../common/util/Types";
 import {BlockItem, FieldItem, Stage, BlockView} from "./Block";
 import {WireItem, WireView} from "./Wire";
-import {getCurrentDragOffset, getInitDragState} from "../../ui/util/DragHelper";
+import {AbstractPointerEvent, DragInitFunction, DragInitiator} from "../../ui/util/DragHelper";
 import {cssNumber} from "../../ui/util/Types";
 
 interface Props {
@@ -18,10 +18,14 @@ interface State {
 
 export default class BlockStage extends React.Component<Props, State> implements Stage {
 
-  private _rootNode!: HTMLElement;
-  private getRef = (node: HTMLDivElement): void => {
-    this._rootNode = node;
+  private _bgNode!: HTMLElement;
+  private getBgRef = (node: HTMLDivElement): void => {
+    this._bgNode = node;
   };
+
+  getRefElement() {
+    return this._bgNode;
+  }
 
   private _selectRectNode!: HTMLElement;
   private getSelectRectRef = (node: HTMLDivElement): void => {
@@ -53,7 +57,6 @@ export default class BlockStage extends React.Component<Props, State> implements
     }
   }
 
-  _initDragState: [number, number, number, number];
   _draggingBlocks?: [BlockItem, number, number][];
   _dragingSelect?: [number, number];
 
@@ -62,54 +65,33 @@ export default class BlockStage extends React.Component<Props, State> implements
   }
 
   // drag a block, return true when the dragging is started
-  dragStart(event: React.MouseEvent) {
-    this.endDrag();
-    let e = event.nativeEvent;
-    // cache the position of all dragging blocks
-    this._initDragState = getInitDragState(e, this._rootNode);
-
+  dragStart(e: PointerEvent, initFunction: DragInitFunction) {
     this._draggingBlocks = [];
     for (let [blockKey, blockItem] of this._blocks) {
       if (blockItem.selected) {
         this._draggingBlocks.push([blockItem, blockItem.x, blockItem.y]);
       }
     }
-    document.body.addEventListener('mousemove', this.onDragBlockMove);
-    document.body.addEventListener('mouseup', this.onDragBlockEnd);
+    initFunction(this._bgNode, this.onDragBlockMove, this.onDragBlockEnd);
   }
 
-  onDragBlockMove = (e: MouseEvent) => {
-    let [dx, dy] = getCurrentDragOffset(e, this._initDragState);
+  onDragBlockMove = (event: AbstractPointerEvent, dx: number, dy: number) => {
     for (let [block, x, y] of this._draggingBlocks) {
       block.setXYW(x + dx, y + dy, block.w);
       block.conn.setValue('@b-xyw', [block.x, block.y, block.w]);
     }
   };
-  onDragBlockEnd = (e?: MouseEvent) => {
+  onDragBlockEnd = (event: AbstractPointerEvent, dx: number, dy: number) => {
     this._draggingBlocks = null;
-    document.body.removeEventListener('mousemove', this.onDragBlockMove);
-    document.body.removeEventListener('mouseup', this.onDragBlockEnd);
   };
 
-  onSelectRectDragStart = (event: React.MouseEvent) => {
-    event.preventDefault();
-
-    if (event.target !== this._rootNode) {
-      // only allows background dragging
-      return;
-    }
-
-    this.endDrag();
-    let e = event.nativeEvent;
-    this._initDragState = getInitDragState(e, this._rootNode);
+  onSelectRectDragStart = (e: PointerEvent, initFunction: DragInitFunction) => {
     this._dragingSelect = [e.offsetX, e.offsetY];
-    document.body.addEventListener('mousemove', this.onDragSelectMove);
-    document.body.addEventListener('mouseup', this.onDragSelectDone);
+    initFunction(this._bgNode, this.onDragSelectMove, this.onDragSelectEnd);
     this._selectRectNode.style.display = 'block';
   };
 
-  onDragSelectMove = (e: MouseEvent) => {
-    let [dx, dy] = getCurrentDragOffset(e, this._initDragState);
+  onDragSelectMove = (e: AbstractPointerEvent, dx: number, dy: number) => {
     let [x1, y1] = this._dragingSelect;
     let x2 = dx + x1;
     let y2 = dy + y1;
@@ -118,8 +100,7 @@ export default class BlockStage extends React.Component<Props, State> implements
     this._selectRectNode.style.top = `${cssNumber(Math.min(y1, y2))}px`;
     this._selectRectNode.style.height = `${cssNumber(Math.abs(y1 - y2))}px`;
   };
-  onDragSelectDone = (e: MouseEvent) => {
-    let [dx, dy] = getCurrentDragOffset(e, this._initDragState);
+  onDragSelectEnd = (e: AbstractPointerEvent, dx: number, dy: number) => {
     let [x1, y1] = this._dragingSelect;
     let x2 = dx + x1;
     let y2 = dy + y1;
@@ -136,26 +117,10 @@ export default class BlockStage extends React.Component<Props, State> implements
         blockItem.setSelected(false);
       }
     }
-    this.onDragSelectEnd();
-  };
-
-  onDragSelectEnd() {
     this._selectRectNode.style.display = null;
     this._selectRectNode.style.width = '0';
     this._dragingSelect = null;
-    document.body.removeEventListener('mousemove', this.onDragSelectMove);
-    document.body.removeEventListener('mouseup', this.onDragSelectDone);
-  }
-
-
-  endDrag() {
-    if (this._draggingBlocks) {
-      this.onDragBlockEnd();
-    }
-    if (this._dragingSelect) {
-      this.onDragSelectEnd();
-    }
-  }
+  };
 
   linkField(souceKey: string, targetField: FieldItem) {
     if (!this._fieldLinks.has(souceKey)) {
@@ -246,8 +211,8 @@ export default class BlockStage extends React.Component<Props, State> implements
     }
 
     return (
-      <div ref={this.getRef} style={style} className="ticl-block-stage"
-           onMouseDown={this.onSelectRectDragStart}>
+      <div style={style} className="ticl-block-stage">
+        <DragInitiator className='ticl-full' getRef={this.getBgRef} onDrag={this.onSelectRectDragStart}/>
         {children}
         <div ref={this.getSelectRectRef} className="ticl-block-select-rect"/>
       </div>
@@ -256,6 +221,5 @@ export default class BlockStage extends React.Component<Props, State> implements
 
   componentWillUnmount() {
     this.props.conn.unwatch(this.props.basePath, this.watchListener);
-    this.endDrag();
   }
 }
