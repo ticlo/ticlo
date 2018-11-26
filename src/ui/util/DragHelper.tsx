@@ -1,6 +1,6 @@
 import React from "react";
 
-export type AbstractPointerEvent = MouseEvent | PointerEvent;
+export type AbstractPointerEvent = MouseEvent | TouchEvent;
 type PointerEventHandler = (e: AbstractPointerEvent, dx: number, dy: number) => void;
 
 export type DragInitFunction = (referenceElement: HTMLElement, moveListener?: PointerEventHandler, doneListener?: PointerEventHandler) => void;
