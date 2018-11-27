@@ -100,22 +100,26 @@ export default class BlockStage extends React.Component<Props, State> implements
     this._selectRectNode.style.height = `${cssNumber(Math.abs(y1 - y2))}px`;
   };
   onDragSelectEnd = (e: AbstractPointerEvent, dx: number, dy: number) => {
-    let [x1, y1] = this._dragingSelect;
-    let x2 = dx + x1;
-    let y2 = dy + y1;
-    let left = Math.min(x1, x2);
-    let right = Math.max(x1, x2);
-    let top = Math.min(y1, y2);
-    let bottom = Math.max(y1, y2);
-    let addToSelect = e.shiftKey || e.ctrlKey;
-    for (let [blockKey, blockItem] of this._blocks) {
-      if (blockItem.x >= left && blockItem.w + blockItem.x <= right
-        && blockItem.y >= top && blockItem.h + blockItem.y <= bottom) {
-        blockItem.setSelected(true);
-      } else if (blockItem.selected && !addToSelect) {
-        blockItem.setSelected(false);
+    if (e) {
+      // if e==null, then the dragging is canceled
+      let [x1, y1] = this._dragingSelect;
+      let x2 = dx + x1;
+      let y2 = dy + y1;
+      let left = Math.min(x1, x2);
+      let right = Math.max(x1, x2);
+      let top = Math.min(y1, y2);
+      let bottom = Math.max(y1, y2);
+      let addToSelect = e.shiftKey || e.ctrlKey;
+      for (let [blockKey, blockItem] of this._blocks) {
+        if (blockItem.x >= left && blockItem.w + blockItem.x <= right
+          && blockItem.y >= top && blockItem.h + blockItem.y <= bottom) {
+          blockItem.setSelected(true);
+        } else if (blockItem.selected && !addToSelect) {
+          blockItem.setSelected(false);
+        }
       }
     }
+
     this._selectRectNode.style.display = null;
     this._selectRectNode.style.width = '0';
     this._dragingSelect = null;

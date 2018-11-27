@@ -3,7 +3,7 @@ import React from "react";
 export type AbstractPointerEvent = MouseEvent | TouchEvent;
 type PointerEventHandler = (e: AbstractPointerEvent, dx: number, dy: number) => void;
 
-export type DragInitFunction = (referenceElement: HTMLElement, moveListener?: PointerEventHandler, doneListener?: PointerEventHandler) => void;
+export type DragInitFunction = (referenceElement: HTMLElement, moveListener?: PointerEventHandler, endListener?: PointerEventHandler) => void;
 
 
 interface DragInitiatorProps extends React.HTMLAttributes<HTMLDivElement> {
@@ -14,7 +14,7 @@ interface DragInitiatorProps extends React.HTMLAttributes<HTMLDivElement> {
 export class DragInitiator extends React.Component<DragInitiatorProps, any> {
 
   moveListener?: PointerEventHandler;
-  doneListener?: PointerEventHandler;
+  endListener?: PointerEventHandler;
   dragging: boolean = false;
   isTouch: boolean = false;
   baseX: number;
@@ -25,7 +25,7 @@ export class DragInitiator extends React.Component<DragInitiatorProps, any> {
     let {onDragInit} = this.props;
     if (onDragInit) {
       onDragInit(e.nativeEvent,
-        (referenceElement?: HTMLElement, moveListener?: PointerEventHandler, doneListener?: PointerEventHandler) => {
+        (referenceElement?: HTMLElement, moveListener?: PointerEventHandler, endListener?: PointerEventHandler) => {
           if (this.dragging) {
             this.onEnd();
           }
@@ -40,7 +40,7 @@ export class DragInitiator extends React.Component<DragInitiatorProps, any> {
             this.scaleY = -1;
           }
           this.moveListener = moveListener;
-          this.doneListener = doneListener;
+          this.endListener = endListener;
           if (e.pointerType === 'touch') {
             this.isTouch = true;
             document.body.addEventListener('touchmove', this.onTouchMove);
@@ -62,8 +62,8 @@ export class DragInitiator extends React.Component<DragInitiatorProps, any> {
   };
 
   onMouseEnd = (e?: MouseEvent) => {
-    if (e && this.doneListener) {
-      this.doneListener(e, (e.pageX - this.baseX) * this.scaleX, (e.pageY - this.baseY) * this.scaleY);
+    if (e && this.endListener) {
+      this.endListener(e, (e.pageX - this.baseX) * this.scaleX, (e.pageY - this.baseY) * this.scaleY);
     }
 
     document.body.removeEventListener('mousemove', this.onMouseMove);
@@ -79,8 +79,13 @@ export class DragInitiator extends React.Component<DragInitiatorProps, any> {
     }
   };
   onTouchEnd = (e?: TouchEvent) => {
-    if (e && this.doneListener) {
-      this.doneListener(e, (e.changedTouches[0].pageX - this.baseX) * this.scaleX, (e.changedTouches[0].pageY - this.baseY) * this.scaleY);
+    if (this.endListener) {
+      if (e) {
+        this.endListener(e, (e.changedTouches[0].pageX - this.baseX) * this.scaleX, (e.changedTouches[0].pageY - this.baseY) * this.scaleY);
+      } else {
+        // canceled
+        this.endListener(null, 0, 0);
+      }
     }
     document.body.removeEventListener('touchmove', this.onTouchMove);
     document.body.removeEventListener('touchend', this.onTouchEnd);
