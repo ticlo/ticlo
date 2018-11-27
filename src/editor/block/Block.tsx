@@ -171,13 +171,16 @@ export class BlockItem extends DataRendererItem {
     }
   }
 
-  setXYW(x: number, y: number, w: number) {
+  setXYW(x: number, y: number, w: number, update = false) {
     if (x !== this.x || y !== this.y || w !== this.y) {
       this.x = x;
       this.y = y;
       this.w = w;
       this.forceUpdate();
       this.updateFieldPosition();
+    }
+    if (update) {
+      this.conn.setValue('@b-xyw', [x, y, w]);
     }
   }
 
@@ -305,7 +308,7 @@ export class BlockView extends PureDataRenderer<BlockViewProps, BlockViewState> 
         // ignore xyw change from server during dragging
         return;
       }
-      if (this._baseW >= 0) {
+      if (this.isDraggingW()) {
         // ignore xyw change during width dragging
         return;
       }
@@ -342,10 +345,30 @@ export class BlockView extends PureDataRenderer<BlockViewProps, BlockViewState> 
     }
   };
 
-  _baseW: number = -1;
-  startDragW = (e: PointerEvent, initFunction: DragInitFunction) => {
-    event.preventDefault();
+  expandBlock = (e: React.MouseEvent) => {
+    let {item} = this.props;
+    if (item.selected && item.stage.isDraggingBlock()) {
+      // ignore xyw change from server during dragging
+      return;
+    }
+    if (this.isDraggingW()) {
+      // ignore xyw change during width dragging
+      return;
+    }
+    if (item.w) {
+      item.setXYW(item.x, item.y, 0);
+    } else {
+      item.setXYW(item.x, item.y, 150);
+    }
+  };
 
+  _baseW: number = -1;
+
+  isDraggingW() {
+    return this._baseW >= 0;
+  }
+
+  startDragW = (e: PointerEvent, initFunction: DragInitFunction) => {
     let {item} = this.props;
 
     this._baseW = item.w;
@@ -359,8 +382,7 @@ export class BlockView extends PureDataRenderer<BlockViewProps, BlockViewState> 
       newW = 80;
     }
     if (newW !== item.w) {
-      item.setXYW(item.x, item.y, newW);
-      item.conn.setValue('@b-xyw', [item.x, item.y, item.w]);
+      item.setXYW(item.x, item.y, newW, true);
     }
   };
 
@@ -398,7 +420,8 @@ export class BlockView extends PureDataRenderer<BlockViewProps, BlockViewState> 
           className={`ticl-block ${this.getFuncStyle()}${item.selected ? ' ticl-block-selected' : ''}`}
           style={{top: item.y, left: item.x, width: item.w}}
         >
-          <DragInitiator className='ticl-block-head ticl-block-prbg' onDrag={this.selectAndDrag}>
+          <DragInitiator className='ticl-block-head ticl-block-prbg' onDragInit={this.selectAndDrag}
+                         onDoubleClick={this.expandBlock}>
             <TIcon icon={item.desc.icon}/>
             {item.name}
           </DragInitiator>
@@ -406,7 +429,7 @@ export class BlockView extends PureDataRenderer<BlockViewProps, BlockViewState> 
             {item.renderFields()}
           </div>
           <div className='ticl-block-foot'>
-            <DragInitiator className='ticl-width-drag' onDrag={this.startDragW}/>
+            <DragInitiator className='ticl-width-drag' onDragInit={this.startDragW}/>
           </div>
         </div>
       );
@@ -417,7 +440,8 @@ export class BlockView extends PureDataRenderer<BlockViewProps, BlockViewState> 
           style={{top: item.y, left: item.x}}
         >
           <div className='ticl-block-min-bound'/>
-          <DragInitiator className='ticl-block-head ticl-block-prbg' onDrag={this.selectAndDrag}>
+          <DragInitiator className='ticl-block-head ticl-block-prbg' onDragInit={this.selectAndDrag}
+                         onDoubleClick={this.expandBlock}>
             <TIcon icon={item.desc.icon}/>
           </DragInitiator>
         </div>

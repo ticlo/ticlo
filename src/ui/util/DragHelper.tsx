@@ -6,11 +6,9 @@ type PointerEventHandler = (e: AbstractPointerEvent, dx: number, dy: number) => 
 export type DragInitFunction = (referenceElement: HTMLElement, moveListener?: PointerEventHandler, doneListener?: PointerEventHandler) => void;
 
 
-class DragInitiatorProps {
+interface DragInitiatorProps extends React.HTMLAttributes<HTMLDivElement> {
   getRef?: React.Ref<HTMLDivElement>;
-  className?: string;
-  style?: React.CSSProperties;
-  onDrag?: (event: PointerEvent, initFunction: DragInitFunction) => void;
+  onDragInit?: (event: PointerEvent, initFunction: DragInitFunction) => void;
 }
 
 export class DragInitiator extends React.Component<DragInitiatorProps, any> {
@@ -24,9 +22,9 @@ export class DragInitiator extends React.Component<DragInitiatorProps, any> {
   scaleX: number;
   scaleY: number;
   onPointerDown = (e: React.PointerEvent) => {
-    let {onDrag} = this.props;
-    if (onDrag) {
-      onDrag(e.nativeEvent,
+    let {onDragInit} = this.props;
+    if (onDragInit) {
+      onDragInit(e.nativeEvent,
         (referenceElement?: HTMLElement, moveListener?: PointerEventHandler, doneListener?: PointerEventHandler) => {
           if (this.dragging) {
             this.onEnd();
@@ -98,9 +96,9 @@ export class DragInitiator extends React.Component<DragInitiatorProps, any> {
   }
 
   render(): React.ReactNode {
-    let {className, getRef, children} = this.props;
+    let {getRef, children, onDragInit, onPointerDown, ...others} = this.props;
     return (
-      <div ref={getRef} className={className} onPointerDown={this.onPointerDown}>
+      <div ref={getRef} {...others} onPointerDown={this.onPointerDown}>
         {children}
       </div>
     );

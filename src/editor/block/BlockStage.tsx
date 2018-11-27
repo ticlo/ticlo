@@ -77,8 +77,7 @@ export default class BlockStage extends React.Component<Props, State> implements
 
   onDragBlockMove = (event: AbstractPointerEvent, dx: number, dy: number) => {
     for (let [block, x, y] of this._draggingBlocks) {
-      block.setXYW(x + dx, y + dy, block.w);
-      block.conn.setValue('@b-xyw', [block.x, block.y, block.w]);
+      block.setXYW(x + dx, y + dy, block.w, true);
     }
   };
   onDragBlockEnd = (event: AbstractPointerEvent, dx: number, dy: number) => {
@@ -212,7 +211,7 @@ export default class BlockStage extends React.Component<Props, State> implements
 
     return (
       <div style={style} className="ticl-block-stage">
-        <DragInitiator className='ticl-full' getRef={this.getBgRef} onDrag={this.onSelectRectDragStart}/>
+        <DragInitiator className='ticl-full' getRef={this.getBgRef} onDragInit={this.onSelectRectDragStart}/>
         {children}
         <div ref={this.getSelectRectRef} className="ticl-block-select-rect"/>
       </div>
