@@ -1,17 +1,17 @@
 import React from "react";
 import {DataMap} from "../../common/util/Types";
 
-export class DataRendererItem {
-  _renderers: Set<PureDataRenderer<any, any>> = new Set<PureDataRenderer<any, any>>();
+export class DataRendererItem<T = any> {
+  _renderers: Set<PureDataRenderer<any, any> & T> = new Set<PureDataRenderer<any, any> & T>();
 
-  attachedRenderer(renderer: PureDataRenderer<any, any>) {
+  attachedRenderer(renderer: PureDataRenderer<any, any> & T) {
     if (this._renderers.size === 0) {
       this.onAttached();
     }
     this._renderers.add(renderer);
   }
 
-  detachRenderer(renderer: PureDataRenderer<any, any>) {
+  detachRenderer(renderer: PureDataRenderer<any, any> & T) {
     this._renderers.delete(renderer);
     if (this._renderers.size === 0) {
       this.onDetached();

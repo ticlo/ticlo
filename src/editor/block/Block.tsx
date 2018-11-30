@@ -71,6 +71,7 @@ export class FieldItem extends DataRendererItem {
       this.y = y;
       this.w = w;
       this.forceUpdate();
+
       if (this.inWire) {
         this.inWire.forceUpdate();
       }
@@ -134,7 +135,11 @@ export class FieldItem extends DataRendererItem {
   }
 }
 
-export class BlockItem extends DataRendererItem {
+interface XYWRenderer {
+  renderXYW(x: number, y: number, z: number): void;
+}
+
+export class BlockItem extends DataRendererItem<XYWRenderer> {
   conn: ClientConnection;
   stage: Stage;
   x: number = 0;
@@ -175,8 +180,15 @@ export class BlockItem extends DataRendererItem {
     if (x !== this.x || y !== this.y || w !== this.y) {
       this.x = x;
       this.y = y;
-      this.w = w;
-      this.forceUpdate();
+      if (Boolean(w) !== Boolean(this.w)) {
+        this.w = w;
+        this.forceUpdate();
+      } else {
+        this.w = w;
+        for (let renderer of this._renderers) {
+          renderer.renderXYW(x, y, w);
+        }
+      }
       this.updateFieldPosition();
     }
     if (update) {
@@ -285,7 +297,7 @@ const defaultFuncDesc = {
 };
 
 
-export class BlockView extends PureDataRenderer<BlockViewProps, BlockViewState> {
+export class BlockView extends PureDataRenderer<BlockViewProps, BlockViewState> implements XYWRenderer {
   private _rootNode!: HTMLElement;
   private getRef = (node: HTMLDivElement): void => {
     this._rootNode = node;
@@ -317,6 +329,15 @@ export class BlockView extends PureDataRenderer<BlockViewProps, BlockViewState> 
       }
     }
   };
+
+  renderXYW(x: number, y: number, w: number) {
+    this._rootNode.style.left = `${x}px`;
+    this._rootNode.style.top = `${y}px`;
+    if (w) {
+      this._rootNode.style.width = `${w}px`;
+    }
+  }
+
   pListener = {
     onUpdate: (response: DataMap) => {
       let {value} = response.cache;
@@ -436,6 +457,7 @@ export class BlockView extends PureDataRenderer<BlockViewProps, BlockViewState> 
     } else {
       return (
         <div
+          ref={this.getRef}
           className={`ticl-block ticl-block-min ${this.getFuncStyle()}${item.selected ? ' ticl-block-selected' : ''}`}
           style={{top: item.y, left: item.x}}
         >
