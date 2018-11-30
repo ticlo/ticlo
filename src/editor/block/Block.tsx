@@ -72,15 +72,19 @@ export class FieldItem extends DataRendererItem {
       this.w = w;
       this.forceUpdate();
 
-      if (this.inWire) {
-        this.inWire.forceUpdate();
-      }
-      for (let outWire of this.outWires) {
-        outWire.forceUpdate();
-      }
+      this.forceUpdateWires();
       // TODO update bindBlock
     }
     return y + fieldHeight;
+  }
+
+  forceUpdateWires() {
+    if (this.inWire) {
+      this.inWire.forceUpdate();
+    }
+    for (let outWire of this.outWires) {
+      outWire.forceUpdate();
+    }
   }
 
   conn() {
@@ -173,6 +177,9 @@ export class BlockItem extends DataRendererItem<XYWRenderer> {
     if (val !== this.selected) {
       this.selected = val;
       this.forceUpdate();
+      for (let field of this.fields) {
+        this.fieldItems.get(field).forceUpdateWires();
+      }
     }
   }
 

@@ -32,12 +32,9 @@ interface WireViewProps {
   item: WireItem;
 }
 
-interface WireViewState {
-}
-
 const wirePadding = 2;
 
-export class WireView extends PureDataRenderer<WireViewProps, WireViewState> {
+export class WireView extends PureDataRenderer<WireViewProps, any> {
   render() {
     let {source, target} = this.props.item;
     let x0 = source.x + source.w + 4;
@@ -85,9 +82,10 @@ export class WireView extends PureDataRenderer<WireViewProps, WireViewState> {
     y0 -= miny;
     y1 -= miny;
 
+    let selected = source.block.selected || target.block.selected;
     return (
       <svg width={maxx - minx} height={maxy - miny} className="ticl-block-wire" xmlns="http://www.w3.org/2000/svg"
-           style={{left: minx, top: miny}}>
+           style={{left: minx, top: miny, zIndex: selected ? 100 : undefined}}>
         <path
           d={`M ${cssNumber(x0)} ${cssNumber(y0)} Q ${cssNumber(mx0)} ${cssNumber(y0)} ${cssNumber(midx)} ${cssNumber((y0 + y1) * 0.5)} ${cssNumber(mx1)} ${cssNumber(y1)} ${cssNumber(x1)} ${cssNumber(y1)}`}/>
       </svg>
