@@ -11,7 +11,8 @@ export type ValueType =
   | 'js'
   | 'any'
   | 'map'
-  | 'array';
+  | 'array'
+  | 'any';
 
 export interface PropDesc {
   name: string;

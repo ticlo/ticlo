@@ -463,13 +463,13 @@ Types.add(MapFunction, {
   icon: 'material:hdr_strong',
   style: 'repeater',
   inputs: [
-    {name: 'input', type: 'dynamic'},
-    {name: 'src', type: 'dynamic'},
+    {name: 'input', type: 'any'},
+    {name: 'src', type: 'any'},
     {name: 'thread', type: 'number'},
     {name: 'reuseWorker', type: 'bool'},
     {name: 'timeout', type: 'number'}
   ],
   outputs:
-    [{name: 'output', type: 'dynamic'}]
+    [{name: 'output', type: 'any'}]
 })
 ;

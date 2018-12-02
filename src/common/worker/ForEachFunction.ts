@@ -216,8 +216,8 @@ Types.add(ForEachFunction, {
   icon: 'material:hdr_strong',
   style: 'repeater',
   inputs: [
-    {name: 'input', type: 'dynamic'},
-    {name: 'src', type: 'dynamic'}
+    {name: 'input', type: 'any'},
+    {name: 'src', type: 'any'}
   ],
-  outputs: [{name: 'output', type: 'dynamic'}]
+  outputs: [{name: 'output', type: 'any'}]
 });
