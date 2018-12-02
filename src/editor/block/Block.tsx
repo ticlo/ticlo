@@ -7,7 +7,7 @@ import {FunctionDesc, getFuncStyleFromDesc} from "../../common/block/Descriptor"
 import {compareArray} from "../../common/util/Compare";
 import {translateProperty} from "../../common/util/i18n";
 import equal from "fast-deep-equal";
-import {cssNumber, toDisplay} from "../../ui/util/Types";
+import {cssNumber, displayValue} from "../../ui/util/Types";
 import {WireItem} from "./Wire";
 import {relative, resolve} from "../../common/util/Path";
 import {AbstractPointerEvent, DragInitFunction, DragInitiator} from "../../ui/util/DragHelper";
@@ -36,7 +36,11 @@ export interface Stage {
   getRefElement(): HTMLElement;
 }
 
-export class FieldItem extends DataRendererItem {
+interface ValueRenderer {
+  renderValue(value: any): void;
+}
+
+export class FieldItem extends DataRendererItem<ValueRenderer> {
   block: BlockItem;
   name: string;
   key: string;
@@ -94,10 +98,20 @@ export class FieldItem extends DataRendererItem {
   cache: any = {};
   listener = {
     onUpdate: (response: DataMap) => {
+      let change = response.change;
       if (!equal(response.cache, this.cache)) {
         this.cache = response.cache;
-        this.setBindingPath(this.cache.bindingPath);
-        this.forceUpdate();
+        if (change.hasOwnProperty('bindingPath')) {
+          this.setBindingPath(response.cache.bindingPath);
+        }
+        if (change.hasOwnProperty('value')) {
+          for (let renderer of this._renderers) {
+            renderer.renderValue(change.value);
+          }
+        }
+        if (change.hasOwnProperty('hasListener')) {
+          this.forceUpdate();
+        }
       }
     }
   };
@@ -275,6 +289,13 @@ interface FieldViewState {
 
 export class FieldView extends PureDataRenderer<FieldViewProps, FieldViewState> {
 
+  private _valueNode!: HTMLElement;
+  private getValueRef = (node: HTMLDivElement): void => {
+    this._valueNode = node;
+    let {item} = this.props;
+    this.renderValue(item.cache.value);
+  };
+
   onDragStart = (event: React.DragEvent) => {
     let e = event.nativeEvent;
     let {item} = this.props;
@@ -299,6 +320,13 @@ export class FieldView extends PureDataRenderer<FieldViewProps, FieldViewState> 
     }
   };
 
+  renderValue(value: any) {
+    if (this._valueNode) {
+      let {item} = this.props;
+      displayValue(item.cache.value, this._valueNode);
+    }
+  }
+
   render(): React.ReactNode {
     let {item} = this.props;
     let desc = item.block.desc;
@@ -306,7 +334,7 @@ export class FieldView extends PureDataRenderer<FieldViewProps, FieldViewState> 
       <div className='ticl-block-field' draggable={true} onDragStart={this.onDragStart} onDragOver={this.onDragOver}
            onDrop={this.onDrop}>
         <div className='ticl-block-field-name'>{translateProperty(desc.name, item.name, desc.ns)}</div>
-        <div className='ticl-block-field-value'>{toDisplay(item.cache.value)}</div>
+        <div className='ticl-block-field-value'><span ref={this.getValueRef}/></div>
         <div className='ticl-inbound'/>
         {(item.cache.hasListener) ? <div className='ticl-outbound'/> : null}
       </div>

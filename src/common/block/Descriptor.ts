@@ -1,6 +1,17 @@
 import {BlockMode} from "./Block";
 
-export type ValueType = 'number' | 'string' | 'bool' | 'map' | 'array' | 'dynamic';
+export type ValueType =
+  'number'
+  | 'string'
+  | 'bool'
+  | 'select'
+  | 'color'
+  | 'datetime'
+  | 'type'
+  | 'js'
+  | 'any'
+  | 'map'
+  | 'array';
 
 export interface PropDesc {
   name: string;

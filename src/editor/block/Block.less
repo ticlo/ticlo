@@ -62,11 +62,16 @@
   text-overflow: ellipsis;
   text-align: right;
   flex: 1 50%;
-  & > .string-quote {
+}
+
+.ticl-string-value {
+  &:before, &:after {
     color: #bbb;
     display: inline-block;
     transform: translate(0, -2px);
+    content: "'"
   }
+  text-overflow: ellipsis;
 }
 
 .ticl-block-foot {

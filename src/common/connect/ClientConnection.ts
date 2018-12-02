@@ -105,7 +105,7 @@ class SubscribeRequest extends MergedClientRequest {
   add(callbacks: ClientCallbacks) {
     super.add(callbacks);
     if (callbacks.onUpdate && this._hasUpdate) {
-      callbacks.onUpdate({cache: {...this._cache}});
+      callbacks.onUpdate({cache: {...this._cache}, change: this._cache});
     }
   }
 
