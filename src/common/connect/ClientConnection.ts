@@ -105,7 +105,7 @@ class SubscribeRequest extends MergedClientRequest {
   add(callbacks: ClientCallbacks) {
     super.add(callbacks);
     if (callbacks.onUpdate && this._hasUpdate) {
-      callbacks.onUpdate({cache: this._cache});
+      callbacks.onUpdate({cache: {...this._cache}});
     }
   }
 
@@ -120,7 +120,7 @@ class SubscribeRequest extends MergedClientRequest {
       this._cache.hasListener = response.hasListener;
     }
     this._hasUpdate = true;
-    super.onUpdate({cache: this._cache, change: response});
+    super.onUpdate({cache: {...this._cache}, change: response});
   }
 }
 
@@ -161,7 +161,7 @@ class WatchRequest extends MergedClientRequest {
   add(callbacks: ClientCallbacks) {
     super.add(callbacks);
     if (callbacks.onUpdate && this._hasUpdate) {
-      callbacks.onUpdate({changes: this._cachedMap, cache: this._cachedMap});
+      callbacks.onUpdate({changes: this._cachedMap, cache: {...this._cachedMap}});
     }
   }
 
@@ -178,7 +178,7 @@ class WatchRequest extends MergedClientRequest {
       }
     }
     this._hasUpdate = true;
-    super.onUpdate({...response, cache: this._cachedMap});
+    super.onUpdate({...response, cache: {...this._cachedMap}});
   }
 }
 

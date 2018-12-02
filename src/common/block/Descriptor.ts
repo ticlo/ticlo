@@ -32,3 +32,14 @@ export interface FunctionDesc {
   style?: 'repeater' | 'service';
   folder?: string;
 }
+
+export function getFuncStyleFromDesc(desc: FunctionDesc): string {
+  let {style, priority} = desc;
+  if (style) {
+    return 'ticl-block-pr' + style.substr(0, 1);
+  }
+  if (priority > -1) {
+    return 'ticl-block-pr' + priority;
+  }
+  return '';
+}

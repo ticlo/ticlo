@@ -3,13 +3,13 @@ import {ClientConnection} from "../../common/connect/ClientConnection";
 import {DataMap} from "../../common/util/Types";
 import {DataRendererItem, PureDataRenderer} from "../../ui/component/DataRenderer";
 import {TIcon} from "../icon/Icon";
-import {FunctionDesc} from "../../common/block/Descriptor";
+import {FunctionDesc, getFuncStyleFromDesc} from "../../common/block/Descriptor";
 import {compareArray} from "../../common/util/Compare";
 import {translateProperty} from "../../common/util/i18n";
 import equal from "fast-deep-equal";
 import {cssNumber, toDisplay} from "../../ui/util/Types";
 import {WireItem} from "./Wire";
-import {resolve} from "../../common/util/Path";
+import {relative, resolve} from "../../common/util/Path";
 import {AbstractPointerEvent, DragInitFunction, DragInitiator} from "../../ui/util/DragHelper";
 
 const fieldHeight = 24;
@@ -275,11 +275,36 @@ interface FieldViewState {
 
 export class FieldView extends PureDataRenderer<FieldViewProps, FieldViewState> {
 
+  onDragStart = (event: React.DragEvent) => {
+    let e = event.nativeEvent;
+    let {item} = this.props;
+    let desc = item.block.desc;
+    e.dataTransfer.setData('ticl-field', item.key);
+  };
+  onDragOver = (event: React.DragEvent) => {
+    let e = event.nativeEvent;
+    if (e.dataTransfer.types.includes('ticl-field')) {
+      e.preventDefault();
+      e.dataTransfer.dropEffect = 'link';
+    }
+  };
+  onDrop = (event: React.DragEvent) => {
+    let e = event.nativeEvent;
+    let {item} = this.props;
+    let desc = item.block.desc;
+    let dropField = e.dataTransfer.getData('ticl-field');
+    if (dropField !== item.key) {
+      let bindingPath = relative(item.block.key, dropField);
+      item.conn().setBinding(item.key, bindingPath);
+    }
+  };
+
   render(): React.ReactNode {
     let {item} = this.props;
     let desc = item.block.desc;
     return (
-      <div className='ticl-block-field'>
+      <div className='ticl-block-field' draggable={true} onDragStart={this.onDragStart} onDragOver={this.onDragOver}
+           onDrop={this.onDrop}>
         <div className='ticl-block-field-name'>{translateProperty(desc.name, item.name, desc.ns)}</div>
         <div className='ticl-block-field-value'>{toDisplay(item.cache.value)}</div>
         <div className='ticl-inbound'/>
@@ -302,7 +327,6 @@ const defaultFuncDesc = {
   name: '',
   icon: ''
 };
-
 
 export class BlockView extends PureDataRenderer<BlockViewProps, BlockViewState> implements XYWRenderer {
   private _rootNode!: HTMLElement;
@@ -428,24 +452,13 @@ export class BlockView extends PureDataRenderer<BlockViewProps, BlockViewState> 
     item.conn.subscribe(`${item.key}.@b-p`, this.pListener);
   }
 
-  getFuncStyle(): string {
-    let {style, priority} = this.props.item.desc;
-    if (style) {
-      return 'ticl-block-pr' + style.substr(0, 1);
-    }
-    if (priority > -1) {
-      return 'ticl-block-pr' + priority;
-    }
-    return '';
-  }
-
   render() {
     let {item} = this.props;
     if (item.w) {
       return (
         <div
           ref={this.getRef}
-          className={`ticl-block ${this.getFuncStyle()}${item.selected ? ' ticl-block-selected' : ''}`}
+          className={`ticl-block ${getFuncStyleFromDesc(item.desc)}${item.selected ? ' ticl-block-selected' : ''}`}
           style={{top: item.y, left: item.x, width: item.w}}
         >
           <DragInitiator className='ticl-block-head ticl-block-prbg' onDragInit={this.selectAndDrag}
@@ -465,7 +478,7 @@ export class BlockView extends PureDataRenderer<BlockViewProps, BlockViewState> 
       return (
         <div
           ref={this.getRef}
-          className={`ticl-block ticl-block-min ${this.getFuncStyle()}${item.selected ? ' ticl-block-selected' : ''}`}
+          className={`ticl-block ticl-block-min ${getFuncStyleFromDesc(item.desc)}${item.selected ? ' ticl-block-selected' : ''}`}
           style={{top: item.y, left: item.x}}
         >
           <div className='ticl-block-min-bound'/>

@@ -22,3 +22,17 @@ export function resolve(path1: string, path2: string): string {
     }
   return p1.concat(p2).join('.');
 }
+
+export function relative(from: string, to: string): string {
+  if (from === to) {
+    return '';
+  }
+  let p1 = from.split('.');
+  let p2 = to.split('.');
+  let pos = 0;
+  while (p1[pos] === p2[pos]) {
+    ++pos;
+  }
+  let str2 = p2.slice(pos).join('.');
+  return str2.padStart(str2.length + (p1.length - pos) * 3, '##.');
+}
