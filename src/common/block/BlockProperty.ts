@@ -18,6 +18,7 @@ export class BlockProperty extends ValueDispatcher<any> implements Listener<any>
   _name: string;
   _bindingPath: string;
   _bindingSource: BlockBindingSource;
+  _bindingProperty: BindingProperty;
 
   _saved: any;
 
@@ -76,6 +77,10 @@ export class BlockProperty extends ValueDispatcher<any> implements Listener<any>
       if (this._bindingSource) {
         this._bindingSource.unlisten(this);
       }
+      if (this._bindingProperty) {
+        this._bindingProperty.setValue(undefined);
+        this._bindingProperty = null;
+      }
       this._bindingPath = null;
       this._bindingSource = null;
       if (this._subscribers) {
@@ -102,6 +107,10 @@ export class BlockProperty extends ValueDispatcher<any> implements Listener<any>
     if (this._bindingSource != null) {
       this._bindingSource.unlisten(this);
     }
+    if (this._bindingProperty) {
+      this._bindingProperty.setValue(undefined);
+      this._bindingProperty = null;
+    }
     this._bindingPath = path;
 
     if (path != null) {
@@ -116,6 +125,10 @@ export class BlockProperty extends ValueDispatcher<any> implements Listener<any>
     }
   }
 
+  setBindProperty(prop: BindingProperty) {
+    this._bindingProperty = prop;
+  }
+
   _save(): any {
     if (this._saved !== undefined) {
       if (this._saved instanceof Block) {
@@ -126,6 +139,13 @@ export class BlockProperty extends ValueDispatcher<any> implements Listener<any>
       }
       return this._saved;
     }
+  }
+
+  _saveBinding(): any {
+    if (this._bindingProperty) {
+      return this._bindingProperty.__save();
+    }
+    return this._bindingPath;
   }
 
   _load(val: any) {
@@ -257,5 +277,17 @@ export class BlockIO extends BlockProperty {
     let changed = this.onChange(val);
     this._outputing = false;
     return changed;
+  }
+}
+
+export class BindingProperty extends BlockProperty {
+  // a binding property should only be saved from original property
+  _save(): any {
+    return undefined;
+  }
+
+  // call the raw save function
+  __save(): any {
+    return super._save();
   }
 }

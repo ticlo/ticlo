@@ -1,4 +1,4 @@
-import {BlockProperty, BlockIO} from "./BlockProperty";
+import {BlockProperty, BlockIO, BindingProperty} from "./BlockProperty";
 import {ConfigGenerators, BlockReadOnlyConfig} from "./BlockConfigs";
 import {BlockBinding} from "./BlockBinding";
 import {FunctionData, FunctionGenerator, BaseFunction, FunctionOutput} from "./BlockFunction";
@@ -206,9 +206,11 @@ export class Block implements Runnable, FunctionData, Listener<FunctionGenerator
       return null;
     } else {
       switch (firstChar) {
-        case 43:
+        case 126:
+          // ~ binding property
+          prop = new BindingProperty(this, field);
+          break;
         case 64: {
-          // + property helper
           // @ attribute
           prop = new BlockProperty(this, field);
           break;
@@ -286,7 +288,7 @@ export class Block implements Runnable, FunctionData, Listener<FunctionGenerator
     let result: DataMap = {};
     for (let [name, prop] of this._props) {
       if (prop._bindingPath) {
-        result[`~${name}`] = prop._bindingPath;
+        result[`~${name}`] = prop._saveBinding();
       } else {
         let saved = prop._save();
         if (saved !== undefined) {
@@ -302,8 +304,14 @@ export class Block implements Runnable, FunctionData, Listener<FunctionGenerator
       if (key.charCodeAt(0) === 126) { // ~ for binding
         let val = map[key];
         if (typeof val === 'string') {
+          // normal binding
           let name = key.substring(1);
           this.setBinding(name, val);
+        } else {
+          // binding helper
+          this.getProperty(key)._load(map[key]);
+          let name = key.substring(1);
+          this.setBinding(name, `${key}.output`);
         }
       } else {
         this.getProperty(key)._load(map[key]);
@@ -326,6 +334,13 @@ export class Block implements Runnable, FunctionData, Listener<FunctionGenerator
           let name = key.substring(1);
           this.setBinding(name, val);
           loadedFields[name] = true;
+        } else {
+          // binding helper
+          this.getProperty(key)._liveUpdate(map[key]);
+          let name = key.substring(1);
+          this.setBinding(name, `${key}.output`);
+          loadedFields[name] = true;
+          loadedFields[key] = true;
         }
       } else {
         this.getProperty(key)._liveUpdate(map[key]);

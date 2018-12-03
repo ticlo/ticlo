@@ -13,8 +13,8 @@ describe("BlockProxy", function () {
     bBlock.setValue('v3', 3);
     bBlock.deleteValue('v3');
     bBlock.setValue('@v', '0'); // block attribute should not be iterated
-    bBlock.createBlock('+v4').setValue('v', 4); // block helper should not be iterated
-    bBlock.setBinding('v4', '+v4.v');
+    bBlock.createBlock('~v4').setValue('output', 4); // binding helper should not be iterated
+    bBlock.setBinding('v4', '~v4.output');
     let b: any = new Proxy(bBlock, BlockDeepProxy);
 
     assert.equal(b['###'].v1, 1);
