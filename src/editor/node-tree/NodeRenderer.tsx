@@ -159,7 +159,6 @@ export class NodeTreeRenderer extends PureDataRenderer<Props, State> {
       let {item} = this.props;
       let className = response.cache.value;
       if (typeof className === 'string') {
-        console.log(className);
         item.connection.watchDesc(className, this.descCallback);
       } else {
         item.connection.unwatchDesc(this.descCallback);

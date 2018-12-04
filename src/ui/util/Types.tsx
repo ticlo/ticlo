@@ -3,7 +3,6 @@ import React from "react";
 
 // display value in screen, avoid huge data in dmo to improve performance
 export function displayValue(val: any, element: HTMLElement) {
-  console.log(val);
   switch (typeof val) {
     case 'string':
       if (val.length > 512) {
@@ -26,7 +25,6 @@ export function displayValue(val: any, element: HTMLElement) {
       } else {
         element.innerText = rslt2;
       }
-      console.log(element.innerText);
       break;
     case 'undefined':
       element.innerText = '';
