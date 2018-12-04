@@ -1,4 +1,4 @@
-import {BlockProperty, BlockIO, BindingProperty} from "./BlockProperty";
+import {BlockProperty, BlockIO, HelperProperty} from "./BlockProperty";
 import {ConfigGenerators, BlockReadOnlyConfig} from "./BlockConfigs";
 import {BlockBinding} from "./BlockBinding";
 import {FunctionData, FunctionGenerator, BaseFunction, FunctionOutput} from "./BlockFunction";
@@ -208,7 +208,7 @@ export class Block implements Runnable, FunctionData, Listener<FunctionGenerator
       switch (firstChar) {
         case 126:
           // ~ binding property
-          prop = new BindingProperty(this, field);
+          prop = new HelperProperty(this, field);
           break;
         case 64: {
           // @ attribute
@@ -309,9 +309,8 @@ export class Block implements Runnable, FunctionData, Listener<FunctionGenerator
           this.setBinding(name, val);
         } else {
           // binding helper
-          this.getProperty(key)._load(map[key]);
           let name = key.substring(1);
-          this.setBinding(name, `${key}.output`);
+          this.createHelperBlock(name)._load(val);
         }
       } else {
         this.getProperty(key)._load(map[key]);
@@ -336,9 +335,8 @@ export class Block implements Runnable, FunctionData, Listener<FunctionGenerator
           loadedFields[name] = true;
         } else {
           // binding helper
-          this.getProperty(key)._liveUpdate(map[key]);
           let name = key.substring(1);
-          this.setBinding(name, `${key}.output`);
+          this.createHelperBlock(name)._liveUpdate(val);
           loadedFields[name] = true;
           loadedFields[key] = true;
         }
@@ -405,6 +403,21 @@ export class Block implements Runnable, FunctionData, Listener<FunctionGenerator
     let prop = this.getProperty(field);
     let block = new Block(this._job, this, prop);
     prop.setOutput(block);
+    return block;
+  }
+
+  createHelperBlock(field: string): Block {
+    let prop = this.getProperty(field);
+    let helperProp = this.getProperty(`~${field}`) as HelperProperty;
+    let block: Block;
+    if (!(helperProp._saved instanceof Block) || helperProp._saved._prop !== prop) {
+      block = new Block(this._job, this, helperProp);
+      helperProp.setValue(block);
+    } else {
+      block = helperProp._saved;
+    }
+    prop.setBinding(`~${field}.output`);
+    prop.setBindProperty(helperProp);
     return block;
   }
 

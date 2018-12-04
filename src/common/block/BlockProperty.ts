@@ -18,7 +18,7 @@ export class BlockProperty extends ValueDispatcher<any> implements Listener<any>
   _name: string;
   _bindingPath: string;
   _bindingSource: BlockBindingSource;
-  _bindingProperty: BindingProperty;
+  _bindingProperty: HelperProperty;
 
   _saved: any;
 
@@ -125,7 +125,7 @@ export class BlockProperty extends ValueDispatcher<any> implements Listener<any>
     }
   }
 
-  setBindProperty(prop: BindingProperty) {
+  setBindProperty(prop: HelperProperty) {
     this._bindingProperty = prop;
   }
 
@@ -280,7 +280,7 @@ export class BlockIO extends BlockProperty {
   }
 }
 
-export class BindingProperty extends BlockProperty {
+export class HelperProperty extends BlockProperty {
   // a binding property should only be saved from original property
   _save(): any {
     return undefined;
