@@ -65,7 +65,9 @@ export class FieldItem extends DataRendererItem<ValueRenderer> {
       if (this._bindingPath) {
         this.block.stage.linkField(resolve(this.block.key, this._bindingPath), this);
       }
+      return true;
     }
+    return false;
   }
 
   // return y pos of next field
@@ -101,15 +103,18 @@ export class FieldItem extends DataRendererItem<ValueRenderer> {
       let change = response.change;
       if (!equal(response.cache, this.cache)) {
         this.cache = response.cache;
-        if (change.hasOwnProperty('bindingPath')) {
-          this.setBindingPath(response.cache.bindingPath);
-        }
         if (change.hasOwnProperty('value')) {
           for (let renderer of this._renderers) {
             renderer.renderValue(change.value);
           }
         }
-        if (change.hasOwnProperty('hasListener')) {
+        if (
+          (
+            change.hasOwnProperty('bindingPath')
+            && this.setBindingPath(response.cache.bindingPath)
+          )
+          || change.hasOwnProperty('hasListener')
+        ) {
           this.forceUpdate();
         }
       }
@@ -244,11 +249,10 @@ export class BlockItem extends DataRendererItem<XYWRenderer> {
 
   updateFieldPosition() {
     let {x, y, w} = this;
-
     if (!w) {
       let y1 = y + fieldYOffset;
-      x -= 4;
-      w = fieldHeight + 5;
+      x -= 1;
+      w = fieldHeight + 2;
       for (let field of this.fields) {
         this.fieldItems.get(field).setXYW(x, y1, w);
       }
@@ -330,12 +334,26 @@ export class FieldView extends PureDataRenderer<FieldViewProps, FieldViewState> 
   render(): React.ReactNode {
     let {item} = this.props;
     let desc = item.block.desc;
+
+    let inBoundClass = 'ticl-slot';
+    let inBoundText: string;
+    if (item.cache.bindingPath) {
+      inBoundClass += ' ticl-inbound';
+      if (item.inWire) {
+
+      } else {
+        inBoundClass += ' ticl-inbound-path';
+        inBoundText = item.cache.bindingPath;
+      }
+    }
+
     return (
       <div className='ticl-block-field' draggable={true} onDragStart={this.onDragStart} onDragOver={this.onDragOver}
            onDrop={this.onDrop}>
         <div className='ticl-block-field-name'>{translateProperty(desc.name, item.name, desc.ns)}</div>
         <div className='ticl-block-field-value'><span ref={this.getValueRef}/></div>
-        <div className='ticl-inbound'/>
+
+        <div className={inBoundClass}>{inBoundText}</div>
         {(item.cache.hasListener) ? <div className='ticl-outbound'/> : null}
       </div>
     );

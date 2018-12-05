@@ -39,7 +39,7 @@ export class WireView extends PureDataRenderer<WireViewProps, any> {
     let {source, target} = this.props.item;
     let x0 = source.x + source.w + 4;
     let y0 = source.y;
-    let x1 = target.x;
+    let x1 = target.x - 4;
     let y1 = target.y;
     let midx = (x0 + x1) * 0.5;
     let mx0: number;

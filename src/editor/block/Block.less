@@ -118,15 +118,34 @@
   background: #f8f8f8;
 }
 
-.ticl-inbound {
+.ticl-slot {
   position: absolute;
-  left: -1px;
+  right: calc(100% - 5px);
   border-radius: 0 5px 5px 0;
-  width: 9px;
+  width: 5px;
   height: 10px;
   top: 7px;
   border: 1px solid @ticl-color-prn;
+  border-left: 0 none;
   background: #f8f8f8;
+  overflow: hidden;
+  transition-property: border-color, height, top;
+  transition-duration: .2s;
+  &.ticl-inbound {
+    width: 10px;
+    border-radius: 5px;
+    border-left: 1px solid @ticl-color-prn;
+    padding-left: 6px;
+  }
+  &.ticl-inbound-path:hover {
+    width: auto;
+    border-radius: 10px;
+    height: 21px;
+    top: 2px;
+    right: calc(100% - 10px);
+    line-height: 19px;
+    padding-right: 6px;
+  }
 }
 
 .ticl-outbound {

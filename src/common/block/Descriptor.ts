@@ -19,6 +19,7 @@ export interface PropDesc {
   type: ValueType;
   help?: string;
   editor?: string;
+  readonly?: boolean;
 }
 
 export interface PropGroupDesc {
@@ -26,6 +27,7 @@ export interface PropGroupDesc {
   type: ValueType;
   help?: string;
   editor?: string;
+  readonly?: boolean;
 }
 
 export interface FunctionDesc {
