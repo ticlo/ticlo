@@ -5,4 +5,9 @@
 
 [![dependencies Status](https://david-dm.org/ticlo/ticlo/status.svg)](https://david-dm.org/ticlo/ticlo) [![devDependencies Status](https://david-dm.org/ticlo/ticlo/dev-status.svg)](https://david-dm.org/ticlo/ticlo?type=dev)
 
-A general puurpose visual programming language
+
+<p align="center">
+  <img src ="https://raw.githubusercontent.com/ticlo/ticlo/master/docs/assets/ticlo-icon.svg" />
+  <br/>
+  ticlo: a general puurpose visual programming language
+</p>
