@@ -51,7 +51,7 @@ export class WireView extends PureDataRenderer<WireViewProps, any> {
     let maxy = Math.max(y0, y1) + wirePadding;
 
     let xgap = 50;
-    let dy = Math.abs(y1 - y0) / 2;
+    let dy = Math.max(x0 - x1, Math.abs(y1 - y0)) / 2;
     if (xgap > dy) {
       xgap = dy;
     }
