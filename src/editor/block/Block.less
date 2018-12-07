@@ -19,6 +19,7 @@
 
 .ticl-block-selected {
   box-shadow: 0 0 3px 2px @ticl-color-prn-light;
+  z-index: 10;
 }
 
 .ticl-block-head {
@@ -105,6 +106,10 @@
     border-radius: 0 10px 0;
   }
   border: none;
+  z-index: 20;
+  &.ticl-block-selected {
+    z-index: 30;
+  }
 }
 
 .ticl-block-min-bound {
