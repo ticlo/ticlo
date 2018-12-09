@@ -45,7 +45,7 @@ export class FieldItem extends DataRendererItem<ValueRenderer> {
   name: string;
   key: string;
 
-  bindBlock?: BlockItem;
+  subBlock?: SubBlock;
 
   x: number = 0;
   y: number = 0;
@@ -157,6 +157,11 @@ export class FieldItem extends DataRendererItem<ValueRenderer> {
     }
   }
 }
+
+class SubBlock {
+
+}
+
 
 interface XYWRenderer {
   renderXYW(x: number, y: number, z: number): void;
@@ -348,10 +353,10 @@ export class FieldView extends PureDataRenderer<FieldViewProps, FieldViewState> 
     }
 
     return (
-      <div className='ticl-block-field' draggable={true} onDragStart={this.onDragStart} onDragOver={this.onDragOver}
+      <div className='ticl-field' draggable={true} onDragStart={this.onDragStart} onDragOver={this.onDragOver}
            onDrop={this.onDrop}>
-        <div className='ticl-block-field-name'>{translateProperty(desc.name, item.name, desc.ns)}</div>
-        <div className='ticl-block-field-value'><span ref={this.getValueRef}/></div>
+        <div className='ticl-field-name'>{translateProperty(desc.name, item.name, desc.ns)}</div>
+        <div className='ticl-field-value'><span ref={this.getValueRef}/></div>
 
         <div className={inBoundClass}>{inBoundText}</div>
         {(item.cache.hasListener) ? <div className='ticl-outbound'/> : null}
