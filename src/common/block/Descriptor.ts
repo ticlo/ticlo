@@ -57,3 +57,8 @@ export function getFuncStyleFromDesc(desc: FunctionDesc): string {
   }
   return '';
 }
+
+export const blankFuncDesc = {
+  name: '',
+  icon: ''
+};

@@ -1,10 +1,11 @@
 import React from "react";
 import {ClientConnection} from "../../common/connect/ClientConnection";
 import {DataMap} from "../../common/util/Types";
-import {BlockItem, FieldItem, Stage, BlockView} from "./Block";
+import {BlockItem, Stage, BlockView} from "./Block";
 import {WireItem, WireView} from "./Wire";
 import {AbstractPointerEvent, DragInitFunction, DragInitiator} from "../../ui/util/DragHelper";
 import {cssNumber} from "../../ui/util/Types";
+import {FieldItem} from "./Field";
 
 interface Props {
   conn: ClientConnection;

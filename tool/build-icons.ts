@@ -23,7 +23,7 @@ async function main() {
   let materialIcons: string[] = glob.sync(`icons/material/ic_*_48px.svg`);
   for (let path of materialIcons) {
     let data = fs.readFileSync(path, 'utf8').replace('<path ', '<path fill="white" ')
-      .replace(/</g, '%3C').replace(/>/g, '%3E');
+      .replace(/</g, '%3C').replace(/>/g, '%3E').replace(/#/g, '%23');
     let name = path.substring(path.lastIndexOf('/ic_') + 4, path.length - 9);
     output.push(`
 .tico-material-${name} {
@@ -52,7 +52,7 @@ async function main() {
         continue;
     }
     let data = fs.readFileSync(path, 'utf8').replace('<path ', '<path fill="white" ')
-      .replace(/</g, '%3C').replace(/>/g, '%3E');
+      .replace(/</g, '%3C').replace(/>/g, '%3E').replace(/#/g, '%23');
 
     output.push(`
 .tico-${group}-${name} {

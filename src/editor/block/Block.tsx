@@ -3,7 +3,7 @@ import {ClientConnection} from "../../common/connect/ClientConnection";
 import {DataMap} from "../../common/util/Types";
 import {DataRendererItem, PureDataRenderer} from "../../ui/component/DataRenderer";
 import {TIcon} from "../icon/Icon";
-import {FunctionDesc, getFuncStyleFromDesc} from "../../common/block/Descriptor";
+import {blankFuncDesc, FunctionDesc, getFuncStyleFromDesc} from "../../common/block/Descriptor";
 import {compareArray} from "../../common/util/Compare";
 import {translateProperty} from "../../common/util/i18n";
 import equal from "fast-deep-equal";
@@ -11,190 +11,23 @@ import {cssNumber, displayValue} from "../../ui/util/Types";
 import {WireItem} from "./Wire";
 import {relative, resolve} from "../../common/util/Path";
 import {AbstractPointerEvent, DragInitFunction, DragInitiator} from "../../ui/util/DragHelper";
+import {BaseBlockItem, FieldItem, Stage, XYWRenderer} from "./Field";
 
-const fieldHeight = 24;
 const fieldYOffset = 12;
-
-export interface Stage {
-  linkField(sourceKey: string, targetField: FieldItem): void;
-
-  unlinkField(sourceKey: string, targetField: FieldItem): void;
-
-  registerField(key: string, item: FieldItem): void;
-
-  unregisterField(key: string, item: FieldItem): void;
-
-  forceUpdate(): void;
-
-  selectBlock(key: string, ctrl?: boolean): void;
-
-  dragStart(e: PointerEvent, initFunction: DragInitFunction): void;
-
-  isDraggingBlock(): boolean;
-
-  // get a reference elemtnt to measure the scale of the current stage
-  getRefElement(): HTMLElement;
-}
-
-interface ValueRenderer {
-  renderValue(value: any): void;
-}
-
-export class FieldItem extends DataRendererItem<ValueRenderer> {
-  block: BlockItem;
-  name: string;
-  key: string;
-
-  subBlock?: SubBlock;
-
-  x: number = 0;
-  y: number = 0;
-  w: number = 0;
-
-  inWire?: WireItem;
-  outWires: Set<WireItem> = new Set<WireItem>();
-
-  _bindingPath?: string;
-
-  setBindingPath(str: string) {
-    if (str !== this._bindingPath) {
-      if (this._bindingPath) {
-        this.block.stage.unlinkField(resolve(this.block.key, this._bindingPath), this);
-      }
-      this._bindingPath = str;
-      if (this._bindingPath) {
-        this.block.stage.linkField(resolve(this.block.key, this._bindingPath), this);
-      }
-      return true;
-    }
-    return false;
-  }
-
-  // return y pos of next field
-  setXYW(x: number, y: number, w: number): number {
-    if (x !== this.x || y !== this.y || w !== this.y) {
-      this.x = x;
-      this.y = y;
-      this.w = w;
-      this.forceUpdate();
-
-      this.forceUpdateWires();
-      // TODO update bindBlock
-    }
-    return y + fieldHeight;
-  }
-
-  forceUpdateWires() {
-    if (this.inWire) {
-      this.inWire.forceUpdate();
-    }
-    for (let outWire of this.outWires) {
-      outWire.forceUpdate();
-    }
-  }
-
-  conn() {
-    return this.block.conn;
-  }
-
-  cache: any = {};
-  listener = {
-    onUpdate: (response: DataMap) => {
-      let change = response.change;
-      if (!equal(response.cache, this.cache)) {
-        this.cache = response.cache;
-        if (change.hasOwnProperty('value')) {
-          for (let renderer of this._renderers) {
-            renderer.renderValue(change.value);
-          }
-        }
-        if (
-          (
-            change.hasOwnProperty('bindingPath')
-            && this.setBindingPath(response.cache.bindingPath)
-          )
-          || change.hasOwnProperty('hasListener')
-        ) {
-          this.forceUpdate();
-        }
-      }
-    }
-  };
-
-  constructor(block: BlockItem, name: string) {
-    super();
-    this.name = name;
-    this.block = block;
-    this.key = `${block.key}.${name}`;
-    this.block.conn.subscribe(this.key, this.listener);
-    this.block.stage.registerField(this.key, this);
-  }
-
-  destructor() {
-    this.block.conn.unsubscribe(this.key, this.listener);
-    this.block.stage.unregisterField(this.key, this);
-    if (this._bindingPath) {
-      this.block.stage.unlinkField(resolve(this.key, this._bindingPath), this);
-    }
-  }
-
-  render(): React.ReactNode {
-    return <FieldView key={this.key} item={this}/>;
-  }
-
-  sourceChanged(source: FieldItem) {
-    if (source) {
-      if (this.inWire) {
-        this.inWire.setSource(source);
-      } else {
-        this.inWire = new WireItem(source, this);
-        this.block.stage.forceUpdate();
-      }
-    } else {
-      if (this.inWire) {
-        this.inWire = null;
-      }
-    }
-  }
-}
-
-class SubBlock {
-
-}
+const fieldHeight = 24;
 
 
-interface XYWRenderer {
-  renderXYW(x: number, y: number, z: number): void;
-}
-
-export class BlockItem extends DataRendererItem<XYWRenderer> {
-  conn: ClientConnection;
-  stage: Stage;
-  x: number = 0;
-  y: number = 0;
-  w: number = 0;
+export class BlockItem extends BaseBlockItem {
   h: number = 0;
-  key: string;
-  name: string;
-  desc: FunctionDesc = defaultFuncDesc;
-  fields: string[] = [];
-  fieldItems: Map<string, FieldItem> = new Map<string, FieldItem>();
   selected: boolean = false;
 
   constructor(connection: ClientConnection, stage: Stage, key: string) {
-    super();
-    this.conn = connection;
-    this.stage = stage;
-    this.key = key;
-    this.name = key.substr(key.indexOf('.') + 1);
+    super(connection, stage, key);
   }
 
-  setDesc(desc: FunctionDesc) {
-    if (desc !== this.desc) {
-      this.desc = desc;
-      this.forceUpdate();
-      this.forceUpdateFields();
-    }
+  foreceRendererAll () {
+    this.forceUpdate();
+    this.forceUpdateFields();
   }
 
   setSelected(val: boolean) {
@@ -207,7 +40,7 @@ export class BlockItem extends DataRendererItem<XYWRenderer> {
     }
   }
 
-  setXYW(x: number, y: number, w: number, update = false) {
+  setXYW(x: number, y: number, w: number, save = false) {
     if (x !== this.x || y !== this.y || w !== this.y) {
       this.x = x;
       this.y = y;
@@ -222,35 +55,11 @@ export class BlockItem extends DataRendererItem<XYWRenderer> {
       }
       this.updateFieldPosition();
     }
-    if (update) {
+    if (save) {
       this.conn.setValue('@b-xyw', [x, y, w]);
     }
   }
 
-  setP(fields: string[]) {
-    if (!compareArray(fields, this.fields)) {
-      for (let f of this.fields) {
-        if (!fields.includes(f)) {
-          this.fieldItems.get(f).destructor();
-          this.fieldItems.delete(f);
-        }
-      }
-      this.fields = fields;
-      for (let f of fields) {
-        if (!this.fieldItems.has(f)) {
-          this.fieldItems.set(f, new FieldItem(this, f));
-        }
-      }
-      this.forceUpdate();
-      this.updateFieldPosition();
-    }
-  }
-
-  forceUpdateFields() {
-    for (let [key, item] of this.fieldItems) {
-      item.forceUpdate();
-    }
-  }
 
   updateFieldPosition() {
     let {x, y, w} = this;
@@ -259,7 +68,7 @@ export class BlockItem extends DataRendererItem<XYWRenderer> {
       x -= 1;
       w = fieldHeight + 2;
       for (let field of this.fields) {
-        this.fieldItems.get(field).setXYW(x, y1, w);
+        this.fieldItems.get(field).setXYW(x, y1, w, 0);
       }
       this.h = fieldHeight;
     } else {
@@ -267,104 +76,16 @@ export class BlockItem extends DataRendererItem<XYWRenderer> {
       y1 += fieldYOffset;
       y1 += fieldHeight;
       for (let field of this.fields) {
-        y1 = this.fieldItems.get(field).setXYW(x, y1, w);
+        y1 = this.fieldItems.get(field).setXYW(x, y1, w, fieldHeight);
       }
       this.h = y1 - fieldYOffset + 20 - y; // footer height
     }
   }
 
-  renderFields(): React.ReactNode[] {
-    let result: React.ReactNode[] = [];
-    for (let field of this.fields) {
-      result.push(this.fieldItems.get(field).render());
-    }
-    return result;
-  }
-
   onDetached() {
-    for (let [key, fieldItem] of this.fieldItems) {
-      fieldItem.destructor();
-    }
+    this.destructor();
   }
 }
-
-interface FieldViewProps {
-  item: FieldItem;
-}
-
-interface FieldViewState {
-}
-
-
-export class FieldView extends PureDataRenderer<FieldViewProps, FieldViewState> {
-
-  private _valueNode!: HTMLElement;
-  private getValueRef = (node: HTMLDivElement): void => {
-    this._valueNode = node;
-    let {item} = this.props;
-    this.renderValue(item.cache.value);
-  };
-
-  onDragStart = (event: React.DragEvent) => {
-    let e = event.nativeEvent;
-    let {item} = this.props;
-    let desc = item.block.desc;
-    e.dataTransfer.setData('ticl-field', item.key);
-  };
-  onDragOver = (event: React.DragEvent) => {
-    let e = event.nativeEvent;
-    if (e.dataTransfer.types.includes('ticl-field')) {
-      e.preventDefault();
-      e.dataTransfer.dropEffect = 'link';
-    }
-  };
-  onDrop = (event: React.DragEvent) => {
-    let e = event.nativeEvent;
-    let {item} = this.props;
-    let desc = item.block.desc;
-    let dropField = e.dataTransfer.getData('ticl-field');
-    if (dropField !== item.key) {
-      let bindingPath = relative(item.block.key, dropField);
-      item.conn().setBinding(item.key, bindingPath);
-    }
-  };
-
-  renderValue(value: any) {
-    if (this._valueNode) {
-      let {item} = this.props;
-      displayValue(item.cache.value, this._valueNode);
-    }
-  }
-
-  render(): React.ReactNode {
-    let {item} = this.props;
-    let desc = item.block.desc;
-
-    let inBoundClass = 'ticl-slot';
-    let inBoundText: string;
-    if (item.cache.bindingPath) {
-      inBoundClass += ' ticl-inbound';
-      if (item.inWire) {
-
-      } else {
-        inBoundClass += ' ticl-inbound-path';
-        inBoundText = item.cache.bindingPath;
-      }
-    }
-
-    return (
-      <div className='ticl-field' draggable={true} onDragStart={this.onDragStart} onDragOver={this.onDragOver}
-           onDrop={this.onDrop}>
-        <div className='ticl-field-name'>{translateProperty(desc.name, item.name, desc.ns)}</div>
-        <div className='ticl-field-value'><span ref={this.getValueRef}/></div>
-
-        <div className={inBoundClass}>{inBoundText}</div>
-        {(item.cache.hasListener) ? <div className='ticl-outbound'/> : null}
-      </div>
-    );
-  }
-}
-
 
 interface BlockViewProps {
   item: BlockItem;
@@ -373,11 +94,6 @@ interface BlockViewProps {
 interface BlockViewState {
 
 }
-
-const defaultFuncDesc = {
-  name: '',
-  icon: ''
-};
 
 export class BlockView extends PureDataRenderer<BlockViewProps, BlockViewState> implements XYWRenderer {
   private _rootNode!: HTMLElement;
@@ -433,7 +149,7 @@ export class BlockView extends PureDataRenderer<BlockViewProps, BlockViewState> 
     if (funcDesc) {
       item.setDesc(funcDesc);
     } else {
-      item.setDesc(defaultFuncDesc);
+      item.setDesc(blankFuncDesc);
     }
   };
   selectAndDrag = (e: PointerEvent, initFunction: DragInitFunction) => {
@@ -496,7 +212,7 @@ export class BlockView extends PureDataRenderer<BlockViewProps, BlockViewState> 
 
   constructor(props: BlockViewProps) {
     super(props);
-    this.state = {funcDesc: defaultFuncDesc};
+    this.state = {funcDesc: blankFuncDesc};
     let {item} = props;
     item.conn.subscribe(`${item.key}.#is`, this.isListener);
     item.conn.subscribe(`${item.key}.@b-xyw`, this.xywListener);
@@ -549,6 +265,7 @@ export class BlockView extends PureDataRenderer<BlockViewProps, BlockViewState> 
     item.conn.unsubscribe(`${item.key}.@b-xyw`, this.xywListener);
     item.conn.unsubscribe(`${item.key}.@b-p`, this.pListener);
     item.conn.unwatchDesc(this.descListener);
+    super.componentWillUnmount();
   }
 }
 
