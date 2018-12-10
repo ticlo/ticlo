@@ -6,9 +6,11 @@ export class DataRendererItem<T = any> {
 
   attachedRenderer(renderer: PureDataRenderer<any, any> & T) {
     if (this._renderers.size === 0) {
+      this._renderers.add(renderer);
       this.onAttached();
+    } else {
+      this._renderers.add(renderer);
     }
-    this._renderers.add(renderer);
   }
 
   detachRenderer(renderer: PureDataRenderer<any, any> & T) {

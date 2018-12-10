@@ -1,11 +1,11 @@
 import React from "react";
 import {ClientConnection} from "../../common/connect/ClientConnection";
 import {DataMap} from "../../common/util/Types";
-import {BlockItem, Stage, BlockView} from "./Block";
+import {BlockItem, BlockView} from "./Block";
 import {WireItem, WireView} from "./Wire";
 import {AbstractPointerEvent, DragInitFunction, DragInitiator} from "../../ui/util/DragHelper";
 import {cssNumber} from "../../ui/util/Types";
-import {FieldItem} from "./Field";
+import {FieldItem, Stage} from "./Field";
 
 interface Props {
   conn: ClientConnection;
@@ -13,11 +13,7 @@ interface Props {
   style?: React.CSSProperties;
 }
 
-interface State {
-
-}
-
-export default class BlockStage extends React.Component<Props, State> implements Stage {
+export default class BlockStage extends React.Component<Props, any> implements Stage {
 
   private _bgNode!: HTMLElement;
   private getBgRef = (node: HTMLDivElement): void => {
@@ -189,7 +185,7 @@ export default class BlockStage extends React.Component<Props, State> implements
     props.conn.watch(props.basePath, this.watchListener);
   }
 
-  shouldComponentUpdate(nextProps: Props, nextState: State) {
+  shouldComponentUpdate(nextProps: Props, nextState: any) {
     if (nextProps.basePath !== this.props.basePath) {
       // TODO clear cached blocks
       this.props.conn.unwatch(this.props.basePath, this.watchListener);

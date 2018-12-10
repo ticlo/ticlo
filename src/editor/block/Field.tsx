@@ -1,6 +1,6 @@
+import React from "react";
 import {WireItem} from "./Wire";
 import {DataRendererItem, PureDataRenderer} from "../../ui/component/DataRenderer";
-import React from "react";
 import {DataMap} from "../../common/util/Types";
 import {relative, resolve} from "../../common/util/Path";
 import equal from "fast-deep-equal";
@@ -11,6 +11,26 @@ import {blankFuncDesc, FunctionDesc} from "../../common/block/Descriptor";
 import {DragInitFunction} from "../../ui/util/DragHelper";
 import {compareArray} from "../../common/util/Compare";
 
+export interface Stage {
+  linkField(sourceKey: string, targetField: FieldItem): void;
+
+  unlinkField(sourceKey: string, targetField: FieldItem): void;
+
+  registerField(key: string, item: FieldItem): void;
+
+  unregisterField(key: string, item: FieldItem): void;
+
+  forceUpdate(): void;
+
+  selectBlock(key: string, ctrl?: boolean): void;
+
+  dragStart(e: PointerEvent, initFunction: DragInitFunction): void;
+
+  isDraggingBlock(): boolean;
+
+  // get a reference elemtnt to measure the scale of the current stage
+  getRefElement(): HTMLElement;
+}
 
 interface ValueRenderer {
   renderValue(value: any): void;
@@ -38,11 +58,14 @@ export class FieldItem extends DataRendererItem<ValueRenderer> {
       if (this._bindingPath) {
         this.block.stage.unlinkField(resolve(this.block.key, this._bindingPath), this);
       }
+      if (this.subBlock) {
+        this.subBlock.destructor();
+        this.subBlock = null;
+      }
       this._bindingPath = str;
       if (this._bindingPath) {
         if (this._bindingPath === `~${name}.output`) {
-          this.subBlock = new SubBlockItem(this.block.conn, this.block.stage, `${this.block.key}.~${this.name}`);
-
+          this.subBlock = new SubBlockItem(this.block.conn, this.block.stage, `${this.block.key}.~${this.name}`, this.block);
         } else {
           this.block.stage.linkField(resolve(this.block.key, this._bindingPath), this);
         }
@@ -226,29 +249,6 @@ export class FieldView extends PureDataRenderer<FieldViewProps, any> {
   }
 }
 
-
-export interface Stage {
-  linkField(sourceKey: string, targetField: FieldItem): void;
-
-  unlinkField(sourceKey: string, targetField: FieldItem): void;
-
-  registerField(key: string, item: FieldItem): void;
-
-  unregisterField(key: string, item: FieldItem): void;
-
-  forceUpdate(): void;
-
-  selectBlock(key: string, ctrl?: boolean): void;
-
-  dragStart(e: PointerEvent, initFunction: DragInitFunction): void;
-
-  isDraggingBlock(): boolean;
-
-  // get a reference elemtnt to measure the scale of the current stage
-  getRefElement(): HTMLElement;
-}
-
-
 export interface XYWRenderer {
   renderXYW(x: number, y: number, z: number): void;
 }
@@ -265,6 +265,8 @@ export abstract class BaseBlockItem extends DataRendererItem<XYWRenderer> {
   fields: string[] = [];
   fieldItems: Map<string, FieldItem> = new Map<string, FieldItem>();
 
+  abstract get selected(): boolean;
+
   constructor(connection: ClientConnection, stage: Stage, key: string) {
     super();
     this.conn = connection;
@@ -274,9 +276,9 @@ export abstract class BaseBlockItem extends DataRendererItem<XYWRenderer> {
   }
 
   // renderer both the block and children fields
-  abstract foreceRendererAll(): void;
+  abstract forceRendererAll(): void;
 
-  abstract updateFieldPosition(): void;
+  abstract onFieldPositionChanged(): void;
 
   isListener = {
     onUpdate: (response: DataMap) => {
@@ -312,7 +314,7 @@ export abstract class BaseBlockItem extends DataRendererItem<XYWRenderer> {
   setDesc(desc: FunctionDesc) {
     if (desc !== this.desc) {
       this.desc = desc;
-      this.foreceRendererAll();
+      this.forceRendererAll();
     }
   }
 
@@ -331,8 +333,8 @@ export abstract class BaseBlockItem extends DataRendererItem<XYWRenderer> {
           this.fieldItems.set(f, new FieldItem(this, f));
         }
       }
-      this.updateFieldPosition();
-      this.foreceRendererAll();
+      this.onFieldPositionChanged();
+      this.forceRendererAll();
     }
   }
 
@@ -363,9 +365,23 @@ export abstract class BaseBlockItem extends DataRendererItem<XYWRenderer> {
 
 class SubBlockItem extends BaseBlockItem {
 
+  parent: BaseBlockItem;
 
-  constructor(connection: ClientConnection, stage: Stage, key: string) {
+  constructor(connection: ClientConnection, stage: Stage, key: string, parent: BaseBlockItem) {
     super(connection, stage, key);
+    this.parent = parent;
+  }
+
+  get selected() {
+    return this.parent.selected;
+  }
+
+  forceRendererAll(): void {
+    this.forceUpdateFields();
+  }
+
+  onFieldPositionChanged(): void {
+    this.parent.onFieldPositionChanged();
   }
 
 

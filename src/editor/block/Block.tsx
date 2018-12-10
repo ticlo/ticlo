@@ -19,9 +19,16 @@ export class BlockItem extends BaseBlockItem {
     super(connection, stage, key);
   }
 
-  foreceRendererAll() {
+  forceRendererAll() {
     this.forceUpdate();
     this.forceUpdateFields();
+  }
+
+  pendingPositionChange = false;
+
+  onFieldPositionChanged() {
+    this.pendingPositionChange = true;
+    this.forceUpdate();
   }
 
   setSelected(val: boolean) {
@@ -73,6 +80,7 @@ export class BlockItem extends BaseBlockItem {
       }
       this.h = y1 - fieldYOffset + 20 - y; // footer height
     }
+    this.pendingPositionChange = false;
   }
 
   onAttached() {
@@ -191,6 +199,9 @@ export class BlockView extends PureDataRenderer<BlockViewProps, BlockViewState> 
 
   render() {
     let {item} = this.props;
+    if (item.pendingPositionChange) {
+      item.updateFieldPosition();
+    }
     if (item.w) {
       return (
         <div

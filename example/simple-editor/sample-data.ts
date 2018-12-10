@@ -21,6 +21,6 @@ export const sampleData = {
     '~2': '##.subtract.@hide',
     '#length': 3,
     '@b-xyw': [400, 100, 150],
-    '@b-p': ['0', '1', '2', 'output']
+    '@b-p': ['0', '1', '2', 'output', '#is']
   }
 };

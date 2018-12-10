@@ -1,6 +1,6 @@
 import React from "react";
 import {DataRendererItem, PureDataRenderer} from "../../ui/component/DataRenderer";
-import {FieldItem} from "./Block";
+import {FieldItem} from "./Field";
 import {cssNumber} from "../../ui/util/Types";
 
 export class WireItem extends DataRendererItem {
