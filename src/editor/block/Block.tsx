@@ -1,17 +1,11 @@
 import React from "react";
 import {ClientConnection} from "../../common/connect/ClientConnection";
 import {DataMap} from "../../common/util/Types";
-import {DataRendererItem, PureDataRenderer} from "../../ui/component/DataRenderer";
+import {PureDataRenderer} from "../../ui/component/DataRenderer";
 import {TIcon} from "../icon/Icon";
-import {blankFuncDesc, FunctionDesc, getFuncStyleFromDesc} from "../../common/block/Descriptor";
-import {compareArray} from "../../common/util/Compare";
-import {translateProperty} from "../../common/util/i18n";
-import equal from "fast-deep-equal";
-import {cssNumber, displayValue} from "../../ui/util/Types";
-import {WireItem} from "./Wire";
-import {relative, resolve} from "../../common/util/Path";
+import {blankFuncDesc, getFuncStyleFromDesc} from "../../common/block/Descriptor";
 import {AbstractPointerEvent, DragInitFunction, DragInitiator} from "../../ui/util/DragHelper";
-import {BaseBlockItem, FieldItem, Stage, XYWRenderer} from "./Field";
+import {BaseBlockItem, Stage, XYWRenderer} from "./Field";
 
 const fieldYOffset = 12;
 const fieldHeight = 24;
@@ -25,7 +19,7 @@ export class BlockItem extends BaseBlockItem {
     super(connection, stage, key);
   }
 
-  foreceRendererAll () {
+  foreceRendererAll() {
     this.forceUpdate();
     this.forceUpdateFields();
   }
@@ -60,7 +54,6 @@ export class BlockItem extends BaseBlockItem {
     }
   }
 
-
   updateFieldPosition() {
     let {x, y, w} = this;
     if (!w) {
@@ -82,6 +75,10 @@ export class BlockItem extends BaseBlockItem {
     }
   }
 
+  onAttached() {
+    this.startSubscribe();
+  }
+
   onDetached() {
     this.destructor();
   }
@@ -101,15 +98,6 @@ export class BlockView extends PureDataRenderer<BlockViewProps, BlockViewState> 
     this._rootNode = node;
   };
 
-  isListener = {
-    onUpdate: (response: DataMap) => {
-      let {value} = response.cache;
-      let {item} = this.props;
-      if (typeof value === 'string') {
-        item.conn.watchDesc(value, this.descListener);
-      }
-    }
-  };
   xywListener = {
     onUpdate: (response: DataMap) => {
       let {value} = response.cache;
@@ -136,22 +124,6 @@ export class BlockView extends PureDataRenderer<BlockViewProps, BlockViewState> 
     }
   }
 
-  pListener = {
-    onUpdate: (response: DataMap) => {
-      let {value} = response.cache;
-      if (Array.isArray(value)) {
-        this.props.item.setP(value);
-      }
-    }
-  };
-  descListener = (funcDesc: FunctionDesc) => {
-    let {item} = this.props;
-    if (funcDesc) {
-      item.setDesc(funcDesc);
-    } else {
-      item.setDesc(blankFuncDesc);
-    }
-  };
   selectAndDrag = (e: PointerEvent, initFunction: DragInitFunction) => {
     let {item} = this.props;
     if (e.ctrlKey) {
@@ -214,9 +186,7 @@ export class BlockView extends PureDataRenderer<BlockViewProps, BlockViewState> 
     super(props);
     this.state = {funcDesc: blankFuncDesc};
     let {item} = props;
-    item.conn.subscribe(`${item.key}.#is`, this.isListener);
     item.conn.subscribe(`${item.key}.@b-xyw`, this.xywListener);
-    item.conn.subscribe(`${item.key}.@b-p`, this.pListener);
   }
 
   render() {
@@ -261,11 +231,7 @@ export class BlockView extends PureDataRenderer<BlockViewProps, BlockViewState> 
 
   componentWillUnmount() {
     let {item} = this.props;
-    item.conn.unsubscribe(`${item.key}.#is`, this.isListener);
     item.conn.unsubscribe(`${item.key}.@b-xyw`, this.xywListener);
-    item.conn.unsubscribe(`${item.key}.@b-p`, this.pListener);
-    item.conn.unwatchDesc(this.descListener);
     super.componentWillUnmount();
   }
 }
-

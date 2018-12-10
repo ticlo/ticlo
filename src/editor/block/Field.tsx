@@ -278,6 +278,37 @@ export abstract class BaseBlockItem extends DataRendererItem<XYWRenderer> {
 
   abstract updateFieldPosition(): void;
 
+  isListener = {
+    onUpdate: (response: DataMap) => {
+      let {value} = response.cache;
+      if (typeof value === 'string') {
+        this.conn.watchDesc(value, this.descListener);
+      } else {
+        this.conn.unwatchDesc(this.descListener);
+      }
+    }
+  };
+  pListener = {
+    onUpdate: (response: DataMap) => {
+      let {value} = response.cache;
+      if (Array.isArray(value)) {
+        this.setP(value);
+      }
+    }
+  };
+  descListener = (funcDesc: FunctionDesc) => {
+    if (funcDesc) {
+      this.setDesc(funcDesc);
+    } else {
+      this.setDesc(blankFuncDesc);
+    }
+  };
+
+  startSubscribe() {
+    this.conn.subscribe(`${this.key}.#is`, this.isListener);
+    this.conn.subscribe(`${this.key}.@b-p`, this.pListener);
+  }
+
   setDesc(desc: FunctionDesc) {
     if (desc !== this.desc) {
       this.desc = desc;
@@ -323,6 +354,9 @@ export abstract class BaseBlockItem extends DataRendererItem<XYWRenderer> {
     for (let [key, fieldItem] of this.fieldItems) {
       fieldItem.destructor();
     }
+    this.conn.unsubscribe(`${this.key}.#is`, this.isListener);
+    this.conn.unsubscribe(`${this.key}.@b-p`, this.pListener);
+    this.conn.unwatchDesc(this.descListener);
   }
 }
 
