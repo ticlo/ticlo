@@ -10,6 +10,7 @@ import {ClientConnection} from "../../common/connect/ClientConnection";
 import {blankFuncDesc, FunctionDesc} from "../../common/block/Descriptor";
 import {DragInitFunction} from "../../ui/util/DragHelper";
 import {compareArray} from "../../common/util/Compare";
+import {TIcon} from "../icon/Icon";
 
 export interface Stage {
   linkField(sourceKey: string, targetField: FieldItem): void;
@@ -48,6 +49,8 @@ export class FieldItem extends DataRendererItem<ValueRenderer> {
   y: number = 0;
   w: number = 0;
 
+  level: number = 0;
+
   inWire?: WireItem;
   outWires: Set<WireItem> = new Set<WireItem>();
 
@@ -65,7 +68,7 @@ export class FieldItem extends DataRendererItem<ValueRenderer> {
       this._bindingPath = str;
       if (this._bindingPath) {
         if (this._bindingPath === `~${name}.output`) {
-          this.subBlock = new SubBlockItem(this.block.conn, this.block.stage, `${this.block.key}.~${this.name}`, this.block);
+          this.subBlock = new SubBlockItem(this.block.conn, this.block.stage, `${this.block.key}.~${this.name}`, this.block, this.level);
         } else {
           this.block.stage.linkField(resolve(this.block.key, this._bindingPath), this);
         }
@@ -126,11 +129,12 @@ export class FieldItem extends DataRendererItem<ValueRenderer> {
     }
   };
 
-  constructor(block: BaseBlockItem, name: string) {
+  constructor(block: BaseBlockItem, name: string, level: number = 0) {
     super();
     this.name = name;
     this.block = block;
     this.key = `${block.key}.${name}`;
+    this.level = level;
     this.block.conn.subscribe(this.key, this.listener);
     this.block.stage.registerField(this.key, this);
   }
@@ -149,7 +153,7 @@ export class FieldItem extends DataRendererItem<ValueRenderer> {
   render(): React.ReactNode {
     if (this.subBlock) {
       return (
-        <div>
+        <div className='ticl-field-subblock'>
           <FieldView key={this.key} item={this}/>
           {this.subBlock.renderFields()}
         </div>
@@ -236,9 +240,19 @@ export class FieldView extends PureDataRenderer<FieldViewProps, any> {
       }
     }
 
+    let indentChildren: React.ReactNode[] = [];
+    if (item.level > 0) {
+      let i = 0;
+      for (; i < item.level - 1; ++i) {
+        indentChildren.push(<div key={i} className='ticl-field-indent0'/>);
+      }
+      indentChildren.push(<div key={i} className='ticl-field-indent1'/>);
+    }
+
     return (
       <div className='ticl-field' draggable={true} onDragStart={this.onDragStart} onDragOver={this.onDragOver}
            onDrop={this.onDrop}>
+        {indentChildren}
         <div className='ticl-field-name'>{translateProperty(desc.name, item.name, desc.ns)}</div>
         <div className='ticl-field-value'><span ref={this.getValueRef}/></div>
 
@@ -298,12 +312,15 @@ export abstract class BaseBlockItem extends DataRendererItem<XYWRenderer> {
       }
     }
   };
+
+  descLoaded = false;
   descListener = (funcDesc: FunctionDesc) => {
     if (funcDesc) {
       this.setDesc(funcDesc);
     } else {
       this.setDesc(blankFuncDesc);
     }
+    this.descLoaded = true;
   };
 
   startSubscribe() {
@@ -318,6 +335,9 @@ export abstract class BaseBlockItem extends DataRendererItem<XYWRenderer> {
     }
   }
 
+  createField(name: string): FieldItem {
+    return new FieldItem(this, name);
+  }
 
   setP(fields: string[]) {
     if (!compareArray(fields, this.fields)) {
@@ -330,7 +350,7 @@ export abstract class BaseBlockItem extends DataRendererItem<XYWRenderer> {
       this.fields = fields;
       for (let f of fields) {
         if (!this.fieldItems.has(f)) {
-          this.fieldItems.set(f, new FieldItem(this, f));
+          this.fieldItems.set(f, this.createField(f));
         }
       }
       this.onFieldPositionChanged();
@@ -366,10 +386,20 @@ export abstract class BaseBlockItem extends DataRendererItem<XYWRenderer> {
 class SubBlockItem extends BaseBlockItem {
 
   parent: BaseBlockItem;
+  level: number;
 
-  constructor(connection: ClientConnection, stage: Stage, key: string, parent: BaseBlockItem) {
+  constructor(connection: ClientConnection, stage: Stage, key: string, parent: BaseBlockItem, level: number) {
     super(connection, stage, key);
     this.parent = parent;
+    this.level = level;
+  }
+
+  createField(name: string): FieldItem {
+    return new FieldItem(this, name, this.level + 1);
+  }
+
+  startSubscribe() {
+    super.startSubscribe();
   }
 
   get selected() {
@@ -384,5 +414,17 @@ class SubBlockItem extends BaseBlockItem {
     this.parent.onFieldPositionChanged();
   }
 
+  renderFields(): React.ReactNode[] {
+    let result: React.ReactNode[] = super.renderFields();
+    result.push(
+      <div className='ticl-field-subicon'>
+        <TIcon icon={this.desc.icon}/>
+      </div>);
+    return result;
+  }
+
+  destructor() {
+    super.destructor();
+  }
 
 }

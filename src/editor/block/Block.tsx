@@ -222,7 +222,7 @@ export class BlockView extends PureDataRenderer<BlockViewProps, BlockViewState> 
           </div>
         </div>
       );
-    } else {
+    } else if (item.descLoaded) {
       return (
         <div
           ref={this.getRef}
@@ -237,6 +237,9 @@ export class BlockView extends PureDataRenderer<BlockViewProps, BlockViewState> 
         </div>
       );
 
+    } else {
+      // data not ready, don't renderer
+      return <div ref={this.getRef}/>;
     }
   }
 
