@@ -68,7 +68,7 @@ export class BlockItem extends BaseBlockItem {
       x -= 1;
       w = fieldHeight + 2;
       for (let field of this.fields) {
-        this.fieldItems.get(field).setXYW(x, y1, w, 0);
+        this.fieldItems.get(field).updateFieldPos(x, y1, w, 0);
       }
       this.h = fieldHeight;
     } else {
@@ -76,7 +76,7 @@ export class BlockItem extends BaseBlockItem {
       y1 += fieldYOffset;
       y1 += fieldHeight;
       for (let field of this.fields) {
-        y1 = this.fieldItems.get(field).setXYW(x, y1, w, fieldHeight);
+        y1 = this.fieldItems.get(field).updateFieldPos(x, y1, w, fieldHeight);
       }
       this.h = y1 - fieldYOffset + 20 - y; // footer height
     }

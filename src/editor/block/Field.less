@@ -80,27 +80,42 @@
 }
 
 .ticl-field-subblock {
-
+  position: relative;
+  & > .ticl-field {
+    border-bottom-color: #f0f0f0;
+  }
+  & > .ticl-field:last-child {
+    border-bottom-color: #d0d0d0;
+  }
 }
 
 .ticl-field-subicon {
-
+  position: absolute;
+  left: -1px;
+  top: 12px;
+  width: 12px;
+  height: 12px;
+  border-radius: 0 3px 3px 0;
+  & > .tico {
+    transform-origin: top left;
+    transform: scale(0.5, 0.5);
+  }
 }
 
-.ticl-field-sub0, .ticl-field-sub1, .ticl-field-sub2 {
+.ticl-field-indent0, .ticl-field-indent1, .ticl-field-indent2, .ticl-field-indent3 {
   width: 12px;
   height: 24px;
   margin: -3px 4px -2px 3px;
 }
 
-.ticl-field-sub0 {
+.ticl-field-indent1 {
   background-image: url('data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="12" height="24" viewBox="0 0 12 24"%3E%3Cpath stroke="%23AAA" fill="none" d="M1 0 L 1 24"/%3E%3C/svg%3E');
 }
 
-.ticl-field-sub1 {
+.ticl-field-indent2 {
   background-image: url('data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="12" height="24" viewBox="0 0 12 24"%3E%3Cpath stroke="%23AAA" fill="none" d="M1 0 L 1 12 L 12 12"/%3E%3C/svg%3E');
 }
 
-.ticl-field-sub2 {
+.ticl-field-indent3 {
   background-image: url('data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="12" height="24" viewBox="0 0 12 24"%3E%3Cpath stroke="%23AAA" fill="none" d="M1 0 L 1 24 M 1 12 L 12 12"/%3E%3C/svg%3E');
 }

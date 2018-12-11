@@ -16,11 +16,15 @@ export const sampleData = {
   },
   multiply: {
     '#is': 'multiply',
-    '~0': '##.add.1',
-    '~1': '##.subtract.output',
-    '~2': '##.subtract.@hide',
-    '#length': 3,
-    '@b-xyw': [400, 100, 150],
-    '@b-p': ['0', '1', '2', 'output', '#is']
+    '~0': '##.subtract.output',
+    '~1': {
+      '#is': 'divide',
+      '0': 6,
+      '~1': '##.##.subtract.@hide',
+      '@b-p': ['0', '1']
+    },
+    '#length': 2,
+    '@b-xyw': [400, 200, 150],
+    '@b-p': ['0', '1', 'output']
   }
 };

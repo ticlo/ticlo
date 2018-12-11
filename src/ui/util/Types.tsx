@@ -18,7 +18,7 @@ export function displayValue(val: any, element: HTMLElement) {
       break;
     case 'number':
       let rslt1 = val.toString();
-      let rslt2 = val.toPrecision(3);
+      let rslt2 = val.toPrecision(4);
       if (rslt1.length < rslt2.length + 3) {
         // use full string if it's not too long
         element.innerText = rslt1;
@@ -42,4 +42,8 @@ export function cssNumber(n: number): string {
   } else {
     return n.toFixed(2);
   }
+}
+
+export function shallowEqual(array1: any[], array2: any[]) {
+  return array1.length === array2.length && array1.every((value, index) => value === array2[index]);
 }

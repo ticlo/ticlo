@@ -5,7 +5,7 @@ import {DataMap} from "../../common/util/Types";
 import {relative, resolve} from "../../common/util/Path";
 import equal from "fast-deep-equal";
 import {translateProperty} from "../../common/util/i18n";
-import {displayValue} from "../../ui/util/Types";
+import {displayValue, shallowEqual} from "../../ui/util/Types";
 import {ClientConnection} from "../../common/connect/ClientConnection";
 import {blankFuncDesc, FunctionDesc} from "../../common/block/Descriptor";
 import {DragInitFunction} from "../../ui/util/DragHelper";
@@ -49,8 +49,6 @@ export class FieldItem extends DataRendererItem<ValueRenderer> {
   y: number = 0;
   w: number = 0;
 
-  level: number = 0;
-
   inWire?: WireItem;
   outWires: Set<WireItem> = new Set<WireItem>();
 
@@ -64,11 +62,12 @@ export class FieldItem extends DataRendererItem<ValueRenderer> {
       if (this.subBlock) {
         this.subBlock.destructor();
         this.subBlock = null;
+        this.block.onFieldPositionChanged();
       }
       this._bindingPath = str;
       if (this._bindingPath) {
-        if (this._bindingPath === `~${name}.output`) {
-          this.subBlock = new SubBlockItem(this.block.conn, this.block.stage, `${this.block.key}.~${this.name}`, this.block, this.level);
+        if (this._bindingPath === `~${this.name}.output`) {
+          this.subBlock = new SubBlockItem(this.block.conn, this.block.stage, `${this.block.key}.~${this.name}`, this.block);
         } else {
           this.block.stage.linkField(resolve(this.block.key, this._bindingPath), this);
         }
@@ -78,18 +77,33 @@ export class FieldItem extends DataRendererItem<ValueRenderer> {
     return false;
   }
 
+  indents: number[] = [];
+  indentChildren: React.ReactNode[] = [];
+
   // return y pos of next field
-  setXYW(x: number, y: number, w: number, dy: number): number {
+  updateFieldPos(x: number, y: number, w: number, dy: number, indents: number[] = []): number {
     if (x !== this.x || y !== this.y || w !== this.w) {
       this.x = x;
       this.y = y;
       this.w = w;
+
       this.forceUpdate();
 
       this.forceUpdateWires();
-      // TODO update bindBlock
     }
-    return y + dy;
+    if (!shallowEqual(indents, this.indents)) {
+      this.indents = indents.concat();
+      this.indentChildren.length = 0;
+      for (let i = 0; i < indents.length; ++i) {
+        this.indentChildren.push(<div key={i} className={`ticl-field-indent${indents[i]}`}/>);
+      }
+      this.forceUpdate();
+    }
+    y += dy;
+    if (this.subBlock) {
+      y = this.subBlock.updateFieldPos(x, y, w, dy, indents);
+    }
+    return y;
   }
 
   forceUpdateWires() {
@@ -129,12 +143,11 @@ export class FieldItem extends DataRendererItem<ValueRenderer> {
     }
   };
 
-  constructor(block: BaseBlockItem, name: string, level: number = 0) {
+  constructor(block: BaseBlockItem, name: string) {
     super();
     this.name = name;
     this.block = block;
     this.key = `${block.key}.${name}`;
-    this.level = level;
     this.block.conn.subscribe(this.key, this.listener);
     this.block.stage.registerField(this.key, this);
   }
@@ -153,7 +166,7 @@ export class FieldItem extends DataRendererItem<ValueRenderer> {
   render(): React.ReactNode {
     if (this.subBlock) {
       return (
-        <div className='ticl-field-subblock'>
+        <div key={this.key} className='ticl-field-subblock'>
           <FieldView key={this.key} item={this}/>
           {this.subBlock.renderFields()}
         </div>
@@ -240,23 +253,19 @@ export class FieldView extends PureDataRenderer<FieldViewProps, any> {
       }
     }
 
-    let indentChildren: React.ReactNode[] = [];
-    if (item.level > 0) {
-      let i = 0;
-      for (; i < item.level - 1; ++i) {
-        indentChildren.push(<div key={i} className='ticl-field-indent0'/>);
-      }
-      indentChildren.push(<div key={i} className='ticl-field-indent1'/>);
-    }
-
     return (
       <div className='ticl-field' draggable={true} onDragStart={this.onDragStart} onDragOver={this.onDragOver}
            onDrop={this.onDrop}>
-        {indentChildren}
+        {item.indentChildren}
         <div className='ticl-field-name'>{translateProperty(desc.name, item.name, desc.ns)}</div>
         <div className='ticl-field-value'><span ref={this.getValueRef}/></div>
 
-        <div className={inBoundClass}>{inBoundText}</div>
+        {(item.subBlock) ?
+          <div className='ticl-field-subicon ticl-block-prbg'>
+            <TIcon icon={item.subBlock.desc.icon}/>
+          </div> :
+          <div className={inBoundClass}>{inBoundText}</div>
+        }
         {(item.cache.hasListener) ? <div className='ticl-outbound'/> : null}
       </div>
     );
@@ -386,16 +395,15 @@ export abstract class BaseBlockItem extends DataRendererItem<XYWRenderer> {
 class SubBlockItem extends BaseBlockItem {
 
   parent: BaseBlockItem;
-  level: number;
 
-  constructor(connection: ClientConnection, stage: Stage, key: string, parent: BaseBlockItem, level: number) {
+  constructor(connection: ClientConnection, stage: Stage, key: string, parent: BaseBlockItem) {
     super(connection, stage, key);
     this.parent = parent;
-    this.level = level;
+    this.startSubscribe();
   }
 
   createField(name: string): FieldItem {
-    return new FieldItem(this, name, this.level + 1);
+    return new FieldItem(this, name);
   }
 
   startSubscribe() {
@@ -414,13 +422,23 @@ class SubBlockItem extends BaseBlockItem {
     this.parent.onFieldPositionChanged();
   }
 
-  renderFields(): React.ReactNode[] {
-    let result: React.ReactNode[] = super.renderFields();
-    result.push(
-      <div className='ticl-field-subicon'>
-        <TIcon icon={this.desc.icon}/>
-      </div>);
-    return result;
+  updateFieldPos(x: number, y: number, w: number, dy: number, indents: number[]): number {
+    let newIndents = indents.concat([3]);
+    for (let i = 0; i < this.fields.length; ++i) {
+      let field = this.fields[i];
+      if (i === this.fields.length - 1) {
+        newIndents[indents.length] = 2;
+      }
+      if (i === 1) {
+        for (let j = 0; j < indents.length; ++j) {
+          if (newIndents[j] > 1) {
+            newIndents[j] -= 2;
+          }
+        }
+      }
+      y = this.fieldItems.get(field).updateFieldPos(x, y, w, dy, newIndents);
+    }
+    return y;
   }
 
   destructor() {
