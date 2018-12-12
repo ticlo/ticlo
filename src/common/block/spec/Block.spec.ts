@@ -92,7 +92,7 @@ describe("Block", function () {
     assert.equal(listener1.value, 17, 'listener1 should be unbound');
   });
 
-  it('trivial', function () {
+  it('misc', function () {
     assert.isNull(Root.instance.save(), 'root can not be saved');
 
     let job = Root.instance.addJob();

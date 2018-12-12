@@ -244,5 +244,42 @@ describe("Connection", function () {
     Root.instance.deleteValue('Connection7');
   });
 
+  it('callImmediate', async function () {
+    let job = Root.instance.addJob('Connection8');
+    let [server, client] = makeLocalConnection(Root.instance, false);
+
+    let called = 0;
+    let updated = 0;
+    let callback = () => called++;
+
+    client.callImmediate(callback);
+    assert.equal(called, 1, "call immediate");
+
+    let callbacks1 = {
+      onUpdate(response: DataMap) {
+        client.callImmediate(callback);
+        updated++;
+        assert.equal(called, 1, "callback wont be called during update");
+      }
+    };
+    let callbacks2 = {
+      onUpdate(response: DataMap) {
+        client.callImmediate(callback);
+        updated++;
+        assert.equal(called, 1, "callback wont be called during update");
+      }
+    };
+    client.setValue('Connection8.v', 1);
+    client.subscribe('Connection8.v', callbacks1);
+    client.subscribe('Connection8.v', callbacks2);
+
+    assert.equal(called, 1, "not called");
+
+    await shouldHappen(() => updated === 2 && called === 2);
+
+    client.destroy();
+    Root.instance.deleteValue('Connection8');
+  });
+
 
 });

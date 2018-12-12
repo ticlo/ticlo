@@ -29,13 +29,33 @@ export class Connection {
     throw new Error("not implemented");
   }
 
+  _receiving = false;
+  _callImmediates = new Set<() => void>();
+
+  callImmediate(f: () => void) {
+    if (this._receiving) {
+      // will be called after receiving
+      this._callImmediates.add(f);
+    } else {
+      f();
+    }
+  }
+
   onReceive(data: DataMap[]) {
     this._waitingReceive = false;
     if ((this._sending.size > 0 || data.length > 0) && !this._scheduled) {
       this._schedule();
     }
+    this._receiving = true;
     for (let d of data) {
       this.onData(d);
+    }
+    this._receiving = false;
+    if (this._callImmediates.size) {
+      for (let callback of this._callImmediates) {
+        callback();
+      }
+      this._callImmediates.clear();
     }
   }
 
