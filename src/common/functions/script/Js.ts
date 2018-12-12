@@ -107,6 +107,6 @@ Types.add(JsFunction, {
   name: 'js',
   icon: 'txt:js',
   inputs: [{
-    name: 'script', type: 'string'
+    name: 'script', type: 'string', visible: 'high'
   }]
 });

@@ -7,7 +7,7 @@ const descriptorN: FunctionDesc = {
   icon: '',
   useLength: true,
   inputs: [
-    {group: '', type: 'number'}
+    {group: '', type: 'number', visible: 'high'}
   ],
   outputs: [
     {name: 'output', type: 'number'}
@@ -17,8 +17,8 @@ const descriptor2: FunctionDesc = {
   name: '',
   icon: '',
   inputs: [
-    {name: '0', type: 'number'},
-    {name: '1', type: 'number'}
+    {name: '0', type: 'number', visible: 'high'},
+    {name: '1', type: 'number', visible: 'high'}
   ],
   outputs: [
     {name: 'output', type: 'number'}

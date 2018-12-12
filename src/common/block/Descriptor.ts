@@ -1,5 +1,10 @@
 import {BlockMode} from "./Block";
 
+// high: always show in block, unless toggled by user
+// low: always hide in block
+// undefined: show in block but not in sub block
+export type VisibleType = 'high' | 'low' ;
+
 export type ValueType =
   'number'
   | 'string'
@@ -17,17 +22,17 @@ export type ValueType =
 export interface PropDesc {
   name: string;
   type: ValueType;
-  help?: string;
   editor?: string;
   readonly?: boolean;
+  visible?: VisibleType;
 }
 
 export interface PropGroupDesc {
   group: string;
   type: ValueType;
-  help?: string;
   editor?: string;
   readonly?: boolean;
+  visible?: VisibleType;
 }
 
 export interface FunctionDesc {
