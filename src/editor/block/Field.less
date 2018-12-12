@@ -81,21 +81,30 @@
 
 .ticl-field-subblock {
   position: relative;
+  border-bottom: 1px solid #f0f0f0;
   & > .ticl-field {
     border-bottom-color: #f0f0f0;
   }
   & > .ticl-field:last-child {
-    border-bottom-color: #d0d0d0;
+    height: 23px;
   }
+  & > *:last-child {
+    border-bottom-width: 0;
+  }
+}
+
+.ticl-block-body > .ticl-field-subblock {
+  border-bottom-color: #d0d0d0;
 }
 
 .ticl-field-subicon {
   position: absolute;
-  left: -1px;
-  top: 12px;
-  width: 12px;
+  left: 0;
+  top: 17px;
+  width: 16px;
   height: 12px;
-  border-radius: 0 3px 3px 0;
+  border-radius: 0 9px 0 4px;
+  padding-left: 1px;
   & > .tico {
     transform-origin: top left;
     transform: scale(0.5, 0.5);
@@ -103,9 +112,10 @@
 }
 
 .ticl-field-indent0, .ticl-field-indent1, .ticl-field-indent2, .ticl-field-indent3 {
-  width: 12px;
+  width: 9px;
   height: 24px;
   margin: -3px 4px -2px 3px;
+  flex-shrink: 0;
 }
 
 .ticl-field-indent1 {

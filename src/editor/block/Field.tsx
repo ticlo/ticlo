@@ -261,7 +261,7 @@ export class FieldView extends PureDataRenderer<FieldViewProps, any> {
         <div className='ticl-field-value'><span ref={this.getValueRef}/></div>
 
         {(item.subBlock) ?
-          <div className='ticl-field-subicon ticl-block-prbg'>
+          <div className='ticl-field-subicon ticl-block-prbg' style={{left: item.indentChildren.length * 16}}>
             <TIcon icon={item.subBlock.desc.icon}/>
           </div> :
           <div className={inBoundClass}>{inBoundText}</div>
@@ -340,6 +340,8 @@ export abstract class BaseBlockItem extends DataRendererItem<XYWRenderer> {
   setDesc(desc: FunctionDesc) {
     if (desc !== this.desc) {
       this.desc = desc;
+      console.log(desc.name);
+      this.forceUpdate();
       this.forceRendererAll();
     }
   }
@@ -414,6 +416,12 @@ class SubBlockItem extends BaseBlockItem {
     return this.parent.selected;
   }
 
+  // render the whole block
+  forceUpdate() {
+    this.parent.forceUpdate();
+  }
+
+  // render children
   forceRendererAll(): void {
     this.forceUpdateFields();
   }
@@ -424,17 +432,15 @@ class SubBlockItem extends BaseBlockItem {
 
   updateFieldPos(x: number, y: number, w: number, dy: number, indents: number[]): number {
     let newIndents = indents.concat([3]);
+    for (let j = 0; j < indents.length; ++j) {
+      if (newIndents[j] > 1) {
+        newIndents[j] -= 2;
+      }
+    }
     for (let i = 0; i < this.fields.length; ++i) {
       let field = this.fields[i];
       if (i === this.fields.length - 1) {
         newIndents[indents.length] = 2;
-      }
-      if (i === 1) {
-        for (let j = 0; j < indents.length; ++j) {
-          if (newIndents[j] > 1) {
-            newIndents[j] -= 2;
-          }
-        }
       }
       y = this.fieldItems.get(field).updateFieldPos(x, y, w, dy, newIndents);
     }

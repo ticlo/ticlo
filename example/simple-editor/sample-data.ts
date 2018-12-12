@@ -18,9 +18,19 @@ export const sampleData = {
     '#is': 'multiply',
     '~0': '##.subtract.output',
     '~1': {
-      '#is': 'divide',
-      '0': 6,
-      '~1': '##.##.subtract.@hide',
+      '#is': 'multiply',
+      '~0': {
+        '#is': 'add',
+        '0': 2,
+        '1': '3',
+        '@b-p': ['0', '1']
+      },
+      '~1': {
+        '#is': 'divide',
+        '0': 2,
+        '1': '3',
+        '@b-p': ['0', '1']
+      },
       '@b-p': ['0', '1']
     },
     '#length': 2,

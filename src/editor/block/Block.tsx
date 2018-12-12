@@ -27,7 +27,8 @@ export class BlockItem extends BaseBlockItem {
   pendingPositionChange = false;
 
   onFieldPositionChanged() {
-    this.pendingPositionChange = true;
+    // this.pendingPositionChange = true;
+    this.updateFieldPosition();
     this.forceUpdate();
   }
 
