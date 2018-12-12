@@ -13,7 +13,6 @@
   border-right: 1px solid #f0f0f0;
   overflow: hidden;
   text-overflow: ellipsis;
-  max-width: 160px;
   flex: 1 1 80px;
 }
 
@@ -21,7 +20,8 @@
   overflow: hidden;
   text-overflow: ellipsis;
   text-align: right;
-  flex: 3 1 80px;
+  flex: 0 0 calc(75% - 30px);
+  min-width: calc(100% - 160px);
 }
 
 .ticl-string-value {
@@ -103,7 +103,7 @@
   top: 17px;
   width: 16px;
   height: 12px;
-  border-radius: 0 9px 0 4px;
+  border-radius: 0 9px 0 0;
   padding-left: 1px;
   & > .tico {
     transform-origin: top left;

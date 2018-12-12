@@ -32,6 +32,8 @@ export class Connection {
   _receiving = false;
   _callImmediates = new Set<() => void>();
 
+  // if connection is receiving data, call the function after data is processed
+  // otherwise call the function directly
   callImmediate(f: () => void) {
     if (this._receiving) {
       // will be called after receiving

@@ -62,12 +62,12 @@ export class FieldItem extends DataRendererItem<ValueRenderer> {
       if (this.subBlock) {
         this.subBlock.destructor();
         this.subBlock = null;
-        this.block.onFieldPositionChanged();
+        this.block.onFieldsChanged();
       }
       this._bindingPath = str;
       if (this._bindingPath) {
         if (this._bindingPath === `~${this.name}.output`) {
-          this.subBlock = new SubBlockItem(this.block.conn, this.block.stage, `${this.block.key}.~${this.name}`, this.block);
+          this.subBlock = new SubBlockItem(this.block.conn, this.block.stage, `${this.block.key}.~${this.name}`, this);
         } else {
           this.block.stage.linkField(resolve(this.block.key, this._bindingPath), this);
         }
@@ -78,7 +78,6 @@ export class FieldItem extends DataRendererItem<ValueRenderer> {
   }
 
   indents: number[] = [];
-  indentChildren: React.ReactNode[] = [];
 
   // return y pos of next field
   updateFieldPos(x: number, y: number, w: number, dy: number, indents: number[] = []): number {
@@ -86,17 +85,10 @@ export class FieldItem extends DataRendererItem<ValueRenderer> {
       this.x = x;
       this.y = y;
       this.w = w;
-
-      this.forceUpdate();
-
       this.forceUpdateWires();
     }
     if (!shallowEqual(indents, this.indents)) {
       this.indents = indents.concat();
-      this.indentChildren.length = 0;
-      for (let i = 0; i < indents.length; ++i) {
-        this.indentChildren.push(<div key={i} className={`ticl-field-indent${indents[i]}`}/>);
-      }
       this.forceUpdate();
     }
     y += dy;
@@ -106,12 +98,17 @@ export class FieldItem extends DataRendererItem<ValueRenderer> {
     return y;
   }
 
-  forceUpdateWires() {
+  forceUpdateWires(recursiv = false) {
     if (this.inWire) {
       this.inWire.forceUpdate();
     }
     for (let outWire of this.outWires) {
       outWire.forceUpdate();
+    }
+    if (recursiv && this.subBlock) {
+      for (let [name, child] of this.subBlock.fieldItems) {
+        child.forceUpdateWires(true);
+      }
     }
   }
 
@@ -252,16 +249,19 @@ export class FieldView extends PureDataRenderer<FieldViewProps, any> {
         inBoundText = item.cache.bindingPath;
       }
     }
-
+    let indentChildren = [];
+    for (let i = 0; i < item.indents.length; ++i) {
+      indentChildren.push(<div key={i} className={`ticl-field-indent${item.indents[i]}`}/>);
+    }
     return (
       <div className='ticl-field' draggable={true} onDragStart={this.onDragStart} onDragOver={this.onDragOver}
            onDrop={this.onDrop}>
-        {item.indentChildren}
+        {indentChildren}
         <div className='ticl-field-name'>{translateProperty(desc.name, item.name, desc.ns)}</div>
         <div className='ticl-field-value'><span ref={this.getValueRef}/></div>
 
         {(item.subBlock) ?
-          <div className='ticl-field-subicon ticl-block-prbg' style={{left: item.indentChildren.length * 16}}>
+          <div className='ticl-field-subicon ticl-block-prbg' style={{left: item.indents.length * 16}}>
             <TIcon icon={item.subBlock.desc.icon}/>
           </div> :
           <div className={inBoundClass}>{inBoundText}</div>
@@ -299,9 +299,9 @@ export abstract class BaseBlockItem extends DataRendererItem<XYWRenderer> {
   }
 
   // renderer both the block and children fields
-  abstract forceRendererAll(): void;
+  abstract forceRendererChildren(): void ;
 
-  abstract onFieldPositionChanged(): void;
+  abstract onFieldsChanged(): void;
 
   isListener = {
     onUpdate: (response: DataMap) => {
@@ -340,9 +340,8 @@ export abstract class BaseBlockItem extends DataRendererItem<XYWRenderer> {
   setDesc(desc: FunctionDesc) {
     if (desc !== this.desc) {
       this.desc = desc;
-      console.log(desc.name);
       this.forceUpdate();
-      this.forceRendererAll();
+      this.forceRendererChildren();
     }
   }
 
@@ -364,8 +363,7 @@ export abstract class BaseBlockItem extends DataRendererItem<XYWRenderer> {
           this.fieldItems.set(f, this.createField(f));
         }
       }
-      this.onFieldPositionChanged();
-      this.forceRendererAll();
+      this.onFieldsChanged();
     }
   }
 
@@ -396,11 +394,11 @@ export abstract class BaseBlockItem extends DataRendererItem<XYWRenderer> {
 
 class SubBlockItem extends BaseBlockItem {
 
-  parent: BaseBlockItem;
+  parentField: FieldItem;
 
-  constructor(connection: ClientConnection, stage: Stage, key: string, parent: BaseBlockItem) {
+  constructor(connection: ClientConnection, stage: Stage, key: string, field: FieldItem) {
     super(connection, stage, key);
-    this.parent = parent;
+    this.parentField = field;
     this.startSubscribe();
   }
 
@@ -413,21 +411,22 @@ class SubBlockItem extends BaseBlockItem {
   }
 
   get selected() {
-    return this.parent.selected;
+    return this.parentField.block.selected;
   }
 
   // render the whole block
   forceUpdate() {
-    this.parent.forceUpdate();
+    this.parentField.block.forceUpdate();
   }
 
-  // render children
-  forceRendererAll(): void {
+  forceRendererChildren() {
+    // refresh parent field to update icon
+    this.parentField.forceUpdate();
     this.forceUpdateFields();
   }
 
-  onFieldPositionChanged(): void {
-    this.parent.onFieldPositionChanged();
+  onFieldsChanged(): void {
+    this.parentField.block.onFieldsChanged();
   }
 
   updateFieldPos(x: number, y: number, w: number, dy: number, indents: number[]): number {
