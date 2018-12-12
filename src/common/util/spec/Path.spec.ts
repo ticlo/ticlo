@@ -12,6 +12,8 @@ describe("Path", function () {
     assert.equal(resolve('g.h', '#.i'), 'g.h.i');
 
     assert.equal(resolve('j', '##.##.k'), '##.k');
+
+    assert.equal(resolve('l', '###.m'), '###.m');
   });
 
   it('relative', function () {
