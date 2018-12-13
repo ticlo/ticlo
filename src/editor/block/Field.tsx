@@ -229,6 +229,13 @@ export class FieldView extends PureDataRenderer<FieldViewProps, any> {
     }
   };
 
+  onSubIconClick = (event: React.MouseEvent) => {
+    let {item} = this.props;
+    if (item.subBlock) {
+      item.conn().setValue(`${item.subBlock.key}.@b-hide`, item.subBlock.hidden ? undefined : true);
+    }
+  };
+
   renderValue(value: any) {
     if (this._valueNode) {
       let {item} = this.props;
@@ -259,11 +266,14 @@ export class FieldView extends PureDataRenderer<FieldViewProps, any> {
         {indentChildren}
         <div className='ticl-field-name'>{translateProperty(desc.name, item.name, desc.ns)}</div>
         <div className='ticl-field-value'><span ref={this.getValueRef}/></div>
-
-        {(item.subBlock) ?
-          <div className='ticl-field-subicon ticl-block-prbg' style={{left: item.indents.length * 16}}>
+        {(item.subBlock)
+          ?
+          <div
+            className={`ticl-field-subicon ticl-block-prbg${item.subBlock.hidden ? ' ticl-field-subicon-close' : ''}`}
+            style={{left: item.indents.length * 16}} onDoubleClick={this.onSubIconClick}>
             <TIcon icon={item.subBlock.desc.icon}/>
-          </div> :
+          </div>
+          :
           <div className={inBoundClass}>{inBoundText}</div>
         }
         {(item.cache.hasListener) ? <div className='ticl-outbound'/> : null}
@@ -406,8 +416,22 @@ class SubBlockItem extends BaseBlockItem {
     return new FieldItem(this, name);
   }
 
+  hidden = true;
+  hideListener = {
+    onUpdate: (response: ValueUpdate) => {
+      console.log(response.cache);
+      let hidden = Boolean(response.cache.value);
+      if (hidden !== this.hidden) {
+        this.hidden = hidden;
+        this.onFieldsChanged();
+        this.forceRendererChildren();
+      }
+    }
+  };
+
   startSubscribe() {
     super.startSubscribe();
+    this.conn.subscribe(`${this.key}.@b-hide`, this.hideListener);
   }
 
   get selected() {
@@ -446,7 +470,15 @@ class SubBlockItem extends BaseBlockItem {
     return y;
   }
 
+  renderFields(): React.ReactNode[] {
+    if (this.hidden) {
+      return [];
+    }
+    return super.renderFields();
+  }
+
   destructor() {
+    this.conn.unsubscribe(`${this.key}.@b-hide`, this.hideListener);
     super.destructor();
   }
 

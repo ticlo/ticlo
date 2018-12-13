@@ -1,7 +1,7 @@
 export const sampleData = {
   add: {
     '#is': 'add',
-    '0': 3,
+    '~0': {'#is': 'add', '0': 1, '1': 2},
     '1': 4,
     '@b-xyw': [100, 100, 150],
     '@b-p': ['0', '1', 'output', '@b-p', '#is']
@@ -29,7 +29,8 @@ export const sampleData = {
         '#is': 'divide',
         '0': 2,
         '1': '3',
-        '@b-p': ['0', '1']
+        '@b-p': ['0', '1'],
+        '@b-hide': true
       },
       '@b-p': ['0', '1']
     },

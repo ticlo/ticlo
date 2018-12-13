@@ -352,7 +352,7 @@ export class ServerConnection extends Connection {
   }
 
   setValue(path: string, val: any): string {
-    if (val === undefined || isSavedBlock(val)) {
+    if (isSavedBlock(val)) {
       return "invalid value";
     }
     let property = this.root.queryProperty(path, true);
@@ -375,7 +375,7 @@ export class ServerConnection extends Connection {
   }
 
   updateValue(path: string, val: any): string {
-    if (val === undefined || isSavedBlock(val)) {
+    if (isSavedBlock(val)) {
       return "invalid value";
     }
     let property = this.root.queryProperty(path, true);

@@ -7,6 +7,10 @@
   line-height: 19px;
   padding: 2px 12px;
   display: flex;
+  &:first-child {
+    /* allows the sub icon to overlap the next row but still clickable */
+    z-index: 1;
+  }
 }
 
 .ticl-field-name {
@@ -82,6 +86,7 @@
 .ticl-field-subblock {
   position: relative;
   border-bottom: 1px solid #f0f0f0;
+  z-index: 0;
   & > .ticl-field {
     border-bottom-color: #f0f0f0;
   }
@@ -109,14 +114,20 @@
     transform-origin: top left;
     transform: scale(0.5, 0.5);
   }
+  transition-property: border, width, top;
+  transition-duration: .1s;
 }
 
 .ticl-field:last-child .ticl-field-subicon {
   top: 12px;
   width: 12px;
   height: 12px;
-  border-radius: 0 5px 5px 0;
   padding-left: 0;
+  border-radius: 0 6px 0 0;
+}
+
+.ticl-field-subicon.ticl-field-subicon-close {
+  border-radius: 0 5px 5px 0 !important;
 }
 
 .ticl-field-indent0, .ticl-field-indent1, .ticl-field-indent2, .ticl-field-indent3 {
