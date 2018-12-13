@@ -4,7 +4,7 @@ import {Dropdown, Button, Input, Icon, Menu, InputNumber} from "antd";
 import {ExpandIcon, ExpandState, TreeItem} from "../../ui/component/Tree";
 import {PureDataRenderer} from "../../ui/component/DataRenderer";
 import {DataMap} from "../../common/util/Types";
-import {ClientConnection} from "../../common/connect/ClientConnection";
+import {ClientConnection, ValueUpdate} from "../../common/connect/ClientConnection";
 import {TIcon} from "../icon/Icon";
 import {FunctionDesc} from "../../common/block/Descriptor";
 
@@ -155,7 +155,7 @@ export class NodeTreeRenderer extends PureDataRenderer<Props, State> {
     this.props.item.reload();
   };
   subscriptionListener = {
-    onUpdate: (response: DataMap) => {
+    onUpdate: (response: ValueUpdate) => {
       let {item} = this.props;
       let className = response.cache.value;
       if (typeof className === 'string') {

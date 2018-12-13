@@ -135,6 +135,7 @@ export class BlockProperty extends ValueDispatcher<any> implements Listener<any>
         return this._saved._save();
       }
       if (isSavedBlock(this._saved)) {
+        // when saved object is ambiguous, wrapped it with another layer of #is:{}
         return {'#is': this._saved};
       }
       return this._saved;
@@ -151,6 +152,7 @@ export class BlockProperty extends ValueDispatcher<any> implements Listener<any>
   _load(val: any) {
     if (isSavedBlock(val)) {
       if (typeof val['#is'] === 'object') {
+        // not a saved block, but a wrapped object
         this.onChange(val['#is'], true);
         return;
       }
@@ -176,6 +178,7 @@ export class BlockProperty extends ValueDispatcher<any> implements Listener<any>
     }
     if (isSavedBlock(val)) {
       if (typeof val['#is'] === 'object') {
+        // not a saved block, but a wrapped object
         this.onChange(val['#is'], true);
         return;
       }
@@ -281,13 +284,17 @@ export class BlockIO extends BlockProperty {
 }
 
 export class HelperProperty extends BlockProperty {
-  // a binding property should only be saved from original property
+  // a helper block should only be saved from original property
   _save(): any {
     return undefined;
   }
 
   // call the raw save function
   __save(): any {
-    return super._save();
+    if (this._saved instanceof Block) {
+      return this._saved._save();
+    } else {
+      return undefined;
+    }
   }
 }

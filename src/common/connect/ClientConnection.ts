@@ -90,26 +90,40 @@ class MergedClientRequest extends ConnectionSend implements ClientCallbacks {
   }
 }
 
+interface ValueState {
+  value?: any;
+  bindingPath?: string;
+  hasListener?: boolean;
+}
+
+export interface ValueUpdate {
+  cache: ValueState;
+  change: ValueState;
+}
+
+export interface SubscribeCallbacks {
+  onDone?(): void;
+
+  onUpdate?(response: ValueUpdate): void;
+
+  onError?(error: string, data?: DataMap): void;
+}
+
 class SubscribeRequest extends MergedClientRequest {
-  _cache: {
-    value: any;
-    bindingPath: string;
-    hasListener: boolean
-  } = {
+  _cache: ValueState = {
     value: undefined,
     bindingPath: null,
     hasListener: false
   };
 
-
-  add(callbacks: ClientCallbacks) {
+  add(callbacks: SubscribeCallbacks) {
     super.add(callbacks);
     if (callbacks.onUpdate && this._hasUpdate) {
       callbacks.onUpdate({cache: {...this._cache}, change: this._cache});
     }
   }
 
-  onUpdate(response: DataMap): void {
+  onUpdate(response: ValueState): void {
     if (response.hasOwnProperty('value')) {
       this._cache.value = response.value;
     }
@@ -138,7 +152,7 @@ class SetRequest extends ConnectionSend {
     this._data.value = value;
   }
 
-  getSendingData(): {data: DataMap, size: number} {
+  getSendingData(): { data: DataMap, size: number } {
     if (this.conn) {
       this.conn.setRequests.delete(this.path);
       this.conn = null;
@@ -156,7 +170,7 @@ class SetRequest extends ConnectionSend {
 }
 
 class WatchRequest extends MergedClientRequest {
-  _cachedMap: {[key: string]: string} = {};
+  _cachedMap: { [key: string]: string } = {};
 
   add(callbacks: ClientCallbacks) {
     super.add(callbacks);
@@ -364,7 +378,7 @@ export class ClientConnection extends Connection {
     return this.simpleRequest({cmd: 'list', path, filter, max}, callbacks);
   }
 
-  subscribe(path: string, callbacks: ClientCallbacks) {
+  subscribe(path: string, callbacks: SubscribeCallbacks) {
     if (this.subscribes.has(path)) {
       this.subscribes.get(path).add(callbacks);
     } else {
@@ -377,7 +391,7 @@ export class ClientConnection extends Connection {
     }
   }
 
-  unsubscribe(path: string, callbacks: ClientCallbacks) {
+  unsubscribe(path: string, callbacks: SubscribeCallbacks) {
     let req = this.subscribes.get(path);
     if (req) {
       req.remove(callbacks);

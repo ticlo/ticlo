@@ -6,7 +6,7 @@ import {relative, resolve} from "../../common/util/Path";
 import equal from "fast-deep-equal";
 import {translateProperty} from "../../common/util/i18n";
 import {displayValue, shallowEqual} from "../../ui/util/Types";
-import {ClientConnection} from "../../common/connect/ClientConnection";
+import {ClientConnection, ValueUpdate} from "../../common/connect/ClientConnection";
 import {blankFuncDesc, FunctionDesc} from "../../common/block/Descriptor";
 import {DragInitFunction} from "../../ui/util/DragHelper";
 import {compareArray} from "../../common/util/Compare";
@@ -118,7 +118,7 @@ export class FieldItem extends DataRendererItem<ValueRenderer> {
 
   cache: any = {};
   listener = {
-    onUpdate: (response: DataMap) => {
+    onUpdate: (response: ValueUpdate) => {
       let change = response.change;
       if (!equal(response.cache, this.cache)) {
         this.cache = response.cache;
@@ -304,7 +304,7 @@ export abstract class BaseBlockItem extends DataRendererItem<XYWRenderer> {
   abstract onFieldsChanged(): void;
 
   isListener = {
-    onUpdate: (response: DataMap) => {
+    onUpdate: (response: ValueUpdate) => {
       let {value} = response.cache;
       if (typeof value === 'string') {
         this.conn.watchDesc(value, this.descListener);
@@ -314,7 +314,7 @@ export abstract class BaseBlockItem extends DataRendererItem<XYWRenderer> {
     }
   };
   pListener = {
-    onUpdate: (response: DataMap) => {
+    onUpdate: (response: ValueUpdate) => {
       let {value} = response.cache;
       if (Array.isArray(value)) {
         this.setP(value);

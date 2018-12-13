@@ -1,5 +1,5 @@
 import React from "react";
-import {ClientConnection} from "../../common/connect/ClientConnection";
+import {ClientConnection, ValueUpdate} from "../../common/connect/ClientConnection";
 import {DataMap} from "../../common/util/Types";
 import {PureDataRenderer} from "../../ui/component/DataRenderer";
 import {TIcon} from "../icon/Icon";
@@ -105,7 +105,7 @@ export class BlockView extends PureDataRenderer<BlockViewProps, BlockViewState> 
   };
 
   xywListener = {
-    onUpdate: (response: DataMap) => {
+    onUpdate: (response: ValueUpdate) => {
       let {value} = response.cache;
       let {item} = this.props;
       if (item.selected && item.stage.isDraggingBlock()) {
