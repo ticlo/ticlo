@@ -155,6 +155,10 @@ export class FieldItem extends DataRendererItem<ValueRenderer> {
     if (this._bindingPath) {
       this.block.stage.unlinkField(resolve(this.key, this._bindingPath), this);
     }
+    if (this.inWire) {
+      this.inWire = null;
+      this.block.stage.forceUpdate();
+    }
     if (this.subBlock) {
       this.subBlock.destructor();
     }
@@ -185,6 +189,7 @@ export class FieldItem extends DataRendererItem<ValueRenderer> {
     } else {
       if (this.inWire) {
         this.inWire = null;
+        this.block.stage.forceUpdate();
       }
     }
   }
@@ -419,12 +424,30 @@ class SubBlockItem extends BaseBlockItem {
   hidden = true;
   hideListener = {
     onUpdate: (response: ValueUpdate) => {
-      console.log(response.cache);
       let hidden = Boolean(response.cache.value);
       if (hidden !== this.hidden) {
         this.hidden = hidden;
+        if (hidden) {
+          this.setP([]);
+        } else if (this.realFields) {
+          this.setP(this.realFields);
+        }
         this.onFieldsChanged();
         this.forceRendererChildren();
+      }
+    }
+  };
+
+  // maintain the real fields list even when they are hidden
+  realFields: string[];
+  pListener = {
+    onUpdate: (response: ValueUpdate) => {
+      let {value} = response.cache;
+      if (Array.isArray(value)) {
+        this.realFields = value;
+        if (!this.hidden) {
+          this.setP(value);
+        }
       }
     }
   };
@@ -468,13 +491,6 @@ class SubBlockItem extends BaseBlockItem {
       y = this.fieldItems.get(field).updateFieldPos(x, y, w, dy, newIndents);
     }
     return y;
-  }
-
-  renderFields(): React.ReactNode[] {
-    if (this.hidden) {
-      return [];
-    }
-    return super.renderFields();
   }
 
   destructor() {

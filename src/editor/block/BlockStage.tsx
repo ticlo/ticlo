@@ -30,7 +30,6 @@ export default class BlockStage extends React.Component<Props, any> implements S
   };
 
   _blocks: Map<string, BlockItem> = new Map<string, BlockItem>();
-  _wires: Map<string, WireItem> = new Map<string, WireItem>();
   _fields: Map<string, FieldItem> = new Map<string, FieldItem>();
   _fieldLinks: Map<string, Set<FieldItem>> = new Map<string, Set<FieldItem>>();
 
