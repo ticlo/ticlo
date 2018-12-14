@@ -18,6 +18,7 @@
   overflow: hidden;
   text-overflow: ellipsis;
   flex: 1 1 80px;
+  margin-left: 2px;
 }
 
 .ticl-field-value {
@@ -105,7 +106,7 @@
 .ticl-field-subicon {
   position: absolute;
   left: 0;
-  top: 17px;
+  top: 13px;
   width: 16px;
   height: 12px;
   border-radius: 0 9px 0 0;
@@ -118,16 +119,16 @@
   transition-duration: .1s;
 }
 
-.ticl-field:last-child .ticl-field-subicon {
-  top: 12px;
-  width: 12px;
-  height: 12px;
-  padding-left: 0;
-  border-radius: 0 6px 0 0;
-}
-
-.ticl-field-subicon.ticl-field-subicon-close {
-  border-radius: 0 5px 5px 0 !important;
+.ticl-field-close {
+  & > .ticl-field-subicon {
+    width: 12px;
+    top: 6px;
+    border-radius: 0 5px 5px 0;
+    padding-left: 0;
+  }
+  & > .ticl-slot, &> .ticl-outbound {
+    border-radius: 3px;
+  }
 }
 
 .ticl-field-indent0, .ticl-field-indent1, .ticl-field-indent2, .ticl-field-indent3 {

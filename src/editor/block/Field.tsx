@@ -91,15 +91,14 @@ export class FieldItem extends DataRendererItem<ValueRenderer> {
       this.indents = indents.concat();
       this.forceUpdate();
     }
+    y += dy;
     if (this.subBlock) {
-      if (!this.subBlock.hidden) {
-        y += dy;
+      if (this.subBlock.hidden) {
+        // share the same row with hidden properties
+        y = this.subBlock.updateFieldPos(x, y - dy, w, 0, indents) + dy;
       } else {
-        dy = 0;
+        y = this.subBlock.updateFieldPos(x, y, w, dy, indents);
       }
-      y = this.subBlock.updateFieldPos(x, y, w, dy, indents);
-    } else {
-      y += dy;
     }
 
     return y;
@@ -259,11 +258,18 @@ export class FieldView extends PureDataRenderer<FieldViewProps, any> {
     let {item} = this.props;
     let desc = item.block.desc;
 
+    let fieldClass = 'ticl-field';
     let inBoundClass = 'ticl-slot';
     let inBoundText: string;
     if (item.cache.bindingPath) {
-      inBoundClass += ' ticl-inbound';
-      if (!item.inWire) {
+      inBoundClass = 'ticl-slot ticl-inbound';
+      if (item.subBlock) {
+        if (item.subBlock.hidden) {
+          fieldClass = 'ticl-field ticl-field-close';
+        } else {
+          inBoundClass = null;
+        }
+      } else if (!item.inWire) {
         inBoundClass += ' ticl-inbound-path';
         inBoundText = item.cache.bindingPath;
       }
@@ -272,23 +278,24 @@ export class FieldView extends PureDataRenderer<FieldViewProps, any> {
     for (let i = 0; i < item.indents.length; ++i) {
       indentChildren.push(<div key={i} className={`ticl-field-indent${item.indents[i]}`}/>);
     }
+    let showOutBound = item.cache.hasListener || (item.subBlock && item.subBlock.hidden);
     return (
-      <div className='ticl-field' draggable={true} onDragStart={this.onDragStart} onDragOver={this.onDragOver}
+      <div className={fieldClass} draggable={true} onDragStart={this.onDragStart} onDragOver={this.onDragOver}
            onDrop={this.onDrop}>
         {indentChildren}
         <div className='ticl-field-name'>{translateProperty(desc.name, item.name, desc.ns)}</div>
         <div className='ticl-field-value'><span ref={this.getValueRef}/></div>
-        {(item.subBlock)
-          ?
+        {inBoundClass ? <div className={inBoundClass}>{inBoundText}</div> : null}
+        {showOutBound ? <div className='ticl-outbound'/> : null}
+        {(item.subBlock) ?
           <div
-            className={`ticl-field-subicon ticl-block-prbg${item.subBlock.hidden ? ' ticl-field-subicon-close' : ''}`}
+            className='ticl-field-subicon ticl-block-prbg'
             style={{left: item.indents.length * 16}} onDoubleClick={this.onSubIconClick}>
             <TIcon icon={item.subBlock.desc.icon}/>
           </div>
-          :
-          <div className={inBoundClass}>{inBoundText}</div>
+          : null
         }
-        {(item.cache.hasListener) ? <div className='ticl-outbound'/> : null}
+
       </div>
     );
   }
