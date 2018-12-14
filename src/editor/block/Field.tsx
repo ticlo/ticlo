@@ -161,12 +161,17 @@ export class FieldItem extends DataRendererItem<ValueRenderer> {
     if (this._bindingPath) {
       this.block.stage.unlinkField(resolve(this.key, this._bindingPath), this);
     }
-    if (this.inWire) {
-      this.inWire = null;
-      this.block.stage.forceUpdate();
-    }
+    this.removeInWire();
     if (this.subBlock) {
       this.subBlock.destructor();
+    }
+  }
+
+  removeInWire() {
+    if (this.inWire) {
+      this.inWire.destructor();
+      this.inWire = null;
+      this.block.stage.forceUpdate();
     }
   }
 
@@ -193,10 +198,7 @@ export class FieldItem extends DataRendererItem<ValueRenderer> {
         this.block.stage.forceUpdate();
       }
     } else {
-      if (this.inWire) {
-        this.inWire = null;
-        this.block.stage.forceUpdate();
-      }
+      this.removeInWire();
     }
   }
 }

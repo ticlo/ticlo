@@ -26,6 +26,13 @@ export class WireItem extends DataRendererItem {
     this.source = souce;
     this.source.outWires.add(this);
   }
+
+  destructor() {
+    if (this.source) {
+      this.source.outWires.delete(this);
+      this.source = null;
+    }
+  }
 }
 
 interface WireViewProps {
