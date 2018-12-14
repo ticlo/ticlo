@@ -91,10 +91,17 @@ export class FieldItem extends DataRendererItem<ValueRenderer> {
       this.indents = indents.concat();
       this.forceUpdate();
     }
-    y += dy;
     if (this.subBlock) {
+      if (!this.subBlock.hidden) {
+        y += dy;
+      } else {
+        dy = 0;
+      }
       y = this.subBlock.updateFieldPos(x, y, w, dy, indents);
+    } else {
+      y += dy;
     }
+
     return y;
   }
 
@@ -427,27 +434,8 @@ class SubBlockItem extends BaseBlockItem {
       let hidden = Boolean(response.cache.value);
       if (hidden !== this.hidden) {
         this.hidden = hidden;
-        if (hidden) {
-          this.setP([]);
-        } else if (this.realFields) {
-          this.setP(this.realFields);
-        }
         this.onFieldsChanged();
         this.forceRendererChildren();
-      }
-    }
-  };
-
-  // maintain the real fields list even when they are hidden
-  realFields: string[];
-  pListener = {
-    onUpdate: (response: ValueUpdate) => {
-      let {value} = response.cache;
-      if (Array.isArray(value)) {
-        this.realFields = value;
-        if (!this.hidden) {
-          this.setP(value);
-        }
       }
     }
   };
@@ -491,6 +479,13 @@ class SubBlockItem extends BaseBlockItem {
       y = this.fieldItems.get(field).updateFieldPos(x, y, w, dy, newIndents);
     }
     return y;
+  }
+
+  renderFields(): React.ReactNode[] {
+    if (this.hidden) {
+      return [];
+    }
+    return super.renderFields();
   }
 
   destructor() {
