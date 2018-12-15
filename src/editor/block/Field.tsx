@@ -269,6 +269,7 @@ export class FieldView extends PureDataRenderer<FieldViewProps, any> {
     let fieldClass = 'ticl-field';
     let inBoundClass = 'ticl-slot';
     let inBoundText: string;
+    let inBoundTitle: string;
     if (item.cache.bindingPath) {
       inBoundClass = 'ticl-slot ticl-inbound';
       if (item.subBlock) {
@@ -277,7 +278,9 @@ export class FieldView extends PureDataRenderer<FieldViewProps, any> {
         } else {
           inBoundClass = null;
         }
-      } else if (!item.inWire) {
+      } else if (item.inWire) {
+        inBoundTitle = item.cache.bindingPath;
+      } else {
         inBoundClass += ' ticl-inbound-path';
         inBoundText = item.cache.bindingPath;
       }
@@ -293,7 +296,7 @@ export class FieldView extends PureDataRenderer<FieldViewProps, any> {
         {indentChildren}
         <div className='ticl-field-name'>{translateProperty(desc.name, item.name, desc.ns)}</div>
         <div className='ticl-field-value'><span ref={this.getValueRef}/></div>
-        {inBoundClass ? <div className={inBoundClass}>{inBoundText}</div> : null}
+        {inBoundClass ? <div className={inBoundClass} title={inBoundTitle}>{inBoundText}</div> : null}
         {showOutBound ? <div className='ticl-outbound'/> : null}
         {(item.subBlock) ?
           <div
