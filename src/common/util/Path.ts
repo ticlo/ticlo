@@ -40,15 +40,21 @@ export function relative(from: string, to: string): string {
   return str2.padStart(str2.length + (p1.length - pos) * 3, '##.');
 }
 
-export function allPathsBetween(target: string, base: string): string[] {
-  if (target === base || !target.startsWith(base)) {
-    return [];
+// call all paths in between, including the target path but not the base path
+// callback: return true to break
+export function forAllPathsBetween(target: string, base: string, callback: (value: string) => boolean) {
+  if (!target.startsWith(base)) {
+    return;
+  }
+  if (callback(target)) {
+    return;
   }
   let targetParts = target.split('.');
   let baseParts = base.split('.');
-  let results: string[] = [];
+
   for (let len = targetParts.length - 1; len > baseParts.length; --len) {
-    results.push(targetParts.slice(0, len).join('.'));
+    if (callback(targetParts.slice(0, len).join('.'))) {
+      return;
+    }
   }
-  return results;
 }

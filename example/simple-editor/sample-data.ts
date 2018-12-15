@@ -10,7 +10,7 @@ export const sampleData = {
     '#is': 'subtract',
     '~0': '##.add.1',
     '~1': '##.add.output',
-    '@hide': 3,
+    '@hide': {v1: 3},
     '@b-xyw': [300, 200, 0],
     '@b-p': ['0', '1', 'output']
   },
@@ -22,7 +22,7 @@ export const sampleData = {
       '~0': {
         '#is': 'add',
         '0': 2,
-        '1': '3',
+        '~1': '##.##.##.add.@b-p.1',
         '@b-p': ['0', '1']
       },
       '~1': {

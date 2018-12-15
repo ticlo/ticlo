@@ -1,5 +1,5 @@
 import {assert} from "chai";
-import {relative, resolve, allPathsBetween} from "../Path";
+import {relative, resolve, forAllPathsBetween} from "../Path";
 
 
 describe("Path", function () {
@@ -22,10 +22,16 @@ describe("Path", function () {
     assert.equal(relative('b.c', 'b.d'), '##.d');
   });
 
-  it('allPathsBetween', function () {
-    assert.deepEqual(allPathsBetween('a.b', 'c.d'), [], 'unrelated paths');
-    assert.deepEqual(allPathsBetween('e.f', 'e.f'), [], 'same path');
-    assert.deepEqual(allPathsBetween('g.h.i.j.k', 'g.h'), ['g.h.i.j', 'g.h.i']);
+  it('forAllPathsBetween', function () {
+    function getAllPathBetween(target: string, base: string): string[] {
+      let result: string[] = [];
+      forAllPathsBetween(target, base, (v) => result.push(v) === -1);
+      return result;
+    }
+
+    assert.deepEqual(getAllPathBetween('a.b', 'c.d'), [], 'unrelated paths');
+    assert.deepEqual(getAllPathBetween('e.f', 'e.f'), ['e.f'], 'same path');
+    assert.deepEqual(getAllPathBetween('g.h.i.j.k', 'g.h'), ['g.h.i.j.k', 'g.h.i.j', 'g.h.i']);
   });
 
 });

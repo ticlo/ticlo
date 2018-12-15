@@ -53,11 +53,12 @@ export class FieldItem extends DataRendererItem<ValueRenderer> {
   outWires: Set<WireItem> = new Set<WireItem>();
 
   _bindingPath?: string;
+  _bindingTargetKey?: string;
 
   setBindingPath(str: string) {
     if (str !== this._bindingPath) {
-      if (this._bindingPath) {
-        this.block.stage.unlinkField(resolve(this.block.key, this._bindingPath), this);
+      if (this._bindingTargetKey) {
+        this.block.stage.unlinkField(this._bindingTargetKey, this);
       }
       if (this.subBlock) {
         this.subBlock.destructor();
@@ -65,11 +66,12 @@ export class FieldItem extends DataRendererItem<ValueRenderer> {
         this.block.onFieldsChanged();
       }
       this._bindingPath = str;
-      if (this._bindingPath) {
+      this._bindingTargetKey = resolve(this.block.key, this._bindingPath);
+      if (this._bindingTargetKey) {
         if (this._bindingPath === `~${this.name}.output`) {
           this.subBlock = new SubBlockItem(this.block.conn, this.block.stage, `${this.block.key}.~${this.name}`, this);
         } else {
-          this.block.stage.linkField(resolve(this.block.key, this._bindingPath), this);
+          this.block.stage.linkField(this._bindingTargetKey, this);
         }
       }
       return true;
@@ -158,8 +160,8 @@ export class FieldItem extends DataRendererItem<ValueRenderer> {
   destructor() {
     this.block.conn.unsubscribe(this.key, this.listener);
     this.block.stage.unregisterField(this.key, this);
-    if (this._bindingPath) {
-      this.block.stage.unlinkField(resolve(this.key, this._bindingPath), this);
+    if (this._bindingTargetKey) {
+      this.block.stage.unlinkField(this._bindingTargetKey, this);
     }
     this.removeInWire();
     if (this.subBlock) {
@@ -189,9 +191,13 @@ export class FieldItem extends DataRendererItem<ValueRenderer> {
 
   }
 
-  sourceChanged(source: FieldItem) {
+  sourceChanged(source: FieldItem, partial = false) {
     if (source) {
       if (this.inWire) {
+        if (partial && source.key.length < this.inWire.source.key.length) {
+          // already has a better link
+          return;
+        }
         this.inWire.setSource(source);
       } else {
         this.inWire = new WireItem(source, this);

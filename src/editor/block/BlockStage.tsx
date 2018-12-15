@@ -6,6 +6,7 @@ import {WireItem, WireView} from "./Wire";
 import {AbstractPointerEvent, DragInitFunction, DragInitiator} from "../../ui/util/DragHelper";
 import {cssNumber} from "../../ui/util/Types";
 import {FieldItem, Stage} from "./Field";
+import {forAllPathsBetween} from "../../common/util/Path";
 
 interface Props {
   conn: ClientConnection;
@@ -126,7 +127,14 @@ export default class BlockStage extends React.Component<Props, any> implements S
       this._fieldLinks.set(souceKey, new Set<FieldItem>());
     }
     this._fieldLinks.get(souceKey).add(targetField);
-    targetField.sourceChanged(this._fields.get(souceKey));
+    forAllPathsBetween(souceKey, this.props.basePath, (path) => {
+      let field = this._fields.get(path);
+      if (field) {
+        targetField.sourceChanged(field);
+        return true;
+      }
+    }) ;
+
   }
 
   unlinkField(sourceKey: string, targetField: FieldItem) {
@@ -145,6 +153,16 @@ export default class BlockStage extends React.Component<Props, any> implements S
       for (let target of this._fieldLinks.get(key)) {
         target.sourceChanged(item);
       }
+    } else {
+      let preFixPath = `${key}.`;
+      for (let [path, links] of this._fieldLinks) {
+        // search for children path to have a indirect binding wire
+        if (path.startsWith(preFixPath)) {
+          for (let target of links) {
+            target.sourceChanged(item, true);
+          }
+        }
+      }
     }
   }
 
@@ -154,6 +172,18 @@ export default class BlockStage extends React.Component<Props, any> implements S
       if (this._fieldLinks.has(key)) {
         for (let target of this._fieldLinks.get(key)) {
           target.sourceChanged(null);
+        }
+      } else {
+        let preFixPath = `${key}.`;
+        for (let [path, links] of this._fieldLinks) {
+          // search for children path to remove indirect binding wire
+          if (path.startsWith(preFixPath)) {
+            for (let target of links) {
+              if (target.inWire.source === item) {
+                target.sourceChanged(null);
+              }
+            }
+          }
         }
       }
     }
