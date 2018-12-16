@@ -88,6 +88,23 @@ describe("editor NodeTree", function () {
     // root element is back
     await shouldHappen(() => document.evaluate("//div[contains(@class,'ticl-tree-node-text')][text()='NodeTree']", div, null, 9, null).singleNodeValue);
 
+    // remove one child block
+    job.setValue('5', undefined);
+
+    // close children
+    SimulateEvent.simulate(
+      document.evaluate("//div[contains(@class,'ticl-tree-node-text')][text()='NodeTree']/../div[1]", div, null, 9, null).singleNodeValue,
+      'click');
+    await shouldHappen(() => contentDiv.childNodes.length === 1);
+
+    // reopen it, should still show cached nodes
+    SimulateEvent.simulate(
+      document.evaluate("//div[contains(@class,'ticl-tree-node-text')][text()='NodeTree']/../div[1]", div, null, 9, null).singleNodeValue,
+      'click');
+    await shouldHappen(() => contentDiv.childNodes.length === 14);
+    // node is removed but cache still exists
+    assert.isNotNull(document.evaluate("//div[contains(@class,'ticl-tree-node-text')][text()='5']", document.body, null, 9, null).singleNodeValue);
+
     // right click the first node
     SimulateEvent.simulate(
       document.evaluate("//div[contains(@class,'ticl-tree-node-text')][text()='NodeTree']", div, null, 9, null).singleNodeValue,
@@ -97,7 +114,9 @@ describe("editor NodeTree", function () {
       document.evaluate("//li[contains(@class,'ant-dropdown-menu-item')][text()='Reload']", document.body, null, 9, null).singleNodeValue,
       'click');
     // second layer of children node should all be closed
-    await shouldHappen(() => contentDiv.childNodes.length === 11);
+    await shouldHappen(() => contentDiv.childNodes.length === 10);
+    // children should be refreshed, only 9 children remain
+    assert.isNull(document.evaluate("//div[contains(@class,'ticl-tree-node-text')][text()='5']", document.body, null, 9, null).singleNodeValue);
 
     ReactDOM.unmountComponentAtNode(div);
     client.destroy();
