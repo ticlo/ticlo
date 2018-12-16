@@ -7,6 +7,7 @@ import {DataMap} from "../../common/util/Types";
 import {ClientConnection, ValueUpdate} from "../../common/connect/ClientConnection";
 import {TIcon} from "../icon/Icon";
 import {FunctionDesc} from "../../common/block/Descriptor";
+import {ClickParam} from "antd/lib/menu";
 
 export class NodeTreeItem extends TreeItem {
   onListChange: () => void;
@@ -151,7 +152,7 @@ export class NodeTreeRenderer extends PureDataRenderer<Props, State> {
         break;
     }
   };
-  onReloadClicked = (event?: MouseEvent) => {
+  onReloadClicked = (event?: ClickParam) => {
     this.props.item.reload();
   };
   subscriptionListener = {
