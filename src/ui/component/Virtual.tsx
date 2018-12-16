@@ -5,6 +5,7 @@ interface Props {
   itemCount: number;
   itemHeight: number;
   renderer: (idx: number, style: React.CSSProperties) => React.ReactNode;
+  className?: string;
   style?: React.CSSProperties;
 }
 
@@ -14,9 +15,7 @@ interface State {
 }
 
 export default class VirtualList extends React.Component<Props, State> {
-  static defaultProps = {
-
-  };
+  static defaultProps = {};
 
   state = {offset: 0, height: 0};
   resizeObserver: any;
@@ -53,7 +52,7 @@ export default class VirtualList extends React.Component<Props, State> {
 
 
   render() {
-    const {itemCount, itemHeight, renderer, style} = this.props;
+    const {itemCount, itemHeight, renderer, className, style} = this.props;
     const {height, offset} = this.state;
 
     if (this.state.height > 0 && itemCount > 0) {
@@ -74,15 +73,15 @@ export default class VirtualList extends React.Component<Props, State> {
       }
 
       return (
-        <div ref={this.getRef} className='ticl-v-scroll' style={style}>
+        <div ref={this.getRef} className={`ticl-v-scroll ${className}`} style={style}>
           <div className='ticl-v-scroll-content' style={{height: `${contentHeight}px`, paddingTop}}>{children}</div>
-        </div >
+        </div>
       );
     } else {
       // not mounted or not visible, create dummy div to measure size
       return (
         <div ref={this.getRef} className='ticl-v-scroll' style={style}>
-        </div >
+        </div>
       );
     }
   }

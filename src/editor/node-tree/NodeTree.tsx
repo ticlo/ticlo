@@ -55,6 +55,7 @@ export default class NodeTree extends React.PureComponent<Props, State> {
     this.refreshList();
     return (
       <VirtualList
+        className='ticl-node-tree'
         style={this.props.style}
         renderer={this.state.renderer}
         itemCount={this.list.length}
