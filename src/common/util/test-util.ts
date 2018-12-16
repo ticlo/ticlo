@@ -41,7 +41,7 @@ export function shouldHappen(callback: () => any, timeoutMs: number = 100): Prom
         setTimeout(onTimer, 1);
       }
     };
-    setTimeout(onTimer, 0);
+    onTimer();
   });
 }
 

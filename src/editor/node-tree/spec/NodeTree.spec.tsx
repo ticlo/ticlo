@@ -74,6 +74,20 @@ describe("editor NodeTree", function () {
       'click');
     await shouldHappen(() => contentDiv.childNodes.length === 21);
 
+    // decrease height, allows less children
+    (document.querySelector('div.ticl-node-tree') as HTMLDivElement).style.height = '420px';
+    await shouldHappen(() => contentDiv.childNodes.length === 14);
+
+    // scroll
+    contentDiv.parentElement.scrollTop = 60;
+    // root element should disappear
+    await shouldHappen(() => document.evaluate("//div[contains(@class,'ticl-tree-node-text')][text()='NodeTree']", div, null, 9, null).singleNodeValue == null);
+
+    // scroll back
+    contentDiv.parentElement.scrollTop = 0;
+    // root element is back
+    await shouldHappen(() => document.evaluate("//div[contains(@class,'ticl-tree-node-text')][text()='NodeTree']", div, null, 9, null).singleNodeValue);
+
     // right click the first node
     SimulateEvent.simulate(
       document.evaluate("//div[contains(@class,'ticl-tree-node-text')][text()='NodeTree']", div, null, 9, null).singleNodeValue,
