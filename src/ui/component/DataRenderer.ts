@@ -40,7 +40,8 @@ export interface DataRendererProps<T extends DataRendererItem> {
 }
 
 export class PureDataRenderer<P extends DataRendererProps<any>, S> extends React.PureComponent<P, S> {
-  _mounted: boolean = false;
+
+  _constructed: boolean = false;
 
   constructor(props: P) {
     super(props);
@@ -48,7 +49,6 @@ export class PureDataRenderer<P extends DataRendererProps<any>, S> extends React
   }
 
   componentDidUpdate(prevProps: P) {
-    this._mounted = true;
     if (prevProps.item !== this.props.item) {
       this.props.item.attachedRenderer(this);
       prevProps.item.detachRenderer(this);
@@ -59,9 +59,10 @@ export class PureDataRenderer<P extends DataRendererProps<any>, S> extends React
     this.props.item.detachRenderer(this);
   }
 
-  // in case setState is needed before mount
+  // in case setState is needed inside constructor
+  // _constructed must be called to use this function
   preSetState(state: any) {
-    if (this._mounted) {
+    if (this._constructed) {
       // setState when component is unmounted should still throw a warning
       this.setState(state);
     } else {

@@ -45,7 +45,10 @@ describe("editor NodeTree", function () {
       document.evaluate("//div[contains(@class,'ticl-tree-node-text')][text()='NodeTree']/../div[1]", div, null, 9, null).singleNodeValue,
       'click');
     await shouldHappen(() => contentDiv.childNodes.length >= 11);
-    
+
+    // find block icon
+    await shouldHappen(() => document.evaluate("//div[contains(@class,'ticl-tree-node-text')][text()='0']/../div[2]/div[contains(@class,'tico-fas-plus')]", div, null, 9, null).singleNodeValue);
+
     // expand more children
     SimulateEvent.simulate(
       document.evaluate("//div[contains(@class,'ticl-tree-node-text')][text()='9']/../div[1]", div, null, 9, null).singleNodeValue,
