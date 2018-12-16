@@ -6,7 +6,7 @@ import {PureDataRenderer} from "../../ui/component/DataRenderer";
 import {DataMap} from "../../common/util/Types";
 import {ClientConnection, ValueUpdate} from "../../common/connect/ClientConnection";
 import {TIcon} from "../icon/Icon";
-import {FunctionDesc} from "../../common/block/Descriptor";
+import {blankFuncDesc, FunctionDesc} from "../../common/block/Descriptor";
 import {ClickParam} from "antd/lib/menu";
 
 export class NodeTreeItem extends TreeItem {
@@ -134,12 +134,8 @@ interface Props {
   style: React.CSSProperties;
 }
 
-interface State {
-  icon: string;
-  iconStyle?: string;
-}
 
-export class NodeTreeRenderer extends PureDataRenderer<Props, State> {
+export class NodeTreeRenderer extends PureDataRenderer<Props, any> {
 
   onExpandClicked = () => {
     switch (this.props.item.opened) {
@@ -169,18 +165,15 @@ export class NodeTreeRenderer extends PureDataRenderer<Props, State> {
 
   constructor(props: Props) {
     super(props);
-    this.state = {icon: '', iconStyle: null};
     let {item} = props;
     item.connection.subscribe(`${item.key}.#is`, this.subscriptionListener);
-    this._constructed = true;
   }
 
+  desc: FunctionDesc = blankFuncDesc;
   descCallback = (desc: FunctionDesc) => {
-    if (desc) {
-      this.preSetState({icon: desc.icon, iconStyle: desc.style ? desc.style.charAt(0) : `${desc.priority}`});
-    } else {
-      this.preSetState({icon: '', iconStyle: null});
-    }
+    this.desc = desc || blankFuncDesc;
+    // this might show a react noop warning, but it's OK
+    this.forceUpdate();
   };
 
   render() {
@@ -189,7 +182,7 @@ export class NodeTreeRenderer extends PureDataRenderer<Props, State> {
     return (
       <div style={{...style, marginLeft}} className="ticl-tree-node">
         <ExpandIcon opened={item.opened} onClick={this.onExpandClicked}/>
-        <TIcon icon={this.state.icon} style={this.state.iconStyle}/>
+        <TIcon icon={this.desc.icon} style={this.desc.style}/>
         <Dropdown overlay={
           <Menu prefixCls="ant-dropdown-menu" selectable={false}>
             <Menu.Item onClick={this.onReloadClicked}>

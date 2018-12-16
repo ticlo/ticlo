@@ -364,11 +364,7 @@ export abstract class BaseBlockItem extends DataRendererItem<XYWRenderer> {
 
   descLoaded = false;
   descListener = (funcDesc: FunctionDesc) => {
-    if (funcDesc) {
-      this.setDesc(funcDesc);
-    } else {
-      this.setDesc(blankFuncDesc);
-    }
+    this.setDesc(funcDesc || blankFuncDesc);
     this.descLoaded = true;
   };
 
