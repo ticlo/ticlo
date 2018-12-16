@@ -47,7 +47,7 @@ describe("editor NodeTree", function () {
     await shouldHappen(() => contentDiv.childNodes.length >= 11);
 
     // find block icon
-    await shouldHappen(() => document.evaluate("//div[contains(@class,'ticl-tree-node-text')][text()='0']/../div[2]/div[contains(@class,'tico-fas-plus')]", div, null, 9, null).singleNodeValue);
+    await shouldHappen(() => document.evaluate("//div[contains(@class,'ticl-tree-node-text')][text()='5']/../div[2]/div[contains(@class,'tico-fas-plus')]", div, null, 9, null).singleNodeValue);
 
     // expand more children
     SimulateEvent.simulate(
@@ -104,6 +104,8 @@ describe("editor NodeTree", function () {
     await shouldHappen(() => contentDiv.childNodes.length === 14);
     // node is removed but cache still exists
     assert.isNotNull(document.evaluate("//div[contains(@class,'ticl-tree-node-text')][text()='5']", document.body, null, 9, null).singleNodeValue);
+    // find block icon should disappear, because #is changed to blank
+    await shouldHappen(() => document.evaluate("//div[contains(@class,'ticl-tree-node-text')][text()='5']/../div[2]/div", div, null, 9, null).singleNodeValue == null);
 
     // right click the first node
     SimulateEvent.simulate(
