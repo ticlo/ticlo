@@ -38,7 +38,7 @@ export function shouldHappen(callback: () => any, timeoutMs: number = 100): Prom
       if (currentTime - beginTime > timeoutMs) {
         reject(new ErrorEvent('timeout'));
       } else {
-        setTimeout(onTimer, 0);
+        setTimeout(onTimer, 1);
       }
     };
     setTimeout(onTimer, 0);
