@@ -142,17 +142,31 @@ class SetRequest extends ConnectionSend {
   path: string;
   conn: ClientConnection;
 
-  constructor(path: string, value: any, id: string, conn: ClientConnection) {
-    super({cmd: 'set', id, path, value});
+  constructor(path: string, id: string, conn: ClientConnection) {
+    super({cmd: 'set', id, path});
     this.path = path;
     this.conn = conn;
   }
 
-  update(value: any) {
+  updateSet(value: any) {
+    delete this._data.from;
+    this._data.cmd = 'set';
     this._data.value = value;
   }
 
-  getSendingData(): { data: DataMap, size: number } {
+  updateUpdate(value: any) {
+    delete this._data.from;
+    this._data.cmd = 'update';
+    this._data.value = value;
+  }
+
+  updateBind(from: string) {
+    delete this._data.value;
+    this._data.cmd = 'bind';
+    this._data.from = from;
+  }
+
+  getSendingData(): {data: DataMap, size: number} {
     if (this.conn) {
       this.conn.setRequests.delete(this.path);
       this.conn = null;
@@ -170,7 +184,7 @@ class SetRequest extends ConnectionSend {
 }
 
 class WatchRequest extends MergedClientRequest {
-  _cachedMap: { [key: string]: string } = {};
+  _cachedMap: {[key: string]: string} = {};
 
   add(callbacks: ClientCallbacks) {
     super.add(callbacks);
@@ -337,38 +351,85 @@ export class ClientConnection extends Connection {
 
   // important request will always be sent
   // unimportant request may be merged with other set request on same path
-  setValue(path: string, value: any, important: boolean = false): Promise<any> | string {
+  setValue(path: string, value: any, important: boolean | ClientCallbacks = false): Promise<any> | string {
     if (important) {
       if (this.setRequests.has(path)) {
         this.setRequests.get(path).cancel();
       }
-      return this.simpleRequest({cmd: 'set', path, value}, null);
+      if (typeof important === 'object') {
+        return this.simpleRequest({cmd: 'set', path, value}, important);
+      } else {
+        return this.simpleRequest({cmd: 'set', path, value}, null);
+      }
     }
     if (this.setRequests.has(path)) {
       let req = this.setRequests.get(path);
-      req.update(value);
+      req.updateSet(value);
       return '';
     } else {
-      let req = new SetRequest(path, value, this.uid.next(), this);
+      let req = new SetRequest(path, this.uid.next(), this);
+      req.updateSet(value);
       this.setRequests.set(path, req);
       this.addSend(req);
       return '';
     }
-
   }
 
-  getValue(path: string, callbacks: ClientCallbacks): Promise<any> | string {
+  updateValue(path: string, value: any, important: boolean | ClientCallbacks = false): Promise<any> | string {
+    // return this.simpleRequest({cmd: 'update', path, value}, callbacks);
+    if (important) {
+      if (this.setRequests.has(path)) {
+        this.setRequests.get(path).cancel();
+      }
+      if (typeof important === 'object') {
+        return this.simpleRequest({cmd: 'update', path, value}, important);
+      } else {
+        return this.simpleRequest({cmd: 'update', path, value}, null);
+      }
+    }
+    if (this.setRequests.has(path)) {
+      let req = this.setRequests.get(path);
+      req.updateUpdate(value);
+      return '';
+    } else {
+      let req = new SetRequest(path, this.uid.next(), this);
+      req.updateUpdate(value);
+      this.setRequests.set(path, req);
+      this.addSend(req);
+      return '';
+    }
+  }
+
+  setBinding(path: string, from: string, important: boolean | ClientCallbacks = false): Promise<any> | string {
+    // return this.simpleRequest({cmd: 'bind', path, from}, callbacks);
+    if (important) {
+      if (this.setRequests.has(path)) {
+        this.setRequests.get(path).cancel();
+      }
+      if (typeof important === 'object') {
+        return this.simpleRequest({cmd: 'bind', path, from}, important);
+      } else {
+        return this.simpleRequest({cmd: 'bind', path, from}, null);
+      }
+    }
+    if (this.setRequests.has(path)) {
+      let req = this.setRequests.get(path);
+      req.updateBind(from);
+      return '';
+    } else {
+      let req = new SetRequest(path, this.uid.next(), this);
+      req.updateBind(from);
+      this.setRequests.set(path, req);
+      this.addSend(req);
+      return '';
+    }
+  }
+
+  getValue(path: string, callbacks?: ClientCallbacks): Promise<any> | string {
     // TODO
     return this.simpleRequest({cmd: 'get', path}, callbacks);
   }
 
-  updateValue(path: string, value: any, callbacks?: ClientCallbacks): Promise<any> | string {
-    return this.simpleRequest({cmd: 'update', path, value}, callbacks);
-  }
-
-  setBinding(path: string, from: string, callbacks?: ClientCallbacks): Promise<any> | string {
-    return this.simpleRequest({cmd: 'bind', path, from}, callbacks);
-  }
 
   createBlock(path: string, callbacks?: ClientCallbacks): Promise<any> | string {
     return this.simpleRequest({cmd: 'create', path}, callbacks);

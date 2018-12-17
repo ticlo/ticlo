@@ -73,7 +73,7 @@ describe("Connection", function () {
     client.unsubscribe('Connection2.p', callbacks1);
 
     client.setValue('Connection2.p2', 'world');
-    await client.setBinding('Connection2.p', 'p2');
+    await client.setBinding('Connection2.p', 'p2', true);
     assert.equal(callbacks1.promise, cachedPromise1, "promise shouldn't be updated after unsubscribe");
     assert.isEmpty(job.getProperty('p')._listeners, 'property not listened after unsubscribe');
 
@@ -234,9 +234,9 @@ describe("Connection", function () {
 
     client.setValue('Connection7.v', 1);
     client.subscribe('Connection7.v', callbacks);
-    await client.setBinding('Connection7.p', 'v');
+    await client.setBinding('Connection7.p', 'v', true);
     assert.isTrue(lastUpdate.change.hasListener);
-    await client.setBinding('Connection7.p', null);
+    await client.setBinding('Connection7.p', null, true);
     assert.isFalse(lastUpdate.change.hasListener);
     client.unsubscribe('Connection7.v', callbacks);
 
@@ -292,6 +292,8 @@ describe("Connection", function () {
     let result = await callbacks.promise;
     assert.deepEqual(result.cache.value, {'#is': 'hello'});
 
+    callbacks.cancel();
+    
     client.destroy();
     Root.instance.deleteValue('Connection9');
   });
