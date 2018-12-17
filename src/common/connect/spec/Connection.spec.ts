@@ -203,22 +203,95 @@ describe("Connection", function () {
     b.setValue('#-log', 0);
     b.setValue('#is', 'test-runner');
 
+    let callbacks = new AsyncClientPromise();
+
     client.setValue('Connection6.b.#-log', 1);
     client.setValue('Connection6.b.#call', {});
     client.setValue('Connection6.b.#-log', 2, true);
-    let promise = client.setValue('Connection6.b.#call', {}, true);
+    client.setValue('Connection6.b.#call', {}, callbacks);
     client.setValue('Connection6.b.#-log', 3);
     client.setValue('Connection6.b.#call', {});
     client.setValue('Connection6.b.#-log', 4);
     client.setValue('Connection6.b.#call', {});
 
-    await promise;
+    await callbacks.promise;
 
     assert.deepEqual(TestFunctionRunner.popLogs(), [2, 4],
 
       'first snapshot');
     client.destroy();
     Root.instance.deleteValue('Connection6');
+  });
+
+  it('merge update request', async function () {
+    TestFunctionRunner.clearLog();
+
+    let job = Root.instance.addJob('Connection6-2');
+    let [server, client] = makeLocalConnection(Root.instance, false);
+
+
+    let b = job.createBlock('b');
+    b.updateValue('#mode', 'onCall');
+    b.updateValue('#sync', true);
+    b.updateValue('#-log', 0);
+    b.updateValue('#is', 'test-runner');
+
+    let callbacks = new AsyncClientPromise();
+
+    client.updateValue('Connection6-2.b.#-log', 1);
+    client.updateValue('Connection6-2.b.#call', {});
+    client.updateValue('Connection6-2.b.#-log', 2, true);
+    client.updateValue('Connection6-2.b.#call', {}, callbacks);
+    client.updateValue('Connection6-2.b.#-log', 3);
+    client.updateValue('Connection6-2.b.#call', {});
+    client.updateValue('Connection6-2.b.#-log', 4);
+    client.updateValue('Connection6-2.b.#call', {});
+
+    await callbacks.promise;
+
+    assert.deepEqual(TestFunctionRunner.popLogs(), [2, 4],
+
+      'first snapshot');
+    client.destroy();
+    Root.instance.deleteValue('Connection6-2');
+  });
+
+  it('merge bind request', async function () {
+    TestFunctionRunner.clearLog();
+
+    let job = Root.instance.addJob('Connection6-3');
+    let [server, client] = makeLocalConnection(Root.instance, false);
+
+
+    let b = job.createBlock('b');
+    b.setValue('@1', 1);
+    b.setValue('@2', 2);
+    b.setValue('@3', 3);
+    b.setValue('@4', 4);
+
+    b.setValue('#mode', 'onCall');
+    b.setValue('#sync', true);
+    b.setValue('#-log', 0);
+    b.setValue('#is', 'test-runner');
+
+    let callbacks = new AsyncClientPromise();
+
+    client.setBinding('Connection6-3.b.#-log', '@1');
+    client.setBinding('Connection6-3.b.#call', '@1');
+    client.setBinding('Connection6-3.b.#-log', '@2', true);
+    client.setBinding('Connection6-3.b.#call', '@2', callbacks);
+    client.setBinding('Connection6-3.b.#-log', '@3');
+    client.setBinding('Connection6-3.b.#call', '@3');
+    client.setBinding('Connection6-3.b.#-log', '@4');
+    client.setBinding('Connection6-3.b.#call', '@4');
+
+    await callbacks.promise;
+
+    assert.deepEqual(TestFunctionRunner.popLogs(), [2, 4],
+
+      'first snapshot');
+    client.destroy();
+    Root.instance.deleteValue('Connection6-3');
   });
 
   it('subscribe listener', async function () {
@@ -293,7 +366,7 @@ describe("Connection", function () {
     assert.deepEqual(result.cache.value, {'#is': 'hello'});
 
     callbacks.cancel();
-    
+
     client.destroy();
     Root.instance.deleteValue('Connection9');
   });
