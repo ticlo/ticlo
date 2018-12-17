@@ -352,9 +352,6 @@ export class ServerConnection extends Connection {
   }
 
   setValue(path: string, val: any): string {
-    if (isSavedBlock(val)) {
-      return "invalid value";
-    }
     let property = this.root.queryProperty(path, true);
     if (property) {
       property.setValue(val);

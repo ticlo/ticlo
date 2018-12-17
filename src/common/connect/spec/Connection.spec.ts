@@ -24,7 +24,7 @@ describe("Connection", function () {
     let callbacks = new AsyncClientPromise();
     client.subscribe('Connection1.block1.output', callbacks);
     let result = await callbacks.promise;
-    assert.equal(result.value, null, 'subscribe null');
+    assert.equal(result.cache.value, null, 'subscribe null');
 
     client.setValue('Connection1.block1.0', 2);
     client.updateValue('Connection1.block1.1', 3);
@@ -281,5 +281,19 @@ describe("Connection", function () {
     Root.instance.deleteValue('Connection8');
   });
 
+  it('set a saved block', async function () {
+    let job = Root.instance.addJob('Connection9');
+    let [server, client] = makeLocalConnection(Root.instance, false);
+
+    await client.setValue('Connection9.v', {'#is': 'hello'});
+
+    let callbacks = new AsyncClientPromise();
+    client.subscribe('Connection9.v', callbacks);
+    let result = await callbacks.promise;
+    assert.deepEqual(result.cache.value, {'#is': 'hello'});
+
+    client.destroy();
+    Root.instance.deleteValue('Connection9');
+  });
 
 });
