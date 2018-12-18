@@ -38,6 +38,17 @@ describe("HelperProperty", function () {
     assert.equal(job.getValue('v1'), 'hello', 'basic output');
 
 
+    job.setValue('v2', 1);
+    job.setBinding('v1', 'v2');
+    assert.equal(job.queryValue('~v1.output'), undefined);
+    assert.equal(job.queryValue('~v1'), undefined);
+
+    job.liveUpdate(saved);
+
+    assert.equal(job.queryValue('~v1.output'), 'hello', 'live update from a previous binding');
+    assert.equal(job.getProperty('v1')._bindingPath, '~v1.output');
+    assert.equal(job.getValue('v1'), 'hello', 'basic output');
+
     let job2 = new Job();
 
     job2.load(saved);
