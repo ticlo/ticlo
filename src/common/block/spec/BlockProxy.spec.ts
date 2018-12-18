@@ -22,7 +22,6 @@ describe("BlockProxy", function () {
     assert.equal(b['@notExist'], undefined);
     assert.equal(('v3' in b), false);
     assert.equal(Object.prototype.hasOwnProperty.call(b, 'v4'), true);
-    assert.equal(Object.prototype.hasOwnProperty.call(b, '@v'), true);
     assert.equal(Object.isExtensible(b), true);
 
     let keys = [];
@@ -31,6 +30,10 @@ describe("BlockProxy", function () {
     }
     keys.sort();
     assert.deepEqual(keys, ['v2', 'v4']);
+
+    let keys2 = Object.keys(b);
+    keys2.sort();
+    assert.deepEqual(keys2, ['v2', 'v4']);
 
     job.deleteValue('b');
 
@@ -66,7 +69,6 @@ describe("BlockProxy", function () {
     assert.equal(b['@notExist'], undefined);
     assert.equal(('v3' in b), false);
     assert.equal(Object.prototype.hasOwnProperty.call(b, 'v4'), true);
-    assert.equal(Object.prototype.hasOwnProperty.call(b, '@v'), true);
     assert.equal(Object.isExtensible(b), true);
 
     let keys = [];
@@ -75,6 +77,10 @@ describe("BlockProxy", function () {
     }
     keys.sort();
     assert.deepEqual(keys, ['v2', 'v4']);
+
+    let keys2 = Object.keys(b);
+    keys2.sort();
+    assert.deepEqual(keys2, ['v2', 'v4']);
 
     job.deleteValue('b');
 
