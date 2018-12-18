@@ -6,7 +6,7 @@ const defaultPropertyDescriptor = {writable: true, enumerable: true, configurabl
 
 export const BlockProxy = {
   get(block: Block, field: string, receiver: object): any {
-    let prop = block._props.get(field);
+    let prop = block.getProperty(field, false);
     if (prop) {
       return prop._value;
     }
