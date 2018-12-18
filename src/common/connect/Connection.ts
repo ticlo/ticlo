@@ -86,7 +86,7 @@ export class Connection {
         sendingSize += size;
         sending.push(data);
       }
-      if (size >= 0x80000) {
+      if (sendingSize >= 0x80000) {
         break;
       }
     }

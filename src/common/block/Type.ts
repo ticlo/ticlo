@@ -60,8 +60,12 @@ export class Types {
     let type = _types[id];
 
     if (type) {
-      type.updateValue(null);
-      type.setDesc(null);
+      if (type._listeners.size === 0) {
+        delete _types[id];
+      } else {
+        type.updateValue(null);
+        type.setDesc(null);
+      }
       Types.dispatchDescChange(id, null);
     }
   }
@@ -100,7 +104,13 @@ export class Types {
   }
 
   static getAllTypeIds(): string[] {
-    return Object.keys(_types);
+    let result = [];
+    for (let key in _types) {
+      if (_types[key]._value) {
+        result.push(key);
+      }
+    }
+    return result;
   }
 
   static getDesc(id: string): [FunctionDesc, number] {
