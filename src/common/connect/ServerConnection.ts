@@ -372,9 +372,6 @@ export class ServerConnection extends Connection {
   }
 
   updateValue(path: string, val: any): string {
-    if (isSavedBlock(val)) {
-      return "invalid value";
-    }
     let property = this.root.queryProperty(path, true);
     if (property) {
       property.updateValue(val);
@@ -398,7 +395,7 @@ export class ServerConnection extends Connection {
     let property = this.root.queryProperty(path, true);
     if (property) {
       if (property._value instanceof Block && property._value._prop === property) {
-        return 'Block already exists';
+        return 'block already exists';
       }
       property._block.createBlock(property._name);
       return null;
