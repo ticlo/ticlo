@@ -73,7 +73,7 @@ export class JsFunction extends BlockFunction {
     return rslt;
   }
 
-  static registerType(script: string, desc: FunctionDesc, namespace?: string) {
+  static registerType(script: string, desc: FunctionDesc, namespace?: string): boolean {
     try {
       let compiledFunction = new Function(script);
 
@@ -96,9 +96,11 @@ export class JsFunction extends BlockFunction {
       CustomScriptFunction.prototype.useLength = Boolean(desc.useLength);
 
       Types.add(CustomScriptFunction, desc, namespace);
+      return true;
     } catch (err) {
-      Logger.error(`invalid script\n${script}`);
+      Logger.error(`invalid script:\n${script}`);
     }
+    return false;
   }
 }
 
