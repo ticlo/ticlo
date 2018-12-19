@@ -5,6 +5,7 @@ import {ErrorEvent, NOT_READY} from "../../block/Event";
 import {Block, BlockMode} from "../../block/Block";
 import {BlockDeepProxy} from "../../block/BlockProxy";
 import {FunctionDesc} from "../../block/Descriptor";
+import {Logger} from "../../util/Logger";
 
 const SCRIPT_ERROR = 'scriptError';
 
@@ -96,7 +97,7 @@ export class JsFunction extends BlockFunction {
 
       Types.add(CustomScriptFunction, desc, namespace);
     } catch (err) {
-      // TODO log?
+      Logger.error(`invalid script\n${script}`);
     }
   }
 }
