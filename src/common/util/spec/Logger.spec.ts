@@ -5,17 +5,13 @@ export class TestLogger {
 
   logs: string[] = [];
 
-  constructor(filter: number) {
+  constructor(filter: number = Logger._WARN) {
     Logger.add(this.log, filter);
   }
 
   log = (s: string, level: number, source: any) => {
     this.logs.push(s);
   };
-
-  clear() {
-    this.logs.length = 0;
-  }
 
   cancel() {
     Logger.remove(this.log);
@@ -25,7 +21,6 @@ export class TestLogger {
 describe("Logger", function () {
 
   it('basic', function () {
-
     let traceLogger1 = new TestLogger(Logger.TRACE);
     let traceLogger2 = new TestLogger(Logger._TRACE);
     let debugLogger1 = new TestLogger(Logger.DEBUG);
@@ -33,7 +28,7 @@ describe("Logger", function () {
     let fineLogger1 = new TestLogger(Logger.FINE);
     let fineLogger2 = new TestLogger(Logger._FINE);
     let warnLogger1 = new TestLogger(Logger.WARN);
-    let warnLogger2 = new TestLogger(Logger._WARN);
+    let warnLogger2 = new TestLogger();
     let infoLogger1 = new TestLogger(Logger.INFO);
     let infoLogger2 = new TestLogger(Logger._INFO);
     let errorLogger1 = new TestLogger(Logger.ERROR);
@@ -48,7 +43,7 @@ describe("Logger", function () {
     Logger.fine('fine');
     Logger.warn('warn');
     Logger.info('info');
-    traceLogger2.cancel();
+    traceLogger2.cancel(); // cancel before other logs
     Logger.error('error');
     Logger.config('config');
     Logger.fatal('fatal');
@@ -70,6 +65,41 @@ describe("Logger", function () {
     assert.deepEqual(fatalLogger1.logs, ['fatal']);
     assert.deepEqual(fatalLogger2.logs, ['fatal']);
 
-
+    traceLogger1.cancel();
+    debugLogger1.cancel();
+    debugLogger2.cancel();
+    fineLogger1.cancel();
+    fineLogger2.cancel();
+    warnLogger1.cancel();
+    warnLogger2.cancel();
+    infoLogger1.cancel();
+    infoLogger2.cancel();
+    errorLogger1.cancel();
+    errorLogger2.cancel();
+    configLogger1.cancel();
+    configLogger2.cancel();
+    fatalLogger1.cancel();
+    fatalLogger2.cancel();
   });
+
+  it('message lambda', function () {
+    let logger = new TestLogger();
+    let count = 0;
+    let message = () => {
+      ++count;
+      return 'message';
+    };
+
+    Logger.trace(message);
+
+    assert.equal(count, 0, 'callback should not be called');
+    assert.isEmpty(logger.logs);
+
+    Logger.info(message);
+
+    assert.equal(count, 1);
+    assert.deepEqual(logger.logs, ['message']);
+    logger.cancel();
+  });
+
 });
