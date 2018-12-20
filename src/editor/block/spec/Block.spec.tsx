@@ -45,7 +45,7 @@ describe("editor BlockStage", function () {
     assert.isNotNull(querySingle("//div.ticl-field-name[text()='output']/../div.ticl-field-value/span[text()='3']", div));
 
     // check block icon
-    assert.isNotNull(querySingle("//div.tico-icon-svg[contains(@class,'tico-fas-plus')]", div));
+    assert.isNotNull(querySingle("//div.tico-icon-svg.tico-fas-plus", div));
 
     // test value update
     job.queryProperty('add.0').updateValue(5);
@@ -56,7 +56,7 @@ describe("editor BlockStage", function () {
     job.queryProperty('add.#is').setValue('subtract');
     await shouldHappen(() => querySingle("//div.ticl-field-name[text()='output']/../div.ticl-field-value/span[text()='3']", div));
     // check block icon again
-    assert.isNotNull(querySingle("//div.tico-icon-svg[contains(@class,'tico-fas-minus')]", div));
+    assert.isNotNull(querySingle("//div.tico-icon-svg.tico-fas-minus", div));
 
     ReactDOM.unmountComponentAtNode(div);
     client.destroy();

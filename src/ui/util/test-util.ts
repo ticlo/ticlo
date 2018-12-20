@@ -32,10 +32,11 @@ export function loadTemplate<T extends Element>(element: any, style?: string): [
 }
 
 function xpathReplacer(match: string, g1: string, str: string): string {
-  return `div[contains(@class,'${g1}')]`;
+  return 'div' + g1.split('.').map((str => `[contains(@class,'${str}')]`)).join('');
 }
 
+// select a single element with a simplified xpath
 export function querySingle(query: string, element: HTMLElement = document.body) {
-  let xpath = query.replace(/div\.([\w\-]+)/g, xpathReplacer);
+  let xpath = query.replace(/\bdiv\.([\w\-.]+)/g, xpathReplacer);
   return document.evaluate(xpath, element, null, 9, null).singleNodeValue;
 }
