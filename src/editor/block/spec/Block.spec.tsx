@@ -7,10 +7,10 @@ import "../../../common/functions/basic/Math";
 import {makeLocalConnection} from "../../../common/connect/LocalConnection";
 import {shouldHappen} from "../../../common/util/test-util";
 import ReactDOM from "react-dom";
-import {loadTemplate, xpathSingle} from "../../../ui/util/test-util";
+import {loadTemplate, querySingle} from "../../../ui/util/test-util";
 import {initEditor} from "../../index";
 
-describe("editor NodeTree", function () {
+describe("editor BlockStage", function () {
 
   it('single block', async function () {
 
@@ -40,23 +40,23 @@ describe("editor NodeTree", function () {
     assert.equal(block.offsetWidth, 345);
 
     // test all fields in the block body
-    await shouldHappen(() => xpathSingle("//div[contains(@class,'ticl-field-name')][text()='0']/../div[contains(@class,'ticl-field-value')]/span[text()='1']", div));
-    assert.isNotNull(xpathSingle("//div[contains(@class,'ticl-field-name')][text()='1']/../div[contains(@class,'ticl-field-value')]/span[text()='2']", div));
-    assert.isNotNull(xpathSingle("//div[contains(@class,'ticl-field-name')][text()='output']/../div[contains(@class,'ticl-field-value')]/span[text()='3']", div));
+    await shouldHappen(() => querySingle("//div.ticl-field-name[text()='0']/../div.ticl-field-value/span[text()='1']", div));
+    assert.isNotNull(querySingle("//div.ticl-field-name[text()='1']/../div.ticl-field-value/span[text()='2']", div));
+    assert.isNotNull(querySingle("//div.ticl-field-name[text()='output']/../div.ticl-field-value/span[text()='3']", div));
 
     // check block icon
-    assert.isNotNull(xpathSingle("//div[contains(@class,'tico-icon-svg')][contains(@class,'tico-fas-plus')]", div));
+    assert.isNotNull(querySingle("//div.tico-icon-svg[contains(@class,'tico-fas-plus')]", div));
 
     // test value update
     job.queryProperty('add.0').updateValue(5);
-    await shouldHappen(() => xpathSingle("//div[contains(@class,'ticl-field-name')][text()='0']/../div[contains(@class,'ticl-field-value')]/span[text()='5']", div));
-    assert.isNotNull(xpathSingle("//div[contains(@class,'ticl-field-name')][text()='output']/../div[contains(@class,'ticl-field-value')]/span[text()='7']", div));
+    await shouldHappen(() => querySingle("//div.ticl-field-name[text()='0']/../div.ticl-field-value/span[text()='5']", div));
+    assert.isNotNull(querySingle("//div.ticl-field-name[text()='output']/../div.ticl-field-value/span[text()='7']", div));
 
     // test change type
     job.queryProperty('add.#is').setValue('subtract');
-    await shouldHappen(() => xpathSingle("//div[contains(@class,'ticl-field-name')][text()='output']/../div[contains(@class,'ticl-field-value')]/span[text()='3']", div));
+    await shouldHappen(() => querySingle("//div.ticl-field-name[text()='output']/../div.ticl-field-value/span[text()='3']", div));
     // check block icon again
-    assert.isNotNull(xpathSingle("//div[contains(@class,'tico-icon-svg')][contains(@class,'tico-fas-minus')]", div));
+    assert.isNotNull(querySingle("//div.tico-icon-svg[contains(@class,'tico-fas-minus')]", div));
 
     ReactDOM.unmountComponentAtNode(div);
     client.destroy();

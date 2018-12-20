@@ -7,7 +7,7 @@ import "../../../common/functions/basic/Math";
 import {makeLocalConnection} from "../../../common/connect/LocalConnection";
 import {shouldHappen} from "../../../common/util/test-util";
 import ReactDOM from "react-dom";
-import {loadTemplate} from "../../../ui/util/test-util";
+import {loadTemplate, querySingle} from "../../../ui/util/test-util";
 
 describe("editor NodeTree", function () {
 
@@ -42,16 +42,16 @@ describe("editor NodeTree", function () {
     // expand child
 
     SimulateEvent.simulate(
-      document.evaluate("//div[contains(@class,'ticl-tree-node-text')][text()='NodeTree']/../div[1]", div, null, 9, null).singleNodeValue,
+      querySingle("//div.ticl-tree-node-text[text()='NodeTree']/../div[1]", div),
       'click');
     await shouldHappen(() => contentDiv.childNodes.length >= 11);
 
     // find block icon
-    await shouldHappen(() => document.evaluate("//div[contains(@class,'ticl-tree-node-text')][text()='5']/../div[2]/div[contains(@class,'tico-fas-plus')]", div, null, 9, null).singleNodeValue);
+    await shouldHappen(() => querySingle("//div.ticl-tree-node-text[text()='5']/../div[2]/div.tico-fas-plus", div));
 
     // expand more children
     SimulateEvent.simulate(
-      document.evaluate("//div[contains(@class,'ticl-tree-node-text')][text()='9']/../div[1]", div, null, 9, null).singleNodeValue,
+      querySingle("//div.ticl-tree-node-text[text()='9']/../div[1]", div),
       'click');
     // max children is 20, since 30px per row and total 600px height
     await shouldHappen(() => contentDiv.childNodes.length === 20);
@@ -59,7 +59,7 @@ describe("editor NodeTree", function () {
 
     // expand even more children
     SimulateEvent.simulate(
-      document.evaluate("//div[contains(@class,'ticl-tree-node-text')][text()='8']/../div[1]", div, null, 9, null).singleNodeValue,
+      querySingle("//div.ticl-tree-node-text[text()='8']/../div[1]", div),
       'click');
     // max children is 20
     await shouldHappen(() => contentDiv.childNodes.length === 20);
@@ -70,7 +70,7 @@ describe("editor NodeTree", function () {
 
     // close some children
     SimulateEvent.simulate(
-      document.evaluate("//div[contains(@class,'ticl-tree-node-text')][text()='8']/../div[1]", div, null, 9, null).singleNodeValue,
+      querySingle("//div.ticl-tree-node-text[text()='8']/../div[1]", div),
       'click');
     await shouldHappen(() => contentDiv.childNodes.length === 21);
 
@@ -81,44 +81,44 @@ describe("editor NodeTree", function () {
     // scroll
     contentDiv.parentElement.scrollTop = 60;
     // root element should disappear
-    await shouldHappen(() => document.evaluate("//div[contains(@class,'ticl-tree-node-text')][text()='NodeTree']", div, null, 9, null).singleNodeValue == null);
+    await shouldHappen(() => querySingle("//div.ticl-tree-node-text[text()='NodeTree']", div) == null);
 
     // scroll back
     contentDiv.parentElement.scrollTop = 0;
     // root element is back
-    await shouldHappen(() => document.evaluate("//div[contains(@class,'ticl-tree-node-text')][text()='NodeTree']", div, null, 9, null).singleNodeValue);
+    await shouldHappen(() => querySingle("//div.ticl-tree-node-text[text()='NodeTree']", div));
 
     // remove one child block
     job.setValue('5', undefined);
 
     // close children
     SimulateEvent.simulate(
-      document.evaluate("//div[contains(@class,'ticl-tree-node-text')][text()='NodeTree']/../div[1]", div, null, 9, null).singleNodeValue,
+      querySingle("//div.ticl-tree-node-text[text()='NodeTree']/../div[1]", div),
       'click');
     await shouldHappen(() => contentDiv.childNodes.length === 1);
 
     // reopen it, should still show cached nodes
     SimulateEvent.simulate(
-      document.evaluate("//div[contains(@class,'ticl-tree-node-text')][text()='NodeTree']/../div[1]", div, null, 9, null).singleNodeValue,
+      querySingle("//div.ticl-tree-node-text[text()='NodeTree']/../div[1]", div),
       'click');
     await shouldHappen(() => contentDiv.childNodes.length === 14);
     // node is removed but cache still exists
-    assert.isNotNull(document.evaluate("//div[contains(@class,'ticl-tree-node-text')][text()='5']", document.body, null, 9, null).singleNodeValue);
+    assert.isNotNull(querySingle("//div.ticl-tree-node-text[text()='5']"));
     // find block icon should disappear, because #is changed to blank
-    await shouldHappen(() => document.evaluate("//div[contains(@class,'ticl-tree-node-text')][text()='5']/../div[2]/div", div, null, 9, null).singleNodeValue == null);
+    await shouldHappen(() => querySingle("//div.ticl-tree-node-text[text()='5']/../div[2]/div", div) == null);
 
     // right click the first node
     SimulateEvent.simulate(
-      document.evaluate("//div[contains(@class,'ticl-tree-node-text')][text()='NodeTree']", div, null, 9, null).singleNodeValue,
+      querySingle("//div.ticl-tree-node-text[text()='NodeTree']", div),
       'contextmenu');
     // click Reload
     SimulateEvent.simulate(
-      document.evaluate("//li[contains(@class,'ant-dropdown-menu-item')][text()='Reload']", document.body, null, 9, null).singleNodeValue,
+      querySingle("//li[contains(@class,'ant-dropdown-menu-item')][text()='Reload']"),
       'click');
     // second layer of children node should all be closed
     await shouldHappen(() => contentDiv.childNodes.length === 10);
     // children should be refreshed, only 9 children remain
-    assert.isNull(document.evaluate("//div[contains(@class,'ticl-tree-node-text')][text()='5']", document.body, null, 9, null).singleNodeValue);
+    assert.isNull(querySingle("//div.ticl-tree-node-text[text()='5']"));
 
     ReactDOM.unmountComponentAtNode(div);
     client.destroy();

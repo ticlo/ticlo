@@ -31,6 +31,11 @@ export function loadTemplate<T extends Element>(element: any, style?: string): [
   return [ReactDOM.render(element, div), div];
 }
 
-export function xpathSingle(xpath: string, element: HTMLElement = document.body) {
+function xpathReplacer(match: string, g1: string, str: string): string {
+  return `div[contains(@class,'${g1}')]`;
+}
+
+export function querySingle(query: string, element: HTMLElement = document.body) {
+  let xpath = query.replace(/div\.([\w\-]+)/g, xpathReplacer);
   return document.evaluate(xpath, element, null, 9, null).singleNodeValue;
 }
