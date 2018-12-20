@@ -30,3 +30,7 @@ export function loadTemplate<T extends Element>(element: any, style?: string): [
   document.body.appendChild(div);
   return [ReactDOM.render(element, div), div];
 }
+
+export function xpathSingle(xpath: string, element: HTMLElement = document.body) {
+  return document.evaluate(xpath, element, null, 9, null).singleNodeValue;
+}
