@@ -5,7 +5,7 @@ import BlockStage from "../BlockStage";
 import {Block, Root} from "../../../common/block/Block";
 import "../../../common/functions/basic/Math";
 import {makeLocalConnection} from "../../../common/connect/LocalConnection";
-import {shouldHappen} from "../../../common/util/test-util";
+import {shouldHappen, shouldReject} from "../../../common/util/test-util";
 import ReactDOM from "react-dom";
 import {loadTemplate, querySingle} from "../../../ui/util/test-util";
 import {initEditor} from "../../index";
@@ -61,5 +61,58 @@ describe("editor BlockStage", function () {
     ReactDOM.unmountComponentAtNode(div);
     client.destroy();
     Root.instance.deleteValue('BlockStage1');
+  });
+
+  it('drag block', async function () {
+    await initEditor();
+    let job = Root.instance.addJob('BlockStage2');
+    job.load({
+      add: {
+        '#is': 'add',
+        '@b-xyw': [123, 234, 345],
+        '@b-p': ['0', '1', 'output']
+      }
+    });
+
+    let [server, client] = makeLocalConnection(Root.instance);
+
+    let [component, div] = loadTemplate(
+      <BlockStage conn={client} basePath="BlockStage2"
+                  style={{width: '800px', height: '800px'}}/>, 'editor');
+
+    await shouldHappen(() => div.querySelector('.ticl-block'));
+
+    let block = div.querySelector('.ticl-block') as HTMLDivElement;
+    // mouse down
+    SimulateEvent.simulate(document.querySelector('.ticl-block-head'), 'pointerdown', {
+      clientX: 0,
+      clientY: 0,
+    });
+
+    await shouldHappen(() => block.classList.contains('ticl-block-selected'));
+
+    // mouse move to drag
+    assert.equal(block.offsetLeft, 123);
+    assert.equal(block.offsetTop, 234);
+    SimulateEvent.simulate(document.body, 'mousemove', {
+      clientX: 100,
+      clientY: 100
+    });
+    await shouldHappen(() => block.offsetLeft === 223);
+    assert.equal(block.offsetTop, 334);
+
+    // mouse up to stop dragging
+    SimulateEvent.simulate(document.body, 'mouseup');
+
+    // mouse move no longer drag block
+    SimulateEvent.simulate(document.body, 'mousemove', {
+      clientX: 200,
+      clientY: 200
+    });
+    await shouldReject(shouldHappen(() => block.offsetLeft !== 223));
+
+    ReactDOM.unmountComponentAtNode(div);
+    client.destroy();
+    Root.instance.deleteValue('BlockStage2');
   });
 });

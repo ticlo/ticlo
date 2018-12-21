@@ -6900,7 +6900,7 @@ simple-swizzle@^0.2.2:
 
 "simulate-event@git+https://github.com/ticlo/simulate-event.git":
   version "1.4.0"
-  resolved "git+https://github.com/ticlo/simulate-event.git#9771d94feec1646e50d8a9b6f70b4256f0a9d806"
+  resolved "git+https://github.com/ticlo/simulate-event.git#cec42a37617bc7ac7442781d73715a60d1c84e57"
   dependencies:
     xtend "^4.0.1"
 
