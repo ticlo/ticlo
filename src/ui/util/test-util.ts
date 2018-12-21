@@ -31,6 +31,7 @@ export function loadTemplate<T extends Element>(element: any, style?: string): [
   return [ReactDOM.render(element, div), div];
 }
 
+// replace "div.cls1.cls2" to div[contains(@class,'cls1')][contains(@class,'cls2')]
 function xpathReplacer(match: string, g1: string, str: string): string {
   return 'div' + g1.split('.').map((str => `[contains(@class,'${str}')]`)).join('');
 }

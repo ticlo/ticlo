@@ -44,7 +44,7 @@
     "parcel-bundler": "^1.10.3",
     "react": "^16.6.3",
     "react-dom": "^16.6.3",
-    "simulate-event": "^1.4.0",
+    "simulate-event": "git+https://github.com/ticlo/simulate-event.git",
     "ts-node": "^7.0.1",
     "tslint": "^5.11.0",
     "tslint-react": "^3.6.0",
