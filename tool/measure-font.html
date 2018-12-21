@@ -43,7 +43,7 @@
     for (let j = 0; j < 100; ++j) {
       s += String.fromCharCode(33, 32);
     }
-    s += 33;
+    s += String.fromCharCode(33);
     span.innerText = s;
     widthTable[32] = (span.offsetWidth - widthTable[33] * 101) / 100;
     span.innerText = JSON.stringify(widthTable);
