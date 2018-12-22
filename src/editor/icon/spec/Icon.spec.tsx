@@ -3,9 +3,13 @@ import React from 'react';
 import {TIcon} from "../Icon";
 import {shouldHappen} from "../../../common/util/test-util";
 import ReactDOM from "react-dom";
-import {loadTemplate} from "../../../ui/util/test-util";
+import {removeLastTemplate, loadTemplate} from "../../../ui/util/test-util";
 
 describe("editor Icon", function () {
+
+  afterEach(function () {
+    removeLastTemplate();
+  });
 
   it('basic', async function () {
     let [component, div] = loadTemplate(
@@ -61,8 +65,6 @@ describe("editor Icon", function () {
     for (let i = 8; i < 11; ++i) {
       assert.equal(icons[i].classList.length, 1, 'invalid icon has no other style');
     }
-
-    ReactDOM.unmountComponentAtNode(div);
   });
 
 });

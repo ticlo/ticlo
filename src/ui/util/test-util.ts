@@ -22,13 +22,25 @@ function loadCssInHeader() {
   }
 }
 
+let _lastTemplateDiv: HTMLDivElement;
+
 export function loadTemplate<T extends Element>(element: any, style?: string): [any, HTMLDivElement] {
   if (style === 'editor') {
     loadCssInHeader();
   }
-  let div = document.createElement('div');
-  document.body.appendChild(div);
-  return [ReactDOM.render(element, div), div];
+  _lastTemplateDiv = document.createElement('div');
+  document.body.appendChild(_lastTemplateDiv);
+  return [ReactDOM.render(element, _lastTemplateDiv), _lastTemplateDiv];
+}
+
+export function removeLastTemplate() {
+  if (_lastTemplateDiv) {
+    ReactDOM.unmountComponentAtNode(_lastTemplateDiv);
+    if (_lastTemplateDiv.parentElement) {
+      _lastTemplateDiv.parentElement.removeChild(_lastTemplateDiv);
+    }
+    _lastTemplateDiv = null;
+  }
 }
 
 // replace "div.cls1.cls2" to div[contains(@class,'cls1')][contains(@class,'cls2')]

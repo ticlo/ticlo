@@ -4,13 +4,18 @@ import React from 'react';
 import BlockStage from "../BlockStage";
 import {Block, Root} from "../../../common/block/Block";
 import "../../../common/functions/basic/Math";
-import {makeLocalConnection} from "../../../common/connect/LocalConnection";
+import {destroyLastLocalConnection, makeLocalConnection} from "../../../common/connect/LocalConnection";
 import {shouldHappen, shouldReject} from "../../../common/util/test-util";
 import ReactDOM from "react-dom";
-import {loadTemplate, querySingle} from "../../../ui/util/test-util";
+import {removeLastTemplate, loadTemplate, querySingle} from "../../../ui/util/test-util";
 import {initEditor} from "../../index";
 
 describe("editor BlockStage", function () {
+
+  afterEach(function () {
+    removeLastTemplate();
+    destroyLastLocalConnection();
+  });
 
   it('single block', async function () {
 
@@ -58,8 +63,6 @@ describe("editor BlockStage", function () {
     // check block icon again
     assert.isNotNull(querySingle("//div.tico-icon-svg.tico-fas-minus", div));
 
-    ReactDOM.unmountComponentAtNode(div);
-    client.destroy();
     Root.instance.deleteValue('BlockStage1');
   });
 
@@ -111,8 +114,7 @@ describe("editor BlockStage", function () {
     });
     await shouldReject(shouldHappen(() => block.offsetLeft !== 223));
 
-    ReactDOM.unmountComponentAtNode(div);
-    client.destroy();
     Root.instance.deleteValue('BlockStage2');
   });
+
 });

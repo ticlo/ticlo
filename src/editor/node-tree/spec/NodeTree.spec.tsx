@@ -4,12 +4,18 @@ import React from 'react';
 import NodeTree from "../NodeTree";
 import {Block, Root} from "../../../common/block/Block";
 import "../../../common/functions/basic/Math";
-import {makeLocalConnection} from "../../../common/connect/LocalConnection";
+import {destroyLastLocalConnection, makeLocalConnection} from "../../../common/connect/LocalConnection";
 import {shouldHappen} from "../../../common/util/test-util";
 import ReactDOM from "react-dom";
-import {loadTemplate, querySingle} from "../../../ui/util/test-util";
+import {removeLastTemplate, loadTemplate, querySingle} from "../../../ui/util/test-util";
 
 describe("editor NodeTree", function () {
+
+  afterEach(function () {
+    removeLastTemplate();
+    destroyLastLocalConnection();
+  });
+
 
   function addTestChildren(block: Block, parentname: string, level: number) {
     for (let i = 0; i < 10; ++i) {
@@ -120,8 +126,6 @@ describe("editor NodeTree", function () {
     // children should be refreshed, only 9 children remain
     assert.isNull(querySingle("//div.ticl-tree-node-text[text()='5']"));
 
-    ReactDOM.unmountComponentAtNode(div);
-    client.destroy();
     Root.instance.deleteValue('NodeTree');
   });
 
