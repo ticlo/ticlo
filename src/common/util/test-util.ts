@@ -26,6 +26,9 @@ export function shouldTimeout(promise: Promise<any>, ms: number): Promise<any> {
 }
 
 export function shouldHappen(callback: () => any, timeoutMs: number = 100): Promise<any> {
+  // prepare a Error first to maintain the original call stack
+  let error = new Error('timeout');
+  
   let beginTime = new Date().getTime();
   return new Promise<any>((resolve, reject) => {
     let onTimer = () => {
@@ -36,7 +39,7 @@ export function shouldHappen(callback: () => any, timeoutMs: number = 100): Prom
       }
       let currentTime = new Date().getTime();
       if (currentTime - beginTime > timeoutMs) {
-        reject(new ErrorEvent('timeout'));
+        reject(error);
       } else {
         setTimeout(onTimer, 1);
       }
