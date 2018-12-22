@@ -248,7 +248,7 @@ export class FieldView extends PureDataRenderer<FieldViewProps, any> {
     }
   };
 
-  onSubIconClick = (event: React.MouseEvent) => {
+  onNameDoubleClick = (event: React.MouseEvent) => {
     let {item} = this.props;
     if (item.subBlock) {
       item.conn().setValue(`${item.subBlock.key}.@b-hide`, item.subBlock.hidden ? undefined : true);
@@ -293,20 +293,21 @@ export class FieldView extends PureDataRenderer<FieldViewProps, any> {
     return (
       <div className={fieldClass} draggable={true} onDragStart={this.onDragStart} onDragOver={this.onDragOver}
            onDrop={this.onDrop}>
-        {indentChildren}
-        <div className='ticl-field-name'>{translateProperty(desc.name, item.name, desc.ns)}</div>
-        <div className='ticl-field-value'><span ref={this.getValueRef}/></div>
         {inBoundClass ? <div className={inBoundClass} title={inBoundTitle}>{inBoundText}</div> : null}
         {showOutBound ? <div className='ticl-outbound'/> : null}
-        {(item.subBlock) ?
-          <div
-            className='ticl-field-subicon ticl-block-prbg'
-            style={{left: item.indents.length * 16}} onDoubleClick={this.onSubIconClick}>
-            <TIcon icon={item.subBlock.desc.icon}/>
-          </div>
-          : null
-        }
-
+        {indentChildren}
+        <div className='ticl-field-name' onDoubleClick={this.onNameDoubleClick}>
+          {(item.subBlock) ?
+            <div
+              className='ticl-field-subicon ticl-block-prbg'
+              style={{left: item.indents.length * 16}}>
+              <TIcon icon={item.subBlock.desc.icon}/>
+            </div>
+            : null
+          }
+          {translateProperty(desc.name, item.name, desc.ns)}
+        </div>
+        <div className='ticl-field-value'><span ref={this.getValueRef}/></div>
       </div>
     );
   }
