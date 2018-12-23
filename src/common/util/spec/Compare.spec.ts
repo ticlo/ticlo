@@ -1,12 +1,12 @@
 import {assert} from "chai";
-import {compareArray} from '../Compare';
+import {arrayEqual} from '../Compare';
 
 describe("Compare", function () {
 
-  it('compareArray', function () {
-    assert.isTrue(compareArray([1, 2], [1, 2]));
-    assert.isFalse(compareArray([1, 2], [2, 1]));
-    assert.isFalse(compareArray([1, 2], [1, 2, 3]));
-    assert.isFalse(compareArray([1, 2, 3], [1, 2]));
+  it('arrayEqual', function () {
+    assert.isTrue(arrayEqual([1, 2], [1, 2]));
+    assert.isFalse(arrayEqual([1, 2], [2, 1]));
+    assert.isFalse(arrayEqual([1, 2], [1, 2, 3]));
+    assert.isFalse(arrayEqual([1, 2, 3], [1, 2]));
   });
 });

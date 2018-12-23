@@ -56,7 +56,7 @@ export class BlockItem extends BaseBlockItem {
       this.updateFieldPosition();
     }
     if (save) {
-      this.conn.setValue('@b-xyw', [x, y, w]);
+      this.conn.setValue(`${this.key}.@b-xyw`, [x, y, w]);
     }
   }
 

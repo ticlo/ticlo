@@ -9,7 +9,7 @@ import {displayValue, shallowEqual} from "../../ui/util/Types";
 import {ClientConnection, ValueUpdate} from "../../common/connect/ClientConnection";
 import {blankFuncDesc, FunctionDesc} from "../../common/block/Descriptor";
 import {DragInitFunction} from "../../ui/util/DragHelper";
-import {compareArray} from "../../common/util/Compare";
+import {arrayEqual} from "../../common/util/Compare";
 import {TIcon} from "../icon/Icon";
 
 export interface Stage {
@@ -387,7 +387,7 @@ export abstract class BaseBlockItem extends DataRendererItem<XYWRenderer> {
   }
 
   setP(fields: string[]) {
-    if (!compareArray(fields, this.fields)) {
+    if (!arrayEqual(fields, this.fields)) {
       for (let f of this.fields) {
         if (!fields.includes(f)) {
           this.fieldItems.get(f).destructor();

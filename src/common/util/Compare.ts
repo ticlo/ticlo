@@ -1,4 +1,4 @@
-export function compareArray(a1: any[], a2: any[]) {
+export function arrayEqual(a1: any[], a2: any[]) {
   if (a1.length !== a2.length) {
     return false;
   }
