@@ -28,7 +28,7 @@ describe("i18n", function () {
   it('property name', function () {
 
     assert.equal(i18n.translateProperty('aaa', ''), '');
-    assert.equal(i18n.translateProperty('', 'bbb'), '');
+    assert.equal(i18n.translateProperty('', 'bbb'), 'bbb');
 
     assert.equal(i18n.translateProperty('aaa', 'bbb'), 'bbb');
     assert.equal(i18n.translateProperty('aaa', 'bbb1'), 'bbb1');

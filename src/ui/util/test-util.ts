@@ -44,12 +44,12 @@ export function removeLastTemplate() {
 }
 
 // replace "div.cls1.cls2" to div[contains(@class,'cls1')][contains(@class,'cls2')]
-function xpathReplacer(match: string, g1: string, str: string): string {
-  return 'div' + g1.split('.').map((str => `[contains(@class,'${str}')]`)).join('');
+function xpathReplacer(match: string, g1: string, g2: string, str: string): string {
+  return g1 + g2.split('.').map((str => `[contains(@class,'${str}')]`)).join('');
 }
 
 // select a single element with a simplified xpath
-export function querySingle(query: string, element: HTMLElement = document.body) {
-  let xpath = query.replace(/\bdiv\.([\w\-.]+)/g, xpathReplacer);
-  return document.evaluate(xpath, element, null, 9, null).singleNodeValue;
+export function querySingle(query: string, element: HTMLElement = document.body): HTMLElement {
+  let xpath = query.replace(/\b(div|span)\.([\w\-.]+)/g, xpathReplacer);
+  return document.evaluate(xpath, element, null, 9, null).singleNodeValue as HTMLElement;
 }

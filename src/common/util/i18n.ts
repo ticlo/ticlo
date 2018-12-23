@@ -18,8 +18,8 @@ export function translateType(type: string, namespace?: string): string {
 }
 
 export function translateProperty(type: string, name: string, namespace?: string): string {
-  if (!(name && type)) {
-    return '';
+  if (!type) {
+    return name || '';
   }
   let i18ns = namespace ? `ticlo-${namespace}` : 'ticlo-block';
   let numMatch = name.match(numberReg);
