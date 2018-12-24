@@ -162,4 +162,67 @@ describe("editor BlockStage", function () {
     Root.instance.deleteValue('BlockStage3');
   });
 
+
+  it('min block and wire', async function () {
+
+    await initEditor();
+    let job = Root.instance.addJob('BlockStage4');
+    job.load({
+      add: {
+        '#is': 'add',
+        '0': 1,
+        '@b-xyw': [100, 100, 150],
+        '@b-p': ['0']
+      },
+      subtract: {
+        '#is': 'subtract',
+        '~0': '##.add.0',
+        '@b-xyw': [200, 200, 150],
+        '@b-p': ['0']
+      },
+    });
+
+    let [server, client] = makeLocalConnection(Root.instance);
+
+    let [component, div] = loadTemplate(
+      <BlockStage conn={client} basePath="BlockStage4"
+                  style={{width: '800px', height: '800px'}}/>, 'editor');
+
+    await shouldHappen(() => div.querySelector('svg'));
+
+    let blocks = document.querySelectorAll('.ticl-block');
+
+    assert.equal(blocks.length, 2);
+    let addBlock = blocks[0] as HTMLElement;
+    assert.equal(addBlock.offsetWidth, 150);
+
+    let wire = document.querySelector('svg');
+
+    // mousedown to select
+    SimulateEvent.simulate(document.querySelector('.ticl-block-head'), 'pointerdown');
+    SimulateEvent.simulate(document.body, 'mouseup');
+    // wire should have z index
+    await shouldHappen(() => wire.style.zIndex === '100');
+
+    SimulateEvent.simulate(document.querySelector('.ticl-block-head'), 'dblclick');
+    await shouldHappen(() => addBlock.offsetWidth === 24);
+    assert.equal(addBlock.offsetHeight, 24);
+
+    // wrie instance should be reused
+    assert.equal(document.querySelector('svg'), wire);
+
+    // click the other block
+    SimulateEvent.simulate(document.querySelectorAll('.ticl-block-head')[1], 'pointerdown');
+    // addBlock is no longer selected
+    await shouldHappen(() => !addBlock.classList.contains('ticl-block-selected'));
+    // since subtract block is now selected, wire should still have zindex
+    assert.equal(wire.style.zIndex, '100');
+
+    // expand block
+    SimulateEvent.simulate(document.querySelector('.ticl-block-head'), 'dblclick');
+    await shouldHappen(() => addBlock.offsetWidth === 150);
+
+    Root.instance.deleteValue('BlockStage4');
+  });
+
 });
