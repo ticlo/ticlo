@@ -188,38 +188,37 @@ describe("editor BlockStage", function () {
       <BlockStage conn={client} basePath="BlockStage4"
                   style={{width: '800px', height: '800px'}}/>, 'editor');
 
+    // wait for the wire
     await shouldHappen(() => div.querySelector('svg'));
 
-    let blocks = document.querySelectorAll('.ticl-block');
-
-    assert.equal(blocks.length, 2);
-    let addBlock = blocks[0] as HTMLElement;
+    let addBlock = querySingle("//div.ticl-block-head[text()='add']/..", div);
     assert.equal(addBlock.offsetWidth, 150);
 
-    let wire = document.querySelector('svg');
+    let wire = div.querySelector('svg');
 
     // mousedown to select
-    SimulateEvent.simulate(document.querySelector('.ticl-block-head'), 'pointerdown');
+    SimulateEvent.simulate(addBlock.querySelector('.ticl-block-head'), 'pointerdown');
     SimulateEvent.simulate(document.body, 'mouseup');
     // wire should have z index
     await shouldHappen(() => wire.style.zIndex === '100');
 
-    SimulateEvent.simulate(document.querySelector('.ticl-block-head'), 'dblclick');
+    // minimize the block
+    SimulateEvent.simulate(addBlock.querySelector('.ticl-block-head'), 'dblclick');
     await shouldHappen(() => addBlock.offsetWidth === 24);
     assert.equal(addBlock.offsetHeight, 24);
 
     // wrie instance should be reused
-    assert.equal(document.querySelector('svg'), wire);
+    assert.equal(div.querySelector('svg'), wire);
 
     // click the other block
-    SimulateEvent.simulate(document.querySelectorAll('.ticl-block-head')[1], 'pointerdown');
+    SimulateEvent.simulate(querySingle("//div.ticl-block-head[text()='subtract']", div), 'pointerdown');
     // addBlock is no longer selected
     await shouldHappen(() => !addBlock.classList.contains('ticl-block-selected'));
     // since subtract block is now selected, wire should still have zindex
     assert.equal(wire.style.zIndex, '100');
 
     // expand block
-    SimulateEvent.simulate(document.querySelector('.ticl-block-head'), 'dblclick');
+    SimulateEvent.simulate(addBlock.querySelector('.ticl-block-head'), 'dblclick');
     await shouldHappen(() => addBlock.offsetWidth === 150);
 
     Root.instance.deleteValue('BlockStage4');

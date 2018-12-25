@@ -60,4 +60,64 @@ describe("editor Block Field", function () {
 
     Root.instance.deleteValue('BlockField1');
   });
+
+
+  it('sub block', async function () {
+
+    await initEditor();
+    let job = Root.instance.addJob('BlockField2');
+    job.load({
+      add: {
+        '#is': 'add',
+        '0': 1,
+        '@b-xyw': [100, 100, 150],
+        '@b-p': ['0']
+      },
+      subtract: {
+        '#is': 'subtract',
+        '~0': {
+          '#is': 'add',
+          '0': 1,
+          '~1': '##.##.add.0',
+          '@b-p': ['0', '1']
+        },
+        '@b-xyw': [120, 280, 150],
+        '@b-p': ['0']
+      },
+    });
+
+
+    let [server, client] = makeLocalConnection(Root.instance);
+
+    let [component, div] = loadTemplate(
+      <BlockStage conn={client} basePath="BlockField2"
+                  style={{width: '800px', height: '800px'}}/>, 'editor');
+
+    await shouldHappen(() => div.querySelector('.ticl-block'));
+
+    let subtractBlock = querySingle("//div.ticl-block-head[text()='subtract']/..", div);
+
+    await  shouldHappen(() => subtractBlock.querySelectorAll('.ticl-field').length === 3);
+
+    let fieldNames = subtractBlock.querySelectorAll('.ticl-field-name');
+    assert.equal(fieldNames[0].textContent, '0');
+    // property from sub blocks
+    assert.equal(fieldNames[1].textContent, '0');
+    assert.equal(fieldNames[2].textContent, '1');
+
+    // hide sub block
+    SimulateEvent.simulate(fieldNames[0], 'dblclick');
+
+    await  shouldHappen(() => subtractBlock.querySelectorAll('.ticl-field').length === 1);
+    // wire should still exists
+    assert.isNotNull(document.querySelector('svg'));
+
+    // show sub block again
+    SimulateEvent.simulate(fieldNames[0], 'dblclick');
+
+    await  shouldHappen(() => subtractBlock.querySelectorAll('.ticl-field').length === 3);
+
+    Root.instance.deleteValue('BlockField2');
+  });
+
 });
