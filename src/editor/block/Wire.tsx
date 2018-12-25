@@ -15,9 +15,11 @@ export class WireItem extends DataRendererItem {
       this.source = source;
       if (source) {
         source.outWires.add(this);
-        this.forceUpdate();
       }
     }
+    // it's possible a indirect binding change to direct binding while source remains the same
+    // forceUpdate even if source is not changed
+    this.forceUpdate();
   }
 
   constructor(souce: FieldItem, target: FieldItem) {

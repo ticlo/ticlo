@@ -120,4 +120,44 @@ describe("editor Block Field", function () {
     Root.instance.deleteValue('BlockField2');
   });
 
+  it('indirect binding', async function () {
+
+    await initEditor();
+    let job = Root.instance.addJob('BlockField3');
+    job.load({
+      add: {
+        '#is': 'add',
+        '0': {'a': 3},
+        '@b-xyw': [100, 100, 150],
+        '@b-p': ['0']
+      },
+      subtract: {
+        '#is': 'subtract',
+        '~0': '##.add.0.a',
+        '@b-xyw': [260, 124, 150],
+        '@b-p': ['0']
+      },
+    });
+
+    let [server, client] = makeLocalConnection(Root.instance);
+
+    let [component, div] = loadTemplate(
+      <BlockStage conn={client} basePath="BlockField3"
+                  style={{width: '800px', height: '800px'}}/>, 'editor');
+
+    await shouldHappen(() => div.querySelector('.ticl-block-wire'));
+
+    let wire = div.querySelector('.ticl-block-wire');
+
+    // indirect binding should have dash style
+    assert.isTrue(wire.classList.contains('ticl-wire-dash'));
+
+    // switch to direct binding
+    job.queryProperty('subtract.0').setBinding('##.add.0');
+
+    await shouldHappen(() => !wire.classList.contains('ticl-wire-dash'));
+
+    Root.instance.deleteValue('BlockField3');
+  });
+
 });
