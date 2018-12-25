@@ -224,4 +224,74 @@ describe("editor BlockStage", function () {
     Root.instance.deleteValue('BlockStage4');
   });
 
+  it('rect select', async function () {
+
+    await initEditor();
+    let job = Root.instance.addJob('BlockStage5');
+    job.load({
+      add: {
+        '#is': 'add',
+        '@b-xyw': [100, 100, 100],
+        '@b-p': ['0']
+      },
+      subtract: {
+        '#is': 'subtract',
+        '@b-xyw': [200, 200, 100],
+        '@b-p': ['0']
+      },
+    });
+
+    let [server, client] = makeLocalConnection(Root.instance);
+
+    let [component, div] = loadTemplate(
+      <BlockStage conn={client} basePath="BlockStage5"
+                  style={{width: '800px', height: '800px'}}/>, 'editor');
+
+    // wait for the field
+    await shouldHappen(() => div.querySelector('.ticl-field'));
+    // background
+    let rectBg = div.querySelector('.ticl-full');
+
+    // select all
+    SimulateEvent.simulate(rectBg, 'pointerdown', {
+      clientX: 90,
+      clientY: 90
+    });
+    SimulateEvent.simulate(rectBg, 'mouseup', {
+      clientX: 310,
+      clientY: 310
+    });
+
+    // both block are selected
+    await shouldHappen(() => div.querySelectorAll('.ticl-block-selected').length === 2);
+
+
+    // select all
+    SimulateEvent.simulate(rectBg, 'pointerdown', {
+      clientX: 210,
+      clientY: 210
+    });
+    SimulateEvent.simulate(rectBg, 'mouseup', {
+      clientX: 90,
+      clientY: 90
+    });
+
+    // one block selected
+    await shouldHappen(() => div.querySelectorAll('.ticl-block-selected').length === 1);
+
+    // select none
+    SimulateEvent.simulate(rectBg, 'pointerdown', {
+      clientX: 90,
+      clientY: 90
+    });
+    SimulateEvent.simulate(rectBg, 'mouseup', {
+      clientX: 91,
+      clientY: 89
+    });
+    // one block selected
+    await shouldHappen(() => div.querySelectorAll('.ticl-block-selected').length === 0);
+
+    Root.instance.deleteValue('BlockStage5');
+  });
+
 });
