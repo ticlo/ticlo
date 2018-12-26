@@ -4,7 +4,7 @@ import {DataMap} from "../../common/util/Types";
 import {PureDataRenderer} from "../../ui/component/DataRenderer";
 import {TIcon} from "../icon/Icon";
 import {blankFuncDesc, getFuncStyleFromDesc} from "../../common/block/Descriptor";
-import {AbstractPointerEvent, DragInitFunction, DragInitiator} from "../../ui/util/DragHelper";
+import {AbstractPointerEvent, DragInitFunction, DragInitiator} from "../../ui/component/DragHelper";
 import {BaseBlockItem, Stage, XYWRenderer} from "./Field";
 
 const fieldYOffset = 12;

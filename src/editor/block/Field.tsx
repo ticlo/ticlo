@@ -8,7 +8,7 @@ import {translateProperty} from "../../common/util/i18n";
 import {displayValue, shallowEqual} from "../../ui/util/Types";
 import {ClientConnection, ValueUpdate} from "../../common/connect/ClientConnection";
 import {blankFuncDesc, FunctionDesc} from "../../common/block/Descriptor";
-import {DragInitFunction} from "../../ui/util/DragHelper";
+import {DragInitFunction} from "../../ui/component/DragHelper";
 import {arrayEqual} from "../../common/util/Compare";
 import {TIcon} from "../icon/Icon";
 
