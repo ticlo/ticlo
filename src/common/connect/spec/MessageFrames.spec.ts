@@ -60,9 +60,7 @@ describe("Connection Message Frames", function () {
 
     let a1000: FunctionDesc = null;
     client.watchDesc('a1000', (desc: FunctionDesc) => {
-      if (desc) {
-        a1000 = desc;
-      }
+      a1000 = desc;
     });
     assert.isNotNull(a1000, 'a1000 should be sent in the same batch as a100');
 
