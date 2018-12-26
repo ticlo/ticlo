@@ -6,7 +6,7 @@ import {PureDataRenderer} from "../../ui/component/DataRenderer";
 import {DataMap} from "../../common/util/Types";
 import {ClientConnection, ValueUpdate} from "../../common/connect/ClientConnection";
 import {TIcon} from "../icon/Icon";
-import {blankFuncDesc, FunctionDesc} from "../../common/block/Descriptor";
+import {blankFuncDesc, FunctionDesc, getFuncStyleFromDesc} from "../../common/block/Descriptor";
 import {ClickParam} from "antd/lib/menu";
 
 export class NodeTreeItem extends TreeItem {
@@ -174,7 +174,7 @@ export class NodeTreeRenderer extends PureDataRenderer<Props, any> {
     return (
       <div style={{...style, marginLeft}} className="ticl-tree-node">
         <ExpandIcon opened={item.opened} onClick={this.onExpandClicked}/>
-        <TIcon icon={this.desc.icon} style={this.desc.style}/>
+        <TIcon icon={this.desc.icon} style={getFuncStyleFromDesc(this.desc, 'tico-pr')}/>
         <Dropdown overlay={
           <Menu prefixCls="ant-dropdown-menu" selectable={false}>
             <Menu.Item onClick={this.onReloadClicked}>

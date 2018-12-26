@@ -56,10 +56,7 @@ function iconNameWidth(str: string): [string, number, boolean] {
 
 export function TIcon(props: Props) {
   let {icon, style} = props;
-  let additionalClass = '';
-  if (style != null) {
-    additionalClass = `tico-pr${style}`;
-  }
+  let additionalClass = style || '';
   if (icon == null) {
     icon = '';
   }
