@@ -15,7 +15,7 @@ describe("editor Icon", function () {
     let [component, div] = loadTemplate(
       <div style={{position: 'absolute'}}>
         <TIcon icon="fab:git"/>
-        <TIcon icon="fas:plus" style="1"/>
+        <TIcon icon="fas:plus" style="tico-pr1"/>
         <TIcon icon="material:radio_button_unchecked"/>
         <TIcon icon="txt:A"/>
         <TIcon icon="txt:ip"/>
