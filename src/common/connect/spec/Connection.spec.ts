@@ -73,7 +73,7 @@ describe("Connection", function () {
     client.unsubscribe('Connection2.p', callbacks1);
 
     client.setValue('Connection2.p2', 'world');
-    await client.setBinding('Connection2.p', 'p2', true);
+    await client.setBinding('Connection2.p', 'p2', false, true);
     assert.equal(callbacks1.promise, cachedPromise1, "promise shouldn't be updated after unsubscribe");
     assert.isEmpty(job.getProperty('p')._listeners, 'property not listened after unsubscribe');
 
@@ -278,8 +278,8 @@ describe("Connection", function () {
 
     client.setBinding('Connection6-3.b.#-log', '@1');
     client.setBinding('Connection6-3.b.#call', '@1');
-    client.setBinding('Connection6-3.b.#-log', '@2', true);
-    client.setBinding('Connection6-3.b.#call', '@2', callbacks);
+    client.setBinding('Connection6-3.b.#-log', '@2', false, true);
+    client.setBinding('Connection6-3.b.#call', '@2', false, callbacks);
     client.setBinding('Connection6-3.b.#-log', '@3');
     client.setBinding('Connection6-3.b.#call', '@3');
     client.setBinding('Connection6-3.b.#-log', '@4');
@@ -307,9 +307,9 @@ describe("Connection", function () {
 
     client.setValue('Connection7.v', 1);
     client.subscribe('Connection7.v', callbacks);
-    await client.setBinding('Connection7.p', 'v', true);
+    await client.setBinding('Connection7.p', 'v', false, true);
     assert.isTrue(lastUpdate.change.hasListener);
-    await client.setBinding('Connection7.p', null, true);
+    await client.setBinding('Connection7.p', null, false, true);
     assert.isFalse(lastUpdate.change.hasListener);
     client.unsubscribe('Connection7.v', callbacks);
 

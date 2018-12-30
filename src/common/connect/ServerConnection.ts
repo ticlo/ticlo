@@ -6,6 +6,7 @@ import {Dispatcher, Listener, ValueDispatcher} from "../block/Dispatcher";
 import Property = Chai.Property;
 import {Type, Types, DescListener} from "../block/Type";
 import {FunctionDesc} from "../block/Descriptor";
+import {propRelative} from "../util/Path";
 
 class ServerRequest extends ConnectionSendingData {
   id: string;
@@ -282,7 +283,7 @@ export class ServerConnection extends Connection {
             break;
           }
           case 'bind': {
-            result = this.setBinding(request.path, request.from);
+            result = this.setBinding(request.path, request.from, request.absolute);
             break;
           }
           case 'update': {
@@ -381,10 +382,19 @@ export class ServerConnection extends Connection {
     }
   }
 
-  setBinding(path: string, from: string): string {
+  setBinding(path: string, from: string, absolute: boolean): string {
     let property = this.root.queryProperty(path, true);
     if (property) {
-      property.setBinding(from);
+      if (absolute) {
+        let sourceProp = this.root.queryProperty(from, true);
+        if (sourceProp) {
+          property.setBinding(propRelative(sourceProp._block, property));
+        } else {
+          return 'invalid from path';
+        }
+      } else {
+        property.setBinding(from);
+      }
       return null;
     } else {
       return 'invalid path';

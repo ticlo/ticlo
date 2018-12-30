@@ -20,7 +20,7 @@ describe("Connection Error", function () {
       client.updateValue('ConnectionError1.a.b.c', 1, true) as Promise<any>
     ), 'invalid path');
     assert.equal(await shouldReject(
-      client.setBinding('ConnectionError1.a.b.c', '1', true) as Promise<any>
+      client.setBinding('ConnectionError1.a.b.c', '1', false, true) as Promise<any>
     ), 'invalid path');
 
     assert.equal(await shouldReject(

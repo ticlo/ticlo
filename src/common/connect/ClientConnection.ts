@@ -150,20 +150,23 @@ class SetRequest extends ConnectionSend {
 
   updateSet(value: any) {
     delete this._data.from;
+    delete this._data.absolute;
     this._data.cmd = 'set';
     this._data.value = value;
   }
 
   updateUpdate(value: any) {
     delete this._data.from;
+    delete this._data.absolute;
     this._data.cmd = 'update';
     this._data.value = value;
   }
 
-  updateBind(from: string) {
+  updateBind(from: string, absolute: boolean) {
     delete this._data.value;
     this._data.cmd = 'bind';
     this._data.from = from;
+    this._data.absolute = absolute;
   }
 
   getSendingData(): {data: DataMap, size: number} {
@@ -400,25 +403,26 @@ export class ClientConnection extends Connection {
     }
   }
 
-  setBinding(path: string, from: string, important: boolean | ClientCallbacks = false): Promise<any> | string {
+  setBinding(path: string, from: string, absolute = false, important: boolean | ClientCallbacks = false): Promise<any> | string {
     // return this.simpleRequest({cmd: 'bind', path, from}, callbacks);
     if (important) {
       if (this.setRequests.has(path)) {
         this.setRequests.get(path).cancel();
       }
+      let request: any = {cmd: 'bind', path, absolute, from};
       if (typeof important === 'object') {
-        return this.simpleRequest({cmd: 'bind', path, from}, important);
+        return this.simpleRequest(request, important);
       } else {
-        return this.simpleRequest({cmd: 'bind', path, from}, null);
+        return this.simpleRequest(request, null);
       }
     }
     if (this.setRequests.has(path)) {
       let req = this.setRequests.get(path);
-      req.updateBind(from);
+      req.updateBind(from, absolute);
       return '';
     } else {
       let req = new SetRequest(path, this.uid.next(), this);
-      req.updateBind(from);
+      req.updateBind(from, absolute);
       this.setRequests.set(path, req);
       this.addSend(req);
       return '';
