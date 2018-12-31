@@ -1,7 +1,9 @@
 import {BlockProperty} from "../block/BlockProperty";
 import {Block, Job, Root} from "../block/Block";
+import {Logger} from "./Logger";
 
-export function resolve(path1: string, path2: string): string {
+
+export function resolve(path1: string, path2: string, property?: BlockProperty): string {
   if (path2 == null) {
     return null;
   }
@@ -16,17 +18,25 @@ export function resolve(path1: string, path2: string): string {
           p1.pop();
         /* falls through */
         case '#':
+          // shift is slow, but this should not be a common thing in binding
           p2.shift();
           break;
         case '###':
-          // stage path can't be resolved just from the path string, can not concat
-          // TODO need a better solution to show binding wire
+          // stage path can't be resolved just from the path string, can not resolve
+          Logger.warn(`can not resolve base path ${path1} with ${path2}`);
           return path2;
         default:
           break loopwhile;
       }
     }
   return p1.concat(p2).join('.');
+}
+
+export function resolveJobPath(property: BlockProperty, path: string): string {
+  if (path.startsWith('###.')) {
+    return `${property._block._job.fullPath()}${path.substr(3)}`;
+  }
+  return path;
 }
 
 export function relative(base: string, from: string): string {

@@ -104,6 +104,7 @@ export class Block implements Runnable, FunctionData, Listener<FunctionGenerator
   _destroyed: boolean = false;
 
   _proxy: object;
+  _cachedFullPath: string;
 
   constructor(job: Job, parent: Block, prop: BlockProperty) {
     this._job = job;
@@ -111,6 +112,18 @@ export class Block implements Runnable, FunctionData, Listener<FunctionGenerator
     this._prop = prop;
     // #is should always be initialized
     this.getProperty('#is');
+  }
+
+  fullPath(): string {
+    if (this._cachedFullPath) {
+      return this._cachedFullPath;
+    }
+    if (this._parent === Root.instance) {
+      this._cachedFullPath = this._prop._name;
+    } else {
+      this._cachedFullPath = this._parent.fullPath() + '.' + this._prop._name;
+    }
+    return this._cachedFullPath;
   }
 
   wait(val: any, emit?: any): void {

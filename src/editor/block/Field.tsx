@@ -53,9 +53,10 @@ export class FieldItem extends DataRendererItem<ValueRenderer> {
   outWires: Set<WireItem> = new Set<WireItem>();
 
   _bindingPath?: string;
+  _absBinding?: string;
   _bindingTargetKey?: string;
 
-  setBindingPath(str: string) {
+  setBindingPath(str: string, absBinding: string) {
     if (str !== this._bindingPath) {
       if (this._bindingTargetKey) {
         this.block.stage.unlinkField(this._bindingTargetKey, this);
@@ -66,7 +67,9 @@ export class FieldItem extends DataRendererItem<ValueRenderer> {
         this.block.onFieldsChanged();
       }
       this._bindingPath = str;
-      this._bindingTargetKey = resolve(this.block.key, this._bindingPath);
+      this._absBinding = absBinding;
+      this._bindingTargetKey = this._absBinding || resolve(this.block.key, this._bindingPath);
+
       if (this._bindingTargetKey) {
         if (this._bindingPath === `~${this.name}.output`) {
           this.subBlock = new SubBlockItem(this.block.conn, this.block.stage, `${this.block.key}.~${this.name}`, this);
@@ -138,7 +141,7 @@ export class FieldItem extends DataRendererItem<ValueRenderer> {
         if (
           (
             change.hasOwnProperty('bindingPath')
-            && this.setBindingPath(response.cache.bindingPath)
+            && this.setBindingPath(response.cache.bindingPath, response.cache.absBinding)
           )
           || change.hasOwnProperty('hasListener')
         ) {

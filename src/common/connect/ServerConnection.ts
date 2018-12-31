@@ -6,7 +6,7 @@ import {Dispatcher, Listener, ValueDispatcher} from "../block/Dispatcher";
 import Property = Chai.Property;
 import {Type, Types, DescListener} from "../block/Type";
 import {FunctionDesc} from "../block/Descriptor";
-import {propRelative} from "../util/Path";
+import {propRelative, resolveJobPath} from "../util/Path";
 
 class ServerRequest extends ConnectionSendingData {
   id: string;
@@ -87,6 +87,11 @@ class ServerSubscribe extends ServerRequest implements BlockPropertySubscriber, 
     }
     if (bindingChanged) {
       data.bindingPath = this.property._bindingPath;
+      if (this.property._bindingPath.startsWith('###.')) {
+        data.absBinding = resolveJobPath(this.property, this.property._bindingPath);
+      } else {
+        data.absBinding = null;
+      }
     }
     if (listenerChanged) {
       let hasListener = false;
