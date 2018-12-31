@@ -29,12 +29,12 @@ export function resolve(path1: string, path2: string): string {
   return p1.concat(p2).join('.');
 }
 
-export function relative(from: string, to: string): string {
-  if (from === to) {
+export function relative(base: string, from: string): string {
+  if (base === from) {
     return '';
   }
-  let p1 = from.split('.');
-  let p2 = to.split('.');
+  let p1 = base.split('.');
+  let p2 = from.split('.');
   let pos = 0;
   while (p1[pos] === p2[pos]) {
     ++pos;
@@ -44,11 +44,11 @@ export function relative(from: string, to: string): string {
 }
 
 
-function propRelativeImpl(job: Job, fromBlock: Block, toBlock: Block, field: string, overrideUpRoute?: string): string {
-  let toBlocks: Block[] = [];
-  while (toBlock !== job) {
-    toBlocks.push(toBlock);
-    toBlock = toBlock._parent;
+function propRelativeImpl(job: Job, baseBlock: Block, fromBlock: Block, fromField: string, overrideUpRoute?: string): string {
+  let fromBlocks: Block[] = [];
+  while (fromBlock !== job) {
+    fromBlocks.push(fromBlock);
+    fromBlock = fromBlock._parent;
   }
 
   let resultPaths: string[] = [];
@@ -57,81 +57,82 @@ function propRelativeImpl(job: Job, fromBlock: Block, toBlock: Block, field: str
   if (overrideUpRoute) {
     resultPaths.push(overrideUpRoute);
   } else {
-    let fromBlocks: Block[] = [];
-
-    while (fromBlock !== job) {
-      fromBlocks.push(fromBlock);
-      fromBlock = fromBlock._parent;
+    let baseBlocks: Block[] = [];
+    let firstLayerBase = baseBlock._parent === job;
+    while (baseBlock !== job) {
+      baseBlocks.push(baseBlock);
+      baseBlock = baseBlock._parent;
     }
     let commonParent: Block = job;
-    while (fromBlocks[fromBlocks.length - 1] === toBlocks[toBlocks.length - 1]) {
-      commonParent = fromBlocks.pop();
-      toBlocks.pop();
+    while (baseBlocks.length && baseBlocks[baseBlocks.length - 1] === fromBlocks[fromBlocks.length - 1]) {
+      commonParent = baseBlocks.pop();
+      fromBlocks.pop();
     }
     if (commonParent === job) {
-      if (fromBlock._parent === job) {
+      if (firstLayerBase) {
+        // when base is the first layer child of parent job, then ## is better than ###
         resultPaths.push('##');
       } else {
         resultPaths.push('###');
       }
     } else {
-      for (let str of fromBlocks) {
+      for (let str of baseBlocks) {
         resultPaths.push('##');
       }
     }
   }
 
   // path go down
-  for (let i = toBlocks.length; i >= 0; --i) {
-    resultPaths.push(toBlocks[i]._prop._name);
+  for (let i = fromBlocks.length - 1; i >= 0; --i) {
+    resultPaths.push(fromBlocks[i]._prop._name);
   }
-  resultPaths.push(field);
+  resultPaths.push(fromField);
 
   return resultPaths.join('.');
 }
 
 // find a optimized full path
-export function propRelative(from: Block, to: BlockProperty): string {
-  let fromBlock = from;
-  let toBlock = to._block;
+export function propRelative(base: Block, from: BlockProperty): string {
+  let baseBlock = base;
+  let fromBlock = from._block;
 
 
-  if (fromBlock._job === toBlock._job) {
-    // from and to in same job
-    return (propRelativeImpl(fromBlock._job, fromBlock, toBlock, to._name));
+  if (baseBlock._job === fromBlock._job) {
+    // base and from in same job
+    return (propRelativeImpl(baseBlock._job, baseBlock, fromBlock, from._name));
   } else {
-    // from and to different jobs
+    // base and from different jobs
+    let baseJob = baseBlock._job;
     let fromJob = fromBlock._job;
-    let toJob = toBlock._job;
-    let toJobs: Job[] = [];
     let fromJobs: Job[] = [];
+    let baseJobs: Job[] = [];
 
     // trace job tree
-    while (toJob && toJob !== Root.instance) {
-      toJobs.push(toJob);
-      toJob = toJob._job;
-    }
     while (fromJob && fromJob !== Root.instance) {
       fromJobs.push(fromJob);
       fromJob = fromJob._job;
     }
+    while (baseJob && baseJob !== Root.instance) {
+      baseJobs.push(baseJob);
+      baseJob = baseJob._job;
+    }
     let commonJob: Job = Root.instance;
     // find common job
-    while (fromJobs[fromJobs.length - 1] === toJobs[toJobs.length - 1]) {
-      commonJob = fromJobs.pop();
-      toJobs.pop();
+    while (baseJobs.length && baseJobs[baseJobs.length - 1] === fromJobs[fromJobs.length - 1]) {
+      commonJob = baseJobs.pop();
+      fromJobs.pop();
     }
 
-    if (fromJobs.length === 0) {
-      // binding target is a sub job in the from job
-      return propRelativeImpl(commonJob, fromBlock, toBlock, to._name);
+    if (baseJobs.length === 0) {
+      // binding target is a sub job in the base job
+      return propRelativeImpl(commonJob, baseBlock, fromBlock, from._name);
     }
 
     let resultPaths: string[] = ['###'];
-    for (let str of fromJobs) {
+    for (let str of baseJobs) {
       resultPaths.push('###');
     }
-    return propRelativeImpl(commonJob, fromBlock, toBlock, to._name, resultPaths.join('.'));
+    return propRelativeImpl(commonJob, baseBlock, fromBlock, from._name, resultPaths.join('.'));
   }
   // TODO, bind from service job
 }

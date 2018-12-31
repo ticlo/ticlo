@@ -386,9 +386,9 @@ export class ServerConnection extends Connection {
     let property = this.root.queryProperty(path, true);
     if (property) {
       if (absolute) {
-        let sourceProp = this.root.queryProperty(from, true);
-        if (sourceProp) {
-          property.setBinding(propRelative(sourceProp._block, property));
+        let fromProp = this.root.queryProperty(from, true);
+        if (fromProp) {
+          property.setBinding(propRelative(property._block, fromProp));
         } else {
           return 'invalid from path';
         }
