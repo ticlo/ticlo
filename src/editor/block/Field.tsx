@@ -243,8 +243,7 @@ export class FieldView extends PureDataRenderer<FieldViewProps, any> {
     let desc = item.block.desc;
     let dropField = e.dataTransfer.getData('ticl-field');
     if (dropField !== item.key) {
-      let bindingPath = relative(item.block.key, dropField);
-      item.conn().setBinding(item.key, bindingPath);
+      item.conn().setBinding(item.key, dropField, true);
     }
   };
 
