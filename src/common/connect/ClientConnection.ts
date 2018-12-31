@@ -93,9 +93,6 @@ class MergedClientRequest extends ConnectionSend implements ClientCallbacks {
 interface ValueState {
   value?: any;
   bindingPath?: string;
-  // when binding path has special key that can't be resolved form client
-  // absBinding is need for the UI to visualize the binding wire
-  absBinding?: string;
   hasListener?: boolean;
 }
 
@@ -116,7 +113,6 @@ class SubscribeRequest extends MergedClientRequest {
   _cache: ValueState = {
     value: undefined,
     bindingPath: null,
-    absBinding: null,
     hasListener: false
   };
 
@@ -133,9 +129,6 @@ class SubscribeRequest extends MergedClientRequest {
     }
     if (response.hasOwnProperty('bindingPath')) {
       this._cache.bindingPath = response.bindingPath;
-    }
-    if (response.hasOwnProperty('absBinding')) {
-      this._cache.absBinding = response.absBinding;
     }
     if (response.hasOwnProperty('hasListener')) {
       this._cache.hasListener = response.hasListener;

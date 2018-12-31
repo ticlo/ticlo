@@ -87,11 +87,6 @@ class ServerSubscribe extends ServerRequest implements BlockPropertySubscriber, 
     }
     if (bindingChanged) {
       data.bindingPath = this.property._bindingPath;
-      if (this.property._bindingPath.startsWith('###.')) {
-        data.absBinding = resolveJobPath(this.property, this.property._bindingPath);
-      } else {
-        data.absBinding = null;
-      }
     }
     if (listenerChanged) {
       let hasListener = false;
