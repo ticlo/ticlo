@@ -1,4 +1,4 @@
-import {BlockProperty} from "../block/BlockProperty";
+import {BlockProperty, HelperProperty} from "../block/BlockProperty";
 import {Block, Job, Root} from "../block/Block";
 import {Logger} from "./Logger";
 
@@ -71,6 +71,10 @@ function propRelativeImpl(job: Job, baseBlock: Block, fromBlock: Block, fromFiel
     let firstLayerBase = baseBlock._parent === job;
     while (baseBlock !== job) {
       baseBlocks.push(baseBlock);
+      if (baseBlock._prop instanceof HelperProperty && baseBlock._parent._parent === job) {
+        // helper block should check if owner block is first layer
+        firstLayerBase = true;
+      }
       baseBlock = baseBlock._parent;
     }
     let commonParent: Block = job;
@@ -78,13 +82,9 @@ function propRelativeImpl(job: Job, baseBlock: Block, fromBlock: Block, fromFiel
       commonParent = baseBlocks.pop();
       fromBlocks.pop();
     }
-    if (commonParent === job) {
-      if (firstLayerBase) {
-        // when base is the first layer child of parent job, then ## is better than ###
-        resultPaths.push('##');
-      } else {
-        resultPaths.push('###');
-      }
+    if (commonParent === job && !firstLayerBase) {
+      // first layer binding should use ## instead of ###, to make it easy to copy paste blocks to other layer
+      resultPaths.push('###');
     } else {
       for (let str of baseBlocks) {
         resultPaths.push('##');
