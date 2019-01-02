@@ -371,4 +371,33 @@ describe("Connection", function () {
     Root.instance.deleteValue('Connection9');
   });
 
+  it('auto bind', async function () {
+    let job1 = Root.instance.addJob('Connection10');
+
+    job1.load({
+      'c': {
+        '#is': '',
+        'd': {'#is': ''},
+        'e': {'#is': ''}
+      },
+      'f': {
+        '#is': ''
+      }
+    });
+
+    let [server, client] = makeLocalConnection(Root.instance, false);
+
+    client.setBinding('Connection10.c.e.v1', 'Connection10.c.d.v1', true);
+    client.setBinding('Connection10.c.e.v2', 'Connection10.c.e.v1', true);
+    client.setBinding('Connection10.c.e.v3', 'Connection10.f.v3', true);
+    client.setBinding('Connection10.c.v4', 'Connection10.f.v4', true);
+
+    await shouldHappen(() => job1.queryProperty('c.e.v2', true)._bindingPath === 'v1');
+    await shouldHappen(() => job1.queryProperty('c.e.v1', true)._bindingPath === '##.d.v1');
+    await shouldHappen(() => job1.queryProperty('c.e.v3', true)._bindingPath === '###.f.v3');
+    await shouldHappen(() => job1.queryProperty('c.v4', true)._bindingPath === '##.f.v4');
+
+    client.destroy();
+    Root.instance.deleteValue('Connection10');
+  });
 });

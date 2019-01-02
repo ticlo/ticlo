@@ -1,5 +1,5 @@
-import {BlockProperty, BlockIO, HelperProperty} from "./BlockProperty";
 import {ConfigGenerators, BlockReadOnlyConfig} from "./BlockConfigs";
+import {BlockProperty, BlockIO, HelperProperty} from "./BlockProperty";
 import {BlockBinding} from "./BlockBinding";
 import {FunctionData, FunctionGenerator, BaseFunction, FunctionOutput} from "./BlockFunction";
 import {Dispatcher, Listener, ValueDispatcher, ListenPromise, Destroyable} from "./Dispatcher";

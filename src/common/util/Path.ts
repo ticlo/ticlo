@@ -1,5 +1,5 @@
-import {BlockProperty, HelperProperty} from "../block/BlockProperty";
 import {Block, Job, Root} from "../block/Block";
+import {BlockProperty, HelperProperty} from "../block/BlockProperty";
 import {Logger} from "./Logger";
 
 
@@ -54,7 +54,7 @@ export function relative(base: string, from: string): string {
 }
 
 
-function propRelativeImpl(job: Job, baseBlock: Block, fromBlock: Block, fromField: string, overrideUpRoute?: string): string {
+function propRelativeImpl(job: Job, baseBlock: Block, fromBlock: Block, fromField: string, pathPrefix?: string): string {
   let fromBlocks: Block[] = [];
   while (fromBlock !== job) {
     fromBlocks.push(fromBlock);
@@ -64,33 +64,37 @@ function propRelativeImpl(job: Job, baseBlock: Block, fromBlock: Block, fromFiel
   let resultPaths: string[] = [];
 
   // path go up
-  if (overrideUpRoute) {
-    resultPaths.push(overrideUpRoute);
+  if (pathPrefix) {
+    resultPaths.push(pathPrefix);
+  }
+  let baseBlocks: Block[] = [];
+  let firstLayerBase = baseBlock._parent === job;
+  while (baseBlock !== job) {
+    baseBlocks.push(baseBlock);
+    if (baseBlock._prop instanceof HelperProperty && baseBlock._parent._parent === job) {
+      // helper block should check if owner block is first layer
+      firstLayerBase = true;
+    }
+    baseBlock = baseBlock._parent;
+  }
+  let commonParent: Block = job;
+  while (baseBlocks.length && baseBlocks[baseBlocks.length - 1] === fromBlocks[fromBlocks.length - 1]) {
+    commonParent = baseBlocks.pop();
+    fromBlocks.pop();
+  }
+  if (commonParent === job && !firstLayerBase) {
+    // first layer binding should use ## instead of ###, to make it easy to copy paste blocks to other layer
+    if (pathPrefix) {
+      // pathPrefix point to child job root, so ### would point to self, need ##.###
+      resultPaths.push('##');
+    }
+    resultPaths.push('###');
   } else {
-    let baseBlocks: Block[] = [];
-    let firstLayerBase = baseBlock._parent === job;
-    while (baseBlock !== job) {
-      baseBlocks.push(baseBlock);
-      if (baseBlock._prop instanceof HelperProperty && baseBlock._parent._parent === job) {
-        // helper block should check if owner block is first layer
-        firstLayerBase = true;
-      }
-      baseBlock = baseBlock._parent;
-    }
-    let commonParent: Block = job;
-    while (baseBlocks.length && baseBlocks[baseBlocks.length - 1] === fromBlocks[fromBlocks.length - 1]) {
-      commonParent = baseBlocks.pop();
-      fromBlocks.pop();
-    }
-    if (commonParent === job && !firstLayerBase) {
-      // first layer binding should use ## instead of ###, to make it easy to copy paste blocks to other layer
-      resultPaths.push('###');
-    } else {
-      for (let str of baseBlocks) {
-        resultPaths.push('##');
-      }
+    for (let block of baseBlocks) {
+      resultPaths.push('##');
     }
   }
+
 
   // path go down
   for (let i = fromBlocks.length - 1; i >= 0; --i) {
@@ -120,11 +124,11 @@ export function propRelative(base: Block, from: BlockProperty): string {
     // trace job tree
     while (fromJob && fromJob !== Root.instance) {
       fromJobs.push(fromJob);
-      fromJob = fromJob._job;
+      fromJob = fromJob._parent._job;
     }
     while (baseJob && baseJob !== Root.instance) {
       baseJobs.push(baseJob);
-      baseJob = baseJob._job;
+      baseJob = baseJob._parent._job;
     }
     let commonJob: Job = Root.instance;
     // find common job
@@ -138,11 +142,11 @@ export function propRelative(base: Block, from: BlockProperty): string {
       return propRelativeImpl(commonJob, baseBlock, fromBlock, from._name);
     }
 
-    let resultPaths: string[] = ['###'];
-    for (let str of baseJobs) {
+    let resultPaths: string[] = [];
+    for (let job of baseJobs) {
       resultPaths.push('###');
     }
-    return propRelativeImpl(commonJob, baseBlock, fromBlock, from._name, resultPaths.join('.'));
+    return propRelativeImpl(commonJob, baseJobs[baseJobs.length - 1], fromBlock, from._name, resultPaths.join('.##.'));
   }
   // TODO, bind from service job
 }

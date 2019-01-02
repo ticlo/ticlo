@@ -1,5 +1,5 @@
-import {Block} from "./Block";
 import {BlockProperty} from "./BlockProperty";
+import {Block} from "./Block";
 import {BaseFunction, FunctionData} from "./BlockFunction";
 
 class BlockTypeConfig extends BlockProperty {
