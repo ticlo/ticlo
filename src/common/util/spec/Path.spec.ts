@@ -9,14 +9,11 @@ describe("Path", function () {
 
   it('resolve', function () {
     assert.equal(resolve('a', 'b'), 'a.b');
-
     assert.equal(resolve('c.d.e', '##.f'), 'c.d.f');
-
     assert.equal(resolve('g.h', '#.i'), 'g.h.i');
-
     assert.equal(resolve('j', '##.##.k'), '##.k');
-
     assert.equal(resolve('l', '###.m'), '###.m');
+    assert.equal(resolve('n', null), null);
   });
 
   it('relative', function () {

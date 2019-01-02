@@ -6,7 +6,7 @@ import {Dispatcher, Listener, ValueDispatcher} from "../block/Dispatcher";
 import Property = Chai.Property;
 import {Type, Types, DescListener} from "../block/Type";
 import {FunctionDesc} from "../block/Descriptor";
-import {propRelative, resolveJobPath} from "../util/Path";
+import {propRelative} from "../util/Path";
 
 class ServerRequest extends ConnectionSendingData {
   id: string;

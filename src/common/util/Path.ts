@@ -32,13 +32,6 @@ export function resolve(path1: string, path2: string, property?: BlockProperty):
   return p1.concat(p2).join('.');
 }
 
-export function resolveJobPath(property: BlockProperty, path: string): string {
-  if (path.startsWith('###.')) {
-    return `${property._block._job.fullPath()}${path.substr(3)}`;
-  }
-  return path;
-}
-
 export function relative(base: string, from: string): string {
   if (base === from) {
     return '';
