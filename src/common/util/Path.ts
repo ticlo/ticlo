@@ -148,17 +148,18 @@ export function propRelative(base: Block, from: BlockProperty): string {
 // callback: return true to break
 export function forAllPathsBetween(target: string, base: string, callback: (value: string) => boolean) {
   if (!target.startsWith(base)) {
-    return;
+    return false;
   }
   if (callback(target)) {
-    return;
+    return true;
   }
   let targetParts = target.split('.');
   let baseParts = base.split('.');
 
   for (let len = targetParts.length - 1; len > baseParts.length; --len) {
     if (callback(targetParts.slice(0, len).join('.'))) {
-      return;
+      return true;
     }
   }
+  return false;
 }

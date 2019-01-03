@@ -62,6 +62,7 @@ export class FieldItem extends DataRendererItem<ValueRenderer> {
         this.block.stage.unlinkField(this._bindingTargetKey, this);
       }
       if (this.subBlock) {
+        // subBlock can only exist on one binding path, it always disappears when binding path change
         this.subBlock.destructor();
         this.subBlock = null;
         this.block.onFieldsChanged();
@@ -71,10 +72,14 @@ export class FieldItem extends DataRendererItem<ValueRenderer> {
 
       if (this._bindingTargetKey) {
         if (this._bindingPath === `~${this.name}.output`) {
+          // binding block
           this.subBlock = new SubBlockItem(this.block.conn, this.block.stage, `${this.block.key}.~${this.name}`, this);
         } else {
+          // binding wire
           this.block.stage.linkField(this._bindingTargetKey, this);
         }
+      } else {
+        this.removeInWire();
       }
       return true;
     }

@@ -127,14 +127,16 @@ export default class BlockStage extends React.Component<Props, any> implements S
       this._fieldLinks.set(souceKey, new Set<FieldItem>());
     }
     this._fieldLinks.get(souceKey).add(targetField);
-    forAllPathsBetween(souceKey, this.props.basePath, (path) => {
+    let sourceFound = forAllPathsBetween(souceKey, this.props.basePath, (path) => {
       let field = this._fields.get(path);
       if (field) {
         targetField.sourceChanged(field);
         return true;
       }
-    }) ;
-
+    });
+    if (!sourceFound) {
+      targetField.sourceChanged(null);
+    }
   }
 
   unlinkField(sourceKey: string, targetField: FieldItem) {
