@@ -172,7 +172,7 @@ describe("editor BlockStage", function () {
         '#is': 'add',
         '0': 1,
         '@b-xyw': [100, 100, 150],
-        '@b-p': ['0']
+        '@b-p': ['0', '1']
       },
       subtract: {
         '#is': 'subtract',
@@ -220,6 +220,19 @@ describe("editor BlockStage", function () {
     // expand block
     SimulateEvent.simulate(addBlock.querySelector('.ticl-block-head'), 'dblclick');
     await shouldHappen(() => addBlock.offsetWidth === 150);
+
+    // wire should disappear when source not in stage
+    job.queryProperty('subtract.0').setBinding('##.unknown');
+    await shouldHappen(() => div.querySelector('svg') == null);
+
+    // wire should be back when binding is set again
+    job.queryProperty('subtract.0').setBinding('##.add.1');
+    await shouldHappen(() => div.querySelector('svg'));
+
+    // wire should disappear when unbound
+    job.queryProperty('subtract.0').setValue(1);
+    await shouldHappen(() => div.querySelector('svg') == null);
+
 
     Root.instance.deleteValue('BlockStage4');
   });
