@@ -63,7 +63,7 @@ export class FieldItem extends DataRendererItem<ValueRenderer> {
       }
       if (this.subBlock) {
         // subBlock can only exist on one binding path, it always disappears when binding path change
-        this.subBlock.destructor();
+        this.subBlock.destroy();
         this.subBlock = null;
         this.block.onFieldsChanged();
       }
@@ -164,7 +164,7 @@ export class FieldItem extends DataRendererItem<ValueRenderer> {
     this.block.stage.registerField(this.key, this);
   }
 
-  destructor() {
+  destroy() {
     this.block.conn.unsubscribe(this.key, this.listener);
     this.block.stage.unregisterField(this.key, this);
     if (this._bindingTargetKey) {
@@ -172,13 +172,13 @@ export class FieldItem extends DataRendererItem<ValueRenderer> {
     }
     this.removeInWire();
     if (this.subBlock) {
-      this.subBlock.destructor();
+      this.subBlock.destroy();
     }
   }
 
   removeInWire() {
     if (this.inWire) {
-      this.inWire.destructor();
+      this.inWire.destroy();
       this.inWire = null;
       this.block.stage.forceUpdate();
     }
@@ -396,7 +396,7 @@ export abstract class BaseBlockItem extends DataRendererItem<XYWRenderer> {
     if (!arrayEqual(fields, this.fields)) {
       for (let f of this.fields) {
         if (!fields.includes(f)) {
-          this.fieldItems.get(f).destructor();
+          this.fieldItems.get(f).destroy();
           this.fieldItems.delete(f);
         }
       }
@@ -424,9 +424,9 @@ export abstract class BaseBlockItem extends DataRendererItem<XYWRenderer> {
     return result;
   }
 
-  destructor() {
+  destroy() {
     for (let [key, fieldItem] of this.fieldItems) {
-      fieldItem.destructor();
+      fieldItem.destroy();
     }
     this.conn.unsubscribe(`${this.key}.#is`, this.isListener);
     this.conn.unsubscribe(`${this.key}.@b-p`, this.pListener);
@@ -509,9 +509,9 @@ class SubBlockItem extends BaseBlockItem {
     return super.renderFields();
   }
 
-  destructor() {
+  destroy() {
     this.conn.unsubscribe(`${this.key}.@b-hide`, this.hideListener);
-    super.destructor();
+    super.destroy();
   }
 
 }

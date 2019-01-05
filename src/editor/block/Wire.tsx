@@ -29,7 +29,7 @@ export class WireItem extends DataRendererItem {
     this.source.outWires.add(this);
   }
 
-  destructor() {
+  destroy() {
     if (this.source) {
       this.source.outWires.delete(this);
       this.source = null;

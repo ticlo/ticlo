@@ -86,7 +86,7 @@ export class BlockItem extends BaseBlockItem {
   }
 
   onDetached() {
-    this.destructor();
+    this.destroy();
   }
 }
 
