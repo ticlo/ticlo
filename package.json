@@ -26,7 +26,7 @@
     "@types/node": "^10.12.15",
     "@types/react": "^16.7.17",
     "@types/react-dom": "^16.0.11",
-    "antd": "^3.11.2",
+    "antd": "^3.12.1",
     "babel-core": "^6.26.3",
     "babel-preset-env": "^1.7.0",
     "chai": "^4.2.0",

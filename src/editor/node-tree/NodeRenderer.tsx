@@ -168,6 +168,23 @@ export class NodeTreeRenderer extends PureDataRenderer<Props, any> {
     this.forceUpdate();
   };
 
+  /*
+   <div className="fas fa-sync-alt ticl-icon"/>
+    <div className="fas fa-search ticl-icon"/>
+   */
+  getMenu = () => (
+    <Menu prefixCls="ant-dropdown-menu" selectable={false}>
+      <Menu.Item onClick={this.onReloadClicked}>
+        <Icon type="reload"/>
+        Reload
+      </Menu.Item>
+      <Menu.Item>
+        <Icon type="search"/>
+        Search
+      </Menu.Item>
+    </Menu>
+  );
+
   render() {
     let {item, style} = this.props;
     let marginLeft = item.level * 24;
@@ -175,18 +192,7 @@ export class NodeTreeRenderer extends PureDataRenderer<Props, any> {
       <div style={{...style, marginLeft}} className="ticl-tree-node">
         <ExpandIcon opened={item.opened} onClick={this.onExpandClicked}/>
         <TIcon icon={this.desc.icon} style={getFuncStyleFromDesc(this.desc, 'tico-pr')}/>
-        <Dropdown overlay={
-          <Menu prefixCls="ant-dropdown-menu" selectable={false}>
-            <Menu.Item onClick={this.onReloadClicked}>
-              <div className="fas fa-sync-alt ticl-icon"/>
-              Reload
-            </Menu.Item>
-            <Menu.Item>
-              <div className="fas fa-search ticl-icon"/>
-              Search
-            </Menu.Item>
-          </Menu>
-        } trigger={['contextMenu']}>
+        <Dropdown overlay={this.getMenu} trigger={['contextMenu']}>
           <div className="ticl-tree-node-text">{item.name}</div>
         </Dropdown>
       </div>
