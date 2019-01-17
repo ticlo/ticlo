@@ -21,15 +21,13 @@ let testDesc = {
   name: '',
   icon: 'fas:plus',
   useLength: true,
-  inputs: [
+  properties: [
     {name: 'a', type: 'number', visible: 'high'},
     {name: 'b', type: 'number', visible: 'high'},
     {name: 'c', type: 'number', visible: 'high'},
-    {name: 'd', type: 'number', visible: 'high'}
-  ],
-  outputs: [
-    {name: 'output', type: 'number'}
-  ],
+    {name: 'd', type: 'number', visible: 'high'},
+    {name: 'output', type: 'number', readonly: true}
+  ]
 };
 
 function addTestTypes(prefix: string, count: number) {

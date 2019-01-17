@@ -215,9 +215,9 @@ Types.add(ForEachFunction, {
   name: 'foreach',
   icon: 'material:hdr_strong',
   style: 'repeater',
-  inputs: [
+  properties: [
     {name: 'input', type: 'any'},
-    {name: 'src', type: 'any'}
+    {name: 'src', type: 'any'},
+    {name: 'output', type: 'any', readonly: true}
   ],
-  outputs: [{name: 'output', type: 'any'}]
 });

@@ -462,14 +462,13 @@ Types.add(MapFunction, {
   name: 'map',
   icon: 'material:hdr_strong',
   style: 'repeater',
-  inputs: [
+  properties: [
     {name: 'input', type: 'any'},
     {name: 'src', type: 'any'},
     {name: 'thread', type: 'number'},
     {name: 'reuseWorker', type: 'bool'},
-    {name: 'timeout', type: 'number'}
+    {name: 'timeout', type: 'number'},
+    {name: 'output', type: 'any', readonly: true}
   ],
-  outputs:
-    [{name: 'output', type: 'any'}]
 })
 ;

@@ -109,7 +109,7 @@ JsFunction.prototype.priority = 1;
 Types.add(JsFunction, {
   name: 'js',
   icon: 'txt:js',
-  inputs: [{
+  properties: [{
     name: 'script', type: 'string', visible: 'high'
   }]
 });

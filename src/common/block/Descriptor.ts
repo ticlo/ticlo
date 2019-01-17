@@ -44,8 +44,7 @@ export interface FunctionDesc {
   priority?: 0 | 1 | 2 | 3;
   mode?: BlockMode;
   useLength?: boolean;
-  inputs?: (PropDesc | PropGroupDesc)[];
-  outputs?: PropDesc[];
+  properties?: (PropDesc | PropGroupDesc)[];
   attributes?: (PropDesc)[];
 
   style?: 'repeater' | 'service';
