@@ -19,20 +19,19 @@ export type ValueType =
   | 'array'
   | 'any';
 
-export interface PropDesc {
-  name: string;
+interface PropDescBase {
   type: ValueType;
   editor?: string;
   readonly?: boolean;
-  visible?: VisibleType;
+  visible?: VisibleType; // whether property is shown in block view
 }
 
-export interface PropGroupDesc {
+export interface PropDesc extends PropDescBase {
+  name: string;
+}
+
+export interface PropGroupDesc extends PropDescBase {
   group: string;
-  type: ValueType;
-  editor?: string;
-  readonly?: boolean;
-  visible?: VisibleType;
 }
 
 export interface FunctionDesc {
