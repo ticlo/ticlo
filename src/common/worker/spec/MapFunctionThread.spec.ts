@@ -101,7 +101,7 @@ describe("MapFunction Thread", function () {
           'runner': {'#is': 'test-runner', '#mode': 'always', '#-log': 0},
           'async': {'#is': 'async-function-manual', '~#call': '##.#input'},
           'add': {'#is': 'add', '#mode': 'onCall', '~#call': '##.async.#emit', '~0': '##.#input', '1': 1},
-          '~#waiting': 'async.#waiting',
+          '~#wait': 'async.#wait',
           '~#output': 'add.output'
         }
       }
@@ -161,7 +161,7 @@ describe("MapFunction Thread", function () {
           'runner': {'#is': 'test-runner', '#mode': 'always', '#-log': 0},
           'async': {'#is': 'async-function-promise', '~#call': '##.#input'},
           'add': {'#is': 'add', '#mode': 'onCall', '~#call': '##.async.#emit', '~0': '##.#input', '1': 1},
-          '~#waiting': 'async.#waiting',
+          '~#wait': 'async.#wait',
           '~#output': 'add.output'
         }
       }
@@ -221,7 +221,7 @@ describe("MapFunction Thread", function () {
           'runner': {'#is': 'test-runner', '#mode': 'always', '#-log': 0},
           'async': {'#is': 'async-function-promise', '~#call': '##.#input'},
           'add': {'#is': 'add', '#mode': 'onCall', '~#call': '##.async.#emit', '~0': '##.#input', '1': 1},
-          '~#waiting': 'async.#waiting',
+          '~#wait': 'async.#wait',
           '~#output': 'add.output'
         }
       }
@@ -277,7 +277,7 @@ describe("MapFunction Thread", function () {
           'runner': {'#is': 'test-runner', '#mode': 'always', '#-log': 0},
           'async': {'#is': 'async-function-promise', '~#call': '##.#input'},
           'add': {'#is': 'add', '#mode': 'onCall', '~#call': '##.async.#emit', '~0': '##.#input', '1': 1},
-          '~#waiting': 'async.#waiting',
+          '~#wait': 'async.#wait',
           '~#output': 'add.output'
         }
       }

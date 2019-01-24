@@ -15,9 +15,9 @@ class BlockSubscriber {
     }
   };
 
-  bMoreListener = {
+  bDefListener = {
     onUpdate: (response: ValueUpdate) => {
-      // todo implement b-more
+      // todo implement #def
     }
   };
 
@@ -33,7 +33,7 @@ class BlockSubscriber {
     this.editor = editor;
     this.conn = editor.props.conn;
     this.conn.subscribe(`${key}.#is`, this.isListener);
-    this.conn.subscribe(`${key}.@b-more`, this.bMoreListener);
+    this.conn.subscribe(`${key}.#def`, this.bDefListener);
   }
 
   // onDone?(): void;
@@ -46,7 +46,7 @@ class BlockSubscriber {
 
   destroy() {
     this.conn.unsubscribe(`${this.key}.#is`, this.isListener);
-    this.conn.unsubscribe(`${this.key}.@b-more`, this.bMoreListener);
+    this.conn.unsubscribe(`${this.key}.@b-more`, this.bDefListener);
   }
 }
 
@@ -100,7 +100,7 @@ class PropertyEditor extends React.Component<Props, any> {
   render() {
     let descChecked: Set<string> = new Set<string>();
     let propMap: Map<string, PropDesc | PropGroupDesc> = null; // new Map<string, PropDesc | PropGroupDesc>();
-    let morePropMap: Map<string, PropDesc> = null; // new Map<string, PropDesc>();
+    let defPropMap: Map<string, PropDesc> = null; // new Map<string, PropDesc>();
 
     for (let [key, subscriber] of this.subscriptions) {
       if (subscriber.desc) {

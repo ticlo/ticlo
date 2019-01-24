@@ -38,7 +38,7 @@ class PromiseWrapper {
   }
 
   listen(promise: Promise<any>) {
-    this._block.updateValue('#waiting', true);
+    this._block.updateValue('#wait', true);
     promise.then((val: any) => this.onResolve(val)).catch((reason: any) => this.onError(reason));
   }
 
@@ -49,7 +49,7 @@ class PromiseWrapper {
       } else {
         this._block.updateValue('#emit', val);
       }
-      this._block.updateValue('#waiting', undefined);
+      this._block.updateValue('#wait', undefined);
       this._block._funcPromise = undefined;
     }
 
@@ -58,7 +58,7 @@ class PromiseWrapper {
   onError(reason: any) {
     if (this._block._funcPromise === this) {
       this._block.updateValue('#emit', new ErrorEvent('rejected', reason));
-      this._block.updateValue('#waiting', undefined);
+      this._block.updateValue('#wait', undefined);
       this._block._funcPromise = undefined;
     }
   }
@@ -128,7 +128,7 @@ export class Block implements Runnable, FunctionData, Listener<FunctionGenerator
   // }
 
   wait(val: any, emit?: any): void {
-    this.updateValue('#waiting', val);
+    this.updateValue('#wait', val);
     if (!val) {
       // emit a value when it's no longer waiting
       if (emit !== undefined && this._props.get('#emit')) {
@@ -456,7 +456,7 @@ export class Block implements Runnable, FunctionData, Listener<FunctionGenerator
     if (this._function) {
       this._function.cancel(reason);
       this._funcPromise = undefined;
-      this.updateValue('#waiting', undefined);
+      this.updateValue('#wait', undefined);
     }
   }
 
@@ -650,7 +650,7 @@ export class Block implements Runnable, FunctionData, Listener<FunctionGenerator
       this._function.destroy();
       this._funcPromise = undefined;
       this.deleteValue('#func');
-      this.updateValue('#waiting', undefined);
+      this.updateValue('#wait', undefined);
       this._called = false;
     }
     if (generator) {

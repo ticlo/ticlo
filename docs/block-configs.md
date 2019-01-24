@@ -34,13 +34,17 @@ Queue the block in the resolver to run it asynchronously, or run it instantly wh
 * Changing `#call` to **null** or **undefined** will be ignored
 * Event can directly `#call` a block when it just gets dispatched. But if it's stored in a property and being set to #call later, the block will ignore it.
 
+### #def
+**type**: list
+
+A list of property definition, that will show in the UI
 
 ### #func
 **type**: Block
 
 A temporary block maintained by the block function, block will always destroy the #func block when function changed
 
-### #waiting
+### #wait
 **type**: boolean
 indicate when the worker's task is finished and the output data is ready
 

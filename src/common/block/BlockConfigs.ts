@@ -108,7 +108,7 @@ export const ConfigGenerators: {[key: string]: new (block: Block, field: string)
   '#len': BlockLengthConfig,
   '#input': BlockInputConfig,
   '#output': BlockOutputConfig,
-  '#waiting': BlockWaitingConfig,
+  '#wait': BlockWaitingConfig,
   '#cancel': BlockCancelConfig,
   '#priority': BlockPriorityConfig,
 };

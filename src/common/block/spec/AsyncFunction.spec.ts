@@ -45,9 +45,9 @@ for (let typeName of ['async-function-promise', 'async-function-manual']) {
       assert.deepEqual(TestAsyncFunctionLog.syncLog, ['obj'], 'triggered');
       assert.isEmpty(TestAsyncFunctionLog.asyncLog, 'async not finished');
 
-      assert.notEqual(block.getValue('#waiting'), undefined, 'is waiting after called');
+      assert.notEqual(block.getValue('#wait'), undefined, 'is waiting after called');
       block.setValue('#call', new ErrorEvent(''));
-      assert.isUndefined(block.getValue('#waiting'), 'not waiting after canceled');
+      assert.isUndefined(block.getValue('#wait'), 'not waiting after canceled');
       assert.deepEqual(TestAsyncFunctionLog.asyncLog, [], 'async call canceled');
     });
 
@@ -81,12 +81,12 @@ for (let typeName of ['async-function-promise', 'async-function-manual']) {
       TestAsyncFunctionLog.clearLog();
 
       block2.updateValue('#call', {});
-      assert.notEqual(block2.getValue('#waiting'), undefined, 'is waiting after called');
+      assert.notEqual(block2.getValue('#wait'), undefined, 'is waiting after called');
 
       let block2EmitPromise = block2.waitNextValue('#emit');
       // #emit need to have binding before next line, otherwise it wont emit
       block1.setValue('#call', new ErrorEvent(''));
-      assert.isUndefined(block2.getValue('#waiting'), 'block1 cancels block2');
+      assert.isUndefined(block2.getValue('#wait'), 'block1 cancels block2');
       assert.instanceOf(await shouldReject(block2EmitPromise), ErrorEvent, 'block2 should emit error');
 
       assert.deepEqual(TestAsyncFunctionLog.syncLog, ['obj2'], 'block2 triggered');
