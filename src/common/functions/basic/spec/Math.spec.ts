@@ -52,7 +52,7 @@ describe("Math", function () {
     aBlock.setValue('0', 2);
     aBlock.setValue('1', 3);
     aBlock.setValue('2', 4);
-    aBlock.setValue('#length', 3);
+    aBlock.setValue('#len', 3);
     Root.run();
     assert.equal(aBlock.getValue('output'), 9, '2+3+4 == 9');
 
@@ -60,15 +60,15 @@ describe("Math", function () {
     Root.run();
     assert.equal(aBlock.getValue('output'), 9, 'add new value but length is not changed');
 
-    aBlock.setValue('#length', 4);
+    aBlock.setValue('#len', 4);
     Root.run();
     assert.equal(aBlock.getValue('output'), 14, '2+3+4+5 == 14');
 
-    aBlock.setValue('#length', 2);
+    aBlock.setValue('#len', 2);
     Root.run();
     assert.equal(aBlock.getValue('output'), 5, 'length back to 2, 2+3 == 5');
 
-    aBlock.setValue('#length', 0);
+    aBlock.setValue('#len', 0);
     Root.run();
     assert.equal(aBlock.getValue('output'), null, 'return null when add nothing');
   });
@@ -114,7 +114,7 @@ describe("Math", function () {
     aBlock.setValue('0', 2);
     aBlock.setValue('1', 3);
     aBlock.setValue('2', 5);
-    aBlock.setValue('#length', 3);
+    aBlock.setValue('#len', 3);
     Root.run();
     assert.equal(aBlock.getValue('output'), 30, '2*3*5 == 30');
 
@@ -122,11 +122,11 @@ describe("Math", function () {
     Root.run();
     assert.equal(aBlock.getValue('output'), null, '2*3*null == null');
 
-    aBlock.setValue('#length', -1);
+    aBlock.setValue('#len', -1);
     Root.run();
     assert.equal(aBlock.getValue('output'), 6, 'when length is invalid, use length=2');
 
-    aBlock.setValue('#length', 0);
+    aBlock.setValue('#len', 0);
     Root.run();
     assert.equal(aBlock.getValue('output'), null, 'return null when multiply nothing');
   });
