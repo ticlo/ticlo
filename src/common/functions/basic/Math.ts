@@ -7,7 +7,7 @@ const descriptorN: FunctionDesc = {
   icon: '',
   useLength: true,
   properties: [
-    {group: '', type: 'number', visible: 'high'},
+    {group: '', properties: [{name: '', type: 'number', visible: 'high'}]},
     {name: 'output', type: 'number', readonly: true}
   ],
 };

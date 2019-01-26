@@ -59,7 +59,7 @@ interface Props {
 
 function getPropDescName(prop: PropDesc | PropGroupDesc) {
   if (prop.hasOwnProperty('group')) {
-    return `${(prop as PropGroupDesc).group}0`;
+    return `${(prop as PropGroupDesc).group}#len`;
   } else if ((prop as PropDesc).name) {
     return (prop as PropDesc).name;
   }
@@ -67,10 +67,23 @@ function getPropDescName(prop: PropDesc | PropGroupDesc) {
 }
 
 function comparePropDesc(a: PropDesc | PropGroupDesc, b: PropDesc | PropGroupDesc) {
-  if ((a as PropDesc).name !== (b as PropDesc).name) return false;
-  if ((a as PropGroupDesc).group !== (b as PropGroupDesc).group) return false;
-  if (a.type !== b.type) return false;
-  if (a.editor !== b.editor) return false;
+  if (a.hasOwnProperty('group')) {
+    if ((a as PropGroupDesc).group !== (b as PropGroupDesc).group) return false;
+    if (!(a as PropGroupDesc).properties || !(b as PropGroupDesc).properties
+      || (a as PropGroupDesc).properties.length !== (b as PropGroupDesc).properties.length) {
+      return false;
+    }
+    for (let i = 0; i < (a as PropGroupDesc).properties.length; ++i) {
+      if (!comparePropDesc((a as PropGroupDesc).properties[i], (b as PropGroupDesc).properties[i])) {
+        return false;
+      }
+    }
+  } else {
+    if ((a as PropDesc).name !== (b as PropDesc).name) return false;
+    if ((a as PropDesc).type !== (b as PropDesc).type) return false;
+    if ((a as PropDesc).editor !== (b as PropDesc).editor) return false;
+  }
+
   return true;
 }
 
