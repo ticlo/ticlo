@@ -9,6 +9,7 @@ import '../../src/common/functions/basic/Math';
 import {sampleData} from "./sample-data";
 import BlockStage from "../../src/editor/block/BlockStage";
 import {initEditor} from "../../src/editor";
+import {PropertyList} from "../../src/editor/property/PropertyList";
 
 
 (async () => {
@@ -26,6 +27,8 @@ import {initEditor} from "../../src/editor";
         <NodeTree conn={client} basePath="example" style={{width: '300px', height: '600px'}}/>
         <BlockStage conn={client} basePath="example"
                     style={{width: '800px', height: '800px', left: '300px', top: '0', position: 'absolute'}}/>
+        <PropertyList conn={client} keys={['example.add', 'example.subtract']}
+                      style={{width: '800px', height: '800px', left: '1100px', top: '0', position: 'absolute'}}/>
       </div>
     </div>,
     document.getElementById('app')

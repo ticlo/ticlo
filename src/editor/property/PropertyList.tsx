@@ -3,11 +3,12 @@ import {ClientConnection, ValueUpdate} from "../../common/connect/ClientConnecti
 import {DataMap} from "../../common/util/Types";
 import {FunctionDesc, PropDesc, PropGroupDesc} from "../../common/block/Descriptor";
 import {PropertyEditor} from "./PropertyEditor";
-import {GroupEditor} from "./GroupEditor.tsx";
+import {GroupEditor} from "./GroupEditor";
+import {MultiSelectComponent} from "./MultiSelectComponent";
 
 
 class BlockSubscriber {
-  editor: PropertyList;
+  parent: PropertyList;
   conn: ClientConnection;
   key: string;
 
@@ -26,14 +27,14 @@ class BlockSubscriber {
   desc: FunctionDesc;
   onDesc = (desc: FunctionDesc) => {
     this.desc = desc;
-    this.editor.forceUpdate();
+    this.parent.forceUpdate();
   };
 
 
-  constructor(key: string, editor: PropertyList) {
+  constructor(key: string, parent: PropertyList) {
     this.key = key;
-    this.editor = editor;
-    this.conn = editor.props.conn;
+    this.parent = parent;
+    this.conn = parent.props.conn;
     this.conn.subscribe(`${key}.#is`, this.isListener);
     this.conn.subscribe(`${key}.#def`, this.bDefListener);
   }
@@ -55,6 +56,7 @@ class BlockSubscriber {
 interface Props {
   conn: ClientConnection;
   keys: string[];
+  style?: React.CSSProperties;
 }
 
 function getPropDescName(prop: PropDesc | PropGroupDesc) {
@@ -87,37 +89,21 @@ function comparePropDesc(a: PropDesc | PropGroupDesc, b: PropDesc | PropGroupDes
   return true;
 }
 
-class PropertyList extends React.Component<Props, any> {
-
-  subscriptions: Map<string, BlockSubscriber> = new Map<string, BlockSubscriber>();
-
-  updateSubscriptions() {
-    let {keys, conn} = this.props;
-    for (let [key, subscriber] of this.subscriptions) {
-      if (!keys.includes(key)) {
-        subscriber.destroy();
-        this.subscriptions.delete(key);
-      }
-    }
-    for (let key of keys) {
-      if (!this.subscriptions.has(key)) {
-        this.subscriptions.set(key, new BlockSubscriber(key, this));
-      }
-    }
-  }
+export class PropertyList extends MultiSelectComponent<Props, any, BlockSubscriber> {
 
   constructor(props: Readonly<Props>) {
     super(props);
-    this.updateSubscriptions();
+    this.updateLoaders(BlockSubscriber);
   }
 
   render() {
-    let {conn, keys} = this.props;
+    let {conn, keys, style} = this.props;
+    let funcDesc: FunctionDesc;
     let descChecked: Set<string> = new Set<string>();
     let propMap: Map<string, PropDesc | PropGroupDesc> = null; // new Map<string, PropDesc | PropGroupDesc>();
     let defPropMap: Map<string, PropDesc> = null; // new Map<string, PropDesc>();
 
-    for (let [key, subscriber] of this.subscriptions) {
+    for (let [key, subscriber] of this.loaders) {
       if (subscriber.desc) {
         if (!descChecked.has(subscriber.desc.name)) {
           descChecked.add(subscriber.desc.name);
@@ -141,6 +127,7 @@ class PropertyList extends React.Component<Props, any> {
               }
             }
           } else {
+            funcDesc = subscriber.desc;
             propMap = new Map<string, PropDesc | PropGroupDesc>();
             for (let prop of subscriber.desc.properties) {
               let name = getPropDescName(prop);
@@ -159,18 +146,24 @@ class PropertyList extends React.Component<Props, any> {
       let children: React.ReactNode[] = [];
       for (let [name, prop] of propMap) {
         if (prop.hasOwnProperty('group')) {
-          children.push(<GroupEditor key={name} keys={keys} conn={conn} group={(prop as PropGroupDesc).group}/>);
+          children.push(
+            <GroupEditor key={name} keys={keys} conn={conn}
+                         funcDesc={funcDesc} groupDesc={prop as PropGroupDesc}/>
+          );
         } else if ((prop as PropDesc).name) {
-          children.push(<PropertyEditor key={name} keys={keys} conn={conn} name={name}/>);
+          children.push(
+            <PropertyEditor key={name} keys={keys} conn={conn}
+                            funcDesc={funcDesc} propDesc={prop as PropDesc}/>
+          );
         }
       }
       return (
-        <div>
+        <div style={style}>
           {children}
         </div>
       );
     } else {
-      return <div/>;
+      return <div style={style}/>;
     }
 
   }
