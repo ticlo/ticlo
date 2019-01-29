@@ -4,13 +4,11 @@ import {DataMap} from "../../common/util/Types";
 import {FunctionDesc, PropDesc, PropGroupDesc} from "../../common/block/Descriptor";
 import {PropertyEditor} from "./PropertyEditor";
 import {GroupEditor} from "./GroupEditor";
-import {MultiSelectComponent} from "./MultiSelectComponent";
+import {MultiSelectComponent, MultiSelectLoader} from "./MultiSelectComponent";
 
 
-class BlockSubscriber {
-  parent: PropertyList;
-  conn: ClientConnection;
-  key: string;
+class BlockLoader extends MultiSelectLoader<PropertyList> {
+
 
   isListener = {
     onUpdate: (response: ValueUpdate) => {
@@ -32,20 +30,10 @@ class BlockSubscriber {
 
 
   constructor(key: string, parent: PropertyList) {
-    this.key = key;
-    this.parent = parent;
-    this.conn = parent.props.conn;
+    super(key, parent);
     this.conn.subscribe(`${key}.#is`, this.isListener);
     this.conn.subscribe(`${key}.#def`, this.bDefListener);
   }
-
-  // onDone?(): void;
-  onUpdate(response: ValueUpdate) {
-    this.conn.watchDesc(response.cache.value, this.onDesc);
-  }
-
-  // onError?(error: string, data?: DataMap): void;
-
 
   destroy() {
     this.conn.unsubscribe(`${this.key}.#is`, this.isListener);
@@ -89,11 +77,11 @@ function comparePropDesc(a: PropDesc | PropGroupDesc, b: PropDesc | PropGroupDes
   return true;
 }
 
-export class PropertyList extends MultiSelectComponent<Props, any, BlockSubscriber> {
+export class PropertyList extends MultiSelectComponent<Props, any, BlockLoader> {
 
   constructor(props: Readonly<Props>) {
     super(props);
-    this.updateLoaders(BlockSubscriber);
+    this.updateLoaders(props.keys, BlockLoader);
   }
 
   render() {
@@ -102,6 +90,8 @@ export class PropertyList extends MultiSelectComponent<Props, any, BlockSubscrib
     let descChecked: Set<string> = new Set<string>();
     let propMap: Map<string, PropDesc | PropGroupDesc> = null; // new Map<string, PropDesc | PropGroupDesc>();
     let defPropMap: Map<string, PropDesc> = null; // new Map<string, PropDesc>();
+
+    this.updateLoaders(keys, BlockLoader);
 
     for (let [key, subscriber] of this.loaders) {
       if (subscriber.desc) {
