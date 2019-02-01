@@ -22,7 +22,7 @@ export abstract class MultiSelectLoader<T extends MultiSelectComponent<any, any,
 }
 
 
-export class MultiSelectComponent<P extends Props, S,
+export abstract class MultiSelectComponent<P extends Props, S,
   Loader extends MultiSelectLoader<MultiSelectComponent<P, S, Loader>>>
   extends React.Component<P, S> {
 
@@ -50,6 +50,23 @@ export class MultiSelectComponent<P extends Props, S,
       }
     }
     return changed;
+  }
+
+  _rendering = false;
+
+  render(): React.ReactNode {
+    this._rendering = true;
+    let result = this.renderImpl();
+    this._rendering = false;
+    return result;
+  }
+
+  abstract renderImpl(): React.ReactNode;
+
+  safeForceUpdate() {
+    if (!this._rendering) {
+      this.forceUpdate();
+    }
   }
 
   componentWillUnmount() {

@@ -25,7 +25,7 @@ class BlockLoader extends MultiSelectLoader<PropertyList> {
   desc: FunctionDesc;
   onDesc = (desc: FunctionDesc) => {
     this.desc = desc;
-    this.parent.forceUpdate();
+    this.parent.safeForceUpdate();
   };
 
 
@@ -84,7 +84,7 @@ export class PropertyList extends MultiSelectComponent<Props, any, BlockLoader> 
     this.updateLoaders(props.keys, BlockLoader);
   }
 
-  render() {
+  renderImpl() {
     let {conn, keys, style} = this.props;
     let funcDesc: FunctionDesc;
     let descChecked: Set<string> = new Set<string>();
@@ -142,7 +142,7 @@ export class PropertyList extends MultiSelectComponent<Props, any, BlockLoader> 
           );
         } else if ((prop as PropDesc).name) {
           children.push(
-            <PropertyEditor key={name} keys={keys} conn={conn}
+            <PropertyEditor key={name} name={name} keys={keys} conn={conn}
                             funcDesc={funcDesc} propDesc={prop as PropDesc}/>
           );
         }

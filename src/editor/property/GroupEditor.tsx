@@ -3,19 +3,20 @@ import {ClientConnection, ValueUpdate} from "../../common/connect/ClientConnecti
 import {FunctionDesc, PropDesc, PropGroupDesc} from "../../common/block/Descriptor";
 import {MultiSelectComponent, MultiSelectLoader} from "./MultiSelectComponent";
 import {PropertyList} from "./PropertyList";
+import {PropertyEditor} from "./PropertyEditor";
 
 class GroupLoader extends MultiSelectLoader<GroupEditor> {
 
   lenKey: string;
 
-  len: number = -1;
+  len: number = 0;
   lenListener = {
     onUpdate: (response: ValueUpdate) => {
       let len = parseInt(response.cache.value);
       if (len !== len) len = 2; // default length
       if (len !== this.len) {
         this.len = len;
-        this.parent.forceUpdate();
+        this.parent.safeForceUpdate();
       }
     }
   };
@@ -49,9 +50,35 @@ export class GroupEditor extends MultiSelectComponent<Props, State, GroupLoader>
     this.updateLoaders(props.keys, GroupLoader);
   }
 
-  render(): React.ReactNode {
-    let {conn, keys} = this.props;
+  renderImpl(): React.ReactNode {
+    let {conn, keys, funcDesc, groupDesc} = this.props;
     this.updateLoaders(keys, GroupLoader);
-    return undefined;
+    let children: React.ReactNode[] = [];
+    if (this.loaders.size) {
+      let maxLen = -Infinity;
+      let minLen = Infinity;
+      for (let [key, loader] of this.loaders) {
+        if (loader.len > maxLen) maxLen = loader.len;
+        if (loader.len < minLen) minLen = loader.len;
+      }
+      for (let i = 0; i < minLen; ++i) {
+        for (let desc of groupDesc.properties) {
+          let name = `${desc.name}${i}`;
+          children.push(
+            <PropertyEditor key={name} name={name} keys={keys} conn={conn}
+                            funcDesc={funcDesc} propDesc={desc}/>
+          );
+        }
+      }
+      if (maxLen > minLen) {
+        // TODO some indicator for different length
+      }
+    }
+
+    return (
+      <div className='ticl-property-group'>
+        {children}
+      </div>
+    );
   }
 }

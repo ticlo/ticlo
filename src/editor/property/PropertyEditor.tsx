@@ -7,6 +7,7 @@ import {translateProperty} from "../../common/util/i18n";
 interface Props {
   conn: ClientConnection;
   keys: string[];
+  name: string; // name is usually same as propDesc.name, but when it's in group, it will have a number after
   funcDesc: FunctionDesc;
   propDesc: PropDesc;
 }
@@ -25,11 +26,11 @@ export class PropertyEditor extends React.Component<Props, any> {
   }
 
   render() {
-    let {funcDesc, propDesc} = this.props;
+    let {funcDesc, propDesc, name} = this.props;
     return (
       <div className='ticl-field'>
         <div className='ticl-field-name'>
-          {translateProperty(funcDesc.name, propDesc.name, funcDesc.ns)}
+          {translateProperty(funcDesc.name, name, funcDesc.ns)}
         </div>
         <div className='ticl-field-value'/>
       </div>

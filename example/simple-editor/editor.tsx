@@ -26,9 +26,16 @@ import {PropertyList} from "../../src/editor/property/PropertyList";
       <div>
         <NodeTree conn={client} basePath="example" style={{width: '300px', height: '600px'}}/>
         <BlockStage conn={client} basePath="example"
-                    style={{width: '800px', height: '800px', left: '300px', top: '0', position: 'absolute'}}/>
-        <PropertyList conn={client} keys={['example.add', 'example.subtract']}
-                      style={{width: '800px', height: '800px', left: '1100px', top: '0', position: 'absolute'}}/>
+                    style={{
+                      width: '800px',
+                      height: '800px',
+                      left: '300px',
+                      top: '0',
+                      position: 'absolute',
+                      opacity: 0.1
+                    }}/>
+        <PropertyList conn={client} keys={['example.add', 'example.multiply']}
+                      style={{width: '300px', height: '800px', left: '1100px', top: '0', position: 'absolute'}}/>
       </div>
     </div>,
     document.getElementById('app')
