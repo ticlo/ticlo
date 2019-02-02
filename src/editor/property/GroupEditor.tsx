@@ -5,6 +5,12 @@ import {MultiSelectComponent, MultiSelectLoader} from "./MultiSelectComponent";
 import {PropertyList} from "./PropertyList";
 import {PropertyEditor} from "./PropertyEditor";
 
+
+let lengthDesc: PropDesc = {
+  name: '',
+  type: 'number'
+};
+
 class GroupLoader extends MultiSelectLoader<GroupEditor> {
 
   lenKey: string;
@@ -55,10 +61,8 @@ export class GroupEditor extends MultiSelectComponent<Props, State, GroupLoader>
     this.updateLoaders(keys, GroupLoader);
     let children: React.ReactNode[] = [];
     if (this.loaders.size) {
-      let maxLen = -Infinity;
       let minLen = Infinity;
       for (let [key, loader] of this.loaders) {
-        if (loader.len > maxLen) maxLen = loader.len;
         if (loader.len < minLen) minLen = loader.len;
       }
       for (let i = 0; i < minLen; ++i) {
@@ -70,13 +74,12 @@ export class GroupEditor extends MultiSelectComponent<Props, State, GroupLoader>
           );
         }
       }
-      if (maxLen > minLen) {
-        // TODO some indicator for different length
-      }
     }
 
     return (
       <div className='ticl-property-group'>
+        <PropertyEditor key={name} name={`${groupDesc.group}#len`} keys={keys} conn={conn}
+                        funcDesc={funcDesc} propDesc={lengthDesc}/>
         {children}
       </div>
     );
