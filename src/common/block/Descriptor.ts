@@ -25,6 +25,13 @@ export interface PropDesc {
   editor?: string;
   readonly?: boolean;
   visible?: VisibleType; // whether property is shown in block view
+
+  placeholder?: string;
+
+  // number
+  min?: number;
+  max?: number;
+  step?: number;
 }
 
 export interface PropGroupDesc {

@@ -8,7 +8,10 @@ import {PropertyEditor} from "./PropertyEditor";
 
 let lengthDesc: PropDesc = {
   name: '',
-  type: 'number'
+  type: 'number',
+  placeholder: '2',
+  min: 0,
+  step: 1
 };
 
 class GroupLoader extends MultiSelectLoader<GroupEditor> {

@@ -90,7 +90,7 @@ class MergedClientRequest extends ConnectionSend implements ClientCallbacks {
   }
 }
 
-interface ValueState {
+export interface ValueState {
   value?: any;
   bindingPath?: string;
   hasListener?: boolean;

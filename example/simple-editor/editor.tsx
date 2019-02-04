@@ -32,7 +32,7 @@ import {PropertyList} from "../../src/editor/property/PropertyList";
                       left: '300px',
                       top: '0',
                       position: 'absolute',
-                      opacity: 0.1
+                     // opacity: 0.1
                     }}/>
         <PropertyList conn={client} keys={['example.add', 'example.multiply']}
                       style={{width: '300px', height: '800px', left: '1100px', top: '0', position: 'absolute'}}/>

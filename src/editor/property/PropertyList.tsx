@@ -41,12 +41,6 @@ class BlockLoader extends MultiSelectLoader<PropertyList> {
   }
 }
 
-interface Props {
-  conn: ClientConnection;
-  keys: string[];
-  style?: React.CSSProperties;
-}
-
 function getPropDescName(prop: PropDesc | PropGroupDesc) {
   if (prop.hasOwnProperty('group')) {
     return `${(prop as PropGroupDesc).group}#len`;
@@ -75,6 +69,12 @@ function comparePropDesc(a: PropDesc | PropGroupDesc, b: PropDesc | PropGroupDes
   }
 
   return true;
+}
+
+interface Props {
+  conn: ClientConnection;
+  keys: string[];
+  style?: React.CSSProperties;
 }
 
 export class PropertyList extends MultiSelectComponent<Props, any, BlockLoader> {

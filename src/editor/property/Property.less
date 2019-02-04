@@ -1,3 +1,32 @@
 .ticl-property-group {
   width: 100%;
 }
+
+.ticl-property {
+  position: relative;
+  line-height: 19px;
+  padding: 2px 12px;
+  display: flex;
+  &:first-child {
+    /* allows the sub icon to overlap the next row but still clickable */
+    z-index: 1;
+  }
+}
+
+.ticl-property-name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  flex: 1 1 80px;
+  margin-left: 2px;
+}
+
+.ticl-property-value {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  text-align: right;
+  flex: 0 0 calc(75% - 30px);
+  min-width: calc(100% - 160px);
+  & > *:only-child {
+    width: 100%;
+  }
+}
