@@ -27,9 +27,13 @@ export class NumberEditor extends React.Component<Props, any> {
     if (props.onChange !== nextProps.onChange) {
       return true;
     }
-    if (!Object.is(props.value, nextProps.value)) { // Object.is also covers NaN
+    if (props.value !== nextProps.value) {
       // only render when there is no pendingValue
-      return Object.is(this._pendingValue, this._commitedValue);
+      if (this._pendingValue === this._commitedValue) {
+        this._pendingValue = props.value;
+        this._commitedValue = props.value;
+        return true;
+      }
     }
     return false;
   }
@@ -42,7 +46,10 @@ export class NumberEditor extends React.Component<Props, any> {
 
   onValueChange = (value: any) => {
     if (this._pendingTyping) {
-      this._pendingValue = value;
+      if (value === value) {
+        // not allow NaN
+        this._pendingValue = value;
+      }
       this._pendingTyping = false;
     } else {
       this.commitChange(value);
@@ -50,17 +57,21 @@ export class NumberEditor extends React.Component<Props, any> {
   };
 
   onBlur = () => {
-    if (!Object.is(this._pendingValue, this._commitedValue)) { // Object.is also covers NaN
+    if (this._pendingValue !== this._commitedValue) {
       this.commitChange(this._pendingValue);
     }
   };
 
   _pendingTyping = false;
   onKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key.length === 1) { // regular typing
+      this._pendingTyping = true;
+      return;
+    }
     switch (e.key) {
       case 'Enter': {
         this._pendingTyping = false;
-        if (!Object.is(this._pendingValue, this._commitedValue)) { // Object.is also covers NaN
+        if (this._pendingValue !== this._commitedValue) { // Object.is also covers NaN
           this.commitChange(this._pendingValue);
         }
         return;
@@ -71,15 +82,10 @@ export class NumberEditor extends React.Component<Props, any> {
         return;
       }
       case 'Backspace':
-      case 'Delete':
-      case '-':
-      case '.': {
+      case 'Delete': {
         this._pendingTyping = true;
         return;
       }
-    }
-    if (e.key <= '9' && e.key >= '0') {
-      this._pendingTyping = true;
     }
   };
 
