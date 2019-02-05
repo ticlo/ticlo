@@ -57,15 +57,28 @@ export class NumberEditor extends React.Component<Props, any> {
 
   _pendingTyping = false;
   onKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter') {
-      this._pendingTyping = false;
-      if (!Object.is(this._pendingValue, this._commitedValue)) { // Object.is also covers NaN
-        this.commitChange(this._pendingValue);
+    switch (e.key) {
+      case 'Enter': {
+        this._pendingTyping = false;
+        if (!Object.is(this._pendingValue, this._commitedValue)) { // Object.is also covers NaN
+          this.commitChange(this._pendingValue);
+        }
+        return;
       }
-    } else if (e.key === 'Esc') {
-      this._pendingTyping = false;
-      this._pendingValue = this._commitedValue;
-    } else {
+      case 'ArrowUp':
+      case 'ArrowDown': {
+        this._pendingTyping = false;
+        return;
+      }
+      case 'Backspace':
+      case 'Delete':
+      case '-':
+      case '.': {
+        this._pendingTyping = true;
+        return;
+      }
+    }
+    if (e.key <= '9' && e.key >= '0') {
       this._pendingTyping = true;
     }
   };
