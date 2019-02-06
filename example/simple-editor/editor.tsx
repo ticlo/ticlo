@@ -6,6 +6,7 @@ import {Block, Root} from "../../src/common/block/Block";
 import {makeLocalConnection} from "../../src/common/connect/LocalConnection";
 import {TIcon} from "../../src/editor/icon/Icon";
 import '../../src/common/functions/basic/Math';
+import '../../src/common/functions/basic/String';
 import {sampleData} from "./sample-data";
 import BlockStage from "../../src/editor/block/BlockStage";
 import {initEditor} from "../../src/editor";

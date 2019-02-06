@@ -37,5 +37,12 @@ export const sampleData = {
     '#length': 2,
     '@b-xyw': [400, 200, 150],
     '@b-p': ['0', '1', 'output']
-  }
+  },
+  join: {
+    '#is': 'join',
+    '0': 'a',
+    '1': 4,
+    '@b-xyw': [100, 300, 150],
+    '@b-p': ['0', '1', 'output']
+  },
 };
