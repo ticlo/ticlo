@@ -10,13 +10,12 @@ interface Props {
 
 export class NumberEditor extends React.Component<Props, any> {
 
-  _commitedValue: number;
-  _pendingValue: number;
+  _serverValue: number;
+  _pendingValue: number = NaN;
 
   constructor(props: Props) {
     super(props);
-    this._commitedValue = props.value;
-    this._pendingValue = props.value;
+    this._serverValue = props.value;
   }
 
   shouldComponentUpdate(nextProps: Readonly<Props>, nextState: Readonly<any>, nextContext: any) {
@@ -28,10 +27,9 @@ export class NumberEditor extends React.Component<Props, any> {
       return true;
     }
     if (props.value !== nextProps.value) {
-      // only render when there is no pendingValue
-      if (this._pendingValue === this._commitedValue) {
-        this._pendingValue = props.value;
-        this._commitedValue = props.value;
+      // only render when there is no pendingValue (pending is NaN)
+      if (this._pendingValue !== this._pendingValue) {
+        this._serverValue = props.value;
         return true;
       }
     }
@@ -39,8 +37,8 @@ export class NumberEditor extends React.Component<Props, any> {
   }
 
   commitChange(value: number) {
-    this._pendingValue = value;
-    this._commitedValue = value;
+    this._pendingValue = NaN;
+    this._serverValue = value;
     this.props.onChange(value);
   }
 
@@ -48,7 +46,10 @@ export class NumberEditor extends React.Component<Props, any> {
     if (this._pendingTyping) {
       if (value === value) {
         // not allow NaN
-        this._pendingValue = value;
+        if (value !== this._serverValue || this._pendingValue === this._pendingValue) {
+          // when pending value already exists or server value is not the same
+          this._pendingValue = value;
+        }
       }
       this._pendingTyping = false;
     } else {
@@ -57,7 +58,7 @@ export class NumberEditor extends React.Component<Props, any> {
   };
 
   onBlur = () => {
-    if (this._pendingValue !== this._commitedValue) {
+    if (this._pendingValue === this._pendingValue) { // not NaN
       this.commitChange(this._pendingValue);
     }
   };
@@ -71,7 +72,7 @@ export class NumberEditor extends React.Component<Props, any> {
     switch (e.key) {
       case 'Enter': {
         this._pendingTyping = false;
-        if (this._pendingValue !== this._commitedValue) { // Object.is also covers NaN
+        if (this._pendingValue === this._pendingValue) { // not NaN
           this.commitChange(this._pendingValue);
         }
         return;
@@ -90,9 +91,9 @@ export class NumberEditor extends React.Component<Props, any> {
   };
 
   render() {
-    let {desc, value} = this.props;
+    let {desc, value, onChange} = this.props;
     return (
-      <InputNumber size='small' placeholder={desc.placeholder} value={value}
+      <InputNumber size='small' placeholder={desc.placeholder} value={value} disabled={onChange == null}
                    min={desc.min} max={desc.max} step={desc.step}
                    onChange={this.onValueChange} onBlur={this.onBlur} onKeyDown={this.onKeyDown}/>
     );
