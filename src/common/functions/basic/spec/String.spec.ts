@@ -36,5 +36,10 @@ describe("String", function () {
 
     Root.run();
     assert.equal(aBlock.getValue('output'), 'b,c');
+
+    aBlock.setValue('#len', 0);
+    Root.run();
+    assert.equal(aBlock.getValue('output'), undefined);
+
   });
 });

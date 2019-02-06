@@ -70,7 +70,7 @@ describe("Math", function () {
 
     aBlock.setValue('#len', 0);
     Root.run();
-    assert.equal(aBlock.getValue('output'), null, 'return null when add nothing');
+    assert.equal(aBlock.getValue('output'), undefined, 'return undefined when add nothing');
   });
 
   it('subtract', function () {
@@ -86,7 +86,7 @@ describe("Math", function () {
 
     aBlock.setValue('1', null);
     Root.run();
-    assert.equal(aBlock.getValue('output'), null, '7-null == null');
+    assert.equal(aBlock.getValue('output'), undefined, '7-null == undefined');
   });
 
   it('divide', function () {
@@ -102,7 +102,7 @@ describe("Math", function () {
 
     aBlock.setValue('1', null);
     Root.run();
-    assert.equal(aBlock.getValue('output'), null, '7/null == null');
+    assert.equal(aBlock.getValue('output'), undefined, '7/null == undefined');
   });
 
   it('multiply', function () {
@@ -120,7 +120,7 @@ describe("Math", function () {
 
     aBlock.setValue('2', null);
     Root.run();
-    assert.equal(aBlock.getValue('output'), null, '2*3*null == null');
+    assert.equal(aBlock.getValue('output'), undefined, '2*3*null == undefined');
 
     aBlock.setValue('#len', -1);
     Root.run();
@@ -128,7 +128,7 @@ describe("Math", function () {
 
     aBlock.setValue('#len', 0);
     Root.run();
-    assert.equal(aBlock.getValue('output'), null, 'return null when multiply nothing');
+    assert.equal(aBlock.getValue('output'), undefined, 'return undefined when multiply nothing');
   });
 
 });
