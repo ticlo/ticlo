@@ -5,6 +5,7 @@ import {translateProperty} from "../../common/util/i18n";
 import {MultiSelectComponent, MultiSelectLoader} from "./MultiSelectComponent";
 import {GroupEditor} from "./GroupEditor";
 import {NumberEditor} from "./value/NumberEditor";
+import {StringEditor} from "./value/StringEditor";
 
 
 class PropertyLoader extends MultiSelectLoader<PropertyEditor> {
@@ -71,6 +72,9 @@ export class PropertyEditor extends MultiSelectComponent<Props, any, PropertyLoa
       if (!firstCache) {
         break ready;
       }
+
+      let onChange = propDesc.readonly ? null : this.onChange;
+
       let value = firstCache.value;
       let valueSame = true;
 
@@ -97,7 +101,11 @@ export class PropertyEditor extends MultiSelectComponent<Props, any, PropertyLoa
       let editor: React.ReactNode;
       switch (propDesc.type) {
         case 'number': {
-          editor = <NumberEditor value={value} desc={propDesc} onChange={this.onChange}/>;
+          editor = <NumberEditor value={value} desc={propDesc} onChange={onChange}/>;
+          break;
+        }
+        case 'string': {
+          editor = <StringEditor value={value} desc={propDesc} onChange={onChange}/>;
         }
       }
       return (
@@ -111,7 +119,7 @@ export class PropertyEditor extends MultiSelectComponent<Props, any, PropertyLoa
         </div>
       );
     }
-
-    return <div className='ticl-field'/>;
+    // loaders are not ready
+    return <div className='ticl-property'/>;
   }
 }

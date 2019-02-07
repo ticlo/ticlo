@@ -27,9 +27,9 @@ export class NumberEditor extends React.Component<Props, any> {
       return true;
     }
     if (props.value !== nextProps.value) {
+      this._serverValue = nextProps.value;
       // only render when there is no pendingValue (pending is NaN)
       if (this._pendingValue !== this._pendingValue) {
-        this._serverValue = props.value;
         return true;
       }
     }
@@ -74,6 +74,13 @@ export class NumberEditor extends React.Component<Props, any> {
         this._pendingTyping = false;
         if (this._pendingValue === this._pendingValue) { // not NaN
           this.commitChange(this._pendingValue);
+        }
+        return;
+      }
+      case 'Esc': {
+        if (this._pendingValue) {
+          this._pendingValue = null;
+          this.forceUpdate();
         }
         return;
       }

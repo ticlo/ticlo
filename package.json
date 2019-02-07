@@ -58,6 +58,7 @@
     "build-less": "lessc --js src/editor/antd.less dist/antd.css && lessc --js src/editor/editor.less dist/editor.css",
     "build-icons": "ts-node tool/build-icons",
     "build-i18n": "node tool/merge-lng",
-    "test": "cross-env NODE_ENV=TEST mocha src/common/**/*.spec.ts"
+    "test": "cross-env NODE_ENV=TEST mocha src/common/**/*.spec.ts",
+    "example": "parcel example/simple-editor/editor.html --open --out-dir temp --no-source-maps"
   }
 }
