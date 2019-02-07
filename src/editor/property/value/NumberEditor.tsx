@@ -8,10 +8,20 @@ interface Props {
   onChange: (value: any) => void;
 }
 
+interface InputNumberRef extends React.Component<any, any> {
+  inputNumberRef: React.Component<any, any>;
+}
+
 export class NumberEditor extends React.Component<Props, any> {
 
   _serverValue: number;
   _pendingValue: number = NaN;
+
+  _inputNumberRef: InputNumberRef;
+
+  getInputNumber = (ref: any) => {
+    this._inputNumberRef = ref;
+  };
 
   constructor(props: Props) {
     super(props);
@@ -57,11 +67,11 @@ export class NumberEditor extends React.Component<Props, any> {
     }
   };
 
-  onBlur = () => {
-    if (this._pendingValue === this._pendingValue) { // not NaN
-      this.commitChange(this._pendingValue);
-    }
-  };
+  // onBlur = () => {
+  //   if (this._pendingValue === this._pendingValue) { // not NaN
+  //     this.commitChange(this._pendingValue);
+  //   }
+  // };
 
   _pendingTyping = false;
   onKeyDown = (e: React.KeyboardEvent) => {
@@ -77,10 +87,11 @@ export class NumberEditor extends React.Component<Props, any> {
         }
         return;
       }
-      case 'Esc': {
+      case 'Escape': {
         if (this._pendingValue) {
-          this._pendingValue = null;
-          this.forceUpdate();
+          this._pendingValue = NaN;
+          this._pendingTyping = false;
+          this._inputNumberRef.inputNumberRef.setState({inputValue: this._serverValue});
         }
         return;
       }
@@ -100,9 +111,10 @@ export class NumberEditor extends React.Component<Props, any> {
   render() {
     let {desc, value, onChange} = this.props;
     return (
-      <InputNumber size='small' placeholder={desc.placeholder} value={value} disabled={onChange == null}
+      <InputNumber ref={this.getInputNumber} size='small' placeholder={desc.placeholder} value={value}
+                   disabled={onChange == null}
                    min={desc.min} max={desc.max} step={desc.step}
-                   onChange={this.onValueChange} onBlur={this.onBlur} onKeyDown={this.onKeyDown}/>
+                   onChange={this.onValueChange} onKeyDown={this.onKeyDown}/>
     );
   }
 }
