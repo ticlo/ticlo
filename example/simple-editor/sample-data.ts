@@ -4,7 +4,11 @@ export const sampleData = {
     '~0': {'#is': 'add', '0': 1, '1': 2},
     '1': 4,
     '@b-xyw': [100, 100, 150],
-    '@b-p': ['0', '1', 'output', '@b-p', '#is']
+    '@b-p': ['0', '1', 'output', '@b-p', '#is'],
+    '#defs': [
+      {name: 'a', type: 'number'},
+      {name: 'b', type: 'number'},
+    ]
   },
   subtract: {
     '#is': 'subtract',
@@ -36,7 +40,11 @@ export const sampleData = {
     },
     '#length': 2,
     '@b-xyw': [400, 200, 150],
-    '@b-p': ['0', '1', 'output']
+    '@b-p': ['0', '1', 'output'],
+    '#defs': [
+      {name: 'b', type: 'number'},
+      {name: 'c', type: 'number'},
+    ]
   },
   join: {
     '#is': 'join',
