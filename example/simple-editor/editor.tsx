@@ -35,7 +35,7 @@ import {PropertyList} from "../../src/editor/property/PropertyList";
                       position: 'absolute',
                       // opacity: 0.1
                     }}/>
-        <Card size='small' style={{width: '300px', height: '800px', left: '1100px', top: '0', position: 'absolute'}}>
+        <Card size='small' style={{width: '300px', height: '800px', left: '1100px', top: '10px', position: 'absolute'}}>
           <PropertyList conn={client} keys={['example.add', 'example.multiply']}
           />
         </Card>

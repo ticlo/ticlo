@@ -1,3 +1,15 @@
+let sharedMore = [
+  {name: 'num', type: 'number'},
+  {name: 'str', type: 'string'},
+  {name: 'tog1', type: 'toggle'},
+  {name: 'tog2', type: 'toggle', enums: ['no', 'yeeeeees']},
+];
+let len = sharedMore.length;
+for (let i = 0; i < len; ++i) {
+  let r = {...sharedMore[i], readonly: true};
+  r.name = r.name.toUpperCase();
+  sharedMore.push(r);
+}
 export const sampleData = {
   add: {
     '#is': 'add',
@@ -5,10 +17,7 @@ export const sampleData = {
     '1': 4,
     '@b-xyw': [100, 100, 150],
     '@b-p': ['0', '1', 'output', '@b-p', '#is'],
-    '#defs': [
-      {name: 'a', type: 'number'},
-      {name: 'b', type: 'number'},
-    ]
+    '#more': sharedMore
   },
   subtract: {
     '#is': 'subtract',
@@ -41,10 +50,7 @@ export const sampleData = {
     '#length': 2,
     '@b-xyw': [400, 200, 150],
     '@b-p': ['0', '1', 'output'],
-    '#defs': [
-      {name: 'b', type: 'number'},
-      {name: 'c', type: 'number'},
-    ]
+    '#more': sharedMore
   },
   join: {
     '#is': 'join',

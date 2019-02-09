@@ -16,15 +16,15 @@ class BlockLoader extends MultiSelectLoader<PropertyList> {
     }
   };
 
-  defs: PropDesc[];
-  bDefsListener = {
+  more: PropDesc[];
+  moreListener = {
     onUpdate: (response: ValueUpdate) => {
       let value = response.cache.value;
       if (!Array.isArray(value)) {
         value = null;
       }
-      if (!equal(value, this.defs)) {
-        this.defs = value;
+      if (!equal(value, this.more)) {
+        this.more = value;
         this.parent.safeForceUpdate();
       }
     }
@@ -40,12 +40,12 @@ class BlockLoader extends MultiSelectLoader<PropertyList> {
   constructor(key: string, parent: PropertyList) {
     super(key, parent);
     this.conn.subscribe(`${key}.#is`, this.isListener);
-    this.conn.subscribe(`${key}.#defs`, this.bDefsListener);
+    this.conn.subscribe(`${key}.#more`, this.moreListener);
   }
 
   destroy() {
     this.conn.unsubscribe(`${this.key}.#is`, this.isListener);
-    this.conn.unsubscribe(`${this.key}.@b-more`, this.bDefsListener);
+    this.conn.unsubscribe(`${this.key}.@b-more`, this.moreListener);
   }
 }
 
@@ -86,7 +86,7 @@ interface Props {
 }
 
 interface State {
-  defsExpanded: boolean;
+  moreExpanded: boolean;
 }
 
 class PropertyDefMerger {
@@ -146,21 +146,21 @@ export class PropertyList extends MultiSelectComponent<Props, State, BlockLoader
 
   constructor(props: Readonly<Props>) {
     super(props);
-    this.state = {defsExpanded: true};
+    this.state = {moreExpanded: true};
     this.updateLoaders(props.keys, BlockLoader);
   }
 
-  onExpandDefsClick = () => {
-    this.setState({defsExpanded: !this.state.defsExpanded});
+  onExpandMoreClick = () => {
+    this.setState({moreExpanded: !this.state.moreExpanded});
   };
 
   renderImpl() {
     let {conn, keys, style} = this.props;
-    let {defsExpanded} = this.state;
+    let {moreExpanded} = this.state;
 
     let descChecked: Set<string> = new Set<string>();
     let propMerger: PropertyDefMerger = new PropertyDefMerger();
-    let defsMerger: PropertyDefMerger = new PropertyDefMerger();
+    let moreMerger: PropertyDefMerger = new PropertyDefMerger();
 
     this.updateLoaders(keys, BlockLoader);
 
@@ -177,35 +177,37 @@ export class PropertyList extends MultiSelectComponent<Props, State, BlockLoader
       }
     }
     for (let [key, subscriber] of this.loaders) {
-      if (subscriber.defs) {
-        defsMerger.add(subscriber.defs);
+      if (subscriber.more) {
+        moreMerger.add(subscriber.more);
       } else {
         // properties not ready
-        defsMerger.map = null;
+        moreMerger.map = null;
         break;
       }
     }
     if (propMerger.map) {
       let funcDesc: FunctionDesc = this.loaders.entries().next().value[1].desc;
       let children = propMerger.render(keys, conn, funcDesc);
-      let defsChildren: React.ReactNode[];
-      if (defsMerger.isNotEmpty() && defsExpanded) {
-        defsChildren = defsMerger.render(keys, conn, funcDesc);
+      let moreChildren: React.ReactNode[];
+      if (moreMerger.isNotEmpty() && moreExpanded) {
+        moreChildren = moreMerger.render(keys, conn, funcDesc);
       }
       return (
         <div style={style}>
           {children}
           <div className='ticl-property-divider'>
+            <div className='ticl-h-line' style={{maxWidth: '16px'}}/>
             {
-              defsMerger.isNotEmpty() ?
-                <ExpandIcon opened={defsExpanded ? 'opened' : 'closed'} onClick={this.onExpandDefsClick}/>
+              moreMerger.isNotEmpty() ?
+                <ExpandIcon opened={moreExpanded ? 'opened' : 'closed'} onClick={this.onExpandMoreClick}/>
                 :
                 null
             }
             <span>more</span>
             <div className='ticl-h-line'/>
+            <div className='ticl-h-line' style={{maxWidth: '16px'}}/>
           </div>
-          {defsChildren}
+          {moreChildren}
         </div>
       );
     } else {

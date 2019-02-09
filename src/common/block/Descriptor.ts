@@ -8,13 +8,12 @@ export type VisibleType = 'high' | 'low' ;
 export type ValueType =
   'number'
   | 'string'
-  | 'bool'
+  | 'toggle'
   | 'select'
   | 'color'
   | 'datetime'
   | 'type'
   | 'js'
-  | 'any'
   | 'map'
   | 'array'
   | 'any';
@@ -26,12 +25,16 @@ export interface PropDesc {
   readonly?: boolean;
   visible?: VisibleType; // whether property is shown in block view
 
+  // number, string
   placeholder?: string;
 
   // number
   min?: number;
   max?: number;
   step?: number;
+
+  // bool, select, tags
+  enums?: string[];
 }
 
 export interface PropGroupDesc {
