@@ -6,6 +6,7 @@ import {PropertyEditor} from "./PropertyEditor";
 import {GroupEditor} from "./GroupEditor";
 import {MultiSelectComponent, MultiSelectLoader} from "./MultiSelectComponent";
 import equal from "fast-deep-equal";
+import {ExpandIcon} from "../../ui/component/Tree";
 
 class BlockLoader extends MultiSelectLoader<PropertyList> {
 
@@ -91,6 +92,10 @@ interface State {
 class PropertyDefMerger {
   map: Map<string, PropDesc | PropGroupDesc> = null;
 
+  isNotEmpty() {
+    return this.map && this.map.size > 0;
+  }
+
   add(props: (PropDesc | PropGroupDesc)[]) {
     if (this.map) {
       // merge with existing propMap, only show properties exist in all desc
@@ -145,8 +150,13 @@ export class PropertyList extends MultiSelectComponent<Props, State, BlockLoader
     this.updateLoaders(props.keys, BlockLoader);
   }
 
+  onExpandDefsClick = () => {
+    this.setState({defsExpanded: !this.state.defsExpanded});
+  };
+
   renderImpl() {
     let {conn, keys, style} = this.props;
+    let {defsExpanded} = this.state;
 
     let descChecked: Set<string> = new Set<string>();
     let propMerger: PropertyDefMerger = new PropertyDefMerger();
@@ -179,13 +189,23 @@ export class PropertyList extends MultiSelectComponent<Props, State, BlockLoader
       let funcDesc: FunctionDesc = this.loaders.entries().next().value[1].desc;
       let children = propMerger.render(keys, conn, funcDesc);
       let defsChildren: React.ReactNode[];
-      if (defsMerger.map && this.state.defsExpanded) {
+      if (defsMerger.isNotEmpty() && defsExpanded) {
         defsChildren = defsMerger.render(keys, conn, funcDesc);
       }
       return (
         <div style={style}>
           {children}
-          {propMerger.map ? <div>{defsChildren}</div> : null}
+          <div className='ticl-property-divider'>
+            {
+              defsMerger.isNotEmpty() ?
+                <ExpandIcon opened={defsExpanded ? 'opened' : 'closed'} onClick={this.onExpandDefsClick}/>
+                :
+                null
+            }
+            <span>more</span>
+            <div className='ticl-h-line'/>
+          </div>
+          {defsChildren}
         </div>
       );
     } else {

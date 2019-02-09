@@ -1,6 +1,6 @@
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
-import {Menu, Icon, Dropdown, Button} from 'antd';
+import {Menu, Icon, Dropdown, Button, Card} from 'antd';
 import NodeTree from "../../src/editor/node-tree/NodeTree";
 import {Block, Root} from "../../src/common/block/Block";
 import {makeLocalConnection} from "../../src/common/connect/LocalConnection";
@@ -33,10 +33,13 @@ import {PropertyList} from "../../src/editor/property/PropertyList";
                       left: '300px',
                       top: '0',
                       position: 'absolute',
-                     // opacity: 0.1
+                      // opacity: 0.1
                     }}/>
-        <PropertyList conn={client} keys={['example.add', 'example.multiply']}
-                      style={{width: '300px', height: '800px', left: '1100px', top: '0', position: 'absolute'}}/>
+        <Card size='small' style={{width: '300px', height: '800px', left: '1100px', top: '0', position: 'absolute'}}>
+          <PropertyList conn={client} keys={['example.add', 'example.multiply']}
+          />
+        </Card>
+
       </div>
     </div>,
     document.getElementById('app')

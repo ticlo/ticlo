@@ -7,7 +7,7 @@
 .ticl-property {
   position: relative;
   line-height: 19px;
-  padding: 2px 12px;
+  padding: 2px 6px;
   display: flex;
   &:first-child {
     /* allows the sub icon to overlap the next row but still clickable */
@@ -50,4 +50,24 @@
     cursor: default;
     resize: none;
   }
+}
+
+.ticl-property-divider {
+  height: 19px;
+  display: flex;
+  align-items: center;
+  & > span {
+    margin-right: 8px;
+    color: @text-color-light;
+  }
+  & > .ticl-tree-arr {
+    opacity: 0.3;
+  }
+}
+
+.ticl-h-line {
+  border-bottom: 1px solid;
+  height: 3px;
+  border-color: #eee;
+  flex-grow: 1;
 }
