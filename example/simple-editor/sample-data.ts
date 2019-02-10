@@ -11,7 +11,7 @@ for (let i = 0; i < len; ++i) {
   r.name = r.name.toUpperCase();
   sharedMore.push(r);
 }
-console.log(sharedMore);
+
 export const sampleData = {
   add: {
     '#is': 'add',
