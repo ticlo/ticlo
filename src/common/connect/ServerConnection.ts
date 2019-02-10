@@ -57,6 +57,9 @@ class ServerSubscribe extends ServerRequest implements BlockPropertySubscriber, 
   }
 
   getSendingData(): {data: DataMap, size: number} {
+    if (!this.property) {
+      return {data: null, size: 0};
+    }
     let data: DataMap = {id: this.id, cmd: 'update'};
     let total = 0;
     if (this.valueChanged) {
@@ -118,6 +121,7 @@ class ServerSubscribe extends ServerRequest implements BlockPropertySubscriber, 
     if (!this.property._block._destroyed) {
       this.property.unsubscribe(this);
     }
+    this.property = null;
   }
 }
 
@@ -308,7 +312,7 @@ export class ServerConnection extends Connection {
             break;
           }
           case 'subscribe' : {
-            result = this.subscribeProperty(request.path, request.id, request.full);
+            result = this.subscribeProperty(request.path, request.id, request.fullValue);
             break;
           }
           case 'watch' : {

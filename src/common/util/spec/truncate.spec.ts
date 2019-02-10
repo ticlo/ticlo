@@ -33,9 +33,14 @@ describe("truncateData", function () {
       obj[i] = i;
       arr.push(i);
     }
-    assert.equal(Object.keys(truncateData(obj)[0]).length, 10, 'truncated object cannot be more 10 keys');
-    assert.equal(truncateData(arr)[0].length, 10, 'truncated array cannot be more 10 items');
-    assert(isDataTruncated(arr));
+
+    let objResult = truncateData(obj)[0];
+    assert.equal(Object.keys(objResult).length, 10, 'truncated object cannot be more 10 keys');
+    assert.isTrue(isDataTruncated(objResult));
+
+    let arrResult = truncateData(arr)[0];
+    assert.equal(arrResult.length, 10, 'truncated array cannot be more 10 items');
+    assert.isTrue(isDataTruncated(arrResult));
   });
 
   it('measure object', function () {

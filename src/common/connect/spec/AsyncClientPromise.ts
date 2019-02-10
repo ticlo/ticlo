@@ -33,7 +33,10 @@ export class AsyncClientPromise implements ClientCallbacks {
     }
   }
 
+  lastResponse: DataMap;
+
   onUpdate(response: DataMap) {
+    this.lastResponse = response;
     if (this.resolve) {
       this.resolve(response);
       this._resetPromise();

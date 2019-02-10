@@ -8,7 +8,7 @@ import {FunctionDesc} from "../../block/Descriptor";
 import {shouldHappen} from "../../util/test-util";
 import {JsFunction} from "../../functions/script/Js";
 import {Types} from "../../block/Type";
-import {DataMap} from "../../util/Types";
+import {DataMap, isDataTruncated} from "../../util/Types";
 
 
 describe("Connection", function () {
@@ -399,5 +399,36 @@ describe("Connection", function () {
 
     client.destroy();
     Root.instance.deleteValue('Connection10');
+  });
+
+  it('full value', async function () {
+    let job1 = Root.instance.addJob('Connection11');
+
+    job1.load({
+      '@v': [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
+    });
+
+    let [server, client] = makeLocalConnection(Root.instance, false);
+
+    let callbacks1 = new AsyncClientPromise();
+    client.subscribe('Connection11.@v', callbacks1);
+    let result1 = await callbacks1.promise;
+
+    assert.isTrue(isDataTruncated(result1.cache.value));
+
+    let callbacks2 = new AsyncClientPromise();
+    client.subscribe('Connection11.@v', callbacks2, true);
+    let result2 = await callbacks2.promise;
+
+    assert.isFalse(isDataTruncated(result2.cache.value));
+
+    // callback1 should also receive a full update because of callbacks2 require full data
+    assert.isFalse(isDataTruncated(callbacks1.lastResponse.cache.value));
+
+    callbacks1.cancel();
+    callbacks2.cancel();
+
+    client.destroy();
+    Root.instance.deleteValue('Connection11');
   });
 });

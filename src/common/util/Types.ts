@@ -23,7 +23,7 @@ function truncateMap(val: DataMap, maxSize: number): [any, number, boolean] {
         result[key] = TRUNCATED;
         continue;
       }
-      result[TRUNCATED] = TRUNCATED;
+      result[TRUNCATED] = 1;
       return [result, total, true];
     }
     let [t, size, trunc] = truncateObj(val[key], (maxSize - total) * 0.75);
@@ -88,13 +88,13 @@ function truncateObj(val: any, maxSize: number = 1024): [any, number, boolean] {
 export function truncateData(val: any, maxSize: number = 1024): [any, number] {
   let [result, total, truncated] = truncateObj(val, maxSize);
   if (truncated) {
-    if (Array.isArray(val)) {
-      if (val[val.length - 1] !== TRUNCATED) {
-        val.push(TRUNCATED);
+    if (Array.isArray(result)) {
+      if (result[result.length - 1] !== TRUNCATED) {
+        result.push(TRUNCATED);
       }
-    } else if (val.constructor === Object) {
-      if (!val[TRUNCATED]) {
-        val[TRUNCATED] = TRUNCATED;
+    } else if (result.constructor === Object) {
+      if (!result[TRUNCATED]) {
+        result[TRUNCATED] = 1;
       }
     }
   }
@@ -105,9 +105,9 @@ export function isDataTruncated(val: any): boolean {
   if (typeof val === 'string') {
     return val.endsWith(TRUNCATED);
   } else if (Array.isArray(val)) {
-    return val.length && val[val.length - 1] === TRUNCATED;
+    return val.length > 0 && val[val.length - 1] === TRUNCATED;
   } else if (val.constructor === Object) {
-    return val[TRUNCATED];
+    return Boolean(val[TRUNCATED]);
   }
   return false;
 }
