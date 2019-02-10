@@ -55,7 +55,6 @@ function getPropDescName(prop: PropDesc | PropGroupDesc) {
   } else if ((prop as PropDesc).name) {
     return (prop as PropDesc).name;
   }
-  console.log(prop);
   return '@invalid';
 }
 
@@ -122,7 +121,6 @@ class PropertyDefMerger {
         this.map.set(name, prop);
       }
     }
-    console.log(this.map.keys());
   }
 
   render(keys: string[], conn: ClientConnection, funcDesc: FunctionDesc) {
