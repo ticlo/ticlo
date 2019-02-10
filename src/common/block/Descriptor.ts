@@ -34,7 +34,7 @@ export interface PropDesc {
   step?: number;
 
   // bool, select, tags
-  enums?: string[];
+  options?: string[];
 }
 
 export interface PropGroupDesc {

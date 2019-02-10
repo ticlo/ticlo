@@ -30,3 +30,12 @@
 // repeater
 @ticl-color-prr: mix(@gold-6, @gold-7, 70%);
 @ticl-color-prr-light: @gold-3;
+
+// fix component styles
+.ant-switch {
+  background-color: rgba(0, 0, 0, 0.25);
+  &-checked {
+    background-color: @switch-color;
+  }
+  transition: all 0.2s;
+}

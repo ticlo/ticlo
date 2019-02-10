@@ -1,6 +1,6 @@
 import {Connection, ConnectionSendingData, ConnectionSend} from "./Connection";
 import {BlockIO, BlockProperty, BlockPropertyEvent, BlockPropertySubscriber} from "../block/BlockProperty";
-import {DataMap, isSavedBlock, truncateObj} from "../util/Types";
+import {DataMap, isSavedBlock, measureObjSize, truncateObj} from "../util/Types";
 import {Root, Block, BlockBindingSource, BlockChildWatch} from "../block/Block";
 import {Dispatcher, Listener, ValueDispatcher} from "../block/Dispatcher";
 import Property = Chai.Property;
@@ -22,14 +22,16 @@ class ServerSubscribe extends ServerRequest implements BlockPropertySubscriber, 
   property: BlockProperty;
   source: BlockBindingSource;
 
+  fullValue: boolean;
   valueChanged = false;
   events: BlockPropertyEvent[] = [];
 
-  constructor(conn: ServerConnection, id: string, prop: BlockProperty) {
+  constructor(conn: ServerConnection, id: string, prop: BlockProperty, fullValue: boolean) {
     super();
     this.id = id;
     this.connection = conn;
     this.property = prop;
+    this.fullValue = fullValue;
     prop.subscribe(this);
     if (prop._bindingPath) {
       // add event for current bindingPath
@@ -58,7 +60,15 @@ class ServerSubscribe extends ServerRequest implements BlockPropertySubscriber, 
     let data: DataMap = {id: this.id, cmd: 'update'};
     let total = 0;
     if (this.valueChanged) {
-      let [value, size] = truncateObj(this.property.getValue());
+      let value: any;
+      let size: number;
+      if (this.fullValue) {
+        // don't truncate it
+        value = this.property.getValue();
+        size = measureObjSize(value);
+      } else {
+        [value, size] = truncateObj(this.property.getValue());
+      }
       total += size;
       data.value = value;
       this.valueChanged = false;
@@ -298,7 +308,7 @@ export class ServerConnection extends Connection {
             break;
           }
           case 'subscribe' : {
-            result = this.subscribeProperty(request.path, request.id);
+            result = this.subscribeProperty(request.path, request.id, request.full);
             break;
           }
           case 'watch' : {
@@ -444,10 +454,10 @@ export class ServerConnection extends Connection {
 
   }
 
-  subscribeProperty(path: string, id: string): string | ServerSubscribe {
+  subscribeProperty(path: string, id: string, fullValue: boolean): string | ServerSubscribe {
     let property = this.root.queryProperty(path, true);
     if (property) {
-      let subscriber = new ServerSubscribe(this, id, property);
+      let subscriber = new ServerSubscribe(this, id, property, fullValue);
       subscriber.source = this.root.createBinding(path, subscriber);
       return subscriber;
     } else {

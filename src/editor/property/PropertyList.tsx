@@ -39,8 +39,8 @@ class BlockLoader extends MultiSelectLoader<PropertyList> {
 
   constructor(key: string, parent: PropertyList) {
     super(key, parent);
-    this.conn.subscribe(`${key}.#is`, this.isListener);
-    this.conn.subscribe(`${key}.#more`, this.moreListener);
+    this.conn.subscribe(`${key}.#is`, this.isListener, true);
+    this.conn.subscribe(`${key}.#more`, this.moreListener, true);
   }
 
   destroy() {
@@ -55,6 +55,7 @@ function getPropDescName(prop: PropDesc | PropGroupDesc) {
   } else if ((prop as PropDesc).name) {
     return (prop as PropDesc).name;
   }
+  console.log(prop);
   return '@invalid';
 }
 
@@ -121,6 +122,7 @@ class PropertyDefMerger {
         this.map.set(name, prop);
       }
     }
+    console.log(this.map.keys());
   }
 
   render(keys: string[], conn: ClientConnection, funcDesc: FunctionDesc) {

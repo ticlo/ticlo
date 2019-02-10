@@ -13,10 +13,10 @@ export class ToggleEditor extends React.Component<Props, any> {
 
   onValueChange = (checked: boolean) => {
     let {desc, onChange} = this.props;
-    let {enums} = desc;
-    if (enums && enums.length >= 2) {
+    let {options} = desc;
+    if (options && options.length >= 2) {
       // convert string to boolean
-      onChange(checked ? enums[1] : enums[0]);
+      onChange(checked ? options[1] : options[0]);
     } else {
       onChange(checked);
     }
@@ -24,13 +24,13 @@ export class ToggleEditor extends React.Component<Props, any> {
 
   render() {
     let {desc, value, onChange} = this.props;
-    let {enums} = desc;
+    let {options} = desc;
     let checkedChildren: string;
     let unCheckedChildren: string;
-    if (enums && enums.length >= 2) {
+    if (options && options.length >= 2) {
       // convert string to boolean
-      unCheckedChildren = enums[0];
-      checkedChildren = enums[1];
+      unCheckedChildren = options[0];
+      checkedChildren = options[1];
       if (typeof value === 'string') {
         value = (value === checkedChildren);
       }

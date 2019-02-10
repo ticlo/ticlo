@@ -26,8 +26,8 @@
   overflow: hidden;
   flex: 0 0 calc(75% - 30px);
   min-width: calc(100% - 160px);
-  & > *:only-child {
-    // width: 100%;
+  & > .ant-select {
+    width: 100%;
   }
 }
 
@@ -36,6 +36,12 @@
     border-color: #f0f0f0;
     cursor: default;
     & input, & > div {
+      cursor: default;
+    }
+  }
+  & > .ant-select-disabled {
+    & > .ant-select-selection {
+      border-color: #f0f0f0;
       cursor: default;
     }
   }

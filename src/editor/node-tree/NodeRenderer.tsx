@@ -158,7 +158,7 @@ export class NodeTreeRenderer extends PureDataRenderer<Props, any> {
   constructor(props: Props) {
     super(props);
     let {item} = props;
-    item.connection.subscribe(`${item.key}.#is`, this.subscriptionListener);
+    item.connection.subscribe(`${item.key}.#is`, this.subscriptionListener, true);
   }
 
   desc: FunctionDesc = blankFuncDesc;

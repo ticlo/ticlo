@@ -7,6 +7,7 @@ import {GroupEditor} from "./GroupEditor";
 import {NumberEditor} from "./value/NumberEditor";
 import {StringEditor} from "./value/StringEditor";
 import {ToggleEditor} from "./value/ToggleEditor";
+import {SelectEditor} from "./value/SelectEditor";
 
 
 class PropertyLoader extends MultiSelectLoader<PropertyEditor> {
@@ -111,6 +112,10 @@ export class PropertyEditor extends MultiSelectComponent<Props, any, PropertyLoa
         }
         case 'toggle': {
           editor = <ToggleEditor value={value} desc={propDesc} onChange={onChange}/>;
+          break;
+        }
+        case 'select': {
+          editor = <SelectEditor value={value} desc={propDesc} onChange={onChange}/>;
           break;
         }
       }

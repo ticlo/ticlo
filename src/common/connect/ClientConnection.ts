@@ -443,12 +443,12 @@ export class ClientConnection extends Connection {
     return this.simpleRequest({cmd: 'list', path, filter, max}, callbacks);
   }
 
-  subscribe(path: string, callbacks: SubscribeCallbacks) {
+  subscribe(path: string, callbacks: SubscribeCallbacks, full: boolean = false) {
     if (this.subscribes.has(path)) {
       this.subscribes.get(path).add(callbacks);
     } else {
       let id = this.uid.next();
-      let data = {cmd: 'subscribe', path, id};
+      let data = {cmd: 'subscribe', path, id, full};
       let req = new SubscribeRequest(data, callbacks);
       this.requests.set(id, req);
       this.subscribes.set(path, req);
