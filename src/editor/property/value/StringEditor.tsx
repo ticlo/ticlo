@@ -16,6 +16,10 @@ interface Props {
   onChange: (value: any) => void;
 }
 
+interface State {
+  value: any;
+}
+
 export class StringEditor extends React.Component<Props, any> {
 
   _serverValue: string;

@@ -8,7 +8,8 @@ import {NumberEditor} from "./value/NumberEditor";
 import {StringEditor} from "./value/StringEditor";
 import {ToggleEditor} from "./value/ToggleEditor";
 import {SelectEditor} from "./value/SelectEditor";
-
+import {DragStore} from "../../ui/util/DragStore";
+import equal from "fast-deep-equal";
 
 class PropertyLoader extends MultiSelectLoader<PropertyEditor> {
   valueKey: string;
@@ -60,6 +61,54 @@ export class PropertyEditor extends MultiSelectComponent<Props, any, PropertyLoa
     for (let key of keys) {
       conn.setValue(`${key}.${name}`, value);
     }
+  };
+
+  onDragStart = (event: React.DragEvent) => {
+    let {conn, keys, name} = this.props;
+
+    let fields = keys.map((s) => `${s}.${name}`);
+    event.dataTransfer.setData('text/plain', fields.join(','));
+
+    DragStore.dragStart(conn, {fields});
+  };
+  onDragOver = (event: React.DragEvent) => {
+    let {conn, keys, name} = this.props;
+
+    let dragFields: string[] = DragStore.getData(conn, 'fields');
+    if (Array.isArray(dragFields) &&
+      (dragFields.length === 1 || dragFields.length === keys.length)) {
+      let fields = keys.map((s) => `${s}.${name}`);
+      if (!equal(fields, dragFields)) {
+        event.preventDefault();
+        event.dataTransfer.dropEffect = 'link';
+        return;
+      }
+    }
+    event.dataTransfer.dropEffect = 'none';
+  };
+  onDrop = (event: React.DragEvent) => {
+    let {conn, keys, name} = this.props;
+
+    let dragFields: string[] = DragStore.getData(conn, 'fields');
+    if (Array.isArray(dragFields)) {
+      let fields = keys.map((s) => `${s}.${name}`);
+      if (dragFields.length === 1) {
+        for (let field of fields) {
+          if (dragFields[0] !== field) {
+            conn.setBinding(field, dragFields[0], true);
+          }
+        }
+      } else if (dragFields.length === fields.length) {
+        for (let i = 0; i < fields.length; ++i) {
+          if (dragFields[i] !== fields[i]) {
+            conn.setBinding(fields[i], dragFields[i], true);
+          }
+        }
+      }
+    }
+  };
+  onDragEnd = (event: React.DragEvent) => {
+    DragStore.dragEnd();
   };
 
   renderImpl() {
@@ -121,7 +170,8 @@ export class PropertyEditor extends MultiSelectComponent<Props, any, PropertyLoa
       }
       return (
         <div className='ticl-property'>
-          <div className='ticl-property-name'>
+          <div className='ticl-property-name' draggable={true} onDragStart={this.onDragStart}
+               onDragOver={this.onDragOver} onDrop={this.onDrop} onDragEnd={this.onDragEnd}>
             {translateProperty(funcDesc.name, name, funcDesc.ns)}
           </div>
           <div className='ticl-property-value'>
