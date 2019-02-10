@@ -1,8 +1,8 @@
 import {assert} from "chai";
-import {truncateObj, measureObjSize, TRUNCATED, DataMap} from '../Types';
+import {truncateData, measureObjSize, TRUNCATED, DataMap, isDataTruncated} from '../Types';
 
 
-describe("truncateObj", function () {
+describe("truncateData", function () {
 
   let longstr = "1234567890";
   let bigObj: DataMap = {child: {}, arr: []};
@@ -14,15 +14,16 @@ describe("truncateObj", function () {
   }
 
   it('big string', function () {
-    let tstr: string = truncateObj(longstr)[0] as string;
+    let tstr: string = truncateData(longstr)[0] as string;
     assert.lengthOf(tstr, 131, 'length of str is 128 + 3 dot');
-    assert(tstr.endsWith(TRUNCATED), `str ends with ${TRUNCATED}`);
+    assert(isDataTruncated(tstr));
   });
 
   it('big obj', function () {
-    let tobj: DataMap = truncateObj(bigObj)[0];
+    let tobj: DataMap = truncateData(bigObj)[0];
     assert(JSON.stringify(tobj).length < 2048, 'truncated object cannot be more than 2048 bytes');
     assert.lengthOf(Object.keys(tobj), 10, 'all 10 keys are in output');
+    assert(isDataTruncated(tobj));
   });
 
   it('max number of item', function () {
@@ -32,8 +33,9 @@ describe("truncateObj", function () {
       obj[i] = i;
       arr.push(i);
     }
-    assert.equal(Object.keys(truncateObj(obj)[0]).length, 10, 'truncated object cannot be more 10 keys');
-    assert.equal(truncateObj(arr)[0].length, 10, 'truncated array cannot be more 10 items');
+    assert.equal(Object.keys(truncateData(obj)[0]).length, 10, 'truncated object cannot be more 10 keys');
+    assert.equal(truncateData(arr)[0].length, 10, 'truncated array cannot be more 10 items');
+    assert(isDataTruncated(arr));
   });
 
   it('measure object', function () {

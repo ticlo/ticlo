@@ -1,6 +1,6 @@
 import {Connection, ConnectionSendingData, ConnectionSend} from "./Connection";
 import {BlockIO, BlockProperty, BlockPropertyEvent, BlockPropertySubscriber} from "../block/BlockProperty";
-import {DataMap, isSavedBlock, measureObjSize, truncateObj} from "../util/Types";
+import {DataMap, isSavedBlock, measureObjSize, truncateData} from "../util/Types";
 import {Root, Block, BlockBindingSource, BlockChildWatch} from "../block/Block";
 import {Dispatcher, Listener, ValueDispatcher} from "../block/Dispatcher";
 import Property = Chai.Property;
@@ -67,7 +67,7 @@ class ServerSubscribe extends ServerRequest implements BlockPropertySubscriber, 
         value = this.property.getValue();
         size = measureObjSize(value);
       } else {
-        [value, size] = truncateObj(this.property.getValue());
+        [value, size] = truncateData(this.property.getValue());
       }
       total += size;
       data.value = value;
