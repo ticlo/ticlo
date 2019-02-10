@@ -466,7 +466,7 @@ Types.add(MapFunction, {
     {name: 'input', type: 'any'},
     {name: 'src', type: 'any'},
     {name: 'thread', type: 'number'},
-    {name: 'reuseWorker', type: 'bool'},
+    {name: 'reuseWorker', type: 'toggle'},
     {name: 'timeout', type: 'number'},
     {name: 'output', type: 'any', readonly: true}
   ],
