@@ -16,7 +16,7 @@ class BlockLoader extends MultiSelectLoader<PropertyList> {
     }
   };
 
-  more: PropDesc[];
+  more: (PropDesc | PropGroupDesc)[];
   moreListener = {
     onUpdate: (response: ValueUpdate) => {
       let value = response.cache.value;

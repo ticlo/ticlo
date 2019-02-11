@@ -90,6 +90,7 @@ export const configDescs: {[key: string]: PropDesc} = {
     options: ['auto', 'always', 'onChange', 'onCall', 'disabled'],
     default: 'auto'
   },
+  '#len': {name: '#len', type: 'number', default: 2, min: 0, step: 1},
   '#call': {name: '#call', type: 'event'},
   '#wait': {name: '#wait', type: 'toggle'},
   '#cancel': {name: '#cancel', type: 'event'},
@@ -104,3 +105,47 @@ export const configList: PropDesc[] = [
   configDescs['#priority'],
 ];
 
+export function buildDescCache(funcDesc: FunctionDesc, more: (PropDesc | PropGroupDesc)[]): {[key: string]: PropDesc} {
+  if (!funcDesc) return null;
+
+  let result: {[key: string]: PropDesc} = {};
+
+  function addProps(props: (PropDesc | PropGroupDesc)[]) {
+    for (let prop of props) {
+      if ((prop as PropGroupDesc).group != null) {
+        result[`${(prop as PropGroupDesc).group}#len`] = configDescs['#len'];
+        for (let gprop of (prop as PropGroupDesc).properties) {
+          // add number index to the property name
+          result[`${(prop as PropDesc).name}0`] = (prop as PropDesc);
+        }
+      } else {
+        result[(prop as PropDesc).name] = (prop as PropDesc);
+      }
+    }
+  }
+
+  addProps(more);
+  addProps(funcDesc.properties);
+
+  return result;
+}
+
+const numberReg = /[0-9]/;
+
+export function findPropDesc(name: string, cache: {[key: string]: PropDesc}): PropDesc {
+  if (!name || !cache) {
+    return blankPropDesc;
+  }
+  let numMatch = name.match(numberReg);
+  if (numMatch) {
+    let baseName = name.substr(0, numMatch.index);
+    name = `${baseName}0`;
+  }
+  if (cache.hasOwnProperty(name)) {
+    return cache[name];
+  }
+  if (configDescs.hasOwnProperty(name)) {
+    return configDescs[name];
+  }
+  return blankPropDesc;
+}

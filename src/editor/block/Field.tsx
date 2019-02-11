@@ -7,7 +7,7 @@ import equal from "fast-deep-equal";
 import {translateProperty} from "../../common/util/i18n";
 import {displayValue, shallowEqual} from "../../ui/util/Types";
 import {ClientConnection, ValueUpdate} from "../../common/connect/ClientConnection";
-import {blankFuncDesc, FunctionDesc, PropDesc} from "../../common/block/Descriptor";
+import {blankFuncDesc, FunctionDesc, PropDesc, PropGroupDesc} from "../../common/block/Descriptor";
 import {DragInitFunction} from "../../ui/component/DragHelper";
 import {arrayEqual} from "../../common/util/Compare";
 import {TIcon} from "../icon/Icon";
@@ -338,7 +338,7 @@ export abstract class BaseBlockItem extends DataRendererItem<XYWRenderer> {
   key: string;
   name: string;
   desc: FunctionDesc = blankFuncDesc;
-  more: PropDesc[];
+  more: (PropDesc | PropGroupDesc)[];
   fields: string[] = [];
   fieldItems: Map<string, FieldItem> = new Map<string, FieldItem>();
 

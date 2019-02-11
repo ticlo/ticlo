@@ -1,18 +1,9 @@
 import React from "react";
 import {ClientConnection, ValueUpdate} from "../../common/connect/ClientConnection";
-import {FunctionDesc, PropDesc, PropGroupDesc} from "../../common/block/Descriptor";
+import {configDescs, FunctionDesc, PropDesc, PropGroupDesc} from "../../common/block/Descriptor";
 import {MultiSelectComponent, MultiSelectLoader} from "./MultiSelectComponent";
 import {PropertyList} from "./PropertyList";
 import {PropertyEditor} from "./PropertyEditor";
-
-
-let lengthDesc: PropDesc = {
-  name: '',
-  type: 'number',
-  default: 2,
-  min: 0,
-  step: 1
-};
 
 class GroupLoader extends MultiSelectLoader<GroupEditor> {
 
@@ -82,7 +73,7 @@ export class GroupEditor extends MultiSelectComponent<Props, State, GroupLoader>
     return (
       <div className='ticl-property-group'>
         <PropertyEditor key={name} name={`${groupDesc.group}#len`} keys={keys} conn={conn}
-                        funcDesc={funcDesc} propDesc={lengthDesc}/>
+                        funcDesc={funcDesc} propDesc={configDescs['#len']}/>
         {children}
       </div>
     );
