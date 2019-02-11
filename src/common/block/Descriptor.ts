@@ -111,6 +111,7 @@ export function buildDescCache(funcDesc: FunctionDesc, more: (PropDesc | PropGro
   let result: {[key: string]: PropDesc} = {};
 
   function addProps(props: (PropDesc | PropGroupDesc)[]) {
+    if (!props) return;
     for (let prop of props) {
       if ((prop as PropGroupDesc).group != null) {
         result[`${(prop as PropGroupDesc).group}#len`] = configDescs['#len'];

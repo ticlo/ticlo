@@ -7,7 +7,14 @@ import equal from "fast-deep-equal";
 import {translateProperty} from "../../common/util/i18n";
 import {displayValue, shallowEqual} from "../../ui/util/Types";
 import {ClientConnection, ValueUpdate} from "../../common/connect/ClientConnection";
-import {blankFuncDesc, FunctionDesc, PropDesc, PropGroupDesc} from "../../common/block/Descriptor";
+import {
+  blankFuncDesc,
+  blankPropDesc, buildDescCache,
+  findPropDesc,
+  FunctionDesc,
+  PropDesc,
+  PropGroupDesc
+} from "../../common/block/Descriptor";
 import {DragInitFunction} from "../../ui/component/DragHelper";
 import {arrayEqual} from "../../common/util/Compare";
 import {TIcon} from "../icon/Icon";
@@ -234,12 +241,19 @@ export class FieldView extends PureDataRenderer<FieldViewProps, any> {
     }
   };
 
+  // a PropDesc cached on each render
+  _propDesc: PropDesc = blankPropDesc;
+
   onDragStart = (event: React.DragEvent) => {
     let {item} = this.props;
     event.dataTransfer.setData('text/plain', item.key);
     DragStore.dragStart(item.conn(), {fields: [item.key]});
   };
   onDragOver = (event: React.DragEvent) => {
+    if (this._propDesc.readonly) {
+      event.dataTransfer.dropEffect = 'none';
+      return;
+    }
     let {item} = this.props;
     let fields: string[] = DragStore.getData(item.conn(), 'fields');
     if (Array.isArray(fields) && fields.length === 1 && fields[0] !== item.key) {
@@ -277,6 +291,7 @@ export class FieldView extends PureDataRenderer<FieldViewProps, any> {
   render(): React.ReactNode {
     let {item} = this.props;
     let desc = item.block.desc;
+    this._propDesc = item.block.findPropDesc(item.name);
 
     let fieldClass = 'ticl-field';
     let inBoundClass = 'ticl-slot';
@@ -296,6 +311,8 @@ export class FieldView extends PureDataRenderer<FieldViewProps, any> {
         inBoundClass += ' ticl-inbound-path';
         inBoundText = item.cache.bindingPath;
       }
+    } else if (this._propDesc.readonly) {
+      inBoundClass = null;
     }
     let indentChildren = [];
     for (let i = 0; i < item.indents.length; ++i) {
@@ -339,6 +356,7 @@ export abstract class BaseBlockItem extends DataRendererItem<XYWRenderer> {
   name: string;
   desc: FunctionDesc = blankFuncDesc;
   more: (PropDesc | PropGroupDesc)[];
+  propDescCache: {[key: string]: PropDesc};
   fields: string[] = [];
   fieldItems: Map<string, FieldItem> = new Map<string, FieldItem>();
 
@@ -352,19 +370,8 @@ export abstract class BaseBlockItem extends DataRendererItem<XYWRenderer> {
     this.name = key.substr(key.indexOf('.') + 1);
   }
 
-  getPropDesc(name: string): PropDesc {
-    for (let prop of this.desc.properties) {
-      if ((prop as PropDesc).name === name) {
-        return (prop as PropDesc);
-      }
-    }
-    if (this.more) {
-      for (let prop of this.more) {
-        if ((prop as PropDesc).name === name) {
-          return (prop as PropDesc);
-        }
-      }
-    }
+  findPropDesc(name: string): PropDesc {
+    return findPropDesc(name, this.propDescCache);
   }
 
   // renderer both the block and children fields
@@ -390,6 +397,7 @@ export abstract class BaseBlockItem extends DataRendererItem<XYWRenderer> {
       }
       if (!equal(value, this.more)) {
         this.more = value;
+        this.propDescCache = buildDescCache(this.desc, this.more);
         this.forceRendererChildren();
       }
     }
@@ -418,6 +426,7 @@ export abstract class BaseBlockItem extends DataRendererItem<XYWRenderer> {
   setDesc(desc: FunctionDesc) {
     if (desc !== this.desc) {
       this.desc = desc;
+      this.propDescCache = buildDescCache(desc, this.more);
       this.forceUpdate();
       this.forceRendererChildren();
     }
