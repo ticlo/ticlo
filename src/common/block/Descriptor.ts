@@ -37,8 +37,8 @@ export interface PropDesc {
   step?: number;
 
   // bool, select, tags
-  options?: (string | number | boolean)[];
-  default?: string | number | boolean;
+  options?: (string | number)[];
+  default?: string | number;
 }
 
 export interface PropGroupDesc {
