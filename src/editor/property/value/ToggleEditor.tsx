@@ -29,8 +29,8 @@ export class ToggleEditor extends React.Component<Props, any> {
     let unCheckedChildren: string;
     if (options && options.length >= 2) {
       // convert string to boolean
-      unCheckedChildren = options[0];
-      checkedChildren = options[1];
+      unCheckedChildren = options[0] as any;
+      checkedChildren = options[1] as any;
       if (typeof value === 'string') {
         value = (value === checkedChildren);
       }

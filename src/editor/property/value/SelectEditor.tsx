@@ -23,7 +23,7 @@ export class SelectEditor extends React.Component<Props, any> {
     let optionNodes: React.ReactNode[] = [];
     if (Array.isArray(options)) {
       for (let opt of options) {
-        optionNodes.push(<Option key={opt} value={opt}>{opt}</Option>);
+        optionNodes.push(<Option key={String(opt)} value={opt as any}>{opt}</Option>);
       }
     }
     return (
