@@ -9,7 +9,7 @@ import {PropertyEditor} from "./PropertyEditor";
 let lengthDesc: PropDesc = {
   name: '',
   type: 'number',
-  placeholder: '2',
+  default: 2,
   min: 0,
   step: 1
 };

@@ -2,8 +2,8 @@ let sharedMore = [
   {name: 'num', type: 'number'},
   {name: 'str', type: 'string'},
   {name: 'tog1', type: 'toggle'},
-  {name: 'tog2', type: 'toggle', options: ['no', 'yeeeeees']},
-  {name: 'sel', type: 'select', options: ['red', 'blue', 'yellow']},
+  {name: 'tog2', type: 'toggle', options: ['no', 1234567]},
+  {name: 'sel', type: 'select', options: ['red', 'blue', 'yellow', 123]},
 ];
 let len = sharedMore.length;
 for (let i = 0; i < len; ++i) {

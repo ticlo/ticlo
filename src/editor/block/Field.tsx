@@ -7,7 +7,7 @@ import equal from "fast-deep-equal";
 import {translateProperty} from "../../common/util/i18n";
 import {displayValue, shallowEqual} from "../../ui/util/Types";
 import {ClientConnection, ValueUpdate} from "../../common/connect/ClientConnection";
-import {blankFuncDesc, FunctionDesc} from "../../common/block/Descriptor";
+import {blankFuncDesc, FunctionDesc, PropDesc} from "../../common/block/Descriptor";
 import {DragInitFunction} from "../../ui/component/DragHelper";
 import {arrayEqual} from "../../common/util/Compare";
 import {TIcon} from "../icon/Icon";
@@ -338,6 +338,7 @@ export abstract class BaseBlockItem extends DataRendererItem<XYWRenderer> {
   key: string;
   name: string;
   desc: FunctionDesc = blankFuncDesc;
+  more: PropDesc[];
   fields: string[] = [];
   fieldItems: Map<string, FieldItem> = new Map<string, FieldItem>();
 
@@ -349,6 +350,21 @@ export abstract class BaseBlockItem extends DataRendererItem<XYWRenderer> {
     this.stage = stage;
     this.key = key;
     this.name = key.substr(key.indexOf('.') + 1);
+  }
+
+  getPropDesc(name: string): PropDesc {
+    for (let prop of this.desc.properties) {
+      if ((prop as PropDesc).name === name) {
+        return (prop as PropDesc);
+      }
+    }
+    if (this.more) {
+      for (let prop of this.more) {
+        if ((prop as PropDesc).name === name) {
+          return (prop as PropDesc);
+        }
+      }
+    }
   }
 
   // renderer both the block and children fields
@@ -363,6 +379,18 @@ export abstract class BaseBlockItem extends DataRendererItem<XYWRenderer> {
         this.conn.watchDesc(value, this.descListener);
       } else {
         this.conn.unwatchDesc(this.descListener);
+      }
+    }
+  };
+  moreListener = {
+    onUpdate: (response: ValueUpdate) => {
+      let value = response.cache.value;
+      if (!Array.isArray(value)) {
+        value = null;
+      }
+      if (!equal(value, this.more)) {
+        this.more = value;
+        this.forceRendererChildren();
       }
     }
   };
@@ -382,8 +410,9 @@ export abstract class BaseBlockItem extends DataRendererItem<XYWRenderer> {
   };
 
   startSubscribe() {
-    this.conn.subscribe(`${this.key}.#is`, this.isListener);
-    this.conn.subscribe(`${this.key}.@b-p`, this.pListener);
+    this.conn.subscribe(`${this.key}.#is`, this.isListener, true);
+    this.conn.subscribe(`${this.key}.#more`, this.moreListener, true);
+    this.conn.subscribe(`${this.key}.@b-p`, this.pListener, true);
   }
 
   setDesc(desc: FunctionDesc) {
@@ -435,6 +464,7 @@ export abstract class BaseBlockItem extends DataRendererItem<XYWRenderer> {
       fieldItem.destroy();
     }
     this.conn.unsubscribe(`${this.key}.#is`, this.isListener);
+    this.conn.unsubscribe(`${this.key}.#more`, this.moreListener);
     this.conn.unsubscribe(`${this.key}.@b-p`, this.pListener);
     this.conn.unwatchDesc(this.descListener);
   }
@@ -469,7 +499,7 @@ class SubBlockItem extends BaseBlockItem {
 
   startSubscribe() {
     super.startSubscribe();
-    this.conn.subscribe(`${this.key}.@b-hide`, this.hideListener);
+    this.conn.subscribe(`${this.key}.@b-hide`, this.hideListener, true);
   }
 
   get selected() {

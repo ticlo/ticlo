@@ -11,12 +11,15 @@ export type ValueType =
   | 'toggle'
   | 'select'
   | 'color'
+  | 'event'
   | 'datetime'
-  | 'type'
   | 'js'
   | 'map'
   | 'array'
-  | 'any';
+  | 'any'
+  // special editors
+  | 'type'
+  ;
 
 export interface PropDesc {
   name: string;
@@ -34,7 +37,8 @@ export interface PropDesc {
   step?: number;
 
   // bool, select, tags
-  options?: string[];
+  options?: (string | number | boolean)[];
+  default?: string | number | boolean;
 }
 
 export interface PropGroupDesc {
@@ -69,7 +73,34 @@ export function getFuncStyleFromDesc(desc: FunctionDesc, prefix = 'ticl-block-pr
   return '';
 }
 
-export const blankFuncDesc = {
+export const blankFuncDesc: FunctionDesc = {
   name: '',
   icon: ''
 };
+export const blankPropDesc: PropDesc = {
+  name: '',
+  type: 'any'
+};
+
+export const configDescs: {[key: string]: PropDesc} = {
+  '#is': {name: '#is', type: 'type'},
+  '#mode': {
+    name: '#mode',
+    type: 'select',
+    options: ['auto', 'always', 'onChange', 'onCall', 'disabled'],
+    default: 'auto'
+  },
+  '#call': {name: '#call', type: 'event'},
+  '#wait': {name: '#wait', type: 'toggle'},
+  '#cancel': {name: '#cancel', type: 'event'},
+  '#priority': {name: '#priority', type: 'select', options: ['auto', 0, 1, 2, 3], default: 'auto'},
+  '#input': {name: '#input', type: 'any'},
+  '#output': {name: '#output', type: 'any'},
+};
+
+export const configList: PropDesc[] = [
+  configDescs['#call'],
+  configDescs['#mode'],
+  configDescs['#priority'],
+];
+

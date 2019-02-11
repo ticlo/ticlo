@@ -7,7 +7,7 @@
 * When value is object, it will be deserialized as a child block in the `#func` config
 
 ### #mode
-**type**: 'always' | 'onChange' | 'onCall' | 'disabled' | null
+**type**: 'auto' | 'always' | 'onChange' | 'onCall' | 'disabled'
 
 **Block Modes:**
 
@@ -17,7 +17,7 @@
 |input is changed|✔️|✔️|-|-|
 |block is deserialized|✔️|-|-|-|
 
-* By default, block mode is defined in the block function. you can override block mode by changing the `#mode` config value
+* By default, block mode is 'auto', which means using the default mode from the block function. you can override block mode by changing the `#mode` config value
 
 
 ### #sync
