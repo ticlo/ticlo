@@ -34,7 +34,6 @@ class PropertyLoader extends MultiSelectLoader<PropertyEditor> {
     }
   };
 
-
   destroy() {
     this.conn.unsubscribe(this.valueKey, this.listener);
   }
@@ -72,7 +71,12 @@ export class PropertyEditor extends MultiSelectComponent<Props, any, PropertyLoa
     DragStore.dragStart(conn, {fields});
   };
   onDragOver = (event: React.DragEvent) => {
-    let {conn, keys, name} = this.props;
+    let {conn, keys, name, propDesc} = this.props;
+
+    if (propDesc.readonly) {
+      event.dataTransfer.dropEffect = 'none';
+      return;
+    }
 
     let dragFields: string[] = DragStore.getData(conn, 'fields');
     if (Array.isArray(dragFields) &&
