@@ -49,6 +49,7 @@ export class FieldItem extends DataRendererItem<ValueRenderer> {
   block: BaseBlockItem;
   name: string;
   key: string;
+  desc: PropDesc = blankPropDesc;
 
   indent = 0;
   subBlock?: SubBlockItem;
@@ -92,6 +93,13 @@ export class FieldItem extends DataRendererItem<ValueRenderer> {
       return true;
     }
     return false;
+  }
+
+  setDesc(desc: PropDesc) {
+    if (desc !== this.desc) {
+      this.desc = desc;
+      this.forceUpdate();
+    }
   }
 
   indents: number[] = [];
@@ -241,20 +249,18 @@ export class FieldView extends PureDataRenderer<FieldViewProps, any> {
     }
   };
 
-  // a PropDesc cached on each render
-  _propDesc: PropDesc = blankPropDesc;
-
   onDragStart = (event: React.DragEvent) => {
     let {item} = this.props;
     event.dataTransfer.setData('text/plain', item.key);
     DragStore.dragStart(item.conn(), {fields: [item.key]});
   };
   onDragOver = (event: React.DragEvent) => {
-    if (this._propDesc.readonly) {
+    let {item} = this.props;
+    if (item.desc.readonly) {
       event.dataTransfer.dropEffect = 'none';
       return;
     }
-    let {item} = this.props;
+
     let fields: string[] = DragStore.getData(item.conn(), 'fields');
     if (Array.isArray(fields) && fields.length === 1 && fields[0] !== item.key) {
       event.preventDefault();
@@ -291,7 +297,6 @@ export class FieldView extends PureDataRenderer<FieldViewProps, any> {
   render(): React.ReactNode {
     let {item} = this.props;
     let desc = item.block.desc;
-    this._propDesc = item.block.findPropDesc(item.name);
 
     let fieldClass = 'ticl-field';
     let inBoundClass = 'ticl-slot';
@@ -311,7 +316,7 @@ export class FieldView extends PureDataRenderer<FieldViewProps, any> {
         inBoundClass += ' ticl-inbound-path';
         inBoundText = item.cache.bindingPath;
       }
-    } else if (this._propDesc.readonly) {
+    } else if (item.desc.readonly) {
       inBoundClass = null;
     }
     let indentChildren = [];
@@ -370,10 +375,6 @@ export abstract class BaseBlockItem extends DataRendererItem<XYWRenderer> {
     this.name = key.substr(key.indexOf('.') + 1);
   }
 
-  findPropDesc(name: string): PropDesc {
-    return findPropDesc(name, this.propDescCache);
-  }
-
   // renderer both the block and children fields
   abstract forceRendererChildren(): void ;
 
@@ -397,8 +398,7 @@ export abstract class BaseBlockItem extends DataRendererItem<XYWRenderer> {
       }
       if (!equal(value, this.more)) {
         this.more = value;
-        this.propDescCache = buildDescCache(this.desc, this.more);
-        this.forceRendererChildren();
+        this.updatePropCache();
       }
     }
   };
@@ -426,14 +426,16 @@ export abstract class BaseBlockItem extends DataRendererItem<XYWRenderer> {
   setDesc(desc: FunctionDesc) {
     if (desc !== this.desc) {
       this.desc = desc;
-      this.propDescCache = buildDescCache(desc, this.more);
+      this.updatePropCache();
       this.forceUpdate();
       this.forceRendererChildren();
     }
   }
 
   createField(name: string): FieldItem {
-    return new FieldItem(this, name);
+    let item = new FieldItem(this, name);
+    item.setDesc(findPropDesc(name, this.propDescCache));
+    return item;
   }
 
   setP(fields: string[]) {
@@ -451,6 +453,13 @@ export abstract class BaseBlockItem extends DataRendererItem<XYWRenderer> {
         }
       }
       this.onFieldsChanged();
+    }
+  }
+
+  updatePropCache() {
+    this.propDescCache = buildDescCache(this.desc, this.more);
+    for (let [key, item] of this.fieldItems) {
+      item.setDesc(findPropDesc(key, this.propDescCache));
     }
   }
 
@@ -488,10 +497,6 @@ class SubBlockItem extends BaseBlockItem {
     super(connection, stage, key);
     this.parentField = field;
     this.startSubscribe();
-  }
-
-  createField(name: string): FieldItem {
-    return new FieldItem(this, name);
   }
 
   hidden = true;
