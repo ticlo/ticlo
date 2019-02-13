@@ -15,10 +15,6 @@ export class StringEditor extends React.PureComponent<Props, any> {
   // this is not a state bacause in commitChange() editorValue is changed but we don't want a re-render until prop change
   _pendingValue: any = null;
 
-  constructor(props: Props) {
-    super(props);
-  }
-
   commitChange(value: string) {
     this._pendingValue = null;
     this.props.onChange(value);
@@ -66,7 +62,9 @@ export class StringEditor extends React.PureComponent<Props, any> {
 
   render() {
     let {desc, value, onChange} = this.props;
-    if (this._pendingValue != null) value = this._pendingValue;
+    if (this._pendingValue != null) {
+      value = this._pendingValue;
+    }
     return (
       <TextArea placeholder={desc.placeholder} value={value}
                 disabled={onChange == null}
