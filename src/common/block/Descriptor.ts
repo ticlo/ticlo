@@ -13,6 +13,7 @@ export type ValueType =
   | 'color'
   | 'event'
   | 'datetime'
+  | 'password'
   | 'js'
   | 'map'
   | 'array'

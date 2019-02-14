@@ -63,6 +63,7 @@ export class NumberEditor extends React.PureComponent<Props, any> {
         return;
       }
       case 'Escape': {
+        this._pendingTyping = false;
         if (this._pendingValue) {
           this._pendingValue = NaN;
           this._pendingTyping = false;

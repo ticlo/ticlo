@@ -10,6 +10,7 @@ import {ToggleEditor} from "./value/ToggleEditor";
 import {SelectEditor} from "./value/SelectEditor";
 import {DragStore} from "../../ui/util/DragStore";
 import equal from "fast-deep-equal";
+import {PasswordEditor} from "./value/PasswordEditor";
 
 class PropertyLoader extends MultiSelectLoader<PropertyEditor> {
   valueKey: string;
@@ -169,6 +170,10 @@ export class PropertyEditor extends MultiSelectComponent<Props, any, PropertyLoa
         }
         case 'select': {
           editor = <SelectEditor value={value} desc={propDesc} onChange={onChange}/>;
+          break;
+        }
+        case 'password': {
+          editor = <PasswordEditor value={value} desc={propDesc} onChange={onChange}/>;
           break;
         }
       }

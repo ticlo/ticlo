@@ -53,23 +53,26 @@ export abstract class MultiSelectComponent<P extends Props, S,
   }
 
   _rendering = false;
+  _mounted = false;
 
   render(): React.ReactNode {
     this._rendering = true;
     let result = this.renderImpl();
     this._rendering = false;
+    this._mounted = true;
     return result;
   }
 
   abstract renderImpl(): React.ReactNode;
 
   safeForceUpdate() {
-    if (!this._rendering) {
+    if (this._mounted && !this._rendering) {
       this.forceUpdate();
     }
   }
 
   componentWillUnmount() {
+    this._mounted = false;
     for (let [key, loader]of this.loaders) {
       loader.destroy();
     }

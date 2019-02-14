@@ -2,7 +2,7 @@ import * as React from "react";
 import {Input} from "antd";
 import {PropDesc} from "../../../common/block/Descriptor";
 
-const {TextArea} = Input;
+const {Password} = Input;
 
 interface Props {
   value: any;
@@ -10,7 +10,7 @@ interface Props {
   onChange: (value: any) => void;
 }
 
-export class StringEditor extends React.PureComponent<Props, any> {
+export class PasswordEditor extends React.PureComponent<Props, any> {
 
   // this is not a state bacause in commitChange() editorValue is changed but we don't want a re-render until prop change
   _pendingValue: any = null;
@@ -21,9 +21,7 @@ export class StringEditor extends React.PureComponent<Props, any> {
   }
 
   onValueChange = (e: React.SyntheticEvent) => {
-    console.log(e);
-    console.log(e.nativeEvent);
-    let value = (e.nativeEvent.target as HTMLTextAreaElement).value;
+    let value = (e.nativeEvent.target as HTMLInputElement).value;
     if (this._pendingTyping) {
       if (value !== this.props.value || this._pendingValue != null) {
         // when editorValue value already exists or server value is not the same
@@ -44,6 +42,7 @@ export class StringEditor extends React.PureComponent<Props, any> {
 
   _pendingTyping = false;
   onKeyDown = (e: React.KeyboardEvent) => {
+    console.log(e.nativeEvent);
     if (e.key === 'Escape') {
       this._pendingTyping = false;
       if (this._pendingValue != null) {
@@ -51,12 +50,11 @@ export class StringEditor extends React.PureComponent<Props, any> {
         this.forceUpdate();
       }
       return;
-    } else if (e.key === 'Enter' && !(e.shiftKey)) {
+    } else if (e.key === 'Enter') {
       this._pendingTyping = false;
       if (this._pendingValue != null) {
         this.commitChange(this._pendingValue);
       }
-      e.preventDefault();
       return;
     }
     this._pendingTyping = true;
@@ -69,10 +67,9 @@ export class StringEditor extends React.PureComponent<Props, any> {
       value = this._pendingValue;
     }
     return (
-      <TextArea placeholder={desc.placeholder} value={value}
+      <Password size='small' placeholder={desc.placeholder} value={value} onChange={this.onValueChange}
                 disabled={onChange == null}
-                autosize={{minRows: 1, maxRows: 5}}
-                onChange={this.onValueChange} onBlur={this.onBlur} onKeyDown={this.onKeyDown}/>
+                onBlur={this.onBlur} onKeyDown={this.onKeyDown}/>
     );
   }
 }
