@@ -1,4 +1,5 @@
 import React from "react";
+import {Button} from "antd";
 import {ClientConnection, ValueState, ValueUpdate} from "../../common/connect/ClientConnection";
 import {FunctionDesc, PropDesc} from "../../common/block/Descriptor";
 import {translateProperty} from "../../common/util/i18n";
@@ -69,6 +70,10 @@ export class PropertyEditor extends MultiSelectComponent<Props, State, PropertyL
     this.updateLoaders(props.keys, PropertyLoader);
   }
 
+  unlock = (e: any) => {
+    this.setState({unlocked: !this.state.unlocked});
+  };
+
   onChange = (value: any) => {
     let {keys, name, conn} = this.props;
     for (let key of keys) {
@@ -131,6 +136,7 @@ export class PropertyEditor extends MultiSelectComponent<Props, State, PropertyL
 
   renderImpl() {
     let {keys, funcDesc, propDesc, name} = this.props;
+    let {unlocked} = this.state;
 
     this.updateLoaders(keys, PropertyLoader);
 
@@ -180,12 +186,14 @@ export class PropertyEditor extends MultiSelectComponent<Props, State, PropertyL
           bindingPath = '???';
         }
       }
-      let locked = (hasBinding || !valueSame) && !this.state.unlocked;
+      let locked = (hasBinding || !valueSame);
+      let showLockIcon = locked && !propDesc.readonly;
 
       let editor: React.ReactNode;
       let EditorClass = typeEditorMap[propDesc.type];
       if (EditorClass) {
-        editor = <EditorClass value={value} desc={propDesc} locked={locked} onChange={onChange}/>;
+        editor =
+          <EditorClass value={value} desc={propDesc} locked={locked && !unlocked} onChange={onChange}/>;
       }
 
       return (
@@ -196,6 +204,10 @@ export class PropertyEditor extends MultiSelectComponent<Props, State, PropertyL
                onDragOver={this.onDragOver} onDrop={this.onDrop} onDragEnd={this.onDragEnd}>
             {translateProperty(funcDesc.name, name, funcDesc.ns)}
           </div>
+          {showLockIcon ?
+            <Button shape='circle' icon={unlocked ? 'edit' : 'lock'}
+                    onDoubleClick={this.unlock}> </Button>
+            : null}
           <div className='ticl-property-value'>
             {editor}
           </div>

@@ -9,9 +9,16 @@
   line-height: 19px;
   padding: 2px 6px;
   display: flex;
-  &:first-child {
-    /* allows the sub icon to overlap the next row but still clickable */
-    z-index: 1;
+  //&:first-child {
+  //  /* allows the sub icon to overlap the next row but still clickable */
+  //  z-index: 1;
+  //}
+  &> .ant-btn {
+    height: 19px;
+    width: 20px;
+    padding: 0 2px;
+    font-size: 14px;
+    border-style: none;
   }
 }
 
