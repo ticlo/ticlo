@@ -15,6 +15,11 @@ export class NumberEditor extends React.PureComponent<Props, any> {
 
 
   commitChange(value: number) {
+    let {desc} = this.props;
+    if (desc.default === value) {
+      value = undefined;
+    }
+
     this._pendingValue = NaN;
     this.props.onChange(value);
   }
@@ -86,6 +91,9 @@ export class NumberEditor extends React.PureComponent<Props, any> {
 
   render() {
     let {desc, value, onChange} = this.props;
+    if (value === undefined && desc.default) {
+      value = desc.default;
+    }
     if (this._pendingValue === this._pendingValue) { // not NaN
       value = this._pendingValue;
     }

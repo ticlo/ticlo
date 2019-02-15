@@ -13,13 +13,19 @@ interface Props {
 export class SelectEditor extends React.Component<Props, any> {
 
   onValueChange = (value: string) => {
-    let {onChange} = this.props;
+    let {onChange, desc} = this.props;
+    if (desc.default === value) {
+      value = undefined;
+    }
     onChange(value);
   };
 
   render() {
     let {desc, value, onChange} = this.props;
     let {options} = desc;
+    if (value === undefined && desc.default) {
+      value = desc.default;
+    }
     let optionNodes: React.ReactNode[] = [];
     if (Array.isArray(options)) {
       for (let opt of options) {

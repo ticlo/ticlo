@@ -135,6 +135,7 @@ export class PropertyEditor extends MultiSelectComponent<Props, any, PropertyLoa
       let valueSame = true;
 
       let bindingPath = firstCache.bindingPath;
+      let hasBinding = (firstCache.bindingPath != null);
       let bindingSame = true;
       let subBlock = firstLoader.subBlock;
 
@@ -149,8 +150,21 @@ export class PropertyEditor extends MultiSelectComponent<Props, any, PropertyLoa
         if (bindingPath !== cache.bindingPath) {
           bindingSame = false;
         }
+        if (cache.bindingPath != null) {
+          hasBinding = true;
+        }
         if (!loader.subBlock) {
           subBlock = false;
+        }
+      }
+
+      let inBoundClass;
+      if (subBlock) {
+        inBoundClass = 'ticl-slot ticl-inbound';
+      } else if (hasBinding) {
+        inBoundClass = 'ticl-slot ticl-inbound';
+        if (!bindingSame) {
+          bindingPath = '???';
         }
       }
 
@@ -179,7 +193,9 @@ export class PropertyEditor extends MultiSelectComponent<Props, any, PropertyLoa
       }
       return (
         <div className='ticl-property'>
-          <div className='ticl-property-name' draggable={true} onDragStart={this.onDragStart}
+          {inBoundClass ? <div className={inBoundClass} title={bindingPath}/> : null}
+          <div className={`ticl-property-name${propDesc.readonly ? ' ticl-property-readonly' : ''}`}
+               draggable={true} onDragStart={this.onDragStart}
                onDragOver={this.onDragOver} onDrop={this.onDrop} onDragEnd={this.onDragEnd}>
             {translateProperty(funcDesc.name, name, funcDesc.ns)}
           </div>
