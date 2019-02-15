@@ -1,16 +1,11 @@
 import * as React from "react";
 import {Select} from "antd";
 import {PropDesc} from "../../../common/block/Descriptor";
+import {ValueEditorProps} from "./ValueEditor";
 
 const Option = Select.Option;
 
-interface Props {
-  value: any;
-  desc: PropDesc;
-  onChange: (value: any) => void;
-}
-
-export class SelectEditor extends React.Component<Props, any> {
+export class SelectEditor extends React.Component<ValueEditorProps, any> {
 
   onValueChange = (value: string) => {
     let {onChange, desc} = this.props;
@@ -21,7 +16,7 @@ export class SelectEditor extends React.Component<Props, any> {
   };
 
   render() {
-    let {desc, value, onChange} = this.props;
+    let {desc, value, locked, onChange} = this.props;
     let {options} = desc;
     if (value === undefined && desc.default) {
       value = desc.default;
@@ -33,7 +28,7 @@ export class SelectEditor extends React.Component<Props, any> {
       }
     }
     return (
-      <Select size='small' value={value} disabled={onChange == null}
+      <Select size='small' value={value} disabled={locked || onChange == null}
               onChange={this.onValueChange}>
         {optionNodes}
       </Select>

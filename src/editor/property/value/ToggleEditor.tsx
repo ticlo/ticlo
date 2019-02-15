@@ -1,15 +1,9 @@
 import * as React from "react";
 import {Switch} from "antd";
 import {PropDesc} from "../../../common/block/Descriptor";
+import {ValueEditorProps} from "./ValueEditor";
 
-
-interface Props {
-  value: any;
-  desc: PropDesc;
-  onChange: (value: any) => void;
-}
-
-export class ToggleEditor extends React.Component<Props, any> {
+export class ToggleEditor extends React.Component<ValueEditorProps, any> {
 
   onValueChange = (checked: boolean) => {
     let {desc, onChange} = this.props;
@@ -23,7 +17,7 @@ export class ToggleEditor extends React.Component<Props, any> {
   };
 
   render() {
-    let {desc, value, onChange} = this.props;
+    let {desc, value, locked, onChange} = this.props;
     let {options} = desc;
     let checkedChildren: string;
     let unCheckedChildren: string;
@@ -31,12 +25,12 @@ export class ToggleEditor extends React.Component<Props, any> {
       // convert string to boolean
       unCheckedChildren = String(options[0]);
       checkedChildren = String(options[1]);
-      if (typeof value === 'string') {
-        value = (value === checkedChildren);
+      if (typeof value === 'string' || typeof value === 'number') {
+        value = (value === options[1]);
       }
     }
     return (
-      <Switch checked={value} disabled={onChange == null}
+      <Switch checked={value} disabled={locked || onChange == null}
               unCheckedChildren={unCheckedChildren} checkedChildren={checkedChildren}
               onChange={this.onValueChange}/>
     );

@@ -1,14 +1,9 @@
 import * as React from "react";
 import {InputNumber} from "antd";
 import {PropDesc} from "../../../common/block/Descriptor";
+import {ValueEditorProps} from "./ValueEditor";
 
-interface Props {
-  value: any;
-  desc: PropDesc;
-  onChange: (value: any) => void;
-}
-
-export class NumberEditor extends React.PureComponent<Props, any> {
+export class NumberEditor extends React.PureComponent<ValueEditorProps, any> {
 
   // this is not a state bacause in commitChange() editorValue is changed but we don't want a re-render until prop change
   _pendingValue: string | number = NaN;
@@ -90,12 +85,14 @@ export class NumberEditor extends React.PureComponent<Props, any> {
   };
 
   render() {
-    let {desc, value, onChange} = this.props;
+    let {desc, value, locked, onChange} = this.props;
     if (value === undefined && desc.default) {
       value = desc.default;
     }
     if (this._pendingValue === this._pendingValue) { // not NaN
       value = this._pendingValue;
+    } else if (locked) {
+      onChange = null;
     }
     return (
       <InputNumber size='small' placeholder={desc.placeholder} value={value}

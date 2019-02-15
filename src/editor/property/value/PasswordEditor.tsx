@@ -1,16 +1,11 @@
 import * as React from "react";
 import {Input} from "antd";
 import {PropDesc} from "../../../common/block/Descriptor";
+import {ValueEditorProps} from "./ValueEditor";
 
 const {Password} = Input;
 
-interface Props {
-  value: any;
-  desc: PropDesc;
-  onChange: (value: any) => void;
-}
-
-export class PasswordEditor extends React.PureComponent<Props, any> {
+export class PasswordEditor extends React.PureComponent<ValueEditorProps, any> {
 
   // this is not a state bacause in commitChange() editorValue is changed but we don't want a re-render until prop change
   _pendingValue: any = null;
@@ -62,9 +57,11 @@ export class PasswordEditor extends React.PureComponent<Props, any> {
   };
 
   render() {
-    let {desc, value, onChange} = this.props;
+    let {desc, value, locked, onChange} = this.props;
     if (this._pendingValue != null) {
       value = this._pendingValue;
+    } else if (locked) {
+      onChange = null;
     }
     return (
       <Password size='small' placeholder={desc.placeholder} value={value} onChange={this.onValueChange}

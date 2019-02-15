@@ -12,6 +12,14 @@ import {DragStore} from "../../ui/util/DragStore";
 import equal from "fast-deep-equal";
 import {PasswordEditor} from "./value/PasswordEditor";
 
+const typeEditorMap: {[key: string]: any} = {
+  'number': NumberEditor,
+  'string': StringEditor,
+  'toggle': ToggleEditor,
+  'select': SelectEditor,
+  'password': PasswordEditor,
+};
+
 class PropertyLoader extends MultiSelectLoader<PropertyEditor> {
   valueKey: string;
   name: string;
@@ -49,10 +57,15 @@ interface Props {
   propDesc: PropDesc;
 }
 
-export class PropertyEditor extends MultiSelectComponent<Props, any, PropertyLoader> {
+interface State {
+  unlocked: boolean;
+}
+
+export class PropertyEditor extends MultiSelectComponent<Props, State, PropertyLoader> {
 
   constructor(props: Readonly<Props>) {
     super(props);
+    this.state = {unlocked: false};
     this.updateLoaders(props.keys, PropertyLoader);
   }
 
@@ -144,7 +157,7 @@ export class PropertyEditor extends MultiSelectComponent<Props, any, PropertyLoa
         if (!cache) {
           break ready;
         }
-        if (Object.is(value, cache.value)) {
+        if (!Object.is(value, cache.value)) {
           valueSame = false;
         }
         if (bindingPath !== cache.bindingPath) {
@@ -167,30 +180,14 @@ export class PropertyEditor extends MultiSelectComponent<Props, any, PropertyLoa
           bindingPath = '???';
         }
       }
+      let locked = (hasBinding || !valueSame) && !this.state.unlocked;
 
       let editor: React.ReactNode;
-      switch (propDesc.type) {
-        case 'number': {
-          editor = <NumberEditor value={value} desc={propDesc} onChange={onChange}/>;
-          break;
-        }
-        case 'string': {
-          editor = <StringEditor value={value} desc={propDesc} onChange={onChange}/>;
-          break;
-        }
-        case 'toggle': {
-          editor = <ToggleEditor value={value} desc={propDesc} onChange={onChange}/>;
-          break;
-        }
-        case 'select': {
-          editor = <SelectEditor value={value} desc={propDesc} onChange={onChange}/>;
-          break;
-        }
-        case 'password': {
-          editor = <PasswordEditor value={value} desc={propDesc} onChange={onChange}/>;
-          break;
-        }
+      let EditorClass = typeEditorMap[propDesc.type];
+      if (EditorClass) {
+        editor = <EditorClass value={value} desc={propDesc} locked={locked} onChange={onChange}/>;
       }
+
       return (
         <div className='ticl-property'>
           {inBoundClass ? <div className={inBoundClass} title={bindingPath}/> : null}
