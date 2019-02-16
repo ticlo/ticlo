@@ -1,5 +1,5 @@
 import React from "react";
-import {Button} from "antd";
+import {Button, Tooltip} from "antd";
 import {ClientConnection, ValueState, ValueUpdate} from "../../common/connect/ClientConnection";
 import {FunctionDesc, PropDesc} from "../../common/block/Descriptor";
 import {translateProperty} from "../../common/util/i18n";
@@ -188,6 +188,16 @@ export class PropertyEditor extends MultiSelectComponent<Props, State, PropertyL
       }
       let locked = (hasBinding || !valueSame);
       let showLockIcon = locked && !propDesc.readonly;
+      let locktooltip: string;
+      if (showLockIcon) {
+        if (unlocked) {
+          locktooltip = 'Unlocked for editing\nDouble click to lock';
+        } else if (hasBinding) {
+          locktooltip = 'Editing blocked by binding\nDouble click to edit';
+        } else if (!valueSame) {
+          locktooltip = 'Multiple values\nDouble click to edit';
+        }
+      }
 
       let editor: React.ReactNode;
       let EditorClass = typeEditorMap[propDesc.type];
@@ -205,8 +215,10 @@ export class PropertyEditor extends MultiSelectComponent<Props, State, PropertyL
             {translateProperty(funcDesc.name, name, funcDesc.ns)}
           </div>
           {showLockIcon ?
-            <Button shape='circle' icon={unlocked ? 'edit' : 'lock'}
-                    onDoubleClick={this.unlock}> </Button>
+            <Tooltip title={locktooltip} overlayClassName='ticl-tooltip'>
+              <Button shape='circle' tabIndex={-1} icon={unlocked ? 'edit' : 'lock'}
+                      onDoubleClick={this.unlock}> </Button>
+            </Tooltip>
             : null}
           <div className='ticl-property-value'>
             {editor}
