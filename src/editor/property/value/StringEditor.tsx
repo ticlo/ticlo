@@ -50,6 +50,8 @@ export class StringEditor extends React.PureComponent<ValueEditorProps, any> {
       this._pendingTyping = false;
       if (this._pendingValue != null) {
         this.commitChange(this._pendingValue);
+      } else {
+        this.commitChange(this.props.value);
       }
       e.preventDefault();
       return;

@@ -2,6 +2,7 @@ import * as React from "react";
 import {InputNumber} from "antd";
 import {PropDesc} from "../../../common/block/Descriptor";
 import {ValueEditorProps} from "./ValueEditor";
+import {FocusEvent} from "react";
 
 export class NumberEditor extends React.PureComponent<ValueEditorProps, any> {
 
@@ -35,7 +36,7 @@ export class NumberEditor extends React.PureComponent<ValueEditorProps, any> {
     }
   };
 
-  checkAndCommit = () => {
+  checkAndCommit = (e?: FocusEvent) => {
     let pendingValue = this._pendingValue;
     if (pendingValue === pendingValue) {
       if (typeof pendingValue === 'string') {
@@ -47,6 +48,9 @@ export class NumberEditor extends React.PureComponent<ValueEditorProps, any> {
         this._pendingValue = NaN;
         this.forceUpdate();
       }
+    } else if (!e) {
+      // when it's not blur event
+      this.commitChange(this.props.value);
     }
   };
 
