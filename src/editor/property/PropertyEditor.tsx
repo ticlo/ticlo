@@ -179,9 +179,9 @@ export class PropertyEditor extends MultiSelectComponent<Props, State, PropertyL
 
       let inBoundClass;
       if (subBlock) {
-        inBoundClass = 'ticl-slot ticl-inbound';
+       // inBoundClass = 'ticl-prop-inbound';
       } else if (hasBinding) {
-        inBoundClass = 'ticl-slot ticl-inbound';
+        inBoundClass = 'ticl-prop-inbound';
         if (!bindingSame) {
           bindingPath = '???';
         }

@@ -32,7 +32,7 @@ export const sampleData = {
   },
   multiply: {
     '#is': 'multiply',
-    '~0': '##.subtract.output',
+    '~0': {'#is': 'add', '0': 1, '1': 3},
     '~1': {
       '#is': 'multiply',
       '~0': {
