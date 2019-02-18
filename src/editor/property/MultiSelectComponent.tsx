@@ -24,7 +24,7 @@ export abstract class MultiSelectLoader<T extends MultiSelectComponent<any, any,
 
 export abstract class MultiSelectComponent<P extends Props, S,
   Loader extends MultiSelectLoader<MultiSelectComponent<P, S, Loader>>>
-  extends React.Component<P, S> {
+  extends React.PureComponent<P, S> {
 
   loaders: Map<string, Loader> = new Map<string, Loader>();
 

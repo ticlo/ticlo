@@ -75,7 +75,8 @@ export class PropertyEditor extends MultiSelectComponent<Props, State, PropertyL
     this.updateLoaders(props.keys, PropertyLoader);
   }
 
-  // map parent keys to children keys
+  // map parent keys to subblock keys
+  // this needs to be cached to optimize children rendering
   subBlockKeys: string[];
 
   buildSubBlockKeys(props: Props) {
@@ -98,9 +99,9 @@ export class PropertyEditor extends MultiSelectComponent<Props, State, PropertyL
   };
 
   onChange = (value: any) => {
-    let {conn} = this.props;
-    for (let key of this.subBlockKeys) {
-      conn.setValue(key, value);
+    let {conn, keys, name} = this.props;
+    for (let key of keys) {
+      conn.setValue(`${key}.${name}`, value);
     }
   };
 
@@ -220,7 +221,7 @@ export class PropertyEditor extends MultiSelectComponent<Props, State, PropertyL
         } else if (hasBinding) {
           locktooltip = 'Editing blocked by binding\nDouble click to edit';
         } else if (!valueSame) {
-          locktooltip = 'Multiple values\nDouble click to edit';
+          locktooltip = 'Inconsistent values\nDouble click to edit';
         }
       }
 
