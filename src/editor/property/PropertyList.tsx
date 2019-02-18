@@ -210,7 +210,7 @@ export class PropertyList extends MultiSelectComponent<Props, State, BlockLoader
         }
       }
       return (
-        <div style={style}>
+        <div className='ticl-property-list' style={style}>
           <PropertyEditor name='#is' keys={keys} conn={conn}
                           funcDesc={funcDesc} propDesc={configDescs['#is']}/>
           <div className='ticl-property-divider'>

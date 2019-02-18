@@ -12,6 +12,9 @@ import {SelectEditor} from "./value/SelectEditor";
 import {DragStore} from "../../ui/util/DragStore";
 import equal from "fast-deep-equal";
 import {PasswordEditor} from "./value/PasswordEditor";
+import {ExpandIcon} from "../../ui/component/Tree";
+import {PropertyList} from "./PropertyList";
+import {arrayEqual} from "../../common/util/Compare";
 
 const typeEditorMap: {[key: string]: any} = {
   'number': NumberEditor,
@@ -60,24 +63,44 @@ interface Props {
 
 interface State {
   unlocked: boolean;
+  showSubBlock: boolean;
 }
 
 export class PropertyEditor extends MultiSelectComponent<Props, State, PropertyLoader> {
 
   constructor(props: Readonly<Props>) {
     super(props);
-    this.state = {unlocked: false};
+
+    this.state = {unlocked: false, showSubBlock: false};
     this.updateLoaders(props.keys, PropertyLoader);
   }
+
+  // map parent keys to children keys
+  subBlockKeys: string[];
+
+  buildSubBlockKeys(props: Props) {
+    let {name, keys} = props;
+    this.subBlockKeys = keys.map((s: string) => `${s}.~${name}`);
+  }
+
+  UNSAFE_componentWillReceiveProps(nextProps: Props) {
+    if (this.subBlockKeys && !arrayEqual(nextProps.keys, this.props.keys)) {
+      this.buildSubBlockKeys(nextProps);
+    }
+  }
+
 
   unlock = (e: any) => {
     this.setState({unlocked: !this.state.unlocked});
   };
+  expandSubBlock = (e: any) => {
+    this.setState({showSubBlock: !this.state.showSubBlock});
+  };
 
   onChange = (value: any) => {
-    let {keys, name, conn} = this.props;
-    for (let key of keys) {
-      conn.setValue(`${key}.${name}`, value);
+    let {conn} = this.props;
+    for (let key of this.subBlockKeys) {
+      conn.setValue(key, value);
     }
   };
 
@@ -135,8 +158,8 @@ export class PropertyEditor extends MultiSelectComponent<Props, State, PropertyL
   };
 
   renderImpl() {
-    let {keys, funcDesc, propDesc, name} = this.props;
-    let {unlocked} = this.state;
+    let {conn, keys, funcDesc, propDesc, name} = this.props;
+    let {unlocked, showSubBlock} = this.state;
 
     this.updateLoaders(keys, PropertyLoader);
 
@@ -179,17 +202,19 @@ export class PropertyEditor extends MultiSelectComponent<Props, State, PropertyL
 
       let inBoundClass;
       if (subBlock) {
-       // inBoundClass = 'ticl-prop-inbound';
+        // inBoundClass = 'ticl-prop-inbound';
       } else if (hasBinding) {
         inBoundClass = 'ticl-prop-inbound';
         if (!bindingSame) {
           bindingPath = '???';
         }
       }
+
+      // lock icon
       let locked = (hasBinding || !valueSame);
-      let showLockIcon = locked && !propDesc.readonly;
+      let renderLockIcon = locked && !propDesc.readonly;
       let locktooltip: string;
-      if (showLockIcon) {
+      if (renderLockIcon) {
         if (unlocked) {
           locktooltip = 'Unlocked for editing\nDouble click to lock';
         } else if (hasBinding) {
@@ -198,6 +223,13 @@ export class PropertyEditor extends MultiSelectComponent<Props, State, PropertyL
           locktooltip = 'Multiple values\nDouble click to edit';
         }
       }
+
+      // expand icon
+      let renderSubBlock = subBlock && showSubBlock;
+      if (renderSubBlock && !this.subBlockKeys) {
+        this.buildSubBlockKeys(this.props);
+      }
+
 
       let editor: React.ReactNode;
       let EditorClass = typeEditorMap[propDesc.type];
@@ -214,15 +246,24 @@ export class PropertyEditor extends MultiSelectComponent<Props, State, PropertyL
                onDragOver={this.onDragOver} onDrop={this.onDrop} onDragEnd={this.onDragEnd}>
             {translateProperty(funcDesc.name, name, funcDesc.ns)}
           </div>
-          {showLockIcon ?
+          {renderLockIcon ?
             <Tooltip title={locktooltip} overlayClassName='ticl-tooltip'>
               <Button shape='circle' tabIndex={-1} icon={unlocked ? 'edit' : 'lock'}
                       onDoubleClick={this.unlock}> </Button>
             </Tooltip>
             : null}
+          {subBlock ?
+            <ExpandIcon opened={showSubBlock ? 'opened' : 'closed'} onClick={this.expandSubBlock}/>
+            : null
+          }
           <div className='ticl-property-value'>
             {editor}
           </div>
+          {
+            renderSubBlock ?
+              <PropertyList conn={conn} keys={this.subBlockKeys}/>
+              : null
+          }
         </div>
       );
     }
