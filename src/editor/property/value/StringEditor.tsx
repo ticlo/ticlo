@@ -16,8 +16,6 @@ export class StringEditor extends React.PureComponent<ValueEditorProps, any> {
   }
 
   onValueChange = (e: React.SyntheticEvent) => {
-    console.log(e);
-    console.log(e.nativeEvent);
     let value = (e.nativeEvent.target as HTMLTextAreaElement).value;
     if (this._pendingTyping) {
       if (value !== this.props.value || this._pendingValue != null) {

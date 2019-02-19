@@ -1,7 +1,14 @@
 import React from "react";
 import {ClientConnection, ValueUpdate} from "../../common/connect/ClientConnection";
 import {DataMap} from "../../common/util/Types";
-import {configDescs, configList, FunctionDesc, PropDesc, PropGroupDesc} from "../../common/block/Descriptor";
+import {
+  blankFuncDesc,
+  configDescs,
+  configList,
+  FunctionDesc,
+  PropDesc,
+  PropGroupDesc
+} from "../../common/block/Descriptor";
 import {PropertyEditor} from "./PropertyEditor";
 import {GroupEditor} from "./GroupEditor";
 import {MultiSelectComponent, MultiSelectLoader} from "./MultiSelectComponent";
@@ -126,17 +133,19 @@ class PropertyDefMerger {
 
   render(keys: string[], conn: ClientConnection, funcDesc: FunctionDesc) {
     let children: React.ReactNode[] = [];
-    for (let [name, prop] of this.map) {
-      if (prop.hasOwnProperty('group')) {
-        children.push(
-          <GroupEditor key={name} keys={keys} conn={conn}
-                       funcDesc={funcDesc} groupDesc={prop as PropGroupDesc}/>
-        );
-      } else if ((prop as PropDesc).name) {
-        children.push(
-          <PropertyEditor key={name} name={name} keys={keys} conn={conn}
-                          funcDesc={funcDesc} propDesc={prop as PropDesc}/>
-        );
+    if (this.map) {
+      for (let [name, prop] of this.map) {
+        if (prop.hasOwnProperty('group')) {
+          children.push(
+            <GroupEditor key={name} keys={keys} conn={conn}
+                         funcDesc={funcDesc} groupDesc={prop as PropGroupDesc}/>
+          );
+        } else if ((prop as PropDesc).name) {
+          children.push(
+            <PropertyEditor key={name} name={name} keys={keys} conn={conn}
+                            funcDesc={funcDesc} propDesc={prop as PropDesc}/>
+          );
+        }
       }
     }
     return children;
@@ -180,73 +189,73 @@ export class PropertyList extends MultiSelectComponent<Props, State, BlockLoader
         break;
       }
     }
-    if (propMerger.map) {
-      let funcDesc: FunctionDesc = this.loaders.entries().next().value[1].desc;
-      let children = propMerger.render(keys, conn, funcDesc);
-
-      // merge #more properties
-      for (let [key, subscriber] of this.loaders) {
-        if (subscriber.more) {
-          moreMerger.add(subscriber.more);
-        } else {
-          // properties not ready
-          moreMerger.map = null;
-          break;
-        }
-      }
-      let moreChildren: React.ReactNode[];
-      if (moreMerger.isNotEmpty() && showMore) {
-        moreChildren = moreMerger.render(keys, conn, funcDesc);
-      }
-
-      let configChildren: React.ReactNode[];
-      if (showConfig) {
-        configChildren = [];
-        for (let configDesc of configList) {
-          configChildren.push(
-            <PropertyEditor key={configDesc.name} name={configDesc.name} keys={keys} conn={conn}
-                            funcDesc={funcDesc} propDesc={configDesc}/>
-          );
-        }
-      }
-      return (
-        <div className='ticl-property-list' style={style}>
-          <PropertyEditor name='#is' keys={keys} conn={conn}
-                          funcDesc={funcDesc} propDesc={configDescs['#is']}/>
-          <div className='ticl-property-divider'>
-            <div className='ticl-h-line'/>
-          </div>
-
-          {children}
-
-          <div className='ticl-property-divider'>
-            <div className='ticl-h-line' style={{maxWidth: '16px'}}/>
-            <ExpandIcon opened={showConfig ? 'opened' : 'closed'} onClick={this.onShowConfigClick}/>
-            <span>cofig</span>
-            <div className='ticl-h-line'/>
-          </div>
-          {configChildren}
-
-          <div className='ticl-property-divider'>
-            <div className='ticl-h-line' style={{maxWidth: '16px'}}/>
-            {
-              moreMerger.isNotEmpty() ?
-                <ExpandIcon opened={showMore ? 'opened' : 'closed'} onClick={this.onShowMoreClick}/>
-                :
-                null
-            }
-            <span>more</span>
-            <div className='ticl-h-line'/>
-            {null}
-            <div className='ticl-h-line' style={{maxWidth: '16px'}}/>
-          </div>
-          {moreChildren}
-
-        </div>
-      );
-    } else {
-      return <div style={style}/>;
+    let funcDesc: FunctionDesc = this.loaders.entries().next().value[1].desc;
+    if (!funcDesc) {
+      funcDesc = blankFuncDesc;
     }
+    let children = propMerger.render(keys, conn, funcDesc);
+
+    // merge #more properties
+    for (let [key, subscriber] of this.loaders) {
+      if (subscriber.more) {
+        moreMerger.add(subscriber.more);
+      } else {
+        // properties not ready
+        moreMerger.map = null;
+        break;
+      }
+    }
+    let moreChildren: React.ReactNode[];
+    if (moreMerger.isNotEmpty() && showMore) {
+      moreChildren = moreMerger.render(keys, conn, funcDesc);
+    }
+
+    let configChildren: React.ReactNode[];
+    if (showConfig) {
+      configChildren = [];
+      for (let configDesc of configList) {
+        configChildren.push(
+          <PropertyEditor key={configDesc.name} name={configDesc.name} keys={keys} conn={conn}
+                          funcDesc={funcDesc} propDesc={configDesc}/>
+        );
+      }
+    }
+    return (
+      <div className='ticl-property-list' style={style}>
+        <PropertyEditor name='#is' keys={keys} conn={conn}
+                        funcDesc={funcDesc} propDesc={configDescs['#is']}/>
+        <div className='ticl-property-divider'>
+          <div className='ticl-h-line'/>
+        </div>
+
+        {children}
+
+        <div className='ticl-property-divider'>
+          <div className='ticl-h-line' style={{maxWidth: '16px'}}/>
+          <ExpandIcon opened={showConfig ? 'opened' : 'closed'} onClick={this.onShowConfigClick}/>
+          <span>cofig</span>
+          <div className='ticl-h-line'/>
+        </div>
+        {configChildren}
+
+        <div className='ticl-property-divider'>
+          <div className='ticl-h-line' style={{maxWidth: '16px'}}/>
+          {
+            moreMerger.isNotEmpty() ?
+              <ExpandIcon opened={showMore ? 'opened' : 'closed'} onClick={this.onShowMoreClick}/>
+              :
+              null
+          }
+          <span>more</span>
+          <div className='ticl-h-line'/>
+          {null}
+          <div className='ticl-h-line' style={{maxWidth: '16px'}}/>
+        </div>
+        {moreChildren}
+
+      </div>
+    );
+
 
   }
 }
