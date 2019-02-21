@@ -52,7 +52,7 @@ class BlockLoader extends MultiSelectLoader<PropertyList> {
 
   destroy() {
     this.conn.unsubscribe(`${this.key}.#is`, this.isListener);
-    this.conn.unsubscribe(`${this.key}.@b-more`, this.moreListener);
+    this.conn.unsubscribe(`${this.key}.#more`, this.moreListener);
   }
 }
 
