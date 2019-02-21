@@ -15,6 +15,7 @@ import {PasswordEditor} from "./value/PasswordEditor";
 import {ExpandIcon} from "../../ui/component/Tree";
 import {PropertyList} from "./PropertyList";
 import {arrayEqual} from "../../common/util/Compare";
+import {BlockDisplay} from "../../common/block/BlockDisplay";
 
 const {SubMenu} = Menu;
 
@@ -27,19 +28,20 @@ const typeEditorMap: {[key: string]: any} = {
 };
 
 class PropertyLoader extends MultiSelectLoader<PropertyEditor> {
-  valueKey: string;
   name: string;
+  bDisplay: BlockDisplay;
 
   constructor(key: string, parent: PropertyEditor) {
     super(key, parent);
     this.name = parent.props.name;
-    this.valueKey = `${key}.${this.name}`;
-    this.conn.subscribe(this.valueKey, this.listener);
+    this.conn.subscribe(`${key}.${this.name}`, this.valueListener);
+    this.conn.subscribe(`${key}.@b-p`, this.displayListener);
+
   }
 
   cache: ValueState;
   subBlock = false;
-  listener = {
+  valueListener = {
     onUpdate: (response: ValueUpdate) => {
       this.cache = response.cache;
       if (response.change.hasOwnProperty('value') || response.change.hasOwnProperty('bindingPath')) {
@@ -48,9 +50,17 @@ class PropertyLoader extends MultiSelectLoader<PropertyEditor> {
       }
     }
   };
+  displayListener = {
+    onUpdate: (response: ValueUpdate) => {
+      if (!equal(response.cache.value, this.bDisplay)) {
+        this.bDisplay = response.cache.value;
+        this.parent.safeForceUpdate();
+      }
+    }
+  };
 
   destroy() {
-    this.conn.unsubscribe(this.valueKey, this.listener);
+    this.conn.unsubscribe(`${this.key}.${this.name}`, this.valueListener);
   }
 
 }
@@ -76,6 +86,8 @@ interface PropertyState {
   hasBinding: boolean;
   bindingSame: boolean;
   subBlock: boolean;
+  display: boolean;
+  displaySame: boolean;
 }
 
 const notReadyState = {
@@ -84,6 +96,8 @@ const notReadyState = {
   hasBinding: false,
   bindingSame: false,
   subBlock: false,
+  display: false,
+  displaySame: false,
 };
 
 export class PropertyEditor extends MultiSelectComponent<Props, State, PropertyLoader> {
@@ -192,6 +206,8 @@ export class PropertyEditor extends MultiSelectComponent<Props, State, PropertyL
       return notReadyState;
     }
 
+    let {name} = this.props;
+
     let count = this.loaders.size;
     let value = firstCache.value;
     let valueSame = true;
@@ -199,6 +215,8 @@ export class PropertyEditor extends MultiSelectComponent<Props, State, PropertyL
     let hasBinding = (firstCache.bindingPath != null);
     let bindingSame = true;
     let subBlock = firstLoader.subBlock;
+    let display = firstLoader.bDisplay.display.includes(name);
+    let displaySame = true;
 
     for (let [key, loader] of it) {
       let cache = loader.cache;
@@ -217,8 +235,11 @@ export class PropertyEditor extends MultiSelectComponent<Props, State, PropertyL
       if (!loader.subBlock) {
         subBlock = false;
       }
+      if (displaySame && loader.bDisplay.display.includes(name) !== display) {
+        displaySame = false;
+      }
     }
-    return {count, value, valueSame, bindingPath, hasBinding, bindingSame, subBlock};
+    return {count, value, valueSame, bindingPath, hasBinding, bindingSame, subBlock, display, displaySame};
   }
 
   getMenu = () => {
