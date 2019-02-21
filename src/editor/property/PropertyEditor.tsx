@@ -15,7 +15,6 @@ import {PasswordEditor} from "./value/PasswordEditor";
 import {ExpandIcon} from "../../ui/component/Tree";
 import {PropertyList} from "./PropertyList";
 import {arrayEqual} from "../../common/util/Compare";
-import {BlockDisplay} from "../../common/block/BlockDisplay";
 
 const {SubMenu} = Menu;
 
@@ -29,7 +28,7 @@ const typeEditorMap: {[key: string]: any} = {
 
 class PropertyLoader extends MultiSelectLoader<PropertyEditor> {
   name: string;
-  bDisplay: BlockDisplay;
+  bProperties: string[] = [];
 
   constructor(key: string, parent: PropertyEditor) {
     super(key, parent);
@@ -52,8 +51,12 @@ class PropertyLoader extends MultiSelectLoader<PropertyEditor> {
   };
   displayListener = {
     onUpdate: (response: ValueUpdate) => {
-      if (!equal(response.cache.value, this.bDisplay)) {
-        this.bDisplay = response.cache.value;
+      let value = response.cache.value;
+      if (!Array.isArray(value)) {
+        value = [];
+      }
+      if (!equal(value, this.bProperties)) {
+        this.bProperties = value;
         this.parent.safeForceUpdate();
       }
     }
@@ -215,7 +218,7 @@ export class PropertyEditor extends MultiSelectComponent<Props, State, PropertyL
     let hasBinding = (firstCache.bindingPath != null);
     let bindingSame = true;
     let subBlock = firstLoader.subBlock;
-    let display = firstLoader.bDisplay.display.includes(name);
+    let display = firstLoader.bProperties.includes(name);
     let displaySame = true;
 
     for (let [key, loader] of it) {
@@ -235,7 +238,7 @@ export class PropertyEditor extends MultiSelectComponent<Props, State, PropertyL
       if (!loader.subBlock) {
         subBlock = false;
       }
-      if (displaySame && loader.bDisplay.display.includes(name) !== display) {
+      if (displaySame && loader.bProperties.includes(name) !== display) {
         displaySame = false;
       }
     }
@@ -269,7 +272,7 @@ export class PropertyEditor extends MultiSelectComponent<Props, State, PropertyL
 
     let onChange = propDesc.readonly ? null : this.onChange;
 
-    let {count, value, valueSame, bindingPath, hasBinding, bindingSame, subBlock} = this.getPropertyState();
+    let {count, value, valueSame, bindingPath, hasBinding, bindingSame, subBlock, display} = this.getPropertyState();
     if (count === 0) {
       // not ready yet
       return <div className='ticl-property'/>;
@@ -278,10 +281,12 @@ export class PropertyEditor extends MultiSelectComponent<Props, State, PropertyL
     if (subBlock) {
       // inBoundClass = 'ticl-prop-inbound';
     } else if (hasBinding) {
-      inBoundClass = 'ticl-prop-inbound';
+      inBoundClass = 'ticl-property-inbound';
       if (!bindingSame) {
         bindingPath = '???';
       }
+    } else if (!propDesc.readonly) {
+      inBoundClass = 'ticl-property-input';
     }
 
     // lock icon
@@ -312,12 +317,12 @@ export class PropertyEditor extends MultiSelectComponent<Props, State, PropertyL
         <EditorClass value={value} desc={propDesc} locked={locked && !unlocked} onChange={onChange}/>;
     }
 
+    let nameClass = `ticl-property-name${propDesc.readonly ? ' ticl-property-readonly' : ''}${display ? ' ticl-property-display' : ''}`;
     return (
       <div className='ticl-property'>
         {inBoundClass ? <div className={inBoundClass} title={bindingPath}/> : null}
         <Dropdown overlay={this.getMenu} trigger={['contextMenu']}>
-          <div className={`ticl-property-name${propDesc.readonly ? ' ticl-property-readonly' : ''}`}
-               draggable={true} onDragStart={this.onDragStart}
+          <div className={nameClass} draggable={true} onDragStart={this.onDragStart}
                onDragOver={this.onDragOver} onDrop={this.onDrop} onDragEnd={this.onDragEnd}>
             {translateProperty(funcDesc.name, name, funcDesc.ns)}
           </div>

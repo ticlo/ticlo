@@ -43,9 +43,21 @@
   }
 }
 
-.ticl-prop-inbound {
+.ticl-property-input {
   position: absolute;
-  right: calc(100% - 5px);
+  left: -2px;
+  border-radius: 2px;
+  width: 4px;
+  height: 4px;
+  top: 10px;
+  background: #ccc;
+  overflow: hidden;
+  transition-duration: .2s;
+}
+
+.ticl-property-inbound {
+  position: absolute;
+  left: -5px;
   border-radius: 5px;
   width: 10px;
   height: 10px;
@@ -53,7 +65,6 @@
   border: 1px solid @ticl-color-pr0;
   background: #f8f8f8;
   overflow: hidden;
-  transition-property: border-color, height, top;
   transition-duration: .2s;
 }
 
@@ -63,10 +74,6 @@
   flex: 32 1 32px;
   max-width: 50%;
   margin-left: 2px;
-}
-
-.ticl-property-readonly {
-  color: @disabled-color;
 }
 
 .ticl-property-value {
