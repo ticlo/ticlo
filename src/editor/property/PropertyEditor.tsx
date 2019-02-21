@@ -224,9 +224,11 @@ export class PropertyEditor extends MultiSelectComponent<Props, State, PropertyL
   getMenu = () => {
     let {count, value, valueSame, bindingPath, hasBinding, bindingSame, subBlock} = this.getPropertyState();
     return (
-      <Menu prefixCls="ant-dropdown-menu" selectable={false}>
+      <Menu selectable={false} className='ticl-dropdown-menu'>
         <SubMenu title="Add Sub Block">
-          <Input size='small'/>
+          <Menu.Item>
+            <Input size='small'/>
+          </Menu.Item>
         </SubMenu>
         {hasBinding ?
           <Menu.Item onClick={this.onUnbindClick}>

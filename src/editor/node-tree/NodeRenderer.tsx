@@ -173,7 +173,7 @@ export class NodeTreeRenderer extends PureDataRenderer<Props, any> {
     <div className="fas fa-search ticl-icon"/>
    */
   getMenu = () => (
-    <Menu prefixCls="ant-dropdown-menu" selectable={false}>
+    <Menu selectable={false}>
       <Menu.Item onClick={this.onReloadClicked}>
         <Icon type="reload"/>
         Reload
