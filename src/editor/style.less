@@ -33,11 +33,20 @@
 
 // fix component styles
 .ant-switch {
+  // by default it use disabled color, which is too dark
   background-color: rgba(0, 0, 0, 0.25);
   &-checked {
     background-color: @switch-color;
   }
   &:after{
+    // make it move faster
     transition: all 0.2s ease-in-out;
   }
+}
+
+.ant-dropdown-menu {
+  // make the border clearer
+  box-shadow: 0 0.5px 3px 1px rgba(0, 0, 0, 0.15);
+  // smaller radius
+  border-radius: 0 2px 2px;
 }
