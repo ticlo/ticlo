@@ -15,6 +15,8 @@ import {PasswordEditor} from "./value/PasswordEditor";
 import {ExpandIcon} from "../../ui/component/Tree";
 import {PropertyList} from "./PropertyList";
 import {arrayEqual} from "../../common/util/Compare";
+import {ClickParam} from "antd/lib/menu";
+import {stopPropagation} from "../../common/util/Functions";
 
 const {SubMenu} = Menu;
 
@@ -79,6 +81,7 @@ interface Props {
 interface State {
   unlocked: boolean;
   showSubBlock: boolean;
+  showMenu: boolean;
 }
 
 interface PropertyState {
@@ -108,7 +111,7 @@ export class PropertyEditor extends MultiSelectComponent<Props, State, PropertyL
   constructor(props: Readonly<Props>) {
     super(props);
 
-    this.state = {unlocked: false, showSubBlock: false};
+    this.state = {unlocked: false, showSubBlock: false, showMenu: false};
     this.updateLoaders(props.keys, PropertyLoader);
   }
 
@@ -141,12 +144,7 @@ export class PropertyEditor extends MultiSelectComponent<Props, State, PropertyL
       conn.setValue(`${key}.${name}`, value);
     }
   };
-  onUnbindClick = (e: any) => {
-    let {conn, keys, name} = this.props;
-    for (let key of keys) {
-      conn.setBinding(`${key}.${name}`, undefined);
-    }
-  };
+
 
   onDragStart = (event: React.DragEvent) => {
     let {conn, keys, name} = this.props;
@@ -238,20 +236,25 @@ export class PropertyEditor extends MultiSelectComponent<Props, State, PropertyL
       if (!loader.subBlock) {
         subBlock = false;
       }
-      if (displaySame && loader.bProperties.includes(name) !== display) {
+      let thisDisplay = loader.bProperties.includes(name) !== display;
+      if (thisDisplay !== display) {
         displaySame = false;
+        if (thisDisplay) {
+          display = true;
+        }
       }
     }
     return {count, value, valueSame, bindingPath, hasBinding, bindingSame, subBlock, display, displaySame};
   }
 
   getMenu = () => {
+
     let {count, value, valueSame, bindingPath, hasBinding, bindingSame, subBlock} = this.getPropertyState();
     return (
-      <Menu selectable={false} className='ticl-dropdown-menu'>
+      <Menu selectable={false} className='ticl-dropdown-menu' onClick={this.onMenuClick}>
         <SubMenu title="Add Sub Block">
           <Menu.Item>
-            <Input size='small'/>
+            <Input size='small' onClick={stopPropagation} onPressEnter={this.onAddSubBlock}/>
           </Menu.Item>
         </SubMenu>
         {hasBinding ?
@@ -264,9 +267,34 @@ export class PropertyEditor extends MultiSelectComponent<Props, State, PropertyL
     );
   };
 
+  closeMenu() {
+    this.setState({showMenu: false});
+  }
+
+  onMenuClick = (param: ClickParam) => {
+
+  };
+
+  onMenuVisibleChange = (flag: boolean) => {
+    this.setState({showMenu: flag});
+  };
+  onUnbindClick = (e: any) => {
+    let {conn, keys, name} = this.props;
+    for (let key of keys) {
+      conn.setBinding(`${key}.${name}`, undefined);
+    }
+    this.closeMenu();
+  };
+  onAddSubBlock = (e: React.KeyboardEvent) => {
+    let str = (e.nativeEvent.target as HTMLInputElement).value;
+    if (str) {
+      this.closeMenu();
+    }
+  };
+
   renderImpl() {
     let {conn, keys, funcDesc, propDesc, name} = this.props;
-    let {unlocked, showSubBlock} = this.state;
+    let {unlocked, showSubBlock, showMenu} = this.state;
 
     this.updateLoaders(keys, PropertyLoader);
 
@@ -321,7 +349,8 @@ export class PropertyEditor extends MultiSelectComponent<Props, State, PropertyL
     return (
       <div className='ticl-property'>
         {inBoundClass ? <div className={inBoundClass} title={bindingPath}/> : null}
-        <Dropdown overlay={this.getMenu} trigger={['contextMenu']}>
+        <Dropdown overlay={this.getMenu} trigger={['contextMenu']} visible={showMenu}
+                  onVisibleChange={this.onMenuVisibleChange}>
           <div className={nameClass} draggable={true} onDragStart={this.onDragStart}
                onDragOver={this.onDragOver} onDrop={this.onDrop} onDragEnd={this.onDragEnd}>
             {translateProperty(funcDesc.name, name, funcDesc.ns)}
