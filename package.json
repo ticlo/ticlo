@@ -39,16 +39,16 @@
     "karma-typescript": "^4.0.0",
     "lcov-result-merger": "^3.1.0",
     "less": "^3.9.0",
-    "mocha": "^6.0.0",
+    "mocha": "^6.0.1",
     "nyc": "^13.1.0",
     "parcel-bundler": "^1.10.3",
-    "react": "^16.7.0",
-    "react-dom": "^16.8.2",
+    "react": "^16.8.3",
+    "react-dom": "^16.8.3",
     "simulate-event": "git+https://github.com/ticlo/simulate-event.git",
     "ts-node": "^8.0.2",
     "tslint": "^5.11.0",
     "tslint-react": "^3.6.0",
-    "typescript": "^3.3.3"
+    "typescript": "^3.3.3333"
   },
   "scripts": {
     "nyc-cache": "nyc -s --nycrc-path cache.nycrc mocha src/common/**/*.spec.ts && mkdir coverage",
