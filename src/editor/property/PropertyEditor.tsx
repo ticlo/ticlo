@@ -259,8 +259,8 @@ export class PropertyEditor extends MultiSelectComponent<Props, State, PropertyL
             <div className='ticl-hbox'>
               <span style={{flex: '0 1 100%'}}>Binding:</span>
               {bindingPath ?
-                <Button className='ticl-icon-btn' shape='circle' size='small' icon="delete" tooltip='Unbind'
-                onClick={this.onUnbindClick}/>
+                <Button className='ticl-icon-btn' shape='circle' size='small' icon="delete"
+                        onClick={this.onUnbindClick}/>
                 : null}
             </div>
             <div className='ticl-hbox'>
