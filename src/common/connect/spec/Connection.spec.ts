@@ -17,8 +17,7 @@ describe("Connection", function () {
     let job = Root.instance.addJob('Connection1');
     let [server, client] = makeLocalConnection(Root.instance, false);
 
-    client.createBlock('Connection1.block1');
-    await client.setValue('Connection1.block1.#is', 'add', true);
+    await client.createBlock('Connection1.block1', {'#is': 'add'});
     assert.equal(job.queryValue("block1.#is"), 'add', 'basic set');
 
     let callbacks = new AsyncClientPromise();

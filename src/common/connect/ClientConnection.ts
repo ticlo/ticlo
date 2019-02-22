@@ -435,8 +435,8 @@ export class ClientConnection extends Connection {
   }
 
 
-  createBlock(path: string, callbacks?: ClientCallbacks): Promise<any> | string {
-    return this.simpleRequest({cmd: 'create', path}, callbacks);
+  createBlock(path: string, data?: DataMap, callbacks?: ClientCallbacks): Promise<any> | string {
+    return this.simpleRequest({cmd: 'create', path, data}, callbacks);
   }
 
   listChildren(path: string, filter?: string, max: number = 16, callbacks?: ClientCallbacks): Promise<any> | string {

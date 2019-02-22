@@ -311,7 +311,7 @@ export class ServerConnection extends Connection {
             break;
           }
           case 'create' : {
-            result = this.createBlock(request.path);
+            result = this.createBlock(request.path, request.data);
             break;
           }
           case 'command' : {
@@ -421,7 +421,7 @@ export class ServerConnection extends Connection {
     }
   }
 
-  createBlock(path: string): string {
+  createBlock(path: string, data?: DataMap): string {
     let property = this.root.queryProperty(path, true);
     if (property) {
       property.setValue(undefined);
@@ -429,6 +429,9 @@ export class ServerConnection extends Connection {
         property._block.createHelperBlock(property._name.substring(1));
       } else {
         property._block.createBlock(property._name);
+      }
+      if (data && data.hasOwnProperty('#is')) {
+        (property._value as Block)._load(data);
       }
       return null;
     } else {
