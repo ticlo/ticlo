@@ -510,12 +510,19 @@ export class ClientConnection extends Connection {
     }
   }
 
-  watchDesc(id: string, listener: DescListener) {
-    this.descReq.listeners.set(listener, id);
-    if (this.descReq.cache.has(id)) {
-      listener(this.descReq.cache.get(id));
+  watchDesc(id: string, listener?: DescListener): FunctionDesc {
+    if (listener) {
+      this.descReq.listeners.set(listener, id);
+      if (this.descReq.cache.has(id)) {
+        listener(this.descReq.cache.get(id));
+      } else {
+        listener(null);
+      }
+      return null;
     } else {
-      listener(null);
+      if (this.descReq.cache.has(id)) {
+        return this.descReq.cache.get(id);
+      }
     }
   }
 

@@ -172,6 +172,8 @@ describe("Connection", function () {
     });
     await shouldHappen(() => descResult1 != null);
 
+    assert.isNotNull(client.watchDesc('add'));
+
     // try it again
     let descResult2: FunctionDesc;
     client.watchDesc('add', (desc: FunctionDesc) => {

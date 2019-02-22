@@ -1,7 +1,7 @@
 import React from "react";
 import {Button, Tooltip, Dropdown, Menu, Input} from "antd";
 import {ClientConnection, ValueState, ValueUpdate} from "../../common/connect/ClientConnection";
-import {blankPropDesc, FunctionDesc, PropDesc} from "../../common/block/Descriptor";
+import {blankPropDesc, FunctionDesc, PropDesc, PropGroupDesc} from "../../common/block/Descriptor";
 import {translateProperty} from "../../common/util/i18n";
 import {MultiSelectComponent, MultiSelectLoader} from "./MultiSelectComponent";
 import {GroupEditor} from "./GroupEditor";
@@ -304,6 +304,31 @@ export class PropertyEditor extends MultiSelectComponent<Props, State, PropertyL
   onAddSubBlock = (e: React.KeyboardEvent) => {
     let str = (e.nativeEvent.target as HTMLInputElement).value;
     if (str) {
+      let {conn, keys, name} = this.props;
+
+      let data: any = {'#is': str};
+
+      let desc = conn.watchDesc(str);
+      if (desc && desc.properties) {
+        let props = [];
+        for (let propDesc of desc.properties) {
+          if ((propDesc as PropDesc).visible === 'high') {
+            props.push((propDesc as PropDesc).name);
+          } else if ((propDesc as PropGroupDesc).properties) {
+            for (let i = 0; i < 2; ++i) {
+              for (let childDesc of (propDesc as PropGroupDesc).properties) {
+                if ((childDesc as PropDesc).visible === 'high') {
+                  props.push(`${(childDesc as PropDesc).name}${i}`);
+                }
+              }
+            }
+          }
+        }
+        data['@b-p'] = props;
+      }
+      for (let key of keys) {
+        conn.createBlock(`${key}.~${name}`, data);
+      }
       this.closeMenu();
     }
   };
