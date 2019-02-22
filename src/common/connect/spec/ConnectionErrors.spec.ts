@@ -35,11 +35,6 @@ describe("Connection Error", function () {
       client.createBlock('ConnectionError1.a.b.c') as Promise<any>
     ), 'invalid path');
 
-    await client.createBlock('ConnectionError1.b1');
-    assert.equal(await shouldReject(
-      client.createBlock('ConnectionError1.b1') as Promise<any>
-    ), 'block already exists');
-
     let callbacks = new AsyncClientPromise();
     client.watch('ConnectionError1.a.b.c', callbacks);
     assert.equal(await shouldReject(callbacks.promise), 'invalid path');

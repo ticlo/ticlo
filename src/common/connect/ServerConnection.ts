@@ -424,12 +424,10 @@ export class ServerConnection extends Connection {
   createBlock(path: string): string {
     let property = this.root.queryProperty(path, true);
     if (property) {
+      property.setValue(undefined);
       if (property instanceof HelperProperty) {
         property._block.createHelperBlock(property._name.substring(1));
       } else {
-        if (property._value instanceof Block && property._value._prop === property) {
-          return 'block already exists';
-        }
         property._block.createBlock(property._name);
       }
       return null;
