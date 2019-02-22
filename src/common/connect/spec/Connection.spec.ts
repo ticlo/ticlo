@@ -1,5 +1,5 @@
 import {assert} from "chai";
-import {Root} from "../../block/Block";
+import {Block, Root} from "../../block/Block";
 import {makeLocalConnection} from "../LocalConnection";
 import "../../functions/basic/Math";
 import {AsyncClientPromise} from "./AsyncClientPromise";
@@ -430,5 +430,19 @@ describe("Connection", function () {
 
     client.destroy();
     Root.instance.deleteValue('Connection11');
+  });
+
+  it('helper property', async function () {
+    let job1 = Root.instance.addJob('Connection12');
+
+    let [server, client] = makeLocalConnection(Root.instance, false);
+
+    await client.createBlock('Connection12.~a');
+
+    assert.instanceOf(job1.getValue('~a'), Block);
+    assert.equal(job1.getProperty('a')._bindingPath, '~a.output');
+
+    client.destroy();
+    Root.instance.deleteValue('Connection12');
   });
 });

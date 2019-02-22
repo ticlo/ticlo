@@ -1,5 +1,11 @@
 import {Connection, ConnectionSendingData, ConnectionSend} from "./Connection";
-import {BlockIO, BlockProperty, BlockPropertyEvent, BlockPropertySubscriber} from "../block/BlockProperty";
+import {
+  BlockIO,
+  BlockProperty,
+  BlockPropertyEvent,
+  BlockPropertySubscriber,
+  HelperProperty
+} from "../block/BlockProperty";
 import {DataMap, isSavedBlock, measureObjSize, truncateData} from "../util/Types";
 import {Root, Block, BlockBindingSource, BlockChildWatch} from "../block/Block";
 import {Dispatcher, Listener, ValueDispatcher} from "../block/Dispatcher";
@@ -418,10 +424,14 @@ export class ServerConnection extends Connection {
   createBlock(path: string): string {
     let property = this.root.queryProperty(path, true);
     if (property) {
-      if (property._value instanceof Block && property._value._prop === property) {
-        return 'block already exists';
+      if (property instanceof HelperProperty) {
+        property._block.createHelperBlock(property._name.substring(1));
+      } else {
+        if (property._value instanceof Block && property._value._prop === property) {
+          return 'block already exists';
+        }
+        property._block.createBlock(property._name);
       }
-      property._block.createBlock(property._name);
       return null;
     } else {
       return 'invalid path';
