@@ -1,7 +1,7 @@
 import React from "react";
 import {Button, Tooltip, Dropdown, Menu, Input} from "antd";
 import {ClientConnection, ValueState, ValueUpdate} from "../../common/connect/ClientConnection";
-import {FunctionDesc, PropDesc} from "../../common/block/Descriptor";
+import {blankPropDesc, FunctionDesc, PropDesc} from "../../common/block/Descriptor";
 import {translateProperty} from "../../common/util/i18n";
 import {MultiSelectComponent, MultiSelectLoader} from "./MultiSelectComponent";
 import {GroupEditor} from "./GroupEditor";
@@ -89,7 +89,6 @@ interface PropertyState {
   value?: any;
   valueSame: boolean;
   bindingPath?: string;
-  hasBinding: boolean;
   bindingSame: boolean;
   subBlock: boolean;
   display: boolean;
@@ -99,7 +98,6 @@ interface PropertyState {
 const notReadyState = {
   count: 0,
   valueSame: false,
-  hasBinding: false,
   bindingSame: false,
   subBlock: false,
   display: false,
@@ -213,7 +211,6 @@ export class PropertyEditor extends MultiSelectComponent<Props, State, PropertyL
     let value = firstCache.value;
     let valueSame = true;
     let bindingPath = firstCache.bindingPath;
-    let hasBinding = (firstCache.bindingPath != null);
     let bindingSame = true;
     let subBlock = firstLoader.subBlock;
     let display = firstLoader.bProperties.includes(name);
@@ -229,10 +226,11 @@ export class PropertyEditor extends MultiSelectComponent<Props, State, PropertyL
       }
       if (bindingPath !== cache.bindingPath) {
         bindingSame = false;
+        if (!bindingPath && cache.bindingPath) {
+          bindingPath = cache.bindingPath;
+        }
       }
-      if (cache.bindingPath != null) {
-        hasBinding = true;
-      }
+
       if (!loader.subBlock) {
         subBlock = false;
       }
@@ -244,27 +242,37 @@ export class PropertyEditor extends MultiSelectComponent<Props, State, PropertyL
         }
       }
     }
-    return {count, value, valueSame, bindingPath, hasBinding, bindingSame, subBlock, display, displaySame};
+    return {count, value, valueSame, bindingPath, bindingSame, subBlock, display, displaySame};
   }
 
   getMenu = () => {
-
-    let {count, value, valueSame, bindingPath, hasBinding, bindingSame, subBlock} = this.getPropertyState();
-    return (
-      <Menu selectable={false} className='ticl-dropdown-menu' onClick={this.onMenuClick}>
-        <SubMenu title="Add Sub Block">
+    let {count, value, valueSame, bindingPath, bindingSame, subBlock, display} = this.getPropertyState();
+    if (this.state.showMenu) {
+      return (
+        <Menu selectable={false} className='ticl-dropdown-menu' onClick={this.onMenuClick}>
+          <SubMenu title="Add Sub Block">
+            <Menu.Item>
+              <Input onClick={stopPropagation} size='small' onPressEnter={this.onAddSubBlock}/>
+            </Menu.Item>
+          </SubMenu>
           <Menu.Item>
-            <Input size='small' onClick={stopPropagation} onPressEnter={this.onAddSubBlock}/>
+            <div className='ticl-hbox'>
+              <span style={{flex: '0 1 100%'}}>Binding:</span>
+              {bindingPath ?
+                <Button className='ticl-icon-btn' shape='circle' size='small' icon="delete" tooltip='Unbind'
+                onClick={this.onUnbindClick}/>
+                : null}
+            </div>
+            <div className='ticl-hbox'>
+              <StringEditor value={bindingPath} desc={blankPropDesc} onChange={this.onBindChange}/>
+            </div>
           </Menu.Item>
-        </SubMenu>
-        {hasBinding ?
-          <Menu.Item onClick={this.onUnbindClick}>
-            Unbind
-          </Menu.Item>
-          : null
-        }
-      </Menu>
-    );
+        </Menu>
+      );
+    } else {
+      // need this to hide all the submebu
+      return <Menu selectable={false} className='ticl-dropdown-menu' onClick={this.onMenuClick}/>;
+    }
   };
 
   closeMenu() {
@@ -272,18 +280,26 @@ export class PropertyEditor extends MultiSelectComponent<Props, State, PropertyL
   }
 
   onMenuClick = (param: ClickParam) => {
-
+    //
   };
 
   onMenuVisibleChange = (flag: boolean) => {
     this.setState({showMenu: flag});
+  };
+  onBindChange = (str: string) => {
+    let {conn, keys, name} = this.props;
+    if (str === '') {
+      str = undefined;
+    }
+    for (let key of keys) {
+      conn.setBinding(`${key}.${name}`, str);
+    }
   };
   onUnbindClick = (e: any) => {
     let {conn, keys, name} = this.props;
     for (let key of keys) {
       conn.setBinding(`${key}.${name}`, undefined);
     }
-    this.closeMenu();
   };
   onAddSubBlock = (e: React.KeyboardEvent) => {
     let str = (e.nativeEvent.target as HTMLInputElement).value;
@@ -300,7 +316,7 @@ export class PropertyEditor extends MultiSelectComponent<Props, State, PropertyL
 
     let onChange = propDesc.readonly ? null : this.onChange;
 
-    let {count, value, valueSame, bindingPath, hasBinding, bindingSame, subBlock, display} = this.getPropertyState();
+    let {count, value, valueSame, bindingPath, bindingSame, subBlock, display} = this.getPropertyState();
     if (count === 0) {
       // not ready yet
       return <div className='ticl-property'/>;
@@ -308,7 +324,7 @@ export class PropertyEditor extends MultiSelectComponent<Props, State, PropertyL
     let inBoundClass;
     if (subBlock) {
       // inBoundClass = 'ticl-prop-inbound';
-    } else if (hasBinding) {
+    } else if (bindingPath) {
       inBoundClass = 'ticl-property-inbound';
       if (!bindingSame) {
         bindingPath = '???';
@@ -318,13 +334,13 @@ export class PropertyEditor extends MultiSelectComponent<Props, State, PropertyL
     }
 
     // lock icon
-    let locked = (hasBinding || !valueSame);
+    let locked = (bindingPath || !valueSame);
     let renderLockIcon = locked && !propDesc.readonly;
     let locktooltip: string;
     if (renderLockIcon) {
       if (unlocked) {
         locktooltip = 'Unlocked for editing\nDouble click to lock';
-      } else if (hasBinding) {
+      } else if (bindingPath) {
         locktooltip = 'Editing blocked by binding\nDouble click to edit';
       } else if (!valueSame) {
         locktooltip = 'Inconsistent values\nDouble click to edit';
@@ -358,7 +374,7 @@ export class PropertyEditor extends MultiSelectComponent<Props, State, PropertyL
         </Dropdown>
         {renderLockIcon ?
           <Tooltip title={locktooltip} overlayClassName='ticl-tooltip'>
-            <Button shape='circle' tabIndex={-1} icon={unlocked ? 'edit' : 'lock'}
+            <Button className='ticl-icon-btn' shape='circle' tabIndex={-1} icon={unlocked ? 'edit' : 'lock'}
                     onDoubleClick={this.unlock}> </Button>
           </Tooltip>
           : null}
