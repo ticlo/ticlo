@@ -13,6 +13,15 @@
             height: 100%;
         }
     </style>
+    <script>
+      // work around for parcel hot loader issue
+      // https://github.com/parcel-bundler/parcel/issues/1192
+      window.onerror = function (message, source, lineno, colno, error) {
+        if (message.includes('Maximum call stack size exceeded')) {
+          location.reload();
+        }
+      }
+    </script>
 </head>
 <body>
 <div id="app" style="height:100%"></div>
