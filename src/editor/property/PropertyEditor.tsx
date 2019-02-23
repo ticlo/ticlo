@@ -108,7 +108,6 @@ export class PropertyEditor extends MultiSelectComponent<Props, State, PropertyL
 
   constructor(props: Readonly<Props>) {
     super(props);
-
     this.state = {unlocked: false, showSubBlock: false, showMenu: false};
     this.updateLoaders(props.keys, PropertyLoader);
   }
@@ -377,7 +376,6 @@ export class PropertyEditor extends MultiSelectComponent<Props, State, PropertyL
     if (renderSubBlock && !this.subBlockKeys) {
       this.buildSubBlockKeys(this.props);
     }
-
 
     let editor: React.ReactNode;
     let EditorClass = typeEditorMap[propDesc.type];

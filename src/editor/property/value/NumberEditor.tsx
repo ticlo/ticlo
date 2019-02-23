@@ -108,10 +108,8 @@ export class NumberEditor extends React.PureComponent<ValueEditorProps, any> {
     }
   };
   onPlusClick = (e: any) => {
-
     let {desc} = this.props;
     let value = this.currentValue();
-    console.log(value);
     if (value === value) {
 
       let step = desc.step;
@@ -157,12 +155,15 @@ export class NumberEditor extends React.PureComponent<ValueEditorProps, any> {
 
     let disabled = onChange == null;
     return (
-      <Input ref={this.getInputRef} className='ticl-number-input' size='small' placeholder={desc.placeholder}
-             value={value}
-             onChange={this.onValueChange} disabled={onChange == null}
-             addonBefore={<Button size='small' icon='minus' onClick={this.onMinusClick} disabled={disabled}/>}
-             addonAfter={<Button size='small' icon='plus' onClick={this.onPlusClick} disabled={disabled}/>}
-             onBlur={this.onBlur} onKeyDown={this.onKeyDown}/>
+      <div className='ticl-number-input'>
+        <Button size='small' icon='minus' onClick={this.onMinusClick} disabled={disabled}/>
+        <Input ref={this.getInputRef} size='small' placeholder={desc.placeholder}
+               value={value}
+               onChange={this.onValueChange} disabled={onChange == null}
+               onBlur={this.onBlur} onKeyDown={this.onKeyDown}/>
+        <Button size='small' icon='plus' onClick={this.onPlusClick} disabled={disabled}/>
+      </div>
+
     );
   }
 }

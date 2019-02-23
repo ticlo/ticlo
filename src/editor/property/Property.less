@@ -112,29 +112,28 @@
 }
 
 .ticl-number-input {
-  & .ant-input-group-addon {
-    padding: 0;
-    border: 0;
-    z-index: 1;
-  }
+  display: flex;
   & .ant-btn-icon-only {
-    width: 24px;
+    flex: 0 1 24px;
     padding: 0 !important;
     color: #f0f0f0;
+    z-index: 1;
     &:hover {
       color: @primary-color;
     }
   }
   & .ant-input {
+    flex: 1 0 32px;
     text-align: center;
     border-left-color: #f0f0f0;
     border-right-color: #f0f0f0;
+    border-radius: 0;
   }
-  & .ant-input-group-addon:first-child > .ant-btn {
+  & .ant-btn-icon-only:first-child {
     border-radius: 4px 0 0 4px;
     border-right: none;
   }
-  & .ant-input-group-addon:last-child > .ant-btn {
+  & .ant-btn-icon-only:last-child {
     border-radius: 0 4px 4px 0;
     border-left: none;
   }
