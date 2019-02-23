@@ -380,7 +380,6 @@ export class PropertyEditor extends MultiSelectComponent<Props, State, PropertyL
     let editor: React.ReactNode;
     let EditorClass = typeEditorMap[propDesc.type];
     if (EditorClass) {
-      console.log(`${locked} ${unlocked}`)
       editor =
         <EditorClass value={value} desc={propDesc} locked={locked && !unlocked} onChange={onChange}/>;
     }
