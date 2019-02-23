@@ -1,17 +1,11 @@
 import * as React from "react";
-import {Input, Button} from "antd";
-import {PropDesc} from "../../../common/block/Descriptor";
+import {Button} from "antd";
 import {ValueEditorProps} from "./ValueEditor";
 
 // remove thousand separator
 const formatNumberRegx = /,/g
 
 export class NumberEditor extends React.PureComponent<ValueEditorProps, any> {
-
-  private inputRef!: Input;
-  private getInputRef = (r: Input): void => {
-    this.inputRef = r;
-  };
 
   // this is not a state bacause in commitChange() editorValue is changed but we don't want a re-render until prop change
   _pendingValue: any = null;
@@ -163,7 +157,7 @@ export class NumberEditor extends React.PureComponent<ValueEditorProps, any> {
     return (
       <div className={`ticl-number-input${disabled ? ' ticl-number-input-disabled' : ''}`}>
         <Button size='small' icon='minus' onClick={this.onMinusClick} disabled={disabled}/>
-        <Input ref={this.getInputRef} size='small' placeholder={desc.placeholder}
+        <input className='ant-input ant-input-sm' type='text' placeholder={desc.placeholder}
                value={value}
                onChange={this.onValueChange} disabled={disabled}
                onBlur={this.onBlur} onKeyDown={this.onKeyDown}/>
