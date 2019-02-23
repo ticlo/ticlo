@@ -72,12 +72,6 @@
   & > .ant-select {
     width: 100%;
   }
-  & > .ant-input-number {
-    max-width: 100%;
-  }
-  & > .ant-input-number-disabled {
-    border-color: #f0f0f0;
-  }
   & > .ant-select-disabled {
     & > .ant-select-selection {
       border-color: #f0f0f0;
@@ -90,6 +84,9 @@
   & .ant-input-disabled {
     border-color: #f0f0f0;
     resize: none;
+  }
+  & .ant-btn[disabled] {
+    border-color: #f0f0f0;
   }
 }
 
@@ -112,4 +109,27 @@
   height: 3px;
   border-color: #ddd;
   flex-grow: 1;
+}
+
+.ticl-number-input {
+  & .ant-input-group-addon {
+    padding: 0;
+    border: 0;
+  }
+  & .ant-btn-icon-only {
+    width: 24px;
+    padding: 0 !important;
+    color: @text-color-light;
+  }
+  & .ant-input {
+    text-align: center;
+  }
+  & .ant-input-group-addon:first-child > .ant-btn {
+    border-radius: 4px 0 0 4px;
+    border-right: none;
+  }
+  & .ant-input-group-addon:last-child > .ant-btn {
+    border-radius: 0 4px 4px 0;
+    border-left: none;
+  }
 }
