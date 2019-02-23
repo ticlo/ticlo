@@ -96,13 +96,16 @@ export class NumberEditor extends React.PureComponent<ValueEditorProps, any> {
     this._pendingTyping = true;
   };
 
-  onMinusClick = (e: any) => {
+  onMinusClick = (e: React.KeyboardEvent | React.MouseEvent) => {
     let {desc} = this.props;
     let value = this.currentValue();
     if (value === value) {
       let step = desc.step;
       if (!(step >= 0)) {
         step = 1;
+      }
+      if (e.shiftKey) {
+        step *= 10;
       }
       this.commitChange(value - step);
     }
@@ -115,6 +118,9 @@ export class NumberEditor extends React.PureComponent<ValueEditorProps, any> {
       let step = desc.step;
       if (!(step >= 0)) {
         step = 1;
+      }
+      if (e.shiftKey) {
+        step *= 10;
       }
       this.commitChange(value + step);
     }
