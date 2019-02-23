@@ -74,7 +74,7 @@
   }
   & > .ant-select-disabled {
     & > .ant-select-selection {
-      border-color: #f0f0f0;
+      border-color: @border-disabled-color;
     }
   }
   & > textarea.ant-input {
@@ -82,11 +82,11 @@
     transition: none;
   }
   & .ant-input-disabled {
-    border-color: #f0f0f0;
+    border-color: @border-disabled-color;
     resize: none;
   }
   & .ant-btn[disabled] {
-    border-color: #f0f0f0;
+    border-color: @border-disabled-color;
   }
 }
 
@@ -113,28 +113,32 @@
 
 .ticl-number-input {
   display: flex;
+  border-radius: 4px;
+  border: 1px solid @border-color-base;
+  &:hover, &:focus-within {
+    border-color: @border-hover-color;
+  }
   & .ant-btn-icon-only {
     flex: 0 1 24px;
     padding: 0 !important;
-    color: #f0f0f0;
+    color: @border-disabled-color;
     z-index: 1;
     &:hover {
       color: @primary-color;
+    }
+    border: 0 none;
+  }
+  &.ticl-number-input-disabled {
+    border-color: @border-disabled-color;
+    & .ant-btn-icon-only {
+      color: @border-disabled-color;
     }
   }
   & .ant-input {
     flex: 1 0 32px;
     text-align: center;
-    border-left-color: #f0f0f0;
-    border-right-color: #f0f0f0;
+    padding: 1px;
+    border: 0 none;
     border-radius: 0;
-  }
-  & .ant-btn-icon-only:first-child {
-    border-radius: 4px 0 0 4px;
-    border-right: none;
-  }
-  & .ant-btn-icon-only:last-child {
-    border-radius: 0 4px 4px 0;
-    border-left: none;
   }
 }

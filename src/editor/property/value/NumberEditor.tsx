@@ -161,7 +161,7 @@ export class NumberEditor extends React.PureComponent<ValueEditorProps, any> {
 
     let disabled = onChange == null;
     return (
-      <div className='ticl-number-input'>
+      <div className={`ticl-number-input${disabled ? ' ticl-number-input-disabled' : ''}`}>
         <Button size='small' icon='minus' onClick={this.onMinusClick} disabled={disabled}/>
         <Input ref={this.getInputRef} size='small' placeholder={desc.placeholder}
                value={value}
