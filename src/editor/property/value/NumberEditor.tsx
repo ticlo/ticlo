@@ -159,7 +159,7 @@ export class NumberEditor extends React.PureComponent<ValueEditorProps, any> {
         <Button size='small' icon='minus' onClick={this.onMinusClick} disabled={disabled}/>
         <Input ref={this.getInputRef} size='small' placeholder={desc.placeholder}
                value={value}
-               onChange={this.onValueChange} disabled={onChange == null}
+               onChange={this.onValueChange} disabled={disabled}
                onBlur={this.onBlur} onKeyDown={this.onKeyDown}/>
         <Button size='small' icon='plus' onClick={this.onPlusClick} disabled={disabled}/>
       </div>

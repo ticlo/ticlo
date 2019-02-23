@@ -47,7 +47,7 @@ class PropertyLoader extends MultiSelectLoader<PropertyEditor> {
       this.cache = response.cache;
       if (response.change.hasOwnProperty('value') || response.change.hasOwnProperty('bindingPath')) {
         this.subBlock = response.cache.bindingPath === `~${this.name}.output`;
-        this.parent.safeForceUpdate();
+        this.conn.callImmediate(this.parent.safeForceUpdate);
       }
     }
   };
@@ -59,7 +59,7 @@ class PropertyLoader extends MultiSelectLoader<PropertyEditor> {
       }
       if (!equal(value, this.bProperties)) {
         this.bProperties = value;
-        this.parent.safeForceUpdate();
+        this.conn.callImmediate(this.parent.safeForceUpdate);
       }
     }
   };
@@ -380,6 +380,7 @@ export class PropertyEditor extends MultiSelectComponent<Props, State, PropertyL
     let editor: React.ReactNode;
     let EditorClass = typeEditorMap[propDesc.type];
     if (EditorClass) {
+      console.log(`${locked} ${unlocked}`)
       editor =
         <EditorClass value={value} desc={propDesc} locked={locked && !unlocked} onChange={onChange}/>;
     }

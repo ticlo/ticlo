@@ -65,11 +65,11 @@ export abstract class MultiSelectComponent<P extends Props, S,
 
   abstract renderImpl(): React.ReactNode;
 
-  safeForceUpdate() {
+  safeForceUpdate = () => {
     if (this._mounted && !this._rendering) {
       this.forceUpdate();
     }
-  }
+  };
 
   componentWillUnmount() {
     this._mounted = false;
