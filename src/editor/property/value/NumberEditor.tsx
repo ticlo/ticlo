@@ -3,7 +3,7 @@ import {Button} from "antd";
 import {ValueEditorProps} from "./ValueEditor";
 
 // remove thousand separator
-const formatNumberRegx = /,/g
+const formatNumberRegx = /[,\s]+/g
 
 export class NumberEditor extends React.PureComponent<ValueEditorProps, any> {
 
@@ -149,10 +149,14 @@ export class NumberEditor extends React.PureComponent<ValueEditorProps, any> {
     } else if (locked) {
       onChange = null;
     }
-    if (value === undefined && typeof desc.default === 'number') {
-      value = desc.default;
-    }
+    if (value === undefined) {
+      if (typeof desc.default === 'number') {
+        value = desc.default;
+      } else {
+        value = '';
+      }
 
+    }
     let disabled = onChange == null;
     return (
       <div className={`ticl-number-input${disabled ? ' ticl-number-input-disabled' : ''}`}>
