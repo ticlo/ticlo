@@ -18,7 +18,7 @@ export class SelectEditor extends React.Component<ValueEditorProps, any> {
   render() {
     let {desc, value, locked, onChange} = this.props;
     let {options} = desc;
-    if (value === undefined && desc.default) {
+    if (value === undefined && desc.default != null) {
       value = desc.default;
     }
     let optionNodes: React.ReactNode[] = [];

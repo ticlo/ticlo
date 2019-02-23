@@ -37,7 +37,6 @@ export class PasswordEditor extends React.PureComponent<ValueEditorProps, any> {
 
   _pendingTyping = false;
   onKeyDown = (e: React.KeyboardEvent) => {
-    console.log(e.nativeEvent);
     if (e.key === 'Escape') {
       this._pendingTyping = false;
       if (this._pendingValue != null) {

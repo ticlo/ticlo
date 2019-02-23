@@ -3,15 +3,43 @@ import {Input, Button} from "antd";
 import {PropDesc} from "../../../common/block/Descriptor";
 import {ValueEditorProps} from "./ValueEditor";
 
+// remove thousand separator
+const formatNumberRegx = /,/g
+
 export class NumberEditor extends React.PureComponent<ValueEditorProps, any> {
+
+  private inputRef!: Input;
+  private getInputRef = (r: Input): void => {
+    this.inputRef = r;
+  };
 
   // this is not a state bacause in commitChange() editorValue is changed but we don't want a re-render until prop change
   _pendingValue: any = null;
 
-  commitChange(value: string) {
+  commitChange(value: string | number) {
+    let {desc} = this.props;
+    let {max, min, step} = desc;
     this._pendingValue = null;
-    this.props.onChange(value);
+    value = this.toNumber(value);
+    if (value === value) {
+      if (step) {
+        value = Math.round(value / step) * step;
+      }
+      if (max !== null && value > max) {
+        value = max;
+      } else if (min !== null && value < min) {
+        value = min;
+      }
+      if (value === desc.default) {
+        this.props.onChange(undefined);
+      } else {
+        this.props.onChange(value);
+      }
+    } else {
+      this.forceUpdate();
+    }
   }
+
 
   onValueChange = (e: React.SyntheticEvent) => {
     let value = (e.nativeEvent.target as HTMLInputElement).value;
@@ -35,26 +63,85 @@ export class NumberEditor extends React.PureComponent<ValueEditorProps, any> {
 
   _pendingTyping = false;
   onKeyDown = (e: React.KeyboardEvent) => {
-    console.log(e.nativeEvent);
-    if (e.key === 'Escape') {
-      this._pendingTyping = false;
-      if (this._pendingValue != null) {
-        this._pendingValue = null;
-        this.forceUpdate();
+    e.stopPropagation();
+    switch (e.key) {
+      case 'Escape': {
+        this._pendingTyping = false;
+        if (this._pendingValue != null) {
+          this._pendingValue = null;
+          this.forceUpdate();
+        }
+        return;
       }
-      return;
-    } else if (e.key === 'Enter') {
-      this._pendingTyping = false;
-      if (this._pendingValue != null) {
-        this.commitChange(this._pendingValue);
-      } else {
-        this.commitChange(this.props.value);
+      case 'Enter': {
+        this._pendingTyping = false;
+        if (this._pendingValue != null) {
+          this.commitChange(this._pendingValue);
+        } else {
+          this.commitChange(this.props.value);
+        }
+        return;
       }
-      return;
+      case 'ArrowUp': {
+        this.onPlusClick(e);
+        e.preventDefault();
+        return;
+      }
+      case 'ArrowDown': {
+        this.onMinusClick(e);
+        e.preventDefault();
+        return;
+      }
     }
     this._pendingTyping = true;
-    e.stopPropagation();
   };
+
+  onMinusClick = (e: any) => {
+    let {desc} = this.props;
+    let value = this.currentValue();
+    if (value === value) {
+      let step = desc.step;
+      if (!(step >= 0)) {
+        step = 1;
+      }
+      this.commitChange(value - step);
+    }
+  };
+  onPlusClick = (e: any) => {
+
+    let {desc} = this.props;
+    let value = this.currentValue();
+    console.log(value);
+    if (value === value) {
+
+      let step = desc.step;
+      if (!(step >= 0)) {
+        step = 1;
+      }
+      this.commitChange(value + step);
+    }
+  };
+
+  currentValue(): number {
+    let {value, desc} = this.props;
+    if (this._pendingValue != null) {
+      value = this._pendingValue;
+    }
+    if (value === undefined) {
+      if (typeof desc.default === 'number') {
+        return desc.default;
+      }
+      return 0;
+    }
+    return this.toNumber(value);
+  }
+
+  toNumber(value: string | number): number {
+    if (typeof value === 'number') {
+      return value;
+    }
+    return Number(value.replace(formatNumberRegx, ''));
+  }
 
 
   render() {
@@ -64,12 +151,17 @@ export class NumberEditor extends React.PureComponent<ValueEditorProps, any> {
     } else if (locked) {
       onChange = null;
     }
+    if (value === undefined && typeof desc.default === 'number') {
+      value = desc.default;
+    }
+
     let disabled = onChange == null;
     return (
-      <Input className='ticl-number-input' size='small' placeholder={desc.placeholder} value={value}
+      <Input ref={this.getInputRef} className='ticl-number-input' size='small' placeholder={desc.placeholder}
+             value={value}
              onChange={this.onValueChange} disabled={onChange == null}
-             addonBefore={<Button size='small' icon='minus' disabled={disabled}/>}
-             addonAfter={<Button size='small' icon='plus' disabled={disabled}/>}
+             addonBefore={<Button size='small' icon='minus' onClick={this.onMinusClick} disabled={disabled}/>}
+             addonAfter={<Button size='small' icon='plus' onClick={this.onPlusClick} disabled={disabled}/>}
              onBlur={this.onBlur} onKeyDown={this.onKeyDown}/>
     );
   }
