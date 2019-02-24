@@ -45,6 +45,10 @@ export class NodeTreeItem extends TreeItem {
     }
   }
 
+  getConn() {
+    return this.connection;
+  }
+
   addToList(list: TreeItem[]) {
     super.addToList(list);
     // TODO

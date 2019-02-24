@@ -35,6 +35,10 @@ export class WireItem extends DataRendererItem {
       this.source = null;
     }
   }
+
+  getConn() {
+    return this.target.getConn();
+  }
 }
 
 interface WireViewProps {

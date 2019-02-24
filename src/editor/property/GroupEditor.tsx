@@ -16,7 +16,7 @@ class GroupLoader extends MultiSelectLoader<GroupEditor> {
       if (len !== len) len = 2; // default length
       if (len !== this.len) {
         this.len = len;
-        this.conn.callImmediate(this.parent.safeForceUpdate);
+        this.parent.forceUpdate();
       }
     }
   };

@@ -143,7 +143,7 @@ export class FieldItem extends DataRendererItem<ValueRenderer> {
     }
   }
 
-  conn() {
+  getConn() {
     return this.block.conn;
   }
 
@@ -252,7 +252,7 @@ export class FieldView extends PureDataRenderer<FieldViewProps, any> {
   onDragStart = (event: React.DragEvent) => {
     let {item} = this.props;
     event.dataTransfer.setData('text/plain', item.key);
-    DragStore.dragStart(item.conn(), {fields: [item.key]});
+    DragStore.dragStart(item.getConn(), {fields: [item.key]});
   };
   onDragOver = (event: React.DragEvent) => {
     let {item} = this.props;
@@ -261,7 +261,7 @@ export class FieldView extends PureDataRenderer<FieldViewProps, any> {
       return;
     }
 
-    let fields: string[] = DragStore.getData(item.conn(), 'fields');
+    let fields: string[] = DragStore.getData(item.getConn(), 'fields');
     if (Array.isArray(fields) && fields.length === 1 && fields[0] !== item.key) {
       event.preventDefault();
       event.dataTransfer.dropEffect = 'link';
@@ -271,9 +271,9 @@ export class FieldView extends PureDataRenderer<FieldViewProps, any> {
   };
   onDrop = (event: React.DragEvent) => {
     let {item} = this.props;
-    let fields: string[] = DragStore.getData(item.conn(), 'fields');
+    let fields: string[] = DragStore.getData(item.getConn(), 'fields');
     if (Array.isArray(fields) && fields.length === 1 && fields[0] !== item.key) {
-      item.conn().setBinding(item.key, fields[0], true);
+      item.getConn().setBinding(item.key, fields[0], true);
     }
   };
   onDragEnd = (event: React.DragEvent) => {
@@ -283,7 +283,7 @@ export class FieldView extends PureDataRenderer<FieldViewProps, any> {
   onNameDoubleClick = (event: React.MouseEvent) => {
     let {item} = this.props;
     if (item.subBlock) {
-      item.conn().setValue(`${item.subBlock.key}.@b-hide`, item.subBlock.hidden ? undefined : true);
+      item.getConn().setValue(`${item.subBlock.key}.@b-hide`, item.subBlock.hidden ? undefined : true);
     }
   };
 
@@ -485,6 +485,10 @@ export abstract class BaseBlockItem extends DataRendererItem<XYWRenderer> {
     this.conn.unsubscribe(`${this.key}.#more`, this.moreListener);
     this.conn.unsubscribe(`${this.key}.@b-p`, this.pListener);
     this.conn.unwatchDesc(this.descListener);
+  }
+
+  getConn() {
+    return this.conn;
   }
 }
 

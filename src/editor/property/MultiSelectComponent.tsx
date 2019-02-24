@@ -65,9 +65,13 @@ export abstract class MultiSelectComponent<P extends Props, S,
 
   abstract renderImpl(): React.ReactNode;
 
+  forceUpdate() {
+    this.props.conn.callImmediate(this.safeForceUpdate);
+  }
+
   safeForceUpdate = () => {
     if (this._mounted && !this._rendering) {
-      this.forceUpdate();
+      super.forceUpdate();
     }
   };
 

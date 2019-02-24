@@ -47,7 +47,7 @@ class PropertyLoader extends MultiSelectLoader<PropertyEditor> {
       this.cache = response.cache;
       if (response.change.hasOwnProperty('value') || response.change.hasOwnProperty('bindingPath')) {
         this.subBlock = response.cache.bindingPath === `~${this.name}.output`;
-        this.conn.callImmediate(this.parent.safeForceUpdate);
+        this.parent.forceUpdate();
       }
     }
   };
@@ -59,7 +59,7 @@ class PropertyLoader extends MultiSelectLoader<PropertyEditor> {
       }
       if (!equal(value, this.bProperties)) {
         this.bProperties = value;
-        this.conn.callImmediate(this.parent.safeForceUpdate);
+        this.parent.forceUpdate();
       }
     }
   };

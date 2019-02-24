@@ -32,7 +32,7 @@ class BlockLoader extends MultiSelectLoader<PropertyList> {
       }
       if (!equal(value, this.more)) {
         this.more = value;
-        this.conn.callImmediate(this.parent.safeForceUpdate);
+        this.parent.forceUpdate();
       }
     }
   };
@@ -40,7 +40,7 @@ class BlockLoader extends MultiSelectLoader<PropertyList> {
   desc: FunctionDesc;
   onDesc = (desc: FunctionDesc) => {
     this.desc = desc;
-    this.conn.callImmediate(this.parent.safeForceUpdate);
+    this.parent.forceUpdate();
   };
 
 

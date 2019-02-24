@@ -47,7 +47,7 @@ export function ExpandIcon(props: Props) {
   }
 }
 
-export class TreeItem extends DataRendererItem {
+export abstract class TreeItem extends DataRendererItem {
   opened: ExpandState = 'closed';
 
   children: TreeItem[] = null;

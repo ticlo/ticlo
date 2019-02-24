@@ -1,7 +1,8 @@
 import React from "react";
 import {DataMap} from "../../common/util/Types";
+import {ClientConnection} from "../../common/connect/ClientConnection";
 
-export class DataRendererItem<T = any> {
+export abstract class DataRendererItem<T = any> {
   _renderers: Set<PureDataRenderer<any, any> & T> = new Set<PureDataRenderer<any, any> & T>();
 
   attachedRenderer(renderer: PureDataRenderer<any, any> & T) {
@@ -28,11 +29,17 @@ export class DataRendererItem<T = any> {
     // to be overridden
   }
 
+  abstract getConn(): ClientConnection;
+
   forceUpdate() {
+    this.getConn().callImmediate(this.safeForceUpdate);
+  }
+
+  safeForceUpdate = () => {
     for (let renderer of this._renderers) {
       renderer.forceUpdate();
     }
-  }
+  };
 }
 
 export interface DataRendererProps<T extends DataRendererItem> {

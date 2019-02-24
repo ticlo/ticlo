@@ -253,4 +253,12 @@ export default class BlockStage extends React.Component<Props, any> implements S
   componentWillUnmount() {
     this.props.conn.unwatch(this.props.basePath, this.watchListener);
   }
+
+  forceUpdate() {
+    this.props.conn.callImmediate(this.safeForceUpdate);
+  }
+
+  safeForceUpdate = () => {
+    super.forceUpdate();
+  }
 }
