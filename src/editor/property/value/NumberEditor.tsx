@@ -24,11 +24,7 @@ export class NumberEditor extends React.PureComponent<ValueEditorProps, any> {
       } else if (min !== null && value < min) {
         value = min;
       }
-      if (value === desc.default) {
-        this.props.onChange(undefined);
-      } else {
-        this.props.onChange(value);
-      }
+      this.props.onChange(value);
     } else {
       this.forceUpdate();
     }
@@ -126,9 +122,6 @@ export class NumberEditor extends React.PureComponent<ValueEditorProps, any> {
       value = this._pendingValue;
     }
     if (value === undefined) {
-      if (typeof desc.default === 'number') {
-        return desc.default;
-      }
       return 0;
     }
     return this.toNumber(value);
@@ -150,12 +143,7 @@ export class NumberEditor extends React.PureComponent<ValueEditorProps, any> {
       onChange = null;
     }
     if (value === undefined) {
-      if (typeof desc.default === 'number') {
-        value = desc.default;
-      } else {
-        value = '';
-      }
-
+      value = '';
     }
     let disabled = onChange == null;
     return (

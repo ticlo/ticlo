@@ -136,7 +136,10 @@ export class PropertyEditor extends MultiSelectComponent<Props, State, PropertyL
   };
 
   onChange = (value: any) => {
-    let {conn, keys, name} = this.props;
+    let {conn, keys, name, propDesc} = this.props;
+    if (value === propDesc.default) {
+      value = undefined;
+    }
     for (let key of keys) {
       conn.setValue(`${key}.${name}`, value);
     }
@@ -196,7 +199,7 @@ export class PropertyEditor extends MultiSelectComponent<Props, State, PropertyL
     DragStore.dragEnd();
   };
 
-  getPropertyState(): PropertyState {
+  mergePropertyState(): PropertyState {
     let it = this.loaders[Symbol.iterator]();
     let [firstKey, firstLoader] = it.next().value;
     let firstCache = firstLoader.cache;
@@ -245,7 +248,7 @@ export class PropertyEditor extends MultiSelectComponent<Props, State, PropertyL
   }
 
   getMenu = () => {
-    let {count, value, valueSame, bindingPath, bindingSame, subBlock, display} = this.getPropertyState();
+    let {count, value, valueSame, bindingPath, bindingSame, subBlock, display} = this.mergePropertyState();
     if (this.state.showMenu) {
       return (
         <Menu selectable={false} className='ticl-dropdown-menu' onClick={this.onMenuClick}>
@@ -340,7 +343,7 @@ export class PropertyEditor extends MultiSelectComponent<Props, State, PropertyL
 
     let onChange = propDesc.readonly ? null : this.onChange;
 
-    let {count, value, valueSame, bindingPath, bindingSame, subBlock, display} = this.getPropertyState();
+    let {count, value, valueSame, bindingPath, bindingSame, subBlock, display} = this.mergePropertyState();
     if (count === 0) {
       // not ready yet
       return <div className='ticl-property'/>;
@@ -380,8 +383,12 @@ export class PropertyEditor extends MultiSelectComponent<Props, State, PropertyL
     let editor: React.ReactNode;
     let EditorClass = typeEditorMap[propDesc.type];
     if (EditorClass) {
+      let editorValue = value;
+      if (value === undefined && propDesc.default != null) {
+        editorValue = propDesc.default;
+      }
       editor =
-        <EditorClass value={value} desc={propDesc} locked={locked && !unlocked} onChange={onChange}/>;
+        <EditorClass value={editorValue} desc={propDesc} locked={locked && !unlocked} onChange={onChange}/>;
     }
 
     let nameClass = `ticl-property-name${propDesc.readonly ? ' ticl-property-readonly' : ''}${display ? ' ticl-property-display' : ''}`;

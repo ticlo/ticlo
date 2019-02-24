@@ -8,19 +8,13 @@ const Option = Select.Option;
 export class SelectEditor extends React.Component<ValueEditorProps, any> {
 
   onValueChange = (value: string) => {
-    let {onChange, desc} = this.props;
-    if (desc.default === value) {
-      value = undefined;
-    }
+    let {onChange} = this.props;
     onChange(value);
   };
 
   render() {
     let {desc, value, locked, onChange} = this.props;
     let {options} = desc;
-    if (value === undefined && desc.default != null) {
-      value = desc.default;
-    }
     let optionNodes: React.ReactNode[] = [];
     if (Array.isArray(options)) {
       for (let opt of options) {
