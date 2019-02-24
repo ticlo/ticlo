@@ -12,6 +12,7 @@ interface Props {
   conn: ClientConnection;
   basePath: string;
   style?: React.CSSProperties;
+  onSelect?: (keys: string[]) => void;
 }
 
 export default class BlockStage extends React.Component<Props, any> implements Stage {
@@ -34,22 +35,48 @@ export default class BlockStage extends React.Component<Props, any> implements S
   _fields: Map<string, FieldItem> = new Map<string, FieldItem>();
   _fieldLinks: Map<string, Set<FieldItem>> = new Map<string, Set<FieldItem>>();
 
+  onSelect() {
+    let {onSelect} = this.props;
+    if (onSelect) {
+      let selectedKeys: string[] = [];
+      for (let [blockKey, blockItem] of this._blocks) {
+        if (blockItem.selected) {
+          selectedKeys.push(blockItem.key);
+        }
+      }
+      onSelect(selectedKeys);
+    }
+  }
+
+  selectionChanged = false;
+
   selectBlock(key: string, ctrl: boolean = false) {
     if (this._blocks.has(key)) {
       let block = this._blocks.get(key);
       if (ctrl) {
         block.setSelected(!block.selected);
+        this.selectionChanged = true;
       } else {
         if (block.selected) {
           return;
         }
         for (let [blockKey, blockItem] of this._blocks) {
           if (key === blockKey) {
-            blockItem.setSelected(true);
-          } else {
+            if (!blockItem.selected) {
+              blockItem.setSelected(true);
+              this.selectionChanged = true;
+            }
+          } else if (blockItem.selected) {
             blockItem.setSelected(false);
+            this.selectionChanged = true;
           }
         }
+      }
+      if (!block.selected && this.selectionChanged) {
+        // current block is not selected, dragging wont start
+        // update the onSelect event now
+        this.selectionChanged = false;
+        this.onSelect();
       }
     }
   }
@@ -79,6 +106,11 @@ export default class BlockStage extends React.Component<Props, any> implements S
   };
   onDragBlockEnd = (event: AbstractPointerEvent, dx: number, dy: number) => {
     this._draggingBlocks = null;
+    if (this.selectionChanged) {
+      // call the onSelect callback only when mouse up
+      this.selectionChanged = false;
+      this.onSelect();
+    }
   };
 
   onSelectRectDragStart = (e: PointerEvent, initFunction: DragInitFunction) => {
@@ -115,6 +147,7 @@ export default class BlockStage extends React.Component<Props, any> implements S
           blockItem.setSelected(false);
         }
       }
+      this.onSelect();
     }
 
     this._selectRectNode.style.display = null;

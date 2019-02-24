@@ -256,8 +256,14 @@ describe("editor BlockStage", function () {
 
     let [server, client] = makeLocalConnection(Root.instance);
 
+    let selectedKeys: string[];
+
+    function onSelect(keys: string[]) {
+      selectedKeys = keys;
+    }
+
     let [component, div] = loadTemplate(
-      <BlockStage conn={client} basePath="BlockStage5"
+      <BlockStage conn={client} basePath="BlockStage5" onSelect={onSelect}
                   style={{width: '800px', height: '800px'}}/>, 'editor');
 
     // wait for the field
@@ -277,7 +283,7 @@ describe("editor BlockStage", function () {
 
     // both block are selected
     await shouldHappen(() => div.querySelectorAll('.ticl-block-selected').length === 2);
-
+    assert.sameMembers(selectedKeys, ['BlockStage5.add', 'BlockStage5.subtract']);
 
     // select all
     SimulateEvent.simulate(rectBg, 'pointerdown', {
@@ -291,6 +297,7 @@ describe("editor BlockStage", function () {
 
     // one block selected
     await shouldHappen(() => div.querySelectorAll('.ticl-block-selected').length === 1);
+    assert.sameMembers(selectedKeys, ['BlockStage5.add']);
 
     // select none
     SimulateEvent.simulate(rectBg, 'pointerdown', {
@@ -303,6 +310,7 @@ describe("editor BlockStage", function () {
     });
     // one block selected
     await shouldHappen(() => div.querySelectorAll('.ticl-block-selected').length === 0);
+    assert.isEmpty(selectedKeys);
 
     Root.instance.deleteValue('BlockStage5');
   });
