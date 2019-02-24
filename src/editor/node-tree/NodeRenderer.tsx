@@ -189,7 +189,7 @@ export class NodeTreeRenderer extends PureDataRenderer<Props, any> {
     </Menu>
   );
 
-  render() {
+  renderImpl() {
     let {item, style} = this.props;
     let marginLeft = item.level * 24;
     return (

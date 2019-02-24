@@ -10,7 +10,7 @@ const formulaNameRegx = /\b[a-zA-Z]\w+/g;
 const MathDeg = (() => {
   const deg2rad = Math.PI / 180;
   const rad2deg = 180 / Math.PI;
-  
+
   let result: any = {};
 
   for (let key of Object.getOwnPropertyNames(Math)) {
@@ -39,8 +39,6 @@ const MathDeg = (() => {
   }
   return result;
 })();
-
-console.log(MathDeg);
 
 export class NumberEditor extends React.PureComponent<ValueEditorProps, any> {
 

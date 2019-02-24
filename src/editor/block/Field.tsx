@@ -294,7 +294,7 @@ export class FieldView extends PureDataRenderer<FieldViewProps, any> {
     }
   }
 
-  render(): React.ReactNode {
+  renderImpl(): React.ReactNode {
     let {item} = this.props;
     let desc = item.block.desc;
 

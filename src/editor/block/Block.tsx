@@ -195,7 +195,7 @@ export class BlockView extends PureDataRenderer<BlockViewProps, BlockViewState> 
     item.conn.subscribe(`${item.key}.@b-xyw`, this.xywListener, true);
   }
 
-  render() {
+  renderImpl() {
     let {item} = this.props;
     if (item.w) {
       return (

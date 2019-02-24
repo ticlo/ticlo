@@ -48,7 +48,7 @@ interface WireViewProps {
 const wirePadding = 2;
 
 export class WireView extends PureDataRenderer<WireViewProps, any> {
-  render() {
+  renderImpl() {
     let {source, target} = this.props.item;
     let x0 = source.x + source.w + 4;
     let y0 = source.y;

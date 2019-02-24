@@ -32,21 +32,17 @@ export abstract class DataRendererItem<T = any> {
   abstract getConn(): ClientConnection;
 
   forceUpdate() {
-    this.getConn().callImmediate(this.safeForceUpdate);
-  }
-
-  safeForceUpdate = () => {
     for (let renderer of this._renderers) {
-      renderer.forceUpdate();
+      this.getConn().callImmediate(renderer.forceUpdate);
     }
-  };
+  }
 }
 
 export interface DataRendererProps<T extends DataRendererItem> {
   item: T;
 }
 
-export class PureDataRenderer<P extends DataRendererProps<any>, S> extends React.PureComponent<P, S> {
+export abstract class PureDataRenderer<P extends DataRendererProps<any>, S> extends React.PureComponent<P, S> {
   constructor(props: P) {
     super(props);
     this.props.item.attachedRenderer(this);
@@ -61,5 +57,27 @@ export class PureDataRenderer<P extends DataRendererProps<any>, S> extends React
 
   componentWillUnmount() {
     this.props.item.detachRenderer(this);
+    this._mounted = false;
   }
+
+  _rendering = false;
+  _mounted = false;
+
+  render(): React.ReactNode {
+    this._rendering = true;
+    let result = this.renderImpl();
+    this._rendering = false;
+    this._mounted = true;
+    return result;
+  }
+
+  abstract renderImpl(): React.ReactNode;
+
+  forceUpdate = () => {
+    if (this._mounted && !this._rendering) {
+      super.forceUpdate();
+    }
+  };
+
+
 }
