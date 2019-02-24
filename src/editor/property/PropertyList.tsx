@@ -90,6 +90,7 @@ interface Props {
   conn: ClientConnection;
   keys: string[];
   style?: React.CSSProperties;
+  isSubBlock?: boolean;
 }
 
 interface State {
@@ -150,6 +151,10 @@ class PropertyDefMerger {
     }
     return children;
   }
+
+  remove(name: string) {
+    this.map.delete(name);
+  }
 }
 
 export class PropertyList extends MultiSelectComponent<Props, State, BlockLoader> {
@@ -168,7 +173,7 @@ export class PropertyList extends MultiSelectComponent<Props, State, BlockLoader
   };
 
   renderImpl() {
-    let {conn, keys, style} = this.props;
+    let {conn, keys, style, isSubBlock} = this.props;
     let {showConfig, showMore} = this.state;
 
     let descChecked: Set<string> = new Set<string>();
@@ -188,6 +193,9 @@ export class PropertyList extends MultiSelectComponent<Props, State, BlockLoader
         propMerger.map = null;
         break;
       }
+    }
+    if (isSubBlock) {
+      propMerger.remove('output');
     }
     let funcDesc: FunctionDesc = this.loaders.entries().next().value[1].desc;
     if (!funcDesc) {

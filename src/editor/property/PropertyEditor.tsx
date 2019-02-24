@@ -417,7 +417,7 @@ export class PropertyEditor extends MultiSelectComponent<Props, State, PropertyL
         </div>
         {
           renderSubBlock ?
-            <PropertyList conn={conn} keys={this.subBlockKeys}/>
+            <PropertyList conn={conn} keys={this.subBlockKeys} isSubBlock={true}/>
             : null
         }
       </div>
