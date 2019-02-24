@@ -10,7 +10,7 @@
     "name": "Rick Zhou",
     "email": "rinick@gmail.com"
   },
-  "license": "Apache-2.0",
+  "license": "MPL-2.0",
   "dependencies": {
     "fast-deep-equal": "^2.0.1",
     "i18next": "^15.0.4",
