@@ -3,19 +3,56 @@ import {Button} from "antd";
 import {ValueEditorProps} from "./ValueEditor";
 
 // remove thousand separator
-const formatNumberRegx = /[,\s]+/g
+const formatNumberRegx = /[,\s]+/g;
+
+const formulaNameRegx = /\b[a-zA-Z]\w+/g;
+
+const MathDeg = (() => {
+  const deg2rad = Math.PI / 180;
+  const rad2deg = 180 / Math.PI;
+  
+  let result: any = {};
+
+  for (let key of Object.getOwnPropertyNames(Math)) {
+    // move function from Math
+    result[key] = (Math as any)[key];
+    let lower = key.toLowerCase();
+    if (lower !== key) {
+      result[lower] = result[key];
+    }
+  }
+
+  // use degree instead of rad
+  for (let name of ['sin', 'cos', 'tan']) {
+    result[`${name}Rad`] = result[name];
+    let f: Function = result[name];
+    result[name] = function (input: number) {
+      return f(input * deg2rad);
+    };
+  }
+  for (let name of ['asin', 'acos', 'atan', 'atan2']) {
+    result[`${name}Rad`] = result[name];
+    let f: Function = result[name];
+    result[name] = function () {
+      return f(...arguments) * rad2deg;
+    };
+  }
+  return result;
+})();
+
+console.log(MathDeg);
 
 export class NumberEditor extends React.PureComponent<ValueEditorProps, any> {
 
   // this is not a state bacause in commitChange() editorValue is changed but we don't want a re-render until prop change
-  _pendingValue: any = null;
+  _pendingValue: string = null;
 
   commitChange(value: string | number) {
-    let {desc} = this.props;
-    let {max, min, step} = desc;
     this._pendingValue = null;
     value = this.toNumber(value);
     if (value === value) {
+      let {desc} = this.props;
+      let {max, min, step} = desc;
       if (step) {
         value = Math.round(value / step) * step;
       }
@@ -51,6 +88,20 @@ export class NumberEditor extends React.PureComponent<ValueEditorProps, any> {
     }
   };
 
+  evalFormula(str: string): number {
+    try {
+      let converted = str.replace(formulaNameRegx, (str: string) => {
+        if (MathDeg.hasOwnProperty(str)) {
+          return `(MathDeg.${str})`;
+        }
+        throw 1;
+      });
+      return Function('MathDeg', `"use strict";return (${converted})`)(MathDeg);
+    } catch (e) {
+      return NaN;
+    }
+  }
+
   _pendingTyping = false;
   onKeyDown = (e: React.KeyboardEvent) => {
     e.stopPropagation();
@@ -66,7 +117,17 @@ export class NumberEditor extends React.PureComponent<ValueEditorProps, any> {
       case 'Enter': {
         this._pendingTyping = false;
         if (this._pendingValue != null) {
-          this.commitChange(this._pendingValue);
+          if (e.shiftKey) {
+            let formulaResult = this.evalFormula(this._pendingValue);
+            if (formulaResult === formulaResult) {
+              this.commitChange(formulaResult);
+            } else {
+              // invalid result
+              e.preventDefault();
+            }
+          } else {
+            this.commitChange(this._pendingValue);
+          }
         } else {
           this.commitChange(this.props.value);
         }

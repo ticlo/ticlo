@@ -184,6 +184,7 @@
     "one-variable-per-declaration": false,
     "only-arrow-functions": false,
     "label-position": false,
+    "function-constructor": false,
     "jsx-self-close": false,
     "jsx-no-multiline-js": false,
     "jsx-alignment": false,
