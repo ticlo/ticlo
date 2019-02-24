@@ -59,6 +59,9 @@ export class NumberEditor extends React.PureComponent<ValueEditorProps, any> {
       } else if (min !== null && value < min) {
         value = min;
       }
+      if (value === this.props.value) {
+        this.forceUpdate();
+      }
       this.props.onChange(value);
     } else {
       this.forceUpdate();
