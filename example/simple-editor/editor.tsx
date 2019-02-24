@@ -39,7 +39,7 @@ class App extends React.PureComponent<Props, State> {
 
         <div>
           <NodeTree conn={conn} basePath="example" style={{width: '300px', height: '600px'}}/>
-          <BlockStage conn={conn} basePath="example"
+          <BlockStage conn={conn} basePath="example" onSelect={this.onSelect}
                       style={{
                         width: '800px',
                         height: '800px',

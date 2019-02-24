@@ -182,6 +182,11 @@ export class PropertyList extends MultiSelectComponent<Props, State, BlockLoader
 
     this.updateLoaders(keys, BlockLoader);
 
+    if (this.loaders.size === 0) {
+      // nothing selected
+      return <div className='ticl-property-list' style={style}/>;
+    }
+    
     for (let [key, subscriber] of this.loaders) {
       if (subscriber.desc) {
         if (!descChecked.has(subscriber.desc.name)) {
