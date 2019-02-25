@@ -33,6 +33,7 @@ export function loadTemplate<T extends Element>(element: any, style?: string): [
   return [ReactDOM.render(element, _lastTemplateDiv), _lastTemplateDiv];
 }
 
+// remove the last loaded template
 export function removeLastTemplate() {
   if (_lastTemplateDiv) {
     ReactDOM.unmountComponentAtNode(_lastTemplateDiv);
