@@ -18,6 +18,8 @@ export abstract class MultiSelectLoader<T extends MultiSelectComponent<any, any,
     this.conn = (parent.props as Props).conn;
   }
 
+  abstract init(): void;
+
   abstract destroy(): void;
 }
 
@@ -37,7 +39,9 @@ export abstract class MultiSelectComponent<P extends Props, S,
     let removed = false;
     for (let key of keys) {
       if (!this.loaders.has(key)) {
-        this.loaders.set(key, this.createLoader(key));
+        let newLoader = this.createLoader(key);
+        this.loaders.set(key, newLoader);
+        newLoader.init();
         added = true;
       }
     }

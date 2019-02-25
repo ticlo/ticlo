@@ -43,11 +43,9 @@ class BlockLoader extends MultiSelectLoader<PropertyList> {
     this.parent.forceUpdate();
   };
 
-
-  constructor(key: string, parent: PropertyList) {
-    super(key, parent);
-    this.conn.subscribe(`${key}.#is`, this.isListener, true);
-    this.conn.subscribe(`${key}.#more`, this.moreListener, true);
+  init() {
+    this.conn.subscribe(`${this.key}.#is`, this.isListener, true);
+    this.conn.subscribe(`${this.key}.#more`, this.moreListener, true);
   }
 
   destroy() {

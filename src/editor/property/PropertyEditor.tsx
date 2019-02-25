@@ -35,9 +35,11 @@ class PropertyLoader extends MultiSelectLoader<PropertyEditor> {
   constructor(key: string, parent: PropertyEditor) {
     super(key, parent);
     this.name = parent.props.name;
-    this.conn.subscribe(`${key}.${this.name}`, this.valueListener);
-    this.conn.subscribe(`${key}.@b-p`, this.displayListener);
+  }
 
+  init() {
+    this.conn.subscribe(`${this.key}.${this.name}`, this.valueListener);
+    this.conn.subscribe(`${this.key}.@b-p`, this.displayListener);
   }
 
   cache: ValueState;
@@ -59,7 +61,11 @@ class PropertyLoader extends MultiSelectLoader<PropertyEditor> {
       }
       if (!equal(value, this.bProperties)) {
         this.bProperties = value;
-        this.parent.forceUpdate();
+        if (this.cache) {
+          // update only when cache is ready
+          // this avoid an unnessary render that cause all editor to blink
+          this.parent.forceUpdate();
+        }
       }
     }
   };
@@ -110,6 +116,18 @@ export class PropertyEditor extends MultiSelectComponent<Props, State, PropertyL
     super(props);
     this.state = {unlocked: false, showSubBlock: false, showMenu: false};
     this.updateLoaders(props.keys);
+  }
+
+  forceUpdate() {
+    if (this.props.name.startsWith('#')) {
+      console.log(`${this.props.name}  forceUpdate`);
+      try {
+        (this as any).b.d();
+      } catch (e) {
+        console.log(e.stack);
+      }
+    }
+    super.forceUpdate();
   }
 
   createLoader(key: string) {
@@ -347,6 +365,7 @@ export class PropertyEditor extends MultiSelectComponent<Props, State, PropertyL
 
     let {count, value, valueSame, bindingPath, bindingSame, subBlock, display} = this.mergePropertyState();
     if (count === 0) {
+      console.log(`${this.props.name} render 0  ${this.loaders.size}  ${keys.length}`);
       // not ready yet
       return <div className='ticl-property'/>;
     }

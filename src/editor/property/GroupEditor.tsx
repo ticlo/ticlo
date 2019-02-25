@@ -24,6 +24,9 @@ class GroupLoader extends MultiSelectLoader<GroupEditor> {
   constructor(key: string, parent: GroupEditor) {
     super(key, parent);
     this.lenKey = `${key}.${parent.props.groupDesc.group}#len`;
+  }
+
+  init() {
     this.conn.subscribe(this.lenKey, this.lenListener, true);
   }
 
