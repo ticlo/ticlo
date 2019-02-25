@@ -47,12 +47,15 @@ interface State {
 export class GroupEditor extends MultiSelectComponent<Props, State, GroupLoader> {
   constructor(props: Readonly<Props>) {
     super(props);
-    this.updateLoaders(props.keys, GroupLoader);
+    this.updateLoaders(props.keys);
+  }
+
+  createLoader(key: string) {
+    return new GroupLoader(key, this);
   }
 
   renderImpl(): React.ReactNode {
     let {conn, keys, funcDesc, groupDesc} = this.props;
-    this.updateLoaders(keys, GroupLoader);
     let children: React.ReactNode[] = [];
     if (this.loaders.size) {
       let minLen = Infinity;

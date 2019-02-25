@@ -109,7 +109,11 @@ export class PropertyEditor extends MultiSelectComponent<Props, State, PropertyL
   constructor(props: Readonly<Props>) {
     super(props);
     this.state = {unlocked: false, showSubBlock: false, showMenu: false};
-    this.updateLoaders(props.keys, PropertyLoader);
+    this.updateLoaders(props.keys);
+  }
+
+  createLoader(key: string) {
+    return new PropertyLoader(key, this);
   }
 
   // map parent keys to subblock keys
@@ -338,8 +342,6 @@ export class PropertyEditor extends MultiSelectComponent<Props, State, PropertyL
   renderImpl() {
     let {conn, keys, funcDesc, propDesc, name} = this.props;
     let {unlocked, showSubBlock, showMenu} = this.state;
-
-    this.updateLoaders(keys, PropertyLoader);
 
     let onChange = propDesc.readonly ? null : this.onChange;
 

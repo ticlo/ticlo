@@ -162,7 +162,11 @@ export class PropertyList extends MultiSelectComponent<Props, State, BlockLoader
   constructor(props: Readonly<Props>) {
     super(props);
     this.state = {showConfig: false, showMore: true};
-    this.updateLoaders(props.keys, BlockLoader);
+    this.updateLoaders(props.keys);
+  }
+
+  createLoader(key: string) {
+    return new BlockLoader(key, this);
   }
 
   onShowMoreClick = () => {
@@ -180,13 +184,11 @@ export class PropertyList extends MultiSelectComponent<Props, State, BlockLoader
     let propMerger: PropertyDefMerger = new PropertyDefMerger();
     let moreMerger: PropertyDefMerger = new PropertyDefMerger();
 
-    this.updateLoaders(keys, BlockLoader);
-
     if (this.loaders.size === 0) {
       // nothing selected
       return <div className='ticl-property-list' style={style}/>;
     }
-    
+
     for (let [key, subscriber] of this.loaders) {
       if (subscriber.desc) {
         if (!descChecked.has(subscriber.desc.name)) {

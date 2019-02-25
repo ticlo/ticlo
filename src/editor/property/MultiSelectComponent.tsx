@@ -24,32 +24,53 @@ export abstract class MultiSelectLoader<T extends MultiSelectComponent<any, any,
 
 export abstract class MultiSelectComponent<P extends Props, S,
   Loader extends MultiSelectLoader<MultiSelectComponent<P, S, Loader>>>
-  extends React.PureComponent<P, S> {
+  extends React.Component<P, S> {
 
   loaders: Map<string, Loader> = new Map<string, Loader>();
 
+  abstract createLoader(key: string): Loader;
+
   // update the loaders cache based on input keys
   // the parameter is a constructor of Loader class, this is a work around for the limitation of ts template
-  updateLoaders(keys: string[], NewLoader: new(key: string, parent: MultiSelectComponent<P, S, Loader>) => Loader): boolean {
-    let changed = false;
+  updateLoaders(keys: string[]): [boolean, boolean] {
+    let added = false;
+    let removed = false;
     for (let key of keys) {
       if (!this.loaders.has(key)) {
-        this.loaders.set(key, new NewLoader(key, this));
-        changed = true;
+        this.loaders.set(key, this.createLoader(key));
+        added = true;
       }
     }
-    if (keys.length === this.loaders.size) {
-      // rest part of the check won't be necessary
-      return changed;
-    }
-    for (let [key, subscriber] of this.loaders) {
-      if (!keys.includes(key)) {
-        subscriber.destroy();
-        this.loaders.delete(key);
-        changed = true;
+    if (keys.length < this.loaders.size) {
+      for (let [key, subscriber] of this.loaders) {
+        if (!keys.includes(key)) {
+          subscriber.destroy();
+          this.loaders.delete(key);
+          removed = true;
+        }
       }
     }
-    return changed;
+
+    return [added, removed];
+  }
+
+  shouldComponentUpdate(nextProps: Readonly<P>, nextState: Readonly<S>): boolean {
+    let {keys} = nextProps;
+    let [added, removed] = this.updateLoaders(keys);
+    if (added) {
+      return false;
+    }
+    for (let key in this.props) {
+      if (!Object.is((this.props as any)[key], (nextProps as any)[key])) {
+        return true;
+      }
+    }
+    for (let key in this.state) {
+      if (!Object.is((this.state as any)[key], (nextState as any)[key])) {
+        return true;
+      }
+    }
+    return false;
   }
 
   _rendering = false;
