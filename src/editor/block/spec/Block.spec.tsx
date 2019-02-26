@@ -13,6 +13,10 @@ import {arrayEqual} from "../../../common/util/Compare";
 
 describe("editor BlockStage", function () {
 
+  beforeEach(async function () {
+    await initEditor();
+  });
+
   afterEach(function () {
     removeLastTemplate();
     destroyLastLocalConnection();
@@ -20,7 +24,7 @@ describe("editor BlockStage", function () {
 
   it('single block', async function () {
 
-    await initEditor();
+
     let job = Root.instance.addJob('BlockStage1');
     job.load({
       add: {
@@ -68,7 +72,6 @@ describe("editor BlockStage", function () {
   });
 
   it('drag block', async function () {
-    await initEditor();
     let job = Root.instance.addJob('BlockStage2');
     job.load({
       add: {
@@ -121,7 +124,6 @@ describe("editor BlockStage", function () {
   });
 
   it('drag block size', async function () {
-    await initEditor();
     let job = Root.instance.addJob('BlockStage3');
     job.load({
       add: {
@@ -165,7 +167,6 @@ describe("editor BlockStage", function () {
 
   it('min block and wire', async function () {
 
-    await initEditor();
     let job = Root.instance.addJob('BlockStage4');
     job.load({
       add: {
@@ -239,7 +240,6 @@ describe("editor BlockStage", function () {
 
   it('rect select', async function () {
 
-    await initEditor();
     let job = Root.instance.addJob('BlockStage5');
     job.load({
       add: {

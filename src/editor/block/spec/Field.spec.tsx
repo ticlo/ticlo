@@ -13,6 +13,10 @@ import {arrayEqual} from "../../../common/util/Compare";
 
 describe("editor Block Field", function () {
 
+  beforeEach(async function () {
+    await initEditor();
+  });
+
   afterEach(function () {
     removeLastTemplate();
     destroyLastLocalConnection();
@@ -20,7 +24,6 @@ describe("editor Block Field", function () {
 
   it('single block', async function () {
 
-    await initEditor();
     let job = Root.instance.addJob('BlockField1');
     job.load({
       add: {
@@ -64,7 +67,6 @@ describe("editor Block Field", function () {
 
   it('sub block', async function () {
 
-    await initEditor();
     let job = Root.instance.addJob('BlockField2');
     job.load({
       add: {
@@ -122,7 +124,6 @@ describe("editor Block Field", function () {
 
   it('indirect binding', async function () {
 
-    await initEditor();
     let job = Root.instance.addJob('BlockField3');
     job.load({
       add: {
