@@ -118,18 +118,6 @@ export class PropertyEditor extends MultiSelectComponent<Props, State, PropertyL
     this.updateLoaders(props.keys);
   }
 
-  forceUpdate() {
-    if (this.props.name.startsWith('#')) {
-      console.log(`${this.props.name}  forceUpdate`);
-      try {
-        (this as any).b.d();
-      } catch (e) {
-        console.log(e.stack);
-      }
-    }
-    super.forceUpdate();
-  }
-
   createLoader(key: string) {
     return new PropertyLoader(key, this);
   }
@@ -365,7 +353,6 @@ export class PropertyEditor extends MultiSelectComponent<Props, State, PropertyL
 
     let {count, value, valueSame, bindingPath, bindingSame, subBlock, display} = this.mergePropertyState();
     if (count === 0) {
-      console.log(`${this.props.name} render 0  ${this.loaders.size}  ${keys.length}`);
       // not ready yet
       return <div className='ticl-property'/>;
     }
