@@ -3,12 +3,12 @@ import SimulateEvent from "simulate-event";
 import React from 'react';
 import {removeLastTemplate, loadTemplate, querySingle} from "../../../../ui/util/test-util";
 import {initEditor} from "../../../index";
-import {StringEditor} from "../StringEditor";
+import {PasswordEditor} from "../PasswordEditor";
 import {shouldHappen} from "../../../../common/util/test-util";
 import {blankPropDesc} from "../../../../common/block/Descriptor";
 import {simulateInput} from "./simulate-input";
 
-describe("StringEditor", function () {
+describe("PasswordEditor", function () {
 
   beforeEach(async function () {
     await initEditor();
@@ -19,8 +19,8 @@ describe("StringEditor", function () {
   });
 
   it('basic', async function () {
-    let editor: StringEditor;
-    let getRef = (e: StringEditor): void => {
+    let editor: PasswordEditor;
+    let getRef = (e: PasswordEditor): void => {
       editor = e;
     };
     let value: string = null;
@@ -28,9 +28,9 @@ describe("StringEditor", function () {
       value = str;
     };
     let [component, div] = loadTemplate(
-      <StringEditor ref={getRef} value='1' desc={blankPropDesc} onChange={onChange}/>, 'editor');
+      <PasswordEditor ref={getRef} value='1' desc={blankPropDesc} onChange={onChange}/>, 'editor');
 
-    await shouldHappen(() => editor && div.querySelector('textarea.ant-input'));
+    await shouldHappen(() => editor && div.querySelector('input.ant-input'));
 
     simulateInput(editor, {key: 'A'}, 'A');
     assert.isNull(value);
@@ -38,16 +38,9 @@ describe("StringEditor", function () {
     simulateInput(editor, {key: 'Enter'}, null);
     assert.equal(value, 'A');
 
-    // test shift key
-    simulateInput(editor, {key: 'Enter', shiftKey: true}, 'A\n');
-    assert.equal(value, 'A');
-
-    simulateInput(editor, {key: 'Enter'}, null);
-    assert.equal(value, 'A\n');
-
     // test escape key
     simulateInput(editor, {key: 'B'}, 'AB');
-    assert.equal(value, 'A\n');
+    assert.equal(value, 'A');
 
     simulateInput(editor, {key: 'Escape'}, null);
     simulateInput(editor, {key: 'Enter'}, null);
