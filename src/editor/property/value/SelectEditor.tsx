@@ -7,7 +7,7 @@ const Option = Select.Option;
 
 export class SelectEditor extends React.Component<ValueEditorProps, any> {
 
-  onValueChange = (value: string) => {
+  onValueChange = (value: string | number) => {
     let {onChange} = this.props;
     onChange(value);
   };

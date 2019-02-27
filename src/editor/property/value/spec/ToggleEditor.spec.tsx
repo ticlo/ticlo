@@ -62,7 +62,7 @@ describe("ToggleEditor", function () {
     SimulateEvent.simulate(switchButton, 'click');
     assert.equal(value, 'b');
   });
-  
+
   it('click to false string', async function () {
     let value: any = null;
     let onChange = (v: any) => {

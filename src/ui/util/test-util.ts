@@ -51,6 +51,6 @@ function xpathReplacer(match: string, g1: string, g2: string, str: string): stri
 
 // select a single element with a simplified xpath
 export function querySingle(query: string, element: HTMLElement = document.body): HTMLElement {
-  let xpath = query.replace(/\b(div|span)\.([\w\-.]+)/g, xpathReplacer);
+  let xpath = query.replace(/\b(div|span|li)\.([\w\-.]+)/g, xpathReplacer);
   return document.evaluate(xpath, element, null, 9, null).singleNodeValue as HTMLElement;
 }
