@@ -39,11 +39,27 @@ describe("StringEditor", function () {
     simulateInput(editor, {key: 'Enter'}, null);
     assert.equal(value, 'A');
 
+    // test shift key
     simulateInput(editor, {key: 'Enter', shiftKey: true}, 'A\n');
     assert.equal(value, 'A');
 
     simulateInput(editor, {key: 'Enter'}, null);
-    assert.equal(value, 'A\n', 'shift enter for new line');
+    assert.equal(value, 'A\n');
+
+    // test escape key
+    simulateInput(editor, {key: 'B'}, 'AB');
+    assert.equal(value, 'A\n');
+
+    simulateInput(editor, {key: 'Escape'}, null);
+    simulateInput(editor, {key: 'Enter'}, null);
+    assert.equal(value, '1'); // blur back to the value from Props
+
+    // onBlur
+    simulateInput(editor, {key: 'C'}, 'ABC');
+    assert.notEqual(value, 'ABC');
+
+    editor.onBlur();
+    assert.equal(value, 'ABC');
 
   });
 });

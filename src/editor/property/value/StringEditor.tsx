@@ -18,16 +18,11 @@ export class StringEditor extends React.PureComponent<ValueEditorProps, any> {
 
   onValueChange = (e: React.SyntheticEvent) => {
     let value = (e.nativeEvent.target as HTMLTextAreaElement).value;
-    if (this._pendingTyping) {
-      if (value !== this.props.value || this._pendingValue != null) {
-        // when editorValue value already exists or server value is not the same
-        this._pendingValue = value;
-      }
-      this._pendingTyping = false;
-      this.forceUpdate();
-    } else {
-      this.commitChange(value);
+    if (value !== this.props.value || this._pendingValue != null) {
+      // when editorValue value already exists or server value is not the same
+      this._pendingValue = value;
     }
+    this.forceUpdate();
   };
 
   onBlur = () => {
@@ -36,17 +31,14 @@ export class StringEditor extends React.PureComponent<ValueEditorProps, any> {
     }
   };
 
-  _pendingTyping = false;
   onKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === 'Escape') {
-      this._pendingTyping = false;
       if (this._pendingValue != null) {
         this._pendingValue = null;
         this.forceUpdate();
       }
       return;
     } else if (e.key === 'Enter' && !(e.shiftKey)) {
-      this._pendingTyping = false;
       if (this._pendingValue != null) {
         this.commitChange(this._pendingValue);
       } else {
@@ -55,7 +47,6 @@ export class StringEditor extends React.PureComponent<ValueEditorProps, any> {
       e.preventDefault();
       return;
     }
-    this._pendingTyping = true;
     e.stopPropagation();
   };
 
