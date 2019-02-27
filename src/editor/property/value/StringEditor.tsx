@@ -2,6 +2,7 @@ import * as React from "react";
 import {Input} from "antd";
 import {PropDesc} from "../../../common/block/Descriptor";
 import {ValueEditorProps} from "./ValueEditor";
+import SimulateEvent from "simulate-event";
 
 const {TextArea} = Input;
 
@@ -73,3 +74,5 @@ export class StringEditor extends React.PureComponent<ValueEditorProps, any> {
     );
   }
 }
+
+(window as any).simulate = SimulateEvent.simulate;
