@@ -20,8 +20,8 @@ export class PasswordEditor extends React.PureComponent<ValueEditorProps, any> {
     if (value !== this.props.value || this._pendingValue != null) {
       // when editorValue value already exists or server value is not the same
       this._pendingValue = value;
+      this.forceUpdate();
     }
-    this.forceUpdate();
   };
 
   onBlur = () => {
