@@ -71,18 +71,23 @@ describe("NumberEditor", function () {
     assert.equal(value, 1);
 
     // enter forumla
-    simulateInput(editor, {key: '1'}, '1+1');
+    simulateInput(editor, {key: ')'}, 'sin(0)');
     simulateInput(editor, {key: 'Enter', shiftKey: true}, null);
-    assert.equal(value, 2);
+    assert.equal(value, 0);
+
+    // enter forumla
+    simulateInput(editor, {key: ')'}, 'acos(0)');
+    simulateInput(editor, {key: 'Enter', shiftKey: true}, null);
+    assert.equal(value, 90);
 
     simulateInput(editor, {key: 'a'}, 'a');
     simulateInput(editor, {key: 'Enter', shiftKey: true}, null);
-    assert.equal(value, 2); // not changed
+    assert.equal(value, 90); // not changed
 
     // invalid input
     simulateInput(editor, {key: 'a'}, 'a');
     simulateInput(editor, {key: 'Enter'}, null);
-    assert.equal(value, 2); // not changed
+    assert.equal(value, 90); // not changed
   });
 
 
@@ -99,18 +104,18 @@ describe("NumberEditor", function () {
       name: '',
       type: 'number',
       max: 10,
-      min: 1,
-      step: 1,
+      min: 2,
+      step: 2,
     };
     let [component, div] = loadTemplate(
-      <NumberEditor ref={getRef} value={1} desc={desc} onChange={onChange}/>, 'editor');
+      <NumberEditor ref={getRef} value={6} desc={desc} onChange={onChange}/>, 'editor');
 
     await shouldHappen(() => editor && div.querySelector('input.ant-input'));
 
     // test step
-    simulateInput(editor, {key: '2'}, '5.2');
+    simulateInput(editor, {key: '2'}, '4.2');
     simulateInput(editor, {key: 'Enter'}, null);
-    assert.equal(value, 5);
+    assert.equal(value, 4);
 
     // test max
     simulateInput(editor, {key: '3'}, '13');
@@ -120,7 +125,16 @@ describe("NumberEditor", function () {
     // test min
     simulateInput(editor, {key: '0'}, '0');
     simulateInput(editor, {key: 'Enter'}, null);
-    assert.equal(value, 1);
+    assert.equal(value, 2);
+
+    simulateInput(editor, {key: '6'}, '6');
+    simulateInput(editor, {key: 'ArrowUp'}, null);
+    assert.equal(value, 8);
+
+
+    simulateInput(editor, {key: '6'}, '6');
+    simulateInput(editor, {key: 'ArrowDown'}, null);
+    assert.equal(value, 4);
 
   });
 });
