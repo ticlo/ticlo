@@ -42,7 +42,7 @@ describe("PropertyEditor", function () {
       }
     });
 
-    let [server, client] = makeLocalConnection(Root.instance);
+    let [server, client] = makeLocalConnection(Root.instance, true);
 
     let [component, div] = loadTemplate(
       <PropertyEditor conn={client} keys={['PropertyEditor1.add1', 'PropertyEditor1.add2']} name='0'
@@ -83,7 +83,7 @@ describe("PropertyEditor", function () {
       }
     });
 
-    let [server, client] = makeLocalConnection(Root.instance);
+    let [server, client] = makeLocalConnection(Root.instance, true);
 
     let [component, div] = loadTemplate(
       <PropertyEditor conn={client} keys={['PropertyEditor2.add1', 'PropertyEditor2.add2']} name='0'
@@ -100,6 +100,9 @@ describe("PropertyEditor", function () {
     // subblock should expand
     SimulateEvent.simulate(expandIcon, 'click');
     await shouldHappen(() => div.querySelector('.ticl-property-list'));
+    // find the child property group for #len 0 1
+    await shouldHappen(() => div.querySelector('.ticl-property-group'));
+
 
     Root.instance.deleteValue('PropertyEditor2');
   });
