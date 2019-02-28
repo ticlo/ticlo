@@ -69,5 +69,39 @@ describe("PropertyEditor", function () {
     Root.instance.deleteValue('PropertyEditor1');
   });
 
+  it('subblock', async function () {
+
+    let job = Root.instance.addJob('PropertyEditor2');
+    job.load({
+      add1: {
+        '#is': 'add',
+        '~0': {'#is': 'add'},
+      },
+      add2: {
+        '#is': 'add',
+        '~0': {'#is': 'add'},
+      }
+    });
+
+    let [server, client] = makeLocalConnection(Root.instance);
+
+    let [component, div] = loadTemplate(
+      <PropertyEditor conn={client} keys={['PropertyEditor2.add1', 'PropertyEditor2.add2']} name='0'
+                      funcDesc={funcDesc} propDesc={propDesc}/>, 'editor');
+
+    await shouldHappen(() => div.querySelector('.ticl-number-input'));
+    let input = div.querySelector('.ticl-number-input');
+
+    let expandIcon = div.querySelector('.ticl-tree-arr-expand');
+
+    assert.isNotNull(expandIcon);
+    assert.isNull(div.querySelector('.ticl-property-list'));
+
+    // subblock should expand
+    SimulateEvent.simulate(expandIcon, 'click');
+    await shouldHappen(() => div.querySelector('.ticl-property-list'));
+
+    Root.instance.deleteValue('PropertyEditor2');
+  });
 
 });

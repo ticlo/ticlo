@@ -151,7 +151,9 @@ class PropertyDefMerger {
   }
 
   remove(name: string) {
-    this.map.delete(name);
+    if (this.map) {
+      this.map.delete(name);
+    }
   }
 }
 
