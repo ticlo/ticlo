@@ -268,6 +268,7 @@ export default class BlockStage extends React.Component<Props, any> implements S
     if (blockData && blockData.hasOwnProperty('#is')) {
       event.dataTransfer.dropEffect = 'link';
       event.preventDefault();
+      event.stopPropagation();
     } else {
       event.dataTransfer.dropEffect = 'none';
     }

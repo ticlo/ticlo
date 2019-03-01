@@ -177,8 +177,9 @@ export class PropertyEditor extends MultiSelectComponent<Props, State, PropertyL
       (dragFields.length === 1 || dragFields.length === keys.length)) {
       let fields = keys.map((s) => `${s}.${name}`);
       if (!equal(fields, dragFields)) {
-        event.preventDefault();
         event.dataTransfer.dropEffect = 'link';
+        event.preventDefault();
+        event.stopPropagation();
         return;
       }
     }

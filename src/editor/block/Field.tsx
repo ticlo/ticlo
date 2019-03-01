@@ -263,8 +263,9 @@ export class FieldView extends PureDataRenderer<FieldViewProps, any> {
 
     let fields: string[] = DragStore.getData(item.getConn(), 'fields');
     if (Array.isArray(fields) && fields.length === 1 && fields[0] !== item.key) {
-      event.preventDefault();
       event.dataTransfer.dropEffect = 'link';
+      event.preventDefault();
+      event.stopPropagation();
     } else {
       event.dataTransfer.dropEffect = 'none';
     }
