@@ -138,7 +138,7 @@ export class BlockView extends PureDataRenderer<BlockViewProps, BlockViewState> 
       item.stage.selectBlock(item.key);
     }
     if (item.selected) {
-      item.stage.dragStart(e, initFunction);
+      item.stage.startDragBlock(e, initFunction);
     }
   };
 

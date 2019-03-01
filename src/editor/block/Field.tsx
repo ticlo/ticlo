@@ -33,7 +33,7 @@ export interface Stage {
 
   selectBlock(key: string, ctrl?: boolean): void;
 
-  dragStart(e: PointerEvent, initFunction: DragInitFunction): void;
+  startDragBlock(e: PointerEvent, initFunction: DragInitFunction): void;
 
   isDraggingBlock(): boolean;
 

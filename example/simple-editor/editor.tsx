@@ -12,6 +12,7 @@ import BlockStage from "../../src/editor/block/BlockStage";
 import {initEditor} from "../../src/editor";
 import {PropertyList} from "../../src/editor/property/PropertyList";
 import {ClientConnection} from "../../src/common/connect/ClientConnection";
+import {DragStore} from "../../src/ui/util/DragStore";
 
 interface Props {
   conn: ClientConnection;
@@ -29,6 +30,18 @@ class App extends React.PureComponent<Props, State> {
 
   onSelect = (keys: string[]) => {
     this.setState({'selectedKeys': keys});
+  };
+
+  onDragBlock = (e: React.DragEvent) => {
+    let {conn} = this.props;
+    DragStore.dragStart(conn, {
+      block: {
+        '#is': 'add',
+        '1': 4,
+        '@b-xyw': [100, 100, 150],
+        '@b-p': ['0', '1', 'output', '@b-p', '#is'],
+      }
+    });
   };
 
   render() {
@@ -53,6 +66,8 @@ class App extends React.PureComponent<Props, State> {
             <PropertyList conn={conn} keys={selectedKeys}
             />
           </Card>
+
+          <Button draggable={true} onDragStart={this.onDragBlock}> Drag Me </Button>
 
         </div>
       </div>
