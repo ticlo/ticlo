@@ -13,6 +13,7 @@ import Property = Chai.Property;
 import {Type, Types, DescListener} from "../block/Type";
 import {FunctionDesc} from "../block/Descriptor";
 import {propRelative} from "../util/Path";
+import {anyChildProperty} from "../block/Util";
 
 class ServerRequest extends ConnectionSendingData {
   id: string;
@@ -311,7 +312,7 @@ export class ServerConnection extends Connection {
             break;
           }
           case 'create' : {
-            result = this.createBlock(request.path, request.data);
+            result = this.createBlock(request.path, request.data, request.anyName);
             break;
           }
           case 'command' : {
@@ -421,14 +422,19 @@ export class ServerConnection extends Connection {
     }
   }
 
-  createBlock(path: string, data?: DataMap): string {
+  createBlock(path: string, data?: DataMap, anyName?: boolean): string {
     let property = this.root.queryProperty(path, true);
     if (property) {
-      property.setValue(undefined);
-      if (property instanceof HelperProperty) {
-        property._block.createHelperBlock(property._name.substring(1));
-      } else {
+      if (anyName) {
+        property = anyChildProperty(property._block, property._name);
         property._block.createBlock(property._name);
+      } else {
+        property.setValue(undefined);
+        if (property instanceof HelperProperty) {
+          property._block.createHelperBlock(property._name.substring(1));
+        } else {
+          property._block.createBlock(property._name);
+        }
       }
       if (data && data.hasOwnProperty('#is')) {
         (property._value as Block)._load(data);
