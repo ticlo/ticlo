@@ -29,6 +29,10 @@ describe("PropertyUtil", function () {
   it('renameProperty', function () {
     let job = new Job();
 
+    // move undefined property
+    renameProperty(job, 'a0', 'b0', true);
+    assert.isFalse(job.isPropertyUsed('b0'));
+
     // move value
     job.setValue('a1', 1);
     renameProperty(job, 'a1', 'b1');
@@ -69,5 +73,15 @@ describe("PropertyUtil", function () {
     renameProperty(job, 'a6', 'b6', true);
     assert.isFalse(job.isPropertyUsed('a6'));
     assert.equal(job.getProperty('c6')._bindingPath, 'b6.v');
+
+    // move child binding with same children names
+    let a7 = job.createBlock('a7');
+    a7.createBlock('a7').createBlock('a7').setValue('v', 6);
+    job.setBinding('c7', 'a7.a7.a7.v');
+    renameProperty(a7, 'a7', 'b7', true);
+    assert.isFalse(a7.isPropertyUsed('a7'));
+    assert.equal(job.getProperty('c7')._bindingPath, 'a7.b7.a7.v');
+
+
   });
 });

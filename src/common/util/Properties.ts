@@ -56,43 +56,46 @@ class PropertyMover {
       } else {
         this.saved = property._save();
       }
-    }
 
-    let checkOutbound = (checkProp: BlockProperty) => {
-      for (let targetProp of checkProp._listeners) {
-        // find binding targets
-        if (targetProp instanceof BlockProperty) {
-          if (targetProp._bindingPath && targetProp._bindingPath.includes(oldName)) {
-            let names = targetProp._bindingPath.split('.');
-            for (let i = 0; i < names.length; ++i) {
-              if (names[i] === oldName) {
-                let bindSourceProp = targetProp._block.queryProperty(names.slice(0, i + 1).join('.'));
-                if (bindSourceProp === property) {
-                  this.outboundLinks.push({
-                    prop: targetProp,
-                    preNames: names.slice(0, i),
-                    postNames: names.slice(i + 1)
-                  });
-                  break;
+      let checkOutbound = (checkProp: BlockProperty) => {
+        for (let targetProp of checkProp._listeners) {
+
+          // find binding targets
+          if (targetProp instanceof BlockProperty) {
+            if (targetProp._bindingPath && targetProp._bindingPath.includes(oldName)) {
+              let names = targetProp._bindingPath.split('.');
+              for (let i = 0; i < names.length; ++i) {
+                if (names[i] === oldName) {
+
+                  // check if the binding path touchs the property we are moving
+                  let bindSourceProp = targetProp._block.queryProperty(names.slice(0, i + 1).join('.'));
+                  if (bindSourceProp === property) {
+                    this.outboundLinks.push({
+                      prop: targetProp,
+                      preNames: names.slice(0, i),
+                      postNames: names.slice(i + 1)
+                    });
+                    break;
+                  }
                 }
               }
             }
           }
         }
+
+        return false;
+      };
+
+      if (moveOutboundLinks) {
+        this.outboundLinks = [];
+        checkOutbound(property);
+        if (property._saved instanceof Block && property._saved._prop === property) {
+          iterateProperties(property._saved, checkOutbound);
+        }
+
       }
-
-      return false;
-    };
-
-    if (moveOutboundLinks) {
-      this.outboundLinks = [];
-      checkOutbound(property);
-      if (property._saved instanceof Block && property._saved._prop === property) {
-        iterateProperties(property._saved, checkOutbound);
-      }
-
+      block.setValue(oldName, undefined);
     }
-    block.setValue(oldName, undefined);
   }
 
   moveTo(newName: string) {
