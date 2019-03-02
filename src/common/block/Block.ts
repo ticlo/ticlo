@@ -173,6 +173,17 @@ export class Block implements Runnable, FunctionData, Listener<FunctionGenerator
     return block.getProperty(path[lastIdx], create);
   }
 
+  // return true when there is no value or binding
+  isPropertyUsed(field: string) {
+    if (this._destroyed) {
+      return false;
+    }
+    if (this._props.has(field)) {
+      return !this._props.get(field).isCleared();
+    }
+    return false;
+  }
+
   getProperty(field: string, create: boolean = true): BlockProperty {
 
     if (this._destroyed) {

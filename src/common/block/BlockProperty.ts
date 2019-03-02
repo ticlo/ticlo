@@ -92,9 +92,13 @@ export class BlockProperty extends ValueDispatcher<any> implements Listener<any>
 
   // clear saved value and binding path
   clear() {
-    if (this._bindingPath || this._saved) {
+    if (this._bindingPath || this._saved !== undefined) {
       this.setValue(undefined);
     }
+  }
+
+  isCleared() {
+    return this._bindingPath == null && this._saved === undefined;
   }
 
   getValue() {
