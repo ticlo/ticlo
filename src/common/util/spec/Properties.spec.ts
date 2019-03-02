@@ -83,5 +83,12 @@ describe("PropertyUtil", function () {
     assert.equal(job.getProperty('c7')._bindingPath, 'a7.b7.a7.v');
 
 
+    // move indirect binding
+    job.setValue('a8', 7);
+    job.createBlock('c8').setBinding('v', '##.a8');
+    renameProperty(job, 'a8', 'b8', true);
+    assert.isFalse(job.isPropertyUsed('a8'));
+    assert.equal(job.queryProperty('c8.v')._bindingPath, '##.b8');
+
   });
 });

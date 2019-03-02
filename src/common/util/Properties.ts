@@ -5,13 +5,13 @@ import {BlockProperty} from "../block/BlockProperty";
 let trailingNumberReg = /\d+$/;
 
 export function anyChildProperty(block: Block, baseName: string): BlockProperty {
-  let p = block.getProperty(baseName, true);
+  let p = block.getProperty(baseName);
   if (p.isCleared()) {
     return p;
   }
   baseName = baseName.replace(trailingNumberReg, '');
   for (let i = 0; ; ++i) {
-    p = block.getProperty(`${baseName}${i}`, true);
+    p = block.getProperty(`${baseName}${i}`);
     if (p.isCleared()) {
       return p;
     }
@@ -49,7 +49,7 @@ class PropertyMover {
   constructor(block: Block, oldName: string, moveOutboundLinks = false) {
     this.block = block;
     this.oldName = oldName;
-    let property = block.getProperty(oldName);
+    let property = block.getProperty(oldName, false);
     if (property) {
       if (property._bindingPath) {
         this.binding = property._saveBinding();
@@ -114,7 +114,7 @@ class PropertyMover {
         this.block.createHelperBlock(newName)._load(this.binding);
       }
     } else if (this.saved !== undefined) {
-      this.block.getProperty(newName, true)._load(this.saved);
+      this.block.getProperty(newName)._load(this.saved);
     }
   }
 }
