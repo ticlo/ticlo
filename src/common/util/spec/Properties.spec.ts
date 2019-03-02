@@ -55,5 +55,19 @@ describe("PropertyUtil", function () {
     assert.instanceOf(job.getValue('~b4'), Block);
     assert.equal(job.queryValue('~b4.v'), 3);
     assert.equal(job.getProperty('b4')._bindingPath, '~b4.output');
+
+    // move binding
+    job.setValue('a5', 4);
+    job.setBinding('c5', 'a5');
+    renameProperty(job, 'a5', 'b5', true);
+    assert.isFalse(job.isPropertyUsed('a5'));
+    assert.equal(job.getProperty('c5')._bindingPath, 'b5');
+
+    // move child binding
+    job.createBlock('a6').setValue('v', 5);
+    job.setBinding('c6', 'a6.v');
+    renameProperty(job, 'a6', 'b6', true);
+    assert.isFalse(job.isPropertyUsed('a6'));
+    assert.equal(job.getProperty('c6')._bindingPath, 'b6.v');
   });
 });
