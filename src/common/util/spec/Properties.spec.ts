@@ -1,10 +1,9 @@
 import {assert} from "chai";
 
-import {Block, Job} from "../Block";
-import {BlockPropertyEvent} from "../BlockProperty";
-import {Dispatcher} from "../Dispatcher";
-import {VoidListeners} from "./TestFunction";
-import {anyChildProperty} from "../Util";
+import {Block, Job} from "../../block/Block";
+import {BlockPropertyEvent} from "../../block/BlockProperty";
+import {Dispatcher} from "../../block/Dispatcher";
+import {anyChildProperty} from "../Properties";
 
 describe("Block Util", function () {
 

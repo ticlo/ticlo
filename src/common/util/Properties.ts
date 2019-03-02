@@ -1,5 +1,5 @@
-import {Block} from "./Block";
-import {BlockProperty} from "./BlockProperty";
+import {Block} from "../block/Block";
+import {BlockProperty} from "../block/BlockProperty";
 
 function isPropertyEmpty(prop: BlockProperty) {
   return prop._value === undefined && prop._bindingPath === undefined;
