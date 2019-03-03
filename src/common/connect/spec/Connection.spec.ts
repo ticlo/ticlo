@@ -446,14 +446,20 @@ describe("Connection", function () {
     client.destroy();
     Root.instance.deleteValue('Connection12');
   });
+
   it('autoName', async function () {
     let job1 = Root.instance.addJob('Connection13');
 
     let [server, client] = makeLocalConnection(Root.instance, false);
 
-    client.createBlock('Connection13.a', null, true);
-    client.createBlock('Connection13.a', null, true);
-    await client.createBlock('Connection13.a', null, true);
+    let response1 = await client.createBlock('Connection13.a', null, true);
+    let response2 = await client.createBlock('Connection13.a', null, true);
+    let response3 = await client.createBlock('Connection13.a', null, true);
+
+    // result names
+    assert.equal(response1.name, 'a');
+    assert.equal(response2.name, 'a0');
+    assert.equal(response3.name, 'a1');
 
     // a a0 a1 should all be created
     assert.instanceOf(job1.getValue('a1'), Block);

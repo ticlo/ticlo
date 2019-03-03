@@ -422,7 +422,7 @@ export class ServerConnection extends Connection {
     }
   }
 
-  createBlock(path: string, data?: DataMap, anyName?: boolean): string {
+  createBlock(path: string, data?: DataMap, anyName?: boolean): string | DataMap {
     let property = this.root.queryProperty(path, true);
     if (property) {
       if (anyName) {
@@ -439,7 +439,7 @@ export class ServerConnection extends Connection {
       if (data && data.hasOwnProperty('#is')) {
         (property._value as Block)._load(data);
       }
-      return null;
+      return {name: property._name};
     } else {
       return 'invalid path';
     }
