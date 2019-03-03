@@ -171,6 +171,7 @@ class ServerWatch extends ServerRequest implements BlockChildWatch, Listener<any
     if (this._pendingChanges) {
       let val = property._saved;
       if (saved && val instanceof Block) {
+        this._cached.add(property._name);
         this._pendingChanges[property._name] = val._blockId;
         this.connection.addSend(this);
       } else {

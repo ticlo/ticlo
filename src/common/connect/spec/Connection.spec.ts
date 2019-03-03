@@ -84,6 +84,36 @@ describe("Connection", function () {
     Root.instance.deleteValue('Connection2');
   });
 
+  it('watch', async function () {
+    let job = Root.instance.addJob('Connection3-0');
+    let [server, client] = makeLocalConnection(Root.instance, false);
+
+    let child0 = job.createBlock('c0');
+
+    let callbacks1 = new AsyncClientPromise();
+    client.watch('Connection3-0', callbacks1);
+    let result1 = await callbacks1.promise;
+    assert.deepEqual(result1.changes, {'c0': child0._blockId}, 'initial value');
+    assert.deepEqual(result1.cache, {'c0': child0._blockId}, 'initial cache');
+
+    job.deleteValue('c0');
+    let result2 = await callbacks1.promise;
+    assert.deepEqual(result2.changes, {'c0': null}, 'delete value');
+
+    let child1 = job.createBlock('c1');
+    let result3 = await callbacks1.promise;
+    assert.deepEqual(result3.changes, {'c1': child1._blockId});
+
+    job.deleteValue('c1');
+    let result4 = await callbacks1.promise;
+    assert.deepEqual(result4.changes, {'c1': null});
+
+    // clean up
+    callbacks1.cancel();
+    client.destroy();
+    Root.instance.deleteValue('Connection3-0');
+  });
+
   it('multiple watch', async function () {
     let job = Root.instance.addJob('Connection3');
     let [server, client] = makeLocalConnection(Root.instance, false);

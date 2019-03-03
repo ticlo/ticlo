@@ -289,11 +289,9 @@ export default class BlockStage extends React.Component<Props, any> implements S
   };
 
   deleteSelectedBlocks() {
-    console.log(123);
     let {conn} = this.props;
     for (let [blockKey, blockItem] of this._blocks) {
       if (blockItem.selected) {
-        console.log(blockKey);
         conn.setValue(blockKey, undefined);
       }
     }
