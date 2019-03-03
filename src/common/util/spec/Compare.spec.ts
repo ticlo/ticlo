@@ -21,6 +21,7 @@ describe("Compare", function () {
 
     assert.isFalse(deepEqual('a', 1));
     assert.isFalse(deepEqual(null, undefined));
+    assert.isFalse(deepEqual([], {}));
     assert.isFalse(deepEqual([1], [1, 1]));
     assert.isFalse(deepEqual([1], [2]));
     assert.isFalse(deepEqual({a: 1}, {a: 2}));
