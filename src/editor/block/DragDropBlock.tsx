@@ -23,11 +23,7 @@ export function onDropBlock(conn: ClientConnection, event: React.DragEvent, crea
   if (blockData && blockData.hasOwnProperty('#is')) {
     let {offsetX, offsetY} = event.nativeEvent;
 
-    let blockName = DragStore.getData(conn, 'name');
-    if (blockName == null && event.ctrlKey) {
-      // drop with ctrl to use default name
-      blockName = blockData['#is'];
-    }
+    let blockName = DragStore.getData(conn, 'name') ||  blockData['#is'];
 
     let onConfirmedBlockName = (name: string) => {
       let width = 150;
@@ -46,7 +42,7 @@ export function onDropBlock(conn: ClientConnection, event: React.DragEvent, crea
       createBlock(name, blockData);
     };
 
-    if (blockName == null || event.shiftKey) {
+    if (blockName === '' || event.shiftKey) {
       // drop with shift to force change name
       blockName = blockName || blockData['#is'];
       let onInputChange = (change: React.ChangeEvent<HTMLInputElement>) => {
