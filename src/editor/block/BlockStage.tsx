@@ -1,4 +1,4 @@
-import React from "react";
+import React, {KeyboardEvent} from "react";
 import {ClientConnection} from "../../common/connect/ClientConnection";
 import {DataMap} from "../../common/util/Types";
 import {BlockItem, BlockView} from "./Block";
@@ -47,6 +47,7 @@ export default class BlockStage extends React.Component<Props, any> implements S
       }
       onSelect(selectedKeys);
     }
+    this.selectionChanged = false;
   }
 
   selectionChanged = false;
@@ -76,7 +77,6 @@ export default class BlockStage extends React.Component<Props, any> implements S
       if (!block.selected && this.selectionChanged) {
         // current block is not selected, dragging wont start
         // update the onSelect event now
-        this.selectionChanged = false;
         this.onSelect();
       }
     }
@@ -230,17 +230,24 @@ export default class BlockStage extends React.Component<Props, any> implements S
       let changes = response.changes;
       for (let name in changes) {
         let change = changes[name];
+        let key = `${this.props.basePath}.${name}`;
         if (change === null) {
-          if (this._blocks.has(name)) {
-            this._blocks.delete(name);
+          if (this._blocks.has(key)) {
+            if (this._blocks.get(key).selected) {
+              this.selectionChanged = true;
+            }
+            this._blocks.delete(key);
             this.forceUpdate();
           }
         } else {
-          if (!this._blocks.has(name)) {
-            this._blocks.set(`${this.props.basePath}.${name}`, new BlockItem(this.props.conn, this, `${this.props.basePath}.${name}`));
+          if (!this._blocks.has(key)) {
+            this._blocks.set(key, new BlockItem(this.props.conn, this, key));
             this.forceUpdate();
           }
         }
+      }
+      if (this.selectionChanged) {
+        this.onSelect();
       }
     }
   };
@@ -278,7 +285,26 @@ export default class BlockStage extends React.Component<Props, any> implements S
       this.onSelect(); // update the property list
     } catch (e) {
       // TODO show warning?
+    }
+  };
 
+  deleteSelectedBlocks() {
+    console.log(123);
+    let {conn} = this.props;
+    for (let [blockKey, blockItem] of this._blocks) {
+      if (blockItem.selected) {
+        console.log(blockKey);
+        conn.setValue(blockKey, undefined);
+      }
+    }
+  }
+
+  onKeyDown = (e: KeyboardEvent) => {
+    switch (e.key) {
+      case 'Delete': {
+        this.deleteSelectedBlocks();
+        return;
+      }
     }
   };
 
@@ -299,7 +325,8 @@ export default class BlockStage extends React.Component<Props, any> implements S
     }
 
     return (
-      <div style={style} className="ticl-block-stage" onDragOver={this.onDragOver} onDrop={this.onDrop}>
+      <div style={style} className="ticl-block-stage" onDragOver={this.onDragOver} onDrop={this.onDrop}
+           onKeyDown={this.onKeyDown} tabIndex={0}>
         <DragInitiator className='ticl-full' getRef={this.getBgRef} onDragInit={this.onSelectRectDragStart}/>
         {children}
         <div ref={this.getSelectRectRef} className="ticl-block-select-rect"/>
