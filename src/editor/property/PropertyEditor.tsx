@@ -10,11 +10,10 @@ import {StringEditor} from "./value/StringEditor";
 import {ToggleEditor} from "./value/ToggleEditor";
 import {SelectEditor} from "./value/SelectEditor";
 import {DragStore} from "../../ui/util/DragStore";
-import equal from "fast-deep-equal";
 import {PasswordEditor} from "./value/PasswordEditor";
 import {ExpandIcon} from "../../ui/component/Tree";
 import {PropertyList} from "./PropertyList";
-import {arrayEqual} from "../../common/util/Compare";
+import {arrayEqual, deepEqual} from "../../common/util/Compare";
 import {ClickParam} from "antd/lib/menu";
 import {stopPropagation} from "../../common/util/Functions";
 
@@ -59,7 +58,7 @@ class PropertyLoader extends MultiSelectLoader<PropertyEditor> {
       if (!Array.isArray(value)) {
         value = [];
       }
-      if (!equal(value, this.bProperties)) {
+      if (!deepEqual(value, this.bProperties)) {
         this.bProperties = value;
         if (this.cache) {
           // update only when cache is ready
@@ -176,7 +175,7 @@ export class PropertyEditor extends MultiSelectComponent<Props, State, PropertyL
     if (Array.isArray(dragFields) &&
       (dragFields.length === 1 || dragFields.length === keys.length)) {
       let fields = keys.map((s) => `${s}.${name}`);
-      if (!equal(fields, dragFields)) {
+      if (!deepEqual(fields, dragFields)) {
         event.dataTransfer.dropEffect = 'link';
         event.preventDefault();
         event.stopPropagation();

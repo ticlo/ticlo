@@ -12,8 +12,8 @@ import {
 import {PropertyEditor} from "./PropertyEditor";
 import {GroupEditor} from "./GroupEditor";
 import {MultiSelectComponent, MultiSelectLoader} from "./MultiSelectComponent";
-import equal from "fast-deep-equal";
 import {ExpandIcon} from "../../ui/component/Tree";
+import {deepEqual} from "../../common/util/Compare";
 
 class BlockLoader extends MultiSelectLoader<PropertyList> {
 
@@ -30,7 +30,7 @@ class BlockLoader extends MultiSelectLoader<PropertyList> {
       if (!Array.isArray(value)) {
         value = null;
       }
-      if (!equal(value, this.more)) {
+      if (!deepEqual(value, this.more)) {
         this.more = value;
         this.parent.forceUpdate();
       }

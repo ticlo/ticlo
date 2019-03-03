@@ -8,7 +8,6 @@ import {cssNumber} from "../../ui/util/Types";
 import {FieldItem, Stage} from "./Field";
 import {forAllPathsBetween} from "../../common/util/Path";
 import {DragStore} from "../../ui/util/DragStore";
-import equal from "fast-deep-equal";
 
 interface Props {
   conn: ClientConnection;

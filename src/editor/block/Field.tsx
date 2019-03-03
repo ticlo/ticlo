@@ -3,7 +3,6 @@ import {WireItem} from "./Wire";
 import {DataRendererItem, PureDataRenderer} from "../../ui/component/DataRenderer";
 import {DataMap} from "../../common/util/Types";
 import {relative, resolve} from "../../common/util/Path";
-import equal from "fast-deep-equal";
 import {translateProperty} from "../../common/util/i18n";
 import {displayValue, shallowEqual} from "../../ui/util/Types";
 import {ClientConnection, ValueUpdate} from "../../common/connect/ClientConnection";
@@ -16,7 +15,7 @@ import {
   PropGroupDesc
 } from "../../common/block/Descriptor";
 import {DragInitFunction} from "../../ui/component/DragHelper";
-import {arrayEqual} from "../../common/util/Compare";
+import {arrayEqual, deepEqual} from "../../common/util/Compare";
 import {TIcon} from "../icon/Icon";
 import {DragStore} from "../../ui/util/DragStore";
 
@@ -151,7 +150,7 @@ export class FieldItem extends DataRendererItem<ValueRenderer> {
   listener = {
     onUpdate: (response: ValueUpdate) => {
       let change = response.change;
-      if (!equal(response.cache, this.cache)) {
+      if (!deepEqual(response.cache, this.cache)) {
         this.cache = response.cache;
         if (change.hasOwnProperty('value')) {
           for (let renderer of this._renderers) {
@@ -397,7 +396,7 @@ export abstract class BaseBlockItem extends DataRendererItem<XYWRenderer> {
       if (!Array.isArray(value)) {
         value = null;
       }
-      if (!equal(value, this.more)) {
+      if (!deepEqual(value, this.more)) {
         this.more = value;
         this.updatePropCache();
       }
