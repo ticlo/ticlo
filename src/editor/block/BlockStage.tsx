@@ -7,7 +7,7 @@ import {AbstractPointerEvent, DragInitFunction, DragInitiator} from "../../ui/co
 import {cssNumber} from "../../ui/util/Types";
 import {FieldItem, Stage} from "./Field";
 import {forAllPathsBetween} from "../../common/util/Path";
-import {DragStore} from "../../ui/util/DragStore";
+import {onDragBlockOver, onDropBlock} from "./DragDropBlock";
 
 interface Props {
   conn: ClientConnection;
@@ -261,40 +261,20 @@ export default class BlockStage extends React.Component<Props, any> implements S
 
   onDragOver = (event: React.DragEvent) => {
     let {conn} = this.props;
-
-    let blockData = DragStore.getData(conn, 'block');
-
-    if (blockData && blockData.hasOwnProperty('#is')) {
-      event.dataTransfer.dropEffect = 'link';
-      event.preventDefault();
-      event.stopPropagation();
-    } else {
-      event.dataTransfer.dropEffect = 'none';
-    }
+    onDragBlockOver(conn, event);
   };
+
   onDrop = (event: React.DragEvent) => {
+    let {conn} = this.props;
+    onDropBlock(conn, event, this.createBlock);
+  };
+
+  createBlock = async (name: string, blockData: {[key: string]: any}) => {
     let {conn, basePath} = this.props;
+    try {
+      let newName: string = (await conn.createBlock(`${basePath}.${name}`, blockData, true)).name;
+    } catch (e) {
 
-    let blockData = DragStore.getData(conn, 'block');
-    if (blockData && blockData.hasOwnProperty('#is')) {
-      let {offsetX, offsetY} = event.nativeEvent;
-      let blockName = DragStore.getData(conn, 'name') || blockData['#is'];
-
-      let width = 150;
-      let xyw = [offsetX - 12, offsetY - 12, width];
-      if (blockData.hasOwnProperty('@b-xyw')) {
-        let dataXyw = blockData['@b-xyw'];
-        if (Array.isArray(xyw)) {
-          if (dataXyw.length >= 3 && dataXyw[2] > 80 && dataXyw[2] < 9999) {
-            xyw = [offsetX - 12, offsetY - 12, width];
-          } else {
-            xyw = [offsetX - 12, offsetY - 12];
-          }
-        }
-      }
-
-      blockData['@b-xyw'] = xyw;
-      conn.createBlock(`${basePath}.${blockName}`, blockData, true);
     }
   };
 
