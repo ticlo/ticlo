@@ -59,7 +59,9 @@ export function onDropBlock(conn: ClientConnection, event: React.DragEvent, crea
         }
       };
       let onGetRef = (ref: Input) => {
-        ref.select();
+        if (ref) {
+          ref.select();
+        }
       };
       Modal.confirm({
         title: "Block Name",

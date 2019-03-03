@@ -272,8 +272,12 @@ export default class BlockStage extends React.Component<Props, any> implements S
   createBlock = async (name: string, blockData: {[key: string]: any}) => {
     let {conn, basePath} = this.props;
     try {
-      let newName: string = (await conn.createBlock(`${basePath}.${name}`, blockData, true)).name;
+      let newName = (await conn.createBlock(`${basePath}.${name}`, blockData, true)).name;
+      let newKey = `${basePath}.${newName}`;
+      this.selectBlock(newKey, false);
+      this.onSelect(); // update the property list
     } catch (e) {
+      // TODO show warning?
 
     }
   };
