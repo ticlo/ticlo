@@ -23,18 +23,17 @@ export function onDropBlock(conn: ClientConnection, event: React.DragEvent, crea
   if (blockData && blockData.hasOwnProperty('#is')) {
     let {offsetX, offsetY} = event.nativeEvent;
 
-    let blockName = DragStore.getData(conn, 'name') ||  blockData['#is'];
+    let blockName = DragStore.getData(conn, 'name') || blockData['#is'];
 
     let onConfirmedBlockName = (name: string) => {
       let width = 150;
       let xyw = [offsetX - 12, offsetY - 12, width];
       if (blockData.hasOwnProperty('@b-xyw')) {
         let dataXyw = blockData['@b-xyw'];
-        if (Array.isArray(xyw)) {
-          if (dataXyw.length >= 3 && dataXyw[2] > 80 && dataXyw[2] < 9999) {
+        if (Array.isArray(dataXyw)) {
+          width = dataXyw[2];
+          if (width > 80 && width < 9999) {
             xyw = [offsetX - 12, offsetY - 12, width];
-          } else {
-            xyw = [offsetX - 12, offsetY - 12];
           }
         }
       }
