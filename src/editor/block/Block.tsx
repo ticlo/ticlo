@@ -43,6 +43,12 @@ export class BlockItem extends BaseBlockItem {
   }
 
   setXYW(x: number, y: number, w: number, save = false) {
+    if (!(x >= 0)) {
+      x = 0;
+    }
+    if (!(y >= 0)) {
+      y = 0;
+    }
     if (x !== this.x || y !== this.y || w !== this.y) {
       this.x = x;
       this.y = y;
