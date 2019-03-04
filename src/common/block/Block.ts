@@ -1,5 +1,4 @@
-import {ConfigGenerators, BlockReadOnlyConfig} from "./BlockConfigs";
-import {BlockProperty, BlockIO, HelperProperty} from "./BlockProperty";
+import {BlockProperty, BlockIO, HelperProperty, BlockBindingSource} from "./BlockProperty";
 import {BlockBinding} from "./BlockBinding";
 import {FunctionData, FunctionGenerator, BaseFunction, FunctionOutput} from "./BlockFunction";
 import {Dispatcher, Listener, ValueDispatcher, ListenPromise, Destroyable} from "./Dispatcher";
@@ -9,6 +8,7 @@ import {DataMap} from "../util/Types";
 import {Uid} from "../util/Uid";
 import {voidProperty} from "./Void";
 import {Resolver} from "./Resolver";
+import {ConfigGenerators, BlockReadOnlyConfig} from "./BlockConfigs";
 
 export type BlockMode = 'auto' | 'always' | 'onChange' | 'onCall' | 'disabled';
 
@@ -23,10 +23,6 @@ export interface Runnable {
   getPriority(): number;
 
   run(): void;
-}
-
-export interface BlockBindingSource extends ValueDispatcher<any>, Destroyable {
-  // getProperty(): BlockProperty;
 }
 
 class PromiseWrapper {

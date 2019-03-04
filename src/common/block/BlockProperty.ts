@@ -1,5 +1,5 @@
 import {ValueDispatcher, Listener, Dispatcher, Destroyable} from "./Dispatcher";
-import {Block, BlockBindingSource, BlockChildWatch} from "./Block";
+import {Block} from "./Block";
 import {isSavedBlock} from "../util/Types";
 
 export interface BlockPropertyEvent {
@@ -10,6 +10,10 @@ export interface BlockPropertyEvent {
 
 export interface BlockPropertySubscriber {
   onPropertyEvent(change: BlockPropertyEvent): void;
+}
+
+export interface BlockBindingSource extends ValueDispatcher<any>, Destroyable {
+  // getProperty(): BlockProperty;
 }
 
 export class BlockProperty extends ValueDispatcher<any> implements Listener<any>, BlockBindingSource {
