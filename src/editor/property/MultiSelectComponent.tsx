@@ -1,7 +1,8 @@
 import React from "react";
 import {ClientConnection} from "../../common/connect/ClientConnection";
+import {LazyUpdateComponent} from "../../ui/component/LazyUpdateComponent";
 
-interface Props {
+interface MultiSelectProps {
   keys: string[];
   conn: ClientConnection;
 }
@@ -15,7 +16,7 @@ export abstract class MultiSelectLoader<T extends MultiSelectComponent<any, any,
   constructor(key: string, parent: T) {
     this.key = key;
     this.parent = parent;
-    this.conn = (parent.props as Props).conn;
+    this.conn = (parent.props as MultiSelectProps).conn;
   }
 
   abstract init(): void;
@@ -23,10 +24,9 @@ export abstract class MultiSelectLoader<T extends MultiSelectComponent<any, any,
   abstract destroy(): void;
 }
 
-
-export abstract class MultiSelectComponent<P extends Props, S,
+export abstract class MultiSelectComponent<P extends MultiSelectProps, S,
   Loader extends MultiSelectLoader<MultiSelectComponent<P, S, Loader>>>
-  extends React.Component<P, S> {
+  extends LazyUpdateComponent<P, S> {
 
   loaders: Map<string, Loader> = new Map<string, Loader>();
 
@@ -77,33 +77,11 @@ export abstract class MultiSelectComponent<P extends Props, S,
     return false;
   }
 
-  _rendering = false;
-  _mounted = false;
-
-  render(): React.ReactNode {
-    this._rendering = true;
-    let result = this.renderImpl();
-    this._rendering = false;
-    this._mounted = true;
-    return result;
-  }
-
-  abstract renderImpl(): React.ReactNode;
-
-  forceUpdate() {
-    this.props.conn.callImmediate(this.safeForceUpdate);
-  }
-
-  safeForceUpdate = () => {
-    if (this._mounted && !this._rendering) {
-      super.forceUpdate();
-    }
-  };
-
   componentWillUnmount() {
-    this._mounted = false;
+    super.componentWillUnmount();
     for (let [key, loader]of this.loaders) {
       loader.destroy();
     }
   }
+
 }

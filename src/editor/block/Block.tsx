@@ -218,11 +218,13 @@ export class BlockView extends PureDataRenderer<BlockViewProps, BlockViewState> 
   renderImpl() {
     let {item} = this.props;
     let SpecialView = item.desc.view;
+    console.log(item);
 
     if (SpecialView && SpecialView.fullView) {
       return (
-        <DragInitiator getRef={this.getRef} onDragInit={this.selectAndDrag}>
-          <SpecialView conn={item.conn} key={item.key}/>
+        <DragInitiator className={`ticl-block-full-view${item.selected ? ' ticl-block-selected' : ''}`} getRef={this.getRef}
+                       onDragInit={this.selectAndDrag} style={{top: item.y, left: item.x, width: item.w}}>
+          <SpecialView conn={item.conn} path={item.key}/>
         </DragInitiator>
       );
     } else if (item.w) {

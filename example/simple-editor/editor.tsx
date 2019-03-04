@@ -37,6 +37,15 @@ class App extends React.PureComponent<Props, State> {
       }
     });
   };
+  onDragNote = (e: React.DragEvent) => {
+    let {conn} = this.props;
+    DragStore.dragStart(conn, {
+      block: {
+        '#is': 'note',
+        '@b-xyw': [100, 100, 150],
+      }
+    });
+  };
 
   render() {
     let {conn} = this.props;
@@ -61,7 +70,9 @@ class App extends React.PureComponent<Props, State> {
             />
           </Card>
 
-          <Button draggable={true} onDragStart={this.onDragBlock}> Drag Me </Button>
+          <Button draggable={true} onDragStart={this.onDragBlock}> Drag Add </Button>
+          <Button draggable={true} onDragStart={this.onDragNote}> Drag Note </Button>
+
 
         </div>
       </div>

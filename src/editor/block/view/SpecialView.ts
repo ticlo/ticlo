@@ -5,5 +5,5 @@ import {ClientConnection} from "../../../common/connect/ClientConnection";
 
 export interface SpecialViewProps {
   conn: ClientConnection;
-  key: string;
+  path: string;
 }
