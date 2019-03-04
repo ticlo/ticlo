@@ -1,15 +1,13 @@
 import React from "react";
-import {ClientConnection, ValueUpdate} from "../../common/connect/ClientConnection";
+import {ClientConnection, ValueUpdate, blankFuncDesc, getFuncStyleFromDesc, FunctionDesc} from "../../common";
 import {DataMap} from "../../common/util/Types";
 import {PureDataRenderer} from "../../ui/component/DataRenderer";
 import {TIcon} from "../icon/Icon";
-import {blankFuncDesc, getFuncStyleFromDesc} from "../../common/block/Descriptor";
 import {AbstractPointerEvent, DragInitFunction, DragInitiator} from "../../ui/component/DragHelper";
 import {BaseBlockItem, Stage, XYWRenderer} from "./Field";
 
 const fieldYOffset = 12;
 const fieldHeight = 24;
-
 
 export class BlockItem extends BaseBlockItem {
   viewW: number = 0;
@@ -219,8 +217,14 @@ export class BlockView extends PureDataRenderer<BlockViewProps, BlockViewState> 
 
   renderImpl() {
     let {item} = this.props;
-    if (item.desc.view === 'full') {
+    let SpecialView = item.desc.view;
 
+    if (SpecialView && SpecialView.fullView) {
+      return (
+        <DragInitiator getRef={this.getRef} onDragInit={this.selectAndDrag}>
+          <SpecialView conn={item.conn} key={item.key}/>
+        </DragInitiator>
+      );
     } else if (item.w) {
       return (
         <div

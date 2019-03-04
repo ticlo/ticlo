@@ -1,4 +1,4 @@
-import * as React from "react";
+import React from "react";
 import {PropDesc} from "../../../common/block/Descriptor";
 
 // export type ChangeReason = 'minus' | 'plus' | 'enter' | 'blur';

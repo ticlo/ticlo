@@ -1,9 +1,9 @@
 import {FunctionDesc} from "../block/Descriptor";
-import i18n from "i18next";
+import i18next from "i18next";
 
 export async function init(lng?: string) {
   await new Promise((receive, reject) => {
-    i18n.init({lng}, receive);
+    i18next.init({lng}, receive);
   });
 }
 
@@ -14,7 +14,7 @@ export function translateType(type: string, namespace?: string): string {
     return '';
   }
   let i18ns = namespace ? `ticlo-${namespace}` : 'ticlo-block';
-  return i18n.t(`${type}.@name`, {ns: i18ns, defaultValue: type});
+  return i18next.t(`${type}.@name`, {ns: i18ns, defaultValue: type});
 }
 
 export function translateProperty(type: string, name: string, namespace?: string): string {
@@ -26,8 +26,8 @@ export function translateProperty(type: string, name: string, namespace?: string
   if (numMatch) {
     let baseName = name.substr(0, numMatch.index);
     let numStr = name.substr(numMatch.index);
-    return `${i18n.t(`${type}.${baseName}.@name`, {ns: i18ns, defaultValue: baseName})}${numStr}`;
+    return `${i18next.t(`${type}.${baseName}.@name`, {ns: i18ns, defaultValue: baseName})}${numStr}`;
   } else {
-    return i18n.t(`${type}.${name}.@name`, {ns: i18ns, defaultValue: name});
+    return i18next.t(`${type}.${name}.@name`, {ns: i18ns, defaultValue: name});
   }
 }

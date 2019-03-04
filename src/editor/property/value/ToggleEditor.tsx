@@ -1,4 +1,4 @@
-import * as React from "react";
+import React from "react";
 import {Switch} from "antd";
 import {PropDesc} from "../../../common/block/Descriptor";
 import {ValueEditorProps} from "./ValueEditor";
