@@ -56,7 +56,6 @@ export class LazyUpdateListener {
   }
 
   onError(error: string, data?: DataMap) {
-    console.log(error);
     this.error = error;
     this.parent.forceUpdate();
   }

@@ -42,6 +42,7 @@ class App extends React.PureComponent<Props, State> {
     DragStore.dragStart(conn, {
       block: {
         '#is': 'note',
+        'text': 'note',
         '@b-xyw': [100, 100, 150],
       }
     });

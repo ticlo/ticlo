@@ -18,7 +18,6 @@ class NoteView extends LazyUpdateComponent<SpecialViewProps, any> {
   constructor(props: SpecialViewProps) {
     super(props);
     let {conn, path} = props;
-    console.log(props);
     conn.subscribe(`${path}.text`, this.text, true);
     conn.subscribe(`${path}.html`, this.html, true);
     conn.subscribe(`${path}.background`, this.background, true);
@@ -26,7 +25,6 @@ class NoteView extends LazyUpdateComponent<SpecialViewProps, any> {
   }
 
   renderImpl(): React.ReactNode {
-    console.log('render');
     let rawHtml: string;
     let text = this.text.value;
     if (text) {

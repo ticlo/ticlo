@@ -218,7 +218,6 @@ export class BlockView extends PureDataRenderer<BlockViewProps, BlockViewState> 
   renderImpl() {
     let {item} = this.props;
     let SpecialView = item.desc.view;
-    console.log(item);
 
     if (SpecialView && SpecialView.fullView) {
       return (
