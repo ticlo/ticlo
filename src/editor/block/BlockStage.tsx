@@ -135,14 +135,14 @@ export class BlockStage extends React.Component<Props, any> implements Stage {
       let [x1, y1] = this._dragingSelect;
       let x2 = dx + x1;
       let y2 = dy + y1;
-      let left = Math.min(x1, x2);
-      let right = Math.max(x1, x2);
-      let top = Math.min(y1, y2);
-      let bottom = Math.max(y1, y2);
+      let left = Math.min(x1, x2) - 1;
+      let right = Math.max(x1, x2) + 1;
+      let top = Math.min(y1, y2) - 1;
+      let bottom = Math.max(y1, y2) + 1;
       let addToSelect = e.shiftKey || e.ctrlKey;
       for (let [blockKey, blockItem] of this._blocks) {
         if (blockItem.x >= left && blockItem.w + blockItem.x <= right
-          && blockItem.y >= top && blockItem.h + blockItem.y <= bottom) {
+          && blockItem.y >= top && blockItem.y + 24 <= bottom) {
           blockItem.setSelected(true);
         } else if (blockItem.selected && !addToSelect) {
           blockItem.setSelected(false);

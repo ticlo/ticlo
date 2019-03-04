@@ -10,9 +10,9 @@ const fieldYOffset = 12;
 const fieldHeight = 24;
 
 export class BlockItem extends BaseBlockItem {
-  viewW: number = 0;
+  // height of special view area
   viewH: number = 0;
-  h: number = 0;
+  h: number;
   selected: boolean = false;
 
   constructor(connection: ClientConnection, stage: Stage, key: string) {
@@ -69,12 +69,6 @@ export class BlockItem extends BaseBlockItem {
   updateFieldPosition = () => {
     let {x, y, w} = this;
 
-    if (this.desc.view === 'full') {
-      // special view, ignore other fields
-      this.w = this.viewW;
-      this.h = this.viewH;
-      return;
-    }
 
     if (!w) {
       let y1 = y + fieldYOffset;
@@ -221,7 +215,8 @@ export class BlockView extends PureDataRenderer<BlockViewProps, BlockViewState> 
 
     if (SpecialView && SpecialView.fullView) {
       return (
-        <DragInitiator className={`ticl-block-full-view${item.selected ? ' ticl-block-selected' : ''}`} getRef={this.getRef}
+        <DragInitiator className={`ticl-block-full-view${item.selected ? ' ticl-block-selected' : ''}`}
+                       getRef={this.getRef}
                        onDragInit={this.selectAndDrag} style={{top: item.y, left: item.x, width: item.w}}>
           <SpecialView conn={item.conn} path={item.key}/>
         </DragInitiator>
