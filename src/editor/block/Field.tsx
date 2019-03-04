@@ -4,7 +4,7 @@ import {DataRendererItem, PureDataRenderer} from "../../ui/component/DataRendere
 import {DataMap} from "../../common/util/Types";
 import {relative, resolve} from "../../common/util/Path";
 import {translateProperty} from "../../common/util/i18n";
-import {displayValue, shallowEqual} from "../../ui/util/Types";
+import {displayValue} from "../../ui/util/Types";
 import {ClientConnection, ValueUpdate} from "../../common/connect/ClientConnection";
 import {
   blankFuncDesc,
@@ -111,7 +111,7 @@ export class FieldItem extends DataRendererItem<ValueRenderer> {
       this.w = w;
       this.forceUpdateWires();
     }
-    if (!shallowEqual(indents, this.indents)) {
+    if (!arrayEqual(indents, this.indents)) {
       this.indents = indents.concat();
       this.forceUpdate();
     }
