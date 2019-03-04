@@ -1,9 +1,8 @@
 import {assert} from "chai";
 import SimulateEvent from "simulate-event";
 import React from 'react';
-import BlockStage from "../BlockStage";
-import {Block, Root} from "../../../common/block/Block";
-import "../../../common/functions/basic/Math";
+import {BlockStage} from "../../../editor";
+import {Block, Root} from "../../../common";
 import {destroyLastLocalConnection, makeLocalConnection} from "../../../common/connect/LocalConnection";
 import {shouldHappen, shouldReject} from "../../../common/util/test-util";
 import ReactDOM from "react-dom";
@@ -99,7 +98,7 @@ describe("editor Block Field", function () {
 
     let subtractBlock = querySingle("//div.ticl-block-head[text()='subtract']/..", div);
 
-    await  shouldHappen(() => subtractBlock.querySelectorAll('.ticl-field').length === 3);
+    await shouldHappen(() => subtractBlock.querySelectorAll('.ticl-field').length === 3);
 
     let fieldNames = subtractBlock.querySelectorAll('.ticl-field-name');
     assert.equal(fieldNames[0].textContent, '0');
@@ -110,14 +109,14 @@ describe("editor Block Field", function () {
     // hide sub block
     SimulateEvent.simulate(fieldNames[0], 'dblclick');
 
-    await  shouldHappen(() => subtractBlock.querySelectorAll('.ticl-field').length === 1);
+    await shouldHappen(() => subtractBlock.querySelectorAll('.ticl-field').length === 1);
     // wire should still exists
     assert.isNotNull(document.querySelector('svg'));
 
     // show sub block again
     SimulateEvent.simulate(fieldNames[0], 'dblclick');
 
-    await  shouldHappen(() => subtractBlock.querySelectorAll('.ticl-field').length === 3);
+    await shouldHappen(() => subtractBlock.querySelectorAll('.ticl-field').length === 3);
 
     Root.instance.deleteValue('BlockField2');
   });

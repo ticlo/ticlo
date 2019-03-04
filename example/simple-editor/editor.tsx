@@ -1,17 +1,11 @@
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import {Menu, Icon, Dropdown, Button, Card} from 'antd';
-import NodeTree from "../../src/editor/node-tree/NodeTree";
-import {Block, Root} from "../../src/common/block/Block";
+import {Block, Root, ClientConnection} from "../../src/common";
 import {makeLocalConnection} from "../../src/common/connect/LocalConnection";
 import {TIcon} from "../../src/editor/icon/Icon";
-import '../../src/common/functions/basic/Math';
-import '../../src/common/functions/basic/String';
 import {sampleData} from "./sample-data";
-import BlockStage from "../../src/editor/block/BlockStage";
-import {initEditor} from "../../src/editor";
-import {PropertyList} from "../../src/editor/property/PropertyList";
-import {ClientConnection} from "../../src/common/connect/ClientConnection";
+import {initEditor, PropertyList, BlockStage, NodeTree} from "../../src/editor";
 import {DragStore} from "../../src/ui/util/DragStore";
 
 interface Props {

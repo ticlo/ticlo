@@ -16,7 +16,7 @@ interface Props {
   onSelect?: (keys: string[]) => void;
 }
 
-export default class BlockStage extends React.Component<Props, any> implements Stage {
+export class BlockStage extends React.Component<Props, any> implements Stage {
 
   private _bgNode!: HTMLElement;
   private getBgRef = (node: HTMLDivElement): void => {

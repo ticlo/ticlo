@@ -12,6 +12,8 @@ const fieldHeight = 24;
 
 
 export class BlockItem extends BaseBlockItem {
+  viewW: number = 0;
+  viewH: number = 0;
   h: number = 0;
   selected: boolean = false;
 
@@ -62,6 +64,14 @@ export class BlockItem extends BaseBlockItem {
 
   updateFieldPosition = () => {
     let {x, y, w} = this;
+
+    if (this.desc.view === 'full') {
+      // special view, ignore other fields
+      this.w = this.viewW;
+      this.h = this.viewH;
+      return;
+    }
+
     if (!w) {
       let y1 = y + fieldYOffset;
       x -= 1;
@@ -71,9 +81,15 @@ export class BlockItem extends BaseBlockItem {
       }
       this.h = fieldHeight;
     } else {
+      let headerHeight = fieldHeight;
+      if (this.desc.view === 'top') {
+        // special view, right under the header
+        headerHeight += this.viewH;
+      }
+
       let y1 = y + 1; // top border;
       y1 += fieldYOffset;
-      y1 += fieldHeight;
+      y1 += headerHeight;
       for (let field of this.fields) {
         y1 = this.fieldItems.get(field).updateFieldPos(x, y1, w, fieldHeight);
       }
@@ -197,7 +213,9 @@ export class BlockView extends PureDataRenderer<BlockViewProps, BlockViewState> 
 
   renderImpl() {
     let {item} = this.props;
-    if (item.w) {
+    if (item.desc.view === 'full') {
+
+    } else if (item.w) {
       return (
         <div
           ref={this.getRef}

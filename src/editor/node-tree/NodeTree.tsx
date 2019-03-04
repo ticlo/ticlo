@@ -18,7 +18,7 @@ interface State {
   renderer: (idx: number, style: React.CSSProperties) => React.ReactNode;
 }
 
-export default class NodeTree extends React.PureComponent<Props, State> {
+export class NodeTree extends React.PureComponent<Props, State> {
   rootList: NodeTreeItem[] = [];
   state: State;
   list: NodeTreeItem[] = [];
@@ -26,7 +26,7 @@ export default class NodeTree extends React.PureComponent<Props, State> {
   renderChild(idx: number, style: React.CSSProperties): React.ReactNode {
     let item = this.list[idx];
     return (
-      <NodeTreeRenderer item={item} key={item.key} style={style} />
+      <NodeTreeRenderer item={item} key={item.key} style={style}/>
     );
   }
 

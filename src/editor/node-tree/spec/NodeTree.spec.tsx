@@ -1,9 +1,8 @@
 import {assert} from "chai";
 import SimulateEvent from "simulate-event";
 import React from 'react';
-import NodeTree from "../NodeTree";
-import {Block, Root} from "../../../common/block/Block";
-import "../../../common/functions/basic/Math";
+import {NodeTree} from "../../../editor";
+import {Block, Root} from "../../../common";
 import {destroyLastLocalConnection, makeLocalConnection} from "../../../common/connect/LocalConnection";
 import {shouldHappen} from "../../../common/util/test-util";
 import ReactDOM from "react-dom";

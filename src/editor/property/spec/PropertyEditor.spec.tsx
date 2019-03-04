@@ -1,6 +1,7 @@
 import {assert} from "chai";
 import SimulateEvent from "simulate-event";
 import React from 'react';
+import "../../../editor";
 import {PropertyEditor} from "../PropertyEditor";
 import {Block, Root} from "../../../common/block/Block";
 import "../../../common/functions/basic/Math";

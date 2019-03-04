@@ -22,6 +22,8 @@ export type ValueType =
   | 'type'
   ;
 
+export type SpecialView = 'full' | 'top';
+
 export interface PropDesc {
   name: string;
   type: ValueType;
@@ -58,6 +60,8 @@ export interface FunctionDesc {
   useLength?: boolean;
   properties?: (PropDesc | PropGroupDesc)[];
   attributes?: (PropDesc)[];
+
+  view?: SpecialView;
 
   style?: 'repeater' | 'service';
   folder?: string;

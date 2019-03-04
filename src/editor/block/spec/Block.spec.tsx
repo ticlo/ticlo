@@ -1,9 +1,8 @@
 import {assert} from "chai";
 import SimulateEvent from "simulate-event";
 import React from 'react';
-import BlockStage from "../BlockStage";
-import {Block, Root} from "../../../common/block/Block";
-import "../../../common/functions/basic/Math";
+import {BlockStage} from "../../../editor";
+import {Block, Root} from "../../../common";
 import {destroyLastLocalConnection, makeLocalConnection} from "../../../common/connect/LocalConnection";
 import {shouldHappen, shouldReject} from "../../../common/util/test-util";
 import ReactDOM from "react-dom";

@@ -217,9 +217,11 @@ type DescListener = (desc: FunctionDesc) => void;
 
 class DescRequest extends ConnectionSend implements ClientCallbacks {
 
+  static editorCache: Map<string, FunctionDesc> = new Map<string, FunctionDesc>();
+
   listeners: Map<DescListener, string> = new Map<DescListener, string>();
 
-  cache: Map<string, FunctionDesc> = new Map<string, FunctionDesc>();
+  cache: Map<string, FunctionDesc> = new Map<string, FunctionDesc>(DescRequest.editorCache);
 
   constructor(data: DataMap) {
     super(data);
@@ -268,6 +270,10 @@ class DescRequest extends ConnectionSend implements ClientCallbacks {
 }
 
 export class ClientConnection extends Connection {
+
+  static addEditorType(id: string, desc: FunctionDesc) {
+    DescRequest.editorCache.set(id, desc);
+  }
 
   uid: Uid = new Uid();
 
