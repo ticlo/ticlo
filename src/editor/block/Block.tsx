@@ -219,6 +219,7 @@ export class BlockView extends PureDataRenderer<BlockViewProps, BlockViewState> 
                        getRef={this.getRef}
                        onDragInit={this.selectAndDrag} style={{top: item.y, left: item.x, width: item.w}}>
           <SpecialView conn={item.conn} path={item.key}/>
+          <DragInitiator className='ticl-width-drag' onDragInit={this.startDragW}/>
         </DragInitiator>
       );
     } else if (item.w) {
