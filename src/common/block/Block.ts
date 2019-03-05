@@ -1,7 +1,7 @@
-import {BlockProperty, BlockIO, HelperProperty, BlockBindingSource} from "./BlockProperty";
+import {BlockProperty, BlockIO, HelperProperty} from "./BlockProperty";
 import {BlockBinding} from "./BlockBinding";
 import {FunctionData, FunctionGenerator, BaseFunction, FunctionOutput} from "./BlockFunction";
-import {Dispatcher, Listener, ValueDispatcher, ListenPromise, Destroyable} from "./Dispatcher";
+import {Dispatcher, Listener, ValueDispatcher, ListenPromise, Destroyable, BlockBindingSource} from "./Dispatcher";
 import {Type, Types} from "./Type";
 import {ErrorEvent, Event, EventType, NOT_READY} from "./Event";
 import {DataMap} from "../util/Types";

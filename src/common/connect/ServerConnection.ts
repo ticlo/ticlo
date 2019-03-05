@@ -7,8 +7,8 @@ import {
   HelperProperty
 } from "../block/BlockProperty";
 import {DataMap, isSavedBlock, measureObjSize, truncateData} from "../util/Types";
-import {Root, Block, BlockBindingSource, BlockChildWatch} from "../block/Block";
-import {Dispatcher, Listener, ValueDispatcher} from "../block/Dispatcher";
+import {Root, Block, BlockChildWatch} from "../block/Block";
+import {BlockBindingSource, Dispatcher, Listener, ValueDispatcher} from "../block/Dispatcher";
 import Property = Chai.Property;
 import {Type, Types, DescListener} from "../block/Type";
 import {FunctionDesc} from "../block/Descriptor";

@@ -1,6 +1,6 @@
-import {ValueDispatcher, Listener, Dispatcher, Destroyable} from "./Dispatcher";
-import {Block, BlockBindingSource} from "./Block";
-import {BlockProperty} from "./BlockProperty";
+import {ValueDispatcher, Listener, Dispatcher, Destroyable, BlockBindingSource} from "./Dispatcher";
+import {Block} from "./Block";
+import { BlockProperty} from "./BlockProperty";
 
 
 export class BlockBinding extends ValueDispatcher<any> implements Listener<any>, BlockBindingSource {

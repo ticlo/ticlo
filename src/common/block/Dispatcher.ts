@@ -1,5 +1,4 @@
 import {Event, ErrorEvent, EventType} from "./Event";
-import {BlockBindingSource} from "./Block";
 
 export interface Listener<T> {
   onSourceChange(prop: Dispatcher<T>): void;
@@ -19,6 +18,10 @@ export interface Destroyable {
   destroy(): void;
 
   isDestroyed(): boolean;
+}
+
+export interface BlockBindingSource extends ValueDispatcher<any>, Destroyable {
+  // getProperty(): BlockProperty;
 }
 
 export abstract class ValueDispatcher<T> implements Dispatcher<T> {
