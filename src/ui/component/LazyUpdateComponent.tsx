@@ -1,6 +1,7 @@
 import React from "react";
 import {ClientConnection, ValueUpdate} from "../../common";
 import {DataMap} from "../../common/util/Types";
+import {shallowEqual} from "../../common/util/Compare";
 
 interface LazyUpdateProps {
   conn: ClientConnection;
@@ -16,6 +17,10 @@ export abstract class LazyUpdateComponent<P extends LazyUpdateProps, S> extends 
     this._rendering = false;
     this._mounted = true;
     return result;
+  }
+
+  shouldComponentUpdate(nextProps: Readonly<P>, nextState: Readonly<S>): boolean {
+    return !shallowEqual(this.props, nextProps) || !shallowEqual(this.state, nextState);
   }
 
   abstract renderImpl(): React.ReactNode;
