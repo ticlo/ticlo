@@ -16,6 +16,7 @@
   white-space: nowrap;
   transition-property: border-color, box-shadow;
   transition-duration: .2s;
+  z-index: 5;
 }
 
 .ticl-block-selected {
@@ -27,10 +28,18 @@
   margin: 0;
   padding: 0;
   list-style: none;
-  background: #fff;
   position: absolute;
   transition-property: border-color, box-shadow;
   transition-duration: .2s;
+  z-index: 0;
+  & > .ticl-width-drag {
+    opacity: 0;
+    transition-property: opacity;
+    transition-duration: .2s;
+  }
+  &.ticl-block-selected > .ticl-width-drag {
+    opacity: 1;
+  }
 }
 
 .ticl-block-head {

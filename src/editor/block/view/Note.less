@@ -1,7 +1,24 @@
 .ticl-block-note {
-  border: 1px solid @ticl-color-prn-light;
+  border: 1px solid fade(@yellow-8, 30%);
+  background: fade(@yellow-1, 30%);
+  padding: 4px 8px;
+  transition-property: border-color;
+  transition-duration: .2s;
+
+  & > *:last-child {
+    margin-bottom: 0;
+  }
+
+  & > p {
+    white-space: pre-line;
+    margin-bottom: 0;
+  }
+
+  p + p {
+    margin-top: 0.5em;
+  }
 }
 
 .ticl-block-note:hover {
-  border-color: @ticl-color-prn;
+  border-color: fade(@yellow-8, 50%);
 }
