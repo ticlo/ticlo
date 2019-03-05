@@ -44,17 +44,23 @@ export class LazyUpdateListener {
   parent: {forceUpdate: Function};
 
   value: any;
+  defaultValue: any;
 
   error: string;
 
-  constructor(parent: {forceUpdate: Function}) {
+  constructor(parent: {forceUpdate: Function}, defaultValue?: any) {
     this.parent = parent;
+    this.defaultValue = defaultValue;
   }
 
   onUpdate(response: ValueUpdate) {
     this.error = null;
-    if (!Object.is(response.cache.value, this.value)) {
-      this.value = response.cache.value;
+    let newValue = response.cache.value;
+    if (newValue === null) {
+      newValue = this.defaultValue;
+    }
+    if (!Object.is(newValue, this.value)) {
+      this.value = newValue;
       this.parent.forceUpdate();
     }
   }
