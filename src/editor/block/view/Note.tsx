@@ -26,7 +26,18 @@ class NoteView extends LazyUpdateComponent<SpecialViewProps, any> {
     let rawHtml: string;
     let text = this.text.value;
     if (text) {
-      rawHtml = Dompurify.sanitize(marked(this.text.value));
+      let needSanitize = false;
+      let markedOptions: marked.MarkedOptions = {
+        sanitize: true,
+        sanitizer(str: string) {
+          needSanitize = true;
+          return str;
+        }
+      };
+      rawHtml = marked(this.text.value, markedOptions);
+      if (needSanitize) {
+        rawHtml = Dompurify.sanitize(rawHtml);
+      }
     }
     let style: React.CSSProperties = {};
     if (typeof this.background.value === 'string') {
