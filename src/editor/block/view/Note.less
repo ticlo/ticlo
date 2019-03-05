@@ -3,8 +3,14 @@
   border: 1px solid fade(@yellow-7, 30%);
   background: fade(@yellow-1, 30%);
   padding: 6px 10px;
-  transition-property: border-color;
+  max-height: 100%;
+  width: 100%;
+  overflow-y: auto;
+  overflow-x: hidden;
+
+  transition-property: border;
   transition-duration: .2s;
+
 
   & > *:last-child {
     margin-bottom: 0;
