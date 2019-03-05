@@ -19,10 +19,7 @@
   z-index: 5;
 }
 
-.ticl-block-selected {
-  box-shadow: 0 0 4px 3px @ticl-color-prn-light;
-  z-index: 10;
-}
+
 .ticl-block-full-view {
   box-sizing: border-box;
   margin: 0;
@@ -32,14 +29,22 @@
   transition-property: border-color, box-shadow;
   transition-duration: .2s;
   z-index: 0;
+
   & > .ticl-width-drag {
     opacity: 0;
     transition-property: opacity;
     transition-duration: .2s;
+    top: 0;
   }
-  &.ticl-block-selected > .ticl-width-drag {
+
+  &.ticl-block-selected > .ticl-width-drag, &:hover > .ticl-width-drag {
     opacity: 1;
   }
+}
+
+.ticl-block-selected {
+  box-shadow: 0 0 4px 3px @ticl-color-prn-light;
+  z-index: 20;
 }
 
 .ticl-block-head {
@@ -49,11 +54,13 @@
   padding: 2px 12px;
   background: @ticl-color-prn;
   color: white;
+
   & > .tico {
     position: absolute;
     right: 0;
     top: 0;
   }
+
   transition-property: background;
   transition-duration: .2s;
 }
@@ -93,11 +100,14 @@
 .ticl-block-min {
   width: 24px;
   height: 24px;
+
   & > .ticl-block-head {
     border-radius: 0 10px 0;
   }
+
   border: none;
-  z-index: 20;
+  z-index: 10;
+
   &.ticl-block-selected {
     z-index: 30;
   }
@@ -126,9 +136,11 @@
 
 .ticl-block-pr0 {
   border-color: @ticl-color-pr0;
+
   & .ticl-block-prbg {
     background: @ticl-color-pr0;
   }
+
   &.ticl-block-selected {
     box-shadow: 0 0 4px 3px @ticl-color-pr0-light;
   }
@@ -136,9 +148,11 @@
 
 .ticl-block-pr1 {
   border-color: @ticl-color-pr1;
+
   & .ticl-block-prbg {
     background: @ticl-color-pr1;
   }
+
   &.ticl-block-selected {
     box-shadow: 0 0 4px 3px @ticl-color-pr1-light;
   }
@@ -146,9 +160,11 @@
 
 .ticl-block-pr2 {
   border-color: @ticl-color-pr2;
+
   & .ticl-block-prbg {
     background: @ticl-color-pr2;
   }
+
   &.ticl-block-selected {
     box-shadow: 0 0 4px 3px @ticl-color-pr2-light;
   }
@@ -156,9 +172,11 @@
 
 .ticl-block-pr3 {
   border-color: @ticl-color-pr3;
+
   & .ticl-block-prbg {
     background: @ticl-color-pr3;
   }
+
   &.ticl-block-selected {
     box-shadow: 0 0 4px 3px @ticl-color-pr3-light;
   }
@@ -166,9 +184,11 @@
 
 .ticl-block-prr {
   border-color: @ticl-color-prr;
+
   & .ticl-block-prbg {
     background: @ticl-color-prr;
   }
+
   &.ticl-block-selected {
     box-shadow: 0 0 4px 3px @ticl-color-prr-light;
   }

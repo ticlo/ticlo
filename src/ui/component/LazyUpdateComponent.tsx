@@ -53,7 +53,6 @@ export class LazyUpdateListener {
 
   onUpdate(response: ValueUpdate) {
     this.error = null;
-    console.log(response);
     if (!Object.is(response.cache.value, this.value)) {
       this.value = response.cache.value;
       this.parent.forceUpdate();
