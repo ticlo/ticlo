@@ -17,14 +17,7 @@ export function displayValue(val: any, element: HTMLElement) {
       element.innerText = JSON.stringify(val);
       break;
     case 'number':
-      let rslt1 = val.toString();
-      let rslt2 = val.toPrecision(4);
-      if (rslt1.length < rslt2.length + 3) {
-        // use full string if it's not too long
-        element.innerText = rslt1;
-      } else {
-        element.innerText = rslt2;
-      }
+      element.innerText = displayNumber(val);
       break;
     case 'undefined':
       element.innerText = '';
@@ -33,6 +26,17 @@ export function displayValue(val: any, element: HTMLElement) {
       element.innerText = `${val}`;
   }
   element.classList.remove('ticl-string-value');
+}
+
+export function displayNumber(val: number): string {
+  let rslt1 = val.toString();
+  let rslt2 = val.toPrecision(4);
+  if (rslt1.length < rslt2.length + 3) {
+    // use full string if it's not too long
+    return rslt1;
+  } else {
+    return rslt2;
+  }
 }
 
 // fix number format in svg and css

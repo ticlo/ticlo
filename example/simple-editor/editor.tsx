@@ -41,9 +41,9 @@ class App extends React.PureComponent<Props, State> {
     let {conn} = this.props;
     DragStore.dragStart(conn, {
       block: {
-        '#is': 'note',
-        'text': 'note',
+        '#is': 'slider-view',
         '@b-xyw': [100, 100, 150],
+        '@b-p': ['value'],
       }
     });
   };

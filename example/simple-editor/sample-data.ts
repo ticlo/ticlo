@@ -62,4 +62,9 @@ export const sampleData = {
     '@b-xyw': [100, 300, 150],
     '@b-p': ['0', '1', 'output']
   },
+  note: {
+    '#is': 'note',
+    '@b-xyw': [340, 100, 150],
+    'text': 'hello'
+  }
 };

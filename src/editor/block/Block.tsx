@@ -10,14 +10,22 @@ const fieldYOffset = 12;
 const fieldHeight = 24;
 
 export class BlockItem extends BaseBlockItem {
-  // height of special view area
-  viewH: number = 0;
+
   h: number;
   selected: boolean = false;
 
   constructor(connection: ClientConnection, stage: Stage, key: string) {
     super(connection, stage, key);
   }
+
+  // height of special view area
+  viewH: number = 0;
+  setViewH = (h: number) => {
+    if (h > 0 && h !== this.viewH) {
+      this.viewH = h;
+      this.conn.callImmediate(this.updateFieldPosition);
+    }
+  };
 
   forceRendererChildren() {
     this.forceUpdate();
@@ -69,7 +77,6 @@ export class BlockItem extends BaseBlockItem {
   updateFieldPosition = () => {
     let {x, y, w} = this;
 
-
     if (!w) {
       let y1 = y + fieldYOffset;
       x -= 1;
@@ -80,7 +87,7 @@ export class BlockItem extends BaseBlockItem {
       this.h = fieldHeight;
     } else {
       let headerHeight = fieldHeight;
-      if (this.desc.view === 'top') {
+      if (this.desc.view) {
         // special view, right under the header
         headerHeight += this.viewH;
       }
@@ -234,6 +241,13 @@ export class BlockView extends PureDataRenderer<BlockViewProps, BlockViewState> 
             <TIcon icon={item.desc.icon}/>
             {item.name}
           </DragInitiator>
+          {
+            SpecialView ?
+              <div className='ticl-block-view'>
+                <SpecialView conn={item.conn} path={item.key} updateViewHeight={item.setViewH}/>
+              </div>
+              : null
+          }
           <div className='ticl-block-body'>
             {item.renderFields()}
           </div>

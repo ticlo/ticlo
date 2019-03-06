@@ -1,5 +1,5 @@
 import React from "react";
-import {ClientConnection, ValueUpdate} from "../../common";
+import {ClientConnection, ValueState, ValueUpdate} from "../../common";
 import {DataMap} from "../../common/util/Types";
 import {shallowEqual} from "../../common/util/Compare";
 
@@ -44,11 +44,13 @@ export class LazyUpdateListener {
   parent: {forceUpdate: Function};
 
   value: any;
+  bindingPath: string;
   defaultValue: any;
 
   error: string;
 
   constructor(parent: {forceUpdate: Function}, defaultValue?: any) {
+    this.value = defaultValue;
     this.parent = parent;
     this.defaultValue = defaultValue;
   }
@@ -56,11 +58,15 @@ export class LazyUpdateListener {
   onUpdate(response: ValueUpdate) {
     this.error = null;
     let newValue = response.cache.value;
-    if (newValue === null) {
+    if (newValue === undefined) {
       newValue = this.defaultValue;
     }
     if (!Object.is(newValue, this.value)) {
       this.value = newValue;
+      this.parent.forceUpdate();
+    }
+    if (response.cache.bindingPath !== this.bindingPath) {
+      this.bindingPath = response.cache.bindingPath;
       this.parent.forceUpdate();
     }
   }
