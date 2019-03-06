@@ -754,9 +754,9 @@
     log4js "^3.0.0"
 
 "@types/marked@^0.6.1":
-  version "0.6.1"
-  resolved "https://registry.yarnpkg.com/@types/marked/-/marked-0.6.1.tgz#4281d0fbdb7bbefb69905cf44558297bc3c446aa"
-  integrity sha512-yE2cXQELHabu4t+RJIrFu0dVZEG7+zr0cHDSlb8SOJbXiAss/bY9PvSubgaoG7dyn9Bb+GT2Xl4HVhChuU5mEQ==
+  version "0.6.2"
+  resolved "https://registry.yarnpkg.com/@types/marked/-/marked-0.6.2.tgz#f2d508a2d769c009815f2ff3cdda9362700a9147"
+  integrity sha512-yl4Y+AXghz2VWsrIK0rXJpYYcKI1sIbaLoa+ByHq7WFHZfuN0+iJMtgn0zIXh1/DbKn6BIbp9oHuHZjEIb7QlQ==
 
 "@types/minimatch@*":
   version "3.0.3"
