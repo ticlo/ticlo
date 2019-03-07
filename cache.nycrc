@@ -3,10 +3,10 @@
     ".ts"
   ],
   "include": [
-    "src/common/**/*.ts"
+    "src/core/**/*.ts"
   ],
   "exclude": [
-    "src/common/**/*.d.ts"
+    "src/core/**/*.d.ts"
   ],
   "all": true
 }

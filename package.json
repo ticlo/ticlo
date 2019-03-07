@@ -54,14 +54,14 @@
     "typescript": "^3.3.3333"
   },
   "scripts": {
-    "nyc-cache": "nyc -s --nycrc-path cache.nycrc mocha src/common/**/*.spec.ts && mkdir coverage",
-    "test-nyc-strict": "cross-env NODE_ENV=TEST nyc --skip-full mocha src/common/**/*.spec.ts && nyc report --reporter=text-lcov > coverage/nyc-strict.log",
-    "test-nyc": "nyc --skip-full mocha src/common/**/*.spec.ts && nyc report --reporter=text-lcov > coverage/nyc.log",
+    "nyc-cache": "nyc -s --nycrc-path cache.nycrc mocha src/core/**/*.spec.ts && mkdir coverage",
+    "test-nyc-strict": "cross-env NODE_ENV=TEST nyc --skip-full mocha src/core/**/*.spec.ts && nyc report --reporter=text-lcov > coverage/nyc-strict.log",
+    "test-nyc": "nyc --skip-full mocha src/core/**/*.spec.ts && nyc report --reporter=text-lcov > coverage/nyc.log",
     "test-karma": "karma start",
     "build-less": "lessc --js src/editor/antd.less dist/antd.css && lessc --js src/editor/editor.less dist/editor.css",
     "build-icons": "ts-node tool/build-icons",
     "build-i18n": "node tool/merge-lng",
-    "test": "cross-env NODE_ENV=TEST mocha src/common/**/*.spec.ts",
+    "test": "cross-env NODE_ENV=TEST mocha src/core/**/*.spec.ts",
     "example": "parcel example/simple-editor/editor.html --open --out-dir temp --no-source-maps"
   }
 }
