@@ -1,5 +1,5 @@
 import React from "react";
-import {ClientConnection} from "../../../common/connect/ClientConnection";
+import {ClientConnection} from "../../../core/connect/ClientConnection";
 import {SpecialViewProps} from "./SpecialView";
 import {LazyUpdateComponent, LazyUpdateListener} from "../../../ui/component/LazyUpdateComponent";
 import {Slider} from "antd";

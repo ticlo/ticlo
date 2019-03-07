@@ -2,9 +2,9 @@ import {assert} from "chai";
 import SimulateEvent from "simulate-event";
 import React from 'react';
 import {NodeTree} from "../../../editor";
-import {Block, Root} from "../../../common";
-import {destroyLastLocalConnection, makeLocalConnection} from "../../../common/connect/LocalConnection";
-import {shouldHappen} from "../../../common/util/test-util";
+import {Block, Root} from "../../../core";
+import {destroyLastLocalConnection, makeLocalConnection} from "../../../core/connect/LocalConnection";
+import {shouldHappen} from "../../../core/util/test-util";
 import ReactDOM from "react-dom";
 import {removeLastTemplate, loadTemplate, querySingle} from "../../../ui/util/test-util";
 

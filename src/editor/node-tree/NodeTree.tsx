@@ -1,8 +1,8 @@
 import React from "react";
 import {ExpandState} from "../../ui/component/Tree";
 import VirtualList from "../../ui/component/Virtual";
-import {ClientConnection} from "../../common/connect/ClientConnection";
-import {DataMap} from "../../common/util/Types";
+import {ClientConnection} from "../../core/connect/ClientConnection";
+import {DataMap} from "../../core/util/Types";
 import {NodeTreeItem, NodeTreeRenderer} from "./NodeRenderer";
 
 

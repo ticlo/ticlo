@@ -1,6 +1,6 @@
 import React from "react";
-import {ClientConnection, ValueUpdate, blankFuncDesc, getFuncStyleFromDesc, FunctionDesc} from "../../common";
-import {DataMap} from "../../common/util/Types";
+import {ClientConnection, ValueUpdate, blankFuncDesc, getFuncStyleFromDesc, FunctionDesc} from "../../core";
+import {DataMap} from "../../core/util/Types";
 import {PureDataRenderer} from "../../ui/component/DataRenderer";
 import {TIcon} from "../icon/Icon";
 import {AbstractPointerEvent, DragInitFunction, DragInitiator} from "../../ui/component/DragHelper";

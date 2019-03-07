@@ -3,10 +3,10 @@ import React from "react";
 import {Dropdown, Button, Input, Icon, Menu, InputNumber} from "antd";
 import {ExpandIcon, ExpandState, TreeItem} from "../../ui/component/Tree";
 import {PureDataRenderer} from "../../ui/component/DataRenderer";
-import {DataMap} from "../../common/util/Types";
-import {ClientConnection, ValueUpdate} from "../../common/connect/ClientConnection";
+import {DataMap} from "../../core/util/Types";
+import {ClientConnection, ValueUpdate} from "../../core/connect/ClientConnection";
 import {TIcon} from "../icon/Icon";
-import {blankFuncDesc, FunctionDesc, getFuncStyleFromDesc} from "../../common/block/Descriptor";
+import {blankFuncDesc, FunctionDesc, getFuncStyleFromDesc} from "../../core/block/Descriptor";
 import {ClickParam} from "antd/lib/menu";
 
 export class NodeTreeItem extends TreeItem {

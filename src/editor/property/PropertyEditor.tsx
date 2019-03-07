@@ -1,8 +1,8 @@
 import React from "react";
 import {Button, Tooltip, Dropdown, Menu, Input} from "antd";
-import {ClientConnection, ValueState, ValueUpdate} from "../../common/connect/ClientConnection";
-import {blankPropDesc, FunctionDesc, PropDesc, PropGroupDesc} from "../../common/block/Descriptor";
-import {translateProperty} from "../../common/util/i18n";
+import {ClientConnection, ValueState, ValueUpdate} from "../../core/connect/ClientConnection";
+import {blankPropDesc, FunctionDesc, PropDesc, PropGroupDesc} from "../../core/block/Descriptor";
+import {translateProperty} from "../../core/util/i18n";
 import {MultiSelectComponent, MultiSelectLoader} from "./MultiSelectComponent";
 import {GroupEditor} from "./GroupEditor";
 import {NumberEditor} from "./value/NumberEditor";
@@ -13,9 +13,9 @@ import {DragStore} from "../../ui/util/DragStore";
 import {PasswordEditor} from "./value/PasswordEditor";
 import {ExpandIcon} from "../../ui/component/Tree";
 import {PropertyList} from "./PropertyList";
-import {arrayEqual, deepEqual} from "../../common/util/Compare";
+import {arrayEqual, deepEqual} from "../../core/util/Compare";
 import {ClickParam} from "antd/lib/menu";
-import {stopPropagation} from "../../common/util/Functions";
+import {stopPropagation} from "../../core/util/Functions";
 
 const {SubMenu} = Menu;
 

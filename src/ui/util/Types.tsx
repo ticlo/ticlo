@@ -1,4 +1,4 @@
-import {TRUNCATED} from "../../common/util/Types";
+import {TRUNCATED} from "../../core/util/Types";
 import React from "react";
 
 // display value in screen, avoid huge data in dmo to improve performance

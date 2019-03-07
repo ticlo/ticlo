@@ -1,11 +1,11 @@
 import React from "react";
 import {WireItem} from "./Wire";
 import {DataRendererItem, PureDataRenderer} from "../../ui/component/DataRenderer";
-import {DataMap} from "../../common/util/Types";
-import {relative, resolve} from "../../common/util/Path";
-import {translateProperty} from "../../common/util/i18n";
+import {DataMap} from "../../core/util/Types";
+import {relative, resolve} from "../../core/util/Path";
+import {translateProperty} from "../../core/util/i18n";
 import {displayValue} from "../../ui/util/Types";
-import {ClientConnection, ValueUpdate} from "../../common/connect/ClientConnection";
+import {ClientConnection, ValueUpdate} from "../../core/connect/ClientConnection";
 import {
   blankFuncDesc,
   blankPropDesc, buildDescCache,
@@ -13,9 +13,9 @@ import {
   FunctionDesc,
   PropDesc,
   PropGroupDesc
-} from "../../common/block/Descriptor";
+} from "../../core/block/Descriptor";
 import {DragInitFunction} from "../../ui/component/DragHelper";
-import {arrayEqual, deepEqual} from "../../common/util/Compare";
+import {arrayEqual, deepEqual} from "../../core/util/Compare";
 import {TIcon} from "../icon/Icon";
 import {DragStore} from "../../ui/util/DragStore";
 

@@ -1,4 +1,4 @@
-import {voidFunction} from "../../../../common/util/Functions";
+import {voidFunction} from "../../../../core/util/Functions";
 
 export function simulateInput(input: any, event: any, value: string) {
   if ('onKeyDown' in input && event) {

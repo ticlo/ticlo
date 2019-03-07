@@ -1,7 +1,7 @@
 import React from "react";
 import marked from "marked";
 import Dompurify from "dompurify";
-import {ClientConnection} from "../../../common/connect/ClientConnection";
+import {ClientConnection} from "../../../core/connect/ClientConnection";
 import {SpecialViewProps} from "./SpecialView";
 import {LazyUpdateComponent, LazyUpdateListener} from "../../../ui/component/LazyUpdateComponent";
 

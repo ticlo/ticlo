@@ -1,7 +1,7 @@
 import React from "react";
-import {ClientConnection, ValueState, ValueUpdate} from "../../common";
-import {DataMap} from "../../common/util/Types";
-import {shallowEqual} from "../../common/util/Compare";
+import {ClientConnection, ValueState, ValueUpdate} from "../../core";
+import {DataMap} from "../../core/util/Types";
+import {shallowEqual} from "../../core/util/Compare";
 
 interface LazyUpdateProps {
   conn: ClientConnection;

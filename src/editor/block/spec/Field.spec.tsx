@@ -2,13 +2,13 @@ import {assert} from "chai";
 import SimulateEvent from "simulate-event";
 import React from 'react';
 import {BlockStage} from "../../../editor";
-import {Block, Root} from "../../../common";
-import {destroyLastLocalConnection, makeLocalConnection} from "../../../common/connect/LocalConnection";
-import {shouldHappen, shouldReject} from "../../../common/util/test-util";
+import {Block, Root} from "../../../core";
+import {destroyLastLocalConnection, makeLocalConnection} from "../../../core/connect/LocalConnection";
+import {shouldHappen, shouldReject} from "../../../core/util/test-util";
 import ReactDOM from "react-dom";
 import {removeLastTemplate, loadTemplate, querySingle} from "../../../ui/util/test-util";
 import {initEditor} from "../../index";
-import {arrayEqual} from "../../../common/util/Compare";
+import {arrayEqual} from "../../../core/util/Compare";
 
 describe("editor Block Field", function () {
 

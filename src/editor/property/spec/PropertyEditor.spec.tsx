@@ -3,17 +3,17 @@ import SimulateEvent from "simulate-event";
 import React from 'react';
 import "../../../editor";
 import {PropertyEditor} from "../PropertyEditor";
-import {Block, Root} from "../../../common/block/Block";
-import "../../../common/functions/basic/Math";
-import {destroyLastLocalConnection, makeLocalConnection} from "../../../common/connect/LocalConnection";
-import {shouldHappen, shouldReject} from "../../../common/util/test-util";
+import {Block, Root} from "../../../core/block/Block";
+import "../../../core/functions/basic/Math";
+import {destroyLastLocalConnection, makeLocalConnection} from "../../../core/connect/LocalConnection";
+import {shouldHappen, shouldReject} from "../../../core/util/test-util";
 import ReactDOM from "react-dom";
 import {removeLastTemplate, loadTemplate, querySingle} from "../../../ui/util/test-util";
 import {initEditor} from "../../index";
-import {arrayEqual} from "../../../common/util/Compare";
-import {ClientConnection} from "../../../common/connect/ClientConnection";
-import {FunctionDesc, PropDesc, PropGroupDesc} from "../../../common/block/Descriptor";
-import {Types} from "../../../common/block/Type";
+import {arrayEqual} from "../../../core/util/Compare";
+import {ClientConnection} from "../../../core/connect/ClientConnection";
+import {FunctionDesc, PropDesc, PropGroupDesc} from "../../../core/block/Descriptor";
+import {Types} from "../../../core/block/Type";
 
 describe("PropertyEditor", function () {
 

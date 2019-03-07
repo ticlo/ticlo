@@ -4,8 +4,8 @@ import React from 'react';
 import {removeLastTemplate, loadTemplate, querySingle} from "../../../../ui/util/test-util";
 import {initEditor} from "../../../index";
 import {SelectEditor} from "../SelectEditor";
-import {shouldHappen} from "../../../../common/util/test-util";
-import {blankPropDesc, PropDesc} from "../../../../common/block/Descriptor";
+import {shouldHappen} from "../../../../core/util/test-util";
+import {blankPropDesc, PropDesc} from "../../../../core/block/Descriptor";
 
 describe("SelectEditor", function () {
 

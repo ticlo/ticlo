@@ -1,6 +1,6 @@
 import React from "react";
-import {ClientConnection, ValueUpdate} from "../../common/connect/ClientConnection";
-import {DataMap} from "../../common/util/Types";
+import {ClientConnection, ValueUpdate} from "../../core/connect/ClientConnection";
+import {DataMap} from "../../core/util/Types";
 import {
   blankFuncDesc,
   configDescs,
@@ -8,12 +8,12 @@ import {
   FunctionDesc,
   PropDesc,
   PropGroupDesc
-} from "../../common/block/Descriptor";
+} from "../../core/block/Descriptor";
 import {PropertyEditor} from "./PropertyEditor";
 import {GroupEditor} from "./GroupEditor";
 import {MultiSelectComponent, MultiSelectLoader} from "./MultiSelectComponent";
 import {ExpandIcon} from "../../ui/component/Tree";
-import {deepEqual} from "../../common/util/Compare";
+import {deepEqual} from "../../core/util/Compare";
 
 class BlockLoader extends MultiSelectLoader<PropertyList> {
 

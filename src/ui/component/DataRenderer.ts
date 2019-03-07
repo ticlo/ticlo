@@ -1,6 +1,6 @@
 import React from "react";
-import {DataMap} from "../../common/util/Types";
-import {ClientConnection} from "../../common/connect/ClientConnection";
+import {DataMap} from "../../core/util/Types";
+import {ClientConnection} from "../../core/connect/ClientConnection";
 
 export abstract class DataRendererItem<T = any> {
   _renderers: Set<PureDataRenderer<any, any> & T> = new Set<PureDataRenderer<any, any> & T>();

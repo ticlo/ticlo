@@ -1,6 +1,6 @@
 import React from "react";
 import {Switch} from "antd";
-import {PropDesc} from "../../../common/block/Descriptor";
+import {PropDesc} from "../../../core/block/Descriptor";
 import {ValueEditorProps} from "./ValueEditor";
 
 export class ToggleEditor extends React.Component<ValueEditorProps, any> {

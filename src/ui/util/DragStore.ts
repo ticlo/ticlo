@@ -1,4 +1,4 @@
-import {DataMap} from "../../common/util/Types";
+import {DataMap} from "../../core/util/Types";
 
 let _scope: any;
 let _data: DataMap;
