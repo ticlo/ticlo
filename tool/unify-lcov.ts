@@ -1,5 +1,7 @@
 import * as fs from 'fs';
 
+// this is a workaround for issue lcov-result-merger
+// https://github.com/mweibel/lcov-result-merger/issues/42
 
 function fixReport(path: string) {
   let originlog: string = fs.readFileSync(path, 'utf8');
