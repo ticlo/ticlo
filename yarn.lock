@@ -6856,7 +6856,7 @@ rc-dialog@~7.3.0:
 
 "rc-dock@git+https://github.com/ticlo/rc-dock.git":
   version "0.0.1"
-  resolved "git+https://github.com/ticlo/rc-dock.git#b99aedc4e8b3f504a2324edc7d6874008ae27793"
+  resolved "git+https://github.com/ticlo/rc-dock.git#c6af71c71c68d7a24d47f218871b301b7a7d6a5d"
   dependencies:
     rc-tabs "^9.6.1"
     react "^16.8.3"
