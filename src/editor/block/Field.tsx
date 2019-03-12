@@ -276,9 +276,6 @@ export class FieldView extends PureDataRenderer<FieldViewProps, any> {
       item.getConn().setBinding(item.key, fields[0], true);
     }
   };
-  onDragEnd = (event: React.DragEvent) => {
-    DragStore.dragEnd();
-  };
 
   onNameDoubleClick = (event: React.MouseEvent) => {
     let {item} = this.props;
@@ -326,7 +323,7 @@ export class FieldView extends PureDataRenderer<FieldViewProps, any> {
     let showOutBound = item.cache.hasListener || (item.subBlock && item.subBlock.hidden);
     return (
       <div className={fieldClass} draggable={true} onDragStart={this.onDragStart} onDragOver={this.onDragOver}
-           onDrop={this.onDrop} onDragEnd={this.onDragEnd}>
+           onDrop={this.onDrop}>
         {inBoundClass ? <div className={inBoundClass} title={inBoundTitle}>{inBoundText}</div> : null}
         {showOutBound ? <div className='ticl-outbound'/> : null}
         {indentChildren}

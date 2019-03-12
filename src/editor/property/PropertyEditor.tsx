@@ -205,9 +205,6 @@ export class PropertyEditor extends MultiSelectComponent<Props, State, PropertyL
       }
     }
   };
-  onDragEnd = (event: React.DragEvent) => {
-    DragStore.dragEnd();
-  };
 
   mergePropertyState(): PropertyState {
     let it = this.loaders[Symbol.iterator]();
@@ -406,7 +403,7 @@ export class PropertyEditor extends MultiSelectComponent<Props, State, PropertyL
         <Dropdown overlay={this.getMenu} trigger={['contextMenu']} visible={showMenu}
                   onVisibleChange={this.onMenuVisibleChange}>
           <div className={nameClass} draggable={true} onDragStart={this.onDragStart}
-               onDragOver={this.onDragOver} onDrop={this.onDrop} onDragEnd={this.onDragEnd}>
+               onDragOver={this.onDragOver} onDrop={this.onDrop}>
             {translateProperty(funcDesc.name, name, funcDesc.ns)}
           </div>
         </Dropdown>
