@@ -3,7 +3,7 @@ import {ClientConnection} from "../../core/connect/ClientConnection";
 import {DataMap} from "../../core/util/Types";
 import {BlockItem, BlockView} from "./Block";
 import {WireItem, WireView} from "./Wire";
-import {AbstractPointerEvent, DragInitFunction, DragInitiator} from "../../ui/component/DragHelper";
+import {AbstractPointerEvent, DragInitFunction, DragInitiator} from "rc-dock/lib/DragInitiator";
 import {cssNumber} from "../../ui/util/Types";
 import {FieldItem, Stage} from "./Field";
 import {forAllPathsBetween} from "../../core/util/Path";

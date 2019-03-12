@@ -9,7 +9,7 @@ import {NumberEditor} from "./value/NumberEditor";
 import {StringEditor} from "./value/StringEditor";
 import {ToggleEditor} from "./value/ToggleEditor";
 import {SelectEditor} from "./value/SelectEditor";
-import {DragStore} from "../../ui/util/DragStore";
+import {DragStore} from "rc-dock/lib/DragStore";
 import {PasswordEditor} from "./value/PasswordEditor";
 import {ExpandIcon} from "../../ui/component/Tree";
 import {PropertyList} from "./PropertyList";

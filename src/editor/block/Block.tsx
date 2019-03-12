@@ -3,7 +3,7 @@ import {ClientConnection, ValueUpdate, blankFuncDesc, getFuncStyleFromDesc, Func
 import {DataMap} from "../../core/util/Types";
 import {PureDataRenderer} from "../../ui/component/DataRenderer";
 import {TIcon} from "../icon/Icon";
-import {AbstractPointerEvent, DragInitFunction, DragInitiator} from "../../ui/component/DragHelper";
+import {AbstractPointerEvent, DragInitFunction, DragInitiator} from "rc-dock/lib/DragInitiator";
 import {BaseBlockItem, Stage, XYWRenderer} from "./Field";
 
 const fieldYOffset = 12;

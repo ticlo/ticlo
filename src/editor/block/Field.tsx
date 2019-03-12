@@ -14,10 +14,10 @@ import {
   PropDesc,
   PropGroupDesc
 } from "../../core/block/Descriptor";
-import {DragInitFunction} from "../../ui/component/DragHelper";
+import {DragInitFunction} from "rc-dock/lib/DragInitiator";
 import {arrayEqual, deepEqual} from "../../core/util/Compare";
 import {TIcon} from "../icon/Icon";
-import {DragStore} from "../../ui/util/DragStore";
+import {DragStore} from "rc-dock/lib/DragStore";
 
 export interface Stage {
   linkField(sourceKey: string, targetField: FieldItem): void;

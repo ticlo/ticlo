@@ -1,6 +1,6 @@
 import React from "react";
 import {ClientConnection} from "../../core/connect/ClientConnection";
-import {DragStore} from "../../ui/util/DragStore";
+import {DragStore} from "rc-dock/lib/DragStore";
 import {Modal, Input, Icon} from "antd";
 
 
