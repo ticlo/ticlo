@@ -1,12 +1,12 @@
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import {Menu, Icon, Dropdown, Button, Card} from 'antd';
-import {Block, Root, ClientConnection} from "../../src/common";
-import {makeLocalConnection} from "../../src/common/connect/LocalConnection";
+import {Block, Root, ClientConnection} from "../../src/core";
+import {makeLocalConnection} from "../../src/core/connect/LocalConnection";
 import {TIcon} from "../../src/editor/icon/Icon";
 import {sampleData} from "./sample-data";
 import {initEditor, PropertyList, BlockStage, NodeTree} from "../../src/editor";
-import {DragStore} from "../../src/ui/util/DragStore";
+import {DragStore} from "rc-dock/lib/DragStore";
 
 interface Props {
   conn: ClientConnection;
