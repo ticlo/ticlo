@@ -1,5 +1,5 @@
 import React from 'react';
-import {relative} from 'path';
+import ResizeObserver from 'resize-observer-polyfill';
 
 interface Props {
   itemCount: number;
@@ -29,18 +29,13 @@ export default class VirtualList extends React.Component<Props, State> {
     this.rootNode.addEventListener('scroll', this.handleScroll, {
       passive: true,
     });
-    if (window.hasOwnProperty('ResizeObserver')) {
-      this.resizeObserver = new (window as any).ResizeObserver((resizes: any) => {
-        this.setState({
-          height: this.rootNode.clientHeight
-        });
-      });
-      this.resizeObserver.observe(this.rootNode);
-    } else {
+
+    this.resizeObserver = new ResizeObserver((resizes: any) => {
       this.setState({
-        height: this.rootNode.offsetHeight
+        height: this.rootNode.clientHeight
       });
-    }
+    });
+    this.resizeObserver.observe(this.rootNode);
   }
 
   componentWillUnmount() {
