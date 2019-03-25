@@ -6489,11 +6489,12 @@ rc-dialog@~7.3.0:
 
 "rc-dock@git+https://github.com/ticlo/rc-dock.git":
   version "0.0.1"
-  resolved "git+https://github.com/ticlo/rc-dock.git#c6af71c71c68d7a24d47f218871b301b7a7d6a5d"
+  resolved "git+https://github.com/ticlo/rc-dock.git#806206a7d586fe78b69666f82dcd09da834d08b1"
   dependencies:
-    rc-tabs "^9.6.1"
-    react "^16.8.3"
-    react-dom "^16.8.3"
+    classnames "^2.2.6"
+    rc-tabs "^9.6.3"
+    react "^16.8.5"
+    react-dom "^16.8.5"
 
 rc-drawer@~1.7.6:
   version "1.7.7"
@@ -6698,7 +6699,7 @@ rc-table@~6.4.0:
     shallowequal "^1.0.2"
     warning "^3.0.0"
 
-rc-tabs@^9.6.1, rc-tabs@~9.6.0:
+rc-tabs@^9.6.3, rc-tabs@~9.6.0:
   version "9.6.3"
   resolved "https://registry.yarnpkg.com/rc-tabs/-/rc-tabs-9.6.3.tgz#5ee02816521769f92e28dc0360a2eb1214b53075"
   integrity sha512-f4GotOvzfzY4fqj/Y9Npt3pxyyHceyj06yss2uhNlAb+PW25tn22LxgGhhFVn2RyUXrt5WT26HPgtHx9R9sN3Q==
@@ -6831,7 +6832,7 @@ rc@^1.2.7:
     minimist "^1.2.0"
     strip-json-comments "~2.0.1"
 
-react-dom@^16.8.3, react-dom@^16.8.5:
+react-dom@^16.8.5:
   version "16.8.5"
   resolved "https://registry.yarnpkg.com/react-dom/-/react-dom-16.8.5.tgz#b3e37d152b49e07faaa8de41fdf562be3463335e"
   integrity sha512-VIEIvZLpFafsfu4kgmftP5L8j7P1f0YThfVTrANMhZUFMDOsA6e0kfR6wxw/8xxKs4NB59TZYbxNdPCDW34x4w==
@@ -6873,7 +6874,7 @@ react-slick@~0.23.2:
     prettier "^1.14.3"
     resize-observer-polyfill "^1.5.0"
 
-react@^16.8.3, react@^16.8.5:
+react@^16.8.5:
   version "16.8.5"
   resolved "https://registry.yarnpkg.com/react/-/react-16.8.5.tgz#49be3b655489d74504ad994016407e8a0445de66"
   integrity sha512-daCb9TD6FZGvJ3sg8da1tRAtIuw29PbKZW++NN4wqkbEvxL+bZpaaYb4xuftW/SpXmgacf1skXl/ddX6CdOlDw==
