@@ -159,9 +159,8 @@ export class PropertyEditor extends MultiSelectComponent<Props, State, PropertyL
     let {conn, keys, name} = this.props;
 
     let fields = keys.map((s) => `${s}.${name}`);
-    event.dataTransfer.setData('text/plain', fields.join(','));
 
-    DragStore.dragStart(conn, {fields}, event.nativeEvent.target);
+    DragStore.dragStart(conn, {fields}, event.nativeEvent, event.nativeEvent.target, fields.join(','));
   };
   onDragOver = (event: React.DragEvent) => {
     let {conn, keys, name, propDesc} = this.props;

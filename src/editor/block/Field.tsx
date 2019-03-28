@@ -250,8 +250,7 @@ export class FieldView extends PureDataRenderer<FieldViewProps, any> {
 
   onDragStart = (event: React.DragEvent) => {
     let {item} = this.props;
-    event.dataTransfer.setData('text/plain', item.key);
-    DragStore.dragStart(item.getConn(), {fields: [item.key]}, event.nativeEvent.target);
+    DragStore.dragStart(item.getConn(), {fields: [item.key]}, event.nativeEvent, event.nativeEvent.target, item.key);
   };
   onDragOver = (event: React.DragEvent) => {
     let {item} = this.props;

@@ -6487,10 +6487,10 @@ rc-dialog@~7.3.0:
     rc-animate "2.x"
     rc-util "^4.4.0"
 
-rc-dock@^0.1.0:
-  version "0.1.0"
-  resolved "https://registry.yarnpkg.com/rc-dock/-/rc-dock-0.1.0.tgz#8e4f5e13f04dc2b4ca0fa93447d826a054e1b462"
-  integrity sha512-dKZd8Ek6oFyyyKrU8QLFS8ssgXZkBseRjW4SiCyzJQXYuRZcbeZBqkfk3GCghoNp1E82OYFCdrlGpJL2Ce0ltg==
+rc-dock@^0.2.0:
+  version "0.2.0"
+  resolved "https://registry.yarnpkg.com/rc-dock/-/rc-dock-0.2.0.tgz#3ced3b7d76f7ab022306fdc0dfe3d2399eb4b0a0"
+  integrity sha512-i4hBLZR3LuRdkk07tQCkolD6Ctx1/3p/hYAprs1sLwmYDJ4lhiGb9Ez/sACh2S2eqC7NRn3mMRMoARLmwzo3dA==
   dependencies:
     classnames "^2.2.6"
     rc-tabs "^9.6.3"
