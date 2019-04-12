@@ -3,7 +3,7 @@ import {ClientConnection, ValueUpdate, blankFuncDesc, getFuncStyleFromDesc, Func
 import {DataMap} from "../../core/util/Types";
 import {PureDataRenderer} from "../../ui/component/DataRenderer";
 import {TIcon} from "../icon/Icon";
-import {AbstractPointerEvent, DragInitFunction, DragInitiator} from "rc-dock/lib/DragInitiator";
+import {DragDropDiv, DragState} from "rc-dock";
 import {BaseBlockItem, Stage, XYWRenderer} from "./Field";
 
 const fieldYOffset = 12;
@@ -151,16 +151,23 @@ export class BlockView extends PureDataRenderer<BlockViewProps, BlockViewState> 
     }
   }
 
-  selectAndDrag = (e: PointerEvent, initFunction: DragInitFunction) => {
+  selectAndDrag = (e: DragState) => {
     let {item} = this.props;
-    if (e.ctrlKey) {
+    if (e.event.ctrlKey) {
       item.stage.selectBlock(item.key, true);
     } else {
       item.stage.selectBlock(item.key);
     }
     if (item.selected) {
-      item.stage.startDragBlock(e, initFunction);
+      item.stage.startDragBlock(e);
+      e.startDrag(null, null);
     }
+  };
+  onDragMove = (e: DragState) => {
+    this.props.item.stage.onDragBlockMove(e);
+  };
+  onDragEnd = (e: DragState) => {
+    this.props.item.stage.onDragBlockEnd(e);
   };
 
   expandBlock = (e: React.MouseEvent) => {
@@ -186,16 +193,15 @@ export class BlockView extends PureDataRenderer<BlockViewProps, BlockViewState> 
     return this._baseW >= 0;
   }
 
-  startDragW = (e: PointerEvent, initFunction: DragInitFunction) => {
+  startDragW = (e: DragState) => {
     let {item} = this.props;
-
     this._baseW = item.w;
-    initFunction(item.stage.getRefElement(), this.onDragWMove, this.onDragWEnd);
+    e.startDrag(null, null);
   };
 
-  onDragWMove = (e: AbstractPointerEvent, dx: number, dy: number) => {
+  onDragWMove = (e: DragState) => {
     let {item} = this.props;
-    let newW = this._baseW + dx;
+    let newW = this._baseW + e.dx;
     if (!(newW > 80)) {
       newW = 80;
     }
@@ -204,7 +210,7 @@ export class BlockView extends PureDataRenderer<BlockViewProps, BlockViewState> 
     }
   };
 
-  onDragWEnd = (e: AbstractPointerEvent, dx: number, dy: number) => {
+  onDragWEnd = (e: DragState) => {
     this._baseW = -1;
   };
 
@@ -222,12 +228,13 @@ export class BlockView extends PureDataRenderer<BlockViewProps, BlockViewState> 
 
     if (SpecialView && SpecialView.fullView) {
       return (
-        <DragInitiator className={`ticl-block-full-view${item.selected ? ' ticl-block-selected' : ''}`}
-                       getRef={this.getRef}
-                       onDragInit={this.selectAndDrag} style={{top: item.y, left: item.x, width: item.w}}>
+        <DragDropDiv className={`ticl-block-full-view${item.selected ? ' ticl-block-selected' : ''}`}
+                     getRef={this.getRef} style={{top: item.y, left: item.x, width: item.w}}
+                     onDragStartT={this.selectAndDrag} onDragMoveT={this.onDragMove} onDragEndT={this.onDragEnd}>
           <SpecialView conn={item.conn} path={item.key}/>
-          <DragInitiator className='ticl-width-drag' onDragInit={this.startDragW}/>
-        </DragInitiator>
+          <DragDropDiv className='ticl-width-drag'
+                       onDragStartT={this.startDragW} onDragMoveT={this.onDragWMove} onDragEndT={this.onDragWEnd}/>
+        </DragDropDiv>
       );
     } else if (item.w) {
       return (
@@ -236,11 +243,11 @@ export class BlockView extends PureDataRenderer<BlockViewProps, BlockViewState> 
           className={`ticl-block ${getFuncStyleFromDesc(item.desc)}${item.selected ? ' ticl-block-selected' : ''}`}
           style={{top: item.y, left: item.x, width: item.w}}
         >
-          <DragInitiator className='ticl-block-head ticl-block-prbg' onDragInit={this.selectAndDrag}
-                         onDoubleClick={this.expandBlock}>
+          <DragDropDiv className='ticl-block-head ticl-block-prbg' directDragT={true} onDoubleClick={this.expandBlock}
+                       onDragStartT={this.selectAndDrag} onDragMoveT={this.onDragMove} onDragEndT={this.onDragEnd}>
             <TIcon icon={item.desc.icon}/>
             {item.name}
-          </DragInitiator>
+          </DragDropDiv>
           {
             SpecialView ?
               <div className='ticl-block-view'>
@@ -252,7 +259,8 @@ export class BlockView extends PureDataRenderer<BlockViewProps, BlockViewState> 
             {item.renderFields()}
           </div>
           <div className='ticl-block-foot'>
-            <DragInitiator className='ticl-width-drag' onDragInit={this.startDragW}/>
+            <DragDropDiv className='ticl-width-drag'
+                         onDragStartT={this.startDragW} onDragMoveT={this.onDragWMove} onDragEndT={this.onDragWEnd}/>
           </div>
         </div>
       );
@@ -264,10 +272,10 @@ export class BlockView extends PureDataRenderer<BlockViewProps, BlockViewState> 
           style={{top: item.y, left: item.x}}
         >
           <div className='ticl-block-min-bound'/>
-          <DragInitiator className='ticl-block-head ticl-block-prbg' onDragInit={this.selectAndDrag}
-                         onDoubleClick={this.expandBlock}>
+          <DragDropDiv className='ticl-block-head ticl-block-prbg' directDragT={true} onDoubleClick={this.expandBlock}
+                       onDragStartT={this.selectAndDrag} onDragMoveT={this.onDragMove} onDragEndT={this.onDragEnd}>
             <TIcon icon={item.desc.icon}/>
-          </DragInitiator>
+          </DragDropDiv>
         </div>
       );
 

@@ -3,7 +3,7 @@ import {ClientConnection} from "../../core/connect/ClientConnection";
 import {DataMap} from "../../core/util/Types";
 import {BlockItem, BlockView} from "./Block";
 import {WireItem, WireView} from "./Wire";
-import {AbstractPointerEvent, DragInitFunction, DragInitiator} from "rc-dock/lib/DragInitiator";
+import {DragDropDiv, DragState} from "rc-dock";
 import {cssNumber} from "../../ui/util/Types";
 import {FieldItem, Stage} from "./Field";
 import {forAllPathsBetween} from "../../core/util/Path";
@@ -90,56 +90,57 @@ export class BlockStage extends React.Component<Props, any> implements Stage {
   }
 
   // drag a block, return true when the dragging is started
-  startDragBlock(e: PointerEvent, initFunction: DragInitFunction) {
+  startDragBlock(e: DragState) {
     this._draggingBlocks = [];
     for (let [blockKey, blockItem] of this._blocks) {
       if (blockItem.selected) {
         this._draggingBlocks.push([blockItem, blockItem.x, blockItem.y]);
       }
     }
-    initFunction(this._bgNode, this.onDragBlockMove, this.onDragBlockEnd);
   }
 
-  onDragBlockMove = (event: AbstractPointerEvent, dx: number, dy: number) => {
+  onDragBlockMove(e: DragState) {
     for (let [block, x, y] of this._draggingBlocks) {
-      block.setXYW(x + dx, y + dy, block.w, true);
+      block.setXYW(x + e.dx, y + e.dy, block.w, true);
     }
-  };
-  onDragBlockEnd = (event: AbstractPointerEvent, dx: number, dy: number) => {
+  }
+
+  onDragBlockEnd(e: DragState) {
     this._draggingBlocks = null;
     if (this.selectionChanged) {
       // call the onSelect callback only when mouse up
       this.selectionChanged = false;
       this.onSelect();
     }
-  };
+  }
 
-  onSelectRectDragStart = (e: PointerEvent, initFunction: DragInitFunction) => {
-    this._dragingSelect = [e.offsetX, e.offsetY];
-    initFunction(this._bgNode, this.onDragSelectMove, this.onDragSelectEnd);
+  onSelectRectDragStart = (e: DragState) => {
+    let rect = this._bgNode.getBoundingClientRect();
+    this._dragingSelect = [(e.clientX - rect.left) * e.component.scaleX, (e.clientY - rect.top) * e.component.scaleY];
+    e.startDrag(null, null);
     this._selectRectNode.style.display = 'block';
   };
 
-  onDragSelectMove = (e: AbstractPointerEvent, dx: number, dy: number) => {
+  onDragSelectMove = (e: DragState) => {
     let [x1, y1] = this._dragingSelect;
-    let x2 = dx + x1;
-    let y2 = dy + y1;
+    let x2 = e.dx + x1;
+    let y2 = e.dy + y1;
     this._selectRectNode.style.left = `${cssNumber(Math.min(x1, x2))}px`;
     this._selectRectNode.style.width = `${cssNumber(Math.abs(x1 - x2))}px`;
     this._selectRectNode.style.top = `${cssNumber(Math.min(y1, y2))}px`;
     this._selectRectNode.style.height = `${cssNumber(Math.abs(y1 - y2))}px`;
   };
-  onDragSelectEnd = (e: AbstractPointerEvent, dx: number, dy: number) => {
+  onDragSelectEnd = (e: DragState) => {
     if (e) {
       // if e==null, then the dragging is canceled
       let [x1, y1] = this._dragingSelect;
-      let x2 = dx + x1;
-      let y2 = dy + y1;
+      let x2 = e.dx + x1;
+      let y2 = e.dy + y1;
       let left = Math.min(x1, x2) - 1;
       let right = Math.max(x1, x2) + 1;
       let top = Math.min(y1, y2) - 1;
       let bottom = Math.max(y1, y2) + 1;
-      let addToSelect = e.shiftKey || e.ctrlKey;
+      let addToSelect = e.event.shiftKey || e.event.ctrlKey;
       for (let [blockKey, blockItem] of this._blocks) {
         if (blockItem.x >= left && blockItem.w + blockItem.x <= right
           && blockItem.y >= top && blockItem.y + 24 <= bottom) {
@@ -266,14 +267,14 @@ export class BlockStage extends React.Component<Props, any> implements Stage {
     return true;
   }
 
-  onDragOver = (event: React.DragEvent) => {
+  onDragOver = (e: DragState) => {
     let {conn} = this.props;
-    onDragBlockOver(conn, event);
+    onDragBlockOver(conn, e);
   };
 
-  onDrop = (event: React.DragEvent) => {
+  onDrop = (e: DragState) => {
     let {conn} = this.props;
-    onDropBlock(conn, event, this.createBlock);
+    onDropBlock(conn, e, this.createBlock, this._bgNode);
   };
 
   createBlock = async (name: string, blockData: {[key: string]: any}) => {
@@ -323,12 +324,14 @@ export class BlockStage extends React.Component<Props, any> implements Stage {
     }
 
     return (
-      <div style={style} className="ticl-block-stage" onDragOver={this.onDragOver} onDrop={this.onDrop}
-           onKeyDown={this.onKeyDown} tabIndex={0}>
-        <DragInitiator className='ticl-full' getRef={this.getBgRef} onDragInit={this.onSelectRectDragStart}/>
+      <DragDropDiv style={style} className="ticl-block-stage" onDragOverT={this.onDragOver} onDropT={this.onDrop}
+                   onKeyDown={this.onKeyDown} tabIndex={0}>
+        <DragDropDiv className='ticl-full' getRef={this.getBgRef} directDragT={true}
+                     onDragStartT={this.onSelectRectDragStart} onDragMoveT={this.onDragSelectMove}
+                     onDragEndT={this.onDragSelectEnd}/>
         {children}
         <div ref={this.getSelectRectRef} className="ticl-block-select-rect"/>
-      </div>
+      </DragDropDiv>
     );
   }
 
@@ -342,5 +345,5 @@ export class BlockStage extends React.Component<Props, any> implements Stage {
 
   safeForceUpdate = () => {
     super.forceUpdate();
-  }
+  };
 }

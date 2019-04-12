@@ -1,29 +1,27 @@
 import React from "react";
 import {ClientConnection} from "../../core/connect/ClientConnection";
-import {DragStore} from "rc-dock/lib/DragStore";
 import {Modal, Input, Icon} from "antd";
+import {DragState} from "rc-dock/lib";
 
 
-export function onDragBlockOver(conn: ClientConnection, event: React.DragEvent) {
-  let blockData = DragStore.getData(conn, 'block');
+export function onDragBlockOver(conn: ClientConnection, e: DragState) {
+  let blockData = DragState.getData('block', conn);
 
   if (blockData && blockData.hasOwnProperty('#is')) {
-    event.dataTransfer.dropEffect = 'link';
-    event.preventDefault();
-    event.stopPropagation();
-  } else {
-    event.dataTransfer.dropEffect = 'none';
+    e.accept('+');
   }
 }
 
 type CreateBlockCallback = (name: string, data: {[key: string]: any}) => void;
 
-export function onDropBlock(conn: ClientConnection, event: React.DragEvent, createBlock: CreateBlockCallback) {
-  let blockData = DragStore.getData(conn, 'block');
+export function onDropBlock(conn: ClientConnection, e: DragState, createBlock: CreateBlockCallback, bgElement: HTMLElement) {
+  let blockData = DragState.getData('block', conn);
   if (blockData && blockData.hasOwnProperty('#is')) {
-    let {offsetX, offsetY} = event.nativeEvent;
+    let rect = bgElement.getBoundingClientRect();
+    let offsetX = (e.clientX - rect.left) * e.component.scaleX;
+    let offsetY = (e.clientY - rect.top) * e.component.scaleY;
 
-    let blockName = DragStore.getData(conn, 'name') || blockData['#is'];
+    let blockName = DragState.getData('name', conn) || blockData['#is'];
 
     let onConfirmedBlockName = (name: string) => {
       let width = 150;
@@ -41,7 +39,7 @@ export function onDropBlock(conn: ClientConnection, event: React.DragEvent, crea
       createBlock(name, blockData);
     };
 
-    if (blockName === '' || event.shiftKey) {
+    if (blockName === '' || e.event.shiftKey) {
       // drop with shift to force change name
       blockName = blockName || blockData['#is'];
       let onInputChange = (change: React.ChangeEvent<HTMLInputElement>) => {

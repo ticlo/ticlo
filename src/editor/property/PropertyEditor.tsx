@@ -9,7 +9,7 @@ import {NumberEditor} from "./value/NumberEditor";
 import {StringEditor} from "./value/StringEditor";
 import {ToggleEditor} from "./value/ToggleEditor";
 import {SelectEditor} from "./value/SelectEditor";
-import {DragStore} from "rc-dock/lib/DragStore";
+import {DragDropDiv, DragState} from "rc-dock";
 import {PasswordEditor} from "./value/PasswordEditor";
 import {ExpandIcon} from "../../ui/component/Tree";
 import {PropertyList} from "./PropertyList";
@@ -155,38 +155,33 @@ export class PropertyEditor extends MultiSelectComponent<Props, State, PropertyL
   };
 
 
-  onDragStart = (event: React.DragEvent) => {
+  onDragStart = (e: DragState) => {
     let {conn, keys, name} = this.props;
 
     let fields = keys.map((s) => `${s}.${name}`);
 
-    DragStore.dragStart(conn, {fields}, event.nativeEvent, event.nativeEvent.target, fields.join(','));
+    e.setData({fields}, conn);
+    e.startDrag();
   };
-  onDragOver = (event: React.DragEvent) => {
+  onDragOver = (e: DragState) => {
     let {conn, keys, name, propDesc} = this.props;
 
-    if (propDesc.readonly) {
-      event.dataTransfer.dropEffect = 'none';
-      return;
-    }
-
-    let dragFields: string[] = DragStore.getData(conn, 'fields');
-    if (Array.isArray(dragFields) &&
-      (dragFields.length === 1 || dragFields.length === keys.length)) {
-      let fields = keys.map((s) => `${s}.${name}`);
-      if (!deepEqual(fields, dragFields)) {
-        event.dataTransfer.dropEffect = 'link';
-        event.preventDefault();
-        event.stopPropagation();
+    let dragFields: string[] = DragState.getData('fields', conn);
+    if (Array.isArray(dragFields)) {
+      if (propDesc.readonly || (dragFields.length !== 1 && dragFields.length !== keys.length)) {
+        e.reject();
         return;
       }
+      let fields = keys.map((s) => `${s}.${name}`);
+      if (!deepEqual(fields, dragFields)) {
+        e.accept('?');
+      }
     }
-    event.dataTransfer.dropEffect = 'none';
   };
-  onDrop = (event: React.DragEvent) => {
+  onDrop = (e: DragState) => {
     let {conn, keys, name} = this.props;
 
-    let dragFields: string[] = DragStore.getData(conn, 'fields');
+    let dragFields: string[] = DragState.getData('fields', conn);
     if (Array.isArray(dragFields)) {
       let fields = keys.map((s) => `${s}.${name}`);
       if (dragFields.length === 1) {
@@ -401,10 +396,10 @@ export class PropertyEditor extends MultiSelectComponent<Props, State, PropertyL
         {inBoundClass ? <div className={inBoundClass} title={bindingPath}/> : null}
         <Dropdown overlay={this.getMenu} trigger={['contextMenu']} visible={showMenu}
                   onVisibleChange={this.onMenuVisibleChange}>
-          <div className={nameClass} draggable={true} onDragStart={this.onDragStart}
-               onDragOver={this.onDragOver} onDrop={this.onDrop}>
+          <DragDropDiv className={nameClass} onDragStartT={this.onDragStart}
+                       onDragOverT={this.onDragOver} onDropT={this.onDrop}>
             {translateProperty(funcDesc.name, name, funcDesc.ns)}
-          </div>
+          </DragDropDiv>
         </Dropdown>
         {renderLockIcon ?
           <Tooltip title={locktooltip} overlayClassName='ticl-tooltip'>

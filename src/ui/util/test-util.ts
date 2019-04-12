@@ -54,3 +54,12 @@ export function querySingle(query: string, element: HTMLElement = document.body)
   let xpath = query.replace(/\b(div|span|li)\.([\w\-.]+)/g, xpathReplacer);
   return document.evaluate(xpath, element, null, 9, null).singleNodeValue as HTMLElement;
 }
+
+export function fakeMouseEvent(x = 0, y = 0, extra?: any) {
+  let result: any = {...extra};
+  result.clientX = x;
+  result.clientY = y;
+  result.pageX = x;
+  result.pageY = y;
+  return result;
+}

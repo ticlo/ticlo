@@ -14,10 +14,9 @@ import {
   PropDesc,
   PropGroupDesc
 } from "../../core/block/Descriptor";
-import {DragInitFunction} from "rc-dock/lib/DragInitiator";
 import {arrayEqual, deepEqual} from "../../core/util/Compare";
 import {TIcon} from "../icon/Icon";
-import {DragStore} from "rc-dock/lib/DragStore";
+import {DragDropDiv, DragState} from "rc-dock";
 
 export interface Stage {
   linkField(sourceKey: string, targetField: FieldItem): void;
@@ -32,7 +31,11 @@ export interface Stage {
 
   selectBlock(key: string, ctrl?: boolean): void;
 
-  startDragBlock(e: PointerEvent, initFunction: DragInitFunction): void;
+  startDragBlock(e: DragState): void;
+
+  onDragBlockMove(e: DragState): void;
+
+  onDragBlockEnd(e: DragState): void;
 
   isDraggingBlock(): boolean;
 
@@ -248,29 +251,25 @@ export class FieldView extends PureDataRenderer<FieldViewProps, any> {
     }
   };
 
-  onDragStart = (event: React.DragEvent) => {
+  onDragStart = (e: DragState) => {
     let {item} = this.props;
-    DragStore.dragStart(item.getConn(), {fields: [item.key]}, event.nativeEvent, event.nativeEvent.target, item.key);
+    e.setData({fields: [item.key]}, item.getConn());
+    e.startDrag();
   };
-  onDragOver = (event: React.DragEvent) => {
+  onDragOver = (e: DragState) => {
     let {item} = this.props;
-    if (item.desc.readonly) {
-      event.dataTransfer.dropEffect = 'none';
-      return;
-    }
-
-    let fields: string[] = DragStore.getData(item.getConn(), 'fields');
-    if (Array.isArray(fields) && fields.length === 1 && fields[0] !== item.key) {
-      event.dataTransfer.dropEffect = 'link';
-      event.preventDefault();
-      event.stopPropagation();
-    } else {
-      event.dataTransfer.dropEffect = 'none';
+    let fields: string[] = DragState.getData('fields', item.getConn());
+    if (Array.isArray(fields)) {
+      if (item.desc.readonly || fields.length !== 1 || fields[0] === item.key) {
+        e.reject();
+        return;
+      }
+      e.accept('?');
     }
   };
-  onDrop = (event: React.DragEvent) => {
+  onDrop = (event: DragState) => {
     let {item} = this.props;
-    let fields: string[] = DragStore.getData(item.getConn(), 'fields');
+    let fields: string[] = DragState.getData('fields', item.getConn());
     if (Array.isArray(fields) && fields.length === 1 && fields[0] !== item.key) {
       item.getConn().setBinding(item.key, fields[0], true);
     }
@@ -321,8 +320,8 @@ export class FieldView extends PureDataRenderer<FieldViewProps, any> {
     }
     let showOutBound = item.cache.hasListener || (item.subBlock && item.subBlock.hidden);
     return (
-      <div className={fieldClass} draggable={true} onDragStart={this.onDragStart} onDragOver={this.onDragOver}
-           onDrop={this.onDrop}>
+      <DragDropDiv className={fieldClass} onDragStartT={this.onDragStart} onDragOverT={this.onDragOver}
+                   onDropT={this.onDrop}>
         {inBoundClass ? <div className={inBoundClass} title={inBoundTitle}>{inBoundText}</div> : null}
         {showOutBound ? <div className='ticl-outbound'/> : null}
         {indentChildren}
@@ -338,7 +337,7 @@ export class FieldView extends PureDataRenderer<FieldViewProps, any> {
           {translateProperty(desc.name, item.name, desc.ns)}
         </div>
         <div className='ticl-field-value'><span ref={this.getValueRef}/></div>
-      </div>
+      </DragDropDiv>
     );
   }
 }

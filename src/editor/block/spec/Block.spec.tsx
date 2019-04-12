@@ -6,7 +6,7 @@ import {Block, Root} from "../../../core";
 import {destroyLastLocalConnection, makeLocalConnection} from "../../../core/connect/LocalConnection";
 import {shouldHappen, shouldReject} from "../../../core/util/test-util";
 import ReactDOM from "react-dom";
-import {removeLastTemplate, loadTemplate, querySingle} from "../../../ui/util/test-util";
+import {removeLastTemplate, loadTemplate, querySingle, fakeMouseEvent} from "../../../ui/util/test-util";
 import {initEditor} from "../../index";
 import {arrayEqual} from "../../../core/util/Compare";
 
@@ -143,16 +143,13 @@ describe("editor BlockStage", function () {
     let block = div.querySelector('.ticl-block') as HTMLDivElement;
     await shouldHappen(() => (block.offsetWidth === 345));
     // mouse down
-    SimulateEvent.simulate(document.querySelector('.ticl-width-drag'), 'pointerdown', {
-      clientX: 0,
-      clientY: 0,
-    });
+    SimulateEvent.simulate(document.querySelector('.ticl-width-drag'), 'pointerdown', fakeMouseEvent());
 
-    // mouse move to drag
-    SimulateEvent.simulate(document.body, 'mousemove', {
-      clientX: 100,
-      clientY: 100
-    });
+    // mouse move to trigger drag start
+    SimulateEvent.simulate(document.body, 'mousemove', fakeMouseEvent(100, 100));
+    // mouse move to trigger drag move
+    SimulateEvent.simulate(document.body, 'mousemove', fakeMouseEvent(100, 100));
+
     await shouldHappen(() => (block.offsetWidth === 445));
 
     await shouldHappen(() => arrayEqual(job.queryValue('add.@b-xyw'), [123, 234, 445]));
@@ -271,42 +268,26 @@ describe("editor BlockStage", function () {
     let rectBg = div.querySelector('.ticl-full');
 
     // select all
-    SimulateEvent.simulate(rectBg, 'pointerdown', {
-      clientX: 90,
-      clientY: 90
-    });
-    SimulateEvent.simulate(rectBg, 'mouseup', {
-      clientX: 310,
-      clientY: 310
-    });
+    SimulateEvent.simulate(rectBg, 'pointerdown', fakeMouseEvent(90, 90));
+    SimulateEvent.simulate(rectBg, 'mouseup', fakeMouseEvent(310, 310));
 
     // both block are selected
     await shouldHappen(() => div.querySelectorAll('.ticl-block-selected').length === 2);
     assert.sameMembers(selectedKeys, ['BlockStage5.add', 'BlockStage5.subtract']);
 
     // select all
-    SimulateEvent.simulate(rectBg, 'pointerdown', {
-      clientX: 210,
-      clientY: 210
-    });
-    SimulateEvent.simulate(rectBg, 'mouseup', {
-      clientX: 90,
-      clientY: 90
-    });
+    SimulateEvent.simulate(rectBg, 'pointerdown', fakeMouseEvent(210, 210));
+    SimulateEvent.simulate(rectBg, 'mouseup', fakeMouseEvent(90, 90));
 
     // one block selected
     await shouldHappen(() => div.querySelectorAll('.ticl-block-selected').length === 1);
     assert.sameMembers(selectedKeys, ['BlockStage5.add']);
 
     // select none
-    SimulateEvent.simulate(rectBg, 'pointerdown', {
-      clientX: 90,
-      clientY: 90
-    });
-    SimulateEvent.simulate(rectBg, 'mouseup', {
-      clientX: 91,
-      clientY: 89
-    });
+    // select all
+    SimulateEvent.simulate(rectBg, 'pointerdown', fakeMouseEvent(90, 90));
+    SimulateEvent.simulate(rectBg, 'mouseup', fakeMouseEvent(91, 89));
+
     // one block selected
     await shouldHappen(() => div.querySelectorAll('.ticl-block-selected').length === 0);
     assert.isEmpty(selectedKeys);

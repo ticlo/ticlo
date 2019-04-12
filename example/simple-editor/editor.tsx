@@ -6,7 +6,7 @@ import {makeLocalConnection} from "../../src/core/connect/LocalConnection";
 import {TIcon} from "../../src/editor/icon/Icon";
 import {sampleData} from "./sample-data";
 import {initEditor, PropertyList, BlockStage, NodeTree} from "../../src/editor";
-import {DragStore} from "rc-dock/lib/DragStore";
+import {DragDropDiv, DragState} from "rc-dock";
 
 interface Props {
   conn: ClientConnection;
@@ -26,26 +26,28 @@ class App extends React.PureComponent<Props, State> {
     this.setState({'selectedKeys': keys});
   };
 
-  onDragBlock = (e: React.DragEvent) => {
+  onDragBlock = (e: DragState) => {
     let {conn} = this.props;
-    DragStore.dragStart(conn, {
+    e.setData({
       block: {
         '#is': 'add',
         '1': 4,
         '@b-xyw': [100, 100, 150],
         '@b-p': ['0', '1', 'output', '@b-p', '#is'],
       }
-    });
+    }, conn);
+    e.startDrag();
   };
-  onDragNote = (e: React.DragEvent) => {
+  onDragSlider = (e: DragState) => {
     let {conn} = this.props;
-    DragStore.dragStart(conn, {
+    e.setData({
       block: {
         '#is': 'slider-view',
         '@b-xyw': [100, 100, 150],
         '@b-p': ['value'],
       }
-    });
+    }, conn);
+    e.startDrag();
   };
 
   render() {
@@ -63,7 +65,7 @@ class App extends React.PureComponent<Props, State> {
                         left: '300px',
                         top: '0',
                         position: 'absolute',
-                        // opacity: 0.1
+                        opacity: 0.1
                       }}/>
           <Card size='small'
                 style={{width: '300px', height: '800px', left: '1100px', top: '10px', position: 'absolute'}}>
@@ -71,8 +73,8 @@ class App extends React.PureComponent<Props, State> {
             />
           </Card>
 
-          <Button draggable={true} onDragStart={this.onDragBlock}> Drag Add </Button>
-          <Button draggable={true} onDragStart={this.onDragNote}> Drag Note </Button>
+          <DragDropDiv onDragStartT={this.onDragBlock}> Drag Add </DragDropDiv>
+          <DragDropDiv onDragStartT={this.onDragSlider}> Drag Slider </DragDropDiv>
 
 
         </div>

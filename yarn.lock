@@ -6487,12 +6487,13 @@ rc-dialog@~7.3.0:
     rc-animate "2.x"
     rc-util "^4.4.0"
 
-rc-dock@^0.2.0:
-  version "0.2.0"
-  resolved "https://registry.yarnpkg.com/rc-dock/-/rc-dock-0.2.0.tgz#3ced3b7d76f7ab022306fdc0dfe3d2399eb4b0a0"
-  integrity sha512-i4hBLZR3LuRdkk07tQCkolD6Ctx1/3p/hYAprs1sLwmYDJ4lhiGb9Ez/sACh2S2eqC7NRn3mMRMoARLmwzo3dA==
+rc-dock@^2.1.0:
+  version "2.1.0"
+  resolved "https://registry.yarnpkg.com/rc-dock/-/rc-dock-2.1.0.tgz#ac64201eebf19d48f242405584307e22e80b144d"
+  integrity sha512-Mf4aqRKWLj+KC6iogXCQQ7GQUBviFJzlY9t0NIzOMKHL6y26NZ5ukq2XcWo0Rx6N3ABxLlN1nebna/gjvx4J3A==
   dependencies:
     classnames "^2.2.6"
+    lodash "^4.17.11"
     rc-tabs "^9.6.3"
     react "^16.8.5"
     react-dom "^16.8.5"
