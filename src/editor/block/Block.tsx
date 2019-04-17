@@ -116,7 +116,8 @@ interface BlockViewProps {
 }
 
 interface BlockViewState {
-
+  moving: boolean;
+  footDropping: boolean;
 }
 
 export class BlockView extends PureDataRenderer<BlockViewProps, BlockViewState> implements XYWRenderer {
@@ -160,7 +161,9 @@ export class BlockView extends PureDataRenderer<BlockViewProps, BlockViewState> 
     }
     if (item.selected) {
       item.stage.startDragBlock(e);
+      e.setData({moveBlock: item.key}, item.stage);
       e.startDrag(null, null);
+      this.setState({moving: true});
     }
   };
   onDragMove = (e: DragState) => {
@@ -168,6 +171,7 @@ export class BlockView extends PureDataRenderer<BlockViewProps, BlockViewState> 
   };
   onDragEnd = (e: DragState) => {
     this.props.item.stage.onDragBlockEnd(e);
+    this.setState({moving: false});
   };
 
   expandBlock = (e: React.MouseEvent) => {
@@ -214,21 +218,49 @@ export class BlockView extends PureDataRenderer<BlockViewProps, BlockViewState> 
     this._baseW = -1;
   };
 
+  onDragOverFoot = (e: DragState) => {
+    let {item} = this.props;
+    let block: string = DragState.getData('moveBlock', item.stage);
+    if (block && block !== item.key) {
+      e.accept('');
+      this.setState({footDropping: true});
+    }
+  };
+  onDropFoot = (e: DragState) => {
+    let {item} = this.props;
+    let block: string = DragState.getData('moveBlock', item.stage);
+    if (block && block !== item.key) {
+      e.accept('');
+      this.setState({footDropping: true});
+    }
+  };
+  onDragLeaveFoot = (e: DragState) => {
+    this.setState({footDropping: false});
+  };
 
   constructor(props: BlockViewProps) {
     super(props);
-    this.state = {funcDesc: blankFuncDesc};
+    this.state = {moving: false, footDropping: false};
     let {item} = props;
     item.conn.subscribe(`${item.key}.@b-xyw`, this.xywListener, true);
   }
 
   renderImpl() {
     let {item} = this.props;
+    let {moving} = this.state;
     let SpecialView = item.desc.view;
 
+    let classNames: string[] = [];
+    if (item.selected) {
+      classNames.push('ticl-block-selected');
+    }
+    if (moving) {
+      classNames.push('ticl-block-moving');
+    }
     if (SpecialView && SpecialView.fullView) {
+      classNames.push('ticl-block-full-view');
       return (
-        <DragDropDiv className={`ticl-block-full-view${item.selected ? ' ticl-block-selected' : ''}`}
+        <DragDropDiv className={classNames.join(' ')}
                      getRef={this.getRef} style={{top: item.y, left: item.x, width: item.w}}
                      onDragStartT={this.selectAndDrag} onDragMoveT={this.onDragMove} onDragEndT={this.onDragEnd}>
           <SpecialView conn={item.conn} path={item.key}/>
@@ -237,10 +269,12 @@ export class BlockView extends PureDataRenderer<BlockViewProps, BlockViewState> 
         </DragDropDiv>
       );
     } else if (item.w) {
+      classNames.push('ticl-block');
+      classNames.push(getFuncStyleFromDesc(item.desc));
       return (
         <div
           ref={this.getRef}
-          className={`ticl-block ${getFuncStyleFromDesc(item.desc)}${item.selected ? ' ticl-block-selected' : ''}`}
+          className={classNames.join(' ')}
           style={{top: item.y, left: item.x, width: item.w}}
         >
           <DragDropDiv className='ticl-block-head ticl-block-prbg' directDragT={true} onDoubleClick={this.expandBlock}
@@ -258,17 +292,21 @@ export class BlockView extends PureDataRenderer<BlockViewProps, BlockViewState> 
           <div className='ticl-block-body'>
             {item.renderFields()}
           </div>
-          <div className='ticl-block-foot'>
+          <DragDropDiv className='ticl-block-foot'
+                       onDragOverT={this.onDragOverFoot} onDropT={this.onDropFoot} onDragLeaveT={this.onDragLeaveFoot}>
             <DragDropDiv className='ticl-width-drag'
                          onDragStartT={this.startDragW} onDragMoveT={this.onDragWMove} onDragEndT={this.onDragWEnd}/>
-          </div>
+          </DragDropDiv>
         </div>
       );
     } else if (item.descLoaded) {
+      classNames.push('ticl-block');
+      classNames.push('ticl-block-min');
+      classNames.push(getFuncStyleFromDesc(item.desc));
       return (
         <div
           ref={this.getRef}
-          className={`ticl-block ticl-block-min ${getFuncStyleFromDesc(item.desc)}${item.selected ? ' ticl-block-selected' : ''}`}
+          className={classNames.join(' ')}
           style={{top: item.y, left: item.x}}
         >
           <div className='ticl-block-min-bound'/>
