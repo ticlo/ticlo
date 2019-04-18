@@ -1,11 +1,11 @@
 import React, {KeyboardEvent} from "react";
 import {ClientConnection} from "../../core/connect/ClientConnection";
 import {DataMap} from "../../core/util/Types";
-import {BlockItem, BlockView} from "./Block";
+import {BlockView} from "./Block";
 import {WireItem, WireView} from "./Wire";
 import {DragDropDiv, DragState} from "rc-dock";
 import {cssNumber} from "../../ui/util/Types";
-import {FieldItem, Stage} from "./Field";
+import {BlockItem, FieldItem, Stage} from "./Field";
 import {forAllPathsBetween} from "../../core/util/Path";
 import {onDragBlockOver, onDropBlock} from "./DragDropBlock";
 
@@ -33,6 +33,7 @@ export class BlockStage extends React.Component<Props, any> implements Stage {
   };
 
   _blocks: Map<string, BlockItem> = new Map<string, BlockItem>();
+  _blockLinks: Map<string, Set<BlockItem>> = new Map<string, Set<BlockItem>>();
   _fields: Map<string, FieldItem> = new Map<string, FieldItem>();
   _fieldLinks: Map<string, Set<FieldItem>> = new Map<string, Set<FieldItem>>();
 
@@ -157,6 +158,33 @@ export class BlockStage extends React.Component<Props, any> implements Stage {
     this._dragingSelect = null;
   };
 
+  linkParentBlock(parentKey: string, childBlock: BlockItem | string) {
+    if (typeof childBlock === 'string') {
+      let block = this._blocks.get(childBlock);
+      if (block) {
+        this.linkParentBlock(parentKey, block);
+      }
+      return;
+    }
+    if (!this._blockLinks.has(parentKey)) {
+      this._blockLinks.set(parentKey, new Set<BlockItem>());
+    }
+    this._blockLinks.get(parentKey).add(childBlock);
+    if (this._blocks.has(parentKey)) {
+      childBlock.syncParent = this._blocks.get(parentKey);
+    }
+  }
+
+  unlinkParentBlock(parentKey: string, childBlock: BlockItem) {
+    let links = this._blockLinks.get(parentKey);
+    if (links) {
+      links.delete(childBlock);
+      if (links.size === 0) {
+        this._fieldLinks.delete(parentKey);
+      }
+    }
+  }
+
   linkField(souceKey: string, targetField: FieldItem) {
     if (!this._fieldLinks.has(souceKey)) {
       this._fieldLinks.set(souceKey, new Set<FieldItem>());
@@ -242,7 +270,15 @@ export class BlockStage extends React.Component<Props, any> implements Stage {
           }
         } else {
           if (!this._blocks.has(key)) {
-            this._blocks.set(key, new BlockItem(this.props.conn, this, key));
+            // create new block
+            let newBlockItem = new BlockItem(this.props.conn, this, key);
+            this._blocks.set(key, newBlockItem);
+            // update block links
+            if (this._blockLinks.has(key)) {
+              for (let target of this._blockLinks.get(key)) {
+                target.syncParent = newBlockItem;
+              }
+            }
             this.forceUpdate();
           }
         }

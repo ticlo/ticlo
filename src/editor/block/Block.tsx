@@ -1,115 +1,11 @@
 import React from "react";
-import {ClientConnection, ValueUpdate, blankFuncDesc, getFuncStyleFromDesc, FunctionDesc} from "../../core";
+import {ClientConnection, ValueUpdate, blankFuncDesc, getFuncStyleFromDesc, FunctionDesc, Block} from "../../core";
 import {DataMap} from "../../core/util/Types";
 import {PureDataRenderer} from "../../ui/component/DataRenderer";
 import {TIcon} from "../icon/Icon";
 import {DragDropDiv, DragState} from "rc-dock";
-import {BaseBlockItem, Stage, XYWRenderer} from "./Field";
+import {BaseBlockItem, BlockItem, Stage, XYWRenderer} from "./Field";
 
-const fieldYOffset = 12;
-const fieldHeight = 24;
-
-export class BlockItem extends BaseBlockItem {
-
-  h: number;
-  selected: boolean = false;
-
-  constructor(connection: ClientConnection, stage: Stage, key: string) {
-    super(connection, stage, key);
-  }
-
-  // height of special view area
-  viewH: number = 0;
-  setViewH = (h: number) => {
-    if (h > 0 && h !== this.viewH) {
-      this.viewH = h;
-      this.conn.callImmediate(this.updateFieldPosition);
-    }
-  };
-
-  forceRendererChildren() {
-    this.forceUpdate();
-    this.forceUpdateFields();
-  }
-
-
-  onFieldsChanged() {
-    this.conn.callImmediate(this.updateFieldPosition);
-    this.forceUpdate();
-  }
-
-  setSelected(val: boolean) {
-    if (val !== this.selected) {
-      this.selected = val;
-      this.forceUpdate();
-      for (let field of this.fields) {
-        this.fieldItems.get(field).forceUpdateWires(true);
-      }
-    }
-  }
-
-  setXYW(x: number, y: number, w: number, save = false) {
-    if (!(x >= 0)) {
-      x = 0;
-    }
-    if (!(y >= 0)) {
-      y = 0;
-    }
-    if (x !== this.x || y !== this.y || w !== this.y) {
-      this.x = x;
-      this.y = y;
-      if (Boolean(w) !== Boolean(this.w)) {
-        this.w = w;
-        this.forceUpdate();
-      } else {
-        this.w = w;
-        for (let renderer of this._renderers) {
-          renderer.renderXYW(x, y, w);
-        }
-      }
-      this.updateFieldPosition();
-    }
-    if (save) {
-      this.conn.setValue(`${this.key}.@b-xyw`, [x, y, w]);
-    }
-  }
-
-  updateFieldPosition = () => {
-    let {x, y, w} = this;
-
-    if (!w) {
-      let y1 = y + fieldYOffset;
-      x -= 1;
-      w = fieldHeight + 2;
-      for (let field of this.fields) {
-        this.fieldItems.get(field).updateFieldPos(x, y1, w, 0);
-      }
-      this.h = fieldHeight;
-    } else {
-      let headerHeight = fieldHeight;
-      if (this.desc.view) {
-        // special view, right under the header
-        headerHeight += this.viewH;
-      }
-
-      let y1 = y + 1; // top border;
-      y1 += fieldYOffset;
-      y1 += headerHeight;
-      for (let field of this.fields) {
-        y1 = this.fieldItems.get(field).updateFieldPos(x, y1, w, fieldHeight);
-      }
-      this.h = y1 - fieldYOffset + 20 - y; // footer height
-    }
-  };
-
-  onAttached() {
-    this.startSubscribe();
-  }
-
-  onDetached() {
-    this.destroy();
-  }
-}
 
 interface BlockViewProps {
   item: BlockItem;
@@ -140,6 +36,8 @@ export class BlockView extends PureDataRenderer<BlockViewProps, BlockViewState> 
       }
       if (Array.isArray(value)) {
         item.setXYW(...value as [number, number, number]);
+      } else if (typeof value === 'string') {
+        item.setSyncParentKey(value);
       }
     }
   };
@@ -220,18 +118,20 @@ export class BlockView extends PureDataRenderer<BlockViewProps, BlockViewState> 
 
   onDragOverFoot = (e: DragState) => {
     let {item} = this.props;
-    let block: string = DragState.getData('moveBlock', item.stage);
-    if (block && block !== item.key) {
+    if (item._syncChild) {
+      return;
+    }
+    let movingBlockKey: string = DragState.getData('moveBlock', item.stage);
+    if (movingBlockKey && movingBlockKey !== item.key) {
       e.accept('');
       this.setState({footDropping: true});
     }
   };
   onDropFoot = (e: DragState) => {
     let {item} = this.props;
-    let block: string = DragState.getData('moveBlock', item.stage);
-    if (block && block !== item.key) {
-      e.accept('');
-      this.setState({footDropping: true});
+    let movingBlockKey: string = DragState.getData('moveBlock', item.stage);
+    if (movingBlockKey && movingBlockKey !== item.key) {
+      item.stage.linkParentBlock(item.key, movingBlockKey);
     }
   };
   onDragLeaveFoot = (e: DragState) => {

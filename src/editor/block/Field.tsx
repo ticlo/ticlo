@@ -19,6 +19,10 @@ import {TIcon} from "../icon/Icon";
 import {DragDropDiv, DragState} from "rc-dock";
 
 export interface Stage {
+  linkParentBlock(parentKey: string, targetBlock: BlockItem | string): void;
+
+  unlinkParentBlock(parentKey: string, targetBlock: BlockItem): void;
+
   linkField(sourceKey: string, targetField: FieldItem): void;
 
   unlinkField(sourceKey: string, targetField: FieldItem): void;
@@ -39,7 +43,7 @@ export interface Stage {
 
   isDraggingBlock(): boolean;
 
-  // get a reference elemtnt to measure the scale of the current stage
+  // get a reference element to measure the scale of the current stage
   getRefElement(): HTMLElement;
 }
 
@@ -563,4 +567,158 @@ class SubBlockItem extends BaseBlockItem {
     super.destroy();
   }
 
+}
+
+const fieldYOffset = 12;
+const fieldHeight = 24;
+
+export class BlockItem extends BaseBlockItem {
+
+  h: number;
+  selected: boolean = false;
+
+  constructor(connection: ClientConnection, stage: Stage, key: string) {
+    super(connection, stage, key);
+  }
+
+  // height of special view area
+  viewH: number = 0;
+  setViewH = (h: number) => {
+    if (h > 0 && h !== this.viewH) {
+      this.viewH = h;
+      this.conn.callImmediate(this.updateFieldPosition);
+    }
+  };
+
+  forceRendererChildren() {
+    this.forceUpdate();
+    this.forceUpdateFields();
+  }
+
+
+  onFieldsChanged() {
+    this.conn.callImmediate(this.updateFieldPosition);
+    this.forceUpdate();
+  }
+
+  setSelected(val: boolean) {
+    if (val !== this.selected) {
+      this.selected = val;
+      this.forceUpdate();
+      for (let field of this.fields) {
+        this.fieldItems.get(field).forceUpdateWires(true);
+      }
+    }
+  }
+
+  setXYW(x: number, y: number, w: number, save = false) {
+    if (!(x >= 0)) {
+      x = 0;
+    }
+    if (!(y >= 0)) {
+      y = 0;
+    }
+    if (x !== this.x || y !== this.y || w !== this.y) {
+      this.x = x;
+      this.y = y;
+      if (Boolean(w) !== Boolean(this.w)) {
+        this.w = w;
+        this.forceUpdate();
+      } else {
+        this.w = w;
+        for (let renderer of this._renderers) {
+          renderer.renderXYW(x, y, w);
+        }
+      }
+      this.updateFieldPosition();
+    }
+    if (save) {
+      this.conn.setValue(`${this.key}.@b-xyw`, [x, y, w]);
+    }
+  }
+
+  updateFieldPosition = () => {
+    let {x, y, w} = this;
+
+    if (!w) {
+      let y1 = y + fieldYOffset;
+      x -= 1;
+      w = fieldHeight + 2;
+      for (let field of this.fields) {
+        this.fieldItems.get(field).updateFieldPos(x, y1, w, 0);
+      }
+      this.h = fieldHeight;
+    } else {
+      let headerHeight = fieldHeight;
+      if (this.desc.view) {
+        // special view, right under the header
+        headerHeight += this.viewH;
+      }
+
+      let y1 = y + 1; // top border;
+      y1 += fieldYOffset;
+      y1 += headerHeight;
+      for (let field of this.fields) {
+        y1 = this.fieldItems.get(field).updateFieldPos(x, y1, w, fieldHeight);
+      }
+      this.h = y1 - fieldYOffset + 20 - y; // footer height
+    }
+  };
+
+  onAttached() {
+    this.startSubscribe();
+  }
+
+  onDetached() {
+    this.destroy();
+  }
+
+  _syncParentKey: string;
+
+  setSyncParentKey(key: string) {
+    if (key === this._syncParentKey) {
+      return;
+    }
+    if (this._syncParentKey) {
+      this.stage.unlinkParentBlock(this._syncParentKey, this);
+    }
+    this._syncParentKey = key;
+    if (key) {
+      this.stage.linkParentBlock(key, this);
+    }
+  }
+
+  _syncChild: BlockItem;
+  _syncParent: BlockItem;
+  set syncParent(parent: BlockItem) {
+    // tslint:disable-next-line:triple-equals
+    if (parent == this._syncParent) {
+      return;
+    }
+    let oldParent = this._syncParent;
+    this._syncParent = parent;
+    if (oldParent && oldParent._syncChild === this) {
+      oldParent.syncChild = null;
+    }
+    if (parent) {
+      parent.syncChild = this;
+    }
+    this.forceUpdate();
+  }
+
+  set syncChild(child: BlockItem) {
+    // tslint:disable-next-line:triple-equals
+    if (child == this._syncChild) {
+      return;
+    }
+    let oldChild = this._syncChild;
+    this._syncChild = child;
+    if (oldChild && oldChild._syncParent === this) {
+      oldChild.syncParent = null;
+    }
+    if (child) {
+      child.syncParent = this;
+    }
+    this.forceUpdate();
+  }
 }
