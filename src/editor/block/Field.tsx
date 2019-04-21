@@ -19,7 +19,10 @@ import {TIcon} from "../icon/Icon";
 import {DragDropDiv, DragState} from "rc-dock";
 
 export interface Stage {
-  linkParentBlock(parentKey: string, targetBlock: BlockItem | string): void;
+
+  getBlock(key: string): BlockItem;
+
+  linkParentBlock(parentKey: string, targetBlock: BlockItem): void;
 
   unlinkParentBlock(parentKey: string, targetBlock: BlockItem): void;
 
@@ -35,7 +38,7 @@ export interface Stage {
 
   selectBlock(key: string, ctrl?: boolean): void;
 
-  startDragBlock(e: DragState): void;
+  startDragBlock(e: DragState): [BlockItem, number, number][];
 
   onDragBlockMove(e: DragState): void;
 
@@ -671,6 +674,18 @@ export class BlockItem extends BaseBlockItem {
 
   onDetached() {
     this.destroy();
+  }
+
+  linkSyncParent(key: string) {
+    this.conn.setValue(`${this.key}.@b-xyw`, key);
+    this.conn.setBinding(`${this.key}.#call`, `${key}.#emit`);
+    this.conn.setValue(`${this.key}.#sync`, true);
+    this.setSyncParentKey(key);
+  }
+
+  unLinkSyncParent() {
+    this.conn.setBinding(`${this.key}.#call`, null);
+    this.conn.setValue(`${this.key}.#sync`, undefined);
   }
 
   _syncParentKey: string;

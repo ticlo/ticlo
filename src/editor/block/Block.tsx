@@ -58,13 +58,19 @@ export class BlockView extends PureDataRenderer<BlockViewProps, BlockViewState> 
       item.stage.selectBlock(item.key);
     }
     if (item.selected) {
-      item.stage.startDragBlock(e);
-      e.setData({moveBlock: item.key}, item.stage);
+      let draggingBlocks = item.stage.startDragBlock(e);
+      if (draggingBlocks.length === 1) {
+        e.setData({moveBlock: item.key}, item.stage);
+      }
       e.startDrag(null, null);
       this.setState({moving: true});
     }
   };
   onDragMove = (e: DragState) => {
+    let {item} = this.props;
+    if (item._syncParentKey && e.moved()) {
+      item.unLinkSyncParent();
+    }
     this.props.item.stage.onDragBlockMove(e);
   };
   onDragEnd = (e: DragState) => {
@@ -131,7 +137,10 @@ export class BlockView extends PureDataRenderer<BlockViewProps, BlockViewState> 
     let {item} = this.props;
     let movingBlockKey: string = DragState.getData('moveBlock', item.stage);
     if (movingBlockKey && movingBlockKey !== item.key) {
-      item.stage.linkParentBlock(item.key, movingBlockKey);
+      let block = item.stage.getBlock(movingBlockKey);
+      if (block) {
+        block.linkSyncParent(item.key);
+      }
     }
   };
   onDragLeaveFoot = (e: DragState) => {

@@ -98,6 +98,7 @@ export class BlockStage extends React.Component<Props, any> implements Stage {
         this._draggingBlocks.push([blockItem, blockItem.x, blockItem.y]);
       }
     }
+    return this._draggingBlocks;
   }
 
   onDragBlockMove(e: DragState) {
@@ -158,7 +159,11 @@ export class BlockStage extends React.Component<Props, any> implements Stage {
     this._dragingSelect = null;
   };
 
-  linkParentBlock(parentKey: string, childBlock: BlockItem | string) {
+  getBlock(key: string): BlockItem {
+    return this._blocks.get(key);
+  }
+
+  linkParentBlock(parentKey: string, childBlock: BlockItem) {
     if (typeof childBlock === 'string') {
       let block = this._blocks.get(childBlock);
       if (block) {
