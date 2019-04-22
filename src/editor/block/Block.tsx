@@ -114,6 +114,10 @@ export class BlockView extends PureDataRenderer<BlockViewProps, BlockViewState> 
       newW = 80;
     }
     if (newW !== item.w) {
+      while (item._syncParent) {
+        // adjust the whole synced block chain
+        item = item._syncParent;
+      }
       item.setXYW(item.x, item.y, newW, true);
     }
   };
