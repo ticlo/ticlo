@@ -103,7 +103,9 @@ export class BlockStage extends React.Component<Props, any> implements Stage {
 
   onDragBlockMove(e: DragState) {
     for (let [block, x, y] of this._draggingBlocks) {
-      block.setXYW(x + e.dx, y + e.dy, block.w, true);
+      if (!block._syncParent) {
+        block.setXYW(x + e.dx, y + e.dy, block.w, true);
+      }
     }
   }
 

@@ -584,6 +584,22 @@ export class BlockItem extends BaseBlockItem {
     super(connection, stage, key);
   }
 
+  startSubscribe() {
+    super.startSubscribe();
+    this.conn.subscribe(`${this.key}.#sync`, this.syncListener, true);
+  }
+
+  synced = false;
+  syncListener = {
+    onUpdate: (response: ValueUpdate) => {
+      let newSynced = Boolean(response.cache.value);
+      if (newSynced !== this.synced) {
+        this.synced = newSynced;
+        this.forceUpdate();
+      }
+    }
+  };
+
   // height of special view area
   viewH: number = 0;
   setViewH = (h: number) => {
@@ -638,6 +654,9 @@ export class BlockItem extends BaseBlockItem {
     if (save) {
       this.conn.setValue(`${this.key}.@b-xyw`, [x, y, w]);
     }
+    if (this._syncChild) {
+      this._syncChild.setXYW(this.x, this.y + this.h, this.w);
+    }
   }
 
   updateFieldPosition = () => {
@@ -686,6 +705,7 @@ export class BlockItem extends BaseBlockItem {
   unLinkSyncParent() {
     this.conn.setBinding(`${this.key}.#call`, null);
     this.conn.setValue(`${this.key}.#sync`, undefined);
+    this.setSyncParentKey(null);
   }
 
   _syncParentKey: string;
@@ -700,6 +720,8 @@ export class BlockItem extends BaseBlockItem {
     this._syncParentKey = key;
     if (key) {
       this.stage.linkParentBlock(key, this);
+    } else {
+      this.syncParent = null;
     }
   }
 
@@ -718,7 +740,8 @@ export class BlockItem extends BaseBlockItem {
     if (parent) {
       parent.syncChild = this;
     }
-    this.forceUpdate();
+    //// nothing to refresh here for now
+    // this.forceUpdate();
   }
 
   set syncChild(child: BlockItem) {
@@ -733,7 +756,13 @@ export class BlockItem extends BaseBlockItem {
     }
     if (child) {
       child.syncParent = this;
+      child.setXYW(this.x, this.y + this.h, this.w);
     }
     this.forceUpdate();
+  }
+
+  destroy() {
+    this.conn.unsubscribe(`${this.key}.#sync`, this.syncListener);
+    super.destroy();
   }
 }

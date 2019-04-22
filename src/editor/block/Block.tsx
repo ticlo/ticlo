@@ -68,7 +68,7 @@ export class BlockView extends PureDataRenderer<BlockViewProps, BlockViewState> 
   };
   onDragMove = (e: DragState) => {
     let {item} = this.props;
-    if (item._syncParentKey && e.moved()) {
+    if (item._syncParent && !item._syncParent.selected && e.moved()) {
       item.unLinkSyncParent();
     }
     this.props.item.stage.onDragBlockMove(e);
@@ -162,6 +162,12 @@ export class BlockView extends PureDataRenderer<BlockViewProps, BlockViewState> 
     let classNames: string[] = [];
     if (item.selected) {
       classNames.push('ticl-block-selected');
+    }
+    if (item.synced) {
+      classNames.push('ticl-block-synced');
+    }
+    if (item._syncChild) {
+      classNames.push('ticl-block-sync-parent');
     }
     if (moving) {
       classNames.push('ticl-block-moving');
