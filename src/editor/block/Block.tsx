@@ -70,6 +70,12 @@ export class BlockView extends PureDataRenderer<BlockViewProps, BlockViewState> 
     let {item} = this.props;
     if (item._syncParent && !item._syncParent.selected && e.moved()) {
       item.unLinkSyncParent();
+    } else {
+      let dropOnFoot = BlockView._footDropMap.get(e);
+      if (dropOnFoot) {
+        item.setXYW(dropOnFoot.x, dropOnFoot.y + dropOnFoot.h, dropOnFoot.w);
+        return;
+      }
     }
     this.props.item.stage.onDragBlockMove(e);
   };
@@ -126,6 +132,7 @@ export class BlockView extends PureDataRenderer<BlockViewProps, BlockViewState> 
     this._baseW = -1;
   };
 
+  static _footDropMap: WeakMap<DragState, BlockItem> = new WeakMap<DragState, BlockItem>();
   onDragOverFoot = (e: DragState) => {
     let {item} = this.props;
     if (item._syncChild) {
@@ -133,6 +140,7 @@ export class BlockView extends PureDataRenderer<BlockViewProps, BlockViewState> 
     }
     let movingBlockKey: string = DragState.getData('moveBlock', item.stage);
     if (movingBlockKey && movingBlockKey !== item.key) {
+      BlockView._footDropMap.set(e, item);
       e.accept('');
       this.setState({footDropping: true});
     }
@@ -160,7 +168,7 @@ export class BlockView extends PureDataRenderer<BlockViewProps, BlockViewState> 
 
   renderImpl() {
     let {item} = this.props;
-    let {moving} = this.state;
+    let {moving, footDropping} = this.state;
     let SpecialView = item.desc.view;
 
     let classNames: string[] = [];
@@ -170,7 +178,7 @@ export class BlockView extends PureDataRenderer<BlockViewProps, BlockViewState> 
     if (item.synced) {
       classNames.push('ticl-block-synced');
     }
-    if (item._syncChild) {
+    if (item._syncChild || footDropping) {
       classNames.push('ticl-block-sync-parent');
     }
     if (moving) {

@@ -83,7 +83,7 @@ export class BlockStage extends React.Component<Props, any> implements Stage {
     }
   }
 
-  _draggingBlocks?: [BlockItem, number, number][];
+  _draggingBlocks?: [BlockItem, number, number, number][];
   _dragingSelect?: [number, number];
 
   isDraggingBlock(): boolean {
@@ -95,16 +95,16 @@ export class BlockStage extends React.Component<Props, any> implements Stage {
     this._draggingBlocks = [];
     for (let [blockKey, blockItem] of this._blocks) {
       if (blockItem.selected) {
-        this._draggingBlocks.push([blockItem, blockItem.x, blockItem.y]);
+        this._draggingBlocks.push([blockItem, blockItem.x, blockItem.y, blockItem.w]);
       }
     }
     return this._draggingBlocks;
   }
 
   onDragBlockMove(e: DragState) {
-    for (let [block, x, y] of this._draggingBlocks) {
+    for (let [block, x, y, w] of this._draggingBlocks) {
       if (!block._syncParent) {
-        block.setXYW(x + e.dx, y + e.dy, block.w, true);
+        block.setXYW(x + e.dx, y + e.dy, w, true);
       }
     }
   }
