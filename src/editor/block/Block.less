@@ -49,18 +49,6 @@
   z-index: 20;
 }
 
-.ticl-block-synced {
-  border-top-right-radius: 0;
-
-  .ticl-block-head {
-    border-top-right-radius: 0;
-  }
-}
-
-.ticl-block-sync-parent {
-  border-bottom-left-radius: 0;
-}
-
 .ticl-block-moving {
   pointer-events: none;
   opacity: 0.8;
@@ -148,6 +136,25 @@
   border: 1px solid @ticl-color-prn;
   background: #f8f8f8;
 }
+
+.ticl-block-synced {
+  border-top-right-radius: 0;
+
+  .ticl-block-head {
+    border-top-right-radius: 0;
+  }
+}
+
+.ticl-block-sync-parent {
+  border-bottom-left-radius: 0;
+
+  &.ticl-block-min {
+    & > .ticl-block-head {
+      border-bottom-left-radius: 0;
+    }
+  }
+}
+
 
 .ticl-block-select-rect {
   position: absolute;;

@@ -685,6 +685,9 @@ export class BlockItem extends BaseBlockItem {
       }
       this.h = y1 - fieldYOffset + 20 - y; // footer height
     }
+    if (this._syncChild) {
+      this._syncChild.setXYW(this.x, this.y + this.h, this.w);
+    }
   };
 
   onAttached() {
