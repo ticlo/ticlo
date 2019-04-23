@@ -79,20 +79,28 @@ export class BlockView extends PureDataRenderer<BlockViewProps, BlockViewState> 
     }
     this.props.item.stage.onDragBlockMove(e);
   };
+  _lastClickTs = 0;
   onDragEnd = (e: DragState) => {
     this.props.item.stage.onDragBlockEnd(e);
     this.setState({moving: false});
+    if (!e.moved()) {
+      let clickTs = new Date().getTime();
+      if (clickTs - this._lastClickTs < 500) {
+        this._lastClickTs = 0;
+        this.expandBlock();
+      } else {
+        this._lastClickTs = clickTs;
+      }
+    } else {
+      this._lastClickTs = 0;
+    }
   };
 
-  expandBlock = (e: React.MouseEvent) => {
+  expandBlock = (e?: React.MouseEvent) => {
     let {item} = this.props;
-    if (item.selected && item.stage.isDraggingBlock()) {
-      // ignore xyw change from server during dragging
-      return;
-    }
-    if (this.isDraggingW()) {
-      // ignore xyw change during width dragging
-      return;
+    while (item._syncParent) {
+      // expand the whole synced block chain
+      item = item._syncParent;
     }
     if (item.w) {
       item.setXYW(item.x, item.y, 0);
@@ -186,13 +194,20 @@ export class BlockView extends PureDataRenderer<BlockViewProps, BlockViewState> 
     }
     if (SpecialView && SpecialView.fullView) {
       classNames.push('ticl-block-full-view');
+      let width = item.w;
+      let widthDrag = item._syncParent ? null : (
+        <DragDropDiv className='ticl-width-drag'
+                     onDragStartT={this.startDragW} onDragMoveT={this.onDragWMove} onDragEndT={this.onDragWEnd}/>
+      );
+      if (!(width > 80)) {
+        width = 150;
+      }
       return (
-        <DragDropDiv className={classNames.join(' ')}
-                     getRef={this.getRef} style={{top: item.y, left: item.x, width: item.w}}
+        <DragDropDiv className={classNames.join(' ')} directDragT={true}
+                     getRef={this.getRef} style={{top: item.y, left: item.x, width}}
                      onDragStartT={this.selectAndDrag} onDragMoveT={this.onDragMove} onDragEndT={this.onDragEnd}>
           <SpecialView conn={item.conn} path={item.key}/>
-          <DragDropDiv className='ticl-width-drag'
-                       onDragStartT={this.startDragW} onDragMoveT={this.onDragWMove} onDragEndT={this.onDragWEnd}/>
+          {widthDrag}
         </DragDropDiv>
       );
     } else if (item.w) {
@@ -204,7 +219,7 @@ export class BlockView extends PureDataRenderer<BlockViewProps, BlockViewState> 
           className={classNames.join(' ')}
           style={{top: item.y, left: item.x, width: item.w}}
         >
-          <DragDropDiv className='ticl-block-head ticl-block-prbg' directDragT={true} onDoubleClick={this.expandBlock}
+          <DragDropDiv className='ticl-block-head ticl-block-prbg' directDragT={true}
                        onDragStartT={this.selectAndDrag} onDragMoveT={this.onDragMove} onDragEndT={this.onDragEnd}>
             <TIcon icon={item.desc.icon}/>
             {item.name}
@@ -237,7 +252,7 @@ export class BlockView extends PureDataRenderer<BlockViewProps, BlockViewState> 
           style={{top: item.y, left: item.x}}
         >
           <div className='ticl-block-min-bound'/>
-          <DragDropDiv className='ticl-block-head ticl-block-prbg' directDragT={true} onDoubleClick={this.expandBlock}
+          <DragDropDiv className='ticl-block-head ticl-block-prbg' directDragT={true}
                        onDragStartT={this.selectAndDrag} onDragMoveT={this.onDragMove} onDragEndT={this.onDragEnd}>
             <TIcon icon={item.desc.icon}/>
           </DragDropDiv>
