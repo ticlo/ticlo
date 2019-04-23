@@ -95,6 +95,7 @@ export const configDescs: {[key: string]: PropDesc} = {
   },
   '#len': {name: '#len', type: 'number', default: 2, min: 0, step: 1},
   '#call': {name: '#call', type: 'event'},
+  '#sync': {name: '#sync', type: 'toggle'},
   '#wait': {name: '#wait', type: 'toggle'},
   '#cancel': {name: '#cancel', type: 'event'},
   '#priority': {name: '#priority', type: 'select', options: ['auto', 0, 1, 2, 3], default: 'auto'},
@@ -106,6 +107,7 @@ export const configList: PropDesc[] = [
   configDescs['#call'],
   configDescs['#mode'],
   configDescs['#priority'],
+  configDescs['#sync'],
 ];
 
 export function buildDescCache(funcDesc: FunctionDesc, more: (PropDesc | PropGroupDesc)[]): {[key: string]: PropDesc} {
