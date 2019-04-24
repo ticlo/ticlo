@@ -64,7 +64,6 @@ export class BlockView extends PureDataRenderer<BlockViewProps, BlockViewState> 
         e.setData({moveBlock: item.key}, item.stage);
       }
       e.startDrag(null, null);
-      this.setState({moving: true});
     }
   };
   onDragMove = (e: DragState) => {
@@ -78,31 +77,18 @@ export class BlockView extends PureDataRenderer<BlockViewProps, BlockViewState> 
         return;
       }
     }
+    if (!this.state.moving && e.moved()) {
+      this.setState({moving: true});
+    }
     this.props.item.stage.onDragBlockMove(e);
   };
-  _lastClickTs = 0;
   onDragEnd = (e: DragState) => {
     this.props.item.stage.onDragBlockEnd(e);
     this.setState({moving: false});
-    if (!e.moved()) {
-      let clickTs = new Date().getTime();
-      if (clickTs - this._lastClickTs < 500) {
-        this._lastClickTs = 0;
-        this.expandBlock();
-      } else {
-        this._lastClickTs = clickTs;
-      }
-    } else {
-      this._lastClickTs = 0;
-    }
   };
 
-  expandBlock = (e?: React.MouseEvent) => {
+  expandBlock = (e: React.MouseEvent) => {
     let {item} = this.props;
-    while (item._syncParent) {
-      // expand the whole synced block chain
-      item = item._syncParent;
-    }
     if (item.w) {
       item.setXYW(item.x, item.y, 0);
     } else {
@@ -220,7 +206,7 @@ export class BlockView extends PureDataRenderer<BlockViewProps, BlockViewState> 
           className={classNames.join(' ')}
           style={{top: item.y, left: item.x, width: item.w}}
         >
-          <DragDropDiv className='ticl-block-head ticl-block-prbg' directDragT={true}
+          <DragDropDiv className='ticl-block-head ticl-block-prbg' directDragT={true} onDoubleClick={this.expandBlock}
                        onDragStartT={this.selectAndDrag} onDragMoveT={this.onDragMove} onDragEndT={this.onDragEnd}>
             <TIcon icon={item.desc.icon}/>
             {item.name}
@@ -253,7 +239,7 @@ export class BlockView extends PureDataRenderer<BlockViewProps, BlockViewState> 
           style={{top: item.y, left: item.x}}
         >
           <div className='ticl-block-min-bound'/>
-          <DragDropDiv className='ticl-block-head ticl-block-prbg' directDragT={true}
+          <DragDropDiv className='ticl-block-head ticl-block-prbg' directDragT={true} onDoubleClick={this.expandBlock}
                        onDragStartT={this.selectAndDrag} onDragMoveT={this.onDragMove} onDragEndT={this.onDragEnd}>
             <TIcon icon={item.desc.icon}/>
           </DragDropDiv>
