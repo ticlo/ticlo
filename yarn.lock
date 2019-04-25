@@ -6472,10 +6472,10 @@ rc-dialog@~7.3.0:
     rc-animate "2.x"
     rc-util "^4.4.0"
 
-rc-dock@2.1.6:
-  version "2.1.6"
-  resolved "https://registry.yarnpkg.com/rc-dock/-/rc-dock-2.1.6.tgz#3e00c220dba626316c83793d981f1fa43fcabd31"
-  integrity sha512-voYdYOALYsDdtKRpbOriBFJ26xQG4Y/iaTEbmEX/KCrO2BvVS/qN//8mdZHH5Y7NIuR3JhywSwa6XHO4zXD5QQ==
+rc-dock@2.1.7:
+  version "2.1.7"
+  resolved "https://registry.yarnpkg.com/rc-dock/-/rc-dock-2.1.7.tgz#e6e5a69bea60c818193adf3a61402defcc49dea1"
+  integrity sha512-MFZR7lR9kpjA/tY9pXUSPplKNKJ8zJorzmdNIoWWa/oy9dxJLp7ZXC88mK6CnDFDzPAXBSvh8JHypCOOWVs9tA==
   dependencies:
     classnames "^2.2.6"
     lodash "^4.17.11"
@@ -8181,9 +8181,9 @@ ua-parser-js@^0.7.18:
   integrity sha512-T3PVJ6uz8i0HzPxOF9SWzWAlfN/DavlpQqepn22xgve/5QecC+XMCAtmUNnY7C9StehaV6exjUCI801lOI7QlQ==
 
 uglify-js@^3.1.4:
-  version "3.5.7"
-  resolved "https://registry.yarnpkg.com/uglify-js/-/uglify-js-3.5.7.tgz#1442fda9991a01aa0eb2853876640477109113ff"
-  integrity sha512-GCgJx3BBuaf/QMvBBkhoHDh4SVsHCC3ILEzriPw4FgJJKCuxVBSYLRkDlmT3uhXyGWKs3VN5r0mCkBIZaHWu3w==
+  version "3.5.8"
+  resolved "https://registry.yarnpkg.com/uglify-js/-/uglify-js-3.5.8.tgz#496f62a8c23c3e6791563acbc04908edaca4025f"
+  integrity sha512-GFSjB1nZIzoIq70qvDRtWRORHX3vFkAnyK/rDExc0BN7r9+/S+Voz3t/fwJuVfjppAMz+ceR2poE7tkhvnVwQQ==
   dependencies:
     commander "~2.20.0"
     source-map "~0.6.1"
