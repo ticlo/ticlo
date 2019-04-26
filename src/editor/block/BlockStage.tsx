@@ -1,4 +1,4 @@
-import React, {KeyboardEvent} from "react";
+import React, {CSSProperties, KeyboardEvent, WheelEvent} from "react";
 import {ClientConnection} from "../../core/connect/ClientConnection";
 import {DataMap} from "../../core/util/Types";
 import {BlockView} from "./Block";
@@ -16,7 +16,20 @@ interface Props {
   onSelect?: (keys: string[]) => void;
 }
 
-export class BlockStage extends React.Component<Props, any> implements Stage {
+interface State {
+  zoom: number;
+}
+
+const zoomScales = [0.25, 1 / 3, 0.5, 2 / 3, 0.75, 0.8, 0.9, 1, 1.1, 1.25, 1.5, 1.75, 2, 2.5, 3, 4];
+
+function getScale(zoom: number) {
+  if (zoom >= 0 && zoom < zoomScales.length) {
+    return zoomScales[zoom];
+  }
+  return 1;
+}
+
+export class BlockStage extends React.Component<Props, State> implements Stage {
 
   private _bgNode!: HTMLElement;
   private getBgRef = (node: HTMLDivElement): void => {
@@ -299,6 +312,7 @@ export class BlockStage extends React.Component<Props, any> implements Stage {
   constructor(props: Props) {
     super(props);
     props.conn.watch(props.basePath, this.watchListener);
+    this.state = {zoom: zoomScales.indexOf(1)};
   }
 
   shouldComponentUpdate(nextProps: Props, nextState: any) {
@@ -349,9 +363,30 @@ export class BlockStage extends React.Component<Props, any> implements Stage {
       }
     }
   };
+  onWheel = (e: WheelEvent) => {
+    if (e.shiftKey) {
+      let {zoom} = this.state;
+      if (e.deltaY < 0 && zoom < zoomScales.length - 1) {
+        this.setState({zoom: zoom + 1});
+      } else if (e.deltaY > 0 && zoom > 0) {
+        this.setState({zoom: zoom - 1});
+      }
+      e.stopPropagation();
+      e.preventDefault();
+    }
+  };
 
   render() {
     let {style} = this.props;
+    let {zoom} = this.state;
+
+    let zoomStyle: CSSProperties = {};
+    let zoomScale = getScale(zoom);
+    if (zoomScale !== 1) {
+      zoomStyle.transform = `scale(${zoomScale},${zoomScale})`;
+      zoomStyle.width = `${100 / zoomScale}%`;
+      zoomStyle.height = `${100 / zoomScale}%`;
+    }
 
     let children: React.ReactNode[] = [];
 
@@ -367,14 +402,16 @@ export class BlockStage extends React.Component<Props, any> implements Stage {
     }
 
     return (
-      <DragDropDiv style={style} className="ticl-block-stage" onDragOverT={this.onDragOver} onDropT={this.onDrop}
-                   onKeyDown={this.onKeyDown} tabIndex={0}>
-        <DragDropDiv className='ticl-full' getRef={this.getBgRef} directDragT={true}
-                     onDragStartT={this.onSelectRectDragStart} onDragMoveT={this.onDragSelectMove}
-                     onDragEndT={this.onDragSelectEnd}/>
-        {children}
-        <div ref={this.getSelectRectRef} className="ticl-block-select-rect"/>
-      </DragDropDiv>
+      <div style={style} className="ticl-block-stage" onKeyDown={this.onKeyDown} tabIndex={0} onWheel={this.onWheel}>
+        <DragDropDiv className="ticl-block-stage-main" onDragOverT={this.onDragOver} onDropT={this.onDrop}
+                     style={zoomStyle}>
+          <DragDropDiv className='ticl-block-stage-bg' getRef={this.getBgRef} directDragT={true}
+                       onDragStartT={this.onSelectRectDragStart} onDragMoveT={this.onDragSelectMove}
+                       onDragEndT={this.onDragSelectEnd}/>
+          {children}
+          <div ref={this.getSelectRectRef} className="ticl-block-select-rect"/>
+        </DragDropDiv>
+      </div>
     );
   }
 
