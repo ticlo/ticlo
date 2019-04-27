@@ -364,7 +364,7 @@ export class BlockStage extends React.Component<Props, State> implements Stage {
     }
   };
   onWheel = (e: WheelEvent) => {
-    if (e.shiftKey) {
+    if (e.altKey) {
       let {zoom} = this.state;
       if (e.deltaY < 0 && zoom < zoomScales.length - 1) {
         this.setState({zoom: zoom + 1});
@@ -372,7 +372,6 @@ export class BlockStage extends React.Component<Props, State> implements Stage {
         this.setState({zoom: zoom - 1});
       }
       e.stopPropagation();
-      e.preventDefault();
     }
   };
 
