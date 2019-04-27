@@ -587,6 +587,7 @@ export class BlockItem extends BaseBlockItem {
   startSubscribe() {
     super.startSubscribe();
     this.conn.subscribe(`${this.key}.#sync`, this.syncListener, true);
+    this.conn.subscribe(`${this.key}.@b-xyw`, this.xywListener, true);
   }
 
   synced = false;
@@ -596,6 +597,23 @@ export class BlockItem extends BaseBlockItem {
       if (newSynced !== this.synced) {
         this.synced = newSynced;
         this.forceUpdate();
+      }
+    }
+  };
+
+  xywListener = {
+    onUpdate: (response: ValueUpdate) => {
+      let {value} = response.cache;
+      if (this.selected && this.stage.isDraggingBlock()) {
+        // ignore xyw change from server during dragging
+        return;
+      }
+      // TODO also protect width dragging?
+
+      if (Array.isArray(value)) {
+        this.setXYW(...value as [number, number, number]);
+      } else if (typeof value === 'string') {
+        this.setSyncParentKey(value);
       }
     }
   };
@@ -766,6 +784,7 @@ export class BlockItem extends BaseBlockItem {
 
   destroy() {
     this.conn.unsubscribe(`${this.key}.#sync`, this.syncListener);
+    this.conn.unsubscribe(`${this.key}.@b-xyw`, this.xywListener);
     super.destroy();
   }
 }

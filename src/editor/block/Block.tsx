@@ -22,26 +22,6 @@ export class BlockView extends PureDataRenderer<BlockViewProps, BlockViewState> 
     this._rootNode = node;
   };
 
-  xywListener = {
-    onUpdate: (response: ValueUpdate) => {
-      let {value} = response.cache;
-      let {item} = this.props;
-      if (item.selected && item.stage.isDraggingBlock()) {
-        // ignore xyw change from server during dragging
-        return;
-      }
-      if (this.isDraggingW()) {
-        // ignore xyw change during width dragging
-        return;
-      }
-      if (Array.isArray(value)) {
-        item.setXYW(...value as [number, number, number]);
-      } else if (typeof value === 'string') {
-        item.setSyncParentKey(value);
-      }
-    }
-  };
-
   renderXYW(x: number, y: number, w: number) {
     this._rootNode.style.left = `${x}px`;
     this._rootNode.style.top = `${y}px`;
@@ -97,10 +77,6 @@ export class BlockView extends PureDataRenderer<BlockViewProps, BlockViewState> 
   };
 
   _baseW: number = -1;
-
-  isDraggingW() {
-    return this._baseW >= 0;
-  }
 
   startDragW = (e: DragState) => {
     let {item} = this.props;
@@ -158,7 +134,6 @@ export class BlockView extends PureDataRenderer<BlockViewProps, BlockViewState> 
     super(props);
     this.state = {moving: false, footDropping: false};
     let {item} = props;
-    item.conn.subscribe(`${item.key}.@b-xyw`, this.xywListener, true);
   }
 
   renderImpl() {
@@ -250,11 +225,5 @@ export class BlockView extends PureDataRenderer<BlockViewProps, BlockViewState> 
       // data not ready, don't renderer
       return <div ref={this.getRef}/>;
     }
-  }
-
-  componentWillUnmount() {
-    let {item} = this.props;
-    item.conn.unsubscribe(`${item.key}.@b-xyw`, this.xywListener);
-    super.componentWillUnmount();
   }
 }
