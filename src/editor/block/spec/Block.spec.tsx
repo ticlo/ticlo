@@ -265,7 +265,7 @@ describe("editor BlockStage", function () {
     // wait for the field
     await shouldHappen(() => div.querySelector('.ticl-field'));
     // background
-    let rectBg = div.querySelector('.ticl-block-stage-bg');
+    let rectBg = div.querySelector('.ticl-stage-bg');
 
     // select all
     SimulateEvent.simulate(rectBg, 'pointerdown', fakeMouseEvent(90, 90));

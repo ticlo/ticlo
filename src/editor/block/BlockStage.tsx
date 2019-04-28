@@ -173,15 +173,17 @@ export class BlockStage extends BlockStageBase {
     }
 
     return (
-      <div style={style} className="ticl-block-stage" ref={this.getRootRef} onKeyDown={this.onKeyDown} tabIndex={0}
+      <div style={style} className="ticl-stage" ref={this.getRootRef} onKeyDown={this.onKeyDown} tabIndex={0}
            onWheel={this.onWheel}>
-        <DragDropDiv className="ticl-block-stage-main" getRef={this.getMainLayerRef} onDragOverT={this.onDragOver}
+        <DragDropDiv className="ticl-stage-main" getRef={this.getMainLayerRef} onDragOverT={this.onDragOver}
                      onDropT={this.onDrop}
                      style={mainLayerStyle}>
-          <DragDropDiv className='ticl-block-stage-bg' getRef={this.getBgRef} directDragT={true}
+          <DragDropDiv className='ticl-stage-bg' getRef={this.getBgRef} directDragT={true}
                        onDragStartT={this.onSelectRectDragStart} onDragMoveT={this.onDragSelectMove}
                        onDragEndT={this.onDragSelectEnd}/>
           {children}
+          <div className=''>
+          </div>
           <div ref={this.getSelectRectRef} className="ticl-block-select-rect"/>
         </DragDropDiv>
       </div>
