@@ -65,7 +65,7 @@ class App extends React.PureComponent<Props, State> {
                         left: '300px',
                         top: '0',
                         position: 'absolute',
-                        opacity: 0.1
+                        // opacity: 0.1
                       }}/>
           <Card size='small'
                 style={{width: '300px', height: '800px', left: '1100px', top: '10px', position: 'absolute'}}>

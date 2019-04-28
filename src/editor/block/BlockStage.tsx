@@ -1,4 +1,4 @@
-import React, {CSSProperties, KeyboardEvent, WheelEvent} from "react";
+import React, {CSSProperties, KeyboardEvent} from "react";
 import {ClientConnection} from "../../core/connect/ClientConnection";
 import {DataMap} from "../../core/util/Types";
 import {BlockView} from "./Block";
@@ -9,17 +9,15 @@ import {BlockItem, FieldItem, Stage} from "./Field";
 import {forAllPathsBetween} from "../../core/util/Path";
 import {onDragBlockOver, onDropBlock} from "./DragDropBlock";
 import ResizeObserver from 'resize-observer-polyfill';
-import {BlockStageBase} from "./BlockStageBase";
+import {BlockStageBase, StageProps} from "./BlockStageBase";
+import {Button} from "antd";
 
-interface Props {
-  conn: ClientConnection;
-  basePath: string;
-  style?: React.CSSProperties;
-  onSelect?: (keys: string[]) => void;
-}
-
-interface State {
+interface StageState {
   zoom: number;
+  contentWidth: number;
+  contentHeight: number;
+  stageWidth: number;
+  stageHeight: number;
 }
 
 const zoomScales = [0.25, 1 / 3, 0.5, 2 / 3, 0.75, 0.8, 0.9, 1, 1.1, 1.25, 1.5, 1.75, 2, 2.5, 3, 4];
@@ -31,16 +29,19 @@ function getScale(zoom: number) {
   return 1;
 }
 
-export class BlockStage extends BlockStageBase {
+export class BlockStage extends BlockStageBase<StageState> {
 
   private _rootNode!: HTMLElement;
   private getRootRef = (node: HTMLDivElement): void => {
     this._rootNode = node;
+    if (node) {
+      node.addEventListener('wheel', this.onWheel, {passive: false});
+    }
   };
 
-  private _mainLayer!: HTMLElement;
-  private getMainLayerRef = (node: HTMLDivElement): void => {
-    this._mainLayer = node;
+  private _scrollNode!: HTMLElement;
+  private getScrollLayerRef = (node: HTMLDivElement): void => {
+    this._scrollNode = node;
   };
 
   private _bgNode!: HTMLElement;
@@ -58,15 +59,21 @@ export class BlockStage extends BlockStageBase {
   };
 
 
-  constructor(props: Props) {
+  constructor(props: StageProps) {
     super(props);
-    this.state = {zoom: zoomScales.indexOf(1)};
+    this.state = {
+      zoom: zoomScales.indexOf(1),
+      contentWidth: 1,
+      contentHeight: 1,
+      stageWidth: 1,
+      stageHeight: 1
+    };
   }
 
   resizeObserver: any;
 
   componentDidMount() {
-    this._mainLayer.addEventListener('scroll', this.handleScroll, {
+    this._scrollNode.addEventListener('scroll', this.handleScroll, {
       passive: true,
     });
 
@@ -131,7 +138,7 @@ export class BlockStage extends BlockStageBase {
 
   };
   handleScroll = (event: UIEvent) => {
-    const offset = this._mainLayer.scrollTop;
+    const offset = this._scrollNode.scrollTop;
 
   };
 
@@ -144,20 +151,16 @@ export class BlockStage extends BlockStageBase {
         this.setState({zoom: zoom - 1});
       }
       e.stopPropagation();
+      e.preventDefault();
     }
   };
 
   render() {
     let {style} = this.props;
     let {zoom} = this.state;
-
-    let mainLayerStyle: CSSProperties = {};
     let zoomScale = getScale(zoom);
-    if (zoomScale !== 1) {
-      mainLayerStyle.transform = `scale(${zoomScale},${zoomScale})`;
-      mainLayerStyle.width = `${100 / zoomScale}%`;
-      mainLayerStyle.height = `${100 / zoomScale}%`;
-    }
+    let width = 0;
+    let height = 0;
 
     let children: React.ReactNode[] = [];
 
@@ -170,22 +173,41 @@ export class BlockStage extends BlockStageBase {
     // add blocks
     for (let [key, blockItem] of this._blocks) {
       children.push(<BlockView key={key} item={blockItem}/>);
+
+      // TODO check width height other time
+      if (blockItem.w + blockItem.x > width) {
+        width = blockItem.w + blockItem.x;
+      }
+      if (blockItem.h + blockItem.y > height) {
+        height = blockItem.h + blockItem.y;
+      }
     }
 
+    let contentLayerStyle: CSSProperties = {
+      transform: `scale(${zoomScale},${zoomScale})`,
+      width: `${width + 32}px`,
+      height: `${height + 32}px`,
+    };
+
     return (
-      <div style={style} className="ticl-stage" ref={this.getRootRef} onKeyDown={this.onKeyDown} tabIndex={0}
-           onWheel={this.onWheel}>
-        <DragDropDiv className="ticl-stage-main" getRef={this.getMainLayerRef} onDragOverT={this.onDragOver}
-                     onDropT={this.onDrop}
-                     style={mainLayerStyle}>
-          <DragDropDiv className='ticl-stage-bg' getRef={this.getBgRef} directDragT={true}
-                       onDragStartT={this.onSelectRectDragStart} onDragMoveT={this.onDragSelectMove}
-                       onDragEndT={this.onDragSelectEnd}/>
-          {children}
-          <div className=''>
+      <div style={style} className="ticl-stage" ref={this.getRootRef} onKeyDown={this.onKeyDown} tabIndex={0}>
+        <DragDropDiv className="ticl-stage-scroll" getRef={this.getScrollLayerRef} onDragOverT={this.onDragOver}
+                     onDropT={this.onDrop}>
+          <div className='ticl-stage-scroll-content' style={contentLayerStyle}>
+            <DragDropDiv className='ticl-stage-bg' getRef={this.getBgRef} directDragT={true}
+                         onDragStartT={this.onSelectRectDragStart} onDragMoveT={this.onDragSelectMove}
+                         onDragEndT={this.onDragSelectEnd}/>
+            {children}
+            <div ref={this.getSelectRectRef} className="ticl-block-select-rect"/>
           </div>
-          <div ref={this.getSelectRectRef} className="ticl-block-select-rect"/>
         </DragDropDiv>
+        <div className='ticl-stage-zoom'>
+          <div className='ticl-hbox'>
+            <Button className='ticl-icon-btn' shape='circle' icon="zoom-out"/>
+            <span>{Math.round(zoomScale * 100)}%</span>
+            <Button className='ticl-icon-btn' shape='circle' icon="zoom-in"/>
+          </div>
+        </div>
       </div>
     );
   }

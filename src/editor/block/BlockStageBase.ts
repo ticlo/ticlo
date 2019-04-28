@@ -5,19 +5,14 @@ import {DragState} from "rc-dock";
 import {BlockItem, FieldItem, Stage} from "./Field";
 import {forAllPathsBetween} from "../../core/util/Path";
 
-interface Props {
+export interface StageProps {
   conn: ClientConnection;
   basePath: string;
   style?: React.CSSProperties;
   onSelect?: (keys: string[]) => void;
 }
 
-interface State {
-  zoom: number;
-}
-
-
-export abstract class BlockStageBase extends React.Component<Props, State> implements Stage {
+export abstract class BlockStageBase<State> extends React.Component<StageProps, State> implements Stage {
 
   abstract getRefElement(): HTMLElement;
 
@@ -242,13 +237,13 @@ export abstract class BlockStageBase extends React.Component<Props, State> imple
     }
   };
 
-  constructor(props: Props) {
+  constructor(props: StageProps) {
     super(props);
     props.conn.watch(props.basePath, this.watchListener);
 
   }
 
-  shouldComponentUpdate(nextProps: Props, nextState: any) {
+  shouldComponentUpdate(nextProps: StageProps, nextState: any) {
     if (nextProps.basePath !== this.props.basePath) {
       // TODO clear cached blocks
       this.props.conn.unwatch(this.props.basePath, this.watchListener);

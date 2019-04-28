@@ -1,25 +1,5 @@
 @import "../style";
 
-.ticl-stage {
-  user-select: none;
-}
-
-.ticl-stage-bg, .ticl-stage-main {
-  position: absolute;
-  width: 100%;
-  height: 100%;
-}
-
-.ticl-stage-bg {
-  background-size: 32px 32px;
-  background-image: radial-gradient(circle, #ddd 1px, rgba(0, 0, 0, 0) 1px);
-}
-
-.ticl-stage-main {
-  transform-origin: 0 0;
-  overflow: auto;
-}
-
 .ticl-block {
   box-sizing: border-box;
   margin: 0;
@@ -37,13 +17,11 @@
 
 
 .ticl-block-full-view {
-  display: flex; // work around the issue that note ignore 100% max size
   box-sizing: border-box;
   margin: 0;
   padding: 0;
   list-style: none;
   position: absolute;
-  max-height: 100%;
   transition-property: border-color, box-shadow;
   transition-duration: .2s;
   z-index: 0;
