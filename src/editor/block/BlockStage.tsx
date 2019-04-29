@@ -137,10 +137,14 @@ export class BlockStage extends BlockStageBase<StageState> {
   };
 
   handleResize = () => {
-    this.updateScrollDebounce();
+    if (this.updateScrollDebounce) {
+      this.updateScrollDebounce();
+    }
   };
   handleScroll = (event: UIEvent) => {
-    this.updateScrollDebounce();
+    if (this.updateScrollDebounce) {
+      this.updateScrollDebounce();
+    }
   };
 
   onWheel = (e: WheelEvent) => {
@@ -196,7 +200,7 @@ export class BlockStage extends BlockStageBase<StageState> {
   measureChildrenDebounce = debounce(this.measureChildren, 40);
 
   onChildrenSizeChanged() {
-    if (!this._draggingBlocks) {
+    if (this.measureChildrenDebounce && !this._draggingBlocks) {
       this.measureChildrenDebounce();
     }
   }
@@ -285,8 +289,13 @@ export class BlockStage extends BlockStageBase<StageState> {
     if (this.resizeObserver) {
       this.resizeObserver.disconnect();
     }
+
     this.updateScrollDebounce.cancel();
+    this.updateScrollDebounce = null;
+
     this.measureChildrenDebounce.cancel();
+    this.measureChildrenDebounce = null;
+
     super.componentWillUnmount();
   }
 
