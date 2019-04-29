@@ -88,9 +88,9 @@ describe("editor BlockStage", function () {
 
     await shouldHappen(() => div.querySelector('.ticl-block'));
 
-    let block = div.querySelector('.ticl-block') as HTMLDivElement;
+    let block = div.querySelector('.ticl-stage-scroll .ticl-block') as HTMLDivElement;
     // mouse down
-    SimulateEvent.simulate(document.querySelector('.ticl-block-head'), 'pointerdown', {
+    SimulateEvent.simulate(document.querySelector('.ticl-stage-scroll .ticl-block-head'), 'mousedown', {
       clientX: 0,
       clientY: 0,
     });
@@ -140,10 +140,10 @@ describe("editor BlockStage", function () {
 
     await shouldHappen(() => div.querySelector('.ticl-block'));
 
-    let block = div.querySelector('.ticl-block') as HTMLDivElement;
+    let block = div.querySelector('.ticl-stage-scroll .ticl-block') as HTMLDivElement;
     await shouldHappen(() => (block.offsetWidth === 345));
     // mouse down
-    SimulateEvent.simulate(document.querySelector('.ticl-width-drag'), 'pointerdown', fakeMouseEvent());
+    SimulateEvent.simulate(document.querySelector('.ticl-width-drag'), 'mousedown', fakeMouseEvent());
 
     // mouse move to trigger drag start
     SimulateEvent.simulate(document.body, 'mousemove', fakeMouseEvent(100, 100));
@@ -186,15 +186,15 @@ describe("editor BlockStage", function () {
                   style={{width: '800px', height: '800px'}}/>, 'editor');
 
     // wait for the wire
-    await shouldHappen(() => div.querySelector('svg'));
+    await shouldHappen(() => div.querySelector('svg.ticl-block-wire'));
 
     let addBlock = querySingle("//div.ticl-block-head[text()='add']/..", div);
     assert.equal(addBlock.offsetWidth, 150);
 
-    let wire = div.querySelector('svg');
+    let wire = div.querySelector('svg.ticl-block-wire') as SVGSVGElement;
 
     // mousedown to select
-    SimulateEvent.simulate(addBlock.querySelector('.ticl-block-head'), 'pointerdown');
+    SimulateEvent.simulate(addBlock.querySelector('.ticl-stage-scroll .ticl-block-head'), 'mousedown');
     SimulateEvent.simulate(document.body, 'mouseup');
     // wire should have z index
     await shouldHappen(() => wire.style.zIndex === '100');
@@ -208,7 +208,7 @@ describe("editor BlockStage", function () {
     assert.equal(div.querySelector('svg'), wire);
 
     // click the other block
-    SimulateEvent.simulate(querySingle("//div.ticl-block-head[text()='subtract']", div), 'pointerdown');
+    SimulateEvent.simulate(querySingle("//div.ticl-block-head[text()='subtract']", div), 'mousedown');
     // addBlock is no longer selected
     await shouldHappen(() => !addBlock.classList.contains('ticl-block-selected'));
     // since subtract block is now selected, wire should still have zindex
@@ -220,15 +220,15 @@ describe("editor BlockStage", function () {
 
     // wire should disappear when source not in stage
     job.queryProperty('subtract.0').setBinding('##.unknown');
-    await shouldHappen(() => div.querySelector('svg') == null);
+    await shouldHappen(() => div.querySelector('svg.ticl-block-wire') == null);
 
     // wire should be back when binding is set again
     job.queryProperty('subtract.0').setBinding('##.add.1');
-    await shouldHappen(() => div.querySelector('svg'));
+    await shouldHappen(() => div.querySelector('svg.ticl-block-wire'));
 
     // wire should disappear when unbound
     job.queryProperty('subtract.0').setValue(1);
-    await shouldHappen(() => div.querySelector('svg') == null);
+    await shouldHappen(() => div.querySelector('svg.ticl-block-wire') == null);
 
 
     Root.instance.deleteValue('BlockStage4');
@@ -268,24 +268,24 @@ describe("editor BlockStage", function () {
     let rectBg = div.querySelector('.ticl-stage-bg');
 
     // select all
-    SimulateEvent.simulate(rectBg, 'pointerdown', fakeMouseEvent(90, 90));
+    SimulateEvent.simulate(rectBg, 'mousedown', fakeMouseEvent(90, 90));
     SimulateEvent.simulate(rectBg, 'mouseup', fakeMouseEvent(310, 310));
 
     // both block are selected
-    await shouldHappen(() => div.querySelectorAll('.ticl-block-selected').length === 2);
+    await shouldHappen(() => div.querySelectorAll('.ticl-stage-scroll .ticl-block-selected').length === 2);
     assert.sameMembers(selectedKeys, ['BlockStage5.add', 'BlockStage5.subtract']);
 
     // select all
-    SimulateEvent.simulate(rectBg, 'pointerdown', fakeMouseEvent(210, 210));
+    SimulateEvent.simulate(rectBg, 'mousedown', fakeMouseEvent(210, 210));
     SimulateEvent.simulate(rectBg, 'mouseup', fakeMouseEvent(90, 90));
 
     // one block selected
-    await shouldHappen(() => div.querySelectorAll('.ticl-block-selected').length === 1);
+    await shouldHappen(() => div.querySelectorAll('.ticl-stage-scroll .ticl-block-selected').length === 1);
     assert.sameMembers(selectedKeys, ['BlockStage5.add']);
 
     // select none
     // select all
-    SimulateEvent.simulate(rectBg, 'pointerdown', fakeMouseEvent(90, 90));
+    SimulateEvent.simulate(rectBg, 'mousedown', fakeMouseEvent(90, 90));
     SimulateEvent.simulate(rectBg, 'mouseup', fakeMouseEvent(91, 89));
 
     // one block selected
