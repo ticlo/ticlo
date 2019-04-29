@@ -23,6 +23,7 @@
 }
 
 .ticl-stage-zoom {
+  pointer-events: none;
   position: absolute;
   top: 4px;
   right: 16px;
@@ -31,6 +32,10 @@
   border-radius: 12px;
   min-width: 92px;
   background: rgba(255, 255, 255, 0.75);
+
+  button {
+    pointer-events: visible;
+  }
 }
 
 .ticl-stage-zoom-label {
