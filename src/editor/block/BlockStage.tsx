@@ -67,8 +67,8 @@ export class BlockStage extends BlockStageBase<StageState> {
       zoom: zoomScales.indexOf(1),
       contentWidth: 0,
       contentHeight: 0,
-      stageWidth: 1,
-      stageHeight: 1
+      stageWidth: 0,
+      stageHeight: 0
     };
   }
 
@@ -168,7 +168,10 @@ export class BlockStage extends BlockStageBase<StageState> {
   };
 
   updateScroll = () => {
-
+    this.setState({
+      stageWidth: this._scrollNode.clientWidth,
+      stageHeight: this._scrollNode.clientHeight
+    });
   };
   updateScrollDebounce = debounce(this.updateScroll, 500);
 
@@ -200,7 +203,7 @@ export class BlockStage extends BlockStageBase<StageState> {
 
   render() {
     let {style} = this.props;
-    let {zoom, contentWidth, contentHeight} = this.state;
+    let {zoom, contentWidth, contentHeight, stageWidth, stageHeight} = this.state;
     let zoomScale = getScale(zoom);
     let width = 0;
     let height = 0;
@@ -220,27 +223,33 @@ export class BlockStage extends BlockStageBase<StageState> {
       miniChildren.push(<MiniBlockView key={key} item={blockItem}/>);
     }
 
+    let viewWidth = Math.max(contentWidth, Math.floor(stageWidth / zoomScale));
+    let viewHeight = Math.max(contentHeight, Math.floor(stageHeight / zoomScale));
     let contentLayerStyle: CSSProperties = {
       transform: `scale(${zoomScale},${zoomScale})`,
-      width: `${contentWidth}px`,
-      height: `${contentHeight}px`,
+      width: `${viewWidth * zoomScale}px`,
+      height: `${viewHeight * zoomScale}px`,
+    };
+    let contentBgStyle: CSSProperties = {
+      width: `${viewWidth}px`,
+      height: `${viewHeight}px`,
     };
 
-    let miniScale = Math.min(160 / contentWidth, 160 / contentHeight);
+    let miniScale = Math.min(160 / viewWidth, 160 / viewHeight);
     let miniStageStyle = {
       transform: `scale(${miniScale},${miniScale})`,
 
     };
     let minStageBgStyle = {
-      width: `${Math.ceil(contentWidth * miniScale)}px`,
-      height: `${Math.ceil(contentHeight * miniScale)}px`,
+      width: `${Math.ceil(viewWidth * miniScale)}px`,
+      height: `${Math.ceil(viewHeight * miniScale)}px`,
     };
     return (
       <div style={style} className="ticl-stage" ref={this.getRootRef} onKeyDown={this.onKeyDown} tabIndex={0}>
         <DragDropDiv className="ticl-stage-scroll" getRef={this.getScrollLayerRef} onDragOverT={this.onDragOver}
                      onDropT={this.onDrop}>
           <div className='ticl-stage-scroll-content' style={contentLayerStyle}>
-            <DragDropDiv className='ticl-stage-bg' getRef={this.getBgRef} directDragT={true}
+            <DragDropDiv className='ticl-stage-bg' getRef={this.getBgRef} style={contentBgStyle} directDragT={true}
                          onDragStartT={this.onSelectRectDragStart} onDragMoveT={this.onDragSelectMove}
                          onDragEndT={this.onDragSelectEnd}/>
             {children}
