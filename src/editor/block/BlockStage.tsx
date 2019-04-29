@@ -11,6 +11,7 @@ import {onDragBlockOver, onDropBlock} from "./DragDropBlock";
 import ResizeObserver from 'resize-observer-polyfill';
 import {BlockStageBase, StageProps} from "./BlockStageBase";
 import {Button} from "antd";
+import {MiniBlockView, MiniStage} from "./MiniStage";
 
 interface StageState {
   zoom: number;
@@ -144,16 +145,28 @@ export class BlockStage extends BlockStageBase<StageState> {
 
   onWheel = (e: WheelEvent) => {
     if (e.altKey) {
-      let {zoom} = this.state;
-      if (e.deltaY < 0 && zoom < zoomScales.length - 1) {
-        this.setState({zoom: zoom + 1});
-      } else if (e.deltaY > 0 && zoom > 0) {
-        this.setState({zoom: zoom - 1});
+      if (e.deltaY < 0) {
+        this.zoomIn();
+      } else if (e.deltaY > 0) {
+        this.zoomOut();
       }
       e.stopPropagation();
       e.preventDefault();
     }
   };
+  zoomIn = () => {
+    let {zoom} = this.state;
+    if (zoom < zoomScales.length - 1) {
+      this.setState({zoom: zoom + 1});
+    }
+  };
+  zoomOut = () => {
+    let {zoom} = this.state;
+    if (zoom > 0) {
+      this.setState({zoom: zoom - 1});
+    }
+  };
+
 
   render() {
     let {style} = this.props;
@@ -163,6 +176,7 @@ export class BlockStage extends BlockStageBase<StageState> {
     let height = 0;
 
     let children: React.ReactNode[] = [];
+    let miniChildren: React.ReactNode[] = [];
 
     // add wires
     for (let [key, fieldItem] of this._fields) {
@@ -173,7 +187,7 @@ export class BlockStage extends BlockStageBase<StageState> {
     // add blocks
     for (let [key, blockItem] of this._blocks) {
       children.push(<BlockView key={key} item={blockItem}/>);
-
+      miniChildren.push(<MiniBlockView key={key} item={blockItem}/>);
       // TODO check width height other time
       if (blockItem.w + blockItem.x > width) {
         width = blockItem.w + blockItem.x;
@@ -183,12 +197,23 @@ export class BlockStage extends BlockStageBase<StageState> {
       }
     }
 
+    let marginWidth = width + 32;
+    let marginHeight = height + 32;
     let contentLayerStyle: CSSProperties = {
       transform: `scale(${zoomScale},${zoomScale})`,
-      width: `${width + 32}px`,
-      height: `${height + 32}px`,
+      width: `${marginWidth}px`,
+      height: `${marginHeight}px`,
     };
 
+    let miniScale = Math.min(160 / marginWidth, 160 / marginHeight);
+    let miniStageStyle = {
+      transform: `scale(${miniScale},${miniScale})`,
+
+    };
+    let minStageBgStyle = {
+      width: `${Math.ceil(marginWidth * miniScale)}px`,
+      height: `${Math.ceil(marginHeight * miniScale)}px`,
+    };
     return (
       <div style={style} className="ticl-stage" ref={this.getRootRef} onKeyDown={this.onKeyDown} tabIndex={0}>
         <DragDropDiv className="ticl-stage-scroll" getRef={this.getScrollLayerRef} onDragOverT={this.onDragOver}
@@ -203,9 +228,14 @@ export class BlockStage extends BlockStageBase<StageState> {
         </DragDropDiv>
         <div className='ticl-stage-zoom'>
           <div className='ticl-hbox'>
-            <Button className='ticl-icon-btn' shape='circle' icon="zoom-out"/>
-            <span>{Math.round(zoomScale * 100)}%</span>
-            <Button className='ticl-icon-btn' shape='circle' icon="zoom-in"/>
+            <Button className='ticl-icon-btn' shape='circle' icon="zoom-out" onClick={this.zoomOut}/>
+            <span className='ticl-stage-zoom-label'>{Math.round(zoomScale * 100)}%</span>
+            <Button className='ticl-icon-btn' shape='circle' icon="zoom-in" onClick={this.zoomIn}/>
+          </div>
+          <div className='ticl-mini-stage-bg' style={minStageBgStyle}>
+            <MiniStage style={miniStageStyle}>
+              {miniChildren}
+            </MiniStage>
           </div>
         </div>
       </div>

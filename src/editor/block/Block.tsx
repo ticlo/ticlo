@@ -133,7 +133,6 @@ export class BlockView extends PureDataRenderer<BlockViewProps, BlockViewState> 
   constructor(props: BlockViewProps) {
     super(props);
     this.state = {moving: false, footDropping: false};
-    let {item} = props;
   }
 
   renderImpl() {
