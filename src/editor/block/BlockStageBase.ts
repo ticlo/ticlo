@@ -12,9 +12,11 @@ export interface StageProps {
   onSelect?: (keys: string[]) => void;
 }
 
-export abstract class BlockStageBase<State> extends React.Component<StageProps, State> implements Stage {
+export abstract class BlockStageBase<State> extends React.PureComponent<StageProps, State> implements Stage {
 
   abstract getRefElement(): HTMLElement;
+
+  abstract onChildrenSizeChanged(): void;
 
   _blocks: Map<string, BlockItem> = new Map<string, BlockItem>();
   _blockLinks: Map<string, Set<BlockItem>> = new Map<string, Set<BlockItem>>();
@@ -100,6 +102,7 @@ export abstract class BlockStageBase<State> extends React.Component<StageProps, 
       this.selectionChanged = false;
       this.onSelect();
     }
+    this.onChildrenSizeChanged();
   }
 
   getBlock(key: string): BlockItem {
@@ -243,13 +246,12 @@ export abstract class BlockStageBase<State> extends React.Component<StageProps, 
 
   }
 
-  shouldComponentUpdate(nextProps: StageProps, nextState: any) {
+  UNSAFE_componentWillReceiveProps(nextProps: StageProps) {
     if (nextProps.basePath !== this.props.basePath) {
       // TODO clear cached blocks
       this.props.conn.unwatch(this.props.basePath, this.watchListener);
       this.props.conn.watch(nextProps.basePath, this.watchListener);
     }
-    return true;
   }
 
   createBlock = async (name: string, blockData: {[key: string]: any}) => {

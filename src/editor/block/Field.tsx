@@ -48,6 +48,8 @@ export interface Stage {
 
   // get a reference element to measure the scale of the current stage
   getRefElement(): HTMLElement;
+
+  onChildrenSizeChanged(): void;
 }
 
 interface ValueRenderer {
@@ -578,6 +580,14 @@ const fieldHeight = 24;
 export class BlockItem extends BaseBlockItem {
 
   h: number;
+
+  setH(h: number) {
+    if (h !== this.h) {
+      this.h = h;
+      this.stage.onChildrenSizeChanged();
+    }
+  }
+
   selected: boolean = false;
 
   constructor(connection: ClientConnection, stage: Stage, key: string) {
@@ -668,6 +678,7 @@ export class BlockItem extends BaseBlockItem {
         }
       }
       this.updateFieldPosition();
+      this.stage.onChildrenSizeChanged();
     }
     if (save) {
       this.conn.setValue(`${this.key}.@b-xyw`, [x, y, w]);
@@ -687,7 +698,7 @@ export class BlockItem extends BaseBlockItem {
       for (let field of this.fields) {
         this.fieldItems.get(field).updateFieldPos(x, y1, w, 0);
       }
-      this.h = fieldHeight;
+      this.setH(fieldHeight);
     } else {
       let headerHeight = fieldHeight;
       if (this.desc.view) {
@@ -701,7 +712,7 @@ export class BlockItem extends BaseBlockItem {
       for (let field of this.fields) {
         y1 = this.fieldItems.get(field).updateFieldPos(x, y1, w, fieldHeight);
       }
-      this.h = y1 - fieldYOffset + 20 - y; // footer height
+      this.setH(y1 - fieldYOffset + 20 - y); // footer height
     }
     if (this._syncChild) {
       this._syncChild.setXYW(this.x, this.y + this.h, this.w);

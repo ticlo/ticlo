@@ -12,6 +12,7 @@ import ResizeObserver from 'resize-observer-polyfill';
 import {BlockStageBase, StageProps} from "./BlockStageBase";
 import {Button} from "antd";
 import {MiniBlockView, MiniStage} from "./MiniStage";
+import debounce from "lodash/debounce";
 
 interface StageState {
   zoom: number;
@@ -64,8 +65,8 @@ export class BlockStage extends BlockStageBase<StageState> {
     super(props);
     this.state = {
       zoom: zoomScales.indexOf(1),
-      contentWidth: 1,
-      contentHeight: 1,
+      contentWidth: 0,
+      contentHeight: 0,
       stageWidth: 1,
       stageHeight: 1
     };
@@ -136,11 +137,10 @@ export class BlockStage extends BlockStageBase<StageState> {
   };
 
   handleResize = () => {
-
+    this.updateScrollDebounce();
   };
   handleScroll = (event: UIEvent) => {
-    const offset = this._scrollNode.scrollTop;
-
+    this.updateScrollDebounce();
   };
 
   onWheel = (e: WheelEvent) => {
@@ -167,10 +167,40 @@ export class BlockStage extends BlockStageBase<StageState> {
     }
   };
 
+  updateScroll = () => {
+
+  };
+  updateScrollDebounce = debounce(this.updateScroll, 500);
+
+  measureChildren = () => {
+    let width = 0;
+    let height = 0;
+    // add blocks
+    for (let [key, blockItem] of this._blocks) {
+      // TODO check width height other time
+      if (blockItem.w + blockItem.x > width) {
+        width = blockItem.w + blockItem.x;
+      }
+      if (blockItem.h + blockItem.y > height) {
+        height = blockItem.h + blockItem.y;
+      }
+    }
+    this.setState({
+      contentWidth: width + 32,
+      contentHeight: height + 32,
+    });
+  };
+  measureChildrenDebounce = debounce(this.measureChildren, 40);
+
+  onChildrenSizeChanged() {
+    if (!this._draggingBlocks) {
+      this.measureChildrenDebounce();
+    }
+  }
 
   render() {
     let {style} = this.props;
-    let {zoom} = this.state;
+    let {zoom, contentWidth, contentHeight} = this.state;
     let zoomScale = getScale(zoom);
     let width = 0;
     let height = 0;
@@ -188,31 +218,22 @@ export class BlockStage extends BlockStageBase<StageState> {
     for (let [key, blockItem] of this._blocks) {
       children.push(<BlockView key={key} item={blockItem}/>);
       miniChildren.push(<MiniBlockView key={key} item={blockItem}/>);
-      // TODO check width height other time
-      if (blockItem.w + blockItem.x > width) {
-        width = blockItem.w + blockItem.x;
-      }
-      if (blockItem.h + blockItem.y > height) {
-        height = blockItem.h + blockItem.y;
-      }
     }
 
-    let marginWidth = width + 32;
-    let marginHeight = height + 32;
     let contentLayerStyle: CSSProperties = {
       transform: `scale(${zoomScale},${zoomScale})`,
-      width: `${marginWidth}px`,
-      height: `${marginHeight}px`,
+      width: `${contentWidth}px`,
+      height: `${contentHeight}px`,
     };
 
-    let miniScale = Math.min(160 / marginWidth, 160 / marginHeight);
+    let miniScale = Math.min(160 / contentWidth, 160 / contentHeight);
     let miniStageStyle = {
       transform: `scale(${miniScale},${miniScale})`,
 
     };
     let minStageBgStyle = {
-      width: `${Math.ceil(marginWidth * miniScale)}px`,
-      height: `${Math.ceil(marginHeight * miniScale)}px`,
+      width: `${Math.ceil(contentWidth * miniScale)}px`,
+      height: `${Math.ceil(contentHeight * miniScale)}px`,
     };
     return (
       <div style={style} className="ticl-stage" ref={this.getRootRef} onKeyDown={this.onKeyDown} tabIndex={0}>
@@ -255,6 +276,8 @@ export class BlockStage extends BlockStageBase<StageState> {
     if (this.resizeObserver) {
       this.resizeObserver.disconnect();
     }
+    this.updateScrollDebounce.cancel();
+    this.measureChildrenDebounce.cancel();
     super.componentWillUnmount();
   }
 
