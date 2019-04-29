@@ -263,7 +263,7 @@ describe("editor BlockStage", function () {
                   style={{width: '800px', height: '800px'}}/>, 'editor');
 
     // wait for the field
-    await shouldHappen(() => div.querySelector('.ticl-field'));
+    await shouldHappen(() => (div.querySelector('.ticl-stage-bg') as HTMLElement).offsetWidth);
     // background
     let rectBg = div.querySelector('.ticl-stage-bg');
 
