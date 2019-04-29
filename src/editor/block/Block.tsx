@@ -30,6 +30,10 @@ export class BlockView extends PureDataRenderer<BlockViewProps, BlockViewState> 
     }
   }
 
+  renderH(h: number) {
+    // ignore h change, since it's handled by html layout
+  }
+
   selectAndDrag = (e: DragState) => {
     let {item} = this.props;
     if (e.event.ctrlKey) {

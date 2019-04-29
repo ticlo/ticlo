@@ -25,6 +25,12 @@ export class MiniBlockView extends PureDataRenderer<MiniBlockViewProps, any> imp
     }
   }
 
+  renderH(h: number) {
+    if (h) {
+      this._rootNode.style.height = `${h}px`;
+    }
+  }
+
   constructor(props: MiniBlockViewProps) {
     super(props);
   }

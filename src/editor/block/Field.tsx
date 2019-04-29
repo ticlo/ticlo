@@ -353,6 +353,8 @@ export class FieldView extends PureDataRenderer<FieldViewProps, any> {
 
 export interface XYWRenderer {
   renderXYW(x: number, y: number, z: number): void;
+
+  renderH(h: number): void;
 }
 
 export abstract class BaseBlockItem extends DataRendererItem<XYWRenderer> {
@@ -584,6 +586,9 @@ export class BlockItem extends BaseBlockItem {
   setH(h: number) {
     if (h !== this.h) {
       this.h = h;
+      for (let renderer of this._renderers) {
+        renderer.renderH(h);
+      }
       this.stage.onChildrenSizeChanged();
     }
   }
