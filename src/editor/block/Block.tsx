@@ -170,8 +170,9 @@ export class BlockView extends PureDataRenderer<BlockViewProps, BlockViewState> 
       return (
         <DragDropDiv className={classNames.join(' ')} directDragT={true}
                      getRef={this.getRef} style={{top: item.y, left: item.x, width}}
-                     onDragStartT={this.selectAndDrag} onDragMoveT={this.onDragMove} onDragEndT={this.onDragEnd}>
-          <SpecialView conn={item.conn} path={item.key}/>
+                     onDragStartT={this.selectAndDrag} onDragMoveT={this.onDragMove} onDragEndT={this.onDragEnd}
+                     onDragOverT={this.onDragOverFoot} onDropT={this.onDropFoot} onDragLeaveT={this.onDragLeaveFoot}>
+          <SpecialView conn={item.conn} path={item.key} updateViewHeight={item.setViewH}/>
           {widthDrag}
         </DragDropDiv>
       );

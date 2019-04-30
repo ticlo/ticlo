@@ -7,5 +7,5 @@ export interface SpecialViewProps {
   path: string;
 
   // directly notify the model about the height of the special view
-  updateViewHeight?(h: number): void;
+  updateViewHeight(h: number): void;
 }

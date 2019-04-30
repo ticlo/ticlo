@@ -696,7 +696,11 @@ export class BlockItem extends BaseBlockItem {
   updateFieldPosition = () => {
     let {x, y, w} = this;
 
-    if (!w) {
+    let SpecialView = this.desc.view;
+
+    if (SpecialView && SpecialView.fullView) {
+      this.setH(this.viewH); // footer height
+    } else if (!w) {
       let y1 = y + fieldYOffset;
       x -= 1;
       w = fieldHeight + 2;

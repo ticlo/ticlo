@@ -8,6 +8,11 @@ import {LazyUpdateComponent, LazyUpdateListener} from "../../../ui/component/Laz
 class NoteView extends LazyUpdateComponent<SpecialViewProps, any> {
   static fullView = true;
 
+  private _rootNode!: HTMLElement;
+  private getRef = (node: HTMLDivElement): void => {
+    this._rootNode = node;
+  };
+
   text = new LazyUpdateListener(this);
   background = new LazyUpdateListener(this);
   border = new LazyUpdateListener(this);
@@ -50,8 +55,13 @@ class NoteView extends LazyUpdateComponent<SpecialViewProps, any> {
       style.color = this.color.value;
     }
     return (
-      <div className='ticl-block-note' style={style} dangerouslySetInnerHTML={{__html: rawHtml}}/>
+      <div ref={this.getRef} className='ticl-block-note' style={style} dangerouslySetInnerHTML={{__html: rawHtml}}/>
     );
+  }
+
+  componentDidUpdate(prevProps: Readonly<SpecialViewProps>, prevState: Readonly<any>, snapshot?: any): void {
+    let {updateViewHeight} = this.props;
+    updateViewHeight(this._rootNode.offsetHeight);
   }
 
   componentWillUnmount(): void {
