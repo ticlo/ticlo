@@ -49,9 +49,16 @@
   box-shadow: 0 0 1px 1px #f8f8f8;
   margin: 6px 2px;
   overflow: hidden;
+  position: relative;
 }
 
 .ticl-mini-stage {
   transform-origin: 0 0;
+}
 
+.ticl-mini-stage-window {
+  position: absolute;
+  box-sizing: border-box;
+  box-shadow: inset 0 0 4px 3px fade(#aaa, 50%);;
+  pointer-events: visible;
 }
