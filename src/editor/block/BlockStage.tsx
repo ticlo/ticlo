@@ -173,8 +173,8 @@ export class BlockStage extends BlockStageBase<StageState> {
 
   updateScroll = () => {
     this.setState({
-      stageWidth: this._scrollNode.clientWidth,
-      stageHeight: this._scrollNode.clientHeight
+      stageWidth: this._scrollNode.offsetWidth - 11,
+      stageHeight: this._scrollNode.offsetHeight - 11,
     });
   };
   updateScrollDebounce = debounce(this.updateScroll, 500);
@@ -249,7 +249,8 @@ export class BlockStage extends BlockStageBase<StageState> {
       height: `${Math.ceil(viewHeight * miniScale)}px`,
     };
     return (
-      <div style={style} className="ticl-stage" ref={this.getRootRef} onKeyDown={this.onKeyDown} tabIndex={0}>
+      <div style={style} className="ticl-stage ticl-scroll" ref={this.getRootRef} onKeyDown={this.onKeyDown}
+           tabIndex={0}>
         <DragDropDiv className="ticl-stage-scroll" getRef={this.getScrollLayerRef} onDragOverT={this.onDragOver}
                      onDropT={this.onDrop}>
           <div className='ticl-stage-scroll-content' style={contentLayerStyle}>
