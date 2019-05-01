@@ -738,7 +738,7 @@ export class BlockItem extends BaseBlockItem {
 
   linkSyncParent(key: string) {
     this.conn.setValue(`${this.key}.@b-xyw`, key);
-    this.conn.setBinding(`${this.key}.#call`, `${key}.#emit`);
+    this.conn.setBinding(`${this.key}.#call`, `${key}.#emit`, true);
     this.conn.setValue(`${this.key}.#sync`, true);
     this.setSyncParentKey(key);
   }
