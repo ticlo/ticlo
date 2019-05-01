@@ -155,6 +155,37 @@ export class BlockStage extends BlockStageBase<StageState> {
     this.forceUpdate();
   };
 
+  _dragScrollPos?: [number, number];
+  onZoomWindowDragStart = (e: DragState) => {
+    this._dragScrollPos = [this._scrollX, this._scrollY];
+    e.startDrag(null, null);
+  };
+  onZoomWindowDragMove = (e: DragState) => {
+    let {zoom, contentWidth, contentHeight, stageWidth, stageHeight} = this.state;
+    let zoomScale = getScale(zoom);
+    let viewWidth = Math.max(contentWidth, Math.floor(stageWidth / zoomScale));
+    let viewHeight = Math.max(contentHeight, Math.floor(stageHeight / zoomScale));
+    let miniScale = Math.min(MINI_WINDOW_SIZE / viewWidth, MINI_WINDOW_SIZE / viewHeight);
+    let miniToClient = zoomScale / miniScale;
+    let scrollX = Math.round(this._dragScrollPos[0] + e.dx * miniToClient);
+    let scrollY = Math.round(this._dragScrollPos[1] + e.dy * miniToClient);
+    if (scrollX < 0) {
+      scrollX = 0;
+    } else if (scrollX > this._scrollNode.scrollWidth - this._scrollNode.clientWidth) {
+      scrollX = this._scrollNode.scrollWidth - this._scrollNode.clientWidth;
+    }
+    if (scrollY < 0) {
+      scrollY = 0;
+    } else if (scrollY > this._scrollNode.scrollHeight - this._scrollNode.clientHeight) {
+      scrollY = this._scrollNode.scrollHeight - this._scrollNode.clientHeight;
+    }
+    this._scrollNode.scrollLeft = scrollX;
+    this._scrollNode.scrollTop = scrollY;
+  };
+  onZoomWindowDragEnd = (e: DragState) => {
+    this._dragScrollPos = null;
+  };
+
   getMiniStageStyle(): {miniStageStyle?: CSSProperties, minStageBgStyle?: CSSProperties, miniWindowStyle?: CSSProperties} {
     let {zoom, contentWidth, contentHeight, stageWidth, stageHeight} = this.state;
     let zoomScale = getScale(zoom);
@@ -285,7 +316,9 @@ export class BlockStage extends BlockStageBase<StageState> {
           <div className='ticl-mini-stage' style={miniStageStyle}>
             {miniChildren}
           </div>
-          <DragDropDiv getRef={this.getMiniWindowRef} className='ticl-mini-stage-window' style={miniWindowStyle}/>
+          <DragDropDiv getRef={this.getMiniWindowRef} className='ticl-mini-stage-window' style={miniWindowStyle}
+                       onDragStartT={this.onZoomWindowDragStart} onDragMoveT={this.onZoomWindowDragMove}
+                       onDragEndT={this.onZoomWindowDragEnd}/>
         </div>
       );
     }
