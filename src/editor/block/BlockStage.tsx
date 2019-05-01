@@ -13,6 +13,7 @@ import {BlockStageBase, StageProps} from "./BlockStageBase";
 import {Button} from "antd";
 import {MiniBlockView, MiniStage} from "./MiniStage";
 import debounce from "lodash/debounce";
+import {preventDefault} from "../../core/util/Functions";
 
 const MINI_WINDOW_SIZE = 128;
 
@@ -90,20 +91,29 @@ export class BlockStage extends BlockStageBase<StageState> {
   }
 
   onSelectRectDragStart = (e: DragState) => {
-    let rect = this._bgNode.getBoundingClientRect();
-    this._dragingSelect = [(e.clientX - rect.left) * e.component.scaleX, (e.clientY - rect.top) * e.component.scaleY];
-    e.startDrag(null, null);
-    this._selectRectNode.style.display = 'block';
+    if (e.dragType === 'right') {
+      this._dragScrollPos = [this._scrollX, this._scrollY];
+      e.startDrag(null, null);
+    } else {
+      let rect = this._bgNode.getBoundingClientRect();
+      this._dragingSelect = [(e.clientX - rect.left) * e.component.scaleX, (e.clientY - rect.top) * e.component.scaleY];
+      e.startDrag(null, null);
+      this._selectRectNode.style.display = 'block';
+    }
   };
 
   onDragSelectMove = (e: DragState) => {
-    let [x1, y1] = this._dragingSelect;
-    let x2 = e.dx + x1;
-    let y2 = e.dy + y1;
-    this._selectRectNode.style.left = `${cssNumber(Math.min(x1, x2))}px`;
-    this._selectRectNode.style.width = `${cssNumber(Math.abs(x1 - x2))}px`;
-    this._selectRectNode.style.top = `${cssNumber(Math.min(y1, y2))}px`;
-    this._selectRectNode.style.height = `${cssNumber(Math.abs(y1 - y2))}px`;
+    if (e.dragType === 'right') {
+      this.onDragMoveScroll(e, true);
+    } else {
+      let [x1, y1] = this._dragingSelect;
+      let x2 = e.dx + x1;
+      let y2 = e.dy + y1;
+      this._selectRectNode.style.left = `${cssNumber(Math.min(x1, x2))}px`;
+      this._selectRectNode.style.width = `${cssNumber(Math.abs(x1 - x2))}px`;
+      this._selectRectNode.style.top = `${cssNumber(Math.min(y1, y2))}px`;
+      this._selectRectNode.style.height = `${cssNumber(Math.abs(y1 - y2))}px`;
+    }
   };
   onDragSelectEnd = (e: DragState) => {
     if (e) {
@@ -126,7 +136,7 @@ export class BlockStage extends BlockStageBase<StageState> {
       }
       this.onSelect();
     }
-
+    this._dragScrollPos = null;
     this._selectRectNode.style.display = null;
     this._selectRectNode.style.width = '0';
     this._dragingSelect = null;
@@ -160,15 +170,18 @@ export class BlockStage extends BlockStageBase<StageState> {
     this._dragScrollPos = [this._scrollX, this._scrollY];
     e.startDrag(null, null);
   };
-  onZoomWindowDragMove = (e: DragState) => {
+  onDragMoveScroll = (e: DragState, rightDrag = false) => {
     let {zoom, contentWidth, contentHeight, stageWidth, stageHeight} = this.state;
     let zoomScale = getScale(zoom);
     let viewWidth = Math.max(contentWidth, Math.floor(stageWidth / zoomScale));
     let viewHeight = Math.max(contentHeight, Math.floor(stageHeight / zoomScale));
-    let miniScale = Math.min(MINI_WINDOW_SIZE / viewWidth, MINI_WINDOW_SIZE / viewHeight);
-    let miniToClient = zoomScale / miniScale;
-    let scrollX = Math.round(this._dragScrollPos[0] + e.dx * miniToClient);
-    let scrollY = Math.round(this._dragScrollPos[1] + e.dy * miniToClient);
+    let posRatio = -1;
+    if (!rightDrag) {
+      let miniScale = Math.min(MINI_WINDOW_SIZE / viewWidth, MINI_WINDOW_SIZE / viewHeight);
+      posRatio = zoomScale / miniScale;
+    }
+    let scrollX = Math.round(this._dragScrollPos[0] + e.dx * posRatio);
+    let scrollY = Math.round(this._dragScrollPos[1] + e.dy * posRatio);
     if (scrollX < 0) {
       scrollX = 0;
     } else if (scrollX > this._scrollNode.scrollWidth - this._scrollNode.clientWidth) {
@@ -317,7 +330,7 @@ export class BlockStage extends BlockStageBase<StageState> {
             {miniChildren}
           </div>
           <DragDropDiv getRef={this.getMiniWindowRef} className='ticl-mini-stage-window' style={miniWindowStyle}
-                       onDragStartT={this.onZoomWindowDragStart} onDragMoveT={this.onZoomWindowDragMove}
+                       onDragStartT={this.onZoomWindowDragStart} onDragMoveT={this.onDragMoveScroll}
                        onDragEndT={this.onZoomWindowDragEnd}/>
         </div>
       );
@@ -331,7 +344,7 @@ export class BlockStage extends BlockStageBase<StageState> {
           <div className='ticl-stage-scroll-content' style={contentLayerStyle}>
             <DragDropDiv className='ticl-stage-bg' getRef={this.getBgRef} style={contentBgStyle} directDragT={true}
                          onDragStartT={this.onSelectRectDragStart} onDragMoveT={this.onDragSelectMove}
-                         onDragEndT={this.onDragSelectEnd}/>
+                         onDragEndT={this.onDragSelectEnd} onContextMenu={preventDefault}/>
             {children}
             <div ref={this.getSelectRectRef} className="ticl-block-select-rect"/>
           </div>
