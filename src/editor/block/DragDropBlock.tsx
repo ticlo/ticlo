@@ -18,8 +18,10 @@ export function onDropBlock(conn: ClientConnection, e: DragState, createBlock: C
   let blockData = DragState.getData('block', conn);
   if (blockData && blockData.hasOwnProperty('#is')) {
     let rect = bgElement.getBoundingClientRect();
-    let offsetX = (e.clientX - rect.left) * e.component.scaleX;
-    let offsetY = (e.clientY - rect.top) * e.component.scaleY;
+    let scaleX = bgElement.offsetWidth / Math.round(rect.width);
+    let scaleY = bgElement.offsetHeight / Math.round(rect.height);
+    let offsetX = (e.clientX - rect.left) * scaleX;
+    let offsetY = (e.clientY - rect.top) * scaleY;
 
     let blockName = DragState.getData('name', conn) || blockData['#is'];
 
