@@ -116,7 +116,7 @@ export class BlockStage extends BlockStageBase<StageState> {
     }
   };
   onDragSelectEnd = (e: DragState) => {
-    if (e) {
+    if (e && e.dragType !== 'right') {
       // if e==null, then the dragging is canceled
       let [x1, y1] = this._dragingSelect;
       let x2 = e.dx + x1;
