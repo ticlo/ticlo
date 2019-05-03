@@ -13,7 +13,6 @@ import {BlockStageBase, StageProps} from "./BlockStageBase";
 import {Button} from "antd";
 import {MiniBlockView, MiniStage} from "./MiniStage";
 import debounce from "lodash/debounce";
-import {preventDefault} from "../../core/util/Functions";
 
 const MINI_WINDOW_SIZE = 128;
 
@@ -344,7 +343,7 @@ export class BlockStage extends BlockStageBase<StageState> {
           <div className='ticl-stage-scroll-content' style={contentLayerStyle}>
             <DragDropDiv className='ticl-stage-bg' getRef={this.getBgRef} style={contentBgStyle} directDragT={true}
                          onDragStartT={this.onSelectRectDragStart} onDragMoveT={this.onDragSelectMove}
-                         onDragEndT={this.onDragSelectEnd} onContextMenu={preventDefault}/>
+                         onDragEndT={this.onDragSelectEnd}/>
             {children}
             <div ref={this.getSelectRectRef} className="ticl-block-select-rect"/>
           </div>
