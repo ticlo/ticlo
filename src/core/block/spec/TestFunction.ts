@@ -4,7 +4,6 @@ import {BlockIO, BlockPropertyEvent} from "../BlockProperty";
 import {ErrorEvent, Event, EventType, NOT_READY} from "../Event";
 import {Dispatcher} from "../Dispatcher";
 import {Block} from "../Block";
-import {error} from "util";
 import {DataMap} from "../../util/Types";
 
 
