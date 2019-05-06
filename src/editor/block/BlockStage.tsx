@@ -13,8 +13,8 @@ import {BlockStageBase, StageProps} from "./BlockStageBase";
 import {Button} from "antd";
 import {MiniBlockView, MiniStage} from "./MiniStage";
 import debounce from "lodash/debounce";
+import clamp from "lodash/clamp";
 import {GestureState} from "rc-dock/lib";
-import {instanceOf} from "prop-types";
 
 const MINI_WINDOW_SIZE = 128;
 
@@ -105,10 +105,7 @@ export class BlockStage extends BlockStageBase<StageState> {
   }
 
   onSelectRectDragStart = (e: DragState) => {
-    if (e.dragType === 'right') {
-      this._dragScrollPos = [this._scrollX, this._scrollY];
-      e.startDrag(null, null);
-    } else if (e.event.target === this._bgNode) {
+    if (e.event.target === this._bgNode) {
       let rect = this._bgNode.getBoundingClientRect();
       this._dragingSelect = [(e.clientX - rect.left) * e.component.scaleX, (e.clientY - rect.top) * e.component.scaleY];
       e.startDrag(null, null);
@@ -117,20 +114,16 @@ export class BlockStage extends BlockStageBase<StageState> {
   };
 
   onDragSelectMove = (e: DragState) => {
-    if (e.dragType === 'right') {
-      this.onDragMoveScroll(e, true);
-    } else {
-      let [x1, y1] = this._dragingSelect;
-      let x2 = e.dx + x1;
-      let y2 = e.dy + y1;
-      this._selectRectNode.style.left = `${cssNumber(Math.min(x1, x2))}px`;
-      this._selectRectNode.style.width = `${cssNumber(Math.abs(x1 - x2))}px`;
-      this._selectRectNode.style.top = `${cssNumber(Math.min(y1, y2))}px`;
-      this._selectRectNode.style.height = `${cssNumber(Math.abs(y1 - y2))}px`;
-    }
+    let [x1, y1] = this._dragingSelect;
+    let x2 = e.dx + x1;
+    let y2 = e.dy + y1;
+    this._selectRectNode.style.left = `${cssNumber(Math.min(x1, x2))}px`;
+    this._selectRectNode.style.width = `${cssNumber(Math.abs(x1 - x2))}px`;
+    this._selectRectNode.style.top = `${cssNumber(Math.min(y1, y2))}px`;
+    this._selectRectNode.style.height = `${cssNumber(Math.abs(y1 - y2))}px`;
   };
   onDragSelectEnd = (e: DragState) => {
-    if (e && e.dragType !== 'right') {
+    if (e) {
       // if e==null, then the dragging is canceled
       let [x1, y1] = this._dragingSelect;
       let x2 = e.dx + x1;
@@ -155,6 +148,18 @@ export class BlockStage extends BlockStageBase<StageState> {
     this._selectRectNode.style.width = '0';
     this._dragingSelect = null;
   };
+  onRightDragStart = (e: DragState) => {
+    if (e.dragType === 'right') {
+      this._dragScrollPos = [this._scrollX, this._scrollY];
+      e.startDrag(null, null);
+    }
+  };
+  onRightDragMove = (e: DragState) => {
+    this.onDragMoveScroll(e, true);
+  };
+  onRightDragEnd = (e: DragState) => {
+    this._dragScrollPos = null;
+  };
 
   onDragOver = (e: DragState) => {
     let {conn} = this.props;
@@ -173,8 +178,7 @@ export class BlockStage extends BlockStageBase<StageState> {
   };
   _scrollX = 0;
   _scrollY = 0;
-  _pendingScrollX: number = -1;
-  _pendingScrollY: number = -1;
+  _pendingScroll: [number, number];
 
   handleScroll = (event: UIEvent) => {
     if (this._scrollX !== this._scrollNode.scrollLeft || this._scrollY !== this._scrollNode.scrollTop) {
@@ -185,24 +189,22 @@ export class BlockStage extends BlockStageBase<StageState> {
   };
 
   componentDidUpdate(prevProps: Readonly<StageProps>, prevState: Readonly<StageState>, snapshot?: any): void {
-    if (this._pendingScrollX >= 0) {
-      this._scrollX = this._pendingScrollX;
+    if (this._pendingScroll) {
+
+      this._scrollX = this._pendingScroll[0];
       if (this._scrollX > this._scrollNode.scrollWidth - this._scrollNode.clientWidth) {
         this._scrollX = this._scrollNode.scrollWidth - this._scrollNode.clientWidth;
       }
       this._scrollNode.scrollLeft = this._scrollX;
-      this._pendingScrollX = -1;
-    }
 
-    if (this._pendingScrollY >= 0) {
-      this._scrollY = this._pendingScrollY;
+      this._scrollY = this._pendingScroll[1];
       if (this._scrollY > this._scrollNode.scrollHeight - this._scrollNode.clientHeight) {
         this._scrollY = this._scrollNode.scrollHeight - this._scrollNode.clientHeight;
       }
       this._scrollNode.scrollTop = this._scrollY;
-      this._pendingScrollY = -1;
-    }
 
+      this._pendingScroll = null;
+    }
   }
 
   _dragScrollPos?: [number, number];
@@ -219,7 +221,7 @@ export class BlockStage extends BlockStageBase<StageState> {
       let miniScale = Math.min(MINI_WINDOW_SIZE / viewWidth, MINI_WINDOW_SIZE / viewHeight);
       posRatio = zoom / miniScale;
     } else {
-      posRatio = -zoom;
+      posRatio = -1;
     }
     let scrollX = Math.round(this._dragScrollPos[0] + e.dx * posRatio);
     let scrollY = Math.round(this._dragScrollPos[1] + e.dy * posRatio);
@@ -233,26 +235,46 @@ export class BlockStage extends BlockStageBase<StageState> {
     } else if (scrollY > this._scrollNode.scrollHeight - this._scrollNode.clientHeight) {
       scrollY = this._scrollNode.scrollHeight - this._scrollNode.clientHeight;
     }
-    this._scrollNode.scrollLeft = scrollX;
-    this._scrollNode.scrollTop = scrollY;
+
+    if (this._pendingScroll) {
+      this._pendingScroll = [scrollX, scrollY];
+    } else {
+      this._scrollNode.scrollLeft = scrollX;
+      this._scrollNode.scrollTop = scrollY;
+    }
   };
   onZoomWindowDragEnd = (e: DragState) => {
     this._dragScrollPos = null;
   };
 
-  _baseZoomBeforeGesture: number;
+  _baseZoomBeforeGesture: number = -1;
   onGestureStart = (e: GestureState) => {
     this._dragScrollPos = [this._scrollX, this._scrollY];
-    this._baseZoomBeforeGesture = this.state.zoom;
+    this._baseZoomBeforeGesture = -1;
     return true;
   };
   onGestureMove = (e: GestureState) => {
     let {zoom} = this.state;
-    let targetZoom = this._baseZoomBeforeGesture + Math.round(Math.log(e.scale * 1.5));
-    if (targetZoom > zoom) {
-      // this.zoomIn();
-    } else if (targetZoom < zoom) {
-      // this.zoomOut();
+
+    if (this._baseZoomBeforeGesture === -1 && (e.scale > 1.1 || e.scale < 0.9) && e.dx === 0 && e.dy === 0) {
+      // avoid too much zoom during drag location
+      this._baseZoomBeforeGesture = this.state.zoom;
+    }
+
+    if (this._baseZoomBeforeGesture > 0) {
+      let newZoom = clamp(this._baseZoomBeforeGesture * e.scale, 0.25, 4);
+      let {touches} = e.event;
+      let event = {
+        clientX: (touches[0].clientX + touches[1].clientX) / 2,
+        clientY: (touches[0].clientY + touches[1].clientY) / 2
+      };
+
+      if (newZoom !== zoom) {
+        this.changeZoom(newZoom, event);
+        this.onDragMoveScroll(e, true);
+        this.setState({zoom: newZoom});
+        return;
+      }
     }
     this.onDragMoveScroll(e, true);
   };
@@ -304,7 +326,9 @@ export class BlockStage extends BlockStageBase<StageState> {
       event = null;
     }
     if (zoom < 4) {
-      this.changeZoom(getNextZoom(zoom), event);
+      let newZoom = getNextZoom(zoom);
+      this.changeZoom(newZoom, event);
+      this.setState({zoom: newZoom});
     }
   };
   zoomOut = (event: any) => {
@@ -313,11 +337,13 @@ export class BlockStage extends BlockStageBase<StageState> {
       event = null;
     }
     if (zoom > 0.25) {
-      this.changeZoom(getPrevZoom(zoom), event);
+      let newZoom = getPrevZoom(zoom);
+      this.changeZoom(newZoom, event);
+      this.setState({zoom: newZoom});
     }
   };
 
-  changeZoom(newZoom: number, event?: MouseEvent) {
+  changeZoom(newZoom: number, event?: {clientX: number, clientY: number}) {
     let {zoom, stageWidth, stageHeight, contentWidth, contentHeight} = this.state;
     let offX = stageWidth / 2;
     let offY = stageWidth / 2;
@@ -328,16 +354,19 @@ export class BlockStage extends BlockStageBase<StageState> {
     }
     let centerX = (this._scrollX + offX) / zoom;
     let centerY = (this._scrollY + offY) / zoom;
-    this._pendingScrollX = centerX * newZoom - offX;
-    this._pendingScrollY = centerY * newZoom - offY;
-    if (this._pendingScrollX < 0) {
-      this._pendingScrollX = 0;
+    let pendingScrollX = centerX * newZoom - offX;
+    let pendingScrollY = centerY * newZoom - offY;
+    if (pendingScrollX < 0) {
+      pendingScrollX = 0;
     }
-    if (this._pendingScrollY < 0) {
-      this._pendingScrollY = 0;
+    if (pendingScrollY < 0) {
+      pendingScrollY = 0;
     }
-
-    this.setState({zoom: newZoom});
+    this._pendingScroll = [pendingScrollX, pendingScrollY];
+    if (this._dragScrollPos) {
+      this._dragScrollPos[0] += pendingScrollX - this._scrollX;
+      this._dragScrollPos[1] += pendingScrollY - this._scrollY;
+    }
   }
 
   onResize = () => {
@@ -425,11 +454,14 @@ export class BlockStage extends BlockStageBase<StageState> {
       <div style={style} className="ticl-stage ticl-scroll" ref={this.getRootRef} onKeyDown={this.onKeyDown}
            tabIndex={0}>
         <DragDropDiv className="ticl-stage-scroll" getRef={this.getScrollLayerRef} onDragOverT={this.onDragOver}
-                     onDropT={this.onDrop} onGestureStartT={this.onGestureStart} onGestureMoveT={this.onGestureMove}>
-          <DragDropDiv className='ticl-stage-scroll-content' style={contentLayerStyle} directDragT={true}
-                       onDragStartT={this.onSelectRectDragStart} onDragMoveT={this.onDragSelectMove}
-                       onDragEndT={this.onDragSelectEnd} useRightButtonDragT={true}>
-            <DragDropDiv className='ticl-stage-bg' getRef={this.getBgRef} style={contentBgStyle}/>
+                     onDropT={this.onDrop}>
+          <DragDropDiv className='ticl-stage-scroll-content' style={contentLayerStyle}
+                       onDragStartT={this.onRightDragStart} onDragMoveT={this.onRightDragMove}
+                       onDragEndT={this.onRightDragEnd} useRightButtonDragT={true}
+                       onGestureStartT={this.onGestureStart} onGestureMoveT={this.onGestureMove}>
+            <DragDropDiv className='ticl-stage-bg' getRef={this.getBgRef} style={contentBgStyle} directDragT={true}
+                         onDragStartT={this.onSelectRectDragStart} onDragMoveT={this.onDragSelectMove}
+                         onDragEndT={this.onDragSelectEnd}/>
             {children}
             <div ref={this.getSelectRectRef} className="ticl-block-select-rect"/>
           </DragDropDiv>
