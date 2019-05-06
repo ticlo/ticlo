@@ -37,7 +37,7 @@ export class WorkerFunction extends BlockFunction {
       desc.priority = 0;
     }
     if (!desc.mode) {
-      desc.mode = 'always';
+      desc.mode = 'onLoad';
     }
 
     CustomWorkerFunction.prototype.priority = desc.priority;

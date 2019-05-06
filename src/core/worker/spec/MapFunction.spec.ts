@@ -35,7 +35,7 @@ describe("MapFunction Basic", function () {
       'src': {
         '#is': {
           '#is': '',
-          'runner': {'#is': 'test-runner', '#mode': 'always', '#-log': 0},
+          'runner': {'#is': 'test-runner', '#mode': 'onLoad', '#-log': 0},
           'add': {'#is': 'add', '~0': '##.#input', '1': 1},
           '~#output': 'add.output'
         }
@@ -81,7 +81,7 @@ describe("MapFunction Basic", function () {
       'src': {
         '#is': {
           '#is': '',
-          'runner': {'#is': 'test-runner', '#mode': 'always', '#-log': 0},
+          'runner': {'#is': 'test-runner', '#mode': 'onLoad', '#-log': 0},
           'add': {'#is': 'add', '~0': '##.#input', '1': 1},
           '~#output': 'add.output'
         }
@@ -129,7 +129,7 @@ describe("MapFunction Basic", function () {
       'src': {
         '#is': {
           '#is': '',
-          'runner': {'#is': 'test-runner', '#mode': 'always', '#-log': 0},
+          'runner': {'#is': 'test-runner', '#mode': 'onLoad', '#-log': 0},
           'add': {'#is': 'add', '~0': '##.#input', '1': 1},
           '~#output': 'add.output'
         }
@@ -210,7 +210,7 @@ describe("MapFunction Basic", function () {
       'src': {
         '#is': {
           '#is': '',
-          'runner': {'#is': 'test-runner', '#mode': 'always', '#-log': 0},
+          'runner': {'#is': 'test-runner', '#mode': 'onLoad', '#-log': 0},
           'async': {'#is': 'async-function-promise', '~#call': '##.#input'},
           'add': {'#is': 'add', '#mode': 'onCall', '~#call': '##.async.#emit', '~0': '##.#input', '1': 1},
           '~#wait': 'async.#wait',
@@ -296,7 +296,7 @@ describe("MapFunction Basic", function () {
       'src': {
         '#is': {
           '#is': '',
-          'runner': {'#is': 'test-runner', '#mode': 'always', '#-log': 0},
+          'runner': {'#is': 'test-runner', '#mode': 'onLoad', '#-log': 0},
           'add': {'#is': 'add', '~0': '##.#input', '1': 1},
           '~#output': 'add.output'
         }
@@ -348,7 +348,7 @@ describe("MapFunction Basic", function () {
       'src': {
         '#is': {
           '#is': '',
-          'runner': {'#is': 'test-runner', '#mode': 'always', '#-log': 0},
+          'runner': {'#is': 'test-runner', '#mode': 'onLoad', '#-log': 0},
           'async': {'#is': 'async-function-promise', '~#call': '##.#input'},
           'add': {'#is': 'add', '#mode': 'onCall', '~#call': '##.async.#emit', '~0': '##.#input', '1': 1},
           '~#wait': 'async.#wait',
@@ -400,7 +400,7 @@ describe("MapFunction Basic", function () {
       'src': {
         '#is': {
           '#is': '',
-          'runner': {'#is': 'test-runner', '#mode': 'always', '#-log': 0},
+          'runner': {'#is': 'test-runner', '#mode': 'onLoad', '#-log': 0},
           'async': {'#is': 'async-function-promise', '~#call': '##.#input'},
           'add': {'#is': 'add', '#mode': 'onCall', '~#call': '##.async.#emit', '~0': '##.#input', '1': 1},
           '~#wait': 'async.#wait',

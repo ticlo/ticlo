@@ -7,17 +7,19 @@
 * When value is object, it will be deserialized as a child block in the `#func` config
 
 ### #mode
-**type**: 'auto' | 'always' | 'onChange' | 'onCall' | 'disabled'
+**type**: 'auto' | 'onLoad' | 'onChange' | 'onCall' | 'disabled'
 
 **Block Modes:**
 
-| | always | onChange | onCall | disabled |
+| | onLoad | onChange | onCall | disabled |
 | :---: | :---: | :---: | :---: | :---: |
 |#call is triggered|✔️|✔️|✔️|-|
 |input is changed|✔️|✔️|-|-|
 |block is deserialized|✔️|-|-|-|
+|duplicated sync call|-|✔️|✔️|-|
 
 * By default, block mode is 'auto', which means using the default mode from the block function. you can override block mode by changing the `#mode` config value
+* If `#call` is triggered when block `#sync`=**true**. The block will only run with there is no 
 
 
 ### #sync

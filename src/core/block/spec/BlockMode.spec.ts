@@ -36,10 +36,10 @@ describe("BlockMode", function () {
     assert.deepEqual(TestFunctionRunner.logs, [],
       'change mode to onChange should not trigger function');
 
-    block.setValue('#mode', 'always');
+    block.setValue('#mode', 'onLoad');
     Root.run();
     assert.deepEqual(TestFunctionRunner.popLogs(), ['obj'],
-      'change mode to always should trigger function');
+      'change mode to onLoad should trigger function');
 
     block.setValue('input', {});
     Root.run();
@@ -58,8 +58,8 @@ describe("BlockMode", function () {
 
     let job = new Job();
 
-    let b0 = job.createBlock('always');
-    b0.setValue('#mode', 'always');
+    let b0 = job.createBlock('onLoad');
+    b0.setValue('#mode', 'onLoad');
     let b1 = job.createBlock('onChange');
     b1.setValue('#mode', 'onChange');
     let b2 = job.createBlock('onCall');
@@ -88,7 +88,7 @@ describe("BlockMode", function () {
 
     Root.run();
     assert.deepEqual(TestFunctionRunner.popLogs(), ['b0', 'b1'],
-      'mode always and onChange should be called');
+      'mode onLoad and onChange should be called');
 
     let saved = job._save();
     let job2 = new Job();
@@ -96,7 +96,7 @@ describe("BlockMode", function () {
 
     Root.run();
     assert.deepEqual(TestFunctionRunner.logs, ['b0'],
-      'mode always should be called after load');
+      'mode onLoad should be called after load');
   });
 
   it('block mode on liveUpdate', function () {
@@ -104,7 +104,7 @@ describe("BlockMode", function () {
     let job = new Job();
 
     let b0 = job.createBlock('b0');
-    b0.setValue('#mode', 'always');
+    b0.setValue('#mode', 'onLoad');
     let b1 = job.createBlock('b1');
     b1.setValue('#mode', 'onChange');
 
@@ -121,7 +121,7 @@ describe("BlockMode", function () {
     let save1 = job.save();
 
     let b2 = job.createBlock('b2');
-    b2.setValue('#mode', 'always');
+    b2.setValue('#mode', 'onLoad');
     let b3 = job.createBlock('b3');
     b3.setValue('#mode', 'onChange');
 

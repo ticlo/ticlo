@@ -38,7 +38,7 @@ describe("SyncMode", function () {
     block1.setValue('#sync', true);
 
     let block2 = job.createBlock('obj2');
-    block2.setValue('#mode', 'always');
+    block2.setValue('#mode', 'onLoad');
     block2.setValue('#-log', 'obj2');
     block2.setValue('#is', 'test-runner');
     block2.setValue('#sync', true);

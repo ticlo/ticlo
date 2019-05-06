@@ -56,7 +56,7 @@ export class BaseFunction {
 
 BaseFunction.prototype.priority = 0;
 BaseFunction.prototype.useLength = false;
-BaseFunction.prototype.defaultMode = 'always';
+BaseFunction.prototype.defaultMode = 'onLoad';
 
 export const PureFunction = BaseFunction;
 
@@ -100,6 +100,6 @@ export class BlockFunction implements BaseFunction {
 
 BlockFunction.prototype.priority = 1;
 BaseFunction.prototype.useLength = false;
-BlockFunction.prototype.defaultMode = 'always';
+BlockFunction.prototype.defaultMode = 'onLoad';
 
 export type FunctionGenerator = new (block: FunctionData) => BaseFunction;

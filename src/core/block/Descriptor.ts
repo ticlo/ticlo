@@ -90,7 +90,7 @@ export const configDescs: {[key: string]: PropDesc} = {
   '#mode': {
     name: '#mode',
     type: 'select',
-    options: ['auto', 'always', 'onChange', 'onCall', 'disabled'],
+    options: ['auto', 'onLoad', 'onChange', 'onCall', 'disabled'],
     default: 'auto'
   },
   '#len': {name: '#len', type: 'number', default: 2, min: 0, step: 1},

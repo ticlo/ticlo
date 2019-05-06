@@ -10,7 +10,7 @@ import {voidProperty} from "./Void";
 import {Resolver} from "./Resolver";
 import {ConfigGenerators, BlockReadOnlyConfig} from "./BlockConfigs";
 
-export type BlockMode = 'auto' | 'always' | 'onChange' | 'onCall' | 'disabled';
+export type BlockMode = 'auto' | 'onLoad' | 'onChange' | 'onCall' | 'disabled';
 
 export interface BlockChildWatch {
   onChildChange(property: BlockIO, saved?: boolean): void;
@@ -505,7 +505,7 @@ export class Block implements Runnable, FunctionData, Listener<FunctionGenerator
       return;
     }
     switch (mode) {
-      case 'always':
+      case 'onLoad':
       case 'onChange':
       case 'onCall':
       case 'disabled':
@@ -529,7 +529,7 @@ export class Block implements Runnable, FunctionData, Listener<FunctionGenerator
     if (this._mode === 'auto' && this._function != null) {
       resolvedMode = this._function.defaultMode;
     }
-    if (resolvedMode === 'always') {
+    if (resolvedMode === 'onLoad') {
       this._runOnChange = true;
       this._runOnLoad = true;
     } else if (resolvedMode === 'onChange' || resolvedMode === 'auto') {
@@ -544,12 +544,12 @@ export class Block implements Runnable, FunctionData, Listener<FunctionGenerator
   _called = false;
 
   _onCall(val: any): void {
-    if (this._function && this._mode !== 'disabled') {
+    if (this._mode !== 'disabled') {
       if (this._sync) {
         switch (Event.check(val)) {
           case EventType.TRIGGER: {
-            if (this._runOnChange && !this._queueToRun) {
-              // if sync block has mode onChange, it can't be called synchronisly without a change
+            if (this._runOnChange && this._runOnLoad && !this._queueToRun) {
+              // if sync block has mode onLoad, it can't be called synchronously without a change
               if (this._props.has('#emit')) {
                 this._props.get('#emit').updateValue(val);
               }
@@ -567,7 +567,7 @@ export class Block implements Runnable, FunctionData, Listener<FunctionGenerator
             break;
           }
         }
-      } else {
+      } else if (this._function) {
         if (Event.check(val) === EventType.TRIGGER) {
           this._called = true;
           this._queueFunction();
