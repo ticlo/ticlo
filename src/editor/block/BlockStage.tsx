@@ -215,10 +215,12 @@ export class BlockStage extends BlockStageBase<StageState> {
     let {zoom, contentWidth, contentHeight, stageWidth, stageHeight} = this.state;
     let viewWidth = Math.max(contentWidth, Math.floor(stageWidth / zoom));
     let viewHeight = Math.max(contentHeight, Math.floor(stageHeight / zoom));
-    let posRatio = -1;
+    let posRatio: number;
     if (!reverseDrag) {
       let miniScale = Math.min(MINI_WINDOW_SIZE / viewWidth, MINI_WINDOW_SIZE / viewHeight);
       posRatio = zoom / miniScale;
+    } else {
+      posRatio = -zoom;
     }
     let scrollX = Math.round(this._dragScrollPos[0] + e.dx * posRatio);
     let scrollY = Math.round(this._dragScrollPos[1] + e.dy * posRatio);
