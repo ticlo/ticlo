@@ -6481,10 +6481,10 @@ rc-dialog@~7.3.0:
     rc-animate "2.x"
     rc-util "^4.4.0"
 
-rc-dock@2.3.2:
-  version "2.3.2"
-  resolved "https://registry.yarnpkg.com/rc-dock/-/rc-dock-2.3.2.tgz#a6f2decd96956d79166fbf69227e915235511bd5"
-  integrity sha512-nuQk4EyZyEfBD5fr8XZjJsBHVnhJlWGYIKzMEY+wMWYKRDZWiLQ0/G6Qjko6VoF+2ngSqJUTu6IJyHG4iOuzQQ==
+rc-dock@2.3.3:
+  version "2.3.3"
+  resolved "https://registry.yarnpkg.com/rc-dock/-/rc-dock-2.3.3.tgz#4db6b82becd9047ee365f155d47ca24deb644020"
+  integrity sha512-nztz/d7rQw2CiliAUuVKArRTCqqSFSsjniM+bb3Ou3x8UeyW7tOtJsY98tYxZCi1thKDGi9dx/JxALRfyzghqg==
   dependencies:
     classnames "^2.2.6"
     lodash "^4.17.11"

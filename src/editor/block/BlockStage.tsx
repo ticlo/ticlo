@@ -186,7 +186,6 @@ export class BlockStage extends BlockStageBase<StageState> {
 
   componentDidUpdate(prevProps: Readonly<StageProps>, prevState: Readonly<StageState>, snapshot?: any): void {
     if (this._pendingScrollX >= 0) {
-      console.log('pendingScrollX', this._pendingScrollX);
       this._scrollX = this._pendingScrollX;
       if (this._scrollX > this._scrollNode.scrollWidth - this._scrollNode.clientWidth) {
         this._scrollX = this._scrollNode.scrollWidth - this._scrollNode.clientWidth;
