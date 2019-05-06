@@ -108,7 +108,7 @@ export class BlockStage extends BlockStageBase<StageState> {
     if (e.dragType === 'right') {
       this._dragScrollPos = [this._scrollX, this._scrollY];
       e.startDrag(null, null);
-    } else {
+    } else if (e.event.target === this._bgNode) {
       let rect = this._bgNode.getBoundingClientRect();
       this._dragingSelect = [(e.clientX - rect.left) * e.component.scaleX, (e.clientY - rect.top) * e.component.scaleY];
       e.startDrag(null, null);
@@ -427,13 +427,13 @@ export class BlockStage extends BlockStageBase<StageState> {
            tabIndex={0}>
         <DragDropDiv className="ticl-stage-scroll" getRef={this.getScrollLayerRef} onDragOverT={this.onDragOver}
                      onDropT={this.onDrop} onGestureStartT={this.onGestureStart} onGestureMoveT={this.onGestureMove}>
-          <div className='ticl-stage-scroll-content' style={contentLayerStyle}>
-            <DragDropDiv className='ticl-stage-bg' getRef={this.getBgRef} style={contentBgStyle} directDragT={true}
-                         onDragStartT={this.onSelectRectDragStart} onDragMoveT={this.onDragSelectMove}
-                         onDragEndT={this.onDragSelectEnd}/>
+          <DragDropDiv className='ticl-stage-scroll-content' style={contentLayerStyle} directDragT={true}
+                       onDragStartT={this.onSelectRectDragStart} onDragMoveT={this.onDragSelectMove}
+                       onDragEndT={this.onDragSelectEnd} useRightButtonDragT={true}>
+            <DragDropDiv className='ticl-stage-bg' getRef={this.getBgRef} style={contentBgStyle}/>
             {children}
             <div ref={this.getSelectRectRef} className="ticl-block-select-rect"/>
-          </div>
+          </DragDropDiv>
         </DragDropDiv>
         <div className='ticl-stage-zoom'>
           <div className='ticl-hbox'>
