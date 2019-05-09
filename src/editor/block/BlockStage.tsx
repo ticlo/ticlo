@@ -72,6 +72,10 @@ export class BlockStage extends BlockStageBase<StageState> {
     return this._bgNode;
   }
 
+  getRootElement() {
+    return this._rootNode;
+  }
+
   private _selectRectNode!: HTMLElement;
   private getSelectRectRef = (node: HTMLDivElement): void => {
     this._selectRectNode = node;
@@ -142,6 +146,7 @@ export class BlockStage extends BlockStageBase<StageState> {
         }
       }
       this.onSelect();
+      this.focus();
     }
     this._dragScrollPos = null;
     this._selectRectNode.style.display = null;

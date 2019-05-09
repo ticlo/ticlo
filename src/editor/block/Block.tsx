@@ -48,6 +48,7 @@ export class BlockView extends PureDataRenderer<BlockViewProps, BlockViewState> 
         e.setData({moveBlock: item.key}, item.stage);
       }
       e.startDrag(null, null);
+      item.stage.focus();
     }
   };
   onDragMove = (e: DragState) => {

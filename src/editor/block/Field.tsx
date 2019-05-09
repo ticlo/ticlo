@@ -50,6 +50,9 @@ export interface Stage {
   getRefElement(): HTMLElement;
 
   onChildrenSizeChanged(): void;
+
+  // since DragDropDiv prevent default focus, need to manually trigger it
+  focus(): void;
 }
 
 interface ValueRenderer {

@@ -16,6 +16,8 @@ export abstract class BlockStageBase<State> extends React.PureComponent<StagePro
 
   abstract getRefElement(): HTMLElement;
 
+  abstract getRootElement(): HTMLElement;
+
   abstract onChildrenSizeChanged(): void;
 
   _blocks: Map<string, BlockItem> = new Map<string, BlockItem>();
@@ -275,6 +277,9 @@ export abstract class BlockStageBase<State> extends React.PureComponent<StagePro
     }
   }
 
+  focus() {
+    this.getRootElement().focus({preventScroll: true});
+  }
 
   componentWillUnmount() {
     this.props.conn.unwatch(this.props.basePath, this.watchListener);
