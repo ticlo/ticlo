@@ -20,6 +20,9 @@
     "example/**/*",
     "playground/**/*"
   ],
+  "files": [
+    "src/typings/rc-trigger.d.ts"
+  ],
   "exclude": [
     "node_modules"
   ]

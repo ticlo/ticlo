@@ -37,6 +37,9 @@ module.exports = function (config) {
       include: [
         "src/**/*"
       ],
+      "files": [
+        "src/typings/rc-trigger.d.ts"
+      ],
       exclude: [
         "node_modules"
       ]
