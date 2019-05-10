@@ -8,18 +8,22 @@ import tinycolor from "tinycolor2";
 export class ColorEditor extends React.Component<ValueEditorProps, any> {
 
   onValueChange = (value: ColorResult) => {
-    let color = tinycolor(value.rgb);
     let {onChange} = this.props;
-    onChange(color.toRgbString());
+    let color = tinycolor(value.rgb);
+    if (color.getAlpha() === 1) {
+      onChange(value.hex);
+    } else {
+      onChange(color.toHex8String());
+    }
   };
 
   render() {
     let {desc, value, locked, onChange} = this.props;
     let {disableAlpha} = desc;
-    let color = tinycolor(value);
-    if (!color.isValid()) {
-      value = 'none';
-    }
+    // let color = tinycolor(value);
+    // if (!color.isValid()) {
+    //   value = 'none';
+    // }
 
     let disabled = (locked || onChange == null);
     let editorStyle: React.CSSProperties;

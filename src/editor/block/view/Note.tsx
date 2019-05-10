@@ -80,8 +80,8 @@ ClientConnection.addEditorType('note',
     name: 'note',
     properties: [
       {name: 'text', type: 'string'},
-      {name: 'color', type: 'string'},
-      {name: 'background', type: 'string'},
+      {name: 'color', type: 'color'},
+      {name: 'background', type: 'color'},
       {name: 'border', type: 'string'},
     ]
   }
