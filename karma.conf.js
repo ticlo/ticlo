@@ -31,14 +31,15 @@ module.exports = function (config) {
         ],
         "alwaysStrict": true,
         "noImplicitAny": true,
-        "sourceMap": true
+        "sourceMap": true,
+        "typeRoots": [
+          "node_modules/@types",
+          "@types"
+        ]
       },
       compileOnSave: true,
       include: [
         "src/**/*"
-      ],
-      "files": [
-        "src/typings/rc-trigger.d.ts"
       ],
       exclude: [
         "node_modules"

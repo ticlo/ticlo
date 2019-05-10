@@ -40,6 +40,9 @@ export interface PropDesc {
   // bool, select, tags
   options?: (string | number)[];
   default?: string | number | boolean;
+
+  // color
+  disableAlpha?: boolean;
 }
 
 export interface PropGroupDesc {

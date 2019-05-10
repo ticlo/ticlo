@@ -1,47 +1,41 @@
 import React from "react";
-import {Switch} from "antd";
-require('rc-trigger'); // work around for karma-typescript
 import Trigger from 'rc-trigger';
-import {SketchPicker} from 'react-color';
+import {ColorResult, SketchPicker} from 'react-color';
 import {PropDesc} from "../../../core/block/Descriptor";
 import {ValueEditorProps} from "./ValueEditor";
+import tinycolor from "tinycolor2";
 
 export class ColorEditor extends React.Component<ValueEditorProps, any> {
 
-  onValueChange = (checked: boolean) => {
-    let {desc, onChange} = this.props;
-    let {options} = desc;
-    if (options && options.length >= 2) {
-      // convert string to boolean
-      onChange(checked ? options[1] : options[0]);
-    } else {
-      onChange(checked);
-    }
+  onValueChange = (value: ColorResult) => {
+    let color = tinycolor(value.rgb);
+    let {onChange} = this.props;
+    onChange(color.toRgbString());
   };
 
   render() {
     let {desc, value, locked, onChange} = this.props;
-    // let {options} = desc;
-    // let checkedChildren: string;
-    // let unCheckedChildren: string;
-    // if (options && options.length >= 2) {
-    //   // convert string to boolean
-    //   unCheckedChildren = String(options[0]);
-    //   checkedChildren = String(options[1]);
-    //   if (typeof value === 'string' || typeof value === 'number') {
-    //     value = (value === options[1]);
-    //   }
-    // }
+    let {disableAlpha} = desc;
+    let color = tinycolor(value);
+    if (!color.isValid()) {
+      value = 'none';
+    }
+
     return (
       <Trigger action={['click']}
                popupAlign={{
                  points: ['tl', 'bl'],
-                 offset: [0, 3]
+                 offset: [0, 3],
+                 overflow: {adjustX: true, adjustY: true}
                }}
+               prefixCls='ant-dropdown'
                popup={
-        <SketchPicker color='#f0f'/>
-      }>
-        <span>hello</span>
+                 <SketchPicker color={value} width='224px' disableAlpha={disableAlpha}
+                               onChangeComplete={this.onValueChange} presetColors={['none']}/>
+               }>
+        <div className='ticl-color-editor'>
+          <div style={{background: value}}/>
+        </div>
       </Trigger>
     );
   }
