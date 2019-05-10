@@ -34,6 +34,7 @@ export class ColorEditor extends React.Component<ValueEditorProps, any> {
                                onChangeComplete={this.onValueChange} presetColors={['none']}/>
                }>
         <div className='ticl-color-editor'>
+          <div className='ticl-color-editor-bg'/>
           <div style={{background: value}}/>
         </div>
       </Trigger>
