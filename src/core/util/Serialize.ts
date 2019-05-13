@@ -9,7 +9,7 @@ function encodeMoment(val: any): string {
 }
 
 function decodeMoment(str: string): any {
-  return moment(str.substr(6));
+  return moment.parseZone(str.substr(6));
 }
 
 let encoder = new JsonEsc();
