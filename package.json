@@ -13,7 +13,7 @@
   "license": "MPL-2.0",
   "dependencies": {
     "i18next": "^15.1.0",
-    "jsonesc": "^0.4.4",
+    "jsonesc": "^0.4.5",
     "moment": "^2.24.0"
   },
   "devDependencies": {
@@ -24,7 +24,7 @@
     "@types/glob": "^7.1.1",
     "@types/i18next": "^12.1.0",
     "@types/karma": "^3.0.2",
-    "@types/lodash": "^4.14.126",
+    "@types/lodash": "4.14.123",
     "@types/marked": "^0.6.5",
     "@types/mocha": "^5.2.5",
     "@types/node": "^12.0.0",
