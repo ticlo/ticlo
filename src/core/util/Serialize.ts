@@ -1,8 +1,6 @@
 import JsonEsc from 'jsonesc';
 import moment from 'moment';
-
-const startTs = moment();
-const Moment = startTs.constructor;
+import {MomentConstructor} from "./Moment";
 
 function encodeMoment(val: any): string {
   return `\u001bTs:${val.toISOString(true)}`;
@@ -13,7 +11,7 @@ function decodeMoment(str: string): any {
 }
 
 let encoder = new JsonEsc();
-encoder.registerRaw('Ts', Moment, encodeMoment, decodeMoment);
+encoder.registerRaw('Ts', MomentConstructor, encodeMoment, decodeMoment);
 
 export function encode(value: any): string {
   return encoder.stringifySorted(value, 1);

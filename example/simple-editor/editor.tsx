@@ -68,7 +68,7 @@ class App extends React.PureComponent<Props, State> {
                         // opacity: 0.1
                       }}/>
           <Card size='small'
-                style={{width: '300px', height: '800px', left: '1120px', top: '10px', position: 'absolute'}}>
+                style={{width: '350px', height: '800px', left: '1120px', top: '10px', position: 'absolute'}}>
             <PropertyList conn={conn} keys={selectedKeys}
             />
           </Card>
