@@ -1,19 +1,19 @@
 import JsonEsc from 'jsonesc';
 import moment from 'moment';
 
-const startTime = moment();
-const Moment = startTime.constructor;
+const startTs = moment();
+const Moment = startTs.constructor;
 
 function encodeMoment(val: any): string {
-  return `\u001bTime:${val.toISOString(true)}`;
+  return `\u001bTs:${val.toISOString(true)}`;
 }
 
 function decodeMoment(str: string): any {
-  return moment.parseZone(str.substr(6));
+  return moment.parseZone(str.substr(4));
 }
 
 let encoder = new JsonEsc();
-encoder.registerRaw('Time', Moment, encodeMoment, decodeMoment);
+encoder.registerRaw('Ts', Moment, encodeMoment, decodeMoment);
 
 export function encode(value: any): string {
   return encoder.stringifySorted(value, 1);
