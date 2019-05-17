@@ -12,7 +12,8 @@ export type ValueType =
   | 'select'
   | 'color'
   | 'event'
-  | 'datetime'
+  | 'date'
+  | 'date-range'
   | 'password'
   | 'js'
   | 'map'
@@ -43,6 +44,9 @@ export interface PropDesc {
 
   // color
   disableAlpha?: boolean;
+
+  // date, date-range
+  showTime?: boolean;
 }
 
 export interface PropGroupDesc {

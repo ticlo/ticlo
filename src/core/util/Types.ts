@@ -1,5 +1,7 @@
+import {isMoment} from "moment";
 import {Block} from "../block/Block";
 import {BlockIO} from "../block/BlockProperty";
+
 
 export interface DataMap {
   [key: string]: any;
@@ -65,6 +67,9 @@ function truncateObj(val: any, maxSize: number = 1024): [any, number, boolean] {
     }
     if (Array.isArray(val)) {
       return truncateArray(val, maxSize);
+    }
+    if (isMoment(val)) {
+      return [val, 33, false];
     }
     if (val.constructor === Object) {
       return truncateMap(val, maxSize);

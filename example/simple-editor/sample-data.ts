@@ -6,6 +6,8 @@ let sharedMore = [
   {name: 'sel', type: 'select', options: ['red', 'blue', 'yellow', 123]},
   {name: 'pas', type: 'password'},
   {name: 'color', type: 'color'},
+  {name: 'date', type: 'date', showTime: true},
+  {name: 'range', type: 'date-range'},
 ];
 let len = sharedMore.length;
 for (let i = 0; i < len; ++i) {
