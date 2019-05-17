@@ -2,10 +2,12 @@ import React from "react";
 import {DatePicker, Tooltip} from "antd";
 import {PropDesc} from "../../../core/block/Descriptor";
 import {ValueEditorProps} from "./ValueEditor";
-import {Moment, parseZone, isMoment} from 'moment';
 import * as MomentUtil from "../../../core/util/Moment";
+import {isMoment, Moment, parseZone} from "moment";
 
 const {RangePicker} = DatePicker;
+
+const defaultTimes = {defaultValue: [parseZone('00:00:00.000', 'HH:mm:ss.SSS'), parseZone('23:59:59.999', 'HH:mm:ss.SSS')]};
 
 export class DateRangeEditor extends React.Component<ValueEditorProps, any> {
 
@@ -17,6 +19,8 @@ export class DateRangeEditor extends React.Component<ValueEditorProps, any> {
   render() {
     let {desc, value, locked, onChange} = this.props;
     let {showTime} = desc;
+    let showTimeOption = showTime ? defaultTimes : null;
+
     let title: string;
     if (Array.isArray(value) && value.length === 2) {
       if (typeof value[0] === 'string' && typeof value[1] === 'string') {
@@ -34,7 +38,7 @@ export class DateRangeEditor extends React.Component<ValueEditorProps, any> {
     return (
       <Tooltip title={title} overlayClassName='ticl-tooltip'>
         <RangePicker className='ticl-date-editor' size='small' value={value} disabled={locked || onChange == null}
-                     showTime={showTime} onChange={this.onValueChange}/>
+                     showTime={showTimeOption} onChange={this.onValueChange}/>
       </Tooltip>
     );
   }
