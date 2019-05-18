@@ -11,8 +11,6 @@ export class DateEditor extends React.Component<ValueEditorProps, any> {
 
   onValueChange = (moment: Moment) => {
     let {desc, onChange} = this.props;
-    console.log('onChange');
-    console.log(moment);
     onChange(moment);
   };
 
@@ -24,7 +22,7 @@ export class DateEditor extends React.Component<ValueEditorProps, any> {
     if (typeof value === 'string') {
       value = parseZone(value);
     }
-    if (!isMoment(value) || !(value as Moment).isValid()) {
+    if (!MomentUtil.isValid(value)) {
       value = null;
     } else {
       title = MomentUtil.formatMoment(value, showTime);

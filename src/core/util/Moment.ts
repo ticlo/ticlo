@@ -13,3 +13,7 @@ export function formatMoment(m: moment.Moment, showTime: boolean): string {
   }
   return null;
 }
+
+export function isValid(m: moment.Moment) {
+  return moment.isMoment(m) && m.isValid();
+}

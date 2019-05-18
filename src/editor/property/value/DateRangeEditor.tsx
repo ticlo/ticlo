@@ -26,7 +26,7 @@ export class DateRangeEditor extends React.Component<ValueEditorProps, any> {
       if (typeof value[0] === 'string' && typeof value[1] === 'string') {
         value = [parseZone(value[0]), parseZone(value[1])];
       }
-      if (!isMoment(value[0]) || !isMoment(value[1]) || !(value[0] as Moment).isValid() || !(value[1] as Moment).isValid()) {
+      if (!MomentUtil.isValid(value[0]) || !MomentUtil.isValid(value[1])) {
         value = null;
       } else {
         title = `${MomentUtil.formatMoment(value[0], showTime)}\n${MomentUtil.formatMoment(value[1], showTime)}`;
@@ -37,7 +37,7 @@ export class DateRangeEditor extends React.Component<ValueEditorProps, any> {
 
     return (
       <Tooltip title={title} overlayClassName='ticl-tooltip'>
-        <RangePicker className='ticl-date-editor' size='small' value={value} disabled={locked || onChange == null}
+        <RangePicker className='ticl-date-range-editor' size='small' value={value} disabled={locked || onChange == null}
                      showTime={showTimeOption} onChange={this.onValueChange}/>
       </Tooltip>
     );
