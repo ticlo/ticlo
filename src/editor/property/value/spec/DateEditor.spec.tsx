@@ -8,7 +8,7 @@ import {shouldHappen} from "../../../../core/util/test-util";
 import {blankPropDesc, PropDesc} from "../../../../core/block/Descriptor";
 import {Moment, now} from "moment";
 
-describe("SelectEditor", function () {
+describe("DateEditor", function () {
 
   beforeEach(async function () {
     await initEditor();

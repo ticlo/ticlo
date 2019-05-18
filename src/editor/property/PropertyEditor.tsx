@@ -12,6 +12,7 @@ import {SelectEditor} from "./value/SelectEditor";
 import {ColorEditor} from "./value/ColorEditor";
 import {DateEditor} from "./value/DateEditor";
 import {DateRangeEditor} from "./value/DateRangeEditor";
+import {RadioButtonEditor} from "./value/RadioButtonEditor";
 import {DragDropDiv, DragState} from "rc-dock";
 import {PasswordEditor} from "./value/PasswordEditor";
 import {ExpandIcon} from "../../ui/component/Tree";
@@ -31,6 +32,7 @@ const typeEditorMap: {[key: string]: any} = {
   'color': ColorEditor,
   'date': DateEditor,
   'date-range': DateRangeEditor,
+  'radio-button': RadioButtonEditor,
 };
 
 class PropertyLoader extends MultiSelectLoader<PropertyEditor> {
