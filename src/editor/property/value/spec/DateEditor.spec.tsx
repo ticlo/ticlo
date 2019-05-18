@@ -25,12 +25,17 @@ describe("SelectEditor", function () {
     };
     let desc: PropDesc = {name: '', type: 'date'};
     let [component, div] = loadTemplate(
-      <DateEditor value={null} desc={desc} onChange={onChange}/>, 'editor');
+      <DateEditor value='2019-01-01' desc={desc} onChange={onChange}/>, 'editor');
 
     await shouldHappen(() => div.querySelector('.ticl-date-editor > div'));
-    let colorDiv = div.querySelector('.ticl-date-editor > div');
+    let editorDiv = div.querySelector('.ticl-date-editor > div');
 
-    SimulateEvent.simulate(colorDiv, 'click');
+    let inputDiv = editorDiv.querySelector('input');
+
+    // test if string input is converted to moment
+    assert.equal(inputDiv.value, '2019-01-01');
+
+    SimulateEvent.simulate(editorDiv, 'click');
 
     await shouldHappen(() => document.querySelector('.ant-calendar-today-btn'));
 
