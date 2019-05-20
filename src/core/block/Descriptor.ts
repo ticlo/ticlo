@@ -56,6 +56,7 @@ export interface PropGroupDesc {
 
 export interface FunctionDesc {
   name: string;
+  /** namespace of the function */
   ns?: string;
   id?: string;
   help?: string;
