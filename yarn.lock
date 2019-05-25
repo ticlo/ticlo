@@ -6505,10 +6505,10 @@ rc-dialog@~7.3.0:
     rc-animate "2.x"
     rc-util "^4.4.0"
 
-rc-dock@2.3.3:
-  version "2.3.3"
-  resolved "https://registry.yarnpkg.com/rc-dock/-/rc-dock-2.3.3.tgz#4db6b82becd9047ee365f155d47ca24deb644020"
-  integrity sha512-nztz/d7rQw2CiliAUuVKArRTCqqSFSsjniM+bb3Ou3x8UeyW7tOtJsY98tYxZCi1thKDGi9dx/JxALRfyzghqg==
+rc-dock@2.3.5:
+  version "2.3.5"
+  resolved "https://registry.yarnpkg.com/rc-dock/-/rc-dock-2.3.5.tgz#397c872943832e85ee455b45a0044fa21a41f1a8"
+  integrity sha512-6mV4MMLePy59KjFW09s5GzCorzBRBWnEIhbgNuYBPb8pTxLDvad8XjpPUDZIuHHQbwxAFvIZi/e6bnHCierqXA==
   dependencies:
     classnames "^2.2.6"
     lodash "^4.17.11"

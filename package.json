@@ -51,7 +51,7 @@
     "mocha": "^6.1.4",
     "nyc": "^14.1.1",
     "parcel-bundler": "^1.12.3",
-    "rc-dock": "2.3.3",
+    "rc-dock": "2.3.5",
     "rc-trigger": "^2.6.2",
     "react": "^16.8.6",
     "react-color": "^2.17.3",
