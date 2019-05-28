@@ -431,8 +431,8 @@ export class BlockStage extends BlockStageBase<StageState> {
     let viewHeight = Math.max(contentHeight, Math.floor(stageHeight / zoom));
     let contentLayerStyle = {
       transform: `scale(${zoom},${zoom})`,
-      width: viewWidth * zoom,
-      height: viewHeight * zoom,
+      width: viewWidth,
+      height: viewHeight,
     };
     let contentBgStyle = {
       width: viewWidth,
