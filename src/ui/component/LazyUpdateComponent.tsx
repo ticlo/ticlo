@@ -1,5 +1,5 @@
 import React from "react";
-import {ClientConnection, ValueState, ValueUpdate} from "../../core";
+import {ClientConnection, ValueState, ValueUpdate} from "../../core/client";
 import {DataMap} from "../../core/util/Types";
 import {shallowEqual} from "../../core/util/Compare";
 
