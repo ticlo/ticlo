@@ -73,6 +73,7 @@ class SliderView extends LazyUpdateComponent<SpecialViewProps, any> {
 ClientConnection.addEditorType('slider-view',
   {
     view: SliderView,
+    priority: 0,
     name: 'slider-view',
     properties: [
       {name: 'value', type: 'number'},

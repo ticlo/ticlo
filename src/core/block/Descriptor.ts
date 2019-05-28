@@ -94,7 +94,7 @@ export const blankPropDesc: PropDesc = {
 };
 
 export const configDescs: {[key: string]: PropDesc} = {
-  '#is': {name: '#is', type: 'string'},
+  '#is': {name: '#is', type: 'type'},
   '#mode': {
     name: '#mode',
     type: 'select',
