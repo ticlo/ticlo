@@ -429,10 +429,15 @@ export class BlockStage extends BlockStageBase<StageState> {
 
     let viewWidth = Math.max(contentWidth, Math.floor(stageWidth / zoom));
     let viewHeight = Math.max(contentHeight, Math.floor(stageHeight / zoom));
+
+    // work around of how browser calculate scroll content size
+    // since the size before scale and after scale are both counted, we need to get the smaller one
+    let contentSizeZoom = zoom > 1 ? 1 : zoom;
+
     let contentLayerStyle = {
       transform: `scale(${zoom},${zoom})`,
-      width: viewWidth,
-      height: viewHeight,
+      width: viewWidth * contentSizeZoom,
+      height: viewHeight * contentSizeZoom,
     };
     let contentBgStyle = {
       width: viewWidth,
