@@ -1,12 +1,15 @@
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import {Menu, Icon, Dropdown, Button, Card} from 'antd';
-import {Block, Root, ClientConnection} from "../../src/core";
+import {Block, Root} from "../../src/core/main";
 import {makeLocalConnection} from "../../src/core/connect/LocalConnection";
 import {TIcon} from "../../src/editor/icon/Icon";
 import {sampleData} from "./sample-data";
 import {initEditor, PropertyList, BlockStage, NodeTree} from "../../src/editor";
 import {DragDropDiv, DragState, DockLayout, DockContextType} from "rc-dock";
+import {ClientConnection} from "../../src/core/connect/ClientConnection";
+import {TypeView} from "../../src/editor/type-selector/TypeView";
+import {Types} from "../../src/core/block/Type";
 
 
 interface Props {
@@ -35,7 +38,6 @@ class App extends React.PureComponent<Props, State> {
       block: {
         '#is': 'add',
         '1': 4,
-        '@b-xyw': [100, 100, 150],
         '@b-p': ['0', '1', 'output', '@b-p', '#is'],
       }
     }, conn);
@@ -46,7 +48,6 @@ class App extends React.PureComponent<Props, State> {
     e.setData({
       block: {
         '#is': 'slider-view',
-        '@b-xyw': [100, 100, 150],
         '@b-p': ['value'],
       }
     }, conn);
@@ -78,8 +79,7 @@ class App extends React.PureComponent<Props, State> {
               }, {
                 id: 'Drags', title: 'Drags', cached: true, content: (
                   <div>
-                    <DragDropDiv onDragStartT={this.onDragBlock}> <Button>Drag Add</Button> </DragDropDiv>
-                    <DragDropDiv onDragStartT={this.onDragSlider}> <Button>Drag Slider </Button></DragDropDiv>
+                    <TypeView conn={conn} desc={Types.getDesc('add')[0]} />
                   </div>
                 )
               }
