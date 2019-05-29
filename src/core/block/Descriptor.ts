@@ -118,7 +118,7 @@ export const configList: PropDesc[] = [
   configDescs['#sync'],
 ];
 
-export function buildDescCache(funcDesc: FunctionDesc, more: (PropDesc | PropGroupDesc)[]): {[key: string]: PropDesc} {
+export function buildPropDescCache(funcDesc: FunctionDesc, more: (PropDesc | PropGroupDesc)[]): {[key: string]: PropDesc} {
   if (!funcDesc) return null;
 
   let result: {[key: string]: PropDesc} = {};

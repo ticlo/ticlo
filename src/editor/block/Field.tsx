@@ -8,7 +8,7 @@ import {displayValue} from "../../ui/util/Types";
 import {ClientConnection, ValueUpdate} from "../../core/connect/ClientConnection";
 import {
   blankFuncDesc,
-  blankPropDesc, buildDescCache,
+  blankPropDesc, buildPropDescCache,
   findPropDesc,
   FunctionDesc,
   PropDesc,
@@ -466,7 +466,7 @@ export abstract class BaseBlockItem extends DataRendererItem<XYWRenderer> {
   }
 
   updatePropCache() {
-    this.propDescCache = buildDescCache(this.desc, this.more);
+    this.propDescCache = buildPropDescCache(this.desc, this.more);
     for (let [key, item] of this.fieldItems) {
       item.setDesc(findPropDesc(key, this.propDescCache));
     }

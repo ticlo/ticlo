@@ -29,9 +29,10 @@ export class TypeView extends React.PureComponent<Props, any> {
   render() {
     let {desc} = this.props;
     return (
-      <DragDropDiv className={`${getFuncStyleFromDesc(desc, 'tico-pr')} ticl-hbox`} onDragStartT={this.onDrag}>
+      <DragDropDiv className={`${getFuncStyleFromDesc(desc, 'tico-pr')} ticl-type-view`} onDragStartT={this.onDrag}>
         <TIcon icon={desc.icon}/>
-        {desc.name}
+        <span> {desc.name}</span>
+
       </DragDropDiv>
     );
   }
