@@ -25,10 +25,7 @@ export class JsFunction extends BlockFunction {
     if (input._name === 'script') {
       this._compiledFunction = null;
       this._runFunction = null;
-      if (val === undefined) {
-        // do not trigger the script to run
-        return false;
-      }
+      return val !== undefined;
     }
     return Boolean(this._runFunction);
   }
