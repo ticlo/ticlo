@@ -13,7 +13,6 @@ export class NodeTreeItem extends TreeItem {
   onListChange: () => void;
   connection: ClientConnection;
 
-  level: number;
   key: string;
   childPrefix: string;
   name: string;
@@ -134,13 +133,14 @@ interface Props {
 export class NodeTreeRenderer extends PureDataRenderer<Props, any> {
 
   onExpandClicked = () => {
-    switch (this.props.item.opened) {
+    let {item} = this.props;
+    switch (item.opened) {
       case 'opened':
-        this.props.item.close();
+        item.close();
         break;
       case 'closed':
       case 'empty':
-        this.props.item.open();
+        item.open();
         break;
     }
   };
