@@ -79,8 +79,8 @@ class App extends React.PureComponent<Props, State> {
               }, {
                 id: 'Drags', title: 'Drags', cached: true, content: (
                   <div>
-                    <TypeView conn={conn} desc={Types.getDesc('add')[0]} />
-                    <TypeView conn={conn} desc={conn.descReq.cache.get('slider-view')} />
+                    <TypeView conn={conn} desc={Types.getDesc('add')[0]}/>
+                    <TypeView conn={conn} desc={conn.watchDesc('slider-view')}/>
                   </div>
                 )
               }

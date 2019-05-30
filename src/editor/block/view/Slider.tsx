@@ -75,11 +75,12 @@ ClientConnection.addEditorType('slider-view',
     view: SliderView,
     priority: 0,
     name: 'slider-view',
+    id: 'slider-view',
     properties: [
       {name: 'value', type: 'number'},
-      {name: 'min', type: 'number', default: 0},
-      {name: 'max', type: 'number', default: 100},
-      {name: 'step', type: 'number', default: 1, min: 0},
+      {name: 'min', type: 'number', default: 0, visible: 'low'},
+      {name: 'max', type: 'number', default: 100, visible: 'low'},
+      {name: 'step', type: 'number', default: 1, min: 0, visible: 'low'},
     ]
   }
 );

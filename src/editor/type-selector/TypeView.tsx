@@ -1,5 +1,5 @@
 import React from "react";
-import {FunctionDesc, getFuncStyleFromDesc} from "../../core/client";
+import {FunctionDesc, getFuncStyleFromDesc, PropDesc, PropGroupDesc} from "../../core/client";
 import {TIcon} from "../icon/Icon";
 import {DragDropDiv, DragState} from "rc-dock/lib";
 import {ClientConnection} from "../../core/connect/ClientConnection";
@@ -20,6 +20,24 @@ export class TypeView extends React.PureComponent<Props, any> {
         '#is': desc.id
       };
     }
+
+    // add default props
+    let props = [];
+    for (let propDesc of desc.properties) {
+      if ((propDesc as PropGroupDesc).properties) {
+        for (let i = 0; i < 2; ++i) {
+          for (let childDesc of (propDesc as PropGroupDesc).properties) {
+            if ((childDesc as PropDesc).visible !== 'low') {
+              props.push(`${(childDesc as PropDesc).name}${i}`);
+            }
+          }
+        }
+      } else if ((propDesc as PropDesc).visible !== 'low') {
+        props.push((propDesc as PropDesc).name);
+      }
+    }
+    data['@b-p'] = props;
+
     e.setData({
       block: data
     }, conn);

@@ -323,9 +323,7 @@ export class PropertyEditor extends MultiSelectComponent<Props, State, PropertyL
       if (desc && desc.properties) {
         let props = [];
         for (let propDesc of desc.properties) {
-          if ((propDesc as PropDesc).visible === 'high') {
-            props.push((propDesc as PropDesc).name);
-          } else if ((propDesc as PropGroupDesc).properties) {
+          if ((propDesc as PropGroupDesc).properties) {
             for (let i = 0; i < 2; ++i) {
               for (let childDesc of (propDesc as PropGroupDesc).properties) {
                 if ((childDesc as PropDesc).visible === 'high') {
@@ -333,6 +331,8 @@ export class PropertyEditor extends MultiSelectComponent<Props, State, PropertyL
                 }
               }
             }
+          } else if ((propDesc as PropDesc).visible === 'high') {
+            props.push((propDesc as PropDesc).name);
           }
         }
         data['@b-p'] = props;
