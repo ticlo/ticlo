@@ -127,7 +127,7 @@ export class BlockStage extends BlockStageBase<StageState> {
     this._selectRectNode.style.height = `${cssNumber(Math.abs(y1 - y2))}px`;
   };
   onDragSelectEnd = (e: DragState) => {
-    if (e) {
+    if (e && e.event) {
       // if e==null, then the dragging is canceled
       let [x1, y1] = this._dragingSelect;
       let x2 = e.dx + x1;
