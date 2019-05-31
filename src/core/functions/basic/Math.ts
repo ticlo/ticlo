@@ -10,6 +10,7 @@ const descriptorN: FunctionDesc = {
     {group: '', properties: [{name: '', type: 'number', visible: 'high'}]},
     {name: 'output', type: 'number', readonly: true}
   ],
+  category: 'math',
 };
 const descriptor2: FunctionDesc = {
   name: '',
@@ -19,6 +20,7 @@ const descriptor2: FunctionDesc = {
     {name: '1', type: 'number', visible: 'high'},
     {name: 'output', type: 'number', readonly: true}
   ],
+  category: 'math',
 };
 
 
@@ -50,7 +52,8 @@ AddFunction.prototype.useLength = true;
 Types.add(AddFunction, {
   ...descriptorN,
   name: 'add',
-  icon: 'fas:plus'
+  icon: 'fas:plus',
+  order: 0,
 });
 
 
@@ -82,7 +85,8 @@ MultiplyFunction.prototype.useLength = true;
 Types.add(MultiplyFunction, {
   ...descriptorN,
   name: 'multiply',
-  icon: 'fas:times'
+  icon: 'fas:times',
+  order: 2,
 });
 
 
@@ -102,7 +106,8 @@ SubtractFunction.prototype.priority = 0;
 Types.add(SubtractFunction, {
   ...descriptor2,
   name: 'subtract',
-  icon: 'fas:minus'
+  icon: 'fas:minus',
+  order: 1,
 });
 
 
@@ -122,5 +127,6 @@ DivideFunction.prototype.priority = 0;
 Types.add(DivideFunction, {
   ...descriptor2,
   name: 'divide',
-  icon: 'fas:divide'
+  icon: 'fas:divide',
+  order: 3,
 });

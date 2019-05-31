@@ -213,7 +213,7 @@ class WatchRequest extends MergedClientRequest {
   }
 }
 
-type DescListener = (desc: FunctionDesc) => void;
+type DescListener = (desc: FunctionDesc, id: string) => void;
 
 class DescRequest extends ConnectionSend implements ClientCallbacks {
 
@@ -240,8 +240,8 @@ class DescRequest extends ConnectionSend implements ClientCallbacks {
             this.cache.delete(id);
             if (this.listeners.size) {
               for (let [listener, lid] of this.listeners) {
-                if (id === lid) {
-                  listener(null);
+                if (lid === '' || id === lid) {
+                  listener(null, id);
                 }
               }
             }
@@ -249,8 +249,8 @@ class DescRequest extends ConnectionSend implements ClientCallbacks {
             this.cache.set(id, change);
             if (this.listeners.size) {
               for (let [listener, lid] of this.listeners) {
-                if (id === lid) {
-                  listener(change);
+                if (lid === '' || id === lid) {
+                  listener(change, id);
                 }
               }
             }
@@ -520,16 +520,16 @@ export class ClientConnection extends Connection {
     if (listener) {
       this.descReq.listeners.set(listener, id);
       if (this.descReq.cache.has(id)) {
-        listener(this.descReq.cache.get(id));
+        listener(this.descReq.cache.get(id), id);
       } else {
-        listener(null);
+        listener(null, id);
       }
-      return null;
     } else {
       if (this.descReq.cache.has(id)) {
         return this.descReq.cache.get(id);
       }
     }
+    return null;
   }
 
   unwatchDesc(listener: DescListener) {

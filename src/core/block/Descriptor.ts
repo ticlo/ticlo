@@ -70,7 +70,10 @@ export interface FunctionDesc {
   view?: any;
 
   style?: 'repeater' | 'service';
-  folder?: string;
+
+  category?: string;
+  /** the order in the category */
+  order?: number;
 }
 
 export function getFuncStyleFromDesc(desc: FunctionDesc, prefix = 'ticl-block-pr'): string {
