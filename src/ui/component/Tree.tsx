@@ -1,5 +1,7 @@
 import React from 'react';
 import {DataRendererItem, PureDataRenderer} from "./DataRenderer";
+import {ClientConnection} from "../../core/connect/ClientConnection";
+import {FunctionDesc} from "../../core/block/Descriptor";
 
 export type ExpandState = 'opened' | 'closed' | 'loading' | 'empty' | 'disabled';
 
@@ -47,13 +49,33 @@ export function ExpandIcon(props: Props) {
   }
 }
 
-export abstract class TreeItem extends DataRendererItem {
+
+export abstract class TreeItem<T extends TreeItem<any>> extends DataRendererItem {
   level: number;
   opened: ExpandState = 'closed';
+  onListChange: () => void;
 
-  children: TreeItem[] = null;
+  connection: ClientConnection;
 
-  addToList(list: TreeItem[]) {
+  getConn(): ClientConnection {
+    return this.connection;
+  }
+
+
+  children: T[] = null;
+
+  constructor(parent: T) {
+    super();
+    if (parent) {
+      this.level = parent.level + 1;
+      this.onListChange = parent.onListChange;
+      this.connection = parent.connection;
+    } else {
+      this.level = 0;
+    }
+  }
+
+  addToList(list: TreeItem<T>[]) {
     list.push(this);
     if (this.opened === 'opened' && this.children) {
       for (let child of this.children) {

@@ -9,9 +9,7 @@ import {TIcon} from "../icon/Icon";
 import {blankFuncDesc, FunctionDesc, getFuncStyleFromDesc} from "../../core/block/Descriptor";
 import {ClickParam} from "antd/lib/menu";
 
-export class NodeTreeItem extends TreeItem {
-  onListChange: () => void;
-  connection: ClientConnection;
+export class NodeTreeItem extends TreeItem<NodeTreeItem> {
 
   key: string;
   childPrefix: string;
@@ -20,10 +18,13 @@ export class NodeTreeItem extends TreeItem {
   max: number = 32;
 
   constructor(name: string, parent?: NodeTreeItem) {
-    super();
-    if (!parent) {
+    super(parent);
+    if (parent) {
+      this.key = `${parent.childPrefix}${name}`;
+      this.childPrefix = `${this.key}.`;
+      this.name = name;
+    } else {
       // root element;
-      this.level = 0;
       if (name) {
         this.key = name;
         this.childPrefix = `${name}.`;
@@ -33,22 +34,10 @@ export class NodeTreeItem extends TreeItem {
         this.childPrefix = '';
         this.name = 'Root';
       }
-    } else {
-      this.level = parent.level + 1;
-      this.key = `${parent.childPrefix}${name}`;
-      this.childPrefix = `${this.key}.`;
-      this.name = name;
-
-      this.connection = parent.connection;
-      this.onListChange = parent.onListChange;
     }
   }
 
-  getConn() {
-    return this.connection;
-  }
-
-  addToList(list: TreeItem[]) {
+  addToList(list: NodeTreeItem[]) {
     super.addToList(list);
     // TODO
   }

@@ -4,27 +4,8 @@ import {ClientConnection, FunctionDesc, getFuncStyleFromDesc} from "../../core/c
 import {TIcon} from "../icon/Icon";
 import {Dropdown} from "antd";
 import {TypeView} from "./TypeView";
+import {TypeTreeItem} from "./TypeTreeItem";
 
-class TypeTreeItem extends TreeItem {
-  conn: ClientConnection;
-  desc: FunctionDesc;
-  data?: any;
-
-
-  getConn(): ClientConnection {
-    return this.conn;
-  }
-
-  open() {
-    this.opened = 'opened';
-    this.forceUpdate();
-  }
-
-  close() {
-    this.opened = 'closed';
-    this.forceUpdate();
-  }
-}
 
 interface Props {
   item: TypeTreeItem;
