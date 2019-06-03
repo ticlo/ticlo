@@ -76,6 +76,7 @@ ClientConnection.addEditorType('slider-view',
     priority: 0,
     name: 'slider-view',
     id: 'slider-view',
+    icon: 'fas:sliders-h',
     properties: [
       {name: 'value', type: 'number'},
       {name: 'min', type: 'number', default: 0, visible: 'low'},

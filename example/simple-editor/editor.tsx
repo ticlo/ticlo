@@ -10,6 +10,8 @@ import {DragDropDiv, DragState, DockLayout, DockContextType} from "rc-dock";
 import {ClientConnection} from "../../src/core/connect/ClientConnection";
 import {TypeView} from "../../src/editor/type-selector/TypeView";
 import {Types} from "../../src/core/block/Type";
+import {TypeTreeRoot} from "../../src/editor/type-selector/TypeTreeItem";
+import {TypeTree} from "../../src/editor/type-selector/TypeTree";
 
 
 interface Props {
@@ -23,10 +25,16 @@ interface State {
 const Context = React.createContext<string[]>([]);
 
 class App extends React.PureComponent<Props, State> {
+
   constructor(props: Props) {
     super(props);
     this.state = {'selectedKeys': ['example.add']};
   }
+
+  forceUpdateLambda = () => this.forceUpdate();
+  forceUpdateImmediate = () => {
+    this.props.conn.callImmediate(this.forceUpdateLambda);
+  };
 
   onSelect = (keys: string[]) => {
     this.setState({'selectedKeys': keys});
@@ -77,12 +85,8 @@ class App extends React.PureComponent<Props, State> {
                   <NodeTree conn={conn} basePath="example" style={{width: '100%', height: '100%', padding: '8px'}}/>
                 )
               }, {
-                id: 'Drags', title: 'Drags', cached: true, content: (
-                  <div>
-                    <TypeView conn={conn} desc={Types.getDesc('add')[0]}/>
-                    <TypeView conn={conn} desc={Types.getDesc('js')[0]}/>
-                    <TypeView conn={conn} desc={conn.watchDesc('slider-view')}/>
-                  </div>
+                id: 'Types', title: 'Types', cached: true, content: (
+                  <TypeTree conn={conn} style={{height: '100%'}}/>
                 )
               }
             ],

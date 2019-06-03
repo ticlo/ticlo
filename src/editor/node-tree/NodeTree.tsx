@@ -12,25 +12,21 @@ interface Props {
   style?: React.CSSProperties;
 }
 
-interface State {
-
-  itemHeight: number;
-  renderer: (idx: number, style: React.CSSProperties) => React.ReactNode;
-}
-
-export class NodeTree extends React.PureComponent<Props, State> {
+export class NodeTree extends React.PureComponent<Props, any> {
   rootList: NodeTreeItem[] = [];
-  state: State;
   list: NodeTreeItem[] = [];
 
-  renderChild(idx: number, style: React.CSSProperties): React.ReactNode {
+  renderChild = (idx: number, style: React.CSSProperties) => {
     let item = this.list[idx];
     return (
       <NodeTreeRenderer item={item} key={item.key} style={style}/>
     );
-  }
+  };
 
   forceUpdateLambda = () => this.forceUpdate();
+  forceUpdateImmediate = () => {
+    this.props.conn.callImmediate(this.forceUpdateLambda);
+  };
 
   refreshList() {
     this.list.length = 0;
@@ -43,12 +39,8 @@ export class NodeTree extends React.PureComponent<Props, State> {
     super(props);
     let rootNode = new NodeTreeItem(props.basePath);
     rootNode.connection = this.props.conn;
-    rootNode.onListChange = this.forceUpdateLambda;
+    rootNode.onListChange = this.forceUpdateImmediate;
     this.rootList.push(rootNode);
-    this.state = {
-      itemHeight: 30,
-      renderer: (i, style) => this.renderChild(i, style)
-    };
   }
 
   render() {
@@ -57,10 +49,16 @@ export class NodeTree extends React.PureComponent<Props, State> {
       <VirtualList
         className='ticl-node-tree'
         style={this.props.style}
-        renderer={this.state.renderer}
+        renderer={this.renderChild}
         itemCount={this.list.length}
-        itemHeight={this.state.itemHeight}
+        itemHeight={30}
       />
     );
+  }
+
+  componentWillUnmount(): void {
+    for (let node of this.rootList) {
+      node.destroy();
+    }
   }
 }

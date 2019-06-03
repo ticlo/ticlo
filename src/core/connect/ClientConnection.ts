@@ -240,7 +240,7 @@ class DescRequest extends ConnectionSend implements ClientCallbacks {
             this.cache.delete(id);
             if (this.listeners.size) {
               for (let [listener, lid] of this.listeners) {
-                if (lid === '' || id === lid) {
+                if (lid === '*' || id === lid) {
                   listener(null, id);
                 }
               }
@@ -249,7 +249,7 @@ class DescRequest extends ConnectionSend implements ClientCallbacks {
             this.cache.set(id, change);
             if (this.listeners.size) {
               for (let [listener, lid] of this.listeners) {
-                if (lid === '' || id === lid) {
+                if (lid === '*' || id === lid) {
                   listener(change, id);
                 }
               }
@@ -519,11 +519,17 @@ export class ClientConnection extends Connection {
   watchDesc(id: string, listener?: DescListener): FunctionDesc {
     if (listener) {
       this.descReq.listeners.set(listener, id);
-      if (this.descReq.cache.has(id)) {
+      if (id === '*') {
+        // listen to all descs
+        for (let [id, desc] of this.descReq.cache) {
+          listener(desc, id);
+        }
+      } else if (this.descReq.cache.has(id)) {
         listener(this.descReq.cache.get(id), id);
       } else {
         listener(null, id);
       }
+
     } else {
       if (this.descReq.cache.has(id)) {
         return this.descReq.cache.get(id);

@@ -51,9 +51,12 @@ export function ExpandIcon(props: Props) {
 
 
 export abstract class TreeItem<T extends TreeItem<any>> extends DataRendererItem {
+  key: string;
   level: number;
   opened: ExpandState = 'closed';
   onListChange: () => void;
+
+  parent: T;
 
   connection: ClientConnection;
 
@@ -66,6 +69,7 @@ export abstract class TreeItem<T extends TreeItem<any>> extends DataRendererItem
 
   constructor(parent: T) {
     super();
+    this.parent = parent;
     if (parent) {
       this.level = parent.level + 1;
       this.onListChange = parent.onListChange;

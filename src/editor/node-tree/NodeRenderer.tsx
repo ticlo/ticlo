@@ -11,7 +11,6 @@ import {ClickParam} from "antd/lib/menu";
 
 export class NodeTreeItem extends TreeItem<NodeTreeItem> {
 
-  key: string;
   childPrefix: string;
   name: string;
 
@@ -157,14 +156,9 @@ export class NodeTreeRenderer extends PureDataRenderer<Props, any> {
   desc: FunctionDesc = blankFuncDesc;
   descCallback = (desc: FunctionDesc) => {
     this.desc = desc || blankFuncDesc;
-    // this might show a react noop warning, but it's OK
     this.forceUpdate();
   };
 
-  /*
-   <div className="fas fa-sync-alt ticl-icon"/>
-    <div className="fas fa-search ticl-icon"/>
-   */
   getMenu = () => (
     <Menu selectable={false}>
       <Menu.Item onClick={this.onReloadClicked}>

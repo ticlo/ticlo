@@ -4,37 +4,69 @@ import {ClientConnection, FunctionDesc, getFuncStyleFromDesc} from "../../core/c
 import {TIcon} from "../icon/Icon";
 import {Dropdown} from "antd";
 import {TypeView} from "./TypeView";
-import {TypeTreeItem} from "./TypeTreeItem";
-
+import {TypeTreeItem, TypeTreeRoot} from "./TypeTreeItem";
+import VirtualList from "../../ui/component/Virtual";
+import {TypeTreeRenderer} from "./TypeTreeRenderer";
 
 interface Props {
-  item: TypeTreeItem;
+  conn: ClientConnection;
+  style?: React.CSSProperties;
 }
 
-export class TypeTreeView extends React.PureComponent<Props, any> {
-  onExpandClicked = () => {
-    let {item} = this.props;
-    switch (item.opened) {
-      case 'opened':
-        item.close();
-        break;
-      case 'closed':
-      case 'empty':
-        item.open();
-        break;
+interface State {
+
+}
+
+export class TypeTree extends React.PureComponent<Props, State> {
+
+  rootNode: TypeTreeRoot;
+  list: TypeTreeItem[] = [];
+
+  constructor(props: Props) {
+    super(props);
+    this.rootNode = new TypeTreeRoot(props.conn, this.forceUpdateImmediate);
+  }
+
+  forceUpdateLambda = () => this.forceUpdate();
+  forceUpdateImmediate = () => {
+    if (this.rendered) {
+      this.props.conn.callImmediate(this.forceUpdateLambda);
     }
   };
 
-  render() {
-    let {item} = this.props;
-    let {conn, desc, data} = item;
-    let marginLeft = item.level * 24;
+  renderChild = (idx: number, style: React.CSSProperties) => {
+    let item = this.list[idx];
     return (
-      <div style={{marginLeft}} className="ticl-tree-node">
-        <ExpandIcon opened={item.opened} onClick={this.onExpandClicked}/>
-        <TIcon icon={desc.icon} style={getFuncStyleFromDesc(desc, 'tico-pr')}/>
-        <TypeView conn={conn} desc={desc} data={data}/>
-      </div>
+      <TypeTreeRenderer item={item} key={item.key} style={style}/>
     );
+  };
+
+
+  refreshList() {
+    this.list.length = 0;
+    for (let item of this.rootNode.children) {
+      item.addToList(this.list);
+    }
+  }
+
+  rendered: boolean = false;
+
+  render() {
+    let {style} = this.props;
+    this.refreshList();
+    this.rendered = true;
+    return (
+      <VirtualList style={style}
+                   className='ticl-node-tree'
+                   renderer={this.renderChild}
+                   itemCount={this.list.length}
+                   itemHeight={30}
+      />
+    );
+
+  }
+
+  componentWillUnmount(): void {
+    this.rootNode.destroy();
   }
 }

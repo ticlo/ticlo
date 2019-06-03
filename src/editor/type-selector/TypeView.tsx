@@ -7,6 +7,7 @@ import {ClientConnection} from "../../core/connect/ClientConnection";
 interface Props {
   conn: ClientConnection;
   desc: FunctionDesc;
+  name?: any;
   data?: any;
 }
 
@@ -45,11 +46,14 @@ export class TypeView extends React.PureComponent<Props, any> {
   };
 
   render() {
-    let {desc} = this.props;
+    let {desc, name} = this.props;
+    if (!name) {
+      name = desc.name;
+    }
     return (
       <DragDropDiv className={`${getFuncStyleFromDesc(desc, 'tico-pr')} ticl-type-view`} onDragStartT={this.onDrag}>
         <TIcon icon={desc.icon}/>
-        <span> {desc.name}</span>
+        <span>{name}</span>
 
       </DragDropDiv>
     );
