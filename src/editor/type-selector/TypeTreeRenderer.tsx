@@ -4,6 +4,7 @@ import {TIcon} from "../icon/Icon";
 import {blankFuncDesc, getFuncStyleFromDesc} from "../../core/block/Descriptor";
 import {TypeView} from "./TypeView";
 import {TypeTreeItem} from "./TypeTreeItem";
+import {PureDataRenderer} from "../../ui/component/DataRenderer";
 
 interface Props {
   item: TypeTreeItem;
@@ -11,21 +12,25 @@ interface Props {
 }
 
 
-export class TypeTreeRenderer extends React.PureComponent<Props, any> {
+export class TypeTreeRenderer extends PureDataRenderer<Props, any> {
   onExpandClicked = () => {
     let {item} = this.props;
     switch (item.opened) {
       case 'opened':
         item.close();
         break;
-      case 'closed':
       case 'empty':
+        if (item.children.length === 0) {
+          return;
+        }
+      // tslint:disable-next-line:no-switch-case-fall-through
+      case 'closed':
         item.open();
         break;
     }
   };
 
-  render() {
+  renderImpl() {
     let {item, style} = this.props;
     let {name, connection, desc, data} = item;
     let marginLeft = item.level * 24;
