@@ -13,7 +13,7 @@
 @text-color-secondary-dark: fade(#fff, 75%);
 
 @disabled-color: fade(#000, 50%);
-@disabled-bg: none;
+@disabled-bg: rgba(255, 255, 255, 0);
 @border-disabled-color: #f0f0f0;
 @border-hover-color: #69c0ff;
 
@@ -37,10 +37,12 @@
 .ant-switch {
   // by default it use disabled color, which is too dark
   background-color: rgba(0, 0, 0, 0.25);
+
   &-checked {
     background-color: @switch-color;
   }
-  &:after{
+
+  &:after {
     // make it move faster
     transition: all 0.2s ease-in-out;
   }
