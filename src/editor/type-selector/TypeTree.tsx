@@ -3,9 +3,12 @@ import {ClientConnection, FunctionDesc, getFuncStyleFromDesc} from "../../core/c
 import {TypeTreeItem, TypeTreeRoot} from "./TypeTreeItem";
 import VirtualList from "../../ui/component/Virtual";
 import {TypeTreeRenderer} from "./TypeTreeRenderer";
+import {OnTypeClick} from "./TypeView";
 
 interface Props {
   conn: ClientConnection;
+  showPreset?: boolean;
+  onTypeClick?: OnTypeClick;
   style?: React.CSSProperties;
 }
 
@@ -20,7 +23,7 @@ export class TypeTree extends React.PureComponent<Props, State> {
 
   constructor(props: Props) {
     super(props);
-    this.rootNode = new TypeTreeRoot(props.conn, this.forceUpdateImmediate);
+    this.rootNode = new TypeTreeRoot(props.conn, this.forceUpdateImmediate, props.showPreset);
   }
 
   forceUpdateLambda = () => this.forceUpdate();

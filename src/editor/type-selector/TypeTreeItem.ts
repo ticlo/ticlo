@@ -1,9 +1,11 @@
 import {TreeItem} from "../../ui/component/Tree";
 import {ClientConnection} from "../../core/connect/ClientConnection";
 import {FunctionDesc} from "../../core/block/Descriptor";
+import {OnTypeClick} from "./TypeView";
 
 
 export class TypeTreeItem extends TreeItem<TypeTreeItem> {
+  root: TypeTreeRoot;
   desc: FunctionDesc;
   name?: string;
   data?: any;
@@ -26,7 +28,7 @@ export class TypeTreeItem extends TreeItem<TypeTreeItem> {
     return (a.desc.order - b.desc.order);
   }
 
-  constructor(parent: TypeTreeItem, key: string, desc?: FunctionDesc, data?: any) {
+  constructor(parent: TypeTreeItem, root: TypeTreeRoot, key: string, desc?: FunctionDesc, data?: any) {
     super(parent);
     if (desc) {
       this.opened = 'empty';
@@ -77,7 +79,7 @@ export class TypeTreeItem extends TreeItem<TypeTreeItem> {
         return;
       }
     }
-    let child = new TypeTreeItem(this, key, desc, data);
+    let child = new TypeTreeItem(this, this.root, key, desc, data);
     this.children.push(child);
     this.children.sort(TypeTreeItem.sort);
     if (this.opened === 'opened') {
@@ -100,6 +102,10 @@ export class TypeTreeItem extends TreeItem<TypeTreeItem> {
 }
 
 export class TypeTreeRoot extends TypeTreeItem {
+
+  showPreset: boolean;
+  onTypeClick: OnTypeClick;
+
   typeMap: Map<string, TypeTreeItem> = new Map<string, TypeTreeItem>();
   onDesc = (desc: FunctionDesc, key: string) => {
     if (desc) {
@@ -109,7 +115,7 @@ export class TypeTreeRoot extends TypeTreeItem {
       if (this.typeMap.has(catKey)) {
         catItem = this.typeMap.get(catKey);
       } else {
-        catItem = new TypeTreeItem(this, catKey);
+        catItem = new TypeTreeItem(this, this, catKey);
         catItem.name = category;
         this.typeMap.set(catKey, catItem);
         this.children.push(catItem);
@@ -131,8 +137,10 @@ export class TypeTreeRoot extends TypeTreeItem {
     }
   };
 
-  constructor(conn: ClientConnection, onListChange: () => void) {
-    super(null, '');
+  constructor(conn: ClientConnection, onListChange: () => void, showPreset?: boolean) {
+    super(null, null, '');
+    this.root = this;
+    this.showPreset = Boolean(showPreset);
     this.connection = conn;
     this.onListChange = onListChange;
     conn.watchDesc('*', this.onDesc);
