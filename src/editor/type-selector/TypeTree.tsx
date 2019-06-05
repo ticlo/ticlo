@@ -1,9 +1,5 @@
 import React from "react";
-import {ExpandIcon, TreeItem} from "../../ui/component/Tree";
 import {ClientConnection, FunctionDesc, getFuncStyleFromDesc} from "../../core/client";
-import {TIcon} from "../icon/Icon";
-import {Dropdown} from "antd";
-import {TypeView} from "./TypeView";
 import {TypeTreeItem, TypeTreeRoot} from "./TypeTreeItem";
 import VirtualList from "../../ui/component/Virtual";
 import {TypeTreeRenderer} from "./TypeTreeRenderer";

@@ -460,7 +460,7 @@ MapFunction.prototype._onTimeoutChange = MapImpl.prototype._onTimeoutChange;
 MapFunction.prototype.priority = 3;
 Types.add(MapFunction, {
   name: 'map',
-  icon: 'material:hdr_strong',
+  icon: 'fas:grip-vertical',
   style: 'repeater',
   properties: [
     {name: 'input', type: 'any'},

@@ -36,7 +36,7 @@ export class TypeTreeRenderer extends PureDataRenderer<Props, any> {
     let marginLeft = item.level * 24;
     if (desc) {
       return (
-        <div style={{...style, marginLeft}} className="ticl-tree-node">
+        <div style={{...style, marginLeft}} className="ticl-tree-type">
           <ExpandIcon opened={item.opened} onClick={this.onExpandClicked}/>
           <TypeView conn={connection} desc={desc} name={name} data={data}/>
         </div>
@@ -50,7 +50,7 @@ export class TypeTreeRenderer extends PureDataRenderer<Props, any> {
         funcStyle = getFuncStyleFromDesc(child.desc, 'tico-pr');
       }
       return (
-        <div style={{...style, marginLeft}} className="ticl-tree-node">
+        <div style={{...style, marginLeft}} className="ticl-tree-type">
           <ExpandIcon opened={item.opened} onClick={this.onExpandClicked}/>
           <TIcon icon={icon} style={funcStyle}/>
           <span>{name}</span>
