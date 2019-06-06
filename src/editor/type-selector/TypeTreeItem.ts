@@ -30,6 +30,7 @@ export class TypeTreeItem extends TreeItem<TypeTreeItem> {
 
   constructor(parent: TypeTreeItem, root: TypeTreeRoot, key: string, desc?: FunctionDesc, data?: any) {
     super(parent);
+    this.root = root;
     if (desc) {
       this.opened = 'empty';
     }
@@ -137,12 +138,13 @@ export class TypeTreeRoot extends TypeTreeItem {
     }
   };
 
-  constructor(conn: ClientConnection, onListChange: () => void, showPreset?: boolean) {
+  constructor(conn: ClientConnection, onListChange: () => void, onTypeClick?: OnTypeClick, showPreset?: boolean) {
     super(null, null, '');
     this.root = this;
     this.showPreset = Boolean(showPreset);
     this.connection = conn;
     this.onListChange = onListChange;
+    this.onTypeClick = onTypeClick;
     conn.watchDesc('*', this.onDesc);
   }
 

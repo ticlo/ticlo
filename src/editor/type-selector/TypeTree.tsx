@@ -23,7 +23,7 @@ export class TypeTree extends React.PureComponent<Props, State> {
 
   constructor(props: Props) {
     super(props);
-    this.rootNode = new TypeTreeRoot(props.conn, this.forceUpdateImmediate, props.showPreset);
+    this.rootNode = new TypeTreeRoot(props.conn, this.forceUpdateImmediate, props.onTypeClick, props.showPreset);
   }
 
   forceUpdateLambda = () => this.forceUpdate();
