@@ -20,6 +20,7 @@ import {PropertyList} from "./PropertyList";
 import {arrayEqual, deepEqual} from "../../core/util/Compare";
 import {ClickParam} from "antd/lib/menu";
 import {stopPropagation} from "../../core/util/Functions";
+import {TypeEditor} from "./value/TypeEditor";
 
 const {SubMenu} = Menu;
 
@@ -33,6 +34,7 @@ const typeEditorMap: {[key: string]: any} = {
   'date': DateEditor,
   'date-range': DateRangeEditor,
   'radio-button': RadioButtonEditor,
+  'type': TypeEditor,
 };
 
 class PropertyLoader extends MultiSelectLoader<PropertyEditor> {
