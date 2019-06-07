@@ -5,7 +5,7 @@ import {ValueEditorProps} from "./ValueEditor";
 
 const Option = Select.Option;
 
-export class SelectEditor extends React.Component<ValueEditorProps, any> {
+export class SelectEditor extends React.PureComponent<ValueEditorProps, any> {
 
   onValueChange = (value: string | number) => {
     let {onChange} = this.props;

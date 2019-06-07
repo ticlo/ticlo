@@ -42,7 +42,7 @@ const MathDeg = (() => {
 
 export class NumberEditor extends React.PureComponent<ValueEditorProps, any> {
 
-  // this is not a state bacause in commitChange() editorValue is changed but we don't want a re-render until prop change
+  // this is not a state because in commitChange() editorValue is changed but we don't want a re-render until prop change
   _pendingValue: string = null;
 
   commitChange(value: string | number) {
@@ -69,7 +69,7 @@ export class NumberEditor extends React.PureComponent<ValueEditorProps, any> {
   }
 
 
-  onValueChange = (e: React.SyntheticEvent) => {
+  onInputChange = (e: React.SyntheticEvent) => {
     let value = (e.nativeEvent.target as HTMLInputElement).value;
     if (value !== this.props.value || this._pendingValue != null) {
       // when editorValue value already exists or server value is not the same
@@ -204,7 +204,7 @@ export class NumberEditor extends React.PureComponent<ValueEditorProps, any> {
         <Button size='small' icon='minus' onClick={this.onMinusClick} disabled={disabled}/>
         <input className='ant-input ant-input-sm' type='text' placeholder={desc.placeholder}
                value={value}
-               onChange={this.onValueChange} disabled={disabled}
+               onChange={this.onInputChange} disabled={disabled}
                onBlur={this.onBlur} onKeyDown={this.onKeyDown}/>
         <Button size='small' icon='plus' onClick={this.onPlusClick} disabled={disabled}/>
       </div>

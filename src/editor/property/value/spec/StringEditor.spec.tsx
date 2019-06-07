@@ -39,7 +39,9 @@ describe("StringEditor", function () {
     assert.equal(value, 'A');
 
     // test shift key
-    simulateInput(editor, {key: 'Enter', shiftKey: true}, 'A\n');
+    simulateInput(editor,
+      {key: 'Enter', shiftKey: true, target: document.querySelector('textarea')},
+      'A\n');
     assert.equal(value, 'A');
 
     simulateInput(editor, {key: 'Enter'}, null);

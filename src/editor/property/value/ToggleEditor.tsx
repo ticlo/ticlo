@@ -3,7 +3,7 @@ import {Switch} from "antd";
 import {PropDesc} from "../../../core/block/Descriptor";
 import {ValueEditorProps} from "./ValueEditor";
 
-export class ToggleEditor extends React.Component<ValueEditorProps, any> {
+export class ToggleEditor extends React.PureComponent<ValueEditorProps, any> {
 
   onValueChange = (checked: boolean) => {
     let {desc, onChange} = this.props;

@@ -5,7 +5,7 @@ import {PropDesc} from "../../../core/block/Descriptor";
 import {ValueEditorProps} from "./ValueEditor";
 import tinycolor from "tinycolor2";
 
-export class ColorEditor extends React.Component<ValueEditorProps, any> {
+export class ColorEditor extends React.PureComponent<ValueEditorProps, any> {
 
   onValueChange = (value: ColorResult) => {
     let {onChange} = this.props;

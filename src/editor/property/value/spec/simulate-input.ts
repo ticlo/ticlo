@@ -6,8 +6,8 @@ export function simulateInput(input: any, event: any, value: string) {
     event.preventDefault = voidFunction;
     input.onKeyDown(event);
   }
-  if ('onValueChange' in input && value) {
+  if ('onInputChange' in input && value) {
     let event = {nativeEvent: {target: {value}}};
-    input.onValueChange(event);
+    input.onInputChange(event);
   }
 }

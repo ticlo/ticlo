@@ -9,7 +9,7 @@ const {RangePicker} = DatePicker;
 
 const defaultTimes = {defaultValue: [parseZone('00:00:00.000', 'HH:mm:ss.SSS'), parseZone('23:59:59.999', 'HH:mm:ss.SSS')]};
 
-export class DateRangeEditor extends React.Component<ValueEditorProps, any> {
+export class DateRangeEditor extends React.PureComponent<ValueEditorProps, any> {
 
   onValueChange = (range: Moment[]) => {
     let {desc, onChange} = this.props;

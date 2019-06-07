@@ -7,7 +7,7 @@ import * as MomentUtil from '../../../core/util/Moment';
 
 const defaultTime = {defaultValue: parseZone('00:00:00.000', 'HH:mm:ss.SSS')};
 
-export class DateEditor extends React.Component<ValueEditorProps, any> {
+export class DateEditor extends React.PureComponent<ValueEditorProps, any> {
 
   onValueChange = (moment: Moment) => {
     let {desc, onChange} = this.props;
