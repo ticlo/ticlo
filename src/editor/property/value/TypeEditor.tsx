@@ -1,6 +1,6 @@
 import React from "react";
 import {Icon, Input} from "antd";
-import {FunctionDesc, PropDesc} from "../../../core/block/Descriptor";
+import {FunctionDesc, getFuncStyleFromDesc, PropDesc} from "../../../core/block/Descriptor";
 import {ValueEditorProps} from "./ValueEditor";
 import {TIcon} from "../../icon/Icon";
 import {DragDropDiv} from "rc-dock";
@@ -11,17 +11,16 @@ import {TypeSelect} from "../../type-selector/TypeSelector";
 import {addRecentType} from "../../type-selector/TypeList";
 
 interface State {
-  funcDesc: FunctionDesc;
   opened: boolean;
 }
 
 export class TypeEditor extends StringEditorBase {
 
-  state: State = {funcDesc: null, opened: false};
+  state: State = {opened: false};
 
   commitChange(value: string) {
     super.commitChange(value);
-    if (value) {
+    if (this.props.conn.watchDesc(value)) {
       addRecentType(value);
     }
   }
@@ -40,9 +39,10 @@ export class TypeEditor extends StringEditorBase {
     this.setState({opened: false});
   };
 
+
   render() {
     let {desc, value, locked, onChange, conn} = this.props;
-    let {funcDesc, opened} = this.state;
+    let {opened} = this.state;
 
     if (this._pendingValue != null) {
       value = this._pendingValue;
@@ -50,10 +50,16 @@ export class TypeEditor extends StringEditorBase {
       onChange = null;
     }
 
-    let iconstr = funcDesc ? funcDesc.icon : null;
+    let iconName: string;
+    let iconStyle = 'tico-prn';
+    let funcDesc = conn.watchDesc(value);
+    if (funcDesc) {
+      iconName = funcDesc.icon;
+      iconStyle = getFuncStyleFromDesc(funcDesc, 'tico-pr') || 'tico-prn';
+    }
     return (
-      <DragDropDiv className='ticl-hbox'>
-        <TIcon icon={iconstr}/>
+      <DragDropDiv className='ticl-type-editor ticl-hbox'>
+        <TIcon icon={iconName} style={iconStyle}/>
         <Trigger action={['click']}
                  popupVisible={opened}
                  onPopupVisibleChange={this.onPopupClose}

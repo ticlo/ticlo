@@ -56,7 +56,7 @@ function iconNameWidth(str: string): [string, number, boolean] {
 
 export function TIcon(props: Props) {
   let {icon, style} = props;
-  let additionalClass = style || '';
+  let className = `tico ${style || ''}`;
   if (icon == null) {
     icon = '';
   }
@@ -73,7 +73,7 @@ export function TIcon(props: Props) {
       case 'material':
         if (!iconName.includes(' ')) {
           return (
-            <div className={`tico ${additionalClass}`}>
+            <div className={className}>
               <div className={`tico-icon-svg tico-${iconType}-${iconName}`}/>
             </div>
           );
@@ -88,17 +88,17 @@ export function TIcon(props: Props) {
         if (fontSize > 0) {
           if (fontSize === 18) {
             if (needOffset) {
-              additionalClass += ' tico-yoff';
+              className += ' tico-yoff';
             }
-            return (<div className={`tico tico-txt ${additionalClass}`}>{iconName}</div>);
+            return (<div className={`tico-txt ${className}`}>{iconName}</div>);
           } else {
             return (
-              <div className={`tico tico-txt ${additionalClass}`} style={{fontSize: `${fontSize}px`}}>{iconName}</div>);
+              <div className={`tico-txt ${className}`} style={{fontSize: `${fontSize}px`}}>{iconName}</div>);
           }
         }
 
     }
   }
 
-  return <div className="tico"/>;
+  return <div className={className}/>;
 }
