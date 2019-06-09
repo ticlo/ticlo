@@ -70,7 +70,7 @@ export class NumberEditor extends React.PureComponent<ValueEditorProps, any> {
 
 
   onInputChange = (e: React.SyntheticEvent) => {
-    let value = (e.nativeEvent.target as HTMLInputElement).value;
+    let value = (e.target as HTMLInputElement).value;
     if (value !== this.props.value || this._pendingValue != null) {
       // when editorValue value already exists or server value is not the same
       this._pendingValue = value;
