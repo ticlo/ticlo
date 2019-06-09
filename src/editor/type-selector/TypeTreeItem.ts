@@ -140,6 +140,7 @@ export class TypeTreeRoot extends TypeTreeItem {
 
   constructor(conn: ClientConnection, onListChange: () => void, onTypeClick?: OnTypeClick, showPreset?: boolean) {
     super(null, null, '');
+    this.level = -1;
     this.root = this;
     this.showPreset = Boolean(showPreset);
     this.connection = conn;

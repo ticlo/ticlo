@@ -5,7 +5,7 @@
   padding: 1px;
   border-radius: 0 6px 6px;
   cursor: pointer;
-  
+
   & > span {
     background: white;
     height: 22px;
@@ -15,9 +15,58 @@
   }
 }
 
+.ticl-type-tree {
+  width: 100%;
+}
+
+.ticl-type-list {
+  padding: 4px;
+  display: flex;
+  flex-direction: column;
+  flex-wrap: wrap;
+  align-items: start;
+
+  & > .ticl-type-view {
+    margin: 4px;
+  }
+}
+
 .ticl-tree-type {
   & > .tico {
     margin-right: 4px;
     border-radius: 0 4px 4px;
+  }
+}
+
+.ticl-type-select {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  border: 1px solid #d9d9d9;
+  border-radius: 4px;
+
+  & > .ticl-type-tree, & > .ticl-type-list {
+    height: 280px;
+  }
+
+  & > * {
+    background: white;
+  }
+
+  & > *:first-child {
+    background: rgba(255, 255, 255, 0.01);
+    height: 20px;
+  }
+}
+
+.tlcl-type-select-toggle {
+  border-bottom: 1px solid #e8e8e8;
+  padding: 6px 6px 3px 6px;
+
+  & > .ant-input-affix-wrapper {
+    width: 1px;
+    flex-grow: 1;
+  }
+
+  & > * {
+    margin: 0 3px;
   }
 }

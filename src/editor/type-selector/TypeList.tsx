@@ -35,20 +35,21 @@ interface Props {
   conn: ClientConnection;
   recent?: boolean;
   types?: string[];
+  style?: React.CSSProperties;
 }
 
 export class TypeList extends React.PureComponent<Props, any> {
   constructor(props: Props) {
     super(props);
     if (props.recent) {
-      this.state = {types: _typeSet};
+      this.state = {types: _recentTypeList};
     } else {
       this.state = {};
     }
   }
 
   render() {
-    let {conn, recent, types} = this.props;
+    let {conn, recent, types, style} = this.props;
     if (recent) {
       types = _recentTypeList;
     }
@@ -62,7 +63,7 @@ export class TypeList extends React.PureComponent<Props, any> {
       }
     }
     return (
-      <div className='ticl-type-list'>
+      <div className='ticl-type-list' style={style}>
         {children}
       </div>
     );

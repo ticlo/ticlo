@@ -56,7 +56,7 @@ export class TypeTree extends React.PureComponent<Props, State> {
     this.rendered = true;
     return (
       <VirtualList style={style}
-                   className='ticl-node-tree'
+                   className='ticl-type-tree'
                    renderer={this.renderChild}
                    itemCount={this.list.length}
                    itemHeight={30}

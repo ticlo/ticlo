@@ -75,7 +75,7 @@ export default class VirtualList extends React.Component<Props, State> {
     } else {
       // not mounted or not visible, create dummy div to measure size
       return (
-        <div ref={this.getRef} className='ticl-v-scroll' style={style}>
+        <div ref={this.getRef} className={`ticl-v-scroll ${className}`} style={style}>
         </div>
       );
     }

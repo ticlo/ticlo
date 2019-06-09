@@ -461,7 +461,7 @@ export class BlockStage extends BlockStageBase<StageState> {
     }
 
     return (
-      <div style={style} className="ticl-stage ticl-scroll" ref={this.getRootRef} onKeyDown={this.onKeyDown}
+      <div style={style} className="ticl-stage" ref={this.getRootRef} onKeyDown={this.onKeyDown}
            tabIndex={0}>
         <DragDropDiv className="ticl-stage-scroll" getRef={this.getScrollLayerRef} onDragOverT={this.onDragOver}
                      onDropT={this.onDrop}>

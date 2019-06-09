@@ -397,7 +397,7 @@ export class PropertyEditor extends MultiSelectComponent<Props, State, PropertyL
         editorValue = propDesc.default;
       }
       editor =
-        <EditorClass value={editorValue} desc={propDesc} locked={locked && !unlocked} onChange={onChange}/>;
+        <EditorClass conn={conn} value={editorValue} desc={propDesc} locked={locked && !unlocked} onChange={onChange}/>;
     }
 
     let nameClass = `ticl-property-name${propDesc.readonly ? ' ticl-property-readonly' : ''}${display ? ' ticl-property-display' : ''}`;

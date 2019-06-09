@@ -1,7 +1,7 @@
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import {Menu, Icon, Dropdown, Button, Card} from 'antd';
-import {Block, Root} from "../../src/core/main";
+import {Block, FunctionDesc, Root} from "../../src/core/main";
 import {makeLocalConnection} from "../../src/core/connect/LocalConnection";
 import {TIcon} from "../../src/editor/icon/Icon";
 import {sampleData} from "./sample-data";
@@ -86,7 +86,10 @@ class App extends React.PureComponent<Props, State> {
                 )
               }, {
                 id: 'Types', title: 'Types', cached: true, content: (
-                  <TypeTree conn={conn} style={{height: '100%'}}/>
+                  <TypeTree conn={conn} style={{height: '100%'}}
+                            onTypeClick={(name: string, desc: FunctionDesc, data: any) => {
+                              console.log(name, desc, data);
+                            }}/>
                 )
               }
             ],
