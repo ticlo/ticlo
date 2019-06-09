@@ -11,3 +11,26 @@
 @import "./type-selector/TypeView";
 @import "./antd-extra";
 @import "../../node_modules/rc-dock/style/index";
+
+div ::-webkit-scrollbar-track
+{
+  border-radius: 6px;
+  background-color: #fbfbfb;
+}
+
+div ::-webkit-scrollbar-thumb {
+  border-radius: 6px;
+  border: 1px solid #fbfbfb;
+  background: #eee;
+}
+div ::-webkit-scrollbar {
+  border-radius: 6px;
+  width: 11px;
+  height: 11px;
+}
+div ::-webkit-scrollbar:vertical {
+  width: 11px;
+}
+div ::-webkit-scrollbar:horizontal {
+  height: 11px;
+}
