@@ -8,6 +8,7 @@ export class TypeTreeItem extends TreeItem<TypeTreeItem> {
   root: TypeTreeRoot;
   desc: FunctionDesc;
   name?: string;
+  label: string;
   data?: any;
 
   children: TypeTreeItem[] = [];
@@ -28,12 +29,14 @@ export class TypeTreeItem extends TreeItem<TypeTreeItem> {
     return (a.desc.order - b.desc.order);
   }
 
-  constructor(parent: TypeTreeItem, root: TypeTreeRoot, key: string, desc?: FunctionDesc, data?: any) {
+  constructor(parent: TypeTreeItem, root: TypeTreeRoot, key: string, name?: string, desc?: FunctionDesc, data?: any) {
     super(parent);
     this.root = root;
     if (desc) {
       this.opened = 'empty';
     }
+    this.name = name;
+    this.label = name; // TODO: translate
     this.key = key;
     this.update(desc, data);
   }
@@ -80,7 +83,7 @@ export class TypeTreeItem extends TreeItem<TypeTreeItem> {
         return;
       }
     }
-    let child = new TypeTreeItem(this, this.root, key, desc, data);
+    let child = new TypeTreeItem(this, this.root, key, desc.name, desc, data);
     this.children.push(child);
     this.children.sort(TypeTreeItem.sort);
     if (this.opened === 'opened') {
@@ -100,6 +103,48 @@ export class TypeTreeItem extends TreeItem<TypeTreeItem> {
       }
     }
   }
+
+  matchFilter(filter: string): boolean {
+    if (!filter) {
+      return true;
+    }
+    return this.label.includes(filter) || this.key.includes(filter);
+  }
+
+  addToList(list: TypeTreeItem[], filter?: string) {
+    if (this.matchFilter(filter)) {
+      list.push(this);
+      if (this.opened === 'opened' && this.children) {
+        for (let child of this.children) {
+          child.addToList(list);
+        }
+      }
+    } else if (filter && this.children.length) {
+      // check if there is any matched child
+      let filterdChildren: TypeTreeItem[] = [];
+      for (let child of this.children) {
+        child.addToList(filterdChildren, filter);
+      }
+
+      let strongFilter = (filter.length > 1 || filter.charCodeAt(0) > 128);
+
+      if (filterdChildren.length) {
+        list.push(this);
+        if (strongFilter) {
+          this.opened = 'opened';
+        }
+        if (this.opened === 'opened') {
+          for (let child of filterdChildren) {
+            list.push(child);
+          }
+        }
+      } else if (strongFilter) {
+        // close it if no child matches filter
+        this.opened = 'closed';
+      }
+    }
+
+  }
 }
 
 export class TypeTreeRoot extends TypeTreeItem {
@@ -116,8 +161,7 @@ export class TypeTreeRoot extends TypeTreeItem {
       if (this.typeMap.has(catKey)) {
         catItem = this.typeMap.get(catKey);
       } else {
-        catItem = new TypeTreeItem(this, this, catKey);
-        catItem.name = category;
+        catItem = new TypeTreeItem(this, this, catKey, category);
         this.typeMap.set(catKey, catItem);
         this.children.push(catItem);
         this.onListChange();

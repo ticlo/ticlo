@@ -7,6 +7,7 @@ import {OnTypeClick} from "./TypeView";
 
 interface Props {
   conn: ClientConnection;
+  filter?: string;
   showPreset?: boolean;
   onTypeClick?: OnTypeClick;
   style?: React.CSSProperties;
@@ -42,9 +43,10 @@ export class TypeTree extends React.PureComponent<Props, State> {
 
 
   refreshList() {
+    let {filter} = this.props;
     this.list.length = 0;
     for (let item of this.rootNode.children) {
-      item.addToList(this.list);
+      item.addToList(this.list, filter);
     }
   }
 

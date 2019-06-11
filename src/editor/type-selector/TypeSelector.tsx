@@ -24,6 +24,9 @@ export class TypeSelect extends React.PureComponent<Props, State> {
   onFilterChange = (e: React.SyntheticEvent) => {
     this.setState({filter: (e.target as HTMLInputElement).value});
   };
+  onFilterClear = () => {
+    this.setState({filter: ''});
+  };
 
   onToggleChange = (value: RadioChangeEvent) => {
     this.setState({tab: value.target.value});
@@ -51,13 +54,17 @@ export class TypeSelect extends React.PureComponent<Props, State> {
             <Radio.Button value="tree"><Tooltip title={'Tree'}> <Icon type='appstore'/> </Tooltip></Radio.Button>
             <Radio.Button value="recent"> <Tooltip title={'Recent'}><Icon type='history'/></Tooltip></Radio.Button>
           </Radio.Group>
-          <Input size='small' placeholder={'filter'} style={{display: tab === 'tree' ? '' : 'none'}}
+          <Input size='small' value={filter} placeholder={'filter'} style={{display: tab === 'tree' ? '' : 'none'}}
                  onChange={this.onFilterChange}
                  suffix={
-                   <Icon type="filter" style={{color: 'rgba(0,0,0,.45)'}}/>
+                   filter
+                     ? <Icon title={'clear'} type="close-circle" style={{color: 'rgba(0,0,0,.45)'}}
+                             onClick={this.onFilterClear}/>
+                     : <Icon type="filter" style={{color: 'rgba(0,0,0,.45)'}}/>
                  }/>
         </div>
-        <TypeTree conn={conn} onTypeClick={onTypeClick} style={{display: tab === 'tree' ? '' : 'none'}}/>
+        <TypeTree conn={conn} filter={filter} onTypeClick={onTypeClick}
+                  style={{display: tab === 'tree' ? '' : 'none'}}/>
         <TypeList conn={conn} recent={true} style={{display: tab === 'recent' ? '' : 'none'}}/>
       </div>
     );
