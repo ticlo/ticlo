@@ -1,7 +1,7 @@
 import React from "react";
 import {Button, Tooltip, Dropdown, Menu, Input} from "antd";
 import {ClientConnection, ValueState, ValueUpdate} from "../../core/connect/ClientConnection";
-import {blankPropDesc, FunctionDesc, PropDesc, PropGroupDesc} from "../../core/block/Descriptor";
+import {blankPropDesc, FunctionDesc, getDefaultFuncData, PropDesc, PropGroupDesc} from "../../core/block/Descriptor";
 import {translateProperty} from "../../core/util/i18n";
 import {MultiSelectComponent, MultiSelectLoader} from "./MultiSelectComponent";
 import {GroupEditor} from "./GroupEditor";
@@ -21,6 +21,7 @@ import {arrayEqual, deepEqual} from "../../core/util/Compare";
 import {ClickParam} from "antd/lib/menu";
 import {stopPropagation} from "../../core/util/Functions";
 import {TypeEditor} from "./value/TypeEditor";
+import {TypeSelect} from "../type-selector/TypeSelector";
 
 const {SubMenu} = Menu;
 
@@ -259,13 +260,14 @@ export class PropertyEditor extends MultiSelectComponent<Props, State, PropertyL
   }
 
   getMenu = () => {
+    let {conn} = this.props;
     let {count, value, valueSame, bindingPath, bindingSame, subBlock, display} = this.mergePropertyState();
     if (this.state.showMenu) {
       return (
         <Menu selectable={false} className='ticl-dropdown-menu' onClick={this.onMenuClick}>
           <SubMenu title="Add Sub Block">
-            <Menu.Item>
-              <Input onClick={stopPropagation} size='small' onPressEnter={this.onAddSubBlock}/>
+            <Menu.Item className='ticl-type-submenu'>
+              <TypeSelect onClick={stopPropagation} conn={conn} showPreset={true} onTypeClick={this.onAddSubBlock}/>
             </Menu.Item>
           </SubMenu>
           <Menu.Item>
@@ -314,36 +316,16 @@ export class PropertyEditor extends MultiSelectComponent<Props, State, PropertyL
       conn.setBinding(`${key}.${name}`, undefined);
     }
   };
-  onAddSubBlock = (e: React.KeyboardEvent) => {
-    let str = (e.nativeEvent.target as HTMLInputElement).value;
-    if (str) {
-      let {conn, keys, name} = this.props;
-
-      let data: any = {'#is': str};
-
-      let desc = conn.watchDesc(str);
-      if (desc && desc.properties) {
-        let props = [];
-        for (let propDesc of desc.properties) {
-          if ((propDesc as PropGroupDesc).properties) {
-            for (let i = 0; i < 2; ++i) {
-              for (let childDesc of (propDesc as PropGroupDesc).properties) {
-                if ((childDesc as PropDesc).visible === 'high') {
-                  props.push(`${(childDesc as PropDesc).name}${i}`);
-                }
-              }
-            }
-          } else if ((propDesc as PropDesc).visible === 'high') {
-            props.push((propDesc as PropDesc).name);
-          }
-        }
-        data['@b-p'] = props;
-      }
-      for (let key of keys) {
-        conn.createBlock(`${key}.~${name}`, data);
-      }
-      this.closeMenu();
+  onAddSubBlock = (id: string, desc: FunctionDesc, data: any) => {
+    if (!data) {
+      data = getDefaultFuncData(desc, true);
     }
+    let {conn, keys, name} = this.props;
+
+    for (let key of keys) {
+      conn.createBlock(`${key}.~${name}`, data);
+    }
+    this.closeMenu();
   };
 
   renderImpl() {

@@ -166,3 +166,35 @@ export function findPropDesc(name: string, cache: {[key: string]: PropDesc}): Pr
   }
   return blankPropDesc;
 }
+
+export function getDefaultFuncData(desc: FunctionDesc, subBlock = false) {
+  let data: any = {
+    '#is': desc.id
+  };
+
+  function useProperty(visible: VisibleType) {
+    if (subBlock) {
+      return visible === 'high';
+    } else {
+      return visible !== 'low';
+    }
+  }
+
+  // add default props
+  let props = [];
+  for (let propDesc of desc.properties) {
+    if ((propDesc as PropGroupDesc).properties) {
+      for (let i = 0; i < 2; ++i) {
+        for (let childDesc of (propDesc as PropGroupDesc).properties) {
+          if (useProperty((childDesc as PropDesc).visible)) {
+            props.push(`${(childDesc as PropDesc).name}${i}`);
+          }
+        }
+      }
+    } else if (useProperty((propDesc as PropDesc).visible)) {
+      props.push((propDesc as PropDesc).name);
+    }
+  }
+  data['@b-p'] = props;
+  return data;
+}

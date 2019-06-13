@@ -71,7 +71,7 @@ export class TypeEditor extends StringEditorBase {
                  stretch='width'
                  prefixCls='ant-dropdown'
                  popup={
-                   <TypeSelect conn={conn} onTypeClick={this.onTypeClick} onClose={this.onPopupClose}/>
+                   <TypeSelect conn={conn} onTypeClick={this.onTypeClick} onTopAreaClick={this.onPopupClose}/>
                  }>
           <Input value={value} disabled={onChange == null} size='small'
                  onChange={this.onInputChange} onBlur={this.onBlur} onKeyDown={this.onKeyDown}
