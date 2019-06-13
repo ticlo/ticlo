@@ -265,11 +265,18 @@ export class PropertyEditor extends MultiSelectComponent<Props, State, PropertyL
     if (this.state.showMenu) {
       return (
         <Menu selectable={false} className='ticl-dropdown-menu' onClick={this.onMenuClick}>
-          <SubMenu title="Add Sub Block">
-            <Menu.Item className='ticl-type-submenu'>
-              <TypeSelect onClick={stopPropagation} conn={conn} showPreset={true} onTypeClick={this.onAddSubBlock}/>
-            </Menu.Item>
-          </SubMenu>
+          {
+            bindingPath
+              ? null
+              : (
+                <SubMenu key='addSubBlkock' title="Add Sub Block">
+                  <Menu.Item className='ticl-type-submenu'>
+                    <TypeSelect onClick={stopPropagation} conn={conn} showPreset={true} onTypeClick={this.onAddSubBlock}/>
+                  </Menu.Item>
+                </SubMenu>
+              )
+          }
+
           <Menu.Item>
             <div className='ticl-hbox'>
               <span style={{flex: '0 1 100%'}}>Binding:</span>
