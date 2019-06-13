@@ -9,6 +9,8 @@ import Trigger from "rc-trigger";
 import {SketchPicker} from "react-color";
 import {TypeSelect} from "../../type-selector/TypeSelector";
 import {addRecentType} from "../../type-selector/TypeList";
+import {onDragBlockOver, onDropBlock} from "../../block/DragDropBlock";
+import {DragState} from "rc-dock";
 
 interface State {
   opened: boolean;
@@ -39,6 +41,24 @@ export class TypeEditor extends StringEditorBase {
     this.setState({opened: false});
   };
 
+  onDragOver = (e: DragState) => {
+    let {conn} = this.props;
+    let blockData = DragState.getData('block', conn);
+
+    if (blockData && blockData.hasOwnProperty('#is')) {
+      e.accept('');
+    }
+  };
+
+  onDrop = (e: DragState) => {
+    let {conn} = this.props;
+    let blockData = DragState.getData('block', conn);
+
+    if (blockData && blockData.hasOwnProperty('#is')) {
+      this.commitChange(blockData['#is']);
+    }
+  };
+
 
   render() {
     let {desc, value, locked, onChange, conn} = this.props;
@@ -58,7 +78,7 @@ export class TypeEditor extends StringEditorBase {
       iconStyle = getFuncStyleFromDesc(funcDesc, 'tico-pr') || 'tico-prn';
     }
     return (
-      <DragDropDiv className='ticl-type-editor ticl-hbox'>
+      <DragDropDiv className='ticl-type-editor ticl-hbox' onDragOverT={this.onDragOver} onDropT={this.onDrop}>
         <TIcon icon={iconName} style={iconStyle}/>
         <Trigger action={['click']}
                  popupVisible={opened}
