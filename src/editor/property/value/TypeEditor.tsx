@@ -84,14 +84,13 @@ export class TypeEditor extends StringEditorBase {
                  popupVisible={opened}
                  onPopupVisibleChange={this.onPopupClose}
                  popupAlign={{
-                   points: ['tl', 'tl'],
-                   offset: [0, 0],
+                   points: ['bl', 'tl'],
+                   offset: [0, -3],
                    overflow: {adjustX: true, adjustY: true}
                  }}
-                 stretch='width'
                  prefixCls='ant-dropdown'
                  popup={
-                   <TypeSelect conn={conn} onTypeClick={this.onTypeClick} onTopAreaClick={this.onPopupClose}/>
+                   <TypeSelect conn={conn} onTypeClick={this.onTypeClick}/>
                  }>
           <Input value={value} disabled={onChange == null} size='small'
                  onChange={this.onInputChange} onBlur={this.onBlur} onKeyDown={this.onKeyDown}

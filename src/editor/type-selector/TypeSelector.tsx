@@ -10,7 +10,6 @@ interface Props {
   conn: ClientConnection;
   showPreset?: boolean;
   onTypeClick?: OnTypeClick;
-  onTopAreaClick?: () => void;
   onClick?: React.MouseEventHandler;
 }
 
@@ -34,15 +33,8 @@ export class TypeSelect extends React.PureComponent<Props, State> {
     this.setState({tab: value.target.value});
   };
 
-  onTopAreaClick = () => {
-    let {onTopAreaClick} = this.props;
-    if (onTopAreaClick) {
-      onTopAreaClick();
-    }
-  };
-
   render() {
-    let {conn, showPreset, onTypeClick, onTopAreaClick, onClick} = this.props;
+    let {conn, showPreset, onTypeClick, onClick} = this.props;
     let {tab, filter} = this.state;
 
     if (!conn) {
@@ -50,11 +42,6 @@ export class TypeSelect extends React.PureComponent<Props, State> {
     }
     return (
       <div className='ticl-type-select' onClick={onClick}>
-        {
-          onTopAreaClick
-            ? <div onMouseDown={this.onTopAreaClick}/>
-            : null
-        }
         <div className='tlcl-type-select-toggle ticl-hbox'>
           <Radio.Group defaultValue="tree" size="small" onChange={this.onToggleChange}>
             <Radio.Button value="tree"><Tooltip title={'Tree'}> <Icon type='appstore'/> </Tooltip></Radio.Button>
