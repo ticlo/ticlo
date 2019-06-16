@@ -51,6 +51,19 @@ export class BlockView extends PureDataRenderer<BlockViewProps, BlockViewState> 
       item.stage.focus();
     }
   };
+
+  selectAndNotDrag = (e: DragState) => {
+    let {item} = this.props;
+    if (e.event.ctrlKey) {
+      item.stage.selectBlock(item.key, true);
+    } else {
+      item.stage.selectBlock(item.key);
+    }
+    if (item.selected) {
+      item.stage.focus();
+    }
+  };
+
   onDragMove = (e: DragState) => {
     let {item} = this.props;
     if (item._syncParent && !item._syncParent.selected && e.moved()) {
@@ -201,7 +214,7 @@ export class BlockView extends PureDataRenderer<BlockViewProps, BlockViewState> 
           <div className='ticl-block-body'>
             {item.renderFields()}
           </div>
-          <DragDropDiv className='ticl-block-foot'
+          <DragDropDiv className='ticl-block-foot' directDragT={true} onDragStartT={this.selectAndNotDrag}
                        onDragOverT={this.onDragOverFoot} onDropT={this.onDropFoot} onDragLeaveT={this.onDragLeaveFoot}>
             <DragDropDiv className='ticl-width-drag'
                          onDragStartT={this.startDragW} onDragMoveT={this.onDragWMove} onDragEndT={this.onDragWEnd}/>
