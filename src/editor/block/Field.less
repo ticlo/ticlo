@@ -5,7 +5,7 @@
   border-bottom: 1px solid #d0d0d0;
   height: 24px;
   line-height: 19px;
-  padding: 2px 12px;
+  padding: 2px 12px 2px 17px;
   display: flex;
   &:first-child {
     /* allows the sub icon to overlap the next row but still clickable */
@@ -109,15 +109,15 @@
 .ticl-field-subicon {
   position: absolute;
   left: 0;
-  top: 13px;
-  width: 16px;
+  top: 12px;
+  width: 20px;
   height: 12px;
   background: @ticl-color-prn;
   border-radius: 0 9px 0 0;
   padding-left: 1px;
   & > .tico {
     transform-origin: top left;
-    transform: scale(0.5, 0.5);
+    transform: scale(0.6666666667, 0.6666666667) translate(0, -2px);
   }
   transition-property: border, width, top;
   transition-duration: .1s;
@@ -125,10 +125,14 @@
 
 .ticl-field-close {
   & > .ticl-field-name > .ticl-field-subicon {
-    width: 12px;
-    top: 6px;
-    border-radius: 0 5px 5px 0;
+    width: 16px;
+    height: 16px;
+    top: 5px;
+    border-radius: 0 7px 7px 0;
     padding-left: 0;
+    & > .tico {
+      transform: scale(0.6666666667, 0.6666666667);
+    }
   }
   & > .ticl-slot, & > .ticl-outbound {
     border-radius: 3px;
@@ -136,20 +140,20 @@
 }
 
 .ticl-field-indent0, .ticl-field-indent1, .ticl-field-indent2, .ticl-field-indent3 {
-  width: 9px;
+  width: 15px;
   height: 24px;
-  margin: -3px 4px -2px 3px;
+  margin: -3px 5px -2px 3px;
   flex-shrink: 0;
 }
 
 .ticl-field-indent1 {
-  background-image: url('data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="12" height="24" viewBox="0 0 12 24"%3E%3Cpath stroke="%23AAA" fill="none" d="M1 0 L 1 24"/%3E%3C/svg%3E');
+  background-image: url('data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="16" height="24" viewBox="0 0 12 24"%3E%3Cpath stroke="%23AAA" fill="none" d="M1 0 L 1 24"/%3E%3C/svg%3E');
 }
 
 .ticl-field-indent2 {
-  background-image: url('data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="12" height="24" viewBox="0 0 12 24"%3E%3Cpath stroke="%23AAA" fill="none" d="M1 0 L 1 12 L 12 12"/%3E%3C/svg%3E');
+  background-image: url('data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="16" height="24" viewBox="0 0 12 24"%3E%3Cpath stroke="%23AAA" fill="none" d="M1 0 L 1 12 L 12 12"/%3E%3C/svg%3E');
 }
 
 .ticl-field-indent3 {
-  background-image: url('data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="12" height="24" viewBox="0 0 12 24"%3E%3Cpath stroke="%23AAA" fill="none" d="M1 0 L 1 24 M 1 12 L 12 12"/%3E%3C/svg%3E');
+  background-image: url('data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="16" height="24" viewBox="0 0 12 24"%3E%3Cpath stroke="%23AAA" fill="none" d="M1 0 L 1 24 M 1 12 L 12 12"/%3E%3C/svg%3E');
 }
