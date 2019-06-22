@@ -12,7 +12,13 @@ function buildPropertiesOrder(block: Block): string[] {
   if (desc) {
     for (let propDesc of desc.properties) {
       if ((propDesc as PropGroupDesc).properties) {
-        for (let i = 0; i < 2; ++i) {
+        let lenField = `${(propDesc as PropGroupDesc).group}#len`;
+        orders.push(lenField);
+        let groupLength = Number(block.getValue(lenField));
+        if (!(groupLength >= 0)) {
+          groupLength = 2;
+        }
+        for (let i = 0; i < groupLength; ++i) {
           for (let childDesc of (propDesc as PropGroupDesc).properties) {
             orders.push(`${(childDesc as PropDesc).name}${i}`);
           }
@@ -32,7 +38,7 @@ export function showProperties(block: Block, fields: string[]) {
   let bp = block.getValue('@b-p');
   let changeNeeded = false;
   let blockProps: string[];
-  if (!Array.isArray(blockProps)) {
+  if (!Array.isArray(bp)) {
     if (fields.length <= 1) {
       block.setValue('@b-p', fields);
       return;
@@ -51,7 +57,6 @@ export function showProperties(block: Block, fields: string[]) {
         blockProps.push(field);
       } else {
         searchForOrder.push(field);
-        break;
       }
     }
   }
@@ -89,7 +94,7 @@ export function showProperties(block: Block, fields: string[]) {
   block.setValue('@b-p', blockProps);
 }
 
-export function hideProperty(block: Block, fields: string[]) {
+export function hideProperties(block: Block, fields: string[]) {
   let bp = block.getValue('@b-p');
   if (!Array.isArray(bp)) {
     return;
