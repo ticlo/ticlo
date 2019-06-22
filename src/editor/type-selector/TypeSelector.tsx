@@ -30,7 +30,7 @@ export class TypeSelect extends React.PureComponent<Props, State> {
   };
 
   onToggleChange = (value: RadioChangeEvent) => {
-    this.setState({tab: value.target.value});
+    this.setState({tab: value.target.value as string});
   };
 
   render() {

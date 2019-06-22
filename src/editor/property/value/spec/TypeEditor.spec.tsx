@@ -9,7 +9,7 @@ import {blankPropDesc, PropDesc} from "../../../../core/block/Descriptor";
 import {makeLocalConnection} from "../../../../core/connect/LocalConnection";
 import {Root} from "../../../../core/block/Block";
 
-describe("SelectEditor", function () {
+describe("TypeEditor", function () {
 
   beforeEach(async function () {
     await initEditor();
