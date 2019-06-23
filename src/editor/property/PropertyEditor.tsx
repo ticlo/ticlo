@@ -1,5 +1,5 @@
 import React from "react";
-import {Button, Tooltip, Dropdown, Menu, Input} from "antd";
+import {Button, Tooltip, Dropdown, Menu, Input, Checkbox} from "antd";
 import {ClientConnection, ValueState, ValueUpdate} from "../../core/connect/ClientConnection";
 import {blankPropDesc, FunctionDesc, getDefaultFuncData, PropDesc, PropGroupDesc} from "../../core/block/Descriptor";
 import {translateProperty} from "../../core/util/i18n";
@@ -22,6 +22,7 @@ import {ClickParam} from "antd/lib/menu";
 import {stopPropagation} from "../../core/util/Functions";
 import {TypeEditor} from "./value/TypeEditor";
 import {TypeSelect} from "../type-selector/TypeSelector";
+import {CheckboxChangeEvent} from "antd/lib/checkbox";
 
 const {SubMenu} = Menu;
 
@@ -73,7 +74,7 @@ class PropertyLoader extends MultiSelectLoader<PropertyEditor> {
         this.bProperties = value;
         if (this.cache) {
           // update only when cache is ready
-          // this avoid an unnessary render that cause all editor to blink
+          // this avoid an unnecessary render that cause all editor to blink
           this.parent.forceUpdate();
         }
       }
@@ -289,6 +290,9 @@ export class PropertyEditor extends MultiSelectComponent<Props, State, PropertyL
               <StringEditor value={bindingPath} desc={blankPropDesc} onChange={this.onBindChange}/>
             </div>
           </Menu.Item>
+          <Menu.Item>
+            <Checkbox onChange={this.onShowHide} checked={display}>Show</Checkbox>
+          </Menu.Item>
         </Menu>
       );
     } else {
@@ -333,6 +337,16 @@ export class PropertyEditor extends MultiSelectComponent<Props, State, PropertyL
       conn.createBlock(`${key}.~${name}`, data);
     }
     this.closeMenu();
+  };
+  onShowHide = (e: CheckboxChangeEvent) => {
+    let {conn, keys, name} = this.props;
+    for (let key of keys) {
+      if (e.target.checked) {
+        conn.showProps(key, [name]);
+      } else {
+        conn.hideProps(key, [name]);
+      }
+    }
   };
 
   renderImpl() {
