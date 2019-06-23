@@ -19,11 +19,11 @@ describe("PropertyOrder", function () {
     showProperties(job, ['@a']);
     assert.deepEqual(job.getValue('@b-p'), ['@a']);
 
-    hideProperties(job, ['@a']);
-    assert.deepEqual(job.getValue('@b-p'), []);
+    hideProperties(job, ['@b']); // remove a property not in the list
+    assert.deepEqual(job.getValue('@b-p'), ['@a']); // no change
 
     hideProperties(job, ['@a']);
-    assert.deepEqual(job.getValue('@b-p'), []);
+    assert.isUndefined(job.getValue('@b-p'));
   });
 
   it('show hide Properties with order', function () {

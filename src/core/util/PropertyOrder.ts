@@ -109,6 +109,11 @@ export function hideProperties(block: Block, fields: string[]) {
     }
   }
   if (changeNeeded) {
-    block.setValue('@b-p', blockProps);
+    if (blockProps.length === 0) {
+      block.deleteValue('@b-p');
+    } else {
+      block.setValue('@b-p', blockProps);
+    }
+
   }
 }

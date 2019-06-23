@@ -14,6 +14,7 @@ import {Type, Types, DescListener} from "../block/Type";
 import {FunctionDesc} from "../block/Descriptor";
 import {propRelative} from "../util/Path";
 import {anyChildProperty} from "../util/Properties";
+import {hideProperties, showProperties} from "../util/PropertyOrder";
 
 class ServerRequest extends ConnectionSendingData {
   id: string;
@@ -338,6 +339,14 @@ export class ServerConnection extends Connection {
             result = this.watchDesc(request.id);
             break;
           }
+          case 'showProps': {
+            result = this.showProps(request.path, request.props);
+            break;
+          }
+          case 'hideProps': {
+            result = this.hideProps(request.path, request.props);
+            break;
+          }
         }
         if (result instanceof ServerRequest) {
           this.addRequest(request.id, result);
@@ -506,4 +515,31 @@ export class ServerConnection extends Connection {
     // TODO
   }
 
+  showProps(path: string, props: string[]) {
+    if (!Array.isArray(props)) {
+      return 'invalid properties';
+    }
+    let property = this.root.queryProperty(path, true);
+
+    if (property && property._value instanceof Block) {
+      showProperties(property._value , props);
+      return null;
+    } else {
+      return 'invalid path';
+    }
+  }
+
+  hideProps(path: string, props: string[]) {
+    if (!Array.isArray(props)) {
+      return 'invalid properties';
+    }
+    let property = this.root.queryProperty(path, true);
+
+    if (property && property._value instanceof Block) {
+      hideProperties(property._value , props);
+      return null;
+    } else {
+      return 'invalid path';
+    }
+  }
 }

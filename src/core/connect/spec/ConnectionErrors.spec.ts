@@ -35,6 +35,22 @@ describe("Connection Error", function () {
       client.createBlock('ConnectionError1.a.b.c') as Promise<any>
     ), 'invalid path');
 
+    assert.equal(await shouldReject(
+      client.showProps('ConnectionError1.a.b.c', ['@a']) as Promise<any>
+    ), 'invalid path');
+
+    assert.equal(await shouldReject(
+      client.hideProps('ConnectionError1.a.b.c', ['@a']) as Promise<any>
+    ), 'invalid path');
+
+    assert.equal(await shouldReject(
+      client.showProps('ConnectionError1.a.b.c', null) as Promise<any>
+    ), 'invalid properties');
+
+    assert.equal(await shouldReject(
+      client.hideProps('ConnectionError1.a.b.c', null) as Promise<any>
+    ), 'invalid properties');
+
     let callbacks = new AsyncClientPromise();
     client.watch('ConnectionError1.a.b.c', callbacks);
     assert.equal(await shouldReject(callbacks.promise), 'invalid path');

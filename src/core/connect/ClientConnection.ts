@@ -542,5 +542,11 @@ export class ClientConnection extends Connection {
     this.descReq.listeners.delete(listener);
   }
 
+  showProps(path: string, props: string[], callbacks?: ClientCallbacks): Promise<any> | string {
+    return this.simpleRequest({cmd: 'showProps', path, props}, callbacks);
+  }
 
+  hideProps(path: string, props: string[], callbacks?: ClientCallbacks): Promise<any> | string {
+    return this.simpleRequest({cmd: 'hideProps', path, props}, callbacks);
+  }
 }
