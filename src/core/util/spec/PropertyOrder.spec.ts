@@ -29,16 +29,20 @@ describe("PropertyOrder", function () {
   it('show hide Properties with order', function () {
     let job = new Job();
     job.load({
-      '#is': 'add'
+      '#is': 'add',
+      '#more': [
+        {name: 'aa', type: 'number'},
+        {name: 'bb', type: 'string'}
+      ]
     });
 
-    showProperties(job, ['#call', '1']);
-    assert.deepEqual(job.getValue('@b-p'), ['#call', '1']);
+    showProperties(job, ['#call', '1', 'bb']);
+    assert.deepEqual(job.getValue('@b-p'), ['#call', '1', 'bb']);
 
-    showProperties(job, ['1', '@a', '#is', '5', '0']);
-    assert.deepEqual(job.getValue('@b-p'), ['#is', '#call', '0', '1', '@a', '5']);
+    showProperties(job, ['1', '@a', 'aa', '#is', '5', '0']);
+    assert.deepEqual(job.getValue('@b-p'), ['#is', '#call', '0', '1', 'aa', 'bb', '@a', '5']);
 
-    hideProperties(job, ['1', '@a', '@b']);
-    assert.deepEqual(job.getValue('@b-p'), ['#is', '#call', '0', '5']);
+    hideProperties(job, ['aa', '1', '@a', '@b']);
+    assert.deepEqual(job.getValue('@b-p'), ['#is', '#call', '0', 'bb', '5']);
   });
 });
