@@ -13,7 +13,9 @@ class GroupLoader extends MultiSelectLoader<GroupEditor> {
   lenListener = {
     onUpdate: (response: ValueUpdate) => {
       let len = parseInt(response.cache.value);
-      if (len !== len) len = 2; // default length
+      if (!(len >= 0)) {
+        len = this.parent.props.groupDesc.defaultLen;
+      }
       if (len !== this.len) {
         this.len = len;
         this.parent.forceUpdate();

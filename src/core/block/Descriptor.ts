@@ -51,6 +51,7 @@ export interface PropDesc {
 
 export interface PropGroupDesc {
   group: string;
+  defaultLen: number;
   properties?: PropDesc[];
 }
 

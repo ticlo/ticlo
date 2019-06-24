@@ -39,7 +39,7 @@ Types.add(JoinFunction, {
   icon: 'txt:a,b',
   useLength: true,
   properties: [
-    {group: '', properties: [{name: '', type: 'string', visible: 'high'}]},
+    {group: '', defaultLen: 2, properties: [{name: '', type: 'string', visible: 'high'}]},
     {name: 'separator', type: 'string'},
     {name: 'output', type: 'string', readonly: true}
   ],

@@ -16,7 +16,7 @@ function buildPropertiesOrder(block: Block): string[] {
         orders.push(lenField);
         let groupLength = Number(block.getValue(lenField));
         if (!(groupLength >= 0)) {
-          groupLength = 2;
+          groupLength = (propDesc as PropGroupDesc).defaultLen;
         }
         for (let i = 0; i < groupLength; ++i) {
           for (let childDesc of (propDesc as PropGroupDesc).properties) {
