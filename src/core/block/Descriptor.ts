@@ -168,18 +168,18 @@ export function findPropDesc(name: string, cache: {[key: string]: PropDesc}): Pr
   return blankPropDesc;
 }
 
-export function getDefaultFuncData(desc: FunctionDesc, subBlock = false) {
+export function shouldShowProperty(visible: VisibleType, isSubBlock: boolean) {
+  if (isSubBlock) {
+    return visible === 'high';
+  } else {
+    return visible !== 'low';
+  }
+}
+
+export function getDefaultFuncData(desc: FunctionDesc, isSubBlock = false) {
   let data: any = {
     '#is': desc.id
   };
-
-  function useProperty(visible: VisibleType) {
-    if (subBlock) {
-      return visible === 'high';
-    } else {
-      return visible !== 'low';
-    }
-  }
 
   // add default props
   let props = [];
@@ -187,12 +187,12 @@ export function getDefaultFuncData(desc: FunctionDesc, subBlock = false) {
     if ((propDesc as PropGroupDesc).properties) {
       for (let i = 0; i < 2; ++i) {
         for (let childDesc of (propDesc as PropGroupDesc).properties) {
-          if (useProperty((childDesc as PropDesc).visible)) {
+          if (shouldShowProperty((childDesc as PropDesc).visible, isSubBlock)) {
             props.push(`${(childDesc as PropDesc).name}${i}`);
           }
         }
       }
-    } else if (useProperty((propDesc as PropDesc).visible)) {
+    } else if (shouldShowProperty((propDesc as PropDesc).visible, isSubBlock)) {
       props.push((propDesc as PropDesc).name);
     }
   }

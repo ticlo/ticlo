@@ -1,7 +1,8 @@
 import {assert} from "chai";
 
-import {showProperties, hideProperties} from "../PropertyOrder";
-import {Job} from "../../block/Block";
+import {Job} from "../../main";
+import {showProperties, hideProperties, changeLength} from "../ShowHideProperty";
+
 
 describe("PropertyOrder", function () {
 
@@ -45,4 +46,22 @@ describe("PropertyOrder", function () {
     hideProperties(job, ['aa', '1', '@a', '@b']);
     assert.deepEqual(job.getValue('@b-p'), ['#is', '#call', '0', 'bb', '5']);
   });
+
+  it('change length', function () {
+    let job = new Job();
+    job.load({
+      '#is': 'add'
+    });
+
+    changeLength(job, '#len', 3);
+    assert.deepEqual(job.getValue('@b-p'), ['2']);
+
+    changeLength(job, '#len', 0);
+    assert.isUndefined(job.getValue('@b-p'));
+
+    changeLength(job, '#len', 3);
+    assert.deepEqual(job.getValue('@b-p'), ['0', '1', '2']);
+
+  });
+
 });

@@ -14,7 +14,7 @@ import {Type, Types, DescListener} from "../block/Type";
 import {FunctionDesc} from "../block/Descriptor";
 import {propRelative} from "../util/Path";
 import {anyChildProperty} from "../util/Properties";
-import {hideProperties, showProperties} from "../util/PropertyOrder";
+import {hideProperties, showProperties} from "../util/ShowHideProperty";
 
 class ServerRequest extends ConnectionSendingData {
   id: string;
