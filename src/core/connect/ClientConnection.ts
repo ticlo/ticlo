@@ -549,4 +549,8 @@ export class ClientConnection extends Connection {
   hideProps(path: string, props: string[], callbacks?: ClientCallbacks): Promise<any> | string {
     return this.simpleRequest({cmd: 'hideProps', path, props}, callbacks);
   }
+
+  setLen(path: string, length: number, callbacks?: ClientCallbacks): Promise<any> | string {
+    return this.simpleRequest({cmd: 'setLen', path, length}, callbacks);
+  }
 }

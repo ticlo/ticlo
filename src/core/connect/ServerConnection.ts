@@ -14,7 +14,7 @@ import {Type, Types, DescListener} from "../block/Type";
 import {FunctionDesc} from "../block/Descriptor";
 import {propRelative} from "../util/Path";
 import {anyChildProperty} from "../util/Properties";
-import {hideProperties, showProperties} from "../util/ShowHideProperty";
+import {changeLength, hideProperties, showProperties} from "../util/ShowHideProperty";
 
 class ServerRequest extends ConnectionSendingData {
   id: string;
@@ -347,6 +347,10 @@ export class ServerConnection extends Connection {
             result = this.hideProps(request.path, request.props);
             break;
           }
+          case 'setLen': {
+            result = this.setLen(request.path, request.length);
+            break;
+          }
         }
         if (result instanceof ServerRequest) {
           this.addRequest(request.id, result);
@@ -519,10 +523,10 @@ export class ServerConnection extends Connection {
     if (!Array.isArray(props)) {
       return 'invalid properties';
     }
-    let property = this.root.queryProperty(path, true);
+    let property = this.root.queryProperty(path);
 
     if (property && property._value instanceof Block) {
-      showProperties(property._value , props);
+      showProperties(property._value, props);
       return null;
     } else {
       return 'invalid path';
@@ -533,10 +537,21 @@ export class ServerConnection extends Connection {
     if (!Array.isArray(props)) {
       return 'invalid properties';
     }
-    let property = this.root.queryProperty(path, true);
+    let property = this.root.queryProperty(path);
 
     if (property && property._value instanceof Block) {
-      hideProperties(property._value , props);
+      hideProperties(property._value, props);
+      return null;
+    } else {
+      return 'invalid path';
+    }
+  }
+
+  setLen(path: string, length: number) {
+    let property = this.root.queryProperty(path, true);
+
+    if (property) {
+      changeLength(property._block, property._name, length);
       return null;
     } else {
       return 'invalid path';
