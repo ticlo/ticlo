@@ -293,6 +293,15 @@ export class PropertyEditor extends MultiSelectComponent<Props, State, PropertyL
           <Menu.Item>
             <Checkbox onChange={this.onShowHide} checked={display}>Show</Checkbox>
           </Menu.Item>
+          {
+            value || bindingPath
+              ? (
+                <Menu.Item>
+                  <Button onClick={this.onReset}>Reset</Button>
+                </Menu.Item>
+              )
+              : null
+          }
         </Menu>
       );
     } else {
@@ -346,6 +355,12 @@ export class PropertyEditor extends MultiSelectComponent<Props, State, PropertyL
       } else {
         conn.hideProps(key, [name]);
       }
+    }
+  };
+  onReset = () => {
+    let {conn, keys, name} = this.props;
+    for (let key of keys) {
+      conn.setValue(`${key}.${name}`, undefined);
     }
   };
 
