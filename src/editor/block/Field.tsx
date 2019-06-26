@@ -341,7 +341,7 @@ export class FieldView extends PureDataRenderer<FieldViewProps, any> {
           {(item.subBlock) ?
             <div
               className='ticl-field-subicon ticl-block-prbg'
-              style={{left: item.indents.length * 23}}>
+              style={{left: item.indents.length * 18}}>
               <TIcon icon={item.subBlock.desc.icon}/>
             </div>
             : null
