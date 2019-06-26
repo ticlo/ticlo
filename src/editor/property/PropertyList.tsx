@@ -14,6 +14,7 @@ import {GroupEditor} from "./GroupEditor";
 import {MultiSelectComponent, MultiSelectLoader} from "./MultiSelectComponent";
 import {ExpandIcon} from "../../ui/component/Tree";
 import {deepEqual} from "../../core/util/Compare";
+import {Button, Tooltip} from "antd";
 
 class BlockLoader extends MultiSelectLoader<PropertyList> {
 
@@ -262,9 +263,8 @@ export class PropertyList extends MultiSelectComponent<Props, State, BlockLoader
               null
           }
           <span>more</span>
+          <Button className='ticl-icon-btn' shape='circle' tabIndex={-1} icon='plus-square'/>
           <div className='ticl-h-line'/>
-          {null}
-          <div className='ticl-h-line' style={{maxWidth: '16px'}}/>
         </div>
         {moreChildren}
 
