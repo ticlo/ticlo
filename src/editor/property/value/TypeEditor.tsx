@@ -88,7 +88,7 @@ export class TypeEditor extends StringEditorBase {
                    offset: [0, -3],
                    overflow: {adjustX: true, adjustY: true}
                  }}
-                 prefixCls='ant-dropdown'
+                 prefixCls='ant-select-dropdown'
                  popup={
                    <TypeSelect conn={conn} onTypeClick={this.onTypeClick}/>
                  }>

@@ -38,7 +38,7 @@ export class ColorEditor extends React.PureComponent<ValueEditorProps, any> {
                  offset: [0, 3],
                  overflow: {adjustX: true, adjustY: true}
                }}
-               prefixCls='ant-dropdown'
+               prefixCls='ant-select-dropdown'
                popup={
                  <SketchPicker color={value} width='224px' disableAlpha={disableAlpha}
                                onChangeComplete={this.onValueChange}/>
