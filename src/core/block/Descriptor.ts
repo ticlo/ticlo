@@ -10,6 +10,7 @@ export type ValueType =
   | 'string'
   | 'toggle'
   | 'select'
+  | 'radio-button'
   | 'color'
   | 'event'
   | 'date'
@@ -26,9 +27,10 @@ export type ValueType =
 export interface PropDesc {
   name: string;
   type: ValueType;
-  editor?: string;
   readonly?: boolean;
   visible?: VisibleType; // whether property is shown in block view
+
+  default?: string | number | boolean;
 
   // number, string
   placeholder?: string;
@@ -38,9 +40,8 @@ export interface PropDesc {
   max?: number;
   step?: number;
 
-  // bool, select, tags
+  // bool, select, radio-button
   options?: (string | number)[];
-  default?: string | number | boolean;
 
   // color
   disableAlpha?: boolean;

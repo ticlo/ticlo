@@ -82,7 +82,6 @@ function comparePropDesc(a: PropDesc | PropGroupDesc, b: PropDesc | PropGroupDes
   } else {
     if ((a as PropDesc).name !== (b as PropDesc).name) return false;
     if ((a as PropDesc).type !== (b as PropDesc).type) return false;
-    if ((a as PropDesc).editor !== (b as PropDesc).editor) return false;
   }
 
   return true;
@@ -180,6 +179,10 @@ export class PropertyList extends MultiSelectComponent<Props, State, BlockLoader
     this.setState({showConfig: !this.state.showConfig});
   };
 
+  onAddMore = (desc: PropDesc | PropGroupDesc) => {
+
+  };
+
   renderImpl() {
     let {conn, keys, style, isSubBlock} = this.props;
     let {showConfig, showMore} = this.state;
@@ -274,7 +277,7 @@ export class PropertyList extends MultiSelectComponent<Props, State, BlockLoader
                    }}
                    prefixCls='ant-select-dropdown'
                    popup={
-                     <AddMorePropertyMenu/>
+                     <AddMorePropertyMenu onAddProperty={this.onAddMore}/>
                    }>
             <Button className='ticl-icon-btn' shape='circle' tabIndex={-1} icon='plus-square'/>
           </Trigger>
