@@ -1,6 +1,6 @@
 import {BlockProperty, BlockIO, HelperProperty} from "./BlockProperty";
 import {BlockBinding} from "./BlockBinding";
-import {FunctionData, FunctionGenerator, BaseFunction, FunctionOutput} from "./BlockFunction";
+import {FunctionData, FunctionClass, BaseFunction, FunctionOutput} from "./BlockFunction";
 import {Dispatcher, Listener, ValueDispatcher, ListenPromise, Destroyable, BlockBindingSource} from "./Dispatcher";
 import {Type, Types} from "./Type";
 import {ErrorEvent, Event, EventType, NOT_READY} from "./Event";
@@ -60,7 +60,7 @@ class PromiseWrapper {
   }
 }
 
-export class Block implements Runnable, FunctionData, Listener<FunctionGenerator>, Destroyable {
+export class Block implements Runnable, FunctionData, Listener<FunctionClass>, Destroyable {
   private static _uid = new Uid();
 
   static nextUid(): string {
@@ -338,9 +338,9 @@ export class Block implements Runnable, FunctionData, Listener<FunctionGenerator
       }
     }
     // function should change after all the properties
-    if (this._pendingGenerator) {
-      this.onChange(this._pendingGenerator);
-      this._pendingGenerator = null;
+    if (this._pendingClass) {
+      this.onChange(this._pendingClass);
+      this._pendingClass = null;
     }
   }
 
@@ -373,9 +373,9 @@ export class Block implements Runnable, FunctionData, Listener<FunctionGenerator
       }
     }
     // function should change after all the properties
-    if (this._pendingGenerator) {
-      this.onChange(this._pendingGenerator);
-      this._pendingGenerator = null;
+    if (this._pendingClass) {
+      this.onChange(this._pendingClass);
+      this._pendingClass = null;
     }
   }
 
@@ -646,13 +646,13 @@ export class Block implements Runnable, FunctionData, Listener<FunctionGenerator
     return this._cachedLength;
   }
 
-  _pendingGenerator: FunctionGenerator;
+  _pendingClass: FunctionClass;
 
-  onSourceChange(prop: Dispatcher<FunctionGenerator>): void {
+  onSourceChange(prop: Dispatcher<FunctionClass>): void {
     // not needed
   }
 
-  onChange(generator: FunctionGenerator): void {
+  onChange(cls: FunctionClass): void {
     if (this._function) {
       this._function.destroy();
       this._funcPromise = undefined;
@@ -660,17 +660,17 @@ export class Block implements Runnable, FunctionData, Listener<FunctionGenerator
       this.updateValue('#wait', undefined);
       this._called = false;
     }
-    if (generator) {
-      if (this._job._loading && generator !== this._pendingGenerator) {
+    if (cls) {
+      if (this._job._loading && cls !== this._pendingClass) {
         // when function changed during load() or liveUpdate()
         // don't create the function until loading is done
-        this._pendingGenerator = generator;
+        this._pendingClass = cls;
         if (this._function) {
           this._queueToRun = false;
           this._function = null;
         }
       } else {
-        this._function = new generator(this);
+        this._function = new cls(this);
         if (this._mode === 'auto') {
           this._configMode();
         }

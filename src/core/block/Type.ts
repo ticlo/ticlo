@@ -1,5 +1,5 @@
 import {Block} from "./Block";
-import {FunctionGenerator} from "./BlockFunction";
+import {FunctionClass} from "./BlockFunction";
 import {ValueDispatcher} from "./Dispatcher";
 import {FunctionDesc} from "./Descriptor";
 import JSON = Mocha.reporters.JSON;
@@ -10,7 +10,7 @@ export interface DescListener {
 }
 
 
-export class Type extends ValueDispatcher<FunctionGenerator> {
+export class Type extends ValueDispatcher<FunctionClass> {
   _id: string;
   _desc: FunctionDesc;
   _descSize: number = 0;
@@ -33,7 +33,7 @@ export class Type extends ValueDispatcher<FunctionGenerator> {
 const _types: {[key: string]: Type} = {};
 
 export class Types {
-  static add(cls: FunctionGenerator, desc: FunctionDesc, namespace?: string) {
+  static add(cls: FunctionClass, desc: FunctionDesc, namespace?: string) {
     desc.priority = cls.prototype.priority;
     desc.mode = cls.prototype.defaultMode;
     desc.ns = namespace;

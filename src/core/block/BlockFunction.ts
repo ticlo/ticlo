@@ -22,6 +22,7 @@ export interface FunctionData extends FunctionInput, FunctionOutput {
 
 export class BaseFunction {
   _data: FunctionData;
+  type?: string;
   priority: 0 | 1 | 2 | 3;
   defaultMode: BlockMode;
   useLength: boolean;
@@ -102,4 +103,4 @@ BlockFunction.prototype.priority = 1;
 BaseFunction.prototype.useLength = false;
 BlockFunction.prototype.defaultMode = 'onLoad';
 
-export type FunctionGenerator = new (block: FunctionData) => BaseFunction;
+export type FunctionClass = typeof BaseFunction;
