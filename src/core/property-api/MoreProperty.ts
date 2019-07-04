@@ -26,13 +26,13 @@ export function addMoreProperty(block: Block, desc: PropDesc | PropGroupDesc, gr
 
   if (!Array.isArray(moreProps)) {
     if (groupDesc || !group) {
-      // if it's not not child property in a group
+      // if it's not a child property in a group
       block.setValue('#more', [desc]);
     }
     return;
-  } else {
-    moreProps = deepClone(moreProps);
   }
+
+  moreProps = deepClone(moreProps);
 
   if (group) {
     let groupIdx = moreProps.findIndex((g: PropGroupDesc) => g.group === group);
@@ -41,7 +41,6 @@ export function addMoreProperty(block: Block, desc: PropDesc | PropGroupDesc, gr
         // replace existing group
         moreProps[groupIdx] = groupDesc;
         block.setValue('#more', moreProps);
-        return;
       } else {
         // add property to existing group
         groupDesc = moreProps[groupIdx];
@@ -52,13 +51,11 @@ export function addMoreProperty(block: Block, desc: PropDesc | PropGroupDesc, gr
           groupDesc.properties.push(propDesc);
         }
         block.setValue('#more', moreProps);
-        return;
       }
     } else if (groupDesc) {
       // add a new group
       moreProps.push(groupDesc);
       block.setValue('#more', moreProps);
-      return;
     }
   } else {
     let propIndex = moreProps.findIndex((g: PropDesc) => g.name === propDesc.name);
@@ -68,6 +65,38 @@ export function addMoreProperty(block: Block, desc: PropDesc | PropGroupDesc, gr
       moreProps.push(propDesc);
     }
     block.setValue('#more', moreProps);
+  }
+}
+
+export function removeMoreProperty(block: Block, name: string, group?: string) {
+
+  let moreProps: any[] = block.getValue('#more');
+
+  if (!Array.isArray(moreProps)) {
     return;
+  }
+
+  moreProps = deepClone(moreProps);
+  if (group) {
+    let groupIdx = moreProps.findIndex((g: PropGroupDesc) => g.group === group);
+    if (groupIdx > -1) {
+      if (name) {
+        let groupDesc: PropGroupDesc = moreProps[groupIdx];
+        let groupChildIdx = groupDesc.properties.findIndex((p: PropDesc) => p.name === name);
+        if (groupChildIdx > -1) {
+          groupDesc.properties.splice(groupChildIdx, 1);
+          block.setValue('#more', moreProps);
+        }
+      } else {
+        moreProps.splice(groupIdx, 1);
+        block.setValue('#more', moreProps);
+      }
+    }
+  } else if (name) {
+    let propIndex = moreProps.findIndex((g: PropDesc) => g.name === name);
+    if (propIndex > -1) {
+      moreProps.splice(propIndex, 1);
+      block.setValue('#more', moreProps);
+    }
   }
 }
