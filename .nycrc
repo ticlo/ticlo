@@ -9,5 +9,10 @@
   "exclude": [
     "**/*.d.ts",
     "**/node_modules/**"
-  ]
+  ],
+  "check-coverage": true,
+   "branches": 80,
+   "lines": 95,
+   "functions": 90,
+   "statements": 95
 }
