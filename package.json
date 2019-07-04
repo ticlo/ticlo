@@ -21,7 +21,7 @@
     "@babel/core": "^7.4.5",
     "@babel/preset-env": "^7.4.5",
     "@types/chai": "^4.1.7",
-    "@types/dompurify": "^0.0.32",
+    "@types/dompurify": "^0.0.33",
     "@types/glob": "^7.1.1",
     "@types/i18next": "^12.1.0",
     "@types/karma": "^3.0.3",
