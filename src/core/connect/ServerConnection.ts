@@ -11,10 +11,11 @@ import {Root, Block, BlockChildWatch} from "../block/Block";
 import {BlockBindingSource, Dispatcher, Listener, ValueDispatcher} from "../block/Dispatcher";
 import Property = Chai.Property;
 import {Type, Types, DescListener} from "../block/Type";
-import {FunctionDesc} from "../block/Descriptor";
+import {FunctionDesc, PropDesc, PropGroupDesc} from "../block/Descriptor";
 import {propRelative} from "../util/Path";
 import {anyChildProperty, changeLength} from "../property-api/PropertyAddMove";
 import {hideProperties, showProperties} from "../property-api/PropertyShowHide";
+import {addMoreProperty, removeMoreProperty} from "../property-api/MoreProperty";
 
 class ServerRequest extends ConnectionSendingData {
   id: string;
@@ -351,6 +352,16 @@ export class ServerConnection extends Connection {
             result = this.setLen(request.path, request.length);
             break;
           }
+          case 'addMoreProp': {
+            result = this.addMoreProp(request.path, request.desc, request.group);
+            break;
+          }
+          case 'removeMoreProp': {
+            result = this.removeMoreProp(request.path, request.name, request.group);
+            break;
+          }
+          default:
+            result = 'invalid command';
         }
         if (result instanceof ServerRequest) {
           this.addRequest(request.id, result);
@@ -552,6 +563,32 @@ export class ServerConnection extends Connection {
 
     if (property) {
       changeLength(property._block, property._name, length);
+      return null;
+    } else {
+      return 'invalid path';
+    }
+  }
+
+  addMoreProp(path: string, desc: PropDesc | PropGroupDesc, group: string) {
+    if (!(desc instanceof Object)) {
+      // TODO, full validation
+      return 'invalid desc';
+    }
+    let property = this.root.queryProperty(path);
+
+    if (property && property._value instanceof Block) {
+      addMoreProperty(property._value, desc, group);
+      return null;
+    } else {
+      return 'invalid path';
+    }
+  }
+
+  removeMoreProp(path: string, name: string, group: string) {
+    let property = this.root.queryProperty(path);
+
+    if (property && property._value instanceof Block) {
+      removeMoreProperty(property._value, name, group);
       return null;
     } else {
       return 'invalid path';

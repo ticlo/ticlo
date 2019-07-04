@@ -2,7 +2,7 @@ import {Connection, ConnectionSend} from "./Connection";
 import {Uid} from "../util/Uid";
 import {DataMap, isSavedBlock, measureObjSize} from "../util/Types";
 import {Block} from "../block/Block";
-import {FunctionDesc} from "../block/Descriptor";
+import {FunctionDesc, PropDesc, PropGroupDesc} from "../block/Descriptor";
 
 export interface ClientCallbacks {
   onDone?(): void;
@@ -552,5 +552,13 @@ export class ClientConnection extends Connection {
 
   setLen(path: string, length: number, callbacks?: ClientCallbacks): Promise<any> | string {
     return this.simpleRequest({cmd: 'setLen', path, length}, callbacks);
+  }
+
+  addMoreProp(path: string, desc: PropDesc | PropGroupDesc, group?: string, callbacks?: ClientCallbacks): Promise<any> | string {
+    return this.simpleRequest({cmd: 'addMoreProp', path, desc, group}, callbacks);
+  }
+
+  removeMoreProp(path: string, name: string, group?: string, callbacks?: ClientCallbacks): Promise<any> | string {
+    return this.simpleRequest({cmd: 'removeMoreProp', path, name, group}, callbacks);
   }
 }
