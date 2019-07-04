@@ -58,6 +58,16 @@ describe("Connection Error", function () {
       client.hideProps('ConnectionError1.a.b.c', null) as Promise<any>
     ), 'invalid properties');
 
+    assert.equal(await shouldReject(
+      client.addMoreProp('a', null) as Promise<any>
+    ), 'invalid desc');
+    assert.equal(await shouldReject(
+      client.addMoreProp('ConnectionError1.a.b.c', {name: 'a', type: 'string'}) as Promise<any>
+    ), 'invalid path');
+    assert.equal(await shouldReject(
+      client.removeMoreProp('ConnectionError1.a.b.c', 'a') as Promise<any>
+    ), 'invalid path');
+
     let callbacks = new AsyncClientPromise();
     client.watch('ConnectionError1.a.b.c', callbacks);
     assert.equal(await shouldReject(callbacks.promise), 'invalid path');
