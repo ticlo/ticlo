@@ -1,9 +1,9 @@
 import {PropDesc, PropGroupDesc} from "../block/Descriptor";
 import {Block} from "../block/Block";
-import {deepClone} from "./Clone";
+import {deepClone} from "../util/Clone";
 
 
-export function addMoreProperty(block: Block, desc: PropDesc | PropGroupDesc, group?: string) {
+export function moreProperty(block: Block, desc: PropDesc | PropGroupDesc, group?: string) {
 
   let propDesc: PropDesc;
   let groupDesc: PropGroupDesc;

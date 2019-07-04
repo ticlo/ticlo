@@ -13,8 +13,8 @@ import Property = Chai.Property;
 import {Type, Types, DescListener} from "../block/Type";
 import {FunctionDesc} from "../block/Descriptor";
 import {propRelative} from "../util/Path";
-import {anyChildProperty, changeLength} from "../util/PropertyAddMove";
-import {hideProperties, showProperties} from "../util/PropertyShowHide";
+import {anyChildProperty, changeLength} from "../property-api/PropertyAddMove";
+import {hideProperties, showProperties} from "../property-api/PropertyShowHide";
 
 class ServerRequest extends ConnectionSendingData {
   id: string;
