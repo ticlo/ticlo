@@ -7,7 +7,7 @@ addons:
 cache:
   yarn: true
 script:
-  - yarn nyc-cache
+  - mkdir coverage
   - yarn test-nyc-strict
   - yarn test-nyc
   - yarn build-less

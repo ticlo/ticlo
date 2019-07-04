@@ -65,7 +65,6 @@
     "typescript": "^3.5.2"
   },
   "scripts": {
-    "nyc-cache": "nyc -s --nycrc-path cache.nycrc mocha src/core/**/*.spec.ts && mkdir coverage",
     "test-nyc-strict": "cross-env NODE_ENV=TEST nyc --skip-full mocha src/core/**/*.spec.ts && nyc report --reporter=text-lcov > coverage/nyc-strict.log",
     "test-nyc": "nyc --skip-full mocha src/core/**/*.spec.ts && nyc report --reporter=text-lcov > coverage/nyc.log",
     "test-karma": "karma start",

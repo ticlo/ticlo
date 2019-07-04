@@ -1,14 +1,14 @@
 {
+  "cache": false,
   "extension": [
     ".ts"
   ],
   "include": [
-    "src/core/**/*.ts"
+    "src/core/**/*"
   ],
   "exclude": [
-    "src/core/**/*.d.ts"
+    "**/*.d.ts",
+    "**/node_modules/**"
   ],
-  "all": true,
-  "sourceMap": false,
-  "instrument": false
+  "all": true
 }
