@@ -59,6 +59,10 @@ describe("Connection Error", function () {
     ), 'invalid properties');
 
     assert.equal(await shouldReject(
+      client.setLen('ConnectionError1.a.b.#len', null) as Promise<any>
+    ), 'invalid path');
+
+    assert.equal(await shouldReject(
       client.addMoreProp('a', null) as Promise<any>
     ), 'invalid desc');
     assert.equal(await shouldReject(

@@ -529,4 +529,18 @@ describe("Connection", function () {
     client.destroy();
     Root.instance.deleteValue('Connection15');
   });
+
+  it('set length', async function () {
+    let job1 = Root.instance.addJob('Connection16');
+    let block1 = job1.createBlock('a');
+    block1.setValue('#is', 'add');
+
+    let [server, client] = makeLocalConnection(Root.instance, false);
+
+    let response1 = await client.setLen('Connection16.a.#len', 3);
+    assert.deepEqual(block1.getValue('@b-p'), ['2']);
+
+    client.destroy();
+    Root.instance.deleteValue('Connection16');
+  });
 });
