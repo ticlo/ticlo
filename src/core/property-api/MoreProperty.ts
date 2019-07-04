@@ -3,14 +3,17 @@ import {Block} from "../block/Block";
 import {deepClone} from "../util/Clone";
 
 
-export function moreProperty(block: Block, desc: PropDesc | PropGroupDesc, group?: string) {
+export function addMoreProperty(block: Block, desc: PropDesc | PropGroupDesc, group?: string) {
 
   let propDesc: PropDesc;
   let groupDesc: PropGroupDesc;
   if ((desc as PropGroupDesc).group) {
     groupDesc = desc as PropGroupDesc;
-    if (Array.isArray(groupDesc.properties)) {
+    if (!Array.isArray(groupDesc.properties)) {
       groupDesc.properties = [];
+    }
+    if (groupDesc.defaultLen == null || !(groupDesc.defaultLen >= 0)) {
+      groupDesc.defaultLen = 2;
     }
     group = groupDesc.group;
   } else if ((desc as PropDesc).name) {
@@ -28,7 +31,7 @@ export function moreProperty(block: Block, desc: PropDesc | PropGroupDesc, group
     }
     return;
   } else {
-     moreProps = deepClone(moreProps);
+    moreProps = deepClone(moreProps);
   }
 
   if (group) {
@@ -62,7 +65,9 @@ export function moreProperty(block: Block, desc: PropDesc | PropGroupDesc, group
     if (propIndex > -1) {
       moreProps[propIndex] = propDesc;
     } else {
-
+      moreProps.push(propDesc);
     }
+    block.setValue('#more', moreProps);
+    return;
   }
 }

@@ -9,7 +9,7 @@ export function deepClone(val: any): any {
     } else if (val instanceof Object) {
       let obj: any = {};
       for (let k in val) {
-        obj[k] = deepClone(val);
+        obj[k] = deepClone(val[k]);
       }
       return obj;
     }
