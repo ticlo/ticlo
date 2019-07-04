@@ -9,6 +9,5 @@
   "exclude": [
     "**/*.d.ts",
     "**/node_modules/**"
-  ],
-  "all": true
+  ]
 }

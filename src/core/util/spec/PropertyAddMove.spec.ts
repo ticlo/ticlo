@@ -3,7 +3,7 @@ import {assert} from "chai";
 import {Block, Job} from "../../block/Block";
 import {BlockPropertyEvent} from "../../block/BlockProperty";
 import {Dispatcher} from "../../block/Dispatcher";
-import {anyChildProperty, renameProperty} from "../Properties";
+import {anyChildProperty, renameProperty, changeLength} from "../PropertyAddMove";
 
 describe("PropertyUtil", function () {
 
@@ -89,6 +89,24 @@ describe("PropertyUtil", function () {
     renameProperty(job, 'a8', 'b8', true);
     assert.isFalse(job.isPropertyUsed('a8'));
     assert.equal(job.queryProperty('c8.v')._bindingPath, '##.b8');
+
+  });
+
+  it('change length', function () {
+    let job = new Job();
+    job.load({
+      '#is': 'add'
+    });
+
+    changeLength(job, '#len', 3);
+    assert.deepEqual(job.getValue('#len'), 3);
+    assert.deepEqual(job.getValue('@b-p'), ['2']);
+
+    changeLength(job, '#len', 0);
+    assert.isUndefined(job.getValue('@b-p'));
+
+    changeLength(job, '#len', 3);
+    assert.deepEqual(job.getValue('@b-p'), ['0', '1', '2']);
 
   });
 });
