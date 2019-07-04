@@ -14,6 +14,13 @@ describe("Connection Error", function () {
     let [server, client] = makeLocalConnection(Root.instance, false);
 
     assert.equal(await shouldReject(
+      client.simpleRequest({cmd: 'invalid_command', path: ''}, null) as Promise<any>
+    ), 'invalid command');
+    assert.equal(await shouldReject(
+      client.simpleRequest({cmd: 'get'}, null) as Promise<any>
+    ), 'invalid path');
+
+    assert.equal(await shouldReject(
       client.setValue('ConnectionError1.a.b.c', 1, true) as Promise<any>
     ), 'invalid path');
     assert.equal(await shouldReject(

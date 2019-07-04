@@ -374,6 +374,8 @@ export class ServerConnection extends Connection {
         } else {
           this.sendDone(request.id);
         }
+      } else if (request.id != null) {
+        this.sendError(request.id, 'invalid path');
       }
     }
   }
