@@ -26,6 +26,10 @@ describe("More Property", function () {
     addMoreProperty(job, {} as any);
     assert.isUndefined(job.getValue('#more'));
 
+    // add property into group that doesn't exist
+    addMoreProperty(job, propDesc1, 'g');
+    assert.isUndefined(job.getValue('#more'));
+
     addMoreProperty(job, propDesc1);
     assert.deepEqual(job.getValue('#more'), [propDesc1]);
     addMoreProperty(job, propDesc2);
@@ -33,6 +37,10 @@ describe("More Property", function () {
 
     // when prop name is same, overwrite the previous one
     addMoreProperty(job, propDesc3);
+    assert.deepEqual(job.getValue('#more'), [propDesc3, propDesc2]);
+
+    // add property into group that doesn't exist
+    addMoreProperty(job, propDesc1, 'g');
     assert.deepEqual(job.getValue('#more'), [propDesc3, propDesc2]);
 
     addMoreProperty(job, groupDesc1);
@@ -57,13 +65,23 @@ describe("More Property", function () {
     // remove property from group
     removeMoreProperty(job, 'a', 'g');
     assert.deepEqual(job.getValue('#more'), [propDesc3, propDesc2, groupDesc2Fixed]);
+    // again
+    removeMoreProperty(job, 'a', 'g');
+    assert.deepEqual(job.getValue('#more'), [propDesc3, propDesc2, groupDesc2Fixed]);
 
+    removeMoreProperty(job, 'a');
+    assert.deepEqual(job.getValue('#more'), [propDesc2, groupDesc2Fixed]);
+    // again
     removeMoreProperty(job, 'a');
     assert.deepEqual(job.getValue('#more'), [propDesc2, groupDesc2Fixed]);
 
     // remove the group
     removeMoreProperty(job, null, 'g');
     assert.deepEqual(job.getValue('#more'), [propDesc2]);
+    // again
+    removeMoreProperty(job, null, 'g');
+    assert.deepEqual(job.getValue('#more'), [propDesc2]);
+
 
     // remove nothing
     removeMoreProperty(job, null, null);
