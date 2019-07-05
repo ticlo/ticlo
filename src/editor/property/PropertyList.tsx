@@ -97,6 +97,7 @@ interface Props {
 interface State {
   showConfig: boolean;
   showMore: boolean;
+  showAddMorePopup: boolean;
 }
 
 class PropertyDefMerger {
@@ -164,7 +165,7 @@ export class PropertyList extends MultiSelectComponent<Props, State, BlockLoader
 
   constructor(props: Readonly<Props>) {
     super(props);
-    this.state = {showConfig: false, showMore: true};
+    this.state = {showConfig: false, showMore: true, showAddMorePopup: false};
     this.updateLoaders(props.keys);
   }
 
@@ -178,14 +179,22 @@ export class PropertyList extends MultiSelectComponent<Props, State, BlockLoader
   onShowConfigClick = () => {
     this.setState({showConfig: !this.state.showConfig});
   };
+  onAddMorePopup = (visible: boolean) => {
+    this.setState({showAddMorePopup: visible});
+  };
 
   onAddMore = (desc: PropDesc | PropGroupDesc) => {
-
+    let {conn} = this.props;
+    for (let [key, subscriber] of this.loaders) {
+      conn.addMoreProp(key, desc);
+    }
+    this.onAddMorePopup(false);
   };
+
 
   renderImpl() {
     let {conn, keys, style, isSubBlock} = this.props;
-    let {showConfig, showMore} = this.state;
+    let {showConfig, showMore, showAddMorePopup} = this.state;
 
     let descChecked: Set<string> = new Set<string>();
     let propMerger: PropertyDefMerger = new PropertyDefMerger();
@@ -276,6 +285,8 @@ export class PropertyList extends MultiSelectComponent<Props, State, BlockLoader
                      overflow: {adjustX: true, adjustY: true}
                    }}
                    prefixCls='ant-select-dropdown'
+                   popupVisible={showAddMorePopup}
+                   onPopupVisibleChange={this.onAddMorePopup}
                    popup={
                      <AddMorePropertyMenu onAddProperty={this.onAddMore}/>
                    }>
