@@ -93,6 +93,8 @@ interface Props {
   name: string; // name is usually same as propDesc.name, but when it's in group, it will have a number after
   funcDesc: FunctionDesc;
   propDesc: PropDesc;
+  isMore?: boolean;
+  group?: string;
 }
 
 interface State {
@@ -261,7 +263,7 @@ export class PropertyEditor extends MultiSelectComponent<Props, State, PropertyL
   }
 
   getMenu = () => {
-    let {conn} = this.props;
+    let {conn, isMore} = this.props;
     let {count, value, valueSame, bindingPath, bindingSame, subBlock, display} = this.mergePropertyState();
     if (this.state.showMenu) {
       return (
@@ -298,6 +300,15 @@ export class PropertyEditor extends MultiSelectComponent<Props, State, PropertyL
               ? (
                 <Menu.Item>
                   <Button onClick={this.onReset}>Reset</Button>
+                </Menu.Item>
+              )
+              : null
+          }
+          {
+            isMore
+              ? (
+                <Menu.Item>
+                  <Button onClick={this.onRemoveMore}>Remove</Button>
                 </Menu.Item>
               )
               : null
@@ -361,6 +372,17 @@ export class PropertyEditor extends MultiSelectComponent<Props, State, PropertyL
     let {conn, keys, name} = this.props;
     for (let key of keys) {
       conn.setValue(`${key}.${name}`, undefined);
+    }
+  };
+
+  onRemoveMore = () => {
+    let {conn, keys, name, group} = this.props;
+    if (group && name === `${group}#len`) {
+      name = null;
+    }
+    console.log(name);
+    for (let key of keys) {
+      conn.removeMoreProp(key, name, group);
     }
   };
 

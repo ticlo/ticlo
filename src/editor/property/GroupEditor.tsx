@@ -54,6 +54,7 @@ interface Props {
   keys: string[];
   funcDesc: FunctionDesc;
   groupDesc: PropGroupDesc;
+  isMore?: boolean;
 }
 
 interface State {
@@ -72,10 +73,11 @@ export class GroupEditor extends MultiSelectComponent<Props, State, GroupLoader>
   }
 
   renderImpl(): React.ReactNode {
-    let {conn, keys, funcDesc, groupDesc} = this.props;
+    let {conn, keys, funcDesc, groupDesc, isMore} = this.props;
     let children: React.ReactNode[] = [];
+    let {group} = groupDesc;
 
-    let lenName = `${groupDesc.group}#len`;
+    let lenName = `${group}#len`;
     let lenDesc = {...configDescs['#len'], default: groupDesc.defaultLen, name: lenName};
 
     if (this.loaders.size) {
@@ -87,7 +89,7 @@ export class GroupEditor extends MultiSelectComponent<Props, State, GroupLoader>
         for (let desc of groupDesc.properties) {
           let name = `${desc.name}${i}`;
           children.push(
-            <PropertyEditor key={name} name={name} keys={keys} conn={conn}
+            <PropertyEditor key={name} name={name} keys={keys} conn={conn} isMore={isMore} group={group}
                             funcDesc={funcDesc} propDesc={desc}/>
           );
         }
@@ -96,7 +98,7 @@ export class GroupEditor extends MultiSelectComponent<Props, State, GroupLoader>
 
     return (
       <div className='ticl-property-group'>
-        <LengthPropertyEditor key={name} name={lenName} keys={keys} conn={conn}
+        <LengthPropertyEditor key={name} name={lenName} keys={keys} conn={conn} isMore={isMore} group={group}
                               funcDesc={funcDesc} propDesc={configDescs['#len']}/>
         {children}
       </div>

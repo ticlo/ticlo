@@ -201,10 +201,11 @@ export class AddMorePropertyMenu extends React.PureComponent<Props, State> {
       }
     }
 
-    this.setState(errors);
     if (!hasError) {
       onAddProperty(result);
+      errors.name = ''; // reset name after adding property
     }
+    this.setState(errors);
   };
 
   render() {

@@ -134,18 +134,18 @@ class PropertyDefMerger {
     }
   }
 
-  render(keys: string[], conn: ClientConnection, funcDesc: FunctionDesc) {
+  render(keys: string[], conn: ClientConnection, funcDesc: FunctionDesc, isMore?: boolean) {
     let children: React.ReactNode[] = [];
     if (this.map) {
       for (let [name, prop] of this.map) {
         if (prop.hasOwnProperty('group')) {
           children.push(
-            <GroupEditor key={name} keys={keys} conn={conn}
+            <GroupEditor key={name} keys={keys} conn={conn} isMore={isMore}
                          funcDesc={funcDesc} groupDesc={prop as PropGroupDesc}/>
           );
         } else if ((prop as PropDesc).name) {
           children.push(
-            <PropertyEditor key={name} name={name} keys={keys} conn={conn}
+            <PropertyEditor key={name} name={name} keys={keys} conn={conn} isMore={isMore}
                             funcDesc={funcDesc} propDesc={prop as PropDesc}/>
           );
         }
@@ -238,7 +238,7 @@ export class PropertyList extends MultiSelectComponent<Props, State, BlockLoader
     }
     let moreChildren: React.ReactNode[];
     if (moreMerger.isNotEmpty() && showMore) {
-      moreChildren = moreMerger.render(keys, conn, funcDesc);
+      moreChildren = moreMerger.render(keys, conn, funcDesc, true);
     }
 
     let configChildren: React.ReactNode[];
