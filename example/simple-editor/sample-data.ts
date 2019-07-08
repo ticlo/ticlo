@@ -1,4 +1,4 @@
-let sharedMore = [
+let sharedMore: any[] = [
   {name: 'num', type: 'number'},
   {name: 'str', type: 'string'},
   {name: 'tog1', type: 'toggle'},
@@ -16,6 +16,8 @@ for (let i = 0; i < len; ++i) {
   r.name = r.name.toUpperCase();
   sharedMore.push(r);
 }
+
+sharedMore.push({group: 'group', defaultLen: 2, properties: []});
 
 export const sampleData = {
   add: {
