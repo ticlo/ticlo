@@ -95,7 +95,7 @@ export class MenuItem extends React.PureComponent<MenuItemProps, MenuItemState> 
 
 
 interface MenuProps {
-  children: React.ReactElement[];
+  children?: React.ReactElement[];
 }
 
 interface MenuState {
@@ -103,6 +103,8 @@ interface MenuState {
 }
 
 export class Menu extends React.PureComponent<MenuProps, MenuState> {
+
+  state: MenuState = {subMenuKey: null};
 
   _visibleCallbackMap: Map<string, ItemEventHandler> = new Map();
 
@@ -136,18 +138,22 @@ export class Menu extends React.PureComponent<MenuProps, MenuState> {
     let {children} = this.props;
     let {subMenuKey} = this.state;
 
-    let menuItems: React.ReactElement[];
-    for (let child of children) {
-      let element = child as React.ReactElement;
-      if (element.type === SubMenuItem) {
-        menuItems.push(React.cloneElement(element, {
-          popupVisible: element.key === subMenuKey,
-          onPopupVisibleChange: this._getVisibleCallback(element.key as string)
-        }));
-      } else {
-        menuItems.push(
-          <SubMenuItem key={element.key}>{child}</SubMenuItem>
-        );
+    let menuItems: React.ReactElement[] = [];
+    if (children) {
+      for (let i = 0; i < children.length; ++i) {
+        let child = children[i];
+        if (!child) continue;
+        let element = child as React.ReactElement;
+        if (element.type === SubMenuItem) {
+          menuItems.push(React.cloneElement(element, {
+            popupVisible: element.key === subMenuKey,
+            onItemEvent: this._getVisibleCallback(element.key as string)
+          }));
+        } else {
+          menuItems.push(
+            <MenuItem key={`${i}`} onItemEvent={this._getVisibleCallback(element.key as string)}>{child}</MenuItem>
+          );
+        }
       }
     }
 

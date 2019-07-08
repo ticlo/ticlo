@@ -7,6 +7,9 @@ const {Option} = Select;
 
 interface Props {
   onAddProperty(desc: PropDesc | PropGroupDesc): void;
+
+  group?: string;
+  onClick?: React.MouseEventHandler;
 }
 
 type MoreValueType = ValueType | 'group';
@@ -209,12 +212,14 @@ export class AddMorePropertyMenu extends React.PureComponent<Props, State> {
   };
 
   render() {
+    let {group, onClick} = this.props;
     let {
       name, type, defaultLen, placeholder, min, max, step, optionStr, showAlpha, showTime,
       nameErr, defaultLenErr, minErr, maxErr, stepErr, optionErr
     } = this.state;
     return (
-      <Form className='ticl-add-more-prop' labelCol={{span: 9}} wrapperCol={{span: 15}} onSubmit={this.onSubmit}>
+      <Form onClick={onClick} className='ticl-add-more-prop' labelCol={{span: 9}} wrapperCol={{span: 15}}
+            onSubmit={this.onSubmit}>
         <FormItem label='Name' validateStatus={nameErr ? 'error' : null} help={nameErr}>
           <Input size='small' value={name} onChange={this.onName}/>
         </FormItem>
@@ -229,7 +234,11 @@ export class AddMorePropertyMenu extends React.PureComponent<Props, State> {
             <Option value='date'>date</Option>
             <Option value='date-range'>date-range</Option>
             <Option value='password'>password</Option>
-            <Option value='group'>group</Option>
+            {
+              group == null
+                ? <Option value='group'>group</Option>
+                : null // dont add group if it's in already a group
+            }
           </Select>
         </FormItem>
         {

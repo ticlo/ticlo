@@ -1,5 +1,5 @@
 import React from "react";
-import {Button, Tooltip, Dropdown, Menu, Input, Checkbox} from "antd";
+import {Button, Tooltip, Dropdown, Input, Checkbox} from "antd";
 import {ClientConnection, ValueState, ValueUpdate} from "../../core/connect/ClientConnection";
 import {blankPropDesc, FunctionDesc, getDefaultFuncData, PropDesc, PropGroupDesc} from "../../core/block/Descriptor";
 import {translateProperty} from "../../core/util/i18n";
@@ -23,8 +23,9 @@ import {stopPropagation} from "../../core/util/Functions";
 import {TypeEditor} from "./value/TypeEditor";
 import {TypeSelect} from "../type-selector/TypeSelector";
 import {CheckboxChangeEvent} from "antd/lib/checkbox";
-
-const {SubMenu} = Menu;
+import {AddMorePropertyMenu} from "./AddMoreProperty";
+import Trigger from "rc-trigger";
+import {Popup, Menu, SubMenuItem} from "../component/ClickPopup";
 
 const typeEditorMap: {[key: string]: any} = {
   'number': NumberEditor,
@@ -150,7 +151,6 @@ export class PropertyEditor extends MultiSelectComponent<Props, State, PropertyL
     }
   }
 
-
   unlock = (e: any) => {
     this.setState({unlocked: !this.state.unlocked});
   };
@@ -214,6 +214,14 @@ export class PropertyEditor extends MultiSelectComponent<Props, State, PropertyL
     }
   };
 
+  onAddMoreGroupChild = (desc: PropDesc | PropGroupDesc) => {
+    let {conn, group} = this.props;
+    for (let [key, subscriber] of this.loaders) {
+      conn.addMoreProp(key, desc, group);
+    }
+    this.setState({showMenu: false});
+  };
+
   mergePropertyState(): PropertyState {
     let it = this.loaders[Symbol.iterator]();
     let [firstKey, firstLoader] = it.next().value;
@@ -263,53 +271,59 @@ export class PropertyEditor extends MultiSelectComponent<Props, State, PropertyL
   }
 
   getMenu = () => {
-    let {conn, isMore} = this.props;
+    let {conn, isMore, group} = this.props;
     let {count, value, valueSame, bindingPath, bindingSame, subBlock, display} = this.mergePropertyState();
     if (this.state.showMenu) {
       return (
-        <Menu selectable={false} className='ticl-dropdown-menu' onClick={this.onMenuClick}>
+        <Menu>
           {
             bindingPath
               ? null
               : (
-                <SubMenu key='addSubBlkock' title="Add Sub Block">
-                  <Menu.Item className='ticl-type-submenu'>
-                    <TypeSelect onClick={stopPropagation} conn={conn} showPreset={true} onTypeClick={this.onAddSubBlock}/>
-                  </Menu.Item>
-                </SubMenu>
+                <SubMenuItem key='addSubBlkock' popup={(
+                  // <Menu.Item className='ticl-type-submenu'>
+                  <TypeSelect onClick={stopPropagation} conn={conn} showPreset={true} onTypeClick={this.onAddSubBlock}/>
+                  // </Menu.Item>
+                )}>
+                  Add Sub Block
+                </SubMenuItem>
               )
           }
 
-          <Menu.Item>
-            <div className='ticl-hbox'>
-              <span style={{flex: '0 1 100%'}}>Binding:</span>
-              {bindingPath ?
-                <Button className='ticl-icon-btn' shape='circle' size='small' icon="delete"
-                        onClick={this.onUnbindClick}/>
-                : null}
-            </div>
-            <div className='ticl-hbox'>
-              <StringEditor value={bindingPath} desc={blankPropDesc} onChange={this.onBindChange}/>
-            </div>
-          </Menu.Item>
-          <Menu.Item>
-            <Checkbox onChange={this.onShowHide} checked={display}>Show</Checkbox>
-          </Menu.Item>
+          <div className='ticl-hbox'>
+            <span style={{flex: '0 1 100%'}}>Binding:</span>
+            {bindingPath ?
+              <Button className='ticl-icon-btn' shape='circle' size='small' icon="delete"
+                      onClick={this.onUnbindClick}/>
+              : null}
+          </div>
+          <div className='ticl-hbox'>
+            <StringEditor value={bindingPath} desc={blankPropDesc} onChange={this.onBindChange}/>
+          </div>
+          <Checkbox onChange={this.onShowHide} checked={display}>Show</Checkbox>
           {
             value || bindingPath
               ? (
-                <Menu.Item>
-                  <Button onClick={this.onReset}>Reset</Button>
-                </Menu.Item>
+                <Button onClick={this.onReset}>Reset</Button>
               )
               : null
           }
           {
             isMore
               ? (
-                <Menu.Item>
-                  <Button onClick={this.onRemoveMore}>Remove</Button>
-                </Menu.Item>
+                <Button onClick={this.onRemoveMore}>Remove</Button>
+              )
+              : null
+          }
+          {
+            isMore && group != null
+              ? (
+                <SubMenuItem key='addMoreProp'
+                             popup={
+                               <AddMorePropertyMenu onAddProperty={this.onAddMoreGroupChild} group={group}/>
+                             }>
+                  Add Child
+                </SubMenuItem>
               )
               : null
           }
@@ -317,17 +331,13 @@ export class PropertyEditor extends MultiSelectComponent<Props, State, PropertyL
       );
     } else {
       // need this to hide all the submebu
-      return <Menu selectable={false} className='ticl-dropdown-menu' onClick={this.onMenuClick}/>;
+      return <Menu/>;
     }
   };
 
   closeMenu() {
     this.setState({showMenu: false});
   }
-
-  onMenuClick = (param: ClickParam) => {
-    //
-  };
 
   onMenuVisibleChange = (flag: boolean) => {
     this.setState({showMenu: flag});
@@ -444,13 +454,13 @@ export class PropertyEditor extends MultiSelectComponent<Props, State, PropertyL
     return (
       <div className='ticl-property'>
         {inBoundClass ? <div className={inBoundClass} title={bindingPath}/> : null}
-        <Dropdown overlay={this.getMenu} trigger={['contextMenu']} visible={showMenu}
-                  onVisibleChange={this.onMenuVisibleChange}>
+        <Popup popup={this.getMenu} trigger={['contextMenu']} popupVisible={showMenu}
+               onPopupVisibleChange={this.onMenuVisibleChange}>
           <DragDropDiv className={nameClass} onDragStartT={this.onDragStart}
                        onDragOverT={this.onDragOver} onDropT={this.onDrop}>
             {translateProperty(funcDesc.name, name, funcDesc.ns)}
           </DragDropDiv>
-        </Dropdown>
+        </Popup>
         {renderLockIcon ?
           <Tooltip title={locktooltip} overlayClassName='ticl-tooltip'>
             <Button className='ticl-icon-btn' shape='circle' tabIndex={-1} icon={unlocked ? 'edit' : 'lock'}

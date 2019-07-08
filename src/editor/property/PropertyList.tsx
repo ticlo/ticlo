@@ -15,9 +15,8 @@ import {MultiSelectComponent, MultiSelectLoader} from "./MultiSelectComponent";
 import {ExpandIcon} from "../../ui/component/Tree";
 import {deepEqual} from "../../core/util/Compare";
 import {Button, Tooltip} from "antd";
-import Trigger from "rc-trigger";
-import {SketchPicker} from "react-color";
 import {AddMorePropertyMenu} from "./AddMoreProperty";
+import {Popup} from "../component/ClickPopup";
 
 class BlockLoader extends MultiSelectLoader<PropertyList> {
 
@@ -278,22 +277,16 @@ export class PropertyList extends MultiSelectComponent<Props, State, BlockLoader
               null
           }
           <span>more</span>
-          <Trigger action={['click']}
-                   popupAlign={{
-                     points: ['tl', 'bl'],
-                     offset: [0, 3],
-                     overflow: {adjustX: true, adjustY: true}
-                   }}
-                   prefixCls='ant-select-dropdown'
-                   popupVisible={showAddMorePopup}
-                   onPopupVisibleChange={this.onAddMorePopup}
-                   popup={
-                     <AddMorePropertyMenu onAddProperty={this.onAddMore}/>
-                   }>
+          <Popup popupVisible={showAddMorePopup}
+                 onPopupVisibleChange={this.onAddMorePopup}
+                 popup={
+                   <AddMorePropertyMenu onAddProperty={this.onAddMore}/>
+                 }>
             <Button className='ticl-icon-btn' shape='circle' tabIndex={-1} icon='plus-square'/>
-          </Trigger>
+          </Popup>
 
           <div className='ticl-h-line'/>
+
         </div>
         {moreChildren}
 
