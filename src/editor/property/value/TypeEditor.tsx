@@ -3,14 +3,11 @@ import {Icon, Input} from "antd";
 import {FunctionDesc, getFuncStyleFromDesc, PropDesc} from "../../../core/block/Descriptor";
 import {ValueEditorProps} from "./ValueEditor";
 import {TIcon} from "../../icon/Icon";
-import {DragDropDiv} from "rc-dock";
+import {DragDropDiv, DragState} from "rc-dock";
 import {StringEditorBase} from "./StringEditorBase";
-import Trigger from "rc-trigger";
-import {SketchPicker} from "react-color";
 import {TypeSelect} from "../../type-selector/TypeSelector";
 import {addRecentType} from "../../type-selector/TypeList";
-import {onDragBlockOver, onDropBlock} from "../../block/DragDropBlock";
-import {DragState} from "rc-dock";
+import {Popup} from "../../component/ClickPopup";
 
 interface State {
   opened: boolean;
@@ -80,18 +77,11 @@ export class TypeEditor extends StringEditorBase {
     return (
       <DragDropDiv className='ticl-type-editor ticl-hbox' onDragOverT={this.onDragOver} onDropT={this.onDrop}>
         <TIcon icon={iconName} style={iconStyle}/>
-        <Trigger action={['click']}
-                 popupVisible={opened}
-                 onPopupVisibleChange={this.onPopupClose}
-                 popupAlign={{
-                   points: ['bl', 'tl'],
-                   offset: [0, -3],
-                   overflow: {adjustX: true, adjustY: true}
-                 }}
-                 prefixCls='ant-select-dropdown'
-                 popup={
-                   <TypeSelect conn={conn} onTypeClick={this.onTypeClick}/>
-                 }>
+        <Popup popupVisible={opened}
+               onPopupVisibleChange={this.onPopupClose}
+               popup={
+                 <TypeSelect conn={conn} onTypeClick={this.onTypeClick}/>
+               }>
           <Input value={value} disabled={onChange == null} size='small'
                  onChange={this.onInputChange} onBlur={this.onBlur} onKeyDown={this.onKeyDown}
                  suffix={
@@ -99,7 +89,7 @@ export class TypeEditor extends StringEditorBase {
                    <Icon type="down" style={{color: 'rgba(0,0,0,.45)'}} onClick={this.openPopup}/>
 
                  }/>
-        </Trigger>
+        </Popup>
       </DragDropDiv>
     );
   }

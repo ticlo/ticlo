@@ -24,7 +24,6 @@ import {TypeEditor} from "./value/TypeEditor";
 import {TypeSelect} from "../type-selector/TypeSelector";
 import {CheckboxChangeEvent} from "antd/lib/checkbox";
 import {AddMorePropertyMenu} from "./AddMoreProperty";
-import Trigger from "rc-trigger";
 import {Popup, Menu, SubMenuItem} from "../component/ClickPopup";
 
 const typeEditorMap: {[key: string]: any} = {
