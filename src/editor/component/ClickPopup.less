@@ -7,6 +7,7 @@
   font-size: @dropdown-font-size;
   line-height: @dropdown-line-height;
   white-space: nowrap;
+  position: relative;
   cursor: pointer;
   transition: all 0.3s;
 
@@ -25,5 +26,15 @@
 
   &:hover, &-active {
     background-color: @item-hover-bg;
+  }
+
+  & > .anticon-right {
+    position: absolute;
+    margin: auto;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    height: 14px;
+    color: @text-color-light;
   }
 }

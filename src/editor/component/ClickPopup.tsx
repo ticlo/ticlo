@@ -1,7 +1,7 @@
 import React from "react";
 import Trigger from "rc-trigger";
 import {AddMorePropertyMenu} from "../property/AddMoreProperty";
-import {Button} from "antd";
+import {Icon} from "antd";
 
 type ItemEventHandler = (event: 'show' | 'hide' | 'hover') => void;
 
@@ -42,10 +42,6 @@ export class SubMenuItem extends React.PureComponent<SubMenuItemProps, SubMenuIt
 
     let {children, popup} = this.props;
 
-    if (typeof popup === 'function') {
-      popup = popup();
-    }
-
     let cls = 'ticl-popup-menu-item';
     if (showPopup) {
       cls += ' ticl-popup-menu-item-active';
@@ -63,6 +59,10 @@ export class SubMenuItem extends React.PureComponent<SubMenuItemProps, SubMenuIt
                popup={popup}>
         <div className={cls} onMouseOver={this.onHover}>
           {children}
+          {popup
+            ? <Icon type='right'/>
+            : null
+          }
         </div>
       </Trigger>
     );
@@ -213,12 +213,8 @@ export class Popup extends React.PureComponent<PopupProps, PopupState> {
       alignPoint = true;
     }
 
-
     let {children, popup} = this.props;
 
-    if (typeof popup === 'function') {
-      popup = popup();
-    }
     return (
       <Trigger action={trigger}
                popupAlign={popupAlign} alignPoint={alignPoint} popupPlacement='topLeft'
