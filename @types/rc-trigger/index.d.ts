@@ -3,7 +3,7 @@ declare module 'rc-trigger' {
   type RenderFunction = () => React.ReactNode;
 
   interface TriggerProps {
-    action?: string[];
+    action?: ("click" | "hover" | "contextMenu")[];
     showAction?: any;
     hideAction?: any;
     getPopupClassNameFromAlign?: any;
