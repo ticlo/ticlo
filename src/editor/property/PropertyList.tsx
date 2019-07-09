@@ -58,17 +58,17 @@ class BlockLoader extends MultiSelectLoader<PropertyList> {
 }
 
 function getPropDescName(prop: PropDesc | PropGroupDesc) {
-  if (prop.hasOwnProperty('group')) {
-    return `${(prop as PropGroupDesc).group}#len`;
-  } else if ((prop as PropDesc).name) {
-    return (prop as PropDesc).name;
+  if (prop.type === 'group') {
+    return `${prop.name}#len`;
+  } else if (prop.name) {
+    return prop.name;
   }
   return '@invalid';
 }
 
 function comparePropDesc(a: PropDesc | PropGroupDesc, b: PropDesc | PropGroupDesc) {
-  if (a.hasOwnProperty('group')) {
-    if ((a as PropGroupDesc).group !== (b as PropGroupDesc).group) return false;
+  if (a.type === 'group') {
+    if (a.name !== b.name) return false;
     if (!(a as PropGroupDesc).properties || !(b as PropGroupDesc).properties
       || (a as PropGroupDesc).properties.length !== (b as PropGroupDesc).properties.length) {
       return false;
@@ -79,7 +79,7 @@ function comparePropDesc(a: PropDesc | PropGroupDesc, b: PropDesc | PropGroupDes
       }
     }
   } else {
-    if ((a as PropDesc).name !== (b as PropDesc).name) return false;
+    if (a.name !== b.name) return false;
     if ((a as PropDesc).type !== (b as PropDesc).type) return false;
   }
 
@@ -137,12 +137,12 @@ class PropertyDefMerger {
     let children: React.ReactNode[] = [];
     if (this.map) {
       for (let [name, prop] of this.map) {
-        if (prop.hasOwnProperty('group')) {
+        if (prop.type === 'group') {
           children.push(
             <GroupEditor key={name} keys={keys} conn={conn} isMore={isMore}
                          funcDesc={funcDesc} groupDesc={prop as PropGroupDesc}/>
           );
-        } else if ((prop as PropDesc).name) {
+        } else if (prop.name) {
           children.push(
             <PropertyEditor key={name} name={name} keys={keys} conn={conn} isMore={isMore}
                             funcDesc={funcDesc} propDesc={prop as PropDesc}/>

@@ -272,12 +272,12 @@ export class FieldView extends PureDataRenderer<FieldViewProps, any> {
     let {item} = this.props;
     let fields: string[] = DragState.getData('fields', item.getConn());
     if (Array.isArray(fields)) {
-      if (item.desc.readonly || fields.length !== 1 || fields[0] === item.key) {
-        e.reject();
+      if (!item.desc.readonly && fields.length === 1 && fields[0] !== item.key) {
+        e.accept('?');
         return;
       }
-      e.accept('?');
     }
+    e.reject();
   };
   onDrop = (event: DragState) => {
     let {item} = this.props;

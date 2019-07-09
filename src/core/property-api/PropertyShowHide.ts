@@ -11,8 +11,8 @@ function buildPropertiesOrder(block: Block): string[] {
 
   function addProps(props: (PropDesc | PropGroupDesc)[]) {
     for (let propDesc of props) {
-      if ((propDesc as PropGroupDesc).properties) {
-        let lenField = `${(propDesc as PropGroupDesc).group}#len`;
+      if (propDesc.type === 'group') {
+        let lenField = `${propDesc.name}#len`;
         orders.push(lenField);
         let groupLength = Number(block.getValue(lenField));
         if (!(groupLength >= 0)) {
@@ -20,11 +20,11 @@ function buildPropertiesOrder(block: Block): string[] {
         }
         for (let i = 0; i < groupLength; ++i) {
           for (let childDesc of (propDesc as PropGroupDesc).properties) {
-            orders.push(`${(childDesc as PropDesc).name}${i}`);
+            orders.push(`${childDesc.name}${i}`);
           }
         }
       } else {
-        orders.push((propDesc as PropDesc).name);
+        orders.push(propDesc.name);
       }
     }
   }

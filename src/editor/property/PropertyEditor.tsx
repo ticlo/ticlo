@@ -173,40 +173,68 @@ export class PropertyEditor extends MultiSelectComponent<Props, State, PropertyL
 
     let fields = keys.map((s) => `${s}.${name}`);
 
-    e.setData({fields}, conn);
+    if (e.dragType === 'right') {
+      e.setData({moveMoreFields: fields}, conn);
+    } else {
+      e.setData({fields}, conn);
+    }
+
     e.startDrag();
   };
   onDragOver = (e: DragState) => {
     let {conn, keys, name, propDesc} = this.props;
-
-    let dragFields: string[] = DragState.getData('fields', conn);
-    if (Array.isArray(dragFields)) {
-      if (propDesc.readonly || (dragFields.length !== 1 && dragFields.length !== keys.length)) {
-        e.reject();
-        return;
+    if (e.dragType === 'right') {
+      let moveMoreFields: string[] = DragState.getData('moveMoreFields', conn);
+      if (Array.isArray(moveMoreFields) && moveMoreFields.length === keys.length) {
+        let i = 0;
+        for (; i < keys.length; ++i) {
+          let moveMoreField = moveMoreFields[i];
+          if (!moveMoreField.startsWith(keys[i]) || moveMoreField.endsWith(`.${name}`)) {
+            break;
+          }
+        }
+        if (i === keys.length) {
+          // break not called
+          e.accept('⇋');
+          return;
+        }
       }
-      let fields = keys.map((s) => `${s}.${name}`);
-      if (!deepEqual(fields, dragFields)) {
-        e.accept('?');
+    } else {
+      let dragFields: string[] = DragState.getData('fields', conn);
+      if (Array.isArray(dragFields)) {
+        if (!propDesc.readonly && (dragFields.length === 1 || dragFields.length === keys.length)) {
+          let fields = keys.map((s) => `${s}.${name}`);
+          if (!deepEqual(fields, dragFields)) {
+            e.accept('→');
+            return;
+          }
+        }
       }
     }
+
+
+    e.reject();
+
   };
   onDrop = (e: DragState) => {
     let {conn, keys, name} = this.props;
+    if (e.dragType === 'right') {
 
-    let dragFields: string[] = DragState.getData('fields', conn);
-    if (Array.isArray(dragFields)) {
-      let fields = keys.map((s) => `${s}.${name}`);
-      if (dragFields.length === 1) {
-        for (let field of fields) {
-          if (dragFields[0] !== field) {
-            conn.setBinding(field, dragFields[0], true);
+    } else {
+      let dragFields: string[] = DragState.getData('fields', conn);
+      if (Array.isArray(dragFields)) {
+        let fields = keys.map((s) => `${s}.${name}`);
+        if (dragFields.length === 1) {
+          for (let field of fields) {
+            if (dragFields[0] !== field) {
+              conn.setBinding(field, dragFields[0], true);
+            }
           }
-        }
-      } else if (dragFields.length === fields.length) {
-        for (let i = 0; i < fields.length; ++i) {
-          if (dragFields[i] !== fields[i]) {
-            conn.setBinding(fields[i], dragFields[i], true);
+        } else if (dragFields.length === fields.length) {
+          for (let i = 0; i < fields.length; ++i) {
+            if (dragFields[i] !== fields[i]) {
+              conn.setBinding(fields[i], dragFields[i], true);
+            }
           }
         }
       }
@@ -396,7 +424,7 @@ export class PropertyEditor extends MultiSelectComponent<Props, State, PropertyL
   };
 
   renderImpl() {
-    let {conn, keys, funcDesc, propDesc, name} = this.props;
+    let {conn, keys, funcDesc, propDesc, name, isMore} = this.props;
     let {unlocked, showSubBlock, showMenu} = this.state;
 
     let onChange = propDesc.readonly ? null : this.onChange;
@@ -455,7 +483,7 @@ export class PropertyEditor extends MultiSelectComponent<Props, State, PropertyL
         {inBoundClass ? <div className={inBoundClass} title={bindingPath}/> : null}
         <Popup popup={this.getMenu} trigger={['contextMenu']} popupVisible={showMenu}
                onPopupVisibleChange={this.onMenuVisibleChange}>
-          <DragDropDiv className={nameClass} onDragStartT={this.onDragStart}
+          <DragDropDiv className={nameClass} onDragStartT={this.onDragStart} useRightButtonDragT={isMore}
                        onDragOverT={this.onDragOver} onDropT={this.onDrop}>
             {translateProperty(funcDesc.name, name, funcDesc.ns)}
           </DragDropDiv>

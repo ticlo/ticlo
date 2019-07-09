@@ -147,7 +147,7 @@ export function changeLength(block: Block, field: string, length: number) {
 
     function findGroup(props: (PropDesc | PropGroupDesc)[]): PropGroupDesc {
       for (let propDesc of props) {
-        if ((propDesc as PropGroupDesc).group === group) {
+        if (propDesc.name === group && propDesc.type === 'group') {
           return propDesc as PropGroupDesc;
         }
       }

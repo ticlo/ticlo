@@ -12,9 +12,9 @@ describe("More Property", function () {
     let propDesc1: PropDesc = {name: 'a', type: 'string'};
     let propDesc2: PropDesc = {name: 'b', type: 'number'};
     let propDesc3: PropDesc = {name: 'a', type: 'number'};
-    let groupDesc1: PropGroupDesc = {group: 'g', defaultLen: 1, properties: []};
-    let groupDesc2: PropGroupDesc = {group: 'g'} as PropGroupDesc; // automatically fix group desc
-    let groupDesc2Fixed: PropGroupDesc = {group: 'g', defaultLen: 2, properties: []};
+    let groupDesc1: PropGroupDesc = {name: 'g', type: 'group', defaultLen: 1, properties: []};
+    let groupDesc2: PropGroupDesc = {name: 'g', type: 'group'} as PropGroupDesc; // automatically fix group desc
+    let groupDesc2Fixed: PropGroupDesc = {name: 'g', type: 'group', defaultLen: 2, properties: []};
 
     let job = new Job();
 
@@ -87,5 +87,13 @@ describe("More Property", function () {
     removeMoreProperty(job, null, null);
     assert.deepEqual(job.getValue('#more'), [propDesc2]);
 
+  });
+
+  it('move MoreProperty', function () {
+    let job = new Job();
+    job.setValue('#more', [
+      {name: 'a', type: 'string'},
+      {name: 'g', type: 'group', defaultLen: 1, properties: []}
+    ]);
   });
 });

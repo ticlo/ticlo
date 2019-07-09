@@ -131,7 +131,7 @@ export class AddMorePropertyMenu extends React.PureComponent<Props, State> {
       if (defaultLen == null || !(defaultLen >= 0)) {
         addError('defaultLenErr', 'Error');
       }
-      result = {group: name, defaultLen};
+      result = {name, type: 'group', defaultLen};
     } else {
       result = {name, type};
       switch (type) {

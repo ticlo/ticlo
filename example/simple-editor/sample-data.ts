@@ -17,7 +17,7 @@ for (let i = 0; i < len; ++i) {
   sharedMore.push(r);
 }
 
-sharedMore.push({group: 'group', defaultLen: 2, properties: []});
+sharedMore.push({name: 'group', type: 'group', defaultLen: 2, properties: []});
 
 export const sampleData = {
   add: {

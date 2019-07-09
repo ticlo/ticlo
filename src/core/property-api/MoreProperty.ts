@@ -7,7 +7,7 @@ export function addMoreProperty(block: Block, desc: PropDesc | PropGroupDesc, gr
 
   let propDesc: PropDesc;
   let groupDesc: PropGroupDesc;
-  if ((desc as PropGroupDesc).group) {
+  if (desc.type === 'group') {
     groupDesc = desc as PropGroupDesc;
     if (!Array.isArray(groupDesc.properties)) {
       groupDesc.properties = [];
@@ -15,8 +15,8 @@ export function addMoreProperty(block: Block, desc: PropDesc | PropGroupDesc, gr
     if (groupDesc.defaultLen == null || !(groupDesc.defaultLen >= 0)) {
       groupDesc.defaultLen = 2;
     }
-    group = groupDesc.group;
-  } else if ((desc as PropDesc).name) {
+    group = groupDesc.name;
+  } else if (desc.name) {
     propDesc = desc as PropDesc;
   } else {
     return;
@@ -35,7 +35,7 @@ export function addMoreProperty(block: Block, desc: PropDesc | PropGroupDesc, gr
   moreProps = deepClone(moreProps);
 
   if (group) {
-    let groupIdx = moreProps.findIndex((g: PropGroupDesc) => g.group === group);
+    let groupIdx = moreProps.findIndex((g: PropGroupDesc) => g.name === group);
     if (groupIdx > -1) {
       if (groupDesc) {
         // replace existing group
@@ -78,7 +78,7 @@ export function removeMoreProperty(block: Block, name: string, group?: string) {
 
   moreProps = deepClone(moreProps);
   if (group) {
-    let groupIdx = moreProps.findIndex((g: PropGroupDesc) => g.group === group);
+    let groupIdx = moreProps.findIndex((g: PropGroupDesc) => g.name === group && g.type === 'group');
     if (groupIdx > -1) {
       if (name) {
         let groupDesc: PropGroupDesc = moreProps[groupIdx];
@@ -98,5 +98,38 @@ export function removeMoreProperty(block: Block, name: string, group?: string) {
       moreProps.splice(propIndex, 1);
       block.setValue('#more', moreProps);
     }
+  }
+}
+
+export function moveMoreProperty(block: Block, nameFrom: string, nameTo: string, group?: string) {
+  if (nameFrom === nameTo) {
+    return;
+  }
+
+  let moreProps: any[] = block.getValue('#more');
+  if (!Array.isArray(moreProps)) {
+    return;
+  }
+  moreProps = deepClone(moreProps);
+
+  let targetProps = moreProps;
+  if (group) {
+    let foundGroup: PropGroupDesc = moreProps.find((g: PropGroupDesc) => g.name === group && g.type === 'group');
+    if (foundGroup) {
+      targetProps = foundGroup.properties;
+    } else {
+      return;
+    }
+  }
+
+  let idxFrom = targetProps.findIndex((p: PropDesc | PropGroupDesc) => p.name === nameFrom);
+  let idxTo = targetProps.findIndex((p: PropDesc | PropGroupDesc) => p.name === nameTo);
+  if (idxFrom > -1 && idxTo > -1) {
+    if (idxTo > idxFrom) {
+      ++idxTo;
+    }
+    let from = targetProps.splice(idxFrom, 1)[0];
+    targetProps.splice(idxTo, 0, from);
+    block.setValue('#more', moreProps);
   }
 }

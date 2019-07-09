@@ -51,7 +51,8 @@ export interface PropDesc {
 }
 
 export interface PropGroupDesc {
-  group: string;
+  name: string;
+  type: 'group';
   defaultLen: number;
   properties?: PropDesc[];
 }
@@ -131,14 +132,14 @@ export function buildPropDescCache(funcDesc: FunctionDesc, more: (PropDesc | Pro
   function addProps(props: (PropDesc | PropGroupDesc)[]) {
     if (!props) return;
     for (let prop of props) {
-      if ((prop as PropGroupDesc).group != null) {
-        result[`${(prop as PropGroupDesc).group}#len`] = configDescs['#len'];
+      if (prop.type === 'group') {
+        result[`${prop.name}#len`] = configDescs['#len'];
         for (let gprop of (prop as PropGroupDesc).properties) {
           // add number index to the property name
-          result[`${(prop as PropDesc).name}0`] = (prop as PropDesc);
+          result[`${gprop.name}0`] = gprop;
         }
       } else {
-        result[(prop as PropDesc).name] = (prop as PropDesc);
+        result[prop.name] = prop;
       }
     }
   }
@@ -189,12 +190,12 @@ export function getDefaultFuncData(desc: FunctionDesc, isSubBlock = false) {
       for (let i = 0; i < 2; ++i) {
         for (let childDesc of (propDesc as PropGroupDesc).properties) {
           if (shouldShowProperty((childDesc as PropDesc).visible, isSubBlock)) {
-            props.push(`${(childDesc as PropDesc).name}${i}`);
+            props.push(`${childDesc.name}${i}`);
           }
         }
       }
     } else if (shouldShowProperty((propDesc as PropDesc).visible, isSubBlock)) {
-      props.push((propDesc as PropDesc).name);
+      props.push(propDesc.name);
     }
   }
   data['@b-p'] = props;
