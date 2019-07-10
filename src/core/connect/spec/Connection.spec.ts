@@ -543,4 +543,25 @@ describe("Connection", function () {
     client.destroy();
     Root.instance.deleteValue('Connection16');
   });
+
+  it('move more props', async function () {
+    let job1 = Root.instance.addJob('Connection17');
+    let block1 = job1.createBlock('a');
+    block1.setValue('#more', [
+      {name: 'a', type: 'string'},
+      {name: 'b', type: 'string'},
+    ]);
+
+    let [server, client] = makeLocalConnection(Root.instance, false);
+
+    let response1 = await client.moveMoreProp('Connection17.a', 'a', 'b');
+    assert.deepEqual(block1.getValue('#more'), [
+      {name: 'b', type: 'string'},
+      {name: 'a', type: 'string'},
+    ]);
+
+    client.destroy();
+    Root.instance.deleteValue('Connection17');
+  });
+
 });

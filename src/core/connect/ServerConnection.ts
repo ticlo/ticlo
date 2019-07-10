@@ -15,7 +15,7 @@ import {FunctionDesc, PropDesc, PropGroupDesc} from "../block/Descriptor";
 import {propRelative} from "../util/Path";
 import {anyChildProperty, changeLength} from "../property-api/PropertyAddMove";
 import {hideProperties, showProperties} from "../property-api/PropertyShowHide";
-import {addMoreProperty, removeMoreProperty} from "../property-api/MoreProperty";
+import {addMoreProperty, moveMoreProperty, removeMoreProperty} from "../property-api/MoreProperty";
 
 class ServerRequest extends ConnectionSendingData {
   id: string;
@@ -360,6 +360,10 @@ export class ServerConnection extends Connection {
             result = this.removeMoreProp(request.path, request.name, request.group);
             break;
           }
+          case 'moveMoreProp': {
+            result = this.moveMoreProp(request.path, request.nameFrom, request.nameTo, request.group);
+            break;
+          }
           default:
             result = 'invalid command';
         }
@@ -591,6 +595,17 @@ export class ServerConnection extends Connection {
 
     if (property && property._value instanceof Block) {
       removeMoreProperty(property._value, name, group);
+      return null;
+    } else {
+      return 'invalid path';
+    }
+  }
+
+  moveMoreProp(path: string, nameFrom: string, nameTo: string, group: string) {
+    let property = this.root.queryProperty(path);
+
+    if (property && property._value instanceof Block) {
+      moveMoreProperty(property._value, nameFrom, nameTo, group);
       return null;
     } else {
       return 'invalid path';

@@ -561,4 +561,8 @@ export class ClientConnection extends Connection {
   removeMoreProp(path: string, name: string, group?: string, callbacks?: ClientCallbacks): Promise<any> | string {
     return this.simpleRequest({cmd: 'removeMoreProp', path, name, group}, callbacks);
   }
+
+  moveMoreProp(path: string, nameFrom: string, nameTo: string, group?: string, callbacks?: ClientCallbacks): Promise<any> | string {
+    return this.simpleRequest({cmd: 'moveMoreProp', path, nameFrom, nameTo, group}, callbacks);
+  }
 }
