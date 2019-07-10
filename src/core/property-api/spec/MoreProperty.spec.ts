@@ -92,6 +92,13 @@ describe("More Property", function () {
 
   it('move MoreProperty', function () {
     let job = new Job();
+
+    moveMoreProperty(job, 'a', 'b');
+    assert.isUndefined(job.getValue('#more'));
+
+    moveMoreProperty(job, 'a', 'a');
+    assert.isUndefined(job.getValue('#more'));
+
     job.setValue('#more', [
       descA,
       {
@@ -131,5 +138,25 @@ describe("More Property", function () {
       descB,
     ]);
 
+    moveMoreProperty(job, 'a', 'c', 'g2'); // group doesn't exist
+    assert.deepEqual(job.getValue('#more'), [
+      descA,
+      {...descG, properties: [descC, descA]},
+      descB,
+    ]);
+
+    moveMoreProperty(job, 'a', 'c'); // property doesn't exist
+    assert.deepEqual(job.getValue('#more'), [
+      descA,
+      {...descG, properties: [descC, descA]},
+      descB,
+    ]);
+
+    moveMoreProperty(job, 'c', 'b'); // property doesn't exist
+    assert.deepEqual(job.getValue('#more'), [
+      descA,
+      {...descG, properties: [descC, descA]},
+      descB,
+    ]);
   });
 });
