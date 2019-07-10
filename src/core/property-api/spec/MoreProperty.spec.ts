@@ -1,20 +1,21 @@
 import {assert} from "chai";
 
-import {addMoreProperty, removeMoreProperty} from "../MoreProperty";
+import {addMoreProperty, moveMoreProperty, removeMoreProperty} from "../MoreProperty";
 import {Job} from "../../block/Block";
 import {PropDesc, PropGroupDesc} from "../../block/Descriptor";
 
 
 describe("More Property", function () {
 
-  it('add remove MoreProperty', function () {
+  let descA: PropDesc = {name: 'a', type: 'string'};
+  let descB: PropDesc = {name: 'b', type: 'number'};
+  let descA2: PropDesc = {name: 'a', type: 'number'};
+  let descC: PropDesc = {name: 'c', type: 'toggle'};
+  let descG: PropGroupDesc = {name: 'g', type: 'group', defaultLen: 1, properties: []};
+  let descG2: PropGroupDesc = {name: 'g', type: 'group'} as PropGroupDesc; // automatically fix group desc
+  let descG2Fix: PropGroupDesc = {name: 'g', type: 'group', defaultLen: 2, properties: []};
 
-    let propDesc1: PropDesc = {name: 'a', type: 'string'};
-    let propDesc2: PropDesc = {name: 'b', type: 'number'};
-    let propDesc3: PropDesc = {name: 'a', type: 'number'};
-    let groupDesc1: PropGroupDesc = {name: 'g', type: 'group', defaultLen: 1, properties: []};
-    let groupDesc2: PropGroupDesc = {name: 'g', type: 'group'} as PropGroupDesc; // automatically fix group desc
-    let groupDesc2Fixed: PropGroupDesc = {name: 'g', type: 'group', defaultLen: 2, properties: []};
+  it('add remove MoreProperty', function () {
 
     let job = new Job();
 
@@ -27,73 +28,108 @@ describe("More Property", function () {
     assert.isUndefined(job.getValue('#more'));
 
     // add property into group that doesn't exist
-    addMoreProperty(job, propDesc1, 'g');
+    addMoreProperty(job, descA, 'g');
     assert.isUndefined(job.getValue('#more'));
 
-    addMoreProperty(job, propDesc1);
-    assert.deepEqual(job.getValue('#more'), [propDesc1]);
-    addMoreProperty(job, propDesc2);
-    assert.deepEqual(job.getValue('#more'), [propDesc1, propDesc2]);
+    addMoreProperty(job, descA);
+    assert.deepEqual(job.getValue('#more'), [descA]);
+    addMoreProperty(job, descB);
+    assert.deepEqual(job.getValue('#more'), [descA, descB]);
 
     // when prop name is same, overwrite the previous one
-    addMoreProperty(job, propDesc3);
-    assert.deepEqual(job.getValue('#more'), [propDesc3, propDesc2]);
+    addMoreProperty(job, descA2);
+    assert.deepEqual(job.getValue('#more'), [descA2, descB]);
 
     // add property into group that doesn't exist
-    addMoreProperty(job, propDesc1, 'g');
-    assert.deepEqual(job.getValue('#more'), [propDesc3, propDesc2]);
+    addMoreProperty(job, descA, 'g');
+    assert.deepEqual(job.getValue('#more'), [descA2, descB]);
 
-    addMoreProperty(job, groupDesc1);
-    assert.deepEqual(job.getValue('#more'), [propDesc3, propDesc2, groupDesc1]);
+    addMoreProperty(job, descG);
+    assert.deepEqual(job.getValue('#more'), [descA2, descB, descG]);
 
     // add property into group
-    addMoreProperty(job, propDesc1, 'g');
-    assert.deepEqual(job.getValue('#more'), [propDesc3, propDesc2, {...groupDesc1, properties: [propDesc1]}]);
+    addMoreProperty(job, descA, 'g');
+    assert.deepEqual(job.getValue('#more'), [descA2, descB, {...descG, properties: [descA]}]);
 
     // replace property in group
-    addMoreProperty(job, propDesc3, 'g');
-    assert.deepEqual(job.getValue('#more'), [propDesc3, propDesc2, {...groupDesc1, properties: [propDesc3]}]);
+    addMoreProperty(job, descA2, 'g');
+    assert.deepEqual(job.getValue('#more'), [descA2, descB, {...descG, properties: [descA2]}]);
 
     // replace the group
-    addMoreProperty(job, groupDesc2);
-    assert.deepEqual(job.getValue('#more'), [propDesc3, propDesc2, groupDesc2Fixed]);
+    addMoreProperty(job, descG2);
+    assert.deepEqual(job.getValue('#more'), [descA2, descB, descG2Fix]);
 
 
-    addMoreProperty(job, propDesc1, 'g');
-    assert.deepEqual(job.getValue('#more'), [propDesc3, propDesc2, {...groupDesc2Fixed, properties: [propDesc1]}]);
+    addMoreProperty(job, descA, 'g');
+    assert.deepEqual(job.getValue('#more'), [descA2, descB, {...descG2Fix, properties: [descA]}]);
 
     // remove property from group
     removeMoreProperty(job, 'a', 'g');
-    assert.deepEqual(job.getValue('#more'), [propDesc3, propDesc2, groupDesc2Fixed]);
+    assert.deepEqual(job.getValue('#more'), [descA2, descB, descG2Fix]);
     // again
     removeMoreProperty(job, 'a', 'g');
-    assert.deepEqual(job.getValue('#more'), [propDesc3, propDesc2, groupDesc2Fixed]);
+    assert.deepEqual(job.getValue('#more'), [descA2, descB, descG2Fix]);
 
     removeMoreProperty(job, 'a');
-    assert.deepEqual(job.getValue('#more'), [propDesc2, groupDesc2Fixed]);
+    assert.deepEqual(job.getValue('#more'), [descB, descG2Fix]);
     // again
     removeMoreProperty(job, 'a');
-    assert.deepEqual(job.getValue('#more'), [propDesc2, groupDesc2Fixed]);
+    assert.deepEqual(job.getValue('#more'), [descB, descG2Fix]);
 
     // remove the group
     removeMoreProperty(job, null, 'g');
-    assert.deepEqual(job.getValue('#more'), [propDesc2]);
+    assert.deepEqual(job.getValue('#more'), [descB]);
     // again
     removeMoreProperty(job, null, 'g');
-    assert.deepEqual(job.getValue('#more'), [propDesc2]);
+    assert.deepEqual(job.getValue('#more'), [descB]);
 
 
     // remove nothing
     removeMoreProperty(job, null, null);
-    assert.deepEqual(job.getValue('#more'), [propDesc2]);
+    assert.deepEqual(job.getValue('#more'), [descB]);
 
   });
 
   it('move MoreProperty', function () {
     let job = new Job();
     job.setValue('#more', [
-      {name: 'a', type: 'string'},
-      {name: 'g', type: 'group', defaultLen: 1, properties: []}
+      descA,
+      {
+        ...descG, properties: [
+          descA,
+          descC,
+        ]
+      },
+      descB,
     ]);
+
+    moveMoreProperty(job, 'a', 'b');
+    assert.deepEqual(job.getValue('#more'), [
+      {...descG, properties: [descA, descC]},
+      descB,
+      descA,
+    ]);
+
+    moveMoreProperty(job, 'a', 'b');
+    assert.deepEqual(job.getValue('#more'), [
+      {...descG, properties: [descA, descC]},
+      descA,
+      descB,
+    ]);
+
+    moveMoreProperty(job, 'a', 'g');
+    assert.deepEqual(job.getValue('#more'), [
+      descA,
+      {...descG, properties: [descA, descC]},
+      descB,
+    ]);
+
+    moveMoreProperty(job, 'a', 'c', 'g');
+    assert.deepEqual(job.getValue('#more'), [
+      descA,
+      {...descG, properties: [descC, descA]},
+      descB,
+    ]);
+
   });
 });
