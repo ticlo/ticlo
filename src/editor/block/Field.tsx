@@ -265,26 +265,51 @@ export class FieldView extends PureDataRenderer<FieldViewProps, any> {
 
   onDragStart = (e: DragState) => {
     let {item} = this.props;
-    e.setData({fields: [item.key]}, item.getConn());
+    if (e.dragType === 'right') {
+      e.setData({moveShownField: item.name, block: item.block}, item.getConn());
+    } else {
+      e.setData({fields: [item.key]}, item.getConn());
+    }
+
     e.startDrag();
   };
   onDragOver = (e: DragState) => {
     let {item} = this.props;
-    let fields: string[] = DragState.getData('fields', item.getConn());
-    if (Array.isArray(fields)) {
-      if (!item.desc.readonly && fields.length === 1 && fields[0] !== item.key) {
-        e.accept('?');
+    if (e.dragType === 'right') {
+      let moveShownField = DragState.getData('moveShownField', item.getConn());
+      let block = DragState.getData('block', item.getConn());
+      if (block === item.block && moveShownField !== item.name) {
+        e.accept('⇋');
         return;
       }
+    } else {
+      let fields: string[] = DragState.getData('fields', item.getConn());
+      if (Array.isArray(fields)) {
+        if (!item.desc.readonly && fields.length === 1 && fields[0] !== item.key) {
+          e.accept('→');
+          return;
+        }
+      }
     }
+
+
     e.reject();
   };
   onDrop = (event: DragState) => {
     let {item} = this.props;
-    let fields: string[] = DragState.getData('fields', item.getConn());
-    if (Array.isArray(fields) && fields.length === 1 && fields[0] !== item.key) {
-      item.getConn().setBinding(item.key, fields[0], true);
+    if (event.dragType === 'right') {
+      let moveShownField = DragState.getData('moveShownField', item.getConn());
+      let block = DragState.getData('block', item.getConn());
+      if (block === item.block) {
+        item.getConn().moveShownProp(block.key, moveShownField, item.name);
+      }
+    } else {
+      let fields: string[] = DragState.getData('fields', item.getConn());
+      if (Array.isArray(fields) && fields.length === 1 && fields[0] !== item.key) {
+        item.getConn().setBinding(item.key, fields[0], true);
+      }
     }
+
   };
 
   onNameDoubleClick = (event: React.MouseEvent) => {
@@ -332,8 +357,8 @@ export class FieldView extends PureDataRenderer<FieldViewProps, any> {
     }
     let showOutBound = item.cache.hasListener || (item.subBlock && item.subBlock.hidden);
     return (
-      <DragDropDiv className={fieldClass} onDragStartT={this.onDragStart} onDragOverT={this.onDragOver}
-                   onDropT={this.onDrop}>
+      <DragDropDiv className={fieldClass} onDragStartT={this.onDragStart} useRightButtonDragT={true}
+                   onDragOverT={this.onDragOver} onDropT={this.onDrop}>
         {inBoundClass ? <div className={inBoundClass} title={inBoundTitle}>{inBoundText}</div> : null}
         {showOutBound ? <div className='ticl-outbound'/> : null}
         {indentChildren}
