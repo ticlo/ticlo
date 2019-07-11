@@ -173,12 +173,12 @@ export class PropertyEditor extends MultiSelectComponent<Props, State, PropertyL
     let {conn, keys, name, group, groupName} = this.props;
 
     if (e.dragType === 'right') {
-      let moveField = groupName || name;
-      if (group && moveField === `${group}#len`) {
-        moveField = group;
+      let moveMoreField = groupName || name;
+      if (group && moveMoreField === `${group}#len`) {
+        moveMoreField = group;
         group = null;
       }
-      e.setData({keys, moveField, moveFromGroup: group}, conn);
+      e.setData({keys, moveMoreField, moveFromGroup: group}, conn);
     } else {
       let fields = keys.map((s) => `${s}.${name}`);
       e.setData({fields}, conn);
@@ -187,22 +187,26 @@ export class PropertyEditor extends MultiSelectComponent<Props, State, PropertyL
     e.startDrag();
   };
   onDragOver = (e: DragState) => {
-    let {conn, keys, name, propDesc, group, groupName} = this.props;
+    let {conn, keys, name, propDesc, isMore, group, groupName} = this.props;
     if (e.dragType === 'right') {
-      let moveFromKeys: string[] = DragState.getData('keys', conn);
-      let moveField: string = DragState.getData('moveField', conn);
-      let moveFromGroup = DragState.getData('moveFromGroup', conn);
+      if (isMore) {
+        let moveFromKeys: string[] = DragState.getData('keys', conn);
+        let moveMoreField: string = DragState.getData('moveMoreField', conn);
+        let moveFromGroup = DragState.getData('moveFromGroup', conn);
 
-      let moveToField = groupName || name;
-      if (group && moveToField === `${group}#len`) {
-        moveToField = group;
-        group = null;
-      }
+        if (moveMoreField) {
+          let moveToField = groupName || name;
+          if (group && moveToField === `${group}#len`) {
+            moveToField = group;
+            group = null;
+          }
 
-      // tslint:disable-next-line:triple-equals
-      if (deepEqual(moveFromKeys, keys) && moveToField !== moveField && group == moveFromGroup) {
-        e.accept('⇋');
-        return;
+          // tslint:disable-next-line:triple-equals
+          if (deepEqual(moveFromKeys, keys) && moveToField !== moveMoreField && group == moveFromGroup) {
+            e.accept('⇋');
+            return;
+          }
+        }
       }
     } else {
       let dragFields: string[] = DragState.getData('fields', conn);
@@ -219,10 +223,10 @@ export class PropertyEditor extends MultiSelectComponent<Props, State, PropertyL
     e.reject();
   };
   onDrop = (e: DragState) => {
-    let {conn, keys, name, group, groupName} = this.props;
+    let {conn, keys, name, isMore, group, groupName} = this.props;
     if (e.dragType === 'right') {
       let moveFromKeys: string[] = DragState.getData('keys', conn);
-      let moveField: string = DragState.getData('moveField', conn);
+      let moveMoreField: string = DragState.getData('moveMoreField', conn);
       let moveFromGroup = DragState.getData('moveFromGroup', conn);
 
       let moveToField = groupName || name;
@@ -232,9 +236,9 @@ export class PropertyEditor extends MultiSelectComponent<Props, State, PropertyL
       }
 
       // tslint:disable-next-line:triple-equals
-      if (deepEqual(moveFromKeys, keys) && moveToField !== moveField && group == moveFromGroup) {
+      if (isMore && deepEqual(moveFromKeys, keys) && moveToField !== moveMoreField && group == moveFromGroup) {
         for (let key of keys) {
-          conn.moveMoreProp(key, moveField, moveToField, moveFromGroup);
+          conn.moveMoreProp(key, moveMoreField, moveToField, moveFromGroup);
         }
       }
     } else {
