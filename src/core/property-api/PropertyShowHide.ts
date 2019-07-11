@@ -134,3 +134,21 @@ export function hideProperties(block: Block, fields: string[]) {
   }
 }
 
+export function moveShownProperty(block: Block, fieldFrom: string, fieldTo: string) {
+  let bp = block.getValue('@b-p');
+  if (!Array.isArray(bp) || fieldFrom === fieldTo) {
+    return;
+  }
+  let idxFrom = bp.indexOf(fieldFrom);
+  let idxTo = bp.indexOf(fieldTo);
+
+  if (idxFrom > -1 && idxTo > -1) {
+    bp = bp.concat(); // make a copy
+    if (idxTo > idxFrom) {
+      ++idxTo;
+    }
+    bp.splice(idxFrom, 1);
+    bp.splice(idxTo, 0, fieldFrom);
+    block.setValue('@b-p', bp);
+  }
+}
