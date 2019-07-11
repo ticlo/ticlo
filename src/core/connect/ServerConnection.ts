@@ -14,7 +14,7 @@ import {Type, Types, DescListener} from "../block/Type";
 import {FunctionDesc, PropDesc, PropGroupDesc} from "../block/Descriptor";
 import {propRelative} from "../util/Path";
 import {anyChildProperty, changeLength} from "../property-api/PropertyAddMove";
-import {hideProperties, showProperties} from "../property-api/PropertyShowHide";
+import {hideProperties, moveShownProperty, showProperties} from "../property-api/PropertyShowHide";
 import {addMoreProperty, moveMoreProperty, removeMoreProperty} from "../property-api/MoreProperty";
 
 class ServerRequest extends ConnectionSendingData {
@@ -340,12 +340,19 @@ export class ServerConnection extends Connection {
             result = this.watchDesc(request.id);
             break;
           }
+
+          //// property utils
+
           case 'showProps': {
             result = this.showProps(request.path, request.props);
             break;
           }
           case 'hideProps': {
             result = this.hideProps(request.path, request.props);
+            break;
+          }
+          case 'moveShownProp': {
+            result = this.moveShownProp(request.path, request.propFrom, request.propTo);
             break;
           }
           case 'setLen': {
@@ -558,6 +565,17 @@ export class ServerConnection extends Connection {
 
     if (property && property._value instanceof Block) {
       hideProperties(property._value, props);
+      return null;
+    } else {
+      return 'invalid path';
+    }
+  }
+
+  moveShownProp(path: string, propFrom: string, propTo: string) {
+    let property = this.root.queryProperty(path);
+
+    if (property && property._value instanceof Block) {
+      moveShownProperty(property._value, propFrom, propTo);
       return null;
     } else {
       return 'invalid path';

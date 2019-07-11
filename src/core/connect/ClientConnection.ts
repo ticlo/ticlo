@@ -550,6 +550,10 @@ export class ClientConnection extends Connection {
     return this.simpleRequest({cmd: 'hideProps', path, props}, callbacks);
   }
 
+  moveShownProp(path: string, propFrom: string, propTo: string, callbacks?: ClientCallbacks): Promise<any> | string {
+    return this.simpleRequest({cmd: 'moveShownProp', path, propFrom, propTo}, callbacks);
+  }
+
   setLen(path: string, length: number, callbacks?: ClientCallbacks): Promise<any> | string {
     return this.simpleRequest({cmd: 'setLen', path, length}, callbacks);
   }
