@@ -190,12 +190,26 @@ export class Popup extends React.PureComponent<PopupProps, PopupState> {
     }
   };
 
+  onBodyKeydown: (e: KeyboardEvent) => void;
+
   render() {
     let {showPopup} = this.state;
     let {trigger, popupVisible} = this.props;
     if (typeof popupVisible === 'boolean') {
       showPopup = popupVisible;
     }
+
+    if (showPopup && !this.onBodyKeydown) {
+      this.onBodyKeydown = (e: KeyboardEvent) => {
+        if (e.key === 'Escape') {
+          this.showPopup(false);
+          document.body.removeEventListener('keydown', this.onBodyKeydown);
+          this.onBodyKeydown = null;
+        }
+      };
+      document.body.addEventListener('keydown', this.onBodyKeydown);
+    }
+
     if (!trigger) {
       trigger = ['click'];
     }
@@ -226,6 +240,13 @@ export class Popup extends React.PureComponent<PopupProps, PopupState> {
         {children}
       </Trigger>
     );
+  }
+
+  componentWillUnmount(): void {
+    if (this.onBodyKeydown) {
+      document.body.removeEventListener('keydown', this.onBodyKeydown);
+      this.onBodyKeydown = null;
+    }
   }
 }
 
