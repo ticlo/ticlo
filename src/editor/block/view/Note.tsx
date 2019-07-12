@@ -78,6 +78,7 @@ ClientConnection.addEditorType('note',
   {
     view: NoteView,
     name: 'note',
+    id: 'note',
     properties: [
       {name: 'text', type: 'string'},
       {name: 'color', type: 'color'},
