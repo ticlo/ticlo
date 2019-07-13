@@ -36,6 +36,7 @@ export const sampleData = {
     '@b-xyw': [300, 200, 0],
     '@b-p': ['0', '1', 'output']
   },
+  '~tito': 'multiply.~0',
   multiply: {
     '#is': 'multiply',
     '~0': {'#is': 'add', '0': 1, '1': 3},

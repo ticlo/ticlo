@@ -100,7 +100,7 @@ export class GroupEditor extends MultiSelectComponent<Props, State, GroupLoader>
     return (
       <div className='ticl-property-group'>
         <LengthPropertyEditor key={groupName} name={lenName} keys={keys} conn={conn} isMore={isMore} group={groupName}
-                              funcDesc={funcDesc} propDesc={configDescs['#len']}/>
+                              funcDesc={funcDesc} propDesc={lenDesc}/>
         {children}
       </div>
     );
