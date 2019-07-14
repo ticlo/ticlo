@@ -13,7 +13,7 @@ import Property = Chai.Property;
 import {Type, Types, DescListener} from "../block/Type";
 import {FunctionDesc, PropDesc, PropGroupDesc} from "../block/Descriptor";
 import {propRelative} from "../util/Path";
-import {anyChildProperty, changeLength} from "../property-api/PropertyAddMove";
+import {findPropertyForNewBlock, changeLength} from "../property-api/PropertyAddMove";
 import {hideProperties, moveShownProperty, showProperties} from "../property-api/PropertyShowHide";
 import {addMoreProperty, moveMoreProperty, removeMoreProperty} from "../property-api/MoreProperty";
 
@@ -464,7 +464,7 @@ export class ServerConnection extends Connection {
     let property = this.root.queryProperty(path, true);
     if (property) {
       if (anyName) {
-        property = anyChildProperty(property._block, property._name);
+        property = findPropertyForNewBlock(property._block, property._name);
         property._block.createBlock(property._name);
       } else {
         property.setValue(undefined);

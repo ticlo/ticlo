@@ -6,7 +6,7 @@ import {HelperProperty} from "../block/BlockProperty";
 const configList = Object.keys(configDescs);
 
 
-function buildPropertiesOrder(block: Block): string[] {
+export function buildPropertiesOrder(block: Block): string[] {
   let orders = [...configList];
 
   function addProps(props: (PropDesc | PropGroupDesc)[]) {

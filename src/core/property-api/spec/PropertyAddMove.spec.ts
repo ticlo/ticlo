@@ -3,27 +3,34 @@ import {assert} from "chai";
 import {Block, Job} from "../../block/Block";
 import {BlockPropertyEvent} from "../../block/BlockProperty";
 import {Dispatcher} from "../../block/Dispatcher";
-import {anyChildProperty, renameProperty, changeLength} from "../PropertyAddMove";
+import {findPropertyForNewBlock, renameProperty, changeLength} from "../PropertyAddMove";
 
 describe("PropertyUtil", function () {
 
-  it('anyChildProperty', function () {
+  it('findPropertyForNewBlock', function () {
 
     let job = new Job();
+    job.setValue('#more', [{name: 'add4', type: 'sting'}]);
+
     job.setValue('add1', 1);
     job.setBinding('add2', 'add1');
 
-    let p = anyChildProperty(job, 'add');
+    let p = findPropertyForNewBlock(job, 'add');
     assert.equal(p._name, 'add');
     p.setValue(1);
 
-    p = anyChildProperty(job, 'add');
+    p = findPropertyForNewBlock(job, 'add');
     assert.equal(p._name, 'add0');
     p.setValue(1);
 
     // skip 2 names because they are already used
-    p = anyChildProperty(job, 'add');
+    p = findPropertyForNewBlock(job, 'add');
     assert.equal(p._name, 'add3');
+    p.setValue(1);
+
+    // skip add4 because it's defined in #more
+    p = findPropertyForNewBlock(job, 'add');
+    assert.equal(p._name, 'add5');
   });
 
   it('renameProperty', function () {

@@ -1,9 +1,10 @@
 import {BlockProperty, BlockPropertyEvent, BlockPropertySubscriber} from "./BlockProperty";
 import {Listener} from "./Dispatcher";
+import {Root} from "./Block";
 
 
 class VoidProperty extends BlockProperty {
-  static readonly insteance = new VoidProperty(null, '');
+  static readonly instance = new VoidProperty(null, '');
 
   onChange(val: any): boolean {
     return false;
@@ -18,15 +19,21 @@ class VoidProperty extends BlockProperty {
   }
 
   _save(): any {
-    throw new Error("Can not save destroyed property");
+    if (Root.instance._strictMode) {
+      throw new Error("Can not save destroyed property");
+    }
   }
 
   _load(val: any) {
-    throw new Error("Can not load destroyed property");
+    if (Root.instance._strictMode) {
+      throw new Error("Can not load destroyed property");
+    }
   }
 
   _liveUpdate(val: any) {
-    throw new Error("Can not liveUpdate destroyed property");
+    if (Root.instance._strictMode) {
+      throw new Error("Can not liveUpdate destroyed property");
+    }
   }
 
   subscribe(subscriber: BlockPropertySubscriber) {
@@ -54,4 +61,4 @@ class VoidProperty extends BlockProperty {
   }
 }
 
-export const voidProperty = VoidProperty.insteance;
+export const voidProperty = VoidProperty.instance;

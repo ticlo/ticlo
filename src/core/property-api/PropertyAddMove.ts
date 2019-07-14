@@ -2,21 +2,28 @@ import {Block} from "../block/Block";
 import {BlockProperty, HelperProperty} from "../block/BlockProperty";
 import {PropDesc, PropGroupDesc, shouldShowProperty} from "../block/Descriptor";
 import {Types} from "../block/Type";
-import {hideProperties, showProperties} from "./PropertyShowHide";
+import {buildPropertiesOrder, hideProperties, showProperties} from "./PropertyShowHide";
 
 
 let trailingNumberReg = /\d+$/;
 
-export function anyChildProperty(block: Block, baseName: string): BlockProperty {
-  let p = block.getProperty(baseName);
-  if (p.isCleared()) {
-    return p;
-  }
-  baseName = baseName.replace(trailingNumberReg, '');
-  for (let i = 0; ; ++i) {
-    p = block.getProperty(`${baseName}${i}`);
+export function findPropertyForNewBlock(block: Block, baseName: string): BlockProperty {
+  let usedNames = buildPropertiesOrder(block);
+  if (!usedNames.includes(baseName)) {
+    let p = block.getProperty(baseName);
     if (p.isCleared()) {
       return p;
+    }
+  }
+
+  baseName = baseName.replace(trailingNumberReg, '');
+  for (let i = 0; ; ++i) {
+    let newName = `${baseName}${i}`;
+    if (!usedNames.includes(newName)) {
+      let p = block.getProperty(`${baseName}${i}`);
+      if (p.isCleared()) {
+        return p;
+      }
     }
   }
 }
