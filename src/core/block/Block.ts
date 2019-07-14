@@ -1,4 +1,4 @@
-import {BlockProperty, BlockIO, HelperProperty} from "./BlockProperty";
+import {BlockProperty, BlockIO, HelperProperty, GlobalProperty} from "./BlockProperty";
 import {BlockBinding} from "./BlockBinding";
 import {FunctionData, FunctionClass, BaseFunction, FunctionOutput} from "./BlockFunction";
 import {Dispatcher, Listener, ValueDispatcher, ListenPromise, Destroyable, BlockBindingSource} from "./Dispatcher";
@@ -223,6 +223,9 @@ export class Block implements Runnable, FunctionData, Listener<FunctionClass>, D
           }
         }
       }
+    } else if (firstChar === 94) {
+      // ^ global
+      return this.createGlobalProperty(field);
     } else if (!create) {
       return null;
     } else {
@@ -245,6 +248,10 @@ export class Block implements Runnable, FunctionData, Listener<FunctionClass>, D
     }
     this._props.set(field, prop);
     return prop;
+  }
+
+  createGlobalProperty(name: string): BlockProperty {
+    return this._job.getGlobalProperty(name);
   }
 
   createBinding(path: string, listener: Listener<any>): BlockBindingSource {
@@ -804,6 +811,16 @@ export class Job extends Block {
     }
   }
 
+  createGlobalProperty(name: string): BlockProperty {
+    let prop = new GlobalProperty(this, name);
+    this._props.set(name, prop);
+    return prop;
+  }
+
+  getGlobalProperty(name: string): BlockProperty {
+    return this.getProperty(name);
+  }
+
   queueBlock(block: Runnable) {
     this._resolver.queueBlock(block);
   }
@@ -850,6 +867,14 @@ export class Job extends Block {
   }
 }
 
+export class GlobalBlock extends Block {
+  createGlobalProperty(name: string): BlockProperty {
+    let prop = new BlockIO(this, name);
+    this._props.set(name, prop);
+    return prop;
+  }
+}
+
 export class Root extends Job {
 
   private static _instance: Root = new Root();
@@ -873,6 +898,8 @@ export class Root extends Job {
 
   _strictMode: boolean = (process.env.NODE_ENV || '').toLowerCase() === 'test';
 
+  _globalBlock: Block;
+
   constructor() {
     super();
     this._parent = this;
@@ -881,7 +908,22 @@ export class Root extends Job {
       resolver._queueToRun = true;
       setTimeout(this._run, 0);
     });
+
+    // create the readolny global block
+    let globalProp = new BlockReadOnlyConfig(this, '#global');
+    this._props.set('#global', globalProp);
+    this._globalBlock = new GlobalBlock(this, this, globalProp);
+    globalProp._value = this._globalBlock;
   }
+
+  createGlobalProperty(name: string): BlockProperty {
+    return this.getGlobalProperty(name);
+  }
+
+  getGlobalProperty(name: string): BlockProperty {
+    return this._globalBlock.getProperty(name);
+  }
+
 
   addJob(name?: string): Job {
     if (!name) {

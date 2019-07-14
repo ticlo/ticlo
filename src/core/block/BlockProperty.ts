@@ -73,10 +73,8 @@ export class BlockProperty extends ValueDispatcher<any> implements Listener<any>
 
 
   setValue(val: any) {
-    if (this._bindingPath) {
-      if (this._bindingSource) {
-        this._bindingSource.unlisten(this);
-      }
+    if (this._bindingSource) {
+      this._bindingSource.unlisten(this);
       if (this._bindingProperty) {
         this._bindingProperty.setValue(undefined);
         this._bindingProperty = null;
@@ -108,7 +106,7 @@ export class BlockProperty extends ValueDispatcher<any> implements Listener<any>
   setBinding(path: string) {
     if (path === this._bindingPath) return;
 
-    if (this._bindingSource != null) {
+    if (this._bindingSource) {
       this._bindingSource.unlisten(this);
     }
     if (this._bindingProperty) {
@@ -118,8 +116,8 @@ export class BlockProperty extends ValueDispatcher<any> implements Listener<any>
     this._bindingPath = path;
 
     if (path != null) {
-      this._bindingSource = this._block.createBinding(path, this);
       this._saved = undefined;
+      this._bindingSource = this._block.createBinding(path, this);
     } else {
       this._bindingSource = null;
       this.onChange(undefined, true);
@@ -169,11 +167,8 @@ export class BlockProperty extends ValueDispatcher<any> implements Listener<any>
   }
 
   _liveUpdate(val: any) {
-    if (this._bindingPath != null) {
-      // clear binding
-      if (this._bindingSource) {
-        this._bindingSource.unlisten(this);
-      }
+    if (this._bindingSource) {
+      this._bindingSource.unlisten(this);
       this._bindingSource = null;
       this._bindingPath = null;
       if (this._subscribers) {
@@ -246,7 +241,7 @@ export class BlockProperty extends ValueDispatcher<any> implements Listener<any>
   }
 
   destroy() {
-    if (this._bindingSource != null) {
+    if (this._bindingSource) {
       this._bindingSource.unlisten(this);
       this._bindingSource = null;
     }
@@ -284,6 +279,49 @@ export class BlockIO extends BlockProperty {
     let changed = this.onChange(val);
     this._outputing = false;
     return changed;
+  }
+}
+
+export class GlobalProperty extends BlockIO {
+
+  constructor(block: Block, name: string) {
+    super(block, name);
+    this.listenToParentGlobal()
+  }
+
+  onChange(val: any, save?: boolean): boolean {
+    if (super.onChange(val, save)) {
+      this.checkInUse();
+      return true;
+    } else {
+      return false;
+    }
+  }
+
+  unlisten(listener: Listener<any>) {
+    super.unlisten(listener);
+    this.checkInUse();
+  }
+
+  setBinding(path: string) {
+    super.setBinding(path);
+    this.checkInUse();
+  }
+
+  checkInUse() {
+    if (this._saved === undefined || this._bindingPath) {
+      if (this._listeners.size === 0) {
+        this._block._props.delete(this._name);
+        this.destroy();
+      } else {
+        this.listenToParentGlobal();
+      }
+    }
+  }
+
+  listenToParentGlobal() {
+    this._bindingSource = this._block._job._parent._job.getGlobalProperty(this._name);
+    this._bindingSource.listen(this);
   }
 }
 

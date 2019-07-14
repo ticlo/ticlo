@@ -93,14 +93,14 @@ export class BlockReadOnlyConfig extends BlockProperty {
   // unlisten(listener: Listener) {
   //   super.unlisten(listener);
   //   if (this._listeners.size === 0) {
-  //     delete this._block._props.get(this._name);
+  //     this._block._props.delete(this._name);
   //     this.destroy();
   //   }
   // }
 }
 
 
-export const ConfigGenerators: {[key: string]: new (block: Block, field: string) => BlockProperty} = {
+export const ConfigGenerators: {[key: string]: typeof BlockProperty} = {
   '#is': BlockTypeConfig,
   '#mode': BlockModeConfig,
   '#call': BlockCallConfig,

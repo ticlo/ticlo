@@ -6,7 +6,7 @@ import {Root} from "./Block";
 class VoidProperty extends BlockProperty {
   static readonly instance = new VoidProperty(null, '');
 
-  onChange(val: any): boolean {
+  onChange(val: any, save?: boolean): boolean {
     return false;
   }
 
