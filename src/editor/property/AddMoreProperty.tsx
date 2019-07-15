@@ -1,6 +1,7 @@
 import React, {ChangeEvent} from "react";
 import {Button, Input, Select, Form, Switch, InputNumber} from "antd";
 import {PropDesc, PropGroupDesc, ValueType, VisibleType} from "../../core/block/Descriptor";
+import {endsWithNumberReg} from "../../core/util/String";
 
 const FormItem = Form.Item;
 const {Option} = Select;
@@ -130,6 +131,8 @@ export class AddMorePropertyMenu extends React.PureComponent<Props, State> {
       && group !== '' // allow default group to have child with empty name
     )) {
       addError('nameErr', 'Invalid Name');
+    } else if (group != null && name.match(endsWithNumberReg)) {
+      addError('nameErr', "Number character not allowed");
     }
     if (type === 'group') {
       if (defaultLen == null || !(defaultLen >= 0)) {

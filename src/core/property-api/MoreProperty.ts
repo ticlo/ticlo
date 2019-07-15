@@ -1,6 +1,7 @@
 import {PropDesc, PropGroupDesc} from "../block/Descriptor";
 import {Block} from "../block/Block";
 import {deepClone} from "../util/Clone";
+import {endsWithNumberReg} from "../util/String";
 
 
 export function addMoreProperty(block: Block, desc: PropDesc | PropGroupDesc, group?: string) {
@@ -16,11 +17,17 @@ export function addMoreProperty(block: Block, desc: PropDesc | PropGroupDesc, gr
       groupDesc.defaultLen = 2;
     }
     group = groupDesc.name;
-  } else if (desc.name || group != null) {
-    propDesc = desc as PropDesc;
   } else {
-    return;
+    propDesc = desc as PropDesc;
+    if (group == null) {
+      if (!desc.name) {
+        return; // not allow empty property unless it's in a group
+      }
+    } else if (desc.name.match(endsWithNumberReg)) {
+      return; // group property should not end with number
+    }
   }
+
 
   let moreProps = block.getValue('#more');
 

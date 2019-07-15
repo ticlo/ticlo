@@ -9,8 +9,10 @@ describe("More Property", function () {
 
   let descA: PropDesc = {name: 'a', type: 'string'};
   let descB: PropDesc = {name: 'b', type: 'number'};
+  let descBNumber: PropDesc = {name: 'b0', type: 'number'};
   let descA2: PropDesc = {name: 'a', type: 'number'};
   let descC: PropDesc = {name: 'c', type: 'toggle'};
+  let descBlank: PropDesc = {name: '', type: 'string'};
   let descG: PropGroupDesc = {name: 'g', type: 'group', defaultLen: 1, properties: []};
   let descG2: PropGroupDesc = {name: 'g', type: 'group'} as PropGroupDesc; // automatically fix group desc
   let descG2Fix: PropGroupDesc = {name: 'g', type: 'group', defaultLen: 2, properties: []};
@@ -25,6 +27,10 @@ describe("More Property", function () {
 
     // add invalid desc
     addMoreProperty(job, {} as any);
+    assert.isUndefined(job.getValue('#more'));
+
+    // add invalid desc
+    addMoreProperty(job, descBlank);
     assert.isUndefined(job.getValue('#more'));
 
     // add property into group that doesn't exist
@@ -51,9 +57,17 @@ describe("More Property", function () {
     addMoreProperty(job, descA, 'g');
     assert.deepEqual(job.getValue('#more'), [descA2, descB, {...descG, properties: [descA]}]);
 
+    // cant add property name ends with number into a group
+    addMoreProperty(job, descBNumber, 'g');
+    assert.deepEqual(job.getValue('#more'), [descA2, descB, {...descG, properties: [descA]}]);
+
+    // add property with blank name into group
+    addMoreProperty(job, descBlank, 'g');
+    assert.deepEqual(job.getValue('#more'), [descA2, descB, {...descG, properties: [descA, descBlank]}]);
+
     // replace property in group
     addMoreProperty(job, descA2, 'g');
-    assert.deepEqual(job.getValue('#more'), [descA2, descB, {...descG, properties: [descA2]}]);
+    assert.deepEqual(job.getValue('#more'), [descA2, descB, {...descG, properties: [descA2, descBlank]}]);
 
     // replace the group
     addMoreProperty(job, descG2);
