@@ -594,7 +594,7 @@ export class ServerConnection extends Connection {
   }
 
   addMoreProp(path: string, desc: PropDesc | PropGroupDesc, group: string) {
-    if (!(desc instanceof Object)) {
+    if (!(desc instanceof Object && typeof desc.name === 'string')) {
       // TODO, full validation
       return 'invalid desc';
     }

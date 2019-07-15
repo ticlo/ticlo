@@ -103,7 +103,7 @@ export class AddMorePropertyMenu extends React.PureComponent<Props, State> {
   };
 
   onSubmit = (e: React.FormEvent<HTMLElement>) => {
-    let {onAddProperty} = this.props;
+    let {onAddProperty, group} = this.props;
     let {name, type, defaultLen, placeholder, min, max, step, optionStr, showAlpha, showTime} = this.state;
     e.preventDefault();
 
@@ -124,7 +124,11 @@ export class AddMorePropertyMenu extends React.PureComponent<Props, State> {
       hasError = true;
     }
 
-    if (!name) {
+    if (typeof name !== 'string' || (
+      name === '' &&
+      type !== 'group' // allow group to use empty name (default group)
+      && group !== '' // allow default group to have child with empty name
+    )) {
       addError('nameErr', 'Invalid Name');
     }
     if (type === 'group') {

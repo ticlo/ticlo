@@ -173,8 +173,8 @@ export class PropertyEditor extends MultiSelectComponent<Props, State, PropertyL
     let {conn, keys, name, group, groupName} = this.props;
 
     if (e.dragType === 'right') {
-      let moveMoreField = groupName || name;
-      if (group && moveMoreField === `${group}#len`) {
+      let moveMoreField = (groupName != null) ? groupName : name;
+      if (group != null && moveMoreField === `${group}#len`) {
         moveMoreField = group;
         group = null;
       }
@@ -194,9 +194,9 @@ export class PropertyEditor extends MultiSelectComponent<Props, State, PropertyL
         let moveMoreField: string = DragState.getData('moveMoreField', conn);
         let moveFromGroup = DragState.getData('moveFromGroup', conn);
 
-        if (moveMoreField) {
-          let moveToField = groupName || name;
-          if (group && moveToField === `${group}#len`) {
+        if (moveMoreField != null) {
+          let moveToField = (groupName != null) ? groupName : name;
+          if (group != null && moveToField === `${group}#len`) {
             moveToField = group;
             group = null;
           }
@@ -229,8 +229,8 @@ export class PropertyEditor extends MultiSelectComponent<Props, State, PropertyL
       let moveMoreField: string = DragState.getData('moveMoreField', conn);
       let moveFromGroup = DragState.getData('moveFromGroup', conn);
 
-      let moveToField = groupName || name;
-      if (group && moveToField === `${group}#len`) {
+      let moveToField = (groupName != null) ? groupName : name;
+      if (group != null && moveToField === `${group}#len`) {
         moveToField = group;
         group = null;
       }

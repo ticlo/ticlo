@@ -16,7 +16,7 @@ export function addMoreProperty(block: Block, desc: PropDesc | PropGroupDesc, gr
       groupDesc.defaultLen = 2;
     }
     group = groupDesc.name;
-  } else if (desc.name) {
+  } else if (desc.name || group != null) {
     propDesc = desc as PropDesc;
   } else {
     return;
@@ -34,7 +34,7 @@ export function addMoreProperty(block: Block, desc: PropDesc | PropGroupDesc, gr
 
   moreProps = deepClone(moreProps);
 
-  if (group) {
+  if (group != null) {
     let groupIdx = moreProps.findIndex((g: PropGroupDesc) => g.name === group);
     if (groupIdx > -1) {
       if (groupDesc) {
@@ -113,7 +113,7 @@ export function moveMoreProperty(block: Block, nameFrom: string, nameTo: string,
   moreProps = deepClone(moreProps);
 
   let targetProps = moreProps;
-  if (group) {
+  if (group != null) {
     let foundGroup: PropGroupDesc = moreProps.find((g: PropGroupDesc) => g.name === group && g.type === 'group');
     if (foundGroup) {
       targetProps = foundGroup.properties;

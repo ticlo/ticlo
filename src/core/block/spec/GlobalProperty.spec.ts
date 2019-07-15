@@ -43,11 +43,14 @@ describe("GlobalProperty", function () {
     job.deleteValue('^top');
     assert.equal(impl.getValue('v'), 123);
 
+    globalBlock._liveUpdate({}); // clear global object
+    assert.equal(impl.getValue('v'), undefined);
+
     // global property is in use
     assert.isTrue(job._props.has('^top'));
 
-    // global property is no longer in use
     job.deleteValue('a');
+    // global property is no longer in use
     assert.isFalse(job._props.has('^top'));
 
   });
