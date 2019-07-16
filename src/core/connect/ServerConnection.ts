@@ -496,8 +496,8 @@ export class ServerConnection extends Connection {
         filterRegex = new RegExp(filter);
       }
       let count = 0;
-      block.forEach((field: string, prop: BlockIO) => {
-        if (prop._value instanceof Block) {
+      for (let [field, prop] of block._props) {
+        if (prop._saved instanceof Block) {
           if (!filterRegex || filterRegex.test(field)) { // filter
             if (count < max) {
               children[field] = (prop._value as Block)._blockId;
@@ -505,7 +505,7 @@ export class ServerConnection extends Connection {
             ++count;
           }
         }
-      });
+      }
       return {children, count};
     } else {
       return 'invalid path';
