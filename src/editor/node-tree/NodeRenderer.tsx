@@ -8,6 +8,7 @@ import {ClientConnection, ValueUpdate} from "../../core/connect/ClientConnection
 import {TIcon} from "../icon/Icon";
 import {blankFuncDesc, FunctionDesc, getFuncStyleFromDesc} from "../../core/block/Descriptor";
 import {ClickParam} from "antd/lib/menu";
+import {smartStrCompare} from "../../core/util/String";
 
 export class NodeTreeItem extends TreeItem<NodeTreeItem> {
 
@@ -83,7 +84,9 @@ export class NodeTreeItem extends TreeItem<NodeTreeItem> {
       this.listingId = null;
     }
     let children: DataMap = response.children;
-    for (let key in children) {
+    let names = Object.keys(children);
+    names.sort(smartStrCompare);
+    for (let key of names) {
       let newItem = new NodeTreeItem(key, this);
       this.children.push(newItem);
     }
