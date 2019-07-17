@@ -913,7 +913,8 @@ export class Root extends Job {
     let globalProp = new BlockReadOnlyConfig(this, '#global');
     this._props.set('#global', globalProp);
     this._globalBlock = new GlobalBlock(this, this, globalProp);
-    globalProp._value = this._globalBlock;
+    globalProp._saved = this._globalBlock;
+    globalProp._value = globalProp._saved;
 
     this._props.set('', new BlockReadOnlyConfig(this, '', this));
   }

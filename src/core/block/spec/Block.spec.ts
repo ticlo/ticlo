@@ -1,6 +1,7 @@
 import {assert} from "chai";
 import {Job, Root, Block} from "../Block";
 import {Dispatcher} from "../Dispatcher";
+import "../../functions/basic/Math";
 
 describe("Block", function () {
 
@@ -94,6 +95,8 @@ describe("Block", function () {
 
   it('misc', function () {
     assert.isNull(Root.instance.save(), 'root can not be saved');
+
+    assert.equal(Root.instance.getValue(''), Root.instance);
 
     let job = Root.instance.addJob();
 

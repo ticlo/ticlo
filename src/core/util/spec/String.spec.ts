@@ -16,9 +16,9 @@ describe("String", function () {
 
     // test sign
     assert.equal(
-      ('a+123,a+13c,a+4,a-123,a-13,a+14b,a-4,a;,a0'.split(',')
+      ('a+123,a+13c,a+4,a-123,a-13,a+14b,a-4,a+13d,a;,a0'.split(',')
         .sort(smartStrCompare)).join(','),
-      'a;,a-123,a-13,a-4,a0,a+4,a+13c,a+14b,a+123');
+      'a;,a-123,a-13,a-4,a0,a+4,a+13c,a+13d,a+14b,a+123');
 
     // test upper lower case
     assert.equal(
