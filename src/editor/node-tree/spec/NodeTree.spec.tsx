@@ -37,7 +37,7 @@ describe("editor NodeTree", function () {
     let [component, div] = loadTemplate(
       <NodeTree
         conn={client}
-        basePath="NodeTree"
+        basePaths={["NodeTree"]}
         style={{width: '600px', height: '600px'}}
       />, 'editor');
     await shouldHappen(() => div.querySelector('.ticl-v-scroll-content'));

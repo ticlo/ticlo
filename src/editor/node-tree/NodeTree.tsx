@@ -8,8 +8,9 @@ import {NodeTreeItem, NodeTreeRenderer} from "./NodeRenderer";
 
 interface Props {
   conn: ClientConnection;
-  basePath: string;
+  basePaths: string[];
   style?: React.CSSProperties;
+  hideRoot?: boolean;
 }
 
 export class NodeTree extends React.PureComponent<Props, any> {
@@ -37,10 +38,21 @@ export class NodeTree extends React.PureComponent<Props, any> {
 
   constructor(props: Props) {
     super(props);
-    let rootNode = new NodeTreeItem(props.basePath);
-    rootNode.connection = this.props.conn;
-    rootNode.onListChange = this.forceUpdateImmediate;
-    this.rootList.push(rootNode);
+    this.buildRoot();
+  }
+
+  buildRoot() {
+    let {basePaths, hideRoot} = this.props;
+    for (let basePath of basePaths) {
+      let rootNode = new NodeTreeItem(basePath);
+      rootNode.connection = this.props.conn;
+      rootNode.onListChange = this.forceUpdateImmediate;
+      this.rootList.push(rootNode);
+    }
+    if (hideRoot && basePaths.length === 1) {
+      this.rootList[0].level = -1;
+      this.rootList[0].open();
+    }
   }
 
   render() {

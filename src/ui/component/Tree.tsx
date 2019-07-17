@@ -80,7 +80,9 @@ export abstract class TreeItem<T extends TreeItem<any>> extends DataRendererItem
   }
 
   addToList(list: TreeItem<T>[]) {
-    list.push(this);
+    if (this.level >= 0) {
+      list.push(this);
+    }
     if (this.opened === 'opened' && this.children) {
       for (let child of this.children) {
         child.addToList(list);
