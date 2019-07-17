@@ -35,18 +35,18 @@ export function smartStrCompare(str1: string, str2: string) {
     }
     if (code1 !== code2) {
       let code2Uppercase = -1;
-      // swap '+' and ';', so '-' < '0' < '+'
+      // swap '+' and '-', so '-' < '+'
       if (code1 === 43) {
-        code1 = 59;
-      } else if (code1 === 59) {
+        code1 = 45;
+      } else if (code1 === 45) {
         code1 = 43;
       } else if (code1 >= 65 && code1 <= 90) {
         // to upper case
         code1 += 32;
       }
       if (code2 === 43) {
-        code2 = 59;
-      } else if (code2 === 59) {
+        code2 = 45;
+      } else if (code2 === 45) {
         code2 = 43;
       } else if (code2 >= 65 && code2 <= 90) {
         // to upper case
