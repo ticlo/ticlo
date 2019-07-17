@@ -914,6 +914,8 @@ export class Root extends Job {
     this._props.set('#global', globalProp);
     this._globalBlock = new GlobalBlock(this, this, globalProp);
     globalProp._value = this._globalBlock;
+
+    this._props.set('', new BlockReadOnlyConfig(this, '', this));
   }
 
   createGlobalProperty(name: string): BlockProperty {
