@@ -33,8 +33,8 @@ export class TypeEditor extends StringEditorBase {
     }
   };
 
-  onTypeClick = (name: string) => {
-    this.commitChange(name);
+  onTypeClick = (name: string, desc: FunctionDesc) => {
+    this.commitChange(desc.id);
     this.setState({opened: false});
   };
 

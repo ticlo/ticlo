@@ -1,12 +1,23 @@
 .ticl-type-view {
   display: flex;
+  position: relative;
   align-items: center;
   height: 24px;
   padding: 1px;
   border-radius: 0 6px 6px;
   cursor: pointer;
 
-  & > span {
+  & > .ticl-type-ns {
+    position: absolute;
+    background: white;
+    padding: 0 2px;
+    font-size: 12px;
+    line-height: 12px;
+    top: -7px;
+    left: 25px;
+  }
+
+  & > .ticl-type-name {
     background: white;
     height: 22px;
     flex-grow: 1;

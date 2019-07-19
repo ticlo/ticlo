@@ -9,5 +9,5 @@ JsFunction.registerType(
       {name: 'out1', type: 'string', readonly: true}
     ],
   },
-  'testNamespace'
+  'testns'
 );

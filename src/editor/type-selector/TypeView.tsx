@@ -45,11 +45,17 @@ export class TypeView extends React.PureComponent<Props, any> {
     if (!name) {
       name = desc.name;
     }
+    let {ns} = desc;
     return (
       <DragDropDiv className={`${getFuncStyleFromDesc(desc, 'tico-pr')} ticl-type-view`}
                    onClick={this.onClick} onDragStartT={this.onDrag}>
         <TIcon icon={desc.icon}/>
-        <span>{name}</span>
+        {
+          ns
+            ? <span className='ticl-type-ns'>{ns}</span>
+            : null
+        }
+        <span className='ticl-type-name'>{name}</span>
 
       </DragDropDiv>
     );
