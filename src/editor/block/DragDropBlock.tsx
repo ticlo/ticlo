@@ -5,7 +5,7 @@ import {DragState} from "rc-dock/lib";
 
 
 export function onDragBlockOver(conn: ClientConnection, e: DragState) {
-  let blockData = DragState.getData('block', conn);
+  let blockData = DragState.getData('blockData', conn);
 
   if (blockData && blockData.hasOwnProperty('#is')) {
     e.accept('+');
@@ -15,7 +15,7 @@ export function onDragBlockOver(conn: ClientConnection, e: DragState) {
 type CreateBlockCallback = (name: string, data: {[key: string]: any}) => void;
 
 export function onDropBlock(conn: ClientConnection, e: DragState, createBlock: CreateBlockCallback, bgElement: HTMLElement) {
-  let blockData = DragState.getData('block', conn);
+  let blockData = DragState.getData('blockData', conn);
   if (blockData && blockData.hasOwnProperty('#is')) {
     let rect = bgElement.getBoundingClientRect();
     let scaleX = bgElement.offsetWidth / Math.round(rect.width);
@@ -23,7 +23,7 @@ export function onDropBlock(conn: ClientConnection, e: DragState, createBlock: C
     let offsetX = (e.clientX - rect.left) * scaleX;
     let offsetY = (e.clientY - rect.top) * scaleY;
 
-    let blockName = DragState.getData('name', conn) || blockData['#is'];
+    let blockName = DragState.getData('blockName', conn) || blockData['#is'];
 
     let onConfirmedBlockName = (name: string) => {
       let width = 150;

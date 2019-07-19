@@ -13,6 +13,7 @@ import {Types} from "../../src/core/block/Type";
 import {TypeTreeRoot} from "../../src/editor/type-selector/TypeTreeItem";
 import {TypeTree} from "../../src/editor/type-selector/TypeTree";
 
+import "./sample-blocks";
 
 interface Props {
   conn: ClientConnection;
@@ -82,7 +83,8 @@ class App extends React.PureComponent<Props, State> {
                 )
               }, {
                 id: 'NavTree', title: 'NavTree', cached: true, content: (
-                  <NodeTree conn={conn} basePaths={[""]} hideRoot={true} style={{width: '100%', height: '100%', padding: '8px'}}/>
+                  <NodeTree conn={conn} basePaths={[""]} hideRoot={true}
+                            style={{width: '100%', height: '100%', padding: '8px'}}/>
                 )
               }, {
                 id: 'Types', title: 'Types', cached: true, content: (

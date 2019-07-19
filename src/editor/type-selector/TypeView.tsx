@@ -24,7 +24,8 @@ export class TypeView extends React.PureComponent<Props, any> {
     }
 
     e.setData({
-      block: data
+      blockName: desc.name,
+      blockData: data
     }, conn);
     e.startDrag();
   };
