@@ -5,7 +5,7 @@ export class TestLogger {
 
   logs: string[] = [];
 
-  constructor(filter: number = Logger._WARN) {
+  constructor(filter: number = Logger.WARN_AND_ABOVE) {
     Logger.add(this.log, filter);
   }
 
@@ -22,21 +22,20 @@ describe("Logger", function () {
 
   it('basic', function () {
     let traceLogger1 = new TestLogger(Logger.TRACE);
-    let traceLogger2 = new TestLogger(Logger._TRACE);
+    let traceLogger2 = new TestLogger(Logger.TRACE_AND_ABOVE);
     let debugLogger1 = new TestLogger(Logger.DEBUG);
-    let debugLogger2 = new TestLogger(Logger._DEBUG);
+    let debugLogger2 = new TestLogger(Logger.DEBUG_AND_ABOVE);
     let fineLogger1 = new TestLogger(Logger.FINE);
-    let fineLogger2 = new TestLogger(Logger._FINE);
+    let fineLogger2 = new TestLogger(Logger.FINE_AND_ABOVE);
     let warnLogger1 = new TestLogger(Logger.WARN);
     let warnLogger2 = new TestLogger();
     let infoLogger1 = new TestLogger(Logger.INFO);
-    let infoLogger2 = new TestLogger(Logger._INFO);
+    let infoLogger2 = new TestLogger(Logger.INFO_AND_ABOVE);
     let errorLogger1 = new TestLogger(Logger.ERROR);
-    let errorLogger2 = new TestLogger(Logger._ERROR);
+    let errorLogger2 = new TestLogger(Logger.ERROR_AND_ABOVE);
     let configLogger1 = new TestLogger(Logger.CONFIG);
-    let configLogger2 = new TestLogger(Logger._CONFIG);
+    let configLogger2 = new TestLogger(Logger.CONFIG_AND_ABOVE);
     let fatalLogger1 = new TestLogger(Logger.FATAL);
-    let fatalLogger2 = new TestLogger(Logger._FATAL);
 
     Logger.trace('trace');
     Logger.debug('debug');
@@ -63,7 +62,6 @@ describe("Logger", function () {
     assert.deepEqual(configLogger1.logs, ['config']);
     assert.deepEqual(configLogger2.logs, ['config', 'fatal']);
     assert.deepEqual(fatalLogger1.logs, ['fatal']);
-    assert.deepEqual(fatalLogger2.logs, ['fatal']);
 
     traceLogger1.cancel();
     debugLogger1.cancel();
@@ -79,7 +77,6 @@ describe("Logger", function () {
     configLogger1.cancel();
     configLogger2.cancel();
     fatalLogger1.cancel();
-    fatalLogger2.cancel();
   });
 
   it('message lambda', function () {

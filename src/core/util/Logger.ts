@@ -14,26 +14,25 @@ export class Logger {
   static readonly FATAL = 0x80;
 
   static readonly _NONE = 0;
-  static readonly _FATAL = Logger.FATAL;
-  static readonly _CONFIG = Logger._FATAL | Logger.CONFIG;
-  static readonly _ERROR = Logger._CONFIG | Logger.ERROR;
-  static readonly _INFO = Logger._ERROR | Logger.INFO;
-  static readonly _WARN = Logger._INFO | Logger.WARN;
-  static readonly _FINE = Logger._WARN | Logger.FINE;
-  static readonly _DEBUG = Logger._FINE | Logger.DEBUG;
-  static readonly _TRACE = Logger._DEBUG | Logger.TRACE;
+  static readonly CONFIG_AND_ABOVE = Logger.FATAL | Logger.CONFIG;
+  static readonly ERROR_AND_ABOVE = Logger.CONFIG_AND_ABOVE | Logger.ERROR;
+  static readonly INFO_AND_ABOVE = Logger.ERROR_AND_ABOVE | Logger.INFO;
+  static readonly WARN_AND_ABOVE = Logger.INFO_AND_ABOVE | Logger.WARN;
+  static readonly FINE_AND_ABOVE = Logger.WARN_AND_ABOVE | Logger.FINE;
+  static readonly DEBUG_AND_ABOVE = Logger.FINE_AND_ABOVE | Logger.DEBUG;
+  static readonly TRACE_AND_ABOVE = Logger.DEBUG_AND_ABOVE | Logger.TRACE;
 
   static _loggers: Map<PrintCallback, number> = new Map<PrintCallback, number>();
-  static _filter: number;
+  static _preFilter: number;
 
   // when filter == WARN, it only logs one level!
   // when filter == _WARN_, it also logs all the levels above: WARN, INFO, ERROR, CONFIG, FATAL
-  static add(logger: PrintCallback, filter: number = Logger._WARN) {
+  static add(logger: PrintCallback, filter: number = Logger.WARN_AND_ABOVE) {
     Logger._loggers.set(logger, filter);
-    Logger._filter = 0;
+    Logger._preFilter = 0;
     // cache the level to improve logger performance
     for (let [logger, filter] of Logger._loggers) {
-      Logger._filter |= filter;
+      Logger._preFilter |= filter;
     }
   }
 
@@ -42,7 +41,7 @@ export class Logger {
   }
 
   static log(msg: LoggerMessageType, level: number, source: any) {
-    if ((level & Logger._filter) === 0) return;
+    if ((level & Logger._preFilter) === 0) return;
 
     if (typeof msg !== "string") {
       msg = msg();
