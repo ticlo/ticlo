@@ -14,6 +14,7 @@ import {TypeTreeRoot} from "../../src/editor/type-selector/TypeTreeItem";
 import {TypeTree} from "../../src/editor/type-selector/TypeTree";
 
 import "./sample-blocks";
+import {Logger} from "../../src/core/util/Logger";
 
 interface Props {
   conn: ClientConnection;
@@ -130,3 +131,5 @@ class App extends React.PureComponent<Props, State> {
     document.getElementById('app')
   );
 })();
+
+(window as any).Logger = Logger;

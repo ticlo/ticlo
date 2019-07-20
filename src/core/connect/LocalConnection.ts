@@ -2,12 +2,13 @@ import {ServerConnection} from "./ServerConnection";
 import {ClientConnection} from "./ClientConnection";
 import {Root} from "../block/Block";
 import {DataMap} from "../util/Types";
+import {Logger} from "../util/Logger";
 
 class LocalServerConnection extends ServerConnection {
   _client: LocalClientConnection;
 
   doSend(datas: DataMap[]): void {
-    // console.log('server send ' + JSON.stringify(datas));
+    Logger.trace(() => 'server send ' + JSON.stringify(datas), this);
     this._client.onReceive(datas);
   }
 
@@ -17,7 +18,7 @@ class LocalClientConnection extends ClientConnection {
   _server: LocalServerConnection;
 
   doSend(datas: DataMap[]): void {
-    // console.log('local send ' + JSON.stringify(datas));
+    Logger.trace(() => 'client send ' + JSON.stringify(datas), this);
     this._server.onReceive(datas);
   }
 
