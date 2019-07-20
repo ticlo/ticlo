@@ -132,9 +132,6 @@ export function moveMoreProperty(block: Block, nameFrom: string, nameTo: string,
   let idxFrom = targetProps.findIndex((p: PropDesc | PropGroupDesc) => p.name === nameFrom);
   let idxTo = targetProps.findIndex((p: PropDesc | PropGroupDesc) => p.name === nameTo);
   if (idxFrom > -1 && idxTo > -1) {
-    if (idxTo > idxFrom) {
-      ++idxTo;
-    }
     let from = targetProps.splice(idxFrom, 1)[0];
     targetProps.splice(idxTo, 0, from);
     block.setValue('#more', moreProps);

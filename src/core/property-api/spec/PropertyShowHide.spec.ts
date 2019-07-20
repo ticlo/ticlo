@@ -53,17 +53,17 @@ describe("PropertyOrder", function () {
     moveShownProperty(job, 'a', 'b');
     assert.isUndefined(job.getValue('@b-p'));
 
-    showProperties(job, ['a', 'b']);
-    assert.deepEqual(job.getValue('@b-p'), ['a', 'b']);
+    showProperties(job, ['a', 'b', 'c']);
+    assert.deepEqual(job.getValue('@b-p'), ['a', 'b', 'c']);
 
     moveShownProperty(job, 'a', 'b');
-    assert.deepEqual(job.getValue('@b-p'), ['b', 'a']);
+    assert.deepEqual(job.getValue('@b-p'), ['b', 'a', 'c']);
 
     moveShownProperty(job, 'a', 'b');
-    assert.deepEqual(job.getValue('@b-p'), ['a', 'b']);
+    assert.deepEqual(job.getValue('@b-p'), ['a', 'b', 'c']);
 
     moveShownProperty(job, 'a', 'a');
-    assert.deepEqual(job.getValue('@b-p'), ['a', 'b']);
+    assert.deepEqual(job.getValue('@b-p'), ['a', 'b', 'c']);
   });
 
 });

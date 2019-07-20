@@ -144,9 +144,6 @@ export function moveShownProperty(block: Block, fieldFrom: string, fieldTo: stri
 
   if (idxFrom > -1 && idxTo > -1) {
     bp = bp.concat(); // make a copy
-    if (idxTo > idxFrom) {
-      ++idxTo;
-    }
     bp.splice(idxFrom, 1);
     bp.splice(idxTo, 0, fieldFrom);
     block.setValue('@b-p', bp);
