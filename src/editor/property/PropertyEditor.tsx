@@ -25,6 +25,7 @@ import {TypeSelect} from "../type-selector/TypeSelector";
 import {CheckboxChangeEvent} from "antd/lib/checkbox";
 import {AddMorePropertyMenu} from "./AddMoreProperty";
 import {Popup, Menu, SubMenuItem} from "../component/ClickPopup";
+import {ServiceEditor} from "./value/ServiceEditor";
 
 const typeEditorMap: {[key: string]: any} = {
   'number': NumberEditor,
@@ -495,6 +496,11 @@ export class PropertyEditor extends MultiSelectComponent<Props, State, PropertyL
       }
       editor =
         <EditorClass conn={conn} value={editorValue} desc={propDesc} locked={locked && !unlocked} onChange={onChange}/>;
+    } else if (propDesc.type === 'service') {
+      editor = (
+        <ServiceEditor conn={conn} value={value} desc={propDesc} bindingPath={bindingPath} locked={locked && !unlocked}
+                       onPathChange={this.onBindChange}/>
+      );
     }
 
     let nameClass = `ticl-property-name${propDesc.readonly ? ' ticl-property-readonly' : ''}${display ? ' ticl-property-display' : ''}`;

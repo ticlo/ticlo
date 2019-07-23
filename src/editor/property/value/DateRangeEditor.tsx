@@ -1,7 +1,7 @@
 import React from "react";
 import {DatePicker, Tooltip} from "antd";
 import {PropDesc} from "../../../core/block/Descriptor";
-import {ValueEditorProps} from "./ValueEditor";
+import {ValueEditorProps} from "./ValueEditorBase";
 import * as MomentUtil from "../../../core/util/Moment";
 import {isMoment, Moment, parseZone} from "moment";
 

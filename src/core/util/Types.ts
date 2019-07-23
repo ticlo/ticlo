@@ -74,6 +74,12 @@ function truncateObj(val: any, maxSize: number = 1024): [any, number, boolean] {
     if (val.constructor === Object) {
       return truncateMap(val, maxSize);
     }
+    if (typeof (val as any).ticloSummary === 'function') {
+      let summary = val.ticloSummary();
+      if (typeof summary === 'string' && summary.length < 100) {
+        return [{TRUNCATED: summary}, summary.length, true];
+      }
+    }
     // TODO moment and binary
     return [TRUNCATED, 4, true];
   } else if (typeof val === 'string') {

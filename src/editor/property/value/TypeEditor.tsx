@@ -1,7 +1,7 @@
 import React from "react";
 import {Icon, Input} from "antd";
 import {FunctionDesc, getFuncStyleFromDesc, PropDesc} from "../../../core/block/Descriptor";
-import {ValueEditorProps} from "./ValueEditor";
+import {ValueEditorProps} from "./ValueEditorBase";
 import {TIcon} from "../../icon/Icon";
 import {DragDropDiv, DragState} from "rc-dock";
 import {StringEditorBase} from "./StringEditorBase";

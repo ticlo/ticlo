@@ -22,7 +22,8 @@ export type ValueType =
   | 'any'
   // special editors
   | 'type'
-  ;
+  | 'service'
+;
 
 export interface PropDesc {
   name: string;

@@ -1,6 +1,6 @@
 import React from "react";
 import {Button} from "antd";
-import {ValueEditorProps} from "./ValueEditor";
+import {ValueEditorProps} from "./ValueEditorBase";
 
 // remove thousand separator
 const formatNumberRegx = /[,\s]+/g;
