@@ -3,6 +3,7 @@ import {Uid} from "../util/Uid";
 import {DataMap, isSavedBlock, measureObjSize} from "../util/Types";
 import {Block} from "../block/Block";
 import {FunctionDesc, PropDesc, PropGroupDesc} from "../block/Descriptor";
+import {deepEqual} from "../util/Compare";
 
 export interface ClientCallbacks {
   onDone?(): void;
@@ -269,6 +270,46 @@ class DescRequest extends ConnectionSend implements ClientCallbacks {
   }
 }
 
+class GlobalTypeListener {
+  value: any;
+
+  onUpdate(response: ValueUpdate) {
+    this.value = response.cache.value;
+  }
+}
+
+class GlobalWatch {
+  isListeners: Map<string, GlobalTypeListener> = new Map<string, GlobalTypeListener>();
+
+  conn: ClientConnection;
+
+  constructor(conn: ClientConnection) {
+    this.conn = conn;
+  }
+
+  onUpdate(response: DataMap) {
+    let changes: {[key: string]: any} = response.changes;
+    for (let name in changes) {
+      if (name.startsWith('^')) {
+        let value = changes[name];
+        if (value != null) {
+          if (this.isListeners.has(name)) {
+            let listener = new GlobalTypeListener();
+            this.isListeners.set(name, listener);
+            this.conn.subscribe(`#global.${name}.#is`, listener);
+          }
+        } else {
+          if (this.isListeners.has(name)) {
+            this.conn.subscribe(`#global.${name}.#is`, this.isListeners.get(name));
+            this.isListeners.delete(name);
+          }
+        }
+      }
+    }
+  }
+
+}
+
 export class ClientConnection extends Connection {
 
   static addEditorType(id: string, desc: FunctionDesc) {
@@ -286,17 +327,23 @@ export class ClientConnection extends Connection {
   // path as key
   watches: Map<string, WatchRequest> = new Map();
 
-  descReq: DescRequest;
+  readonly descReq: DescRequest;
+  readonly globalWatch: GlobalWatch;
 
 
-  constructor(watchDesc: boolean) {
+  constructor(editorListeners: boolean) {
     super();
-    if (watchDesc) {
+    if (editorListeners) {
+      // watchDesc
       let id = this.uid.next();
       let data = {cmd: 'watchDesc', path: '', id};
       this.descReq = new DescRequest(data);
       this.requests.set(id, this.descReq);
       this.addSend(this.descReq);
+
+      // watch #global
+      this.globalWatch = new GlobalWatch(this);
+      this.watch('#global', this.globalWatch);
     }
   }
 
@@ -508,6 +555,34 @@ export class ClientConnection extends Connection {
     }
   }
 
+  showProps(path: string, props: string[], callbacks?: ClientCallbacks): Promise<any> | string {
+    return this.simpleRequest({cmd: 'showProps', path, props}, callbacks);
+  }
+
+  hideProps(path: string, props: string[], callbacks?: ClientCallbacks): Promise<any> | string {
+    return this.simpleRequest({cmd: 'hideProps', path, props}, callbacks);
+  }
+
+  moveShownProp(path: string, propFrom: string, propTo: string, callbacks?: ClientCallbacks): Promise<any> | string {
+    return this.simpleRequest({cmd: 'moveShownProp', path, propFrom, propTo}, callbacks);
+  }
+
+  setLen(path: string, length: number, callbacks?: ClientCallbacks): Promise<any> | string {
+    return this.simpleRequest({cmd: 'setLen', path, length}, callbacks);
+  }
+
+  addMoreProp(path: string, desc: PropDesc | PropGroupDesc, group?: string, callbacks?: ClientCallbacks): Promise<any> | string {
+    return this.simpleRequest({cmd: 'addMoreProp', path, desc, group}, callbacks);
+  }
+
+  removeMoreProp(path: string, name: string, group?: string, callbacks?: ClientCallbacks): Promise<any> | string {
+    return this.simpleRequest({cmd: 'removeMoreProp', path, name, group}, callbacks);
+  }
+
+  moveMoreProp(path: string, nameFrom: string, nameTo: string, group?: string, callbacks?: ClientCallbacks): Promise<any> | string {
+    return this.simpleRequest({cmd: 'moveMoreProp', path, nameFrom, nameTo, group}, callbacks);
+  }
+
   cancel(id: string) {
     let req: DataMap = this.requests.get(id);
     if (req instanceof ClientRequest) {
@@ -542,31 +617,16 @@ export class ClientConnection extends Connection {
     this.descReq.listeners.delete(listener);
   }
 
-  showProps(path: string, props: string[], callbacks?: ClientCallbacks): Promise<any> | string {
-    return this.simpleRequest({cmd: 'showProps', path, props}, callbacks);
+  findGlobalBlocks(types: string[]): string[] {
+    let result: string[] = [];
+    if (this.globalWatch) {
+      for (let [key, listener] of this.globalWatch.isListeners) {
+        if (types.includes(listener.value)) {
+          result.push(key);
+        }
+      }
+    }
+    return result;
   }
 
-  hideProps(path: string, props: string[], callbacks?: ClientCallbacks): Promise<any> | string {
-    return this.simpleRequest({cmd: 'hideProps', path, props}, callbacks);
-  }
-
-  moveShownProp(path: string, propFrom: string, propTo: string, callbacks?: ClientCallbacks): Promise<any> | string {
-    return this.simpleRequest({cmd: 'moveShownProp', path, propFrom, propTo}, callbacks);
-  }
-
-  setLen(path: string, length: number, callbacks?: ClientCallbacks): Promise<any> | string {
-    return this.simpleRequest({cmd: 'setLen', path, length}, callbacks);
-  }
-
-  addMoreProp(path: string, desc: PropDesc | PropGroupDesc, group?: string, callbacks?: ClientCallbacks): Promise<any> | string {
-    return this.simpleRequest({cmd: 'addMoreProp', path, desc, group}, callbacks);
-  }
-
-  removeMoreProp(path: string, name: string, group?: string, callbacks?: ClientCallbacks): Promise<any> | string {
-    return this.simpleRequest({cmd: 'removeMoreProp', path, name, group}, callbacks);
-  }
-
-  moveMoreProp(path: string, nameFrom: string, nameTo: string, group?: string, callbacks?: ClientCallbacks): Promise<any> | string {
-    return this.simpleRequest({cmd: 'moveMoreProp', path, nameFrom, nameTo, group}, callbacks);
-  }
 }
