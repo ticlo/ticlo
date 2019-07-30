@@ -814,6 +814,9 @@ export class Job extends Block {
   createGlobalProperty(name: string): BlockProperty {
     let prop = new GlobalProperty(this, name);
     this._props.set(name, prop);
+    if (this._ioProps) {
+      this._ioProps.set(name, prop as BlockIO);
+    }
     return prop;
   }
 
@@ -871,6 +874,9 @@ export class GlobalBlock extends Block {
   createGlobalProperty(name: string): BlockProperty {
     let prop = new BlockIO(this, name);
     this._props.set(name, prop);
+    if (this._ioProps) {
+      this._ioProps.set(name, prop as BlockIO);
+    }
     return prop;
   }
 }
