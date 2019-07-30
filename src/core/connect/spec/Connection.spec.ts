@@ -567,4 +567,26 @@ describe("Connection", function () {
     Root.instance.deleteValue('Connection17');
   });
 
+  it('findGlobalBlocks', async function () {
+    let [server, client] = makeLocalConnection(Root.instance, true);
+
+    let a = Root.instance._globalBlock.createBlock('^a');
+    a.setValue('#is', 'add');
+    let b = Root.instance._globalBlock.createBlock('^b');
+    b.setValue('#is', 'join');
+
+    await shouldHappen(() => client.findGlobalBlocks(['add', 'join']).length === 2);
+
+    assert.deepEqual(client.findGlobalBlocks(['join']), ['^b']);
+
+    a.setValue('#is', 'join');
+    await shouldHappen(() => client.findGlobalBlocks(['join']).length === 2);
+    assert.isEmpty(client.findGlobalBlocks(['add']));
+
+    // clear #global
+    Root.instance._globalBlock._liveUpdate({});
+    await shouldHappen(() => client.findGlobalBlocks(['join']).length === 0);
+
+    client.destroy();
+  });
 });

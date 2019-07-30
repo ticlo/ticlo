@@ -293,7 +293,7 @@ class GlobalWatch {
       if (name.startsWith('^')) {
         let value = changes[name];
         if (value != null) {
-          if (this.isListeners.has(name)) {
+          if (!this.isListeners.has(name)) {
             let listener = new GlobalTypeListener();
             this.isListeners.set(name, listener);
             this.conn.subscribe(`#global.${name}.#is`, listener);
