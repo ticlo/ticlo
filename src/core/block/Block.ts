@@ -80,7 +80,7 @@ export class Block implements Runnable, FunctionData, Listener<FunctionClass>, D
 
   _props: Map<string, BlockProperty> = new Map();
   // a cache for blockIO, generated on demand
-  _ioProps: Map<string, BlockIO>;
+  _ioCache: Map<string, BlockIO>;
   _bindings: Map<string, BlockBinding> = new Map();
   _function: BaseFunction;
   _funcPromise: PromiseWrapper;
@@ -241,9 +241,6 @@ export class Block implements Runnable, FunctionData, Listener<FunctionClass>, D
         }
         default:
           prop = new BlockIO(this, field);
-          if (this._ioProps) {
-            this._ioProps.set(field, prop as BlockIO);
-          }
       }
     }
     this._props.set(field, prop);
@@ -728,19 +725,19 @@ export class Block implements Runnable, FunctionData, Listener<FunctionClass>, D
   }
 
   _initIoCache() {
-    this._ioProps = new Map();
+    this._ioCache = new Map();
     for (let [field, prop] of this._props) {
       if (prop instanceof BlockIO) {
-        this._ioProps.set(field, prop);
+        this._ioCache.set(field, prop);
       }
     }
   }
 
   forEach(callback: (field: string, prop: BlockIO) => void) {
-    if (!this._ioProps) {
+    if (!this._ioCache) {
       this._initIoCache();
     }
-    for (let [field, prop] of this._ioProps) {
+    for (let [field, prop] of this._ioCache) {
       if (prop._value !== undefined) {
         callback(field, prop);
       }
@@ -814,9 +811,6 @@ export class Job extends Block {
   createGlobalProperty(name: string): BlockProperty {
     let prop = new GlobalProperty(this, name);
     this._props.set(name, prop);
-    if (this._ioProps) {
-      this._ioProps.set(name, prop as BlockIO);
-    }
     return prop;
   }
 
@@ -874,9 +868,6 @@ export class GlobalBlock extends Block {
   createGlobalProperty(name: string): BlockProperty {
     let prop = new BlockIO(this, name);
     this._props.set(name, prop);
-    if (this._ioProps) {
-      this._ioProps.set(name, prop as BlockIO);
-    }
     return prop;
   }
 }

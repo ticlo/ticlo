@@ -24,10 +24,10 @@ export const BlockProxy = {
       return [];
     }
     let result: string[] = [];
-    if (!block._ioProps) {
+    if (!block._ioCache) {
       block._initIoCache();
     }
-    for (let [field, prop] of block._ioProps) {
+    for (let [field, prop] of block._ioCache) {
       if (prop._value !== undefined) {
         result.push(field);
       }

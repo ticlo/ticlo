@@ -262,6 +262,14 @@ export class BlockProperty extends ValueDispatcher<any> implements Listener<any>
 }
 
 export class BlockIO extends BlockProperty {
+
+  constructor(block: Block, name: string) {
+    super(block, name);
+    if (block._ioCache) {
+      block._ioCache.set(name, this);
+    }
+  }
+
   _valueChanged(saved?: boolean) {
     if (!this._outputing) {
       this._block.inputChanged(this, this._value);
@@ -286,7 +294,7 @@ export class GlobalProperty extends BlockIO {
 
   constructor(block: Block, name: string) {
     super(block, name);
-    this.listenToParentGlobal()
+    this.listenToParentGlobal();
   }
 
   onChange(val: any, save?: boolean): boolean {
@@ -312,6 +320,9 @@ export class GlobalProperty extends BlockIO {
     if (this._saved === undefined || this._bindingPath) {
       if (this._listeners.size === 0) {
         this._block._props.delete(this._name);
+        if (this._block._ioCache) {
+          this._block._ioCache.delete(this._name);
+        }
         this.destroy();
       } else {
         this.listenToParentGlobal();
