@@ -1,8 +1,9 @@
-import React from "react";
+import React, {ReactElement} from "react";
 import {ClientConnection} from "../../../core/connect/ClientConnection";
-import {PropDesc} from "../../../core/block/Descriptor";
+import {getDefaultFuncData, PropDesc} from "../../../core/block/Descriptor";
 import {arrayEqual} from "../../../core/util/Compare";
-import {Select} from "antd";
+import {Button, Select} from "antd";
+import {extractName} from "../../../core/util/String";
 
 const {Option} = Select;
 
@@ -29,9 +30,23 @@ export class ServiceEditor extends React.PureComponent<Props, State> {
     onPathChange(`${value}.output`);
   };
 
+  onAdd = async () => {
+    let {conn, desc, onPathChange} = this.props;
+    let {create} = desc;
+    let funcDesc = conn.watchDesc(create);
+    if (funcDesc) {
+      let createdBlock = await conn.createBlock(`#global.^${funcDesc.name}`, getDefaultFuncData(funcDesc), true);
+      if (createdBlock && createdBlock.hasOwnProperty('name')) {
+        onPathChange(`${createdBlock.name}.output`);
+      }
+    }
+  };
+
   render() {
-    let {bindingPath, conn, desc, locked, onPathChange} = this.props;
+    console.log(123);
+    let {bindingPath, value, conn, desc, locked, onPathChange} = this.props;
     let {opened} = this.state;
+    let {create} = desc;
 
     let globalNames = conn.findGlobalBlocks(desc.options as string[]);
 
@@ -45,12 +60,18 @@ export class ServiceEditor extends React.PureComponent<Props, State> {
       selectValue = selectValue.substring(0, selectValue.length - 7);
     }
 
+    let addButton: React.ReactElement;
+    if (!locked && !bindingPath && create) {
+      addButton = <Button size='small' shape="circle" icon="plus" onClick={this.onAdd}/>;
+    }
+
     return (
       <div className='ticl-hbox ticl-service-editor'>
         <Select size='small' value={selectValue} disabled={locked || onPathChange == null}
                 onChange={this.onGlobalBlockSelect}>
           {optionNodes}
         </Select>
+        {addButton}
       </div>
     );
   }

@@ -353,7 +353,7 @@ export class PropertyEditor extends MultiSelectComponent<Props, State, PropertyL
           {
             value || bindingPath
               ? (
-                <Button onClick={this.onReset}>Reset</Button>
+                <Button onClick={this.onClear}>Clear</Button>
               )
               : null
           }
@@ -427,7 +427,7 @@ export class PropertyEditor extends MultiSelectComponent<Props, State, PropertyL
       }
     }
   };
-  onReset = () => {
+  onClear = () => {
     let {conn, keys, name} = this.props;
     for (let key of keys) {
       conn.setValue(`${key}.${name}`, undefined);

@@ -18,7 +18,7 @@ for (let i = 0; i < len; ++i) {
 }
 
 sharedMore.push({name: 'group', type: 'group', defaultLen: 2, properties: []});
-sharedMore.push({name: 'service', type: 'service', options: ['add', 'subtract']});
+sharedMore.push({name: 'service', type: 'service', options: ['add', 'subtract'], create: 'add'});
 
 export const sampleData = {
   add: {
