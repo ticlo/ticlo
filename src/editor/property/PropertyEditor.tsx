@@ -497,6 +497,15 @@ export class PropertyEditor extends MultiSelectComponent<Props, State, PropertyL
       editor =
         <EditorClass conn={conn} value={editorValue} desc={propDesc} locked={locked && !unlocked} onChange={onChange}/>;
     } else if (propDesc.type === 'service') {
+      locked = bindingPath && !bindingSame;
+      renderLockIcon = locked && !propDesc.readonly;
+      if (renderLockIcon) {
+        if (unlocked) {
+          locktooltip = 'Unlocked for editing\nDouble click to lock';
+        } else if (!bindingSame) {
+          locktooltip = 'Inconsistent values\nDouble click to edit';
+        }
+      }
       editor = (
         <ServiceEditor conn={conn} value={value} desc={propDesc} bindingPath={bindingPath} locked={locked && !unlocked}
                        onPathChange={this.onBindChange}/>
