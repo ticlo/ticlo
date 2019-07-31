@@ -23,7 +23,7 @@ export type ValueType =
   // special editors
   | 'type'
   | 'service'
-;
+  ;
 
 export interface PropDesc {
   name: string;
@@ -41,7 +41,7 @@ export interface PropDesc {
   max?: number;
   step?: number;
 
-  // bool, select, radio-button
+  // bool, select, radio-button, service
   options?: (string | number)[];
 
   // color
@@ -49,6 +49,9 @@ export interface PropDesc {
 
   // date, date-range
   showTime?: boolean;
+
+  // service
+  create?: string;
 }
 
 export interface PropGroupDesc {

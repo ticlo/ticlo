@@ -619,7 +619,7 @@ export class ClientConnection extends Connection {
 
   findGlobalBlocks(types: string[]): string[] {
     let result: string[] = [];
-    if (this.globalWatch) {
+    if (this.globalWatch && Array.isArray(types)) {
       for (let [key, listener] of this.globalWatch.isListeners) {
         if (types.includes(listener.value)) {
           result.push(key);

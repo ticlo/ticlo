@@ -2,6 +2,9 @@ import React from "react";
 import {ClientConnection} from "../../../core/connect/ClientConnection";
 import {PropDesc} from "../../../core/block/Descriptor";
 import {arrayEqual} from "../../../core/util/Compare";
+import {Select} from "antd";
+
+const {Option} = Select;
 
 export interface Props {
   conn?: ClientConnection;
@@ -21,18 +24,34 @@ export class ServiceEditor extends React.PureComponent<Props, State> {
 
   state: State = {};
 
-  watchedTypes: string[] = [];
+  onGlobalBlockSelect = (value: string) => {
+    let {onPathChange} = this.props;
+    onPathChange(`${value}.output`);
+  };
 
   render() {
-    let {desc} = this.props;
+    let {bindingPath, conn, desc, locked, onPathChange} = this.props;
     let {opened} = this.state;
 
-    let watchTypes = desc.options || [];
-    if (arrayEqual(watchTypes, this.watchedTypes)) {
+    let globalNames = conn.findGlobalBlocks(desc.options as string[]);
 
+    let optionNodes: React.ReactNode[] = [];
+    for (let name of globalNames) {
+      optionNodes.push(<Option key={name} value={name}>{name}</Option>);
     }
 
+    let selectValue = bindingPath;
+    if (typeof selectValue === 'string' && selectValue.endsWith('.output')) {
+      selectValue = selectValue.substring(0, selectValue.length - 7);
+    }
 
-    return <div/>;
+    return (
+      <div className='ticl-hbox ticl-service-editor'>
+        <Select size='small' value={selectValue} disabled={locked || onPathChange == null}
+                onChange={this.onGlobalBlockSelect}>
+          {optionNodes}
+        </Select>
+      </div>
+    );
   }
 }

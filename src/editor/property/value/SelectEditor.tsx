@@ -3,7 +3,7 @@ import {Select} from "antd";
 import {PropDesc} from "../../../core/block/Descriptor";
 import {ValueEditorProps} from "./ValueEditorBase";
 
-const Option = Select.Option;
+const {Option} = Select;
 
 export class SelectEditor extends React.PureComponent<ValueEditorProps, any> {
 

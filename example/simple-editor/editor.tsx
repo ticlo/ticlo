@@ -79,7 +79,7 @@ class App extends React.PureComponent<Props, State> {
                 id: 'PropertyList', title: 'PropertyList', cached: true, cacheContext: Context, content: (
                   <Context.Consumer>{(keys) =>
                     <PropertyList conn={conn} keys={keys}
-                                  style={{width: '100%', height: '100%', padding: '8px'}}/>
+                                  style={{width: '100%', height: '100%', padding: '8px', overflowY: 'scroll'}}/>
                   }</Context.Consumer>
                 )
               }, {
@@ -123,6 +123,10 @@ class App extends React.PureComponent<Props, State> {
   await initEditor();
   let job = Root.instance.addJob('example');
   job.load(sampleData);
+
+  // create some global blocks
+  Root.instance._globalBlock.createBlock('^gAdd').setValue('#is', 'add');
+  Root.instance._globalBlock.createBlock('^gSub').setValue('#is', 'subtract');
 
   let [server, client] = makeLocalConnection(Root.instance);
 
