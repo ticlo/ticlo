@@ -61,6 +61,13 @@ describe("Block", function () {
     assert.equal(block2.getValue('c'), undefined, 'destroy binding chain');
   });
 
+  it('set same value', function () {
+    let job = new Job();
+    job.updateValue('a', 1);
+    job.setValue('a', 1);
+    assert.equal(job.getProperty('a')._saved, 1);
+  });
+
   it('update listener within listener', function () {
     let job = new Job();
     let listener1 = {

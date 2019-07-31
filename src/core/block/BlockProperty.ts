@@ -46,6 +46,9 @@ export class BlockProperty extends ValueDispatcher<any> implements Listener<any>
 
   onChange(val: any, save?: boolean): boolean {
     if (Object.is(this._value, val)) {
+      if (save && !Object.is(this._saved, val)) {
+        this._saved = val;
+      }
       return false;
     }
     if (this._value instanceof Block) {
@@ -241,6 +244,9 @@ export class BlockProperty extends ValueDispatcher<any> implements Listener<any>
   }
 
   destroy() {
+    if (!this._listeners) {
+      return;
+    }
     if (this._bindingSource) {
       this._bindingSource.unlisten(this);
       this._bindingSource = null;
@@ -257,7 +263,8 @@ export class BlockProperty extends ValueDispatcher<any> implements Listener<any>
   }
 
   isDestroyed() {
-    return this._block._destroyed;
+    return this._block._destroyed // maybe destroy is not called but block is in the middle of destroy()
+      || !this._listeners;
   }
 }
 
@@ -298,7 +305,7 @@ export class GlobalProperty extends BlockIO {
   }
 
   onChange(val: any, save?: boolean): boolean {
-    if (super.onChange(val, save)) {
+    if (super.onChange(val, save) && save) {
       this.checkInUse();
       return true;
     } else {
@@ -317,7 +324,7 @@ export class GlobalProperty extends BlockIO {
   }
 
   checkInUse() {
-    if (this._saved === undefined || this._bindingPath) {
+    if (this._saved === undefined && this._bindingPath == null) {
       if (this._listeners.size === 0) {
         this._block._props.delete(this._name);
         if (this._block._ioCache) {
