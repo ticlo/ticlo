@@ -2,8 +2,9 @@ import React, {ReactElement} from "react";
 import {ClientConnection} from "../../../core/connect/ClientConnection";
 import {getDefaultFuncData, PropDesc} from "../../../core/block/Descriptor";
 import {arrayEqual} from "../../../core/util/Compare";
-import {Button, Select} from "antd";
-import {extractName} from "../../../core/util/String";
+import {Button, Icon, Input, Select} from "antd";
+import {Popup} from "../../component/ClickPopup";
+import {TypeSelect} from "../../type-selector/TypeSelector";
 
 const {Option} = Select;
 
@@ -17,7 +18,7 @@ export interface Props {
 }
 
 interface State {
-  opened?: null | 'add' | 'edit';
+  opened?: boolean;
 }
 
 
@@ -30,7 +31,7 @@ export class ServiceEditor extends React.PureComponent<Props, State> {
     onPathChange(`${value}.output`);
   };
 
-  onAdd = async () => {
+  onCreate = async () => {
     let {conn, desc, onPathChange} = this.props;
     let {create} = desc;
     let funcDesc = conn.watchDesc(create);
@@ -42,8 +43,20 @@ export class ServiceEditor extends React.PureComponent<Props, State> {
     }
   };
 
+  getPopup = () => {
+    return <div />
+  };
+
+  openPopup = () => {
+    this.setState({opened: true});
+  };
+  onPopupClose = (visible?: boolean) => {
+    if (!visible) {
+      this.setState({opened: false});
+    }
+  };
+
   render() {
-    console.log(123);
     let {bindingPath, value, conn, desc, locked, onPathChange} = this.props;
     let {opened} = this.state;
     let {create} = desc;
@@ -60,9 +73,17 @@ export class ServiceEditor extends React.PureComponent<Props, State> {
       selectValue = selectValue.substring(0, selectValue.length - 7);
     }
 
-    let addButton: React.ReactElement;
-    if (!locked && !bindingPath && create) {
-      addButton = <Button size='small' shape="circle" icon="plus" onClick={this.onAdd}/>;
+    let button: React.ReactElement;
+    if (bindingPath) {
+      button = (
+        <Popup popupVisible={opened}
+               onPopupVisibleChange={this.onPopupClose}
+               popup={this.getPopup}>
+          <Button size='small' shape="circle" icon="ellipsis" onClick={this.openPopup}/>
+        </Popup>
+      );
+    } else if (!locked && create) {
+      button = <Button size='small' shape="circle" icon="plus" onClick={this.onCreate}/>;
     }
 
     return (
@@ -71,7 +92,7 @@ export class ServiceEditor extends React.PureComponent<Props, State> {
                 onChange={this.onGlobalBlockSelect}>
           {optionNodes}
         </Select>
-        {addButton}
+        {button}
       </div>
     );
   }
