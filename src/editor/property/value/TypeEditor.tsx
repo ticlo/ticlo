@@ -85,9 +85,7 @@ export class TypeEditor extends StringEditorBase {
           <Input value={value} disabled={onChange == null} size='small'
                  onChange={this.onInputChange} onBlur={this.onBlur} onKeyDown={this.onKeyDown}
                  suffix={
-
-                   <Icon type="down" style={{color: 'rgba(0,0,0,.45)'}} onClick={this.openPopup}/>
-
+                   onChange ? <Icon type="down" style={{color: 'rgba(0,0,0,.45)'}} onClick={this.openPopup}/> : null
                  }/>
         </Popup>
       </DragDropDiv>

@@ -105,6 +105,7 @@ export const blankPropDesc: PropDesc = {
 
 export const configDescs: {[key: string]: PropDesc} = {
   '#is': {name: '#is', type: 'type'},
+  '#is(readonly)': {name: '#is', type: 'type', readonly: true},
   '#mode': {
     name: '#mode',
     type: 'select',

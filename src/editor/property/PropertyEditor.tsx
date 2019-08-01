@@ -507,7 +507,7 @@ export class PropertyEditor extends MultiSelectComponent<Props, State, PropertyL
         }
       }
       editor = (
-        <ServiceEditor conn={conn} value={value} desc={propDesc} bindingPath={bindingPath} locked={locked && !unlocked}
+        <ServiceEditor conn={conn} keys={keys} value={value} desc={propDesc} bindingPath={bindingPath} locked={locked && !unlocked}
                        onPathChange={this.onBindChange}/>
       );
     }
@@ -538,7 +538,7 @@ export class PropertyEditor extends MultiSelectComponent<Props, State, PropertyL
         </div>
         {
           renderSubBlock ?
-            <PropertyList conn={conn} keys={this.subBlockKeys} isSubBlock={true}/>
+            <PropertyList conn={conn} keys={this.subBlockKeys} mode='subBlock'/>
             : null
         }
       </div>

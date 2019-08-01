@@ -90,7 +90,8 @@ interface Props {
   conn: ClientConnection;
   keys: string[];
   style?: React.CSSProperties;
-  isSubBlock?: boolean;
+
+  mode?: 'minimal' | 'subBlock';
 }
 
 interface State {
@@ -192,7 +193,7 @@ export class PropertyList extends MultiSelectComponent<Props, State, BlockLoader
 
 
   renderImpl() {
-    let {conn, keys, style, isSubBlock} = this.props;
+    let {conn, keys, style, mode} = this.props;
     let {showConfig, showMore, showAddMorePopup} = this.state;
 
     let descChecked: Set<string> = new Set<string>();
@@ -216,7 +217,7 @@ export class PropertyList extends MultiSelectComponent<Props, State, BlockLoader
         break;
       }
     }
-    if (isSubBlock) {
+    if (mode === 'subBlock') {
       propMerger.remove('output');
     }
     let funcDesc: FunctionDesc = this.loaders.entries().next().value[1].desc;
@@ -225,74 +226,86 @@ export class PropertyList extends MultiSelectComponent<Props, State, BlockLoader
     }
     let children = propMerger.render(keys, conn, funcDesc);
 
-    // merge #more properties
-    for (let [key, subscriber] of this.loaders) {
-      if (subscriber.more) {
-        moreMerger.add(subscriber.more);
-      } else {
-        // properties not ready
-        moreMerger.map = null;
-        break;
+    if (mode !== 'minimal') {
+      // merge #more properties
+      let moreChildren: React.ReactNode[];
+      for (let [key, subscriber] of this.loaders) {
+        if (subscriber.more) {
+          moreMerger.add(subscriber.more);
+        } else {
+          // properties not ready
+          moreMerger.map = null;
+          break;
+        }
       }
-    }
-    let moreChildren: React.ReactNode[];
-    if (moreMerger.isNotEmpty() && showMore) {
-      moreChildren = moreMerger.render(keys, conn, funcDesc, true);
-    }
-
-    let configChildren: React.ReactNode[];
-    if (showConfig) {
-      configChildren = [];
-      for (let configDesc of configList) {
-        configChildren.push(
-          <PropertyEditor key={configDesc.name} name={configDesc.name} keys={keys} conn={conn}
-                          funcDesc={funcDesc} propDesc={configDesc}/>
-        );
+      if (moreMerger.isNotEmpty() && showMore) {
+        moreChildren = moreMerger.render(keys, conn, funcDesc, true);
       }
+
+      let configChildren: React.ReactNode[];
+      if (showConfig) {
+        configChildren = [];
+        for (let configDesc of configList) {
+          configChildren.push(
+            <PropertyEditor key={configDesc.name} name={configDesc.name} keys={keys} conn={conn}
+                            funcDesc={funcDesc} propDesc={configDesc}/>
+          );
+        }
+      }
+      return (
+        <div className='ticl-property-list' style={style}>
+          <PropertyEditor name='#is' keys={keys} conn={conn}
+                          funcDesc={funcDesc} propDesc={configDescs['#is']}/>
+          <div className='ticl-property-divider'>
+            <div className='ticl-h-line'/>
+          </div>
+
+          {children}
+
+          <div className='ticl-property-divider'>
+            <div className='ticl-h-line' style={{maxWidth: '16px'}}/>
+            <ExpandIcon opened={showConfig ? 'opened' : 'closed'} onClick={this.onShowConfigClick}/>
+            <span>cofig</span>
+            <div className='ticl-h-line'/>
+          </div>
+          {configChildren}
+
+          <div className='ticl-property-divider'>
+            <div className='ticl-h-line' style={{maxWidth: '16px'}}/>
+            {
+              moreMerger.isNotEmpty() ?
+                <ExpandIcon opened={showMore ? 'opened' : 'closed'} onClick={this.onShowMoreClick}/>
+                :
+                null
+            }
+            <span>more</span>
+            <Popup popupVisible={showAddMorePopup}
+                   onPopupVisibleChange={this.onAddMorePopup}
+                   popup={
+                     <AddMorePropertyMenu onAddProperty={this.onAddMore}/>
+                   }>
+              <Button className='ticl-icon-btn' shape='circle' tabIndex={-1} icon='plus-square'/>
+            </Popup>
+
+            <div className='ticl-h-line'/>
+
+          </div>
+          {moreChildren}
+
+        </div>
+      );
+    } else {
+      return (
+        <div className='ticl-property-list' style={style}>
+          <PropertyEditor name='#is' keys={keys} conn={conn}
+                          funcDesc={funcDesc} propDesc={configDescs['#is(readonly)']}/>
+          <div className='ticl-property-divider'>
+            <div className='ticl-h-line'/>
+          </div>
+
+          {children}
+        </div>
+      );
     }
-    return (
-      <div className='ticl-property-list' style={style}>
-        <PropertyEditor name='#is' keys={keys} conn={conn}
-                        funcDesc={funcDesc} propDesc={configDescs['#is']}/>
-        <div className='ticl-property-divider'>
-          <div className='ticl-h-line'/>
-        </div>
-
-        {children}
-
-        <div className='ticl-property-divider'>
-          <div className='ticl-h-line' style={{maxWidth: '16px'}}/>
-          <ExpandIcon opened={showConfig ? 'opened' : 'closed'} onClick={this.onShowConfigClick}/>
-          <span>cofig</span>
-          <div className='ticl-h-line'/>
-        </div>
-        {configChildren}
-
-        <div className='ticl-property-divider'>
-          <div className='ticl-h-line' style={{maxWidth: '16px'}}/>
-          {
-            moreMerger.isNotEmpty() ?
-              <ExpandIcon opened={showMore ? 'opened' : 'closed'} onClick={this.onShowMoreClick}/>
-              :
-              null
-          }
-          <span>more</span>
-          <Popup popupVisible={showAddMorePopup}
-                 onPopupVisibleChange={this.onAddMorePopup}
-                 popup={
-                   <AddMorePropertyMenu onAddProperty={this.onAddMore}/>
-                 }>
-            <Button className='ticl-icon-btn' shape='circle' tabIndex={-1} icon='plus-square'/>
-          </Popup>
-
-          <div className='ticl-h-line'/>
-
-        </div>
-        {moreChildren}
-
-      </div>
-    );
-
-
   }
 }
