@@ -108,12 +108,19 @@ export class BlockStage extends BlockStageBase<StageState> {
     this.resizeObserver.observe(this._rootNode);
   }
 
+  _popupCount = 0;
+
+  static findOpenPopups() {
+    return document.querySelectorAll('body>div>div>div.ant-select-dropdown:not(.ant-select-dropdown-hidden)');
+  }
+
   onSelectRectDragStart = (e: DragState) => {
     if (e.event.target === this._bgNode) {
       let rect = this._bgNode.getBoundingClientRect();
       this._dragingSelect = [(e.clientX - rect.left) * e.component.scaleX, (e.clientY - rect.top) * e.component.scaleY];
       e.startDrag(null, null);
       this._selectRectNode.style.display = 'block';
+      this._popupCount = BlockStage.findOpenPopups().length;
     }
   };
 
@@ -127,25 +134,28 @@ export class BlockStage extends BlockStageBase<StageState> {
     this._selectRectNode.style.height = `${cssNumber(Math.abs(y1 - y2))}px`;
   };
   onDragSelectEnd = (e: DragState) => {
+    // if e==null, then the dragging is canceled
     if (e && e.event) {
-      // if e==null, then the dragging is canceled
-      let [x1, y1] = this._dragingSelect;
-      let x2 = e.dx + x1;
-      let y2 = e.dy + y1;
-      let left = Math.min(x1, x2) - 1;
-      let right = Math.max(x1, x2) + 1;
-      let top = Math.min(y1, y2) - 1;
-      let bottom = Math.max(y1, y2) + 1;
-      let addToSelect = e.event.shiftKey || e.event.ctrlKey;
-      for (let [blockKey, blockItem] of this._blocks) {
-        if (blockItem.x >= left && blockItem.w + blockItem.x <= right
-          && blockItem.y >= top && blockItem.y + 24 <= bottom) {
-          blockItem.setSelected(true);
-        } else if (blockItem.selected && !addToSelect) {
-          blockItem.setSelected(false);
+      // when single click blank area closed some popups, skip the de-selecting
+      if (!(e.dx === 0 && e.dy === 0 && this._popupCount > 0 && BlockStage.findOpenPopups().length === 0)) {
+        let [x1, y1] = this._dragingSelect;
+        let x2 = e.dx + x1;
+        let y2 = e.dy + y1;
+        let left = Math.min(x1, x2) - 1;
+        let right = Math.max(x1, x2) + 1;
+        let top = Math.min(y1, y2) - 1;
+        let bottom = Math.max(y1, y2) + 1;
+        let addToSelect = e.event.shiftKey || e.event.ctrlKey;
+        for (let [blockKey, blockItem] of this._blocks) {
+          if (blockItem.x >= left && blockItem.w + blockItem.x <= right
+            && blockItem.y >= top && blockItem.y + 24 <= bottom) {
+            blockItem.setSelected(true);
+          } else if (blockItem.selected && !addToSelect) {
+            blockItem.setSelected(false);
+          }
         }
+        this.onSelect();
       }
-      this.onSelect();
       this.focus();
     }
     this._dragScrollPos = null;
