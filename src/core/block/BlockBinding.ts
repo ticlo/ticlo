@@ -99,7 +99,9 @@ export class BlockBinding extends ValueDispatcher<any> implements Listener<any>,
       this._parent.unlisten(this);
     }
     this._block._removeBinding(this._path);
-    this._listeners = null;
+    // can not set listeners to null here
+    // destroy() might happen in the middle of _propChanged while listeners are still in use
+    this._listeners.clear();
   }
 
   isDestroyed() {
