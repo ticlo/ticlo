@@ -48,6 +48,10 @@ export class ServiceEditor extends React.PureComponent<Props, State> {
 
   getPopup = () => {
     let {bindingPath, conn, keys, desc, locked, onPathChange} = this.props;
+    if (!this.state.opened) {
+      // work around of the pop caching issue
+      return <div/>;
+    }
     let bindingParentPath = bindingPath.substring(0, bindingPath.lastIndexOf('.'));
     let sourceKeys: string[] = keys.map(key => `${key}.${bindingParentPath}`);
     return (

@@ -14,7 +14,7 @@ import {GroupEditor} from "./GroupEditor";
 import {MultiSelectComponent, MultiSelectLoader} from "./MultiSelectComponent";
 import {ExpandIcon} from "../../ui/component/Tree";
 import {deepEqual} from "../../core/util/Compare";
-import {Button, Tooltip} from "antd";
+import {Button, Empty, Tooltip} from "antd";
 import {AddMorePropertyMenu} from "./AddMoreProperty";
 import {Popup} from "../component/ClickPopup";
 
@@ -200,9 +200,20 @@ export class PropertyList extends MultiSelectComponent<Props, State, BlockLoader
     let propMerger: PropertyDefMerger = new PropertyDefMerger();
     let moreMerger: PropertyDefMerger = new PropertyDefMerger();
 
-    if (this.loaders.size === 0) {
+    let isEmpty = true;
+    for (let [key, subscriber] of this.loaders) {
+      if (subscriber.desc) {
+        isEmpty = false;
+        break;
+      }
+    }
+    if (isEmpty) {
       // nothing selected
-      return <div className='ticl-property-list' style={style}/>;
+      return (
+        <div className='ticl-property-list' style={style}>
+          <Empty image={Empty.PRESENTED_IMAGE_SIMPLE}/>
+        </div>
+      );
     }
 
     for (let [key, subscriber] of this.loaders) {
