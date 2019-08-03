@@ -50,13 +50,19 @@ export abstract class PureDataRenderer<P extends DataRendererProps<any>, S> exte
 
   componentDidUpdate(prevProps: P) {
     if (prevProps.item !== this.props.item) {
-      this.props.item.attachedRenderer(this);
-      prevProps.item.detachRenderer(this);
+      if (this.props.item) {
+        this.props.item.attachedRenderer(this);
+      }
+      if (prevProps.item) {
+        prevProps.item.detachRenderer(this);
+      }
     }
   }
 
   componentWillUnmount() {
-    this.props.item.detachRenderer(this);
+    if (this.props.item) {
+      this.props.item.detachRenderer(this);
+    }
     this._mounted = false;
   }
 

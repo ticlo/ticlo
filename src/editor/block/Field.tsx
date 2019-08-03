@@ -1,4 +1,4 @@
-import React from "react";
+import React, {MouseEventHandler} from "react";
 import {WireItem} from "./Wire";
 import {DataRendererItem, PureDataRenderer} from "../../ui/component/DataRenderer";
 import {DataMap} from "../../core/util/Types";
@@ -17,6 +17,7 @@ import {
 import {arrayEqual, deepEqual} from "../../core/util/Compare";
 import {TIcon} from "../icon/Icon";
 import {DragDropDiv, DragState} from "rc-dock";
+import * as DragManager from "rc-dock/src/dragdrop/DragManager";
 
 export interface Stage {
 
@@ -251,6 +252,72 @@ interface FieldViewProps {
   item: FieldItem;
 }
 
+interface BlockHeaderProps extends FieldViewProps {
+  onDragStartT?: DragManager.DragHandler;
+  onDragMoveT?: DragManager.DragHandler;
+  onDragEndT?: DragManager.DragHandler;
+  onDoubleClick?: MouseEventHandler;
+}
+
+export class BlockHeaderView extends PureDataRenderer<BlockHeaderProps, any> {
+
+  onDragOver = (e: DragState) => {
+    let {item} = this.props;
+    if (e.dragType !== 'right') {
+      let fields: string[] = DragState.getData('fields', item.getConn());
+      if (Array.isArray(fields)) {
+        if (!item.desc.readonly && fields.length === 1 && fields[0] !== item.key) {
+          e.accept('→');
+          return;
+        }
+      }
+    }
+  };
+  onDrop = (event: DragState) => {
+    let {item} = this.props;
+    if (event.dragType !== 'right') {
+      let fields: string[] = DragState.getData('fields', item.getConn());
+      if (Array.isArray(fields) && fields.length === 1 && fields[0] !== item.key) {
+        item.getConn().setBinding(item.key, fields[0], true);
+      }
+    }
+  };
+
+  renderValue(value: any) {
+    // do nothing
+  }
+
+  renderImpl(): React.ReactNode {
+    let {item, onDragStartT, onDragMoveT, onDragEndT, onDoubleClick, children} = this.props;
+    let inBoundClass: string;
+    let inBoundText: string;
+    let inBoundTitle: string;
+    let showOutBound = false;
+
+    if (item) {
+      if (item.cache.bindingPath) {
+        inBoundClass = 'ticl-slot ticl-inbound';
+        if (item.inWire) {
+          inBoundTitle = item.cache.bindingPath;
+        } else {
+          inBoundClass += ' ticl-inbound-path';
+          inBoundText = item.cache.bindingPath;
+        }
+      }
+      showOutBound = item.cache.hasListener || (item.subBlock && item.subBlock.hidden);
+    }
+
+    return (
+      <DragDropDiv className='ticl-block-head ticl-block-prbg' directDragT={true} onDoubleClick={onDoubleClick}
+                   onDragStartT={onDragStartT} onDragMoveT={onDragMoveT} onDragEndT={onDragEndT}
+                   onDragOverT={item ? this.onDragOver : null} onDropT={item ? this.onDrop : null}>
+        {inBoundClass ? <div className={inBoundClass} title={inBoundTitle}>{inBoundText}</div> : null}
+        {showOutBound ? <div className='ticl-outbound'/> : null}
+        {children}
+      </DragDropDiv>
+    );
+  }
+}
 
 export class FieldView extends PureDataRenderer<FieldViewProps, any> {
 
@@ -309,7 +376,6 @@ export class FieldView extends PureDataRenderer<FieldViewProps, any> {
         item.getConn().setBinding(item.key, fields[0], true);
       }
     }
-
   };
 
   onNameDoubleClick = (event: React.MouseEvent) => {
@@ -398,6 +464,10 @@ export abstract class BaseBlockItem extends DataRendererItem<XYWRenderer> {
   propDescCache: {[key: string]: PropDesc};
   fields: string[] = [];
   fieldItems: Map<string, FieldItem> = new Map<string, FieldItem>();
+
+  getRenderFields() {
+    return this.fields;
+  }
 
   abstract get selected(): boolean;
 
@@ -505,7 +575,7 @@ export abstract class BaseBlockItem extends DataRendererItem<XYWRenderer> {
 
   renderFields(): React.ReactNode[] {
     let result: React.ReactNode[] = [];
-    for (let field of this.fields) {
+    for (let field of this.getRenderFields()) {
       result.push(this.fieldItems.get(field).render());
     }
     return result;
@@ -623,6 +693,27 @@ export class BlockItem extends BaseBlockItem {
 
   selected: boolean = false;
 
+  actualFields: string[] = [];
+
+  setP(fields: string[]) {
+    this.actualFields = fields;
+    let SpecialView = this.desc.view;
+    if (!(this.synced  // synced block doesn't need extra #call item
+      || fields.includes('#call')
+      || (SpecialView && SpecialView.fullView) // fullView block doesn't need extra #call item
+    )) {
+      fields = fields.concat('#call');
+    }
+    super.setP(fields);
+  }
+
+  getHeaderCallField(): FieldItem {
+    if (this.fields !== this.actualFields) {
+      return this.fieldItems.get('#call');
+    }
+    return null;
+  }
+
   constructor(connection: ClientConnection, stage: Stage, key: string) {
     super(connection, stage, key);
   }
@@ -639,6 +730,8 @@ export class BlockItem extends BaseBlockItem {
       let newSynced = Boolean(response.cache.value);
       if (newSynced !== this.synced) {
         this.synced = newSynced;
+        // update actual fields to add/remove #call
+        this.setP(this.actualFields);
         this.forceUpdate();
       }
     }
@@ -679,6 +772,10 @@ export class BlockItem extends BaseBlockItem {
   onFieldsChanged() {
     this.conn.callImmediate(this.updateFieldPosition);
     this.forceUpdate();
+  }
+
+  getRenderFields() {
+    return this.actualFields;
   }
 
   setSelected(val: boolean) {
@@ -729,6 +826,7 @@ export class BlockItem extends BaseBlockItem {
     if (SpecialView && SpecialView.fullView) {
       this.setH(this.viewH); // footer height
     } else if (!w) {
+      // minimized block
       let y1 = y + fieldYOffset;
       x -= 1;
       w = fieldHeight + 2;
@@ -745,8 +843,14 @@ export class BlockItem extends BaseBlockItem {
 
       let y1 = y + 1; // top border;
       y1 += fieldYOffset;
+
+      let headerCallField = this.getHeaderCallField();
+      if (headerCallField) {
+        headerCallField.updateFieldPos(x, y1, w, fieldHeight);
+      }
+
       y1 += headerHeight;
-      for (let field of this.fields) {
+      for (let field of this.getRenderFields()) {
         y1 = this.fieldItems.get(field).updateFieldPos(x, y1, w, fieldHeight);
       }
       this.setH(y1 - fieldYOffset + 20 - y); // footer height

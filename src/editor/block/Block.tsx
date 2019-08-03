@@ -4,7 +4,7 @@ import {DataMap} from "../../core/util/Types";
 import {PureDataRenderer} from "../../ui/component/DataRenderer";
 import {TIcon} from "../icon/Icon";
 import {DragDropDiv, DragState} from "rc-dock";
-import {BaseBlockItem, BlockItem, Stage, XYWRenderer} from "./Field";
+import {BaseBlockItem, BlockHeaderView, BlockItem, Stage, XYWRenderer} from "./Field";
 
 
 interface BlockViewProps {
@@ -199,11 +199,11 @@ export class BlockView extends PureDataRenderer<BlockViewProps, BlockViewState> 
           className={classNames.join(' ')}
           style={{top: item.y, left: item.x, width: item.w}}
         >
-          <DragDropDiv className='ticl-block-head ticl-block-prbg' directDragT={true} onDoubleClick={this.expandBlock}
-                       onDragStartT={this.selectAndDrag} onDragMoveT={this.onDragMove} onDragEndT={this.onDragEnd}>
+          <BlockHeaderView item={item.getHeaderCallField()} onDoubleClick={this.expandBlock}
+                           onDragStartT={this.selectAndDrag} onDragMoveT={this.onDragMove} onDragEndT={this.onDragEnd}>
             <TIcon icon={item.desc.icon}/>
             {item.name}
-          </DragDropDiv>
+          </BlockHeaderView>
           {
             SpecialView ?
               <div className='ticl-block-view'>
