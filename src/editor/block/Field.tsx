@@ -550,7 +550,7 @@ export abstract class BaseBlockItem extends DataRendererItem<XYWRenderer> {
     return item;
   }
 
-  setP(fields: string[]) {
+  setP(fields: string[], forceRefresh = false) {
     if (!arrayEqual(fields, this.fields)) {
       for (let f of this.fields) {
         if (!fields.includes(f)) {
@@ -564,6 +564,9 @@ export abstract class BaseBlockItem extends DataRendererItem<XYWRenderer> {
           this.fieldItems.set(f, this.createField(f));
         }
       }
+      this.onFieldsChanged();
+    } else if (forceRefresh) {
+      this.fields = fields;
       this.onFieldsChanged();
     }
   }
@@ -704,15 +707,18 @@ export class BlockItem extends BaseBlockItem {
   actualFields: string[] = [];
 
   setP(fields: string[]) {
+    // in case actual fields changed but super.setP receive same array
+    let forceRefresh = fields.length !== this.actualFields.length;
+
     this.actualFields = fields;
     let SpecialView = this.desc.view;
     if (!(this.synced  // synced block doesn't need extra #call item
       || fields.includes('#call')
       || (SpecialView && SpecialView.fullView) // fullView block doesn't need extra #call item
     )) {
-      fields = fields.concat('#call');
+      fields = fields.concat(['#call']);
     }
-    super.setP(fields);
+    super.setP(fields, forceRefresh);
   }
 
   getHeaderCallField(): FieldItem {

@@ -34,6 +34,7 @@ export class WireItem extends DataRendererItem {
       this.source.outWires.delete(this);
       this.source = null;
     }
+    this.target.forceUpdate();
   }
 
   getConn() {
