@@ -315,7 +315,7 @@ export class BlockHeaderView extends PureDataRenderer<BlockHeaderProps, any> {
                    onDragOverT={item ? this.onDragOver : null} onDropT={item ? this.onDrop : null}>
         {inBoundClass ? <div className={inBoundClass} title={inBoundTitle}>{inBoundText}</div> : null}
         {showOutBound ? <div className='ticl-outbound'/> : null}
-        {(item.subBlock) ?
+        {(item && item.subBlock) ?
           <div className='ticl-field-subicon ticl-block-prbg'>
             <TIcon icon={item.subBlock.desc.icon}/>
           </div>
