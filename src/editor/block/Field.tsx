@@ -297,7 +297,9 @@ export class BlockHeaderView extends PureDataRenderer<BlockHeaderProps, any> {
     if (item) {
       if (item.cache.bindingPath) {
         inBoundClass = 'ticl-slot ticl-inbound';
-        if (item.inWire) {
+        if (item.subBlock) {
+          inBoundClass = null;
+        } else if (item.inWire) {
           inBoundTitle = item.cache.bindingPath;
         } else {
           inBoundClass += ' ticl-inbound-path';
@@ -313,6 +315,12 @@ export class BlockHeaderView extends PureDataRenderer<BlockHeaderProps, any> {
                    onDragOverT={item ? this.onDragOver : null} onDropT={item ? this.onDrop : null}>
         {inBoundClass ? <div className={inBoundClass} title={inBoundTitle}>{inBoundText}</div> : null}
         {showOutBound ? <div className='ticl-outbound'/> : null}
+        {(item.subBlock) ?
+          <div className='ticl-field-subicon ticl-block-prbg'>
+            <TIcon icon={item.subBlock.desc.icon}/>
+          </div>
+          : null
+        }
         {children}
       </DragDropDiv>
     );
