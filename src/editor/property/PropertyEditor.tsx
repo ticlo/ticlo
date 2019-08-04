@@ -320,62 +320,65 @@ export class PropertyEditor extends MultiSelectComponent<Props, State, PropertyL
   }
 
   getMenu = () => {
-    let {conn, isMore, group} = this.props;
+    let {conn, isMore, group, propDesc} = this.props;
     let {count, value, valueSame, bindingPath, bindingSame, subBlock, display} = this.mergePropertyState();
-    if (this.state.showMenu) {
-      return (
-        <Menu>
-          {
-            bindingPath
-              ? null
-              : (
-                <SubMenuItem key='addSubBlkock' popup={(
-                  // <Menu.Item className='ticl-type-submenu'>
-                  <TypeSelect onClick={stopPropagation} conn={conn} showPreset={true} onTypeClick={this.onAddSubBlock}/>
-                  // </Menu.Item>
-                )}>
-                  Add Sub Block
-                </SubMenuItem>
-              )
-          }
 
-          <div className='ticl-hbox'>
+    if (this.state.showMenu) {
+      let menuItems: React.ReactElement[] = [];
+      if (!propDesc.readonly) {
+        if (!bindingPath) {
+          menuItems.push(
+            <SubMenuItem key='addSubBlkock' popup={(
+              // <Menu.Item className='ticl-type-submenu'>
+              <TypeSelect onClick={stopPropagation} conn={conn} showPreset={true} onTypeClick={this.onAddSubBlock}/>
+              // </Menu.Item>
+            )}>
+              Add Sub Block
+            </SubMenuItem>
+          );
+        }
+        menuItems.push(
+          <div key='deleteBinding' className='ticl-hbox'>
             <span style={{flex: '0 1 100%'}}>Binding:</span>
             {bindingPath ?
               <Button className='ticl-icon-btn' shape='circle' size='small' icon="delete"
                       onClick={this.onUnbindClick}/>
               : null}
           </div>
-          <div className='ticl-hbox'>
+        );
+        menuItems.push(
+          <div key='bindingInput' className='ticl-hbox'>
             <StringEditor value={bindingPath} desc={blankPropDesc} onChange={this.onBindChange}/>
           </div>
-          <Checkbox onChange={this.onShowHide} checked={display}>Show</Checkbox>
-          {
-            value || bindingPath
-              ? (
-                <Button onClick={this.onClear}>Clear</Button>
-              )
-              : null
-          }
-          {
-            isMore
-              ? (
-                <Button onClick={this.onRemoveMore}>Remove</Button>
-              )
-              : null
-          }
-          {
-            isMore && group != null
-              ? (
-                <SubMenuItem key='addMoreProp'
-                             popup={
-                               <AddMorePropertyMenu onAddProperty={this.onAddMoreGroupChild} group={group}/>
-                             }>
-                  Add Child
-                </SubMenuItem>
-              )
-              : null
-          }
+        );
+
+        if (value || bindingPath) {
+          menuItems.push(
+            <Button key='clear' onClick={this.onClear}>Clear</Button>
+          );
+        }
+      }
+      menuItems.push(
+        <Checkbox key='showHide' onChange={this.onShowHide} checked={display}>Show</Checkbox>
+      );
+      if (isMore) {
+        menuItems.push(
+          <Button key='removeFromMore' onClick={this.onRemoveMore}>Remove</Button>
+        );
+        if (group != null) {
+          menuItems.push(
+            <SubMenuItem key='addMoreProp'
+                         popup={
+                           <AddMorePropertyMenu onAddProperty={this.onAddMoreGroupChild} group={group}/>
+                         }>
+              Add Child
+            </SubMenuItem>
+          );
+        }
+      }
+      return (
+        <Menu>
+          {menuItems}
         </Menu>
       );
     } else {
@@ -507,7 +510,8 @@ export class PropertyEditor extends MultiSelectComponent<Props, State, PropertyL
         }
       }
       editor = (
-        <ServiceEditor conn={conn} keys={keys} value={value} desc={propDesc} bindingPath={bindingPath} locked={locked && !unlocked}
+        <ServiceEditor conn={conn} keys={keys} value={value} desc={propDesc} bindingPath={bindingPath}
+                       locked={locked && !unlocked}
                        onPathChange={this.onBindChange}/>
       );
     }
