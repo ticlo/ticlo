@@ -15,6 +15,7 @@ import {
   WatchRequest
 } from "./ClientRequests";
 
+export {ValueUpdate, ValueState} from "./ClientRequests";
 
 export abstract class ClientConnection extends Connection {
 

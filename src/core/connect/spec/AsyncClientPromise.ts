@@ -1,4 +1,4 @@
-import {ClientCallbacks} from "../ClientConnection";
+import {ClientCallbacks} from "../ClientRequests";
 import {DataMap} from "../../util/Types";
 
 export class AsyncClientPromise implements ClientCallbacks {
