@@ -7,6 +7,11 @@ import {Logger} from "../util/Logger";
 class LocalServerConnection extends ServerConnection {
   _client: LocalClientConnection;
 
+  constructor(root: Root) {
+    super(root);
+    this.onConnect();
+  }
+
   doSend(datas: DataMap[]): void {
     Logger.trace(() => 'server send ' + JSON.stringify(datas), this);
     this._client.onReceive(datas);
@@ -16,6 +21,18 @@ class LocalServerConnection extends ServerConnection {
 
 class LocalClientConnection extends ClientConnection {
   _server: LocalServerConnection;
+
+  constructor(editorListeners: boolean) {
+    super(editorListeners);
+    this.onConnect();
+  }
+
+  /* istanbul ignore next */
+  reconnect(): void {
+    // impossible
+    /* istanbul ignore next */
+    throw new Error("not implemented");
+  }
 
   doSend(datas: DataMap[]): void {
     Logger.trace(() => 'client send ' + JSON.stringify(datas), this);

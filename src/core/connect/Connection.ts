@@ -11,6 +11,10 @@ export class ConnectionSendingData {
 
 export class Connection {
 
+  // null for new connection
+  // false for not connected but scheduled
+  _connected?: boolean;
+
   _sending: Set<ConnectionSendingData> = new Set();
   _waitingReceive: boolean = false;
   _scheduled: any;
@@ -27,6 +31,23 @@ export class Connection {
     // to be overridden
     /* istanbul ignore next */
     throw new Error("not implemented");
+  }
+
+  onConnect() {
+    if (this._connected === false) {
+      this._connected = true;
+      this._schedule();
+    } else {
+      this._connected = true;
+    }
+  }
+
+  onDisconnect() {
+    this._connected = false;
+    if (this._scheduled) {
+      clearTimeout(this._scheduled);
+      this._scheduled = null;
+    }
   }
 
   _receiving = false;
@@ -70,10 +91,14 @@ export class Connection {
   }
 
   _schedule() {
-    this._scheduled = setTimeout(() => {
-      this._doSend();
-      this._scheduled = null;
-    }, 0);
+    if (this._connected) {
+      this._scheduled = setTimeout(() => {
+        this._doSend();
+        this._scheduled = null;
+      }, 0);
+    } else if (this._connected == null) {
+      this._connected = false;
+    }
   }
 
   _doSend() {
@@ -96,7 +121,10 @@ export class Connection {
     }
   }
 
+  _destroyed = false;
+
   destroy() {
+    this._destroyed = true;
     if (this._scheduled) {
       clearTimeout(this._scheduled);
     }

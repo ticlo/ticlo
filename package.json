@@ -33,6 +33,7 @@
     "@types/react-color": "^3.0.1",
     "@types/react-dom": "^16.8.5",
     "@types/tinycolor2": "^1.4.2",
+    "@types/ws": "^6.0.1",
     "antd": "^3.20.7",
     "chai": "^4.2.0",
     "coveralls": "^3.0.5",
@@ -61,7 +62,8 @@
     "ts-node": "^8.3.0",
     "tslint": "^5.18.0",
     "tslint-react": "^4.0.0",
-    "typescript": "^3.5.3"
+    "typescript": "^3.5.3",
+    "ws": "^7.1.1"
   },
   "scripts": {
     "test-nyc-strict": "cross-env NODE_ENV=TEST nyc --skip-full mocha 'src/core/**/*.spec.ts' && nyc report --reporter=text-lcov > coverage/nyc-strict.log",

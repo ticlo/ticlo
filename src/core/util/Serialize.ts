@@ -14,6 +14,10 @@ let encoder = new JsonEsc();
 encoder.registerRaw('Ts', MomentConstructor, encodeMoment, decodeMoment);
 
 export function encode(value: any): string {
+  return encoder.stringify(value, 1);
+}
+
+export function encodeSorted(value: any): string {
   return encoder.stringifySorted(value, 1);
 }
 

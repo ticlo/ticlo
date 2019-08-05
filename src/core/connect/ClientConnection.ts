@@ -16,7 +16,7 @@ import {
 } from "./ClientRequests";
 
 
-export class ClientConnection extends Connection {
+export abstract class ClientConnection extends Connection {
 
   static addEditorType(id: string, desc: FunctionDesc) {
     DescRequest.editorCache.set(id, desc);
@@ -51,20 +51,6 @@ export class ClientConnection extends Connection {
       this.globalWatch = new GlobalWatch(this);
       this.watch('#global', this.globalWatch);
     }
-  }
-
-  /* istanbul ignore next */
-  disconnect(): void {
-    // to be overridden
-    /* istanbul ignore next */
-    throw new Error("not implemented");
-  }
-
-  destroy() {
-    for (let [key, req] of this.requests) {
-      req.onError('disconnected');
-    }
-    super.destroy();
   }
 
   onData(response: DataMap) {
@@ -335,4 +321,36 @@ export class ClientConnection extends Connection {
     return result;
   }
 
+  abstract reconnect(): void;
+
+
+  _reconnectInterval = 1;
+  _reconnectTimeout: any;
+
+  onConnect() {
+    super.onConnect();
+    // TODO: add some delay to make sure the connection is correct
+    this._reconnectInterval = 1;
+  }
+
+  onDisconnect() {
+    super.onDisconnect();
+    // TODO: onError some of the request and remove them from requests
+    if (!this._destroyed) {
+      this._reconnectTimeout = setTimeout(() => this.reconnect(), this._reconnectInterval * 1000);
+      if (this._reconnectInterval < 60) {
+        this._reconnectInterval++;
+      }
+    }
+  }
+
+  destroy() {
+    for (let [key, req] of this.requests) {
+      req.onError('disconnected');
+    }
+    if (this._reconnectTimeout) {
+      clearTimeout(this._reconnectTimeout);
+    }
+    super.destroy();
+  }
 }
