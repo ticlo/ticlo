@@ -43,7 +43,7 @@ export class ClientRequest extends ConnectionSend implements ClientCallbacks {
   }
 }
 
-export class MergedClientRequest extends ConnectionSend implements ClientCallbacks {
+export abstract class MergedClientRequest extends ConnectionSend implements ClientCallbacks {
   _hasUpdate: boolean = false;
   _callbackSet: Set<ClientCallbacks> = new Set();
 
@@ -87,6 +87,8 @@ export class MergedClientRequest extends ConnectionSend implements ClientCallbac
       }
     }
   }
+
+  abstract onDisconnect(): void;
 }
 
 export interface ValueState {
@@ -134,6 +136,14 @@ export class SubscribeRequest extends MergedClientRequest {
     }
     this._hasUpdate = true;
     super.onUpdate({cache: {...this._cache}, change: response});
+  }
+
+  onDisconnect() {
+    this._cache = {
+      value: undefined,
+      bindingPath: null,
+      hasListener: false
+    };
   }
 }
 
@@ -210,6 +220,10 @@ export class WatchRequest extends MergedClientRequest {
     this._hasUpdate = true;
     super.onUpdate({...response, cache: {...this._cachedMap}});
   }
+
+  onDisconnect() {
+    this._cachedMap = {};
+  }
 }
 
 export type ClientDescListener = (desc: FunctionDesc, id: string) => void;
@@ -263,8 +277,8 @@ export class DescRequest extends ConnectionSend implements ClientCallbacks {
 
   }
 
-  cancel() {
-    this._data = null;
+  onDisconnect() {
+
   }
 }
 
@@ -305,5 +319,4 @@ export class GlobalWatch {
       }
     }
   }
-
 }

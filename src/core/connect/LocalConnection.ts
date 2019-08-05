@@ -27,11 +27,15 @@ class LocalClientConnection extends ClientConnection {
     this.onConnect();
   }
 
-  /* istanbul ignore next */
+  onDisconnect() {
+    this._server.destroy();
+    super.onDisconnect();
+  }
+
   reconnect(): void {
-    // impossible
-    /* istanbul ignore next */
-    throw new Error("not implemented");
+    this._server = new LocalServerConnection(this._server.root);
+    this._server._client = this;
+    this.onConnect();
   }
 
   doSend(datas: DataMap[]): void {

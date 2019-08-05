@@ -12,7 +12,7 @@ import {
   GlobalWatch,
   SetRequest, SubscribeCallbacks,
   SubscribeRequest,
-  WatchRequest
+  WatchRequest, MergedClientRequest
 } from "./ClientRequests";
 
 export {ValueUpdate, ValueState} from "./ClientRequests";
@@ -324,7 +324,6 @@ export abstract class ClientConnection extends Connection {
 
   abstract reconnect(): void;
 
-
   _reconnectInterval = 1;
   _reconnectTimeout: any;
 
@@ -336,9 +335,27 @@ export abstract class ClientConnection extends Connection {
 
   onDisconnect() {
     super.onDisconnect();
-    // TODO: onError some of the request and remove them from requests
+    // remove requests from the map
+    // or notify the disconnection
+    for (let [key, req] of this.requests) {
+      if (req instanceof MergedClientRequest) {
+        req.onDisconnect();
+        this.addSend(req);
+      } else if (req === this.descReq) {
+        this.descReq.onDisconnect();
+        this.addSend(this.descReq);
+      } else {
+        req.onError('disconnected');
+        this.requests.delete(key);
+        this._sending.delete(req as any);
+      }
+    }
     if (!this._destroyed) {
-      this._reconnectTimeout = setTimeout(() => this.reconnect(), this._reconnectInterval * 1000);
+      // reconnect after N seconds, N = 1,2,3,4 ... 60
+      this._reconnectTimeout = setTimeout(
+        () => this.reconnect(),
+        this._reconnectInterval * 1000
+      );
       if (this._reconnectInterval < 60) {
         this._reconnectInterval++;
       }
