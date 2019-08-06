@@ -4,6 +4,10 @@ import {makeLocalConnection} from "../LocalConnection";
 import "../../functions/basic/Math";
 import {AsyncClientPromise} from "./AsyncClientPromise";
 import {shouldHappen, shouldReject} from "../../util/test-util";
+import {JsFunction} from "../../functions/script/Js";
+import {FunctionDesc} from "../../block/Descriptor";
+import {Types} from "../../block/Type";
+import {Logger} from "../../util/Logger";
 
 describe("Reconnect", function () {
 
@@ -30,6 +34,7 @@ describe("Reconnect", function () {
     result = await subcallbacks.promise;
     assert.equal(result.cache.value, 2);
     assert.isNull(result.cache.bindingPath);
+    assert.isNull(result.change.bindingPath);
 
     // clean up
     subcallbacks.cancel();
@@ -66,6 +71,18 @@ describe("Reconnect", function () {
     let job = Root.instance.addJob('Reconnect3');
     let [server, client] = makeLocalConnection(Root.instance, true);
 
+    JsFunction.registerType('', {name: 'ReconnectType1'});
+    await shouldHappen(() => client.watchDesc('ReconnectType1'));
+
+    client.onDisconnect();
+
+    JsFunction.registerType('', {name: 'ReconnectType2'});
+    Types.clear('ReconnectType1');
+
+    await shouldHappen(() => client.watchDesc('ReconnectType2'), 1500);
+    await shouldHappen(() => client.watchDesc('ReconnectType1') == null);
+
+    Types.clear('ReconnectType2');
 
     client.destroy();
     Root.instance.deleteValue('Reconnect3');

@@ -115,12 +115,14 @@ export interface SubscribeCallbacks {
   onError?(error: string, data?: DataMap): void;
 }
 
+const defaultValueState: ValueState = {
+  value: undefined,
+  bindingPath: null,
+  hasListener: false
+};
+
 export class SubscribeRequest extends MergedClientRequest {
-  _cache: ValueState = {
-    value: undefined,
-    bindingPath: null,
-    hasListener: false
-  };
+  _cache: ValueState = {...defaultValueState};
 
   add(callbacks: SubscribeCallbacks) {
     super.add(callbacks);
@@ -131,11 +133,17 @@ export class SubscribeRequest extends MergedClientRequest {
 
   onUpdate(response: ValueState): void {
     if (this._disconnectd) {
-      this._cache = {
-        value: undefined,
-        bindingPath: null,
-        hasListener: false
-      };
+      // after disconnect, server might not be aware of these changes, fill in them in client side
+      if (this._cache.value !== undefined && !response.hasOwnProperty('value')) {
+        response.value = undefined;
+      }
+      if (this._cache.bindingPath != null && !response.hasOwnProperty('bindingPath')) {
+        response.bindingPath = null;
+      }
+      if (this._cache.hasListener && !response.hasOwnProperty('hasListener')) {
+        response.hasListener = false;
+      }
+      this._cache = {...defaultValueState};
     }
     if (response.hasOwnProperty('value')) {
       this._cache.value = response.value;
@@ -249,10 +257,6 @@ export class DescRequest extends ConnectionSend implements ClientCallbacks {
 
   onUpdate(response: DataMap): void {
     if (response.changes) {
-      if (this._disconnected) {
-
-        this._disconnected = false;
-      }
       for (let change of response.changes) {
         if (change && 'id' in change) {
           let id = change.id;
@@ -284,10 +288,8 @@ export class DescRequest extends ConnectionSend implements ClientCallbacks {
 
   }
 
-  _disconnected = false;
-
   onDisconnect() {
-    this._disconnected = true;
+    this.cache = new Map<string, FunctionDesc>(DescRequest.editorCache);
   }
 }
 
