@@ -47,19 +47,21 @@ describe("Reconnect", function () {
     let [server, client] = makeLocalConnection(Root.instance, false);
 
     let child0 = job.createBlock('c0');
+    let child1 = job.createBlock('c1');
 
     let callbacks1 = new AsyncClientPromise();
     client.watch('Reconnect2', callbacks1);
     let result1 = await callbacks1.promise;
-    assert.deepEqual(result1.cache, {'c0': child0._blockId});
+    assert.deepEqual(result1.cache, {'c0': child0._blockId, 'c1': child1._blockId});
 
     client.onDisconnect();
 
-    let child1 = job.createBlock('c1');
-    job.deleteValue('c0');
+    let child2 = job.createBlock('c2');
+    job.deleteValue('c1');
 
     let result2 = await callbacks1.promise;
-    assert.deepEqual(result2.cache, {'c1': child1._blockId});
+    assert.deepEqual(result2.cache, {'c0': child0._blockId, 'c2': child2._blockId});
+    assert.deepEqual(result2.changes, {'c1': null, 'c2': child2._blockId});
 
     // clean up
     callbacks1.cancel();

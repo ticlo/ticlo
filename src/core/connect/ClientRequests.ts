@@ -144,6 +144,7 @@ export class SubscribeRequest extends MergedClientRequest {
         response.hasListener = false;
       }
       this._cache = {...defaultValueState};
+      // TODO : add a disconnected event in the update
     }
     if (response.hasOwnProperty('value')) {
       this._cache.value = response.value;
@@ -219,12 +220,20 @@ export class WatchRequest extends MergedClientRequest {
 
   onUpdate(response: DataMap): void {
     if (this._disconnectd) {
-      this._cachedMap = {};
+      // after disconnect, server might not be aware of these changes, fill in them in client side
+      let changes = response.changes;
+      for (let name in this._cachedMap) {
+        if (!changes.hasOwnProperty(name)) {
+          changes[name] = null;
+        } else if (changes[name] === this._cachedMap[name]) {
+          delete changes[name];
+        }
+      }
     }
     if (Object.isExtensible(response.changes)) {
-      let map = response.changes;
-      for (let key in map) {
-        let id = map[key];
+      let changes = response.changes;
+      for (let key in changes) {
+        let id = changes[key];
         if (id == null) {
           delete this._cachedMap[key];
         } else {
