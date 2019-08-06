@@ -31,10 +31,8 @@ class WsServerConnection extends ServerConnection {
     }
   };
 
-  _closed = false;
   onClose = () => {
-    if (!this._closed) {
-      this._closed = true;
+    if (!this._destroyed) {
       this.destroy();
     }
   };

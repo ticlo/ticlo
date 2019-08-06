@@ -43,7 +43,7 @@ export class ClientRequest extends ConnectionSend implements ClientCallbacks {
   }
 }
 
-export abstract class MergedClientRequest extends ConnectionSend implements ClientCallbacks {
+export class MergedClientRequest extends ConnectionSend implements ClientCallbacks {
   _hasUpdate: boolean = false;
   _callbackSet: Set<ClientCallbacks> = new Set();
 
@@ -78,6 +78,7 @@ export abstract class MergedClientRequest extends ConnectionSend implements Clie
         callbacks.onUpdate(response);
       }
     }
+    this._disconnectd = false;
   }
 
   onError(error: string): void {
@@ -88,7 +89,11 @@ export abstract class MergedClientRequest extends ConnectionSend implements Clie
     }
   }
 
-  abstract onDisconnect(): void;
+  _disconnectd = false;
+
+  onDisconnect() {
+    this._disconnectd = true;
+  }
 }
 
 export interface ValueState {
@@ -125,6 +130,13 @@ export class SubscribeRequest extends MergedClientRequest {
   }
 
   onUpdate(response: ValueState): void {
+    if (this._disconnectd) {
+      this._cache = {
+        value: undefined,
+        bindingPath: null,
+        hasListener: false
+      };
+    }
     if (response.hasOwnProperty('value')) {
       this._cache.value = response.value;
     }
@@ -136,14 +148,6 @@ export class SubscribeRequest extends MergedClientRequest {
     }
     this._hasUpdate = true;
     super.onUpdate({cache: {...this._cache}, change: response});
-  }
-
-  onDisconnect() {
-    this._cache = {
-      value: undefined,
-      bindingPath: null,
-      hasListener: false
-    };
   }
 }
 
@@ -206,6 +210,9 @@ export class WatchRequest extends MergedClientRequest {
   }
 
   onUpdate(response: DataMap): void {
+    if (this._disconnectd) {
+      this._cachedMap = {};
+    }
     if (Object.isExtensible(response.changes)) {
       let map = response.changes;
       for (let key in map) {
@@ -219,10 +226,6 @@ export class WatchRequest extends MergedClientRequest {
     }
     this._hasUpdate = true;
     super.onUpdate({...response, cache: {...this._cachedMap}});
-  }
-
-  onDisconnect() {
-    this._cachedMap = {};
   }
 }
 
@@ -246,6 +249,10 @@ export class DescRequest extends ConnectionSend implements ClientCallbacks {
 
   onUpdate(response: DataMap): void {
     if (response.changes) {
+      if (this._disconnected) {
+
+        this._disconnected = false;
+      }
       for (let change of response.changes) {
         if (change && 'id' in change) {
           let id = change.id;
@@ -277,8 +284,10 @@ export class DescRequest extends ConnectionSend implements ClientCallbacks {
 
   }
 
-  onDisconnect() {
+  _disconnected = false;
 
+  onDisconnect() {
+    this._disconnected = true;
   }
 }
 
