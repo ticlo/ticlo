@@ -2,7 +2,9 @@ module.exports = function (config) {
   config.set({
     frameworks: ["mocha", "karma-typescript"],
     files: [
-      "src/**/*.ts?(x)",
+      "src/core/**/*.ts?(x)",
+      "src/ui/**/*.ts?(x)",
+      "src/editor/**/*.ts?(x)",
       "dist/*.css"
     ],
     preprocessors: {
