@@ -5,7 +5,7 @@ import {Logger} from "../../core/util/Logger";
 import {decode, encode} from "../../core/util/Serialize";
 import {Root} from "../../core/block/Block";
 
-class WsServerConnection extends ServerConnection {
+export class WsServerConnection extends ServerConnection {
   _ws: Websocket;
 
   constructor(ws: Websocket, root: Root) {
@@ -27,7 +27,7 @@ class WsServerConnection extends ServerConnection {
     if (typeof data === 'string') {
       Logger.trace(() => 'server receive ' + data, this);
       let decoded = decode(data);
-      this.onData(decoded);
+      this.onReceive(decoded);
     }
   };
 

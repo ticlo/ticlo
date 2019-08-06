@@ -4,16 +4,13 @@ import {DataMap} from "../../core/util/Types";
 import {Logger} from "../../core/util/Logger";
 import {decode, encode} from "../../core/util/Serialize";
 
-class WsServerConnection extends ClientConnection {
+export class WsClientConnection extends ClientConnection {
   _ws: Websocket;
   _url: string;
 
   constructor(url: string, editorListeners = true) {
     super(editorListeners);
     this._url = url;
-  }
-
-  connect() {
     this.reconnect();
   }
 
@@ -34,15 +31,15 @@ class WsServerConnection extends ClientConnection {
 
   doSend(datas: DataMap[]): void {
     let json = encode(datas);
-    Logger.trace(() => 'server send ' + json, this);
+    Logger.trace(() => 'client send ' + json, this);
     this._ws.send(json);
   }
 
   onMessage = (data: string) => {
     if (typeof data === 'string') {
-      Logger.trace(() => 'server receive ' + data, this);
+      Logger.trace(() => 'client receive ' + data, this);
       let decoded = decode(data);
-      this.onData(decoded);
+      this.onReceive(decoded);
     }
   };
 }

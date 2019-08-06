@@ -41,7 +41,7 @@ class WsServerConnection extends ClientConnection {
     if (e.data) {
       Logger.trace(() => 'server receive ' + e.data, this);
       let decoded = decode(e.data);
-      this.onData(decoded);
+      this.onReceive(decoded);
     }
   };
 }

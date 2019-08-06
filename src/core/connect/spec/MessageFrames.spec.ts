@@ -9,82 +9,22 @@ import {JsFunction} from "../../functions/script/Js";
 import {Types} from "../../block/Type";
 import {DataMap} from "../../util/Types";
 import {PureFunction} from "../../block/BlockFunction";
-
-
-class TestFunction extends PureFunction {
-}
-
-TestFunction.prototype.priority = 0;
-TestFunction.prototype.useLength = false;
-
-let testDesc = {
-  name: '',
-  icon: 'fas:plus',
-  useLength: true,
-  properties: [
-    {name: 'a', type: 'number', visible: 'high'},
-    {name: 'b', type: 'number', visible: 'high'},
-    {name: 'c', type: 'number', visible: 'high'},
-    {name: 'd', type: 'number', visible: 'high'},
-    {name: 'output', type: 'number', readonly: true}
-  ]
-};
-
-function addTestTypes(prefix: string, count: number) {
-  for (let i = 0; i < count; ++i) {
-    Types.add(TestFunction, {...testDesc, name: `${prefix}${i}`} as any);
-  }
-}
-
-function removeTestTypes(prefix: string, count: number) {
-  for (let i = 0; i < count; ++i) {
-    Types.clear(`${prefix}${i}`);
-  }
-}
+import {addTestTypes, removeTestTypes} from "./BulkTypes";
 
 describe("Connection Message Frames", function () {
   it('desc frames', async function () {
     addTestTypes('a', 4000);
     let [server, client] = makeLocalConnection(Root.instance);
 
-    let callbacks = new AsyncClientPromise();
-    let a100 = await new Promise((resolve, reject) => {
-      client.watchDesc('a100', (desc: FunctionDesc) => {
-        if (desc) {
-          resolve(desc);
-        }
-      });
-    });
+    await shouldHappen(() => client.watchDesc('a100'));
 
-    let a1000: FunctionDesc = null;
-    client.watchDesc('a1000', (desc: FunctionDesc) => {
-      a1000 = desc;
-    });
-    assert.isNotNull(a1000, 'a1000 should be sent in the same batch as a100');
-
-    let a3999: FunctionDesc = null;
-    let promise3999 = new Promise((resolve, reject) => {
-      client.watchDesc('a3999', (desc: FunctionDesc) => {
-        if (desc) {
-          a3999 = desc;
-          resolve(desc);
-        }
-      });
-    });
-
-    assert.isNull(a3999, 'a3999 should be sent in a later frame');
-
-    await promise3999;
+    assert.isNotNull(client.watchDesc('a1000'), 'a1000 should be sent in the same batch as a100');
+    assert.isNull(client.watchDesc('a3999'), 'a3999 should be sent in a later frame');
+    await shouldHappen(() => client.watchDesc('a3999'));
 
     addTestTypes('b', 4000);
 
-    let b3999 = await new Promise((resolve, reject) => {
-      client.watchDesc('b3999', (desc: FunctionDesc) => {
-        if (desc) {
-          resolve(desc);
-        }
-      });
-    });
+    await shouldHappen(() => client.watchDesc('b3999'));
 
     client.destroy();
 
