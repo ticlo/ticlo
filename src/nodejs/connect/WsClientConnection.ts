@@ -17,10 +17,14 @@ export class WsClientConnection extends ClientConnection {
   reconnect() {
     this._ws = new Websocket(this._url);
     this._ws.on('message', this.onMessage);
-    this._ws.on('open', () => this.onConnect());
-    this._ws.on('error', () => this.onClose);
-    this._ws.on('close', () => this.onClose);
+    this._ws.on('open', this.onOpen);
+    this._ws.on('error', this.onClose);
+    this._ws.on('close', this.onClose);
   }
+
+  onOpen = () => {
+    this.onConnect();
+  };
 
   onClose = () => {
     if (this._ws) {

@@ -40,7 +40,9 @@ describe("WsConnect", function () {
     client.setValue('WsConnect1.a', 3, setcallbacks);
 
     let promiseReject = shouldReject(setcallbacks.promise);
-    client.onDisconnect();
+
+    server.lastConnection._ws.close(1000); // close ws froms erver side
+
     await promiseReject; // setValue should receive error
 
     job.setValue('a', 2);

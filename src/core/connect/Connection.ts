@@ -1,4 +1,5 @@
 import {DataMap} from "../util/Types";
+import {Logger} from "../util/Logger";
 
 export class ConnectionSendingData {
   /* istanbul ignore next */
@@ -34,6 +35,7 @@ export class Connection {
   }
 
   onConnect() {
+    Logger.trace('connected', this);
     if (this._connected === false) {
       this._connected = true;
       this._schedule();
@@ -43,6 +45,7 @@ export class Connection {
   }
 
   onDisconnect() {
+    Logger.trace('disconnected', this);
     this._connected = false;
     if (this._scheduled) {
       clearTimeout(this._scheduled);
