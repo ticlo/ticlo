@@ -6,12 +6,14 @@ export abstract class DataRendererItem<T = any> {
   _renderers: Set<PureDataRenderer<any, any> & T> = new Set<PureDataRenderer<any, any> & T>();
 
   attachedRenderer(renderer: PureDataRenderer<any, any> & T) {
+    this.getConn().lockImmediate(this);
     if (this._renderers.size === 0) {
       this._renderers.add(renderer);
       this.onAttached();
     } else {
       this._renderers.add(renderer);
     }
+    this.getConn().unlockImmediate(this);
   }
 
   detachRenderer(renderer: PureDataRenderer<any, any> & T) {

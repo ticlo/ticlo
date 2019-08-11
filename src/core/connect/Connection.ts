@@ -55,11 +55,12 @@ export class Connection {
 
   _receiving = false;
   _callImmediates = new Set<() => void>();
+  _immediateLock = 0;
 
   // if connection is receiving data, call the function after data is processed
   // otherwise call the function directly
   callImmediate(f: () => void) {
-    if (this._receiving) {
+    if (this._receiving || this._immediateLock > 0) {
       // will be called after receiving
       this._callImmediates.add(f);
     } else {
@@ -67,24 +68,24 @@ export class Connection {
     }
   }
 
-  // if connection is receiving data, call the function after data is processed
-  // otherwise call the function in the next frame
-  callLater(f: () => void) {
-    this._callImmediates.add(f);
-    if (this._receiving) {
-      // will be called after receiving
-    } else if (!this._callLaterTimer) {
-      this._callLaterTimer = setTimeout(this.executeImmediates, 0);
-    }
+  // prevenent callImmediate to be run until unlocked
+  lockImmediate(source: any) {
+    this._immediateLock++;
   }
 
-  _callLaterTimer: any;
+  unlockImmediate(source: any) {
+    this._immediateLock--;
+    if (this._immediateLock <= 0 && this._callImmediates.size) {
+      this.executeImmediates();
+    }
+  }
 
   executeImmediates = () => {
     for (let callback of this._callImmediates) {
       callback();
     }
     this._callImmediates.clear();
+    this._immediateLock = 0;
   };
 
 
@@ -148,9 +149,6 @@ export class Connection {
     this._destroyed = true;
     if (this._scheduled) {
       clearTimeout(this._scheduled);
-    }
-    if (this._callLaterTimer) {
-      clearTimeout(this._callLaterTimer);
     }
     this._sending = null;
   }

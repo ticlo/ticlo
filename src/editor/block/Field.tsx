@@ -784,7 +784,7 @@ export class BlockItem extends BaseBlockItem {
 
 
   onFieldsChanged() {
-    this.conn.callLater(this.updateFieldPosition);
+    this.conn.callImmediate(this.updateFieldPosition);
     this.forceUpdate();
   }
 
