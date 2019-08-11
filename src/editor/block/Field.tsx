@@ -484,7 +484,7 @@ export abstract class BaseBlockItem extends DataRendererItem<XYWRenderer> {
     this.conn = connection;
     this.stage = stage;
     this.key = key;
-    this.name = key.substr(key.indexOf('.') + 1);
+    this.name = key.substr(key.lastIndexOf('.') + 1);
   }
 
   // renderer both the block and children fields
