@@ -117,6 +117,7 @@ export class NodeTreeItem extends TreeItem<NodeTreeItem> {
 
 interface Props {
   item: NodeTreeItem;
+  onOpen?: (item: NodeTreeItem) => void;
   style: React.CSSProperties;
 }
 
@@ -137,6 +138,12 @@ export class NodeTreeRenderer extends PureDataRenderer<Props, any> {
   };
   onReloadClicked = (event?: ClickParam) => {
     this.props.item.reload();
+  };
+  onOpenClicked = (event?: ClickParam) => {
+    const {item, onOpen} = this.props;
+    if (onOpen) {
+      onOpen(item);
+    }
   };
   subscriptionListener = {
     onUpdate: (response: ValueUpdate) => {
@@ -164,6 +171,10 @@ export class NodeTreeRenderer extends PureDataRenderer<Props, any> {
 
   getMenu = () => (
     <Menu selectable={false}>
+      <Menu.Item onClick={this.onOpenClicked}>
+        <Icon type="build"/>
+        Open
+      </Menu.Item>
       <Menu.Item onClick={this.onReloadClicked}>
         <Icon type="reload"/>
         Reload

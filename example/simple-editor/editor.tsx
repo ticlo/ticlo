@@ -15,6 +15,7 @@ import {TypeTree} from "../../src/editor/type-selector/TypeTree";
 
 import "./sample-blocks";
 import {Logger} from "../../src/core/util/Logger";
+import {NodeTreeItem} from "../../src/editor/node-tree/NodeRenderer";
 
 interface Props {
   conn: ClientConnection;
@@ -38,8 +39,29 @@ class App extends React.PureComponent<Props, State> {
     this.props.conn.callImmediate(this.forceUpdateLambda);
   };
 
+  layout: DockLayout;
+  getLayout = (layout: DockLayout) => {
+    this.layout = layout;
+  };
+
   onSelect = (keys: string[]) => {
     this.setState({'selectedKeys': keys});
+  };
+
+  count = 0;
+
+  createBlockEditor(path: string) {
+    let {conn} = this.props;
+    return {
+      id: `blockEditor${this.count++}`, title: path, cached: true, content: (
+        <BlockStage conn={conn} basePath={path} onSelect={this.onSelect}/>
+      )
+    };
+  }
+
+  onOpen = (item: NodeTreeItem) => {
+    this.layout.dockMove(this.createBlockEditor(item.key), this.layout.find('main'), 'middle');
+    console.log(item);
   };
 
   onDragBlock = (e: DragState) => {
@@ -84,7 +106,7 @@ class App extends React.PureComponent<Props, State> {
                 )
               }, {
                 id: 'NavTree', title: 'NavTree', cached: true, content: (
-                  <NodeTree conn={conn} basePaths={[""]} hideRoot={true}
+                  <NodeTree conn={conn} basePaths={[""]} hideRoot={true} onOpen={this.onOpen}
                             style={{width: '100%', height: '100%', padding: '8px'}}/>
                 )
               }, {
@@ -100,19 +122,18 @@ class App extends React.PureComponent<Props, State> {
           {
             size: 800,
             tabs: [
-              {
-                id: 'Stage', title: 'Stage', cached: true, content: (
-                  <BlockStage conn={conn} basePath="example" onSelect={this.onSelect}/>
-                )
-              }
+              this.createBlockEditor('example'),
+              this.createBlockEditor('example'),
             ],
+            id: 'main',
+            panelLock: {panelStyle: 'main'},
           },
         ]
       },
     };
     return (
       <Context.Provider value={selectedKeys}>
-        <DockLayout defaultLayout={layout}
+        <DockLayout defaultLayout={layout} ref={this.getLayout}
                     style={{position: 'absolute', left: 10, top: 10, right: 10, bottom: 10}}/>
       </Context.Provider>
     );

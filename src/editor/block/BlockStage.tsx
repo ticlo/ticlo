@@ -418,7 +418,7 @@ export class BlockStage extends BlockStageBase<StageState> {
     }
   }
 
-  render() {
+  renderImpl() {
     let {style} = this.props;
     let {zoom, contentWidth, contentHeight, stageWidth, stageHeight} = this.state;
 

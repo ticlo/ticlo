@@ -23,10 +23,12 @@ export class BlockView extends PureDataRenderer<BlockViewProps, BlockViewState> 
   };
 
   renderXYW(x: number, y: number, w: number) {
-    this._rootNode.style.left = `${x}px`;
-    this._rootNode.style.top = `${y}px`;
-    if (w) {
-      this._rootNode.style.width = `${w}px`;
+    if (this._rootNode) {
+      this._rootNode.style.left = `${x}px`;
+      this._rootNode.style.top = `${y}px`;
+      if (w) {
+        this._rootNode.style.width = `${w}px`;
+      }
     }
   }
 

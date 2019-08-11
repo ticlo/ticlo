@@ -4,6 +4,7 @@ import {DataMap} from "../../core/util/Types";
 import {DragState} from "rc-dock";
 import {BlockItem, FieldItem, Stage} from "./Field";
 import {forAllPathsBetween} from "../../core/util/Path";
+import {LazyUpdateComponent} from "../../ui/component/LazyUpdateComponent";
 
 export interface StageProps {
   conn: ClientConnection;
@@ -12,7 +13,7 @@ export interface StageProps {
   onSelect?: (keys: string[]) => void;
 }
 
-export abstract class BlockStageBase<State> extends React.PureComponent<StageProps, State> implements Stage {
+export abstract class BlockStageBase<State> extends LazyUpdateComponent<StageProps, State> implements Stage {
 
   abstract getRefElement(): HTMLElement;
 
@@ -284,12 +285,4 @@ export abstract class BlockStageBase<State> extends React.PureComponent<StagePro
   componentWillUnmount() {
     this.props.conn.unwatch(this.props.basePath, this.watchListener);
   }
-
-  forceUpdate() {
-    this.props.conn.callImmediate(this.safeForceUpdate);
-  }
-
-  safeForceUpdate = () => {
-    super.forceUpdate();
-  };
 }

@@ -67,6 +67,27 @@ export class Connection {
     }
   }
 
+  // if connection is receiving data, call the function after data is processed
+  // otherwise call the function in the next frame
+  callLater(f: () => void) {
+    this._callImmediates.add(f);
+    if (this._receiving) {
+      // will be called after receiving
+    } else if (!this._callLaterTimer) {
+      this._callLaterTimer = setTimeout(this.executeImmediates, 0);
+    }
+  }
+
+  _callLaterTimer: any;
+
+  executeImmediates = () => {
+    for (let callback of this._callImmediates) {
+      callback();
+    }
+    this._callImmediates.clear();
+  };
+
+
   onReceive(data: DataMap[]) {
     this._waitingReceive = false;
     if ((this._sending.size > 0 || data.length > 0) && !this._scheduled) {
@@ -78,10 +99,7 @@ export class Connection {
     }
     this._receiving = false;
     if (this._callImmediates.size) {
-      for (let callback of this._callImmediates) {
-        callback();
-      }
-      this._callImmediates.clear();
+      this.executeImmediates();
     }
   }
 
@@ -130,6 +148,9 @@ export class Connection {
     this._destroyed = true;
     if (this._scheduled) {
       clearTimeout(this._scheduled);
+    }
+    if (this._callLaterTimer) {
+      clearTimeout(this._callLaterTimer);
     }
     this._sending = null;
   }
