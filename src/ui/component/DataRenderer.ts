@@ -47,7 +47,9 @@ export interface DataRendererProps<T extends DataRendererItem> {
 export abstract class PureDataRenderer<P extends DataRendererProps<any>, S> extends React.PureComponent<P, S> {
   constructor(props: P) {
     super(props);
-    this.props.item.attachedRenderer(this);
+    if (props.item) {
+      props.item.attachedRenderer(this);
+    }
   }
 
   componentDidUpdate(prevProps: P) {
