@@ -34,18 +34,12 @@ class PromiseWrapper {
   }
 
   listen(promise: Promise<any>) {
-    this._block.updateValue('#wait', true);
     promise.then((val: any) => this.onResolve(val)).catch((reason: any) => this.onError(reason));
   }
 
   onResolve(val: any) {
     if (this._block._funcPromise === this) {
-      if (val === undefined) {
-        this._block.updateValue('#emit', new Event('complete'));
-      } else {
-        this._block.updateValue('#emit', val);
-      }
-      this._block.updateValue('#wait', undefined);
+      this._block.emit(val);
       this._block._funcPromise = undefined;
     }
 
@@ -53,8 +47,7 @@ class PromiseWrapper {
 
   onError(reason: any) {
     if (this._block._funcPromise === this) {
-      this._block.updateValue('#emit', new ErrorEvent('rejected', reason));
-      this._block.updateValue('#wait', undefined);
+      this._block.emit(new ErrorEvent('rejected', reason));
       this._block._funcPromise = undefined;
     }
   }
@@ -122,16 +115,6 @@ export class Block implements Runnable, FunctionData, Listener<FunctionClass>, D
   //   }
   //   return this._cachedFullPath;
   // }
-
-  wait(val: any, emit?: any): void {
-    this.updateValue('#wait', val);
-    if (!val) {
-      // emit a value when it's no longer waiting
-      if (emit !== undefined && this._props.get('#emit')) {
-        this._props.get('#emit').updateValue(emit);
-      }
-    }
-  }
 
   onWait(val: any) {
     this._waiting = Boolean(val);
@@ -494,15 +477,23 @@ export class Block implements Runnable, FunctionData, Listener<FunctionClass>, D
         }
         result = NOT_READY;
       }
-      if (this._props.get('#emit')) {
-        if (result === undefined) {
-          result = new Event('complete');
-        }
-        this._props.get('#emit').updateValue(result);
-      }
+      this.emit(result);
     }
   }
 
+  emit(val: any) {
+    if (val === NOT_READY) {
+      this.updateValue('#wait', true);
+    } else {
+      this.deleteValue('#wait');
+    }
+    if (this._props.has('#emit')) {
+      if (val === undefined) {
+        val = new Event('complete');
+      }
+      this._props.get('#emit').updateValue(val);
+    }
+  }
 
   _modeChanged(mode: any) {
     if (mode === this._mode) {
@@ -549,34 +540,38 @@ export class Block implements Runnable, FunctionData, Listener<FunctionClass>, D
 
   _onCall(val: any): void {
     if (this._mode !== 'disabled') {
-      if (this._sync) {
+      if (val === NOT_READY) {
+        // pass NOT_READY
+        this.emit(NOT_READY);
+      } else {
         switch (Event.check(val)) {
           case EventType.TRIGGER: {
-            if (this._runOnChange && this._runOnLoad && !this._queueToRun) {
-              // if sync block has mode onLoad, it can't be called synchronously without a change
-              if (this._props.has('#emit')) {
-                this._props.get('#emit').updateValue(val);
+            if (this._sync) {
+              if (this._runOnChange && this._runOnLoad && !this._queueToRun) {
+                // if sync block has mode onLoad, it can't be called synchronously without a change
+                if (this._props.has('#emit')) {
+                  this._props.get('#emit').updateValue(val);
+                }
+              } else {
+                this._called = true;
+                this.run();
               }
-            } else {
-              this._called = true;
-              this.run();
+            } else if (this._function) {
+              if (Event.check(val) === EventType.TRIGGER) {
+                this._called = true;
+                this._queueFunction();
+              }
             }
             break;
           }
           case EventType.ERROR: {
             this._cancelFunction(EventType.ERROR);
-            if (this._props.has('#emit')) {
-              this._props.get('#emit').updateValue(val);
-            }
+            this.emit(val);
             break;
           }
         }
-      } else if (this._function) {
-        if (Event.check(val) === EventType.TRIGGER) {
-          this._called = true;
-          this._queueFunction();
-        }
       }
+
     }
   }
 

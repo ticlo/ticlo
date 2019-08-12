@@ -105,6 +105,9 @@ export class Connection {
   }
 
   addSend(data: ConnectionSendingData) {
+    if (this._destroyed) {
+      return;
+    }
     this._sending.add(data);
     if (this._scheduled || this._waitingReceive) {
       return;

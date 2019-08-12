@@ -5,7 +5,7 @@ import {BlockIO, BlockProperty} from "../block/BlockProperty";
 import {Block, Job} from "../block/Block";
 import {convertToObject, DataMap, isSavedBlock} from "../util/Types";
 import {OutputFunction} from "./Output";
-import {ErrorEvent, Event, EventType} from "../block/Event";
+import {ErrorEvent, Event, EventType, NOT_READY} from "../block/Event";
 import {MapImpl, MapWorkerMode} from "./MapImpl";
 import {BlockProxy} from "../block/BlockProxy";
 import {workers} from "cluster";
@@ -226,14 +226,11 @@ export class MapFunction extends BlockFunction implements MapImpl {
       this._clearWorkers();
     }
 
-    this._data.wait(true);
-
     this._input = this._pendingInput;
     if (this._input instanceof Block) {
       this._input = new Proxy(this._input, BlockProxy);
     }
     this._pendingInput = undefined;
-
 
     if (this._thread > 0) {
       if (Array.isArray(this._input)) {
@@ -258,6 +255,8 @@ export class MapFunction extends BlockFunction implements MapImpl {
       }
       this._watchObject(this._input);
     }
+
+    return NOT_READY;
   }
 
   _onWorkerReady = (output: MapWorkerOutput, timeout: boolean) => {

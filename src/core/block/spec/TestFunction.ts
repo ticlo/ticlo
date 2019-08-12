@@ -87,18 +87,17 @@ export class TestAsyncFunctionManual extends BlockFunction {
     this.timeOut = setTimeout(() => {
       TestAsyncFunctionLog.asyncLog.push(this._data.getValue('#-log'));
       if (this._data.getValue('#-reject')) {
-        this._data.wait(false, new ErrorEvent('#-reject'));
+        this._data.emit(new ErrorEvent('#-reject'));
       } else {
         if (this._data.getValue('#-resolve')) {
-          this._data.wait(false, this._data.getValue('#-resolve'));
+          this._data.emit(this._data.getValue('#-resolve'));
         } else {
-          this._data.wait(false, new Event('complete'));
+          this._data.emit(new Event('complete'));
         }
       }
       this.timeOut = null;
     }, Math.random() * 3);
 
-    this._data.wait(true);
     return NOT_READY;
   }
 
