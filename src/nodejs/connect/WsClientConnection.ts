@@ -46,4 +46,11 @@ export class WsClientConnection extends ClientConnection {
       this.onReceive(decoded);
     }
   };
+
+  destroy() {
+    super.destroy();
+    if (this._ws) {
+      this._ws.close();
+    }
+  }
 }
