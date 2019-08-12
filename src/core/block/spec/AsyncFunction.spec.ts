@@ -3,6 +3,7 @@ import {TestAsyncFunctionLog} from "./TestFunction";
 import {Job, Root} from "../Block";
 import {ErrorEvent, Event} from "../Event";
 import {shouldReject, shouldTimeout} from "../../util/test-util";
+import "../../functions/basic/Math";
 
 for (let typeName of ['async-function-promise', 'async-function-manual']) {
 
@@ -65,6 +66,10 @@ for (let typeName of ['async-function-promise', 'async-function-manual']) {
       block2.setValue('#is', typeName);
       block2.setBinding('#call', '##.obj1.#emit');
 
+      let block3 = job.createBlock('obj3');
+      block3.setValue('#is', 'add');
+      block3.setBinding('#call', '##.obj2.#emit');
+
       block1.setValue('#call', {});
 
       assert.deepEqual(TestAsyncFunctionLog.syncLog, ['obj1'], 'block1 triggered');
@@ -82,11 +87,13 @@ for (let typeName of ['async-function-promise', 'async-function-manual']) {
 
       block2.updateValue('#call', {});
       assert.notEqual(block2.getValue('#wait'), undefined, 'is waiting after called');
+      assert.notEqual(block3.getValue('#wait'), undefined, '#wait is chained');
 
       let block2EmitPromise = block2.waitNextValue('#emit');
       // #emit need to have binding before next line, otherwise it wont emit
       block1.setValue('#call', new ErrorEvent(''));
       assert.isUndefined(block2.getValue('#wait'), 'block1 cancels block2');
+      assert.isUndefined(block3.getValue('#wait'), '#wait is chained');
       assert.instanceOf(await shouldReject(block2EmitPromise), ErrorEvent, 'block2 should emit error');
 
       assert.deepEqual(TestAsyncFunctionLog.syncLog, ['obj2'], 'block2 triggered');
