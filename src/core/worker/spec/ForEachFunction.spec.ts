@@ -24,7 +24,7 @@ describe("ForEachFunction", function () {
     bBlock._load({
       '#is': 'foreach',
       '~input': '##.a',
-      'src': {
+      'use': {
         '#is': {
           '#is': '',
           'test': {'#is': 'test-runner', '~#-log': '##.#input.v'},
@@ -36,7 +36,7 @@ describe("ForEachFunction", function () {
     cBlock._load({
       '#is': 'foreach',
       '~input': '##.b.output',
-      'src': {
+      'use': {
         '#is': {
           '#is': '',
           'multiply': {'#is': 'multiply', '~0': '##.#input.v', '1': 2},
@@ -52,7 +52,7 @@ describe("ForEachFunction", function () {
     assert.equal(cBlock.queryValue('output.obj2.v'), 6, 'basic ForEach chain');
     assert.equal(cBlock.queryValue('output.obj3.v'), 8, 'basic ForEach chain on child Object');
 
-    bBlock.updateValue('src', {
+    bBlock.updateValue('use', {
       '#is': '',
       'test': {'#is': 'test-runner', '~#-log': '##.#input.v'},
       'subtract': {'#is': 'subtract', '~0': '##.#input.v', '1': 5},
@@ -61,8 +61,8 @@ describe("ForEachFunction", function () {
     Root.run();
     assert.lengthOf(TestFunctionRunner.popLogs(), 3, 'worker run 3 times');
 
-    assert.equal(cBlock.queryValue('output.obj2.v'), -6, 'ForEach chain src changed');
-    assert.equal(cBlock.queryValue('output.obj3.v'), -4, 'ForEach chain src changed on child Object');
+    assert.equal(cBlock.queryValue('output.obj2.v'), -6, 'ForEach chain use changed');
+    assert.equal(cBlock.queryValue('output.obj3.v'), -4, 'ForEach chain use changed on child Object');
 
     aBlock.deleteValue('obj2');
     let obj4 = aBlock.createBlock('obj4');
@@ -95,7 +95,7 @@ describe("ForEachFunction", function () {
     bBlock._load({
       '#is': 'foreach',
       '~input': '##.a',
-      'src': {
+      'use': {
         '#is': {
           '#is': '',
           'add': {'#is': 'add', '~0': '##.#input.v', '1': 1},
@@ -131,7 +131,7 @@ describe("ForEachFunction", function () {
     bBlock._load({
       '#is': 'foreach',
       '~input': '##.a',
-      'src': {
+      'use': {
         '#is': {
           '#is': '',
           'add': {'#is': 'add', '~0': '##.#input', '1': 1},
@@ -157,7 +157,7 @@ describe("ForEachFunction", function () {
     assert.isUndefined(bBlock.queryValue('output'), 'clear output when input is no longer Object or Block');
   });
 
-  it('clear foreach src', function () {
+  it('clear foreach use', function () {
     let job = new Job();
 
     let aBlock = job.createBlock('a');
@@ -166,7 +166,7 @@ describe("ForEachFunction", function () {
     bBlock._load({
       '#is': 'foreach',
       '~input': '##.a',
-      'src': {
+      'use': {
         '#is': {
           '#is': '',
           '~#output': '#input'
@@ -177,8 +177,8 @@ describe("ForEachFunction", function () {
     Root.run();
     assert.equal(bBlock.queryValue('output.v1'), 1);
 
-    bBlock.setValue('src', null);
+    bBlock.setValue('use', null);
     Root.run();
-    assert.isUndefined(bBlock.queryValue('output'), 'clear output when src is invalid');
+    assert.isUndefined(bBlock.queryValue('output'), 'clear output when use is invalid');
   });
 });

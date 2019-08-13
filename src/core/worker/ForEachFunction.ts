@@ -28,7 +28,7 @@ export class ForEachFunction extends BlockFunction implements BlockChildWatch {
       case 'input': {
         return this._onInputChange(input._value);
       }
-      case 'src': {
+      case 'use': {
         return this._onSourceChange(input._value);
       }
     }
@@ -64,7 +64,7 @@ export class ForEachFunction extends BlockFunction implements BlockChildWatch {
     }
     if (this._src) {
       this._inputChanged = false;
-      // watch input when input changed or src changed
+      // watch input when input changed or use changed
       if (this._input != null) {
         if (this._input instanceof Block) {
           this._watchBlock(this._input);
@@ -217,7 +217,7 @@ Types.add(ForEachFunction, {
   style: 'repeater',
   properties: [
     {name: 'input', type: 'any'},
-    {name: 'src', type: 'any'},
+    {name: 'use', type: 'any'},
     {name: 'output', type: 'any', readonly: true}
   ],
 });

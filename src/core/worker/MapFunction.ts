@@ -121,7 +121,7 @@ export class MapFunction extends BlockFunction implements MapImpl {
       case 'input': {
         return this._onInputChange(input._value);
       }
-      case 'src': {
+      case 'use': {
         return this._onSourceChange(input._value);
       }
       case 'thread': {
@@ -463,7 +463,7 @@ Types.add(MapFunction, {
   style: 'repeater',
   properties: [
     {name: 'input', type: 'any'},
-    {name: 'src', type: 'any'},
+    {name: 'use', type: 'any'},
     {name: 'thread', type: 'number'},
     {name: 'reuseWorker', type: 'toggle'},
     {name: 'timeout', type: 'number'},

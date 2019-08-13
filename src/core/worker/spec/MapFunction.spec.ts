@@ -32,7 +32,7 @@ describe("MapFunction Basic", function () {
     bBlock._load({
       '#is': 'map',
       '~input': '##.a',
-      'src': {
+      'use': {
         '#is': {
           '#is': '',
           'runner': {'#is': 'test-runner', '#mode': 'onLoad', '#-log': 0},
@@ -78,7 +78,7 @@ describe("MapFunction Basic", function () {
       '#is': 'map',
       'reuseWorker': 'reuse',
       '~input': '##.a',
-      'src': {
+      'use': {
         '#is': {
           '#is': '',
           'runner': {'#is': 'test-runner', '#mode': 'onLoad', '#-log': 0},
@@ -126,7 +126,7 @@ describe("MapFunction Basic", function () {
       '#is': 'map',
       'reuseWorker': 'persist',
       '~input': '##.a',
-      'src': {
+      'use': {
         '#is': {
           '#is': '',
           'runner': {'#is': 'test-runner', '#mode': 'onLoad', '#-log': 0},
@@ -175,7 +175,7 @@ describe("MapFunction Basic", function () {
       '#is': 'map',
       'reuseWorker': 'reuse',
       '~input': '##.a',
-      'src': {
+      'use': {
         '#is': {
           '#is': '',
           'add': {'#is': 'add', '~0': '##.#input.v', '1': 1},
@@ -207,7 +207,7 @@ describe("MapFunction Basic", function () {
     bBlock._load({
       '#is': 'map',
       '~input': '##.a',
-      'src': {
+      'use': {
         '#is': {
           '#is': '',
           'runner': {'#is': 'test-runner', '#mode': 'onLoad', '#-log': 0},
@@ -256,7 +256,7 @@ describe("MapFunction Basic", function () {
     bBlock._load({
       '#is': 'map',
       '~input': '##.a',
-      'src': {
+      'use': {
         '#is': {
           '#is': '',
           '#wait': true
@@ -293,7 +293,7 @@ describe("MapFunction Basic", function () {
     bBlock._load({
       '#is': 'map',
       '~input': '##.a',
-      'src': {
+      'use': {
         '#is': {
           '#is': '',
           'runner': {'#is': 'test-runner', '#mode': 'onLoad', '#-log': 0},
@@ -345,7 +345,7 @@ describe("MapFunction Basic", function () {
     bBlock._load({
       '#is': 'map',
       '~input': '##.a',
-      'src': {
+      'use': {
         '#is': {
           '#is': '',
           'runner': {'#is': 'test-runner', '#mode': 'onLoad', '#-log': 0},
@@ -397,7 +397,7 @@ describe("MapFunction Basic", function () {
       '#is': 'map',
       'reuseWorker': 'reuse',
       '~input': '##.a',
-      'src': {
+      'use': {
         '#is': {
           '#is': '',
           'runner': {'#is': 'test-runner', '#mode': 'onLoad', '#-log': 0},

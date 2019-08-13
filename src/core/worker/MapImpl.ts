@@ -10,7 +10,7 @@ export class MapImpl extends BlockFunction {
   _srcChanged: boolean /* = false*/;
 
   _onSourceChange(val: any): boolean {
-    // TODO allow string src for class name
+    // TODO allow string use for class name
     if (isSavedBlock(val)) {
       this._src = val;
       this._srcChanged = true;
@@ -32,7 +32,7 @@ export class MapImpl extends BlockFunction {
     }
     if (val !== this._reuseWorker) {
       this._reuseWorker = val;
-      // reuseWorker change should be treated same as src change
+      // reuseWorker change should be treated same as use change
       this._srcChanged = true;
       return true;
     }

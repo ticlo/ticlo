@@ -37,7 +37,7 @@ describe("MapFunction Thread", function () {
       '#is': 'map',
       'thread': 5,
       '~input': '##.a',
-      'src': {
+      'use': {
         '#is': {
           '#is': '',
           'runner': {'#is': 'test-runner', '#mode': 'onLoad', '#-log': 0},
@@ -95,7 +95,7 @@ describe("MapFunction Thread", function () {
       '#is': 'map',
       'thread': 5,
       '~input': '##.a',
-      'src': {
+      'use': {
         '#is': {
           '#is': '',
           'runner': {'#is': 'test-runner', '#mode': 'onLoad', '#-log': 0},
@@ -155,7 +155,7 @@ describe("MapFunction Thread", function () {
       'reuseWorker': 'reuse',
       'thread': 5,
       '~input': '##.a',
-      'src': {
+      'use': {
         '#is': {
           '#is': '',
           'runner': {'#is': 'test-runner', '#mode': 'onLoad', '#-log': 0},
@@ -215,7 +215,7 @@ describe("MapFunction Thread", function () {
       'reuseWorker': 'persist',
       'thread': 5,
       '~input': '##.a',
-      'src': {
+      'use': {
         '#is': {
           '#is': '',
           'runner': {'#is': 'test-runner', '#mode': 'onLoad', '#-log': 0},
@@ -271,7 +271,7 @@ describe("MapFunction Thread", function () {
       '#is': 'map',
       'thread': 5,
       '~input': '##.a',
-      'src': {
+      'use': {
         '#is': {
           '#is': '',
           'runner': {'#is': 'test-runner', '#mode': 'onLoad', '#-log': 0},
