@@ -295,4 +295,32 @@ describe("editor BlockStage", function () {
     Root.instance.deleteValue('BlockStage5');
   });
 
+  it('automatic assign xy', async function () {
+
+    let job = Root.instance.addJob('BlockStage6');
+    for (let i = 0; i < 10; ++i) {
+      job.createBlock(`a${i}`);
+    }
+
+    let [server, client] = makeLocalConnection(Root.instance);
+
+    let [component, div] = loadTemplate(
+      <BlockStage conn={client} basePath="BlockStage6"
+                  style={{width: '800px', height: '800px'}}/>, 'editor');
+
+    await shouldHappen(() => div.querySelector('.ticl-block'));
+    await shouldHappen(() => (div.querySelector('.ticl-block') as HTMLDivElement).offsetLeft > 0);
+
+    let blocks = div.querySelectorAll('.ticl-block');
+    let xarr = [24, 224, 24, 224, 424, 424, 24, 224, 424, 624];
+    let yarr = [24, 24, 224, 224, 24, 224, 424, 424, 424, 24];
+    for (let i = 0; i < 10; ++i) {
+      let block = blocks[i] as HTMLDivElement;
+      assert.equal(block.offsetLeft, xarr[i]);
+      assert.equal(block.offsetTop, yarr[i]);
+    }
+
+    Root.instance.deleteValue('BlockStage6');
+  });
+
 });

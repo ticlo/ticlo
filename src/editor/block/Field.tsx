@@ -769,7 +769,6 @@ export class BlockItem extends BaseBlockItem {
       } else if (typeof value === 'string') {
         this.setSyncParentKey(value);
       } else if (this.xyzInvalid) {
-        console.log(value);
         this.setXYW(...this.stage.getNextXYW());
       }
     }
