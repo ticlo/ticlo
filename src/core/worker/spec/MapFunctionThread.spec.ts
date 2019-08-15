@@ -1,10 +1,8 @@
 import {assert} from "chai";
 import {Job, Root} from "../../block/Block";
-import {Block} from "../../block/Block";
 import {TestFunctionRunner, TestAsyncFunctionPromise} from "../../block/spec/TestFunction";
 import "../../functions/basic/Math";
 import "../MapFunction";
-import {DataMap} from "../../util/Types";
 
 
 describe("MapFunction Thread", function () {

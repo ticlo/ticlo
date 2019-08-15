@@ -21,6 +21,25 @@ export abstract class BlockStageBase<State> extends LazyUpdateComponent<StagePro
 
   abstract onChildrenSizeChanged(): void;
 
+  nextXYx = 0;
+  nextXYy = 0;
+
+  getNextXYW() {
+    let result: [number, number, number] = [this.nextXYx * 200 + 24, this.nextXYy * 200 + 24, 150];
+    if (this.nextXYx === this.nextXYy) {
+      this.nextXYx = this.nextXYy + 1;
+      this.nextXYy = 0;
+    } else if (this.nextXYy > this.nextXYx) {
+      this.nextXYx++;
+    } else {
+      this.nextXYy++;
+      if (this.nextXYx === this.nextXYy) {
+        this.nextXYx = 0;
+      }
+    }
+    return result;
+  }
+
   _blocks: Map<string, BlockItem> = new Map<string, BlockItem>();
   _blockLinks: Map<string, Set<BlockItem>> = new Map<string, Set<BlockItem>>();
   _fields: Map<string, FieldItem> = new Map<string, FieldItem>();

@@ -64,7 +64,7 @@ export const sampleData = {
       '@b-p': ['0', '1']
     },
     '#length': 2,
-   // '@b-xyw': [400, 200, 150],
+    '@b-xyw': [400, 200, 150],
     '@b-p': ['0', '1', 'output'],
     '#more': sharedMore
   },

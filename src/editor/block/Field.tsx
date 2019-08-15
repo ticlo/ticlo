@@ -23,6 +23,8 @@ export interface Stage {
 
   getBlock(key: string): BlockItem;
 
+  getNextXYW(): [number, number, number];
+
   linkParentBlock(parentKey: string, targetBlock: BlockItem): void;
 
   unlinkParentBlock(parentKey: string, targetBlock: BlockItem): void;
@@ -465,6 +467,8 @@ export abstract class BaseBlockItem extends DataRendererItem<XYWRenderer> {
   x: number = 0;
   y: number = 0;
   w: number = 0;
+  xyzInvalid = true;
+
   key: string;
   name: string;
   desc: FunctionDesc = blankFuncDesc;
@@ -764,6 +768,9 @@ export class BlockItem extends BaseBlockItem {
         this.setXYW(...value as [number, number, number]);
       } else if (typeof value === 'string') {
         this.setSyncParentKey(value);
+      } else if (this.xyzInvalid) {
+        console.log(value);
+        this.setXYW(...this.stage.getNextXYW());
       }
     }
   };
@@ -826,6 +833,8 @@ export class BlockItem extends BaseBlockItem {
     }
     if (save) {
       this.conn.setValue(`${this.key}.@b-xyw`, [x, y, w]);
+    } else {
+      this.xyzInvalid = false;
     }
     if (this._syncChild) {
       this._syncChild.setXYW(this.x, this.y + this.h, this.w);
