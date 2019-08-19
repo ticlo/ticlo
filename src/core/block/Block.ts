@@ -433,8 +433,10 @@ export class Block implements Runnable, FunctionData, Listener<FunctionClass>, D
     let prop = this.getProperty(field);
     let job = new Job(this, output, prop);
     prop.setOutput(job);
-    if (src) {
+    if (namespace) {
       job._namespace = namespace;
+    }
+    if (src) {
       job.load(src);
     }
     return job;
@@ -704,12 +706,11 @@ export class Block implements Runnable, FunctionData, Listener<FunctionClass>, D
   }
 
   unwatch(watcher: BlockChildWatch) {
-    if (this._destroyed) {
-      return;
-    }
-    this._watchers.delete(watcher);
-    if (this._watchers.size === 0) {
-      this._watchers = null;
+    if (this._watchers) {
+      this._watchers.delete(watcher);
+      if (this._watchers.size === 0) {
+        this._watchers = null;
+      }
     }
   }
 
