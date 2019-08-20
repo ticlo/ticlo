@@ -1,7 +1,7 @@
 import {assert} from "chai";
-import {Job, Root} from "../Block";
+import {Job, Root} from "../../block/Block";
 import {JobEditor} from "../JobEditor";
-import {VoidListeners} from "./TestFunction";
+import {VoidListeners} from "../../block/spec/TestFunction";
 
 describe("JobEditor", function () {
 

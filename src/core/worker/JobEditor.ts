@@ -1,4 +1,4 @@
-import {Block, BlockChildWatch, Job} from "./Block";
+import {Block, BlockChildWatch, Job} from "../block/Block";
 import {DataMap} from "../util/Types";
 
 export class JobEditor extends Job {
