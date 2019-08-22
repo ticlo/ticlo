@@ -37,7 +37,7 @@ describe("MapFunction Basic", function () {
           '#is': '',
           'runner': {'#is': 'test-runner', '#mode': 'onLoad', '#-log': 0},
           'add': {'#is': 'add', '~0': '##.#input', '1': 1},
-          '~#output': 'add.output'
+          '#output': {'#is': '', '~#value': '##.add.output'}
         }
       }
     });
@@ -83,7 +83,7 @@ describe("MapFunction Basic", function () {
           '#is': '',
           'runner': {'#is': 'test-runner', '#mode': 'onLoad', '#-log': 0},
           'add': {'#is': 'add', '~0': '##.#input', '1': 1},
-          '~#output': 'add.output'
+          '#output': {'#is': '', '~#value': '##.add.output'}
         }
       }
     });
@@ -131,7 +131,7 @@ describe("MapFunction Basic", function () {
           '#is': '',
           'runner': {'#is': 'test-runner', '#mode': 'onLoad', '#-log': 0},
           'add': {'#is': 'add', '~0': '##.#input', '1': 1},
-          '~#output': 'add.output'
+          '#output': {'#is': '', '~#value': '##.add.output'}
         }
       }
     });
@@ -149,7 +149,7 @@ describe("MapFunction Basic", function () {
     Root.run();
 
     assert.deepEqual(bBlock.getValue('output'), {'v1': 2, 'v2': 5, 'v4': 6});
-    assert.equal(bBlock.queryValue('#func.v3.#output'), 4, 'unused worker is still kept');
+    assert.equal(bBlock.queryValue('#func.v3.#output.#value'), 4, 'unused worker is still kept');
 
     assert.lengthOf(TestFunctionRunner.popLogs(), 4);
 
@@ -214,7 +214,7 @@ describe("MapFunction Basic", function () {
           'async': {'#is': 'async-function-promise', '~#call': '##.#input'},
           'add': {'#is': 'add', '#mode': 'onCall', '~#call': '##.async.#emit', '~0': '##.#input', '1': 1},
           '~#wait': 'async.#wait',
-          '~#output': 'add.output'
+          '#output': {'#is': '', '~#value': '##.add.output'}
         }
       }
     });
@@ -298,7 +298,7 @@ describe("MapFunction Basic", function () {
           '#is': '',
           'runner': {'#is': 'test-runner', '#mode': 'onLoad', '#-log': 0},
           'add': {'#is': 'add', '~0': '##.#input', '1': 1},
-          '~#output': 'add.output'
+          '#output': {'#is': '', '~#value': '##.add.output'}
         }
       }
     });
@@ -352,7 +352,7 @@ describe("MapFunction Basic", function () {
           'async': {'#is': 'async-function-promise', '~#call': '##.#input'},
           'add': {'#is': 'add', '#mode': 'onCall', '~#call': '##.async.#emit', '~0': '##.#input', '1': 1},
           '~#wait': 'async.#wait',
-          '~#output': 'add.output'
+          '#output': {'#is': '', '~#value': '##.add.output'}
         }
       }
     });
@@ -404,7 +404,7 @@ describe("MapFunction Basic", function () {
           'async': {'#is': 'async-function-promise', '~#call': '##.#input'},
           'add': {'#is': 'add', '#mode': 'onCall', '~#call': '##.async.#emit', '~0': '##.#input', '1': 1},
           '~#wait': 'async.#wait',
-          '~#output': 'add.output'
+          '#output': {'#is': '', '~#value': '##.add.output'}
         }
       }
     });

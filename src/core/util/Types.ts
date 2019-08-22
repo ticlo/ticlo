@@ -169,6 +169,10 @@ export function measureObjSize(val: any, maxSize: number = 1024): number {
 // convert block to Object, used in MapFunction output
 export function convertToObject(val: any, recursive: boolean = false): any {
   if (val instanceof Block) {
+    let overrideValue = val.getValue('#value');
+    if (overrideValue !== undefined) {
+      return overrideValue;
+    }
     let result: any = {};
     val.forEach((field: string, prop: BlockIO) => {
       if (recursive && prop._value instanceof Block) {

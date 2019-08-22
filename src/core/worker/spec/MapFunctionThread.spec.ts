@@ -40,7 +40,7 @@ describe("MapFunction Thread", function () {
           '#is': '',
           'runner': {'#is': 'test-runner', '#mode': 'onLoad', '#-log': 0},
           'add': {'#is': 'add', '~0': '##.#input', '1': 1},
-          '~#output': 'add.output'
+          '#output': {'#is': '', '~#value': '##.add.output'}
         }
       }
     });
@@ -100,7 +100,7 @@ describe("MapFunction Thread", function () {
           'async': {'#is': 'async-function-manual', '~#call': '##.#input'},
           'add': {'#is': 'add', '#mode': 'onCall', '~#call': '##.async.#emit', '~0': '##.#input', '1': 1},
           '~#wait': 'async.#wait',
-          '~#output': 'add.output'
+          '#output': {'#is': '', '~#value': '##.add.output'}
         }
       }
     });
@@ -160,7 +160,7 @@ describe("MapFunction Thread", function () {
           'async': {'#is': 'async-function-promise', '~#call': '##.#input'},
           'add': {'#is': 'add', '#mode': 'onCall', '~#call': '##.async.#emit', '~0': '##.#input', '1': 1},
           '~#wait': 'async.#wait',
-          '~#output': 'add.output'
+          '#output': {'#is': '', '~#value': '##.add.output'}
         }
       }
     });
@@ -220,7 +220,7 @@ describe("MapFunction Thread", function () {
           'async': {'#is': 'async-function-promise', '~#call': '##.#input'},
           'add': {'#is': 'add', '#mode': 'onCall', '~#call': '##.async.#emit', '~0': '##.#input', '1': 1},
           '~#wait': 'async.#wait',
-          '~#output': 'add.output'
+          '#output': {'#is': '', '~#value': '##.add.output'}
         }
       }
     });
@@ -276,7 +276,7 @@ describe("MapFunction Thread", function () {
           'async': {'#is': 'async-function-promise', '~#call': '##.#input'},
           'add': {'#is': 'add', '#mode': 'onCall', '~#call': '##.async.#emit', '~0': '##.#input', '1': 1},
           '~#wait': 'async.#wait',
-          '~#output': 'add.output'
+          '#output': {'#is': '', '~#value': '##.add.output'}
         }
       }
     });
