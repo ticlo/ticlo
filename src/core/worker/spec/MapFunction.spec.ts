@@ -213,8 +213,7 @@ describe("MapFunction Basic", function () {
           'runner': {'#is': 'test-runner', '#mode': 'onLoad', '#-log': 0},
           'async': {'#is': 'async-function-promise', '~#call': '##.#input'},
           'add': {'#is': 'add', '#mode': 'onCall', '~#call': '##.async.#emit', '~0': '##.#input', '1': 1},
-          '~#wait': 'async.#wait',
-          '#output': {'#is': '', '~#value': '##.add.output'}
+          '#output': {'#is': '', '~#value': '##.add.output', '~#wait': '##.async.#wait'}
         }
       }
     });
@@ -351,8 +350,7 @@ describe("MapFunction Basic", function () {
           'runner': {'#is': 'test-runner', '#mode': 'onLoad', '#-log': 0},
           'async': {'#is': 'async-function-promise', '~#call': '##.#input'},
           'add': {'#is': 'add', '#mode': 'onCall', '~#call': '##.async.#emit', '~0': '##.#input', '1': 1},
-          '~#wait': 'async.#wait',
-          '#output': {'#is': '', '~#value': '##.add.output'}
+          '#output': {'#is': '', '~#value': '##.add.output', '~#wait': '##.async.#wait'}
         }
       }
     });
@@ -403,8 +401,7 @@ describe("MapFunction Basic", function () {
           'runner': {'#is': 'test-runner', '#mode': 'onLoad', '#-log': 0},
           'async': {'#is': 'async-function-promise', '~#call': '##.#input'},
           'add': {'#is': 'add', '#mode': 'onCall', '~#call': '##.async.#emit', '~0': '##.#input', '1': 1},
-          '~#wait': 'async.#wait',
-          '#output': {'#is': '', '~#value': '##.add.output'}
+          '#output': {'#is': '', '~#value': '##.add.output', '~#wait': '##.async.#wait'}
         }
       }
     });

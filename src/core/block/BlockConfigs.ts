@@ -75,6 +75,12 @@ class BlockWaitingConfig extends BlockProperty {
   }
 }
 
+class BlockOutputWaitingConfig extends BlockProperty {
+  _valueChanged() {
+    this._block._job.onWait(this._value);
+  }
+}
+
 class BlockCancelConfig extends BlockProperty {
   _valueChanged() {
     this._block.onCancel(this._value);
@@ -140,7 +146,7 @@ export const OutputConfigGenerators: {[key: string]: typeof BlockProperty} = {
   '#call': BlockCallConfig,
   '#sync': BlockSyncConfig,
   '#len': BlockLengthConfig,
-  '#wait': BlockIO,
+  '#wait': BlockOutputWaitingConfig, // directly forward wait to parent job
   '#cancel': BlockCancelConfig,
   '#priority': BlockPriorityConfig,
 };
