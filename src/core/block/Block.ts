@@ -8,7 +8,7 @@ import {DataMap} from "../util/Types";
 import {Uid} from "../util/Uid";
 import {voidProperty} from "./Void";
 import {Resolver} from "./Resolver";
-import {ConfigGenerators, BlockReadOnlyConfig} from "./BlockConfigs";
+import {ConfigGenerators, BlockReadOnlyConfig, JobConfigGenerators} from "./BlockConfigs";
 
 export type BlockMode = 'auto' | 'onLoad' | 'onChange' | 'onCall' | 'disabled';
 
@@ -199,11 +199,7 @@ export class Block implements Runnable, FunctionData, Listener<FunctionClass>, D
           if (!create) {
             return null;
           }
-          if (field in ConfigGenerators) {
-            prop = new ConfigGenerators[field](this, field);
-          } else {
-            prop = new BlockProperty(this, field);
-          }
+          prop = this._createConfig(field);
         }
       }
     } else if (firstChar === 94) {
@@ -228,6 +224,14 @@ export class Block implements Runnable, FunctionData, Listener<FunctionClass>, D
     }
     this._props.set(field, prop);
     return prop;
+  }
+
+  _createConfig(field: string): BlockProperty {
+    if (field in ConfigGenerators) {
+      return new ConfigGenerators[field](this, field);
+    } else {
+      return new BlockProperty(this, field);
+    }
   }
 
   createGlobalProperty(name: string): BlockProperty {
@@ -400,18 +404,13 @@ export class Block implements Runnable, FunctionData, Listener<FunctionClass>, D
   createBlock(field: string): Block {
     let prop = this.getProperty(field);
     if (!(prop._saved instanceof Block) || prop._saved._prop !== prop) {
-      let block = new Block(this._job, this, prop);
-      prop.setValue(block);
-      return block;
+      return prop.createBlock(true);
     }
     return null;
   }
 
   createOutputBlock(field: string): Block {
-    let prop = this.getProperty(field);
-    let block = new Block(this._job, this, prop);
-    prop.setOutput(block);
-    return block;
+    return this.getProperty(field).createBlock(false);
   }
 
   createHelperBlock(field: string): Block {
@@ -419,8 +418,7 @@ export class Block implements Runnable, FunctionData, Listener<FunctionClass>, D
     let helperProp = this.getProperty(`~${field}`) as HelperProperty;
     let block: Block;
     if (!(helperProp._saved instanceof Block) || helperProp._saved._prop !== prop) {
-      block = new Block(this._job, this, helperProp);
-      helperProp.setValue(block);
+      block = helperProp.createBlock(true);
     } else {
       block = helperProp._saved;
     }
@@ -910,6 +908,14 @@ export class Root extends Job {
     globalProp._value = globalProp._saved;
 
     this._props.set('', new BlockReadOnlyConfig(this, '', this));
+  }
+
+  _createConfig(field: string): BlockProperty {
+    if (field in JobConfigGenerators) {
+      return new JobConfigGenerators[field](this, field);
+    } else {
+      return new BlockProperty(this, field);
+    }
   }
 
   createGlobalProperty(name: string): BlockProperty {

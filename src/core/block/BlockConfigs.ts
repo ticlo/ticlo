@@ -1,5 +1,6 @@
-import {BlockProperty} from "./BlockProperty";
+import {BlockIO, BlockProperty} from "./BlockProperty";
 import {Block} from "./Block";
+import {OutputBlock} from "./OutputBlock";
 import {BaseFunction, FunctionData} from "./BlockFunction";
 
 class BlockTypeConfig extends BlockProperty {
@@ -106,9 +107,31 @@ export const ConfigGenerators: {[key: string]: typeof BlockProperty} = {
   '#call': BlockCallConfig,
   '#sync': BlockSyncConfig,
   '#len': BlockLengthConfig,
+  '#wait': BlockWaitingConfig,
+  '#cancel': BlockCancelConfig,
+  '#priority': BlockPriorityConfig,
+};
+
+export const JobConfigGenerators: {[key: string]: typeof BlockProperty} = {
+  '#is': BlockTypeConfig,
+  '#mode': BlockModeConfig,
+  '#call': BlockCallConfig,
+  '#sync': BlockSyncConfig,
+  '#len': BlockLengthConfig,
   '#input': BlockInputConfig,
   '#output': BlockOutputConfig,
   '#wait': BlockWaitingConfig,
+  '#cancel': BlockCancelConfig,
+  '#priority': BlockPriorityConfig,
+};
+
+export const OutputConfigGenerators: {[key: string]: typeof BlockProperty} = {
+  '#is': BlockTypeConfig,
+  '#mode': BlockModeConfig,
+  '#call': BlockCallConfig,
+  '#sync': BlockSyncConfig,
+  '#len': BlockLengthConfig,
+  '#wait': BlockIO,
   '#cancel': BlockCancelConfig,
   '#priority': BlockPriorityConfig,
 };

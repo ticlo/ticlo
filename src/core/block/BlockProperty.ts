@@ -161,7 +161,7 @@ export class BlockProperty extends ValueDispatcher<any> implements Listener<any>
         this.onChange(val['#is'], true);
         return;
       }
-      let block = new Block(this._block._job, this._block, this);
+      let block = this.createBlock(undefined);
       block._load(val);
       this.onChange(block, true);
     } else {
@@ -188,7 +188,7 @@ export class BlockProperty extends ValueDispatcher<any> implements Listener<any>
         this._saved._liveUpdate(val);
       } else {
         // just do a normal loading
-        let block = new Block(this._block._job, this._block, this);
+        let block = this.createBlock(undefined);
         block._load(val);
         this.onChange(block, true);
       }
@@ -241,6 +241,17 @@ export class BlockProperty extends ValueDispatcher<any> implements Listener<any>
         this.addEvent({listener: null});
       }
     }
+  }
+
+  createBlock(save: boolean) {
+    let block = new Block(this._block._job, this._block, this);
+    if (save) {
+      this.setValue(block);
+    } else if (save === false) {
+      this.onChange(block);
+    }
+    // skip value change when save is undefined
+    return block;
   }
 
   destroy() {
