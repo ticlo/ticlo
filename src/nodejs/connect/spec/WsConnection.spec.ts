@@ -11,7 +11,7 @@ import {makeLocalConnection} from "../../../core/connect/LocalConnection";
 import {FunctionDesc} from "../../../core/block/Descriptor";
 import {Types} from "../../../core/block/Type";
 
-const PORT = 8080;
+const PORT = 8082;
 
 describe("WsConnect", function () {
   let server: MockWsServer;

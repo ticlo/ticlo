@@ -4,7 +4,6 @@ import {FunctionDesc} from "../block/Descriptor";
 import {BlockIO, BlockProperty} from "../block/BlockProperty";
 import {Block, Job} from "../block/Block";
 import {convertToObject, DataMap, isSavedBlock} from "../util/Types";
-import {OutputFunction} from "./Output";
 import {ErrorEvent, Event, EventType, NOT_READY} from "../block/Event";
 import {MapImpl, MapWorkerMode} from "./MapImpl";
 import {BlockProxy} from "../block/BlockProxy";
