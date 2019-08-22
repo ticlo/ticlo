@@ -158,7 +158,6 @@ export class BlockStage extends BlockStageBase<StageState> {
       }
       this.focus();
     }
-    this._dragScrollPos = null;
     this._selectRectNode.style.display = null;
     this._selectRectNode.style.width = '0';
     this._dragingSelect = null;
