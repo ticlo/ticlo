@@ -3,7 +3,6 @@ import {Job, Root} from "../../block/Block";
 import {WorkerFunction} from "../WorkerFunction";
 import {TestFunctionRunner} from "../../block/spec/TestFunction";
 import "../../functions/basic/Math";
-import "../Output";
 import {DataMap} from "../../util/Types";
 
 describe("WorkerFunction", function () {
@@ -54,7 +53,7 @@ describe("WorkerFunction", function () {
     let jobData: DataMap = {
       '#is': '',
       'add': {'#is': 'add', '~0': '##.#input.in1', '1': 1},
-      '#output': {'#is': 'output', '~out1': '##.add.output'}
+      '#output': {'#is': '', '~out1': '##.add.output'}
     };
     WorkerFunction.registerType(jobData, {name: 'class2'}, 'WorkerFunction');
     aBlock.setValue('in1', 2);
@@ -73,12 +72,12 @@ describe("WorkerFunction", function () {
     let jobData1: DataMap = {
       '#is': '',
       'nest': {'#is': ':class2', '~in1': '##.#input.in0'},
-      '#output': {'#is': 'output', '~out1': '##.nest.out2'}
+      '#output': {'#is': '', '~out1': '##.nest.out2'}
     };
     let jobData2: DataMap = {
       '#is': '',
       'add': {'#is': 'add', '~0': '##.#input.in1', '1': 1},
-      '#output': {'#is': 'output', '~out2': '##.add.output'}
+      '#output': {'#is': '', '~out2': '##.add.output'}
     };
     WorkerFunction.registerType(jobData1, {name: 'class1'}, 'test_namespace');
     WorkerFunction.registerType(jobData2, {name: 'class2'}, 'test_namespace');

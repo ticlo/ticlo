@@ -28,7 +28,7 @@ describe("ForEachFunction", function () {
           '#is': '',
           'test': {'#is': 'test-runner', '~#-log': '##.#input.v'},
           'add': {'#is': 'add', '~0': '##.#input.v', '1': 1},
-          '#output': {'#is': 'output', '~v': '##.add.output'}
+          '#output': {'#is': '', '~v': '##.add.output'}
         }
       }
     });
@@ -39,7 +39,7 @@ describe("ForEachFunction", function () {
         '#is': {
           '#is': '',
           'multiply': {'#is': 'multiply', '~0': '##.#input.v', '1': 2},
-          '#output': {'#is': 'output', '~v': '##.multiply.output'}
+          '#output': {'#is': '', '~v': '##.multiply.output'}
         }
       }
     });
@@ -55,7 +55,7 @@ describe("ForEachFunction", function () {
       '#is': '',
       'test': {'#is': 'test-runner', '~#-log': '##.#input.v'},
       'subtract': {'#is': 'subtract', '~0': '##.#input.v', '1': 5},
-      '#output': {'#is': 'output', '~v': '##.subtract.output'}
+      '#output': {'#is': '', '~v': '##.subtract.output'}
     });
     Root.run();
     assert.lengthOf(TestFunctionRunner.popLogs(), 3, 'worker run 3 times');
@@ -98,7 +98,7 @@ describe("ForEachFunction", function () {
         '#is': {
           '#is': '',
           'add': {'#is': 'add', '~0': '##.#input.v', '1': 1},
-          '#output': {'#is': 'output', '~v': '##.add.output'}
+          '#output': {'#is': '', '~v': '##.add.output'}
         }
       }
     });

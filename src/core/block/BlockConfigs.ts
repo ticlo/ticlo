@@ -1,6 +1,5 @@
 import {BlockIO, BlockProperty} from "./BlockProperty";
-import {Block} from "./Block";
-import {OutputBlock} from "./OutputBlock";
+import {Block, OutputBlock} from "./Block";
 import {BaseFunction, FunctionData} from "./BlockFunction";
 
 class BlockTypeConfig extends BlockProperty {
@@ -58,6 +57,16 @@ class BlockInputConfig extends BlockProperty {
 }
 
 class BlockOutputConfig extends BlockProperty {
+  createBlock(save: boolean): Block {
+    let block = new OutputBlock(this._block._job, this._block, this);
+    if (save) {
+      this.setValue(block);
+    } else if (save === false) {
+      this.onChange(block);
+    }
+    // skip value change when save is undefined
+    return block;
+  }
 }
 
 class BlockWaitingConfig extends BlockProperty {

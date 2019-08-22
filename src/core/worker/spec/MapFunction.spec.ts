@@ -179,7 +179,7 @@ describe("MapFunction Basic", function () {
         '#is': {
           '#is': '',
           'add': {'#is': 'add', '~0': '##.#input.v', '1': 1},
-          '#output': {'#is': 'output', '~v': '##.add.output'}
+          '#output': {'#is': '', '~v': '##.add.output'}
         }
       }
     });

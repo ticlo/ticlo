@@ -8,7 +8,7 @@ import {DataMap} from "../util/Types";
 import {Uid} from "../util/Uid";
 import {voidProperty} from "./Void";
 import {Resolver} from "./Resolver";
-import {ConfigGenerators, BlockReadOnlyConfig, JobConfigGenerators} from "./BlockConfigs";
+import {ConfigGenerators, BlockReadOnlyConfig, JobConfigGenerators, OutputConfigGenerators} from "./BlockConfigs";
 
 export type BlockMode = 'auto' | 'onLoad' | 'onChange' | 'onCall' | 'disabled';
 
@@ -802,6 +802,14 @@ export class Job extends Block {
     }
   }
 
+  _createConfig(field: string): BlockProperty {
+    if (field in JobConfigGenerators) {
+      return new JobConfigGenerators[field](this, field);
+    } else {
+      return new BlockProperty(this, field);
+    }
+  }
+
   createGlobalProperty(name: string): BlockProperty {
     let prop = new GlobalProperty(this, name);
     this._props.set(name, prop);
@@ -910,14 +918,6 @@ export class Root extends Job {
     this._props.set('', new BlockReadOnlyConfig(this, '', this));
   }
 
-  _createConfig(field: string): BlockProperty {
-    if (field in JobConfigGenerators) {
-      return new JobConfigGenerators[field](this, field);
-    } else {
-      return new BlockProperty(this, field);
-    }
-  }
-
   createGlobalProperty(name: string): BlockProperty {
     return this.getGlobalProperty(name);
   }
@@ -951,4 +951,18 @@ export class Root extends Job {
   }
 }
 
+export class OutputBlock extends Block {
+  inputChanged(input: BlockIO, val: any) {
+    super.inputChanged(input, val);
+    this._job.outputChanged(input, val);
+  }
+
+  _createConfig(field: string): BlockProperty {
+    if (field in OutputConfigGenerators) {
+      return new OutputConfigGenerators[field](this, field);
+    } else {
+      return new BlockProperty(this, field);
+    }
+  }
+}
 
