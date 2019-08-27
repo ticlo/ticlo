@@ -432,21 +432,7 @@ export class Block implements Runnable, FunctionData, Listener<FunctionClass>, D
     let prop = this.getProperty(field);
     let job = new Job(this, output, prop);
     prop.setOutput(job);
-    if (typeof src === 'string') {
-      let desc: FunctionDesc = Types.getDesc(src)[0];
-      if (desc) {
-        job._namespace = desc.ns;
-        let data = Types.getWorkerClass(src);
-        if (data) {
-          job.load(data);
-        }
-      }
-    } else {
-      job._namespace = this._job._namespace;
-      if (src) {
-        job.load(src);
-      }
-    }
+    job.load(src);
 
     return job;
   }
@@ -856,17 +842,31 @@ export class Job extends Block {
     this.getProperty('#cancel').updateValue(new Event('cancel'));
   }
 
-  save(): {[key: string]: any} {
+  save(): DataMap {
     return this._save();
   }
 
-  load(map: {[key: string]: any}) {
+  load(src: DataMap | string) {
     this._loading = true;
-    this._load(map);
+    if (typeof src === 'string') {
+      let desc: FunctionDesc = Types.getDesc(src)[0];
+      if (desc) {
+        this._namespace = desc.ns;
+        let data = Types.getWorkerClass(src);
+        if (data) {
+          this._load(data);
+        }
+      }
+    } else {
+      this._namespace = this._job._namespace;
+      if (src) {
+        this._load(src);
+      }
+    }
     this._loading = false;
   }
 
-  liveUpdate(map: {[key: string]: any}) {
+  liveUpdate(map: DataMap) {
     this._loading = true;
     this._liveUpdate(map);
     this._loading = false;

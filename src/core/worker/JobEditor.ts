@@ -22,22 +22,7 @@ export class JobEditor extends Job {
     }
     let job = new JobEditor(parent, null, prop);
     prop.setOutput(job);
-    if (typeof src === 'string') {
-      let desc: FunctionDesc = Types.getDesc(src)[0];
-      if (desc) {
-        job._namespace = desc.ns;
-        let data = Types.getWorkerClass(src);
-        if (data) {
-          job.load(data);
-        }
-      }
-    } else {
-      job._namespace = parent._job._namespace;
-      if (src) {
-        job.load(src);
-      }
-    }
-
+    job.load(src);
     return job;
   }
 
