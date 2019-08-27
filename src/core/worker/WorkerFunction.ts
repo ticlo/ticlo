@@ -6,31 +6,23 @@ import {Block, Job} from "../block/Block";
 import {DataMap} from "../util/Types";
 
 export class WorkerFunction extends BlockFunction {
+  readonly type: string;
   _namespace: string;
   _funcJob: Job;
-  _src: DataMap;
-
-  constructor(block: Block, data: DataMap) {
-    super(block);
-    this._src = data;
-
-  }
 
   inputChanged(input: BlockIO, val: any): boolean {
     return false;
   }
 
   run(): any {
-    this._funcJob = this._data.createOutputJob('#func', this._src, this._data, this._namespace);
+    this._funcJob = this._data.createOutputJob('#func', this.type, this._data);
     this._funcJob.updateInput(this._data);
   }
 
   static registerType(data: DataMap, desc: FunctionDesc, namespace?: string) {
 
     class CustomWorkerFunction extends WorkerFunction {
-      constructor(block: Block) {
-        super(block, data);
-      }
+      static ticlWorkerData = data;
     }
 
     if (!desc.priority) {

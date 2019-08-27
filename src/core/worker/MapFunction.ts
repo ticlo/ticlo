@@ -380,7 +380,7 @@ export class MapFunction extends BlockFunction implements MapImpl {
 
   _addWorker(key: string, field: string, input: any): Job {
     let output = new MapWorkerOutput(key, field, this._timeout, this._onWorkerReady);
-    let child = this._funcBlock.createOutputJob(key, this._src, output, this._data._job._namespace);
+    let child = this._funcBlock.createOutputJob(key, this._src, output);
     child.onResolved = () => {
       if (!child._waiting) {
         output.workerReady();

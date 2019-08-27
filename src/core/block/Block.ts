@@ -9,6 +9,7 @@ import {Uid} from "../util/Uid";
 import {voidProperty} from "./Void";
 import {Resolver} from "./Resolver";
 import {ConfigGenerators, BlockReadOnlyConfig, JobConfigGenerators, OutputConfigGenerators} from "./BlockConfigs";
+import {FunctionDesc} from "./Descriptor";
 
 export type BlockMode = 'auto' | 'onLoad' | 'onChange' | 'onCall' | 'disabled';
 
@@ -427,16 +428,26 @@ export class Block implements Runnable, FunctionData, Listener<FunctionClass>, D
     return block;
   }
 
-  createOutputJob(field: string, src?: DataMap, output?: FunctionOutput, namespace?: string): Job {
+  createOutputJob(field: string, src?: DataMap | string, output?: FunctionOutput): Job {
     let prop = this.getProperty(field);
     let job = new Job(this, output, prop);
     prop.setOutput(job);
-    if (namespace) {
-      job._namespace = namespace;
+    if (typeof src === 'string') {
+      let desc: FunctionDesc = Types.getDesc(src)[0];
+      if (desc) {
+        job._namespace = desc.ns;
+        let data = Types.getWorkerClass(src);
+        if (data) {
+          job.load(data);
+        }
+      }
+    } else {
+      job._namespace = this._job._namespace;
+      if (src) {
+        job.load(src);
+      }
     }
-    if (src) {
-      job.load(src);
-    }
+
     return job;
   }
 

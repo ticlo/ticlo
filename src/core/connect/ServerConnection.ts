@@ -340,7 +340,10 @@ export class ServerConnection extends Connection {
             result = this.watchDesc(request.id);
             break;
           }
-
+          case 'editJob' : {
+            result = this.editJob(request.path, request.fromField, request.fromFunction);
+            break;
+          }
           //// property utils
 
           case 'showProps': {
@@ -541,6 +544,16 @@ export class ServerConnection extends Connection {
 
   blockCommand(path: string, command: string, params: DataMap) {
     // TODO
+  }
+
+  editJob(path: string, fromField: string, fromFunction: string) {
+    let property = this.root.queryProperty(path, true);
+
+    if (property && property._name.startsWith('#edit-')) {
+      return null;
+    } else {
+      return 'invalid path';
+    }
   }
 
   showProps(path: string, props: string[]) {

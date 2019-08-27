@@ -7,7 +7,7 @@ describe("JobEditor", function () {
 
   it('delete editor after unwatch', function () {
     let job = new Job();
-    let editor1 = JobEditor.create(job, '#edit-1', {}, 'Ns1');
+    let editor1 = JobEditor.create(job, '#edit-1', {});
     let editor2 = JobEditor.create(job, '#edit-2');
     editor1.watch(VoidListeners);
     assert.equal(job.getValue('#edit-1'), editor1);

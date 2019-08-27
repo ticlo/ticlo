@@ -4,6 +4,7 @@ import {ValueDispatcher} from "./Dispatcher";
 import {FunctionDesc} from "./Descriptor";
 import JSON = Mocha.reporters.JSON;
 import JsonEsc from "jsonesc/dist";
+import {DataMap} from "../util/Types";
 
 export interface DescListener {
   onDescChange(id: string, desc: FunctionDesc): void;
@@ -68,6 +69,14 @@ export class Types {
       }
       Types.dispatchDescChange(id, null);
     }
+  }
+
+  static getWorkerClass(id: string): DataMap {
+    let type = _types[id];
+    if (type && type._value && (type._value as any).ticlWorkerData instanceof Object) {
+      return (type._value as any).ticlWorkerData;
+    }
+    return null;
   }
 
   static listen(id: string, block: Block): Type {
