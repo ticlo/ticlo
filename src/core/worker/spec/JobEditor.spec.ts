@@ -48,6 +48,40 @@ describe("JobEditor", function () {
     Types.clear('JobEditor:func1');
   });
 
+  it('createFromField desc', function () {
+    let job = new Job();
+    let block = job.createBlock('a');
+    let expectedData = {
+      '#input': {
+        '#is': '',
+        '@b-more': [{'name': 'a', 'type': 'number'}
+        ]
+      },
+      '#is': '',
+      '#output': {
+        '#is': ''
+      }
+    };
+
+    WorkerFunction.registerType({'#is': ''}, {
+      name: 'worker1',
+      properties: [{
+        name: 'use', type: 'worker', inputs: [
+          {name: 'a', type: 'number'}
+        ]
+      }]
+    }, 'JobEditor');
+
+    block.setValue('#is', 'JobEditor:worker1');
+
+    // set invalid function so it fallbacks to property's default inputs
+    block.setValue('use', 'invalidFunction');
+    JobEditor.createFromField(block, '#edit-use', 'use');
+    assert.deepEqual(block.getValue('#edit-use').save(), expectedData);
+
+    Types.clear('JobEditor:worker1');
+  });
+
   it('createFromFunction', function () {
     let job = new Job();
     let data = {
