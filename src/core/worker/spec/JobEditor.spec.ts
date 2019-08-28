@@ -2,6 +2,8 @@ import {assert} from "chai";
 import {Job, Root} from "../../block/Block";
 import {JobEditor} from "../JobEditor";
 import {VoidListeners} from "../../block/spec/TestFunction";
+import {WorkerFunction} from "../WorkerFunction";
+import {Types} from "../../block/Type";
 
 describe("JobEditor", function () {
 
@@ -20,4 +22,47 @@ describe("JobEditor", function () {
     editor1.unwatch(VoidListeners);
     assert.isUndefined(job.getValue('#edit-1'));
   });
+
+  it('createFromField', function () {
+    let job = new Job();
+    let block = job.createBlock('a');
+    let data = {
+      '#is': '',
+      'add': {
+        '#is': 'add'
+      }
+    };
+
+    WorkerFunction.registerType(data, {name: 'func1'}, 'JobEditor');
+
+    // editor with map data
+    block.setValue('use1', data);
+    JobEditor.createFromField(block, '#edit-use1', 'use1');
+    assert.deepEqual(block.getValue('#edit-use1').save(), data);
+
+    // editor with registered worker function
+    block.setValue('use2', 'JobEditor:func1');
+    JobEditor.createFromField(block, '#edit-use2', 'use2');
+    assert.deepEqual(block.getValue('#edit-use2').save(), data);
+
+    Types.clear('JobEditor:func1');
+  });
+
+  it('createFromFunction', function () {
+    let job = new Job();
+    let data = {
+      '#is': '',
+      'add': {
+        '#is': 'subtract'
+      }
+    };
+
+    WorkerFunction.registerType(data, {name: 'func2'}, 'JobEditor');
+
+    JobEditor.createFromFunction(job, '#edit-func', 'JobEditor:func2');
+    assert.deepEqual(job.getValue('#edit-func').save(), data);
+
+    Types.clear('JobEditor:func2');
+  });
+
 });
