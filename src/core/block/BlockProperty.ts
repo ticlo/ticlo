@@ -91,7 +91,7 @@ export class BlockProperty extends ValueDispatcher<any> implements Listener<any>
     this.onChange(val, true);
   }
 
-  // clear saved value and binding path
+  // clear saved value and binding path if they exist, otherwise leave runtime value unchanged
   clear() {
     if (this._bindingPath || this._saved !== undefined) {
       this.setValue(undefined);

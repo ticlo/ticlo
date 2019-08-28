@@ -9,6 +9,8 @@ import {shouldHappen} from "../../util/test-util";
 import {JsFunction} from "../../functions/script/Js";
 import {Types} from "../../block/Type";
 import {DataMap, isDataTruncated} from "../../util/Types";
+import {WorkerFunction} from "../../worker/WorkerFunction";
+import {JobEditor} from "../../worker/JobEditor";
 
 
 describe("Connection", function () {
@@ -588,5 +590,32 @@ describe("Connection", function () {
     await shouldHappen(() => client.findGlobalBlocks(['join']).length === 0);
 
     client.destroy();
+  });
+
+
+  it('JobEditor', async function () {
+    let job1 = Root.instance.addJob('Connection18');
+    let block1 = job1.createBlock('a');
+    let data = {
+      '#is': '',
+      'add': {'#is': 'add'}
+    };
+
+    let [server, client] = makeLocalConnection(Root.instance, true);
+
+    // edit from field
+    client.setValue('Connection18.a.use', data);
+    await client.editJob('Connection18.a.#edit-use', 'use');
+    assert.deepEqual(block1.getValue('#edit-use').save(), data);
+
+    WorkerFunction.registerType(data, {name: 'func1'}, 'JobEditor');
+
+    // edit from worker function
+    await client.editJob('Connection18.a.#edit-func1', null, 'JobEditor:func1');
+    assert.deepEqual(block1.getValue('#edit-func1').save(), data);
+
+    Types.clear('JobEditor:func1');
+    client.destroy();
+    Root.instance.deleteValue('Connection18');
   });
 });
