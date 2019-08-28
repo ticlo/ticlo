@@ -61,8 +61,16 @@ export class JobEditor extends Job {
           '#input': {'#is': '', '@b-more': propDesc.inputs},
           '#output': {'#is': '', '@b-more': propDesc.outputs},
         };
-        JobEditor.create(parent, field, placeHolderData, forceReload);
+        return JobEditor.create(parent, field, placeHolderData, forceReload);
       }
     }
+    return null;
+  }
+
+  static createFromFunction(parent: Block, field: string, fromFunction: string): JobEditor {
+    if (typeof fromFunction === 'string') {
+      return JobEditor.create(parent, field, fromFunction);
+    }
+    return null;
   }
 }

@@ -853,7 +853,7 @@ export class Job extends Block {
       // load from worker class
       let desc: FunctionDesc = Types.getDesc(src)[0];
       if (desc) {
-        let data = Types.getWorkerClass(src);
+        let data = Types.getWorkerData(src);
         if (data) {
           this._namespace = desc.ns;
           this._load(data);

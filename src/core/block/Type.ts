@@ -71,7 +71,7 @@ export class Types {
     }
   }
 
-  static getWorkerClass(id: string): DataMap {
+  static getWorkerData(id: string): DataMap {
     let type = _types[id];
     if (type && type._value && (type._value as any).ticlWorkerData instanceof Object) {
       return (type._value as any).ticlWorkerData;

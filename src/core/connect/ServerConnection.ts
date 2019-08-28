@@ -16,6 +16,7 @@ import {propRelative} from "../util/Path";
 import {findPropertyForNewBlock, changeLength} from "../property-api/PropertyAddMove";
 import {hideProperties, moveShownProperty, showProperties} from "../property-api/PropertyShowHide";
 import {addMoreProperty, moveMoreProperty, removeMoreProperty} from "../property-api/MoreProperty";
+import {JobEditor} from "../worker/JobEditor";
 
 class ServerRequest extends ConnectionSendingData {
   id: string;
@@ -550,6 +551,12 @@ export class ServerConnection extends Connection {
     let property = this.root.queryProperty(path, true);
 
     if (property && property._name.startsWith('#edit-')) {
+      if (fromField) {
+        JobEditor.createFromField(property._block, property._name, fromField);
+      } else if (fromFunction) {
+        JobEditor.createFromFunction(property._block, property._name, fromFunction);
+      }
+
       return null;
     } else {
       return 'invalid path';
