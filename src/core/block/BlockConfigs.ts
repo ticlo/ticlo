@@ -87,7 +87,7 @@ class BlockCancelConfig extends BlockProperty {
   }
 }
 
-export class BlockReadOnlyConfig extends BlockProperty {
+export class BlockConstConfig extends BlockProperty {
   constructor(block: Block, name: string, value?: any) {
     super(block, name);
     this._value = value;
@@ -106,6 +106,9 @@ export class BlockReadOnlyConfig extends BlockProperty {
     // disable setBinding
   }
 
+  onChange(val: any, save?: boolean): boolean {
+    return false;
+  }
   // unlisten(listener: Listener) {
   //   super.unlisten(listener);
   //   if (this._listeners.size === 0) {
@@ -115,6 +118,16 @@ export class BlockReadOnlyConfig extends BlockProperty {
   // }
 }
 
+class BlockOutputTypeConfig extends BlockConstConfig {
+  constructor(block: Block, name: string) {
+    super(block, name, 'output');
+  }
+
+  _save(): any {
+    // no need to save 'output'
+    return '';
+  }
+}
 
 export const ConfigGenerators: {[key: string]: typeof BlockProperty} = {
   '#is': BlockTypeConfig,
@@ -141,7 +154,7 @@ export const JobConfigGenerators: {[key: string]: typeof BlockProperty} = {
 };
 
 export const OutputConfigGenerators: {[key: string]: typeof BlockProperty} = {
-  '#is': BlockTypeConfig,
+  '#is': BlockOutputTypeConfig,
   '#mode': BlockModeConfig,
   '#call': BlockCallConfig,
   '#sync': BlockSyncConfig,

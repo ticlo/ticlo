@@ -8,7 +8,7 @@ import {DataMap} from "../util/Types";
 import {Uid} from "../util/Uid";
 import {voidProperty} from "./Void";
 import {Resolver} from "./Resolver";
-import {ConfigGenerators, BlockReadOnlyConfig, JobConfigGenerators, OutputConfigGenerators} from "./BlockConfigs";
+import {ConfigGenerators, BlockConstConfig, JobConfigGenerators, OutputConfigGenerators} from "./BlockConfigs";
 import {FunctionDesc} from "./Descriptor";
 
 export type BlockMode = 'auto' | 'onLoad' | 'onChange' | 'onCall' | 'disabled';
@@ -188,13 +188,13 @@ export class Block implements Runnable, FunctionData, Listener<FunctionClass>, D
       // # controls
       switch (field) {
         case '##':
-          prop = new BlockReadOnlyConfig(this, field, this._parent);
+          prop = new BlockConstConfig(this, field, this._parent);
           break;
         case '###':
-          prop = new BlockReadOnlyConfig(this, field, this._job);
+          prop = new BlockConstConfig(this, field, this._job);
           break;
         case '#':
-          prop = new BlockReadOnlyConfig(this, field, this);
+          prop = new BlockConstConfig(this, field, this);
           break;
         default: {
           if (!create) {
@@ -925,13 +925,13 @@ export class Root extends Job {
     });
 
     // create the readolny global block
-    let globalProp = new BlockReadOnlyConfig(this, '#global');
+    let globalProp = new BlockConstConfig(this, '#global');
     this._props.set('#global', globalProp);
     this._globalBlock = new GlobalBlock(this, this, globalProp);
     globalProp._saved = this._globalBlock;
     globalProp._value = globalProp._saved;
 
-    this._props.set('', new BlockReadOnlyConfig(this, '', this));
+    this._props.set('', new BlockConstConfig(this, '', this));
   }
 
   createGlobalProperty(name: string): BlockProperty {
