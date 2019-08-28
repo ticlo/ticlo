@@ -22,6 +22,7 @@ export type ValueType =
   | 'any'
   // special editors
   | 'type'
+  | 'worker'
   | 'service'
   ;
 
@@ -52,6 +53,10 @@ export interface PropDesc {
 
   // service
   create?: string;
+
+  // worker
+  inputs?: (PropDesc | PropGroupDesc)[];
+  outputs?: (PropDesc | PropGroupDesc)[];
 }
 
 export interface PropGroupDesc {

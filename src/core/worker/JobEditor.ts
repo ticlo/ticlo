@@ -14,23 +14,36 @@ export class JobEditor extends Job {
     }
   }
 
-  static create(parent: Block, field: string, src?: DataMap | string): JobEditor {
+  static create(parent: Block, field: string, src?: DataMap | string, forceLoad = false): JobEditor {
     let prop = parent.getProperty(field);
+    let job: JobEditor;
     if (prop._value instanceof JobEditor) {
       // do not override the existing one that's being edited
-      return prop._value;
+      if (forceLoad) {
+        job = prop._value;
+      } else {
+        return prop._value;
+      }
+    } else {
+      job = new JobEditor(parent, null, prop);
+      prop.setOutput(job);
     }
-    let job = new JobEditor(parent, null, prop);
-    prop.setOutput(job);
-    job.load(src);
-    return job;
+    let success = job.load(src);
+    if (success) {
+      return job;
+    } else {
+      return null;
+    }
   }
 
   static createFromField(parent: Block, field: string, fromField: string): JobEditor {
-    // already has worker data
     let fromValue = parent.getValue(fromField);
+    // already has worker data ?
     if (typeof fromValue === 'string' || fromValue.constructor === Object) {
-      return JobEditor.create(parent, field, fromValue);
+      let newJob = JobEditor.create(parent, field, fromValue);
+      if (newJob) {
+        return newJob;
+      }
     }
 
     // check if property desc has default worker data
@@ -38,12 +51,15 @@ export class JobEditor extends Job {
     let propertyCache = buildPropDescCache(funcDesc, null);
     let src: DataMap;
     if (propertyCache) {
-      let prop = findPropDesc(fromField, propertyCache);
-      // if (prop && prop.) {
-      //
-      // }
+      let propDesc = findPropDesc(fromField, propertyCache);
+      if (propDesc && propDesc.type === 'worker') {
+        let placeHolderData = {
+          '#is': '',
+          '#input': {'#is': '', '@b-more': propDesc.inputs},
+          '#output': {'#is': '', '@b-more': propDesc.outputs},
+        };
+        JobEditor.create(parent, field, placeHolderData, true);
+      }
     }
-
-
   }
 }

@@ -846,24 +846,29 @@ export class Job extends Block {
     return this._save();
   }
 
-  load(src: DataMap | string) {
+  load(src: DataMap | string): boolean {
     this._loading = true;
+    let loaded = false;
     if (typeof src === 'string') {
+      // load from worker class
       let desc: FunctionDesc = Types.getDesc(src)[0];
       if (desc) {
-        this._namespace = desc.ns;
         let data = Types.getWorkerClass(src);
         if (data) {
+          this._namespace = desc.ns;
           this._load(data);
+          loaded = true;
         }
       }
     } else {
       this._namespace = this._job._namespace;
       if (src) {
         this._load(src);
+        loaded = true;
       }
     }
     this._loading = false;
+    return loaded;
   }
 
   liveUpdate(map: DataMap) {
@@ -955,6 +960,7 @@ export class Root extends Job {
 
   load(map: {[key: string]: any}) {
     // not allowed
+    return false;
   }
 
   liveUpdate(map: {[key: string]: any}) {

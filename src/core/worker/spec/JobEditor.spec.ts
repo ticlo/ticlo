@@ -9,9 +9,12 @@ describe("JobEditor", function () {
     let job = new Job();
     let editor1 = JobEditor.create(job, '#edit-1', {});
     let editor2 = JobEditor.create(job, '#edit-2');
+
+    assert.isNull(editor2, 'failed to load');
+    assert.instanceOf(job.getValue('#edit-2'), JobEditor);
+
     editor1.watch(VoidListeners);
     assert.equal(job.getValue('#edit-1'), editor1);
-    assert.equal(job.getValue('#edit-2'), editor2);
 
     // value deleted after unwatch
     editor1.unwatch(VoidListeners);
