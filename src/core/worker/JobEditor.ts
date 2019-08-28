@@ -38,12 +38,15 @@ export class JobEditor extends Job {
 
   static createFromField(parent: Block, field: string, fromField: string): JobEditor {
     let fromValue = parent.getValue(fromField);
+    let forceReload = false;
     // already has worker data ?
     if (typeof fromValue === 'string' || fromValue.constructor === Object) {
       let newJob = JobEditor.create(parent, field, fromValue);
       if (newJob) {
         return newJob;
       }
+      // reload the existing job only when the previous loading failed
+      forceReload = true;
     }
 
     // check if property desc has default worker data
@@ -58,7 +61,7 @@ export class JobEditor extends Job {
           '#input': {'#is': '', '@b-more': propDesc.inputs},
           '#output': {'#is': '', '@b-more': propDesc.outputs},
         };
-        JobEditor.create(parent, field, placeHolderData, true);
+        JobEditor.create(parent, field, placeHolderData, forceReload);
       }
     }
   }
