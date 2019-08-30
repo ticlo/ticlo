@@ -54,12 +54,14 @@ describe("JobEditor", function () {
     let expectedData = {
       '#input': {
         '#is': '',
-        '@b-more': [{'name': 'a', 'type': 'number'}
-        ]
+        '@b-more': [{'name': 'a', 'type': 'number'}],
+        '@b-p': ['a']
       },
       '#is': '',
       '#output': {
-        '#is': ''
+        '#is': '',
+        '@b-more': [{'name': 'b', 'type': 'number'}],
+        '@b-p': ['b']
       }
     };
 
@@ -68,6 +70,9 @@ describe("JobEditor", function () {
       properties: [{
         name: 'use', type: 'worker', inputs: [
           {name: 'a', type: 'number'}
+        ],
+        outputs: [
+          {name: 'b', type: 'number'}
         ]
       }]
     }, 'JobEditor');

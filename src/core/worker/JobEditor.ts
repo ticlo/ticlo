@@ -56,11 +56,17 @@ export class JobEditor extends Job {
     if (propertyCache) {
       let propDesc = findPropDesc(fromField, propertyCache);
       if (propDesc && propDesc.type === 'worker') {
-        let placeHolderData = {
+        let placeHolderData: any = {
           '#is': '',
           '#input': {'#is': '', '@b-more': propDesc.inputs},
           '#output': {'#is': '', '@b-more': propDesc.outputs},
         };
+        if (propDesc.inputs) {
+          placeHolderData['#input']['@b-p'] = propDesc.inputs.filter((p) => p.type !== 'group').map((p) => p.name);
+        }
+        if (propDesc.outputs) {
+          placeHolderData['#output']['@b-p'] = propDesc.outputs.filter((p) => p.type !== 'group').map((p) => p.name);
+        }
         return JobEditor.create(parent, field, placeHolderData, forceReload);
       }
     }
