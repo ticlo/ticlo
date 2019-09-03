@@ -71,6 +71,7 @@ export interface FunctionDesc {
   /** namespace of the function */
   ns?: string;
   id?: string;
+  src?: 'worker' | 'js';
   help?: string;
   icon?: string;
   priority?: 0 | 1 | 2 | 3;

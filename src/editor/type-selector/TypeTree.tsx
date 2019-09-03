@@ -7,7 +7,8 @@ import {OnTypeClick} from "./TypeView";
 
 interface Props {
   conn: ClientConnection;
-  filter?: string;
+  search?: string;
+  filter?: (desc: FunctionDesc) => void;
   showPreset?: boolean;
   onTypeClick?: OnTypeClick;
   style?: React.CSSProperties;
@@ -24,7 +25,7 @@ export class TypeTree extends React.PureComponent<Props, State> {
 
   constructor(props: Props) {
     super(props);
-    this.rootNode = new TypeTreeRoot(props.conn, this.forceUpdateImmediate, props.onTypeClick, props.showPreset);
+    this.rootNode = new TypeTreeRoot(props.conn, this.forceUpdateImmediate, props.onTypeClick, props.showPreset, props.filter);
   }
 
   forceUpdateLambda = () => this.forceUpdate();
@@ -43,10 +44,10 @@ export class TypeTree extends React.PureComponent<Props, State> {
 
 
   refreshList() {
-    let {filter} = this.props;
+    let {search} = this.props;
     this.list.length = 0;
     for (let item of this.rootNode.children) {
-      item.addToList(this.list, filter);
+      item.addToList(this.list, search);
     }
   }
 

@@ -9,6 +9,9 @@ let sharedMore: any[] = [
   {name: 'color', type: 'color'},
   {name: 'date', type: 'date', showTime: true},
   {name: 'range', type: 'date-range'},
+  {name: 'group', type: 'group', defaultLen: 2, properties: []},
+  {name: 'service', type: 'service', options: ['add', 'subtract'], create: 'add'},
+  {name: 'worker', type: 'worker', inputs: [{name: 'name', type: 'string'}], outputs: [{name: 'result', type: 'string'}]}
 ];
 let len = sharedMore.length;
 for (let i = 0; i < len; ++i) {
@@ -17,8 +20,6 @@ for (let i = 0; i < len; ++i) {
   sharedMore.push(r);
 }
 
-sharedMore.push({name: 'group', type: 'group', defaultLen: 2, properties: []});
-sharedMore.push({name: 'service', type: 'service', options: ['add', 'subtract'], create: 'add'});
 
 export const sampleData = {
   add: {

@@ -88,6 +88,7 @@ export class JsFunction extends BlockFunction {
       if (!desc.mode) {
         desc.mode = 'onLoad';
       }
+      desc.src = 'js';
       CustomScriptFunction.prototype.priority = desc.priority;
       CustomScriptFunction.prototype.defaultMode = desc.mode;
       CustomScriptFunction.prototype.useLength = Boolean(desc.useLength);

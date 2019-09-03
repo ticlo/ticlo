@@ -182,7 +182,7 @@ export class TypeTreeRoot extends TypeTreeItem {
     }
   };
 
-  constructor(conn: ClientConnection, onListChange: () => void, onTypeClick?: OnTypeClick, showPreset?: boolean) {
+  constructor(conn: ClientConnection, onListChange: () => void, onTypeClick?: OnTypeClick, showPreset?: boolean, filter?: (desc: FunctionDesc) => void) {
     super(null, null, '');
     this.level = -1;
     this.root = this;

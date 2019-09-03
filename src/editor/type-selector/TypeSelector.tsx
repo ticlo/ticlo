@@ -5,28 +5,30 @@ import {ClientConnection} from "../../core/connect/ClientConnection";
 import {OnTypeClick} from "./TypeView";
 import {RadioChangeEvent} from "antd/lib/radio";
 import {TypeList} from "./TypeList";
+import {FunctionDesc} from "../../core/block/Descriptor";
 
 interface Props {
   conn: ClientConnection;
   showPreset?: boolean;
   onTypeClick?: OnTypeClick;
   onClick?: React.MouseEventHandler;
+  filter?: (desc: FunctionDesc) => void;
 }
 
 interface State {
   tab: string;
-  filter: string;
+  search: string;
 }
 
 export class TypeSelect extends React.PureComponent<Props, State> {
 
-  state = {tab: 'tree', filter: ''};
+  state = {tab: 'tree', search: ''};
 
   onFilterChange = (e: React.SyntheticEvent) => {
-    this.setState({filter: (e.target as HTMLInputElement).value});
+    this.setState({search: (e.target as HTMLInputElement).value});
   };
   onFilterClear = () => {
-    this.setState({filter: ''});
+    this.setState({search: ''});
   };
 
   onToggleChange = (value: RadioChangeEvent) => {
@@ -34,8 +36,8 @@ export class TypeSelect extends React.PureComponent<Props, State> {
   };
 
   render() {
-    let {conn, showPreset, onTypeClick, onClick} = this.props;
-    let {tab, filter} = this.state;
+    let {conn, showPreset, onTypeClick, onClick, filter} = this.props;
+    let {tab, search} = this.state;
 
     if (!conn) {
       return <div/>;
@@ -47,16 +49,16 @@ export class TypeSelect extends React.PureComponent<Props, State> {
             <Radio.Button value="tree"><Tooltip title={'Tree'}> <Icon type='appstore'/> </Tooltip></Radio.Button>
             <Radio.Button value="recent"> <Tooltip title={'Recent'}><Icon type='history'/></Tooltip></Radio.Button>
           </Radio.Group>
-          <Input size='small' value={filter} placeholder={'filter'} style={{display: tab === 'tree' ? '' : 'none'}}
+          <Input size='small' value={search} placeholder={'search'} style={{display: tab === 'tree' ? '' : 'none'}}
                  onChange={this.onFilterChange}
                  suffix={
-                   filter
+                   search
                      ? <Icon title={'clear'} type="close-circle" style={{color: 'rgba(0,0,0,.45)'}}
                              onClick={this.onFilterClear}/>
                      : <Icon type="filter" style={{color: 'rgba(0,0,0,.45)'}}/>
                  }/>
         </div>
-        <TypeTree conn={conn} showPreset={showPreset} filter={filter} onTypeClick={onTypeClick}
+        <TypeTree conn={conn} showPreset={showPreset} search={search} filter={filter} onTypeClick={onTypeClick}
                   style={{display: tab === 'tree' ? '' : 'none'}}/>
         <TypeList conn={conn} recent={true} style={{display: tab === 'recent' ? '' : 'none'}}/>
       </div>
