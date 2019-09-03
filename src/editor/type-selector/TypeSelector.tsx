@@ -12,7 +12,7 @@ interface Props {
   showPreset?: boolean;
   onTypeClick?: OnTypeClick;
   onClick?: React.MouseEventHandler;
-  filter?: (desc: FunctionDesc) => void;
+  filter?: (desc: FunctionDesc) => boolean;
 }
 
 interface State {

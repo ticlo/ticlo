@@ -19,7 +19,7 @@ export class TypeEditor extends StringEditorBase {
 
   commitChange(value: string) {
     super.commitChange(value);
-    if (this.props.conn.watchDesc(value)) {
+    if (typeof value === 'string' && this.props.conn.watchDesc(value)) {
       addRecentType(value);
     }
   }

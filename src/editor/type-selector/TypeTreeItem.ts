@@ -151,10 +151,14 @@ export class TypeTreeRoot extends TypeTreeItem {
 
   showPreset: boolean;
   onTypeClick: OnTypeClick;
+  filter: (desc: FunctionDesc) => boolean;
 
   typeMap: Map<string, TypeTreeItem> = new Map<string, TypeTreeItem>();
   onDesc = (desc: FunctionDesc, key: string) => {
     if (desc) {
+      if (this.filter && !this.filter(desc)) {
+        return;
+      }
       let category = desc.category || desc.ns || 'other';
       let catKey = `ns:${category}`;
       let catItem: TypeTreeItem;
@@ -182,7 +186,7 @@ export class TypeTreeRoot extends TypeTreeItem {
     }
   };
 
-  constructor(conn: ClientConnection, onListChange: () => void, onTypeClick?: OnTypeClick, showPreset?: boolean, filter?: (desc: FunctionDesc) => void) {
+  constructor(conn: ClientConnection, onListChange: () => void, onTypeClick?: OnTypeClick, showPreset?: boolean, filter?: (desc: FunctionDesc) => boolean) {
     super(null, null, '');
     this.level = -1;
     this.root = this;
@@ -190,6 +194,7 @@ export class TypeTreeRoot extends TypeTreeItem {
     this.connection = conn;
     this.onListChange = onListChange;
     this.onTypeClick = onTypeClick;
+    this.filter = filter;
     conn.watchDesc('*', this.onDesc);
   }
 

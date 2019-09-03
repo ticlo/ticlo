@@ -26,6 +26,7 @@ import {CheckboxChangeEvent} from "antd/lib/checkbox";
 import {AddMorePropertyMenu} from "./AddMoreProperty";
 import {Popup, Menu, SubMenuItem} from "../component/ClickPopup";
 import {ServiceEditor} from "./value/ServiceEditor";
+import {WorkerEditor} from "./value/WorkerEditor";
 
 const typeEditorMap: {[key: string]: any} = {
   'number': NumberEditor,
@@ -38,6 +39,7 @@ const typeEditorMap: {[key: string]: any} = {
   'date-range': DateRangeEditor,
   'radio-button': RadioButtonEditor,
   'type': TypeEditor,
+  'worker': WorkerEditor,
 };
 
 class PropertyLoader extends MultiSelectLoader<PropertyEditor> {

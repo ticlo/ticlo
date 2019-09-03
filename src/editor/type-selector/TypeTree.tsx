@@ -8,7 +8,7 @@ import {OnTypeClick} from "./TypeView";
 interface Props {
   conn: ClientConnection;
   search?: string;
-  filter?: (desc: FunctionDesc) => void;
+  filter?: (desc: FunctionDesc) => boolean;
   showPreset?: boolean;
   onTypeClick?: OnTypeClick;
   style?: React.CSSProperties;
