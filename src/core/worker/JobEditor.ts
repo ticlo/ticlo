@@ -40,7 +40,7 @@ export class JobEditor extends Job {
     let fromValue = parent.getValue(fromField);
     let forceReload = false;
     // already has worker data ?
-    if (typeof fromValue === 'string' || fromValue.constructor === Object) {
+    if (fromValue && (typeof fromValue === 'string' || fromValue.constructor === Object)) {
       let newJob = JobEditor.create(parent, field, fromValue);
       if (newJob) {
         return newJob;

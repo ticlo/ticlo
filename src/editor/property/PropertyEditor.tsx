@@ -500,7 +500,7 @@ export class PropertyEditor extends MultiSelectComponent<Props, State, PropertyL
         editorValue = propDesc.default;
       }
       editor =
-        <EditorClass conn={conn} value={editorValue} desc={propDesc} locked={locked && !unlocked} onChange={onChange}/>;
+        <EditorClass conn={conn} keys={keys} value={editorValue} desc={propDesc} locked={locked && !unlocked} onChange={onChange}/>;
     } else if (propDesc.type === 'service') {
       locked = bindingPath && !bindingSame;
       renderLockIcon = locked && !propDesc.readonly;

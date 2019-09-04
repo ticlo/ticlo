@@ -16,6 +16,7 @@ import {TypeTree} from "../../src/editor/type-selector/TypeTree";
 import "./sample-blocks";
 import {Logger} from "../../src/core/util/Logger";
 import {NodeTreeItem} from "../../src/editor/node-tree/NodeRenderer";
+import {WorkerFunction} from "../../src/core/worker/WorkerFunction";
 
 interface Props {
   conn: ClientConnection;
@@ -26,7 +27,7 @@ interface State {
 }
 
 const Context = React.createContext<string[]>([]);
-
+WorkerFunction.registerType({'#is': ''}, {name: 'class1'}, 'WorkerEditor');
 class App extends React.PureComponent<Props, State> {
 
   constructor(props: Props) {

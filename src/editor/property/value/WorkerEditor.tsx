@@ -13,7 +13,11 @@ export class WorkerEditor extends TypeEditor {
   }
 
   editWorker = () => {
-
+    let {conn, keys, desc} = this.props;
+    if (keys.length) {
+      conn.editJob(`${keys[0]}.#edit-${desc.name}`, desc.name);
+      // TODO send event to context
+    }
   };
 
   render() {

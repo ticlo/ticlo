@@ -6,6 +6,7 @@ import {ClientConnection} from "../../../core/connect/ClientConnection";
 
 export interface ValueEditorProps {
   conn?: ClientConnection;
+  keys?: string[];
   value: any;
   desc: PropDesc;
   locked?: boolean;
