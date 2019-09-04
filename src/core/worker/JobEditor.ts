@@ -58,8 +58,8 @@ export class JobEditor extends Job {
       if (propDesc && propDesc.type === 'worker') {
         let placeHolderData: any = {
           '#is': '',
-          '#input': {'#is': '', '@b-more': propDesc.inputs},
-          '#output': {'#is': '', '@b-more': propDesc.outputs},
+          '#input': {'#is': '', '#more': propDesc.inputs},
+          '#output': {'#is': '', '#more': propDesc.outputs},
         };
         if (propDesc.inputs) {
           placeHolderData['#input']['@b-p'] = propDesc.inputs.filter((p) => p.type !== 'group').map((p) => p.name);

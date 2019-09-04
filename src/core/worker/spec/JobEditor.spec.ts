@@ -54,13 +54,13 @@ describe("JobEditor", function () {
     let expectedData = {
       '#input': {
         '#is': '',
-        '@b-more': [{'name': 'a', 'type': 'number'}],
+        '#more': [{'name': 'a', 'type': 'number'}],
         '@b-p': ['a']
       },
       '#is': '',
       '#output': {
         '#is': '',
-        '@b-more': [{'name': 'b', 'type': 'number'}],
+        '#more': [{'name': 'b', 'type': 'number'}],
         '@b-p': ['b']
       }
     };
