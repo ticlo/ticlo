@@ -51,7 +51,7 @@ export class JobEditor extends Job {
 
     // check if property desc has default worker data
     let funcDesc = Types.getDesc(parent.getValue('#is'))[0];
-    let propertyCache = buildPropDescCache(funcDesc, null);
+    let propertyCache = buildPropDescCache(funcDesc, parent.getValue('#more'));
     let src: DataMap;
     if (propertyCache) {
       let propDesc = findPropDesc(fromField, propertyCache);

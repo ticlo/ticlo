@@ -501,7 +501,7 @@ export class ServerConnection extends Connection {
       }
       let count = 0;
       for (let [field, prop] of block._props) {
-        if (prop._saved instanceof Block) {
+        if (prop._value instanceof Block && prop._value._prop === prop) {
           if (!filterRegex || filterRegex.test(field)) { // filter
             if (count < max) {
               children[field] = (prop._value as Block)._blockId;

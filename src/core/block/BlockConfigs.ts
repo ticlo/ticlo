@@ -53,10 +53,10 @@ class BlockPriorityConfig extends BlockProperty {
   }
 }
 
-class BlockInputConfig extends BlockProperty {
+class BlockInputConfig extends BlockIO {
 }
 
-class BlockOutputConfig extends BlockProperty {
+class BlockOutputConfig extends BlockIO {
   createBlock(save: boolean): Block {
     let block = new OutputBlock(this._block._job, this._block, this);
     if (save) {

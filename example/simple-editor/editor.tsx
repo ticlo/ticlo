@@ -62,7 +62,6 @@ class App extends React.PureComponent<Props, State> {
 
   onOpen = (item: NodeTreeItem) => {
     this.layout.dockMove(this.createBlockEditor(item.key), this.layout.find('main'), 'middle');
-    console.log(item);
   };
 
   onDragBlock = (e: DragState) => {
