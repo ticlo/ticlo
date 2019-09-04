@@ -42,7 +42,11 @@ class BlockLoader extends MultiSelectLoader<PropertyList> {
 
   desc: FunctionDesc;
   onDesc = (desc: FunctionDesc) => {
-    this.desc = desc;
+    if (desc == null) {
+      this.desc = blankFuncDesc;
+    } else {
+      this.desc = desc;
+    }
     this.parent.forceUpdate();
   };
 

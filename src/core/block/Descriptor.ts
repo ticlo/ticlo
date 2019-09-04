@@ -102,7 +102,8 @@ export function getFuncStyleFromDesc(desc: FunctionDesc, prefix = 'ticl-block-pr
 
 export const blankFuncDesc: FunctionDesc = {
   name: '',
-  icon: ''
+  icon: '',
+  properties: [],
 };
 export const blankPropDesc: PropDesc = {
   name: '',
