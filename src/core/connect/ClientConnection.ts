@@ -264,8 +264,8 @@ export abstract class ClientConnection extends Connection {
     return this.simpleRequest({cmd: 'moveShownProp', path, propFrom, propTo}, callbacks);
   }
 
-  setLen(path: string, length: number, callbacks?: ClientCallbacks): Promise<any> | string {
-    return this.simpleRequest({cmd: 'setLen', path, length}, callbacks);
+  setLen(path: string, group: string, length: number, callbacks?: ClientCallbacks): Promise<any> | string {
+    return this.simpleRequest({cmd: 'setLen', path, group, length}, callbacks);
   }
 
   addMoreProp(path: string, desc: PropDesc | PropGroupDesc, group?: string, callbacks?: ClientCallbacks): Promise<any> | string {

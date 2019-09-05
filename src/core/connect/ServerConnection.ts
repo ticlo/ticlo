@@ -360,7 +360,7 @@ export class ServerConnection extends Connection {
             break;
           }
           case 'setLen': {
-            result = this.setLen(request.path, request.length);
+            result = this.setLen(request.path, request.group, request.length);
             break;
           }
           case 'addMoreProp': {
@@ -628,11 +628,11 @@ export class ServerConnection extends Connection {
     }
   }
 
-  setLen(path: string, length: number) {
+  setLen(path: string, group: string, length: number) {
     let property = this.root.queryProperty(path, true);
 
-    if (property) {
-      changeLength(property._block, property._name, length);
+    if (property && property._value instanceof Block) {
+      changeLength(property._value, group, length);
       return null;
     } else {
       return 'invalid path';

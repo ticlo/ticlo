@@ -134,83 +134,86 @@ export function renameProperty(block: Block, oldName: string, newName: string, m
   new PropertyMover(block, oldName, moveOutboundLinks).moveTo(newName);
 }
 
-export function insertGroupProperty(block: Block, name: string, idx: number) {
+function findGroupDesc(block: Block, group: string) {
+  let groupDesc: PropGroupDesc;
 
-}
-
-export function removeGroupProperty(block: Block, name: string, idx: number) {
-
-}
-
-export function moveGroupProperty(block: Block, nameOld: string, oldIdx: number, newIdx: number) {
-
-}
-
-
-export function changeLength(block: Block, field: string, length: number) {
-  if (field.endsWith('#len')) {
-    let group = field.substring(0, field.length - 4);
-    let groupDesc: PropGroupDesc;
-
-    function findGroup(props: (PropDesc | PropGroupDesc)[]): PropGroupDesc {
-      for (let propDesc of props) {
-        if (propDesc.name === group && propDesc.type === 'group') {
-          return propDesc as PropGroupDesc;
-        }
-      }
-      return null;
-    }
-
-    let [desc, size] = Types.getDesc(block.getValue('#is'));
-    if (desc) {
-      groupDesc = findGroup(desc.properties);
-    }
-    if (!groupDesc) {
-      let moreProps = block.getValue('#more');
-      if (Array.isArray(moreProps)) {
-        findGroup(moreProps);
+  function findGroup(props: (PropDesc | PropGroupDesc)[]): PropGroupDesc {
+    for (let propDesc of props) {
+      if (propDesc.name === group && propDesc.type === 'group') {
+        return propDesc as PropGroupDesc;
       }
     }
+    return null;
+  }
 
-    if (!groupDesc) {
-      // still can't find the group, only set value
-      block.setValue(field, length);
-      return;
+  let [desc, size] = Types.getDesc(block.getValue('#is'));
+  if (desc) {
+    groupDesc = findGroup(desc.properties);
+  }
+  if (!groupDesc) {
+    let moreProps = block.getValue('#more');
+    if (Array.isArray(moreProps)) {
+      groupDesc = findGroup(moreProps);
     }
-    let oldLength = block.getValue(field);
-    if (!(oldLength >= 0)) {
-      oldLength = groupDesc.defaultLen;
-    }
-    let newLength = length;
-    if (!(newLength >= 0)) {
-      newLength = groupDesc.defaultLen;
-    }
+  }
+  return groupDesc;
+}
 
+export function insertGroupProperty(block: Block, group: string, idx: number) {
+
+}
+
+export function removeGroupProperty(block: Block, group: string, idx: number) {
+
+}
+
+export function moveGroupProperty(block: Block, group: string, oldIdx: number, newIdx: number) {
+
+}
+
+
+export function changeLength(block: Block, group: string, length: number) {
+  let field = `${group}#len`;
+  let groupDesc = findGroupDesc(block, group);
+
+  if (!groupDesc) {
+    // still can't find the group, only set value
     block.setValue(field, length);
+    return;
+  }
+  let oldLength = block.getValue(field);
+  if (!(oldLength >= 0)) {
+    oldLength = groupDesc.defaultLen;
+  }
+  let newLength = length;
+  if (!(newLength >= 0)) {
+    newLength = groupDesc.defaultLen;
+  }
 
-    if (newLength > oldLength) {
-      // show properties in block
-      let propsToShow: string[] = [];
-      let isSubBlock = block._prop instanceof HelperProperty;
-      for (let i = oldLength; i < newLength; ++i) {
-        for (let prop of groupDesc.properties) {
-          if (shouldShowProperty(prop.visible, isSubBlock)) {
-            propsToShow.push(`${prop.name}${i}`);
-          }
+  block.setValue(field, length);
+
+  if (newLength > oldLength) {
+    // show properties in block
+    let propsToShow: string[] = [];
+    let isSubBlock = block._prop instanceof HelperProperty;
+    for (let i = oldLength; i < newLength; ++i) {
+      for (let prop of groupDesc.properties) {
+        if (shouldShowProperty(prop.visible, isSubBlock)) {
+          propsToShow.push(`${prop.name}${i}`);
         }
       }
-      showProperties(block, propsToShow);
-    } else if (newLength < oldLength) {
-      // clear and hide properties
-      let propsToHide: string[] = [];
-      for (let i = newLength; i < oldLength; ++i) {
-        for (let prop of groupDesc.properties) {
-          let propName = `${prop.name}${i}`;
-          block.deleteValue(propName);
-          propsToHide.push(propName);
-        }
-      }
-      hideProperties(block, propsToHide);
     }
+    showProperties(block, propsToShow);
+  } else if (newLength < oldLength) {
+    // clear and hide properties
+    let propsToHide: string[] = [];
+    for (let i = newLength; i < oldLength; ++i) {
+      for (let prop of groupDesc.properties) {
+        let propName = `${prop.name}${i}`;
+        block.deleteValue(propName);
+        propsToHide.push(propName);
+      }
+    }
+    hideProperties(block, propsToHide);
   }
 }

@@ -1,8 +1,7 @@
 import {assert} from "chai";
 
 import {Block, Job} from "../../block/Block";
-import {BlockPropertyEvent} from "../../block/BlockProperty";
-import {Dispatcher} from "../../block/Dispatcher";
+import "../../functions/basic/Math";
 import {findPropertyForNewBlock, renameProperty, changeLength} from "../PropertyAddMove";
 
 describe("PropertyUtil", function () {
@@ -105,14 +104,14 @@ describe("PropertyUtil", function () {
       '#is': 'add'
     });
 
-    changeLength(job, '#len', 3);
+    changeLength(job, '', 3);
     assert.deepEqual(job.getValue('#len'), 3);
     assert.deepEqual(job.getValue('@b-p'), ['2']);
 
-    changeLength(job, '#len', 0);
+    changeLength(job, '', 0);
     assert.isUndefined(job.getValue('@b-p'));
 
-    changeLength(job, '#len', 3);
+    changeLength(job, '', 3);
     assert.deepEqual(job.getValue('@b-p'), ['0', '1', '2']);
 
   });

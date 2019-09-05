@@ -8,11 +8,14 @@ import {PropertyEditor} from "./PropertyEditor";
 class LengthPropertyEditor extends PropertyEditor {
   onChange = (value: any) => {
     let {conn, keys, name, propDesc} = this.props;
-    if (value === propDesc.default) {
-      value = undefined;
-    }
-    for (let key of keys) {
-      conn.setLen(`${key}.${name}`, value);
+    if (name.endsWith('#len')) {
+      let group = name.substring(0, name.length - 4);
+      if (value === propDesc.default) {
+        value = undefined;
+      }
+      for (let key of keys) {
+        conn.setLen(key, group, value);
+      }
     }
   };
 }

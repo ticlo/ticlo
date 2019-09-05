@@ -552,7 +552,7 @@ describe("Connection", function () {
 
     let [server, client] = makeLocalConnection(Root.instance, false);
 
-    let response1 = await client.setLen('Connection16.a.#len', 3);
+    let response1 = await client.setLen('Connection16.a', '', 3);
     assert.deepEqual(block1.getValue('@b-p'), ['2']);
 
     client.destroy();
