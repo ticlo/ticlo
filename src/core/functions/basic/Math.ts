@@ -10,6 +10,7 @@ const descriptorN: FunctionDesc = {
     {name: '', type: 'group', defaultLen: 2, properties: [{name: '', type: 'number', visible: 'high'}]},
     {name: 'output', type: 'number', readonly: true}
   ],
+  recipient: '0',
   category: 'math',
 };
 const descriptor2: FunctionDesc = {
@@ -20,6 +21,7 @@ const descriptor2: FunctionDesc = {
     {name: '1', type: 'number', visible: 'high'},
     {name: 'output', type: 'number', readonly: true}
   ],
+  recipient: '0',
   category: 'math',
 };
 

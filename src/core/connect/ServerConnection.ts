@@ -467,19 +467,44 @@ export class ServerConnection extends Connection {
   createBlock(path: string, data?: DataMap, anyName?: boolean): string | DataMap {
     let property = this.root.queryProperty(path, true);
     if (property) {
+      let keepSaved: any;
+      let keepBinding: string;
       if (anyName) {
         property = findPropertyForNewBlock(property._block, property._name);
         property._block.createBlock(property._name);
       } else {
-        property.setValue(undefined);
         if (property instanceof HelperProperty) {
-          property._block.createHelperBlock(property._name.substring(1));
+          let baseProperty = property._block.getProperty(property._name.substring(1));
+          if (baseProperty._saved !== undefined) {
+            if (!(baseProperty._saved instanceof Block)) {
+              keepSaved = baseProperty._saved;
+            }
+          } else if (baseProperty._bindingPath) {
+            keepBinding = baseProperty._bindingPath;
+            if (!(keepBinding.startsWith('###.') || keepBinding.startsWith('^'))) {
+              // point the binding path to parent object
+              keepBinding = `##.${keepBinding}`;
+            }
+          }
+          property.setValue(undefined);
+          property._block.createHelperBlock(baseProperty._name);
         } else {
+          property.setValue(undefined);
           property._block.createBlock(property._name);
         }
       }
       if (data && data.hasOwnProperty('#is')) {
         (property._value as Block)._load(data);
+        let desc = Types.getDesc(data['#is'])[0];
+        if (desc && desc.recipient && !data.hasOwnProperty(desc.recipient)) {
+          // transfer parent property to the recipient
+          if (keepSaved !== undefined) {
+            (property._value as Block).setValue(desc.recipient, keepSaved);
+          } else if (keepBinding) {
+            (property._value as Block).setBinding(desc.recipient, keepBinding);
+          }
+        }
+
       }
       return {name: property._name};
     } else {

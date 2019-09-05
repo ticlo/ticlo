@@ -43,5 +43,6 @@ Types.add(JoinFunction, {
     {name: 'separator', type: 'string'},
     {name: 'output', type: 'string', readonly: true}
   ],
+  recipient: '0',
   category: 'string',
 });
