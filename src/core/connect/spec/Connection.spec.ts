@@ -475,6 +475,16 @@ describe("Connection", function () {
     assert.instanceOf(job1.getValue('~a'), Block);
     assert.equal(job1.getProperty('a')._bindingPath, '~a.output');
 
+    // transfer property value
+    await client.setValue('Connection12.b', 2);
+    await client.createBlock('Connection12.~b', {'#is': 'add'});
+    assert.equal(job1.queryValue('~b.0'), 2);
+
+    // transfer property binding
+    await client.setBinding('Connection12.c', '##.v');
+    await client.createBlock('Connection12.~c', {'#is': 'add'});
+    assert.equal(job1.queryProperty('~c.0')._bindingPath, '##.##.v');
+
     client.destroy();
     Root.instance.deleteValue('Connection12');
   });

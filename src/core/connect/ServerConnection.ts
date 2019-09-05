@@ -475,6 +475,7 @@ export class ServerConnection extends Connection {
       } else {
         if (property instanceof HelperProperty) {
           let baseProperty = property._block.getProperty(property._name.substring(1));
+          // check the current value and binding
           if (baseProperty._saved !== undefined) {
             if (!(baseProperty._saved instanceof Block)) {
               keepSaved = baseProperty._saved;
