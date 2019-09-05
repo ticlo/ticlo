@@ -70,7 +70,7 @@ class SliderView extends LazyUpdateComponent<SpecialViewProps, any> {
   }
 }
 
-ClientConnection.addEditorType('slider-view',
+ClientConnection.addEditorDescriptor('slider-view',
   {
     view: SliderView,
     priority: 0,

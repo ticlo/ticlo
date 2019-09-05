@@ -19,7 +19,7 @@ export {ValueUpdate, ValueState} from "./ClientRequests";
 
 export abstract class ClientConnection extends Connection {
 
-  static addEditorType(id: string, desc: FunctionDesc) {
+  static addEditorDescriptor(id: string, desc: FunctionDesc) {
     DescRequest.editorCache.set(id, desc);
   }
 

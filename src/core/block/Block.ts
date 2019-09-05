@@ -8,7 +8,13 @@ import {DataMap} from "../util/Types";
 import {Uid} from "../util/Uid";
 import {voidProperty} from "./Void";
 import {Resolver} from "./Resolver";
-import {ConfigGenerators, BlockConstConfig, JobConfigGenerators, OutputConfigGenerators} from "./BlockConfigs";
+import {
+  ConfigGenerators,
+  BlockConstConfig,
+  JobConfigGenerators,
+  OutputConfigGenerators,
+  InputConfigGenerators
+} from "./BlockConfigs";
 import {FunctionDesc} from "./Descriptor";
 
 export type BlockMode = 'auto' | 'onLoad' | 'onChange' | 'onCall' | 'disabled';
@@ -965,6 +971,17 @@ export class Root extends Job {
 
   liveUpdate(map: {[key: string]: any}) {
     // not allowed
+  }
+}
+
+export class InputBlock extends Block {
+
+  _createConfig(field: string): BlockProperty {
+    if (field in InputConfigGenerators) {
+      return new InputConfigGenerators[field](this, field);
+    } else {
+      return new BlockProperty(this, field);
+    }
   }
 }
 

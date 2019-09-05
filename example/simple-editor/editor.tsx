@@ -18,6 +18,13 @@ import {Logger} from "../../src/core/util/Logger";
 import {NodeTreeItem} from "../../src/editor/node-tree/NodeRenderer";
 import {WorkerFunction} from "../../src/core/worker/WorkerFunction";
 
+const layoutGroups = {
+  blockStage: {
+    animated: false,
+    floatable: true,
+  }
+};
+
 interface Props {
   conn: ClientConnection;
 }
@@ -28,6 +35,7 @@ interface State {
 
 const Context = React.createContext<string[]>([]);
 WorkerFunction.registerType({'#is': ''}, {name: 'class1'}, 'WorkerEditor');
+
 class App extends React.PureComponent<Props, State> {
 
   constructor(props: Props) {
@@ -54,9 +62,8 @@ class App extends React.PureComponent<Props, State> {
   createBlockEditor(path: string) {
     let {conn} = this.props;
     return {
-      id: `blockEditor${this.count++}`, title: path, cached: true, content: (
-        <BlockStage conn={conn} basePath={path} onSelect={this.onSelect}/>
-      )
+      id: `blockEditor${this.count++}`, title: path, cached: false, group: 'blockStage',
+      content: <BlockStage conn={conn} basePath={path} onSelect={this.onSelect}/>
     };
   }
 
@@ -133,7 +140,7 @@ class App extends React.PureComponent<Props, State> {
     };
     return (
       <Context.Provider value={selectedKeys}>
-        <DockLayout defaultLayout={layout} ref={this.getLayout}
+        <DockLayout defaultLayout={layout} ref={this.getLayout} groups={layoutGroups}
                     style={{position: 'absolute', left: 10, top: 10, right: 10, bottom: 10}}/>
       </Context.Provider>
     );

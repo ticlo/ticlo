@@ -74,7 +74,7 @@ class NoteView extends LazyUpdateComponent<SpecialViewProps, any> {
   }
 }
 
-ClientConnection.addEditorType('note',
+ClientConnection.addEditorDescriptor('note',
   {
     view: NoteView,
     name: 'note',

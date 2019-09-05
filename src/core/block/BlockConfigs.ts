@@ -1,5 +1,5 @@
 import {BlockIO, BlockProperty} from "./BlockProperty";
-import {Block, OutputBlock} from "./Block";
+import {Block, InputBlock, OutputBlock} from "./Block";
 import {BaseFunction, FunctionData} from "./BlockFunction";
 
 class BlockTypeConfig extends BlockProperty {
@@ -54,6 +54,16 @@ class BlockPriorityConfig extends BlockProperty {
 }
 
 class BlockInputConfig extends BlockIO {
+  createBlock(save: boolean): Block {
+    let block = new InputBlock(this._block._job, this._block, this);
+    if (save) {
+      this.setValue(block);
+    } else if (save === false) {
+      this.onChange(block);
+    }
+    // skip value change when save is undefined
+    return block;
+  }
 }
 
 class BlockOutputConfig extends BlockIO {
@@ -109,6 +119,7 @@ export class BlockConstConfig extends BlockProperty {
   onChange(val: any, save?: boolean): boolean {
     return false;
   }
+
   // unlisten(listener: Listener) {
   //   super.unlisten(listener);
   //   if (this._listeners.size === 0) {
@@ -116,6 +127,17 @@ export class BlockConstConfig extends BlockProperty {
   //     this.destroy();
   //   }
   // }
+}
+
+class BlockInputTypeConfig extends BlockConstConfig {
+  constructor(block: Block, name: string) {
+    super(block, name, 'input');
+  }
+
+  _save(): any {
+    // no need to save 'input'
+    return '';
+  }
 }
 
 class BlockOutputTypeConfig extends BlockConstConfig {
@@ -141,25 +163,19 @@ export const ConfigGenerators: {[key: string]: typeof BlockProperty} = {
 };
 
 export const JobConfigGenerators: {[key: string]: typeof BlockProperty} = {
-  '#is': BlockTypeConfig,
-  '#mode': BlockModeConfig,
-  '#call': BlockCallConfig,
-  '#sync': BlockSyncConfig,
-  '#len': BlockLengthConfig,
+  ...ConfigGenerators,
   '#input': BlockInputConfig,
   '#output': BlockOutputConfig,
-  '#wait': BlockWaitingConfig,
-  '#cancel': BlockCancelConfig,
-  '#priority': BlockPriorityConfig,
 };
 
+export const InputConfigGenerators: {[key: string]: typeof BlockProperty} = {
+  ...ConfigGenerators,
+  '#is': BlockInputTypeConfig,
+};
+
+
 export const OutputConfigGenerators: {[key: string]: typeof BlockProperty} = {
+  ...ConfigGenerators,
   '#is': BlockOutputTypeConfig,
-  '#mode': BlockModeConfig,
-  '#call': BlockCallConfig,
-  '#sync': BlockSyncConfig,
-  '#len': BlockLengthConfig,
   '#wait': BlockOutputWaitingConfig, // directly forward wait to parent job
-  '#cancel': BlockCancelConfig,
-  '#priority': BlockPriorityConfig,
 };

@@ -2,6 +2,7 @@ import {DataMap, measureObjSize} from "../util/Types";
 import {ConnectionSend} from "./Connection";
 import {FunctionDesc} from "../block/Descriptor";
 import {ClientConnection} from "./ClientConnection";
+import {clientDescriptors} from "./ClientDescriptors";
 
 export interface ClientCallbacks {
   onDone?(): void;
@@ -339,4 +340,8 @@ export class GlobalWatch {
       }
     }
   }
+}
+
+for (let id in clientDescriptors) {
+  DescRequest.editorCache.set(id, clientDescriptors[id]);
 }
