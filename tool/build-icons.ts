@@ -40,7 +40,7 @@ async function main() {
       default:
         continue;
     }
-    let data = fs.readFileSync(path, 'utf8').replace('<path ', '<path fill="white" ')
+    let data = fs.readFileSync(path, 'utf8').trim().replace('<path ', '<path fill="white" ')
       .replace(/</g, '%3C').replace(/>/g, '%3E').replace(/#/g, '%23');
 
     output.push(`
