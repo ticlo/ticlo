@@ -70,7 +70,6 @@ export function TIcon(props: Props) {
       case 'fas':
       case 'fab':
       case 'fa':
-      case 'material':
         if (!iconName.includes(' ')) {
           return (
             <div className={className}>

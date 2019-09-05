@@ -216,7 +216,7 @@ Types.add(ForEachFunction, {
   style: 'repeater',
   properties: [
     {name: 'input', type: 'any'},
-    {name: 'use', type: 'any'},
+    {name: 'use', type: 'worker'},
     {name: 'output', type: 'any', readonly: true}
   ],
 });

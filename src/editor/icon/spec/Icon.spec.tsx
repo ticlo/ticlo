@@ -16,7 +16,7 @@ describe("editor Icon", function () {
       <div style={{position: 'absolute'}}>
         <TIcon icon="fab:git"/>
         <TIcon icon="fas:plus" style="tico-pr1"/>
-        <TIcon icon="material:radio_button_unchecked"/>
+        <TIcon icon="fas:minus"/>
         <TIcon icon="txt:A"/>
         <TIcon icon="txt:ip"/>
         <TIcon icon="txt:WWW"/>
@@ -37,7 +37,7 @@ describe("editor Icon", function () {
     assert.isTrue(icons[1].children[0].classList.contains('tico-fas-plus'));
     assert.isTrue(icons[1].classList.contains('tico-pr1'));
 
-    assert.isTrue(icons[2].children[0].classList.contains('tico-material-radio_button_unchecked'));
+    assert.isTrue(icons[2].children[0].classList.contains('tico-fas-minus'));
 
     icons[2].style.width = 'auto';
     await shouldHappen(() => {

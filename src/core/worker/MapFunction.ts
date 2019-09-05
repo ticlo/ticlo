@@ -462,7 +462,7 @@ Types.add(MapFunction, {
   style: 'repeater',
   properties: [
     {name: 'input', type: 'any'},
-    {name: 'use', type: 'any'},
+    {name: 'use', type: 'worker'},
     {name: 'thread', type: 'number'},
     {name: 'reuseWorker', type: 'toggle'},
     {name: 'timeout', type: 'number'},
