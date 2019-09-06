@@ -13,7 +13,7 @@ import Property = Chai.Property;
 import {Type, Types, DescListener} from "../block/Type";
 import {FunctionDesc, PropDesc, PropGroupDesc} from "../block/Descriptor";
 import {propRelative} from "../util/Path";
-import {findPropertyForNewBlock, changeLength} from "../property-api/PropertyAddMove";
+import {findPropertyForNewBlock, setGroupLength} from "../property-api/GroupProperty";
 import {hideProperties, moveShownProperty, showProperties} from "../property-api/PropertyShowHide";
 import {addMoreProperty, moveMoreProperty, removeMoreProperty} from "../property-api/MoreProperty";
 import {JobEditor} from "../worker/JobEditor";
@@ -478,7 +478,7 @@ export class ServerConnection extends Connection {
           // check the current value and binding
           if (baseProperty._saved !== undefined) {
             if (!(baseProperty._saved instanceof Block)) {
-              keepSaved = baseProperty._saved;
+              keepSaved = baseProperty._save();
             }
           } else if (baseProperty._bindingPath) {
             keepBinding = baseProperty._bindingPath;
@@ -500,7 +500,7 @@ export class ServerConnection extends Connection {
         if (desc && desc.recipient && !data.hasOwnProperty(desc.recipient)) {
           // transfer parent property to the recipient
           if (keepSaved !== undefined) {
-            (property._value as Block).setValue(desc.recipient, keepSaved);
+            (property._value as Block).getProperty(desc.recipient)._liveUpdate(keepSaved);
           } else if (keepBinding) {
             (property._value as Block).setBinding(desc.recipient, keepBinding);
           }
@@ -632,7 +632,7 @@ export class ServerConnection extends Connection {
     let property = this.root.queryProperty(path, true);
 
     if (property && property._value instanceof Block) {
-      changeLength(property._value, group, length);
+      setGroupLength(property._value, group, length);
       return null;
     } else {
       return 'invalid path';
