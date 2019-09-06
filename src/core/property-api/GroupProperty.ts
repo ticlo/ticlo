@@ -6,33 +6,6 @@ import {buildPropertiesOrder, hideProperties, showProperties} from "./PropertySh
 import {PropertyMover} from "./PropertyMover";
 
 
-let trailingNumberReg = /\d+$/;
-
-export function findPropertyForNewBlock(block: Block, baseName: string): BlockProperty {
-  let usedNames = buildPropertiesOrder(block);
-  if (!usedNames.includes(baseName)) {
-    let p = block.getProperty(baseName);
-    if (p.isCleared()) {
-      return p;
-    }
-  }
-
-  baseName = baseName.replace(trailingNumberReg, '');
-  for (let i = 0; ; ++i) {
-    let newName = `${baseName}${i}`;
-    if (!usedNames.includes(newName)) {
-      let p = block.getProperty(`${baseName}${i}`);
-      if (p.isCleared()) {
-        return p;
-      }
-    }
-  }
-}
-
-export function renameProperty(block: Block, oldName: string, newName: string, moveOutboundLinks = false) {
-  new PropertyMover(block, oldName, moveOutboundLinks).moveTo(newName);
-}
-
 function findGroupDesc(block: Block, group: string): PropGroupDesc {
   let groupDesc: PropGroupDesc;
 
