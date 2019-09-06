@@ -9,11 +9,15 @@ import {
 import {DataMap, isSavedBlock, measureObjSize, truncateData} from "../util/Types";
 import {Root, Block, BlockChildWatch} from "../block/Block";
 import {BlockBindingSource, Dispatcher, Listener, ValueDispatcher} from "../block/Dispatcher";
-import Property = Chai.Property;
 import {Type, Types, DescListener} from "../block/Type";
 import {FunctionDesc, PropDesc, PropGroupDesc} from "../block/Descriptor";
 import {propRelative} from "../util/Path";
-import {setGroupLength} from "../property-api/GroupProperty";
+import {
+  insertGroupProperty,
+  moveGroupProperty,
+  removeGroupProperty,
+  setGroupLength
+} from "../property-api/GroupProperty";
 import {findPropertyForNewBlock} from "../property-api/PropertyName";
 import {hideProperties, moveShownProperty, showProperties} from "../property-api/PropertyShowHide";
 import {addMoreProperty, moveMoreProperty, removeMoreProperty} from "../property-api/MoreProperty";
@@ -376,6 +380,18 @@ export class ServerConnection extends Connection {
             result = this.moveMoreProp(request.path, request.nameFrom, request.nameTo, request.group);
             break;
           }
+          case 'insertGroupProp': {
+            result = this.insertGroupProp(request.path, request.group, request.idx);
+            break;
+          }
+          case 'removeGroupProp': {
+            result = this.removeGroupProp(request.path, request.group, request.idx);
+            break;
+          }
+          case 'moveGroupProp': {
+            result = this.moveGroupProp(request.path, request.group, request.oldIdx, request.newIdx);
+            break;
+          }
           default:
             result = 'invalid command';
         }
@@ -671,6 +687,39 @@ export class ServerConnection extends Connection {
 
     if (property && property._value instanceof Block) {
       moveMoreProperty(property._value, nameFrom, nameTo, group);
+      return null;
+    } else {
+      return 'invalid path';
+    }
+  }
+
+  insertGroupProp(path: string, group: string, idx: number) {
+    let property = this.root.queryProperty(path);
+
+    if (property && property._value instanceof Block) {
+      insertGroupProperty(property._value, group, idx);
+      return null;
+    } else {
+      return 'invalid path';
+    }
+  }
+
+  removeGroupProp(path: string, group: string, idx: number) {
+    let property = this.root.queryProperty(path);
+
+    if (property && property._value instanceof Block) {
+      removeGroupProperty(property._value, group, idx);
+      return null;
+    } else {
+      return 'invalid path';
+    }
+  }
+
+  moveGroupProp(path: string, group: string, oldIdx: number, newIdx: number) {
+    let property = this.root.queryProperty(path);
+
+    if (property && property._value instanceof Block) {
+      moveGroupProperty(property._value, group, oldIdx, newIdx);
       return null;
     } else {
       return 'invalid path';

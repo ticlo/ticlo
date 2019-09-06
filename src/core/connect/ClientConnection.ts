@@ -280,6 +280,18 @@ export abstract class ClientConnection extends Connection {
     return this.simpleRequest({cmd: 'moveMoreProp', path, nameFrom, nameTo, group}, callbacks);
   }
 
+  insertGroupProp(path: string, group: string, idx: number, callbacks?: ClientCallbacks): Promise<any> | string {
+    return this.simpleRequest({cmd: 'insertGroupProp', path, group, idx}, callbacks);
+  }
+
+  removeGroupProp(path: string, group: string, idx: number, callbacks?: ClientCallbacks): Promise<any> | string {
+    return this.simpleRequest({cmd: 'removeGroupProp', path, group, idx}, callbacks);
+  }
+
+  moveGroupProp(path: string, group: string, oldIdx: number, newIdx: number, callbacks?: ClientCallbacks): Promise<any> | string {
+    return this.simpleRequest({cmd: 'moveGroupProp', path, group, oldIdx, newIdx}, callbacks);
+  }
+
   cancel(id: string) {
     let req: DataMap = this.requests.get(id);
     if (req instanceof ClientRequest) {
