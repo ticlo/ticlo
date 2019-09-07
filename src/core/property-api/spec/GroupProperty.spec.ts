@@ -27,8 +27,8 @@ describe("GroupProperty", function () {
     assert.deepEqual(job.getValue('@b-p'), ['0', '1']);
 
     // invalid group, length should change but nothing else should happen
-    setGroupLength(job, 'aa', 3);
-    assert.deepEqual(job.getValue('aa#len'), 3);
+    setGroupLength(job, 'invalidG', 3);
+    assert.deepEqual(job.getValue('invalidG#len'), 3);
     assert.deepEqual(job.getValue('@b-p'), ['0', '1']);
   });
 
@@ -65,6 +65,10 @@ describe("GroupProperty", function () {
     insertGroupProperty(job, '', -1);
     insertGroupProperty(job, '', 100);
     assert.equal(job.getValue('#len'), 4);
+
+    // invalid group, no change
+    insertGroupProperty(job, 'invalidG', 0);
+    assert.isUndefined(job.getValue('invalidG#len'));
   });
 
   it('removeGroupProperty', function () {
@@ -83,6 +87,10 @@ describe("GroupProperty", function () {
     removeGroupProperty(job, '', -1);
     removeGroupProperty(job, '', 100);
     assert.equal(job.getValue('#len'), 1);
+
+    // invalid group, no change
+    removeGroupProperty(job, 'invalidG', 0);
+    assert.isUndefined(job.getValue('invalidG#len'));
   });
 
   it('moveGroupProperty', function () {
@@ -104,7 +112,12 @@ describe("GroupProperty", function () {
     // invalid index, no change
     moveGroupProperty(job, '', 1, 100);
     moveGroupProperty(job, '', 100, 0);
+    moveGroupProperty(job, '', 0, 0);
     assert.equal(job.getValue('0'), 0);
     assert.equal(job.getValue('1'), 1);
+
+    // invalid group, no change
+    moveGroupProperty(job, 'invalidG', 0, 1);
+    assert.isUndefined(job.getValue('invalidG#len'));
   });
 });
