@@ -59,10 +59,6 @@ describe("Connection Error", function () {
     ), 'invalid properties');
 
     assert.equal(await shouldReject(
-      client.setLen('ConnectionError1.a.b', '', null) as Promise<any>
-    ), 'invalid path');
-
-    assert.equal(await shouldReject(
       client.addMoreProp('a', null) as Promise<any>
     ), 'invalid desc');
     assert.equal(await shouldReject(
@@ -73,6 +69,19 @@ describe("Connection Error", function () {
     ), 'invalid path');
     assert.equal(await shouldReject(
       client.moveMoreProp('ConnectionError1.a.b.c', 'a', 'b') as Promise<any>
+    ), 'invalid path');
+
+    assert.equal(await shouldReject(
+      client.setLen('ConnectionError1.a.b', '', null) as Promise<any>
+    ), 'invalid path');
+    assert.equal(await shouldReject(
+      client.insertGroupProp('ConnectionError1.a.b.c', '', 0) as Promise<any>
+    ), 'invalid path');
+    assert.equal(await shouldReject(
+      client.removeGroupProp('ConnectionError1.a.b.c', '', 0) as Promise<any>
+    ), 'invalid path');
+    assert.equal(await shouldReject(
+      client.moveGroupProp('ConnectionError1.a.b.c', '', 0, 1) as Promise<any>
     ), 'invalid path');
 
     let callbacks = new AsyncClientPromise();

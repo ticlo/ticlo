@@ -545,18 +545,44 @@ describe("Connection", function () {
     Root.instance.deleteValue('Connection15');
   });
 
-  it('set length', async function () {
+  it('insert remove group props', async function () {
     let job1 = Root.instance.addJob('Connection16');
+    let block1 = job1.createBlock('a');
+    block1._load({
+      '#is': 'add',
+      '0': 0,
+      '1': 1
+    });
+
+    let [server, client] = makeLocalConnection(Root.instance, false);
+
+    let response1 = await client.insertGroupProp('Connection16.a', '', 0);
+    assert.equal(block1.getValue('#len'), 3);
+    assert.equal(block1.getValue('1'), 0);
+
+    let response2 = await client.removeGroupProp('Connection16.a', '', 0);
+    assert.equal(block1.getValue('#len'), 2);
+    assert.equal(block1.getValue('0'), 0);
+
+    let response3 = await client.moveGroupProp('Connection16.a', '', 0, 1);
+    assert.equal(block1.getValue('1'), 0);
+
+    client.destroy();
+    Root.instance.deleteValue('Connection16');
+  });
+
+  it('set length', async function () {
+    let job1 = Root.instance.addJob('Connection16-2');
     let block1 = job1.createBlock('a');
     block1.setValue('#is', 'add');
 
     let [server, client] = makeLocalConnection(Root.instance, false);
 
-    let response1 = await client.setLen('Connection16.a', '', 3);
+    let response1 = await client.setLen('Connection16-2.a', '', 3);
     assert.deepEqual(block1.getValue('@b-p'), ['2']);
 
     client.destroy();
-    Root.instance.deleteValue('Connection16');
+    Root.instance.deleteValue('Connection16-2');
   });
 
   it('move more props', async function () {
