@@ -1,5 +1,5 @@
 import {assert} from "chai";
-import {smartStrCompare} from '../String';
+import {getTailingNumber, smartStrCompare} from '../String';
 
 describe("String", function () {
 
@@ -27,4 +27,9 @@ describe("String", function () {
       'AAa,AaA,aAA,aAa,AAB,aCa');
   });
 
+  it('getTailingNumber', function () {
+    assert.equal(getTailingNumber('a1'), 1);
+    assert.equal(getTailingNumber('a02'), 2);
+    assert.equal(getTailingNumber('a'), -1);
+  });
 });

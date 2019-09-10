@@ -76,3 +76,13 @@ export function smartStrCompare(str1: string, str2: string) {
   }
   return numSign * (len1 - len2);
 }
+
+const trailingNumbers = /\d+$/;
+
+export function getTailingNumber(str: string): number {
+  let numbers = str.match(trailingNumbers);
+  if (numbers) {
+    return parseInt(numbers[0]);
+  }
+  return -1;
+}
