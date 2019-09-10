@@ -206,7 +206,7 @@ export class PropertyEditor extends MultiSelectComponent<Props, State, PropertyL
 
           // tslint:disable-next-line:triple-equals
           if (deepEqual(moveFromKeys, keys) && moveToField !== moveMoreField && group == moveFromGroup) {
-            e.accept('⇋');
+            e.accept('drag-accept-reorder');
             return;
           }
         }
@@ -217,7 +217,7 @@ export class PropertyEditor extends MultiSelectComponent<Props, State, PropertyL
         if (!propDesc.readonly && (dragFields.length === 1 || dragFields.length === keys.length)) {
           let fields = keys.map((s) => `${s}.${name}`);
           if (!deepEqual(fields, dragFields)) {
-            e.accept('→');
+            e.accept('drag-accept-bind');
             return;
           }
         }

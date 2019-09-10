@@ -269,7 +269,7 @@ export class BlockHeaderView extends PureDataRenderer<BlockHeaderProps, any> {
       let fields: string[] = DragState.getData('fields', item.getConn());
       if (Array.isArray(fields)) {
         if (!item.desc.readonly && fields.length === 1 && fields[0] !== item.key) {
-          e.accept('▷');
+          e.accept('drag-accept-bind-call');
           return;
         }
       }
@@ -356,14 +356,14 @@ export class FieldView extends PureDataRenderer<FieldViewProps, any> {
       let moveShownField = DragState.getData('moveShownField', item.getConn());
       let block = DragState.getData('block', item.getConn());
       if (block === item.block && moveShownField !== item.name) {
-        e.accept('⇋');
+        e.accept('drag-accept-reorder');
         return;
       }
     } else {
       let fields: string[] = DragState.getData('fields', item.getConn());
       if (Array.isArray(fields)) {
         if (!item.desc.readonly && fields.length === 1 && fields[0] !== item.key) {
-          e.accept('→');
+          e.accept('drag-accept-bind');
           return;
         }
       }

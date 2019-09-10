@@ -8,7 +8,7 @@ export function onDragBlockOver(conn: ClientConnection, e: DragState) {
   let blockData = DragState.getData('blockData', conn);
 
   if (blockData && blockData.hasOwnProperty('#is')) {
-    e.accept('+');
+    e.accept('drag-accept-add');
   }
 }
 
