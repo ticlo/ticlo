@@ -8,7 +8,7 @@ export function onDragBlockOver(conn: ClientConnection, e: DragState) {
   let blockData = DragState.getData('blockData', conn);
 
   if (blockData && blockData.hasOwnProperty('#is')) {
-    e.accept('drag-accept-add');
+    e.accept('tico-fas-plus');
   }
 }
 

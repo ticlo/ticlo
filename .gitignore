@@ -12,6 +12,6 @@ build
 /example/**/*.js
 *.map
 *.jsx
-/dist/*.*.*
+/dist
 /tool/**/*.js
 /temp

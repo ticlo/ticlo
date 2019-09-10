@@ -10,8 +10,8 @@ script:
   - mkdir coverage
   - yarn test-nyc-strict
   - yarn test-nyc
-  - yarn build-less
   - yarn build-icons
+  - yarn build-less
   - yarn test-karma
   - yarn ts-node tool/unify-lcov.ts
 after_success:
