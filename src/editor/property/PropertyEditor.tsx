@@ -204,34 +204,37 @@ export class PropertyEditor extends MultiSelectComponent<Props, State, PropertyL
   onDragOver = (e: DragState) => {
     let {conn, keys, name, propDesc, isMore, group, baseName} = this.props;
     if (e.dragType === 'right') {
-      // move more property
-      let isLen = group != null && name.endsWith('#len');
-      let fromGroup = DragState.getData('fromGroup', conn);
-      if (isMore) {
-        let moveFromKeys: string[] = DragState.getData('keys', conn);
-        let moveMoreField: string = DragState.getData('moveMoreField', conn);
+      let moveFromKeys: string[] = DragState.getData('keys', conn);
+      if (deepEqual(moveFromKeys, keys)) {
+        let isLen = group != null && name.endsWith('#len');
+        let fromGroup = DragState.getData('fromGroup', conn);
+        if (isMore) {
+          // move more property
+          let moveFromKeys: string[] = DragState.getData('keys', conn);
+          let moveMoreField: string = DragState.getData('moveMoreField', conn);
 
-        if (moveMoreField != null) {
-          let moveToField = (baseName != null) ? baseName : name;
-          if (isLen) {
-            moveToField = group;
-            group = null;
-          }
+          if (moveMoreField != null) {
+            let moveToField = (baseName != null) ? baseName : name;
+            if (isLen) {
+              moveToField = group;
+              group = null;
+            }
 
-          // tslint:disable-next-line:triple-equals
-          if (deepEqual(moveFromKeys, keys) && moveToField !== moveMoreField && group == fromGroup) {
-            e.accept('tico-fas-exchange-alt');
-            return;
+            // tslint:disable-next-line:triple-equals
+            if (deepEqual(moveFromKeys, keys) && moveToField !== moveMoreField && group == fromGroup) {
+              e.accept('tico-fas-exchange-alt');
+              return;
+            }
           }
         }
-      }
-      if (group != null && !isLen && group === fromGroup) {
-        // move group index
-        let moveGroupIndex = DragState.getData('moveGroupIndex', conn);
-        let currentGroupIndex = getTailingNumber(name);
-        if (moveGroupIndex !== currentGroupIndex) {
-          e.accept('tico-fas-random');
-          return;
+        if (group != null && !isLen && group === fromGroup) {
+          // move group index
+          let moveGroupIndex = DragState.getData('moveGroupIndex', conn);
+          let currentGroupIndex = getTailingNumber(name);
+          if (moveGroupIndex !== currentGroupIndex) {
+            e.accept('tico-fas-random');
+            return;
+          }
         }
       }
     } else {
