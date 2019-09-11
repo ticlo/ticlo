@@ -27,6 +27,7 @@ import {AddMorePropertyMenu} from "./AddMoreProperty";
 import {Popup, Menu, SubMenuItem} from "../component/ClickPopup";
 import {ServiceEditor} from "./value/ServiceEditor";
 import {WorkerEditor} from "./value/WorkerEditor";
+import {getTailingNumber} from "../../core/util/String";
 
 const typeEditorMap: {[key: string]: any} = {
   'number': NumberEditor,
@@ -98,7 +99,7 @@ interface Props {
   propDesc: PropDesc;
   isMore?: boolean;
   group?: string;
-  groupName?: string;
+  baseName?: string; // the name used in propDesc.name
 }
 
 interface State {
@@ -173,15 +174,26 @@ export class PropertyEditor extends MultiSelectComponent<Props, State, PropertyL
 
 
   onDragStart = (e: DragState) => {
-    let {conn, keys, name, group, groupName} = this.props;
+    let {conn, keys, name, group, baseName, isMore} = this.props;
 
     if (e.dragType === 'right') {
-      let moveMoreField = (groupName != null) ? groupName : name;
-      if (group != null && moveMoreField === `${group}#len`) {
-        moveMoreField = group;
-        group = null;
+      let data: any = {keys, fromGroup: group};
+      let isLen = group != null && name.endsWith('#len');
+      if (isMore) {
+        // move more property
+        let moveMoreField = (baseName != null) ? baseName : name;
+        if (isLen) {
+          moveMoreField = group;
+          data.fromGroup = null;
+        }
+        data.moveMoreField = moveMoreField;
       }
-      e.setData({keys, moveMoreField, moveFromGroup: group}, conn);
+      if (group != null && !isLen) {
+        // move group index
+        data.moveGroupIndex = getTailingNumber(name);
+      }
+
+      e.setData(data, conn);
     } else {
       let fields = keys.map((s) => `${s}.${name}`);
       e.setData({fields}, conn);
@@ -190,25 +202,36 @@ export class PropertyEditor extends MultiSelectComponent<Props, State, PropertyL
     e.startDrag();
   };
   onDragOver = (e: DragState) => {
-    let {conn, keys, name, propDesc, isMore, group, groupName} = this.props;
+    let {conn, keys, name, propDesc, isMore, group, baseName} = this.props;
     if (e.dragType === 'right') {
+      // move more property
+      let isLen = group != null && name.endsWith('#len');
+      let fromGroup = DragState.getData('fromGroup', conn);
       if (isMore) {
         let moveFromKeys: string[] = DragState.getData('keys', conn);
         let moveMoreField: string = DragState.getData('moveMoreField', conn);
-        let moveFromGroup = DragState.getData('moveFromGroup', conn);
 
         if (moveMoreField != null) {
-          let moveToField = (groupName != null) ? groupName : name;
-          if (group != null && moveToField === `${group}#len`) {
+          let moveToField = (baseName != null) ? baseName : name;
+          if (isLen) {
             moveToField = group;
             group = null;
           }
 
           // tslint:disable-next-line:triple-equals
-          if (deepEqual(moveFromKeys, keys) && moveToField !== moveMoreField && group == moveFromGroup) {
+          if (deepEqual(moveFromKeys, keys) && moveToField !== moveMoreField && group == fromGroup) {
             e.accept('tico-fas-exchange-alt');
             return;
           }
+        }
+      }
+      if (group != null && !isLen && group === fromGroup) {
+        // move group index
+        let moveGroupIndex = DragState.getData('moveGroupIndex', conn);
+        let currentGroupIndex = getTailingNumber(name);
+        if (moveGroupIndex !== currentGroupIndex) {
+          e.accept('tico-fas-random');
+          return;
         }
       }
     } else {
@@ -226,22 +249,37 @@ export class PropertyEditor extends MultiSelectComponent<Props, State, PropertyL
     e.reject();
   };
   onDrop = (e: DragState) => {
-    let {conn, keys, name, isMore, group, groupName} = this.props;
+    let {conn, keys, name, isMore, group, baseName} = this.props;
     if (e.dragType === 'right') {
+      let isLen = group != null && name.endsWith('#len');
+      let fromGroup = DragState.getData('fromGroup', conn);
       let moveFromKeys: string[] = DragState.getData('keys', conn);
-      let moveMoreField: string = DragState.getData('moveMoreField', conn);
-      let moveFromGroup = DragState.getData('moveFromGroup', conn);
+      if (deepEqual(moveFromKeys, keys)) {
+        if (isMore) {
+          // move more property
+          let moveMoreField: string = DragState.getData('moveMoreField', conn);
 
-      let moveToField = (groupName != null) ? groupName : name;
-      if (group != null && moveToField === `${group}#len`) {
-        moveToField = group;
-        group = null;
-      }
+          let moveToField = (baseName != null) ? baseName : name;
+          if (isLen) {
+            moveToField = group;
+            group = null;
+          }
 
-      // tslint:disable-next-line:triple-equals
-      if (isMore && deepEqual(moveFromKeys, keys) && moveToField !== moveMoreField && group == moveFromGroup) {
-        for (let key of keys) {
-          conn.moveMoreProp(key, moveMoreField, moveToField, moveFromGroup);
+          // tslint:disable-next-line:triple-equals
+          if (moveToField !== moveMoreField && group == fromGroup) {
+            for (let key of keys) {
+              conn.moveMoreProp(key, moveMoreField, moveToField, fromGroup);
+            }
+            return;
+          }
+        }
+        if (group != null && !isLen && group === fromGroup) {
+          // move group index
+          let moveGroupIndex = DragState.getData('moveGroupIndex', conn);
+          let currentGroupIndex = getTailingNumber(name);
+          for (let key of keys) {
+            conn.moveGroupProp(key, fromGroup, moveGroupIndex, currentGroupIndex);
+          }
         }
       }
     } else {
@@ -441,7 +479,7 @@ export class PropertyEditor extends MultiSelectComponent<Props, State, PropertyL
 
   onRemoveMore = () => {
     let {conn, keys, name, group} = this.props;
-    if (group && name === `${group}#len`) {
+    if (group != null && name === `${group}#len`) {
       name = null;
     }
     for (let key of keys) {
@@ -450,10 +488,12 @@ export class PropertyEditor extends MultiSelectComponent<Props, State, PropertyL
   };
 
   renderImpl() {
-    let {conn, keys, funcDesc, propDesc, name, isMore} = this.props;
+    let {conn, keys, funcDesc, propDesc, name, isMore, group} = this.props;
     let {unlocked, showSubBlock, showMenu} = this.state;
 
     let onChange = propDesc.readonly ? null : this.onChange;
+
+    let isIndexed = group != null && !name.endsWith('#len');
 
     let {count, value, valueSame, bindingPath, bindingSame, subBlock, display} = this.mergePropertyState();
     if (count === 0) {
@@ -499,8 +539,10 @@ export class PropertyEditor extends MultiSelectComponent<Props, State, PropertyL
       if (value === undefined && propDesc.default != null) {
         editorValue = propDesc.default;
       }
-      editor =
-        <EditorClass conn={conn} keys={keys} value={editorValue} desc={propDesc} locked={locked && !unlocked} onChange={onChange}/>;
+      editor = (
+        <EditorClass conn={conn} keys={keys} value={editorValue} desc={propDesc} locked={locked && !unlocked}
+                     onChange={onChange}/>
+      );
     } else if (propDesc.type === 'service') {
       locked = bindingPath && !bindingSame;
       renderLockIcon = locked && !propDesc.readonly;
@@ -513,8 +555,7 @@ export class PropertyEditor extends MultiSelectComponent<Props, State, PropertyL
       }
       editor = (
         <ServiceEditor conn={conn} keys={keys} value={value} desc={propDesc} bindingPath={bindingPath}
-                       locked={locked && !unlocked}
-                       onPathChange={this.onBindChange}/>
+                       locked={locked && !unlocked} onPathChange={this.onBindChange}/>
       );
     }
 
@@ -524,7 +565,8 @@ export class PropertyEditor extends MultiSelectComponent<Props, State, PropertyL
         {inBoundClass ? <div className={inBoundClass} title={bindingPath}/> : null}
         <Popup popup={this.getMenu} trigger={['contextMenu']} popupVisible={showMenu}
                onPopupVisibleChange={this.onMenuVisibleChange}>
-          <DragDropDiv className={nameClass} onDragStartT={this.onDragStart} useRightButtonDragT={isMore}
+          <DragDropDiv className={nameClass} onDragStartT={this.onDragStart}
+                       useRightButtonDragT={isMore || isIndexed}
                        onDragOverT={this.onDragOver} onDropT={this.onDrop}>
             {translateProperty(funcDesc.name, name, funcDesc.ns)}
           </DragDropDiv>

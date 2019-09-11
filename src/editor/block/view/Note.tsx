@@ -34,6 +34,7 @@ class NoteView extends LazyUpdateComponent<SpecialViewProps, any> {
       let needSanitize = false;
       let markedOptions: marked.MarkedOptions = {
         sanitize: true,
+        silent: true,
         sanitizer(str: string) {
           needSanitize = true;
           return str;
