@@ -56,8 +56,8 @@ class ServerSubscribe extends ServerRequest implements BlockPropertySubscriber, 
 
   onSourceChange(prop: Dispatcher<any>) {
     if (prop !== this.property) {
-      this.connection.sendError(this.id, "source changed");
       this.connection.close(this.id);
+      this.connection.sendError(this.id, "source changed");
     }
   }
 
@@ -158,16 +158,16 @@ class ServerWatch extends ServerRequest implements BlockChildWatch, Listener<any
   // Listener.onSourceChange
   onSourceChange(prop: Dispatcher<any>): void {
     if (prop !== this.property) {
-      this.connection.sendError(this.id, "source changed");
       this.connection.close(this.id);
+      this.connection.sendError(this.id, "source changed");
     }
   }
 
   // Listener.onChange
   onChange(val: any): void {
     if (val !== this.block) {
-      this.connection.sendError(this.id, "block changed");
       this.connection.close(this.id);
+      this.connection.sendError(this.id, "block changed");
     }
   }
 

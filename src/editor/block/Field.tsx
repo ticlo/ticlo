@@ -496,13 +496,24 @@ export abstract class BaseBlockItem extends DataRendererItem<XYWRenderer> {
 
   abstract onFieldsChanged(): void;
 
+  isValue: string;
   isListener = {
     onUpdate: (response: ValueUpdate) => {
       let {value} = response.cache;
       if (typeof value === 'string') {
+        this.isValue = value;
         this.conn.watchDesc(value, this.descListener);
       } else {
+        this.isValue = null;
         this.conn.unwatchDesc(this.descListener);
+      }
+    },
+    onError: (err: string) => {
+      if (this.isValue != null) {
+        // source changed. re-watch
+        this.isValue = null;
+        this.destroy();
+        this.startSubscribe();
       }
     }
   };
@@ -597,13 +608,15 @@ export abstract class BaseBlockItem extends DataRendererItem<XYWRenderer> {
   }
 
   destroy() {
-    for (let [key, fieldItem] of this.fieldItems) {
-      fieldItem.destroy();
-    }
     this.conn.unsubscribe(`${this.key}.#is`, this.isListener);
     this.conn.unsubscribe(`${this.key}.#more`, this.moreListener);
     this.conn.unsubscribe(`${this.key}.@b-p`, this.pListener);
     this.conn.unwatchDesc(this.descListener);
+    for (let [key, fieldItem] of this.fieldItems) {
+      fieldItem.destroy();
+    }
+    this.fieldItems.clear();
+    this.fields = [];
   }
 
   getConn() {
@@ -960,5 +973,6 @@ export class BlockItem extends BaseBlockItem {
     this.conn.unsubscribe(`${this.key}.#sync`, this.syncListener);
     this.conn.unsubscribe(`${this.key}.@b-xyw`, this.xywListener);
     super.destroy();
+    this.actualFields = [];
   }
 }
