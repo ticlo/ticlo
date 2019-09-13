@@ -363,7 +363,7 @@ export class PropertyEditor extends MultiSelectComponent<Props, State, PropertyL
   }
 
   getMenu = () => {
-    let {conn, isMore, group, propDesc} = this.props;
+    let {conn, isMore, name, group, propDesc} = this.props;
     let {count, value, valueSame, bindingPath, bindingSame, subBlock, display} = this.mergePropertyState();
 
     if (this.state.showMenu) {
@@ -397,16 +397,28 @@ export class PropertyEditor extends MultiSelectComponent<Props, State, PropertyL
 
         if (value || bindingPath) {
           menuItems.push(
-            <Button key='clear' onClick={this.onClear}>Clear</Button>
+            <Button key='clear' shape='round' onClick={this.onClear}>Clear</Button>
           );
         }
       }
+      if (group != null) {
+        let groupIndex = getTailingNumber(name);
+        if (groupIndex > -1) {
+          menuItems.push(
+            <Button key='insertIndex' shape='round' onClick={this.onInsertIndex}>Insert at {groupIndex}</Button>
+          );
+          menuItems.push(
+            <Button key='deleteIndex' shape='round' onClick={this.onDeleteIndex}>Delete at {groupIndex}</Button>
+          );
+        }
+      }
+
       menuItems.push(
         <Checkbox key='showHide' onChange={this.onShowHide} checked={display}>Show</Checkbox>
       );
       if (isMore) {
         menuItems.push(
-          <Button key='removeFromMore' onClick={this.onRemoveMore}>Remove</Button>
+          <Button key='removeFromMore' shape='round' onClick={this.onRemoveMore}>Remove Property</Button>
         );
         if (group != null) {
           menuItems.push(
@@ -414,7 +426,7 @@ export class PropertyEditor extends MultiSelectComponent<Props, State, PropertyL
                          popup={
                            <AddMorePropertyMenu onAddProperty={this.onAddMoreGroupChild} group={group}/>
                          }>
-              Add Child
+              Add Child Property
             </SubMenuItem>
           );
         }
@@ -478,6 +490,23 @@ export class PropertyEditor extends MultiSelectComponent<Props, State, PropertyL
     for (let key of keys) {
       conn.setValue(`${key}.${name}`, undefined);
     }
+  };
+
+  onInsertIndex = () => {
+    let {conn, keys, name, group} = this.props;
+    let index = getTailingNumber(name);
+    for (let key of keys) {
+      conn.insertGroupProp(key, group, index);
+    }
+    this.setState({showMenu: false});
+  };
+  onDeleteIndex = () => {
+    let {conn, keys, name, group} = this.props;
+    let index = getTailingNumber(name);
+    for (let key of keys) {
+      conn.removeGroupProp(key, group, index);
+    }
+    this.setState({showMenu: false});
   };
 
   onRemoveMore = () => {
