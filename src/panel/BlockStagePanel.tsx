@@ -45,8 +45,8 @@ export class BlockStagePanel extends React.PureComponent<Props, State> {
 
   getDividerData = (idx: number) => {
     if (!this._rootNode) return null;
-    let blockStage = this._rootNode.querySelector('ticl-stage') as HTMLDivElement;
-    let propertyList = this._rootNode.querySelector('ticl-property-list') as HTMLDivElement;
+    let blockStage = this._rootNode.querySelector('.ticl-stage') as HTMLDivElement;
+    let propertyList = this._rootNode.querySelector('.ticl-property-list') as HTMLDivElement;
     return {
       element: this._rootNode,
       beforeDivider: [{size: blockStage.offsetWidth}],

@@ -8,7 +8,18 @@
     position: relative;
   }
 
-  & > .ticl-stage, & > .ticl-property-list {
+  & > .ticl-stage {
     flex-grow: 1;
+  }
+
+  & > .ticl-property-list {
+    flex-grow: 1;
+    min-width: 200px;
+  }
+
+  & > .dock-divider {
+    transform: scaleX(3);
+    cursor: ew-resize;
+    border-left: 1px solid #f8f8f8;
   }
 }
