@@ -21,12 +21,13 @@ export abstract class BlockStageBase<State> extends LazyUpdateComponent<StagePro
 
   abstract onChildrenSizeChanged(): void;
 
+  // automatic block location
   nextXYx = 0;
   nextXYy = 0;
 
   /**
    * 0 1 4
-   * 2 3 4
+   * 2 3 5
    * 6 7 8
    */
   getNextXYW() {

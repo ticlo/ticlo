@@ -17,6 +17,7 @@ import "./sample-blocks";
 import {Logger} from "../../src/core/util/Logger";
 import {NodeTreeItem} from "../../src/editor/node-tree/NodeRenderer";
 import {WorkerFunction} from "../../src/core/worker/WorkerFunction";
+import {BlockStagePanel} from "../../src/panel/BlockStagePanel";
 
 const layoutGroups = {
   blockStage: {
@@ -63,7 +64,7 @@ class App extends React.PureComponent<Props, State> {
     let {conn} = this.props;
     return {
       id: `blockEditor${this.count++}`, title: path, cached: false, group: 'blockStage',
-      content: <BlockStage conn={conn} basePath={path} onSelect={this.onSelect}/>
+      content: <BlockStagePanel conn={conn} basePath={path} onSelect={this.onSelect}/>
     };
   }
 
@@ -108,7 +109,7 @@ class App extends React.PureComponent<Props, State> {
                 id: 'PropertyList', title: 'PropertyList', cached: true, cacheContext: Context, content: (
                   <Context.Consumer>{(keys) =>
                     <PropertyList conn={conn} keys={keys}
-                                  style={{width: '100%', height: '100%', padding: '8px', overflowY: 'scroll'}}/>
+                                  style={{width: '100%', height: '100%', padding: '8px'}}/>
                   }</Context.Consumer>
                 )
               }, {
