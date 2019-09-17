@@ -56,25 +56,35 @@ export abstract class ClientConnection extends Connection {
 
   onData(response: DataMap) {
     if (typeof response.id === 'string' && this.requests.has(response.id)) {
-      switch (response.cmd) {
-        case 'update': {
-          this.requests.get(response.id).onUpdate(response);
-          return;
+      if (response.cmd === 'update') {
+        this.requests.get(response.id).onUpdate(response);
+        return;
+      }
+      let req = this.requests.get(response.id);
+      if (req instanceof SubscribeRequest) {
+        if (this.subscribes.get(req._data.path) === req) {
+          this.subscribes.delete(req._data.path);
         }
+      } else if (req instanceof WatchRequest) {
+        if (this.watches.get(req._data.path) === req) {
+          this.watches.delete(req._data.path);
+        }
+      }
+
+      this.requests.delete(response.id);
+      switch (response.cmd) {
         case 'final': {
-          let req = this.requests.get(response.id);
           req.onUpdate(response);
           req.onDone();
           break;
         }
         case 'error': {
-          this.requests.get(response.id).onError(response.msg);
+          req.onError(response.msg);
           break;
         }
         default: // 'done'
-          this.requests.get(response.id).onDone();
+          req.onDone();
       }
-      this.requests.delete(response.id);
     }
   }
 
