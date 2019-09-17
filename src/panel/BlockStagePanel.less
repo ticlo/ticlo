@@ -18,8 +18,31 @@
   }
 
   & > .dock-divider {
-    transform: scaleX(3);
     cursor: ew-resize;
-    border-left: 1px solid #f8f8f8;
+    background: #f8f8f8;
+
+    &::after {
+      content: ' ';
+      position: absolute;
+      left: -4px;
+      width: 12px;
+      height: 100%;
+    }
+  }
+
+  & > .ticl-stage-header {
+    position: absolute;
+    top: 4px;
+    left: 4px;
+    height: 24px;
+    padding: 4px;
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.25);
+    pointer-events: none;
+
+    & > .ant-btn {
+      pointer-events: all;
+      margin-right: 8px;
+    }
   }
 }

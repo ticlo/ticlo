@@ -92,13 +92,13 @@ export class ServiceEditor extends React.PureComponent<Props, State> {
         <Popup popupVisible={opened}
                onPopupVisibleChange={this.onPopupClose}
                popup={this.getPopup}>
-          <Button className='ticl-prop-editor-btn' size='small' shape="circle" icon="ellipsis"
+          <Button className='ticl-square-icon-btn' size='small' icon="ellipsis"
                   onClick={this.openPopup}/>
         </Popup>
       );
     } else if (!locked && create) {
       button =
-        <Button className='ticl-prop-editor-btn' size='small' shape="circle" icon="plus" onClick={this.onCreate}/>;
+        <Button className='ticl-square-icon-btn' size='small' icon="plus" onClick={this.onCreate}/>;
     }
 
     return (

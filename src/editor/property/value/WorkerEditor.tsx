@@ -45,9 +45,9 @@ export class WorkerEditor extends TypeEditor {
                popup={
                  <TypeSelect conn={conn} onTypeClick={this.onTypeClick} filter={WorkerEditor.filterWorkerFunction}/>
                }>
-          <Button className='ticl-prop-editor-btn' size='small' shape="circle" icon="down" onClick={this.openPopup}/>
+          <Button className='ticl-square-icon-btn' size='small' icon="down" onClick={this.openPopup}/>
         </Popup>
-        <Button className='ticl-prop-editor-btn' size='small' shape="circle" icon="edit" onClick={this.editWorker}/>
+        <Button className='ticl-square-icon-btn' size='small' icon="edit" onClick={this.editWorker}/>
       </DragDropDiv>
     );
   }

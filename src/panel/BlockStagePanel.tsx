@@ -5,11 +5,14 @@ import {Divider} from "rc-dock/lib";
 import {arrayEqual} from "../core/util/Compare";
 
 import './BlockStagePanel.less';
+import {Button} from "antd";
+import {Popup} from "../editor/component/ClickPopup";
 
 interface Props {
   conn: ClientConnection;
   basePath: string;
   onSelect?: (keys: string[]) => void;
+  onSave?: () => void;
 }
 
 interface State {
@@ -61,13 +64,19 @@ export class BlockStagePanel extends React.PureComponent<Props, State> {
 
 
   render() {
-    let {conn, basePath} = this.props;
+    let {conn, basePath, onSave} = this.props;
     let {showPropertyList, selectedKeys, sizes} = this.state;
 
     return (
       <div className='ticl-hbox ticl-stage-panel' ref={this.getRef}>
         <BlockStage key='stage' conn={conn} basePath={basePath} onSelect={this.onSelect}
                     style={{width: sizes[0], height: '100%'}}/>
+        <div className='ticl-stage-header'>
+          {onSave
+            ? <Button className='ticl-square-icon-btn' size='small' icon="cloud-upload" title='Save' onClick={onSave}/>
+            : null}
+          {basePath}
+        </div>
         {showPropertyList
           ? <Divider key='divider' idx={1} getDividerData={this.getDividerData} changeSizes={this.changeSizes}/>
           : null
