@@ -89,8 +89,6 @@ export class JsFunction extends BlockFunction {
         desc.mode = 'onLoad';
       }
       desc.src = 'js';
-      CustomScriptFunction.prototype.priority = desc.priority;
-      CustomScriptFunction.prototype.defaultMode = desc.mode;
 
       Types.add(CustomScriptFunction, desc, namespace);
       return true;
@@ -101,12 +99,10 @@ export class JsFunction extends BlockFunction {
   }
 }
 
-JsFunction.prototype.priority = 1;
-
 Types.add(JsFunction, {
   name: 'js',
   icon: 'txt:js',
-  mode: 'onChange',
+  priority: 1,
   properties: [{
     name: 'script', type: 'string', visible: 'high'
   }]

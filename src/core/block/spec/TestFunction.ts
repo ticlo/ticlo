@@ -74,8 +74,7 @@ export class TestAsyncFunctionPromise extends PureFunction {
   }
 }
 
-TestAsyncFunctionPromise.prototype.defaultMode = 'onCall';
-Types.add(TestAsyncFunctionPromise, {name: 'async-function-promise'});
+Types.add(TestAsyncFunctionPromise, {name: 'async-function-promise', mode: 'onCall'});
 
 
 // async function that manually call block.wait, and return NOT_READY
@@ -114,8 +113,7 @@ export class TestAsyncFunctionManual extends BlockFunction {
   }
 }
 
-TestAsyncFunctionManual.prototype.defaultMode = 'onCall';
-Types.add(TestAsyncFunctionManual, {name: 'async-function-manual'});
+Types.add(TestAsyncFunctionManual, {name: 'async-function-manual', priority: 1, mode: 'onCall'});
 
 export const VoidListeners = {
   onSourceChange(prop: Dispatcher<any>) {

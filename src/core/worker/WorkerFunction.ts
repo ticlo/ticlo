@@ -26,15 +26,9 @@ export class WorkerFunction extends BlockFunction {
     }
 
     if (!desc.priority) {
-      desc.priority = 0;
-    }
-    if (!desc.mode) {
-      desc.mode = 'onLoad';
+      desc.priority = 1;
     }
     desc.src = 'worker';
-
-    CustomWorkerFunction.prototype.priority = desc.priority;
-    CustomWorkerFunction.prototype.defaultMode = desc.mode;
 
     CustomWorkerFunction.prototype._namespace = namespace;
 

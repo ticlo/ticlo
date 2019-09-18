@@ -213,6 +213,7 @@ ForEachFunction.prototype.priority = 3;
 Types.add(ForEachFunction, {
   name: 'foreach',
   icon: 'fas:grip-vertical',
+  priority: 1,
   style: 'repeater',
   properties: [
     {name: 'input', type: 'any'},

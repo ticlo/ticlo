@@ -32,7 +32,6 @@ export class JoinFunction extends PureFunction {
   }
 }
 
-JoinFunction.prototype.priority = 0;
 Types.add(JoinFunction, {
   name: 'join',
   icon: 'txt:a,b',

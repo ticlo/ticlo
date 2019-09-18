@@ -35,9 +35,15 @@ const _types: {[key: string]: Type} = {};
 
 export class Types {
   static add(cls: FunctionClass, desc: FunctionDesc, namespace?: string) {
-    desc.priority = cls.prototype.priority;
-    desc.mode = cls.prototype.defaultMode;
+    if (!desc.mode) {
+      desc.mode = 'onLoad';
+    }
+    if (!(desc.priority >= 0)) {
+      desc.priority = 0;
+    }
     desc.ns = namespace;
+    cls.prototype.priority = desc.priority;
+    cls.prototype.defaultMode = desc.mode;
     cls.prototype.useLength = Boolean(desc.properties && desc.properties.find((desc) => desc.name === '' && desc.type === 'group'));
 
     let id = namespace ? `${namespace}:${desc.name}` : desc.name;

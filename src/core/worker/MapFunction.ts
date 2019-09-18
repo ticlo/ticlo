@@ -459,6 +459,7 @@ MapFunction.prototype.priority = 3;
 Types.add(MapFunction, {
   name: 'map',
   icon: 'fas:grip-vertical',
+  priority: 1,
   style: 'repeater',
   properties: [
     {name: 'input', type: 'any'},

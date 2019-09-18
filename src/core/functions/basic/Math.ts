@@ -48,7 +48,6 @@ export class AddFunction extends PureFunction {
   }
 }
 
-AddFunction.prototype.priority = 0;
 Types.add(AddFunction, {
   ...descriptorN,
   name: 'add',
@@ -80,7 +79,6 @@ export class MultiplyFunction extends PureFunction {
   }
 }
 
-MultiplyFunction.prototype.priority = 0;
 Types.add(MultiplyFunction, {
   ...descriptorN,
   name: 'multiply',
@@ -101,7 +99,6 @@ export class SubtractFunction extends PureFunction {
   }
 }
 
-SubtractFunction.prototype.priority = 0;
 Types.add(SubtractFunction, {
   ...descriptor2,
   name: 'subtract',
@@ -122,7 +119,6 @@ export class DivideFunction extends PureFunction {
   }
 }
 
-DivideFunction.prototype.priority = 0;
 Types.add(DivideFunction, {
   ...descriptor2,
   name: 'divide',
