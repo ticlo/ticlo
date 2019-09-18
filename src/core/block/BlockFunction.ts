@@ -65,6 +65,7 @@ export class BlockFunction implements BaseFunction {
   _data: Block;
   priority: 0 | 1 | 2 | 3;
   defaultMode: BlockMode;
+  // whether the #len property is used
   useLength: boolean;
 
   constructor(block?: Block) {

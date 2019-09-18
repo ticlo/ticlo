@@ -33,11 +33,9 @@ export class JoinFunction extends PureFunction {
 }
 
 JoinFunction.prototype.priority = 0;
-JoinFunction.prototype.useLength = true;
 Types.add(JoinFunction, {
   name: 'join',
   icon: 'txt:a,b',
-  useLength: true,
   properties: [
     {name: '', type: 'group', defaultLen: 2, properties: [{name: '', type: 'string', visible: 'high'}]},
     {name: 'separator', type: 'string'},

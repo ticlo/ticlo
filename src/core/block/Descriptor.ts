@@ -76,7 +76,6 @@ export interface FunctionDesc {
   icon?: string;
   priority?: 0 | 1 | 2 | 3;
   mode?: BlockMode;
-  useLength?: boolean;
   properties?: (PropDesc | PropGroupDesc)[];
   /** recipient property will receive value or binding when parent property is converted to subblock of this type */
   recipient?: string;

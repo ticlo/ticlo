@@ -35,7 +35,6 @@ export class WorkerFunction extends BlockFunction {
 
     CustomWorkerFunction.prototype.priority = desc.priority;
     CustomWorkerFunction.prototype.defaultMode = desc.mode;
-    CustomWorkerFunction.prototype.useLength = Boolean(desc.useLength);
 
     CustomWorkerFunction.prototype._namespace = namespace;
 

@@ -5,7 +5,6 @@ import {FunctionDesc} from "../../block/Descriptor";
 const descriptorN: FunctionDesc = {
   name: '',
   icon: '',
-  useLength: true,
   properties: [
     {name: '', type: 'group', defaultLen: 2, properties: [{name: '', type: 'number', visible: 'high'}]},
     {name: 'output', type: 'number', readonly: true}
@@ -50,7 +49,6 @@ export class AddFunction extends PureFunction {
 }
 
 AddFunction.prototype.priority = 0;
-AddFunction.prototype.useLength = true;
 Types.add(AddFunction, {
   ...descriptorN,
   name: 'add',
@@ -83,7 +81,6 @@ export class MultiplyFunction extends PureFunction {
 }
 
 MultiplyFunction.prototype.priority = 0;
-MultiplyFunction.prototype.useLength = true;
 Types.add(MultiplyFunction, {
   ...descriptorN,
   name: 'multiply',

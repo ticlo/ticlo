@@ -38,11 +38,7 @@ export class Types {
     desc.priority = cls.prototype.priority;
     desc.mode = cls.prototype.defaultMode;
     desc.ns = namespace;
-    if (cls.prototype.useLength) {
-      desc.useLength = true;
-    } else {
-      delete desc.useLength;
-    }
+    cls.prototype.useLength = Boolean(desc.properties && desc.properties.find((desc) => desc.name === '' && desc.type === 'group'));
 
     let id = namespace ? `${namespace}:${desc.name}` : desc.name;
     desc.id = id;
