@@ -21,7 +21,7 @@ import {
 import {findPropertyForNewBlock} from "../property-api/PropertyName";
 import {hideProperties, moveShownProperty, showProperties} from "../property-api/PropertyShowHide";
 import {addMoreProperty, moveMoreProperty, removeMoreProperty} from "../property-api/MoreProperty";
-import {JobEditor} from "../worker/JobEditor";
+import {WorkerEditor} from "../worker/WorkerEditor";
 
 class ServerRequest extends ConnectionSendingData {
   id: string;
@@ -346,12 +346,12 @@ export class ServerConnection extends Connection {
             result = this.watchDesc(request.id);
             break;
           }
-          case 'editJob' : {
-            result = this.editJob(request.path, request.fromField, request.fromFunction);
+          case 'editWorker' : {
+            result = this.editWorker(request.path, request.fromField, request.fromFunction);
             break;
           }
-          case 'applyJobChange' : {
-            result = this.applyJobChange(request.path, request.funcId);
+          case 'applyWorkerChange' : {
+            result = this.applyWorkerChange(request.path, request.funcId);
             break;
           }
           //// property utils
@@ -594,14 +594,14 @@ export class ServerConnection extends Connection {
     // TODO
   }
 
-  editJob(path: string, fromField: string, fromFunction: string) {
+  editWorker(path: string, fromField: string, fromFunction: string) {
     let property = this.root.queryProperty(path, true);
 
     if (property && property._name.startsWith('#edit-')) {
       if (fromField) {
-        JobEditor.createFromField(property._block, property._name, fromField);
+        WorkerEditor.createFromField(property._block, property._name, fromField);
       } else if (fromFunction) {
-        JobEditor.createFromFunction(property._block, property._name, fromFunction);
+        WorkerEditor.createFromFunction(property._block, property._name, fromFunction);
       }
       return null;
     } else {
@@ -609,9 +609,9 @@ export class ServerConnection extends Connection {
     }
   }
 
-  applyJobChange(path: string, funcId: string) {
+  applyWorkerChange(path: string, funcId: string) {
     let property = this.root.queryProperty(path, true);
-    if (property && property._value instanceof JobEditor) {
+    if (property && property._value instanceof WorkerEditor) {
       property._value.applyChange(funcId);
       return null;
     } else {

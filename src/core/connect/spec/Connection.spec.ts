@@ -10,7 +10,7 @@ import {JsFunction} from "../../functions/script/Js";
 import {Types} from "../../block/Type";
 import {DataMap, isDataTruncated} from "../../util/Types";
 import {WorkerFunction} from "../../worker/WorkerFunction";
-import {JobEditor} from "../../worker/JobEditor";
+import {WorkerEditor} from "../../worker/WorkerEditor";
 
 
 describe("Connection", function () {
@@ -629,7 +629,7 @@ describe("Connection", function () {
   });
 
 
-  it('JobEditor', async function () {
+  it('WorkerEditor', async function () {
     let job1 = Root.instance.addJob('Connection18');
     let block1 = job1.createBlock('a');
     let data = {
@@ -641,13 +641,13 @@ describe("Connection", function () {
 
     // edit from field
     client.setValue('Connection18.a.use', data);
-    await client.editJob('Connection18.a.#edit-use', 'use');
+    await client.editWorker('Connection18.a.#edit-use', 'use');
     assert.deepEqual(block1.getValue('#edit-use').save(), data);
 
     WorkerFunction.registerType(data, {name: 'func1'}, 'JobEditor');
 
     // edit from worker function
-    await client.editJob('Connection18.a.#edit-func1', null, 'JobEditor:func1');
+    await client.editWorker('Connection18.a.#edit-func1', null, 'JobEditor:func1');
     assert.deepEqual(block1.getValue('#edit-func1').save(), data);
 
     Types.clear('JobEditor:func1');
@@ -655,12 +655,12 @@ describe("Connection", function () {
     Root.instance.deleteValue('Connection18');
   });
 
-  it('applyJobChange', async function () {
+  it('applyWorkerChange', async function () {
     let job1 = Root.instance.addJob('Connection19');
     let [server, client] = makeLocalConnection(Root.instance, true);
 
-    let editor = JobEditor.create(job1, '#edit-v', {});
-    await client.applyJobChange('Connection19.#edit-v');
+    let editor = WorkerEditor.create(job1, '#edit-v', {});
+    await client.applyWorkerChange('Connection19.#edit-v');
     assert.deepEqual(job1.getValue('v'), {'#is': ''});
 
     client.destroy();

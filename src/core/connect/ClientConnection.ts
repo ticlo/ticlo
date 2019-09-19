@@ -258,12 +258,12 @@ export abstract class ClientConnection extends Connection {
     }
   }
 
-  editJob(path: string, fromField?: string, fromFunction?: string, callbacks?: ClientCallbacks): Promise<any> | string {
-    return this.simpleRequest({cmd: 'editJob', path, fromField, fromFunction}, callbacks);
+  editWorker(path: string, fromField?: string, fromFunction?: string, callbacks?: ClientCallbacks): Promise<any> | string {
+    return this.simpleRequest({cmd: 'editWorker', path, fromField, fromFunction}, callbacks);
   }
 
-  applyJobChange(path: string, funcId?: string, callbacks?: ClientCallbacks): Promise<any> | string {
-    return this.simpleRequest({cmd: 'applyJobChange', path, funcId}, callbacks);
+  applyWorkerChange(path: string, funcId?: string, callbacks?: ClientCallbacks): Promise<any> | string {
+    return this.simpleRequest({cmd: 'applyWorkerChange', path, funcId}, callbacks);
   }
 
   showProps(path: string, props: string[], callbacks?: ClientCallbacks): Promise<any> | string {

@@ -1,20 +1,20 @@
 import {assert} from "chai";
 import {Job, Root} from "../../block/Block";
-import {JobEditor} from "../JobEditor";
+import {WorkerEditor} from "../WorkerEditor";
 import {VoidListeners} from "../../block/spec/TestFunction";
 import {WorkerFunction} from "../WorkerFunction";
 import {Types} from "../../block/Type";
 import {PropDesc, PropGroupDesc} from "../../block/Descriptor";
 
-describe("JobEditor", function () {
+describe("WorkerEditor", function () {
 
   it('delete editor after unwatch', function () {
     let job = new Job();
-    let editor1 = JobEditor.create(job, '#edit-1', {});
-    let editor2 = JobEditor.create(job, '#edit-2');
+    let editor1 = WorkerEditor.create(job, '#edit-1', {});
+    let editor2 = WorkerEditor.create(job, '#edit-2');
 
     assert.isNull(editor2, 'failed to load');
-    assert.instanceOf(job.getValue('#edit-2'), JobEditor);
+    assert.instanceOf(job.getValue('#edit-2'), WorkerEditor);
 
     editor1.watch(VoidListeners);
     assert.equal(job.getValue('#edit-1'), editor1);
@@ -34,19 +34,19 @@ describe("JobEditor", function () {
       }
     };
 
-    WorkerFunction.registerType(data, {name: 'func1'}, 'JobEditor');
+    WorkerFunction.registerType(data, {name: 'func1'}, 'WorkerEditor');
 
     // editor with map data
     block.setValue('use1', data);
-    JobEditor.createFromField(block, '#edit-use1', 'use1');
+    WorkerEditor.createFromField(block, '#edit-use1', 'use1');
     assert.deepEqual(block.getValue('#edit-use1').save(), data);
 
     // editor with registered worker function
-    block.setValue('use2', 'JobEditor:func1');
-    JobEditor.createFromField(block, '#edit-use2', 'use2');
+    block.setValue('use2', 'WorkerEditor:func1');
+    WorkerEditor.createFromField(block, '#edit-use2', 'use2');
     assert.deepEqual(block.getValue('#edit-use2').save(), data);
 
-    Types.clear('JobEditor:func1');
+    Types.clear('WorkerEditor:func1');
   });
 
   it('createFromField desc', function () {
@@ -76,16 +76,16 @@ describe("JobEditor", function () {
           {name: 'b', type: 'number'}
         ]
       }]
-    }, 'JobEditor');
+    }, 'WorkerEditor');
 
-    block.setValue('#is', 'JobEditor:worker1');
+    block.setValue('#is', 'WorkerEditor:worker1');
 
     // set invalid function so it fallbacks to property's default inputs
     block.setValue('use', 'invalidFunction');
-    JobEditor.createFromField(block, '#edit-use', 'use');
+    WorkerEditor.createFromField(block, '#edit-use', 'use');
     assert.deepEqual(block.getValue('#edit-use').save(), expectedData);
 
-    Types.clear('JobEditor:worker1');
+    Types.clear('WorkerEditor:worker1');
   });
 
   it('createFromFunction', function () {
@@ -97,17 +97,17 @@ describe("JobEditor", function () {
       }
     };
 
-    WorkerFunction.registerType(data, {name: 'worker2'}, 'JobEditor');
+    WorkerFunction.registerType(data, {name: 'worker2'}, 'WorkerEditor');
 
-    JobEditor.createFromFunction(job, '#edit-func', 'JobEditor:worker2');
+    WorkerEditor.createFromFunction(job, '#edit-func', 'WorkerEditor:worker2');
     assert.deepEqual(job.getValue('#edit-func').save(), data);
 
-    Types.clear('JobEditor:worker2');
+    Types.clear('WorkerEditor:worker2');
   });
 
   it('applyChange', function () {
     let job = new Job();
-    let editor = JobEditor.create(job, '#edit-v2', {});
+    let editor = WorkerEditor.create(job, '#edit-v2', {});
     editor.applyChange();
     assert.deepEqual(job.getValue('v2'), {'#is': ''});
   });
@@ -154,21 +154,21 @@ describe("JobEditor", function () {
       {'name': 'b', 'type': 'number', 'readonly': true}
     ];
 
-    WorkerFunction.registerType({'#is': ''}, {name: 'worker3', properties: []}, 'JobEditor');
+    WorkerFunction.registerType({'#is': ''}, {name: 'worker3', properties: []}, 'WorkerEditor');
 
-    let editor = JobEditor.createFromFunction(job, '#edit-func', 'JobEditor:worker3');
+    let editor = WorkerEditor.createFromFunction(job, '#edit-func', 'WorkerEditor:worker3');
     editor.createBlock('#input')._load(expectedData["#input"]);
     editor.createBlock('#output')._load(expectedData["#output"]);
     editor.setValue('@f-icon', 'fas:plus');
 
     editor.applyChange();
 
-    assert.deepEqual(Types.getWorkerData('JobEditor:worker3'), expectedData);
+    assert.deepEqual(Types.getWorkerData('WorkerEditor:worker3'), expectedData);
 
-    let desc = Types.getDesc('JobEditor:worker3')[0];
+    let desc = Types.getDesc('WorkerEditor:worker3')[0];
     assert.equal(desc.icon, 'fas:plus');
     assert.deepEqual(desc.properties, expectedDescProperties);
 
-    Types.clear('JobEditor:worker3');
+    Types.clear('WorkerEditor:worker3');
   });
 });

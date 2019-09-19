@@ -4,7 +4,7 @@ import {buildPropDescCache, findPropDesc, FunctionDesc, PropDesc, PropGroupDesc}
 import {Types} from "../block/Type";
 import {WorkerFunction} from "./WorkerFunction";
 
-export class JobEditor extends Job {
+export class WorkerEditor extends Job {
   unwatch(watcher: BlockChildWatch) {
     if (this._watchers) {
       super.unwatch(watcher);
@@ -14,10 +14,10 @@ export class JobEditor extends Job {
     }
   }
 
-  static create(parent: Block, field: string, src?: DataMap | string, forceLoad = false): JobEditor {
+  static create(parent: Block, field: string, src?: DataMap | string, forceLoad = false): WorkerEditor {
     let prop = parent.getProperty(field);
-    let job: JobEditor;
-    if (prop._value instanceof JobEditor) {
+    let job: WorkerEditor;
+    if (prop._value instanceof WorkerEditor) {
       // do not override the existing one that's being edited
       if (forceLoad) {
         job = prop._value;
@@ -25,7 +25,7 @@ export class JobEditor extends Job {
         return prop._value;
       }
     } else {
-      job = new JobEditor(parent, null, prop);
+      job = new WorkerEditor(parent, null, prop);
       prop.setOutput(job);
     }
     let success = job.load(src);
@@ -36,12 +36,12 @@ export class JobEditor extends Job {
     }
   }
 
-  static createFromField(parent: Block, field: string, fromField: string): JobEditor {
+  static createFromField(parent: Block, field: string, fromField: string): WorkerEditor {
     let fromValue = parent.getValue(fromField);
     let forceReload = false;
     // already has worker data ?
     if (fromValue && (typeof fromValue === 'string' || fromValue.constructor === Object)) {
-      let newJob = JobEditor.create(parent, field, fromValue);
+      let newJob = WorkerEditor.create(parent, field, fromValue);
       if (newJob) {
         return newJob;
       }
@@ -67,15 +67,15 @@ export class JobEditor extends Job {
         if (propDesc.outputs) {
           placeHolderData['#output']['@b-p'] = propDesc.outputs.filter((p) => p.type !== 'group').map((p) => p.name);
         }
-        return JobEditor.create(parent, field, placeHolderData, forceReload);
+        return WorkerEditor.create(parent, field, placeHolderData, forceReload);
       }
     }
     return null;
   }
 
-  static createFromFunction(parent: Block, field: string, fromFunction: string): JobEditor {
+  static createFromFunction(parent: Block, field: string, fromFunction: string): WorkerEditor {
     if (typeof fromFunction === 'string') {
-      return JobEditor.create(parent, field, fromFunction);
+      return WorkerEditor.create(parent, field, fromFunction);
     }
     return null;
   }
