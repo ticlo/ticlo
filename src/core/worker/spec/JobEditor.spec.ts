@@ -4,6 +4,7 @@ import {JobEditor} from "../JobEditor";
 import {VoidListeners} from "../../block/spec/TestFunction";
 import {WorkerFunction} from "../WorkerFunction";
 import {Types} from "../../block/Type";
+import {PropDesc, PropGroupDesc} from "../../block/Descriptor";
 
 describe("JobEditor", function () {
 
@@ -96,12 +97,78 @@ describe("JobEditor", function () {
       }
     };
 
-    WorkerFunction.registerType(data, {name: 'func2'}, 'JobEditor');
+    WorkerFunction.registerType(data, {name: 'worker2'}, 'JobEditor');
 
-    JobEditor.createFromFunction(job, '#edit-func', 'JobEditor:func2');
+    JobEditor.createFromFunction(job, '#edit-func', 'JobEditor:worker2');
     assert.deepEqual(job.getValue('#edit-func').save(), data);
 
-    Types.clear('JobEditor:func2');
+    Types.clear('JobEditor:worker2');
   });
 
+  it('applyChange', function () {
+    let job = new Job();
+    let editor = JobEditor.create(job, '#edit-v2', {});
+    editor.applyChange();
+    assert.deepEqual(job.getValue('v2'), {'#is': ''});
+  });
+
+  it('applyChange function', function () {
+    let job = new Job();
+
+    let expectedData = {
+      '#input': {
+        '#is': '',
+        '#more': [
+          {
+            'name': 'g', 'type': 'group', 'defaultLen': 2, 'properties': [
+              {'name': 'a', 'type': 'number'}
+            ]
+          },
+          {'name': 'a', 'type': 'number'}
+        ],
+        '@b-p': ['a']
+      },
+      '#is': '',
+      '#output': {
+        '#is': '',
+        '#more': [
+          {
+            'name': 'g', 'type': 'group', 'defaultLen': 2, 'properties': [
+              {'name': 'b', 'type': 'number'}
+            ]
+          },
+          {'name': 'b', 'type': 'number'}
+        ],
+        '@b-p': ['b']
+      },
+      '@f-icon': 'fas:plus'
+    };
+    let expectedDescProperties: (PropDesc | PropGroupDesc)[] = [
+      {
+        'name': 'g', 'type': 'group', 'defaultLen': 2, 'properties': [
+          {'name': 'a', 'type': 'number'},
+          {'name': 'b', 'type': 'number', 'readonly': true}
+        ]
+      },
+      {'name': 'a', 'type': 'number'},
+      {'name': 'b', 'type': 'number', 'readonly': true}
+    ];
+
+    WorkerFunction.registerType({'#is': ''}, {name: 'worker3', properties: []}, 'JobEditor');
+
+    let editor = JobEditor.createFromFunction(job, '#edit-func', 'JobEditor:worker3');
+    editor.createBlock('#input')._load(expectedData["#input"]);
+    editor.createBlock('#output')._load(expectedData["#output"]);
+    editor.setValue('@f-icon', 'fas:plus');
+
+    editor.applyChange();
+
+    assert.deepEqual(Types.getWorkerData('JobEditor:worker3'), expectedData);
+
+    let desc = Types.getDesc('JobEditor:worker3')[0];
+    assert.equal(desc.icon, 'fas:plus');
+    assert.deepEqual(desc.properties, expectedDescProperties);
+
+    Types.clear('JobEditor:worker3');
+  });
 });

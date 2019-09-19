@@ -1,6 +1,6 @@
 import {Block, BlockChildWatch, Job} from "../block/Block";
 import {DataMap} from "../util/Types";
-import {buildPropDescCache, findPropDesc, FunctionDesc} from "../block/Descriptor";
+import {buildPropDescCache, findPropDesc, FunctionDesc, PropDesc, PropGroupDesc} from "../block/Descriptor";
 import {Types} from "../block/Type";
 import {WorkerFunction} from "./WorkerFunction";
 
@@ -80,10 +80,11 @@ export class JobEditor extends Job {
     return null;
   }
 
-  writeBack(): boolean {
+  applyChange(funcId: string = null): boolean {
+    funcId = funcId || this._loadFrom;
     let data = this.save();
-    if (this._loadFrom) {
-      let name = this._loadFrom;
+    if (funcId) {
+      let name = funcId;
       let pos = name.indexOf(':');
       if (pos > -1) {
         name = name.substring(pos + 1);
@@ -93,7 +94,7 @@ export class JobEditor extends Job {
         icon: this.getValue('@f-icon') || '',
         priority: this.getValue('@f-priority') || 0,
         mode: this.getValue('@f-mode') || 'onLoad',
-        properties: []
+        properties: this.collectProperties()
       };
 
       WorkerFunction.registerType(data, desc, this._namespace);
@@ -106,5 +107,39 @@ export class JobEditor extends Job {
       }
     }
     return false;
+  }
+
+  collectProperties() {
+    let properties: (PropDesc | PropGroupDesc)[] = [];
+    let groups: Map<string, PropGroupDesc> = new Map();
+    // add inputs
+    let inputs = this.queryValue('#input.#more');
+    if (Array.isArray(inputs)) {
+      for (let input of inputs) {
+        let copyInput = {...input};
+        // input should not be readonly
+        delete copyInput.readonly;
+        properties.push(copyInput);
+        if (input.type === 'group') {
+          groups.set(input.name, input);
+        }
+      }
+    }
+    // add outputs
+    let outputs = this.queryValue('#output.#more');
+    if (Array.isArray(outputs)) {
+      for (let output of outputs) {
+        if (output.type === 'group' && groups.has(output.name)) {
+          let groupProperties = groups.get(output.name).properties;
+          // merge output group with input group
+          for (let prop of output.properties) {
+            groupProperties.push({...prop, readonly: true});
+          }
+        } else {
+          properties.push({...output, readonly: true});
+        }
+      }
+    }
+    return properties;
   }
 }
