@@ -350,6 +350,10 @@ export class ServerConnection extends Connection {
             result = this.editJob(request.path, request.fromField, request.fromFunction);
             break;
           }
+          case 'applyJobChange' : {
+            result = this.applyJobChange(request.path, request.funcId);
+            break;
+          }
           //// property utils
 
           case 'showProps': {
@@ -599,7 +603,16 @@ export class ServerConnection extends Connection {
       } else if (fromFunction) {
         JobEditor.createFromFunction(property._block, property._name, fromFunction);
       }
+      return null;
+    } else {
+      return 'invalid path';
+    }
+  }
 
+  applyJobChange(path: string, funcId: string) {
+    let property = this.root.queryProperty(path, true);
+    if (property && property._value instanceof JobEditor) {
+      property._value.applyChange(funcId);
       return null;
     } else {
       return 'invalid path';

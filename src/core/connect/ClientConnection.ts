@@ -262,6 +262,10 @@ export abstract class ClientConnection extends Connection {
     return this.simpleRequest({cmd: 'editJob', path, fromField, fromFunction}, callbacks);
   }
 
+  applyJobChange(path: string, funcId?: string, callbacks?: ClientCallbacks): Promise<any> | string {
+    return this.simpleRequest({cmd: 'applyJobChange', path, funcId}, callbacks);
+  }
+
   showProps(path: string, props: string[], callbacks?: ClientCallbacks): Promise<any> | string {
     return this.simpleRequest({cmd: 'showProps', path, props}, callbacks);
   }

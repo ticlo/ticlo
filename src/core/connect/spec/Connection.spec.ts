@@ -1,5 +1,5 @@
 import {assert} from "chai";
-import {Block, Root} from "../../block/Block";
+import {Block, Job, Root} from "../../block/Block";
 import {makeLocalConnection} from "../LocalConnection";
 import "../../functions/basic/Math";
 import {AsyncClientPromise} from "./AsyncClientPromise";
@@ -653,5 +653,17 @@ describe("Connection", function () {
     Types.clear('JobEditor:func1');
     client.destroy();
     Root.instance.deleteValue('Connection18');
+  });
+
+  it('applyJobChange', async function () {
+    let job1 = Root.instance.addJob('Connection19');
+    let [server, client] = makeLocalConnection(Root.instance, true);
+
+    let editor = JobEditor.create(job1, '#edit-v', {});
+    await client.applyJobChange('Connection19.#edit-v');
+    assert.deepEqual(job1.getValue('v'), {'#is': ''});
+
+    client.destroy();
+    Root.instance.deleteValue('Connection19');
   });
 });
