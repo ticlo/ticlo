@@ -79,4 +79,32 @@ export class JobEditor extends Job {
     }
     return null;
   }
+
+  writeBack(): boolean {
+    let data = this.save();
+    if (this._loadFrom) {
+      let name = this._loadFrom;
+      let pos = name.indexOf(':');
+      if (pos > -1) {
+        name = name.substring(pos + 1);
+      }
+      let desc: FunctionDesc = {
+        name,
+        icon: this.getValue('@f-icon') || '',
+        priority: this.getValue('@f-priority') || 0,
+        mode: this.getValue('@f-mode') || 'onLoad',
+        properties: []
+      };
+
+      WorkerFunction.registerType(data, desc, this._namespace);
+    } else {
+      let name = this._prop._name;
+      if (name.startsWith('#edit-')) {
+        name = name.substring(6);
+        this._prop._block.setValue(name, data);
+        return true;
+      }
+    }
+    return false;
+  }
 }

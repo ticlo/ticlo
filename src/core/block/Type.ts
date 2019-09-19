@@ -1,4 +1,4 @@
-import {Block} from "./Block";
+import {Block, BlockModeList} from "./Block";
 import {FunctionClass} from "./BlockFunction";
 import {ValueDispatcher} from "./Dispatcher";
 import {FunctionDesc} from "./Descriptor";
@@ -35,10 +35,10 @@ const _types: {[key: string]: Type} = {};
 
 export class Types {
   static add(cls: FunctionClass, desc: FunctionDesc, namespace?: string) {
-    if (!desc.mode) {
+    if (!BlockModeList.includes(desc.mode)) {
       desc.mode = 'onLoad';
     }
-    if (!(desc.priority >= 0)) {
+    if (![0, 1, 2, 3].includes(desc.priority)) {
       desc.priority = 0;
     }
     desc.ns = namespace;

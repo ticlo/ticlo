@@ -18,6 +18,7 @@ import {
 import {FunctionDesc} from "./Descriptor";
 
 export type BlockMode = 'auto' | 'onLoad' | 'onChange' | 'onCall' | 'disabled';
+export const BlockModeList = ['auto', 'onLoad', 'onChange', 'onCall', 'disabled'];
 
 export interface BlockChildWatch {
   onChildChange(property: BlockIO, saved?: boolean): void;
@@ -782,6 +783,7 @@ export class Job extends Block {
   _resolver: Resolver;
 
   _namespace: string;
+  _loadFrom: string;
 
   _enabled: boolean = true;
   _loading: boolean = false;
@@ -862,12 +864,14 @@ export class Job extends Block {
         let data = Types.getWorkerData(src);
         if (data) {
           this._namespace = desc.ns;
+          this._loadFrom = src;
           this._load(data);
           loaded = true;
         }
       }
     } else {
       this._namespace = this._job._namespace;
+      this._loadFrom = null;
       if (src) {
         this._load(src);
         loaded = true;

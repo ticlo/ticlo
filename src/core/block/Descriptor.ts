@@ -1,4 +1,4 @@
-import {BlockMode} from "./Block";
+import {BlockMode, BlockModeList} from "./Block";
 
 // high: always show in block, unless toggled by user
 // low: always hide in block
@@ -81,6 +81,8 @@ export interface FunctionDesc {
   recipient?: string;
   attributes?: (PropDesc)[];
 
+  // a React class to display special component in block UI in the editor
+  // not used on server side
   view?: any;
 
   style?: 'repeater' | 'service';
@@ -117,7 +119,7 @@ export const configDescs: {[key: string]: PropDesc} = {
   '#mode': {
     name: '#mode',
     type: 'select',
-    options: ['auto', 'onLoad', 'onChange', 'onCall', 'disabled'],
+    options: BlockModeList,
     default: 'auto'
   },
   '#len': {name: '#len', type: 'number', default: 2, min: 0, step: 1},
