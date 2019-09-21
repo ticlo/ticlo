@@ -1,14 +1,14 @@
 import React, {MouseEventHandler} from "react";
 import {Icon, Input, Radio, Tooltip} from "antd";
 import {TypeTree} from "./TypeTree";
-import {ClientConnection} from "../../core/connect/ClientConnection";
+import {ClientConn} from "../../core/client";
 import {OnTypeClick} from "./TypeView";
 import {RadioChangeEvent} from "antd/lib/radio";
 import {TypeList} from "./TypeList";
 import {FunctionDesc} from "../../core/block/Descriptor";
 
 interface Props {
-  conn: ClientConnection;
+  conn: ClientConn;
   showPreset?: boolean;
   onTypeClick?: OnTypeClick;
   onClick?: React.MouseEventHandler;

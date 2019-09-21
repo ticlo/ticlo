@@ -1,5 +1,5 @@
 import React, {CSSProperties, KeyboardEvent} from "react";
-import {ClientConnection} from "../../core/connect/ClientConnection";
+import {ClientConn} from "../../core/client";
 import {DataMap} from "../../core/util/Types";
 import {BlockView} from "./Block";
 import {WireItem, WireView} from "./Wire";

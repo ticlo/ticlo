@@ -1,6 +1,6 @@
 import React from "react";
 import {DataMap} from "../../core/util/Types";
-import {ClientConnection} from "../../core/connect/ClientConnection";
+import {ClientConn} from "../../core/connect/ClientConn";
 
 export abstract class DataRendererItem<T = any> {
   _renderers: Set<PureDataRenderer<any, any> & T> = new Set<PureDataRenderer<any, any> & T>();
@@ -31,7 +31,7 @@ export abstract class DataRendererItem<T = any> {
     // to be overridden
   }
 
-  abstract getConn(): ClientConnection;
+  abstract getConn(): ClientConn;
 
   forceUpdate() {
     for (let renderer of this._renderers) {

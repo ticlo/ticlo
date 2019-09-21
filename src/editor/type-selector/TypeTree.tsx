@@ -1,12 +1,12 @@
 import React from "react";
-import {ClientConnection, FunctionDesc, getFuncStyleFromDesc} from "../../core/client";
+import {ClientConn, FunctionDesc, getFuncStyleFromDesc} from "../../core/client";
 import {TypeTreeItem, TypeTreeRoot} from "./TypeTreeItem";
 import VirtualList from "../../ui/component/Virtual";
 import {TypeTreeRenderer} from "./TypeTreeRenderer";
 import {OnTypeClick} from "./TypeView";
 
 interface Props {
-  conn: ClientConnection;
+  conn: ClientConn;
   search?: string;
   filter?: (desc: FunctionDesc) => boolean;
   showPreset?: boolean;

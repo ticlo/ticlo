@@ -1,9 +1,9 @@
 import React from "react";
-import {ClientConnection} from "../../../core/connect/ClientConnection";
 import {SpecialViewProps} from "./SpecialView";
 import {LazyUpdateComponent, LazyUpdateListener} from "../../../ui/component/LazyUpdateComponent";
 import {Slider} from "antd";
 import {displayNumber} from "../../../ui/util/Types";
+import {ClientConnection} from "../../../core/connect/ClientConnection";
 
 class SliderView extends LazyUpdateComponent<SpecialViewProps, any> {
 

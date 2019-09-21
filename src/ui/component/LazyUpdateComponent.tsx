@@ -1,10 +1,10 @@
 import React from "react";
-import {ClientConnection, ValueState, ValueUpdate} from "../../core/client";
+import {ClientConn, ValueState, ValueUpdate} from "../../core/client";
 import {DataMap} from "../../core/util/Types";
 import {shallowEqual} from "../../core/util/Compare";
 
 interface LazyUpdateProps {
-  conn: ClientConnection;
+  conn: ClientConn;
 }
 
 export abstract class LazyUpdateComponent<P extends LazyUpdateProps, S> extends React.Component<P, S> {

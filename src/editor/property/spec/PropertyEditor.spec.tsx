@@ -11,7 +11,7 @@ import ReactDOM from "react-dom";
 import {removeLastTemplate, loadTemplate, querySingle} from "../../../ui/util/test-util";
 import {initEditor} from "../../index";
 import {arrayEqual} from "../../../core/util/Compare";
-import {ClientConnection} from "../../../core/connect/ClientConnection";
+import {ClientConn} from "../../../core/client";
 import {FunctionDesc, PropDesc, PropGroupDesc} from "../../../core/block/Descriptor";
 import {Types} from "../../../core/block/Type";
 

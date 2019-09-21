@@ -2,12 +2,12 @@ import React from "react";
 import {FunctionDesc, getDefaultFuncData, getFuncStyleFromDesc, PropDesc, PropGroupDesc} from "../../core/client";
 import {TIcon} from "../icon/Icon";
 import {DragDropDiv, DragState} from "rc-dock/lib";
-import {ClientConnection} from "../../core/connect/ClientConnection";
+import {ClientConn} from "../../core/client";
 
 export type OnTypeClick = (name: string, desc: FunctionDesc, data: any) => void;
 
 interface Props {
-  conn: ClientConnection;
+  conn: ClientConn;
   desc: FunctionDesc;
   name?: any;
   data?: any;

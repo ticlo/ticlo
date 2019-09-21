@@ -1,16 +1,16 @@
 import React from "react";
-import {ClientConnection} from "../../core/connect/ClientConnection";
+import {ClientConn} from "../../core/client";
 import {LazyUpdateComponent} from "../../ui/component/LazyUpdateComponent";
 
 interface MultiSelectProps {
   keys: string[];
-  conn: ClientConnection;
+  conn: ClientConn;
 }
 
 
 export abstract class MultiSelectLoader<T extends MultiSelectComponent<any, any, any>> {
   parent: T;
-  conn: ClientConnection;
+  conn: ClientConn;
   key: string;
 
   constructor(key: string, parent: T) {

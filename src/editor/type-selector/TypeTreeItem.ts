@@ -1,5 +1,5 @@
 import {TreeItem} from "../../ui/component/Tree";
-import {ClientConnection} from "../../core/connect/ClientConnection";
+import {ClientConn} from "../../core/client";
 import {FunctionDesc} from "../../core/block/Descriptor";
 import {OnTypeClick} from "./TypeView";
 
@@ -186,7 +186,7 @@ export class TypeTreeRoot extends TypeTreeItem {
     }
   };
 
-  constructor(conn: ClientConnection, onListChange: () => void, onTypeClick?: OnTypeClick, showPreset?: boolean, filter?: (desc: FunctionDesc) => boolean) {
+  constructor(conn: ClientConn, onListChange: () => void, onTypeClick?: OnTypeClick, showPreset?: boolean, filter?: (desc: FunctionDesc) => boolean) {
     super(null, null, '');
     this.level = -1;
     this.root = this;

@@ -1,5 +1,5 @@
 import React from "react";
-import {ClientConnection, ValueUpdate} from "../../core/connect/ClientConnection";
+import {ClientConn, ValueUpdate} from "../../core/client";
 import {DataMap} from "../../core/util/Types";
 import {
   blankFuncDesc,
@@ -91,7 +91,7 @@ function comparePropDesc(a: PropDesc | PropGroupDesc, b: PropDesc | PropGroupDes
 }
 
 interface Props {
-  conn: ClientConnection;
+  conn: ClientConn;
   keys: string[];
   style?: React.CSSProperties;
 
@@ -138,7 +138,7 @@ class PropertyDefMerger {
     }
   }
 
-  render(keys: string[], conn: ClientConnection, funcDesc: FunctionDesc, isMore?: boolean) {
+  render(keys: string[], conn: ClientConn, funcDesc: FunctionDesc, isMore?: boolean) {
     let children: React.ReactNode[] = [];
     if (this.map) {
       for (let [name, prop] of this.map) {

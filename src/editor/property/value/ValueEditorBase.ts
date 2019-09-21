@@ -1,11 +1,11 @@
 import React from "react";
 import {PropDesc} from "../../../core/block/Descriptor";
-import {ClientConnection} from "../../../core/connect/ClientConnection";
+import {ClientConn} from "../../../core/client";
 
 // export type ChangeReason = 'minus' | 'plus' | 'enter' | 'blur';
 
 export interface ValueEditorProps {
-  conn?: ClientConnection;
+  conn?: ClientConn;
   keys?: string[];
   value: any;
   desc: PropDesc;

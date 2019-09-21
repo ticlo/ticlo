@@ -1,6 +1,6 @@
 import React from "react";
 import {Button, Tooltip, Dropdown, Input, Checkbox} from "antd";
-import {ClientConnection, ValueState, ValueUpdate} from "../../core/connect/ClientConnection";
+import {ClientConn, ValueState, ValueUpdate} from "../../core/client";
 import {blankPropDesc, FunctionDesc, getDefaultFuncData, PropDesc, PropGroupDesc} from "../../core/block/Descriptor";
 import {translateProperty} from "../../core/util/i18n";
 import {MultiSelectComponent, MultiSelectLoader} from "./MultiSelectComponent";
@@ -92,7 +92,7 @@ class PropertyLoader extends MultiSelectLoader<PropertyEditor> {
 }
 
 interface Props {
-  conn: ClientConnection;
+  conn: ClientConn;
   keys: string[];
   name: string; // name is usually same as propDesc.name, but when it's in group, it will have a number after
   funcDesc: FunctionDesc;

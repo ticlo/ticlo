@@ -1,6 +1,6 @@
 import React from 'react';
 import {DataRendererItem, PureDataRenderer} from "./DataRenderer";
-import {ClientConnection} from "../../core/connect/ClientConnection";
+import {ClientConn} from "../../core/connect/ClientConn";
 import {FunctionDesc} from "../../core/block/Descriptor";
 
 export type ExpandState = 'opened' | 'closed' | 'loading' | 'empty' | 'disabled';
@@ -58,9 +58,9 @@ export abstract class TreeItem<T extends TreeItem<any>> extends DataRendererItem
 
   parent: T;
 
-  connection: ClientConnection;
+  connection: ClientConn;
 
-  getConn(): ClientConnection {
+  getConn(): ClientConn {
     return this.connection;
   }
 

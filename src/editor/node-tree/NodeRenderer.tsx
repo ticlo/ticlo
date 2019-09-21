@@ -4,7 +4,7 @@ import {Dropdown, Button, Input, Icon, Menu, InputNumber} from "antd";
 import {ExpandIcon, ExpandState, TreeItem} from "../../ui/component/Tree";
 import {PureDataRenderer} from "../../ui/component/DataRenderer";
 import {DataMap} from "../../core/util/Types";
-import {ClientConnection, ValueUpdate} from "../../core/connect/ClientConnection";
+import {ClientConn, ValueUpdate} from "../../core/client";
 import {TIcon} from "../icon/Icon";
 import {blankFuncDesc, FunctionDesc, getFuncStyleFromDesc} from "../../core/block/Descriptor";
 import {ClickParam} from "antd/lib/menu";

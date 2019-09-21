@@ -5,7 +5,7 @@ import {DataMap} from "../../core/util/Types";
 import {relative, resolve} from "../../core/util/Path";
 import {translateProperty} from "../../core/util/i18n";
 import {displayValue} from "../../ui/util/Types";
-import {ClientConnection, ValueUpdate} from "../../core/connect/ClientConnection";
+import {ClientConn, ValueUpdate} from "../../core/client";
 import {
   blankFuncDesc,
   blankPropDesc, buildPropDescCache,
@@ -462,7 +462,7 @@ export interface XYWRenderer {
 }
 
 export abstract class BaseBlockItem extends DataRendererItem<XYWRenderer> {
-  conn: ClientConnection;
+  conn: ClientConn;
   stage: Stage;
   x: number = 0;
   y: number = 0;
@@ -483,7 +483,7 @@ export abstract class BaseBlockItem extends DataRendererItem<XYWRenderer> {
 
   abstract get selected(): boolean;
 
-  constructor(connection: ClientConnection, stage: Stage, key: string) {
+  constructor(connection: ClientConn, stage: Stage, key: string) {
     super();
     this.conn = connection;
     this.stage = stage;
@@ -629,7 +629,7 @@ class SubBlockItem extends BaseBlockItem {
 
   parentField: FieldItem;
 
-  constructor(connection: ClientConnection, stage: Stage, key: string, field: FieldItem) {
+  constructor(connection: ClientConn, stage: Stage, key: string, field: FieldItem) {
     super(connection, stage, key);
     this.parentField = field;
     this.startSubscribe();
@@ -745,7 +745,7 @@ export class BlockItem extends BaseBlockItem {
     return null;
   }
 
-  constructor(connection: ClientConnection, stage: Stage, key: string) {
+  constructor(connection: ClientConn, stage: Stage, key: string) {
     super(connection, stage, key);
   }
 

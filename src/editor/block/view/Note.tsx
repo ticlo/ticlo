@@ -1,9 +1,9 @@
 import React from "react";
 import marked from "marked";
 import Dompurify from "dompurify";
-import {ClientConnection} from "../../../core/connect/ClientConnection";
 import {SpecialViewProps} from "./SpecialView";
 import {LazyUpdateComponent, LazyUpdateListener} from "../../../ui/component/LazyUpdateComponent";
+import {ClientConnection} from "../../../core/connect/ClientConnection";
 
 class NoteView extends LazyUpdateComponent<SpecialViewProps, any> {
   static fullView = true;

@@ -14,10 +14,11 @@ import {
   SubscribeRequest,
   WatchRequest, MergedClientRequest
 } from "./ClientRequests";
+import {ClientConn} from "./ClientConn";
 
 export {ValueUpdate, ValueState} from "./ClientRequests";
 
-export abstract class ClientConnection extends Connection {
+export abstract class ClientConnection extends Connection implements ClientConn {
 
   static addEditorDescriptor(id: string, desc: FunctionDesc) {
     DescRequest.editorCache.set(id, desc);

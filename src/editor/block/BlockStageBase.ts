@@ -1,5 +1,5 @@
 import React from "react";
-import {ClientConnection} from "../../core/connect/ClientConnection";
+import {ClientConn} from "../../core/client";
 import {DataMap} from "../../core/util/Types";
 import {DragState} from "rc-dock";
 import {BlockItem, FieldItem, Stage} from "./Field";
@@ -7,7 +7,7 @@ import {forAllPathsBetween} from "../../core/util/Path";
 import {LazyUpdateComponent} from "../../ui/component/LazyUpdateComponent";
 
 export interface StageProps {
-  conn: ClientConnection;
+  conn: ClientConn;
   basePath: string;
   style?: React.CSSProperties;
   onSelect?: (keys: string[]) => void;

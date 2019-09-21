@@ -1,13 +1,13 @@
 import React from "react";
 import {ExpandState} from "../../ui/component/Tree";
 import VirtualList from "../../ui/component/Virtual";
-import {ClientConnection} from "../../core/connect/ClientConnection";
+import {ClientConn} from "../../core/client";
 import {DataMap} from "../../core/util/Types";
 import {NodeTreeItem, NodeTreeRenderer} from "./NodeRenderer";
 
 
 interface Props {
-  conn: ClientConnection;
+  conn: ClientConn;
   basePaths: string[];
   style?: React.CSSProperties;
   hideRoot?: boolean;

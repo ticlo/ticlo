@@ -1,5 +1,5 @@
 import React from "react";
-import {ClientConnection, ValueUpdate} from "../../core/connect/ClientConnection";
+import {ClientConn, ValueUpdate} from "../../core/client";
 import {configDescs, FunctionDesc, PropDesc, PropGroupDesc} from "../../core/block/Descriptor";
 import {MultiSelectComponent, MultiSelectLoader} from "./MultiSelectComponent";
 import {PropertyList} from "./PropertyList";
@@ -53,7 +53,7 @@ class GroupLoader extends MultiSelectLoader<GroupEditor> {
 }
 
 interface Props {
-  conn: ClientConnection;
+  conn: ClientConn;
   keys: string[];
   funcDesc: FunctionDesc;
   groupDesc: PropGroupDesc;

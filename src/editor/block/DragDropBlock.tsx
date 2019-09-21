@@ -1,10 +1,10 @@
 import React from "react";
-import {ClientConnection} from "../../core/connect/ClientConnection";
+import {ClientConn} from "../../core/client";
 import {Modal, Input, Icon} from "antd";
 import {DragState} from "rc-dock/lib";
 
 
-export function onDragBlockOver(conn: ClientConnection, e: DragState) {
+export function onDragBlockOver(conn: ClientConn, e: DragState) {
   let blockData = DragState.getData('blockData', conn);
 
   if (blockData && blockData.hasOwnProperty('#is')) {
@@ -14,7 +14,7 @@ export function onDragBlockOver(conn: ClientConnection, e: DragState) {
 
 type CreateBlockCallback = (name: string, data: {[key: string]: any}) => void;
 
-export function onDropBlock(conn: ClientConnection, e: DragState, createBlock: CreateBlockCallback, bgElement: HTMLElement) {
+export function onDropBlock(conn: ClientConn, e: DragState, createBlock: CreateBlockCallback, bgElement: HTMLElement) {
   let blockData = DragState.getData('blockData', conn);
   if (blockData && blockData.hasOwnProperty('#is')) {
     let rect = bgElement.getBoundingClientRect();

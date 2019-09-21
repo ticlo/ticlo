@@ -1,9 +1,9 @@
 import React from "react";
-import {ClientConnection} from "../../../core/connect/ClientConnection";
+import {ClientConn} from "../../../core/client";
 
 
 export interface SpecialViewProps {
-  conn: ClientConnection;
+  conn: ClientConn;
   path: string;
 
   // directly notify the model about the height of the special view

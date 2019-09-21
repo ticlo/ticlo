@@ -1,5 +1,5 @@
 import React from "react";
-import {ClientConnection} from "../../core/client";
+import {ClientConn} from "../../core/client";
 import {TypeView} from "./TypeView";
 
 let _lastType: string;
@@ -32,7 +32,7 @@ export function addRecentType(type: string) {
 }
 
 interface Props {
-  conn: ClientConnection;
+  conn: ClientConn;
   recent?: boolean;
   types?: string[];
   style?: React.CSSProperties;

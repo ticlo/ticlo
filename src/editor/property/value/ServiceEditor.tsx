@@ -1,5 +1,5 @@
 import React, {ReactElement} from "react";
-import {ClientConnection} from "../../../core/connect/ClientConnection";
+import {ClientConn} from "../../../core/client";
 import {getDefaultFuncData, PropDesc} from "../../../core/block/Descriptor";
 import {arrayEqual} from "../../../core/util/Compare";
 import {Button, Icon, Input, Select} from "antd";
@@ -10,7 +10,7 @@ import {PropertyList} from "../PropertyList";
 const {Option} = Select;
 
 export interface Props {
-  conn?: ClientConnection;
+  conn?: ClientConn;
   keys: string[];
   value: any;
   bindingPath: string;
