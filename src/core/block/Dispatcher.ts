@@ -24,7 +24,7 @@ export interface BlockBindingSource extends ValueDispatcher<any>, Destroyable {
   // getProperty(): BlockProperty;
 }
 
-export abstract class ValueDispatcher<T> implements Dispatcher<T> {
+export class ValueDispatcher<T> implements Dispatcher<T> {
 
   _listeners: Set<Listener<T>> = new Set<Listener<T>>();
   _updating = false;
