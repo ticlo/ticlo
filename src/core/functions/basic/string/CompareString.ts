@@ -18,10 +18,16 @@ export class StartWithFunction extends PureFunction {
   run(): any {
     let v0 = this._data.getValue('0');
     let v1 = this._data.getValue('1');
-    if (typeof v0 !== 'string' || typeof v1 !== 'string') {
-      this._data.output(undefined);
-    } else {
+    if (Array.isArray(v0)) {
+      if (v0.length) {
+        this._data.output(Object.is(v0[0], v1));
+      } else {
+        this._data.output(false);
+      }
+    } else if (typeof v0 === 'string' && typeof v1 === 'string') {
       this._data.output(v0.startsWith(v1));
+    } else {
+      this._data.output(undefined);
     }
   }
 }
@@ -36,10 +42,16 @@ export class EndWithFunction extends PureFunction {
   run(): any {
     let v0 = this._data.getValue('0');
     let v1 = this._data.getValue('1');
-    if (typeof v0 !== 'string' || typeof v1 !== 'string') {
-      this._data.output(undefined);
-    } else {
+    if (Array.isArray(v0)) {
+      if (v0.length) {
+        this._data.output(Object.is(v0[v0.length - 1], v1));
+      } else {
+        this._data.output(false);
+      }
+    } else if (typeof v0 === 'string' && typeof v1 === 'string') {
       this._data.output(v0.endsWith(v1));
+    } else {
+      this._data.output(undefined);
     }
   }
 }
@@ -48,4 +60,26 @@ Types.add(EndWithFunction, {
   ...descriptor,
   name: 'end-with',
   icon: 'txt:~a'
+});
+
+
+export class ContainFunction extends PureFunction {
+  run(): any {
+    let v0 = this._data.getValue('0');
+    let v1 = this._data.getValue('1');
+
+    if (Array.isArray(v0)) {
+      this._data.output(v0.includes(v1));
+    } else if (typeof v0 === 'string' && typeof v1 === 'string') {
+      this._data.output(v0.includes(v1));
+    } else {
+      this._data.output(undefined);
+    }
+  }
+}
+
+Types.add(ContainFunction, {
+  ...descriptor,
+  name: 'contain',
+  icon: 'txt:.a.'
 });

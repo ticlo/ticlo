@@ -22,7 +22,17 @@ describe("CompareString", function () {
     Root.run();
     assert.equal(aBlock.getValue('output'), false);
 
+    // array input
+    aBlock.setValue('0', ['ab', 'c']);
+    Root.run();
+    assert.equal(aBlock.getValue('output'), true);
+
+    aBlock.setValue('0', []);
+    Root.run();
+    assert.equal(aBlock.getValue('output'), false);
+
     // invalid input
+    aBlock.setValue('0', 'a');
     aBlock.setValue('1', null);
     Root.run();
     assert.equal(aBlock.getValue('output'), undefined);
@@ -52,7 +62,17 @@ describe("CompareString", function () {
     Root.run();
     assert.equal(aBlock.getValue('output'), false);
 
+    // array input
+    aBlock.setValue('0', ['a', 'bc']);
+    Root.run();
+    assert.equal(aBlock.getValue('output'), true);
+
+    aBlock.setValue('0', []);
+    Root.run();
+    assert.equal(aBlock.getValue('output'), false);
+
     // invalid input
+    aBlock.setValue('0', 'a');
     aBlock.setValue('1', {});
     Root.run();
     assert.equal(aBlock.getValue('output'), undefined);
@@ -62,4 +82,44 @@ describe("CompareString", function () {
     Root.run();
     assert.equal(aBlock.getValue('output'), undefined);
   });
+
+  it('contain', function () {
+    let job = new Job();
+
+    let aBlock = job.createBlock('a');
+    aBlock._load({
+      '#is': 'contain',
+      '0': 'abc',
+      '1': 'b'
+    });
+
+    Root.run();
+
+    assert.equal(aBlock.getValue('output'), true);
+
+    aBlock.setValue('1', 'd');
+    Root.run();
+    assert.equal(aBlock.getValue('output'), false);
+
+    // array input
+    aBlock.setValue('0', ['a', 'd', 'g']);
+    Root.run();
+    assert.equal(aBlock.getValue('output'), true);
+
+    aBlock.setValue('0', []);
+    Root.run();
+    assert.equal(aBlock.getValue('output'), false);
+
+    // invalid input
+    aBlock.setValue('0', 'a');
+    aBlock.setValue('1', {});
+    Root.run();
+    assert.equal(aBlock.getValue('output'), undefined);
+
+    // invalid input
+    aBlock.setValue('0', false);
+    Root.run();
+    assert.equal(aBlock.getValue('output'), undefined);
+  });
+
 });
