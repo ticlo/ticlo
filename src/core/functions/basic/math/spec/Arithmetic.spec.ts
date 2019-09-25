@@ -1,6 +1,6 @@
 import {assert} from "chai";
-import "../Math";
-import {Job, Root, Block} from "../../../block/Block";
+import "../Arithmetic";
+import {Job, Root, Block} from "../../../../block/Block";
 
 describe("Math", function () {
 

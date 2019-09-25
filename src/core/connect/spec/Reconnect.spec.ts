@@ -1,7 +1,7 @@
 import {assert} from "chai";
 import {Block, Root} from "../../block/Block";
 import {makeLocalConnection} from "../LocalConnection";
-import "../../functions/basic/Math";
+import "../../functions/basic/math/Arithmetic";
 import {AsyncClientPromise} from "./AsyncClientPromise";
 import {shouldHappen, shouldReject} from "../../util/test-util";
 import {JsFunction} from "../../functions/script/Js";

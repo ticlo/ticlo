@@ -1,0 +1,65 @@
+import {assert} from "chai";
+import "../CompareString";
+import {Job, Root, Block} from "../../../../block/Block";
+
+describe("CompareString", function () {
+
+  it('start with', function () {
+    let job = new Job();
+
+    let aBlock = job.createBlock('a');
+    aBlock._load({
+      '#is': 'start-with',
+      '0': 'abc',
+      '1': 'ab'
+    });
+
+    Root.run();
+
+    assert.equal(aBlock.getValue('output'), true);
+
+    aBlock.setValue('0', 'aabc');
+    Root.run();
+    assert.equal(aBlock.getValue('output'), false);
+
+    // invalid input
+    aBlock.setValue('1', null);
+    Root.run();
+    assert.equal(aBlock.getValue('output'), undefined);
+
+    // invalid input
+    aBlock.setValue('0', 0);
+    Root.run();
+    assert.equal(aBlock.getValue('output'), undefined);
+  });
+
+
+  it('end with', function () {
+    let job = new Job();
+
+    let aBlock = job.createBlock('a');
+    aBlock._load({
+      '#is': 'end-with',
+      '0': 'abc',
+      '1': 'bc'
+    });
+
+    Root.run();
+
+    assert.equal(aBlock.getValue('output'), true);
+
+    aBlock.setValue('0', 'abcc');
+    Root.run();
+    assert.equal(aBlock.getValue('output'), false);
+
+    // invalid input
+    aBlock.setValue('1', {});
+    Root.run();
+    assert.equal(aBlock.getValue('output'), undefined);
+
+    // invalid input
+    aBlock.setValue('0', false);
+    Root.run();
+    assert.equal(aBlock.getValue('output'), undefined);
+  });
+});

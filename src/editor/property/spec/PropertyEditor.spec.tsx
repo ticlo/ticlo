@@ -4,7 +4,7 @@ import React from 'react';
 import "../../../editor";
 import {PropertyEditor} from "../PropertyEditor";
 import {Block, Root} from "../../../core/block/Block";
-import "../../../core/functions/basic/Math";
+import "../../../core/functions/basic/math/Arithmetic";
 import {destroyLastLocalConnection, makeLocalConnection} from "../../../core/connect/LocalConnection";
 import {shouldHappen, shouldReject} from "../../../core/util/test-util";
 import ReactDOM from "react-dom";

@@ -1,7 +1,7 @@
 import {assert} from "chai";
 
 import {Block, Job} from "../../block/Block";
-import "../../functions/basic/Math";
+import "../../functions/basic/math/Arithmetic";
 import {findPropertyForNewBlock, renameProperty} from "../PropertyName";
 
 describe("PropertyUtil", function () {

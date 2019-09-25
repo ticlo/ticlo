@@ -1,7 +1,7 @@
 import {assert} from "chai";
 import {Block, Job, Root} from "../../block/Block";
 import {makeLocalConnection} from "../LocalConnection";
-import "../../functions/basic/Math";
+import "../../functions/basic/math/Arithmetic";
 import {AsyncClientPromise} from "./AsyncClientPromise";
 import {VoidListeners, TestFunctionRunner} from "../../block/spec/TestFunction";
 import {FunctionDesc} from "../../block/Descriptor";

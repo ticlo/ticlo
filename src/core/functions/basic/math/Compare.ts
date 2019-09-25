@@ -6,7 +6,7 @@ const descriptor: FunctionDesc = {
   name: '',
   icon: '',
   recipient: '0',
-  category: 'condition',
+  category: 'compare',
   properties: [
     {name: '0', type: 'number', visible: 'high'},
     {name: '1', type: 'number', visible: 'high'},
@@ -116,7 +116,7 @@ export class GreaterEqualFunction extends PureFunction {
     if (v0 == null || v1 == null) {
       this._data.output(undefined);
     } else {
-      this._data.output(v0 > v1);
+      this._data.output(v0 >= v1);
     }
   }
 }
@@ -135,7 +135,7 @@ export class LessEqualFunction extends PureFunction {
     if (v0 == null || v1 == null) {
       this._data.output(undefined);
     } else {
-      this._data.output(v0 < v1);
+      this._data.output(v0 <= v1);
     }
   }
 }

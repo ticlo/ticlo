@@ -1,6 +1,6 @@
-import {Types} from "../../block/Type";
-import {PureFunction, FunctionData} from "../../block/BlockFunction";
-import {FunctionDesc} from "../../block/Descriptor";
+import {Types} from "../../../block/Type";
+import {PureFunction, FunctionData} from "../../../block/BlockFunction";
+import {FunctionDesc} from "../../../block/Descriptor";
 
 const descriptorN: FunctionDesc = {
   name: '',

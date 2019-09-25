@@ -1,7 +1,7 @@
 import {assert} from "chai";
 import {Job, Root} from "../../block/Block";
 import {TestFunctionRunner, TestAsyncFunctionPromise} from "../../block/spec/TestFunction";
-import "../../functions/basic/Math";
+import "../../functions/basic/math/Arithmetic";
 import "../MapFunction";
 import {DataMap} from "../../util/Types";
 import {ErrorEvent} from "../../block/Event";

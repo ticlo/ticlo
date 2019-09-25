@@ -1,7 +1,7 @@
 import {assert} from "chai";
 import {Job, Root, Block} from "../Block";
 import {Dispatcher} from "../Dispatcher";
-import "../../functions/basic/Math";
+import "../../functions/basic/math/Arithmetic";
 
 describe("Block", function () {
 

@@ -1,17 +1,18 @@
 import {assert} from "chai";
-import "../String";
-import {Job, Root, Block} from "../../../block/Block";
+import "../Join";
+import {Job, Root, Block} from "../../../../block/Block";
 
-describe("String", function () {
+describe("Join", function () {
 
   it('basic join', function () {
     let job = new Job();
 
     let aBlock = job.createBlock('a');
-
-    aBlock.setValue('#is', 'join');
-    aBlock.setValue('0', 2);
-    aBlock.setValue('1', 'a');
+    aBlock._load({
+      '#is': 'join',
+      '0': 2,
+      '1': 'a'
+    });
 
     Root.run();
 
