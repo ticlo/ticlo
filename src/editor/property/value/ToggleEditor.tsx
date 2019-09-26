@@ -1,6 +1,5 @@
 import React from "react";
 import {Switch} from "antd";
-import {PropDesc} from "../../../core/block/Descriptor";
 import {ValueEditorProps} from "./ValueEditorBase";
 
 export class ToggleEditor extends React.PureComponent<ValueEditorProps, any> {
@@ -30,7 +29,7 @@ export class ToggleEditor extends React.PureComponent<ValueEditorProps, any> {
       }
     }
     return (
-      <Switch checked={value} disabled={locked || onChange == null}
+      <Switch checked={Boolean(value)} disabled={locked || onChange == null}
               unCheckedChildren={unCheckedChildren} checkedChildren={checkedChildren}
               onChange={this.onValueChange}/>
     );
