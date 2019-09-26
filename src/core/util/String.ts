@@ -86,3 +86,9 @@ export function getTailingNumber(str: string): number {
   }
   return -1;
 }
+
+const colorPattern = /^#[a-fA-F0-9]{3,8}|rgba?\([\d ,.]{5,}\)$/;
+
+export function isColorStr(str: string) {
+  return colorPattern.test(str);
+}

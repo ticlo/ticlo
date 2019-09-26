@@ -1,5 +1,5 @@
 import {assert} from "chai";
-import {getTailingNumber, smartStrCompare} from '../String';
+import {getTailingNumber, isColorStr, smartStrCompare} from '../String';
 
 describe("String", function () {
 
@@ -31,5 +31,15 @@ describe("String", function () {
     assert.equal(getTailingNumber('a1'), 1);
     assert.equal(getTailingNumber('a02'), 2);
     assert.equal(getTailingNumber('a'), -1);
+  });
+
+  it('isColor', function () {
+    assert.isTrue(isColorStr('#aaa'));
+    assert.isTrue(isColorStr('#FFFFFFFF'));
+    assert.isTrue(isColorStr('rgb(1, 2, 3)'));
+    assert.isTrue(isColorStr('rgba(1,2,3,0.5)'));
+
+    assert.isFalse(isColorStr(' #aaa'));
+    assert.isFalse(isColorStr('rgb()'));
   });
 });
