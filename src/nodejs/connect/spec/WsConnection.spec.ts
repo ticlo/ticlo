@@ -69,7 +69,7 @@ describe("WsConnect", function () {
 
     addTestTypes('B', 4000);
 
-    await shouldHappen(() => client.watchDesc('B3999'), 500);
+    await shouldHappen(() => client.watchDesc('B3999'), 1500);
 
     client.destroy();
 
