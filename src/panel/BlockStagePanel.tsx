@@ -53,7 +53,7 @@ export class BlockStagePanel extends React.PureComponent<Props, State> {
     return {
       element: this._rootNode,
       beforeDivider: [{size: blockStage.offsetWidth}],
-      afterDivider: [{size: propertyList.offsetWidth, minSize: 200}],
+      afterDivider: [{size: propertyList.offsetWidth, minSize: 216}],
     };
   };
 
