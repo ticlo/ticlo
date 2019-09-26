@@ -1,4 +1,5 @@
 @import "AddMoreProperty";
+@import "value/DynamicEditor";
 
 .ticl-property-group {
   width: 100%;
@@ -9,7 +10,7 @@
 .ticl-property {
   position: relative;
   line-height: 19px;
-  padding: 2px 6px;
+  padding: 2px 0 2px 6px;
   display: flex;
   flex-wrap: wrap;
   //&:first-child {
@@ -28,7 +29,7 @@
   & > .ticl-property-list {
     width: 100%;
     border: solid 1px @ticl-color-pr0-light;
-    padding: 8px;
+    padding: 8px 0 8px 8px;
     margin: 4px;
     border-radius: 0 12px 12px;
   }
@@ -73,9 +74,21 @@
 
 .ticl-property-value {
   overflow: hidden;
+  padding-right: 14px;
   flex: 1 1 calc(75% - 30px);
   min-width: calc(100% - 160px);
 
+  & .ant-input-disabled {
+    border-color: @border-disabled-color;
+    resize: none;
+  }
+
+  & .ant-btn[disabled] {
+    border-color: @border-disabled-color;
+  }
+}
+
+.ticl-property-value, .ticl-dynamic-editor {
   & > .ant-select {
     width: 100%;
   }
@@ -89,15 +102,6 @@
   & > textarea.ant-input {
     padding: 0 7px;
     transition: none;
-  }
-
-  & .ant-input-disabled {
-    border-color: @border-disabled-color;
-    resize: none;
-  }
-
-  & .ant-btn[disabled] {
-    border-color: @border-disabled-color;
   }
 }
 

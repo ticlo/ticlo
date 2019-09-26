@@ -28,19 +28,16 @@ import {Popup, Menu, SubMenuItem} from "../component/ClickPopup";
 import {ServiceEditor} from "./value/ServiceEditor";
 import {WorkerEditor} from "./value/WorkerEditor";
 import {getTailingNumber} from "../../core/util/String";
+import {DynamicEditor, dynamicEditorMap} from "./value/DynamicEditor";
 
 const typeEditorMap: {[key: string]: any} = {
-  'number': NumberEditor,
-  'string': StringEditor,
-  'toggle': ToggleEditor,
+  ...dynamicEditorMap,
   'select': SelectEditor,
   'password': PasswordEditor,
-  'color': ColorEditor,
-  'date': DateEditor,
-  'date-range': DateRangeEditor,
   'radio-button': RadioButtonEditor,
   'type': TypeEditor,
   'worker': WorkerEditor,
+  'any': DynamicEditor,
 };
 
 class PropertyLoader extends MultiSelectLoader<PropertyEditor> {
@@ -490,6 +487,7 @@ export class PropertyEditor extends MultiSelectComponent<Props, State, PropertyL
     for (let key of keys) {
       conn.setValue(`${key}.${name}`, undefined);
     }
+    this.closeMenu();
   };
 
   onInsertIndex = () => {

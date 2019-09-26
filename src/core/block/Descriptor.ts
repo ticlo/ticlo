@@ -57,6 +57,9 @@ export interface PropDesc {
   // worker
   inputs?: (PropDesc | PropGroupDesc)[];
   outputs?: (PropDesc | PropGroupDesc)[];
+
+  // any
+  types?: ValueType[];
 }
 
 export interface PropGroupDesc {
