@@ -1,4 +1,4 @@
-import ReactDOM from "react-dom";
+import ReactDOM from 'react-dom';
 
 function loadOneCss(url: string) {
   let head = document.querySelector('head');
@@ -46,7 +46,13 @@ export function removeLastTemplate() {
 
 // replace "div.cls1.cls2" to div[contains(@class,'cls1')][contains(@class,'cls2')]
 function xpathReplacer(match: string, g1: string, g2: string, str: string): string {
-  return g1 + g2.split('.').map((str => `[contains(@class,'${str}')]`)).join('');
+  return (
+    g1 +
+    g2
+      .split('.')
+      .map((str) => `[contains(@class,'${str}')]`)
+      .join('')
+  );
 }
 
 // select a single element with a simplified xpath

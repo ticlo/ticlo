@@ -1,16 +1,21 @@
-import {Types} from "../../../block/Type";
-import {PureFunction, FunctionData} from "../../../block/BlockFunction";
-import {FunctionDesc} from "../../../block/Descriptor";
+import {Types} from '../../../block/Type';
+import {PureFunction, FunctionData} from '../../../block/BlockFunction';
+import {FunctionDesc} from '../../../block/Descriptor';
 
 const descriptorN: FunctionDesc = {
   name: '',
   icon: '',
   properties: [
-    {name: '', type: 'group', defaultLen: 2, properties: [{name: '', type: 'number', visible: 'high'}]},
+    {
+      name: '',
+      type: 'group',
+      defaultLen: 2,
+      properties: [{name: '', type: 'number', visible: 'high'}]
+    },
     {name: 'output', type: 'number', readonly: true}
   ],
   recipient: '0',
-  category: 'math',
+  category: 'math'
 };
 const descriptor2: FunctionDesc = {
   name: '',
@@ -21,9 +26,8 @@ const descriptor2: FunctionDesc = {
     {name: 'output', type: 'number', readonly: true}
   ],
   recipient: '0',
-  category: 'math',
+  category: 'math'
 };
-
 
 export class AddFunction extends PureFunction {
   run(): any {
@@ -52,9 +56,8 @@ Types.add(AddFunction, {
   ...descriptorN,
   name: 'add',
   icon: 'fas:plus',
-  order: 0,
+  order: 0
 });
-
 
 export class MultiplyFunction extends PureFunction {
   run(): any {
@@ -83,9 +86,8 @@ Types.add(MultiplyFunction, {
   ...descriptorN,
   name: 'multiply',
   icon: 'fas:times',
-  order: 2,
+  order: 2
 });
-
 
 export class SubtractFunction extends PureFunction {
   run(): any {
@@ -103,9 +105,8 @@ Types.add(SubtractFunction, {
   ...descriptor2,
   name: 'subtract',
   icon: 'fas:minus',
-  order: 1,
+  order: 1
 });
-
 
 export class DivideFunction extends PureFunction {
   run(): any {
@@ -123,5 +124,5 @@ Types.add(DivideFunction, {
   ...descriptor2,
   name: 'divide',
   icon: 'fas:divide',
-  order: 3,
+  order: 3
 });

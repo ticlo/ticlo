@@ -1,9 +1,9 @@
-import {assert} from "chai";
-import {TestAsyncFunctionPromise, TestFunctionRunner} from "./TestFunction";
-import {Job, Root} from "../Block";
-import {ErrorEvent} from "../Event";
+import {assert} from 'chai';
+import {TestAsyncFunctionPromise, TestFunctionRunner} from './TestFunction';
+import {Job, Root} from '../Block';
+import {ErrorEvent} from '../Event';
 
-describe("SyncMode", function () {
+describe('SyncMode', function() {
   beforeEach(() => {
     TestFunctionRunner.clearLog();
   });
@@ -12,8 +12,7 @@ describe("SyncMode", function () {
     TestFunctionRunner.clearLog();
   });
 
-  it('basic', function () {
-
+  it('basic', function() {
     let job = new Job();
 
     let block = job.createBlock('obj');
@@ -22,13 +21,10 @@ describe("SyncMode", function () {
     block.setValue('#is', 'test-runner');
     block.setValue('#sync', true);
     block.setValue('#call', {});
-    assert.deepEqual(TestFunctionRunner.logs, ['obj'],
-      'sync mode should run function instantly when called');
-
+    assert.deepEqual(TestFunctionRunner.logs, ['obj'], 'sync mode should run function instantly when called');
   });
 
-  it('chained', function () {
-
+  it('chained', function() {
     let job = new Job();
 
     let block1 = job.createBlock('obj1');
@@ -52,19 +48,21 @@ describe("SyncMode", function () {
     block3.setBinding('#call', '##.obj2.#emit');
 
     block1.setValue('#call', {});
-    assert.deepEqual(TestFunctionRunner.popLogs(), ['obj1', 'obj2', 'obj3'],
-      'sync mode should run chained functions instantly when called');
+    assert.deepEqual(
+      TestFunctionRunner.popLogs(),
+      ['obj1', 'obj2', 'obj3'],
+      'sync mode should run chained functions instantly when called'
+    );
 
     block1.setValue('#call', {});
-    assert.deepEqual(TestFunctionRunner.popLogs(), ['obj1', 'obj3'],
-      'sync call should skip block that doesn\'t need update');
+    assert.deepEqual(
+      TestFunctionRunner.popLogs(),
+      ['obj1', 'obj3'],
+      "sync call should skip block that doesn't need update"
+    );
 
     block1.setValue('#call', new ErrorEvent(''));
-    assert.isEmpty(TestFunctionRunner.logs,
-      'error should not trigger chained blocks');
-    assert.instanceOf(block3.getValue('#call'), ErrorEvent,
-      'error should get passed through the chain');
+    assert.isEmpty(TestFunctionRunner.logs, 'error should not trigger chained blocks');
+    assert.instanceOf(block3.getValue('#call'), ErrorEvent, 'error should get passed through the chain');
   });
-
-
 });

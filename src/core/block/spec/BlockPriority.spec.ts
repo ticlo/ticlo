@@ -1,9 +1,8 @@
-import {assert} from "chai";
-import {TestFunctionRunner} from "./TestFunction";
-import {Job, Root} from "../Block";
+import {assert} from 'chai';
+import {TestFunctionRunner} from './TestFunction';
+import {Job, Root} from '../Block';
 
-describe("BlockPriority", function () {
-
+describe('BlockPriority', function() {
   beforeEach(() => {
     TestFunctionRunner.clearLog();
   });
@@ -12,8 +11,7 @@ describe("BlockPriority", function () {
     TestFunctionRunner.clearLog();
   });
 
-  it('basic function order', function () {
-
+  it('basic function order', function() {
     let job = new Job();
 
     let p0 = job.createBlock('p0');
@@ -32,9 +30,11 @@ describe("BlockPriority", function () {
     p2.setValue('#is', 'test-runner');
     Root.run();
 
-    assert.deepEqual(TestFunctionRunner.popLogs(),
+    assert.deepEqual(
+      TestFunctionRunner.popLogs(),
       ['p3', 'p0', 'p1', 'p2'],
-      'function should run in the same order as type is set');
+      'function should run in the same order as type is set'
+    );
 
     assert.deepEqual(TestFunctionRunner.popLogs(), [], 'logs should be cleared');
 
@@ -44,9 +44,11 @@ describe("BlockPriority", function () {
     p0.updateValue('#call', {});
     Root.run();
 
-    assert.deepEqual(TestFunctionRunner.popLogs(),
+    assert.deepEqual(
+      TestFunctionRunner.popLogs(),
       ['p3', 'p1', 'p2', 'p0'],
-      'function should run in the same order as they are called');
+      'function should run in the same order as they are called'
+    );
 
     p1.setValue('#priority', 1);
     p3.setValue('#priority', 3);
@@ -59,13 +61,14 @@ describe("BlockPriority", function () {
     p0.updateValue('#call', {});
     Root.run();
 
-    assert.deepEqual(TestFunctionRunner.popLogs(),
+    assert.deepEqual(
+      TestFunctionRunner.popLogs(),
       ['p0', 'p1', 'p2', 'p3'],
-      'function should run in the same order as their priority');
-
+      'function should run in the same order as their priority'
+    );
   });
 
-  it('order from binding', function () {
+  it('order from binding', function() {
     let job = new Job();
 
     let p2 = job.createBlock('p2');
@@ -95,13 +98,14 @@ describe("BlockPriority", function () {
 
     p0.updateValue('input', {});
     Root.run();
-    assert.deepEqual(TestFunctionRunner.popLogs(),
+    assert.deepEqual(
+      TestFunctionRunner.popLogs(),
       ['p0', 'p1', 'p2', 'p3'],
-      'function should run in the same order as binding chain');
-
+      'function should run in the same order as binding chain'
+    );
   });
 
-  it('priority change during resolving', function () {
+  it('priority change during resolving', function() {
     let job = new Job();
 
     let p0 = job.createBlock('p0');
@@ -129,8 +133,10 @@ describe("BlockPriority", function () {
 
     p1.setValue('#call', {});
     Root.run();
-    assert.deepEqual(TestFunctionRunner.popLogs(),
+    assert.deepEqual(
+      TestFunctionRunner.popLogs(),
       ['p1', 'p0', 'p2'],
-      'next priority to run in resolver changes during iteration');
+      'next priority to run in resolver changes during iteration'
+    );
   });
 });

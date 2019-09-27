@@ -1,8 +1,7 @@
-import {TreeItem} from "../../ui/component/Tree";
-import {ClientConn} from "../../core/client";
-import {FunctionDesc} from "../../core/block/Descriptor";
-import {OnTypeClick} from "./TypeView";
-
+import {TreeItem} from '../../ui/component/Tree';
+import {ClientConn} from '../../core/client';
+import {FunctionDesc} from '../../core/block/Descriptor';
+import {OnTypeClick} from './TypeView';
 
 export class TypeTreeItem extends TreeItem<TypeTreeItem> {
   root: TypeTreeRoot;
@@ -26,7 +25,7 @@ export class TypeTreeItem extends TreeItem<TypeTreeItem> {
     if (typeof b.desc.order !== 'number') {
       return -1;
     }
-    return (a.desc.order - b.desc.order);
+    return a.desc.order - b.desc.order;
   }
 
   constructor(parent: TypeTreeItem, root: TypeTreeRoot, key: string, name?: string, desc?: FunctionDesc, data?: any) {
@@ -126,7 +125,7 @@ export class TypeTreeItem extends TreeItem<TypeTreeItem> {
         child.addToList(filterdChildren, filter);
       }
 
-      let strongFilter = (filter.length > 1 || filter.charCodeAt(0) > 128);
+      let strongFilter = filter.length > 1 || filter.charCodeAt(0) > 128;
 
       if (filterdChildren.length) {
         list.push(this);
@@ -143,12 +142,10 @@ export class TypeTreeItem extends TreeItem<TypeTreeItem> {
         this.opened = 'closed';
       }
     }
-
   }
 }
 
 export class TypeTreeRoot extends TypeTreeItem {
-
   showPreset: boolean;
   onTypeClick: OnTypeClick;
   filter: (desc: FunctionDesc) => boolean;
@@ -186,7 +183,13 @@ export class TypeTreeRoot extends TypeTreeItem {
     }
   };
 
-  constructor(conn: ClientConn, onListChange: () => void, onTypeClick?: OnTypeClick, showPreset?: boolean, filter?: (desc: FunctionDesc) => boolean) {
+  constructor(
+    conn: ClientConn,
+    onListChange: () => void,
+    onTypeClick?: OnTypeClick,
+    showPreset?: boolean,
+    filter?: (desc: FunctionDesc) => boolean
+  ) {
     super(null, null, '');
     this.level = -1;
     this.root = this;

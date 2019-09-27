@@ -1,9 +1,9 @@
-import {assert} from "chai";
-import {Job} from "../Block";
-import {BlockIO} from "../BlockProperty";
+import {assert} from 'chai';
+import {Job} from '../Block';
+import {BlockIO} from '../BlockProperty';
 
-describe("Block Child Watch", function () {
-  it('basic', function () {
+describe('Block Child Watch', function() {
+  it('basic', function() {
     let job = new Job();
 
     let watchLog: any[] = [];

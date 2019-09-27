@@ -1,10 +1,9 @@
-import {assert} from "chai";
-import "../CompareString";
-import {Job, Root, Block} from "../../../../block/Block";
+import {assert} from 'chai';
+import '../CompareString';
+import {Job, Root, Block} from '../../../../block/Block';
 
-describe("CompareString", function () {
-
-  it('start with', function () {
+describe('CompareString', function() {
+  it('start with', function() {
     let job = new Job();
 
     let aBlock = job.createBlock('a');
@@ -43,8 +42,7 @@ describe("CompareString", function () {
     assert.equal(aBlock.getValue('output'), undefined);
   });
 
-
-  it('end with', function () {
+  it('end with', function() {
     let job = new Job();
 
     let aBlock = job.createBlock('a');
@@ -83,7 +81,7 @@ describe("CompareString", function () {
     assert.equal(aBlock.getValue('output'), undefined);
   });
 
-  it('contain', function () {
+  it('contain', function() {
     let job = new Job();
 
     let aBlock = job.createBlock('a');
@@ -121,5 +119,4 @@ describe("CompareString", function () {
     Root.run();
     assert.equal(aBlock.getValue('output'), undefined);
   });
-
 });

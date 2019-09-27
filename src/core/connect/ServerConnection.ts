@@ -1,27 +1,27 @@
-import {Connection, ConnectionSendingData, ConnectionSend} from "./Connection";
+import {Connection, ConnectionSendingData, ConnectionSend} from './Connection';
 import {
   BlockIO,
   BlockProperty,
   BlockPropertyEvent,
   BlockPropertySubscriber,
   HelperProperty
-} from "../block/BlockProperty";
-import {DataMap, isSavedBlock, measureObjSize, truncateData} from "../util/Types";
-import {Root, Block, BlockChildWatch} from "../block/Block";
-import {BlockBindingSource, Dispatcher, Listener, ValueDispatcher} from "../block/Dispatcher";
-import {Type, Types, DescListener} from "../block/Type";
-import {FunctionDesc, PropDesc, PropGroupDesc} from "../block/Descriptor";
-import {propRelative} from "../util/Path";
+} from '../block/BlockProperty';
+import {DataMap, isSavedBlock, measureObjSize, truncateData} from '../util/Types';
+import {Root, Block, BlockChildWatch} from '../block/Block';
+import {BlockBindingSource, Dispatcher, Listener, ValueDispatcher} from '../block/Dispatcher';
+import {Type, Types, DescListener} from '../block/Type';
+import {FunctionDesc, PropDesc, PropGroupDesc} from '../block/Descriptor';
+import {propRelative} from '../util/Path';
 import {
   insertGroupProperty,
   moveGroupProperty,
   removeGroupProperty,
   setGroupLength
-} from "../property-api/GroupProperty";
-import {findPropertyForNewBlock} from "../property-api/PropertyName";
-import {hideProperties, moveShownProperty, showProperties} from "../property-api/PropertyShowHide";
-import {addMoreProperty, moveMoreProperty, removeMoreProperty} from "../property-api/MoreProperty";
-import {WorkerEditor} from "../worker/WorkerEditor";
+} from '../property-api/GroupProperty';
+import {findPropertyForNewBlock} from '../property-api/PropertyName';
+import {hideProperties, moveShownProperty, showProperties} from '../property-api/PropertyShowHide';
+import {addMoreProperty, moveMoreProperty, removeMoreProperty} from '../property-api/MoreProperty';
+import {WorkerEditor} from '../worker/WorkerEditor';
 
 class ServerRequest extends ConnectionSendingData {
   id: string;
@@ -57,7 +57,7 @@ class ServerSubscribe extends ServerRequest implements BlockPropertySubscriber, 
   onSourceChange(prop: Dispatcher<any>) {
     if (prop !== this.property) {
       this.connection.close(this.id);
-      this.connection.sendError(this.id, "source changed");
+      this.connection.sendError(this.id, 'source changed');
     }
   }
 
@@ -71,7 +71,7 @@ class ServerSubscribe extends ServerRequest implements BlockPropertySubscriber, 
     this.connection.addSend(this);
   }
 
-  getSendingData(): {data: DataMap, size: number} {
+  getSendingData(): {data: DataMap; size: number} {
     if (!this.property) {
       return {data: null, size: 0};
     }
@@ -159,7 +159,7 @@ class ServerWatch extends ServerRequest implements BlockChildWatch, Listener<any
   onSourceChange(prop: Dispatcher<any>): void {
     if (prop !== this.property) {
       this.connection.close(this.id);
-      this.connection.sendError(this.id, "source changed");
+      this.connection.sendError(this.id, 'source changed');
     }
   }
 
@@ -167,7 +167,7 @@ class ServerWatch extends ServerRequest implements BlockChildWatch, Listener<any
   onChange(val: any): void {
     if (val !== this.block) {
       this.connection.close(this.id);
-      this.connection.sendError(this.id, "block changed");
+      this.connection.sendError(this.id, 'block changed');
     }
   }
 
@@ -192,7 +192,7 @@ class ServerWatch extends ServerRequest implements BlockChildWatch, Listener<any
     }
   }
 
-  getSendingData(): {data: DataMap, size: number} {
+  getSendingData(): {data: DataMap; size: number} {
     let changes: {[key: string]: string};
     if (this._pendingChanges) {
       changes = this._pendingChanges;
@@ -241,7 +241,7 @@ class ServerDescWatcher extends ServerRequest implements DescListener {
     this.connection.addSend(this);
   }
 
-  getSendingData(): {data: DataMap, size: number} {
+  getSendingData(): {data: DataMap; size: number} {
     let changes = [];
     let totalSize = 0;
     for (let id of this.pendingIds) {
@@ -275,7 +275,6 @@ export class ServerConnection extends Connection {
   requests: {[key: string]: ServerRequest} = {};
 
   constructor(root: Root) {
-
     super();
     this.root = root;
   }
@@ -320,37 +319,37 @@ export class ServerConnection extends Connection {
             result = this.updateValue(request.path, request.value);
             break;
           }
-          case 'create' : {
+          case 'create': {
             result = this.createBlock(request.path, request.data, request.anyName);
             break;
           }
-          case 'command' : {
+          case 'command': {
             break;
           }
-          case 'subscribe' : {
+          case 'subscribe': {
             result = this.subscribeProperty(request.path, request.id, request.fullValue);
             break;
           }
-          case 'watch' : {
+          case 'watch': {
             result = this.watchBlock(request.path, request.id);
             break;
           }
-          case 'list' : {
+          case 'list': {
             result = this.listChildren(request.path, request.filter, request.max);
             break;
           }
           case 'addType': {
             break;
           }
-          case 'watchDesc' : {
+          case 'watchDesc': {
             result = this.watchDesc(request.id);
             break;
           }
-          case 'editWorker' : {
+          case 'editWorker': {
             result = this.editWorker(request.path, request.fromField, request.fromFunction);
             break;
           }
-          case 'applyWorkerChange' : {
+          case 'applyWorkerChange': {
             result = this.applyWorkerChange(request.path, request.funcId);
             break;
           }
@@ -417,17 +416,16 @@ export class ServerConnection extends Connection {
   }
 
   sendError(id: string, msg: string) {
-    this.addSend(new ConnectionSend({'cmd': 'error', 'id': id, 'msg': msg}));
+    this.addSend(new ConnectionSend({cmd: 'error', id: id, msg: msg}));
   }
 
   sendDone(id: string) {
-    this.addSend(new ConnectionSend({'cmd': 'done', 'id': id}));
+    this.addSend(new ConnectionSend({cmd: 'done', id: id}));
   }
 
   sendFinal(id: string, data: DataMap) {
-    this.addSend(new ConnectionSend({...data, 'cmd': 'final', 'id': id}));
+    this.addSend(new ConnectionSend({...data, cmd: 'final', id: id}));
   }
-
 
   close(id: string) {
     if (this.requests.hasOwnProperty(id)) {
@@ -526,7 +524,6 @@ export class ServerConnection extends Connection {
             (property._value as Block).setBinding(desc.recipient, keepBinding);
           }
         }
-
       }
       return {name: property._name};
     } else {
@@ -549,7 +546,8 @@ export class ServerConnection extends Connection {
       let count = 0;
       for (let [field, prop] of block._props) {
         if (prop._value instanceof Block && prop._value._prop === prop) {
-          if (!filterRegex || filterRegex.test(field)) { // filter
+          if (!filterRegex || filterRegex.test(field)) {
+            // filter
             if (count < max) {
               children[field] = (prop._value as Block)._blockId;
             }
@@ -561,7 +559,6 @@ export class ServerConnection extends Connection {
     } else {
       return 'invalid path';
     }
-
   }
 
   subscribeProperty(path: string, id: string, fullValue: boolean): string | ServerSubscribe {

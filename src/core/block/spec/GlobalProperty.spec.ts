@@ -1,12 +1,10 @@
-import {assert} from "chai";
-import {Job, Root, Block} from "../Block";
-import {DataMap} from "../../util/Types";
-import {WorkerFunction} from "../../worker/WorkerFunction";
+import {assert} from 'chai';
+import {Job, Root, Block} from '../Block';
+import {DataMap} from '../../util/Types';
+import {WorkerFunction} from '../../worker/WorkerFunction';
 
-describe("GlobalProperty", function () {
-
-  it('global from nested job', function () {
-
+describe('GlobalProperty', function() {
+  it('global from nested job', function() {
     let globalBlock: Block = Root.instance.getValue('#global');
     assert.instanceOf(globalBlock, Block);
 
@@ -17,7 +15,7 @@ describe("GlobalProperty", function () {
 
     let jobData: DataMap = {
       '#is': '',
-      '~v': '^top.v',
+      '~v': '^top.v'
     };
     WorkerFunction.registerType(jobData, {name: 'class1'}, 'GlobalProperty');
 
@@ -52,7 +50,5 @@ describe("GlobalProperty", function () {
     job.deleteValue('a');
     // global property is no longer in use
     assert.isFalse(job._props.has('^top'));
-
   });
-
 });

@@ -1,5 +1,5 @@
-import {FunctionDesc} from "../block/Descriptor";
-import i18next from "i18next";
+import {FunctionDesc} from '../block/Descriptor';
+import i18next from 'i18next';
 
 export async function init(lng?: string) {
   await new Promise((receive, reject) => {
@@ -26,8 +26,14 @@ export function translateProperty(type: string, name: string, namespace?: string
   if (numMatch) {
     let baseName = name.substr(0, numMatch.index);
     let numStr = name.substr(numMatch.index);
-    return `${i18next.t(`${type}.${baseName}.@name`, {ns: i18ns, defaultValue: baseName})}${numStr}`;
+    return `${i18next.t(`${type}.${baseName}.@name`, {
+      ns: i18ns,
+      defaultValue: baseName
+    })}${numStr}`;
   } else {
-    return i18next.t(`${type}.${name}.@name`, {ns: i18ns, defaultValue: name});
+    return i18next.t(`${type}.${name}.@name`, {
+      ns: i18ns,
+      defaultValue: name
+    });
   }
 }

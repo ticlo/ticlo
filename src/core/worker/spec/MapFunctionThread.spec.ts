@@ -1,12 +1,10 @@
-import {assert} from "chai";
-import {Job, Root} from "../../block/Block";
-import {TestFunctionRunner, TestAsyncFunctionPromise} from "../../block/spec/TestFunction";
-import "../../functions/basic/math/Arithmetic";
-import "../MapFunction";
+import {assert} from 'chai';
+import {Job, Root} from '../../block/Block';
+import {TestFunctionRunner, TestAsyncFunctionPromise} from '../../block/spec/TestFunction';
+import '../../functions/basic/math/Arithmetic';
+import '../MapFunction';
 
-
-describe("MapFunction Thread", function () {
-
+describe('MapFunction Thread', function() {
   beforeEach(() => {
     TestFunctionRunner.clearLog();
   });
@@ -23,8 +21,7 @@ describe("MapFunction Thread", function () {
     inputArr.push(i + 100);
   }
 
-  it('basic', async function () {
-
+  it('basic', async function() {
     let job = new Job();
 
     job.setValue('a', inputObj);
@@ -57,14 +54,14 @@ describe("MapFunction Thread", function () {
     }
 
     job.setValue('a', {
-      'v1': 1,
-      'v2': 4,
-      'v4': 5
+      v1: 1,
+      v2: 4,
+      v4: 5
     });
 
     output = await bBlock.waitNextValue('output');
 
-    assert.deepEqual(output, {'v1': 2, 'v2': 5, 'v4': 6}, 'input change');
+    assert.deepEqual(output, {v1: 2, v2: 5, v4: 6}, 'input change');
     assert.lengthOf(TestFunctionRunner.popLogs(), 3);
 
     job.setValue('a', inputArr);
@@ -81,8 +78,7 @@ describe("MapFunction Thread", function () {
     job.deleteValue('b');
   });
 
-  it('async worker', async function () {
-
+  it('async worker', async function() {
     let job = new Job();
 
     job.setValue('a', inputObj);
@@ -98,8 +94,18 @@ describe("MapFunction Thread", function () {
           '#is': '',
           'runner': {'#is': 'test-runner', '#mode': 'onLoad', '#-log': 0},
           'async': {'#is': 'async-function-manual', '~#call': '##.#input'},
-          'add': {'#is': 'add', '#mode': 'onCall', '~#call': '##.async.#emit', '~0': '##.#input', '1': 1},
-          '#output': {'#is': '', '~#value': '##.add.output', '~#wait': '##.async.#wait'}
+          'add': {
+            '#is': 'add',
+            '#mode': 'onCall',
+            '~#call': '##.async.#emit',
+            '~0': '##.#input',
+            '1': 1
+          },
+          '#output': {
+            '#is': '',
+            '~#value': '##.add.output',
+            '~#wait': '##.async.#wait'
+          }
         }
       }
     });
@@ -115,14 +121,14 @@ describe("MapFunction Thread", function () {
       assert.equal(output['v' + i], i + 1);
     }
     job.setValue('a', {
-      'v1': 1,
-      'v2': 4,
-      'v4': 5
+      v1: 1,
+      v2: 4,
+      v4: 5
     });
 
     output = await bBlock.waitNextValue('output');
 
-    assert.deepEqual(output, {'v1': 2, 'v2': 5, 'v4': 6}, 'input change');
+    assert.deepEqual(output, {v1: 2, v2: 5, v4: 6}, 'input change');
     assert.lengthOf(TestFunctionRunner.popLogs(), 3);
 
     job.setValue('a', inputArr);
@@ -139,8 +145,7 @@ describe("MapFunction Thread", function () {
     job.deleteValue('b');
   });
 
-  it('async worker reuse', async function () {
-
+  it('async worker reuse', async function() {
     let job = new Job();
 
     job.setValue('a', inputObj);
@@ -157,8 +162,18 @@ describe("MapFunction Thread", function () {
           '#is': '',
           'runner': {'#is': 'test-runner', '#mode': 'onLoad', '#-log': 0},
           'async': {'#is': 'async-function-promise', '~#call': '##.#input'},
-          'add': {'#is': 'add', '#mode': 'onCall', '~#call': '##.async.#emit', '~0': '##.#input', '1': 1},
-          '#output': {'#is': '', '~#value': '##.add.output', '~#wait': '##.async.#wait'}
+          'add': {
+            '#is': 'add',
+            '#mode': 'onCall',
+            '~#call': '##.async.#emit',
+            '~0': '##.#input',
+            '1': 1
+          },
+          '#output': {
+            '#is': '',
+            '~#value': '##.add.output',
+            '~#wait': '##.async.#wait'
+          }
         }
       }
     });
@@ -175,14 +190,14 @@ describe("MapFunction Thread", function () {
     }
 
     job.setValue('a', {
-      'v1': 1,
-      'v2': 4,
-      'v4': 5
+      v1: 1,
+      v2: 4,
+      v4: 5
     });
 
     output = await bBlock.waitNextValue('output');
 
-    assert.deepEqual(output, {'v1': 2, 'v2': 5, 'v4': 6}, 'input change');
+    assert.deepEqual(output, {v1: 2, v2: 5, v4: 6}, 'input change');
     assert.lengthOf(TestFunctionRunner.popLogs(), 3);
 
     job.setValue('a', inputArr);
@@ -198,8 +213,7 @@ describe("MapFunction Thread", function () {
     job.deleteValue('b');
   });
 
-  it('async worker persist', async function () {
-
+  it('async worker persist', async function() {
     let job = new Job();
 
     job.setValue('a', inputObj);
@@ -216,8 +230,18 @@ describe("MapFunction Thread", function () {
           '#is': '',
           'runner': {'#is': 'test-runner', '#mode': 'onLoad', '#-log': 0},
           'async': {'#is': 'async-function-promise', '~#call': '##.#input'},
-          'add': {'#is': 'add', '#mode': 'onCall', '~#call': '##.async.#emit', '~0': '##.#input', '1': 1},
-          '#output': {'#is': '', '~#value': '##.add.output', '~#wait': '##.async.#wait'}
+          'add': {
+            '#is': 'add',
+            '#mode': 'onCall',
+            '~#call': '##.async.#emit',
+            '~0': '##.#input',
+            '1': 1
+          },
+          '#output': {
+            '#is': '',
+            '~#value': '##.add.output',
+            '~#wait': '##.async.#wait'
+          }
         }
       }
     });
@@ -232,14 +256,14 @@ describe("MapFunction Thread", function () {
       assert.equal(output['v' + i], i + 1);
     }
     job.setValue('a', {
-      'v1': 1,
-      'v2': 4,
-      'v4': 5
+      v1: 1,
+      v2: 4,
+      v4: 5
     });
 
     output = await bBlock.waitNextValue('output');
 
-    assert.deepEqual(output, {'v1': 2, 'v2': 5, 'v4': 6}, 'input change');
+    assert.deepEqual(output, {v1: 2, v2: 5, v4: 6}, 'input change');
 
     job.setValue('a', inputArr);
     let outputArr = await bBlock.waitNextValue('output');
@@ -254,8 +278,7 @@ describe("MapFunction Thread", function () {
     job.deleteValue('b');
   });
 
-  it('data race', async function () {
-
+  it('data race', async function() {
     let job = new Job();
 
     job.setValue('a', inputObj);
@@ -271,8 +294,18 @@ describe("MapFunction Thread", function () {
           '#is': '',
           'runner': {'#is': 'test-runner', '#mode': 'onLoad', '#-log': 0},
           'async': {'#is': 'async-function-promise', '~#call': '##.#input'},
-          'add': {'#is': 'add', '#mode': 'onCall', '~#call': '##.async.#emit', '~0': '##.#input', '1': 1},
-          '#output': {'#is': '', '~#value': '##.add.output', '~#wait': '##.async.#wait'}
+          'add': {
+            '#is': 'add',
+            '#mode': 'onCall',
+            '~#call': '##.async.#emit',
+            '~0': '##.#input',
+            '1': 1
+          },
+          '#output': {
+            '#is': '',
+            '~#value': '##.add.output',
+            '~#wait': '##.async.#wait'
+          }
         }
       }
     });
@@ -282,16 +315,15 @@ describe("MapFunction Thread", function () {
 
     // set 3 inputs at same time
     job.setValue('a', {
-      'v1': 1,
-      'v2': 4,
-      'v4': 5
+      v1: 1,
+      v2: 4,
+      v4: 5
     });
     job.setValue('a', inputObj);
     job.setValue('a', inputArr);
 
     let output = await bBlock.waitValue('output');
     assert.lengthOf(Object.keys(output), 20);
-
 
     let outputArr = await bBlock.waitNextValue('output');
     assert.lengthOf(outputArr, 20, 'output array');
@@ -305,5 +337,4 @@ describe("MapFunction Thread", function () {
     // delete job;
     job.deleteValue('b');
   });
-
 });

@@ -25,7 +25,7 @@ export function deepEqual(a: any, b: any) {
     if (arrA && arrB) {
       let length = a.length;
       if (length !== b.length) return false;
-      for (let i = length; i-- !== 0;) {
+      for (let i = length; i-- !== 0; ) {
         if (!deepEqual(a[i], b[i])) return false;
       }
       return true;
@@ -62,7 +62,7 @@ export function shallowEqual(a: any, b: any) {
     if (arrA && arrB) {
       let length = a.length;
       if (length !== b.length) return false;
-      for (let i = length; i-- !== 0;) {
+      for (let i = length; i-- !== 0; ) {
         if (!Object.is(a[i], b[i])) return false;
       }
       return true;

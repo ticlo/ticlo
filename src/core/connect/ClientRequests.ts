@@ -1,8 +1,8 @@
-import {DataMap, measureObjSize} from "../util/Types";
-import {ConnectionSend} from "./Connection";
-import {FunctionDesc} from "../block/Descriptor";
-import {ClientConnection} from "./ClientConnection";
-import {clientDescriptors} from "./ClientDescriptors";
+import {DataMap, measureObjSize} from '../util/Types';
+import {ConnectionSend} from './Connection';
+import {FunctionDesc} from '../block/Descriptor';
+import {ClientConnection} from './ClientConnection';
+import {clientDescriptors} from './ClientDescriptors';
 
 export interface ClientCallbacks {
   onDone?(): void;
@@ -13,7 +13,6 @@ export interface ClientCallbacks {
 }
 
 export class ClientRequest extends ConnectionSend implements ClientCallbacks {
-
   _callbacks: ClientCallbacks;
 
   constructor(data: DataMap, callbacks: ClientCallbacks) {
@@ -192,7 +191,7 @@ export class SetRequest extends ConnectionSend {
     this._data.absolute = absolute;
   }
 
-  getSendingData(): {data: DataMap, size: number} {
+  getSendingData(): {data: DataMap; size: number} {
     if (this.conn) {
       this.conn.setRequests.delete(this.path);
       this.conn = null;
@@ -215,7 +214,10 @@ export class WatchRequest extends MergedClientRequest {
   add(callbacks: ClientCallbacks) {
     super.add(callbacks);
     if (callbacks.onUpdate && this._hasUpdate) {
-      callbacks.onUpdate({changes: this._cachedMap, cache: {...this._cachedMap}});
+      callbacks.onUpdate({
+        changes: this._cachedMap,
+        cache: {...this._cachedMap}
+      });
     }
   }
 
@@ -250,7 +252,6 @@ export class WatchRequest extends MergedClientRequest {
 export type ClientDescListener = (desc: FunctionDesc, id: string) => void;
 
 export class DescRequest extends ConnectionSend implements ClientCallbacks {
-
   static editorCache: Map<string, FunctionDesc> = new Map<string, FunctionDesc>();
 
   listeners: Map<ClientDescListener, string> = new Map<ClientDescListener, string>();
@@ -261,9 +262,7 @@ export class DescRequest extends ConnectionSend implements ClientCallbacks {
     super(data);
   }
 
-  onDone(): void {
-
-  }
+  onDone(): void {}
 
   onUpdate(response: DataMap): void {
     if (response.changes) {
@@ -294,9 +293,7 @@ export class DescRequest extends ConnectionSend implements ClientCallbacks {
     }
   }
 
-  onError(error: string, data?: DataMap): void {
-
-  }
+  onError(error: string, data?: DataMap): void {}
 
   onDisconnect() {
     this.cache = new Map<string, FunctionDesc>(DescRequest.editorCache);

@@ -1,7 +1,6 @@
-import {BlockProperty, BlockPropertyEvent, BlockPropertySubscriber} from "./BlockProperty";
-import {Listener} from "./Dispatcher";
-import {Root} from "./Block";
-
+import {BlockProperty, BlockPropertyEvent, BlockPropertySubscriber} from './BlockProperty';
+import {Listener} from './Dispatcher';
+import {Root} from './Block';
 
 class VoidProperty extends BlockProperty {
   static readonly instance = new VoidProperty(null, '');
@@ -20,19 +19,19 @@ class VoidProperty extends BlockProperty {
 
   _save(): any {
     if (Root.instance._strictMode) {
-      throw new Error("Can not save destroyed property");
+      throw new Error('Can not save destroyed property');
     }
   }
 
   _load(val: any) {
     if (Root.instance._strictMode) {
-      throw new Error("Can not load destroyed property");
+      throw new Error('Can not load destroyed property');
     }
   }
 
   _liveUpdate(val: any) {
     if (Root.instance._strictMode) {
-      throw new Error("Can not liveUpdate destroyed property");
+      throw new Error('Can not liveUpdate destroyed property');
     }
   }
 

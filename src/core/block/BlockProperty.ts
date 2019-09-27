@@ -1,6 +1,6 @@
-import {ValueDispatcher, Listener, Dispatcher, Destroyable, BlockBindingSource} from "./Dispatcher";
-import {Block} from "./Block";
-import {isSavedBlock} from "../util/Types";
+import {ValueDispatcher, Listener, Dispatcher, Destroyable, BlockBindingSource} from './Dispatcher';
+import {Block} from './Block';
+import {isSavedBlock} from '../util/Types';
 
 export interface BlockPropertyEvent {
   error?: string;
@@ -13,7 +13,6 @@ export interface BlockPropertySubscriber {
 }
 
 export class BlockProperty extends ValueDispatcher<any> implements Listener<any>, BlockBindingSource {
-
   _block: Block;
   _name: string;
   _bindingPath: string;
@@ -73,7 +72,6 @@ export class BlockProperty extends ValueDispatcher<any> implements Listener<any>
   setOutput(val: any): boolean {
     return this.onChange(val);
   }
-
 
   setValue(val: any) {
     if (this._bindingSource) {
@@ -274,13 +272,13 @@ export class BlockProperty extends ValueDispatcher<any> implements Listener<any>
   }
 
   isDestroyed() {
-    return this._block._destroyed // maybe destroy is not called but block is in the middle of destroy()
-      || !this._listeners;
+    return (
+      this._block._destroyed || !this._listeners // maybe destroy is not called but block is in the middle of destroy()
+    );
   }
 }
 
 export class BlockIO extends BlockProperty {
-
   constructor(block: Block, name: string) {
     super(block, name);
     if (block._ioCache) {
@@ -309,7 +307,6 @@ export class BlockIO extends BlockProperty {
 }
 
 export class GlobalProperty extends BlockIO {
-
   constructor(block: Block, name: string) {
     super(block, name);
     this.listenToParentGlobal();

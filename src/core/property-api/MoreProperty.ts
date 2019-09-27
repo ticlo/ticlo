@@ -1,11 +1,9 @@
-import {PropDesc, PropGroupDesc} from "../block/Descriptor";
-import {Block} from "../block/Block";
-import {deepClone} from "../util/Clone";
-import {endsWithNumberReg} from "../util/String";
-
+import {PropDesc, PropGroupDesc} from '../block/Descriptor';
+import {Block} from '../block/Block';
+import {deepClone} from '../util/Clone';
+import {endsWithNumberReg} from '../util/String';
 
 export function addMoreProperty(block: Block, desc: PropDesc | PropGroupDesc, group?: string) {
-
   let propDesc: PropDesc;
   let groupDesc: PropGroupDesc;
   if (desc.type === 'group') {
@@ -27,7 +25,6 @@ export function addMoreProperty(block: Block, desc: PropDesc | PropGroupDesc, gr
       return; // group property should not end with number
     }
   }
-
 
   let moreProps = block.getValue('#more');
 
@@ -76,7 +73,6 @@ export function addMoreProperty(block: Block, desc: PropDesc | PropGroupDesc, gr
 }
 
 export function removeMoreProperty(block: Block, name: string, group?: string) {
-
   let moreProps: any[] = block.getValue('#more');
 
   if (!Array.isArray(moreProps)) {

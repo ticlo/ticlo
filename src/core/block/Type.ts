@@ -1,15 +1,14 @@
-import {Block, BlockModeList} from "./Block";
-import {FunctionClass} from "./BlockFunction";
-import {ValueDispatcher} from "./Dispatcher";
-import {FunctionDesc} from "./Descriptor";
+import {Block, BlockModeList} from './Block';
+import {FunctionClass} from './BlockFunction';
+import {ValueDispatcher} from './Dispatcher';
+import {FunctionDesc} from './Descriptor';
 import JSON = Mocha.reporters.JSON;
-import JsonEsc from "jsonesc/dist";
-import {DataMap} from "../util/Types";
+import JsonEsc from 'jsonesc/dist';
+import {DataMap} from '../util/Types';
 
 export interface DescListener {
   onDescChange(id: string, desc: FunctionDesc): void;
 }
-
 
 export class Type extends ValueDispatcher<FunctionClass> {
   _id: string;
@@ -44,7 +43,9 @@ export class Types {
     desc.ns = namespace;
     cls.prototype.priority = desc.priority;
     cls.prototype.defaultMode = desc.mode;
-    cls.prototype.useLength = Boolean(desc.properties && desc.properties.find((desc) => desc.name === '' && desc.type === 'group'));
+    cls.prototype.useLength = Boolean(
+      desc.properties && desc.properties.find((desc) => desc.name === '' && desc.type === 'group')
+    );
 
     let id = namespace ? `${namespace}:${desc.name}` : desc.name;
     desc.id = id;

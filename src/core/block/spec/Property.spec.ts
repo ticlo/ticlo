@@ -1,8 +1,8 @@
-import {assert} from "chai";
-import {Job} from "../Block";
+import {assert} from 'chai';
+import {Job} from '../Block';
 
-describe("Property Save Load", function () {
-  it('save object with #is', function () {
+describe('Property Save Load', function() {
+  it('save object with #is', function() {
     let job = new Job();
 
     let v1Data = {'#is': 'add'};

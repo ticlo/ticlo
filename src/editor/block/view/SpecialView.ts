@@ -1,6 +1,5 @@
-import React from "react";
-import {ClientConn} from "../../../core/client";
-
+import React from 'react';
+import {ClientConn} from '../../../core/client';
 
 export interface SpecialViewProps {
   conn: ClientConn;

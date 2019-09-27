@@ -1,21 +1,21 @@
-import {BlockProperty, BlockIO, HelperProperty, GlobalProperty} from "./BlockProperty";
-import {BlockBinding} from "./BlockBinding";
-import {FunctionData, FunctionClass, BaseFunction, FunctionOutput} from "./BlockFunction";
-import {Dispatcher, Listener, ValueDispatcher, ListenPromise, Destroyable, BlockBindingSource} from "./Dispatcher";
-import {Type, Types} from "./Type";
-import {ErrorEvent, Event, EventType, NOT_READY} from "./Event";
-import {DataMap} from "../util/Types";
-import {Uid} from "../util/Uid";
-import {voidProperty} from "./Void";
-import {Resolver} from "./Resolver";
+import {BlockProperty, BlockIO, HelperProperty, GlobalProperty} from './BlockProperty';
+import {BlockBinding} from './BlockBinding';
+import {FunctionData, FunctionClass, BaseFunction, FunctionOutput} from './BlockFunction';
+import {Dispatcher, Listener, ValueDispatcher, ListenPromise, Destroyable, BlockBindingSource} from './Dispatcher';
+import {Type, Types} from './Type';
+import {ErrorEvent, Event, EventType, NOT_READY} from './Event';
+import {DataMap} from '../util/Types';
+import {Uid} from '../util/Uid';
+import {voidProperty} from './Void';
+import {Resolver} from './Resolver';
 import {
   ConfigGenerators,
   BlockConstConfig,
   JobConfigGenerators,
   OutputConfigGenerators,
   InputConfigGenerators
-} from "./BlockConfigs";
-import {FunctionDesc} from "./Descriptor";
+} from './BlockConfigs';
+import {FunctionDesc} from './Descriptor';
 
 export type BlockMode = 'auto' | 'onLoad' | 'onChange' | 'onCall' | 'disabled';
 export const BlockModeList = ['auto', 'onLoad', 'onChange', 'onCall', 'disabled'];
@@ -50,7 +50,6 @@ class PromiseWrapper {
       this._block.emit(val);
       this._block._funcPromise = undefined;
     }
-
   }
 
   onError(reason: any) {
@@ -88,7 +87,6 @@ export class Block implements Runnable, FunctionData, Listener<FunctionClass>, D
   _typeName: string;
   _type: Type;
 
-
   // whether the block has a function running async job
   _waiting: boolean = false;
 
@@ -102,7 +100,7 @@ export class Block implements Runnable, FunctionData, Listener<FunctionClass>, D
 
   _proxy: object;
 
-//  _cachedFullPath: string;
+  //  _cachedFullPath: string;
 
   constructor(job: Job, parent: Block, prop: BlockProperty) {
     this._job = job;
@@ -172,10 +170,9 @@ export class Block implements Runnable, FunctionData, Listener<FunctionClass>, D
   }
 
   getProperty(field: string, create: boolean = true): BlockProperty {
-
     if (this._destroyed) {
       if (Root.instance._strictMode) {
-        throw new Error("getProperty called after destroy");
+        throw new Error('getProperty called after destroy');
       } else {
         return voidProperty;
       }
@@ -249,7 +246,7 @@ export class Block implements Runnable, FunctionData, Listener<FunctionClass>, D
   createBinding(path: string, listener: Listener<any>): BlockBindingSource {
     if (this._destroyed) {
       if (Root.instance._strictMode) {
-        throw new Error("createBinding called after destroy");
+        throw new Error('createBinding called after destroy');
       } else {
         return voidProperty;
       }
@@ -261,8 +258,8 @@ export class Block implements Runnable, FunctionData, Listener<FunctionClass>, D
       return prop;
     }
 
-    if (path.startsWith("#")) {
-      if (path.startsWith("##.")) {
+    if (path.startsWith('#')) {
+      if (path.startsWith('##.')) {
         return this._parent.createBinding(path.substring(3), listener);
       }
       if (path.startsWith('###.')) {
@@ -321,7 +318,8 @@ export class Block implements Runnable, FunctionData, Listener<FunctionClass>, D
 
   _load(map: DataMap) {
     for (let key in map) {
-      if (key.charCodeAt(0) === 126) { // ~ for binding
+      if (key.charCodeAt(0) === 126) {
+        // ~ for binding
         let val = map[key];
         if (typeof val === 'string') {
           // normal binding
@@ -347,7 +345,8 @@ export class Block implements Runnable, FunctionData, Listener<FunctionClass>, D
   _liveUpdate(map: DataMap) {
     let loadedFields: DataMap = {'#is': true};
     for (let key in map) {
-      if (key.charCodeAt(0) === 126) { // ~ for binding
+      if (key.charCodeAt(0) === 126) {
+        // ~ for binding
         let val = map[key];
         if (typeof val === 'string') {
           let name = key.substring(1);
@@ -575,7 +574,6 @@ export class Block implements Runnable, FunctionData, Listener<FunctionClass>, D
           }
         }
       }
-
     }
   }
 
@@ -606,7 +604,7 @@ export class Block implements Runnable, FunctionData, Listener<FunctionClass>, D
     if (this._type) {
       this._type.unlisten(this);
     }
-    if (typeName && typeof (typeName) === 'string') {
+    if (typeName && typeof typeName === 'string') {
       this._type = Types.listen(typeName, this);
     } else {
       this._type = null;
@@ -697,7 +695,7 @@ export class Block implements Runnable, FunctionData, Listener<FunctionClass>, D
   watch(watcher: BlockChildWatch) {
     if (this._destroyed) {
       if (Root.instance._strictMode) {
-        throw new Error("watch called after destroy");
+        throw new Error('watch called after destroy');
       }
       return;
     }
@@ -779,7 +777,6 @@ export class Block implements Runnable, FunctionData, Listener<FunctionClass>, D
 }
 
 export class Job extends Block {
-
   _resolver: Resolver;
 
   _namespace: string;
@@ -901,7 +898,6 @@ export class GlobalBlock extends Block {
 }
 
 export class Root extends Job {
-
   private static _instance: Root = new Root();
   static get instance() {
     return this._instance;
@@ -952,7 +948,6 @@ export class Root extends Job {
     return this._globalBlock.getProperty(name);
   }
 
-
   addJob(name?: string): Job {
     if (!name) {
       name = Block.nextUid();
@@ -979,7 +974,6 @@ export class Root extends Job {
 }
 
 export class InputBlock extends Block {
-
   _createConfig(field: string): BlockProperty {
     if (field in InputConfigGenerators) {
       return new InputConfigGenerators[field](this, field);
@@ -1003,4 +997,3 @@ export class OutputBlock extends Block {
     }
   }
 }
-

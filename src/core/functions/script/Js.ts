@@ -1,16 +1,15 @@
-import {Types} from "../../block/Type";
-import {BlockFunction, FunctionData} from "../../block/BlockFunction";
-import {BlockIO, BlockProperty} from "../../block/BlockProperty";
-import {ErrorEvent, NOT_READY} from "../../block/Event";
-import {Block, BlockMode} from "../../block/Block";
-import {BlockDeepProxy} from "../../block/BlockProxy";
-import {FunctionDesc} from "../../block/Descriptor";
-import {Logger} from "../../util/Logger";
+import {Types} from '../../block/Type';
+import {BlockFunction, FunctionData} from '../../block/BlockFunction';
+import {BlockIO, BlockProperty} from '../../block/BlockProperty';
+import {ErrorEvent, NOT_READY} from '../../block/Event';
+import {Block, BlockMode} from '../../block/Block';
+import {BlockDeepProxy} from '../../block/BlockProxy';
+import {FunctionDesc} from '../../block/Descriptor';
+import {Logger} from '../../util/Logger';
 
 const SCRIPT_ERROR = 'scriptError';
 
 export class JsFunction extends BlockFunction {
-
   _compiledFunction: Function;
   _runFunction: Function;
 
@@ -78,7 +77,6 @@ export class JsFunction extends BlockFunction {
         constructor(block: Block) {
           super(block);
           this._compiledFunction = compiledFunction;
-
         }
       }
 
@@ -103,7 +101,11 @@ Types.add(JsFunction, {
   name: 'js',
   icon: 'txt:js',
   priority: 1,
-  properties: [{
-    name: 'script', type: 'string', visible: 'high'
-  }]
+  properties: [
+    {
+      name: 'script',
+      type: 'string',
+      visible: 'high'
+    }
+  ]
 });

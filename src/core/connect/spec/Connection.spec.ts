@@ -1,26 +1,24 @@
-import {assert} from "chai";
-import {Block, Job, Root} from "../../block/Block";
-import {makeLocalConnection} from "../LocalConnection";
-import "../../functions/basic/math/Arithmetic";
-import {AsyncClientPromise} from "./AsyncClientPromise";
-import {VoidListeners, TestFunctionRunner} from "../../block/spec/TestFunction";
-import {FunctionDesc} from "../../block/Descriptor";
-import {shouldHappen} from "../../util/test-util";
-import {JsFunction} from "../../functions/script/Js";
-import {Types} from "../../block/Type";
-import {DataMap, isDataTruncated} from "../../util/Types";
-import {WorkerFunction} from "../../worker/WorkerFunction";
-import {WorkerEditor} from "../../worker/WorkerEditor";
+import {assert} from 'chai';
+import {Block, Job, Root} from '../../block/Block';
+import {makeLocalConnection} from '../LocalConnection';
+import '../../functions/basic/math/Arithmetic';
+import {AsyncClientPromise} from './AsyncClientPromise';
+import {VoidListeners, TestFunctionRunner} from '../../block/spec/TestFunction';
+import {FunctionDesc} from '../../block/Descriptor';
+import {shouldHappen} from '../../util/test-util';
+import {JsFunction} from '../../functions/script/Js';
+import {Types} from '../../block/Type';
+import {DataMap, isDataTruncated} from '../../util/Types';
+import {WorkerFunction} from '../../worker/WorkerFunction';
+import {WorkerEditor} from '../../worker/WorkerEditor';
 
-
-describe("Connection", function () {
-
-  it('subscribe', async function () {
+describe('Connection', function() {
+  it('subscribe', async function() {
     let job = Root.instance.addJob('Connection1');
     let [server, client] = makeLocalConnection(Root.instance, false);
 
     await client.createBlock('Connection1.block1', {'#is': 'add'});
-    assert.equal(job.queryValue("block1.#is"), 'add', 'basic set');
+    assert.equal(job.queryValue('block1.#is'), 'add', 'basic set');
 
     let callbacks = new AsyncClientPromise();
     client.subscribe('Connection1.block1.output', callbacks);
@@ -38,7 +36,7 @@ describe("Connection", function () {
     Root.instance.deleteValue('Connection1');
   });
 
-  it('multiple subscribe binding', async function () {
+  it('multiple subscribe binding', async function() {
     let job = Root.instance.addJob('Connection2');
     let [server, client] = makeLocalConnection(Root.instance, false);
 
@@ -86,7 +84,7 @@ describe("Connection", function () {
     Root.instance.deleteValue('Connection2');
   });
 
-  it('watch', async function () {
+  it('watch', async function() {
     let job = Root.instance.addJob('Connection3-0');
     let [server, client] = makeLocalConnection(Root.instance, false);
 
@@ -95,20 +93,20 @@ describe("Connection", function () {
     let callbacks1 = new AsyncClientPromise();
     client.watch('Connection3-0', callbacks1);
     let result1 = await callbacks1.promise;
-    assert.deepEqual(result1.changes, {'c0': child0._blockId}, 'initial value');
-    assert.deepEqual(result1.cache, {'c0': child0._blockId}, 'initial cache');
+    assert.deepEqual(result1.changes, {c0: child0._blockId}, 'initial value');
+    assert.deepEqual(result1.cache, {c0: child0._blockId}, 'initial cache');
 
     job.deleteValue('c0');
     let result2 = await callbacks1.promise;
-    assert.deepEqual(result2.changes, {'c0': null}, 'delete value');
+    assert.deepEqual(result2.changes, {c0: null}, 'delete value');
 
     let child1 = job.createBlock('c1');
     let result3 = await callbacks1.promise;
-    assert.deepEqual(result3.changes, {'c1': child1._blockId});
+    assert.deepEqual(result3.changes, {c1: child1._blockId});
 
     job.deleteValue('c1');
     let result4 = await callbacks1.promise;
-    assert.deepEqual(result4.changes, {'c1': null});
+    assert.deepEqual(result4.changes, {c1: null});
 
     // clean up
     callbacks1.cancel();
@@ -116,7 +114,7 @@ describe("Connection", function () {
     Root.instance.deleteValue('Connection3-0');
   });
 
-  it('multiple watch', async function () {
+  it('multiple watch', async function() {
     let job = Root.instance.addJob('Connection3');
     let [server, client] = makeLocalConnection(Root.instance, false);
 
@@ -125,28 +123,27 @@ describe("Connection", function () {
     let callbacks1 = new AsyncClientPromise();
     client.watch('Connection3', callbacks1);
     let result1 = await callbacks1.promise;
-    assert.deepEqual(result1.changes, {'c0': child0._blockId}, 'initial value');
-    assert.deepEqual(result1.cache, {'c0': child0._blockId}, 'initial cache');
+    assert.deepEqual(result1.changes, {c0: child0._blockId}, 'initial value');
+    assert.deepEqual(result1.cache, {c0: child0._blockId}, 'initial cache');
 
     let callbacks2 = new AsyncClientPromise();
     client.watch('Connection3', callbacks2);
     let result2 = await callbacks2.firstPromise;
-    assert.deepEqual(result2.changes, {'c0': child0._blockId}, 'initial value');
-    assert.deepEqual(result2.cache, {'c0': child0._blockId}, 'initial cache');
+    assert.deepEqual(result2.changes, {c0: child0._blockId}, 'initial value');
+    assert.deepEqual(result2.cache, {c0: child0._blockId}, 'initial cache');
 
     let child1 = job.createBlock('c1');
     job.createOutputBlock('t1'); // temp block shouldn't show in watch result
-
     [result1, result2] = await Promise.all([callbacks1.promise, callbacks2.promise]);
-    assert.deepEqual(result1.changes, {'c1': child1._blockId}, 'add block changes');
-    assert.deepEqual(result1.cache, {'c0': child0._blockId, 'c1': child1._blockId}, 'add block cache');
-    assert.deepEqual(result2.changes, {'c1': child1._blockId}, 'add block changes');
-    assert.deepEqual(result2.cache, {'c0': child0._blockId, 'c1': child1._blockId}, 'add block cache');
+    assert.deepEqual(result1.changes, {c1: child1._blockId}, 'add block changes');
+    assert.deepEqual(result1.cache, {c0: child0._blockId, c1: child1._blockId}, 'add block cache');
+    assert.deepEqual(result2.changes, {c1: child1._blockId}, 'add block changes');
+    assert.deepEqual(result2.cache, {c0: child0._blockId, c1: child1._blockId}, 'add block cache');
 
     client.setValue('Connection3.c0', null);
     result1 = await callbacks1.promise;
-    assert.deepEqual(result1.changes, {'c0': null}, 'remove block changes');
-    assert.deepEqual(result1.cache, {'c1': child1._blockId}, 'add block cache');
+    assert.deepEqual(result1.changes, {c0: null}, 'remove block changes');
+    assert.deepEqual(result1.cache, {c1: child1._blockId}, 'add block cache');
 
     let cachedPromise1 = callbacks1.promise;
 
@@ -164,7 +161,7 @@ describe("Connection", function () {
     Root.instance.deleteValue('Connection3');
   });
 
-  it('list', async function () {
+  it('list', async function() {
     let job = Root.instance.addJob('Connection4');
     let [server, client] = makeLocalConnection(Root.instance, false);
 
@@ -184,12 +181,11 @@ describe("Connection", function () {
     assert.equal(Object.keys(result3.children).length, 16, 'list more than 1024, fallback to 16');
     assert.equal(result3.count, 100, 'list return number of filtered children');
 
-
     client.destroy();
     Root.instance.deleteValue('Connection4');
   });
 
-  it('watchDesc', async function () {
+  it('watchDesc', async function() {
     let job = Root.instance.addJob('Connection5');
     let [server, client] = makeLocalConnection(Root.instance, true);
 
@@ -214,7 +210,9 @@ describe("Connection", function () {
     await shouldHappen(() => descResult2 != null);
 
     assert.isNull(descCustom, 'custom class is not registered yet');
-    JsFunction.registerType('this["out"] = 1', {name: 'Connection-watchDesc1'});
+    JsFunction.registerType('this["out"] = 1', {
+      name: 'Connection-watchDesc1'
+    });
     await shouldHappen(() => descCustom != null);
     Types.clear('Connection-watchDesc1');
     await shouldHappen(() => descCustom == null);
@@ -223,12 +221,11 @@ describe("Connection", function () {
     Root.instance.deleteValue('Connection5');
   });
 
-  it('merge set request', async function () {
+  it('merge set request', async function() {
     TestFunctionRunner.clearLog();
 
     let job = Root.instance.addJob('Connection6');
     let [server, client] = makeLocalConnection(Root.instance, false);
-
 
     let b = job.createBlock('b');
     b.setValue('#mode', 'onCall');
@@ -249,19 +246,21 @@ describe("Connection", function () {
 
     await callbacks.promise;
 
-    assert.deepEqual(TestFunctionRunner.popLogs(), [2, 4],
+    assert.deepEqual(
+      TestFunctionRunner.popLogs(),
+      [2, 4],
 
-      'first snapshot');
+      'first snapshot'
+    );
     client.destroy();
     Root.instance.deleteValue('Connection6');
   });
 
-  it('merge update request', async function () {
+  it('merge update request', async function() {
     TestFunctionRunner.clearLog();
 
     let job = Root.instance.addJob('Connection6-2');
     let [server, client] = makeLocalConnection(Root.instance, false);
-
 
     let b = job.createBlock('b');
     b.updateValue('#mode', 'onCall');
@@ -282,19 +281,21 @@ describe("Connection", function () {
 
     await callbacks.promise;
 
-    assert.deepEqual(TestFunctionRunner.popLogs(), [2, 4],
+    assert.deepEqual(
+      TestFunctionRunner.popLogs(),
+      [2, 4],
 
-      'first snapshot');
+      'first snapshot'
+    );
     client.destroy();
     Root.instance.deleteValue('Connection6-2');
   });
 
-  it('merge bind request', async function () {
+  it('merge bind request', async function() {
     TestFunctionRunner.clearLog();
 
     let job = Root.instance.addJob('Connection6-3');
     let [server, client] = makeLocalConnection(Root.instance, false);
-
 
     let b = job.createBlock('b');
     b.setValue('@1', 1);
@@ -320,14 +321,17 @@ describe("Connection", function () {
 
     await callbacks.promise;
 
-    assert.deepEqual(TestFunctionRunner.popLogs(), [2, 4],
+    assert.deepEqual(
+      TestFunctionRunner.popLogs(),
+      [2, 4],
 
-      'first snapshot');
+      'first snapshot'
+    );
     client.destroy();
     Root.instance.deleteValue('Connection6-3');
   });
 
-  it('subscribe listener', async function () {
+  it('subscribe listener', async function() {
     let job = Root.instance.addJob('Connection7');
     let [server, client] = makeLocalConnection(Root.instance, false);
 
@@ -350,7 +354,7 @@ describe("Connection", function () {
     Root.instance.deleteValue('Connection7');
   });
 
-  it('callImmediate', async function () {
+  it('callImmediate', async function() {
     let job = Root.instance.addJob('Connection8');
     let [server, client] = makeLocalConnection(Root.instance, false);
 
@@ -359,27 +363,27 @@ describe("Connection", function () {
     let callback = () => called++;
 
     client.callImmediate(callback);
-    assert.equal(called, 1, "call immediate");
+    assert.equal(called, 1, 'call immediate');
 
     let callbacks1 = {
       onUpdate(response: DataMap) {
         client.callImmediate(callback);
         updated++;
-        assert.equal(called, 1, "callback wont be called during update");
+        assert.equal(called, 1, 'callback wont be called during update');
       }
     };
     let callbacks2 = {
       onUpdate(response: DataMap) {
         client.callImmediate(callback);
         updated++;
-        assert.equal(called, 1, "callback wont be called during update");
+        assert.equal(called, 1, 'callback wont be called during update');
       }
     };
     client.setValue('Connection8.v', 1);
     client.subscribe('Connection8.v', callbacks1);
     client.subscribe('Connection8.v', callbacks2);
 
-    assert.equal(called, 1, "not called");
+    assert.equal(called, 1, 'not called');
 
     await shouldHappen(() => updated === 2 && called === 2);
 
@@ -387,7 +391,7 @@ describe("Connection", function () {
     Root.instance.deleteValue('Connection8');
   });
 
-  it('set a saved block', async function () {
+  it('set a saved block', async function() {
     let job = Root.instance.addJob('Connection9');
     let [server, client] = makeLocalConnection(Root.instance, false);
 
@@ -404,16 +408,16 @@ describe("Connection", function () {
     Root.instance.deleteValue('Connection9');
   });
 
-  it('auto bind', async function () {
+  it('auto bind', async function() {
     let job1 = Root.instance.addJob('Connection10');
 
     job1.load({
-      'c': {
+      c: {
         '#is': '',
         'd': {'#is': ''},
         'e': {'#is': ''}
       },
-      'f': {
+      f: {
         '#is': ''
       }
     });
@@ -434,7 +438,7 @@ describe("Connection", function () {
     Root.instance.deleteValue('Connection10');
   });
 
-  it('full value', async function () {
+  it('full value', async function() {
     let job1 = Root.instance.addJob('Connection11');
 
     job1.load({
@@ -465,7 +469,7 @@ describe("Connection", function () {
     Root.instance.deleteValue('Connection11');
   });
 
-  it('helper property', async function () {
+  it('helper property', async function() {
     let job1 = Root.instance.addJob('Connection12');
 
     let [server, client] = makeLocalConnection(Root.instance, false);
@@ -489,7 +493,7 @@ describe("Connection", function () {
     Root.instance.deleteValue('Connection12');
   });
 
-  it('autoName', async function () {
+  it('autoName', async function() {
     let job1 = Root.instance.addJob('Connection13');
 
     let [server, client] = makeLocalConnection(Root.instance, false);
@@ -510,7 +514,7 @@ describe("Connection", function () {
     Root.instance.deleteValue('Connection13');
   });
 
-  it('show hide move props', async function () {
+  it('show hide move props', async function() {
     let job1 = Root.instance.addJob('Connection14');
     let block1 = job1.createBlock('a');
 
@@ -529,13 +533,16 @@ describe("Connection", function () {
     Root.instance.deleteValue('Connection14');
   });
 
-  it('add remove more props', async function () {
+  it('add remove more props', async function() {
     let job1 = Root.instance.addJob('Connection15');
     let block1 = job1.createBlock('a');
 
     let [server, client] = makeLocalConnection(Root.instance, false);
 
-    let response1 = await client.addMoreProp('Connection15.a', {name: 'a', type: 'string'});
+    let response1 = await client.addMoreProp('Connection15.a', {
+      name: 'a',
+      type: 'string'
+    });
     assert.deepEqual(block1.getValue('#more'), [{name: 'a', type: 'string'}]);
 
     let response2 = await client.removeMoreProp('Connection15.a', 'a');
@@ -545,7 +552,7 @@ describe("Connection", function () {
     Root.instance.deleteValue('Connection15');
   });
 
-  it('insert remove group props', async function () {
+  it('insert remove group props', async function() {
     let job1 = Root.instance.addJob('Connection16');
     let block1 = job1.createBlock('a');
     block1._load({
@@ -571,7 +578,7 @@ describe("Connection", function () {
     Root.instance.deleteValue('Connection16');
   });
 
-  it('set length', async function () {
+  it('set length', async function() {
     let job1 = Root.instance.addJob('Connection16-2');
     let block1 = job1.createBlock('a');
     block1.setValue('#is', 'add');
@@ -585,27 +592,21 @@ describe("Connection", function () {
     Root.instance.deleteValue('Connection16-2');
   });
 
-  it('move more props', async function () {
+  it('move more props', async function() {
     let job1 = Root.instance.addJob('Connection17');
     let block1 = job1.createBlock('a');
-    block1.setValue('#more', [
-      {name: 'a', type: 'string'},
-      {name: 'b', type: 'string'},
-    ]);
+    block1.setValue('#more', [{name: 'a', type: 'string'}, {name: 'b', type: 'string'}]);
 
     let [server, client] = makeLocalConnection(Root.instance, false);
 
     let response1 = await client.moveMoreProp('Connection17.a', 'a', 'b');
-    assert.deepEqual(block1.getValue('#more'), [
-      {name: 'b', type: 'string'},
-      {name: 'a', type: 'string'},
-    ]);
+    assert.deepEqual(block1.getValue('#more'), [{name: 'b', type: 'string'}, {name: 'a', type: 'string'}]);
 
     client.destroy();
     Root.instance.deleteValue('Connection17');
   });
 
-  it('findGlobalBlocks', async function () {
+  it('findGlobalBlocks', async function() {
     let [server, client] = makeLocalConnection(Root.instance, true);
 
     let a = Root.instance._globalBlock.createBlock('^a');
@@ -628,8 +629,7 @@ describe("Connection", function () {
     client.destroy();
   });
 
-
-  it('WorkerEditor', async function () {
+  it('WorkerEditor', async function() {
     let job1 = Root.instance.addJob('Connection18');
     let block1 = job1.createBlock('a');
     let data = {
@@ -655,7 +655,7 @@ describe("Connection", function () {
     Root.instance.deleteValue('Connection18');
   });
 
-  it('applyWorkerChange', async function () {
+  it('applyWorkerChange', async function() {
     let job1 = Root.instance.addJob('Connection19');
     let [server, client] = makeLocalConnection(Root.instance, true);
 

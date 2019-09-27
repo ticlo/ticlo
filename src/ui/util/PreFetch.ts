@@ -16,7 +16,6 @@ export function preFetch(url: string): Promise<Response> {
   return fetch(url);
 }
 
-
 // example of using preFetch
 
 /*

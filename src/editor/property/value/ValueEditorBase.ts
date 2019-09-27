@@ -1,6 +1,6 @@
-import React from "react";
-import {PropDesc} from "../../../core/block/Descriptor";
-import {ClientConn} from "../../../core/client";
+import React from 'react';
+import {PropDesc} from '../../../core/block/Descriptor';
+import {ClientConn} from '../../../core/client';
 
 // export type ChangeReason = 'minus' | 'plus' | 'enter' | 'blur';
 

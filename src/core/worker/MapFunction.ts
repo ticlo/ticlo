@@ -1,13 +1,13 @@
-import {Types} from "../block/Type";
-import {BlockFunction, FunctionData, FunctionOutput} from "../block/BlockFunction";
-import {FunctionDesc} from "../block/Descriptor";
-import {BlockIO, BlockProperty} from "../block/BlockProperty";
-import {Block, Job} from "../block/Block";
-import {convertToObject, DataMap, isSavedBlock} from "../util/Types";
-import {ErrorEvent, Event, EventType, NOT_READY} from "../block/Event";
-import {MapImpl, MapWorkerMode} from "./MapImpl";
-import {BlockProxy} from "../block/BlockProxy";
-import {workers} from "cluster";
+import {Types} from '../block/Type';
+import {BlockFunction, FunctionData, FunctionOutput} from '../block/BlockFunction';
+import {FunctionDesc} from '../block/Descriptor';
+import {BlockIO, BlockProperty} from '../block/BlockProperty';
+import {Block, Job} from '../block/Block';
+import {convertToObject, DataMap, isSavedBlock} from '../util/Types';
+import {ErrorEvent, Event, EventType, NOT_READY} from '../block/Event';
+import {MapImpl, MapWorkerMode} from './MapImpl';
+import {BlockProxy} from '../block/BlockProxy';
+import {workers} from 'cluster';
 
 enum ThreadTarget {
   None = 0,
@@ -24,8 +24,12 @@ class MapWorkerOutput implements FunctionOutput {
   _timeout: any;
   _onReady: (output: MapWorkerOutput, timeout: boolean) => void;
 
-  constructor(key: string, field: string, timeoutSeconds: number,
-              onReady: (output: MapWorkerOutput, timeout: boolean) => void) {
+  constructor(
+    key: string,
+    field: string,
+    timeoutSeconds: number,
+    onReady: (output: MapWorkerOutput, timeout: boolean) => void
+  ) {
     this.key = key;
     this.field = field;
     if (field !== undefined) {
@@ -83,7 +87,6 @@ class MapWorkerOutput implements FunctionOutput {
 }
 
 export class MapFunction extends BlockFunction implements MapImpl {
-
   _src: DataMap;
   _srcChanged = false;
   _onSourceChange!: (val: any) => boolean;
@@ -113,7 +116,6 @@ export class MapFunction extends BlockFunction implements MapImpl {
   _pendingIdx: number = Infinity;
 
   _running = false;
-
 
   inputChanged(input: BlockIO, val: any): boolean {
     switch (input._name) {
@@ -163,7 +165,7 @@ export class MapFunction extends BlockFunction implements MapImpl {
     if (n === this._thread) {
       return false;
     }
-    if ((this._thread > 0) as any ^ (n > 0) as any) {
+    if (((this._thread > 0) as any) ^ ((n > 0) as any)) {
       // thread mode changed
       this._srcChanged = true;
     }
@@ -213,7 +215,6 @@ export class MapFunction extends BlockFunction implements MapImpl {
     } else if (this._waitingWorker > 0) {
       return;
     }
-
 
     if (!this._pendingInput) {
       if (this._reuseWorker !== 'persist') {
@@ -266,7 +267,7 @@ export class MapFunction extends BlockFunction implements MapImpl {
     }
     this._waitingWorker--;
     if (this._threadTarget) {
-      if (!this._reuseWorker || output.key as any >= this._thread) {
+      if (!this._reuseWorker || (output.key as any) >= this._thread) {
         // remove thread worker if the idx is more than max allowed thread
         this._removeWorker(output.key);
       }
@@ -468,6 +469,5 @@ Types.add(MapFunction, {
     {name: 'reuseWorker', type: 'toggle'},
     {name: 'timeout', type: 'number'},
     {name: 'output', type: 'any', readonly: true}
-  ],
-})
-;
+  ]
+});

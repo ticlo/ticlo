@@ -1,6 +1,6 @@
-import {Types} from "../../../block/Type";
-import {PureFunction, FunctionData} from "../../../block/BlockFunction";
-import {FunctionDesc} from "../../../block/Descriptor";
+import {Types} from '../../../block/Type';
+import {PureFunction, FunctionData} from '../../../block/BlockFunction';
+import {FunctionDesc} from '../../../block/Descriptor';
 
 export class JoinFunction extends PureFunction {
   run(): any {
@@ -36,10 +36,15 @@ Types.add(JoinFunction, {
   name: 'join',
   icon: 'txt:a,b',
   properties: [
-    {name: '', type: 'group', defaultLen: 2, properties: [{name: '', type: 'string', visible: 'high'}]},
+    {
+      name: '',
+      type: 'group',
+      defaultLen: 2,
+      properties: [{name: '', type: 'string', visible: 'high'}]
+    },
     {name: 'separator', type: 'string'},
     {name: 'output', type: 'string', readonly: true}
   ],
   recipient: '0',
-  category: 'string',
+  category: 'string'
 });

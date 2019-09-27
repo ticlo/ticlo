@@ -1,14 +1,13 @@
-import {assert} from "chai";
-import {Job, Root} from "../../block/Block";
-import {WorkerEditor} from "../WorkerEditor";
-import {VoidListeners} from "../../block/spec/TestFunction";
-import {WorkerFunction} from "../WorkerFunction";
-import {Types} from "../../block/Type";
-import {PropDesc, PropGroupDesc} from "../../block/Descriptor";
+import {assert} from 'chai';
+import {Job, Root} from '../../block/Block';
+import {WorkerEditor} from '../WorkerEditor';
+import {VoidListeners} from '../../block/spec/TestFunction';
+import {WorkerFunction} from '../WorkerFunction';
+import {Types} from '../../block/Type';
+import {PropDesc, PropGroupDesc} from '../../block/Descriptor';
 
-describe("WorkerEditor", function () {
-
-  it('delete editor after unwatch', function () {
+describe('WorkerEditor', function() {
+  it('delete editor after unwatch', function() {
     let job = new Job();
     let editor1 = WorkerEditor.create(job, '#edit-1', {});
     let editor2 = WorkerEditor.create(job, '#edit-2');
@@ -24,7 +23,7 @@ describe("WorkerEditor", function () {
     assert.isUndefined(job.getValue('#edit-1'));
   });
 
-  it('createFromField', function () {
+  it('createFromField', function() {
     let job = new Job();
     let block = job.createBlock('a');
     let data = {
@@ -49,34 +48,38 @@ describe("WorkerEditor", function () {
     Types.clear('WorkerEditor:func1');
   });
 
-  it('createFromField desc', function () {
+  it('createFromField desc', function() {
     let job = new Job();
     let block = job.createBlock('a');
     let expectedData = {
       '#input': {
         '#is': '',
-        '#more': [{'name': 'a', 'type': 'number'}],
+        '#more': [{name: 'a', type: 'number'}],
         '@b-p': ['a']
       },
       '#is': '',
       '#output': {
         '#is': '',
-        '#more': [{'name': 'b', 'type': 'number'}],
+        '#more': [{name: 'b', type: 'number'}],
         '@b-p': ['b']
       }
     };
 
-    WorkerFunction.registerType({'#is': ''}, {
-      name: 'worker1',
-      properties: [{
-        name: 'use', type: 'worker', inputs: [
-          {name: 'a', type: 'number'}
-        ],
-        outputs: [
-          {name: 'b', type: 'number'}
+    WorkerFunction.registerType(
+      {'#is': ''},
+      {
+        name: 'worker1',
+        properties: [
+          {
+            name: 'use',
+            type: 'worker',
+            inputs: [{name: 'a', type: 'number'}],
+            outputs: [{name: 'b', type: 'number'}]
+          }
         ]
-      }]
-    }, 'WorkerEditor');
+      },
+      'WorkerEditor'
+    );
 
     block.setValue('#is', 'WorkerEditor:worker1');
 
@@ -88,7 +91,7 @@ describe("WorkerEditor", function () {
     Types.clear('WorkerEditor:worker1');
   });
 
-  it('createFromFunction', function () {
+  it('createFromFunction', function() {
     let job = new Job();
     let data = {
       '#is': '',
@@ -105,14 +108,14 @@ describe("WorkerEditor", function () {
     Types.clear('WorkerEditor:worker2');
   });
 
-  it('applyChange', function () {
+  it('applyChange', function() {
     let job = new Job();
     let editor = WorkerEditor.create(job, '#edit-v2', {});
     editor.applyChange();
     assert.deepEqual(job.getValue('v2'), {'#is': ''});
   });
 
-  it('applyChange function', function () {
+  it('applyChange function', function() {
     let job = new Job();
 
     let expectedData = {
@@ -120,11 +123,12 @@ describe("WorkerEditor", function () {
         '#is': '',
         '#more': [
           {
-            'name': 'g', 'type': 'group', 'defaultLen': 2, 'properties': [
-              {'name': 'a', 'type': 'number'}
-            ]
+            name: 'g',
+            type: 'group',
+            defaultLen: 2,
+            properties: [{name: 'a', type: 'number'}]
           },
-          {'name': 'a', 'type': 'number'}
+          {name: 'a', type: 'number'}
         ],
         '@b-p': ['a']
       },
@@ -133,11 +137,12 @@ describe("WorkerEditor", function () {
         '#is': '',
         '#more': [
           {
-            'name': 'g', 'type': 'group', 'defaultLen': 2, 'properties': [
-              {'name': 'b', 'type': 'number'}
-            ]
+            name: 'g',
+            type: 'group',
+            defaultLen: 2,
+            properties: [{name: 'b', type: 'number'}]
           },
-          {'name': 'b', 'type': 'number'}
+          {name: 'b', type: 'number'}
         ],
         '@b-p': ['b']
       },
@@ -145,20 +150,20 @@ describe("WorkerEditor", function () {
     };
     let expectedDescProperties: (PropDesc | PropGroupDesc)[] = [
       {
-        'name': 'g', 'type': 'group', 'defaultLen': 2, 'properties': [
-          {'name': 'a', 'type': 'number'},
-          {'name': 'b', 'type': 'number', 'readonly': true}
-        ]
+        name: 'g',
+        type: 'group',
+        defaultLen: 2,
+        properties: [{name: 'a', type: 'number'}, {name: 'b', type: 'number', readonly: true}]
       },
-      {'name': 'a', 'type': 'number'},
-      {'name': 'b', 'type': 'number', 'readonly': true}
+      {name: 'a', type: 'number'},
+      {name: 'b', type: 'number', readonly: true}
     ];
 
     WorkerFunction.registerType({'#is': ''}, {name: 'worker3', properties: []}, 'WorkerEditor');
 
     let editor = WorkerEditor.createFromFunction(job, '#edit-func', 'WorkerEditor:worker3');
-    editor.createBlock('#input')._load(expectedData["#input"]);
-    editor.createBlock('#output')._load(expectedData["#output"]);
+    editor.createBlock('#input')._load(expectedData['#input']);
+    editor.createBlock('#output')._load(expectedData['#output']);
     editor.setValue('@f-icon', 'fas:plus');
 
     editor.applyChange();

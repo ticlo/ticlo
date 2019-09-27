@@ -1,17 +1,16 @@
-import {DataMap} from "../util/Types";
-import {Logger} from "../util/Logger";
+import {DataMap} from '../util/Types';
+import {Logger} from '../util/Logger';
 
 export class ConnectionSendingData {
   /* istanbul ignore next */
-  getSendingData(): {data: DataMap, size: number} {
+  getSendingData(): {data: DataMap; size: number} {
     // to be overridden
     /* istanbul ignore next */
-    throw new Error("not implemented");
+    throw new Error('not implemented');
   }
 }
 
 export class Connection {
-
   // null for new connection
   // false for not connected but scheduled
   _connected?: boolean;
@@ -24,14 +23,14 @@ export class Connection {
   doSend(datas: DataMap[]): void {
     // to be overridden
     /* istanbul ignore next */
-    throw new Error("not implemented");
+    throw new Error('not implemented');
   }
 
   /* istanbul ignore next */
   onData(data: DataMap): void {
     // to be overridden
     /* istanbul ignore next */
-    throw new Error("not implemented");
+    throw new Error('not implemented');
   }
 
   onConnect() {
@@ -87,7 +86,6 @@ export class Connection {
     this._callImmediates.clear();
     this._immediateLock = 0;
   };
-
 
   onReceive(data: DataMap[]) {
     this._waitingReceive = false;
@@ -165,7 +163,7 @@ export class ConnectionSend extends ConnectionSendingData {
     this._data = data;
   }
 
-  getSendingData(): {data: DataMap, size: number} {
+  getSendingData(): {data: DataMap; size: number} {
     let size = 0;
     for (let key in this._data) {
       let v = this._data[key];

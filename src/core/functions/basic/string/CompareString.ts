@@ -1,6 +1,6 @@
-import {PureFunction} from "../../../block/BlockFunction";
-import {Types} from "../../../block/Type";
-import {FunctionDesc} from "../../../block/Descriptor";
+import {PureFunction} from '../../../block/BlockFunction';
+import {Types} from '../../../block/Type';
+import {FunctionDesc} from '../../../block/Descriptor';
 
 const descriptor: FunctionDesc = {
   name: '',
@@ -61,7 +61,6 @@ Types.add(EndWithFunction, {
   name: 'end-with',
   icon: 'txt:~a'
 });
-
 
 export class ContainFunction extends PureFunction {
   run(): any {

@@ -1,12 +1,10 @@
-import {assert} from "chai";
+import {assert} from 'chai';
 
-import {Job} from "../../main";
-import {showProperties, hideProperties, moveShownProperty} from "../PropertyShowHide";
+import {Job} from '../../main';
+import {showProperties, hideProperties, moveShownProperty} from '../PropertyShowHide';
 
-
-describe("PropertyOrder", function () {
-
-  it('show hide Property', function () {
+describe('PropertyOrder', function() {
+  it('show hide Property', function() {
     let job = new Job();
     job.load({
       '#is': 'add'
@@ -27,14 +25,11 @@ describe("PropertyOrder", function () {
     assert.isUndefined(job.getValue('@b-p'));
   });
 
-  it('show hide Properties with order', function () {
+  it('show hide Properties with order', function() {
     let job = new Job();
     job.load({
       '#is': 'add',
-      '#more': [
-        {name: 'aa', type: 'number'},
-        {name: 'bb', type: 'string'}
-      ]
+      '#more': [{name: 'aa', type: 'number'}, {name: 'bb', type: 'string'}]
     });
 
     showProperties(job, ['#call', '1', 'bb']);
@@ -47,7 +42,7 @@ describe("PropertyOrder", function () {
     assert.deepEqual(job.getValue('@b-p'), ['#is', '#call', '0', 'bb', '5']);
   });
 
-  it('moveShownProperty', function () {
+  it('moveShownProperty', function() {
     let job = new Job();
 
     moveShownProperty(job, 'a', 'b');
@@ -65,5 +60,4 @@ describe("PropertyOrder", function () {
     moveShownProperty(job, 'a', 'a');
     assert.deepEqual(job.getValue('@b-p'), ['a', 'b', 'c']);
   });
-
 });

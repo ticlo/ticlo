@@ -1,4 +1,4 @@
-import {Event, ErrorEvent, EventType} from "./Event";
+import {Event, ErrorEvent, EventType} from './Event';
 
 export interface Listener<T> {
   onSourceChange(prop: Dispatcher<T>): void;
@@ -25,7 +25,6 @@ export interface BlockBindingSource extends ValueDispatcher<any>, Destroyable {
 }
 
 export class ValueDispatcher<T> implements Dispatcher<T> {
-
   _listeners: Set<Listener<T>> = new Set<Listener<T>>();
   _updating = false;
   _value: T;
@@ -61,10 +60,8 @@ export class ValueDispatcher<T> implements Dispatcher<T> {
   }
 }
 
-
 /// a helper class to use async await on Dispatcher
 export class ListenPromise<T> implements Listener<T> {
-
   // if source is set, it will be managed by the listener and unlistened automaticly
   _source: BlockBindingSource;
   _valid = false;
@@ -122,4 +119,3 @@ export class ListenPromise<T> implements Listener<T> {
     this._valid = false;
   }
 }
-

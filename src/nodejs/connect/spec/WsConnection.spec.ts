@@ -1,30 +1,30 @@
-import {assert} from "chai";
-import {Root} from "../../../core/block/Block";
-import {AsyncClientPromise} from "../../../core/connect/spec/AsyncClientPromise";
-import {shouldHappen, shouldReject} from "../../../core/util/test-util";
-import {initEditor} from "../../../editor";
-import {MockWsServer} from "./MockWsServer";
-import {WsClientConnection} from "../WsClientConnection";
-import {Logger} from "../../../core/util/Logger";
-import {addTestTypes, removeTestTypes} from "../../../core/connect/spec/BulkTypes";
-import {makeLocalConnection} from "../../../core/connect/LocalConnection";
-import {FunctionDesc} from "../../../core/block/Descriptor";
-import {Types} from "../../../core/block/Type";
+import {assert} from 'chai';
+import {Root} from '../../../core/block/Block';
+import {AsyncClientPromise} from '../../../core/connect/spec/AsyncClientPromise';
+import {shouldHappen, shouldReject} from '../../../core/util/test-util';
+import {initEditor} from '../../../editor';
+import {MockWsServer} from './MockWsServer';
+import {WsClientConnection} from '../WsClientConnection';
+import {Logger} from '../../../core/util/Logger';
+import {addTestTypes, removeTestTypes} from '../../../core/connect/spec/BulkTypes';
+import {makeLocalConnection} from '../../../core/connect/LocalConnection';
+import {FunctionDesc} from '../../../core/block/Descriptor';
+import {Types} from '../../../core/block/Type';
 
 const PORT = 8082;
 
-describe("WsConnect", function () {
+describe('WsConnect', function() {
   let server: MockWsServer;
-  before(async function () {
+  before(async function() {
     server = new MockWsServer(PORT);
     await server.init();
   });
 
-  after(function () {
+  after(function() {
     server.close();
   });
 
-  it('reconnect', async function () {
+  it('reconnect', async function() {
     let job = Root.instance.addJob('WsConnect1');
     let client = new WsClientConnection(`http://127.0.0.1:${PORT}`, false);
 
@@ -57,7 +57,7 @@ describe("WsConnect", function () {
     Root.instance.deleteValue('WsConnect1');
   });
 
-  it('desc frames', async function () {
+  it('desc frames', async function() {
     addTestTypes('A', 4000);
     let client = new WsClientConnection(`http://127.0.0.1:${PORT}`, true);
 
@@ -76,5 +76,4 @@ describe("WsConnect", function () {
     removeTestTypes('A', 4000);
     removeTestTypes('B', 4000);
   });
-
 });

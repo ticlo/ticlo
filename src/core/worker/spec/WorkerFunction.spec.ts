@@ -1,13 +1,12 @@
-import {assert} from "chai";
-import {Job, Root} from "../../block/Block";
-import {WorkerFunction} from "../WorkerFunction";
-import {TestFunctionRunner} from "../../block/spec/TestFunction";
-import "../../functions/basic/math/Arithmetic";
-import {DataMap} from "../../util/Types";
+import {assert} from 'chai';
+import {Job, Root} from '../../block/Block';
+import {WorkerFunction} from '../WorkerFunction';
+import {TestFunctionRunner} from '../../block/spec/TestFunction';
+import '../../functions/basic/math/Arithmetic';
+import {DataMap} from '../../util/Types';
 
-describe("WorkerFunction", function () {
-
-  it('basic', function () {
+describe('WorkerFunction', function() {
+  it('basic', function() {
     TestFunctionRunner.clearLog();
     let job = new Job();
 
@@ -17,23 +16,25 @@ describe("WorkerFunction", function () {
 
     let jobData: DataMap = {
       '#is': '',
-      'runner': {'#is': 'test-runner', '#-log': 'nest1', '~#call': '##.#input.in1'}
+      'runner': {
+        '#is': 'test-runner',
+        '#-log': 'nest1',
+        '~#call': '##.#input.in1'
+      }
     };
     WorkerFunction.registerType(jobData, {name: 'class1'}, 'WorkerFunction');
 
     Root.run();
-    assert.deepEqual(TestFunctionRunner.popLogs(), ['nest1'],
-      'nested job should be created');
+    assert.deepEqual(TestFunctionRunner.popLogs(), ['nest1'], 'nested job should be created');
 
-    let impl: Job = aBlock.getValue('#func')  as Job;
+    let impl: Job = aBlock.getValue('#func') as Job;
     assert.instanceOf(impl, Job, 'get #func of nested job');
 
     assert.deepEqual(impl.save(), jobData, 'serialize nested job');
 
     aBlock.setValue('in1', 1);
     Root.run();
-    assert.deepEqual(TestFunctionRunner.popLogs(), ['nest1'],
-      'nested job triggered with binding');
+    assert.deepEqual(TestFunctionRunner.popLogs(), ['nest1'], 'nested job triggered with binding');
 
     aBlock.setValue('in1', 2);
     aBlock.setValue('#is', null);
@@ -43,7 +44,7 @@ describe("WorkerFunction", function () {
     assert.deepEqual(impl.save(), jobData, 'serialize nested job after destroy');
   });
 
-  it('output', function () {
+  it('output', function() {
     let job = new Job();
 
     let aBlock = job.createBlock('a');
@@ -62,7 +63,7 @@ describe("WorkerFunction", function () {
     assert.equal(aBlock.getValue('out1'), 3, 'output from nested logic');
   });
 
-  it('namespace', function () {
+  it('namespace', function() {
     let job = new Job();
 
     let aBlock = job.createBlock('a');

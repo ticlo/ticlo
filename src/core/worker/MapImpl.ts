@@ -1,13 +1,12 @@
-import {BlockFunction, FunctionData} from "../block/BlockFunction";
-import {DataMap, isSavedBlock} from "../util/Types";
-import {Block} from "../block/Block";
+import {BlockFunction, FunctionData} from '../block/BlockFunction';
+import {DataMap, isSavedBlock} from '../util/Types';
+import {Block} from '../block/Block';
 
 export type MapWorkerMode = undefined | 'reuse' | 'persist';
 
 export class MapImpl extends BlockFunction {
-
   _src: DataMap;
-  _srcChanged: boolean /* = false*/;
+  _srcChanged: boolean; /* = false*/
 
   _onSourceChange(val: any): boolean {
     // TODO allow string use for class name

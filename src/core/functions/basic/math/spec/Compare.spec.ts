@@ -1,10 +1,9 @@
-import {assert} from "chai";
-import "../Compare";
-import {Job, Root, Block} from "../../../../block/Block";
+import {assert} from 'chai';
+import '../Compare';
+import {Job, Root, Block} from '../../../../block/Block';
 
-describe("Compare", function () {
-
-  it('equal', function () {
+describe('Compare', function() {
+  it('equal', function() {
     let job = new Job();
 
     let aBlock = job.createBlock('a');
@@ -38,7 +37,7 @@ describe("Compare", function () {
     assert.equal(aBlock.getValue('output'), true);
   });
 
-  it('not equal', function () {
+  it('not equal', function() {
     let job = new Job();
 
     let aBlock = job.createBlock('a');
@@ -72,7 +71,7 @@ describe("Compare", function () {
     assert.equal(aBlock.getValue('output'), false);
   });
 
-  it('greater than', function () {
+  it('greater than', function() {
     let job = new Job();
 
     let aBlock = job.createBlock('a');
@@ -94,7 +93,7 @@ describe("Compare", function () {
     assert.equal(aBlock.getValue('output'), true);
   });
 
-  it('greater equal', function () {
+  it('greater equal', function() {
     let job = new Job();
 
     let aBlock = job.createBlock('a');
@@ -116,7 +115,7 @@ describe("Compare", function () {
     assert.equal(aBlock.getValue('output'), true);
   });
 
-  it('less than', function () {
+  it('less than', function() {
     let job = new Job();
 
     let aBlock = job.createBlock('a');
@@ -138,7 +137,7 @@ describe("Compare", function () {
     assert.equal(aBlock.getValue('output'), true);
   });
 
-  it('less equal', function () {
+  it('less equal', function() {
     let job = new Job();
 
     let aBlock = job.createBlock('a');

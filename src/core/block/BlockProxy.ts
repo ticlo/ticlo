@@ -1,8 +1,12 @@
-import {Block} from "./Block";
-import {BlockConstConfig} from "./BlockConfigs";
-import {BlockIO} from "./BlockProperty";
+import {Block} from './Block';
+import {BlockConstConfig} from './BlockConfigs';
+import {BlockIO} from './BlockProperty';
 
-const defaultPropertyDescriptor = {writable: true, enumerable: true, configurable: true};
+const defaultPropertyDescriptor = {
+  writable: true,
+  enumerable: true,
+  configurable: true
+};
 
 export const BlockProxy = {
   get(block: Block, field: string, receiver: object): any {
@@ -39,7 +43,7 @@ export const BlockProxy = {
   },
   has(block: Block, field: string): boolean {
     let prop = block.getProperty(field, false);
-    return (prop && prop._value !== undefined);
+    return prop && prop._value !== undefined;
   },
   getOwnPropertyDescriptor(block: Block, field: string): PropertyDescriptor | undefined {
     return defaultPropertyDescriptor;
@@ -59,5 +63,5 @@ export const BlockDeepProxy = {
       return val;
     }
     return undefined;
-  },
+  }
 };

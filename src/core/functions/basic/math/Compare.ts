@@ -1,6 +1,6 @@
-import {Types} from "../../../block/Type";
-import {PureFunction, FunctionData} from "../../../block/BlockFunction";
-import {FunctionDesc} from "../../../block/Descriptor";
+import {Types} from '../../../block/Type';
+import {PureFunction, FunctionData} from '../../../block/BlockFunction';
+import {FunctionDesc} from '../../../block/Descriptor';
 
 const descriptor: FunctionDesc = {
   name: '',
@@ -64,12 +64,8 @@ Types.add(NotFunction, {
   ...descriptor,
   name: 'not',
   icon: 'txt:!',
-  properties: [
-    {name: '0', type: 'toggle', visible: 'high'},
-    {name: 'output', type: 'toggle', readonly: true}
-  ]
+  properties: [{name: '0', type: 'toggle', visible: 'high'}, {name: 'output', type: 'toggle', readonly: true}]
 });
-
 
 export class GreaterThanFunction extends PureFunction {
   run(): any {
@@ -89,7 +85,6 @@ Types.add(GreaterThanFunction, {
   icon: 'fas:greater-than'
 });
 
-
 export class LessThanFunction extends PureFunction {
   run(): any {
     let v0 = this._data.getValue('0');
@@ -108,7 +103,6 @@ Types.add(LessThanFunction, {
   icon: 'fas:less-than'
 });
 
-
 export class GreaterEqualFunction extends PureFunction {
   run(): any {
     let v0 = this._data.getValue('0');
@@ -126,7 +120,6 @@ Types.add(GreaterEqualFunction, {
   name: 'greater-equal',
   icon: 'fas:greater-than-equal'
 });
-
 
 export class LessEqualFunction extends PureFunction {
   run(): any {

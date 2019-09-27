@@ -1,25 +1,26 @@
-import {Connection, ConnectionSend} from "./Connection";
-import {Uid} from "../util/Uid";
-import {DataMap, isSavedBlock, measureObjSize} from "../util/Types";
-import {Block} from "../block/Block";
-import {FunctionDesc, PropDesc, PropGroupDesc} from "../block/Descriptor";
-import {deepEqual} from "../util/Compare";
+import {Connection, ConnectionSend} from './Connection';
+import {Uid} from '../util/Uid';
+import {DataMap, isSavedBlock, measureObjSize} from '../util/Types';
+import {Block} from '../block/Block';
+import {FunctionDesc, PropDesc, PropGroupDesc} from '../block/Descriptor';
+import {deepEqual} from '../util/Compare';
 import {
   ClientCallbacks,
   ClientRequest,
   ClientDescListener,
   DescRequest,
   GlobalWatch,
-  SetRequest, SubscribeCallbacks,
+  SetRequest,
+  SubscribeCallbacks,
   SubscribeRequest,
-  WatchRequest, MergedClientRequest
-} from "./ClientRequests";
-import {ClientConn} from "./ClientConn";
+  WatchRequest,
+  MergedClientRequest
+} from './ClientRequests';
+import {ClientConn} from './ClientConn';
 
-export {ValueUpdate, ValueState} from "./ClientRequests";
+export {ValueUpdate, ValueState} from './ClientRequests';
 
 export abstract class ClientConnection extends Connection implements ClientConn {
-
   static addEditorDescriptor(id: string, desc: FunctionDesc) {
     DescRequest.editorCache.set(id, desc);
   }
@@ -37,7 +38,6 @@ export abstract class ClientConnection extends Connection implements ClientConn 
 
   readonly descReq: DescRequest;
   readonly globalWatch: GlobalWatch;
-
 
   constructor(editorListeners: boolean) {
     super();
@@ -83,7 +83,8 @@ export abstract class ClientConnection extends Connection implements ClientConn 
           req.onError(response.msg);
           break;
         }
-        default: // 'done'
+        default:
+          // 'done'
           req.onDone();
       }
     }
@@ -94,7 +95,9 @@ export abstract class ClientConnection extends Connection implements ClientConn 
     if (callbacks == null) {
       promise = new Promise((resolve, reject) => {
         callbacks = {
-          onDone: resolve, onUpdate: resolve, onError: reject
+          onDone: resolve,
+          onUpdate: resolve,
+          onError: reject
         };
       });
     }
@@ -160,7 +163,12 @@ export abstract class ClientConnection extends Connection implements ClientConn 
     }
   }
 
-  setBinding(path: string, from: string, absolute = false, important: boolean | ClientCallbacks = false): Promise<any> | string {
+  setBinding(
+    path: string,
+    from: string,
+    absolute = false,
+    important: boolean | ClientCallbacks = false
+  ): Promise<any> | string {
     // return this.simpleRequest({cmd: 'bind', path, from}, callbacks);
     if (important) {
       if (this.setRequests.has(path)) {
@@ -190,7 +198,6 @@ export abstract class ClientConnection extends Connection implements ClientConn 
     // TODO
     return this.simpleRequest({cmd: 'get', path}, callbacks);
   }
-
 
   createBlock(path: string, data?: DataMap, anyName = false, callbacks?: ClientCallbacks): Promise<any> | string {
     return this.simpleRequest({cmd: 'create', path, data, anyName}, callbacks);
@@ -259,7 +266,12 @@ export abstract class ClientConnection extends Connection implements ClientConn 
     }
   }
 
-  editWorker(path: string, fromField?: string, fromFunction?: string, callbacks?: ClientCallbacks): Promise<any> | string {
+  editWorker(
+    path: string,
+    fromField?: string,
+    fromFunction?: string,
+    callbacks?: ClientCallbacks
+  ): Promise<any> | string {
     return this.simpleRequest({cmd: 'editWorker', path, fromField, fromFunction}, callbacks);
   }
 
@@ -283,7 +295,12 @@ export abstract class ClientConnection extends Connection implements ClientConn 
     return this.simpleRequest({cmd: 'setLen', path, group, length}, callbacks);
   }
 
-  addMoreProp(path: string, desc: PropDesc | PropGroupDesc, group?: string, callbacks?: ClientCallbacks): Promise<any> | string {
+  addMoreProp(
+    path: string,
+    desc: PropDesc | PropGroupDesc,
+    group?: string,
+    callbacks?: ClientCallbacks
+  ): Promise<any> | string {
     return this.simpleRequest({cmd: 'addMoreProp', path, desc, group}, callbacks);
   }
 
@@ -291,7 +308,13 @@ export abstract class ClientConnection extends Connection implements ClientConn 
     return this.simpleRequest({cmd: 'removeMoreProp', path, name, group}, callbacks);
   }
 
-  moveMoreProp(path: string, nameFrom: string, nameTo: string, group?: string, callbacks?: ClientCallbacks): Promise<any> | string {
+  moveMoreProp(
+    path: string,
+    nameFrom: string,
+    nameTo: string,
+    group?: string,
+    callbacks?: ClientCallbacks
+  ): Promise<any> | string {
     return this.simpleRequest({cmd: 'moveMoreProp', path, nameFrom, nameTo, group}, callbacks);
   }
 
@@ -303,7 +326,13 @@ export abstract class ClientConnection extends Connection implements ClientConn 
     return this.simpleRequest({cmd: 'removeGroupProp', path, group, idx}, callbacks);
   }
 
-  moveGroupProp(path: string, group: string, oldIdx: number, newIdx: number, callbacks?: ClientCallbacks): Promise<any> | string {
+  moveGroupProp(
+    path: string,
+    group: string,
+    oldIdx: number,
+    newIdx: number,
+    callbacks?: ClientCallbacks
+  ): Promise<any> | string {
     return this.simpleRequest({cmd: 'moveGroupProp', path, group, oldIdx, newIdx}, callbacks);
   }
 
@@ -328,7 +357,6 @@ export abstract class ClientConnection extends Connection implements ClientConn 
       } else {
         listener(null, id);
       }
-
     } else {
       if (this.descReq.cache.has(id)) {
         return this.descReq.cache.get(id);
@@ -383,10 +411,7 @@ export abstract class ClientConnection extends Connection implements ClientConn 
     }
     if (!this._destroyed) {
       // reconnect after N seconds, N = 1,2,3,4 ... 60
-      this._reconnectTimeout = setTimeout(
-        () => this.reconnect(),
-        this._reconnectInterval * 1000
-      );
+      this._reconnectTimeout = setTimeout(() => this.reconnect(), this._reconnectInterval * 1000);
       if (this._reconnectInterval < 60) {
         this._reconnectInterval++;
       }

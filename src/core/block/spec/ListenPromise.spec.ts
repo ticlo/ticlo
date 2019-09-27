@@ -1,11 +1,10 @@
-import {assert, AssertionError} from "chai";
-import {Job} from "../Block";
-import {ErrorEvent} from "../Event";
-import {shouldReject} from "../../util/test-util";
+import {assert, AssertionError} from 'chai';
+import {Job} from '../Block';
+import {ErrorEvent} from '../Event';
+import {shouldReject} from '../../util/test-util';
 
-describe("ListenPromise", function () {
-
-  it('basic', async function () {
+describe('ListenPromise', function() {
+  it('basic', async function() {
     let job = new Job();
 
     setTimeout(() => job.setValue('a', 1), 0);
@@ -15,13 +14,11 @@ describe("ListenPromise", function () {
     setTimeout(() => job.setValue('a', 2), 0);
     assert.equal(await job.waitNextValue('a'), 2, 'wait next value');
 
-
     setTimeout(() => job.setValue('c', new ErrorEvent('')), 0);
-    assert.instanceOf(await shouldReject(job.waitValue('c')), ErrorEvent,
-      'waitValue should be rejected on ErrorEvent');
+    assert.instanceOf(await shouldReject(job.waitValue('c')), ErrorEvent, 'waitValue should be rejected on ErrorEvent');
   });
 
-  it('validator', async function () {
+  it('validator', async function() {
     let job = new Job();
 
     let timer;
@@ -32,14 +29,15 @@ describe("ListenPromise", function () {
     clearInterval(timer);
   });
 
-  it('destroyed dispatcher', async function () {
+  it('destroyed dispatcher', async function() {
     let job = new Job();
     let block = job.createBlock('a');
 
     setTimeout(() => job.deleteValue('a'), 0);
-    assert.instanceOf(await shouldReject(block.waitValue('v')), ErrorEvent,
-      'waitValue should be rejected when parent is destroyed');
+    assert.instanceOf(
+      await shouldReject(block.waitValue('v')),
+      ErrorEvent,
+      'waitValue should be rejected when parent is destroyed'
+    );
   });
-
-
 });

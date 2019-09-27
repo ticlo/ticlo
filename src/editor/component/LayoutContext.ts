@@ -1,6 +1,5 @@
-import * as React from "react";
-import {PropDesc} from "../../core/block/Descriptor";
-
+import * as React from 'react';
+import {PropDesc} from '../../core/block/Descriptor';
 
 export interface TicloLayoutContext {
   editJob?(path: string, onSave: () => void): void;

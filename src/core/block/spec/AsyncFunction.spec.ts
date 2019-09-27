@@ -1,13 +1,12 @@
-import {assert} from "chai";
-import {TestAsyncFunctionLog} from "./TestFunction";
-import {Job, Root} from "../Block";
-import {ErrorEvent, Event} from "../Event";
-import {shouldReject, shouldTimeout} from "../../util/test-util";
-import "../../functions/basic/math/Arithmetic";
+import {assert} from 'chai';
+import {TestAsyncFunctionLog} from './TestFunction';
+import {Job, Root} from '../Block';
+import {ErrorEvent, Event} from '../Event';
+import {shouldReject, shouldTimeout} from '../../util/test-util';
+import '../../functions/basic/math/Arithmetic';
 
 for (let typeName of ['async-function-promise', 'async-function-manual']) {
-
-  describe(typeName, function () {
+  describe(typeName, function() {
     beforeEach(() => {
       TestAsyncFunctionLog.clearLog();
     });
@@ -16,7 +15,7 @@ for (let typeName of ['async-function-promise', 'async-function-manual']) {
       TestAsyncFunctionLog.clearLog();
     });
 
-    it('basic', async function () {
+    it('basic', async function() {
       let job = new Job();
 
       let block = job.createBlock('obj');
@@ -34,7 +33,7 @@ for (let typeName of ['async-function-promise', 'async-function-manual']) {
       job.setValue('obj', null);
     });
 
-    it('cancel call', async function () {
+    it('cancel call', async function() {
       let job = new Job();
 
       let block = job.createBlock('obj');
@@ -52,7 +51,7 @@ for (let typeName of ['async-function-promise', 'async-function-manual']) {
       assert.deepEqual(TestAsyncFunctionLog.asyncLog, [], 'async call canceled');
     });
 
-    it('chain async call', async function () {
+    it('chain async call', async function() {
       let job = new Job();
 
       let block1 = job.createBlock('obj1');
@@ -100,7 +99,7 @@ for (let typeName of ['async-function-promise', 'async-function-manual']) {
       assert.deepEqual(TestAsyncFunctionLog.asyncLog, [], 'error from block1 cancels block2');
     });
 
-    it('cancel async call', async function () {
+    it('cancel async call', async function() {
       let job = new Job();
 
       let block1 = job.createBlock('obj1');
@@ -119,7 +118,7 @@ for (let typeName of ['async-function-promise', 'async-function-manual']) {
       await shouldTimeout(emitPromise, 20);
     });
 
-    it('reject async call', async function () {
+    it('reject async call', async function() {
       let job = new Job();
 
       let block1 = job.createBlock('obj1');
@@ -132,7 +131,7 @@ for (let typeName of ['async-function-promise', 'async-function-manual']) {
       await shouldReject(block1.waitValue('#emit'));
     });
 
-    it('async emit custom value', async function () {
+    it('async emit custom value', async function() {
       let job = new Job();
 
       let block1 = job.createBlock('obj1');
@@ -144,6 +143,5 @@ for (let typeName of ['async-function-promise', 'async-function-manual']) {
       block1.setValue('#call', {});
       assert.equal(await block1.waitValue('#emit'), 'ticlo');
     });
-
   });
 }

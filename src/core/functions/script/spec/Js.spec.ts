@@ -1,11 +1,11 @@
-import {assert} from "chai";
-import {Job, Root, Block} from "../../../block/Block";
-import {NOT_READY} from "../../../block/Event";
-import {shouldReject, shouldTimeout} from "../../../util/test-util";
-import "../Js";
+import {assert} from 'chai';
+import {Job, Root, Block} from '../../../block/Block';
+import {NOT_READY} from '../../../block/Event';
+import {shouldReject, shouldTimeout} from '../../../util/test-util';
+import '../Js';
 
-describe("Js", function () {
-  it('basic', function () {
+describe('Js', function() {
+  it('basic', function() {
     let job = new Job();
 
     let aBlock = job.createBlock('a');
@@ -18,7 +18,7 @@ describe("Js", function () {
     assert.equal(aBlock.getValue('out1'), 321, 'basic script output');
   });
 
-  it('nested function', function () {
+  it('nested function', function() {
     let job = new Job();
 
     let aBlock = job.createBlock('a');
@@ -39,12 +39,12 @@ describe("Js", function () {
     job2.load(saved);
 
     let aBlock2 = job2.getValue('a');
-    assert.instanceOf(aBlock2, Block, "load add block from saved data");
+    assert.instanceOf(aBlock2, Block, 'load add block from saved data');
     Root.run();
     assert.equal(aBlock2.getValue('out2'), 457, 'run script function after loading saved data');
   });
 
-  it('errors', async function () {
+  it('errors', async function() {
     let job = new Job();
 
     let aBlock = job.createBlock('a');
@@ -66,7 +66,6 @@ describe("Js", function () {
     bBlock.setValue('script', 'return function(){throw new Error("");}'); // nested function
     await shouldReject(bBlock.waitNextValue('#emit'));
 
-
     let cBlock = job.createBlock('c');
     cBlock.setValue('#is', 'js');
     cBlock.setValue('script', true); // invalid script
@@ -77,5 +76,4 @@ describe("Js", function () {
     dBlock.setValue('script', '}'); // invalid script
     await shouldReject(dBlock.waitNextValue('#emit'));
   });
-
 });

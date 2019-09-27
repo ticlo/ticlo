@@ -1,10 +1,9 @@
-import {assert} from "chai";
-import {TestFunctionRunner} from "./TestFunction";
-import {Job, Root} from "../Block";
+import {assert} from 'chai';
+import {TestFunctionRunner} from './TestFunction';
+import {Job, Root} from '../Block';
 
-describe("BlockConfig", function () {
-
-  it('readonly control', function () {
+describe('BlockConfig', function() {
+  it('readonly control', function() {
     let job = new Job();
 
     let block = job.createBlock('obj');
@@ -21,10 +20,9 @@ describe("BlockConfig", function () {
     block.setValue('a', 1);
     block.setBinding('##', 'a');
     assert.equal(block.getValue('##'), job, 'readonly property setBinding');
-
   });
 
-  it('#is', function () {
+  it('#is', function() {
     let job = new Job();
 
     let block = job.createBlock('obj');

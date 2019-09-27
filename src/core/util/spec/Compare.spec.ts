@@ -1,16 +1,15 @@
-import {assert} from "chai";
+import {assert} from 'chai';
 import {arrayEqual, deepEqual, shallowEqual} from '../Compare';
 
-describe("Compare", function () {
-
-  it('arrayEqual', function () {
+describe('Compare', function() {
+  it('arrayEqual', function() {
     assert.isTrue(arrayEqual([1, 2], [1, 2]));
     assert.isFalse(arrayEqual([1, 2], [2, 1]));
     assert.isFalse(arrayEqual([1, 2], [1, 2, 3]));
     assert.isFalse(arrayEqual([1, 2, 3], [1, 2]));
   });
 
-  it('deepEqual', function () {
+  it('deepEqual', function() {
     assert.isTrue(deepEqual(1, 1));
     assert.isTrue(deepEqual(NaN, NaN));
     assert.isTrue(deepEqual(undefined, undefined));
@@ -31,7 +30,7 @@ describe("Compare", function () {
     assert.isFalse(deepEqual({a: 1}, {a: 1, b: undefined}));
   });
 
-  it('shallowEqual', function () {
+  it('shallowEqual', function() {
     assert.isTrue(shallowEqual(1, 1));
     assert.isTrue(shallowEqual(NaN, NaN));
     assert.isTrue(shallowEqual(undefined, undefined));

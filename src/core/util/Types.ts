@@ -1,7 +1,6 @@
-import {isMoment} from "moment";
-import {Block} from "../block/Block";
-import {BlockIO} from "../block/BlockProperty";
-
+import {isMoment} from 'moment';
+import {Block} from '../block/Block';
+import {BlockIO} from '../block/BlockProperty';
 
 export interface DataMap {
   [key: string]: any;
@@ -34,7 +33,6 @@ function truncateMap(val: DataMap, maxSize: number): [any, number, boolean] {
     if (trunc) {
       truncated = true;
     }
-
   }
   return [result, total, truncated];
 }
@@ -163,7 +161,6 @@ export function measureObjSize(val: any, maxSize: number = 1024): number {
     return val.length;
   }
   return 4;
-
 }
 
 // convert block to Object, used in MapFunction output

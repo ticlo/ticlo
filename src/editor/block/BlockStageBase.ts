@@ -1,10 +1,10 @@
-import React from "react";
-import {ClientConn} from "../../core/client";
-import {DataMap} from "../../core/util/Types";
-import {DragState} from "rc-dock";
-import {BlockItem, FieldItem, Stage} from "./Field";
-import {forAllPathsBetween} from "../../core/util/Path";
-import {LazyUpdateComponent} from "../../ui/component/LazyUpdateComponent";
+import React from 'react';
+import {ClientConn} from '../../core/client';
+import {DataMap} from '../../core/util/Types';
+import {DragState} from 'rc-dock';
+import {BlockItem, FieldItem, Stage} from './Field';
+import {forAllPathsBetween} from '../../core/util/Path';
+import {LazyUpdateComponent} from '../../ui/component/LazyUpdateComponent';
 
 export interface StageProps {
   conn: ClientConn;
@@ -14,7 +14,6 @@ export interface StageProps {
 }
 
 export abstract class BlockStageBase<State> extends LazyUpdateComponent<StageProps, State> implements Stage {
-
   abstract getRefElement(): HTMLElement;
 
   abstract getRootElement(): HTMLElement;
@@ -271,7 +270,6 @@ export abstract class BlockStageBase<State> extends LazyUpdateComponent<StagePro
   constructor(props: StageProps) {
     super(props);
     props.conn.watch(props.basePath, this.watchListener);
-
   }
 
   UNSAFE_componentWillReceiveProps(nextProps: StageProps) {

@@ -1,8 +1,8 @@
-import Websocket from "ws";
-import {ClientConnection} from "../../core/connect/ClientConnection";
-import {DataMap} from "../../core/util/Types";
-import {Logger} from "../../core/util/Logger";
-import {decode, encode} from "../../core/util/Serialize";
+import Websocket from 'ws';
+import {ClientConnection} from '../../core/connect/ClientConnection';
+import {DataMap} from '../../core/util/Types';
+import {Logger} from '../../core/util/Logger';
+import {decode, encode} from '../../core/util/Serialize';
 
 export class WsClientConnection extends ClientConnection {
   _ws: Websocket;

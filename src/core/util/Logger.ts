@@ -1,9 +1,7 @@
 type LoggerMessageType = string | (() => string);
 type PrintCallback = (s: string, level: number, source: any) => void;
 
-
 export class Logger {
-
   static readonly TRACE = 0x01;
   static readonly DEBUG = 0x02;
   static readonly FINE = 0x04;
@@ -43,7 +41,7 @@ export class Logger {
   static log(msg: LoggerMessageType, level: number, source: any) {
     if ((level & Logger._preFilter) === 0) return;
 
-    if (typeof msg !== "string") {
+    if (typeof msg !== 'string') {
       msg = msg();
     }
 
@@ -86,5 +84,3 @@ export class Logger {
     Logger.log(msg, Logger.FATAL, source);
   }
 }
-
-

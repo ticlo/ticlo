@@ -1,10 +1,9 @@
-import {Block} from "../block/Block";
-import {BlockProperty, HelperProperty} from "../block/BlockProperty";
-import {PropDesc, PropGroupDesc, shouldShowProperty} from "../block/Descriptor";
-import {Types} from "../block/Type";
-import {buildPropertiesOrder, hideProperties, showProperties} from "./PropertyShowHide";
-import {PropertyMover} from "./PropertyMover";
-
+import {Block} from '../block/Block';
+import {BlockProperty, HelperProperty} from '../block/BlockProperty';
+import {PropDesc, PropGroupDesc, shouldShowProperty} from '../block/Descriptor';
+import {Types} from '../block/Type';
+import {buildPropertiesOrder, hideProperties, showProperties} from './PropertyShowHide';
+import {PropertyMover} from './PropertyMover';
 
 function findGroupDesc(block: Block, group: string): PropGroupDesc {
   let groupDesc: PropGroupDesc;
@@ -126,8 +125,13 @@ export function moveGroupProperty(block: Block, group: string, oldIdx: number, n
   if (!(length >= 0)) {
     length = groupDesc.defaultLen;
   }
-  if (oldIdx < 0 || oldIdx >= length || Math.round(oldIdx) !== oldIdx ||
-    newIdx < 0 || newIdx >= length || Math.round(newIdx) !== newIdx ||
+  if (
+    oldIdx < 0 ||
+    oldIdx >= length ||
+    Math.round(oldIdx) !== oldIdx ||
+    newIdx < 0 ||
+    newIdx >= length ||
+    Math.round(newIdx) !== newIdx ||
     oldIdx === newIdx
   ) {
     // invalid idx
@@ -152,9 +156,7 @@ export function moveGroupProperty(block: Block, group: string, oldIdx: number, n
   }
 }
 
-
 export function setGroupLength(block: Block, group: string, length: number) {
-
   let groupDesc = findGroupDesc(block, group);
 
   if (!groupDesc) {

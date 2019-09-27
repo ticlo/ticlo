@@ -1,7 +1,7 @@
-import {FunctionDesc} from "../block/Descriptor";
+import {FunctionDesc} from '../block/Descriptor';
 
 export const clientDescriptors: {[key: string]: FunctionDesc} = {
-  'input': {
+  input: {
     priority: 0,
     name: 'input',
     id: 'input',
@@ -9,14 +9,12 @@ export const clientDescriptors: {[key: string]: FunctionDesc} = {
     style: 'repeater',
     properties: []
   },
-  'output': {
+  output: {
     priority: 0,
     name: 'output',
     id: 'output',
     icon: 'fas:arrow-circle-up',
     style: 'repeater',
-    properties: [
-      {name: '#wait', type: 'toggle'}
-    ]
-  },
+    properties: [{name: '#wait', type: 'toggle'}]
+  }
 };

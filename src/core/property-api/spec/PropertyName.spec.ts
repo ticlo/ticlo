@@ -1,13 +1,11 @@
-import {assert} from "chai";
+import {assert} from 'chai';
 
-import {Block, Job} from "../../block/Block";
-import "../../functions/basic/math/Arithmetic";
-import {findPropertyForNewBlock, renameProperty} from "../PropertyName";
+import {Block, Job} from '../../block/Block';
+import '../../functions/basic/math/Arithmetic';
+import {findPropertyForNewBlock, renameProperty} from '../PropertyName';
 
-describe("PropertyUtil", function () {
-
-  it('findPropertyForNewBlock', function () {
-
+describe('PropertyUtil', function() {
+  it('findPropertyForNewBlock', function() {
     let job = new Job();
     job.setValue('#more', [{name: 'add4', type: 'sting'}]);
 
@@ -32,7 +30,7 @@ describe("PropertyUtil", function () {
     assert.equal(p._name, 'add5');
   });
 
-  it('renameProperty', function () {
+  it('renameProperty', function() {
     let job = new Job();
 
     // move undefined property
@@ -82,12 +80,13 @@ describe("PropertyUtil", function () {
 
     // move child binding with same children names
     let a7 = job.createBlock('a7');
-    a7.createBlock('a7').createBlock('a7').setValue('v', 6);
+    a7.createBlock('a7')
+      .createBlock('a7')
+      .setValue('v', 6);
     job.setBinding('c7', 'a7.a7.a7.v');
     renameProperty(a7, 'a7', 'b7', true);
     assert.isFalse(a7.isPropertyUsed('a7'));
     assert.equal(job.getProperty('c7')._bindingPath, 'a7.b7.a7.v');
-
 
     // move indirect binding
     job.setValue('a8', 7);
@@ -95,7 +94,5 @@ describe("PropertyUtil", function () {
     renameProperty(job, 'a8', 'b8', true);
     assert.isFalse(job.isPropertyUsed('a8'));
     assert.equal(job.queryProperty('c8.v')._bindingPath, '##.b8');
-
   });
-
 });

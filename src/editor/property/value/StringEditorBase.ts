@@ -1,11 +1,10 @@
-import React from "react";
-import {Input} from "antd";
-import {ValueEditorProps} from "./ValueEditorBase";
+import React from 'react';
+import {Input} from 'antd';
+import {ValueEditorProps} from './ValueEditorBase';
 
 const {TextArea} = Input;
 
 export abstract class StringEditorBase extends React.PureComponent<ValueEditorProps, any> {
-
   // this is not a state because in commitChange() editorValue is changed but we don't want a re-render until prop change
   _pendingValue: any = null;
 
@@ -38,7 +37,7 @@ export abstract class StringEditorBase extends React.PureComponent<ValueEditorPr
         this.forceUpdate();
       }
       return;
-    } else if (e.key === 'Enter' && !(e.shiftKey && (e.target instanceof HTMLTextAreaElement))) {
+    } else if (e.key === 'Enter' && !(e.shiftKey && e.target instanceof HTMLTextAreaElement)) {
       if (this._pendingValue != null) {
         this.commitChange(this._pendingValue);
       } else {
@@ -50,4 +49,3 @@ export abstract class StringEditorBase extends React.PureComponent<ValueEditorPr
     e.stopPropagation();
   };
 }
-

@@ -1,6 +1,6 @@
-import React from "react";
-import {DataMap} from "../../core/util/Types";
-import {ClientConn} from "../../core/connect/ClientConn";
+import React from 'react';
+import {DataMap} from '../../core/util/Types';
+import {ClientConn} from '../../core/connect/ClientConn';
 
 export abstract class DataRendererItem<T = any> {
   _renderers: Set<PureDataRenderer<any, any> & T> = new Set<PureDataRenderer<any, any> & T>();
@@ -88,6 +88,4 @@ export abstract class PureDataRenderer<P extends DataRendererProps<any>, S> exte
       super.forceUpdate();
     }
   };
-
-
 }

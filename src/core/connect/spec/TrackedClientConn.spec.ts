@@ -1,11 +1,9 @@
-import {assert} from "chai";
-import {dummyInterface} from "../../util/test-util";
-import {TrackedClientConn} from "../TrackedClientConn";
+import {assert} from 'chai';
+import {dummyInterface} from '../../util/test-util';
+import {TrackedClientConn} from '../TrackedClientConn';
 
-
-describe("TrackedClientConn", function () {
-
-  it('changed', async function () {
+describe('TrackedClientConn', function() {
+  it('changed', async function() {
     let tracked = new TrackedClientConn(dummyInterface as any);
     assert.isFalse(tracked.changed._value);
 
@@ -110,6 +108,5 @@ describe("TrackedClientConn", function () {
     tracked.moveGroupProp(null, null, null, null, null);
     assert.isTrue(tracked.changed._value);
     tracked.acknowledge();
-
   });
 });

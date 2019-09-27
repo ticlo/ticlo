@@ -1,10 +1,9 @@
-import {assert} from "chai";
-import "../Join";
-import {Job, Root, Block} from "../../../../block/Block";
+import {assert} from 'chai';
+import '../Join';
+import {Job, Root, Block} from '../../../../block/Block';
 
-describe("Join", function () {
-
-  it('basic join', function () {
+describe('Join', function() {
+  it('basic join', function() {
     let job = new Job();
 
     let aBlock = job.createBlock('a');
@@ -41,6 +40,5 @@ describe("Join", function () {
     aBlock.setValue('#len', 0);
     Root.run();
     assert.equal(aBlock.getValue('output'), undefined);
-
   });
 });

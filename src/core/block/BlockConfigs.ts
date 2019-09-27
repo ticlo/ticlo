@@ -1,9 +1,8 @@
-import {BlockIO, BlockProperty} from "./BlockProperty";
-import {Block, InputBlock, OutputBlock} from "./Block";
-import {BaseFunction, FunctionData} from "./BlockFunction";
+import {BlockIO, BlockProperty} from './BlockProperty';
+import {Block, InputBlock, OutputBlock} from './Block';
+import {BaseFunction, FunctionData} from './BlockFunction';
 
 class BlockTypeConfig extends BlockProperty {
-
   constructor(block: Block, name: string) {
     super(block, name);
     this._value = '';
@@ -159,23 +158,22 @@ export const ConfigGenerators: {[key: string]: typeof BlockProperty} = {
   '#len': BlockLengthConfig,
   '#wait': BlockWaitingConfig,
   '#cancel': BlockCancelConfig,
-  '#priority': BlockPriorityConfig,
+  '#priority': BlockPriorityConfig
 };
 
 export const JobConfigGenerators: {[key: string]: typeof BlockProperty} = {
   ...ConfigGenerators,
   '#input': BlockInputConfig,
-  '#output': BlockOutputConfig,
+  '#output': BlockOutputConfig
 };
 
 export const InputConfigGenerators: {[key: string]: typeof BlockProperty} = {
   ...ConfigGenerators,
-  '#is': BlockInputTypeConfig,
+  '#is': BlockInputTypeConfig
 };
-
 
 export const OutputConfigGenerators: {[key: string]: typeof BlockProperty} = {
   ...ConfigGenerators,
   '#is': BlockOutputTypeConfig,
-  '#wait': BlockOutputWaitingConfig, // directly forward wait to parent job
+  '#wait': BlockOutputWaitingConfig // directly forward wait to parent job
 };

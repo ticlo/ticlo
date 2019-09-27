@@ -1,10 +1,9 @@
-import {Block} from "../block/Block";
-import {configDescs, PropDesc, PropGroupDesc, shouldShowProperty} from "../block/Descriptor";
-import {Types} from "../block/Type";
-import {HelperProperty} from "../block/BlockProperty";
+import {Block} from '../block/Block';
+import {configDescs, PropDesc, PropGroupDesc, shouldShowProperty} from '../block/Descriptor';
+import {Types} from '../block/Type';
+import {HelperProperty} from '../block/BlockProperty';
 
 const configList = Object.keys(configDescs);
-
 
 export function buildPropertiesOrder(block: Block): string[] {
   let orders = [...configList];
@@ -71,40 +70,37 @@ export function showProperties(block: Block, fields: string[]) {
   }
   if (searchForOrder.length) {
     let orders = buildPropertiesOrder(block);
-    addField:
-      for (let field of searchForOrder) {
-        let idx = orders.indexOf(field);
-        if (idx < 0) {
-          blockProps.push(field);
-        } else {
-          let d = Math.max(idx, orders.length - 1 - idx);
-          for (let i = 1; i <= d; ++i) {
-
-            // insert after a reference field before it
-            let left = idx - i;
-            if (left >= 0) {
-              let refpos = blockProps.indexOf(orders[left]);
-              if (refpos > -1) {
-                blockProps.splice(refpos + 1, 0, field);
-                continue addField;
-              }
+    addField: for (let field of searchForOrder) {
+      let idx = orders.indexOf(field);
+      if (idx < 0) {
+        blockProps.push(field);
+      } else {
+        let d = Math.max(idx, orders.length - 1 - idx);
+        for (let i = 1; i <= d; ++i) {
+          // insert after a reference field before it
+          let left = idx - i;
+          if (left >= 0) {
+            let refpos = blockProps.indexOf(orders[left]);
+            if (refpos > -1) {
+              blockProps.splice(refpos + 1, 0, field);
+              continue addField;
             }
-
-            // insert before a reference field after it
-            let right = idx + i;
-            if (right < orders.length) {
-              let refpos = blockProps.indexOf(orders[right]);
-              if (refpos > -1) {
-                blockProps.splice(refpos, 0, field);
-                continue addField;
-              }
-            }
-
           }
-          // not found? just insert in the end
-          blockProps.push(field);
+
+          // insert before a reference field after it
+          let right = idx + i;
+          if (right < orders.length) {
+            let refpos = blockProps.indexOf(orders[right]);
+            if (refpos > -1) {
+              blockProps.splice(refpos, 0, field);
+              continue addField;
+            }
+          }
         }
+        // not found? just insert in the end
+        blockProps.push(field);
       }
+    }
   } else if (!changeNeeded) {
     return;
   }

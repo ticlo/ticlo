@@ -1,14 +1,13 @@
-import {Types} from "../block/Type";
-import {BlockFunction, FunctionData} from "../block/BlockFunction";
-import {FunctionDesc} from "../block/Descriptor";
-import {BlockIO} from "../block/BlockProperty";
-import {Block, BlockChildWatch, Job} from "../block/Block";
-import {DataMap, isSavedBlock} from "../util/Types";
-import {Event, EventType} from "../block/Event";
-import {MapImpl} from "./MapImpl";
+import {Types} from '../block/Type';
+import {BlockFunction, FunctionData} from '../block/BlockFunction';
+import {FunctionDesc} from '../block/Descriptor';
+import {BlockIO} from '../block/BlockProperty';
+import {Block, BlockChildWatch, Job} from '../block/Block';
+import {DataMap, isSavedBlock} from '../util/Types';
+import {Event, EventType} from '../block/Event';
+import {MapImpl} from './MapImpl';
 
 export class ForEachFunction extends BlockFunction implements BlockChildWatch {
-
   _src: DataMap;
   _srcChanged: boolean = false;
   _onSourceChange!: (val: any) => boolean;
@@ -219,5 +218,5 @@ Types.add(ForEachFunction, {
     {name: 'input', type: 'any'},
     {name: 'use', type: 'worker'},
     {name: 'output', type: 'any', readonly: true}
-  ],
+  ]
 });

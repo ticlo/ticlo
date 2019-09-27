@@ -1,7 +1,7 @@
-import {BlockIO, BlockProperty} from "./BlockProperty";
-import {FunctionDesc} from "./Descriptor";
-import {BlockMode, Block} from "./Block";
-import {Event, EventType} from "./Event";
+import {BlockIO, BlockProperty} from './BlockProperty';
+import {FunctionDesc} from './Descriptor';
+import {BlockMode, Block} from './Block';
+import {Event, EventType} from './Event';
 
 export interface FunctionOutput {
   // field is 'output' by default
@@ -9,7 +9,6 @@ export interface FunctionOutput {
 }
 
 export interface FunctionInput {
-
   getValue(field: string): any;
 
   getLength(): number;
@@ -93,8 +92,6 @@ export class BlockFunction implements BaseFunction {
   destroy(): void {
     this._data = undefined;
   }
-
 }
-
 
 export type FunctionClass = typeof BaseFunction;

@@ -1,39 +1,37 @@
-import {assert} from "chai";
-import {Job, Root, Block} from "../Block";
-import {Dispatcher} from "../Dispatcher";
-import {voidProperty} from "../Void";
-import {BlockIO} from "../BlockProperty";
-import {VoidListeners} from "./TestFunction";
+import {assert} from 'chai';
+import {Job, Root, Block} from '../Block';
+import {Dispatcher} from '../Dispatcher';
+import {voidProperty} from '../Void';
+import {BlockIO} from '../BlockProperty';
+import {VoidListeners} from './TestFunction';
 
-describe("Destroyed Block", function () {
+describe('Destroyed Block', function() {
+  it('throw on destroyed block in strict mode', function() {
+    let keepStrictMode = Root.instance._strictMode;
+    Root.instance._strictMode = true;
 
-  it('throw on destroyed block in strict mode', function () {
-      let keepStrictMode = Root.instance._strictMode;
-      Root.instance._strictMode = true;
+    let job = new Job();
 
-      let job = new Job();
+    let block = job.createBlock('a');
+    let propB = job.getProperty('b');
 
-      let block = job.createBlock('a');
-      let propB = job.getProperty('b');
+    job.setValue('a', null);
 
-      job.setValue('a', null);
+    assert(block.isDestroyed(), 'block should be destroyed');
 
-      assert(block.isDestroyed(), 'block should be destroyed');
+    assert.throw(() => block.getProperty('a'));
+    assert.throw(() => block.setValue('a', 1));
+    assert.throw(() => block.updateValue('a', 1));
+    assert.throw(() => block.setBinding('a', 'b'));
+    assert.throw(() => block.output(1));
+    assert.throw(() => block.createBinding('##', propB));
+    assert.throw(() => block.watch(VoidListeners));
 
-      assert.throw(() => block.getProperty('a'));
-      assert.throw(() => block.setValue('a', 1));
-      assert.throw(() => block.updateValue('a', 1));
-      assert.throw(() => block.setBinding('a', 'b'));
-      assert.throw(() => block.output(1));
-      assert.throw(() => block.createBinding('##', propB));
-      assert.throw(() => block.watch(VoidListeners));
+    block.destroy(); // destroy twice should be safe
+    Root.instance._strictMode = keepStrictMode;
+  });
 
-      block.destroy(); // destroy twice should be safe
-      Root.instance._strictMode = keepStrictMode;
-    }
-  );
-
-  it('void on destroyed block in normal mode', function () {
+  it('void on destroyed block in normal mode', function() {
     let keepStrictMode = Root.instance._strictMode;
     Root.instance._strictMode = false;
 
@@ -55,5 +53,4 @@ describe("Destroyed Block", function () {
 
     Root.instance._strictMode = keepStrictMode;
   });
-
 });

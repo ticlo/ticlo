@@ -1,9 +1,9 @@
-import {Types} from "../block/Type";
-import {BlockFunction, FunctionData} from "../block/BlockFunction";
-import {FunctionDesc} from "../block/Descriptor";
-import {BlockIO} from "../block/BlockProperty";
-import {Block, Job} from "../block/Block";
-import {DataMap} from "../util/Types";
+import {Types} from '../block/Type';
+import {BlockFunction, FunctionData} from '../block/BlockFunction';
+import {FunctionDesc} from '../block/Descriptor';
+import {BlockIO} from '../block/BlockProperty';
+import {Block, Job} from '../block/Block';
+import {DataMap} from '../util/Types';
 
 export class WorkerFunction extends BlockFunction {
   readonly type: string;
@@ -20,7 +20,6 @@ export class WorkerFunction extends BlockFunction {
   }
 
   static registerType(data: DataMap, desc: FunctionDesc, namespace?: string) {
-
     class CustomWorkerFunction extends WorkerFunction {
       static ticlWorkerData = data;
     }
@@ -36,4 +35,3 @@ export class WorkerFunction extends BlockFunction {
     Types.add(CustomWorkerFunction, desc, namespace);
   }
 }
-

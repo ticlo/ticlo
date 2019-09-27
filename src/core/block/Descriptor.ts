@@ -1,12 +1,12 @@
-import {BlockMode, BlockModeList} from "./Block";
+import {BlockMode, BlockModeList} from './Block';
 
 // high: always show in block, unless toggled by user
 // low: always hide in block
 // undefined: show in block but not in sub block
-export type VisibleType = 'high' | 'low' ;
+export type VisibleType = 'high' | 'low';
 
 export type ValueType =
-  'number'
+  | 'number'
   | 'string'
   | 'toggle'
   | 'select'
@@ -23,8 +23,7 @@ export type ValueType =
   // special editors
   | 'type'
   | 'worker'
-  | 'service'
-  ;
+  | 'service';
 
 export interface PropDesc {
   name: string;
@@ -109,7 +108,7 @@ export function getFuncStyleFromDesc(desc: FunctionDesc, prefix = 'ticl-block-pr
 export const blankFuncDesc: FunctionDesc = {
   name: '',
   icon: '',
-  properties: [],
+  properties: []
 };
 export const blankPropDesc: PropDesc = {
   name: '',
@@ -130,19 +129,27 @@ export const configDescs: {[key: string]: PropDesc} = {
   '#sync': {name: '#sync', type: 'toggle'},
   '#wait': {name: '#wait', type: 'toggle'},
   '#cancel': {name: '#cancel', type: 'event'},
-  '#priority': {name: '#priority', type: 'select', options: ['auto', 0, 1, 2, 3], default: 'auto'},
+  '#priority': {
+    name: '#priority',
+    type: 'select',
+    options: ['auto', 0, 1, 2, 3],
+    default: 'auto'
+  },
   '#input': {name: '#input', type: 'any'},
-  '#output': {name: '#output', type: 'any'},
+  '#output': {name: '#output', type: 'any'}
 };
 
 export const configList: PropDesc[] = [
   configDescs['#call'],
   configDescs['#mode'],
   configDescs['#priority'],
-  configDescs['#sync'],
+  configDescs['#sync']
 ];
 
-export function buildPropDescCache(funcDesc: FunctionDesc, more: (PropDesc | PropGroupDesc)[]): {[key: string]: PropDesc} {
+export function buildPropDescCache(
+  funcDesc: FunctionDesc,
+  more: (PropDesc | PropGroupDesc)[]
+): {[key: string]: PropDesc} {
   if (!funcDesc) return null;
 
   let result: {[key: string]: PropDesc} = {};

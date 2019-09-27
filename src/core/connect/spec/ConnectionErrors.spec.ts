@@ -1,96 +1,100 @@
-import {assert} from "chai";
-import {Root} from "../../block/Block";
-import {makeLocalConnection} from "../LocalConnection";
-import {AddFunction} from "../../functions/basic/math/Arithmetic";
-import {DataMap} from "../../util/Types";
-import {AsyncClientPromise} from "./AsyncClientPromise";
-import {shouldReject} from "../../util/test-util";
+import {assert} from 'chai';
+import {Root} from '../../block/Block';
+import {makeLocalConnection} from '../LocalConnection';
+import {AddFunction} from '../../functions/basic/math/Arithmetic';
+import {DataMap} from '../../util/Types';
+import {AsyncClientPromise} from './AsyncClientPromise';
+import {shouldReject} from '../../util/test-util';
 
 const initAdd = AddFunction;
 
-describe("Connection Error", function () {
-  it('common errors', async function () {
+describe('Connection Error', function() {
+  it('common errors', async function() {
     let job = Root.instance.addJob('ConnectionError1');
     let [server, client] = makeLocalConnection(Root.instance, false);
 
-    assert.equal(await shouldReject(
-      client.simpleRequest({cmd: 'invalid_command', path: ''}, null) as Promise<any>
-    ), 'invalid command');
-    assert.equal(await shouldReject(
-      client.simpleRequest({cmd: 'get'}, null) as Promise<any>
-    ), 'invalid path');
+    assert.equal(
+      await shouldReject(client.simpleRequest({cmd: 'invalid_command', path: ''}, null) as Promise<any>),
+      'invalid command'
+    );
+    assert.equal(await shouldReject(client.simpleRequest({cmd: 'get'}, null) as Promise<any>), 'invalid path');
 
-    assert.equal(await shouldReject(
-      client.setValue('ConnectionError1.a.b.c', 1, true) as Promise<any>
-    ), 'invalid path');
-    assert.equal(await shouldReject(
-      client.updateValue('ConnectionError1.a.b.c', 1, true) as Promise<any>
-    ), 'invalid path');
-    assert.equal(await shouldReject(
-      client.setBinding('ConnectionError1.a.b.c', '1', false, true) as Promise<any>
-    ), 'invalid path');
+    assert.equal(
+      await shouldReject(client.setValue('ConnectionError1.a.b.c', 1, true) as Promise<any>),
+      'invalid path'
+    );
+    assert.equal(
+      await shouldReject(client.updateValue('ConnectionError1.a.b.c', 1, true) as Promise<any>),
+      'invalid path'
+    );
+    assert.equal(
+      await shouldReject(client.setBinding('ConnectionError1.a.b.c', '1', false, true) as Promise<any>),
+      'invalid path'
+    );
 
-    assert.equal(await shouldReject(
-      client.getValue('ConnectionError1.a.b.c') as Promise<any>
-    ), 'invalid path');
+    assert.equal(await shouldReject(client.getValue('ConnectionError1.a.b.c') as Promise<any>), 'invalid path');
 
-    assert.equal(await shouldReject(
-      client.listChildren('ConnectionError1.a.b.c') as Promise<any>
-    ), 'invalid path');
+    assert.equal(await shouldReject(client.listChildren('ConnectionError1.a.b.c') as Promise<any>), 'invalid path');
 
-    assert.equal(await shouldReject(
-      client.createBlock('ConnectionError1.a.b.c') as Promise<any>
-    ), 'invalid path');
+    assert.equal(await shouldReject(client.createBlock('ConnectionError1.a.b.c') as Promise<any>), 'invalid path');
 
-    assert.equal(await shouldReject(
-      client.editWorker('ConnectionError1.a.b.c') as Promise<any>
-    ), 'invalid path');
+    assert.equal(await shouldReject(client.editWorker('ConnectionError1.a.b.c') as Promise<any>), 'invalid path');
 
-    assert.equal(await shouldReject(
-      client.applyWorkerChange('ConnectionError1.a.b.c') as Promise<any>
-    ), 'invalid path');
+    assert.equal(
+      await shouldReject(client.applyWorkerChange('ConnectionError1.a.b.c') as Promise<any>),
+      'invalid path'
+    );
 
-    assert.equal(await shouldReject(
-      client.showProps('ConnectionError1.a.b.c', ['@a']) as Promise<any>
-    ), 'invalid path');
+    assert.equal(
+      await shouldReject(client.showProps('ConnectionError1.a.b.c', ['@a']) as Promise<any>),
+      'invalid path'
+    );
 
-    assert.equal(await shouldReject(
-      client.hideProps('ConnectionError1.a.b.c', ['@a']) as Promise<any>
-    ), 'invalid path');
+    assert.equal(
+      await shouldReject(client.hideProps('ConnectionError1.a.b.c', ['@a']) as Promise<any>),
+      'invalid path'
+    );
 
-    assert.equal(await shouldReject(
-      client.showProps('ConnectionError1.a.b.c', null) as Promise<any>
-    ), 'invalid properties');
+    assert.equal(
+      await shouldReject(client.showProps('ConnectionError1.a.b.c', null) as Promise<any>),
+      'invalid properties'
+    );
 
-    assert.equal(await shouldReject(
-      client.hideProps('ConnectionError1.a.b.c', null) as Promise<any>
-    ), 'invalid properties');
+    assert.equal(
+      await shouldReject(client.hideProps('ConnectionError1.a.b.c', null) as Promise<any>),
+      'invalid properties'
+    );
 
-    assert.equal(await shouldReject(
-      client.addMoreProp('a', null) as Promise<any>
-    ), 'invalid desc');
-    assert.equal(await shouldReject(
-      client.addMoreProp('ConnectionError1.a.b.c', {name: 'a', type: 'string'}) as Promise<any>
-    ), 'invalid path');
-    assert.equal(await shouldReject(
-      client.removeMoreProp('ConnectionError1.a.b.c', 'a') as Promise<any>
-    ), 'invalid path');
-    assert.equal(await shouldReject(
-      client.moveMoreProp('ConnectionError1.a.b.c', 'a', 'b') as Promise<any>
-    ), 'invalid path');
+    assert.equal(await shouldReject(client.addMoreProp('a', null) as Promise<any>), 'invalid desc');
+    assert.equal(
+      await shouldReject(client.addMoreProp('ConnectionError1.a.b.c', {
+        name: 'a',
+        type: 'string'
+      }) as Promise<any>),
+      'invalid path'
+    );
+    assert.equal(
+      await shouldReject(client.removeMoreProp('ConnectionError1.a.b.c', 'a') as Promise<any>),
+      'invalid path'
+    );
+    assert.equal(
+      await shouldReject(client.moveMoreProp('ConnectionError1.a.b.c', 'a', 'b') as Promise<any>),
+      'invalid path'
+    );
 
-    assert.equal(await shouldReject(
-      client.setLen('ConnectionError1.a.b', '', null) as Promise<any>
-    ), 'invalid path');
-    assert.equal(await shouldReject(
-      client.insertGroupProp('ConnectionError1.a.b.c', '', 0) as Promise<any>
-    ), 'invalid path');
-    assert.equal(await shouldReject(
-      client.removeGroupProp('ConnectionError1.a.b.c', '', 0) as Promise<any>
-    ), 'invalid path');
-    assert.equal(await shouldReject(
-      client.moveGroupProp('ConnectionError1.a.b.c', '', 0, 1) as Promise<any>
-    ), 'invalid path');
+    assert.equal(await shouldReject(client.setLen('ConnectionError1.a.b', '', null) as Promise<any>), 'invalid path');
+    assert.equal(
+      await shouldReject(client.insertGroupProp('ConnectionError1.a.b.c', '', 0) as Promise<any>),
+      'invalid path'
+    );
+    assert.equal(
+      await shouldReject(client.removeGroupProp('ConnectionError1.a.b.c', '', 0) as Promise<any>),
+      'invalid path'
+    );
+    assert.equal(
+      await shouldReject(client.moveGroupProp('ConnectionError1.a.b.c', '', 0, 1) as Promise<any>),
+      'invalid path'
+    );
 
     let callbacks = new AsyncClientPromise();
     client.watch('ConnectionError1.a.b.c', callbacks);
@@ -100,7 +104,7 @@ describe("Connection Error", function () {
     Root.instance.deleteValue('ConnectionError1');
   });
 
-  it('parent removed', async function () {
+  it('parent removed', async function() {
     let job = Root.instance.addJob('ConnectionError2');
     let [server, client] = makeLocalConnection(Root.instance, false);
     let a = job.createBlock('a');

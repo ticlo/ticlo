@@ -1,10 +1,9 @@
-import {assert} from "chai";
-import "../Arithmetic";
-import {Job, Root, Block} from "../../../../block/Block";
+import {assert} from 'chai';
+import '../Arithmetic';
+import {Job, Root, Block} from '../../../../block/Block';
 
-describe("Math", function () {
-
-  it('basic add', function () {
+describe('Math', function() {
+  it('basic add', function() {
     let job = new Job();
 
     let aBlock = job.createBlock('a');
@@ -38,12 +37,12 @@ describe("Math", function () {
     job2.load(saved);
 
     let aBlock2 = job2.getValue('a2');
-    assert.instanceOf(aBlock2, Block, "load add block from saved data");
+    assert.instanceOf(aBlock2, Block, 'load add block from saved data');
     Root.run();
     assert.equal(aBlock2.getValue('output'), 6, 'run add function after loading saved data');
   });
 
-  it('add multiple', function () {
+  it('add multiple', function() {
     let job = new Job();
 
     let aBlock = job.createBlock('a');
@@ -73,7 +72,7 @@ describe("Math", function () {
     assert.equal(aBlock.getValue('output'), undefined, 'return undefined when add nothing');
   });
 
-  it('subtract', function () {
+  it('subtract', function() {
     let job = new Job();
 
     let aBlock = job.createBlock('a');
@@ -89,7 +88,7 @@ describe("Math", function () {
     assert.equal(aBlock.getValue('output'), undefined, '7-null == undefined');
   });
 
-  it('divide', function () {
+  it('divide', function() {
     let job = new Job();
 
     let aBlock = job.createBlock('a');
@@ -105,7 +104,7 @@ describe("Math", function () {
     assert.equal(aBlock.getValue('output'), undefined, '7/null == undefined');
   });
 
-  it('multiply', function () {
+  it('multiply', function() {
     let job = new Job();
 
     let aBlock = job.createBlock('a');
@@ -130,5 +129,4 @@ describe("Math", function () {
     Root.run();
     assert.equal(aBlock.getValue('output'), undefined, 'return undefined when multiply nothing');
   });
-
 });

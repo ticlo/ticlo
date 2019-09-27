@@ -1,5 +1,5 @@
-import {Block} from "../block/Block";
-import {BlockProperty} from "../block/BlockProperty";
+import {Block} from '../block/Block';
+import {BlockProperty} from '../block/BlockProperty';
 
 /**
  *
@@ -18,7 +18,6 @@ export function iterateProperties(block: Block, callback: (property: BlockProper
 }
 
 export class PropertyMover {
-
   block: Block;
   oldName: string;
   binding: any;
@@ -42,14 +41,12 @@ export class PropertyMover {
 
       let checkOutbound = (checkProp: BlockProperty) => {
         for (let targetProp of checkProp._listeners) {
-
           // find binding targets
           if (targetProp instanceof BlockProperty) {
             if (targetProp._bindingPath && targetProp._bindingPath.includes(oldName)) {
               let names = targetProp._bindingPath.split('.');
               for (let i = 0; i < names.length; ++i) {
                 if (names[i] === oldName) {
-
                   // check if the binding path touchs the property we are moving
                   let bindSourceProp = targetProp._block.queryProperty(names.slice(0, i + 1).join('.'));
                   if (bindSourceProp === property) {
@@ -75,7 +72,6 @@ export class PropertyMover {
         if (property._saved instanceof Block && property._saved._prop === property) {
           iterateProperties(property._saved, checkOutbound);
         }
-
       }
       block.setValue(oldName, undefined);
     }

@@ -1,8 +1,7 @@
-import {assert} from "chai";
-import {Logger} from "../Logger";
+import {assert} from 'chai';
+import {Logger} from '../Logger';
 
 export class TestLogger {
-
   logs: string[] = [];
 
   constructor(filter: number = Logger.WARN_AND_ABOVE) {
@@ -18,9 +17,8 @@ export class TestLogger {
   }
 }
 
-describe("Logger", function () {
-
-  it('basic', function () {
+describe('Logger', function() {
+  it('basic', function() {
     let traceLogger1 = new TestLogger(Logger.TRACE);
     let traceLogger2 = new TestLogger(Logger.TRACE_AND_ABOVE);
     let debugLogger1 = new TestLogger(Logger.DEBUG);
@@ -79,7 +77,7 @@ describe("Logger", function () {
     fatalLogger1.cancel();
   });
 
-  it('message lambda', function () {
+  it('message lambda', function() {
     let logger = new TestLogger();
     let count = 0;
     let message = () => {
@@ -98,5 +96,4 @@ describe("Logger", function () {
     assert.deepEqual(logger.logs, ['message']);
     logger.cancel();
   });
-
 });

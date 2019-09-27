@@ -1,15 +1,13 @@
-import {assert} from "chai";
-import {voidProperty} from "../Void";
+import {assert} from 'chai';
+import {voidProperty} from '../Void';
 
-import {Job, Root} from "../Block";
-import {BlockPropertyEvent} from "../BlockProperty";
-import {Dispatcher} from "../Dispatcher";
-import {VoidListeners} from "./TestFunction";
+import {Job, Root} from '../Block';
+import {BlockPropertyEvent} from '../BlockProperty';
+import {Dispatcher} from '../Dispatcher';
+import {VoidListeners} from './TestFunction';
 
-describe("VoidProperty", function () {
-
-  it('basic', function () {
-
+describe('VoidProperty', function() {
+  it('basic', function() {
     voidProperty.setValue(1);
     assert.isUndefined(voidProperty.getValue(), 'void property never change value');
     voidProperty.updateValue(2);
@@ -34,5 +32,4 @@ describe("VoidProperty", function () {
       assert.isUndefined(voidProperty.getValue());
     }
   });
-
 });

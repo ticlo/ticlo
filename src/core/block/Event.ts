@@ -1,5 +1,5 @@
-import {Resolver} from "./Resolver";
-import {Uid} from "../util/Uid";
+import {Resolver} from './Resolver';
+import {Uid} from '../util/Uid';
 
 export enum EventType {
   TRIGGER = 0,
@@ -8,7 +8,6 @@ export enum EventType {
 }
 
 export class Event {
-
   static _uid = new Uid();
   static get uid(): string {
     return Event._uid.current;
@@ -39,7 +38,6 @@ export class Event {
     return EventType.VOID;
   }
 }
-
 
 export class ErrorEvent extends Event {
   detail: any;

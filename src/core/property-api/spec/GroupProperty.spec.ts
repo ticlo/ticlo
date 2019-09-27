@@ -1,12 +1,11 @@
-import {assert} from "chai";
+import {assert} from 'chai';
 
-import {Block, Job} from "../../block/Block";
-import "../../functions/basic/math/Arithmetic";
-import {insertGroupProperty, moveGroupProperty, removeGroupProperty, setGroupLength} from "../GroupProperty";
+import {Block, Job} from '../../block/Block';
+import '../../functions/basic/math/Arithmetic';
+import {insertGroupProperty, moveGroupProperty, removeGroupProperty, setGroupLength} from '../GroupProperty';
 
-describe("GroupProperty", function () {
-
-  it('setGroupLength', function () {
+describe('GroupProperty', function() {
+  it('setGroupLength', function() {
     let job = new Job();
     job.load({
       '#is': 'add'
@@ -32,12 +31,17 @@ describe("GroupProperty", function () {
     assert.deepEqual(job.getValue('@b-p'), ['0', '1']);
   });
 
-  it('setGroupLength on #more', function () {
+  it('setGroupLength on #more', function() {
     let job = new Job();
     job.load({
       '#is': '',
       '#more': [
-        {name: 'g', type: 'group', defaultLen: 2, properties: [{name: 'a', type: 'number'}]},
+        {
+          name: 'g',
+          type: 'group',
+          defaultLen: 2,
+          properties: [{name: 'a', type: 'number'}]
+        }
       ]
     });
 
@@ -46,7 +50,7 @@ describe("GroupProperty", function () {
     assert.deepEqual(job.getValue('@b-p'), ['a2']);
   });
 
-  it('insertGroupProperty', function () {
+  it('insertGroupProperty', function() {
     let job = new Job();
     job.load({
       '#is': 'add',
@@ -71,7 +75,7 @@ describe("GroupProperty", function () {
     assert.isUndefined(job.getValue('invalidG#len'));
   });
 
-  it('removeGroupProperty', function () {
+  it('removeGroupProperty', function() {
     let job = new Job();
     job.load({
       '#is': 'add',
@@ -93,7 +97,7 @@ describe("GroupProperty", function () {
     assert.isUndefined(job.getValue('invalidG#len'));
   });
 
-  it('moveGroupProperty', function () {
+  it('moveGroupProperty', function() {
     let job = new Job();
     job.load({
       '#is': 'add',

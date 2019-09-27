@@ -1,13 +1,13 @@
-export * from "./block/BlockStage";
-export * from "./property/PropertyList";
-export * from "./node-tree/NodeTree";
+export * from './block/BlockStage';
+export * from './property/PropertyList';
+export * from './node-tree/NodeTree';
 
-import * as ticloI18n from "../core/util/i18n";
+import * as ticloI18n from '../core/util/i18n';
 
 // register special view
 
-import "./block/view/Note";
-import "./block/view/Slider";
+import './block/view/Note';
+import './block/view/Slider';
 
 export async function initEditor() {
   let lng = window.localStorage.getItem('ticlo-lng');

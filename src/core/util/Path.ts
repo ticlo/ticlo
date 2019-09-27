@@ -1,7 +1,6 @@
-import {Block, Job, Root} from "../block/Block";
-import {BlockProperty, HelperProperty} from "../block/BlockProperty";
-import {Logger} from "./Logger";
-
+import {Block, Job, Root} from '../block/Block';
+import {BlockProperty, HelperProperty} from '../block/BlockProperty';
+import {Logger} from './Logger';
 
 export function resolve(path1: string, path2: string, property?: BlockProperty): string {
   if (path2 == null) {
@@ -10,25 +9,24 @@ export function resolve(path1: string, path2: string, property?: BlockProperty):
   let p1 = path1.split('.');
   let p2 = path2.split('.');
 
-  loopwhile:
-    while (p2.length > 0 && p1.length > 0) {
-      switch (p2[0]) {
-        case '##':
-          // parent path
-          p1.pop();
-        /* falls through */
-        case '#':
-          // shift is slow, but this should not be a common thing in binding
-          p2.shift();
-          break;
-        case '###':
-          // stage path can't be resolved just from the path string, can not resolve
-          Logger.warn(`can not resolve base path ${path1} with ${path2}`);
-          return path2;
-        default:
-          break loopwhile;
-      }
+  loopwhile: while (p2.length > 0 && p1.length > 0) {
+    switch (p2[0]) {
+      case '##':
+        // parent path
+        p1.pop();
+      /* falls through */
+      case '#':
+        // shift is slow, but this should not be a common thing in binding
+        p2.shift();
+        break;
+      case '###':
+        // stage path can't be resolved just from the path string, can not resolve
+        Logger.warn(`can not resolve base path ${path1} with ${path2}`);
+        return path2;
+      default:
+        break loopwhile;
     }
+  }
   return p1.concat(p2).join('.');
 }
 
@@ -46,8 +44,13 @@ export function relative(base: string, from: string): string {
   return str2.padStart(str2.length + (p1.length - pos) * 3, '##.');
 }
 
-
-function propRelativeImpl(job: Job, baseBlock: Block, fromBlock: Block, fromField: string, pathPrefix?: string): string {
+function propRelativeImpl(
+  job: Job,
+  baseBlock: Block,
+  fromBlock: Block,
+  fromField: string,
+  pathPrefix?: string
+): string {
   let fromBlocks: Block[] = [];
   while (fromBlock !== job) {
     fromBlocks.push(fromBlock);
@@ -88,7 +91,6 @@ function propRelativeImpl(job: Job, baseBlock: Block, fromBlock: Block, fromFiel
     }
   }
 
-
   // path go down
   for (let i = fromBlocks.length - 1; i >= 0; --i) {
     resultPaths.push(fromBlocks[i]._prop._name);
@@ -105,7 +107,7 @@ export function propRelative(base: Block, from: BlockProperty): string {
 
   if (baseBlock._job === fromBlock._job) {
     // base and from in same job
-    return (propRelativeImpl(baseBlock._job, baseBlock, fromBlock, from._name));
+    return propRelativeImpl(baseBlock._job, baseBlock, fromBlock, from._name);
   } else {
     // base and from different jobs
     let baseJob = baseBlock._job;

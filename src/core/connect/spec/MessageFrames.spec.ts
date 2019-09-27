@@ -1,18 +1,18 @@
-import {assert} from "chai";
-import {Root} from "../../block/Block";
-import {makeLocalConnection} from "../LocalConnection";
-import {AsyncClientPromise} from "./AsyncClientPromise";
-import {VoidListeners, TestFunctionRunner} from "../../block/spec/TestFunction";
-import {FunctionDesc} from "../../block/Descriptor";
-import {shouldHappen} from "../../util/test-util";
-import {JsFunction} from "../../functions/script/Js";
-import {Types} from "../../block/Type";
-import {DataMap} from "../../util/Types";
-import {PureFunction} from "../../block/BlockFunction";
-import {addTestTypes, removeTestTypes} from "./BulkTypes";
+import {assert} from 'chai';
+import {Root} from '../../block/Block';
+import {makeLocalConnection} from '../LocalConnection';
+import {AsyncClientPromise} from './AsyncClientPromise';
+import {VoidListeners, TestFunctionRunner} from '../../block/spec/TestFunction';
+import {FunctionDesc} from '../../block/Descriptor';
+import {shouldHappen} from '../../util/test-util';
+import {JsFunction} from '../../functions/script/Js';
+import {Types} from '../../block/Type';
+import {DataMap} from '../../util/Types';
+import {PureFunction} from '../../block/BlockFunction';
+import {addTestTypes, removeTestTypes} from './BulkTypes';
 
-describe("Connection Message Frames", function () {
-  it('desc frames', async function () {
+describe('Connection Message Frames', function() {
+  it('desc frames', async function() {
     addTestTypes('a', 4000);
     let [server, client] = makeLocalConnection(Root.instance);
 

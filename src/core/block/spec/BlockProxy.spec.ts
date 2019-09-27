@@ -1,10 +1,9 @@
-import {assert} from "chai";
-import {Job, Root} from "../Block";
-import {BlockDeepProxy, BlockProxy} from "../BlockProxy";
+import {assert} from 'chai';
+import {Job, Root} from '../Block';
+import {BlockDeepProxy, BlockProxy} from '../BlockProxy';
 
-describe("BlockProxy", function () {
-
-  it('deep proxy', function () {
+describe('BlockProxy', function() {
+  it('deep proxy', function() {
     let job = new Job();
     job.setValue('v1', 1);
 
@@ -20,7 +19,7 @@ describe("BlockProxy", function () {
     assert.equal(b.v2, 2);
     assert.equal(b['@v'], 0);
     assert.equal(b['@notExist'], undefined);
-    assert.equal(('v3' in b), false);
+    assert.equal('v3' in b, false);
     assert.equal(Object.prototype.hasOwnProperty.call(b, 'v4'), true);
     assert.equal(Object.isExtensible(b), true);
 
@@ -51,7 +50,7 @@ describe("BlockProxy", function () {
     Root.instance._strictMode = keepStrictMode;
   });
 
-  it('shallow proxy', function () {
+  it('shallow proxy', function() {
     let job = new Job();
     job.setValue('v1', 1);
 
@@ -67,7 +66,7 @@ describe("BlockProxy", function () {
     assert.equal(b.v2, 2);
     assert.equal(b['@v'], 0);
     assert.equal(b['@notExist'], undefined);
-    assert.equal(('v3' in b), false);
+    assert.equal('v3' in b, false);
     assert.equal(Object.prototype.hasOwnProperty.call(b, 'v4'), true);
     assert.equal(Object.isExtensible(b), true);
 

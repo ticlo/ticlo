@@ -1,16 +1,13 @@
-import {FunctionDesc, PropDesc, PropGroupDesc} from "../block/Descriptor";
-import {
-  ClientCallbacks, ClientDescListener, SubscribeCallbacks,
-} from "./ClientRequests";
+import {FunctionDesc, PropDesc, PropGroupDesc} from '../block/Descriptor';
+import {ClientCallbacks, ClientDescListener, SubscribeCallbacks} from './ClientRequests';
 
-import {DataMap} from "../util/Types";
+import {DataMap} from '../util/Types';
 
 /**
  * interface for ClientConnect and its wrappers
  */
 
 export interface ClientConn {
-
   callImmediate(f: () => void): void;
 
   lockImmediate(source: any): void;
@@ -22,10 +19,14 @@ export interface ClientConn {
 
   updateValue(path: string, value: any, important?: boolean | ClientCallbacks): Promise<any> | string;
 
-  setBinding(path: string, from: string, absolute?: boolean, important?: boolean | ClientCallbacks): Promise<any> | string;
+  setBinding(
+    path: string,
+    from: string,
+    absolute?: boolean,
+    important?: boolean | ClientCallbacks
+  ): Promise<any> | string;
 
   getValue(path: string, callbacks?: ClientCallbacks): Promise<any> | string;
-
 
   createBlock(path: string, data?: DataMap, anyName?: boolean, callbacks?: ClientCallbacks): Promise<any> | string;
 
@@ -39,7 +40,12 @@ export interface ClientConn {
 
   unwatch(path: string, callbacks: ClientCallbacks): void;
 
-  editWorker(path: string, fromField?: string, fromFunction?: string, callbacks?: ClientCallbacks): Promise<any> | string;
+  editWorker(
+    path: string,
+    fromField?: string,
+    fromFunction?: string,
+    callbacks?: ClientCallbacks
+  ): Promise<any> | string;
 
   applyWorkerChange(path: string, funcId?: string, callbacks?: ClientCallbacks): Promise<any> | string;
 
@@ -51,17 +57,34 @@ export interface ClientConn {
 
   setLen(path: string, group: string, length: number, callbacks?: ClientCallbacks): Promise<any> | string;
 
-  addMoreProp(path: string, desc: PropDesc | PropGroupDesc, group?: string, callbacks?: ClientCallbacks): Promise<any> | string;
+  addMoreProp(
+    path: string,
+    desc: PropDesc | PropGroupDesc,
+    group?: string,
+    callbacks?: ClientCallbacks
+  ): Promise<any> | string;
 
   removeMoreProp(path: string, name: string, group?: string, callbacks?: ClientCallbacks): Promise<any> | string;
 
-  moveMoreProp(path: string, nameFrom: string, nameTo: string, group?: string, callbacks?: ClientCallbacks): Promise<any> | string;
+  moveMoreProp(
+    path: string,
+    nameFrom: string,
+    nameTo: string,
+    group?: string,
+    callbacks?: ClientCallbacks
+  ): Promise<any> | string;
 
   insertGroupProp(path: string, group: string, idx: number, callbacks?: ClientCallbacks): Promise<any> | string;
 
   removeGroupProp(path: string, group: string, idx: number, callbacks?: ClientCallbacks): Promise<any> | string;
 
-  moveGroupProp(path: string, group: string, oldIdx: number, newIdx: number, callbacks?: ClientCallbacks): Promise<any> | string;
+  moveGroupProp(
+    path: string,
+    group: string,
+    oldIdx: number,
+    newIdx: number,
+    callbacks?: ClientCallbacks
+  ): Promise<any> | string;
 
   watchDesc(id: string, listener?: ClientDescListener): FunctionDesc;
 

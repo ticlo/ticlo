@@ -1,6 +1,6 @@
 import JsonEsc from 'jsonesc';
 import moment from 'moment';
-import {MomentConstructor} from "./Moment";
+import {MomentConstructor} from './Moment';
 
 function encodeMoment(val: any): string {
   return `\u001bTs:${val.toISOString(true)}`;

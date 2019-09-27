@@ -1,8 +1,8 @@
-import {ServerConnection} from "./ServerConnection";
-import {ClientConnection} from "./ClientConnection";
-import {Root} from "../block/Block";
-import {DataMap} from "../util/Types";
-import {Logger} from "../util/Logger";
+import {ServerConnection} from './ServerConnection';
+import {ClientConnection} from './ClientConnection';
+import {Root} from '../block/Block';
+import {DataMap} from '../util/Types';
+import {Logger} from '../util/Logger';
 
 class LocalServerConnection extends ServerConnection {
   _client: LocalClientConnection;
@@ -16,7 +16,6 @@ class LocalServerConnection extends ServerConnection {
     Logger.trace(() => 'server send ' + JSON.stringify(datas), this);
     this._client.onReceive(datas);
   }
-
 }
 
 class LocalClientConnection extends ClientConnection {

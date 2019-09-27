@@ -1,11 +1,10 @@
-import {assert} from "chai";
-import {Job, Root, Block} from "../Block";
-import {Dispatcher} from "../Dispatcher";
-import "../../functions/basic/math/Arithmetic";
+import {assert} from 'chai';
+import {Job, Root, Block} from '../Block';
+import {Dispatcher} from '../Dispatcher';
+import '../../functions/basic/math/Arithmetic';
 
-describe("Block", function () {
-
-  it('basic', function () {
+describe('Block', function() {
+  it('basic', function() {
     let job = new Job();
     job.setValue('@a', 357);
     job.setBinding('@b', '@a');
@@ -31,7 +30,7 @@ describe("Block", function () {
     assert.equal(job.getValue('@d'), null, 'clear binding');
   });
 
-  it('query property', function () {
+  it('query property', function() {
     let job = new Job();
     let block1 = job.createBlock('block1');
     let block2 = block1.createBlock('block2');
@@ -47,7 +46,7 @@ describe("Block", function () {
     assert.equal(job.queryValue('block1.block2.###'), job, 'query job');
   });
 
-  it('destroy binding chain', function () {
+  it('destroy binding chain', function() {
     let job = new Job();
     let block1 = job.createBlock('block1');
     let block1c = block1.createOutputBlock('c');
@@ -61,14 +60,14 @@ describe("Block", function () {
     assert.equal(block2.getValue('c'), undefined, 'destroy binding chain');
   });
 
-  it('set same value', function () {
+  it('set same value', function() {
     let job = new Job();
     job.updateValue('a', 1);
     job.setValue('a', 1);
     assert.equal(job.getProperty('a')._saved, 1);
   });
 
-  it('update listener within listener', function () {
+  it('update listener within listener', function() {
     let job = new Job();
     let listener1 = {
       value: 0,
@@ -100,7 +99,7 @@ describe("Block", function () {
     assert.equal(listener1.value, 17, 'listener1 should be unbound');
   });
 
-  it('misc', function () {
+  it('misc', function() {
     assert.isNull(Root.instance.save(), 'root can not be saved');
 
     assert.equal(Root.instance.getValue(''), Root.instance);
@@ -115,5 +114,4 @@ describe("Block", function () {
     Root.instance.deleteValue(job._prop._name);
     assert.isTrue(subjob.isDestroyed(), 'delete job with auto assigned name');
   });
-
 });

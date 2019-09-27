@@ -1,11 +1,9 @@
-import {ClientConn} from "./ClientConn";
-import {ValueDispatcher} from "../block/Dispatcher";
-import {FunctionDesc, PropDesc, PropGroupDesc} from "../block/Descriptor";
-import {
-  ClientCallbacks, ClientDescListener, SubscribeCallbacks,
-} from "./ClientRequests";
+import {ClientConn} from './ClientConn';
+import {ValueDispatcher} from '../block/Dispatcher';
+import {FunctionDesc, PropDesc, PropGroupDesc} from '../block/Descriptor';
+import {ClientCallbacks, ClientDescListener, SubscribeCallbacks} from './ClientRequests';
 
-import {DataMap} from "../util/Types";
+import {DataMap} from '../util/Types';
 
 export class TrackedClientConn implements ClientConn {
   _base: ClientConn;
@@ -25,7 +23,12 @@ export class TrackedClientConn implements ClientConn {
     this.changed.updateValue(false);
   }
 
-  addMoreProp(path: string, desc: PropDesc | PropGroupDesc, group?: string, callbacks?: ClientCallbacks): Promise<any> | string {
+  addMoreProp(
+    path: string,
+    desc: PropDesc | PropGroupDesc,
+    group?: string,
+    callbacks?: ClientCallbacks
+  ): Promise<any> | string {
     this._changed();
     return this._base.addMoreProp(path, desc, group, callbacks);
   }
@@ -48,7 +51,12 @@ export class TrackedClientConn implements ClientConn {
     return this._base.createBlock(path, data, anyName, callbacks);
   }
 
-  editWorker(path: string, fromField?: string, fromFunction?: string, callbacks?: ClientCallbacks): Promise<any> | string {
+  editWorker(
+    path: string,
+    fromField?: string,
+    fromFunction?: string,
+    callbacks?: ClientCallbacks
+  ): Promise<any> | string {
     // TODO
     return this._base.editWorker(path, fromField, fromFunction, callbacks);
   }
@@ -79,12 +87,24 @@ export class TrackedClientConn implements ClientConn {
     this._base.lockImmediate(source);
   }
 
-  moveGroupProp(path: string, group: string, oldIdx: number, newIdx: number, callbacks?: ClientCallbacks): Promise<any> | string {
+  moveGroupProp(
+    path: string,
+    group: string,
+    oldIdx: number,
+    newIdx: number,
+    callbacks?: ClientCallbacks
+  ): Promise<any> | string {
     this._changed();
     return this._base.moveGroupProp(path, group, oldIdx, newIdx, callbacks);
   }
 
-  moveMoreProp(path: string, nameFrom: string, nameTo: string, group?: string, callbacks?: ClientCallbacks): Promise<any> | string {
+  moveMoreProp(
+    path: string,
+    nameFrom: string,
+    nameTo: string,
+    group?: string,
+    callbacks?: ClientCallbacks
+  ): Promise<any> | string {
     this._changed();
     return this._base.moveMoreProp(path, nameFrom, nameTo, group, callbacks);
   }
@@ -104,7 +124,12 @@ export class TrackedClientConn implements ClientConn {
     return this._base.removeMoreProp(path, name, group, callbacks);
   }
 
-  setBinding(path: string, from: string, absolute?: boolean, important?: boolean | ClientCallbacks): Promise<any> | string {
+  setBinding(
+    path: string,
+    from: string,
+    absolute?: boolean,
+    important?: boolean | ClientCallbacks
+  ): Promise<any> | string {
     this._changed();
     return this._base.setBinding(path, from, absolute, important);
   }

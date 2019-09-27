@@ -1,13 +1,12 @@
-import {assert} from "chai";
-import {Job, Root} from "../../block/Block";
-import {TestFunctionRunner} from "../../block/spec/TestFunction";
-import "../../functions/basic/math/Arithmetic";
-import "../ForEachFunction";
-import {DataMap} from "../../util/Types";
+import {assert} from 'chai';
+import {Job, Root} from '../../block/Block';
+import {TestFunctionRunner} from '../../block/spec/TestFunction';
+import '../../functions/basic/math/Arithmetic';
+import '../ForEachFunction';
+import {DataMap} from '../../util/Types';
 
-describe("ForEachFunction", function () {
-
-  it('chain block', function () {
+describe('ForEachFunction', function() {
+  it('chain block', function() {
     TestFunctionRunner.clearLog();
     let job = new Job();
 
@@ -18,7 +17,7 @@ describe("ForEachFunction", function () {
       '#is': '',
       'obj1': {'#is': '', 'v': 1},
       'obj2': {'#is': '', 'v': 2},
-      'obj3': {'v': 3}
+      'obj3': {v: 3}
     });
     bBlock._load({
       '#is': 'foreach',
@@ -66,7 +65,7 @@ describe("ForEachFunction", function () {
     aBlock.deleteValue('obj2');
     let obj4 = aBlock.createBlock('obj4');
     obj4.setValue('v', 4);
-    aBlock.updateValue('obj5', {'v': 5});
+    aBlock.updateValue('obj5', {v: 5});
 
     Root.run();
     assert.lengthOf(TestFunctionRunner.popLogs(), 2, 'worker run twice on 2 change items');
@@ -76,7 +75,7 @@ describe("ForEachFunction", function () {
     assert.equal(cBlock.queryValue('output.obj5.v'), 0, 'add watch child Object');
 
     job.updateValue('b', null);
-    aBlock.updateValue('obj6', {'v': 6});
+    aBlock.updateValue('obj6', {v: 6});
 
     Root.run();
 
@@ -85,12 +84,12 @@ describe("ForEachFunction", function () {
     assert.isEmpty(TestFunctionRunner.logs, 'worker should not run after destroyed');
   });
 
-  it('watch object', function () {
+  it('watch object', function() {
     let job = new Job();
 
     let bBlock = job.createBlock('b');
 
-    job.updateValue('a', {'obj1': {'v': 1}, 'obj2': {'v': 2}});
+    job.updateValue('a', {obj1: {v: 1}, obj2: {v: 2}});
     bBlock._load({
       '#is': 'foreach',
       '~input': '##.a',
@@ -106,7 +105,7 @@ describe("ForEachFunction", function () {
     Root.run();
     assert.equal(bBlock.queryValue('output.obj1.v'), 2, 'basic ForEach on Object');
 
-    job.updateValue('a', {'obj3': {'v': 3}, 'obj2': {'v': 2}});
+    job.updateValue('a', {obj3: {v: 3}, obj2: {v: 2}});
     Root.run();
     assert.isUndefined(bBlock.queryValue('output.obj1'), 'update input');
     assert.equal(bBlock.queryValue('output.obj2.v'), 3, 'update input');
@@ -117,7 +116,7 @@ describe("ForEachFunction", function () {
     assert.isUndefined(bBlock.queryValue('#func'), 'destroy ForEachFunction');
   });
 
-  it('foreach primitive types', function () {
+  it('foreach primitive types', function() {
     let job = new Job();
 
     let aBlock = job.createBlock('a');
@@ -125,7 +124,7 @@ describe("ForEachFunction", function () {
     aBlock._load({
       '#is': '',
       'v1': 1,
-      'v2': "2"
+      'v2': '2'
     });
     bBlock._load({
       '#is': 'foreach',
@@ -156,12 +155,12 @@ describe("ForEachFunction", function () {
     assert.isUndefined(bBlock.queryValue('output'), 'clear output when input is no longer Object or Block');
   });
 
-  it('clear foreach use', function () {
+  it('clear foreach use', function() {
     let job = new Job();
 
     let aBlock = job.createBlock('a');
     let bBlock = job.createBlock('b');
-    aBlock._load({'v1': 1});
+    aBlock._load({v1: 1});
     bBlock._load({
       '#is': 'foreach',
       '~input': '##.a',

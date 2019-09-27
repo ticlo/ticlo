@@ -1,8 +1,8 @@
-import {Block, BlockChildWatch, Job} from "../block/Block";
-import {DataMap} from "../util/Types";
-import {buildPropDescCache, findPropDesc, FunctionDesc, PropDesc, PropGroupDesc} from "../block/Descriptor";
-import {Types} from "../block/Type";
-import {WorkerFunction} from "./WorkerFunction";
+import {Block, BlockChildWatch, Job} from '../block/Block';
+import {DataMap} from '../util/Types';
+import {buildPropDescCache, findPropDesc, FunctionDesc, PropDesc, PropGroupDesc} from '../block/Descriptor';
+import {Types} from '../block/Type';
+import {WorkerFunction} from './WorkerFunction';
 
 export class WorkerEditor extends Job {
   unwatch(watcher: BlockChildWatch) {
@@ -59,7 +59,7 @@ export class WorkerEditor extends Job {
         let placeHolderData: any = {
           '#is': '',
           '#input': {'#is': '', '#more': propDesc.inputs},
-          '#output': {'#is': '', '#more': propDesc.outputs},
+          '#output': {'#is': '', '#more': propDesc.outputs}
         };
         if (propDesc.inputs) {
           placeHolderData['#input']['@b-p'] = propDesc.inputs.filter((p) => p.type !== 'group').map((p) => p.name);

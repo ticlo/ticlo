@@ -1,8 +1,7 @@
-import {Runnable} from "./Block";
-import {Uid} from "../util/Uid";
+import {Runnable} from './Block';
+import {Uid} from '../util/Uid';
 
 export class Resolver implements Runnable {
-
   static _finalResolved: Set<() => void> = new Set<() => void>();
 
   // as Runnable
@@ -16,7 +15,6 @@ export class Resolver implements Runnable {
   private _queueWait: Runnable[] = [];
 
   private _queue: Runnable[][] = [[], [], [], []];
-
 
   _resolving: boolean = false;
 
