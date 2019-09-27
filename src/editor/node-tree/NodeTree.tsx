@@ -11,7 +11,6 @@ interface Props {
   basePaths: string[];
   style?: React.CSSProperties;
   hideRoot?: boolean;
-  onOpen?: (item: NodeTreeItem) => void;
 }
 
 export class NodeTree extends React.PureComponent<Props, any> {
@@ -19,10 +18,9 @@ export class NodeTree extends React.PureComponent<Props, any> {
   list: NodeTreeItem[] = [];
 
   renderChild = (idx: number, style: React.CSSProperties) => {
-    const {onOpen} = this.props;
     const item = this.list[idx];
     return (
-      <NodeTreeRenderer item={item} key={item.key} onOpen={onOpen} style={style}/>
+      <NodeTreeRenderer item={item} key={item.key} style={style}/>
     );
   };
 

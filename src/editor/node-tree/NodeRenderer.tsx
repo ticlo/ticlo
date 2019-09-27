@@ -9,6 +9,7 @@ import {TIcon} from "../icon/Icon";
 import {blankFuncDesc, FunctionDesc, getFuncStyleFromDesc} from "../../core/block/Descriptor";
 import {ClickParam} from "antd/lib/menu";
 import {smartStrCompare} from "../../core/util/String";
+import {TicloLayoutContext, TicloLayoutContextType} from "../component/LayoutContext";
 
 export class NodeTreeItem extends TreeItem<NodeTreeItem> {
 
@@ -117,12 +118,14 @@ export class NodeTreeItem extends TreeItem<NodeTreeItem> {
 
 interface Props {
   item: NodeTreeItem;
-  onOpen?: (item: NodeTreeItem) => void;
   style: React.CSSProperties;
 }
 
 
 export class NodeTreeRenderer extends PureDataRenderer<Props, any> {
+
+  static contextType = TicloLayoutContextType;
+  context!: TicloLayoutContext;
 
   onExpandClicked = () => {
     let {item} = this.props;
@@ -140,9 +143,9 @@ export class NodeTreeRenderer extends PureDataRenderer<Props, any> {
     this.props.item.reload();
   };
   onOpenClicked = (event?: ClickParam) => {
-    const {item, onOpen} = this.props;
-    if (onOpen) {
-      onOpen(item);
+    const {item} = this.props;
+    if (this.context && this.context.editJob) {
+      this.context.editJob(item.key, null);
     }
   };
   subscriptionListener = {
@@ -169,22 +172,30 @@ export class NodeTreeRenderer extends PureDataRenderer<Props, any> {
     this.forceUpdate();
   };
 
-  getMenu = () => (
-    <Menu selectable={false}>
-      <Menu.Item onClick={this.onOpenClicked}>
-        <Icon type="build"/>
-        Open
-      </Menu.Item>
-      <Menu.Item onClick={this.onReloadClicked}>
-        <Icon type="reload"/>
-        Reload
-      </Menu.Item>
-      <Menu.Item>
-        <Icon type="search"/>
-        Search
-      </Menu.Item>
-    </Menu>
-  );
+  getMenu = () => {
+    let editJob = this.context && this.context.editJob;
+    return (
+      <Menu selectable={false}>
+        {editJob
+          ? (
+            <Menu.Item onClick={this.onOpenClicked}>
+              <Icon type="build"/>
+              Open
+            </Menu.Item>
+          ) : null
+        }
+        <Menu.Item onClick={this.onReloadClicked}>
+          <Icon type="reload"/>
+          Reload
+        </Menu.Item>
+        <Menu.Item>
+          <Icon type="search"/>
+          Search
+        </Menu.Item>
+      </Menu>
+    );
+  };
+
 
   renderImpl() {
     let {item, style} = this.props;
