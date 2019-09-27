@@ -69,8 +69,8 @@ export const sampleData = {
     '@b-p': ['0', '1', 'output'],
     '#more': sharedMore
   },
-  join: {
-    '#is': 'join',
+  equal: {
+    '#is': 'equal',
     '0': 'a',
     '1': 4,
     '@b-xyw': [100, 300, 150],
