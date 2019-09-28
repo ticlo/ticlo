@@ -28,6 +28,7 @@ module.exports = function (config) {
         "moduleResolution": "node",
         "esModuleInterop": true,
         "lib": [
+          "esnext.bigint",
           "es2017",
           "dom"
         ],

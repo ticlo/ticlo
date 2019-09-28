@@ -3,7 +3,7 @@
 // (Number.MAX_SAFE_INTEGER-1).toString(36) == 2gosa7pa2gu
 
 export class Uid {
-  _count = 0n;
+  _count = BigInt(0);
 
   _current: string = '0';
 
