@@ -11,7 +11,12 @@ let sharedMore: any[] = [
   {name: 'range', type: 'date-range'},
   {name: 'group', type: 'group', defaultLen: 2, properties: []},
   {name: 'service', type: 'service', options: ['add', 'subtract'], create: 'add'},
-  {name: 'worker', type: 'worker', inputs: [{name: 'name', type: 'string'}], outputs: [{name: 'result', type: 'string'}]}
+  {
+    name: 'worker',
+    type: 'worker',
+    inputs: [{name: 'name', type: 'string'}],
+    outputs: [{name: 'result', type: 'string'}]
+  }
 ];
 let len = sharedMore.length;
 for (let i = 0; i < len; ++i) {
@@ -19,7 +24,6 @@ for (let i = 0; i < len; ++i) {
   r.name = r.name.toUpperCase();
   sharedMore.push(r);
 }
-
 
 export const sampleData = {
   add: {
@@ -38,7 +42,6 @@ export const sampleData = {
     '@b-xyw': [300, 200, 0],
     '@b-p': ['0', '1', 'output']
   },
-  '~tito': 'multiply.~0',
   multiply: {
     '#is': 'multiply',
     '~0': {'#is': 'add', '0': 1, '1': 3},
