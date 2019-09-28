@@ -1,24 +1,23 @@
-import {assert} from "chai";
-import SimulateEvent from "simulate-event";
+import {assert} from 'chai';
+import SimulateEvent from 'simulate-event';
 import React from 'react';
-import {removeLastTemplate, loadTemplate, querySingle} from "../../../../ui/util/test-util";
-import {initEditor} from "../../../index";
-import {NumberEditor} from "../NumberEditor";
-import {shouldHappen} from "../../../../core/util/test-util";
-import {blankPropDesc, FunctionDesc, PropDesc} from "../../../../core/block/Descriptor";
-import {simulateInput} from "./simulate-input";
+import {removeLastTemplate, loadTemplate, querySingle} from '../../../../ui/util/test-util';
+import {initEditor} from '../../../index';
+import {NumberEditor} from '../NumberEditor';
+import {shouldHappen} from '../../../../core/util/test-util';
+import {blankPropDesc, FunctionDesc, PropDesc} from '../../../../core/block/Descriptor';
+import {simulateInput} from './simulate-input';
 
-describe("NumberEditor", function () {
-
-  beforeEach(async function () {
+describe('NumberEditor', function() {
+  beforeEach(async function() {
     await initEditor();
   });
 
-  afterEach(function () {
+  afterEach(function() {
     removeLastTemplate();
   });
 
-  it('basic', async function () {
+  it('basic', async function() {
     let editor: NumberEditor;
     let getRef = (e: NumberEditor): void => {
       editor = e;
@@ -28,7 +27,9 @@ describe("NumberEditor", function () {
       value = n;
     };
     let [component, div] = loadTemplate(
-      <NumberEditor ref={getRef} value={1} desc={blankPropDesc} onChange={onChange}/>, 'editor');
+      <NumberEditor ref={getRef} value={1} desc={blankPropDesc} onChange={onChange} />,
+      'editor'
+    );
 
     await shouldHappen(() => editor && div.querySelector('input.ant-input'));
 
@@ -90,8 +91,7 @@ describe("NumberEditor", function () {
     assert.equal(value, 90); // not changed
   });
 
-
-  it('constraint', async function () {
+  it('constraint', async function() {
     let editor: NumberEditor;
     let getRef = (e: NumberEditor): void => {
       editor = e;
@@ -105,10 +105,12 @@ describe("NumberEditor", function () {
       type: 'number',
       max: 10,
       min: 2,
-      step: 2,
+      step: 2
     };
     let [component, div] = loadTemplate(
-      <NumberEditor ref={getRef} value={6} desc={desc} onChange={onChange}/>, 'editor');
+      <NumberEditor ref={getRef} value={6} desc={desc} onChange={onChange} />,
+      'editor'
+    );
 
     await shouldHappen(() => editor && div.querySelector('input.ant-input'));
 
@@ -131,10 +133,8 @@ describe("NumberEditor", function () {
     simulateInput(editor, {key: 'ArrowUp'}, null);
     assert.equal(value, 8);
 
-
     simulateInput(editor, {key: '6'}, '6');
     simulateInput(editor, {key: 'ArrowDown'}, null);
     assert.equal(value, 4);
-
   });
 });

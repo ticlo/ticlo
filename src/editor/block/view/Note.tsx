@@ -1,9 +1,9 @@
-import React from "react";
-import marked from "marked";
-import Dompurify from "dompurify";
-import {SpecialViewProps} from "./SpecialView";
-import {LazyUpdateComponent, LazyUpdateListener} from "../../../ui/component/LazyUpdateComponent";
-import {ClientConnection} from "../../../core/connect/ClientConnection";
+import React from 'react';
+import marked from 'marked';
+import Dompurify from 'dompurify';
+import {SpecialViewProps} from './SpecialView';
+import {LazyUpdateComponent, LazyUpdateListener} from '../../../ui/component/LazyUpdateComponent';
+import {ClientConnection} from '../../../core/connect/ClientConnection';
 
 class NoteView extends LazyUpdateComponent<SpecialViewProps, any> {
   static fullView = true;
@@ -56,7 +56,7 @@ class NoteView extends LazyUpdateComponent<SpecialViewProps, any> {
       style.color = this.color.value;
     }
     return (
-      <div ref={this.getRef} className='ticl-block-note' style={style} dangerouslySetInnerHTML={{__html: rawHtml}}/>
+      <div ref={this.getRef} className="ticl-block-note" style={style} dangerouslySetInnerHTML={{__html: rawHtml}} />
     );
   }
 
@@ -75,16 +75,14 @@ class NoteView extends LazyUpdateComponent<SpecialViewProps, any> {
   }
 }
 
-ClientConnection.addEditorDescriptor('note',
-  {
-    view: NoteView,
-    name: 'note',
-    id: 'note',
-    properties: [
-      {name: 'text', type: 'string'},
-      {name: 'color', type: 'color'},
-      {name: 'background', type: 'color'},
-      {name: 'border', type: 'string'},
-    ]
-  }
-);
+ClientConnection.addEditorDescriptor('note', {
+  view: NoteView,
+  name: 'note',
+  id: 'note',
+  properties: [
+    {name: 'text', type: 'string'},
+    {name: 'color', type: 'color'},
+    {name: 'background', type: 'color'},
+    {name: 'border', type: 'string'}
+  ]
+});

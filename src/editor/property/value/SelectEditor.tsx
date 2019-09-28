@@ -1,12 +1,11 @@
-import React from "react";
-import {Select} from "antd";
-import {PropDesc} from "../../../core/block/Descriptor";
-import {ValueEditorProps} from "./ValueEditorBase";
+import React from 'react';
+import {Select} from 'antd';
+import {PropDesc} from '../../../core/block/Descriptor';
+import {ValueEditorProps} from './ValueEditorBase';
 
 const {Option} = Select;
 
 export class SelectEditor extends React.PureComponent<ValueEditorProps, any> {
-
   onValueChange = (value: string | number) => {
     let {onChange} = this.props;
     onChange(value);
@@ -18,12 +17,15 @@ export class SelectEditor extends React.PureComponent<ValueEditorProps, any> {
     let optionNodes: React.ReactNode[] = [];
     if (Array.isArray(options)) {
       for (let opt of options) {
-        optionNodes.push(<Option key={String(opt)} value={opt}>{opt}</Option>);
+        optionNodes.push(
+          <Option key={String(opt)} value={opt}>
+            {opt}
+          </Option>
+        );
       }
     }
     return (
-      <Select size='small' value={value} disabled={locked || onChange == null}
-              onChange={this.onValueChange}>
+      <Select size="small" value={value} disabled={locked || onChange == null} onChange={this.onValueChange}>
         {optionNodes}
       </Select>
     );

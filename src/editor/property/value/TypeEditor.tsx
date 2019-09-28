@@ -1,20 +1,19 @@
-import React from "react";
-import {Icon, Input} from "antd";
-import {FunctionDesc, getFuncStyleFromDesc, PropDesc} from "../../../core/block/Descriptor";
-import {ValueEditorProps} from "./ValueEditorBase";
-import {TIcon} from "../../icon/Icon";
-import {DragDropDiv, DragState} from "rc-dock";
-import {StringEditorBase} from "./StringEditorBase";
-import {TypeSelect} from "../../type-selector/TypeSelector";
-import {addRecentType} from "../../type-selector/TypeList";
-import {Popup} from "../../component/ClickPopup";
+import React from 'react';
+import {Icon, Input} from 'antd';
+import {FunctionDesc, getFuncStyleFromDesc, PropDesc} from '../../../core/block/Descriptor';
+import {ValueEditorProps} from './ValueEditorBase';
+import {TIcon} from '../../icon/Icon';
+import {DragDropDiv, DragState} from 'rc-dock';
+import {StringEditorBase} from './StringEditorBase';
+import {TypeSelect} from '../../type-selector/TypeSelector';
+import {addRecentType} from '../../type-selector/TypeList';
+import {Popup} from '../../component/ClickPopup';
 
 interface State {
   opened: boolean;
 }
 
 export class TypeEditor extends StringEditorBase {
-
   state: State = {opened: false};
 
   commitChange(value: string) {
@@ -56,7 +55,6 @@ export class TypeEditor extends StringEditorBase {
     }
   };
 
-
   render() {
     let {desc, value, locked, onChange, conn} = this.props;
     let {opened} = this.state;
@@ -75,18 +73,22 @@ export class TypeEditor extends StringEditorBase {
       iconStyle = getFuncStyleFromDesc(funcDesc, 'tico-pr') || 'tico-prn';
     }
     return (
-      <DragDropDiv className='ticl-type-editor ticl-hbox' onDragOverT={this.onDragOver} onDropT={this.onDrop}>
-        <TIcon icon={iconName} style={iconStyle}/>
-        <Popup popupVisible={opened}
-               onPopupVisibleChange={this.onPopupClose}
-               popup={
-                 <TypeSelect conn={conn} onTypeClick={this.onTypeClick}/>
-               }>
-          <Input value={value} disabled={onChange == null} size='small'
-                 onChange={this.onInputChange} onBlur={this.onBlur} onKeyDown={this.onKeyDown}
-                 suffix={
-                   onChange ? <Icon type="down" style={{color: 'rgba(0,0,0,.45)'}} onClick={this.openPopup}/> : null
-                 }/>
+      <DragDropDiv className="ticl-type-editor ticl-hbox" onDragOverT={this.onDragOver} onDropT={this.onDrop}>
+        <TIcon icon={iconName} style={iconStyle} />
+        <Popup
+          popupVisible={opened}
+          onPopupVisibleChange={this.onPopupClose}
+          popup={<TypeSelect conn={conn} onTypeClick={this.onTypeClick} />}
+        >
+          <Input
+            value={value}
+            disabled={onChange == null}
+            size="small"
+            onChange={this.onInputChange}
+            onBlur={this.onBlur}
+            onKeyDown={this.onKeyDown}
+            suffix={onChange ? <Icon type="down" style={{color: 'rgba(0,0,0,.45)'}} onClick={this.openPopup} /> : null}
+          />
         </Popup>
       </DragDropDiv>
     );

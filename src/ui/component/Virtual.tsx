@@ -27,7 +27,7 @@ export default class VirtualList extends React.Component<Props, State> {
 
   componentDidMount() {
     this.rootNode.addEventListener('scroll', this.handleScroll, {
-      passive: true,
+      passive: true
     });
 
     this.resizeObserver = new ResizeObserver((resizes: any) => {
@@ -44,7 +44,6 @@ export default class VirtualList extends React.Component<Props, State> {
     }
     this.rootNode.removeEventListener('scroll', this.handleScroll);
   }
-
 
   render() {
     const {itemCount, itemHeight, renderer, className, style} = this.props;
@@ -69,33 +68,26 @@ export default class VirtualList extends React.Component<Props, State> {
 
       return (
         <div ref={this.getRef} className={`ticl-v-scroll ${className}`} style={style}>
-          <div className='ticl-v-scroll-content' style={{height: `${contentHeight}px`, paddingTop}}>{children}</div>
+          <div className="ticl-v-scroll-content" style={{height: `${contentHeight}px`, paddingTop}}>
+            {children}
+          </div>
         </div>
       );
     } else {
       // not mounted or not visible, create dummy div to measure size
-      return (
-        <div ref={this.getRef} className={`ticl-v-scroll ${className}`} style={style}>
-        </div>
-      );
+      return <div ref={this.getRef} className={`ticl-v-scroll ${className}`} style={style}></div>;
     }
   }
 
   handleScroll = (event: UIEvent) => {
     const offset = this.rootNode.scrollTop;
 
-    if (
-      offset < 0 ||
-      this.state.offset === offset ||
-      event.target !== this.rootNode
-    ) {
+    if (offset < 0 || this.state.offset === offset || event.target !== this.rootNode) {
       return;
     }
 
     this.setState({
       offset
     });
-  }
-
-
+  };
 }

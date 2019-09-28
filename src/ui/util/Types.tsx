@@ -1,13 +1,12 @@
-import {TRUNCATED} from "../../core/util/Types";
-import React from "react";
+import {TRUNCATED} from '../../core/util/Types';
+import React from 'react';
 
 // display value in screen, avoid huge data in dmo to improve performance
 export function displayValue(val: any, element: HTMLElement) {
   switch (typeof val) {
     case 'string':
       if (val.length > 512) {
-        element.innerText =
-          `${val.substr(0, 128)}${TRUNCATED}`;
+        element.innerText = `${val.substr(0, 128)}${TRUNCATED}`;
       } else {
         element.innerText = val;
       }

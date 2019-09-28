@@ -1,16 +1,15 @@
-import React from "react";
-import {ExpandIcon} from "../../ui/component/Tree";
-import {TIcon} from "../icon/Icon";
-import {blankFuncDesc, FunctionDesc, getFuncStyleFromDesc} from "../../core/block/Descriptor";
-import {TypeView} from "./TypeView";
-import {TypeTreeItem} from "./TypeTreeItem";
-import {PureDataRenderer} from "../../ui/component/DataRenderer";
+import React from 'react';
+import {ExpandIcon} from '../../ui/component/Tree';
+import {TIcon} from '../icon/Icon';
+import {blankFuncDesc, FunctionDesc, getFuncStyleFromDesc} from '../../core/block/Descriptor';
+import {TypeView} from './TypeView';
+import {TypeTreeItem} from './TypeTreeItem';
+import {PureDataRenderer} from '../../ui/component/DataRenderer';
 
 interface Props {
   item: TypeTreeItem;
   style?: React.CSSProperties;
 }
-
 
 export class TypeTreeRenderer extends PureDataRenderer<Props, any> {
   onExpandClicked = () => {
@@ -44,8 +43,8 @@ export class TypeTreeRenderer extends PureDataRenderer<Props, any> {
     if (desc) {
       return (
         <div style={{...style, marginLeft}} className="ticl-tree-type">
-          <ExpandIcon opened={item.opened} onClick={this.onExpandClicked}/>
-          <TypeView conn={connection} onClick={this.onTypeClick} desc={desc} name={name} data={data}/>
+          <ExpandIcon opened={item.opened} onClick={this.onExpandClicked} />
+          <TypeView conn={connection} onClick={this.onTypeClick} desc={desc} name={name} data={data} />
         </div>
       );
     } else {
@@ -58,12 +57,11 @@ export class TypeTreeRenderer extends PureDataRenderer<Props, any> {
       }
       return (
         <div style={{...style, marginLeft}} className="ticl-tree-type">
-          <ExpandIcon opened={item.opened} onClick={this.onExpandClicked}/>
-          <TIcon icon={icon} style={funcStyle}/>
+          <ExpandIcon opened={item.opened} onClick={this.onExpandClicked} />
+          <TIcon icon={icon} style={funcStyle} />
           <span>{name}</span>
         </div>
       );
     }
   }
-
 }

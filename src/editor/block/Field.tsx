@@ -1,26 +1,26 @@
-import React, {MouseEventHandler} from "react";
-import {WireItem} from "./Wire";
-import {DataRendererItem, PureDataRenderer} from "../../ui/component/DataRenderer";
-import {DataMap} from "../../core/util/Types";
-import {relative, resolve} from "../../core/util/Path";
-import {translateProperty} from "../../core/util/i18n";
-import {displayValue} from "../../ui/util/Types";
-import {ClientConn, ValueUpdate} from "../../core/client";
+import React, {MouseEventHandler} from 'react';
+import {WireItem} from './Wire';
+import {DataRendererItem, PureDataRenderer} from '../../ui/component/DataRenderer';
+import {DataMap} from '../../core/util/Types';
+import {relative, resolve} from '../../core/util/Path';
+import {translateProperty} from '../../core/util/i18n';
+import {displayValue} from '../../ui/util/Types';
+import {ClientConn, ValueUpdate} from '../../core/client';
 import {
   blankFuncDesc,
-  blankPropDesc, buildPropDescCache,
+  blankPropDesc,
+  buildPropDescCache,
   findPropDesc,
   FunctionDesc,
   PropDesc,
   PropGroupDesc
-} from "../../core/block/Descriptor";
-import {arrayEqual, deepEqual} from "../../core/util/Compare";
-import {TIcon} from "../icon/Icon";
-import {DragDropDiv, DragState} from "rc-dock";
-import * as DragManager from "rc-dock/src/dragdrop/DragManager";
+} from '../../core/block/Descriptor';
+import {arrayEqual, deepEqual} from '../../core/util/Compare';
+import {TIcon} from '../icon/Icon';
+import {DragDropDiv, DragState} from 'rc-dock';
+import * as DragManager from 'rc-dock/src/dragdrop/DragManager';
 
 export interface Stage {
-
   getBlock(key: string): BlockItem;
 
   getNextXYW(): [number, number, number];
@@ -176,11 +176,8 @@ export class FieldItem extends DataRendererItem<ValueRenderer> {
           }
         }
         if (
-          (
-            change.hasOwnProperty('bindingPath')
-            && this.setBindingPath(response.cache.bindingPath)
-          )
-          || change.hasOwnProperty('hasListener')
+          (change.hasOwnProperty('bindingPath') && this.setBindingPath(response.cache.bindingPath)) ||
+          change.hasOwnProperty('hasListener')
         ) {
           this.forceUpdate();
         }
@@ -220,15 +217,14 @@ export class FieldItem extends DataRendererItem<ValueRenderer> {
   render(): React.ReactNode {
     if (this.subBlock) {
       return (
-        <div key={this.key} className='ticl-field-subblock'>
-          <FieldView key={this.key} item={this}/>
+        <div key={this.key} className="ticl-field-subblock">
+          <FieldView key={this.key} item={this} />
           {this.subBlock.renderFields()}
         </div>
       );
     } else {
-      return <FieldView key={this.key} item={this}/>;
+      return <FieldView key={this.key} item={this} />;
     }
-
   }
 
   sourceChanged(source: FieldItem, partial = false) {
@@ -249,7 +245,6 @@ export class FieldItem extends DataRendererItem<ValueRenderer> {
   }
 }
 
-
 interface FieldViewProps {
   item: FieldItem;
 }
@@ -262,7 +257,6 @@ interface BlockHeaderProps extends FieldViewProps {
 }
 
 export class BlockHeaderView extends PureDataRenderer<BlockHeaderProps, any> {
-
   onDragOver = (e: DragState) => {
     let {item} = this.props;
     if (e.dragType !== 'right') {
@@ -312,17 +306,27 @@ export class BlockHeaderView extends PureDataRenderer<BlockHeaderProps, any> {
     }
 
     return (
-      <DragDropDiv className='ticl-block-head ticl-block-prbg' directDragT={true} onDoubleClick={onDoubleClick}
-                   onDragStartT={onDragStartT} onDragMoveT={onDragMoveT} onDragEndT={onDragEndT}
-                   onDragOverT={item ? this.onDragOver : null} onDropT={item ? this.onDrop : null}>
-        {inBoundClass ? <div className={inBoundClass} title={inBoundTitle}>{inBoundText}</div> : null}
-        {showOutBound ? <div className='ticl-outbound'/> : null}
-        {(item && item.subBlock) ?
-          <div className='ticl-field-subicon ticl-block-prbg'>
-            <TIcon icon={item.subBlock.desc.icon}/>
+      <DragDropDiv
+        className="ticl-block-head ticl-block-prbg"
+        directDragT={true}
+        onDoubleClick={onDoubleClick}
+        onDragStartT={onDragStartT}
+        onDragMoveT={onDragMoveT}
+        onDragEndT={onDragEndT}
+        onDragOverT={item ? this.onDragOver : null}
+        onDropT={item ? this.onDrop : null}
+      >
+        {inBoundClass ? (
+          <div className={inBoundClass} title={inBoundTitle}>
+            {inBoundText}
           </div>
-          : null
-        }
+        ) : null}
+        {showOutBound ? <div className="ticl-outbound" /> : null}
+        {item && item.subBlock ? (
+          <div className="ticl-field-subicon ticl-block-prbg">
+            <TIcon icon={item.subBlock.desc.icon} />
+          </div>
+        ) : null}
         {children}
       </DragDropDiv>
     );
@@ -330,7 +334,6 @@ export class BlockHeaderView extends PureDataRenderer<BlockHeaderProps, any> {
 }
 
 export class FieldView extends PureDataRenderer<FieldViewProps, any> {
-
   private _valueNode!: HTMLElement;
   private getValueRef = (node: HTMLDivElement): void => {
     if (this._valueNode !== node) {
@@ -368,7 +371,6 @@ export class FieldView extends PureDataRenderer<FieldViewProps, any> {
         }
       }
     }
-
 
     e.reject();
   };
@@ -429,27 +431,35 @@ export class FieldView extends PureDataRenderer<FieldViewProps, any> {
     }
     let indentChildren = [];
     for (let i = 0; i < item.indents.length; ++i) {
-      indentChildren.push(<div key={i} className={`ticl-field-indent${item.indents[i]}`}/>);
+      indentChildren.push(<div key={i} className={`ticl-field-indent${item.indents[i]}`} />);
     }
     let showOutBound = item.cache.hasListener || (item.subBlock && item.subBlock.hidden);
     return (
-      <DragDropDiv className={fieldClass} onDragStartT={this.onDragStart} useRightButtonDragT={true}
-                   onDragOverT={this.onDragOver} onDropT={this.onDrop}>
-        {inBoundClass ? <div className={inBoundClass} title={inBoundTitle}>{inBoundText}</div> : null}
-        {showOutBound ? <div className='ticl-outbound'/> : null}
+      <DragDropDiv
+        className={fieldClass}
+        onDragStartT={this.onDragStart}
+        useRightButtonDragT={true}
+        onDragOverT={this.onDragOver}
+        onDropT={this.onDrop}
+      >
+        {inBoundClass ? (
+          <div className={inBoundClass} title={inBoundTitle}>
+            {inBoundText}
+          </div>
+        ) : null}
+        {showOutBound ? <div className="ticl-outbound" /> : null}
         {indentChildren}
-        <div className='ticl-field-name' onDoubleClick={this.onNameDoubleClick}>
-          {(item.subBlock) ?
-            <div
-              className='ticl-field-subicon ticl-block-prbg'
-              style={{left: item.indents.length * 18}}>
-              <TIcon icon={item.subBlock.desc.icon}/>
+        <div className="ticl-field-name" onDoubleClick={this.onNameDoubleClick}>
+          {item.subBlock ? (
+            <div className="ticl-field-subicon ticl-block-prbg" style={{left: item.indents.length * 18}}>
+              <TIcon icon={item.subBlock.desc.icon} />
             </div>
-            : null
-          }
+          ) : null}
           {translateProperty(desc.name, item.name, desc.ns)}
         </div>
-        <div className='ticl-field-value'><span ref={this.getValueRef}/></div>
+        <div className="ticl-field-value">
+          <span ref={this.getValueRef} />
+        </div>
       </DragDropDiv>
     );
   }
@@ -492,7 +502,7 @@ export abstract class BaseBlockItem extends DataRendererItem<XYWRenderer> {
   }
 
   // renderer both the block and children fields
-  abstract forceRendererChildren(): void ;
+  abstract forceRendererChildren(): void;
 
   abstract onFieldsChanged(): void;
 
@@ -624,9 +634,7 @@ export abstract class BaseBlockItem extends DataRendererItem<XYWRenderer> {
   }
 }
 
-
 class SubBlockItem extends BaseBlockItem {
-
   parentField: FieldItem;
 
   constructor(connection: ClientConn, stage: Stage, key: string, field: FieldItem) {
@@ -699,14 +707,12 @@ class SubBlockItem extends BaseBlockItem {
     this.conn.unsubscribe(`${this.key}.@b-hide`, this.hideListener);
     super.destroy();
   }
-
 }
 
 const fieldYOffset = 12;
 const fieldHeight = 24;
 
 export class BlockItem extends BaseBlockItem {
-
   h: number;
 
   setH(h: number) {
@@ -729,10 +735,13 @@ export class BlockItem extends BaseBlockItem {
 
     this.actualFields = fields;
     let SpecialView = this.desc.view;
-    if (!(this.synced  // synced block doesn't need extra #call item
-      || fields.includes('#call')
-      || (SpecialView && SpecialView.fullView) // fullView block doesn't need extra #call item
-    )) {
+    if (
+      !(
+        this.synced || // synced block doesn't need extra #call item
+        fields.includes('#call') ||
+        (SpecialView && SpecialView.fullView)
+      ) // fullView block doesn't need extra #call item
+    ) {
       fields = fields.concat(['#call']);
     }
     super.setP(fields, forceRefresh);
@@ -778,7 +787,7 @@ export class BlockItem extends BaseBlockItem {
       // TODO also protect width dragging?
 
       if (Array.isArray(value)) {
-        this.setXYW(...value as [number, number, number]);
+        this.setXYW(...(value as [number, number, number]));
       } else if (typeof value === 'string') {
         this.setSyncParentKey(value);
       } else if (this.xyzInvalid) {
@@ -800,7 +809,6 @@ export class BlockItem extends BaseBlockItem {
     this.forceUpdate();
     this.forceUpdateFields();
   }
-
 
   onFieldsChanged() {
     this.conn.callImmediate(this.updateFieldPosition);

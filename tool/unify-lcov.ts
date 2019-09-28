@@ -24,7 +24,6 @@ function fixReport(path: string) {
   let fixedlog = originlog.replace(/(?:(BRDA:\d+,)(\d+)(,\d+,\d+\n)|end_of_record\n)/g, replacer);
 
   fs.writeFileSync(path, fixedlog);
-
 }
 
 fixReport('coverage/chrome/karma.log');

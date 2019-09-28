@@ -1,8 +1,7 @@
 import * as fs from 'fs';
 import * as path from 'path';
-import * as glob from "glob";
+import * as glob from 'glob';
 import {exec} from 'child_process';
-
 
 async function async_exec(cmd: string) {
   return new Promise((resolve, reject) => {
@@ -14,7 +13,6 @@ async function async_exec(cmd: string) {
       resolve();
     });
   });
-
 }
 
 async function main() {
@@ -40,15 +38,19 @@ async function main() {
       default:
         continue;
     }
-    let data = fs.readFileSync(path, 'utf8').trim().replace('<path ', '<path fill="white" ')
-      .replace(/</g, '%3C').replace(/>/g, '%3E').replace(/#/g, '%23');
+    let data = fs
+      .readFileSync(path, 'utf8')
+      .trim()
+      .replace('<path ', '<path fill="white" ')
+      .replace(/</g, '%3C')
+      .replace(/>/g, '%3E')
+      .replace(/#/g, '%23');
 
     output.push(`
 .tico-${group}-${name} {
   background-image: url('data:image/svg+xml,${data}');
 }`);
   }
-
 
   fs.writeFileSync('dist/icons.css', output.join('\n'));
 }

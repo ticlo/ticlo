@@ -1,12 +1,11 @@
-import React from "react";
-import {ClientConn} from "../../core/client";
-import {LazyUpdateComponent} from "../../ui/component/LazyUpdateComponent";
+import React from 'react';
+import {ClientConn} from '../../core/client';
+import {LazyUpdateComponent} from '../../ui/component/LazyUpdateComponent';
 
 interface MultiSelectProps {
   keys: string[];
   conn: ClientConn;
 }
-
 
 export abstract class MultiSelectLoader<T extends MultiSelectComponent<any, any, any>> {
   parent: T;
@@ -24,10 +23,11 @@ export abstract class MultiSelectLoader<T extends MultiSelectComponent<any, any,
   abstract destroy(): void;
 }
 
-export abstract class MultiSelectComponent<P extends MultiSelectProps, S,
-  Loader extends MultiSelectLoader<MultiSelectComponent<P, S, Loader>>>
-  extends LazyUpdateComponent<P, S> {
-
+export abstract class MultiSelectComponent<
+  P extends MultiSelectProps,
+  S,
+  Loader extends MultiSelectLoader<MultiSelectComponent<P, S, Loader>>
+> extends LazyUpdateComponent<P, S> {
   loaders: Map<string, Loader> = new Map<string, Loader>();
 
   abstract createLoader(key: string): Loader;
@@ -79,9 +79,8 @@ export abstract class MultiSelectComponent<P extends MultiSelectProps, S,
 
   componentWillUnmount() {
     super.componentWillUnmount();
-    for (let [key, loader]of this.loaders) {
+    for (let [key, loader] of this.loaders) {
       loader.destroy();
     }
   }
-
 }

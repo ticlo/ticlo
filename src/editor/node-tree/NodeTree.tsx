@@ -1,10 +1,9 @@
-import React from "react";
-import {ExpandState} from "../../ui/component/Tree";
-import VirtualList from "../../ui/component/Virtual";
-import {ClientConn} from "../../core/client";
-import {DataMap} from "../../core/util/Types";
-import {NodeTreeItem, NodeTreeRenderer} from "./NodeRenderer";
-
+import React from 'react';
+import {ExpandState} from '../../ui/component/Tree';
+import VirtualList from '../../ui/component/Virtual';
+import {ClientConn} from '../../core/client';
+import {DataMap} from '../../core/util/Types';
+import {NodeTreeItem, NodeTreeRenderer} from './NodeRenderer';
 
 interface Props {
   conn: ClientConn;
@@ -19,9 +18,7 @@ export class NodeTree extends React.PureComponent<Props, any> {
 
   renderChild = (idx: number, style: React.CSSProperties) => {
     const item = this.list[idx];
-    return (
-      <NodeTreeRenderer item={item} key={item.key} style={style}/>
-    );
+    return <NodeTreeRenderer item={item} key={item.key} style={style} />;
   };
 
   forceUpdateLambda = () => this.forceUpdate();
@@ -59,7 +56,7 @@ export class NodeTree extends React.PureComponent<Props, any> {
     this.refreshList();
     return (
       <VirtualList
-        className='ticl-node-tree'
+        className="ticl-node-tree"
         style={this.props.style}
         renderer={this.renderChild}
         itemCount={this.list.length}

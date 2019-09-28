@@ -1,24 +1,23 @@
-import {assert} from "chai";
-import SimulateEvent from "simulate-event";
+import {assert} from 'chai';
+import SimulateEvent from 'simulate-event';
 import React from 'react';
-import {removeLastTemplate, loadTemplate, querySingle} from "../../../../ui/util/test-util";
-import {initEditor} from "../../../index";
-import {StringEditor} from "../StringEditor";
-import {shouldHappen} from "../../../../core/util/test-util";
-import {blankPropDesc} from "../../../../core/block/Descriptor";
-import {simulateInput} from "./simulate-input";
+import {removeLastTemplate, loadTemplate, querySingle} from '../../../../ui/util/test-util';
+import {initEditor} from '../../../index';
+import {StringEditor} from '../StringEditor';
+import {shouldHappen} from '../../../../core/util/test-util';
+import {blankPropDesc} from '../../../../core/block/Descriptor';
+import {simulateInput} from './simulate-input';
 
-describe("StringEditor", function () {
-
-  beforeEach(async function () {
+describe('StringEditor', function() {
+  beforeEach(async function() {
     await initEditor();
   });
 
-  afterEach(function () {
+  afterEach(function() {
     removeLastTemplate();
   });
 
-  it('basic', async function () {
+  it('basic', async function() {
     let editor: StringEditor;
     let getRef = (e: StringEditor): void => {
       editor = e;
@@ -28,7 +27,9 @@ describe("StringEditor", function () {
       value = str;
     };
     let [component, div] = loadTemplate(
-      <StringEditor ref={getRef} value='1' desc={blankPropDesc} onChange={onChange}/>, 'editor');
+      <StringEditor ref={getRef} value="1" desc={blankPropDesc} onChange={onChange} />,
+      'editor'
+    );
 
     await shouldHappen(() => editor && div.querySelector('textarea.ant-input'));
 
@@ -39,9 +40,7 @@ describe("StringEditor", function () {
     assert.equal(value, 'A');
 
     // test shift key
-    simulateInput(editor,
-      {key: 'Enter', shiftKey: true, target: document.querySelector('textarea')},
-      'A\n');
+    simulateInput(editor, {key: 'Enter', shiftKey: true, target: document.querySelector('textarea')}, 'A\n');
     assert.equal(value, 'A');
 
     simulateInput(editor, {key: 'Enter'}, null);
@@ -61,6 +60,5 @@ describe("StringEditor", function () {
 
     editor.onBlur();
     assert.equal(value, 'ABC');
-
   });
 });

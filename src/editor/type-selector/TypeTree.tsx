@@ -1,9 +1,9 @@
-import React from "react";
-import {ClientConn, FunctionDesc, getFuncStyleFromDesc} from "../../core/client";
-import {TypeTreeItem, TypeTreeRoot} from "./TypeTreeItem";
-import VirtualList from "../../ui/component/Virtual";
-import {TypeTreeRenderer} from "./TypeTreeRenderer";
-import {OnTypeClick} from "./TypeView";
+import React from 'react';
+import {ClientConn, FunctionDesc, getFuncStyleFromDesc} from '../../core/client';
+import {TypeTreeItem, TypeTreeRoot} from './TypeTreeItem';
+import VirtualList from '../../ui/component/Virtual';
+import {TypeTreeRenderer} from './TypeTreeRenderer';
+import {OnTypeClick} from './TypeView';
 
 interface Props {
   conn: ClientConn;
@@ -14,18 +14,21 @@ interface Props {
   style?: React.CSSProperties;
 }
 
-interface State {
-
-}
+interface State {}
 
 export class TypeTree extends React.PureComponent<Props, State> {
-
   rootNode: TypeTreeRoot;
   list: TypeTreeItem[] = [];
 
   constructor(props: Props) {
     super(props);
-    this.rootNode = new TypeTreeRoot(props.conn, this.forceUpdateImmediate, props.onTypeClick, props.showPreset, props.filter);
+    this.rootNode = new TypeTreeRoot(
+      props.conn,
+      this.forceUpdateImmediate,
+      props.onTypeClick,
+      props.showPreset,
+      props.filter
+    );
   }
 
   forceUpdateLambda = () => this.forceUpdate();
@@ -37,11 +40,8 @@ export class TypeTree extends React.PureComponent<Props, State> {
 
   renderChild = (idx: number, style: React.CSSProperties) => {
     let item = this.list[idx];
-    return (
-      <TypeTreeRenderer item={item} key={item.key} style={style}/>
-    );
+    return <TypeTreeRenderer item={item} key={item.key} style={style} />;
   };
-
 
   refreshList() {
     let {search} = this.props;
@@ -58,14 +58,14 @@ export class TypeTree extends React.PureComponent<Props, State> {
     this.refreshList();
     this.rendered = true;
     return (
-      <VirtualList style={style}
-                   className='ticl-type-tree'
-                   renderer={this.renderChild}
-                   itemCount={this.list.length}
-                   itemHeight={30}
+      <VirtualList
+        style={style}
+        className="ticl-type-tree"
+        renderer={this.renderChild}
+        itemCount={this.list.length}
+        itemHeight={30}
       />
     );
-
   }
 
   componentWillUnmount(): void {

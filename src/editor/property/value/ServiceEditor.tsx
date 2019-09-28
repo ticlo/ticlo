@@ -1,11 +1,11 @@
-import React, {ReactElement} from "react";
-import {ClientConn} from "../../../core/client";
-import {getDefaultFuncData, PropDesc} from "../../../core/block/Descriptor";
-import {arrayEqual} from "../../../core/util/Compare";
-import {Button, Icon, Input, Select} from "antd";
-import {Popup} from "../../component/ClickPopup";
-import {TypeSelect} from "../../type-selector/TypeSelector";
-import {PropertyList} from "../PropertyList";
+import React, {ReactElement} from 'react';
+import {ClientConn} from '../../../core/client';
+import {getDefaultFuncData, PropDesc} from '../../../core/block/Descriptor';
+import {arrayEqual} from '../../../core/util/Compare';
+import {Button, Icon, Input, Select} from 'antd';
+import {Popup} from '../../component/ClickPopup';
+import {TypeSelect} from '../../type-selector/TypeSelector';
+import {PropertyList} from '../PropertyList';
 
 const {Option} = Select;
 
@@ -23,9 +23,7 @@ interface State {
   opened?: boolean;
 }
 
-
 export class ServiceEditor extends React.PureComponent<Props, State> {
-
   state: State = {};
 
   onGlobalBlockSelect = (value: string) => {
@@ -50,13 +48,12 @@ export class ServiceEditor extends React.PureComponent<Props, State> {
     let {bindingPath, conn, keys, desc, locked, onPathChange} = this.props;
     if (!this.state.opened) {
       // work around of the pop caching issue
-      return <div/>;
+      return <div />;
     }
     let bindingParentPath = bindingPath.substring(0, bindingPath.lastIndexOf('.'));
-    let sourceKeys: string[] = keys.map(key => `${key}.${bindingParentPath}`);
+    let sourceKeys: string[] = keys.map((key) => `${key}.${bindingParentPath}`);
     return (
-      <PropertyList conn={conn} keys={sourceKeys} mode='minimal'
-                    style={{width: 300, minHeight: 160, padding: 16}}/>
+      <PropertyList conn={conn} keys={sourceKeys} mode="minimal" style={{width: 300, minHeight: 160, padding: 16}} />
     );
   };
 
@@ -78,7 +75,11 @@ export class ServiceEditor extends React.PureComponent<Props, State> {
 
     let optionNodes: React.ReactNode[] = [];
     for (let name of globalNames) {
-      optionNodes.push(<Option key={name} value={name}>{name}</Option>);
+      optionNodes.push(
+        <Option key={name} value={name}>
+          {name}
+        </Option>
+      );
     }
 
     let selectValue = bindingPath;
@@ -89,22 +90,22 @@ export class ServiceEditor extends React.PureComponent<Props, State> {
     let button: React.ReactElement;
     if (bindingPath) {
       button = (
-        <Popup popupVisible={opened}
-               onPopupVisibleChange={this.onPopupClose}
-               popup={this.getPopup}>
-          <Button className='ticl-square-icon-btn' size='small' icon="ellipsis"
-                  onClick={this.openPopup}/>
+        <Popup popupVisible={opened} onPopupVisibleChange={this.onPopupClose} popup={this.getPopup}>
+          <Button className="ticl-square-icon-btn" size="small" icon="ellipsis" onClick={this.openPopup} />
         </Popup>
       );
     } else if (!locked && create) {
-      button =
-        <Button className='ticl-square-icon-btn' size='small' icon="plus" onClick={this.onCreate}/>;
+      button = <Button className="ticl-square-icon-btn" size="small" icon="plus" onClick={this.onCreate} />;
     }
 
     return (
-      <div className='ticl-hbox ticl-service-editor'>
-        <Select size='small' value={selectValue} disabled={locked || onPathChange == null}
-                onChange={this.onGlobalBlockSelect}>
+      <div className="ticl-hbox ticl-service-editor">
+        <Select
+          size="small"
+          value={selectValue}
+          disabled={locked || onPathChange == null}
+          onChange={this.onGlobalBlockSelect}
+        >
           {optionNodes}
         </Select>
         {button}

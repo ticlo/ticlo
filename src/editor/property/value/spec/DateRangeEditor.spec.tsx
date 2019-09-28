@@ -1,31 +1,29 @@
-import {assert} from "chai";
-import SimulateEvent from "simulate-event";
+import {assert} from 'chai';
+import SimulateEvent from 'simulate-event';
 import React from 'react';
-import {removeLastTemplate, loadTemplate, querySingle} from "../../../../ui/util/test-util";
-import {initEditor} from "../../../index";
-import {DateRangeEditor} from "../DateRangeEditor";
-import {shouldHappen} from "../../../../core/util/test-util";
-import {blankPropDesc, PropDesc} from "../../../../core/block/Descriptor";
-import moment, {Moment} from "moment";
+import {removeLastTemplate, loadTemplate, querySingle} from '../../../../ui/util/test-util';
+import {initEditor} from '../../../index';
+import {DateRangeEditor} from '../DateRangeEditor';
+import {shouldHappen} from '../../../../core/util/test-util';
+import {blankPropDesc, PropDesc} from '../../../../core/block/Descriptor';
+import moment, {Moment} from 'moment';
 
-describe("DateRangeEditor", function () {
-
-  beforeEach(async function () {
+describe('DateRangeEditor', function() {
+  beforeEach(async function() {
     await initEditor();
   });
 
-  afterEach(function () {
+  afterEach(function() {
     removeLastTemplate();
   });
 
-  it('basic', async function () {
+  it('basic', async function() {
     let values: Moment[] = null;
     let onChange = (v: Moment[]) => {
       values = v;
     };
     let desc: PropDesc = {name: '', type: 'date-range', showTime: true};
-    let [component, div] = loadTemplate(
-      <DateRangeEditor value={null} desc={desc} onChange={onChange}/>, 'editor');
+    let [component, div] = loadTemplate(<DateRangeEditor value={null} desc={desc} onChange={onChange} />, 'editor');
 
     await shouldHappen(() => div.querySelector('.ticl-date-range-editor > span'));
     let colorDiv = div.querySelector('.ticl-date-range-editor > span');

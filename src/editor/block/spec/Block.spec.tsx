@@ -1,29 +1,26 @@
-import {assert} from "chai";
-import SimulateEvent from "simulate-event";
+import {assert} from 'chai';
+import SimulateEvent from 'simulate-event';
 import React from 'react';
-import {BlockStage} from "../../../editor";
-import {Block, Root} from "../../../core/main";
-import {destroyLastLocalConnection, makeLocalConnection} from "../../../core/connect/LocalConnection";
-import {shouldHappen, shouldReject} from "../../../core/util/test-util";
-import ReactDOM from "react-dom";
-import {removeLastTemplate, loadTemplate, querySingle, fakeMouseEvent} from "../../../ui/util/test-util";
-import {initEditor} from "../../index";
-import {arrayEqual} from "../../../core/util/Compare";
+import {BlockStage} from '../../../editor';
+import {Block, Root} from '../../../core/main';
+import {destroyLastLocalConnection, makeLocalConnection} from '../../../core/connect/LocalConnection';
+import {shouldHappen, shouldReject} from '../../../core/util/test-util';
+import ReactDOM from 'react-dom';
+import {removeLastTemplate, loadTemplate, querySingle, fakeMouseEvent} from '../../../ui/util/test-util';
+import {initEditor} from '../../index';
+import {arrayEqual} from '../../../core/util/Compare';
 
-describe("editor BlockStage", function () {
-
-  beforeEach(async function () {
+describe('editor BlockStage', function() {
+  beforeEach(async function() {
     await initEditor();
   });
 
-  afterEach(function () {
+  afterEach(function() {
     removeLastTemplate();
     destroyLastLocalConnection();
   });
 
-  it('single block', async function () {
-
-
+  it('single block', async function() {
     let job = Root.instance.addJob('BlockStage1');
     job.load({
       add: {
@@ -38,8 +35,9 @@ describe("editor BlockStage", function () {
     let [server, client] = makeLocalConnection(Root.instance);
 
     let [component, div] = loadTemplate(
-      <BlockStage conn={client} basePath="BlockStage1"
-                  style={{width: '800px', height: '800px'}}/>, 'editor');
+      <BlockStage conn={client} basePath="BlockStage1" style={{width: '800px', height: '800px'}} />,
+      'editor'
+    );
 
     await shouldHappen(() => div.querySelector('.ticl-block'));
 
@@ -49,28 +47,38 @@ describe("editor BlockStage", function () {
     assert.equal(block.offsetWidth, 345);
 
     // test all fields in the block body
-    await shouldHappen(() => querySingle("//div.ticl-field-name[text()='0']/../div.ticl-field-value/span[text()='1']", div));
+    await shouldHappen(() =>
+      querySingle("//div.ticl-field-name[text()='0']/../div.ticl-field-value/span[text()='1']", div)
+    );
     assert.isNotNull(querySingle("//div.ticl-field-name[text()='1']/../div.ticl-field-value/span[text()='2']", div));
-    assert.isNotNull(querySingle("//div.ticl-field-name[text()='output']/../div.ticl-field-value/span[text()='3']", div));
+    assert.isNotNull(
+      querySingle("//div.ticl-field-name[text()='output']/../div.ticl-field-value/span[text()='3']", div)
+    );
 
     // check block icon
-    assert.isNotNull(querySingle("//div.tico-icon-svg.tico-fas-plus", div));
+    assert.isNotNull(querySingle('//div.tico-icon-svg.tico-fas-plus', div));
 
     // test value update
     job.queryProperty('add.0').updateValue(5);
-    await shouldHappen(() => querySingle("//div.ticl-field-name[text()='0']/../div.ticl-field-value/span[text()='5']", div));
-    assert.isNotNull(querySingle("//div.ticl-field-name[text()='output']/../div.ticl-field-value/span[text()='7']", div));
+    await shouldHappen(() =>
+      querySingle("//div.ticl-field-name[text()='0']/../div.ticl-field-value/span[text()='5']", div)
+    );
+    assert.isNotNull(
+      querySingle("//div.ticl-field-name[text()='output']/../div.ticl-field-value/span[text()='7']", div)
+    );
 
     // test change type
     job.queryProperty('add.#is').setValue('subtract');
-    await shouldHappen(() => querySingle("//div.ticl-field-name[text()='output']/../div.ticl-field-value/span[text()='3']", div));
+    await shouldHappen(() =>
+      querySingle("//div.ticl-field-name[text()='output']/../div.ticl-field-value/span[text()='3']", div)
+    );
     // check block icon again
-    assert.isNotNull(querySingle("//div.tico-icon-svg.tico-fas-minus", div));
+    assert.isNotNull(querySingle('//div.tico-icon-svg.tico-fas-minus', div));
 
     Root.instance.deleteValue('BlockStage1');
   });
 
-  it('drag block', async function () {
+  it('drag block', async function() {
     let job = Root.instance.addJob('BlockStage2');
     job.load({
       add: {
@@ -83,8 +91,9 @@ describe("editor BlockStage", function () {
     let [server, client] = makeLocalConnection(Root.instance);
 
     let [component, div] = loadTemplate(
-      <BlockStage conn={client} basePath="BlockStage2"
-                  style={{width: '800px', height: '800px'}}/>, 'editor');
+      <BlockStage conn={client} basePath="BlockStage2" style={{width: '800px', height: '800px'}} />,
+      'editor'
+    );
 
     await shouldHappen(() => div.querySelector('.ticl-block'));
 
@@ -92,7 +101,7 @@ describe("editor BlockStage", function () {
     // mouse down
     SimulateEvent.simulate(document.querySelector('.ticl-stage-scroll .ticl-block-head'), 'mousedown', {
       clientX: 0,
-      clientY: 0,
+      clientY: 0
     });
 
     await shouldHappen(() => block.classList.contains('ticl-block-selected'));
@@ -122,7 +131,7 @@ describe("editor BlockStage", function () {
     Root.instance.deleteValue('BlockStage2');
   });
 
-  it('drag block size', async function () {
+  it('drag block size', async function() {
     let job = Root.instance.addJob('BlockStage3');
     job.load({
       add: {
@@ -135,13 +144,14 @@ describe("editor BlockStage", function () {
     let [server, client] = makeLocalConnection(Root.instance);
 
     let [component, div] = loadTemplate(
-      <BlockStage conn={client} basePath="BlockStage3"
-                  style={{width: '800px', height: '800px'}}/>, 'editor');
+      <BlockStage conn={client} basePath="BlockStage3" style={{width: '800px', height: '800px'}} />,
+      'editor'
+    );
 
     await shouldHappen(() => div.querySelector('.ticl-block'));
 
     let block = div.querySelector('.ticl-stage-scroll .ticl-block') as HTMLDivElement;
-    await shouldHappen(() => (block.offsetWidth === 345));
+    await shouldHappen(() => block.offsetWidth === 345);
     // mouse down
     SimulateEvent.simulate(document.querySelector('.ticl-width-drag'), 'mousedown', fakeMouseEvent());
 
@@ -150,7 +160,7 @@ describe("editor BlockStage", function () {
     // mouse move to trigger drag move
     SimulateEvent.simulate(document.body, 'mousemove', fakeMouseEvent(100, 100));
 
-    await shouldHappen(() => (block.offsetWidth === 445));
+    await shouldHappen(() => block.offsetWidth === 445);
 
     await shouldHappen(() => arrayEqual(job.queryValue('add.@b-xyw'), [123, 234, 445]));
 
@@ -160,9 +170,7 @@ describe("editor BlockStage", function () {
     Root.instance.deleteValue('BlockStage3');
   });
 
-
-  it('min block and wire', async function () {
-
+  it('min block and wire', async function() {
     let job = Root.instance.addJob('BlockStage4');
     job.load({
       add: {
@@ -176,14 +184,15 @@ describe("editor BlockStage", function () {
         '~0': '##.add.0',
         '@b-xyw': [200, 200, 150],
         '@b-p': ['0']
-      },
+      }
     });
 
     let [server, client] = makeLocalConnection(Root.instance);
 
     let [component, div] = loadTemplate(
-      <BlockStage conn={client} basePath="BlockStage4"
-                  style={{width: '800px', height: '800px'}}/>, 'editor');
+      <BlockStage conn={client} basePath="BlockStage4" style={{width: '800px', height: '800px'}} />,
+      'editor'
+    );
 
     // wait for the wire
     await shouldHappen(() => div.querySelector('svg.ticl-block-wire'));
@@ -230,12 +239,10 @@ describe("editor BlockStage", function () {
     job.queryProperty('subtract.0').setValue(1);
     await shouldHappen(() => div.querySelector('svg.ticl-block-wire') == null);
 
-
     Root.instance.deleteValue('BlockStage4');
   });
 
-  it('rect select', async function () {
-
+  it('rect select', async function() {
     let job = Root.instance.addJob('BlockStage5');
     job.load({
       add: {
@@ -247,7 +254,7 @@ describe("editor BlockStage", function () {
         '#is': 'subtract',
         '@b-xyw': [200, 200, 100],
         '@b-p': ['0']
-      },
+      }
     });
 
     let [server, client] = makeLocalConnection(Root.instance);
@@ -259,8 +266,9 @@ describe("editor BlockStage", function () {
     }
 
     let [component, div] = loadTemplate(
-      <BlockStage conn={client} basePath="BlockStage5" onSelect={onSelect}
-                  style={{width: '800px', height: '800px'}}/>, 'editor');
+      <BlockStage conn={client} basePath="BlockStage5" onSelect={onSelect} style={{width: '800px', height: '800px'}} />,
+      'editor'
+    );
 
     // wait for the field
     await shouldHappen(() => (div.querySelector('.ticl-stage-bg') as HTMLElement).offsetWidth);
@@ -295,8 +303,7 @@ describe("editor BlockStage", function () {
     Root.instance.deleteValue('BlockStage5');
   });
 
-  it('automatic assign xy', async function () {
-
+  it('automatic assign xy', async function() {
     let job = Root.instance.addJob('BlockStage6');
     for (let i = 0; i < 10; ++i) {
       job.createBlock(`a${i}`);
@@ -305,8 +312,9 @@ describe("editor BlockStage", function () {
     let [server, client] = makeLocalConnection(Root.instance);
 
     let [component, div] = loadTemplate(
-      <BlockStage conn={client} basePath="BlockStage6"
-                  style={{width: '800px', height: '800px'}}/>, 'editor');
+      <BlockStage conn={client} basePath="BlockStage6" style={{width: '800px', height: '800px'}} />,
+      'editor'
+    );
 
     await shouldHappen(() => div.querySelector('.ticl-block'));
     await shouldHappen(() => (div.querySelector('.ticl-block') as HTMLDivElement).offsetLeft > 0);
@@ -322,5 +330,4 @@ describe("editor BlockStage", function () {
 
     Root.instance.deleteValue('BlockStage6');
   });
-
 });

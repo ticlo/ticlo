@@ -1,7 +1,7 @@
-import React from "react";
-import {DataRendererItem, PureDataRenderer} from "../../ui/component/DataRenderer";
-import {FieldItem} from "./Field";
-import {cssNumber} from "../../ui/util/Types";
+import React from 'react';
+import {DataRendererItem, PureDataRenderer} from '../../ui/component/DataRenderer';
+import {FieldItem} from './Field';
+import {cssNumber} from '../../ui/util/Types';
 
 export class WireItem extends DataRendererItem {
   source: FieldItem;
@@ -74,7 +74,7 @@ export class WireView extends PureDataRenderer<WireViewProps, any> {
       mx1 = x0 * 0.4 + x1 * 0.6;
     } else if (x1 > x0) {
       // make a smooth transition between the 2 algorithms;
-      let r = (x1 - x0) * 0.5 / xgap;
+      let r = ((x1 - x0) * 0.5) / xgap;
       let offx = xgap + (x0 - x1) * 0.0625;
       mx0 = (x0 * 0.6 + x1 * 0.4) * r + (x0 + offx) * (1 - r);
       mx1 = (x0 * 0.4 + x1 * 0.6) * r + (x1 - offx) * (1 - r);
@@ -104,10 +104,18 @@ export class WireView extends PureDataRenderer<WireViewProps, any> {
     }
 
     return (
-      <svg width={maxx - minx} height={maxy - miny} className={className} xmlns="http://www.w3.org/2000/svg"
-           style={{left: minx, top: miny, zIndex: selected ? 100 : undefined}}>
+      <svg
+        width={maxx - minx}
+        height={maxy - miny}
+        className={className}
+        xmlns="http://www.w3.org/2000/svg"
+        style={{left: minx, top: miny, zIndex: selected ? 100 : undefined}}
+      >
         <path
-          d={`M ${cssNumber(x0)} ${cssNumber(y0)} Q ${cssNumber(mx0)} ${cssNumber(y0)} ${cssNumber(midx)} ${cssNumber((y0 + y1) * 0.5)} ${cssNumber(mx1)} ${cssNumber(y1)} ${cssNumber(x1)} ${cssNumber(y1)}`}/>
+          d={`M ${cssNumber(x0)} ${cssNumber(y0)} Q ${cssNumber(mx0)} ${cssNumber(y0)} ${cssNumber(midx)} ${cssNumber(
+            (y0 + y1) * 0.5
+          )} ${cssNumber(mx1)} ${cssNumber(y1)} ${cssNumber(x1)} ${cssNumber(y1)}`}
+        />
       </svg>
     );
   }

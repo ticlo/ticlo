@@ -1,6 +1,6 @@
-import React from "react";
-import {ClientConn, ValueUpdate} from "../../core/client";
-import {DataMap} from "../../core/util/Types";
+import React from 'react';
+import {ClientConn, ValueUpdate} from '../../core/client';
+import {DataMap} from '../../core/util/Types';
 import {
   blankFuncDesc,
   configDescs,
@@ -8,18 +8,17 @@ import {
   FunctionDesc,
   PropDesc,
   PropGroupDesc
-} from "../../core/block/Descriptor";
-import {PropertyEditor} from "./PropertyEditor";
-import {GroupEditor} from "./GroupEditor";
-import {MultiSelectComponent, MultiSelectLoader} from "./MultiSelectComponent";
-import {ExpandIcon} from "../../ui/component/Tree";
-import {deepEqual} from "../../core/util/Compare";
-import {Button, Empty, Tooltip} from "antd";
-import {AddMorePropertyMenu} from "./AddMoreProperty";
-import {Popup} from "../component/ClickPopup";
+} from '../../core/block/Descriptor';
+import {PropertyEditor} from './PropertyEditor';
+import {GroupEditor} from './GroupEditor';
+import {MultiSelectComponent, MultiSelectLoader} from './MultiSelectComponent';
+import {ExpandIcon} from '../../ui/component/Tree';
+import {deepEqual} from '../../core/util/Compare';
+import {Button, Empty, Tooltip} from 'antd';
+import {AddMorePropertyMenu} from './AddMoreProperty';
+import {Popup} from '../component/ClickPopup';
 
 class BlockLoader extends MultiSelectLoader<PropertyList> {
-
   isListener = {
     onUpdate: (response: ValueUpdate) => {
       this.conn.watchDesc(response.cache.value, this.onDesc);
@@ -73,8 +72,11 @@ function getPropDescName(prop: PropDesc | PropGroupDesc) {
 function comparePropDesc(a: PropDesc | PropGroupDesc, b: PropDesc | PropGroupDesc) {
   if (a.type === 'group') {
     if (a.name !== b.name) return false;
-    if (!(a as PropGroupDesc).properties || !(b as PropGroupDesc).properties
-      || (a as PropGroupDesc).properties.length !== (b as PropGroupDesc).properties.length) {
+    if (
+      !(a as PropGroupDesc).properties ||
+      !(b as PropGroupDesc).properties ||
+      (a as PropGroupDesc).properties.length !== (b as PropGroupDesc).properties.length
+    ) {
       return false;
     }
     for (let i = 0; i < (a as PropGroupDesc).properties.length; ++i) {
@@ -144,13 +146,26 @@ class PropertyDefMerger {
       for (let [name, prop] of this.map) {
         if (prop.type === 'group') {
           children.push(
-            <GroupEditor key={name} keys={keys} conn={conn} isMore={isMore}
-                         funcDesc={funcDesc} groupDesc={prop as PropGroupDesc}/>
+            <GroupEditor
+              key={name}
+              keys={keys}
+              conn={conn}
+              isMore={isMore}
+              funcDesc={funcDesc}
+              groupDesc={prop as PropGroupDesc}
+            />
           );
         } else if (prop.name) {
           children.push(
-            <PropertyEditor key={name} name={name} keys={keys} conn={conn} isMore={isMore}
-                            funcDesc={funcDesc} propDesc={prop as PropDesc}/>
+            <PropertyEditor
+              key={name}
+              name={name}
+              keys={keys}
+              conn={conn}
+              isMore={isMore}
+              funcDesc={funcDesc}
+              propDesc={prop as PropDesc}
+            />
           );
         }
       }
@@ -166,7 +181,6 @@ class PropertyDefMerger {
 }
 
 export class PropertyList extends MultiSelectComponent<Props, State, BlockLoader> {
-
   constructor(props: Readonly<Props>) {
     super(props);
     this.state = {showConfig: false, showMore: true, showAddMorePopup: false};
@@ -195,7 +209,6 @@ export class PropertyList extends MultiSelectComponent<Props, State, BlockLoader
     this.onAddMorePopup(false);
   };
 
-
   renderImpl() {
     let {conn, keys, style, mode} = this.props;
     let {showConfig, showMore, showAddMorePopup} = this.state;
@@ -214,8 +227,8 @@ export class PropertyList extends MultiSelectComponent<Props, State, BlockLoader
     if (isEmpty) {
       // nothing selected
       return (
-        <div className='ticl-property-list' style={style}>
-          <Empty image={Empty.PRESENTED_IMAGE_SIMPLE}/>
+        <div className="ticl-property-list" style={style}>
+          <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} />
         </div>
       );
     }
@@ -262,60 +275,65 @@ export class PropertyList extends MultiSelectComponent<Props, State, BlockLoader
         configChildren = [];
         for (let configDesc of configList) {
           configChildren.push(
-            <PropertyEditor key={configDesc.name} name={configDesc.name} keys={keys} conn={conn}
-                            funcDesc={funcDesc} propDesc={configDesc}/>
+            <PropertyEditor
+              key={configDesc.name}
+              name={configDesc.name}
+              keys={keys}
+              conn={conn}
+              funcDesc={funcDesc}
+              propDesc={configDesc}
+            />
           );
         }
       }
       return (
-        <div className='ticl-property-list' style={style}>
-          <PropertyEditor name='#is' keys={keys} conn={conn}
-                          funcDesc={funcDesc} propDesc={configDescs['#is']}/>
-          <div className='ticl-property-divider'>
-            <div className='ticl-h-line'/>
+        <div className="ticl-property-list" style={style}>
+          <PropertyEditor name="#is" keys={keys} conn={conn} funcDesc={funcDesc} propDesc={configDescs['#is']} />
+          <div className="ticl-property-divider">
+            <div className="ticl-h-line" />
           </div>
 
           {children}
 
-          <div className='ticl-property-divider'>
-            <div className='ticl-h-line' style={{maxWidth: '16px'}}/>
-            <ExpandIcon opened={showConfig ? 'opened' : 'closed'} onClick={this.onShowConfigClick}/>
+          <div className="ticl-property-divider">
+            <div className="ticl-h-line" style={{maxWidth: '16px'}} />
+            <ExpandIcon opened={showConfig ? 'opened' : 'closed'} onClick={this.onShowConfigClick} />
             <span>cofig</span>
-            <div className='ticl-h-line'/>
+            <div className="ticl-h-line" />
           </div>
           {configChildren}
 
-          <div className='ticl-property-divider'>
-            <div className='ticl-h-line' style={{maxWidth: '16px'}}/>
-            {
-              moreMerger.isNotEmpty() ?
-                <ExpandIcon opened={showMore ? 'opened' : 'closed'} onClick={this.onShowMoreClick}/>
-                :
-                null
-            }
+          <div className="ticl-property-divider">
+            <div className="ticl-h-line" style={{maxWidth: '16px'}} />
+            {moreMerger.isNotEmpty() ? (
+              <ExpandIcon opened={showMore ? 'opened' : 'closed'} onClick={this.onShowMoreClick} />
+            ) : null}
             <span>more</span>
-            <Popup popupVisible={showAddMorePopup}
-                   onPopupVisibleChange={this.onAddMorePopup}
-                   popup={
-                     <AddMorePropertyMenu onAddProperty={this.onAddMore}/>
-                   }>
-              <Button className='ticl-icon-btn' shape='circle' tabIndex={-1} icon='plus-square'/>
+            <Popup
+              popupVisible={showAddMorePopup}
+              onPopupVisibleChange={this.onAddMorePopup}
+              popup={<AddMorePropertyMenu onAddProperty={this.onAddMore} />}
+            >
+              <Button className="ticl-icon-btn" shape="circle" tabIndex={-1} icon="plus-square" />
             </Popup>
 
-            <div className='ticl-h-line'/>
-
+            <div className="ticl-h-line" />
           </div>
           {moreChildren}
-
         </div>
       );
     } else {
       return (
-        <div className='ticl-property-list' style={style}>
-          <PropertyEditor name='#is' keys={keys} conn={conn}
-                          funcDesc={funcDesc} propDesc={configDescs['#is(readonly)']}/>
-          <div className='ticl-property-divider'>
-            <div className='ticl-h-line'/>
+        <div className="ticl-property-list" style={style}>
+          <PropertyEditor
+            name="#is"
+            keys={keys}
+            conn={conn}
+            funcDesc={funcDesc}
+            propDesc={configDescs['#is(readonly)']}
+          />
+          <div className="ticl-property-divider">
+            <div className="ticl-h-line" />
           </div>
 
           {children}

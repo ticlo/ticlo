@@ -1,20 +1,18 @@
-import {assert} from "chai";
-import SimulateEvent from "simulate-event";
+import {assert} from 'chai';
+import SimulateEvent from 'simulate-event';
 import React from 'react';
-import {NodeTree} from "../../../editor";
-import {Block, Root} from "../../../core/main";
-import {destroyLastLocalConnection, makeLocalConnection} from "../../../core/connect/LocalConnection";
-import {shouldHappen} from "../../../core/util/test-util";
-import ReactDOM from "react-dom";
-import {removeLastTemplate, loadTemplate, querySingle} from "../../../ui/util/test-util";
+import {NodeTree} from '../../../editor';
+import {Block, Root} from '../../../core/main';
+import {destroyLastLocalConnection, makeLocalConnection} from '../../../core/connect/LocalConnection';
+import {shouldHappen} from '../../../core/util/test-util';
+import ReactDOM from 'react-dom';
+import {removeLastTemplate, loadTemplate, querySingle} from '../../../ui/util/test-util';
 
-describe("editor NodeTree", function () {
-
-  afterEach(function () {
+describe('editor NodeTree', function() {
+  afterEach(function() {
     removeLastTemplate();
     destroyLastLocalConnection();
   });
-
 
   function addTestChildren(block: Block, parentname: string, level: number) {
     for (let i = 0; i < 10; ++i) {
@@ -27,19 +25,16 @@ describe("editor NodeTree", function () {
     }
   }
 
-  it('basic', async function () {
-
+  it('basic', async function() {
     let job = Root.instance.addJob('NodeTree');
     addTestChildren(job, '', 3);
 
     let [server, client] = makeLocalConnection(Root.instance);
 
     let [component, div] = loadTemplate(
-      <NodeTree
-        conn={client}
-        basePaths={["NodeTree"]}
-        style={{width: '600px', height: '600px'}}
-      />, 'editor');
+      <NodeTree conn={client} basePaths={['NodeTree']} style={{width: '600px', height: '600px'}} />,
+      'editor'
+    );
     await shouldHappen(() => div.querySelector('.ticl-v-scroll-content'));
     let contentDiv = div.querySelector('.ticl-v-scroll-content');
     await shouldHappen(() => contentDiv.childNodes.length >= 1);
@@ -48,24 +43,22 @@ describe("editor NodeTree", function () {
 
     SimulateEvent.simulate(
       querySingle("//div.ticl-tree-node-text[text()='NodeTree']/../div.ticl-tree-arr", div),
-      'click');
+      'click'
+    );
     await shouldHappen(() => contentDiv.childNodes.length >= 11);
 
     // find block icon
-    await shouldHappen(() => querySingle("//div.ticl-tree-node-text[text()='5']/../div.tico.tico-pr0/div.tico-fas-plus", div));
+    await shouldHappen(() =>
+      querySingle("//div.ticl-tree-node-text[text()='5']/../div.tico.tico-pr0/div.tico-fas-plus", div)
+    );
 
     // expand more children
-    SimulateEvent.simulate(
-      querySingle("//div.ticl-tree-node-text[text()='9']/../div.ticl-tree-arr", div),
-      'click');
+    SimulateEvent.simulate(querySingle("//div.ticl-tree-node-text[text()='9']/../div.ticl-tree-arr", div), 'click');
     // max children is 20, since 30px per row and total 600px height
     await shouldHappen(() => contentDiv.childNodes.length === 20);
 
-
     // expand even more children
-    SimulateEvent.simulate(
-      querySingle("//div.ticl-tree-node-text[text()='8']/../div.ticl-tree-arr", div),
-      'click');
+    SimulateEvent.simulate(querySingle("//div.ticl-tree-node-text[text()='8']/../div.ticl-tree-arr", div), 'click');
     // max children is 20
     await shouldHappen(() => contentDiv.childNodes.length === 20);
 
@@ -74,9 +67,7 @@ describe("editor NodeTree", function () {
     await shouldHappen(() => contentDiv.childNodes.length === 22);
 
     // close some children
-    SimulateEvent.simulate(
-      querySingle("//div.ticl-tree-node-text[text()='8']/../div.ticl-tree-arr", div),
-      'click');
+    SimulateEvent.simulate(querySingle("//div.ticl-tree-node-text[text()='8']/../div.ticl-tree-arr", div), 'click');
     await shouldHappen(() => contentDiv.childNodes.length === 21);
 
     // decrease height, allows less children
@@ -99,13 +90,15 @@ describe("editor NodeTree", function () {
     // close children
     SimulateEvent.simulate(
       querySingle("//div.ticl-tree-node-text[text()='NodeTree']/../div.ticl-tree-arr", div),
-      'click');
+      'click'
+    );
     await shouldHappen(() => contentDiv.childNodes.length === 1);
 
     // reopen it, should still show cached nodes
     SimulateEvent.simulate(
       querySingle("//div.ticl-tree-node-text[text()='NodeTree']/../div.ticl-tree-arr", div),
-      'click');
+      'click'
+    );
     await shouldHappen(() => contentDiv.childNodes.length === 14);
     // node is removed but cache still exists
     assert.isNotNull(querySingle("//div.ticl-tree-node-text[text()='5']"));
@@ -113,13 +106,9 @@ describe("editor NodeTree", function () {
     await shouldHappen(() => querySingle("//div.ticl-tree-node-text[text()='5']/../div.tico/div", div) == null);
 
     // right click the first node
-    SimulateEvent.simulate(
-      querySingle("//div.ticl-tree-node-text[text()='NodeTree']", div),
-      'contextmenu');
+    SimulateEvent.simulate(querySingle("//div.ticl-tree-node-text[text()='NodeTree']", div), 'contextmenu');
     // click Reload
-    SimulateEvent.simulate(
-      querySingle("//li[contains(@class,'ant-dropdown-menu-item')][text()='Reload']"),
-      'click');
+    SimulateEvent.simulate(querySingle("//li[contains(@class,'ant-dropdown-menu-item')][text()='Reload']"), 'click');
     // second layer of children node should all be closed
     await shouldHappen(() => contentDiv.childNodes.length === 10);
     // children should be refreshed, only 9 children remain
@@ -127,5 +116,4 @@ describe("editor NodeTree", function () {
 
     Root.instance.deleteValue('NodeTree');
   });
-
 });

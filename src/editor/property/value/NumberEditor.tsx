@@ -1,6 +1,6 @@
-import React from "react";
-import {Button} from "antd";
-import {ValueEditorProps} from "./ValueEditorBase";
+import React from 'react';
+import {Button} from 'antd';
+import {ValueEditorProps} from './ValueEditorBase';
 
 // remove thousand separator
 const formatNumberRegx = /[,\s]+/g;
@@ -26,14 +26,14 @@ const MathDeg = (() => {
   for (let name of ['sin', 'cos', 'tan']) {
     result[`${name}Rad`] = result[name];
     let f: Function = result[name];
-    result[name] = function (input: number) {
+    result[name] = function(input: number) {
       return f(input * deg2rad);
     };
   }
   for (let name of ['asin', 'acos', 'atan', 'atan2']) {
     result[`${name}Rad`] = result[name];
     let f: Function = result[name];
-    result[name] = function () {
+    result[name] = function() {
       return f(...arguments) * rad2deg;
     };
   }
@@ -41,7 +41,6 @@ const MathDeg = (() => {
 })();
 
 export class NumberEditor extends React.PureComponent<ValueEditorProps, any> {
-
   // this is not a state because in commitChange() editorValue is changed but we don't want a re-render until prop change
   _pendingValue: string = null;
 
@@ -67,7 +66,6 @@ export class NumberEditor extends React.PureComponent<ValueEditorProps, any> {
       this.forceUpdate();
     }
   }
-
 
   onInputChange = (e: React.SyntheticEvent) => {
     let value = (e.target as HTMLInputElement).value;
@@ -157,7 +155,6 @@ export class NumberEditor extends React.PureComponent<ValueEditorProps, any> {
     let {desc} = this.props;
     let value = this.currentValue();
     if (value === value) {
-
       let step = desc.step;
       if (!(step >= 0)) {
         step = 1;
@@ -187,7 +184,6 @@ export class NumberEditor extends React.PureComponent<ValueEditorProps, any> {
     return Number(value.replace(formatNumberRegx, ''));
   }
 
-
   render() {
     let {desc, value, locked, onChange} = this.props;
     if (this._pendingValue != null) {
@@ -201,14 +197,19 @@ export class NumberEditor extends React.PureComponent<ValueEditorProps, any> {
     let disabled = onChange == null;
     return (
       <div className={`ticl-number-input${disabled ? ' ticl-number-input-disabled' : ''}`}>
-        <Button size='small' icon='minus' onClick={this.onMinusClick} disabled={disabled}/>
-        <input className='ant-input ant-input-sm' type='text' placeholder={desc.placeholder}
-               value={value}
-               onChange={this.onInputChange} disabled={disabled}
-               onBlur={this.onBlur} onKeyDown={this.onKeyDown}/>
-        <Button size='small' icon='plus' onClick={this.onPlusClick} disabled={disabled}/>
+        <Button size="small" icon="minus" onClick={this.onMinusClick} disabled={disabled} />
+        <input
+          className="ant-input ant-input-sm"
+          type="text"
+          placeholder={desc.placeholder}
+          value={value}
+          onChange={this.onInputChange}
+          disabled={disabled}
+          onBlur={this.onBlur}
+          onKeyDown={this.onKeyDown}
+        />
+        <Button size="small" icon="plus" onClick={this.onPlusClick} disabled={disabled} />
       </div>
-
     );
   }
 }

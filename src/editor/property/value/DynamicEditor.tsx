@@ -1,16 +1,16 @@
-import React, {ReactElement} from "react";
+import React, {ReactElement} from 'react';
 import moment from 'moment';
 import {Menu, Dropdown} from 'antd';
-import {ValueEditorProps} from "./ValueEditorBase";
-import {ValueType} from "../../../core/block/Descriptor";
-import {NumberEditor} from "./NumberEditor";
-import {StringEditor} from "./StringEditor";
-import {ToggleEditor} from "./ToggleEditor";
-import {ColorEditor} from "./ColorEditor";
-import {DateEditor} from "./DateEditor";
-import {DateRangeEditor} from "./DateRangeEditor";
-import {isColorStr} from "../../../core/util/String";
-import {ClickParam} from "antd/lib/menu";
+import {ValueEditorProps} from './ValueEditorBase';
+import {ValueType} from '../../../core/block/Descriptor';
+import {NumberEditor} from './NumberEditor';
+import {StringEditor} from './StringEditor';
+import {ToggleEditor} from './ToggleEditor';
+import {ColorEditor} from './ColorEditor';
+import {DateEditor} from './DateEditor';
+import {DateRangeEditor} from './DateRangeEditor';
+import {isColorStr} from '../../../core/util/String';
+import {ClickParam} from 'antd/lib/menu';
 
 const defaultTypes: ValueType[] = ['string', 'number', 'toggle', 'color', 'date', 'date-range', 'map', 'array'];
 
@@ -20,26 +20,26 @@ export const dynamicEditorMap: {[key: string]: any} = {
   'toggle': ToggleEditor,
   'color': ColorEditor,
   'date': DateEditor,
-  'date-range': DateRangeEditor,
+  'date-range': DateRangeEditor
 };
 
 const dynamicTypeIcon: {[key: string]: React.ReactElement} = {
-  'string': <div className='tico-txt'>S</div>,
-  'number': <div className='tico-txt'>1</div>,
-  'toggle': <div className='tico-txt'>T</div>,
-  'color': <div className='tico-txt'>C</div>,
-  'date': <div className='tico-txt'>D</div>,
-  'date-range': <div className='tico-txt'>R</div>,
-  'map': <div className='tico-txt tico-small-txt'>{'{}'}</div>,
-  'array': <div className='tico-txt tico-small-txt'>[]</div>,
+  'string': <div className="tico-txt">S</div>,
+  'number': <div className="tico-txt">1</div>,
+  'toggle': <div className="tico-txt">T</div>,
+  'color': <div className="tico-txt">C</div>,
+  'date': <div className="tico-txt">D</div>,
+  'date-range': <div className="tico-txt">R</div>,
+  'map': <div className="tico-txt tico-small-txt">{'{}'}</div>,
+  'array': <div className="tico-txt tico-small-txt">[]</div>
 };
 
 const dynamicTypeMenuItem: {[key: string]: React.ReactElement} = {};
 for (let type in dynamicTypeIcon) {
   dynamicTypeMenuItem[type] = (
     <Menu.Item key={type}>
-      <span className='ticl-dynamic-type-menu-item'>
-        <div className='ticl-dynamic-type-icon'>{dynamicTypeIcon[type]}</div>
+      <span className="ticl-dynamic-type-menu-item">
+        <div className="ticl-dynamic-type-icon">{dynamicTypeIcon[type]}</div>
         {type}
       </span>
     </Menu.Item>
@@ -61,7 +61,7 @@ export class DynamicEditor extends React.PureComponent<ValueEditorProps, State> 
       case 'number': {
         return 'number';
       }
-      case 'object' : {
+      case 'object': {
         if (moment.isMoment(value)) {
           return 'date';
         }
@@ -73,13 +73,13 @@ export class DynamicEditor extends React.PureComponent<ValueEditorProps, State> 
         }
         return 'map';
       }
-      case 'string' : {
+      case 'string': {
         if (isColorStr(value)) {
           return 'color';
         }
         return 'string';
       }
-      case "boolean": {
+      case 'boolean': {
         return 'toggle';
       }
     }
@@ -108,9 +108,7 @@ export class DynamicEditor extends React.PureComponent<ValueEditorProps, State> 
       currentType = DynamicEditor.getTypeFromValue(value) || currentType;
     }
 
-    if (!currentType ||
-      (onChange && !types.includes(currentType))
-    ) {
+    if (!currentType || (onChange && !types.includes(currentType))) {
       // when not readonly, must use one of the allowed types
       currentType = types[0];
     }
@@ -126,20 +124,12 @@ export class DynamicEditor extends React.PureComponent<ValueEditorProps, State> 
     let editor: React.ReactNode;
     if (EditorClass) {
       editor = (
-        <EditorClass conn={conn} keys={keys} value={value} desc={desc} locked={locked} onChange={this.onValueChange}/>
+        <EditorClass conn={conn} keys={keys} value={value} desc={desc} locked={locked} onChange={this.onValueChange} />
       );
     }
-    let typeIcon = (
-      <div className='ticl-dynamic-type-icon'>
-        {dynamicTypeIcon[currentType]}
-      </div>
-    );
+    let typeIcon = <div className="ticl-dynamic-type-icon">{dynamicTypeIcon[currentType]}</div>;
     if (onChange && types.length > 1) {
-      const menu = (
-        <Menu onClick={this.onMenuClick}>
-          {types.map((type) => dynamicTypeMenuItem[type])}
-        </Menu>
-      );
+      const menu = <Menu onClick={this.onMenuClick}>{types.map((type) => dynamicTypeMenuItem[type])}</Menu>;
       typeIcon = (
         <Dropdown overlay={menu} trigger={['click']}>
           {typeIcon}
@@ -148,7 +138,7 @@ export class DynamicEditor extends React.PureComponent<ValueEditorProps, State> 
     }
 
     return (
-      <div className='ticl-dynamic-editor'>
+      <div className="ticl-dynamic-editor">
         {editor}
         {typeIcon}
       </div>

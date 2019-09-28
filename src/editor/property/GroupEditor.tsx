@@ -1,9 +1,9 @@
-import React from "react";
-import {ClientConn, ValueUpdate} from "../../core/client";
-import {configDescs, FunctionDesc, PropDesc, PropGroupDesc} from "../../core/block/Descriptor";
-import {MultiSelectComponent, MultiSelectLoader} from "./MultiSelectComponent";
-import {PropertyList} from "./PropertyList";
-import {PropertyEditor} from "./PropertyEditor";
+import React from 'react';
+import {ClientConn, ValueUpdate} from '../../core/client';
+import {configDescs, FunctionDesc, PropDesc, PropGroupDesc} from '../../core/block/Descriptor';
+import {MultiSelectComponent, MultiSelectLoader} from './MultiSelectComponent';
+import {PropertyList} from './PropertyList';
+import {PropertyEditor} from './PropertyEditor';
 
 class LengthPropertyEditor extends PropertyEditor {
   onChange = (value: any) => {
@@ -21,7 +21,6 @@ class LengthPropertyEditor extends PropertyEditor {
 }
 
 class GroupLoader extends MultiSelectLoader<GroupEditor> {
-
   lenKey: string;
 
   len: number = 0;
@@ -64,7 +63,6 @@ interface State {
   length: number;
 }
 
-
 export class GroupEditor extends MultiSelectComponent<Props, State, GroupLoader> {
   constructor(props: Readonly<Props>) {
     super(props);
@@ -92,18 +90,34 @@ export class GroupEditor extends MultiSelectComponent<Props, State, GroupLoader>
         for (let desc of groupDesc.properties) {
           let name = `${desc.name}${i}`;
           children.push(
-            <PropertyEditor key={name} name={name} keys={keys} conn={conn} isMore={isMore}
-                            group={group} baseName={desc.name}
-                            funcDesc={funcDesc} propDesc={desc}/>
+            <PropertyEditor
+              key={name}
+              name={name}
+              keys={keys}
+              conn={conn}
+              isMore={isMore}
+              group={group}
+              baseName={desc.name}
+              funcDesc={funcDesc}
+              propDesc={desc}
+            />
           );
         }
       }
     }
 
     return (
-      <div className='ticl-property-group'>
-        <LengthPropertyEditor key={group} name={lenName} keys={keys} conn={conn} isMore={isMore} group={group}
-                              funcDesc={funcDesc} propDesc={lenDesc}/>
+      <div className="ticl-property-group">
+        <LengthPropertyEditor
+          key={group}
+          name={lenName}
+          keys={keys}
+          conn={conn}
+          isMore={isMore}
+          group={group}
+          funcDesc={funcDesc}
+          propDesc={lenDesc}
+        />
         {children}
       </div>
     );

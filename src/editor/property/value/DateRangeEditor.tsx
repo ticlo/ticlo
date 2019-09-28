@@ -1,16 +1,17 @@
-import React from "react";
-import {DatePicker, Tooltip} from "antd";
-import {PropDesc} from "../../../core/block/Descriptor";
-import {ValueEditorProps} from "./ValueEditorBase";
-import * as MomentUtil from "../../../core/util/Moment";
-import {isMoment, Moment, parseZone} from "moment";
+import React from 'react';
+import {DatePicker, Tooltip} from 'antd';
+import {PropDesc} from '../../../core/block/Descriptor';
+import {ValueEditorProps} from './ValueEditorBase';
+import * as MomentUtil from '../../../core/util/Moment';
+import {isMoment, Moment, parseZone} from 'moment';
 
 const {RangePicker} = DatePicker;
 
-const defaultTimes = {defaultValue: [parseZone('00:00:00.000', 'HH:mm:ss.SSS'), parseZone('23:59:59.999', 'HH:mm:ss.SSS')]};
+const defaultTimes = {
+  defaultValue: [parseZone('00:00:00.000', 'HH:mm:ss.SSS'), parseZone('23:59:59.999', 'HH:mm:ss.SSS')]
+};
 
 export class DateRangeEditor extends React.PureComponent<ValueEditorProps, any> {
-
   onValueChange = (range: Moment[]) => {
     let {desc, onChange} = this.props;
     onChange(range);
@@ -36,9 +37,15 @@ export class DateRangeEditor extends React.PureComponent<ValueEditorProps, any> 
     }
 
     return (
-      <Tooltip title={title} overlayClassName='ticl-tooltip'>
-        <RangePicker className='ticl-date-range-editor' size='small' value={value} disabled={locked || onChange == null}
-                     showTime={showTimeOption} onChange={this.onValueChange}/>
+      <Tooltip title={title} overlayClassName="ticl-tooltip">
+        <RangePicker
+          className="ticl-date-range-editor"
+          size="small"
+          value={value}
+          disabled={locked || onChange == null}
+          showTime={showTimeOption}
+          onChange={this.onValueChange}
+        />
       </Tooltip>
     );
   }

@@ -1,18 +1,17 @@
-import React from "react";
+import React from 'react';
 
-import {Dropdown, Button, Input, Icon, Menu, InputNumber} from "antd";
-import {ExpandIcon, ExpandState, TreeItem} from "../../ui/component/Tree";
-import {PureDataRenderer} from "../../ui/component/DataRenderer";
-import {DataMap} from "../../core/util/Types";
-import {ClientConn, ValueUpdate} from "../../core/client";
-import {TIcon} from "../icon/Icon";
-import {blankFuncDesc, FunctionDesc, getFuncStyleFromDesc} from "../../core/block/Descriptor";
-import {ClickParam} from "antd/lib/menu";
-import {smartStrCompare} from "../../core/util/String";
-import {TicloLayoutContext, TicloLayoutContextType} from "../component/LayoutContext";
+import {Dropdown, Button, Input, Icon, Menu, InputNumber} from 'antd';
+import {ExpandIcon, ExpandState, TreeItem} from '../../ui/component/Tree';
+import {PureDataRenderer} from '../../ui/component/DataRenderer';
+import {DataMap} from '../../core/util/Types';
+import {ClientConn, ValueUpdate} from '../../core/client';
+import {TIcon} from '../icon/Icon';
+import {blankFuncDesc, FunctionDesc, getFuncStyleFromDesc} from '../../core/block/Descriptor';
+import {ClickParam} from 'antd/lib/menu';
+import {smartStrCompare} from '../../core/util/String';
+import {TicloLayoutContext, TicloLayoutContextType} from '../component/LayoutContext';
 
 export class NodeTreeItem extends TreeItem<NodeTreeItem> {
-
   childPrefix: string;
   name: string;
 
@@ -121,9 +120,7 @@ interface Props {
   style: React.CSSProperties;
 }
 
-
 export class NodeTreeRenderer extends PureDataRenderer<Props, any> {
-
   static contextType = TicloLayoutContextType;
   context!: TicloLayoutContext;
 
@@ -176,34 +173,31 @@ export class NodeTreeRenderer extends PureDataRenderer<Props, any> {
     let editJob = this.context && this.context.editJob;
     return (
       <Menu selectable={false}>
-        {editJob
-          ? (
-            <Menu.Item onClick={this.onOpenClicked}>
-              <Icon type="build"/>
-              Open
-            </Menu.Item>
-          ) : null
-        }
+        {editJob ? (
+          <Menu.Item onClick={this.onOpenClicked}>
+            <Icon type="build" />
+            Open
+          </Menu.Item>
+        ) : null}
         <Menu.Item onClick={this.onReloadClicked}>
-          <Icon type="reload"/>
+          <Icon type="reload" />
           Reload
         </Menu.Item>
         <Menu.Item>
-          <Icon type="search"/>
+          <Icon type="search" />
           Search
         </Menu.Item>
       </Menu>
     );
   };
 
-
   renderImpl() {
     let {item, style} = this.props;
     let marginLeft = item.level * 24;
     return (
       <div style={{...style, marginLeft}} className="ticl-tree-node">
-        <ExpandIcon opened={item.opened} onClick={this.onExpandClicked}/>
-        <TIcon icon={this.desc.icon} style={getFuncStyleFromDesc(this.desc, 'tico-pr')}/>
+        <ExpandIcon opened={item.opened} onClick={this.onExpandClicked} />
+        <TIcon icon={this.desc.icon} style={getFuncStyleFromDesc(this.desc, 'tico-pr')} />
         <Dropdown overlay={this.getMenu} trigger={['contextMenu']}>
           <div className="ticl-tree-node-text">{item.name}</div>
         </Dropdown>

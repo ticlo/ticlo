@@ -1,8 +1,7 @@
-import React from "react";
-import {ClientConn} from "../../core/client";
-import {Modal, Input, Icon} from "antd";
-import {DragState} from "rc-dock/lib";
-
+import React from 'react';
+import {ClientConn} from '../../core/client';
+import {Modal, Input, Icon} from 'antd';
+import {DragState} from 'rc-dock/lib';
 
 export function onDragBlockOver(conn: ClientConn, e: DragState) {
   let blockData = DragState.getData('blockData', conn);
@@ -59,13 +58,17 @@ export function onDropBlock(conn: ClientConn, e: DragState, createBlock: CreateB
         }
       };
       Modal.confirm({
-        title: "Block Name",
+        title: 'Block Name',
         content: (
-          <Input defaultValue={blockName} autoFocus={true} onChange={onInputChange} onPressEnter={onEnter}
-                 ref={onGetRef}
+          <Input
+            defaultValue={blockName}
+            autoFocus={true}
+            onChange={onInputChange}
+            onPressEnter={onEnter}
+            ref={onGetRef}
           />
         ),
-        icon: <span/>, // hide icon
+        icon: <span />, // hide icon
         autoFocusButton: null,
         centered: true,
         onOk() {
@@ -77,6 +80,5 @@ export function onDropBlock(conn: ClientConn, e: DragState, createBlock: CreateB
     } else {
       onConfirmedBlockName(blockName);
     }
-
   }
 }

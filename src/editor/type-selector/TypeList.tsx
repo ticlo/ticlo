@@ -1,12 +1,11 @@
-import React from "react";
-import {ClientConn} from "../../core/client";
-import {TypeView} from "./TypeView";
+import React from 'react';
+import {ClientConn} from '../../core/client';
+import {TypeView} from './TypeView';
 
 let _lastType: string;
 let _typeSet: Set<string> = new Set<string>();
 let _recentTypeList: string[] = [];
 let _recentTypeListener: Set<TypeList> = new Set<TypeList>();
-
 
 export function addRecentType(type: string) {
   if (type === _lastType) {
@@ -57,13 +56,11 @@ export class TypeList extends React.PureComponent<Props, any> {
     for (let type of types) {
       let desc = conn.watchDesc(type);
       if (desc) {
-        children.push(
-          <TypeView key={type} conn={conn} desc={desc}/>
-        );
+        children.push(<TypeView key={type} conn={conn} desc={desc} />);
       }
     }
     return (
-      <div className='ticl-type-list' style={style}>
+      <div className="ticl-type-list" style={style}>
         {children}
       </div>
     );

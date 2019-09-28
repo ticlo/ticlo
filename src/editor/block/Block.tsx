@@ -1,11 +1,10 @@
-import React from "react";
-import {ClientConn, ValueUpdate, blankFuncDesc, getFuncStyleFromDesc, FunctionDesc} from "../../core/client";
-import {DataMap} from "../../core/util/Types";
-import {PureDataRenderer} from "../../ui/component/DataRenderer";
-import {TIcon} from "../icon/Icon";
-import {DragDropDiv, DragState} from "rc-dock";
-import {BaseBlockItem, BlockHeaderView, BlockItem, Stage, XYWRenderer} from "./Field";
-
+import React from 'react';
+import {ClientConn, ValueUpdate, blankFuncDesc, getFuncStyleFromDesc, FunctionDesc} from '../../core/client';
+import {DataMap} from '../../core/util/Types';
+import {PureDataRenderer} from '../../ui/component/DataRenderer';
+import {TIcon} from '../icon/Icon';
+import {DragDropDiv, DragState} from 'rc-dock';
+import {BaseBlockItem, BlockHeaderView, BlockItem, Stage, XYWRenderer} from './Field';
 
 interface BlockViewProps {
   item: BlockItem;
@@ -177,18 +176,30 @@ export class BlockView extends PureDataRenderer<BlockViewProps, BlockViewState> 
       classNames.push('ticl-block-full-view');
       let width = item.w;
       let widthDrag = item._syncParent ? null : (
-        <DragDropDiv className='ticl-width-drag'
-                     onDragStartT={this.startDragW} onDragMoveT={this.onDragWMove} onDragEndT={this.onDragWEnd}/>
+        <DragDropDiv
+          className="ticl-width-drag"
+          onDragStartT={this.startDragW}
+          onDragMoveT={this.onDragWMove}
+          onDragEndT={this.onDragWEnd}
+        />
       );
       if (!(width > 80)) {
         width = 150;
       }
       return (
-        <DragDropDiv className={classNames.join(' ')} directDragT={true}
-                     getRef={this.getRef} style={{top: item.y, left: item.x, width}}
-                     onDragStartT={this.selectAndDrag} onDragMoveT={this.onDragMove} onDragEndT={this.onDragEnd}
-                     onDragOverT={this.onDragOverFoot} onDropT={this.onDropFoot} onDragLeaveT={this.onDragLeaveFoot}>
-          <SpecialView conn={item.conn} path={item.key} updateViewHeight={item.setViewH}/>
+        <DragDropDiv
+          className={classNames.join(' ')}
+          directDragT={true}
+          getRef={this.getRef}
+          style={{top: item.y, left: item.x, width}}
+          onDragStartT={this.selectAndDrag}
+          onDragMoveT={this.onDragMove}
+          onDragEndT={this.onDragEnd}
+          onDragOverT={this.onDragOverFoot}
+          onDropT={this.onDropFoot}
+          onDragLeaveT={this.onDragLeaveFoot}
+        >
+          <SpecialView conn={item.conn} path={item.key} updateViewHeight={item.setViewH} />
           {widthDrag}
         </DragDropDiv>
       );
@@ -196,30 +207,37 @@ export class BlockView extends PureDataRenderer<BlockViewProps, BlockViewState> 
       classNames.push('ticl-block');
       classNames.push(getFuncStyleFromDesc(item.desc));
       return (
-        <div
-          ref={this.getRef}
-          className={classNames.join(' ')}
-          style={{top: item.y, left: item.x, width: item.w}}
-        >
-          <BlockHeaderView item={item.getHeaderCallField()} onDoubleClick={this.expandBlock}
-                           onDragStartT={this.selectAndDrag} onDragMoveT={this.onDragMove} onDragEndT={this.onDragEnd}>
-            <TIcon icon={item.desc.icon}/>
+        <div ref={this.getRef} className={classNames.join(' ')} style={{top: item.y, left: item.x, width: item.w}}>
+          <BlockHeaderView
+            item={item.getHeaderCallField()}
+            onDoubleClick={this.expandBlock}
+            onDragStartT={this.selectAndDrag}
+            onDragMoveT={this.onDragMove}
+            onDragEndT={this.onDragEnd}
+          >
+            <TIcon icon={item.desc.icon} />
             {item.name}
           </BlockHeaderView>
-          {
-            SpecialView ?
-              <div className='ticl-block-view'>
-                <SpecialView conn={item.conn} path={item.key} updateViewHeight={item.setViewH}/>
-              </div>
-              : null
-          }
-          <div className='ticl-block-body'>
-            {item.renderFields()}
-          </div>
-          <DragDropDiv className='ticl-block-foot' directDragT={true} onDragStartT={this.selectAndNotDrag}
-                       onDragOverT={this.onDragOverFoot} onDropT={this.onDropFoot} onDragLeaveT={this.onDragLeaveFoot}>
-            <DragDropDiv className='ticl-width-drag'
-                         onDragStartT={this.startDragW} onDragMoveT={this.onDragWMove} onDragEndT={this.onDragWEnd}/>
+          {SpecialView ? (
+            <div className="ticl-block-view">
+              <SpecialView conn={item.conn} path={item.key} updateViewHeight={item.setViewH} />
+            </div>
+          ) : null}
+          <div className="ticl-block-body">{item.renderFields()}</div>
+          <DragDropDiv
+            className="ticl-block-foot"
+            directDragT={true}
+            onDragStartT={this.selectAndNotDrag}
+            onDragOverT={this.onDragOverFoot}
+            onDropT={this.onDropFoot}
+            onDragLeaveT={this.onDragLeaveFoot}
+          >
+            <DragDropDiv
+              className="ticl-width-drag"
+              onDragStartT={this.startDragW}
+              onDragMoveT={this.onDragWMove}
+              onDragEndT={this.onDragWEnd}
+            />
           </DragDropDiv>
         </div>
       );
@@ -228,22 +246,23 @@ export class BlockView extends PureDataRenderer<BlockViewProps, BlockViewState> 
       classNames.push('ticl-block-min');
       classNames.push(getFuncStyleFromDesc(item.desc));
       return (
-        <div
-          ref={this.getRef}
-          className={classNames.join(' ')}
-          style={{top: item.y, left: item.x}}
-        >
-          <div className='ticl-block-min-bound'/>
-          <DragDropDiv className='ticl-block-head ticl-block-prbg' directDragT={true} onDoubleClick={this.expandBlock}
-                       onDragStartT={this.selectAndDrag} onDragMoveT={this.onDragMove} onDragEndT={this.onDragEnd}>
-            <TIcon icon={item.desc.icon}/>
+        <div ref={this.getRef} className={classNames.join(' ')} style={{top: item.y, left: item.x}}>
+          <div className="ticl-block-min-bound" />
+          <DragDropDiv
+            className="ticl-block-head ticl-block-prbg"
+            directDragT={true}
+            onDoubleClick={this.expandBlock}
+            onDragStartT={this.selectAndDrag}
+            onDragMoveT={this.onDragMove}
+            onDragEndT={this.onDragEnd}
+          >
+            <TIcon icon={item.desc.icon} />
           </DragDropDiv>
         </div>
       );
-
     } else {
       // data not ready, don't renderer
-      return <div ref={this.getRef}/>;
+      return <div ref={this.getRef} />;
     }
   }
 }

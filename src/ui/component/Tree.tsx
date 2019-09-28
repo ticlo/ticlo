@@ -1,7 +1,7 @@
 import React from 'react';
-import {DataRendererItem, PureDataRenderer} from "./DataRenderer";
-import {ClientConn} from "../../core/connect/ClientConn";
-import {FunctionDesc} from "../../core/block/Descriptor";
+import {DataRendererItem, PureDataRenderer} from './DataRenderer';
+import {ClientConn} from '../../core/connect/ClientConn';
+import {FunctionDesc} from '../../core/block/Descriptor';
 
 export type ExpandState = 'opened' | 'closed' | 'loading' | 'empty' | 'disabled';
 
@@ -21,34 +21,15 @@ export function ExpandIcon(props: Props) {
         />
       );
     case 'closed':
-      return (
-        <div
-          onClick={props.onClick}
-          className="ticl-tree-arr ticl-tree-arr-expand"
-        />
-      );
+      return <div onClick={props.onClick} className="ticl-tree-arr ticl-tree-arr-expand" />;
     case 'loading':
-      return (
-        <div
-          className="ticl-tree-arr ticl-tree-arr-loading"
-        />
-      );
+      return <div className="ticl-tree-arr ticl-tree-arr-loading" />;
     case 'empty':
-      return (
-        <div
-          onClick={props.onClick}
-          className="ticl-tree-arr ticl-tree-arr-empty"
-        />
-      );
+      return <div onClick={props.onClick} className="ticl-tree-arr ticl-tree-arr-empty" />;
     default:
-      return (
-        <div
-          className="ticl-tree-arr"
-        />
-      );
+      return <div className="ticl-tree-arr" />;
   }
 }
-
 
 export abstract class TreeItem<T extends TreeItem<any>> extends DataRendererItem {
   key: string;
@@ -63,7 +44,6 @@ export abstract class TreeItem<T extends TreeItem<any>> extends DataRendererItem
   getConn(): ClientConn {
     return this.connection;
   }
-
 
   children: T[] = null;
 

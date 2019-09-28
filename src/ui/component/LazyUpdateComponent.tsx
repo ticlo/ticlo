@@ -1,7 +1,7 @@
-import React from "react";
-import {ClientConn, ValueState, ValueUpdate} from "../../core/client";
-import {DataMap} from "../../core/util/Types";
-import {shallowEqual} from "../../core/util/Compare";
+import React from 'react';
+import {ClientConn, ValueState, ValueUpdate} from '../../core/client';
+import {DataMap} from '../../core/util/Types';
+import {shallowEqual} from '../../core/util/Compare';
 
 interface LazyUpdateProps {
   conn: ClientConn;
@@ -75,6 +75,4 @@ export class LazyUpdateListener {
     this.error = error;
     this.parent.forceUpdate();
   }
-
 }
-

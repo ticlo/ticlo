@@ -1,34 +1,34 @@
-import React from "react";
-import {Button, Tooltip, Dropdown, Input, Checkbox} from "antd";
-import {ClientConn, ValueState, ValueUpdate} from "../../core/client";
-import {blankPropDesc, FunctionDesc, getDefaultFuncData, PropDesc, PropGroupDesc} from "../../core/block/Descriptor";
-import {translateProperty} from "../../core/util/i18n";
-import {MultiSelectComponent, MultiSelectLoader} from "./MultiSelectComponent";
-import {GroupEditor} from "./GroupEditor";
-import {NumberEditor} from "./value/NumberEditor";
-import {StringEditor} from "./value/StringEditor";
-import {ToggleEditor} from "./value/ToggleEditor";
-import {SelectEditor} from "./value/SelectEditor";
-import {ColorEditor} from "./value/ColorEditor";
-import {DateEditor} from "./value/DateEditor";
-import {DateRangeEditor} from "./value/DateRangeEditor";
-import {RadioButtonEditor} from "./value/RadioButtonEditor";
-import {DragDropDiv, DragState} from "rc-dock";
-import {PasswordEditor} from "./value/PasswordEditor";
-import {ExpandIcon} from "../../ui/component/Tree";
-import {PropertyList} from "./PropertyList";
-import {arrayEqual, deepEqual} from "../../core/util/Compare";
-import {ClickParam} from "antd/lib/menu";
-import {stopPropagation} from "../../core/util/Functions";
-import {TypeEditor} from "./value/TypeEditor";
-import {TypeSelect} from "../type-selector/TypeSelector";
-import {CheckboxChangeEvent} from "antd/lib/checkbox";
-import {AddMorePropertyMenu} from "./AddMoreProperty";
-import {Popup, Menu, SubMenuItem} from "../component/ClickPopup";
-import {ServiceEditor} from "./value/ServiceEditor";
-import {WorkerEditor} from "./value/WorkerEditor";
-import {getTailingNumber} from "../../core/util/String";
-import {DynamicEditor, dynamicEditorMap} from "./value/DynamicEditor";
+import React from 'react';
+import {Button, Tooltip, Dropdown, Input, Checkbox} from 'antd';
+import {ClientConn, ValueState, ValueUpdate} from '../../core/client';
+import {blankPropDesc, FunctionDesc, getDefaultFuncData, PropDesc, PropGroupDesc} from '../../core/block/Descriptor';
+import {translateProperty} from '../../core/util/i18n';
+import {MultiSelectComponent, MultiSelectLoader} from './MultiSelectComponent';
+import {GroupEditor} from './GroupEditor';
+import {NumberEditor} from './value/NumberEditor';
+import {StringEditor} from './value/StringEditor';
+import {ToggleEditor} from './value/ToggleEditor';
+import {SelectEditor} from './value/SelectEditor';
+import {ColorEditor} from './value/ColorEditor';
+import {DateEditor} from './value/DateEditor';
+import {DateRangeEditor} from './value/DateRangeEditor';
+import {RadioButtonEditor} from './value/RadioButtonEditor';
+import {DragDropDiv, DragState} from 'rc-dock';
+import {PasswordEditor} from './value/PasswordEditor';
+import {ExpandIcon} from '../../ui/component/Tree';
+import {PropertyList} from './PropertyList';
+import {arrayEqual, deepEqual} from '../../core/util/Compare';
+import {ClickParam} from 'antd/lib/menu';
+import {stopPropagation} from '../../core/util/Functions';
+import {TypeEditor} from './value/TypeEditor';
+import {TypeSelect} from '../type-selector/TypeSelector';
+import {CheckboxChangeEvent} from 'antd/lib/checkbox';
+import {AddMorePropertyMenu} from './AddMoreProperty';
+import {Popup, Menu, SubMenuItem} from '../component/ClickPopup';
+import {ServiceEditor} from './value/ServiceEditor';
+import {WorkerEditor} from './value/WorkerEditor';
+import {getTailingNumber} from '../../core/util/String';
+import {DynamicEditor, dynamicEditorMap} from './value/DynamicEditor';
 
 const typeEditorMap: {[key: string]: any} = {
   ...dynamicEditorMap,
@@ -37,7 +37,7 @@ const typeEditorMap: {[key: string]: any} = {
   'radio-button': RadioButtonEditor,
   'type': TypeEditor,
   'worker': WorkerEditor,
-  'any': DynamicEditor,
+  'any': DynamicEditor
 };
 
 class PropertyLoader extends MultiSelectLoader<PropertyEditor> {
@@ -85,7 +85,6 @@ class PropertyLoader extends MultiSelectLoader<PropertyEditor> {
   destroy() {
     this.conn.unsubscribe(`${this.key}.${this.name}`, this.valueListener);
   }
-
 }
 
 interface Props {
@@ -122,11 +121,10 @@ const notReadyState = {
   bindingSame: false,
   subBlock: false,
   display: false,
-  displaySame: false,
+  displaySame: false
 };
 
 export class PropertyEditor extends MultiSelectComponent<Props, State, PropertyLoader> {
-
   constructor(props: Readonly<Props>) {
     super(props);
     this.state = {unlocked: false, showSubBlock: false, showMenu: false};
@@ -169,7 +167,6 @@ export class PropertyEditor extends MultiSelectComponent<Props, State, PropertyL
     }
   };
 
-
   onDragStart = (e: DragState) => {
     let {conn, keys, name, group, baseName, isMore} = this.props;
 
@@ -178,7 +175,7 @@ export class PropertyEditor extends MultiSelectComponent<Props, State, PropertyL
       let isLen = group != null && name.endsWith('#len');
       if (isMore) {
         // move more property
-        let moveMoreField = (baseName != null) ? baseName : name;
+        let moveMoreField = baseName != null ? baseName : name;
         if (isLen) {
           moveMoreField = group;
           data.fromGroup = null;
@@ -211,7 +208,7 @@ export class PropertyEditor extends MultiSelectComponent<Props, State, PropertyL
           let moveMoreField: string = DragState.getData('moveMoreField', conn);
 
           if (moveMoreField != null) {
-            let moveToField = (baseName != null) ? baseName : name;
+            let moveToField = baseName != null ? baseName : name;
             if (isLen) {
               moveToField = group;
               group = null;
@@ -259,7 +256,7 @@ export class PropertyEditor extends MultiSelectComponent<Props, State, PropertyL
           // move more property
           let moveMoreField: string = DragState.getData('moveMoreField', conn);
 
-          let moveToField = (baseName != null) ? baseName : name;
+          let moveToField = baseName != null ? baseName : name;
           if (isLen) {
             moveToField = group;
             group = null;
@@ -368,33 +365,43 @@ export class PropertyEditor extends MultiSelectComponent<Props, State, PropertyL
       if (!propDesc.readonly) {
         if (!bindingPath) {
           menuItems.push(
-            <SubMenuItem key='addSubBlkock' popup={(
-              // <Menu.Item className='ticl-type-submenu'>
-              <TypeSelect onClick={stopPropagation} conn={conn} showPreset={true} onTypeClick={this.onAddSubBlock}/>
-              // </Menu.Item>
-            )}>
+            <SubMenuItem
+              key="addSubBlkock"
+              popup={
+                // <Menu.Item className='ticl-type-submenu'>
+                <TypeSelect onClick={stopPropagation} conn={conn} showPreset={true} onTypeClick={this.onAddSubBlock} />
+                // </Menu.Item>
+              }
+            >
               Add Sub Block
             </SubMenuItem>
           );
         }
         menuItems.push(
-          <div key='deleteBinding' className='ticl-hbox'>
+          <div key="deleteBinding" className="ticl-hbox">
             <span style={{flex: '0 1 100%'}}>Binding:</span>
-            {bindingPath ?
-              <Button className='ticl-icon-btn' shape='circle' size='small' icon="delete"
-                      onClick={this.onUnbindClick}/>
-              : null}
+            {bindingPath ? (
+              <Button
+                className="ticl-icon-btn"
+                shape="circle"
+                size="small"
+                icon="delete"
+                onClick={this.onUnbindClick}
+              />
+            ) : null}
           </div>
         );
         menuItems.push(
-          <div key='bindingInput' className='ticl-hbox'>
-            <StringEditor value={bindingPath} desc={blankPropDesc} onChange={this.onBindChange}/>
+          <div key="bindingInput" className="ticl-hbox">
+            <StringEditor value={bindingPath} desc={blankPropDesc} onChange={this.onBindChange} />
           </div>
         );
 
         if (value || bindingPath) {
           menuItems.push(
-            <Button key='clear' shape='round' onClick={this.onClear}>Clear</Button>
+            <Button key="clear" shape="round" onClick={this.onClear}>
+              Clear
+            </Button>
           );
         }
       }
@@ -402,40 +409,44 @@ export class PropertyEditor extends MultiSelectComponent<Props, State, PropertyL
         let groupIndex = getTailingNumber(name);
         if (groupIndex > -1) {
           menuItems.push(
-            <Button key='insertIndex' shape='round' onClick={this.onInsertIndex}>Insert at {groupIndex}</Button>
+            <Button key="insertIndex" shape="round" onClick={this.onInsertIndex}>
+              Insert at {groupIndex}
+            </Button>
           );
           menuItems.push(
-            <Button key='deleteIndex' shape='round' onClick={this.onDeleteIndex}>Delete at {groupIndex}</Button>
+            <Button key="deleteIndex" shape="round" onClick={this.onDeleteIndex}>
+              Delete at {groupIndex}
+            </Button>
           );
         }
       }
 
       menuItems.push(
-        <Checkbox key='showHide' onChange={this.onShowHide} checked={display}>Show</Checkbox>
+        <Checkbox key="showHide" onChange={this.onShowHide} checked={display}>
+          Show
+        </Checkbox>
       );
       if (isMore) {
         menuItems.push(
-          <Button key='removeFromMore' shape='round' onClick={this.onRemoveMore}>Remove Property</Button>
+          <Button key="removeFromMore" shape="round" onClick={this.onRemoveMore}>
+            Remove Property
+          </Button>
         );
         if (group != null) {
           menuItems.push(
-            <SubMenuItem key='addMoreProp'
-                         popup={
-                           <AddMorePropertyMenu onAddProperty={this.onAddMoreGroupChild} group={group}/>
-                         }>
+            <SubMenuItem
+              key="addMoreProp"
+              popup={<AddMorePropertyMenu onAddProperty={this.onAddMoreGroupChild} group={group} />}
+            >
               Add Child Property
             </SubMenuItem>
           );
         }
       }
-      return (
-        <Menu>
-          {menuItems}
-        </Menu>
-      );
+      return <Menu>{menuItems}</Menu>;
     } else {
       // need this to hide all the submebu
-      return <Menu/>;
+      return <Menu />;
     }
   };
 
@@ -528,7 +539,7 @@ export class PropertyEditor extends MultiSelectComponent<Props, State, PropertyL
     let {count, value, valueSame, bindingPath, bindingSame, subBlock, display} = this.mergePropertyState();
     if (count === 0) {
       // not ready yet
-      return <div className='ticl-property'/>;
+      return <div className="ticl-property" />;
     }
     let inBoundClass;
     if (subBlock) {
@@ -543,7 +554,7 @@ export class PropertyEditor extends MultiSelectComponent<Props, State, PropertyL
     }
 
     // lock icon
-    let locked = (bindingPath || !valueSame);
+    let locked = bindingPath || !valueSame;
     let renderLockIcon = locked && !propDesc.readonly;
     let locktooltip: string;
     if (renderLockIcon) {
@@ -570,8 +581,14 @@ export class PropertyEditor extends MultiSelectComponent<Props, State, PropertyL
         editorValue = propDesc.default;
       }
       editor = (
-        <EditorClass conn={conn} keys={keys} value={editorValue} desc={propDesc} locked={locked && !unlocked}
-                     onChange={onChange}/>
+        <EditorClass
+          conn={conn}
+          keys={keys}
+          value={editorValue}
+          desc={propDesc}
+          locked={locked && !unlocked}
+          onChange={onChange}
+        />
       );
     } else if (propDesc.type === 'service') {
       locked = bindingPath && !bindingSame;
@@ -584,41 +601,56 @@ export class PropertyEditor extends MultiSelectComponent<Props, State, PropertyL
         }
       }
       editor = (
-        <ServiceEditor conn={conn} keys={keys} value={value} desc={propDesc} bindingPath={bindingPath}
-                       locked={locked && !unlocked} onPathChange={this.onBindChange}/>
+        <ServiceEditor
+          conn={conn}
+          keys={keys}
+          value={value}
+          desc={propDesc}
+          bindingPath={bindingPath}
+          locked={locked && !unlocked}
+          onPathChange={this.onBindChange}
+        />
       );
     }
 
-    let nameClass = `ticl-property-name${propDesc.readonly ? ' ticl-property-readonly' : ''}${display ? ' ticl-property-display' : ''}`;
+    let nameClass = `ticl-property-name${propDesc.readonly ? ' ticl-property-readonly' : ''}${
+      display ? ' ticl-property-display' : ''
+    }`;
     return (
-      <div className='ticl-property'>
-        {inBoundClass ? <div className={inBoundClass} title={bindingPath}/> : null}
-        <Popup popup={this.getMenu} trigger={['contextMenu']} popupVisible={showMenu}
-               onPopupVisibleChange={this.onMenuVisibleChange}>
-          <DragDropDiv className={nameClass} onDragStartT={this.onDragStart}
-                       useRightButtonDragT={isMore || isIndexed}
-                       onDragOverT={this.onDragOver} onDropT={this.onDrop}>
+      <div className="ticl-property">
+        {inBoundClass ? <div className={inBoundClass} title={bindingPath} /> : null}
+        <Popup
+          popup={this.getMenu}
+          trigger={['contextMenu']}
+          popupVisible={showMenu}
+          onPopupVisibleChange={this.onMenuVisibleChange}
+        >
+          <DragDropDiv
+            className={nameClass}
+            onDragStartT={this.onDragStart}
+            useRightButtonDragT={isMore || isIndexed}
+            onDragOverT={this.onDragOver}
+            onDropT={this.onDrop}
+          >
             {translateProperty(funcDesc.name, name, funcDesc.ns)}
           </DragDropDiv>
         </Popup>
-        {renderLockIcon ?
-          <Tooltip title={locktooltip} overlayClassName='ticl-tooltip'>
-            <Button className='ticl-icon-btn' shape='circle' tabIndex={-1} icon={unlocked ? 'edit' : 'lock'}
-                    onDoubleClick={this.unlock}> </Button>
+        {renderLockIcon ? (
+          <Tooltip title={locktooltip} overlayClassName="ticl-tooltip">
+            <Button
+              className="ticl-icon-btn"
+              shape="circle"
+              tabIndex={-1}
+              icon={unlocked ? 'edit' : 'lock'}
+              onDoubleClick={this.unlock}
+            >
+              {' '}
+            </Button>
           </Tooltip>
-          : null}
-        {subBlock ?
-          <ExpandIcon opened={showSubBlock ? 'opened' : 'closed'} onClick={this.expandSubBlock}/>
-          : null
-        }
-        <div className='ticl-property-value'>
-          {editor}
-        </div>
-        {
-          renderSubBlock ?
-            <PropertyList conn={conn} keys={this.subBlockKeys} mode='subBlock'/>
-            : null
-        }
+        ) : null}
+        {subBlock ? <ExpandIcon opened={showSubBlock ? 'opened' : 'closed'} onClick={this.expandSubBlock} /> : null}
+        <div className="ticl-property-value">{editor}</div>
+        {renderSubBlock ? <PropertyList conn={conn} keys={this.subBlockKeys} mode="subBlock" /> : null}
       </div>
     );
   }

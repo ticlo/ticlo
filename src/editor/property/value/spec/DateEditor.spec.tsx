@@ -1,31 +1,29 @@
-import {assert} from "chai";
-import SimulateEvent from "simulate-event";
+import {assert} from 'chai';
+import SimulateEvent from 'simulate-event';
 import React from 'react';
-import {removeLastTemplate, loadTemplate, querySingle} from "../../../../ui/util/test-util";
-import {initEditor} from "../../../index";
-import {DateEditor} from "../DateEditor";
-import {shouldHappen} from "../../../../core/util/test-util";
-import {blankPropDesc, PropDesc} from "../../../../core/block/Descriptor";
-import {Moment, now} from "moment";
+import {removeLastTemplate, loadTemplate, querySingle} from '../../../../ui/util/test-util';
+import {initEditor} from '../../../index';
+import {DateEditor} from '../DateEditor';
+import {shouldHappen} from '../../../../core/util/test-util';
+import {blankPropDesc, PropDesc} from '../../../../core/block/Descriptor';
+import {Moment, now} from 'moment';
 
-describe("DateEditor", function () {
-
-  beforeEach(async function () {
+describe('DateEditor', function() {
+  beforeEach(async function() {
     await initEditor();
   });
 
-  afterEach(function () {
+  afterEach(function() {
     removeLastTemplate();
   });
 
-  it('basic', async function () {
+  it('basic', async function() {
     let value: Moment = null;
     let onChange = (v: Moment) => {
       value = v;
     };
     let desc: PropDesc = {name: '', type: 'date'};
-    let [component, div] = loadTemplate(
-      <DateEditor value='2019-01-01' desc={desc} onChange={onChange}/>, 'editor');
+    let [component, div] = loadTemplate(<DateEditor value="2019-01-01" desc={desc} onChange={onChange} />, 'editor');
 
     await shouldHappen(() => div.querySelector('.ticl-date-editor > div'));
     let editorDiv = div.querySelector('.ticl-date-editor > div');

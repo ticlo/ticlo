@@ -1,20 +1,20 @@
-import React, {CSSProperties, KeyboardEvent} from "react";
-import {ClientConn} from "../../core/client";
-import {DataMap} from "../../core/util/Types";
-import {BlockView} from "./Block";
-import {WireItem, WireView} from "./Wire";
-import {DragDropDiv, DragState} from "rc-dock";
-import {cssNumber} from "../../ui/util/Types";
-import {BlockItem, FieldItem, Stage} from "./Field";
-import {forAllPathsBetween} from "../../core/util/Path";
-import {onDragBlockOver, onDropBlock} from "./DragDropBlock";
+import React, {CSSProperties, KeyboardEvent} from 'react';
+import {ClientConn} from '../../core/client';
+import {DataMap} from '../../core/util/Types';
+import {BlockView} from './Block';
+import {WireItem, WireView} from './Wire';
+import {DragDropDiv, DragState} from 'rc-dock';
+import {cssNumber} from '../../ui/util/Types';
+import {BlockItem, FieldItem, Stage} from './Field';
+import {forAllPathsBetween} from '../../core/util/Path';
+import {onDragBlockOver, onDropBlock} from './DragDropBlock';
 import ResizeObserver from 'resize-observer-polyfill';
-import {BlockStageBase, StageProps} from "./BlockStageBase";
-import {Button} from "antd";
-import {MiniBlockView, MiniStage} from "./MiniStage";
-import debounce from "lodash/debounce";
-import clamp from "lodash/clamp";
-import {GestureState} from "rc-dock/lib";
+import {BlockStageBase, StageProps} from './BlockStageBase';
+import {Button} from 'antd';
+import {MiniBlockView, MiniStage} from './MiniStage';
+import debounce from 'lodash/debounce';
+import clamp from 'lodash/clamp';
+import {GestureState} from 'rc-dock/lib';
 
 const MINI_WINDOW_SIZE = 128;
 
@@ -49,7 +49,6 @@ function getPrevZoom(v: number) {
 }
 
 export class BlockStage extends BlockStageBase<StageState> {
-
   private _rootNode!: HTMLElement;
   private getRootRef = (node: HTMLDivElement): void => {
     this._rootNode = node;
@@ -101,7 +100,7 @@ export class BlockStage extends BlockStageBase<StageState> {
 
   componentDidMount() {
     this._scrollNode.addEventListener('scroll', this.handleScroll, {
-      passive: true,
+      passive: true
     });
 
     this.resizeObserver = new ResizeObserver(this.handleResize);
@@ -147,8 +146,12 @@ export class BlockStage extends BlockStageBase<StageState> {
         let bottom = Math.max(y1, y2) + 1;
         let addToSelect = e.event.shiftKey || e.event.ctrlKey;
         for (let [blockKey, blockItem] of this._blocks) {
-          if (blockItem.x >= left && blockItem.w + blockItem.x <= right
-            && blockItem.y >= top && blockItem.y + 24 <= bottom) {
+          if (
+            blockItem.x >= left &&
+            blockItem.w + blockItem.x <= right &&
+            blockItem.y >= top &&
+            blockItem.y + 24 <= bottom
+          ) {
             blockItem.setSelected(true);
           } else if (blockItem.selected && !addToSelect) {
             blockItem.setSelected(false);
@@ -204,7 +207,6 @@ export class BlockStage extends BlockStageBase<StageState> {
 
   componentDidUpdate(prevProps: Readonly<StageProps>, prevState: Readonly<StageState>, snapshot?: any): void {
     if (this._pendingScroll) {
-
       this._scrollX = this._pendingScroll[0];
       if (this._scrollX > this._scrollNode.scrollWidth - this._scrollNode.clientWidth) {
         this._scrollX = this._scrollNode.scrollWidth - this._scrollNode.clientWidth;
@@ -226,7 +228,7 @@ export class BlockStage extends BlockStageBase<StageState> {
     this._dragScrollPos = [this._scrollX, this._scrollY];
     e.startDrag(null, null);
   };
-  onDragMoveScroll = (e: {dx: number, dy: number}, reverseDrag = false) => {
+  onDragMoveScroll = (e: {dx: number; dy: number}, reverseDrag = false) => {
     let {zoom, contentWidth, contentHeight, stageWidth, stageHeight} = this.state;
     let viewWidth = Math.max(contentWidth, Math.floor(stageWidth / zoom));
     let viewHeight = Math.max(contentHeight, Math.floor(stageHeight / zoom));
@@ -293,7 +295,11 @@ export class BlockStage extends BlockStageBase<StageState> {
     this.onDragMoveScroll(e, true);
   };
 
-  getMiniStageStyle(): {miniStageStyle?: CSSProperties, minStageBgStyle?: CSSProperties, miniWindowStyle?: CSSProperties} {
+  getMiniStageStyle(): {
+    miniStageStyle?: CSSProperties;
+    minStageBgStyle?: CSSProperties;
+    miniWindowStyle?: CSSProperties;
+  } {
     let {zoom, contentWidth, contentHeight, stageWidth, stageHeight} = this.state;
     let viewWidth = Math.max(contentWidth, Math.floor(stageWidth / zoom));
     let viewHeight = Math.max(contentHeight, Math.floor(stageHeight / zoom));
@@ -301,24 +307,24 @@ export class BlockStage extends BlockStageBase<StageState> {
     let miniWidth = miniScale * viewWidth;
     let miniHeight = miniScale * viewHeight;
 
-    let windowWidth = stageWidth * miniScale / zoom;
-    let windowHeight = stageHeight * miniScale / zoom;
+    let windowWidth = (stageWidth * miniScale) / zoom;
+    let windowHeight = (stageHeight * miniScale) / zoom;
     if (!windowWidth || !windowHeight || (windowWidth > miniWidth - 1 && windowHeight > miniHeight - 1)) {
       return {};
     }
 
     let miniStageStyle = {
-      transform: `scale(${miniScale},${miniScale})`,
+      transform: `scale(${miniScale},${miniScale})`
     };
     let minStageBgStyle = {
       width: Math.ceil(viewWidth * miniScale),
-      height: Math.ceil(viewHeight * miniScale),
+      height: Math.ceil(viewHeight * miniScale)
     };
     let miniWindowStyle = {
       width: windowWidth,
       height: windowHeight,
-      left: this._scrollX * miniScale / zoom,
-      top: this._scrollY * miniScale / zoom,
+      left: (this._scrollX * miniScale) / zoom,
+      top: (this._scrollY * miniScale) / zoom
     };
     return {miniStageStyle, minStageBgStyle, miniWindowStyle};
   }
@@ -357,14 +363,14 @@ export class BlockStage extends BlockStageBase<StageState> {
     }
   };
 
-  changeZoom(newZoom: number, event?: {clientX: number, clientY: number}) {
+  changeZoom(newZoom: number, event?: {clientX: number; clientY: number}) {
     let {zoom, stageWidth, stageHeight, contentWidth, contentHeight} = this.state;
     let offX = stageWidth / 2;
     let offY = stageWidth / 2;
     if (event) {
       let rect = this._scrollNode.getBoundingClientRect();
-      offX = (event.clientX - rect.left) * this._scrollNode.offsetWidth / rect.width;
-      offY = (event.clientY - rect.top) * this._scrollNode.offsetHeight / rect.height;
+      offX = ((event.clientX - rect.left) * this._scrollNode.offsetWidth) / rect.width;
+      offY = ((event.clientY - rect.top) * this._scrollNode.offsetHeight) / rect.height;
     }
     let centerX = (this._scrollX + offX) / zoom;
     let centerY = (this._scrollY + offY) / zoom;
@@ -386,7 +392,7 @@ export class BlockStage extends BlockStageBase<StageState> {
   onResize = () => {
     this.setState({
       stageWidth: this._scrollNode.offsetWidth - 11,
-      stageHeight: this._scrollNode.offsetHeight - 11,
+      stageHeight: this._scrollNode.offsetHeight - 11
     });
   };
   onResizeDebounce = debounce(this.onResize, 500);
@@ -406,7 +412,7 @@ export class BlockStage extends BlockStageBase<StageState> {
     }
     this.setState({
       contentWidth: width + 32,
-      contentHeight: height + 32,
+      contentHeight: height + 32
     });
   };
   measureChildrenDebounce = debounce(this.measureChildren, 40);
@@ -427,13 +433,13 @@ export class BlockStage extends BlockStageBase<StageState> {
     // add wires
     for (let [key, fieldItem] of this._fields) {
       if (fieldItem.inWire) {
-        children.push(<WireView key={`~${key}`} item={fieldItem.inWire}/>);
+        children.push(<WireView key={`~${key}`} item={fieldItem.inWire} />);
       }
     }
     // add blocks
     for (let [key, blockItem] of this._blocks) {
-      children.push(<BlockView key={key} item={blockItem}/>);
-      miniChildren.push(<MiniBlockView key={key} item={blockItem}/>);
+      children.push(<BlockView key={key} item={blockItem} />);
+      miniChildren.push(<MiniBlockView key={key} item={blockItem} />);
     }
 
     let viewWidth = Math.max(contentWidth, Math.floor(stageWidth / zoom));
@@ -446,11 +452,11 @@ export class BlockStage extends BlockStageBase<StageState> {
     let contentLayerStyle = {
       transform: `scale(${zoom},${zoom})`,
       width: viewWidth * contentSizeZoom,
-      height: viewHeight * contentSizeZoom,
+      height: viewHeight * contentSizeZoom
     };
     let contentBgStyle = {
       width: viewWidth,
-      height: viewHeight,
+      height: viewHeight
     };
 
     let {miniStageStyle, minStageBgStyle, miniWindowStyle} = this.getMiniStageStyle();
@@ -458,38 +464,58 @@ export class BlockStage extends BlockStageBase<StageState> {
     let miniStage: React.ReactNode;
     if (miniWindowStyle) {
       miniStage = (
-        <div className='ticl-mini-stage-bg' style={minStageBgStyle}>
-          <div className='ticl-mini-stage' style={miniStageStyle}>
+        <div className="ticl-mini-stage-bg" style={minStageBgStyle}>
+          <div className="ticl-mini-stage" style={miniStageStyle}>
             {miniChildren}
           </div>
-          <DragDropDiv getRef={this.getMiniWindowRef} className='ticl-mini-stage-window' style={miniWindowStyle}
-                       onDragStartT={this.onZoomWindowDragStart} onDragMoveT={this.onDragMoveScroll}
-                       onDragEndT={this.onZoomWindowDragEnd}/>
+          <DragDropDiv
+            getRef={this.getMiniWindowRef}
+            className="ticl-mini-stage-window"
+            style={miniWindowStyle}
+            onDragStartT={this.onZoomWindowDragStart}
+            onDragMoveT={this.onDragMoveScroll}
+            onDragEndT={this.onZoomWindowDragEnd}
+          />
         </div>
       );
     }
 
     return (
-      <div style={style} className="ticl-stage" ref={this.getRootRef} onKeyDown={this.onKeyDown}
-           tabIndex={0}>
-        <DragDropDiv className="ticl-stage-scroll" getRef={this.getScrollLayerRef} onDragOverT={this.onDragOver}
-                     onDropT={this.onDrop}>
-          <DragDropDiv className='ticl-stage-scroll-content' style={contentLayerStyle}
-                       onDragStartT={this.onRightDragStart} onDragMoveT={this.onRightDragMove}
-                       onDragEndT={this.onRightDragEnd} useRightButtonDragT={true}
-                       onGestureStartT={this.onGestureStart} onGestureMoveT={this.onGestureMove}>
-            <DragDropDiv className='ticl-stage-bg' getRef={this.getBgRef} style={contentBgStyle} directDragT={true}
-                         onDragStartT={this.onSelectRectDragStart} onDragMoveT={this.onDragSelectMove}
-                         onDragEndT={this.onDragSelectEnd}/>
+      <div style={style} className="ticl-stage" ref={this.getRootRef} onKeyDown={this.onKeyDown} tabIndex={0}>
+        <DragDropDiv
+          className="ticl-stage-scroll"
+          getRef={this.getScrollLayerRef}
+          onDragOverT={this.onDragOver}
+          onDropT={this.onDrop}
+        >
+          <DragDropDiv
+            className="ticl-stage-scroll-content"
+            style={contentLayerStyle}
+            onDragStartT={this.onRightDragStart}
+            onDragMoveT={this.onRightDragMove}
+            onDragEndT={this.onRightDragEnd}
+            useRightButtonDragT={true}
+            onGestureStartT={this.onGestureStart}
+            onGestureMoveT={this.onGestureMove}
+          >
+            <DragDropDiv
+              className="ticl-stage-bg"
+              getRef={this.getBgRef}
+              style={contentBgStyle}
+              directDragT={true}
+              onDragStartT={this.onSelectRectDragStart}
+              onDragMoveT={this.onDragSelectMove}
+              onDragEndT={this.onDragSelectEnd}
+            />
             {children}
-            <div ref={this.getSelectRectRef} className="ticl-block-select-rect"/>
+            <div ref={this.getSelectRectRef} className="ticl-block-select-rect" />
           </DragDropDiv>
         </DragDropDiv>
-        <div className='ticl-stage-zoom'>
-          <div className='ticl-hbox'>
-            <Button className='ticl-icon-btn' shape='circle' icon="zoom-out" onClick={this.zoomOut}/>
-            <span className='ticl-stage-zoom-label'>{Math.round(zoom * 100)}%</span>
-            <Button className='ticl-icon-btn' shape='circle' icon="zoom-in" onClick={this.zoomIn}/>
+        <div className="ticl-stage-zoom">
+          <div className="ticl-hbox">
+            <Button className="ticl-icon-btn" shape="circle" icon="zoom-out" onClick={this.zoomOut} />
+            <span className="ticl-stage-zoom-label">{Math.round(zoom * 100)}%</span>
+            <Button className="ticl-icon-btn" shape="circle" icon="zoom-in" onClick={this.zoomIn} />
           </div>
           {miniStage}
         </div>
@@ -519,5 +545,4 @@ export class BlockStage extends BlockStageBase<StageState> {
 
     super.componentWillUnmount();
   }
-
 }

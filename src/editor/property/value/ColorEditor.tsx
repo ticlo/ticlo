@@ -1,12 +1,11 @@
-import React, {CSSProperties} from "react";
+import React, {CSSProperties} from 'react';
 import {ColorResult, SketchPicker} from 'react-color';
-import {PropDesc} from "../../../core/block/Descriptor";
-import {ValueEditorProps} from "./ValueEditorBase";
-import tinycolor from "tinycolor2";
-import {Popup} from "../../component/ClickPopup";
+import {PropDesc} from '../../../core/block/Descriptor';
+import {ValueEditorProps} from './ValueEditorBase';
+import tinycolor from 'tinycolor2';
+import {Popup} from '../../component/ClickPopup';
 
 export class ColorEditor extends React.PureComponent<ValueEditorProps, any> {
-
   onValueChange = (value: ColorResult) => {
     let {onChange} = this.props;
     let color = tinycolor(value.rgb);
@@ -25,21 +24,22 @@ export class ColorEditor extends React.PureComponent<ValueEditorProps, any> {
     //   value = 'none';
     // }
 
-    let disabled = (locked || onChange == null);
+    let disabled = locked || onChange == null;
     let editorStyle: React.CSSProperties;
     if (disabled) {
       editorStyle = {cursor: 'not-allowed'};
     }
 
     return (
-      <Popup trigger={disabled ? [] : ['click']}
-             popup={
-               <SketchPicker color={value} width='224px' disableAlpha={disableAlpha}
-                             onChangeComplete={this.onValueChange}/>
-             }>
-        <div className='ticl-color-editor' style={editorStyle}>
-          <div className='ticl-color-editor-bg'/>
-          <div style={{background: value}}/>
+      <Popup
+        trigger={disabled ? [] : ['click']}
+        popup={
+          <SketchPicker color={value} width="224px" disableAlpha={disableAlpha} onChangeComplete={this.onValueChange} />
+        }
+      >
+        <div className="ticl-color-editor" style={editorStyle}>
+          <div className="ticl-color-editor-bg" />
+          <div style={{background: value}} />
         </div>
       </Popup>
     );

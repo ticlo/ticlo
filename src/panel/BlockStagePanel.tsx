@@ -1,12 +1,12 @@
-import React, {ReactNode} from "react";
-import {BlockStage, PropertyList} from "../editor";
-import {ClientConnection} from "../core/connect/ClientConnection";
-import {Divider} from "rc-dock/lib";
-import {arrayEqual} from "../core/util/Compare";
+import React, {ReactNode} from 'react';
+import {BlockStage, PropertyList} from '../editor';
+import {ClientConnection} from '../core/connect/ClientConnection';
+import {Divider} from 'rc-dock/lib';
+import {arrayEqual} from '../core/util/Compare';
 
 import './BlockStagePanel.less';
-import {Button} from "antd";
-import {Popup} from "../editor/component/ClickPopup";
+import {Button} from 'antd';
+import {Popup} from '../editor/component/ClickPopup';
 
 interface Props {
   conn: ClientConnection;
@@ -53,7 +53,7 @@ export class BlockStagePanel extends React.PureComponent<Props, State> {
     return {
       element: this._rootNode,
       beforeDivider: [{size: blockStage.offsetWidth}],
-      afterDivider: [{size: propertyList.offsetWidth, minSize: 216}],
+      afterDivider: [{size: propertyList.offsetWidth, minSize: 216}]
     };
   };
 
@@ -62,29 +62,31 @@ export class BlockStagePanel extends React.PureComponent<Props, State> {
     this.setState({sizes});
   };
 
-
   render() {
     let {conn, basePath, onSave} = this.props;
     let {showPropertyList, selectedKeys, sizes} = this.state;
 
     return (
-      <div className='ticl-hbox ticl-stage-panel' ref={this.getRef}>
-        <BlockStage key='stage' conn={conn} basePath={basePath} onSelect={this.onSelect}
-                    style={{width: sizes[0], height: '100%'}}/>
-        <div className='ticl-stage-header'>
-          {onSave
-            ? <Button className='ticl-square-icon-btn' size='small' icon="cloud-upload" title='Save' onClick={onSave}/>
-            : null}
+      <div className="ticl-hbox ticl-stage-panel" ref={this.getRef}>
+        <BlockStage
+          key="stage"
+          conn={conn}
+          basePath={basePath}
+          onSelect={this.onSelect}
+          style={{width: sizes[0], height: '100%'}}
+        />
+        <div className="ticl-stage-header">
+          {onSave ? (
+            <Button className="ticl-square-icon-btn" size="small" icon="cloud-upload" title="Save" onClick={onSave} />
+          ) : null}
           {basePath}
         </div>
-        {showPropertyList
-          ? <Divider key='divider' idx={1} getDividerData={this.getDividerData} changeSizes={this.changeSizes}/>
-          : null
-        }
-        {showPropertyList
-          ? <PropertyList conn={conn} keys={selectedKeys} style={{width: sizes[1], height: '100%', padding: '8px'}}/>
-          : null
-        }
+        {showPropertyList ? (
+          <Divider key="divider" idx={1} getDividerData={this.getDividerData} changeSizes={this.changeSizes} />
+        ) : null}
+        {showPropertyList ? (
+          <PropertyList conn={conn} keys={selectedKeys} style={{width: sizes[1], height: '100%', padding: '8px'}} />
+        ) : null}
       </div>
     );
   }

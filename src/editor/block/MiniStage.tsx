@@ -1,15 +1,13 @@
-import React, {ReactNode} from "react";
-import {ClientConn, ValueUpdate, blankFuncDesc, getFuncStyleFromDesc, FunctionDesc} from "../../core/client";
-import {DataMap} from "../../core/util/Types";
-import {PureDataRenderer} from "../../ui/component/DataRenderer";
-import {TIcon} from "../icon/Icon";
-import {BaseBlockItem, BlockItem, Stage, XYWRenderer} from "./Field";
-
+import React, {ReactNode} from 'react';
+import {ClientConn, ValueUpdate, blankFuncDesc, getFuncStyleFromDesc, FunctionDesc} from '../../core/client';
+import {DataMap} from '../../core/util/Types';
+import {PureDataRenderer} from '../../ui/component/DataRenderer';
+import {TIcon} from '../icon/Icon';
+import {BaseBlockItem, BlockItem, Stage, XYWRenderer} from './Field';
 
 interface MiniBlockViewProps {
   item: BlockItem;
 }
-
 
 export class MiniBlockView extends PureDataRenderer<MiniBlockViewProps, any> implements XYWRenderer {
   private _rootNode!: HTMLElement;
@@ -58,8 +56,11 @@ export class MiniBlockView extends PureDataRenderer<MiniBlockViewProps, any> imp
         width = 150;
       }
       return (
-        <div className={classNames.join(' ')} ref={this.getRef} style={{top: item.y, left: item.x, width, height: 30}}>
-        </div>
+        <div
+          className={classNames.join(' ')}
+          ref={this.getRef}
+          style={{top: item.y, left: item.x, width, height: 30}}
+        ></div>
       );
     } else if (item.w) {
       classNames.push('ticl-block');
@@ -70,8 +71,8 @@ export class MiniBlockView extends PureDataRenderer<MiniBlockViewProps, any> imp
           className={classNames.join(' ')}
           style={{top: item.y, left: item.x, width: item.w, height: item.h}}
         >
-          <div className='ticl-block-head ticl-block-prbg'>
-            <TIcon icon={item.desc.icon}/>
+          <div className="ticl-block-head ticl-block-prbg">
+            <TIcon icon={item.desc.icon} />
             {item.name}
           </div>
         </div>
@@ -81,20 +82,15 @@ export class MiniBlockView extends PureDataRenderer<MiniBlockViewProps, any> imp
       classNames.push('ticl-block-min');
       classNames.push(getFuncStyleFromDesc(item.desc));
       return (
-        <div
-          ref={this.getRef}
-          className={classNames.join(' ')}
-          style={{top: item.y, left: item.x}}
-        >
-          <div className='ticl-block-head ticl-block-prbg'>
-            <TIcon icon={item.desc.icon}/>
+        <div ref={this.getRef} className={classNames.join(' ')} style={{top: item.y, left: item.x}}>
+          <div className="ticl-block-head ticl-block-prbg">
+            <TIcon icon={item.desc.icon} />
           </div>
         </div>
       );
-
     } else {
       // data not ready, don't renderer
-      return <div ref={this.getRef}/>;
+      return <div ref={this.getRef} />;
     }
   }
 }
@@ -105,11 +101,10 @@ interface ZoomStageProps {
 }
 
 export class MiniStage extends React.PureComponent<ZoomStageProps, any> {
-
   render() {
     let {children, style} = this.props;
     return (
-      <div className='ticl-mini-stage' style={style}>
+      <div className="ticl-mini-stage" style={style}>
         {children}
       </div>
     );

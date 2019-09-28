@@ -1,28 +1,26 @@
-import {assert} from "chai";
-import SimulateEvent from "simulate-event";
+import {assert} from 'chai';
+import SimulateEvent from 'simulate-event';
 import React from 'react';
-import {BlockStage} from "../../../editor";
-import {Block, Root} from "../../../core/main";
-import {destroyLastLocalConnection, makeLocalConnection} from "../../../core/connect/LocalConnection";
-import {shouldHappen, shouldReject} from "../../../core/util/test-util";
-import ReactDOM from "react-dom";
-import {removeLastTemplate, loadTemplate, querySingle} from "../../../ui/util/test-util";
-import {initEditor} from "../../index";
-import {arrayEqual} from "../../../core/util/Compare";
+import {BlockStage} from '../../../editor';
+import {Block, Root} from '../../../core/main';
+import {destroyLastLocalConnection, makeLocalConnection} from '../../../core/connect/LocalConnection';
+import {shouldHappen, shouldReject} from '../../../core/util/test-util';
+import ReactDOM from 'react-dom';
+import {removeLastTemplate, loadTemplate, querySingle} from '../../../ui/util/test-util';
+import {initEditor} from '../../index';
+import {arrayEqual} from '../../../core/util/Compare';
 
-describe("editor Block Field", function () {
-
-  beforeEach(async function () {
+describe('editor Block Field', function() {
+  beforeEach(async function() {
     await initEditor();
   });
 
-  afterEach(function () {
+  afterEach(function() {
     removeLastTemplate();
     destroyLastLocalConnection();
   });
 
-  it('single block', async function () {
-
+  it('single block', async function() {
     let job = Root.instance.addJob('BlockField1');
     job.load({
       add: {
@@ -40,8 +38,9 @@ describe("editor Block Field", function () {
     let [server, client] = makeLocalConnection(Root.instance);
 
     let [component, div] = loadTemplate(
-      <BlockStage conn={client} basePath="BlockField1"
-                  style={{width: '800px', height: '800px'}}/>, 'editor');
+      <BlockStage conn={client} basePath="BlockField1" style={{width: '800px', height: '800px'}} />,
+      'editor'
+    );
 
     await shouldHappen(() => div.querySelector('.ticl-field'));
 
@@ -49,23 +48,32 @@ describe("editor Block Field", function () {
 
     await shouldHappen(() => block.querySelectorAll('.ticl-field').length === 6);
 
-    await shouldHappen(() => querySingle("//div.ticl-field-name[text()='a']/../div.ticl-field-value/span[text()='1']", div));
-    assert.isNotNull(querySingle("//div.ticl-field-name[text()='b']/../div.ticl-field-value/span[text()='1.333']", div));
-    assert.isNotNull(querySingle("//div.ticl-field-name[text()='c']/../div.ticl-field-value/span.ticl-string-value[text()='ccc']", div));
+    await shouldHappen(() =>
+      querySingle("//div.ticl-field-name[text()='a']/../div.ticl-field-value/span[text()='1']", div)
+    );
+    assert.isNotNull(
+      querySingle("//div.ticl-field-name[text()='b']/../div.ticl-field-value/span[text()='1.333']", div)
+    );
+    assert.isNotNull(
+      querySingle("//div.ticl-field-name[text()='c']/../div.ticl-field-value/span.ticl-string-value[text()='ccc']", div)
+    );
     assert.isNotNull(querySingle("//div.ticl-field-name[text()='d']/../div.ticl-field-value/span[text()='true']", div));
     assert.isNotNull(querySingle("//div.ticl-field-name[text()='e']/../div.ticl-field-value/span[text()='null']", div));
     assert.isNotNull(querySingle("//div.ticl-field-name[text()='z']/../div.ticl-field-value/span[not(text())]", div));
 
     job.queryProperty('add.c').setValue(3);
     // no longer a string value
-    await shouldHappen(() => querySingle("//div.ticl-field-name[text()='c']/../div.ticl-field-value/span[text()='3'][not(contains(@class,'ticl-string-value'))]", div));
+    await shouldHappen(() =>
+      querySingle(
+        "//div.ticl-field-name[text()='c']/../div.ticl-field-value/span[text()='3'][not(contains(@class,'ticl-string-value'))]",
+        div
+      )
+    );
 
     Root.instance.deleteValue('BlockField1');
   });
 
-
-  it('sub block', async function () {
-
+  it('sub block', async function() {
     let job = Root.instance.addJob('BlockField2');
     job.load({
       add: {
@@ -84,15 +92,15 @@ describe("editor Block Field", function () {
         },
         '@b-xyw': [120, 280, 150],
         '@b-p': ['0']
-      },
+      }
     });
-
 
     let [server, client] = makeLocalConnection(Root.instance);
 
     let [component, div] = loadTemplate(
-      <BlockStage conn={client} basePath="BlockField2"
-                  style={{width: '800px', height: '800px'}}/>, 'editor');
+      <BlockStage conn={client} basePath="BlockField2" style={{width: '800px', height: '800px'}} />,
+      'editor'
+    );
 
     await shouldHappen(() => div.querySelector('.ticl-block'));
 
@@ -121,13 +129,12 @@ describe("editor Block Field", function () {
     Root.instance.deleteValue('BlockField2');
   });
 
-  it('indirect binding', async function () {
-
+  it('indirect binding', async function() {
     let job = Root.instance.addJob('BlockField3');
     job.load({
       add: {
         '#is': 'add',
-        '0': {'a': 3},
+        '0': {a: 3},
         '@b-xyw': [100, 100, 150],
         '@b-p': ['0']
       },
@@ -136,14 +143,15 @@ describe("editor Block Field", function () {
         '~0': '##.add.0.a',
         '@b-xyw': [260, 124, 150],
         '@b-p': ['0']
-      },
+      }
     });
 
     let [server, client] = makeLocalConnection(Root.instance);
 
     let [component, div] = loadTemplate(
-      <BlockStage conn={client} basePath="BlockField3"
-                  style={{width: '800px', height: '800px'}}/>, 'editor');
+      <BlockStage conn={client} basePath="BlockField3" style={{width: '800px', height: '800px'}} />,
+      'editor'
+    );
 
     await shouldHappen(() => div.querySelector('.ticl-block-wire'));
 
@@ -159,5 +167,4 @@ describe("editor Block Field", function () {
 
     Root.instance.deleteValue('BlockField3');
   });
-
 });

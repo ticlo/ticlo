@@ -1,24 +1,23 @@
-import {assert} from "chai";
-import SimulateEvent from "simulate-event";
+import {assert} from 'chai';
+import SimulateEvent from 'simulate-event';
 import React from 'react';
-import {removeLastTemplate, loadTemplate, querySingle} from "../../../../ui/util/test-util";
-import {initEditor} from "../../../index";
-import {PasswordEditor} from "../PasswordEditor";
-import {shouldHappen} from "../../../../core/util/test-util";
-import {blankPropDesc} from "../../../../core/block/Descriptor";
-import {simulateInput} from "./simulate-input";
+import {removeLastTemplate, loadTemplate, querySingle} from '../../../../ui/util/test-util';
+import {initEditor} from '../../../index';
+import {PasswordEditor} from '../PasswordEditor';
+import {shouldHappen} from '../../../../core/util/test-util';
+import {blankPropDesc} from '../../../../core/block/Descriptor';
+import {simulateInput} from './simulate-input';
 
-describe("PasswordEditor", function () {
-
-  beforeEach(async function () {
+describe('PasswordEditor', function() {
+  beforeEach(async function() {
     await initEditor();
   });
 
-  afterEach(function () {
+  afterEach(function() {
     removeLastTemplate();
   });
 
-  it('basic', async function () {
+  it('basic', async function() {
     let editor: PasswordEditor;
     let getRef = (e: PasswordEditor): void => {
       editor = e;
@@ -28,7 +27,9 @@ describe("PasswordEditor", function () {
       value = str;
     };
     let [component, div] = loadTemplate(
-      <PasswordEditor ref={getRef} value='1' desc={blankPropDesc} onChange={onChange}/>, 'editor');
+      <PasswordEditor ref={getRef} value="1" desc={blankPropDesc} onChange={onChange} />,
+      'editor'
+    );
 
     await shouldHappen(() => editor && div.querySelector('input.ant-input'));
 
@@ -52,6 +53,5 @@ describe("PasswordEditor", function () {
 
     editor.onBlur();
     assert.equal(value, 'ABC');
-
   });
 });

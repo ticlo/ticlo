@@ -1,33 +1,33 @@
-import {assert} from "chai";
+import {assert} from 'chai';
 import React from 'react';
-import {TIcon} from "../Icon";
-import {shouldHappen} from "../../../core/util/test-util";
-import ReactDOM from "react-dom";
-import {removeLastTemplate, loadTemplate} from "../../../ui/util/test-util";
+import {TIcon} from '../Icon';
+import {shouldHappen} from '../../../core/util/test-util';
+import ReactDOM from 'react-dom';
+import {removeLastTemplate, loadTemplate} from '../../../ui/util/test-util';
 
-describe("editor Icon", function () {
-
-  afterEach(function () {
+describe('editor Icon', function() {
+  afterEach(function() {
     removeLastTemplate();
   });
 
-  it('basic', async function () {
+  it('basic', async function() {
     let [component, div] = loadTemplate(
       <div style={{position: 'absolute'}}>
-        <TIcon icon="fab:git"/>
-        <TIcon icon="fas:plus" style="tico-pr1"/>
-        <TIcon icon="fas:minus"/>
-        <TIcon icon="txt:A"/>
-        <TIcon icon="txt:ip"/>
-        <TIcon icon="txt:WWW"/>
-        <TIcon icon="txt:文"/>
-        <TIcon icon="txt:文文:12"/>
+        <TIcon icon="fab:git" />
+        <TIcon icon="fas:plus" style="tico-pr1" />
+        <TIcon icon="fas:minus" />
+        <TIcon icon="txt:A" />
+        <TIcon icon="txt:ip" />
+        <TIcon icon="txt:WWW" />
+        <TIcon icon="txt:文" />
+        <TIcon icon="txt:文文:12" />
 
-        <TIcon icon="fab:space space"/>
-        <TIcon icon={"txt:\t"}/>
-        <TIcon icon="txt"/>
-      </div>
-      , 'editor');
+        <TIcon icon="fab:space space" />
+        <TIcon icon={'txt:\t'} />
+        <TIcon icon="txt" />
+      </div>,
+      'editor'
+    );
 
     let icons: NodeListOf<HTMLDivElement> = document.querySelectorAll('.tico');
     assert.lengthOf(icons, 11);
@@ -66,5 +66,4 @@ describe("editor Icon", function () {
       assert.equal(icons[i].classList.length, 1, 'invalid icon has no other style');
     }
   });
-
 });

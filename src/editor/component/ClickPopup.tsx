@@ -1,7 +1,7 @@
-import React from "react";
-import Trigger from "rc-trigger";
-import {AddMorePropertyMenu} from "../property/AddMoreProperty";
-import {Icon} from "antd";
+import React from 'react';
+import Trigger from 'rc-trigger';
+import {AddMorePropertyMenu} from '../property/AddMoreProperty';
+import {Icon} from 'antd';
 
 type ItemEventHandler = (event: 'show' | 'hide' | 'hover') => void;
 
@@ -32,7 +32,6 @@ export class SubMenuItem extends React.PureComponent<SubMenuItemProps, SubMenuIt
     this.props.onItemEvent('hover');
   };
 
-
   render() {
     let {showPopup} = this.state;
     let {popupVisible} = this.props;
@@ -47,36 +46,32 @@ export class SubMenuItem extends React.PureComponent<SubMenuItemProps, SubMenuIt
       cls += ' ticl-popup-menu-item-active';
     }
     return (
-      <Trigger action={['click']}
-               popupAlign={{
-                 points: ['tl', 'tr'],
-                 offset: [3, 0],
-                 overflow: {adjustX: true, adjustY: true}
-               }}
-               prefixCls='ant-select-dropdown'
-               popupVisible={showPopup}
-               onPopupVisibleChange={this.showPopup}
-               popup={popup}>
+      <Trigger
+        action={['click']}
+        popupAlign={{
+          points: ['tl', 'tr'],
+          offset: [3, 0],
+          overflow: {adjustX: true, adjustY: true}
+        }}
+        prefixCls="ant-select-dropdown"
+        popupVisible={showPopup}
+        onPopupVisibleChange={this.showPopup}
+        popup={popup}
+      >
         <div className={cls} onMouseOver={this.onHover}>
           {children}
-          {popup
-            ? <Icon type='right'/>
-            : null
-          }
+          {popup ? <Icon type="right" /> : null}
         </div>
       </Trigger>
     );
   }
 }
 
-
 interface MenuItemProps {
   onItemEvent?: ItemEventHandler;
 }
 
-interface MenuItemState {
-
-}
+interface MenuItemState {}
 
 export class MenuItem extends React.PureComponent<MenuItemProps, MenuItemState> {
   onHover = (e: React.MouseEvent) => {
@@ -86,13 +81,12 @@ export class MenuItem extends React.PureComponent<MenuItemProps, MenuItemState> 
   render() {
     let {children} = this.props;
     return (
-      <div className='ticl-popup-menu-item' onMouseOver={this.onHover}>
+      <div className="ticl-popup-menu-item" onMouseOver={this.onHover}>
         {children}
       </div>
     );
   }
 }
-
 
 interface MenuProps {
   children?: React.ReactElement[];
@@ -103,7 +97,6 @@ interface MenuState {
 }
 
 export class Menu extends React.PureComponent<MenuProps, MenuState> {
-
   state: MenuState = {subMenuKey: null};
 
   _visibleCallbackMap: Map<string, ItemEventHandler> = new Map();
@@ -134,7 +127,6 @@ export class Menu extends React.PureComponent<MenuProps, MenuState> {
   }
 
   render() {
-
     let {children} = this.props;
     let {subMenuKey} = this.state;
 
@@ -145,23 +137,23 @@ export class Menu extends React.PureComponent<MenuProps, MenuState> {
         if (!child) continue;
         let element = child as React.ReactElement;
         if (element.type === SubMenuItem) {
-          menuItems.push(React.cloneElement(element, {
-            popupVisible: element.key === subMenuKey,
-            onItemEvent: this._getVisibleCallback(element.key as string)
-          }));
+          menuItems.push(
+            React.cloneElement(element, {
+              popupVisible: element.key === subMenuKey,
+              onItemEvent: this._getVisibleCallback(element.key as string)
+            })
+          );
         } else {
           menuItems.push(
-            <MenuItem key={`${i}`} onItemEvent={this._getVisibleCallback(element.key as string)}>{child}</MenuItem>
+            <MenuItem key={`${i}`} onItemEvent={this._getVisibleCallback(element.key as string)}>
+              {child}
+            </MenuItem>
           );
         }
       }
     }
 
-    return (
-      <div className='ant-dropdown-menu'>
-        {menuItems}
-      </div>
-    );
+    return <div className="ant-dropdown-menu">{menuItems}</div>;
   }
 }
 
@@ -230,13 +222,17 @@ export class Popup extends React.PureComponent<PopupProps, PopupState> {
     let {children, popup} = this.props;
 
     return (
-      <Trigger action={trigger}
-               popupAlign={popupAlign} alignPoint={alignPoint} popupPlacement='topLeft'
-               builtinPlacements={builtinPlacements}
-               prefixCls='ant-select-dropdown'
-               popupVisible={showPopup}
-               onPopupVisibleChange={this.showPopup}
-               popup={popup}>
+      <Trigger
+        action={trigger}
+        popupAlign={popupAlign}
+        alignPoint={alignPoint}
+        popupPlacement="topLeft"
+        builtinPlacements={builtinPlacements}
+        prefixCls="ant-select-dropdown"
+        popupVisible={showPopup}
+        onPopupVisibleChange={this.showPopup}
+        popup={popup}
+      >
         {children}
       </Trigger>
     );
@@ -249,5 +245,3 @@ export class Popup extends React.PureComponent<PopupProps, PopupState> {
     }
   }
 }
-
-

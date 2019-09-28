@@ -1,12 +1,11 @@
-import React from "react";
-import {SpecialViewProps} from "./SpecialView";
-import {LazyUpdateComponent, LazyUpdateListener} from "../../../ui/component/LazyUpdateComponent";
-import {Slider} from "antd";
-import {displayNumber} from "../../../ui/util/Types";
-import {ClientConnection} from "../../../core/connect/ClientConnection";
+import React from 'react';
+import {SpecialViewProps} from './SpecialView';
+import {LazyUpdateComponent, LazyUpdateListener} from '../../../ui/component/LazyUpdateComponent';
+import {Slider} from 'antd';
+import {displayNumber} from '../../../ui/util/Types';
+import {ClientConnection} from '../../../core/connect/ClientConnection';
 
 class SliderView extends LazyUpdateComponent<SpecialViewProps, any> {
-
   value = new LazyUpdateListener(this);
   min = new LazyUpdateListener(this, 0);
   max = new LazyUpdateListener(this, 100);
@@ -25,7 +24,6 @@ class SliderView extends LazyUpdateComponent<SpecialViewProps, any> {
   onAfterChange = () => {
     this._pendingValue = NaN;
   };
-
 
   constructor(props: SpecialViewProps) {
     super(props);
@@ -47,16 +45,20 @@ class SliderView extends LazyUpdateComponent<SpecialViewProps, any> {
     let max = this.max.value;
 
     return (
-      <div className='ticl-slider-view'>
-        <Slider value={value} min={min} max={max} step={this.step.value}
-                onChange={this.onValueChange}
-                disabled={this.value.bindingPath != null}/>
-        <div className='ticl-slider-view-markers'>
-          <span className='ticl-slider-view-marker'>{displayNumber(min)}</span>
-          <span className='ticl-slider-view-marker'>{displayNumber(max)}</span>
+      <div className="ticl-slider-view">
+        <Slider
+          value={value}
+          min={min}
+          max={max}
+          step={this.step.value}
+          onChange={this.onValueChange}
+          disabled={this.value.bindingPath != null}
+        />
+        <div className="ticl-slider-view-markers">
+          <span className="ticl-slider-view-marker">{displayNumber(min)}</span>
+          <span className="ticl-slider-view-marker">{displayNumber(max)}</span>
         </div>
       </div>
-
     );
   }
 
@@ -70,18 +72,16 @@ class SliderView extends LazyUpdateComponent<SpecialViewProps, any> {
   }
 }
 
-ClientConnection.addEditorDescriptor('slider-view',
-  {
-    view: SliderView,
-    priority: 0,
-    name: 'slider-view',
-    id: 'slider-view',
-    icon: 'fas:sliders-h',
-    properties: [
-      {name: 'value', type: 'number'},
-      {name: 'min', type: 'number', default: 0, visible: 'low'},
-      {name: 'max', type: 'number', default: 100, visible: 'low'},
-      {name: 'step', type: 'number', default: 1, min: 0, visible: 'low'},
-    ]
-  }
-);
+ClientConnection.addEditorDescriptor('slider-view', {
+  view: SliderView,
+  priority: 0,
+  name: 'slider-view',
+  id: 'slider-view',
+  icon: 'fas:sliders-h',
+  properties: [
+    {name: 'value', type: 'number'},
+    {name: 'min', type: 'number', default: 0, visible: 'low'},
+    {name: 'max', type: 'number', default: 100, visible: 'low'},
+    {name: 'step', type: 'number', default: 1, min: 0, visible: 'low'}
+  ]
+});

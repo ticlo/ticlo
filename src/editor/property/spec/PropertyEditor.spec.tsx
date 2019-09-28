@@ -1,36 +1,34 @@
-import {assert} from "chai";
-import SimulateEvent from "simulate-event";
+import {assert} from 'chai';
+import SimulateEvent from 'simulate-event';
 import React from 'react';
-import "../../../editor";
-import {PropertyEditor} from "../PropertyEditor";
-import {Block, Root} from "../../../core/block/Block";
-import "../../../core/functions/basic/math/Arithmetic";
-import {destroyLastLocalConnection, makeLocalConnection} from "../../../core/connect/LocalConnection";
-import {shouldHappen, shouldReject} from "../../../core/util/test-util";
-import ReactDOM from "react-dom";
-import {removeLastTemplate, loadTemplate, querySingle} from "../../../ui/util/test-util";
-import {initEditor} from "../../index";
-import {arrayEqual} from "../../../core/util/Compare";
-import {ClientConn} from "../../../core/client";
-import {FunctionDesc, PropDesc, PropGroupDesc} from "../../../core/block/Descriptor";
-import {Types} from "../../../core/block/Type";
+import '../../../editor';
+import {PropertyEditor} from '../PropertyEditor';
+import {Block, Root} from '../../../core/block/Block';
+import '../../../core/functions/basic/math/Arithmetic';
+import {destroyLastLocalConnection, makeLocalConnection} from '../../../core/connect/LocalConnection';
+import {shouldHappen, shouldReject} from '../../../core/util/test-util';
+import ReactDOM from 'react-dom';
+import {removeLastTemplate, loadTemplate, querySingle} from '../../../ui/util/test-util';
+import {initEditor} from '../../index';
+import {arrayEqual} from '../../../core/util/Compare';
+import {ClientConn} from '../../../core/client';
+import {FunctionDesc, PropDesc, PropGroupDesc} from '../../../core/block/Descriptor';
+import {Types} from '../../../core/block/Type';
 
-describe("PropertyEditor", function () {
-
+describe('PropertyEditor', function() {
   let [funcDesc] = Types.getDesc('add');
   let propDesc = (funcDesc.properties[0] as PropGroupDesc).properties[0];
 
-  beforeEach(async function () {
+  beforeEach(async function() {
     await initEditor();
   });
 
-  afterEach(function () {
+  afterEach(function() {
     removeLastTemplate();
     destroyLastLocalConnection();
   });
 
-  it('editable', async function () {
-
+  it('editable', async function() {
     let job = Root.instance.addJob('PropertyEditor1');
     job.load({
       add1: {
@@ -46,8 +44,15 @@ describe("PropertyEditor", function () {
     let [server, client] = makeLocalConnection(Root.instance, true);
 
     let [component, div] = loadTemplate(
-      <PropertyEditor conn={client} keys={['PropertyEditor1.add1', 'PropertyEditor1.add2']} name='0'
-                      funcDesc={funcDesc} propDesc={propDesc}/>, 'editor');
+      <PropertyEditor
+        conn={client}
+        keys={['PropertyEditor1.add1', 'PropertyEditor1.add2']}
+        name="0"
+        funcDesc={funcDesc}
+        propDesc={propDesc}
+      />,
+      'editor'
+    );
 
     await shouldHappen(() => div.querySelector('.ticl-number-input'));
     let input = div.querySelector('.ticl-number-input');
@@ -70,25 +75,31 @@ describe("PropertyEditor", function () {
     Root.instance.deleteValue('PropertyEditor1');
   });
 
-  it('subblock', async function () {
-
+  it('subblock', async function() {
     let job = Root.instance.addJob('PropertyEditor2');
     job.load({
       add1: {
         '#is': 'add',
-        '~0': {'#is': 'add'},
+        '~0': {'#is': 'add'}
       },
       add2: {
         '#is': 'add',
-        '~0': {'#is': 'add'},
+        '~0': {'#is': 'add'}
       }
     });
 
     let [server, client] = makeLocalConnection(Root.instance, true);
 
     let [component, div] = loadTemplate(
-      <PropertyEditor conn={client} keys={['PropertyEditor2.add1', 'PropertyEditor2.add2']} name='0'
-                      funcDesc={funcDesc} propDesc={propDesc}/>, 'editor');
+      <PropertyEditor
+        conn={client}
+        keys={['PropertyEditor2.add1', 'PropertyEditor2.add2']}
+        name="0"
+        funcDesc={funcDesc}
+        propDesc={propDesc}
+      />,
+      'editor'
+    );
 
     await shouldHappen(() => div.querySelector('.ticl-number-input'));
     let input = div.querySelector('.ticl-number-input');
@@ -104,8 +115,6 @@ describe("PropertyEditor", function () {
     // find the child property group for #len 0 1
     await shouldHappen(() => div.querySelector('.ticl-property-group'));
 
-
     Root.instance.deleteValue('PropertyEditor2');
   });
-
 });
