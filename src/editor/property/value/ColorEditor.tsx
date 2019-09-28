@@ -19,12 +19,11 @@ export class ColorEditor extends React.PureComponent<ValueEditorProps, any> {
   render() {
     let {desc, value, locked, onChange} = this.props;
     let {disableAlpha} = desc;
-    // let color = tinycolor(value);
-    // if (!color.isValid()) {
-    //   value = 'none';
-    // }
 
     let disabled = locked || onChange == null;
+    if (typeof value !== 'string') {
+      value = '';
+    }
     let editorStyle: React.CSSProperties;
     if (disabled) {
       editorStyle = {cursor: 'not-allowed'};
@@ -34,12 +33,15 @@ export class ColorEditor extends React.PureComponent<ValueEditorProps, any> {
       <Popup
         trigger={disabled ? [] : ['click']}
         popup={
-          <SketchPicker color={value} width="224px" disableAlpha={disableAlpha} onChangeComplete={this.onValueChange} />
+          <SketchPicker color={value} width="224px" disableAlpha={disableAlpha} onChangeComplete={this.onValueChange}/>
         }
       >
         <div className="ticl-color-editor" style={editorStyle}>
-          <div className="ticl-color-editor-bg" />
-          <div style={{background: value}} />
+          <div className="ticl-color-editor-preview">
+            <div className="ticl-color-editor-bg"/>
+            <div style={{background: value}}/>
+          </div>
+          {value}
         </div>
       </Popup>
     );
