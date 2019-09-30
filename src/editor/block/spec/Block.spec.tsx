@@ -320,8 +320,8 @@ describe('editor BlockStage', function() {
     await shouldHappen(() => (div.querySelector('.ticl-block') as HTMLDivElement).offsetLeft > 0);
 
     let blocks = div.querySelectorAll('.ticl-block');
-    let xarr = [24, 224, 24, 224, 424, 424, 24, 224, 424, 624];
-    let yarr = [24, 24, 224, 224, 24, 224, 424, 424, 424, 24];
+    let xarr = [32, 232, 32, 232, 432, 432, 32, 232, 432, 632];
+    let yarr = [32, 32, 232, 232, 32, 232, 432, 432, 432, 32];
     for (let i = 0; i < 10; ++i) {
       let block = blocks[i] as HTMLDivElement;
       assert.equal(block.offsetLeft, xarr[i]);

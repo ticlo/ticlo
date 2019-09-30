@@ -76,6 +76,6 @@
     "test": "cross-env NODE_ENV=TEST mocha 'src/core/**/*.spec.ts' 'src/nodejs/**/*.spec.ts'",
     "example": "parcel example/simple-editor/editor.html --open --out-dir temp --no-source-maps",
     "prettier-check": "prettier --check src/**/*.ts src/**/*.tsx",
-    "prettier-write": "prettier --check src/**/*.ts src/**/*.tsx"
+    "prettier-write": "prettier --write src/**/*.ts src/**/*.tsx"
   }
 }

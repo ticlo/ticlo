@@ -30,7 +30,7 @@ export abstract class BlockStageBase<State> extends LazyUpdateComponent<StagePro
    * 6 7 8
    */
   getNextXYW() {
-    let result: [number, number, number] = [this.nextXYx * 200 + 30, this.nextXYy * 200 + 30, 150];
+    let result: [number, number, number] = [this.nextXYx * 200 + 32, this.nextXYy * 200 + 32, 150];
     if (this.nextXYx === this.nextXYy) {
       this.nextXYx = this.nextXYy + 1;
       this.nextXYy = 0;
