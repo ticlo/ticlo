@@ -171,6 +171,7 @@ export class NodeTreeRenderer extends PureDataRenderer<Props, any> {
 
   getMenu = () => {
     let editJob = this.context && this.context.editJob;
+    console.log(this.context);
     return (
       <Menu selectable={false}>
         {editJob ? (

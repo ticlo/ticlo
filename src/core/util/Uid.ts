@@ -1,7 +1,3 @@
-// a simple id system
-// goes from 0 to 2gosa7pa2gu then 0-0 to 2gosa7pa2gu-2gosa7pa2gu then 0-0-0
-// (Number.MAX_SAFE_INTEGER-1).toString(36) == 2gosa7pa2gu
-
 export class Uid {
   _count = BigInt(0);
 

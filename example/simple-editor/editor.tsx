@@ -18,6 +18,7 @@ import {Logger} from '../../src/core/util/Logger';
 import {NodeTreeItem} from '../../src/editor/node-tree/NodeRenderer';
 import {WorkerFunction} from '../../src/core/worker/WorkerFunction';
 import {BlockStagePanel} from '../../src/panel/BlockStagePanel';
+import {TicloLayoutContext, TicloLayoutContextType} from '../../src/editor/component/LayoutContext';
 
 const layoutGroups = {
   blockStage: {
@@ -34,10 +35,10 @@ interface State {
   selectedKeys: string[];
 }
 
-const Context = React.createContext<string[]>([]);
+const SelectionContext = React.createContext<string[]>([]);
 WorkerFunction.registerType({'#is': ''}, {name: 'class1'}, 'WorkerEditor');
 
-class App extends React.PureComponent<Props, State> {
+class App extends React.PureComponent<Props, State> implements TicloLayoutContext {
   constructor(props: Props) {
     super(props);
     this.state = {selectedKeys: ['example.add']};
@@ -59,20 +60,20 @@ class App extends React.PureComponent<Props, State> {
 
   count = 0;
 
-  createBlockEditor(path: string) {
+  createBlockEditor(path: string, onSave?: () => void) {
     let {conn} = this.props;
     return {
       id: `blockEditor${this.count++}`,
       title: path,
       cached: false,
       group: 'blockStage',
-      content: <BlockStagePanel conn={conn} basePath={path} onSelect={this.onSelect} />
+      content: <BlockStagePanel conn={conn} basePath={path} onSelect={this.onSelect} onSave={onSave} />
     };
   }
 
-  onOpen = (item: NodeTreeItem) => {
-    this.layout.dockMove(this.createBlockEditor(item.key), this.layout.find('main'), 'middle');
-  };
+  editJob(path: string, onSave: () => void) {
+    this.layout.dockMove(this.createBlockEditor(path, onSave), this.layout.find('main'), 'middle');
+  }
 
   onDragBlock = (e: DragState) => {
     let {conn} = this.props;
@@ -117,19 +118,16 @@ class App extends React.PureComponent<Props, State> {
                 id: 'PropertyList',
                 title: 'PropertyList',
                 cached: true,
-                cacheContext: Context,
+                cacheContext: TicloLayoutContextType,
                 content: (
-                  <Context.Consumer>
-                    {(keys) => (
-                      <PropertyList conn={conn} keys={keys} style={{width: '100%', height: '100%', padding: '8px'}} />
-                    )}
-                  </Context.Consumer>
+                  <PropertyList conn={conn} keys={['example.add']} style={{width: '100%', height: '100%', padding: '8px'}} />
                 )
               },
               {
                 id: 'NavTree',
                 title: 'NavTree',
                 cached: true,
+                cacheContext: TicloLayoutContextType,
                 content: (
                   <NodeTree
                     conn={conn}
@@ -165,14 +163,16 @@ class App extends React.PureComponent<Props, State> {
       }
     };
     return (
-      <Context.Provider value={selectedKeys}>
-        <DockLayout
-          defaultLayout={layout}
-          ref={this.getLayout}
-          groups={layoutGroups}
-          style={{position: 'absolute', left: 10, top: 10, right: 10, bottom: 10}}
-        />
-      </Context.Provider>
+      <TicloLayoutContextType.Provider value={this}>
+        <SelectionContext.Provider value={selectedKeys}>
+          <DockLayout
+            defaultLayout={layout}
+            ref={this.getLayout}
+            groups={layoutGroups}
+            style={{position: 'absolute', left: 10, top: 10, right: 10, bottom: 10}}
+          />
+        </SelectionContext.Provider>
+      </TicloLayoutContextType.Provider>
     );
   }
 }

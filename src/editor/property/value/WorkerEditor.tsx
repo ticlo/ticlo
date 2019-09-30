@@ -5,8 +5,12 @@ import {TypeSelect} from '../../type-selector/TypeSelector';
 import {Popup} from '../../component/ClickPopup';
 import {TypeEditor} from './TypeEditor';
 import {FunctionDesc} from '../../../core/block/Descriptor';
+import {TicloLayoutContext, TicloLayoutContextType} from '../../component/LayoutContext';
 
 export class WorkerEditor extends TypeEditor {
+  static contextType = TicloLayoutContextType;
+  context!: TicloLayoutContext;
+
   static filterWorkerFunction(desc: FunctionDesc) {
     return desc.src === 'worker';
   }
@@ -14,8 +18,11 @@ export class WorkerEditor extends TypeEditor {
   editWorker = () => {
     let {conn, keys, desc} = this.props;
     if (keys.length) {
-      conn.editWorker(`${keys[0]}.#edit-${desc.name}`, desc.name);
-      // TODO send event to context
+      let jobEditorPath = `${keys[0]}.#edit-${desc.name}`;
+      conn.editWorker(jobEditorPath, desc.name);
+      this.context.editJob(jobEditorPath, () => {
+        conn.applyWorkerChange(jobEditorPath);
+      });
     }
   };
 
