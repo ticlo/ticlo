@@ -65,7 +65,6 @@ class App extends React.PureComponent<Props, State> implements TicloLayoutContex
     return {
       id: `blockEditor${this.count++}`,
       title: path,
-      cached: false,
       group: 'blockStage',
       content: <BlockStagePanel conn={conn} basePath={path} onSelect={this.onSelect} onSave={onSave} />
     };
