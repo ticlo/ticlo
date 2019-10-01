@@ -19,6 +19,7 @@ import {NodeTreeItem} from '../../src/editor/node-tree/NodeRenderer';
 import {WorkerFunction} from '../../src/core/worker/WorkerFunction';
 import {BlockStagePanel} from '../../src/panel/BlockStagePanel';
 import {TicloLayoutContext, TicloLayoutContextType} from '../../src/editor/component/LayoutContext';
+import {TrackedClientConn} from '../../src/core/connect/TrackedClientConn';
 
 const layoutGroups = {
   blockStage: {
@@ -62,11 +63,18 @@ class App extends React.PureComponent<Props, State> implements TicloLayoutContex
 
   createBlockEditor(path: string, onSave?: () => void) {
     let {conn} = this.props;
+    let trackedConn = new TrackedClientConn(conn);
     return {
       id: `blockEditor${this.count++}`,
-      title: path,
+
+      title: (
+        <span>
+          {path}
+          <div className='dock-tab-close-btn' />
+        </span>
+      ),
       group: 'blockStage',
-      content: <BlockStagePanel conn={conn} basePath={path} onSelect={this.onSelect} onSave={onSave} />
+      content: <BlockStagePanel conn={trackedConn} basePath={path} onSelect={this.onSelect} onSave={onSave}/>
     };
   }
 
@@ -119,7 +127,8 @@ class App extends React.PureComponent<Props, State> implements TicloLayoutContex
                 cached: true,
                 cacheContext: TicloLayoutContextType,
                 content: (
-                  <PropertyList conn={conn} keys={['example.add']} style={{width: '100%', height: '100%', padding: '8px'}} />
+                  <PropertyList conn={conn} keys={['example.add']}
+                                style={{width: '100%', height: '100%', padding: '8px'}}/>
                 )
               },
               {
@@ -187,7 +196,7 @@ class App extends React.PureComponent<Props, State> implements TicloLayoutContex
 
   let [server, client] = makeLocalConnection(Root.instance);
 
-  ReactDOM.render(<App conn={client} />, document.getElementById('app'));
+  ReactDOM.render(<App conn={client}/>, document.getElementById('app'));
 })();
 
 (window as any).Logger = Logger;

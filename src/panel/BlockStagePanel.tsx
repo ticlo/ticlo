@@ -1,15 +1,15 @@
 import React, {ReactNode} from 'react';
 import {BlockStage, PropertyList} from '../editor';
-import {ClientConnection} from '../core/connect/ClientConnection';
 import {Divider} from 'rc-dock/lib';
 import {arrayEqual} from '../core/util/Compare';
 
 import './BlockStagePanel.less';
 import {Button} from 'antd';
 import {Popup} from '../editor/component/ClickPopup';
+import {ClientConn} from '../core/connect/ClientConn';
 
 interface Props {
-  conn: ClientConnection;
+  conn: ClientConn;
   basePath: string;
   onSelect?: (keys: string[]) => void;
   onSave?: () => void;

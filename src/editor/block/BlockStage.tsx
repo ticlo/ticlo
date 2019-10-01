@@ -390,6 +390,11 @@ export class BlockStage extends BlockStageBase<StageState> {
   }
 
   onResize = () => {
+    if (!(this._scrollNode.offsetWidth > 32 && this._scrollNode.offsetHeight > 32)) {
+      // ignore resize event when size is too small
+      // measure and layout is useless
+      return;
+    }
     this.setState({
       stageWidth: this._scrollNode.offsetWidth - 11,
       stageHeight: this._scrollNode.offsetHeight - 11
@@ -433,13 +438,13 @@ export class BlockStage extends BlockStageBase<StageState> {
     // add wires
     for (let [key, fieldItem] of this._fields) {
       if (fieldItem.inWire) {
-        children.push(<WireView key={`~${key}`} item={fieldItem.inWire} />);
+        children.push(<WireView key={`~${key}`} item={fieldItem.inWire}/>);
       }
     }
     // add blocks
     for (let [key, blockItem] of this._blocks) {
-      children.push(<BlockView key={key} item={blockItem} />);
-      miniChildren.push(<MiniBlockView key={key} item={blockItem} />);
+      children.push(<BlockView key={key} item={blockItem}/>);
+      miniChildren.push(<MiniBlockView key={key} item={blockItem}/>);
     }
 
     let viewWidth = Math.max(contentWidth, Math.floor(stageWidth / zoom));
@@ -508,14 +513,14 @@ export class BlockStage extends BlockStageBase<StageState> {
               onDragEndT={this.onDragSelectEnd}
             />
             {children}
-            <div ref={this.getSelectRectRef} className="ticl-block-select-rect" />
+            <div ref={this.getSelectRectRef} className="ticl-block-select-rect"/>
           </DragDropDiv>
         </DragDropDiv>
         <div className="ticl-stage-zoom">
           <div className="ticl-hbox">
-            <Button className="ticl-icon-btn" shape="circle" icon="zoom-out" onClick={this.zoomOut} />
+            <Button className="ticl-icon-btn" shape="circle" icon="zoom-out" onClick={this.zoomOut}/>
             <span className="ticl-stage-zoom-label">{Math.round(zoom * 100)}%</span>
-            <Button className="ticl-icon-btn" shape="circle" icon="zoom-in" onClick={this.zoomIn} />
+            <Button className="ticl-icon-btn" shape="circle" icon="zoom-in" onClick={this.zoomIn}/>
           </div>
           {miniStage}
         </div>
