@@ -1,4 +1,4 @@
-@import "../style";
+@import '../style';
 
 .ticl-block {
   box-sizing: border-box;
@@ -11,10 +11,9 @@
   position: absolute;
   white-space: nowrap;
   transition-property: border-color, box-shadow;
-  transition-duration: .2s;
+  transition-duration: 0.2s;
   z-index: 5;
 }
-
 
 .ticl-block-full-view {
   box-sizing: border-box;
@@ -23,17 +22,18 @@
   list-style: none;
   position: absolute;
   transition-property: border-color, box-shadow;
-  transition-duration: .2s;
+  transition-duration: 0.2s;
   z-index: 0;
 
   & > .ticl-width-drag {
     opacity: 0;
     transition-property: opacity;
-    transition-duration: .2s;
+    transition-duration: 0.2s;
     top: 0;
   }
 
-  &.ticl-block-selected > .ticl-width-drag, &:hover > .ticl-width-drag {
+  &.ticl-block-selected > .ticl-width-drag,
+  &:hover > .ticl-width-drag {
     opacity: 1;
   }
 }
@@ -71,7 +71,7 @@
   }
 
   transition-property: background;
-  transition-duration: .2s;
+  transition-duration: 0.2s;
 
   & > .ticl-inbound-path {
     color: @text-color;
@@ -87,7 +87,6 @@
     border: solid 1px white;
   }
 }
-
 
 .ticl-block-body {
   width: 100%;
@@ -173,9 +172,8 @@
   }
 }
 
-
 .ticl-block-select-rect {
-  position: absolute;;
+  position: absolute;
   border: solid 1px white;
   background: @ticl-color-pr0-light;
   opacity: 0.5;

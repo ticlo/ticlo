@@ -1,5 +1,5 @@
-@import "AddMoreProperty";
-@import "value/DynamicEditor";
+@import 'AddMoreProperty';
+@import 'value/DynamicEditor';
 
 .ticl-property-group {
   width: 100%;
@@ -24,7 +24,7 @@
     left: -10px;
     width: 20px;
     height: 20px;
-    background-image: url('data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24"%3E%3Cpath stroke="%2340a9ff" stroke-width="1.5" fill="%23fff" d="M9 22l10-10L9 2z"/%3E%3C/svg%3E')
+    background-image: url('data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24"%3E%3Cpath stroke="%2340a9ff" stroke-width="1.5" fill="%23fff" d="M9 22l10-10L9 2z"/%3E%3C/svg%3E');
   }
 
   & > .ticl-property-list {
@@ -45,7 +45,7 @@
   top: 10px;
   background: #ddd;
   overflow: hidden;
-  transition-duration: .2s;
+  transition-duration: 0.2s;
 }
 
 .ticl-property-inbound {
@@ -58,7 +58,7 @@
   border: 1px solid @ticl-color-pr0;
   background: #fff;
   overflow: hidden;
-  transition-duration: .2s;
+  transition-duration: 0.2s;
 }
 
 .ticl-property-name {
@@ -89,7 +89,8 @@
   }
 }
 
-.ticl-property-value, .ticl-dynamic-editor {
+.ticl-property-value,
+.ticl-dynamic-editor {
   & > .ant-select {
     width: 100%;
   }
@@ -138,7 +139,8 @@
   border-radius: 4px;
   border: 1px solid @border-color-base;
 
-  &:hover, &:focus-within {
+  &:hover,
+  &:focus-within {
     border-color: @border-hover-color;
   }
 
@@ -210,7 +212,7 @@
 
 .ticl-color-editor-bg {
   /* image from assets/color-editor-bg.gif */
-  background-image: url("data:image/gif;base64,R0lGODlhDAAMAIABAMzMzP///ywAAAAADAAMAAACFoQfqYeabNyDMkBQb81Uat85nxguUAEAOw==");
+  background-image: url('data:image/gif;base64,R0lGODlhDAAMAIABAMzMzP///ywAAAAADAAMAAACFoQfqYeabNyDMkBQb81Uat85nxguUAEAOw==');
 }
 
 .ticl-type-editor {

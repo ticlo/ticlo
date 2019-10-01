@@ -1,4 +1,4 @@
-@import "../style";
+@import '../style';
 
 .ticl-field {
   position: relative;
@@ -33,11 +33,12 @@
 }
 
 .ticl-string-value {
-  &:before, &:after {
+  &:before,
+  &:after {
     color: #bbb;
     display: inline-block;
     transform: translate(0, -2px);
-    content: "'"
+    content: "'";
   }
   text-overflow: ellipsis;
 }
@@ -54,7 +55,7 @@
   border-left: 0 none;
   overflow: hidden;
   transition-property: border-color, height, top;
-  transition-duration: .2s;
+  transition-duration: 0.2s;
   &.ticl-inbound {
     width: 10px;
 
@@ -119,7 +120,7 @@
     transform: scale(0.6666666667, 0.6666666667) translate(0, -1px);
   }
   transition-property: border, width, top;
-  transition-duration: .1s;
+  transition-duration: 0.1s;
 }
 
 .ticl-field-close {
@@ -133,14 +134,18 @@
       transform: scale(0.6666666667, 0.6666666667);
     }
   }
-  & > .ticl-slot, & > .ticl-outbound {
+  & > .ticl-slot,
+  & > .ticl-outbound {
     border-radius: 3px;
     height: 16px;
     top: 4px;
   }
 }
 
-.ticl-field-indent0, .ticl-field-indent1, .ticl-field-indent2, .ticl-field-indent3 {
+.ticl-field-indent0,
+.ticl-field-indent1,
+.ticl-field-indent2,
+.ticl-field-indent3 {
   width: 15px;
   height: 24px;
   margin: -3px 5px -2px -2px;
