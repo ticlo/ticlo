@@ -15,6 +15,10 @@ export class TrackedClientConn implements ClientConn {
     this.changed._value = false;
   }
 
+  isChanged() {
+    return this.changed._value;
+  }
+
   _changed() {
     this.changed.updateValue(true);
   }

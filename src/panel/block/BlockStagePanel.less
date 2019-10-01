@@ -45,3 +45,44 @@
     }
   }
 }
+
+.ticl-stage-panel-tab {
+  & > .dock-tab-close-btn {
+    right: -2px;
+    z-index: 1;
+  }
+}
+
+.ticl-stage-panel-save {
+  position: absolute;
+  padding: 2px;
+  border-radius: 10px;
+  border: 1px solid transparent;
+  top: 3px;
+  right: -7px;
+  z-index: 1;
+  overflow: hidden;
+  width: 24px;
+  transition-property: all;
+  transition-duration: 0.2s;
+  display: flex;
+  flex-direction: row-reverse;
+
+  &:hover {
+    background: #ffffff;
+    border: 1px solid #dddddd;
+    width: 42px;
+  }
+
+  & > .ticl-icon-btn {
+    opacity: 0.7;
+  }
+
+  & .anticon-save {
+    color: #52c41a;
+  }
+
+  & .anticon-close {
+    color: #f5222d;
+  }
+}

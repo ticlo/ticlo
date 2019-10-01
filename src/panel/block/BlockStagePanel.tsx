@@ -1,12 +1,12 @@
 import React, {ReactNode} from 'react';
-import {BlockStage, PropertyList} from '../editor';
+import {BlockStage, PropertyList} from '../../editor';
 import {Divider} from 'rc-dock/lib';
-import {arrayEqual} from '../core/util/Compare';
+import {arrayEqual} from '../../core/util/Compare';
 
 import './BlockStagePanel.less';
 import {Button} from 'antd';
-import {Popup} from '../editor/component/ClickPopup';
-import {ClientConn} from '../core/connect/ClientConn';
+import {Popup} from '../../editor/component/ClickPopup';
+import {ClientConn} from '../../core/connect/ClientConn';
 
 interface Props {
   conn: ClientConn;

@@ -51,7 +51,9 @@ export abstract class PureDataRenderer<P extends DataRendererProps<any>, S> exte
       props.item.attachedRenderer(this);
     }
   }
-
+  componentDidMount(): void {
+    this._mounted = true;
+  }
   componentDidUpdate(prevProps: P) {
     if (prevProps.item !== this.props.item) {
       if (this.props.item) {
@@ -77,7 +79,6 @@ export abstract class PureDataRenderer<P extends DataRendererProps<any>, S> exte
     this._rendering = true;
     let result = this.renderImpl();
     this._rendering = false;
-    this._mounted = true;
     return result;
   }
 

@@ -17,9 +17,10 @@ import './sample-blocks';
 import {Logger} from '../../src/core/util/Logger';
 import {NodeTreeItem} from '../../src/editor/node-tree/NodeRenderer';
 import {WorkerFunction} from '../../src/core/worker/WorkerFunction';
-import {BlockStagePanel} from '../../src/panel/BlockStagePanel';
+import {BlockStagePanel} from '../../src/panel/block/BlockStagePanel';
 import {TicloLayoutContext, TicloLayoutContextType} from '../../src/editor/component/LayoutContext';
 import {TrackedClientConn} from '../../src/core/connect/TrackedClientConn';
+import {BlockStageTab} from '../../src/panel/block/BlockStageTab';
 
 const layoutGroups = {
   blockStage: {
@@ -64,15 +65,10 @@ class App extends React.PureComponent<Props, State> implements TicloLayoutContex
   createBlockEditor(path: string, onSave?: () => void) {
     let {conn} = this.props;
     let trackedConn = new TrackedClientConn(conn);
+    let id = `blockEditor${this.count++}`;
     return {
-      id: `blockEditor${this.count++}`,
-
-      title: (
-        <span>
-          {path}
-          <div className='dock-tab-close-btn' />
-        </span>
-      ),
+      id,
+      title: onSave ? <BlockStageTab conn={trackedConn} id={id} title={path} onSave={onSave}/> : path,
       group: 'blockStage',
       content: <BlockStagePanel conn={trackedConn} basePath={path} onSelect={this.onSelect} onSave={onSave}/>
     };
@@ -127,8 +123,11 @@ class App extends React.PureComponent<Props, State> implements TicloLayoutContex
                 cached: true,
                 cacheContext: TicloLayoutContextType,
                 content: (
-                  <PropertyList conn={conn} keys={['example.add']}
-                                style={{width: '100%', height: '100%', padding: '8px'}}/>
+                  <PropertyList
+                    conn={conn}
+                    keys={['example.add']}
+                    style={{width: '100%', height: '100%', padding: '8px'}}
+                  />
                 )
               },
               {

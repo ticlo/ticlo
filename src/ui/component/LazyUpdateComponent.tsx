@@ -15,8 +15,11 @@ export abstract class LazyUpdateComponent<P extends LazyUpdateProps, S> extends 
     this._rendering = true;
     let result = this.renderImpl();
     this._rendering = false;
-    this._mounted = true;
     return result;
+  }
+
+  componentDidMount(): void {
+    this._mounted = true;
   }
 
   shouldComponentUpdate(nextProps: Readonly<P>, nextState: Readonly<S>): boolean {
