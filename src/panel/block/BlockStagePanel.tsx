@@ -7,11 +7,13 @@ import './BlockStagePanel.less';
 import {Button} from 'antd';
 import {Popup} from '../../editor/component/ClickPopup';
 import {ClientConn} from '../../core/connect/ClientConn';
+import {TrackedClientConn} from '../../core/connect/TrackedClientConn';
+import {BlockStageTab} from './BlockStageTab';
 
 interface Props {
   conn: ClientConn;
   basePath: string;
-  onSelect?: (keys: string[]) => void;
+  onSelect?: (keys: string[], handled: boolean) => void;
 }
 
 interface State {
@@ -23,12 +25,32 @@ interface State {
 export class BlockStagePanel extends React.PureComponent<Props, State> {
   state: State = {showPropertyList: true, selectedKeys: [], sizes: [1000, 1]};
 
+  static editorCount = 0;
+
+  static createDockTab(
+    path: string,
+    conn: ClientConn,
+    onSelect?: (keys: string[], handled: boolean) => void,
+    onSave?: () => void
+  ) {
+    let trackedConn = new TrackedClientConn(conn);
+    let id = `blockEditor${BlockStagePanel.editorCount++}`;
+    return {
+      id,
+      closable: !onSave,
+      title: onSave ? <BlockStageTab conn={trackedConn} id={id} title={path} onSave={onSave} /> : path,
+      group: 'blockStage',
+      content: <BlockStagePanel conn={trackedConn} basePath={path} onSelect={onSelect} />
+    };
+  }
+
   private _rootNode!: HTMLElement;
   private getRef = (node: HTMLDivElement): void => {
     this._rootNode = node;
   };
 
   onSelect = (keys: string[]) => {
+    let {onSelect} = this.props;
     let {showPropertyList, selectedKeys} = this.state;
     if (arrayEqual(keys, selectedKeys)) {
       return;
@@ -37,11 +59,8 @@ export class BlockStagePanel extends React.PureComponent<Props, State> {
     this.setState({selectedKeys: keys});
 
     // send selection to parent
-    if (!showPropertyList) {
-      let {onSelect} = this.props;
-      if (onSelect) {
-        onSelect(keys);
-      }
+    if (onSelect) {
+      onSelect(keys, showPropertyList);
     }
   };
 
@@ -74,9 +93,7 @@ export class BlockStagePanel extends React.PureComponent<Props, State> {
           onSelect={this.onSelect}
           style={{width: sizes[0], height: '100%'}}
         />
-        <div className="ticl-stage-header">
-          {basePath}
-        </div>
+        <div className="ticl-stage-header">{basePath}</div>
         {showPropertyList ? (
           <Divider key="divider" idx={1} getDividerData={this.getDividerData} changeSizes={this.changeSizes} />
         ) : null}

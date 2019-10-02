@@ -31,8 +31,8 @@ export class ValueDispatcher<T> implements Dispatcher<T> {
 
   listen(listener: Listener<T>) {
     this._listeners.add(listener);
-    // tslint:disable-next-line
-    listener.onSourceChange?.(this);
+
+    listener.onSourceChange(this);
     if (!this._updating) {
       // skip extra update if it's already in updating iteration
       listener.onChange(this._value);

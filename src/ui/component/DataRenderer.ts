@@ -84,6 +84,7 @@ export abstract class PureDataRenderer<P extends DataRendererProps<any>, S> exte
 
   abstract renderImpl(): React.ReactNode;
 
+  // @ts-ignore
   forceUpdate = () => {
     if (this._mounted && !this._rendering) {
       super.forceUpdate();

@@ -23,8 +23,6 @@ export class BlockStageTab extends LazyUpdateComponent<Props, State> {
     props.conn.changed.listen(this);
   }
 
-  onSourceChange(prop: Dispatcher<boolean>) {}
-
   onChange(val: boolean) {
     if (this._mounted) {
       this.forceUpdate();

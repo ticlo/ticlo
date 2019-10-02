@@ -22,6 +22,7 @@ import {TicloLayoutContext, TicloLayoutContextType} from '../../src/editor/compo
 import {TrackedClientConn} from '../../src/core/connect/TrackedClientConn';
 import {BlockStageTab} from '../../src/panel/block/BlockStageTab';
 import {Dispatcher, ValueDispatcher} from '../../src/core/block/Dispatcher';
+import {PropertyListPanel} from '../../src/panel/property/PropertyListPanel';
 
 const layoutGroups = {
   blockStage: {
@@ -34,8 +35,7 @@ interface Props {
   conn: ClientConnection;
 }
 
-interface State {
-}
+interface State {}
 
 WorkerFunction.registerType({'#is': ''}, {name: 'class1'}, 'WorkerEditor');
 
@@ -57,15 +57,14 @@ class App extends React.PureComponent<Props, State> implements TicloLayoutContex
   selectedKeys: Dispatcher<string[]> = new ValueDispatcher();
 
   onSelect = (keys: string[], handled: boolean) => {
-    if (!handled) {
-
-    }
-    this.setState({selectedKeys: keys});
+    // if (!handled) {
+    this.selectedKeys.updateValue(keys);
+    // }
   };
 
   createBlockEditorTab(path: string, onSave?: () => void) {
     let {conn} = this.props;
-    return BlockStagePanel.createDockTab(path, conn, null, onSave);
+    return BlockStagePanel.createDockTab(path, conn, this.onSelect, onSave);
   }
 
   editJob(path: string, onSave: () => void) {
@@ -115,13 +114,7 @@ class App extends React.PureComponent<Props, State> implements TicloLayoutContex
                 title: 'PropertyList',
                 cached: true,
                 cacheContext: TicloLayoutContextType,
-                content: (
-                  <PropertyList
-                    conn={conn}
-                    keys={['example.add']}
-                    style={{width: '100%', height: '100%', padding: '8px'}}
-                  />
-                )
+                content: <PropertyListPanel conn={conn} />
               },
               {
                 id: 'NavTree',
@@ -186,7 +179,7 @@ class App extends React.PureComponent<Props, State> implements TicloLayoutContex
 
   let [server, client] = makeLocalConnection(Root.instance);
 
-  ReactDOM.render(<App conn={client}/>, document.getElementById('app'));
+  ReactDOM.render(<App conn={client} />, document.getElementById('app'));
 })();
 
 (window as any).Logger = Logger;
