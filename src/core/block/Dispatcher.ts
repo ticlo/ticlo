@@ -1,7 +1,7 @@
 import {Event, ErrorEvent, EventType} from './Event';
 
 export interface Listener<T> {
-  onSourceChange(prop: Dispatcher<T>): void;
+  onSourceChange?(prop: Dispatcher<T>): void;
 
   onChange(val: T): void;
 }
@@ -31,7 +31,8 @@ export class ValueDispatcher<T> implements Dispatcher<T> {
 
   listen(listener: Listener<T>) {
     this._listeners.add(listener);
-    listener.onSourceChange(this);
+    // tslint:disable-next-line
+    listener.onSourceChange?.(this);
     if (!this._updating) {
       // skip extra update if it's already in updating iteration
       listener.onChange(this._value);

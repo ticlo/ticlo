@@ -21,6 +21,7 @@ import {BlockStagePanel} from '../../src/panel/block/BlockStagePanel';
 import {TicloLayoutContext, TicloLayoutContextType} from '../../src/editor/component/LayoutContext';
 import {TrackedClientConn} from '../../src/core/connect/TrackedClientConn';
 import {BlockStageTab} from '../../src/panel/block/BlockStageTab';
+import {Dispatcher, ValueDispatcher} from '../../src/core/block/Dispatcher';
 
 const layoutGroups = {
   blockStage: {
@@ -34,16 +35,13 @@ interface Props {
 }
 
 interface State {
-  selectedKeys: string[];
 }
 
-const SelectionContext = React.createContext<string[]>([]);
 WorkerFunction.registerType({'#is': ''}, {name: 'class1'}, 'WorkerEditor');
 
 class App extends React.PureComponent<Props, State> implements TicloLayoutContext {
   constructor(props: Props) {
     super(props);
-    this.state = {selectedKeys: ['example.add']};
   }
 
   forceUpdateLambda = () => this.forceUpdate();
@@ -56,27 +54,22 @@ class App extends React.PureComponent<Props, State> implements TicloLayoutContex
     this.layout = layout;
   };
 
-  onSelect = (keys: string[]) => {
+  selectedKeys: Dispatcher<string[]> = new ValueDispatcher();
+
+  onSelect = (keys: string[], handled: boolean) => {
+    if (!handled) {
+
+    }
     this.setState({selectedKeys: keys});
   };
 
-  count = 0;
-
-  createBlockEditor(path: string, onSave?: () => void) {
+  createBlockEditorTab(path: string, onSave?: () => void) {
     let {conn} = this.props;
-    let trackedConn = new TrackedClientConn(conn);
-    let id = `blockEditor${this.count++}`;
-    return {
-      id,
-      closable: !onSave,
-      title: onSave ? <BlockStageTab conn={trackedConn} id={id} title={path} onSave={onSave} /> : path,
-      group: 'blockStage',
-      content: <BlockStagePanel conn={trackedConn} basePath={path} onSelect={this.onSelect} onSave={onSave} />
-    };
+    return BlockStagePanel.createDockTab(path, conn, null, onSave);
   }
 
   editJob(path: string, onSave: () => void) {
-    this.layout.dockMove(this.createBlockEditor(path, onSave), this.layout.find('main'), 'middle');
+    this.layout.dockMove(this.createBlockEditorTab(path, onSave), this.layout.find('main'), 'middle');
   }
 
   onDragBlock = (e: DragState) => {
@@ -109,7 +102,6 @@ class App extends React.PureComponent<Props, State> implements TicloLayoutContex
 
   render() {
     let {conn} = this.props;
-    let {selectedKeys} = this.state;
 
     let layout: any = {
       dockbox: {
@@ -163,7 +155,7 @@ class App extends React.PureComponent<Props, State> implements TicloLayoutContex
           },
           {
             size: 800,
-            tabs: [this.createBlockEditor('example'), this.createBlockEditor('example')],
+            tabs: [this.createBlockEditorTab('example'), this.createBlockEditorTab('example')],
             id: 'main',
             panelLock: {panelStyle: 'main'}
           }
@@ -172,14 +164,12 @@ class App extends React.PureComponent<Props, State> implements TicloLayoutContex
     };
     return (
       <TicloLayoutContextType.Provider value={this}>
-        <SelectionContext.Provider value={selectedKeys}>
-          <DockLayout
-            defaultLayout={layout}
-            ref={this.getLayout}
-            groups={layoutGroups}
-            style={{position: 'absolute', left: 10, top: 10, right: 10, bottom: 10}}
-          />
-        </SelectionContext.Provider>
+        <DockLayout
+          defaultLayout={layout}
+          ref={this.getLayout}
+          groups={layoutGroups}
+          style={{position: 'absolute', left: 10, top: 10, right: 10, bottom: 10}}
+        />
       </TicloLayoutContextType.Provider>
     );
   }
@@ -196,7 +186,7 @@ class App extends React.PureComponent<Props, State> implements TicloLayoutContex
 
   let [server, client] = makeLocalConnection(Root.instance);
 
-  ReactDOM.render(<App conn={client} />, document.getElementById('app'));
+  ReactDOM.render(<App conn={client}/>, document.getElementById('app'));
 })();
 
 (window as any).Logger = Logger;
