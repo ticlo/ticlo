@@ -99,6 +99,7 @@ export class BlockStage extends BlockStageBase<StageState> {
   resizeObserver: any;
 
   componentDidMount() {
+    super.componentDidMount();
     this._scrollNode.addEventListener('scroll', this.handleScroll, {
       passive: true
     });
