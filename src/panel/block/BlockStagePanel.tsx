@@ -12,7 +12,6 @@ interface Props {
   conn: ClientConn;
   basePath: string;
   onSelect?: (keys: string[]) => void;
-  onSave?: () => void;
 }
 
 interface State {
@@ -63,7 +62,7 @@ export class BlockStagePanel extends React.PureComponent<Props, State> {
   };
 
   render() {
-    let {conn, basePath, onSave} = this.props;
+    let {conn, basePath} = this.props;
     let {showPropertyList, selectedKeys, sizes} = this.state;
 
     return (
@@ -76,9 +75,6 @@ export class BlockStagePanel extends React.PureComponent<Props, State> {
           style={{width: sizes[0], height: '100%'}}
         />
         <div className="ticl-stage-header">
-          {onSave ? (
-            <Button className="ticl-square-icon-btn" size="small" icon="cloud-upload" title="Save" onClick={onSave} />
-          ) : null}
           {basePath}
         </div>
         {showPropertyList ? (

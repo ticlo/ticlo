@@ -1,5 +1,6 @@
 import React from 'react';
 import {Button, Icon} from 'antd';
+import {DockContext, DockContextType} from 'rc-dock/lib';
 import {LazyUpdateComponent} from '../../ui/component/LazyUpdateComponent';
 import {TrackedClientConn} from '../../core/connect/TrackedClientConn';
 import {Dispatcher} from '../../core/block/Dispatcher';
@@ -14,6 +15,9 @@ interface Props {
 interface State {}
 
 export class BlockStageTab extends LazyUpdateComponent<Props, State> {
+  static contextType = DockContextType;
+  context!: DockContext;
+
   constructor(props: Props) {
     super(props);
     props.conn.changed.listen(this);
@@ -33,7 +37,10 @@ export class BlockStageTab extends LazyUpdateComponent<Props, State> {
     super.componentWillUnmount();
   }
 
-  onClose = () => {};
+  onClose = () => {
+    const {id} = this.props;
+    this.context.dockMove(this.context.find(id), null, 'remove');
+  };
   onSave = () => {
     const {conn, onSave} = this.props;
     onSave();

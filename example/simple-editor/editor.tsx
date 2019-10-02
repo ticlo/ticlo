@@ -68,9 +68,10 @@ class App extends React.PureComponent<Props, State> implements TicloLayoutContex
     let id = `blockEditor${this.count++}`;
     return {
       id,
-      title: onSave ? <BlockStageTab conn={trackedConn} id={id} title={path} onSave={onSave}/> : path,
+      closable: !onSave,
+      title: onSave ? <BlockStageTab conn={trackedConn} id={id} title={path} onSave={onSave} /> : path,
       group: 'blockStage',
-      content: <BlockStagePanel conn={trackedConn} basePath={path} onSelect={this.onSelect} onSave={onSave}/>
+      content: <BlockStagePanel conn={trackedConn} basePath={path} onSelect={this.onSelect} onSave={onSave} />
     };
   }
 
@@ -195,7 +196,7 @@ class App extends React.PureComponent<Props, State> implements TicloLayoutContex
 
   let [server, client] = makeLocalConnection(Root.instance);
 
-  ReactDOM.render(<App conn={client}/>, document.getElementById('app'));
+  ReactDOM.render(<App conn={client} />, document.getElementById('app'));
 })();
 
 (window as any).Logger = Logger;
