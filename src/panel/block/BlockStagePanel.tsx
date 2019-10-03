@@ -35,10 +35,11 @@ export class BlockStagePanel extends React.PureComponent<Props, State> {
   ) {
     let trackedConn = new TrackedClientConn(conn);
     let id = `blockEditor${BlockStagePanel.editorCount++}`;
+    let tabName = path.split('.').pop();
     return {
       id,
       closable: !onSave,
-      title: onSave ? <BlockStageTab conn={trackedConn} id={id} title={path} onSave={onSave} /> : path,
+      title: onSave ? <BlockStageTab conn={trackedConn} id={id} title={tabName} onSave={onSave} /> : tabName,
       group: 'blockStage',
       content: <BlockStagePanel conn={trackedConn} basePath={path} onSelect={onSelect} />
     };
