@@ -1,5 +1,5 @@
 import {assert} from 'chai';
-import {encode, decode} from '../Serialize';
+import {encode, decode, encodeDisplay} from '../Serialize';
 import moment from 'moment';
 
 describe('Serialize', function() {
@@ -9,5 +9,11 @@ describe('Serialize', function() {
     let time = moment.parseZone(iso8601);
     assert.isTrue(time.isSame(decode(str)));
     assert.equal(encode(time), str);
+  });
+
+  it('encodeDisplay', function() {
+    assert.equal(encodeDisplay(NaN), 'NaN');
+    assert.equal(encodeDisplay(undefined), 'undefined');
+    assert.equal(encodeDisplay(-Infinity), '-Inf');
   });
 });

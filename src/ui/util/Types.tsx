@@ -1,5 +1,6 @@
 import {TRUNCATED} from '../../core/util/Types';
 import React from 'react';
+import {encodeDisplay} from '../../core/util/Serialize';
 
 // display value in screen, avoid huge data in dmo to improve performance
 export function displayValue(val: any, element: HTMLElement) {
@@ -13,7 +14,7 @@ export function displayValue(val: any, element: HTMLElement) {
       element.classList.add('ticl-string-value');
       return;
     case 'object':
-      element.innerText = JSON.stringify(val);
+      element.innerText = encodeDisplay(val);
       break;
     case 'number':
       element.innerText = displayNumber(val);

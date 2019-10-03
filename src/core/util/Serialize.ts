@@ -24,3 +24,13 @@ export function encodeSorted(value: any): string {
 export function decode(str: string): any {
   return encoder.parse(str);
 }
+
+const displayRegex = /"\\u001b(\w+:)?([^"]*)"/g;
+
+function replaceDisplay(str: string, g1: string, g2: string) {
+  return g2 || 'undefined';
+}
+
+export function encodeDisplay(value: any): string {
+  return encoder.stringify(value).replace(displayRegex, replaceDisplay);
+}

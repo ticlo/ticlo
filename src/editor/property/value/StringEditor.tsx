@@ -1,6 +1,7 @@
 import React from 'react';
 import {Input} from 'antd';
 import {StringEditorBase} from './StringEditorBase';
+import {encodeDisplay} from '../../../core/util/Serialize';
 
 const {TextArea} = Input;
 
@@ -11,6 +12,10 @@ export class StringEditor extends StringEditorBase {
       value = this._pendingValue;
     } else if (locked) {
       onChange = null;
+    }
+    if (typeof value === 'object') {
+      // encode object
+      value = encodeDisplay(value);
     }
     return (
       <TextArea
