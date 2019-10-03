@@ -29,6 +29,8 @@ export class BlockStageTab extends LazyUpdateComponent<Props, State> {
     }
   }
 
+  onSourceChange(source: any): void {}
+
   componentWillUnmount(): void {
     let {conn} = this.props;
     conn.changed.unlisten(this);
