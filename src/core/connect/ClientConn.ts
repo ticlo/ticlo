@@ -8,6 +8,8 @@ import {DataMap} from '../util/Types';
  */
 
 export interface ClientConn {
+  getBaseConn(): ClientConn;
+
   callImmediate(f: () => void): void;
 
   lockImmediate(source: any): void;

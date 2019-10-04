@@ -7,6 +7,9 @@ describe('TrackedClientConn', function() {
     let tracked = new TrackedClientConn(dummyInterface as any);
     assert.isFalse(tracked.isChanged());
 
+    tracked.getBaseConn();
+    assert.isFalse(tracked.isChanged());
+
     tracked.callImmediate(null);
     assert.isFalse(tracked.isChanged());
 

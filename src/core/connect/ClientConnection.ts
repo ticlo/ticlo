@@ -54,6 +54,9 @@ export abstract class ClientConnection extends Connection implements ClientConn 
       this.watch('#global', this.globalWatch);
     }
   }
+  getBaseConn() {
+    return this;
+  }
 
   onData(response: DataMap) {
     if (typeof response.id === 'string' && this.requests.has(response.id)) {

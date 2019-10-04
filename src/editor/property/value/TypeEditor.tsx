@@ -39,7 +39,7 @@ export class TypeEditor extends StringEditorBase {
 
   onDragOver = (e: DragState) => {
     let {conn} = this.props;
-    let blockData = DragState.getData('block', conn);
+    let blockData = DragState.getData('block', conn.getBaseConn());
 
     if (blockData && blockData.hasOwnProperty('#is')) {
       e.accept('');
@@ -48,7 +48,7 @@ export class TypeEditor extends StringEditorBase {
 
   onDrop = (e: DragState) => {
     let {conn} = this.props;
-    let blockData = DragState.getData('block', conn);
+    let blockData = DragState.getData('block', conn.getBaseConn());
 
     if (blockData && blockData.hasOwnProperty('#is')) {
       this.commitChange(blockData['#is']);

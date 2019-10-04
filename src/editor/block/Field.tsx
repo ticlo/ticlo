@@ -163,7 +163,9 @@ export class FieldItem extends DataRendererItem<ValueRenderer> {
   getConn() {
     return this.block.conn;
   }
-
+  getBaseConn() {
+    return this.block.conn.getBaseConn();
+  }
   cache: any = {};
   listener = {
     onUpdate: (response: ValueUpdate) => {
@@ -260,7 +262,7 @@ export class BlockHeaderView extends PureDataRenderer<BlockHeaderProps, any> {
   onDragOver = (e: DragState) => {
     let {item} = this.props;
     if (e.dragType !== 'right') {
-      let fields: string[] = DragState.getData('fields', item.getConn());
+      let fields: string[] = DragState.getData('fields', item.getBaseConn());
       if (Array.isArray(fields)) {
         if (!item.desc.readonly && fields.length === 1 && fields[0] !== item.key) {
           e.accept('tico-fas-play');
@@ -272,7 +274,7 @@ export class BlockHeaderView extends PureDataRenderer<BlockHeaderProps, any> {
   onDrop = (event: DragState) => {
     let {item} = this.props;
     if (event.dragType !== 'right') {
-      let fields: string[] = DragState.getData('fields', item.getConn());
+      let fields: string[] = DragState.getData('fields', item.getBaseConn());
       if (Array.isArray(fields) && fields.length === 1 && fields[0] !== item.key) {
         item.getConn().setBinding(item.key, fields[0], true);
       }
@@ -346,9 +348,9 @@ export class FieldView extends PureDataRenderer<FieldViewProps, any> {
   onDragStart = (e: DragState) => {
     let {item} = this.props;
     if (e.dragType === 'right') {
-      e.setData({moveShownField: item.name, block: item.block}, item.getConn());
+      e.setData({moveShownField: item.name, block: item.block}, item.getBaseConn());
     } else {
-      e.setData({fields: [item.key]}, item.getConn());
+      e.setData({fields: [item.key]}, item.getBaseConn());
     }
 
     e.startDrag();
@@ -356,14 +358,14 @@ export class FieldView extends PureDataRenderer<FieldViewProps, any> {
   onDragOver = (e: DragState) => {
     let {item} = this.props;
     if (e.dragType === 'right') {
-      let moveShownField = DragState.getData('moveShownField', item.getConn());
-      let block = DragState.getData('block', item.getConn());
+      let moveShownField = DragState.getData('moveShownField', item.getBaseConn());
+      let block = DragState.getData('block', item.getBaseConn());
       if (block === item.block && moveShownField !== item.name) {
         e.accept('tico-fas-exchange-alt');
         return;
       }
     } else {
-      let fields: string[] = DragState.getData('fields', item.getConn());
+      let fields: string[] = DragState.getData('fields', item.getBaseConn());
       if (Array.isArray(fields)) {
         if (!item.desc.readonly && fields.length === 1 && fields[0] !== item.key) {
           e.accept('tico-fas-link');
@@ -377,13 +379,13 @@ export class FieldView extends PureDataRenderer<FieldViewProps, any> {
   onDrop = (event: DragState) => {
     let {item} = this.props;
     if (event.dragType === 'right') {
-      let moveShownField = DragState.getData('moveShownField', item.getConn());
-      let block = DragState.getData('block', item.getConn());
+      let moveShownField = DragState.getData('moveShownField', item.getBaseConn());
+      let block = DragState.getData('block', item.getBaseConn());
       if (block === item.block) {
         item.getConn().moveShownProp(block.key, moveShownField, item.name);
       }
     } else {
-      let fields: string[] = DragState.getData('fields', item.getConn());
+      let fields: string[] = DragState.getData('fields', item.getBaseConn());
       if (Array.isArray(fields) && fields.length === 1 && fields[0] !== item.key) {
         item.getConn().setBinding(item.key, fields[0], true);
       }

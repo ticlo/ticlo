@@ -4,7 +4,7 @@ import {Modal, Input, Icon} from 'antd';
 import {DragState} from 'rc-dock/lib';
 
 export function onDragBlockOver(conn: ClientConn, e: DragState) {
-  let blockData = DragState.getData('blockData', conn);
+  let blockData = DragState.getData('blockData', conn.getBaseConn());
 
   if (blockData && blockData.hasOwnProperty('#is')) {
     e.accept('tico-fas-plus');
@@ -14,7 +14,7 @@ export function onDragBlockOver(conn: ClientConn, e: DragState) {
 type CreateBlockCallback = (name: string, data: {[key: string]: any}) => void;
 
 export function onDropBlock(conn: ClientConn, e: DragState, createBlock: CreateBlockCallback, bgElement: HTMLElement) {
-  let blockData = DragState.getData('blockData', conn);
+  let blockData = DragState.getData('blockData', conn.getBaseConn());
   if (blockData && blockData.hasOwnProperty('#is')) {
     let rect = bgElement.getBoundingClientRect();
     let scaleX = bgElement.offsetWidth / Math.round(rect.width);
@@ -22,7 +22,7 @@ export function onDropBlock(conn: ClientConn, e: DragState, createBlock: CreateB
     let offsetX = (e.clientX - rect.left) * scaleX;
     let offsetY = (e.clientY - rect.top) * scaleY;
 
-    let blockName = DragState.getData('blockName', conn) || blockData['#is'];
+    let blockName = DragState.getData('blockName', conn.getBaseConn()) || blockData['#is'];
 
     let onConfirmedBlockName = (name: string) => {
       let width = 150;

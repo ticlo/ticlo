@@ -10,6 +10,10 @@ export class TrackedClientConn implements ClientConn {
 
   readonly changed = new ValueDispatcher<boolean>();
 
+  getBaseConn() {
+    return this._base.getBaseConn();
+  }
+
   constructor(base: ClientConn) {
     this._base = base;
     this.changed._value = false;

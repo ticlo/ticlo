@@ -4,21 +4,14 @@ import {ClientConn, ValueState, ValueUpdate} from '../../core/client';
 import {blankPropDesc, FunctionDesc, getDefaultFuncData, PropDesc, PropGroupDesc} from '../../core/block/Descriptor';
 import {translateProperty} from '../../core/util/i18n';
 import {MultiSelectComponent, MultiSelectLoader} from './MultiSelectComponent';
-import {GroupEditor} from './GroupEditor';
-import {NumberEditor} from './value/NumberEditor';
 import {StringEditor} from './value/StringEditor';
-import {ToggleEditor} from './value/ToggleEditor';
 import {SelectEditor} from './value/SelectEditor';
-import {ColorEditor} from './value/ColorEditor';
-import {DateEditor} from './value/DateEditor';
-import {DateRangeEditor} from './value/DateRangeEditor';
 import {RadioButtonEditor} from './value/RadioButtonEditor';
 import {DragDropDiv, DragState} from 'rc-dock';
 import {PasswordEditor} from './value/PasswordEditor';
 import {ExpandIcon} from '../../ui/component/Tree';
 import {PropertyList} from './PropertyList';
 import {arrayEqual, deepEqual} from '../../core/util/Compare';
-import {ClickParam} from 'antd/lib/menu';
 import {stopPropagation} from '../../core/util/Functions';
 import {TypeEditor} from './value/TypeEditor';
 import {TypeSelect} from '../type-selector/TypeSelector';
@@ -187,10 +180,10 @@ export class PropertyEditor extends MultiSelectComponent<Props, State, PropertyL
         data.moveGroupIndex = getTailingNumber(name);
       }
 
-      e.setData(data, conn);
+      e.setData(data, conn.getBaseConn());
     } else {
       let fields = keys.map((s) => `${s}.${name}`);
-      e.setData({fields}, conn);
+      e.setData({fields}, conn.getBaseConn());
     }
 
     e.startDrag();
@@ -198,14 +191,14 @@ export class PropertyEditor extends MultiSelectComponent<Props, State, PropertyL
   onDragOver = (e: DragState) => {
     let {conn, keys, name, propDesc, isMore, group, baseName} = this.props;
     if (e.dragType === 'right') {
-      let moveFromKeys: string[] = DragState.getData('keys', conn);
+      let moveFromKeys: string[] = DragState.getData('keys', conn.getBaseConn());
       if (deepEqual(moveFromKeys, keys)) {
         let isLen = group != null && name.endsWith('#len');
-        let fromGroup = DragState.getData('fromGroup', conn);
+        let fromGroup = DragState.getData('fromGroup', conn.getBaseConn());
         if (isMore) {
           // move more property
-          let moveFromKeys: string[] = DragState.getData('keys', conn);
-          let moveMoreField: string = DragState.getData('moveMoreField', conn);
+          let moveFromKeys: string[] = DragState.getData('keys', conn.getBaseConn());
+          let moveMoreField: string = DragState.getData('moveMoreField', conn.getBaseConn());
 
           if (moveMoreField != null) {
             let moveToField = baseName != null ? baseName : name;
@@ -223,7 +216,7 @@ export class PropertyEditor extends MultiSelectComponent<Props, State, PropertyL
         }
         if (group != null && !isLen && group === fromGroup) {
           // move group index
-          let moveGroupIndex = DragState.getData('moveGroupIndex', conn);
+          let moveGroupIndex = DragState.getData('moveGroupIndex', conn.getBaseConn());
           let currentGroupIndex = getTailingNumber(name);
           if (moveGroupIndex !== currentGroupIndex) {
             e.accept('tico-fas-random');
@@ -232,7 +225,7 @@ export class PropertyEditor extends MultiSelectComponent<Props, State, PropertyL
         }
       }
     } else {
-      let dragFields: string[] = DragState.getData('fields', conn);
+      let dragFields: string[] = DragState.getData('fields', conn.getBaseConn());
       if (Array.isArray(dragFields)) {
         if (!propDesc.readonly && (dragFields.length === 1 || dragFields.length === keys.length)) {
           let fields = keys.map((s) => `${s}.${name}`);
@@ -249,12 +242,12 @@ export class PropertyEditor extends MultiSelectComponent<Props, State, PropertyL
     let {conn, keys, name, isMore, group, baseName} = this.props;
     if (e.dragType === 'right') {
       let isLen = group != null && name.endsWith('#len');
-      let fromGroup = DragState.getData('fromGroup', conn);
-      let moveFromKeys: string[] = DragState.getData('keys', conn);
+      let fromGroup = DragState.getData('fromGroup', conn.getBaseConn());
+      let moveFromKeys: string[] = DragState.getData('keys', conn.getBaseConn());
       if (deepEqual(moveFromKeys, keys)) {
         if (isMore) {
           // move more property
-          let moveMoreField: string = DragState.getData('moveMoreField', conn);
+          let moveMoreField: string = DragState.getData('moveMoreField', conn.getBaseConn());
 
           let moveToField = baseName != null ? baseName : name;
           if (isLen) {
@@ -272,7 +265,7 @@ export class PropertyEditor extends MultiSelectComponent<Props, State, PropertyL
         }
         if (group != null && !isLen && group === fromGroup) {
           // move group index
-          let moveGroupIndex = DragState.getData('moveGroupIndex', conn);
+          let moveGroupIndex = DragState.getData('moveGroupIndex', conn.getBaseConn());
           let currentGroupIndex = getTailingNumber(name);
           for (let key of keys) {
             conn.moveGroupProp(key, fromGroup, moveGroupIndex, currentGroupIndex);
@@ -280,7 +273,7 @@ export class PropertyEditor extends MultiSelectComponent<Props, State, PropertyL
         }
       }
     } else {
-      let dragFields: string[] = DragState.getData('fields', conn);
+      let dragFields: string[] = DragState.getData('fields', conn.getBaseConn());
       if (Array.isArray(dragFields)) {
         let fields = keys.map((s) => `${s}.${name}`);
         if (dragFields.length === 1) {
