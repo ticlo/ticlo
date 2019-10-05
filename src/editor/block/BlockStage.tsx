@@ -111,7 +111,7 @@ export class BlockStage extends BlockStageBase<StageState> {
   _popupCount = 0;
 
   static findOpenPopups() {
-    return document.querySelectorAll('body>div>div>div.ant-select-dropdown:not(.ant-select-dropdown-hidden)');
+    return document.querySelectorAll('body>div:not([id])>div>div.ant-select-dropdown:not(.ant-select-dropdown-hidden):not(.slide-up-leave)');
   }
 
   onSelectRectDragStart = (e: DragState) => {
