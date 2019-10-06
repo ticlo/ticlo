@@ -3,6 +3,7 @@ import {Job, Root} from '../../block/Block';
 import {TestFunctionRunner, TestAsyncFunctionPromise} from '../../block/spec/TestFunction';
 import '../../functions/basic/math/Arithmetic';
 import '../MapFunction';
+import {shouldHappen} from '../../util/test-util';
 
 describe('MapFunction Thread', function() {
   beforeEach(() => {
@@ -106,6 +107,54 @@ describe('MapFunction Thread', function() {
     Root.run();
     let output = await bBlock.waitValue('output');
     assert.deepEqual(output, data);
+
+    // delete job;
+    job.deleteValue('b');
+  });
+
+  it('change use', async function() {
+    let job = new Job();
+
+    job.setValue('a', {
+      v1: 1,
+      v2: 2,
+      v3: 3
+    });
+
+    let bBlock = job.createBlock('b');
+
+    bBlock._load({
+      '#is': 'map',
+      'thread': 1,
+      'reuseWorker': 'reuse',
+      '~input': '##.a',
+      'use': {
+        '#is': {
+          '#is': '',
+          'runner': {'#is': 'test-runner', '#mode': 'onLoad', '#-log': 0},
+          'add': {'#is': 'add', '~0': '##.#input', '1': 1},
+          '#output': {'#is': '', '~#value': '##.add.output'}
+        }
+      }
+    });
+
+    Root.run();
+
+    let output = await bBlock.waitValue('output');
+    assert.deepEqual(output, {v1: 2, v2: 3, v3: 4});
+
+    bBlock.setValue('use', {
+      '#is': '',
+      'runner': {'#is': 'test-runner', '#mode': 'onLoad', '#-log': 0},
+      'add': {'#is': 'add', '~0': '##.#input', '1': 2},
+      '#output': {'#is': '', '~#value': '##.add.output'}
+    });
+
+    Root.run();
+    await shouldHappen(() => bBlock.getValue('output') !== output);
+    assert.deepEqual(bBlock.getValue('output'), {v1: 3, v2: 4, v3: 5});
+
+    assert.lengthOf(TestFunctionRunner.popLogs(), 2);
 
     // delete job;
     job.deleteValue('b');

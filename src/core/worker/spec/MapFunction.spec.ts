@@ -92,6 +92,53 @@ describe('MapFunction Basic', function() {
     job.deleteValue('b');
   });
 
+
+  it('change use', function() {
+    let job = new Job();
+
+    job.setValue('a', {
+      v1: 1,
+      v2: 2,
+      v3: 3
+    });
+
+    let bBlock = job.createBlock('b');
+
+    bBlock._load({
+      '#is': 'map',
+      'reuseWorker': 'reuse',
+      '~input': '##.a',
+      'use': {
+        '#is': {
+          '#is': '',
+          'runner': {'#is': 'test-runner', '#mode': 'onLoad', '#-log': 0},
+          'add': {'#is': 'add', '~0': '##.#input', '1': 1},
+          '#output': {'#is': '', '~#value': '##.add.output'}
+        }
+      }
+    });
+
+    Root.run();
+
+    assert.deepEqual(bBlock.getValue('output'), {v1: 2, v2: 3, v3: 4});
+
+    bBlock.setValue('use', {
+      '#is': '',
+      'runner': {'#is': 'test-runner', '#mode': 'onLoad', '#-log': 0},
+      'add': {'#is': 'add', '~0': '##.#input', '1': 2},
+      '#output': {'#is': '', '~#value': '##.add.output'}
+    });
+
+    Root.run();
+
+    assert.deepEqual(bBlock.getValue('output'), {v1: 3, v2: 4, v3: 5});
+
+    assert.lengthOf(TestFunctionRunner.popLogs(), 6);
+
+    // delete job;
+    job.deleteValue('b');
+  });
+
   it('reuse worker', function() {
     let job = new Job();
 

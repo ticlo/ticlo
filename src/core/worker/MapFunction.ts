@@ -179,7 +179,7 @@ export class MapFunction extends BlockFunction implements MapImpl {
       this._srcChanged = false;
       if (!this._pendingInput) {
         // when source changed, redo the mapping on current input
-        this._onInputChange(this._data.getValue('#input'));
+        this._onInputChange(this._data.getValue('input'));
       }
     } else if (this._timeoutChanged) {
       this._updateWorkerTimeout(this._timeout);
