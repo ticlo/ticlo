@@ -78,6 +78,39 @@ describe('MapFunction Thread', function() {
     job.deleteValue('b');
   });
 
+  it('input object', async function() {
+    let job = new Job();
+
+    const data = {
+      v1: {v: 1},
+      v2: {v: 2},
+      v3: {v: 3}
+    };
+
+    job.setValue('a', data);
+
+    let bBlock = job.createBlock('b');
+
+    bBlock._load({
+      '#is': 'map',
+      'thread': 1,
+      '~input': '##.a',
+      'use': {
+        '#is': {
+          '#is': '',
+          '#output': {'#is': '', '~v': '##.#input.v'}
+        }
+      }
+    });
+
+    Root.run();
+    let output = await bBlock.waitValue('output');
+    assert.deepEqual(output, data);
+
+    // delete job;
+    job.deleteValue('b');
+  });
+
   it('async worker', async function() {
     let job = new Job();
 

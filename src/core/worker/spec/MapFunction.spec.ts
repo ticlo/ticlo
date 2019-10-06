@@ -60,6 +60,38 @@ describe('MapFunction Basic', function() {
     job.deleteValue('b');
   });
 
+  it('input object', function() {
+    let job = new Job();
+
+    const data = {
+      v1: {v: 1},
+      v2: {v: 2},
+      v3: {v: 3}
+    };
+
+    job.setValue('a', data);
+
+    let bBlock = job.createBlock('b');
+
+    bBlock._load({
+      '#is': 'map',
+      '~input': '##.a',
+      'use': {
+        '#is': {
+          '#is': '',
+          '#output': {'#is': '', '~v': '##.#input.v'}
+        }
+      }
+    });
+
+    Root.run();
+
+    assert.deepEqual(bBlock.getValue('output'), data);
+
+    // delete job;
+    job.deleteValue('b');
+  });
+
   it('reuse worker', function() {
     let job = new Job();
 
