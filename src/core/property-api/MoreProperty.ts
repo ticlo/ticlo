@@ -2,6 +2,7 @@ import {PropDesc, PropGroupDesc} from '../block/Descriptor';
 import {Block} from '../block/Block';
 import {deepClone} from '../util/Clone';
 import {endsWithNumberReg} from '../util/String';
+import {hideGroupProperties, hideProperties} from './PropertyShowHide';
 
 export function addMoreProperty(block: Block, desc: PropDesc | PropGroupDesc, group?: string) {
   let propDesc: PropDesc;
@@ -83,16 +84,22 @@ export function removeMoreProperty(block: Block, name: string, group?: string) {
   if (group) {
     let groupIdx = moreProps.findIndex((g: PropGroupDesc) => g.name === group && g.type === 'group');
     if (groupIdx > -1) {
+      let groupDesc: PropGroupDesc = moreProps[groupIdx];
       if (name) {
-        let groupDesc: PropGroupDesc = moreProps[groupIdx];
         let groupChildIdx = groupDesc.properties.findIndex((p: PropDesc) => p.name === name);
         if (groupChildIdx > -1) {
           groupDesc.properties.splice(groupChildIdx, 1);
           block.setValue('#more', moreProps);
+          hideGroupProperties(block, [name]);
         }
       } else {
+        let propertiesToRemove: string[] = [];
+        for (let p of groupDesc.properties) {
+          propertiesToRemove.push(p.name);
+        }
         moreProps.splice(groupIdx, 1);
         block.setValue('#more', moreProps);
+        hideGroupProperties(block, propertiesToRemove);
       }
     }
   } else if (name) {
@@ -100,6 +107,7 @@ export function removeMoreProperty(block: Block, name: string, group?: string) {
     if (propIndex > -1) {
       moreProps.splice(propIndex, 1);
       block.setValue('#more', moreProps);
+      hideProperties(block, [name]);
     }
   }
 }

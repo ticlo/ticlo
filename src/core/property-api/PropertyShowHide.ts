@@ -131,21 +131,24 @@ export function hideProperties(block: Block, fields: string[]) {
   }
 }
 
-export function hideGroupProperty(block: Block, field: string) {
+export function hideGroupProperties(block: Block, fields: string[]) {
   let bp = block.getValue('@b-p');
   if (!Array.isArray(bp)) {
     return;
   }
   let blockProps: string[] = [...bp];
   let changeNeeded = false;
-  for (let i = 0; i < blockProps.length; ++i) {
-    let prop = blockProps[i];
-    if (getPreNumber(prop) === field) {
-      blockProps.splice(i, 1);
-      --i;
-      changeNeeded = true;
+  for (let field of fields) {
+    for (let i = 0; i < blockProps.length; ++i) {
+      let prop = blockProps[i];
+      if (getPreNumber(prop) === field) {
+        blockProps.splice(i, 1);
+        --i;
+        changeNeeded = true;
+      }
     }
   }
+
   if (changeNeeded) {
     if (blockProps.length === 0) {
       block.deleteValue('@b-p');
