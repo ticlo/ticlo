@@ -2,9 +2,9 @@ import {PropDesc, PropGroupDesc} from '../block/Descriptor';
 import {Block} from '../block/Block';
 import {deepClone} from '../util/Clone';
 import {endsWithNumberReg} from '../util/String';
-import {hideGroupProperties, hideProperties} from './PropertyShowHide';
+import {hideGroupProperties, hideProperties, showGroupProperties, showProperties} from './PropertyShowHide';
 
-export function addMoreProperty(block: Block, desc: PropDesc | PropGroupDesc, group?: string) {
+export function addMoreProperty(block: Block, desc: PropDesc | PropGroupDesc, group?: string, show = false) {
   let propDesc: PropDesc;
   let groupDesc: PropGroupDesc;
   if (desc.type === 'group') {
@@ -30,9 +30,17 @@ export function addMoreProperty(block: Block, desc: PropDesc | PropGroupDesc, gr
   let moreProps = block.getValue('#more');
 
   if (!Array.isArray(moreProps)) {
-    if (groupDesc || !group) {
-      // if it's not a child property in a group
+    // if it's not a child property in a group
+    if (groupDesc) {
       block.setValue('#more', [desc]);
+      if (show) {
+        showGroupProperties(block, groupDesc);
+      }
+    } else if (group == null) {
+      block.setValue('#more', [desc]);
+      if (show) {
+        showProperties(block, [desc.name]);
+      }
     }
     return;
   }
@@ -43,9 +51,13 @@ export function addMoreProperty(block: Block, desc: PropDesc | PropGroupDesc, gr
     let groupIdx = moreProps.findIndex((g: PropGroupDesc) => g.name === group);
     if (groupIdx > -1) {
       if (groupDesc) {
+        hideGroupProperties(block, moreProps[groupIdx]);
         // replace existing group
         moreProps[groupIdx] = groupDesc;
         block.setValue('#more', moreProps);
+        if (show) {
+          showGroupProperties(block, groupDesc);
+        }
       } else {
         // add property to existing group
         groupDesc = moreProps[groupIdx];
@@ -54,6 +66,9 @@ export function addMoreProperty(block: Block, desc: PropDesc | PropGroupDesc, gr
           groupDesc.properties[groupChildIdx] = propDesc;
         } else {
           groupDesc.properties.push(propDesc);
+          if (show) {
+            showGroupProperties(block, groupDesc, propDesc.name);
+          }
         }
         block.setValue('#more', moreProps);
       }
@@ -61,6 +76,9 @@ export function addMoreProperty(block: Block, desc: PropDesc | PropGroupDesc, gr
       // add a new group
       moreProps.push(groupDesc);
       block.setValue('#more', moreProps);
+      if (show) {
+        showGroupProperties(block, groupDesc);
+      }
     }
   } else {
     let propIndex = moreProps.findIndex((g: PropDesc) => g.name === propDesc.name);
@@ -68,6 +86,9 @@ export function addMoreProperty(block: Block, desc: PropDesc | PropGroupDesc, gr
       moreProps[propIndex] = propDesc;
     } else {
       moreProps.push(propDesc);
+      if (show) {
+        showProperties(block, [desc.name]);
+      }
     }
     block.setValue('#more', moreProps);
   }
@@ -90,16 +111,12 @@ export function removeMoreProperty(block: Block, name: string, group?: string) {
         if (groupChildIdx > -1) {
           groupDesc.properties.splice(groupChildIdx, 1);
           block.setValue('#more', moreProps);
-          hideGroupProperties(block, [name]);
+          hideGroupProperties(block, groupDesc, name);
         }
       } else {
-        let propertiesToRemove: string[] = [];
-        for (let p of groupDesc.properties) {
-          propertiesToRemove.push(p.name);
-        }
         moreProps.splice(groupIdx, 1);
         block.setValue('#more', moreProps);
-        hideGroupProperties(block, propertiesToRemove);
+        hideGroupProperties(block, groupDesc);
       }
     }
   } else if (name) {

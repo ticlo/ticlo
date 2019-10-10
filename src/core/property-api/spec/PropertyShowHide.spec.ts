@@ -1,6 +1,6 @@
 import {assert} from 'chai';
 
-import {Job} from '../../main';
+import {Job, PropDesc, PropGroupDesc} from '../../main';
 import {showProperties, hideProperties, moveShownProperty, hideGroupProperties} from '../PropertyShowHide';
 
 describe('PropertyOrder', function() {
@@ -43,17 +43,28 @@ describe('PropertyOrder', function() {
   });
 
   it('hideGroupProperties', function() {
+    let descG: PropGroupDesc = {
+      name: 'g',
+      type: 'group',
+      defaultLen: 2,
+      properties: [{name: 'a', type: 'string'}]
+    };
+
     let job = new Job();
 
-    hideGroupProperties(job, ['a']);
+    hideGroupProperties(job, descG);
+    hideGroupProperties(job, descG, 'a');
     assert.isUndefined(job.getValue('@b-p'));
 
     job.load({
       '#is': 'add',
-      '@b-p': ['a', 'a1', 'b', 'a02']
+      '@b-p': ['a', 'a1', 'b', 'a02', 'b0']
     });
 
-    hideGroupProperties(job, ['a']);
+    hideGroupProperties(job, descG, 'b');
+    assert.deepEqual(job.getValue('@b-p'), ['a', 'a1', 'b', 'a02']);
+
+    hideGroupProperties(job, descG);
     assert.deepEqual(job.getValue('@b-p'), ['a', 'b']);
   });
 

@@ -108,6 +108,30 @@ export function showProperties(block: Block, fields: string[]) {
   block.setValue('@b-p', blockProps);
 }
 
+export function showGroupProperties(block: Block, desc: PropGroupDesc, field?: string) {
+  if (desc.type !== 'group') {
+    return;
+  }
+  let lenField = `${desc.name}#len`;
+  let groupLength = Number(block.getValue(lenField));
+  if (!(groupLength >= 0)) {
+    groupLength = desc.defaultLen;
+  }
+  let fields: string[] = [];
+  if (field != null) {
+    for (let i = 0; i < groupLength; ++i) {
+      fields.push(`${field}${i}`);
+    }
+  } else {
+    for (let prop of desc.properties) {
+      for (let i = 0; i < groupLength; ++i) {
+        fields.push(`${prop.name}${i}`);
+      }
+    }
+  }
+  showProperties(block, fields);
+}
+
 export function hideProperties(block: Block, fields: string[]) {
   let bp = block.getValue('@b-p');
   if (!Array.isArray(bp)) {
@@ -131,14 +155,27 @@ export function hideProperties(block: Block, fields: string[]) {
   }
 }
 
-export function hideGroupProperties(block: Block, fields: string[]) {
+export function hideGroupProperties(block: Block, desc: PropGroupDesc, field?: string) {
+  if (desc.type !== 'group') {
+    return;
+  }
   let bp = block.getValue('@b-p');
   if (!Array.isArray(bp)) {
     return;
   }
+
+  let fieldsToRemove = [];
+  if (field != null) {
+    fieldsToRemove.push(field);
+  } else {
+    for (let prop of desc.properties) {
+      fieldsToRemove.push(prop.name);
+    }
+  }
+
   let blockProps: string[] = [...bp];
   let changeNeeded = false;
-  for (let field of fields) {
+  for (let field of fieldsToRemove) {
     for (let i = 0; i < blockProps.length; ++i) {
       let prop = blockProps[i];
       if (getPreNumber(prop) === field) {
