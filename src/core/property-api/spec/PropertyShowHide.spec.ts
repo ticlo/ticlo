@@ -1,7 +1,7 @@
 import {assert} from 'chai';
 
 import {Job} from '../../main';
-import {showProperties, hideProperties, moveShownProperty} from '../PropertyShowHide';
+import {showProperties, hideProperties, moveShownProperty, hideGroupProperty} from '../PropertyShowHide';
 
 describe('PropertyOrder', function() {
   it('show hide Property', function() {
@@ -40,6 +40,17 @@ describe('PropertyOrder', function() {
 
     hideProperties(job, ['aa', '1', '@a', '@b']);
     assert.deepEqual(job.getValue('@b-p'), ['#is', '#call', '0', 'bb', '5']);
+  });
+
+  it('hideGroupProperty', function() {
+    let job = new Job();
+    job.load({
+      '#is': 'add',
+      '@b-p': ['a', 'a1', 'b', 'a02']
+    });
+
+    hideGroupProperty(job, 'a');
+    assert.deepEqual(job.getValue('@b-p'), ['a', 'b']);
   });
 
   it('moveShownProperty', function() {

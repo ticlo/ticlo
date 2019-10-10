@@ -92,7 +92,6 @@ describe('MapFunction Basic', function() {
     job.deleteValue('b');
   });
 
-
   it('change use', function() {
     let job = new Job();
 

@@ -2,6 +2,7 @@ import {Block} from '../block/Block';
 import {configDescs, PropDesc, PropGroupDesc, shouldShowProperty} from '../block/Descriptor';
 import {Types} from '../block/Type';
 import {HelperProperty} from '../block/BlockProperty';
+import {getPreNumber} from '../util/String';
 
 const configList = Object.keys(configDescs);
 
@@ -118,6 +119,30 @@ export function hideProperties(block: Block, fields: string[]) {
     let idx = blockProps.indexOf(field);
     if (idx > -1) {
       blockProps.splice(idx, 1);
+      changeNeeded = true;
+    }
+  }
+  if (changeNeeded) {
+    if (blockProps.length === 0) {
+      block.deleteValue('@b-p');
+    } else {
+      block.setValue('@b-p', blockProps);
+    }
+  }
+}
+
+export function hideGroupProperty(block: Block, field: string) {
+  let bp = block.getValue('@b-p');
+  if (!Array.isArray(bp)) {
+    return;
+  }
+  let blockProps: string[] = [...bp];
+  let changeNeeded = false;
+  for (let i = 0; i < blockProps.length; ++i) {
+    let prop = blockProps[i];
+    if (getPreNumber(prop) === field) {
+      blockProps.splice(i, 1);
+      --i;
       changeNeeded = true;
     }
   }

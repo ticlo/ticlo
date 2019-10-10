@@ -87,6 +87,14 @@ export function getTailingNumber(str: string): number {
   return -1;
 }
 
+export function getPreNumber(str: string): string {
+  let numbers = str.match(trailingNumbers);
+  if (numbers) {
+    return str.substring(0, str.length - numbers[0].length);
+  }
+  return null;
+}
+
 const colorPattern = /^#[a-fA-F0-9]{3,8}|rgba?\([\d ,.]{5,}\)$/;
 
 export function isColorStr(str: string) {

@@ -1,5 +1,5 @@
 import {assert} from 'chai';
-import {getTailingNumber, isColorStr, smartStrCompare} from '../String';
+import {getPreNumber, getTailingNumber, isColorStr, smartStrCompare} from '../String';
 
 describe('String', function() {
   it('smartStrCompare', () => {
@@ -40,9 +40,15 @@ describe('String', function() {
   });
 
   it('getTailingNumber', function() {
-    assert.equal(getTailingNumber('a1'), 1);
+    assert.equal(getTailingNumber('1'), 1);
     assert.equal(getTailingNumber('a02'), 2);
     assert.equal(getTailingNumber('a'), -1);
+  });
+
+  it('getPreNumber', function() {
+    assert.equal(getPreNumber('1'), '');
+    assert.equal(getPreNumber('a02'), 'a');
+    assert.equal(getPreNumber('a'), null);
   });
 
   it('isColor', function() {
