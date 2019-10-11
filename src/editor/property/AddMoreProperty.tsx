@@ -1,7 +1,11 @@
 import React, {ChangeEvent} from 'react';
-import {Button, Input, Select, Form, Switch, InputNumber} from 'antd';
+import {Button, Input, Select, Form, Switch, InputNumber, Radio} from 'antd';
+import {RadioChangeEvent} from 'antd/lib/radio';
 import {PropDesc, PropGroupDesc, ValueType, VisibleType} from '../../core/block/Descriptor';
 import {endsWithNumberReg} from '../../core/util/String';
+
+const RadioButton = Radio.Button;
+const RadioGroup = Radio.Group;
 
 const FormItem = Form.Item;
 const {Option} = Select;
@@ -38,6 +42,8 @@ interface State {
 
   // date, date-range
   showTime?: boolean;
+
+  visible?: VisibleType;
 
   nameErr?: string;
   defaultLenErr?: string;
@@ -100,9 +106,13 @@ export class AddMorePropertyMenu extends React.PureComponent<Props, State> {
     this.setState({showTime: value});
   };
 
+  onVisible = (e: RadioChangeEvent) => {
+    this.setState({visible: e.target.value});
+  };
+
   onSubmit = (e: React.FormEvent<HTMLElement>) => {
     let {onAddProperty, group} = this.props;
-    let {name, type, defaultLen, placeholder, min, max, step, optionStr, showAlpha, showTime} = this.state;
+    let {name, type, defaultLen, placeholder, min, max, step, optionStr, showAlpha, showTime, visible} = this.state;
     e.preventDefault();
 
     let result: PropDesc | PropGroupDesc;
@@ -139,6 +149,9 @@ export class AddMorePropertyMenu extends React.PureComponent<Props, State> {
       result = {name, type: 'group', defaultLen};
     } else {
       result = {name, type};
+      if (visible) {
+        result.visible = visible;
+      }
       switch (type) {
         case 'number': {
           if (min != null) {
@@ -229,6 +242,7 @@ export class AddMorePropertyMenu extends React.PureComponent<Props, State> {
       optionStr,
       showAlpha,
       showTime,
+      visible,
       nameErr,
       defaultLenErr,
       minErr,
@@ -298,6 +312,21 @@ export class AddMorePropertyMenu extends React.PureComponent<Props, State> {
         {type === 'string' || type === 'number' ? (
           <FormItem label="Place Holder">
             <Input value={placeholder} size="small" onChange={this.onPlaceHolder} />
+          </FormItem>
+        ) : null}
+        {type !== 'group' ? (
+          <FormItem label="Visible">
+            <RadioGroup size="small" buttonStyle="solid" value={visible} onChange={this.onVisible}>
+              <RadioButton key="high" value="high">
+                High
+              </RadioButton>
+              <RadioButton key="default" value={undefined}>
+                Default
+              </RadioButton>
+              <RadioButton key="low" value="low">
+                Low
+              </RadioButton>
+            </RadioGroup>
           </FormItem>
         ) : null}
         <Form.Item wrapperCol={{span: 15, offset: 9}}>

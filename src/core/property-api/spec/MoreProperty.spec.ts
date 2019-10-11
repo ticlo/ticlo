@@ -8,7 +8,7 @@ describe('More Property', function() {
   let descA: PropDesc = {name: 'a', type: 'string'};
   let descB: PropDesc = {name: 'b', type: 'number'};
   let descBNumber: PropDesc = {name: 'b0', type: 'number'};
-  let descA2: PropDesc = {name: 'a', type: 'number'};
+  let descA2: PropDesc = {name: 'a', type: 'number', visible: 'low'};
   let descC: PropDesc = {name: 'c', type: 'toggle'};
   let descBlank: PropDesc = {name: '', type: 'string'};
   let descG: PropGroupDesc = {
@@ -37,18 +37,18 @@ describe('More Property', function() {
     assert.isUndefined(job.getValue('#more'));
 
     // add invalid desc
-    addMoreProperty(job, descBlank);
+    addMoreProperty(job, {...descBlank, visible: 'low'});
     assert.isUndefined(job.getValue('#more'));
 
     // add property into group that doesn't exist
     addMoreProperty(job, descA, 'g');
     assert.isUndefined(job.getValue('#more'));
 
-    addMoreProperty(job, descA, null, true);
+    addMoreProperty(job, descA);
     assert.deepEqual(job.getValue('#more'), [descA]);
     assert.deepEqual(job.getValue('@b-p'), ['a']);
 
-    addMoreProperty(job, descB, null, true);
+    addMoreProperty(job, descB);
     assert.deepEqual(job.getValue('#more'), [descA, descB]);
     assert.deepEqual(job.getValue('@b-p'), ['a', 'b']);
 
@@ -60,34 +60,34 @@ describe('More Property', function() {
     addMoreProperty(job, descA, 'g');
     assert.deepEqual(job.getValue('#more'), [descA2, descB]);
 
-    addMoreProperty(job, descG, null, true);
+    addMoreProperty(job, descG);
     assert.deepEqual(job.getValue('#more'), [descA2, descB, descG]);
     assert.deepEqual(job.getValue('@b-p'), ['a', 'b']);
 
     // add property into group
-    addMoreProperty(job, descA, 'g');
-    assert.deepEqual(job.getValue('#more'), [descA2, descB, {...descG, properties: [descA]}]);
+    addMoreProperty(job, descA2, 'g');
+    assert.deepEqual(job.getValue('#more'), [descA2, descB, {...descG, properties: [descA2]}]);
     assert.deepEqual(job.getValue('@b-p'), ['a', 'b']);
 
     // cant add property name ends with number into a group
     addMoreProperty(job, descBNumber, 'g');
-    assert.deepEqual(job.getValue('#more'), [descA2, descB, {...descG, properties: [descA]}]);
+    assert.deepEqual(job.getValue('#more'), [descA2, descB, {...descG, properties: [descA2]}]);
 
     // add property with blank name into group
-    addMoreProperty(job, descBlank, 'g', true);
-    assert.deepEqual(job.getValue('#more'), [descA2, descB, {...descG, properties: [descA, descBlank]}]);
+    addMoreProperty(job, descBlank, 'g');
+    assert.deepEqual(job.getValue('#more'), [descA2, descB, {...descG, properties: [descA2, descBlank]}]);
     assert.deepEqual(job.getValue('@b-p'), ['a', 'b', '0']);
 
     // replace property in group
-    addMoreProperty(job, descA2, 'g');
-    assert.deepEqual(job.getValue('#more'), [descA2, descB, {...descG, properties: [descA2, descBlank]}]);
+    addMoreProperty(job, descA, 'g');
+    assert.deepEqual(job.getValue('#more'), [descA2, descB, {...descG, properties: [descA, descBlank]}]);
 
     // replace the group
     addMoreProperty(job, descG2);
     assert.deepEqual(job.getValue('#more'), [descA2, descB, descG2Fix]);
     assert.deepEqual(job.getValue('@b-p'), ['a', 'b']);
 
-    addMoreProperty(job, descA, 'g', true);
+    addMoreProperty(job, descA, 'g');
     assert.deepEqual(job.getValue('#more'), [descA2, descB, {...descG2Fix, properties: [descA]}]);
     assert.deepEqual(job.getValue('@b-p'), ['a', 'b', 'a0', 'a1']);
 
