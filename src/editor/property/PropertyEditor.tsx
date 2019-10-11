@@ -512,13 +512,15 @@ export class PropertyEditor extends MultiSelectComponent<Props, State, PropertyL
   };
 
   onRemoveMore = () => {
-    let {conn, keys, name, group} = this.props;
+    let {conn, keys, name, baseName, group} = this.props;
+    let removeField = baseName != null ? baseName : name;
     if (group != null && name === `${group}#len`) {
       name = null;
     }
     for (let key of keys) {
-      conn.removeMoreProp(key, name, group);
+      conn.removeMoreProp(key, removeField, group);
     }
+    this.setState({showMenu: false});
   };
 
   renderImpl() {
