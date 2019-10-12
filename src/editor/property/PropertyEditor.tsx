@@ -638,9 +638,7 @@ export class PropertyEditor extends MultiSelectComponent<Props, State, PropertyL
               tabIndex={-1}
               icon={unlocked ? 'edit' : 'lock'}
               onDoubleClick={this.unlock}
-            >
-              {' '}
-            </Button>
+            />
           </Tooltip>
         ) : null}
         {subBlock ? <ExpandIcon opened={showSubBlock ? 'opened' : 'closed'} onClick={this.expandSubBlock} /> : null}

@@ -4,7 +4,7 @@ import {Divider} from 'rc-dock/lib';
 import {arrayEqual} from '../../core/util/Compare';
 
 import './BlockStagePanel.less';
-import {Button} from 'antd';
+import {Button, Tooltip} from 'antd';
 import {Popup} from '../../editor/component/ClickPopup';
 import {ClientConn} from '../../core/connect/ClientConn';
 import {TrackedClientConn} from '../../core/connect/TrackedClientConn';
@@ -48,6 +48,11 @@ export class BlockStagePanel extends React.PureComponent<Props, State> {
   private _rootNode!: HTMLElement;
   private getRef = (node: HTMLDivElement): void => {
     this._rootNode = node;
+  };
+
+  onShowPropertyList = () => {
+    const {showPropertyList} = this.state;
+    this.setState({showPropertyList: !showPropertyList});
   };
 
   onSelect = (keys: string[]) => {
@@ -96,11 +101,18 @@ export class BlockStagePanel extends React.PureComponent<Props, State> {
         />
         <div className="ticl-stage-header">{basePath}</div>
         {showPropertyList ? (
-          <Divider key="divider" idx={1} getDividerData={this.getDividerData} changeSizes={this.changeSizes} />
+          <>
+            <Divider key="divider" idx={1} getDividerData={this.getDividerData} changeSizes={this.changeSizes} />
+            <PropertyList conn={conn} keys={selectedKeys} style={{width: sizes[1], height: '100%', padding: '8px'}} />
+          </>
         ) : null}
-        {showPropertyList ? (
-          <PropertyList conn={conn} keys={selectedKeys} style={{width: sizes[1], height: '100%', padding: '8px'}} />
-        ) : null}
+        <Button
+          className="ticl-icon-btn"
+          shape="circle"
+          tabIndex={-1}
+          icon={showPropertyList ? 'close-square' : 'profile'}
+          onClick={this.onShowPropertyList}
+        />
       </div>
     );
   }

@@ -57,9 +57,9 @@ class App extends React.PureComponent<Props, State> implements TicloLayoutContex
   selectedKeys: Dispatcher<string[]> = new ValueDispatcher();
 
   onSelect = (keys: string[], handled: boolean) => {
-    // if (!handled) {
-    this.selectedKeys.updateValue(keys);
-    // }
+    if (!handled) {
+      this.selectedKeys.updateValue(keys);
+    }
   };
 
   createBlockEditorTab(path: string, onSave?: () => void) {
