@@ -3,7 +3,7 @@ import {Job, Root} from '../../block/Block';
 import {WorkerFunction} from '../WorkerFunction';
 import {TestFunctionRunner} from '../../block/spec/TestFunction';
 import '../../functions/basic/math/Arithmetic';
-import {DataMap} from '../../util/Types';
+import {DataMap} from '../../util/DataTypes';
 
 describe('WorkerFunction', function() {
   it('basic', function() {

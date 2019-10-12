@@ -1,7 +1,7 @@
 import {ServerConnection} from './ServerConnection';
 import {ClientConnection} from './ClientConnection';
 import {Root} from '../block/Block';
-import {DataMap} from '../util/Types';
+import {DataMap} from '../util/DataTypes';
 import {Logger} from '../util/Logger';
 
 class LocalServerConnection extends ServerConnection {

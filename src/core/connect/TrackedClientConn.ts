@@ -3,7 +3,7 @@ import {ValueDispatcher} from '../block/Dispatcher';
 import {FunctionDesc, PropDesc, PropGroupDesc} from '../block/Descriptor';
 import {ClientCallbacks, ClientDescListener, SubscribeCallbacks} from './ClientRequests';
 
-import {DataMap} from '../util/Types';
+import {DataMap} from '../util/DataTypes';
 
 export class TrackedClientConn implements ClientConn {
   _base: ClientConn;

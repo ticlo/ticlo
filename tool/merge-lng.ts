@@ -1,6 +1,6 @@
 import * as fs from 'fs';
 import * as glob from 'glob';
-import {DataMap} from '../src/core/util/Types';
+import {DataMap} from '../src/core/util/DataTypes';
 
 function mergeData(to: DataMap, from: DataMap) {
   for (let key in from) {

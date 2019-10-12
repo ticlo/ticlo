@@ -4,7 +4,7 @@ import {FunctionData, FunctionClass, BaseFunction, FunctionOutput} from './Block
 import {Dispatcher, Listener, ValueDispatcher, ListenPromise, Destroyable, BlockBindingSource} from './Dispatcher';
 import {Type, Types} from './Type';
 import {ErrorEvent, Event, EventType, NOT_READY} from './Event';
-import {DataMap} from '../util/Types';
+import {DataMap} from '../util/DataTypes';
 import {Uid} from '../util/Uid';
 import {voidProperty} from './Void';
 import {Resolver} from './Resolver';

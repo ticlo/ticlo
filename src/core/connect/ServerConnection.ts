@@ -6,7 +6,7 @@ import {
   BlockPropertySubscriber,
   HelperProperty
 } from '../block/BlockProperty';
-import {DataMap, isSavedBlock, measureObjSize, truncateData} from '../util/Types';
+import {DataMap, isSavedBlock, measureObjSize, truncateData} from '../util/DataTypes';
 import {Root, Block, BlockChildWatch} from '../block/Block';
 import {BlockBindingSource, Dispatcher, Listener, ValueDispatcher} from '../block/Dispatcher';
 import {Type, Types, DescListener} from '../block/Type';

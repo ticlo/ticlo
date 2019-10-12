@@ -8,6 +8,20 @@ export interface DataMap {
 
 export const TRUNCATED = '·∙·'; // '\u00b7\u2219\u00b7'
 
+export function isPrimitiveType(val: any) {
+  if (val == null) {
+    return true;
+  }
+  switch (typeof val) {
+    case 'number':
+    case 'string':
+    case 'boolean':
+      return true;
+    default:
+      return false;
+  }
+}
+
 export function isSavedBlock(val: any): boolean {
   return Object.isExtensible(val) && (val.hasOwnProperty('#is') || val.hasOwnProperty('~#is'));
 }

@@ -193,6 +193,8 @@ export class NumberEditor extends React.PureComponent<ValueEditorProps, any> {
     }
     if (value === undefined) {
       value = '';
+    } else if (value !== value) {
+      value = 'NaN';
     }
     let disabled = onChange == null;
     return (

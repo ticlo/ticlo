@@ -1,7 +1,7 @@
 import {FunctionDesc, PropDesc, PropGroupDesc} from '../block/Descriptor';
 import {ClientCallbacks, ClientDescListener, SubscribeCallbacks} from './ClientRequests';
 
-import {DataMap} from '../util/Types';
+import {DataMap} from '../util/DataTypes';
 
 /**
  * interface for ClientConnect and its wrappers

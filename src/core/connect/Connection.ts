@@ -1,4 +1,4 @@
-import {DataMap} from '../util/Types';
+import {DataMap} from '../util/DataTypes';
 import {Logger} from '../util/Logger';
 
 export class ConnectionSendingData {

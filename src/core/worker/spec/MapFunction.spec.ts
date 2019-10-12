@@ -3,7 +3,7 @@ import {Job, Root} from '../../block/Block';
 import {TestFunctionRunner, TestAsyncFunctionPromise} from '../../block/spec/TestFunction';
 import '../../functions/basic/math/Arithmetic';
 import '../MapFunction';
-import {DataMap} from '../../util/Types';
+import {DataMap} from '../../util/DataTypes';
 import {ErrorEvent} from '../../block/Event';
 import {shouldTimeout} from '../../util/test-util';
 

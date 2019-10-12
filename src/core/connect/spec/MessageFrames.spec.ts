@@ -7,7 +7,7 @@ import {FunctionDesc} from '../../block/Descriptor';
 import {shouldHappen} from '../../util/test-util';
 import {JsFunction} from '../../functions/script/Js';
 import {Types} from '../../block/Type';
-import {DataMap} from '../../util/Types';
+import {DataMap} from '../../util/DataTypes';
 import {PureFunction} from '../../block/BlockFunction';
 import {addTestTypes, removeTestTypes} from './BulkTypes';
 

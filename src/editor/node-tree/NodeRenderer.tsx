@@ -3,7 +3,7 @@ import React from 'react';
 import {Dropdown, Button, Input, Icon, Menu, InputNumber} from 'antd';
 import {ExpandIcon, ExpandState, TreeItem} from '../../ui/component/Tree';
 import {PureDataRenderer} from '../../ui/component/DataRenderer';
-import {DataMap} from '../../core/util/Types';
+import {DataMap} from '../../core/util/DataTypes';
 import {ClientConn, ValueUpdate} from '../../core/client';
 import {TIcon} from '../icon/Icon';
 import {blankFuncDesc, FunctionDesc, getFuncStyleFromDesc} from '../../core/block/Descriptor';

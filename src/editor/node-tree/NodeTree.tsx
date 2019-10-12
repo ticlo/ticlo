@@ -2,7 +2,7 @@ import React from 'react';
 import {ExpandState} from '../../ui/component/Tree';
 import VirtualList from '../../ui/component/Virtual';
 import {ClientConn} from '../../core/client';
-import {DataMap} from '../../core/util/Types';
+import {DataMap} from '../../core/util/DataTypes';
 import {NodeTreeItem, NodeTreeRenderer} from './NodeRenderer';
 
 interface Props {

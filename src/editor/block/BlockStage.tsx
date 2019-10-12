@@ -1,6 +1,6 @@
 import React, {CSSProperties, KeyboardEvent} from 'react';
 import {ClientConn} from '../../core/client';
-import {DataMap} from '../../core/util/Types';
+import {DataMap} from '../../core/util/DataTypes';
 import {BlockView} from './Block';
 import {WireItem, WireView} from './Wire';
 import {DragDropDiv, DragState} from 'rc-dock';

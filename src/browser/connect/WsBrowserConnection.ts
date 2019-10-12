@@ -1,5 +1,5 @@
 import {ClientConnection} from '../../core/connect/ClientConnection';
-import {DataMap} from '../../core/util/Types';
+import {DataMap} from '../../core/util/DataTypes';
 import {Logger} from '../../core/util/Logger';
 import {decode, encode} from '../../core/util/Serialize';
 

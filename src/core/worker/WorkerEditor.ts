@@ -1,5 +1,5 @@
 import {Block, BlockChildWatch, Job} from '../block/Block';
-import {DataMap} from '../util/Types';
+import {DataMap} from '../util/DataTypes';
 import {buildPropDescCache, findPropDesc, FunctionDesc, PropDesc, PropGroupDesc} from '../block/Descriptor';
 import {Types} from '../block/Type';
 import {WorkerFunction} from './WorkerFunction';

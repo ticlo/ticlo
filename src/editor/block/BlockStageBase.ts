@@ -1,6 +1,6 @@
 import React from 'react';
 import {ClientConn} from '../../core/client';
-import {DataMap} from '../../core/util/Types';
+import {DataMap} from '../../core/util/DataTypes';
 import {DragState} from 'rc-dock';
 import {BlockItem, FieldItem, Stage} from './Field';
 import {forAllPathsBetween} from '../../core/util/Path';

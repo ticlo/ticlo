@@ -3,7 +3,7 @@ import {BlockFunction, FunctionData} from '../block/BlockFunction';
 import {FunctionDesc} from '../block/Descriptor';
 import {BlockIO} from '../block/BlockProperty';
 import {Block, BlockChildWatch, Job} from '../block/Block';
-import {DataMap, isSavedBlock} from '../util/Types';
+import {DataMap, isSavedBlock} from '../util/DataTypes';
 import {Event, EventType} from '../block/Event';
 import {MapImpl} from './MapImpl';
 

@@ -1,6 +1,6 @@
 import React from 'react';
 import {ClientConn, ValueUpdate} from '../../core/client';
-import {DataMap} from '../../core/util/Types';
+import {DataMap} from '../../core/util/DataTypes';
 import {
   blankFuncDesc,
   configDescs,

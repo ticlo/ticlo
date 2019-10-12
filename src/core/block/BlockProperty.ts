@@ -1,6 +1,6 @@
 import {ValueDispatcher, Listener, Dispatcher, Destroyable, BlockBindingSource} from './Dispatcher';
 import {Block} from './Block';
-import {isSavedBlock} from '../util/Types';
+import {isSavedBlock} from '../util/DataTypes';
 
 export interface BlockPropertyEvent {
   error?: string;

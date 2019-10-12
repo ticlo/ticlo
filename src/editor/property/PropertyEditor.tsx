@@ -298,7 +298,7 @@ export class PropertyEditor extends MultiSelectComponent<Props, State, PropertyL
     for (let [key, subscriber] of this.loaders) {
       conn.addMoreProp(key, desc, group);
     }
-    this.setState({showMenu: false});
+    this.closeMenu();
   };
 
   mergePropertyState(): PropertyState {
@@ -500,7 +500,7 @@ export class PropertyEditor extends MultiSelectComponent<Props, State, PropertyL
     for (let key of keys) {
       conn.insertGroupProp(key, group, index);
     }
-    this.setState({showMenu: false});
+    this.closeMenu();
   };
   onDeleteIndex = () => {
     let {conn, keys, name, group} = this.props;
@@ -508,7 +508,7 @@ export class PropertyEditor extends MultiSelectComponent<Props, State, PropertyL
     for (let key of keys) {
       conn.removeGroupProp(key, group, index);
     }
-    this.setState({showMenu: false});
+    this.closeMenu();
   };
 
   onRemoveMore = () => {
@@ -520,7 +520,7 @@ export class PropertyEditor extends MultiSelectComponent<Props, State, PropertyL
     for (let key of keys) {
       conn.removeMoreProp(key, removeField, group);
     }
-    this.setState({showMenu: false});
+    this.closeMenu();
   };
 
   renderImpl() {

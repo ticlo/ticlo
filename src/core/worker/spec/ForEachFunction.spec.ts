@@ -3,7 +3,7 @@ import {Job, Root} from '../../block/Block';
 import {TestFunctionRunner} from '../../block/spec/TestFunction';
 import '../../functions/basic/math/Arithmetic';
 import '../ForEachFunction';
-import {DataMap} from '../../util/Types';
+import {DataMap} from '../../util/DataTypes';
 
 describe('ForEachFunction', function() {
   it('chain block', function() {

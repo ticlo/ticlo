@@ -2,7 +2,7 @@ import {assert} from 'chai';
 import {Root} from '../../block/Block';
 import {makeLocalConnection} from '../LocalConnection';
 import {AddFunction} from '../../functions/basic/math/Arithmetic';
-import {DataMap} from '../../util/Types';
+import {DataMap} from '../../util/DataTypes';
 import {AsyncClientPromise} from './AsyncClientPromise';
 import {shouldReject} from '../../util/test-util';
 

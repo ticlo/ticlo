@@ -1,5 +1,5 @@
 import React from 'react';
-import {DataMap} from '../../core/util/Types';
+import {DataMap} from '../../core/util/DataTypes';
 import {ClientConn} from '../../core/connect/ClientConn';
 
 export abstract class DataRendererItem<T = any> {

@@ -1,6 +1,6 @@
 import React, {ReactNode} from 'react';
 import {ClientConn, ValueUpdate, blankFuncDesc, getFuncStyleFromDesc, FunctionDesc} from '../../core/client';
-import {DataMap} from '../../core/util/Types';
+import {DataMap} from '../../core/util/DataTypes';
 import {PureDataRenderer} from '../../ui/component/DataRenderer';
 import {TIcon} from '../icon/Icon';
 import {BaseBlockItem, BlockItem, Stage, XYWRenderer} from './Field';

@@ -2,7 +2,7 @@ import {assert} from 'chai';
 import {relative, resolve, forAllPathsBetween, propRelative} from '../Path';
 import {WorkerFunction} from '../../worker/WorkerFunction';
 import {Root} from '../../block/Block';
-import {DataMap} from '../Types';
+import {DataMap} from '../DataTypes';
 
 describe('Path', function() {
   it('resolve', function() {

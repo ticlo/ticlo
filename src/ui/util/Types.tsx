@@ -1,4 +1,4 @@
-import {TRUNCATED} from '../../core/util/Types';
+import {TRUNCATED} from '../../core/util/DataTypes';
 import React from 'react';
 import {encodeDisplay} from '../../core/util/Serialize';
 

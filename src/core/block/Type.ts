@@ -4,7 +4,7 @@ import {ValueDispatcher} from './Dispatcher';
 import {FunctionDesc} from './Descriptor';
 import JSON = Mocha.reporters.JSON;
 import JsonEsc from 'jsonesc/dist';
-import {DataMap} from '../util/Types';
+import {DataMap} from '../util/DataTypes';
 
 export interface DescListener {
   onDescChange(id: string, desc: FunctionDesc): void;

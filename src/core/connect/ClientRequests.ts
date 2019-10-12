@@ -1,4 +1,4 @@
-import {DataMap, measureObjSize} from '../util/Types';
+import {DataMap, measureObjSize} from '../util/DataTypes';
 import {ConnectionSend} from './Connection';
 import {FunctionDesc} from '../block/Descriptor';
 import {ClientConnection} from './ClientConnection';

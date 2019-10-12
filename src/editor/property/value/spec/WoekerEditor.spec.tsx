@@ -8,7 +8,7 @@ import {shouldHappen} from '../../../../core/util/test-util';
 import {blankPropDesc, PropDesc} from '../../../../core/block/Descriptor';
 import {makeLocalConnection} from '../../../../core/connect/LocalConnection';
 import {Root} from '../../../../core/block/Block';
-import {DataMap} from '../../../../core/util/Types';
+import {DataMap} from '../../../../core/util/DataTypes';
 import {WorkerFunction} from '../../../../core/worker/WorkerFunction';
 import {Types} from '../../../../core/block/Type';
 

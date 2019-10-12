@@ -1,6 +1,6 @@
 import {assert} from 'chai';
 import {Job, Root, Block} from '../Block';
-import {DataMap} from '../../util/Types';
+import {DataMap} from '../../util/DataTypes';
 import {WorkerFunction} from '../../worker/WorkerFunction';
 
 describe('GlobalProperty', function() {

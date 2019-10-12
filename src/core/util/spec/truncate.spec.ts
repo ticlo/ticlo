@@ -1,5 +1,5 @@
 import {assert} from 'chai';
-import {truncateData, measureObjSize, TRUNCATED, DataMap, isDataTruncated} from '../Types';
+import {truncateData, measureObjSize, TRUNCATED, DataMap, isDataTruncated} from '../DataTypes';
 
 describe('truncateData', function() {
   let longstr = '1234567890';

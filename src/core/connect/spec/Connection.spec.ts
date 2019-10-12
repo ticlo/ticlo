@@ -8,7 +8,7 @@ import {FunctionDesc} from '../../block/Descriptor';
 import {shouldHappen} from '../../util/test-util';
 import {JsFunction} from '../../functions/script/Js';
 import {Types} from '../../block/Type';
-import {DataMap, isDataTruncated} from '../../util/Types';
+import {DataMap, isDataTruncated} from '../../util/DataTypes';
 import {WorkerFunction} from '../../worker/WorkerFunction';
 import {WorkerEditor} from '../../worker/WorkerEditor';
 

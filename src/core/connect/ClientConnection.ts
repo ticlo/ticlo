@@ -1,6 +1,6 @@
 import {Connection, ConnectionSend} from './Connection';
 import {Uid} from '../util/Uid';
-import {DataMap, isSavedBlock, measureObjSize} from '../util/Types';
+import {DataMap, isSavedBlock, measureObjSize} from '../util/DataTypes';
 import {Block} from '../block/Block';
 import {FunctionDesc, PropDesc, PropGroupDesc} from '../block/Descriptor';
 import {deepEqual} from '../util/Compare';

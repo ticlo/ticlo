@@ -1,5 +1,5 @@
 import {BlockFunction, FunctionData} from '../block/BlockFunction';
-import {DataMap, isSavedBlock} from '../util/Types';
+import {DataMap, isSavedBlock} from '../util/DataTypes';
 import {Block} from '../block/Block';
 
 export type MapWorkerMode = undefined | 'reuse' | 'persist';

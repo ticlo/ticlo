@@ -3,7 +3,7 @@ import {BlockFunction, FunctionData} from '../block/BlockFunction';
 import {FunctionDesc} from '../block/Descriptor';
 import {BlockIO} from '../block/BlockProperty';
 import {Block, Job} from '../block/Block';
-import {DataMap} from '../util/Types';
+import {DataMap} from '../util/DataTypes';
 
 export class WorkerFunction extends BlockFunction {
   readonly type: string;
