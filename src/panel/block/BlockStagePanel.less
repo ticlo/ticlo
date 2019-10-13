@@ -42,10 +42,24 @@
     padding: 0 4px;
   }
 
-  & > .ticl-icon-btn {
+  & > .ticl-square-icon-btn {
     position: absolute;
-    top: 6px;
+    height: 18px;
+    width: 18px;
+    min-width: 18px;
+    line-height: 17px;
+    padding-left: 1px;
+    top: -2px;
     right: -2px;
+    border-radius: 0 0 0 8px;
+
+    /* show property list icon should be smaller*/
+    &:nth-child(3) {
+      right: -12px;
+      &:hover {
+        right: -2px;
+      }
+    }
   }
 }
 

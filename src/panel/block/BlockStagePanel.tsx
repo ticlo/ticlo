@@ -107,10 +107,11 @@ export class BlockStagePanel extends React.PureComponent<Props, State> {
           </>
         ) : null}
         <Button
-          className="ticl-icon-btn"
+          className="ticl-square-icon-btn"
+          size='small'
           shape="circle"
           tabIndex={-1}
-          icon={showPropertyList ? 'close-square' : 'profile'}
+          icon={showPropertyList ? 'close' : 'unordered-list'}
           onClick={this.onShowPropertyList}
         />
       </div>
