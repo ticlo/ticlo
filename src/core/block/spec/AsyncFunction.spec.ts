@@ -86,7 +86,7 @@ for (let typeName of ['async-function-promise', 'async-function-manual']) {
 
       block2.updateValue('#call', {});
       assert.notEqual(block2.getValue('#wait'), undefined, 'is waiting after called');
-      assert.notEqual(block3.getValue('#wait'), undefined, '#wait is chained');
+      assert.equal(block3.getValue('#wait'), undefined, '#wait of next block is not affected');
 
       let block2EmitPromise = block2.waitNextValue('#emit');
       // #emit need to have binding before next line, otherwise it wont emit

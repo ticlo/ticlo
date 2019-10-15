@@ -549,8 +549,7 @@ export class Block implements Runnable, FunctionData, Listener<FunctionClass>, D
   _onCall(val: any): void {
     if (this._mode !== 'disabled') {
       if (val === NOT_READY) {
-        // pass NOT_READY
-        this.emit(NOT_READY);
+        // ignore NOT_READY
       } else {
         switch (Event.check(val)) {
           case EventType.TRIGGER: {
