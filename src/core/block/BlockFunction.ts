@@ -40,9 +40,12 @@ export class BaseFunction {
     // to be overridden
   }
 
-  // cancel any async operation
-  cancel(reason: EventType = EventType.TRIGGER): void {
-    // to be overridden
+  /**
+   *  cancel any async operation
+   *  return false when function shouldn't be canceled
+   */
+  cancel(reason: EventType = EventType.TRIGGER, mode: BlockMode = 'auto'): boolean {
+    return true;
   }
 
   blockCommand(command: string, params: {[key: string]: any}): void {
@@ -79,10 +82,12 @@ export class BlockFunction implements BaseFunction {
     // to be overridden
   }
 
-  // cancel any async operation
-  // explicitly will be true when #cancel is triggered
-  cancel(reason: EventType = EventType.TRIGGER): void {
-    // to be overridden
+  /**
+   *  cancel any async operation
+   *  return false when function shouldn't be canceled
+   */
+  cancel(reason: EventType = EventType.TRIGGER, mode: BlockMode = 'auto'): boolean {
+    return true;
   }
 
   blockCommand(command: string, params: {[key: string]: any}): void {

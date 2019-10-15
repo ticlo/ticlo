@@ -3,7 +3,7 @@ import {BaseFunction, BlockFunction, FunctionData, PureFunction} from '../BlockF
 import {BlockIO, BlockPropertyEvent} from '../BlockProperty';
 import {ErrorEvent, Event, EventType, NOT_READY} from '../Event';
 import {Dispatcher} from '../Dispatcher';
-import {Block} from '../Block';
+import {Block, BlockMode} from '../Block';
 import {DataMap} from '../../util/DataTypes';
 
 export class TestFunctionRunner extends BaseFunction {
@@ -58,11 +58,12 @@ export class TestAsyncFunctionPromise extends PureFunction {
     return promise;
   }
 
-  cancel(reason: EventType = EventType.TRIGGER) {
+  cancel(reason: EventType = EventType.TRIGGER, mode: BlockMode = 'auto') {
     if (this.timeOut) {
       clearTimeout(this.timeOut);
       this.timeOut = null;
     }
+    return true;
   }
 
   destroy() {
@@ -99,11 +100,12 @@ export class TestAsyncFunctionManual extends BlockFunction {
     return NOT_READY;
   }
 
-  cancel(reason: EventType = EventType.TRIGGER) {
+  cancel(reason: EventType = EventType.TRIGGER, mode: BlockMode = 'auto') {
     if (this.timeOut) {
       clearTimeout(this.timeOut);
       this.timeOut = null;
     }
+    return true;
   }
 
   destroy() {

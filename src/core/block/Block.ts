@@ -451,10 +451,14 @@ export class Block implements Runnable, FunctionData, Listener<FunctionClass>, D
 
   _cancelFunction(reason: EventType) {
     if (this._function) {
-      this._function.cancel(reason);
-      this._funcPromise = undefined;
-      this.updateValue('#wait', undefined);
+      let result = this._function.cancel(reason, this._mode);
+      if (result) {
+        this._funcPromise = undefined;
+        this.updateValue('#wait', undefined);
+      }
+      return result;
     }
+    return true;
   }
 
   run() {
@@ -465,6 +469,7 @@ export class Block implements Runnable, FunctionData, Listener<FunctionClass>, D
 
     if (this._function) {
       if (this._called && this._waiting) {
+        // previous call is still running, cancel it first
         this._cancelFunction(EventType.VOID);
       }
       this._running = true;
@@ -568,8 +573,9 @@ export class Block implements Runnable, FunctionData, Listener<FunctionClass>, D
             break;
           }
           case EventType.ERROR: {
-            this._cancelFunction(EventType.ERROR);
-            this.emit(val);
+            if (this._cancelFunction(EventType.ERROR)) {
+              this.emit(val);
+            }
             break;
           }
         }

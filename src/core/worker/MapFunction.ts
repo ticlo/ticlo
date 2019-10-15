@@ -5,7 +5,7 @@ import {BlockIO, BlockProperty} from '../block/BlockProperty';
 import {Block, Job} from '../block/Block';
 import {convertToObject, DataMap, isSavedBlock} from '../util/DataTypes';
 import {ErrorEvent, Event, EventType, NOT_READY} from '../block/Event';
-import {MapImpl, MapWorkerMode} from './MapImpl';
+import {MapImpl, MapWorkerMode, WorkerOutput} from './MapImpl';
 import {BlockProxy} from '../block/BlockProxy';
 import {workers} from 'cluster';
 
@@ -13,77 +13,6 @@ enum ThreadTarget {
   None = 0,
   Array = 1,
   Object
-}
-
-class MapWorkerOutput implements FunctionOutput {
-  // name of the worker
-  key: string;
-  // name of the property in the input and the output object
-  field: string;
-
-  _timeout: any;
-  _onReady: (output: MapWorkerOutput, timeout: boolean) => void;
-
-  constructor(
-    key: string,
-    field: string,
-    timeoutSeconds: number,
-    onReady: (output: MapWorkerOutput, timeout: boolean) => void
-  ) {
-    this.key = key;
-    this.field = field;
-    if (field !== undefined) {
-      this._onReady = onReady;
-      if (timeoutSeconds > 0) {
-        this._timeout = setTimeout(this.onTimeout, timeoutSeconds * 1000);
-      }
-    }
-  }
-
-  updateTimeOut(seconds: number) {
-    if (this._onReady) {
-      if (this._timeout) {
-        clearTimeout(this._timeout);
-      }
-      if (seconds > 0) {
-        this._timeout = setTimeout(this.onTimeout, seconds * 1000);
-      }
-    }
-  }
-
-  onTimeout = () => {
-    if (this._onReady) {
-      let onReady = this._onReady;
-      this._onReady = null;
-      onReady(this, true);
-    }
-  };
-
-  output(value: any, field?: string): void {
-    // do nothing
-  }
-
-  workerReady(): void {
-    if (this._timeout) {
-      clearTimeout(this._timeout);
-    }
-    if (this._onReady) {
-      let onReady = this._onReady;
-      this._onReady = null;
-      onReady(this, false);
-    }
-  }
-
-  // reuse the output on a new Render
-  reset(field: string, timeoutSeconds: number, onReady: (output: MapWorkerOutput, timeout: boolean) => void) {
-    this.field = field;
-    this._onReady = onReady;
-    this.updateTimeOut(timeoutSeconds);
-  }
-
-  cancel() {
-    this._onReady = null;
-  }
 }
 
 export class MapFunction extends BlockFunction implements MapImpl {
@@ -259,7 +188,7 @@ export class MapFunction extends BlockFunction implements MapImpl {
     return NOT_READY;
   }
 
-  _onWorkerReady = (output: MapWorkerOutput, timeout: boolean) => {
+  _onWorkerReady = (output: WorkerOutput, timeout: boolean) => {
     if (timeout) {
       this._output[output.field] = new ErrorEvent('timeout');
     } else {
@@ -288,14 +217,14 @@ export class MapFunction extends BlockFunction implements MapImpl {
   _updateWorkerInput(worker: Job): boolean {
     if (this._threadTarget === ThreadTarget.Array) {
       ++this._waitingWorker;
-      (worker._outputObj as MapWorkerOutput).reset(`${this._pendingIdx}`, this._timeout, this._onWorkerReady);
+      (worker._outputObj as WorkerOutput).reset(`${this._pendingIdx}`, this._timeout, this._onWorkerReady);
       worker.updateInput(this._input[this._pendingIdx], true);
       this._pendingIdx++;
       return this._pendingIdx === (this._input as any[]).length;
     } else {
       let key = this._pendingKeys.pop();
       ++this._waitingWorker;
-      (worker._outputObj as MapWorkerOutput).reset(key, this._timeout, this._onWorkerReady);
+      (worker._outputObj as WorkerOutput).reset(key, this._timeout, this._onWorkerReady);
       worker.updateInput(this._input[key], true);
       return this._pendingKeys.length === 0;
     }
@@ -305,7 +234,7 @@ export class MapFunction extends BlockFunction implements MapImpl {
     if (this._workers) {
       for (let [key, worker] of this._workers) {
         if (worker) {
-          (worker._outputObj as MapWorkerOutput).updateTimeOut(seconds);
+          (worker._outputObj as WorkerOutput).updateTimeOut(seconds);
         }
       }
     }
@@ -321,7 +250,7 @@ export class MapFunction extends BlockFunction implements MapImpl {
       if (!worker) {
         worker = this._addWorker(`${idx}`, undefined, undefined);
       }
-      if (!(worker._outputObj as MapWorkerOutput)._onReady) {
+      if (!(worker._outputObj as WorkerOutput)._onReady) {
         if (this._updateWorkerInput(worker)) {
           // no more input
           break;
@@ -332,7 +261,7 @@ export class MapFunction extends BlockFunction implements MapImpl {
     if (this._reuseWorker !== 'persist') {
       for (; idx < this._thread; ++idx) {
         let worker = this._workers.get(`${idx}`);
-        if (worker && !(worker._outputObj as MapWorkerOutput)._onReady) {
+        if (worker && !(worker._outputObj as WorkerOutput)._onReady) {
           this._removeWorker(`${idx}`);
         }
       }
@@ -353,7 +282,7 @@ export class MapFunction extends BlockFunction implements MapImpl {
         if (oldWorkers.get(key)) {
           let oldWorker = oldWorkers.get(key);
           ++this._waitingWorker;
-          (oldWorker._outputObj as MapWorkerOutput).reset(key, this._timeout, this._onWorkerReady);
+          (oldWorker._outputObj as WorkerOutput).reset(key, this._timeout, this._onWorkerReady);
           oldWorker.updateInput(input, true);
           this._workers.set(key, oldWorker);
           oldWorkers.set(key, undefined);
@@ -380,7 +309,7 @@ export class MapFunction extends BlockFunction implements MapImpl {
   }
 
   _addWorker(key: string, field: string, input: any): Job {
-    let output = new MapWorkerOutput(key, field, this._timeout, this._onWorkerReady);
+    let output = new WorkerOutput(key, field, this._timeout, this._onWorkerReady);
     let child = this._funcBlock.createOutputJob(key, this._src, output);
     child.onResolved = () => {
       if (!child._waiting) {
@@ -395,7 +324,7 @@ export class MapFunction extends BlockFunction implements MapImpl {
   _removeWorker(key: string) {
     let worker = this._workers.get(key);
     if (worker) {
-      (worker._outputObj as MapWorkerOutput).cancel();
+      (worker._outputObj as WorkerOutput).cancel();
       this._funcBlock.deleteValue(key);
       this._workers.set(key, undefined);
     }
@@ -423,7 +352,7 @@ export class MapFunction extends BlockFunction implements MapImpl {
           for (let [key, worker] of this._workers) {
             if (worker) {
               worker.cancel();
-              (worker._outputObj as MapWorkerOutput).cancel();
+              (worker._outputObj as WorkerOutput).cancel();
             }
           }
         }
