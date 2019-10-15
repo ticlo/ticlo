@@ -12,11 +12,11 @@ import {workers} from 'cluster';
 enum ThreadTarget {
   None = 0,
   Array = 1,
-  Object
+  Object = 2
 }
 
 export class MapFunction extends BlockFunction implements MapImpl {
-  _src: DataMap;
+  _src: DataMap | string;
   _srcChanged = false;
   _onSourceChange!: (val: any) => boolean;
 

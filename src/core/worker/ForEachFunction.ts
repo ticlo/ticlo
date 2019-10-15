@@ -8,7 +8,7 @@ import {Event, EventType} from '../block/Event';
 import {MapImpl} from './MapImpl';
 
 export class ForEachFunction extends BlockFunction implements BlockChildWatch {
-  _src: DataMap;
+  _src: DataMap | string;
   _srcChanged: boolean = false;
   _onSourceChange!: (val: any) => boolean;
 

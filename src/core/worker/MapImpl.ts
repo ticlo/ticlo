@@ -5,12 +5,11 @@ import {Block} from '../block/Block';
 export type MapWorkerMode = undefined | 'reuse' | 'persist';
 
 export class MapImpl extends BlockFunction {
-  _src: DataMap;
+  _src: DataMap | string;
   _srcChanged: boolean; /* = false*/
 
   _onSourceChange(val: any): boolean {
-    // TODO allow string use for class name
-    if (isSavedBlock(val)) {
+    if (typeof val === 'string' || isSavedBlock(val)) {
       this._src = val;
       this._srcChanged = true;
       return true;
