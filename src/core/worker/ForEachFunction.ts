@@ -188,8 +188,9 @@ export class ForEachFunction extends BlockFunction implements BlockChildWatch {
     }
   }
 
-  cancel(reason: EventType = EventType.TRIGGER): void {
+  cancel(reason: EventType = EventType.TRIGGER) {
     this._clearWorkers();
+    return true;
   }
 
   destroy(): void {

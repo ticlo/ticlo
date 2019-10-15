@@ -345,7 +345,7 @@ export class MapFunction extends BlockFunction implements MapImpl {
     }
   }
 
-  cancel(reason: EventType = EventType.TRIGGER): void {
+  cancel(reason: EventType = EventType.TRIGGER) {
     if (this._input) {
       if (this._reuseWorker) {
         if (this._workers) {
@@ -371,6 +371,7 @@ export class MapFunction extends BlockFunction implements MapImpl {
         this._onInputChange(this._data.getValue('#input'));
       }
     }
+    return true;
   }
 
   destroy(): void {
