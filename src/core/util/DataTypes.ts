@@ -16,6 +16,7 @@ export function isPrimitiveType(val: any) {
     case 'number':
     case 'string':
     case 'boolean':
+      // case 'bigint':
       return true;
     default:
       return false;

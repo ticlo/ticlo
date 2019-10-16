@@ -36,6 +36,30 @@ describe('Connection', function() {
     Root.instance.deleteValue('Connection1');
   });
 
+  it('bind', async function() {
+    let job = Root.instance.addJob('Connection1-2');
+    let [server, client] = makeLocalConnection(Root.instance, false);
+
+    job.setValue('a', 3);
+    job.setValue('b', 'b');
+
+    await client.setBinding('Connection1-2.v', 'a', false, true);
+    assert.equal(job.getValue('v'), 3);
+    await client.setBinding('Connection1-2.v', 'Connection1-2.b', true, true);
+    assert.equal(job.getValue('v'), 'b');
+
+    await client.setBinding('Connection1-2.v', null, false, true);
+    assert.equal(job.getValue('v'), undefined);
+
+    await client.setBinding('Connection1-2.v', 'a', false, true);
+    // clear binding but keep value (when it's primitive)
+    await client.setBinding('Connection1-2.v', null, true, true);
+    assert.equal(job.getValue('v'), 3);
+
+    client.destroy();
+    Root.instance.deleteValue('Connection1-2');
+  });
+
   it('multiple subscribe binding', async function() {
     let job = Root.instance.addJob('Connection2');
     let [server, client] = makeLocalConnection(Root.instance, false);

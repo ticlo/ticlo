@@ -6,7 +6,7 @@ import {
   BlockPropertySubscriber,
   HelperProperty
 } from '../block/BlockProperty';
-import {DataMap, isSavedBlock, measureObjSize, truncateData} from '../util/DataTypes';
+import {DataMap, isPrimitiveType, isSavedBlock, measureObjSize, truncateData} from '../util/DataTypes';
 import {Root, Block, BlockChildWatch} from '../block/Block';
 import {BlockBindingSource, Dispatcher, Listener, ValueDispatcher} from '../block/Dispatcher';
 import {Type, Types, DescListener} from '../block/Type';
@@ -468,11 +468,21 @@ export class ServerConnection extends Connection {
     let property = this.root.queryProperty(path, true);
     if (property) {
       if (absolute) {
-        let fromProp = this.root.queryProperty(from, true);
-        if (fromProp) {
-          property.setBinding(propRelative(property._block, fromProp));
+        if (from == null) {
+          // remove binding but keep current primitive value
+          let val = property._value;
+          if (isPrimitiveType(val)) {
+            property.setValue(val);
+          } else {
+            property.setBinding(undefined);
+          }
         } else {
-          return 'invalid from path';
+          let fromProp = this.root.queryProperty(from, true);
+          if (fromProp) {
+            property.setBinding(propRelative(property._block, fromProp));
+          } else {
+            return 'invalid from path';
+          }
         }
       } else {
         property.setBinding(from);
@@ -493,6 +503,7 @@ export class ServerConnection extends Connection {
         property._block.createBlock(property._name);
       } else {
         if (property instanceof HelperProperty) {
+          // create a sub block and move the current property into the sub block if possible
           let baseProperty = property._block.getProperty(property._name.substring(1));
           // check the current value and binding
           if (baseProperty._saved !== undefined) {

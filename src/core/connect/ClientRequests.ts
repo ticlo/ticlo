@@ -308,6 +308,9 @@ class GlobalTypeListener {
   }
 }
 
+/**
+ * list global objects
+ */
 export class GlobalWatch {
   isListeners: Map<string, GlobalTypeListener> = new Map<string, GlobalTypeListener>();
 

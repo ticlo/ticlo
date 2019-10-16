@@ -462,7 +462,7 @@ export class PropertyEditor extends MultiSelectComponent<Props, State, PropertyL
   onUnbindClick = (e: any) => {
     let {conn, keys, name} = this.props;
     for (let key of keys) {
-      conn.setBinding(`${key}.${name}`, undefined);
+      conn.setBinding(`${key}.${name}`, null, true);
     }
   };
   onAddSubBlock = (id: string, desc: FunctionDesc, data: any) => {

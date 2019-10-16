@@ -21,6 +21,14 @@ export interface ClientConn {
 
   updateValue(path: string, value: any, important?: boolean | ClientCallbacks): Promise<any> | string;
 
+  /**
+   *
+   * @param path
+   * @param from
+   * @param absolute When true, path is full path of the source object.
+   *   If path is undefined, means the binding should keep the current primitive value
+   * @param important
+   */
   setBinding(
     path: string,
     from: string,
