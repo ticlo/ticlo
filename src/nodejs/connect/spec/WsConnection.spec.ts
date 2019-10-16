@@ -65,7 +65,7 @@ describe('WsConnect', function() {
 
     assert.isNotNull(client.watchDesc('A1000'), 'A1000 should be sent in the same batch as a100');
     assert.isNull(client.watchDesc('A3999'), 'A3999 should be sent in a later frame');
-    await shouldHappen(() => client.watchDesc('A3999'));
+    await shouldHappen(() => client.watchDesc('A3999'), 1500);
 
     addTestTypes('B', 4000);
 

@@ -56,6 +56,16 @@ describe('Connection', function() {
     await client.setBinding('Connection1-2.v', null, true, true);
     assert.equal(job.getValue('v'), 3);
 
+    // binding from global block
+    let a = Root.instance._globalBlock.createBlock('^g');
+    a.setValue('0', 'global');
+
+    await client.setBinding('Connection1-2.v', '#global.^g.0', true, true);
+    assert.equal(job.getValue('v'), 'global');
+    assert.equal(job.getProperty('v')._bindingPath, '^g.0');
+
+    // clear #global
+    Root.instance._globalBlock._liveUpdate({});
     client.destroy();
     Root.instance.deleteValue('Connection1-2');
   });

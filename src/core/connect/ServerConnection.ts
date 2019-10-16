@@ -416,15 +416,15 @@ export class ServerConnection extends Connection {
   }
 
   sendError(id: string, msg: string) {
-    this.addSend(new ConnectionSend({cmd: 'error', id: id, msg: msg}));
+    this.addSend(new ConnectionSend({cmd: 'error', id, msg}));
   }
 
   sendDone(id: string) {
-    this.addSend(new ConnectionSend({cmd: 'done', id: id}));
+    this.addSend(new ConnectionSend({cmd: 'done', id}));
   }
 
   sendFinal(id: string, data: DataMap) {
-    this.addSend(new ConnectionSend({...data, cmd: 'final', id: id}));
+    this.addSend(new ConnectionSend({...data, cmd: 'final', id}));
   }
 
   close(id: string) {
@@ -479,7 +479,11 @@ export class ServerConnection extends Connection {
         } else {
           let fromProp = this.root.queryProperty(from, true);
           if (fromProp) {
-            property.setBinding(propRelative(property._block, fromProp));
+            if (from.startsWith('#global.^')) {
+              property.setBinding(from.substring(8));
+            } else {
+              property.setBinding(propRelative(property._block, fromProp));
+            }
           } else {
             return 'invalid from path';
           }
@@ -488,9 +492,8 @@ export class ServerConnection extends Connection {
         property.setBinding(from);
       }
       return null;
-    } else {
-      return 'invalid path';
     }
+    return 'invalid path';
   }
 
   createBlock(path: string, data?: DataMap, anyName?: boolean): string | DataMap {
