@@ -51,11 +51,25 @@ const wirePadding = 2;
 export class WireView extends PureDataRenderer<WireViewProps, any> {
   renderImpl() {
     let {source, target} = this.props.item;
-    let x0 = source.x + source.w + 4;
+    let sourceRight = source.x + source.w + 4;
+    let targetRight = target.x + target.w + 4;
+
+    let zIndex = source.block.selected || target.block.selected ? 100 : undefined;
+
+    let className = 'ticl-block-wire';
+    if (target._bindingTargetKey !== source.key) {
+      className = 'ticl-block-wire ticl-wire-dash';
+    }
     let y0 = source.y;
-    let x1 = target.x - 4;
     let y1 = target.y;
-    let midx = (x0 + x1) * 0.5;
+    if (targetRight > sourceRight) {
+      let x1 = target.x - 4;
+      return WireView.renderNormal(sourceRight, y0, x1, y1, zIndex, className);
+    } else {
+      return WireView.renderRightSide(sourceRight, y0, targetRight, y1, zIndex, className);
+    }
+  }
+  static renderNormal(x0: number, y0: number, x1: number, y1: number, zIndex: number, className: string) {
     let mx0: number;
     let mx1: number;
 
@@ -90,18 +104,13 @@ export class WireView extends PureDataRenderer<WireViewProps, any> {
 
     x0 -= minx;
     x1 -= minx;
-    midx -= minx;
     mx0 -= minx;
     mx1 -= minx;
     y0 -= miny;
     y1 -= miny;
 
-    let selected = source.block.selected || target.block.selected;
-
-    let className = 'ticl-block-wire';
-    if (target._bindingTargetKey !== source.key) {
-      className = 'ticl-block-wire ticl-wire-dash';
-    }
+    let midx = (x0 + x1) * 0.5;
+    let midy = (y0 + y1) * 0.5;
 
     return (
       <svg
@@ -109,12 +118,53 @@ export class WireView extends PureDataRenderer<WireViewProps, any> {
         height={maxy - miny}
         className={className}
         xmlns="http://www.w3.org/2000/svg"
-        style={{left: minx, top: miny, zIndex: selected ? 100 : undefined}}
+        style={{left: minx, top: miny, zIndex}}
       >
         <path
           d={`M ${cssNumber(x0)} ${cssNumber(y0)} Q ${cssNumber(mx0)} ${cssNumber(y0)} ${cssNumber(midx)} ${cssNumber(
-            (y0 + y1) * 0.5
+            midy
           )} ${cssNumber(mx1)} ${cssNumber(y1)} ${cssNumber(x1)} ${cssNumber(y1)}`}
+        />
+      </svg>
+    );
+  }
+
+  static renderRightSide(x0: number, y0: number, x1: number, y1: number, zIndex: number, className: string) {
+    if (x0 === x1 && y0 === y1) {
+      return null;
+    }
+    let minx = x1 - wirePadding;
+    let maxx = x0 + wirePadding;
+    let miny = Math.min(y0, y1) - wirePadding;
+    let maxy = Math.max(y0, y1) + wirePadding;
+
+    x0 -= minx;
+    x1 -= minx;
+    y0 -= miny;
+    y1 -= miny;
+
+    let gap = 8 + Math.abs(y1 - y0) / 6;
+    let midx = x0 + gap;
+    let midy = (y0 + y1) * 0.5;
+
+    maxx += gap;
+
+    let smidx = cssNumber(midx);
+    let sy0 = cssNumber(y0);
+    let sy1 = cssNumber(y1);
+
+    return (
+      <svg
+        width={maxx - minx}
+        height={maxy - miny}
+        className={className}
+        xmlns="http://www.w3.org/2000/svg"
+        style={{left: minx, top: miny, zIndex}}
+      >
+        <path
+          d={`M ${cssNumber(x0)} ${cssNumber(y0)} C ${smidx} ${sy0} ${smidx} ${sy0} ${smidx} ${cssNumber(
+            midy
+          )} C ${smidx} ${sy1} ${smidx} ${sy1} ${cssNumber(x1)} ${cssNumber(y1)}`}
         />
       </svg>
     );
