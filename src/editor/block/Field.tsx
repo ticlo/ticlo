@@ -410,6 +410,8 @@ export class FieldView extends PureDataRenderer<FieldViewProps, any> {
     let {item} = this.props;
     let desc = item.block.desc;
 
+    let showOutBound = item.cache.hasListener || (item.subBlock && item.subBlock.hidden);
+
     let fieldClass = 'ticl-field';
     let inBoundClass = 'ticl-slot';
     let inBoundText: string;
@@ -424,6 +426,10 @@ export class FieldView extends PureDataRenderer<FieldViewProps, any> {
         }
       } else if (item.inWire) {
         inBoundTitle = item.cache.bindingPath;
+        if (item.inWire.checkIsRightSide()) {
+          inBoundClass = 'ticl-slot ticl-inbound-right';
+          showOutBound = false;
+        }
       } else {
         inBoundClass += ' ticl-inbound-path';
         inBoundText = item.cache.bindingPath;
@@ -435,7 +441,7 @@ export class FieldView extends PureDataRenderer<FieldViewProps, any> {
     for (let i = 0; i < item.indents.length; ++i) {
       indentChildren.push(<div key={i} className={`ticl-field-indent${item.indents[i]}`} />);
     }
-    let showOutBound = item.cache.hasListener || (item.subBlock && item.subBlock.hidden);
+
     return (
       <DragDropDiv
         className={fieldClass}

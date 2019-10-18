@@ -7,6 +7,24 @@ export class WireItem extends DataRendererItem {
   source: FieldItem;
   target: FieldItem;
 
+  _rightSide?: boolean;
+
+  checkIsRightSide() {
+    let rightSide = false;
+    if (this.source && this.target) {
+      rightSide = this.target.x + this.target.w <= this.source.x + this.source.w;
+    }
+    if (this._rightSide !== rightSide) {
+      if (this._rightSide != null) {
+        this._rightSide = rightSide;
+        this.target.forceUpdate();
+      } else {
+        this._rightSide = rightSide;
+      }
+    }
+    return rightSide;
+  }
+
   setSource(source: FieldItem) {
     if (source !== this.source) {
       if (this.source) {
@@ -50,9 +68,8 @@ const wirePadding = 2;
 
 export class WireView extends PureDataRenderer<WireViewProps, any> {
   renderImpl() {
+    let {item} = this.props;
     let {source, target} = this.props.item;
-    let sourceRight = source.x + source.w + 4;
-    let targetRight = target.x + target.w + 4;
 
     let zIndex = source.block.selected || target.block.selected ? 100 : undefined;
 
@@ -60,16 +77,21 @@ export class WireView extends PureDataRenderer<WireViewProps, any> {
     if (target._bindingTargetKey !== source.key) {
       className = 'ticl-block-wire ticl-wire-dash';
     }
-    let y0 = source.y;
-    let y1 = target.y;
-    if (targetRight > sourceRight) {
-      let x1 = target.x - 4;
-      return WireView.renderNormal(sourceRight, y0, x1, y1, zIndex, className);
+
+    if (item.checkIsRightSide()) {
+      return this.renderRightSide(zIndex, className);
     } else {
-      return WireView.renderRightSide(sourceRight, y0, targetRight, y1, zIndex, className);
+      return this.renderNormal(zIndex, className);
     }
   }
-  static renderNormal(x0: number, y0: number, x1: number, y1: number, zIndex: number, className: string) {
+
+  renderNormal(zIndex: number, className: string) {
+    let {source, target} = this.props.item;
+    let x0 = source.x + source.w + 4;
+    let x1 = target.x - 4;
+    let y0 = source.y;
+    let y1 = target.y;
+
     let mx0: number;
     let mx1: number;
 
@@ -129,7 +151,13 @@ export class WireView extends PureDataRenderer<WireViewProps, any> {
     );
   }
 
-  static renderRightSide(x0: number, y0: number, x1: number, y1: number, zIndex: number, className: string) {
+  renderRightSide(zIndex: number, className: string) {
+    let {source, target} = this.props.item;
+    let x0 = source.x + source.w + 4;
+    let x1 = target.x + target.w + 4;
+    let y0 = source.y;
+    let y1 = target.y;
+
     if (x0 === x1 && y0 === y1) {
       return null;
     }
@@ -143,7 +171,7 @@ export class WireView extends PureDataRenderer<WireViewProps, any> {
     y0 -= miny;
     y1 -= miny;
 
-    let gap = 8 + Math.abs(y1 - y0) / 6;
+    let gap = Math.pow(Math.abs(y1 - y0), 0.6) + 4;
     let midx = x0 + gap;
     let midy = (y0 + y1) * 0.5;
 
