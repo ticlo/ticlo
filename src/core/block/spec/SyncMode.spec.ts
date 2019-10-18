@@ -43,26 +43,38 @@ describe('SyncMode', function() {
     let block3 = job.createBlock('obj3');
     block3.setValue('#mode', 'onCall');
     block3.setValue('#-log', 'obj3');
-    block3.setValue('#is', 'test-runner');
+    block3.setValue('#is', 'test-runner-wont-cancel');
     block3.setValue('#sync', true);
     block3.setBinding('#call', '##.obj2.#emit');
+
+    let block4 = job.createBlock('obj4');
+    block4.setValue('#mode', 'onCall');
+    block4.setValue('#-log', 'obj4');
+    block4.setValue('#is', 'test-runner');
+    block4.setValue('#sync', true);
+    block4.setBinding('#call', '##.obj3.#emit');
 
     block1.setValue('#call', {});
     assert.deepEqual(
       TestFunctionRunner.popLogs(),
-      ['obj1', 'obj2', 'obj3'],
+      ['obj1', 'obj2', 'obj3', 'obj4'],
       'sync mode should run chained functions instantly when called'
     );
 
     block1.setValue('#call', {});
     assert.deepEqual(
       TestFunctionRunner.popLogs(),
-      ['obj1', 'obj3'],
+      ['obj1', 'obj3', 'obj4'],
       "sync call should skip block that doesn't need update"
     );
 
     block1.setValue('#call', new ErrorEvent(''));
     assert.isEmpty(TestFunctionRunner.logs, 'error should not trigger chained blocks');
     assert.instanceOf(block3.getValue('#call'), ErrorEvent, 'error should get passed through the chain');
+    assert.notInstanceOf(
+      block4.getValue('#call'),
+      ErrorEvent,
+      'error should not be passed when function.cancel() return false'
+    );
   });
 });

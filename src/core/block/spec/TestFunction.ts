@@ -1,9 +1,9 @@
 import {Types} from '../Type';
-import {BaseFunction, BlockFunction, FunctionData, PureFunction} from '../BlockFunction';
+import {BaseFunction, BlockFunction, PureFunction} from '../BlockFunction';
 import {BlockIO, BlockPropertyEvent} from '../BlockProperty';
 import {ErrorEvent, Event, EventType, NOT_READY} from '../Event';
 import {Dispatcher} from '../Dispatcher';
-import {Block, BlockMode} from '../Block';
+import {BlockMode} from '../Block';
 import {DataMap} from '../../util/DataTypes';
 
 export class TestFunctionRunner extends BaseFunction {
@@ -25,6 +25,14 @@ export class TestFunctionRunner extends BaseFunction {
 }
 
 Types.add(TestFunctionRunner, {name: 'test-runner'});
+
+class TestFunctionRunnerWontCancel extends TestFunctionRunner {
+  cancel(reason: EventType = EventType.TRIGGER, mode: BlockMode = 'auto') {
+    return false;
+  }
+}
+
+Types.add(TestFunctionRunnerWontCancel, {name: 'test-runner-wont-cancel'});
 
 export class TestAsyncFunctionLog {
   static syncLog: any[] = [];

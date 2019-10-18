@@ -502,6 +502,12 @@ export class Block implements Runnable, FunctionData, Listener<FunctionClass>, D
       this._props.get('#emit').updateValue(val);
     }
   }
+  // emit value but maintain the current #wait state
+  emitOnly(val: any) {
+    if (this._props.has('#emit')) {
+      this._props.get('#emit').updateValue(val);
+    }
+  }
 
   _modeChanged(mode: any) {
     if (mode === this._mode) {
