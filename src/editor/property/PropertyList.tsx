@@ -1,5 +1,5 @@
 import React from 'react';
-import {ClientConn, ValueUpdate} from '../../core/client';
+import {attributeList, ClientConn, ValueUpdate} from '../../core/client';
 import {DataMap} from '../../core/util/DataTypes';
 import {
   blankFuncDesc,
@@ -17,6 +17,21 @@ import {deepEqual} from '../../core/util/Compare';
 import {Button, Empty, Tooltip} from 'antd';
 import {AddMorePropertyMenu} from './AddMoreProperty';
 import {Popup} from '../component/ClickPopup';
+import {BlockWidget} from '../block/view/BlockWidget';
+import {LazyUpdateComponent} from '../../ui/component/LazyUpdateComponent';
+
+function descToEditor(conn: ClientConn, keys: string[], funcDesc: FunctionDesc, propDesc: PropDesc) {
+  return (
+    <PropertyEditor
+      key={propDesc.name}
+      name={propDesc.name}
+      keys={keys}
+      conn={conn}
+      funcDesc={funcDesc}
+      propDesc={propDesc}
+    />
+  );
+}
 
 class BlockLoader extends MultiSelectLoader<PropertyList> {
   isListener = {
@@ -39,6 +54,20 @@ class BlockLoader extends MultiSelectLoader<PropertyList> {
     }
   };
 
+  widget: string = null;
+  widgetListener = {
+    onUpdate: (response: ValueUpdate) => {
+      let value = response.cache.value;
+      if (typeof value !== 'string') {
+        value = null;
+      }
+      if (this.widget !== value) {
+        this.widget = value;
+        this.parent.forceUpdate();
+      }
+    }
+  };
+
   desc: FunctionDesc;
   onDesc = (desc: FunctionDesc) => {
     if (desc == null) {
@@ -52,11 +81,14 @@ class BlockLoader extends MultiSelectLoader<PropertyList> {
   init() {
     this.conn.subscribe(`${this.key}.#is`, this.isListener, true);
     this.conn.subscribe(`${this.key}.#more`, this.moreListener, true);
+    this.conn.subscribe(`${this.key}.@b-widget`, this.widgetListener, true);
   }
 
   destroy() {
     this.conn.unsubscribe(`${this.key}.#is`, this.isListener);
     this.conn.unsubscribe(`${this.key}.#more`, this.moreListener);
+    this.conn.unsubscribe(`${this.key}.@b-widget`, this.widgetListener);
+    this.conn.unwatchDesc(this.onDesc);
   }
 }
 
@@ -97,11 +129,13 @@ interface Props {
   keys: string[];
   style?: React.CSSProperties;
 
+  // minimal is used when PropertyList is shown as popup, like in the ServiceEditor
   mode?: 'minimal' | 'subBlock';
 }
 
 interface State {
   showConfig: boolean;
+  showAttribute: boolean;
   showMore: boolean;
   showAddMorePopup: boolean;
 }
@@ -183,7 +217,7 @@ class PropertyDefMerger {
 export class PropertyList extends MultiSelectComponent<Props, State, BlockLoader> {
   constructor(props: Readonly<Props>) {
     super(props);
-    this.state = {showConfig: false, showMore: true, showAddMorePopup: false};
+    this.state = {showConfig: false, showAttribute: false, showMore: true, showAddMorePopup: false};
     this.updateLoaders(props.keys);
   }
 
@@ -197,6 +231,9 @@ export class PropertyList extends MultiSelectComponent<Props, State, BlockLoader
   onShowConfigClick = () => {
     this.setState({showConfig: !this.state.showConfig});
   };
+  onShowAttributeClick = () => {
+    this.setState({showAttribute: !this.state.showAttribute});
+  };
   onAddMorePopup = (visible: boolean) => {
     this.setState({showAddMorePopup: visible});
   };
@@ -209,9 +246,17 @@ export class PropertyList extends MultiSelectComponent<Props, State, BlockLoader
     this.onAddMorePopup(false);
   };
 
+  getConfigs(conn: ClientConn, keys: string[], funcDesc: FunctionDesc) {
+    let configChildren = [];
+    for (let configDesc of configList) {
+      configChildren.push(descToEditor(conn, keys, funcDesc, configDesc));
+    }
+    return configChildren;
+  }
+
   renderImpl() {
     let {conn, keys, style, mode} = this.props;
-    let {showConfig, showMore, showAddMorePopup} = this.state;
+    let {showConfig, showAttribute, showMore, showAddMorePopup} = this.state;
 
     let descChecked: Set<string> = new Set<string>();
     let propMerger: PropertyDefMerger = new PropertyDefMerger();
@@ -270,22 +315,8 @@ export class PropertyList extends MultiSelectComponent<Props, State, BlockLoader
         moreChildren = moreMerger.render(keys, conn, funcDesc, true);
       }
 
-      let configChildren: React.ReactNode[];
-      if (showConfig) {
-        configChildren = [];
-        for (let configDesc of configList) {
-          configChildren.push(
-            <PropertyEditor
-              key={configDesc.name}
-              name={configDesc.name}
-              keys={keys}
-              conn={conn}
-              funcDesc={funcDesc}
-              propDesc={configDesc}
-            />
-          );
-        }
-      }
+      let allowAttribute = mode == null && keys.length === 1;
+
       return (
         <div className="ticl-property-list" style={style}>
           <PropertyEditor name="#is" keys={keys} conn={conn} funcDesc={funcDesc} propDesc={configDescs['#is']} />
@@ -298,10 +329,22 @@ export class PropertyList extends MultiSelectComponent<Props, State, BlockLoader
           <div className="ticl-property-divider">
             <div className="ticl-h-line" style={{maxWidth: '16px'}} />
             <ExpandIcon opened={showConfig ? 'opened' : 'closed'} onClick={this.onShowConfigClick} />
-            <span>cofig</span>
+            <span>config</span>
             <div className="ticl-h-line" />
           </div>
-          {configChildren}
+          {showConfig ? this.getConfigs(conn, keys, funcDesc) : null}
+
+          {allowAttribute ? (
+            <div className="ticl-property-divider">
+              <div className="ticl-h-line" style={{maxWidth: '16px'}} />
+              <ExpandIcon opened={showAttribute ? 'opened' : 'closed'} onClick={this.onShowAttributeClick} />
+              <span>block</span>
+              <div className="ticl-h-line" />
+            </div>
+          ) : null}
+          {allowAttribute && showAttribute ? (
+            <PropertyAttributeList conn={conn} keys={keys} funcDesc={funcDesc} />
+          ) : null}
 
           <div className="ticl-property-divider">
             <div className="ticl-h-line" style={{maxWidth: '16px'}} />
@@ -340,5 +383,35 @@ export class PropertyList extends MultiSelectComponent<Props, State, BlockLoader
         </div>
       );
     }
+  }
+}
+
+interface PropertyAttributeProps {
+  conn: ClientConn;
+  keys: string[];
+  funcDesc: FunctionDesc;
+}
+
+class PropertyAttributeList extends LazyUpdateComponent<PropertyAttributeProps, any> {
+  lastKey: string;
+  updateKeys(keys: string[]) {}
+
+  constructor(props: PropertyAttributeProps) {
+    super(props);
+    this.updateKeys(props.keys);
+  }
+
+  getAttributes() {
+    let {conn, keys, funcDesc} = this.props;
+    let attributeChildren = [];
+    for (let attributeDesc of attributeList) {
+      attributeChildren.push(descToEditor(conn, keys, funcDesc, attributeDesc));
+    }
+    attributeChildren.push(descToEditor(conn, keys, funcDesc, BlockWidget.widgetDesc));
+    return attributeChildren;
+  }
+
+  renderImpl() {
+    return this.getAttributes();
   }
 }

@@ -5,6 +5,8 @@ import {PureDataRenderer} from '../../ui/component/DataRenderer';
 import {TIcon} from '../icon/Icon';
 import {DragDropDiv, DragState} from 'rc-dock';
 import {BaseBlockItem, BlockHeaderView, BlockItem, Stage, XYWRenderer} from './Field';
+import {LazyUpdateSubscriber} from '../../ui/component/LazyUpdateComponent';
+import {BlockWidget} from './view/BlockWidget';
 
 interface BlockViewProps {
   item: BlockItem;
@@ -149,15 +151,17 @@ export class BlockView extends PureDataRenderer<BlockViewProps, BlockViewState> 
     this.setState({footDropping: false});
   };
 
+  widget = new LazyUpdateSubscriber(this);
   constructor(props: BlockViewProps) {
     super(props);
     this.state = {moving: false, footDropping: false};
+    this.widget.subscribe(props.item.conn, `${props.item.key}.@b-widget`);
   }
 
   renderImpl() {
     let {item} = this.props;
     let {moving, footDropping} = this.state;
-    let SpecialView = item.desc.view;
+    let FullView = item.desc.view;
 
     let classNames: string[] = [];
     if (item.selected) {
@@ -172,7 +176,7 @@ export class BlockView extends PureDataRenderer<BlockViewProps, BlockViewState> 
     if (moving) {
       classNames.push('ticl-block-moving');
     }
-    if (SpecialView && SpecialView.fullView) {
+    if (FullView) {
       classNames.push('ticl-block-full-view');
       let width = item.w;
       let widthDrag = item._syncParent ? null : (
@@ -199,13 +203,25 @@ export class BlockView extends PureDataRenderer<BlockViewProps, BlockViewState> 
           onDropT={this.onDropFoot}
           onDragLeaveT={this.onDragLeaveFoot}
         >
-          <SpecialView conn={item.conn} path={item.key} updateViewHeight={item.setViewH} />
+          <FullView conn={item.conn} path={item.key} updateViewHeight={item.setViewH} />
           {widthDrag}
         </DragDropDiv>
       );
     } else if (item.w) {
       classNames.push('ticl-block');
       classNames.push(getFuncStyleFromDesc(item.desc));
+
+      let widget: React.ReactNode;
+      let WidgetType = BlockWidget.get(this.widget.value);
+      if (WidgetType) {
+        widget = (
+          <div className="ticl-block-view">
+            <WidgetType conn={item.conn} path={item.key} updateViewHeight={item.setViewH} />
+          </div>
+        );
+      } else {
+        item.setViewH(0);
+      }
       return (
         <div ref={this.getRef} className={classNames.join(' ')} style={{top: item.y, left: item.x, width: item.w}}>
           <BlockHeaderView
@@ -218,11 +234,7 @@ export class BlockView extends PureDataRenderer<BlockViewProps, BlockViewState> 
             <TIcon icon={item.desc.icon} />
             {item.name}
           </BlockHeaderView>
-          {SpecialView ? (
-            <div className="ticl-block-view">
-              <SpecialView conn={item.conn} path={item.key} updateViewHeight={item.setViewH} />
-            </div>
-          ) : null}
+          {widget}
           <div className="ticl-block-body">{item.renderFields()}</div>
           <DragDropDiv
             className="ticl-block-foot"
@@ -264,5 +276,9 @@ export class BlockView extends PureDataRenderer<BlockViewProps, BlockViewState> 
       // data not ready, don't renderer
       return <div ref={this.getRef} />;
     }
+  }
+  componentWillUnmount() {
+    this.widget.unsubscribe();
+    super.componentWillUnmount();
   }
 }

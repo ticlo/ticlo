@@ -44,7 +44,7 @@ export abstract class LazyUpdateComponent<P extends LazyUpdateProps, S> extends 
 }
 
 export class LazyUpdateListener {
-  parent: {forceUpdate: Function};
+  parent: {forceUpdate: Function} | Function;
 
   value: any;
   bindingPath: string;
@@ -52,7 +52,7 @@ export class LazyUpdateListener {
 
   error: string;
 
-  constructor(parent: {forceUpdate: Function}, defaultValue?: any) {
+  constructor(parent: {forceUpdate: Function} | Function, defaultValue?: any) {
     this.value = defaultValue;
     this.parent = parent;
     this.defaultValue = defaultValue;
@@ -66,16 +66,49 @@ export class LazyUpdateListener {
     }
     if (!Object.is(newValue, this.value)) {
       this.value = newValue;
-      this.parent.forceUpdate();
+      this.update();
     }
     if (response.cache.bindingPath !== this.bindingPath) {
       this.bindingPath = response.cache.bindingPath;
-      this.parent.forceUpdate();
+      this.update();
     }
   }
 
   onError(error: string, data?: DataMap) {
     this.error = error;
-    this.parent.forceUpdate();
+    this.update();
+  }
+  update() {
+    if (typeof this.parent === 'function') {
+      this.parent(this.value);
+    } else {
+      this.parent.forceUpdate();
+    }
+  }
+}
+
+export class LazyUpdateSubscriber extends LazyUpdateListener {
+  conn: ClientConn;
+  path: string;
+  subscribe(conn: ClientConn, path: string) {
+    if (this.conn === conn && this.path === path) {
+      return;
+    }
+    if (this.conn && this.path) {
+      this.conn.unsubscribe(path, this);
+    }
+    this.conn = conn;
+    this.path = path;
+    if (this.conn && this.path) {
+      this.conn.subscribe(this.path, this, true);
+    }
+  }
+
+  unsubscribe() {
+    if (this.conn && this.path) {
+      this.conn.unsubscribe(this.path, this);
+      this.conn = null;
+      this.path = null;
+    }
   }
 }

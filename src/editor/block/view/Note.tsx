@@ -1,13 +1,11 @@
 import React from 'react';
 import marked from 'marked';
 import Dompurify from 'dompurify';
-import {SpecialViewProps} from './SpecialView';
+import {BlockWidgetProps} from './BlockWidget';
 import {LazyUpdateComponent, LazyUpdateListener} from '../../../ui/component/LazyUpdateComponent';
 import {ClientConnection} from '../../../core/connect/ClientConnection';
 
-class NoteView extends LazyUpdateComponent<SpecialViewProps, any> {
-  static fullView = true;
-
+class NoteView extends LazyUpdateComponent<BlockWidgetProps, any> {
   private _rootNode!: HTMLElement;
   private getRef = (node: HTMLDivElement): void => {
     this._rootNode = node;
@@ -18,7 +16,7 @@ class NoteView extends LazyUpdateComponent<SpecialViewProps, any> {
   border = new LazyUpdateListener(this);
   color = new LazyUpdateListener(this);
 
-  constructor(props: SpecialViewProps) {
+  constructor(props: BlockWidgetProps) {
     super(props);
     let {conn, path} = props;
     conn.subscribe(`${path}.text`, this.text, true);
@@ -60,7 +58,7 @@ class NoteView extends LazyUpdateComponent<SpecialViewProps, any> {
     );
   }
 
-  componentDidUpdate(prevProps: Readonly<SpecialViewProps>, prevState: Readonly<any>, snapshot?: any): void {
+  componentDidUpdate(prevProps: Readonly<BlockWidgetProps>, prevState: Readonly<any>, snapshot?: any): void {
     let {updateViewHeight} = this.props;
     updateViewHeight(this._rootNode.offsetHeight);
   }

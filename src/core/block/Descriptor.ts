@@ -146,6 +146,13 @@ export const configList: PropDesc[] = [
   configDescs['#sync']
 ];
 
+export const attributeDescs: {[key: string]: PropDesc} = {
+  '@b-p': {name: '@b-p', type: 'array'},
+  '@b-xyw': {name: '@b-xyw', type: 'array'}
+};
+
+export const attributeList: PropDesc[] = [attributeDescs['@b-p'], attributeDescs['@b-xyw']];
+
 export function buildPropDescCache(
   funcDesc: FunctionDesc,
   more: (PropDesc | PropGroupDesc)[]

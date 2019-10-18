@@ -1,37 +1,58 @@
 import React from 'react';
-import {SpecialViewProps} from './SpecialView';
-import {LazyUpdateComponent, LazyUpdateListener} from '../../../ui/component/LazyUpdateComponent';
+import {BlockWidget, BlockWidgetProps} from './BlockWidget';
+import {LazyUpdateComponent, LazyUpdateListener, LazyUpdateSubscriber} from '../../../ui/component/LazyUpdateComponent';
 import {Slider} from 'antd';
 import {displayNumber} from '../../../ui/util/Types';
 import {ClientConnection} from '../../../core/connect/ClientConnection';
 
-class SliderView extends LazyUpdateComponent<SpecialViewProps, any> {
-  value = new LazyUpdateListener(this);
-  min = new LazyUpdateListener(this, 0);
-  max = new LazyUpdateListener(this, 100);
-  step = new LazyUpdateListener(this, 1);
+class SliderView extends LazyUpdateComponent<BlockWidgetProps, any> {
+  static readonly viewProperties: [
+    {name: '@b-w-field'; type: 'string'},
+    {name: '@b-w-min'; type: 'number'; default: 0; visible: 'low'},
+    {name: '@b-w-max'; type: 'number'; default: 100; visible: 'low'},
+    {name: '@b-w-step'; type: 'number'; default: 1; min: 0; visible: 'low'}
+  ];
 
-  // this is not a state bacause in commitChange() editorValue is changed but we don't want a re-render until prop change
+  field = new LazyUpdateSubscriber((value: any) => {
+    let {conn, path} = this.props;
+    if (value && typeof value === 'string') {
+      this.value.subscribe(conn, `${path}.${value}`);
+    } else {
+      this.value.unsubscribe();
+    }
+  });
+  value = new LazyUpdateSubscriber((value: any) => {
+    this._pendingValue = NaN;
+    this.forceUpdate();
+  });
+  min = new LazyUpdateSubscriber(this, 0);
+  max = new LazyUpdateSubscriber(this, 100);
+  step = new LazyUpdateSubscriber(this, 1);
+
+  // this is not a state because in commitChange() editorValue is changed but we don't want a re-render until prop change
   _pendingValue: number = NaN;
 
   onValueChange = (value: number) => {
     let {conn, path} = this.props;
+    let field = this.field.value;
     this._pendingValue = value;
-    conn.setValue(`${path}.value`, value);
-    this.forceUpdate();
+    if (field && typeof field === 'string') {
+      conn.setValue(`${path}.${field}`, value);
+      this.forceUpdate();
+    }
   };
 
   onAfterChange = () => {
     this._pendingValue = NaN;
   };
 
-  constructor(props: SpecialViewProps) {
+  constructor(props: BlockWidgetProps) {
     super(props);
     let {conn, path, updateViewHeight} = props;
-    conn.subscribe(`${path}.value`, this.value, true);
-    conn.subscribe(`${path}.min`, this.min, true);
-    conn.subscribe(`${path}.max`, this.max, true);
-    conn.subscribe(`${path}.step`, this.step, true);
+    this.field.subscribe(conn, `${path}.@b-w-field`);
+    this.min.subscribe(conn, `${path}.@b-w-min`);
+    this.max.subscribe(conn, `${path}.@b-w-max`);
+    this.step.subscribe(conn, `${path}.@b-w-step`);
 
     updateViewHeight(61);
   }
@@ -63,25 +84,13 @@ class SliderView extends LazyUpdateComponent<SpecialViewProps, any> {
   }
 
   componentWillUnmount(): void {
-    let {conn, path} = this.props;
-    conn.unsubscribe(`${path}.value`, this.value);
-    conn.unsubscribe(`${path}.min`, this.min);
-    conn.unsubscribe(`${path}.max`, this.max);
-    conn.unsubscribe(`${path}.step`, this.step);
+    this.field.unsubscribe();
+    this.value.unsubscribe();
+    this.min.unsubscribe();
+    this.max.unsubscribe();
+    this.step.unsubscribe();
     super.componentWillUnmount();
   }
 }
 
-ClientConnection.addEditorDescriptor('slider-view', {
-  view: SliderView,
-  priority: 0,
-  name: 'slider-view',
-  id: 'slider-view',
-  icon: 'fas:sliders-h',
-  properties: [
-    {name: 'value', type: 'number'},
-    {name: 'min', type: 'number', default: 0, visible: 'low'},
-    {name: 'max', type: 'number', default: 100, visible: 'low'},
-    {name: 'step', type: 'number', default: 1, min: 0, visible: 'low'}
-  ]
-});
+BlockWidget.register('slider', SliderView);
