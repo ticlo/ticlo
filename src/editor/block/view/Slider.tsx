@@ -3,14 +3,14 @@ import {BlockWidget, BlockWidgetProps} from './BlockWidget';
 import {LazyUpdateComponent, LazyUpdateListener, LazyUpdateSubscriber} from '../../../ui/component/LazyUpdateComponent';
 import {Slider} from 'antd';
 import {displayNumber} from '../../../ui/util/Types';
-import {ClientConnection} from '../../../core/connect/ClientConnection';
+import {PropDesc} from '../../../core/block/Descriptor';
 
 class SliderView extends LazyUpdateComponent<BlockWidgetProps, any> {
-  static readonly viewProperties: [
-    {name: '@b-w-field'; type: 'string'},
-    {name: '@b-w-min'; type: 'number'; default: 0; visible: 'low'},
-    {name: '@b-w-max'; type: 'number'; default: 100; visible: 'low'},
-    {name: '@b-w-step'; type: 'number'; default: 1; min: 0; visible: 'low'}
+  static readonly viewProperties: PropDesc[] = [
+    {name: '@b-w-field', type: 'string'},
+    {name: '@b-w-min', type: 'number', default: 0, visible: 'low'},
+    {name: '@b-w-max', type: 'number', default: 100, visible: 'low'},
+    {name: '@b-w-step', type: 'number', default: 1, min: 0, visible: 'low'}
   ];
 
   field = new LazyUpdateSubscriber((value: any) => {
@@ -65,6 +65,8 @@ class SliderView extends LazyUpdateComponent<BlockWidgetProps, any> {
     let min = this.min.value;
     let max = this.max.value;
 
+    value = Number(value);
+
     return (
       <div className="ticl-slider-view">
         <Slider
@@ -92,5 +94,4 @@ class SliderView extends LazyUpdateComponent<BlockWidgetProps, any> {
     super.componentWillUnmount();
   }
 }
-
 BlockWidget.register('slider', SliderView);

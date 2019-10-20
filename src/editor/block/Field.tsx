@@ -742,12 +742,12 @@ export class BlockItem extends BaseBlockItem {
     let forceRefresh = fields.length !== this.actualFields.length;
 
     this.actualFields = fields;
-    let SpecialView = this.desc.view;
+    let FullView = this.desc.view;
     if (
       !(
         this.synced || // synced block doesn't need extra #call item
         fields.includes('#call') ||
-        (SpecialView && SpecialView.fullView)
+        FullView
       ) // fullView block doesn't need extra #call item
     ) {
       fields = fields.concat(['#call']);
@@ -872,9 +872,9 @@ export class BlockItem extends BaseBlockItem {
   updateFieldPosition = () => {
     let {x, y, w} = this;
 
-    let SpecialView = this.desc.view;
+    let FullView = this.desc.view;
 
-    if (SpecialView && SpecialView.fullView) {
+    if (FullView) {
       this.setH(this.viewH); // footer height
     } else if (!w) {
       // minimized block
@@ -887,10 +887,9 @@ export class BlockItem extends BaseBlockItem {
       this.setH(fieldHeight);
     } else {
       let headerHeight = fieldHeight;
-      if (this.desc.view) {
-        // special view, right under the header
-        headerHeight += this.viewH;
-      }
+
+      // special view, right under the header
+      headerHeight += this.viewH;
 
       let y1 = y + 1; // top border;
       y1 += fieldYOffset;

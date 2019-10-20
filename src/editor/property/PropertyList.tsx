@@ -18,7 +18,7 @@ import {Button, Empty, Tooltip} from 'antd';
 import {AddMorePropertyMenu} from './AddMoreProperty';
 import {Popup} from '../component/ClickPopup';
 import {BlockWidget} from '../block/view/BlockWidget';
-import {LazyUpdateComponent} from '../../ui/component/LazyUpdateComponent';
+import {LazyUpdateComponent, LazyUpdateSubscriber} from '../../ui/component/LazyUpdateComponent';
 
 function descToEditor(conn: ClientConn, keys: string[], funcDesc: FunctionDesc, propDesc: PropDesc) {
   return (
@@ -393,25 +393,40 @@ interface PropertyAttributeProps {
 }
 
 class PropertyAttributeList extends LazyUpdateComponent<PropertyAttributeProps, any> {
-  lastKey: string;
-  updateKeys(keys: string[]) {}
+  widgetListener = new LazyUpdateSubscriber(this);
+
+  updateKeys(keys: string[]) {
+    const {conn} = this.props;
+    this.widgetListener.subscribe(conn, `${keys[0]}.@b-widget`);
+  }
 
   constructor(props: PropertyAttributeProps) {
     super(props);
     this.updateKeys(props.keys);
   }
 
-  getAttributes() {
+  shouldComponentUpdate(nextProps: Readonly<PropertyAttributeProps>, nextState: Readonly<any>): boolean {
+    this.updateKeys(nextProps.keys);
+    return super.shouldComponentUpdate(nextProps, nextState);
+  }
+
+  renderImpl() {
     let {conn, keys, funcDesc} = this.props;
     let attributeChildren = [];
     for (let attributeDesc of attributeList) {
       attributeChildren.push(descToEditor(conn, keys, funcDesc, attributeDesc));
     }
     attributeChildren.push(descToEditor(conn, keys, funcDesc, BlockWidget.widgetDesc));
+    let widget = BlockWidget.get(this.widgetListener.value);
+    if (widget) {
+      for (let propDesc of widget.viewProperties) {
+        attributeChildren.push(descToEditor(conn, keys, funcDesc, propDesc as PropDesc));
+      }
+    }
     return attributeChildren;
   }
-
-  renderImpl() {
-    return this.getAttributes();
+  componentWillUnmount() {
+    this.widgetListener.unsubscribe();
+    super.componentWillUnmount();
   }
 }
