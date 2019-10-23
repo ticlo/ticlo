@@ -1,6 +1,8 @@
 import {BlockFunction, FunctionData, FunctionOutput} from '../block/BlockFunction';
 import {DataMap, isSavedBlock} from '../util/DataTypes';
-import {Block} from '../block/Block';
+import {Block, Job} from '../block/Block';
+import {ThreadPool, UnlimitedPool, WorkerPool} from './ThreadPool';
+import {voidFunction} from '../util/Functions';
 
 export type MapWorkerMode = undefined | 'reuse' | 'persist';
 
@@ -52,11 +54,70 @@ export class MapImpl extends BlockFunction {
     this._timeout = n;
     return true;
   }
+
+  _updateWorkerTimeout(seconds: number) {
+    if (this._workers) {
+      for (let [key, worker] of this._workers) {
+        (worker._outputObj as WorkerOutput).updateTimeOut(seconds);
+      }
+    }
+  }
+
+  _pool: WorkerPool = new UnlimitedPool((n: number) => this._removeWorker(n.toString()), () => this._workerReady());
+  _onThreadChanged(val: any): boolean {
+    let n = Number(val);
+    if (!(n >= 0)) {
+      if (this._pool.constructor !== UnlimitedPool) {
+        this._srcChanged = true;
+        this._pool.clear();
+        this._pool = new UnlimitedPool((n: number) => this._removeWorker(n.toString()), () => this._workerReady());
+        return true;
+      }
+    } else {
+      if (this._pool.constructor !== ThreadPool) {
+        this._srcChanged = true;
+        this._pool.clear();
+        this._pool = new ThreadPool(n, (n: number) => this._removeWorker(n.toString()), () => this._workerReady());
+        return true;
+      } else {
+        return (this._pool as ThreadPool).resize(n);
+      }
+    }
+    return false;
+  }
+
+  _funcBlock: Block;
+  _workers?: Map<string | number, Job>;
+  _waitingWorker = 0;
+
+  _removeWorker(key: string | number) {
+    let worker = this._workers.get(key);
+    if (worker) {
+      (worker._outputObj as WorkerOutput).cancel();
+      this._funcBlock.deleteValue(key.toString());
+      this._workers.delete(key);
+    }
+  }
+
+  _workerReady() {
+    this.queue();
+  }
+
+  _clearWorkers() {
+    if (this._workers) {
+      for (let [key, worker] of this._workers) {
+        this._removeWorker(key);
+      }
+      this._workers = null;
+      this._waitingWorker = 0;
+      this._timeoutChanged = false;
+    }
+  }
 }
 
 export class WorkerOutput implements FunctionOutput {
   // name of the worker
-  key: string;
+  key: string | number;
   // name of the property in the input and the output object
   field: string;
 
@@ -64,7 +125,7 @@ export class WorkerOutput implements FunctionOutput {
   _onReady: (output: WorkerOutput, timeout: boolean) => void;
 
   constructor(
-    key: string,
+    key: string | number,
     field: string,
     timeoutSeconds: number,
     onReady: (output: WorkerOutput, timeout: boolean) => void

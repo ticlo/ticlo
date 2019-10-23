@@ -7,42 +7,62 @@ import {convertToObject, DataMap, isSavedBlock} from '../util/DataTypes';
 import {ErrorEvent, Event, EventType, NOT_READY} from '../block/Event';
 import {MapImpl, MapWorkerMode, WorkerOutput} from './MapImpl';
 import {BlockProxy} from '../block/BlockProxy';
-import {workers} from 'cluster';
 
-enum ThreadTarget {
-  None = 0,
-  Array = 1,
-  Object = 2
+interface KeyIterator {
+  current(): string;
+  next(): boolean;
+  hasNext(): boolean;
 }
 
-export class MapFunction extends BlockFunction implements MapImpl {
-  _src: DataMap | string;
-  _srcChanged = false;
-  _onSourceChange!: (val: any) => boolean;
+class ArryIterator implements KeyIterator {
+  _array: string[];
+  _idx = 0;
 
+  constructor(array: string[]) {
+    this._array = array;
+  }
+
+  current() {
+    return this._array[this._idx];
+  }
+
+  next() {
+    this._idx++;
+    return this._idx < this._array.length;
+  }
+
+  hasNext() {
+    return this._idx < this._array.length;
+  }
+}
+
+class IndexIterator implements KeyIterator {
+  _current = 0;
+  _size: number;
+
+  constructor(size: number) {
+    this._size = size;
+  }
+
+  current() {
+    return this._current.toString();
+  }
+
+  next() {
+    this._current++;
+    return this._current < this._size;
+  }
+  hasNext() {
+    return this._current < this._size;
+  }
+}
+
+export class MapFunction extends MapImpl {
   _input: any;
   _pendingInput: any;
   _output: any;
-  _waitingWorker: number = 0;
 
-  _funcBlock: Block;
-
-  _thread = 0;
-  // true for Array input, false for Object input
-  _threadTarget: ThreadTarget = ThreadTarget.None;
-
-  _reuseWorker: MapWorkerMode;
-  _onReuseWorkerChange!: (val: any) => boolean;
-
-  _timeout = 0;
-  _timeoutChanged = false;
-  _onTimeoutChange!: (val: any) => boolean;
-
-  _workers?: Map<string, Job>;
-  // object worker that's not created yet
-  _pendingKeys?: string[];
-  // Array worker that's not created yet
-  _pendingIdx: number = Infinity;
+  _pendingKeys?: KeyIterator;
 
   _running = false;
 
@@ -86,20 +106,15 @@ export class MapFunction extends BlockFunction implements MapImpl {
     }
   }
 
-  _onThreadChanged(val: any): boolean {
-    let n = Number(val);
-    if (!(n >= 0)) {
-      n = 0;
+  _startWithNewInput() {
+    if (Array.isArray(this._input)) {
+      this._pendingKeys = new IndexIterator(this._input.length);
+      this._output = new Array(this._input.length);
+    } else {
+      this._pendingKeys = new ArryIterator(Object.keys(this._input));
+      this._output = {};
     }
-    if (n === this._thread) {
-      return false;
-    }
-    if (((this._thread > 0) as any) ^ ((n > 0) as any)) {
-      // thread mode changed
-      this._srcChanged = true;
-    }
-    this._thread = n;
-    return true;
+    this._runThread();
   }
 
   run(): any {
@@ -120,29 +135,15 @@ export class MapFunction extends BlockFunction implements MapImpl {
       this._funcBlock = this._data.createOutputBlock('#func');
     }
 
-    // check if there are pending threads
-    if (this._threadTarget) {
-      if (this._threadTarget === ThreadTarget.Array) {
-        if (this._pendingIdx < this._input.length) {
-          this._runThread();
-          return;
-        }
-      } else {
-        if (this._pendingKeys.length > 0) {
-          this._runThread();
-          return;
-        }
-      }
-      if (this._waitingWorker === 0) {
-        this._data.output(this._output);
-        this._input = undefined;
-        // don't return, allow it to continue working on next pendingInput
-      } else {
-        // there are still waiting worker, dont run
+    if (this._input) {
+      if (this._pendingKeys && this._pendingKeys.hasNext()) {
+        this._runThread();
+        return;
+      } else if (this._waitingWorker > 0) {
         return;
       }
-    } else if (this._waitingWorker > 0) {
-      return;
+      this._data.output(this._output);
+      this._input = undefined;
     }
 
     if (!this._pendingInput) {
@@ -161,29 +162,7 @@ export class MapFunction extends BlockFunction implements MapImpl {
     }
     this._pendingInput = undefined;
 
-    if (this._thread > 0) {
-      if (Array.isArray(this._input)) {
-        this._pendingIdx = 0;
-        this._output = [];
-        this._threadTarget = ThreadTarget.Array;
-        this._runThread();
-        return;
-      } else {
-        this._pendingKeys = Object.keys(this._input);
-        this._output = {};
-        this._threadTarget = ThreadTarget.Object;
-        this._runThread();
-        return;
-      }
-    } else {
-      this._threadTarget = ThreadTarget.None;
-      if (Array.isArray(this._input)) {
-        this._output = [];
-      } else {
-        this._output = {};
-      }
-      this._watchObject(this._input);
-    }
+    this._startWithNewInput();
 
     return NOT_READY;
   }
@@ -195,116 +174,43 @@ export class MapFunction extends BlockFunction implements MapImpl {
       this._output[output.field] = convertToObject(this._workers.get(output.key).getValue('#output'));
     }
     this._waitingWorker--;
-    if (this._threadTarget) {
-      if (!this._reuseWorker || (output.key as any) >= this._thread) {
-        // remove thread worker if the idx is more than max allowed thread
-        this._removeWorker(output.key);
-      }
-      // let run() handler thread worker operation
-      this._data._queueFunction();
-    } else {
-      if (this._waitingWorker === 0) {
-        this._data.output(this._output);
-        this._input = undefined;
-        if (!this._reuseWorker) {
-          this._clearWorkers();
-        }
-      }
-    }
+    this._pool.done(output.key, this._reuseWorker != null);
   };
 
   // return true when there is no more input
   _updateWorkerInput(worker: Job): boolean {
-    if (this._threadTarget === ThreadTarget.Array) {
-      ++this._waitingWorker;
-      (worker._outputObj as WorkerOutput).reset(`${this._pendingIdx}`, this._timeout, this._onWorkerReady);
-      worker.updateInput(this._input[this._pendingIdx], true);
-      this._pendingIdx++;
-      return this._pendingIdx === (this._input as any[]).length;
-    } else {
-      let key = this._pendingKeys.pop();
-      ++this._waitingWorker;
-      (worker._outputObj as WorkerOutput).reset(key, this._timeout, this._onWorkerReady);
-      worker.updateInput(this._input[key], true);
-      return this._pendingKeys.length === 0;
-    }
-  }
-
-  _updateWorkerTimeout(seconds: number) {
-    if (this._workers) {
-      for (let [key, worker] of this._workers) {
-        if (worker) {
-          (worker._outputObj as WorkerOutput).updateTimeOut(seconds);
-        }
-      }
-    }
+    ++this._waitingWorker;
+    let key = this._pendingKeys.current();
+    (worker._outputObj as WorkerOutput).reset(key, this._timeout, this._onWorkerReady);
+    worker.updateInput(this._input[key], true);
+    // return true when no more pendingKeys
+    return !this._pendingKeys.next();
   }
 
   _runThread() {
     if (!this._workers) {
       this._workers = new Map();
     }
-    let idx = 0;
-    for (; idx < this._thread; ++idx) {
-      let worker = this._workers.get(`${idx}`);
+    for (;;) {
+      let threadId = this._pool.next(this._pendingKeys.current());
+      if (threadId === null) {
+        return;
+      }
+      let worker = this._workers.get(threadId);
       if (!worker) {
-        worker = this._addWorker(`${idx}`, undefined, undefined);
+        worker = this._addWorker(threadId, undefined, undefined);
       }
       if (!(worker._outputObj as WorkerOutput)._onReady) {
+        // reuse the worker
         if (this._updateWorkerInput(worker)) {
           // no more input
           break;
         }
       }
     }
-    // clear unused worker
-    if (this._reuseWorker !== 'persist') {
-      for (; idx < this._thread; ++idx) {
-        let worker = this._workers.get(`${idx}`);
-        if (worker && !(worker._outputObj as WorkerOutput)._onReady) {
-          this._removeWorker(`${idx}`);
-        }
-      }
-    }
-  }
-
-  // when input is regular Object
-  _watchObject(obj: DataMap) {
-    if (this._workers) {
-      // update existing workers
-      let oldWorkers = this._workers;
-      this._workers = new Map();
-      for (let key in obj) {
-        let input = obj[key];
-        if (input === undefined) {
-          continue;
-        }
-        if (oldWorkers.get(key)) {
-          let oldWorker = oldWorkers.get(key);
-          ++this._waitingWorker;
-          (oldWorker._outputObj as WorkerOutput).reset(key, this._timeout, this._onWorkerReady);
-          oldWorker.updateInput(input, true);
-          this._workers.set(key, oldWorker);
-          oldWorkers.set(key, undefined);
-        } else {
-          ++this._waitingWorker;
-          this._addWorker(key, key, input);
-        }
-      }
-      if (this._reuseWorker !== 'persist') {
-        for (let [key, oldWorker] of oldWorkers) {
-          if (oldWorker) {
-            oldWorker.destroy();
-            this._funcBlock.deleteValue(key);
-          }
-        }
-      }
-    } else {
-      this._workers = new Map();
-      for (let key in obj) {
-        ++this._waitingWorker;
-        this._addWorker(key, key, obj[key]);
-      }
+    if (this._reuseWorker == null || (this._reuseWorker === 'reuse' && !this._pendingInput)) {
+      // clear unused worker
+      this._pool.clearPending();
     }
   }
 
@@ -321,28 +227,12 @@ export class MapFunction extends BlockFunction implements MapImpl {
     return child;
   }
 
-  _removeWorker(key: string) {
-    let worker = this._workers.get(key);
-    if (worker) {
-      (worker._outputObj as WorkerOutput).cancel();
-      this._funcBlock.deleteValue(key);
-      this._workers.set(key, undefined);
-    }
-  }
-
   _clearWorkers() {
-    if (this._workers) {
-      for (let [key, worker] of this._workers) {
-        this._removeWorker(key);
-      }
-      this._workers = null;
-      this._waitingWorker = 0;
-      this._timeoutChanged = false;
-      this._pendingKeys = undefined;
-      this._pendingIdx = Infinity;
-      this._threadTarget = ThreadTarget.None;
-      this._input = null;
-    }
+    super._clearWorkers();
+
+    this._pendingKeys = undefined;
+    this._pool.clear();
+    this._input = null;
   }
 
   cancel(reason: EventType = EventType.TRIGGER) {
@@ -358,8 +248,7 @@ export class MapFunction extends BlockFunction implements MapImpl {
         }
         this._waitingWorker = 0;
         this._pendingKeys = undefined;
-        this._pendingIdx = Infinity;
-        this._threadTarget = ThreadTarget.None;
+        this._pool.clear();
         this._input = null;
       } else {
         this._clearWorkers();
@@ -380,11 +269,6 @@ export class MapFunction extends BlockFunction implements MapImpl {
     super.destroy();
   }
 }
-
-// implements from MapImpl
-MapFunction.prototype._onSourceChange = MapImpl.prototype._onSourceChange;
-MapFunction.prototype._onReuseWorkerChange = MapImpl.prototype._onReuseWorkerChange;
-MapFunction.prototype._onTimeoutChange = MapImpl.prototype._onTimeoutChange;
 
 MapFunction.prototype.priority = 3;
 Types.add(MapFunction, {

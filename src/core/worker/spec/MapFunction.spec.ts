@@ -41,6 +41,7 @@ describe('MapFunction Basic', function() {
     });
 
     Root.run();
+    Root.run();
 
     assert.deepEqual(bBlock.getValue('output'), {v1: 2, v2: 3, v3: 4});
 
@@ -50,6 +51,7 @@ describe('MapFunction Basic', function() {
       v4: 5
     });
 
+    Root.run();
     Root.run();
 
     assert.deepEqual(bBlock.getValue('output'), {v1: 2, v2: 5, v4: 6});
@@ -85,6 +87,7 @@ describe('MapFunction Basic', function() {
     });
 
     Root.run();
+    Root.run();
 
     assert.deepEqual(bBlock.getValue('output'), data);
 
@@ -118,6 +121,7 @@ describe('MapFunction Basic', function() {
     });
 
     Root.run();
+    Root.run();
 
     assert.deepEqual(bBlock.getValue('output'), {v1: 2, v2: 3, v3: 4});
 
@@ -128,6 +132,7 @@ describe('MapFunction Basic', function() {
       '#output': {'#is': '', '~#value': '##.add.output'}
     });
 
+    Root.run();
     Root.run();
 
     assert.deepEqual(bBlock.getValue('output'), {v1: 3, v2: 4, v3: 5});
@@ -165,13 +170,15 @@ describe('MapFunction Basic', function() {
 
     Root.run();
 
-    assert.deepEqual(bBlock.getValue('output'), {v1: 2, v2: 3, v3: 4});
-
     job.setValue('a', {
       v1: 1,
       v2: 4,
       v4: 5
     });
+
+    Root.run();
+
+    assert.deepEqual(bBlock.getValue('output'), {v1: 2, v2: 3, v3: 4});
 
     Root.run();
 
@@ -210,6 +217,7 @@ describe('MapFunction Basic', function() {
     });
 
     Root.run();
+    Root.run();
 
     assert.deepEqual(bBlock.getValue('output'), {v1: 2, v2: 3, v3: 4});
 
@@ -219,6 +227,7 @@ describe('MapFunction Basic', function() {
       v4: 5
     });
 
+    Root.run();
     Root.run();
 
     assert.deepEqual(bBlock.getValue('output'), {v1: 2, v2: 5, v4: 6});
@@ -256,6 +265,7 @@ describe('MapFunction Basic', function() {
       }
     });
 
+    Root.run();
     Root.run();
 
     assert.deepEqual(bBlock.getValue('output'), {
@@ -389,6 +399,7 @@ describe('MapFunction Basic', function() {
     });
 
     Root.run();
+    Root.run();
 
     assert.deepEqual(bBlock.getValue('output'), {v1: 2, v2: 3, v3: 4});
     assert.lengthOf(TestFunctionRunner.popLogs(), 3);
@@ -405,6 +416,7 @@ describe('MapFunction Basic', function() {
       v4: 5
     });
 
+    Root.run();
     Root.run();
 
     assert.deepEqual(bBlock.getValue('output'), {v1: 2, v2: 5, v4: 6});

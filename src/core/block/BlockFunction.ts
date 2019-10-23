@@ -94,6 +94,10 @@ export class BlockFunction implements BaseFunction {
     // to be overridden
   }
 
+  queue() {
+    this._data._queueFunction();
+  }
+
   destroy(): void {
     this._data = undefined;
   }
