@@ -918,6 +918,19 @@ export class Root extends Job {
     this._instance._run();
   }
 
+  /**
+   * resolve recursively
+   */
+  static runAll(maxRound = 10) {
+    for (let i = 0; i < maxRound; ++i) {
+      if (this._instance._resolver._queued) {
+        this._instance._run();
+      } else {
+        break;
+      }
+    }
+  }
+
   _run = () => {
     this._resolver.run();
     this._resolver._queued = false;

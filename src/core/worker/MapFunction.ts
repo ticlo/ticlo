@@ -11,7 +11,7 @@ import {BlockProxy} from '../block/BlockProxy';
 interface KeyIterator {
   current(): string;
   next(): boolean;
-  hasNext(): boolean;
+  hasMore(): boolean;
 }
 
 class ArryIterator implements KeyIterator {
@@ -31,7 +31,7 @@ class ArryIterator implements KeyIterator {
     return this._idx < this._array.length;
   }
 
-  hasNext() {
+  hasMore() {
     return this._idx < this._array.length;
   }
 }
@@ -52,7 +52,7 @@ class IndexIterator implements KeyIterator {
     this._current++;
     return this._current < this._size;
   }
-  hasNext() {
+  hasMore() {
     return this._current < this._size;
   }
 }
@@ -114,7 +114,10 @@ export class MapFunction extends MapImpl {
       this._pendingKeys = new ArryIterator(Object.keys(this._input));
       this._output = {};
     }
-    this._runThread();
+    if (this._runThread() && this._waitingWorker === 0) {
+      this._data.output(this._output);
+      this._input = undefined;
+    }
   }
 
   run(): any {
@@ -136,10 +139,10 @@ export class MapFunction extends MapImpl {
     }
 
     if (this._input) {
-      if (this._pendingKeys && this._pendingKeys.hasNext()) {
-        this._runThread();
+      if (this._runThread()) {
         return;
-      } else if (this._waitingWorker > 0) {
+      }
+      if (this._waitingWorker > 0) {
         return;
       }
       this._data.output(this._output);
@@ -178,40 +181,42 @@ export class MapFunction extends MapImpl {
   };
 
   // return true when there is no more input
-  _updateWorkerInput(worker: Job): boolean {
+  _updateWorkerInput(worker: Job) {
     ++this._waitingWorker;
     let key = this._pendingKeys.current();
     (worker._outputObj as WorkerOutput).reset(key, this._timeout, this._onWorkerReady);
     worker.updateInput(this._input[key], true);
     // return true when no more pendingKeys
-    return !this._pendingKeys.next();
+    this._pendingKeys.next();
   }
 
+  // return true when there are more pendingKeys
   _runThread() {
     if (!this._workers) {
       this._workers = new Map();
     }
-    for (;;) {
-      let threadId = this._pool.next(this._pendingKeys.current());
-      if (threadId === null) {
-        return;
-      }
-      let worker = this._workers.get(threadId);
-      if (!worker) {
-        worker = this._addWorker(threadId, undefined, undefined);
-      }
-      if (!(worker._outputObj as WorkerOutput)._onReady) {
-        // reuse the worker
-        if (this._updateWorkerInput(worker)) {
-          // no more input
-          break;
+    if (this._pendingKeys) {
+      while (this._pendingKeys.hasMore()) {
+        let threadId = this._pool.next(this._pendingKeys.current());
+        if (threadId === null) {
+          return true;
+        }
+        let worker = this._workers.get(threadId);
+        if (!worker) {
+          worker = this._addWorker(threadId, undefined, undefined);
+        }
+        if (!(worker._outputObj as WorkerOutput)._onReady) {
+          // reuse the worker
+          this._updateWorkerInput(worker);
         }
       }
     }
+
     if (this._reuseWorker == null || (this._reuseWorker === 'reuse' && !this._pendingInput)) {
       // clear unused worker
       this._pool.clearPending();
     }
+    return false;
   }
 
   _addWorker(key: string, field: string, input: any): Job {
