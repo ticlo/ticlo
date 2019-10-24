@@ -60,6 +60,27 @@ describe('MapFunction non-thread', function() {
     job.deleteValue('b');
   });
 
+  it('empty input', function() {
+    let job = new Job();
+
+    let bBlock = job.createBlock('b');
+
+    bBlock._load({
+      '#is': 'map',
+      'input': {},
+      'use': {
+        '#is': {
+          '#is': ''
+        }
+      }
+    });
+
+    Root.run();
+    assert.deepEqual(bBlock.getValue('output'), {});
+
+    job.deleteValue('b');
+  });
+
   it('input object', function() {
     let job = new Job();
 

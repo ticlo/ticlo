@@ -140,8 +140,8 @@ export class MapFunction extends MapImpl {
     }
 
     if (this._input) {
-      if (this._assignWorker()) {
-        // _assignWorker returns true means there are still pendingKeys
+      if (!this._assignWorker()) {
+        // _assignWorker returns false means there are still pendingKeys
         return;
       }
       if (this._waitingWorker > 0) {
@@ -205,7 +205,7 @@ export class MapFunction extends MapImpl {
       while (this._pendingKeys.hasMore()) {
         let threadId = this._pool.next(this._pendingKeys.current());
         if (threadId === null) {
-          return true;
+          return false;
         }
         let worker = this._workers.get(threadId);
         if (!worker) {
@@ -229,7 +229,7 @@ export class MapFunction extends MapImpl {
       // clear unused worker
       this._pool.clearPending();
     }
-    return false;
+    return true;
   }
 
   _clearWorkers() {
