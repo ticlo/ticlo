@@ -7,6 +7,7 @@ import {convertToObject, DataMap, isSavedBlock} from '../util/DataTypes';
 import {ErrorEvent, Event, EventType, NOT_READY} from '../block/Event';
 import {MapImpl, MapWorkerMode, WorkerOutput} from './MapImpl';
 import {BlockProxy} from '../block/BlockProxy';
+import {UnlimitedPool} from './ThreadPool';
 
 interface KeyIterator {
   current(): string;
@@ -140,11 +141,14 @@ export class MapFunction extends MapImpl {
 
     if (this._input) {
       if (this._assignWorker()) {
+        // _assignWorker returns true means there are still pendingKeys
         return;
       }
       if (this._waitingWorker > 0) {
+        // all pending keys are assigned to workers but still waiting for some worker
         return;
       }
+      // everything is done, finish the current one and move to next
       this._data.output(this._output);
       this._input = undefined;
     }
@@ -207,8 +211,14 @@ export class MapFunction extends MapImpl {
         if (!worker) {
           worker = this._addWorker(threadId, undefined, undefined);
         }
-        if (!(worker._outputObj as WorkerOutput).onReady) {
-          // reuse the worker
+        if ((worker._outputObj as WorkerOutput).onReady) {
+          if (this._pool.constructor === UnlimitedPool) {
+            // impossible territory
+            (worker._outputObj as WorkerOutput).cancel();
+            this._updateWorkerInput(worker);
+          }
+        } else {
+          // onReady is blank, worker already done with previous task, reuse the worker
           this._updateWorkerInput(worker);
         }
       }
