@@ -1,9 +1,9 @@
 export class ThreadPool {
   _size: number;
   // contains all the available numbers
-  _ready = new Set<number | string>();
+  _ready = new Array<number | string>();
   // contain numbers that's not fully destroyed, reuse these first
-  _pending = new Set<number | string>();
+  _pending = new Array<number | string>();
 
   // numbers not initialized are not in _ready set, but still assumed ready
   _inited = 0;
@@ -26,7 +26,7 @@ export class ThreadPool {
         this._inited = size;
       }
     } else {
-      if (this._ready.size === 0 && this._pending.size === 0 && this._inited === this._size) {
+      if (this._ready.length === 0 && this._pending.length === 0 && this._inited === this._size) {
         // new thread available after the size change
         this._size = size;
         this._readyCallback();
@@ -40,12 +40,10 @@ export class ThreadPool {
   next(key: string): string {
     for (;;) {
       let result = Infinity;
-      if (this._pending.size) {
-        result = this._pending.values().next().value;
-        this._pending.delete(result);
-      } else if (this._ready.size) {
-        result = this._ready.values().next().value;
-        this._ready.delete(result);
+      if (this._pending.length) {
+        result = this._pending.pop() as number;
+      } else if (this._ready.length) {
+        result = this._ready.pop() as number;
       } else if (this._inited < this._size) {
         result = this._inited;
         this._inited++;
@@ -64,10 +62,10 @@ export class ThreadPool {
   done(n: number | string, pending: boolean) {
     if (n < this._size) {
       if (pending) {
-        this._pending.add(n);
+        this._pending.push(n);
       } else {
         this._destroyCallback(n);
-        this._ready.add(n);
+        this._ready.push(n);
       }
       this._readyCallback();
     } else {
@@ -78,15 +76,15 @@ export class ThreadPool {
   clearPending() {
     for (let n of this._pending) {
       this._destroyCallback(n);
-      this._ready.add(n);
+      this._ready.push(n);
     }
-    this._pending.clear();
+    this._pending.length = 0;
   }
 
   clear() {
     this._inited = 0;
-    this._ready.clear();
-    this._pending.clear();
+    this._ready.length = 0;
+    this._pending.length = 0;
   }
 }
 
