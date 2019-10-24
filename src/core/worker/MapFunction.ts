@@ -215,6 +215,7 @@ export class MapFunction extends MapImpl {
           if (this._pool.constructor === UnlimitedPool) {
             // impossible territory
             (worker._outputObj as WorkerOutput).cancel();
+            this._waitingWorker--;
             this._updateWorkerInput(worker);
           }
         } else {

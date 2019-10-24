@@ -97,15 +97,25 @@ export class UnlimitedPool {
   _destroyCallback: (n: number | string) => void;
   _readyCallback: () => void;
 
+  _inited = 0;
+
   constructor(destroyCallback: (n: number | string) => void, readyCallback: () => void) {
     this._destroyCallback = destroyCallback;
     this._readyCallback = readyCallback;
   }
-  next(prefered: string): string {
-    if (this._pending.has(prefered)) {
-      this._pending.delete(prefered);
+  next(preferred: string): string {
+    if (preferred == null) {
+      // no preferred value, automatically assign one
+      if (this._pending.size) {
+        let value = this._pending.values().next().value;
+        this._pending.delete(value);
+        return value;
+      }
+      return `${this._inited++}`;
+    } else if (this._pending.has(preferred)) {
+      this._pending.delete(preferred);
     }
-    return prefered;
+    return preferred;
   }
   clearPending() {
     for (let n of this._pending) {
@@ -122,6 +132,7 @@ export class UnlimitedPool {
     this._readyCallback();
   }
   clear() {
+    this._inited = 0;
     this._pending.clear();
   }
 }
