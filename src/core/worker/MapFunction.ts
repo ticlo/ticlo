@@ -114,7 +114,7 @@ export class MapFunction extends MapImpl {
       this._pendingKeys = new ArryIterator(Object.keys(this._input));
       this._output = {};
     }
-    if (this._runThread() && this._waitingWorker === 0) {
+    if (this._assignWorker() && this._waitingWorker === 0) {
       this._data.output(this._output);
       this._input = undefined;
     }
@@ -139,7 +139,7 @@ export class MapFunction extends MapImpl {
     }
 
     if (this._input) {
-      if (this._runThread()) {
+      if (this._assignWorker()) {
         return;
       }
       if (this._waitingWorker > 0) {
@@ -170,7 +170,7 @@ export class MapFunction extends MapImpl {
     return NOT_READY;
   }
 
-  _onWorkerReady = (output: WorkerOutput, timeout: boolean) => {
+  _onWorkerReady(output: WorkerOutput, timeout: boolean) {
     if (timeout) {
       this._output[output.field] = new ErrorEvent('timeout');
     } else {
@@ -178,20 +178,22 @@ export class MapFunction extends MapImpl {
     }
     this._waitingWorker--;
     this._pool.done(output.key, this._reuseWorker != null);
-  };
+  }
 
   // return true when there is no more input
   _updateWorkerInput(worker: Job) {
     ++this._waitingWorker;
     let key = this._pendingKeys.current();
-    (worker._outputObj as WorkerOutput).reset(key, this._timeout, this._onWorkerReady);
+    (worker._outputObj as WorkerOutput).reset(key, this._timeout, (output: WorkerOutput, timeout: boolean) =>
+      this._onWorkerReady(output, timeout)
+    );
     worker.updateInput(this._input[key], true);
     // return true when no more pendingKeys
     this._pendingKeys.next();
   }
 
   // return true when there are more pendingKeys
-  _runThread() {
+  _assignWorker() {
     if (!this._workers) {
       this._workers = new Map();
     }
@@ -205,7 +207,7 @@ export class MapFunction extends MapImpl {
         if (!worker) {
           worker = this._addWorker(threadId, undefined, undefined);
         }
-        if (!(worker._outputObj as WorkerOutput)._onReady) {
+        if (!(worker._outputObj as WorkerOutput).onReady) {
           // reuse the worker
           this._updateWorkerInput(worker);
         }
@@ -219,24 +221,10 @@ export class MapFunction extends MapImpl {
     return false;
   }
 
-  _addWorker(key: string, field: string, input: any): Job {
-    let output = new WorkerOutput(key, field, this._timeout, this._onWorkerReady);
-    let child = this._funcBlock.createOutputJob(key, this._src, output);
-    child.onResolved = () => {
-      if (!child._waiting) {
-        output.workerReady();
-      }
-    };
-    this._workers.set(key, child);
-    child.updateInput(input);
-    return child;
-  }
-
   _clearWorkers() {
     super._clearWorkers();
 
     this._pendingKeys = undefined;
-    this._pool.clear();
     this._input = null;
   }
 

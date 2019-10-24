@@ -6,7 +6,7 @@ import {voidFunction} from '../util/Functions';
 
 export type MapWorkerMode = undefined | 'reuse' | 'persist';
 
-export class MapImpl extends BlockFunction {
+export abstract class MapImpl extends BlockFunction {
   _src: DataMap | string;
   _srcChanged: boolean; /* = false*/
 
@@ -63,21 +63,21 @@ export class MapImpl extends BlockFunction {
     }
   }
 
-  _pool: WorkerPool = new UnlimitedPool((n: number) => this._removeWorker(n.toString()), () => this._workerReady());
+  _pool: WorkerPool = new UnlimitedPool((n: number) => this._removeWorker(n.toString()), () => this.queue());
   _onThreadChanged(val: any): boolean {
     let n = Number(val);
     if (!(n >= 0)) {
       if (this._pool.constructor !== UnlimitedPool) {
         this._srcChanged = true;
         this._pool.clear();
-        this._pool = new UnlimitedPool((n: number) => this._removeWorker(n.toString()), () => this._workerReady());
+        this._pool = new UnlimitedPool((n: number) => this._removeWorker(n.toString()), () => this.queue());
         return true;
       }
     } else {
       if (this._pool.constructor !== ThreadPool) {
         this._srcChanged = true;
         this._pool.clear();
-        this._pool = new ThreadPool(n, (n: number) => this._removeWorker(n.toString()), () => this._workerReady());
+        this._pool = new ThreadPool(n, (n: number) => this._removeWorker(n.toString()), () => this.queue());
         return true;
       } else {
         return (this._pool as ThreadPool).resize(n);
@@ -90,6 +90,23 @@ export class MapImpl extends BlockFunction {
   _workers?: Map<string | number, Job>;
   _waitingWorker = 0;
 
+  abstract _onWorkerReady(output: WorkerOutput, timeout: boolean): void;
+
+  _addWorker(key: string, field: string, input: any): Job {
+    let output = new WorkerOutput(key, field, this._timeout, (output: WorkerOutput, timeout: boolean) =>
+      this._onWorkerReady(output, timeout)
+    );
+    let child = this._funcBlock.createOutputJob(key, this._src, output);
+    child.onResolved = () => {
+      if (!child._waiting) {
+        output.workerReady();
+      }
+    };
+    this._workers.set(key, child);
+    child.updateInput(input);
+    return child;
+  }
+
   _removeWorker(key: string | number) {
     let worker = this._workers.get(key);
     if (worker) {
@@ -97,10 +114,6 @@ export class MapImpl extends BlockFunction {
       this._funcBlock.deleteValue(key.toString());
       this._workers.delete(key);
     }
-  }
-
-  _workerReady() {
-    this.queue();
   }
 
   _clearWorkers() {
@@ -111,6 +124,7 @@ export class MapImpl extends BlockFunction {
       this._workers = null;
       this._waitingWorker = 0;
       this._timeoutChanged = false;
+      this._pool.clear();
     }
   }
 }
@@ -121,8 +135,8 @@ export class WorkerOutput implements FunctionOutput {
   // name of the property in the input and the output object
   field: string;
 
-  _timeout: any;
-  _onReady: (output: WorkerOutput, timeout: boolean) => void;
+  timeout: any;
+  onReady: (output: WorkerOutput, timeout: boolean) => void;
 
   constructor(
     key: string | number,
@@ -133,28 +147,28 @@ export class WorkerOutput implements FunctionOutput {
     this.key = key;
     this.field = field;
     if (field !== undefined) {
-      this._onReady = onReady;
+      this.onReady = onReady;
       if (timeoutSeconds > 0) {
-        this._timeout = setTimeout(this.onTimeout, timeoutSeconds * 1000);
+        this.timeout = setTimeout(this.onTimeout, timeoutSeconds * 1000);
       }
     }
   }
 
   updateTimeOut(seconds: number) {
-    if (this._onReady) {
-      if (this._timeout) {
-        clearTimeout(this._timeout);
+    if (this.onReady) {
+      if (this.timeout) {
+        clearTimeout(this.timeout);
       }
       if (seconds > 0) {
-        this._timeout = setTimeout(this.onTimeout, seconds * 1000);
+        this.timeout = setTimeout(this.onTimeout, seconds * 1000);
       }
     }
   }
 
   onTimeout = () => {
-    if (this._onReady) {
-      let onReady = this._onReady;
-      this._onReady = null;
+    if (this.onReady) {
+      let onReady = this.onReady;
+      this.onReady = null;
       onReady(this, true);
     }
   };
@@ -164,12 +178,12 @@ export class WorkerOutput implements FunctionOutput {
   }
 
   workerReady(): void {
-    if (this._timeout) {
-      clearTimeout(this._timeout);
+    if (this.timeout) {
+      clearTimeout(this.timeout);
     }
-    if (this._onReady) {
-      let onReady = this._onReady;
-      this._onReady = null;
+    if (this.onReady) {
+      let onReady = this.onReady;
+      this.onReady = null;
       onReady(this, false);
     }
   }
@@ -177,11 +191,11 @@ export class WorkerOutput implements FunctionOutput {
   // reuse the output on a new Render
   reset(field: string, timeoutSeconds: number, onReady: (output: WorkerOutput, timeout: boolean) => void) {
     this.field = field;
-    this._onReady = onReady;
+    this.onReady = onReady;
     this.updateTimeOut(timeoutSeconds);
   }
 
   cancel() {
-    this._onReady = null;
+    this.onReady = null;
   }
 }
