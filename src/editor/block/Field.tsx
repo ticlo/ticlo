@@ -212,6 +212,7 @@ export class FieldItem extends DataRendererItem<ValueRenderer> {
     if (this.inWire) {
       this.inWire.destroy();
       this.inWire = null;
+      this.forceUpdate();
       this.block.stage.forceUpdate();
     }
   }
@@ -239,6 +240,7 @@ export class FieldItem extends DataRendererItem<ValueRenderer> {
         this.inWire.setSource(source);
       } else {
         this.inWire = new WireItem(source, this);
+        this.forceUpdate();
         this.block.stage.forceUpdate();
       }
     } else {
@@ -293,18 +295,22 @@ export class BlockHeaderView extends PureDataRenderer<BlockHeaderProps, any> {
     let showOutBound = false;
 
     if (item) {
+      showOutBound = item.cache.hasListener || (item.subBlock && item.subBlock.hidden);
       if (item.cache.bindingPath) {
         inBoundClass = 'ticl-slot ticl-inbound';
         if (item.subBlock) {
           inBoundClass = null;
         } else if (item.inWire) {
           inBoundTitle = item.cache.bindingPath;
+          if (item.inWire.checkIsRightSide()) {
+            inBoundClass = 'ticl-slot ticl-inbound-right';
+            showOutBound = false;
+          }
         } else {
           inBoundClass += ' ticl-inbound-path';
           inBoundText = item.cache.bindingPath;
         }
       }
-      showOutBound = item.cache.hasListener || (item.subBlock && item.subBlock.hidden);
     }
 
     return (
@@ -745,7 +751,7 @@ export class BlockItem extends BaseBlockItem {
     let FullView = this.desc.view;
     if (
       !(
-        this.synced || // synced block doesn't need extra #call item
+        this._syncParent || // sync child block doesn't need extra #call item
         fields.includes('#call') ||
         FullView
       ) // fullView block doesn't need extra #call item
@@ -778,8 +784,6 @@ export class BlockItem extends BaseBlockItem {
       let newSynced = Boolean(response.cache.value);
       if (newSynced !== this.synced) {
         this.synced = newSynced;
-        // update actual fields to add/remove #call
-        this.setP(this.actualFields);
         this.forceUpdate();
       }
     }
@@ -963,8 +967,9 @@ export class BlockItem extends BaseBlockItem {
     if (parent) {
       parent.syncChild = this;
     }
-    //// nothing to refresh here for now
-    // this.forceUpdate();
+    // update actual fields to add/remove #call
+    this.setP(this.actualFields);
+    this.forceUpdate();
   }
 
   set syncChild(child: BlockItem) {
