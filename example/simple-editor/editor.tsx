@@ -23,6 +23,7 @@ import {TrackedClientConn} from '../../src/core/connect/TrackedClientConn';
 import {BlockStageTab} from '../../src/panel/block/BlockStageTab';
 import {Dispatcher, ValueDispatcher} from '../../src/core/block/Dispatcher';
 import {PropertyListPanel} from '../../src/panel/property/PropertyListPanel';
+import {ObjectTree} from '../../src/ui/object-tree/ObjectTree';
 
 const layoutGroups = {
   blockStage: {
@@ -143,6 +144,12 @@ class App extends React.PureComponent<Props, State> implements TicloLayoutContex
                     }}
                   />
                 )
+              },
+              {
+                id: 'ObjectTree',
+                title: 'Object',
+                cached: true,
+                content: <ObjectTree  conn={conn} style={{height: '100%'}} data={sampleData} />
               }
             ]
           },
