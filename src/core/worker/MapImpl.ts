@@ -44,7 +44,7 @@ export abstract class MapImpl extends BlockFunction {
 
   _onTimeoutChange(val: any): boolean {
     let n = Number(val);
-    if (!(n >= 0)) {
+    if (!(n > 0)) {
       n = 0;
     }
     if (n === this._timeout) {
@@ -66,7 +66,7 @@ export abstract class MapImpl extends BlockFunction {
   _pool: WorkerPool = new UnlimitedPool((n: number) => this._removeWorker(n.toString()), () => this.queue());
   _onThreadChanged(val: any): boolean {
     let n = Number(val);
-    if (!(n >= 0)) {
+    if (!(n >= 1)) {
       if (this._pool.constructor !== UnlimitedPool) {
         this._srcChanged = true;
         this._pool.clear();

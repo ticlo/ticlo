@@ -40,7 +40,7 @@ describe('MapFunction non-thread', function() {
       }
     });
 
-    Root.runAll();
+    Root.runAll(2);
 
     assert.deepEqual(bBlock.getValue('output'), {v1: 2, v2: 3, v3: 4});
 
@@ -50,7 +50,7 @@ describe('MapFunction non-thread', function() {
       v4: 5
     });
 
-    Root.runAll();
+    Root.runAll(2);
 
     assert.deepEqual(bBlock.getValue('output'), {v1: 2, v2: 5, v4: 6});
 
@@ -105,7 +105,7 @@ describe('MapFunction non-thread', function() {
       }
     });
 
-    Root.runAll();
+    Root.runAll(2);
 
     assert.deepEqual(bBlock.getValue('output'), data);
 
@@ -138,7 +138,7 @@ describe('MapFunction non-thread', function() {
       }
     });
 
-    Root.runAll();
+    Root.runAll(2);
 
     assert.deepEqual(bBlock.getValue('output'), {v1: 2, v2: 3, v3: 4});
 
@@ -149,7 +149,7 @@ describe('MapFunction non-thread', function() {
       '#output': {'#is': '', '~#value': '##.add.output'}
     });
 
-    Root.runAll();
+    Root.runAll(2);
 
     assert.deepEqual(bBlock.getValue('output'), {v1: 3, v2: 4, v3: 5});
 
@@ -232,7 +232,7 @@ describe('MapFunction non-thread', function() {
       }
     });
 
-    Root.runAll();
+    Root.runAll(2);
 
     assert.deepEqual(bBlock.getValue('output'), {v1: 2, v2: 3, v3: 4});
 
@@ -242,7 +242,7 @@ describe('MapFunction non-thread', function() {
       v4: 5
     });
 
-    Root.runAll();
+    Root.runAll(2);
 
     assert.deepEqual(bBlock.getValue('output'), {v1: 2, v2: 5, v4: 6});
     assert.equal(bBlock.queryValue('#func.v3.#output.#value'), 4, 'unused worker is still kept');
@@ -279,7 +279,7 @@ describe('MapFunction non-thread', function() {
       }
     });
 
-    Root.runAll();
+    Root.runAll(2);
 
     assert.deepEqual(bBlock.getValue('output'), {
       obj1: {v: 2},
@@ -411,7 +411,7 @@ describe('MapFunction non-thread', function() {
       }
     });
 
-    Root.runAll();
+    Root.runAll(2);
 
     assert.deepEqual(bBlock.getValue('output'), {v1: 2, v2: 3, v3: 4});
     assert.lengthOf(TestFunctionRunner.popLogs(), 3);
@@ -428,7 +428,7 @@ describe('MapFunction non-thread', function() {
       v4: 5
     });
 
-    Root.runAll();
+    Root.runAll(2);
 
     assert.deepEqual(bBlock.getValue('output'), {v1: 2, v2: 5, v4: 6});
 

@@ -3,7 +3,7 @@ import {BlockBinding} from './BlockBinding';
 import {FunctionData, FunctionClass, BaseFunction, FunctionOutput} from './BlockFunction';
 import {Dispatcher, Listener, ValueDispatcher, ListenPromise, Destroyable, BlockBindingSource} from './Dispatcher';
 import {Type, Types} from './Type';
-import {ErrorEvent, Event, EventType, NOT_READY} from './Event';
+import {CompleteEvent, ErrorEvent, Event, EventType, NOT_READY} from './Event';
 import {DataMap} from '../util/DataTypes';
 import {Uid} from '../util/Uid';
 import {voidProperty} from './Void';
@@ -497,7 +497,7 @@ export class Block implements Runnable, FunctionData, Listener<FunctionClass>, D
     }
     if (this._props.has('#emit')) {
       if (val === undefined) {
-        val = new Event('complete');
+        val = new CompleteEvent();
       }
       this._props.get('#emit').updateValue(val);
     }

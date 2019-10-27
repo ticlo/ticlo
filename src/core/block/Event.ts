@@ -63,4 +63,10 @@ export class NotReady extends Event {
   }
 }
 
+export class CompleteEvent extends Event {
+  constructor() {
+    super('complete');
+  }
+}
+
 export const NOT_READY = new NotReady();

@@ -12,6 +12,7 @@
   },
   "license": "MPL-2.0",
   "dependencies": {
+    "denque": "^1.4.1",
     "i18next": "^17.0.16",
     "jsonesc": "^0.4.6",
     "moment": "^2.24.0",

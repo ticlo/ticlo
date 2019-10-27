@@ -142,11 +142,11 @@ export class MapFunction extends MapImpl {
     if (this._input) {
       if (!this._assignWorker()) {
         // _assignWorker returns false means there are still pendingKeys
-        return;
+        return NOT_READY;
       }
       if (this._waitingWorker > 0) {
         // all pending keys are assigned to workers but still waiting for some worker
-        return;
+        return NOT_READY;
       }
       // everything is done, finish the current one and move to next
       this._data.output(this._output);
@@ -157,7 +157,7 @@ export class MapFunction extends MapImpl {
       if (this._reuseWorker !== 'persist') {
         this._clearWorkers();
       }
-      // nothing to run
+      // return ready state
       return;
     } else if (!this._reuseWorker) {
       this._clearWorkers();
@@ -184,7 +184,6 @@ export class MapFunction extends MapImpl {
     this._pool.done(output.key, this._reuseWorker != null);
   }
 
-  // return true when there is no more input
   _updateWorkerInput(worker: Job) {
     ++this._waitingWorker;
     let key = this._pendingKeys.current();
@@ -192,11 +191,10 @@ export class MapFunction extends MapImpl {
       this._onWorkerReady(output, timeout)
     );
     worker.updateInput(this._input[key], true);
-    // return true when no more pendingKeys
     this._pendingKeys.next();
   }
 
-  // return true when there are more pendingKeys
+  // return true when all pending keys are assigned
   _assignWorker() {
     if (!this._workers) {
       this._workers = new Map();
@@ -210,18 +208,17 @@ export class MapFunction extends MapImpl {
         let worker = this._workers.get(threadId);
         if (!worker) {
           worker = this._addWorker(threadId, undefined, undefined);
-        }
-        if ((worker._outputObj as WorkerOutput).onReady) {
+        } else if ((worker._outputObj as WorkerOutput).onReady) {
           if (this._pool.constructor === UnlimitedPool) {
             // impossible territory
             (worker._outputObj as WorkerOutput).cancel();
             this._waitingWorker--;
-            this._updateWorkerInput(worker);
+          } else {
+            // this worker is still in use, skip it
+            continue;
           }
-        } else {
-          // onReady is blank, worker already done with previous task, reuse the worker
-          this._updateWorkerInput(worker);
         }
+        this._updateWorkerInput(worker);
       }
     }
 
