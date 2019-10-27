@@ -846,12 +846,14 @@ export class Job extends Block {
   }
 
   // make sure the input triggers a change
-  updateInput(val: any, forceUpdate: boolean = false) {
+  updateInput(val: any) {
     let prop = this.getProperty('#input');
-    if (forceUpdate && Object.is(val, prop._value)) {
-      prop.updateValue(undefined);
+    if (prop._value instanceof InputBlock) {
+      prop._value._setInputValue(val);
+    } else {
+      prop.updateValue(val);
     }
-    prop.updateValue(val);
+    this._resolver.forceSchedule();
   }
 
   cancel() {
@@ -1004,6 +1006,19 @@ export class InputBlock extends Block {
     } else {
       return new BlockProperty(this, field);
     }
+  }
+
+  _setInputValue(val: any) {
+    this.updateValue('#value', val);
+    if (Object.isExtensible(val)) {
+      let moreList = this.getValue('#more');
+      if (Array.isArray(moreList)) {
+        for (let moreProp of moreList) {
+          this.updateValue(moreProp.name, val[moreProp.name]);
+        }
+      }
+    }
+    this.updateValue('#call', new Event('inputChanged'));
   }
 }
 

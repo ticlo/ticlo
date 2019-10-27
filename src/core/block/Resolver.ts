@@ -41,6 +41,14 @@ export class Resolver implements Runnable {
     }
   }
 
+  /**
+   * Make the _schedule() is called
+   * This is usually unnecessary unless _onResolved needs to be called even when no block is triggered
+   */
+  forceSchedule() {
+    this._schedule(this);
+  }
+
   // // wait to be run
   // isWaiting(): boolean {
   //   return this._queueWait.length > 0;

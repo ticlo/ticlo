@@ -102,7 +102,7 @@ export class PipeFunction extends MapImpl {
     (worker._outputObj as WorkerOutput).reset(input, this._timeout, (output: WorkerOutput, timeout: boolean) =>
       this._onWorkerReady(output, timeout)
     );
-    worker.updateInput(input, true);
+    worker.updateInput(input);
   }
 
   run(): any {
@@ -165,7 +165,7 @@ export class PipeFunction extends MapImpl {
     if (this._keepOrder) {
       this._outQueue.set(output, result);
       let it = this._outQueue.entries();
-      for (; ;) {
+      for (;;) {
         let {value, done} = it.next();
         if (!done) {
           let [key, result] = value;

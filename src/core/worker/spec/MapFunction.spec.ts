@@ -81,6 +81,51 @@ describe('MapFunction non-thread', function() {
     job.deleteValue('b');
   });
 
+  it('#input', function() {
+    let job = new Job();
+
+    job.setValue('a', {
+      v1: {a: 1, b: 2},
+      v2: {a: 3, b: 4}
+    });
+
+    let bBlock = job.createBlock('b');
+
+    bBlock._load({
+      '#is': 'map',
+      '~input': '##.a',
+      'use': {
+        '#is': {
+          '#is': '',
+          '#output': {'#is': '', '~#value': '##.#input.a'}
+        }
+      }
+    });
+    Root.runAll(2);
+    assert.deepEqual(bBlock.getValue('output'), {v1: 1, v2: 3});
+
+    bBlock.setValue('use', {
+      '#is': '',
+      '#input': {'#is': ''},
+      '#output': {'#is': '', '~#value': '##.#input.#value.b'}
+    });
+
+    Root.runAll(2);
+    assert.deepEqual(bBlock.getValue('output'), {v1: 2, v2: 4});
+
+    bBlock.setValue('use', {
+      '#is': '',
+      '#input': {'#is': '', '#more': [{name: 'a', type: 'number'}]},
+      '#output': {'#is': '', '~#value': '##.#input.a'}
+    });
+
+    Root.runAll(2);
+    assert.deepEqual(bBlock.getValue('output'), {v1: 1, v2: 3});
+
+    // delete job;
+    job.deleteValue('b');
+  });
+
   it('input object', function() {
     let job = new Job();
 

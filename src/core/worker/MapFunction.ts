@@ -190,7 +190,7 @@ export class MapFunction extends MapImpl {
     (worker._outputObj as WorkerOutput).reset(key, this._timeout, (output: WorkerOutput, timeout: boolean) =>
       this._onWorkerReady(output, timeout)
     );
-    worker.updateInput(this._input[key], true);
+    worker.updateInput(this._input[key]);
     this._pendingKeys.next();
   }
 
