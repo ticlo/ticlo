@@ -11,3 +11,4 @@ import './functions/basic/string/Join';
 import './functions/script/Js';
 import './worker/MapFunction';
 import './worker/ForEachFunction';
+import './worker/PipeFunction';

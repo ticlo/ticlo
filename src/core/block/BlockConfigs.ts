@@ -170,7 +170,7 @@ export const JobConfigGenerators: {[key: string]: typeof BlockProperty} = {
 export const InputConfigGenerators: {[key: string]: typeof BlockProperty} = {
   ...ConfigGenerators,
   '#is': BlockInputTypeConfig,
-  '#call': BlockProperty,
+  '#call': BlockProperty
 };
 
 export const OutputConfigGenerators: {[key: string]: typeof BlockProperty} = {

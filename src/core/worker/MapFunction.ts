@@ -280,8 +280,8 @@ Types.add(MapFunction, {
   properties: [
     {name: 'input', type: 'any'},
     {name: 'use', type: 'worker'},
-    {name: 'thread', type: 'number'},
-    {name: 'reuseWorker', type: 'toggle'},
+    {name: 'thread', type: 'number', default: 0, min: 0, step: 1},
+    {name: 'reuseWorker', type: 'radio-button', options: ['none', 'reuse', 'persist'], default: 'none'},
     {name: 'timeout', type: 'number'},
     {name: 'output', type: 'any', readonly: true}
   ]

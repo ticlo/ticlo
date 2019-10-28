@@ -200,15 +200,16 @@ PipeFunction.prototype.priority = 3;
 Types.add(PipeFunction, {
   name: 'pipe',
   icon: 'fas:grip-lines-vertical',
-  priority: 1,
+  priority: 3,
+  mode: 'onCall',
   style: 'repeater',
   properties: [
     {name: 'use', type: 'worker'},
-    {name: 'thread', type: 'number'},
-    {name: 'reuseWorker', type: 'toggle'},
+    {name: 'thread', type: 'number', default: 0, min: 0, step: 1},
+    {name: 'reuseWorker', type: 'radio-button', options: ['none', 'reuse', 'persist'], default: 'none'},
     {name: 'timeout', type: 'number'},
     {name: 'keepOrder', type: 'toggle'},
-    {name: 'maxQueueSize', type: 'number', default: 0},
+    {name: 'maxQueueSize', type: 'number', default: 0, min: 0, step: 1},
     {name: 'queueSize', type: 'number', readonly: true}
   ]
 });
