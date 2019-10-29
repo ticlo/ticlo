@@ -246,20 +246,13 @@ export class PropertyList extends MultiSelectComponent<Props, State, BlockLoader
     this.onAddMorePopup(false);
   };
 
-  getConfigs(conn: ClientConn, keys: string[], funcDesc: FunctionDesc) {
-    let configChildren = [];
-    for (let configDesc of configList) {
-      configChildren.push(descToEditor(conn, keys, funcDesc, configDesc));
-    }
-    return configChildren;
-  }
-
   renderImpl() {
     let {conn, keys, style, mode} = this.props;
     let {showConfig, showAttribute, showMore, showAddMorePopup} = this.state;
 
     let descChecked: Set<string> = new Set<string>();
     let propMerger: PropertyDefMerger = new PropertyDefMerger();
+    let configMerger: PropertyDefMerger = new PropertyDefMerger();
     let moreMerger: PropertyDefMerger = new PropertyDefMerger();
 
     let isEmpty = true;
@@ -300,6 +293,23 @@ export class PropertyList extends MultiSelectComponent<Props, State, BlockLoader
     let children = propMerger.render(keys, conn, funcDesc);
 
     if (mode !== 'minimal') {
+      // merge #config properties
+
+      let configChildren: React.ReactNode[];
+
+      for (let [key, subscriber] of this.loaders) {
+        if (subscriber.desc) {
+          configMerger.add(subscriber.desc.configs || configList);
+        } else {
+          // properties not ready
+          configMerger.map = null;
+          break;
+        }
+      }
+      if (configMerger.isNotEmpty() && showConfig) {
+        configChildren = configMerger.render(keys, conn, funcDesc, true);
+      }
+
       // merge #more properties
       let moreChildren: React.ReactNode[];
       for (let [key, subscriber] of this.loaders) {
@@ -332,7 +342,7 @@ export class PropertyList extends MultiSelectComponent<Props, State, BlockLoader
             <span>config</span>
             <div className="ticl-h-line" />
           </div>
-          {showConfig ? this.getConfigs(conn, keys, funcDesc) : null}
+          {configChildren}
 
           {allowAttribute ? (
             <div className="ticl-property-divider">

@@ -79,9 +79,10 @@ export interface FunctionDesc {
   priority?: 0 | 1 | 2 | 3;
   mode?: BlockMode;
   properties?: (PropDesc | PropGroupDesc)[];
+  configs?: PropDesc[];
+  attributes?: PropDesc[];
   /** recipient property will receive value or binding when parent property is converted to subblock of this type */
   recipient?: string;
-  attributes?: (PropDesc)[];
 
   // a React class to display special component in block UI in the editor
   // not used on server side
@@ -127,7 +128,8 @@ export const configDescs: {[key: string]: PropDesc} = {
   '#len': {name: '#len', type: 'number', default: 2, min: 0, step: 1},
   '#call': {name: '#call', type: 'event'},
   '#sync': {name: '#sync', type: 'toggle'},
-  '#wait': {name: '#wait', type: 'toggle'},
+  '#wait': {name: '#wait', type: 'toggle', readonly: true},
+  '#wait(output)': {name: '#wait', type: 'toggle'},
   '#cancel': {name: '#cancel', type: 'event'},
   '#priority': {
     name: '#priority',
@@ -135,6 +137,7 @@ export const configDescs: {[key: string]: PropDesc} = {
     options: ['auto', 0, 1, 2, 3],
     default: 'auto'
   },
+  '#value': {name: '#value', type: 'any'},
   '#input': {name: '#input', type: 'any'},
   '#output': {name: '#output', type: 'any'}
 };
@@ -143,7 +146,8 @@ export const configList: PropDesc[] = [
   configDescs['#call'],
   configDescs['#mode'],
   configDescs['#priority'],
-  configDescs['#sync']
+  configDescs['#sync'],
+  configDescs['#wait']
 ];
 
 export const attributeDescs: {[key: string]: PropDesc} = {
