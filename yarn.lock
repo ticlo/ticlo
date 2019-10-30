@@ -835,10 +835,10 @@
   dependencies:
     moment ">=2.14.0"
 
-"@types/node@*", "@types/node@^12.11.7":
-  version "12.11.7"
-  resolved "https://registry.yarnpkg.com/@types/node/-/node-12.11.7.tgz#57682a9771a3f7b09c2497f28129a0462966524a"
-  integrity sha512-JNbGaHFCLwgHn/iCckiGSOZ1XYHsKFwREtzPwSGCVld1SGhOlmZw2D4ZI94HQCrBHbADzW9m4LER/8olJTRGHA==
+"@types/node@*", "@types/node@^12.12.0":
+  version "12.12.0"
+  resolved "https://registry.yarnpkg.com/@types/node/-/node-12.12.0.tgz#ff3201972d6dc851a9275308a17b9b5094e68057"
+  integrity sha512-6N8Sa5AaENRtJnpKXZgvc119PKxT1Lk9VPy4kfT8JF23tIe1qDfaGkBR2DRKJFIA7NptMz+fps//C6aLi1Uoug==
 
 "@types/prop-types@*":
   version "15.7.3"
@@ -1706,9 +1706,9 @@ caniuse-api@^3.0.0:
     lodash.uniq "^4.5.0"
 
 caniuse-lite@^1.0.0, caniuse-lite@^1.0.30001004:
-  version "1.0.30001005"
-  resolved "https://registry.yarnpkg.com/caniuse-lite/-/caniuse-lite-1.0.30001005.tgz#823054210be638c725521edcb869435dae46728d"
-  integrity sha512-g78miZm1Z5njjYR216a5812oPiLgV1ssndgGxITHWUopmjUrCswMisA0a2kSB7a0vZRox6JOKhM51+efmYN8Mg==
+  version "1.0.30001006"
+  resolved "https://registry.yarnpkg.com/caniuse-lite/-/caniuse-lite-1.0.30001006.tgz#5b6e8288792cfa275f007b2819a00ccad7112655"
+  integrity sha512-MXnUVX27aGs/QINz+QG1sWSLDr3P1A3Hq5EUWoIt0T7K24DuvMxZEnh3Y5aHlJW6Bz2aApJdSewdYLd8zQnUuw==
 
 caseless@~0.12.0:
   version "0.12.0"
@@ -2272,21 +2272,13 @@ css-selector-tokenizer@^0.7.0:
     fastparse "^1.1.1"
     regexpu-core "^1.0.0"
 
-css-tree@1.0.0-alpha.29:
-  version "1.0.0-alpha.29"
-  resolved "https://registry.yarnpkg.com/css-tree/-/css-tree-1.0.0-alpha.29.tgz#3fa9d4ef3142cbd1c301e7664c1f352bd82f5a39"
-  integrity sha512-sRNb1XydwkW9IOci6iB2xmy8IGCj6r/fr+JWitvJ2JxQRPzN3T4AGGVWCMlVmVwM1gtgALJRmGIlWv5ppnGGkg==
-  dependencies:
-    mdn-data "~1.1.0"
-    source-map "^0.5.3"
-
-css-tree@1.0.0-alpha.33:
-  version "1.0.0-alpha.33"
-  resolved "https://registry.yarnpkg.com/css-tree/-/css-tree-1.0.0-alpha.33.tgz#970e20e5a91f7a378ddd0fc58d0b6c8d4f3be93e"
-  integrity sha512-SPt57bh5nQnpsTBsx/IXbO14sRc9xXu5MtMAVuo0BaQQmyf0NupNPPSoMaqiAF5tDFafYsTkfeH4Q/HCKXkg4w==
+css-tree@1.0.0-alpha.37:
+  version "1.0.0-alpha.37"
+  resolved "https://registry.yarnpkg.com/css-tree/-/css-tree-1.0.0-alpha.37.tgz#98bebd62c4c1d9f960ec340cf9f7522e30709a22"
+  integrity sha512-DMxWJg0rnz7UgxKT0Q1HU/L9BeJI0M6ksor0OgqOnF+aRCDWg/N2641HmVyU9KVIu0OVVWOb2IpC9A+BJRnejg==
   dependencies:
     mdn-data "2.0.4"
-    source-map "^0.5.3"
+    source-map "^0.6.1"
 
 css-unit-converter@^1.1.1:
   version "1.1.1"
@@ -2381,12 +2373,12 @@ cssnano@^4.0.0, cssnano@^4.1.10:
     is-resolvable "^1.0.0"
     postcss "^7.0.0"
 
-csso@^3.5.1:
-  version "3.5.1"
-  resolved "https://registry.yarnpkg.com/csso/-/csso-3.5.1.tgz#7b9eb8be61628973c1b261e169d2f024008e758b"
-  integrity sha512-vrqULLffYU1Q2tLdJvaCYbONStnfkfimRxXNaGjxMldI0C7JPBC4rB1RyjhfdZ4m1frm8pM9uRPKH3d2knZ8gg==
+csso@^4.0.2:
+  version "4.0.2"
+  resolved "https://registry.yarnpkg.com/csso/-/csso-4.0.2.tgz#e5f81ab3a56b8eefb7f0092ce7279329f454de3d"
+  integrity sha512-kS7/oeNVXkHWxby5tHVxlhjizRCSv8QdU7hB2FpdAibDU8FjTAolhNjKNTiLzXtUrKT6HwClE81yXwEk1309wg==
   dependencies:
-    css-tree "1.0.0-alpha.29"
+    css-tree "1.0.0-alpha.37"
 
 cssom@0.3.x, cssom@^0.3.4:
   version "0.3.8"
@@ -3714,10 +3706,10 @@ https-browserify@^1.0.0:
   resolved "https://registry.yarnpkg.com/https-browserify/-/https-browserify-1.0.0.tgz#ec06c10e0a34c0f2faf199f7fd7fc78fffd03c73"
   integrity sha1-7AbBDgo0wPL68Zn3/X/Hj//QPHM=
 
-i18next@^18.0.1:
-  version "18.0.1"
-  resolved "https://registry.yarnpkg.com/i18next/-/i18next-18.0.1.tgz#10841209f6983df4d8e367204da403d8cbc609cf"
-  integrity sha512-KWd9qMFXw0qjxF7cTAqQselPCYoHfaLvBs8c6JcNzaQKVxbAlE/wv9EZXPy+JlKUcXCT0qgjcmxrJjmbnEp60A==
+i18next@^19.0.0:
+  version "19.0.0"
+  resolved "https://registry.yarnpkg.com/i18next/-/i18next-19.0.0.tgz#5418207d7286128e6cfe558e659fa8c60d89794b"
+  integrity sha512-xxNKNOqLdGP/M+/fzzBOhcc9hCAqv6gDhHq0xbYz/Vlz5PlMfr9P1LbBvmk7RkZjYoh/kyM1tnfSl+sJ2VaD0Q==
   dependencies:
     "@babel/runtime" "^7.3.1"
 
@@ -4787,11 +4779,6 @@ mdn-data@2.0.4:
   version "2.0.4"
   resolved "https://registry.yarnpkg.com/mdn-data/-/mdn-data-2.0.4.tgz#699b3c38ac6f1d728091a64650b65d388502fd5b"
   integrity sha512-iV3XNKw06j5Q7mi6h+9vbx23Tv7JkjEVgKHW4pimwyDGWm0OIQntJJ+u1C6mg6mK1EaTv42XQ7w76yuzH7M2cA==
-
-mdn-data@~1.1.0:
-  version "1.1.4"
-  resolved "https://registry.yarnpkg.com/mdn-data/-/mdn-data-1.1.4.tgz#50b5d4ffc4575276573c4eedb8780812a8419f01"
-  integrity sha512-FSYbp3lyKjyj3E7fMl6rYvUdX0FBXaluGqlFoYESWQlyUTq8R+wp0rkFxoYFqZlHCvsUXGjyJmLQSnXToYhOSA==
 
 media-typer@0.3.0:
   version "0.3.0"
@@ -6783,9 +6770,9 @@ rc-upload@~2.8.0:
     warning "4.x"
 
 rc-util@^4.0.4, rc-util@^4.1.1, rc-util@^4.10.0, rc-util@^4.11.2, rc-util@^4.12.0, rc-util@^4.13.0, rc-util@^4.3.0, rc-util@^4.4.0, rc-util@^4.5.0, rc-util@^4.5.1, rc-util@^4.6.0, rc-util@^4.8.0, rc-util@^4.8.1:
-  version "4.14.0"
-  resolved "https://registry.yarnpkg.com/rc-util/-/rc-util-4.14.0.tgz#c1e3c956c2075a5e9e8077bc4bd3948b6af99b18"
-  integrity sha512-QjbVT7N55EjTPqMEDGlrO2I9joxUnkOvEHmQZgvlAPWpBnZyWay8QnBr634qRGOMjCMDx2u9rIyosugXJbGiEQ==
+  version "4.14.2"
+  resolved "https://registry.yarnpkg.com/rc-util/-/rc-util-4.14.2.tgz#854bed80c77146a06af84a3a7c706b64a256fe95"
+  integrity sha512-51UIbw4zXuhTstyXyCjdVCPJUBm5+lhqe29yaI7qDhV5tnByzUaJ3+kEgY4MjJmET40qSPRusrIyBPrqnXwB7w==
   dependencies:
     add-dom-event-listener "^1.1.0"
     babel-runtime "6.x"
@@ -7521,9 +7508,9 @@ source-map-resolve@^0.5.0:
     urix "^0.1.0"
 
 source-map-support@^0.5.6, source-map-support@~0.5.10, source-map-support@~0.5.12:
-  version "0.5.15"
-  resolved "https://registry.yarnpkg.com/source-map-support/-/source-map-support-0.5.15.tgz#20fe16f16e74644e21a396c78c841fa66e35df6c"
-  integrity sha512-wYF5aX1J0+V51BDT3Om7uXNn0ct2FWiV4bvwiGVefxkm+1S1o5jsecE5lb2U28DDblzxzxeIDbTVpXHI9D/9hA==
+  version "0.5.16"
+  resolved "https://registry.yarnpkg.com/source-map-support/-/source-map-support-0.5.16.tgz#0ae069e7fe3ba7538c64c98515e35339eac5a042"
+  integrity sha512-efyLRJDr68D9hBBNIPWFjhpFzURh+KJykQwvMyW5UiZzYwoF6l4YMMDIJJEyFWxWCqfyxLzz6tSfUFR+kXXsVQ==
   dependencies:
     buffer-from "^1.0.0"
     source-map "^0.6.0"
@@ -7538,7 +7525,7 @@ source-map@0.6.1, source-map@^0.6.0, source-map@^0.6.1, source-map@~0.6.0, sourc
   resolved "https://registry.yarnpkg.com/source-map/-/source-map-0.6.1.tgz#74722af32e9614e9c287a8d0bbde48b5e2f1a263"
   integrity sha512-UjgapumWlbMhkBgzT7Ykc5YXUT46F0iKu8SGXq0bcwP5dz/h0Plj6enJqjz1Zbq2l5WaqYnrVbwWOWMyF3F47g==
 
-source-map@^0.5.0, source-map@^0.5.1, source-map@^0.5.3, source-map@^0.5.6, source-map@~0.5.3:
+source-map@^0.5.0, source-map@^0.5.1, source-map@^0.5.6, source-map@~0.5.3:
   version "0.5.7"
   resolved "https://registry.yarnpkg.com/source-map/-/source-map-0.5.7.tgz#8a039d2d1021d22d1ea14c80d8ea468ba2ef3fcc"
   integrity sha1-igOdLRAh0i0eoUyA2OpGi6LvP8w=
@@ -7874,16 +7861,16 @@ supports-color@^6.1.0:
     has-flag "^3.0.0"
 
 svgo@^1.0.0, svgo@^1.2.2:
-  version "1.3.0"
-  resolved "https://registry.yarnpkg.com/svgo/-/svgo-1.3.0.tgz#bae51ba95ded9a33a36b7c46ce9c359ae9154313"
-  integrity sha512-MLfUA6O+qauLDbym+mMZgtXCGRfIxyQoeH6IKVcFslyODEe/ElJNwr0FohQ3xG4C6HK6bk3KYPPXwHVJk3V5NQ==
+  version "1.3.1"
+  resolved "https://registry.yarnpkg.com/svgo/-/svgo-1.3.1.tgz#115c1f9d7e3294dfc66288c8499e65c2a1479729"
+  integrity sha512-2iv3AHKL+x2/nAvkg+vTv01aK94OFU6wTRbnv/K43mf1OdKEEA8xaQl7Wjs5Vrh9AlyXvyPd8fg6s6YzYdQTnQ==
   dependencies:
     chalk "^2.4.1"
     coa "^2.0.2"
     css-select "^2.0.0"
     css-select-base-adapter "^0.1.1"
-    css-tree "1.0.0-alpha.33"
-    csso "^3.5.1"
+    css-tree "1.0.0-alpha.37"
+    csso "^4.0.2"
     js-yaml "^3.13.1"
     mkdirp "~0.5.1"
     object.values "^1.1.0"
@@ -8217,9 +8204,9 @@ ua-parser-js@^0.7.18:
   integrity sha512-8OaIKfzL5cpx8eCMAhhvTlft8GYF8b2eQr6JkCyVdrgjcytyOmPCXrqXFcUnhonRpLlh5yxEZVohm6mzaowUOw==
 
 uglify-js@^3.1.4:
-  version "3.6.4"
-  resolved "https://registry.yarnpkg.com/uglify-js/-/uglify-js-3.6.4.tgz#88cc880c6ed5cf9868fdfa0760654e7bed463f1d"
-  integrity sha512-9Yc2i881pF4BPGhjteCXQNaXx1DCwm3dtOyBaG2hitHjLWOczw/ki8vD1bqyT3u6K0Ms/FpCShkmfg+FtlOfYA==
+  version "3.6.5"
+  resolved "https://registry.yarnpkg.com/uglify-js/-/uglify-js-3.6.5.tgz#b0ee796d2ae7e25672e04f65629b997cd4b30bd6"
+  integrity sha512-7L3W+Npia1OCr5Blp4/Vw83tK1mu5gnoIURtT1fUVfQ3Kf8WStWV6NJz0fdoBJZls0KlweruRTLVe6XLafmy5g==
   dependencies:
     commander "~2.20.3"
     source-map "~0.6.1"
