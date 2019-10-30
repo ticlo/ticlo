@@ -197,7 +197,7 @@ describe('PipeFunction', function() {
     aBlock.setValue('#call', 0);
     Root.run();
 
-    await shouldHappen(() => listener.emits.length === 4);
+    await shouldHappen(() => listener.emits.length === 5);
 
     assert.deepEqual(listener.emits, [5, 4, 3, 2, 1]);
 
