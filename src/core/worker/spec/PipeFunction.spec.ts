@@ -204,4 +204,76 @@ describe('PipeFunction', function() {
     // delete pipe;
     job.deleteValue('a');
   });
+
+  it('timeout', async function() {
+    let job = new Job();
+
+    let listener = new PipeListener();
+    let aBlock = job.createBlock('a');
+
+    aBlock.getProperty('#emit').listen(listener);
+    aBlock._load({
+      '#is': 'pipe',
+      '#sync': true,
+      'timeout': 10,
+      'use': {
+        '#is': {
+          '#is': '',
+          '#output': {'#is': '', '#wait': true}
+        }
+      }
+    });
+
+    aBlock.setValue('#call', 4);
+    aBlock.setValue('#call', 3);
+    aBlock.setValue('#call', 2);
+    aBlock.setValue('#call', 1);
+    Root.runAll();
+
+    assert.deepEqual(listener.emits, [NOT_READY]);
+
+    aBlock.setValue('timeout', 0.01);
+    await shouldHappen(() => listener.emits.length >= 5);
+
+    // delete pipe;
+    job.deleteValue('a');
+  });
+
+  it('maxQueueSize', async function() {
+    let job = new Job();
+
+    let listener = new PipeListener(true);
+    let aBlock = job.createBlock('a');
+
+    aBlock.getProperty('#emit').listen(listener);
+    aBlock._load({
+      '#is': 'pipe',
+      '#sync': true,
+      'maxQueueSize': 2,
+      'thread': 1,
+      'use': {
+        '#is': {
+          '#is': '',
+          'runner': {'#is': 'test-runner', '#mode': 'onLoad', '#-log': 0},
+          'add': {'#is': 'add', '~0': '##.#input', '1': 1},
+          '#output': {'#is': '', '~#value': '##.add.output'}
+        }
+      }
+    });
+
+    aBlock.setValue('#call', 4);
+    aBlock.setValue('#call', 3);
+    aBlock.setValue('#call', 2);
+    aBlock.setValue('#call', 1);
+    aBlock.setValue('#call', 0);
+
+    Root.run();
+
+    await shouldHappen(() => listener.emits.length >= 3);
+
+    assert.deepEqual(listener.emits, [5, 2, 1]);
+
+    // delete pipe;
+    job.deleteValue('a');
+  });
 });

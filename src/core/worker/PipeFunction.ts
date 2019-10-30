@@ -100,7 +100,6 @@ export class PipeFunction extends MapImpl {
       field = this._outQueue.total;
       this._outQueue.newSlot();
     }
-
     let input = this._queue.shift();
     (worker._outputObj as WorkerOutput).reset(field, this._timeout, (output: WorkerOutput, timeout: boolean) =>
       this._onWorkerReady(output, timeout)
@@ -203,7 +202,7 @@ Types.add(PipeFunction, {
   name: 'pipe',
   icon: 'fas:grip-lines-vertical',
   priority: 3,
-  mode: 'onCall',
+  mode: 'onChange',
   style: 'repeater',
   properties: [
     {name: 'use', type: 'worker'},
