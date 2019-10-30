@@ -1,7 +1,7 @@
 import {Types} from '../Type';
 import {BaseFunction, BlockFunction, PureFunction} from '../BlockFunction';
 import {BlockIO, BlockPropertyEvent} from '../BlockProperty';
-import {ErrorEvent, Event, EventType, NOT_READY} from '../Event';
+import {CompleteEvent, ErrorEvent, Event, EventType, NOT_READY} from '../Event';
 import {Dispatcher} from '../Dispatcher';
 import {BlockMode} from '../Block';
 import {DataMap} from '../../util/DataTypes';
@@ -99,11 +99,11 @@ export class TestAsyncFunctionManual extends BlockFunction {
         if (this._data.getValue('#-resolve')) {
           this._data.emit(this._data.getValue('#-resolve'));
         } else {
-          this._data.emit(new Event('complete'));
+          this._data.emit(new CompleteEvent());
         }
       }
       this.timeOut = null;
-    }, Math.random() * 3);
+    }, Math.random() * 10);
 
     return NOT_READY;
   }

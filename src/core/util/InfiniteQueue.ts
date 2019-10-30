@@ -34,10 +34,9 @@ export class InfiniteQueue<T> extends Denque<T> {
       throw new Error('invalid index');
     }
     let len = this.size();
-    if (i >= len || i < -len) {
+    if (i >= len || i < 0) {
       throw new Error('invalid index');
     }
-    if (i < 0) i += len;
     i = (this._head + i) & this._capacityMask;
     this._list[i] = item;
   }

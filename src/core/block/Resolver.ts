@@ -36,17 +36,18 @@ export class Resolver implements Runnable {
     block._queued = true;
     block._queueToRun = true;
     this._queueWait.push(block);
-    if (!(this._queued || this._resolving)) {
-      this._schedule(this);
-    }
+    this.schedule();
   }
 
   /**
    * Make the _schedule() is called
-   * This is usually unnecessary unless _onResolved needs to be called even when no block is triggered
+   * This is usually only called by queueBlock
+   * an exception is when _onResolved needs to be called even when no block is triggered
    */
-  forceSchedule() {
-    this._schedule(this);
+  schedule() {
+    if (!(this._queued || this._resolving)) {
+      this._schedule(this);
+    }
   }
 
   // // wait to be run

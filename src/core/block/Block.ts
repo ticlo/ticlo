@@ -562,8 +562,10 @@ export class Block implements Runnable, FunctionData, Listener<FunctionClass>, D
             if (this._sync) {
               if (this._runOnChange && this._runOnLoad && !this._queueToRun) {
                 // if sync block has mode onLoad, it can't be called synchronously without a change
-                if (this._props.has('#emit')) {
-                  this._props.get('#emit').updateValue(val);
+                let prop = this._props.get('#emit');
+                if (prop && Object.isExtensible(prop._value) && prop._value.constructor === CompleteEvent) {
+                  // re-emit complete event
+                  prop.updateValue(new CompleteEvent());
                 }
               } else {
                 this._called = true;
@@ -815,6 +817,14 @@ export class Job extends Block {
     }
   }
 
+  onWait(val: any) {
+    let wait = Boolean(val);
+    if (!wait && wait !== this._waiting) {
+      this._resolver.schedule();
+    }
+    super.onWait(wait);
+  }
+
   _createConfig(field: string): BlockProperty {
     if (field in JobConfigGenerators) {
       return new JobConfigGenerators[field](this, field);
@@ -853,7 +863,7 @@ export class Job extends Block {
     } else {
       prop.updateValue(val);
     }
-    this._resolver.forceSchedule();
+    this._resolver.schedule();
   }
 
   cancel() {

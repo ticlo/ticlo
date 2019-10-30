@@ -92,7 +92,7 @@ export abstract class MapImpl extends BlockFunction {
 
   abstract _onWorkerReady(output: WorkerOutput, timeout: boolean): void;
 
-  _addWorker(key: string, field: string, input: any): Job {
+  _addWorker(key: string, field: string | number, input: any): Job {
     let output = new WorkerOutput(key, field, this._timeout, (output: WorkerOutput, timeout: boolean) =>
       this._onWorkerReady(output, timeout)
     );
@@ -133,14 +133,14 @@ export class WorkerOutput implements FunctionOutput {
   // name of the worker
   key: string | number;
   // name of the property in the input and the output object
-  field: string;
+  field: string | number;
 
   timeout: any;
   onReady: (output: WorkerOutput, timeout: boolean) => void;
 
   constructor(
     key: string | number,
-    field: string,
+    field: string | number,
     timeoutSeconds: number,
     onReady: (output: WorkerOutput, timeout: boolean) => void
   ) {
@@ -189,7 +189,7 @@ export class WorkerOutput implements FunctionOutput {
   }
 
   // reuse the output on a new Render
-  reset(field: string, timeoutSeconds: number, onReady: (output: WorkerOutput, timeout: boolean) => void) {
+  reset(field: string | number, timeoutSeconds: number, onReady: (output: WorkerOutput, timeout: boolean) => void) {
     this.field = field;
     this.onReady = onReady;
     this.updateTimeOut(timeoutSeconds);

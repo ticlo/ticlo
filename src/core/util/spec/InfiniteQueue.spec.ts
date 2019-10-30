@@ -22,6 +22,10 @@ describe('InfiniteQueue', function() {
     assert.equal(q.from, 0);
     assert.equal(q.total, 0);
 
+    // invalid shift should not change from
+    q.shift();
+    assert.equal(q.from, 0);
+
     assert.throw(() => q.setAt(0.1, 0));
     assert.throw(() => q.setAt(2, 0));
     assert.throw(() => q.setAt(-2, 0));

@@ -1,15 +1,15 @@
-import {BlockFunction} from '../block/BlockFunction';
-import {MapImpl, MapWorkerMode, WorkerOutput} from './MapImpl';
-import {convertToObject, DataMap} from '../util/DataTypes';
-import {Block, Job} from '../block/Block';
+import {MapImpl, WorkerOutput} from './MapImpl';
+import {convertToObject} from '../util/DataTypes';
+import {BlockMode, Job} from '../block/Block';
 import {Types} from '../block/Type';
-import {CompleteEvent, ErrorEvent, NOT_READY} from '../block/Event';
+import {CompleteEvent, ErrorEvent, EventType, NOT_READY} from '../block/Event';
 import Denque from 'denque';
 import {BlockIO} from '../block/BlockProperty';
+import {InfiniteQueue} from '../util/InfiniteQueue';
 
 export class PipeFunction extends MapImpl {
   _queue = new Denque<any>();
-  _outQueue = new Map<any, any>();
+  _outQueue = new InfiniteQueue<any>();
   _currentInput: any;
 
   inputChanged(input: BlockIO, val: any): boolean {
@@ -95,11 +95,14 @@ export class PipeFunction extends MapImpl {
 
   _updateWorkerInput(worker: Job) {
     ++this._waitingWorker;
+    let field: any;
     if (this._keepOrder) {
-      this._outQueue.set(worker._outputObj, undefined);
+      field = this._outQueue.total;
+      this._outQueue.newSlot();
     }
+
     let input = this._queue.shift();
-    (worker._outputObj as WorkerOutput).reset(input, this._timeout, (output: WorkerOutput, timeout: boolean) =>
+    (worker._outputObj as WorkerOutput).reset(field, this._timeout, (output: WorkerOutput, timeout: boolean) =>
       this._onWorkerReady(output, timeout)
     );
     worker.updateInput(input);
@@ -107,6 +110,7 @@ export class PipeFunction extends MapImpl {
 
   run(): any {
     if (this._keepOrderChanged) {
+      this._keepOrderChanged = false;
       this._clearWorkers();
     }
     let input = this._data.getValue('#call');
@@ -138,10 +142,10 @@ export class PipeFunction extends MapImpl {
         // _assignWorker returns true means there are still pendingKeys
         return NOT_READY;
       }
-      if (this._waitingWorker > 0) {
-        // all pending keys are assigned to workers but still waiting for some worker
-        return NOT_READY;
-      }
+    }
+    if (this._waitingWorker > 0) {
+      // all pending keys are assigned to workers but still waiting for some worker
+      return NOT_READY;
     }
     if (this._reuseWorker !== 'persist') {
       this._clearWorkers();
@@ -163,19 +167,10 @@ export class PipeFunction extends MapImpl {
       }
     }
     if (this._keepOrder) {
-      this._outQueue.set(output, result);
-      let it = this._outQueue.entries();
-      for (;;) {
-        let {value, done} = it.next();
-        if (!done) {
-          let [key, result] = value;
-          if (result !== undefined) {
-            this._outQueue.delete(key);
-            this._data.emitOnly(result);
-          } else {
-            break;
-          }
-        }
+      this._outQueue.setAt(output.field as number, result);
+      while (this._outQueue.peekFront() !== undefined) {
+        let result = this._outQueue.shift();
+        this._data.emitOnly(result);
       }
     } else {
       this._data.emitOnly(result);
@@ -186,6 +181,13 @@ export class PipeFunction extends MapImpl {
   _clearWorkers() {
     super._clearWorkers();
     this._outQueue.clear();
+  }
+  cancel(reason: EventType = EventType.TRIGGER, mode: BlockMode = 'auto'): boolean {
+    if (reason === EventType.TRIGGER) {
+      // cancel only when #cancel is triggered
+      this._clearWorkers();
+    }
+    return true;
   }
 
   destroy(): void {
