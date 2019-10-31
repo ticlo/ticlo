@@ -2,7 +2,7 @@ import {MapImpl, WorkerOutput} from './MapImpl';
 import {convertToObject} from '../util/DataTypes';
 import {BlockMode, Job} from '../block/Block';
 import {Types} from '../block/Type';
-import {CompleteEvent, ErrorEvent, EventType, NOT_READY} from '../block/Event';
+import {Event, ErrorEvent, EventType, NOT_READY} from '../block/Event';
 import Denque from 'denque';
 import {BlockIO} from '../block/BlockProperty';
 import {InfiniteQueue} from '../util/InfiniteQueue';
@@ -113,8 +113,8 @@ export class PipeFunction extends MapImpl {
       this._clearWorkers();
     }
     let input = this._data.getValue('#call');
-    if (input && input.constructor === CompleteEvent) {
-      // ignore complete event of previous block
+    if (input instanceof Event) {
+      // ignore event of previous block
       input = undefined;
     }
     if (input !== this._currentInput) {
@@ -181,7 +181,7 @@ export class PipeFunction extends MapImpl {
     super._clearWorkers();
     this._outQueue.clear();
   }
-  cancel(reason: EventType = EventType.TRIGGER, mode: BlockMode = 'auto'): boolean {
+  cancel(reason: EventType, mode: BlockMode): boolean {
     if (reason === EventType.TRIGGER) {
       // cancel only when #cancel is triggered
       this._clearWorkers();

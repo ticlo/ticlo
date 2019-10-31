@@ -27,6 +27,15 @@ class PipeListener {
   onSourceChange(prop: any): void {}
 }
 
+const pipeWorker = {
+  '#is': {
+    '#is': '',
+    'runner': {'#is': 'test-runner', '#mode': 'onLoad', '#-log': 0},
+    'add': {'#is': 'add', '~0': '##.#input', '1': 1},
+    '#output': {'#is': '', '~#value': '##.add.output'}
+  }
+};
+
 describe('PipeFunction', function() {
   beforeEach(() => {
     TestFunctionRunner.clearLog();
@@ -46,13 +55,7 @@ describe('PipeFunction', function() {
     aBlock._load({
       '#is': 'pipe',
       '#call': 1,
-      'use': {
-        '#is': {
-          '#is': '',
-          'add': {'#is': 'add', '~0': '##.#input', '1': 1},
-          '#output': {'#is': '', '~#value': '##.add.output'}
-        }
-      }
+      'use': pipeWorker
     });
 
     Root.runAll(2);
@@ -73,14 +76,7 @@ describe('PipeFunction', function() {
     aBlock._load({
       '#is': 'pipe',
       '#sync': true,
-      'use': {
-        '#is': {
-          '#is': '',
-          'runner': {'#is': 'test-runner', '#mode': 'onLoad', '#-log': 0},
-          'add': {'#is': 'add', '~0': '##.#input', '1': 1},
-          '#output': {'#is': '', '~#value': '##.add.output'}
-        }
-      }
+      'use': pipeWorker
     });
 
     aBlock.setValue('#call', 4);
@@ -108,14 +104,7 @@ describe('PipeFunction', function() {
       '#is': 'pipe',
       '#sync': true,
       'thread': 2,
-      'use': {
-        '#is': {
-          '#is': '',
-          'runner': {'#is': 'test-runner', '#mode': 'onLoad', '#-log': 0},
-          'add': {'#is': 'add', '~0': '##.#input', '1': 1},
-          '#output': {'#is': '', '~#value': '##.add.output'}
-        }
-      }
+      'use': pipeWorker
     });
 
     aBlock.setValue('#call', 4);
@@ -144,14 +133,7 @@ describe('PipeFunction', function() {
       '#sync': true,
       'thread': 2,
       'reuseWorker': 'reuse',
-      'use': {
-        '#is': {
-          '#is': '',
-          'runner': {'#is': 'test-runner', '#mode': 'onLoad', '#-log': 0},
-          'add': {'#is': 'add', '~0': '##.#input', '1': 1},
-          '#output': {'#is': '', '~#value': '##.add.output'}
-        }
-      }
+      'use': pipeWorker
     });
 
     aBlock.setValue('#call', 4);
@@ -163,6 +145,47 @@ describe('PipeFunction', function() {
     assert.deepEqual(listener.emits, [NOT_READY, 5, 4, NOT_READY, 3, 2]);
 
     assert.lengthOf(TestFunctionRunner.popLogs(), 2);
+
+    aBlock.setValue('#call', 0);
+    Root.runAll();
+    assert.deepEqual(listener.emits, [NOT_READY, 5, 4, NOT_READY, 3, 2, NOT_READY, 1]);
+
+    assert.lengthOf(TestFunctionRunner.popLogs(), 1); // a new worker is created
+
+    // delete pipe;
+    job.deleteValue('a');
+  });
+
+  it('thread persist', function() {
+    let job = new Job();
+
+    let listener = new PipeListener();
+    let aBlock = job.createBlock('a');
+
+    aBlock.getProperty('#emit').listen(listener);
+    aBlock._load({
+      '#is': 'pipe',
+      '#sync': true,
+      'thread': 2,
+      'reuseWorker': 'persist',
+      'use': pipeWorker
+    });
+
+    aBlock.setValue('#call', 4);
+    aBlock.setValue('#call', 3);
+    aBlock.setValue('#call', 2);
+    aBlock.setValue('#call', 1);
+    Root.runAll();
+
+    assert.deepEqual(listener.emits, [NOT_READY, 5, 4, NOT_READY, 3, 2]);
+
+    assert.lengthOf(TestFunctionRunner.popLogs(), 2);
+
+    aBlock.setValue('#call', 0);
+    Root.runAll();
+    assert.deepEqual(listener.emits, [NOT_READY, 5, 4, NOT_READY, 3, 2, NOT_READY, 1]);
+
+    assert.isEmpty(TestFunctionRunner.popLogs()); // no new worker is created
 
     // delete pipe;
     job.deleteValue('a');
@@ -251,14 +274,7 @@ describe('PipeFunction', function() {
       '#sync': true,
       'maxQueueSize': 2,
       'thread': 1,
-      'use': {
-        '#is': {
-          '#is': '',
-          'runner': {'#is': 'test-runner', '#mode': 'onLoad', '#-log': 0},
-          'add': {'#is': 'add', '~0': '##.#input', '1': 1},
-          '#output': {'#is': '', '~#value': '##.add.output'}
-        }
-      }
+      'use': pipeWorker
     });
 
     aBlock.setValue('#call', 4);
@@ -272,6 +288,75 @@ describe('PipeFunction', function() {
     await shouldHappen(() => listener.emits.length >= 3);
 
     assert.deepEqual(listener.emits, [5, 2, 1]);
+
+    // delete pipe;
+    job.deleteValue('a');
+  });
+
+  it('chain pipe blocks', async function() {
+    let job = new Job();
+
+    job.load({
+      a: {
+        '#is': 'pipe',
+        '#sync': true,
+        'use': pipeWorker
+      },
+      b: {
+        '~#call': '##.a.#emit',
+        '#is': 'pipe',
+        '#sync': true,
+        'use': pipeWorker
+      }
+    });
+    let listener = new PipeListener();
+
+    let aBlock = job.getValue('a');
+
+    job.queryProperty('a.#emit', true).listen(listener);
+
+    aBlock.setValue('#call', 4);
+    aBlock.setValue('#call', 3);
+
+    Root.runAll();
+    // assert.deepEqual(listener.emits, [NOT_READY, 6, 5]);
+
+    // assert.lengthOf(TestFunctionRunner.popLogs(), 4);
+    // delete pipe;
+    job.deleteValue('a');
+  });
+
+  it('misc', async function() {
+    let job = new Job();
+
+    let listener = new PipeListener(true);
+    let aBlock = job.createBlock('a');
+
+    aBlock.getProperty('#emit').listen(listener);
+    aBlock._load({
+      '#is': 'pipe',
+      '#sync': true,
+      'thread': 1,
+      'use': pipeWorker
+    });
+
+    // invalid parameters
+    aBlock.setValue('keepOrder', '');
+    aBlock.setValue('invalidParameter', '');
+    aBlock.setValue('maxQueueSize', -1);
+
+    aBlock.setValue('#call', 4);
+    aBlock.setValue('#call', 3);
+    aBlock.setValue('#call', 2);
+
+    // change queue size when the queue already exists
+    aBlock.setValue('maxQueueSize', 1);
+
+    Root.run();
+
+    await shouldHappen(() => listener.emits.length >= 2);
+
+    assert.deepEqual(listener.emits, [5, 3]);
 
     // delete pipe;
     job.deleteValue('a');
