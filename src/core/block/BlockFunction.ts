@@ -29,6 +29,7 @@ export class BaseFunction {
   constructor(block?: FunctionData) {
     this._data = block;
   }
+  initInputs() {}
 
   // return true when it needs to be put in queue
   inputChanged(input: BlockIO, val: any): boolean {
@@ -69,12 +70,26 @@ export class BlockFunction implements BaseFunction {
   constructor(block?: Block) {
     this._data = block;
   }
+  initInputs() {
+    for (let [key, callback] of this.getInputMap()) {
+      callback.call(this, this._data.getValue(key));
+    }
+  }
 
   descriptor: FunctionDesc;
 
+  static emptyInputMap = new Map();
+  getInputMap(): Map<string, (this: BlockFunction, val: any) => boolean> {
+    return BlockFunction.emptyInputMap;
+  }
+
   // return true when it needs to be put in queue
   inputChanged(input: BlockIO, val: any): boolean {
-    return true;
+    const inputCallback = this.getInputMap().get(input._name);
+    if (inputCallback) {
+      return inputCallback.call(this, val);
+    }
+    return false;
   }
 
   // return stream output

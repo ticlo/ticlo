@@ -21,6 +21,7 @@ export class JsFunction extends BlockFunction {
   }
 
   inputChanged(input: BlockIO, val: any): boolean {
+    // ignore parent implementation of inputChanged
     if (input._name === 'script') {
       this._compiledFunction = null;
       this._runFunction = null;

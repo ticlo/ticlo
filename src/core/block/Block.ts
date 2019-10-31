@@ -688,6 +688,7 @@ export class Block implements Runnable, FunctionData, Listener<FunctionClass>, D
         if (this._mode === 'auto') {
           this._configMode();
         }
+        this._function.initInputs();
         if (this._runOnLoad) {
           this._queueFunction();
         }

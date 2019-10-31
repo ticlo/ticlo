@@ -10,7 +10,6 @@ import {MapImpl} from './MapImpl';
 export class ForEachFunction extends BlockFunction implements BlockChildWatch {
   _src: DataMap | string;
   _srcChanged: boolean = false;
-  _onSourceChange!: (val: any) => boolean;
 
   _input: any;
   _inputChanged: boolean = false;
@@ -21,16 +20,12 @@ export class ForEachFunction extends BlockFunction implements BlockChildWatch {
 
   _workers: Map<string, Job>;
 
-  inputChanged(input: BlockIO, val: any): boolean {
-    switch (input._name) {
-      case 'input': {
-        return this._onInputChange(input._value);
-      }
-      case 'use': {
-        return this._onSourceChange(input._value);
-      }
-    }
-    return false;
+  static inputMap = new Map([
+    ['input', ForEachFunction.prototype._onInputChange],
+    ['use', MapImpl.prototype._onSourceChange]
+  ]);
+  getInputMap() {
+    return ForEachFunction.inputMap;
   }
 
   _onInputChange(val: any): boolean {
@@ -205,9 +200,6 @@ export class ForEachFunction extends BlockFunction implements BlockChildWatch {
     super.destroy();
   }
 }
-
-// implements from MapImpl
-ForEachFunction.prototype._onSourceChange = MapImpl.prototype._onSourceChange;
 
 ForEachFunction.prototype.priority = 3;
 Types.add(ForEachFunction, {

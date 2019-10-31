@@ -12,28 +12,16 @@ export class PipeFunction extends MapImpl {
   _outQueue = new InfiniteQueue<any>();
   _currentInput: any;
 
-  inputChanged(input: BlockIO, val: any): boolean {
-    switch (input._name) {
-      case 'use': {
-        return this._onSourceChange(input._value);
-      }
-      case 'thread': {
-        return this._onThreadChanged(input._value);
-      }
-      case 'reuseWorker': {
-        return this._onReuseWorkerChange(input._value);
-      }
-      case 'timeout': {
-        return this._onTimeoutChange(input._value);
-      }
-      case 'keepOrder': {
-        return this._onKeepOrderChange(input._value);
-      }
-      case 'maxQueueSize': {
-        return this._onMaxQueueSizeChange(input._value);
-      }
-    }
-    return false;
+  static inputMap = new Map([
+    ['use', PipeFunction.prototype._onSourceChange],
+    ['thread', PipeFunction.prototype._onThreadChanged],
+    ['reuseWorker', PipeFunction.prototype._onReuseWorkerChange],
+    ['timeout', PipeFunction.prototype._onTimeoutChange],
+    ['keepOrder', PipeFunction.prototype._onKeepOrderChange],
+    ['maxQueueSize', PipeFunction.prototype._onMaxQueueSizeChange]
+  ]);
+  getInputMap() {
+    return PipeFunction.inputMap;
   }
 
   _keepOrder: boolean;

@@ -67,27 +67,15 @@ export class MapFunction extends MapImpl {
 
   _running = false;
 
-  inputChanged(input: BlockIO, val: any): boolean {
-    switch (input._name) {
-      case 'input': {
-        return this._onInputChange(input._value);
-      }
-      case 'use': {
-        return this._onSourceChange(input._value);
-      }
-      case 'thread': {
-        return this._onThreadChanged(input._value);
-      }
-      case 'reuseWorker': {
-        return this._onReuseWorkerChange(input._value);
-      }
-      case 'timeout': {
-        return this._onTimeoutChange(input._value);
-      }
-      // case 'keepOrder': {
-      // }
-    }
-    return false;
+  static inputMap = new Map([
+    ['input', MapFunction.prototype._onInputChange],
+    ['use', MapFunction.prototype._onSourceChange],
+    ['thread', MapFunction.prototype._onThreadChanged],
+    ['reuseWorker', MapFunction.prototype._onReuseWorkerChange],
+    ['timeout', MapFunction.prototype._onTimeoutChange]
+  ]);
+  getInputMap() {
+    return MapFunction.inputMap;
   }
 
   _onInputChange(val: any): boolean {
