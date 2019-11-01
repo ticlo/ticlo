@@ -313,15 +313,15 @@ describe('PipeFunction', function() {
 
     let aBlock = job.getValue('a');
 
-    job.queryProperty('a.#emit', true).listen(listener);
+    job.queryProperty('b.#emit', true).listen(listener);
 
     aBlock.setValue('#call', 4);
     aBlock.setValue('#call', 3);
 
     Root.runAll();
-    // assert.deepEqual(listener.emits, [NOT_READY, 6, 5]);
+    assert.deepEqual(listener.emits, [NOT_READY, 6, 5]);
 
-    // assert.lengthOf(TestFunctionRunner.popLogs(), 4);
+    assert.lengthOf(TestFunctionRunner.popLogs(), 4);
     // delete pipe;
     job.deleteValue('a');
   });
