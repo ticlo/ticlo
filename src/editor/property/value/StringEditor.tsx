@@ -22,7 +22,7 @@ export class StringEditor extends StringEditorBase {
         placeholder={desc.placeholder}
         value={value}
         disabled={onChange == null}
-        autosize={{minRows: 1, maxRows: 5}}
+        autoSize={{minRows: 1, maxRows: 5}}
         onChange={this.onInputChange}
         onBlur={this.onBlur}
         onKeyDown={this.onKeyDown}

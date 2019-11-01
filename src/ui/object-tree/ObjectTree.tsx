@@ -2,6 +2,7 @@ import React from 'react';
 import VirtualList from '../component/Virtual';
 import {ObjectTreeItem, ObjectTreeRenderer} from './ObjectRenderer';
 import {ClientConn} from '../../core/connect/ClientConn';
+import {LazyUpdateComponent} from '../component/LazyUpdateComponent';
 
 interface Props {
   conn: ClientConn;
@@ -9,7 +10,7 @@ interface Props {
   style?: React.CSSProperties;
 }
 
-export class ObjectTree extends React.PureComponent<Props, any> {
+export class ObjectTree extends LazyUpdateComponent<Props, any> {
   root: ObjectTreeItem;
   list: ObjectTreeItem[] = [];
 
@@ -29,9 +30,6 @@ export class ObjectTree extends React.PureComponent<Props, any> {
   }
 
   forceUpdateLambda = () => this.forceUpdate();
-  forceUpdateImmediate = () => {
-    this.props.conn.callImmediate(this.forceUpdateLambda);
-  };
 
   buildRoot() {
     this.root = new ObjectTreeItem('', this.props.data, null);
@@ -42,7 +40,7 @@ export class ObjectTree extends React.PureComponent<Props, any> {
     }
   }
 
-  render() {
+  renderImpl() {
     this.refreshList();
     return (
       <VirtualList
@@ -57,5 +55,6 @@ export class ObjectTree extends React.PureComponent<Props, any> {
 
   componentWillUnmount(): void {
     this.root.destroy();
+    super.componentWillUnmount();
   }
 }

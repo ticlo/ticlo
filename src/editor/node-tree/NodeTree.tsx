@@ -4,6 +4,7 @@ import VirtualList from '../../ui/component/Virtual';
 import {ClientConn} from '../../core/client';
 import {DataMap} from '../../core/util/DataTypes';
 import {NodeTreeItem, NodeTreeRenderer} from './NodeRenderer';
+import {LazyUpdateComponent} from '../../ui/component/LazyUpdateComponent';
 
 interface Props {
   conn: ClientConn;
@@ -12,7 +13,7 @@ interface Props {
   hideRoot?: boolean;
 }
 
-export class NodeTree extends React.PureComponent<Props, any> {
+export class NodeTree extends LazyUpdateComponent<Props, any> {
   rootList: NodeTreeItem[] = [];
   list: NodeTreeItem[] = [];
 
@@ -22,9 +23,6 @@ export class NodeTree extends React.PureComponent<Props, any> {
   };
 
   forceUpdateLambda = () => this.forceUpdate();
-  forceUpdateImmediate = () => {
-    this.props.conn.callImmediate(this.forceUpdateLambda);
-  };
 
   refreshList() {
     this.list.length = 0;
@@ -43,7 +41,7 @@ export class NodeTree extends React.PureComponent<Props, any> {
     for (let basePath of basePaths) {
       let rootNode = new NodeTreeItem(basePath);
       rootNode.connection = this.props.conn;
-      rootNode.onListChange = this.forceUpdateImmediate;
+      rootNode.onListChange = this.forceUpdateLambda;
       this.rootList.push(rootNode);
     }
     if (hideRoot && basePaths.length === 1) {
@@ -52,7 +50,7 @@ export class NodeTree extends React.PureComponent<Props, any> {
     }
   }
 
-  render() {
+  renderImpl() {
     this.refreshList();
     return (
       <VirtualList
