@@ -4,7 +4,6 @@ import {DataRendererItem, PureDataRenderer} from '../../ui/component/DataRendere
 import {DataMap} from '../../core/util/DataTypes';
 import {relative, resolve} from '../../core/util/Path';
 import {translateProperty} from '../../core/util/i18n';
-import {displayValue} from '../../ui/util/Types';
 import {ClientConn, ValueUpdate} from '../../core/client';
 import {
   blankFuncDesc,
@@ -19,6 +18,7 @@ import {arrayEqual, deepEqual} from '../../core/util/Compare';
 import {TIcon} from '../icon/Icon';
 import {DragDropDiv, DragState} from 'rc-dock';
 import * as DragManager from 'rc-dock/src/dragdrop/DragManager';
+import {FieldValue} from './FieldValue';
 
 export interface Stage {
   getBlock(key: string): BlockItem;
@@ -58,11 +58,7 @@ export interface Stage {
   focus(): void;
 }
 
-interface ValueRenderer {
-  renderValue(value: any): void;
-}
-
-export class FieldItem extends DataRendererItem<ValueRenderer> {
+export class FieldItem extends DataRendererItem {
   block: BaseBlockItem;
   name: string;
   key: string;
@@ -172,11 +168,6 @@ export class FieldItem extends DataRendererItem<ValueRenderer> {
       let change = response.change;
       if (!deepEqual(response.cache, this.cache)) {
         this.cache = response.cache;
-        if (change.hasOwnProperty('value')) {
-          for (let renderer of this._renderers) {
-            renderer.renderValue(change.value);
-          }
-        }
         if (
           (change.hasOwnProperty('bindingPath') && this.setBindingPath(response.cache.bindingPath)) ||
           change.hasOwnProperty('hasListener')
@@ -283,10 +274,6 @@ export class BlockHeaderView extends PureDataRenderer<BlockHeaderProps, any> {
     }
   };
 
-  renderValue(value: any) {
-    // do nothing
-  }
-
   renderImpl(): React.ReactNode {
     let {item, onDragStartT, onDragMoveT, onDragEndT, onDoubleClick, children} = this.props;
     let inBoundClass: string;
@@ -342,15 +329,6 @@ export class BlockHeaderView extends PureDataRenderer<BlockHeaderProps, any> {
 }
 
 export class FieldView extends PureDataRenderer<FieldViewProps, any> {
-  private _valueNode!: HTMLElement;
-  private getValueRef = (node: HTMLDivElement): void => {
-    if (this._valueNode !== node) {
-      this._valueNode = node;
-      let {item} = this.props;
-      this.renderValue(item.cache.value);
-    }
-  };
-
   onDragStart = (e: DragState) => {
     let {item} = this.props;
     if (e.dragType === 'right') {
@@ -404,13 +382,6 @@ export class FieldView extends PureDataRenderer<FieldViewProps, any> {
       item.getConn().setValue(`${item.subBlock.key}.@b-hide`, item.subBlock.hidden ? undefined : true);
     }
   };
-
-  renderValue(value: any) {
-    if (this._valueNode) {
-      let {item} = this.props;
-      displayValue(item.cache.value, this._valueNode);
-    }
-  }
 
   renderImpl(): React.ReactNode {
     let {item} = this.props;
@@ -471,9 +442,7 @@ export class FieldView extends PureDataRenderer<FieldViewProps, any> {
           ) : null}
           {translateProperty(desc.name, item.name, desc.ns)}
         </div>
-        <div className="ticl-field-value">
-          <span ref={this.getValueRef} />
-        </div>
+        <FieldValue conn={item.getConn()} path={item.key} />
       </DragDropDiv>
     );
   }

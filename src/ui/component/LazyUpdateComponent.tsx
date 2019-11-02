@@ -90,7 +90,7 @@ export class LazyUpdateListener {
 export class LazyUpdateSubscriber extends LazyUpdateListener {
   conn: ClientConn;
   path: string;
-  subscribe(conn: ClientConn, path: string) {
+  subscribe(conn: ClientConn, path: string, fullValue = true) {
     if (this.conn === conn && this.path === path) {
       return;
     }
@@ -100,7 +100,7 @@ export class LazyUpdateSubscriber extends LazyUpdateListener {
     this.conn = conn;
     this.path = path;
     if (this.conn && this.path) {
-      this.conn.subscribe(this.path, this, true);
+      this.conn.subscribe(this.path, this, fullValue);
     }
   }
 

@@ -2,32 +2,6 @@ import {TRUNCATED} from '../../core/util/DataTypes';
 import React from 'react';
 import {encodeDisplay} from '../../core/util/Serialize';
 
-// display value in screen, avoid huge data in dmo to improve performance
-export function displayValue(val: any, element: HTMLElement) {
-  switch (typeof val) {
-    case 'string':
-      if (val.length > 512) {
-        element.innerText = `${val.substr(0, 128)}${TRUNCATED}`;
-      } else {
-        element.innerText = val;
-      }
-      element.classList.add('ticl-string-value');
-      return;
-    case 'object':
-      element.innerText = encodeDisplay(val);
-      break;
-    case 'number':
-      element.innerText = displayNumber(val);
-      break;
-    case 'undefined':
-      element.innerText = '';
-      break;
-    default:
-      element.innerText = `${val}`;
-  }
-  element.classList.remove('ticl-string-value');
-}
-
 export function displayNumber(val: number): string {
   let rslt1 = val.toString();
   let rslt2 = val.toPrecision(4);
