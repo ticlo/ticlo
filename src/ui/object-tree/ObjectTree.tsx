@@ -6,6 +6,7 @@ import {LazyUpdateComponent} from '../component/LazyUpdateComponent';
 
 interface Props {
   conn: ClientConn;
+  path: string;
   data: object;
   style?: React.CSSProperties;
 }
@@ -32,8 +33,9 @@ export class ObjectTree extends LazyUpdateComponent<Props, any> {
   forceUpdateLambda = () => this.forceUpdate();
 
   buildRoot() {
-    this.root = new ObjectTreeItem('', this.props.data, null);
-    this.root.connection = this.props.conn;
+    let {conn, path} = this.props;
+    this.root = new ObjectTreeItem(path, '', this.props.data, null);
+    this.root.connection = conn;
     this.root.onListChange = this.forceUpdateLambda;
     if (this.root.opened === 'closed') {
       this.root.open();

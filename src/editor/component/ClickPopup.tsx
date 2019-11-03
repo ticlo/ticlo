@@ -164,6 +164,7 @@ interface PopupProps {
 
   popupVisible?: boolean;
   onPopupVisibleChange?: (visible: boolean) => void;
+  popupAlign?: any;
 }
 
 interface PopupState {
@@ -186,7 +187,7 @@ export class Popup extends React.PureComponent<PopupProps, PopupState> {
 
   render() {
     let {showPopup} = this.state;
-    let {trigger, popupVisible} = this.props;
+    let {trigger, popupVisible, popupAlign} = this.props;
     if (typeof popupVisible === 'boolean') {
       showPopup = popupVisible;
     }
@@ -205,11 +206,15 @@ export class Popup extends React.PureComponent<PopupProps, PopupState> {
     if (!trigger) {
       trigger = ['click'];
     }
-    let popupAlign: any = {
-      points: ['tl', 'bl'],
-      offset: [0, 3],
-      overflow: {adjustX: true, adjustY: true}
-    };
+    if (!popupAlign) {
+      popupAlign = {
+        points: ['tl', 'bl'],
+        offset: [0, 3],
+        overflow: {adjustX: true, adjustY: true}
+      };
+    } else if (!popupAlign.overflow) {
+      popupAlign.overflow = {adjustX: true, adjustY: true};
+    }
     let builtinPlacements = {
       topLeft: {points: ['tl', 'tl']}
     };

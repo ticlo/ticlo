@@ -49,23 +49,23 @@ describe('editor Block Field', function() {
     await shouldHappen(() => block.querySelectorAll('.ticl-field').length === 6);
 
     await shouldHappen(() =>
-      querySingle("//div.ticl-field-name[text()='a']/../div.ticl-field-value/span[text()='1']", div)
+      querySingle("//div.ticl-field-name[text()='a']/../div.ticl-field-value[text()='1']", div)
     );
     assert.isNotNull(
-      querySingle("//div.ticl-field-name[text()='b']/../div.ticl-field-value/span[text()='1.333']", div)
+      querySingle("//div.ticl-field-name[text()='b']/../div.ticl-field-value[text()='1.333']", div)
     );
     assert.isNotNull(
       querySingle("//div.ticl-field-name[text()='c']/../div.ticl-field-value/span.ticl-string-value[text()='ccc']", div)
     );
-    assert.isNotNull(querySingle("//div.ticl-field-name[text()='d']/../div.ticl-field-value/span[text()='true']", div));
-    assert.isNotNull(querySingle("//div.ticl-field-name[text()='e']/../div.ticl-field-value/span[text()='null']", div));
+    assert.isNotNull(querySingle("//div.ticl-field-name[text()='d']/../div.ticl-field-value[text()='true']", div));
+    assert.isNotNull(querySingle("//div.ticl-field-name[text()='e']/../div.ticl-field-value[text()='null']", div));
     assert.isNotNull(querySingle("//div.ticl-field-name[text()='z']/../div.ticl-field-value/span[not(text())]", div));
 
     job.queryProperty('add.c').setValue(3);
     // no longer a string value
     await shouldHappen(() =>
       querySingle(
-        "//div.ticl-field-name[text()='c']/../div.ticl-field-value/span[text()='3'][not(contains(@class,'ticl-string-value'))]",
+        "//div.ticl-field-name[text()='c']/../div.ticl-field-value[text()='3'][not(contains(@class,'ticl-string-value'))]",
         div
       )
     );

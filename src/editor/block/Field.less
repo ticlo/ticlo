@@ -30,6 +30,11 @@
   text-align: right;
   flex: 0 0 calc(75% - 30px);
   min-width: calc(100% - 160px);
+  & > .ticl-tree-arr {
+    position: absolute;
+    top: 0;
+    right: 0;
+  }
 }
 
 .ticl-string-value {
@@ -41,6 +46,13 @@
     content: "'";
   }
   text-overflow: ellipsis;
+}
+
+.ticl-object-value {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  text-align: right;
+  width: calc(100% - 8px);
 }
 
 .ticl-slot {

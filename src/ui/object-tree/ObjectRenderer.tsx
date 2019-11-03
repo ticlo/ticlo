@@ -1,18 +1,19 @@
 import React from 'react';
 
-import {Dropdown, Button, Input, Icon, Menu, InputNumber} from 'antd';
 import {ExpandIcon, ExpandState, TreeItem} from '../component/Tree';
 import {PureDataRenderer} from '../component/DataRenderer';
-import {ClickParam} from 'antd/lib/menu';
-import {DragDropDiv} from 'rc-dock/lib';
+import {DragDropDiv, DragState} from 'rc-dock/lib';
+import {TRUNCATED} from '../../core/util/DataTypes';
 
 export class ObjectTreeItem extends TreeItem<ObjectTreeItem> {
   childPrefix: string;
   name: string;
   data: any;
+  rootPath: string;
 
-  constructor(name: string, data: any, parent?: ObjectTreeItem) {
+  constructor(rootPath: string, name: string, data: any, parent?: ObjectTreeItem) {
     super(parent);
+    this.rootPath = rootPath;
     this.data = data;
     if (parent) {
       this.key = `${parent.childPrefix}${name}`;
@@ -23,6 +24,7 @@ export class ObjectTreeItem extends TreeItem<ObjectTreeItem> {
       this.key = '';
       this.childPrefix = '';
       this.name = '';
+      this.level = -1;
     }
     if (!data || (data.constructor !== Object && !Array.isArray(data))) {
       this.opened = 'empty';
@@ -47,7 +49,7 @@ export class ObjectTreeItem extends TreeItem<ObjectTreeItem> {
   createChildren() {
     let children: ObjectTreeItem[] = [];
     for (let key of Object.keys(this.data)) {
-      children.push(new ObjectTreeItem(key, this.data[key], this));
+      children.push(new ObjectTreeItem(this.rootPath, key, this.data[key], this));
     }
     this.children = children;
   }
@@ -84,14 +86,46 @@ export class ObjectTreeRenderer extends PureDataRenderer<Props, any> {
     let {item} = props;
   }
 
+  onDragStart = (e: DragState) => {
+    let {item} = this.props;
+
+    let fields = [`${item.rootPath}..${item.key}`];
+    e.setData({fields}, item.connection.getBaseConn());
+
+    e.startDrag();
+  };
+
   renderImpl() {
     let {item, style} = this.props;
     let marginLeft = item.level * 24;
     let onClick = item.opened !== 'empty' ? this.onExpandClicked : null;
+
+    let child: React.ReactNode;
+    let val = item.data;
+    switch (typeof val) {
+      case 'string':
+        if (val.length > 512) {
+          val = `${val.substr(0, 128)}${TRUNCATED}`;
+        }
+        child = <span className="ticl-string-value">{val}</span>;
+        break;
+      case 'object':
+        if (Array.isArray(val)) {
+          child = `[${val.length}]`;
+        } else {
+          child = `{${Object.keys(val).length}}`;
+        }
+        break;
+      default:
+        child = `${val}`;
+    }
+
     return (
       <div style={{...style, marginLeft}} className="ticl-tree-node">
         <ExpandIcon opened={item.opened} onClick={onClick} />
-        <DragDropDiv>{item.name}</DragDropDiv>
+        <DragDropDiv onDragStartT={this.onDragStart}>
+          {item.name} : {child}
+        </DragDropDiv>
       </div>
     );
   }

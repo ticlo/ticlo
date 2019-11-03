@@ -1,9 +1,12 @@
-import {LazyUpdateComponent, LazyUpdateSubscriber} from '../../ui/component/LazyUpdateComponent';
 import React from 'react';
+import {Button, Icon} from 'antd';
+import {LazyUpdateComponent, LazyUpdateSubscriber} from '../../ui/component/LazyUpdateComponent';
 import {ClientConn} from '../../core/connect/ClientConn';
 import {TRUNCATED} from '../../core/util/DataTypes';
 import {encodeDisplay} from '../../core/util/Serialize';
 import {displayNumber} from '../../ui/util/Types';
+import {Popup} from '../component/ClickPopup';
+import {ObjectTree} from '../../ui/object-tree/ObjectTree';
 
 interface Props {
   conn: ClientConn;
@@ -19,6 +22,7 @@ export class FieldValue extends LazyUpdateComponent<Props, any> {
     this.valueSub.subscribe(conn, path, false);
   }
   renderImpl() {
+    let {conn, path} = this.props;
     let child: React.ReactNode;
     let val = this.valueSub.value;
     switch (typeof val) {
@@ -30,6 +34,22 @@ export class FieldValue extends LazyUpdateComponent<Props, any> {
         break;
       case 'object':
         child = encodeDisplay(val);
+        if (val && (Array.isArray(val) || val.constructor === Object)) {
+          child = (
+            <>
+              <div className="ticl-object-value">{child}</div>
+              <Popup
+                popup={<ObjectTree conn={conn} path={path} data={val} style={{width: 300, height: 300}} />}
+                popupAlign={{
+                  points: ['tl', 'tl'],
+                  offset: [2, -3]
+                }}
+              >
+                <div className="ticl-tree-arr ticl-tree-arr-expand" />
+              </Popup>
+            </>
+          );
+        }
         break;
       case 'number':
         child = displayNumber(val);

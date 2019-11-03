@@ -477,13 +477,18 @@ export class ServerConnection extends Connection {
             property.setBinding(undefined);
           }
         } else {
-          let fromProp = this.root.queryProperty(from, true);
+          let fromParts = from.split('..');
+          let fromProp = this.root.queryProperty(fromParts[0], true);
           if (fromProp) {
             if (from.startsWith('#global.^')) {
-              property.setBinding(from.substring(8));
+              from = from.substring(8);
             } else {
-              property.setBinding(propRelative(property._block, fromProp));
+              from = propRelative(property._block, fromProp);
             }
+            if (fromParts.length === 2) {
+              from = `${from}.${fromParts[1]}`;
+            }
+            property.setBinding(from);
           } else {
             return 'invalid from path';
           }
