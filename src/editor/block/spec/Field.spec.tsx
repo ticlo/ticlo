@@ -59,7 +59,7 @@ describe('editor Block Field', function() {
     );
     assert.isNotNull(querySingle("//div.ticl-field-name[text()='d']/../div.ticl-field-value[text()='true']", div));
     assert.isNotNull(querySingle("//div.ticl-field-name[text()='e']/../div.ticl-field-value[text()='null']", div));
-    assert.isNotNull(querySingle("//div.ticl-field-name[text()='z']/../div.ticl-field-value/span[not(text())]", div));
+    assert.isNotNull(querySingle("//div.ticl-field-name[text()='z']/../div.ticl-field-value[not(text())]", div));
 
     job.queryProperty('add.c').setValue(3);
     // no longer a string value

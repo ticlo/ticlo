@@ -59,7 +59,7 @@ export class FieldValue extends LazyUpdateComponent<Props, any> {
       default:
         child = `${val}`;
     }
-    return <div className="ticl-field-value"> {child}</div>;
+    return <div className="ticl-field-value">{child}</div>;
   }
 
   componentWillUnmount(): void {

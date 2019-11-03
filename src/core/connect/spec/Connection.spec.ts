@@ -42,11 +42,13 @@ describe('Connection', function() {
 
     job.setValue('a', 3);
     job.setValue('b', 'b');
-
+    job.setValue('o', [{p: 'p'}]);
     await client.setBinding('Connection1-2.v', 'a', false, true);
     assert.equal(job.getValue('v'), 3);
     await client.setBinding('Connection1-2.v', 'Connection1-2.b', true, true);
     assert.equal(job.getValue('v'), 'b');
+    await client.setBinding('Connection1-2.v', 'Connection1-2.o..0.p', true, true);
+    assert.equal(job.getValue('v'), 'p');
 
     await client.setBinding('Connection1-2.v', null, false, true);
     assert.equal(job.getValue('v'), undefined);
