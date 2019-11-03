@@ -47,25 +47,17 @@ describe('editor BlockStage', function() {
     assert.equal(block.offsetWidth, 345);
 
     // test all fields in the block body
-    await shouldHappen(() =>
-      querySingle("//div.ticl-field-name[text()='0']/../div.ticl-field-value[text()='1']", div)
-    );
+    await shouldHappen(() => querySingle("//div.ticl-field-name[text()='0']/../div.ticl-field-value[text()='1']", div));
     assert.isNotNull(querySingle("//div.ticl-field-name[text()='1']/../div.ticl-field-value[text()='2']", div));
-    assert.isNotNull(
-      querySingle("//div.ticl-field-name[text()='output']/../div.ticl-field-value[text()='3']", div)
-    );
+    assert.isNotNull(querySingle("//div.ticl-field-name[text()='output']/../div.ticl-field-value[text()='3']", div));
 
     // check block icon
     assert.isNotNull(querySingle('//div.tico-icon-svg.tico-fas-plus', div));
 
     // test value update
     job.queryProperty('add.0').updateValue(5);
-    await shouldHappen(() =>
-      querySingle("//div.ticl-field-name[text()='0']/../div.ticl-field-value[text()='5']", div)
-    );
-    assert.isNotNull(
-      querySingle("//div.ticl-field-name[text()='output']/../div.ticl-field-value[text()='7']", div)
-    );
+    await shouldHappen(() => querySingle("//div.ticl-field-name[text()='0']/../div.ticl-field-value[text()='5']", div));
+    assert.isNotNull(querySingle("//div.ticl-field-name[text()='output']/../div.ticl-field-value[text()='7']", div));
 
     // test change type
     job.queryProperty('add.#is').setValue('subtract');

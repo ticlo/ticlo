@@ -48,12 +48,8 @@ describe('editor Block Field', function() {
 
     await shouldHappen(() => block.querySelectorAll('.ticl-field').length === 6);
 
-    await shouldHappen(() =>
-      querySingle("//div.ticl-field-name[text()='a']/../div.ticl-field-value[text()='1']", div)
-    );
-    assert.isNotNull(
-      querySingle("//div.ticl-field-name[text()='b']/../div.ticl-field-value[text()='1.333']", div)
-    );
+    await shouldHappen(() => querySingle("//div.ticl-field-name[text()='a']/../div.ticl-field-value[text()='1']", div));
+    assert.isNotNull(querySingle("//div.ticl-field-name[text()='b']/../div.ticl-field-value[text()='1.333']", div));
     assert.isNotNull(
       querySingle("//div.ticl-field-name[text()='c']/../div.ticl-field-value/span.ticl-string-value[text()='ccc']", div)
     );
