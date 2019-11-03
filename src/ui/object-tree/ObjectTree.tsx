@@ -27,14 +27,16 @@ export class ObjectTree extends LazyUpdateComponent<Props, any> {
 
   constructor(props: Props) {
     super(props);
-    this.buildRoot();
   }
 
   forceUpdateLambda = () => this.forceUpdate();
 
   buildRoot() {
-    let {conn, path} = this.props;
-    this.root = new ObjectTreeItem(path, '', this.props.data, null);
+    let {conn, path, data} = this.props;
+    if (this.root && this.root.data === data) {
+      return;
+    }
+    this.root = new ObjectTreeItem(path, '', data, null);
     this.root.connection = conn;
     this.root.onListChange = this.forceUpdateLambda;
     if (this.root.opened === 'closed') {
@@ -43,6 +45,7 @@ export class ObjectTree extends LazyUpdateComponent<Props, any> {
   }
 
   renderImpl() {
+    this.buildRoot();
     this.refreshList();
     return (
       <VirtualList

@@ -21,6 +21,13 @@ export class FieldValue extends LazyUpdateComponent<Props, any> {
     let {conn, path} = props;
     this.valueSub.subscribe(conn, path, false);
   }
+
+  getObjectMenu = () => {
+    let {conn, path} = this.props;
+    let val = this.valueSub.value;
+    return <ObjectTree conn={conn} path={path} data={val} style={{width: 300, height: 300}} />;
+  };
+
   renderImpl() {
     let {conn, path} = this.props;
     let child: React.ReactNode;
@@ -39,7 +46,7 @@ export class FieldValue extends LazyUpdateComponent<Props, any> {
             <>
               <div className="ticl-object-value">{child}</div>
               <Popup
-                popup={<ObjectTree conn={conn} path={path} data={val} style={{width: 300, height: 300}} />}
+                popup={this.getObjectMenu}
                 popupAlign={{
                   points: ['tl', 'tl'],
                   offset: [2, -3]
