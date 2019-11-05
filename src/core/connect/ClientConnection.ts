@@ -198,7 +198,6 @@ export abstract class ClientConnection extends Connection implements ClientConn 
   }
 
   getValue(path: string, callbacks?: ClientCallbacks): Promise<any> | string {
-    // TODO
     return this.simpleRequest({cmd: 'get', path}, callbacks);
   }
 

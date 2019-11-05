@@ -444,11 +444,10 @@ export class ServerConnection extends Connection {
     }
   }
 
-  getValue(path: string): string {
+  getValue(path: string): DataMap | string {
     let property = this.root.queryProperty(path, true);
     if (property) {
-      // TODO
-      return null;
+      return {value: property._value};
     } else {
       return 'invalid path';
     }

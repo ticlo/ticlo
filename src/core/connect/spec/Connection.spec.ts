@@ -13,6 +13,24 @@ import {WorkerFunction} from '../../worker/WorkerFunction';
 import {WorkerEditor} from '../../worker/WorkerEditor';
 
 describe('Connection', function() {
+  it('get', async function() {
+    let job = Root.instance.addJob('Connection0');
+    let data = {a: 0};
+    job.setValue('v', data);
+
+    let [server, client] = makeLocalConnection(Root.instance, false);
+
+    let callbacks = new AsyncClientPromise();
+    client.getValue('Connection0.v', callbacks);
+    let result = await callbacks.promise;
+    assert.deepEqual(result.value, data);
+
+    // clean up
+    callbacks.cancel();
+    client.destroy();
+    Root.instance.deleteValue('Connection0');
+  });
+
   it('subscribe', async function() {
     let job = Root.instance.addJob('Connection1');
     let [server, client] = makeLocalConnection(Root.instance, false);

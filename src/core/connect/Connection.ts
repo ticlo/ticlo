@@ -1,4 +1,4 @@
-import {DataMap} from '../util/DataTypes';
+import {DataMap, measureObjSize} from '../util/DataTypes';
 import {Logger} from '../util/Logger';
 
 export class ConnectionSendingData {
@@ -168,10 +168,15 @@ export class ConnectionSend extends ConnectionSendingData {
     for (let key in this._data) {
       let v = this._data[key];
       size += key.length;
-      if (typeof v === 'string') {
-        size += v.length;
-      } else {
-        size += 4;
+      switch (typeof v) {
+        case 'string':
+          size += v.length;
+          break;
+        case 'object':
+          size += measureObjSize(v);
+          break;
+        default:
+          size += 4;
       }
     }
     return {data: this._data, size};
