@@ -23,7 +23,7 @@ import {TrackedClientConn} from '../../src/core/connect/TrackedClientConn';
 import {BlockStageTab} from '../../src/panel/block/BlockStageTab';
 import {Dispatcher, ValueDispatcher} from '../../src/core/block/Dispatcher';
 import {PropertyListPanel} from '../../src/panel/property/PropertyListPanel';
-import {ObjectTree} from '../../src/ui/object-tree/ObjectTree';
+import {ObjectTree} from '../../src/editor/object-tree/ObjectTree';
 
 const layoutGroups = {
   blockStage: {

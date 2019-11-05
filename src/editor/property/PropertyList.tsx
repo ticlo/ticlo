@@ -12,7 +12,7 @@ import {
 import {PropertyEditor} from './PropertyEditor';
 import {GroupEditor} from './GroupEditor';
 import {MultiSelectComponent, MultiSelectLoader} from './MultiSelectComponent';
-import {ExpandIcon} from '../../ui/component/Tree';
+import {ExpandIcon, ExpandState} from '../../ui/component/Tree';
 import {deepEqual} from '../../core/util/Compare';
 import {Button, Empty, Tooltip} from 'antd';
 import {AddMorePropertyMenu} from './AddMoreProperty';
@@ -327,6 +327,10 @@ export class PropertyList extends MultiSelectComponent<Props, State, BlockLoader
 
       let allowAttribute = mode == null && keys.length === 1;
 
+      let moreExpand: ExpandState = 'empty';
+      if (moreMerger.isNotEmpty()) {
+        moreExpand = showMore ? 'opened' : 'closed';
+      }
       return (
         <div className="ticl-property-list" style={style}>
           <PropertyEditor name="#is" keys={keys} conn={conn} funcDesc={funcDesc} propDesc={configDescs['#is']} />
@@ -358,9 +362,7 @@ export class PropertyList extends MultiSelectComponent<Props, State, BlockLoader
 
           <div className="ticl-property-divider">
             <div className="ticl-h-line" style={{maxWidth: '16px'}} />
-            {moreMerger.isNotEmpty() ? (
-              <ExpandIcon opened={showMore ? 'opened' : 'closed'} onClick={this.onShowMoreClick} />
-            ) : null}
+            <ExpandIcon opened={moreExpand} onClick={this.onShowMoreClick} />
             <span>more</span>
             <Popup
               popupVisible={showAddMorePopup}

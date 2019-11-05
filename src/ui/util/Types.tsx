@@ -1,6 +1,4 @@
-import {TRUNCATED} from '../../core/util/DataTypes';
 import React from 'react';
-import {encodeDisplay} from '../../core/util/Serialize';
 
 export function displayNumber(val: number): string {
   let rslt1 = val.toString();

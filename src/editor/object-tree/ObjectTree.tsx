@@ -1,8 +1,10 @@
 import React from 'react';
-import VirtualList from '../component/Virtual';
+import VirtualList from '../../ui/component/Virtual';
 import {ObjectTreeItem, ObjectTreeRenderer} from './ObjectRenderer';
 import {ClientConn} from '../../core/connect/ClientConn';
-import {LazyUpdateComponent} from '../component/LazyUpdateComponent';
+import {LazyUpdateComponent} from '../../ui/component/LazyUpdateComponent';
+import {DataMap, isDataTruncated} from '../../core/util/DataTypes';
+import {Spin} from 'antd';
 
 interface Props {
   conn: ClientConn;
@@ -15,6 +17,26 @@ export class ObjectTree extends LazyUpdateComponent<Props, any> {
   root: ObjectTreeItem;
   list: ObjectTreeItem[] = [];
 
+  loading = false;
+  data: any;
+  getValueCallback = {
+    onUpdate: (response: DataMap) => {
+      this.loading = false;
+      this.data = response.value;
+      this.forceUpdate();
+    }
+  };
+
+  constructor(props: Props) {
+    super(props);
+    if (isDataTruncated(props.data)) {
+      this.loading = true;
+      props.conn.getValue(props.path, this.getValueCallback);
+    } else {
+      this.data = props.data;
+    }
+  }
+
   renderChild = (idx: number, style: React.CSSProperties) => {
     const item = this.list[idx];
     return <ObjectTreeRenderer item={item} key={item.key} style={style} />;
@@ -23,10 +45,6 @@ export class ObjectTree extends LazyUpdateComponent<Props, any> {
   refreshList() {
     this.list.length = 0;
     this.root.addToList(this.list);
-  }
-
-  constructor(props: Props) {
-    super(props);
   }
 
   forceUpdateLambda = () => this.forceUpdate();
@@ -45,16 +63,27 @@ export class ObjectTree extends LazyUpdateComponent<Props, any> {
   }
 
   renderImpl() {
-    this.buildRoot();
-    this.refreshList();
+    let child: React.ReactNode;
+    if (this.loading) {
+      child = <Spin tip="Loading..." />;
+    } else {
+      this.buildRoot();
+      this.refreshList();
+      child = (
+        <VirtualList
+          className="ticl-node-tree"
+          style={this.props.style}
+          renderer={this.renderChild}
+          itemCount={this.list.length}
+          itemHeight={26}
+        />
+      );
+    }
+
     return (
-      <VirtualList
-        className="ticl-node-tree"
-        style={this.props.style}
-        renderer={this.renderChild}
-        itemCount={this.list.length}
-        itemHeight={30}
-      />
+      <div className="ticl-object-tree" style={this.props.style}>
+        {child}
+      </div>
     );
   }
 

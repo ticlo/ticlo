@@ -1,7 +1,7 @@
 import React from 'react';
 
-import {ExpandIcon, ExpandState, TreeItem} from '../component/Tree';
-import {PureDataRenderer} from '../component/DataRenderer';
+import {ExpandIcon, ExpandState, TreeItem} from '../../ui/component/Tree';
+import {PureDataRenderer} from '../../ui/component/DataRenderer';
 import {DragDropDiv, DragState} from 'rc-dock/lib';
 import {TRUNCATED} from '../../core/util/DataTypes';
 
@@ -97,7 +97,7 @@ export class ObjectTreeRenderer extends PureDataRenderer<Props, any> {
 
   renderImpl() {
     let {item, style} = this.props;
-    let marginLeft = item.level * 24;
+    let marginLeft = item.level * 16;
     let onClick = item.opened !== 'empty' ? this.onExpandClicked : null;
 
     let child: React.ReactNode;

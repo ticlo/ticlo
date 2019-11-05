@@ -193,7 +193,7 @@ export class NodeTreeRenderer extends PureDataRenderer<Props, any> {
 
   renderImpl() {
     let {item, style} = this.props;
-    let marginLeft = item.level * 24;
+    let marginLeft = item.level * 20;
     return (
       <div style={{...style, marginLeft}} className="ticl-tree-node">
         <ExpandIcon opened={item.opened} onClick={this.onExpandClicked} />

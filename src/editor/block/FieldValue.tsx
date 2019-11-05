@@ -6,7 +6,7 @@ import {TRUNCATED} from '../../core/util/DataTypes';
 import {encodeDisplay} from '../../core/util/Serialize';
 import {displayNumber} from '../../ui/util/Types';
 import {Popup} from '../component/ClickPopup';
-import {ObjectTree} from '../../ui/object-tree/ObjectTree';
+import {ObjectTree} from '../object-tree/ObjectTree';
 
 interface Props {
   conn: ClientConn;
@@ -25,7 +25,7 @@ export class FieldValue extends LazyUpdateComponent<Props, any> {
   getObjectMenu = () => {
     let {conn, path} = this.props;
     let val = this.valueSub.value;
-    return <ObjectTree conn={conn} path={path} data={val} style={{width: 300, height: 300}} />;
+    return <ObjectTree conn={conn} path={path} data={val} />;
   };
 
   renderImpl() {
@@ -48,8 +48,8 @@ export class FieldValue extends LazyUpdateComponent<Props, any> {
               <Popup
                 popup={this.getObjectMenu}
                 popupAlign={{
-                  points: ['tl', 'tl'],
-                  offset: [2, -3]
+                  points: ['tl', 'tr'],
+                  offset: [-6, 0]
                 }}
               >
                 <div className="ticl-tree-arr ticl-tree-arr-expand" />
