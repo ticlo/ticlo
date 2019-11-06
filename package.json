@@ -25,7 +25,7 @@
     "@types/dompurify": "^0.0.33",
     "@types/glob": "^7.1.1",
     "@types/karma": "^3.0.3",
-    "@types/marked": "^0.6.5",
+    "@types/marked": "^0.7.0",
     "@types/mocha": "^5.2.7",
     "@types/moment-timezone": "^0.5.12",
     "@types/node": "^12.12.0",
