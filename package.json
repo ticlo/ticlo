@@ -22,7 +22,7 @@
     "@babel/core": "^7.6.4",
     "@babel/preset-env": "^7.6.3",
     "@types/chai": "^4.2.4",
-    "@types/dompurify": "^0.0.33",
+    "@types/dompurify": "^2.0.0",
     "@types/glob": "^7.1.1",
     "@types/karma": "^3.0.3",
     "@types/marked": "^0.6.5",
