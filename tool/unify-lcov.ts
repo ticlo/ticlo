@@ -26,6 +26,6 @@ function fixReport(path: string) {
   fs.writeFileSync(path, fixedlog);
 }
 
-fixReport('coverage/chrome/karma.log');
+fixReport('coverage/chrome/karma/lcov.info');
 fixReport('coverage/nyc.log');
 fixReport('coverage/nyc-strict.log');

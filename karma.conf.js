@@ -15,10 +15,7 @@ module.exports = function (config) {
         "lcovonly": {
           "directory": "coverage",
           "subdirectory": "chrome",
-          "filename": "karma.log"
-        },
-        "html": {
-          "directory": "coverage"
+          "filename": "karma"
         }
       },
       compilerOptions: {
