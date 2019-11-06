@@ -100,6 +100,8 @@ export class ObjectTreeRenderer extends PureDataRenderer<Props, any> {
     let marginLeft = item.level * 16;
     let onClick = item.opened !== 'empty' ? this.onExpandClicked : null;
 
+    let onDragStart = item.rootPath ? this.onDragStart : null;
+
     let child: React.ReactNode;
     let val = item.data;
     switch (typeof val) {

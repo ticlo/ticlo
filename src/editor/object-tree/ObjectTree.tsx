@@ -5,10 +5,11 @@ import {ClientConn} from '../../core/connect/ClientConn';
 import {LazyUpdateComponent} from '../../ui/component/LazyUpdateComponent';
 import {DataMap, isDataTruncated} from '../../core/util/DataTypes';
 import {Spin} from 'antd';
+import {deepEqual} from '../../core/util/Compare';
 
 interface Props {
   conn: ClientConn;
-  path: string;
+  path?: string;
   data: object;
   style?: React.CSSProperties;
 }
@@ -21,20 +22,32 @@ export class ObjectTree extends LazyUpdateComponent<Props, any> {
   data: any;
   getValueCallback = {
     onUpdate: (response: DataMap) => {
-      this.loading = false;
       this.data = response.value;
+      this.loading = false;
       this.forceUpdate();
     }
   };
 
   constructor(props: Props) {
     super(props);
-    if (isDataTruncated(props.data)) {
+    this.checkTruncatedValue(props.data);
+  }
+
+  checkTruncatedValue(data: any) {
+    const {conn, path} = this.props;
+    if (isDataTruncated(data)) {
       this.loading = true;
-      props.conn.getValue(props.path, this.getValueCallback);
+      conn.getValue(path, this.getValueCallback);
     } else {
-      this.data = props.data;
+      this.data = data;
     }
+  }
+  shouldComponentUpdate(nextProps: Readonly<Props>, nextState: Readonly<any>): boolean {
+    if (!deepEqual(nextProps.data, this.data)) {
+      this.checkTruncatedValue(nextProps.data);
+      return true;
+    }
+    return super.shouldComponentUpdate(nextProps, nextState);
   }
 
   renderChild = (idx: number, style: React.CSSProperties) => {
@@ -50,11 +63,11 @@ export class ObjectTree extends LazyUpdateComponent<Props, any> {
   forceUpdateLambda = () => this.forceUpdate();
 
   buildRoot() {
-    let {conn, path, data} = this.props;
-    if (this.root && this.root.data === data) {
+    let {conn, path} = this.props;
+    if (this.root && this.root.data === this.data) {
       return;
     }
-    this.root = new ObjectTreeItem(path, '', data, null);
+    this.root = new ObjectTreeItem(path, '', this.data, null);
     this.root.connection = conn;
     this.root.onListChange = this.forceUpdateLambda;
     if (this.root.opened === 'closed') {

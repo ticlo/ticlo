@@ -149,7 +149,7 @@ class App extends React.PureComponent<Props, State> implements TicloLayoutContex
                 id: 'ObjectTree',
                 title: 'Object',
                 cached: true,
-                content: <ObjectTree  conn={conn} style={{height: '100%'}} data={sampleData} />
+                content: <ObjectTree conn={conn} style={{height: '100%'}} data={sampleData} />
               }
             ]
           },
