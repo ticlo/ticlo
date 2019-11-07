@@ -52,7 +52,7 @@
     "nyc": "^14.1.1",
     "parcel-bundler": "^1.12.4",
     "prettier": "^1.18.2",
-    "rc-dock": "^2.4.4",
+    "rc-dock": "^2.4.5",
     "rc-trigger": "^4.0.0-alpha.5",
     "react": "^16.11.0",
     "react-color": "^2.17.3",

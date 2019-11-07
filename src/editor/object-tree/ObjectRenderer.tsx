@@ -113,9 +113,9 @@ export class ObjectTreeRenderer extends PureDataRenderer<Props, any> {
         break;
       case 'object':
         if (Array.isArray(val)) {
-          child = `[${val.length}]`;
+          child = `[ ${val.length} ]`;
         } else {
-          child = `{${Object.keys(val).length}}`;
+          child = `{ ${Object.keys(val).length} }`;
         }
         break;
       default:

@@ -47,12 +47,10 @@ export class TypeSelect extends React.PureComponent<Props, State> {
           <Radio.Group defaultValue="tree" size="small" onChange={this.onToggleChange}>
             <Radio.Button value="tree">
               <Tooltip title={'Tree'}>
-                {' '}
-                <Icon type="appstore" />{' '}
+                <Icon type="appstore" />
               </Tooltip>
             </Radio.Button>
             <Radio.Button value="recent">
-              {' '}
               <Tooltip title={'Recent'}>
                 <Icon type="history" />
               </Tooltip>

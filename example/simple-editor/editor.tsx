@@ -81,7 +81,9 @@ class App extends React.PureComponent<Props, State> implements TicloLayoutContex
     let {conn} = this.props;
     ObjectTreePanel.openFloatPanel(this.layout, path, conn, value, element, source);
   }
-  closeObjectTree(path: string, source: any) {}
+  closeObjectTree(path: string, source: any) {
+    ObjectTreePanel.closeFloatPanel(this.layout, path, source);
+  }
 
   onDragBlock = (e: DragState) => {
     let {conn} = this.props;

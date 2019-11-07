@@ -5,6 +5,7 @@ import {DataMap, isDataTruncated} from '../../core/util/DataTypes';
 import {LazyUpdateComponent} from '../../ui/component/LazyUpdateComponent';
 import {ObjectTree} from '../../editor/object-tree/ObjectTree';
 import {DockLayout} from 'rc-dock/lib';
+import {mapPointsBetweenElement} from '../../ui/util/Position';
 
 interface Props {
   conn: ClientConn;
@@ -20,13 +21,16 @@ export class ObjectTreePanel extends LazyUpdateComponent<Props, any> {
     val: any,
     fromElement: HTMLElement,
     source: any,
-    offset: [number, number] = [0, 0]
+    offsetX = 0,
+    offsetY = 0
   ) {
     let id = `objectTree-${path}`;
     let oldTab = layout.find(id);
     if (oldTab) {
       layout.dockMove(oldTab, null, 'remove');
     }
+
+    let [x, y] = mapPointsBetweenElement(fromElement, layout._ref, offsetX, offsetY);
 
     let tabName = path.split('.').pop();
     let newPanel = {
@@ -41,8 +45,8 @@ export class ObjectTreePanel extends LazyUpdateComponent<Props, any> {
           content: <ObjectTreePanel conn={conn} path={path} val={val} />
         }
       ],
-      x: 0,
-      y: 0,
+      x,
+      y,
       w: 200,
       h: 200
     };

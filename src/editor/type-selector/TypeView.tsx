@@ -1,8 +1,7 @@
 import React from 'react';
-import {FunctionDesc, getDefaultFuncData, getFuncStyleFromDesc, PropDesc, PropGroupDesc} from '../../core/client';
+import {FunctionDesc, getDefaultFuncData, getFuncStyleFromDesc, ClientConn} from '../../core/client';
 import {TIcon} from '../icon/Icon';
 import {DragDropDiv, DragState} from 'rc-dock/lib';
-import {ClientConn} from '../../core/client';
 
 export type OnTypeClick = (name: string, desc: FunctionDesc, data: any) => void;
 

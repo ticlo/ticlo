@@ -25,7 +25,7 @@ for (let i = 0; i < len; ++i) {
   sharedMore.push(r);
 }
 
-export const sampleData = {
+export const sampleData: any = {
   add: {
     '#is': 'add',
     '~0': {'#is': 'add', '0': 1, '1': 2},
@@ -77,7 +77,7 @@ export const sampleData = {
     '0': 'a',
     '1': 4,
     '@b-xyw': [100, 300, 150],
-    '@b-p': ['0', '1', 'output']
+    '@b-p': ['0', '1', 'output', '@big']
   },
   note: {
     '#is': 'note',
@@ -85,3 +85,5 @@ export const sampleData = {
     'text': 'hello'
   }
 };
+
+sampleData.equal['@big'] = JSON.parse(JSON.stringify(sampleData));

@@ -6213,14 +6213,14 @@ rc-dialog@~7.5.2:
     rc-animate "2.x"
     rc-util "^4.8.1"
 
-rc-dock@^2.4.4:
-  version "2.4.4"
-  resolved "https://registry.yarnpkg.com/rc-dock/-/rc-dock-2.4.4.tgz#1d6464e37a3096f94382d1fb1ff8b5694be28163"
-  integrity sha512-az5C1ZS9swZQC0X3ZC+XRDgeRjP+b30OsdR0zgtw5yLy1VK+57GFfFlr619tGrHVHxSCGL5a0Kg4rLus7ClVZg==
+rc-dock@^2.4.5:
+  version "2.4.5"
+  resolved "https://registry.yarnpkg.com/rc-dock/-/rc-dock-2.4.5.tgz#0885c98d59ed0dc696556b3f65043f7c44721914"
+  integrity sha512-c1C16Zf1lL6tVB7SOFYaBVfpKyna/64a1I1jSiOrRkd7jOlPs1AfkFvg2pUPiZx5mj3u/9WhMaitvodeBO4NuQ==
   dependencies:
     classnames "^2.2.6"
     lodash "^4.17.15"
-    rc-tabs "^9.6.6"
+    rc-tabs "^9.6.7"
     react-new-window "^0.1.2"
 
 rc-drawer@~3.0.0:
@@ -6444,7 +6444,7 @@ rc-table@~6.9.4:
     react-lifecycles-compat "^3.0.2"
     shallowequal "^1.0.2"
 
-rc-tabs@^9.6.6, rc-tabs@~9.6.4:
+rc-tabs@^9.6.7, rc-tabs@~9.6.4:
   version "9.6.7"
   resolved "https://registry.yarnpkg.com/rc-tabs/-/rc-tabs-9.6.7.tgz#c546115a351f5ed779ea5524143157f48ee0c015"
   integrity sha512-OXbDOgaqv2MGK9QaDi6cdva6bNz3XGw+M9BHQpm1gTGmVQEGx5VcclDClH/3xobIzooxy8hrxg/s0rTlgDnC2w==
