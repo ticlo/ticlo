@@ -24,11 +24,16 @@ import {BlockStageTab} from '../../src/panel/block/BlockStageTab';
 import {Dispatcher, ValueDispatcher} from '../../src/core/block/Dispatcher';
 import {PropertyListPanel} from '../../src/panel/property/PropertyListPanel';
 import {ObjectTree} from '../../src/editor/object-tree/ObjectTree';
+import {ObjectTreePanel} from '../../src/panel/object-tree/ObjectTreePanel';
 
 const layoutGroups = {
   blockStage: {
     animated: false,
     floatable: true
+  },
+  objectTree: {
+    disableDock: true,
+    maximizable: false
   }
 };
 
@@ -68,9 +73,15 @@ class App extends React.PureComponent<Props, State> implements TicloLayoutContex
     return BlockStagePanel.createDockTab(path, conn, this.onSelect, onSave);
   }
 
+  /// implements TicloLayoutContext
   editJob(path: string, onSave: () => void) {
     this.layout.dockMove(this.createBlockEditorTab(path, onSave), this.layout.find('main'), 'middle');
   }
+  showObjectTree(path: string, value: any, element: HTMLElement, source: any) {
+    let {conn} = this.props;
+    ObjectTreePanel.openFloatPanel(this.layout, path, conn, value, element, source);
+  }
+  closeObjectTree(path: string, source: any) {}
 
   onDragBlock = (e: DragState) => {
     let {conn} = this.props;
