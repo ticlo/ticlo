@@ -79,7 +79,7 @@ class App extends React.PureComponent<Props, State> implements TicloLayoutContex
   }
   showObjectTree(path: string, value: any, element: HTMLElement, source: any) {
     let {conn} = this.props;
-    ObjectTreePanel.openFloatPanel(this.layout, path, conn, value, element, source);
+    ObjectTreePanel.openFloatPanel(this.layout, path, conn, value, element, source, 18, 0);
   }
   closeObjectTree(path: string, source: any) {
     ObjectTreePanel.closeFloatPanel(this.layout, path, source);
