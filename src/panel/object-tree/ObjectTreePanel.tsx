@@ -14,6 +14,11 @@ interface Props {
 }
 
 export class ObjectTreePanel extends LazyUpdateComponent<Props, any> {
+  static dockGroup = {
+    disableDock: true,
+    maximizable: false
+  };
+
   static openFloatPanel(
     layout: DockLayout,
     path: string,

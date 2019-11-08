@@ -31,10 +31,7 @@ const layoutGroups = {
     animated: false,
     floatable: true
   },
-  objectTree: {
-    disableDock: true,
-    maximizable: false
-  }
+  objectTree: ObjectTreePanel.dockGroup
 };
 
 interface Props {

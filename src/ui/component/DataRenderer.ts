@@ -51,9 +51,7 @@ export abstract class PureDataRenderer<P extends DataRendererProps<any>, S> exte
       props.item.attachedRenderer(this);
     }
   }
-  componentDidMount(): void {
-    this._mounted = true;
-  }
+
   componentDidUpdate(prevProps: P) {
     if (prevProps.item !== this.props.item) {
       if (this.props.item) {
@@ -69,16 +67,17 @@ export abstract class PureDataRenderer<P extends DataRendererProps<any>, S> exte
     if (this.props.item) {
       this.props.item.detachRenderer(this);
     }
-    this._mounted = false;
+    this._rendered = false;
   }
 
   _rendering = false;
-  _mounted = false;
+  _rendered = false;
 
   render(): React.ReactNode {
     this._rendering = true;
     let result = this.renderImpl();
     this._rendering = false;
+    this._rendered = true;
     return result;
   }
 
@@ -86,7 +85,7 @@ export abstract class PureDataRenderer<P extends DataRendererProps<any>, S> exte
 
   // @ts-ignore
   forceUpdate = () => {
-    if (this._mounted && !this._rendering) {
+    if (this._rendered && !this._rendering) {
       super.forceUpdate();
     }
   };

@@ -199,14 +199,13 @@ export abstract class BlockStageBase<State> extends LazyUpdateComponent<StagePro
       for (let target of this._fieldLinks.get(key)) {
         target.sourceChanged(item);
       }
-    } else {
-      let preFixPath = `${key}.`;
-      for (let [path, links] of this._fieldLinks) {
-        // search for children path to have a indirect binding wire
-        if (path.startsWith(preFixPath)) {
-          for (let target of links) {
-            target.sourceChanged(item, true);
-          }
+    }
+    let preFixPath = `${key}.`;
+    for (let [path, links] of this._fieldLinks) {
+      // search for children path to have a indirect binding wire
+      if (path.startsWith(preFixPath)) {
+        for (let target of links) {
+          target.sourceChanged(item, true);
         }
       }
     }
