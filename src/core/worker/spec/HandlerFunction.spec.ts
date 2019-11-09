@@ -2,12 +2,12 @@ import {assert} from 'chai';
 import {Job, Root} from '../../block/Block';
 import {TestFunctionRunner, TestAsyncFunctionLog} from '../../block/spec/TestFunction';
 import '../../functions/basic/math/Arithmetic';
-import '../PipeFunction';
+import '../HandlerFunction';
 import {DataMap} from '../../util/DataTypes';
 import {CompleteEvent, Event, NOT_READY} from '../../block/Event';
 import {shouldHappen, shouldTimeout} from '../../util/test-util';
 
-class PipeListener {
+class HandlerListener {
   ignoreEvent: boolean;
   constructor(ignoreEvent = false) {
     this.ignoreEvent = ignoreEvent;
@@ -27,7 +27,7 @@ class PipeListener {
   onSourceChange(prop: any): void {}
 }
 
-const pipeWorker = {
+const handlerWorker = {
   '#is': {
     '#is': '',
     'runner': {'#is': 'test-runner', '#mode': 'onLoad', '#-log': 0},
@@ -36,7 +36,7 @@ const pipeWorker = {
   }
 };
 
-describe('PipeFunction', function() {
+describe('HandlerFunction', function() {
   beforeEach(() => {
     TestFunctionRunner.clearLog();
   });
@@ -48,35 +48,35 @@ describe('PipeFunction', function() {
   it('basic', function() {
     let job = new Job();
 
-    let listener = new PipeListener();
+    let listener = new HandlerListener();
     let aBlock = job.createBlock('a');
 
     aBlock.getProperty('#emit').listen(listener);
     aBlock._load({
-      '#is': 'pipe',
+      '#is': 'handler',
       '#call': 1,
-      'use': pipeWorker
+      'use': handlerWorker
     });
 
     Root.runAll(2);
 
     assert.deepEqual(listener.emits, [NOT_READY, 2]);
 
-    // delete pipe;
+    // delete handler;
     job.deleteValue('a');
   });
 
   it('syncInput', function() {
     let job = new Job();
 
-    let listener = new PipeListener();
+    let listener = new HandlerListener();
     let aBlock = job.createBlock('a');
 
     aBlock.getProperty('#emit').listen(listener);
     aBlock._load({
-      '#is': 'pipe',
+      '#is': 'handler',
       '#sync': true,
-      'use': pipeWorker
+      'use': handlerWorker
     });
 
     aBlock.setValue('#call', 4);
@@ -89,22 +89,22 @@ describe('PipeFunction', function() {
 
     assert.lengthOf(TestFunctionRunner.popLogs(), 4);
 
-    // delete pipe;
+    // delete handler;
     job.deleteValue('a');
   });
 
   it('thread non-reuse', function() {
     let job = new Job();
 
-    let listener = new PipeListener();
+    let listener = new HandlerListener();
     let aBlock = job.createBlock('a');
 
     aBlock.getProperty('#emit').listen(listener);
     aBlock._load({
-      '#is': 'pipe',
+      '#is': 'handler',
       '#sync': true,
       'thread': 2,
-      'use': pipeWorker
+      'use': handlerWorker
     });
 
     aBlock.setValue('#call', 4);
@@ -117,23 +117,23 @@ describe('PipeFunction', function() {
 
     assert.lengthOf(TestFunctionRunner.popLogs(), 4);
 
-    // delete pipe;
+    // delete handler;
     job.deleteValue('a');
   });
 
   it('thread reuse', function() {
     let job = new Job();
 
-    let listener = new PipeListener();
+    let listener = new HandlerListener();
     let aBlock = job.createBlock('a');
 
     aBlock.getProperty('#emit').listen(listener);
     aBlock._load({
-      '#is': 'pipe',
+      '#is': 'handler',
       '#sync': true,
       'thread': 2,
       'reuseWorker': 'reuse',
-      'use': pipeWorker
+      'use': handlerWorker
     });
 
     aBlock.setValue('#call', 4);
@@ -152,23 +152,23 @@ describe('PipeFunction', function() {
 
     assert.lengthOf(TestFunctionRunner.popLogs(), 1); // a new worker is created
 
-    // delete pipe;
+    // delete handler;
     job.deleteValue('a');
   });
 
   it('thread persist', function() {
     let job = new Job();
 
-    let listener = new PipeListener();
+    let listener = new HandlerListener();
     let aBlock = job.createBlock('a');
 
     aBlock.getProperty('#emit').listen(listener);
     aBlock._load({
-      '#is': 'pipe',
+      '#is': 'handler',
       '#sync': true,
       'thread': 2,
       'reuseWorker': 'persist',
-      'use': pipeWorker
+      'use': handlerWorker
     });
 
     aBlock.setValue('#call', 4);
@@ -187,19 +187,19 @@ describe('PipeFunction', function() {
 
     assert.isEmpty(TestFunctionRunner.popLogs()); // no new worker is created
 
-    // delete pipe;
+    // delete handler;
     job.deleteValue('a');
   });
 
   it('keepOrder', async function() {
     let job = new Job();
 
-    let listener = new PipeListener(true);
+    let listener = new HandlerListener(true);
     let aBlock = job.createBlock('a');
 
     aBlock.getProperty('#emit').listen(listener);
     aBlock._load({
-      '#is': 'pipe',
+      '#is': 'handler',
       '#sync': true,
       'reuseWorker': 'reuse',
       'keepOrder': true,
@@ -224,19 +224,19 @@ describe('PipeFunction', function() {
 
     assert.deepEqual(listener.emits, [5, 4, 3, 2, 1]);
 
-    // delete pipe;
+    // delete handler;
     job.deleteValue('a');
   });
 
   it('timeout', async function() {
     let job = new Job();
 
-    let listener = new PipeListener();
+    let listener = new HandlerListener();
     let aBlock = job.createBlock('a');
 
     aBlock.getProperty('#emit').listen(listener);
     aBlock._load({
-      '#is': 'pipe',
+      '#is': 'handler',
       '#sync': true,
       'timeout': 10,
       'use': {
@@ -258,23 +258,23 @@ describe('PipeFunction', function() {
     aBlock.setValue('timeout', 0.01);
     await shouldHappen(() => listener.emits.length >= 5);
 
-    // delete pipe;
+    // delete handler;
     job.deleteValue('a');
   });
 
   it('maxQueueSize', async function() {
     let job = new Job();
 
-    let listener = new PipeListener(true);
+    let listener = new HandlerListener(true);
     let aBlock = job.createBlock('a');
 
     aBlock.getProperty('#emit').listen(listener);
     aBlock._load({
-      '#is': 'pipe',
+      '#is': 'handler',
       '#sync': true,
       'maxQueueSize': 2,
       'thread': 1,
-      'use': pipeWorker
+      'use': handlerWorker
     });
 
     aBlock.setValue('#call', 4);
@@ -289,27 +289,27 @@ describe('PipeFunction', function() {
 
     assert.deepEqual(listener.emits, [5, 2, 1]);
 
-    // delete pipe;
+    // delete handler;
     job.deleteValue('a');
   });
 
-  it('chain pipe blocks', async function() {
+  it('chain handler blocks', async function() {
     let job = new Job();
 
     job.load({
       a: {
-        '#is': 'pipe',
+        '#is': 'handler',
         '#sync': true,
-        'use': pipeWorker
+        'use': handlerWorker
       },
       b: {
         '~#call': '##.a.#emit',
-        '#is': 'pipe',
+        '#is': 'handler',
         '#sync': true,
-        'use': pipeWorker
+        'use': handlerWorker
       }
     });
-    let listener = new PipeListener();
+    let listener = new HandlerListener();
 
     let aBlock = job.getValue('a');
 
@@ -322,22 +322,22 @@ describe('PipeFunction', function() {
     assert.deepEqual(listener.emits, [NOT_READY, 6, 5]);
 
     assert.lengthOf(TestFunctionRunner.popLogs(), 4);
-    // delete pipe;
+    // delete handler;
     job.deleteValue('a');
   });
 
   it('misc', async function() {
     let job = new Job();
 
-    let listener = new PipeListener(true);
+    let listener = new HandlerListener(true);
     let aBlock = job.createBlock('a');
 
     aBlock.getProperty('#emit').listen(listener);
     aBlock._load({
-      '#is': 'pipe',
+      '#is': 'handler',
       '#sync': true,
       'thread': 1,
-      'use': pipeWorker
+      'use': handlerWorker
     });
 
     // invalid parameters
@@ -358,7 +358,7 @@ describe('PipeFunction', function() {
 
     assert.deepEqual(listener.emits, [5, 3]);
 
-    // delete pipe;
+    // delete handler;
     job.deleteValue('a');
   });
 });

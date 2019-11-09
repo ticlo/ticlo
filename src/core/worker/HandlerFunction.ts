@@ -7,21 +7,21 @@ import Denque from 'denque';
 import {BlockIO} from '../block/BlockProperty';
 import {InfiniteQueue} from '../util/InfiniteQueue';
 
-export class PipeFunction extends MapImpl {
+export class HandlerFunction extends MapImpl {
   _queue = new Denque<any>();
   _outQueue = new InfiniteQueue<any>();
   _currentInput: any;
 
   static inputMap = new Map([
-    ['use', PipeFunction.prototype._onSourceChange],
-    ['thread', PipeFunction.prototype._onThreadChanged],
-    ['reuseWorker', PipeFunction.prototype._onReuseWorkerChange],
-    ['timeout', PipeFunction.prototype._onTimeoutChange],
-    ['keepOrder', PipeFunction.prototype._onKeepOrderChange],
-    ['maxQueueSize', PipeFunction.prototype._onMaxQueueSizeChange]
+    ['use', HandlerFunction.prototype._onSourceChange],
+    ['thread', HandlerFunction.prototype._onThreadChanged],
+    ['reuseWorker', HandlerFunction.prototype._onReuseWorkerChange],
+    ['timeout', HandlerFunction.prototype._onTimeoutChange],
+    ['keepOrder', HandlerFunction.prototype._onKeepOrderChange],
+    ['maxQueueSize', HandlerFunction.prototype._onMaxQueueSizeChange]
   ]);
   getInputMap() {
-    return PipeFunction.inputMap;
+    return HandlerFunction.inputMap;
   }
 
   _keepOrder: boolean;
@@ -185,9 +185,9 @@ export class PipeFunction extends MapImpl {
   }
 }
 
-PipeFunction.prototype.priority = 3;
-Types.add(PipeFunction, {
-  name: 'pipe',
+HandlerFunction.prototype.priority = 3;
+Types.add(HandlerFunction, {
+  name: 'handler',
   icon: 'fas:grip-lines-vertical',
   priority: 3,
   mode: 'onChange',
