@@ -3,6 +3,7 @@ import {DataMap, isSavedBlock} from '../util/DataTypes';
 import {Block, Job} from '../block/Block';
 import {ThreadPool, UnlimitedPool, WorkerPool} from './ThreadPool';
 import {voidFunction} from '../util/Functions';
+import {Task} from '../block/Task';
 
 export type MapWorkerMode = undefined | 'reuse' | 'persist';
 
@@ -64,6 +65,7 @@ export abstract class MapImpl extends BlockFunction {
   }
 
   _pool: WorkerPool = new UnlimitedPool((n: number) => this._removeWorker(n.toString()), () => this.queue());
+
   _onThreadChanged(val: any): boolean {
     let n = Number(val);
     if (!(n >= 1)) {
@@ -138,6 +140,8 @@ export class WorkerOutput implements FunctionOutput {
   timeout: any;
   onReady: (output: WorkerOutput, timeout: boolean) => void;
 
+  task: Task;
+
   constructor(
     key: string | number,
     field: string | number,
@@ -189,10 +193,16 @@ export class WorkerOutput implements FunctionOutput {
   }
 
   // reuse the output on a new Render
-  reset(field: string | number, timeoutSeconds: number, onReady: (output: WorkerOutput, timeout: boolean) => void) {
+  reset(
+    field: string | number,
+    timeoutSeconds: number,
+    onReady: (output: WorkerOutput, timeout: boolean) => void,
+    task?: Task
+  ) {
     this.field = field;
     this.onReady = onReady;
     this.updateTimeOut(timeoutSeconds);
+    this.task = task;
   }
 
   cancel() {

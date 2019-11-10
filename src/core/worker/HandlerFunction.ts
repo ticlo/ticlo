@@ -6,9 +6,10 @@ import {Event, ErrorEvent, EventType, NOT_READY} from '../block/Event';
 import Denque from 'denque';
 import {BlockIO} from '../block/BlockProperty';
 import {InfiniteQueue} from '../util/InfiniteQueue';
+import {DefaultTask, Task} from '../block/Task';
 
 export class HandlerFunction extends MapImpl {
-  _queue = new Denque<any>();
+  _queue = new Denque<Task>();
   _outQueue = new InfiniteQueue<any>();
   _currentInput: any;
 
@@ -48,10 +49,17 @@ export class HandlerFunction extends MapImpl {
       return false;
     }
     this._maxQueueSize = n;
-    if (this._queue.length > n) {
-      this._queue.remove(0, this._queue.length - n);
-    }
+    this._checkQueueSize();
     return true;
+  }
+  _checkQueueSize() {
+    if (this._queue.length > this._maxQueueSize) {
+      let countToRemove = this._queue.length - this._maxQueueSize;
+      for (let i = 0; i < countToRemove; ++i) {
+        let inputToRemove = this._queue.get(i).onCancel();
+      }
+      this._queue.remove(0, countToRemove);
+    }
   }
 
   // return true when everything in queue are assigned
@@ -89,8 +97,11 @@ export class HandlerFunction extends MapImpl {
       this._outQueue.newSlot();
     }
     let input = this._queue.shift();
-    (worker._outputObj as WorkerOutput).reset(field, this._timeout, (output: WorkerOutput, timeout: boolean) =>
-      this._onWorkerReady(output, timeout)
+    (worker._outputObj as WorkerOutput).reset(
+      field,
+      this._timeout,
+      (output: WorkerOutput, timeout: boolean) => this._onWorkerReady(output, timeout),
+      input
     );
     worker.updateInput(input);
   }
@@ -107,10 +118,13 @@ export class HandlerFunction extends MapImpl {
     }
     if (input !== this._currentInput) {
       if (input != null) {
-        this._queue.push(input);
-        if (this._queue.length > this._maxQueueSize) {
-          this._queue.remove(0, this._queue.length - this._maxQueueSize);
+        if (input instanceof Task) {
+          this._queue.push(input);
+          input.attachHandler(this);
+        } else {
+          this._queue.push(new DefaultTask(input));
         }
+        this._checkQueueSize();
       }
       this._currentInput = input;
     }
@@ -144,15 +158,19 @@ export class HandlerFunction extends MapImpl {
   _onWorkerReady(output: WorkerOutput, timeout: boolean) {
     this._waitingWorker--;
     let result: any;
+
     if (timeout) {
-      result = new ErrorEvent('timeout');
+      result = output.task.onTimeout();
     } else {
-      result = convertToObject(this._workers.get(output.key).getValue('#output'));
-      if (result === undefined) {
-        // undefined means output is not ready, not allowed as result
-        result = null;
-      }
+      let worker = this._workers.get(output.key);
+      result = output.task.onComplete(worker, worker.getValue('#output'));
     }
+
+    if (result === undefined) {
+      // undefined means output is not ready, not allowed as result
+      result = null;
+    }
+
     if (this._keepOrder) {
       this._outQueue.setAt(output.field as number, result);
       while (this._outQueue.peekFront() !== undefined) {
@@ -166,6 +184,14 @@ export class HandlerFunction extends MapImpl {
   }
 
   _clearWorkers() {
+    if (this._workers) {
+      for (let [key, worker] of this._workers) {
+        (worker._outputObj as WorkerOutput).task.onCancel();
+      }
+    }
+    for (let i = 0; i < this._queue.length; ++i) {
+      this._queue.get(i).onCancel();
+    }
     super._clearWorkers();
     this._outQueue.clear();
   }

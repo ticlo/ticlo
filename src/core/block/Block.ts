@@ -16,6 +16,7 @@ import {
   InputConfigGenerators
 } from './BlockConfigs';
 import {FunctionDesc} from './Descriptor';
+import {Task} from './Task';
 
 export type BlockMode = 'auto' | 'onLoad' | 'onChange' | 'onCall' | 'disabled';
 export const BlockModeList = ['auto', 'onLoad', 'onChange', 'onCall', 'disabled'];
@@ -1020,7 +1021,12 @@ export class InputBlock extends Block {
   }
 
   _setInputValue(val: any) {
-    this.updateValue('#value', val);
+    if (val instanceof Task) {
+      this.updateValue('#value', val.getData());
+      val = val.getDataMap();
+    } else {
+      this.updateValue('#value', val);
+    }
     if (Object.isExtensible(val)) {
       let moreList = this.getValue('#more');
       if (Array.isArray(moreList)) {
