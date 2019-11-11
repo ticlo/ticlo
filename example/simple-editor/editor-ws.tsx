@@ -4,7 +4,6 @@ import {Menu, Icon, Dropdown, Button, Card} from 'antd';
 import {Block, FunctionDesc, Root} from '../../src/core/main';
 import {makeLocalConnection} from '../../src/core/connect/LocalConnection';
 import {TIcon} from '../../src/editor/icon/Icon';
-import {sampleData} from './sample-data';
 import {initEditor, PropertyList, BlockStage, NodeTree} from '../../src/editor';
 import {DragDropDiv, DragState, DockLayout, DockContextType} from 'rc-dock';
 import {ClientConnection} from '../../src/core/connect/ClientConnection';
@@ -25,6 +24,7 @@ import {Dispatcher, ValueDispatcher} from '../../src/core/block/Dispatcher';
 import {PropertyListPanel} from '../../src/panel/property/PropertyListPanel';
 import {ObjectTree} from '../../src/editor/object-tree/ObjectTree';
 import {ObjectTreePanel} from '../../src/panel/object-tree/ObjectTreePanel';
+import {WsBrowserConnection} from '../../src/browser/connect/WsBrowserConnection';
 
 const layoutGroups = {
   blockStage: {
@@ -154,12 +154,6 @@ class App extends React.PureComponent<Props, State> implements TicloLayoutContex
                     }}
                   />
                 )
-              },
-              {
-                id: 'ObjectTree',
-                title: 'Object',
-                cached: true,
-                content: <ObjectTree conn={conn} style={{height: '100%'}} data={sampleData} />
               }
             ]
           },
@@ -187,14 +181,7 @@ class App extends React.PureComponent<Props, State> implements TicloLayoutContex
 
 (async () => {
   await initEditor();
-  let job = Root.instance.addJob('example');
-  job.load(sampleData);
-
-  // create some global blocks
-  Root.instance._globalBlock.createBlock('^gAdd').setValue('#is', 'add');
-  Root.instance._globalBlock.createBlock('^gSub').setValue('#is', 'subtract');
-
-  let [server, client] = makeLocalConnection(Root.instance);
+  let client = new WsBrowserConnection(`ws://127.0.0.1:8010/ticlo`);
 
   ReactDOM.render(<App conn={client} />, document.getElementById('app'));
 })();

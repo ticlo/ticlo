@@ -3,16 +3,13 @@ import {DataMap} from '../../core/util/DataTypes';
 import {Logger} from '../../core/util/Logger';
 import {decode, encode} from '../../core/util/Serialize';
 
-class WsServerConnection extends ClientConnection {
+export class WsBrowserConnection extends ClientConnection {
   _ws: WebSocket;
   _url: string;
 
   constructor(url: string, editorListeners = true) {
     super(editorListeners);
     this._url = url;
-  }
-
-  connect() {
     this.reconnect();
   }
 
