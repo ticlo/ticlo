@@ -31,6 +31,9 @@ export class BaseFunction {
   }
   initInputs() {}
 
+  onCall(val: any): boolean {
+    return true;
+  }
   // return true when it needs to be put in queue
   inputChanged(input: BlockIO, val: any): boolean {
     return true;
@@ -83,6 +86,9 @@ export class BlockFunction implements BaseFunction {
     return BlockFunction.emptyInputMap;
   }
 
+  onCall(val: any): boolean {
+    return true;
+  }
   // return true when it needs to be put in queue
   inputChanged(input: BlockIO, val: any): boolean {
     const inputCallback = this.getInputMap().get(input._name);

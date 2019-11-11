@@ -558,6 +558,10 @@ export class Block implements Runnable, FunctionData, Listener<FunctionClass>, D
       if (val === NOT_READY) {
         // ignore NOT_READY
       } else {
+        if (this._function && !this._function.onCall(val)) {
+          // rejected by onCall
+          return;
+        }
         switch (Event.check(val)) {
           case EventType.TRIGGER: {
             if (this._sync) {
@@ -691,6 +695,10 @@ export class Block implements Runnable, FunctionData, Listener<FunctionClass>, D
         }
         this._function.initInputs();
         if (this._runOnLoad) {
+          let callValue = this.getValue('#call');
+          if (callValue !== undefined) {
+            this._function.onCall(callValue);
+          }
           this._queueFunction();
         }
       }

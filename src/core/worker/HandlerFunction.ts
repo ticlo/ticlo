@@ -11,7 +11,6 @@ import {DefaultTask, Task} from '../block/Task';
 export class HandlerFunction extends MapImpl {
   _queue = new Denque<Task>();
   _outQueue = new InfiniteQueue<any>();
-  _currentInput: any;
 
   static inputMap = new Map([
     ['use', HandlerFunction.prototype._onSourceChange],
@@ -106,28 +105,29 @@ export class HandlerFunction extends MapImpl {
     worker.updateInput(input);
   }
 
+  onCall(val: any): boolean {
+    if (val instanceof Event) {
+      // ignore event of previous block
+      val = undefined;
+    }
+    if (val !== undefined) {
+      if (val instanceof Task) {
+        this._queue.push(val);
+        val.attachHandler(this);
+      } else {
+        this._queue.push(new DefaultTask(val));
+      }
+      this._checkQueueSize();
+    }
+    return true;
+  }
+
   run(): any {
     if (this._keepOrderChanged) {
       this._keepOrderChanged = false;
       this._clearWorkers();
     }
-    let input = this._data.getValue('#call');
-    if (input instanceof Event) {
-      // ignore event of previous block
-      input = undefined;
-    }
-    if (input !== this._currentInput) {
-      if (input != null) {
-        if (input instanceof Task) {
-          this._queue.push(input);
-          input.attachHandler(this);
-        } else {
-          this._queue.push(new DefaultTask(input));
-        }
-        this._checkQueueSize();
-      }
-      this._currentInput = input;
-    }
+
     if (this._timeoutChanged) {
       this._updateWorkerTimeout(this._timeout);
     }
