@@ -153,7 +153,10 @@ describe('WorkerEditor', function() {
         name: 'g',
         type: 'group',
         defaultLen: 2,
-        properties: [{name: 'a', type: 'number'}, {name: 'b', type: 'number', readonly: true}]
+        properties: [
+          {name: 'a', type: 'number'},
+          {name: 'b', type: 'number', readonly: true}
+        ]
       },
       {name: 'a', type: 'number'},
       {name: 'b', type: 'number', readonly: true}

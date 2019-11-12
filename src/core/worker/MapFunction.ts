@@ -4,7 +4,7 @@ import {FunctionDesc} from '../block/Descriptor';
 import {BlockIO, BlockProperty} from '../block/BlockProperty';
 import {Block, Job} from '../block/Block';
 import {convertToObject, DataMap, isSavedBlock} from '../util/DataTypes';
-import {ErrorEvent, Event, EventType, NOT_READY} from '../block/Event';
+import {ErrorEvent, Event, EventType, WAIT} from '../block/Event';
 import {MapImpl, MapWorkerMode, WorkerOutput} from './MapImpl';
 import {BlockProxy} from '../block/BlockProxy';
 import {UnlimitedPool} from './ThreadPool';
@@ -130,11 +130,11 @@ export class MapFunction extends MapImpl {
     if (this._input) {
       if (!this._assignWorker()) {
         // _assignWorker returns false means there are still pendingKeys
-        return NOT_READY;
+        return WAIT;
       }
       if (this._waitingWorker > 0) {
         // all pending keys are assigned to workers but still waiting for some worker
-        return NOT_READY;
+        return WAIT;
       }
       // everything is done, finish the current one and move to next
       this._data.output(this._output);
@@ -159,7 +159,7 @@ export class MapFunction extends MapImpl {
 
     this._startWithNewInput();
 
-    return NOT_READY;
+    return WAIT;
   }
 
   _onWorkerReady(output: WorkerOutput, timeout: boolean) {
@@ -259,11 +259,10 @@ export class MapFunction extends MapImpl {
   }
 }
 
-MapFunction.prototype.priority = 3;
 Types.add(MapFunction, {
   name: 'map',
   icon: 'fas:grip-vertical',
-  priority: 1,
+  priority: 3,
   style: 'repeater',
   properties: [
     {name: 'input', type: 'any'},

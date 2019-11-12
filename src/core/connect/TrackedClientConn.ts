@@ -69,8 +69,8 @@ export class TrackedClientConn implements ClientConn {
     return this._base.editWorker(path, fromField, fromFunction, callbacks);
   }
 
-  findGlobalBlocks(types: string[]): string[] {
-    return this._base.findGlobalBlocks(types);
+  findGlobalBlocks(tags: string[]): string[] {
+    return this._base.findGlobalBlocks(tags);
   }
 
   getValue(path: string, callbacks?: ClientCallbacks): Promise<any> | string {

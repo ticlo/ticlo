@@ -3,7 +3,7 @@ import {BlockBinding} from './BlockBinding';
 import {FunctionData, FunctionClass, BaseFunction, FunctionOutput} from './BlockFunction';
 import {Dispatcher, Listener, ValueDispatcher, ListenPromise, Destroyable, BlockBindingSource} from './Dispatcher';
 import {Type, Types} from './Type';
-import {CompleteEvent, ErrorEvent, Event, EventType, NOT_READY} from './Event';
+import {CompleteEvent, ErrorEvent, Event, EventType, NO_EMIT, WAIT} from './Event';
 import {DataMap} from '../util/DataTypes';
 import {Uid} from '../util/Uid';
 import {voidProperty} from './Void';
@@ -484,17 +484,20 @@ export class Block implements Runnable, FunctionData, Listener<FunctionClass>, D
           // promise already done after listen;
           return;
         }
-        result = NOT_READY;
+        result = WAIT;
       }
       this.emit(result);
     }
   }
 
   emit(val: any) {
-    if (val === NOT_READY) {
+    if (val === WAIT) {
       this.updateValue('#wait', true);
     } else {
       this.deleteValue('#wait');
+      if (val === NO_EMIT) {
+        return;
+      }
     }
     if (this._props.has('#emit')) {
       if (val === undefined) {
@@ -555,7 +558,7 @@ export class Block implements Runnable, FunctionData, Listener<FunctionClass>, D
 
   _onCall(val: any): void {
     if (this._mode !== 'disabled') {
-      if (val === NOT_READY) {
+      if (val === WAIT) {
         // ignore NOT_READY
       } else {
         if (this._function && !this._function.onCall(val)) {

@@ -83,7 +83,8 @@ export interface FunctionDesc {
   attributes?: PropDesc[];
   /** recipient property will receive value or binding when parent property is converted to subblock of this type */
   recipient?: string;
-
+  // used by service editor to filter global blocks
+  tags?: string[];
   // a React class to display special component in block UI in the editor
   // not used on server side
   view?: any;

@@ -1,6 +1,6 @@
 import {assert} from 'chai';
 import {Job, Root, Block} from '../../../block/Block';
-import {NOT_READY} from '../../../block/Event';
+import {WAIT} from '../../../block/Event';
 import {shouldReject, shouldTimeout} from '../../../util/test-util';
 import '../Js';
 
@@ -59,7 +59,7 @@ describe('Js', function() {
 
     aBlock.setValue('#call', {});
     await shouldTimeout(aBlock.waitNextValue('#emit'), 5); // NOT_READY won't resolve the promise
-    assert.equal(aBlock.getValue('#emit'), NOT_READY, 'called without script should return NOT_READY');
+    assert.equal(aBlock.getValue('#emit'), WAIT, 'called without script should return NOT_READY');
 
     let bBlock = job.createBlock('b');
     bBlock.setValue('#is', 'js');

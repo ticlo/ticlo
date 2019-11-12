@@ -10,7 +10,7 @@ let sharedMore: any[] = [
   {name: 'date', type: 'date', showTime: true},
   {name: 'range', type: 'date-range'},
   {name: 'group', type: 'group', defaultLen: 2, properties: []},
-  {name: 'service', type: 'service', options: ['add', 'subtract'], create: 'add'},
+  {name: 'service', type: 'service', options: ['math-n'], create: 'add'},
   {
     name: 'worker',
     type: 'worker',

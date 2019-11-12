@@ -100,7 +100,7 @@ export interface ClientConn {
 
   unwatchDesc(listener: ClientDescListener): void;
 
-  findGlobalBlocks(types: string[]): string[];
+  findGlobalBlocks(tags: string[]): string[];
 
   cancel(id: string): void;
 }

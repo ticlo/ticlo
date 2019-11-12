@@ -371,12 +371,18 @@ export abstract class ClientConnection extends Connection implements ClientConn 
     this.descReq.listeners.delete(listener);
   }
 
-  findGlobalBlocks(types: string[]): string[] {
+  findGlobalBlocks(tags: string[]): string[] {
     let result: string[] = [];
-    if (this.globalWatch && Array.isArray(types)) {
+    if (this.globalWatch && Array.isArray(tags)) {
       for (let [key, listener] of this.globalWatch.isListeners) {
-        if (types.includes(listener.value)) {
-          result.push(key);
+        let funcDesc = this.watchDesc(listener.value);
+        if (funcDesc && funcDesc.tags) {
+          for (let tag of tags) {
+            if (funcDesc.tags.includes(tag)) {
+              result.push(key);
+              break;
+            }
+          }
         }
       }
     }

@@ -67,10 +67,12 @@ describe('Connection Error', function() {
 
     assert.equal(await shouldReject(client.addMoreProp('a', null) as Promise<any>), 'invalid desc');
     assert.equal(
-      await shouldReject(client.addMoreProp('ConnectionError1.a.b.c', {
-        name: 'a',
-        type: 'string'
-      }) as Promise<any>),
+      await shouldReject(
+        client.addMoreProp('ConnectionError1.a.b.c', {
+          name: 'a',
+          type: 'string'
+        }) as Promise<any>
+      ),
       'invalid path'
     );
     assert.equal(

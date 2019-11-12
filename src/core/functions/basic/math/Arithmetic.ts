@@ -15,6 +15,7 @@ const descriptorN: FunctionDesc = {
     {name: 'output', type: 'number', readonly: true}
   ],
   recipient: '0',
+  tags: ['math', 'math-n'],
   category: 'math'
 };
 const descriptor2: FunctionDesc = {
@@ -26,6 +27,7 @@ const descriptor2: FunctionDesc = {
     {name: 'output', type: 'number', readonly: true}
   ],
   recipient: '0',
+  tags: ['math', 'math-2'],
   category: 'math'
 };
 

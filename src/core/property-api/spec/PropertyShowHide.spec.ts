@@ -29,7 +29,10 @@ describe('PropertyOrder', function() {
     let job = new Job();
     job.load({
       '#is': 'add',
-      '#more': [{name: 'aa', type: 'number'}, {name: 'bb', type: 'string'}]
+      '#more': [
+        {name: 'aa', type: 'number'},
+        {name: 'bb', type: 'string'}
+      ]
     });
 
     showProperties(job, ['#call', '1', 'bb']);

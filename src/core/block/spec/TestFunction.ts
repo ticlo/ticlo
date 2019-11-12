@@ -1,7 +1,7 @@
 import {Types} from '../Type';
 import {BaseFunction, BlockFunction, PureFunction} from '../BlockFunction';
 import {BlockIO, BlockPropertyEvent} from '../BlockProperty';
-import {CompleteEvent, ErrorEvent, Event, EventType, NOT_READY} from '../Event';
+import {CompleteEvent, ErrorEvent, Event, EventType, WAIT} from '../Event';
 import {Dispatcher} from '../Dispatcher';
 import {BlockMode} from '../Block';
 import {DataMap} from '../../util/DataTypes';
@@ -105,7 +105,7 @@ export class TestAsyncFunctionManual extends BlockFunction {
       this.timeOut = null;
     }, Math.random() * 10);
 
-    return NOT_READY;
+    return WAIT;
   }
 
   cancel(reason: EventType = EventType.TRIGGER, mode: BlockMode = 'auto') {

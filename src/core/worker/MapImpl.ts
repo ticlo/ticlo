@@ -64,7 +64,10 @@ export abstract class MapImpl extends BlockFunction {
     }
   }
 
-  _pool: WorkerPool = new UnlimitedPool((n: number) => this._removeWorker(n.toString()), () => this.queue());
+  _pool: WorkerPool = new UnlimitedPool(
+    (n: number) => this._removeWorker(n.toString()),
+    () => this.queue()
+  );
 
   _onThreadChanged(val: any): boolean {
     let n = Number(val);
@@ -72,14 +75,21 @@ export abstract class MapImpl extends BlockFunction {
       if (this._pool.constructor !== UnlimitedPool) {
         this._srcChanged = true;
         this._pool.clear();
-        this._pool = new UnlimitedPool((n: number) => this._removeWorker(n.toString()), () => this.queue());
+        this._pool = new UnlimitedPool(
+          (n: number) => this._removeWorker(n.toString()),
+          () => this.queue()
+        );
         return true;
       }
     } else {
       if (this._pool.constructor !== ThreadPool) {
         this._srcChanged = true;
         this._pool.clear();
-        this._pool = new ThreadPool(n, (n: number) => this._removeWorker(n.toString()), () => this.queue());
+        this._pool = new ThreadPool(
+          n,
+          (n: number) => this._removeWorker(n.toString()),
+          () => this.queue()
+        );
         return true;
       } else {
         return (this._pool as ThreadPool).resize(n);

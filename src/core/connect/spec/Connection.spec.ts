@@ -666,19 +666,19 @@ describe('Connection', function() {
     let a = Root.instance._globalBlock.createBlock('^a');
     a.setValue('#is', 'add');
     let b = Root.instance._globalBlock.createBlock('^b');
-    b.setValue('#is', 'join');
+    b.setValue('#is', 'subtract');
 
-    await shouldHappen(() => client.findGlobalBlocks(['add', 'join']).length === 2);
+    await shouldHappen(() => client.findGlobalBlocks(['math']).length === 2);
 
-    assert.deepEqual(client.findGlobalBlocks(['join']), ['^b']);
+    assert.deepEqual(client.findGlobalBlocks(['math-2']), ['^b']);
 
-    a.setValue('#is', 'join');
-    await shouldHappen(() => client.findGlobalBlocks(['join']).length === 2);
-    assert.isEmpty(client.findGlobalBlocks(['add']));
+    a.setValue('#is', 'subtract');
+    await shouldHappen(() => client.findGlobalBlocks(['math-2']).length === 2);
+    assert.isEmpty(client.findGlobalBlocks(['math-n']));
 
     // clear #global
     Root.instance._globalBlock._liveUpdate({});
-    await shouldHappen(() => client.findGlobalBlocks(['join']).length === 0);
+    await shouldHappen(() => client.findGlobalBlocks(['math']).length === 0);
 
     client.destroy();
   });

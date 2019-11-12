@@ -63,7 +63,7 @@ export class BaseFunction {
 
 export const PureFunction = BaseFunction;
 
-export class BlockFunction implements BaseFunction {
+export abstract class BlockFunction implements BaseFunction {
   _data: Block;
   priority: 0 | 1 | 2 | 3;
   defaultMode: BlockMode;
@@ -99,9 +99,7 @@ export class BlockFunction implements BaseFunction {
   }
 
   // return stream output
-  run(): any {
-    // to be overridden
-  }
+  abstract run(): any;
 
   /**
    *  cancel any async operation

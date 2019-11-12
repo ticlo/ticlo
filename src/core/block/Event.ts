@@ -52,7 +52,7 @@ export class ErrorEvent extends Event {
   }
 }
 
-export class NotReady extends Event {
+export class WaitEvent extends Event {
   constructor() {
     super('notReady');
   }
@@ -62,11 +62,21 @@ export class NotReady extends Event {
     return EventType.VOID;
   }
 }
+export class NoEmit extends Event {
+  constructor() {
+    super('noEmit');
+  }
 
+  // shouldn't trigger the next block
+  check(): EventType {
+    return EventType.VOID;
+  }
+}
 export class CompleteEvent extends Event {
   constructor() {
     super('complete');
   }
 }
 
-export const NOT_READY = new NotReady();
+export const WAIT = new WaitEvent();
+export const NO_EMIT = new NoEmit();

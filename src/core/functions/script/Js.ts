@@ -1,7 +1,7 @@
 import {Types} from '../../block/Type';
 import {BlockFunction, FunctionData} from '../../block/BlockFunction';
 import {BlockIO, BlockProperty} from '../../block/BlockProperty';
-import {ErrorEvent, NOT_READY} from '../../block/Event';
+import {ErrorEvent, WAIT} from '../../block/Event';
 import {Block, BlockMode} from '../../block/Block';
 import {BlockDeepProxy} from '../../block/BlockProxy';
 import {FunctionDesc} from '../../block/Descriptor';
@@ -41,7 +41,7 @@ export class JsFunction extends BlockFunction {
             return new ErrorEvent(SCRIPT_ERROR, err);
           }
         } else if (script === undefined) {
-          return NOT_READY;
+          return WAIT;
         } else {
           return new ErrorEvent(SCRIPT_ERROR, 'script is not string');
         }

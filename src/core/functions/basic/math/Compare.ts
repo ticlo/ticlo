@@ -64,7 +64,10 @@ Types.add(NotFunction, {
   ...descriptor,
   name: 'not',
   icon: 'txt:!',
-  properties: [{name: '0', type: 'toggle', visible: 'high'}, {name: 'output', type: 'toggle', readonly: true}]
+  properties: [
+    {name: '0', type: 'toggle', visible: 'high'},
+    {name: 'output', type: 'toggle', readonly: true}
+  ]
 });
 
 export class GreaterThanFunction extends PureFunction {

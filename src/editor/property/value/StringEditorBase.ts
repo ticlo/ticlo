@@ -14,7 +14,7 @@ export abstract class StringEditorBase extends React.PureComponent<ValueEditorPr
   }
 
   onInputChange = (e: React.SyntheticEvent) => {
-    this.onValueChange((e.target as (HTMLTextAreaElement | HTMLInputElement)).value);
+    this.onValueChange((e.target as HTMLTextAreaElement | HTMLInputElement).value);
   };
   onValueChange = (value: string) => {
     if (value !== this.props.value || this._pendingValue != null) {

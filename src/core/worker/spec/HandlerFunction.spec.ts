@@ -4,7 +4,7 @@ import {TestFunctionRunner, TestAsyncFunctionLog} from '../../block/spec/TestFun
 import '../../functions/basic/math/Arithmetic';
 import '../HandlerFunction';
 import {DataMap} from '../../util/DataTypes';
-import {CompleteEvent, Event, NOT_READY} from '../../block/Event';
+import {CompleteEvent, Event, WAIT} from '../../block/Event';
 import {shouldHappen, shouldTimeout} from '../../util/test-util';
 
 class HandlerListener {
@@ -61,7 +61,7 @@ describe('HandlerFunction', function() {
 
     Root.runAll(2);
 
-    assert.deepEqual(listener.emits, [NOT_READY, 2]);
+    assert.deepEqual(listener.emits, [WAIT, 2]);
 
     // delete handler;
     job.deleteValue('a');
@@ -86,7 +86,7 @@ describe('HandlerFunction', function() {
     aBlock.setValue('#call', 1);
     Root.run();
 
-    assert.deepEqual(listener.emits, [NOT_READY, 5, 4, 3, 2]);
+    assert.deepEqual(listener.emits, [WAIT, 5, 4, 3, 2]);
 
     assert.lengthOf(TestFunctionRunner.popLogs(), 4);
 
@@ -114,7 +114,7 @@ describe('HandlerFunction', function() {
     aBlock.setValue('#call', 1);
     Root.runAll();
 
-    assert.deepEqual(listener.emits, [NOT_READY, 5, 4, NOT_READY, 3, 2]);
+    assert.deepEqual(listener.emits, [WAIT, 5, 4, WAIT, 3, 2]);
 
     assert.lengthOf(TestFunctionRunner.popLogs(), 4);
 
@@ -143,13 +143,13 @@ describe('HandlerFunction', function() {
     aBlock.setValue('#call', 1);
     Root.runAll();
 
-    assert.deepEqual(listener.emits, [NOT_READY, 5, 4, NOT_READY, 3, 2]);
+    assert.deepEqual(listener.emits, [WAIT, 5, 4, WAIT, 3, 2]);
 
     assert.lengthOf(TestFunctionRunner.popLogs(), 2);
 
     aBlock.setValue('#call', 0);
     Root.runAll();
-    assert.deepEqual(listener.emits, [NOT_READY, 5, 4, NOT_READY, 3, 2, NOT_READY, 1]);
+    assert.deepEqual(listener.emits, [WAIT, 5, 4, WAIT, 3, 2, WAIT, 1]);
 
     assert.lengthOf(TestFunctionRunner.popLogs(), 1); // a new worker is created
 
@@ -178,13 +178,13 @@ describe('HandlerFunction', function() {
     aBlock.setValue('#call', 1);
     Root.runAll();
 
-    assert.deepEqual(listener.emits, [NOT_READY, 5, 4, NOT_READY, 3, 2]);
+    assert.deepEqual(listener.emits, [WAIT, 5, 4, WAIT, 3, 2]);
 
     assert.lengthOf(TestFunctionRunner.popLogs(), 2);
 
     aBlock.setValue('#call', 0);
     Root.runAll();
-    assert.deepEqual(listener.emits, [NOT_READY, 5, 4, NOT_READY, 3, 2, NOT_READY, 1]);
+    assert.deepEqual(listener.emits, [WAIT, 5, 4, WAIT, 3, 2, WAIT, 1]);
 
     assert.isEmpty(TestFunctionRunner.popLogs()); // no new worker is created
 
@@ -255,7 +255,7 @@ describe('HandlerFunction', function() {
     aBlock.setValue('#call', 1);
     Root.runAll();
 
-    assert.deepEqual(listener.emits, [NOT_READY]);
+    assert.deepEqual(listener.emits, [WAIT]);
 
     aBlock.setValue('timeout', 0.01);
     await shouldHappen(() => listener.emits.length >= 5);
@@ -321,7 +321,7 @@ describe('HandlerFunction', function() {
     aBlock.setValue('#call', 3);
 
     Root.runAll();
-    assert.deepEqual(listener.emits, [NOT_READY, 6, 5]);
+    assert.deepEqual(listener.emits, [WAIT, 6, 5]);
 
     assert.lengthOf(TestFunctionRunner.popLogs(), 4);
     // delete handler;

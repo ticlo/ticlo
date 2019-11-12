@@ -2,7 +2,7 @@ import {MapImpl, WorkerOutput} from './MapImpl';
 import {convertToObject} from '../util/DataTypes';
 import {BlockMode, Job} from '../block/Block';
 import {Types} from '../block/Type';
-import {Event, ErrorEvent, EventType, NOT_READY} from '../block/Event';
+import {Event, ErrorEvent, EventType, WAIT} from '../block/Event';
 import Denque from 'denque';
 import {BlockIO} from '../block/BlockProperty';
 import {InfiniteQueue} from '../util/InfiniteQueue';
@@ -141,12 +141,12 @@ export class HandlerFunction extends MapImpl {
     if (!this._queue.isEmpty()) {
       if (this._assignWorker()) {
         // _assignWorker returns true means there are still pendingKeys
-        return NOT_READY;
+        return WAIT;
       }
     }
     if (this._waitingWorker > 0) {
       // all pending keys are assigned to workers but still waiting for some worker
-      return NOT_READY;
+      return WAIT;
     }
     if (this._reuseWorker !== 'persist') {
       this._clearWorkers();
@@ -211,7 +211,6 @@ export class HandlerFunction extends MapImpl {
   }
 }
 
-HandlerFunction.prototype.priority = 3;
 Types.add(HandlerFunction, {
   name: 'handler',
   icon: 'fas:grip-lines-vertical',

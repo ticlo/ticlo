@@ -201,7 +201,6 @@ export class ForEachFunction extends BlockFunction implements BlockChildWatch {
   }
 }
 
-ForEachFunction.prototype.priority = 3;
 Types.add(ForEachFunction, {
   name: 'foreach',
   icon: 'fas:grip-vertical',
