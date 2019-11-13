@@ -51,9 +51,13 @@ class PropertyLoader extends MultiSelectLoader<PropertyEditor> {
   subBlock = false;
   valueListener = {
     onUpdate: (response: ValueUpdate) => {
+      let changed = this.cache == null;
       this.cache = response.cache;
       if (response.change.hasOwnProperty('value') || response.change.hasOwnProperty('bindingPath')) {
         this.subBlock = response.cache.bindingPath === `~${this.name}.output`;
+        changed = true;
+      }
+      if (changed) {
         this.parent.forceUpdate();
       }
     }
