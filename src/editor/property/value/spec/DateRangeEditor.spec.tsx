@@ -4,7 +4,7 @@ import React from 'react';
 import {removeLastTemplate, loadTemplate, querySingle} from '../../../../ui/util/test-util';
 import {initEditor} from '../../../index';
 import {DateRangeEditor} from '../DateRangeEditor';
-import {shouldHappen} from '../../../../core/util/test-util';
+import {shouldHappen, waitTick} from '../../../../core/util/test-util';
 import {blankPropDesc, PropDesc} from '../../../../core/block/Descriptor';
 import moment, {Moment} from 'moment';
 
@@ -13,8 +13,10 @@ describe('DateRangeEditor', function() {
     await initEditor();
   });
 
-  afterEach(function() {
+  afterEach(async function() {
+    await waitTick(); // work around of issue that karma skipping tests after this one
     removeLastTemplate();
+    await waitTick(); // work around of issue that karma skipping tests after this one
   });
 
   it('basic', async function() {
@@ -26,9 +28,9 @@ describe('DateRangeEditor', function() {
     let [component, div] = loadTemplate(<DateRangeEditor value={null} desc={desc} onChange={onChange} />, 'editor');
 
     await shouldHappen(() => div.querySelector('.ticl-date-range-editor > span'));
-    let colorDiv = div.querySelector('.ticl-date-range-editor > span');
+    let dateRangeDiv = div.querySelector('.ticl-date-range-editor > span');
 
-    SimulateEvent.simulate(colorDiv, 'click');
+    SimulateEvent.simulate(dateRangeDiv, 'click');
 
     await shouldHappen(() => document.querySelector('.ant-calendar-date'));
 
@@ -42,5 +44,7 @@ describe('DateRangeEditor', function() {
     let clickedMoment = moment(dateStr, 'MMM D, YYYY');
     assert.isTrue(clickedMoment.isSameOrBefore(values[0]));
     assert.isTrue(clickedMoment.isBefore(values[1]));
+    // give it one more frame, work around of issue that karma skipping tests after this one
+    await waitTick();
   });
 });
