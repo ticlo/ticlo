@@ -45,16 +45,16 @@ export class TypeSelect extends React.PureComponent<Props, State> {
       <div className="ticl-type-select" onClick={onClick}>
         <div className="tlcl-type-select-toggle ticl-hbox">
           <Radio.Group defaultValue="tree" size="small" onChange={this.onToggleChange}>
-            <Radio.Button value="tree">
-              <Tooltip title={'Tree'}>
+            <Tooltip title={'Tree'}>
+              <Radio.Button value="tree">
                 <Icon type="appstore" />
-              </Tooltip>
-            </Radio.Button>
-            <Radio.Button value="recent">
-              <Tooltip title={'Recent'}>
+              </Radio.Button>
+            </Tooltip>
+            <Tooltip title={'Recent'}>
+              <Radio.Button value="recent">
                 <Icon type="history" />
-              </Tooltip>
-            </Radio.Button>
+              </Radio.Button>
+            </Tooltip>
           </Radio.Group>
           <Input
             size="small"

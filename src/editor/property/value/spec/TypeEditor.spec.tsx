@@ -32,9 +32,12 @@ describe('TypeEditor', function() {
     );
 
     await shouldHappen(() => div.querySelector('.anticon-down'));
-    SimulateEvent.simulate(div.querySelector('.anticon-down'), 'click');
 
+    // work around of browser size causing  ResizeObserver - loop limit exceeded  Error
+    window.onerror = function(e) {};
+    SimulateEvent.simulate(div.querySelector('.anticon-down'), 'click');
     await shouldHappen(() => querySingle("//div.ticl-tree-type/span[text()='math']", document.body));
+    window.onerror = null;
 
     SimulateEvent.simulate(
       querySingle("//div.ticl-tree-type/span[text()='math']/../div.ticl-tree-arr", document.body),
