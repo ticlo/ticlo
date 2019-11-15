@@ -103,7 +103,6 @@ describe('HandlerFunction', function() {
     aBlock.getProperty('#emit').listen(listener);
     aBlock._load({
       '#is': 'handler',
-      '#sync': true,
       'thread': 2,
       'use': handlerWorker
     });
@@ -131,7 +130,6 @@ describe('HandlerFunction', function() {
     aBlock.getProperty('#emit').listen(listener);
     aBlock._load({
       '#is': 'handler',
-      '#sync': true,
       'thread': 2,
       'reuseWorker': 'reuse',
       'use': handlerWorker
@@ -166,7 +164,6 @@ describe('HandlerFunction', function() {
     aBlock.getProperty('#emit').listen(listener);
     aBlock._load({
       '#is': 'handler',
-      '#sync': true,
       'thread': 2,
       'reuseWorker': 'persist',
       'use': handlerWorker
@@ -201,7 +198,6 @@ describe('HandlerFunction', function() {
     aBlock.getProperty('#emit').listen(listener);
     aBlock._load({
       '#is': 'handler',
-      '#sync': true,
       'reuseWorker': 'reuse',
       'keepOrder': true,
       'use': {
@@ -239,7 +235,6 @@ describe('HandlerFunction', function() {
     aBlock.getProperty('#emit').listen(listener);
     aBlock._load({
       '#is': 'handler',
-      '#sync': true,
       'timeout': 10,
       'use': {
         '#is': {
@@ -301,13 +296,11 @@ describe('HandlerFunction', function() {
     job.load({
       a: {
         '#is': 'handler',
-        '#sync': true,
         'use': handlerWorker
       },
       b: {
         '~#call': '##.a.#emit',
         '#is': 'handler',
-        '#sync': true,
         'use': handlerWorker
       }
     });

@@ -2,7 +2,7 @@ import {MapImpl, WorkerOutput} from './MapImpl';
 import {convertToObject} from '../util/DataTypes';
 import {BlockMode, Job} from '../block/Block';
 import {Types} from '../block/Type';
-import {Event, ErrorEvent, EventType, WAIT} from '../block/Event';
+import {Event, ErrorEvent, EventType, WAIT, NO_EMIT} from '../block/Event';
 import Denque from 'denque';
 import {BlockIO} from '../block/BlockProperty';
 import {InfiniteQueue} from '../util/InfiniteQueue';
@@ -105,19 +105,14 @@ export class HandlerFunction extends MapImpl {
     worker.updateInput(input);
   }
 
+  _called: any[] = [];
   onCall(val: any): boolean {
     if (val instanceof Event) {
       // ignore event of previous block
       val = undefined;
     }
     if (val !== undefined) {
-      if (val instanceof Task) {
-        this._queue.push(val);
-        val.attachHandler(this);
-      } else {
-        this._queue.push(new DefaultTask(val));
-      }
-      this._checkQueueSize();
+      this._called.push(val);
     }
     return true;
   }
@@ -127,6 +122,18 @@ export class HandlerFunction extends MapImpl {
       this._keepOrderChanged = false;
       this._clearWorkers();
     }
+
+    for (let val of this._called) {
+      if (val instanceof Task) {
+        this._queue.push(val);
+        val.attachHandler(this);
+      } else {
+        this._queue.push(new DefaultTask(val));
+      }
+    }
+    this._called.length = 0;
+
+    this._checkQueueSize();
 
     if (this._timeoutChanged) {
       this._updateWorkerTimeout(this._timeout);
@@ -151,8 +158,7 @@ export class HandlerFunction extends MapImpl {
     if (this._reuseWorker !== 'persist') {
       this._clearWorkers();
     }
-    // return ready state
-    return;
+    return NO_EMIT;
   }
 
   _onWorkerReady(output: WorkerOutput, timeout: boolean) {
@@ -192,6 +198,7 @@ export class HandlerFunction extends MapImpl {
     for (let i = 0; i < this._queue.length; ++i) {
       this._queue.get(i).onCancel();
     }
+    this._queue.clear();
     super._clearWorkers();
     this._outQueue.clear();
   }
@@ -199,13 +206,14 @@ export class HandlerFunction extends MapImpl {
     if (reason === EventType.TRIGGER) {
       // cancel only when #cancel is triggered
       this._clearWorkers();
+      this._called.length = 0;
     }
     return true;
   }
 
   destroy(): void {
     this._clearWorkers();
-    this._queue.clear();
+    this._called.length = 0;
     this._funcBlock = null;
     super.destroy();
   }
