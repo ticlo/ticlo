@@ -5,8 +5,12 @@ import {ErrorEvent} from './Event';
 export class Task {
   _handler: any = null;
 
-  attachHandler(handler: any) {
+  attachHandler(handler: any): boolean {
+    if (this._handler) {
+      return false;
+    }
     this._handler = handler;
+    return true;
   }
 
   getData() {
@@ -22,7 +26,7 @@ export class Task {
    * @param worker
    * @param output
    */
-  onComplete(worker: Job, output: any): DataMap {
+  onComplete(worker: Block, output: Block): DataMap {
     return convertToObject(output);
   }
 

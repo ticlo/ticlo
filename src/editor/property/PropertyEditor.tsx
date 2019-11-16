@@ -157,7 +157,22 @@ export class PropertyEditor extends MultiSelectComponent<Props, State, PropertyL
   onChange = (value: any) => {
     let {conn, keys, name, propDesc} = this.props;
     if (value === propDesc.default) {
-      value = undefined;
+      switch (typeof value) {
+        case 'number':
+          // number value should only convert default 0 to undefined, to prevent confusing binding result
+          if (value === 0) {
+            value = undefined;
+          }
+          break;
+        case 'boolean':
+          // boolean value should only convert default false to undefined, to prevent confusing binding result
+          if (value === false) {
+            value = undefined;
+          }
+          break;
+        default:
+          value = undefined;
+      }
     }
     for (let key of keys) {
       conn.setValue(`${key}.${name}`, value);
