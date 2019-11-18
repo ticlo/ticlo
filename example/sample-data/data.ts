@@ -4,6 +4,7 @@ let sharedMore: any[] = [
   {name: 'tog1', type: 'toggle'},
   {name: 'tog2', type: 'toggle', options: ['no', 1234567]},
   {name: 'sel', type: 'select', options: ['red', 'blue', 'yellow', 123]},
+  {name: 'msel', type: 'multi-select', options: ['red', 'blue', 'yellow', 123]},
   {name: 'radio', type: 'radio-button', options: ['on', 'off', 'auto']},
   {name: 'pas', type: 'password'},
   {name: 'color', type: 'color'},

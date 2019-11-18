@@ -1,7 +1,7 @@
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import {Menu, Icon, Dropdown, Button, Card} from 'antd';
-import {Block, FunctionDesc, Root} from '../../src/core/main';
+import {FunctionDesc} from '../../src/core/client';
 import {makeLocalConnection} from '../../src/core/connect/LocalConnection';
 import {TIcon} from '../../src/editor/icon/Icon';
 import {initEditor, PropertyList, BlockStage, NodeTree} from '../../src/editor';

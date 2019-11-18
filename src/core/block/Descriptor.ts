@@ -10,6 +10,7 @@ export type ValueType =
   | 'string'
   | 'toggle'
   | 'select'
+  | 'multi-select'
   | 'radio-button'
   | 'color'
   | 'event'
@@ -41,7 +42,7 @@ export interface PropDesc {
   max?: number;
   step?: number;
 
-  // bool, select, radio-button, service
+  // bool, select, multi-select, radio-button, service
   options?: (string | number)[];
 
   // color
@@ -57,7 +58,7 @@ export interface PropDesc {
   inputs?: (PropDesc | PropGroupDesc)[];
   outputs?: (PropDesc | PropGroupDesc)[];
 
-  // any
+  // allowed types in editor for dynamic types
   types?: ValueType[];
 }
 

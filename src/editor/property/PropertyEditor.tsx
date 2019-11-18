@@ -5,7 +5,7 @@ import {blankPropDesc, FunctionDesc, getDefaultFuncData, PropDesc, PropGroupDesc
 import {translateProperty} from '../../core/util/i18n';
 import {MultiSelectComponent, MultiSelectLoader} from './MultiSelectComponent';
 import {StringEditor} from './value/StringEditor';
-import {SelectEditor} from './value/SelectEditor';
+import {SelectEditor, MultiSelectEditor} from './value/SelectEditor';
 import {RadioButtonEditor} from './value/RadioButtonEditor';
 import {DragDropDiv, DragState} from 'rc-dock';
 import {PasswordEditor} from './value/PasswordEditor';
@@ -26,6 +26,7 @@ import {DynamicEditor, dynamicEditorMap} from './value/DynamicEditor';
 const typeEditorMap: {[key: string]: any} = {
   ...dynamicEditorMap,
   'select': SelectEditor,
+  'multi-select': MultiSelectEditor,
   'password': PasswordEditor,
   'radio-button': RadioButtonEditor,
   'type': TypeEditor,
