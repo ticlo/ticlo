@@ -92,6 +92,18 @@
   & .ant-btn[disabled] {
     border-color: @border-disabled-color;
   }
+
+  & .ant-select-sm .ant-select-selection--multiple {
+    padding-bottom: 2px;
+    & .ant-select-selection__rendered li {
+      height: 20px;
+      margin-top: 2px;
+      line-height: 16px;
+      & > .ant-select-selection__choice__content {
+        height: 18px;
+      }
+    }
+  }
 }
 
 .ticl-property-value,
