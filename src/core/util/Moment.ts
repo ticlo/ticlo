@@ -17,3 +17,11 @@ export function formatMoment(m: moment.Moment, showTime: boolean): string {
 export function isValid(m: moment.Moment) {
   return moment.isMoment(m) && m.isValid();
 }
+
+export function encodeMoment(val: any): string {
+  return `\u001bTs:${val.toISOString(true)}`;
+}
+
+export function decodeMoment(str: string): any {
+  return moment.parseZone(str.substr(4));
+}

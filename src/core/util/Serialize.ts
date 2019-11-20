@@ -1,29 +1,30 @@
 import JsonEsc from 'jsonesc';
-import moment from 'moment';
-import {MomentConstructor} from './Moment';
+import {decodeMoment, encodeMoment, MomentConstructor} from './Moment';
+import {decodeUnknown, encodeUnknown, EscapedObject} from './EscapedObject';
+import {Block} from '../block/Block';
 
-function encodeMoment(val: any): string {
-  return `\u001bTs:${val.toISOString(true)}`;
+let jsonesc = new JsonEsc();
+jsonesc.registerRaw('Ts', MomentConstructor, encodeMoment, decodeMoment);
+jsonesc.registerRaw('', EscapedObject, encodeUnknown, decodeUnknown);
+jsonesc.registerRaw(null, Block, encodeUnknown, null);
+
+export function encodeRaw(obj: object) {
+  return jsonesc.replacer('', obj);
 }
-
-function decodeMoment(str: string): any {
-  return moment.parseZone(str.substr(4));
-}
-
-let encoder = new JsonEsc();
-encoder.registerRaw('Ts', MomentConstructor, encodeMoment, decodeMoment);
 
 export function encode(value: any): string {
-  return encoder.stringify(value);
+  return jsonesc.stringify(value);
 }
 
 export function encodeSorted(value: any): string {
-  return encoder.stringifySorted(value, 1);
+  return jsonesc.stringifySorted(value, 1);
 }
 
 export function decode(str: string): any {
-  return encoder.parse(str);
+  return jsonesc.parse(str);
 }
+
+export const decodeReceiver = (key: string, value: any) => jsonesc.reviver(key, value);
 
 const displayRegex = /"\\u001b(\w+:)?([^"]*)"/g;
 
@@ -32,5 +33,5 @@ function replaceDisplay(str: string, g1: string, g2: string) {
 }
 
 export function encodeDisplay(value: any): string {
-  return encoder.stringify(value).replace(displayRegex, replaceDisplay);
+  return jsonesc.stringify(value).replace(displayRegex, replaceDisplay);
 }

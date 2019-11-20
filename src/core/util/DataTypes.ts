@@ -1,6 +1,7 @@
 import {isMoment} from 'moment';
 import {Block} from '../block/Block';
 import {BlockIO} from '../block/BlockProperty';
+import {encodeRaw} from './Serialize';
 
 export interface DataMap {
   [key: string]: any;
@@ -87,13 +88,11 @@ function truncateObj(val: any, maxSize: number = 1024): [any, number, boolean] {
     if (val.constructor === Object) {
       return truncateMap(val, maxSize);
     }
-    if (typeof (val as any).ticloSummary === 'function') {
-      let summary = val.ticloSummary();
-      if (typeof summary === 'string' && summary.length < 100) {
-        return [{TRUNCATED: summary}, summary.length, true];
-      }
+    let encoded = encodeRaw(val);
+    if (typeof encoded === 'string' && encoded.length < 100) {
+      return [encoded, encoded.length, false];
     }
-    // TODO moment and binary
+    // TODO binary ?
     return [TRUNCATED, 4, true];
   } else if (typeof val === 'string') {
     if (val.length > maxSize / 2) {
