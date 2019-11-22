@@ -7,5 +7,6 @@ describe('Uid', function() {
 
     assert.equal(uid.current, '0', 'initial value');
     assert.equal(uid.next(), '1', 'next value');
+    assert.equal(uid.next(2), '10', 'binary id');
   });
 });

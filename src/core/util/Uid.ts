@@ -7,9 +7,9 @@ export class Uid {
     return this._current;
   }
 
-  next(): string {
+  next(radix = 36): string {
     ++this._count;
-    this._current = this._count.toString(36);
+    this._current = this._count.toString(radix);
     return this._current;
   }
 }
