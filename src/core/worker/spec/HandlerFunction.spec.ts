@@ -18,9 +18,6 @@ class HandlerListener {
       if (this.ignoreEvent && val instanceof Event) {
         return;
       }
-      if (val.constructor === CompleteEvent) {
-        return;
-      }
       this.emits.push(val);
     }
   }

@@ -101,8 +101,6 @@ export class Block implements Runnable, FunctionData, Listener<FunctionClass>, D
 
   _proxy: object;
 
-  //  _cachedFullPath: string;
-
   constructor(job: Job, parent: Block, prop: BlockProperty) {
     this._job = job;
     this._parent = parent;
@@ -111,6 +109,7 @@ export class Block implements Runnable, FunctionData, Listener<FunctionClass>, D
     this.getProperty('#is');
   }
 
+  // _cachedFullPath: string;
   // fullPath(): string {
   //   if (this._cachedFullPath) {
   //     return this._cachedFullPath;
@@ -960,10 +959,7 @@ export class Root extends Job {
     this._resolver.run();
     this._resolver._queued = false;
     Event._uid.next();
-    for (let onResolved of Resolver._finalResolved) {
-      onResolved();
-    }
-    Resolver._finalResolved.clear();
+    Resolver._executeFinalResolved();
   };
 
   _strictMode: boolean = (process.env.NODE_ENV || '').toLowerCase() === 'test';

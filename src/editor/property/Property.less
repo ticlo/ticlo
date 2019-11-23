@@ -1,6 +1,9 @@
 @import 'AddMoreProperty';
 @import 'value/DynamicEditor';
 
+.ticl-property-list {
+  overflow-y: auto;
+}
 .ticl-property-group {
   width: 100%;
   border-left: solid 1px #eee;
@@ -96,9 +99,12 @@
   & .ant-select-sm .ant-select-selection--multiple {
     padding-bottom: 2px;
     & .ant-select-selection__rendered li {
-      height: 20px;
-      margin-top: 2px;
+      height: 18px;
+      margin: 2px 0 0 0;
       line-height: 16px;
+      background: none;
+      border: none;
+      color: @primary-text-color;
       & > .ant-select-selection__choice__content {
         height: 18px;
       }

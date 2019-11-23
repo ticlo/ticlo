@@ -21,6 +21,7 @@
   "devDependencies": {
     "@babel/core": "^7.7.2",
     "@babel/preset-env": "^7.7.1",
+    "@types/body-parser": "^1.17.1",
     "@types/chai": "^4.2.4",
     "@types/dompurify": "^2.0.0",
     "@types/express": "^4.17.2",
@@ -37,6 +38,7 @@
     "@types/tinycolor2": "^1.4.2",
     "@types/ws": "^6.0.3",
     "antd": "^3.25.1",
+    "body-parser": "^1.19.0",
     "chai": "^4.2.0",
     "coveralls": "^3.0.7",
     "cross-env": "^6.0.3",
@@ -79,7 +81,8 @@
     "build-i18n": "node tool/merge-lng",
     "test": "cross-env NODE_ENV=TEST mocha 'src/core/**/*.spec.ts' 'src/nodejs/**/*.spec.ts'",
     "express-server": "ts-node example/express-server/server",
-    "example": "parcel example/simple-editor/editor-ws.html --open --out-dir temp --no-source-maps",
+    "example-editor-ws": "parcel example/simple-editor/editor-ws.html --open --out-dir temp --no-source-maps",
+    "example-editor-browser": "parcel example/simple-editor/editor-browser.html --open --out-dir temp --no-source-maps",
     "prettier-check": "prettier --check \"src/**/*.+(ts|tsx|less)\"",
     "prettier-write": "prettier --write \"src/**/*.+(ts|tsx|less)\""
   }

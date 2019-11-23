@@ -3,6 +3,15 @@ import {Uid} from '../util/Uid';
 
 export class Resolver implements Runnable {
   static _finalResolved: Set<() => void> = new Set<() => void>();
+  static _executeFinalResolved() {
+    for (let onResolved of Resolver._finalResolved) {
+      onResolved();
+    }
+    Resolver._finalResolved.clear();
+  }
+  static callLater(f: () => void) {
+    Resolver._finalResolved.add(f);
+  }
 
   // as Runnable
   _queued: boolean = false;

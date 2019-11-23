@@ -1,5 +1,5 @@
 import {assert} from 'chai';
-import {Job, Root} from '../../block/Block';
+import {Block, Job, Root} from '../../block/Block';
 import '../../functions/basic/math/Arithmetic';
 import '../HandlerFunction';
 import {convertToObject, DataMap} from '../../util/DataTypes';
@@ -30,9 +30,6 @@ class TestTask extends Task {
     TestTask.logs = [];
     return result;
   }
-  static clearLog() {
-    TestTask.logs.length = 0;
-  }
 
   n: number;
   constructor(n: number) {
@@ -43,7 +40,7 @@ class TestTask extends Task {
     return {n: this.n};
   }
 
-  onComplete(worker: Job, output: any): DataMap {
+  onComplete(worker: Block, output: Block): DataMap {
     let result = convertToObject(output);
     TestTask.logs.push(result);
     return result;

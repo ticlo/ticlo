@@ -125,8 +125,9 @@ export class HandlerFunction extends MapImpl {
 
     for (let val of this._called) {
       if (val instanceof Task) {
-        this._queue.push(val);
-        val.attachHandler(this);
+        if (val.attachHandler(this)) {
+          this._queue.push(val);
+        }
       } else {
         this._queue.push(new DefaultTask(val));
       }

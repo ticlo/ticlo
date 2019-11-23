@@ -1,7 +1,9 @@
 import Express from 'express';
-import {connectTiclo} from '../../src/nodejs/express/server';
+import {connectTiclo, routeTiclo} from '../../src/nodejs/express/server';
 import {data} from '../sample-data/data';
 import {Root} from '../../src/core/main';
+
+import '../../src/nodejs';
 
 let job = Root.instance.addJob('example');
 job.load(data);
@@ -12,6 +14,12 @@ Root.instance._globalBlock.createBlock('^gSub').setValue('#is', 'subtract');
 
 let app = Express();
 connectTiclo(app, '/ticlo');
+routeTiclo(app, '/ticlo');
+
+app.get('/', (req, res) => {
+  res.end();
+});
+
 app.listen(8010);
 
 console.log('listening on 8010');
