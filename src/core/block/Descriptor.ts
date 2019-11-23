@@ -32,7 +32,11 @@ export interface PropDesc {
   readonly?: boolean;
   visible?: VisibleType; // whether property is shown in block view
 
+  // default value shown in editor when value is undefined
   default?: string | number | boolean;
+
+  // initialize new block with the init value
+  init?: any;
 
   // number, string
   placeholder?: string;
@@ -225,15 +229,24 @@ export function getDefaultFuncData(desc: FunctionDesc, isSubBlock = false) {
   let props = [];
   for (let propDesc of desc.properties) {
     if ((propDesc as PropGroupDesc).properties) {
-      for (let i = 0; i < 2; ++i) {
+      for (let i = 0; i < (propDesc as PropGroupDesc).defaultLen; ++i) {
         for (let childDesc of (propDesc as PropGroupDesc).properties) {
-          if (shouldShowProperty((childDesc as PropDesc).visible, isSubBlock)) {
-            props.push(`${childDesc.name}${i}`);
+          let propName = `${childDesc.name}${i}`;
+          if (shouldShowProperty(childDesc.visible, isSubBlock)) {
+            props.push(propName);
+          }
+          if (childDesc.init !== undefined) {
+            data[propName] = childDesc.init;
           }
         }
       }
-    } else if (shouldShowProperty((propDesc as PropDesc).visible, isSubBlock)) {
-      props.push(propDesc.name);
+    } else {
+      if (shouldShowProperty((propDesc as PropDesc).visible, isSubBlock)) {
+        props.push(propDesc.name);
+      }
+      if ((propDesc as PropDesc).init !== undefined) {
+        data[propDesc.name] = (propDesc as PropDesc).init;
+      }
     }
   }
   data['@b-p'] = props;
