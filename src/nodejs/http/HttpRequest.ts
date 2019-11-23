@@ -1,6 +1,6 @@
 import {Task} from '../../core/block/Task';
 import {Block} from '../../core/block/Block';
-import {convertToObject, DataMap} from '../../core/util/DataTypes';
+import {convertToOutput, DataMap} from '../../core/util/DataTypes';
 import {ErrorEvent} from '../../core/block/Event';
 
 export interface HttpRequestData {
@@ -22,7 +22,7 @@ export class HttpRequest extends Task {
   }
 
   onComplete(worker: Block, output: Block): DataMap {
-    return convertToObject(output);
+    return convertToOutput(output);
   }
 
   onTimeout(): any {

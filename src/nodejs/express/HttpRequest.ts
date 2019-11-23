@@ -1,7 +1,7 @@
 import {HttpRequest} from '../http/HttpRequest';
 import {Request, Response, RequestHandler} from 'express';
 import {Block} from '../../core/block/Block';
-import {DataMap} from '../../core/util/DataTypes';
+import {convertToObject, DataMap} from '../../core/util/DataTypes';
 
 export class ExpressHttpRequest extends HttpRequest {
   data: Request;
@@ -13,6 +13,10 @@ export class ExpressHttpRequest extends HttpRequest {
     let response = super.onComplete(worker, output);
     let status = response.status || 200;
     let data = response.data;
+    let headers = response.headers;
+    if (headers) {
+      this.data.res.set(convertToObject(headers));
+    }
     this.data.res.status(status).send(data);
     return response;
   }

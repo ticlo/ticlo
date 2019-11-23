@@ -2,7 +2,7 @@ import {assert} from 'chai';
 import {Block, Job, Root} from '../../block/Block';
 import '../../functions/basic/math/Arithmetic';
 import '../HandlerFunction';
-import {convertToObject, DataMap} from '../../util/DataTypes';
+import {convertToOutput, DataMap} from '../../util/DataTypes';
 import {CompleteEvent, ErrorEvent, Event, WAIT} from '../../block/Event';
 import {shouldHappen, shouldTimeout} from '../../util/test-util';
 import {Task} from '../../block/Task';
@@ -41,7 +41,7 @@ class TestTask extends Task {
   }
 
   onComplete(worker: Block, output: Block): DataMap {
-    let result = convertToObject(output);
+    let result = convertToOutput(output);
     TestTask.logs.push(result);
     return result;
   }

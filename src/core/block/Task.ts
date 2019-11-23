@@ -1,4 +1,4 @@
-import {convertToObject, DataMap} from '../util/DataTypes';
+import {convertToOutput, DataMap} from '../util/DataTypes';
 import {Block, Job} from './Block';
 import {ErrorEvent} from './Event';
 
@@ -27,7 +27,7 @@ export class Task {
    * @param output
    */
   onComplete(worker: Block, output: Block): DataMap {
-    return convertToObject(output);
+    return convertToOutput(output);
   }
 
   onTimeout(): any {

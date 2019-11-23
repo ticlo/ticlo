@@ -1,5 +1,5 @@
 import {MapImpl, WorkerOutput} from './MapImpl';
-import {convertToObject} from '../util/DataTypes';
+import {convertToOutput} from '../util/DataTypes';
 import {BlockMode, Job} from '../block/Block';
 import {Types} from '../block/Type';
 import {Event, ErrorEvent, EventType, WAIT, NO_EMIT} from '../block/Event';

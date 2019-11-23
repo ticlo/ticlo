@@ -3,7 +3,7 @@ import {BlockFunction, FunctionData, FunctionOutput} from '../block/BlockFunctio
 import {FunctionDesc} from '../block/Descriptor';
 import {BlockIO, BlockProperty} from '../block/BlockProperty';
 import {Block, Job} from '../block/Block';
-import {convertToObject, DataMap, isSavedBlock} from '../util/DataTypes';
+import {convertToOutput, DataMap, isSavedBlock} from '../util/DataTypes';
 import {ErrorEvent, Event, EventType, WAIT} from '../block/Event';
 import {MapImpl, MapWorkerMode, WorkerOutput} from './MapImpl';
 import {BlockProxy} from '../block/BlockProxy';
@@ -166,7 +166,7 @@ export class MapFunction extends MapImpl {
     if (timeout) {
       this._output[output.field] = new ErrorEvent('timeout');
     } else {
-      this._output[output.field] = convertToObject(this._workers.get(output.key).getValue('#output'));
+      this._output[output.field] = convertToOutput(this._workers.get(output.key).getValue('#output'));
     }
     this._waitingWorker--;
     this._pool.done(output.key, this._reuseWorker != null);

@@ -1,7 +1,8 @@
 import {isMoment} from 'moment';
+import QS from 'qs';
 import {Block} from '../block/Block';
 import {BlockIO} from '../block/BlockProperty';
-import {encodeRaw} from './Serialize';
+import {decode, encodeRaw} from './Serialize';
 
 export interface DataMap {
   [key: string]: any;
@@ -177,8 +178,8 @@ export function measureObjSize(val: any, maxSize: number = 1024): number {
   return 4;
 }
 
-// convert block to Object, used in MapFunction output
-export function convertToObject(val: any, recursive: boolean = false): any {
+// convert block to Object, used to convert worker #output block
+export function convertToOutput(val: any, recursive: boolean = false): any {
   if (val instanceof Block) {
     let overrideValue = val.getValue('#value');
     if (overrideValue !== undefined) {
@@ -188,7 +189,7 @@ export function convertToObject(val: any, recursive: boolean = false): any {
     val.forEach((field: string, prop: BlockIO) => {
       if (recursive && prop._value instanceof Block) {
         if (prop._saved === prop._value) {
-          result[field] = convertToObject(prop._value, true);
+          result[field] = convertToOutput(prop._value, true);
         } else {
           result[field] = null;
         }
@@ -199,4 +200,24 @@ export function convertToObject(val: any, recursive: boolean = false): any {
     return result;
   }
   return val;
+}
+
+// convert input to output object
+export function convertToObject(val: any): {[key: string]: any} {
+  switch (typeof val) {
+    case 'object':
+      if (val) {
+        return val;
+      }
+      break;
+    case 'string':
+      try {
+        if (val.startsWith('{')) {
+          return decode(val);
+        } else {
+          return QS.parse(val);
+        }
+      } catch (e) {}
+  }
+  return {};
 }
