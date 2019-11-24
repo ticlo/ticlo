@@ -19,7 +19,7 @@ module.exports = function (config) {
         }
       },
       compilerOptions: {
-        "target": "es2015",
+        "target": "es2018",
         "module": "commonjs",
         "jsx": "react",
         "moduleResolution": "node",
