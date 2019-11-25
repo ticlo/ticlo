@@ -1,2 +1,2 @@
-import './http/RouteFunction';
-import './http/StaticResponse';
+import '../core/functions/http/RouteFunction';
+import '../core/functions/http/StaticResponse';

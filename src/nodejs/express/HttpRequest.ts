@@ -1,4 +1,4 @@
-import {HttpRequest} from '../http/HttpRequest';
+import {HttpRequest} from '../../core/functions/http/HttpRequest';
 import {Request} from 'express';
 import {Block} from '../../core/block/Block';
 import {convertToObject, DataMap} from '../../core/util/DataTypes';

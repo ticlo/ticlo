@@ -1,18 +1,11 @@
-import {BlockFunction} from '../../core/block/BlockFunction';
-import {Task} from '../../core/block/Task';
-import {NO_EMIT} from '../../core/block/Event';
-import {Types} from '../../core/block/Type';
+import {BlockFunction} from '../../block/BlockFunction';
+import {Task} from '../../block/Task';
+import {NO_EMIT} from '../../block/Event';
+import {Types} from '../../block/Type';
 import {HttpRequest} from './HttpRequest';
-import {deepEqual} from '../../core/util/Compare';
-import {DataMap} from '../../core/util/DataTypes';
-import {getDefaultDataFromMore} from '../../core/block/Descriptor';
-
-// method: string;
-// url: string;
-// path: string;
-// body: any;
-// query: {[key: string]: string | string[]};
-// headers: {[key: string]: string | string[]};
+import {deepEqual} from '../../util/Compare';
+import {DataMap} from '../../util/DataTypes';
+import {getDefaultDataFromMore} from '../../block/Descriptor';
 
 const defaultRouteWorker = {
   '#is': '',
@@ -110,8 +103,11 @@ export class RouteFunction extends BlockFunction {
     if (val === this._server) {
       return false;
     }
+    if (this._server && this._path) {
+      this._server.removeRoute(this._path, this);
+    }
     this._server = val;
-    if (this._path) {
+    if (this._server && this._path) {
       this._server.addRoute(this._path, this);
     }
     return false;

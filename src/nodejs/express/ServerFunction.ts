@@ -1,10 +1,10 @@
-import {RouteContentType, RouteFunction, RouteMethod, RouteService} from '../http/RouteFunction';
+import {RouteContentType, RouteFunction, RouteMethod, RouteService} from '../../core/functions/http/RouteFunction';
 import {Types} from '../../core/block/Type';
 import {BlockFunction} from '../../core/block/BlockFunction';
 import {Request, Response, RequestHandler} from 'express';
 import BodyParser from 'body-parser';
 import {decodeReceiver, encode} from '../../core/util/Serialize';
-import {HttpRequestData} from '../http/HttpRequest';
+import {HttpRequestData} from '../../core/functions/http/HttpRequest';
 import {escapedObject} from '../../core/util/EscapedObject';
 import {Uid} from '../../core/util/Uid';
 import {ExpressHttpRequest} from './HttpRequest';

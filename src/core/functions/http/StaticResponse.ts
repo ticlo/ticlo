@@ -1,8 +1,8 @@
-import {BlockFunction} from '../../core/block/BlockFunction';
-import {Event} from '../../core/block/Event';
+import {BlockFunction} from '../../block/BlockFunction';
+import {Event} from '../../block/Event';
 import {HttpRequest} from './HttpRequest';
-import {Types} from '../../core/block/Type';
-import {HandlerFunction} from '../../core/worker/HandlerFunction';
+import {Types} from '../../block/Type';
+import {HandlerFunction} from '../../worker/HandlerFunction';
 
 export class StaticResponse extends BlockFunction {
   _called: HttpRequest[] = [];

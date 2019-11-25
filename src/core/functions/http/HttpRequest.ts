@@ -1,7 +1,7 @@
-import {Task} from '../../core/block/Task';
-import {Block} from '../../core/block/Block';
-import {convertToOutput, DataMap} from '../../core/util/DataTypes';
-import {ErrorEvent} from '../../core/block/Event';
+import {Task} from '../../block/Task';
+import {Block} from '../../block/Block';
+import {convertToOutput, DataMap} from '../../util/DataTypes';
+import {ErrorEvent} from '../../block/Event';
 
 export interface HttpRequestData {
   method: string;
