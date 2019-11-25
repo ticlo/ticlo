@@ -1,5 +1,5 @@
 import {MapImpl, WorkerOutput} from './MapImpl';
-import {convertToOutput} from '../util/DataTypes';
+import {convertToOutput, DataMap} from '../util/DataTypes';
 import {BlockMode, Job} from '../block/Block';
 import {Types} from '../block/Type';
 import {Event, ErrorEvent, EventType, WAIT, NO_EMIT} from '../block/Event';
@@ -210,6 +210,25 @@ export class HandlerFunction extends MapImpl {
       this._called.length = 0;
     }
     return true;
+  }
+
+  _deadLoopProtect = false;
+  getDefaultWorker(field: string): DataMap {
+    if (field === 'use') {
+      if (this._deadLoopProtect) {
+        this._deadLoopProtect = false;
+        return null;
+      }
+      // proxy the default work to the original block
+      let fromProp = this._data.getProperty('#call', false)?._bindingSource?.getProperty();
+      if (fromProp && fromProp._block._function) {
+        this._deadLoopProtect = true;
+        let result = fromProp._block._function.getDefaultWorker(fromProp._name);
+        this._deadLoopProtect = false;
+        return result;
+      }
+    }
+    return null;
   }
 
   destroy(): void {

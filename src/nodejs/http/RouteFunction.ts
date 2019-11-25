@@ -4,6 +4,31 @@ import {NO_EMIT} from '../../core/block/Event';
 import {Types} from '../../core/block/Type';
 import {HttpRequest} from './HttpRequest';
 import {deepEqual} from '../../core/util/Compare';
+import {DataMap} from '../../core/util/DataTypes';
+import {getDefaultDataFromMore} from '../../core/block/Descriptor';
+
+// method: string;
+// url: string;
+// path: string;
+// body: any;
+// query: {[key: string]: string | string[]};
+// headers: {[key: string]: string | string[]};
+
+const defaultRouteWorker = {
+  '#is': '',
+  '#input': getDefaultDataFromMore([
+    {name: 'method', type: 'string'},
+    {name: 'path', type: 'string'},
+    {name: 'body', type: 'any'},
+    {name: 'query', type: 'map'},
+    {name: 'headers', type: 'map'}
+  ]),
+  '#output': getDefaultDataFromMore([
+    {name: 'data', type: 'any'},
+    {name: 'headers', type: 'map'},
+    {name: 'status', type: 'number', min: 200, max: 999, step: 1, default: 200}
+  ])
+};
 
 export type RouteContentType = 'empty' | 'text' | 'json' | 'buffer' | 'form';
 const contentTypeList: RouteContentType[] = ['empty', 'text', 'json', 'buffer', 'form'];
@@ -105,6 +130,13 @@ export class RouteFunction extends BlockFunction {
     return NO_EMIT;
   }
 
+  getDefaultWorker(field: string): DataMap {
+    if (field === '#emit') {
+      return defaultRouteWorker;
+    }
+    return null;
+  }
+
   destroy(): void {
     if (this._server && this._path) {
       this._server.removeRoute(this._path, this);
@@ -117,7 +149,7 @@ Types.add(
   RouteFunction,
   {
     name: 'route',
-    icon: 'fas:grip-lines-vertical',
+    icon: 'fas:network-wired',
     mode: 'onCall',
     properties: [
       {name: 'server', type: 'service', options: ['route-server']},

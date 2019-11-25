@@ -2,6 +2,7 @@ import {BlockIO, BlockProperty} from './BlockProperty';
 import {FunctionDesc} from './Descriptor';
 import {BlockMode, Block} from './Block';
 import {Event, EventType} from './Event';
+import {DataMap} from '../util/DataTypes';
 
 export interface FunctionOutput {
   // field is 'output' by default
@@ -52,8 +53,13 @@ export class BaseFunction {
     return true;
   }
 
-  blockCommand(command: string, params: {[key: string]: any}): void {
+  blockCommand(command: string, params: {[key: string]: any}): any {
     // to be overridden
+  }
+
+  // if function can emit a task, use this to load initial worker for WorkerEditor
+  getDefaultWorker(field: string): DataMap {
+    return null;
   }
 
   destroy(): void {
@@ -109,12 +115,20 @@ export abstract class BlockFunction implements BaseFunction {
     return true;
   }
 
-  blockCommand(command: string, params: {[key: string]: any}): void {
+  blockCommand(command: string, params: {[key: string]: any}): any {
     // to be overridden
   }
 
+  /**
+   * Queue the block to be run later
+   */
   queue() {
     this._data._queueFunction();
+  }
+
+  // if function can emit a task, use this to load initial worker for WorkerEditor
+  getDefaultWorker(field: string): DataMap {
+    return null;
   }
 
   destroy(): void {

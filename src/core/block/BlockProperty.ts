@@ -1,6 +1,10 @@
-import {ValueDispatcher, Listener, Dispatcher, Destroyable, BlockBindingSource} from './Dispatcher';
+import {ValueDispatcher, Listener, Dispatcher, Destroyable} from './Dispatcher';
 import {Block} from './Block';
 import {isSavedBlock} from '../util/DataTypes';
+
+export interface BlockBindingSource extends ValueDispatcher<any>, Destroyable {
+  getProperty(): BlockProperty;
+}
 
 export interface BlockPropertyEvent {
   error?: string;
@@ -27,9 +31,9 @@ export class BlockProperty extends ValueDispatcher<any> implements Listener<any>
     this._name = name;
   }
 
-  // getProperty() {
-  //   return this;
-  // }
+  getProperty() {
+    return this;
+  }
 
   onSourceChange(prop: Dispatcher<any>) {
     // do nothing

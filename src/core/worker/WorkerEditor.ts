@@ -4,6 +4,11 @@ import {buildPropDescCache, findPropDesc, FunctionDesc, PropDesc, PropGroupDesc}
 import {Types} from '../block/Type';
 import {WorkerFunction} from './WorkerFunction';
 
+const blankWorker = {
+  '#input': {'#is': ''},
+  '#output': {'#is': ''}
+};
+
 export class WorkerEditor extends Job {
   unwatch(watcher: BlockChildWatch) {
     if (this._watchers) {
@@ -49,27 +54,11 @@ export class WorkerEditor extends Job {
       forceReload = true;
     }
 
-    // check if property desc has default worker data
-    let funcDesc = Types.getDesc(parent.getValue('#is'))[0];
-    let propertyCache = buildPropDescCache(funcDesc, parent.getValue('#more'));
-    let src: DataMap;
-    if (propertyCache) {
-      let propDesc = findPropDesc(fromField, propertyCache);
-      if (propDesc && propDesc.type === 'worker') {
-        let placeHolderData: any = {
-          '#is': '',
-          '#input': {'#is': '', '#more': propDesc.inputs},
-          '#output': {'#is': '', '#more': propDesc.outputs}
-        };
-        if (propDesc.inputs) {
-          placeHolderData['#input']['@b-p'] = propDesc.inputs.filter((p) => p.type !== 'group').map((p) => p.name);
-        }
-        if (propDesc.outputs) {
-          placeHolderData['#output']['@b-p'] = propDesc.outputs.filter((p) => p.type !== 'group').map((p) => p.name);
-        }
-        return WorkerEditor.create(parent, field, placeHolderData, forceReload);
-      }
+    if (parent._function) {
+      let data = parent._function.getDefaultWorker(fromField) || blankWorker;
+      return WorkerEditor.create(parent, field, data, forceReload);
     }
+
     return null;
   }
 
@@ -80,10 +69,15 @@ export class WorkerEditor extends Job {
     return null;
   }
 
+  /**
+   * save the worker
+   * @param funcId When specified, save the worker as a global worker function so it can be reused
+   */
   applyChange(funcId: string = null): boolean {
     funcId = funcId || this._loadFrom;
     let data = this.save();
     if (funcId) {
+      // save to worker function
       let name = funcId;
       let pos = name.indexOf(':');
       if (pos > -1) {
@@ -99,6 +93,7 @@ export class WorkerEditor extends Job {
 
       WorkerFunction.registerType(data, desc, this._namespace);
     } else {
+      // save to property
       let name = this._prop._name;
       if (name.startsWith('#edit-')) {
         name = name.substring(6);
@@ -109,6 +104,9 @@ export class WorkerEditor extends Job {
     return false;
   }
 
+  /**
+   * collect function parameters for creating worker function
+   */
   collectProperties() {
     let properties: (PropDesc | PropGroupDesc)[] = [];
     let groups: Map<string, PropGroupDesc> = new Map();

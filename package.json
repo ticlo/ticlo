@@ -82,7 +82,7 @@
     "build-icons": "ts-node tool/build-icons",
     "build-i18n": "node tool/merge-lng",
     "test": "cross-env NODE_ENV=TEST mocha 'src/core/**/*.spec.ts' 'src/nodejs/**/*.spec.ts' --harmony-optional-chaining",
-    "express-server": "ts-node example/express-server/server",
+    "express-server": "node --harmony-optional-chaining -r ts-node/register example/express-server/server",
     "example-editor-ws": "parcel example/simple-editor/editor-ws.html --open --out-dir temp --no-source-maps",
     "example-editor-browser": "parcel example/simple-editor/editor-browser.html --open --out-dir temp --no-source-maps",
     "prettier-check": "prettier --check \"src/**/*.+(ts|tsx|less)\"",

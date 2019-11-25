@@ -135,6 +135,8 @@ export class ServerFunction extends BlockFunction {
     for (let task of this.pendingTasks) {
       if (!task._handler) {
         task.data.res.status(501).end();
+        // prevent handler to process in the future
+        task._handler = task;
       }
     }
     this.pendingTasks.length = 0;
@@ -149,6 +151,7 @@ Types.add(
   ServerFunction,
   {
     name: 'express-server',
+    icon: 'fas:network-wired',
     properties: [{name: 'output', type: 'map', readonly: true}],
     tags: ['route-server']
   },

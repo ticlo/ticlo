@@ -45,6 +45,10 @@ export class DefaultTask extends Task {
     this.data = data;
   }
 
+  attachHandler(handler: any): boolean {
+    return false;
+  }
+
   getData() {
     return this.data;
   }

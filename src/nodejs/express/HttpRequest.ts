@@ -1,5 +1,5 @@
 import {HttpRequest} from '../http/HttpRequest';
-import {Request, Response, RequestHandler} from 'express';
+import {Request} from 'express';
 import {Block} from '../../core/block/Block';
 import {convertToObject, DataMap} from '../../core/util/DataTypes';
 

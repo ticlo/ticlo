@@ -1,5 +1,6 @@
 import {Connection, ConnectionSendingData, ConnectionSend} from './Connection';
 import {
+  BlockBindingSource,
   BlockIO,
   BlockProperty,
   BlockPropertyEvent,
@@ -8,7 +9,7 @@ import {
 } from '../block/BlockProperty';
 import {DataMap, isPrimitiveType, isSavedBlock, measureObjSize, truncateData} from '../util/DataTypes';
 import {Root, Block, BlockChildWatch} from '../block/Block';
-import {BlockBindingSource, Dispatcher, Listener, ValueDispatcher} from '../block/Dispatcher';
+import {Dispatcher, Listener, ValueDispatcher} from '../block/Dispatcher';
 import {Type, Types, DescListener} from '../block/Type';
 import {FunctionDesc, PropDesc, PropGroupDesc} from '../block/Descriptor';
 import {propRelative} from '../util/Path';

@@ -28,7 +28,7 @@ Types.add(
   StaticResponse,
   {
     name: 'static-response',
-    icon: 'fas:grip-lines-vertical',
+    icon: 'fas:network-wired',
     mode: 'onCall',
     properties: [
       {name: 'data', type: 'any'},

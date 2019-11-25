@@ -48,48 +48,48 @@ describe('WorkerEditor', function() {
     Types.clear('WorkerEditor:func1');
   });
 
-  it('createFromField desc', function() {
-    let job = new Job();
-    let block = job.createBlock('a');
-    let expectedData = {
-      '#input': {
-        '#is': '',
-        '#more': [{name: 'a', type: 'number'}],
-        '@b-p': ['a']
-      },
-      '#is': '',
-      '#output': {
-        '#is': '',
-        '#more': [{name: 'b', type: 'number'}],
-        '@b-p': ['b']
-      }
-    };
-
-    WorkerFunction.registerType(
-      {'#is': ''},
-      {
-        name: 'worker1',
-        properties: [
-          {
-            name: 'use',
-            type: 'worker',
-            inputs: [{name: 'a', type: 'number'}],
-            outputs: [{name: 'b', type: 'number'}]
-          }
-        ]
-      },
-      'WorkerEditor'
-    );
-
-    block.setValue('#is', 'WorkerEditor:worker1');
-
-    // set invalid function so it fallbacks to property's default inputs
-    block.setValue('use', 'invalidFunction');
-    WorkerEditor.createFromField(block, '#edit-use', 'use');
-    assert.deepEqual(block.getValue('#edit-use').save(), expectedData);
-
-    Types.clear('WorkerEditor:worker1');
-  });
+  // it('createFromField desc', function() {
+  //   let job = new Job();
+  //   let block = job.createBlock('a');
+  //   let expectedData = {
+  //     '#input': {
+  //       '#is': '',
+  //       '#more': [{name: 'a', type: 'number'}],
+  //       '@b-p': ['a']
+  //     },
+  //     '#is': '',
+  //     '#output': {
+  //       '#is': '',
+  //       '#more': [{name: 'b', type: 'number'}],
+  //       '@b-p': ['b']
+  //     }
+  //   };
+  //
+  //   WorkerFunction.registerType(
+  //     {'#is': ''},
+  //     {
+  //       name: 'worker1',
+  //       properties: [
+  //         {
+  //           name: 'use',
+  //           type: 'worker',
+  //           inputs: [{name: 'a', type: 'number'}],
+  //           outputs: [{name: 'b', type: 'number'}]
+  //         }
+  //       ]
+  //     },
+  //     'WorkerEditor'
+  //   );
+  //
+  //   block.setValue('#is', 'WorkerEditor:worker1');
+  //
+  //   // set invalid function so it fallbacks to property's default inputs
+  //   block.setValue('use', 'invalidFunction');
+  //   WorkerEditor.createFromField(block, '#edit-use', 'use');
+  //   assert.deepEqual(block.getValue('#edit-use').save(), expectedData);
+  //
+  //   Types.clear('WorkerEditor:worker1');
+  // });
 
   it('createFromFunction', function() {
     let job = new Job();

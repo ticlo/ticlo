@@ -58,10 +58,6 @@ export interface PropDesc {
   // service
   create?: string;
 
-  // worker
-  inputs?: (PropDesc | PropGroupDesc)[];
-  outputs?: (PropDesc | PropGroupDesc)[];
-
   // allowed types in editor for dynamic types
   types?: ValueType[];
 }
@@ -220,14 +216,9 @@ export function shouldShowProperty(visible: VisibleType, isSubBlock: boolean) {
   }
 }
 
-export function getDefaultFuncData(desc: FunctionDesc, isSubBlock = false) {
-  let data: any = {
-    '#is': desc.id
-  };
-
-  // add default props
-  let props = [];
-  for (let propDesc of desc.properties) {
+function initBlockProperties(data: any, properties: (PropDesc | PropGroupDesc)[], isSubBlock = false) {
+  let props: string[] = [];
+  for (let propDesc of properties) {
     if ((propDesc as PropGroupDesc).properties) {
       for (let i = 0; i < (propDesc as PropGroupDesc).defaultLen; ++i) {
         for (let childDesc of (propDesc as PropGroupDesc).properties) {
@@ -250,5 +241,18 @@ export function getDefaultFuncData(desc: FunctionDesc, isSubBlock = false) {
     }
   }
   data['@b-p'] = props;
+}
+
+export function getDefaultFuncData(desc: FunctionDesc, isSubBlock = false) {
+  let data: any = {
+    '#is': desc.id
+  };
+  initBlockProperties(data, desc.properties, isSubBlock);
+  return data;
+}
+
+export function getDefaultDataFromMore(more: (PropDesc | PropGroupDesc)[]) {
+  let data: any = {'#is': '', '#more': more};
+  initBlockProperties(data, more);
   return data;
 }
