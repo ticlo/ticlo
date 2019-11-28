@@ -16,3 +16,22 @@
   width: 200px;
   height: 200px;
 }
+
+.ticl-object-tree-item {
+  white-space: nowrap;
+}
+.ticl-object-tree-name {
+  text-decoration: underline;
+  &:after {
+    padding: 0 5px 0 3px;
+    color: #bbb;
+    display: inline-block;
+    content: ':';
+  }
+}
+.ticl-object-tree-value {
+  text-overflow: ellipsis;
+  width: 100px;
+  overflow: hidden;
+  flex: 1;
+}

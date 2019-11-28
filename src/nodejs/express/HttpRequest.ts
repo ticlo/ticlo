@@ -11,13 +11,17 @@ export class ExpressHttpRequest extends HttpRequest {
 
   onComplete(worker: Block, output: Block): DataMap {
     let response = super.onComplete(worker, output);
-    let status = response.status || 200;
-    let data = response.data;
-    let headers = response.headers;
-    if (headers) {
-      this.data.res.set(convertToObject(headers));
+    if (response) {
+      let status = response.status || 200;
+      let data = response.data;
+      let headers = response.headers;
+      if (headers) {
+        this.data.res.set(convertToObject(headers));
+      }
+      this.data.res.status(status).send(data);
+    } else {
+      this.data.res.status(501).end();
     }
-    this.data.res.status(status).send(data);
     return response;
   }
 

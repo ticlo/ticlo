@@ -121,13 +121,6 @@ class App extends React.PureComponent<Props, State> implements TicloLayoutContex
             size: 200,
             tabs: [
               {
-                id: 'PropertyList',
-                title: 'PropertyList',
-                cached: true,
-                cacheContext: TicloLayoutContextType,
-                content: <PropertyListPanel conn={conn} />
-              },
-              {
                 id: 'NavTree',
                 title: 'NavTree',
                 cached: true,
@@ -140,6 +133,13 @@ class App extends React.PureComponent<Props, State> implements TicloLayoutContex
                     style={{width: '100%', height: '100%', padding: '8px'}}
                   />
                 )
+              },
+              {
+                id: 'PropertyList',
+                title: 'PropertyList',
+                cached: true,
+                cacheContext: TicloLayoutContextType,
+                content: <PropertyListPanel conn={conn} />
               },
               {
                 id: 'Types',
