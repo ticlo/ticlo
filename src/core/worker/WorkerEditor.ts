@@ -19,7 +19,13 @@ export class WorkerEditor extends Job {
     }
   }
 
-  static create(parent: Block, field: string, src?: DataMap | string, forceLoad = false): WorkerEditor {
+  static create(
+    parent: Block,
+    field: string,
+    src?: DataMap | string,
+    forceLoad = false,
+    applyChange?: (data: DataMap) => boolean
+  ): WorkerEditor {
     let prop = parent.getProperty(field);
     let job: WorkerEditor;
     if (prop._value instanceof WorkerEditor) {
@@ -33,7 +39,7 @@ export class WorkerEditor extends Job {
       job = new WorkerEditor(parent, null, prop);
       prop.setOutput(job);
     }
-    let success = job.load(src);
+    let success = job.load(src, applyChange);
     if (success) {
       return job;
     } else {
@@ -56,7 +62,10 @@ export class WorkerEditor extends Job {
 
     if (parent._function) {
       let data = parent._function.getDefaultWorker(fromField) || blankWorker;
-      return WorkerEditor.create(parent, field, data, forceReload);
+      return WorkerEditor.create(parent, field, data, forceReload, (data: DataMap) => {
+        parent.setValue(fromField, data);
+        return true;
+      });
     }
 
     return null;
@@ -70,38 +79,34 @@ export class WorkerEditor extends Job {
   }
 
   /**
-   * save the worker
+   * save the worker to a function
    * @param funcId When specified, save the worker as a global worker function so it can be reused
    */
-  applyChange(funcId: string = null): boolean {
-    funcId = funcId || this._loadFrom;
+  applyChangeToFunc(funcId: string) {
     let data = this.save();
-    if (funcId) {
-      // save to worker function
-      let name = funcId;
-      let pos = name.indexOf(':');
-      if (pos > -1) {
-        name = name.substring(pos + 1);
-      }
-      let desc: FunctionDesc = {
-        name,
-        icon: this.getValue('@f-icon') || '',
-        priority: this.getValue('@f-priority') || 0,
-        mode: this.getValue('@f-mode') || 'onLoad',
-        properties: this.collectProperties()
-      };
-
-      WorkerFunction.registerType(data, desc, this._namespace);
-    } else {
-      // save to property
-      let name = this._prop._name;
-      if (name.startsWith('#edit-')) {
-        name = name.substring(6);
-        this._prop._block.setValue(name, data);
-        return true;
-      }
+    // save to worker function
+    let name = this._loadFrom;
+    let pos = name.indexOf(':');
+    if (pos > -1) {
+      name = name.substring(pos + 1);
     }
-    return false;
+    let desc: FunctionDesc = {
+      name,
+      icon: this.getValue('@f-icon') || '',
+      priority: this.getValue('@f-priority') || 0,
+      mode: this.getValue('@f-mode') || 'onLoad',
+      properties: this.collectProperties()
+    };
+
+    WorkerFunction.registerType(data, desc, this._namespace);
+    return true;
+  }
+  applyChange(): boolean {
+    if (this._loadFrom && !this.applyChange) {
+      return this.applyChangeToFunc(this._loadFrom);
+    } else {
+      return super.applyChange();
+    }
   }
 
   /**

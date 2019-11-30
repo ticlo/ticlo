@@ -126,7 +126,8 @@ export class ObjectTreeRenderer extends PureDataRenderer<Props, any> {
       <div style={{...style, marginLeft}} className="ticl-tree-node ticl-object-tree-item">
         <ExpandIcon opened={item.opened} onClick={onClick} />
         <DragDropDiv onDragStartT={this.onDragStart} className="ticl-hbox">
-          <div className="ticl-object-tree-name">{item.name}</div><div className="ticl-object-tree-value">{child}</div>
+          <div className="ticl-object-tree-name">{item.name}</div>
+          <div className="ticl-object-tree-value">{child}</div>
         </DragDropDiv>
       </div>
     );

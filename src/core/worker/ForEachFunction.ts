@@ -11,6 +11,8 @@ export class ForEachFunction extends BlockFunction implements BlockChildWatch {
   _src: DataMap | string;
   _srcChanged: boolean = false;
 
+  _applyWorkerChange!: (data: DataMap) => boolean;
+
   _input: any;
   _inputChanged: boolean = false;
   _watchedInput: Block;
@@ -150,7 +152,7 @@ export class ForEachFunction extends BlockFunction implements BlockChildWatch {
   }
 
   _addWorker(key: string, input: any) {
-    let child = this._funcBlock.createOutputJob(key, this._src, null);
+    let child = this._funcBlock.createOutputJob(key, this._src, null, this._applyWorkerChange);
     this._workers.set(key, child);
     child.updateInput(input);
     this._outputBlock.setBinding(key, `##.#func.${key}.#output`);
@@ -200,6 +202,8 @@ export class ForEachFunction extends BlockFunction implements BlockChildWatch {
     super.destroy();
   }
 }
+
+ForEachFunction.prototype._applyWorkerChange = MapImpl.prototype._applyWorkerChange;
 
 Types.add(ForEachFunction, {
   name: 'foreach',

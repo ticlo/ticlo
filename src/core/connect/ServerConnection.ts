@@ -8,7 +8,7 @@ import {
   HelperProperty
 } from '../block/BlockProperty';
 import {DataMap, isPrimitiveType, isSavedBlock, measureObjSize, truncateData} from '../util/DataTypes';
-import {Root, Block, BlockChildWatch} from '../block/Block';
+import {Root, Block, BlockChildWatch, Job} from '../block/Block';
 import {Dispatcher, Listener, ValueDispatcher} from '../block/Dispatcher';
 import {Type, Types, DescListener} from '../block/Type';
 import {FunctionDesc, PropDesc, PropGroupDesc} from '../block/Descriptor';
@@ -567,10 +567,14 @@ export class ServerConnection extends Connection {
         if (prop._value instanceof Block && prop._value._prop === prop) {
           if (!filterRegex || filterRegex.test(field)) {
             // filter
-            if (count < max) {
-              children[field] = (prop._value as Block)._blockId;
+            let result: any = {id: (prop._value as Block)._blockId};
+            if (prop._value instanceof Job && prop._value._applyChange) {
+              result.editable = true;
             }
-            ++count;
+            children[field] = result;
+            if (count >= max) {
+              break;
+            }
           }
         }
       }
@@ -627,8 +631,12 @@ export class ServerConnection extends Connection {
 
   applyWorkerChange(path: string, funcId: string) {
     let property = this.root.queryProperty(path, true);
-    if (property && property._value instanceof WorkerEditor) {
-      property._value.applyChange(funcId);
+    if (property && property._value instanceof Job) {
+      if (funcId && property._value instanceof WorkerEditor) {
+        property._value.applyChangeToFunc(funcId);
+      } else {
+        property._value.applyChange();
+      }
       return null;
     } else {
       return 'invalid path';

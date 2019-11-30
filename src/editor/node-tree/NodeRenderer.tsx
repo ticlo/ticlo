@@ -17,7 +17,7 @@ export class NodeTreeItem extends TreeItem<NodeTreeItem> {
 
   max: number = 32;
 
-  constructor(name: string, parent?: NodeTreeItem) {
+  constructor(name: string, parent?: NodeTreeItem, public editable = false) {
     super(parent);
     if (parent) {
       this.key = `${parent.childPrefix}${name}`;
@@ -87,7 +87,8 @@ export class NodeTreeItem extends TreeItem<NodeTreeItem> {
     let names = Object.keys(children);
     names.sort(smartStrCompare);
     for (let key of names) {
-      let newItem = new NodeTreeItem(key, this);
+      let data = children[key];
+      let newItem = new NodeTreeItem(key, this, data.editable);
       this.children.push(newItem);
     }
     this.opened = 'opened';
@@ -142,7 +143,9 @@ export class NodeTreeRenderer extends PureDataRenderer<Props, any> {
   onOpenClicked = (event?: ClickParam) => {
     const {item} = this.props;
     if (this.context && this.context.editJob) {
-      this.context.editJob(item.key, null);
+      this.context.editJob(item.key, () => {
+        item.getConn().applyWorkerChange(item.key);
+      });
     }
   };
   subscriptionListener = {

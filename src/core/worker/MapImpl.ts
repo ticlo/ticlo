@@ -24,6 +24,10 @@ export abstract class MapImpl extends BlockFunction {
     }
     return false;
   }
+  _applyWorkerChange = (data: DataMap) => {
+    this._data.setValue('use', data);
+    return true;
+  };
 
   _reuseWorker: MapWorkerMode;
 
@@ -108,7 +112,7 @@ export abstract class MapImpl extends BlockFunction {
     let output = new WorkerOutput(key, field, this._timeout, (output: WorkerOutput, timeout: boolean) =>
       this._onWorkerReady(output, timeout)
     );
-    let child = this._funcBlock.createOutputJob(key, this._src, output);
+    let child = this._funcBlock.createOutputJob(key, this._src, output, this._applyWorkerChange);
     child.onResolved = () => {
       if (!child._waiting) {
         output.workerReady();

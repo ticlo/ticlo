@@ -435,11 +435,16 @@ export class Block implements Runnable, FunctionData, Listener<FunctionClass>, D
     return block;
   }
 
-  createOutputJob(field: string, src?: DataMap | string, output?: FunctionOutput): Job {
+  createOutputJob(
+    field: string,
+    src?: DataMap | string,
+    output?: FunctionOutput,
+    applyChange?: (data: DataMap) => boolean
+  ): Job {
     let prop = this.getProperty(field);
     let job = new Job(this, output, prop);
     prop.setOutput(job);
-    job.load(src);
+    job.load(src, applyChange);
 
     return job;
   }
@@ -887,7 +892,8 @@ export class Job extends Block {
     return this._save();
   }
 
-  load(src: DataMap | string): boolean {
+  _applyChange: (data: DataMap) => boolean;
+  load(src: DataMap | string, applyChange?: (data: DataMap) => boolean): boolean {
     this._loading = true;
     let loaded = false;
     if (typeof src === 'string') {
@@ -910,8 +916,18 @@ export class Job extends Block {
         loaded = true;
       }
     }
+    if (loaded) {
+      this._applyChange = applyChange;
+    }
     this._loading = false;
     return loaded;
+  }
+
+  applyChange() {
+    if (this._applyChange) {
+      return this._applyChange(this.save());
+    }
+    return false;
   }
 
   liveUpdate(map: DataMap) {
@@ -1004,17 +1020,17 @@ export class Root extends Job {
     return newJob;
   }
 
-  save(): {[key: string]: any} {
+  save(): DataMap {
     // not allowed
     return null;
   }
 
-  load(map: {[key: string]: any}) {
+  load(map: DataMap, applyChange?: (data: DataMap) => boolean) {
     // not allowed
     return false;
   }
 
-  liveUpdate(map: {[key: string]: any}) {
+  liveUpdate(map: DataMap) {
     // not allowed
   }
 }
