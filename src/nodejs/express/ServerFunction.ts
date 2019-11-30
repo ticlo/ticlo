@@ -134,7 +134,7 @@ export class ServerFunction extends BlockFunction {
   checkPendingTasks = () => {
     for (let task of this.pendingTasks) {
       if (!task._handler) {
-        task.req .res.status(501).end();
+        task.req.res.status(501).end();
         // prevent handler to process in the future
         task._handler = task;
       }
