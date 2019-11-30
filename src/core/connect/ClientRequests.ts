@@ -98,6 +98,7 @@ export class MergedClientRequest extends ConnectionSend implements ClientCallbac
 
 export interface ValueState {
   value?: any;
+  undefined?: boolean;
   bindingPath?: string;
   hasListener?: boolean;
 }
@@ -145,6 +146,9 @@ export class SubscribeRequest extends MergedClientRequest {
       }
       this._cache = {...defaultValueState};
       // TODO : add a disconnected event in the update
+    }
+    if (response.undefined) {
+      response.value = undefined;
     }
     if (response.hasOwnProperty('value')) {
       this._cache.value = response.value;

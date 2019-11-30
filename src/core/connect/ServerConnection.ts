@@ -90,6 +90,9 @@ class ServerSubscribe extends ServerRequest implements BlockPropertySubscriber, 
       }
       total += size;
       data.value = value;
+      if (value === undefined) {
+        data.undefined = true;
+      }
       this.valueChanged = false;
     }
     let sendEvent: BlockPropertyEvent[] = [];
