@@ -193,7 +193,9 @@ export class HandlerFunction extends MapImpl {
   _clearWorkers() {
     if (this._workers) {
       for (let [key, worker] of this._workers) {
-        (worker._outputObj as WorkerOutput).task.onCancel();
+        if ((worker._outputObj as WorkerOutput).onReady) {
+          (worker._outputObj as WorkerOutput).task.onCancel();
+        }
       }
     }
     for (let i = 0; i < this._queue.length; ++i) {

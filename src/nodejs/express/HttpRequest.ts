@@ -4,9 +4,11 @@ import {Block} from '../../core/block/Block';
 import {convertToObject, DataMap} from '../../core/util/DataTypes';
 
 export class ExpressHttpRequest extends HttpRequest {
-  data: Request;
-  constructor(req: Request) {
-    super(req);
+  req: Request;
+  constructor(req: Request, basePath: string) {
+    let {method, url, path, body, query, headers} = req;
+    super({method, url, body, query, headers, path: path.substring(basePath.length)});
+    this.req = req;
   }
 
   onComplete(worker: Block, output: Block): DataMap {
@@ -16,21 +18,21 @@ export class ExpressHttpRequest extends HttpRequest {
       let data = response.data;
       let headers = response.headers;
       if (headers) {
-        this.data.res.set(convertToObject(headers));
+        this.req.res.set(convertToObject(headers));
       }
-      this.data.res.status(status).send(data);
+      this.req.res.status(status).send(data);
     } else {
-      this.data.res.status(501).end();
+      this.req.res.status(501).end();
     }
     return response;
   }
 
   onTimeout(): any {
-    this.data.res.status(500).send('timeout');
+    this.req.res.status(500).send('timeout');
     return super.onTimeout();
   }
 
   onCancel(): void {
-    this.data.res.status(500).send('canceled');
+    this.req.res.status(500).send('canceled');
   }
 }

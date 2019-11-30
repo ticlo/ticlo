@@ -116,7 +116,7 @@ export class ServerFunction extends BlockFunction {
       return;
     }
     const emitTask = () => {
-      let request = new ExpressHttpRequest(req);
+      let request = new ExpressHttpRequest(req, basePath);
       if (this.pendingTasks.length === 0) {
         Resolver.callLater(this.checkPendingTasks);
       }
@@ -134,7 +134,7 @@ export class ServerFunction extends BlockFunction {
   checkPendingTasks = () => {
     for (let task of this.pendingTasks) {
       if (!task._handler) {
-        task.data.res.status(501).end();
+        task.req .res.status(501).end();
         // prevent handler to process in the future
         task._handler = task;
       }
