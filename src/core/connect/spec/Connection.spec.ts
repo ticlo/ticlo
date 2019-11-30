@@ -719,7 +719,10 @@ describe('Connection', function() {
     let job1 = Root.instance.addJob('Connection19');
     let [server, client] = makeLocalConnection(Root.instance, true);
 
-    let editor = WorkerEditor.create(job1, '#edit-v', {});
+    let editor = WorkerEditor.create(job1, '#edit-v', {}, false, (data: DataMap) => {
+      job1.setValue('v', data);
+      return true;
+    });
     await client.applyWorkerChange('Connection19.#edit-v');
     assert.deepEqual(job1.getValue('v'), {'#is': ''});
 

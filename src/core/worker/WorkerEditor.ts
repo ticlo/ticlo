@@ -102,7 +102,7 @@ export class WorkerEditor extends Job {
     return true;
   }
   applyChange(): boolean {
-    if (this._loadFrom && !this.applyChange) {
+    if (this._loadFrom && !this._applyChange) {
       return this.applyChangeToFunc(this._loadFrom);
     } else {
       return super.applyChange();

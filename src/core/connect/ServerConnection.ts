@@ -567,14 +567,14 @@ export class ServerConnection extends Connection {
         if (prop._value instanceof Block && prop._value._prop === prop) {
           if (!filterRegex || filterRegex.test(field)) {
             // filter
-            let result: any = {id: (prop._value as Block)._blockId};
-            if (prop._value instanceof Job && prop._value._applyChange) {
-              result.editable = true;
+            if (count < max) {
+              let result: any = {id: (prop._value as Block)._blockId};
+              if (prop._value instanceof Job && prop._value._applyChange) {
+                result.editable = true;
+              }
+              children[field] = result;
             }
-            children[field] = result;
-            if (count >= max) {
-              break;
-            }
+            ++count;
           }
         }
       }
