@@ -29,9 +29,12 @@ export const decodeReceiver = (key: string, value: any) => jsonesc.reviver(key, 
 const displayRegex = /"\\u001b(\w*:)?([^"]*)"/g;
 
 function replaceDisplay(str: string, g1: string, g2: string) {
-  return g2 || 'undefined';
+  return g2;
 }
 
 export function encodeDisplay(value: any): string {
+  if (value === undefined) {
+    return 'undefined';
+  }
   return jsonesc.stringify(value).replace(displayRegex, replaceDisplay);
 }
