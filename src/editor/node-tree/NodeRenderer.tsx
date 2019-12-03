@@ -1,6 +1,9 @@
 import React from 'react';
 
-import {Dropdown, Button, Input, Icon, Menu, InputNumber} from 'antd';
+import {Dropdown, Button, Input, Menu, InputNumber} from 'antd';
+import BuildIcon from '@ant-design/icons/BuildOutlined';
+import ReloadIcon from '@ant-design/icons/ReloadOutlined';
+import SearchIcon from '@ant-design/icons/SearchOutlined';
 import {ExpandIcon, ExpandState, TreeItem} from '../../ui/component/Tree';
 import {PureDataRenderer} from '../../ui/component/DataRenderer';
 import {DataMap} from '../../core/util/DataTypes';
@@ -178,16 +181,16 @@ export class NodeTreeRenderer extends PureDataRenderer<Props, any> {
       <Menu selectable={false}>
         {editJob ? (
           <Menu.Item onClick={this.onOpenClicked}>
-            <Icon type="build" />
+            <BuildIcon />
             Open
           </Menu.Item>
         ) : null}
         <Menu.Item onClick={this.onReloadClicked}>
-          <Icon type="reload" />
+          <ReloadIcon />
           Reload
         </Menu.Item>
         <Menu.Item>
-          <Icon type="search" />
+          <SearchIcon />
           Search
         </Menu.Item>
       </Menu>

@@ -1,10 +1,8 @@
 import React, {ReactElement} from 'react';
 import {ClientConn} from '../../../core/client';
 import {getDefaultFuncData, PropDesc} from '../../../core/block/Descriptor';
-import {arrayEqual} from '../../../core/util/Compare';
-import {Button, Icon, Input, Select} from 'antd';
+import {Button, Input, Select} from 'antd';
 import {Popup} from '../../component/ClickPopup';
-import {TypeSelect} from '../../type-selector/TypeSelector';
 import {PropertyList} from '../PropertyList';
 
 const {Option} = Select;

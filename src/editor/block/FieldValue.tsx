@@ -1,5 +1,4 @@
 import React from 'react';
-import {Button, Icon} from 'antd';
 import {LazyUpdateComponent, LazyUpdateSubscriber} from '../../ui/component/LazyUpdateComponent';
 import {ClientConn} from '../../core/connect/ClientConn';
 import {TRUNCATED} from '../../core/util/DataTypes';

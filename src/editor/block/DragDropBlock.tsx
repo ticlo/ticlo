@@ -1,6 +1,6 @@
 import React from 'react';
 import {ClientConn} from '../../core/client';
-import {Modal, Input, Icon} from 'antd';
+import {Modal, Input} from 'antd';
 import {DragState} from 'rc-dock/lib';
 
 export function onDragBlockOver(conn: ClientConn, e: DragState) {

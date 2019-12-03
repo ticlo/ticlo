@@ -251,13 +251,7 @@ export class AddMorePropertyMenu extends React.PureComponent<Props, State> {
       optionErr
     } = this.state;
     return (
-      <Form
-        onClick={onClick}
-        className="ticl-add-more-prop"
-        labelCol={{span: 9}}
-        wrapperCol={{span: 15}}
-        onSubmit={this.onSubmit}
-      >
+      <Form onClick={onClick} className="ticl-add-more-prop" labelCol={{span: 9}} wrapperCol={{span: 15}}>
         <FormItem label="Name" validateStatus={nameErr ? 'error' : null} help={nameErr}>
           <Input size="small" value={name} onChange={this.onName} />
         </FormItem>
@@ -330,7 +324,7 @@ export class AddMorePropertyMenu extends React.PureComponent<Props, State> {
           </FormItem>
         ) : null}
         <Form.Item wrapperCol={{span: 15, offset: 9}}>
-          <Button type="primary" htmlType="submit">
+          <Button type="primary" htmlType="submit" onClick={this.onSubmit}>
             Add Property
           </Button>
         </Form.Item>

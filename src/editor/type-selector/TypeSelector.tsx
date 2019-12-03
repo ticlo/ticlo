@@ -1,5 +1,9 @@
 import React, {MouseEventHandler} from 'react';
-import {Icon, Input, Radio, Tooltip} from 'antd';
+import {Input, Radio, Tooltip} from 'antd';
+import AppStoreIcon from '@ant-design/icons/AppstoreOutlined';
+import HistoryIcon from '@ant-design/icons/HistoryOutlined';
+import CloseCircleIcon from '@ant-design/icons/CloseCircleOutlined';
+import FilterIcon from '@ant-design/icons/FilterOutlined';
 import {TypeTree} from './TypeTree';
 import {ClientConn} from '../../core/client';
 import {OnTypeClick} from './TypeView';
@@ -47,12 +51,12 @@ export class TypeSelect extends React.PureComponent<Props, State> {
           <Radio.Group defaultValue="tree" size="small" onChange={this.onToggleChange}>
             <Tooltip title={'Tree'}>
               <Radio.Button value="tree">
-                <Icon type="appstore" />
+                <AppStoreIcon />
               </Radio.Button>
             </Tooltip>
             <Tooltip title={'Recent'}>
               <Radio.Button value="recent">
-                <Icon type="history" />
+                <HistoryIcon />
               </Radio.Button>
             </Tooltip>
           </Radio.Group>
@@ -64,14 +68,9 @@ export class TypeSelect extends React.PureComponent<Props, State> {
             onChange={this.onFilterChange}
             suffix={
               search ? (
-                <Icon
-                  title={'clear'}
-                  type="close-circle"
-                  style={{color: 'rgba(0,0,0,.45)'}}
-                  onClick={this.onFilterClear}
-                />
+                <CloseCircleIcon title={'clear'} style={{color: 'rgba(0,0,0,.45)'}} onClick={this.onFilterClear} />
               ) : (
-                <Icon type="filter" style={{color: 'rgba(0,0,0,.45)'}} />
+                <FilterIcon style={{color: 'rgba(0,0,0,.45)'}} />
               )
             }
           />

@@ -1,5 +1,5 @@
 import React from 'react';
-import {Button, Icon, Input} from 'antd';
+import {Button, Input} from 'antd';
 import {DragDropDiv, DragState} from 'rc-dock';
 import {TypeSelect} from '../../type-selector/TypeSelector';
 import {Popup} from '../../component/ClickPopup';

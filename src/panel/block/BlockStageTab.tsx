@@ -1,5 +1,5 @@
 import React from 'react';
-import {Button, Icon} from 'antd';
+import {Button} from 'antd';
 import {DockContext, DockContextType} from 'rc-dock/lib';
 import {LazyUpdateComponent} from '../../ui/component/LazyUpdateComponent';
 import {TrackedClientConn} from '../../core/connect/TrackedClientConn';

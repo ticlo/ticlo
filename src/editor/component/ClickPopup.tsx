@@ -1,7 +1,6 @@
 import React from 'react';
 import Trigger from 'rc-trigger';
-import {AddMorePropertyMenu} from '../property/AddMoreProperty';
-import {Icon} from 'antd';
+import RightIcon from '@ant-design/icons/RightOutlined';
 
 type ItemEventHandler = (event: 'show' | 'hide' | 'hover') => void;
 
@@ -60,7 +59,7 @@ export class SubMenuItem extends React.PureComponent<SubMenuItemProps, SubMenuIt
       >
         <div className={cls} onMouseOver={this.onHover}>
           {children}
-          {popup ? <Icon type="right" /> : null}
+          {popup ? <RightIcon /> : null}
         </div>
       </Trigger>
     );

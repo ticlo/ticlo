@@ -1,5 +1,6 @@
 import React from 'react';
-import {Icon, Input} from 'antd';
+import {Input} from 'antd';
+import DownIcon from '@ant-design/icons/DownOutlined';
 import {FunctionDesc, getFuncStyleFromDesc, PropDesc} from '../../../core/block/Descriptor';
 import {ValueEditorProps} from './ValueEditorBase';
 import {TIcon} from '../../icon/Icon';
@@ -87,7 +88,7 @@ export class TypeEditor extends StringEditorBase {
             onChange={this.onInputChange}
             onBlur={this.onBlur}
             onKeyDown={this.onKeyDown}
-            suffix={onChange ? <Icon type="down" style={{color: 'rgba(0,0,0,.45)'}} onClick={this.openPopup} /> : null}
+            suffix={onChange ? <DownIcon style={{color: 'rgba(0,0,0,.45)'}} onClick={this.openPopup} /> : null}
           />
         </Popup>
       </DragDropDiv>
