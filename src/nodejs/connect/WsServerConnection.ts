@@ -27,7 +27,9 @@ export class WsServerConnection extends ServerConnection {
     if (typeof data === 'string') {
       Logger.trace(() => 'server receive ' + data, this);
       let decoded = decode(data);
-      this.onReceive(decoded);
+      if (Array.isArray(decoded)) {
+        this.onReceive(decoded);
+      }
     }
   };
 

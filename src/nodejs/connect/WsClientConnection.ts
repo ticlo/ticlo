@@ -43,7 +43,9 @@ export class WsClientConnection extends ClientConnection {
     if (typeof data === 'string') {
       Logger.trace(() => 'client receive ' + data, this);
       let decoded = decode(data);
-      this.onReceive(decoded);
+      if (Array.isArray(decoded)) {
+        this.onReceive(decoded);
+      }
     }
   };
 

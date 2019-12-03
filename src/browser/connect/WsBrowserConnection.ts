@@ -35,10 +35,12 @@ export class WsBrowserConnection extends ClientConnection {
   }
 
   onMessage = (e: MessageEvent) => {
-    if (e.data) {
+    if (typeof e.data === 'string') {
       Logger.trace(() => 'server receive ' + e.data, this);
       let decoded = decode(e.data);
-      this.onReceive(decoded);
+      if (Array.isArray(decoded)) {
+        this.onReceive(decoded);
+      }
     }
   };
 
@@ -46,6 +48,7 @@ export class WsBrowserConnection extends ClientConnection {
     super.destroy();
     if (this._ws) {
       this._ws.close();
+      this._ws = null;
     }
   }
 }
