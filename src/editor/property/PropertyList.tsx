@@ -1,4 +1,6 @@
 import React from 'react';
+import {Button, Empty, Tooltip} from 'antd';
+import PlusSquareIcon from '@ant-design/icons/PlusSquareOutlined';
 import {attributeList, ClientConn, ValueUpdate} from '../../core/client';
 import {DataMap} from '../../core/util/DataTypes';
 import {
@@ -14,7 +16,6 @@ import {GroupEditor} from './GroupEditor';
 import {MultiSelectComponent, MultiSelectLoader} from './MultiSelectComponent';
 import {ExpandIcon, ExpandState} from '../../ui/component/Tree';
 import {deepEqual} from '../../core/util/Compare';
-import {Button, Empty, Tooltip} from 'antd';
 import {AddMorePropertyMenu} from './AddMoreProperty';
 import {Popup} from '../component/ClickPopup';
 import {BlockWidget} from '../block/view/BlockWidget';
@@ -369,7 +370,7 @@ export class PropertyList extends MultiSelectComponent<Props, State, BlockLoader
               onPopupVisibleChange={this.onAddMorePopup}
               popup={<AddMorePropertyMenu onAddProperty={this.onAddMore} />}
             >
-              <Button className="ticl-icon-btn" shape="circle" tabIndex={-1} icon="plus-square" />
+              <Button className="ticl-icon-btn" shape="circle" tabIndex={-1} icon={<PlusSquareIcon />} />
             </Popup>
 
             <div className="ticl-h-line" />

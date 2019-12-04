@@ -1,5 +1,9 @@
 import React from 'react';
 import {Button, Tooltip, Dropdown, Input, Checkbox} from 'antd';
+import DeleteIcon from '@ant-design/icons/DeleteOutlined';
+import EditIcon from '@ant-design/icons/EditOutlined';
+import LockIcon from '@ant-design/icons/LockOutlined';
+import LockFilledIcon from '@ant-design/icons/LockFilled';
 import {ClientConn, ValueState, ValueUpdate} from '../../core/client';
 import {blankPropDesc, FunctionDesc, getDefaultFuncData, PropDesc, PropGroupDesc} from '../../core/block/Descriptor';
 import {translateProperty} from '../../core/util/i18n';
@@ -398,7 +402,7 @@ export class PropertyEditor extends MultiSelectComponent<Props, State, PropertyL
                 className="ticl-icon-btn"
                 shape="circle"
                 size="small"
-                icon="delete"
+                icon={<DeleteIcon />}
                 onClick={this.onUnbindClick}
               />
             ) : null}
@@ -572,13 +576,17 @@ export class PropertyEditor extends MultiSelectComponent<Props, State, PropertyL
     let locked = bindingPath || !valueSame;
     let renderLockIcon = locked && !propDesc.readonly;
     let locktooltip: string;
+    let lockIcon: React.ReactNode;
     if (renderLockIcon) {
       if (unlocked) {
         locktooltip = 'Unlocked for editing\nDouble click to lock';
+        lockIcon = <EditIcon />;
       } else if (bindingPath) {
         locktooltip = 'Editing blocked by binding\nDouble click to edit';
+        lockIcon = <LockFilledIcon />;
       } else if (!valueSame) {
         locktooltip = 'Inconsistent values\nDouble click to edit';
+        lockIcon = <LockIcon />;
       }
     }
 
@@ -656,7 +664,7 @@ export class PropertyEditor extends MultiSelectComponent<Props, State, PropertyL
               className="ticl-icon-btn"
               shape="circle"
               tabIndex={-1}
-              icon={unlocked ? 'edit' : 'lock'}
+              icon={lockIcon}
               onDoubleClick={this.unlock}
             />
           </Tooltip>

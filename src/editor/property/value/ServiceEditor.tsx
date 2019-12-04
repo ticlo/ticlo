@@ -1,7 +1,9 @@
 import React, {ReactElement} from 'react';
+import {Button, Input, Select} from 'antd';
+import PlusIcon from '@ant-design/icons/PlusOutlined';
+import EllipsisIcon from '@ant-design/icons/EllipsisOutlined';
 import {ClientConn} from '../../../core/client';
 import {getDefaultFuncData, PropDesc} from '../../../core/block/Descriptor';
-import {Button, Input, Select} from 'antd';
 import {Popup} from '../../component/ClickPopup';
 import {PropertyList} from '../PropertyList';
 
@@ -89,11 +91,11 @@ export class ServiceEditor extends React.PureComponent<Props, State> {
     if (bindingPath) {
       button = (
         <Popup popupVisible={opened} onPopupVisibleChange={this.onPopupClose} popup={this.getPopup}>
-          <Button className="ticl-square-icon-btn" size="small" icon="ellipsis" onClick={this.openPopup} />
+          <Button className="ticl-square-icon-btn" size="small" icon={<EllipsisIcon />} onClick={this.openPopup} />
         </Popup>
       );
     } else if (!locked && create) {
-      button = <Button className="ticl-square-icon-btn" size="small" icon="plus" onClick={this.onCreate} />;
+      button = <Button className="ticl-square-icon-btn" size="small" icon={<PlusIcon />} onClick={this.onCreate} />;
     }
 
     return (

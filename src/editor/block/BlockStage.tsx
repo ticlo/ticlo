@@ -1,17 +1,15 @@
 import React, {CSSProperties, KeyboardEvent} from 'react';
-import {ClientConn} from '../../core/client';
-import {DataMap} from '../../core/util/DataTypes';
+import {Button} from 'antd';
+import ZoomInIcon from '@ant-design/icons/ZoomInOutlined';
+import ZoomOutIcon from '@ant-design/icons/ZoomOutOutlined';
 import {BlockView} from './Block';
-import {WireItem, WireView} from './Wire';
+import {WireView} from './Wire';
 import {DragDropDiv, DragState} from 'rc-dock';
 import {cssNumber} from '../../ui/util/Types';
-import {BlockItem, FieldItem, Stage} from './Field';
-import {forAllPathsBetween} from '../../core/util/Path';
 import {onDragBlockOver, onDropBlock} from './DragDropBlock';
 import ResizeObserver from 'resize-observer-polyfill';
 import {BlockStageBase, StageProps} from './BlockStageBase';
-import {Button} from 'antd';
-import {MiniBlockView, MiniStage} from './MiniStage';
+import {MiniBlockView} from './MiniStage';
 import debounce from 'lodash/debounce';
 import clamp from 'lodash/clamp';
 import {GestureState} from 'rc-dock/lib';
@@ -521,9 +519,9 @@ export class BlockStage extends BlockStageBase<StageState> {
         </DragDropDiv>
         <div className="ticl-stage-zoom">
           <div className="ticl-hbox">
-            <Button className="ticl-icon-btn" shape="circle" icon="zoom-out" onClick={this.zoomOut} />
+            <Button className="ticl-icon-btn" shape="circle" icon={<ZoomOutIcon />} onClick={this.zoomOut} />
             <span className="ticl-stage-zoom-label">{Math.round(zoom * 100)}%</span>
-            <Button className="ticl-icon-btn" shape="circle" icon="zoom-in" onClick={this.zoomIn} />
+            <Button className="ticl-icon-btn" shape="circle" icon={<ZoomInIcon />} onClick={this.zoomIn} />
           </div>
           {miniStage}
         </div>

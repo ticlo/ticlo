@@ -1,5 +1,7 @@
 import React from 'react';
 import {Button} from 'antd';
+import SaveIcon from '@ant-design/icons/SaveOutlined';
+import CloseIcon from '@ant-design/icons/CloseOutlined';
 import {DockContext, DockContextType} from 'rc-dock/lib';
 import {LazyUpdateComponent} from '../../ui/component/LazyUpdateComponent';
 import {TrackedClientConn} from '../../core/connect/TrackedClientConn';
@@ -53,8 +55,8 @@ export class BlockStageTab extends LazyUpdateComponent<Props, State> {
     if (onSave && conn.isChanged()) {
       closeButtun = (
         <div className="ticl-stage-panel-save">
-          <Button className="ticl-icon-btn" shape="circle" icon="save" onClick={this.onSave} />
-          <Button className="ticl-icon-btn" shape="circle" icon="close" onClick={this.onClose} />
+          <Button className="ticl-icon-btn" shape="circle" icon={<SaveIcon />} onClick={this.onSave} />
+          <Button className="ticl-icon-btn" shape="circle" icon={<CloseIcon />} onClick={this.onClose} />
         </div>
       );
     } else {
