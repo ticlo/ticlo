@@ -1,5 +1,7 @@
 import React from 'react';
 import {Button, Input} from 'antd';
+import DownIcon from '@ant-design/icons/DownOutlined';
+import EditIcon from '@ant-design/icons/EditOutlined';
 import {DragDropDiv, DragState} from 'rc-dock';
 import {TypeSelect} from '../../type-selector/TypeSelector';
 import {Popup} from '../../component/ClickPopup';
@@ -51,9 +53,9 @@ export class WorkerEditor extends TypeEditor {
           onPopupVisibleChange={this.onPopupClose}
           popup={<TypeSelect conn={conn} onTypeClick={this.onTypeClick} filter={WorkerEditor.filterWorkerFunction} />}
         >
-          <Button className="ticl-square-icon-btn" size="small" icon="down" onClick={this.openPopup} />
+          <Button className="ticl-square-icon-btn" size="small" icon={<DownIcon />} onClick={this.openPopup} />
         </Popup>
-        <Button className="ticl-square-icon-btn" size="small" icon="edit" onClick={this.editWorker} />
+        <Button className="ticl-square-icon-btn" size="small" icon={<EditIcon />} onClick={this.editWorker} />
       </DragDropDiv>
     );
   }
