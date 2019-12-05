@@ -146,9 +146,14 @@ export class NodeTreeRenderer extends PureDataRenderer<Props, any> {
   onOpenClicked = (event?: ClickParam) => {
     const {item} = this.props;
     if (this.context && this.context.editJob) {
-      this.context.editJob(item.key, () => {
-        item.getConn().applyWorkerChange(item.key);
-      });
+      this.context.editJob(
+        item.key,
+        item.editable
+          ? () => {
+              item.getConn().applyWorkerChange(item.key);
+            }
+          : null
+      );
     }
   };
   subscriptionListener = {
