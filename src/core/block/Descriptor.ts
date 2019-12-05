@@ -161,7 +161,8 @@ export const attributeList: PropDesc[] = [attributeDescs['@b-p'], attributeDescs
 
 export function buildPropDescCache(
   funcDesc: FunctionDesc,
-  more: (PropDesc | PropGroupDesc)[]
+  more: (PropDesc | PropGroupDesc)[],
+  andMore?: (PropDesc | PropGroupDesc)[]
 ): {[key: string]: PropDesc} {
   if (!funcDesc) return null;
 
@@ -181,7 +182,7 @@ export function buildPropDescCache(
       }
     }
   }
-
+  addProps(funcDesc.configs);
   addProps(more);
   addProps(funcDesc.properties);
 
