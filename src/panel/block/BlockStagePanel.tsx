@@ -1,8 +1,10 @@
 import React, {ReactNode} from 'react';
+import {Button, Tooltip} from 'antd';
+import UnorderedListIcon from '@ant-design/icons/UnorderedListOutlined';
+import CloseIcon from '@ant-design/icons/CloseOutlined';
 import {BlockStage, PropertyList} from '../../editor';
 import {Divider} from 'rc-dock/lib';
 import {arrayEqual} from '../../core/util/Compare';
-import {Button, Tooltip} from 'antd';
 import {ClientConn} from '../../core/connect/ClientConn';
 import {TrackedClientConn} from '../../core/connect/TrackedClientConn';
 import {BlockStageTab} from './BlockStageTab';
@@ -110,7 +112,7 @@ export class BlockStagePanel extends React.PureComponent<Props, State> {
           size="small"
           shape="circle"
           tabIndex={-1}
-          icon={showPropertyList ? 'close' : 'unordered-list'}
+          icon={showPropertyList ? <CloseIcon /> : <UnorderedListIcon />}
           onClick={this.onShowPropertyList}
         />
       </div>
