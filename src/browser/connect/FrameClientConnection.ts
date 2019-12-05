@@ -14,13 +14,13 @@ export class FrameClientConnection extends ClientConnection {
     this.onConnect();
   }
 
-  onClose = () => {
-    if (!this._destroyed) {
-      this.onDisconnect();
-    }
-  };
-
   doSend(datas: DataMap[]): void {
+    if (this.remote.closed) {
+      if (!this._destroyed) {
+        this.destroy();
+      }
+      return;
+    }
     let json = encode({ticloRequests: datas});
     Logger.trace(() => 'client send ' + json, this);
     this.remote.postMessage(json, '*');

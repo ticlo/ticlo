@@ -5,15 +5,17 @@ import {ServerConnection} from '../../core/connect/ServerConnection';
 import {Root} from '../../core/block/Block';
 
 export class FrameServerConnection extends ServerConnection {
+  checkClosedTimer: any;
   constructor(public remote: Window, root: Root) {
     super(root);
-    remote.addEventListener('message', this.onMessage);
+    this.checkClosedTimer = setInterval(this.checkClosed, 1000);
+    window.addEventListener('message', this.onMessage);
     this.onConnect();
   }
 
-  onClose = () => {
-    if (!this._destroyed) {
-      this.onDisconnect();
+  checkClosed = () => {
+    if (this.remote.closed && !this._destroyed) {
+      this.destroy();
     }
   };
 
@@ -35,6 +37,10 @@ export class FrameServerConnection extends ServerConnection {
 
   destroy() {
     super.destroy();
+    if (this.checkClosedTimer) {
+      clearInterval(this.checkClosedTimer);
+      this.checkClosedTimer = null;
+    }
     window.removeEventListener('message', this.onMessage);
   }
 }
