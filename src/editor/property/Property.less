@@ -96,12 +96,12 @@
     border-color: @border-disabled-color;
   }
 
-  & .ant-select-sm .ant-select-selection--multiple {
-    padding-bottom: 2px;
-    & .ant-select-selection__rendered li {
+  & .ant-select-sm.ant-select-multiple > .ant-select-selector {
+    padding: 1px;
+    & .ant-select-selection-item {
       height: 18px;
       margin: 2px 0 0 0;
-      line-height: 16px;
+      line-height: 18px;
       background: none;
       border: none;
       color: @primary-text-color;
