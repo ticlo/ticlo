@@ -33,6 +33,12 @@ export function loadTemplate<T extends Element>(element: any, style?: string): [
   return [ReactDOM.render(element, _lastTemplateDiv), _lastTemplateDiv];
 }
 
+export function expandDocumentBody() {
+  window.document.body.style.position = 'absolute';
+  window.document.body.style.width = '1000px';
+  window.document.body.style.height = '1000px';
+}
+
 // remove the last loaded template
 export function removeLastTemplate() {
   if (_lastTemplateDiv) {
@@ -42,6 +48,7 @@ export function removeLastTemplate() {
     }
     _lastTemplateDiv = null;
   }
+  window.onerror = null;
 }
 
 // replace "div.cls1.cls2" to div[contains(@class,'cls1')][contains(@class,'cls2')]

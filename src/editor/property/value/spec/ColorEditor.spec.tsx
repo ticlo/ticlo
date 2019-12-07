@@ -7,7 +7,7 @@ import {ColorEditor} from '../ColorEditor';
 import {shouldHappen} from '../../../../core/util/test-util';
 import {blankPropDesc, PropDesc} from '../../../../core/block/Descriptor';
 
-describe('SelectEditor', function() {
+describe('ColorEditor', function() {
   beforeEach(async function() {
     await initEditor();
   });

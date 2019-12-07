@@ -1,14 +1,21 @@
 import {assert} from 'chai';
 import SimulateEvent from 'simulate-event';
 import React from 'react';
-import {removeLastTemplate, loadTemplate, querySingle, fakeMouseEvent} from '../../../../ui/util/test-util';
+import {
+  removeLastTemplate,
+  loadTemplate,
+  querySingle,
+  fakeMouseEvent,
+  expandDocumentBody
+} from '../../../../ui/util/test-util';
 import {initEditor} from '../../../index';
 import {MultiSelectEditor, SelectEditor} from '../SelectEditor';
-import {shouldHappen} from '../../../../core/util/test-util';
+import {shouldHappen, waitTick} from '../../../../core/util/test-util';
 import {blankPropDesc, PropDesc} from '../../../../core/block/Descriptor';
 
 describe('SelectEditor', function() {
   beforeEach(async function() {
+    expandDocumentBody();
     await initEditor();
   });
 
@@ -27,6 +34,7 @@ describe('SelectEditor', function() {
     await shouldHappen(() => div.querySelector('.ant-select-selector'));
     let selectDiv = div.querySelector('.ant-select-selector');
 
+    window.onerror = function(e) {};
     SimulateEvent.simulate(selectDiv, 'mousedown');
     await shouldHappen(() => querySingle("//div.ant-select-item-option-content[text()='b']", document.body));
 
@@ -45,11 +53,14 @@ describe('SelectEditor', function() {
     await shouldHappen(() => div.querySelector('.ant-select-selector'));
     let selectDiv = div.querySelector('.ant-select-selector');
 
+    window.onerror = function(e) {};
     SimulateEvent.simulate(selectDiv, 'mousedown');
     await shouldHappen(() => querySingle("//div.ant-select-item-option-content[text()='b']", document.body));
 
     SimulateEvent.simulate(querySingle("//div.ant-select-item-option-content[text()='b']", document.body), 'click');
 
     assert.deepEqual(value, ['a', 'b']);
+
+    await waitTick();
   });
 });

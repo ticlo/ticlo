@@ -1,10 +1,10 @@
 import {assert} from 'chai';
 import SimulateEvent from 'simulate-event';
 import React from 'react';
-import {removeLastTemplate, loadTemplate, querySingle} from '../../../../ui/util/test-util';
+import {removeLastTemplate, loadTemplate, querySingle, expandDocumentBody} from '../../../../ui/util/test-util';
 import {initEditor} from '../../../index';
 import {WorkerEditor} from '../WorkerEditor';
-import {shouldHappen} from '../../../../core/util/test-util';
+import {shouldHappen, waitTick} from '../../../../core/util/test-util';
 import {blankPropDesc, PropDesc} from '../../../../core/block/Descriptor';
 import {makeLocalConnection} from '../../../../core/connect/LocalConnection';
 import {Root} from '../../../../core/block/Block';
@@ -14,6 +14,7 @@ import {Types} from '../../../../core/block/Type';
 
 describe('WorkerEditor', function() {
   beforeEach(async function() {
+    expandDocumentBody();
     await initEditor();
   });
 
@@ -41,6 +42,7 @@ describe('WorkerEditor', function() {
 
     await shouldHappen(() => querySingle("//div.ticl-tree-type/span[text()='WorkerEditor']", document.body));
 
+    window.onerror = function(e) {};
     SimulateEvent.simulate(
       querySingle("//div.ticl-tree-type/span[text()='WorkerEditor']/../div.ticl-tree-arr", document.body),
       'click'

@@ -29,7 +29,7 @@ describe('DateRangeEditor', function() {
     let dateRangeDiv = div.querySelector('.ticl-date-range-editor > span');
 
     // dont run the following test because of issue that karma skipping tests after this one
-    return;
+    window.onerror = function(e) {};
 
     SimulateEvent.simulate(dateRangeDiv, 'click');
 

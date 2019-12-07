@@ -37,7 +37,6 @@ describe('TypeEditor', function() {
     window.onerror = function(e) {};
     SimulateEvent.simulate(div.querySelector('.anticon-down'), 'click');
     await shouldHappen(() => querySingle("//div.ticl-tree-type/span[text()='math']", document.body));
-    window.onerror = null;
 
     SimulateEvent.simulate(
       querySingle("//div.ticl-tree-type/span[text()='math']/../div.ticl-tree-arr", document.body),
