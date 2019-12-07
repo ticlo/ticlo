@@ -1,9 +1,9 @@
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
-import {Menu, Icon, Dropdown, Button, Card} from 'antd';
-import {FunctionDesc} from '../../src/core/client';
+import {Block, FunctionDesc, Root} from '../../src/core/main';
 import {makeLocalConnection} from '../../src/core/connect/LocalConnection';
 import {TIcon} from '../../src/editor/icon/Icon';
+import {data} from '../sample-data/data';
 import {initEditor, PropertyList, BlockStage, NodeTree} from '../../src/editor';
 import {DragDropDiv, DragState, DockLayout, DockContextType} from 'rc-dock';
 import {ClientConnection} from '../../src/core/connect/ClientConnection';
@@ -22,9 +22,7 @@ import {TrackedClientConn} from '../../src/core/connect/TrackedClientConn';
 import {BlockStageTab} from '../../src/panel/block/BlockStageTab';
 import {Dispatcher, ValueDispatcher} from '../../src/core/block/Dispatcher';
 import {PropertyListPanel} from '../../src/panel/property/PropertyListPanel';
-import {ObjectTree} from '../../src/editor/object-tree/ObjectTree';
 import {ObjectTreePanel} from '../../src/panel/object-tree/ObjectTreePanel';
-import {WsBrowserConnection} from '../../src/browser/connect/WsBrowserConnection';
 
 const layoutGroups = {
   blockStage: {
@@ -121,6 +119,13 @@ class App extends React.PureComponent<Props, State> implements TicloLayoutContex
             size: 200,
             tabs: [
               {
+                id: 'PropertyList',
+                title: 'PropertyList',
+                cached: true,
+                cacheContext: TicloLayoutContextType,
+                content: <PropertyListPanel conn={conn} />
+              },
+              {
                 id: 'NavTree',
                 title: 'NavTree',
                 cached: true,
@@ -133,13 +138,6 @@ class App extends React.PureComponent<Props, State> implements TicloLayoutContex
                     style={{width: '100%', height: '100%', padding: '8px'}}
                   />
                 )
-              },
-              {
-                id: 'PropertyList',
-                title: 'PropertyList',
-                cached: true,
-                cacheContext: TicloLayoutContextType,
-                content: <PropertyListPanel conn={conn} />
               },
               {
                 id: 'Types',
@@ -181,7 +179,14 @@ class App extends React.PureComponent<Props, State> implements TicloLayoutContex
 
 (async () => {
   await initEditor();
-  let client = new WsBrowserConnection(`ws://127.0.0.1:8010/ticlo`);
+  let job = Root.instance.addJob('example');
+  job.load(data);
+
+  // create some global blocks
+  Root.instance._globalBlock.createBlock('^gAdd').setValue('#is', 'add');
+  Root.instance._globalBlock.createBlock('^gSub').setValue('#is', 'subtract');
+
+  let [server, client] = makeLocalConnection(Root.instance);
 
   ReactDOM.render(<App conn={client} />, document.getElementById('app'));
 })();
