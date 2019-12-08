@@ -67,8 +67,6 @@ export class BaseFunction {
   }
 }
 
-export const PureFunction = BaseFunction;
-
 export abstract class BlockFunction implements BaseFunction {
   _data: Block;
   priority: 0 | 1 | 2 | 3;

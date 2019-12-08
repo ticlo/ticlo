@@ -8,7 +8,7 @@ import {shouldHappen} from '../../util/test-util';
 import {JsFunction} from '../../functions/script/Js';
 import {Types} from '../../block/Type';
 import {DataMap} from '../../util/DataTypes';
-import {PureFunction} from '../../block/BlockFunction';
+import {BaseFunction} from '../../block/BlockFunction';
 import {addTestTypes, removeTestTypes} from './BulkTypes';
 
 describe('Connection Message Frames', function() {

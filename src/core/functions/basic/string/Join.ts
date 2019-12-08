@@ -1,8 +1,8 @@
 import {Types} from '../../../block/Type';
-import {PureFunction, FunctionData} from '../../../block/BlockFunction';
+import {BaseFunction, FunctionData} from '../../../block/BlockFunction';
 import {FunctionDesc} from '../../../block/Descriptor';
 
-export class JoinFunction extends PureFunction {
+export class JoinFunction extends BaseFunction {
   run(): any {
     let len = this._data.getLength();
     if (!(len >= 0)) {

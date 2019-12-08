@@ -1,7 +1,7 @@
-import {PureFunction} from '../../block/BlockFunction';
+import {BaseFunction} from '../../block/BlockFunction';
 import {Types} from '../../block/Type';
 
-class TestFunction extends PureFunction {}
+class TestFunction extends BaseFunction {}
 
 TestFunction.prototype.priority = 0;
 TestFunction.prototype.useLength = false;

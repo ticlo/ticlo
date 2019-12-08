@@ -1,5 +1,5 @@
 import {Types} from '../../../block/Type';
-import {PureFunction, FunctionData} from '../../../block/BlockFunction';
+import {BaseFunction, FunctionData} from '../../../block/BlockFunction';
 import {FunctionDesc} from '../../../block/Descriptor';
 
 const descriptorN: FunctionDesc = {
@@ -31,7 +31,7 @@ const descriptor2: FunctionDesc = {
   category: 'math'
 };
 
-export class AddFunction extends PureFunction {
+export class AddFunction extends BaseFunction {
   run(): any {
     let len = this._data.getLength();
     if (!(len >= 0)) {
@@ -61,7 +61,7 @@ Types.add(AddFunction, {
   order: 0
 });
 
-export class MultiplyFunction extends PureFunction {
+export class MultiplyFunction extends BaseFunction {
   run(): any {
     let len = this._data.getLength();
     if (!(len >= 0)) {
@@ -91,7 +91,7 @@ Types.add(MultiplyFunction, {
   order: 2
 });
 
-export class SubtractFunction extends PureFunction {
+export class SubtractFunction extends BaseFunction {
   run(): any {
     let v0 = this._data.getValue('0');
     let v1 = this._data.getValue('1');
@@ -110,7 +110,7 @@ Types.add(SubtractFunction, {
   order: 1
 });
 
-export class DivideFunction extends PureFunction {
+export class DivideFunction extends BaseFunction {
   run(): any {
     let v0 = this._data.getValue('0');
     let v1 = this._data.getValue('1');

@@ -1,5 +1,5 @@
 import {Types} from '../../../block/Type';
-import {PureFunction, FunctionData} from '../../../block/BlockFunction';
+import {BaseFunction, FunctionData} from '../../../block/BlockFunction';
 import {FunctionDesc} from '../../../block/Descriptor';
 
 const descriptor: FunctionDesc = {
@@ -14,7 +14,7 @@ const descriptor: FunctionDesc = {
   ]
 };
 
-export class EqualFunction extends PureFunction {
+export class EqualFunction extends BaseFunction {
   run(): any {
     let v0 = this._data.getValue('0');
     let v1 = this._data.getValue('1');
@@ -34,7 +34,7 @@ Types.add(EqualFunction, {
   ]
 });
 
-export class NotEqualFunction extends PureFunction {
+export class NotEqualFunction extends BaseFunction {
   run(): any {
     let v0 = this._data.getValue('0');
     let v1 = this._data.getValue('1');
@@ -53,7 +53,7 @@ Types.add(NotEqualFunction, {
   ]
 });
 
-export class NotFunction extends PureFunction {
+export class NotFunction extends BaseFunction {
   run(): any {
     let v0 = this._data.getValue('0');
     this._data.output(!Boolean(v0));
@@ -70,7 +70,7 @@ Types.add(NotFunction, {
   ]
 });
 
-export class GreaterThanFunction extends PureFunction {
+export class GreaterThanFunction extends BaseFunction {
   run(): any {
     let v0 = this._data.getValue('0');
     let v1 = this._data.getValue('1');
@@ -88,7 +88,7 @@ Types.add(GreaterThanFunction, {
   icon: 'fas:greater-than'
 });
 
-export class LessThanFunction extends PureFunction {
+export class LessThanFunction extends BaseFunction {
   run(): any {
     let v0 = this._data.getValue('0');
     let v1 = this._data.getValue('1');
@@ -106,7 +106,7 @@ Types.add(LessThanFunction, {
   icon: 'fas:less-than'
 });
 
-export class GreaterEqualFunction extends PureFunction {
+export class GreaterEqualFunction extends BaseFunction {
   run(): any {
     let v0 = this._data.getValue('0');
     let v1 = this._data.getValue('1');
@@ -124,7 +124,7 @@ Types.add(GreaterEqualFunction, {
   icon: 'fas:greater-than-equal'
 });
 
-export class LessEqualFunction extends PureFunction {
+export class LessEqualFunction extends BaseFunction {
   run(): any {
     let v0 = this._data.getValue('0');
     let v1 = this._data.getValue('1');

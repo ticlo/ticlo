@@ -1,5 +1,5 @@
 import {Types} from '../Type';
-import {BaseFunction, BlockFunction, PureFunction} from '../BlockFunction';
+import {BaseFunction, BlockFunction} from '../BlockFunction';
 import {BlockIO, BlockPropertyEvent} from '../BlockProperty';
 import {CompleteEvent, ErrorEvent, Event, EventType, WAIT} from '../Event';
 import {Dispatcher} from '../Dispatcher';
@@ -45,7 +45,7 @@ export class TestAsyncFunctionLog {
 }
 
 // async function that returns Promise
-export class TestAsyncFunctionPromise extends PureFunction {
+export class TestAsyncFunctionPromise extends BaseFunction {
   timeOut: any;
   reject: Function;
 
