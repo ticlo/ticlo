@@ -35,7 +35,7 @@ Types.add(
     icon: 'fab:react',
     properties: [
       {name: 'container', type: 'map'},
-      {name: 'component', type: 'map'},
+      {name: 'component', type: 'map'}
     ]
   },
   'react'
