@@ -30,13 +30,20 @@ export class JsFunction extends BlockFunction {
     return Boolean(this._runFunction);
   }
 
+  parseFunction(script: string): Function {
+    return new Function(script);
+  }
+  applyFunction(f: Function): any {
+    return f.apply(this._proxy);
+  }
+
   run(): any {
     if (this._runFunction == null) {
       if (this._compiledFunction == null) {
         let script = this._data.getValue('script');
         if (typeof script === 'string') {
           try {
-            this._compiledFunction = new Function(script);
+            this._compiledFunction = this.parseFunction(script);
           } catch (err) {
             return new ErrorEvent(SCRIPT_ERROR, err);
           }
@@ -48,7 +55,7 @@ export class JsFunction extends BlockFunction {
       }
       let rslt;
       try {
-        rslt = this._compiledFunction.apply(this._proxy);
+        rslt = this.applyFunction(this._compiledFunction);
       } catch (err) {
         this._compiledFunction = null;
         return new ErrorEvent(SCRIPT_ERROR, err);
@@ -63,7 +70,7 @@ export class JsFunction extends BlockFunction {
     }
     let rslt: any;
     try {
-      rslt = this._runFunction.apply(this._proxy);
+      rslt = this.applyFunction(this._runFunction);
     } catch (err) {
       return new ErrorEvent(SCRIPT_ERROR, err);
     }

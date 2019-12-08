@@ -112,12 +112,15 @@ export class ObjectTreeRenderer extends PureDataRenderer<Props, any> {
         child = <span className="ticl-string-value">{val}</span>;
         break;
       case 'object':
-        if (Array.isArray(val)) {
-          child = `[ ${val.length} ]`;
-        } else {
-          child = `{ ${Object.keys(val).length} }`;
+        if (val) {
+          if (Array.isArray(val)) {
+            child = `[ ${val.length} ]`;
+          } else {
+            child = `{ ${Object.keys(val).length} }`;
+          }
+          break;
         }
-        break;
+      // tslint:disable-next-line:no-switch-case-fall-through
       default:
         child = `${val}`;
     }

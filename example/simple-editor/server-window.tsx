@@ -4,7 +4,7 @@ import {data} from '../sample-data/data';
 import './sample-blocks';
 import {Logger} from '../../src/core/util/Logger';
 import {WorkerFunction} from '../../src/core/worker/WorkerFunction';
-import {FrameServerConnection} from '../../src/browser/connect/FrameServerConnection';
+import {FrameServerConnection} from '../../src/browser';
 
 WorkerFunction.registerType({'#is': ''}, {name: 'class1'}, 'WorkerEditor');
 

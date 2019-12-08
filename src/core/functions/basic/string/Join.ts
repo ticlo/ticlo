@@ -1,6 +1,5 @@
 import {Types} from '../../../block/Type';
 import {BaseFunction, FunctionData} from '../../../block/BlockFunction';
-import {FunctionDesc} from '../../../block/Descriptor';
 
 export class JoinFunction extends BaseFunction {
   run(): any {
