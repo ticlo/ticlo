@@ -20,6 +20,7 @@ export type ValueType =
   | 'js'
   | 'map'
   | 'array'
+  | 'none' // editor not allowed
   | 'any'
   // special editors
   | 'type'

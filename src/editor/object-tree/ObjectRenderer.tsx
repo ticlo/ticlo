@@ -4,6 +4,7 @@ import {ExpandIcon, ExpandState, TreeItem} from '../../ui/component/Tree';
 import {PureDataRenderer} from '../../ui/component/DataRenderer';
 import {DragDropDiv, DragState} from 'rc-dock/lib';
 import {TRUNCATED} from '../../core/util/DataTypes';
+import {displayNumber} from '../../ui/util/Types';
 
 export class ObjectTreeItem extends TreeItem<ObjectTreeItem> {
   childPrefix: string;
@@ -110,6 +111,9 @@ export class ObjectTreeRenderer extends PureDataRenderer<Props, any> {
           val = `${val.substr(0, 128)}${TRUNCATED}`;
         }
         child = <span className="ticl-string-value">{val}</span>;
+        break;
+      case 'number':
+        child = displayNumber(val);
         break;
       case 'object':
         if (val) {

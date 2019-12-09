@@ -8,6 +8,7 @@ import {Popup} from '../component/ClickPopup';
 import {ObjectTree} from '../object-tree/ObjectTree';
 import {ObjectTreePanel} from '../../panel/object-tree/ObjectTreePanel';
 import {TicloLayoutContext, TicloLayoutContextType} from '../component/LayoutContext';
+import {renderValue} from '../component/renderValue';
 
 interface Props {
   conn: ClientConn;
@@ -38,50 +39,29 @@ export class FieldValue extends LazyUpdateComponent<Props, any> {
     this.objectTreeShown = true;
   };
 
-  renderImpl() {
-    let {conn, path} = this.props;
-    let child: React.ReactNode;
-    let val = this.valueSub.value;
-    switch (typeof val) {
-      case 'string':
-        if (val.length > 512) {
-          val = `${val.substr(0, 128)}${TRUNCATED}`;
-        }
-        child = <span className="ticl-string-value">{val}</span>;
-        break;
-      case 'object':
-        child = encodeDisplay(val);
-        if (val && (Array.isArray(val) || val.constructor === Object)) {
-          child = (
-            <>
-              <div className="ticl-object-value">{child}</div>
-              {this.context && this.context.showObjectTree ? (
-                // use float panel if possible
-                <div className="ticl-tree-arr ticl-tree-arr-expand" onClick={this.onExpandObjectTree} />
-              ) : (
-                // show as popup menu
-                <Popup
-                  popup={this.getObjectMenu}
-                  popupAlign={{
-                    points: ['tl', 'tr'],
-                    offset: [-6, 0]
-                  }}
-                >
-                  <div className="ticl-tree-arr ticl-tree-arr-expand" />
-                </Popup>
-              )}
-            </>
-          );
-        }
-        break;
-      case 'number':
-        child = displayNumber(val);
-        break;
-      case 'undefined':
-        break;
-      default:
-        child = `${val}`;
+  getObjectPopup = (val: any) => {
+    if (this.context && this.context.showObjectTree) {
+      return (
+        // use float panel if possible
+        <div className="ticl-tree-arr ticl-tree-arr-expand" onClick={this.onExpandObjectTree} />
+      );
     }
+    return (
+      // show as popup menu
+      <Popup
+        popup={this.getObjectMenu}
+        popupAlign={{
+          points: ['tl', 'tr'],
+          offset: [-6, 0]
+        }}
+      >
+        <div className="ticl-tree-arr ticl-tree-arr-expand" />
+      </Popup>
+    );
+  };
+
+  renderImpl() {
+    let child = renderValue(this.valueSub.value, this.getObjectPopup);
     return <div className="ticl-field-value">{child}</div>;
   }
 

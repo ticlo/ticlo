@@ -26,6 +26,7 @@ import {ServiceEditor} from './value/ServiceEditor';
 import {WorkerEditor} from './value/WorkerEditor';
 import {getTailingNumber} from '../../core/util/String';
 import {DynamicEditor, dynamicEditorMap} from './value/DynamicEditor';
+import {ReadonlyEditor} from './value/ReadonlyEditor';
 
 const typeEditorMap: {[key: string]: any} = {
   ...dynamicEditorMap,
@@ -35,6 +36,7 @@ const typeEditorMap: {[key: string]: any} = {
   'radio-button': RadioButtonEditor,
   'type': TypeEditor,
   'worker': WorkerEditor,
+  'none': ReadonlyEditor,
   'any': DynamicEditor
 };
 
@@ -598,6 +600,9 @@ export class PropertyEditor extends MultiSelectComponent<Props, State, PropertyL
 
     let editor: React.ReactNode;
     let EditorClass = typeEditorMap[propDesc.type];
+    if (!EditorClass) {
+      EditorClass = ReadonlyEditor;
+    }
     if (EditorClass) {
       let editorValue = value;
       if (value === undefined && propDesc.default != null) {
