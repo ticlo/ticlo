@@ -2,7 +2,7 @@ import {ValueDispatcher, Listener, Dispatcher} from './Dispatcher';
 import {Block} from './Block';
 import {BlockBindingSource, BlockProperty} from './BlockProperty';
 
-export class BlockBinding extends ValueDispatcher<any> implements Listener<any>, BlockBindingSource {
+export class BlockBinding extends ValueDispatcher implements Listener, BlockBindingSource {
   private _block: Block;
   private _path: string;
   private _field: string;

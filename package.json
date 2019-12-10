@@ -14,7 +14,7 @@
   "dependencies": {
     "denque": "^1.4.1",
     "i18next": "^19.0.1",
-    "jsonesc": "^0.4.8",
+    "jsonesc": "^0.4.9",
     "moment": "^2.24.0",
     "moment-timezone": "^0.5.27",
     "qs": "^6.9.1"

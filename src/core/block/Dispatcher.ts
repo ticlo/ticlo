@@ -1,12 +1,12 @@
 import {Event, ErrorEvent, EventType} from './Event';
 
-export interface Listener<T> {
+export interface Listener<T = any> {
   onSourceChange?(prop: Dispatcher<T>): void;
 
   onChange(val: T): void;
 }
 
-export interface Dispatcher<T> {
+export interface Dispatcher<T = any> {
   listen(listener: Listener<T>): void;
 
   unlisten(listener: Listener<T>): void;
@@ -20,7 +20,7 @@ export interface Destroyable {
   isDestroyed(): boolean;
 }
 
-export class ValueDispatcher<T> implements Dispatcher<T> {
+export class ValueDispatcher<T = any> implements Dispatcher<T> {
   _listeners: Set<Listener<T>> = new Set<Listener<T>>();
   _updating = false;
   _value: T;

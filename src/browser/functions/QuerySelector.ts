@@ -8,7 +8,7 @@ export class QuerySelectorFunction extends BaseFunction {
     let parent = this._data.getValue('parent');
     let query = this._data.getValue('query');
     if (query) {
-      if (parent === null) {
+      if (parent === 'document') {
         parent = document;
       } else if (!(parent instanceof Element)) {
         parent = null;
@@ -33,8 +33,8 @@ Types.add(
     name: 'query-selector',
     icon: 'fab:html5',
     properties: [
-      {name: 'parent', type: 'none', init: null},
-      {name: 'query', type: 'string'},
+      {name: 'parent', type: 'none', init: 'document'},
+      {name: 'query', type: 'string', visible: 'high'},
       {name: 'output', type: 'none', readonly: true}
     ]
   },

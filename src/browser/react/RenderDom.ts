@@ -1,6 +1,7 @@
 import ReactDOM from 'react-dom';
 import {BaseFunction} from '../../core/block/BlockFunction';
 import {Types} from '../../core/block/Type';
+import {ErrorEvent} from '../../core/block/Event';
 
 export class RenderDomFunction extends BaseFunction {
   _container: Element;
@@ -16,7 +17,11 @@ export class RenderDomFunction extends BaseFunction {
     }
     this._container = container;
     if (container) {
-      ReactDOM.render(component, container);
+      try {
+        ReactDOM.render(component, container);
+      } catch (e) {
+        return new ErrorEvent('error', e);
+      }
     }
   }
 

@@ -74,7 +74,7 @@ export abstract class BlockFunction implements BaseFunction {
   // whether the #len property is used
   useLength: boolean;
 
-  constructor(block?: Block) {
+  constructor(block: Block) {
     this._data = block;
   }
   initInputs() {

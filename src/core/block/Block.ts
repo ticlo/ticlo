@@ -805,6 +805,10 @@ export class Block implements Runnable, FunctionData, Listener<FunctionClass>, D
   isDestroyed() {
     return this._destroyed;
   }
+
+  toJsonEsc() {
+    return `\u001b:Block ${this._prop._name} (${this._blockId})`;
+  }
 }
 
 export class Job extends Block {
@@ -938,6 +942,10 @@ export class Job extends Block {
 
   set onResolved(func: () => void) {
     this._resolver.onResolved = func;
+  }
+
+  toJsonEsc() {
+    return `\u001b:Job ${this._prop._name}#${this._blockId}`;
   }
 }
 
