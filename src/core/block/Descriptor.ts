@@ -258,3 +258,13 @@ export function getDefaultDataFromMore(more: (PropDesc | PropGroupDesc)[]) {
   initBlockProperties(data, more);
   return data;
 }
+
+export function getOutputDesc(desc: FunctionDesc): PropDesc {
+  if (desc && desc.properties.length) {
+    let last = desc.properties[desc.properties.length - 1];
+    if (last.name === 'output' && last.type !== 'group') {
+      return last;
+    }
+    return null;
+  }
+}

@@ -4,7 +4,7 @@ import DeleteIcon from '@ant-design/icons/DeleteOutlined';
 import EditIcon from '@ant-design/icons/EditOutlined';
 import LockIcon from '@ant-design/icons/LockOutlined';
 import LockFilledIcon from '@ant-design/icons/LockFilled';
-import {ClientConn, ValueState, ValueUpdate} from '../../core/client';
+import {ClientConn, getOutputDesc, ValueState, ValueUpdate} from '../../core/client';
 import {blankPropDesc, FunctionDesc, getDefaultFuncData, PropDesc, PropGroupDesc} from '../../core/block/Descriptor';
 import {translateProperty} from '../../core/util/i18n';
 import {MultiSelectComponent, MultiSelectLoader} from './MultiSelectComponent';
@@ -266,8 +266,12 @@ export class PropertyEditor extends MultiSelectComponent<Props, State, PropertyL
       // check drag from type
       let blockData = DragState.getData('blockData', conn.getBaseConn());
       if (blockData && blockData['#is']) {
-        e.accept('tico-fas-plus-square');
-        return;
+        let desc = conn.watchDesc(blockData['#is']);
+        let outProp = getOutputDesc(desc);
+        if (outProp) {
+          e.accept('tico-fas-plus-square');
+          return;
+        }
       }
     }
     e.reject();
