@@ -217,6 +217,7 @@ export class PropertyEditor extends MultiSelectComponent<Props, State, PropertyL
   onDragOver = (e: DragState) => {
     let {conn, keys, name, propDesc, isMore, group, baseName} = this.props;
     if (e.dragType === 'right') {
+      // check reorder drag with right click
       let moveFromKeys: string[] = DragState.getData('keys', conn.getBaseConn());
       if (deepEqual(moveFromKeys, keys)) {
         let isLen = group != null && name.endsWith('#len');
@@ -251,6 +252,7 @@ export class PropertyEditor extends MultiSelectComponent<Props, State, PropertyL
         }
       }
     } else {
+      // check drag from property
       let dragFields: string[] = DragState.getData('fields', conn.getBaseConn());
       if (Array.isArray(dragFields)) {
         if (!propDesc.readonly && (dragFields.length === 1 || dragFields.length === keys.length)) {
@@ -261,12 +263,19 @@ export class PropertyEditor extends MultiSelectComponent<Props, State, PropertyL
           }
         }
       }
+      // check drag from type
+      let blockData = DragState.getData('blockData', conn.getBaseConn());
+      if (blockData && blockData['#is']) {
+        e.accept('tico-fas-plus-square');
+        return;
+      }
     }
     e.reject();
   };
   onDrop = (e: DragState) => {
     let {conn, keys, name, isMore, group, baseName} = this.props;
     if (e.dragType === 'right') {
+      // check reorder drag with right click
       let isLen = group != null && name.endsWith('#len');
       let fromGroup = DragState.getData('fromGroup', conn.getBaseConn());
       let moveFromKeys: string[] = DragState.getData('keys', conn.getBaseConn());
@@ -299,6 +308,7 @@ export class PropertyEditor extends MultiSelectComponent<Props, State, PropertyL
         }
       }
     } else {
+      // check drag from property
       let dragFields: string[] = DragState.getData('fields', conn.getBaseConn());
       if (Array.isArray(dragFields)) {
         let fields = keys.map((s) => `${s}.${name}`);
@@ -315,6 +325,13 @@ export class PropertyEditor extends MultiSelectComponent<Props, State, PropertyL
             }
           }
         }
+        return;
+      }
+      // check drag from type
+      let blockData = DragState.getData('blockData', conn.getBaseConn());
+      if (blockData && blockData['#is']) {
+        this.onAddSubBlock(blockData['#is'], null, blockData);
+        return;
       }
     }
   };
@@ -385,7 +402,7 @@ export class PropertyEditor extends MultiSelectComponent<Props, State, PropertyL
         if (!bindingPath) {
           menuItems.push(
             <SubMenuItem
-              key="addSubBlkock"
+              key="addSubBlock"
               popup={
                 // <Menu.Item className='ticl-type-submenu'>
                 <TypeSelect onClick={stopPropagation} conn={conn} showPreset={true} onTypeClick={this.onAddSubBlock} />
@@ -500,7 +517,7 @@ export class PropertyEditor extends MultiSelectComponent<Props, State, PropertyL
     for (let key of keys) {
       conn.createBlock(`${key}.~${name}`, data);
     }
-    this.closeMenu();
+    this.setState({showMenu: false, showSubBlock: true});
   };
   onShowHide = (e: CheckboxChangeEvent) => {
     let {conn, keys, name} = this.props;
