@@ -5,6 +5,7 @@ import {PureDataRenderer} from '../../ui/component/DataRenderer';
 import {DragDropDiv, DragState} from 'rc-dock/lib';
 import {TRUNCATED} from '../../core/util/DataTypes';
 import {displayNumber} from '../../ui/util/Types';
+import {encodeDisplay} from '../../core/util/Serialize';
 
 export class ObjectTreeItem extends TreeItem<ObjectTreeItem> {
   childPrefix: string;
@@ -119,8 +120,10 @@ export class ObjectTreeRenderer extends PureDataRenderer<Props, any> {
         if (val) {
           if (Array.isArray(val)) {
             child = `[ ${val.length} ]`;
-          } else {
+          } else if (val.constructor === Object) {
             child = `{ ${Object.keys(val).length} }`;
+          } else {
+            child = encodeDisplay(val);
           }
           break;
         }

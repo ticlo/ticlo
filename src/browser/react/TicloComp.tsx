@@ -1,18 +1,10 @@
 import React from 'react';
 import {Block} from '../../core/block/Block';
 import {Dispatcher} from '../../core/block/Dispatcher';
-
-const reactTypeof = ((<div />) as any).$$typeof;
+import {validateReactComponent} from './validateReactComponent';
 
 interface Props {
   block: Block;
-}
-
-export function validateReactComponent(component: any) {
-  if (typeof component === 'object' && !(Object.isExtensible(component) || component.$$typeof !== reactTypeof)) {
-    return null;
-  }
-  return component;
 }
 
 export class TicloComp extends React.Component<Props, any> {

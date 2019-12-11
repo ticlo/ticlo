@@ -807,7 +807,7 @@ export class Block implements Runnable, FunctionData, Listener<FunctionClass>, D
   }
 
   toJsonEsc() {
-    return `\u001b:Block ${this._prop._name} (${this._blockId})`;
+    return `\u001b:Block ${this._prop._name}#${this._blockId}`;
   }
 }
 
