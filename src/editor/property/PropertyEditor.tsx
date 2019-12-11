@@ -437,7 +437,7 @@ export class PropertyEditor extends MultiSelectComponent<Props, State, PropertyL
           </div>
         );
 
-        if (value || bindingPath) {
+        if (value !== undefined || bindingPath) {
           menuItems.push(
             <Button key="clear" shape="round" onClick={this.onClear}>
               Clear
