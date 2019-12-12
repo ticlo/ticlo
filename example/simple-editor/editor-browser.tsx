@@ -151,7 +151,7 @@ class App extends React.PureComponent<Props, State> implements TicloLayoutContex
           },
           {
             size: 800,
-            tabs: [this.createBlockEditorTab('example'), this.createBlockEditorTab('example')],
+            tabs: [this.createBlockEditorTab('example')],
             id: 'main',
             panelLock: {panelStyle: 'main'}
           }

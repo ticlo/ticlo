@@ -1,6 +1,7 @@
 import {Block, FunctionDesc, Root} from '../../src/core/main';
 import {makeLocalConnection} from '../../src/core/connect/LocalConnection';
 import {data} from '../sample-data/data';
+import reactData from '../sample-data/react';
 import './sample-blocks';
 import {Logger} from '../../src/core/util/Logger';
 import {WorkerFunction} from '../../src/core/worker/WorkerFunction';
@@ -9,8 +10,11 @@ import {FrameServerConnection} from '../../src/browser';
 WorkerFunction.registerType({'#is': ''}, {name: 'class1'}, 'WorkerEditor');
 
 (async () => {
-  let job = Root.instance.addJob('example');
-  job.load(data);
+  let reactJob = Root.instance.addJob('example');
+  reactJob.load(reactData);
+
+  let generalJob = Root.instance.addJob('example0');
+  generalJob.load(data);
 
   // create some global blocks
   Root.instance._globalBlock.createBlock('^gAdd').setValue('#is', 'add');
