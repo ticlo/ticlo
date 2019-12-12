@@ -69,7 +69,7 @@ export class Block implements Runnable, FunctionData, Listener<FunctionClass>, D
     return Block._uid.next();
   }
 
-  _blockId = Block.nextUid();
+  _blockId = Block.nextUid().padStart(3, '0');
 
   _job: Job;
   _parent: Block;
