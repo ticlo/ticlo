@@ -31,10 +31,10 @@ export class JsFunction extends BlockFunction {
   }
 
   parseFunction(script: string): Function {
-    return new Function(script);
+    return new Function('__block__', script);
   }
   applyFunction(f: Function): any {
-    return f.apply(this._proxy);
+    return f.call(this._proxy, this._data);
   }
 
   run(): any {

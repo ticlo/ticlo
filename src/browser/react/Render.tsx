@@ -19,10 +19,10 @@ export class RenderFunction extends JsFunction {
       let toTransform = `"use strict";function F_(React){${script}}`;
       script = Babel.transform(toTransform, {presets: ['es2017', 'react']}).code.substring(34);
     }
-    return new Function('React', script);
+    return new Function('React', '__block__', script);
   }
   applyFunction(f: Function): any {
-    let result = f.call(this._proxy, React);
+    let result = f.call(this._proxy, React, this._data);
     if (this._runFunction || typeof result !== 'function') {
       // output when runFunction is ready
       this._data.output(result, '#render');
