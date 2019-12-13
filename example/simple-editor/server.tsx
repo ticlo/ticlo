@@ -9,6 +9,15 @@ import {FrameServerConnection} from '../../src/browser';
 
 WorkerFunction.registerType({'#is': ''}, {name: 'class1'}, 'WorkerEditor');
 
+let editors: Window[] = [];
+window.addEventListener('beforeunload', () => {
+  for (let editor of editors) {
+    if (!editor.closed) {
+      editor.close();
+    }
+  }
+});
+
 (async () => {
   let reactJob = Root.instance.addJob('example');
   reactJob.load(reactData);
@@ -24,6 +33,7 @@ WorkerFunction.registerType({'#is': ''}, {name: 'class1'}, 'WorkerEditor');
 
   document.querySelector('button').addEventListener('click', () => {
     let w = window.open('./editor-browser.html', '_blank');
+    editors.push(w);
     // tslint:disable-next-line:no-unused-expression
     new FrameServerConnection(w, Root.instance);
   });
