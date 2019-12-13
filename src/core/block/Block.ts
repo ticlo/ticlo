@@ -69,7 +69,7 @@ export class Block implements Runnable, FunctionData, Listener<FunctionClass>, D
     return Block._uid.next();
   }
 
-  _blockId = Block.nextUid().padStart(3, '0');
+  _blockId: string;
 
   _job: Job;
   _parent: Block;
@@ -106,6 +106,7 @@ export class Block implements Runnable, FunctionData, Listener<FunctionClass>, D
     this._job = job;
     this._parent = parent;
     this._prop = prop;
+    this._blockId = `${prop?._name}#${Block.nextUid().padStart(3, '0')}`;
     // #is should always be initialized
     this.getProperty('#is');
   }
@@ -807,7 +808,7 @@ export class Block implements Runnable, FunctionData, Listener<FunctionClass>, D
   }
 
   toJsonEsc() {
-    return `\u001b:Block ${this._prop._name}#${this._blockId}`;
+    return `\u001b:Block ${this._blockId}`;
   }
 }
 
@@ -945,7 +946,7 @@ export class Job extends Block {
   }
 
   toJsonEsc() {
-    return `\u001b:Job ${this._prop._name}#${this._blockId}`;
+    return `\u001b:Job ${this._blockId}`;
   }
 }
 

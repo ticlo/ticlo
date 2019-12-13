@@ -9,7 +9,7 @@ export class JsxFunction extends JsFunction {
   readonly _comp: React.ReactNode;
   constructor(block: Block) {
     super(block);
-    this._comp = <TicloComp key={`${block._prop._name}#${block._blockId}`} block={block} />;
+    this._comp = <TicloComp key={block._blockId} block={block} />;
     this._data.output(this._comp);
   }
 
