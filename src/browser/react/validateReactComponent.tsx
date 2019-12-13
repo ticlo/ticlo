@@ -12,7 +12,7 @@ function validateSingleComponent(component: any) {
 export function validateReactComponent(component: any) {
   if (component == null) {
     return '';
-  } else if (component && typeof component === 'object') {
+  } else if (typeof component === 'object') {
     if (Array.isArray(component)) {
       let result: any[] = [];
       for (let child of component) {
@@ -27,6 +27,9 @@ export function validateReactComponent(component: any) {
       return '';
     }
   }
-
   return component;
+}
+
+export function isReactComponent(component: any) {
+  return component && typeof component === 'object' && component.$$typeof === reactTypeof;
 }

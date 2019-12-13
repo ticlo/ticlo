@@ -5,7 +5,7 @@ import {Block} from '../../core/block/Block';
 import {TicloComp} from './TicloComp';
 import {validateReactComponent} from './validateReactComponent';
 
-export class RenderFunction extends JsFunction {
+export class JsxFunction extends JsFunction {
   readonly _comp: React.ReactNode;
   constructor(block: Block) {
     super(block);
@@ -33,9 +33,9 @@ export class RenderFunction extends JsFunction {
 }
 
 Types.add(
-  RenderFunction,
+  JsxFunction,
   {
-    name: 'render',
+    name: 'jsx',
     icon: 'fab:react',
     properties: [
       {
