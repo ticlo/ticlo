@@ -1,7 +1,7 @@
 import {assert} from 'chai';
 import SimulateEvent from 'simulate-event';
 import React from 'react';
-import {removeLastTemplate, loadTemplate, querySingle} from '../../../../ui/util/test-util';
+import {removeLastTemplate, loadTemplate, querySingle, fakeMouseEvent} from '../../../../ui/util/test-util';
 import {initEditor} from '../../../index';
 import {DateRangeEditor} from '../DateRangeEditor';
 import {shouldHappen, waitTick} from '../../../../core/util/test-util';
@@ -22,21 +22,21 @@ describe('DateRangeEditor', function() {
     let onChange = (v: Moment[]) => {
       values = v;
     };
-    let desc: PropDesc = {name: '', type: 'date-range', showTime: true};
+    let desc: PropDesc = {name: '', type: 'date-range', showTime: false};
     let [component, div] = loadTemplate(<DateRangeEditor value={null} desc={desc} onChange={onChange} />, 'editor');
 
-    await shouldHappen(() => div.querySelector('.ticl-date-range-editor > span'));
-    let dateRangeDiv = div.querySelector('.ticl-date-range-editor > span');
+    await shouldHappen(() => div.querySelector('.ticl-date-range-editor > div'));
+    let dateRangeDiv = div.querySelector('.ticl-date-range-editor > div');
 
     // dont run the following test because of issue that karma skipping tests after this one
     window.onerror = function(e) {};
 
-    SimulateEvent.simulate(dateRangeDiv, 'click');
+    SimulateEvent.simulate(dateRangeDiv.querySelector('input'), 'mousedown', fakeMouseEvent());
 
-    await shouldHappen(() => document.querySelector('.ant-calendar-date'));
+    await shouldHappen(() => document.querySelector('.ant-picker-panels'));
 
-    let dateCell = document.querySelector('.ant-calendar-date');
-    let dateStr = dateCell.parentElement.title;
+    let dateCell = document.querySelector('.ant-picker-cell-today');
+    let dateStr = (dateCell as HTMLElement).title;
     // click twice
     SimulateEvent.simulate(dateCell, 'click');
     SimulateEvent.simulate(dateCell, 'click');

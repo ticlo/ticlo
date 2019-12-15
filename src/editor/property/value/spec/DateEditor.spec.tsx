@@ -1,10 +1,10 @@
 import {assert} from 'chai';
 import SimulateEvent from 'simulate-event';
 import React from 'react';
-import {removeLastTemplate, loadTemplate, querySingle} from '../../../../ui/util/test-util';
+import {removeLastTemplate, loadTemplate, querySingle, fakeMouseEvent} from '../../../../ui/util/test-util';
 import {initEditor} from '../../../index';
 import {DateEditor} from '../DateEditor';
-import {shouldHappen} from '../../../../core/util/test-util';
+import {shouldHappen, waitTick} from '../../../../core/util/test-util';
 import {blankPropDesc, PropDesc} from '../../../../core/block/Descriptor';
 import {Moment, now} from 'moment';
 
@@ -27,17 +27,17 @@ describe('DateEditor', function() {
 
     await shouldHappen(() => div.querySelector('.ticl-date-editor > div'));
     let editorDiv = div.querySelector('.ticl-date-editor > div');
-
+    await waitTick();
     let inputDiv = editorDiv.querySelector('input');
 
     // test if string input is converted to moment
     assert.equal(inputDiv.value, '2019-01-01');
 
-    SimulateEvent.simulate(editorDiv, 'click');
+    SimulateEvent.simulate(inputDiv, 'mousedown', fakeMouseEvent());
 
-    await shouldHappen(() => document.querySelector('.ant-calendar-today-btn'));
+    await shouldHappen(() => document.querySelector('.ant-picker-today-btn'));
 
-    SimulateEvent.simulate(document.querySelector('.ant-calendar-today-btn'), 'click');
+    SimulateEvent.simulate(document.querySelector('.ant-picker-today-btn'), 'click');
 
     await shouldHappen(() => value != null);
     let valueNow = now();
