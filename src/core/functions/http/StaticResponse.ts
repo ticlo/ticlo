@@ -32,7 +32,7 @@ Types.add(
     mode: 'onCall',
     properties: [
       {name: 'data', type: 'any'},
-      {name: 'headers', type: 'map'},
+      {name: 'headers', type: 'object'},
       {name: 'status', type: 'number', min: 200, max: 999, step: 1, default: 200}
     ]
   },

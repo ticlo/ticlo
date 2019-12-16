@@ -39,8 +39,8 @@ Types.add(CreateObjectFunction, {
   name: 'create-object',
   icon: 'txt:{ }',
   properties: [
-    {name: '#spread', type: 'map'},
-    {name: 'output', type: 'map', readonly: true}
+    {name: '#spread', type: 'object'},
+    {name: 'output', type: 'object', readonly: true}
   ],
   order: 0
 });

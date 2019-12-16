@@ -45,7 +45,7 @@ Types.add(
       },
       {
         name: 'output',
-        type: 'map',
+        type: 'object',
         readonly: true
       }
     ]

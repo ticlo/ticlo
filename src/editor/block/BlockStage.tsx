@@ -115,7 +115,6 @@ export class BlockStage extends BlockStageBase<StageState> {
     let result2 = document.querySelectorAll(
       'body>div:not([id])>div>div.ant-picker-dropdown:not(.ant-picker-dropdown-hidden):not(.slide-up-leave)'
     );
-    console.log(result2[0]?.className);
     return result1.length + result2.length;
   }
 

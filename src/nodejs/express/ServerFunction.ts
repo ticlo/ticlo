@@ -152,7 +152,7 @@ Types.add(
   {
     name: 'express-server',
     icon: 'fas:network-wired',
-    properties: [{name: 'output', type: 'map', readonly: true}],
+    properties: [{name: 'output', type: 'object', readonly: true}],
     tags: ['route-server']
   },
   'http'

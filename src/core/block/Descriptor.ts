@@ -18,7 +18,7 @@ export type ValueType =
   | 'date-range'
   | 'password'
   | 'js'
-  | 'map'
+  | 'object'
   | 'array'
   | 'none' // editor not allowed
   | 'any'

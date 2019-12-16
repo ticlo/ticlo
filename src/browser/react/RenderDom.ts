@@ -37,8 +37,8 @@ Types.add(
     name: 'render-dom',
     icon: 'fab:react',
     properties: [
-      {name: 'container', type: 'map'},
-      {name: 'component', type: 'map'}
+      {name: 'container', type: 'object'},
+      {name: 'component', type: 'object'}
     ]
   },
   'react'

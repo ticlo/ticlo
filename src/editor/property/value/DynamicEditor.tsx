@@ -12,7 +12,7 @@ import {DateRangeEditor} from './DateRangeEditor';
 import {isColorStr} from '../../../core/util/String';
 import {ClickParam} from 'antd/lib/menu';
 
-const defaultTypes: ValueType[] = ['string', 'number', 'toggle', 'color', 'date', 'date-range', 'map', 'array'];
+const defaultTypes: ValueType[] = ['string', 'number', 'toggle', 'color', 'date', 'date-range', 'object', 'array'];
 
 export const dynamicEditorMap: {[key: string]: any} = {
   'number': NumberEditor,
@@ -71,7 +71,7 @@ export class DynamicEditor extends React.PureComponent<ValueEditorProps, State> 
           }
           return 'array';
         }
-        return 'map';
+        return 'object';
       }
       case 'string': {
         if (isColorStr(value)) {
