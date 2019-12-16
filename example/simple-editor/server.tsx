@@ -5,7 +5,7 @@ import reactData from '../sample-data/react';
 import './sample-blocks';
 import {Logger} from '../../src/core/util/Logger';
 import {WorkerFunction} from '../../src/core/worker/WorkerFunction';
-import {FrameServerConnection} from '../../src/browser';
+import {FrameServerConnection} from '../../src/browser/react';
 
 WorkerFunction.registerType({'#is': ''}, {name: 'class1'}, 'WorkerEditor');
 
