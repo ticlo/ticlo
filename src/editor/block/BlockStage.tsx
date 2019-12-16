@@ -109,9 +109,14 @@ export class BlockStage extends BlockStageBase<StageState> {
   _popupCount = 0;
 
   static findOpenPopups() {
-    return document.querySelectorAll(
+    let result1 = document.querySelectorAll(
       'body>div:not([id])>div>div.ant-select-dropdown:not(.ant-select-dropdown-hidden):not(.slide-up-leave)'
     );
+    let result2 = document.querySelectorAll(
+      'body>div:not([id])>div>div.ant-picker-dropdown:not(.ant-picker-dropdown-hidden):not(.slide-up-leave)'
+    );
+    console.log(result2[0]?.className);
+    return result1.length + result2.length;
   }
 
   onSelectRectDragStart = (e: DragState) => {
@@ -120,7 +125,7 @@ export class BlockStage extends BlockStageBase<StageState> {
       this._dragingSelect = [(e.clientX - rect.left) * e.component.scaleX, (e.clientY - rect.top) * e.component.scaleY];
       e.startDrag(null, null);
       this._selectRectNode.style.display = 'block';
-      this._popupCount = BlockStage.findOpenPopups().length;
+      this._popupCount = BlockStage.findOpenPopups();
     }
   };
 
@@ -137,7 +142,7 @@ export class BlockStage extends BlockStageBase<StageState> {
     // if e==null, then the dragging is canceled
     if (e && e.event) {
       // when single click blank area closed some popups, skip the de-selecting
-      if (!(e.dx === 0 && e.dy === 0 && this._popupCount > 0 && BlockStage.findOpenPopups().length === 0)) {
+      if (!(e.dx === 0 && e.dy === 0 && this._popupCount > 0 && BlockStage.findOpenPopups() === 0)) {
         let [x1, y1] = this._dragingSelect;
         let x2 = e.dx + x1;
         let y2 = e.dy + y1;
