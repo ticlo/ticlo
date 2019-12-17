@@ -211,19 +211,19 @@ export class NodeTreeRenderer extends PureDataRenderer<Props, any> {
   renderImpl() {
     let {item, style, selected} = this.props;
     let marginLeft = item.level * 20;
-    let className = 'ticl-tree-node';
+    let contentClassName = 'ticl-tree-node-content';
     if (selected) {
-      className += ' ticl-tree-node-selected';
+      contentClassName += ' ticl-tree-node-selected';
     }
     return (
-      <div style={{...style, marginLeft}} className={className}>
+      <div style={{...style, marginLeft}} className='ticl-tree-node'>
         <ExpandIcon opened={item.opened} onClick={this.onExpandClicked} />
-        <TIcon icon={this.desc.icon} style={getFuncStyleFromDesc(this.desc, 'tico-pr')} />
-        <Dropdown overlay={this.getMenu} trigger={['contextMenu']}>
-          <div className="ticl-tree-node-text" onClick={this.onClick}>
-            {item.name}
-          </div>
-        </Dropdown>
+        <div className={contentClassName} onClick={this.onClick}>
+          <TIcon icon={this.desc.icon} style={getFuncStyleFromDesc(this.desc, 'tico-pr')} />
+          <Dropdown overlay={this.getMenu} trigger={['contextMenu']}>
+            <div className="ticl-tree-node-text">{item.name}</div>
+          </Dropdown>
+        </div>
       </div>
     );
   }
