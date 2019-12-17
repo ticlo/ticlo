@@ -123,7 +123,7 @@ interface Props {
   item: NodeTreeItem;
   style: React.CSSProperties;
   selected: boolean;
-  onClick: (item: NodeTreeItem, ctrl: boolean) => void;
+  onClick: (item: NodeTreeItem, event: React.MouseEvent) => void;
 }
 
 export class NodeTreeRenderer extends PureDataRenderer<Props, any> {
@@ -182,8 +182,8 @@ export class NodeTreeRenderer extends PureDataRenderer<Props, any> {
     this.forceUpdate();
   };
 
-  onClick = (e: React.MouseEvent) => {
-    this.props.onClick(this.props.item, e.ctrlKey);
+  onClickContent = (e: React.MouseEvent) => {
+    this.props.onClick(this.props.item, e);
   };
 
   getMenu = () => {
@@ -216,14 +216,14 @@ export class NodeTreeRenderer extends PureDataRenderer<Props, any> {
       contentClassName += ' ticl-tree-node-selected';
     }
     return (
-      <div style={{...style, marginLeft}} className='ticl-tree-node'>
+      <div style={{...style, marginLeft}} className="ticl-tree-node">
         <ExpandIcon opened={item.opened} onClick={this.onExpandClicked} />
-        <div className={contentClassName} onClick={this.onClick}>
-          <TIcon icon={this.desc.icon} style={getFuncStyleFromDesc(this.desc, 'tico-pr')} />
-          <Dropdown overlay={this.getMenu} trigger={['contextMenu']}>
+        <Dropdown overlay={this.getMenu} trigger={['contextMenu']}>
+          <div className={contentClassName} onClick={this.onClickContent}>
+            <TIcon icon={this.desc.icon} style={getFuncStyleFromDesc(this.desc, 'tico-pr')} />
             <div className="ticl-tree-node-text">{item.name}</div>
-          </Dropdown>
-        </div>
+          </div>
+        </Dropdown>
       </div>
     );
   }

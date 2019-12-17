@@ -23,13 +23,13 @@ export class NodeTree extends LazyUpdateComponent<Props, any> {
   rootList: NodeTreeItem[] = [];
   list: NodeTreeItem[] = [];
 
-  onItemClick = (item: NodeTreeItem, ctrl: boolean) => {
+  onItemClick = (item: NodeTreeItem, event: React.MouseEvent) => {
     let {selectedKeys, onSelect} = this.props;
     if (!onSelect) {
       return;
     }
     let keys = [...selectedKeys];
-    if (ctrl) {
+    if (event.ctrlKey) {
       if (keys.includes(item.key)) {
         keys = keys.filter((value) => value !== item.key);
       } else {
