@@ -11,6 +11,7 @@ export type ValueType =
   | 'toggle'
   | 'select'
   | 'multi-select'
+  | 'combo-box'
   | 'radio-button'
   | 'color'
   | 'event'

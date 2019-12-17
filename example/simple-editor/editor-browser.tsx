@@ -113,16 +113,16 @@ class App extends React.PureComponent<Props, State> implements TicloLayoutContex
             size: 200,
             tabs: [
               {
-                id: 'NavTree',
-                title: 'NavTree',
+                id: 'Types',
+                title: 'Types',
                 cached: true,
-                cacheContext: TicloLayoutContextType,
                 content: (
-                  <NodeTree
+                  <TypeTree
                     conn={conn}
-                    basePaths={['']}
-                    hideRoot={true}
-                    style={{width: '100%', height: '100%', padding: '8px'}}
+                    style={{height: '100%'}}
+                    onTypeClick={(name: string, desc: FunctionDesc, data: any) => {
+                      console.log(name, desc, data);
+                    }}
                   />
                 )
               },
@@ -134,16 +134,16 @@ class App extends React.PureComponent<Props, State> implements TicloLayoutContex
                 content: <PropertyListPanel conn={conn} />
               },
               {
-                id: 'Types',
-                title: 'Types',
+                id: 'NavTree',
+                title: 'NavTree',
                 cached: true,
+                cacheContext: TicloLayoutContextType,
                 content: (
-                  <TypeTree
+                  <NodeTree
                     conn={conn}
-                    style={{height: '100%'}}
-                    onTypeClick={(name: string, desc: FunctionDesc, data: any) => {
-                      console.log(name, desc, data);
-                    }}
+                    basePaths={['']}
+                    hideRoot={true}
+                    style={{width: '100%', height: '100%', padding: '8px'}}
                   />
                 )
               }

@@ -27,11 +27,13 @@ import {WorkerEditor} from './value/WorkerEditor';
 import {getTailingNumber} from '../../core/util/String';
 import {DynamicEditor, dynamicEditorMap} from './value/DynamicEditor';
 import {ReadonlyEditor} from './value/ReadonlyEditor';
+import {ComboEditor} from './value/ComboEditor';
 
 const typeEditorMap: {[key: string]: any} = {
   ...dynamicEditorMap,
   'select': SelectEditor,
   'multi-select': MultiSelectEditor,
+  'combo-box': ComboEditor,
   'password': PasswordEditor,
   'radio-button': RadioButtonEditor,
   'type': TypeEditor,

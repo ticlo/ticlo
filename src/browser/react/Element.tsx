@@ -122,9 +122,8 @@ Types.add(
       },
       {
         name: 'target',
-        type: 'select',
-        options: ['', '_blank', '_self', '_parent', '_top'],
-        default: '',
+        type: 'combo-box',
+        options: ['_blank', '_self', '_parent', '_top'],
         visible: 'low'
       },
       ...commonProperties
