@@ -266,6 +266,7 @@ export class AddMorePropertyMenu extends React.PureComponent<Props, State> {
             <Option value="date">date</Option>
             <Option value="date-range">date-range</Option>
             <Option value="password">password</Option>
+            <Option value="any">dynamic</Option>
             {group == null ? <Option value="group">group</Option> : null // dont add group if it's in already a group
             }
           </Select>

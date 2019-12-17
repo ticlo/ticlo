@@ -30,7 +30,7 @@ const dynamicTypeIcon: {[key: string]: React.ReactElement} = {
   'color': <div className="tico-txt">C</div>,
   'date': <div className="tico-txt">D</div>,
   'date-range': <div className="tico-txt">R</div>,
-  'map': <div className="tico-txt tico-small-txt">{'{}'}</div>,
+  'object': <div className="tico-txt tico-small-txt">{'{}'}</div>,
   'array': <div className="tico-txt tico-small-txt">[]</div>
 };
 
@@ -104,14 +104,16 @@ export class DynamicEditor extends React.PureComponent<ValueEditorProps, State> 
     let {desc, value, onChange} = this.props;
     let {currentType} = this.state;
     let types = desc.types || defaultTypes;
-    if (!currentType || !onChange) {
-      currentType = DynamicEditor.getTypeFromValue(value) || currentType;
+    if (!onChange) {
+      currentType = 'object';
+    } else if (!currentType || !onChange) {
+      currentType = DynamicEditor.getTypeFromValue(value);
+      if (!currentType || !types.includes(currentType)) {
+        // when not readonly, must use one of the allowed types
+        currentType = types[0];
+      }
     }
 
-    if (!currentType || (onChange && !types.includes(currentType))) {
-      // when not readonly, must use one of the allowed types
-      currentType = types[0];
-    }
     return currentType;
   }
 
@@ -124,7 +126,7 @@ export class DynamicEditor extends React.PureComponent<ValueEditorProps, State> 
     let editor: React.ReactNode;
     if (EditorClass) {
       editor = (
-        <EditorClass conn={conn} keys={keys} value={value} desc={desc} locked={locked} onChange={this.onValueChange} />
+        <EditorClass conn={conn} keys={keys} value={value} desc={desc} locked={locked} onChange={this.onValueChange}/>
       );
     }
     let typeIcon = <div className="ticl-dynamic-type-icon">{dynamicTypeIcon[currentType]}</div>;
