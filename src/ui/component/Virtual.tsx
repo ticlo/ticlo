@@ -45,6 +45,13 @@ export default class VirtualList extends React.Component<Props, State> {
     this.rootNode.removeEventListener('scroll', this.handleScroll);
   }
 
+  onPointerDown = (e: React.PointerEvent) => {
+    if (e.shiftKey) {
+      // not allow shift key to select range in virtual scroller
+      e.preventDefault();
+    }
+  };
+
   render() {
     const {itemCount, itemHeight, renderer, className, style} = this.props;
     const {height, offset} = this.state;
@@ -67,7 +74,12 @@ export default class VirtualList extends React.Component<Props, State> {
       }
 
       return (
-        <div ref={this.getRef} className={`ticl-v-scroll ${className}`} style={style}>
+        <div
+          ref={this.getRef}
+          className={`ticl-v-scroll ${className}`}
+          style={style}
+          onPointerDown={this.onPointerDown}
+        >
           <div className="ticl-v-scroll-content" style={{height: `${contentHeight}px`, paddingTop}}>
             {children}
           </div>
