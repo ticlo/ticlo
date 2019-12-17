@@ -123,6 +123,7 @@ interface Props {
   item: NodeTreeItem;
   style: React.CSSProperties;
   selected: boolean;
+  onClick: (item: NodeTreeItem, ctrl: boolean) => void;
 }
 
 export class NodeTreeRenderer extends PureDataRenderer<Props, any> {
@@ -181,6 +182,10 @@ export class NodeTreeRenderer extends PureDataRenderer<Props, any> {
     this.forceUpdate();
   };
 
+  onClick = (e: React.MouseEvent) => {
+    this.props.onClick(this.props.item, e.ctrlKey);
+  };
+
   getMenu = () => {
     let editJob = this.context && this.context.editJob;
     return (
@@ -215,7 +220,9 @@ export class NodeTreeRenderer extends PureDataRenderer<Props, any> {
         <ExpandIcon opened={item.opened} onClick={this.onExpandClicked} />
         <TIcon icon={this.desc.icon} style={getFuncStyleFromDesc(this.desc, 'tico-pr')} />
         <Dropdown overlay={this.getMenu} trigger={['contextMenu']}>
-          <div className="ticl-tree-node-text">{item.name}</div>
+          <div className="ticl-tree-node-text" onClick={this.onClick}>
+            {item.name}
+          </div>
         </Dropdown>
       </div>
     );

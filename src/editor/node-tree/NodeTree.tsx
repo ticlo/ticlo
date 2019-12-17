@@ -12,6 +12,7 @@ interface Props {
   style?: React.CSSProperties;
   hideRoot?: boolean;
   selectedKeys?: string[];
+  onSelect?: (keys: string[]) => void;
 }
 
 export class NodeTree extends LazyUpdateComponent<Props, any> {
@@ -22,10 +23,39 @@ export class NodeTree extends LazyUpdateComponent<Props, any> {
   rootList: NodeTreeItem[] = [];
   list: NodeTreeItem[] = [];
 
+  onItemClick = (item: NodeTreeItem, ctrl: boolean) => {
+    let {selectedKeys, onSelect} = this.props;
+    if (!onSelect) {
+      return;
+    }
+    let keys = [...selectedKeys];
+    if (ctrl) {
+      if (keys.includes(item.key)) {
+        keys = keys.filter((value) => value !== item.key);
+      } else {
+        keys.push(item.key);
+      }
+    } else {
+      if (keys.length === 1 && keys[0] === item.key) {
+        return;
+      }
+      keys = [item.key];
+    }
+    onSelect(keys);
+  };
+
   renderChild = (idx: number, style: React.CSSProperties) => {
     let {selectedKeys} = this.props;
     const item = this.list[idx];
-    return <NodeTreeRenderer item={item} key={item.key} style={style} selected={selectedKeys.includes(item.key)} />;
+    return (
+      <NodeTreeRenderer
+        item={item}
+        key={item.key}
+        style={style}
+        selected={selectedKeys.includes(item.key)}
+        onClick={this.onItemClick}
+      />
+    );
   };
 
   forceUpdateLambda = () => this.forceUpdate();

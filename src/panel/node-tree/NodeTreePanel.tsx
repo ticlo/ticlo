@@ -32,7 +32,7 @@ export class NodeTreePanel extends React.PureComponent<Props, State> {
   }
 
   render() {
-    let {conn, basePaths, hideRoot} = this.props;
+    let {conn, basePaths, hideRoot, onSelect} = this.props;
     let {selectedKeys} = this.state;
 
     return (
@@ -41,6 +41,7 @@ export class NodeTreePanel extends React.PureComponent<Props, State> {
         basePaths={basePaths}
         hideRoot={hideRoot}
         selectedKeys={selectedKeys || []}
+        onSelect={onSelect}
         style={{width: '100%', height: '100%', padding: '8px'}}
       />
     );
