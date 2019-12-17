@@ -23,6 +23,7 @@ import {BlockStageTab} from '../../src/panel/block/BlockStageTab';
 import {Dispatcher, ValueDispatcher} from '../../src/core/block/Dispatcher';
 import {PropertyListPanel} from '../../src/panel/property/PropertyListPanel';
 import {ObjectTreePanel} from '../../src/panel/object-tree/ObjectTreePanel';
+import {NodeTreePanel} from '../../src/panel/node-tree/NodeTreePanel';
 
 const layoutGroups = {
   blockStage: {
@@ -57,7 +58,7 @@ class App extends React.PureComponent<Props, State> implements TicloLayoutContex
 
   selectedKeys: Dispatcher<string[]> = new ValueDispatcher();
 
-  onSelect = (keys: string[], handled: boolean) => {
+  onSelect = (keys: string[], handled: boolean = false) => {
     if (!handled) {
       this.selectedKeys.updateValue(keys);
     }
@@ -130,14 +131,7 @@ class App extends React.PureComponent<Props, State> implements TicloLayoutContex
                 title: 'NavTree',
                 cached: true,
                 cacheContext: TicloLayoutContextType,
-                content: (
-                  <NodeTree
-                    conn={conn}
-                    basePaths={['']}
-                    hideRoot={true}
-                    style={{width: '100%', height: '100%', padding: '8px'}}
-                  />
-                )
+                content: <NodeTreePanel conn={conn} basePaths={['']} hideRoot={true} onSelect={this.onSelect} />
               },
               {
                 id: 'Types',

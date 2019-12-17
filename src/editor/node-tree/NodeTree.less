@@ -1,9 +1,13 @@
 .ticl-tree-node {
-  cursor: default;
+  cursor: pointer;
   & .tico {
     border-radius: 3px;
     transform: scale(0.6666666667);
   }
+}
+.ticl-tree-node-selected {
+  background: @primary-fade-10;
+  border-radius: 15px 0 0 15px;
 }
 
 .ticl-tree-node-text {

@@ -122,6 +122,7 @@ export class NodeTreeItem extends TreeItem<NodeTreeItem> {
 interface Props {
   item: NodeTreeItem;
   style: React.CSSProperties;
+  selected: boolean;
 }
 
 export class NodeTreeRenderer extends PureDataRenderer<Props, any> {
@@ -203,10 +204,14 @@ export class NodeTreeRenderer extends PureDataRenderer<Props, any> {
   };
 
   renderImpl() {
-    let {item, style} = this.props;
+    let {item, style, selected} = this.props;
     let marginLeft = item.level * 20;
+    let className = 'ticl-tree-node';
+    if (selected) {
+      className += ' ticl-tree-node-selected';
+    }
     return (
-      <div style={{...style, marginLeft}} className="ticl-tree-node">
+      <div style={{...style, marginLeft}} className={className}>
         <ExpandIcon opened={item.opened} onClick={this.onExpandClicked} />
         <TIcon icon={this.desc.icon} style={getFuncStyleFromDesc(this.desc, 'tico-pr')} />
         <Dropdown overlay={this.getMenu} trigger={['contextMenu']}>

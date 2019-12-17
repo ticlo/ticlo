@@ -126,7 +126,7 @@ export class DynamicEditor extends React.PureComponent<ValueEditorProps, State> 
     let editor: React.ReactNode;
     if (EditorClass) {
       editor = (
-        <EditorClass conn={conn} keys={keys} value={value} desc={desc} locked={locked} onChange={this.onValueChange}/>
+        <EditorClass conn={conn} keys={keys} value={value} desc={desc} locked={locked} onChange={this.onValueChange} />
       );
     }
     let typeIcon = <div className="ticl-dynamic-type-icon">{dynamicTypeIcon[currentType]}</div>;

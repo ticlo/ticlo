@@ -11,15 +11,21 @@ interface Props {
   basePaths: string[];
   style?: React.CSSProperties;
   hideRoot?: boolean;
+  selectedKeys?: string[];
 }
 
 export class NodeTree extends LazyUpdateComponent<Props, any> {
+  static defaultProps: any = {
+    selectedKeys: []
+  };
+
   rootList: NodeTreeItem[] = [];
   list: NodeTreeItem[] = [];
 
   renderChild = (idx: number, style: React.CSSProperties) => {
+    let {selectedKeys} = this.props;
     const item = this.list[idx];
-    return <NodeTreeRenderer item={item} key={item.key} style={style} />;
+    return <NodeTreeRenderer item={item} key={item.key} style={style} selected={selectedKeys.includes(item.key)} />;
   };
 
   forceUpdateLambda = () => this.forceUpdate();
