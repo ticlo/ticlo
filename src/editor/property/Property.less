@@ -118,6 +118,10 @@
     width: 100%;
   }
 
+  & > .ant-btn {
+    width: 100%;
+  }
+
   & > .ant-select-disabled {
     & > .ant-select-selection {
       border-color: @border-disabled-color;
@@ -252,8 +256,10 @@
   }
 }
 .ticl-readonly-editor {
+  border: 1px solid #f0f0f0;
+  padding: 1px 4px;
+  height: 24px;
   overflow: hidden;
   text-overflow: ellipsis;
-  width: calc(100% - 8px);
   white-space: nowrap;
 }

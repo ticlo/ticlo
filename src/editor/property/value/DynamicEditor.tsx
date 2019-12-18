@@ -11,6 +11,8 @@ import {DateEditor} from './DateEditor';
 import {DateRangeEditor} from './DateRangeEditor';
 import {isColorStr} from '../../../core/util/String';
 import {ClickParam} from 'antd/lib/menu';
+import {ReadonlyEditor} from './ReadonlyEditor';
+import {ObjectEditor} from './ObjectEditor';
 
 const defaultTypes: ValueType[] = ['string', 'number', 'toggle', 'color', 'date', 'date-range', 'object', 'array'];
 
@@ -20,7 +22,9 @@ export const dynamicEditorMap: {[key: string]: any} = {
   'toggle': ToggleEditor,
   'color': ColorEditor,
   'date': DateEditor,
-  'date-range': DateRangeEditor
+  'date-range': DateRangeEditor,
+  'object': ObjectEditor,
+  'array': ReadonlyEditor
 };
 
 const dynamicTypeIcon: {[key: string]: React.ReactElement} = {
@@ -118,7 +122,7 @@ export class DynamicEditor extends React.PureComponent<ValueEditorProps, State> 
   }
 
   render() {
-    let {conn, keys, desc, value, locked, onChange} = this.props;
+    let {conn, keys, desc, value, locked, onChange, addSubBlock} = this.props;
     let types = desc.types || defaultTypes;
     let currentType = this.getCurrentType();
 
@@ -126,7 +130,15 @@ export class DynamicEditor extends React.PureComponent<ValueEditorProps, State> 
     let editor: React.ReactNode;
     if (EditorClass) {
       editor = (
-        <EditorClass conn={conn} keys={keys} value={value} desc={desc} locked={locked} onChange={this.onValueChange} />
+        <EditorClass
+          conn={conn}
+          keys={keys}
+          value={value}
+          desc={desc}
+          locked={locked}
+          onChange={this.onValueChange}
+          addSubBlock={addSubBlock}
+        />
       );
     }
     let typeIcon = <div className="ticl-dynamic-type-icon">{dynamicTypeIcon[currentType]}</div>;

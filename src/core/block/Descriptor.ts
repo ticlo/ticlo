@@ -57,7 +57,7 @@ export interface PropDesc {
   // date, date-range
   showTime?: boolean;
 
-  // service
+  // service, object
   create?: string;
 
   // allowed types in editor for dynamic types

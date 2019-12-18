@@ -28,6 +28,7 @@ import {getTailingNumber} from '../../core/util/String';
 import {DynamicEditor, dynamicEditorMap} from './value/DynamicEditor';
 import {ReadonlyEditor} from './value/ReadonlyEditor';
 import {ComboEditor} from './value/ComboEditor';
+import {Logger} from '../../core/util/Logger';
 
 const typeEditorMap: {[key: string]: any} = {
   ...dynamicEditorMap,
@@ -514,11 +515,18 @@ export class PropertyEditor extends MultiSelectComponent<Props, State, PropertyL
       conn.setBinding(`${key}.${name}`, null, true);
     }
   };
-  onAddSubBlock = (id: string, desc: FunctionDesc, data: any) => {
+  onAddSubBlock = (id: string, desc?: FunctionDesc, data?: any) => {
+    let {conn, keys, name} = this.props;
+    if (!desc) {
+      desc = conn.watchDesc(id);
+    }
     if (!data) {
+      if (!desc) {
+        Logger.error('unable to add sub block, missing id or desc or data', this);
+        return;
+      }
       data = getDefaultFuncData(desc, true);
     }
-    let {conn, keys, name} = this.props;
 
     for (let key of keys) {
       conn.createBlock(`${key}.~${name}`, data);
@@ -622,26 +630,7 @@ export class PropertyEditor extends MultiSelectComponent<Props, State, PropertyL
     }
 
     let editor: React.ReactNode;
-    let EditorClass = typeEditorMap[propDesc.type];
-    if (!EditorClass) {
-      EditorClass = ReadonlyEditor;
-    }
-    if (EditorClass) {
-      let editorValue = value;
-      if (value === undefined && propDesc.default != null) {
-        editorValue = propDesc.default;
-      }
-      editor = (
-        <EditorClass
-          conn={conn}
-          keys={keys}
-          value={editorValue}
-          desc={propDesc}
-          locked={locked && !unlocked}
-          onChange={onChange}
-        />
-      );
-    } else if (propDesc.type === 'service') {
+    if (propDesc.type === 'service') {
       locked = bindingPath && !bindingSame;
       renderLockIcon = locked && !propDesc.readonly;
       if (renderLockIcon) {
@@ -662,6 +651,29 @@ export class PropertyEditor extends MultiSelectComponent<Props, State, PropertyL
           onPathChange={this.onBindChange}
         />
       );
+    } else {
+      let EditorClass = typeEditorMap[propDesc.type];
+      if (!EditorClass) {
+        EditorClass = ReadonlyEditor;
+      }
+      if (EditorClass) {
+        let editorValue = value;
+        if (value === undefined && propDesc.default != null) {
+          editorValue = propDesc.default;
+        }
+        editor = (
+          <EditorClass
+            conn={conn}
+            keys={keys}
+            value={editorValue}
+            desc={propDesc}
+            name={name}
+            locked={locked && !unlocked}
+            onChange={onChange}
+            addSubBlock={this.onAddSubBlock}
+          />
+        );
+      }
     }
 
     let nameClass = `ticl-property-name${propDesc.readonly ? ' ticl-property-readonly' : ''}${
