@@ -23,7 +23,7 @@ class LengthPropertyEditor extends PropertyEditor {
 class GroupLoader extends MultiSelectLoader<GroupEditor> {
   lenKey: string;
 
-  len: number = 0;
+  len: number = -1;
   lenListener = {
     onUpdate: (response: ValueUpdate) => {
       let len = parseInt(response.cache.value);
