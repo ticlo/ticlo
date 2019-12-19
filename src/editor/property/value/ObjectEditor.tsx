@@ -8,15 +8,15 @@ import {getDefaultFuncData} from '../../../core/block/Descriptor';
 export class ObjectEditor extends React.PureComponent<ValueEditorProps, any> {
   createObject = () => {
     let {conn, keys, desc, addSubBlock} = this.props;
-    addSubBlock(desc.create || 'create-object', null, null);
+    addSubBlock(desc.create, null, null);
   };
 
   render() {
-    let {value, onChange} = this.props;
-    if (value === undefined && onChange) {
+    let {value, desc, onChange} = this.props;
+    if (value === undefined && onChange && desc.create) {
       return (
         <Button size="small" icon={<PlusSquareIcon />} onClick={this.createObject}>
-          Create
+          {desc.create}
         </Button>
       );
     } else {

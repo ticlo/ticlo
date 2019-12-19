@@ -21,7 +21,8 @@ const commonProperties: PropDesc[] = [
   {
     name: 'style',
     type: 'object',
-    visible: 'high'
+    visible: 'high',
+    create: 'create-object'
   },
   {
     name: 'output',
