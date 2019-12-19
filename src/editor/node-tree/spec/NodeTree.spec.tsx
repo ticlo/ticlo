@@ -42,7 +42,7 @@ describe('editor NodeTree', function() {
     // expand child
 
     SimulateEvent.simulate(
-      querySingle("//div.ticl-tree-node-text[text()='NodeTree']/../div.ticl-tree-arr", div),
+      querySingle("//div.ticl-tree-node-text[text()='NodeTree']/../../div.ticl-tree-arr", div),
       'click'
     );
     await shouldHappen(() => contentDiv.childNodes.length >= 11);
@@ -53,12 +53,12 @@ describe('editor NodeTree', function() {
     );
 
     // expand more children
-    SimulateEvent.simulate(querySingle("//div.ticl-tree-node-text[text()='9']/../div.ticl-tree-arr", div), 'click');
+    SimulateEvent.simulate(querySingle("//div.ticl-tree-node-text[text()='9']/../../div.ticl-tree-arr", div), 'click');
     // max children is 20, since 30px per row and total 600px height
     await shouldHappen(() => contentDiv.childNodes.length === 20);
 
     // expand even more children
-    SimulateEvent.simulate(querySingle("//div.ticl-tree-node-text[text()='8']/../div.ticl-tree-arr", div), 'click');
+    SimulateEvent.simulate(querySingle("//div.ticl-tree-node-text[text()='8']/../../div.ticl-tree-arr", div), 'click');
     // max children is 20
     await shouldHappen(() => contentDiv.childNodes.length === 20);
 
@@ -67,7 +67,7 @@ describe('editor NodeTree', function() {
     await shouldHappen(() => contentDiv.childNodes.length === 22);
 
     // close some children
-    SimulateEvent.simulate(querySingle("//div.ticl-tree-node-text[text()='8']/../div.ticl-tree-arr", div), 'click');
+    SimulateEvent.simulate(querySingle("//div.ticl-tree-node-text[text()='8']/../../div.ticl-tree-arr", div), 'click');
     await shouldHappen(() => contentDiv.childNodes.length === 21);
 
     // decrease height, allows less children
@@ -89,21 +89,21 @@ describe('editor NodeTree', function() {
 
     // close children
     SimulateEvent.simulate(
-      querySingle("//div.ticl-tree-node-text[text()='NodeTree']/../div.ticl-tree-arr", div),
+      querySingle("//div.ticl-tree-node-text[text()='NodeTree']/../../div.ticl-tree-arr", div),
       'click'
     );
     await shouldHappen(() => contentDiv.childNodes.length === 1);
 
     // reopen it, should still show cached nodes
     SimulateEvent.simulate(
-      querySingle("//div.ticl-tree-node-text[text()='NodeTree']/../div.ticl-tree-arr", div),
+      querySingle("//div.ticl-tree-node-text[text()='NodeTree']/../../div.ticl-tree-arr", div),
       'click'
     );
     await shouldHappen(() => contentDiv.childNodes.length === 14);
     // node is removed but cache still exists
     assert.isNotNull(querySingle("//div.ticl-tree-node-text[text()='5']"));
     // find block icon should disappear, because #is changed to blank
-    await shouldHappen(() => querySingle("//div.ticl-tree-node-text[text()='5']/../div.tico/div", div) == null);
+    await shouldHappen(() => querySingle("//div.ticl-tree-node-text[text()='5']/../../div.tico/div", div) == null);
 
     // right click the first node
     SimulateEvent.simulate(querySingle("//div.ticl-tree-node-text[text()='NodeTree']", div), 'contextmenu');
