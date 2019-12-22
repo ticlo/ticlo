@@ -96,6 +96,7 @@ export class FieldItem extends DataRendererItem {
         if (this._bindingPath === `~${this.name}.output`) {
           // binding block
           this.subBlock = new SubBlockItem(this.block.conn, this.block.stage, `${this.block.key}.~${this.name}`, this);
+          this.removeInWire();
         } else {
           // binding wire
           this.block.stage.linkField(this._bindingTargetKey, this);
