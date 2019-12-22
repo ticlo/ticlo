@@ -20,7 +20,7 @@ export class NodeTreeItem extends TreeItem<NodeTreeItem> {
 
   max: number = 32;
 
-  constructor(name: string, parent?: NodeTreeItem, public editable = false) {
+  constructor(name: string, public id: string, parent?: NodeTreeItem, public editable = false) {
     super(parent);
     if (parent) {
       this.key = `${parent.childPrefix}${name}`;
@@ -51,15 +51,8 @@ export class NodeTreeItem extends TreeItem<NodeTreeItem> {
     if (this.opened === 'loading') {
       return;
     }
-    if (this.children) {
-      this.opened = 'opened';
-      if (this.onListChange && this.children.length) {
-        this.onListChange();
-      }
-    } else {
-      this.opened = 'loading';
-      this.listingId = this.connection.listChildren(this.key, null, this.max, this) as string;
-    }
+    this.opened = 'loading';
+    this.listingId = this.connection.listChildren(this.key, null, this.max, this) as string;
     this.forceUpdate();
   }
 
@@ -81,7 +74,12 @@ export class NodeTreeItem extends TreeItem<NodeTreeItem> {
 
   // on children update
   onUpdate(response: DataMap): void {
-    this.destroyChildren();
+    let previousChildren = new Map<string, NodeTreeItem>();
+    if (this.children) {
+      for (let child of this.children) {
+        previousChildren.set(child.name, child);
+      }
+    }
     this.children = [];
     if (this.listingId) {
       this.listingId = null;
@@ -91,12 +89,19 @@ export class NodeTreeItem extends TreeItem<NodeTreeItem> {
     names.sort(smartStrCompare);
     for (let key of names) {
       let data = children[key];
-      let newItem = new NodeTreeItem(key, this, data.editable);
-      this.children.push(newItem);
+      if (previousChildren.get(key)?.id === data.id) {
+        this.children.push(previousChildren.get(key));
+        previousChildren.delete(key);
+      } else {
+        this.children.push(new NodeTreeItem(key, data.id, this, data.editable));
+      }
     }
     this.opened = 'opened';
     if (this.onListChange) {
       this.onListChange();
+    }
+    for (let [, child] of previousChildren) {
+      child.destroy();
     }
     this.forceUpdate();
   }
@@ -152,8 +157,8 @@ export class NodeTreeRenderer extends PureDataRenderer<Props, any> {
         item.key,
         item.editable
           ? () => {
-              item.getConn().applyWorkerChange(item.key);
-            }
+            item.getConn().applyWorkerChange(item.key);
+          }
           : null
       );
     }
@@ -192,16 +197,16 @@ export class NodeTreeRenderer extends PureDataRenderer<Props, any> {
       <Menu selectable={false}>
         {editJob ? (
           <Menu.Item onClick={this.onOpenClicked}>
-            <BuildIcon />
+            <BuildIcon/>
             Open
           </Menu.Item>
         ) : null}
         <Menu.Item onClick={this.onReloadClicked}>
-          <ReloadIcon />
+          <ReloadIcon/>
           Reload
         </Menu.Item>
         <Menu.Item>
-          <SearchIcon />
+          <SearchIcon/>
           Search
         </Menu.Item>
       </Menu>
@@ -217,10 +222,10 @@ export class NodeTreeRenderer extends PureDataRenderer<Props, any> {
     }
     return (
       <div style={{...style, marginLeft}} className="ticl-tree-node">
-        <ExpandIcon opened={item.opened} onClick={this.onExpandClicked} />
+        <ExpandIcon opened={item.opened} onClick={this.onExpandClicked}/>
         <Dropdown overlay={this.getMenu} trigger={['contextMenu']}>
           <div className={contentClassName} onClick={this.onClickContent}>
-            <TIcon icon={this.desc.icon} style={getFuncStyleFromDesc(this.desc, 'tico-pr')} />
+            <TIcon icon={this.desc.icon} style={getFuncStyleFromDesc(this.desc, 'tico-pr')}/>
             <div className="ticl-tree-node-text">{item.name}</div>
           </div>
         </Dropdown>

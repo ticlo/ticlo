@@ -104,7 +104,7 @@ export class NodeTree extends LazyUpdateComponent<Props, any> {
   buildRoot() {
     let {basePaths, hideRoot} = this.props;
     for (let basePath of basePaths) {
-      let rootNode = new NodeTreeItem(basePath);
+      let rootNode = new NodeTreeItem(basePath, '');
       rootNode.connection = this.props.conn;
       rootNode.onListChange = this.forceUpdateLambda;
       this.rootList.push(rootNode);
