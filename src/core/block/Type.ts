@@ -1,8 +1,7 @@
 import {Block, BlockModeList} from './Block';
 import {FunctionClass} from './BlockFunction';
-import {ValueDispatcher} from './Dispatcher';
+import {PropDispatcher} from './Dispatcher';
 import {FunctionDesc} from './Descriptor';
-import JSON = Mocha.reporters.JSON;
 import JsonEsc from 'jsonesc/dist';
 import {DataMap} from '../util/DataTypes';
 
@@ -10,7 +9,7 @@ export interface DescListener {
   onDescChange(id: string, desc: FunctionDesc): void;
 }
 
-export class Type extends ValueDispatcher<FunctionClass> {
+export class Type extends PropDispatcher<FunctionClass> {
   _id: string;
   _desc: FunctionDesc;
   _descSize: number = 0;

@@ -1,8 +1,8 @@
-import {ValueDispatcher, PropListener, PropDispatcher} from './Dispatcher';
+import {PropDispatcher, PropListener} from './Dispatcher';
 import {Block} from './Block';
 import {BlockBindingSource, BlockProperty} from './BlockProperty';
 
-export class BlockBinding extends ValueDispatcher implements PropListener, BlockBindingSource {
+export class BlockBinding extends PropDispatcher implements PropListener, BlockBindingSource {
   private _block: Block;
   private _path: string;
   private _field: string;

@@ -6,21 +6,13 @@ export interface PropListener<T = any> {
   onChange(val: T): void;
 }
 
-export interface PropDispatcher<T = any> {
-  listen(listener: PropListener<T>): void;
-
-  unlisten(listener: PropListener<T>): void;
-
-  updateValue(val: T): boolean;
-}
-
 export interface Destroyable {
   destroy(): void;
 
   isDestroyed(): boolean;
 }
 
-export class ValueDispatcher<T = any> implements PropDispatcher<T> {
+export class PropDispatcher<T = any> {
   _listeners: Set<PropListener<T>> = new Set<PropListener<T>>();
   _updating = false;
   _value: T;

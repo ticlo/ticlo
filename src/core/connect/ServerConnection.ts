@@ -9,7 +9,7 @@ import {
 } from '../block/BlockProperty';
 import {DataMap, isPrimitiveType, isSavedBlock, measureObjSize, truncateData} from '../util/DataTypes';
 import {Root, Block, BlockChildWatch, Job} from '../block/Block';
-import {PropDispatcher, PropListener, ValueDispatcher} from '../block/Dispatcher';
+import {PropDispatcher, PropListener} from '../block/Dispatcher';
 import {Type, Types, DescListener} from '../block/Type';
 import {FunctionDesc, PropDesc, PropGroupDesc} from '../block/Descriptor';
 import {propRelative} from '../util/Path';
@@ -124,7 +124,7 @@ class ServerSubscribe extends ServerRequest implements BlockPropertySubscriber, 
       let hasListener = false;
       if (this.property._listeners) {
         for (let listener of this.property._listeners) {
-          if (listener instanceof ValueDispatcher) {
+          if (listener instanceof PropDispatcher) {
             hasListener = true;
             break;
           }
@@ -147,7 +147,7 @@ class ServerSubscribe extends ServerRequest implements BlockPropertySubscriber, 
 class ServerWatch extends ServerRequest implements BlockChildWatch, PropListener<any> {
   block: Block;
   property: BlockProperty;
-  source: ValueDispatcher<any>;
+  source: PropDispatcher<any>;
 
   constructor(conn: ServerConnection, id: string, block: Block, prop: BlockProperty) {
     super();

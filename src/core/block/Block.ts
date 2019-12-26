@@ -2,7 +2,7 @@ import {BlockProperty, BlockIO, HelperProperty, GlobalProperty, BlockBindingSour
 import {ListenPromise} from './ListenPromise';
 import {BlockBinding} from './BlockBinding';
 import {FunctionData, FunctionClass, BaseFunction, FunctionOutput} from './BlockFunction';
-import {PropDispatcher, PropListener, ValueDispatcher, Destroyable} from './Dispatcher';
+import {PropDispatcher, PropListener, Destroyable} from './Dispatcher';
 import {Type, Types} from './Type';
 import {CompleteEvent, ErrorEvent, Event, EventType, NO_EMIT, WAIT} from './Event';
 import {DataMap} from '../util/DataTypes';

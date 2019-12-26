@@ -1,8 +1,8 @@
-import {ValueDispatcher, PropListener, PropDispatcher, Destroyable} from './Dispatcher';
+import {PropDispatcher, PropListener, Destroyable} from './Dispatcher';
 import {Block} from './Block';
 import {isSavedBlock} from '../util/DataTypes';
 
-export interface BlockBindingSource extends ValueDispatcher<any>, Destroyable {
+export interface BlockBindingSource extends PropDispatcher<any>, Destroyable {
   getProperty(): BlockProperty;
 }
 
@@ -16,7 +16,7 @@ export interface BlockPropertySubscriber {
   onPropertyEvent(change: BlockPropertyEvent): void;
 }
 
-export class BlockProperty extends ValueDispatcher<any> implements PropListener<any>, BlockBindingSource {
+export class BlockProperty extends PropDispatcher<any> implements PropListener<any>, BlockBindingSource {
   _block: Block;
   _name: string;
   _bindingPath: string;
