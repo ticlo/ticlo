@@ -9,7 +9,7 @@ import {
 } from '../block/BlockProperty';
 import {DataMap, isPrimitiveType, isSavedBlock, measureObjSize, truncateData} from '../util/DataTypes';
 import {Root, Block, BlockChildWatch, Job} from '../block/Block';
-import {Dispatcher, Listener, ValueDispatcher} from '../block/Dispatcher';
+import {PropDispatcher, PropListener, ValueDispatcher} from '../block/Dispatcher';
 import {Type, Types, DescListener} from '../block/Type';
 import {FunctionDesc, PropDesc, PropGroupDesc} from '../block/Descriptor';
 import {propRelative} from '../util/Path';
@@ -34,7 +34,7 @@ class ServerRequest extends ConnectionSendingData {
   }
 }
 
-class ServerSubscribe extends ServerRequest implements BlockPropertySubscriber, Listener<any> {
+class ServerSubscribe extends ServerRequest implements BlockPropertySubscriber, PropListener<any> {
   property: BlockProperty;
   source: BlockBindingSource;
 
@@ -55,7 +55,7 @@ class ServerSubscribe extends ServerRequest implements BlockPropertySubscriber, 
     }
   }
 
-  onSourceChange(prop: Dispatcher<any>) {
+  onSourceChange(prop: PropDispatcher<any>) {
     if (prop !== this.property) {
       this.connection.close(this.id);
       this.connection.sendError(this.id, 'source changed');
@@ -144,7 +144,7 @@ class ServerSubscribe extends ServerRequest implements BlockPropertySubscriber, 
   }
 }
 
-class ServerWatch extends ServerRequest implements BlockChildWatch, Listener<any> {
+class ServerWatch extends ServerRequest implements BlockChildWatch, PropListener<any> {
   block: Block;
   property: BlockProperty;
   source: ValueDispatcher<any>;
@@ -160,7 +160,7 @@ class ServerWatch extends ServerRequest implements BlockChildWatch, Listener<any
   }
 
   // Listener.onSourceChange
-  onSourceChange(prop: Dispatcher<any>): void {
+  onSourceChange(prop: PropDispatcher<any>): void {
     if (prop !== this.property) {
       this.connection.close(this.id);
       this.connection.sendError(this.id, 'source changed');

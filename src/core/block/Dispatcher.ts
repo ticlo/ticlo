@@ -1,15 +1,15 @@
 import {Event, ErrorEvent, EventType} from './Event';
 
-export interface Listener<T = any> {
-  onSourceChange?(prop: Dispatcher<T>): void;
+export interface PropListener<T = any> {
+  onSourceChange?(prop: PropDispatcher<T>): void;
 
   onChange(val: T): void;
 }
 
-export interface Dispatcher<T = any> {
-  listen(listener: Listener<T>): void;
+export interface PropDispatcher<T = any> {
+  listen(listener: PropListener<T>): void;
 
-  unlisten(listener: Listener<T>): void;
+  unlisten(listener: PropListener<T>): void;
 
   updateValue(val: T): boolean;
 }
@@ -20,12 +20,12 @@ export interface Destroyable {
   isDestroyed(): boolean;
 }
 
-export class ValueDispatcher<T = any> implements Dispatcher<T> {
-  _listeners: Set<Listener<T>> = new Set<Listener<T>>();
+export class ValueDispatcher<T = any> implements PropDispatcher<T> {
+  _listeners: Set<PropListener<T>> = new Set<PropListener<T>>();
   _updating = false;
   _value: T;
 
-  listen(listener: Listener<T>) {
+  listen(listener: PropListener<T>) {
     this._listeners.add(listener);
 
     listener.onSourceChange(this);
@@ -35,7 +35,7 @@ export class ValueDispatcher<T = any> implements Dispatcher<T> {
     }
   }
 
-  unlisten(listener: Listener<T>) {
+  unlisten(listener: PropListener<T>) {
     this._listeners.delete(listener);
   }
 
@@ -54,5 +54,23 @@ export class ValueDispatcher<T = any> implements Dispatcher<T> {
       listener.onChange(this._value);
     }
     this._updating = false;
+  }
+}
+
+export class StreamDispatcher<T = any> {
+  _listeners: Set<(val: T) => void> = new Set<(val: T) => void>();
+
+  listen(listener: (val: T) => void) {
+    this._listeners.add(listener);
+  }
+
+  unlisten(listener: (val: T) => void) {
+    this._listeners.delete(listener);
+  }
+
+  dispatch(value: T): void {
+    for (let listener of this._listeners) {
+      listener(value);
+    }
   }
 }

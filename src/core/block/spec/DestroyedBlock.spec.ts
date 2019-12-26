@@ -1,6 +1,6 @@
 import {assert} from 'chai';
 import {Job, Root, Block} from '../Block';
-import {Dispatcher} from '../Dispatcher';
+import {PropDispatcher} from '../Dispatcher';
 import {voidProperty} from '../Void';
 import {BlockIO} from '../BlockProperty';
 import {VoidListeners} from './TestFunction';

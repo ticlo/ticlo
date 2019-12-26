@@ -2,7 +2,7 @@ import {BlockProperty, BlockIO, HelperProperty, GlobalProperty, BlockBindingSour
 import {ListenPromise} from './ListenPromise';
 import {BlockBinding} from './BlockBinding';
 import {FunctionData, FunctionClass, BaseFunction, FunctionOutput} from './BlockFunction';
-import {Dispatcher, Listener, ValueDispatcher, Destroyable} from './Dispatcher';
+import {PropDispatcher, PropListener, ValueDispatcher, Destroyable} from './Dispatcher';
 import {Type, Types} from './Type';
 import {CompleteEvent, ErrorEvent, Event, EventType, NO_EMIT, WAIT} from './Event';
 import {DataMap} from '../util/DataTypes';
@@ -62,7 +62,7 @@ class PromiseWrapper {
   }
 }
 
-export class Block implements Runnable, FunctionData, Listener<FunctionClass>, Destroyable {
+export class Block implements Runnable, FunctionData, PropListener<FunctionClass>, Destroyable {
   private static _uid = new Uid();
 
   static nextUid(): string {
@@ -245,7 +245,7 @@ export class Block implements Runnable, FunctionData, Listener<FunctionClass>, D
     return this._job.getGlobalProperty(name);
   }
 
-  createBinding(path: string, listener: Listener<any>): BlockBindingSource {
+  createBinding(path: string, listener: PropListener<any>): BlockBindingSource {
     if (this._destroyed) {
       if (Root.instance._strictMode) {
         throw new Error('createBinding called after destroy');
@@ -676,7 +676,7 @@ export class Block implements Runnable, FunctionData, Listener<FunctionClass>, D
 
   _pendingClass: FunctionClass;
 
-  onSourceChange(prop: Dispatcher<FunctionClass>): void {
+  onSourceChange(prop: PropDispatcher<FunctionClass>): void {
     // not needed
   }
 

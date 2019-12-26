@@ -1,5 +1,5 @@
 import {BlockProperty, BlockPropertyEvent, BlockPropertySubscriber} from './BlockProperty';
-import {Listener} from './Dispatcher';
+import {PropListener} from './Dispatcher';
 import {Root} from './Block';
 
 class VoidProperty extends BlockProperty {
@@ -47,11 +47,11 @@ class VoidProperty extends BlockProperty {
     // do nothing
   }
 
-  listen(listener: Listener<any>) {
+  listen(listener: PropListener<any>) {
     // do nothing
   }
 
-  unlisten(listener: Listener<any>) {
+  unlisten(listener: PropListener<any>) {
     // do nothing
   }
 

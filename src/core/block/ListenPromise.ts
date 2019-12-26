@@ -1,9 +1,9 @@
 import {ErrorEvent, Event, EventType} from './Event';
-import {Dispatcher, Listener} from './Dispatcher';
+import {PropDispatcher, PropListener} from './Dispatcher';
 import {BlockBindingSource} from './BlockProperty';
 
 /// a helper class to use async await on Dispatcher
-export class ListenPromise<T> implements Listener<T> {
+export class ListenPromise<T> implements PropListener<T> {
   // if source is set, it will be managed by the listener and unlistened automaticly
   _source: BlockBindingSource;
   _valid = false;
@@ -20,7 +20,7 @@ export class ListenPromise<T> implements Listener<T> {
     });
   }
 
-  onSourceChange(prop: Dispatcher<T>): void {
+  onSourceChange(prop: PropDispatcher<T>): void {
     if (this._valid && prop == null) {
       if (!this._source || this._source.isDestroyed()) {
         // if source is destroyed, reject the promise

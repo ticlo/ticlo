@@ -5,7 +5,7 @@ import CloseIcon from '@ant-design/icons/CloseOutlined';
 import {DockContext, DockContextType} from 'rc-dock/lib';
 import {LazyUpdateComponent} from '../../ui/component/LazyUpdateComponent';
 import {TrackedClientConn} from '../../core/connect/TrackedClientConn';
-import {Dispatcher} from '../../core/block/Dispatcher';
+import {PropDispatcher} from '../../core/block/Dispatcher';
 
 interface Props {
   conn: TrackedClientConn;

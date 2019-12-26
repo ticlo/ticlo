@@ -1,8 +1,8 @@
-import {ValueDispatcher, Listener, Dispatcher} from './Dispatcher';
+import {ValueDispatcher, PropListener, PropDispatcher} from './Dispatcher';
 import {Block} from './Block';
 import {BlockBindingSource, BlockProperty} from './BlockProperty';
 
-export class BlockBinding extends ValueDispatcher implements Listener, BlockBindingSource {
+export class BlockBinding extends ValueDispatcher implements PropListener, BlockBindingSource {
   private _block: Block;
   private _path: string;
   private _field: string;
@@ -24,7 +24,7 @@ export class BlockBinding extends ValueDispatcher implements Listener, BlockBind
     return this._prop;
   }
 
-  unlisten(listener: Listener<any>) {
+  unlisten(listener: PropListener<any>) {
     if (this._listeners) {
       this._listeners.delete(listener);
       if (this._prop != null) {
@@ -36,7 +36,7 @@ export class BlockBinding extends ValueDispatcher implements Listener, BlockBind
     }
   }
 
-  listen(listener: Listener<any>) {
+  listen(listener: PropListener<any>) {
     this._listeners.add(listener);
     if (this._prop != null) {
       this._prop.listen(listener);
@@ -46,7 +46,7 @@ export class BlockBinding extends ValueDispatcher implements Listener, BlockBind
     }
   }
 
-  onSourceChange(source: Dispatcher<any>) {
+  onSourceChange(source: PropDispatcher<any>) {
     // do nothing
   }
 

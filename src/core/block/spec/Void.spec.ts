@@ -3,7 +3,7 @@ import {voidProperty} from '../Void';
 
 import {Job, Root} from '../Block';
 import {BlockPropertyEvent} from '../BlockProperty';
-import {Dispatcher} from '../Dispatcher';
+import {PropDispatcher} from '../Dispatcher';
 import {VoidListeners} from './TestFunction';
 
 describe('VoidProperty', function() {

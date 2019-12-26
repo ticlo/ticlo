@@ -1,6 +1,6 @@
 import * as React from 'react';
 import {PropDesc} from '../../core/block/Descriptor';
-import {Dispatcher} from '../../core/block/Dispatcher';
+import {PropDispatcher} from '../../core/block/Dispatcher';
 import {ClientConn} from '../../core/connect/ClientConn';
 
 export interface TicloLayoutContext {
@@ -11,7 +11,7 @@ export interface TicloLayoutContext {
   showObjectTree?(path: string, value: any, element: HTMLElement, source: any): void;
   closeObjectTree?(path: string, source: any): void;
 
-  selectedKeys?: Dispatcher<string[]>;
+  selectedKeys?: PropDispatcher<string[]>;
 }
 
 export const TicloLayoutContextType = React.createContext<TicloLayoutContext>(null);

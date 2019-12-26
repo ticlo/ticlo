@@ -1,6 +1,6 @@
 import {assert} from 'chai';
 import {Job, Root, Block} from '../Block';
-import {Dispatcher} from '../Dispatcher';
+import {PropDispatcher} from '../Dispatcher';
 import '../../functions/basic/math/Arithmetic';
 
 describe('Block', function() {
@@ -71,7 +71,7 @@ describe('Block', function() {
     let job = new Job();
     let listener1 = {
       value: 0,
-      onSourceChange(prop: Dispatcher<any>) {
+      onSourceChange(prop: PropDispatcher<any>) {
         // do nothing
       },
       onChange(val: any): void {
@@ -83,7 +83,7 @@ describe('Block', function() {
     };
     let listener2 = {
       value: 0,
-      onSourceChange(prop: Dispatcher<any>) {
+      onSourceChange(prop: PropDispatcher<any>) {
         // do nothing
       },
       onChange(val: any) {

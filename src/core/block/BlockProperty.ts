@@ -1,4 +1,4 @@
-import {ValueDispatcher, Listener, Dispatcher, Destroyable} from './Dispatcher';
+import {ValueDispatcher, PropListener, PropDispatcher, Destroyable} from './Dispatcher';
 import {Block} from './Block';
 import {isSavedBlock} from '../util/DataTypes';
 
@@ -9,14 +9,14 @@ export interface BlockBindingSource extends ValueDispatcher<any>, Destroyable {
 export interface BlockPropertyEvent {
   error?: string;
   bind?: string | null;
-  listener?: Listener<any> | null;
+  listener?: PropListener<any> | null;
 }
 
 export interface BlockPropertySubscriber {
   onPropertyEvent(change: BlockPropertyEvent): void;
 }
 
-export class BlockProperty extends ValueDispatcher<any> implements Listener<any>, BlockBindingSource {
+export class BlockProperty extends ValueDispatcher<any> implements PropListener<any>, BlockBindingSource {
   _block: Block;
   _name: string;
   _bindingPath: string;
@@ -35,7 +35,7 @@ export class BlockProperty extends ValueDispatcher<any> implements Listener<any>
     return this;
   }
 
-  onSourceChange(prop: Dispatcher<any>) {
+  onSourceChange(prop: PropDispatcher<any>) {
     // do nothing
   }
 
@@ -224,7 +224,7 @@ export class BlockProperty extends ValueDispatcher<any> implements Listener<any>
     }
   }
 
-  listen(listener: Listener<any>) {
+  listen(listener: PropListener<any>) {
     this._listeners.add(listener);
     listener.onSourceChange(this);
     if (!this._updating) {
@@ -236,7 +236,7 @@ export class BlockProperty extends ValueDispatcher<any> implements Listener<any>
     }
   }
 
-  unlisten(listener: Listener<any>) {
+  unlisten(listener: PropListener<any>) {
     if (this._listeners) {
       this._listeners.delete(listener);
       if (this._subscribers) {
@@ -325,7 +325,7 @@ export class GlobalProperty extends BlockIO {
     }
   }
 
-  unlisten(listener: Listener<any>) {
+  unlisten(listener: PropListener<any>) {
     super.unlisten(listener);
     this.checkInUse();
   }

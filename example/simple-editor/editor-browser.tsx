@@ -12,7 +12,7 @@ import {Logger} from '../../src/core/util/Logger';
 import {WorkerFunction} from '../../src/core/worker/WorkerFunction';
 import {BlockStagePanel} from '../../src/panel/block/BlockStagePanel';
 import {TicloLayoutContext, TicloLayoutContextType} from '../../src/editor/component/LayoutContext';
-import {Dispatcher, ValueDispatcher} from '../../src/core/block/Dispatcher';
+import {PropDispatcher, ValueDispatcher} from '../../src/core/block/Dispatcher';
 import {PropertyListPanel} from '../../src/panel/property/PropertyListPanel';
 import {ObjectTreePanel} from '../../src/panel/object-tree/ObjectTreePanel';
 import {WsBrowserConnection} from '../../src/browser/connect/WsBrowserConnection';
@@ -50,7 +50,7 @@ class App extends React.PureComponent<Props, State> implements TicloLayoutContex
     this.layout = layout;
   };
 
-  selectedKeys: Dispatcher<string[]> = new ValueDispatcher();
+  selectedKeys: PropDispatcher<string[]> = new ValueDispatcher();
 
   onSelect = (keys: string[], handled: boolean = false) => {
     if (!handled) {

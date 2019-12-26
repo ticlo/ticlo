@@ -1,6 +1,6 @@
 import React, {ErrorInfo} from 'react';
 import {Block} from '../../core/block/Block';
-import {Dispatcher} from '../../core/block/Dispatcher';
+import {PropDispatcher} from '../../core/block/Dispatcher';
 import {validateReactComponent} from './validateReactComponent';
 import {BlockProperty} from '../../core/block/BlockProperty';
 
@@ -32,7 +32,7 @@ export class TicloComp extends React.Component<Props, State> {
     this._property.listen(this);
   }
 
-  onSourceChange?(prop: Dispatcher) {
+  onSourceChange?(prop: PropDispatcher) {
     // ignore
   }
 

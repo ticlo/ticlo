@@ -2,7 +2,7 @@ import {Types} from '../Type';
 import {BaseFunction, BlockFunction} from '../BlockFunction';
 import {BlockIO, BlockPropertyEvent} from '../BlockProperty';
 import {CompleteEvent, ErrorEvent, Event, EventType, WAIT} from '../Event';
-import {Dispatcher} from '../Dispatcher';
+import {PropDispatcher} from '../Dispatcher';
 import {BlockMode} from '../Block';
 import {DataMap} from '../../util/DataTypes';
 
@@ -129,7 +129,7 @@ Types.add(TestAsyncFunctionManual, {
 });
 
 export const VoidListeners = {
-  onSourceChange(prop: Dispatcher<any>) {
+  onSourceChange(prop: PropDispatcher<any>) {
     /* istanbul ignore next */
     throw new Error('should not be called');
   },
