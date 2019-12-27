@@ -163,8 +163,8 @@ export class NodeTreeRenderer extends PureDataRenderer<Props, any> {
         item.key,
         item.editable
           ? () => {
-            item.getConn().applyWorkerChange(item.key);
-          }
+              item.getConn().applyWorkerChange(item.key);
+            }
           : null
       );
     }
@@ -203,12 +203,12 @@ export class NodeTreeRenderer extends PureDataRenderer<Props, any> {
       <Menu selectable={false}>
         {editJob ? (
           <Menu.Item onClick={this.onOpenClicked}>
-            <BuildIcon/>
+            <BuildIcon />
             Open
           </Menu.Item>
         ) : null}
         <Menu.Item>
-          <SearchIcon/>
+          <SearchIcon />
           Search
         </Menu.Item>
       </Menu>
@@ -224,10 +224,10 @@ export class NodeTreeRenderer extends PureDataRenderer<Props, any> {
     }
     return (
       <div style={{...style, marginLeft}} className="ticl-tree-node">
-        <ExpandIcon opened={item.opened} onClick={this.onExpandClicked}/>
+        <ExpandIcon opened={item.opened} onClick={this.onExpandClicked} />
         <Dropdown overlay={this.getMenu} trigger={['contextMenu']}>
           <div className={contentClassName} onClick={this.onClickContent}>
-            <TIcon icon={this.desc.icon} style={getFuncStyleFromDesc(this.desc, 'tico-pr')}/>
+            <TIcon icon={this.desc.icon} style={getFuncStyleFromDesc(this.desc, 'tico-pr')} />
             <div className="ticl-tree-node-text">{item.name}</div>
           </div>
         </Dropdown>
