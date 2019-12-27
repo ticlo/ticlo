@@ -33,19 +33,15 @@ export class FieldValue extends LazyUpdateComponent<Props, any> {
   };
   objectTreeShown = false;
   onExpandObjectTree = (e: React.MouseEvent) => {
-    let {path} = this.props;
-    let val = this.valueSub.value;
-    this.context.showObjectTree(path, val, e.target as HTMLElement, this);
-    this.objectTreeShown = true;
+    if (this.context?.showObjectTree) {
+      let {path} = this.props;
+      let val = this.valueSub.value;
+      this.context.showObjectTree(path, val, e.target as HTMLElement, this);
+      this.objectTreeShown = true;
+    }
   };
 
   getObjectPopup = (val: any) => {
-    if (this.context && this.context.showObjectTree) {
-      return (
-        // use float panel if possible
-        <div className="ticl-tree-arr ticl-tree-arr-expand" onClick={this.onExpandObjectTree} />
-      );
-    }
     return (
       // show as popup menu
       <Popup
@@ -55,7 +51,7 @@ export class FieldValue extends LazyUpdateComponent<Props, any> {
           offset: [-6, 0]
         }}
       >
-        <div className="ticl-tree-arr ticl-tree-arr-expand" />
+        <div className="ticl-tree-arr ticl-tree-arr-expand" onDoubleClick={this.onExpandObjectTree} />
       </Popup>
     );
   };
