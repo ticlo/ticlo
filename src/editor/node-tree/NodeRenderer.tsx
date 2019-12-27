@@ -65,13 +65,6 @@ export class NodeTreeItem extends TreeItem<NodeTreeItem> {
     }
   }
 
-  reload() {
-    this.cancelLoad();
-    this.opened = 'loading';
-    this.listingId = this.connection.listChildren(this.key, null, this.max, this) as string;
-    this.forceUpdate();
-  }
-
   onChildrenChange(parentPath: string, isHidden = false) {
     isHidden = isHidden || this.opened === 'closed';
     if (parentPath === this.key) {
@@ -162,9 +155,7 @@ export class NodeTreeRenderer extends PureDataRenderer<Props, any> {
         break;
     }
   };
-  onReloadClicked = (event?: ClickParam) => {
-    this.props.item.reload();
-  };
+
   onOpenClicked = (event?: ClickParam) => {
     const {item} = this.props;
     if (this.context && this.context.editJob) {
@@ -172,8 +163,8 @@ export class NodeTreeRenderer extends PureDataRenderer<Props, any> {
         item.key,
         item.editable
           ? () => {
-              item.getConn().applyWorkerChange(item.key);
-            }
+            item.getConn().applyWorkerChange(item.key);
+          }
           : null
       );
     }
@@ -212,16 +203,12 @@ export class NodeTreeRenderer extends PureDataRenderer<Props, any> {
       <Menu selectable={false}>
         {editJob ? (
           <Menu.Item onClick={this.onOpenClicked}>
-            <BuildIcon />
+            <BuildIcon/>
             Open
           </Menu.Item>
         ) : null}
-        <Menu.Item onClick={this.onReloadClicked}>
-          <ReloadIcon />
-          Reload
-        </Menu.Item>
         <Menu.Item>
-          <SearchIcon />
+          <SearchIcon/>
           Search
         </Menu.Item>
       </Menu>
@@ -237,10 +224,10 @@ export class NodeTreeRenderer extends PureDataRenderer<Props, any> {
     }
     return (
       <div style={{...style, marginLeft}} className="ticl-tree-node">
-        <ExpandIcon opened={item.opened} onClick={this.onExpandClicked} />
+        <ExpandIcon opened={item.opened} onClick={this.onExpandClicked}/>
         <Dropdown overlay={this.getMenu} trigger={['contextMenu']}>
           <div className={contentClassName} onClick={this.onClickContent}>
-            <TIcon icon={this.desc.icon} style={getFuncStyleFromDesc(this.desc, 'tico-pr')} />
+            <TIcon icon={this.desc.icon} style={getFuncStyleFromDesc(this.desc, 'tico-pr')}/>
             <div className="ticl-tree-node-text">{item.name}</div>
           </div>
         </Dropdown>

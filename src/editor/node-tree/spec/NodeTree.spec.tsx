@@ -100,18 +100,7 @@ describe('editor NodeTree', function() {
       'click'
     );
     await shouldHappen(() => contentDiv.childNodes.length === 14);
-    // node is removed but cache still exists
-    assert.isNotNull(querySingle("//div.ticl-tree-node-text[text()='5']"));
-    // find block icon should disappear, because #is changed to blank
-    await shouldHappen(() => querySingle("//div.ticl-tree-node-text[text()='5']/../../div.tico/div", div) == null);
-
-    // right click the first node
-    SimulateEvent.simulate(querySingle("//div.ticl-tree-node-text[text()='NodeTree']", div), 'contextmenu');
-    // click Reload
-    SimulateEvent.simulate(querySingle("//li[contains(@class,'ant-dropdown-menu-item')][text()='Reload']"), 'click');
-    // second layer of children node should all be closed
-    await shouldHappen(() => contentDiv.childNodes.length === 10);
-    // children should be refreshed, only 9 children remain
+    // node is removed
     assert.isNull(querySingle("//div.ticl-tree-node-text[text()='5']"));
 
     Root.instance.deleteValue('NodeTree');
