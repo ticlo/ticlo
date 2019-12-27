@@ -14,6 +14,10 @@ export class TrackedClientConn implements ClientConn {
     return this._base.getBaseConn();
   }
 
+  childrenChangeStream() {
+    return this._base.childrenChangeStream();
+  }
+
   constructor(base: ClientConn) {
     this._base = base;
     this.changed._value = false;

@@ -2,6 +2,7 @@ import {FunctionDesc, PropDesc, PropGroupDesc} from '../block/Descriptor';
 import {ClientCallbacks, ClientDescListener, SubscribeCallbacks} from './ClientRequests';
 
 import {DataMap} from '../util/DataTypes';
+import {StreamDispatcher} from '../block/Dispatcher';
 
 /**
  * interface for ClientConnect and its wrappers
@@ -9,6 +10,8 @@ import {DataMap} from '../util/DataTypes';
 
 export interface ClientConn {
   getBaseConn(): ClientConn;
+
+  childrenChangeStream(): StreamDispatcher<string>;
 
   callImmediate(f: () => void): void;
 

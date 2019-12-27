@@ -295,12 +295,13 @@ export abstract class BlockStageBase<State> extends LazyUpdateComponent<StagePro
   };
 
   deleteSelectedBlocks() {
-    let {conn} = this.props;
+    let {conn, basePath} = this.props;
     for (let [blockKey, blockItem] of this._blocks) {
       if (blockItem.selected) {
         conn.setValue(blockKey, undefined);
       }
     }
+    conn.childrenChangeStream().dispatch(basePath);
   }
 
   focus() {

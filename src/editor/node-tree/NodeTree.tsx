@@ -87,6 +87,12 @@ export class NodeTree extends LazyUpdateComponent<Props, any> {
     );
   };
 
+  onChildrenChange = (parentPath: string) => {
+    for (let node of this.rootList) {
+      node.onChildrenChange(parentPath);
+    }
+  };
+
   forceUpdateLambda = () => this.forceUpdate();
 
   refreshList() {
@@ -102,7 +108,7 @@ export class NodeTree extends LazyUpdateComponent<Props, any> {
   }
 
   buildRoot() {
-    let {basePaths, hideRoot} = this.props;
+    let {conn, basePaths, hideRoot} = this.props;
     for (let basePath of basePaths) {
       let rootNode = new NodeTreeItem(basePath, '');
       rootNode.connection = this.props.conn;
@@ -113,6 +119,7 @@ export class NodeTree extends LazyUpdateComponent<Props, any> {
       this.rootList[0].level = -1;
       this.rootList[0].open();
     }
+    conn.childrenChangeStream().listen(this.onChildrenChange);
   }
 
   renderImpl() {
@@ -129,6 +136,7 @@ export class NodeTree extends LazyUpdateComponent<Props, any> {
   }
 
   componentWillUnmount(): void {
+    this.props.conn.childrenChangeStream().unlisten(this.onChildrenChange);
     for (let node of this.rootList) {
       node.destroy();
     }

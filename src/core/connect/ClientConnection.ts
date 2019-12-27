@@ -17,6 +17,7 @@ import {
   MergedClientRequest
 } from './ClientRequests';
 import {ClientConn} from './ClientConn';
+import {StreamDispatcher} from '../block/Dispatcher';
 
 export {ValueUpdate, ValueState} from './ClientRequests';
 
@@ -56,6 +57,11 @@ export abstract class ClientConnection extends Connection implements ClientConn 
   }
   getBaseConn() {
     return this;
+  }
+
+  _childrenChangeStream = new StreamDispatcher<string>();
+  childrenChangeStream() {
+    return this._childrenChangeStream;
   }
 
   onData(response: DataMap) {
@@ -202,7 +208,9 @@ export abstract class ClientConnection extends Connection implements ClientConn 
   }
 
   createBlock(path: string, data?: DataMap, anyName = false, callbacks?: ClientCallbacks): Promise<any> | string {
-    return this.simpleRequest({cmd: 'create', path, data, anyName}, callbacks);
+    let result = this.simpleRequest({cmd: 'create', path, data, anyName}, callbacks);
+    this._childrenChangeStream.dispatch(path.substring(0, path.lastIndexOf('.')));
+    return result;
   }
 
   listChildren(path: string, filter?: string, max: number = 16, callbacks?: ClientCallbacks): Promise<any> | string {
