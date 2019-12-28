@@ -16,7 +16,7 @@ interface Props {
 
 interface State {}
 
-export class BlockStageTab extends LazyUpdateComponent<Props, State> {
+export class BlockStageTabButton extends LazyUpdateComponent<Props, State> {
   static contextType = DockContextType;
   context!: DockContext;
 

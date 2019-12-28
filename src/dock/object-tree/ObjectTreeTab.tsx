@@ -13,7 +13,7 @@ interface Props {
   val: any;
 }
 
-export class ObjectTreePanel extends LazyUpdateComponent<Props, any> {
+export class ObjectTreeTab extends LazyUpdateComponent<Props, any> {
   static dockGroup = {
     disableDock: true,
     maximizable: false
@@ -47,7 +47,7 @@ export class ObjectTreePanel extends LazyUpdateComponent<Props, any> {
           title: tabName,
           group: 'objectTree',
           source,
-          content: <ObjectTreePanel conn={conn} path={path} val={val} />
+          content: <ObjectTreeTab conn={conn} path={path} val={val} />
         }
       ],
       x,

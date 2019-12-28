@@ -16,21 +16,21 @@ import './sample-blocks';
 import {Logger} from '../../src/core/util/Logger';
 import {NodeTreeItem} from '../../src/editor/node-tree/NodeRenderer';
 import {WorkerFunction} from '../../src/core/worker/WorkerFunction';
-import {BlockStagePanel} from '../../src/panel/block/BlockStagePanel';
+import {BlockStageTab} from '../../src/dock/block/BlockStageTab';
 import {TicloLayoutContext, TicloLayoutContextType} from '../../src/editor/component/LayoutContext';
 import {TrackedClientConn} from '../../src/core/connect/TrackedClientConn';
-import {BlockStageTab} from '../../src/panel/block/BlockStageTab';
+import {BlockStageTabButton} from '../../src/dock/block/BlockStageTabButton';
 import {PropDispatcher, PropDispatcher} from '../../src/core/block/Dispatcher';
-import {PropertyListPanel} from '../../src/panel/property/PropertyListPanel';
-import {ObjectTreePanel} from '../../src/panel/object-tree/ObjectTreePanel';
-import {NodeTreePanel} from '../../src/panel/node-tree/NodeTreePanel';
+import {PropertyListTab} from '../../src/dock/property/PropertyListTab';
+import {ObjectTreeTab} from '../../src/dock/object-tree/ObjectTreeTab';
+import {NodeTreeTab} from '../../src/dock/node-tree/NodeTreeTab';
 
 const layoutGroups = {
   blockStage: {
     animated: false,
     floatable: true
   },
-  objectTree: ObjectTreePanel.dockGroup
+  objectTree: ObjectTreeTab.dockGroup
 };
 
 interface Props {
@@ -66,7 +66,7 @@ class App extends React.PureComponent<Props, State> implements TicloLayoutContex
 
   createBlockEditorTab(path: string, onSave?: () => void) {
     let {conn} = this.props;
-    return BlockStagePanel.createDockTab(path, conn, this.onSelect, onSave);
+    return BlockStageTab.createDockTab(path, conn, this.onSelect, onSave);
   }
 
   /// implements TicloLayoutContext
@@ -75,10 +75,10 @@ class App extends React.PureComponent<Props, State> implements TicloLayoutContex
   }
   showObjectTree(path: string, value: any, element: HTMLElement, source: any) {
     let {conn} = this.props;
-    ObjectTreePanel.openFloatPanel(this.layout, path, conn, value, element, source, 18, 0);
+    ObjectTreeTab.openFloatPanel(this.layout, path, conn, value, element, source, 18, 0);
   }
   closeObjectTree(path: string, source: any) {
-    ObjectTreePanel.closeFloatPanel(this.layout, path, source);
+    ObjectTreeTab.closeFloatPanel(this.layout, path, source);
   }
 
   onDragBlock = (e: DragState) => {
@@ -124,14 +124,14 @@ class App extends React.PureComponent<Props, State> implements TicloLayoutContex
                 title: 'PropertyList',
                 cached: true,
                 cacheContext: TicloLayoutContextType,
-                content: <PropertyListPanel conn={conn} />
+                content: <PropertyListTab conn={conn} />
               },
               {
                 id: 'NavTree',
                 title: 'NavTree',
                 cached: true,
                 cacheContext: TicloLayoutContextType,
-                content: <NodeTreePanel conn={conn} basePaths={['']} hideRoot={true} onSelect={this.onSelect} />
+                content: <NodeTreeTab conn={conn} basePaths={['']} hideRoot={true} onSelect={this.onSelect} />
               },
               {
                 id: 'Types',

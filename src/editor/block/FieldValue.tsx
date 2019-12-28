@@ -6,7 +6,6 @@ import {encodeDisplay} from '../../core/util/Serialize';
 import {displayNumber} from '../../ui/util/Types';
 import {Popup} from '../component/ClickPopup';
 import {ObjectTree} from '../object-tree/ObjectTree';
-import {ObjectTreePanel} from '../../panel/object-tree/ObjectTreePanel';
 import {TicloLayoutContext, TicloLayoutContextType} from '../component/LayoutContext';
 import {renderValue} from '../component/renderValue';
 

@@ -7,9 +7,9 @@ import {Divider} from 'rc-dock/lib';
 import {arrayEqual} from '../../core/util/Compare';
 import {ClientConn} from '../../core/connect/ClientConn';
 import {TrackedClientConn} from '../../core/connect/TrackedClientConn';
-import {BlockStageTab} from './BlockStageTab';
+import {BlockStageTabButton} from './BlockStageTabButton';
 
-import './BlockStagePanel.less';
+import './BlockStageTab.less';
 
 interface Props {
   conn: ClientConn;
@@ -23,7 +23,7 @@ interface State {
   sizes: number[];
 }
 
-export class BlockStagePanel extends React.PureComponent<Props, State> {
+export class BlockStageTab extends React.PureComponent<Props, State> {
   state: State = {showPropertyList: true, selectedKeys: [], sizes: [1000, 1]};
 
   static editorCount = 0;
@@ -35,14 +35,14 @@ export class BlockStagePanel extends React.PureComponent<Props, State> {
     onSave?: () => void
   ) {
     let trackedConn = new TrackedClientConn(conn);
-    let id = `blockEditor${BlockStagePanel.editorCount++}`;
+    let id = `blockEditor${BlockStageTab.editorCount++}`;
     let tabName = path.split('.').pop();
     return {
       id,
       closable: !onSave,
-      title: onSave ? <BlockStageTab conn={trackedConn} id={id} title={tabName} onSave={onSave} /> : tabName,
+      title: onSave ? <BlockStageTabButton conn={trackedConn} id={id} title={tabName} onSave={onSave} /> : tabName,
       group: 'blockStage',
-      content: <BlockStagePanel conn={trackedConn} basePath={path} onSelect={onSelect} />
+      content: <BlockStageTab conn={trackedConn} basePath={path} onSelect={onSelect} />
     };
   }
 

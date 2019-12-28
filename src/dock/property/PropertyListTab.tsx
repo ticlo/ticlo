@@ -16,7 +16,7 @@ interface State {
   selectedKeys: string[];
 }
 
-export class PropertyListPanel extends React.PureComponent<Props, State> {
+export class PropertyListTab extends React.PureComponent<Props, State> {
   static contextType = TicloLayoutContextType;
   context!: TicloLayoutContext;
 
