@@ -16,8 +16,8 @@ export function encode(value: any): string {
   return jsonesc.stringify(value);
 }
 
-export function encodeSorted(value: any): string {
-  return jsonesc.stringifySorted(value, 1);
+export function encodeSorted(value: any, space = 1): string {
+  return jsonesc.stringifySorted(value, space);
 }
 
 export function decode(str: string): any {

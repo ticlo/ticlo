@@ -78,7 +78,7 @@ ClientConnection.addEditorDescriptor('note', {
   name: 'note',
   id: 'note',
   properties: [
-    {name: 'text', type: 'string'},
+    {name: 'text', type: 'string', mime: 'text/x-markdown'},
     {name: 'color', type: 'color'},
     {name: 'background', type: 'color'},
     {name: 'border', type: 'string'}

@@ -43,6 +43,9 @@ export interface PropDesc {
   // number, string
   placeholder?: string;
 
+  // string, used by TextEditorTab
+  mime?: string;
+
   // number
   min?: number;
   max?: number;

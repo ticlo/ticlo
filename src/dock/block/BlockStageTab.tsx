@@ -92,7 +92,7 @@ export class BlockStageTab extends React.PureComponent<Props, State> {
     let {showPropertyList, selectedKeys, sizes} = this.state;
 
     return (
-      <div className="ticl-hbox ticl-stage-panel" ref={this.getRef}>
+      <div className="ticl-hbox ticl-stage-tab-content" ref={this.getRef}>
         <BlockStage
           key="stage"
           conn={conn}

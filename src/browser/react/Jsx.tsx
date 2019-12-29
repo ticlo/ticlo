@@ -41,6 +41,7 @@ Types.add(
       {
         name: 'script',
         type: 'string',
+        mime: 'text/jsx',
         visible: 'high'
       },
       {

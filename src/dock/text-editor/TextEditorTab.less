@@ -1,0 +1,35 @@
+.ticl-text-editor {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+
+  & > .react-codemirror2 {
+    height: 0;
+    flex-grow: 1;
+
+    .CodeMirror {
+      height: 100%;
+    }
+
+    .CodeMirror-scroll {
+      margin-right: 0;
+    }
+
+    .CodeMirror-foldmarker {
+      text-shadow: none;
+      background: #f0f0f0;
+      height: 14px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      display: inline-block;
+      padding: 0 1px;
+      line-height: 10px;
+    }
+  }
+
+  & > .ticl-box-footer {
+    & > * {
+      margin: 0 6px;
+    }
+  }
+}
