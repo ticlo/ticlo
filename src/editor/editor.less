@@ -1,4 +1,20 @@
 @import './style';
+// no priority
+@ticl-color-prn: #a0a0a0;
+@ticl-color-prn-light: #ddd;
+
+@ticl-color-pr0: @blue-5;
+@ticl-color-pr0-light: @blue-3;
+@ticl-color-pr1: @cyan-6;
+@ticl-color-pr1-light: @cyan-3;
+@ticl-color-pr2: mix(@lime-6, @lime-7, 50%);
+@ticl-color-pr2-light: @lime-4;
+@ticl-color-pr3: mix(@red-4, @orange-6, 25%);
+@ticl-color-pr3-light: mix(@red-2, @orange-3, 25%);
+// repeater
+@ticl-color-prr: mix(@gold-6, @gold-7, 70%);
+@ticl-color-prr-light: @gold-3;
+
 @import '../ui/ui';
 
 @import './block/BlockStage';
@@ -44,4 +60,34 @@ div ::-webkit-scrollbar:vertical {
 
 div ::-webkit-scrollbar:horizontal {
   height: 11px;
+}
+
+.ticl-error-message {
+  padding: 6px;
+  color: @error-color;
+}
+.ticl-error-box {
+  border: 1px solid @error-color;
+}
+
+// fix component styles
+.ant-switch {
+  // by default it use disabled color, which is too dark
+  background-color: rgba(0, 0, 0, 0.25);
+
+  &-checked {
+    background-color: @switch-color;
+  }
+
+  &:after {
+    // make it move faster
+    transition: all 0.2s ease-in-out;
+  }
+}
+
+.ant-dropdown-menu {
+  // make the border clearer
+  box-shadow: 0 0.5px 3px 1px rgba(0, 0, 0, 0.15);
+  // smaller radius
+  border-radius: 0 2px 2px;
 }

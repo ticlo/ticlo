@@ -1,6 +1,6 @@
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
-import {Block, FunctionDesc, Root} from '../../src/core/main';
+import {Block, FunctionDesc, PropDesc, Root} from '../../src/core/main';
 import {makeLocalConnection} from '../../src/core/connect/LocalConnection';
 import {TIcon} from '../../src/editor/icon/Icon';
 import {data} from '../sample-data/data';
@@ -18,12 +18,12 @@ import {NodeTreeItem} from '../../src/editor/node-tree/NodeRenderer';
 import {WorkerFunction} from '../../src/core/worker/WorkerFunction';
 import {BlockStageTab} from '../../src/dock/block/BlockStageTab';
 import {TicloLayoutContext, TicloLayoutContextType} from '../../src/editor/component/LayoutContext';
-import {TrackedClientConn} from '../../src/core/connect/TrackedClientConn';
-import {BlockStageTabButton} from '../../src/dock/block/BlockStageTabButton';
-import {PropDispatcher, PropDispatcher} from '../../src/core/block/Dispatcher';
+import {PropDispatcher} from '../../src/core/block/Dispatcher';
 import {PropertyListTab} from '../../src/dock/property/PropertyListTab';
 import {ObjectTreeTab} from '../../src/dock/object-tree/ObjectTreeTab';
 import {NodeTreeTab} from '../../src/dock/node-tree/NodeTreeTab';
+import {TextEditorTab} from '../../src/dock/text-editor/TextEditorTab';
+import {ClientConn} from '../../src/core/connect/ClientConn';
 
 const layoutGroups = {
   blockStage: {
@@ -72,6 +72,17 @@ class App extends React.PureComponent<Props, State> implements TicloLayoutContex
   /// implements TicloLayoutContext
   editJob(path: string, onSave: () => void) {
     this.layout.dockMove(this.createBlockEditorTab(path, onSave), this.layout.find('main'), 'middle');
+  }
+  editProperty(paths: string[], propDesc: PropDesc, defaultValue?: any, mime?: string): void {
+    let {conn} = this.props;
+    if (!mime) {
+      if (propDesc.mime) {
+        mime = propDesc.mime;
+      } else if (propDesc.type === 'object' || propDesc.type === 'array') {
+        mime = 'application/json';
+      }
+    }
+    TextEditorTab.openFloatPanel(this.layout, conn, paths, mime, defaultValue);
   }
   showObjectTree(path: string, value: any, element: HTMLElement, source: any) {
     let {conn} = this.props;

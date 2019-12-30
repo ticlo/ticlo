@@ -122,7 +122,7 @@ export class DynamicEditor extends React.PureComponent<ValueEditorProps, State> 
   }
 
   render() {
-    let {conn, keys, desc, value, locked, onChange, addSubBlock} = this.props;
+    let {conn, keys, name, desc, value, locked, onChange, addSubBlock} = this.props;
     let types = desc.types || defaultTypes;
     let currentType = this.getCurrentType();
 
@@ -133,6 +133,7 @@ export class DynamicEditor extends React.PureComponent<ValueEditorProps, State> 
         <EditorClass
           conn={conn}
           keys={keys}
+          name={name}
           value={value}
           desc={desc}
           locked={locked}

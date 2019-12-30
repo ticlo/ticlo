@@ -1,8 +1,8 @@
 import React from 'react';
 import {ClientConn} from '../../core/connect/ClientConn';
-import {Menu, Dropdown, Button} from 'antd';
+import {Menu, Dropdown, Button, Spin} from 'antd';
 import {ClickParam} from 'antd/lib/menu';
-import {Controlled as CodeMirror} from 'react-codemirror2';
+import {UnControlled as CodeMirror} from 'react-codemirror2';
 import {Editor, EditorChange} from 'codemirror';
 
 import 'codemirror/mode/xml/xml';
@@ -21,12 +21,13 @@ import 'codemirror/addon/fold/foldgutter.css';
 import './TextEditorTab.less';
 
 import {DataMap, isDataTruncated} from '../../core/util/DataTypes';
-import {PropDesc} from '../../core/block/Descriptor';
-import {encodeSorted} from '../../core/util/Serialize';
+import {decode, encodeSorted} from '../../core/util/Serialize';
+import {DockLayout} from 'rc-dock/lib';
+import {mapPointsBetweenElement} from '../../ui/util/Position';
 
 interface Props {
   conn: ClientConn;
-  desc: PropDesc;
+  mime: string;
   paths: string[];
   defaultValue: any;
   readonly?: boolean;
@@ -34,6 +35,8 @@ interface Props {
 
 interface State {
   value: string;
+  loading: boolean;
+  error?: string;
 }
 
 const codeMirrorExtraKeys = {
@@ -50,26 +53,72 @@ const codeMirrorExtraKeys = {
   }
 };
 
-function getEditorMode(desc: PropDesc) {
-  switch (desc.type) {
-    case 'object':
-    case 'array':
-      return 'application/json';
-    default:
-      return desc.mime || 'text/plain';
-  }
-}
-
 export class TextEditorTab extends React.PureComponent<Props, State> {
+  static openFloatPanel(layout: DockLayout, conn: ClientConn, paths: string[], mime: string, defaultValue: any) {
+    if (!paths?.length) {
+      // invalid paths
+      return;
+    }
+    let sortedPaths = [...paths].sort();
+    let id = `textEditor-${sortedPaths.join('..')}`;
+    let oldTab = layout.find(id);
+    if (oldTab) {
+      // TODO move oldTab to front
+      return;
+    }
+
+    let w = 400;
+    let h = 500;
+    let {offsetWidth, offsetHeight} = layout._ref;
+    if (w > offsetWidth) {
+      w = offsetWidth;
+    }
+    if (h > offsetHeight) {
+      h = offsetHeight;
+    }
+
+    let tabName = paths[0].split('.').pop();
+    let newPanel = {
+      activeId: id,
+      tabs: [
+        {
+          id,
+          closable: true,
+          title: tabName,
+          group: 'textEditor',
+          content: <TextEditorTab conn={conn} mime={mime} paths={paths} defaultValue={defaultValue} />
+        }
+      ],
+      x: (offsetWidth - w) >> 1,
+      y: (offsetHeight - h) >> 1,
+      w,
+      h
+    };
+    layout.dockMove(newPanel, null, 'float');
+  }
+
   constructor(props: Props) {
     super(props);
     let {defaultValue} = props;
 
-    this.state = {value: this.convertValue(defaultValue)};
     if (isDataTruncated(defaultValue)) {
       let selectedPath = props.paths[0];
       this.loadData(selectedPath);
+      this.state = {value: this.convertValue(defaultValue), loading: true};
+    } else {
+      this.state = {value: this.convertValue(defaultValue), loading: false};
     }
+  }
+  _codeMirror: CodeMirror;
+  getCodeMirror = (cm: CodeMirror) => {
+    this._codeMirror = cm;
+  };
+
+  getEditor() {
+    if (this._codeMirror) {
+      return (this._codeMirror as any).editor as Editor;
+    }
+    return null;
   }
 
   loadData(path: string) {
@@ -77,13 +126,17 @@ export class TextEditorTab extends React.PureComponent<Props, State> {
     conn.getValue(path, this.valueLoader);
   }
   valueLoader = {
+    onError: (error: string) => {
+      this.setState({value: '', loading: false, error});
+    },
     onUpdate: (response: DataMap) => {
-      this.setState({value: this.convertValue(response.cache.value)});
+      this.setState({value: this.convertValue(response.value), loading: false});
     }
   };
+
   convertValue(value: any): string {
-    let {desc} = this.props;
-    if (getEditorMode(desc) === 'application/json') {
+    let {mime} = this.props;
+    if (mime === 'application/json') {
       return encodeSorted(value);
     }
     if (typeof value === 'string') {
@@ -92,20 +145,41 @@ export class TextEditorTab extends React.PureComponent<Props, State> {
     return '';
   }
 
-  onBeforeChange = (editor: Editor, data: EditorChange, value: string) => {
-    this.setState({value});
+  onChange = (editor: Editor, data: EditorChange, value: string) => {
+    if (this.state.error) {
+      this.setState({error: null});
+    }
   };
-  onChange = (editor: Editor, data: EditorChange, value: string) => {};
 
   onReloadClick = (e: ClickParam) => {
     this.loadData(e.key);
   };
 
-  onApply = () => {};
+  onApply = () => {
+    let {mime, paths, conn} = this.props;
+    let {loading} = this.state;
+    if (loading) {
+      return false;
+    }
+    let value: any = this.getEditor().getValue();
+    if (mime === 'application/json') {
+      try {
+        value = decode(value);
+      } catch (e) {
+        this.setState({error: e.toString()});
+        return false;
+      }
+    }
+    for (let path of paths) {
+      conn.setValue(path, value);
+    }
+    return true;
+  };
   onClose = () => {};
   onOK = () => {
-    this.onApply();
-    this.onClose();
+    if (this.onApply()) {
+      this.onClose();
+    }
   };
 
   getReloadMenu = () => {
@@ -118,26 +192,34 @@ export class TextEditorTab extends React.PureComponent<Props, State> {
   };
 
   render() {
-    let {desc, readonly} = this.props;
-    let {value} = this.state;
+    let {mime, readonly} = this.props;
+    let {value, error, loading} = this.state;
 
     return (
       <div className="ticl-text-editor">
-        <CodeMirror
-          value={value}
-          options={{
-            mode: getEditorMode(desc),
-            theme: 'eclipse',
-            tabSize: 2,
-            autofocus: true,
-            lineNumbers: true,
-            foldGutter: true,
-            gutters: ['CodeMirror-linenumbers', 'CodeMirror-foldgutter'],
-            extraKeys: codeMirrorExtraKeys
-          }}
-          onBeforeChange={this.onBeforeChange}
-          onChange={this.onChange}
-        />
+        {loading ? (
+          <div className="ticl-spacer ticl-hbox ticl-center-box">
+            <Spin tip="Loading..." />
+          </div>
+        ) : (
+          <CodeMirror
+            ref={this.getCodeMirror}
+            className={error ? 'ticl-error-box' : null}
+            value={value}
+            options={{
+              mode: mime,
+              theme: 'eclipse',
+              tabSize: 2,
+              autofocus: true,
+              lineNumbers: true,
+              foldGutter: true,
+              gutters: ['CodeMirror-linenumbers', 'CodeMirror-foldgutter'],
+              extraKeys: codeMirrorExtraKeys
+            }}
+            onChange={this.onChange}
+          />
+        )}
+        {error ? <div className="ticl-error-message">{error}</div> : null}
         <div className="ticl-box-footer">
           <Dropdown overlay={this.getReloadMenu} trigger={['click']}>
             <Button size="small">Reload</Button>
@@ -146,16 +228,16 @@ export class TextEditorTab extends React.PureComponent<Props, State> {
           <Button size="small" onClick={this.onClose}>
             Close
           </Button>
-          {readonly ? (
+          {readonly ? null : (
             <>
-              <Button size="small" onClick={this.onApply}>
+              <Button size="small" disabled={loading} onClick={this.onApply}>
                 Apply
               </Button>
-              <Button size="small" onClick={this.onOK}>
+              <Button size="small" disabled={loading} onClick={this.onOK}>
                 OK
               </Button>
             </>
-          ) : null}
+          )}
         </div>
       </div>
     );
