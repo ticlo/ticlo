@@ -8,18 +8,21 @@
     right: 0;
     cursor: pointer;
 
-    transition: transform 0.3s;
+    transition: transform 0.1s;
     &:hover {
       transform: scale(1.1818181818181818, 1.1818181818181818);
+      opacity: 0.4;
+      z-index: 999;
     }
   }
 }
-
+/* used by both the type choose button and the drop down menu */
 .ticl-dynamic-type-icon {
   width: 11px;
   height: 11px;
-  background: #cccccc;
   border-radius: 2px;
+  background: black;
+  opacity: 0.2;
 
   & > .tico-txt {
     font-size: 11px;
