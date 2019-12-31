@@ -1,9 +1,6 @@
 import React from 'react';
 import {LazyUpdateComponent, LazyUpdateSubscriber} from '../../ui/component/LazyUpdateComponent';
 import {ClientConn} from '../../core/connect/ClientConn';
-import {TRUNCATED} from '../../core/util/DataTypes';
-import {encodeDisplay} from '../../core/util/Serialize';
-import {displayNumber} from '../../ui/util/Types';
 import {Popup} from '../component/ClickPopup';
 import {ObjectTree} from '../object-tree/ObjectTree';
 import {TicloLayoutContext, TicloLayoutContextType} from '../component/LayoutContext';
@@ -37,6 +34,7 @@ export class FieldValue extends LazyUpdateComponent<Props, any> {
       let val = this.valueSub.value;
       this.context.showObjectTree(path, val, e.target as HTMLElement, this);
       this.objectTreeShown = true;
+      e.stopPropagation();
     }
   };
 

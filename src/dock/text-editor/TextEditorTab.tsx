@@ -31,6 +31,7 @@ interface Props {
   paths: string[];
   defaultValue: any;
   readonly?: boolean;
+  onClose?: () => void;
 }
 
 interface State {
@@ -91,6 +92,13 @@ export class TextEditorTab extends React.PureComponent<Props, State> {
     if (paths.length > 1) {
       tabName = `${tabName} (+${paths.length - 1})`;
     }
+
+    const onClose = () => {
+      let tab = layout.find(id);
+      if (tab) {
+        layout.dockMove(tab, null, 'remove');
+      }
+    };
     let newPanel = {
       activeId: id,
       tabs: [
@@ -98,7 +106,7 @@ export class TextEditorTab extends React.PureComponent<Props, State> {
           id,
           closable: true,
           title: tabName,
-          content: <TextEditorTab conn={conn} mime={mime} paths={paths} defaultValue={defaultValue} />
+          content: <TextEditorTab conn={conn} mime={mime} paths={paths} defaultValue={defaultValue} onClose={onClose} />
         }
       ],
       x,
@@ -187,7 +195,9 @@ export class TextEditorTab extends React.PureComponent<Props, State> {
     }
     return true;
   };
-  onClose = () => {};
+  onClose = () => {
+    this.props.onClose?.();
+  };
   onOK = () => {
     if (this.onApply()) {
       this.onClose();
@@ -204,7 +214,7 @@ export class TextEditorTab extends React.PureComponent<Props, State> {
   };
 
   render() {
-    let {mime, readonly} = this.props;
+    let {mime, readonly, onClose} = this.props;
     let {value, error, loading} = this.state;
 
     return (
@@ -237,19 +247,21 @@ export class TextEditorTab extends React.PureComponent<Props, State> {
             <Button size="small">Reload</Button>
           </Dropdown>
           <div className="ticl-spacer" />
-          <Button size="small" onClick={this.onClose}>
-            Close
-          </Button>
-          {readonly ? null : (
-            <>
-              <Button size="small" disabled={loading} onClick={this.onApply}>
-                Apply
-              </Button>
-              <Button size="small" disabled={loading} onClick={this.onOK}>
-                OK
-              </Button>
-            </>
-          )}
+          {onClose ? (
+            <Button size="small" onClick={this.onClose}>
+              Close
+            </Button>
+          ) : null}
+          {!readonly ? (
+            <Button size="small" disabled={loading} onClick={this.onApply}>
+              Apply
+            </Button>
+          ) : null}
+          {onClose && !readonly ? (
+            <Button size="small" disabled={loading} onClick={this.onOK}>
+              OK
+            </Button>
+          ) : null}
         </div>
       </div>
     );
