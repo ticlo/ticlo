@@ -43,8 +43,8 @@ export class StringEditor extends StringEditorBase {
           onKeyDown={this.onKeyDown}
         />
         {this.context?.editProperty ? (
-          <div className="ticl-expand-editor" onClick={this.popup}>
-            <div className="tico-fas-expand" />
+          <div className="ticl-expand-button" title={'Edit'} onClick={this.popup}>
+            <div className="ticl-expand-icon-11" />
           </div>
         ) : null}
       </>

@@ -142,7 +142,11 @@ export class DynamicEditor extends React.PureComponent<ValueEditorProps, State> 
         />
       );
     }
-    let typeIcon = <div className="ticl-dynamic-type-icon">{dynamicTypeIcon[currentType]}</div>;
+    let typeIcon = (
+      <div className="ticl-dynamic-type-icon" title={'Change Type'}>
+        {dynamicTypeIcon[currentType]}
+      </div>
+    );
     if (onChange && types.length > 1) {
       const menu = <Menu onClick={this.onMenuClick}>{types.map((type) => dynamicTypeMenuItem[type])}</Menu>;
       typeIcon = (

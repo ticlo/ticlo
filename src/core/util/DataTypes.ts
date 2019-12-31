@@ -126,11 +126,16 @@ export function truncateData(val: any, maxSize: number = 1024): [any, number] {
 }
 
 export function isDataTruncated(val: any): boolean {
+  if (val == null) {
+    return false;
+  }
   if (typeof val === 'string') {
     return val.endsWith(TRUNCATED);
-  } else if (Array.isArray(val)) {
+  }
+  if (Array.isArray(val)) {
     return val.length > 0 && val[val.length - 1] === TRUNCATED;
-  } else if (val.constructor === Object) {
+  }
+  if (val.constructor === Object) {
     return Boolean(val[TRUNCATED]);
   }
   return false;

@@ -63,21 +63,34 @@ export class TextEditorTab extends React.PureComponent<Props, State> {
     let id = `textEditor-${sortedPaths.join('..')}`;
     let oldTab = layout.find(id);
     if (oldTab) {
-      // TODO move oldTab to front
+      layout.dockMove(oldTab, null, 'front');
       return;
     }
 
     let w = 400;
     let h = 500;
-    let {offsetWidth, offsetHeight} = layout._ref;
-    if (w > offsetWidth) {
-      w = offsetWidth;
-    }
-    if (h > offsetHeight) {
-      h = offsetHeight;
+    let {width, height} = layout.getLayoutSize();
+    if (!width || !height) {
+      return;
     }
 
-    let tabName = paths[0].split('.').pop();
+    if (w > width) {
+      w = width;
+    }
+    if (h > height) {
+      h = height;
+    }
+    let x = (width - w) >> 1;
+    let y = (height - h) >> 1;
+    if (y > 320) {
+      y = 320;
+    }
+
+    let firstPathParts = paths[0].split('.');
+    let tabName = `Edit ${firstPathParts.slice(firstPathParts.length - 2).join('.')}`;
+    if (paths.length > 1) {
+      tabName = `${tabName} (+${paths.length - 1})`;
+    }
     let newPanel = {
       activeId: id,
       tabs: [
@@ -85,12 +98,11 @@ export class TextEditorTab extends React.PureComponent<Props, State> {
           id,
           closable: true,
           title: tabName,
-          group: 'textEditor',
           content: <TextEditorTab conn={conn} mime={mime} paths={paths} defaultValue={defaultValue} />
         }
       ],
-      x: (offsetWidth - w) >> 1,
-      y: (offsetHeight - h) >> 1,
+      x,
+      y,
       w,
       h
     };

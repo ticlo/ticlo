@@ -9,14 +9,6 @@
   dependencies:
     tinycolor2 "^1.4.1"
 
-"@ant-design/create-react-context@^0.2.4":
-  version "0.2.5"
-  resolved "https://registry.yarnpkg.com/@ant-design/create-react-context/-/create-react-context-0.2.5.tgz#f5f5a9163b4772097712837397ad30e22e79f858"
-  integrity sha512-1rMAa4qgP2lfl/QBH9i78+Gjxtj9FTMpMyDGZsEBW5Kih72EuUo9958mV8PgpRkh4uwPSQ7vVZWXeyNZXVAFDg==
-  dependencies:
-    gud "^1.0.0"
-    warning "^4.0.3"
-
 "@ant-design/icons-svg@^4.0.0-alpha.3":
   version "4.0.0-alpha.5"
   resolved "https://registry.yarnpkg.com/@ant-design/icons-svg/-/icons-svg-4.0.0-alpha.5.tgz#292c235a9be73ccc6109becdd7cb385216cc7c3a"
@@ -3471,11 +3463,6 @@ growl@1.10.5:
   resolved "https://registry.yarnpkg.com/growl/-/growl-1.10.5.tgz#f2735dc2283674fa67478b10181059355c369e5e"
   integrity sha512-qBr4OuELkhPenW6goKVXiv47US3clb3/IbuWF9KNKEijAy9oeHxU9IgzjvJhHkUzhaj7rOUD7+YGWqUjLp5oSA==
 
-gud@^1.0.0:
-  version "1.0.0"
-  resolved "https://registry.yarnpkg.com/gud/-/gud-1.0.0.tgz#a489581b17e6a70beca9abe3ae57de7a499852c0"
-  integrity sha512-zGEOVKFM5sVPPrYs7J5/hYEw2Pof8KCyOwyhG8sAF26mCAeUFAcYPu1mwB7hhpIP29zOIBaDqwuHdLp0jvZXjw==
-
 hammerjs@^2.0.8:
   version "2.0.8"
   resolved "https://registry.yarnpkg.com/hammerjs/-/hammerjs-2.0.8.tgz#04ef77862cff2bb79d30f7692095930222bf60f1"
@@ -6211,14 +6198,14 @@ rc-dialog@~7.6.0:
     rc-animate "2.x"
     rc-util "^4.16.1"
 
-rc-dock@^2.4.8:
-  version "2.4.8"
-  resolved "https://registry.yarnpkg.com/rc-dock/-/rc-dock-2.4.8.tgz#008a2503faf7a84f769de5c4707cf4d0609ba25e"
-  integrity sha512-8CshWq+g0mbsKXtc7IEAQr8ypMOndtcxuyHBXjXpNychZ0NiJcLeqi/y67KIWHxzP/3PXZ8Dvv1q9wSF0Lub/g==
+rc-dock@^2.4.9:
+  version "2.4.9"
+  resolved "https://registry.yarnpkg.com/rc-dock/-/rc-dock-2.4.9.tgz#53ba481795dbc42fa2171ed6accb29ac32f357b4"
+  integrity sha512-+Rfw83NgR3au4HXLN4IMkGuisegrmovCeQS5YDFkEXmCv5SvgyGvCUZlLPayDsjhX9fAFPZKJkiMkKldEIrymA==
   dependencies:
     classnames "^2.2.6"
     lodash "^4.17.15"
-    rc-tabs "^9.7.0"
+    rc-tabs "^10.0.0-alpha.1"
     react-new-window "^0.1.2"
 
 rc-drawer@~3.1.1:
@@ -6412,24 +6399,7 @@ rc-table@~7.0.0-alpha.20:
     react-lifecycles-compat "^3.0.2"
     shallowequal "^1.1.0"
 
-rc-tabs@^9.7.0:
-  version "9.7.0"
-  resolved "https://registry.yarnpkg.com/rc-tabs/-/rc-tabs-9.7.0.tgz#ae09695bef5963d6e64e7bc10521c76dfdd8448b"
-  integrity sha512-kvmgp8/MfLzFZ06hWHignqomFQ5nF7BqKr5O1FfhE4VKsGrep52YSF/1MvS5oe0NPcI9XGNS2p751C5v6cYDpQ==
-  dependencies:
-    "@ant-design/create-react-context" "^0.2.4"
-    babel-runtime "6.x"
-    classnames "2.x"
-    lodash "^4.17.5"
-    prop-types "15.x"
-    raf "^3.4.1"
-    rc-hammerjs "~0.6.0"
-    rc-util "^4.0.4"
-    react-lifecycles-compat "^3.0.4"
-    resize-observer-polyfill "^1.5.1"
-    warning "^4.0.3"
-
-rc-tabs@~10.0.0-alpha.0:
+rc-tabs@^10.0.0-alpha.1, rc-tabs@~10.0.0-alpha.0:
   version "10.0.0-alpha.1"
   resolved "https://registry.yarnpkg.com/rc-tabs/-/rc-tabs-10.0.0-alpha.1.tgz#adcae2435fd890bffbc9a7e4a7dac5c4fd7ee5f8"
   integrity sha512-TgJpxYI3X9aH+/b7ksu24zOIajo7CVJTSwAEYR3SMmg7Tz/dqOONqBQyU7BpAhmq644iqwPgr8rRniUeWwlXCw==
