@@ -21,13 +21,14 @@ import 'codemirror/addon/fold/foldgutter.css';
 import './TextEditorTab.less';
 
 import {DataMap, isDataTruncated} from '../../core/util/DataTypes';
-import {decode, encodeSorted} from '../../core/util/Serialize';
+import {decode, encode} from '../../core/util/Serialize';
 import {DockLayout} from 'rc-dock/lib';
 import {mapPointsBetweenElement} from '../../ui/util/Position';
 
 interface Props {
   conn: ClientConn;
   mime: string;
+  asObject: boolean;
   paths: string[];
   defaultValue: any;
   readonly?: boolean;
@@ -39,20 +40,6 @@ interface State {
   loading: boolean;
   error?: string;
 }
-
-const codeMirrorExtraKeys = {
-  Tab: (cm: Editor) => {
-    if (cm.getMode().name === 'null') {
-      cm.execCommand('insertTab');
-    } else {
-      if (cm.somethingSelected()) {
-        cm.execCommand('indentMore');
-      } else {
-        cm.execCommand('insertSoftTab');
-      }
-    }
-  }
-};
 
 export class TextEditorTab extends React.PureComponent<Props, State> {
   static openFloatPanel(
@@ -73,6 +60,12 @@ export class TextEditorTab extends React.PureComponent<Props, State> {
     if (oldTab) {
       layout.dockMove(oldTab, null, 'front');
       return;
+    }
+
+    let asObject = false;
+    if (mime === 'object') {
+      mime = 'application/json';
+      asObject = true;
     }
 
     let w = 400;
@@ -117,6 +110,7 @@ export class TextEditorTab extends React.PureComponent<Props, State> {
             <TextEditorTab
               conn={conn}
               mime={mime}
+              asObject={asObject}
               paths={paths}
               defaultValue={defaultValue}
               onClose={onClose}
@@ -132,6 +126,34 @@ export class TextEditorTab extends React.PureComponent<Props, State> {
     };
     layout.dockMove(newPanel, null, 'float');
   }
+
+  codeMirrorExtraKeys = {
+    'Tab': (cm: Editor) => {
+      if (cm.getMode().name === 'null') {
+        cm.execCommand('insertTab');
+      } else {
+        if (cm.somethingSelected()) {
+          cm.execCommand('indentMore');
+        } else {
+          cm.execCommand('insertSoftTab');
+        }
+      }
+    },
+    'Shift-Alt-F': (cm: Editor) => {
+      // format code
+      let {mime} = this.props;
+      if (mime === 'application/json') {
+        let value = cm.getValue();
+        try {
+          let obj = decode(value);
+          cm.setValue(encode(obj, 2));
+        } catch (e) {
+          this.setState({error: e.toString()});
+          return false;
+        }
+      }
+    }
+  };
 
   constructor(props: Props) {
     super(props);
@@ -171,14 +193,11 @@ export class TextEditorTab extends React.PureComponent<Props, State> {
   };
 
   convertValue(value: any): string {
-    let {mime} = this.props;
-    if (mime === 'application/json') {
-      return encodeSorted(value);
+    let {asObject} = this.props;
+    if (typeof value !== 'string' || asObject) {
+      return encode(value, 2);
     }
-    if (typeof value === 'string') {
-      return value;
-    }
-    return '';
+    return value;
   }
 
   onChange = (editor: Editor, data: EditorChange, value: string) => {
@@ -192,13 +211,13 @@ export class TextEditorTab extends React.PureComponent<Props, State> {
   };
 
   onApply = () => {
-    let {mime, paths, conn} = this.props;
+    let {asObject, paths, conn} = this.props;
     let {loading} = this.state;
     if (loading) {
       return false;
     }
     let value: any = this.getEditor().getValue();
-    if (mime === 'application/json') {
+    if (asObject) {
       try {
         value = decode(value);
       } catch (e) {
@@ -252,7 +271,7 @@ export class TextEditorTab extends React.PureComponent<Props, State> {
               lineNumbers: true,
               foldGutter: true,
               gutters: ['CodeMirror-linenumbers', 'CodeMirror-foldgutter'],
-              extraKeys: codeMirrorExtraKeys
+              extraKeys: this.codeMirrorExtraKeys
             }}
             onChange={this.onChange}
           />

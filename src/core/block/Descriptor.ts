@@ -43,7 +43,8 @@ export interface PropDesc {
   // number, string
   placeholder?: string;
 
-  // string, used by TextEditorTab
+  // string, like javascript jsx json etc
+  // used by TextEditorTab
   mime?: string;
 
   // number

@@ -12,8 +12,8 @@ export function encodeRaw(obj: object) {
   return jsonesc.replacer('', obj);
 }
 
-export function encode(value: any): string {
-  return jsonesc.stringify(value);
+export function encode(value: any, space = 0): string {
+  return jsonesc.stringify(value, space);
 }
 
 export function encodeSorted(value: any, space = 1): string {
