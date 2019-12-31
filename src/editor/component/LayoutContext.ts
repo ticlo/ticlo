@@ -6,7 +6,7 @@ import {ClientConn} from '../../core/connect/ClientConn';
 export interface TicloLayoutContext {
   editJob?(path: string, onSave: () => void): void;
 
-  editProperty?(paths: string[], propDesc: PropDesc, defaultValue?: any, mime?: string): void;
+  editProperty?(paths: string[], propDesc: PropDesc, defaultValue?: any, mime?: string, readonly?: boolean): void;
 
   showObjectTree?(path: string, value: any, element: HTMLElement, source: any): void;
   closeObjectTree?(path: string, source: any): void;

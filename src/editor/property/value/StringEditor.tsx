@@ -12,11 +12,13 @@ export class StringEditor extends StringEditorBase {
   context!: TicloLayoutContext;
 
   popup = () => {
-    let {keys, name, desc, value} = this.props;
+    let {keys, name, desc, value, locked} = this.props;
     this.context.editProperty(
       keys.map((key) => `${key}.${name}`),
       desc,
-      value
+      value,
+      null,
+      locked
     );
   };
 

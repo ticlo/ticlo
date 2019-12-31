@@ -55,7 +55,14 @@ const codeMirrorExtraKeys = {
 };
 
 export class TextEditorTab extends React.PureComponent<Props, State> {
-  static openFloatPanel(layout: DockLayout, conn: ClientConn, paths: string[], mime: string, defaultValue: any) {
+  static openFloatPanel(
+    layout: DockLayout,
+    conn: ClientConn,
+    paths: string[],
+    defaultValue: any,
+    mime: string,
+    readonly?: boolean
+  ) {
     if (!paths?.length) {
       // invalid paths
       return;
@@ -106,7 +113,16 @@ export class TextEditorTab extends React.PureComponent<Props, State> {
           id,
           closable: true,
           title: tabName,
-          content: <TextEditorTab conn={conn} mime={mime} paths={paths} defaultValue={defaultValue} onClose={onClose} />
+          content: (
+            <TextEditorTab
+              conn={conn}
+              mime={mime}
+              paths={paths}
+              defaultValue={defaultValue}
+              onClose={onClose}
+              readonly={readonly}
+            />
+          )
         }
       ],
       x,

@@ -73,7 +73,7 @@ class App extends React.PureComponent<Props, State> implements TicloLayoutContex
   editJob(path: string, onSave: () => void) {
     this.layout.dockMove(this.createBlockEditorTab(path, onSave), this.layout.find('main'), 'middle');
   }
-  editProperty(paths: string[], propDesc: PropDesc, defaultValue?: any, mime?: string): void {
+  editProperty(paths: string[], propDesc: PropDesc, defaultValue?: any, mime?: string, readonly?: boolean): void {
     let {conn} = this.props;
     if (!mime) {
       if (propDesc.mime) {
@@ -82,7 +82,7 @@ class App extends React.PureComponent<Props, State> implements TicloLayoutContex
         mime = 'application/json';
       }
     }
-    TextEditorTab.openFloatPanel(this.layout, conn, paths, mime, defaultValue);
+    TextEditorTab.openFloatPanel(this.layout, conn, paths, defaultValue, mime, readonly);
   }
   showObjectTree(path: string, value: any, element: HTMLElement, source: any) {
     let {conn} = this.props;
