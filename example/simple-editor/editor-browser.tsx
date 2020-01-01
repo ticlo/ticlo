@@ -1,6 +1,6 @@
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
-import {FunctionDesc} from '../../src/core/client';
+import {FunctionDesc, PropDesc} from '../../src/core/client';
 import {initEditor, PropertyList, BlockStage, NodeTree} from '../../src/editor';
 import {DragDropDiv, DragState, DockLayout, DockContextType} from 'rc-dock';
 import {ClientConnection} from '../../src/core/connect/ClientConnection';
@@ -18,6 +18,7 @@ import {ObjectTreeTab} from '../../src/dock/object-tree/ObjectTreeTab';
 import {WsBrowserConnection} from '../../src/browser/connect/WsBrowserConnection';
 import {FrameClientConnection} from '../../src/browser/connect/FrameClientConnection';
 import {NodeTreeTab} from '../../src/dock/node-tree/NodeTreeTab';
+import {TextEditorTab} from '../../src/dock/text-editor/TextEditorTab';
 
 const layoutGroups = {
   blockStage: {
@@ -66,6 +67,17 @@ class App extends React.PureComponent<Props, State> implements TicloLayoutContex
   /// implements TicloLayoutContext
   editJob(path: string, onSave: () => void) {
     this.layout.dockMove(this.createBlockEditorTab(path, onSave), this.layout.find('main'), 'middle');
+  }
+  editProperty(paths: string[], propDesc: PropDesc, defaultValue?: any, mime?: string, readonly?: boolean): void {
+    let {conn} = this.props;
+    if (!mime) {
+      if (propDesc.mime) {
+        mime = propDesc.mime;
+      } else if (propDesc.type === 'object' || propDesc.type === 'array') {
+        mime = 'application/json';
+      }
+    }
+    TextEditorTab.openFloatPanel(this.layout, conn, paths, defaultValue, mime, readonly);
   }
   showObjectTree(path: string, value: any, element: HTMLElement, source: any) {
     let {conn} = this.props;

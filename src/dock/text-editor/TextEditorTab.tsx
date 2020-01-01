@@ -149,7 +149,6 @@ export class TextEditorTab extends React.PureComponent<Props, State> {
           cm.setValue(encode(obj, 2));
         } catch (e) {
           this.setState({error: e.toString()});
-          return false;
         }
       }
     }

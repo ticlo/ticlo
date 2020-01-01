@@ -28,23 +28,26 @@ export class ObjectEditor extends React.PureComponent<ValueEditorProps, any> {
 
   render() {
     let {value, desc, onChange} = this.props;
+    let editor: React.ReactNode;
     if (value === undefined && onChange && desc.create) {
-      return (
+      editor = (
         <Button size="small" icon={<PlusSquareIcon />} onClick={this.createObject}>
           {desc.create}
         </Button>
       );
     } else {
+      editor = <div className="ticl-object-editor">{renderValue(this.props.value)}</div>;
+    }
+    if (this.context?.editProperty) {
       return (
         <>
-          <div className="ticl-object-editor">{renderValue(this.props.value)}</div>
-          {this.context?.editProperty ? (
-            <div className="ticl-expand-button" title={'Edit'} onClick={this.popup}>
-              <div className="ticl-expand-icon-11" />
-            </div>
-          ) : null}
+          {editor}
+          <div className="ticl-expand-button" title={'Edit'} onClick={this.popup}>
+            <div className="ticl-expand-icon-11" />
+          </div>
         </>
       );
     }
+    return editor;
   }
 }
