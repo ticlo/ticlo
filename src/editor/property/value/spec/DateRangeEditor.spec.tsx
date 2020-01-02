@@ -42,7 +42,7 @@ describe('DateRangeEditor', function() {
     SimulateEvent.simulate(dateCell, 'click');
 
     await shouldHappen(() => values != null);
-    let clickedMoment = moment(dateStr, 'MMM D, YYYY');
+    let clickedMoment = moment(dateStr, 'YYYY-MM-DD');
     assert.isTrue(clickedMoment.isSameOrBefore(values[0]));
     assert.isTrue(clickedMoment.isBefore(values[1]));
   });
