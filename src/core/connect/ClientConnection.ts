@@ -220,15 +220,20 @@ export abstract class ClientConnection extends Connection implements ClientConn 
   subscribe(path: string, callbacks: SubscribeCallbacks, fullValue: boolean = false) {
     if (this.subscribes.has(path)) {
       let sub = this.subscribes.get(path);
-      sub.add(callbacks);
-      if (fullValue && !sub._data.fullValue) {
-        sub._data.fullValue = true;
-        this.addSend(sub); // resend the request
+      if (fullValue) {
+        sub.addFull(callbacks);
+      } else {
+        sub.add(callbacks);
       }
     } else {
       let id = this.uid.next();
       let data = {cmd: 'subscribe', path, id, fullValue};
-      let req = new SubscribeRequest(data, callbacks);
+      let req = new SubscribeRequest(data, path, this);
+      if (fullValue) {
+        req.addFull(callbacks);
+      } else {
+        req.add(callbacks);
+      }
       this.requests.set(id, req);
       this.subscribes.set(path, req);
       this.addSend(req);

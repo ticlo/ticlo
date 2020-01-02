@@ -1,4 +1,4 @@
-import {DataMap, measureObjSize} from '../util/DataTypes';
+import {DataMap, isDataTruncated, measureObjSize} from '../util/DataTypes';
 import {ConnectionSend} from './Connection';
 import {FunctionDesc} from '../block/Descriptor';
 import {ClientConnection} from './ClientConnection';
@@ -49,7 +49,9 @@ export class MergedClientRequest extends ConnectionSend implements ClientCallbac
 
   constructor(data: DataMap, callbacks: ClientCallbacks) {
     super(data);
-    this._callbackSet.add(callbacks);
+    if (callbacks) {
+      this._callbackSet.add(callbacks);
+    }
   }
 
   add(callbacks: ClientCallbacks) {
@@ -105,7 +107,7 @@ export interface ValueState {
 
 export interface ValueUpdate {
   cache: ValueState;
-  change: ValueState;
+  change?: ValueState;
 }
 
 export interface SubscribeCallbacks {
@@ -124,6 +126,10 @@ const defaultValueState: ValueState = {
 
 export class SubscribeRequest extends MergedClientRequest {
   _cache: ValueState = {...defaultValueState};
+
+  constructor(data: DataMap, public path: string, public conn: ClientConnection) {
+    super(data, null);
+  }
 
   add(callbacks: SubscribeCallbacks) {
     super.add(callbacks);
@@ -147,11 +153,14 @@ export class SubscribeRequest extends MergedClientRequest {
       this._cache = {...defaultValueState};
       // TODO : add a disconnected event in the update
     }
+
+    let valueChanged = false;
     if (response.undefined) {
       response.value = undefined;
     }
     if (response.hasOwnProperty('value')) {
       this._cache.value = response.value;
+      valueChanged = true;
     }
     if (response.hasOwnProperty('bindingPath')) {
       this._cache.bindingPath = response.bindingPath;
@@ -161,6 +170,56 @@ export class SubscribeRequest extends MergedClientRequest {
     }
     this._hasUpdate = true;
     super.onUpdate({cache: {...this._cache}, change: response});
+    if (this._fullCallbackSet.size) {
+      if (valueChanged && isDataTruncated(response.value)) {
+        this.loadFullValue();
+      } else {
+        this._cachedFullValue = response.value;
+        this.updateFullValue();
+      }
+    }
+  }
+
+  _fullCallbackSet: Set<ClientCallbacks> = new Set();
+  _getValueReqId: string;
+  _cachedFullValue: any;
+  fullValueCallbacks = {
+    onUpdate: (response: DataMap) => {
+      this._getValueReqId = null;
+      this._cachedFullValue = response.value;
+      this.updateFullValue();
+    }
+  };
+
+  addFull(callbacks: SubscribeCallbacks) {
+    let pendingLoad = this._fullCallbackSet.size === 0;
+    this._fullCallbackSet.add(callbacks);
+    if (pendingLoad) {
+      this.loadFullValue();
+    } else {
+      if (callbacks.onUpdate) {
+        callbacks.onUpdate({cache: {...this._cache, value: this._cachedFullValue}});
+      }
+    }
+  }
+  removeFull(callbacks: SubscribeCallbacks) {
+    this._fullCallbackSet.delete(callbacks);
+    if (this._fullCallbackSet.size === 0) {
+      this._cachedFullValue = undefined;
+    }
+  }
+
+  loadFullValue() {
+    if (!this._getValueReqId) {
+      this._getValueReqId = this.conn.getValue(this.path, this.fullValueCallbacks) as string;
+    }
+  }
+  updateFullValue() {
+    for (let callbacks of this._fullCallbackSet) {
+      if (callbacks.onUpdate) {
+        callbacks.onUpdate({cache: {...this._cache, value: this._cachedFullValue}});
+      }
+    }
   }
 }
 

@@ -513,8 +513,8 @@ describe('Connection', function() {
 
     assert.isFalse(isDataTruncated(result2.cache.value));
 
-    // callback1 should also receive a full update because of callbacks2 require full data
-    assert.isFalse(isDataTruncated(callbacks1.lastResponse.cache.value));
+    // callback1 should not receive a full update
+    assert.isTrue(isDataTruncated(callbacks1.lastResponse.cache.value));
 
     callbacks1.cancel();
     callbacks2.cancel();

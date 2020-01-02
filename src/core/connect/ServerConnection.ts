@@ -38,16 +38,14 @@ class ServerSubscribe extends ServerRequest implements BlockPropertySubscriber, 
   property: BlockProperty;
   source: BlockBindingSource;
 
-  fullValue: boolean;
   valueChanged = false;
   events: BlockPropertyEvent[] = [];
 
-  constructor(conn: ServerConnection, id: string, prop: BlockProperty, fullValue: boolean) {
+  constructor(conn: ServerConnection, id: string, prop: BlockProperty) {
     super();
     this.id = id;
     this.connection = conn;
     this.property = prop;
-    this.fullValue = fullValue;
     prop.subscribe(this);
     if (prop._bindingPath) {
       // add event for current bindingPath
@@ -81,13 +79,7 @@ class ServerSubscribe extends ServerRequest implements BlockPropertySubscriber, 
     if (this.valueChanged) {
       let value: any;
       let size: number;
-      if (this.fullValue) {
-        // don't truncate it
-        value = this.property.getValue();
-        size = measureObjSize(value);
-      } else {
-        [value, size] = truncateData(this.property.getValue());
-      }
+      [value, size] = truncateData(this.property.getValue());
       total += size;
       data.value = value;
       if (value === undefined) {
@@ -331,7 +323,7 @@ export class ServerConnection extends Connection {
             break;
           }
           case 'subscribe': {
-            result = this.subscribeProperty(request.path, request.id, request.fullValue);
+            result = this.subscribeProperty(request.path, request.id);
             break;
           }
           case 'watch': {
@@ -587,10 +579,10 @@ export class ServerConnection extends Connection {
     }
   }
 
-  subscribeProperty(path: string, id: string, fullValue: boolean): string | ServerSubscribe {
+  subscribeProperty(path: string, id: string): string | ServerSubscribe {
     let property = this.root.queryProperty(path, true);
     if (property) {
-      let subscriber = new ServerSubscribe(this, id, property, fullValue);
+      let subscriber = new ServerSubscribe(this, id, property);
       subscriber.source = this.root.createBinding(path, subscriber);
       return subscriber;
     } else {
