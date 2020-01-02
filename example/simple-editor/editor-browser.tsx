@@ -12,7 +12,7 @@ import {Logger} from '../../src/core/util/Logger';
 import {WorkerFunction} from '../../src/core/worker/WorkerFunction';
 import {BlockStageTab} from '../../src/dock/block/BlockStageTab';
 import {TicloLayoutContext, TicloLayoutContextType} from '../../src/editor/component/LayoutContext';
-import {PropDispatcher, PropDispatcher} from '../../src/core/block/Dispatcher';
+import {PropDispatcher} from '../../src/core/block/Dispatcher';
 import {PropertyListTab} from '../../src/dock/property/PropertyListTab';
 import {ObjectTreeTab} from '../../src/dock/object-tree/ObjectTreeTab';
 import {WsBrowserConnection} from '../../src/browser/connect/WsBrowserConnection';
