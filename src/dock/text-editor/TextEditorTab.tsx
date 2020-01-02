@@ -193,7 +193,18 @@ export class TextEditorTab extends React.PureComponent<Props, State> {
 
   convertValue(value: any): string {
     let {asObject} = this.props;
-    if (typeof value !== 'string' || asObject) {
+    if (value === undefined) {
+      return '';
+    }
+    if (asObject) {
+      return encode(value, 2);
+    }
+    if (value === null) {
+      // allow null to be encoded only when asObject=true
+      // convert it to empty string in other cases
+      return '';
+    }
+    if (typeof value !== 'string') {
       return encode(value, 2);
     }
     return value;
