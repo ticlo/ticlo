@@ -157,6 +157,7 @@ export class Menu extends React.PureComponent<MenuProps, MenuState> {
 }
 
 interface PopupProps {
+  children: React.ReactElement;
   popup: React.ReactElement | (() => React.ReactElement);
 
   trigger?: ('click' | 'hover' | 'contextMenu')[];
