@@ -14,12 +14,12 @@ import {
 import {PropertyEditor} from './PropertyEditor';
 import {GroupEditor} from './GroupEditor';
 import {MultiSelectComponent, MultiSelectLoader} from './MultiSelectComponent';
-import {ExpandIcon, ExpandState} from '../../ui/component/Tree';
+import {ExpandIcon, ExpandState} from '../../react/component/Tree';
 import {deepEqual} from '../../core/util/Compare';
 import {AddMorePropertyMenu} from './AddMoreProperty';
 import {Popup} from '../component/ClickPopup';
 import {BlockWidget} from '../block/view/BlockWidget';
-import {LazyUpdateComponent, LazyUpdateSubscriber} from '../../ui/component/LazyUpdateComponent';
+import {LazyUpdateComponent, LazyUpdateSubscriber} from '../../react/component/LazyUpdateComponent';
 
 function descToEditor(conn: ClientConn, paths: string[], funcDesc: FunctionDesc, propDesc: PropDesc) {
   return (

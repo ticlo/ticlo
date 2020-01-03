@@ -13,7 +13,7 @@ import {SelectEditor, MultiSelectEditor} from './value/SelectEditor';
 import {RadioButtonEditor} from './value/RadioButtonEditor';
 import {DragDropDiv, DragState} from 'rc-dock';
 import {PasswordEditor} from './value/PasswordEditor';
-import {ExpandIcon} from '../../ui/component/Tree';
+import {ExpandIcon} from '../../react/component/Tree';
 import {PropertyList} from './PropertyList';
 import {arrayEqual, deepEqual} from '../../core/util/Compare';
 import {stopPropagation} from '../../core/util/Functions';

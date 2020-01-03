@@ -1,10 +1,10 @@
 import React from 'react';
-import {ExpandIcon} from '../../ui/component/Tree';
+import {ExpandIcon} from '../../react/component/Tree';
 import {TIcon} from '../icon/Icon';
 import {blankFuncDesc, FunctionDesc, getFuncStyleFromDesc} from '../../core/block/Descriptor';
 import {TypeView} from './TypeView';
 import {TypeTreeItem} from './TypeTreeItem';
-import {PureDataRenderer} from '../../ui/component/DataRenderer';
+import {PureDataRenderer} from '../../react/component/DataRenderer';
 
 interface Props {
   item: TypeTreeItem;

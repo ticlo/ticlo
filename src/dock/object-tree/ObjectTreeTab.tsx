@@ -2,10 +2,10 @@ import React from 'react';
 import {Spin} from 'antd';
 import {ClientConn} from '../../core/connect/ClientConn';
 import {DataMap, isDataTruncated} from '../../core/util/DataTypes';
-import {LazyUpdateComponent} from '../../ui/component/LazyUpdateComponent';
+import {LazyUpdateComponent} from '../../react/component/LazyUpdateComponent';
 import {ObjectTree} from '../../editor/object-tree/ObjectTree';
 import {DockLayout} from 'rc-dock/lib';
-import {mapPointsBetweenElement} from '../../ui/util/Position';
+import {mapPointsBetweenElement} from '../../react/util/Position';
 
 interface Props {
   conn: ClientConn;

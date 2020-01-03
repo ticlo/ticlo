@@ -23,7 +23,7 @@ import './TextEditorTab.less';
 import {DataMap, isDataTruncated} from '../../core/util/DataTypes';
 import {decode, encode} from '../../core/util/Serialize';
 import {DockLayout} from 'rc-dock/lib';
-import {mapPointsBetweenElement} from '../../ui/util/Position';
+import {mapPointsBetweenElement} from '../../react/util/Position';
 
 interface Props {
   conn: ClientConn;

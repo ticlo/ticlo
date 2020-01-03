@@ -1,11 +1,11 @@
 import React from 'react';
 import {ClientConn, ValueUpdate, blankFuncDesc, getFuncStyleFromDesc, FunctionDesc} from '../../core/client';
 import {DataMap} from '../../core/util/DataTypes';
-import {PureDataRenderer} from '../../ui/component/DataRenderer';
+import {PureDataRenderer} from '../../react/component/DataRenderer';
 import {TIcon} from '../icon/Icon';
 import {DragDropDiv, DragState} from 'rc-dock';
 import {BaseBlockItem, BlockHeaderView, BlockItem, Stage, XYWRenderer} from './Field';
-import {LazyUpdateSubscriber} from '../../ui/component/LazyUpdateComponent';
+import {LazyUpdateSubscriber} from '../../react/component/LazyUpdateComponent';
 import {BlockWidget} from './view/BlockWidget';
 
 interface BlockViewProps {

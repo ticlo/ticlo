@@ -1,7 +1,7 @@
 import {assert} from 'chai';
 import SimulateEvent from 'simulate-event';
 import React from 'react';
-import {removeLastTemplate, loadTemplate, querySingle} from '../../../../ui/util/test-util';
+import {removeLastTemplate, loadTemplate, querySingle} from '../../../../react/util/test-util';
 import {initEditor} from '../../../index';
 import {NumberEditor} from '../NumberEditor';
 import {shouldHappen} from '../../../../core/util/test-util';

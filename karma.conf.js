@@ -4,7 +4,7 @@ module.exports = function (config) {
     files: [
       "src/core/**/*.ts?(x)",
       "src/browser/**/*.ts?(x)",
-      "src/ui/**/*.ts?(x)",
+      "src/react/**/*.ts?(x)",
       "src/editor/**/*.ts?(x)",
       "dist/*.css"
     ],

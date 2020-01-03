@@ -1,10 +1,10 @@
 import React from 'react';
 
-import {ExpandIcon, ExpandState, TreeItem} from '../../ui/component/Tree';
-import {PureDataRenderer} from '../../ui/component/DataRenderer';
+import {ExpandIcon, ExpandState, TreeItem} from '../../react/component/Tree';
+import {PureDataRenderer} from '../../react/component/DataRenderer';
 import {DragDropDiv, DragState} from 'rc-dock/lib';
 import {TRUNCATED} from '../../core/util/DataTypes';
-import {displayNumber} from '../../ui/util/Types';
+import {displayNumber} from '../../react/util/Types';
 import {encodeDisplay} from '../../core/util/Serialize';
 
 export class ObjectTreeItem extends TreeItem<ObjectTreeItem> {

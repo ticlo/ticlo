@@ -8,7 +8,7 @@ import '../../../core/functions/basic/math/Arithmetic';
 import {destroyLastLocalConnection, makeLocalConnection} from '../../../core/connect/LocalConnection';
 import {shouldHappen, shouldReject} from '../../../core/util/test-util';
 import ReactDOM from 'react-dom';
-import {removeLastTemplate, loadTemplate, querySingle} from '../../../ui/util/test-util';
+import {removeLastTemplate, loadTemplate, querySingle} from '../../../react/util/test-util';
 import {initEditor} from '../../index';
 import {arrayEqual} from '../../../core/util/Compare';
 import {ClientConn} from '../../../core/client';

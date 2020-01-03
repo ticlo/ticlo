@@ -1,7 +1,7 @@
 import React from 'react';
 import {ClientConn, FunctionDesc, getFuncStyleFromDesc} from '../../core/client';
 import {TypeTreeItem, TypeTreeRoot} from './TypeTreeItem';
-import VirtualList from '../../ui/component/Virtual';
+import VirtualList from '../../react/component/Virtual';
 import {TypeTreeRenderer} from './TypeTreeRenderer';
 import {OnTypeClick} from './TypeView';
 

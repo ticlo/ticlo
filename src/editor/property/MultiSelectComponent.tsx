@@ -1,6 +1,6 @@
 import React from 'react';
 import {ClientConn} from '../../core/client';
-import {LazyUpdateComponent} from '../../ui/component/LazyUpdateComponent';
+import {LazyUpdateComponent} from '../../react/component/LazyUpdateComponent';
 
 interface MultiSelectProps {
   paths: string[];
