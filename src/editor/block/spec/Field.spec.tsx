@@ -5,10 +5,8 @@ import {BlockStage} from '../../../editor';
 import {Block, Root} from '../../../core/main';
 import {destroyLastLocalConnection, makeLocalConnection} from '../../../core/connect/LocalConnection';
 import {shouldHappen, shouldReject} from '../../../core/util/test-util';
-import ReactDOM from 'react-dom';
 import {removeLastTemplate, loadTemplate, querySingle} from '../../../ui/util/test-util';
 import {initEditor} from '../../index';
-import {arrayEqual} from '../../../core/util/Compare';
 
 describe('editor Block Field', function() {
   beforeEach(async function() {

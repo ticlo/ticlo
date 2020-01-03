@@ -104,7 +104,7 @@ export class BlockStageTab extends React.PureComponent<Props, State> {
         {showPropertyList ? (
           <>
             <Divider key="divider" idx={1} getDividerData={this.getDividerData} changeSizes={this.changeSizes} />
-            <PropertyList conn={conn} keys={selectedKeys} style={{width: sizes[1], height: '100%', padding: '8px'}} />
+            <PropertyList conn={conn} paths={selectedKeys} style={{width: sizes[1], height: '100%', padding: '8px'}} />
           </>
         ) : null}
         <Button

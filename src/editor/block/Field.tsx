@@ -21,25 +21,25 @@ import * as DragManager from 'rc-dock/src/dragdrop/DragManager';
 import {FieldValue} from './FieldValue';
 
 export interface Stage {
-  getBlock(key: string): BlockItem;
+  getBlock(path: string): BlockItem;
 
   getNextXYW(): [number, number, number];
 
-  linkParentBlock(parentKey: string, targetBlock: BlockItem): void;
+  linkParentBlock(parentPath: string, targetBlock: BlockItem): void;
 
-  unlinkParentBlock(parentKey: string, targetBlock: BlockItem): void;
+  unlinkParentBlock(parentPath: string, targetBlock: BlockItem): void;
 
-  linkField(sourceKey: string, targetField: FieldItem): void;
+  linkField(sourcePath: string, targetField: FieldItem): void;
 
-  unlinkField(sourceKey: string, targetField: FieldItem): void;
+  unlinkField(sourcePath: string, targetField: FieldItem): void;
 
-  registerField(key: string, item: FieldItem): void;
+  registerField(path: string, item: FieldItem): void;
 
-  unregisterField(key: string, item: FieldItem): void;
+  unregisterField(path: string, item: FieldItem): void;
 
   forceUpdate(): void;
 
-  selectBlock(key: string, ctrl?: boolean): void;
+  selectBlock(path: string, ctrl?: boolean): void;
 
   startDragBlock(e: DragState): [BlockItem, number, number, number][];
 
@@ -61,7 +61,7 @@ export interface Stage {
 export class FieldItem extends DataRendererItem {
   block: BaseBlockItem;
   name: string;
-  key: string;
+  path: string;
   desc: PropDesc = blankPropDesc;
 
   indent = 0;
@@ -76,12 +76,12 @@ export class FieldItem extends DataRendererItem {
 
   _bindingPath?: string;
   _absBinding?: string;
-  _bindingTargetKey?: string;
+  _bindingTargetPath?: string;
 
   setBindingPath(str: string) {
     if (str !== this._bindingPath) {
-      if (this._bindingTargetKey) {
-        this.block.stage.unlinkField(this._bindingTargetKey, this);
+      if (this._bindingTargetPath) {
+        this.block.stage.unlinkField(this._bindingTargetPath, this);
       }
       if (this.subBlock) {
         // subBlock can only exist on one binding path, it always disappears when binding path change
@@ -90,16 +90,16 @@ export class FieldItem extends DataRendererItem {
         this.block.onFieldsChanged();
       }
       this._bindingPath = str;
-      this._bindingTargetKey = resolve(this.block.key, this._bindingPath);
+      this._bindingTargetPath = resolve(this.block.path, this._bindingPath);
 
-      if (this._bindingTargetKey) {
+      if (this._bindingTargetPath) {
         if (this._bindingPath === `~${this.name}.output`) {
           // binding block
-          this.subBlock = new SubBlockItem(this.block.conn, this.block.stage, `${this.block.key}.~${this.name}`, this);
+          this.subBlock = new SubBlockItem(this.block.conn, this.block.stage, `${this.block.path}.~${this.name}`, this);
           this.removeInWire();
         } else {
           // binding wire
-          this.block.stage.linkField(this._bindingTargetKey, this);
+          this.block.stage.linkField(this._bindingTargetPath, this);
         }
       } else {
         this.removeInWire();
@@ -183,16 +183,16 @@ export class FieldItem extends DataRendererItem {
     super();
     this.name = name;
     this.block = block;
-    this.key = `${block.key}.${name}`;
-    this.block.conn.subscribe(this.key, this.listener);
-    this.block.stage.registerField(this.key, this);
+    this.path = `${block.path}.${name}`;
+    this.block.conn.subscribe(this.path, this.listener);
+    this.block.stage.registerField(this.path, this);
   }
 
   destroy() {
-    this.block.conn.unsubscribe(this.key, this.listener);
-    this.block.stage.unregisterField(this.key, this);
-    if (this._bindingTargetKey) {
-      this.block.stage.unlinkField(this._bindingTargetKey, this);
+    this.block.conn.unsubscribe(this.path, this.listener);
+    this.block.stage.unregisterField(this.path, this);
+    if (this._bindingTargetPath) {
+      this.block.stage.unlinkField(this._bindingTargetPath, this);
     }
     this.removeInWire();
     if (this.subBlock) {
@@ -212,20 +212,20 @@ export class FieldItem extends DataRendererItem {
   render(): React.ReactNode {
     if (this.subBlock) {
       return (
-        <div key={this.key} className="ticl-field-subblock">
-          <FieldView key={this.key} item={this} />
+        <div key={this.path} className="ticl-field-subblock">
+          <FieldView key={this.path} item={this} />
           {this.subBlock.renderFields()}
         </div>
       );
     } else {
-      return <FieldView key={this.key} item={this} />;
+      return <FieldView key={this.path} item={this} />;
     }
   }
 
   sourceChanged(source: FieldItem, partial = false) {
     if (source) {
       if (this.inWire) {
-        if (partial && source.key.length < this.inWire.source.key.length) {
+        if (partial && source.path.length < this.inWire.source.path.length) {
           // already has a better link
           return;
         }
@@ -258,7 +258,7 @@ export class BlockHeaderView extends PureDataRenderer<BlockHeaderProps, any> {
     if (e.dragType !== 'right') {
       let fields: string[] = DragState.getData('fields', item.getBaseConn());
       if (Array.isArray(fields)) {
-        if (!item.desc.readonly && fields.length === 1 && fields[0] !== item.key) {
+        if (!item.desc.readonly && fields.length === 1 && fields[0] !== item.path) {
           e.accept('tico-fas-play');
           return;
         }
@@ -269,8 +269,8 @@ export class BlockHeaderView extends PureDataRenderer<BlockHeaderProps, any> {
     let {item} = this.props;
     if (event.dragType !== 'right') {
       let fields: string[] = DragState.getData('fields', item.getBaseConn());
-      if (Array.isArray(fields) && fields.length === 1 && fields[0] !== item.key) {
-        item.getConn().setBinding(item.key, fields[0], true);
+      if (Array.isArray(fields) && fields.length === 1 && fields[0] !== item.path) {
+        item.getConn().setBinding(item.path, fields[0], true);
       }
     }
   };
@@ -335,7 +335,7 @@ export class FieldView extends PureDataRenderer<FieldViewProps, any> {
     if (e.dragType === 'right') {
       e.setData({moveShownField: item.name, block: item.block}, item.getBaseConn());
     } else {
-      e.setData({fields: [item.key]}, item.getBaseConn());
+      e.setData({fields: [item.path]}, item.getBaseConn());
     }
 
     e.startDrag();
@@ -352,7 +352,7 @@ export class FieldView extends PureDataRenderer<FieldViewProps, any> {
     } else {
       let fields: string[] = DragState.getData('fields', item.getBaseConn());
       if (Array.isArray(fields)) {
-        if (!item.desc.readonly && fields.length === 1 && fields[0] !== item.key) {
+        if (!item.desc.readonly && fields.length === 1 && fields[0] !== item.path) {
           e.accept('tico-fas-link');
           return;
         }
@@ -367,12 +367,12 @@ export class FieldView extends PureDataRenderer<FieldViewProps, any> {
       let moveShownField = DragState.getData('moveShownField', item.getBaseConn());
       let block = DragState.getData('block', item.getBaseConn());
       if (block === item.block) {
-        item.getConn().moveShownProp(block.key, moveShownField, item.name);
+        item.getConn().moveShownProp(block.path, moveShownField, item.name);
       }
     } else {
       let fields: string[] = DragState.getData('fields', item.getBaseConn());
-      if (Array.isArray(fields) && fields.length === 1 && fields[0] !== item.key) {
-        item.getConn().setBinding(item.key, fields[0], true);
+      if (Array.isArray(fields) && fields.length === 1 && fields[0] !== item.path) {
+        item.getConn().setBinding(item.path, fields[0], true);
       }
     }
   };
@@ -380,7 +380,7 @@ export class FieldView extends PureDataRenderer<FieldViewProps, any> {
   onNameDoubleClick = (event: React.MouseEvent) => {
     let {item} = this.props;
     if (item.subBlock) {
-      item.getConn().setValue(`${item.subBlock.key}.@b-hide`, item.subBlock.hidden ? undefined : true);
+      item.getConn().setValue(`${item.subBlock.path}.@b-hide`, item.subBlock.hidden ? undefined : true);
     }
   };
 
@@ -443,7 +443,7 @@ export class FieldView extends PureDataRenderer<FieldViewProps, any> {
           ) : null}
           {translateProperty(desc.name, item.name, desc.ns)}
         </div>
-        <FieldValue conn={item.getConn()} path={item.key} />
+        <FieldValue conn={item.getConn()} path={item.path} />
       </DragDropDiv>
     );
   }
@@ -457,13 +457,11 @@ export interface XYWRenderer {
 
 export abstract class BaseBlockItem extends DataRendererItem<XYWRenderer> {
   conn: ClientConn;
-  stage: Stage;
   x: number = 0;
   y: number = 0;
   w: number = 0;
   xyzInvalid = true;
 
-  key: string;
   name: string;
   desc: FunctionDesc = blankFuncDesc;
   more: (PropDesc | PropGroupDesc)[];
@@ -477,12 +475,10 @@ export abstract class BaseBlockItem extends DataRendererItem<XYWRenderer> {
 
   abstract get selected(): boolean;
 
-  constructor(connection: ClientConn, stage: Stage, key: string) {
+  constructor(connection: ClientConn, public stage: Stage, public path: string) {
     super();
     this.conn = connection;
-    this.stage = stage;
-    this.key = key;
-    this.name = key.substr(key.lastIndexOf('.') + 1);
+    this.name = path.substr(path.lastIndexOf('.') + 1);
   }
 
   // renderer both the block and children fields
@@ -539,9 +535,9 @@ export abstract class BaseBlockItem extends DataRendererItem<XYWRenderer> {
   };
 
   startSubscribe() {
-    this.conn.subscribe(`${this.key}.#is`, this.isListener, true);
-    this.conn.subscribe(`${this.key}.#more`, this.moreListener, true);
-    this.conn.subscribe(`${this.key}.@b-p`, this.pListener, true);
+    this.conn.subscribe(`${this.path}.#is`, this.isListener, true);
+    this.conn.subscribe(`${this.path}.#more`, this.moreListener, true);
+    this.conn.subscribe(`${this.path}.@b-p`, this.pListener, true);
   }
 
   setDesc(desc: FunctionDesc) {
@@ -602,11 +598,11 @@ export abstract class BaseBlockItem extends DataRendererItem<XYWRenderer> {
   }
 
   destroy() {
-    this.conn.unsubscribe(`${this.key}.#is`, this.isListener);
-    this.conn.unsubscribe(`${this.key}.#more`, this.moreListener);
-    this.conn.unsubscribe(`${this.key}.@b-p`, this.pListener);
+    this.conn.unsubscribe(`${this.path}.#is`, this.isListener);
+    this.conn.unsubscribe(`${this.path}.#more`, this.moreListener);
+    this.conn.unsubscribe(`${this.path}.@b-p`, this.pListener);
     this.conn.unwatchDesc(this.descListener);
-    for (let [key, fieldItem] of this.fieldItems) {
+    for (let [, fieldItem] of this.fieldItems) {
       fieldItem.destroy();
     }
     this.fieldItems.clear();
@@ -621,8 +617,8 @@ export abstract class BaseBlockItem extends DataRendererItem<XYWRenderer> {
 class SubBlockItem extends BaseBlockItem {
   parentField: FieldItem;
 
-  constructor(connection: ClientConn, stage: Stage, key: string, field: FieldItem) {
-    super(connection, stage, key);
+  constructor(connection: ClientConn, stage: Stage, path: string, field: FieldItem) {
+    super(connection, stage, path);
     this.parentField = field;
     this.startSubscribe();
   }
@@ -641,7 +637,7 @@ class SubBlockItem extends BaseBlockItem {
 
   startSubscribe() {
     super.startSubscribe();
-    this.conn.subscribe(`${this.key}.@b-hide`, this.hideListener, true);
+    this.conn.subscribe(`${this.path}.@b-hide`, this.hideListener, true);
   }
 
   get selected() {
@@ -688,7 +684,7 @@ class SubBlockItem extends BaseBlockItem {
   }
 
   destroy() {
-    this.conn.unsubscribe(`${this.key}.@b-hide`, this.hideListener);
+    this.conn.unsubscribe(`${this.path}.@b-hide`, this.hideListener);
     super.destroy();
   }
 }
@@ -738,14 +734,14 @@ export class BlockItem extends BaseBlockItem {
     return null;
   }
 
-  constructor(connection: ClientConn, stage: Stage, key: string) {
-    super(connection, stage, key);
+  constructor(connection: ClientConn, stage: Stage, path: string) {
+    super(connection, stage, path);
   }
 
   startSubscribe() {
     super.startSubscribe();
-    this.conn.subscribe(`${this.key}.#sync`, this.syncListener, true);
-    this.conn.subscribe(`${this.key}.@b-xyw`, this.xywListener, true);
+    this.conn.subscribe(`${this.path}.#sync`, this.syncListener, true);
+    this.conn.subscribe(`${this.path}.@b-xyw`, this.xywListener, true);
   }
 
   synced = false;
@@ -771,7 +767,7 @@ export class BlockItem extends BaseBlockItem {
       if (Array.isArray(value)) {
         this.setXYW(...(value as [number, number, number]));
       } else if (typeof value === 'string') {
-        this.setSyncParentKey(value);
+        this.setSyncParentPath(value);
       } else if (this.xyzInvalid) {
         this.setXYW(...this.stage.getNextXYW());
       }
@@ -834,7 +830,7 @@ export class BlockItem extends BaseBlockItem {
       this.stage.onChildrenSizeChanged();
     }
     if (save) {
-      this.conn.setValue(`${this.key}.@b-xyw`, [x, y, w]);
+      this.conn.setValue(`${this.path}.@b-xyw`, [x, y, w]);
     } else {
       this.xyzInvalid = false;
     }
@@ -892,31 +888,31 @@ export class BlockItem extends BaseBlockItem {
     this.destroy();
   }
 
-  linkSyncParent(key: string) {
-    this.conn.setValue(`${this.key}.@b-xyw`, key);
-    this.conn.setBinding(`${this.key}.#call`, `${key}.#emit`, true);
-    this.conn.setValue(`${this.key}.#sync`, true);
-    this.setSyncParentKey(key);
+  linkSyncParent(parentPath: string) {
+    this.conn.setValue(`${this.path}.@b-xyw`, parentPath);
+    this.conn.setBinding(`${this.path}.#call`, `${parentPath}.#emit`, true);
+    this.conn.setValue(`${this.path}.#sync`, true);
+    this.setSyncParentPath(parentPath);
   }
 
   unLinkSyncParent() {
-    this.conn.setBinding(`${this.key}.#call`, null);
-    this.conn.setValue(`${this.key}.#sync`, undefined);
-    this.setSyncParentKey(null);
+    this.conn.setBinding(`${this.path}.#call`, null);
+    this.conn.setValue(`${this.path}.#sync`, undefined);
+    this.setSyncParentPath(null);
   }
 
-  _syncParentKey: string;
+  _syncParentPath: string;
 
-  setSyncParentKey(key: string) {
-    if (key === this._syncParentKey) {
+  setSyncParentPath(parentPath: string) {
+    if (parentPath === this._syncParentPath) {
       return;
     }
-    if (this._syncParentKey) {
-      this.stage.unlinkParentBlock(this._syncParentKey, this);
+    if (this._syncParentPath) {
+      this.stage.unlinkParentBlock(this._syncParentPath, this);
     }
-    this._syncParentKey = key;
-    if (key) {
-      this.stage.linkParentBlock(key, this);
+    this._syncParentPath = parentPath;
+    if (parentPath) {
+      this.stage.linkParentBlock(parentPath, this);
     } else {
       this.syncParent = null;
     }
@@ -960,8 +956,8 @@ export class BlockItem extends BaseBlockItem {
   }
 
   destroy() {
-    this.conn.unsubscribe(`${this.key}.#sync`, this.syncListener);
-    this.conn.unsubscribe(`${this.key}.@b-xyw`, this.xywListener);
+    this.conn.unsubscribe(`${this.path}.#sync`, this.syncListener);
+    this.conn.unsubscribe(`${this.path}.@b-xyw`, this.xywListener);
     super.destroy();
     this.actualFields = [];
   }

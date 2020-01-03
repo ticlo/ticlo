@@ -10,7 +10,7 @@ export interface StageProps {
   conn: ClientConn;
   basePath: string;
   style?: React.CSSProperties;
-  onSelect?: (keys: string[]) => void;
+  onSelect?: (paths: string[]) => void;
 }
 
 export abstract class BlockStageBase<State> extends LazyUpdateComponent<StageProps, State> implements Stage {
@@ -53,22 +53,22 @@ export abstract class BlockStageBase<State> extends LazyUpdateComponent<StagePro
   onSelect() {
     let {onSelect} = this.props;
     if (onSelect) {
-      let selectedKeys: string[] = [];
-      for (let [blockKey, blockItem] of this._blocks) {
+      let selectedPaths: string[] = [];
+      for (let [, blockItem] of this._blocks) {
         if (blockItem.selected) {
-          selectedKeys.push(blockItem.key);
+          selectedPaths.push(blockItem.path);
         }
       }
-      onSelect(selectedKeys);
+      onSelect(selectedPaths);
     }
     this.selectionChanged = false;
   }
 
   selectionChanged = false;
 
-  selectBlock(key: string, ctrl: boolean = false) {
-    if (this._blocks.has(key)) {
-      let block = this._blocks.get(key);
+  selectBlock(path: string, ctrl: boolean = false) {
+    if (this._blocks.has(path)) {
+      let block = this._blocks.get(path);
       if (ctrl) {
         block.setSelected(!block.selected);
         this.selectionChanged = true;
@@ -76,8 +76,8 @@ export abstract class BlockStageBase<State> extends LazyUpdateComponent<StagePro
         if (block.selected) {
           return;
         }
-        for (let [blockKey, blockItem] of this._blocks) {
-          if (key === blockKey) {
+        for (let [blockPath, blockItem] of this._blocks) {
+          if (path === blockPath) {
             if (!blockItem.selected) {
               blockItem.setSelected(true);
               this.selectionChanged = true;
@@ -106,7 +106,7 @@ export abstract class BlockStageBase<State> extends LazyUpdateComponent<StagePro
   // drag a block, return true when the dragging is started
   startDragBlock(e: DragState) {
     this._draggingBlocks = [];
-    for (let [blockKey, blockItem] of this._blocks) {
+    for (let [, blockItem] of this._blocks) {
       if (blockItem.selected) {
         this._draggingBlocks.push([blockItem, blockItem.x, blockItem.y, blockItem.w]);
       }
@@ -135,43 +135,43 @@ export abstract class BlockStageBase<State> extends LazyUpdateComponent<StagePro
     this.onChildrenSizeChanged();
   }
 
-  getBlock(key: string): BlockItem {
-    return this._blocks.get(key);
+  getBlock(path: string): BlockItem {
+    return this._blocks.get(path);
   }
 
-  linkParentBlock(parentKey: string, childBlock: BlockItem) {
+  linkParentBlock(parentPath: string, childBlock: BlockItem) {
     if (typeof childBlock === 'string') {
       let block = this._blocks.get(childBlock);
       if (block) {
-        this.linkParentBlock(parentKey, block);
+        this.linkParentBlock(parentPath, block);
       }
       return;
     }
-    if (!this._blockLinks.has(parentKey)) {
-      this._blockLinks.set(parentKey, new Set<BlockItem>());
+    if (!this._blockLinks.has(parentPath)) {
+      this._blockLinks.set(parentPath, new Set<BlockItem>());
     }
-    this._blockLinks.get(parentKey).add(childBlock);
-    if (this._blocks.has(parentKey)) {
-      childBlock.syncParent = this._blocks.get(parentKey);
+    this._blockLinks.get(parentPath).add(childBlock);
+    if (this._blocks.has(parentPath)) {
+      childBlock.syncParent = this._blocks.get(parentPath);
     }
   }
 
-  unlinkParentBlock(parentKey: string, childBlock: BlockItem) {
-    let links = this._blockLinks.get(parentKey);
+  unlinkParentBlock(parentPath: string, childBlock: BlockItem) {
+    let links = this._blockLinks.get(parentPath);
     if (links) {
       links.delete(childBlock);
       if (links.size === 0) {
-        this._fieldLinks.delete(parentKey);
+        this._fieldLinks.delete(parentPath);
       }
     }
   }
 
-  linkField(souceKey: string, targetField: FieldItem) {
-    if (!this._fieldLinks.has(souceKey)) {
-      this._fieldLinks.set(souceKey, new Set<FieldItem>());
+  linkField(sourcePath: string, targetField: FieldItem) {
+    if (!this._fieldLinks.has(sourcePath)) {
+      this._fieldLinks.set(sourcePath, new Set<FieldItem>());
     }
-    this._fieldLinks.get(souceKey).add(targetField);
-    let sourceFound = forAllPathsBetween(souceKey, this.props.basePath, (path) => {
+    this._fieldLinks.get(sourcePath).add(targetField);
+    let sourceFound = forAllPathsBetween(sourcePath, this.props.basePath, (path) => {
       let field = this._fields.get(path);
       if (field) {
         targetField.sourceChanged(field);
@@ -183,24 +183,24 @@ export abstract class BlockStageBase<State> extends LazyUpdateComponent<StagePro
     }
   }
 
-  unlinkField(sourceKey: string, targetField: FieldItem) {
-    let links = this._fieldLinks.get(sourceKey);
+  unlinkField(sourcePath: string, targetField: FieldItem) {
+    let links = this._fieldLinks.get(sourcePath);
     if (links) {
       links.delete(targetField);
       if (links.size === 0) {
-        this._fieldLinks.delete(sourceKey);
+        this._fieldLinks.delete(sourcePath);
       }
     }
   }
 
-  registerField(key: string, item: FieldItem) {
-    this._fields.set(key, item);
-    if (this._fieldLinks.has(key)) {
-      for (let target of this._fieldLinks.get(key)) {
+  registerField(path: string, item: FieldItem) {
+    this._fields.set(path, item);
+    if (this._fieldLinks.has(path)) {
+      for (let target of this._fieldLinks.get(path)) {
         target.sourceChanged(item);
       }
     }
-    let preFixPath = `${key}.`;
+    let preFixPath = `${path}.`;
     for (let [path, links] of this._fieldLinks) {
       // search for children path to have a indirect binding wire
       if (path.startsWith(preFixPath)) {
@@ -211,15 +211,15 @@ export abstract class BlockStageBase<State> extends LazyUpdateComponent<StagePro
     }
   }
 
-  unregisterField(key: string, item: FieldItem) {
-    if (this._fields.get(key) === item) {
-      this._fields.delete(key);
-      if (this._fieldLinks.has(key)) {
-        for (let target of this._fieldLinks.get(key)) {
+  unregisterField(path: string, item: FieldItem) {
+    if (this._fields.get(path) === item) {
+      this._fields.delete(path);
+      if (this._fieldLinks.has(path)) {
+        for (let target of this._fieldLinks.get(path)) {
           target.sourceChanged(null);
         }
       } else {
-        let preFixPath = `${key}.`;
+        let preFixPath = `${path}.`;
         for (let [path, links] of this._fieldLinks) {
           // search for children path to remove indirect binding wire
           if (path.startsWith(preFixPath)) {
@@ -239,23 +239,23 @@ export abstract class BlockStageBase<State> extends LazyUpdateComponent<StagePro
       let changes = response.changes;
       for (let name in changes) {
         let change = changes[name];
-        let key = `${this.props.basePath}.${name}`;
+        let path = `${this.props.basePath}.${name}`;
         if (change === null) {
-          if (this._blocks.has(key)) {
-            if (this._blocks.get(key).selected) {
+          if (this._blocks.has(path)) {
+            if (this._blocks.get(path).selected) {
               this.selectionChanged = true;
             }
-            this._blocks.delete(key);
+            this._blocks.delete(path);
             this.forceUpdate();
           }
         } else {
-          if (!this._blocks.has(key)) {
+          if (!this._blocks.has(path)) {
             // create new block
-            let newBlockItem = new BlockItem(this.props.conn, this, key);
-            this._blocks.set(key, newBlockItem);
+            let newBlockItem = new BlockItem(this.props.conn, this, path);
+            this._blocks.set(path, newBlockItem);
             // update block links
-            if (this._blockLinks.has(key)) {
-              for (let target of this._blockLinks.get(key)) {
+            if (this._blockLinks.has(path)) {
+              for (let target of this._blockLinks.get(path)) {
                 target.syncParent = newBlockItem;
               }
             }
@@ -286,8 +286,8 @@ export abstract class BlockStageBase<State> extends LazyUpdateComponent<StagePro
     let {conn, basePath} = this.props;
     try {
       let newName = (await conn.createBlock(`${basePath}.${name}`, blockData, true)).name;
-      let newKey = `${basePath}.${newName}`;
-      this.selectBlock(newKey, false);
+      let newPath = `${basePath}.${newName}`;
+      this.selectBlock(newPath, false);
       this.onSelect(); // update the property list
     } catch (e) {
       // TODO show warning?
@@ -296,9 +296,9 @@ export abstract class BlockStageBase<State> extends LazyUpdateComponent<StagePro
 
   deleteSelectedBlocks() {
     let {conn, basePath} = this.props;
-    for (let [blockKey, blockItem] of this._blocks) {
+    for (let [blockPath, blockItem] of this._blocks) {
       if (blockItem.selected) {
-        conn.setValue(blockKey, undefined);
+        conn.setValue(blockPath, undefined);
       }
     }
     conn.childrenChangeStream().dispatch(basePath);

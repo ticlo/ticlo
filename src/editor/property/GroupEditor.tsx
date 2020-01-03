@@ -7,13 +7,13 @@ import {PropertyEditor} from './PropertyEditor';
 
 class LengthPropertyEditor extends PropertyEditor {
   onChange = (value: any) => {
-    let {conn, keys, name, propDesc} = this.props;
+    let {conn, paths, name, propDesc} = this.props;
     if (name.endsWith('#len')) {
       let group = name.substring(0, name.length - 4);
       if (value === propDesc.default) {
         value = undefined;
       }
-      for (let key of keys) {
+      for (let key of paths) {
         conn.setLen(key, group, value);
       }
     }
@@ -53,7 +53,7 @@ class GroupLoader extends MultiSelectLoader<GroupEditor> {
 
 interface Props {
   conn: ClientConn;
-  keys: string[];
+  paths: string[];
   funcDesc: FunctionDesc;
   groupDesc: PropGroupDesc;
   isMore?: boolean;
@@ -66,7 +66,7 @@ interface State {
 export class GroupEditor extends MultiSelectComponent<Props, State, GroupLoader> {
   constructor(props: Readonly<Props>) {
     super(props);
-    this.updateLoaders(props.keys);
+    this.updateLoaders(props.paths);
   }
 
   createLoader(key: string) {
@@ -74,7 +74,7 @@ export class GroupEditor extends MultiSelectComponent<Props, State, GroupLoader>
   }
 
   renderImpl(): React.ReactNode {
-    let {conn, keys, funcDesc, groupDesc, isMore} = this.props;
+    let {conn, paths, funcDesc, groupDesc, isMore} = this.props;
     let children: React.ReactNode[] = [];
     let {name: group} = groupDesc;
 
@@ -93,7 +93,7 @@ export class GroupEditor extends MultiSelectComponent<Props, State, GroupLoader>
             <PropertyEditor
               key={name}
               name={name}
-              keys={keys}
+              paths={paths}
               conn={conn}
               isMore={isMore}
               group={group}
@@ -111,7 +111,7 @@ export class GroupEditor extends MultiSelectComponent<Props, State, GroupLoader>
         <LengthPropertyEditor
           key={group}
           name={lenName}
-          keys={keys}
+          paths={paths}
           conn={conn}
           isMore={isMore}
           group={group}

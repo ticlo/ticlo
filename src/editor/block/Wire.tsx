@@ -74,7 +74,7 @@ export class WireView extends PureDataRenderer<WireViewProps, any> {
     let zIndex = source.block.selected || target.block.selected ? 100 : undefined;
 
     let className = 'ticl-block-wire';
-    if (target._bindingTargetKey !== source.key) {
+    if (target._bindingTargetPath !== source.path) {
       className = 'ticl-block-wire ticl-wire-dash';
     }
 

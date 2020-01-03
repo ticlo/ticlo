@@ -251,10 +251,10 @@ describe('editor BlockStage', function() {
 
     let [server, client] = makeLocalConnection(Root.instance);
 
-    let selectedKeys: string[];
+    let selectedPaths: string[];
 
-    function onSelect(keys: string[]) {
-      selectedKeys = keys;
+    function onSelect(paths: string[]) {
+      selectedPaths = paths;
     }
 
     let [component, div] = loadTemplate(
@@ -273,7 +273,7 @@ describe('editor BlockStage', function() {
 
     // both block are selected
     await shouldHappen(() => div.querySelectorAll('.ticl-stage-scroll .ticl-block-selected').length === 2);
-    assert.sameMembers(selectedKeys, ['BlockStage5.add', 'BlockStage5.subtract']);
+    assert.sameMembers(selectedPaths, ['BlockStage5.add', 'BlockStage5.subtract']);
 
     // select all
     SimulateEvent.simulate(rectBg, 'mousedown', fakeMouseEvent(210, 210));
@@ -281,7 +281,7 @@ describe('editor BlockStage', function() {
 
     // one block selected
     await shouldHappen(() => div.querySelectorAll('.ticl-stage-scroll .ticl-block-selected').length === 1);
-    assert.sameMembers(selectedKeys, ['BlockStage5.add']);
+    assert.sameMembers(selectedPaths, ['BlockStage5.add']);
 
     // select none
     // select all
@@ -290,7 +290,7 @@ describe('editor BlockStage', function() {
 
     // one block selected
     await shouldHappen(() => div.querySelectorAll('.ticl-block-selected').length === 0);
-    assert.isEmpty(selectedKeys);
+    assert.isEmpty(selectedPaths);
 
     Root.instance.deleteValue('BlockStage5');
   });

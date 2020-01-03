@@ -28,7 +28,7 @@ export class NodeTreeTab extends React.PureComponent<Props, State> {
 
   componentDidMount(): void {
     // tslint:disable-next-line
-    this.context.selectedKeys.listen(this);
+    this.context.selectedPaths.listen(this);
   }
 
   render() {

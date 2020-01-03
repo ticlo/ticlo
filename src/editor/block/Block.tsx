@@ -40,15 +40,15 @@ export class BlockView extends PureDataRenderer<BlockViewProps, BlockViewState> 
   selectAndDrag = (e: DragState) => {
     let {item} = this.props;
     if (e.event.ctrlKey) {
-      item.stage.selectBlock(item.key, true);
+      item.stage.selectBlock(item.path, true);
     } else {
-      item.stage.selectBlock(item.key);
+      item.stage.selectBlock(item.path);
     }
     if (item.selected) {
       let draggingBlocks = item.stage.startDragBlock(e);
       if (draggingBlocks.length === 1 && item.w) {
         // when dragging 1 block that's not minimized, check if it can be dropped into block footer
-        e.setData({moveBlock: item.key}, item.stage);
+        e.setData({moveBlock: item.path}, item.stage);
       }
       e.startDrag(null, null);
       item.stage.focus();
@@ -58,9 +58,9 @@ export class BlockView extends PureDataRenderer<BlockViewProps, BlockViewState> 
   selectAndNotDrag = (e: DragState) => {
     let {item} = this.props;
     if (e.event.ctrlKey) {
-      item.stage.selectBlock(item.key, true);
+      item.stage.selectBlock(item.path, true);
     } else {
-      item.stage.selectBlock(item.key);
+      item.stage.selectBlock(item.path);
     }
     if (item.selected) {
       item.stage.focus();
@@ -131,7 +131,7 @@ export class BlockView extends PureDataRenderer<BlockViewProps, BlockViewState> 
       return;
     }
     let movingBlockKey: string = DragState.getData('moveBlock', item.stage);
-    if (movingBlockKey && movingBlockKey !== item.key) {
+    if (movingBlockKey && movingBlockKey !== item.path) {
       BlockView._footDropMap.set(e, item);
       e.accept('');
       this.setState({footDropping: true});
@@ -140,10 +140,10 @@ export class BlockView extends PureDataRenderer<BlockViewProps, BlockViewState> 
   onDropFoot = (e: DragState) => {
     let {item} = this.props;
     let movingBlockKey: string = DragState.getData('moveBlock', item.stage);
-    if (movingBlockKey && movingBlockKey !== item.key) {
+    if (movingBlockKey && movingBlockKey !== item.path) {
       let block = item.stage.getBlock(movingBlockKey);
       if (block) {
-        block.linkSyncParent(item.key);
+        block.linkSyncParent(item.path);
       }
     }
   };
@@ -155,7 +155,7 @@ export class BlockView extends PureDataRenderer<BlockViewProps, BlockViewState> 
   constructor(props: BlockViewProps) {
     super(props);
     this.state = {moving: false, footDropping: false};
-    this.widget.subscribe(props.item.conn, `${props.item.key}.@b-widget`);
+    this.widget.subscribe(props.item.conn, `${props.item.path}.@b-widget`);
   }
 
   renderImpl() {
@@ -203,7 +203,7 @@ export class BlockView extends PureDataRenderer<BlockViewProps, BlockViewState> 
           onDropT={this.onDropFoot}
           onDragLeaveT={this.onDragLeaveFoot}
         >
-          <FullView conn={item.conn} path={item.key} updateViewHeight={item.setViewH} />
+          <FullView conn={item.conn} path={item.path} updateViewHeight={item.setViewH} />
           {widthDrag}
         </DragDropDiv>
       );
@@ -216,7 +216,7 @@ export class BlockView extends PureDataRenderer<BlockViewProps, BlockViewState> 
       if (WidgetType) {
         widget = (
           <div className="ticl-block-view">
-            <WidgetType conn={item.conn} path={item.key} updateViewHeight={item.setViewH} />
+            <WidgetType conn={item.conn} path={item.path} updateViewHeight={item.setViewH} />
           </div>
         );
       } else {

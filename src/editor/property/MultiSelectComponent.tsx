@@ -3,18 +3,14 @@ import {ClientConn} from '../../core/client';
 import {LazyUpdateComponent} from '../../ui/component/LazyUpdateComponent';
 
 interface MultiSelectProps {
-  keys: string[];
+  paths: string[];
   conn: ClientConn;
 }
 
 export abstract class MultiSelectLoader<T extends MultiSelectComponent<any, any, any>> {
-  parent: T;
   conn: ClientConn;
-  key: string;
 
-  constructor(key: string, parent: T) {
-    this.key = key;
-    this.parent = parent;
+  constructor(public path: string, public parent: T) {
     this.conn = (parent.props as MultiSelectProps).conn;
   }
 
@@ -30,14 +26,14 @@ export abstract class MultiSelectComponent<
 > extends LazyUpdateComponent<P, S> {
   loaders: Map<string, Loader> = new Map<string, Loader>();
 
-  abstract createLoader(key: string): Loader;
+  abstract createLoader(paths: string): Loader;
 
-  // update the loaders cache based on input keys
+  // update the loaders cache based on input paths
   // the parameter is a constructor of Loader class, this is a work around for the limitation of ts template
-  updateLoaders(keys: string[]): [boolean, boolean] {
+  updateLoaders(paths: string[]): [boolean, boolean] {
     let added = false;
     let removed = false;
-    for (let key of keys) {
+    for (let key of paths) {
       if (!this.loaders.has(key)) {
         let newLoader = this.createLoader(key);
         this.loaders.set(key, newLoader);
@@ -45,9 +41,9 @@ export abstract class MultiSelectComponent<
         added = true;
       }
     }
-    if (keys.length < this.loaders.size) {
+    if (paths.length < this.loaders.size) {
       for (let [key, subscriber] of this.loaders) {
-        if (!keys.includes(key)) {
+        if (!paths.includes(key)) {
           subscriber.destroy();
           this.loaders.delete(key);
           removed = true;
@@ -59,8 +55,8 @@ export abstract class MultiSelectComponent<
   }
 
   shouldComponentUpdate(nextProps: Readonly<P>, nextState: Readonly<S>): boolean {
-    let {keys} = nextProps;
-    let [added, removed] = this.updateLoaders(keys);
+    let {paths} = nextProps;
+    let [added, removed] = this.updateLoaders(paths);
     if (added) {
       return false;
     }

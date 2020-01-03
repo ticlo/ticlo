@@ -46,7 +46,7 @@ describe('PropertyEditor', function() {
     let [component, div] = loadTemplate(
       <PropertyEditor
         conn={client}
-        keys={['PropertyEditor1.add1', 'PropertyEditor1.add2']}
+        paths={['PropertyEditor1.add1', 'PropertyEditor1.add2']}
         name="0"
         funcDesc={funcDesc}
         propDesc={propDesc}
@@ -93,7 +93,7 @@ describe('PropertyEditor', function() {
     let [component, div] = loadTemplate(
       <PropertyEditor
         conn={client}
-        keys={['PropertyEditor2.add1', 'PropertyEditor2.add2']}
+        paths={['PropertyEditor2.add1', 'PropertyEditor2.add2']}
         name="0"
         funcDesc={funcDesc}
         propDesc={propDesc}

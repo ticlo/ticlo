@@ -53,7 +53,7 @@ export class ServiceEditor extends React.PureComponent<Props, State> {
     let bindingParentPath = bindingPath.substring(0, bindingPath.lastIndexOf('.'));
     let sourceKeys: string[] = keys.map((key) => `${key}.${bindingParentPath}`);
     return (
-      <PropertyList conn={conn} keys={sourceKeys} mode="minimal" style={{width: 300, minHeight: 160, padding: 16}} />
+      <PropertyList conn={conn} paths={sourceKeys} mode="minimal" style={{width: 300, minHeight: 160, padding: 16}} />
     );
   };
 

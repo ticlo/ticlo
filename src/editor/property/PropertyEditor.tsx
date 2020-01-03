@@ -53,8 +53,8 @@ class PropertyLoader extends MultiSelectLoader<PropertyEditor> {
   }
 
   init() {
-    this.conn.subscribe(`${this.key}.${this.name}`, this.valueListener);
-    this.conn.subscribe(`${this.key}.@b-p`, this.displayListener);
+    this.conn.subscribe(`${this.path}.${this.name}`, this.valueListener);
+    this.conn.subscribe(`${this.path}.@b-p`, this.displayListener);
   }
 
   cache: ValueState;
@@ -90,13 +90,13 @@ class PropertyLoader extends MultiSelectLoader<PropertyEditor> {
   };
 
   destroy() {
-    this.conn.unsubscribe(`${this.key}.${this.name}`, this.valueListener);
+    this.conn.unsubscribe(`${this.path}.${this.name}`, this.valueListener);
   }
 }
 
 interface Props {
   conn: ClientConn;
-  keys: string[];
+  paths: string[];
   name: string; // name is usually same as propDesc.name, but when it's in group, it will have a number after
   funcDesc: FunctionDesc;
   propDesc: PropDesc;
@@ -135,25 +135,25 @@ export class PropertyEditor extends MultiSelectComponent<Props, State, PropertyL
   constructor(props: Readonly<Props>) {
     super(props);
     this.state = {unlocked: false, showSubBlock: false, showMenu: false};
-    this.updateLoaders(props.keys);
+    this.updateLoaders(props.paths);
   }
 
-  createLoader(key: string) {
-    return new PropertyLoader(key, this);
+  createLoader(path: string) {
+    return new PropertyLoader(path, this);
   }
 
-  // map parent keys to subblock keys
+  // map parent paths to subblock paths
   // this needs to be cached to optimize children rendering
-  subBlockKeys: string[];
+  subBlockPaths: string[];
 
-  buildSubBlockKeys(props: Props) {
-    let {name, keys} = props;
-    this.subBlockKeys = keys.map((s: string) => `${s}.~${name}`);
+  buildSubBlockPaths(props: Props) {
+    let {name, paths} = props;
+    this.subBlockPaths = paths.map((s: string) => `${s}.~${name}`);
   }
 
   UNSAFE_componentWillReceiveProps(nextProps: Props) {
-    if (this.subBlockKeys && !arrayEqual(nextProps.keys, this.props.keys)) {
-      this.buildSubBlockKeys(nextProps);
+    if (this.subBlockPaths && !arrayEqual(nextProps.paths, this.props.paths)) {
+      this.buildSubBlockPaths(nextProps);
     }
   }
 
@@ -165,7 +165,7 @@ export class PropertyEditor extends MultiSelectComponent<Props, State, PropertyL
   };
 
   onChange = (value: any) => {
-    let {conn, keys, name, propDesc} = this.props;
+    let {conn, paths, name, propDesc} = this.props;
     if (value === propDesc.default) {
       switch (typeof value) {
         case 'number':
@@ -184,16 +184,16 @@ export class PropertyEditor extends MultiSelectComponent<Props, State, PropertyL
           value = undefined;
       }
     }
-    for (let key of keys) {
-      conn.setValue(`${key}.${name}`, value);
+    for (let path of paths) {
+      conn.setValue(`${path}.${name}`, value);
     }
   };
 
   onDragStart = (e: DragState) => {
-    let {conn, keys, name, group, baseName, isMore} = this.props;
+    let {conn, paths, name, group, baseName, isMore} = this.props;
 
     if (e.dragType === 'right') {
-      let data: any = {keys, fromGroup: group};
+      let data: any = {paths, fromGroup: group};
       let isLen = group != null && name.endsWith('#len');
       if (isMore) {
         // move more property
@@ -211,23 +211,23 @@ export class PropertyEditor extends MultiSelectComponent<Props, State, PropertyL
 
       e.setData(data, conn.getBaseConn());
     } else {
-      let fields = keys.map((s) => `${s}.${name}`);
+      let fields = paths.map((s) => `${s}.${name}`);
       e.setData({fields}, conn.getBaseConn());
     }
 
     e.startDrag();
   };
   onDragOver = (e: DragState) => {
-    let {conn, keys, name, propDesc, isMore, group, baseName} = this.props;
+    let {conn, paths, name, propDesc, isMore, group, baseName} = this.props;
     if (e.dragType === 'right') {
       // check reorder drag with right click
-      let moveFromKeys: string[] = DragState.getData('keys', conn.getBaseConn());
-      if (deepEqual(moveFromKeys, keys)) {
+      let moveFromKeys: string[] = DragState.getData('paths', conn.getBaseConn());
+      if (deepEqual(moveFromKeys, paths)) {
         let isLen = group != null && name.endsWith('#len');
         let fromGroup = DragState.getData('fromGroup', conn.getBaseConn());
         if (isMore) {
           // move more property
-          let moveFromKeys: string[] = DragState.getData('keys', conn.getBaseConn());
+          let moveFromKeys: string[] = DragState.getData('paths', conn.getBaseConn());
           let moveMoreField: string = DragState.getData('moveMoreField', conn.getBaseConn());
 
           if (moveMoreField != null) {
@@ -238,7 +238,7 @@ export class PropertyEditor extends MultiSelectComponent<Props, State, PropertyL
             }
 
             // tslint:disable-next-line:triple-equals
-            if (deepEqual(moveFromKeys, keys) && moveToField !== moveMoreField && group == fromGroup) {
+            if (deepEqual(moveFromKeys, paths) && moveToField !== moveMoreField && group == fromGroup) {
               e.accept('tico-fas-exchange-alt');
               return;
             }
@@ -258,8 +258,8 @@ export class PropertyEditor extends MultiSelectComponent<Props, State, PropertyL
       // check drag from property
       let dragFields: string[] = DragState.getData('fields', conn.getBaseConn());
       if (Array.isArray(dragFields)) {
-        if (!propDesc.readonly && (dragFields.length === 1 || dragFields.length === keys.length)) {
-          let fields = keys.map((s) => `${s}.${name}`);
+        if (!propDesc.readonly && (dragFields.length === 1 || dragFields.length === paths.length)) {
+          let fields = paths.map((s) => `${s}.${name}`);
           if (!deepEqual(fields, dragFields)) {
             e.accept('tico-fas-link');
             return;
@@ -280,13 +280,13 @@ export class PropertyEditor extends MultiSelectComponent<Props, State, PropertyL
     e.reject();
   };
   onDrop = (e: DragState) => {
-    let {conn, keys, name, isMore, group, baseName} = this.props;
+    let {conn, paths, name, isMore, group, baseName} = this.props;
     if (e.dragType === 'right') {
       // check reorder drag with right click
       let isLen = group != null && name.endsWith('#len');
       let fromGroup = DragState.getData('fromGroup', conn.getBaseConn());
-      let moveFromKeys: string[] = DragState.getData('keys', conn.getBaseConn());
-      if (deepEqual(moveFromKeys, keys)) {
+      let moveFromKeys: string[] = DragState.getData('paths', conn.getBaseConn());
+      if (deepEqual(moveFromKeys, paths)) {
         if (isMore) {
           // move more property
           let moveMoreField: string = DragState.getData('moveMoreField', conn.getBaseConn());
@@ -299,7 +299,7 @@ export class PropertyEditor extends MultiSelectComponent<Props, State, PropertyL
 
           // tslint:disable-next-line:triple-equals
           if (moveToField !== moveMoreField && group == fromGroup) {
-            for (let key of keys) {
+            for (let key of paths) {
               conn.moveMoreProp(key, moveMoreField, moveToField, fromGroup);
             }
             return;
@@ -309,7 +309,7 @@ export class PropertyEditor extends MultiSelectComponent<Props, State, PropertyL
           // move group index
           let moveGroupIndex = DragState.getData('moveGroupIndex', conn.getBaseConn());
           let currentGroupIndex = getTailingNumber(name);
-          for (let key of keys) {
+          for (let key of paths) {
             conn.moveGroupProp(key, fromGroup, moveGroupIndex, currentGroupIndex);
           }
         }
@@ -318,7 +318,7 @@ export class PropertyEditor extends MultiSelectComponent<Props, State, PropertyL
       // check drag from property
       let dragFields: string[] = DragState.getData('fields', conn.getBaseConn());
       if (Array.isArray(dragFields)) {
-        let fields = keys.map((s) => `${s}.${name}`);
+        let fields = paths.map((s) => `${s}.${name}`);
         if (dragFields.length === 1) {
           for (let field of fields) {
             if (dragFields[0] !== field) {
@@ -501,22 +501,22 @@ export class PropertyEditor extends MultiSelectComponent<Props, State, PropertyL
     this.setState({showMenu: flag});
   };
   onBindChange = (str: string) => {
-    let {conn, keys, name} = this.props;
+    let {conn, paths, name} = this.props;
     if (str === '') {
       str = undefined;
     }
-    for (let key of keys) {
+    for (let key of paths) {
       conn.setBinding(`${key}.${name}`, str);
     }
   };
   onUnbindClick = (e: any) => {
-    let {conn, keys, name} = this.props;
-    for (let key of keys) {
+    let {conn, paths, name} = this.props;
+    for (let key of paths) {
       conn.setBinding(`${key}.${name}`, null, true);
     }
   };
   onAddSubBlock = (id: string, desc?: FunctionDesc, data?: any) => {
-    let {conn, keys, name} = this.props;
+    let {conn, paths, name} = this.props;
     if (!desc) {
       desc = conn.watchDesc(id);
     }
@@ -528,60 +528,60 @@ export class PropertyEditor extends MultiSelectComponent<Props, State, PropertyL
       data = getDefaultFuncData(desc, true);
     }
 
-    for (let key of keys) {
-      conn.createBlock(`${key}.~${name}`, data);
+    for (let path of paths) {
+      conn.createBlock(`${path}.~${name}`, data);
     }
     this.setState({showMenu: false, showSubBlock: true});
   };
   onShowHide = (e: CheckboxChangeEvent) => {
-    let {conn, keys, name} = this.props;
-    for (let key of keys) {
+    let {conn, paths, name} = this.props;
+    for (let path of paths) {
       if (e.target.checked) {
-        conn.showProps(key, [name]);
+        conn.showProps(path, [name]);
       } else {
-        conn.hideProps(key, [name]);
+        conn.hideProps(path, [name]);
       }
     }
   };
   onClear = () => {
-    let {conn, keys, name} = this.props;
-    for (let key of keys) {
-      conn.setValue(`${key}.${name}`, undefined);
+    let {conn, paths, name} = this.props;
+    for (let path of paths) {
+      conn.setValue(`${path}.${name}`, undefined);
     }
     this.closeMenu();
   };
 
   onInsertIndex = () => {
-    let {conn, keys, name, group} = this.props;
+    let {conn, paths, name, group} = this.props;
     let index = getTailingNumber(name);
-    for (let key of keys) {
-      conn.insertGroupProp(key, group, index);
+    for (let path of paths) {
+      conn.insertGroupProp(path, group, index);
     }
     this.closeMenu();
   };
   onDeleteIndex = () => {
-    let {conn, keys, name, group} = this.props;
+    let {conn, paths, name, group} = this.props;
     let index = getTailingNumber(name);
-    for (let key of keys) {
-      conn.removeGroupProp(key, group, index);
+    for (let path of paths) {
+      conn.removeGroupProp(path, group, index);
     }
     this.closeMenu();
   };
 
   onRemoveMore = () => {
-    let {conn, keys, name, baseName, group} = this.props;
+    let {conn, paths, name, baseName, group} = this.props;
     let removeField = baseName != null ? baseName : name;
     if (group != null && name === `${group}#len`) {
       name = null;
     }
-    for (let key of keys) {
-      conn.removeMoreProp(key, removeField, group);
+    for (let path of paths) {
+      conn.removeMoreProp(path, removeField, group);
     }
     this.closeMenu();
   };
 
   renderImpl() {
-    let {conn, keys, funcDesc, propDesc, name, isMore, group} = this.props;
+    let {conn, paths, funcDesc, propDesc, name, isMore, group} = this.props;
     let {unlocked, showSubBlock, showMenu} = this.state;
 
     let onChange = propDesc.readonly ? null : this.onChange;
@@ -625,8 +625,8 @@ export class PropertyEditor extends MultiSelectComponent<Props, State, PropertyL
 
     // expand icon
     let renderSubBlock = subBlock && showSubBlock;
-    if (renderSubBlock && !this.subBlockKeys) {
-      this.buildSubBlockKeys(this.props);
+    if (renderSubBlock && !this.subBlockPaths) {
+      this.buildSubBlockPaths(this.props);
     }
 
     let editor: React.ReactNode;
@@ -643,7 +643,7 @@ export class PropertyEditor extends MultiSelectComponent<Props, State, PropertyL
       editor = (
         <ServiceEditor
           conn={conn}
-          keys={keys}
+          keys={paths}
           value={value}
           desc={propDesc}
           bindingPath={bindingPath}
@@ -664,7 +664,7 @@ export class PropertyEditor extends MultiSelectComponent<Props, State, PropertyL
         editor = (
           <EditorClass
             conn={conn}
-            keys={keys}
+            keys={paths}
             value={editorValue}
             desc={propDesc}
             name={name}
@@ -711,7 +711,7 @@ export class PropertyEditor extends MultiSelectComponent<Props, State, PropertyL
         ) : null}
         {subBlock ? <ExpandIcon opened={showSubBlock ? 'opened' : 'closed'} onClick={this.expandSubBlock} /> : null}
         <div className="ticl-property-value">{editor}</div>
-        {renderSubBlock ? <PropertyList conn={conn} keys={this.subBlockKeys} mode="subBlock" /> : null}
+        {renderSubBlock ? <PropertyList conn={conn} paths={this.subBlockPaths} mode="subBlock" /> : null}
       </div>
     );
   }

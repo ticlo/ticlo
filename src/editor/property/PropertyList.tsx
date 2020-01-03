@@ -21,12 +21,12 @@ import {Popup} from '../component/ClickPopup';
 import {BlockWidget} from '../block/view/BlockWidget';
 import {LazyUpdateComponent, LazyUpdateSubscriber} from '../../ui/component/LazyUpdateComponent';
 
-function descToEditor(conn: ClientConn, keys: string[], funcDesc: FunctionDesc, propDesc: PropDesc) {
+function descToEditor(conn: ClientConn, paths: string[], funcDesc: FunctionDesc, propDesc: PropDesc) {
   return (
     <PropertyEditor
       key={propDesc.name}
       name={propDesc.name}
-      keys={keys}
+      paths={paths}
       conn={conn}
       funcDesc={funcDesc}
       propDesc={propDesc}
@@ -80,15 +80,15 @@ class BlockLoader extends MultiSelectLoader<PropertyList> {
   };
 
   init() {
-    this.conn.subscribe(`${this.key}.#is`, this.isListener, true);
-    this.conn.subscribe(`${this.key}.#more`, this.moreListener, true);
-    this.conn.subscribe(`${this.key}.@b-widget`, this.widgetListener, true);
+    this.conn.subscribe(`${this.path}.#is`, this.isListener, true);
+    this.conn.subscribe(`${this.path}.#more`, this.moreListener, true);
+    this.conn.subscribe(`${this.path}.@b-widget`, this.widgetListener, true);
   }
 
   destroy() {
-    this.conn.unsubscribe(`${this.key}.#is`, this.isListener);
-    this.conn.unsubscribe(`${this.key}.#more`, this.moreListener);
-    this.conn.unsubscribe(`${this.key}.@b-widget`, this.widgetListener);
+    this.conn.unsubscribe(`${this.path}.#is`, this.isListener);
+    this.conn.unsubscribe(`${this.path}.#more`, this.moreListener);
+    this.conn.unsubscribe(`${this.path}.@b-widget`, this.widgetListener);
     this.conn.unwatchDesc(this.onDesc);
   }
 }
@@ -127,7 +127,7 @@ function comparePropDesc(a: PropDesc | PropGroupDesc, b: PropDesc | PropGroupDes
 
 interface Props {
   conn: ClientConn;
-  keys: string[];
+  paths: string[];
   style?: React.CSSProperties;
 
   // minimal is used when PropertyList is shown as popup, like in the ServiceEditor
@@ -175,7 +175,7 @@ class PropertyDefMerger {
     }
   }
 
-  render(keys: string[], conn: ClientConn, funcDesc: FunctionDesc, isMore?: boolean) {
+  render(paths: string[], conn: ClientConn, funcDesc: FunctionDesc, isMore?: boolean) {
     let children: React.ReactNode[] = [];
     if (this.map) {
       for (let [name, prop] of this.map) {
@@ -183,7 +183,7 @@ class PropertyDefMerger {
           children.push(
             <GroupEditor
               key={name}
-              keys={keys}
+              paths={paths}
               conn={conn}
               isMore={isMore}
               funcDesc={funcDesc}
@@ -195,7 +195,7 @@ class PropertyDefMerger {
             <PropertyEditor
               key={name}
               name={name}
-              keys={keys}
+              paths={paths}
               conn={conn}
               isMore={isMore}
               funcDesc={funcDesc}
@@ -219,11 +219,11 @@ export class PropertyList extends MultiSelectComponent<Props, State, BlockLoader
   constructor(props: Readonly<Props>) {
     super(props);
     this.state = {showConfig: false, showAttribute: false, showMore: true, showAddMorePopup: false};
-    this.updateLoaders(props.keys);
+    this.updateLoaders(props.paths);
   }
 
-  createLoader(key: string) {
-    return new BlockLoader(key, this);
+  createLoader(path: string) {
+    return new BlockLoader(path, this);
   }
 
   onShowMoreClick = () => {
@@ -241,14 +241,14 @@ export class PropertyList extends MultiSelectComponent<Props, State, BlockLoader
 
   onAddMore = (desc: PropDesc | PropGroupDesc) => {
     let {conn} = this.props;
-    for (let [key, subscriber] of this.loaders) {
-      conn.addMoreProp(key, desc);
+    for (let [path, subscriber] of this.loaders) {
+      conn.addMoreProp(path, desc);
     }
     this.onAddMorePopup(false);
   };
 
   renderImpl() {
-    let {conn, keys, style, mode} = this.props;
+    let {conn, paths, style, mode} = this.props;
     let {showConfig, showAttribute, showMore, showAddMorePopup} = this.state;
 
     let descChecked: Set<string> = new Set<string>();
@@ -257,7 +257,7 @@ export class PropertyList extends MultiSelectComponent<Props, State, BlockLoader
     let moreMerger: PropertyDefMerger = new PropertyDefMerger();
 
     let isEmpty = true;
-    for (let [key, subscriber] of this.loaders) {
+    for (let [path, subscriber] of this.loaders) {
       if (subscriber.desc) {
         isEmpty = false;
         break;
@@ -272,7 +272,7 @@ export class PropertyList extends MultiSelectComponent<Props, State, BlockLoader
       );
     }
 
-    for (let [key, subscriber] of this.loaders) {
+    for (let [path, subscriber] of this.loaders) {
       if (subscriber.desc) {
         if (!descChecked.has(subscriber.desc.name)) {
           descChecked.add(subscriber.desc.name);
@@ -291,14 +291,14 @@ export class PropertyList extends MultiSelectComponent<Props, State, BlockLoader
     if (!funcDesc) {
       funcDesc = blankFuncDesc;
     }
-    let children = propMerger.render(keys, conn, funcDesc);
+    let children = propMerger.render(paths, conn, funcDesc);
 
     if (mode !== 'minimal') {
       // merge #config properties
 
       let configChildren: React.ReactNode[];
 
-      for (let [key, subscriber] of this.loaders) {
+      for (let [path, subscriber] of this.loaders) {
         if (subscriber.desc) {
           configMerger.add(subscriber.desc.configs || configList);
         } else {
@@ -308,12 +308,12 @@ export class PropertyList extends MultiSelectComponent<Props, State, BlockLoader
         }
       }
       if (configMerger.isNotEmpty() && showConfig) {
-        configChildren = configMerger.render(keys, conn, funcDesc, true);
+        configChildren = configMerger.render(paths, conn, funcDesc, true);
       }
 
       // merge #more properties
       let moreChildren: React.ReactNode[];
-      for (let [key, subscriber] of this.loaders) {
+      for (let [path, subscriber] of this.loaders) {
         if (subscriber.more) {
           moreMerger.add(subscriber.more);
         } else {
@@ -323,10 +323,10 @@ export class PropertyList extends MultiSelectComponent<Props, State, BlockLoader
         }
       }
       if (moreMerger.isNotEmpty() && showMore) {
-        moreChildren = moreMerger.render(keys, conn, funcDesc, true);
+        moreChildren = moreMerger.render(paths, conn, funcDesc, true);
       }
 
-      let allowAttribute = mode == null && keys.length === 1;
+      let allowAttribute = mode == null && paths.length === 1;
 
       let moreExpand: ExpandState = 'empty';
       if (moreMerger.isNotEmpty()) {
@@ -334,7 +334,7 @@ export class PropertyList extends MultiSelectComponent<Props, State, BlockLoader
       }
       return (
         <div className="ticl-property-list" style={style}>
-          <PropertyEditor name="#is" keys={keys} conn={conn} funcDesc={funcDesc} propDesc={configDescs['#is']} />
+          <PropertyEditor name="#is" paths={paths} conn={conn} funcDesc={funcDesc} propDesc={configDescs['#is']} />
           <div className="ticl-property-divider">
             <div className="ticl-h-line" />
           </div>
@@ -358,7 +358,7 @@ export class PropertyList extends MultiSelectComponent<Props, State, BlockLoader
             </div>
           ) : null}
           {allowAttribute && showAttribute ? (
-            <PropertyAttributeList conn={conn} keys={keys} funcDesc={funcDesc} />
+            <PropertyAttributeList conn={conn} paths={paths} funcDesc={funcDesc} />
           ) : null}
 
           <div className="ticl-property-divider">
@@ -383,7 +383,7 @@ export class PropertyList extends MultiSelectComponent<Props, State, BlockLoader
         <div className="ticl-property-list" style={style}>
           <PropertyEditor
             name="#is"
-            keys={keys}
+            paths={paths}
             conn={conn}
             funcDesc={funcDesc}
             propDesc={configDescs['#is(readonly)']}
@@ -401,39 +401,39 @@ export class PropertyList extends MultiSelectComponent<Props, State, BlockLoader
 
 interface PropertyAttributeProps {
   conn: ClientConn;
-  keys: string[];
+  paths: string[];
   funcDesc: FunctionDesc;
 }
 
 class PropertyAttributeList extends LazyUpdateComponent<PropertyAttributeProps, any> {
   widgetListener = new LazyUpdateSubscriber(this);
 
-  updateKeys(keys: string[]) {
+  updatePaths(paths: string[]) {
     const {conn} = this.props;
-    this.widgetListener.subscribe(conn, `${keys[0]}.@b-widget`);
+    this.widgetListener.subscribe(conn, `${paths[0]}.@b-widget`);
   }
 
   constructor(props: PropertyAttributeProps) {
     super(props);
-    this.updateKeys(props.keys);
+    this.updatePaths(props.paths);
   }
 
   shouldComponentUpdate(nextProps: Readonly<PropertyAttributeProps>, nextState: Readonly<any>): boolean {
-    this.updateKeys(nextProps.keys);
+    this.updatePaths(nextProps.paths);
     return super.shouldComponentUpdate(nextProps, nextState);
   }
 
   renderImpl() {
-    let {conn, keys, funcDesc} = this.props;
+    let {conn, paths, funcDesc} = this.props;
     let attributeChildren = [];
     for (let attributeDesc of attributeList) {
-      attributeChildren.push(descToEditor(conn, keys, funcDesc, attributeDesc));
+      attributeChildren.push(descToEditor(conn, paths, funcDesc, attributeDesc));
     }
-    attributeChildren.push(descToEditor(conn, keys, funcDesc, BlockWidget.widgetDesc));
+    attributeChildren.push(descToEditor(conn, paths, funcDesc, BlockWidget.widgetDesc));
     let widget = BlockWidget.get(this.widgetListener.value);
     if (widget) {
       for (let propDesc of widget.viewProperties) {
-        attributeChildren.push(descToEditor(conn, keys, funcDesc, propDesc as PropDesc));
+        attributeChildren.push(descToEditor(conn, paths, funcDesc, propDesc as PropDesc));
       }
     }
     return attributeChildren;

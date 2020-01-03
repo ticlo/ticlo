@@ -13,32 +13,32 @@ interface Props {
 }
 
 interface State {
-  selectedKeys: string[];
+  selectedPaths: string[];
 }
 
 export class PropertyListTab extends React.PureComponent<Props, State> {
   static contextType = TicloLayoutContextType;
   context!: TicloLayoutContext;
 
-  state: State = {selectedKeys: []};
+  state: State = {selectedPaths: []};
 
-  onChange(selectedKeys: string[]) {
-    this.setState({selectedKeys});
+  onChange(selectedPaths: string[]) {
+    this.setState({selectedPaths});
   }
 
   onSourceChange(source: any): void {}
 
   componentDidMount(): void {
     // tslint:disable-next-line
-    this.context.selectedKeys.listen(this);
+    this.context.selectedPaths.listen(this);
   }
 
   render() {
     let {conn} = this.props;
-    let {selectedKeys} = this.state;
+    let {selectedPaths} = this.state;
 
     return (
-      <PropertyList conn={conn} keys={selectedKeys || []} style={{width: '100%', height: '100%', padding: '8px'}} />
+      <PropertyList conn={conn} paths={selectedPaths || []} style={{width: '100%', height: '100%', padding: '8px'}} />
     );
   }
 }
