@@ -13,7 +13,7 @@ describe('editor Icon', function() {
   it('basic', async function() {
     let [component, div] = loadTemplate(
       <div style={{position: 'absolute'}}>
-        <TIcon icon="fab:git" />
+        <TIcon icon="fab:react" />
         <TIcon icon="fas:plus" style="tico-pr1" />
         <TIcon icon="fas:minus" />
         <TIcon icon="txt:A" />
@@ -32,7 +32,7 @@ describe('editor Icon', function() {
     let icons: NodeListOf<HTMLDivElement> = document.querySelectorAll('.tico');
     assert.lengthOf(icons, 11);
 
-    assert.isTrue(icons[0].children[0].classList.contains('tico-fab-git'));
+    assert.isTrue(icons[0].children[0].classList.contains('tico-fab-react'));
 
     assert.isTrue(icons[1].children[0].classList.contains('tico-fas-plus'));
     assert.isTrue(icons[1].classList.contains('tico-pr1'));
