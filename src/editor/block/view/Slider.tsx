@@ -1,6 +1,10 @@
 import React from 'react';
 import {BlockWidget, BlockWidgetProps} from './BlockWidget';
-import {LazyUpdateComponent, LazyUpdateListener, LazyUpdateSubscriber} from '../../../react/component/LazyUpdateComponent';
+import {
+  LazyUpdateComponent,
+  LazyUpdateListener,
+  LazyUpdateSubscriber
+} from '../../../react/component/LazyUpdateComponent';
 import {Slider} from 'antd';
 import {displayNumber} from '../../../react/util/Types';
 import {PropDesc} from '../../../core/block/Descriptor';
