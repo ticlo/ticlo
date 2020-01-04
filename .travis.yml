@@ -8,7 +8,6 @@ cache:
   yarn: true
 script:
   - mkdir coverage
-  - mkdir dist
   - yarn prettier-check
   - yarn test-nyc-strict
   - yarn test-nyc
