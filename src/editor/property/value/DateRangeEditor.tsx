@@ -27,7 +27,7 @@ export class DateRangeEditor extends React.PureComponent<ValueEditorProps, any> 
       if (typeof value[0] === 'string' && typeof value[1] === 'string') {
         value = [parseZone(value[0]), parseZone(value[1])];
       }
-      if (!MomentUtil.isValid(value[0]) || !MomentUtil.isValid(value[1])) {
+      if (!MomentUtil.isMomentValid(value[0]) || !MomentUtil.isMomentValid(value[1])) {
         value = null;
       } else {
         title = `${MomentUtil.formatMoment(value[0], showTime)}\n${MomentUtil.formatMoment(value[1], showTime)}`;

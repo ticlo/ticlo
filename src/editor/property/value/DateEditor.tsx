@@ -21,7 +21,7 @@ export class DateEditor extends React.PureComponent<ValueEditorProps, any> {
     if (typeof value === 'string') {
       value = parseZone(value);
     }
-    if (!MomentUtil.isValid(value)) {
+    if (!MomentUtil.isMomentValid(value)) {
       value = null;
     } else {
       title = MomentUtil.formatMoment(value, showTime);
