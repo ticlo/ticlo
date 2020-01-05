@@ -14,7 +14,6 @@ import {BlockStageTab} from '../../src/dock/block/BlockStageTab';
 import {TicloLayoutContext, TicloLayoutContextType} from '../../src/editor/component/LayoutContext';
 import {PropDispatcher} from '../../src/core/block/Dispatcher';
 import {PropertyListTab} from '../../src/dock/property/PropertyListTab';
-import {ObjectTreeTab} from '../../src/dock/object-tree/ObjectTreeTab';
 import {WsBrowserConnection} from '../../src/browser/connect/WsBrowserConnection';
 import {FrameClientConnection} from '../../src/browser/connect/FrameClientConnection';
 import {NodeTreeTab} from '../../src/dock/node-tree/NodeTreeTab';
@@ -24,8 +23,7 @@ const layoutGroups = {
   blockStage: {
     animated: false,
     floatable: true
-  },
-  objectTree: ObjectTreeTab.dockGroup
+  }
 };
 
 interface Props {
@@ -79,13 +77,6 @@ class App extends React.PureComponent<Props, State> implements TicloLayoutContex
     }
     TextEditorTab.openFloatPanel(this.layout, conn, paths, defaultValue, mime, readonly);
   }
-  showObjectTree(path: string, value: any, element: HTMLElement, source: any) {
-    let {conn} = this.props;
-    ObjectTreeTab.openFloatPanel(this.layout, path, conn, value, element, source, 18, 0);
-  }
-  closeObjectTree(path: string, source: any) {
-    ObjectTreeTab.closeFloatPanel(this.layout, path, source);
-  }
 
   onDragBlock = (e: DragState) => {
     let {conn} = this.props;
@@ -129,15 +120,7 @@ class App extends React.PureComponent<Props, State> implements TicloLayoutContex
                 id: 'Types',
                 title: 'Types',
                 cached: true,
-                content: (
-                  <TypeTree
-                    conn={conn}
-                    style={{height: '100%'}}
-                    onTypeClick={(name: string, desc: FunctionDesc, data: any) => {
-                      console.log(name, desc, data);
-                    }}
-                  />
-                )
+                content: <TypeTree conn={conn} style={{height: '100%'}} />
               },
               {
                 id: 'PropertyList',
