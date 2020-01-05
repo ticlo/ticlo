@@ -3,17 +3,7 @@ import * as path from 'path';
 import * as glob from 'glob';
 import {exec} from 'child_process';
 
-async function async_exec(cmd: string) {
-  return new Promise((resolve, reject) => {
-    exec(cmd, {cwd: __dirname, timeout: 100000}, (error, stdout, stderr) => {
-      if (error) {
-        reject(error);
-        return;
-      }
-      resolve();
-    });
-  });
-}
+
 
 async function main() {
   let output: string[] = [];

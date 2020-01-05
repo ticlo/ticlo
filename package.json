@@ -20,12 +20,12 @@
     "qs": "^6.9.1"
   },
   "peerDependencies": {
+    "express": ">=4.0.0",
     "react": ">=16.0.0",
-    "react-dom": ">=16.0.0",
-    "express": ">=4.0.0"
+    "react-dom": ">=16.0.0"
   },
   "devDependencies": {
-    "@ant-design/icons": "^4.0.0-alpha.16",
+    "@ant-design/icons": "^4.0.0-alpha.19",
     "@babel/core": "^7.7.7",
     "@babel/plugin-proposal-optional-chaining": "^7.7.5",
     "@babel/preset-env": "^7.7.7",
@@ -45,9 +45,10 @@
     "@types/react": "^16.9.17",
     "@types/react-color": "^3.0.1",
     "@types/react-dom": "^16.9.4",
+    "@types/shelljs": "^0.8.6",
     "@types/tinycolor2": "^1.4.2",
     "@types/ws": "^6.0.4",
-    "antd": "^4.0.0-beta.1",
+    "antd": "4.0.0-rc.0",
     "body-parser": "^1.19.0",
     "chai": "^4.2.0",
     "codemirror": "^5.50.0",
@@ -76,6 +77,7 @@
     "react-color": "^2.17.3",
     "react-dom": "^16.12.0",
     "resize-observer-polyfill": "^1.5.1",
+    "shelljs": "^0.8.3",
     "simulate-event": "git+https://github.com/ticlo/simulate-event.git",
     "tinycolor2": "^1.4.1",
     "ts-node": "^8.5.4",
@@ -90,7 +92,8 @@
     "test-karma": "karma start",
     "build-less": "lessc --js src/editor/antd.less dist/antd.css && lessc --js src/editor/editor.less dist/editor.css",
     "build-icons": "ts-node tool/build-icons",
-    "build-i18n": "node tool/merge-lng",
+    "build-i18n": "ts-node tool/merge-lng",
+    "build-package": "ts-node tool/build-package.ts",
     "test": "cross-env NODE_ENV=TEST mocha 'src/core/**/*.spec.ts' 'src/nodejs/**/*.spec.ts' --harmony-optional-chaining",
     "express-server": "node --harmony-optional-chaining -r ts-node/register example/server/express-server",
     "editor": "parcel example/simple-editor/editor-browser.html --open --out-dir temp --no-source-maps",
