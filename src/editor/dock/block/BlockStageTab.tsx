@@ -2,11 +2,11 @@ import React, {ReactNode} from 'react';
 import {Button, Tooltip} from 'antd';
 import UnorderedListIcon from '@ant-design/icons/UnorderedListOutlined';
 import CloseIcon from '@ant-design/icons/CloseOutlined';
-import {BlockStage, PropertyList} from '../../editor';
+import {BlockStage, PropertyList} from '../..';
 import {Divider} from 'rc-dock/lib';
-import {arrayEqual} from '../../core/util/Compare';
-import {ClientConn} from '../../core/connect/ClientConn';
-import {TrackedClientConn} from '../../core/connect/TrackedClientConn';
+import {arrayEqual} from '../../../core/util/Compare';
+import {ClientConn} from '../../../core/connect/ClientConn';
+import {TrackedClientConn} from '../../../core/connect/TrackedClientConn';
 import {BlockStageTabButton} from './BlockStageTabButton';
 
 import './BlockStageTab.less';

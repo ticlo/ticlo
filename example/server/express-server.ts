@@ -1,9 +1,9 @@
 import Express from 'express';
-import {connectTiclo, routeTiclo} from '../../src/nodejs/express/server';
+import {connectTiclo, routeTiclo} from '../../src/node/express/server';
 import {data} from '../sample-data/data';
 import {Root} from '../../src/core/main';
 
-import '../../src/nodejs';
+import '../../src/node';
 
 let job = Root.instance.addJob('example');
 job.load(data);

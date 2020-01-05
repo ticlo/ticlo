@@ -2,7 +2,7 @@ import React from 'react';
 import marked from 'marked';
 import Dompurify from 'dompurify';
 import {BlockWidgetProps} from './BlockWidget';
-import {LazyUpdateComponent, LazyUpdateListener} from '../../../react/component/LazyUpdateComponent';
+import {LazyUpdateComponent, LazyUpdateListener} from '../../component/LazyUpdateComponent';
 import {ClientConnection} from '../../../core/connect/ClientConnection';
 
 class NoteView extends LazyUpdateComponent<BlockWidgetProps, any> {

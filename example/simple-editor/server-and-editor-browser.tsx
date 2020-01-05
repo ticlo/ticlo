@@ -16,12 +16,12 @@ import './sample-blocks';
 import {Logger} from '../../src/core/util/Logger';
 import {NodeTreeItem} from '../../src/editor/node-tree/NodeRenderer';
 import {WorkerFunction} from '../../src/core/worker/WorkerFunction';
-import {BlockStageTab} from '../../src/dock/block/BlockStageTab';
+import {BlockStageTab} from '../../src/editor/dock/block/BlockStageTab';
 import {TicloLayoutContext, TicloLayoutContextType} from '../../src/editor/component/LayoutContext';
 import {PropDispatcher} from '../../src/core/block/Dispatcher';
-import {PropertyListTab} from '../../src/dock/property/PropertyListTab';
-import {NodeTreeTab} from '../../src/dock/node-tree/NodeTreeTab';
-import {TextEditorTab} from '../../src/dock/text-editor/TextEditorTab';
+import {PropertyListTab} from '../../src/editor/dock/property/PropertyListTab';
+import {NodeTreeTab} from '../../src/editor/dock/node-tree/NodeTreeTab';
+import {TextEditorTab} from '../../src/editor/dock/text-editor/TextEditorTab';
 import {ClientConn} from '../../src/core/connect/ClientConn';
 
 const layoutGroups = {

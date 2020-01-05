@@ -1,10 +1,10 @@
 import React from 'react';
-import {ExpandState} from '../../react/component/Tree';
-import VirtualList from '../../react/component/Virtual';
+import {ExpandState} from '../component/Tree';
+import VirtualList from '../component/Virtual';
 import {ClientConn} from '../../core/client';
 import {DataMap} from '../../core/util/DataTypes';
 import {NodeTreeItem, NodeTreeRenderer} from './NodeRenderer';
-import {LazyUpdateComponent} from '../../react/component/LazyUpdateComponent';
+import {LazyUpdateComponent} from '../component/LazyUpdateComponent';
 
 interface Props {
   conn: ClientConn;

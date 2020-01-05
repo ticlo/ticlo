@@ -1,12 +1,12 @@
 import React, {ReactNode} from 'react';
-import {BlockStage, PropertyList} from '../../editor';
+import {BlockStage, PropertyList} from '../..';
 import {Divider, DockContext, DockContextType} from 'rc-dock/lib';
-import {arrayEqual} from '../../core/util/Compare';
+import {arrayEqual} from '../../../core/util/Compare';
 import {Button} from 'antd';
-import {Popup} from '../../editor/component/ClickPopup';
-import {ClientConn} from '../../core/connect/ClientConn';
-import {TrackedClientConn} from '../../core/connect/TrackedClientConn';
-import {TicloLayoutContext, TicloLayoutContextType} from '../../editor/component/LayoutContext';
+import {Popup} from '../../component/ClickPopup';
+import {ClientConn} from '../../../core/connect/ClientConn';
+import {TrackedClientConn} from '../../../core/connect/TrackedClientConn';
+import {TicloLayoutContext, TicloLayoutContextType} from '../../component/LayoutContext';
 
 interface Props {
   conn: ClientConn;

@@ -1,5 +1,5 @@
 import React from 'react';
-import {LazyUpdateComponent, LazyUpdateSubscriber} from '../../react/component/LazyUpdateComponent';
+import {LazyUpdateComponent, LazyUpdateSubscriber} from '../component/LazyUpdateComponent';
 import {ClientConn} from '../../core/connect/ClientConn';
 import {Popup} from '../component/ClickPopup';
 import {ObjectTree} from '../object-tree/ObjectTree';

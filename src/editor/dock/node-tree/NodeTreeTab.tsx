@@ -1,7 +1,7 @@
 import React from 'react';
-import {NodeTree} from '../../editor';
-import {ClientConn} from '../../core/connect/ClientConn';
-import {TicloLayoutContext, TicloLayoutContextType} from '../../editor/component/LayoutContext';
+import {ClientConn} from '../../../core/connect/ClientConn';
+import {TicloLayoutContext, TicloLayoutContextType} from '../../component/LayoutContext';
+import {NodeTree} from '../..';
 
 interface Props {
   conn: ClientConn;

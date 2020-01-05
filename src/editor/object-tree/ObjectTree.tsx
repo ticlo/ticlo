@@ -1,8 +1,8 @@
 import React from 'react';
-import VirtualList from '../../react/component/Virtual';
+import VirtualList from '../component/Virtual';
 import {ObjectTreeItem, ObjectTreeRenderer} from './ObjectRenderer';
 import {ClientConn} from '../../core/connect/ClientConn';
-import {LazyUpdateComponent} from '../../react/component/LazyUpdateComponent';
+import {LazyUpdateComponent} from '../component/LazyUpdateComponent';
 import {DataMap, isDataTruncated} from '../../core/util/DataTypes';
 import {Spin} from 'antd';
 import {deepEqual} from '../../core/util/Compare';

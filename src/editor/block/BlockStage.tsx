@@ -5,7 +5,7 @@ import ZoomOutIcon from '@ant-design/icons/ZoomOutOutlined';
 import {BlockView} from './Block';
 import {WireView} from './Wire';
 import {DragDropDiv, DragState} from 'rc-dock';
-import {cssNumber} from '../../react/util/Types';
+import {cssNumber} from '../util/Types';
 import {onDragBlockOver, onDropBlock} from './DragDropBlock';
 import ResizeObserver from 'resize-observer-polyfill';
 import {BlockStageBase, StageProps} from './BlockStageBase';

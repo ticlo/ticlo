@@ -10,14 +10,14 @@ import {TypeTree} from '../../src/editor/type-selector/TypeTree';
 import './sample-blocks';
 import {Logger} from '../../src/core/util/Logger';
 import {WorkerFunction} from '../../src/core/worker/WorkerFunction';
-import {BlockStageTab} from '../../src/dock/block/BlockStageTab';
+import {BlockStageTab} from '../../src/editor/dock/block/BlockStageTab';
 import {TicloLayoutContext, TicloLayoutContextType} from '../../src/editor/component/LayoutContext';
 import {PropDispatcher} from '../../src/core/block/Dispatcher';
-import {PropertyListTab} from '../../src/dock/property/PropertyListTab';
+import {PropertyListTab} from '../../src/editor/dock/property/PropertyListTab';
 import {WsBrowserConnection} from '../../src/browser/connect/WsBrowserConnection';
 import {FrameClientConnection} from '../../src/browser/connect/FrameClientConnection';
-import {NodeTreeTab} from '../../src/dock/node-tree/NodeTreeTab';
-import {TextEditorTab} from '../../src/dock/text-editor/TextEditorTab';
+import {NodeTreeTab} from '../../src/editor/dock/node-tree/NodeTreeTab';
+import {TextEditorTab} from '../../src/editor/dock/text-editor/TextEditorTab';
 
 const layoutGroups = {
   blockStage: {

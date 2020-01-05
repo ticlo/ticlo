@@ -1,7 +1,7 @@
 import ReactDOM from 'react-dom';
-import {BaseFunction} from '../../core/block/BlockFunction';
-import {Types} from '../../core/block/Type';
-import {ErrorEvent} from '../../core/block/Event';
+import {BaseFunction} from '../core/block/BlockFunction';
+import {Types} from '../core/block/Type';
+import {ErrorEvent} from '../core/block/Event';
 
 export class RenderDomFunction extends BaseFunction {
   _container: Element;

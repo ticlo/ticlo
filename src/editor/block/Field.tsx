@@ -1,6 +1,6 @@
 import React, {MouseEventHandler} from 'react';
 import {WireItem} from './Wire';
-import {DataRendererItem, PureDataRenderer} from '../../react/component/DataRenderer';
+import {DataRendererItem, PureDataRenderer} from '../component/DataRenderer';
 import {DataMap} from '../../core/util/DataTypes';
 import {relative, resolve} from '../../core/util/Path';
 import {translateProperty} from '../../core/util/i18n';

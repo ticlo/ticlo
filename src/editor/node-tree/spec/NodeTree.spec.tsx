@@ -6,7 +6,7 @@ import {Block, Root} from '../../../core/main';
 import {destroyLastLocalConnection, makeLocalConnection} from '../../../core/connect/LocalConnection';
 import {shouldHappen} from '../../../core/util/test-util';
 import ReactDOM from 'react-dom';
-import {removeLastTemplate, loadTemplate, querySingle} from '../../../react/util/test-util';
+import {removeLastTemplate, loadTemplate, querySingle} from '../../util/test-util';
 
 describe('editor NodeTree', function() {
   afterEach(function() {

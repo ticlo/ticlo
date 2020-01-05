@@ -1,8 +1,8 @@
 import React, {ErrorInfo} from 'react';
-import {Block} from '../../core/block/Block';
-import {PropDispatcher} from '../../core/block/Dispatcher';
+import {Block} from '../core/block/Block';
+import {PropDispatcher} from '../core/block/Dispatcher';
 import {validateReactComponent} from './validateReactComponent';
-import {BlockProperty} from '../../core/block/BlockProperty';
+import {BlockProperty} from '../core/block/BlockProperty';
 
 interface Props {
   block: Block;

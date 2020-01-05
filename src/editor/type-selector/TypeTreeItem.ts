@@ -1,4 +1,4 @@
-import {TreeItem} from '../../react/component/Tree';
+import {TreeItem} from '../component/Tree';
 import {ClientConn} from '../../core/client';
 import {FunctionDesc} from '../../core/block/Descriptor';
 import {OnTypeClick} from './TypeView';

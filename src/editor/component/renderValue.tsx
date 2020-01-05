@@ -1,7 +1,7 @@
 import React from 'react';
 import {TRUNCATED} from '../../core/util/DataTypes';
 import {encodeDisplay} from '../../core/util/Serialize';
-import {displayNumber} from '../../react/util/Types';
+import {displayNumber} from '../util/Types';
 
 export function renderValue(val: any, getPopup?: (val: any) => void) {
   switch (typeof val) {

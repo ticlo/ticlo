@@ -1,7 +1,7 @@
 import {assert} from 'chai';
 import SimulateEvent from 'simulate-event';
 import React from 'react';
-import {removeLastTemplate, loadTemplate, querySingle, fakeMouseEvent} from '../../../../react/util/test-util';
+import {removeLastTemplate, loadTemplate, querySingle, fakeMouseEvent} from '../../../util/test-util';
 import {initEditor} from '../../../index';
 import {DateEditor} from '../DateEditor';
 import {shouldHappen, waitTick} from '../../../../core/util/test-util';

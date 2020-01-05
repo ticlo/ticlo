@@ -4,9 +4,9 @@ import {
   LazyUpdateComponent,
   LazyUpdateListener,
   LazyUpdateSubscriber
-} from '../../../react/component/LazyUpdateComponent';
+} from '../../component/LazyUpdateComponent';
 import {Slider} from 'antd';
-import {displayNumber} from '../../../react/util/Types';
+import {displayNumber} from '../../util/Types';
 import {PropDesc} from '../../../core/block/Descriptor';
 
 class SliderView extends LazyUpdateComponent<BlockWidgetProps, any> {

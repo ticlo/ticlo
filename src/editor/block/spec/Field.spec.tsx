@@ -5,7 +5,7 @@ import {BlockStage} from '../../../editor';
 import {Block, Root} from '../../../core/main';
 import {destroyLastLocalConnection, makeLocalConnection} from '../../../core/connect/LocalConnection';
 import {shouldHappen, shouldReject} from '../../../core/util/test-util';
-import {removeLastTemplate, loadTemplate, querySingle} from '../../../react/util/test-util';
+import {removeLastTemplate, loadTemplate, querySingle} from '../../util/test-util';
 import {initEditor} from '../../index';
 
 describe('editor Block Field', function() {

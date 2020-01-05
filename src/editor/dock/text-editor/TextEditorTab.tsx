@@ -1,5 +1,5 @@
 import React from 'react';
-import {ClientConn} from '../../core/connect/ClientConn';
+import {ClientConn} from '../../../core/connect/ClientConn';
 import {Menu, Dropdown, Button, Spin} from 'antd';
 import {ClickParam} from 'antd/lib/menu';
 import {UnControlled as CodeMirror} from 'react-codemirror2';
@@ -20,10 +20,9 @@ import 'codemirror/addon/fold/foldgutter.css';
 
 import './TextEditorTab.less';
 
-import {DataMap, isDataTruncated} from '../../core/util/DataTypes';
-import {decode, encode} from '../../core/util/Serialize';
+import {DataMap, isDataTruncated} from '../../../core/util/DataTypes';
+import {decode, encode} from '../../../core/util/Serialize';
 import {DockLayout} from 'rc-dock/lib';
-import {mapPointsBetweenElement} from '../../react/util/Position';
 
 interface Props {
   conn: ClientConn;

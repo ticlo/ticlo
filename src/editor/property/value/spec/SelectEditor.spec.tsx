@@ -7,7 +7,7 @@ import {
   querySingle,
   fakeMouseEvent,
   expandDocumentBody
-} from '../../../../react/util/test-util';
+} from '../../../util/test-util';
 import {initEditor} from '../../../index';
 import {MultiSelectEditor, SelectEditor} from '../SelectEditor';
 import {shouldHappen, waitTick} from '../../../../core/util/test-util';

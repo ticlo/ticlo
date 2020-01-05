@@ -4,7 +4,7 @@ import {DataMap} from '../../core/util/DataTypes';
 import {DragState} from 'rc-dock';
 import {BlockItem, FieldItem, Stage} from './Field';
 import {forAllPathsBetween} from '../../core/util/Path';
-import {LazyUpdateComponent} from '../../react/component/LazyUpdateComponent';
+import {LazyUpdateComponent} from '../component/LazyUpdateComponent';
 
 export interface StageProps {
   conn: ClientConn;

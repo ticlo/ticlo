@@ -3,9 +3,9 @@ import {Button} from 'antd';
 import SaveIcon from '@ant-design/icons/SaveOutlined';
 import CloseIcon from '@ant-design/icons/CloseOutlined';
 import {DockContext, DockContextType} from 'rc-dock/lib';
-import {LazyUpdateComponent} from '../../react/component/LazyUpdateComponent';
-import {TrackedClientConn} from '../../core/connect/TrackedClientConn';
-import {PropDispatcher} from '../../core/block/Dispatcher';
+import {LazyUpdateComponent} from '../../component/LazyUpdateComponent';
+import {TrackedClientConn} from '../../../core/connect/TrackedClientConn';
+import {PropDispatcher} from '../../../core/block/Dispatcher';
 
 interface Props {
   conn: TrackedClientConn;

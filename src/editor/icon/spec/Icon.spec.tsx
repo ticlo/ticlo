@@ -3,7 +3,7 @@ import React from 'react';
 import {TIcon} from '../Icon';
 import {shouldHappen} from '../../../core/util/test-util';
 import ReactDOM from 'react-dom';
-import {removeLastTemplate, loadTemplate} from '../../../react/util/test-util';
+import {removeLastTemplate, loadTemplate} from '../../util/test-util';
 
 describe('editor Icon', function() {
   afterEach(function() {
