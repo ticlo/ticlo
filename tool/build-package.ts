@@ -20,6 +20,7 @@ function makeDir(path: string) {
 
 async function buildPackage(name: string, replaceImport = true) {
   let fromDir = `./src/${name}`;
+  // build package directly into node_modules, so one package can depend on the other
   let targetDir = `./node_modules/@ticlo/${name}`;
 
   // copy files
