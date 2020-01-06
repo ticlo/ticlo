@@ -1,20 +1,22 @@
 import React, {MouseEventHandler} from 'react';
 import {WireItem} from './Wire';
 import {DataRendererItem, PureDataRenderer} from '../component/DataRenderer';
-import {DataMap} from '../../core/util/DataTypes';
-import {relative, resolve} from '../../core/util/Path';
-import {translateProperty} from '../../core/util/i18n';
-import {ClientConn, ValueUpdate} from '../../core/client';
 import {
+  getRelativePath,
+  resolvePath,
+  translateProperty,
+  ClientConn,
+  ValueUpdate,
   blankFuncDesc,
   blankPropDesc,
   buildPropDescCache,
   findPropDesc,
   FunctionDesc,
   PropDesc,
-  PropGroupDesc
-} from '../../core/block/Descriptor';
-import {arrayEqual, deepEqual} from '../../core/util/Compare';
+  PropGroupDesc,
+  arrayEqual,
+  deepEqual
+} from '../../../src/core/editor';
 import {TIcon} from '../icon/Icon';
 import {DragDropDiv, DragState} from 'rc-dock';
 import * as DragManager from 'rc-dock/src/dragdrop/DragManager';
@@ -90,7 +92,7 @@ export class FieldItem extends DataRendererItem {
         this.block.onFieldsChanged();
       }
       this._bindingPath = str;
-      this._bindingTargetPath = resolve(this.block.path, this._bindingPath);
+      this._bindingTargetPath = resolvePath(this.block.path, this._bindingPath);
 
       if (this._bindingTargetPath) {
         if (this._bindingPath === `~${this.name}.output`) {

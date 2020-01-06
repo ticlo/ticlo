@@ -6,12 +6,16 @@ import ReloadIcon from '@ant-design/icons/ReloadOutlined';
 import SearchIcon from '@ant-design/icons/SearchOutlined';
 import {ExpandIcon, ExpandState, TreeItem} from '../component/Tree';
 import {PureDataRenderer} from '../component/DataRenderer';
-import {DataMap} from '../../core/util/DataTypes';
-import {ClientConn, ValueUpdate} from '../../core/client';
+import {
+  DataMap,
+  ValueUpdate,
+  blankFuncDesc,
+  FunctionDesc,
+  getFuncStyleFromDesc,
+  smartStrCompare
+} from '../../../src/core/editor';
 import {TIcon} from '../icon/Icon';
-import {blankFuncDesc, FunctionDesc, getFuncStyleFromDesc} from '../../core/block/Descriptor';
 import {ClickParam} from 'antd/lib/menu';
-import {smartStrCompare} from '../../core/util/String';
 import {TicloLayoutContext, TicloLayoutContextType} from '../component/LayoutContext';
 
 export class NodeTreeItem extends TreeItem<NodeTreeItem> {

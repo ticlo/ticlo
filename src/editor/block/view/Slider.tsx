@@ -7,7 +7,7 @@ import {
 } from '../../component/LazyUpdateComponent';
 import {Slider} from 'antd';
 import {displayNumber} from '../../util/Types';
-import {PropDesc} from '../../../core/block/Descriptor';
+import {PropDesc} from '../../../../src/core/editor';
 
 class SliderView extends LazyUpdateComponent<BlockWidgetProps, any> {
   static readonly viewProperties: PropDesc[] = [

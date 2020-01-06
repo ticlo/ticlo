@@ -1,7 +1,7 @@
 import React from 'react';
 import {Input} from 'antd';
 import DownIcon from '@ant-design/icons/DownOutlined';
-import {FunctionDesc, getFuncStyleFromDesc, PropDesc} from '../../../core/block/Descriptor';
+import {FunctionDesc, getFuncStyleFromDesc, PropDesc} from '../../../../src/core/editor';
 import {ValueEditorProps} from './ValueEditorBase';
 import {TIcon} from '../../icon/Icon';
 import {DragDropDiv, DragState} from 'rc-dock';

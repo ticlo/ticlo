@@ -4,9 +4,7 @@ import UnorderedListIcon from '@ant-design/icons/UnorderedListOutlined';
 import CloseIcon from '@ant-design/icons/CloseOutlined';
 import {BlockStage, PropertyList} from '../..';
 import {Divider} from 'rc-dock/lib';
-import {arrayEqual} from '../../../core/util/Compare';
-import {ClientConn} from '../../../core/connect/ClientConn';
-import {TrackedClientConn} from '../../../core/connect/TrackedClientConn';
+import {arrayEqual, ClientConn, TrackedClientConn} from '../../../../src/core/editor';
 import {BlockStageTabButton} from './BlockStageTabButton';
 
 import './BlockStageTab.less';

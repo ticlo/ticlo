@@ -4,8 +4,8 @@ import React from 'react';
 import {removeLastTemplate, loadTemplate, querySingle} from '../../../util/test-util';
 import {initEditor} from '../../../index';
 import {NumberEditor} from '../NumberEditor';
-import {shouldHappen} from '../../../../core/util/test-util';
-import {blankPropDesc, FunctionDesc, PropDesc} from '../../../../core/block/Descriptor';
+import {shouldHappen} from '../../../../../src/core/util/test-util';
+import {blankPropDesc, FunctionDesc, PropDesc} from '../../../../../src/core/editor';
 import {simulateInput} from './simulate-input';
 
 describe('NumberEditor', function() {

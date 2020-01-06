@@ -2,12 +2,12 @@ import {Block, Job, Root} from '../block/Block';
 import {BlockProperty, HelperProperty} from '../block/BlockProperty';
 import {Logger} from './Logger';
 
-export function resolve(path1: string, path2: string, property?: BlockProperty): string {
-  if (path2 == null) {
+export function resolvePath(currentPath: string, relativePath: string, property?: BlockProperty): string {
+  if (relativePath == null) {
     return null;
   }
-  let p1 = path1.split('.');
-  let p2 = path2.split('.');
+  let p1 = currentPath.split('.');
+  let p2 = relativePath.split('.');
 
   loopwhile: while (p2.length > 0 && p1.length > 0) {
     switch (p2[0]) {
@@ -21,8 +21,8 @@ export function resolve(path1: string, path2: string, property?: BlockProperty):
         break;
       case '###':
         // stage path can't be resolved just from the path string, can not resolve
-        Logger.warn(`can not resolve base path ${path1} with ${path2}`);
-        return path2;
+        Logger.warn(`can not resolve base path ${currentPath} with ${relativePath}`);
+        return relativePath;
       default:
         break loopwhile;
     }
@@ -30,7 +30,7 @@ export function resolve(path1: string, path2: string, property?: BlockProperty):
   return p1.concat(p2).join('.');
 }
 
-export function relative(base: string, from: string): string {
+export function getRelativePath(base: string, from: string): string {
   if (base === from) {
     return '';
   }

@@ -4,8 +4,8 @@ import React from 'react';
 import {removeLastTemplate, loadTemplate, querySingle} from '../../../util/test-util';
 import {initEditor} from '../../../index';
 import {RadioButtonEditor} from '../RadioButtonEditor';
-import {shouldHappen} from '../../../../core/util/test-util';
-import {blankPropDesc, PropDesc} from '../../../../core/block/Descriptor';
+import {shouldHappen} from '../../../../../src/core/util/test-util';
+import {blankPropDesc, PropDesc} from '../../../../../src/core/editor';
 
 describe('RadioButtonEditor', function() {
   beforeEach(async function() {

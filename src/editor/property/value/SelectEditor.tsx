@@ -1,6 +1,5 @@
 import React from 'react';
 import {Select} from 'antd';
-import {PropDesc} from '../../../core/block/Descriptor';
 import {ValueEditorProps} from './ValueEditorBase';
 
 const {Option} = Select;

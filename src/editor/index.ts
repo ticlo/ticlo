@@ -2,7 +2,7 @@ export * from './block/BlockStage';
 export * from './property/PropertyList';
 export * from './node-tree/NodeTree';
 
-import * as ticloI18n from '../core/util/i18n';
+import * as ticloI18n from '../../src/core/editor';
 
 // register special view
 

@@ -1,7 +1,7 @@
 import {assert} from 'chai';
 import React from 'react';
 import {TIcon} from '../Icon';
-import {shouldHappen} from '../../../core/util/test-util';
+import {shouldHappen} from '../../../../src/core/util/test-util';
 import ReactDOM from 'react-dom';
 import {removeLastTemplate, loadTemplate} from '../../util/test-util';
 

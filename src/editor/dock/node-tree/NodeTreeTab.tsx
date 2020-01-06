@@ -1,5 +1,5 @@
 import React from 'react';
-import {ClientConn} from '../../../core/connect/ClientConn';
+import {ClientConn} from '../../../../src/core/editor';
 import {TicloLayoutContext, TicloLayoutContextType} from '../../component/LayoutContext';
 import {NodeTree} from '../..';
 

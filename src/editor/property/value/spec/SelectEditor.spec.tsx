@@ -10,8 +10,8 @@ import {
 } from '../../../util/test-util';
 import {initEditor} from '../../../index';
 import {MultiSelectEditor, SelectEditor} from '../SelectEditor';
-import {shouldHappen, waitTick} from '../../../../core/util/test-util';
-import {blankPropDesc, PropDesc} from '../../../../core/block/Descriptor';
+import {shouldHappen, waitTick} from '../../../../../src/core/util/test-util';
+import {blankPropDesc, PropDesc} from '../../../../../src/core/editor';
 
 describe('SelectEditor', function() {
   beforeEach(async function() {

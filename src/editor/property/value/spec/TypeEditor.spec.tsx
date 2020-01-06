@@ -5,9 +5,9 @@ import {removeLastTemplate, loadTemplate, querySingle} from '../../../util/test-
 import {initEditor} from '../../../index';
 import {TypeEditor} from '../TypeEditor';
 import {shouldHappen} from '../../../../core/util/test-util';
-import {blankPropDesc, PropDesc} from '../../../../core/block/Descriptor';
+import {blankPropDesc, PropDesc} from '../../../../../src/core/editor';
 import {makeLocalConnection} from '../../../../core/connect/LocalConnection';
-import {Root} from '../../../../core/block/Block';
+import {Root} from '../../../../../src/core/main';
 
 describe('TypeEditor', function() {
   beforeEach(async function() {

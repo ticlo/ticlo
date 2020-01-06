@@ -1,5 +1,5 @@
 import React from 'react';
-import {FunctionDesc, getDefaultFuncData, getFuncStyleFromDesc, ClientConn} from '../../core/client';
+import {FunctionDesc, getDefaultFuncData, getFuncStyleFromDesc, ClientConn} from '../../../src/core/editor';
 import {TIcon} from '../icon/Icon';
 import {DragDropDiv, DragState} from 'rc-dock/lib';
 

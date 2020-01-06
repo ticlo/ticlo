@@ -5,10 +5,9 @@ import {removeLastTemplate, loadTemplate, querySingle, expandDocumentBody} from 
 import {initEditor} from '../../../index';
 import {WorkerEditor} from '../WorkerEditor';
 import {shouldHappen, waitTick} from '../../../../core/util/test-util';
-import {blankPropDesc, PropDesc} from '../../../../core/block/Descriptor';
+import {blankPropDesc, PropDesc} from '../../../../../src/core/editor';
 import {makeLocalConnection} from '../../../../core/connect/LocalConnection';
-import {Root} from '../../../../core/block/Block';
-import {DataMap} from '../../../../core/util/DataTypes';
+import {Root} from '../../../../../src/core/main';
 import {WorkerFunction} from '../../../../core/worker/WorkerFunction';
 import {Types} from '../../../../core/block/Type';
 

@@ -1,8 +1,8 @@
 import React, {ChangeEvent} from 'react';
 import {Button, Input, Select, Form, Switch, InputNumber, Radio} from 'antd';
 import {RadioChangeEvent} from 'antd/lib/radio';
-import {PropDesc, PropGroupDesc, ValueType, VisibleType} from '../../core/block/Descriptor';
-import {endsWithNumberReg} from '../../core/util/String';
+import {PropDesc, PropGroupDesc, ValueType, VisibleType} from '../../../src/core/editor';
+import {endsWithNumberReg} from '../../../src/core/editor';
 
 const RadioButton = Radio.Button;
 const RadioGroup = Radio.Group;

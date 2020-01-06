@@ -1,23 +1,23 @@
 import {assert} from 'chai';
-import {relative, resolve, forAllPathsBetween, propRelative} from '../Path';
+import {getRelativePath, resolvePath, forAllPathsBetween, propRelative} from '../Path';
 import {WorkerFunction} from '../../worker/WorkerFunction';
 import {Root} from '../../block/Block';
 import {DataMap} from '../DataTypes';
 
 describe('Path', function() {
   it('resolve', function() {
-    assert.equal(resolve('a', 'b'), 'a.b');
-    assert.equal(resolve('c.d.e', '##.f'), 'c.d.f');
-    assert.equal(resolve('g.h', '#.i'), 'g.h.i');
-    assert.equal(resolve('j', '##.##.k'), '##.k');
-    assert.equal(resolve('l', '###.m'), '###.m');
-    assert.equal(resolve('n', null), null);
+    assert.equal(resolvePath('a', 'b'), 'a.b');
+    assert.equal(resolvePath('c.d.e', '##.f'), 'c.d.f');
+    assert.equal(resolvePath('g.h', '#.i'), 'g.h.i');
+    assert.equal(resolvePath('j', '##.##.k'), '##.k');
+    assert.equal(resolvePath('l', '###.m'), '###.m');
+    assert.equal(resolvePath('n', null), null);
   });
 
   it('relative', function() {
-    assert.equal(relative('a', 'a'), '');
+    assert.equal(getRelativePath('a', 'a'), '');
 
-    assert.equal(relative('b.c', 'b.d'), '##.d');
+    assert.equal(getRelativePath('b.c', 'b.d'), '##.d');
   });
 
   it('forAllPathsBetween', function() {

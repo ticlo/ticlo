@@ -3,7 +3,7 @@ import marked from 'marked';
 import Dompurify from 'dompurify';
 import {BlockWidgetProps} from './BlockWidget';
 import {LazyUpdateComponent, LazyUpdateListener} from '../../component/LazyUpdateComponent';
-import {ClientConnection} from '../../../core/connect/ClientConnection';
+import {ClientConnection} from '../../../../src/core/editor';
 
 class NoteView extends LazyUpdateComponent<BlockWidgetProps, any> {
   private _rootNode!: HTMLElement;

@@ -3,8 +3,8 @@ import SimulateEvent from 'simulate-event';
 import React from 'react';
 import {NodeTree} from '../../../editor';
 import {Block, Root} from '../../../core/main';
-import {destroyLastLocalConnection, makeLocalConnection} from '../../../core/connect/LocalConnection';
-import {shouldHappen} from '../../../core/util/test-util';
+import {destroyLastLocalConnection, makeLocalConnection} from '../../../../src/core/connect/LocalConnection';
+import {shouldHappen} from '../../../../src/core/util/test-util';
 import ReactDOM from 'react-dom';
 import {removeLastTemplate, loadTemplate, querySingle} from '../../util/test-util';
 

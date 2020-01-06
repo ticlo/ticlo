@@ -1,8 +1,7 @@
 import React from 'react';
 import {DatePicker, Tooltip} from 'antd';
-import {PropDesc} from '../../../core/block/Descriptor';
+import {PropDesc, isMomentValid, formatMoment} from '../../../../src/core/editor';
 import {ValueEditorProps} from './ValueEditorBase';
-import * as MomentUtil from '../../../core/util/Moment';
 import {isMoment, Moment, parseZone} from 'moment';
 
 const {RangePicker} = DatePicker;
@@ -27,10 +26,10 @@ export class DateRangeEditor extends React.PureComponent<ValueEditorProps, any> 
       if (typeof value[0] === 'string' && typeof value[1] === 'string') {
         value = [parseZone(value[0]), parseZone(value[1])];
       }
-      if (!MomentUtil.isMomentValid(value[0]) || !MomentUtil.isMomentValid(value[1])) {
+      if (!isMomentValid(value[0]) || !isMomentValid(value[1])) {
         value = null;
       } else {
-        title = `${MomentUtil.formatMoment(value[0], showTime)}\n${MomentUtil.formatMoment(value[1], showTime)}`;
+        title = `${formatMoment(value[0], showTime)}\n${formatMoment(value[1], showTime)}`;
       }
     } else {
       value = null;

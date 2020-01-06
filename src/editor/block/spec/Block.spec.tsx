@@ -1,14 +1,14 @@
 import {assert} from 'chai';
 import SimulateEvent from 'simulate-event';
 import React from 'react';
-import {BlockStage} from '../../../editor';
+import {BlockStage} from '../BlockStage';
 import {Block, Root} from '../../../core/main';
 import {destroyLastLocalConnection, makeLocalConnection} from '../../../core/connect/LocalConnection';
 import {shouldHappen, shouldReject} from '../../../core/util/test-util';
 import ReactDOM from 'react-dom';
 import {removeLastTemplate, loadTemplate, querySingle, fakeMouseEvent} from '../../util/test-util';
 import {initEditor} from '../../index';
-import {arrayEqual} from '../../../core/util/Compare';
+import {arrayEqual} from '../../../../src/core/editor';
 
 describe('editor BlockStage', function() {
   beforeEach(async function() {

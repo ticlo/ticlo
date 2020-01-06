@@ -1,5 +1,5 @@
 import React from 'react';
-import {ClientConn} from '../../core/client';
+import {ClientConn} from '../../../src/core/editor';
 import {LazyUpdateComponent} from '../component/LazyUpdateComponent';
 
 interface MultiSelectProps {

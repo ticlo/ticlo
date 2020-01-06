@@ -1,5 +1,5 @@
 import React from 'react';
-import {ClientConn} from '../../core/client';
+import {ClientConn} from '../../../src/core/editor';
 import {TypeView} from './TypeView';
 
 let _lastType: string;

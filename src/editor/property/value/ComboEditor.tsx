@@ -1,6 +1,6 @@
 import React from 'react';
 import {AutoComplete} from 'antd';
-import {PropDesc} from '../../../core/block/Descriptor';
+import {PropDesc} from '../../../../src/core/editor';
 import {ValueEditorProps} from './ValueEditorBase';
 
 const {Option} = AutoComplete;

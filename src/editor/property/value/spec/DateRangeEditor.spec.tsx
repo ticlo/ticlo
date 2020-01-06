@@ -4,8 +4,8 @@ import React from 'react';
 import {removeLastTemplate, loadTemplate, querySingle, fakeMouseEvent} from '../../../util/test-util';
 import {initEditor} from '../../../index';
 import {DateRangeEditor} from '../DateRangeEditor';
-import {shouldHappen, waitTick} from '../../../../core/util/test-util';
-import {blankPropDesc, PropDesc} from '../../../../core/block/Descriptor';
+import {shouldHappen, waitTick} from '../../../../../src/core/util/test-util';
+import {blankPropDesc, PropDesc} from '../../../../../src/core/editor';
 import moment, {Moment} from 'moment';
 
 describe('DateRangeEditor', function() {

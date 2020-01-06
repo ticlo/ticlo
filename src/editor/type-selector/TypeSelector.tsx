@@ -5,11 +5,11 @@ import HistoryIcon from '@ant-design/icons/HistoryOutlined';
 import CloseCircleIcon from '@ant-design/icons/CloseCircleOutlined';
 import FilterIcon from '@ant-design/icons/FilterOutlined';
 import {TypeTree} from './TypeTree';
-import {ClientConn} from '../../core/client';
+import {ClientConn} from '../../../src/core/editor';
 import {OnTypeClick} from './TypeView';
 import {RadioChangeEvent} from 'antd/lib/radio';
 import {TypeList} from './TypeList';
-import {FunctionDesc} from '../../core/block/Descriptor';
+import {FunctionDesc} from '../../../src/core/editor';
 
 interface Props {
   conn: ClientConn;

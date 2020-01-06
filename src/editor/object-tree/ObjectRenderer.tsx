@@ -3,9 +3,8 @@ import React from 'react';
 import {ExpandIcon, ExpandState, TreeItem} from '../component/Tree';
 import {PureDataRenderer} from '../component/DataRenderer';
 import {DragDropDiv, DragState} from 'rc-dock/lib';
-import {TRUNCATED} from '../../core/util/DataTypes';
+import {TRUNCATED, encodeDisplay} from '../../../src/core/editor';
 import {displayNumber} from '../util/Types';
-import {encodeDisplay} from '../../core/util/Serialize';
 
 export class ObjectTreeItem extends TreeItem<ObjectTreeItem> {
   childPrefix: string;

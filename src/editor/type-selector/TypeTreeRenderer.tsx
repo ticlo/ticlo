@@ -1,7 +1,7 @@
 import React from 'react';
 import {ExpandIcon} from '../component/Tree';
 import {TIcon} from '../icon/Icon';
-import {blankFuncDesc, FunctionDesc, getFuncStyleFromDesc} from '../../core/block/Descriptor';
+import {blankFuncDesc, FunctionDesc, getFuncStyleFromDesc} from '../../../src/core/editor';
 import {TypeView} from './TypeView';
 import {TypeTreeItem} from './TypeTreeItem';
 import {PureDataRenderer} from '../component/DataRenderer';

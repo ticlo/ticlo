@@ -2,8 +2,7 @@ import React, {ReactElement} from 'react';
 import {Button, Input, Select} from 'antd';
 import PlusIcon from '@ant-design/icons/PlusOutlined';
 import EllipsisIcon from '@ant-design/icons/EllipsisOutlined';
-import {ClientConn} from '../../../core/client';
-import {getDefaultFuncData, PropDesc} from '../../../core/block/Descriptor';
+import {ClientConn, getDefaultFuncData, PropDesc} from '../../../../src/core/editor';
 import {Popup} from '../../component/ClickPopup';
 import {PropertyList} from '../PropertyList';
 

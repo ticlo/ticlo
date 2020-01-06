@@ -1,6 +1,5 @@
 import React from 'react';
-import {TRUNCATED} from '../../core/util/DataTypes';
-import {encodeDisplay} from '../../core/util/Serialize';
+import {TRUNCATED, encodeDisplay} from '../../../src/core/editor';
 import {displayNumber} from '../util/Types';
 
 export function renderValue(val: any, getPopup?: (val: any) => void) {

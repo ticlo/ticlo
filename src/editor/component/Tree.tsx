@@ -1,7 +1,6 @@
 import React from 'react';
 import {DataRendererItem, PureDataRenderer} from './DataRenderer';
-import {ClientConn} from '../../core/connect/ClientConn';
-import {FunctionDesc} from '../../core/block/Descriptor';
+import {ClientConn} from '../../../src/core/editor';
 
 export type ExpandState = 'opened' | 'closed' | 'loading' | 'empty' | 'disabled';
 

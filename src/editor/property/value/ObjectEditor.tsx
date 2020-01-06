@@ -3,7 +3,7 @@ import {Button} from 'antd';
 import PlusSquareIcon from '@ant-design/icons/PlusSquareOutlined';
 import {ValueEditorProps} from './ValueEditorBase';
 import {renderValue} from '../../component/renderValue';
-import {getDefaultFuncData} from '../../../core/block/Descriptor';
+import {getDefaultFuncData} from '../../../../src/core/editor';
 import {TicloLayoutContext, TicloLayoutContextType} from '../../component/LayoutContext';
 
 export class ObjectEditor extends React.PureComponent<ValueEditorProps, any> {

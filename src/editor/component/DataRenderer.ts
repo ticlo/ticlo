@@ -1,6 +1,5 @@
 import React from 'react';
-import {DataMap} from '../../core/util/DataTypes';
-import {ClientConn} from '../../core/connect/ClientConn';
+import {ClientConn} from '../../../src/core/editor';
 
 export abstract class DataRendererItem<T = any> {
   _renderers: Set<PureDataRenderer<any, any> & T> = new Set<PureDataRenderer<any, any> & T>();

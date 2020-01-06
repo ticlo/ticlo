@@ -1,8 +1,8 @@
 import React from 'react';
 import {Button, Empty, Tooltip} from 'antd';
 import PlusSquareIcon from '@ant-design/icons/PlusSquareOutlined';
-import {attributeList, ClientConn, ValueUpdate} from '../../core/client';
-import {DataMap} from '../../core/util/DataTypes';
+import {attributeList, ClientConn, ValueUpdate} from '../../../src/core/editor';
+import {DataMap} from '../../../src/core/editor';
 import {
   blankFuncDesc,
   configDescs,
@@ -10,12 +10,12 @@ import {
   FunctionDesc,
   PropDesc,
   PropGroupDesc
-} from '../../core/block/Descriptor';
+} from '../../../src/core/editor';
 import {PropertyEditor} from './PropertyEditor';
 import {GroupEditor} from './GroupEditor';
 import {MultiSelectComponent, MultiSelectLoader} from './MultiSelectComponent';
 import {ExpandIcon, ExpandState} from '../component/Tree';
-import {deepEqual} from '../../core/util/Compare';
+import {deepEqual} from '../../../src/core/editor';
 import {AddMorePropertyMenu} from './AddMoreProperty';
 import {Popup} from '../component/ClickPopup';
 import {BlockWidget} from '../block/view/BlockWidget';

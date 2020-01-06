@@ -1,6 +1,5 @@
 import React from 'react';
-import {FunctionDesc, PropDesc} from '../../../core/block/Descriptor';
-import {ClientConn} from '../../../core/client';
+import {FunctionDesc, PropDesc, ClientConn} from '../../../../src/core/editor';
 
 // export type ChangeReason = 'minus' | 'plus' | 'enter' | 'blur';
 

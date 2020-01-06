@@ -6,7 +6,7 @@ import {DragDropDiv, DragState} from 'rc-dock';
 import {TypeSelect} from '../../type-selector/TypeSelector';
 import {Popup} from '../../component/ClickPopup';
 import {TypeEditor} from './TypeEditor';
-import {FunctionDesc} from '../../../core/block/Descriptor';
+import {FunctionDesc} from '../../../../src/core/editor';
 import {TicloLayoutContext, TicloLayoutContextType} from '../../component/LayoutContext';
 
 export class WorkerEditor extends TypeEditor {

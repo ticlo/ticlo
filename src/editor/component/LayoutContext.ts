@@ -1,7 +1,5 @@
 import * as React from 'react';
-import {PropDesc} from '../../core/block/Descriptor';
-import {PropDispatcher} from '../../core/block/Dispatcher';
-import {ClientConn} from '../../core/connect/ClientConn';
+import {PropDesc, PropDispatcher} from '../../../src/core/editor';
 
 export interface TicloLayoutContext {
   editJob?(path: string, onSave: () => void): void;

@@ -1,6 +1,5 @@
 import React from 'react';
 import {Radio} from 'antd';
-import {PropDesc} from '../../../core/block/Descriptor';
 import {ValueEditorProps} from './ValueEditorBase';
 import {RadioChangeEvent} from 'antd/lib/radio';
 

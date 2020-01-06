@@ -3,17 +3,14 @@ import SimulateEvent from 'simulate-event';
 import React from 'react';
 import '../../../editor';
 import {PropertyEditor} from '../PropertyEditor';
-import {Block, Root} from '../../../core/block/Block';
+import {Block, Root} from '../../../../src/core/main';
 import '../../../core/functions/basic/math/Arithmetic';
 import {destroyLastLocalConnection, makeLocalConnection} from '../../../core/connect/LocalConnection';
 import {shouldHappen, shouldReject} from '../../../core/util/test-util';
-import ReactDOM from 'react-dom';
 import {removeLastTemplate, loadTemplate, querySingle} from '../../util/test-util';
 import {initEditor} from '../../index';
-import {arrayEqual} from '../../../core/util/Compare';
-import {ClientConn} from '../../../core/client';
-import {FunctionDesc, PropDesc, PropGroupDesc} from '../../../core/block/Descriptor';
-import {Types} from '../../../core/block/Type';
+import {FunctionDesc, PropDesc, PropGroupDesc} from '../../../../src/core/editor';
+import {Types} from '../../../../src/core/block/Type';
 
 describe('PropertyEditor', function() {
   let [funcDesc] = Types.getDesc('add');

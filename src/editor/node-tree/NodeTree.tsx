@@ -1,8 +1,7 @@
 import React from 'react';
 import {ExpandState} from '../component/Tree';
 import VirtualList from '../component/Virtual';
-import {ClientConn} from '../../core/client';
-import {DataMap} from '../../core/util/DataTypes';
+import {ClientConn} from '../../../src/core/editor';
 import {NodeTreeItem, NodeTreeRenderer} from './NodeRenderer';
 import {LazyUpdateComponent} from '../component/LazyUpdateComponent';
 

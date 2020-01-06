@@ -1,11 +1,9 @@
 import React from 'react';
+import {Spin} from 'antd';
+import {ClientConn, deepEqual, DataMap, isDataTruncated} from '../../../src/core/editor';
 import VirtualList from '../component/Virtual';
 import {ObjectTreeItem, ObjectTreeRenderer} from './ObjectRenderer';
-import {ClientConn} from '../../core/connect/ClientConn';
 import {LazyUpdateComponent} from '../component/LazyUpdateComponent';
-import {DataMap, isDataTruncated} from '../../core/util/DataTypes';
-import {Spin} from 'antd';
-import {deepEqual} from '../../core/util/Compare';
 
 interface Props {
   conn: ClientConn;

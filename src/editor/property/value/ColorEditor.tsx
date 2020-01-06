@@ -1,6 +1,5 @@
 import React, {CSSProperties} from 'react';
 import {ColorResult, SketchPicker} from 'react-color';
-import {PropDesc} from '../../../core/block/Descriptor';
 import {ValueEditorProps} from './ValueEditorBase';
 import tinycolor from 'tinycolor2';
 import {Popup} from '../../component/ClickPopup';

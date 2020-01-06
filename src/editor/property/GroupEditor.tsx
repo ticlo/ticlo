@@ -1,6 +1,6 @@
 import React from 'react';
-import {ClientConn, ValueUpdate} from '../../core/client';
-import {configDescs, FunctionDesc, PropDesc, PropGroupDesc} from '../../core/block/Descriptor';
+import {ClientConn, ValueUpdate} from '../../../src/core/editor';
+import {configDescs, FunctionDesc, PropDesc, PropGroupDesc} from '../../../src/core/editor';
 import {MultiSelectComponent, MultiSelectLoader} from './MultiSelectComponent';
 import {PropertyList} from './PropertyList';
 import {PropertyEditor} from './PropertyEditor';

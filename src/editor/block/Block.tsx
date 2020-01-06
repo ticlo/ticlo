@@ -1,6 +1,5 @@
 import React from 'react';
-import {ClientConn, ValueUpdate, blankFuncDesc, getFuncStyleFromDesc, FunctionDesc} from '../../core/client';
-import {DataMap} from '../../core/util/DataTypes';
+import {ClientConn, ValueUpdate, blankFuncDesc, getFuncStyleFromDesc, FunctionDesc} from '../../../src/core/editor';
 import {PureDataRenderer} from '../component/DataRenderer';
 import {TIcon} from '../icon/Icon';
 import {DragDropDiv, DragState} from 'rc-dock';

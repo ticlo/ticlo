@@ -1,5 +1,5 @@
 import React from 'react';
-import {ClientConn, PropDesc, PropGroupDesc} from '../../../core/client';
+import {ClientConn, PropDesc, PropGroupDesc} from '../../../../src/core/editor';
 
 export interface BlockWidgetProps {
   conn: ClientConn;

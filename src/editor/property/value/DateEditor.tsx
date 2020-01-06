@@ -1,9 +1,8 @@
 import React from 'react';
 import {DatePicker, Tooltip} from 'antd';
-import {PropDesc} from '../../../core/block/Descriptor';
+import {PropDesc, isMomentValid, formatMoment} from '../../../../src/core/editor';
 import {ValueEditorProps} from './ValueEditorBase';
 import {Moment, parseZone, isMoment} from 'moment';
-import * as MomentUtil from '../../../core/util/Moment';
 
 const defaultTime = {defaultValue: parseZone('00:00:00.000', 'HH:mm:ss.SSS')};
 
@@ -21,10 +20,10 @@ export class DateEditor extends React.PureComponent<ValueEditorProps, any> {
     if (typeof value === 'string') {
       value = parseZone(value);
     }
-    if (!MomentUtil.isMomentValid(value)) {
+    if (!isMomentValid(value)) {
       value = null;
     } else {
-      title = MomentUtil.formatMoment(value, showTime);
+      title = formatMoment(value, showTime);
     }
 
     return (
