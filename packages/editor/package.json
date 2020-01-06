@@ -1,0 +1,32 @@
+{
+  "name": "@ticlo/editor",
+  "version": "?",
+  "description": "ticlo editor",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ticlo/ticlo.git"
+  },
+  "author": {
+    "name": "Rick Zhou",
+    "email": "rinick@gmail.com"
+  },
+  "license": "MPL-2.0",
+  "dependencies": {
+    "@ticlo/core": "^0.0.1",
+    "@ant-design/icons": "?",
+    "antd": "?",
+    "body-parser": "?",
+    "codemirror": "?",
+    "dompurify": "?",
+    "lodash": "?",
+    "marked": "?",
+    "rc-dock": "?",
+    "rc-trigger": "?",
+    "react": "?",
+    "react-codemirror2": "?",
+    "react-color": "?",
+    "react-dom": "?",
+    "resize-observer-polyfill": "?",
+    "tinycolor2": "?"
+  }
+}

@@ -1,6 +1,5 @@
 import {TreeItem} from '../component/Tree';
-import {ClientConn} from '../../../src/core/editor';
-import {FunctionDesc} from '../../../src/core/editor';
+import {ClientConn, FunctionDesc} from '../../../src/core/editor';
 import {OnTypeClick} from './TypeView';
 
 export class TypeTreeItem extends TreeItem<TypeTreeItem> {

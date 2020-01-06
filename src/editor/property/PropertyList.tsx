@@ -3,14 +3,7 @@ import {Button, Empty, Tooltip} from 'antd';
 import PlusSquareIcon from '@ant-design/icons/PlusSquareOutlined';
 import {attributeList, ClientConn, ValueUpdate} from '../../../src/core/editor';
 import {DataMap} from '../../../src/core/editor';
-import {
-  blankFuncDesc,
-  configDescs,
-  configList,
-  FunctionDesc,
-  PropDesc,
-  PropGroupDesc
-} from '../../../src/core/editor';
+import {blankFuncDesc, configDescs, configList, FunctionDesc, PropDesc, PropGroupDesc} from '../../../src/core/editor';
 import {PropertyEditor} from './PropertyEditor';
 import {GroupEditor} from './GroupEditor';
 import {MultiSelectComponent, MultiSelectLoader} from './MultiSelectComponent';

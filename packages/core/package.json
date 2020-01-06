@@ -1,0 +1,22 @@
+{
+  "name": "@ticlo/core",
+  "version": "?",
+  "description": "ticlo core",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ticlo/ticlo.git"
+  },
+  "author": {
+    "name": "Rick Zhou",
+    "email": "rinick@gmail.com"
+  },
+  "license": "MPL-2.0",
+  "dependencies": {
+    "denque": "?",
+    "i18next": "?",
+    "jsonesc": "?",
+    "moment": "?",
+    "moment-timezone": "?",
+    "qs": "?"
+  }
+}

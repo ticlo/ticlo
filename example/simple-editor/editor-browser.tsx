@@ -1,18 +1,15 @@
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
-import {FunctionDesc, PropDesc} from '../../src/core/client';
+import {FunctionDesc, PropDesc, ClientConnection, Logger, PropDispatcher} from '../../src/core/editor';
 import {initEditor, PropertyList, BlockStage, NodeTree} from '../../src/editor';
 import {DragDropDiv, DragState, DockLayout, DockContextType} from 'rc-dock';
-import {ClientConnection} from '../../src/core/connect/ClientConnection';
 import {Types} from '../../src/core/block/Type';
 import {TypeTree} from '../../src/editor/type-selector/TypeTree';
 
 import './sample-blocks';
-import {Logger} from '../../src/core/util/Logger';
 import {WorkerFunction} from '../../src/core/worker/WorkerFunction';
 import {BlockStageTab} from '../../src/editor/dock/block/BlockStageTab';
 import {TicloLayoutContext, TicloLayoutContextType} from '../../src/editor/component/LayoutContext';
-import {PropDispatcher} from '../../src/core/block/Dispatcher';
 import {PropertyListTab} from '../../src/editor/dock/property/PropertyListTab';
 import {WsBrowserConnection} from '../../src/browser/connect/WsBrowserConnection';
 import {FrameClientConnection} from '../../src/browser/connect/FrameClientConnection';
