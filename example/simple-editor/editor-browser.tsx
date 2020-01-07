@@ -11,8 +11,8 @@ import {WorkerFunction} from '../../src/core/worker/WorkerFunction';
 import {BlockStageTab} from '../../src/editor/dock/block/BlockStageTab';
 import {TicloLayoutContext, TicloLayoutContextType} from '../../src/editor/component/LayoutContext';
 import {PropertyListTab} from '../../src/editor/dock/property/PropertyListTab';
-import {WsBrowserConnection} from '../../src/browser/connect/WsBrowserConnection';
-import {FrameClientConnection} from '../../src/browser/connect/FrameClientConnection';
+import {WsBrowserConnection} from '../../src/html/connect/WsBrowserConnection';
+import {FrameClientConnection} from '../../src/html/connect/FrameClientConnection';
 import {NodeTreeTab} from '../../src/editor/dock/node-tree/NodeTreeTab';
 import {TextEditorTab} from '../../src/editor/dock/text-editor/TextEditorTab';
 

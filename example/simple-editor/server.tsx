@@ -6,7 +6,7 @@ import './sample-blocks';
 import {Logger} from '../../src/core/util/Logger';
 import {WorkerFunction} from '../../src/core/worker/WorkerFunction';
 import '../../src/react';
-import {FrameServerConnection} from '../../src/browser';
+import {FrameServerConnection} from '../../src/html';
 
 WorkerFunction.registerType({'#is': ''}, {name: 'class1'}, 'WorkerEditor');
 
