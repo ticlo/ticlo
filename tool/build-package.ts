@@ -1,4 +1,5 @@
 import fs from 'fs';
+import {normalize} from 'path';
 import shelljs from 'shelljs';
 import * as glob from 'glob';
 
@@ -6,6 +7,7 @@ let version: string;
 let dependencies: any;
 
 let dirHistory = new Set<string>();
+
 function makeDir(path: string) {
   if (path.lastIndexOf('.') > path.length - 5) {
     // when there is extension, use parent folder
@@ -60,7 +62,7 @@ async function buildPackage(name: string, replaceImport = true) {
   // run tsc
   shelljs.pushd('-q', targetDir);
   console.log(`compiling ${targetDir}`);
-  shelljs.exec('..\\..\\.bin\\tsc');
+  shelljs.exec(normalize('../../.bin/tsc'));
   shelljs.popd('-q');
 
   // delete ts files
