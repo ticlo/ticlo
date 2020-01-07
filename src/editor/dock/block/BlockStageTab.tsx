@@ -7,8 +7,6 @@ import {Divider} from 'rc-dock/lib';
 import {arrayEqual, ClientConn, TrackedClientConn} from '../../../../src/core/editor';
 import {BlockStageTabButton} from './BlockStageTabButton';
 
-import './BlockStageTab.less';
-
 interface Props {
   conn: ClientConn;
   basePath: string;

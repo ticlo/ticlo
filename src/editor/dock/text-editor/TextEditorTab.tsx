@@ -18,8 +18,6 @@ import 'codemirror/lib/codemirror.css';
 import 'codemirror/theme/eclipse.css';
 import 'codemirror/addon/fold/foldgutter.css';
 
-import './TextEditorTab.less';
-
 import {DockLayout} from 'rc-dock/lib';
 
 interface Props {

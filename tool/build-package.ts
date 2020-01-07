@@ -27,7 +27,7 @@ async function buildPackage(name: string, replaceImport = true) {
   makeDir(targetDir);
   // copy tsconfig
   shelljs.cp('./tool/package-tsconfig.json', targetDir);
-  shelljs.mv(`${targetDir}/package-tsconfig.json`, `${targetDir}/package.json`);
+  shelljs.mv(`${targetDir}/package-tsconfig.json`, `${targetDir}/tsconfig.json`);
 
   // copy ts files
   let srcFiles: string[] = glob.sync(`${fromDir}/**/*.{ts,tsx}`);
@@ -72,8 +72,11 @@ async function main() {
   let packageJson = JSON.parse(fs.readFileSync('package.json', {encoding: 'utf8'}));
   version = packageJson.version;
   dependencies = {...packageJson.dependencies, ...packageJson.devDependencies};
+
   await buildPackage('core', false);
+
   await buildPackage('editor');
+  shelljs.cp('./dist/*.css', './node_modules/@ticlo/editor');
 }
 
 main();
