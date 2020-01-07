@@ -1,7 +1,7 @@
-import {ClientConnection} from '../../core/connect/ClientConnection';
-import {DataMap} from '../../core/util/DataTypes';
-import {Logger} from '../../core/util/Logger';
-import {decode, encode} from '../../core/util/Serialize';
+import {ClientConnection} from '../../../src/core/connect/ClientConnection';
+import {DataMap} from '../../../src/core/util/DataTypes';
+import {Logger} from '../../../src/core/util/Logger';
+import {decode, encode} from '../../../src/core/util/Serialize';
 
 export class FrameClientConnection extends ClientConnection {
   constructor(public remote: Window, editorListeners = true) {

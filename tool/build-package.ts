@@ -75,6 +75,8 @@ async function main() {
 
   await buildPackage('core', false);
 
+  await buildPackage('html');
+
   await buildPackage('editor');
   shelljs.cp('./dist/*.css', './node_modules/@ticlo/editor');
 }

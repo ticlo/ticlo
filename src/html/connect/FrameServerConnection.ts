@@ -1,8 +1,8 @@
-import {DataMap} from '../../core/util/DataTypes';
-import {decode, encode} from '../../core/util/Serialize';
-import {Logger} from '../../core/util/Logger';
-import {ServerConnection} from '../../core/connect/ServerConnection';
-import {Root} from '../../core/block/Block';
+import {DataMap} from '../../../src/core/util/DataTypes';
+import {decode, encode} from '../../../src/core/util/Serialize';
+import {Logger} from '../../../src/core/util/Logger';
+import {ServerConnection} from '../../../src/core/connect/ServerConnection';
+import {Root} from '../../../src/core/block/Block';
 
 export class FrameServerConnection extends ServerConnection {
   checkClosedTimer: any;
