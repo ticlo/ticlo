@@ -20,12 +20,14 @@ function makeDir(path: string) {
 
 async function buildPackage(name: string, replaceImport = true) {
   let fromDir = `./src/${name}`;
+  console.log(`building ${fromDir}`);
   // build package directly into node_modules, so one package can depend on the other
   let targetDir = `./node_modules/@ticlo/${name}`;
 
-  // copy files
   makeDir(targetDir);
-  shelljs.cp(`./packages/tsconfig.json`, targetDir);
+  // copy tsconfig
+  shelljs.cp('./tool/package-tsconfig.json', targetDir);
+  shelljs.mv(`${targetDir}/package-tsconfig.json`, `${targetDir}/package.json`);
 
   // copy ts files
   let srcFiles: string[] = glob.sync(`${fromDir}/**/*.{ts,tsx}`);
@@ -56,9 +58,10 @@ async function buildPackage(name: string, replaceImport = true) {
   fs.writeFileSync(`${targetDir}/package.json`, JSON.stringify(packageJson, null, 2));
 
   // run tsc
-  shelljs.pushd(targetDir);
+  shelljs.pushd('-q', targetDir);
+  console.log(`compiling ${targetDir}`);
   shelljs.exec('..\\..\\.bin\\tsc');
-  shelljs.popd();
+  shelljs.popd('-q');
 
   // delete ts files
   shelljs.rm(convertedFiles);
