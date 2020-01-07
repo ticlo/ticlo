@@ -44,7 +44,7 @@ async function buildPackage(name: string, replaceImport = true) {
   }
 
   // update package.json
-  let packageJson: any = JSON.parse(fs.readFileSync(`./packages/${name}/package.json`, {encoding: 'utf8'}));
+  let packageJson: any = JSON.parse(fs.readFileSync(`${fromDir}/_package.json`, {encoding: 'utf8'}));
   packageJson.version = version;
   let deps = packageJson.dependencies;
   for (let key in deps) {
