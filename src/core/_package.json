@@ -10,13 +10,5 @@
     "name": "Rick Zhou",
     "email": "rinick@gmail.com"
   },
-  "license": "MPL-2.0",
-  "dependencies": {
-    "denque": "?",
-    "i18next": "?",
-    "jsonesc": "?",
-    "moment": "?",
-    "moment-timezone": "?",
-    "qs": "?"
-  }
+  "license": "MPL-2.0"
 }

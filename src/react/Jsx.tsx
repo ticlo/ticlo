@@ -1,7 +1,7 @@
 import React from 'react';
-import {JsFunction} from '../core/functions/script/Js';
-import {Types} from '../core/block/Type';
-import {Block} from '../core/block/Block';
+import {JsFunction} from '../../src/core/functions/script/Js';
+import {Types} from '../../src/core/block/Type';
+import {Block} from '../../src/core/block/Block';
 import {TicloComp} from './TicloComp';
 import {validateReactComponent} from './validateReactComponent';
 

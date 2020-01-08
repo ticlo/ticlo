@@ -31,15 +31,29 @@ async function buildPackage(name: string, replaceImport = true) {
   shelljs.cp('./tool/package-tsconfig.json', targetDir);
   shelljs.mv(`${targetDir}/package-tsconfig.json`, `${targetDir}/tsconfig.json`);
 
-  // copy ts files
+  // copy+analyze+convert ts files
+
+  const importedPackages = new Set<string>();
+  const regex = / from '([^@'.\/]+|@[^'.\/]+\/[^'.\/]+)/g;
+
   let srcFiles: string[] = glob.sync(`${fromDir}/**/*.{ts,tsx}`);
   let convertedFiles: string[] = [];
   for (let tsFile of srcFiles) {
     if (!tsFile.includes('/spec/')) {
       let data = fs.readFileSync(tsFile, {encoding: 'utf8'});
+
+      // fix local imports
       if (replaceImport) {
         data = data.replace(/from '(..\/)+src\//g, "from '@ticlo/");
       }
+
+      // analyze imports
+      regex.lastIndex = 0;
+      for (let result = regex.exec(data); result; result = regex.exec(data)) {
+        importedPackages.add(result[1]);
+      }
+
+      // copy file to node_modules/@ticlo
       let newFile = tsFile.replace(fromDir, targetDir);
       convertedFiles.push(newFile);
       makeDir(newFile);
@@ -50,11 +64,13 @@ async function buildPackage(name: string, replaceImport = true) {
   // update package.json
   let packageJson: any = JSON.parse(fs.readFileSync(`${fromDir}/_package.json`, {encoding: 'utf8'}));
   packageJson.version = version;
-  let deps = packageJson.dependencies;
-  for (let key in deps) {
+  packageJson.dependencies = {};
+  for (let p of importedPackages) {
     // sync dependencies
-    if (!key.startsWith('@ticlo/')) {
-      packageJson.dependencies[key] = dependencies[key];
+    if (!p.startsWith('@ticlo/')) {
+      packageJson.dependencies[p] = dependencies[p];
+    } else {
+      // delete packageJson.dependencies[p];
     }
   }
   fs.writeFileSync(`${targetDir}/package.json`, JSON.stringify(packageJson, null, 2));
@@ -81,6 +97,10 @@ async function main() {
 
   await buildPackage('editor');
   shelljs.cp('./dist/*.css', './node_modules/@ticlo/editor');
+
+  await buildPackage('node');
+
+  await buildPackage('react');
 }
 
 main();

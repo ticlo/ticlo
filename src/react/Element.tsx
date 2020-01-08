@@ -1,10 +1,10 @@
 import React from 'react';
-import {Types} from '../core/block/Type';
-import {BlockFunction} from '../core/block/BlockFunction';
-import {Block} from '../core/block/Block';
+import {Types} from '../../src/core/block/Type';
+import {BlockFunction} from '../../src/core/block/BlockFunction';
+import {Block} from '../../src/core/block/Block';
 import {TicloComp} from './TicloComp';
-import {FunctionDesc, PropDesc, PropGroupDesc} from '../core/block/Descriptor';
-import {BlockIO} from '../core/block/BlockProperty';
+import {FunctionDesc, PropDesc, PropGroupDesc} from '../../src/core/block/Descriptor';
+import {BlockIO} from '../../src/core/block/BlockProperty';
 
 const childrenPropertyGroup: PropGroupDesc = {
   name: '',

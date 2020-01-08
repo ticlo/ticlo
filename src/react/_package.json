@@ -1,7 +1,7 @@
 {
-  "name": "@ticlo/editor",
+  "name": "@ticlo/react",
   "version": "?",
-  "description": "ticlo editor",
+  "description": "ticlo react",
   "repository": {
     "type": "git",
     "url": "https://github.com/ticlo/ticlo.git"
