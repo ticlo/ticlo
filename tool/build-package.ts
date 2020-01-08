@@ -37,7 +37,7 @@ async function buildPackage(name: string, replaceImport = true) {
   const regex = / from '([^@'.\/]+|@[^'.\/]+\/[^'.\/]+)/g;
 
   let srcFiles: string[] = glob.sync(`${fromDir}/**/*.{ts,tsx}`);
-  let convertedFiles: string[] = [];
+  let sourceFiles: string[] = [`${targetDir}/tsconfig.json`]; // files to be deleted after compiling
   for (let tsFile of srcFiles) {
     if (!tsFile.includes('/spec/')) {
       let data = fs.readFileSync(tsFile, {encoding: 'utf8'});
@@ -55,7 +55,7 @@ async function buildPackage(name: string, replaceImport = true) {
 
       // copy file to node_modules/@ticlo
       let newFile = tsFile.replace(fromDir, targetDir);
-      convertedFiles.push(newFile);
+      sourceFiles.push(newFile);
       makeDir(newFile);
       fs.writeFileSync(newFile, data);
     }
@@ -64,7 +64,6 @@ async function buildPackage(name: string, replaceImport = true) {
   // update package.json
   let packageJson: any = JSON.parse(fs.readFileSync(`${fromDir}/_package.json`, {encoding: 'utf8'}));
   packageJson.version = version;
-  packageJson.dependencies = {};
   for (let p of importedPackages) {
     // sync dependencies
     if (!p.startsWith('@ticlo/')) {
@@ -82,7 +81,7 @@ async function buildPackage(name: string, replaceImport = true) {
   shelljs.popd('-q');
 
   // delete ts files
-  shelljs.rm(convertedFiles);
+  shelljs.rm(sourceFiles);
 }
 
 async function main() {
