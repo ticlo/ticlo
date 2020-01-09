@@ -97,9 +97,11 @@ async function main() {
   await buildPackage('editor');
   shelljs.cp('./dist/*.css', './node_modules/@ticlo/editor');
 
+  await buildPackage('react');
+
   await buildPackage('node');
 
-  await buildPackage('react');
+  await buildPackage('express');
 }
 
 main();

@@ -1,7 +1,7 @@
 import Express, {Request, Response} from 'express';
 import ExpressWs from 'express-ws';
-import {Root} from '../../../src/core/block/Block';
-import {WsServerConnection} from '../connect/WsServerConnection';
+import {Root} from '../../src/core/block/Block';
+import {WsServerConnection} from '../../src/node/connect/WsServerConnection';
 import {ServerFunction} from './ServerFunction';
 
 // force import

@@ -1,14 +1,13 @@
-import {RouteContentType, RouteFunction, RouteMethod, RouteService} from '../../../src/core/functions/http/RouteFunction';
-import {Types} from '../../../src/core/block/Type';
-import {BlockFunction} from '../../../src/core/block/BlockFunction';
+import {RouteContentType, RouteFunction, RouteMethod, RouteService} from '../core/functions/http/RouteFunction';
+import {Types} from '../../src/core/block/Type';
+import {BlockFunction} from '../../src/core/block/BlockFunction';
 import {Request, Response, RequestHandler} from 'express';
 import BodyParser from 'body-parser';
-import {decodeReceiver, encode} from '../../../src/core/util/Serialize';
-import {HttpRequestData} from '../../../src/core/functions/http/HttpRequest';
-import {escapedObject} from '../../../src/core/util/EscapedObject';
-import {Uid} from '../../../src/core/util/Uid';
+import {decodeReceiver, encode} from '../../src/core/util/Serialize';
+import {escapedObject} from '../../src/core/util/EscapedObject';
+import {Uid} from '../../src/core/util/Uid';
 import {ExpressHttpRequest} from './HttpRequest';
-import {Resolver} from '../../../src/core/block/Resolver';
+import {Resolver} from '../../src/core/block/Resolver';
 
 const formParser = BodyParser.urlencoded({extended: false});
 const jsonParser = BodyParser.json({reviver: decodeReceiver});

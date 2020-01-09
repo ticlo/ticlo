@@ -1,5 +1,5 @@
 import Express from 'express';
-import {connectTiclo, routeTiclo} from '../../src/node/express/server';
+import {connectTiclo, routeTiclo} from '../../src/express/server';
 import {data} from '../sample-data/data';
 import {Root} from '../../src/core/main';
 
