@@ -33,7 +33,7 @@ window.addEventListener('beforeunload', () => {
   let [server, client] = makeLocalConnection(Root.instance);
 
   document.querySelector('button').addEventListener('click', () => {
-    let w = window.open('./editor-browser.html', '_blank');
+    let w = window.open('https://ticlo.org/editor.html?job=example', '_blank');
     editors.push(w);
     // tslint:disable-next-line:no-unused-expression
     new FrameServerConnection(w, Root.instance);

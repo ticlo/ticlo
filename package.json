@@ -98,7 +98,7 @@
     "express-server": "node --harmony-optional-chaining -r ts-node/register example/server/express-server",
     "editor": "parcel example/simple-editor/editor-browser.html --open --out-dir temp --no-source-maps",
     "server-and-editor-browser": "parcel example/simple-editor/server-and-editor-browser.html --open --out-dir temp --no-source-maps",
-    "browser-server": "parcel example/simple-editor/server.html example/simple-editor/editor-browser.html --open --out-dir temp --no-source-maps",
+    "browser-server": "parcel example/simple-editor/server.html --open --out-dir temp --no-source-maps",
     "prettier-check": "prettier --check \"src/**/*.+(ts|tsx|less)\"",
     "prettier-write": "prettier --write \"src/**/*.+(ts|tsx|less)\""
   }
