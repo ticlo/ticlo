@@ -5,7 +5,7 @@
   ],
   "include": [
     "src/core/**/*",
-    "src/nodejs/**/*"
+    "src/node/**/*"
   ],
   "exclude": [
     "**/*.d.ts",
