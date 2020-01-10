@@ -1,8 +1,6 @@
 import Websocket from 'ws';
 import {ClientConnection} from '../../../src/core/connect/ClientConnection';
-import {DataMap} from '../../../src/core/util/DataTypes';
-import {Logger} from '../../../src/core/util/Logger';
-import {decode, encode} from '../../../src/core/util/Serialize';
+import {DataMap, Logger, decode, encode} from '../../../src/core/main';
 
 export class WsClientConnection extends ClientConnection {
   _ws: Websocket;

@@ -1,7 +1,5 @@
 import './registerJsonEsc';
-import {BaseFunction} from '../../../src/core/block/BlockFunction';
-import {Types} from '../../../src/core/block/Type';
-import {ErrorEvent} from '../../../src/core/block/Event';
+import {BaseFunction, Types, ErrorEvent} from '../../../src/core/main';
 
 export class QuerySelectorFunction extends BaseFunction {
   run() {
