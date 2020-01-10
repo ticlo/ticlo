@@ -1,9 +1,8 @@
 import Express from 'express';
-import {connectTiclo, routeTiclo} from '../../src/express/server';
-import {data} from '../sample-data/data';
 import {Root} from '../../src/core';
-
 import '../../src/node';
+import {connectTiclo, routeTiclo} from '../../src/express';
+import {data} from '../sample-data/data';
 
 let job = Root.instance.addJob('example');
 job.load(data);
@@ -23,3 +22,4 @@ app.get('/', (req, res) => {
 app.listen(8010);
 
 console.log('listening on 8010');
+console.log('http://ticlo.org/editor.html?host=ws://127.0.0.1:8010/ticlo&job=example');

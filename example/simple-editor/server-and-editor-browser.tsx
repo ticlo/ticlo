@@ -2,19 +2,15 @@ import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import {Block, FunctionDesc, PropDesc, Root} from '../../src/core';
 import {makeLocalConnection} from '../../src/core/connect/LocalConnection';
-import {TIcon} from '../../src/editor/icon/Icon';
 import {data} from '../sample-data/data';
 import {initEditor, PropertyList, BlockStage, NodeTree} from '../../src/editor';
 import {DragDropDiv, DragState, DockLayout, DockContextType} from 'rc-dock';
 import {ClientConnection} from '../../src/core/connect/ClientConnection';
-import {TypeView} from '../../src/editor/type-selector/TypeView';
 import {Types} from '../../src/core/block/Type';
-import {TypeTreeRoot} from '../../src/editor/type-selector/TypeTreeItem';
 import {TypeTree} from '../../src/editor/type-selector/TypeTree';
 
 import './sample-blocks';
 import {Logger} from '../../src/core/util/Logger';
-import {NodeTreeItem} from '../../src/editor/node-tree/NodeRenderer';
 import {WorkerFunction} from '../../src/core/worker/WorkerFunction';
 import {BlockStageTab} from '../../src/editor/dock/block/BlockStageTab';
 import {TicloLayoutContext, TicloLayoutContextType} from '../../src/editor/component/LayoutContext';
@@ -22,7 +18,6 @@ import {PropDispatcher} from '../../src/core/block/Dispatcher';
 import {PropertyListTab} from '../../src/editor/dock/property/PropertyListTab';
 import {NodeTreeTab} from '../../src/editor/dock/node-tree/NodeTreeTab';
 import {TextEditorTab} from '../../src/editor/dock/text-editor/TextEditorTab';
-import {ClientConn} from '../../src/core/connect/ClientConn';
 
 const layoutGroups = {
   blockStage: {
