@@ -1,5 +1,5 @@
 import './registerJsonEsc';
-import {BaseFunction, Types, ErrorEvent} from '../../../src/core/main';
+import {BaseFunction, Types, ErrorEvent} from '../../../src/core';
 
 export class QuerySelectorFunction extends BaseFunction {
   run() {

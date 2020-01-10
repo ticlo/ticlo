@@ -1,6 +1,6 @@
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
-import {Block, FunctionDesc, PropDesc, Root} from '../../src/core/main';
+import {Block, FunctionDesc, PropDesc, Root} from '../../src/core';
 import {makeLocalConnection} from '../../src/core/connect/LocalConnection';
 import {TIcon} from '../../src/editor/icon/Icon';
 import {data} from '../sample-data/data';

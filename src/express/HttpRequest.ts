@@ -1,5 +1,5 @@
 import {Request} from 'express';
-import {Block, convertToObject, DataMap} from '../../src/core/main';
+import {Block, convertToObject, DataMap} from '../../src/core';
 import {HttpRequest} from '../../src/core/functions/http/HttpRequest';
 
 export class ExpressHttpRequest extends HttpRequest {

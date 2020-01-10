@@ -1,6 +1,6 @@
 import Express, {Request, Response} from 'express';
 import ExpressWs from 'express-ws';
-import {Root} from '../../src/core/main';
+import {Root} from '../../src/core';
 import {WsServerConnection} from '../../src/node';
 import {ServerFunction} from './ServerFunction';
 

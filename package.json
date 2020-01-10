@@ -70,7 +70,7 @@
     "nyc": "^15.0.0",
     "parcel-bundler": "^1.12.4",
     "prettier": "^1.19.1",
-    "rc-dock": "^2.4.10",
+    "rc-dock": "^2.4.11",
     "rc-trigger": "^4.0.0-rc.3",
     "react": "^16.12.0",
     "react-codemirror2": "^6.0.0",

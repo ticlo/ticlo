@@ -1,5 +1,5 @@
 import {assert} from 'chai';
-import {Block, Root} from '../../../core/main';
+import {Block, Root} from '../../../../src/core';
 import {AsyncClientPromise} from '../../../core/connect/spec/AsyncClientPromise';
 import {FrameServerConnection} from '../FrameServerConnection';
 import {FrameClientConnection} from '../FrameClientConnection';

@@ -1,6 +1,6 @@
 import {assert} from 'chai';
 
-import {Job, PropDesc, PropGroupDesc} from '../../main';
+import {Job, PropDesc, PropGroupDesc} from '../..';
 import {showProperties, hideProperties, moveShownProperty, hideGroupProperties} from '../PropertyShowHide';
 
 describe('PropertyOrder', function() {

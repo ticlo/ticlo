@@ -1,5 +1,5 @@
 import Websocket from 'ws';
-import {Root} from '../../../core/main';
+import {Root} from '../../../../src/core';
 import {WsServerConnection} from '../WsServerConnection';
 
 export class MockWsServer {

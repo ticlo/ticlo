@@ -1,4 +1,4 @@
-import {Block, FunctionDesc, Root} from '../../src/core/main';
+import {Block, FunctionDesc, Root} from '../../src/core';
 import {makeLocalConnection} from '../../src/core/connect/LocalConnection';
 import {data} from '../sample-data/data';
 import reactData from '../sample-data/react';

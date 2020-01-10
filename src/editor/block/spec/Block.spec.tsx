@@ -2,7 +2,7 @@ import {assert} from 'chai';
 import SimulateEvent from 'simulate-event';
 import React from 'react';
 import {BlockStage} from '../BlockStage';
-import {Block, Root} from '../../../core/main';
+import {Block, Root} from '../../../../src/core';
 import {destroyLastLocalConnection, makeLocalConnection} from '../../../core/connect/LocalConnection';
 import {shouldHappen, shouldReject} from '../../../core/util/test-util';
 import ReactDOM from 'react-dom';

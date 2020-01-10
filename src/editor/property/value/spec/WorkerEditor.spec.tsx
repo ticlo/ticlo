@@ -7,7 +7,7 @@ import {WorkerEditor} from '../WorkerEditor';
 import {shouldHappen, waitTick} from '../../../../core/util/test-util';
 import {blankPropDesc, PropDesc} from '../../../../../src/core/editor';
 import {makeLocalConnection} from '../../../../core/connect/LocalConnection';
-import {Root} from '../../../../../src/core/main';
+import {Root} from '../../../../../src/core';
 import {WorkerFunction} from '../../../../core/worker/WorkerFunction';
 import {Types} from '../../../../core/block/Type';
 

@@ -3,7 +3,7 @@ import SimulateEvent from 'simulate-event';
 import React from 'react';
 import '../../../editor';
 import {PropertyEditor} from '../PropertyEditor';
-import {Block, Root} from '../../../../src/core/main';
+import {Block, Root} from '../../../../src/core';
 import '../../../core/functions/basic/math/Arithmetic';
 import {destroyLastLocalConnection, makeLocalConnection} from '../../../core/connect/LocalConnection';
 import {shouldHappen, shouldReject} from '../../../core/util/test-util';

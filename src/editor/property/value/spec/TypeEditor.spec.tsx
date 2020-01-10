@@ -7,7 +7,7 @@ import {TypeEditor} from '../TypeEditor';
 import {shouldHappen} from '../../../../core/util/test-util';
 import {blankPropDesc, PropDesc} from '../../../../../src/core/editor';
 import {makeLocalConnection} from '../../../../core/connect/LocalConnection';
-import {Root} from '../../../../../src/core/main';
+import {Root} from '../../../../../src/core';
 
 describe('TypeEditor', function() {
   beforeEach(async function() {

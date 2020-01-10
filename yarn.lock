@@ -6163,10 +6163,10 @@ rc-dialog@~7.6.0:
     rc-animate "2.x"
     rc-util "^4.16.1"
 
-rc-dock@^2.4.10:
-  version "2.4.10"
-  resolved "https://registry.yarnpkg.com/rc-dock/-/rc-dock-2.4.10.tgz#8d75961b567cae9c596b0038ea57470b0c798609"
-  integrity sha512-L5EqJnuhn6jIFX4+hGVuIBWeuLqbyMUy4VD6HRY38v+n5Za3GVglrJuZ4vo82K86sSFcf/byOkyVAxFFlCMuqw==
+rc-dock@^2.4.11:
+  version "2.4.11"
+  resolved "https://registry.yarnpkg.com/rc-dock/-/rc-dock-2.4.11.tgz#2a7865b0d5dbadfeb42c37680eb572c7348c6936"
+  integrity sha512-JMUnPVSDVYjjuvbERqqD9XFqTTVg/k50At7aGUC4F4k4OPX5t9Q8A8l/auT4BDsJMQ6Pd0r9YZ/FEmQmhN9ctw==
   dependencies:
     classnames "^2.2.6"
     lodash "^4.17.15"
