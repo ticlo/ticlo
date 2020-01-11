@@ -12,7 +12,10 @@
   },
   "license": "MPL-2.0",
   "dependencies": {
-    "@ticlo/core": "^0.0.2",
-    "@ticlo/node": "^0.0.2"
+    "@ticlo/core": ">=0.0.2",
+    "@ticlo/node": ">=0.0.2"
+  },
+  "peerDependencies": {
+    "express": ">=4.0.0"
   }
 }

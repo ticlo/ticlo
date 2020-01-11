@@ -26,3 +26,15 @@ export function connectTiclo(app: Express.Application, routeTicloPath: string) {
     let serverConn = new WsServerConnection(ws, Root.instance);
   });
 }
+
+export function getEditorUrl(host: string, defaultJob: string) {
+  let protocol = 'http';
+  if (host.startsWith('wss://')) {
+    protocol = 'https';
+  }
+  let url = `${protocol}://ticlo.org/editor.html?host=${host}`;
+  if (defaultJob) {
+    url += `&job=${defaultJob}`;
+  }
+  return url;
+}

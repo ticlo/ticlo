@@ -12,6 +12,10 @@
   },
   "license": "MPL-2.0",
   "dependencies": {
-    "@ticlo/core": "^0.0.1"
+    "@ticlo/core": ">=0.0.2"
+  },
+  "peerDependencies": {
+    "react": ">=16.0.0",
+    "react-dom": ">=16.0.0"
   }
 }

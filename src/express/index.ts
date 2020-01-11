@@ -1,1 +1,1 @@
-export {connectTiclo, routeTiclo} from './server';
+export {connectTiclo, routeTiclo, getEditorUrl} from './server';
