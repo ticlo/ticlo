@@ -349,6 +349,10 @@ export class ServerConnection extends Connection {
             result = this.applyJobChange(request.path, request.funcId);
             break;
           }
+          case 'deleteJob': {
+            result = this.deleteJob(request.name);
+            break;
+          }
           //// property utils
 
           case 'showProps': {
@@ -496,7 +500,19 @@ export class ServerConnection extends Connection {
     return 'invalid path';
   }
 
+  addJob(name: string, data?: DataMap) {
+    if (this.root.getValue('name') instanceof Job) {
+      return 'job already exists';
+    } else {
+      this.root.addJob(name, data);
+      return null;
+    }
+  }
+
   createBlock(path: string, data?: DataMap, anyName?: boolean): string | DataMap {
+    if (!path.includes('.')) {
+      return this.addJob(path, data);
+    }
     let property = this.root.queryProperty(path, true);
     if (property) {
       let keepSaved: any;
@@ -635,6 +651,16 @@ export class ServerConnection extends Connection {
       return null;
     } else {
       return 'invalid path';
+    }
+  }
+
+  deleteJob(name: string) {
+    let job = this.root.getValue('name');
+    if (job instanceof Job) {
+      this.root.deleteJob(name);
+      return null;
+    } else {
+      return 'invalid name';
     }
   }
 

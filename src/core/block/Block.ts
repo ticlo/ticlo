@@ -959,7 +959,7 @@ export class GlobalBlock extends Block {
 }
 
 interface JobLoader {
-  addJob(root: Root, name: string): Job;
+  addJob(root: Root, name: string, data: DataMap): Job;
   deleteJob(root: Root, name: string): void;
   saveJob(root: Root, name: string, job: Job): void;
   init(root: Root): void;
@@ -1038,16 +1038,19 @@ export class Root extends Job {
     return this._globalBlock.getProperty(name);
   }
 
-  addJob(name?: string): Job {
+  addJob(name?: string, data?: DataMap): Job {
     if (!name) {
       name = Block.nextUid();
     }
     let prop = this.getProperty(name);
     let newJob: Job;
     if (this._loader) {
-      newJob = this._loader.addJob(this, name);
+      newJob = this._loader.addJob(this, name, data);
     } else {
       newJob = new Job(this, null, prop);
+      if (data) {
+        newJob.load(data);
+      }
     }
     prop.setValue(newJob);
     return newJob;
