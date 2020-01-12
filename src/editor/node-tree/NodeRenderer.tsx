@@ -167,7 +167,7 @@ export class NodeTreeRenderer extends PureDataRenderer<Props, any> {
         item.key,
         item.editable
           ? () => {
-              item.getConn().applyWorkerChange(item.key);
+              item.getConn().applyJobChange(item.key);
             }
           : null
       );

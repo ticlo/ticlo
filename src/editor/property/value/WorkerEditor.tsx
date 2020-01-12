@@ -23,7 +23,7 @@ export class WorkerEditor extends TypeEditor {
       let jobEditorPath = `${keys[0]}.#edit-${desc.name}`;
       conn.editWorker(jobEditorPath, desc.name);
       this.context.editJob(jobEditorPath, () => {
-        conn.applyWorkerChange(jobEditorPath);
+        conn.applyJobChange(jobEditorPath);
       });
     }
   };

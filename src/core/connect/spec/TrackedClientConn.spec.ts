@@ -68,7 +68,7 @@ describe('TrackedClientConn', function() {
     assert.isTrue(tracked.isChanged());
     tracked.acknowledge();
 
-    tracked.applyWorkerChange(null, null, null);
+    tracked.applyJobChange(null, null, null);
     assert.isTrue(tracked.isChanged());
     tracked.acknowledge();
 

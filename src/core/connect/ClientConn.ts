@@ -60,7 +60,7 @@ export interface ClientConn {
     callbacks?: ClientCallbacks
   ): Promise<any> | string;
 
-  applyWorkerChange(path: string, funcId?: string, callbacks?: ClientCallbacks): Promise<any> | string;
+  applyJobChange(path: string, funcId?: string, callbacks?: ClientCallbacks): Promise<any> | string;
 
   showProps(path: string, props: string[], callbacks?: ClientCallbacks): Promise<any> | string;
 

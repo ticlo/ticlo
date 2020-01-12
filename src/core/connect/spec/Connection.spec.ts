@@ -715,7 +715,7 @@ describe('Connection', function() {
     Root.instance.deleteValue('Connection18');
   });
 
-  it('applyWorkerChange', async function() {
+  it('applyJobChange', async function() {
     let job1 = Root.instance.addJob('Connection19');
     let [server, client] = makeLocalConnection(Root.instance, true);
 
@@ -723,7 +723,7 @@ describe('Connection', function() {
       job1.setValue('v', data);
       return true;
     });
-    await client.applyWorkerChange('Connection19.#edit-v');
+    await client.applyJobChange('Connection19.#edit-v');
     assert.deepEqual(job1.getValue('v'), {'#is': ''});
 
     client.destroy();

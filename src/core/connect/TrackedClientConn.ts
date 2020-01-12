@@ -45,9 +45,9 @@ export class TrackedClientConn implements ClientConn {
     return this._base.addMoreProp(path, desc, group, callbacks);
   }
 
-  applyWorkerChange(path: string, funcId?: string, callbacks?: ClientCallbacks): Promise<any> | string {
+  applyJobChange(path: string, funcId?: string, callbacks?: ClientCallbacks): Promise<any> | string {
     this._changed();
-    return this._base.applyWorkerChange(path, funcId, callbacks);
+    return this._base.applyJobChange(path, funcId, callbacks);
   }
 
   callImmediate(f: () => void): void {

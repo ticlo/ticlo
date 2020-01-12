@@ -345,8 +345,8 @@ export class ServerConnection extends Connection {
             result = this.editWorker(request.path, request.fromField, request.fromFunction);
             break;
           }
-          case 'applyWorkerChange': {
-            result = this.applyWorkerChange(request.path, request.funcId);
+          case 'applyJobChange': {
+            result = this.applyJobChange(request.path, request.funcId);
             break;
           }
           //// property utils
@@ -624,7 +624,7 @@ export class ServerConnection extends Connection {
     }
   }
 
-  applyWorkerChange(path: string, funcId: string) {
+  applyJobChange(path: string, funcId: string) {
     let property = this.root.queryProperty(path, true);
     if (property && property._value instanceof Job) {
       if (funcId && property._value instanceof WorkerEditor) {
