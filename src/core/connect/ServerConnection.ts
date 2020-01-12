@@ -350,7 +350,7 @@ export class ServerConnection extends Connection {
             break;
           }
           case 'deleteJob': {
-            result = this.deleteJob(request.name);
+            result = this.deleteJob(request.path);
             break;
           }
           //// property utils
@@ -501,7 +501,7 @@ export class ServerConnection extends Connection {
   }
 
   addJob(name: string, data?: DataMap) {
-    if (this.root.getValue('name') instanceof Job) {
+    if (this.root.getValue(name) instanceof Job) {
       return 'job already exists';
     } else {
       this.root.addJob(name, data);
@@ -655,12 +655,12 @@ export class ServerConnection extends Connection {
   }
 
   deleteJob(name: string) {
-    let job = this.root.getValue('name');
+    let job = this.root.getValue(name);
     if (job instanceof Job) {
       this.root.deleteJob(name);
       return null;
     } else {
-      return 'invalid name';
+      return 'invalid path';
     }
   }
 

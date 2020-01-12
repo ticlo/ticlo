@@ -729,4 +729,16 @@ describe('Connection', function() {
     client.destroy();
     Root.instance.deleteValue('Connection19');
   });
+
+  it('createJob and DeleteJob', async function() {
+    let [server, client] = makeLocalConnection(Root.instance, true);
+
+    await client.createBlock('Connection20', {value: 123});
+    assert.instanceOf(Root.instance.getValue('Connection20'), Job);
+
+    await client.deleteJob('Connection20');
+    assert.isUndefined(Root.instance.getValue('Connection20'));
+
+    client.destroy();
+  });
 });
