@@ -1053,6 +1053,17 @@ export class Root extends Job {
     return newJob;
   }
 
+  deleteJob(name: string) {
+    let job = this.getValue(name);
+    if (job instanceof Job) {
+      if (this._loader) {
+        this._loader.deleteJob(this, name);
+      } else {
+        this.deleteValue(name);
+      }
+    }
+  }
+
   save(): DataMap {
     // not allowed
     return null;

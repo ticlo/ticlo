@@ -79,12 +79,12 @@ export class FileJobLoader {
     this.dir = Path.resolve(dir);
   }
 
-  addJob(root: Root, name: string) {
+  addJob(root: Root, name: string, data: DataMap = {}) {
     let prop = root.getProperty(name);
     let newJob = new Job(root, null, prop);
 
-    newJob.load({}, (data) => {
-      this.saveJob(root, name, newJob);
+    newJob.load(data, (saveData) => {
+      this.saveJob(root, name, newJob, saveData);
       return true;
     });
     return newJob;
@@ -104,8 +104,14 @@ export class FileJobLoader {
     for (let file of Fs.readdirSync(this.dir)) {
       if (file.endsWith('.ticlo')) {
         try {
-          let data = decode(Fs.readFileSync(file, 'utf8'));
-        } catch (err) {}
+          let name = file.substring(0, file.length - '.ticlo'.length);
+          let data = decode(Fs.readFileSync(Path.join(this.dir, file), 'utf8'));
+          let newJob = this.addJob(root, name, data);
+          root.setValue(name, newJob);
+        } catch (err) {
+          console.log(err);
+          // TODO Logger
+        }
       }
     }
   }

@@ -52,9 +52,9 @@ export function shouldHappen(callback: () => any, timeoutMs: number = 100): Prom
   });
 }
 
-export function waitTick(): Promise<any> {
+export function waitTick(ms = 0): Promise<any> {
   return new Promise<any>((resolve, reject) => {
-    setTimeout(resolve, 0);
+    setTimeout(resolve, ms);
   });
 }
 
