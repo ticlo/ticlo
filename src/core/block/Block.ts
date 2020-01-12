@@ -958,6 +958,13 @@ export class GlobalBlock extends Block {
   }
 }
 
+interface JobLoader {
+  addJob(root: Root, name: string): Job;
+  deleteJob(root: Root, name: string): void;
+  saveJob(root: Root, name: string, job: Job): void;
+  init(root: Root): void;
+}
+
 export class Root extends Job {
   private static _instance: Root = new Root();
   static get instance() {
@@ -971,14 +978,16 @@ export class Root extends Job {
   /**
    * resolve recursively
    */
+
   static runAll(maxRound = 10) {
-    for (let i = 0; i < maxRound; ++i) {
-      if (this._instance._resolver._queued) {
-        this._instance._run();
-      } else {
-        break;
-      }
-    }
+    this._instance.runAll(maxRound);
+  }
+
+  _loader: JobLoader;
+
+  setLoader(loader: JobLoader) {
+    this._loader = loader;
+    loader.init(this);
   }
 
   _run = () => {
@@ -987,6 +996,16 @@ export class Root extends Job {
     Event._uid.next();
     Resolver._executeFinalResolved();
   };
+
+  runAll(maxRound = 10) {
+    for (let i = 0; i < maxRound; ++i) {
+      if (this._resolver._queued) {
+        this._run();
+      } else {
+        break;
+      }
+    }
+  }
 
   _strictMode: boolean = (process.env.NODE_ENV || '').toLowerCase() === 'test';
 
@@ -1024,7 +1043,12 @@ export class Root extends Job {
       name = Block.nextUid();
     }
     let prop = this.getProperty(name);
-    let newJob = new Job(this, null, prop);
+    let newJob: Job;
+    if (this._loader) {
+      newJob = this._loader.addJob(this, name);
+    } else {
+      newJob = new Job(this, null, prop);
+    }
     prop.setValue(newJob);
     return newJob;
   }

@@ -17,8 +17,8 @@ export interface BlockPropertySubscriber {
 }
 
 export class BlockProperty extends PropDispatcher<any> implements PropListener<any>, BlockBindingSource {
-  _block: Block;
-  _name: string;
+  readonly _block: Block;
+  readonly _name: string;
   _bindingPath: string;
   _bindingSource: BlockBindingSource;
   _bindingProperty: HelperProperty;
