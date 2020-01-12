@@ -109,7 +109,6 @@ export class FileJobLoader {
           let newJob = this.addJob(root, name, data);
           root.setValue(name, newJob);
         } catch (err) {
-          console.log(err);
           // TODO Logger
         }
       }

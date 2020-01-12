@@ -2,16 +2,8 @@ import {assert} from 'chai';
 import shelljs from 'shelljs';
 import Fs from 'fs';
 import {Root} from '../../../core/block/Block';
-import {AsyncClientPromise} from '../../../core/connect/spec/AsyncClientPromise';
 import {shouldHappen, shouldReject, waitTick} from '../../../core/util/test-util';
-import {initEditor} from '../../../editor';
-import {Logger} from '../../../core/util/Logger';
-import {addTestTypes, removeTestTypes} from '../../../core/connect/spec/BulkTypes';
-import {makeLocalConnection} from '../../../core/connect/LocalConnection';
-import {FunctionDesc} from '../../../core/block/Descriptor';
-import {Types} from '../../../core/block/Type';
 import {FileJobLoader} from '../FileJobLoader';
-import {MockWsServer} from '../../connect/spec/MockWsServer';
 import {decode} from '../../../core';
 
 describe('FileJobLoader', function() {
@@ -38,6 +30,8 @@ describe('FileJobLoader', function() {
     job.applyChange();
     job.setValue('value', 123);
     job.applyChange();
+    root.deleteJob('job2');
+    job = root.addJob('job2');
     job.setValue('value', 456);
     job.applyChange();
     await waitTick(15);
