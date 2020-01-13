@@ -97,7 +97,6 @@ export class FileJobLoader {
       data = job.save();
     }
     let str = encodeSorted(job.save());
-    job.deleteValue('@has-change');
     this.getTask(name).write(str);
   }
   init(root: Root): void {

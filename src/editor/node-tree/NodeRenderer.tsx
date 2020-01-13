@@ -2,7 +2,7 @@ import React from 'react';
 
 import {Dropdown, Button, Input, Menu, InputNumber} from 'antd';
 import BuildIcon from '@ant-design/icons/BuildOutlined';
-import ReloadIcon from '@ant-design/icons/ReloadOutlined';
+import SaveIcon from '@ant-design/icons/SaveOutlined';
 import SearchIcon from '@ant-design/icons/SearchOutlined';
 import {ExpandIcon, ExpandState, TreeItem} from '../component/Tree';
 import {PureDataRenderer} from '../component/DataRenderer';
@@ -21,6 +21,7 @@ import {TicloLayoutContext, TicloLayoutContextType} from '../component/LayoutCon
 export class NodeTreeItem extends TreeItem<NodeTreeItem> {
   childPrefix: string;
   name: string;
+  isJob: boolean;
 
   max: number = 32;
 
@@ -207,20 +208,21 @@ export class NodeTreeRenderer extends PureDataRenderer<Props, any> {
   };
 
   getMenu = () => {
+    let {item} = this.props;
     let editJob = this.context && this.context.editJob;
     return (
       <Menu selectable={false}>
         {editJob ? (
-          <>
-            <Menu.Item onClick={this.onOpenClicked}>
-              <BuildIcon />
-              Open
-            </Menu.Item>
-            <Menu.Item onClick={this.onSaveClicked}>
-              <BuildIcon />
-              Save
-            </Menu.Item>
-          </>
+          <Menu.Item onClick={this.onOpenClicked}>
+            <BuildIcon />
+            Open
+          </Menu.Item>
+        ) : null}
+        {item.editable ? (
+          <Menu.Item onClick={this.onSaveClicked}>
+            <SaveIcon />
+            Save
+          </Menu.Item>
         ) : null}
         <Menu.Item>
           <SearchIcon />

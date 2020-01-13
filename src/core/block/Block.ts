@@ -928,9 +928,17 @@ export class Job extends Block {
     return loaded;
   }
 
+  trackChange() {
+    if (this._applyChange) {
+      this.updateValue('@has-change', true);
+    }
+  }
+
   applyChange() {
     if (this._applyChange) {
-      return this._applyChange(this.save());
+      let saved = this._applyChange(this.save());
+      this.deleteValue('@has-change');
+      return saved;
     }
     return false;
   }

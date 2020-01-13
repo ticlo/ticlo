@@ -438,6 +438,7 @@ export class ServerConnection extends Connection {
     let property = this.root.queryProperty(path, true);
     if (property) {
       property.setValue(val);
+      property._block._job.trackChange();
       return null;
     } else {
       return 'invalid path';
@@ -495,6 +496,7 @@ export class ServerConnection extends Connection {
       } else {
         property.setBinding(from);
       }
+      property._block._job.trackChange();
       return null;
     }
     return 'invalid path';
@@ -555,6 +557,7 @@ export class ServerConnection extends Connection {
           }
         }
       }
+      property._block._job.trackChange();
       return {name: property._name};
     } else {
       return 'invalid path';
@@ -672,6 +675,7 @@ export class ServerConnection extends Connection {
 
     if (property && property._value instanceof Block) {
       showProperties(property._value, props);
+      property._block._job.trackChange();
       return null;
     } else {
       return 'invalid path';
@@ -686,6 +690,7 @@ export class ServerConnection extends Connection {
 
     if (property && property._value instanceof Block) {
       hideProperties(property._value, props);
+      property._block._job.trackChange();
       return null;
     } else {
       return 'invalid path';
@@ -697,6 +702,7 @@ export class ServerConnection extends Connection {
 
     if (property && property._value instanceof Block) {
       moveShownProperty(property._value, propFrom, propTo);
+      property._block._job.trackChange();
       return null;
     } else {
       return 'invalid path';
@@ -708,6 +714,7 @@ export class ServerConnection extends Connection {
 
     if (property && property._value instanceof Block) {
       setGroupLength(property._value, group, length);
+      property._block._job.trackChange();
       return null;
     } else {
       return 'invalid path';
@@ -723,6 +730,7 @@ export class ServerConnection extends Connection {
 
     if (property && property._value instanceof Block) {
       addMoreProperty(property._value, desc, group);
+      property._block._job.trackChange();
       return null;
     } else {
       return 'invalid path';
@@ -734,6 +742,7 @@ export class ServerConnection extends Connection {
 
     if (property && property._value instanceof Block) {
       removeMoreProperty(property._value, name, group);
+      property._block._job.trackChange();
       return null;
     } else {
       return 'invalid path';
@@ -745,6 +754,7 @@ export class ServerConnection extends Connection {
 
     if (property && property._value instanceof Block) {
       moveMoreProperty(property._value, nameFrom, nameTo, group);
+      property._block._job.trackChange();
       return null;
     } else {
       return 'invalid path';
@@ -756,6 +766,7 @@ export class ServerConnection extends Connection {
 
     if (property && property._value instanceof Block) {
       insertGroupProperty(property._value, group, idx);
+      property._block._job.trackChange();
       return null;
     } else {
       return 'invalid path';
@@ -767,6 +778,7 @@ export class ServerConnection extends Connection {
 
     if (property && property._value instanceof Block) {
       removeGroupProperty(property._value, group, idx);
+      property._block._job.trackChange();
       return null;
     } else {
       return 'invalid path';
@@ -778,6 +790,7 @@ export class ServerConnection extends Connection {
 
     if (property && property._value instanceof Block) {
       moveGroupProperty(property._value, group, oldIdx, newIdx);
+      property._block._job.trackChange();
       return null;
     } else {
       return 'invalid path';
