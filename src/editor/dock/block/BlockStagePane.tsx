@@ -19,7 +19,7 @@ interface State {
   sizes: number[];
 }
 
-export class BlockStageTab extends React.PureComponent<Props, State> {
+export class BlockStagePane extends React.PureComponent<Props, State> {
   state: State = {showPropertyList: true, selectedKeys: [], sizes: [1000, 1]};
 
   static editorCount = 0;
@@ -31,14 +31,14 @@ export class BlockStageTab extends React.PureComponent<Props, State> {
     onSave?: () => void
   ) {
     let trackedConn = new TrackedClientConn(conn);
-    let id = `blockEditor${BlockStageTab.editorCount++}`;
+    let id = `blockEditor${BlockStagePane.editorCount++}`;
     let tabName = path.split('.').pop();
     return {
       id,
       closable: !onSave,
       title: onSave ? <BlockStageTabButton conn={trackedConn} id={id} title={tabName} onSave={onSave} /> : tabName,
       group: 'blockStage',
-      content: <BlockStageTab conn={trackedConn} basePath={path} onSelect={onSelect} />
+      content: <BlockStagePane conn={trackedConn} basePath={path} onSelect={onSelect} />
     };
   }
 

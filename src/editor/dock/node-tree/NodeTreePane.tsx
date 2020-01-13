@@ -14,7 +14,7 @@ interface State {
   selectedKeys: string[];
 }
 
-export class NodeTreeTab extends React.PureComponent<Props, State> {
+export class NodeTreePane extends React.PureComponent<Props, State> {
   static contextType = TicloLayoutContextType;
   context!: TicloLayoutContext;
 

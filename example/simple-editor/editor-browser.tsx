@@ -3,18 +3,17 @@ import * as ReactDOM from 'react-dom';
 import {FunctionDesc, PropDesc, ClientConnection, Logger, PropDispatcher} from '../../src/core/editor';
 import {initEditor, PropertyList, BlockStage, NodeTree} from '../../src/editor';
 import {DragDropDiv, DragState, DockLayout, DockContextType} from 'rc-dock';
-import {Types} from '../../src/core/block/Type';
 import {TypeTree} from '../../src/editor/type-selector/TypeTree';
 
 import './sample-blocks';
 import {WorkerFunction} from '../../src/core/worker/WorkerFunction';
-import {BlockStageTab} from '../../src/editor/dock/block/BlockStageTab';
+import {BlockStagePane} from '../../src/editor/dock/block/BlockStagePane';
 import {TicloLayoutContext, TicloLayoutContextType} from '../../src/editor/component/LayoutContext';
-import {PropertyListTab} from '../../src/editor/dock/property/PropertyListTab';
+import {PropertyListPane} from '../../src/editor/dock/property/PropertyListPane';
 import {WsBrowserConnection} from '../../src/html/connect/WsBrowserConnection';
 import {FrameClientConnection} from '../../src/html/connect/FrameClientConnection';
-import {NodeTreeTab} from '../../src/editor/dock/node-tree/NodeTreeTab';
-import {TextEditorTab} from '../../src/editor/dock/text-editor/TextEditorTab';
+import {NodeTreePane} from '../../src/editor/dock/node-tree/NodeTreePane';
+import {TextEditorPane} from '../../src/editor/dock/text-editor/TextEditorPane';
 
 const layoutGroups = {
   blockStage: {
@@ -56,7 +55,7 @@ class App extends React.PureComponent<Props, State> implements TicloLayoutContex
 
   createBlockEditorTab(path: string, onSave?: () => void) {
     let {conn} = this.props;
-    return BlockStageTab.createDockTab(path, conn, this.onSelect, onSave);
+    return BlockStagePane.createDockTab(path, conn, this.onSelect, onSave);
   }
 
   /// implements TicloLayoutContext
@@ -72,7 +71,7 @@ class App extends React.PureComponent<Props, State> implements TicloLayoutContex
         mime = 'application/json';
       }
     }
-    TextEditorTab.openFloatPanel(this.layout, conn, paths, defaultValue, mime, readonly);
+    TextEditorPane.openFloatPanel(this.layout, conn, paths, defaultValue, mime, readonly);
   }
 
   onDragBlock = (e: DragState) => {
@@ -114,24 +113,24 @@ class App extends React.PureComponent<Props, State> implements TicloLayoutContex
             size: 200,
             tabs: [
               {
-                id: 'Types',
-                title: 'Types',
+                id: 'Functions',
+                title: 'Functions',
                 cached: true,
                 content: <TypeTree conn={conn} style={{height: '100%'}} />
               },
               {
-                id: 'PropertyList',
-                title: 'PropertyList',
+                id: 'Properties',
+                title: 'Properties',
                 cached: true,
                 cacheContext: TicloLayoutContextType,
-                content: <PropertyListTab conn={conn} />
+                content: <PropertyListPane conn={conn} />
               },
               {
-                id: 'NavTree',
-                title: 'NavTree',
+                id: 'Navigation',
+                title: 'Navigation',
                 cached: true,
                 cacheContext: TicloLayoutContextType,
-                content: <NodeTreeTab conn={conn} basePaths={['']} hideRoot={true} onSelect={this.onSelect} />
+                content: <NodeTreePane conn={conn} basePaths={['']} hideRoot={true} onSelect={this.onSelect} />
               }
             ]
           },

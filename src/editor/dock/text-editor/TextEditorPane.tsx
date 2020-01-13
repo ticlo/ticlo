@@ -36,7 +36,7 @@ interface State {
   error?: string;
 }
 
-export class TextEditorTab extends React.PureComponent<Props, State> {
+export class TextEditorPane extends React.PureComponent<Props, State> {
   static openFloatPanel(
     layout: DockLayout,
     conn: ClientConn,
@@ -102,7 +102,7 @@ export class TextEditorTab extends React.PureComponent<Props, State> {
           closable: true,
           title: tabName,
           content: (
-            <TextEditorTab
+            <TextEditorPane
               conn={conn}
               mime={mime}
               asObject={asObject}

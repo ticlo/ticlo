@@ -160,7 +160,7 @@ export class NodeTreeRenderer extends PureDataRenderer<Props, any> {
     }
   };
 
-  onOpenClicked = (event?: ClickParam) => {
+  onOpenClicked = () => {
     const {item} = this.props;
     if (this.context && this.context.editJob) {
       this.context.editJob(
@@ -173,6 +173,11 @@ export class NodeTreeRenderer extends PureDataRenderer<Props, any> {
       );
     }
   };
+  onSaveClicked = () => {
+    let {item} = this.props;
+    item.getConn().applyJobChange(item.key);
+  };
+
   subscriptionListener = {
     onUpdate: (response: ValueUpdate) => {
       let {item} = this.props;
@@ -206,10 +211,16 @@ export class NodeTreeRenderer extends PureDataRenderer<Props, any> {
     return (
       <Menu selectable={false}>
         {editJob ? (
-          <Menu.Item onClick={this.onOpenClicked}>
-            <BuildIcon />
-            Open
-          </Menu.Item>
+          <>
+            <Menu.Item onClick={this.onOpenClicked}>
+              <BuildIcon />
+              Open
+            </Menu.Item>
+            <Menu.Item onClick={this.onSaveClicked}>
+              <BuildIcon />
+              Save
+            </Menu.Item>
+          </>
         ) : null}
         <Menu.Item>
           <SearchIcon />
