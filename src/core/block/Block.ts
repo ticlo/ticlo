@@ -179,8 +179,9 @@ export class Block implements Runnable, FunctionData, PropListener<FunctionClass
         return voidProperty;
       }
     }
-    if (this._props.has(field)) {
-      return this._props.get(field);
+    let prop: BlockProperty = this._props.get(field);
+    if (prop) {
+      return prop;
     }
 
     // if (field === '') { // comment out self property for now
@@ -188,7 +189,6 @@ export class Block implements Runnable, FunctionData, PropListener<FunctionClass
     // }
 
     let firstChar = field.charCodeAt(0);
-    let prop: BlockProperty;
 
     if (firstChar === 35) {
       // # controls
@@ -1078,12 +1078,12 @@ export class Root extends Job {
   }
 
   deleteJob(name: string) {
-    let job = this.getValue(name);
-    if (job instanceof Job) {
+    let prop = this.getProperty(name, false);
+    if (prop?._value instanceof Job) {
       if (this._loader) {
-        this._loader.onDeleteJob(this, name, job);
+        this._loader.onDeleteJob(this, name, prop._value);
       }
-      this.deleteValue(name);
+      prop.setValue(undefined);
     }
   }
 
