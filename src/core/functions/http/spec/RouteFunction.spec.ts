@@ -106,6 +106,6 @@ describe('RouteFunction', function() {
     let handler = job.getValue('handler') as Block;
     WorkerEditor.createFromField(handler, '#edit-use', 'use');
 
-    assert.deepEqual((handler.getValue('#edit-use') as Block)._save(), route._function.getDefaultWorker('#emit'));
+    assert.deepEqual((handler.getValue('#edit-use') as Job).save(), route._function.getDefaultWorker('#emit'));
   });
 });

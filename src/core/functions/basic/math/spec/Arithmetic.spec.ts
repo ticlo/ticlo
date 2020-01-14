@@ -32,7 +32,7 @@ describe('Math', function() {
     assert.equal(aBlock.getValue('output'), 6, 'update type after value, 2.5+3.5==6');
 
     // save load
-    let saved = job._save();
+    let saved = job.save();
     let job2 = new Job();
     job2.load(saved);
 

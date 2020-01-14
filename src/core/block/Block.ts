@@ -894,8 +894,13 @@ export class Job extends Block {
     this.getProperty('#cancel').updateValue(new Event('cancel'));
   }
 
+  _save(): DataMap {
+    // job shouldn't be saved within parent Block
+    return undefined;
+  }
+
   save(): DataMap {
-    return this._save();
+    return super._save();
   }
 
   _applyChange: (data: DataMap) => boolean;

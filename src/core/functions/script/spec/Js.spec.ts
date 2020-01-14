@@ -34,7 +34,7 @@ describe('Js', function() {
     assert.equal(aBlock.getValue('out2'), 458, 'nested function script local value');
 
     // save load
-    let saved = job._save();
+    let saved = job.save();
     let job2 = new Job();
     job2.load(saved);
 

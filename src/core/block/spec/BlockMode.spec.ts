@@ -81,7 +81,7 @@ describe('BlockMode', function() {
     Root.run();
     assert.deepEqual(TestFunctionRunner.popLogs(), ['b0', 'b1'], 'mode onLoad and onChange should be called');
 
-    let saved = job._save();
+    let saved = job.save();
     let job2 = new Job();
     job2.load(saved);
 
