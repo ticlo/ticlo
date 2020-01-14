@@ -42,7 +42,7 @@ describe('Connection Error', function() {
 
     assert.equal(await shouldReject(client.applyJobChange('ConnectionError1.a.b.c') as Promise<any>), 'invalid path');
 
-    assert.equal(await shouldReject(client.createBlock('ConnectionError1') as Promise<any>), 'job already exists');
+    assert.equal(await shouldReject(client.addJob('ConnectionError1') as Promise<any>), 'invalid path');
 
     assert.equal(
       await shouldReject(client.showProps('ConnectionError1.a.b.c', ['@a']) as Promise<any>),

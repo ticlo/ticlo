@@ -733,8 +733,11 @@ describe('Connection', function() {
   it('createJob and DeleteJob', async function() {
     let [server, client] = makeLocalConnection(Root.instance, true);
 
-    await client.createBlock('Connection20', {value: 123});
+    await client.addJob('Connection20', {value: 123});
     assert.instanceOf(Root.instance.getValue('Connection20'), Job);
+
+    await client.addJob('Connection20.subjob', {value: 123});
+    assert.instanceOf(Root.instance.queryValue('Connection20.subjob'), Job);
 
     await client.setValue('Connection20', undefined, true);
     assert.isUndefined(Root.instance.getValue('Connection20'));

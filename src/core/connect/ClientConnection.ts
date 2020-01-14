@@ -213,6 +213,12 @@ export abstract class ClientConnection extends Connection implements ClientConn 
     return result;
   }
 
+  addJob(path: string, data?: DataMap, callbacks?: ClientCallbacks): Promise<any> | string {
+    let result = this.simpleRequest({cmd: 'addJob', path, data}, callbacks);
+    this._childrenChangeStream.dispatch(path.substring(0, path.lastIndexOf('.')));
+    return result;
+  }
+
   listChildren(path: string, filter?: string, max: number = 16, callbacks?: ClientCallbacks): Promise<any> | string {
     return this.simpleRequest({cmd: 'list', path, filter, max}, callbacks);
   }

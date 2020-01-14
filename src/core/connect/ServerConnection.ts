@@ -319,6 +319,10 @@ export class ServerConnection extends Connection {
             result = this.createBlock(request.path, request.data, request.anyName);
             break;
           }
+          case 'addJob': {
+            result = this.addJob(request.path, request.data);
+            break;
+          }
           case 'command': {
             break;
           }
@@ -498,19 +502,15 @@ export class ServerConnection extends Connection {
     return 'invalid path';
   }
 
-  addJob(name: string, data?: DataMap) {
-    if (this.root.getValue(name) instanceof Job) {
-      return 'job already exists';
-    } else {
-      this.root.addJob(name, data);
+  addJob(path: string, data?: DataMap): string | DataMap {
+    if (this.root.addJob(path, data)) {
       return null;
+    } else {
+      return 'invalid path';
     }
   }
 
   createBlock(path: string, data?: DataMap, anyName?: boolean): string | DataMap {
-    if (!path.includes('.')) {
-      return this.addJob(path, data);
-    }
     let property = this.root.queryProperty(path, true);
     if (property) {
       let keepSaved: any;

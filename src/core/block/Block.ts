@@ -1064,12 +1064,16 @@ export class Root extends Job {
     return this._globalBlock.getProperty(name);
   }
 
-  addJob(name?: string, data?: DataMap): Job {
-    if (!name) {
-      name = Block.nextUid();
+  addJob(path?: string, data?: DataMap): Job {
+    if (!path) {
+      path = Block.nextUid();
     }
-    let prop = this.getProperty(name);
-    let newJob = new Job(this, null, prop);
+    let prop = this.queryProperty(path, true);
+    if (!prop || prop._saved instanceof Block) {
+      // invalid path
+      return null;
+    }
+    let newJob = new Job(prop._block, null, prop);
     if (this._loader) {
       if (!data) {
         data = {};
@@ -1078,14 +1082,14 @@ export class Root extends Job {
       newJob.load(
         data,
         (saveData) => {
-          loader.saveJob(this, name, newJob, saveData);
+          loader.saveJob(this, path, newJob, saveData);
           return true;
         },
         () => {
-          loader.onDeleteJob(this, name, newJob);
+          loader.onDeleteJob(this, path, newJob);
         }
       );
-      this._loader.onAddJob(this, name, newJob, data);
+      this._loader.onAddJob(this, path, newJob, data);
     } else {
       if (data) {
         newJob.load(data);
