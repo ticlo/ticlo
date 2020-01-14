@@ -183,6 +183,7 @@ export class NodeTreeRenderer extends PureDataRenderer<Props, any> {
   onDeleteClicked = () => {
     let {item} = this.props;
     item.getConn().setValue(item.key, undefined);
+    item.parent?.open();
   };
 
   subscriptionListener = {

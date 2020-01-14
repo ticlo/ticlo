@@ -899,8 +899,9 @@ export class Job extends Block {
   }
 
   _applyChange: (data: DataMap) => boolean;
+  _onDestory: () => void;
 
-  load(src: DataMap | string, applyChange?: (data: DataMap) => boolean): boolean {
+  load(src: DataMap | string, applyChange?: (data: DataMap) => boolean, onDestory?: () => void): boolean {
     this._loading = true;
     let loaded = false;
     if (typeof src === 'string') {
@@ -925,6 +926,7 @@ export class Job extends Block {
     }
     if (loaded) {
       this._applyChange = applyChange;
+      this._onDestory = onDestory;
     }
     this._loading = false;
     return loaded;
@@ -957,6 +959,11 @@ export class Job extends Block {
 
   toJsonEsc() {
     return `\u001b:Job ${this._blockId}`;
+  }
+
+  destroy(): void {
+    this._onDestory?.();
+    super.destroy();
   }
 }
 
@@ -1063,10 +1070,16 @@ export class Root extends Job {
         data = {};
       }
       let loader = this._loader;
-      newJob.load(data, (saveData) => {
-        loader.saveJob(this, name, newJob, saveData);
-        return true;
-      });
+      newJob.load(
+        data,
+        (saveData) => {
+          loader.saveJob(this, name, newJob, saveData);
+          return true;
+        },
+        () => {
+          loader.onDeleteJob(this, name, newJob);
+        }
+      );
       this._loader.onAddJob(this, name, newJob, data);
     } else {
       if (data) {

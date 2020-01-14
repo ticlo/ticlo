@@ -433,9 +433,6 @@ export class ServerConnection extends Connection {
   setValue(path: string, val: any): string {
     let property = this.root.queryProperty(path, val !== undefined);
     if (property) {
-      if (property._block instanceof Root) {
-        this.deleteJob(property);
-      }
       property.setValue(val);
       property._block._job.trackChange();
       return null;
