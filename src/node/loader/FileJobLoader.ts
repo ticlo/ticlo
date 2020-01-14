@@ -93,15 +93,19 @@ export class FileJobLoader {
     this.getTask(name).write(str);
   }
   init(root: Root): void {
+    let ticloFiles: string[] = [];
     for (let file of Fs.readdirSync(this.dir)) {
       if (file.endsWith('.ticlo')) {
-        try {
-          let name = file.substring(0, file.length - '.ticlo'.length);
-          let data = decode(Fs.readFileSync(Path.join(this.dir, file), 'utf8'));
-          root.addJob(name, data);
-        } catch (err) {
-          // TODO Logger
-        }
+        ticloFiles.push(file.substring(0, file.length - '.ticlo'.length));
+      }
+    }
+    // sort the name to make sure parent Job is loaded before children jobs
+    for (let name of ticloFiles.sort()) {
+      try {
+        let data = decode(Fs.readFileSync(Path.join(this.dir, `${name}.ticlo`), 'utf8'));
+        root.addJob(name, data);
+      } catch (err) {
+        // TODO Logger
       }
     }
   }
