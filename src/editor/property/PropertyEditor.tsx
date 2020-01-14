@@ -4,9 +4,23 @@ import DeleteIcon from '@ant-design/icons/DeleteOutlined';
 import EditIcon from '@ant-design/icons/EditOutlined';
 import LockIcon from '@ant-design/icons/LockOutlined';
 import LockFilledIcon from '@ant-design/icons/LockFilled';
-import {ClientConn, getOutputDesc, ValueState, ValueUpdate} from '../../../src/core/editor';
-import {blankPropDesc, FunctionDesc, getDefaultFuncData, PropDesc, PropGroupDesc} from '../../../src/core/editor';
-import {translateProperty} from '../../../src/core/editor';
+import {
+  ClientConn,
+  getOutputDesc,
+  ValueState,
+  ValueUpdate,
+  blankPropDesc,
+  FunctionDesc,
+  getDefaultFuncData,
+  PropDesc,
+  PropGroupDesc,
+  translateProperty,
+  arrayEqual,
+  deepEqual,
+  stopPropagation,
+  getTailingNumber,
+  Logger
+} from '../../../src/core/editor';
 import {MultiSelectComponent, MultiSelectLoader} from './MultiSelectComponent';
 import {StringEditor} from './value/StringEditor';
 import {SelectEditor, MultiSelectEditor} from './value/SelectEditor';
@@ -15,8 +29,6 @@ import {DragDropDiv, DragState} from 'rc-dock';
 import {PasswordEditor} from './value/PasswordEditor';
 import {ExpandIcon} from '../component/Tree';
 import {PropertyList} from './PropertyList';
-import {arrayEqual, deepEqual} from '../../../src/core/editor';
-import {stopPropagation} from '../../../src/core/editor';
 import {TypeEditor} from './value/TypeEditor';
 import {TypeSelect} from '../type-selector/TypeSelector';
 import {CheckboxChangeEvent} from 'antd/lib/checkbox';
@@ -24,11 +36,9 @@ import {AddMorePropertyMenu} from './AddMoreProperty';
 import {Popup, Menu, SubMenuItem} from '../component/ClickPopup';
 import {ServiceEditor} from './value/ServiceEditor';
 import {WorkerEditor} from './value/WorkerEditor';
-import {getTailingNumber} from '../../../src/core/editor';
 import {DynamicEditor, dynamicEditorMap} from './value/DynamicEditor';
 import {ReadonlyEditor} from './value/ReadonlyEditor';
 import {ComboEditor} from './value/ComboEditor';
-import {Logger} from '../../../src/core/editor';
 
 const typeEditorMap: {[key: string]: any} = {
   ...dynamicEditorMap,

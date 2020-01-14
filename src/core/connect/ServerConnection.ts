@@ -349,10 +349,6 @@ export class ServerConnection extends Connection {
             result = this.applyJobChange(request.path, request.funcId);
             break;
           }
-          case 'deleteJob': {
-            result = this.deleteJob(request.path);
-            break;
-          }
           //// property utils
 
           case 'showProps': {
@@ -435,12 +431,15 @@ export class ServerConnection extends Connection {
   }
 
   setValue(path: string, val: any): string {
-    let property = this.root.queryProperty(path, true);
+    let property = this.root.queryProperty(path, val !== undefined);
     if (property) {
+      if (property._block instanceof Root) {
+        this.deleteJob(property);
+      }
       property.setValue(val);
       property._block._job.trackChange();
       return null;
-    } else {
+    } else if (val !== undefined) {
       return 'invalid path';
     }
   }
@@ -657,13 +656,10 @@ export class ServerConnection extends Connection {
     }
   }
 
-  deleteJob(name: string) {
-    let job = this.root.getValue(name);
+  deleteJob(property: BlockProperty) {
+    let job = property.getValue();
     if (job instanceof Job) {
-      this.root.deleteJob(name);
-      return null;
-    } else {
-      return 'invalid path';
+      this.root.deleteJob(property._name);
     }
   }
 

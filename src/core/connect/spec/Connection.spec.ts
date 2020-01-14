@@ -736,7 +736,7 @@ describe('Connection', function() {
     await client.createBlock('Connection20', {value: 123});
     assert.instanceOf(Root.instance.getValue('Connection20'), Job);
 
-    await client.deleteJob('Connection20');
+    await client.setValue('Connection20', undefined, true);
     assert.isUndefined(Root.instance.getValue('Connection20'));
 
     client.destroy();

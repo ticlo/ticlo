@@ -79,17 +79,10 @@ export class FileJobLoader {
     this.dir = Path.resolve(dir);
   }
 
-  addJob(root: Root, name: string, data: DataMap = {}) {
-    let prop = root.getProperty(name);
-    let newJob = new Job(root, null, prop);
-
-    newJob.load(data, (saveData) => {
-      this.saveJob(root, name, newJob, saveData);
-      return true;
-    });
-    return newJob;
+  onAddJob(root: Root, name: string, job: Job, data: DataMap) {
+    this.saveJob(root, name, job, data);
   }
-  deleteJob(root: Root, name: string) {
+  onDeleteJob(root: Root, name: string, job: Job) {
     this.getTask(name).delete();
   }
   saveJob(root: Root, name: string, job: Job, data?: DataMap) {
@@ -105,8 +98,7 @@ export class FileJobLoader {
         try {
           let name = file.substring(0, file.length - '.ticlo'.length);
           let data = decode(Fs.readFileSync(Path.join(this.dir, file), 'utf8'));
-          let newJob = this.addJob(root, name, data);
-          root.setValue(name, newJob);
+          root.addJob(name, data);
         } catch (err) {
           // TODO Logger
         }

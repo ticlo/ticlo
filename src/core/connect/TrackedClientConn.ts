@@ -50,10 +50,6 @@ export class TrackedClientConn implements ClientConn {
     return this._base.applyJobChange(path, funcId, callbacks);
   }
 
-  deleteJob(name: string, callbacks?: ClientCallbacks): Promise<any> | string {
-    return this._base.deleteJob(name, callbacks);
-  }
-
   callImmediate(f: () => void): void {
     this._base.callImmediate(f);
   }

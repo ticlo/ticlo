@@ -3,6 +3,7 @@ import React from 'react';
 import {Dropdown, Button, Input, Menu, InputNumber} from 'antd';
 import BuildIcon from '@ant-design/icons/BuildOutlined';
 import SaveIcon from '@ant-design/icons/SaveOutlined';
+import DeleteIcon from '@ant-design/icons/DeleteOutlined';
 import SearchIcon from '@ant-design/icons/SearchOutlined';
 import {ExpandIcon, ExpandState, TreeItem} from '../component/Tree';
 import {PureDataRenderer} from '../component/DataRenderer';
@@ -21,7 +22,7 @@ import {TicloLayoutContext, TicloLayoutContextType} from '../component/LayoutCon
 export class NodeTreeItem extends TreeItem<NodeTreeItem> {
   childPrefix: string;
   name: string;
-  isJob: boolean;
+  isRootJob: boolean = false;
 
   max: number = 32;
 
@@ -31,6 +32,7 @@ export class NodeTreeItem extends TreeItem<NodeTreeItem> {
       this.key = `${parent.childPrefix}${name}`;
       this.childPrefix = `${this.key}.`;
       this.name = name;
+      this.isRootJob = parent.childPrefix === '';
     } else {
       // root element;
       if (name) {
@@ -178,6 +180,10 @@ export class NodeTreeRenderer extends PureDataRenderer<Props, any> {
     let {item} = this.props;
     item.getConn().applyJobChange(item.key);
   };
+  onDeleteClicked = () => {
+    let {item} = this.props;
+    item.getConn().setValue(item.key, undefined);
+  };
 
   subscriptionListener = {
     onUpdate: (response: ValueUpdate) => {
@@ -222,6 +228,12 @@ export class NodeTreeRenderer extends PureDataRenderer<Props, any> {
           <Menu.Item onClick={this.onSaveClicked}>
             <SaveIcon />
             Save
+          </Menu.Item>
+        ) : null}
+        {item.editable || !item.isRootJob ? (
+          <Menu.Item onClick={this.onDeleteClicked}>
+            <DeleteIcon />
+            Delete
           </Menu.Item>
         ) : null}
         <Menu.Item>

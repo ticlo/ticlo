@@ -62,8 +62,6 @@ export interface ClientConn {
 
   applyJobChange(path: string, funcId?: string, callbacks?: ClientCallbacks): Promise<any> | string;
 
-  deleteJob(name: string, callbacks?: ClientCallbacks): Promise<any> | string;
-
   showProps(path: string, props: string[], callbacks?: ClientCallbacks): Promise<any> | string;
 
   hideProps(path: string, props: string[], callbacks?: ClientCallbacks): Promise<any> | string;

@@ -512,6 +512,7 @@ export class Block implements Runnable, FunctionData, PropListener<FunctionClass
       this._props.get('#emit').updateValue(val);
     }
   }
+
   // emit value but maintain the current #wait state
   emitOnly(val: any) {
     if (this._props.has('#emit')) {
@@ -898,6 +899,7 @@ export class Job extends Block {
   }
 
   _applyChange: (data: DataMap) => boolean;
+
   load(src: DataMap | string, applyChange?: (data: DataMap) => boolean): boolean {
     this._loading = true;
     let loaded = false;
@@ -960,6 +962,7 @@ export class Job extends Block {
 
 export class GlobalBlock extends Block {
   createGlobalProperty(name: string): BlockProperty {
+    // inside the GlobalBlock, globalProperty is normal property
     let prop = new BlockIO(this, name);
     this._props.set(name, prop);
     return prop;
@@ -967,9 +970,12 @@ export class GlobalBlock extends Block {
 }
 
 interface JobLoader {
-  addJob(root: Root, name: string, data: DataMap): Job;
-  deleteJob(root: Root, name: string): void;
-  saveJob(root: Root, name: string, job: Job): void;
+  onAddJob(root: Root, name: string, job: Job, data: DataMap): void;
+
+  onDeleteJob(root: Root, name: string, job: Job): void;
+
+  saveJob(root: Root, name: string, job: Job, data: DataMap): void;
+
   init(root: Root): void;
 }
 
@@ -1051,11 +1057,18 @@ export class Root extends Job {
       name = Block.nextUid();
     }
     let prop = this.getProperty(name);
-    let newJob: Job;
+    let newJob = new Job(this, null, prop);
     if (this._loader) {
-      newJob = this._loader.addJob(this, name, data);
+      if (!data) {
+        data = {};
+      }
+      let loader = this._loader;
+      newJob.load(data, (saveData) => {
+        loader.saveJob(this, name, newJob, saveData);
+        return true;
+      });
+      this._loader.onAddJob(this, name, newJob, data);
     } else {
-      newJob = new Job(this, null, prop);
       if (data) {
         newJob.load(data);
       }
@@ -1068,10 +1081,9 @@ export class Root extends Job {
     let job = this.getValue(name);
     if (job instanceof Job) {
       if (this._loader) {
-        this._loader.deleteJob(this, name);
-      } else {
-        this.deleteValue(name);
+        this._loader.onDeleteJob(this, name, job);
       }
+      this.deleteValue(name);
     }
   }
 
