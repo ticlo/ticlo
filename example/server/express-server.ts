@@ -4,8 +4,7 @@ import '../../src/node';
 import {connectTiclo, routeTiclo, getEditorUrl} from '../../src/express';
 import {data} from '../sample-data/data';
 
-let job = Root.instance.addJob('example');
-job.load(data);
+let job = Root.instance.addJob('example', data);
 
 // create some global blocks
 Root.instance._globalBlock.createBlock('^gAdd').setValue('#is', 'add');

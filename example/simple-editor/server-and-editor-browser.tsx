@@ -1,6 +1,6 @@
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
-import {Block, FunctionDesc, PropDesc, Root} from '../../src/core';
+import {Block, DataMap, decode, encodeSorted, FunctionDesc, Job, PropDesc, Root} from '../../src/core';
 import {makeLocalConnection} from '../../src/core/connect/LocalConnection';
 import {data} from '../sample-data/data';
 import {initEditor, PropertyList, BlockStage, NodeTree} from '../../src/editor';
@@ -168,10 +168,16 @@ class App extends React.PureComponent<Props, State> implements TicloLayoutContex
   }
 }
 
+class JobLoader {
+  onAddJob(root: Root, name: string, job: Job, data: DataMap = {}) {}
+  onDeleteJob(root: Root, name: string, job: Job) {}
+  saveJob(root: Root, name: string, job: Job, data?: DataMap) {}
+  init(root: Root): void {}
+}
 (async () => {
   await initEditor();
-  let job = Root.instance.addJob('example');
-  job.load(data);
+  Root.instance.setLoader(new JobLoader());
+  let job = Root.instance.addJob('example', data);
 
   // create some global blocks
   Root.instance._globalBlock.createBlock('^gAdd').setValue('#is', 'add');
