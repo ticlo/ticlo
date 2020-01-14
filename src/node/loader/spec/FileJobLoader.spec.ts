@@ -1,10 +1,9 @@
 import {assert} from 'chai';
 import shelljs from 'shelljs';
 import Fs from 'fs';
-import {Root} from '../../../core/block/Block';
+import {Job, Root, decode} from '../../../core';
 import {shouldHappen, shouldReject, waitTick} from '../../../core/util/test-util';
 import {FileJobLoader} from '../FileJobLoader';
-import {decode} from '../../../core';
 
 describe('FileJobLoader', function() {
   before(function() {
@@ -58,15 +57,21 @@ describe('FileJobLoader', function() {
     root.destroy();
   });
   it('init loader', async function() {
-    const path = './temp/jobLoaderTest/job5.ticlo';
-    Fs.writeFileSync(path, '{"#is":"", "value":321}');
+    let jobData = {'#is': '', 'value': 321};
+    const path1 = './temp/jobLoaderTest/job5.subjob.ticlo';
+    Fs.writeFileSync(path1, JSON.stringify(jobData));
+
+    const path2 = './temp/jobLoaderTest/job5.ticlo';
+    Fs.writeFileSync(path2, JSON.stringify(jobData));
 
     let root = new Root();
     root.setLoader(new FileJobLoader('./temp/jobLoaderTest'));
 
     assert.equal(root.queryValue('job5.value'), 321);
+    assert.equal(root.queryValue('job5.subjob.value'), 321);
+    assert.deepEqual((root.getValue('job5') as Job).save(), jobData);
 
-    Fs.unlinkSync(path);
+    Fs.unlinkSync(path2);
     root.destroy();
   });
 });
