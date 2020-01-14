@@ -369,7 +369,7 @@ export class Block implements Runnable, FunctionData, PropListener<FunctionClass
     for (let [key, prop] of this._props) {
       // clear properties that don't exist in saved data
       if (!loadedFields.hasOwnProperty(key)) {
-        prop.clear();
+        prop.liveClear();
       }
     }
     // function should change after all the properties
@@ -1069,7 +1069,7 @@ export class Root extends Job {
       path = Block.nextUid();
     }
     let prop = this.queryProperty(path, true);
-    if (!prop || prop._saved instanceof Block) {
+    if (!prop || prop._value instanceof Block) {
       // invalid path
       return null;
     }
@@ -1095,7 +1095,7 @@ export class Root extends Job {
         newJob.load(data);
       }
     }
-    prop.setValue(newJob);
+    prop.updateValue(newJob);
     return newJob;
   }
 

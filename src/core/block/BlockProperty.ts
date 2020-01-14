@@ -94,7 +94,7 @@ export class BlockProperty extends PropDispatcher<any> implements PropListener<a
   }
 
   // clear saved value and binding path if they exist, otherwise leave runtime value unchanged
-  clear() {
+  liveClear() {
     if (this._bindingPath || this._saved !== undefined) {
       this.setValue(undefined);
     }

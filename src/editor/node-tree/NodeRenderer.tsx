@@ -22,17 +22,15 @@ import {TicloLayoutContext, TicloLayoutContextType} from '../component/LayoutCon
 export class NodeTreeItem extends TreeItem<NodeTreeItem> {
   childPrefix: string;
   name: string;
-  isRootJob: boolean = false;
 
   max: number = 32;
 
-  constructor(name: string, public id: string, parent?: NodeTreeItem, public editable = false) {
+  constructor(name: string, public id: string, parent?: NodeTreeItem, public mode?: string, public editable = false) {
     super(parent);
     if (parent) {
       this.key = `${parent.childPrefix}${name}`;
       this.childPrefix = `${this.key}.`;
       this.name = name;
-      this.isRootJob = parent.childPrefix === '';
     } else {
       // root element;
       if (name) {
@@ -108,7 +106,7 @@ export class NodeTreeItem extends TreeItem<NodeTreeItem> {
         this.children.push(previousChildren.get(key));
         previousChildren.delete(key);
       } else {
-        this.children.push(new NodeTreeItem(key, data.id, this, data.editable));
+        this.children.push(new NodeTreeItem(key, data.id, this, data.mode, data.editable));
       }
     }
     this.opened = 'opened';
@@ -231,7 +229,7 @@ export class NodeTreeRenderer extends PureDataRenderer<Props, any> {
             Save
           </Menu.Item>
         ) : null}
-        {item.editable || !item.isRootJob ? (
+        {item.key !== '#global' ? (
           <Menu.Item onClick={this.onDeleteClicked}>
             <DeleteIcon />
             Delete
