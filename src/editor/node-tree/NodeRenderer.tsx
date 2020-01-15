@@ -5,6 +5,8 @@ import BuildIcon from '@ant-design/icons/BuildOutlined';
 import SaveIcon from '@ant-design/icons/SaveOutlined';
 import DeleteIcon from '@ant-design/icons/DeleteOutlined';
 import SearchIcon from '@ant-design/icons/SearchOutlined';
+import FileIcon from '@ant-design/icons/FileOutlined';
+import FileAddIcon from '@ant-design/icons/FileAddOutlined';
 import {ExpandIcon, ExpandState, TreeItem} from '../component/Tree';
 import {PureDataRenderer} from '../component/DataRenderer';
 import {
@@ -47,7 +49,7 @@ export class NodeTreeItem extends TreeItem<NodeTreeItem> {
 
   addToList(list: NodeTreeItem[]) {
     super.addToList(list);
-    // TODO
+    // TODO add 3 dots to indicate there are mroe
   }
 
   listingId: string;
@@ -143,10 +145,17 @@ interface Props {
   selected: boolean;
   onClick: (item: NodeTreeItem, event: React.MouseEvent) => void;
 }
+interface State {
+  hasChange: boolean;
+  desc: FunctionDesc;
+  error?: string;
+}
 
 export class NodeTreeRenderer extends PureDataRenderer<Props, any> {
   static contextType = TicloLayoutContextType;
   context!: TicloLayoutContext;
+
+  state: State = {hasChange: false, desc: blankFuncDesc};
 
   onExpandClicked = () => {
     let {item} = this.props;
@@ -187,12 +196,19 @@ export class NodeTreeRenderer extends PureDataRenderer<Props, any> {
   subscriptionListener = {
     onUpdate: (response: ValueUpdate) => {
       let {item} = this.props;
-      let className = response.cache.value;
-      if (typeof className === 'string') {
-        item.connection.watchDesc(className, this.descCallback);
+      let functionId = response.cache.value;
+      if (typeof functionId === 'string') {
+        item.connection.watchDesc(functionId, this.descCallback);
       } else {
         item.connection.unwatchDesc(this.descCallback);
+        this.safeSetState({desc: blankFuncDesc});
       }
+    }
+  };
+
+  hasChangeListener = {
+    onUpdate: (response: ValueUpdate) => {
+      this.safeSetState({hasChange: Boolean(response.cache.value)});
     }
   };
 
@@ -200,12 +216,13 @@ export class NodeTreeRenderer extends PureDataRenderer<Props, any> {
     super(props);
     let {item} = props;
     item.connection.subscribe(`${item.key}.#is`, this.subscriptionListener, true);
+    if (item.mode === 'job' && item.editable) {
+      item.connection.subscribe(`${item.key}.@has-change`, this.hasChangeListener);
+    }
   }
 
-  desc: FunctionDesc = blankFuncDesc;
   descCallback = (desc: FunctionDesc) => {
-    this.desc = desc || blankFuncDesc;
-    this.forceUpdate();
+    this.safeSetState({desc: desc || blankFuncDesc});
   };
 
   onClickContent = (e: React.MouseEvent) => {
@@ -245,17 +262,29 @@ export class NodeTreeRenderer extends PureDataRenderer<Props, any> {
 
   renderImpl() {
     let {item, style, selected} = this.props;
+    let {hasChange, desc, error} = this.state;
+    let {mode} = item;
     let marginLeft = item.level * 20;
     let contentClassName = 'ticl-tree-node-content';
     if (selected) {
       contentClassName += ' ticl-tree-node-selected';
+    }
+    let icon: React.ReactElement;
+    if (mode === 'job') {
+      if (hasChange) {
+        icon = <FileAddIcon />;
+      } else {
+        icon = <FileIcon />;
+      }
+    } else {
+      icon = <TIcon icon={desc.icon} style={getFuncStyleFromDesc(desc, 'tico-pr')} />;
     }
     return (
       <div style={{...style, marginLeft}} className="ticl-tree-node">
         <ExpandIcon opened={item.opened} onClick={this.onExpandClicked} />
         <Dropdown overlay={this.getMenu} trigger={['contextMenu']}>
           <div className={contentClassName} onClick={this.onClickContent}>
-            <TIcon icon={this.desc.icon} style={getFuncStyleFromDesc(this.desc, 'tico-pr')} />
+            {icon}
             <div className="ticl-tree-node-text">{item.name}</div>
           </div>
         </Dropdown>
@@ -267,6 +296,7 @@ export class NodeTreeRenderer extends PureDataRenderer<Props, any> {
     let {item} = this.props;
     item.connection.unsubscribe(`${item.key}.#is`, this.subscriptionListener);
     item.connection.unwatchDesc(this.descCallback);
+    item.connection.unsubscribe(`${item.key}.@has-change`, this.hasChangeListener);
     super.componentWillUnmount();
   }
 }

@@ -293,7 +293,7 @@ export class BlockStage extends BlockStageBase<StageState> {
       if (newZoom !== zoom) {
         this.changeZoom(newZoom, event);
         this.onDragMoveScroll(e, true);
-        this.setState({zoom: newZoom});
+        this.safeSetState({zoom: newZoom});
         return;
       }
     }
@@ -353,7 +353,7 @@ export class BlockStage extends BlockStageBase<StageState> {
     if (zoom < 4) {
       let newZoom = getNextZoom(zoom);
       this.changeZoom(newZoom, event);
-      this.setState({zoom: newZoom});
+      this.safeSetState({zoom: newZoom});
     }
   };
   zoomOut = (event: any) => {
@@ -364,7 +364,7 @@ export class BlockStage extends BlockStageBase<StageState> {
     if (zoom > 0.25) {
       let newZoom = getPrevZoom(zoom);
       this.changeZoom(newZoom, event);
-      this.setState({zoom: newZoom});
+      this.safeSetState({zoom: newZoom});
     }
   };
 
@@ -400,7 +400,7 @@ export class BlockStage extends BlockStageBase<StageState> {
       // measure and layout is useless
       return;
     }
-    this.setState({
+    this.safeSetState({
       stageWidth: this._scrollNode.offsetWidth - 11,
       stageHeight: this._scrollNode.offsetHeight - 11
     });
@@ -420,7 +420,7 @@ export class BlockStage extends BlockStageBase<StageState> {
         height = blockItem.h + blockItem.y;
       }
     }
-    this.setState({
+    this.safeSetState({
       contentWidth: width + 32,
       contentHeight: height + 32
     });

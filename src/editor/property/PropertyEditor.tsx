@@ -168,10 +168,10 @@ export class PropertyEditor extends MultiSelectComponent<Props, State, PropertyL
   }
 
   unlock = (e: any) => {
-    this.setState({unlocked: !this.state.unlocked});
+    this.safeSetState({unlocked: !this.state.unlocked});
   };
   expandSubBlock = (e: any) => {
-    this.setState({showSubBlock: !this.state.showSubBlock});
+    this.safeSetState({showSubBlock: !this.state.showSubBlock});
   };
 
   onChange = (value: any) => {
@@ -504,11 +504,11 @@ export class PropertyEditor extends MultiSelectComponent<Props, State, PropertyL
   };
 
   closeMenu() {
-    this.setState({showMenu: false});
+    this.safeSetState({showMenu: false});
   }
 
   onMenuVisibleChange = (flag: boolean) => {
-    this.setState({showMenu: flag});
+    this.safeSetState({showMenu: flag});
   };
   onBindChange = (str: string) => {
     let {conn, paths, name} = this.props;
@@ -541,7 +541,7 @@ export class PropertyEditor extends MultiSelectComponent<Props, State, PropertyL
     for (let path of paths) {
       conn.createBlock(`${path}.~${name}`, data);
     }
-    this.setState({showMenu: false, showSubBlock: true});
+    this.safeSetState({showMenu: false, showSubBlock: true});
   };
   onShowHide = (e: CheckboxChangeEvent) => {
     let {conn, paths, name} = this.props;

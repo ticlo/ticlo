@@ -1,9 +1,5 @@
 .ticl-tree-node {
   cursor: default;
-  & .tico {
-    border-radius: 3px;
-    transform: scale(0.6666666667);
-  }
 }
 
 .ticl-tree-node-content {
@@ -11,7 +7,24 @@
   display: flex;
   background: #ffffff;
   flex-grow: 1;
+
+  & > .tico {
+    border-radius: 3px;
+    transform: scale(0.6666666667);
+  }
+
+  & > .anticon {
+    width: 16px;
+    height: 16px;
+    margin: 4px;
+
+    & > svg {
+      width: 16px;
+      height: 16px;
+    }
+  }
 }
+
 .ticl-tree-node-selected {
   background: @primary-fade-10;
 }

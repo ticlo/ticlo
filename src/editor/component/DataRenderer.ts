@@ -44,11 +44,18 @@ export interface DataRendererProps<T extends DataRendererItem> {
 }
 
 export abstract class PureDataRenderer<P extends DataRendererProps<any>, S> extends React.PureComponent<P, S> {
+  _rendering = false;
+  _mounted = false;
+
   constructor(props: P) {
     super(props);
     if (props.item) {
       props.item.attachedRenderer(this);
     }
+  }
+
+  componentDidMount(): void {
+    this._mounted = true;
   }
 
   componentDidUpdate(prevProps: P) {
@@ -66,25 +73,29 @@ export abstract class PureDataRenderer<P extends DataRendererProps<any>, S> exte
     if (this.props.item) {
       this.props.item.detachRenderer(this);
     }
-    this._rendered = false;
+    this._mounted = false;
   }
-
-  _rendering = false;
-  _rendered = false;
 
   render(): React.ReactNode {
     this._rendering = true;
     let result = this.renderImpl();
     this._rendering = false;
-    this._rendered = true;
     return result;
+  }
+
+  safeSetState<K extends keyof S>(state: Pick<S, K> | S | null, callback?: () => void): void {
+    if (this._mounted) {
+      super.setState(state, callback);
+    } else {
+      this.state = {...this.state, ...state};
+    }
   }
 
   abstract renderImpl(): React.ReactNode;
 
   // @ts-ignore
   forceUpdate = () => {
-    if (this._rendered && !this._rendering) {
+    if (this._mounted && !this._rendering) {
       super.forceUpdate();
     }
   };

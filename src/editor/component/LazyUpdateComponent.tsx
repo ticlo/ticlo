@@ -26,6 +26,14 @@ export abstract class LazyUpdateComponent<P extends LazyUpdateProps, S> extends 
 
   abstract renderImpl(): React.ReactNode;
 
+  safeSetState<K extends keyof S>(state: Pick<S, K> | S | null, callback?: () => void): void {
+    if (this._mounted) {
+      super.setState(state, callback);
+    } else {
+      this.state = {...this.state, ...state};
+    }
+  }
+
   forceUpdate() {
     this.props.conn.callImmediate(this.safeForceUpdate);
   }

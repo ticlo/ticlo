@@ -78,13 +78,13 @@ export class BlockView extends PureDataRenderer<BlockViewProps, BlockViewState> 
       }
     }
     if (!this.state.moving && e.moved()) {
-      this.setState({moving: true});
+      this.safeSetState({moving: true});
     }
     this.props.item.stage.onDragBlockMove(e);
   };
   onDragEnd = (e: DragState) => {
     this.props.item.stage.onDragBlockEnd(e);
-    this.setState({moving: false});
+    this.safeSetState({moving: false});
   };
 
   expandBlock = (e: React.MouseEvent) => {
@@ -133,7 +133,7 @@ export class BlockView extends PureDataRenderer<BlockViewProps, BlockViewState> 
     if (movingBlockKey && movingBlockKey !== item.path) {
       BlockView._footDropMap.set(e, item);
       e.accept('');
-      this.setState({footDropping: true});
+      this.safeSetState({footDropping: true});
     }
   };
   onDropFoot = (e: DragState) => {
@@ -147,7 +147,7 @@ export class BlockView extends PureDataRenderer<BlockViewProps, BlockViewState> 
     }
   };
   onDragLeaveFoot = (e: DragState) => {
-    this.setState({footDropping: false});
+    this.safeSetState({footDropping: false});
   };
 
   widget = new LazyUpdateSubscriber(this);

@@ -220,16 +220,16 @@ export class PropertyList extends MultiSelectComponent<Props, State, BlockLoader
   }
 
   onShowMoreClick = () => {
-    this.setState({showMore: !this.state.showMore});
+    this.safeSetState({showMore: !this.state.showMore});
   };
   onShowConfigClick = () => {
-    this.setState({showConfig: !this.state.showConfig});
+    this.safeSetState({showConfig: !this.state.showConfig});
   };
   onShowAttributeClick = () => {
-    this.setState({showAttribute: !this.state.showAttribute});
+    this.safeSetState({showAttribute: !this.state.showAttribute});
   };
   onAddMorePopup = (visible: boolean) => {
-    this.setState({showAddMorePopup: visible});
+    this.safeSetState({showAddMorePopup: visible});
   };
 
   onAddMore = (desc: PropDesc | PropGroupDesc) => {
