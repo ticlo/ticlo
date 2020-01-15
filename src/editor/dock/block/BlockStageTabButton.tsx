@@ -4,37 +4,40 @@ import SaveIcon from '@ant-design/icons/SaveOutlined';
 import CloseIcon from '@ant-design/icons/CloseOutlined';
 import {DockContext, DockContextType} from 'rc-dock/lib';
 import {LazyUpdateComponent} from '../../component/LazyUpdateComponent';
-import {TrackedClientConn} from '../../../../src/core/editor';
+import {ClientConn, ValueUpdate} from '../../../../src/core/editor';
 
 interface Props {
-  conn: TrackedClientConn;
+  conn: ClientConn;
   title: string;
   id: string;
+  path: string;
   onSave: () => void;
 }
 
-interface State {}
+interface State {
+  hasChange: boolean;
+}
 
 export class BlockStageTabButton extends LazyUpdateComponent<Props, State> {
   static contextType = DockContextType;
   context!: DockContext;
 
+  state: State = {hasChange: false};
   constructor(props: Props) {
     super(props);
-    props.conn.changed.listen(this);
-  }
-
-  onChange(val: boolean) {
-    if (this._mounted) {
-      this.forceUpdate();
+    let {conn, path, onSave} = props;
+    if (onSave) {
+      conn.subscribe(`${path}.@has-change`, this);
     }
   }
 
-  onSourceChange(source: any): void {}
+  onUpdate(response: ValueUpdate): void {
+    this.safeSetState({hasChange: Boolean(response.cache.value)});
+  }
 
   componentWillUnmount(): void {
-    let {conn} = this.props;
-    conn.changed.unlisten(this);
+    let {conn, path} = this.props;
+    conn.unsubscribe(`${path}.@has-change`, this);
     super.componentWillUnmount();
   }
 
@@ -43,15 +46,15 @@ export class BlockStageTabButton extends LazyUpdateComponent<Props, State> {
     this.context.dockMove(this.context.find(id), null, 'remove');
   };
   onSave = () => {
-    const {conn, onSave} = this.props;
-    onSave();
-    conn.acknowledge();
+    const {onSave} = this.props;
+    onSave?.();
   };
 
   renderImpl() {
     const {title, conn, onSave} = this.props;
+    const {hasChange} = this.state;
     let closeButtun: React.ReactElement;
-    if (onSave && conn.isChanged()) {
+    if (onSave && hasChange) {
       closeButtun = (
         <div className="ticl-stage-panel-save">
           <Button className="ticl-icon-btn" shape="circle" icon={<SaveIcon />} onClick={this.onSave} />

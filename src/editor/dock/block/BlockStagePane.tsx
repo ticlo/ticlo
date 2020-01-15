@@ -4,7 +4,7 @@ import UnorderedListIcon from '@ant-design/icons/UnorderedListOutlined';
 import CloseIcon from '@ant-design/icons/CloseOutlined';
 import {BlockStage, PropertyList} from '../..';
 import {Divider} from 'rc-dock/lib';
-import {arrayEqual, ClientConn, TrackedClientConn} from '../../../../src/core/editor';
+import {arrayEqual, ClientConn} from '../../../../src/core/editor';
 import {BlockStageTabButton} from './BlockStageTabButton';
 
 interface Props {
@@ -30,15 +30,14 @@ export class BlockStagePane extends React.PureComponent<Props, State> {
     onSelect?: (keys: string[], handled: boolean) => void,
     onSave?: () => void
   ) {
-    let trackedConn = new TrackedClientConn(conn);
     let id = `blockEditor${BlockStagePane.editorCount++}`;
     let tabName = path.split('.').pop();
     return {
       id,
       closable: !onSave,
-      title: onSave ? <BlockStageTabButton conn={trackedConn} id={id} title={tabName} onSave={onSave} /> : tabName,
+      title: onSave ? <BlockStageTabButton conn={conn} id={id} path={path} title={tabName} onSave={onSave} /> : tabName,
       group: 'blockStage',
-      content: <BlockStagePane conn={trackedConn} basePath={path} onSelect={onSelect} />
+      content: <BlockStagePane conn={conn} basePath={path} onSelect={onSelect} />
     };
   }
 

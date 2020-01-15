@@ -18,7 +18,6 @@ import {
   smartStrCompare
 } from '../../../src/core/editor';
 import {TIcon} from '../icon/Icon';
-import {ClickParam} from 'antd/lib/menu';
 import {TicloLayoutContext, TicloLayoutContextType} from '../component/LayoutContext';
 
 export class NodeTreeItem extends TreeItem<NodeTreeItem> {

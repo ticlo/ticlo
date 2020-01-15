@@ -1,6 +1,5 @@
 export * from './connect/ClientConn';
 export * from './connect/ClientConnection';
-export {TrackedClientConn} from './connect/TrackedClientConn';
 export * from './block/Descriptor';
 export * from './util/i18n';
 export * from './util/Compare';
