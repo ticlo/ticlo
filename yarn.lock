@@ -6218,10 +6218,10 @@ rc-dialog@~7.6.0:
     rc-animate "2.x"
     rc-util "^4.16.1"
 
-rc-dock@^2.5.0:
-  version "2.5.0"
-  resolved "https://registry.yarnpkg.com/rc-dock/-/rc-dock-2.5.0.tgz#e0dd9131994cfe0c641aab2bf91b22a440224830"
-  integrity sha512-5kU+qmuXsBnPT/Pzcx4ueOn60Wem/PQsD9wTO+6VRWN29C1DtWGMCLlmUaTJMci3Af9SslqU/1vaYT3CnPByhA==
+rc-dock@^2.5.1:
+  version "2.5.1"
+  resolved "https://registry.yarnpkg.com/rc-dock/-/rc-dock-2.5.1.tgz#3993f5854f778944d8227f5e95ac1bced31d1297"
+  integrity sha512-8qGNLIrfjt4LXKSny0ZPWdXPB2jpXBhpqo1GzNt0jpIVnzjVbBlhXMOs7oKKkkHfG7kNlnKexSksGrE8U5iBnw==
   dependencies:
     classnames "^2.2.6"
     lodash "^4.17.15"
