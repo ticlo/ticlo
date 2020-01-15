@@ -24,22 +24,28 @@ import {TicloLayoutContext, TicloLayoutContextType} from '../component/LayoutCon
 export class NodeTreeItem extends TreeItem<NodeTreeItem> {
   childPrefix: string;
   name: string;
+  blockClass: string;
+  isJob: boolean;
+  editable: boolean;
 
   max: number = 32;
 
-  constructor(name: string, public id: string, parent?: NodeTreeItem, public mode?: string, public editable = false) {
+  constructor(name: string, public id: string, parent?: NodeTreeItem, public canApply = false) {
     super(parent);
+    this.blockClass = id.substring(0, id.indexOf(' '));
+    this.isJob = this.blockClass === 'Job' || this.blockClass === 'WorkerEditor';
+    this.editable = this.blockClass !== 'Root' && this.blockClass !== 'GlobalBlock';
     if (parent) {
       this.key = `${parent.childPrefix}${name}`;
       this.childPrefix = `${this.key}.`;
       this.name = name;
     } else {
-      // root element;
       if (name) {
         this.key = name;
         this.childPrefix = `${name}.`;
         this.name = name.substr(name.indexOf('.') + 1);
       } else {
+        // root element;
         this.key = '';
         this.childPrefix = '';
         this.name = 'Root';
@@ -108,7 +114,7 @@ export class NodeTreeItem extends TreeItem<NodeTreeItem> {
         this.children.push(previousChildren.get(key));
         previousChildren.delete(key);
       } else {
-        this.children.push(new NodeTreeItem(key, data.id, this, data.mode, data.editable));
+        this.children.push(new NodeTreeItem(key, data.id, this, data.canApply));
       }
     }
     this.opened = 'opened';
@@ -175,7 +181,7 @@ export class NodeTreeRenderer extends PureDataRenderer<Props, any> {
     if (this.context && this.context.editJob) {
       this.context.editJob(
         item.key,
-        item.editable
+        item.canApply
           ? () => {
               item.getConn().applyJobChange(item.key);
             }
@@ -216,7 +222,7 @@ export class NodeTreeRenderer extends PureDataRenderer<Props, any> {
     super(props);
     let {item} = props;
     item.connection.subscribe(`${item.key}.#is`, this.subscriptionListener, true);
-    if (item.mode === 'job' && item.editable) {
+    if (item.blockClass === 'Job' && item.canApply) {
       item.connection.subscribe(`${item.key}.@has-change`, this.hasChangeListener);
     }
   }
@@ -240,13 +246,13 @@ export class NodeTreeRenderer extends PureDataRenderer<Props, any> {
             Open
           </Menu.Item>
         ) : null}
-        {item.editable ? (
+        {item.canApply ? (
           <Menu.Item onClick={this.onSaveClicked}>
             <SaveIcon />
             Save
           </Menu.Item>
         ) : null}
-        {item.key !== '#global' ? (
+        {item.editable ? (
           <Menu.Item onClick={this.onDeleteClicked}>
             <DeleteIcon />
             Delete
@@ -263,14 +269,14 @@ export class NodeTreeRenderer extends PureDataRenderer<Props, any> {
   renderImpl() {
     let {item, style, selected} = this.props;
     let {hasChange, desc, error} = this.state;
-    let {mode} = item;
+    let {blockClass, isJob} = item;
     let marginLeft = item.level * 20;
     let contentClassName = 'ticl-tree-node-content';
     if (selected) {
       contentClassName += ' ticl-tree-node-selected';
     }
     let icon: React.ReactElement;
-    if (mode === 'job') {
+    if (isJob) {
       if (hasChange) {
         icon = <FileAddIcon />;
       } else {

@@ -106,7 +106,7 @@ export class Block implements Runnable, FunctionData, PropListener<FunctionClass
     this._job = job;
     this._parent = parent;
     this._prop = prop;
-    this._blockId = `${prop?._name}#${Block.nextUid().padStart(3, '0')}`;
+    this._blockId = `${this.constructor.name} ${prop?._name}#${Block.nextUid().padStart(3, '0')}`;
     // #is should always be initialized
     this.getProperty('#is');
   }
@@ -809,7 +809,7 @@ export class Block implements Runnable, FunctionData, PropListener<FunctionClass
   }
 
   toJsonEsc() {
-    return `\u001b:Block ${this._blockId}`;
+    return `\u001b:${this._blockId}`;
   }
 }
 
@@ -960,10 +960,6 @@ export class Job extends Block {
 
   set onResolved(func: () => void) {
     this._resolver.onResolved = func;
-  }
-
-  toJsonEsc() {
-    return `\u001b:Job ${this._blockId}`;
   }
 
   destroy(): void {

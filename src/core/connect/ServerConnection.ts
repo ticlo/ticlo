@@ -579,11 +579,8 @@ export class ServerConnection extends Connection {
             // filter
             if (count < max) {
               let result: any = {id: (prop._value as Block)._blockId};
-              if (prop._value instanceof Job) {
-                result.mode = 'job';
-                if (prop._value._applyChange) {
-                  result.editable = true;
-                }
+              if (prop._value instanceof Job && prop._value._applyChange) {
+                result.canApply = true;
               }
               children[field] = result;
             }
