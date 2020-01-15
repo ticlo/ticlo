@@ -202,11 +202,18 @@ export class SubscribeRequest extends MergedClientRequest {
       }
     }
   }
-  removeFull(callbacks: SubscribeCallbacks) {
-    this._fullCallbackSet.delete(callbacks);
-    if (this._fullCallbackSet.size === 0) {
-      this._cachedFullValue = undefined;
+  remove(callbacks: SubscribeCallbacks) {
+    if (this._fullCallbackSet.has(callbacks)) {
+      this._fullCallbackSet.delete(callbacks);
+      if (this._fullCallbackSet.size === 0) {
+        this._cachedFullValue = undefined;
+      }
+    } else {
+      super.remove(callbacks);
     }
+  }
+  isEmpty(): boolean {
+    return super.isEmpty() && this._fullCallbackSet.size === 0;
   }
 
   loadFullValue() {
