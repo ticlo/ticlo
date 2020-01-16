@@ -1,6 +1,6 @@
 import React from 'react';
 import {BlockWidget, BlockWidgetProps} from './BlockWidget';
-import {LazyUpdateComponent, LazyUpdateListener, LazyUpdateSubscriber} from '../../component/LazyUpdateComponent';
+import {LazyUpdateComponent, LazyUpdateSubscriber} from '../../component/LazyUpdateComponent';
 import {Slider} from 'antd';
 import {displayNumber} from '../../util/Types';
 import {PropDesc} from '../../../../src/core/editor';

@@ -19,7 +19,8 @@ import {
   deepEqual,
   stopPropagation,
   getTailingNumber,
-  Logger
+  Logger,
+  ValueSubscriber
 } from '../../../src/core/editor';
 import {MultiSelectComponent, MultiSelectLoader} from './MultiSelectComponent';
 import {StringEditor} from './value/StringEditor';
@@ -63,13 +64,13 @@ class PropertyLoader extends MultiSelectLoader<PropertyEditor> {
   }
 
   init() {
-    this.conn.subscribe(`${this.path}.${this.name}`, this.valueListener);
-    this.conn.subscribe(`${this.path}.@b-p`, this.displayListener);
+    this.valueListener.subscribe(this.conn, `${this.path}.${this.name}`);
+    this.displayListener.subscribe(this.conn, `${this.path}.@b-p`);
   }
 
   cache: ValueState;
   subBlock = false;
-  valueListener = {
+  valueListener = new ValueSubscriber({
     onUpdate: (response: ValueUpdate) => {
       let changed = this.cache == null;
       this.cache = response.cache;
@@ -81,8 +82,8 @@ class PropertyLoader extends MultiSelectLoader<PropertyEditor> {
         this.parent.forceUpdate();
       }
     }
-  };
-  displayListener = {
+  });
+  displayListener = new ValueSubscriber({
     onUpdate: (response: ValueUpdate) => {
       let value = response.cache.value;
       if (!Array.isArray(value)) {
@@ -97,10 +98,11 @@ class PropertyLoader extends MultiSelectLoader<PropertyEditor> {
         }
       }
     }
-  };
+  });
 
   destroy() {
-    this.conn.unsubscribe(`${this.path}.${this.name}`, this.valueListener);
+    this.valueListener.unsubscribe();
+    this.displayListener.unsubscribe();
   }
 }
 

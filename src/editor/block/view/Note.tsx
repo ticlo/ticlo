@@ -2,7 +2,7 @@ import React from 'react';
 import marked from 'marked';
 import Dompurify from 'dompurify';
 import {BlockWidgetProps} from './BlockWidget';
-import {LazyUpdateComponent, LazyUpdateListener} from '../../component/LazyUpdateComponent';
+import {LazyUpdateComponent, LazyUpdateSubscriber} from '../../component/LazyUpdateComponent';
 import {ClientConnection} from '../../../../src/core/editor';
 
 class NoteView extends LazyUpdateComponent<BlockWidgetProps, any> {
@@ -11,18 +11,18 @@ class NoteView extends LazyUpdateComponent<BlockWidgetProps, any> {
     this._rootNode = node;
   };
 
-  text = new LazyUpdateListener(this);
-  background = new LazyUpdateListener(this);
-  border = new LazyUpdateListener(this);
-  color = new LazyUpdateListener(this);
+  text = new LazyUpdateSubscriber(this);
+  background = new LazyUpdateSubscriber(this);
+  border = new LazyUpdateSubscriber(this);
+  color = new LazyUpdateSubscriber(this);
 
   constructor(props: BlockWidgetProps) {
     super(props);
     let {conn, path} = props;
-    conn.subscribe(`${path}.text`, this.text, true);
-    conn.subscribe(`${path}.background`, this.background, true);
-    conn.subscribe(`${path}.border`, this.border, true);
-    conn.subscribe(`${path}.color`, this.color, true);
+    this.text.subscribe(conn, `${path}.text`, true);
+    this.background.subscribe(conn, `${path}.background`, true);
+    this.border.subscribe(conn, `${path}.border`, true);
+    this.color.subscribe(conn, `${path}.color`, true);
   }
 
   renderImpl(): React.ReactNode {
@@ -65,10 +65,10 @@ class NoteView extends LazyUpdateComponent<BlockWidgetProps, any> {
 
   componentWillUnmount(): void {
     let {conn, path} = this.props;
-    conn.unsubscribe(`${path}.text`, this.text);
-    conn.unsubscribe(`${path}.background`, this.background);
-    conn.unsubscribe(`${path}.border`, this.border);
-    conn.unsubscribe(`${path}.color`, this.color);
+    this.text.unsubscribe();
+    this.background.unsubscribe();
+    this.border.unsubscribe();
+    this.color.unsubscribe();
     super.componentWillUnmount();
   }
 }

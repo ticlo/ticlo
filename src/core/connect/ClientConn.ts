@@ -1,5 +1,5 @@
 import {FunctionDesc, PropDesc, PropGroupDesc} from '../block/Descriptor';
-import {ClientCallbacks, ClientDescListener, SubscribeCallbacks} from './ClientRequests';
+import {ClientCallbacks, ClientDescListener, SubscribeCallbacks, ValueUpdate} from './ClientRequests';
 
 import {DataMap} from '../util/DataTypes';
 import {StreamDispatcher} from '../block/Dispatcher';
@@ -106,4 +106,43 @@ export interface ClientConn {
   findGlobalBlocks(tags: string[]): string[];
 
   cancel(id: string): void;
+}
+
+
+export class ValueSubscriber {
+  conn: ClientConn;
+  path: string;
+
+  constructor(callbacks: SubscribeCallbacks) {
+    if (callbacks) {
+      this.onUpdate = callbacks.onUpdate;
+      this.onError = callbacks.onError;
+    }
+  }
+
+  onUpdate(response: ValueUpdate): void {}
+
+  onError(error: string, data?: DataMap): void {}
+
+  subscribe(conn: ClientConn, path: string, fullValue = false) {
+    if (this.conn === conn && this.path === path) {
+      return;
+    }
+    if (this.conn && this.path) {
+      this.conn.unsubscribe(path, this);
+    }
+    this.conn = conn;
+    this.path = path;
+    if (this.conn && this.path) {
+      this.conn.subscribe(this.path, this, fullValue);
+    }
+  }
+
+  unsubscribe() {
+    if (this.conn && this.path) {
+      this.conn.unsubscribe(this.path, this);
+      this.conn = null;
+      this.path = null;
+    }
+  }
 }

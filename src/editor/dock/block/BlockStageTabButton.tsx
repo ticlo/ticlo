@@ -4,7 +4,7 @@ import SaveIcon from '@ant-design/icons/SaveOutlined';
 import CloseIcon from '@ant-design/icons/CloseOutlined';
 import {DockContext, DockContextType} from 'rc-dock/lib';
 import {LazyUpdateComponent} from '../../component/LazyUpdateComponent';
-import {ClientConn, ValueUpdate} from '../../../../src/core/editor';
+import {ClientConn, ValueSubscriber, ValueUpdate} from '../../../../src/core/editor';
 
 interface Props {
   conn: ClientConn;
@@ -27,17 +27,19 @@ export class BlockStageTabButton extends LazyUpdateComponent<Props, State> {
     super(props);
     let {conn, path, onSave} = props;
     if (onSave) {
-      conn.subscribe(`${path}.@has-change`, this);
+      this.hasChangeListener.subscribe(conn, `${path}.@has-change`);
     }
   }
 
-  onUpdate(response: ValueUpdate): void {
-    this.safeSetState({hasChange: Boolean(response.cache.value)});
-  }
+  hasChangeListener = new ValueSubscriber({
+    onUpdate: (response: ValueUpdate) => {
+      this.safeSetState({hasChange: Boolean(response.cache.value)});
+    }
+  });
 
   componentWillUnmount(): void {
     let {conn, path} = this.props;
-    conn.unsubscribe(`${path}.@has-change`, this);
+    this.hasChangeListener.unsubscribe();
     super.componentWillUnmount();
   }
 

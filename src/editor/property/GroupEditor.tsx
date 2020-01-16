@@ -1,5 +1,5 @@
 import React from 'react';
-import {ClientConn, ValueUpdate} from '../../../src/core/editor';
+import {ClientConn, ValueSubscriber, ValueUpdate} from '../../../src/core/editor';
 import {configDescs, FunctionDesc, PropDesc, PropGroupDesc} from '../../../src/core/editor';
 import {MultiSelectComponent, MultiSelectLoader} from './MultiSelectComponent';
 import {PropertyList} from './PropertyList';
@@ -21,10 +21,8 @@ class LengthPropertyEditor extends PropertyEditor {
 }
 
 class GroupLoader extends MultiSelectLoader<GroupEditor> {
-  lenKey: string;
-
   len: number = -1;
-  lenListener = {
+  lenListener = new ValueSubscriber({
     onUpdate: (response: ValueUpdate) => {
       let len = parseInt(response.cache.value);
       if (!(len >= 0)) {
@@ -35,19 +33,14 @@ class GroupLoader extends MultiSelectLoader<GroupEditor> {
         this.parent.forceUpdate();
       }
     }
-  };
-
-  constructor(key: string, parent: GroupEditor) {
-    super(key, parent);
-    this.lenKey = `${key}.${parent.props.groupDesc.name}#len`;
-  }
+  });
 
   init() {
-    this.conn.subscribe(this.lenKey, this.lenListener, true);
+    this.lenListener.subscribe(this.conn, `${this.path}.${this.parent.props.groupDesc.name}#len`);
   }
 
   destroy() {
-    this.conn.unsubscribe(this.lenKey, this.lenListener);
+    this.lenListener.unsubscribe();
   }
 }
 

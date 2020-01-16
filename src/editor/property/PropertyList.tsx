@@ -1,7 +1,7 @@
 import React from 'react';
 import {Button, Empty, Tooltip} from 'antd';
 import PlusSquareIcon from '@ant-design/icons/PlusSquareOutlined';
-import {attributeList, ClientConn, ValueUpdate} from '../../../src/core/editor';
+import {attributeList, ClientConn, ValueSubscriber, ValueUpdate} from '../../../src/core/editor';
 import {DataMap} from '../../../src/core/editor';
 import {blankFuncDesc, configDescs, configList, FunctionDesc, PropDesc, PropGroupDesc} from '../../../src/core/editor';
 import {PropertyEditor} from './PropertyEditor';
@@ -28,14 +28,14 @@ function descToEditor(conn: ClientConn, paths: string[], funcDesc: FunctionDesc,
 }
 
 class BlockLoader extends MultiSelectLoader<PropertyList> {
-  isListener = {
+  isListener = new ValueSubscriber({
     onUpdate: (response: ValueUpdate) => {
       this.conn.watchDesc(response.cache.value, this.onDesc);
     }
-  };
+  });
 
   more: (PropDesc | PropGroupDesc)[];
-  moreListener = {
+  moreListener = new ValueSubscriber({
     onUpdate: (response: ValueUpdate) => {
       let value = response.cache.value;
       if (!Array.isArray(value)) {
@@ -46,10 +46,10 @@ class BlockLoader extends MultiSelectLoader<PropertyList> {
         this.parent.forceUpdate();
       }
     }
-  };
+  });
 
   widget: string = null;
-  widgetListener = {
+  widgetListener = new ValueSubscriber({
     onUpdate: (response: ValueUpdate) => {
       let value = response.cache.value;
       if (typeof value !== 'string') {
@@ -60,7 +60,7 @@ class BlockLoader extends MultiSelectLoader<PropertyList> {
         this.parent.forceUpdate();
       }
     }
-  };
+  });
 
   desc: FunctionDesc;
   onDesc = (desc: FunctionDesc) => {
@@ -73,15 +73,15 @@ class BlockLoader extends MultiSelectLoader<PropertyList> {
   };
 
   init() {
-    this.conn.subscribe(`${this.path}.#is`, this.isListener, true);
-    this.conn.subscribe(`${this.path}.#more`, this.moreListener, true);
-    this.conn.subscribe(`${this.path}.@b-widget`, this.widgetListener, true);
+    this.isListener.subscribe(this.conn, `${this.path}.#is`, true);
+    this.moreListener.subscribe(this.conn, `${this.path}.#more`, true);
+    this.widgetListener.subscribe(this.conn, `${this.path}.@b-widget`, true);
   }
 
   destroy() {
-    this.conn.unsubscribe(`${this.path}.#is`, this.isListener);
-    this.conn.unsubscribe(`${this.path}.#more`, this.moreListener);
-    this.conn.unsubscribe(`${this.path}.@b-widget`, this.widgetListener);
+    this.isListener.unsubscribe();
+    this.moreListener.unsubscribe();
+    this.widgetListener.unsubscribe();
     this.conn.unwatchDesc(this.onDesc);
   }
 }

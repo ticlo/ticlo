@@ -15,7 +15,8 @@ import {
   blankFuncDesc,
   FunctionDesc,
   getFuncStyleFromDesc,
-  smartStrCompare
+  smartStrCompare,
+  ValueSubscriber
 } from '../../../src/core/editor';
 import {TIcon} from '../icon/Icon';
 import {TicloLayoutContext, TicloLayoutContextType} from '../component/LayoutContext';
@@ -198,7 +199,7 @@ export class NodeTreeRenderer extends PureDataRenderer<Props, any> {
     item.parent?.open();
   };
 
-  subscriptionListener = {
+  subscriptionListener = new ValueSubscriber({
     onUpdate: (response: ValueUpdate) => {
       let {item} = this.props;
       let functionId = response.cache.value;
@@ -209,20 +210,20 @@ export class NodeTreeRenderer extends PureDataRenderer<Props, any> {
         this.safeSetState({desc: blankFuncDesc});
       }
     }
-  };
+  });
 
-  hasChangeListener = {
+  hasChangeListener = new ValueSubscriber({
     onUpdate: (response: ValueUpdate) => {
       this.safeSetState({hasChange: Boolean(response.cache.value)});
     }
-  };
+  });
 
   constructor(props: Props) {
     super(props);
     let {item} = props;
-    item.connection.subscribe(`${item.key}.#is`, this.subscriptionListener, true);
+    this.subscriptionListener.subscribe(item.connection, `${item.key}.#is`, true);
     if (item.blockClass === 'Job' && item.canApply) {
-      item.connection.subscribe(`${item.key}.@has-change`, this.hasChangeListener);
+      this.hasChangeListener.subscribe(item.connection, `${item.key}.@has-change`);
     }
   }
 
@@ -299,9 +300,9 @@ export class NodeTreeRenderer extends PureDataRenderer<Props, any> {
 
   componentWillUnmount() {
     let {item} = this.props;
-    item.connection.unsubscribe(`${item.key}.#is`, this.subscriptionListener);
+    this.subscriptionListener.unsubscribe();
+    this.hasChangeListener.unsubscribe();
     item.connection.unwatchDesc(this.descCallback);
-    item.connection.unsubscribe(`${item.key}.@has-change`, this.hasChangeListener);
     super.componentWillUnmount();
   }
 }

@@ -1,5 +1,5 @@
 import React from 'react';
-import {ClientConn, ValueState, ValueUpdate, DataMap, shallowEqual} from '../../../src/core/editor';
+import {ClientConn, ValueState, ValueUpdate, DataMap, shallowEqual, ValueSubscriber} from '../../../src/core/editor';
 
 interface LazyUpdateProps {
   conn: ClientConn;
@@ -49,7 +49,7 @@ export abstract class LazyUpdateComponent<P extends LazyUpdateProps, S> extends 
   }
 }
 
-export class LazyUpdateListener {
+export class LazyUpdateSubscriber extends ValueSubscriber {
   parent: {forceUpdate: Function} | Function;
 
   value: any;
@@ -59,9 +59,10 @@ export class LazyUpdateListener {
   error: string;
 
   constructor(parent: {forceUpdate: Function} | Function, defaultValue?: any) {
+    super(null);
     this.value = defaultValue;
-    this.parent = parent;
     this.defaultValue = defaultValue;
+    this.parent = parent as {forceUpdate: Function} | Function;
   }
 
   onUpdate(response: ValueUpdate) {
@@ -89,32 +90,6 @@ export class LazyUpdateListener {
       this.parent(this.value);
     } else {
       this.parent.forceUpdate();
-    }
-  }
-}
-
-export class LazyUpdateSubscriber extends LazyUpdateListener {
-  conn: ClientConn;
-  path: string;
-  subscribe(conn: ClientConn, path: string, fullValue = true) {
-    if (this.conn === conn && this.path === path) {
-      return;
-    }
-    if (this.conn && this.path) {
-      this.conn.unsubscribe(path, this);
-    }
-    this.conn = conn;
-    this.path = path;
-    if (this.conn && this.path) {
-      this.conn.subscribe(this.path, this, fullValue);
-    }
-  }
-
-  unsubscribe() {
-    if (this.conn && this.path) {
-      this.conn.unsubscribe(this.path, this);
-      this.conn = null;
-      this.path = null;
     }
   }
 }

@@ -15,7 +15,8 @@ import {
   PropDesc,
   PropGroupDesc,
   arrayEqual,
-  deepEqual
+  deepEqual,
+  ValueSubscriber
 } from '../../../src/core/editor';
 import {TIcon} from '../icon/Icon';
 import {DragDropDiv, DragState} from 'rc-dock';
@@ -166,7 +167,7 @@ export class FieldItem extends DataRendererItem {
     return this.block.conn.getBaseConn();
   }
   cache: any = {};
-  listener = {
+  listener = new ValueSubscriber({
     onUpdate: (response: ValueUpdate) => {
       let change = response.change;
       if (!deepEqual(response.cache, this.cache)) {
@@ -179,19 +180,19 @@ export class FieldItem extends DataRendererItem {
         }
       }
     }
-  };
+  });
 
   constructor(block: BaseBlockItem, name: string) {
     super();
     this.name = name;
     this.block = block;
     this.path = `${block.path}.${name}`;
-    this.block.conn.subscribe(this.path, this.listener);
+    this.listener.subscribe(this.block.conn, this.path);
     this.block.stage.registerField(this.path, this);
   }
 
   destroy() {
-    this.block.conn.unsubscribe(this.path, this.listener);
+    this.listener.unsubscribe();
     this.block.stage.unregisterField(this.path, this);
     if (this._bindingTargetPath) {
       this.block.stage.unlinkField(this._bindingTargetPath, this);
@@ -489,7 +490,7 @@ export abstract class BaseBlockItem extends DataRendererItem<XYWRenderer> {
   abstract onFieldsChanged(): void;
 
   isValue: string;
-  isListener = {
+  isListener = new ValueSubscriber({
     onUpdate: (response: ValueUpdate) => {
       let {value} = response.cache;
       if (typeof value === 'string') {
@@ -508,8 +509,8 @@ export abstract class BaseBlockItem extends DataRendererItem<XYWRenderer> {
         this.startSubscribe();
       }
     }
-  };
-  moreListener = {
+  });
+  moreListener = new ValueSubscriber({
     onUpdate: (response: ValueUpdate) => {
       let value = response.cache.value;
       if (!Array.isArray(value)) {
@@ -520,15 +521,15 @@ export abstract class BaseBlockItem extends DataRendererItem<XYWRenderer> {
         this.updatePropCache();
       }
     }
-  };
-  pListener = {
+  });
+  pListener = new ValueSubscriber({
     onUpdate: (response: ValueUpdate) => {
       let {value} = response.cache;
       if (Array.isArray(value)) {
         this.setP(value);
       }
     }
-  };
+  });
 
   descLoaded = false;
   descListener = (funcDesc: FunctionDesc) => {
@@ -537,9 +538,9 @@ export abstract class BaseBlockItem extends DataRendererItem<XYWRenderer> {
   };
 
   startSubscribe() {
-    this.conn.subscribe(`${this.path}.#is`, this.isListener, true);
-    this.conn.subscribe(`${this.path}.#more`, this.moreListener, true);
-    this.conn.subscribe(`${this.path}.@b-p`, this.pListener, true);
+    this.isListener.subscribe(this.conn, `${this.path}.#is`, true);
+    this.moreListener.subscribe(this.conn, `${this.path}.#more`, true);
+    this.pListener.subscribe(this.conn, `${this.path}.@b-p`, true);
   }
 
   setDesc(desc: FunctionDesc) {
@@ -600,9 +601,9 @@ export abstract class BaseBlockItem extends DataRendererItem<XYWRenderer> {
   }
 
   destroy() {
-    this.conn.unsubscribe(`${this.path}.#is`, this.isListener);
-    this.conn.unsubscribe(`${this.path}.#more`, this.moreListener);
-    this.conn.unsubscribe(`${this.path}.@b-p`, this.pListener);
+    this.isListener.unsubscribe();
+    this.moreListener.unsubscribe();
+    this.pListener.unsubscribe();
     this.conn.unwatchDesc(this.descListener);
     for (let [, fieldItem] of this.fieldItems) {
       fieldItem.destroy();
@@ -626,7 +627,7 @@ class SubBlockItem extends BaseBlockItem {
   }
 
   hidden = true;
-  hideListener = {
+  hideListener = new ValueSubscriber({
     onUpdate: (response: ValueUpdate) => {
       let hidden = Boolean(response.cache.value);
       if (hidden !== this.hidden) {
@@ -635,11 +636,11 @@ class SubBlockItem extends BaseBlockItem {
         this.forceRendererChildren();
       }
     }
-  };
+  });
 
   startSubscribe() {
     super.startSubscribe();
-    this.conn.subscribe(`${this.path}.@b-hide`, this.hideListener, true);
+    this.hideListener.subscribe(this.conn, `${this.path}.@b-hide`, true);
   }
 
   get selected() {
@@ -686,7 +687,7 @@ class SubBlockItem extends BaseBlockItem {
   }
 
   destroy() {
-    this.conn.unsubscribe(`${this.path}.@b-hide`, this.hideListener);
+    this.hideListener.unsubscribe();
     super.destroy();
   }
 }
@@ -742,12 +743,12 @@ export class BlockItem extends BaseBlockItem {
 
   startSubscribe() {
     super.startSubscribe();
-    this.conn.subscribe(`${this.path}.#sync`, this.syncListener, true);
-    this.conn.subscribe(`${this.path}.@b-xyw`, this.xywListener, true);
+    this.syncListener.subscribe(this.conn, `${this.path}.#sync`, true);
+    this.xywListener.subscribe(this.conn, `${this.path}.@b-xyw`, true);
   }
 
   synced = false;
-  syncListener = {
+  syncListener = new ValueSubscriber({
     onUpdate: (response: ValueUpdate) => {
       let newSynced = Boolean(response.cache.value);
       if (newSynced !== this.synced) {
@@ -755,9 +756,9 @@ export class BlockItem extends BaseBlockItem {
         this.forceUpdate();
       }
     }
-  };
+  });
 
-  xywListener = {
+  xywListener = new ValueSubscriber({
     onUpdate: (response: ValueUpdate) => {
       let {value} = response.cache;
       if (this.selected && this.stage.isDraggingBlock()) {
@@ -774,7 +775,7 @@ export class BlockItem extends BaseBlockItem {
         this.setXYW(...this.stage.getNextXYW());
       }
     }
-  };
+  });
 
   // height of special view area
   viewH: number = 0;
@@ -958,8 +959,8 @@ export class BlockItem extends BaseBlockItem {
   }
 
   destroy() {
-    this.conn.unsubscribe(`${this.path}.#sync`, this.syncListener);
-    this.conn.unsubscribe(`${this.path}.@b-xyw`, this.xywListener);
+    this.syncListener.unsubscribe();
+    this.xywListener.unsubscribe();
     super.destroy();
     this.actualFields = [];
   }
