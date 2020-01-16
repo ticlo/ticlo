@@ -401,9 +401,14 @@ interface PropertyAttributeProps {
 class PropertyAttributeList extends LazyUpdateComponent<PropertyAttributeProps, any> {
   widgetListener = new LazyUpdateSubscriber(this);
 
+  _subscribingPath: string;
   updatePaths(paths: string[]) {
+    if (paths[0] === this._subscribingPath) {
+      return;
+    }
+    this._subscribingPath = paths[0];
     const {conn} = this.props;
-    this.widgetListener.subscribe(conn, `${paths[0]}.@b-widget`);
+    this.widgetListener.subscribe(conn, `${this._subscribingPath}.@b-widget`);
   }
 
   constructor(props: PropertyAttributeProps) {
@@ -411,13 +416,10 @@ class PropertyAttributeList extends LazyUpdateComponent<PropertyAttributeProps, 
     this.updatePaths(props.paths);
   }
 
-  shouldComponentUpdate(nextProps: Readonly<PropertyAttributeProps>, nextState: Readonly<any>): boolean {
-    this.updatePaths(nextProps.paths);
-    return super.shouldComponentUpdate(nextProps, nextState);
-  }
-
   renderImpl() {
     let {conn, paths, funcDesc} = this.props;
+    this.updatePaths(paths);
+
     let attributeChildren = [];
     for (let attributeDesc of attributeList) {
       attributeChildren.push(descToEditor(conn, paths, funcDesc, attributeDesc));

@@ -31,7 +31,13 @@ export class ObjectTree extends LazyUpdateComponent<Props, any> {
     this.checkTruncatedValue(props.data);
   }
 
+  _lastCheckedData: any;
   checkTruncatedValue(data: any) {
+    if (data === this._lastCheckedData) {
+      return;
+    }
+    this._lastCheckedData = data;
+
     const {conn, path} = this.props;
     if (isDataTruncated(data)) {
       this.loading = true;
@@ -39,13 +45,6 @@ export class ObjectTree extends LazyUpdateComponent<Props, any> {
     } else {
       this.data = data;
     }
-  }
-  shouldComponentUpdate(nextProps: Readonly<Props>, nextState: Readonly<any>): boolean {
-    if (!deepEqual(nextProps.data, this.data)) {
-      this.checkTruncatedValue(nextProps.data);
-      return true;
-    }
-    return super.shouldComponentUpdate(nextProps, nextState);
   }
 
   renderChild = (idx: number, style: React.CSSProperties) => {
@@ -74,7 +73,9 @@ export class ObjectTree extends LazyUpdateComponent<Props, any> {
   }
 
   renderImpl() {
+    let {style, data} = this.props;
     let child: React.ReactNode;
+    this.checkTruncatedValue(data);
     if (this.loading) {
       child = <Spin tip="Loading..." />;
     } else {
@@ -83,7 +84,7 @@ export class ObjectTree extends LazyUpdateComponent<Props, any> {
       child = (
         <VirtualList
           className="ticl-node-tree"
-          style={this.props.style}
+          style={style}
           renderer={this.renderChild}
           itemCount={this.list.length}
           itemHeight={26}
@@ -92,7 +93,7 @@ export class ObjectTree extends LazyUpdateComponent<Props, any> {
     }
 
     return (
-      <div className="ticl-object-tree" style={this.props.style}>
+      <div className="ticl-object-tree" style={style}>
         {child}
       </div>
     );

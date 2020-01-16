@@ -28,9 +28,15 @@ export abstract class MultiSelectComponent<
 
   abstract createLoader(paths: string): Loader;
 
+  _checkedPaths: string[];
   // update the loaders cache based on input paths
   // the parameter is a constructor of Loader class, this is a work around for the limitation of ts template
   updateLoaders(paths: string[]): [boolean, boolean] {
+    if (paths === this._checkedPaths) {
+      return [false, false];
+    }
+    this._checkedPaths = paths;
+
     let added = false;
     let removed = false;
     for (let key of paths) {
@@ -71,6 +77,13 @@ export abstract class MultiSelectComponent<
       }
     }
     return false;
+  }
+
+  render() {
+    // shouldComponentUpdate can be skipped if forceUpdate is called
+    // double check here to make sure loaders are updated
+    this.updateLoaders(this.props.paths);
+    return super.render();
   }
 
   componentWillUnmount() {
