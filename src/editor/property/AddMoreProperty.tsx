@@ -1,15 +1,17 @@
 import React, {ChangeEvent} from 'react';
 import {Button, Input, Select, Form, Switch, InputNumber, Radio} from 'antd';
-import {RadioChangeEvent} from 'antd/lib/radio';
-import {PropDesc, PropGroupDesc, ValueType, VisibleType, endsWithNumberReg} from '../../../src/core/editor';
+import {PropDesc, PropGroupDesc, ValueType, VisibleType, endsWithNumberReg, ClientConn} from '../../../src/core/editor';
+import {LazyUpdateComponent} from '../component/LazyUpdateComponent';
+import {FormInputItem, FormItem} from '../component/FormItem';
 
 const RadioButton = Radio.Button;
 const RadioGroup = Radio.Group;
 
-const FormItem = Form.Item;
 const {Option} = Select;
 
 interface Props {
+  conn: ClientConn;
+
   onAddProperty(desc: PropDesc | PropGroupDesc): void;
 
   group?: string;
@@ -18,191 +20,102 @@ interface Props {
 
 type MoreValueType = ValueType | 'group';
 
-interface State {
-  name: string;
-  type: MoreValueType;
-
-  // group
-  defaultLen: number;
-
-  // number, string
-  placeholder?: string;
-
-  // number
-  min?: number;
-  max?: number;
-  step?: number;
-
-  // bool, select, radio-button
-  optionStr?: string;
-
-  // color
-  showAlpha?: boolean;
-
-  // date, date-range
-  showTime?: boolean;
-
-  visible?: VisibleType;
-
-  nameErr?: string;
-  defaultLenErr?: string;
-  minErr?: string;
-  maxErr?: string;
-  stepErr?: string;
-  optionErr?: string;
-}
-
-export class AddMorePropertyMenu extends React.PureComponent<Props, State> {
-  state: State = {
-    name: '',
-    type: 'string',
-
-    // group
-    defaultLen: 2,
-
-    // number, string
-    placeholder: '',
-
-    // bool, select, tags
-    optionStr: '',
-
-    showAlpha: false,
-    showTime: false
-  };
-
-  onName = (change: ChangeEvent<HTMLInputElement>) => {
-    this.setState({name: change.target.value});
-  };
-  onType = (value: MoreValueType) => {
-    this.setState({type: value});
-  };
-
-  onDefaultLen = (value: number) => {
-    this.setState({defaultLen: value});
-  };
-  onMin = (value: number) => {
-    this.setState({min: value});
-  };
-  onMax = (value: number) => {
-    this.setState({max: value});
-  };
-  onStep = (value: number) => {
-    this.setState({step: value});
-  };
-
-  onPlaceHolder = (change: ChangeEvent<HTMLInputElement>) => {
-    this.setState({placeholder: change.target.value});
-  };
-
-  onOptionStr = (change: ChangeEvent<HTMLInputElement>) => {
-    this.setState({optionStr: change.target.value});
-  };
-
-  onShowAlpha = (value: boolean) => {
-    this.setState({showAlpha: value});
-  };
-  onShowTime = (value: boolean) => {
-    this.setState({showTime: value});
-  };
-
-  onVisible = (e: RadioChangeEvent) => {
-    this.setState({visible: e.target.value});
+export class AddMorePropertyMenu extends LazyUpdateComponent<Props, any> {
+  formItems = {
+    type: new FormItem<MoreValueType>(this, 'type', 'Type', 'string'),
+    name: new FormInputItem<string>(this, 'name', 'Name'),
+    defaultLen: new FormItem<number>(this, 'defaultLen', 'Default Length', 2),
+    min: new FormItem<number>(this, 'min', 'Min'),
+    max: new FormItem<number>(this, 'max', 'Max'),
+    step: new FormItem<number>(this, 'step', 'Step'),
+    placeholder: new FormInputItem<string>(this, 'placeholder', 'Place Holder', ''),
+    optionStr: new FormInputItem<string>(this, 'optionStr', 'Options'),
+    showAlpha: new FormItem<boolean>(this, 'showAlpha', 'Show Alpha', false),
+    showTime: new FormItem<boolean>(this, 'showTime', 'Show Alpha', false),
+    visible: new FormInputItem<VisibleType>(this, 'visible', 'Visible')
   };
 
   onSubmit = (e: React.FormEvent<HTMLElement>) => {
     let {onAddProperty, group} = this.props;
-    let {name, type, defaultLen, placeholder, min, max, step, optionStr, showAlpha, showTime, visible} = this.state;
+    let {type, name, defaultLen, placeholder, min, max, step, optionStr, showAlpha, showTime, visible} = this.formItems;
     e.preventDefault();
 
     let result: PropDesc | PropGroupDesc;
 
-    let errors: any = {
-      nameErr: null,
-      defaultLenErr: null,
-      minErr: null,
-      maxErr: null,
-      stepErr: null,
-      optionErr: null
-    };
-    let hasError = false;
-
-    function addError(name: string, value: string) {
-      errors[name] = value;
-      hasError = true;
-    }
+    let errors = new Map<string, string>();
 
     if (
-      typeof name !== 'string' ||
-      (name === '' &&
-      type !== 'group' && // allow group to use empty name (default group)
+      typeof name.value !== 'string' ||
+      (name.value === '' &&
+      type.value !== 'group' && // allow group to use empty name (default group)
         group !== '') // allow default group to have child with empty name
     ) {
-      addError('nameErr', 'Invalid Name');
-    } else if (group != null && name.match(endsWithNumberReg)) {
-      addError('nameErr', 'Number character not allowed');
+      errors.set('name', 'Invalid Name');
+    } else if (group != null && name.value.match(endsWithNumberReg)) {
+      errors.set('name', 'Number character not allowed');
     }
-    if (type === 'group') {
-      if (defaultLen == null || !(defaultLen >= 0)) {
-        addError('defaultLenErr', 'Error');
+    if (type.value === 'group') {
+      if (defaultLen.value == null || !(defaultLen.value >= 0)) {
+        errors.set('defaultLen', 'Error');
       }
-      result = {name, type: 'group', defaultLen};
+      result = {name: name.value, type: 'group', defaultLen: defaultLen.value};
     } else {
-      result = {name, type};
-      if (visible) {
-        result.visible = visible;
+      result = {name: name.value, type: type.value};
+      if (visible.value) {
+        result.visible = visible.value;
       }
-      switch (type) {
+      switch (type.value) {
         case 'number': {
-          if (min != null) {
-            if (typeof min !== 'number' || min !== min) {
-              addError('minErr', 'Error');
+          if (min.value != null) {
+            if (typeof min.value !== 'number' || min.value !== min.value) {
+              errors.set('min', 'Error');
             } else {
-              result.min = min;
+              result.min = min.value;
             }
           }
-          if (max != null) {
-            if (typeof max !== 'number' || max !== max) {
-              addError('maxErr', 'Error');
-            } else if (result.hasOwnProperty('min') && result.min >= max) {
-              addError('minErr', 'Error');
-              addError('maxErr', 'Error');
+          if (max.value != null) {
+            if (typeof max.value !== 'number' || max.value !== max.value) {
+              errors.set('max', 'Error');
+            } else if (result.hasOwnProperty('min') && result.min >= max.value) {
+              errors.set('min', 'Error');
+              errors.set('max', 'Error');
             } else {
-              result.max = max;
+              result.max = max.value;
             }
           }
-          if (step != null) {
-            if (typeof step !== 'number' || step !== step) {
-              addError('stepErr', 'Error');
+          if (step.value != null) {
+            if (typeof step.value !== 'number' || step.value !== step.value) {
+              errors.set('step', 'Error');
             } else {
-              result.step = min;
+              result.step = step.value;
             }
           }
-          if (placeholder) {
-            result.placeholder = placeholder;
+          if (placeholder.value) {
+            result.placeholder = placeholder.value;
           }
           break;
         }
         case 'string': {
-          if (placeholder) {
-            result.placeholder = placeholder;
+          if (placeholder.value) {
+            result.placeholder = placeholder.value;
           }
           break;
         }
         case 'select':
         case 'radio-button': {
-          let options: string[] = optionStr.split(',');
+          let options: string[] = optionStr.value.split(',');
           if (options.length < 2) {
-            addError('optionErr', 'Require more than one option');
+            errors.set('option', 'Require more than one option');
           } else {
             result.options = options;
           }
           break;
         }
         case 'toggle': {
-          if (optionStr) {
-            let options: string[] = optionStr.split(',');
+          if (optionStr.value) {
+            let options: string[] = optionStr.value.split(',');
             if (options.length !== 2) {
-              addError('optionErr', 'Must have 0 or 2 options');
+              errors.set('optionErr', 'Must have 0 or 2 options');
             } else {
               result.options = options;
             }
@@ -211,51 +124,39 @@ export class AddMorePropertyMenu extends React.PureComponent<Props, State> {
         }
         case 'date':
         case 'date-range': {
-          result.showTime = showTime;
+          result.showTime = showTime.value;
           break;
         }
         case 'color': {
-          result.disableAlpha = !showAlpha;
+          result.disableAlpha = !showAlpha.value;
           break;
         }
       }
     }
 
-    if (!hasError) {
+    if (errors.size === 0) {
       onAddProperty(result);
-      errors.name = ''; // reset name after adding property
+      name.onChange(''); // reset name after adding property
     }
-    this.setState(errors);
+    for (let key in this.formItems) {
+      let formItem = (this.formItems as any)[key];
+      if (errors.has(key)) {
+        formItem.setError(errors.get(key));
+      } else {
+        formItem.setError(null);
+      }
+    }
   };
 
-  render() {
+  renderImpl() {
     let {group, onClick} = this.props;
-    let {
-      name,
-      type,
-      defaultLen,
-      placeholder,
-      min,
-      max,
-      step,
-      optionStr,
-      showAlpha,
-      showTime,
-      visible,
-      nameErr,
-      defaultLenErr,
-      minErr,
-      maxErr,
-      stepErr,
-      optionErr
-    } = this.state;
+    let {type, name, defaultLen, placeholder, min, max, step, optionStr, showAlpha, showTime, visible} = this.formItems;
+    let typeValue = type.value;
     return (
       <Form onClick={onClick} className="ticl-add-more-prop" labelCol={{span: 9}} wrapperCol={{span: 15}}>
-        <FormItem label="Name" validateStatus={nameErr ? 'error' : null} help={nameErr}>
-          <Input size="small" value={name} onChange={this.onName} />
-        </FormItem>
-        <FormItem label="Type">
-          <Select size="small" value={type} onChange={this.onType}>
+        {name.render(<Input size="small" value={name.value} onChange={name.onInputChange} />)}
+        {type.render(
+          <Select size="small" value={type.value} onChange={type.onChange}>
             <Option value="number">number</Option>
             <Option value="string">string</Option>
             <Option value="toggle">toggle</Option>
@@ -269,60 +170,58 @@ export class AddMorePropertyMenu extends React.PureComponent<Props, State> {
             {group == null ? <Option value="group">group</Option> : null // dont add group if it's in already a group
             }
           </Select>
-        </FormItem>
-        {type === 'group' ? (
-          <FormItem label="Default Length" validateStatus={defaultLenErr ? 'error' : null}>
-            <InputNumber size="small" min={0} step={1} value={defaultLen} onChange={this.onDefaultLen} />
-          </FormItem>
-        ) : null}
-        {type === 'number'
+        )}
+        {typeValue === 'group'
+          ? defaultLen.render(
+              <InputNumber size="small" min={0} step={1} value={defaultLen.value} onChange={defaultLen.onChange} />
+            )
+          : null}
+        {typeValue === 'number'
           ? [
-              <FormItem label="Min Value" key="minbox" validateStatus={minErr ? 'error' : null}>
-                <InputNumber size="small" value={min} onChange={this.onMin} />
-              </FormItem>,
-              <FormItem label="Max Value" key="maxbox" validateStatus={maxErr ? 'error' : null}>
-                <InputNumber size="small" value={max} onChange={this.onMax} />
-              </FormItem>,
-              <FormItem label="Step" key="stepbox" validateStatus={stepErr ? 'error' : null}>
-                <InputNumber size="small" value={step} onChange={this.onStep} min={0} />
-              </FormItem>
+              min.render(<InputNumber size="small" value={min.value} onChange={min.onChange} />),
+              max.render(<InputNumber size="small" value={max.value} onChange={max.onChange} />),
+              step.render(<InputNumber size="small" value={step.value} onChange={step.onChange} min={0} />)
             ]
           : null}
-        {type === 'toggle' || type === 'select' || type === 'radio-button' ? (
-          <FormItem label="Options" validateStatus={optionErr ? 'error' : null} help={optionErr}>
-            <Input size="small" placeholder="comma separated" value={optionStr} onChange={this.onOptionStr} />
-          </FormItem>
-        ) : null}
-        {type === 'color' ? (
-          <FormItem label="Show Alpha">
-            <Switch size="small" checked={showAlpha} onChange={this.onShowAlpha} />
-          </FormItem>
-        ) : null}
-        {type === 'date' || type === 'date-range' ? (
-          <FormItem label="Show Time">
-            <Switch size="small" checked={showTime} onChange={this.onShowTime} />
-          </FormItem>
-        ) : null}
-        {type === 'string' || type === 'number' ? (
-          <FormItem label="Place Holder">
-            <Input value={placeholder} size="small" onChange={this.onPlaceHolder} />
-          </FormItem>
-        ) : null}
-        {type !== 'group' ? (
-          <FormItem label="Visible">
-            <RadioGroup size="small" buttonStyle="solid" value={visible} onChange={this.onVisible}>
-              <RadioButton key="high" value="high">
-                High
-              </RadioButton>
-              <RadioButton key="default" value={undefined}>
-                Default
-              </RadioButton>
-              <RadioButton key="low" value="low">
-                Low
-              </RadioButton>
-            </RadioGroup>
-          </FormItem>
-        ) : null}
+        {typeValue === 'toggle' || typeValue === 'select' || typeValue === 'radio-button'
+          ? optionStr.render(
+              <Input
+                size="small"
+                placeholder="comma separated"
+                value={optionStr.value}
+                onChange={optionStr.onInputChange}
+              />
+            )
+          : null}
+        {typeValue === 'color'
+          ? showAlpha.render(<Switch size="small" checked={showAlpha.value} onChange={showAlpha.onChange} />)
+          : null}
+        {typeValue === 'date' || typeValue === 'date-range'
+          ? showTime.render(<Switch size="small" checked={showTime.value} onChange={showTime.onChange} />)
+          : null}
+        {typeValue === 'string' || typeValue === 'number'
+          ? placeholder.render(<Input value={placeholder.value} size="small" onChange={placeholder.onInputChange} />)
+          : null}
+        {typeValue !== 'group'
+          ? visible.render(
+              <RadioGroup
+                size="small"
+                buttonStyle="solid"
+                value={visible.value}
+                onChange={visible.onInputChange as any}
+              >
+                <RadioButton key="high" value="high">
+                  High
+                </RadioButton>
+                <RadioButton key="default" value={undefined}>
+                  Default
+                </RadioButton>
+                <RadioButton key="low" value="low">
+                  Low
+                </RadioButton>
+              </RadioGroup>
+            )
+          : null}
         <Form.Item wrapperCol={{span: 15, offset: 9}}>
           <Button type="primary" htmlType="submit" onClick={this.onSubmit}>
             Add Property

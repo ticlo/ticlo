@@ -361,7 +361,7 @@ export class PropertyList extends MultiSelectComponent<Props, State, BlockLoader
             <Popup
               popupVisible={showAddMorePopup}
               onPopupVisibleChange={this.onAddMorePopup}
-              popup={<AddMorePropertyMenu onAddProperty={this.onAddMore} />}
+              popup={<AddMorePropertyMenu conn={conn} onAddProperty={this.onAddMore} />}
             >
               <Button className="ticl-icon-btn" shape="circle" tabIndex={-1} icon={<PlusSquareIcon />} />
             </Popup>

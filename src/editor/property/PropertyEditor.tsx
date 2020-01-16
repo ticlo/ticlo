@@ -491,7 +491,7 @@ export class PropertyEditor extends MultiSelectComponent<Props, State, PropertyL
           menuItems.push(
             <SubMenuItem
               key="addMoreProp"
-              popup={<AddMorePropertyMenu onAddProperty={this.onAddMoreGroupChild} group={group} />}
+              popup={<AddMorePropertyMenu conn={conn} onAddProperty={this.onAddMoreGroupChild} group={group} />}
             >
               Add Child Property
             </SubMenuItem>
