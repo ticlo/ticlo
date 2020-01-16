@@ -43,6 +43,8 @@ export interface ClientConn {
 
   createBlock(path: string, data?: DataMap, anyName?: boolean, callbacks?: ClientCallbacks): Promise<any> | string;
 
+  addJob(path: string, data?: DataMap, callbacks?: ClientCallbacks): Promise<any> | string;
+
   listChildren(path: string, filter?: string, max?: number, callbacks?: ClientCallbacks): Promise<any> | string;
 
   subscribe(path: string, callbacks: SubscribeCallbacks, fullValue?: boolean): void;
@@ -107,7 +109,6 @@ export interface ClientConn {
 
   cancel(id: string): void;
 }
-
 
 export class ValueSubscriber {
   conn: ClientConn;

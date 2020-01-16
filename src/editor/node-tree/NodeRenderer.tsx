@@ -6,7 +6,7 @@ import SaveIcon from '@ant-design/icons/SaveOutlined';
 import DeleteIcon from '@ant-design/icons/DeleteOutlined';
 import SearchIcon from '@ant-design/icons/SearchOutlined';
 import FileIcon from '@ant-design/icons/FileOutlined';
-import FileAddIcon from '@ant-design/icons/FileAddOutlined';
+import FileExclamationIcon from '@ant-design/icons/FileTextOutlined';
 import {ExpandIcon, ExpandState, TreeItem} from '../component/Tree';
 import {PureDataRenderer} from '../component/DataRenderer';
 import {
@@ -278,7 +278,7 @@ export class NodeTreeRenderer extends PureDataRenderer<Props, any> {
     let icon: React.ReactElement;
     if (isJob) {
       if (hasChange) {
-        icon = <FileAddIcon />;
+        icon = <FileExclamationIcon />;
       } else {
         icon = <FileIcon />;
       }
