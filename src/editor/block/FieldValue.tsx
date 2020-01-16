@@ -20,7 +20,7 @@ export class FieldValue extends LazyUpdateComponent<Props, any> {
   constructor(props: Props) {
     super(props);
     let {conn, path} = props;
-    this.valueSub.subscribe(conn, path, false);
+    this.valueSub.subscribe(conn, path);
   }
   getObjectMenu = () => {
     let {conn, path} = this.props;

@@ -8,6 +8,7 @@ interface Props {
   basePaths: string[];
   hideRoot?: boolean;
   onSelect?: (keys: string[]) => void;
+  showMenu?: boolean;
 }
 
 interface State {
@@ -32,18 +33,20 @@ export class NodeTreePane extends React.PureComponent<Props, State> {
   }
 
   render() {
-    let {conn, basePaths, hideRoot, onSelect} = this.props;
+    let {conn, basePaths, hideRoot, onSelect, showMenu} = this.props;
     let {selectedKeys} = this.state;
 
     return (
-      <NodeTree
-        conn={conn}
-        basePaths={basePaths}
-        hideRoot={hideRoot}
-        selectedKeys={selectedKeys || []}
-        onSelect={onSelect}
-        style={{width: '100%', height: '100%', padding: '8px'}}
-      />
+      <div className="ticl-node-tree-pane">
+        {showMenu ? <div className="tlcl-top-menu-box ticl-hbox">aaa</div> : null}
+        <NodeTree
+          conn={conn}
+          basePaths={basePaths}
+          hideRoot={hideRoot}
+          selectedKeys={selectedKeys || []}
+          onSelect={onSelect}
+        />
+      </div>
     );
   }
 }

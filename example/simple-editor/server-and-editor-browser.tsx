@@ -66,6 +66,7 @@ class App extends React.PureComponent<Props, State> implements TicloLayoutContex
   editJob(path: string, onSave: () => void) {
     this.layout.dockMove(this.createBlockEditorTab(path, onSave), this.layout.find('main'), 'middle');
   }
+
   editProperty(paths: string[], propDesc: PropDesc, defaultValue?: any, mime?: string, readonly?: boolean): void {
     let {conn} = this.props;
     if (!mime) {
@@ -117,18 +118,20 @@ class App extends React.PureComponent<Props, State> implements TicloLayoutContex
             size: 200,
             tabs: [
               {
+                id: 'Navigation',
+                title: 'Navigation',
+                cached: true,
+                cacheContext: TicloLayoutContextType,
+                content: (
+                  <NodeTreePane conn={conn} basePaths={['']} hideRoot={true} onSelect={this.onSelect} showMenu={true} />
+                )
+              },
+              {
                 id: 'Properties',
                 title: 'Properties',
                 cached: true,
                 cacheContext: TicloLayoutContextType,
                 content: <PropertyListPane conn={conn} />
-              },
-              {
-                id: 'Navigation',
-                title: 'Navigation',
-                cached: true,
-                cacheContext: TicloLayoutContextType,
-                content: <NodeTreePane conn={conn} basePaths={['']} hideRoot={true} onSelect={this.onSelect} />
               },
               {
                 id: 'Functions',
@@ -170,10 +173,14 @@ class App extends React.PureComponent<Props, State> implements TicloLayoutContex
 
 class JobLoader {
   onAddJob(root: Root, name: string, job: Job, data: DataMap = {}) {}
+
   onDeleteJob(root: Root, name: string, job: Job) {}
+
   saveJob(root: Root, name: string, job: Job, data?: DataMap) {}
+
   init(root: Root): void {}
 }
+
 (async () => {
   await initEditor();
   Root.instance.setLoader(new JobLoader());

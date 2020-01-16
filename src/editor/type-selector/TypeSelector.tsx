@@ -47,7 +47,7 @@ export class TypeSelect extends React.PureComponent<Props, State> {
     }
     return (
       <div className="ticl-type-select" onClick={onClick}>
-        <div className="tlcl-type-select-toggle ticl-hbox">
+        <div className="tlcl-top-menu-box ticl-hbox">
           <Radio.Group defaultValue="tree" size="small" onChange={this.onToggleChange}>
             <Tooltip title={'Tree'}>
               <Radio.Button value="tree">
