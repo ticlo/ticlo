@@ -12,7 +12,7 @@ import {Root, Block, BlockChildWatch, Job} from '../block/Block';
 import {PropDispatcher, PropListener} from '../block/Dispatcher';
 import {Type, Types, DescListener} from '../block/Type';
 import {FunctionDesc, PropDesc, PropGroupDesc} from '../block/Descriptor';
-import {propRelative} from '../util/Path';
+import {propRelative} from '../util/PropPath';
 import {
   insertGroupProperty,
   moveGroupProperty,

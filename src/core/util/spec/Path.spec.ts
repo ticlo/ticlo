@@ -1,8 +1,9 @@
 import {assert} from 'chai';
-import {getRelativePath, resolvePath, forAllPathsBetween, propRelative} from '../Path';
+import {getRelativePath, resolvePath, forAllPathsBetween} from '../Path';
 import {WorkerFunction} from '../../worker/WorkerFunction';
 import {Root} from '../../block/Block';
 import {DataMap} from '../DataTypes';
+import {propRelative} from '../PropPath';
 
 describe('Path', function() {
   it('resolve', function() {
