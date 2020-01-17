@@ -10,7 +10,7 @@ interface Props {
   conn: ClientConn;
   onClose: () => void;
   visible: boolean;
-  base?: string;
+  basePath?: string;
 }
 
 interface State {}
@@ -24,7 +24,7 @@ export class AddNewJob extends LazyUpdateComponent<Props, State> {
   };
 
   addJob = () => {
-    let {conn, onClose} = this.props;
+    let {conn, onClose, basePath} = this.props;
     let {name, data} = this.formItems;
     if (!name.value) {
       name.setError('Name is Empty');
@@ -41,7 +41,11 @@ export class AddNewJob extends LazyUpdateComponent<Props, State> {
       if (data.value) {
         dataData = JSON.parse(data.value);
       }
-      conn.addJob(name.value, dataData);
+      let path = name.value;
+      if (basePath) {
+        path = `${basePath}${path}`;
+      }
+      conn.addJob(path, dataData);
     } catch (e) {
       data.setError(String(e));
       name.setError(null);
@@ -59,12 +63,12 @@ export class AddNewJob extends LazyUpdateComponent<Props, State> {
   };
 
   renderImpl() {
-    let {visible, onClose, base} = this.props;
+    let {visible, onClose, basePath} = this.props;
     let {name, data} = this.formItems;
     return (
       <Modal title="Add New Job" visible={visible} onOk={this.addJob} onCancel={this.onClose}>
         <Form labelCol={{span: 3}} wrapperCol={{span: 21}}>
-          {name.render(<Input addonBefore={base} onChange={name.onInputChange} />)}
+          {name.render(<Input addonBefore={basePath} onChange={name.onInputChange} />)}
           {data.render(<TextArea onChange={data.onInputChange} />)}
         </Form>
       </Modal>

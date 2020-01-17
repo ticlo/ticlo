@@ -7,6 +7,7 @@ import DeleteIcon from '@ant-design/icons/DeleteOutlined';
 import SearchIcon from '@ant-design/icons/SearchOutlined';
 import FileIcon from '@ant-design/icons/FileOutlined';
 import FileExclamationIcon from '@ant-design/icons/FileTextOutlined';
+import GlobalIcon from '@ant-design/icons/GlobalOutlined';
 import {ExpandIcon, ExpandState, TreeItem} from '../component/Tree';
 import {PureDataRenderer} from '../component/DataRenderer';
 import {
@@ -16,10 +17,12 @@ import {
   FunctionDesc,
   getFuncStyleFromDesc,
   smartStrCompare,
-  ValueSubscriber
+  ValueSubscriber,
+  getOutputDesc
 } from '../../../src/core/editor';
 import {TIcon} from '../icon/Icon';
 import {TicloLayoutContext, TicloLayoutContextType} from '../component/LayoutContext';
+import {DragDropDiv, DragState} from 'rc-dock/lib';
 
 export class NodeTreeItem extends TreeItem<NodeTreeItem> {
   childPrefix: string;
@@ -199,6 +202,17 @@ export class NodeTreeRenderer extends PureDataRenderer<Props, any> {
     item.parent?.open();
   };
 
+  onDragStart = (e: DragState) => {
+    let {item} = this.props;
+    let {desc} = this.state;
+    let data: any = {path: item.key};
+    if (getOutputDesc(desc)) {
+      data = {...data, fields: [`${item.key}.output`]};
+    }
+    e.setData(data, item.getBaseConn());
+    e.startDrag();
+  };
+
   subscriptionListener = new ValueSubscriber({
     onUpdate: (response: ValueUpdate) => {
       let {item} = this.props;
@@ -282,6 +296,8 @@ export class NodeTreeRenderer extends PureDataRenderer<Props, any> {
       } else {
         icon = <FileIcon />;
       }
+    } else if (blockClass === 'GlobalBlock') {
+      icon = <GlobalIcon />;
     } else {
       icon = <TIcon icon={desc.icon} style={getFuncStyleFromDesc(desc, 'tico-pr')} />;
     }
@@ -289,10 +305,10 @@ export class NodeTreeRenderer extends PureDataRenderer<Props, any> {
       <div style={{...style, marginLeft}} className="ticl-tree-node">
         <ExpandIcon opened={item.opened} onClick={this.onExpandClicked} />
         <Dropdown overlay={this.getMenu} trigger={['contextMenu']}>
-          <div className={contentClassName} onClick={this.onClickContent}>
+          <DragDropDiv className={contentClassName} onClick={this.onClickContent} onDragStartT={this.onDragStart}>
             {icon}
             <div className="ticl-tree-node-text">{item.name}</div>
-          </div>
+          </DragDropDiv>
         </Dropdown>
       </div>
     );

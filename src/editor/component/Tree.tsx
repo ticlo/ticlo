@@ -44,6 +44,10 @@ export abstract class TreeItem<T extends TreeItem<any>> extends DataRendererItem
     return this.connection;
   }
 
+  getBaseConn(): ClientConn {
+    return this.connection?.getBaseConn();
+  }
+
   children: T[] = null;
 
   constructor(parent: T) {
