@@ -1,7 +1,8 @@
 import {LazyUpdateComponent} from '../../component/LazyUpdateComponent';
-import {Input, Modal} from 'antd';
-import React, {ChangeEvent} from 'react';
-import {ClientConn, decode} from '../../../../src/core/editor';
+import {Form, Input, Modal} from 'antd';
+import React from 'react';
+import {ClientConn, validateNodeName} from '../../../../src/core/editor';
+import {FormInputItem} from '../../component/FormItem';
 
 const {TextArea} = Input;
 
@@ -9,6 +10,7 @@ interface Props {
   conn: ClientConn;
   onClose: () => void;
   visible: boolean;
+  base?: string;
 }
 
 interface State {}
@@ -16,39 +18,55 @@ interface State {}
 export class AddNewJob extends LazyUpdateComponent<Props, State> {
   state: State = {visible: false};
 
-  jobPath: string;
-  setJobPath = (change: ChangeEvent<HTMLInputElement>) => {
-    this.jobPath = change.target.value;
-  };
-  jobData: string;
-  setJobData = (change: ChangeEvent<HTMLTextAreaElement>) => {
-    this.jobData = change.target.value;
+  formItems = {
+    name: new FormInputItem<string>(this, 'name', 'Name'),
+    data: new FormInputItem<string>(this, 'data', 'Data')
   };
 
   addJob = () => {
     let {conn, onClose} = this.props;
-    if (!this.jobPath) {
+    let {name, data} = this.formItems;
+    if (!name.value) {
+      name.setError('Name is Empty');
+      data.setError(null);
+      return;
+    }
+    if (!validateNodeName(name.value)) {
+      name.setError('Contains Invalid Character');
+      data.setError(null);
       return;
     }
     try {
-      let data: any = null;
-      if (this.jobData?.startsWith('{')) {
-        data = decode(this.jobData);
+      let dataData: any = null;
+      if (data.value) {
+        dataData = JSON.parse(data.value);
       }
-      this.props.conn.addJob(this.jobPath, data);
-    } catch (e) {}
+      conn.addJob(name.value, dataData);
+    } catch (e) {
+      data.setError(String(e));
+      name.setError(null);
+      return;
+    }
+    onClose();
+  };
 
+  onClose = () => {
+    let {onClose} = this.props;
+    let {name, data} = this.formItems;
+    name.setError(null);
+    data.setError(null);
     onClose();
   };
 
   renderImpl() {
-    let {visible, onClose} = this.props;
+    let {visible, onClose, base} = this.props;
+    let {name, data} = this.formItems;
     return (
-      <Modal title="Add New Job" visible={visible} onOk={this.addJob} onCancel={onClose}>
-        Path:
-        <Input onChange={this.setJobPath} />
-        Data:
-        <TextArea placeholder="Empty Job" onChange={this.setJobData} />
+      <Modal title="Add New Job" visible={visible} onOk={this.addJob} onCancel={this.onClose}>
+        <Form labelCol={{span: 3}} wrapperCol={{span: 21}}>
+          {name.render(<Input addonBefore={base} onChange={name.onInputChange} />)}
+          {data.render(<TextArea onChange={data.onInputChange} />)}
+        </Form>
       </Modal>
     );
   }
