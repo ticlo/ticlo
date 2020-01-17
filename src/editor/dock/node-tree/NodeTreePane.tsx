@@ -5,6 +5,7 @@ import {NodeTree} from '../..';
 import {Button, Input, Modal, Tooltip} from 'antd';
 import FileAddIcon from '@ant-design/icons/FileAddOutlined';
 import ReloadIcon from '@ant-design/icons/ReloadOutlined';
+import {AddNewJob} from './AddNewJob';
 const {TextArea} = Input;
 
 interface Props {
@@ -18,7 +19,6 @@ interface Props {
 interface State {
   jobModelVisible: boolean;
   selectedKeys: string[];
-  error?: string;
 }
 
 export class NodeTreePane extends React.PureComponent<Props, State> {
@@ -49,41 +49,16 @@ export class NodeTreePane extends React.PureComponent<Props, State> {
     this._nodeTree?.reload();
   };
 
-  jobPath: string;
-  setJobPath = (change: ChangeEvent<HTMLInputElement>) => {
-    this.jobPath = change.target.value;
-  };
-  jobData: string;
-  setJobData = (change: ChangeEvent<HTMLTextAreaElement>) => {
-    this.jobData = change.target.value;
-  };
-
-  addJob = () => {
-    if (!this.jobPath) {
-      return;
-    }
-    try {
-      let data: any = null;
-      if (this.jobData?.startsWith('{')) {
-        data = decode(this.jobData);
-      }
-      this.props.conn.addJob(this.jobPath, data);
-    } catch (e) {}
-
-    this.hideNewJobModel();
-  };
   showNewJobModel = () => {
     this.setState({jobModelVisible: true});
   };
   hideNewJobModel = () => {
     this.setState({jobModelVisible: false});
-    this.jobData = null;
-    this.jobPath = null;
   };
 
   render() {
     let {conn, basePaths, hideRoot, onSelect, showMenu} = this.props;
-    let {selectedKeys, jobModelVisible, error} = this.state;
+    let {selectedKeys, jobModelVisible} = this.state;
 
     return (
       <div className="ticl-node-tree-pane">
@@ -95,12 +70,7 @@ export class NodeTreePane extends React.PureComponent<Props, State> {
             <Tooltip title="New Job">
               <Button size="small" icon={<FileAddIcon />} onClick={this.showNewJobModel} />
             </Tooltip>
-            <Modal title="New Job" visible={jobModelVisible} onOk={this.addJob} onCancel={this.hideNewJobModel}>
-              Path:
-              <Input onChange={this.setJobPath} />
-              Data:
-              <TextArea placeholder="Empty Job" onChange={this.setJobData} />
-            </Modal>
+            <AddNewJob conn={conn} onClose={this.hideNewJobModel} visible={jobModelVisible} />
           </div>
         ) : null}
         <NodeTree
