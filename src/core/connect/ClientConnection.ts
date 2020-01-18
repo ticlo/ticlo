@@ -59,7 +59,7 @@ export abstract class ClientConnection extends Connection implements ClientConn 
     return this;
   }
 
-  _childrenChangeStream = new StreamDispatcher<string>();
+  _childrenChangeStream = new StreamDispatcher<{path: string; showNode?: boolean}>();
   childrenChangeStream() {
     return this._childrenChangeStream;
   }
@@ -209,13 +209,13 @@ export abstract class ClientConnection extends Connection implements ClientConn 
 
   createBlock(path: string, data?: DataMap, anyName = false, callbacks?: ClientCallbacks): Promise<any> | string {
     let result = this.simpleRequest({cmd: 'create', path, data, anyName}, callbacks);
-    this._childrenChangeStream.dispatch(path.substring(0, path.lastIndexOf('.')));
+    this._childrenChangeStream.dispatch({path: path.substring(0, path.lastIndexOf('.'))});
     return result;
   }
 
   addJob(path: string, data?: DataMap, callbacks?: ClientCallbacks): Promise<any> | string {
     let result = this.simpleRequest({cmd: 'addJob', path, data}, callbacks);
-    this._childrenChangeStream.dispatch(path.substring(0, path.lastIndexOf('.')));
+    this._childrenChangeStream.dispatch({path: path.substring(0, path.lastIndexOf('.')), showNode: true});
     return result;
   }
 

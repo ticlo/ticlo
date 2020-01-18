@@ -11,7 +11,7 @@ import {StreamDispatcher} from '../block/Dispatcher';
 export interface ClientConn {
   getBaseConn(): ClientConn;
 
-  childrenChangeStream(): StreamDispatcher<string>;
+  childrenChangeStream(): StreamDispatcher<{path: string; showNode?: boolean}>;
 
   callImmediate(f: () => void): void;
 

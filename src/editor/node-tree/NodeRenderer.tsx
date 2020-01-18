@@ -81,8 +81,8 @@ export class NodeTreeItem extends TreeItem<NodeTreeItem> {
     }
   }
 
-  onChildrenChange(parentPath: string, isHidden = false) {
-    isHidden = isHidden || this.opened === 'closed';
+  onChildrenChange(parentPath: string, isHidden = false, autoOpen = false) {
+    isHidden = isHidden || (this.opened === 'closed' && !autoOpen);
     if (parentPath === this.key) {
       if (isHidden) {
         this.children = null;
@@ -91,7 +91,7 @@ export class NodeTreeItem extends TreeItem<NodeTreeItem> {
       }
     } else if (this.children && parentPath.startsWith(this.key)) {
       for (let child of this.children) {
-        child.onChildrenChange(parentPath, isHidden);
+        child.onChildrenChange(parentPath, isHidden, autoOpen);
       }
     }
   }

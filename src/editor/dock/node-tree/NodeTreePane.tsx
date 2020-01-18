@@ -53,26 +53,29 @@ export class NodeTreePane extends React.PureComponent<Props, State> {
   };
 
   onAddNewJobClick = (param: ClickParam) => {
-    console.log(param);
     let path = param.item.props.defaultValue;
     this.setState({jobBasePath: `${path}.`, jobModelVisible: true});
   };
 
   getMenu = (item: NodeTreeItem) => {
-    let seekParent = item;
-    while (seekParent?.isJob) {
-      seekParent = seekParent.parent;
+    let {showMenu} = this.props;
+    let menuItems: React.ReactElement[] = [];
+    if (showMenu) {
+      let seekParent = item;
+      while (seekParent?.isJob) {
+        seekParent = seekParent.parent;
+      }
+      // find the root node, so every level of parents is Job
+      if (seekParent.id === '') {
+        menuItems.push(
+          <Menu.Item key="addJob" defaultValue={item.key} onClick={this.onAddNewJobClick}>
+            <FileAddIcon />
+            Add Child Job
+          </Menu.Item>
+        );
+      }
     }
-    // find the root node, so every level of parents is Job
-    if (seekParent.id === '') {
-      return [
-        <Menu.Item key="addJob" defaultValue={item.key} onClick={this.onAddNewJobClick}>
-          <FileAddIcon />
-          Add Child Job
-        </Menu.Item>
-      ];
-    }
-    return [];
+    return menuItems;
   };
 
   showNewJobModel = () => {

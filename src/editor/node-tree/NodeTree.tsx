@@ -88,9 +88,9 @@ export class NodeTree extends LazyUpdateComponent<Props, any> {
     );
   };
 
-  onChildrenChange = (parentPath: string) => {
+  onChildrenChange = ({path, showNode}: {path: string; showNode?: boolean}) => {
     for (let node of this.rootList) {
-      node.onChildrenChange(parentPath);
+      node.onChildrenChange(path, false, showNode);
     }
   };
 
