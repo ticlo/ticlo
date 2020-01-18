@@ -6,7 +6,7 @@ import {data} from '../sample-data/data';
 import {initEditor, PropertyList, BlockStage, NodeTree} from '../../src/editor';
 import {DragDropDiv, DragState, DockLayout, DockContextType} from 'rc-dock';
 import {ClientConnection} from '../../src/core/connect/ClientConnection';
-import {Types} from '../../src/core/block/Type';
+import {Functions} from '../../src/core/block/Functions';
 import {TypeTree} from '../../src/editor/type-selector/TypeTree';
 
 import './sample-blocks';

@@ -1,7 +1,7 @@
 import {BlockFunction} from '../../block/BlockFunction';
 import {Event} from '../../block/Event';
 import {HttpRequest} from './HttpRequest';
-import {Types} from '../../block/Type';
+import {Functions} from '../../block/Functions';
 import {HandlerFunction} from '../../worker/HandlerFunction';
 
 export class StaticResponse extends BlockFunction {
@@ -24,7 +24,7 @@ export class StaticResponse extends BlockFunction {
   }
 }
 
-Types.add(
+Functions.add(
   StaticResponse,
   {
     name: 'static-response',

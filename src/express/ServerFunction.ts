@@ -1,5 +1,5 @@
 import {RouteContentType, RouteFunction, RouteMethod, RouteService} from '../core/functions/http/RouteFunction';
-import {Types} from '../../src/core/block/Type';
+import {Functions} from '../../src/core/block/Functions';
 import {BlockFunction} from '../../src/core/block/BlockFunction';
 import {Request, Response, RequestHandler} from 'express';
 import BodyParser from 'body-parser';
@@ -146,7 +146,7 @@ export class ServerFunction extends BlockFunction {
   }
 }
 
-Types.add(
+Functions.add(
   ServerFunction,
   {
     name: 'express-server',

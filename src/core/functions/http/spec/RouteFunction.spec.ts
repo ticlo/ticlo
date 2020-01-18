@@ -5,7 +5,7 @@ import {RouteFunction} from '../RouteFunction';
 import '../../../worker/HandlerFunction';
 import {Block, Job, Root} from '../../../block/Block';
 import {getDefaultFuncData} from '../../../block/Descriptor';
-import {Types} from '../../../block/Type';
+import {Functions} from '../../../block/Functions';
 import {HttpRequest} from '../HttpRequest';
 import {WorkerEditor} from '../../../worker/WorkerEditor';
 
@@ -55,7 +55,7 @@ describe('RouteFunction', function() {
     let job = new Job();
 
     let aBlock = job.createBlock('a');
-    aBlock._load(getDefaultFuncData(Types.getDesc('http:route')[0]));
+    aBlock._load(getDefaultFuncData(Functions.getDesc('http:route')[0]));
 
     assert.deepEqual(aBlock.getValue('method'), ['GET']);
     assert.deepEqual(aBlock.getValue('contentType'), ['empty']);

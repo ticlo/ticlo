@@ -3,7 +3,7 @@ import {Job, Root} from '../../block/Block';
 import {WorkerEditor} from '../WorkerEditor';
 import {VoidListeners} from '../../block/spec/TestFunction';
 import {WorkerFunction} from '../WorkerFunction';
-import {Types} from '../../block/Type';
+import {Functions} from '../../block/Functions';
 import {PropDesc, PropGroupDesc} from '../../block/Descriptor';
 import {DataMap} from '../../util/DataTypes';
 
@@ -46,7 +46,7 @@ describe('WorkerEditor', function() {
     WorkerEditor.createFromField(block, '#edit-use2', 'use2');
     assert.deepEqual(block.getValue('#edit-use2').save(), data);
 
-    Types.clear('WorkerEditor:func1');
+    Functions.clear('WorkerEditor:func1');
   });
 
   it('createFromFunction', function() {
@@ -63,7 +63,7 @@ describe('WorkerEditor', function() {
     WorkerEditor.createFromFunction(job, '#edit-func', 'WorkerEditor:worker2');
     assert.deepEqual(job.getValue('#edit-func').save(), data);
 
-    Types.clear('WorkerEditor:worker2');
+    Functions.clear('WorkerEditor:worker2');
   });
 
   it('applyChange', function() {
@@ -132,12 +132,12 @@ describe('WorkerEditor', function() {
 
     editor.applyChange();
 
-    assert.deepEqual(Types.getWorkerData('WorkerEditor:worker3'), expectedData);
+    assert.deepEqual(Functions.getWorkerData('WorkerEditor:worker3'), expectedData);
 
-    let desc = Types.getDesc('WorkerEditor:worker3')[0];
+    let desc = Functions.getDesc('WorkerEditor:worker3')[0];
     assert.equal(desc.icon, 'fas:plus');
     assert.deepEqual(desc.properties, expectedDescProperties);
 
-    Types.clear('WorkerEditor:worker3');
+    Functions.clear('WorkerEditor:worker3');
   });
 });

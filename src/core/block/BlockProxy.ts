@@ -1,6 +1,4 @@
 import {Block} from './Block';
-import {BlockConstConfig} from './BlockConfigs';
-import {BlockIO} from './BlockProperty';
 
 const defaultPropertyDescriptor = {
   writable: true,

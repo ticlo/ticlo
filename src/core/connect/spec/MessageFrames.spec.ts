@@ -6,7 +6,7 @@ import {VoidListeners, TestFunctionRunner} from '../../block/spec/TestFunction';
 import {FunctionDesc} from '../../block/Descriptor';
 import {shouldHappen} from '../../util/test-util';
 import {JsFunction} from '../../functions/script/Js';
-import {Types} from '../../block/Type';
+import {Functions} from '../../block/Functions';
 import {DataMap} from '../../util/DataTypes';
 import {BaseFunction} from '../../block/BlockFunction';
 import {addTestTypes, removeTestTypes} from './BulkTypes';
@@ -31,6 +31,6 @@ describe('Connection Message Frames', function() {
     removeTestTypes('a', 4000);
     removeTestTypes('b', 4000);
 
-    assert.isTrue(Types.getAllTypeIds().length < 4000, 'removeTestType should clear up the map');
+    assert.isTrue(Functions.getAllFunctionIds().length < 4000, 'removeTestType should clear up the map');
   });
 });

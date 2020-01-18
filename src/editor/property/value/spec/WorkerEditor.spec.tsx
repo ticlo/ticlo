@@ -9,7 +9,7 @@ import {blankPropDesc, PropDesc} from '../../../../../src/core/editor';
 import {makeLocalConnection} from '../../../../core/connect/LocalConnection';
 import {Root} from '../../../../../src/core';
 import {WorkerFunction} from '../../../../core/worker/WorkerFunction';
-import {Types} from '../../../../core/block/Type';
+import {Functions} from '../../../../core/block/Functions';
 
 describe('WorkerEditor', function() {
   beforeEach(async function() {
@@ -55,6 +55,6 @@ describe('WorkerEditor', function() {
 
     client.destroy();
 
-    Types.clear('WorkerEditor:class1');
+    Functions.clear('WorkerEditor:class1');
   });
 });

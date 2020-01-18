@@ -1,4 +1,4 @@
-import {Types} from '../block/Type';
+import {Functions} from '../block/Functions';
 import {BlockFunction, FunctionData, FunctionOutput} from '../block/BlockFunction';
 import {FunctionDesc} from '../block/Descriptor';
 import {BlockIO, BlockProperty} from '../block/BlockProperty';
@@ -259,7 +259,7 @@ export class MapFunction extends MapImpl {
   }
 }
 
-Types.add(MapFunction, {
+Functions.add(MapFunction, {
   name: 'map',
   icon: 'fas:grip-vertical',
   priority: 3,

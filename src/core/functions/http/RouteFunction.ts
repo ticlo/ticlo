@@ -1,7 +1,7 @@
 import {BlockFunction} from '../../block/BlockFunction';
 import {Task} from '../../block/Task';
 import {NO_EMIT} from '../../block/Event';
-import {Types} from '../../block/Type';
+import {Functions} from '../../block/Functions';
 import {HttpRequest} from './HttpRequest';
 import {deepEqual} from '../../util/Compare';
 import {DataMap} from '../../util/DataTypes';
@@ -141,7 +141,7 @@ export class RouteFunction extends BlockFunction {
   }
 }
 
-Types.add(
+Functions.add(
   RouteFunction,
   {
     name: 'route',

@@ -1,7 +1,7 @@
 import {MapImpl, WorkerOutput} from './MapImpl';
 import {convertToOutput, DataMap} from '../util/DataTypes';
 import {BlockMode, Job} from '../block/Block';
-import {Types} from '../block/Type';
+import {Functions} from '../block/Functions';
 import {Event, ErrorEvent, EventType, WAIT, NO_EMIT} from '../block/Event';
 import Denque from 'denque';
 import {BlockIO} from '../block/BlockProperty';
@@ -241,7 +241,7 @@ export class HandlerFunction extends MapImpl {
   }
 }
 
-Types.add(HandlerFunction, {
+Functions.add(HandlerFunction, {
   name: 'handler',
   icon: 'fas:grip-lines-vertical',
   priority: 3,

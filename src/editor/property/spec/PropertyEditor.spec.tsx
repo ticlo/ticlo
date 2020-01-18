@@ -10,10 +10,10 @@ import {shouldHappen, shouldReject} from '../../../core/util/test-util';
 import {removeLastTemplate, loadTemplate, querySingle} from '../../util/test-util';
 import {initEditor} from '../../index';
 import {FunctionDesc, PropDesc, PropGroupDesc} from '../../../../src/core/editor';
-import {Types} from '../../../../src/core/block/Type';
+import {Functions} from '../../../../src/core/block/Functions';
 
 describe('PropertyEditor', function() {
-  let [funcDesc] = Types.getDesc('add');
+  let [funcDesc] = Functions.getDesc('add');
   let propDesc = (funcDesc.properties[0] as PropGroupDesc).properties[0];
 
   beforeEach(async function() {

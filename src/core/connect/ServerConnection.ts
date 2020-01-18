@@ -10,7 +10,7 @@ import {
 import {DataMap, isPrimitiveType, isSavedBlock, measureObjSize, truncateData} from '../util/DataTypes';
 import {Root, Block, BlockChildWatch, Job} from '../block/Block';
 import {PropDispatcher, PropListener} from '../block/Dispatcher';
-import {Type, Types, DescListener} from '../block/Type';
+import {FunctionDispatcher, Functions, DescListener} from '../block/Functions';
 import {FunctionDesc, PropDesc, PropGroupDesc} from '../block/Descriptor';
 import {propRelative} from '../util/PropPath';
 import {
@@ -227,8 +227,8 @@ class ServerDescWatcher extends ServerRequest implements DescListener {
     super();
     this.id = id;
     this.connection = conn;
-    this.pendingIds = new Set(Types.getAllTypeIds());
-    Types.listenDesc(this);
+    this.pendingIds = new Set(Functions.getAllFunctionIds());
+    Functions.listenDesc(this);
     this.connection.addSend(this);
   }
 
@@ -241,7 +241,7 @@ class ServerDescWatcher extends ServerRequest implements DescListener {
     let changes = [];
     let totalSize = 0;
     for (let id of this.pendingIds) {
-      let [desc, size] = Types.getDesc(id);
+      let [desc, size] = Functions.getDesc(id);
       if (desc) {
         changes.push(desc);
         totalSize += size;
@@ -261,7 +261,7 @@ class ServerDescWatcher extends ServerRequest implements DescListener {
   }
 
   close() {
-    Types.unlistenDesc(this);
+    Functions.unlistenDesc(this);
   }
 }
 
@@ -543,7 +543,7 @@ export class ServerConnection extends Connection {
       }
       if (data && data.hasOwnProperty('#is')) {
         (property._value as Block)._load(data);
-        let desc = Types.getDesc(data['#is'])[0];
+        let desc = Functions.getDesc(data['#is'])[0];
         if (desc && desc.recipient && !data.hasOwnProperty(desc.recipient)) {
           // transfer parent property to the recipient
           if (keepSaved !== undefined) {

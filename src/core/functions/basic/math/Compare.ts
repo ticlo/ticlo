@@ -1,4 +1,4 @@
-import {Types} from '../../../block/Type';
+import {Functions} from '../../../block/Functions';
 import {BaseFunction, FunctionData} from '../../../block/BlockFunction';
 import {FunctionDesc} from '../../../block/Descriptor';
 
@@ -22,7 +22,7 @@ export class EqualFunction extends BaseFunction {
   }
 }
 
-Types.add(EqualFunction, {
+Functions.add(EqualFunction, {
   ...descriptor,
   name: 'equal',
   icon: 'fas:equals',
@@ -42,7 +42,7 @@ export class NotEqualFunction extends BaseFunction {
   }
 }
 
-Types.add(NotEqualFunction, {
+Functions.add(NotEqualFunction, {
   ...descriptor,
   name: 'not-equal',
   icon: 'fas:not-equal',
@@ -60,7 +60,7 @@ export class NotFunction extends BaseFunction {
   }
 }
 
-Types.add(NotFunction, {
+Functions.add(NotFunction, {
   ...descriptor,
   name: 'not',
   icon: 'txt:!',
@@ -82,7 +82,7 @@ export class GreaterThanFunction extends BaseFunction {
   }
 }
 
-Types.add(GreaterThanFunction, {
+Functions.add(GreaterThanFunction, {
   ...descriptor,
   name: 'greater-than',
   icon: 'fas:greater-than'
@@ -100,7 +100,7 @@ export class LessThanFunction extends BaseFunction {
   }
 }
 
-Types.add(LessThanFunction, {
+Functions.add(LessThanFunction, {
   ...descriptor,
   name: 'less-than',
   icon: 'fas:less-than'
@@ -118,7 +118,7 @@ export class GreaterEqualFunction extends BaseFunction {
   }
 }
 
-Types.add(GreaterEqualFunction, {
+Functions.add(GreaterEqualFunction, {
   ...descriptor,
   name: 'greater-equal',
   icon: 'fas:greater-than-equal'
@@ -136,7 +136,7 @@ export class LessEqualFunction extends BaseFunction {
   }
 }
 
-Types.add(LessEqualFunction, {
+Functions.add(LessEqualFunction, {
   ...descriptor,
   name: 'less-equal',
   icon: 'fas:less-than-equal'

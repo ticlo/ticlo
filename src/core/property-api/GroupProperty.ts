@@ -1,7 +1,7 @@
 import {Block} from '../block/Block';
 import {BlockProperty, HelperProperty} from '../block/BlockProperty';
 import {PropDesc, PropGroupDesc, shouldShowProperty} from '../block/Descriptor';
-import {Types} from '../block/Type';
+import {Functions} from '../block/Functions';
 import {buildPropertiesOrder, hideProperties, showProperties} from './PropertyShowHide';
 import {PropertyMover} from './PropertyMover';
 
@@ -17,7 +17,7 @@ function findGroupDesc(block: Block, group: string): PropGroupDesc {
     return null;
   }
 
-  let [desc, size] = Types.getDesc(block.getValue('#is'));
+  let [desc, size] = Functions.getDesc(block.getValue('#is'));
   if (desc) {
     groupDesc = findGroup(desc.properties);
   }

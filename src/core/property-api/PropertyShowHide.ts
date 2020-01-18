@@ -1,6 +1,6 @@
 import {Block} from '../block/Block';
 import {configDescs, PropDesc, PropGroupDesc, shouldShowProperty} from '../block/Descriptor';
-import {Types} from '../block/Type';
+import {Functions} from '../block/Functions';
 import {HelperProperty} from '../block/BlockProperty';
 import {getPreNumber} from '../util/String';
 
@@ -29,7 +29,7 @@ export function buildPropertiesOrder(block: Block): string[] {
     }
   }
 
-  let [desc, size] = Types.getDesc(block.getValue('#is'));
+  let [desc, size] = Functions.getDesc(block.getValue('#is'));
   if (desc) {
     addProps(desc.properties);
   }

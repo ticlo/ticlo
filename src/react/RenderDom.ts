@@ -1,6 +1,6 @@
 import ReactDOM from 'react-dom';
 import {BaseFunction} from '../../src/core/block/BlockFunction';
-import {Types} from '../../src/core/block/Type';
+import {Functions} from '../../src/core/block/Functions';
 
 export class RenderDomFunction extends BaseFunction {
   _container: Element;
@@ -30,7 +30,7 @@ export class RenderDomFunction extends BaseFunction {
   }
 }
 
-Types.add(
+Functions.add(
   RenderDomFunction,
   {
     name: 'render-dom',

@@ -1,5 +1,5 @@
 import {BaseFunction} from '../../block/BlockFunction';
-import {Types} from '../../block/Type';
+import {Functions} from '../../block/Functions';
 
 class TestFunction extends BaseFunction {}
 
@@ -21,12 +21,12 @@ let testDesc = {
 
 export function addTestTypes(prefix: string, count: number) {
   for (let i = 0; i < count; ++i) {
-    Types.add(TestFunction, {...testDesc, name: `${prefix}${i}`} as any);
+    Functions.add(TestFunction, {...testDesc, name: `${prefix}${i}`} as any);
   }
 }
 
 export function removeTestTypes(prefix: string, count: number) {
   for (let i = 0; i < count; ++i) {
-    Types.clear(`${prefix}${i}`);
+    Functions.clear(`${prefix}${i}`);
   }
 }

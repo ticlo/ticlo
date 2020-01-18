@@ -1,5 +1,3 @@
-import {Event, ErrorEvent, EventType} from './Event';
-
 export interface PropListener<T = any> {
   onSourceChange?(prop: PropDispatcher<T>): void;
 

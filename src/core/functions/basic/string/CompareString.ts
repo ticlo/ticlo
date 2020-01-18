@@ -1,5 +1,5 @@
 import {BaseFunction} from '../../../block/BlockFunction';
-import {Types} from '../../../block/Type';
+import {Functions} from '../../../block/Functions';
 import {FunctionDesc} from '../../../block/Descriptor';
 
 const descriptor: FunctionDesc = {
@@ -32,7 +32,7 @@ export class StartWithFunction extends BaseFunction {
   }
 }
 
-Types.add(StartWithFunction, {
+Functions.add(StartWithFunction, {
   ...descriptor,
   name: 'start-with',
   icon: 'txt:a~'
@@ -56,7 +56,7 @@ export class EndWithFunction extends BaseFunction {
   }
 }
 
-Types.add(EndWithFunction, {
+Functions.add(EndWithFunction, {
   ...descriptor,
   name: 'end-with',
   icon: 'txt:~a'
@@ -77,7 +77,7 @@ export class ContainFunction extends BaseFunction {
   }
 }
 
-Types.add(ContainFunction, {
+Functions.add(ContainFunction, {
   ...descriptor,
   name: 'contain',
   icon: 'txt:.a.'

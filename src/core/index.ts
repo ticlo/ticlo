@@ -3,7 +3,7 @@ import exp from 'constants';
 export {Block, Root, Job, BlockMode} from './block/Block';
 export {BlockProperty, BlockIO} from './block/BlockProperty';
 export {BaseFunction} from './block/BlockFunction';
-export {Types} from './block/Type';
+export {Functions} from './block/Functions';
 export * from './block/Event';
 export * from './block/Descriptor';
 export {ServerConnection} from './connect/ServerConnection';

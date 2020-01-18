@@ -3,7 +3,7 @@ import {ListenPromise} from './ListenPromise';
 import {BlockBinding} from './BlockBinding';
 import {FunctionData, FunctionClass, BaseFunction, FunctionOutput} from './BlockFunction';
 import {PropDispatcher, PropListener, Destroyable} from './Dispatcher';
-import {Type, Types} from './Type';
+import {FunctionDispatcher, Functions} from './Functions';
 import {CompleteEvent, ErrorEvent, Event, EventType, NO_EMIT, WAIT} from './Event';
 import {DataMap} from '../util/DataTypes';
 import {Uid} from '../util/Uid';
@@ -86,8 +86,8 @@ export class Block implements Runnable, FunctionData, PropListener<FunctionClass
   _bindings: Map<string, BlockBinding> = new Map();
   _function: BaseFunction;
   _funcPromise: PromiseWrapper;
-  _typeName: string;
-  _type: Type;
+  _funcId: string;
+  _funcSrc: FunctionDispatcher;
 
   // whether the block has a function running async job
   _waiting: boolean = false;
@@ -626,16 +626,16 @@ export class Block implements Runnable, FunctionData, PropListener<FunctionClass
     this._sync = !!sync;
   }
 
-  _typeChanged(typeName: any) {
-    if (typeName === this._typeName) return;
-    this._typeName = typeName;
-    if (this._type) {
-      this._type.unlisten(this);
+  _typeChanged(funcId: any) {
+    if (funcId === this._funcId) return;
+    this._funcId = funcId;
+    if (this._funcSrc) {
+      this._funcSrc.unlisten(this);
     }
-    if (typeName && typeof typeName === 'string') {
-      this._type = Types.listen(typeName, this);
+    if (funcId && typeof funcId === 'string') {
+      this._funcSrc = Functions.listen(funcId, this);
     } else {
-      this._type = null;
+      this._funcSrc = null;
       this.onChange(null);
     }
   }
@@ -778,15 +778,15 @@ export class Block implements Runnable, FunctionData, PropListener<FunctionClass
       return;
     }
     this._destroyed = true;
-    if (this._type) {
+    if (this._funcSrc) {
       if (this._function) {
         this._function.destroy();
         this._function = null;
         this._funcPromise = undefined;
         this._called = false;
       }
-      this._type.unlisten(this);
-      this._type = null;
+      this._funcSrc.unlisten(this);
+      this._funcSrc = null;
     }
 
     // properties are destroyed but not removed
@@ -911,9 +911,9 @@ export class Job extends Block {
     let loaded = false;
     if (typeof src === 'string') {
       // load from worker class
-      let desc: FunctionDesc = Types.getDesc(src)[0];
+      let desc: FunctionDesc = Functions.getDesc(src)[0];
       if (desc) {
-        let data = Types.getWorkerData(src);
+        let data = Functions.getWorkerData(src);
         if (data) {
           this._namespace = desc.ns;
           this._loadFrom = src;

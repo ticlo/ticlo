@@ -9,7 +9,7 @@ import {Logger} from '../../../core/util/Logger';
 import {addTestTypes, removeTestTypes} from '../../../core/connect/spec/BulkTypes';
 import {makeLocalConnection} from '../../../core/connect/LocalConnection';
 import {FunctionDesc} from '../../../core/block/Descriptor';
-import {Types} from '../../../core/block/Type';
+import {Functions} from '../../../core/block/Functions';
 
 const PORT = 8082;
 

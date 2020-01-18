@@ -1,6 +1,5 @@
 import {BlockIO, BlockProperty} from './BlockProperty';
 import {Block, InputBlock, OutputBlock} from './Block';
-import {BaseFunction, FunctionData} from './BlockFunction';
 
 class BlockTypeConfig extends BlockProperty {
   constructor(block: Block, name: string) {

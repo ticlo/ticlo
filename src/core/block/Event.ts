@@ -1,4 +1,3 @@
-import {Resolver} from './Resolver';
 import {Uid} from '../util/Uid';
 
 export enum EventType {

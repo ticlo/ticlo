@@ -1,4 +1,4 @@
-import {Types} from '../../block/Type';
+import {Functions} from '../../block/Functions';
 import {BlockFunction, FunctionData} from '../../block/BlockFunction';
 import {BlockIO, BlockProperty} from '../../block/BlockProperty';
 import {ErrorEvent, WAIT} from '../../block/Event';
@@ -96,7 +96,7 @@ export class JsFunction extends BlockFunction {
       }
       desc.src = 'js';
 
-      Types.add(CustomScriptFunction, desc, namespace);
+      Functions.add(CustomScriptFunction, desc, namespace);
       return true;
     } catch (err) {
       Logger.error(`invalid script:\n${script}`);
@@ -105,7 +105,7 @@ export class JsFunction extends BlockFunction {
   }
 }
 
-Types.add(JsFunction, {
+Functions.add(JsFunction, {
   name: 'js',
   icon: 'txt:js',
   priority: 1,

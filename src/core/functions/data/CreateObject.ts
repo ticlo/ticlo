@@ -1,5 +1,5 @@
 import {BaseFunction} from '../../block/BlockFunction';
-import {Types} from '../../block/Type';
+import {Functions} from '../../block/Functions';
 import {PropDesc, PropGroupDesc} from '../../block/Descriptor';
 
 export class CreateObjectFunction extends BaseFunction {
@@ -35,7 +35,7 @@ export class CreateObjectFunction extends BaseFunction {
   }
 }
 
-Types.add(CreateObjectFunction, {
+Functions.add(CreateObjectFunction, {
   name: 'create-object',
   icon: 'txt:{ }',
   properties: [

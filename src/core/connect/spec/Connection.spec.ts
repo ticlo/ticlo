@@ -7,7 +7,7 @@ import {VoidListeners, TestFunctionRunner} from '../../block/spec/TestFunction';
 import {FunctionDesc} from '../../block/Descriptor';
 import {shouldHappen} from '../../util/test-util';
 import {JsFunction} from '../../functions/script/Js';
-import {Types} from '../../block/Type';
+import {Functions} from '../../block/Functions';
 import {DataMap, isDataTruncated} from '../../util/DataTypes';
 import {WorkerFunction} from '../../worker/WorkerFunction';
 import {WorkerEditor} from '../../worker/WorkerEditor';
@@ -268,7 +268,7 @@ describe('Connection', function() {
       name: 'Connection-watchDesc1'
     });
     await shouldHappen(() => descCustom != null);
-    Types.clear('Connection-watchDesc1');
+    Functions.clear('Connection-watchDesc1');
     await shouldHappen(() => descCustom == null);
 
     client.destroy();
@@ -710,7 +710,7 @@ describe('Connection', function() {
     await client.editWorker('Connection18.a.#edit-func1', null, 'JobEditor:func1');
     assert.deepEqual(block1.getValue('#edit-func1').save(), data);
 
-    Types.clear('JobEditor:func1');
+    Functions.clear('JobEditor:func1');
     client.destroy();
     Root.instance.deleteValue('Connection18');
   });

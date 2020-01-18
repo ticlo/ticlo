@@ -9,7 +9,7 @@ export interface DescListener {
   onDescChange(id: string, desc: FunctionDesc): void;
 }
 
-export class Type extends PropDispatcher<FunctionClass> {
+export class FunctionDispatcher extends PropDispatcher<FunctionClass> {
   _id: string;
   _desc: FunctionDesc;
   _descSize: number = 0;
@@ -29,9 +29,9 @@ export class Type extends PropDispatcher<FunctionClass> {
   }
 }
 
-const _types: {[key: string]: Type} = {};
+const _functions: {[key: string]: FunctionDispatcher} = {};
 
-export class Types {
+export class Functions {
   static add(cls: FunctionClass, desc: FunctionDesc, namespace?: string) {
     if (!BlockModeList.includes(desc.mode)) {
       desc.mode = 'onLoad';
@@ -48,76 +48,76 @@ export class Types {
 
     let id = namespace ? `${namespace}:${desc.name}` : desc.name;
     desc.id = id;
-    let type = _types[id];
+    let type = _functions[id];
     if (!type) {
-      type = new Type(id);
-      _types[id] = type;
+      type = new FunctionDispatcher(id);
+      _functions[id] = type;
     }
     cls.prototype.type = id;
     type.updateValue(cls);
     type.setDesc(desc);
-    Types.dispatchDescChange(id, desc);
+    Functions.dispatchDescChange(id, desc);
   }
 
   static clear(id: string) {
-    let type = _types[id];
+    let type = _functions[id];
 
     if (type) {
       if (type._listeners.size === 0) {
-        delete _types[id];
+        delete _functions[id];
       } else {
         type.updateValue(null);
         type.setDesc(null);
       }
-      Types.dispatchDescChange(id, null);
+      Functions.dispatchDescChange(id, null);
     }
   }
 
   static getWorkerData(id: string): DataMap {
-    let type = _types[id];
+    let type = _functions[id];
     if (type && type._value && (type._value as any).ticlWorkerData instanceof Object) {
       return (type._value as any).ticlWorkerData;
     }
     return null;
   }
 
-  static listen(id: string, block: Block): Type {
+  static listen(id: string, block: Block): FunctionDispatcher {
     if (!id) {
       return;
     }
     if (id.startsWith(':') && block._job._namespace) {
       id = block._job._namespace + id;
     }
-    let type = _types[id];
+    let dispatcher = _functions[id];
 
-    if (!type) {
-      type = new Type(id);
-      _types[id] = type;
+    if (!dispatcher) {
+      dispatcher = new FunctionDispatcher(id);
+      _functions[id] = dispatcher;
     }
-    type.listen(block);
-    return type;
+    dispatcher.listen(block);
+    return dispatcher;
   }
 
   static _listeners: Set<DescListener> = new Set<DescListener>();
 
   static listenDesc(listener: DescListener): void {
-    Types._listeners.add(listener);
+    Functions._listeners.add(listener);
   }
 
   static unlistenDesc(listener: DescListener): void {
-    Types._listeners.delete(listener);
+    Functions._listeners.delete(listener);
   }
 
   static dispatchDescChange(id: string, desc: FunctionDesc) {
-    for (let listener of Types._listeners) {
+    for (let listener of Functions._listeners) {
       listener.onDescChange(id, desc);
     }
   }
 
-  static getAllTypeIds(): string[] {
+  static getAllFunctionIds(): string[] {
     let result = [];
-    for (let key in _types) {
-      if (_types[key]._value) {
+    for (let key in _functions) {
+      if (_functions[key]._value) {
         result.push(key);
       }
     }
@@ -125,10 +125,10 @@ export class Types {
   }
 
   static getDesc(id: string): [FunctionDesc, number] {
-    let type = _types[id];
+    let functionDispatcher = _functions[id];
 
-    if (type) {
-      return [type._desc, type._descSize];
+    if (functionDispatcher) {
+      return [functionDispatcher._desc, functionDispatcher._descSize];
     }
     return [null, 0];
   }

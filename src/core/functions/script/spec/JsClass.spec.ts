@@ -1,7 +1,7 @@
 import {assert} from 'chai';
 import {Job, Root} from '../../../block/Block';
 import {JsFunction} from '../Js';
-import {Types} from '../../../block/Type';
+import {Functions} from '../../../block/Functions';
 import {TestLogger} from '../../../util/spec/Logger.spec';
 import {Logger} from '../../../util/Logger';
 
@@ -25,7 +25,7 @@ describe('Js Type', function() {
 
     Root.run();
     assert.equal(aBlock.getValue('out1'), 321, 'basic script output');
-    Types.clear('Js-type1');
+    Functions.clear('Js-type1');
   });
 
   it('unregister class', function() {
@@ -36,11 +36,11 @@ describe('Js Type', function() {
     JsFunction.registerType('this["out1"] = 1', {name: 'Js-type2'});
 
     assert(aBlock._queued, 'script is _queued');
-    Types.clear('Js-type2');
+    Functions.clear('Js-type2');
     Root.run();
     assert(!aBlock._queued, 'script is no longer _queued');
     assert.isUndefined(aBlock.getValue('out1'), 'clear class after called');
-    Types.clear('Js-type2');
+    Functions.clear('Js-type2');
   });
 
   it('invalid script', function() {
@@ -54,8 +54,8 @@ describe('Js Type', function() {
     let job = new Job();
 
     let aBlock = job.createBlock('a');
-    Types.clear('');
-    assert.deepEqual(Types.getDesc(''), [null, 0]);
-    assert.isUndefined(Types.listen('', aBlock), 'listen without class name');
+    Functions.clear('');
+    assert.deepEqual(Functions.getDesc(''), [null, 0]);
+    assert.isUndefined(Functions.listen('', aBlock), 'listen without class name');
   });
 });

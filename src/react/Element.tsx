@@ -1,5 +1,5 @@
 import React from 'react';
-import {Types} from '../../src/core/block/Type';
+import {Functions} from '../../src/core/block/Functions';
 import {BlockFunction} from '../../src/core/block/BlockFunction';
 import {Block} from '../../src/core/block/Block';
 import {TicloComp} from './TicloComp';
@@ -70,35 +70,35 @@ export class DivElementFunction extends BlockFunction {
   }
 }
 
-Types.add(DivElementFunction, divElementDesc, 'react');
+Functions.add(DivElementFunction, divElementDesc, 'react');
 
 class SpanElementFunction extends DivElementFunction {
   getComponent(): any {
     return 'span';
   }
 }
-Types.add(SpanElementFunction, {...divElementDesc, name: 'span'}, 'react');
+Functions.add(SpanElementFunction, {...divElementDesc, name: 'span'}, 'react');
 
 class PElementFunction extends DivElementFunction {
   getComponent(): any {
     return 'p';
   }
 }
-Types.add(PElementFunction, {...divElementDesc, name: 'p'}, 'react');
+Functions.add(PElementFunction, {...divElementDesc, name: 'p'}, 'react');
 
 class PreElementFunction extends DivElementFunction {
   getComponent(): any {
     return 'pre';
   }
 }
-Types.add(PreElementFunction, {...divElementDesc, name: 'pre'}, 'react');
+Functions.add(PreElementFunction, {...divElementDesc, name: 'pre'}, 'react');
 
 class ButtonElementFunction extends DivElementFunction {
   getComponent(): any {
     return 'button';
   }
 }
-Types.add(ButtonElementFunction, {...divElementDesc, name: 'button'}, 'react');
+Functions.add(ButtonElementFunction, {...divElementDesc, name: 'button'}, 'react');
 
 class AElementFunction extends DivElementFunction {
   getComponent(): any {
@@ -109,7 +109,7 @@ class AElementFunction extends DivElementFunction {
     return {...super.getProps(), href: this._data.getValue('href'), target: this._data.getValue('target')};
   }
 }
-Types.add(
+Functions.add(
   AElementFunction,
   {
     name: 'a',

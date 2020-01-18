@@ -1,4 +1,4 @@
-import {Types} from '../block/Type';
+import {Functions} from '../block/Functions';
 import {BlockFunction, FunctionData} from '../block/BlockFunction';
 import {FunctionDesc} from '../block/Descriptor';
 import {BlockIO} from '../block/BlockProperty';
@@ -32,6 +32,6 @@ export class WorkerFunction extends BlockFunction {
     CustomWorkerFunction.prototype._namespace = namespace;
 
     // TODO descriptor
-    Types.add(CustomWorkerFunction, desc, namespace);
+    Functions.add(CustomWorkerFunction, desc, namespace);
   }
 }

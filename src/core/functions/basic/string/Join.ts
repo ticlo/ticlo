@@ -1,4 +1,4 @@
-import {Types} from '../../../block/Type';
+import {Functions} from '../../../block/Functions';
 import {BaseFunction, FunctionData} from '../../../block/BlockFunction';
 
 export class JoinFunction extends BaseFunction {
@@ -31,7 +31,7 @@ export class JoinFunction extends BaseFunction {
   }
 }
 
-Types.add(JoinFunction, {
+Functions.add(JoinFunction, {
   name: 'join',
   icon: 'txt:a,b',
   properties: [

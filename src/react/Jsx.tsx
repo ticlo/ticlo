@@ -1,6 +1,6 @@
 import React from 'react';
 import {JsFunction} from '../../src/core/functions/script/Js';
-import {Types} from '../../src/core/block/Type';
+import {Functions} from '../../src/core/block/Functions';
 import {Block} from '../../src/core/block/Block';
 import {TicloComp} from './TicloComp';
 import {validateReactComponent} from './validateReactComponent';
@@ -32,7 +32,7 @@ export class JsxFunction extends JsFunction {
   }
 }
 
-Types.add(
+Functions.add(
   JsxFunction,
   {
     name: 'jsx',

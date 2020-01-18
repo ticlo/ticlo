@@ -1,4 +1,4 @@
-import {Types} from '../Type';
+import {Functions} from '../Functions';
 import {BaseFunction, BlockFunction} from '../BlockFunction';
 import {BlockIO, BlockPropertyEvent} from '../BlockProperty';
 import {CompleteEvent, ErrorEvent, Event, EventType, WAIT} from '../Event';
@@ -24,7 +24,7 @@ export class TestFunctionRunner extends BaseFunction {
   }
 }
 
-Types.add(TestFunctionRunner, {name: 'test-runner'});
+Functions.add(TestFunctionRunner, {name: 'test-runner'});
 
 class TestFunctionRunnerWontCancel extends TestFunctionRunner {
   cancel(reason: EventType = EventType.TRIGGER, mode: BlockMode = 'auto') {
@@ -32,7 +32,7 @@ class TestFunctionRunnerWontCancel extends TestFunctionRunner {
   }
 }
 
-Types.add(TestFunctionRunnerWontCancel, {name: 'test-runner-wont-cancel'});
+Functions.add(TestFunctionRunnerWontCancel, {name: 'test-runner-wont-cancel'});
 
 export class TestAsyncFunctionLog {
   static syncLog: any[] = [];
@@ -80,7 +80,7 @@ export class TestAsyncFunctionPromise extends BaseFunction {
   }
 }
 
-Types.add(TestAsyncFunctionPromise, {
+Functions.add(TestAsyncFunctionPromise, {
   name: 'async-function-promise',
   mode: 'onCall'
 });
@@ -122,7 +122,7 @@ export class TestAsyncFunctionManual extends BlockFunction {
   }
 }
 
-Types.add(TestAsyncFunctionManual, {
+Functions.add(TestAsyncFunctionManual, {
   name: 'async-function-manual',
   priority: 1,
   mode: 'onCall'
