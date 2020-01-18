@@ -153,6 +153,7 @@ interface Props {
   style: React.CSSProperties;
   selected: boolean;
   onClick: (item: NodeTreeItem, event: React.MouseEvent) => void;
+  getMenu: (item: NodeTreeItem) => React.ReactElement[];
 }
 interface State {
   hasChange: boolean;
@@ -250,34 +251,43 @@ export class NodeTreeRenderer extends PureDataRenderer<Props, any> {
   };
 
   getMenu = () => {
-    let {item} = this.props;
+    let {item, getMenu} = this.props;
     let editJob = this.context && this.context.editJob;
-    return (
-      <Menu selectable={false}>
-        {editJob ? (
-          <Menu.Item onClick={this.onOpenClicked}>
-            <BuildIcon />
-            Open
-          </Menu.Item>
-        ) : null}
-        {item.canApply ? (
-          <Menu.Item onClick={this.onSaveClicked}>
-            <SaveIcon />
-            Save
-          </Menu.Item>
-        ) : null}
-        {item.editable ? (
-          <Menu.Item onClick={this.onDeleteClicked}>
-            <DeleteIcon />
-            Delete
-          </Menu.Item>
-        ) : null}
-        <Menu.Item>
-          <SearchIcon />
-          Search
+    let menuitems: React.ReactElement[] = [];
+    if (editJob) {
+      menuitems.push(
+        <Menu.Item key="open" onClick={this.onOpenClicked}>
+          <BuildIcon />
+          Open
         </Menu.Item>
-      </Menu>
+      );
+    }
+    if (item.canApply) {
+      menuitems.push(
+        <Menu.Item key="save" onClick={this.onSaveClicked}>
+          <SaveIcon />
+          Save
+        </Menu.Item>
+      );
+    }
+    if (item.editable) {
+      menuitems.push(
+        <Menu.Item key="delete" onClick={this.onDeleteClicked}>
+          <DeleteIcon />
+          Delete
+        </Menu.Item>
+      );
+    }
+    menuitems.push(
+      <Menu.Item key="search">
+        <SearchIcon />
+        Search
+      </Menu.Item>
     );
+    if (getMenu) {
+      menuitems = menuitems.concat(getMenu(item));
+    }
+    return <Menu selectable={false}>{menuitems}</Menu>;
   };
 
   renderImpl() {

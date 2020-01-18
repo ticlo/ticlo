@@ -2,12 +2,13 @@ import React, {ChangeEvent} from 'react';
 import {ClientConn, decode} from '../../../../src/core/editor';
 import {TicloLayoutContext, TicloLayoutContextType} from '../../component/LayoutContext';
 import {NodeTree} from '../..';
-import {Button, Input, Modal, Tooltip} from 'antd';
+import {Button, Input, Menu, Tooltip} from 'antd';
 import FileAddIcon from '@ant-design/icons/FileAddOutlined';
 import ReloadIcon from '@ant-design/icons/ReloadOutlined';
 import {AddNewJob} from './AddNewJob';
 import {DragDropDiv, DragState} from 'rc-dock/lib';
-const {TextArea} = Input;
+import {NodeTreeItem} from '../../node-tree/NodeRenderer';
+import {ClickParam} from 'antd/lib/menu';
 
 interface Props {
   conn: ClientConn;
@@ -49,6 +50,29 @@ export class NodeTreePane extends React.PureComponent<Props, State> {
 
   reload = () => {
     this._nodeTree?.reload();
+  };
+
+  onAddNewJobClick = (param: ClickParam) => {
+    console.log(param);
+    let path = param.item.props.defaultValue;
+    this.setState({jobBasePath: `${path}.`, jobModelVisible: true});
+  };
+
+  getMenu = (item: NodeTreeItem) => {
+    let seekParent = item;
+    while (seekParent?.isJob) {
+      seekParent = seekParent.parent;
+    }
+    // find the root node, so every level of parents is Job
+    if (seekParent.id === '') {
+      return [
+        <Menu.Item key="addJob" defaultValue={item.key} onClick={this.onAddNewJobClick}>
+          <FileAddIcon />
+          Add Child Job
+        </Menu.Item>
+      ];
+    }
+    return [];
   };
 
   showNewJobModel = () => {
@@ -98,6 +122,7 @@ export class NodeTreePane extends React.PureComponent<Props, State> {
           hideRoot={hideRoot}
           selectedKeys={selectedKeys || []}
           onSelect={onSelect}
+          getMenu={this.getMenu}
         />
       </div>
     );

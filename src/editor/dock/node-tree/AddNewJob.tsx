@@ -24,7 +24,7 @@ export class AddNewJob extends LazyUpdateComponent<Props, State> {
   };
 
   addJob = () => {
-    let {conn, onClose, basePath} = this.props;
+    let {conn, basePath} = this.props;
     let {name, data} = this.formItems;
     if (!name.value) {
       name.setError('Name is Empty');
@@ -51,7 +51,7 @@ export class AddNewJob extends LazyUpdateComponent<Props, State> {
       name.setError(null);
       return;
     }
-    onClose();
+    this.onClose();
   };
 
   onClose = () => {
