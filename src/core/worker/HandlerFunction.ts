@@ -250,10 +250,10 @@ Functions.add(HandlerFunction, {
   properties: [
     {name: 'use', type: 'worker'},
     {name: 'thread', type: 'number', default: 0, min: 0, step: 1},
-    {name: 'reuseWorker', type: 'radio-button', options: ['none', 'reuse', 'persist'], default: 'none'},
-    {name: 'timeout', type: 'number'},
-    {name: 'keepOrder', type: 'toggle'},
-    {name: 'maxQueueSize', type: 'number', default: 0, min: 0, step: 1},
-    {name: 'queueSize', type: 'number', readonly: true}
+    {name: 'reuseWorker', type: 'radio-button', options: ['none', 'reuse', 'persist'], default: 'none', visible: 'low'},
+    {name: 'timeout', type: 'number', visible: 'low'},
+    {name: 'keepOrder', type: 'toggle', visible: 'low'},
+    {name: 'maxQueueSize', type: 'number', default: 0, min: 0, step: 1, visible: 'low'},
+    {name: 'queueSize', type: 'number', readonly: true, visible: 'low'}
   ]
 });
