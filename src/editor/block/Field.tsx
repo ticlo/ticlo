@@ -770,7 +770,7 @@ export class BlockItem extends BaseBlockItem {
       if (Array.isArray(value)) {
         this.setXYW(...(value as [number, number, number]));
       } else if (typeof value === 'string') {
-        this.setSyncParentPath(value);
+        this.setSyncParentPath(this.path.replace(/[^.]+$/, value));
       } else if (this.xyzInvalid) {
         this.setXYW(...this.stage.getNextXYW());
       }
@@ -891,11 +891,13 @@ export class BlockItem extends BaseBlockItem {
     this.destroy();
   }
 
-  linkSyncParent(parentPath: string) {
-    this.conn.setValue(`${this.path}.@b-xyw`, parentPath);
-    this.conn.setBinding(`${this.path}.#call`, `${parentPath}.#emit`, true);
-    this.conn.setValue(`${this.path}.#sync`, true);
-    this.setSyncParentPath(parentPath);
+  linkSyncParent(parent: BlockItem) {
+    if (parent.stage === this.stage) {
+      this.conn.setValue(`${this.path}.@b-xyw`, parent.name);
+      this.conn.setBinding(`${this.path}.#call`, `${parent.path}.#emit`, true);
+      this.conn.setValue(`${this.path}.#sync`, true);
+      this.setSyncParentPath(parent.path);
+    }
   }
 
   unLinkSyncParent() {

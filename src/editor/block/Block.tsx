@@ -142,7 +142,7 @@ export class BlockView extends PureDataRenderer<BlockViewProps, BlockViewState> 
     if (movingBlockKey && movingBlockKey !== item.path) {
       let block = item.stage.getBlock(movingBlockKey);
       if (block) {
-        block.linkSyncParent(item.path);
+        block.linkSyncParent(item);
       }
     }
   };
