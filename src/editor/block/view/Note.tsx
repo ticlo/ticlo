@@ -77,6 +77,7 @@ ClientConnection.addEditorDescriptor('note', {
   view: NoteView,
   name: 'note',
   id: 'note',
+  icon: 'fas:align-left',
   properties: [
     {name: 'text', type: 'string', mime: 'text/x-markdown'},
     {name: 'color', type: 'color'},

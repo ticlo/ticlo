@@ -111,7 +111,7 @@ export function getFuncStyleFromDesc(desc: FunctionDesc, prefix = 'ticl-block-pr
   if (priority > -1) {
     return prefix + priority;
   }
-  return '';
+  return prefix + 'n';
 }
 
 export const blankFuncDesc: FunctionDesc = {
