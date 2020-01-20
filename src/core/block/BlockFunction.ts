@@ -99,4 +99,4 @@ export abstract class BlockFunction extends BaseFunction<Block> {
   }
 }
 
-export type FunctionClass = typeof BaseFunction;
+export type FunctionClass = new (block: FunctionData) => BaseFunction;

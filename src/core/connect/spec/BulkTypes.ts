@@ -1,7 +1,9 @@
 import {BaseFunction} from '../../block/BlockFunction';
 import {Functions} from '../../block/Functions';
 
-class TestFunction extends BaseFunction {}
+class TestFunction extends BaseFunction {
+  run() {}
+}
 
 TestFunction.prototype.priority = 0;
 TestFunction.prototype.useLength = false;
