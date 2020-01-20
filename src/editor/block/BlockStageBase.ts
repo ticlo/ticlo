@@ -299,7 +299,7 @@ export abstract class BlockStageBase<State> extends LazyUpdateComponent<StagePro
         conn.setValue(blockPath, undefined);
       }
     }
-    conn.childrenChangeStream().dispatch(basePath);
+    conn.childrenChangeStream().dispatch({path: basePath});
   }
 
   focus() {
