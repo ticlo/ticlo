@@ -2,7 +2,7 @@ import exp from 'constants';
 
 export {Block, Root, Job, BlockMode} from './block/Block';
 export {BlockProperty, BlockIO} from './block/BlockProperty';
-export {BaseFunction} from './block/BlockFunction';
+export {BaseFunction, BlockFunction} from './block/BlockFunction';
 export {Functions} from './block/Functions';
 export * from './block/Event';
 export * from './block/Descriptor';
