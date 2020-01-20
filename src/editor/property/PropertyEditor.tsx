@@ -448,7 +448,7 @@ export class PropertyEditor extends MultiSelectComponent<Props, State, PropertyL
         );
         menuItems.push(
           <div key="bindingInput" className="ticl-hbox">
-            <StringEditor value={bindingPath} desc={blankPropDesc} onChange={this.onBindChange} />
+            <StringEditor value={bindingPath || ''} desc={blankPropDesc} onChange={this.onBindChange} />
           </div>
         );
 
