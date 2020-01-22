@@ -115,37 +115,44 @@ class App extends React.PureComponent<Props, State> implements TicloLayoutContex
         mode: 'horizontal',
         children: [
           {
+            mode: 'vertical',
             size: 200,
-            tabs: [
+            children: [
               {
-                id: 'Navigation',
-                title: 'Navigation',
-                cached: true,
-                cacheContext: TicloLayoutContextType,
-                content: (
-                  <NodeTreePane conn={conn} basePaths={['']} hideRoot={true} onSelect={this.onSelect} showMenu={true} />
-                )
+                tabs: [
+                  {
+                    id: 'Navigation',
+                    title: 'Navigation',
+                    cached: true,
+                    cacheContext: TicloLayoutContextType,
+                    content: (
+                      <NodeTreePane
+                        conn={conn}
+                        basePaths={['']}
+                        hideRoot={true}
+                        onSelect={this.onSelect}
+                        showMenu={true}
+                      />
+                    )
+                  }
+                ]
               },
               {
-                id: 'Properties',
-                title: 'Properties',
-                cached: true,
-                cacheContext: TicloLayoutContextType,
-                content: <PropertyListPane conn={conn} />
-              },
-              {
-                id: 'Functions',
-                title: 'Functions',
-                cached: true,
-                content: (
-                  <TypeTree
-                    conn={conn}
-                    style={{height: '100%'}}
-                    onTypeClick={(name: string, desc: FunctionDesc, data: any) => {
-                      console.log(name, desc, data);
-                    }}
-                  />
-                )
+                tabs: [
+                  {
+                    id: 'Functions',
+                    title: 'Functions',
+                    cached: true,
+                    content: <TypeTree conn={conn} style={{height: '100%'}} />
+                  },
+                  {
+                    id: 'Properties',
+                    title: 'Properties',
+                    cached: true,
+                    cacheContext: TicloLayoutContextType,
+                    content: <PropertyListPane conn={conn} />
+                  }
+                ]
               }
             ]
           },
@@ -196,3 +203,4 @@ class JobLoader {
 })();
 
 (window as any).Logger = Logger;
+

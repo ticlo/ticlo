@@ -11,7 +11,7 @@ import {DataMap, isPrimitiveType, isSavedBlock, measureObjSize, truncateData} fr
 import {Root, Block, BlockChildWatch, Job} from '../block/Block';
 import {PropDispatcher, PropListener} from '../block/Dispatcher';
 import {FunctionDispatcher, Functions, DescListener} from '../block/Functions';
-import {FunctionCategory, FunctionDesc, PropDesc, PropGroupDesc} from '../block/Descriptor';
+import {FunctionDesc, PropDesc, PropGroupDesc} from '../block/Descriptor';
 import {propRelative} from '../util/PropPath';
 import {
   insertGroupProperty,

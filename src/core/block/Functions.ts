@@ -1,7 +1,7 @@
 import {Block, BlockModeList} from './Block';
 import {FunctionClass} from './BlockFunction';
 import {PropDispatcher} from './Dispatcher';
-import {FunctionDesc, FunctionCategory} from './Descriptor';
+import {FunctionDesc} from './Descriptor';
 import JsonEsc from 'jsonesc/dist';
 import {DataMap} from '../util/DataTypes';
 
@@ -33,6 +33,10 @@ const _functions: {[key: string]: FunctionDispatcher} = {};
 
 export class Functions {
   static add(cls: FunctionClass, desc: FunctionDesc, namespace?: string) {
+    if (!desc.properties) {
+      // function must have properties
+      desc.properties = [];
+    }
     if (!BlockModeList.includes(desc.mode)) {
       desc.mode = 'onLoad';
     }
@@ -59,11 +63,13 @@ export class Functions {
     func.setDesc(desc);
     Functions.dispatchDescChange(id, desc);
   }
-  static addCategory(category: FunctionCategory, id: string) {
-    if (!id.startsWith('ns:')) {
-      id = `ns:${id}`;
-      category.id = id;
+  static addCategory(category: FunctionDesc) {
+    if (category.properties) {
+      // category should not have properties
+      delete category.properties;
     }
+
+    let {id} = category;
 
     let func = _functions[id];
     if (!func) {
@@ -132,7 +138,7 @@ export class Functions {
   static getAllFunctionIds(): string[] {
     let result = [];
     for (let key in _functions) {
-      if (_functions[key]._value) {
+      if (_functions[key]._desc) {
         result.push(key);
       }
     }

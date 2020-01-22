@@ -40,7 +40,7 @@ export class TypeTreeRenderer extends PureDataRenderer<Props, any> {
     let {item, style} = this.props;
     let {name, connection, desc, data, key} = item;
     let marginLeft = item.level * 24;
-    if (desc && !key.startsWith('ns:')) {
+    if (desc?.properties) {
       return (
         <div style={{...style, marginLeft}} className="ticl-tree-type">
           <ExpandIcon opened={item.opened} onClick={this.onExpandClicked} />
@@ -48,13 +48,8 @@ export class TypeTreeRenderer extends PureDataRenderer<Props, any> {
         </div>
       );
     } else {
-      let child = item.children[0];
-      let icon: string;
-      let funcStyle: string;
-      if (child && child.desc) {
-        icon = child.desc.icon;
-        funcStyle = getFuncStyleFromDesc(child.desc, 'tico-pr');
-      }
+      let icon = desc?.icon;
+      let funcStyle = getFuncStyleFromDesc(desc, 'tico-pr');
       return (
         <div style={{...style, marginLeft}} className="ticl-tree-type">
           <ExpandIcon opened={item.opened} onClick={this.onExpandClicked} />

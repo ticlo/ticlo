@@ -1,5 +1,3 @@
-import exp from 'constants';
-
 export {Block, Root, Job, BlockMode} from './block/Block';
 export {BlockProperty, BlockIO} from './block/BlockProperty';
 export {BaseFunction, BlockFunction} from './block/BlockFunction';
@@ -18,6 +16,7 @@ export {PropDispatcher} from './block/Dispatcher';
 export {resolvePath, getRelativePath} from './util/Path';
 
 // register functions
+import './functions/Categories';
 import './functions/basic/math/Arithmetic';
 import './functions/basic/math/Compare';
 import './functions/basic/string/CompareString';

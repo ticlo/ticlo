@@ -34,6 +34,9 @@ export interface PropDesc {
   readonly?: boolean;
   visible?: VisibleType; // whether property is shown in block view
 
+  // optional properties are not show in PropertyList by default, it only show up in search box, and used when set in #use
+  optional?: boolean;
+
   // default value shown in editor when value is undefined
   default?: string | number | boolean;
 
@@ -75,13 +78,10 @@ export interface PropGroupDesc {
   properties?: PropDesc[];
 }
 
-export interface FunctionCategory {
+export interface FunctionDesc {
   name: string;
   id?: string;
   icon?: string;
-}
-
-export interface FunctionDesc extends FunctionCategory {
   /** namespace of the function */
   ns?: string;
   src?: 'worker' | 'js';
@@ -90,7 +90,6 @@ export interface FunctionDesc extends FunctionCategory {
   mode?: BlockMode;
   properties?: (PropDesc | PropGroupDesc)[];
   configs?: PropDesc[];
-  attributes?: PropDesc[];
   /** recipient property will receive value or binding when parent property is converted to subblock of this type */
   recipient?: string;
   // used by service editor to filter global blocks
@@ -107,12 +106,14 @@ export interface FunctionDesc extends FunctionCategory {
 }
 
 export function getFuncStyleFromDesc(desc: FunctionDesc, prefix = 'ticl-block-pr'): string {
-  let {style, priority} = desc;
-  if (style) {
-    return prefix + style.substr(0, 1);
-  }
-  if (priority > -1) {
-    return prefix + priority;
+  if (desc) {
+    let {style, priority} = desc;
+    if (style) {
+      return prefix + style.substr(0, 1);
+    }
+    if (priority > -1) {
+      return prefix + priority;
+    }
   }
   return prefix + 'n';
 }

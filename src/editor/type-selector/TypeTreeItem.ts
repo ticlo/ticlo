@@ -18,7 +18,7 @@ export class TypeTreeItem extends TreeItem<TypeTreeItem> {
   constructor(parent: TypeTreeItem, root: TypeTreeRoot, key: string, name?: string, desc?: FunctionDesc, data?: any) {
     super(parent);
     this.root = root;
-    if (desc) {
+    if (desc?.properties) {
       this.opened = 'empty';
     }
     this.name = name;
@@ -147,18 +147,23 @@ export class TypeTreeRoot extends TypeTreeItem {
       let category: string;
       let catKey: string;
       let catDesc: FunctionDesc;
-      if (key.startsWith('ns:')) {
+      if (desc.properties) {
+        // function
+        category = desc.category || desc.ns || 'other';
+        catKey = category;
+      } else {
+        // category
         category = desc.name;
         catKey = key;
         catDesc = desc;
-      } else {
-        category = desc.category || desc.ns || 'other';
-        catKey = `ns:${category}`;
       }
 
       let catItem: TypeTreeItem;
       if (this.typeMap.has(catKey)) {
         catItem = this.typeMap.get(catKey);
+        if (catDesc) {
+          catItem.update(catDesc, null);
+        }
       } else {
         catItem = new TypeTreeItem(this, this, catKey, category, catDesc);
         this.typeMap.set(catKey, catItem);
