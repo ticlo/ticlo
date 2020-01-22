@@ -1,7 +1,7 @@
 import {Block, BlockModeList} from './Block';
 import {FunctionClass} from './BlockFunction';
 import {PropDispatcher} from './Dispatcher';
-import {FunctionDesc} from './Descriptor';
+import {FunctionDesc, FunctionCategory} from './Descriptor';
 import JsonEsc from 'jsonesc/dist';
 import {DataMap} from '../util/DataTypes';
 
@@ -48,35 +48,50 @@ export class Functions {
 
     let id = namespace ? `${namespace}:${desc.name}` : desc.name;
     desc.id = id;
-    let type = _functions[id];
-    if (!type) {
-      type = new FunctionDispatcher(id);
-      _functions[id] = type;
-    }
     cls.prototype.type = id;
-    type.updateValue(cls);
-    type.setDesc(desc);
+
+    let func = _functions[id];
+    if (!func) {
+      func = new FunctionDispatcher(id);
+      _functions[id] = func;
+    }
+    func.updateValue(cls);
+    func.setDesc(desc);
     Functions.dispatchDescChange(id, desc);
+  }
+  static addCategory(category: FunctionCategory, id: string) {
+    if (!id.startsWith('ns:')) {
+      id = `ns:${id}`;
+      category.id = id;
+    }
+
+    let func = _functions[id];
+    if (!func) {
+      func = new FunctionDispatcher(id);
+      _functions[id] = func;
+    }
+    func.setDesc(category);
+    Functions.dispatchDescChange(id, category);
   }
 
   static clear(id: string) {
-    let type = _functions[id];
+    let func = _functions[id];
 
-    if (type) {
-      if (type._listeners.size === 0) {
+    if (func) {
+      if (func._listeners.size === 0) {
         delete _functions[id];
       } else {
-        type.updateValue(null);
-        type.setDesc(null);
+        func.updateValue(null);
+        func.setDesc(null);
       }
       Functions.dispatchDescChange(id, null);
     }
   }
 
   static getWorkerData(id: string): DataMap {
-    let type = _functions[id];
-    if (type && type._value && (type._value as any).ticlWorkerData instanceof Object) {
-      return (type._value as any).ticlWorkerData;
+    let func = _functions[id];
+    if (func?._value && (func._value as any).ticlWorkerData instanceof Object) {
+      return (func._value as any).ticlWorkerData;
     }
     return null;
   }
@@ -124,7 +139,7 @@ export class Functions {
     return result;
   }
 
-  static getDesc(id: string): [FunctionDesc, number] {
+  static getDescToSend(id: string): [FunctionDesc, number] {
     let functionDispatcher = _functions[id];
 
     if (functionDispatcher) {

@@ -38,9 +38,9 @@ export class TypeTreeRenderer extends PureDataRenderer<Props, any> {
 
   renderImpl() {
     let {item, style} = this.props;
-    let {name, connection, desc, data} = item;
+    let {name, connection, desc, data, key} = item;
     let marginLeft = item.level * 24;
-    if (desc) {
+    if (desc && !key.startsWith('ns:')) {
       return (
         <div style={{...style, marginLeft}} className="ticl-tree-type">
           <ExpandIcon opened={item.opened} onClick={this.onExpandClicked} />

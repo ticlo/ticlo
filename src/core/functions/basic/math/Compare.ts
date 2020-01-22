@@ -26,7 +26,6 @@ Functions.add(EqualFunction, {
   ...descriptor,
   name: 'equal',
   icon: 'fas:equals',
-  order: 0,
   properties: [
     {name: '0', type: 'any', visible: 'high'},
     {name: '1', type: 'any', visible: 'high'},

@@ -55,7 +55,7 @@ describe('RouteFunction', function() {
     let job = new Job();
 
     let aBlock = job.createBlock('a');
-    aBlock._load(getDefaultFuncData(Functions.getDesc('http:route')[0]));
+    aBlock._load(getDefaultFuncData(Functions.getDescToSend('http:route')[0]));
 
     assert.deepEqual(aBlock.getValue('method'), ['GET']);
     assert.deepEqual(aBlock.getValue('contentType'), ['empty']);

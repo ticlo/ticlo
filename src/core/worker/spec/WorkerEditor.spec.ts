@@ -134,7 +134,7 @@ describe('WorkerEditor', function() {
 
     assert.deepEqual(Functions.getWorkerData('WorkerEditor:worker3'), expectedData);
 
-    let desc = Functions.getDesc('WorkerEditor:worker3')[0];
+    let desc = Functions.getDescToSend('WorkerEditor:worker3')[0];
     assert.equal(desc.icon, 'fas:plus');
     assert.deepEqual(desc.properties, expectedDescProperties);
 

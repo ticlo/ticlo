@@ -29,7 +29,7 @@ export function buildPropertiesOrder(block: Block): string[] {
     }
   }
 
-  let [desc, size] = Functions.getDesc(block.getValue('#is'));
+  let [desc, size] = Functions.getDescToSend(block.getValue('#is'));
   if (desc) {
     addProps(desc.properties);
   }

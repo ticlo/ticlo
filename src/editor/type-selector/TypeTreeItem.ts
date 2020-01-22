@@ -12,19 +12,7 @@ export class TypeTreeItem extends TreeItem<TypeTreeItem> {
   children: TypeTreeItem[] = [];
 
   static sort(a: TypeTreeItem, b: TypeTreeItem): number {
-    if (!a.desc || !b.desc) {
-      return a.key.localeCompare(b.key);
-    }
-    if (a.desc.order === b.desc.order) {
-      return 0;
-    }
-    if (typeof a.desc.order !== 'number') {
-      return 1;
-    }
-    if (typeof b.desc.order !== 'number') {
-      return -1;
-    }
-    return a.desc.order - b.desc.order;
+    return a.name.localeCompare(b.name);
   }
 
   constructor(parent: TypeTreeItem, root: TypeTreeRoot, key: string, name?: string, desc?: FunctionDesc, data?: any) {
@@ -155,23 +143,35 @@ export class TypeTreeRoot extends TypeTreeItem {
       if (this.filter && !this.filter(desc)) {
         return;
       }
-      let category = desc.category || desc.ns || 'other';
-      let catKey = `ns:${category}`;
+
+      let category: string;
+      let catKey: string;
+      let catDesc: FunctionDesc;
+      if (key.startsWith('ns:')) {
+        category = desc.name;
+        catKey = key;
+        catDesc = desc;
+      } else {
+        category = desc.category || desc.ns || 'other';
+        catKey = `ns:${category}`;
+      }
+
       let catItem: TypeTreeItem;
       if (this.typeMap.has(catKey)) {
         catItem = this.typeMap.get(catKey);
       } else {
-        catItem = new TypeTreeItem(this, this, catKey, category);
+        catItem = new TypeTreeItem(this, this, catKey, category, catDesc);
         this.typeMap.set(catKey, catItem);
         this.children.push(catItem);
         this.onListChange();
       }
-
-      let item = this.typeMap.get(key);
-      if (item && item.parent !== catItem) {
-        item.parent.removeChild(key);
+      if (!catDesc) {
+        let item = this.typeMap.get(key);
+        if (item && item.parent !== catItem) {
+          item.parent.removeChild(key);
+        }
+        catItem.addChild(key, desc);
       }
-      catItem.addChild(key, desc);
     } else {
       // function desc is removed
       let item = this.typeMap.get(key);

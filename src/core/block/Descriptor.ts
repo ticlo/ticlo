@@ -75,14 +75,17 @@ export interface PropGroupDesc {
   properties?: PropDesc[];
 }
 
-export interface FunctionDesc {
+export interface FunctionCategory {
   name: string;
+  id?: string;
+  icon?: string;
+}
+
+export interface FunctionDesc extends FunctionCategory {
   /** namespace of the function */
   ns?: string;
-  id?: string;
   src?: 'worker' | 'js';
   help?: string;
-  icon?: string;
   priority?: 0 | 1 | 2 | 3;
   mode?: BlockMode;
   properties?: (PropDesc | PropGroupDesc)[];

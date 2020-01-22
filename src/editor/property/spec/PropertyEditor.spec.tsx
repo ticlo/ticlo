@@ -13,7 +13,7 @@ import {FunctionDesc, PropDesc, PropGroupDesc} from '../../../../src/core/editor
 import {Functions} from '../../../../src/core/block/Functions';
 
 describe('PropertyEditor', function() {
-  let [funcDesc] = Functions.getDesc('add');
+  let [funcDesc] = Functions.getDescToSend('add');
   let propDesc = (funcDesc.properties[0] as PropGroupDesc).properties[0];
 
   beforeEach(async function() {

@@ -41,6 +41,5 @@ Functions.add(CreateObjectFunction, {
   properties: [
     {name: '#spread', type: 'object'},
     {name: 'output', type: 'object', readonly: true}
-  ],
-  order: 0
+  ]
 });

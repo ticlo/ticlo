@@ -55,7 +55,7 @@ describe('Js Type', function() {
 
     let aBlock = job.createBlock('a');
     Functions.clear('');
-    assert.deepEqual(Functions.getDesc(''), [null, 0]);
+    assert.deepEqual(Functions.getDescToSend(''), [null, 0]);
     assert.isUndefined(Functions.listen('', aBlock), 'listen without class name');
   });
 });

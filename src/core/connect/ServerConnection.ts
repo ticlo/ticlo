@@ -11,7 +11,7 @@ import {DataMap, isPrimitiveType, isSavedBlock, measureObjSize, truncateData} fr
 import {Root, Block, BlockChildWatch, Job} from '../block/Block';
 import {PropDispatcher, PropListener} from '../block/Dispatcher';
 import {FunctionDispatcher, Functions, DescListener} from '../block/Functions';
-import {FunctionDesc, PropDesc, PropGroupDesc} from '../block/Descriptor';
+import {FunctionCategory, FunctionDesc, PropDesc, PropGroupDesc} from '../block/Descriptor';
 import {propRelative} from '../util/PropPath';
 import {
   insertGroupProperty,
@@ -241,7 +241,7 @@ class ServerDescWatcher extends ServerRequest implements DescListener {
     let changes = [];
     let totalSize = 0;
     for (let id of this.pendingIds) {
-      let [desc, size] = Functions.getDesc(id);
+      let [desc, size] = Functions.getDescToSend(id);
       if (desc) {
         changes.push(desc);
         totalSize += size;
@@ -543,7 +543,7 @@ export class ServerConnection extends Connection {
       }
       if (data && data.hasOwnProperty('#is')) {
         (property._value as Block)._load(data);
-        let desc = Functions.getDesc(data['#is'])[0];
+        let desc = Functions.getDescToSend(data['#is'])[0];
         if (desc && desc.recipient && !data.hasOwnProperty(desc.recipient)) {
           // transfer parent property to the recipient
           if (keepSaved !== undefined) {

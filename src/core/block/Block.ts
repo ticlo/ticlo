@@ -911,7 +911,7 @@ export class Job extends Block {
     let loaded = false;
     if (typeof src === 'string') {
       // load from worker class
-      let desc: FunctionDesc = Functions.getDesc(src)[0];
+      let desc: FunctionDesc = Functions.getDescToSend(src)[0];
       if (desc) {
         let data = Functions.getWorkerData(src);
         if (data) {

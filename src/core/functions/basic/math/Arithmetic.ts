@@ -57,8 +57,7 @@ export class AddFunction extends BaseFunction {
 Functions.add(AddFunction, {
   ...descriptorN,
   name: 'add',
-  icon: 'fas:plus',
-  order: 0
+  icon: 'fas:plus'
 });
 
 export class MultiplyFunction extends BaseFunction {
@@ -87,8 +86,7 @@ export class MultiplyFunction extends BaseFunction {
 Functions.add(MultiplyFunction, {
   ...descriptorN,
   name: 'multiply',
-  icon: 'fas:times',
-  order: 2
+  icon: 'fas:times'
 });
 
 export class SubtractFunction extends BaseFunction {
@@ -106,8 +104,7 @@ export class SubtractFunction extends BaseFunction {
 Functions.add(SubtractFunction, {
   ...descriptor2,
   name: 'subtract',
-  icon: 'fas:minus',
-  order: 1
+  icon: 'fas:minus'
 });
 
 export class DivideFunction extends BaseFunction {
@@ -125,6 +122,5 @@ export class DivideFunction extends BaseFunction {
 Functions.add(DivideFunction, {
   ...descriptor2,
   name: 'divide',
-  icon: 'fas:divide',
-  order: 3
+  icon: 'fas:divide'
 });
