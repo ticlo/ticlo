@@ -209,7 +209,7 @@ Functions.add(ForEachFunction, {
   name: 'foreach',
   icon: 'fas:grip-vertical',
   priority: 1,
-  style: 'repeater',
+  color: 'e91',
   properties: [
     {name: 'input', type: 'any'},
     {name: 'use', type: 'worker'},

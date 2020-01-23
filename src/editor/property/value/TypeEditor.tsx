@@ -1,7 +1,7 @@
 import React from 'react';
 import {Input} from 'antd';
 import DownIcon from '@ant-design/icons/DownOutlined';
-import {FunctionDesc, getFuncStyleFromDesc, PropDesc} from '../../../../src/core/editor';
+import {FunctionDesc, PropDesc} from '../../../../src/core/editor';
 import {ValueEditorProps} from './ValueEditorBase';
 import {TIcon} from '../../icon/Icon';
 import {DragDropDiv, DragState} from 'rc-dock';
@@ -9,6 +9,7 @@ import {StringEditorBase} from './StringEditorBase';
 import {TypeSelect} from '../../type-selector/TypeSelector';
 import {addRecentType} from '../../type-selector/TypeList';
 import {Popup} from '../../component/ClickPopup';
+import {getFuncStyleFromDesc} from '../../util/BlockColors';
 
 interface State {
   opened: boolean;
@@ -71,7 +72,7 @@ export class TypeEditor extends StringEditorBase {
     let funcDesc = conn.watchDesc(value);
     if (funcDesc) {
       iconName = funcDesc.icon;
-      iconStyle = getFuncStyleFromDesc(funcDesc, 'tico-pr') || 'tico-prn';
+      iconStyle = getFuncStyleFromDesc(funcDesc, 'ticl-bg--');
     }
     return (
       <DragDropDiv className="ticl-type-editor ticl-hbox" onDragOverT={this.onDragOver} onDropT={this.onDrop}>

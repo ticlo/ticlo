@@ -1,8 +1,8 @@
 import React, {ReactNode} from 'react';
-import {ClientConn, ValueUpdate, blankFuncDesc, getFuncStyleFromDesc, FunctionDesc} from '../../../src/core/editor';
 import {PureDataRenderer} from '../component/DataRenderer';
 import {TIcon} from '../icon/Icon';
 import {BaseBlockItem, BlockItem, Stage, XYWRenderer} from './Field';
+import {getFuncStyleFromDesc} from '../util/BlockColors';
 
 interface MiniBlockViewProps {
   item: BlockItem;

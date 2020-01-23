@@ -263,7 +263,7 @@ Functions.add(MapFunction, {
   name: 'map',
   icon: 'fas:grip-vertical',
   priority: 3,
-  style: 'repeater',
+  color: 'e91',
   properties: [
     {name: 'input', type: 'any'},
     {name: 'use', type: 'worker'},

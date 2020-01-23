@@ -49,7 +49,7 @@ describe('editor NodeTree', function() {
 
     // find block icon
     await shouldHappen(() =>
-      querySingle("//div.ticl-tree-node-text[text()='5']/../div.tico.tico-pr0/div.tico-fas-plus", div)
+      querySingle("//div.ticl-tree-node-text[text()='5']/../div.tico/div.tico-fas-plus", div)
     );
 
     // expand more children

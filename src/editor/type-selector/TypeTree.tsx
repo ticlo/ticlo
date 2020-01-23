@@ -1,5 +1,5 @@
 import React from 'react';
-import {ClientConn, FunctionDesc, getFuncStyleFromDesc} from '../../../src/core/editor';
+import {ClientConn, FunctionDesc} from '../../../src/core/editor';
 import {TypeTreeItem, TypeTreeRoot} from './TypeTreeItem';
 import VirtualList from '../component/Virtual';
 import {TypeTreeRenderer} from './TypeTreeRenderer';

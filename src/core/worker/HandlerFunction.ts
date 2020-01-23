@@ -246,7 +246,7 @@ Functions.add(HandlerFunction, {
   icon: 'fas:grip-lines-vertical',
   priority: 3,
   mode: 'onChange',
-  style: 'repeater',
+  color: 'e91',
   properties: [
     {name: 'use', type: 'worker'},
     {name: 'thread', type: 'number', default: 0, min: 0, step: 1},

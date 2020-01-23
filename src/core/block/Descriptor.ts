@@ -98,24 +98,11 @@ export interface FunctionDesc {
   // not used on server side
   view?: any;
 
-  style?: 'repeater' | 'service';
+  color?: string;
 
   category?: string;
   /** the order in the category */
   order?: number;
-}
-
-export function getFuncStyleFromDesc(desc: FunctionDesc, prefix = 'ticl-block-pr'): string {
-  if (desc) {
-    let {style, priority} = desc;
-    if (style) {
-      return prefix + style.substr(0, 1);
-    }
-    if (priority > -1) {
-      return prefix + priority;
-    }
-  }
-  return prefix + 'n';
 }
 
 export const blankFuncDesc: FunctionDesc = {

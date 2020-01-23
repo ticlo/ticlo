@@ -15,7 +15,6 @@ import {
   ValueUpdate,
   blankFuncDesc,
   FunctionDesc,
-  getFuncStyleFromDesc,
   smartStrCompare,
   ValueSubscriber,
   getOutputDesc
@@ -23,6 +22,7 @@ import {
 import {TIcon} from '../icon/Icon';
 import {TicloLayoutContext, TicloLayoutContextType} from '../component/LayoutContext';
 import {DragDropDiv, DragState} from 'rc-dock/lib';
+import {getFuncStyleFromDesc} from '../util/BlockColors';
 
 export class NodeTreeItem extends TreeItem<NodeTreeItem> {
   childPrefix: string;
@@ -309,7 +309,7 @@ export class NodeTreeRenderer extends PureDataRenderer<Props, any> {
     } else if (blockClass === 'GlobalBlock') {
       icon = <GlobalIcon />;
     } else {
-      icon = <TIcon icon={desc.icon} style={getFuncStyleFromDesc(desc, 'tico-pr')} />;
+      icon = <TIcon icon={desc.icon} style={getFuncStyleFromDesc(desc, 'ticl-bg--')} />;
     }
     return (
       <div style={{...style, marginLeft}} className="ticl-tree-node">

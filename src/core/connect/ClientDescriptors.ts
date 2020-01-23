@@ -6,7 +6,7 @@ export const clientDescriptors: {[key: string]: FunctionDesc} = {
     name: 'input',
     id: 'input',
     icon: 'fas:arrow-circle-down',
-    style: 'repeater',
+    color: 'e91',
     properties: [],
     configs: [configDescs['#value']]
   },
@@ -15,7 +15,7 @@ export const clientDescriptors: {[key: string]: FunctionDesc} = {
     name: 'output',
     id: 'output',
     icon: 'fas:arrow-circle-up',
-    style: 'repeater',
+    color: 'e91',
     properties: [],
     configs: [configDescs['#value'], configDescs['#wait(output)']]
   }

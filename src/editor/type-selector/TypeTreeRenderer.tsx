@@ -1,10 +1,11 @@
 import React from 'react';
 import {ExpandIcon} from '../component/Tree';
 import {TIcon} from '../icon/Icon';
-import {blankFuncDesc, FunctionDesc, getFuncStyleFromDesc} from '../../../src/core/editor';
+import {blankFuncDesc, FunctionDesc} from '../../../src/core/editor';
 import {TypeView} from './TypeView';
 import {TypeTreeItem} from './TypeTreeItem';
 import {PureDataRenderer} from '../component/DataRenderer';
+import {getFuncStyleFromDesc} from '../util/BlockColors';
 
 interface Props {
   item: TypeTreeItem;
@@ -49,7 +50,7 @@ export class TypeTreeRenderer extends PureDataRenderer<Props, any> {
       );
     } else {
       let icon = desc?.icon;
-      let funcStyle = getFuncStyleFromDesc(desc, 'tico-pr');
+      let funcStyle = getFuncStyleFromDesc(desc, 'ticl-bg--');
       return (
         <div style={{...style, marginLeft}} className="ticl-tree-type">
           <ExpandIcon opened={item.opened} onClick={this.onExpandClicked} />

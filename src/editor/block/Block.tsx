@@ -1,11 +1,11 @@
 import React from 'react';
-import {ClientConn, ValueUpdate, blankFuncDesc, getFuncStyleFromDesc, FunctionDesc} from '../../../src/core/editor';
 import {PureDataRenderer} from '../component/DataRenderer';
 import {TIcon} from '../icon/Icon';
 import {DragDropDiv, DragState} from 'rc-dock';
 import {BaseBlockItem, BlockHeaderView, BlockItem, Stage, XYWRenderer} from './Field';
 import {LazyUpdateSubscriber} from '../component/LazyUpdateComponent';
 import {BlockWidget} from './view/BlockWidget';
+import {getFuncStyleFromDesc} from '../util/BlockColors';
 
 interface BlockViewProps {
   item: BlockItem;

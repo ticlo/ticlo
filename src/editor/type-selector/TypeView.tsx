@@ -1,7 +1,8 @@
 import React from 'react';
-import {FunctionDesc, getDefaultFuncData, getFuncStyleFromDesc, ClientConn} from '../../../src/core/editor';
+import {FunctionDesc, getDefaultFuncData, ClientConn} from '../../../src/core/editor';
 import {TIcon} from '../icon/Icon';
 import {DragDropDiv, DragState} from 'rc-dock/lib';
+import {getFuncStyleFromDesc} from '../util/BlockColors';
 
 export type OnTypeClick = (name: string, desc: FunctionDesc, data: any) => void;
 
@@ -49,7 +50,7 @@ export class TypeView extends React.PureComponent<Props, any> {
     let {ns} = desc;
     return (
       <DragDropDiv
-        className={`${getFuncStyleFromDesc(desc, 'tico-pr')} ticl-type-view`}
+        className={`${getFuncStyleFromDesc(desc, 'ticl-bg--')} ticl-type-view`}
         onClick={this.onClick}
         onDragStartT={this.onDrag}
       >
