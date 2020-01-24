@@ -49,12 +49,11 @@ export class TypeTreeRenderer extends PureDataRenderer<Props, any> {
         </div>
       );
     } else {
-      let icon = desc?.icon;
-      let funcStyle = getFuncStyleFromDesc(desc, 'ticl-bg--');
+      let [colorClass, iconName] = getFuncStyleFromDesc(desc, item.getConn(), 'ticl-bg--');
       return (
         <div style={{...style, marginLeft}} className="ticl-tree-type">
           <ExpandIcon opened={item.opened} onClick={this.onExpandClicked} />
-          <TIcon icon={icon} style={funcStyle} />
+          <TIcon icon={iconName} colorClass={colorClass} />
           <span>{name}</span>
         </div>
       );

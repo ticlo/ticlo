@@ -48,9 +48,7 @@ describe('editor NodeTree', function() {
     await shouldHappen(() => contentDiv.childNodes.length >= 11);
 
     // find block icon
-    await shouldHappen(() =>
-      querySingle("//div.ticl-tree-node-text[text()='5']/../div.tico/div.tico-fas-plus", div)
-    );
+    await shouldHappen(() => querySingle("//div.ticl-tree-node-text[text()='5']/../div.tico/div.tico-fas-plus", div));
 
     // expand more children
     SimulateEvent.simulate(querySingle("//div.ticl-tree-node-text[text()='9']/../../div.ticl-tree-arr", div), 'click');

@@ -11,7 +11,7 @@ for (let charWithOff of [40, 41, 44, 59, 64, 91, 93, 103, 106, 112, 113, 121, 12
 
 interface Props {
   icon: string;
-  style?: string | number;
+  colorClass?: string;
 }
 
 // not an accurate way to measure a string
@@ -55,8 +55,8 @@ function iconNameWidth(str: string): [string, number, boolean] {
 }
 
 export function TIcon(props: Props) {
-  let {icon, style} = props;
-  let className = `tico ${style || ''}`;
+  let {icon, colorClass} = props;
+  let className = `tico ${colorClass || ''}`;
   if (icon == null) {
     icon = '';
   }

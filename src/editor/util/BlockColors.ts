@@ -1,5 +1,6 @@
 import {globalStyle} from '../../../src/html/style/CssRules';
 import {FunctionDesc} from '../../core';
+import {ClientConn} from '../../core/connect/ClientConn';
 
 const usedColors = new Set<string>();
 
@@ -24,19 +25,22 @@ export function addBlockColor(color: string) {
 }
 
 const priorityColors = ['4af', '1bb', '8c1', 'f72'];
-export function getFuncStyleFromDesc(desc: FunctionDesc, prefix = 'ticl-block--'): string {
-  let color: string;
-  let priority: number;
+export function getFuncStyleFromDesc(desc: FunctionDesc, conn: ClientConn, prefix = 'ticl-block--'): [string, string] {
+  let color = '999';
+  let icon: string;
   if (desc) {
-    ({color, priority} = desc);
-    if (!color) {
-      if (priority > -1) {
-        color = priorityColors[priority];
-      } else {
-        color = '999';
+    ({color, icon} = desc);
+    if (!color || !icon) {
+      let category = desc.ns || desc.category;
+      if (category) {
+        let catDesc = conn.watchDesc(category);
+        if (catDesc) {
+          color = color || catDesc.color;
+          icon = icon || catDesc.icon;
+        }
       }
     }
   }
   addBlockColor(color);
-  return prefix + color;
+  return [prefix + color, icon];
 }

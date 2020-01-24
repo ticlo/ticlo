@@ -208,7 +208,8 @@ export class BlockView extends PureDataRenderer<BlockViewProps, BlockViewState> 
       );
     } else if (item.w) {
       classNames.push('ticl-block');
-      classNames.push(getFuncStyleFromDesc(item.desc));
+      let [colorClass, icon] = getFuncStyleFromDesc(item.desc, item.conn);
+      classNames.push(colorClass);
 
       let widget: React.ReactNode;
       let WidgetType = BlockWidget.get(this.widget.value);
@@ -230,7 +231,7 @@ export class BlockView extends PureDataRenderer<BlockViewProps, BlockViewState> 
             onDragMoveT={this.onDragMove}
             onDragEndT={this.onDragEnd}
           >
-            <TIcon icon={item.desc.icon} />
+            <TIcon icon={icon} />
             {item.name}
           </BlockHeaderView>
           {widget}
@@ -255,7 +256,8 @@ export class BlockView extends PureDataRenderer<BlockViewProps, BlockViewState> 
     } else if (item.descLoaded) {
       classNames.push('ticl-block');
       classNames.push('ticl-block-min');
-      classNames.push(getFuncStyleFromDesc(item.desc));
+      let [colorClass, icon] = getFuncStyleFromDesc(item.desc, item.conn);
+      classNames.push(colorClass);
       return (
         <div ref={this.getRef} className={classNames.join(' ')} style={{top: item.y, left: item.x}}>
           <div className="ticl-block-min-bound" />
@@ -267,7 +269,7 @@ export class BlockView extends PureDataRenderer<BlockViewProps, BlockViewState> 
             onDragMoveT={this.onDragMove}
             onDragEndT={this.onDragEnd}
           >
-            <TIcon icon={item.desc.icon} />
+            <TIcon icon={icon} />
           </DragDropDiv>
         </div>
       );

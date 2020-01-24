@@ -309,7 +309,8 @@ export class NodeTreeRenderer extends PureDataRenderer<Props, any> {
     } else if (blockClass === 'GlobalBlock') {
       icon = <GlobalIcon />;
     } else {
-      icon = <TIcon icon={desc.icon} style={getFuncStyleFromDesc(desc, 'ticl-bg--')} />;
+      let [colorClass, iconName] = getFuncStyleFromDesc(desc, item.getConn(), 'ticl-bg--');
+      icon = <TIcon icon={iconName} colorClass={colorClass} />;
     }
     return (
       <div style={{...style, marginLeft}} className="ticl-tree-node">
