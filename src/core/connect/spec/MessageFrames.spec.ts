@@ -18,8 +18,8 @@ describe('Connection Message Frames', function() {
 
     await shouldHappen(() => client.watchDesc('a100'));
 
-    assert.isNotNull(client.watchDesc('a1000'), 'a1000 should be sent in the same batch as a100');
-    assert.isNull(client.watchDesc('a3999'), 'a3999 should be sent in a later frame');
+    assert.isTrue(client.watchDesc('a1000') != null, 'a1000 should be sent in the same batch as a100');
+    assert.isTrue(client.watchDesc('a3999') == null, 'a3999 should be sent in a later frame');
     await shouldHappen(() => client.watchDesc('a3999'), 500);
 
     addTestTypes('b', 4000);
