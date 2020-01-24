@@ -31,9 +31,9 @@ export function getFuncStyleFromDesc(desc: FunctionDesc, conn: ClientConn, prefi
   if (desc) {
     ({color, icon} = desc);
     if (!color || !icon) {
-      let category = desc.ns || desc.category;
+      let category = desc.ns || desc.category || 'other'; // TODO remove other
       if (category) {
-        let catDesc = conn.watchDesc(category);
+        let catDesc = conn.getCategory(category);
         if (catDesc) {
           color = color || catDesc.color;
           icon = icon || catDesc.icon;

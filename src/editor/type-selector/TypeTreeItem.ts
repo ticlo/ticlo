@@ -149,8 +149,8 @@ export class TypeTreeRoot extends TypeTreeItem {
       let catDesc: FunctionDesc;
       if (desc.properties) {
         // function
-        category = desc.category || desc.ns || 'other';
-        catKey = category;
+        category = desc.category || desc.ns || 'other'; // TODO remove other
+        catKey = `${category}:`;
       } else {
         // category
         category = desc.name;
