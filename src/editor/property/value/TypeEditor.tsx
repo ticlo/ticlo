@@ -75,7 +75,7 @@ export class TypeEditor extends StringEditorBase {
     }
     return (
       <DragDropDiv className="ticl-type-editor ticl-hbox" onDragOverT={this.onDragOver} onDropT={this.onDrop}>
-        <TIcon icon={iconName} style={colorClass} />
+        <TIcon icon={iconName} colorClass={colorClass} />
         <Popup
           popupVisible={opened}
           onPopupVisibleChange={this.onPopupClose}
