@@ -379,15 +379,17 @@ export abstract class ClientConnection extends Connection implements ClientConn 
         listener(null, id);
       }
     } else {
-      if (this.descReq.cache.has(id)) {
-        return this.descReq.cache.get(id);
-      }
+      return this.descReq.cache.get(id);
     }
     return null;
   }
 
   unwatchDesc(listener: ClientDescListener) {
     this.descReq.listeners.delete(listener);
+  }
+
+  getCategory(category: string): FunctionDesc {
+    return this.descReq.categories.get(category);
   }
 
   findGlobalBlocks(tags: string[]): string[] {

@@ -326,6 +326,7 @@ export class DescRequest extends ConnectionSend implements ClientCallbacks {
 
   listeners: Map<ClientDescListener, string> = new Map<ClientDescListener, string>();
 
+  categories: Map<string, FunctionDesc> = new Map<string, FunctionDesc>(DescRequest.editorCache);
   cache: Map<string, FunctionDesc> = new Map<string, FunctionDesc>(DescRequest.editorCache);
 
   constructor(data: DataMap) {
@@ -350,6 +351,9 @@ export class DescRequest extends ConnectionSend implements ClientCallbacks {
             }
           } else {
             this.cache.set(id, change);
+            if (id.endsWith(':')) {
+              this.categories.set(id.substring(0, id.length - 1), change);
+            }
             if (this.listeners.size) {
               for (let [listener, lid] of this.listeners) {
                 if (lid === '*' || id === lid) {

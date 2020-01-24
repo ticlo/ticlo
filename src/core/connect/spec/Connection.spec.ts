@@ -2,6 +2,7 @@ import {assert} from 'chai';
 import {Block, Job, Root} from '../../block/Block';
 import {makeLocalConnection} from '../LocalConnection';
 import '../../functions/basic/math/Arithmetic';
+import '../../functions/Categories';
 import {AsyncClientPromise} from './AsyncClientPromise';
 import {VoidListeners, TestFunctionRunner} from '../../block/spec/TestFunction';
 import {FunctionDesc} from '../../block/Descriptor';
@@ -270,6 +271,8 @@ describe('Connection', function() {
     await shouldHappen(() => descCustom != null);
     Functions.clear('Connection-watchDesc1');
     await shouldHappen(() => descCustom == null);
+
+    assert.equal(client.getCategory('math').color, '4af');
 
     client.destroy();
     Root.instance.deleteValue('Connection5');

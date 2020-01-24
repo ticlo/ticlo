@@ -105,6 +105,8 @@ export interface ClientConn {
 
   unwatchDesc(listener: ClientDescListener): void;
 
+  getCategory(category: string): FunctionDesc;
+
   findGlobalBlocks(tags: string[]): string[];
 
   cancel(id: string): void;

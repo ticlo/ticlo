@@ -70,6 +70,10 @@ export class Functions {
     }
 
     let {id} = category;
+    if (!id.endsWith(':')) {
+      id = `${id}:`;
+      category.id = id;
+    }
 
     let func = _functions[id];
     if (!func) {
