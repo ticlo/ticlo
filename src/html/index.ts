@@ -10,5 +10,4 @@ Functions.addCategory({
 });
 
 import './functions/QuerySelector';
-import './functions/StyleDef';
 import './functions/CreateStyle';

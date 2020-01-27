@@ -1,4 +1,5 @@
 import {BaseFunction, Functions, PropDesc, PropGroupDesc} from '../../../src/core';
+import StyleDef from './StyleDef';
 
 export class CreateStyleFunction extends BaseFunction {
   run() {
@@ -38,6 +39,8 @@ Functions.add(
   {
     name: 'create-style',
     icon: 'fab:css3',
+    base: 'html:create-style',
+    def: StyleDef,
     properties: [
       {name: '#spread', type: 'object'},
       {name: 'output', type: 'object', readonly: true}
