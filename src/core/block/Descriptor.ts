@@ -34,9 +34,6 @@ export interface PropDesc {
   readonly?: boolean;
   visible?: VisibleType; // whether property is shown in block view
 
-  // optional properties are not show in PropertyList by default, it only show up in search box, and used when set in #use
-  optional?: boolean;
-
   // default value shown in editor when value is undefined
   default?: string | number | boolean;
 
@@ -84,11 +81,13 @@ export interface FunctionDesc {
   icon?: string;
   /** namespace of the function */
   ns?: string;
-  src?: 'worker' | 'js';
+  src?: 'worker' | 'js' | 'category' | 'def';
   help?: string;
   priority?: 0 | 1 | 2 | 3;
   mode?: BlockMode;
   properties?: (PropDesc | PropGroupDesc)[];
+  // optional properties defined in base function
+  def?: string;
   configs?: PropDesc[];
   /** recipient property will receive value or binding when parent property is converted to subblock of this type */
   recipient?: string;
@@ -101,8 +100,6 @@ export interface FunctionDesc {
   color?: string;
 
   category?: string;
-  /** the order in the category */
-  order?: number;
 }
 
 export const blankFuncDesc: FunctionDesc = {

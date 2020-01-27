@@ -12,6 +12,7 @@ import {DateRangeEditor} from './DateRangeEditor';
 import {ClickParam} from 'antd/lib/menu';
 import {ReadonlyEditor} from './ReadonlyEditor';
 import {ObjectEditor} from './ObjectEditor';
+import {SelectEditor} from './SelectEditor';
 
 const defaultTypes: ValueType[] = ['string', 'number', 'toggle', 'color', 'date', 'date-range', 'object', 'array'];
 
@@ -20,6 +21,7 @@ export const dynamicEditorMap: {[key: string]: any} = {
   'string': StringEditor,
   'toggle': ToggleEditor,
   'color': ColorEditor,
+  'select': SelectEditor,
   'date': DateEditor,
   'date-range': DateRangeEditor,
   'object': ObjectEditor,
@@ -27,10 +29,11 @@ export const dynamicEditorMap: {[key: string]: any} = {
 };
 
 const dynamicTypeIcon: {[key: string]: React.ReactElement} = {
-  'string': <div className="tico-txt">S</div>,
+  'string': <div className="tico-txt">' '</div>,
   'number': <div className="tico-txt">1</div>,
   'toggle': <div className="tico-txt">T</div>,
   'color': <div className="tico-txt">C</div>,
+  'select': <div className="tico-txt">S</div>,
   'date': <div className="tico-txt">D</div>,
   'date-range': <div className="tico-txt">R</div>,
   'object': <div className="tico-txt tico-small-txt">{'{}'}</div>,

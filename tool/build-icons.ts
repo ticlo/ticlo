@@ -1,9 +1,6 @@
 import * as fs from 'fs';
 import * as path from 'path';
 import * as glob from 'glob';
-import {exec} from 'child_process';
-
-
 
 async function main() {
   let output: string[] = [];

@@ -18,6 +18,7 @@ import {PropDispatcher} from '../../src/core/block/Dispatcher';
 import {PropertyListPane} from '../../src/editor/dock/property/PropertyListPane';
 import {NodeTreePane} from '../../src/editor/dock/node-tree/NodeTreePane';
 import {TextEditorPane} from '../../src/editor/dock/text-editor/TextEditorPane';
+import '../../src/html';
 
 const layoutGroups = {
   blockStage: {

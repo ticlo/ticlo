@@ -36,5 +36,5 @@ Functions.add(
       {name: 'output', type: 'none', readonly: true}
     ]
   },
-  'dom'
+  'html'
 );

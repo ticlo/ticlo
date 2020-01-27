@@ -44,15 +44,17 @@ export class Functions {
       desc.priority = 0;
     }
     desc.ns = namespace;
-    cls.prototype.priority = desc.priority;
-    cls.prototype.defaultMode = desc.mode;
-    cls.prototype.useLength = Boolean(
-      desc.properties && desc.properties.find((desc) => desc.name === '' && desc.type === 'group')
-    );
-
     let id = namespace ? `${namespace}:${desc.name}` : desc.name;
     desc.id = id;
-    cls.prototype.type = id;
+
+    if (cls) {
+      cls.prototype.priority = desc.priority;
+      cls.prototype.defaultMode = desc.mode;
+      cls.prototype.useLength = Boolean(
+        desc.properties && desc.properties.find((desc) => desc.name === '' && desc.type === 'group')
+      );
+      cls.prototype.type = id;
+    }
 
     let func = _functions[id];
     if (!func) {
