@@ -747,4 +747,26 @@ describe('Connection', function() {
 
     client.destroy();
   });
+
+  it('add remove move optional props', async function() {
+    let job1 = Root.instance.addJob('Connection21');
+    let block1 = job1.createBlock('a');
+
+    let [server, client] = makeLocalConnection(Root.instance, false);
+
+    await client.addOptionalProp('Connection21.a', 'a');
+    assert.deepEqual(block1.getValue('#optional'), ['a']);
+
+    await client.addOptionalProp('Connection21.a', 'b');
+    assert.deepEqual(block1.getValue('#optional'), ['a', 'b']);
+
+    await client.moveOptionalProp('Connection21.a', 'a', 'b');
+    assert.deepEqual(block1.getValue('#optional'), ['b', 'a']);
+
+    await client.removeOptionalProp('Connection21.a', 'a');
+    assert.deepEqual(block1.getValue('#optional'), ['b']);
+
+    client.destroy();
+    Root.instance.deleteValue('Connection21');
+  });
 });

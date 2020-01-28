@@ -385,7 +385,7 @@ export class ServerConnection extends Connection {
             break;
           }
           case 'addOptionalProp': {
-            result = this.addOptionalProp(request.path, request.desc);
+            result = this.addOptionalProp(request.path, request.name);
             break;
           }
           case 'removeOptionalProp': {
