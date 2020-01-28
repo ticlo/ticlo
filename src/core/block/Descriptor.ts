@@ -86,9 +86,10 @@ export interface FunctionDesc {
   priority?: 0 | 1 | 2 | 3;
   mode?: BlockMode;
   properties?: (PropDesc | PropGroupDesc)[];
-  // optional properties defined in base function
-  def?: string;
   configs?: PropDesc[];
+  // optional properties defined in base function, base function can be the current function itself
+  base?: string;
+  optional?: {[key: string]: PropDesc};
   /** recipient property will receive value or binding when parent property is converted to subblock of this type */
   recipient?: string;
   // used by service editor to filter global blocks
@@ -176,6 +177,7 @@ export function buildPropDescCache(
       }
     }
   }
+
   addProps(funcDesc.configs);
   addProps(more);
   addProps(funcDesc.properties);

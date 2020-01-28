@@ -40,7 +40,7 @@ Functions.add(
     name: 'create-style',
     icon: 'fab:css3',
     base: 'html:create-style',
-    def: StyleDef,
+    optional: StyleDef,
     properties: [
       {name: '#spread', type: 'object'},
       {name: 'output', type: 'object', readonly: true}

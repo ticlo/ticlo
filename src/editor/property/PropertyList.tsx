@@ -22,6 +22,7 @@ import {AddMorePropertyMenu} from './AddMoreProperty';
 import {Popup} from '../component/ClickPopup';
 import {BlockWidget} from '../block/view/BlockWidget';
 import {LazyUpdateComponent, LazyUpdateSubscriber} from '../component/LazyUpdateComponent';
+import {OptionalPropertyList} from './OptionalPropertyList';
 
 function descToEditor(conn: ClientConn, paths: string[], funcDesc: FunctionDesc, propDesc: PropDesc) {
   return (
@@ -259,10 +260,16 @@ export class PropertyList extends MultiSelectComponent<Props, State, BlockLoader
     let moreMerger: PropertyDefMerger = new PropertyDefMerger();
 
     let isEmpty = true;
+    let baseId: string = null;
     for (let [path, subscriber] of this.loaders) {
       if (subscriber.desc) {
-        isEmpty = false;
-        break;
+        if (isEmpty) {
+          baseId = subscriber.desc.base;
+          isEmpty = false;
+        } else if (subscriber.desc.base !== baseId) {
+          baseId = null;
+          break;
+        }
       }
     }
     if (isEmpty) {
@@ -340,8 +347,9 @@ export class PropertyList extends MultiSelectComponent<Props, State, BlockLoader
           <div className="ticl-property-divider">
             <div className="ticl-h-line" />
           </div>
-
           {children}
+
+          {baseId ? <OptionalPropertyList conn={conn} paths={paths} baseId={baseId} /> : null}
 
           <div className="ticl-property-divider">
             <div className="ticl-h-line" style={{maxWidth: '16px'}} />
@@ -381,6 +389,7 @@ export class PropertyList extends MultiSelectComponent<Props, State, BlockLoader
         </div>
       );
     } else {
+      // minimal block used by Service Editor
       return (
         <div className="ticl-property-list" style={style}>
           <PropertyEditor
