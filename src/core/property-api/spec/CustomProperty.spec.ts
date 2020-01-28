@@ -116,6 +116,10 @@ describe('Custom Property', function() {
     // remove nothing
     removeCustomProperty(job, null, null);
     assert.deepEqual(job.getValue('#custom'), [descB]);
+
+    // cleared
+    removeCustomProperty(job, 'b');
+    assert.isUndefined(job.getValue('#custom'));
   });
 
   it('move CustomProperty', function() {
