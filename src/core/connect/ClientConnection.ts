@@ -316,27 +316,27 @@ export abstract class ClientConnection extends Connection implements ClientConn 
     return this.simpleRequest({cmd: 'setLen', path, group, length}, callbacks);
   }
 
-  addMoreProp(
+  addCustomProp(
     path: string,
     desc: PropDesc | PropGroupDesc,
     group?: string,
     callbacks?: ClientCallbacks
   ): Promise<any> | string {
-    return this.simpleRequest({cmd: 'addMoreProp', path, desc, group}, callbacks);
+    return this.simpleRequest({cmd: 'addCustomProp', path, desc, group}, callbacks);
   }
 
-  removeMoreProp(path: string, name: string, group?: string, callbacks?: ClientCallbacks): Promise<any> | string {
-    return this.simpleRequest({cmd: 'removeMoreProp', path, name, group}, callbacks);
+  removeCustomProp(path: string, name: string, group?: string, callbacks?: ClientCallbacks): Promise<any> | string {
+    return this.simpleRequest({cmd: 'removeCustomProp', path, name, group}, callbacks);
   }
 
-  moveMoreProp(
+  moveCustomProp(
     path: string,
     nameFrom: string,
     nameTo: string,
     group?: string,
     callbacks?: ClientCallbacks
   ): Promise<any> | string {
-    return this.simpleRequest({cmd: 'moveMoreProp', path, nameFrom, nameTo, group}, callbacks);
+    return this.simpleRequest({cmd: 'moveCustomProp', path, nameFrom, nameTo, group}, callbacks);
   }
 
   insertGroupProp(path: string, group: string, idx: number, callbacks?: ClientCallbacks): Promise<any> | string {

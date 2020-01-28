@@ -72,16 +72,16 @@ export interface ClientConn {
 
   setLen(path: string, group: string, length: number, callbacks?: ClientCallbacks): Promise<any> | string;
 
-  addMoreProp(
+  addCustomProp(
     path: string,
     desc: PropDesc | PropGroupDesc,
     group?: string,
     callbacks?: ClientCallbacks
   ): Promise<any> | string;
 
-  removeMoreProp(path: string, name: string, group?: string, callbacks?: ClientCallbacks): Promise<any> | string;
+  removeCustomProp(path: string, name: string, group?: string, callbacks?: ClientCallbacks): Promise<any> | string;
 
-  moveMoreProp(
+  moveCustomProp(
     path: string,
     nameFrom: string,
     nameTo: string,

@@ -33,7 +33,7 @@ import {PropertyList} from './PropertyList';
 import {TypeEditor} from './value/TypeEditor';
 import {TypeSelect} from '../type-selector/TypeSelector';
 import {CheckboxChangeEvent} from 'antd/lib/checkbox';
-import {AddMorePropertyMenu} from './AddMoreProperty';
+import {AddCustomPropertyMenu} from './AddCustomProperty';
 import {Popup, Menu, SubMenuItem} from '../component/ClickPopup';
 import {ServiceEditor} from './value/ServiceEditor';
 import {WorkerEditor} from './value/WorkerEditor';
@@ -112,7 +112,7 @@ interface Props {
   name: string; // name is usually same as propDesc.name, but when it's in group, it will have a number after
   funcDesc: FunctionDesc;
   propDesc: PropDesc;
-  isMore?: boolean;
+  isCustom?: boolean;
   group?: string;
   baseName?: string; // the name used in propDesc.name
 }
@@ -202,19 +202,19 @@ export class PropertyEditor extends MultiSelectComponent<Props, State, PropertyL
   };
 
   onDragStart = (e: DragState) => {
-    let {conn, paths, name, group, baseName, isMore} = this.props;
+    let {conn, paths, name, group, baseName, isCustom} = this.props;
 
     if (e.dragType === 'right') {
       let data: any = {paths, fromGroup: group};
       let isLen = group != null && name.endsWith('#len');
-      if (isMore) {
-        // move more property
-        let moveMoreField = baseName != null ? baseName : name;
+      if (isCustom) {
+        // move custom property
+        let moveCustomField = baseName != null ? baseName : name;
         if (isLen) {
-          moveMoreField = group;
+          moveCustomField = group;
           data.fromGroup = null;
         }
-        data.moveMoreField = moveMoreField;
+        data.moveCustomField = moveCustomField;
       }
       if (group != null && !isLen) {
         // move group index
@@ -230,19 +230,19 @@ export class PropertyEditor extends MultiSelectComponent<Props, State, PropertyL
     e.startDrag();
   };
   onDragOver = (e: DragState) => {
-    let {conn, paths, name, propDesc, isMore, group, baseName} = this.props;
+    let {conn, paths, name, propDesc, isCustom, group, baseName} = this.props;
     if (e.dragType === 'right') {
       // check reorder drag with right click
       let moveFromKeys: string[] = DragState.getData('paths', conn.getBaseConn());
       if (deepEqual(moveFromKeys, paths)) {
         let isLen = group != null && name.endsWith('#len');
         let fromGroup = DragState.getData('fromGroup', conn.getBaseConn());
-        if (isMore) {
-          // move more property
+        if (isCustom) {
+          // move custom property
           let moveFromKeys: string[] = DragState.getData('paths', conn.getBaseConn());
-          let moveMoreField: string = DragState.getData('moveMoreField', conn.getBaseConn());
+          let moveCustomField: string = DragState.getData('moveCustomField', conn.getBaseConn());
 
-          if (moveMoreField != null) {
+          if (moveCustomField != null) {
             let moveToField = baseName != null ? baseName : name;
             if (isLen) {
               moveToField = group;
@@ -250,7 +250,7 @@ export class PropertyEditor extends MultiSelectComponent<Props, State, PropertyL
             }
 
             // tslint:disable-next-line:triple-equals
-            if (deepEqual(moveFromKeys, paths) && moveToField !== moveMoreField && group == fromGroup) {
+            if (deepEqual(moveFromKeys, paths) && moveToField !== moveCustomField && group == fromGroup) {
               e.accept('tico-fas-exchange-alt');
               return;
             }
@@ -292,16 +292,16 @@ export class PropertyEditor extends MultiSelectComponent<Props, State, PropertyL
     e.reject();
   };
   onDrop = (e: DragState) => {
-    let {conn, paths, name, isMore, group, baseName} = this.props;
+    let {conn, paths, name, isCustom, group, baseName} = this.props;
     if (e.dragType === 'right') {
       // check reorder drag with right click
       let isLen = group != null && name.endsWith('#len');
       let fromGroup = DragState.getData('fromGroup', conn.getBaseConn());
       let moveFromKeys: string[] = DragState.getData('paths', conn.getBaseConn());
       if (deepEqual(moveFromKeys, paths)) {
-        if (isMore) {
-          // move more property
-          let moveMoreField: string = DragState.getData('moveMoreField', conn.getBaseConn());
+        if (isCustom) {
+          // move custom property
+          let moveCustomField: string = DragState.getData('moveCustomField', conn.getBaseConn());
 
           let moveToField = baseName != null ? baseName : name;
           if (isLen) {
@@ -310,9 +310,9 @@ export class PropertyEditor extends MultiSelectComponent<Props, State, PropertyL
           }
 
           // tslint:disable-next-line:triple-equals
-          if (moveToField !== moveMoreField && group == fromGroup) {
+          if (moveToField !== moveCustomField && group == fromGroup) {
             for (let key of paths) {
-              conn.moveMoreProp(key, moveMoreField, moveToField, fromGroup);
+              conn.moveCustomProp(key, moveCustomField, moveToField, fromGroup);
             }
             return;
           }
@@ -355,10 +355,10 @@ export class PropertyEditor extends MultiSelectComponent<Props, State, PropertyL
     }
   };
 
-  onAddMoreGroupChild = (desc: PropDesc | PropGroupDesc) => {
+  onAddCustomGroupChild = (desc: PropDesc | PropGroupDesc) => {
     let {conn, group} = this.props;
     for (let [key, subscriber] of this.loaders) {
-      conn.addMoreProp(key, desc, group);
+      conn.addCustomProp(key, desc, group);
     }
     this.closeMenu();
   };
@@ -412,7 +412,7 @@ export class PropertyEditor extends MultiSelectComponent<Props, State, PropertyL
   }
 
   getMenu = () => {
-    let {conn, isMore, name, group, propDesc} = this.props;
+    let {conn, isCustom, name, group, propDesc} = this.props;
     let {count, value, valueSame, bindingPath, bindingSame, subBlock, display} = this.mergePropertyState();
 
     if (this.state.showMenu) {
@@ -481,17 +481,17 @@ export class PropertyEditor extends MultiSelectComponent<Props, State, PropertyL
           Show
         </Checkbox>
       );
-      if (isMore) {
+      if (isCustom) {
         menuItems.push(
-          <Button key="removeFromMore" shape="round" onClick={this.onRemoveMore}>
+          <Button key="removeFromCustom" shape="round" onClick={this.onRemoveCustom}>
             Remove Property
           </Button>
         );
         if (group != null) {
           menuItems.push(
             <SubMenuItem
-              key="addMoreProp"
-              popup={<AddMorePropertyMenu conn={conn} onAddProperty={this.onAddMoreGroupChild} group={group} />}
+              key="addCustomProp"
+              popup={<AddCustomPropertyMenu conn={conn} onAddProperty={this.onAddCustomGroupChild} group={group} />}
             >
               Add Child Property
             </SubMenuItem>
@@ -580,20 +580,20 @@ export class PropertyEditor extends MultiSelectComponent<Props, State, PropertyL
     this.closeMenu();
   };
 
-  onRemoveMore = () => {
+  onRemoveCustom = () => {
     let {conn, paths, name, baseName, group} = this.props;
     let removeField = baseName != null ? baseName : name;
     if (group != null && name === `${group}#len`) {
       name = null;
     }
     for (let path of paths) {
-      conn.removeMoreProp(path, removeField, group);
+      conn.removeCustomProp(path, removeField, group);
     }
     this.closeMenu();
   };
 
   renderImpl() {
-    let {conn, paths, funcDesc, propDesc, name, isMore, group} = this.props;
+    let {conn, paths, funcDesc, propDesc, name, isCustom, group} = this.props;
     let {unlocked, showSubBlock, showMenu} = this.state;
 
     let onChange = propDesc.readonly ? null : this.onChange;
@@ -703,7 +703,7 @@ export class PropertyEditor extends MultiSelectComponent<Props, State, PropertyL
           <DragDropDiv
             className={nameClass}
             onDragStartT={this.onDragStart}
-            useRightButtonDragT={isMore || isIndexed}
+            useRightButtonDragT={isCustom || isIndexed}
             onDragOverT={this.onDragOver}
             onDropT={this.onDrop}
           >

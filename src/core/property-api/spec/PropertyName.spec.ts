@@ -7,7 +7,7 @@ import {findPropertyForNewBlock, renameProperty} from '../PropertyName';
 describe('PropertyUtil', function() {
   it('findPropertyForNewBlock', function() {
     let job = new Job();
-    job.setValue('#more', [{name: 'add4', type: 'sting'}]);
+    job.setValue('#custom', [{name: 'add4', type: 'sting'}]);
 
     job.setValue('add1', 1);
     job.setBinding('add2', 'add1');
@@ -25,7 +25,7 @@ describe('PropertyUtil', function() {
     assert.equal(p._name, 'add3');
     p.setValue(1);
 
-    // skip add4 because it's defined in #more
+    // skip add4 because it's defined in #custom
     p = findPropertyForNewBlock(job, 'add');
     assert.equal(p._name, 'add5');
   });

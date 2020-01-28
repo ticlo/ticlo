@@ -467,7 +467,7 @@ export abstract class BaseBlockItem extends DataRendererItem<XYWRenderer> {
 
   name: string;
   desc: FunctionDesc = blankFuncDesc;
-  more: (PropDesc | PropGroupDesc)[];
+  custom: (PropDesc | PropGroupDesc)[];
   propDescCache: {[key: string]: PropDesc};
   fields: string[] = [];
   fieldItems: Map<string, FieldItem> = new Map<string, FieldItem>();
@@ -510,14 +510,14 @@ export abstract class BaseBlockItem extends DataRendererItem<XYWRenderer> {
       }
     }
   });
-  moreListener = new ValueSubscriber({
+  customListener = new ValueSubscriber({
     onUpdate: (response: ValueUpdate) => {
       let value = response.cache.value;
       if (!Array.isArray(value)) {
         value = null;
       }
-      if (!deepEqual(value, this.more)) {
-        this.more = value;
+      if (!deepEqual(value, this.custom)) {
+        this.custom = value;
         this.updatePropCache();
       }
     }
@@ -539,7 +539,7 @@ export abstract class BaseBlockItem extends DataRendererItem<XYWRenderer> {
 
   startSubscribe() {
     this.isListener.subscribe(this.conn, `${this.path}.#is`, true);
-    this.moreListener.subscribe(this.conn, `${this.path}.#more`, true);
+    this.customListener.subscribe(this.conn, `${this.path}.#custom`, true);
     this.pListener.subscribe(this.conn, `${this.path}.@b-p`, true);
   }
 
@@ -580,7 +580,7 @@ export abstract class BaseBlockItem extends DataRendererItem<XYWRenderer> {
   }
 
   updatePropCache() {
-    this.propDescCache = buildPropDescCache(this.desc, this.more);
+    this.propDescCache = buildPropDescCache(this.desc, this.custom);
     for (let [key, item] of this.fieldItems) {
       item.setDesc(findPropDesc(key, this.propDescCache));
     }
@@ -602,7 +602,7 @@ export abstract class BaseBlockItem extends DataRendererItem<XYWRenderer> {
 
   destroy() {
     this.isListener.unsubscribe();
-    this.moreListener.unsubscribe();
+    this.customListener.unsubscribe();
     this.pListener.unsubscribe();
     this.conn.unwatchDesc(this.descListener);
     for (let [, fieldItem] of this.fieldItems) {

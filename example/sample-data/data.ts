@@ -1,4 +1,4 @@
-let sharedMore: any[] = [
+let sharedCustom: any[] = [
   {name: 'num', type: 'number'},
   {name: 'str', type: 'string'},
   {name: 'tog1', type: 'toggle'},
@@ -20,11 +20,11 @@ let sharedMore: any[] = [
     outputs: [{name: 'result', type: 'string'}]
   }
 ];
-let len = sharedMore.length;
+let len = sharedCustom.length;
 for (let i = 0; i < len; ++i) {
-  let r = {...sharedMore[i], readonly: true};
+  let r = {...sharedCustom[i], readonly: true};
   r.name = r.name.toUpperCase();
-  sharedMore.push(r);
+  sharedCustom.push(r);
 }
 
 export const data: any = {
@@ -34,7 +34,7 @@ export const data: any = {
     '1': 4,
     '@b-xyw': [100, 100, 150],
     '@b-p': ['0', '1', 'output', '@b-p', '#is'],
-    '#more': sharedMore
+    '#more': sharedCustom
   },
   subtract: {
     '#is': 'subtract',
@@ -72,7 +72,7 @@ export const data: any = {
     '#length': 2,
     '@b-xyw': [400, 200, 150],
     '@b-p': ['0', '1', 'output'],
-    '#more': sharedMore
+    '#custom': sharedCustom
   },
   equal: {
     '#is': 'equal',

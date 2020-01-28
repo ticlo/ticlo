@@ -590,20 +590,20 @@ describe('Connection', function() {
     Root.instance.deleteValue('Connection14');
   });
 
-  it('add remove more props', async function() {
+  it('add remove custom props', async function() {
     let job1 = Root.instance.addJob('Connection15');
     let block1 = job1.createBlock('a');
 
     let [server, client] = makeLocalConnection(Root.instance, false);
 
-    let response1 = await client.addMoreProp('Connection15.a', {
+    let response1 = await client.addCustomProp('Connection15.a', {
       name: 'a',
       type: 'string'
     });
-    assert.deepEqual(block1.getValue('#more'), [{name: 'a', type: 'string'}]);
+    assert.deepEqual(block1.getValue('#custom'), [{name: 'a', type: 'string'}]);
 
-    let response2 = await client.removeMoreProp('Connection15.a', 'a');
-    assert.deepEqual(block1.getValue('#more'), []);
+    let response2 = await client.removeCustomProp('Connection15.a', 'a');
+    assert.deepEqual(block1.getValue('#custom'), []);
 
     client.destroy();
     Root.instance.deleteValue('Connection15');
@@ -649,18 +649,18 @@ describe('Connection', function() {
     Root.instance.deleteValue('Connection16-2');
   });
 
-  it('move more props', async function() {
+  it('move custom props', async function() {
     let job1 = Root.instance.addJob('Connection17');
     let block1 = job1.createBlock('a');
-    block1.setValue('#more', [
+    block1.setValue('#custom', [
       {name: 'a', type: 'string'},
       {name: 'b', type: 'string'}
     ]);
 
     let [server, client] = makeLocalConnection(Root.instance, false);
 
-    let response1 = await client.moveMoreProp('Connection17.a', 'a', 'b');
-    assert.deepEqual(block1.getValue('#more'), [
+    let response1 = await client.moveCustomProp('Connection17.a', 'a', 'b');
+    assert.deepEqual(block1.getValue('#custom'), [
       {name: 'b', type: 'string'},
       {name: 'a', type: 'string'}
     ]);

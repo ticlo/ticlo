@@ -4,7 +4,7 @@ import {deepClone} from '../util/Clone';
 import {endsWithNumberReg} from '../util/String';
 import {hideGroupProperties, hideProperties, showGroupProperties, showProperties} from './PropertyShowHide';
 
-export function addMoreProperty(block: Block, desc: PropDesc | PropGroupDesc, group?: string) {
+export function addCustomProperty(block: Block, desc: PropDesc | PropGroupDesc, group?: string) {
   let propDesc: PropDesc;
   let groupDesc: PropGroupDesc;
   if (desc.type === 'group') {
@@ -27,15 +27,15 @@ export function addMoreProperty(block: Block, desc: PropDesc | PropGroupDesc, gr
     }
   }
 
-  let moreProps = block.getValue('#more');
+  let customProps = block.getValue('#custom');
 
-  if (!Array.isArray(moreProps)) {
+  if (!Array.isArray(customProps)) {
     // if it's not a child property in a group
     if (groupDesc) {
-      block.setValue('#more', [desc]);
+      block.setValue('#custom', [desc]);
       showGroupProperties(block, groupDesc);
     } else if (group == null) {
-      block.setValue('#more', [desc]);
+      block.setValue('#custom', [desc]);
       if ((desc as PropDesc).visible !== 'low') {
         showProperties(block, [desc.name]);
       }
@@ -43,20 +43,20 @@ export function addMoreProperty(block: Block, desc: PropDesc | PropGroupDesc, gr
     return;
   }
 
-  moreProps = deepClone(moreProps);
+  customProps = deepClone(customProps);
 
   if (group != null) {
-    let groupIdx = moreProps.findIndex((g: PropGroupDesc) => g.name === group);
+    let groupIdx = customProps.findIndex((g: PropGroupDesc) => g.name === group);
     if (groupIdx > -1) {
       if (groupDesc) {
-        hideGroupProperties(block, moreProps[groupIdx]);
+        hideGroupProperties(block, customProps[groupIdx]);
         // replace existing group
-        moreProps[groupIdx] = groupDesc;
-        block.setValue('#more', moreProps);
+        customProps[groupIdx] = groupDesc;
+        block.setValue('#custom', customProps);
         showGroupProperties(block, groupDesc);
       } else {
         // add property to existing group
-        groupDesc = moreProps[groupIdx];
+        groupDesc = customProps[groupIdx];
         let groupChildIdx = groupDesc.properties.findIndex((p: PropDesc) => p.name === propDesc.name);
         if (groupChildIdx > -1) {
           groupDesc.properties[groupChildIdx] = propDesc;
@@ -66,77 +66,77 @@ export function addMoreProperty(block: Block, desc: PropDesc | PropGroupDesc, gr
             showGroupProperties(block, groupDesc, propDesc.name);
           }
         }
-        block.setValue('#more', moreProps);
+        block.setValue('#custom', customProps);
       }
     } else if (groupDesc) {
       // add a new group
-      moreProps.push(groupDesc);
-      block.setValue('#more', moreProps);
+      customProps.push(groupDesc);
+      block.setValue('#custom', customProps);
       showGroupProperties(block, groupDesc);
     }
   } else {
-    let propIndex = moreProps.findIndex((g: PropDesc) => g.name === propDesc.name);
+    let propIndex = customProps.findIndex((g: PropDesc) => g.name === propDesc.name);
     if (propIndex > -1) {
-      moreProps[propIndex] = propDesc;
+      customProps[propIndex] = propDesc;
     } else {
-      moreProps.push(propDesc);
+      customProps.push(propDesc);
       if ((desc as PropDesc).visible !== 'low') {
         showProperties(block, [desc.name]);
       }
     }
-    block.setValue('#more', moreProps);
+    block.setValue('#custom', customProps);
   }
 }
 
-export function removeMoreProperty(block: Block, name: string, group?: string) {
-  let moreProps: any[] = block.getValue('#more');
+export function removeCustomProperty(block: Block, name: string, group?: string) {
+  let customProps: any[] = block.getValue('#custom');
 
-  if (!Array.isArray(moreProps)) {
+  if (!Array.isArray(customProps)) {
     return;
   }
 
-  moreProps = deepClone(moreProps);
+  customProps = deepClone(customProps);
   if (group) {
-    let groupIdx = moreProps.findIndex((g: PropGroupDesc) => g.name === group && g.type === 'group');
+    let groupIdx = customProps.findIndex((g: PropGroupDesc) => g.name === group && g.type === 'group');
     if (groupIdx > -1) {
-      let groupDesc: PropGroupDesc = moreProps[groupIdx];
+      let groupDesc: PropGroupDesc = customProps[groupIdx];
       if (name) {
         let groupChildIdx = groupDesc.properties.findIndex((p: PropDesc) => p.name === name);
         if (groupChildIdx > -1) {
           groupDesc.properties.splice(groupChildIdx, 1);
-          block.setValue('#more', moreProps);
+          block.setValue('#custom', customProps);
           hideGroupProperties(block, groupDesc, name);
         }
       } else {
-        moreProps.splice(groupIdx, 1);
-        block.setValue('#more', moreProps);
+        customProps.splice(groupIdx, 1);
+        block.setValue('#custom', customProps);
         hideGroupProperties(block, groupDesc);
       }
     }
   } else if (name) {
-    let propIndex = moreProps.findIndex((g: PropDesc) => g.name === name);
+    let propIndex = customProps.findIndex((g: PropDesc) => g.name === name);
     if (propIndex > -1) {
-      moreProps.splice(propIndex, 1);
-      block.setValue('#more', moreProps);
+      customProps.splice(propIndex, 1);
+      block.setValue('#custom', customProps);
       hideProperties(block, [name]);
     }
   }
 }
 
-export function moveMoreProperty(block: Block, nameFrom: string, nameTo: string, group?: string) {
+export function moveCustomProperty(block: Block, nameFrom: string, nameTo: string, group?: string) {
   if (nameFrom === nameTo) {
     return;
   }
 
-  let moreProps: any[] = block.getValue('#more');
-  if (!Array.isArray(moreProps)) {
+  let customProps: any[] = block.getValue('#custom');
+  if (!Array.isArray(customProps)) {
     return;
   }
-  moreProps = deepClone(moreProps);
+  customProps = deepClone(customProps);
 
-  let targetProps = moreProps;
+  let targetProps = customProps;
   if (group != null) {
-    let foundGroup: PropGroupDesc = moreProps.find((g: PropGroupDesc) => g.name === group && g.type === 'group');
+    let foundGroup: PropGroupDesc = customProps.find((g: PropGroupDesc) => g.name === group && g.type === 'group');
     if (foundGroup) {
       targetProps = foundGroup.properties;
     } else {
@@ -149,6 +149,6 @@ export function moveMoreProperty(block: Block, nameFrom: string, nameTo: string,
   if (idxFrom > -1 && idxTo > -1) {
     let from = targetProps.splice(idxFrom, 1)[0];
     targetProps.splice(idxTo, 0, from);
-    block.setValue('#more', moreProps);
+    block.setValue('#custom', customProps);
   }
 }

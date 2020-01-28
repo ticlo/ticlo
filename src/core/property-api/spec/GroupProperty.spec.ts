@@ -31,11 +31,11 @@ describe('GroupProperty', function() {
     assert.deepEqual(job.getValue('@b-p'), ['0', '1']);
   });
 
-  it('setGroupLength on #more', function() {
+  it('setGroupLength on #custom', function() {
     let job = new Job();
     job.load({
       '#is': '',
-      '#more': [
+      '#custom': [
         {
           name: 'g',
           type: 'group',

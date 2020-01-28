@@ -18,7 +18,7 @@ import {PropertyEditor} from './PropertyEditor';
 import {GroupEditor} from './GroupEditor';
 import {MultiSelectComponent, MultiSelectLoader} from './MultiSelectComponent';
 import {ExpandIcon, ExpandState} from '../component/Tree';
-import {AddMorePropertyMenu} from './AddMoreProperty';
+import {AddCustomPropertyMenu} from './AddCustomProperty';
 import {Popup} from '../component/ClickPopup';
 import {BlockWidget} from '../block/view/BlockWidget';
 import {LazyUpdateComponent, LazyUpdateSubscriber} from '../component/LazyUpdateComponent';
@@ -44,15 +44,15 @@ class BlockLoader extends MultiSelectLoader<PropertyList> {
     }
   });
 
-  more: (PropDesc | PropGroupDesc)[];
-  moreListener = new ValueSubscriber({
+  custom: (PropDesc | PropGroupDesc)[];
+  customListener = new ValueSubscriber({
     onUpdate: (response: ValueUpdate) => {
       let value = response.cache.value;
       if (!Array.isArray(value)) {
         value = null;
       }
-      if (!deepEqual(value, this.more)) {
-        this.more = value;
+      if (!deepEqual(value, this.custom)) {
+        this.custom = value;
         this.parent.forceUpdate();
       }
     }
@@ -84,13 +84,13 @@ class BlockLoader extends MultiSelectLoader<PropertyList> {
 
   init() {
     this.isListener.subscribe(this.conn, `${this.path}.#is`, true);
-    this.moreListener.subscribe(this.conn, `${this.path}.#more`, true);
+    this.customListener.subscribe(this.conn, `${this.path}.#custom`, true);
     this.widgetListener.subscribe(this.conn, `${this.path}.@b-widget`, true);
   }
 
   destroy() {
     this.isListener.unsubscribe();
-    this.moreListener.unsubscribe();
+    this.customListener.unsubscribe();
     this.widgetListener.unsubscribe();
     this.conn.unwatchDesc(this.onDesc);
   }
@@ -140,8 +140,8 @@ interface Props {
 interface State {
   showConfig: boolean;
   showAttribute: boolean;
-  showMore: boolean;
-  showAddMorePopup: boolean;
+  showCustom: boolean;
+  showAddCustomPopup: boolean;
 }
 
 class PropertyDefMerger {
@@ -178,7 +178,7 @@ class PropertyDefMerger {
     }
   }
 
-  render(paths: string[], conn: ClientConn, funcDesc: FunctionDesc, isMore?: boolean) {
+  render(paths: string[], conn: ClientConn, funcDesc: FunctionDesc, isCustom?: boolean) {
     let children: React.ReactNode[] = [];
     if (this.map) {
       for (let [name, prop] of this.map) {
@@ -188,7 +188,7 @@ class PropertyDefMerger {
               key={name}
               paths={paths}
               conn={conn}
-              isMore={isMore}
+              isCustom={isCustom}
               funcDesc={funcDesc}
               groupDesc={prop as PropGroupDesc}
             />
@@ -200,7 +200,7 @@ class PropertyDefMerger {
               name={name}
               paths={paths}
               conn={conn}
-              isMore={isMore}
+              isCustom={isCustom}
               funcDesc={funcDesc}
               propDesc={prop as PropDesc}
             />
@@ -221,7 +221,7 @@ class PropertyDefMerger {
 export class PropertyList extends MultiSelectComponent<Props, State, BlockLoader> {
   constructor(props: Readonly<Props>) {
     super(props);
-    this.state = {showConfig: false, showAttribute: false, showMore: true, showAddMorePopup: false};
+    this.state = {showConfig: false, showAttribute: false, showCustom: true, showAddCustomPopup: false};
     this.updateLoaders(props.paths);
   }
 
@@ -229,8 +229,8 @@ export class PropertyList extends MultiSelectComponent<Props, State, BlockLoader
     return new BlockLoader(path, this);
   }
 
-  onShowMoreClick = () => {
-    this.safeSetState({showMore: !this.state.showMore});
+  onShowCustomClick = () => {
+    this.safeSetState({showCustom: !this.state.showCustom});
   };
   onShowConfigClick = () => {
     this.safeSetState({showConfig: !this.state.showConfig});
@@ -238,26 +238,26 @@ export class PropertyList extends MultiSelectComponent<Props, State, BlockLoader
   onShowAttributeClick = () => {
     this.safeSetState({showAttribute: !this.state.showAttribute});
   };
-  onAddMorePopup = (visible: boolean) => {
-    this.safeSetState({showAddMorePopup: visible});
+  onAddCustomPopup = (visible: boolean) => {
+    this.safeSetState({showAddCustomPopup: visible});
   };
 
-  onAddMore = (desc: PropDesc | PropGroupDesc) => {
+  onAddCustom = (desc: PropDesc | PropGroupDesc) => {
     let {conn} = this.props;
     for (let [path, subscriber] of this.loaders) {
-      conn.addMoreProp(path, desc);
+      conn.addCustomProp(path, desc);
     }
-    this.onAddMorePopup(false);
+    this.onAddCustomPopup(false);
   };
 
   renderImpl() {
     let {conn, paths, style, mode} = this.props;
-    let {showConfig, showAttribute, showMore, showAddMorePopup} = this.state;
+    let {showConfig, showAttribute, showCustom, showAddCustomPopup} = this.state;
 
     let descChecked: Set<string> = new Set<string>();
     let propMerger: PropertyDefMerger = new PropertyDefMerger();
     let configMerger: PropertyDefMerger = new PropertyDefMerger();
-    let moreMerger: PropertyDefMerger = new PropertyDefMerger();
+    let customMerger: PropertyDefMerger = new PropertyDefMerger();
 
     let isEmpty = true;
     let baseId: string = null;
@@ -320,26 +320,26 @@ export class PropertyList extends MultiSelectComponent<Props, State, BlockLoader
         configChildren = configMerger.render(paths, conn, funcDesc, true);
       }
 
-      // merge #more properties
-      let moreChildren: React.ReactNode[];
+      // merge #custom properties
+      let customChildren: React.ReactNode[];
       for (let [path, subscriber] of this.loaders) {
-        if (subscriber.more) {
-          moreMerger.add(subscriber.more);
+        if (subscriber.custom) {
+          customMerger.add(subscriber.custom);
         } else {
           // properties not ready
-          moreMerger.map = null;
+          customMerger.map = null;
           break;
         }
       }
-      if (moreMerger.isNotEmpty() && showMore) {
-        moreChildren = moreMerger.render(paths, conn, funcDesc, true);
+      if (customMerger.isNotEmpty() && showCustom) {
+        customChildren = customMerger.render(paths, conn, funcDesc, true);
       }
 
       let allowAttribute = mode == null && paths.length === 1;
 
-      let moreExpand: ExpandState = 'empty';
-      if (moreMerger.isNotEmpty()) {
-        moreExpand = showMore ? 'opened' : 'closed';
+      let customExpand: ExpandState = 'empty';
+      if (customMerger.isNotEmpty()) {
+        customExpand = showCustom ? 'opened' : 'closed';
       }
       return (
         <div className="ticl-property-list" style={style}>
@@ -373,19 +373,19 @@ export class PropertyList extends MultiSelectComponent<Props, State, BlockLoader
 
           <div className="ticl-property-divider">
             <div className="ticl-h-line" style={{maxWidth: '16px'}} />
-            <ExpandIcon opened={moreExpand} onClick={this.onShowMoreClick} />
-            <span>more</span>
+            <ExpandIcon opened={customExpand} onClick={this.onShowCustomClick} />
+            <span>custom</span>
             <Popup
-              popupVisible={showAddMorePopup}
-              onPopupVisibleChange={this.onAddMorePopup}
-              popup={<AddMorePropertyMenu conn={conn} onAddProperty={this.onAddMore} />}
+              popupVisible={showAddCustomPopup}
+              onPopupVisibleChange={this.onAddCustomPopup}
+              popup={<AddCustomPropertyMenu conn={conn} onAddProperty={this.onAddCustom} />}
             >
               <Button className="ticl-icon-btn" shape="circle" tabIndex={-1} icon={<PlusSquareIcon />} />
             </Popup>
 
             <div className="ticl-h-line" />
           </div>
-          {moreChildren}
+          {customChildren}
         </div>
       );
     } else {

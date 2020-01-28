@@ -1137,10 +1137,10 @@ export class InputBlock extends Block {
       this.updateValue('#value', val);
     }
     if (Object.isExtensible(val)) {
-      let moreList = this.getValue('#more');
-      if (Array.isArray(moreList)) {
-        for (let moreProp of moreList) {
-          this.updateValue(moreProp.name, val[moreProp.name]);
+      let customList = this.getValue('#custom');
+      if (Array.isArray(customList)) {
+        for (let customProp of customList) {
+          this.updateValue(customProp.name, val[customProp.name]);
         }
       }
     }

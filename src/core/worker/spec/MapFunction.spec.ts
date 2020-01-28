@@ -115,7 +115,7 @@ describe('MapFunction non-thread', function() {
 
     bBlock.setValue('use', {
       '#is': '',
-      '#input': {'#is': '', '#more': [{name: 'a', type: 'number'}]},
+      '#input': {'#is': '', '#custom': [{name: 'a', type: 'number'}]},
       '#output': {'#is': '', '~#value': '##.#input.a'}
     });
 

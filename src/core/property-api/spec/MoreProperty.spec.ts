@@ -1,10 +1,10 @@
 import {assert} from 'chai';
 
-import {addMoreProperty, moveMoreProperty, removeMoreProperty} from '../MoreProperty';
+import {addCustomProperty, moveCustomProperty, removeCustomProperty} from '../CustomProperty';
 import {Job} from '../../block/Block';
 import {PropDesc, PropGroupDesc} from '../../block/Descriptor';
 
-describe('More Property', function() {
+describe('Custom Property', function() {
   let descA: PropDesc = {name: 'a', type: 'string'};
   let descB: PropDesc = {name: 'b', type: 'number'};
   let descBNumber: PropDesc = {name: 'b0', type: 'number'};
@@ -25,109 +25,109 @@ describe('More Property', function() {
     properties: []
   };
 
-  it('add remove MoreProperty', function() {
+  it('add remove CustomProperty', function() {
     let job = new Job();
 
-    // remove should do nothing when #more is undefined
-    removeMoreProperty(job, 'a');
-    assert.isUndefined(job.getValue('#more'));
+    // remove should do nothing when #custom is undefined
+    removeCustomProperty(job, 'a');
+    assert.isUndefined(job.getValue('#custom'));
 
     // add invalid desc
-    addMoreProperty(job, {} as any);
-    assert.isUndefined(job.getValue('#more'));
+    addCustomProperty(job, {} as any);
+    assert.isUndefined(job.getValue('#custom'));
 
     // add invalid desc
-    addMoreProperty(job, {...descBlank, visible: 'low'});
-    assert.isUndefined(job.getValue('#more'));
+    addCustomProperty(job, {...descBlank, visible: 'low'});
+    assert.isUndefined(job.getValue('#custom'));
 
     // add property into group that doesn't exist
-    addMoreProperty(job, descA, 'g');
-    assert.isUndefined(job.getValue('#more'));
+    addCustomProperty(job, descA, 'g');
+    assert.isUndefined(job.getValue('#custom'));
 
-    addMoreProperty(job, descA);
-    assert.deepEqual(job.getValue('#more'), [descA]);
+    addCustomProperty(job, descA);
+    assert.deepEqual(job.getValue('#custom'), [descA]);
     assert.deepEqual(job.getValue('@b-p'), ['a']);
 
-    addMoreProperty(job, descB);
-    assert.deepEqual(job.getValue('#more'), [descA, descB]);
+    addCustomProperty(job, descB);
+    assert.deepEqual(job.getValue('#custom'), [descA, descB]);
     assert.deepEqual(job.getValue('@b-p'), ['a', 'b']);
 
     // when prop name is same, overwrite the previous one
-    addMoreProperty(job, descA2);
-    assert.deepEqual(job.getValue('#more'), [descA2, descB]);
+    addCustomProperty(job, descA2);
+    assert.deepEqual(job.getValue('#custom'), [descA2, descB]);
 
     // add property into group that doesn't exist
-    addMoreProperty(job, descA, 'g');
-    assert.deepEqual(job.getValue('#more'), [descA2, descB]);
+    addCustomProperty(job, descA, 'g');
+    assert.deepEqual(job.getValue('#custom'), [descA2, descB]);
 
-    addMoreProperty(job, descG);
-    assert.deepEqual(job.getValue('#more'), [descA2, descB, descG]);
+    addCustomProperty(job, descG);
+    assert.deepEqual(job.getValue('#custom'), [descA2, descB, descG]);
     assert.deepEqual(job.getValue('@b-p'), ['a', 'b']);
 
     // add property into group
-    addMoreProperty(job, descA2, 'g');
-    assert.deepEqual(job.getValue('#more'), [descA2, descB, {...descG, properties: [descA2]}]);
+    addCustomProperty(job, descA2, 'g');
+    assert.deepEqual(job.getValue('#custom'), [descA2, descB, {...descG, properties: [descA2]}]);
     assert.deepEqual(job.getValue('@b-p'), ['a', 'b']);
 
     // cant add property name ends with number into a group
-    addMoreProperty(job, descBNumber, 'g');
-    assert.deepEqual(job.getValue('#more'), [descA2, descB, {...descG, properties: [descA2]}]);
+    addCustomProperty(job, descBNumber, 'g');
+    assert.deepEqual(job.getValue('#custom'), [descA2, descB, {...descG, properties: [descA2]}]);
 
     // add property with blank name into group
-    addMoreProperty(job, descBlank, 'g');
-    assert.deepEqual(job.getValue('#more'), [descA2, descB, {...descG, properties: [descA2, descBlank]}]);
+    addCustomProperty(job, descBlank, 'g');
+    assert.deepEqual(job.getValue('#custom'), [descA2, descB, {...descG, properties: [descA2, descBlank]}]);
     assert.deepEqual(job.getValue('@b-p'), ['a', 'b', '0']);
 
     // replace property in group
-    addMoreProperty(job, descA, 'g');
-    assert.deepEqual(job.getValue('#more'), [descA2, descB, {...descG, properties: [descA, descBlank]}]);
+    addCustomProperty(job, descA, 'g');
+    assert.deepEqual(job.getValue('#custom'), [descA2, descB, {...descG, properties: [descA, descBlank]}]);
 
     // replace the group
-    addMoreProperty(job, descG2);
-    assert.deepEqual(job.getValue('#more'), [descA2, descB, descG2Fix]);
+    addCustomProperty(job, descG2);
+    assert.deepEqual(job.getValue('#custom'), [descA2, descB, descG2Fix]);
     assert.deepEqual(job.getValue('@b-p'), ['a', 'b']);
 
-    addMoreProperty(job, descA, 'g');
-    assert.deepEqual(job.getValue('#more'), [descA2, descB, {...descG2Fix, properties: [descA]}]);
+    addCustomProperty(job, descA, 'g');
+    assert.deepEqual(job.getValue('#custom'), [descA2, descB, {...descG2Fix, properties: [descA]}]);
     assert.deepEqual(job.getValue('@b-p'), ['a', 'b', 'a0', 'a1']);
 
     // remove property from group
-    removeMoreProperty(job, 'a', 'g');
-    assert.deepEqual(job.getValue('#more'), [descA2, descB, descG2Fix]);
+    removeCustomProperty(job, 'a', 'g');
+    assert.deepEqual(job.getValue('#custom'), [descA2, descB, descG2Fix]);
     assert.deepEqual(job.getValue('@b-p'), ['a', 'b']);
     // again
-    removeMoreProperty(job, 'a', 'g');
-    assert.deepEqual(job.getValue('#more'), [descA2, descB, descG2Fix]);
+    removeCustomProperty(job, 'a', 'g');
+    assert.deepEqual(job.getValue('#custom'), [descA2, descB, descG2Fix]);
 
-    removeMoreProperty(job, 'a');
-    assert.deepEqual(job.getValue('#more'), [descB, descG2Fix]);
+    removeCustomProperty(job, 'a');
+    assert.deepEqual(job.getValue('#custom'), [descB, descG2Fix]);
     assert.deepEqual(job.getValue('@b-p'), ['b']);
     // again
-    removeMoreProperty(job, 'a');
-    assert.deepEqual(job.getValue('#more'), [descB, descG2Fix]);
+    removeCustomProperty(job, 'a');
+    assert.deepEqual(job.getValue('#custom'), [descB, descG2Fix]);
 
     // remove the group
-    removeMoreProperty(job, null, 'g');
-    assert.deepEqual(job.getValue('#more'), [descB]);
+    removeCustomProperty(job, null, 'g');
+    assert.deepEqual(job.getValue('#custom'), [descB]);
     // again
-    removeMoreProperty(job, null, 'g');
-    assert.deepEqual(job.getValue('#more'), [descB]);
+    removeCustomProperty(job, null, 'g');
+    assert.deepEqual(job.getValue('#custom'), [descB]);
 
     // remove nothing
-    removeMoreProperty(job, null, null);
-    assert.deepEqual(job.getValue('#more'), [descB]);
+    removeCustomProperty(job, null, null);
+    assert.deepEqual(job.getValue('#custom'), [descB]);
   });
 
-  it('move MoreProperty', function() {
+  it('move CustomProperty', function() {
     let job = new Job();
 
-    moveMoreProperty(job, 'a', 'b');
-    assert.isUndefined(job.getValue('#more'));
+    moveCustomProperty(job, 'a', 'b');
+    assert.isUndefined(job.getValue('#custom'));
 
-    moveMoreProperty(job, 'a', 'a');
-    assert.isUndefined(job.getValue('#more'));
+    moveCustomProperty(job, 'a', 'a');
+    assert.isUndefined(job.getValue('#custom'));
 
-    job.setValue('#more', [
+    job.setValue('#custom', [
       descA,
       {
         ...descG,
@@ -136,25 +136,25 @@ describe('More Property', function() {
       descB
     ]);
 
-    moveMoreProperty(job, 'a', 'b');
-    assert.deepEqual(job.getValue('#more'), [{...descG, properties: [descA, descC]}, descB, descA]);
+    moveCustomProperty(job, 'a', 'b');
+    assert.deepEqual(job.getValue('#custom'), [{...descG, properties: [descA, descC]}, descB, descA]);
 
-    moveMoreProperty(job, 'a', 'b');
-    assert.deepEqual(job.getValue('#more'), [{...descG, properties: [descA, descC]}, descA, descB]);
+    moveCustomProperty(job, 'a', 'b');
+    assert.deepEqual(job.getValue('#custom'), [{...descG, properties: [descA, descC]}, descA, descB]);
 
-    moveMoreProperty(job, 'a', 'g');
-    assert.deepEqual(job.getValue('#more'), [descA, {...descG, properties: [descA, descC]}, descB]);
+    moveCustomProperty(job, 'a', 'g');
+    assert.deepEqual(job.getValue('#custom'), [descA, {...descG, properties: [descA, descC]}, descB]);
 
-    moveMoreProperty(job, 'a', 'c', 'g');
-    assert.deepEqual(job.getValue('#more'), [descA, {...descG, properties: [descC, descA]}, descB]);
+    moveCustomProperty(job, 'a', 'c', 'g');
+    assert.deepEqual(job.getValue('#custom'), [descA, {...descG, properties: [descC, descA]}, descB]);
 
-    moveMoreProperty(job, 'a', 'c', 'g2'); // group doesn't exist
-    assert.deepEqual(job.getValue('#more'), [descA, {...descG, properties: [descC, descA]}, descB]);
+    moveCustomProperty(job, 'a', 'c', 'g2'); // group doesn't exist
+    assert.deepEqual(job.getValue('#custom'), [descA, {...descG, properties: [descC, descA]}, descB]);
 
-    moveMoreProperty(job, 'a', 'c'); // property doesn't exist
-    assert.deepEqual(job.getValue('#more'), [descA, {...descG, properties: [descC, descA]}, descB]);
+    moveCustomProperty(job, 'a', 'c'); // property doesn't exist
+    assert.deepEqual(job.getValue('#custom'), [descA, {...descG, properties: [descC, descA]}, descB]);
 
-    moveMoreProperty(job, 'c', 'b'); // property doesn't exist
-    assert.deepEqual(job.getValue('#more'), [descA, {...descG, properties: [descC, descA]}, descB]);
+    moveCustomProperty(job, 'c', 'b'); // property doesn't exist
+    assert.deepEqual(job.getValue('#custom'), [descA, {...descG, properties: [descC, descA]}, descB]);
   });
 });

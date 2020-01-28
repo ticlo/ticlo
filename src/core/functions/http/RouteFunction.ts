@@ -5,18 +5,18 @@ import {Functions} from '../../block/Functions';
 import {HttpRequest} from './HttpRequest';
 import {deepEqual} from '../../util/Compare';
 import {DataMap} from '../../util/DataTypes';
-import {getDefaultDataFromMore} from '../../block/Descriptor';
+import {getDefaultDataFromCustom} from '../../block/Descriptor';
 
 const defaultRouteWorker = {
   '#is': '',
-  '#input': getDefaultDataFromMore([
+  '#input': getDefaultDataFromCustom([
     {name: 'method', type: 'string'},
     {name: 'path', type: 'string'},
     {name: 'body', type: 'any'},
     {name: 'query', type: 'object'},
     {name: 'headers', type: 'object'}
   ]),
-  '#output': getDefaultDataFromMore([
+  '#output': getDefaultDataFromCustom([
     {name: 'data', type: 'any'},
     {name: 'headers', type: 'object'},
     {name: 'status', type: 'number', min: 200, max: 999, step: 1, default: 200}

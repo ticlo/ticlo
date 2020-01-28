@@ -116,7 +116,7 @@ export class WorkerEditor extends Job {
     let properties: (PropDesc | PropGroupDesc)[] = [];
     let groups: Map<string, PropGroupDesc> = new Map();
     // add inputs
-    let inputs = this.queryValue('#input.#more');
+    let inputs = this.queryValue('#input.#custom');
     if (Array.isArray(inputs)) {
       for (let input of inputs) {
         let copyInput = {...input};
@@ -129,7 +129,7 @@ export class WorkerEditor extends Job {
       }
     }
     // add outputs
-    let outputs = this.queryValue('#output.#more');
+    let outputs = this.queryValue('#output.#custom');
     if (Array.isArray(outputs)) {
       for (let output of outputs) {
         if (output.type === 'group' && groups.has(output.name)) {

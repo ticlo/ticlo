@@ -128,7 +128,7 @@ export class TextEditorPane extends React.PureComponent<Props, State> {
         cm.execCommand('insertTab');
       } else {
         if (cm.somethingSelected()) {
-          cm.execCommand('indentMore');
+          cm.execCommand('indentCustom');
         } else {
           cm.execCommand('insertSoftTab');
         }

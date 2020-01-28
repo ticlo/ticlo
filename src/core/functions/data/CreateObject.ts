@@ -6,9 +6,9 @@ export class CreateObjectFunction extends BaseFunction {
   run() {
     let spread = this._data.getValue('#spread');
     let output = spread ? {...spread} : {};
-    let more: PropDesc | PropGroupDesc[] = this._data.getValue('#more');
-    if (Array.isArray(more)) {
-      for (let prop of more) {
+    let custom: PropDesc | PropGroupDesc[] = this._data.getValue('#custom');
+    if (Array.isArray(custom)) {
+      for (let prop of custom) {
         if (prop) {
           if (prop.type === 'group') {
             let length = this._data.getValue(`${prop.name}#len`);

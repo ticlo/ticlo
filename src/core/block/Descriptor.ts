@@ -156,8 +156,8 @@ export const attributeList: PropDesc[] = [attributeDescs['@b-p'], attributeDescs
 
 export function buildPropDescCache(
   funcDesc: FunctionDesc,
-  more: (PropDesc | PropGroupDesc)[],
-  andMore?: (PropDesc | PropGroupDesc)[]
+  custom: (PropDesc | PropGroupDesc)[],
+  andCustom?: (PropDesc | PropGroupDesc)[]
 ): {[key: string]: PropDesc} {
   if (!funcDesc) return null;
 
@@ -179,7 +179,7 @@ export function buildPropDescCache(
   }
 
   addProps(funcDesc.configs);
-  addProps(more);
+  addProps(custom);
   addProps(funcDesc.properties);
 
   return result;
@@ -248,9 +248,9 @@ export function getDefaultFuncData(desc: FunctionDesc, isSubBlock = false) {
   return data;
 }
 
-export function getDefaultDataFromMore(more: (PropDesc | PropGroupDesc)[]) {
-  let data: any = {'#is': '', '#more': more};
-  initBlockProperties(data, more);
+export function getDefaultDataFromCustom(custom: (PropDesc | PropGroupDesc)[]) {
+  let data: any = {'#is': '', '#custom': custom};
+  initBlockProperties(data, custom);
   return data;
 }
 

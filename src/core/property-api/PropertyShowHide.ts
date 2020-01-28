@@ -33,9 +33,9 @@ export function buildPropertiesOrder(block: Block): string[] {
   if (desc) {
     addProps(desc.properties);
   }
-  let moreProps = block.getValue('#more');
-  if (Array.isArray(moreProps)) {
-    addProps(moreProps);
+  let customProps = block.getValue('#custom');
+  if (Array.isArray(customProps)) {
+    addProps(customProps);
   }
   return orders;
 }

@@ -21,7 +21,7 @@ import {
 } from '../property-api/GroupProperty';
 import {findPropertyForNewBlock} from '../property-api/PropertyName';
 import {hideProperties, moveShownProperty, showProperties} from '../property-api/PropertyShowHide';
-import {addMoreProperty, moveMoreProperty, removeMoreProperty} from '../property-api/MoreProperty';
+import {addCustomProperty, moveCustomProperty, removeCustomProperty} from '../property-api/CustomProperty';
 import {WorkerEditor} from '../worker/WorkerEditor';
 
 class ServerRequest extends ConnectionSendingData {
@@ -371,16 +371,16 @@ export class ServerConnection extends Connection {
             result = this.setLen(request.path, request.group, request.length);
             break;
           }
-          case 'addMoreProp': {
-            result = this.addMoreProp(request.path, request.desc, request.group);
+          case 'addCustomProp': {
+            result = this.addCustomProp(request.path, request.desc, request.group);
             break;
           }
-          case 'removeMoreProp': {
-            result = this.removeMoreProp(request.path, request.name, request.group);
+          case 'removeCustomProp': {
+            result = this.removeCustomProp(request.path, request.name, request.group);
             break;
           }
-          case 'moveMoreProp': {
-            result = this.moveMoreProp(request.path, request.nameFrom, request.nameTo, request.group);
+          case 'moveCustomProp': {
+            result = this.moveCustomProp(request.path, request.nameFrom, request.nameTo, request.group);
             break;
           }
           case 'insertGroupProp': {
@@ -714,7 +714,7 @@ export class ServerConnection extends Connection {
     }
   }
 
-  addMoreProp(path: string, desc: PropDesc | PropGroupDesc, group: string) {
+  addCustomProp(path: string, desc: PropDesc | PropGroupDesc, group: string) {
     if (!(desc instanceof Object && typeof desc.name === 'string')) {
       // TODO, full validation
       return 'invalid desc';
@@ -722,7 +722,7 @@ export class ServerConnection extends Connection {
     let property = this.root.queryProperty(path);
 
     if (property && property._value instanceof Block) {
-      addMoreProperty(property._value, desc, group);
+      addCustomProperty(property._value, desc, group);
       property._block._job.trackChange();
       return null;
     } else {
@@ -730,11 +730,11 @@ export class ServerConnection extends Connection {
     }
   }
 
-  removeMoreProp(path: string, name: string, group: string) {
+  removeCustomProp(path: string, name: string, group: string) {
     let property = this.root.queryProperty(path);
 
     if (property && property._value instanceof Block) {
-      removeMoreProperty(property._value, name, group);
+      removeCustomProperty(property._value, name, group);
       property._block._job.trackChange();
       return null;
     } else {
@@ -742,11 +742,11 @@ export class ServerConnection extends Connection {
     }
   }
 
-  moveMoreProp(path: string, nameFrom: string, nameTo: string, group: string) {
+  moveCustomProp(path: string, nameFrom: string, nameTo: string, group: string) {
     let property = this.root.queryProperty(path);
 
     if (property && property._value instanceof Block) {
-      moveMoreProperty(property._value, nameFrom, nameTo, group);
+      moveCustomProperty(property._value, nameFrom, nameTo, group);
       property._block._job.trackChange();
       return null;
     } else {

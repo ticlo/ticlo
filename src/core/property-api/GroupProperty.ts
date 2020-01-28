@@ -22,9 +22,9 @@ function findGroupDesc(block: Block, group: string): PropGroupDesc {
     groupDesc = findGroup(desc.properties);
   }
   if (!groupDesc) {
-    let moreProps = block.getValue('#more');
-    if (Array.isArray(moreProps)) {
-      groupDesc = findGroup(moreProps);
+    let customProps = block.getValue('#custom');
+    if (Array.isArray(customProps)) {
+      groupDesc = findGroup(customProps);
     }
   }
   return groupDesc;

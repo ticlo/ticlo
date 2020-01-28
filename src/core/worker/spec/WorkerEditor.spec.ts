@@ -82,7 +82,7 @@ describe('WorkerEditor', function() {
     let expectedData = {
       '#input': {
         '#is': '',
-        '#more': [
+        '#custom': [
           {
             name: 'g',
             type: 'group',
@@ -96,7 +96,7 @@ describe('WorkerEditor', function() {
       '#is': '',
       '#output': {
         '#is': '',
-        '#more': [
+        '#custom': [
           {
             name: 'g',
             type: 'group',

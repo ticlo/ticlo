@@ -11,7 +11,7 @@ const handlerWorker = {
   '#is': {
     '#is': '',
     'add': {'#is': 'add', '~0': '##.#input.n', '1': 1},
-    '#input': {'#is': '', '#more': [{name: 'n', type: 'number'}]},
+    '#input': {'#is': '', '#custom': [{name: 'n', type: 'number'}]},
     '#output': {'#is': '', '~#value': '##.add.output'}
   }
 };

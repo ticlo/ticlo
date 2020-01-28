@@ -19,7 +19,7 @@ describe('truncateData', function() {
 
   it('big obj', function() {
     let tobj: DataMap = truncateData(bigObj)[0];
-    assert(JSON.stringify(tobj).length < 2048, 'truncated object cannot be more than 2048 bytes');
+    assert(JSON.stringify(tobj).length < 2048, 'truncated object cannot be more than2048 bytes');
     assert.lengthOf(Object.keys(tobj), 10, 'all 10 keys are in output');
     assert(isDataTruncated(tobj));
   });
@@ -33,11 +33,11 @@ describe('truncateData', function() {
     }
 
     let objResult = truncateData(obj)[0];
-    assert.equal(Object.keys(objResult).length, 10, 'truncated object cannot be more 10 keys');
+    assert.equal(Object.keys(objResult).length, 10, 'truncated object cannot be more than 10 keys');
     assert.isTrue(isDataTruncated(objResult));
 
     let arrResult = truncateData(arr)[0];
-    assert.equal(arrResult.length, 10, 'truncated array cannot be more 10 items');
+    assert.equal(arrResult.length, 10, 'truncated array cannot be more than 10 items');
     assert.isTrue(isDataTruncated(arrResult));
   });
 

@@ -18,11 +18,11 @@ interface Props {
   onClick?: React.MouseEventHandler;
 }
 
-type MoreValueType = ValueType | 'group';
+type CustomValueType = ValueType | 'group';
 
-export class AddMorePropertyMenu extends LazyUpdateComponent<Props, any> {
+export class AddCustomPropertyMenu extends LazyUpdateComponent<Props, any> {
   formItems = {
-    type: new FormItem<MoreValueType>(this, 'type', 'Type', 'string'),
+    type: new FormItem<CustomValueType>(this, 'type', 'Type', 'string'),
     name: new FormInputItem<string>(this, 'name', 'Name'),
     defaultLen: new FormItem<number>(this, 'defaultLen', 'Default Length', 2),
     min: new FormItem<number>(this, 'min', 'Min'),
@@ -105,7 +105,7 @@ export class AddMorePropertyMenu extends LazyUpdateComponent<Props, any> {
         case 'radio-button': {
           let options: string[] = optionStr.value.split(',');
           if (options.length < 2) {
-            errors.set('option', 'Require more than one option');
+            errors.set('option', 'Require more thanone option');
           } else {
             result.options = options;
           }
@@ -153,7 +153,7 @@ export class AddMorePropertyMenu extends LazyUpdateComponent<Props, any> {
     let {type, name, defaultLen, placeholder, min, max, step, optionStr, showAlpha, showTime, visible} = this.formItems;
     let typeValue = type.value;
     return (
-      <Form onClick={onClick} className="ticl-add-more-prop" labelCol={{span: 9}} wrapperCol={{span: 15}}>
+      <Form onClick={onClick} className="ticl-add-custom-prop" labelCol={{span: 9}} wrapperCol={{span: 15}}>
         {name.render(<Input size="small" value={name.value} onChange={name.onInputChange} />)}
         {type.render(
           <Select size="small" value={type.value} onChange={type.onChange}>

@@ -10,7 +10,7 @@ describe('CreateObject', function() {
     aBlock._load({
       '#is': 'create-object',
       'v': 12,
-      '#more': [
+      '#custom': [
         {name: 'v', type: 'number'},
         {name: 'u', type: 'string'}
       ]
@@ -29,7 +29,7 @@ describe('CreateObject', function() {
       '#is': 'create-object',
       '#spread': {v: 0, t: 1},
       'v': 13,
-      '#more': [{name: 'v', type: 'number'}]
+      '#custom': [{name: 'v', type: 'number'}]
     });
 
     Root.run();
@@ -46,7 +46,7 @@ describe('CreateObject', function() {
       'g#len': 3,
       'v0': 1,
       'v1': 2,
-      '#more': [{name: 'g', type: 'group', defaultLen: 2, properties: [{name: 'v', type: 'number'}]}]
+      '#custom': [{name: 'g', type: 'group', defaultLen: 2, properties: [{name: 'v', type: 'number'}]}]
     });
 
     Root.run();

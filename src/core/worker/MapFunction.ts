@@ -12,7 +12,7 @@ import {UnlimitedPool} from './ThreadPool';
 interface KeyIterator {
   current(): string;
   next(): boolean;
-  hasMore(): boolean;
+  hasCustom(): boolean;
 }
 
 class ArryIterator implements KeyIterator {
@@ -32,7 +32,7 @@ class ArryIterator implements KeyIterator {
     return this._idx < this._array.length;
   }
 
-  hasMore() {
+  hasCustom() {
     return this._idx < this._array.length;
   }
 }
@@ -53,7 +53,7 @@ class IndexIterator implements KeyIterator {
     this._current++;
     return this._current < this._size;
   }
-  hasMore() {
+  hasCustom() {
     return this._current < this._size;
   }
 }
@@ -188,7 +188,7 @@ export class MapFunction extends MapImpl {
       this._workers = new Map();
     }
     if (this._pendingKeys) {
-      while (this._pendingKeys.hasMore()) {
+      while (this._pendingKeys.hasCustom()) {
         let threadId = this._pool.next(this._pendingKeys.current());
         if (threadId === null) {
           return false;

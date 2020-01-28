@@ -64,10 +64,10 @@ describe('Connection Error', function() {
       'invalid properties'
     );
 
-    assert.equal(await shouldReject(client.addMoreProp('a', null) as Promise<any>), 'invalid desc');
+    assert.equal(await shouldReject(client.addCustomProp('a', null) as Promise<any>), 'invalid desc');
     assert.equal(
       await shouldReject(
-        client.addMoreProp('ConnectionError1.a.b.c', {
+        client.addCustomProp('ConnectionError1.a.b.c', {
           name: 'a',
           type: 'string'
         }) as Promise<any>
@@ -75,11 +75,11 @@ describe('Connection Error', function() {
       'invalid path'
     );
     assert.equal(
-      await shouldReject(client.removeMoreProp('ConnectionError1.a.b.c', 'a') as Promise<any>),
+      await shouldReject(client.removeCustomProp('ConnectionError1.a.b.c', 'a') as Promise<any>),
       'invalid path'
     );
     assert.equal(
-      await shouldReject(client.moveMoreProp('ConnectionError1.a.b.c', 'a', 'b') as Promise<any>),
+      await shouldReject(client.moveCustomProp('ConnectionError1.a.b.c', 'a', 'b') as Promise<any>),
       'invalid path'
     );
 
