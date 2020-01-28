@@ -603,7 +603,7 @@ describe('Connection', function() {
     assert.deepEqual(block1.getValue('#custom'), [{name: 'a', type: 'string'}]);
 
     let response2 = await client.removeCustomProp('Connection15.a', 'a');
-    assert.deepEqual(block1.getValue('#custom'), []);
+    assert.isUndefined(block1.getValue('#custom'));
 
     client.destroy();
     Root.instance.deleteValue('Connection15');
