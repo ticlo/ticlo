@@ -23,6 +23,7 @@ import {findPropertyForNewBlock} from '../property-api/PropertyName';
 import {hideProperties, moveShownProperty, showProperties} from '../property-api/PropertyShowHide';
 import {addCustomProperty, moveCustomProperty, removeCustomProperty} from '../property-api/CustomProperty';
 import {WorkerEditor} from '../worker/WorkerEditor';
+import {addOptionalProperty, moveOptionalProperty, removeOptionalProperty} from '../property-api/OptionalProperty';
 
 class ServerRequest extends ConnectionSendingData {
   id: string;
@@ -381,6 +382,18 @@ export class ServerConnection extends Connection {
           }
           case 'moveCustomProp': {
             result = this.moveCustomProp(request.path, request.nameFrom, request.nameTo, request.group);
+            break;
+          }
+          case 'addOptionalProp': {
+            result = this.addOptionalProp(request.path, request.desc);
+            break;
+          }
+          case 'removeOptionalProp': {
+            result = this.removeOptionalProp(request.path, request.name);
+            break;
+          }
+          case 'moveOptionalProp': {
+            result = this.moveOptionalProp(request.path, request.nameFrom, request.nameTo);
             break;
           }
           case 'insertGroupProp': {
@@ -747,6 +760,42 @@ export class ServerConnection extends Connection {
 
     if (property && property._value instanceof Block) {
       moveCustomProperty(property._value, nameFrom, nameTo, group);
+      property._block._job.trackChange();
+      return null;
+    } else {
+      return 'invalid path';
+    }
+  }
+
+  addOptionalProp(path: string, name: string) {
+    let property = this.root.queryProperty(path);
+
+    if (property && property._value instanceof Block) {
+      addOptionalProperty(property._value, name);
+      property._block._job.trackChange();
+      return null;
+    } else {
+      return 'invalid path';
+    }
+  }
+
+  removeOptionalProp(path: string, name: string) {
+    let property = this.root.queryProperty(path);
+
+    if (property && property._value instanceof Block) {
+      removeOptionalProperty(property._value, name);
+      property._block._job.trackChange();
+      return null;
+    } else {
+      return 'invalid path';
+    }
+  }
+
+  moveOptionalProp(path: string, nameFrom: string, nameTo: string) {
+    let property = this.root.queryProperty(path);
+
+    if (property && property._value instanceof Block) {
+      moveOptionalProperty(property._value, nameFrom, nameTo);
       property._block._job.trackChange();
       return null;
     } else {

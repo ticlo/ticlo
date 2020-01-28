@@ -33,6 +33,16 @@ export function buildPropertiesOrder(block: Block): string[] {
   if (desc) {
     addProps(desc.properties);
   }
+
+  let optionalFields: string[] = block.getValue('#optional');
+  if (Array.isArray(optionalFields)) {
+    for (let field of optionalFields) {
+      if (!orders.includes(field)) {
+        orders.push(field);
+      }
+    }
+  }
+
   let customProps = block.getValue('#custom');
   if (Array.isArray(customProps)) {
     addProps(customProps);

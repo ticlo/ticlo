@@ -43,6 +43,7 @@ export function addCustomProperty(block: Block, desc: PropDesc | PropGroupDesc, 
     return;
   }
 
+  // TODO, does shallow clone work? maybe a special version that only deep clones child properties?
   customProps = deepClone(customProps);
 
   if (group != null) {
@@ -116,7 +117,11 @@ export function removeCustomProperty(block: Block, name: string, group?: string)
   } else if (name) {
     let propIndex = customProps.findIndex((g: PropDesc) => g.name === name);
     if (propIndex > -1) {
-      customProps.splice(propIndex, 1);
+      if (customProps.length > 1) {
+        customProps.splice(propIndex, 1);
+      } else {
+        customProps = undefined;
+      }
       block.setValue('#custom', customProps);
       hideProperties(block, [name]);
     }

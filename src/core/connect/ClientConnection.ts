@@ -339,6 +339,18 @@ export abstract class ClientConnection extends Connection implements ClientConn 
     return this.simpleRequest({cmd: 'moveCustomProp', path, nameFrom, nameTo, group}, callbacks);
   }
 
+  addOptionalProp(path: string, name: string, callbacks?: ClientCallbacks): Promise<any> | string {
+    return this.simpleRequest({cmd: 'addOptionalProp', path, name}, callbacks);
+  }
+
+  removeOptionalProp(path: string, name: string, callbacks?: ClientCallbacks): Promise<any> | string {
+    return this.simpleRequest({cmd: 'removeOptionalProp', path, name}, callbacks);
+  }
+
+  moveOptionalProp(path: string, nameFrom: string, nameTo: string, callbacks?: ClientCallbacks): Promise<any> | string {
+    return this.simpleRequest({cmd: 'moveOptionalProp', path, nameFrom, nameTo}, callbacks);
+  }
+
   insertGroupProp(path: string, group: string, idx: number, callbacks?: ClientCallbacks): Promise<any> | string {
     return this.simpleRequest({cmd: 'insertGroupProp', path, group, idx}, callbacks);
   }

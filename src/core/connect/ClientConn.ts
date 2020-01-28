@@ -89,6 +89,12 @@ export interface ClientConn {
     callbacks?: ClientCallbacks
   ): Promise<any> | string;
 
+  addOptionalProp(path: string, name: string, callbacks?: ClientCallbacks): Promise<any> | string;
+
+  removeOptionalProp(path: string, name: string, callbacks?: ClientCallbacks): Promise<any> | string;
+
+  moveOptionalProp(path: string, nameFrom: string, nameTo: string, callbacks?: ClientCallbacks): Promise<any> | string;
+
   insertGroupProp(path: string, group: string, idx: number, callbacks?: ClientCallbacks): Promise<any> | string;
 
   removeGroupProp(path: string, group: string, idx: number, callbacks?: ClientCallbacks): Promise<any> | string;
