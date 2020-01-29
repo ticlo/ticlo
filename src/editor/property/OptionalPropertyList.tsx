@@ -94,7 +94,7 @@ export class OptionalPropertyList extends MultiSelectComponent<Props, State, Opt
         />
       );
     }
-    if (search && search.length > 1) {
+    if (search) {
       let lsearch = search.toLowerCase();
       let matchFirst: React.ReactElement[] = [];
       let matchMiddle: React.ReactElement[] = [];
@@ -116,13 +116,21 @@ export class OptionalPropertyList extends MultiSelectComponent<Props, State, Opt
             />
           );
           if (lowerKey.startsWith(lsearch)) {
-            matchFirst.push(editor);
+            if (lsearch === lowerKey) {
+              matchFirst.unshift(editor);
+            } else {
+              matchFirst.push(editor);
+            }
           } else {
             matchMiddle.push(editor);
           }
         }
       }
-      children = children.concat(matchFirst, matchMiddle);
+      matchFirst.push(...matchMiddle);
+      if (matchFirst.length > 10) {
+        matchFirst.length = 10;
+      }
+      children = children.concat(matchFirst);
     }
 
     return (
