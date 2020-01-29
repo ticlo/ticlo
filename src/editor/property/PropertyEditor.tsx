@@ -106,7 +106,7 @@ class PropertyLoader extends MultiSelectLoader<PropertyEditor> {
   }
 }
 
-interface Props {
+export interface PropertyEditorProps {
   conn: ClientConn;
   paths: string[];
   name: string; // name is usually same as propDesc.name, but when it's in group, it will have a number after
@@ -143,8 +143,8 @@ const notReadyState = {
   displaySame: false
 };
 
-export class PropertyEditor extends MultiSelectComponent<Props, State, PropertyLoader> {
-  constructor(props: Readonly<Props>) {
+export class PropertyEditor extends MultiSelectComponent<PropertyEditorProps, State, PropertyLoader> {
+  constructor(props: Readonly<PropertyEditorProps>) {
     super(props);
     this.state = {unlocked: false, showSubBlock: false, showMenu: false};
     this.updateLoaders(props.paths);
@@ -158,12 +158,12 @@ export class PropertyEditor extends MultiSelectComponent<Props, State, PropertyL
   // this needs to be cached to optimize children rendering
   subBlockPaths: string[];
 
-  buildSubBlockPaths(props: Props) {
+  buildSubBlockPaths(props: PropertyEditorProps) {
     let {name, paths} = props;
     this.subBlockPaths = paths.map((s: string) => `${s}.~${name}`);
   }
 
-  UNSAFE_componentWillReceiveProps(nextProps: Props) {
+  UNSAFE_componentWillReceiveProps(nextProps: PropertyEditorProps) {
     if (this.subBlockPaths && !arrayEqual(nextProps.paths, this.props.paths)) {
       this.buildSubBlockPaths(nextProps);
     }

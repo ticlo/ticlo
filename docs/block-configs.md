@@ -36,10 +36,13 @@ Queue the block in the resolver to run it asynchronously, or run it instantly wh
 * Changing `#call` to **null** or **undefined** will be ignored
 * Event can directly `#call` a block when it just gets dispatched. But if it's stored in a property and being set to #call later, the block will ignore it.
 
-### #more
-**type**: list
+### #custom
+**type**: list of property descriptor
 
 A list of additional property definition that will show in the property list
+
+### #optional
+**type** list of string
 
 ### #func
 **type**: Block

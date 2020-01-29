@@ -1,11 +1,12 @@
 import React from 'react';
+import {Button, Input} from 'antd';
+import SearchIcon from '@ant-design/icons/SearchOutlined';
 import {MultiSelectComponent, MultiSelectLoader} from './MultiSelectComponent';
 import {PropertyEditor} from './PropertyEditor';
 import {ClientConn, ValueSubscriber} from '../../core/connect/ClientConn';
 import {ValueUpdate} from '../../core/connect/ClientRequests';
-import {FunctionDesc, PropDesc} from '../../core';
-import {Simulate} from 'react-dom/test-utils';
-import load = Simulate.load;
+import {ExpandIcon} from '../component/Tree';
+const {Search} = Input;
 
 class OptionalPropertyLoader extends MultiSelectLoader<OptionalPropertyList> {
   optionalProps: string[];
@@ -40,15 +41,28 @@ interface State {
   search?: string;
 }
 export class OptionalPropertyList extends MultiSelectComponent<Props, State, OptionalPropertyLoader> {
+  state: State = {};
+
   createLoader(path: string): OptionalPropertyLoader {
     return new OptionalPropertyLoader(path, this);
   }
 
+  startSearch = () => {
+    let {search} = this.state;
+    if (search == null) {
+      this.setState({search: ''});
+    }
+  };
+
+  onSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    this.setState({search: e.target.value});
+  };
+
   renderImpl() {
     let {paths, conn, baseId} = this.props;
-
+    let {search} = this.state;
     let baseFuncDesc = conn.watchDesc(baseId);
-    if (!baseFuncDesc?.optional) {
+    if (this.loaders.size === 0 || !baseFuncDesc?.optional) {
       return <div />;
     }
 
@@ -57,7 +71,7 @@ export class OptionalPropertyList extends MultiSelectComponent<Props, State, Opt
     let optionalProps: string[];
     for (let [path, loader] of this.loaders) {
       if (!loader.optionalProps) {
-        optionalProps = null;
+        optionalProps = [];
         break;
       }
       if (!optionalProps) {
@@ -80,6 +94,60 @@ export class OptionalPropertyList extends MultiSelectComponent<Props, State, Opt
         />
       );
     }
-    return <div>{children}</div>;
+    if (search && search.length > 1) {
+      let lsearch = search.toLowerCase();
+      let matchFirst: React.ReactElement[] = [];
+      let matchMiddle: React.ReactElement[] = [];
+      for (let name in baseFuncDesc.optional) {
+        if (optionalProps.includes(name)) {
+          continue;
+        }
+        let lowerKey = name.toLowerCase();
+        if (lowerKey.includes(lsearch)) {
+          let optionalPropDesc = baseFuncDesc.optional[name];
+          let editor = (
+            <PropertyEditor
+              key={name}
+              name={name}
+              paths={paths}
+              conn={conn}
+              funcDesc={baseFuncDesc}
+              propDesc={optionalPropDesc}
+            />
+          );
+          if (lowerKey.startsWith(lsearch)) {
+            matchFirst.push(editor);
+          } else {
+            matchMiddle.push(editor);
+          }
+        }
+      }
+      children = children.concat(matchFirst, matchMiddle);
+    }
+
+    return (
+      <div className="ticl-property-optional-list">
+        <div className="ticl-property-divider">
+          <div className="ticl-h-line" style={{maxWidth: '16px'}} />
+          <Button
+            className="ticl-icon-btn"
+            shape="circle"
+            size="small"
+            icon={<SearchIcon />}
+            onClick={this.startSearch}
+            style={{marginLeft: 8}}
+          />
+          {search == null ? (
+            <>
+              <span>optional</span>
+              <div className="ticl-h-line" />
+            </>
+          ) : (
+            <Input size="small" autoFocus={true} placeholder="optional" onChange={this.onSearchChange} />
+          )}
+        </div>
+        {children}
+      </div>
+    );
   }
 }

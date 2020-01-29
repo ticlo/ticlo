@@ -66,17 +66,7 @@ export abstract class MultiSelectComponent<
     if (added) {
       return false;
     }
-    for (let key in this.props) {
-      if (!Object.is((this.props as any)[key], (nextProps as any)[key])) {
-        return true;
-      }
-    }
-    for (let key in this.state) {
-      if (!Object.is((this.state as any)[key], (nextState as any)[key])) {
-        return true;
-      }
-    }
-    return false;
+    return super.shouldComponentUpdate(nextProps, nextState);
   }
 
   render() {

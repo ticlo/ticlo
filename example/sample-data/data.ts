@@ -85,6 +85,11 @@ export const data: any = {
     '#is': 'note',
     '@b-xyw': [340, 100, 150],
     'text': 'hello'
+  },
+  css: {
+    '#is': 'html:create-style',
+    '@b-xyw': [100, 500, 150],
+    '#optional': ['width', 'height']
   }
 };
 
