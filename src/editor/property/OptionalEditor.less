@@ -1,0 +1,25 @@
+.ticl-property-optional-list {
+  width: 100%;
+  & > .ticl-property-divider {
+    & > .anticon-close-circle {
+      position: absolute;
+      right: 6px;
+      opacity: 0.3;
+      transition: opacity 0.5s;
+    }
+    &:hover > .anticon-close-circle {
+      opacity: 1;
+    }
+  }
+}
+
+.ticl-property-optional {
+  width: 100%;
+  display: flex;
+  & > .ant-checkbox-wrapper {
+    margin-right: 8px;
+  }
+  & > .ticl-property {
+    flex: 1 1 auto;
+  }
+}

@@ -1,11 +1,14 @@
 import React from 'react';
-import {Button, Input} from 'antd';
+import {Button, Input, Tooltip} from 'antd';
 import SearchIcon from '@ant-design/icons/SearchOutlined';
+import CloseIcon from '@ant-design/icons/CloseCircleFilled';
 import {MultiSelectComponent, MultiSelectLoader} from './MultiSelectComponent';
 import {PropertyEditor} from './PropertyEditor';
 import {ClientConn, ValueSubscriber} from '../../core/connect/ClientConn';
 import {ValueUpdate} from '../../core/connect/ClientRequests';
 import {ExpandIcon} from '../component/Tree';
+import {OptionalPropertyEditor} from './OptionalPropertyEditor';
+
 const {Search} = Input;
 
 class OptionalPropertyLoader extends MultiSelectLoader<OptionalPropertyList> {
@@ -27,6 +30,7 @@ class OptionalPropertyLoader extends MultiSelectLoader<OptionalPropertyList> {
   init() {
     this.defListener.subscribe(this.conn, `${this.path}.#optional`, true);
   }
+
   destroy() {
     this.defListener.unsubscribe();
   }
@@ -37,9 +41,11 @@ interface Props {
   conn: ClientConn;
   paths: string[];
 }
+
 interface State {
   search?: string;
 }
+
 export class OptionalPropertyList extends MultiSelectComponent<Props, State, OptionalPropertyLoader> {
   state: State = {};
 
@@ -53,9 +59,25 @@ export class OptionalPropertyList extends MultiSelectComponent<Props, State, Opt
       this.setState({search: ''});
     }
   };
-
+  clearSearch = () => {
+    this.setState({search: null});
+  };
   onSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     this.setState({search: e.target.value});
+  };
+
+  onPropertyChecked = (name: string, checked: boolean) => {
+    let {conn, paths} = this.props;
+    console.log(name, checked);
+    if (checked) {
+      for (let path of paths) {
+        conn.addOptionalProp(path, name);
+      }
+    } else {
+      for (let path of paths) {
+        conn.removeOptionalProp(path, name);
+      }
+    }
   };
 
   renderImpl() {
@@ -84,13 +106,15 @@ export class OptionalPropertyList extends MultiSelectComponent<Props, State, Opt
     for (let name of optionalProps) {
       let optionalPropDesc = baseFuncDesc.optional[name];
       children.push(
-        <PropertyEditor
+        <OptionalPropertyEditor
           key={name}
           name={name}
           paths={paths}
           conn={conn}
           funcDesc={baseFuncDesc}
           propDesc={optionalPropDesc}
+          checked={true}
+          onCheck={this.onPropertyChecked}
         />
       );
     }
@@ -106,13 +130,15 @@ export class OptionalPropertyList extends MultiSelectComponent<Props, State, Opt
         if (lowerKey.includes(lsearch)) {
           let optionalPropDesc = baseFuncDesc.optional[name];
           let editor = (
-            <PropertyEditor
+            <OptionalPropertyEditor
               key={name}
               name={name}
               paths={paths}
               conn={conn}
               funcDesc={baseFuncDesc}
               propDesc={optionalPropDesc}
+              checked={false}
+              onCheck={this.onPropertyChecked}
             />
           );
           if (lowerKey.startsWith(lsearch)) {
@@ -137,21 +163,25 @@ export class OptionalPropertyList extends MultiSelectComponent<Props, State, Opt
       <div className="ticl-property-optional-list">
         <div className="ticl-property-divider">
           <div className="ticl-h-line" style={{maxWidth: '16px'}} />
-          <Button
-            className="ticl-icon-btn"
-            shape="circle"
-            size="small"
-            icon={<SearchIcon />}
-            onClick={this.startSearch}
-            style={{marginLeft: 8}}
-          />
+          <Tooltip title="Search Optional Properties">
+            <Button
+              className="ticl-icon-btn"
+              shape="circle"
+              size="small"
+              icon={<SearchIcon />}
+              onClick={this.startSearch}
+            />
+          </Tooltip>
           {search == null ? (
             <>
               <span>optional</span>
               <div className="ticl-h-line" />
             </>
           ) : (
-            <Input size="small" autoFocus={true} placeholder="optional" onChange={this.onSearchChange} />
+            <>
+              <Input size="small" autoFocus={true} placeholder="optional" onChange={this.onSearchChange} />
+              <CloseIcon onClick={this.clearSearch} />
+            </>
           )}
         </div>
         {children}

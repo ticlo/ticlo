@@ -1,5 +1,6 @@
 @import 'AddCustomProperty';
 @import 'value/DynamicEditor';
+@import 'OptionalEditor';
 
 .ticl-property-list {
   overflow-y: auto;
@@ -8,10 +9,6 @@
   width: 100%;
   border-left: solid 1px #eee;
   border-radius: 10px;
-}
-
-.ticl-property-optional-list {
-  width: 100%;
 }
 
 .ticl-property {
@@ -178,7 +175,10 @@
   }
 
   & > .ticl-icon-btn {
-    margin-right: 8px;
+    margin-right: 4px;
+  }
+  & > .ticl-h-line + .ticl-icon-btn {
+    margin-left: 4px;
   }
 
   & > .ticl-tree-arr {
