@@ -20,7 +20,8 @@ import {
   stopPropagation,
   getTailingNumber,
   Logger,
-  ValueSubscriber
+  ValueSubscriber,
+  DataMap
 } from '../../../src/core/editor';
 import {MultiSelectComponent, MultiSelectLoader} from './MultiSelectComponent';
 import {StringEditor} from './value/StringEditor';
@@ -106,6 +107,12 @@ class PropertyLoader extends MultiSelectLoader<PropertyEditor> {
   }
 }
 
+export interface PropertyReorder {
+  getDragData(props: PropertyEditorProps): DataMap;
+  onDragOver(props: PropertyEditorProps, e: DragState): string;
+  onDragDrop(props: PropertyEditorProps, e: DragState): void;
+}
+
 export interface PropertyEditorProps {
   conn: ClientConn;
   paths: string[];
@@ -115,6 +122,7 @@ export interface PropertyEditorProps {
   isCustom?: boolean;
   group?: string;
   baseName?: string; // the name used in propDesc.name
+  reorder?: PropertyReorder;
 }
 
 interface State {
@@ -202,69 +210,30 @@ export class PropertyEditor extends MultiSelectComponent<PropertyEditorProps, St
   };
 
   onDragStart = (e: DragState) => {
-    let {conn, paths, name, group, baseName, isCustom} = this.props;
+    let {conn, paths, name, reorder} = this.props;
 
     if (e.dragType === 'right') {
-      let data: any = {paths, fromGroup: group};
-      let isLen = group != null && name.endsWith('#len');
-      if (isCustom) {
-        // move custom property
-        let moveCustomField = baseName != null ? baseName : name;
-        if (isLen) {
-          moveCustomField = group;
-          data.fromGroup = null;
-        }
-        data.moveCustomField = moveCustomField;
+      let data = reorder?.getDragData(this.props);
+      if (data) {
+        e.setData(data, conn.getBaseConn());
+        e.startDrag();
+      } else {
+        return;
       }
-      if (group != null && !isLen) {
-        // move group index
-        data.moveGroupIndex = getTailingNumber(name);
-      }
-
-      e.setData(data, conn.getBaseConn());
     } else {
       let fields = paths.map((s) => `${s}.${name}`);
       e.setData({fields}, conn.getBaseConn());
+      e.startDrag();
     }
-
-    e.startDrag();
   };
   onDragOver = (e: DragState) => {
-    let {conn, paths, name, propDesc, isCustom, group, baseName} = this.props;
+    let {conn, paths, name, propDesc, reorder} = this.props;
     if (e.dragType === 'right') {
       // check reorder drag with right click
-      let moveFromKeys: string[] = DragState.getData('paths', conn.getBaseConn());
-      if (deepEqual(moveFromKeys, paths)) {
-        let isLen = group != null && name.endsWith('#len');
-        let fromGroup = DragState.getData('fromGroup', conn.getBaseConn());
-        if (isCustom) {
-          // move custom property
-          let moveFromKeys: string[] = DragState.getData('paths', conn.getBaseConn());
-          let moveCustomField: string = DragState.getData('moveCustomField', conn.getBaseConn());
-
-          if (moveCustomField != null) {
-            let moveToField = baseName != null ? baseName : name;
-            if (isLen) {
-              moveToField = group;
-              group = null;
-            }
-
-            // tslint:disable-next-line:triple-equals
-            if (deepEqual(moveFromKeys, paths) && moveToField !== moveCustomField && group == fromGroup) {
-              e.accept('tico-fas-exchange-alt');
-              return;
-            }
-          }
-        }
-        if (group != null && !isLen && group === fromGroup) {
-          // move group index
-          let moveGroupIndex = DragState.getData('moveGroupIndex', conn.getBaseConn());
-          let currentGroupIndex = getTailingNumber(name);
-          if (moveGroupIndex !== currentGroupIndex) {
-            e.accept('tico-fas-random');
-            return;
-          }
-        }
+      let accepted = reorder?.onDragOver(this.props, e);
+      if (accepted) {
+        e.accept(accepted);
+        return;
       }
     } else {
       // check drag from property
@@ -292,40 +261,9 @@ export class PropertyEditor extends MultiSelectComponent<PropertyEditorProps, St
     e.reject();
   };
   onDrop = (e: DragState) => {
-    let {conn, paths, name, isCustom, group, baseName} = this.props;
+    let {conn, paths, name, reorder} = this.props;
     if (e.dragType === 'right') {
-      // check reorder drag with right click
-      let isLen = group != null && name.endsWith('#len');
-      let fromGroup = DragState.getData('fromGroup', conn.getBaseConn());
-      let moveFromKeys: string[] = DragState.getData('paths', conn.getBaseConn());
-      if (deepEqual(moveFromKeys, paths)) {
-        if (isCustom) {
-          // move custom property
-          let moveCustomField: string = DragState.getData('moveCustomField', conn.getBaseConn());
-
-          let moveToField = baseName != null ? baseName : name;
-          if (isLen) {
-            moveToField = group;
-            group = null;
-          }
-
-          // tslint:disable-next-line:triple-equals
-          if (moveToField !== moveCustomField && group == fromGroup) {
-            for (let key of paths) {
-              conn.moveCustomProp(key, moveCustomField, moveToField, fromGroup);
-            }
-            return;
-          }
-        }
-        if (group != null && !isLen && group === fromGroup) {
-          // move group index
-          let moveGroupIndex = DragState.getData('moveGroupIndex', conn.getBaseConn());
-          let currentGroupIndex = getTailingNumber(name);
-          for (let key of paths) {
-            conn.moveGroupProp(key, fromGroup, moveGroupIndex, currentGroupIndex);
-          }
-        }
-      }
+      reorder?.onDragDrop(this.props, e);
     } else {
       // check drag from property
       let dragFields: string[] = DragState.getData('fields', conn.getBaseConn());

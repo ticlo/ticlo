@@ -4,6 +4,7 @@ import {configDescs, FunctionDesc, PropDesc, PropGroupDesc} from '../../../src/c
 import {MultiSelectComponent, MultiSelectLoader} from './MultiSelectComponent';
 import {PropertyList} from './PropertyList';
 import {PropertyEditor} from './PropertyEditor';
+import {CustomGroupPropertyReorder, CustomPropertyReorder, GroupPropertyReorder} from './PropertyReorder';
 
 class LengthPropertyEditor extends PropertyEditor {
   onChange = (value: any) => {
@@ -93,6 +94,7 @@ export class GroupEditor extends MultiSelectComponent<Props, State, GroupLoader>
               baseName={desc.name}
               funcDesc={funcDesc}
               propDesc={desc}
+              reorder={isCustom ? CustomGroupPropertyReorder : GroupPropertyReorder}
             />
           );
         }
@@ -110,6 +112,7 @@ export class GroupEditor extends MultiSelectComponent<Props, State, GroupLoader>
           group={group}
           funcDesc={funcDesc}
           propDesc={lenDesc}
+          reorder={isCustom ? CustomPropertyReorder : null}
         />
         {children}
       </div>

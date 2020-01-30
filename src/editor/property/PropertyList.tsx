@@ -23,6 +23,7 @@ import {Popup} from '../component/ClickPopup';
 import {BlockWidget} from '../block/view/BlockWidget';
 import {LazyUpdateComponent, LazyUpdateSubscriber} from '../component/LazyUpdateComponent';
 import {OptionalPropertyList} from './OptionalPropertyList';
+import {CustomPropertyReorder} from './PropertyReorder';
 
 function descToEditor(conn: ClientConn, paths: string[], funcDesc: FunctionDesc, propDesc: PropDesc) {
   return (
@@ -203,6 +204,7 @@ class PropertyDefMerger {
               isCustom={isCustom}
               funcDesc={funcDesc}
               propDesc={prop as PropDesc}
+              reorder={isCustom ? CustomPropertyReorder : null}
             />
           );
         }
