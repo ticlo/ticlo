@@ -531,7 +531,7 @@ export class PropertyEditor extends MultiSelectComponent<PropertyEditorProps, St
   };
 
   renderImpl() {
-    let {conn, paths, funcDesc, propDesc, name, isCustom, group} = this.props;
+    let {conn, paths, funcDesc, propDesc, name, reorder, group} = this.props;
     let {unlocked, showSubBlock, showMenu} = this.state;
 
     let onChange = propDesc.readonly ? null : this.onChange;
@@ -648,7 +648,7 @@ export class PropertyEditor extends MultiSelectComponent<PropertyEditorProps, St
           <DragDropDiv
             className={nameClass}
             onDragStartT={this.onDragStart}
-            useRightButtonDragT={isCustom || isIndexed}
+            useRightButtonDragT={reorder != null}
             onDragOverT={this.onDragOver}
             onDropT={this.onDrop}
           >

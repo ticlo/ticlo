@@ -3,7 +3,6 @@ import {Button, Input, Tooltip} from 'antd';
 import SearchIcon from '@ant-design/icons/SearchOutlined';
 import CloseIcon from '@ant-design/icons/CloseCircleFilled';
 import {MultiSelectComponent, MultiSelectLoader} from './MultiSelectComponent';
-import {PropertyEditor} from './PropertyEditor';
 import {ClientConn, ValueSubscriber} from '../../core/connect/ClientConn';
 import {ValueUpdate} from '../../core/connect/ClientRequests';
 import {ExpandIcon} from '../component/Tree';

@@ -13,13 +13,12 @@ export const CustomGroupPropertyReorder: PropertyReorder = {
   },
   onDragOver(props: PropertyEditorProps, e: DragState): string {
     let {conn, paths, group, baseName, name, isCustom} = props;
-    let moveFromKeys: string[] = DragState.getData('paths', conn.getBaseConn());
-    if (deepEqual(moveFromKeys, paths)) {
+    let moveFromPaths: string[] = DragState.getData('paths', conn.getBaseConn());
+    if (moveFromPaths === paths) {
       let isLen = group != null && name.endsWith('#len');
       let fromGroup = DragState.getData('fromGroup', conn.getBaseConn());
       if (isCustom) {
         // move custom property
-        let moveFromKeys: string[] = DragState.getData('paths', conn.getBaseConn());
         let moveCustomField: string = DragState.getData('moveCustomField', conn.getBaseConn());
 
         if (moveCustomField != null) {
@@ -30,7 +29,7 @@ export const CustomGroupPropertyReorder: PropertyReorder = {
           }
 
           // tslint:disable-next-line:triple-equals
-          if (deepEqual(moveFromKeys, paths) && moveToField !== moveCustomField && group == fromGroup) {
+          if (moveToField !== moveCustomField && group == fromGroup) {
             return 'tico-fas-exchange-alt';
           }
         }
@@ -51,8 +50,8 @@ export const CustomGroupPropertyReorder: PropertyReorder = {
     // check reorder drag with right click
     let isLen = group != null && name.endsWith('#len');
     let fromGroup = DragState.getData('fromGroup', conn.getBaseConn());
-    let moveFromKeys: string[] = DragState.getData('paths', conn.getBaseConn());
-    if (deepEqual(moveFromKeys, paths)) {
+    let moveFromPaths: string[] = DragState.getData('paths', conn.getBaseConn());
+    if (moveFromPaths === paths) {
       if (isCustom) {
         // move custom property
         let moveCustomField: string = DragState.getData('moveCustomField', conn.getBaseConn());
@@ -109,4 +108,37 @@ export const CustomPropertyReorder: PropertyReorder = {
   },
   onDragOver: CustomGroupPropertyReorder.onDragOver,
   onDragDrop: CustomGroupPropertyReorder.onDragDrop
+};
+
+export const OptionalPropertyReorder: PropertyReorder = {
+  getDragData(props: PropertyEditorProps): DataMap {
+    let {paths, name} = props;
+    console.log(123);
+    return {paths, moveOptionalField: name};
+  },
+  onDragOver(props: PropertyEditorProps, e: DragState): string {
+    let {conn, paths, name} = props;
+    let moveFromPaths: string[] = DragState.getData('paths', conn.getBaseConn());
+    if (moveFromPaths === paths) {
+      let moveOptionalField: string = DragState.getData('moveOptionalField', conn.getBaseConn());
+
+      if (moveOptionalField && moveOptionalField !== name) {
+        return 'tico-fas-exchange-alt';
+      }
+    }
+    return null;
+  },
+  onDragDrop(props: PropertyEditorProps, e: DragState) {
+    let {conn, paths, name} = props;
+    let moveFromPaths: string[] = DragState.getData('paths', conn.getBaseConn());
+    if (moveFromPaths === paths) {
+      let moveOptionalField: string = DragState.getData('moveOptionalField', conn.getBaseConn());
+
+      if (moveOptionalField && moveOptionalField !== name) {
+        for (let key of paths) {
+          conn.moveOptionalProp(key, moveOptionalField, name);
+        }
+      }
+    }
+  }
 };
