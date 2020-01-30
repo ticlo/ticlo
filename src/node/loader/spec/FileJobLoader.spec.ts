@@ -16,13 +16,12 @@ describe('FileJobLoader', function() {
 
     let job = root.addJob('job1');
     job.applyChange();
-    await waitTick(20);
-    let savedData = Fs.readFileSync(path, 'utf8');
+    let savedData: string;
+    await shouldHappen(() => (savedData = Fs.readFileSync(path, 'utf8')));
     assert.equal(savedData, '{\n"#is": ""\n}');
 
     root.deleteJob('job1');
-    await waitTick(20);
-    assert.isFalse(Fs.existsSync(path));
+    await shouldHappen(() => !Fs.existsSync(path));
 
     // overwrite multiple times
     job = root.addJob('job2');
@@ -33,8 +32,8 @@ describe('FileJobLoader', function() {
     job = root.addJob('job2');
     job.setValue('value', 456);
     job.applyChange();
-    await waitTick(40);
-    savedData = Fs.readFileSync('./temp/jobLoaderTest/job2.ticlo', 'utf8');
+    await waitTick(20);
+    await shouldHappen(() => (savedData = Fs.readFileSync('./temp/jobLoaderTest/job2.ticlo', 'utf8')));
     assert.deepEqual(decode(savedData), {'#is': '', 'value': 456});
 
     // overwrite delete after write
@@ -43,8 +42,8 @@ describe('FileJobLoader', function() {
     root.deleteJob('job3');
     job = root.addJob('job3');
     root.deleteJob('job3');
-    await waitTick(40);
-    assert.isFalse(Fs.existsSync('./temp/jobLoaderTest/job3.ticlo'));
+    await waitTick(20);
+    await shouldHappen(() => !Fs.existsSync('./temp/jobLoaderTest/job3.ticlo'));
 
     // overwirte delete after delete
     job = root.addJob('job4');
