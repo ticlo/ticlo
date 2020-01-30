@@ -603,7 +603,14 @@ export class PropertyEditor extends MultiSelectComponent<PropertyEditorProps, St
     let {count, value, valueSame, bindingPath, bindingSame, subBlock, display} = this.mergePropertyState();
     if (count === 0) {
       // not ready yet
-      return <div className="ticl-property" />;
+      return (
+        <div className="ticl-property">
+          <div className="ticl-property-name">{translateProperty(funcDesc.name, name, funcDesc.ns)}</div>
+          <div className="ticl-property-value">
+            <div className="ticl-property-loader" />
+          </div>
+        </div>
+      );
     }
     let inBoundClass;
     if (subBlock) {

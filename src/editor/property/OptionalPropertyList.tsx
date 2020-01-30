@@ -85,7 +85,7 @@ export class OptionalPropertyList extends MultiSelectComponent<Props, State, Opt
     let {search} = this.state;
     let baseFuncDesc = conn.watchDesc(baseId);
     if (this.loaders.size === 0 || !baseFuncDesc?.optional) {
-      return <div />;
+      return <div/>;
     }
 
     let children: React.ReactElement[] = [];
@@ -162,25 +162,25 @@ export class OptionalPropertyList extends MultiSelectComponent<Props, State, Opt
     return (
       <div className="ticl-property-optional-list">
         <div className="ticl-property-divider">
-          <div className="ticl-h-line" style={{maxWidth: '16px'}} />
+          <div className="ticl-h-line" style={{maxWidth: '16px'}}/>
           <Tooltip title="Search Optional Properties">
             <Button
               className="ticl-icon-btn"
               shape="circle"
               size="small"
-              icon={<SearchIcon />}
+              icon={<SearchIcon/>}
               onClick={this.startSearch}
             />
           </Tooltip>
           {search == null ? (
             <>
               <span>optional</span>
-              <div className="ticl-h-line" />
+              <div className="ticl-h-line"/>
             </>
           ) : (
             <>
-              <Input size="small" autoFocus={true} placeholder="optional" onChange={this.onSearchChange} />
-              <CloseIcon onClick={this.clearSearch} />
+              <Input size="small" autoFocus={true} placeholder="optional" onChange={this.onSearchChange}/>
+              <CloseIcon onClick={this.clearSearch}/>
             </>
           )}
         </div>
