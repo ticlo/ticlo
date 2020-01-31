@@ -38,7 +38,8 @@ export class StringEditor extends StringEditorBase {
           placeholder={desc.placeholder}
           value={value}
           disabled={onChange == null}
-          autoSize={{minRows: 1, maxRows: 5}}
+          rows={value ? null : 1}
+          autoSize={value ? {minRows: 1, maxRows: 5} : null}
           onChange={this.onInputChange}
           onBlur={this.onBlur}
           onKeyDown={this.onKeyDown}
