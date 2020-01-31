@@ -27,8 +27,10 @@ describe('Optional Property', function() {
     assert.deepEqual(job.getValue('#optional'), ['a']);
     assert.deepEqual(job.getValue('@b-p'), ['a']);
 
+    job.setValue('a', 1);
     removeOptionalProperty(job, 'a');
     assert.isUndefined(job.getValue('#optional'));
+    assert.isUndefined(job.getValue('a'));
   });
 
   it('move OptionalProperty', function() {

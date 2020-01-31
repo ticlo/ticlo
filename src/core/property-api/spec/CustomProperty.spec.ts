@@ -92,16 +92,20 @@ describe('Custom Property', function() {
     assert.deepEqual(job.getValue('@b-p'), ['a', 'b', 'a0', 'a1']);
 
     // remove property from group
+    job.setValue('a0', 1);
     removeCustomProperty(job, 'a', 'g');
     assert.deepEqual(job.getValue('#custom'), [descA2, descB, descG2Fix]);
     assert.deepEqual(job.getValue('@b-p'), ['a', 'b']);
+    assert.isUndefined(job.getValue('a0'));
     // again
     removeCustomProperty(job, 'a', 'g');
     assert.deepEqual(job.getValue('#custom'), [descA2, descB, descG2Fix]);
 
+    job.setValue('a', 1);
     removeCustomProperty(job, 'a');
     assert.deepEqual(job.getValue('#custom'), [descB, descG2Fix]);
     assert.deepEqual(job.getValue('@b-p'), ['b']);
+    assert.isUndefined(job.getValue('a'));
     // again
     removeCustomProperty(job, 'a');
     assert.deepEqual(job.getValue('#custom'), [descB, descG2Fix]);

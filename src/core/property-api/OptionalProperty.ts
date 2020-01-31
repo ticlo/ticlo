@@ -35,6 +35,7 @@ export function removeOptionalProperty(block: Block, name: string) {
 
       block.setValue('#optional', optionalProps);
       hideProperties(block, [name]);
+      block.deleteValue(name);
     }
   }
 }

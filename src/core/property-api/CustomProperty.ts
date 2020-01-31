@@ -107,11 +107,29 @@ export function removeCustomProperty(block: Block, name: string, group?: string)
           groupDesc.properties.splice(groupChildIdx, 1);
           block.setValue('#custom', customProps);
           hideGroupProperties(block, groupDesc, name);
+
+          let gLength = block.getValue(`${group}#len`);
+          if (!(gLength >= 0)) {
+            gLength = groupDesc.defaultLen;
+          }
+          for (let i = 0; i < gLength; ++i) {
+            block.deleteValue(`${name}${i}`);
+          }
         }
       } else {
         customProps.splice(groupIdx, 1);
         block.setValue('#custom', customProps);
-        hideGroupProperties(block, groupDesc);
+        hideGroupProperties(block, groupDesc, null);
+        let gLength = block.getValue(`${group}#len`);
+        if (!(gLength >= 0)) {
+          gLength = groupDesc.defaultLen;
+        }
+        for (let prop of groupDesc.properties) {
+          let baseName = prop.name;
+          for (let i = 0; i < gLength; ++i) {
+            block.deleteValue(`${baseName}${i}`);
+          }
+        }
       }
     }
   } else if (name) {
@@ -124,6 +142,7 @@ export function removeCustomProperty(block: Block, name: string, group?: string)
       }
       block.setValue('#custom', customProps);
       hideProperties(block, [name]);
+      block.deleteValue(name);
     }
   }
 }
