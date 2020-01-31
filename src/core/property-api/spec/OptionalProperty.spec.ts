@@ -47,5 +47,9 @@ describe('Optional Property', function() {
 
     moveOptionalProperty(job, 'a', 'b');
     assert.deepEqual(job.getValue('#optional'), ['a', 'b']);
+
+    moveOptionalProperty(job, 'c', 'a');
+    assert.deepEqual(job.getValue('#optional'), ['c', 'a', 'b']);
+    assert.deepEqual(job.getValue('@b-p'), ['c']);
   });
 });
