@@ -32,14 +32,15 @@ export class StringEditor extends StringEditorBase {
       // encode object
       value = encodeDisplay(value);
     }
+    let multiLine = typeof value === 'string' && value.length > 8;
     return (
       <>
         <TextArea
           placeholder={desc.placeholder}
           value={value}
           disabled={onChange == null}
-          rows={value ? null : 1}
-          autoSize={value ? {minRows: 1, maxRows: 5} : null}
+          rows={multiLine ? null : 1}
+          autoSize={multiLine ? {minRows: 1, maxRows: 5} : null}
           onChange={this.onInputChange}
           onBlur={this.onBlur}
           onKeyDown={this.onKeyDown}
