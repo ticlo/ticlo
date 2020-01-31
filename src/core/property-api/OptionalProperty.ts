@@ -52,9 +52,15 @@ export function moveOptionalProperty(block: Block, nameFrom: string, nameTo: str
 
   let idxFrom = optionalProps.indexOf(nameFrom);
   let idxTo = optionalProps.indexOf(nameTo);
-  if (idxFrom > -1 && idxTo > -1) {
-    let from = optionalProps.splice(idxFrom, 1)[0];
-    optionalProps.splice(idxTo, 0, from);
-    block.setValue('#optional', optionalProps);
+  if (idxTo > -1) {
+    if (idxFrom > -1) {
+      optionalProps.splice(idxFrom, 1);
+      optionalProps.splice(idxTo, 0, nameFrom);
+      block.setValue('#optional', optionalProps);
+    } else {
+      optionalProps.splice(idxTo, 0, nameFrom);
+      block.setValue('#optional', optionalProps);
+      showProperties(block, [nameFrom]);
+    }
   }
 }
