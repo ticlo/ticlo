@@ -38,15 +38,15 @@ describe('MapFunction Thread', function() {
           '#is': '',
           'runner': {'#is': 'test-runner', '#mode': 'onLoad', '#-log': 0},
           'add': {'#is': 'add', '~0': '##.#inputs', '1': 1},
-          '#outputs': {'#is': '', '~#value': '##.add.output'}
+          '#outputs': {'#is': '', '~#value': '##.add.#output'}
         }
       }
     });
 
     Root.run();
-    assert.isUndefined(bBlock.getValue('output'), 'async worker should not finish right after run');
+    assert.isUndefined(bBlock.getValue('#output'), 'async worker should not finish right after run');
 
-    let output = await bBlock.waitValue('output');
+    let output = await bBlock.waitValue('#output');
     assert.lengthOf(Object.keys(output), 20);
     assert.lengthOf(TestFunctionRunner.popLogs(), 20);
 
@@ -60,13 +60,13 @@ describe('MapFunction Thread', function() {
       v4: 5
     });
 
-    output = await bBlock.waitNextValue('output');
+    output = await bBlock.waitNextValue('#output');
 
     assert.deepEqual(output, {v1: 2, v2: 5, v4: 6}, 'input change');
     assert.lengthOf(TestFunctionRunner.popLogs(), 3);
 
     job.setValue('a', inputArr);
-    let outputArr = await bBlock.waitNextValue('output');
+    let outputArr = await bBlock.waitNextValue('#output');
     assert.lengthOf(outputArr, 20, 'output array');
 
     for (let i = 0; i < 20; ++i) {
@@ -105,7 +105,7 @@ describe('MapFunction Thread', function() {
     });
 
     Root.run();
-    let output = await bBlock.waitValue('output');
+    let output = await bBlock.waitValue('#output');
     assert.deepEqual(output, data);
 
     // delete job;
@@ -133,26 +133,26 @@ describe('MapFunction Thread', function() {
           '#is': '',
           'runner': {'#is': 'test-runner', '#mode': 'onLoad', '#-log': 0},
           'add': {'#is': 'add', '~0': '##.#inputs', '1': 1},
-          '#outputs': {'#is': '', '~#value': '##.add.output'}
+          '#outputs': {'#is': '', '~#value': '##.add.#output'}
         }
       }
     });
 
     Root.run();
 
-    let output = await bBlock.waitValue('output');
+    let output = await bBlock.waitValue('#output');
     assert.deepEqual(output, {v1: 2, v2: 3, v3: 4});
 
     bBlock.setValue('use', {
       '#is': '',
       'runner': {'#is': 'test-runner', '#mode': 'onLoad', '#-log': 0},
       'add': {'#is': 'add', '~0': '##.#inputs', '1': 2},
-      '#outputs': {'#is': '', '~#value': '##.add.output'}
+      '#outputs': {'#is': '', '~#value': '##.add.#output'}
     });
 
     Root.run();
-    await shouldHappen(() => bBlock.getValue('output') !== output);
-    assert.deepEqual(bBlock.getValue('output'), {v1: 3, v2: 4, v3: 5});
+    await shouldHappen(() => bBlock.getValue('#output') !== output);
+    assert.deepEqual(bBlock.getValue('#output'), {v1: 3, v2: 4, v3: 5});
 
     assert.lengthOf(TestFunctionRunner.popLogs(), 2);
 
@@ -185,7 +185,7 @@ describe('MapFunction Thread', function() {
           },
           '#outputs': {
             '#is': '',
-            '~#value': '##.add.output',
+            '~#value': '##.add.#output',
             '~#wait': '##.async.#wait'
           }
         }
@@ -193,9 +193,9 @@ describe('MapFunction Thread', function() {
     });
 
     Root.run();
-    assert.isUndefined(bBlock.getValue('output'), 'async worker should not finish right after run');
+    assert.isUndefined(bBlock.getValue('#output'), 'async worker should not finish right after run');
 
-    let output = await bBlock.waitValue('output');
+    let output = await bBlock.waitValue('#output');
     assert.lengthOf(Object.keys(output), 20);
     assert.lengthOf(TestFunctionRunner.popLogs(), 20);
 
@@ -208,13 +208,13 @@ describe('MapFunction Thread', function() {
       v4: 5
     });
 
-    output = await bBlock.waitNextValue('output');
+    output = await bBlock.waitNextValue('#output');
 
     assert.deepEqual(output, {v1: 2, v2: 5, v4: 6}, 'input change');
     assert.lengthOf(TestFunctionRunner.popLogs(), 3);
 
     job.setValue('a', inputArr);
-    let outputArr = await bBlock.waitNextValue('output');
+    let outputArr = await bBlock.waitNextValue('#output');
     assert.lengthOf(outputArr, 20, 'output array');
 
     for (let i = 0; i < 20; ++i) {
@@ -253,7 +253,7 @@ describe('MapFunction Thread', function() {
           },
           '#outputs': {
             '#is': '',
-            '~#value': '##.add.output',
+            '~#value': '##.add.#output',
             '~#wait': '##.async.#wait'
           }
         }
@@ -261,9 +261,9 @@ describe('MapFunction Thread', function() {
     });
 
     Root.run();
-    assert.isUndefined(bBlock.getValue('output'), 'async worker should not finish right after run');
+    assert.isUndefined(bBlock.getValue('#output'), 'async worker should not finish right after run');
 
-    let output = await bBlock.waitValue('output');
+    let output = await bBlock.waitValue('#output');
     assert.lengthOf(Object.keys(output), 20);
     assert.lengthOf(TestFunctionRunner.popLogs(), 5);
 
@@ -277,13 +277,13 @@ describe('MapFunction Thread', function() {
       v4: 5
     });
 
-    output = await bBlock.waitNextValue('output');
+    output = await bBlock.waitNextValue('#output');
 
     assert.deepEqual(output, {v1: 2, v2: 5, v4: 6}, 'input change');
     assert.lengthOf(TestFunctionRunner.popLogs(), 3);
 
     job.setValue('a', inputArr);
-    let outputArr = await bBlock.waitNextValue('output');
+    let outputArr = await bBlock.waitNextValue('#output');
     assert.lengthOf(outputArr, 20, 'output array');
     assert.lengthOf(TestFunctionRunner.popLogs(), 5);
 
@@ -321,7 +321,7 @@ describe('MapFunction Thread', function() {
           },
           '#outputs': {
             '#is': '',
-            '~#value': '##.add.output',
+            '~#value': '##.add.#output',
             '~#wait': '##.async.#wait'
           }
         }
@@ -329,9 +329,9 @@ describe('MapFunction Thread', function() {
     });
 
     Root.run();
-    assert.isUndefined(bBlock.getValue('output'), 'async worker should not finish right after run');
+    assert.isUndefined(bBlock.getValue('#output'), 'async worker should not finish right after run');
 
-    let output = await bBlock.waitValue('output');
+    let output = await bBlock.waitValue('#output');
     assert.lengthOf(Object.keys(output), 20);
 
     for (let i = 0; i < 20; ++i) {
@@ -343,12 +343,12 @@ describe('MapFunction Thread', function() {
       v4: 5
     });
 
-    output = await bBlock.waitNextValue('output');
+    output = await bBlock.waitNextValue('#output');
 
     assert.deepEqual(output, {v1: 2, v2: 5, v4: 6}, 'input change');
 
     job.setValue('a', inputArr);
-    let outputArr = await bBlock.waitNextValue('output');
+    let outputArr = await bBlock.waitNextValue('#output');
     assert.lengthOf(outputArr, 20, 'output array');
 
     for (let i = 0; i < 20; ++i) {
@@ -385,7 +385,7 @@ describe('MapFunction Thread', function() {
           },
           '#outputs': {
             '#is': '',
-            '~#value': '##.add.output',
+            '~#value': '##.add.#output',
             '~#wait': '##.async.#wait'
           }
         }
@@ -393,7 +393,7 @@ describe('MapFunction Thread', function() {
     });
 
     Root.run();
-    assert.isUndefined(bBlock.getValue('output'), 'async worker should not finish right after run');
+    assert.isUndefined(bBlock.getValue('#output'), 'async worker should not finish right after run');
 
     // set 3 inputs at same time
     job.setValue('a', {
@@ -404,10 +404,10 @@ describe('MapFunction Thread', function() {
     job.setValue('a', inputObj);
     job.setValue('a', inputArr);
 
-    let output = await bBlock.waitValue('output');
+    let output = await bBlock.waitValue('#output');
     assert.lengthOf(Object.keys(output), 20);
 
-    let outputArr = await bBlock.waitNextValue('output');
+    let outputArr = await bBlock.waitNextValue('#output');
     assert.lengthOf(outputArr, 20, 'output array');
 
     for (let i = 0; i < 20; ++i) {

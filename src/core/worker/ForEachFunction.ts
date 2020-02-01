@@ -160,13 +160,13 @@ export class ForEachFunction extends BlockFunction implements BlockChildWatch {
 
   _createOutputBlock() {
     if (!this._outputBlock) {
-      this._outputBlock = this._data.createOutputBlock('output');
+      this._outputBlock = this._data.createOutputBlock('#output');
     }
   }
 
   _removeOutputBlock() {
     if (this._outputBlock) {
-      this._data.deleteValue('output');
+      this._data.deleteValue('#output');
       this._outputBlock = null;
     }
   }
@@ -194,7 +194,7 @@ export class ForEachFunction extends BlockFunction implements BlockChildWatch {
     this._clearWorkers();
     if (!this._data._destroyed) {
       if (this._outputBlock) {
-        this._data.deleteValue('output');
+        this._data.deleteValue('#output');
       }
     }
     this._outputBlock = null;
@@ -213,6 +213,6 @@ Functions.add(ForEachFunction, {
   properties: [
     {name: 'input', type: 'any'},
     {name: 'use', type: 'worker'},
-    {name: 'output', type: 'any', readonly: true}
+    {name: '#output', type: 'any', readonly: true}
   ]
 });

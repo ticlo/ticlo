@@ -18,7 +18,7 @@ describe('CreateObject', function() {
 
     Root.run();
 
-    assert.deepEqual(aBlock.getValue('output'), {v: 12});
+    assert.deepEqual(aBlock.getValue('#output'), {v: 12});
   });
 
   it('spread', function() {
@@ -34,7 +34,7 @@ describe('CreateObject', function() {
 
     Root.run();
 
-    assert.deepEqual(aBlock.getValue('output'), {v: 13, t: 1});
+    assert.deepEqual(aBlock.getValue('#output'), {v: 13, t: 1});
   });
 
   it('array', function() {
@@ -51,6 +51,6 @@ describe('CreateObject', function() {
 
     Root.run();
 
-    assert.deepEqual(aBlock.getValue('output'), {v: [1, 2, undefined]});
+    assert.deepEqual(aBlock.getValue('#output'), {v: [1, 2, undefined]});
   });
 });

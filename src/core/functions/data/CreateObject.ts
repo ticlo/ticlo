@@ -40,6 +40,6 @@ Functions.add(CreateObjectFunction, {
   icon: 'txt:{ }',
   properties: [
     {name: '#spread', type: 'object'},
-    {name: 'output', type: 'object', readonly: true}
+    {name: '#output', type: 'object', readonly: true}
   ]
 });

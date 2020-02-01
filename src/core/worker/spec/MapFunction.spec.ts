@@ -35,14 +35,14 @@ describe('MapFunction non-thread', function() {
           '#is': '',
           'runner': {'#is': 'test-runner', '#mode': 'onLoad', '#-log': 0},
           'add': {'#is': 'add', '~0': '##.#inputs', '1': 1},
-          '#outputs': {'#is': '', '~#value': '##.add.output'}
+          '#outputs': {'#is': '', '~#value': '##.add.#output'}
         }
       }
     });
 
     Root.runAll(2);
 
-    assert.deepEqual(bBlock.getValue('output'), {v1: 2, v2: 3, v3: 4});
+    assert.deepEqual(bBlock.getValue('#output'), {v1: 2, v2: 3, v3: 4});
 
     job.setValue('a', {
       v1: 1,
@@ -52,7 +52,7 @@ describe('MapFunction non-thread', function() {
 
     Root.runAll(2);
 
-    assert.deepEqual(bBlock.getValue('output'), {v1: 2, v2: 5, v4: 6});
+    assert.deepEqual(bBlock.getValue('#output'), {v1: 2, v2: 5, v4: 6});
 
     assert.lengthOf(TestFunctionRunner.popLogs(), 6);
 
@@ -76,7 +76,7 @@ describe('MapFunction non-thread', function() {
     });
 
     Root.run();
-    assert.deepEqual(bBlock.getValue('output'), {});
+    assert.deepEqual(bBlock.getValue('#output'), {});
 
     job.deleteValue('b');
   });
@@ -102,7 +102,7 @@ describe('MapFunction non-thread', function() {
       }
     });
     Root.runAll(2);
-    assert.deepEqual(bBlock.getValue('output'), {v1: 1, v2: 3});
+    assert.deepEqual(bBlock.getValue('#output'), {v1: 1, v2: 3});
 
     bBlock.setValue('use', {
       '#is': '',
@@ -111,7 +111,7 @@ describe('MapFunction non-thread', function() {
     });
 
     Root.runAll(2);
-    assert.deepEqual(bBlock.getValue('output'), {v1: 2, v2: 4});
+    assert.deepEqual(bBlock.getValue('#output'), {v1: 2, v2: 4});
 
     bBlock.setValue('use', {
       '#is': '',
@@ -120,7 +120,7 @@ describe('MapFunction non-thread', function() {
     });
 
     Root.runAll(2);
-    assert.deepEqual(bBlock.getValue('output'), {v1: 1, v2: 3});
+    assert.deepEqual(bBlock.getValue('#output'), {v1: 1, v2: 3});
 
     // delete job;
     job.deleteValue('b');
@@ -152,7 +152,7 @@ describe('MapFunction non-thread', function() {
 
     Root.runAll(2);
 
-    assert.deepEqual(bBlock.getValue('output'), data);
+    assert.deepEqual(bBlock.getValue('#output'), data);
 
     // delete job;
     job.deleteValue('b');
@@ -178,25 +178,25 @@ describe('MapFunction non-thread', function() {
           '#is': '',
           'runner': {'#is': 'test-runner', '#mode': 'onLoad', '#-log': 0},
           'add': {'#is': 'add', '~0': '##.#inputs', '1': 1},
-          '#outputs': {'#is': '', '~#value': '##.add.output'}
+          '#outputs': {'#is': '', '~#value': '##.add.#output'}
         }
       }
     });
 
     Root.runAll(2);
 
-    assert.deepEqual(bBlock.getValue('output'), {v1: 2, v2: 3, v3: 4});
+    assert.deepEqual(bBlock.getValue('#output'), {v1: 2, v2: 3, v3: 4});
 
     bBlock.setValue('use', {
       '#is': '',
       'runner': {'#is': 'test-runner', '#mode': 'onLoad', '#-log': 0},
       'add': {'#is': 'add', '~0': '##.#inputs', '1': 2},
-      '#outputs': {'#is': '', '~#value': '##.add.output'}
+      '#outputs': {'#is': '', '~#value': '##.add.#output'}
     });
 
     Root.runAll(2);
 
-    assert.deepEqual(bBlock.getValue('output'), {v1: 3, v2: 4, v3: 5});
+    assert.deepEqual(bBlock.getValue('#output'), {v1: 3, v2: 4, v3: 5});
 
     assert.lengthOf(TestFunctionRunner.popLogs(), 6);
 
@@ -224,7 +224,7 @@ describe('MapFunction non-thread', function() {
           '#is': '',
           'runner': {'#is': 'test-runner', '#mode': 'onLoad', '#-log': 0},
           'add': {'#is': 'add', '~0': '##.#inputs', '1': 1},
-          '#outputs': {'#is': '', '~#value': '##.add.output'}
+          '#outputs': {'#is': '', '~#value': '##.add.#output'}
         }
       }
     });
@@ -239,11 +239,11 @@ describe('MapFunction non-thread', function() {
 
     Root.run();
 
-    assert.deepEqual(bBlock.getValue('output'), {v1: 2, v2: 3, v3: 4});
+    assert.deepEqual(bBlock.getValue('#output'), {v1: 2, v2: 3, v3: 4});
 
     Root.run();
 
-    assert.deepEqual(bBlock.getValue('output'), {v1: 2, v2: 5, v4: 6});
+    assert.deepEqual(bBlock.getValue('#output'), {v1: 2, v2: 5, v4: 6});
     assert.isUndefined(bBlock.queryValue('#func.v3.#outputs'), 'unused worker should be removed');
 
     assert.lengthOf(TestFunctionRunner.popLogs(), 4);
@@ -272,14 +272,14 @@ describe('MapFunction non-thread', function() {
           '#is': '',
           'runner': {'#is': 'test-runner', '#mode': 'onLoad', '#-log': 0},
           'add': {'#is': 'add', '~0': '##.#inputs', '1': 1},
-          '#outputs': {'#is': '', '~#value': '##.add.output'}
+          '#outputs': {'#is': '', '~#value': '##.add.#output'}
         }
       }
     });
 
     Root.runAll(2);
 
-    assert.deepEqual(bBlock.getValue('output'), {v1: 2, v2: 3, v3: 4});
+    assert.deepEqual(bBlock.getValue('#output'), {v1: 2, v2: 3, v3: 4});
 
     job.setValue('a', {
       v1: 1,
@@ -289,7 +289,7 @@ describe('MapFunction non-thread', function() {
 
     Root.runAll(2);
 
-    assert.deepEqual(bBlock.getValue('output'), {v1: 2, v2: 5, v4: 6});
+    assert.deepEqual(bBlock.getValue('#output'), {v1: 2, v2: 5, v4: 6});
     assert.equal(bBlock.queryValue('#func.v3.#outputs.#value'), 4, 'unused worker is still kept');
 
     assert.lengthOf(TestFunctionRunner.popLogs(), 4);
@@ -319,14 +319,14 @@ describe('MapFunction non-thread', function() {
         '#is': {
           '#is': '',
           'add': {'#is': 'add', '~0': '##.#inputs.v', '1': 1},
-          '#outputs': {'#is': '', '~v': '##.add.output'}
+          '#outputs': {'#is': '', '~v': '##.add.#output'}
         }
       }
     });
 
     Root.runAll(2);
 
-    assert.deepEqual(bBlock.getValue('output'), {
+    assert.deepEqual(bBlock.getValue('#output'), {
       obj1: {v: 2},
       obj2: {v: 3},
       obj3: {v: 4}
@@ -364,7 +364,7 @@ describe('MapFunction non-thread', function() {
           },
           '#outputs': {
             '#is': '',
-            '~#value': '##.add.output',
+            '~#value': '##.add.#output',
             '~#wait': '##.async.#wait'
           }
         }
@@ -373,9 +373,9 @@ describe('MapFunction non-thread', function() {
 
     Root.run();
 
-    assert.isUndefined(bBlock.getValue('output'), 'async worker should not finish right after run');
+    assert.isUndefined(bBlock.getValue('#output'), 'async worker should not finish right after run');
 
-    assert.deepEqual(await bBlock.waitNextValue('output'), {v1: 2, v2: 3, v3: 4}, 'async workers finish');
+    assert.deepEqual(await bBlock.waitNextValue('#output'), {v1: 2, v2: 3, v3: 4}, 'async workers finish');
 
     job.setValue('a', {
       v1: 1,
@@ -385,7 +385,7 @@ describe('MapFunction non-thread', function() {
 
     Root.run();
 
-    assert.deepEqual(await bBlock.waitNextValue('output'), {
+    assert.deepEqual(await bBlock.waitNextValue('#output'), {
       v1: 2,
       v2: 5,
       v4: 6
@@ -419,11 +419,11 @@ describe('MapFunction non-thread', function() {
     });
 
     // without timeout, block would never have output
-    await shouldTimeout(bBlock.waitNextValue('output'), 10);
+    await shouldTimeout(bBlock.waitNextValue('#output'), 10);
 
     bBlock.setValue('timeout', 0.01);
 
-    let output = await bBlock.waitNextValue('output');
+    let output = await bBlock.waitNextValue('#output');
 
     assert.instanceOf(output.v1, ErrorEvent, 'value is timeout error');
     assert.instanceOf(output.v2, ErrorEvent, 'value is timeout error');
@@ -451,14 +451,14 @@ describe('MapFunction non-thread', function() {
           '#is': '',
           'runner': {'#is': 'test-runner', '#mode': 'onLoad', '#-log': 0},
           'add': {'#is': 'add', '~0': '##.#inputs', '1': 1},
-          '#outputs': {'#is': '', '~#value': '##.add.output'}
+          '#outputs': {'#is': '', '~#value': '##.add.#output'}
         }
       }
     });
 
     Root.runAll(2);
 
-    assert.deepEqual(bBlock.getValue('output'), {v1: 2, v2: 3, v3: 4});
+    assert.deepEqual(bBlock.getValue('#output'), {v1: 2, v2: 3, v3: 4});
     assert.lengthOf(TestFunctionRunner.popLogs(), 3);
 
     // set 2 inputs at same time
@@ -475,7 +475,7 @@ describe('MapFunction non-thread', function() {
 
     Root.runAll(2);
 
-    assert.deepEqual(bBlock.getValue('output'), {v1: 2, v2: 5, v4: 6});
+    assert.deepEqual(bBlock.getValue('#output'), {v1: 2, v2: 5, v4: 6});
 
     assert.lengthOf(TestFunctionRunner.popLogs(), 3);
 
@@ -511,7 +511,7 @@ describe('MapFunction non-thread', function() {
           },
           '#outputs': {
             '#is': '',
-            '~#value': '##.add.output',
+            '~#value': '##.add.#output',
             '~#wait': '##.async.#wait'
           }
         }
@@ -521,7 +521,7 @@ describe('MapFunction non-thread', function() {
     Root.run();
 
     bBlock.setValue('#cancel', {});
-    await shouldTimeout(bBlock.waitNextValue('output'), 10);
+    await shouldTimeout(bBlock.waitNextValue('#output'), 10);
 
     assert.lengthOf(TestFunctionRunner.popLogs(), 3);
 
@@ -533,7 +533,7 @@ describe('MapFunction non-thread', function() {
 
     Root.run();
 
-    assert.deepEqual(await bBlock.waitNextValue('output'), {
+    assert.deepEqual(await bBlock.waitNextValue('#output'), {
       v1: 2,
       v2: 5,
       v4: 6
@@ -574,7 +574,7 @@ describe('MapFunction non-thread', function() {
           },
           '#outputs': {
             '#is': '',
-            '~#value': '##.add.output',
+            '~#value': '##.add.#output',
             '~#wait': '##.async.#wait'
           }
         }
@@ -594,7 +594,7 @@ describe('MapFunction non-thread', function() {
 
     Root.run();
 
-    assert.deepEqual(await bBlock.waitValue('output'), {v1: 2, v2: 5, v4: 6});
+    assert.deepEqual(await bBlock.waitValue('#output'), {v1: 2, v2: 5, v4: 6});
 
     assert.lengthOf(TestFunctionRunner.popLogs(), 1);
 

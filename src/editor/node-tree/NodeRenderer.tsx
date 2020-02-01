@@ -208,7 +208,7 @@ export class NodeTreeRenderer extends PureDataRenderer<Props, any> {
     let {desc} = this.state;
     let data: any = {path: item.key};
     if (getOutputDesc(desc)) {
-      data = {...data, fields: [`${item.key}.output`]};
+      data = {...data, fields: [`${item.key}.#output`]};
     }
     e.setData(data, item.getBaseConn());
     e.startDrag();

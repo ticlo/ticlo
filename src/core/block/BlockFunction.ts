@@ -5,7 +5,7 @@ import {Event, EventType} from './Event';
 import {DataMap} from '../util/DataTypes';
 
 export interface FunctionOutput {
-  // field is 'output' by default
+  // field is '#output' by default
   output(value: any, field?: string): void;
 }
 

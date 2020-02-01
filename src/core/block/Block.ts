@@ -387,7 +387,7 @@ export class Block implements Runnable, FunctionData, PropListener<FunctionClass
     this.getProperty(field).updateValue(val);
   }
 
-  output(val: any, field: string = 'output'): void {
+  output(val: any, field: string = '#output'): void {
     this.getProperty(field).setOutput(val);
   }
 
@@ -431,7 +431,7 @@ export class Block implements Runnable, FunctionData, PropListener<FunctionClass
     } else {
       block = helperProp._saved;
     }
-    prop.setBinding(`~${field}.output`);
+    prop.setBinding(`~${field}.#output`);
     prop.setBindProperty(helperProp);
     return block;
   }

@@ -27,7 +27,7 @@ export class ServiceEditor extends React.PureComponent<Props, State> {
 
   onGlobalBlockSelect = (value: string) => {
     let {onPathChange} = this.props;
-    onPathChange(`${value}.output`);
+    onPathChange(`${value}.#output`);
   };
 
   onCreate = async () => {
@@ -37,7 +37,7 @@ export class ServiceEditor extends React.PureComponent<Props, State> {
     if (funcDesc) {
       let createdBlock = await conn.createBlock(`#global.^${funcDesc.name}`, getDefaultFuncData(funcDesc), true);
       if (createdBlock && createdBlock.hasOwnProperty('name')) {
-        onPathChange(`${createdBlock.name}.output`);
+        onPathChange(`${createdBlock.name}.#output`);
         this.openPopup();
       }
     }
@@ -82,7 +82,7 @@ export class ServiceEditor extends React.PureComponent<Props, State> {
     }
 
     let selectValue = bindingPath;
-    if (typeof selectValue === 'string' && selectValue.endsWith('.output')) {
+    if (typeof selectValue === 'string' && selectValue.endsWith('.#output')) {
       selectValue = selectValue.substring(0, selectValue.length - 7);
     }
 

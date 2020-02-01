@@ -28,7 +28,7 @@ describe('editor BlockStage', function() {
         '0': 1,
         '1': 2,
         '@b-xyw': [123, 234, 345],
-        '@b-p': ['0', '1', 'output']
+        '@b-p': ['0', '1', '#output']
       }
     });
 
@@ -49,7 +49,7 @@ describe('editor BlockStage', function() {
     // test all fields in the block body
     await shouldHappen(() => querySingle("//div.ticl-field-name[text()='0']/../div.ticl-field-value[text()='1']", div));
     assert.isNotNull(querySingle("//div.ticl-field-name[text()='1']/../div.ticl-field-value[text()='2']", div));
-    assert.isNotNull(querySingle("//div.ticl-field-name[text()='output']/../div.ticl-field-value[text()='3']", div));
+    assert.isNotNull(querySingle("//div.ticl-field-name[text()='#output']/../div.ticl-field-value[text()='3']", div));
 
     // check block icon
     assert.isNotNull(querySingle('//div.tico-icon-svg.tico-fas-plus', div));
@@ -57,12 +57,12 @@ describe('editor BlockStage', function() {
     // test value update
     job.queryProperty('add.0').updateValue(5);
     await shouldHappen(() => querySingle("//div.ticl-field-name[text()='0']/../div.ticl-field-value[text()='5']", div));
-    assert.isNotNull(querySingle("//div.ticl-field-name[text()='output']/../div.ticl-field-value[text()='7']", div));
+    assert.isNotNull(querySingle("//div.ticl-field-name[text()='#output']/../div.ticl-field-value[text()='7']", div));
 
     // test change type
     job.queryProperty('add.#is').setValue('subtract');
     await shouldHappen(() =>
-      querySingle("//div.ticl-field-name[text()='output']/../div.ticl-field-value[text()='3']", div)
+      querySingle("//div.ticl-field-name[text()='#output']/../div.ticl-field-value[text()='3']", div)
     );
     // check block icon again
     assert.isNotNull(querySingle('//div.tico-icon-svg.tico-fas-minus', div));
@@ -76,7 +76,7 @@ describe('editor BlockStage', function() {
       add: {
         '#is': 'add',
         '@b-xyw': [123, 234, 345],
-        '@b-p': ['0', '1', 'output']
+        '@b-p': ['0', '1', '#output']
       }
     });
 
@@ -129,7 +129,7 @@ describe('editor BlockStage', function() {
       add: {
         '#is': 'add',
         '@b-xyw': [123, 234, 345],
-        '@b-p': ['0', '1', 'output']
+        '@b-p': ['0', '1', '#output']
       }
     });
 

@@ -40,7 +40,7 @@ describe('Connection', function() {
     assert.equal(job.queryValue('block1.#is'), 'add', 'basic set');
 
     let callbacks = new AsyncClientPromise();
-    client.subscribe('Connection1.block1.output', callbacks);
+    client.subscribe('Connection1.block1.#output', callbacks);
     let result = await callbacks.promise;
     assert.equal(result.cache.value, null, 'subscribe null');
 
@@ -534,7 +534,7 @@ describe('Connection', function() {
     await client.createBlock('Connection12.~a');
 
     assert.instanceOf(job1.getValue('~a'), Block);
-    assert.equal(job1.getProperty('a')._bindingPath, '~a.output');
+    assert.equal(job1.getProperty('a')._bindingPath, '~a.#output');
 
     // transfer property value
     await client.setValue('Connection12.b', 2);

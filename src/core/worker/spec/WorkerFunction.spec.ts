@@ -54,7 +54,7 @@ describe('WorkerFunction', function() {
     let jobData: DataMap = {
       '#is': '',
       'add': {'#is': 'add', '~0': '##.#inputs.in1', '1': 1},
-      '#outputs': {'#is': '', '~out1': '##.add.output'}
+      '#outputs': {'#is': '', '~out1': '##.add.#output'}
     };
     WorkerFunction.registerType(jobData, {name: 'class2'}, 'WorkerFunction');
     aBlock.setValue('in1', 2);
@@ -78,7 +78,7 @@ describe('WorkerFunction', function() {
     let jobData2: DataMap = {
       '#is': '',
       'add': {'#is': 'add', '~0': '##.#inputs.in1', '1': 1},
-      '#outputs': {'#is': '', '~out2': '##.add.output'}
+      '#outputs': {'#is': '', '~out2': '##.add.#output'}
     };
     WorkerFunction.registerType(jobData1, {name: 'class1'}, 'test_namespace');
     WorkerFunction.registerType(jobData2, {name: 'class2'}, 'test_namespace');

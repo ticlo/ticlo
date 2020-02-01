@@ -42,7 +42,7 @@ Functions.add(JoinFunction, {
       properties: [{name: '', type: 'string', visible: 'high'}]
     },
     {name: 'separator', type: 'string'},
-    {name: 'output', type: 'string', readonly: true}
+    {name: '#output', type: 'string', readonly: true}
   ],
   recipient: '0',
   category: 'string'

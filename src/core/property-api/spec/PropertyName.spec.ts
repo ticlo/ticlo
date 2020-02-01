@@ -62,7 +62,7 @@ describe('PropertyUtil', function() {
     assert.isFalse(job.isPropertyUsed('a4'));
     assert.instanceOf(job.getValue('~b4'), Block);
     assert.equal(job.queryValue('~b4.v'), 3);
-    assert.equal(job.getProperty('b4')._bindingPath, '~b4.output');
+    assert.equal(job.getProperty('b4')._bindingPath, '~b4.#output');
 
     // move binding
     job.setValue('a5', 4);

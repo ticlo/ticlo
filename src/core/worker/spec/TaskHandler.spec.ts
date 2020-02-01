@@ -12,7 +12,7 @@ const handlerWorker = {
     '#is': '',
     'add': {'#is': 'add', '~0': '##.#inputs.n', '1': 1},
     '#inputs': {'#is': '', '#custom': [{name: 'n', type: 'number'}]},
-    '#outputs': {'#is': '', '~#value': '##.add.output'}
+    '#outputs': {'#is': '', '~#value': '##.add.#output'}
   }
 };
 

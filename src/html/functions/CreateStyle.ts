@@ -27,7 +27,7 @@ Functions.add(
     optional: StyleDef,
     properties: [
       {name: '#spread', type: 'object'},
-      {name: 'output', type: 'object', readonly: true}
+      {name: '#output', type: 'object', readonly: true}
     ]
   },
   'html'

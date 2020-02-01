@@ -14,27 +14,27 @@ describe('Compare', function() {
     });
 
     Root.run();
-    assert.equal(aBlock.getValue('output'), true);
+    assert.equal(aBlock.getValue('#output'), true);
 
     aBlock.setValue('0', NaN);
     Root.run();
-    assert.equal(aBlock.getValue('output'), false);
+    assert.equal(aBlock.getValue('#output'), false);
 
     aBlock.setValue('1', NaN);
     Root.run();
-    assert.equal(aBlock.getValue('output'), false);
+    assert.equal(aBlock.getValue('#output'), false);
 
     aBlock.setValue('0', undefined);
     Root.run();
-    assert.equal(aBlock.getValue('output'), false);
+    assert.equal(aBlock.getValue('#output'), false);
 
     aBlock.setValue('1', null);
     Root.run();
-    assert.equal(aBlock.getValue('output'), false);
+    assert.equal(aBlock.getValue('#output'), false);
 
     aBlock.setValue('1', undefined);
     Root.run();
-    assert.equal(aBlock.getValue('output'), true);
+    assert.equal(aBlock.getValue('#output'), true);
   });
 
   it('not equal', function() {
@@ -48,27 +48,27 @@ describe('Compare', function() {
     });
 
     Root.run();
-    assert.equal(aBlock.getValue('output'), false);
+    assert.equal(aBlock.getValue('#output'), false);
 
     aBlock.setValue('0', NaN);
     Root.run();
-    assert.equal(aBlock.getValue('output'), true);
+    assert.equal(aBlock.getValue('#output'), true);
 
     aBlock.setValue('1', NaN);
     Root.run();
-    assert.equal(aBlock.getValue('output'), true);
+    assert.equal(aBlock.getValue('#output'), true);
 
     aBlock.setValue('0', undefined);
     Root.run();
-    assert.equal(aBlock.getValue('output'), true);
+    assert.equal(aBlock.getValue('#output'), true);
 
     aBlock.setValue('1', null);
     Root.run();
-    assert.equal(aBlock.getValue('output'), true);
+    assert.equal(aBlock.getValue('#output'), true);
 
     aBlock.setValue('1', undefined);
     Root.run();
-    assert.equal(aBlock.getValue('output'), false);
+    assert.equal(aBlock.getValue('#output'), false);
   });
 
   it('greater than', function() {
@@ -82,15 +82,15 @@ describe('Compare', function() {
     });
 
     Root.run();
-    assert.equal(aBlock.getValue('output'), true);
+    assert.equal(aBlock.getValue('#output'), true);
 
     aBlock.setValue('0', 2);
     Root.run();
-    assert.equal(aBlock.getValue('output'), false);
+    assert.equal(aBlock.getValue('#output'), false);
 
     aBlock.setValue('1', 1);
     Root.run();
-    assert.equal(aBlock.getValue('output'), true);
+    assert.equal(aBlock.getValue('#output'), true);
   });
 
   it('greater equal', function() {
@@ -104,15 +104,15 @@ describe('Compare', function() {
     });
 
     Root.run();
-    assert.equal(aBlock.getValue('output'), true);
+    assert.equal(aBlock.getValue('#output'), true);
 
     aBlock.setValue('0', 2);
     Root.run();
-    assert.equal(aBlock.getValue('output'), false);
+    assert.equal(aBlock.getValue('#output'), false);
 
     aBlock.setValue('1', 2);
     Root.run();
-    assert.equal(aBlock.getValue('output'), true);
+    assert.equal(aBlock.getValue('#output'), true);
   });
 
   it('less than', function() {
@@ -126,15 +126,15 @@ describe('Compare', function() {
     });
 
     Root.run();
-    assert.equal(aBlock.getValue('output'), false);
+    assert.equal(aBlock.getValue('#output'), false);
 
     aBlock.setValue('0', 2);
     Root.run();
-    assert.equal(aBlock.getValue('output'), false);
+    assert.equal(aBlock.getValue('#output'), false);
 
     aBlock.setValue('1', 3);
     Root.run();
-    assert.equal(aBlock.getValue('output'), true);
+    assert.equal(aBlock.getValue('#output'), true);
   });
 
   it('less equal', function() {
@@ -148,14 +148,14 @@ describe('Compare', function() {
     });
 
     Root.run();
-    assert.equal(aBlock.getValue('output'), false);
+    assert.equal(aBlock.getValue('#output'), false);
 
     aBlock.setValue('0', 2);
     Root.run();
-    assert.equal(aBlock.getValue('output'), false);
+    assert.equal(aBlock.getValue('#output'), false);
 
     aBlock.setValue('1', 2);
     Root.run();
-    assert.equal(aBlock.getValue('output'), true);
+    assert.equal(aBlock.getValue('#output'), true);
   });
 });

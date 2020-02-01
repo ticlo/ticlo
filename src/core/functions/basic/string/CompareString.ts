@@ -10,7 +10,7 @@ const descriptor: FunctionDesc = {
   properties: [
     {name: '0', type: 'string', visible: 'high'},
     {name: '1', type: 'string', visible: 'high'},
-    {name: 'output', type: 'toggle', readonly: true}
+    {name: '#output', type: 'toggle', readonly: true}
   ]
 };
 

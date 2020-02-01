@@ -15,30 +15,30 @@ describe('Join', function() {
 
     Root.run();
 
-    assert.equal(aBlock.getValue('output'), '2a');
+    assert.equal(aBlock.getValue('#output'), '2a');
 
     aBlock.setValue('0', null);
 
     Root.run();
-    assert.equal(aBlock.getValue('output'), undefined);
+    assert.equal(aBlock.getValue('#output'), undefined);
 
     aBlock.setValue('0', ['b', 'c']);
 
     Root.run();
-    assert.equal(aBlock.getValue('output'), 'bca');
+    assert.equal(aBlock.getValue('#output'), 'bca');
 
     aBlock.setValue('separator', ',');
 
     Root.run();
-    assert.equal(aBlock.getValue('output'), 'b,c,a');
+    assert.equal(aBlock.getValue('#output'), 'b,c,a');
 
     aBlock.setValue('#len', 1);
 
     Root.run();
-    assert.equal(aBlock.getValue('output'), 'b,c');
+    assert.equal(aBlock.getValue('#output'), 'b,c');
 
     aBlock.setValue('#len', 0);
     Root.run();
-    assert.equal(aBlock.getValue('output'), undefined);
+    assert.equal(aBlock.getValue('#output'), undefined);
   });
 });

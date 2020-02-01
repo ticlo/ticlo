@@ -15,31 +15,31 @@ describe('CompareString', function() {
 
     Root.run();
 
-    assert.equal(aBlock.getValue('output'), true);
+    assert.equal(aBlock.getValue('#output'), true);
 
     aBlock.setValue('0', 'aabc');
     Root.run();
-    assert.equal(aBlock.getValue('output'), false);
+    assert.equal(aBlock.getValue('#output'), false);
 
     // array input
     aBlock.setValue('0', ['ab', 'c']);
     Root.run();
-    assert.equal(aBlock.getValue('output'), true);
+    assert.equal(aBlock.getValue('#output'), true);
 
     aBlock.setValue('0', []);
     Root.run();
-    assert.equal(aBlock.getValue('output'), false);
+    assert.equal(aBlock.getValue('#output'), false);
 
     // invalid input
     aBlock.setValue('0', 'a');
     aBlock.setValue('1', null);
     Root.run();
-    assert.equal(aBlock.getValue('output'), undefined);
+    assert.equal(aBlock.getValue('#output'), undefined);
 
     // invalid input
     aBlock.setValue('0', 0);
     Root.run();
-    assert.equal(aBlock.getValue('output'), undefined);
+    assert.equal(aBlock.getValue('#output'), undefined);
   });
 
   it('end with', function() {
@@ -54,31 +54,31 @@ describe('CompareString', function() {
 
     Root.run();
 
-    assert.equal(aBlock.getValue('output'), true);
+    assert.equal(aBlock.getValue('#output'), true);
 
     aBlock.setValue('0', 'abcc');
     Root.run();
-    assert.equal(aBlock.getValue('output'), false);
+    assert.equal(aBlock.getValue('#output'), false);
 
     // array input
     aBlock.setValue('0', ['a', 'bc']);
     Root.run();
-    assert.equal(aBlock.getValue('output'), true);
+    assert.equal(aBlock.getValue('#output'), true);
 
     aBlock.setValue('0', []);
     Root.run();
-    assert.equal(aBlock.getValue('output'), false);
+    assert.equal(aBlock.getValue('#output'), false);
 
     // invalid input
     aBlock.setValue('0', 'a');
     aBlock.setValue('1', {});
     Root.run();
-    assert.equal(aBlock.getValue('output'), undefined);
+    assert.equal(aBlock.getValue('#output'), undefined);
 
     // invalid input
     aBlock.setValue('0', false);
     Root.run();
-    assert.equal(aBlock.getValue('output'), undefined);
+    assert.equal(aBlock.getValue('#output'), undefined);
   });
 
   it('contain', function() {
@@ -93,30 +93,30 @@ describe('CompareString', function() {
 
     Root.run();
 
-    assert.equal(aBlock.getValue('output'), true);
+    assert.equal(aBlock.getValue('#output'), true);
 
     aBlock.setValue('1', 'd');
     Root.run();
-    assert.equal(aBlock.getValue('output'), false);
+    assert.equal(aBlock.getValue('#output'), false);
 
     // array input
     aBlock.setValue('0', ['a', 'd', 'g']);
     Root.run();
-    assert.equal(aBlock.getValue('output'), true);
+    assert.equal(aBlock.getValue('#output'), true);
 
     aBlock.setValue('0', []);
     Root.run();
-    assert.equal(aBlock.getValue('output'), false);
+    assert.equal(aBlock.getValue('#output'), false);
 
     // invalid input
     aBlock.setValue('0', 'a');
     aBlock.setValue('1', {});
     Root.run();
-    assert.equal(aBlock.getValue('output'), undefined);
+    assert.equal(aBlock.getValue('#output'), undefined);
 
     // invalid input
     aBlock.setValue('0', false);
     Root.run();
-    assert.equal(aBlock.getValue('output'), undefined);
+    assert.equal(aBlock.getValue('#output'), undefined);
   });
 });

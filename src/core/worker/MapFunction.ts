@@ -270,6 +270,6 @@ Functions.add(MapFunction, {
     {name: 'thread', type: 'number', default: 0, min: 0, step: 1},
     {name: 'reuseWorker', type: 'radio-button', options: ['none', 'reuse', 'persist'], default: 'none', visible: 'low'},
     {name: 'timeout', type: 'number', visible: 'low'},
-    {name: 'output', type: 'any', readonly: true}
+    {name: '#output', type: 'any', readonly: true}
   ]
 });

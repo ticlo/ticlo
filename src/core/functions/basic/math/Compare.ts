@@ -10,7 +10,7 @@ const descriptor: FunctionDesc = {
   properties: [
     {name: '0', type: 'number', visible: 'high'},
     {name: '1', type: 'number', visible: 'high'},
-    {name: 'output', type: 'toggle', readonly: true}
+    {name: '#output', type: 'toggle', readonly: true}
   ]
 };
 
@@ -29,7 +29,7 @@ Functions.add(EqualFunction, {
   properties: [
     {name: '0', type: 'any', visible: 'high'},
     {name: '1', type: 'any', visible: 'high'},
-    {name: 'output', type: 'toggle', readonly: true}
+    {name: '#output', type: 'toggle', readonly: true}
   ]
 });
 
@@ -48,7 +48,7 @@ Functions.add(NotEqualFunction, {
   properties: [
     {name: '0', type: 'any', visible: 'high'},
     {name: '1', type: 'any', visible: 'high'},
-    {name: 'output', type: 'toggle', readonly: true}
+    {name: '#output', type: 'toggle', readonly: true}
   ]
 });
 
@@ -65,7 +65,7 @@ Functions.add(NotFunction, {
   icon: 'txt:!',
   properties: [
     {name: '0', type: 'toggle', visible: 'high'},
-    {name: 'output', type: 'toggle', readonly: true}
+    {name: '#output', type: 'toggle', readonly: true}
   ]
 });
 

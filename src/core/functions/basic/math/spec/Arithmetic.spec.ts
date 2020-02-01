@@ -14,12 +14,12 @@ describe('Math', function() {
 
     Root.run();
 
-    assert.equal(aBlock.getValue('output'), 5, '2+3 == 5');
+    assert.equal(aBlock.getValue('#output'), 5, '2+3 == 5');
 
     aBlock.setValue('0', 4);
 
     Root.run();
-    assert.equal(aBlock.getValue('output'), 7, 'update parameter, 4+3 == 5');
+    assert.equal(aBlock.getValue('#output'), 7, 'update parameter, 4+3 == 5');
 
     aBlock = job.createBlock('a2');
 
@@ -29,7 +29,7 @@ describe('Math', function() {
     aBlock.setValue('#is', 'add');
 
     Root.run();
-    assert.equal(aBlock.getValue('output'), 6, 'update type after value, 2.5+3.5==6');
+    assert.equal(aBlock.getValue('#output'), 6, 'update type after value, 2.5+3.5==6');
 
     // save load
     let saved = job.save();
@@ -39,7 +39,7 @@ describe('Math', function() {
     let aBlock2 = job2.getValue('a2');
     assert.instanceOf(aBlock2, Block, 'load add block from saved data');
     Root.run();
-    assert.equal(aBlock2.getValue('output'), 6, 'run add function after loading saved data');
+    assert.equal(aBlock2.getValue('#output'), 6, 'run add function after loading saved data');
   });
 
   it('add multiple', function() {
@@ -53,23 +53,23 @@ describe('Math', function() {
     aBlock.setValue('2', 4);
     aBlock.setValue('#len', 3);
     Root.run();
-    assert.equal(aBlock.getValue('output'), 9, '2+3+4 == 9');
+    assert.equal(aBlock.getValue('#output'), 9, '2+3+4 == 9');
 
     aBlock.setValue('3', 5);
     Root.run();
-    assert.equal(aBlock.getValue('output'), 9, 'add new value but length is not changed');
+    assert.equal(aBlock.getValue('#output'), 9, 'add new value but length is not changed');
 
     aBlock.setValue('#len', 4);
     Root.run();
-    assert.equal(aBlock.getValue('output'), 14, '2+3+4+5 == 14');
+    assert.equal(aBlock.getValue('#output'), 14, '2+3+4+5 == 14');
 
     aBlock.setValue('#len', 2);
     Root.run();
-    assert.equal(aBlock.getValue('output'), 5, 'length back to 2, 2+3 == 5');
+    assert.equal(aBlock.getValue('#output'), 5, 'length back to 2, 2+3 == 5');
 
     aBlock.setValue('#len', 0);
     Root.run();
-    assert.equal(aBlock.getValue('output'), undefined, 'return undefined when add nothing');
+    assert.equal(aBlock.getValue('#output'), undefined, 'return undefined when add nothing');
   });
 
   it('subtract', function() {
@@ -81,11 +81,11 @@ describe('Math', function() {
     aBlock.setValue('0', 7);
     aBlock.setValue('1', 3);
     Root.run();
-    assert.equal(aBlock.getValue('output'), 4, '7-3 == 4');
+    assert.equal(aBlock.getValue('#output'), 4, '7-3 == 4');
 
     aBlock.setValue('1', null);
     Root.run();
-    assert.equal(aBlock.getValue('output'), undefined, '7-null == undefined');
+    assert.equal(aBlock.getValue('#output'), undefined, '7-null == undefined');
   });
 
   it('divide', function() {
@@ -97,11 +97,11 @@ describe('Math', function() {
     aBlock.setValue('0', 7);
     aBlock.setValue('1', 2);
     Root.run();
-    assert.equal(aBlock.getValue('output'), 3.5, '7/2 == 3.5');
+    assert.equal(aBlock.getValue('#output'), 3.5, '7/2 == 3.5');
 
     aBlock.setValue('1', null);
     Root.run();
-    assert.equal(aBlock.getValue('output'), undefined, '7/null == undefined');
+    assert.equal(aBlock.getValue('#output'), undefined, '7/null == undefined');
   });
 
   it('multiply', function() {
@@ -115,18 +115,18 @@ describe('Math', function() {
     aBlock.setValue('2', 5);
     aBlock.setValue('#len', 3);
     Root.run();
-    assert.equal(aBlock.getValue('output'), 30, '2*3*5 == 30');
+    assert.equal(aBlock.getValue('#output'), 30, '2*3*5 == 30');
 
     aBlock.setValue('2', null);
     Root.run();
-    assert.equal(aBlock.getValue('output'), undefined, '2*3*null == undefined');
+    assert.equal(aBlock.getValue('#output'), undefined, '2*3*null == undefined');
 
     aBlock.setValue('#len', -1);
     Root.run();
-    assert.equal(aBlock.getValue('output'), 6, 'when length is invalid, use length=2');
+    assert.equal(aBlock.getValue('#output'), 6, 'when length is invalid, use length=2');
 
     aBlock.setValue('#len', 0);
     Root.run();
-    assert.equal(aBlock.getValue('output'), undefined, 'return undefined when multiply nothing');
+    assert.equal(aBlock.getValue('#output'), undefined, 'return undefined when multiply nothing');
   });
 });

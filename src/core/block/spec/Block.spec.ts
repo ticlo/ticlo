@@ -109,7 +109,7 @@ describe('Block', function() {
     let subjob = job.createOutputBlock('sub');
     subjob._load({'#is': 'add', '0': 1, '1': 2});
     Root.run();
-    assert.equal(job.queryValue('sub.output'), 3, 'not load src directly in createOutputBloc, load sub job later');
+    assert.equal(job.queryValue('sub.#output'), 3, 'not load src directly in createOutputBloc, load sub job later');
 
     Root.instance.deleteValue(job._prop._name);
     assert.isTrue(subjob.isDestroyed(), 'delete job with auto assigned name');

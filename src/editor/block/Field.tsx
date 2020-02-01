@@ -96,7 +96,7 @@ export class FieldItem extends DataRendererItem {
       this._bindingTargetPath = resolvePath(this.block.path, this._bindingPath);
 
       if (this._bindingTargetPath) {
-        if (this._bindingPath === `~${this.name}.output`) {
+        if (this._bindingPath === `~${this.name}.#output`) {
           // binding block
           this.subBlock = new SubBlockItem(this.block.conn, this.block.stage, `${this.block.path}.~${this.name}`, this);
           this.removeInWire();

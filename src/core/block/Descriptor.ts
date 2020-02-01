@@ -257,7 +257,7 @@ export function getDefaultDataFromCustom(custom: (PropDesc | PropGroupDesc)[]) {
 export function getOutputDesc(desc: FunctionDesc): PropDesc {
   if (desc && desc.properties?.length) {
     let last = desc.properties[desc.properties.length - 1];
-    if (last.name === 'output' && last.type !== 'group') {
+    if (last.name === '#output' && last.type !== 'group') {
       return last;
     }
     return null;
