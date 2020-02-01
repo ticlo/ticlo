@@ -1,6 +1,7 @@
 import {BaseFunction} from '../../block/BlockFunction';
 import {Functions} from '../../block/Functions';
 import {PropDesc, PropGroupDesc} from '../../block/Descriptor';
+import {getGroupLength} from '../../property-api/GroupProperty';
 
 export class CreateObjectFunction extends BaseFunction {
   run() {
@@ -11,10 +12,7 @@ export class CreateObjectFunction extends BaseFunction {
       for (let prop of custom) {
         if (prop) {
           if (prop.type === 'group') {
-            let length = this._data.getValue(`${prop.name}#len`);
-            if (!(length >= 0)) {
-              length = prop.defaultLen;
-            }
+            let length = getGroupLength(this._data, prop);
             for (let groupProp of prop.properties) {
               let arr: any[] = [];
               for (let i = 0; i < length; ++i) {

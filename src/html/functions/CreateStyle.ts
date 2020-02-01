@@ -23,7 +23,6 @@ Functions.add(
   {
     name: 'create-style',
     icon: 'fab:css3',
-    base: 'html:create-style',
     optional: StyleDef,
     properties: [
       {name: '#spread', type: 'object'},

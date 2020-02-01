@@ -4,6 +4,7 @@ import {PropDesc, PropGroupDesc, shouldShowProperty} from '../block/Descriptor';
 import {Functions} from '../block/Functions';
 import {buildPropertiesOrder, hideProperties, showProperties} from './PropertyShowHide';
 import {PropertyMover} from './PropertyMover';
+import {FunctionData} from '../block/BlockFunction';
 
 function findGroupDesc(block: Block, group: string): PropGroupDesc {
   let groupDesc: PropGroupDesc;
@@ -30,12 +31,17 @@ function findGroupDesc(block: Block, group: string): PropGroupDesc {
   return groupDesc;
 }
 
+export function getGroupLength(block: FunctionData, groupDesc: PropGroupDesc) {
+  let len = block.getValue(`${groupDesc.name}#len`);
+  if (len >= 0) {
+    return len;
+  }
+  return groupDesc.defaultLen;
+}
+
 function updateGroupPropertyLength(block: Block, group: string, groupDesc: PropGroupDesc, length: number) {
   let lengthField = `${group}#len`;
-  let oldLength = block.getValue(lengthField);
-  if (!(oldLength >= 0)) {
-    oldLength = groupDesc.defaultLen;
-  }
+  let oldLength = getGroupLength(block, groupDesc);
   let newLength = length;
   if (!(newLength >= 0)) {
     newLength = groupDesc.defaultLen;
@@ -74,11 +80,7 @@ export function insertGroupProperty(block: Block, group: string, idx: number) {
   if (!groupDesc) {
     return;
   }
-  let lengthField = `${group}#len`;
-  let oldLength = block.getValue(lengthField);
-  if (!(oldLength >= 0)) {
-    oldLength = groupDesc.defaultLen;
-  }
+  let oldLength = getGroupLength(block, groupDesc);
   if (idx < 0 || idx > oldLength || Math.round(idx) !== idx) {
     // invalid idx
     return;
@@ -97,11 +99,7 @@ export function removeGroupProperty(block: Block, group: string, idx: number) {
   if (!groupDesc) {
     return;
   }
-  let lengthField = `${group}#len`;
-  let oldLength = block.getValue(lengthField);
-  if (!(oldLength >= 0)) {
-    oldLength = groupDesc.defaultLen;
-  }
+  let oldLength = getGroupLength(block, groupDesc);
   if (idx < 0 || idx >= oldLength || Math.round(idx) !== idx) {
     // invalid idx
     return;
@@ -120,11 +118,7 @@ export function moveGroupProperty(block: Block, group: string, oldIdx: number, n
   if (!groupDesc) {
     return;
   }
-  let lengthField = `${group}#len`;
-  let length = block.getValue(lengthField);
-  if (!(length >= 0)) {
-    length = groupDesc.defaultLen;
-  }
+  let length = getGroupLength(block, groupDesc);
   if (
     oldIdx < 0 ||
     oldIdx >= length ||

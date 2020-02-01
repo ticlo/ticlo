@@ -3,6 +3,7 @@ import {configDescs, PropDesc, PropGroupDesc, shouldShowProperty} from '../block
 import {Functions} from '../block/Functions';
 import {HelperProperty} from '../block/BlockProperty';
 import {getPreNumber} from '../util/String';
+import {getGroupLength} from './GroupProperty';
 
 const configList = Object.keys(configDescs);
 
@@ -14,10 +15,7 @@ export function buildPropertiesOrder(block: Block): string[] {
       if (propDesc.type === 'group') {
         let lenField = `${propDesc.name}#len`;
         orders.push(lenField);
-        let groupLength = Number(block.getValue(lenField));
-        if (!(groupLength >= 0)) {
-          groupLength = (propDesc as PropGroupDesc).defaultLen;
-        }
+        let groupLength =  getGroupLength(block, propDesc);
         for (let i = 0; i < groupLength; ++i) {
           for (let childDesc of (propDesc as PropGroupDesc).properties) {
             orders.push(`${childDesc.name}${i}`);
@@ -122,11 +120,7 @@ export function showGroupProperties(block: Block, desc: PropGroupDesc, field?: s
   if (desc.type !== 'group') {
     return;
   }
-  let lenField = `${desc.name}#len`;
-  let groupLength = Number(block.getValue(lenField));
-  if (!(groupLength >= 0)) {
-    groupLength = desc.defaultLen;
-  }
+  let groupLength = getGroupLength(block, desc);
   let fields: string[] = [];
   if (field != null) {
     for (let i = 0; i < groupLength; ++i) {
