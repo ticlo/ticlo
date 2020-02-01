@@ -135,8 +135,8 @@ export const configDescs: {[key: string]: PropDesc} = {
     default: 'auto'
   },
   '#value': {name: '#value', type: 'any'},
-  '#input': {name: '#input', type: 'any'},
-  '#output': {name: '#output', type: 'any'}
+  '#inputs': {name: '#inputs', type: 'any'},
+  '#outputs': {name: '#outputs', type: 'any'}
 };
 
 export const configList: PropDesc[] = [
@@ -255,7 +255,7 @@ export function getDefaultDataFromCustom(custom: (PropDesc | PropGroupDesc)[]) {
 }
 
 export function getOutputDesc(desc: FunctionDesc): PropDesc {
-  if (desc && desc.properties.length) {
+  if (desc && desc.properties?.length) {
     let last = desc.properties[desc.properties.length - 1];
     if (last.name === 'output' && last.type !== 'group') {
       return last;

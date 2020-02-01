@@ -155,7 +155,7 @@ export class ForEachFunction extends BlockFunction implements BlockChildWatch {
     let child = this._funcBlock.createOutputJob(key, this._src, null, this._applyWorkerChange);
     this._workers.set(key, child);
     child.updateInput(input);
-    this._outputBlock.setBinding(key, `##.#func.${key}.#output`);
+    this._outputBlock.setBinding(key, `##.#func.${key}.#outputs`);
   }
 
   _createOutputBlock() {

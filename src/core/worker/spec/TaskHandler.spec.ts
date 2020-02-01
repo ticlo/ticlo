@@ -10,16 +10,16 @@ import {Task} from '../../block/Task';
 const handlerWorker = {
   '#is': {
     '#is': '',
-    'add': {'#is': 'add', '~0': '##.#input.n', '1': 1},
-    '#input': {'#is': '', '#custom': [{name: 'n', type: 'number'}]},
-    '#output': {'#is': '', '~#value': '##.add.output'}
+    'add': {'#is': 'add', '~0': '##.#inputs.n', '1': 1},
+    '#inputs': {'#is': '', '#custom': [{name: 'n', type: 'number'}]},
+    '#outputs': {'#is': '', '~#value': '##.add.output'}
   }
 };
 
 const waitWorker = {
   '#is': {
     '#is': '',
-    '#output': {'#is': '', '#wait': true}
+    '#outputs': {'#is': '', '#wait': true}
   }
 };
 

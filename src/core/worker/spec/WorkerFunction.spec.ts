@@ -19,7 +19,7 @@ describe('WorkerFunction', function() {
       'runner': {
         '#is': 'test-runner',
         '#-log': 'nest1',
-        '~#call': '##.#input.in1'
+        '~#call': '##.#inputs.in1'
       }
     };
     WorkerFunction.registerType(jobData, {name: 'class1'}, 'WorkerFunction');
@@ -53,8 +53,8 @@ describe('WorkerFunction', function() {
 
     let jobData: DataMap = {
       '#is': '',
-      'add': {'#is': 'add', '~0': '##.#input.in1', '1': 1},
-      '#output': {'#is': '', '~out1': '##.add.output'}
+      'add': {'#is': 'add', '~0': '##.#inputs.in1', '1': 1},
+      '#outputs': {'#is': '', '~out1': '##.add.output'}
     };
     WorkerFunction.registerType(jobData, {name: 'class2'}, 'WorkerFunction');
     aBlock.setValue('in1', 2);
@@ -72,13 +72,13 @@ describe('WorkerFunction', function() {
 
     let jobData1: DataMap = {
       '#is': '',
-      'nest': {'#is': ':class2', '~in1': '##.#input.in0'},
-      '#output': {'#is': '', '~out1': '##.nest.out2'}
+      'nest': {'#is': ':class2', '~in1': '##.#inputs.in0'},
+      '#outputs': {'#is': '', '~out1': '##.nest.out2'}
     };
     let jobData2: DataMap = {
       '#is': '',
-      'add': {'#is': 'add', '~0': '##.#input.in1', '1': 1},
-      '#output': {'#is': '', '~out2': '##.add.output'}
+      'add': {'#is': 'add', '~0': '##.#inputs.in1', '1': 1},
+      '#outputs': {'#is': '', '~out2': '##.add.output'}
     };
     WorkerFunction.registerType(jobData1, {name: 'class1'}, 'test_namespace');
     WorkerFunction.registerType(jobData2, {name: 'class2'}, 'test_namespace');

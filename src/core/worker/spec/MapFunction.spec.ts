@@ -34,8 +34,8 @@ describe('MapFunction non-thread', function() {
         '#is': {
           '#is': '',
           'runner': {'#is': 'test-runner', '#mode': 'onLoad', '#-log': 0},
-          'add': {'#is': 'add', '~0': '##.#input', '1': 1},
-          '#output': {'#is': '', '~#value': '##.add.output'}
+          'add': {'#is': 'add', '~0': '##.#inputs', '1': 1},
+          '#outputs': {'#is': '', '~#value': '##.add.output'}
         }
       }
     });
@@ -81,7 +81,7 @@ describe('MapFunction non-thread', function() {
     job.deleteValue('b');
   });
 
-  it('#input', function() {
+  it('#inputs', function() {
     let job = new Job();
 
     job.setValue('a', {
@@ -97,7 +97,7 @@ describe('MapFunction non-thread', function() {
       'use': {
         '#is': {
           '#is': '',
-          '#output': {'#is': '', '~#value': '##.#input.a'}
+          '#outputs': {'#is': '', '~#value': '##.#inputs.a'}
         }
       }
     });
@@ -106,8 +106,8 @@ describe('MapFunction non-thread', function() {
 
     bBlock.setValue('use', {
       '#is': '',
-      '#input': {'#is': ''},
-      '#output': {'#is': '', '~#value': '##.#input.#value.b'}
+      '#inputs': {'#is': ''},
+      '#outputs': {'#is': '', '~#value': '##.#inputs.#value.b'}
     });
 
     Root.runAll(2);
@@ -115,8 +115,8 @@ describe('MapFunction non-thread', function() {
 
     bBlock.setValue('use', {
       '#is': '',
-      '#input': {'#is': '', '#custom': [{name: 'a', type: 'number'}]},
-      '#output': {'#is': '', '~#value': '##.#input.a'}
+      '#inputs': {'#is': '', '#custom': [{name: 'a', type: 'number'}]},
+      '#outputs': {'#is': '', '~#value': '##.#inputs.a'}
     });
 
     Root.runAll(2);
@@ -145,7 +145,7 @@ describe('MapFunction non-thread', function() {
       'use': {
         '#is': {
           '#is': '',
-          '#output': {'#is': '', '~v': '##.#input.v'}
+          '#outputs': {'#is': '', '~v': '##.#inputs.v'}
         }
       }
     });
@@ -177,8 +177,8 @@ describe('MapFunction non-thread', function() {
         '#is': {
           '#is': '',
           'runner': {'#is': 'test-runner', '#mode': 'onLoad', '#-log': 0},
-          'add': {'#is': 'add', '~0': '##.#input', '1': 1},
-          '#output': {'#is': '', '~#value': '##.add.output'}
+          'add': {'#is': 'add', '~0': '##.#inputs', '1': 1},
+          '#outputs': {'#is': '', '~#value': '##.add.output'}
         }
       }
     });
@@ -190,8 +190,8 @@ describe('MapFunction non-thread', function() {
     bBlock.setValue('use', {
       '#is': '',
       'runner': {'#is': 'test-runner', '#mode': 'onLoad', '#-log': 0},
-      'add': {'#is': 'add', '~0': '##.#input', '1': 2},
-      '#output': {'#is': '', '~#value': '##.add.output'}
+      'add': {'#is': 'add', '~0': '##.#inputs', '1': 2},
+      '#outputs': {'#is': '', '~#value': '##.add.output'}
     });
 
     Root.runAll(2);
@@ -223,8 +223,8 @@ describe('MapFunction non-thread', function() {
         '#is': {
           '#is': '',
           'runner': {'#is': 'test-runner', '#mode': 'onLoad', '#-log': 0},
-          'add': {'#is': 'add', '~0': '##.#input', '1': 1},
-          '#output': {'#is': '', '~#value': '##.add.output'}
+          'add': {'#is': 'add', '~0': '##.#inputs', '1': 1},
+          '#outputs': {'#is': '', '~#value': '##.add.output'}
         }
       }
     });
@@ -244,7 +244,7 @@ describe('MapFunction non-thread', function() {
     Root.run();
 
     assert.deepEqual(bBlock.getValue('output'), {v1: 2, v2: 5, v4: 6});
-    assert.isUndefined(bBlock.queryValue('#func.v3.#output'), 'unused worker should be removed');
+    assert.isUndefined(bBlock.queryValue('#func.v3.#outputs'), 'unused worker should be removed');
 
     assert.lengthOf(TestFunctionRunner.popLogs(), 4);
 
@@ -271,8 +271,8 @@ describe('MapFunction non-thread', function() {
         '#is': {
           '#is': '',
           'runner': {'#is': 'test-runner', '#mode': 'onLoad', '#-log': 0},
-          'add': {'#is': 'add', '~0': '##.#input', '1': 1},
-          '#output': {'#is': '', '~#value': '##.add.output'}
+          'add': {'#is': 'add', '~0': '##.#inputs', '1': 1},
+          '#outputs': {'#is': '', '~#value': '##.add.output'}
         }
       }
     });
@@ -290,7 +290,7 @@ describe('MapFunction non-thread', function() {
     Root.runAll(2);
 
     assert.deepEqual(bBlock.getValue('output'), {v1: 2, v2: 5, v4: 6});
-    assert.equal(bBlock.queryValue('#func.v3.#output.#value'), 4, 'unused worker is still kept');
+    assert.equal(bBlock.queryValue('#func.v3.#outputs.#value'), 4, 'unused worker is still kept');
 
     assert.lengthOf(TestFunctionRunner.popLogs(), 4);
 
@@ -318,8 +318,8 @@ describe('MapFunction non-thread', function() {
       'use': {
         '#is': {
           '#is': '',
-          'add': {'#is': 'add', '~0': '##.#input.v', '1': 1},
-          '#output': {'#is': '', '~v': '##.add.output'}
+          'add': {'#is': 'add', '~0': '##.#inputs.v', '1': 1},
+          '#outputs': {'#is': '', '~v': '##.add.output'}
         }
       }
     });
@@ -354,15 +354,15 @@ describe('MapFunction non-thread', function() {
         '#is': {
           '#is': '',
           'runner': {'#is': 'test-runner', '#mode': 'onLoad', '#-log': 0},
-          'async': {'#is': 'async-function-promise', '~#call': '##.#input'},
+          'async': {'#is': 'async-function-promise', '~#call': '##.#inputs'},
           'add': {
             '#is': 'add',
             '#mode': 'onCall',
             '~#call': '##.async.#emit',
-            '~0': '##.#input',
+            '~0': '##.#inputs',
             '1': 1
           },
-          '#output': {
+          '#outputs': {
             '#is': '',
             '~#value': '##.add.output',
             '~#wait': '##.async.#wait'
@@ -450,8 +450,8 @@ describe('MapFunction non-thread', function() {
         '#is': {
           '#is': '',
           'runner': {'#is': 'test-runner', '#mode': 'onLoad', '#-log': 0},
-          'add': {'#is': 'add', '~0': '##.#input', '1': 1},
-          '#output': {'#is': '', '~#value': '##.add.output'}
+          'add': {'#is': 'add', '~0': '##.#inputs', '1': 1},
+          '#outputs': {'#is': '', '~#value': '##.add.output'}
         }
       }
     });
@@ -501,15 +501,15 @@ describe('MapFunction non-thread', function() {
         '#is': {
           '#is': '',
           'runner': {'#is': 'test-runner', '#mode': 'onLoad', '#-log': 0},
-          'async': {'#is': 'async-function-promise', '~#call': '##.#input'},
+          'async': {'#is': 'async-function-promise', '~#call': '##.#inputs'},
           'add': {
             '#is': 'add',
             '#mode': 'onCall',
             '~#call': '##.async.#emit',
-            '~0': '##.#input',
+            '~0': '##.#inputs',
             '1': 1
           },
-          '#output': {
+          '#outputs': {
             '#is': '',
             '~#value': '##.add.output',
             '~#wait': '##.async.#wait'
@@ -564,15 +564,15 @@ describe('MapFunction non-thread', function() {
         '#is': {
           '#is': '',
           'runner': {'#is': 'test-runner', '#mode': 'onLoad', '#-log': 0},
-          'async': {'#is': 'async-function-promise', '~#call': '##.#input'},
+          'async': {'#is': 'async-function-promise', '~#call': '##.#inputs'},
           'add': {
             '#is': 'add',
             '#mode': 'onCall',
             '~#call': '##.async.#emit',
-            '~0': '##.#input',
+            '~0': '##.#inputs',
             '1': 1
           },
-          '#output': {
+          '#outputs': {
             '#is': '',
             '~#value': '##.add.output',
             '~#wait': '##.async.#wait'

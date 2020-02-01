@@ -80,7 +80,7 @@ describe('WorkerEditor', function() {
     let job = new Job();
 
     let expectedData = {
-      '#input': {
+      '#inputs': {
         '#is': '',
         '#custom': [
           {
@@ -94,7 +94,7 @@ describe('WorkerEditor', function() {
         '@b-p': ['a']
       },
       '#is': '',
-      '#output': {
+      '#outputs': {
         '#is': '',
         '#custom': [
           {
@@ -126,8 +126,8 @@ describe('WorkerEditor', function() {
     WorkerFunction.registerType({'#is': ''}, {name: 'worker3', properties: []}, 'WorkerEditor');
 
     let editor = WorkerEditor.createFromFunction(job, '#edit-func', 'WorkerEditor:worker3');
-    editor.createBlock('#input')._load(expectedData['#input']);
-    editor.createBlock('#output')._load(expectedData['#output']);
+    editor.createBlock('#inputs')._load(expectedData['#inputs']);
+    editor.createBlock('#outputs')._load(expectedData['#outputs']);
     editor.setValue('@f-icon', 'fas:plus');
 
     editor.applyChange();

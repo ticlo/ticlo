@@ -37,8 +37,8 @@ describe('MapFunction Thread', function() {
         '#is': {
           '#is': '',
           'runner': {'#is': 'test-runner', '#mode': 'onLoad', '#-log': 0},
-          'add': {'#is': 'add', '~0': '##.#input', '1': 1},
-          '#output': {'#is': '', '~#value': '##.add.output'}
+          'add': {'#is': 'add', '~0': '##.#inputs', '1': 1},
+          '#outputs': {'#is': '', '~#value': '##.add.output'}
         }
       }
     });
@@ -99,7 +99,7 @@ describe('MapFunction Thread', function() {
       'use': {
         '#is': {
           '#is': '',
-          '#output': {'#is': '', '~v': '##.#input.v'}
+          '#outputs': {'#is': '', '~v': '##.#inputs.v'}
         }
       }
     });
@@ -132,8 +132,8 @@ describe('MapFunction Thread', function() {
         '#is': {
           '#is': '',
           'runner': {'#is': 'test-runner', '#mode': 'onLoad', '#-log': 0},
-          'add': {'#is': 'add', '~0': '##.#input', '1': 1},
-          '#output': {'#is': '', '~#value': '##.add.output'}
+          'add': {'#is': 'add', '~0': '##.#inputs', '1': 1},
+          '#outputs': {'#is': '', '~#value': '##.add.output'}
         }
       }
     });
@@ -146,8 +146,8 @@ describe('MapFunction Thread', function() {
     bBlock.setValue('use', {
       '#is': '',
       'runner': {'#is': 'test-runner', '#mode': 'onLoad', '#-log': 0},
-      'add': {'#is': 'add', '~0': '##.#input', '1': 2},
-      '#output': {'#is': '', '~#value': '##.add.output'}
+      'add': {'#is': 'add', '~0': '##.#inputs', '1': 2},
+      '#outputs': {'#is': '', '~#value': '##.add.output'}
     });
 
     Root.run();
@@ -175,15 +175,15 @@ describe('MapFunction Thread', function() {
         '#is': {
           '#is': '',
           'runner': {'#is': 'test-runner', '#mode': 'onLoad', '#-log': 0},
-          'async': {'#is': 'async-function-manual', '~#call': '##.#input'},
+          'async': {'#is': 'async-function-manual', '~#call': '##.#inputs'},
           'add': {
             '#is': 'add',
             '#mode': 'onCall',
             '~#call': '##.async.#emit',
-            '~0': '##.#input',
+            '~0': '##.#inputs',
             '1': 1
           },
-          '#output': {
+          '#outputs': {
             '#is': '',
             '~#value': '##.add.output',
             '~#wait': '##.async.#wait'
@@ -243,15 +243,15 @@ describe('MapFunction Thread', function() {
         '#is': {
           '#is': '',
           'runner': {'#is': 'test-runner', '#mode': 'onLoad', '#-log': 0},
-          'async': {'#is': 'async-function-promise', '~#call': '##.#input'},
+          'async': {'#is': 'async-function-promise', '~#call': '##.#inputs'},
           'add': {
             '#is': 'add',
             '#mode': 'onCall',
             '~#call': '##.async.#emit',
-            '~0': '##.#input',
+            '~0': '##.#inputs',
             '1': 1
           },
-          '#output': {
+          '#outputs': {
             '#is': '',
             '~#value': '##.add.output',
             '~#wait': '##.async.#wait'
@@ -311,15 +311,15 @@ describe('MapFunction Thread', function() {
         '#is': {
           '#is': '',
           'runner': {'#is': 'test-runner', '#mode': 'onLoad', '#-log': 0},
-          'async': {'#is': 'async-function-promise', '~#call': '##.#input'},
+          'async': {'#is': 'async-function-promise', '~#call': '##.#inputs'},
           'add': {
             '#is': 'add',
             '#mode': 'onCall',
             '~#call': '##.async.#emit',
-            '~0': '##.#input',
+            '~0': '##.#inputs',
             '1': 1
           },
-          '#output': {
+          '#outputs': {
             '#is': '',
             '~#value': '##.add.output',
             '~#wait': '##.async.#wait'
@@ -354,7 +354,7 @@ describe('MapFunction Thread', function() {
     for (let i = 0; i < 20; ++i) {
       assert.equal(outputArr[i], i + 101);
     }
-    assert.notEqual(bBlock.queryValue('#func.4.#output'), undefined, 'persist worker still exists');
+    assert.notEqual(bBlock.queryValue('#func.4.#outputs'), undefined, 'persist worker still exists');
 
     // delete job;
     job.deleteValue('b');
@@ -375,15 +375,15 @@ describe('MapFunction Thread', function() {
         '#is': {
           '#is': '',
           'runner': {'#is': 'test-runner', '#mode': 'onLoad', '#-log': 0},
-          'async': {'#is': 'async-function-promise', '~#call': '##.#input'},
+          'async': {'#is': 'async-function-promise', '~#call': '##.#inputs'},
           'add': {
             '#is': 'add',
             '#mode': 'onCall',
             '~#call': '##.async.#emit',
-            '~0': '##.#input',
+            '~0': '##.#inputs',
             '1': 1
           },
-          '#output': {
+          '#outputs': {
             '#is': '',
             '~#value': '##.add.output',
             '~#wait': '##.async.#wait'

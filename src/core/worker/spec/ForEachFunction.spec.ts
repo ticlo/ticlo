@@ -25,9 +25,9 @@ describe('ForEachFunction', function() {
       'use': {
         '#is': {
           '#is': '',
-          'test': {'#is': 'test-runner', '~#-log': '##.#input.v'},
-          'add': {'#is': 'add', '~0': '##.#input.v', '1': 1},
-          '#output': {'#is': '', '~v': '##.add.output'}
+          'test': {'#is': 'test-runner', '~#-log': '##.#inputs.v'},
+          'add': {'#is': 'add', '~0': '##.#inputs.v', '1': 1},
+          '#outputs': {'#is': '', '~v': '##.add.output'}
         }
       }
     });
@@ -37,8 +37,8 @@ describe('ForEachFunction', function() {
       'use': {
         '#is': {
           '#is': '',
-          'multiply': {'#is': 'multiply', '~0': '##.#input.v', '1': 2},
-          '#output': {'#is': '', '~v': '##.multiply.output'}
+          'multiply': {'#is': 'multiply', '~0': '##.#inputs.v', '1': 2},
+          '#outputs': {'#is': '', '~v': '##.multiply.output'}
         }
       }
     });
@@ -52,9 +52,9 @@ describe('ForEachFunction', function() {
 
     bBlock.updateValue('use', {
       '#is': '',
-      'test': {'#is': 'test-runner', '~#-log': '##.#input.v'},
-      'subtract': {'#is': 'subtract', '~0': '##.#input.v', '1': 5},
-      '#output': {'#is': '', '~v': '##.subtract.output'}
+      'test': {'#is': 'test-runner', '~#-log': '##.#inputs.v'},
+      'subtract': {'#is': 'subtract', '~0': '##.#inputs.v', '1': 5},
+      '#outputs': {'#is': '', '~v': '##.subtract.output'}
     });
     Root.run();
     assert.lengthOf(TestFunctionRunner.popLogs(), 3, 'worker run 3 times');
@@ -96,8 +96,8 @@ describe('ForEachFunction', function() {
       'use': {
         '#is': {
           '#is': '',
-          'add': {'#is': 'add', '~0': '##.#input.v', '1': 1},
-          '#output': {'#is': '', '~v': '##.add.output'}
+          'add': {'#is': 'add', '~0': '##.#inputs.v', '1': 1},
+          '#outputs': {'#is': '', '~v': '##.add.output'}
         }
       }
     });
@@ -132,8 +132,8 @@ describe('ForEachFunction', function() {
       'use': {
         '#is': {
           '#is': '',
-          'add': {'#is': 'add', '~0': '##.#input', '1': 1},
-          '~#output': 'add.output'
+          'add': {'#is': 'add', '~0': '##.#inputs', '1': 1},
+          '~#outputs': 'add.output'
         }
       }
     });
@@ -167,7 +167,7 @@ describe('ForEachFunction', function() {
       'use': {
         '#is': {
           '#is': '',
-          '~#output': '#input'
+          '~#outputs': '#inputs'
         }
       }
     });

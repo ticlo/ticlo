@@ -881,8 +881,8 @@ export class Job extends Block {
 
   // make sure the input triggers a change
   updateInput(val: any) {
-    let prop = this.getProperty('#input');
-    if (prop._value instanceof InputBlock) {
+    let prop = this.getProperty('#inputs');
+    if (prop._value instanceof InputsBlock) {
       prop._value._setInputValue(val);
     } else {
       prop.updateValue(val);
@@ -1120,7 +1120,7 @@ export class Root extends Job {
   }
 }
 
-export class InputBlock extends Block {
+export class InputsBlock extends Block {
   _createConfig(field: string): BlockProperty {
     if (field in InputConfigGenerators) {
       return new InputConfigGenerators[field](this, field);
@@ -1148,7 +1148,7 @@ export class InputBlock extends Block {
   }
 }
 
-export class OutputBlock extends Block {
+export class OutputsBlock extends Block {
   inputChanged(input: BlockIO, val: any) {
     super.inputChanged(input, val);
     this._job.outputChanged(input, val);

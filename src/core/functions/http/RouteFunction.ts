@@ -9,14 +9,14 @@ import {getDefaultDataFromCustom} from '../../block/Descriptor';
 
 const defaultRouteWorker = {
   '#is': '',
-  '#input': getDefaultDataFromCustom([
+  '#inputs': getDefaultDataFromCustom([
     {name: 'method', type: 'string'},
     {name: 'path', type: 'string'},
     {name: 'body', type: 'any'},
     {name: 'query', type: 'object'},
     {name: 'headers', type: 'object'}
   ]),
-  '#output': getDefaultDataFromCustom([
+  '#outputs': getDefaultDataFromCustom([
     {name: 'data', type: 'any'},
     {name: 'headers', type: 'object'},
     {name: 'status', type: 'number', min: 200, max: 999, step: 1, default: 200}

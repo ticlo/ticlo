@@ -131,6 +131,7 @@ export class OptionalPropertyList extends MultiSelectComponent<Props, State, Opt
         />
       );
     }
+    let showMore: React.ReactNode;
     if (search) {
       let lsearch = search.toLowerCase();
       let matchFirst: React.ReactElement[] = [];
@@ -168,6 +169,7 @@ export class OptionalPropertyList extends MultiSelectComponent<Props, State, Opt
       matchFirst.push(...matchMiddle);
       if (matchFirst.length > 10) {
         matchFirst.length = 10;
+        showMore = <div style={{marginLeft: 32}}>. . . more . . .</div>;
       }
       children = children.concat(matchFirst);
     }
@@ -205,6 +207,7 @@ export class OptionalPropertyList extends MultiSelectComponent<Props, State, Opt
           )}
         </div>
         {children}
+        {showMore}
       </div>
     );
   }

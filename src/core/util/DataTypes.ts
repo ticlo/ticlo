@@ -183,7 +183,7 @@ export function measureObjSize(val: any, maxSize: number = 1024): number {
   return 4;
 }
 
-// convert block to Object, used to convert worker #output block
+// convert block to Object, used to convert worker #outputs block
 export function convertToOutput(val: any, recursive: boolean = false): any {
   if (val instanceof Block) {
     let overrideValue = val.getValue('#value');

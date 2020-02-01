@@ -166,7 +166,7 @@ export class MapFunction extends MapImpl {
     if (timeout) {
       this._output[output.field] = new ErrorEvent('timeout');
     } else {
-      this._output[output.field] = convertToOutput(this._workers.get(output.key).getValue('#output'));
+      this._output[output.field] = convertToOutput(this._workers.get(output.key).getValue('#outputs'));
     }
     this._waitingWorker--;
     this._pool.done(output.key, this._reuseWorker != null);
@@ -246,7 +246,7 @@ export class MapFunction extends MapImpl {
       // TODO: what if block is queued, and not supposed to be run?
       if (!this._pendingInput) {
         // when source changed, redo the mapping on current input
-        this._onInputChange(this._data.getValue('#input'));
+        this._onInputChange(this._data.getValue('#inputs'));
       }
     }
     return true;

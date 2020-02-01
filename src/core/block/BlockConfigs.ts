@@ -1,5 +1,5 @@
 import {BlockIO, BlockProperty} from './BlockProperty';
-import {Block, InputBlock, OutputBlock} from './Block';
+import {Block, InputsBlock, OutputsBlock} from './Block';
 
 class BlockTypeConfig extends BlockProperty {
   constructor(block: Block, name: string) {
@@ -51,9 +51,9 @@ class BlockPriorityConfig extends BlockProperty {
   }
 }
 
-class BlockInputConfig extends BlockIO {
+class BlockInputsConfig extends BlockIO {
   createBlock(save: boolean): Block {
-    let block = new InputBlock(this._block._job, this._block, this);
+    let block = new InputsBlock(this._block._job, this._block, this);
     if (save) {
       this.setValue(block);
     } else if (save === false) {
@@ -64,9 +64,9 @@ class BlockInputConfig extends BlockIO {
   }
 }
 
-class BlockOutputConfig extends BlockIO {
+class BlockOutputsConfig extends BlockIO {
   createBlock(save: boolean): Block {
-    let block = new OutputBlock(this._block._job, this._block, this);
+    let block = new OutputsBlock(this._block._job, this._block, this);
     if (save) {
       this.setValue(block);
     } else if (save === false) {
@@ -162,8 +162,8 @@ export const ConfigGenerators: {[key: string]: typeof BlockProperty} = {
 
 export const JobConfigGenerators: {[key: string]: typeof BlockProperty} = {
   ...ConfigGenerators,
-  '#input': BlockInputConfig,
-  '#output': BlockOutputConfig
+  '#inputs': BlockInputsConfig,
+  '#outputs': BlockOutputsConfig
 };
 
 export const InputConfigGenerators: {[key: string]: typeof BlockProperty} = {
