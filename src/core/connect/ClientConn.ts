@@ -113,6 +113,10 @@ export interface ClientConn {
 
   getCategory(category: string): FunctionDesc;
 
+  getCommonBaseFunc(set: Set<FunctionDesc>): FunctionDesc;
+
+  getOptionalProps(desc: FunctionDesc): {[key: string]: PropDesc};
+
   findGlobalBlocks(tags: string[]): string[];
 
   cancel(id: string): void;

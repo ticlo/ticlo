@@ -404,6 +404,69 @@ export abstract class ClientConnection extends Connection implements ClientConn 
     return this.descReq.categories.get(category);
   }
 
+  // find the common base Desc
+  getCommonBaseFunc(set: Set<FunctionDesc>): FunctionDesc {
+    if (!set || set.size === 0) {
+      return null;
+    }
+    if (set.size === 1) {
+      return set[Symbol.iterator]().next().value;
+    }
+    let collected: FunctionDesc[];
+    let commonMatch: number;
+    for (let desc of set) {
+      if (!collected) {
+        // collect all bases from the first one
+        collected = [];
+        commonMatch = 0;
+        do {
+          collected.push(desc);
+          if (desc.base) {
+            desc = this.descReq.cache.get(desc.base);
+          } else {
+            break;
+          }
+        } while (desc);
+      } else {
+        // check if
+        do {
+          let match = collected.indexOf(desc);
+          if (match >= 0) {
+            if (match > commonMatch) {
+              commonMatch = match;
+            }
+            break;
+          }
+          if (desc.base) {
+            desc = this.descReq.cache.get(desc.base);
+          } else {
+            // no match and no base to check
+            return null;
+          }
+        } while (desc);
+      }
+    }
+    return collected[commonMatch];
+  }
+  getOptionalProps(desc: FunctionDesc): {[key: string]: PropDesc} {
+    let result: {[key: string]: PropDesc};
+    do {
+      if (desc.optional) {
+        if (result) {
+          result = {...desc.optional, ...result};
+        } else {
+          result = desc.optional;
+        }
+      }
+      if (desc.base) {
+        desc = this.descReq.cache.get(desc.base);
+      } else {
+        break;
+      }
+    } while (desc);
+    return result;
+  }
+
   findGlobalBlocks(tags: string[]): string[] {
     let result: string[] = [];
     if (this.globalWatch && Array.isArray(tags)) {

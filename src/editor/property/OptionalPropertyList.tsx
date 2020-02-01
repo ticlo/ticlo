@@ -5,8 +5,8 @@ import CloseIcon from '@ant-design/icons/CloseCircleFilled';
 import {MultiSelectComponent, MultiSelectLoader} from './MultiSelectComponent';
 import {ClientConn, ValueSubscriber} from '../../core/connect/ClientConn';
 import {ValueUpdate} from '../../core/connect/ClientRequests';
-import {ExpandIcon} from '../component/Tree';
 import {OptionalPropertyEditor} from './OptionalPropertyEditor';
+import {FunctionDesc, PropDesc} from '../../core';
 
 const {Search} = Input;
 
@@ -36,7 +36,7 @@ class OptionalPropertyLoader extends MultiSelectLoader<OptionalPropertyList> {
 }
 
 interface Props {
-  baseId: string;
+  funcDesc: FunctionDesc;
   conn: ClientConn;
   paths: string[];
 }
@@ -47,6 +47,21 @@ interface State {
 
 export class OptionalPropertyList extends MultiSelectComponent<Props, State, OptionalPropertyLoader> {
   state: State = {};
+
+  cachedProperties: {[key: string]: PropDesc};
+  checkedFuncDesc: FunctionDesc;
+
+  getProperties(): {[key: string]: PropDesc} {
+    let {funcDesc, conn} = this.props;
+    if (funcDesc !== this.checkedFuncDesc) {
+      if (funcDesc) {
+        this.cachedProperties = conn.getOptionalProps(funcDesc);
+      } else {
+        this.cachedProperties = null;
+      }
+    }
+    return this.cachedProperties;
+  }
 
   createLoader(path: string): OptionalPropertyLoader {
     return new OptionalPropertyLoader(path, this);
@@ -67,7 +82,6 @@ export class OptionalPropertyList extends MultiSelectComponent<Props, State, Opt
 
   onPropertyChecked = (name: string, checked: boolean) => {
     let {conn, paths} = this.props;
-    console.log(name, checked);
     if (checked) {
       for (let path of paths) {
         conn.addOptionalProp(path, name);
@@ -83,10 +97,8 @@ export class OptionalPropertyList extends MultiSelectComponent<Props, State, Opt
     if (e.key === 'Escape') {
       this.clearSearch();
     } else if (e.key === 'Enter') {
-      let {conn, baseId} = this.props;
       let {search} = this.state;
-      let baseFuncDesc = conn.watchDesc(baseId);
-      if (baseFuncDesc?.optional?.[search]) {
+      if (this.getProperties()?.[search]) {
         this.onPropertyChecked(search, true);
         this.setState({search: ''});
       }
@@ -94,10 +106,10 @@ export class OptionalPropertyList extends MultiSelectComponent<Props, State, Opt
   };
 
   renderImpl() {
-    let {paths, conn, baseId} = this.props;
+    let {paths, conn, funcDesc} = this.props;
     let {search} = this.state;
-    let baseFuncDesc = conn.watchDesc(baseId);
-    if (this.loaders.size === 0 || !baseFuncDesc?.optional) {
+    let properties = this.getProperties();
+    if (this.loaders.size === 0 || !properties) {
       return <div />;
     }
 
@@ -117,14 +129,14 @@ export class OptionalPropertyList extends MultiSelectComponent<Props, State, Opt
     }
 
     for (let name of optionalProps) {
-      let optionalPropDesc = baseFuncDesc.optional[name];
+      let optionalPropDesc = properties[name];
       children.push(
         <OptionalPropertyEditor
           key={name}
           name={name}
           paths={paths}
           conn={conn}
-          funcDesc={baseFuncDesc}
+          funcDesc={funcDesc}
           propDesc={optionalPropDesc}
           checked={true}
           onCheck={this.onPropertyChecked}
@@ -136,20 +148,20 @@ export class OptionalPropertyList extends MultiSelectComponent<Props, State, Opt
       let lsearch = search.toLowerCase();
       let matchFirst: React.ReactElement[] = [];
       let matchMiddle: React.ReactElement[] = [];
-      for (let name in baseFuncDesc.optional) {
+      for (let name in properties) {
         if (optionalProps.includes(name)) {
           continue;
         }
         let lowerKey = name.toLowerCase();
         if (lowerKey.includes(lsearch)) {
-          let optionalPropDesc = baseFuncDesc.optional[name];
+          let optionalPropDesc = properties[name];
           let editor = (
             <OptionalPropertyEditor
               key={name}
               name={name}
               paths={paths}
               conn={conn}
-              funcDesc={baseFuncDesc}
+              funcDesc={funcDesc}
               propDesc={optionalPropDesc}
               checked={false}
               onCheck={this.onPropertyChecked}

@@ -263,16 +263,26 @@ export class PropertyList extends MultiSelectComponent<Props, State, BlockLoader
     let customMerger: PropertyDefMerger = new PropertyDefMerger();
 
     let isEmpty = true;
-    let baseId: string = null;
+    let optionalDescs = new Set<FunctionDesc>();
     for (let [path, subscriber] of this.loaders) {
-      if (subscriber.desc) {
+      let desc = subscriber.desc;
+      if (desc) {
         if (isEmpty) {
-          baseId = subscriber.desc.base;
           isEmpty = false;
-        } else if (subscriber.desc.base !== baseId) {
-          baseId = null;
-          break;
         }
+        if (optionalDescs) {
+          if (desc.optional) {
+            optionalDescs.add(desc);
+          } else if (desc.base && (desc = conn.watchDesc(desc.base)) /*set value and convert to bool*/) {
+            optionalDescs.add(desc);
+          } else {
+            // no need for optioanl properties
+            optionalDescs = null;
+          }
+        }
+      } else {
+        isEmpty = true;
+        break;
       }
     }
     if (isEmpty) {
@@ -284,6 +294,7 @@ export class PropertyList extends MultiSelectComponent<Props, State, BlockLoader
       );
     }
 
+    let baseDesc = conn.getCommonBaseFunc(optionalDescs);
     for (let [path, subscriber] of this.loaders) {
       if (subscriber.desc) {
         if (!descChecked.has(subscriber.desc.name)) {
@@ -352,7 +363,7 @@ export class PropertyList extends MultiSelectComponent<Props, State, BlockLoader
           </div>
           {children}
 
-          {baseId ? <OptionalPropertyList conn={conn} paths={paths} baseId={baseId} /> : null}
+          {baseDesc ? <OptionalPropertyList conn={conn} paths={paths} funcDesc={baseDesc} /> : null}
 
           <div className="ticl-property-divider">
             <div className="ticl-h-line" style={{maxWidth: '16px'}} />
