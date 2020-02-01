@@ -12,7 +12,8 @@ import {
   FunctionDesc,
   PropDesc,
   PropGroupDesc,
-  deepEqual
+  deepEqual,
+  mapConfigDesc
 } from '../../../src/core/editor';
 import {PropertyEditor} from './PropertyEditor';
 import {GroupEditor} from './GroupEditor';
@@ -311,7 +312,7 @@ export class PropertyList extends MultiSelectComponent<Props, State, BlockLoader
 
       for (let [path, subscriber] of this.loaders) {
         if (subscriber.desc) {
-          configMerger.add(subscriber.desc.configs || configList);
+          configMerger.add(mapConfigDesc(subscriber.desc.configs) || configList);
         } else {
           // properties not ready
           configMerger.map = null;

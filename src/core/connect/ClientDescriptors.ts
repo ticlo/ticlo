@@ -8,7 +8,7 @@ export const clientDescriptors: {[key: string]: FunctionDesc} = {
     icon: 'fas:arrow-circle-down',
     color: 'e91',
     properties: [],
-    configs: [configDescs['#value']]
+    configs: ['#value']
   },
   output: {
     priority: 0,
@@ -17,6 +17,6 @@ export const clientDescriptors: {[key: string]: FunctionDesc} = {
     icon: 'fas:arrow-circle-up',
     color: 'e91',
     properties: [],
-    configs: [configDescs['#value'], configDescs['#wait(output)']]
+    configs: ['#value', '#wait(#outputs)']
   }
 };

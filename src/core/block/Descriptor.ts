@@ -86,7 +86,7 @@ export interface FunctionDesc {
   priority?: 0 | 1 | 2 | 3;
   mode?: BlockMode;
   properties?: (PropDesc | PropGroupDesc)[];
-  configs?: PropDesc[];
+  configs?: (string | PropDesc)[];
   // optional properties defined in base function, base function can be the current function itself
   base?: string;
   optional?: {[key: string]: PropDesc};
@@ -126,7 +126,7 @@ export const configDescs: {[key: string]: PropDesc} = {
   '#call': {name: '#call', type: 'event'},
   '#sync': {name: '#sync', type: 'toggle'},
   '#wait': {name: '#wait', type: 'toggle', readonly: true},
-  '#wait(output)': {name: '#wait', type: 'toggle'},
+  '#wait(#outputs)': {name: '#wait', type: 'toggle'},
   '#cancel': {name: '#cancel', type: 'event'},
   '#priority': {
     name: '#priority',
@@ -146,6 +146,25 @@ export const configList: PropDesc[] = [
   configDescs['#sync'],
   configDescs['#wait']
 ];
+
+export function mapConfigDesc(configs: (string | PropDesc)[]): PropDesc[] {
+  if (configs == null) {
+    return undefined;
+  }
+  if ((configs as any).mappedConfig) {
+    return configs as PropDesc[];
+  }
+  let result: PropDesc[] = [];
+  (result as any).mappedConfig = true;
+  for (let config of configs) {
+    if (typeof config === 'object') {
+      result.push(config);
+    } else if (configDescs.hasOwnProperty(config)) {
+      result.push(configDescs[config]);
+    }
+  }
+  return result;
+}
 
 export const attributeDescs: {[key: string]: PropDesc} = {
   '@b-p': {name: '@b-p', type: 'array'},
@@ -178,7 +197,7 @@ export function buildPropDescCache(
     }
   }
 
-  addProps(funcDesc.configs);
+  addProps(mapConfigDesc(funcDesc.configs));
   addProps(custom);
   addProps(funcDesc.properties);
 

@@ -1,6 +1,6 @@
 import {DataMap, isDataTruncated, measureObjSize} from '../util/DataTypes';
 import {ConnectionSend} from './Connection';
-import {FunctionDesc} from '../block/Descriptor';
+import {FunctionDesc, mapConfigDesc} from '../block/Descriptor';
 import {ClientConnection} from './ClientConnection';
 import {clientDescriptors} from './ClientDescriptors';
 
@@ -351,6 +351,8 @@ export class DescRequest extends ConnectionSend implements ClientCallbacks {
             }
           } else {
             this.cache.set(id, change);
+            // convert string to config descriptor
+            (change as FunctionDesc).configs = mapConfigDesc((change as FunctionDesc).configs);
             if (id.endsWith(':')) {
               this.categories.set(id.substring(0, id.length - 1), change);
             }
