@@ -31,17 +31,9 @@ function findGroupDesc(block: Block, group: string): PropGroupDesc {
   return groupDesc;
 }
 
-export function getGroupLength(block: FunctionData, groupDesc: PropGroupDesc) {
-  let len = block.getValue(`${groupDesc.name}#len`);
-  if (len >= 0) {
-    return len;
-  }
-  return groupDesc.defaultLen;
-}
-
 function updateGroupPropertyLength(block: Block, group: string, groupDesc: PropGroupDesc, length: number) {
   let lengthField = `${group}#len`;
-  let oldLength = getGroupLength(block, groupDesc);
+  let oldLength = block.getLength(group, groupDesc.defaultLen);
   let newLength = length;
   if (!(newLength >= 0)) {
     newLength = groupDesc.defaultLen;
@@ -80,7 +72,7 @@ export function insertGroupProperty(block: Block, group: string, idx: number) {
   if (!groupDesc) {
     return;
   }
-  let oldLength = getGroupLength(block, groupDesc);
+  let oldLength = block.getLength(group, groupDesc.defaultLen);
   if (idx < 0 || idx > oldLength || Math.round(idx) !== idx) {
     // invalid idx
     return;
@@ -99,7 +91,7 @@ export function removeGroupProperty(block: Block, group: string, idx: number) {
   if (!groupDesc) {
     return;
   }
-  let oldLength = getGroupLength(block, groupDesc);
+  let oldLength = block.getLength(group, groupDesc.defaultLen);
   if (idx < 0 || idx >= oldLength || Math.round(idx) !== idx) {
     // invalid idx
     return;
@@ -118,7 +110,7 @@ export function moveGroupProperty(block: Block, group: string, oldIdx: number, n
   if (!groupDesc) {
     return;
   }
-  let length = getGroupLength(block, groupDesc);
+  let length = block.getLength(group, groupDesc.defaultLen);
   if (
     oldIdx < 0 ||
     oldIdx >= length ||

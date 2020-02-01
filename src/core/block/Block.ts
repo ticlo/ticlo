@@ -671,8 +671,18 @@ export class Block implements Runnable, FunctionData, PropListener<FunctionClass
     return -1;
   }
 
-  getLength(): number {
-    return this._cachedLength;
+  getLength(name?: string, defaultLength = 2): number {
+    if (!name) {
+      if (this._cachedLength >= 0) {
+        return this._cachedLength;
+      }
+      return defaultLength;
+    }
+    let result = this.getValue(`${name}#len`);
+    if (result >= 0) {
+      return result;
+    }
+    return defaultLength;
   }
 
   _pendingClass: FunctionClass;

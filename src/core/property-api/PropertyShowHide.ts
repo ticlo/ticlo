@@ -15,7 +15,7 @@ export function buildPropertiesOrder(block: Block): string[] {
       if (propDesc.type === 'group') {
         let lenField = `${propDesc.name}#len`;
         orders.push(lenField);
-        let groupLength =  getGroupLength(block, propDesc);
+        let groupLength = block.getLength(propDesc.name, propDesc.defaultLen);
         for (let i = 0; i < groupLength; ++i) {
           for (let childDesc of (propDesc as PropGroupDesc).properties) {
             orders.push(`${childDesc.name}${i}`);
@@ -120,7 +120,7 @@ export function showGroupProperties(block: Block, desc: PropGroupDesc, field?: s
   if (desc.type !== 'group') {
     return;
   }
-  let groupLength = getGroupLength(block, desc);
+  let groupLength = block.getLength(desc.name, desc.defaultLen);
   let fields: string[] = [];
   if (field != null) {
     for (let i = 0; i < groupLength; ++i) {

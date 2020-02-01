@@ -4,9 +4,6 @@ import {BaseFunction, FunctionData} from '../../../block/BlockFunction';
 export class JoinFunction extends BaseFunction {
   run(): any {
     let len = this._data.getLength();
-    if (!(len >= 0)) {
-      len = 2;
-    }
     if (len > 0) {
       let arr: any[] = [];
       for (let i = 0; i < len; ++i) {

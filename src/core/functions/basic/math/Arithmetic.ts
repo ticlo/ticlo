@@ -34,9 +34,6 @@ const descriptor2: FunctionDesc = {
 export class AddFunction extends BaseFunction {
   run(): any {
     let len = this._data.getLength();
-    if (!(len >= 0)) {
-      len = 2;
-    }
     if (len > 0) {
       let sum = 0;
       for (let i = 0; i < len; ++i) {
@@ -63,9 +60,6 @@ Functions.add(AddFunction, {
 export class MultiplyFunction extends BaseFunction {
   run(): any {
     let len = this._data.getLength();
-    if (!(len >= 0)) {
-      len = 2;
-    }
     if (len > 0) {
       let product = 1;
       for (let i = 0; i < len; ++i) {

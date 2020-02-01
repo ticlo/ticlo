@@ -12,7 +12,7 @@ export interface FunctionOutput {
 export interface FunctionInput {
   getValue(field: string): any;
 
-  getLength(): number;
+  getLength(name?: string, defaultLength?: number): number;
 }
 
 export interface FunctionData extends FunctionInput, FunctionOutput {

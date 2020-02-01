@@ -12,7 +12,7 @@ export class CreateObjectFunction extends BaseFunction {
       for (let prop of custom) {
         if (prop) {
           if (prop.type === 'group') {
-            let length = getGroupLength(this._data, prop);
+            let length = this._data.getLength(prop.name, prop.defaultLen);
             for (let groupProp of prop.properties) {
               let arr: any[] = [];
               for (let i = 0; i < length; ++i) {
