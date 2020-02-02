@@ -685,6 +685,14 @@ export class Block implements Runnable, FunctionData, PropListener<FunctionClass
     return defaultLength;
   }
 
+  getOptionalProps(): string[] {
+    let optional = this.getValue('#optional');
+    if (Array.isArray(optional)) {
+      return optional;
+    }
+    return [];
+  }
+
   _pendingClass: FunctionClass;
 
   onSourceChange(prop: PropDispatcher<FunctionClass>): void {

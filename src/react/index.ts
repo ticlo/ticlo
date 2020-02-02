@@ -1,3 +1,4 @@
+import './HtmlAttributes';
 import './Jsx';
 import './RenderDom';
 import './Element';

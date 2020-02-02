@@ -13,6 +13,8 @@ export interface FunctionInput {
   getValue(field: string): any;
 
   getLength(name?: string, defaultLength?: number): number;
+
+  getOptionalProps(): string[];
 }
 
 export interface FunctionData extends FunctionInput, FunctionOutput {

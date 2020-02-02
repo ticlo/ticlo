@@ -36,7 +36,6 @@ Functions.add(
   JsxFunction,
   {
     name: 'jsx',
-    icon: 'fab:react',
     properties: [
       {
         name: 'script',
@@ -45,7 +44,7 @@ Functions.add(
         visible: 'high'
       },
       {
-        name: 'output',
+        name: '#output',
         type: 'object',
         readonly: true
       }

@@ -5,13 +5,10 @@ export class CreateStyleFunction extends BaseFunction {
   run() {
     let spread = this._data.getValue('#spread');
     let output = spread ? {...spread} : {};
-    let optional: string[] = this._data.getValue('#optional');
-    if (Array.isArray(optional)) {
-      for (let field of optional) {
-        let value = this._data.getValue(field);
-        if (value !== undefined) {
-          output[field] = value;
-        }
+    for (let field of this._data.getOptionalProps()) {
+      let value = this._data.getValue(field);
+      if (value !== undefined) {
+        output[field] = value;
       }
     }
     this._data.output(output);
