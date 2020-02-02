@@ -15,7 +15,7 @@ export class HtmlElementFunction extends BlockFunction {
   }
 
   inputChanged(input: BlockIO, val: any): boolean {
-    return optionalHtmlProperties.hasOwnProperty(input._name);
+    return true;
   }
   getComponent(): any {
     return 'div';
