@@ -1,7 +1,6 @@
 import {BaseFunction} from '../../block/BlockFunction';
 import {Functions} from '../../block/Functions';
 import {PropDesc, PropGroupDesc} from '../../block/Descriptor';
-import {getGroupLength} from '../../property-api/GroupProperty';
 
 export class CreateObjectFunction extends BaseFunction {
   run() {

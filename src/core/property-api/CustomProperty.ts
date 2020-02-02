@@ -3,7 +3,6 @@ import {Block} from '../block/Block';
 import {deepClone} from '../util/Clone';
 import {endsWithNumberReg} from '../util/String';
 import {hideGroupProperties, hideProperties, showGroupProperties, showProperties} from './PropertyShowHide';
-import {getGroupLength} from './GroupProperty';
 
 export function addCustomProperty(block: Block, desc: PropDesc | PropGroupDesc, group?: string) {
   let propDesc: PropDesc;

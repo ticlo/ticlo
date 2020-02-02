@@ -3,7 +3,6 @@ import {configDescs, PropDesc, PropGroupDesc, shouldShowProperty} from '../block
 import {Functions} from '../block/Functions';
 import {HelperProperty} from '../block/BlockProperty';
 import {getPreNumber} from '../util/String';
-import {getGroupLength} from './GroupProperty';
 
 const configList = Object.keys(configDescs);
 
