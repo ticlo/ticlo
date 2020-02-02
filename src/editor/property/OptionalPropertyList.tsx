@@ -8,8 +8,6 @@ import {ValueUpdate} from '../../core/connect/ClientRequests';
 import {OptionalPropertyEditor} from './OptionalPropertyEditor';
 import {FunctionDesc, PropDesc} from '../../core';
 
-const {Search} = Input;
-
 class OptionalPropertyLoader extends MultiSelectLoader<OptionalPropertyList> {
   optionalProps: string[];
   defListener = new ValueSubscriber({

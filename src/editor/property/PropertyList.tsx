@@ -308,7 +308,7 @@ export class PropertyList extends MultiSelectComponent<Props, State, BlockLoader
       }
     }
     if (mode === 'subBlock') {
-      propMerger.remove('output');
+      propMerger.remove('#output');
     }
     let funcDesc: FunctionDesc = this.loaders.entries().next().value[1].desc;
     if (!funcDesc) {

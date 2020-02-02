@@ -1,7 +1,7 @@
 const data = {
   '#is': '',
   'query-selector': {
-    '#is': 'dom:query-selector',
+    '#is': 'html:query-selector',
     'parent': 'document',
     '@b-p': ['parent', 'query', '#output'],
     '@b-xyw': [63.796875, 168, 150],
