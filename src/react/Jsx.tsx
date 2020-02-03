@@ -4,6 +4,7 @@ import {Functions} from '../../src/core/block/Functions';
 import {Block} from '../../src/core/block/Block';
 import {TicloComp} from './TicloComp';
 import {validateReactComponent} from './validateReactComponent';
+import {elementConfigs} from './BaseElement';
 
 export class JsxFunction extends JsFunction {
   readonly _comp: React.ReactNode;
@@ -36,6 +37,7 @@ Functions.add(
   JsxFunction,
   {
     name: 'jsx',
+    configs: elementConfigs,
     properties: [
       {
         name: 'script',

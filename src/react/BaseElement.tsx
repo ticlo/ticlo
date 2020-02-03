@@ -1,4 +1,4 @@
-import {Block, BlockFunction, BlockIO, DataMap, Functions} from '../core';
+import {Block, BlockFunction, BlockIO, DataMap, Functions, PropDesc, PropGroupDesc} from '../core';
 import React from 'react';
 import {TicloComp} from './TicloComp';
 import {htmlAttributes, htmlEventHandlers, optionalHtmlProperties} from './HtmlAttributes';
@@ -20,6 +20,9 @@ export class HtmlElementFunction extends BlockFunction {
   getComponent(): any {
     return 'div';
   }
+  checkOptionalProp(field: string): any {
+    return undefined;
+  }
   getProps(): DataMap {
     let result: DataMap = {};
     let optional = this._data.getOptionalProps();
@@ -39,13 +42,18 @@ export class HtmlElementFunction extends BlockFunction {
           this._eventHandlers.set(field, handler);
         }
         result[field] = handler;
+      } else {
+        let value = this.checkOptionalProp(field);
+        if (value !== undefined) {
+          result[field] = value;
+        }
       }
     }
     return result;
   }
   getChildren(): any[] {
     let result = [];
-    let len = this._data.getLength();
+    let len = this._data.getLength('', 0);
     for (let i = 0; i < len; ++i) {
       result.push(this._data.getValue(`${i}`));
     }
@@ -57,3 +65,17 @@ export class HtmlElementFunction extends BlockFunction {
     this._data.output(this._comp);
   }
 }
+
+export const elementConfigs = ['#call', '#mode', '#priority', '#sync', '#render'];
+
+export const elementChildrenProperty: PropGroupDesc = {
+  name: '',
+  type: 'group',
+  defaultLen: 0,
+  properties: [{name: '', type: 'any'}]
+};
+export const elementOutputProperty: PropDesc = {
+  name: '#output',
+  type: 'object',
+  readonly: true
+};

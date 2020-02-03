@@ -135,6 +135,7 @@ export const configDescs: {[key: string]: PropDesc} = {
     default: 'auto'
   },
   '#value': {name: '#value', type: 'any'},
+  '#render': {name: '#render', type: 'object', readonly: true},
   '#inputs': {name: '#inputs', type: 'any'},
   '#outputs': {name: '#outputs', type: 'any'}
 };

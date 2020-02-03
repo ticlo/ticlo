@@ -1,8 +1,9 @@
+import {Functions} from '../../src/core';
 import './HtmlAttributes';
 import './Jsx';
 import './RenderDom';
-import './Element';
-import {Functions} from '../core';
+import './elements/CommonElements';
+import './elements/ImgElement';
 
 Functions.addCategory({
   id: 'react',
