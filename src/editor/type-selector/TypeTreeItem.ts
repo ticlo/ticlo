@@ -62,11 +62,11 @@ export class TypeTreeItem extends TreeItem<TypeTreeItem> {
     }
   }
 
-  addChild(key: string, desc?: FunctionDesc, data?: any) {
+  addChild(key: string, desc?: FunctionDesc, data?: any): TypeTreeItem {
     for (let item of this.children) {
       if (item.key === key) {
         item.update(desc, data);
-        return;
+        return item;
       }
     }
     let child = new TypeTreeItem(this, this.root, key, desc.name, desc, data);
@@ -75,6 +75,7 @@ export class TypeTreeItem extends TreeItem<TypeTreeItem> {
     if (this.opened === 'opened') {
       this.onListChange();
     }
+    return child;
   }
 
   removeChild(key: string) {
@@ -138,44 +139,55 @@ export class TypeTreeRoot extends TypeTreeItem {
   filter: (desc: FunctionDesc) => boolean;
 
   typeMap: Map<string, TypeTreeItem> = new Map<string, TypeTreeItem>();
+
+  updateCategory(catKey: string, name: string, desc?: FunctionDesc): TypeTreeItem {
+    let catItem: TypeTreeItem;
+    if (this.typeMap.has(catKey)) {
+      catItem = this.typeMap.get(catKey);
+      if (desc) {
+        catItem.update(desc, null);
+      }
+    } else {
+      let colonIndex = catKey.lastIndexOf(':', catKey.length - 2);
+      let parentItem: TypeTreeItem = this;
+      if (colonIndex > -1) {
+        let parentCateKey = catKey.substring(0, colonIndex);
+        let parentCateName = parentCateKey.split(':').pop();
+        parentItem = this.updateCategory(parentCateKey + ':', parentCateName);
+      }
+
+      catItem = new TypeTreeItem(parentItem, this, catKey, name, desc);
+      this.typeMap.set(catKey, catItem);
+      parentItem.children.push(catItem);
+      this.onListChange();
+    }
+    return catItem;
+  }
+
   onDesc = (desc: FunctionDesc, key: string) => {
     if (desc) {
+      if (desc.src === 'base') {
+        // dont show base functions
+        return;
+      }
       if (this.filter && !this.filter(desc)) {
         return;
       }
+      let category = desc.category || desc.ns;
+      if (!category && desc.properties) {
+        category = 'other'; // TODO remove other
+      }
+      let catKey = `${category}:`;
 
-      let category: string;
-      let catKey: string;
-      let catDesc: FunctionDesc;
+      let parentItem: TypeTreeItem = this;
+      if (category) {
+        parentItem = this.updateCategory(catKey, category);
+      }
+
       if (desc.properties) {
-        // function
-        category = desc.category || desc.ns || 'other'; // TODO remove other
-        catKey = `${category}:`;
+        this.typeMap.set(desc.id, parentItem.addChild(key, desc));
       } else {
-        // category
-        category = desc.name;
-        catKey = key;
-        catDesc = desc;
-      }
-
-      let catItem: TypeTreeItem;
-      if (this.typeMap.has(catKey)) {
-        catItem = this.typeMap.get(catKey);
-        if (catDesc) {
-          catItem.update(catDesc, null);
-        }
-      } else {
-        catItem = new TypeTreeItem(this, this, catKey, category, catDesc);
-        this.typeMap.set(catKey, catItem);
-        this.children.push(catItem);
-        this.onListChange();
-      }
-      if (!catDesc) {
-        let item = this.typeMap.get(key);
-        if (item && item.parent !== catItem) {
-          item.parent.removeChild(key);
-        }
-        catItem.addChild(key, desc);
+        this.updateCategory(desc.id, desc.name, desc);
       }
     } else {
       // function desc is removed

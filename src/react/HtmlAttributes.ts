@@ -274,8 +274,15 @@ Functions.add(
   null,
   {
     name: 'element',
+    src: 'base',
     properties: [],
     optional: optionalHtmlProperties
   },
   'react'
 );
+
+Functions.addCategory({
+  id: 'react:elements',
+  name: 'elements',
+  category: 'react'
+});

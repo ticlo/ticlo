@@ -24,7 +24,8 @@ const divElementDesc: FunctionDesc = {
   name: 'div',
   base: 'react:element',
   configs: ['#call', '#mode', '#priority', '#sync', '#render'],
-  properties: [childrenPropertyGroup, ...commonProperties]
+  properties: [childrenPropertyGroup, ...commonProperties],
+  category: 'react:elements'
 };
 
 export class DivElementFunction extends HtmlElementFunction {
