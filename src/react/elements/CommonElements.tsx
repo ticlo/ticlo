@@ -1,13 +1,19 @@
 import React from 'react';
 import {Functions} from '../../core/block/Functions';
 import {FunctionDesc, PropDesc, PropGroupDesc} from '../../core/block/Descriptor';
-import {elementChildrenProperty, elementConfigs, elementOutputProperty, HtmlElementFunction} from '../BaseElement';
+import {
+  elementChildrenProperty,
+  elementConfigs,
+  elementOutputProperty,
+  elementStyleProperty,
+  HtmlElementFunction
+} from '../BaseElement';
 
 const divElementDesc: FunctionDesc = {
   name: 'div',
   base: 'react:element',
   configs: elementConfigs,
-  properties: [elementChildrenProperty, elementOutputProperty],
+  properties: [elementChildrenProperty, elementStyleProperty, elementOutputProperty],
   category: 'react:elements'
 };
 
@@ -46,37 +52,3 @@ class ButtonElementFunction extends HtmlElementFunction {
   }
 }
 Functions.add(ButtonElementFunction, {...divElementDesc, name: 'button'}, 'react');
-
-//
-// class AElementFunction extends DivElementFunction {
-//   getComponent(): any {
-//     return 'a';
-//   }
-//
-//   getProps(): {[p: string]: any} {
-//     return {...super.getProps(), href: this._data.getValue('href'), target: this._data.getValue('target')};
-//   }
-// }
-// Functions.add(
-//   AElementFunction,
-//   {
-//     name: 'a',
-//     icon: 'fab:react',
-//     properties: [
-//       childrenPropertyGroup,
-//       {
-//         name: 'href',
-//         type: 'string',
-//         visible: 'high'
-//       },
-//       {
-//         name: 'target',
-//         type: 'combo-box',
-//         options: ['_blank', '_self', '_parent', '_top'],
-//         visible: 'low'
-//       },
-//       ...commonProperties
-//     ]
-//   },
-//   'react'
-// );

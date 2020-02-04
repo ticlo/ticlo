@@ -1,17 +1,5 @@
-/*
-        alt?: string;
-        crossOrigin?: "anonymous" | "use-credentials" | "";
-        decoding?: "async" | "auto" | "sync";
-        height?: number | string;
-        sizes?: string;
-        src?: string;
-        srcSet?: string;
-        useMap?: string;
-        width?: number | string;
- */
-
 import {DataMap, FunctionDesc, Functions, PropDesc} from '../../core';
-import {elementChildrenProperty, elementConfigs, elementOutputProperty, HtmlElementFunction} from '../BaseElement';
+import {elementConfigs, elementOutputProperty, elementStyleProperty, HtmlElementFunction} from '../BaseElement';
 
 const optional: {[key: string]: PropDesc} = {
   crossOrigin: {name: 'crossOrigin', type: 'select', options: ['anonymous', 'use-credentials']},
@@ -33,6 +21,7 @@ const imgElementDesc: FunctionDesc = {
       name: 'src',
       type: 'string'
     },
+    elementStyleProperty,
     elementOutputProperty
   ],
   optional,

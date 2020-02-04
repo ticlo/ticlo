@@ -20,7 +20,6 @@ export const htmlAttributes: {[key: string]: PropDesc} = {
   placeholder: {name: 'placeholder', type: 'string'},
   slot: {name: 'slot', type: 'string'},
   spellCheck: {name: 'spellCheck', type: 'toggle'},
-  style: {name: 'style', type: 'object', create: 'html:create-style'},
   tabIndex: {name: 'tabIndex', type: 'number'},
   title: {name: 'title', type: 'string'},
   translate: {name: 'translate', type: 'radio-button', options: ['no', 'yes']},

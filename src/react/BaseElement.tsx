@@ -24,7 +24,7 @@ export class HtmlElementFunction extends BlockFunction {
     return undefined;
   }
   getProps(): DataMap {
-    let result: DataMap = {};
+    let result: DataMap = {style: this._data.getValue('style')};
     let optional = this._data.getOptionalProps();
     for (let field of optional) {
       if (htmlAttributes.hasOwnProperty(field)) {
@@ -68,6 +68,12 @@ export class HtmlElementFunction extends BlockFunction {
 
 export const elementConfigs = ['#call', '#mode', '#priority', '#sync', '#render'];
 
+export const elementStyleProperty: PropDesc = {
+  name: 'style',
+  type: 'object',
+  visible: 'low',
+  create: 'html:create-style'
+};
 export const elementChildrenProperty: PropGroupDesc = {
   name: '',
   type: 'group',
