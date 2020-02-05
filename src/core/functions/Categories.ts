@@ -41,3 +41,10 @@ Functions.addCategory({
   icon: 'fas:question',
   color: '4af'
 });
+
+Functions.addCategory({
+  id: 'repeat',
+  name: 'repeat',
+  icon: 'fas:grip-vertical',
+  color: 'e91',
+});

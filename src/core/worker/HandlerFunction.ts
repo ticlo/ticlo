@@ -246,7 +246,6 @@ Functions.add(HandlerFunction, {
   icon: 'fas:grip-lines-vertical',
   priority: 3,
   mode: 'onChange',
-  color: 'e91',
   properties: [
     {name: 'use', type: 'worker'},
     {name: 'thread', type: 'number', default: 0, min: 0, step: 1},
@@ -255,5 +254,6 @@ Functions.add(HandlerFunction, {
     {name: 'keepOrder', type: 'toggle', visible: 'low'},
     {name: 'maxQueueSize', type: 'number', default: 0, min: 0, step: 1, visible: 'low'},
     {name: 'queueSize', type: 'number', readonly: true, visible: 'low'}
-  ]
+  ],
+  category: 'repeat'
 });

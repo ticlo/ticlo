@@ -207,12 +207,11 @@ ForEachFunction.prototype._applyWorkerChange = MapImpl.prototype._applyWorkerCha
 
 Functions.add(ForEachFunction, {
   name: 'foreach',
-  icon: 'fas:grip-vertical',
   priority: 1,
-  color: 'e91',
   properties: [
     {name: 'input', type: 'any'},
     {name: 'use', type: 'worker'},
     {name: '#output', type: 'any', readonly: true}
-  ]
+  ],
+  category: 'repeat'
 });

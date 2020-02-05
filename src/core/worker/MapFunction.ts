@@ -261,9 +261,7 @@ export class MapFunction extends MapImpl {
 
 Functions.add(MapFunction, {
   name: 'map',
-  icon: 'fas:grip-vertical',
   priority: 3,
-  color: 'e91',
   properties: [
     {name: 'input', type: 'any'},
     {name: 'use', type: 'worker'},
@@ -271,5 +269,6 @@ Functions.add(MapFunction, {
     {name: 'reuseWorker', type: 'radio-button', options: ['none', 'reuse', 'persist'], default: 'none', visible: 'low'},
     {name: 'timeout', type: 'number', visible: 'low'},
     {name: '#output', type: 'any', readonly: true}
-  ]
+  ],
+  category: 'repeat'
 });
