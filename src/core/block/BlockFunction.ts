@@ -41,7 +41,7 @@ export abstract class BaseFunction<T extends FunctionData = FunctionData> {
     return true;
   }
   // return true when it needs to be put in queue
-  configChanged(input: BlockConfig, val: any): boolean {
+  configChanged(config: BlockConfig, val: any): boolean {
     return false;
   }
 

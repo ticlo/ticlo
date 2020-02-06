@@ -2,6 +2,7 @@ import {Block, BlockFunction, BlockIO, DataMap, Functions, PropDesc, PropGroupDe
 import React from 'react';
 import {TicloComp} from './TicloComp';
 import {htmlAttributes, htmlEventHandlers, optionalHtmlProperties} from './HtmlAttributes';
+import {BlockConfig} from '../../src/core/block/BlockProperty';
 
 export class HtmlElementFunction extends BlockFunction {
   // _comp never changes, this prevent re-render of any parent component, TicloComp should handle all the changes internally
@@ -17,6 +18,10 @@ export class HtmlElementFunction extends BlockFunction {
   inputChanged(input: BlockIO, val: any): boolean {
     return true;
   }
+  configChanged(config: BlockConfig, val: any): boolean {
+    return config._name === '#optional';
+  }
+
   getComponent(): any {
     return 'div';
   }

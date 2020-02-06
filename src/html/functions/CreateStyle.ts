@@ -3,18 +3,18 @@ import StyleDef from './StyleDef';
 import {BlockConfig} from '../../core/block/BlockProperty';
 
 export class CreateStyleFunction extends BaseFunction {
-  configChanged(input: BlockConfig, val: any): boolean {
-    switch (input._name) {
+  configChanged(config: BlockConfig, val: any): boolean {
+    switch (config._name) {
       case '#more':
-      case '#extend':
+      case '#optional':
         return true;
       default:
         return false;
     }
   }
   run() {
-    let spread = this._data.getValue('#extend');
-    let output = spread ? {...spread} : {};
+    let baseObj = this._data.getValue('#extend');
+    let output = baseObj ? {...baseObj} : {};
     for (let field of this._data.getOptionalProps()) {
       let value = this._data.getValue(field);
       if (value !== undefined) {

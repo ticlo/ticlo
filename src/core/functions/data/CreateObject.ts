@@ -4,8 +4,8 @@ import {PropDesc, PropGroupDesc} from '../../block/Descriptor';
 import {BlockConfig} from '../../block/BlockProperty';
 
 export class CreateObjectFunction extends BaseFunction {
-  configChanged(input: BlockConfig, val: any): boolean {
-    switch (input._name) {
+  configChanged(config: BlockConfig, val: any): boolean {
+    switch (config._name) {
       case '#more':
       case '#extend':
         return true;
@@ -14,8 +14,8 @@ export class CreateObjectFunction extends BaseFunction {
     }
   }
   run() {
-    let spread = this._data.getValue('#extend');
-    let output = spread ? {...spread} : {};
+    let baseObj = this._data.getValue('#extend');
+    let output = baseObj ? {...baseObj} : {};
     let custom: PropDesc | PropGroupDesc[] = this._data.getValue('#custom');
     if (Array.isArray(custom)) {
       for (let prop of custom) {

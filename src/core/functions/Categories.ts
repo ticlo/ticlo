@@ -46,5 +46,5 @@ Functions.addCategory({
   id: 'repeat',
   name: 'repeat',
   icon: 'fas:grip-vertical',
-  color: 'e91',
+  color: 'e91'
 });
