@@ -23,8 +23,8 @@ export class HtmlElementFunction extends BlockFunction {
   checkOptionalProp(field: string): any {
     return undefined;
   }
-  getProps(): DataMap {
-    let result: DataMap = {style: this._data.getValue('style')};
+  getProps(): [DataMap, string[]] {
+    let result: DataMap = {style: this._data.getValue('style'), className: this._data.getValue('class')};
     let optional = this._data.getOptionalProps();
     for (let field of optional) {
       if (htmlAttributes.hasOwnProperty(field)) {
@@ -49,7 +49,7 @@ export class HtmlElementFunction extends BlockFunction {
         }
       }
     }
-    return result;
+    return [result, optional];
   }
   getChildren(): any[] {
     let result = [];
@@ -61,7 +61,8 @@ export class HtmlElementFunction extends BlockFunction {
   }
 
   run(): any {
-    this._data.output(React.createElement(this.getComponent(), this.getProps(), ...this.getChildren()), '#render');
+    let [props] = this.getProps();
+    this._data.output(React.createElement(this.getComponent(), props, ...this.getChildren()), '#render');
     this._data.output(this._comp);
   }
 }
@@ -73,6 +74,10 @@ export const elementStyleProperty: PropDesc = {
   type: 'object',
   visible: 'low',
   create: 'html:create-style'
+};
+export const elementClassProperty: PropDesc = {
+  name: 'class',
+  type: 'string'
 };
 export const elementChildrenProperty: PropGroupDesc = {
   name: '',

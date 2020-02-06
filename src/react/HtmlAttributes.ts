@@ -9,7 +9,6 @@ export const htmlAttributes: {[key: string]: PropDesc} = {
 
   // Standard HTML Attributes
   accessKey: {name: 'accessKey', type: 'string'},
-  className: {name: 'className', type: 'string'},
   contentEditable: {name: 'contentEditable', type: 'toggle'}, // | "inherit";
   contextMenu: {name: 'contextMenu', type: 'string'},
   dir: {name: 'dir', type: 'string'},

@@ -3,6 +3,7 @@ import {Functions} from '../../core/block/Functions';
 import {FunctionDesc, PropDesc, PropGroupDesc} from '../../core/block/Descriptor';
 import {
   elementChildrenProperty,
+  elementClassProperty,
   elementConfigs,
   elementOutputProperty,
   elementStyleProperty,
@@ -13,7 +14,7 @@ const divElementDesc: FunctionDesc = {
   name: 'div',
   base: 'react:element',
   configs: elementConfigs,
-  properties: [elementChildrenProperty, elementStyleProperty, elementOutputProperty],
+  properties: [elementChildrenProperty, elementClassProperty, elementStyleProperty, elementOutputProperty],
   category: 'react:elements'
 };
 

@@ -1,5 +1,11 @@
 import {DataMap, FunctionDesc, Functions, PropDesc} from '../../core';
-import {elementConfigs, elementOutputProperty, elementStyleProperty, HtmlElementFunction} from '../BaseElement';
+import {
+  elementClassProperty,
+  elementConfigs,
+  elementOutputProperty,
+  elementStyleProperty,
+  HtmlElementFunction
+} from '../BaseElement';
 
 const optional: {[key: string]: PropDesc} = {
   crossOrigin: {name: 'crossOrigin', type: 'select', options: ['anonymous', 'use-credentials']},
@@ -21,6 +27,7 @@ const imgElementDesc: FunctionDesc = {
       name: 'src',
       type: 'string'
     },
+    elementClassProperty,
     elementStyleProperty,
     elementOutputProperty
   ],
@@ -38,10 +45,10 @@ class ImgElementFunction extends HtmlElementFunction {
     }
     return undefined;
   }
-  getProps(): DataMap {
-    let result = super.getProps();
+  getProps(): [DataMap, string[]] {
+    let [result, optional] = super.getProps();
     result.src = this._data.getValue('src');
-    return result;
+    return [result, optional];
   }
   getChildren(): any[] {
     return [];
