@@ -11,7 +11,6 @@ TestFunction.prototype.useLength = false;
 let testDesc = {
   name: '',
   icon: 'fas:plus',
-  useLength: true,
   properties: [
     {name: 'a', type: 'number', visible: 'high'},
     {name: 'b', type: 'number', visible: 'high'},

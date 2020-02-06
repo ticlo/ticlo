@@ -310,6 +310,27 @@ export class BlockIO extends BlockProperty {
   }
 }
 
+export class BlockConfig extends BlockProperty {
+  _valueChanged(saved?: boolean) {
+    if (!this._outputing) {
+      this._block.configChanged(this, this._value);
+    }
+    if (this._block._watchers) {
+      this._block._onChildChanged(this, saved);
+    }
+  }
+
+  _outputing: boolean = false;
+
+  // outputs the value but doesn't notify the function
+  setOutput(val: any): boolean {
+    this._outputing = true;
+    let changed = this.onChange(val);
+    this._outputing = false;
+    return changed;
+  }
+}
+
 export class GlobalProperty extends BlockIO {
   constructor(block: Block, name: string) {
     super(block, name);

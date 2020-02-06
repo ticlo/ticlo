@@ -1,4 +1,4 @@
-import {BlockIO, BlockProperty} from './BlockProperty';
+import {BlockConfig, BlockIO, BlockProperty} from './BlockProperty';
 import {FunctionDesc} from './Descriptor';
 import {BlockMode, Block} from './Block';
 import {Event, EventType} from './Event';
@@ -35,9 +35,14 @@ export abstract class BaseFunction<T extends FunctionData = FunctionData> {
   onCall(val: any): boolean {
     return true;
   }
+
   // return true when it needs to be put in queue
   inputChanged(input: BlockIO, val: any): boolean {
     return true;
+  }
+  // return true when it needs to be put in queue
+  configChanged(input: BlockConfig, val: any): boolean {
+    return false;
   }
 
   // return stream output

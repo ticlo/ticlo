@@ -1,10 +1,20 @@
 import {BaseFunction} from '../../block/BlockFunction';
 import {Functions} from '../../block/Functions';
 import {PropDesc, PropGroupDesc} from '../../block/Descriptor';
+import {BlockConfig} from '../../block/BlockProperty';
 
 export class CreateObjectFunction extends BaseFunction {
+  configChanged(input: BlockConfig, val: any): boolean {
+    switch (input._name) {
+      case '#more':
+      case '#extend':
+        return true;
+      default:
+        return false;
+    }
+  }
   run() {
-    let spread = this._data.getValue('#spread');
+    let spread = this._data.getValue('#extend');
     let output = spread ? {...spread} : {};
     let custom: PropDesc | PropGroupDesc[] = this._data.getValue('#custom');
     if (Array.isArray(custom)) {
@@ -35,8 +45,6 @@ export class CreateObjectFunction extends BaseFunction {
 Functions.add(CreateObjectFunction, {
   name: 'create-object',
   icon: 'txt:{ }',
-  properties: [
-    {name: '#spread', type: 'object'},
-    {name: '#output', type: 'object', readonly: true}
-  ]
+  properties: [{name: '#output', type: 'object', readonly: true}],
+  configs: [{name: '#extend', type: 'object'}, '#call', '#mode', '#priority', '#sync']
 });

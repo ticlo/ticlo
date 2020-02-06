@@ -1,4 +1,4 @@
-import {BlockProperty, BlockIO, HelperProperty, GlobalProperty, BlockBindingSource} from './BlockProperty';
+import {BlockProperty, BlockIO, HelperProperty, GlobalProperty, BlockBindingSource, BlockConfig} from './BlockProperty';
 import {ListenPromise} from './ListenPromise';
 import {BlockBinding} from './BlockBinding';
 import {FunctionData, FunctionClass, BaseFunction, FunctionOutput} from './BlockFunction';
@@ -237,7 +237,7 @@ export class Block implements Runnable, FunctionData, PropListener<FunctionClass
     if (field in ConfigGenerators) {
       return new ConfigGenerators[field](this, field);
     } else {
-      return new BlockProperty(this, field);
+      return new BlockConfig(this, field);
     }
   }
 
@@ -452,6 +452,11 @@ export class Block implements Runnable, FunctionData, PropListener<FunctionClass
 
   inputChanged(input: BlockIO, val: any) {
     if (this._function && this._function.inputChanged(input, val)) {
+      this._queueFunctionOnChange();
+    }
+  }
+  configChanged(input: BlockConfig, val: any) {
+    if (this._function && this._function.configChanged(input, val)) {
       this._queueFunctionOnChange();
     }
   }
@@ -871,7 +876,7 @@ export class Job extends Block {
     if (field in JobConfigGenerators) {
       return new JobConfigGenerators[field](this, field);
     } else {
-      return new BlockProperty(this, field);
+      return new BlockConfig(this, field);
     }
   }
 
@@ -1143,7 +1148,7 @@ export class InputsBlock extends Block {
     if (field in InputConfigGenerators) {
       return new InputConfigGenerators[field](this, field);
     } else {
-      return new BlockProperty(this, field);
+      return new BlockConfig(this, field);
     }
   }
 
@@ -1176,7 +1181,7 @@ export class OutputsBlock extends Block {
     if (field in OutputConfigGenerators) {
       return new OutputConfigGenerators[field](this, field);
     } else {
-      return new BlockProperty(this, field);
+      return new BlockConfig(this, field);
     }
   }
 }
