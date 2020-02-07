@@ -21,7 +21,7 @@ describe('CreateObject', function() {
     assert.deepEqual(aBlock.getValue('#output'), {v: 12});
   });
 
-  it('spread', function() {
+  it('extend', function() {
     let job = new Job();
 
     let aBlock = job.createBlock('a');
@@ -29,12 +29,16 @@ describe('CreateObject', function() {
       '#is': 'create-object',
       '#extend': {v: 0, t: 1},
       'v': 13,
+      'u': 14,
       '#custom': [{name: 'v', type: 'number'}]
     });
 
     Root.run();
-
     assert.deepEqual(aBlock.getValue('#output'), {v: 13, t: 1});
+
+    aBlock.setValue('#custom', [{name: 'u', type: 'number'}]);
+    Root.run();
+    assert.deepEqual(aBlock.getValue('#output'), {v: 0, t: 1, u: 14});
   });
 
   it('array', function() {
