@@ -6,7 +6,7 @@ import {BlockConfig} from '../../block/BlockProperty';
 export class CreateObjectFunction extends BaseFunction {
   configChanged(config: BlockConfig, val: any): boolean {
     switch (config._name) {
-      case '#more':
+      case '#custom':
       case '#extend':
         return true;
       default:

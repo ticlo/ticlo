@@ -27,7 +27,7 @@ describe('CreateObject', function() {
     let aBlock = job.createBlock('a');
     aBlock._load({
       '#is': 'create-object',
-      '#spread': {v: 0, t: 1},
+      '#extend': {v: 0, t: 1},
       'v': 13,
       '#custom': [{name: 'v', type: 'number'}]
     });

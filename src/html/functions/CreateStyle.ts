@@ -5,8 +5,8 @@ import {BlockConfig} from '../../core/block/BlockProperty';
 export class CreateStyleFunction extends BaseFunction {
   configChanged(config: BlockConfig, val: any): boolean {
     switch (config._name) {
-      case '#more':
       case '#optional':
+      case '#extend':
         return true;
       default:
         return false;
