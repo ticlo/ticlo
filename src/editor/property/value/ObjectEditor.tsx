@@ -30,9 +30,14 @@ export class ObjectEditor extends React.PureComponent<ValueEditorProps, any> {
     let {value, desc, onChange} = this.props;
     let editor: React.ReactNode;
     if (value === undefined && onChange && desc.create) {
+      let create = desc.create;
+      let colonIndex = create.indexOf(':');
+      if (colonIndex > -1) {
+        create = create.substring(colonIndex + 1);
+      }
       editor = (
         <Button size="small" icon={<PlusSquareIcon />} onClick={this.createObject}>
-          {desc.create}
+          {create}
         </Button>
       );
     } else {
