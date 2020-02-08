@@ -148,12 +148,14 @@ export class TypeTreeRoot extends TypeTreeItem {
         catItem.update(desc, null);
       }
     } else {
-      let colonIndex = catKey.lastIndexOf(':', catKey.length - 2);
       let parentItem: TypeTreeItem = this;
-      if (colonIndex > -1) {
-        let parentCateKey = catKey.substring(0, colonIndex);
-        let parentCateName = parentCateKey.split(':').pop();
-        parentItem = this.updateCategory(parentCateKey + ':', parentCateName);
+      if (catKey.length > 1) {
+        let colonIndex = catKey.lastIndexOf(':', catKey.length - 2);
+        if (colonIndex > -1) {
+          let parentCateKey = catKey.substring(0, colonIndex);
+          let parentCateName = parentCateKey.split(':').pop();
+          parentItem = this.updateCategory(parentCateKey + ':', parentCateName);
+        }
       }
 
       catItem = new TypeTreeItem(parentItem, this, catKey, name, desc);
@@ -174,13 +176,13 @@ export class TypeTreeRoot extends TypeTreeItem {
         return;
       }
       let category = desc.category || desc.ns;
-      if (!category && desc.properties) {
+      if (category == null && desc.properties) {
         category = 'other'; // TODO remove other
       }
       let catKey = `${category}:`;
 
       let parentItem: TypeTreeItem = this;
-      if (category) {
+      if (category != null) {
         parentItem = this.updateCategory(catKey, category);
       }
 

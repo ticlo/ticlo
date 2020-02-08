@@ -44,7 +44,7 @@ export class Functions {
       desc.priority = 0;
     }
     desc.ns = namespace;
-    let id = namespace ? `${namespace}:${desc.name}` : desc.name;
+    let id = namespace != null ? `${namespace}:${desc.name}` : desc.name;
     desc.id = id;
 
     if (cls) {

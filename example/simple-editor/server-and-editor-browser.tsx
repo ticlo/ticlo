@@ -33,7 +33,7 @@ interface Props {
 
 interface State {}
 
-WorkerFunction.registerType({'#is': ''}, {name: 'class1'}, 'WorkerEditor');
+WorkerFunction.registerType({'#is': ''}, {name: 'class1'}, '');
 
 class App extends React.PureComponent<Props, State> implements TicloLayoutContext {
   constructor(props: Props) {
