@@ -358,9 +358,12 @@ export class PropertyList extends MultiSelectComponent<Props, State, BlockLoader
       return (
         <div className="ticl-property-list" style={style}>
           <PropertyEditor name="#is" paths={paths} conn={conn} funcDesc={funcDesc} propDesc={configDescs['#is']} />
-          <div className="ticl-property-divider">
-            <div className="ticl-h-line" />
-          </div>
+
+          {children.length ? (
+            <div className="ticl-property-divider">
+              <div className="ticl-h-line" />
+            </div>
+          ) : null}
           {children}
 
           {baseDesc ? <OptionalPropertyList conn={conn} paths={paths} funcDesc={baseDesc} /> : null}
