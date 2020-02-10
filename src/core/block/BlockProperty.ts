@@ -132,6 +132,15 @@ export class BlockProperty extends PropDispatcher<any> implements PropListener<a
     }
   }
 
+  _listenRaw(source: BlockBindingSource) {
+    if (this._bindingSource) {
+      this._bindingSource.unlisten(this);
+      this._bindingPath = null;
+    }
+    this._bindingSource = source;
+    source.listen(this);
+  }
+
   setBindProperty(prop: HelperProperty) {
     this._bindingProperty = prop;
   }
@@ -371,8 +380,7 @@ export class GlobalProperty extends BlockIO {
   }
 
   listenToParentGlobal() {
-    this._bindingSource = this._block._job._parent._job.getGlobalProperty(this._name);
-    this._bindingSource.listen(this);
+    this._listenRaw(this._block._job._parent._job.getGlobalProperty(this._name));
   }
 }
 

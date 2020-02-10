@@ -1159,7 +1159,15 @@ export class InputsBlock extends Block {
     } else {
       this.updateValue('#value', val);
     }
-    if (Object.isExtensible(val)) {
+    if (val instanceof Block) {
+      let customList = this.getValue('#custom');
+      if (Array.isArray(customList)) {
+        for (let customProp of customList) {
+          // create raw binding
+          this.getProperty(customProp.name)._listenRaw(val.getProperty(customProp.name));
+        }
+      }
+    } else if (Object.isExtensible(val)) {
       let customList = this.getValue('#custom');
       if (Array.isArray(customList)) {
         for (let customProp of customList) {
@@ -1167,7 +1175,6 @@ export class InputsBlock extends Block {
         }
       }
     }
-    this.updateValue('#call', new Event('inputChanged'));
   }
 }
 

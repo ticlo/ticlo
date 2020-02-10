@@ -5,7 +5,7 @@ const data = {
     'parent': 'document',
     '@b-p': ['parent', 'query', '#output'],
     '@b-xyw': [63.796875, 168, 150],
-    'query': '#app'
+    'query': '#main'
   },
   'jsx': {'#is': 'react:jsx', '@b-p': ['script', '#output'], '@b-xyw': [52.796875, 330, 150]},
   'render-dom': {

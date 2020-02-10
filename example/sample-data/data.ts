@@ -34,7 +34,7 @@ export const data: any = {
     '1': 4,
     '@b-xyw': [100, 100, 150],
     '@b-p': ['0', '1', '#output', '@b-p', '#is'],
-    '#more': sharedCustom
+    '#custom': sharedCustom
   },
   subtract: {
     '#is': 'subtract',

@@ -3,8 +3,8 @@ import {configDescs, FunctionDesc} from '../block/Descriptor';
 export const clientDescriptors: {[key: string]: FunctionDesc} = {
   input: {
     priority: 0,
-    name: 'input',
-    id: 'input',
+    name: 'inputs',
+    id: 'inputs',
     icon: 'fas:arrow-circle-down',
     color: 'e91',
     properties: [],
@@ -12,8 +12,8 @@ export const clientDescriptors: {[key: string]: FunctionDesc} = {
   },
   output: {
     priority: 0,
-    name: 'output',
-    id: 'output',
+    name: 'outputs',
+    id: 'outputs',
     icon: 'fas:arrow-circle-up',
     color: 'e91',
     properties: [],

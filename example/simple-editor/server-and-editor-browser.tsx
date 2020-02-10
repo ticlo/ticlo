@@ -3,6 +3,7 @@ import * as ReactDOM from 'react-dom';
 import {Block, DataMap, decode, encodeSorted, FunctionDesc, Job, PropDesc, Root} from '../../src/core';
 import {makeLocalConnection} from '../../src/core/connect/LocalConnection';
 import {data} from '../sample-data/data';
+import reactData from '../sample-data/react';
 import {initEditor, PropertyList, BlockStage, NodeTree} from '../../src/editor';
 import {DragDropDiv, DragState, DockLayout, DockContextType} from 'rc-dock';
 import {ClientConnection} from '../../src/core/connect/ClientConnection';
@@ -19,6 +20,7 @@ import {PropertyListPane} from '../../src/editor/dock/property/PropertyListPane'
 import {NodeTreePane} from '../../src/editor/dock/node-tree/NodeTreePane';
 import {TextEditorPane} from '../../src/editor/dock/text-editor/TextEditorPane';
 import '../../src/html';
+import '../../src/react';
 
 const layoutGroups = {
   blockStage: {
@@ -33,7 +35,21 @@ interface Props {
 
 interface State {}
 
-WorkerFunction.registerType({'#is': ''}, {name: 'class1'}, '');
+WorkerFunction.registerType(
+  {
+    '#is': '',
+    'add': {
+      '#is': 'add',
+      '~0': {'#is': 'add', '0': 1, '1': 2},
+      '1': 4,
+      '@b-xyw': [100, 100, 150],
+      '@b-p': ['0', '1', '#output', '@b-p', '#is']
+    },
+    '#inputs': {'#is': '', '@b-xyw': [100, 100, 150], '#custom': [{name: 'num', type: 'number'}]}
+  },
+  {name: 'class1', properties: [{name: 'num', type: 'number'}]},
+  ''
+);
 
 class App extends React.PureComponent<Props, State> implements TicloLayoutContext {
   constructor(props: Props) {
@@ -135,6 +151,12 @@ class App extends React.PureComponent<Props, State> implements TicloLayoutContex
                         showMenu={true}
                       />
                     )
+                  },
+                  {
+                    id: 'Test UI',
+                    title: 'Test UI',
+                    cached: true,
+                    content: <div id="main" />
                   }
                 ]
               },
@@ -192,7 +214,9 @@ class JobLoader {
 (async () => {
   await initEditor();
   Root.instance.setLoader(new JobLoader());
-  let job = Root.instance.addJob('example', data);
+  let reactJob = Root.instance.addJob('example', reactData);
+
+  let generalJob = Root.instance.addJob('example0', data);
 
   // create some global blocks
   Root.instance._globalBlock.createBlock('^gAdd').setValue('#is', 'add');
@@ -204,4 +228,3 @@ class JobLoader {
 })();
 
 (window as any).Logger = Logger;
-

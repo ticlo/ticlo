@@ -129,7 +129,7 @@ export class BlockConstConfig extends BlockProperty {
 
 class BlockInputTypeConfig extends BlockConstConfig {
   constructor(block: Block, name: string) {
-    super(block, name, 'input');
+    super(block, name, 'inputs');
   }
 
   _save(): any {
@@ -140,7 +140,7 @@ class BlockInputTypeConfig extends BlockConstConfig {
 
 class BlockOutputTypeConfig extends BlockConstConfig {
   constructor(block: Block, name: string) {
-    super(block, name, 'output');
+    super(block, name, 'outputs');
   }
 
   _save(): any {
