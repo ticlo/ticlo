@@ -38,13 +38,6 @@ interface State {}
 WorkerFunction.registerType(
   {
     '#is': '',
-    'add': {
-      '#is': 'add',
-      '~0': {'#is': 'add', '0': 1, '1': 2},
-      '1': 4,
-      '@b-xyw': [100, 100, 150],
-      '@b-p': ['0', '1', '#output', '@b-p', '#is']
-    },
     '#inputs': {'#is': '', '@b-xyw': [100, 100, 150], '#custom': [{name: 'num', type: 'number'}]}
   },
   {name: 'class1', properties: [{name: 'num', type: 'number'}]},
