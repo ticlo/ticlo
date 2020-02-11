@@ -16,13 +16,13 @@ export class ObjectEditor extends React.PureComponent<ValueEditorProps, any> {
   };
 
   popup = () => {
-    let {keys, name, desc, value, locked} = this.props;
+    let {keys, name, desc, value} = this.props;
     this.context.editProperty(
       keys.map((key) => `${key}.${name}`),
       desc,
       value,
       'object',
-      locked
+      desc.readonly
     );
   };
 
