@@ -90,13 +90,11 @@ export class WorkerEditor extends Job {
     if (pos > -1) {
       name = name.substring(pos + 1);
     }
-    let desc: FunctionDesc = {
-      name,
-      icon: this.getValue('@f-icon') || '',
-      priority: this.getValue('@f-priority') || 0,
-      mode: this.getValue('@f-mode') || 'onLoad',
-      properties: this.collectProperties()
-    };
+    let desc: FunctionDesc = {name, properties: this.collectProperties()};
+    let savedDesc = this.getValue('#desc') as FunctionDesc;
+    if (savedDesc && typeof savedDesc === 'object' && savedDesc.constructor === Object) {
+      desc = {...savedDesc, ...desc};
+    }
 
     WorkerFunction.registerType(data, desc, this._namespace);
     return true;

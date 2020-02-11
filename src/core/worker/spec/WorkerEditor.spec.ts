@@ -107,7 +107,7 @@ describe('WorkerEditor', function() {
         ],
         '@b-p': ['b']
       },
-      '@f-icon': 'fas:plus'
+      '#desc': {icon: 'fas:plus'}
     };
     let expectedDescProperties: (PropDesc | PropGroupDesc)[] = [
       {
@@ -128,8 +128,7 @@ describe('WorkerEditor', function() {
     let editor = WorkerEditor.createFromFunction(job, '#edit-func', 'WorkerEditor:worker3');
     editor.createBlock('#inputs')._load(expectedData['#inputs']);
     editor.createBlock('#outputs')._load(expectedData['#outputs']);
-    editor.setValue('@f-icon', 'fas:plus');
-
+    editor.setValue('#desc', expectedData['#desc']);
     editor.applyChange();
 
     assert.deepEqual(Functions.getWorkerData('WorkerEditor:worker3'), expectedData);
