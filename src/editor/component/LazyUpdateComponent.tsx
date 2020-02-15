@@ -1,5 +1,6 @@
 import React from 'react';
 import {ClientConn, ValueState, ValueUpdate, DataMap, shallowEqual, ValueSubscriber} from '../../../src/core/editor';
+import {batchUpdateReact} from '../util/BatchUpdate';
 
 interface LazyUpdateProps {
   conn: ClientConn;
@@ -35,7 +36,7 @@ export abstract class LazyUpdateComponent<P extends LazyUpdateProps, S> extends 
   }
 
   forceUpdate() {
-    this.props.conn.callImmediate(this.safeForceUpdate);
+    batchUpdateReact(this.safeForceUpdate, this.props.conn);
   }
 
   safeForceUpdate = () => {

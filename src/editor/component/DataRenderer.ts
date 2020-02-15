@@ -1,5 +1,6 @@
 import React from 'react';
 import {ClientConn} from '../../../src/core/editor';
+import {batchUpdateReact} from '../util/BatchUpdate';
 
 export abstract class DataRendererItem<T = any> {
   _renderers: Set<PureDataRenderer<any, any> & T> = new Set<PureDataRenderer<any, any> & T>();
@@ -34,7 +35,7 @@ export abstract class DataRendererItem<T = any> {
 
   forceUpdate() {
     for (let renderer of this._renderers) {
-      this.getConn().callImmediate(renderer.forceUpdate);
+      batchUpdateReact(renderer.forceUpdate, this.getConn());
     }
   }
 }

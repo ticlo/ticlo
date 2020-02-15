@@ -21,6 +21,7 @@ import {NodeTreePane} from '../../src/editor/dock/node-tree/NodeTreePane';
 import {TextEditorPane} from '../../src/editor/dock/text-editor/TextEditorPane';
 import '../../src/html';
 import '../../src/react';
+import {TypeSelect} from '../../src/editor/type-selector/TypeSelector';
 
 const layoutGroups = {
   blockStage: {
@@ -33,7 +34,8 @@ interface Props {
   conn: ClientConnection;
 }
 
-interface State {}
+interface State {
+}
 
 WorkerFunction.registerType(
   {
@@ -149,7 +151,7 @@ class App extends React.PureComponent<Props, State> implements TicloLayoutContex
                     id: 'Test UI',
                     title: 'Test UI',
                     cached: true,
-                    content: <div id="main" />
+                    content: <div id="main"/>
                   }
                 ]
               },
@@ -159,14 +161,14 @@ class App extends React.PureComponent<Props, State> implements TicloLayoutContex
                     id: 'Functions',
                     title: 'Functions',
                     cached: true,
-                    content: <TypeTree conn={conn} style={{height: '100%'}} />
+                    content: <TypeSelect conn={conn}/>
                   },
                   {
                     id: 'Properties',
                     title: 'Properties',
                     cached: true,
                     cacheContext: TicloLayoutContextType,
-                    content: <PropertyListPane conn={conn} />
+                    content: <PropertyListPane conn={conn}/>
                   }
                 ]
               }
@@ -195,13 +197,17 @@ class App extends React.PureComponent<Props, State> implements TicloLayoutContex
 }
 
 class JobLoader {
-  onAddJob(root: Root, name: string, job: Job, data: DataMap = {}) {}
+  onAddJob(root: Root, name: string, job: Job, data: DataMap = {}) {
+  }
 
-  onDeleteJob(root: Root, name: string, job: Job) {}
+  onDeleteJob(root: Root, name: string, job: Job) {
+  }
 
-  saveJob(root: Root, name: string, job: Job, data?: DataMap) {}
+  saveJob(root: Root, name: string, job: Job, data?: DataMap) {
+  }
 
-  init(root: Root): void {}
+  init(root: Root): void {
+  }
 }
 
 (async () => {
@@ -217,7 +223,7 @@ class JobLoader {
 
   let [server, client] = makeLocalConnection(Root.instance);
 
-  ReactDOM.render(<App conn={client} />, document.getElementById('app'));
+  ReactDOM.render(<App conn={client}/>, document.getElementById('app'));
 })();
 
 (window as any).Logger = Logger;
