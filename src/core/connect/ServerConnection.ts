@@ -643,7 +643,7 @@ export class ServerConnection extends Connection {
     if (property && property._name.startsWith('#edit-')) {
       if (fromField) {
         WorkerEditor.createFromField(property._block, property._name, fromField);
-      } else if (fromFunction) {
+      } else if (fromFunction && fromFunction.startsWith(':')) {
         WorkerEditor.createFromFunction(property._block, property._name, fromFunction);
       }
       return null;

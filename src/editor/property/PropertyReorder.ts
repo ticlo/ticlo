@@ -113,7 +113,6 @@ export const CustomPropertyReorder: PropertyReorder = {
 export const OptionalPropertyReorder: PropertyReorder = {
   getDragData(props: PropertyEditorProps): DataMap {
     let {paths, name} = props;
-    console.log(123);
     return {paths, moveOptionalField: name};
   },
   onDragOver(props: PropertyEditorProps, e: DragState): string {

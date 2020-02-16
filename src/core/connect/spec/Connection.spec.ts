@@ -707,13 +707,13 @@ describe('Connection', function() {
     await client.editWorker('Connection18.a.#edit-use', 'use');
     assert.deepEqual(block1.getValue('#edit-use').save(), data);
 
-    WorkerFunction.registerType(data, {name: 'func1'}, 'JobEditor');
+    WorkerFunction.registerType(data, {name: 'func1'}, '');
 
     // edit from worker function
-    await client.editWorker('Connection18.a.#edit-func1', null, 'JobEditor:func1');
+    await client.editWorker('Connection18.a.#edit-func1', null, ':func1');
     assert.deepEqual(block1.getValue('#edit-func1').save(), data);
 
-    Functions.clear('JobEditor:func1');
+    Functions.clear(':func1');
     client.destroy();
     Root.instance.deleteValue('Connection18');
   });
