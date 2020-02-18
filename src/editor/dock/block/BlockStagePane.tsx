@@ -31,7 +31,7 @@ export class BlockStagePane extends React.PureComponent<Props, State> {
     onSave?: () => void
   ) {
     let id = `blockEditor${BlockStagePane.editorCount++}`;
-    let tabName = path.split('.').pop();
+    let tabName = decodeURIComponent(path.split('.').pop());
     return {
       id,
       closable: !onSave,

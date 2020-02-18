@@ -12,6 +12,7 @@ import {RadioChangeEvent} from 'antd/lib/radio';
 import {TypeList} from './TypeList';
 import {TicloLayoutContext, TicloLayoutContextType} from '../component/LayoutContext';
 import {ClientCallbacks} from '../../core/connect/ClientRequests';
+import {encodeURITiclo} from '../../core/util/String';
 
 interface Props {
   conn: ClientConn;
@@ -56,8 +57,8 @@ export class TypeSelect extends React.PureComponent<Props, State> {
     if (this.newFunctionName) {
       let {conn} = this.props;
       let funcId = `:${this.newFunctionName}`;
-      let editPath = `#temp.#edit-${encodeURIComponent(funcId)}`;
-      conn.editWorker(editPath, null, funcId, {});
+      let editPath = `#temp.#edit-${encodeURITiclo(funcId)}`;
+      conn.editWorker(editPath, null, funcId, {'#inputs': {'#is': ''}, '#outputs': {'#is': ''}});
       this.context.editJob(editPath, () => {
         conn.applyJobChange(editPath);
       });
