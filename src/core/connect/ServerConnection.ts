@@ -347,7 +347,7 @@ export class ServerConnection extends Connection {
             break;
           }
           case 'editWorker': {
-            result = this.editWorker(request.path, request.fromField, request.fromFunction);
+            result = this.editWorker(request.path, request.fromField, request.fromFunction, request.defaultData);
             break;
           }
           case 'applyJobChange': {
@@ -637,14 +637,14 @@ export class ServerConnection extends Connection {
     // TODO
   }
 
-  editWorker(path: string, fromField: string, fromFunction: string) {
+  editWorker(path: string, fromField: string, fromFunction: string, defaultData: DataMap) {
     let property = this.root.queryProperty(path, true);
 
     if (property && property._name.startsWith('#edit-')) {
       if (fromField) {
         WorkerEditor.createFromField(property._block, property._name, fromField);
       } else if (fromFunction && fromFunction.startsWith(':')) {
-        WorkerEditor.createFromFunction(property._block, property._name, fromFunction);
+        WorkerEditor.createFromFunction(property._block, property._name, fromFunction, defaultData);
       }
       return null;
     } else {

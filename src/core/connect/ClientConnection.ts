@@ -291,9 +291,10 @@ export abstract class ClientConnection extends Connection implements ClientConn 
     path: string,
     fromField?: string,
     fromFunction?: string,
+    defaultData?: DataMap,
     callbacks?: ClientCallbacks
   ): Promise<any> | string {
-    return this.simpleRequest({cmd: 'editWorker', path, fromField, fromFunction}, callbacks);
+    return this.simpleRequest({cmd: 'editWorker', path, fromField, fromFunction, defaultData}, callbacks);
   }
 
   applyJobChange(path: string, funcId?: string, callbacks?: ClientCallbacks): Promise<any> | string {

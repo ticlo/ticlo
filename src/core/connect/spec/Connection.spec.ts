@@ -722,7 +722,7 @@ describe('Connection', function() {
     let job1 = Root.instance.addJob('Connection19');
     let [server, client] = makeLocalConnection(Root.instance, true);
 
-    let editor = WorkerEditor.create(job1, '#edit-v', {}, false, (data: DataMap) => {
+    let editor = WorkerEditor.create(job1, '#edit-v', {}, null, false, (data: DataMap) => {
       job1.setValue('v', data);
       return true;
     });

@@ -161,6 +161,7 @@ class App extends React.PureComponent<Props, State> implements TicloLayoutContex
                     id: 'Functions',
                     title: 'Functions',
                     cached: true,
+                    cacheContext: TicloLayoutContextType,
                     content: <TypeSelect conn={conn}/>
                   },
                   {

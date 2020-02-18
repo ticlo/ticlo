@@ -60,7 +60,7 @@ describe('WorkerEditor', function() {
 
     WorkerFunction.registerType(data, {name: 'worker2'}, 'WorkerEditor');
 
-    WorkerEditor.createFromFunction(job, '#edit-func', 'WorkerEditor:worker2');
+    WorkerEditor.createFromFunction(job, '#edit-func', 'WorkerEditor:worker2', null);
     assert.deepEqual(job.getValue('#edit-func').save(), data);
 
     Functions.clear('WorkerEditor:worker2');
@@ -68,7 +68,7 @@ describe('WorkerEditor', function() {
 
   it('applyChange', function() {
     let job = new Job();
-    let editor = WorkerEditor.create(job, '#edit-v2', {}, false, (data: DataMap) => {
+    let editor = WorkerEditor.create(job, '#edit-v2', {}, null, false, (data: DataMap) => {
       job.setValue('v2', data);
       return true;
     });
@@ -125,7 +125,7 @@ describe('WorkerEditor', function() {
 
     WorkerFunction.registerType({'#is': ''}, {name: 'worker3', properties: []}, 'WorkerEditor');
 
-    let editor = WorkerEditor.createFromFunction(job, '#edit-func', 'WorkerEditor:worker3');
+    let editor = WorkerEditor.createFromFunction(job, '#edit-func', 'WorkerEditor:worker3', null);
     editor.createBlock('#inputs')._load(expectedData['#inputs']);
     editor.createBlock('#outputs')._load(expectedData['#outputs']);
     editor.setValue('#desc', expectedData['#desc']);

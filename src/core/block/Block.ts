@@ -445,7 +445,11 @@ export class Block implements Runnable, FunctionData, PropListener<FunctionClass
     let prop = this.getProperty(field);
     let job = new Job(this, output, prop);
     prop.setOutput(job);
-    job.load(src, applyChange);
+    if (typeof src === 'string') {
+      job.load(null, src, applyChange);
+    } else {
+      job.load(src, null, applyChange);
+    }
 
     return job;
   }
@@ -929,20 +933,30 @@ export class Job extends Block {
   _applyChange: (data: DataMap) => boolean;
   _onDestory: () => void;
 
-  load(src: DataMap | string, applyChange?: (data: DataMap) => boolean, onDestory?: () => void): boolean {
+  load(src: DataMap, funcId?: string, applyChange?: (data: DataMap) => boolean, onDestory?: () => void): boolean {
     this._loading = true;
     let loaded = false;
-    if (typeof src === 'string') {
+    if (funcId) {
       // load from worker class
-      let desc: FunctionDesc = Functions.getDescToSend(src)[0];
+      let desc: FunctionDesc = Functions.getDescToSend(funcId)[0];
       if (desc) {
-        let data = Functions.getWorkerData(src);
+        let data = Functions.getWorkerData(funcId);
         if (data) {
           this._namespace = desc.ns;
-          this._loadFrom = src;
+          this._loadFrom = funcId;
           this._load(data);
           loaded = true;
         }
+      } else if (src) {
+        let colonIndex = funcId.indexOf(':');
+        if (colonIndex >= 0) {
+          this._namespace = funcId.substring(0, colonIndex);
+        } else {
+          this._namespace = null;
+        }
+        this._loadFrom = funcId;
+        this._load(src);
+        loaded = true;
       }
     } else {
       this._namespace = this._job._namespace;
@@ -1072,6 +1086,8 @@ export class Root extends Job {
     globalProp._saved = this._globalBlock;
     globalProp._value = globalProp._saved;
 
+    this.createBlock('#temp');
+
     this._props.set('', new BlockConstConfig(this, '', this));
   }
 
@@ -1100,6 +1116,7 @@ export class Root extends Job {
       let loader = this._loader;
       newJob.load(
         data,
+        null,
         (saveData) => {
           loader.saveJob(this, path, newJob, saveData);
           return true;
@@ -1133,7 +1150,7 @@ export class Root extends Job {
     return null;
   }
 
-  load(map: DataMap, applyChange?: (data: DataMap) => boolean) {
+  load(map: DataMap, funcId?: string, applyChange?: (data: DataMap) => boolean) {
     // not allowed
     return false;
   }

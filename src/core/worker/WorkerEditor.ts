@@ -22,7 +22,8 @@ export class WorkerEditor extends Job {
   static create(
     parent: Block,
     field: string,
-    src?: DataMap | string,
+    src?: DataMap,
+    funcId?: string,
     forceLoad = false,
     applyChange?: (data: DataMap) => boolean
   ): WorkerEditor {
@@ -39,7 +40,12 @@ export class WorkerEditor extends Job {
       job = new WorkerEditor(parent, null, prop);
       prop.setOutput(job);
     }
-    let success = job.load(src, applyChange);
+    if (funcId?.startsWith(':') && !applyChange) {
+      applyChange = (data: DataMap) => {
+        return job.applyChangeToFunc(funcId, data);
+      };
+    }
+    let success = job.load(src, funcId, applyChange);
     if (success) {
       return job;
     } else {
@@ -52,7 +58,16 @@ export class WorkerEditor extends Job {
     let forceReload = false;
     // already has worker data ?
     if (fromValue && (typeof fromValue === 'string' || fromValue.constructor === Object)) {
-      let newJob = WorkerEditor.create(parent, field, fromValue);
+      let newJob: WorkerEditor;
+      if (typeof fromValue === 'string') {
+        newJob = WorkerEditor.create(parent, field, null, fromValue);
+      } else {
+        newJob = WorkerEditor.create(parent, field, fromValue, null, false, (data: DataMap) => {
+          parent.setValue(fromField, data);
+          return true;
+        });
+      }
+
       if (newJob) {
         return newJob;
       }
@@ -62,7 +77,7 @@ export class WorkerEditor extends Job {
 
     if (parent._function) {
       let data = parent._function.getDefaultWorker(fromField) || blankWorker;
-      return WorkerEditor.create(parent, field, data, forceReload, (data: DataMap) => {
+      return WorkerEditor.create(parent, field, data, null, forceReload, (data: DataMap) => {
         parent.setValue(fromField, data);
         return true;
       });
@@ -71,19 +86,20 @@ export class WorkerEditor extends Job {
     return null;
   }
 
-  static createFromFunction(parent: Block, field: string, fromFunction: string): WorkerEditor {
+  static createFromFunction(parent: Block, field: string, fromFunction: string, defaultData: DataMap): WorkerEditor {
     if (typeof fromFunction === 'string') {
-      return WorkerEditor.create(parent, field, fromFunction);
+      return WorkerEditor.create(parent, field, defaultData, fromFunction);
     }
     return null;
   }
 
   /**
    * save the worker to a function
-   * @param funcId When specified, save the worker as a global worker function so it can be reused
    */
-  applyChangeToFunc(funcId: string) {
-    let data = this.save();
+  applyChangeToFunc(funcId: string, data?: DataMap) {
+    if (!data) {
+      data = this.save();
+    }
     // save to worker function
     let name = this._loadFrom;
     let pos = name.indexOf(':');
@@ -93,18 +109,11 @@ export class WorkerEditor extends Job {
     let desc: FunctionDesc = {name, properties: this.collectProperties()};
     let savedDesc = this.getValue('#desc') as FunctionDesc;
     if (savedDesc && typeof savedDesc === 'object' && savedDesc.constructor === Object) {
-      desc = {...savedDesc, ...desc};
+      desc = {...savedDesc, ...desc, id: funcId};
     }
 
     WorkerFunction.registerType(data, desc, this._namespace);
     return true;
-  }
-  applyChange(): boolean {
-    if (this._loadFrom && !this._applyChange) {
-      return this.applyChangeToFunc(this._loadFrom);
-    } else {
-      return super.applyChange();
-    }
   }
 
   /**

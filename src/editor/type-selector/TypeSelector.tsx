@@ -1,15 +1,17 @@
 import React, {MouseEventHandler} from 'react';
-import {Input, Radio, Tooltip} from 'antd';
+import {Button, Input, Modal, Radio, Tooltip, message} from 'antd';
 import AppStoreIcon from '@ant-design/icons/AppstoreOutlined';
 import HistoryIcon from '@ant-design/icons/HistoryOutlined';
 import CloseCircleIcon from '@ant-design/icons/CloseCircleOutlined';
 import FilterIcon from '@ant-design/icons/FilterOutlined';
+import PlusSquareIcon from '@ant-design/icons/PlusSquareOutlined';
 import {TypeTree} from './TypeTree';
-import {ClientConn} from '../../../src/core/editor';
+import {ClientConn, DataMap, FunctionDesc} from '../../../src/core/editor';
 import {OnTypeClick} from './TypeView';
 import {RadioChangeEvent} from 'antd/lib/radio';
 import {TypeList} from './TypeList';
-import {FunctionDesc} from '../../../src/core/editor';
+import {TicloLayoutContext, TicloLayoutContextType} from '../component/LayoutContext';
+import {ClientCallbacks} from '../../core/connect/ClientRequests';
 
 interface Props {
   conn: ClientConn;
@@ -22,10 +24,15 @@ interface Props {
 interface State {
   tab: string;
   search: string;
+  modelVisible: boolean;
 }
 
 export class TypeSelect extends React.PureComponent<Props, State> {
-  state = {tab: 'tree', search: ''};
+  static contextType = TicloLayoutContextType;
+  context!: TicloLayoutContext;
+
+  state = {tab: 'tree', search: '', modelVisible: false};
+  newFunctionName: string = '';
 
   onFilterChange = (e: React.SyntheticEvent) => {
     this.setState({search: (e.target as HTMLInputElement).value});
@@ -38,9 +45,35 @@ export class TypeSelect extends React.PureComponent<Props, State> {
     this.setState({tab: value.target.value as string});
   };
 
+  onTypeNameChange = (e: React.SyntheticEvent) => {
+    this.newFunctionName = (e.target as HTMLInputElement).value;
+  };
+  onAddType = () => {
+    this.setState({modelVisible: true});
+  };
+  onAddTypeOk = () => {
+    // TODO validate function name;
+    if (this.newFunctionName) {
+      let {conn} = this.props;
+      let funcId = `:${this.newFunctionName}`;
+      let editPath = `#temp.#edit-${encodeURIComponent(funcId)}`;
+      conn.editWorker(editPath, null, funcId, {});
+      this.context.editJob(editPath, () => {
+        conn.applyJobChange(editPath);
+      });
+
+      this.newFunctionName = '';
+      this.setState({modelVisible: false});
+    } else {
+      message.error('Invalid function name.');
+    }
+  };
+  onAddTypeCancel = () => {
+    this.setState({modelVisible: false});
+  };
   render() {
     let {conn, showPreset, onTypeClick, onClick, filter} = this.props;
-    let {tab, search} = this.state;
+    let {tab, search, modelVisible} = this.state;
 
     if (!conn) {
       return <div />;
@@ -74,6 +107,19 @@ export class TypeSelect extends React.PureComponent<Props, State> {
               )
             }
           />
+          {this.context?.editJob ? (
+            <Tooltip title={'New'}>
+              <Button size="small" onClick={this.onAddType} icon={<PlusSquareIcon />} />
+            </Tooltip>
+          ) : null}
+          <Modal
+            title="Function Name?"
+            visible={this.state.modelVisible}
+            onOk={this.onAddTypeOk}
+            onCancel={this.onAddTypeCancel}
+          >
+            <Input size="small" defaultValue={this.newFunctionName} onChange={this.onTypeNameChange} />
+          </Modal>
         </div>
         <TypeTree
           conn={conn}

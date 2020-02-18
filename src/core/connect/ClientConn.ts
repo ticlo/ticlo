@@ -59,6 +59,7 @@ export interface ClientConn {
     path: string,
     fromField?: string,
     fromFunction?: string,
+    defaultData?: DataMap,
     callbacks?: ClientCallbacks
   ): Promise<any> | string;
 
