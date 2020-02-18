@@ -129,7 +129,7 @@ describe('WorkerEditor', function() {
     editor.createBlock('#inputs')._load(expectedData['#inputs']);
     editor.createBlock('#outputs')._load(expectedData['#outputs']);
     editor.setValue('#desc', expectedData['#desc']);
-    editor.applyChange();
+    editor.applyChangeToFunc('WorkerEditor:worker3');
 
     assert.deepEqual(Functions.getWorkerData('WorkerEditor:worker3'), expectedData);
 
