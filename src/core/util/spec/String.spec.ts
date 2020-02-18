@@ -1,5 +1,5 @@
 import {assert} from 'chai';
-import {getPreNumber, getTailingNumber, isColorStr, smartStrCompare} from '../String';
+import {encodeURITiclo, getPreNumber, getTailingNumber, isColorStr, smartStrCompare} from '../String';
 
 describe('String', function() {
   it('smartStrCompare', () => {
@@ -59,5 +59,9 @@ describe('String', function() {
 
     assert.isFalse(isColorStr(' #aaa'));
     assert.isFalse(isColorStr('rgb()'));
+  });
+
+  it('encodeURITiclo', function() {
+    assert.equal(encodeURITiclo('.'), '%2E');
   });
 });
