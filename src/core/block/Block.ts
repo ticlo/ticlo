@@ -417,6 +417,13 @@ export class Block implements Runnable, FunctionData, PropListener<FunctionClass
     }
     return null;
   }
+  // used by #global and #global.#temp #global.#share
+  _createConstBlock(field: string, generator: (prop: BlockProperty) => Block): BlockConstConfig {
+    let constProp = new BlockConstConfig(this, field);
+    this._props.set(field, constProp);
+    constProp._value = generator(constProp);
+    return constProp;
+  }
 
   createOutputBlock(field: string): Block {
     return this.getProperty(field).createBlock(false);
@@ -1005,7 +1012,7 @@ export class Job extends Block {
   }
 }
 
-export class GlobalBlock extends Block {
+class GlobalBlock extends Block {
   createGlobalProperty(name: string): BlockProperty {
     // inside the GlobalBlock, globalProperty is normal property
     let prop = new BlockIO(this, name);
@@ -1013,6 +1020,8 @@ export class GlobalBlock extends Block {
     return prop;
   }
 }
+
+class ConstBlock extends Block {}
 
 interface JobLoader {
   onAddJob(root: Root, name: string, job: Job, data: DataMap): void;
@@ -1080,13 +1089,10 @@ export class Root extends Job {
     });
 
     // create the readolny global block
-    let globalProp = new BlockConstConfig(this, '#global');
-    this._props.set('#global', globalProp);
-    this._globalBlock = new GlobalBlock(this, this, globalProp);
-    globalProp._saved = this._globalBlock;
-    globalProp._value = globalProp._saved;
+    this._globalBlock = this._createConstBlock('#global', (prop) => new GlobalBlock(this, this, prop))._value;
 
-    this.createBlock('#temp');
+    this._globalBlock._createConstBlock('#temp', (prop) => new ConstBlock(this, this._globalBlock, prop));
+    this._globalBlock._createConstBlock('#share', (prop) => new ConstBlock(this, this._globalBlock, prop));
 
     this._props.set('', new BlockConstConfig(this, '', this));
   }
@@ -1199,6 +1205,17 @@ export class OutputsBlock extends Block {
   inputChanged(input: BlockIO, val: any) {
     super.inputChanged(input, val);
     this._job.outputChanged(input, val);
+  }
+
+  configChanged(input: BlockConfig, val: any) {
+    super.configChanged(input, val);
+    switch (input._name) {
+      case '#custom':
+      case '#value':
+        break;
+      default:
+        this._job.outputChanged(input, val);
+    }
   }
 
   _createConfig(field: string): BlockProperty {

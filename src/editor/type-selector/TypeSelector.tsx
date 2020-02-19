@@ -57,7 +57,7 @@ export class TypeSelect extends React.PureComponent<Props, State> {
     if (this.newFunctionName) {
       let {conn} = this.props;
       let funcId = `:${this.newFunctionName}`;
-      let editPath = `#temp.#edit-${encodeURITiclo(funcId)}`;
+      let editPath = `#global.#temp.#edit-${encodeURITiclo(funcId)}`;
       conn.editWorker(editPath, null, funcId, {'#inputs': {'#is': ''}, '#outputs': {'#is': ''}});
       this.context.editJob(editPath, () => {
         conn.applyJobChange(editPath);

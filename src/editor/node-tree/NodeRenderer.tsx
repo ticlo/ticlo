@@ -306,7 +306,7 @@ export class NodeTreeRenderer extends PureDataRenderer<Props, any> {
       } else {
         icon = <FileIcon />;
       }
-    } else if (blockClass === 'GlobalBlock') {
+    } else if (blockClass === 'GlobalBlock' || blockClass === 'ConstBlock') {
       icon = <GlobalIcon />;
     } else {
       let [colorClass, iconName] = getFuncStyleFromDesc(desc, item.getConn(), 'ticl-bg--');
