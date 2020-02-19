@@ -5,11 +5,11 @@ import HistoryIcon from '@ant-design/icons/HistoryOutlined';
 import CloseCircleIcon from '@ant-design/icons/CloseCircleOutlined';
 import FilterIcon from '@ant-design/icons/FilterOutlined';
 import PlusSquareIcon from '@ant-design/icons/PlusSquareOutlined';
-import {TypeTree} from './TypeTree';
+import {FunctionTree} from './FunctionTree';
 import {ClientConn, DataMap, FunctionDesc} from '../../../src/core/editor';
-import {OnTypeClick} from './TypeView';
+import {OnFunctionClick} from './FunctionView';
 import {RadioChangeEvent} from 'antd/lib/radio';
-import {TypeList} from './TypeList';
+import {FunctionList} from './FunctionList';
 import {TicloLayoutContext, TicloLayoutContextType} from '../component/LayoutContext';
 import {ClientCallbacks} from '../../core/connect/ClientRequests';
 import {encodeURITiclo} from '../../core/util/String';
@@ -17,7 +17,7 @@ import {encodeURITiclo} from '../../core/util/String';
 interface Props {
   conn: ClientConn;
   showPreset?: boolean;
-  onTypeClick?: OnTypeClick;
+  onFunctionClick?: OnFunctionClick;
   onClick?: React.MouseEventHandler;
   filter?: (desc: FunctionDesc) => boolean;
 }
@@ -28,8 +28,8 @@ interface State {
   modelVisible: boolean;
 }
 
-export class TypeSelect extends React.PureComponent<Props, State> {
-  static contextType = TicloLayoutContextType;
+export class FunctionSelect extends React.PureComponent<Props, State> {
+  static contextFunction = TicloLayoutContextType;
   context!: TicloLayoutContext;
 
   state = {tab: 'tree', search: '', modelVisible: false};
@@ -46,13 +46,13 @@ export class TypeSelect extends React.PureComponent<Props, State> {
     this.setState({tab: value.target.value as string});
   };
 
-  onTypeNameChange = (e: React.SyntheticEvent) => {
+  onFunctionNameChange = (e: React.SyntheticEvent) => {
     this.newFunctionName = (e.target as HTMLInputElement).value;
   };
-  onAddType = () => {
+  onAddFunction = () => {
     this.setState({modelVisible: true});
   };
-  onAddTypeOk = () => {
+  onAddFunctionOk = () => {
     // TODO validate function name;
     if (this.newFunctionName) {
       let {conn} = this.props;
@@ -69,11 +69,11 @@ export class TypeSelect extends React.PureComponent<Props, State> {
       message.error('Invalid function name.');
     }
   };
-  onAddTypeCancel = () => {
+  onAddFunctionCancel = () => {
     this.setState({modelVisible: false});
   };
   render() {
-    let {conn, showPreset, onTypeClick, onClick, filter} = this.props;
+    let {conn, showPreset, onFunctionClick, onClick, filter} = this.props;
     let {tab, search, modelVisible} = this.state;
 
     if (!conn) {
@@ -110,27 +110,27 @@ export class TypeSelect extends React.PureComponent<Props, State> {
           />
           {this.context?.editJob ? (
             <Tooltip title={'New'}>
-              <Button size="small" onClick={this.onAddType} icon={<PlusSquareIcon />} />
+              <Button size="small" onClick={this.onAddFunction} icon={<PlusSquareIcon />} />
             </Tooltip>
           ) : null}
           <Modal
             title="Function Name?"
             visible={this.state.modelVisible}
-            onOk={this.onAddTypeOk}
-            onCancel={this.onAddTypeCancel}
+            onOk={this.onAddFunctionOk}
+            onCancel={this.onAddFunctionCancel}
           >
-            <Input size="small" defaultValue={this.newFunctionName} onChange={this.onTypeNameChange} />
+            <Input size="small" defaultValue={this.newFunctionName} onChange={this.onFunctionNameChange} />
           </Modal>
         </div>
-        <TypeTree
+        <FunctionTree
           conn={conn}
           showPreset={showPreset}
           search={search}
           filter={filter}
-          onTypeClick={onTypeClick}
+          onFunctionClick={onFunctionClick}
           style={{display: tab === 'tree' ? '' : 'none'}}
         />
-        <TypeList conn={conn} recent={true} style={{display: tab === 'recent' ? '' : 'none'}} />
+        <FunctionList conn={conn} recent={true} style={{display: tab === 'recent' ? '' : 'none'}} />
       </div>
     );
   }

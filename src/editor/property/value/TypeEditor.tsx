@@ -6,8 +6,8 @@ import {ValueEditorProps} from './ValueEditorBase';
 import {TIcon} from '../../icon/Icon';
 import {DragDropDiv, DragState} from 'rc-dock';
 import {StringEditorBase} from './StringEditorBase';
-import {TypeSelect} from '../../type-selector/TypeSelector';
-import {addRecentType} from '../../type-selector/TypeList';
+import {FunctionSelect} from '../../function-selector/FunctionSelector';
+import {addRecentFunction} from '../../function-selector/FunctionList';
 import {Popup} from '../../component/ClickPopup';
 import {getFuncStyleFromDesc} from '../../util/BlockColors';
 
@@ -21,7 +21,7 @@ export class TypeEditor extends StringEditorBase {
   commitChange(value: string) {
     super.commitChange(value);
     if (typeof value === 'string' && this.props.conn.watchDesc(value)) {
-      addRecentType(value);
+      addRecentFunction(value);
     }
   }
 
@@ -79,7 +79,7 @@ export class TypeEditor extends StringEditorBase {
         <Popup
           popupVisible={opened}
           onPopupVisibleChange={this.onPopupClose}
-          popup={<TypeSelect conn={conn} onTypeClick={this.onTypeClick} />}
+          popup={<FunctionSelect conn={conn} onFunctionClick={this.onTypeClick} />}
         >
           <Input
             value={value}

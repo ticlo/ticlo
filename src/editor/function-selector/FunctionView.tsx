@@ -10,18 +10,18 @@ import EditIcon from '@ant-design/icons/EditOutlined';
 import {TicloLayoutContext, TicloLayoutContextType} from '../component/LayoutContext';
 import {encodeURITiclo} from '../../core/util/String';
 
-export type OnTypeClick = (name: string, desc: FunctionDesc, data: any) => void;
+export type OnFunctionClick = (name: string, desc: FunctionDesc, data: any) => void;
 
 interface Props {
   conn: ClientConn;
   desc: FunctionDesc;
   name?: any;
   data?: any;
-  onClick?: OnTypeClick;
+  onClick?: OnFunctionClick;
 }
 
-export class TypeView extends React.PureComponent<Props, any> {
-  static contextType = TicloLayoutContextType;
+export class FunctionView extends React.PureComponent<Props, any> {
+  static contextFunction = TicloLayoutContextType;
   context!: TicloLayoutContext;
 
   onDrag = (e: DragState) => {

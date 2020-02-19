@@ -3,7 +3,7 @@ import {Button, Input} from 'antd';
 import DownIcon from '@ant-design/icons/DownOutlined';
 import EditIcon from '@ant-design/icons/EditOutlined';
 import {DragDropDiv, DragState} from 'rc-dock';
-import {TypeSelect} from '../../type-selector/TypeSelector';
+import {FunctionSelect} from '../../function-selector/FunctionSelector';
 import {Popup} from '../../component/ClickPopup';
 import {TypeEditor} from './TypeEditor';
 import {FunctionDesc} from '../../../../src/core/editor';
@@ -51,7 +51,7 @@ export class WorkerEditor extends TypeEditor {
         <Popup
           popupVisible={opened}
           onPopupVisibleChange={this.onPopupClose}
-          popup={<TypeSelect conn={conn} onTypeClick={this.onTypeClick} filter={WorkerEditor.filterWorkerFunction} />}
+          popup={<FunctionSelect conn={conn} onFunctionClick={this.onTypeClick} filter={WorkerEditor.filterWorkerFunction} />}
         >
           <Button className="ticl-square-icon-btn" size="small" icon={<DownIcon />} onClick={this.openPopup} />
         </Popup>

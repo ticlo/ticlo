@@ -1,17 +1,17 @@
 import React from 'react';
 import {ClientConn} from '../../../src/core/editor';
-import {TypeView} from './TypeView';
+import {FunctionView} from './FunctionView';
 
-let _lastType: string;
+let _lastFunction: string;
 let _typeSet: Set<string> = new Set<string>();
-let _recentTypeList: string[] = [];
-let _recentTypeListener: Set<TypeList> = new Set<TypeList>();
+let _recentFunctionList: string[] = [];
+let _recentFunctionListener: Set<FunctionList> = new Set<FunctionList>();
 
-export function addRecentType(type: string) {
-  if (type === _lastType) {
+export function addRecentFunction(type: string) {
+  if (type === _lastFunction) {
     return;
   }
-  _lastType = type;
+  _lastFunction = type;
 
   let types = _typeSet;
   types.delete(type);
@@ -24,8 +24,8 @@ export function addRecentType(type: string) {
       }
     }
   }
-  _recentTypeList = Array.from(types.keys()).reverse();
-  for (let instance of _recentTypeListener) {
+  _recentFunctionList = Array.from(types.keys()).reverse();
+  for (let instance of _recentFunctionListener) {
     instance.forceUpdate();
   }
 }
@@ -37,11 +37,11 @@ interface Props {
   style?: React.CSSProperties;
 }
 
-export class TypeList extends React.PureComponent<Props, any> {
+export class FunctionList extends React.PureComponent<Props, any> {
   constructor(props: Props) {
     super(props);
     if (props.recent) {
-      this.state = {types: _recentTypeList};
+      this.state = {types: _recentFunctionList};
     } else {
       this.state = {};
     }
@@ -50,13 +50,13 @@ export class TypeList extends React.PureComponent<Props, any> {
   render() {
     let {conn, recent, types, style} = this.props;
     if (recent) {
-      types = _recentTypeList;
+      types = _recentFunctionList;
     }
     let children: React.ReactNode[] = [];
     for (let type of types) {
       let desc = conn.watchDesc(type);
       if (desc) {
-        children.push(<TypeView key={type} conn={conn} desc={desc} />);
+        children.push(<FunctionView key={type} conn={conn} desc={desc} />);
       }
     }
     return (
@@ -68,13 +68,13 @@ export class TypeList extends React.PureComponent<Props, any> {
 
   componentDidMount(): void {
     if (this.props.recent) {
-      _recentTypeListener.add(this);
+      _recentFunctionListener.add(this);
     }
   }
 
   componentWillUnmount(): void {
     if (this.props.recent) {
-      _recentTypeListener.delete(this);
+      _recentFunctionListener.delete(this);
     }
   }
 }

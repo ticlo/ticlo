@@ -32,7 +32,7 @@ import {PasswordEditor} from './value/PasswordEditor';
 import {ExpandIcon} from '../component/Tree';
 import {PropertyList} from './PropertyList';
 import {TypeEditor} from './value/TypeEditor';
-import {TypeSelect} from '../type-selector/TypeSelector';
+import {FunctionSelect} from '../function-selector/FunctionSelector';
 import {CheckboxChangeEvent} from 'antd/lib/checkbox';
 import {AddCustomPropertyMenu} from './AddCustomProperty';
 import {Popup, Menu, SubMenuItem} from '../component/ClickPopup';
@@ -362,7 +362,7 @@ export class PropertyEditor extends MultiSelectComponent<PropertyEditorProps, St
               key="addSubBlock"
               popup={
                 // <Menu.Item className='ticl-type-submenu'>
-                <TypeSelect onClick={stopPropagation} conn={conn} showPreset={true} onTypeClick={this.onAddSubBlock} />
+                <FunctionSelect onClick={stopPropagation} conn={conn} showPreset={true} onFunctionClick={this.onAddSubBlock} />
                 // </Menu.Item>
               }
             >

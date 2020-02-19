@@ -8,7 +8,7 @@ import {initEditor, PropertyList, BlockStage, NodeTree} from '../../src/editor';
 import {DragDropDiv, DragState, DockLayout, DockContextType} from 'rc-dock';
 import {ClientConnection} from '../../src/core/connect/ClientConnection';
 import {Functions} from '../../src/core/block/Functions';
-import {TypeTree} from '../../src/editor/type-selector/TypeTree';
+import {FunctionTree} from '../../src/editor/function-selector/FunctionTree';
 
 import './sample-blocks';
 import {Logger} from '../../src/core/util/Logger';
@@ -21,7 +21,7 @@ import {NodeTreePane} from '../../src/editor/dock/node-tree/NodeTreePane';
 import {TextEditorPane} from '../../src/editor/dock/text-editor/TextEditorPane';
 import '../../src/html';
 import '../../src/react';
-import {TypeSelect} from '../../src/editor/type-selector/TypeSelector';
+import {FunctionSelect} from '../../src/editor/function-selector/FunctionSelector';
 
 const layoutGroups = {
   blockStage: {
@@ -162,7 +162,7 @@ class App extends React.PureComponent<Props, State> implements TicloLayoutContex
                     title: 'Functions',
                     cached: true,
                     cacheContext: TicloLayoutContextType,
-                    content: <TypeSelect conn={conn}/>
+                    content: <FunctionSelect conn={conn}/>
                   },
                   {
                     id: 'Properties',

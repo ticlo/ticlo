@@ -1,31 +1,31 @@
 import React from 'react';
 import {ClientConn, FunctionDesc} from '../../../src/core/editor';
-import {TypeTreeItem, TypeTreeRoot} from './TypeTreeItem';
+import {FunctionTreeItem, FunctionTreeRoot} from './FunctionTreeItem';
 import VirtualList from '../component/Virtual';
-import {TypeTreeRenderer} from './TypeTreeRenderer';
-import {OnTypeClick} from './TypeView';
+import {FunctionTreeRenderer} from './FunctionTreeRenderer';
+import {OnFunctionClick} from './FunctionView';
 
 interface Props {
   conn: ClientConn;
   search?: string;
   filter?: (desc: FunctionDesc) => boolean;
   showPreset?: boolean;
-  onTypeClick?: OnTypeClick;
+  onFunctionClick?: OnFunctionClick;
   style?: React.CSSProperties;
 }
 
 interface State {}
 
-export class TypeTree extends React.PureComponent<Props, State> {
-  rootNode: TypeTreeRoot;
-  list: TypeTreeItem[] = [];
+export class FunctionTree extends React.PureComponent<Props, State> {
+  rootNode: FunctionTreeRoot;
+  list: FunctionTreeItem[] = [];
 
   constructor(props: Props) {
     super(props);
-    this.rootNode = new TypeTreeRoot(
+    this.rootNode = new FunctionTreeRoot(
       props.conn,
       this.forceUpdateImmediate,
-      props.onTypeClick,
+      props.onFunctionClick,
       props.showPreset,
       props.filter
     );
@@ -40,7 +40,7 @@ export class TypeTree extends React.PureComponent<Props, State> {
 
   renderChild = (idx: number, style: React.CSSProperties) => {
     let item = this.list[idx];
-    return <TypeTreeRenderer item={item} key={item.key} style={style} />;
+    return <FunctionTreeRenderer item={item} key={item.key} style={style} />;
   };
 
   refreshList() {

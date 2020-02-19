@@ -1,21 +1,21 @@
 import {TreeItem} from '../component/Tree';
 import {ClientConn, FunctionDesc} from '../../../src/core/editor';
-import {OnTypeClick} from './TypeView';
+import {OnFunctionClick} from './FunctionView';
 
-export class TypeTreeItem extends TreeItem<TypeTreeItem> {
-  root: TypeTreeRoot;
+export class FunctionTreeItem extends TreeItem<FunctionTreeItem> {
+  root: FunctionTreeRoot;
   desc: FunctionDesc;
   name?: string;
   label: string;
   data?: any;
 
-  children: TypeTreeItem[] = [];
+  children: FunctionTreeItem[] = [];
 
-  static sort(a: TypeTreeItem, b: TypeTreeItem): number {
+  static sort(a: FunctionTreeItem, b: FunctionTreeItem): number {
     return a.name.localeCompare(b.name);
   }
 
-  constructor(parent: TypeTreeItem, root: TypeTreeRoot, key: string, name?: string, desc?: FunctionDesc, data?: any) {
+  constructor(parent: FunctionTreeItem, root: FunctionTreeRoot, key: string, name?: string, desc?: FunctionDesc, data?: any) {
     super(parent);
     this.root = root;
     if (desc?.properties) {
@@ -62,16 +62,16 @@ export class TypeTreeItem extends TreeItem<TypeTreeItem> {
     }
   }
 
-  addChild(key: string, desc?: FunctionDesc, data?: any): TypeTreeItem {
+  addChild(key: string, desc?: FunctionDesc, data?: any): FunctionTreeItem {
     for (let item of this.children) {
       if (item.key === key) {
         item.update(desc, data);
         return item;
       }
     }
-    let child = new TypeTreeItem(this, this.root, key, desc.name, desc, data);
+    let child = new FunctionTreeItem(this, this.root, key, desc.name, desc, data);
     this.children.push(child);
-    this.children.sort(TypeTreeItem.sort);
+    this.children.sort(FunctionTreeItem.sort);
     if (this.opened === 'opened') {
       this.onListChange();
     }
@@ -98,7 +98,7 @@ export class TypeTreeItem extends TreeItem<TypeTreeItem> {
     return this.label.includes(filter) || this.key.includes(filter);
   }
 
-  addToList(list: TypeTreeItem[], filter?: string) {
+  addToList(list: FunctionTreeItem[], filter?: string) {
     if (this.matchFilter(filter)) {
       list.push(this);
       if (this.opened === 'opened' && this.children) {
@@ -108,7 +108,7 @@ export class TypeTreeItem extends TreeItem<TypeTreeItem> {
       }
     } else if (filter && this.children.length) {
       // check if there is any matched child
-      let filterdChildren: TypeTreeItem[] = [];
+      let filterdChildren: FunctionTreeItem[] = [];
       for (let child of this.children) {
         child.addToList(filterdChildren, filter);
       }
@@ -133,22 +133,22 @@ export class TypeTreeItem extends TreeItem<TypeTreeItem> {
   }
 }
 
-export class TypeTreeRoot extends TypeTreeItem {
+export class FunctionTreeRoot extends FunctionTreeItem {
   showPreset: boolean;
-  onTypeClick: OnTypeClick;
+  onFunctionClick: OnFunctionClick;
   filter: (desc: FunctionDesc) => boolean;
 
-  typeMap: Map<string, TypeTreeItem> = new Map<string, TypeTreeItem>();
+  typeMap: Map<string, FunctionTreeItem> = new Map<string, FunctionTreeItem>();
 
-  updateCategory(catKey: string, name: string, desc?: FunctionDesc): TypeTreeItem {
-    let catItem: TypeTreeItem;
+  updateCategory(catKey: string, name: string, desc?: FunctionDesc): FunctionTreeItem {
+    let catItem: FunctionTreeItem;
     if (this.typeMap.has(catKey)) {
       catItem = this.typeMap.get(catKey);
       if (desc) {
         catItem.update(desc, null);
       }
     } else {
-      let parentItem: TypeTreeItem = this;
+      let parentItem: FunctionTreeItem = this;
       if (catKey.length > 1) {
         let colonIndex = catKey.lastIndexOf(':', catKey.length - 2);
         if (colonIndex > -1) {
@@ -158,7 +158,7 @@ export class TypeTreeRoot extends TypeTreeItem {
         }
       }
 
-      catItem = new TypeTreeItem(parentItem, this, catKey, name, desc);
+      catItem = new FunctionTreeItem(parentItem, this, catKey, name, desc);
       this.typeMap.set(catKey, catItem);
       parentItem.children.push(catItem);
       this.onListChange();
@@ -181,7 +181,7 @@ export class TypeTreeRoot extends TypeTreeItem {
       }
       let catKey = `${category}:`;
 
-      let parentItem: TypeTreeItem = this;
+      let parentItem: FunctionTreeItem = this;
       if (category != null) {
         parentItem = this.updateCategory(catKey, category);
       }
@@ -204,7 +204,7 @@ export class TypeTreeRoot extends TypeTreeItem {
   constructor(
     conn: ClientConn,
     onListChange: () => void,
-    onTypeClick?: OnTypeClick,
+    onFunctionClick?: OnFunctionClick,
     showPreset?: boolean,
     filter?: (desc: FunctionDesc) => boolean
   ) {
@@ -214,7 +214,7 @@ export class TypeTreeRoot extends TypeTreeItem {
     this.showPreset = Boolean(showPreset);
     this.connection = conn;
     this.onListChange = onListChange;
-    this.onTypeClick = onTypeClick;
+    this.onFunctionClick = onFunctionClick;
     this.filter = filter;
     conn.watchDesc('*', this.onDesc);
   }

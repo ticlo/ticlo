@@ -3,7 +3,7 @@ import * as ReactDOM from 'react-dom';
 import {FunctionDesc, PropDesc, ClientConnection, Logger, PropDispatcher} from '../../src/core/editor';
 import {initEditor, PropertyList, BlockStage, NodeTree} from '../../src/editor';
 import {DragDropDiv, DragState, DockLayout, DockContextType} from 'rc-dock';
-import {TypeTree} from '../../src/editor/type-selector/TypeTree';
+import {FunctionTree} from '../../src/editor/function-selector/FunctionTree';
 
 import './sample-blocks';
 import {WorkerFunction} from '../../src/core/worker/WorkerFunction';
@@ -116,7 +116,7 @@ class App extends React.PureComponent<Props, State> implements TicloLayoutContex
                 id: 'Functions',
                 title: 'Functions',
                 cached: true,
-                content: <TypeTree conn={conn} style={{height: '100%'}} />
+                content: <FunctionTree conn={conn} style={{height: '100%'}} />
               },
               {
                 id: 'Properties',
