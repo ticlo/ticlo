@@ -48,3 +48,10 @@ Functions.addCategory({
   icon: 'fas:grip-vertical',
   color: 'e91'
 });
+
+Functions.addCategory({
+  id: '',
+  name: '',
+  icon: 'fas:cubes',
+  color: '9bd'
+});

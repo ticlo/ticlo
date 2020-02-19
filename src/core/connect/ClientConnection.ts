@@ -55,11 +55,13 @@ export abstract class ClientConnection extends Connection implements ClientConn 
       this.watch('#global', this.globalWatch);
     }
   }
+
   getBaseConn() {
     return this;
   }
 
   _childrenChangeStream = new StreamDispatcher<{path: string; showNode?: boolean}>();
+
   childrenChangeStream() {
     return this._childrenChangeStream;
   }
@@ -301,6 +303,17 @@ export abstract class ClientConnection extends Connection implements ClientConn 
     return this.simpleRequest({cmd: 'applyJobChange', path, funcId}, callbacks);
   }
 
+  deleteFunction(funcId?: string, callbacks?: ClientCallbacks): Promise<any> | string {
+    return this.simpleRequest(
+      {
+        cmd: 'deleteFunction',
+        path: '#', // just to prevent the invalid path error
+        funcId
+      },
+      callbacks
+    );
+  }
+
   showProps(path: string, props: string[], callbacks?: ClientCallbacks): Promise<any> | string {
     return this.simpleRequest({cmd: 'showProps', path, props}, callbacks);
   }
@@ -449,6 +462,7 @@ export abstract class ClientConnection extends Connection implements ClientConn 
     }
     return collected[commonMatch];
   }
+
   getOptionalProps(desc: FunctionDesc): {[key: string]: PropDesc} {
     let result: {[key: string]: PropDesc};
     do {

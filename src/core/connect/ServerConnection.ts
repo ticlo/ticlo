@@ -354,6 +354,10 @@ export class ServerConnection extends Connection {
             result = this.applyJobChange(request.path, request.funcId);
             break;
           }
+          case 'deleteFunction': {
+            result = this.deleteFunction(request.funcId);
+            break;
+          }
           //// property utils
 
           case 'showProps': {
@@ -671,6 +675,13 @@ export class ServerConnection extends Connection {
     if (job instanceof Job) {
       this.root.deleteJob(property._name);
     }
+  }
+
+  deleteFunction(funcId: string): string {
+    if (funcId.startsWith(':')) {
+      Functions.clear(funcId);
+    }
+    return null;
   }
 
   showProps(path: string, props: string[]) {
