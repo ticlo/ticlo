@@ -71,7 +71,7 @@ export class TypeEditor extends StringEditorBase {
     let colorClass = 'ticl-bg--999';
     let funcDesc = conn.watchDesc(value);
     if (funcDesc) {
-      [colorClass, iconName] = getFuncStyleFromDesc(desc, conn, 'ticl-bg--');
+      [colorClass, iconName] = getFuncStyleFromDesc(funcDesc, conn, 'ticl-bg--');
     }
     return (
       <DragDropDiv className="ticl-type-editor ticl-hbox" onDragOverT={this.onDragOver} onDropT={this.onDrop}>

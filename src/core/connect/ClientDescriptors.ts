@@ -1,7 +1,7 @@
 import {configDescs, FunctionDesc} from '../block/Descriptor';
 
 export const clientDescriptors: {[key: string]: FunctionDesc} = {
-  input: {
+  inputs: {
     priority: 0,
     name: 'inputs',
     id: 'inputs',
@@ -10,7 +10,7 @@ export const clientDescriptors: {[key: string]: FunctionDesc} = {
     properties: [],
     configs: ['#value']
   },
-  output: {
+  outputs: {
     priority: 0,
     name: 'outputs',
     id: 'outputs',
