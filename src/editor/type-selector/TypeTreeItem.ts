@@ -82,7 +82,7 @@ export class TypeTreeItem extends TreeItem<TypeTreeItem> {
     for (let i = 0; i < this.children.length; ++i) {
       let item = this.children[i];
       if (item.key === key) {
-        this.children = this.children.splice(i, 1);
+        this.children.splice(i, 1);
         if (this.opened === 'opened') {
           this.onListChange();
         }
