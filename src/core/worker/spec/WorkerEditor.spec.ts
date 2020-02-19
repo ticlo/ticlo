@@ -63,6 +63,9 @@ describe('WorkerEditor', function() {
     WorkerEditor.createFromFunction(job, '#edit-func', 'WorkerEditor:worker2', null);
     assert.deepEqual(job.getValue('#edit-func').save(), data);
 
+    WorkerEditor.createFromFunction(job, '#edit-func', 'WorkerEditor:worker2-2', data);
+    assert.deepEqual(job.getValue('#edit-func').save(), data);
+
     Functions.clear('WorkerEditor:worker2');
   });
 
