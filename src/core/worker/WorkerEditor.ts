@@ -137,6 +137,7 @@ export class WorkerEditor extends Job {
     }
     // add outputs
     let outputs = this.queryValue('#outputs.#custom');
+    let mainOutput: PropDesc;
     if (Array.isArray(outputs)) {
       for (let output of outputs) {
         if (output.type === 'group' && groups.has(output.name)) {
@@ -146,9 +147,17 @@ export class WorkerEditor extends Job {
             groupProperties.push({...prop, readonly: true});
           }
         } else {
-          properties.push({...output, readonly: true});
+          if (output.name === '#output') {
+            mainOutput = {...output, readonly: true};
+          } else {
+            properties.push({...output, readonly: true});
+          }
         }
       }
+    }
+    if (mainOutput) {
+      // #output must be the last property
+      properties.push(mainOutput);
     }
     return properties;
   }
