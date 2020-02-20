@@ -21,7 +21,7 @@ interface Props {
 }
 
 export class FunctionView extends React.PureComponent<Props, any> {
-  static contextFunction = TicloLayoutContextType;
+  static contextType = TicloLayoutContextType;
   context!: TicloLayoutContext;
 
   onDrag = (e: DragState) => {

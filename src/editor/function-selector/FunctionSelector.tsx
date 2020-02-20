@@ -29,7 +29,7 @@ interface State {
 }
 
 export class FunctionSelect extends React.PureComponent<Props, State> {
-  static contextFunction = TicloLayoutContextType;
+  static contextType = TicloLayoutContextType;
   context!: TicloLayoutContext;
 
   state = {tab: 'tree', search: '', modelVisible: false};
@@ -79,6 +79,7 @@ export class FunctionSelect extends React.PureComponent<Props, State> {
     if (!conn) {
       return <div />;
     }
+    console.log(this.context);
     return (
       <div className="ticl-func-select" onClick={onClick}>
         <div className="tlcl-top-menu-box ticl-hbox">
