@@ -42,7 +42,7 @@ export class JobEditor extends Job {
     }
     if (funcId?.startsWith(':') && !applyChange) {
       applyChange = (data: DataMap) => {
-        return job.applyChangeToFunc(funcId, data);
+        return WorkerFunction.applyChangeToFunc(job, null, data);
       };
     }
     let success = job.load(src, funcId, applyChange);
@@ -91,74 +91,5 @@ export class JobEditor extends Job {
       return JobEditor.create(parent, field, defaultData, fromFunction);
     }
     return null;
-  }
-
-  /**
-   * save the worker to a function
-   */
-  applyChangeToFunc(funcId: string, data?: DataMap) {
-    if (!data) {
-      data = this.save();
-    }
-    // save to worker function
-    let name = this._loadFrom;
-    let pos = name.indexOf(':');
-    if (pos > -1) {
-      name = name.substring(pos + 1);
-    }
-    let desc: FunctionDesc = {name, properties: this.collectProperties()};
-    let savedDesc = this.getValue('#desc') as FunctionDesc;
-    if (savedDesc && typeof savedDesc === 'object' && savedDesc.constructor === Object) {
-      desc = {...savedDesc, ...desc, id: funcId};
-    }
-
-    WorkerFunction.registerType(data, desc, this._namespace);
-    return true;
-  }
-
-  /**
-   * collect function parameters for creating worker function
-   */
-  collectProperties() {
-    let properties: (PropDesc | PropGroupDesc)[] = [];
-    let groups: Map<string, PropGroupDesc> = new Map();
-    // add inputs
-    let inputs = this.queryValue('#inputs.#custom');
-    if (Array.isArray(inputs)) {
-      for (let input of inputs) {
-        let copyInput = {...input};
-        // input should not be readonly
-        delete copyInput.readonly;
-        properties.push(copyInput);
-        if (input.type === 'group') {
-          groups.set(input.name, input);
-        }
-      }
-    }
-    // add outputs
-    let outputs = this.queryValue('#outputs.#custom');
-    let mainOutput: PropDesc;
-    if (Array.isArray(outputs)) {
-      for (let output of outputs) {
-        if (output.type === 'group' && groups.has(output.name)) {
-          let groupProperties = groups.get(output.name).properties;
-          // merge output group with input group
-          for (let prop of output.properties) {
-            groupProperties.push({...prop, readonly: true});
-          }
-        } else {
-          if (output.name === '#output') {
-            mainOutput = {...output, readonly: true};
-          } else {
-            properties.push({...output, readonly: true});
-          }
-        }
-      }
-    }
-    if (mainOutput) {
-      // #output must be the last property
-      properties.push(mainOutput);
-    }
-    return properties;
   }
 }

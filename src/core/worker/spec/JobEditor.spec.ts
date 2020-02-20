@@ -132,7 +132,7 @@ describe('JobEditor', function() {
     editor.createBlock('#inputs')._load(expectedData['#inputs']);
     editor.createBlock('#outputs')._load(expectedData['#outputs']);
     editor.setValue('#desc', expectedData['#desc']);
-    editor.applyChangeToFunc('JobEditor:worker3');
+    WorkerFunction.applyChangeToFunc(editor, 'JobEditor:worker3');
 
     assert.deepEqual(Functions.getWorkerData('JobEditor:worker3'), expectedData);
 

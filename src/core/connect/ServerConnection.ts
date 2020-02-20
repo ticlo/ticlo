@@ -24,6 +24,7 @@ import {hideProperties, moveShownProperty, showProperties} from '../property-api
 import {addCustomProperty, moveCustomProperty, removeCustomProperty} from '../property-api/CustomProperty';
 import {JobEditor} from '../worker/JobEditor';
 import {addOptionalProperty, moveOptionalProperty, removeOptionalProperty} from '../property-api/OptionalProperty';
+import {WorkerFunction} from '../worker/WorkerFunction';
 
 class ServerRequest extends ConnectionSendingData {
   id: string;
@@ -664,7 +665,7 @@ export class ServerConnection extends Connection {
     let property = this.root.queryProperty(path, true);
     if (property && property._value instanceof Job) {
       if (funcId && property._value instanceof JobEditor) {
-        property._value.applyChangeToFunc(funcId);
+        WorkerFunction.applyChangeToFunc(property._value, funcId);
       } else {
         property._value.applyChange();
       }
