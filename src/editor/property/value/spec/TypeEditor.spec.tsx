@@ -3,7 +3,7 @@ import SimulateEvent from 'simulate-event';
 import React from 'react';
 import {removeLastTemplate, loadTemplate, querySingle} from '../../../util/test-util';
 import {initEditor} from '../../../index';
-import {TypeEditor} from '../TypeEditor';
+import {FunctionEditor} from '../FunctionEditor';
 import {shouldHappen} from '../../../../core/util/test-util';
 import {blankPropDesc, PropDesc} from '../../../../../src/core/editor';
 import {makeLocalConnection} from '../../../../core/connect/LocalConnection';
@@ -27,7 +27,7 @@ describe('TypeEditor', function() {
     };
     let desc: PropDesc = {name: '', type: 'type'};
     let [component, div] = loadTemplate(
-      <TypeEditor value="" conn={client} desc={desc} onChange={onChange} />,
+      <FunctionEditor value="" conn={client} desc={desc} onChange={onChange} />,
       'editor'
     );
 

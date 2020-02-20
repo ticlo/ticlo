@@ -15,7 +15,7 @@ interface State {
   opened: boolean;
 }
 
-export class TypeEditor extends StringEditorBase {
+export class FunctionEditor extends StringEditorBase {
   state: State = {opened: false};
 
   commitChange(value: string) {
@@ -34,7 +34,7 @@ export class TypeEditor extends StringEditorBase {
     }
   };
 
-  onTypeClick = (name: string, desc: FunctionDesc) => {
+  onFunctionClick = (name: string, desc: FunctionDesc) => {
     this.commitChange(desc.id);
     this.setState({opened: false});
   };
@@ -79,7 +79,7 @@ export class TypeEditor extends StringEditorBase {
         <Popup
           popupVisible={opened}
           onPopupVisibleChange={this.onPopupClose}
-          popup={<FunctionSelect conn={conn} onFunctionClick={this.onTypeClick} />}
+          popup={<FunctionSelect conn={conn} onFunctionClick={this.onFunctionClick} />}
         >
           <Input
             value={value}

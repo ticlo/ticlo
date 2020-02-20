@@ -80,7 +80,7 @@ export class FunctionSelect extends React.PureComponent<Props, State> {
       return <div />;
     }
     return (
-      <div className="ticl-type-select" onClick={onClick}>
+      <div className="ticl-func-select" onClick={onClick}>
         <div className="tlcl-top-menu-box ticl-hbox">
           <Radio.Group defaultValue="tree" size="small" onChange={this.onToggleChange}>
             <Tooltip title={'Tree'}>

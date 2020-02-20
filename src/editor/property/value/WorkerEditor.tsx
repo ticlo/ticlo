@@ -5,11 +5,11 @@ import EditIcon from '@ant-design/icons/EditOutlined';
 import {DragDropDiv, DragState} from 'rc-dock';
 import {FunctionSelect} from '../../function-selector/FunctionSelector';
 import {Popup} from '../../component/ClickPopup';
-import {TypeEditor} from './TypeEditor';
+import {FunctionEditor} from './FunctionEditor';
 import {FunctionDesc} from '../../../../src/core/editor';
 import {TicloLayoutContext, TicloLayoutContextType} from '../../component/LayoutContext';
 
-export class WorkerEditor extends TypeEditor {
+export class WorkerEditor extends FunctionEditor {
   static contextType = TicloLayoutContextType;
   context!: TicloLayoutContext;
 
@@ -51,7 +51,7 @@ export class WorkerEditor extends TypeEditor {
         <Popup
           popupVisible={opened}
           onPopupVisibleChange={this.onPopupClose}
-          popup={<FunctionSelect conn={conn} onFunctionClick={this.onTypeClick} filter={WorkerEditor.filterWorkerFunction} />}
+          popup={<FunctionSelect conn={conn} onFunctionClick={this.onFunctionClick} filter={WorkerEditor.filterWorkerFunction} />}
         >
           <Button className="ticl-square-icon-btn" size="small" icon={<DownIcon />} onClick={this.openPopup} />
         </Popup>

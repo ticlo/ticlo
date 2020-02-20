@@ -1,4 +1,4 @@
-.ticl-type-view {
+.ticl-func-view {
   display: flex;
   position: relative;
   align-items: center;
@@ -7,7 +7,7 @@
   border-radius: 0 6px 6px;
   cursor: pointer;
 
-  & > .ticl-type-ns {
+  & > .ticl-func-ns {
     position: absolute;
     background: white;
     padding: 0 2px;
@@ -18,7 +18,7 @@
     white-space: nowrap;
   }
 
-  & > .ticl-type-name {
+  & > .ticl-func-name {
     background: white;
     height: 22px;
     white-space: nowrap;
@@ -28,18 +28,18 @@
   }
 }
 
-.ticl-type-tree {
+.ticl-func-tree {
   width: 100%;
 }
 
-.ticl-type-list {
+.ticl-func-list {
   padding: 4px;
   display: flex;
   flex-direction: column;
   flex-wrap: wrap;
   align-items: start;
 
-  & > .ticl-type-view {
+  & > .ticl-func-view {
     margin: 4px;
   }
 }
@@ -54,14 +54,14 @@
   }
 }
 
-.ticl-type-select {
+.ticl-func-select {
   width: 100%;
   height: 100%;
   display: flex;
   flex-direction: column;
 
-  & > .ticl-type-tree,
-  & > .ticl-type-list {
+  & > .ticl-func-tree,
+  & > .ticl-func-list {
     flex: 1;
   }
 
@@ -70,16 +70,16 @@
   }
 }
 
-.ant-select-dropdown > .ticl-type-select {
+.ant-select-dropdown > .ticl-func-select {
   padding-top: 3px;
   width: 300px;
   height: 280px;
 }
-.ticl-type-submenu {
+.ticl-func-submenu {
   width: 300px;
   padding: 0;
 
-  & > .ticl-type-select {
+  & > .ticl-func-select {
     box-shadow: none;
     border: none;
   }
