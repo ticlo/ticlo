@@ -8,7 +8,7 @@ import {
   HelperProperty
 } from '../block/BlockProperty';
 import {DataMap, isPrimitiveType, isSavedBlock, measureObjSize, truncateData} from '../util/DataTypes';
-import {Root, Block, BlockChildWatch, Job} from '../block/Block';
+import {Root, Block, BlockChildWatch, Job, InputsBlock} from '../block/Block';
 import {PropDispatcher, PropListener} from '../block/Dispatcher';
 import {FunctionDispatcher, Functions, DescListener} from '../block/Functions';
 import {FunctionDesc, PropDesc, PropGroupDesc} from '../block/Descriptor';
@@ -118,7 +118,11 @@ class ServerSubscribe extends ServerRequest implements BlockPropertySubscriber, 
       if (this.property._listeners) {
         for (let listener of this.property._listeners) {
           if (listener instanceof PropDispatcher) {
-            hasListener = true;
+            if (listener instanceof BlockProperty && listener._block instanceof InputsBlock && !listener._bindingPath) {
+              // InputsBlock is a special case, dont show hasListener dot
+            } else {
+              hasListener = true;
+            }
             break;
           }
         }
