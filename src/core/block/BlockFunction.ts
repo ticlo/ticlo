@@ -60,7 +60,7 @@ export abstract class BaseFunction<T extends FunctionData = FunctionData> {
     // to be overridden
   }
 
-  // if function can emit a task, use this to load initial worker for WorkerEditor
+  // if function can emit a task, use this to load initial worker for JobEditor
   getDefaultWorker(field: string): DataMap {
     return null;
   }

@@ -9,7 +9,7 @@ const blankWorker = {
   '#outputs': {'#is': ''}
 };
 
-export class WorkerEditor extends Job {
+export class JobEditor extends Job {
   unwatch(watcher: BlockChildWatch) {
     if (this._watchers) {
       super.unwatch(watcher);
@@ -26,10 +26,10 @@ export class WorkerEditor extends Job {
     funcId?: string,
     forceLoad = false,
     applyChange?: (data: DataMap) => boolean
-  ): WorkerEditor {
+  ): JobEditor {
     let prop = parent.getProperty(field);
-    let job: WorkerEditor;
-    if (prop._value instanceof WorkerEditor) {
+    let job: JobEditor;
+    if (prop._value instanceof JobEditor) {
       // do not override the existing one that's being edited
       if (forceLoad) {
         job = prop._value;
@@ -37,7 +37,7 @@ export class WorkerEditor extends Job {
         return prop._value;
       }
     } else {
-      job = new WorkerEditor(parent, null, prop);
+      job = new JobEditor(parent, null, prop);
       prop.setOutput(job);
     }
     if (funcId?.startsWith(':') && !applyChange) {
@@ -53,16 +53,16 @@ export class WorkerEditor extends Job {
     }
   }
 
-  static createFromField(parent: Block, field: string, fromField: string): WorkerEditor {
+  static createFromField(parent: Block, field: string, fromField: string): JobEditor {
     let fromValue = parent.getValue(fromField);
     let forceReload = false;
     // already has worker data ?
     if (fromValue && (typeof fromValue === 'string' || fromValue.constructor === Object)) {
-      let newJob: WorkerEditor;
+      let newJob: JobEditor;
       if (typeof fromValue === 'string') {
-        newJob = WorkerEditor.create(parent, field, null, fromValue);
+        newJob = JobEditor.create(parent, field, null, fromValue);
       } else {
-        newJob = WorkerEditor.create(parent, field, fromValue, null, false, (data: DataMap) => {
+        newJob = JobEditor.create(parent, field, fromValue, null, false, (data: DataMap) => {
           parent.setValue(fromField, data);
           return true;
         });
@@ -77,7 +77,7 @@ export class WorkerEditor extends Job {
 
     if (parent._function) {
       let data = parent._function.getDefaultWorker(fromField) || blankWorker;
-      return WorkerEditor.create(parent, field, data, null, forceReload, (data: DataMap) => {
+      return JobEditor.create(parent, field, data, null, forceReload, (data: DataMap) => {
         parent.setValue(fromField, data);
         return true;
       });
@@ -86,9 +86,9 @@ export class WorkerEditor extends Job {
     return null;
   }
 
-  static createFromFunction(parent: Block, field: string, fromFunction: string, defaultData: DataMap): WorkerEditor {
+  static createFromFunction(parent: Block, field: string, fromFunction: string, defaultData: DataMap): JobEditor {
     if (typeof fromFunction === 'string') {
-      return WorkerEditor.create(parent, field, defaultData, fromFunction);
+      return JobEditor.create(parent, field, defaultData, fromFunction);
     }
     return null;
   }

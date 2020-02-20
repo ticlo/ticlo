@@ -11,7 +11,7 @@ import {JsFunction} from '../../functions/script/Js';
 import {Functions} from '../../block/Functions';
 import {DataMap, isDataTruncated} from '../../util/DataTypes';
 import {WorkerFunction} from '../../worker/WorkerFunction';
-import {WorkerEditor} from '../../worker/WorkerEditor';
+import {JobEditor} from '../../worker/JobEditor';
 
 describe('Connection', function() {
   it('get', async function() {
@@ -692,7 +692,7 @@ describe('Connection', function() {
     client.destroy();
   });
 
-  it('WorkerEditor', async function() {
+  it('JobEditor', async function() {
     let job1 = Root.instance.addJob('Connection18');
     let block1 = job1.createBlock('a');
     let data = {
@@ -722,7 +722,7 @@ describe('Connection', function() {
     let job1 = Root.instance.addJob('Connection19');
     let [server, client] = makeLocalConnection(Root.instance, true);
 
-    let editor = WorkerEditor.create(job1, '#edit-v', {}, null, false, (data: DataMap) => {
+    let editor = JobEditor.create(job1, '#edit-v', {}, null, false, (data: DataMap) => {
       job1.setValue('v', data);
       return true;
     });

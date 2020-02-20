@@ -36,7 +36,7 @@ export class NodeTreeItem extends TreeItem<NodeTreeItem> {
   constructor(name: string, public id: string, parent?: NodeTreeItem, public canApply = false) {
     super(parent);
     this.blockClass = id.substring(0, id.indexOf(' '));
-    this.isJob = this.blockClass === 'Job' || this.blockClass === 'WorkerEditor';
+    this.isJob = this.blockClass === 'Job' || this.blockClass === 'JobEditor';
     this.editable = this.blockClass !== 'Root' && this.blockClass !== 'GlobalBlock';
     if (parent) {
       this.key = `${parent.childPrefix}${name}`;

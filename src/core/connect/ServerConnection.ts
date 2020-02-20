@@ -22,7 +22,7 @@ import {
 import {findPropertyForNewBlock} from '../property-api/PropertyName';
 import {hideProperties, moveShownProperty, showProperties} from '../property-api/PropertyShowHide';
 import {addCustomProperty, moveCustomProperty, removeCustomProperty} from '../property-api/CustomProperty';
-import {WorkerEditor} from '../worker/WorkerEditor';
+import {JobEditor} from '../worker/JobEditor';
 import {addOptionalProperty, moveOptionalProperty, removeOptionalProperty} from '../property-api/OptionalProperty';
 
 class ServerRequest extends ConnectionSendingData {
@@ -650,9 +650,9 @@ export class ServerConnection extends Connection {
 
     if (property && property._name.startsWith('#edit-')) {
       if (fromField) {
-        WorkerEditor.createFromField(property._block, property._name, fromField);
+        JobEditor.createFromField(property._block, property._name, fromField);
       } else if (fromFunction && fromFunction.startsWith(':')) {
-        WorkerEditor.createFromFunction(property._block, property._name, fromFunction, defaultData);
+        JobEditor.createFromFunction(property._block, property._name, fromFunction, defaultData);
       }
       return null;
     } else {
@@ -663,7 +663,7 @@ export class ServerConnection extends Connection {
   applyJobChange(path: string, funcId: string) {
     let property = this.root.queryProperty(path, true);
     if (property && property._value instanceof Job) {
-      if (funcId && property._value instanceof WorkerEditor) {
+      if (funcId && property._value instanceof JobEditor) {
         property._value.applyChangeToFunc(funcId);
       } else {
         property._value.applyChange();

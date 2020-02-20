@@ -7,7 +7,7 @@ import {Block, Job, Root} from '../../../block/Block';
 import {getDefaultFuncData} from '../../../block/Descriptor';
 import {Functions} from '../../../block/Functions';
 import {HttpRequest} from '../HttpRequest';
-import {WorkerEditor} from '../../../worker/WorkerEditor';
+import {JobEditor} from '../../../worker/JobEditor';
 
 const jobData = {
   '#is': '',
@@ -104,7 +104,7 @@ describe('RouteFunction', function() {
     });
     let route = job.getValue('route') as Block;
     let handler = job.getValue('handler') as Block;
-    WorkerEditor.createFromField(handler, '#edit-use', 'use');
+    JobEditor.createFromField(handler, '#edit-use', 'use');
 
     assert.deepEqual((handler.getValue('#edit-use') as Job).save(), route._function.getDefaultWorker('#emit'));
   });
