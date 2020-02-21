@@ -3,6 +3,7 @@ import {ClientConnection} from './ClientConnection';
 import {Root} from '../block/Block';
 import {DataMap} from '../util/DataTypes';
 import {Logger} from '../util/Logger';
+import {encode, decode} from '../util/Serialize';
 
 class LocalServerConnection extends ServerConnection {
   _client: LocalClientConnection;
@@ -13,8 +14,10 @@ class LocalServerConnection extends ServerConnection {
   }
 
   doSend(datas: DataMap[]): void {
-    Logger.trace(() => 'server send ' + JSON.stringify(datas), this);
-    this._client.onReceive(datas);
+    let str = encode(datas);
+    Logger.trace(() => 'server send ' + str, this);
+    let decoded = decode(str);
+    this._client.onReceive(decoded);
   }
 }
 
@@ -38,8 +41,10 @@ class LocalClientConnection extends ClientConnection {
   }
 
   doSend(datas: DataMap[]): void {
-    Logger.trace(() => 'client send ' + JSON.stringify(datas), this);
-    this._server.onReceive(datas);
+    let str = encode(datas);
+    Logger.trace(() => 'client send ' + str, this);
+    let decoded = decode(str);
+    this._server.onReceive(decoded);
   }
 
   destroy() {
