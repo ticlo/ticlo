@@ -15,7 +15,14 @@ export class FunctionTreeItem extends TreeItem<FunctionTreeItem> {
     return a.name.localeCompare(b.name);
   }
 
-  constructor(parent: FunctionTreeItem, root: FunctionTreeRoot, key: string, name?: string, desc?: FunctionDesc, data?: any) {
+  constructor(
+    parent: FunctionTreeItem,
+    root: FunctionTreeRoot,
+    key: string,
+    name?: string,
+    desc?: FunctionDesc,
+    data?: any
+  ) {
     super(parent);
     this.root = root;
     if (desc?.properties) {

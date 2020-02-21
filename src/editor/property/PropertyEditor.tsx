@@ -362,7 +362,12 @@ export class PropertyEditor extends MultiSelectComponent<PropertyEditorProps, St
               key="addSubBlock"
               popup={
                 // <Menu.Item className='ticl-type-submenu'>
-                <FunctionSelect onClick={stopPropagation} conn={conn} showPreset={true} onFunctionClick={this.onAddSubBlock} />
+                <FunctionSelect
+                  onClick={stopPropagation}
+                  conn={conn}
+                  showPreset={true}
+                  onFunctionClick={this.onAddSubBlock}
+                />
                 // </Menu.Item>
               }
             >

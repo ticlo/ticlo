@@ -51,7 +51,13 @@ export class WorkerEditor extends FunctionEditor {
         <Popup
           popupVisible={opened}
           onPopupVisibleChange={this.onPopupClose}
-          popup={<FunctionSelect conn={conn} onFunctionClick={this.onFunctionClick} filter={WorkerEditor.filterWorkerFunction} />}
+          popup={
+            <FunctionSelect
+              conn={conn}
+              onFunctionClick={this.onFunctionClick}
+              filter={WorkerEditor.filterWorkerFunction}
+            />
+          }
         >
           <Button className="ticl-square-icon-btn" size="small" icon={<DownIcon />} onClick={this.openPopup} />
         </Popup>
