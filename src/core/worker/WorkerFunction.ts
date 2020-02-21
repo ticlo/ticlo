@@ -6,7 +6,6 @@ import {Block, Job} from '../block/Block';
 import {DataMap} from '../util/DataTypes';
 
 export class WorkerFunction extends BlockFunction {
-  static _savingJob: Job;
   readonly type: string;
   _namespace: string;
   _funcJob: Job;
@@ -19,10 +18,7 @@ export class WorkerFunction extends BlockFunction {
     let applyChange: (data: DataMap) => boolean;
     if (this._namespace === '') {
       applyChange = (data: DataMap) => {
-        WorkerFunction._savingJob = this._funcJob;
-        let result = WorkerFunction.applyChangeToFunc(this._funcJob, null, data);
-        WorkerFunction._savingJob = null;
-        return result;
+        return WorkerFunction.applyChangeToFunc(this._funcJob, null, data);
       };
     }
     this._funcJob = this._data.createOutputJob('#func', this.type, this._data, applyChange);
@@ -46,7 +42,6 @@ export class WorkerFunction extends BlockFunction {
 
     CustomWorkerFunction.prototype._namespace = namespace;
 
-    // TODO descriptor
     Functions.add(CustomWorkerFunction, desc, namespace);
   }
 

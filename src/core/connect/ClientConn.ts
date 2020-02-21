@@ -134,7 +134,7 @@ export class ValueSubscriber {
   constructor(public callbacks: SubscribeCallbacks) {}
 
   onUpdate(response: ValueUpdate): void {
-    this.callbacks?.onUpdate(response);
+    this.callbacks?.onUpdate?.(response);
     this.wasValid = true;
   }
 
@@ -143,7 +143,7 @@ export class ValueSubscriber {
       this.wasValid = false;
       this.reSubscribe();
     } else {
-      this.callbacks.onError(error, data);
+      this.callbacks?.onError?.(error, data);
     }
   }
 

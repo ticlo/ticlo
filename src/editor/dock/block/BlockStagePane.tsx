@@ -4,8 +4,9 @@ import UnorderedListIcon from '@ant-design/icons/UnorderedListOutlined';
 import CloseIcon from '@ant-design/icons/CloseOutlined';
 import {BlockStage, PropertyList} from '../..';
 import {Divider} from 'rc-dock/lib';
-import {arrayEqual, ClientConn} from '../../../../src/core/editor';
+import {arrayEqual, ClientConn, ValueSubscriber, ValueUpdate} from '../../../../src/core/editor';
 import {BlockStageTabButton} from './BlockStageTabButton';
+import {LazyUpdateComponent} from '../../component/LazyUpdateComponent';
 
 interface Props {
   conn: ClientConn;
@@ -17,10 +18,11 @@ interface State {
   showPropertyList: boolean;
   selectedKeys: string[];
   sizes: number[];
+  blockKey: string;
 }
 
-export class BlockStagePane extends React.PureComponent<Props, State> {
-  state: State = {showPropertyList: true, selectedKeys: [], sizes: [1000, 1]};
+export class BlockStagePane extends LazyUpdateComponent<Props, State> {
+  state: State = {showPropertyList: true, selectedKeys: [], sizes: [1000, 1], blockKey: 'Job'};
 
   static editorCount = 0;
 
@@ -45,6 +47,29 @@ export class BlockStagePane extends React.PureComponent<Props, State> {
   private getRef = (node: HTMLDivElement): void => {
     this._rootNode = node;
   };
+
+  initialBlockKey: string;
+  blockListener = new ValueSubscriber({
+    onUpdate: (response: ValueUpdate) => {
+      if (response.cache.value) {
+        let blockKey = String(response.cache.value);
+        if (!this.initialBlockKey) {
+          this.initialBlockKey = blockKey;
+        } else if (blockKey !== this.initialBlockKey) {
+          // change the blockKey to force a stage reload
+          this.safeSetState({blockKey, selectedKeys: []});
+        }
+      } else {
+        this.safeSetState({blockKey: null, selectedKeys: []});
+      }
+    }
+  });
+
+  constructor(props: Props) {
+    super(props);
+    let {conn, basePath} = props;
+    this.blockListener.subscribe(conn, basePath);
+  }
 
   onShowPropertyList = () => {
     const {showPropertyList} = this.state;
@@ -82,19 +107,24 @@ export class BlockStagePane extends React.PureComponent<Props, State> {
     this.setState({sizes});
   };
 
-  render() {
+  renderImpl() {
     let {conn, basePath} = this.props;
-    let {showPropertyList, selectedKeys, sizes} = this.state;
+    let {showPropertyList, selectedKeys, sizes, blockKey} = this.state;
 
     return (
       <div className="ticl-hbox ticl-stage-tab-content" ref={this.getRef}>
-        <BlockStage
-          key="stage"
-          conn={conn}
-          basePath={basePath}
-          onSelect={this.onSelect}
-          style={{width: sizes[0], height: '100%'}}
-        />
+        {blockKey ? (
+          <BlockStage
+            key={blockKey}
+            conn={conn}
+            basePath={basePath}
+            onSelect={this.onSelect}
+            style={{width: sizes[0], height: '100%'}}
+          />
+        ) : (
+          <div style={{width: sizes[0], height: '100%'}}>Invalid Input</div>
+        )}
+
         <div className="ticl-stage-header">{basePath}</div>
         {showPropertyList ? (
           <>
@@ -112,5 +142,9 @@ export class BlockStagePane extends React.PureComponent<Props, State> {
         />
       </div>
     );
+  }
+  componentWillUnmount() {
+    this.blockListener.unsubscribe();
+    super.componentWillUnmount();
   }
 }
