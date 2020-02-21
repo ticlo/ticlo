@@ -128,19 +128,27 @@ export interface ClientConn {
 export class ValueSubscriber {
   conn: ClientConn;
   path: string;
+  fullValue: boolean;
 
-  constructor(callbacks: SubscribeCallbacks) {
-    if (callbacks) {
-      this.onUpdate = callbacks.onUpdate;
-      this.onError = callbacks.onError;
+  wasValid = false;
+  constructor(public callbacks: SubscribeCallbacks) {}
+
+  onUpdate(response: ValueUpdate): void {
+    this.callbacks?.onUpdate(response);
+    this.wasValid = true;
+  }
+
+  onError(error: string, data?: DataMap): void {
+    if (this.wasValid) {
+      this.wasValid = false;
+      this.reSubscribe();
+    } else {
+      this.callbacks.onError(error, data);
     }
   }
 
-  onUpdate(response: ValueUpdate): void {}
-
-  onError(error: string, data?: DataMap): void {}
-
   subscribe(conn: ClientConn, path: string, fullValue = false) {
+    this.fullValue = fullValue;
     if (this.conn === conn && this.path === path) {
       return;
     }
@@ -151,6 +159,12 @@ export class ValueSubscriber {
     this.path = path;
     if (this.conn && this.path) {
       this.conn.subscribe(this.path, this, fullValue);
+    }
+  }
+
+  reSubscribe() {
+    if (this.conn && this.path) {
+      this.conn.subscribe(this.path, this, this.fullValue);
     }
   }
 
