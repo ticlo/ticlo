@@ -47,9 +47,9 @@ describe('WorkerEditor', function() {
       'click'
     );
 
-    await shouldHappen(() => querySingle("//div.ticl-type-view/span[text()='class1']", document.body));
+    await shouldHappen(() => querySingle("//div.ticl-func-view/span[text()='class1']", document.body));
 
-    SimulateEvent.simulate(querySingle("//div.ticl-type-view/span[text()='class1']/..", document.body), 'click');
+    SimulateEvent.simulate(querySingle("//div.ticl-func-view/span[text()='class1']/..", document.body), 'click');
 
     await shouldHappen(() => value === 'WorkerEditor:class1');
 

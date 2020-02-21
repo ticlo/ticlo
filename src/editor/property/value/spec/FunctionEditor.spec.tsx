@@ -43,9 +43,9 @@ describe('TypeEditor', function() {
       'click'
     );
 
-    await shouldHappen(() => querySingle("//div.ticl-type-view/span[text()='add']", document.body));
+    await shouldHappen(() => querySingle("//div.ticl-func-view/span[text()='add']", document.body));
 
-    SimulateEvent.simulate(querySingle("//div.ticl-type-view/span[text()='add']/..", document.body), 'click');
+    SimulateEvent.simulate(querySingle("//div.ticl-func-view/span[text()='add']/..", document.body), 'click');
 
     await shouldHappen(() => value === 'add');
 

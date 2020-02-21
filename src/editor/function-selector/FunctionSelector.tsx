@@ -79,7 +79,6 @@ export class FunctionSelect extends React.PureComponent<Props, State> {
     if (!conn) {
       return <div />;
     }
-    console.log(this.context);
     return (
       <div className="ticl-func-select" onClick={onClick}>
         <div className="tlcl-top-menu-box ticl-hbox">
