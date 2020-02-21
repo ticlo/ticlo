@@ -255,6 +255,7 @@ export class MapFunction extends MapImpl {
   destroy(): void {
     this._clearWorkers();
     this._funcBlock = null;
+    this._data.deleteValue('#func');
     super.destroy();
   }
 }

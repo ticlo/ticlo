@@ -6,6 +6,7 @@ import {Block, Job} from '../block/Block';
 import {DataMap} from '../util/DataTypes';
 
 export class WorkerFunction extends BlockFunction {
+  static _savingJob: Job;
   readonly type: string;
   _namespace: string;
   _funcJob: Job;
@@ -18,11 +19,19 @@ export class WorkerFunction extends BlockFunction {
     let applyChange: (data: DataMap) => boolean;
     if (this._namespace === '') {
       applyChange = (data: DataMap) => {
-        return WorkerFunction.applyChangeToFunc(this._funcJob, null, data);
+        WorkerFunction._savingJob = this._funcJob;
+        let result = WorkerFunction.applyChangeToFunc(this._funcJob, null, data);
+        WorkerFunction._savingJob = null;
+        return result;
       };
     }
     this._funcJob = this._data.createOutputJob('#func', this.type, this._data, applyChange);
     this._funcJob.updateInput(this._data);
+  }
+
+  destroy(): void {
+    this._data.deleteValue('#func');
+    super.destroy();
   }
 
   static registerType(data: DataMap, desc: FunctionDesc, namespace?: string) {
