@@ -44,6 +44,10 @@ export class Functions {
       desc.priority = 0;
     }
     desc.ns = namespace;
+    if (desc.category && namespace != null) {
+      // make sure category is in the same name space
+      desc.category = `${namespace}:${desc.category.split(':').pop()}`;
+    }
     let id = namespace != null ? `${namespace}:${desc.name}` : desc.name;
     desc.id = id;
 
