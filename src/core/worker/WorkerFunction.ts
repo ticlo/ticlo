@@ -60,7 +60,7 @@ export class WorkerFunction extends BlockFunction {
     }
     // save to worker function
     let name: string;
-    let pos = Math.max(funcId.indexOf(':'), funcId.lastIndexOf('.'));
+    let pos = funcId.indexOf(':');
     if (pos > -1) {
       name = funcId.substring(pos + 1);
     } else {

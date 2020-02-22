@@ -39,7 +39,9 @@ export function onDropBlock(conn: ClientConn, e: DragState, createBlock: CreateB
       blockData['@b-xyw'] = xyw;
       createBlock(name, blockData);
     };
-
+    if (blockName.includes('.')) {
+      blockName = blockName.split('.').pop();
+    }
     if (blockName === '' || e.event.shiftKey) {
       // drop with shift to force change name
       blockName = blockName || blockData['#is'];
