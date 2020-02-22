@@ -39,7 +39,15 @@ function descToEditor(conn: ClientConn, paths: string[], funcDesc: FunctionDesc,
   );
 }
 
+const jobDescReg = /^Job(?!Entry)/;
 class BlockLoader extends MultiSelectLoader<PropertyList> {
+  blockStr: string;
+  blockListener = new ValueSubscriber({
+    onUpdate: (response: ValueUpdate) => {
+      this.blockStr = String(response.cache.value);
+    }
+  });
+
   isListener = new ValueSubscriber({
     onUpdate: (response: ValueUpdate) => {
       this.conn.watchDesc(response.cache.value, this.onDesc);
@@ -85,12 +93,14 @@ class BlockLoader extends MultiSelectLoader<PropertyList> {
   };
 
   init() {
+    this.blockListener.subscribe(this.conn, this.path);
     this.isListener.subscribe(this.conn, `${this.path}.#is`, true);
     this.customListener.subscribe(this.conn, `${this.path}.#custom`, true);
     this.widgetListener.subscribe(this.conn, `${this.path}.@b-widget`, true);
   }
 
   destroy() {
+    this.blockListener.unsubscribe();
     this.isListener.unsubscribe();
     this.customListener.unsubscribe();
     this.widgetListener.unsubscribe();
@@ -310,7 +320,8 @@ export class PropertyList extends MultiSelectComponent<Props, State, BlockLoader
     if (mode === 'subBlock') {
       propMerger.remove('#output');
     }
-    let funcDesc: FunctionDesc = this.loaders.entries().next().value[1].desc;
+    let firstLoader: BlockLoader = this.loaders.entries().next().value[1];
+    let funcDesc = firstLoader.desc;
     if (!funcDesc) {
       funcDesc = blankFuncDesc;
     }
@@ -320,18 +331,23 @@ export class PropertyList extends MultiSelectComponent<Props, State, BlockLoader
       // merge #config properties
 
       let configChildren: React.ReactNode[];
-
-      for (let [path, subscriber] of this.loaders) {
-        if (subscriber.desc) {
-          configMerger.add(mapConfigDesc(subscriber.desc.configs) || configList);
-        } else {
-          // properties not ready
-          configMerger.map = null;
-          break;
+      if (showConfig) {
+        for (let [path, subscriber] of this.loaders) {
+          if (subscriber.desc) {
+            configMerger.add(mapConfigDesc(subscriber.desc.configs) || configList);
+          } else {
+            // properties not ready
+            configMerger.map = null;
+            break;
+          }
         }
-      }
-      if (configMerger.isNotEmpty() && showConfig) {
-        configChildren = configMerger.render(paths, conn, funcDesc, true);
+        if (this.loaders.size === 1 && jobDescReg.test(firstLoader.blockStr)) {
+          // show #desc editor for Job
+          configMerger.map.set('#desc', configDescs['#desc']);
+        }
+        if (configMerger.isNotEmpty()) {
+          configChildren = configMerger.render(paths, conn, funcDesc, true);
+        }
       }
 
       // merge #custom properties

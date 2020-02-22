@@ -1032,6 +1032,8 @@ interface JobLoader {
   init(root: Root): void;
 }
 
+class JobEntry extends Job {}
+
 export class Root extends Job {
   private static _instance: Root = new Root();
   static get instance() {
@@ -1113,7 +1115,7 @@ export class Root extends Job {
       // invalid path
       return null;
     }
-    let newJob = new Job(prop._block, null, prop);
+    let newJob = new JobEntry(prop._block, null, prop);
     if (this._loader) {
       if (!data) {
         data = {};

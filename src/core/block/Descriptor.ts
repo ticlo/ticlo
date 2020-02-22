@@ -137,7 +137,8 @@ export const configDescs: {[key: string]: PropDesc} = {
   '#value': {name: '#value', type: 'any'},
   '#render': {name: '#render', type: 'object', readonly: true},
   '#inputs': {name: '#inputs', type: 'any'},
-  '#outputs': {name: '#outputs', type: 'any'}
+  '#outputs': {name: '#outputs', type: 'any'},
+  '#desc': {name: '#desc', type: 'object'}
 };
 
 export const configList: PropDesc[] = [
