@@ -12,12 +12,19 @@ interface Props {
 interface State {
   offset: number;
   height: number;
+  itemStyle?: React.CSSProperties;
 }
 
 export default class VirtualList extends React.Component<Props, State> {
+  static getDerivedStateFromProps(props: Props, state: State) {
+    if (state?.itemStyle?.height !== props.itemHeight) {
+      return {itemStyle: {height: props.itemHeight}};
+    }
+  }
+
   static defaultProps = {};
 
-  state = {offset: 0, height: 0};
+  state: State = {offset: 0, height: 0};
   resizeObserver: any;
 
   private rootNode!: HTMLElement;
@@ -54,7 +61,7 @@ export default class VirtualList extends React.Component<Props, State> {
 
   render() {
     const {itemCount, itemHeight, renderer, className, style} = this.props;
-    const {height, offset} = this.state;
+    const {height, offset, itemStyle} = this.state;
 
     if (this.state.height > 0 && itemCount > 0) {
       let contentHeight = itemCount * itemHeight;
@@ -66,9 +73,8 @@ export default class VirtualList extends React.Component<Props, State> {
       let children: React.ReactNode[] = [];
       let paddingTop = '';
       if (end > start) {
-        let heightStyle = `${itemHeight}px`;
         for (let i = start; i < end; ++i) {
-          children.push(renderer(i, {height: heightStyle}));
+          children.push(renderer(i, itemStyle));
         }
         paddingTop = `${start * itemHeight}px`;
       }
