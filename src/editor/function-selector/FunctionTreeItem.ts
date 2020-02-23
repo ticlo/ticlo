@@ -90,7 +90,9 @@ export class FunctionTreeItem extends TreeItem<FunctionTreeItem> {
       let item = this.children[i];
       if (item.key === key) {
         this.children.splice(i, 1);
-        if (this.opened === 'opened') {
+        if (this.children.length === 0 && !this.desc) {
+          this.parent.removeChild(this.key);
+        } else if (this.opened === 'opened') {
           this.onListChange();
         }
         return;
