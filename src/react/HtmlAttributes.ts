@@ -278,9 +278,3 @@ Functions.add(
   },
   'react'
 );
-
-Functions.addCategory({
-  id: 'react:elements',
-  name: 'elements',
-  category: 'react'
-});
