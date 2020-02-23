@@ -174,6 +174,13 @@ export class FunctionTreeRoot extends FunctionTreeItem {
   }
 
   onDesc = (desc: FunctionDesc, key: string) => {
+    let item = this.typeMap.get(key);
+    if (item) {
+      // remove existing function first
+      this.typeMap.delete(key);
+      item.parent.removeChild(key);
+    }
+
     if (desc) {
       if (desc.src === 'base') {
         // dont show base functions
@@ -197,13 +204,6 @@ export class FunctionTreeRoot extends FunctionTreeItem {
         this.typeMap.set(desc.id, parentItem.addChild(key, desc));
       } else {
         this.updateCategory(desc.id, desc.name, desc);
-      }
-    } else {
-      // function desc is removed
-      let item = this.typeMap.get(key);
-      if (item) {
-        this.typeMap.delete(key);
-        item.parent.removeChild(key);
       }
     }
   };
