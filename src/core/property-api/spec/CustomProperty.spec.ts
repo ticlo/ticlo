@@ -1,7 +1,7 @@
 import {assert} from 'chai';
 
 import {addCustomProperty, moveCustomProperty, removeCustomProperty} from '../CustomProperty';
-import {Job} from '../../block/Block';
+import {Job} from '../../block/Job';
 import {PropDesc, PropGroupDesc} from '../../block/Descriptor';
 
 describe('Custom Property', function() {

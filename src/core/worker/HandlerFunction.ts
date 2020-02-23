@@ -1,6 +1,7 @@
 import {MapImpl, WorkerOutput} from './MapImpl';
 import {convertToOutput, DataMap} from '../util/DataTypes';
-import {BlockMode, Job} from '../block/Block';
+import {BlockMode} from '../block/Block';
+import {Job} from '../block/Job';
 import {Functions} from '../block/Functions';
 import {Event, ErrorEvent, EventType, WAIT, NO_EMIT} from '../block/Event';
 import Denque from 'denque';

@@ -1,5 +1,6 @@
 import {assert} from 'chai';
-import {Block, Job, Root} from '../../block/Block';
+import {Block} from '../../block/Block';
+import {Job, Root} from '../../block/Job';
 import '../../functions/basic/math/Arithmetic';
 import '../HandlerFunction';
 import {convertToOutput, DataMap} from '../../util/DataTypes';

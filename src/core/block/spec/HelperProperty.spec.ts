@@ -1,5 +1,5 @@
 import {assert} from 'chai';
-import {Job, Root} from '../Block';
+import {Job, Root} from '../Job';
 
 describe('HelperProperty', function() {
   it('save load', function() {

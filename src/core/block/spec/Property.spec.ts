@@ -1,5 +1,5 @@
 import {assert} from 'chai';
-import {Job} from '../Block';
+import {Job} from '../Job';
 
 describe('Property Save Load', function() {
   it('save object with #is', function() {

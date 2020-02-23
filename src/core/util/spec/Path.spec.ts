@@ -1,7 +1,7 @@
 import {assert} from 'chai';
 import {getRelativePath, resolvePath, forAllPathsBetween} from '../Path';
 import {WorkerFunction} from '../../worker/WorkerFunction';
-import {Root} from '../../block/Block';
+import {Root} from '../../block/Job';
 import {DataMap} from '../DataTypes';
 import {propRelative} from '../PropPath';
 

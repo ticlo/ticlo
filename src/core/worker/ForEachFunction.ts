@@ -2,7 +2,8 @@ import {Functions} from '../block/Functions';
 import {BlockFunction, FunctionData} from '../block/BlockFunction';
 import {FunctionDesc} from '../block/Descriptor';
 import {BlockIO} from '../block/BlockProperty';
-import {Block, BlockChildWatch, Job} from '../block/Block';
+import {Block, BlockChildWatch} from '../block/Block';
+import {Job} from '../block/Job';
 import {DataMap, isSavedBlock} from '../util/DataTypes';
 import {Event, EventType} from '../block/Event';
 import {MapImpl} from './MapImpl';
@@ -152,7 +153,7 @@ export class ForEachFunction extends BlockFunction implements BlockChildWatch {
   }
 
   _addWorker(key: string, input: any) {
-    let child = this._funcBlock.createOutputJob(key, this._src, null, this._applyWorkerChange);
+    let child = this._funcBlock.createOutputJob(Job, key, this._src, null, this._applyWorkerChange);
     this._workers.set(key, child);
     child.updateInput(input);
     this._outputBlock.setBinding(key, `##.#func.${key}.#outputs`);

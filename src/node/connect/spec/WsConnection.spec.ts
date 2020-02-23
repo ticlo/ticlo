@@ -1,5 +1,5 @@
 import {assert} from 'chai';
-import {Root} from '../../../core/block/Block';
+import {Root} from '../../../core/block/Job';
 import {AsyncClientPromise} from '../../../core/connect/spec/AsyncClientPromise';
 import {shouldHappen, shouldReject} from '../../../core/util/test-util';
 import {initEditor} from '../../../editor';

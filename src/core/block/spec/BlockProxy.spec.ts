@@ -1,6 +1,7 @@
 import {assert} from 'chai';
-import {Job, Root} from '../Block';
+import {Job, Root} from '../Job';
 import {BlockDeepProxy, BlockProxy} from '../BlockProxy';
+import {_strictMode} from '../BlockSettings';
 
 describe('BlockProxy', function() {
   it('deep proxy', function() {
@@ -39,15 +40,12 @@ describe('BlockProxy', function() {
     // block is destroyed
     // Proxy should act like an empty Object
 
-    let keepStrictMode = Root.instance._strictMode;
-    Root.instance._strictMode = false;
-
-    assert.equal(b['###'], undefined, 'destroyed block should clear proxy');
-    b.v2 = 22;
-    assert.equal(b.v2, undefined);
-    assert.deepEqual(Object.keys(b), []);
-
-    Root.instance._strictMode = keepStrictMode;
+    if (!_strictMode) {
+      assert.equal(b['###'], undefined, 'destroyed block should clear proxy');
+      b.v2 = 22;
+      assert.equal(b.v2, undefined);
+      assert.deepEqual(Object.keys(b), []);
+    }
   });
 
   it('shallow proxy', function() {
@@ -86,14 +84,11 @@ describe('BlockProxy', function() {
     // block is destroyed
     // Proxy should act like an empty Object
 
-    let keepStrictMode = Root.instance._strictMode;
-    Root.instance._strictMode = false;
-
-    assert.equal(b['###'], undefined, 'destroyed block should clear proxy');
-    b.v2 = 22;
-    assert.equal(b.v2, undefined);
-    assert.deepEqual(Object.keys(b), []);
-
-    Root.instance._strictMode = keepStrictMode;
+    if (!_strictMode) {
+      assert.equal(b['###'], undefined, 'destroyed block should clear proxy');
+      b.v2 = 22;
+      assert.equal(b.v2, undefined);
+      assert.deepEqual(Object.keys(b), []);
+    }
   });
 });

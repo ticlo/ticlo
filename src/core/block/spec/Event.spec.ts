@@ -1,5 +1,5 @@
 import {assert} from 'chai';
-import {Job, Root} from '../Block';
+import {Job, Root} from '../Job';
 import {Event} from '../Event';
 import {TestFunctionRunner} from './TestFunction';
 

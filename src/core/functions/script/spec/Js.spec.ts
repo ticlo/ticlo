@@ -1,5 +1,6 @@
 import {assert} from 'chai';
-import {Job, Root, Block} from '../../../block/Block';
+import {Block} from '../../../block/Block';
+import {Job, Root} from '../../../block/Job';
 import {WAIT} from '../../../block/Event';
 import {shouldReject, shouldTimeout} from '../../../util/test-util';
 import '../Js';

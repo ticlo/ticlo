@@ -1,4 +1,5 @@
-import {Block, Job, Root} from '../block/Block';
+import {Block} from '../block/Block';
+import {Job, Root} from '../block/Job';
 import {BlockProperty, HelperProperty} from '../block/BlockProperty';
 
 function propRelativeImpl(

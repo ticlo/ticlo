@@ -1,6 +1,6 @@
 import {ServerConnection} from './ServerConnection';
 import {ClientConnection} from './ClientConnection';
-import {Root} from '../block/Block';
+import {Root} from '../block/Job';
 import {DataMap} from '../util/DataTypes';
 import {Logger} from '../util/Logger';
 import {encode, decode} from '../util/Serialize';

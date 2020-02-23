@@ -1,5 +1,5 @@
 import {convertToOutput, DataMap} from '../util/DataTypes';
-import {Block, Job} from './Block';
+import {Block} from './Block';
 import {ErrorEvent} from './Event';
 
 export class Task {

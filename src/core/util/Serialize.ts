@@ -9,7 +9,7 @@ jsonesc.registerRaw('', EscapedObject, encodeUnknown, decodeUnknown);
 jsonesc.registerRaw(null, Block, encodeUnknown, null);
 
 export function encodeRaw(obj: object) {
-  return jsonesc.replacer('', obj);
+  return jsonesc.replacer('', obj, null);
 }
 
 export function encode(value: any, space = 0): string {

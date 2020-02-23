@@ -1,6 +1,7 @@
 import {assert} from 'chai';
 import '../CompareString';
-import {Job, Root, Block} from '../../../../block/Block';
+import {Block} from '../../../../block/Block';
+import {Job, Root} from '../../../../block/Job';
 
 describe('CompareString', function() {
   it('start with', function() {

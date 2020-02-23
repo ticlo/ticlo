@@ -1,6 +1,7 @@
 import {assert} from 'chai';
 import {TestAsyncFunctionPromise, TestFunctionRunner} from './TestFunction';
-import {Job, Root, Block} from '../Block';
+import {Block} from '../Block';
+import {Job, Root} from '../Job';
 
 describe('BlockMode', function() {
   beforeEach(() => {

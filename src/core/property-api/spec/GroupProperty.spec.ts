@@ -1,6 +1,7 @@
 import {assert} from 'chai';
 
-import {Block, Job} from '../../block/Block';
+import {Block} from '../../block/Block';
+import {Job} from '../../block/Job';
 import '../../functions/basic/math/Arithmetic';
 import {insertGroupProperty, moveGroupProperty, removeGroupProperty, setGroupLength} from '../GroupProperty';
 

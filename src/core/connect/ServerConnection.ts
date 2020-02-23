@@ -8,7 +8,8 @@ import {
   HelperProperty
 } from '../block/BlockProperty';
 import {DataMap, isPrimitiveType, isSavedBlock, measureObjSize, truncateData} from '../util/DataTypes';
-import {Root, Block, BlockChildWatch, Job, InputsBlock} from '../block/Block';
+import {Block, BlockChildWatch, InputsBlock} from '../block/Block';
+import {Job, Root} from '../block/Job';
 import {PropDispatcher, PropListener} from '../block/Dispatcher';
 import {FunctionDispatcher, Functions, DescListener} from '../block/Functions';
 import {FunctionDesc, PropDesc, PropGroupDesc} from '../block/Descriptor';

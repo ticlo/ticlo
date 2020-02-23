@@ -3,7 +3,8 @@ import '../RouteFunction';
 // tslint:disable-next-line:no-duplicate-imports
 import {RouteFunction} from '../RouteFunction';
 import '../../../worker/HandlerFunction';
-import {Block, Job, Root} from '../../../block/Block';
+import {Block} from '../../../block/Block';
+import {Job, Root} from '../../../block/Job';
 import {getDefaultFuncData} from '../../../block/Descriptor';
 import {Functions} from '../../../block/Functions';
 import {HttpRequest} from '../HttpRequest';

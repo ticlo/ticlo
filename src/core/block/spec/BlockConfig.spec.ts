@@ -1,6 +1,6 @@
 import {assert} from 'chai';
 import {TestFunctionRunner} from './TestFunction';
-import {Job, Root} from '../Block';
+import {Job, Root} from '../Job';
 
 describe('BlockConfig', function() {
   it('readonly control', function() {

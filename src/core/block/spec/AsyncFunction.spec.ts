@@ -1,6 +1,6 @@
 import {assert} from 'chai';
 import {TestAsyncFunctionLog} from './TestFunction';
-import {Job, Root} from '../Block';
+import {Job, Root} from '../Job';
 import {ErrorEvent, Event} from '../Event';
 import {shouldReject, shouldTimeout} from '../../util/test-util';
 import '../../functions/basic/math/Arithmetic';

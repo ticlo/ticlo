@@ -1,4 +1,5 @@
-export {Block, Root, Job, BlockMode} from './block/Block';
+export {Block, BlockMode} from './block/Block';
+export {Root, Job} from './block/Job';
 export {BlockProperty, BlockIO} from './block/BlockProperty';
 export {BaseFunction, BlockFunction} from './block/BlockFunction';
 export {Functions} from './block/Functions';

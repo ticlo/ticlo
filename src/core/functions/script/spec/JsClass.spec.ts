@@ -1,5 +1,5 @@
 import {assert} from 'chai';
-import {Job, Root} from '../../../block/Block';
+import {Job, Root} from '../../../block/Job';
 import {JsFunction} from '../Js';
 import {Functions} from '../../../block/Functions';
 import {TestLogger} from '../../../util/spec/Logger.spec';

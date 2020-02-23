@@ -1,5 +1,6 @@
 import {assert} from 'chai';
-import {Block, Root} from '../../block/Block';
+import {Block} from '../../block/Block';
+import {Root} from '../../block/Job';
 import {makeLocalConnection} from '../LocalConnection';
 import '../../functions/basic/math/Arithmetic';
 import {AsyncClientPromise} from './AsyncClientPromise';

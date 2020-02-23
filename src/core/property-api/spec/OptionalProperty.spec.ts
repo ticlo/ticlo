@@ -1,7 +1,7 @@
 import {assert} from 'chai';
 
 import {addOptionalProperty, moveOptionalProperty, removeOptionalProperty} from '../OptionalProperty';
-import {Job} from '../../block/Block';
+import {Job} from '../../block/Job';
 
 describe('Optional Property', function() {
   it('add remove OptionalProperty', function() {

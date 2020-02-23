@@ -1,6 +1,7 @@
 import {assert} from 'chai';
 import '../Compare';
-import {Job, Root, Block} from '../../../../block/Block';
+import {Block} from '../../../../block/Block';
+import {Job, Root} from '../../../../block/Job';
 
 describe('Compare', function() {
   it('equal', function() {

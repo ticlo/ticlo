@@ -1,5 +1,5 @@
 import {assert} from 'chai';
-import {Job} from '../Block';
+import {Job} from '../Job';
 import {BlockIO} from '../BlockProperty';
 
 describe('Block Child Watch', function() {

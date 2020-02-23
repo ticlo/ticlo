@@ -1,5 +1,6 @@
 import {assert} from 'chai';
-import {Job, Root, Block} from '../Block';
+import {Block} from '../Block';
+import {Job, Root} from '../Job';
 import {PropDispatcher} from '../Dispatcher';
 import '../../functions/basic/math/Arithmetic';
 

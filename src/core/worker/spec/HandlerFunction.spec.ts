@@ -1,5 +1,5 @@
 import {assert} from 'chai';
-import {Job, Root} from '../../block/Block';
+import {Job, Root} from '../../block/Job';
 import {TestFunctionRunner, TestAsyncFunctionLog} from '../../block/spec/TestFunction';
 import '../../functions/basic/math/Arithmetic';
 import '../HandlerFunction';

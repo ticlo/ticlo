@@ -2,7 +2,8 @@ import {Functions} from '../block/Functions';
 import {BlockFunction, FunctionData} from '../block/BlockFunction';
 import {FunctionDesc, PropDesc, PropGroupDesc} from '../block/Descriptor';
 import {BlockIO} from '../block/BlockProperty';
-import {Block, Job} from '../block/Block';
+import {Block} from '../block/Block';
+import {Job} from '../block/Job';
 import {DataMap} from '../util/DataTypes';
 
 export class WorkerFunction extends BlockFunction {
@@ -21,7 +22,7 @@ export class WorkerFunction extends BlockFunction {
         return WorkerFunction.applyChangeToFunc(this._funcJob, null, data);
       };
     }
-    this._funcJob = this._data.createOutputJob('#func', this.type, this._data, applyChange);
+    this._funcJob = this._data.createOutputJob(Job, '#func', this.type, this._data, applyChange);
     this._funcJob.updateInput(this._data);
   }
 

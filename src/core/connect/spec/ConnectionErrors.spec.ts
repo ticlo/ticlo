@@ -1,5 +1,5 @@
 import {assert} from 'chai';
-import {Root} from '../../block/Block';
+import {Root} from '../../block/Job';
 import {makeLocalConnection} from '../LocalConnection';
 import {AddFunction} from '../../functions/basic/math/Arithmetic';
 import {DataMap} from '../../util/DataTypes';

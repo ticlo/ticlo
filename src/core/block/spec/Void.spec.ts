@@ -1,10 +1,11 @@
 import {assert} from 'chai';
 import {voidProperty} from '../Void';
 
-import {Job, Root} from '../Block';
+import {Job, Root} from '../Job';
 import {BlockPropertyEvent} from '../BlockProperty';
 import {PropDispatcher} from '../Dispatcher';
 import {VoidListeners} from './TestFunction';
+import {_strictMode} from '../BlockSettings';
 
 describe('VoidProperty', function() {
   it('basic', function() {
@@ -20,7 +21,7 @@ describe('VoidProperty', function() {
     voidProperty.subscribe(VoidListeners);
     assert.isUndefined(voidProperty._subscribers, 'void property wont subscribe');
 
-    if (Root.instance._strictMode) {
+    if (_strictMode) {
       assert.throw(() => voidProperty._save(), 'Can not save destroyed property');
       assert.throw(() => voidProperty._load({}), 'Can not load destroyed property');
       assert.throw(() => voidProperty._liveUpdate({}), 'Can not liveUpdate destroyed property');

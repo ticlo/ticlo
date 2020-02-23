@@ -1,6 +1,7 @@
 import {BlockFunction, FunctionData, FunctionOutput} from '../block/BlockFunction';
 import {DataMap, isSavedBlock} from '../util/DataTypes';
-import {Block, Job} from '../block/Block';
+import {Block} from '../block/Block';
+import {Job} from '../block/Job';
 import {ThreadPool, UnlimitedPool, WorkerPool} from './ThreadPool';
 import {voidFunction} from '../util/Functions';
 import {Task} from '../block/Task';
@@ -112,7 +113,7 @@ export abstract class MapImpl extends BlockFunction {
     let output = new WorkerOutput(key, field, this._timeout, (output: WorkerOutput, timeout: boolean) =>
       this._onWorkerReady(output, timeout)
     );
-    let child = this._funcBlock.createOutputJob(key, this._src, output, this._applyWorkerChange);
+    let child = this._funcBlock.createOutputJob(Job, key, this._src, output, this._applyWorkerChange);
     child.onResolved = () => {
       if (!child._waiting) {
         output.workerReady();
