@@ -18,8 +18,10 @@ interface State {
 export default class VirtualList extends React.Component<Props, State> {
   static getDerivedStateFromProps(props: Props, state: State) {
     if (state?.itemStyle?.height !== props.itemHeight) {
+      // cache children style in state to reduce re-render
       return {itemStyle: {height: props.itemHeight}};
     }
+    return {};
   }
 
   static defaultProps = {};

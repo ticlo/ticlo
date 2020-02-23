@@ -92,7 +92,7 @@ export class FunctionView extends React.PureComponent<Props, any> {
     let typeView = (
       <DragDropDiv className={`${colorClass} ticl-func-view`} onClick={this.onClick} onDragStartT={this.onDrag}>
         <TIcon icon={iconName} />
-        {ns ? <span className="ticl-func-ns">{ns}</span> : null}
+        {ns != null ? <span className="ticl-func-ns">{ns}</span> : null}
         <span className="ticl-func-name">{name}</span>
       </DragDropDiv>
     );

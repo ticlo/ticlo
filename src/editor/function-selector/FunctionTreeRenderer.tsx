@@ -49,6 +49,11 @@ export class FunctionTreeRenderer extends PureDataRenderer<Props, any> {
         </div>
       );
     } else {
+      if (!desc && name.includes(':')) {
+        let nameParts = name.split(':');
+        name = nameParts[nameParts.length - 1];
+        desc = {ns: nameParts[0], name};
+      }
       let [colorClass, iconName] = getFuncStyleFromDesc(desc, item.getConn(), 'ticl-bg--');
       return (
         <div style={{...style, marginLeft}} className="ticl-tree-type">
