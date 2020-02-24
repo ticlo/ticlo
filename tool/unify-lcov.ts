@@ -29,3 +29,10 @@ function fixReport(path: string) {
 fixReport('coverage/chrome/karma/lcov.info');
 fixReport('coverage/nyc.log');
 fixReport('coverage/nyc-strict.log');
+
+// prevent travis-ci issue that next task is run before last log file is saved
+for (let i = 0; i < 10; ++i) {
+  if (fs.existsSync('coverage/nyc-strict.log')) {
+    break;
+  }
+}
