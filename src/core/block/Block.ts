@@ -18,7 +18,7 @@ import {
 import {Task} from './Task';
 import {_strictMode} from './BlockSettings';
 
-import {Job, Root} from './Job';
+import {/*type*/ Job, Root} from './Job';
 
 export type BlockMode = 'auto' | 'onLoad' | 'onChange' | 'onCall' | 'disabled';
 export const BlockModeList = ['auto', 'onLoad', 'onChange', 'onCall', 'disabled'];

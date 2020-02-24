@@ -1,9 +1,11 @@
+import JsonEsc from 'jsonesc';
 import {Block, BlockModeList} from './Block';
 import {FunctionClass} from './BlockFunction';
 import {PropDispatcher} from './Dispatcher';
 import {FunctionDesc} from './Descriptor';
-import JsonEsc from 'jsonesc/dist';
 import {DataMap} from '../util/DataTypes';
+import {DataLoader} from './DataLoader';
+import {/*type*/ Job} from './Job';
 
 export interface DescListener {
   onDescChange(id: string, desc: FunctionDesc): void;
@@ -30,7 +32,7 @@ export class FunctionDispatcher extends PropDispatcher<FunctionClass> {
 }
 
 const _functions: {[key: string]: FunctionDispatcher} = {};
-
+let _loader: DataLoader;
 export class Functions {
   static add(cls: FunctionClass, desc: FunctionDesc, namespace?: string) {
     if (!desc.properties) {
@@ -162,5 +164,15 @@ export class Functions {
       return [functionDispatcher._desc, functionDispatcher._descSize];
     }
     return [null, 0];
+  }
+
+  static setLoader(loader: DataLoader) {
+    _loader = loader;
+  }
+  static saveWorkerFunction(funcId: string, job: Job, data: DataMap) {
+    _loader?.saveJob(`#.${funcId.substring(1)}`, job, data);
+  }
+  static deleteFunction(funcId: string, job: Job, data: DataMap) {
+    _loader?.deleteJob(`#.${funcId.substring(1)}`, job);
   }
 }

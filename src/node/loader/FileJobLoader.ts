@@ -1,7 +1,6 @@
 import Fs from 'fs';
 import Path from 'path';
-import {Job, Root, encodeSorted, decode, DataMap} from '../../../src/core';
-import {JobLoader} from '../../../src/core/block/Job';
+import {Job, Root, encodeSorted, decode, DataMap, DataLoader} from '../../../src/core';
 import {WorkerFunction} from '../../core/worker/WorkerFunction';
 
 class JobIOTask {
@@ -58,7 +57,7 @@ class JobIOTask {
   };
 }
 
-export class FileJobLoader implements JobLoader {
+export class FileJobLoader implements DataLoader {
   tasks: Map<string, JobIOTask> = new Map();
 
   getTask(name: string) {
@@ -81,13 +80,10 @@ export class FileJobLoader implements JobLoader {
     this.dir = Path.resolve(dir);
   }
 
-  onAddJob(root: Root, name: string, job: Job, data: DataMap) {
-    this.saveJob(root, name, job, data);
-  }
-  onDeleteJob(root: Root, name: string, job: Job) {
+  deleteJob(name: string, job: Job) {
     this.getTask(name).delete();
   }
-  saveJob(root: Root, name: string, job: Job, data?: DataMap) {
+  saveJob(name: string, job: Job, data?: DataMap) {
     if (!data) {
       data = job.save();
     }

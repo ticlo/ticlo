@@ -59,6 +59,9 @@ export class WorkerFunction extends BlockFunction {
       return false;
     }
     let desc = WorkerFunction.collectDesc(funcId, data);
+    if (funcId.startsWith(':')) {
+      Functions.saveWorkerFunction(funcId, job, data);
+    }
     WorkerFunction.registerType(data, desc, job._namespace);
     return true;
   }
