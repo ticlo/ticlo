@@ -11,9 +11,10 @@ export function routeTiclo(app: Express.Application, basePath: string, globalBlo
   if (!globalBlockName.startsWith('^')) {
     globalBlockName = '^' + globalBlockName;
   }
-  let globalBlock = Root.instance._globalBlock.createBlock(globalBlockName);
-  globalBlock._load({'#is': 'http:express-server'});
-  let serverFunction: ServerFunction = globalBlock._function as ServerFunction;
+  Root.instance._globalBlock.createBlock(globalBlockName);
+  let globalServiceBlock = Root.instance._globalBlock.getValue(globalBlockName);
+  globalServiceBlock._load({'#is': 'http:express-server'});
+  let serverFunction: ServerFunction = globalServiceBlock._function as ServerFunction;
   app.all(`${basePath}/*`, (req: Request, res: Response) => {
     serverFunction.requestHandler(basePath, req, res);
   });

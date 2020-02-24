@@ -173,7 +173,7 @@ export class Job extends Block {
   }
 }
 
-class GlobalBlock extends Block {
+class GlobalBlock extends Job {
   createGlobalProperty(name: string): BlockProperty {
     // inside the GlobalBlock, globalProperty is normal property
     let prop = new BlockIO(this, name);
@@ -182,9 +182,13 @@ class GlobalBlock extends Block {
   }
 }
 
-class ConstBlock extends Block {}
+class ConstBlock extends Block {
+  _save(): DataMap {
+    return undefined;
+  }
+}
 
-interface JobLoader {
+export interface JobLoader {
   onAddJob(root: Root, name: string, job: Job, data: DataMap): void;
 
   onDeleteJob(root: Root, name: string, job: Job): void;
@@ -238,7 +242,7 @@ export class Root extends Job {
     }
   }
 
-  _globalBlock: Block;
+  _globalBlock: Job;
 
   constructor() {
     super();

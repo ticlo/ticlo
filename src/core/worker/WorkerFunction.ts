@@ -30,15 +30,9 @@ export class WorkerFunction extends BlockFunction {
     super.destroy();
   }
 
-  static registerType(data: DataMap, idOrDesc: string | FunctionDesc, namespace?: string) {
+  static registerType(data: DataMap, desc: FunctionDesc, namespace?: string) {
     class CustomWorkerFunction extends WorkerFunction {
       static ticlWorkerData = data;
-    }
-    let desc: FunctionDesc;
-    if (typeof idOrDesc === 'string') {
-      desc = WorkerFunction.collectDesc(idOrDesc, data);
-    } else {
-      desc = idOrDesc;
     }
 
     if (!desc.priority) {
@@ -64,8 +58,8 @@ export class WorkerFunction extends BlockFunction {
     if (!funcId) {
       return false;
     }
-
-    WorkerFunction.registerType(data, funcId, job._namespace);
+    let desc = WorkerFunction.collectDesc(funcId, data);
+    WorkerFunction.registerType(data, desc, job._namespace);
     return true;
   }
 
@@ -80,8 +74,9 @@ export class WorkerFunction extends BlockFunction {
     let desc: FunctionDesc = {name, properties: WorkerFunction.collectProperties(data)};
     let savedDesc = data['#desc'] as FunctionDesc;
     if (savedDesc && typeof savedDesc === 'object' && savedDesc.constructor === Object) {
-      desc = {...savedDesc, ...desc, id: funcId};
+      desc = {...savedDesc, ...desc};
     }
+    desc.id = funcId;
     return desc;
   }
   /**

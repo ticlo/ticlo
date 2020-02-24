@@ -1,6 +1,8 @@
 import Fs from 'fs';
 import Path from 'path';
 import {Job, Root, encodeSorted, decode, DataMap} from '../../../src/core';
+import {JobLoader} from '../../../src/core/block/Job';
+import {WorkerFunction} from '../../core/worker/WorkerFunction';
 
 class JobIOTask {
   current?: 'write' | 'delete';
@@ -56,7 +58,7 @@ class JobIOTask {
   };
 }
 
-export class FileJobLoader {
+export class FileJobLoader implements JobLoader {
   tasks: Map<string, JobIOTask> = new Map();
 
   getTask(name: string) {
@@ -93,14 +95,46 @@ export class FileJobLoader {
     this.getTask(name).write(str);
   }
   init(root: Root): void {
-    let ticloFiles: string[] = [];
+    let jobFiles: string[] = [];
+    let functionFiles: string[] = [];
+    let globalData = {'#is': ''};
     for (let file of Fs.readdirSync(this.dir)) {
       if (file.endsWith('.ticlo')) {
-        ticloFiles.push(file.substring(0, file.length - '.ticlo'.length));
+        let name = file.substring(0, file.length - '.ticlo'.length);
+        if (name === '#global') {
+          try {
+            globalData = decode(Fs.readFileSync(Path.join(this.dir, `${name}.ticlo`), 'utf8'));
+          } catch (err) {
+            // TODO Logger
+          }
+        } else if (file.startsWith('#.')) {
+          functionFiles.push(name.substring(2));
+        } else {
+          jobFiles.push(name);
+        }
       }
     }
+
+    // load custom types
+    for (let name of functionFiles.sort()) {
+      try {
+        let data = decode(Fs.readFileSync(Path.join(this.dir, `#.${name}.ticlo`), 'utf8'));
+        let desc = WorkerFunction.collectDesc(`:${name}`, data);
+        WorkerFunction.registerType(data, desc, '');
+      } catch (err) {
+        // TODO Logger
+      }
+    }
+
+    // load global block
+    root._globalBlock.load(globalData, null, (saveData: DataMap) => {
+      this.saveJob(root, '#global', root._globalBlock, saveData);
+      return true;
+    });
+
+    // load job entries
     // sort the name to make sure parent Job is loaded before children jobs
-    for (let name of ticloFiles.sort()) {
+    for (let name of jobFiles.sort()) {
       try {
         let data = decode(Fs.readFileSync(Path.join(this.dir, `${name}.ticlo`), 'utf8'));
         root.addJob(name, data);

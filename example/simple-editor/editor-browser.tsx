@@ -14,6 +14,7 @@ import {WsBrowserConnection} from '../../src/html/connect/WsBrowserConnection';
 import {FrameClientConnection} from '../../src/html/connect/FrameClientConnection';
 import {NodeTreePane} from '../../src/editor/dock/node-tree/NodeTreePane';
 import {TextEditorPane} from '../../src/editor/dock/text-editor/TextEditorPane';
+import {FunctionSelect} from '../../src/editor/function-selector/FunctionSelector';
 
 const layoutGroups = {
   blockStage: {
@@ -116,7 +117,8 @@ class App extends React.PureComponent<Props, State> implements TicloLayoutContex
                 id: 'Functions',
                 title: 'Functions',
                 cached: true,
-                content: <FunctionTree conn={conn} style={{height: '100%'}} />
+                cacheContext: TicloLayoutContextType,
+                content: <FunctionSelect conn={conn}/>
               },
               {
                 id: 'Properties',
