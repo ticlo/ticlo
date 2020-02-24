@@ -34,8 +34,7 @@ interface Props {
   conn: ClientConnection;
 }
 
-interface State {
-}
+interface State {}
 
 WorkerFunction.registerType(
   {
@@ -151,7 +150,7 @@ class App extends React.PureComponent<Props, State> implements TicloLayoutContex
                     id: 'Test UI',
                     title: 'Test UI',
                     cached: true,
-                    content: <div id="main"/>
+                    content: <div id="main" />
                   }
                 ]
               },
@@ -162,14 +161,14 @@ class App extends React.PureComponent<Props, State> implements TicloLayoutContex
                     title: 'Functions',
                     cached: true,
                     cacheContext: TicloLayoutContextType,
-                    content: <FunctionSelect conn={conn}/>
+                    content: <FunctionSelect conn={conn} />
                   },
                   {
                     id: 'Properties',
                     title: 'Properties',
                     cached: true,
                     cacheContext: TicloLayoutContextType,
-                    content: <PropertyListPane conn={conn}/>
+                    content: <PropertyListPane conn={conn} />
                   }
                 ]
               }
@@ -197,23 +196,17 @@ class App extends React.PureComponent<Props, State> implements TicloLayoutContex
   }
 }
 
-class JobLoader {
-  onAddJob(root: Root, name: string, job: Job, data: DataMap = {}) {
-  }
+class JobStorage {
+  deleteJob(name: string) {}
 
-  onDeleteJob(root: Root, name: string, job: Job) {
-  }
+  saveJob(name: string, job: Job, data?: DataMap) {}
 
-  saveJob(root: Root, name: string, job: Job, data?: DataMap) {
-  }
-
-  init(root: Root): void {
-  }
+  init(root: Root): void {}
 }
 
 (async () => {
   await initEditor();
-  Root.instance.setLoader(new JobLoader());
+  Root.instance.setStorage(new JobStorage());
   let reactJob = Root.instance.addJob('example', reactData);
 
   let generalJob = Root.instance.addJob('example0', data);
@@ -224,7 +217,7 @@ class JobLoader {
 
   let [server, client] = makeLocalConnection(Root.instance);
 
-  ReactDOM.render(<App conn={client}/>, document.getElementById('app'));
+  ReactDOM.render(<App conn={client} />, document.getElementById('app'));
 })();
 
 (window as any).Logger = Logger;

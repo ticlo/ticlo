@@ -3,16 +3,16 @@ import shelljs from 'shelljs';
 import Fs from 'fs';
 import {Job, Root, decode} from '../../../core';
 import {shouldHappen, shouldReject, waitTick} from '../../../core/util/test-util';
-import {FileJobLoader} from '../FileJobLoader';
+import {FileStorage} from '../FileStorage';
 
-describe('FileJobLoader', function() {
+describe('FileStorage', function() {
   before(function() {
-    shelljs.mkdir('-p', './temp/jobLoaderTest');
+    shelljs.mkdir('-p', './temp/storageTest');
   });
   it('save and delete', async function() {
-    const path = './temp/jobLoaderTest/job1.ticlo';
+    const path = './temp/storageTest/job1.ticlo';
     let root = new Root();
-    root.setLoader(new FileJobLoader('./temp/jobLoaderTest'));
+    root.setStorage(new FileStorage('./temp/storageTest'));
 
     let job = root.addJob('job1');
     job.applyChange();
@@ -33,7 +33,7 @@ describe('FileJobLoader', function() {
     job.setValue('value', 456);
     job.applyChange();
     await waitTick(20);
-    await shouldHappen(() => (savedData = Fs.readFileSync('./temp/jobLoaderTest/job2.ticlo', 'utf8')));
+    await shouldHappen(() => (savedData = Fs.readFileSync('./temp/storageTest/job2.ticlo', 'utf8')));
     assert.deepEqual(decode(savedData), {'#is': '', 'value': 456});
 
     // overwrite delete after write
@@ -43,7 +43,7 @@ describe('FileJobLoader', function() {
     job = root.addJob('job3');
     root.deleteJob('job3');
     await waitTick(20);
-    await shouldHappen(() => !Fs.existsSync('./temp/jobLoaderTest/job3.ticlo'));
+    await shouldHappen(() => !Fs.existsSync('./temp/storageTest/job3.ticlo'));
 
     // overwirte delete after delete
     job = root.addJob('job4');
@@ -51,20 +51,20 @@ describe('FileJobLoader', function() {
     job = root.addJob('job4');
     root.deleteJob('job4');
     await waitTick(40);
-    assert.isFalse(Fs.existsSync('./temp/jobLoaderTest/job4.ticlo'));
+    assert.isFalse(Fs.existsSync('./temp/storageTest/job4.ticlo'));
 
     root.destroy();
   });
   it('init loader', async function() {
     let jobData = {'#is': '', 'value': 321};
-    const path1 = './temp/jobLoaderTest/job5.subjob.ticlo';
+    const path1 = './temp/storageTest/job5.subjob.ticlo';
     Fs.writeFileSync(path1, JSON.stringify(jobData));
 
-    const path2 = './temp/jobLoaderTest/job5.ticlo';
+    const path2 = './temp/storageTest/job5.ticlo';
     Fs.writeFileSync(path2, JSON.stringify(jobData));
 
     let root = new Root();
-    root.setLoader(new FileJobLoader('./temp/jobLoaderTest'));
+    root.setStorage(new FileStorage('./temp/storageTest'));
 
     assert.equal(root.queryValue('job5.value'), 321);
     assert.equal(root.queryValue('job5.subjob.value'), 321);

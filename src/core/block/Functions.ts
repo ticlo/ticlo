@@ -4,7 +4,7 @@ import {FunctionClass} from './BlockFunction';
 import {PropDispatcher} from './Dispatcher';
 import {FunctionDesc} from './Descriptor';
 import {DataMap} from '../util/DataTypes';
-import {DataLoader} from './DataLoader';
+import {Storage} from './Storage';
 import {/*type*/ Job} from './Job';
 
 export interface DescListener {
@@ -32,7 +32,7 @@ export class FunctionDispatcher extends PropDispatcher<FunctionClass> {
 }
 
 const _functions: {[key: string]: FunctionDispatcher} = {};
-let _loader: DataLoader;
+let _storage: Storage;
 export class Functions {
   static add(cls: FunctionClass, desc: FunctionDesc, namespace?: string) {
     if (!desc.properties) {
@@ -102,6 +102,9 @@ export class Functions {
         func.updateValue(null);
         func.setDesc(null);
       }
+      if (id.startsWith(':')) {
+        Functions.deleteFunction(id);
+      }
       Functions.dispatchDescChange(id, null);
     }
   }
@@ -166,13 +169,13 @@ export class Functions {
     return [null, 0];
   }
 
-  static setLoader(loader: DataLoader) {
-    _loader = loader;
+  static setStorage(storage: Storage) {
+    _storage = storage;
   }
   static saveWorkerFunction(funcId: string, job: Job, data: DataMap) {
-    _loader?.saveJob(`#.${funcId.substring(1)}`, job, data);
+    _storage?.saveJob(`#.${funcId.substring(1)}`, job, data);
   }
-  static deleteFunction(funcId: string, job: Job, data: DataMap) {
-    _loader?.deleteJob(`#.${funcId.substring(1)}`, job);
+  static deleteFunction(funcId: string) {
+    _storage?.deleteJob(`#.${funcId.substring(1)}`);
   }
 }

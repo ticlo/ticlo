@@ -1,6 +1,6 @@
 export {Block, BlockMode} from './block/Block';
 export {Root, Job} from './block/Job';
-export {DataLoader} from './block/DataLoader';
+export {Storage} from './block/Storage';
 export {BlockProperty, BlockIO} from './block/BlockProperty';
 export {BaseFunction, BlockFunction} from './block/BlockFunction';
 export {Functions} from './block/Functions';

@@ -7,7 +7,7 @@ import {Block, InputsBlock, Runnable} from './Block';
 import {DataMap} from '../util/DataTypes';
 import {FunctionDesc} from './Descriptor';
 import {Functions} from './Functions';
-import {DataLoader} from './DataLoader';
+import {Storage} from './Storage';
 
 export class Job extends Block {
   _resolver: Resolver;
@@ -209,12 +209,12 @@ export class Root extends Job {
     this._instance.runAll(maxRound);
   }
 
-  _loader: DataLoader;
+  _storage: Storage;
 
-  setLoader(loader: DataLoader) {
-    Functions.setLoader(loader);
-    this._loader = loader;
-    loader.init(this);
+  setStorage(storage: Storage) {
+    Functions.setStorage(storage);
+    this._storage = storage;
+    storage.init(this);
   }
 
   _run = () => {
@@ -272,11 +272,11 @@ export class Root extends Job {
       return null;
     }
     let newJob = new JobEntry(prop._block, null, prop);
-    if (this._loader) {
+    if (this._storage) {
       if (!data) {
         data = {};
       }
-      let loader = this._loader;
+      let loader = this._storage;
       newJob.load(
         data,
         null,
@@ -285,10 +285,10 @@ export class Root extends Job {
           return true;
         },
         () => {
-          loader.deleteJob(path, newJob);
+          loader.deleteJob(path);
         }
       );
-      this._loader.saveJob(path, newJob, data);
+      this._storage.saveJob(path, newJob, data);
     } else {
       if (data) {
         newJob.load(data);
@@ -301,8 +301,8 @@ export class Root extends Job {
   deleteJob(name: string) {
     let prop = this.getProperty(name, false);
     if (prop?._value instanceof Job) {
-      if (this._loader) {
-        this._loader.deleteJob(name, prop._value);
+      if (this._storage) {
+        this._storage.deleteJob(name);
       }
       prop.setValue(undefined);
     }

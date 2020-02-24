@@ -1,6 +1,6 @@
 import Express from 'express';
 import {Root} from '../../src/core';
-import {FileJobLoader} from '../../src/node';
+import {FileStorage} from '../../src/node';
 import {connectTiclo, routeTiclo, getEditorUrl} from '../../src/express';
 import {data} from '../sample-data/data';
 
@@ -10,7 +10,7 @@ let job = Root.instance.addJob('example', data);
 Root.instance._globalBlock.createBlock('^gAdd').setValue('#is', 'add');
 Root.instance._globalBlock.createBlock('^gSub').setValue('#is', 'subtract');
 
-Root.instance.setLoader(new FileJobLoader('./example/server'));
+Root.instance.setStorage(new FileStorage('./example/server'));
 
 let app = Express();
 connectTiclo(app, '/ticlo');
