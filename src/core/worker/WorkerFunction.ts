@@ -30,9 +30,15 @@ export class WorkerFunction extends BlockFunction {
     super.destroy();
   }
 
-  static registerType(data: DataMap, desc: FunctionDesc, namespace?: string) {
+  static registerType(data: DataMap, idOrDesc: string | FunctionDesc, namespace?: string) {
     class CustomWorkerFunction extends WorkerFunction {
       static ticlWorkerData = data;
+    }
+    let desc: FunctionDesc;
+    if (typeof idOrDesc === 'string') {
+      desc = WorkerFunction.collectDesc(idOrDesc, data);
+    } else {
+      desc = idOrDesc;
     }
 
     if (!desc.priority) {
@@ -58,31 +64,34 @@ export class WorkerFunction extends BlockFunction {
     if (!funcId) {
       return false;
     }
-    // save to worker function
+
+    WorkerFunction.registerType(data, funcId, job._namespace);
+    return true;
+  }
+
+  static collectDesc(funcId: string, data: DataMap): FunctionDesc {
     let name: string;
     let pos = funcId.indexOf(':');
     if (pos > -1) {
       name = funcId.substring(pos + 1);
     } else {
-      return false;
+      return null;
     }
-    let desc: FunctionDesc = {name, properties: WorkerFunction.collectProperties(job)};
-    let savedDesc = job.getValue('#desc') as FunctionDesc;
+    let desc: FunctionDesc = {name, properties: WorkerFunction.collectProperties(data)};
+    let savedDesc = data['#desc'] as FunctionDesc;
     if (savedDesc && typeof savedDesc === 'object' && savedDesc.constructor === Object) {
       desc = {...savedDesc, ...desc, id: funcId};
     }
-
-    WorkerFunction.registerType(data, desc, job._namespace);
-    return true;
+    return desc;
   }
   /**
    * collect function parameters for creating worker function
    */
-  static collectProperties(job: Job) {
+  static collectProperties(data: DataMap) {
     let properties: (PropDesc | PropGroupDesc)[] = [];
     let groups: Map<string, PropGroupDesc> = new Map();
     // add inputs
-    let inputs = job.queryValue('#inputs.#custom');
+    let inputs = data['#inputs']?.['#custom'];
     if (Array.isArray(inputs)) {
       for (let input of inputs) {
         let copyInput = {...input};
@@ -95,7 +104,7 @@ export class WorkerFunction extends BlockFunction {
       }
     }
     // add outputs
-    let outputs = job.queryValue('#outputs.#custom');
+    let outputs = data['#outputs']?.['#custom'];
     let mainOutput: PropDesc;
     if (Array.isArray(outputs)) {
       for (let output of outputs) {
