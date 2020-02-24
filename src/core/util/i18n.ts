@@ -1,4 +1,3 @@
-import {FunctionDesc} from '../block/Descriptor';
 import i18next from 'i18next';
 
 export async function init(lng?: string) {

@@ -8,7 +8,6 @@ import {CompleteEvent, ErrorEvent, Event, EventType, NO_EMIT, WAIT} from './Even
 import {DataMap} from '../util/DataTypes';
 import {Uid} from '../util/Uid';
 import {voidProperty} from './Void';
-import {Resolver} from './Resolver';
 import {
   ConfigGenerators,
   BlockConstConfig,
@@ -16,7 +15,6 @@ import {
   OutputConfigGenerators,
   InputConfigGenerators
 } from './BlockConfigs';
-import {FunctionDesc} from './Descriptor';
 import {Task} from './Task';
 import {_strictMode} from './BlockSettings';
 

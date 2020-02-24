@@ -1,9 +1,8 @@
-import {BlockFunction, FunctionData, FunctionOutput} from '../block/BlockFunction';
+import {BlockFunction, FunctionOutput} from '../block/BlockFunction';
 import {DataMap, isSavedBlock} from '../util/DataTypes';
 import {Block} from '../block/Block';
 import {Job} from '../block/Job';
 import {ThreadPool, UnlimitedPool, WorkerPool} from './ThreadPool';
-import {voidFunction} from '../util/Functions';
 import {Task} from '../block/Task';
 
 export type MapWorkerMode = undefined | 'reuse' | 'persist';

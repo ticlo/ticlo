@@ -1,8 +1,8 @@
 import {Functions} from '../../block/Functions';
-import {BlockFunction, FunctionData} from '../../block/BlockFunction';
-import {BlockIO, BlockProperty} from '../../block/BlockProperty';
+import {BlockFunction} from '../../block/BlockFunction';
+import {BlockIO} from '../../block/BlockProperty';
 import {ErrorEvent, WAIT} from '../../block/Event';
-import {Block, BlockMode} from '../../block/Block';
+import {Block} from '../../block/Block';
 import {BlockDeepProxy} from '../../block/BlockProxy';
 import {FunctionDesc} from '../../block/Descriptor';
 import {Logger} from '../../util/Logger';

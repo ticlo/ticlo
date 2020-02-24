@@ -1,7 +1,6 @@
 import {BlockConfig, BlockIO, BlockProperty} from './BlockProperty';
-import {FunctionDesc} from './Descriptor';
 import {BlockMode, Block} from './Block';
-import {Event, EventType} from './Event';
+import {EventType} from './Event';
 import {DataMap} from '../util/DataTypes';
 
 export interface FunctionOutput {

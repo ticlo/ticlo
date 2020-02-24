@@ -1,5 +1,4 @@
 import {BlockFunction} from '../../block/BlockFunction';
-import {Task} from '../../block/Task';
 import {NO_EMIT} from '../../block/Event';
 import {Functions} from '../../block/Functions';
 import {HttpRequest} from './HttpRequest';

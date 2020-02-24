@@ -1,11 +1,10 @@
 import {MapImpl, WorkerOutput} from './MapImpl';
-import {convertToOutput, DataMap} from '../util/DataTypes';
+import {DataMap} from '../util/DataTypes';
 import {BlockMode} from '../block/Block';
 import {Job} from '../block/Job';
 import {Functions} from '../block/Functions';
-import {Event, ErrorEvent, EventType, WAIT, NO_EMIT} from '../block/Event';
+import {Event, EventType, WAIT, NO_EMIT} from '../block/Event';
 import Denque from 'denque';
-import {BlockIO} from '../block/BlockProperty';
 import {InfiniteQueue} from '../util/InfiniteQueue';
 import {DefaultTask, Task} from '../block/Task';
 

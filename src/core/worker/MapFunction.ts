@@ -1,12 +1,9 @@
 import {Functions} from '../block/Functions';
-import {BlockFunction, FunctionData, FunctionOutput} from '../block/BlockFunction';
-import {FunctionDesc} from '../block/Descriptor';
-import {BlockIO, BlockProperty} from '../block/BlockProperty';
 import {Block} from '../block/Block';
 import {Job} from '../block/Job';
-import {convertToOutput, DataMap, isSavedBlock} from '../util/DataTypes';
+import {convertToOutput} from '../util/DataTypes';
 import {ErrorEvent, Event, EventType, WAIT} from '../block/Event';
-import {MapImpl, MapWorkerMode, WorkerOutput} from './MapImpl';
+import {MapImpl, WorkerOutput} from './MapImpl';
 import {BlockProxy} from '../block/BlockProxy';
 import {UnlimitedPool} from './ThreadPool';
 

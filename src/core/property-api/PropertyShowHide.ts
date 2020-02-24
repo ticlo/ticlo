@@ -1,7 +1,6 @@
 import {Block} from '../block/Block';
-import {configDescs, PropDesc, PropGroupDesc, shouldShowProperty} from '../block/Descriptor';
+import {configDescs, PropDesc, PropGroupDesc} from '../block/Descriptor';
 import {Functions} from '../block/Functions';
-import {HelperProperty} from '../block/BlockProperty';
 import {getPreNumber} from '../util/String';
 
 const configList = Object.keys(configDescs);

@@ -1,8 +1,6 @@
 import {Block, BlockChildWatch} from '../block/Block';
 import {Job} from '../block/Job';
 import {DataMap} from '../util/DataTypes';
-import {buildPropDescCache, findPropDesc, FunctionDesc, PropDesc, PropGroupDesc} from '../block/Descriptor';
-import {Functions} from '../block/Functions';
 import {WorkerFunction} from './WorkerFunction';
 
 const blankWorker = {

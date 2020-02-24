@@ -7,11 +7,11 @@ import {
   BlockPropertySubscriber,
   HelperProperty
 } from '../block/BlockProperty';
-import {DataMap, isPrimitiveType, isSavedBlock, measureObjSize, truncateData} from '../util/DataTypes';
+import {DataMap, isPrimitiveType, truncateData} from '../util/DataTypes';
 import {Block, BlockChildWatch, InputsBlock} from '../block/Block';
 import {Job, Root} from '../block/Job';
 import {PropDispatcher, PropListener} from '../block/Dispatcher';
-import {FunctionDispatcher, Functions, DescListener} from '../block/Functions';
+import {Functions, DescListener} from '../block/Functions';
 import {FunctionDesc, PropDesc, PropGroupDesc} from '../block/Descriptor';
 import {propRelative} from '../util/PropPath';
 import {

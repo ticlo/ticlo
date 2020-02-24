@@ -1,4 +1,4 @@
-import {configDescs, FunctionDesc} from '../block/Descriptor';
+import {FunctionDesc} from '../block/Descriptor';
 
 export const clientDescriptors: {[key: string]: FunctionDesc} = {
   inputs: {

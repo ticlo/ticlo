@@ -1,9 +1,7 @@
-import {Connection, ConnectionSend} from './Connection';
+import {Connection} from './Connection';
 import {Uid} from '../util/Uid';
-import {DataMap, isSavedBlock, measureObjSize} from '../util/DataTypes';
-import {Block} from '../block/Block';
+import {DataMap} from '../util/DataTypes';
 import {FunctionDesc, PropDesc, PropGroupDesc} from '../block/Descriptor';
-import {deepEqual} from '../util/Compare';
 import {
   ClientCallbacks,
   ClientRequest,

@@ -1,10 +1,9 @@
 import {Functions} from '../block/Functions';
-import {BlockFunction, FunctionData} from '../block/BlockFunction';
-import {FunctionDesc} from '../block/Descriptor';
+import {BlockFunction} from '../block/BlockFunction';
 import {BlockIO} from '../block/BlockProperty';
 import {Block, BlockChildWatch} from '../block/Block';
 import {Job} from '../block/Job';
-import {DataMap, isSavedBlock} from '../util/DataTypes';
+import {DataMap} from '../util/DataTypes';
 import {Event, EventType} from '../block/Event';
 import {MapImpl} from './MapImpl';
 

@@ -1,5 +1,5 @@
 import {Functions} from '../../../block/Functions';
-import {BaseFunction, FunctionData} from '../../../block/BlockFunction';
+import {BaseFunction} from '../../../block/BlockFunction';
 import {FunctionDesc} from '../../../block/Descriptor';
 
 const descriptor: FunctionDesc = {

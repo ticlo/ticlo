@@ -1,8 +1,6 @@
 import {BlockFunction} from '../../block/BlockFunction';
-import {Event} from '../../block/Event';
 import {HttpRequest} from './HttpRequest';
 import {Functions} from '../../block/Functions';
-import {HandlerFunction} from '../../worker/HandlerFunction';
 
 export class StaticResponse extends BlockFunction {
   _called: HttpRequest[] = [];

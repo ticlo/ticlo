@@ -1,5 +1,4 @@
 import {Runnable} from './Block';
-import {Uid} from '../util/Uid';
 
 export class Resolver implements Runnable {
   static _finalResolved: Set<() => void> = new Set<() => void>();
