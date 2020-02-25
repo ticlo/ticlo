@@ -281,6 +281,6 @@ export function getOutputDesc(desc: FunctionDesc): PropDesc {
     if (last.name === '#output' && last.type !== 'group') {
       return last;
     }
-    return null;
   }
+  return null;
 }
