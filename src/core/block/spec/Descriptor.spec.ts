@@ -6,9 +6,13 @@ import {
   buildPropDescCache,
   configDescs,
   findPropDesc,
+  getDefaultDataFromCustom,
+  getDefaultFuncData,
   getOutputDesc,
   mapConfigDesc,
-  PropDesc
+  PropDesc,
+  PropGroupDesc,
+  shouldShowProperty
 } from '../Descriptor';
 import {Functions} from '../Functions';
 
@@ -17,7 +21,7 @@ describe('Descriptor', function() {
     assert.isUndefined(mapConfigDesc(null));
 
     const abcconfig: PropDesc = {name: '#abc', type: 'string'};
-    let mapped = mapConfigDesc(['#len', abcconfig]);
+    let mapped = mapConfigDesc(['#len', '#invalidConfig', abcconfig]);
     assert.deepEqual(mapped, [configDescs['#len'], abcconfig]);
     assert.equal(mapped, mapConfigDesc(mapped));
   });
@@ -36,5 +40,43 @@ describe('Descriptor', function() {
     assert.isNull(getOutputDesc({name: ''}));
     assert.isNull(getOutputDesc(Functions.getDescToSend('js')[0]));
     assert.isNotNull(getOutputDesc(Functions.getDescToSend('add')[0]));
+  });
+
+  it('shouldShowProperty', function() {
+    assert.isTrue(shouldShowProperty('high', true));
+    assert.isTrue(shouldShowProperty('high', false));
+
+    assert.isFalse(shouldShowProperty('low', true));
+    assert.isFalse(shouldShowProperty('low', false));
+
+    assert.isFalse(shouldShowProperty(undefined, true));
+    assert.isTrue(shouldShowProperty(undefined, false));
+  });
+
+  it('getDefaultFuncData', function() {
+    assert.deepEqual(getDefaultFuncData(Functions.getDescToSend('add')[0], true), {'#is': 'add', '@b-p': ['0', '1']});
+    assert.deepEqual(getDefaultFuncData(Functions.getDescToSend('add')[0], false), {
+      '#is': 'add',
+      '@b-p': ['0', '1', '#output']
+    });
+  });
+
+  it('getDefaultDataFromCustom', function() {
+    let custom: (PropDesc | PropGroupDesc)[] = [
+      {name: 'a', type: 'string', init: 'hello'},
+      {
+        name: '',
+        type: 'group',
+        defaultLen: 1,
+        properties: [{name: '', type: 'string', visible: 'low', init: 'world'}]
+      }
+    ];
+    assert.deepEqual(getDefaultDataFromCustom(custom), {
+      '#is': '',
+      '#custom': custom,
+      'a': 'hello',
+      '0': 'world',
+      '@b-p': ['a']
+    });
   });
 });

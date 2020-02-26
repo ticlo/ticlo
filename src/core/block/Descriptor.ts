@@ -1,4 +1,5 @@
 import {BlockMode, BlockModeList} from './Block';
+import {DataMap} from '..';
 
 // high: always show in block, unless toggled by user
 // low: always hide in block
@@ -269,8 +270,8 @@ export function getDefaultFuncData(desc: FunctionDesc, isSubBlock = false) {
   return data;
 }
 
-export function getDefaultDataFromCustom(custom: (PropDesc | PropGroupDesc)[]) {
-  let data: any = {'#is': '', '#custom': custom};
+export function getDefaultDataFromCustom(custom: (PropDesc | PropGroupDesc)[], base: DataMap = {'#is': ''}) {
+  let data: any = {...base, '#custom': custom};
   initBlockProperties(data, custom);
   return data;
 }
