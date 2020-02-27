@@ -1,4 +1,4 @@
-import {BlockProperty, BlockIO, HelperProperty, GlobalProperty, BlockBindingSource, BlockConfig} from './BlockProperty';
+import {BlockProperty, BlockIO, HelperProperty, BlockBindingSource, BlockConfig} from './BlockProperty';
 import {ListenPromise} from './ListenPromise';
 import {BlockBinding} from './BlockBinding';
 import {FunctionData, FunctionClass, BaseFunction, FunctionOutput} from './BlockFunction';
@@ -8,13 +8,7 @@ import {CompleteEvent, ErrorEvent, Event, EventType, NO_EMIT, WAIT} from './Even
 import {DataMap} from '../util/DataTypes';
 import {Uid} from '../util/Uid';
 import {voidProperty} from './Void';
-import {
-  ConfigGenerators,
-  BlockConstConfig,
-  JobConfigGenerators,
-  OutputConfigGenerators,
-  InputConfigGenerators
-} from './BlockConfigs';
+import {ConfigGenerators, BlockConstConfig, OutputsConfigGenerators, InputsConfigGenerators} from './BlockConfigs';
 import {Task} from './Task';
 import {_strictMode} from './BlockSettings';
 
@@ -852,8 +846,8 @@ export class Block implements Runnable, FunctionData, PropListener<FunctionClass
 
 export class InputsBlock extends Block {
   _createConfig(field: string): BlockProperty {
-    if (field in InputConfigGenerators) {
-      return new InputConfigGenerators[field](this, field);
+    if (field in InputsConfigGenerators) {
+      return new InputsConfigGenerators[field](this, field);
     } else {
       return new BlockConfig(this, field);
     }
@@ -903,8 +897,8 @@ export class OutputsBlock extends Block {
   }
 
   _createConfig(field: string): BlockProperty {
-    if (field in OutputConfigGenerators) {
-      return new OutputConfigGenerators[field](this, field);
+    if (field in OutputsConfigGenerators) {
+      return new OutputsConfigGenerators[field](this, field);
     } else {
       return new BlockConfig(this, field);
     }

@@ -1,13 +1,21 @@
 import {Resolver} from './Resolver';
 import {FunctionOutput} from './BlockFunction';
 import {BlockConfig, BlockIO, BlockProperty, GlobalProperty} from './BlockProperty';
-import {BlockConstConfig, JobConfigGenerators} from './BlockConfigs';
+import {BlockConstConfig, BlockInputsConfig, BlockOutputsConfig, ConfigGenerators} from './BlockConfigs';
 import {Event} from './Event';
 import {Block, InputsBlock, Runnable} from './Block';
-import {DataMap} from '../util/DataTypes';
+import {DataMap, isSavedBlock} from '../util/DataTypes';
 import {FunctionDesc} from './Descriptor';
 import {Functions} from './Functions';
 import {Storage} from './Storage';
+import {ShareConfig, SharedBlock} from './SharedBlock';
+
+const JobConfigGenerators: {[key: string]: typeof BlockProperty} = {
+  ...ConfigGenerators,
+  '#inputs': BlockInputsConfig,
+  '#outputs': BlockOutputsConfig,
+  '#share': ShareConfig
+};
 
 export class Job extends Block {
   _resolver: Resolver;
@@ -19,6 +27,7 @@ export class Job extends Block {
   _loading: boolean = false;
 
   _outputObj?: FunctionOutput;
+  _sharedBlock: SharedBlock;
 
   constructor(parent: Block = Root.instance, output?: FunctionOutput, property?: BlockProperty) {
     super(null, null, property);
@@ -113,7 +122,7 @@ export class Job extends Block {
         if (data) {
           this._namespace = desc.ns;
           this._loadFrom = funcId;
-          this._load(data);
+          this._loadJobData(data, funcId);
           loaded = true;
         }
       } else if (src) {
@@ -124,14 +133,14 @@ export class Job extends Block {
           this._namespace = null;
         }
         this._loadFrom = funcId;
-        this._load(src);
+        this._loadJobData(src, funcId);
         loaded = true;
       }
     } else {
       this._namespace = this._job._namespace;
       this._loadFrom = null;
       if (src) {
-        this._load(src);
+        this._loadJobData(src);
         loaded = true;
       }
     }
@@ -141,6 +150,12 @@ export class Job extends Block {
     }
     this._loading = false;
     return loaded;
+  }
+  _loadJobData(map: DataMap, funcId?: string) {
+    if (isSavedBlock(map['#share'])) {
+      this.getProperty('#share').updateValue(SharedBlock.loadSharedBlock(this, funcId, map['#share']));
+    }
+    super._load(map);
   }
 
   trackChange() {
@@ -169,6 +184,10 @@ export class Job extends Block {
   }
 
   destroy(): void {
+    if (this._sharedBlock) {
+      this._sharedBlock.detachJob(this);
+      this._sharedBlock = null;
+    }
     this._onDestory?.();
     super.destroy();
   }
@@ -183,11 +202,7 @@ class GlobalBlock extends Job {
   }
 }
 
-class ConstBlock extends Block {
-  _save(): DataMap {
-    return undefined;
-  }
-}
+class ConstBlock extends Job {}
 
 class JobEntry extends Job {}
 
@@ -235,6 +250,8 @@ export class Root extends Job {
   }
 
   _globalBlock: Job;
+  _shareBlock: Job;
+  _tempBlock: Job;
 
   constructor() {
     super();
@@ -247,9 +264,8 @@ export class Root extends Job {
 
     // create the readolny global block
     this._globalBlock = this._createConstBlock('#global', (prop) => new GlobalBlock(this, this, prop))._value;
-
-    this._globalBlock._createConstBlock('#temp', (prop) => new ConstBlock(this, this._globalBlock, prop));
-    this._globalBlock._createConstBlock('#share', (prop) => new ConstBlock(this, this._globalBlock, prop));
+    this._tempBlock = this._createConstBlock('#temp', (prop) => new ConstBlock(this, this._globalBlock, prop))._value;
+    this._shareBlock = this._createConstBlock('#share', (prop) => new ConstBlock(this, this._globalBlock, prop))._value;
 
     this._props.set('', new BlockConstConfig(this, '', this));
   }

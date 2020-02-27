@@ -51,7 +51,7 @@ class BlockPriorityConfig extends BlockProperty {
   }
 }
 
-class BlockInputsConfig extends BlockIO {
+export class BlockInputsConfig extends BlockIO {
   createBlock(save: boolean): Block {
     let block = new InputsBlock(this._block._job, this._block, this);
     if (save) {
@@ -64,7 +64,7 @@ class BlockInputsConfig extends BlockIO {
   }
 }
 
-class BlockOutputsConfig extends BlockIO {
+export class BlockOutputsConfig extends BlockIO {
   createBlock(save: boolean): Block {
     let block = new OutputsBlock(this._block._job, this._block, this);
     if (save) {
@@ -160,19 +160,13 @@ export const ConfigGenerators: {[key: string]: typeof BlockProperty} = {
   '#priority': BlockPriorityConfig
 };
 
-export const JobConfigGenerators: {[key: string]: typeof BlockProperty} = {
-  ...ConfigGenerators,
-  '#inputs': BlockInputsConfig,
-  '#outputs': BlockOutputsConfig
-};
-
-export const InputConfigGenerators: {[key: string]: typeof BlockProperty} = {
+export const InputsConfigGenerators: {[key: string]: typeof BlockProperty} = {
   ...ConfigGenerators,
   '#is': BlockInputTypeConfig,
   '#call': BlockProperty
 };
 
-export const OutputConfigGenerators: {[key: string]: typeof BlockProperty} = {
+export const OutputsConfigGenerators: {[key: string]: typeof BlockProperty} = {
   ...ConfigGenerators,
   '#is': BlockOutputTypeConfig,
   '#call': BlockProperty,

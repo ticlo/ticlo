@@ -52,7 +52,7 @@ export class FunctionView extends React.PureComponent<Props, any> {
   };
   onEditClicked = () => {
     let {conn, desc} = this.props;
-    let editPath = `#global.#temp.#edit-${encodeURITiclo(desc.id)}`;
+    let editPath = `#temp.#edit-${encodeURITiclo(desc.id)}`;
     conn.editWorker(editPath, null, desc.id);
     this.context.editJob(editPath, () => {
       conn.applyJobChange(editPath);
