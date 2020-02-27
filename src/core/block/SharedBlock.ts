@@ -13,10 +13,10 @@ export class SharedBlock extends Block {
       result = SharedBlock._dict.get(data);
     } else {
       let uid = SharedBlock.uid;
-      let shareBlock = Root.instance._shareBlock;
-      while (shareBlock.getProperty(uid.next(), false)?._value) {}
-      let prop = shareBlock.getProperty(uid.current);
-      result = new SharedBlock(shareBlock, shareBlock, prop);
+      let sharedRoot = Root.instance._sharedRoot;
+      while (sharedRoot.getProperty(uid.next(), false)?._value) {}
+      let prop = sharedRoot.getProperty(uid.current);
+      result = new SharedBlock(sharedRoot, sharedRoot, prop);
       result._source = data;
       prop.updateValue(result);
     }

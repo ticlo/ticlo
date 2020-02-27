@@ -79,7 +79,7 @@ describe('Connection', function() {
     assert.equal(job.getValue('v'), 3);
 
     // binding from global block
-    let a = Root.instance._globalBlock.createBlock('^g');
+    let a = Root.instance._globalRoot.createBlock('^g');
     a.setValue('0', 'global');
 
     await client.setBinding('Connection1-2.v', '#global.^g.0', true, true);
@@ -87,7 +87,7 @@ describe('Connection', function() {
     assert.equal(job.getProperty('v')._bindingPath, '^g.0');
 
     // clear #global
-    Root.instance._globalBlock._liveUpdate({});
+    Root.instance._globalRoot._liveUpdate({});
     client.destroy();
     Root.instance.deleteValue('Connection1-2');
   });
@@ -673,9 +673,9 @@ describe('Connection', function() {
   it('findGlobalBlocks', async function() {
     let [server, client] = makeLocalConnection(Root.instance, true);
 
-    let a = Root.instance._globalBlock.createBlock('^a');
+    let a = Root.instance._globalRoot.createBlock('^a');
     a.setValue('#is', 'add');
-    let b = Root.instance._globalBlock.createBlock('^b');
+    let b = Root.instance._globalRoot.createBlock('^b');
     b.setValue('#is', 'subtract');
 
     await shouldHappen(() => client.findGlobalBlocks(['math']).length === 2);
@@ -687,7 +687,7 @@ describe('Connection', function() {
     assert.isEmpty(client.findGlobalBlocks(['math-n']));
 
     // clear #global
-    Root.instance._globalBlock._liveUpdate({});
+    Root.instance._globalRoot._liveUpdate({});
     await shouldHappen(() => client.findGlobalBlocks(['math']).length === 0);
 
     client.destroy();

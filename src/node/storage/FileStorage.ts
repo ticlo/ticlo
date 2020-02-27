@@ -123,8 +123,8 @@ export class FileStorage implements Storage {
     }
 
     // load global block
-    root._globalBlock.load(globalData, null, (saveData: DataMap) => {
-      this.saveJob('#global', root._globalBlock, saveData);
+    root._globalRoot.load(globalData, null, (saveData: DataMap) => {
+      this.saveJob('#global', root._globalRoot, saveData);
       return true;
     });
 

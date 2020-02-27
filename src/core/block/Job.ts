@@ -14,7 +14,7 @@ const JobConfigGenerators: {[key: string]: typeof BlockProperty} = {
   ...ConfigGenerators,
   '#inputs': BlockInputsConfig,
   '#outputs': BlockOutputsConfig,
-  '#share': ShareConfig
+  '#shared': ShareConfig
 };
 
 export class Job extends Block {
@@ -152,8 +152,8 @@ export class Job extends Block {
     return loaded;
   }
   _loadJobData(map: DataMap, funcId?: string) {
-    if (isSavedBlock(map['#share'])) {
-      this.getProperty('#share').updateValue(SharedBlock.loadSharedBlock(this, funcId, map['#share']));
+    if (isSavedBlock(map['#shared'])) {
+      this.getProperty('#shared').updateValue(SharedBlock.loadSharedBlock(this, funcId, map['#shared']));
     }
     super._load(map);
   }
@@ -249,9 +249,9 @@ export class Root extends Job {
     }
   }
 
-  _globalBlock: Job;
-  _shareBlock: Job;
-  _tempBlock: Job;
+  _globalRoot: Job;
+  _sharedRoot: Job;
+  _tempRoot: Job;
 
   constructor() {
     super();
@@ -263,9 +263,9 @@ export class Root extends Job {
     });
 
     // create the readolny global block
-    this._globalBlock = this._createConstBlock('#global', (prop) => new GlobalBlock(this, this, prop))._value;
-    this._tempBlock = this._createConstBlock('#temp', (prop) => new ConstBlock(this, this._globalBlock, prop))._value;
-    this._shareBlock = this._createConstBlock('#share', (prop) => new ConstBlock(this, this._globalBlock, prop))._value;
+    this._globalRoot = this._createConstBlock('#global', (prop) => new GlobalBlock(this, this, prop))._value;
+    this._tempRoot = this._createConstBlock('#temp', (prop) => new ConstBlock(this, this._globalRoot, prop))._value;
+    this._sharedRoot = this._createConstBlock('#shared', (prop) => new ConstBlock(this, this._globalRoot, prop))._value;
 
     this._props.set('', new BlockConstConfig(this, '', this));
   }
@@ -275,7 +275,7 @@ export class Root extends Job {
   }
 
   getGlobalProperty(name: string): BlockProperty {
-    return this._globalBlock.getProperty(name);
+    return this._globalRoot.getProperty(name);
   }
 
   addJob(path?: string, data?: DataMap): Job {

@@ -27,8 +27,8 @@ window.addEventListener('beforeunload', () => {
   generalJob.load(data);
 
   // create some global blocks
-  Root.instance._globalBlock.createBlock('^gAdd').setValue('#is', 'add');
-  Root.instance._globalBlock.createBlock('^gSub').setValue('#is', 'subtract');
+  Root.instance._globalRoot.createBlock('^gAdd').setValue('#is', 'add');
+  Root.instance._globalRoot.createBlock('^gSub').setValue('#is', 'subtract');
 
   let [server, client] = makeLocalConnection(Root.instance);
 
