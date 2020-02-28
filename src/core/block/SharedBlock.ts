@@ -18,6 +18,7 @@ export class SharedBlock extends Block {
       let prop = sharedRoot.getProperty(uid.current);
       result = new SharedBlock(sharedRoot, sharedRoot, prop);
       result._source = data;
+      SharedBlock._dict.set(data, result);
       prop.updateValue(result);
     }
     result.attachJob(job);
