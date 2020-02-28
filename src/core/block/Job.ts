@@ -1,9 +1,9 @@
+import {Block, InputsBlock, Runnable} from './Block';
+import {BlockConfig, BlockIO, BlockProperty, GlobalProperty} from './BlockProperty';
 import {Resolver} from './Resolver';
 import {FunctionOutput} from './BlockFunction';
-import {BlockConfig, BlockIO, BlockProperty, GlobalProperty} from './BlockProperty';
 import {BlockConstConfig, BlockInputsConfig, BlockOutputsConfig, ConfigGenerators} from './BlockConfigs';
 import {Event} from './Event';
-import {Block, InputsBlock, Runnable} from './Block';
 import {DataMap, isSavedBlock} from '../util/DataTypes';
 import {FunctionDesc} from './Descriptor';
 import {Functions} from './Functions';
@@ -153,7 +153,8 @@ export class Job extends Block {
   }
   _loadJobData(map: DataMap, funcId?: string) {
     if (isSavedBlock(map['#shared'])) {
-      this.getProperty('#shared').updateValue(SharedBlock.loadSharedBlock(this, funcId, map['#shared']));
+      this._sharedBlock = SharedBlock.loadSharedBlock(this, funcId, map['#shared']);
+      this.getProperty('#shared').updateValue(this._sharedBlock);
     }
     super._load(map);
   }

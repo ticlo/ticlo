@@ -1,5 +1,5 @@
-import {BlockProperty} from './BlockProperty';
 import {Block} from './Block';
+import {BlockProperty} from './BlockProperty';
 import {DataMap, isSavedBlock} from '../util/DataTypes';
 import {/* type */ Job, Root} from './Job';
 import {Uid} from '../util/Uid';
