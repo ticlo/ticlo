@@ -1,6 +1,5 @@
 import {assert} from 'chai';
-import {Job, Root} from '../Job';
-import {SharedBlock} from '../SharedBlock';
+import {Job, Root, SharedBlock} from '../Job';
 
 describe('SharedBlock', function() {
   it('basic', function() {

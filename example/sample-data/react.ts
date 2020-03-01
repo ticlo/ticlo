@@ -14,6 +14,12 @@ const data = {
     '@b-xyw': [332.796875, 254, 150],
     '~container': '##.query-selector.#output',
     '~component': '##.jsx.#output'
+  },
+  '#shared': {
+    '#is': '',
+    'add': {
+      '#is': 'add'
+    }
   }
 };
 

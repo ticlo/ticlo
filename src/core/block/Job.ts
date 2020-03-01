@@ -8,7 +8,19 @@ import {DataMap, isSavedBlock} from '../util/DataTypes';
 import {FunctionDesc} from './Descriptor';
 import {Functions} from './Functions';
 import {Storage} from './Storage';
-import {ShareConfig, SharedBlock} from './SharedBlock';
+import {Uid} from '../util/Uid';
+
+export class ShareConfig extends BlockProperty {
+  _load(val: any) {}
+
+  _liveUpdate(val: any) {
+    if (isSavedBlock(val)) {
+      if (this._value instanceof SharedBlock) {
+        this._value._liveUpdate(val);
+      }
+    }
+  }
+}
 
 const JobConfigGenerators: {[key: string]: typeof BlockProperty} = {
   ...ConfigGenerators,
@@ -137,7 +149,7 @@ export class Job extends Block {
         loaded = true;
       }
     } else {
-      this._namespace = this._job._namespace;
+      this._namespace = this._parent._job._namespace;
       this._loadFrom = null;
       if (src) {
         this._loadJobData(src);
@@ -337,5 +349,47 @@ export class Root extends Job {
 
   liveUpdate(map: DataMap) {
     // not allowed
+  }
+}
+
+export class SharedBlock extends Job {
+  static uid = new Uid();
+  static _dict = new Map<any, SharedBlock>();
+  static loadSharedBlock(job: Job, funcId: string, data: DataMap): SharedBlock {
+    let result: SharedBlock;
+    if (SharedBlock._dict.has(data)) {
+      result = SharedBlock._dict.get(data);
+    } else {
+      let uid = SharedBlock.uid;
+      let sharedRoot = Root.instance._sharedRoot;
+      while (sharedRoot.getProperty(uid.next(), false)?._value) {
+        // loop until find a usable id
+      }
+      let prop = sharedRoot.getProperty(uid.current);
+      result = new SharedBlock(sharedRoot, sharedRoot, prop);
+      result._source = data;
+      SharedBlock._dict.set(data, result);
+      prop.updateValue(result);
+      let sharedId;
+      if (funcId?.includes(':')) {
+        sharedId = `${funcId}__shared`;
+      }
+      result.load(data, sharedId);
+    }
+    result.attachJob(job);
+    return result;
+  }
+
+  _source: any;
+  _jobs = new Set<Job>();
+  attachJob(job: Job) {
+    this._jobs.add(job);
+  }
+  detachJob(job: Job) {
+    this._jobs.delete(job);
+    if (this._jobs.size === 0) {
+      this._prop.setValue(undefined);
+      SharedBlock._dict.delete(this._source);
+    }
   }
 }
