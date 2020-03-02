@@ -9,7 +9,7 @@ import {
 } from '../block/BlockProperty';
 import {DataMap, isPrimitiveType, truncateData} from '../util/DataTypes';
 import {Block, BlockChildWatch, InputsBlock} from '../block/Block';
-import {Job, Root} from '../block/Job';
+import {Job, Root, SharedBlock} from '../block/Job';
 import {PropDispatcher, PropListener} from '../block/Dispatcher';
 import {Functions, DescListener} from '../block/Functions';
 import {FunctionDesc, PropDesc, PropGroupDesc} from '../block/Descriptor';
@@ -500,7 +500,6 @@ export class ServerConnection extends Connection {
             property.setBinding(undefined);
           }
         } else {
-          console.log(from);
           let fromParts = from.split('..');
           let fromProp = this.root.queryProperty(fromParts[0], true);
           if (fromProp) {
@@ -510,12 +509,14 @@ export class ServerConnection extends Connection {
             } else if (from.includes('.#shared.')) {
               let sharedParts = from.split('.#shared.');
               if (
-                sharedParts.length === 2 &&
-                path.startsWith(`${sharedParts[0]}.`) &&
-                !path.startsWith(`${sharedParts[0]}.#shared.`)
+                sharedParts.length === 2 && // binding from #shared
+                path.startsWith(`${sharedParts[0]}.`) && // binding to parent scope of #shared
+                !path.startsWith(`${sharedParts[0]}.#shared.`) // not binding to something inside #shared
               ) {
                 let sharedProp = this.root.queryProperty(`${sharedParts[0]}.#shared`);
-                resolvedFrom = `${propRelative(property._block, sharedProp)}.${sharedParts[1]}`;
+                if (sharedProp._value instanceof SharedBlock) {
+                  resolvedFrom = `${propRelative(property._block, sharedProp)}.${sharedParts[1]}`;
+                }
               }
             }
             if (resolvedFrom == null) {

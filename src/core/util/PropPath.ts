@@ -36,16 +36,18 @@ function propRelativeImpl(
     commonParent = baseBlocks.pop();
     fromBlocks.pop();
   }
-  if (commonParent === job && !firstLayerBase) {
-    // first layer binding should use ## instead of ###, to make it easy to copy paste blocks to other layer
-    if (pathPrefix) {
-      // pathPrefix point to child job root, so ### would point to self, need ##.###
-      resultPaths.push('##');
-    }
-    resultPaths.push('###');
-  } else {
-    for (let block of baseBlocks) {
-      resultPaths.push('##');
+  if (baseBlocks.length) {
+    if (commonParent === job && !firstLayerBase) {
+      // first layer binding should use ## instead of ###, to make it easy to copy paste blocks to other layer
+      if (pathPrefix) {
+        // pathPrefix point to child job root, so ### would point to self, need ##.###
+        resultPaths.push('##');
+      }
+      resultPaths.push('###');
+    } else {
+      for (let block of baseBlocks) {
+        resultPaths.push('##');
+      }
     }
   }
 

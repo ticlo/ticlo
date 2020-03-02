@@ -770,4 +770,25 @@ describe('Connection', function() {
     client.destroy();
     Root.instance.deleteValue('Connection21');
   });
+
+  it('#shared binding', async function() {
+    let job1 = Root.instance.addJob('Connection22', {'#is': '', 'a': {'#is': ''}, '#shared': {'#is': ''}});
+    let job2 = Root.instance.addJob('Connection22_2');
+
+    let [server, client] = makeLocalConnection(Root.instance, false);
+
+    await client.setBinding('Connection22.a.v', 'Connection22.#shared.a', true, true);
+    assert.equal(job1.queryProperty('a.v')._bindingPath, '##.#shared.a');
+
+    await client.setBinding('Connection22.#shared.v', 'Connection22.#shared.a', true, true);
+    assert.equal(job1.queryProperty('#shared.v')._bindingPath, 'a');
+
+    let sharedBlockName = (job1.getValue('#shared') as Block)._prop._name;
+    await client.setBinding('Connection22_2.v', 'Connection22.#shared.a', true, true);
+    assert(job2.getProperty('v')._bindingPath, `###.##.#shared.${sharedBlockName}.a`);
+
+    client.destroy();
+    Root.instance.deleteValue('Connection22');
+    Root.instance.deleteValue('Connection22_2');
+  });
 });
