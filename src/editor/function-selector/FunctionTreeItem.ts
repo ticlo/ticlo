@@ -176,9 +176,6 @@ export class FunctionTreeRoot extends FunctionTreeItem {
   }
 
   onDesc = (desc: FunctionDesc, key: string) => {
-    if (key === 'react:') {
-      debugger;
-    }
     let item = this.typeMap.get(key);
     if (item && item.desc) {
       // remove existing function first

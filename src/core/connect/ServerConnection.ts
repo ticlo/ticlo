@@ -136,7 +136,7 @@ class ServerSubscribe extends ServerRequest implements BlockPropertySubscriber, 
 
   close() {
     this.source.unlisten(this);
-    if (!this.property._block._destroyed) {
+    if (this.property._block && !this.property._block._destroyed) {
       this.property.unsubscribe(this);
     }
     this.property = null;
@@ -500,18 +500,31 @@ export class ServerConnection extends Connection {
             property.setBinding(undefined);
           }
         } else {
+          console.log(from);
           let fromParts = from.split('..');
           let fromProp = this.root.queryProperty(fromParts[0], true);
           if (fromProp) {
+            let resolvedFrom: string;
             if (from.startsWith('#global.^')) {
-              from = from.substring(8);
-            } else {
-              from = propRelative(property._block, fromProp);
+              resolvedFrom = from.substring(8);
+            } else if (from.includes('.#shared.')) {
+              let sharedParts = from.split('.#shared.');
+              if (
+                sharedParts.length === 2 &&
+                path.startsWith(`${sharedParts[0]}.`) &&
+                !path.startsWith(`${sharedParts[0]}.#shared.`)
+              ) {
+                let sharedProp = this.root.queryProperty(`${sharedParts[0]}.#shared`);
+                resolvedFrom = `${propRelative(property._block, sharedProp)}.${sharedParts[1]}`;
+              }
+            }
+            if (resolvedFrom == null) {
+              resolvedFrom = propRelative(property._block, fromProp);
             }
             if (fromParts.length === 2) {
-              from = `${from}.${fromParts[1]}`;
+              resolvedFrom = `${resolvedFrom}.${fromParts[1]}`;
             }
-            property.setBinding(from);
+            property.setBinding(resolvedFrom);
           } else {
             return 'invalid from path';
           }

@@ -1,5 +1,12 @@
 import React from 'react';
-import {ClientConn, DataMap, forAllPathsBetween} from '../../../src/core/editor';
+import {
+  ClientConn,
+  DataMap,
+  deepEqual,
+  forAllPathsBetween,
+  ValueSubscriber,
+  ValueUpdate
+} from '../../../src/core/editor';
 import {DragState} from 'rc-dock';
 import {BlockItem, FieldItem, Stage} from './Field';
 import {LazyUpdateComponent} from '../component/LazyUpdateComponent';
@@ -232,44 +239,65 @@ export abstract class BlockStageBase<State> extends LazyUpdateComponent<StagePro
     }
   }
 
-  watchListener = {
-    onUpdate: (response: DataMap) => {
-      let changes = response.changes;
-      for (let name in changes) {
-        let change = changes[name];
-        let path = `${this.props.basePath}.${name}`;
-        if (change === null) {
-          if (this._blocks.has(path)) {
-            if (this._blocks.get(path).selected) {
-              this.selectionChanged = true;
-            }
-            this._blocks.delete(path);
-            this.forceUpdate();
+  onChildUpdate(changes: DataMap, basePath: string) {
+    for (let name in changes) {
+      let change = changes[name];
+      let path = `${basePath}.${name}`;
+      if (change === null) {
+        if (this._blocks.has(path)) {
+          if (this._blocks.get(path).selected) {
+            this.selectionChanged = true;
           }
-        } else {
-          if (!this._blocks.has(path)) {
-            // create new block
-            let newBlockItem = new BlockItem(this.props.conn, this, path);
-            this._blocks.set(path, newBlockItem);
-            // update block links
-            if (this._blockLinks.has(path)) {
-              for (let target of this._blockLinks.get(path)) {
-                target.syncParent = newBlockItem;
-              }
+          this._blocks.delete(path);
+          this.forceUpdate();
+        }
+      } else {
+        if (!this._blocks.has(path)) {
+          // create new block
+          let newBlockItem = new BlockItem(this.props.conn, this, path);
+          this._blocks.set(path, newBlockItem);
+          // update block links
+          if (this._blockLinks.has(path)) {
+            for (let target of this._blockLinks.get(path)) {
+              target.syncParent = newBlockItem;
             }
-            this.forceUpdate();
           }
+          this.forceUpdate();
         }
       }
-      if (this.selectionChanged) {
-        this.onSelect();
-      }
+    }
+    if (this.selectionChanged) {
+      this.onSelect();
+    }
+  }
+  watchListener = {
+    onUpdate: (response: DataMap) => {
+      this.onChildUpdate(response.changes, this.props.basePath);
     }
   };
+  sharedWatchListener = {
+    onUpdate: (response: DataMap) => {
+      this.onChildUpdate(response.changes, `${this.props.basePath}.#shared`);
+    }
+  };
+  clearSharedBlocks() {}
+
+  sharedListener = new ValueSubscriber({
+    onUpdate: (response: ValueUpdate) => {
+      if (String(response.cache.value).startsWith('SharedBlock ')) {
+        let {conn, basePath} = this.props;
+        conn.watch(`${basePath}.#shared`, this.sharedWatchListener);
+      } else {
+        this.clearSharedBlocks();
+      }
+    }
+  });
 
   constructor(props: StageProps) {
     super(props);
-    props.conn.watch(props.basePath, this.watchListener);
+    let {conn, basePath} = props;
+    conn.watch(props.basePath, this.watchListener);
+    this.sharedListener.subscribe(conn, `${basePath}.#shared`);
   }
 
   UNSAFE_componentWillReceiveProps(nextProps: StageProps) {
@@ -307,6 +335,10 @@ export abstract class BlockStageBase<State> extends LazyUpdateComponent<StagePro
   }
 
   componentWillUnmount() {
-    this.props.conn.unwatch(this.props.basePath, this.watchListener);
+    let {conn, basePath} = this.props;
+    this.sharedListener.unsubscribe();
+    conn.unwatch(basePath, this.watchListener);
+    conn.unwatch(`${basePath}.#shared`, this.sharedWatchListener);
+    super.componentWillUnmount();
   }
 }
