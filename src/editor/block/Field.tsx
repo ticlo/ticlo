@@ -249,6 +249,7 @@ interface FieldViewProps {
 }
 
 interface BlockHeaderProps extends FieldViewProps {
+  shared: boolean;
   onDragStartT?: DragManager.DragHandler;
   onDragMoveT?: DragManager.DragHandler;
   onDragEndT?: DragManager.DragHandler;
@@ -279,7 +280,7 @@ export class BlockHeaderView extends PureDataRenderer<BlockHeaderProps, any> {
   };
 
   renderImpl(): React.ReactNode {
-    let {item, onDragStartT, onDragMoveT, onDragEndT, onDoubleClick, children} = this.props;
+    let {item, shared, onDragStartT, onDragMoveT, onDragEndT, onDoubleClick, children} = this.props;
     let inBoundClass: string;
     let inBoundText: string;
     let inBoundTitle: string;
@@ -303,10 +304,14 @@ export class BlockHeaderView extends PureDataRenderer<BlockHeaderProps, any> {
         }
       }
     }
+    let className = 'ticl-block-head ticl-block-prbg';
+    if (shared) {
+      className = `${className} ticl-block-head-shared`;
+    }
 
     return (
       <DragDropDiv
-        className="ticl-block-head ticl-block-prbg"
+        className={className}
         directDragT={true}
         onDoubleClick={onDoubleClick}
         onDragStartT={onDragStartT}
@@ -737,7 +742,7 @@ export class BlockItem extends BaseBlockItem {
     return null;
   }
 
-  constructor(connection: ClientConn, stage: Stage, path: string) {
+  constructor(connection: ClientConn, stage: Stage, path: string, public shared?: boolean) {
     super(connection, stage, path);
   }
 

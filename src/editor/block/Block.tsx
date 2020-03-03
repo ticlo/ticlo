@@ -226,6 +226,7 @@ export class BlockView extends PureDataRenderer<BlockViewProps, BlockViewState> 
         <div ref={this.getRef} className={classNames.join(' ')} style={{top: item.y, left: item.x, width: item.w}}>
           <BlockHeaderView
             item={item.getHeaderCallField()}
+            shared={item.shared}
             onDoubleClick={this.expandBlock}
             onDragStartT={this.selectAndDrag}
             onDragMoveT={this.onDragMove}
@@ -256,13 +257,17 @@ export class BlockView extends PureDataRenderer<BlockViewProps, BlockViewState> 
     } else if (item.descLoaded) {
       classNames.push('ticl-block');
       classNames.push('ticl-block-min');
+      let headClasses = 'ticl-block-head ticl-block-prbg';
+      if (item.shared) {
+        headClasses = `${headClasses} ticl-block-head-shared`;
+      }
       let [colorClass, icon] = getFuncStyleFromDesc(item.desc, item.conn);
       classNames.push(colorClass);
       return (
         <div ref={this.getRef} className={classNames.join(' ')} style={{top: item.y, left: item.x}}>
           <div className="ticl-block-min-bound" />
           <DragDropDiv
-            className="ticl-block-head ticl-block-prbg"
+            className={headClasses}
             directDragT={true}
             onDoubleClick={this.expandBlock}
             onDragStartT={this.selectAndDrag}

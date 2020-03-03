@@ -50,6 +50,8 @@ export abstract class BlockStageBase<State> extends LazyUpdateComponent<StagePro
     return result;
   }
 
+  _sharedPath: string;
+
   _blocks: Map<string, BlockItem> = new Map<string, BlockItem>();
   _blockLinks: Map<string, Set<BlockItem>> = new Map<string, Set<BlockItem>>();
   _fields: Map<string, FieldItem> = new Map<string, FieldItem>();
@@ -254,7 +256,7 @@ export abstract class BlockStageBase<State> extends LazyUpdateComponent<StagePro
       } else {
         if (!this._blocks.has(path)) {
           // create new block
-          let newBlockItem = new BlockItem(this.props.conn, this, path);
+          let newBlockItem = new BlockItem(this.props.conn, this, path, basePath === this._sharedPath);
           this._blocks.set(path, newBlockItem);
           // update block links
           if (this._blockLinks.has(path)) {
@@ -277,7 +279,7 @@ export abstract class BlockStageBase<State> extends LazyUpdateComponent<StagePro
   };
   sharedWatchListener = {
     onUpdate: (response: DataMap) => {
-      this.onChildUpdate(response.changes, `${this.props.basePath}.#shared`);
+      this.onChildUpdate(response.changes, this._sharedPath);
     }
   };
   clearSharedBlocks() {}
@@ -285,8 +287,8 @@ export abstract class BlockStageBase<State> extends LazyUpdateComponent<StagePro
   sharedListener = new ValueSubscriber({
     onUpdate: (response: ValueUpdate) => {
       if (String(response.cache.value).startsWith('SharedBlock ')) {
-        let {conn, basePath} = this.props;
-        conn.watch(`${basePath}.#shared`, this.sharedWatchListener);
+        let {conn} = this.props;
+        conn.watch(this._sharedPath, this.sharedWatchListener);
       } else {
         this.clearSharedBlocks();
       }
@@ -296,8 +298,9 @@ export abstract class BlockStageBase<State> extends LazyUpdateComponent<StagePro
   constructor(props: StageProps) {
     super(props);
     let {conn, basePath} = props;
-    conn.watch(props.basePath, this.watchListener);
-    this.sharedListener.subscribe(conn, `${basePath}.#shared`);
+    this._sharedPath = `${basePath}.#shared`;
+    conn.watch(basePath, this.watchListener);
+    this.sharedListener.subscribe(conn, this._sharedPath);
   }
 
   UNSAFE_componentWillReceiveProps(nextProps: StageProps) {
@@ -338,7 +341,7 @@ export abstract class BlockStageBase<State> extends LazyUpdateComponent<StagePro
     let {conn, basePath} = this.props;
     this.sharedListener.unsubscribe();
     conn.unwatch(basePath, this.watchListener);
-    conn.unwatch(`${basePath}.#shared`, this.sharedWatchListener);
+    conn.unwatch(this._sharedPath, this.sharedWatchListener);
     super.componentWillUnmount();
   }
 }

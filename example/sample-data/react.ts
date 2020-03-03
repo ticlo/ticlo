@@ -18,7 +18,8 @@ const data = {
   '#shared': {
     '#is': '',
     'add': {
-      '#is': 'add'
+      '#is': 'add',
+      '@b-p': ['0', '1']
     }
   }
 };
