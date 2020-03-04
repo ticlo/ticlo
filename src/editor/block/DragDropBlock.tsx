@@ -11,7 +11,7 @@ export function onDragBlockOver(conn: ClientConn, e: DragState) {
   }
 }
 
-type CreateBlockCallback = (name: string, data: {[key: string]: any}) => void;
+type CreateBlockCallback = (name: string, data: {[key: string]: any}, shared: boolean) => void;
 
 export function onDropBlock(conn: ClientConn, e: DragState, createBlock: CreateBlockCallback, bgElement: HTMLElement) {
   let blockData = DragState.getData('blockData', conn.getBaseConn());
@@ -37,7 +37,7 @@ export function onDropBlock(conn: ClientConn, e: DragState, createBlock: CreateB
         }
       }
       blockData['@b-xyw'] = xyw;
-      createBlock(name, blockData);
+      createBlock(name, blockData, e.event.altKey);
     };
     if (blockName.includes('.')) {
       blockName = blockName.split('.').pop();

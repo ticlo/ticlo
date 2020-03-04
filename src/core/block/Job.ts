@@ -10,7 +10,7 @@ import {Functions} from './Functions';
 import {Storage} from './Storage';
 import {Uid} from '../util/Uid';
 
-export class ShareConfig extends BlockProperty {
+export class SharedConfig extends BlockProperty {
   _load(val: any) {}
 
   _liveUpdate(val: any) {
@@ -26,7 +26,7 @@ const JobConfigGenerators: {[key: string]: typeof BlockProperty} = {
   ...ConfigGenerators,
   '#inputs': BlockInputsConfig,
   '#outputs': BlockOutputsConfig,
-  '#shared': ShareConfig
+  '#shared': SharedConfig
 };
 
 export class Job extends Block {
@@ -165,10 +165,22 @@ export class Job extends Block {
   }
   _loadJobData(map: DataMap, funcId?: string) {
     if (isSavedBlock(map['#shared'])) {
-      this._sharedBlock = SharedBlock.loadSharedBlock(this, funcId, map['#shared']);
-      this.getProperty('#shared').updateValue(this._sharedBlock);
+      SharedBlock.loadSharedBlock(this, funcId, map['#shared']);
     }
     super._load(map);
+  }
+  _setSharedBlock(block: SharedBlock) {
+    if (block === this._sharedBlock) {
+      return;
+    }
+    if (this._sharedBlock) {
+      this._sharedBlock.detachJob(this);
+    }
+    this._sharedBlock = block;
+    if (block) {
+      this._sharedBlock.attachJob(this);
+    }
+    this.updateValue('#shared', block);
   }
 
   trackChange() {
@@ -355,7 +367,7 @@ export class Root extends Job {
 export class SharedBlock extends Job {
   static uid = new Uid();
   static _dict = new Map<any, SharedBlock>();
-  static loadSharedBlock(job: Job, funcId: string, data: DataMap): SharedBlock {
+  static loadSharedBlock(job: Job, funcId: string, data: DataMap) {
     let result: SharedBlock;
     if (SharedBlock._dict.has(data)) {
       result = SharedBlock._dict.get(data);
@@ -371,13 +383,16 @@ export class SharedBlock extends Job {
       SharedBlock._dict.set(data, result);
       prop.updateValue(result);
       let sharedId;
-      if (funcId?.includes(':')) {
-        sharedId = `${funcId}__shared`;
+      if (funcId != null) {
+        if (funcId.includes(':')) {
+          sharedId = `${funcId}__shared`;
+        }
+      } else if (job._namespace != null) {
+        sharedId = `${job._namespace}:__shared`;
       }
       result.load(data, sharedId);
     }
-    result.attachJob(job);
-    return result;
+    job._setSharedBlock(result);
   }
 
   _source: any;

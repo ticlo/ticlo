@@ -9,7 +9,7 @@ import {
 } from '../block/BlockProperty';
 import {DataMap, isPrimitiveType, truncateData} from '../util/DataTypes';
 import {Block, BlockChildWatch, InputsBlock} from '../block/Block';
-import {Job, Root, SharedBlock} from '../block/Job';
+import {Job, Root, SharedBlock, SharedConfig} from '../block/Job';
 import {PropDispatcher, PropListener} from '../block/Dispatcher';
 import {Functions, DescListener} from '../block/Functions';
 import {FunctionDesc, PropDesc, PropGroupDesc} from '../block/Descriptor';
@@ -514,7 +514,7 @@ export class ServerConnection extends Connection {
                 !path.startsWith(`${sharedParts[0]}.#shared.`) // not binding to something inside #shared
               ) {
                 let sharedProp = this.root.queryProperty(`${sharedParts[0]}.#shared`);
-                if (sharedProp._value instanceof SharedBlock) {
+                if (sharedProp instanceof SharedConfig) {
                   resolvedFrom = `${propRelative(property._block, sharedProp)}.${sharedParts[1]}`;
                 }
               }
@@ -549,6 +549,16 @@ export class ServerConnection extends Connection {
 
   createBlock(path: string, data?: DataMap, anyName?: boolean): string | DataMap {
     let property = this.root.queryProperty(path, true);
+    if (!property && /\.#shared\.[^.]+$/.test(path)) {
+      let sharedPath = path.substring(0, path.lastIndexOf('.'));
+      let sharedProp = this.root.queryProperty(sharedPath, true);
+      if (sharedProp instanceof SharedConfig) {
+        // create shared block automatically
+        SharedBlock.loadSharedBlock(sharedProp._block as Job, null, {});
+        // get the property again
+        property = this.root.queryProperty(path, true);
+      }
+    }
     if (property) {
       let keepSaved: any;
       let keepBinding: string;

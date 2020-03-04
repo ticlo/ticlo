@@ -311,11 +311,12 @@ export abstract class BlockStageBase<State> extends LazyUpdateComponent<StagePro
     }
   }
 
-  createBlock = async (name: string, blockData: {[key: string]: any}) => {
+  createBlock = async (name: string, blockData: {[key: string]: any}, shared: boolean) => {
     let {conn, basePath} = this.props;
+    let parentPath = shared ? this._sharedPath : basePath;
     try {
-      let newName = (await conn.createBlock(`${basePath}.${name}`, blockData, true)).name;
-      let newPath = `${basePath}.${newName}`;
+      let newName = (await conn.createBlock(`${parentPath}.${name}`, blockData, true)).name;
+      let newPath = `${parentPath}.${newName}`;
       this.selectBlock(newPath, false);
       this.onSelect(); // update the property list
     } catch (e) {
