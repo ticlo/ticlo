@@ -506,27 +506,33 @@ export class ServerConnection extends Connection {
             let resolvedFrom: string;
             if (from.startsWith('#global.^')) {
               resolvedFrom = from.substring(8);
-            } else if (from.includes('.#shared.')) {
-              let sharedParts = from.split('.#shared.');
-              if (
-                sharedParts.length === 2 && // binding from #shared
-                path.startsWith(`${sharedParts[0]}.`) && // binding to parent scope of #shared
-                !path.startsWith(`${sharedParts[0]}.#shared.`) // not binding to something inside #shared
-              ) {
-                let sharedProp = this.root.queryProperty(`${sharedParts[0]}.#shared`);
-                if (sharedProp instanceof SharedConfig) {
-                  resolvedFrom = propRelative(property._block, sharedProp);
-                  if (resolvedFrom == null) {
-                    return 'invalid binding source';
+            } else {
+              let fromSharedPos = from.lastIndexOf('.#shared.');
+              let toSharedPos = path.lastIndexOf('.#shared.');
+              if (toSharedPos > fromSharedPos) {
+                return 'invalid binding target';
+              }
+              if (fromSharedPos > 0 && fromSharedPos !== toSharedPos) {
+                let beforeShared = from.substring(0, fromSharedPos + 1); // including the last dot before #shared
+                let afterShared = from.substring(fromSharedPos + 9);
+                if (
+                  path.startsWith(beforeShared) // binding to parent scope of #shared
+                ) {
+                  let sharedProp = this.root.queryProperty(`${beforeShared}#shared`);
+                  if (sharedProp instanceof SharedConfig) {
+                    resolvedFrom = propRelative(property._block, sharedProp);
+                    if (resolvedFrom == null) {
+                      return 'invalid binding scope';
+                    }
+                    resolvedFrom = `${resolvedFrom}.${afterShared}`;
                   }
-                  resolvedFrom = `${resolvedFrom}.${sharedParts[1]}`;
                 }
               }
             }
             if (resolvedFrom == null) {
               resolvedFrom = propRelative(property._block, fromProp);
               if (resolvedFrom == null) {
-                return 'invalid binding source';
+                return 'invalid binding scope';
               }
             }
             if (fromParts.length === 2) {
