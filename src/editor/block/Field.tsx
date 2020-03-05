@@ -22,6 +22,7 @@ import {TIcon} from '../icon/Icon';
 import {DragDropDiv, DragState} from 'rc-dock';
 import * as DragManager from 'rc-dock/src/dragdrop/DragManager';
 import {FieldValue} from './FieldValue';
+import {isBindable} from '../../core/util/Path';
 
 export interface Stage {
   getBlock(path: string): BlockItem;
@@ -262,7 +263,8 @@ export class BlockHeaderView extends PureDataRenderer<BlockHeaderProps, any> {
     if (e.dragType !== 'right') {
       let fields: string[] = DragState.getData('fields', item.getBaseConn());
       if (Array.isArray(fields)) {
-        if (!item.desc.readonly && fields.length === 1 && fields[0] !== item.path) {
+        if (!item.desc.readonly && fields.length === 1 && isBindable(item.path, fields[0])) {
+          console.log(item.path, fields[0]);
           e.accept('tico-fas-play');
           return;
         }
@@ -360,7 +362,7 @@ export class FieldView extends PureDataRenderer<FieldViewProps, any> {
     } else {
       let fields: string[] = DragState.getData('fields', item.getBaseConn());
       if (Array.isArray(fields)) {
-        if (!item.desc.readonly && fields.length === 1 && fields[0] !== item.path) {
+        if (!item.desc.readonly && fields.length === 1 && isBindable(item.path, fields[0])) {
           e.accept('tico-fas-link');
           return;
         }

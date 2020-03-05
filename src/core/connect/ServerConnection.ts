@@ -26,6 +26,7 @@ import {addCustomProperty, moveCustomProperty, removeCustomProperty} from '../pr
 import {JobEditor} from '../worker/JobEditor';
 import {addOptionalProperty, moveOptionalProperty, removeOptionalProperty} from '../property-api/OptionalProperty';
 import {WorkerFunction} from '../worker/WorkerFunction';
+import {isBindable} from '../util/Path';
 
 class ServerRequest extends ConnectionSendingData {
   id: string;
@@ -501,6 +502,10 @@ export class ServerConnection extends Connection {
           }
         } else {
           let fromParts = from.split('..');
+          let bindable = isBindable(path, fromParts[0]);
+          if (!bindable) {
+            return 'invalid binding path';
+          }
           let fromProp = this.root.queryProperty(fromParts[0], true);
           if (fromProp) {
             let resolvedFrom: string;
@@ -508,32 +513,17 @@ export class ServerConnection extends Connection {
               resolvedFrom = from.substring(8);
             } else {
               let fromSharedPos = from.lastIndexOf('.#shared.');
-              let toSharedPos = path.lastIndexOf('.#shared.');
-              if (toSharedPos > fromSharedPos) {
-                return 'invalid binding target';
-              }
-              if (fromSharedPos > 0 && fromSharedPos !== toSharedPos) {
-                let beforeShared = from.substring(0, fromSharedPos + 1); // including the last dot before #shared
-                let afterShared = from.substring(fromSharedPos + 9);
-                if (
-                  path.startsWith(beforeShared) // binding to parent scope of #shared
-                ) {
-                  let sharedProp = this.root.queryProperty(`${beforeShared}#shared`);
-                  if (sharedProp instanceof SharedConfig) {
-                    resolvedFrom = propRelative(property._block, sharedProp);
-                    if (resolvedFrom == null) {
-                      return 'invalid binding scope';
-                    }
-                    resolvedFrom = `${resolvedFrom}.${afterShared}`;
-                  }
+              if (bindable === 'shared') {
+                let sharedPath = from.substring(0, fromSharedPos + 8); // path to #shared
+                let sharedProp = this.root.queryProperty(sharedPath);
+                if (sharedProp instanceof SharedConfig) {
+                  let afterShared = from.substring(fromSharedPos + 9);
+                  resolvedFrom = `${propRelative(property._block, sharedProp)}.${afterShared}`;
                 }
               }
             }
             if (resolvedFrom == null) {
               resolvedFrom = propRelative(property._block, fromProp);
-              if (resolvedFrom == null) {
-                return 'invalid binding scope';
-              }
             }
             if (fromParts.length === 2) {
               resolvedFrom = `${resolvedFrom}.${fromParts[1]}`;

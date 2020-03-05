@@ -21,7 +21,8 @@ import {
   getTailingNumber,
   Logger,
   ValueSubscriber,
-  DataMap
+  DataMap,
+  isBindable
 } from '../../../src/core/editor';
 import {MultiSelectComponent, MultiSelectLoader} from './MultiSelectComponent';
 import {StringEditor} from './value/StringEditor';
@@ -240,11 +241,21 @@ export class PropertyEditor extends MultiSelectComponent<PropertyEditorProps, St
       let dragFields: string[] = DragState.getData('fields', conn.getBaseConn());
       if (Array.isArray(dragFields)) {
         if (!propDesc.readonly && (dragFields.length === 1 || dragFields.length === paths.length)) {
-          let fields = paths.map((s) => `${s}.${name}`);
-          if (!deepEqual(fields, dragFields)) {
-            e.accept('tico-fas-link');
-            return;
+          if (dragFields.length === paths.length) {
+            let bindable = false;
+            for (let i = 0; i < paths.length; ++i) {
+              if (isBindable(`${paths[i]}.${name}`, dragFields[i])) {
+                bindable = true;
+                break;
+              }
+            }
+            if (!bindable) {
+              e.reject();
+              return;
+            }
           }
+          e.accept('tico-fas-link');
+          return;
         }
       }
       // check drag from type

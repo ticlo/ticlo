@@ -10,4 +10,4 @@ export * from './util/Moment';
 export {Logger} from './util/Logger';
 export {stopPropagation, voidFunction} from './util/Functions';
 export {PropDispatcher} from './block/Dispatcher';
-export {forAllPathsBetween, resolvePath, getRelativePath, validateNodeName, validateNodePath} from './util/Path';
+export * from './util/Path';

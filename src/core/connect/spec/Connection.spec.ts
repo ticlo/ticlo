@@ -787,25 +787,25 @@ describe('Connection', function() {
     let error = await shouldReject(
       client.setBinding('Connection22_2.v1', 'Connection22.#shared.a', true, true) as Promise<any>
     );
-    assert.equal(error, 'invalid binding scope');
+    assert.equal(error, 'invalid binding path');
 
     // can't bind into #shared
     error = await shouldReject(
       client.setBinding('Connection22.#shared.a', 'Connection22.v1', true, true) as Promise<any>
     );
-    assert.equal(error, 'invalid binding target');
+    assert.equal(error, 'invalid binding path');
 
     // can't bind from global #temp object
     error = await shouldReject(client.setBinding('Connection22_2.v2', '#temp.v', true, true) as Promise<any>);
-    assert.equal(error, 'invalid binding scope');
+    assert.equal(error, 'invalid binding path');
 
     // can't bind to global #shared object
     error = await shouldReject(client.setBinding('#shared.v', 'Connection22_2.v', true, true) as Promise<any>);
-    assert.equal(error, 'invalid binding scope');
+    assert.equal(error, 'invalid binding path');
 
     // can't bind to global #temp object
     error = await shouldReject(client.setBinding('#temp.v', 'Connection22_2.v', true, true) as Promise<any>);
-    assert.equal(error, 'invalid binding scope');
+    assert.equal(error, 'invalid binding path');
 
     // binding to #shared is allowed only when it's from #global
     await client.setBinding('#temp.v', '#global.v', true, true);

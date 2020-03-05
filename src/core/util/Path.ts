@@ -70,3 +70,33 @@ export function validateNodeName(name: string) {
 export function validateNodePath(path: string) {
   return path.search(invalidPathReg) < 0;
 }
+
+export function isBindable(toPath: string, fromPath: string): boolean | 'shared' {
+  if (toPath === fromPath) {
+    return false;
+  }
+  let tpScope = toPath.substring(0, toPath.indexOf('.'));
+  let fromScope = fromPath.substring(0, fromPath.indexOf('.'));
+  if (tpScope !== fromScope) {
+    if ((tpScope === '#shared' || tpScope === '#temp') && fromScope !== '#global') {
+      return false;
+    }
+    if (fromScope === '#shared' || fromScope === '#temp') {
+      return false;
+    }
+  }
+  let fromSharedPos = fromPath.lastIndexOf('.#shared.');
+  let toSharedPos = toPath.lastIndexOf('.#shared.');
+  if (toSharedPos > fromSharedPos) {
+    return false;
+  }
+  if (fromSharedPos > 0) {
+    if (!toPath.startsWith(fromPath.substring(0, fromSharedPos + 1))) {
+      return false;
+    }
+    if (fromSharedPos !== toSharedPos) {
+      return 'shared';
+    }
+  }
+  return true;
+}
