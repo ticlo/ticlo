@@ -1,14 +1,14 @@
 import {Block, BlockChildWatch} from '../block/Block';
-import {Job} from '../block/Job';
 import {DataMap} from '../util/DataTypes';
 import {WorkerFunction} from './WorkerFunction';
+import {JobWithShared} from '../block/SharedBlock';
 
 const blankWorker = {
   '#inputs': {'#is': ''},
   '#outputs': {'#is': ''}
 };
 
-export class JobEditor extends Job {
+export class JobEditor extends JobWithShared {
   unwatch(watcher: BlockChildWatch) {
     if (this._watchers) {
       super.unwatch(watcher);

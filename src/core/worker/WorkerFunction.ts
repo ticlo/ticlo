@@ -4,11 +4,12 @@ import {FunctionDesc, PropDesc, PropGroupDesc} from '../block/Descriptor';
 import {BlockIO} from '../block/BlockProperty';
 import {Job} from '../block/Job';
 import {DataMap} from '../util/DataTypes';
+import {JobWorker} from './JobWorker';
 
 export class WorkerFunction extends BlockFunction {
   readonly type: string;
   _namespace: string;
-  _funcJob: Job;
+  _funcJob: JobWorker;
 
   inputChanged(input: BlockIO, val: any): boolean {
     return false;
@@ -21,7 +22,7 @@ export class WorkerFunction extends BlockFunction {
         return WorkerFunction.applyChangeToFunc(this._funcJob, null, data);
       };
     }
-    this._funcJob = this._data.createOutputJob(Job, '#func', this.type, this._data, applyChange);
+    this._funcJob = this._data.createOutputJob(JobWorker, '#func', this.type, this._data, applyChange);
     this._funcJob.updateInput(this._data);
   }
 

@@ -2,32 +2,12 @@ import {Block, InputsBlock, Runnable} from './Block';
 import {BlockConfig, BlockIO, BlockProperty, GlobalProperty} from './BlockProperty';
 import {Resolver} from './Resolver';
 import {FunctionOutput} from './BlockFunction';
-import {BlockConstConfig, BlockInputsConfig, BlockOutputsConfig, ConfigGenerators} from './BlockConfigs';
+import {BlockConstConfig, JobConfigGenerators} from './BlockConfigs';
 import {Event} from './Event';
-import {DataMap, isSavedBlock} from '../util/DataTypes';
+import {DataMap} from '../util/DataTypes';
 import {FunctionDesc} from './Descriptor';
 import {Functions} from './Functions';
 import {Storage} from './Storage';
-import {Uid} from '../util/Uid';
-
-export class SharedConfig extends BlockProperty {
-  _load(val: any) {}
-
-  _liveUpdate(val: any) {
-    if (isSavedBlock(val)) {
-      if (this._value instanceof SharedBlock) {
-        this._value._liveUpdate(val);
-      }
-    }
-  }
-}
-
-const JobConfigGenerators: {[key: string]: typeof BlockProperty} = {
-  ...ConfigGenerators,
-  '#inputs': BlockInputsConfig,
-  '#outputs': BlockOutputsConfig,
-  '#shared': SharedConfig
-};
 
 export class Job extends Block {
   _resolver: Resolver;
@@ -39,7 +19,6 @@ export class Job extends Block {
   _loading: boolean = false;
 
   _outputObj?: FunctionOutput;
-  _sharedBlock: SharedBlock;
 
   constructor(parent: Block = Root.instance, output?: FunctionOutput, property?: BlockProperty) {
     super(null, null, property);
@@ -164,23 +143,7 @@ export class Job extends Block {
     return loaded;
   }
   _loadJobData(map: DataMap, funcId?: string) {
-    if (isSavedBlock(map['#shared'])) {
-      SharedBlock.loadSharedBlock(this, funcId, map['#shared']);
-    }
     super._load(map);
-  }
-  _setSharedBlock(block: SharedBlock) {
-    if (block === this._sharedBlock) {
-      return;
-    }
-    if (this._sharedBlock) {
-      this._sharedBlock.detachJob(this);
-    }
-    this._sharedBlock = block;
-    if (block) {
-      this._sharedBlock.attachJob(this);
-    }
-    this.updateValue('#shared', block);
   }
 
   trackChange() {
@@ -209,10 +172,6 @@ export class Job extends Block {
   }
 
   destroy(): void {
-    if (this._sharedBlock) {
-      this._sharedBlock.detachJob(this);
-      this._sharedBlock = null;
-    }
     this._onDestory?.();
     super.destroy();
   }
@@ -361,50 +320,5 @@ export class Root extends Job {
 
   liveUpdate(map: DataMap) {
     // not allowed
-  }
-}
-
-export class SharedBlock extends Job {
-  static uid = new Uid();
-  static _dict = new Map<any, SharedBlock>();
-  static loadSharedBlock(job: Job, funcId: string, data: DataMap) {
-    let result: SharedBlock;
-    if (SharedBlock._dict.has(data)) {
-      result = SharedBlock._dict.get(data);
-    } else {
-      let uid = SharedBlock.uid;
-      let sharedRoot = Root.instance._sharedRoot;
-      while (sharedRoot.getProperty(uid.next(), false)?._value) {
-        // loop until find a usable id
-      }
-      let prop = sharedRoot.getProperty(uid.current);
-      result = new SharedBlock(sharedRoot, sharedRoot, prop);
-      result._source = data;
-      SharedBlock._dict.set(data, result);
-      prop.updateValue(result);
-      let sharedId;
-      if (funcId != null) {
-        if (funcId.includes(':')) {
-          sharedId = `${funcId}__shared`;
-        }
-      } else if (job._namespace != null) {
-        sharedId = `${job._namespace}:__shared`;
-      }
-      result.load(data, sharedId);
-    }
-    job._setSharedBlock(result);
-  }
-
-  _source: any;
-  _jobs = new Set<Job>();
-  attachJob(job: Job) {
-    this._jobs.add(job);
-  }
-  detachJob(job: Job) {
-    this._jobs.delete(job);
-    if (this._jobs.size === 0) {
-      this._prop.setValue(undefined);
-      SharedBlock._dict.delete(this._source);
-    }
   }
 }

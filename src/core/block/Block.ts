@@ -439,13 +439,13 @@ export class Block implements Runnable, FunctionData, PropListener<FunctionClass
     return block;
   }
 
-  createOutputJob(
-    JobClass: new (parent: Block, output: FunctionOutput, property: BlockProperty) => Job,
+  createOutputJob<T extends Job>(
+    JobClass: new (parent: Block, output: FunctionOutput, property: BlockProperty) => T,
     field: string,
     src?: DataMap | string,
     output?: FunctionOutput,
     applyChange?: (data: DataMap) => boolean
-  ): Job {
+  ): T {
     let prop = this.getProperty(field);
     let job = new JobClass(this, output, prop);
     prop.setOutput(job);

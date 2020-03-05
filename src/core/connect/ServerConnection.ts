@@ -9,7 +9,8 @@ import {
 } from '../block/BlockProperty';
 import {DataMap, isPrimitiveType, truncateData} from '../util/DataTypes';
 import {Block, BlockChildWatch, InputsBlock} from '../block/Block';
-import {Job, Root, SharedBlock, SharedConfig} from '../block/Job';
+import {Job, Root} from '../block/Job';
+import {JobWithShared, SharedBlock, SharedConfig} from '../block/SharedBlock';
 import {PropDispatcher, PropListener} from '../block/Dispatcher';
 import {Functions, DescListener} from '../block/Functions';
 import {FunctionDesc, PropDesc, PropGroupDesc} from '../block/Descriptor';
@@ -557,7 +558,7 @@ export class ServerConnection extends Connection {
       let sharedProp = this.root.queryProperty(sharedPath, true);
       if (sharedProp instanceof SharedConfig) {
         // create shared block automatically
-        SharedBlock.loadSharedBlock(sharedProp._block as Job, null, {});
+        SharedBlock.loadSharedBlock(sharedProp._block as JobWithShared, null, {});
         // get the property again
         property = this.root.queryProperty(path, true);
       }

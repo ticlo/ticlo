@@ -2,10 +2,10 @@ import {Functions} from '../block/Functions';
 import {BlockFunction} from '../block/BlockFunction';
 import {BlockIO} from '../block/BlockProperty';
 import {Block, BlockChildWatch} from '../block/Block';
-import {Job} from '../block/Job';
 import {DataMap} from '../util/DataTypes';
 import {Event, EventType} from '../block/Event';
 import {MapImpl} from './MapImpl';
+import {JobWorker} from './JobWorker';
 
 export class ForEachFunction extends BlockFunction implements BlockChildWatch {
   _src: DataMap | string;
@@ -20,7 +20,7 @@ export class ForEachFunction extends BlockFunction implements BlockChildWatch {
   _funcBlock: Block;
   _outputBlock: Block;
 
-  _workers: Map<string, Job>;
+  _workers: Map<string, JobWorker>;
 
   static inputMap = new Map([
     ['input', ForEachFunction.prototype._onInputChange],
@@ -152,7 +152,7 @@ export class ForEachFunction extends BlockFunction implements BlockChildWatch {
   }
 
   _addWorker(key: string, input: any) {
-    let child = this._funcBlock.createOutputJob(Job, key, this._src, null, this._applyWorkerChange);
+    let child = this._funcBlock.createOutputJob(JobWorker, key, this._src, null, this._applyWorkerChange);
     this._workers.set(key, child);
     child.updateInput(input);
     this._outputBlock.setBinding(key, `##.#func.${key}.#outputs`);

@@ -1,12 +1,12 @@
 import {MapImpl, WorkerOutput} from './MapImpl';
 import {DataMap} from '../util/DataTypes';
 import {BlockMode} from '../block/Block';
-import {Job} from '../block/Job';
 import {Functions} from '../block/Functions';
 import {Event, EventType, WAIT, NO_EMIT} from '../block/Event';
 import Denque from 'denque';
 import {InfiniteQueue} from '../util/InfiniteQueue';
 import {DefaultTask, Task} from '../block/Task';
+import {JobWorker} from './JobWorker';
 
 export class HandlerFunction extends MapImpl {
   _queue = new Denque<Task>();
@@ -88,7 +88,7 @@ export class HandlerFunction extends MapImpl {
     return false;
   }
 
-  _updateWorkerInput(worker: Job) {
+  _updateWorkerInput(worker: JobWorker) {
     ++this._waitingWorker;
     let field: any;
     if (this._keepOrder) {
