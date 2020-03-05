@@ -7,7 +7,7 @@ import '../../functions/Categories';
 import {AsyncClientPromise} from './AsyncClientPromise';
 import {VoidListeners, TestFunctionRunner} from '../../block/spec/TestFunction';
 import {FunctionDesc} from '../../block/Descriptor';
-import {shouldHappen} from '../../util/test-util';
+import {shouldHappen, shouldReject} from '../../util/test-util';
 import {JsFunction} from '../../functions/script/Js';
 import {Functions} from '../../block/Functions';
 import {DataMap, isDataTruncated} from '../../util/DataTypes';
@@ -771,7 +771,7 @@ describe('Connection', function() {
     Root.instance.deleteValue('Connection21');
   });
 
-  it('#shared binding', async function() {
+  it('#shared #temp binding', async function() {
     let job1 = Root.instance.addJob('Connection22', {'#is': '', 'a': {'#is': ''}, '#shared': {'#is': ''}});
     let job2 = Root.instance.addJob('Connection22_2');
 
@@ -783,11 +783,26 @@ describe('Connection', function() {
     await client.setBinding('Connection22.#shared.v', 'Connection22.#shared.a', true, true);
     assert.equal(job1.queryProperty('#shared.v')._bindingPath, 'a');
 
-    let sharedBlockName = (job1.getValue('#shared') as Block)._prop._name;
-    await client.setBinding('Connection22_2.v', 'Connection22.#shared.a', true, true);
-    assert(job2.getProperty('v')._bindingPath, `###.##.#shared.${sharedBlockName}.a`);
+    let error = await shouldReject(
+      client.setBinding('Connection22_2.v1', 'Connection22.#shared.a', true, true) as Promise<any>
+    );
+    assert.equal(error, 'invalid binding source');
+
+    error = await shouldReject(client.setBinding('Connection22_2.v2', '#temp.v', true, true) as Promise<any>);
+    assert.equal(error, 'invalid binding source');
+
+    error = await shouldReject(client.setBinding('#shared.v', 'Connection22_2.v', true, true) as Promise<any>);
+    assert.equal(error, 'invalid binding source');
+
+    error = await shouldReject(client.setBinding('#temp.v', 'Connection22_2.v', true, true) as Promise<any>);
+    assert.equal(error, 'invalid binding source');
+
+    // binding to #shared is allowed only when it's from #global
+    await client.setBinding('#temp.v', '#global.v', true, true);
+    assert.equal(Root.instance.queryProperty('#temp.v')._bindingPath, '##.#global.v');
 
     client.destroy();
+    client.setValue('#temp.v', undefined, true);
     Root.instance.deleteValue('Connection22');
     Root.instance.deleteValue('Connection22_2');
   });

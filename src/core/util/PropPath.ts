@@ -91,14 +91,38 @@ export function propRelative(base: Block, from: BlockProperty): string {
       fromJobs.pop();
     }
 
+    if (commonJob === Root.instance) {
+      if (fromJobs.length) {
+        let fromJobTop = fromJobs[fromJobs.length - 1];
+        if (fromJobTop === Root.instance._sharedRoot || fromJobTop === Root.instance._tempRoot) {
+          // binding from #shared and #temp is not allowed
+          return null;
+        }
+
+        if (baseJobs.length && fromJobTop !== Root.instance._globalRoot) {
+          let baseJobTop = baseJobs[baseJobs.length - 1];
+          if (baseJobTop === Root.instance._sharedRoot || baseJobTop === Root.instance._tempRoot) {
+            // binding to #shared and #temp is not allowed, unless it's from #global
+            return null;
+          }
+        }
+      }
+    }
+
     if (baseJobs.length === 0) {
-      // binding target is a sub job in the base job
+      // binding source is a sub job in the base job
       return propRelativeImpl(commonJob, baseBlock, fromBlock, from._name);
     }
 
     let resultPaths: string[] = [];
     for (let job of baseJobs) {
-      resultPaths.push('###');
+      if (job === base._job) {
+        if (base !== base._job) {
+          resultPaths.push('###');
+        }
+      } else {
+        resultPaths.push('##.###');
+      }
     }
     return propRelativeImpl(commonJob, baseJobs[baseJobs.length - 1], fromBlock, from._name, resultPaths.join('.##.'));
   }

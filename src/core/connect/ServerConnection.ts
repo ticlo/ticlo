@@ -515,12 +515,19 @@ export class ServerConnection extends Connection {
               ) {
                 let sharedProp = this.root.queryProperty(`${sharedParts[0]}.#shared`);
                 if (sharedProp instanceof SharedConfig) {
-                  resolvedFrom = `${propRelative(property._block, sharedProp)}.${sharedParts[1]}`;
+                  resolvedFrom = propRelative(property._block, sharedProp);
+                  if (resolvedFrom == null) {
+                    return 'invalid binding source';
+                  }
+                  resolvedFrom = `${resolvedFrom}.${sharedParts[1]}`;
                 }
               }
             }
             if (resolvedFrom == null) {
               resolvedFrom = propRelative(property._block, fromProp);
+              if (resolvedFrom == null) {
+                return 'invalid binding source';
+              }
             }
             if (fromParts.length === 2) {
               resolvedFrom = `${resolvedFrom}.${fromParts[1]}`;
