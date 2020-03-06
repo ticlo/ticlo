@@ -15,6 +15,11 @@ export class SharedConfig extends BlockProperty {
       }
     }
   }
+  _save(): any {
+    if (this._value instanceof SharedBlock) {
+      return this._value.save();
+    }
+  }
 }
 
 export class SharedBlock extends Job {
