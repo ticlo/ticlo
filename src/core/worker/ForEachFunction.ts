@@ -192,10 +192,8 @@ export class ForEachFunction extends BlockFunction implements BlockChildWatch {
 
   destroy(): void {
     this._clearWorkers();
-    if (!this._data._destroyed) {
-      if (this._outputBlock) {
-        this._data.deleteValue('#output');
-      }
+    if (this._outputBlock) {
+      this._data.deleteValue('#output');
     }
     this._outputBlock = null;
     this._funcBlock = null;

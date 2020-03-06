@@ -387,6 +387,10 @@ export class Block implements Runnable, FunctionData, PropListener<FunctionClass
   }
 
   deleteValue(field: string): void {
+    if (this._destroyed) {
+      return;
+    }
+
     let prop = this.getProperty(field, false);
     if (prop) {
       return prop.setValue(undefined);
@@ -808,6 +812,8 @@ export class Block implements Runnable, FunctionData, PropListener<FunctionClass
     if (this._destroyed) {
       return;
     }
+    this._destroyed = true;
+
     if (this._funcSrc) {
       if (this._function) {
         this._function.destroy();
@@ -818,7 +824,6 @@ export class Block implements Runnable, FunctionData, PropListener<FunctionClass
       this._funcSrc.unlisten(this);
       this._funcSrc = null;
     }
-    this._destroyed = true;
 
     // properties are destroyed but not removed
     // the final clean up is handled by GC
