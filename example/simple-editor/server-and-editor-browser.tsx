@@ -22,6 +22,7 @@ import {TextEditorPane} from '../../src/editor/dock/text-editor/TextEditorPane';
 import '../../src/html';
 import '../../src/react';
 import {FunctionSelect} from '../../src/editor/function-selector/FunctionSelector';
+import JsonEsc from 'jsonesc/dist';
 
 const layoutGroups = {
   blockStage: {
@@ -39,16 +40,47 @@ interface State {}
 WorkerFunction.registerType(
   {
     '#is': '',
-    '#inputs': {'#is': '', '@b-xyw': [100, 100, 150], '#custom': [{name: 'num', type: 'number'}]},
     '#shared': {
       '#is': '',
       'add': {
+        '0': 1,
+        '1': 2,
         '#is': 'add',
-        '@b-p': ['0', '1']
+        '@b-p': ['0', '1', '#output'],
+        '@b-xyw': [11, 212, 150]
       }
+    },
+    '#inputs': {
+      '#is': '',
+      '@b-xyw': [100, 100, 150],
+      '#custom': [
+        {
+          name: 'num',
+          type: 'number'
+        }
+      ]
+    },
+    '#outputs': {
+      '#is': '',
+      '@b-xyw': [388, 93, 150],
+      '#custom': [
+        {
+          name: 'ooo',
+          type: 'number'
+        }
+      ],
+      '@b-p': ['ooo'],
+      '~ooo': '##.multiply.#output'
+    },
+    'multiply': {
+      '0': 1,
+      '#is': 'multiply',
+      '@b-p': ['0', '1', '#output'],
+      '@b-xyw': [269, 239, 150],
+      '~1': '##.#shared.add.#output'
     }
   },
-  {name: 'class1', properties: [{name: 'num', type: 'number'}]},
+  {name: 'class1', properties: [{name: 'num', type: 'number'}, {name: 'ooo', type: 'number'}]},
   ''
 );
 
@@ -206,7 +238,9 @@ class App extends React.PureComponent<Props, State> implements TicloLayoutContex
 class JobStorage {
   deleteJob(name: string) {}
 
-  saveJob(name: string, job: Job, data?: DataMap) {}
+  saveJob(name: string, job: Job, data?: DataMap) {
+    console.log(JsonEsc.stringify(data));
+  }
 
   init(root: Root): void {}
 }
