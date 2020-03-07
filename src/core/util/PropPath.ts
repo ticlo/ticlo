@@ -98,7 +98,6 @@ export function propRelative(base: Block, from: BlockProperty): string {
 
     let resultPaths: string[] = [];
     for (let job of baseJobs) {
-
       if (job === base._job) {
         if (base !== job) {
           resultPaths.unshift('###');
