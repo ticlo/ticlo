@@ -39,7 +39,7 @@ function propRelativeImpl(
   if (baseBlocks.length) {
     if (commonParent === job && !firstLayerBase) {
       // first layer binding should use ## instead of ###, to make it easy to copy paste blocks to other layer
-      if (pathPrefix) {
+      if (pathPrefix != null) {
         // pathPrefix point to child job root, so ### would point to self, need ##.###
         resultPaths.push('##');
       }
@@ -98,15 +98,16 @@ export function propRelative(base: Block, from: BlockProperty): string {
 
     let resultPaths: string[] = [];
     for (let job of baseJobs) {
+
       if (job === base._job) {
-        if (base !== base._job) {
-          resultPaths.push('###');
+        if (base !== job) {
+          resultPaths.unshift('###');
         }
       } else {
         resultPaths.push('##.###');
       }
     }
-    return propRelativeImpl(commonJob, baseJobs[baseJobs.length - 1], fromBlock, from._name, resultPaths.join('.##.'));
+    return propRelativeImpl(commonJob, baseJobs[baseJobs.length - 1], fromBlock, from._name, resultPaths.join('.'));
   }
   // TODO, bind from service job
 }

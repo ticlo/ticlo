@@ -12,7 +12,7 @@ describe('FileStorage', function() {
   it('save and delete', async function() {
     const path = './temp/storageTest/job1.ticlo';
     let root = new Root();
-    root.setStorage(new FileStorage('./temp/storageTest'));
+    await root.setStorage(new FileStorage('./temp/storageTest'));
 
     let job = root.addJob('job1');
     job.applyChange();

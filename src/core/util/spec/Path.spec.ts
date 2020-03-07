@@ -105,6 +105,13 @@ describe('Path', function() {
       'B.#func.C.v'
     );
 
+    let job11 = Root.instance.addJob('PropRelative1.1');
+    let job111 = Root.instance.addJob('PropRelative1.1.1');
+    let job1c1 = Root.instance.addJob('PropRelative1.c.1');
+
+    assert.equal(propRelative(job1.queryValue('1.1'), job1.queryProperty('v', true)), '##.###.##.v');
+    assert.equal(propRelative(job1.queryValue('c.1'), job1.queryProperty('v', true)), '##.###.v');
+
     Root.instance.deleteValue('PropRelative1');
     Root.instance.deleteValue('PropRelative2');
   });
