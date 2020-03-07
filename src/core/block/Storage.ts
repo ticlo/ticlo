@@ -6,5 +6,5 @@ export interface Storage {
 
   saveJob(name: string, job: Job, data: DataMap): void;
 
-  init(root: Root): void;
+  init(root: Root): any; // void or promise
 }

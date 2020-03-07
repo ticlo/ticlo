@@ -209,10 +209,10 @@ export class Root extends Job {
 
   _storage: Storage;
 
-  setStorage(storage: Storage) {
+  async setStorage(storage: Storage) {
     Functions.setStorage(storage);
+    await storage.init(this);
     this._storage = storage;
-    storage.init(this);
   }
 
   _run = () => {
