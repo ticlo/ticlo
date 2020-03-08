@@ -184,10 +184,10 @@ export class FunctionTreeRoot extends FunctionTreeItem {
     }
 
     if (desc) {
-      if (desc.src === 'base') {
-        // dont show base functions
+      if (desc.src === 'hidden') {
         return;
       }
+      if (!desc.properties) console.log(desc);
       if (this.filter && !this.filter(desc)) {
         return;
       }

@@ -82,7 +82,7 @@ export interface FunctionDesc {
   icon?: string;
   /** namespace of the function */
   ns?: string;
-  src?: 'worker' | 'js' | 'category' | 'base';
+  src?: 'worker' | 'js' | 'category' | 'hidden';
   help?: string;
   priority?: 0 | 1 | 2 | 3;
   mode?: BlockMode;

@@ -153,13 +153,13 @@ export const ConfigGenerators: {[key: string]: typeof BlockProperty} = {
 
 export const InputsConfigGenerators: {[key: string]: typeof BlockProperty} = {
   ...ConfigGenerators,
-  '#is': ConstTypeConfig('inputs'),
+  '#is': ConstTypeConfig('job:inputs'),
   '#call': BlockProperty
 };
 
 export const OutputsConfigGenerators: {[key: string]: typeof BlockProperty} = {
   ...ConfigGenerators,
-  '#is': ConstTypeConfig('outputs'),
+  '#is': ConstTypeConfig('job:outputs'),
   '#call': BlockProperty,
   '#wait': BlockOutputWaitingConfig // directly forward wait to parent job
 };

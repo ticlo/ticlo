@@ -39,15 +39,7 @@ function descToEditor(conn: ClientConn, paths: string[], funcDesc: FunctionDesc,
   );
 }
 
-const jobDescReg = /^Job(?!Entry)/;
 class BlockLoader extends MultiSelectLoader<PropertyList> {
-  blockStr: string;
-  blockListener = new ValueSubscriber({
-    onUpdate: (response: ValueUpdate) => {
-      this.blockStr = String(response.cache.value);
-    }
-  });
-
   isListener = new ValueSubscriber({
     onUpdate: (response: ValueUpdate) => {
       this.conn.watchDesc(response.cache.value, this.onDesc);
@@ -93,14 +85,12 @@ class BlockLoader extends MultiSelectLoader<PropertyList> {
   };
 
   init() {
-    this.blockListener.subscribe(this.conn, this.path);
     this.isListener.subscribe(this.conn, `${this.path}.#is`, true);
     this.customListener.subscribe(this.conn, `${this.path}.#custom`, true);
     this.widgetListener.subscribe(this.conn, `${this.path}.@b-widget`, true);
   }
 
   destroy() {
-    this.blockListener.unsubscribe();
     this.isListener.unsubscribe();
     this.customListener.unsubscribe();
     this.widgetListener.unsubscribe();
@@ -340,10 +330,6 @@ export class PropertyList extends MultiSelectComponent<Props, State, BlockLoader
             configMerger.map = null;
             break;
           }
-        }
-        if (this.loaders.size === 1 && jobDescReg.test(firstLoader.blockStr)) {
-          // show #desc editor for Job
-          configMerger.map.set('#desc', configDescs['#desc']);
         }
         if (configMerger.isNotEmpty()) {
           configChildren = configMerger.render(paths, conn, funcDesc, true);

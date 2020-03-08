@@ -418,6 +418,6 @@ export class GlobalWatch {
   }
 }
 
-for (let id in clientDescriptors) {
-  DescRequest.editorCache.set(id, clientDescriptors[id]);
+for (let desc of clientDescriptors) {
+  DescRequest.editorCache.set(desc.id, desc);
 }
