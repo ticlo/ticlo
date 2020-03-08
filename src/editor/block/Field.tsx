@@ -264,7 +264,6 @@ export class BlockHeaderView extends PureDataRenderer<BlockHeaderProps, any> {
       let fields: string[] = DragState.getData('fields', item.getBaseConn());
       if (Array.isArray(fields)) {
         if (!item.desc.readonly && fields.length === 1 && isBindable(item.path, fields[0])) {
-          console.log(item.path, fields[0]);
           e.accept('tico-fas-play');
           return;
         }

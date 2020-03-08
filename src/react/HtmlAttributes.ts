@@ -272,7 +272,7 @@ Functions.add(
   null,
   {
     name: 'element',
-    src: 'base',
+    src: 'hidden',
     properties: [],
     optional: optionalHtmlProperties
   },
