@@ -62,7 +62,7 @@ export class NodeTreePane extends React.PureComponent<Props, State> {
     let menuItems: React.ReactElement[] = [];
     if (showMenu) {
       let seekParent = item;
-      while (seekParent?.isJob) {
+      while (seekParent.functionId === 'job:main') {
         seekParent = seekParent.parent;
       }
       // find the root node, so every level of parents is Job

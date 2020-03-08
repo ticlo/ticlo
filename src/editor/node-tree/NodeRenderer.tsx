@@ -24,20 +24,20 @@ import {TicloLayoutContext, TicloLayoutContextType} from '../component/LayoutCon
 import {DragDropDiv, DragState} from 'rc-dock/lib';
 import {getFuncStyleFromDesc} from '../util/BlockColors';
 
+const saveAllowed = new Set<string>(['job:editor', 'job:worker', 'job:main']);
+const deleteAllowed = new Set<string>(['job:editor', 'job:main']);
+
 export class NodeTreeItem extends TreeItem<NodeTreeItem> {
   childPrefix: string;
   name: string;
-  blockClass: string;
-  isJob: boolean;
-  editable: boolean;
+
+  // updated by the renderer
+  functionId: string;
 
   max: number = 32;
 
   constructor(name: string, public id: string, parent?: NodeTreeItem, public canApply = false) {
     super(parent);
-    this.blockClass = id.substring(0, id.indexOf(' '));
-    this.isJob = this.blockClass?.startsWith('Job');
-    this.editable = this.blockClass !== 'Root' && this.blockClass !== 'GlobalBlock';
     if (parent) {
       this.key = `${parent.childPrefix}${name}`;
       this.childPrefix = `${this.key}.`;
@@ -217,9 +217,9 @@ export class NodeTreeRenderer extends PureDataRenderer<Props, any> {
   subscriptionListener = new ValueSubscriber({
     onUpdate: (response: ValueUpdate) => {
       let {item} = this.props;
-      let functionId = response.cache.value;
-      if (typeof functionId === 'string') {
-        item.connection.watchDesc(functionId, this.descCallback);
+      item.functionId = response.cache.value;
+      if (typeof item.functionId === 'string') {
+        item.connection.watchDesc(item.functionId, this.descCallback);
       } else {
         item.connection.unwatchDesc(this.descCallback);
         this.safeSetState({desc: blankFuncDesc});
@@ -243,7 +243,12 @@ export class NodeTreeRenderer extends PureDataRenderer<Props, any> {
   }
 
   descCallback = (desc: FunctionDesc) => {
-    this.safeSetState({desc: desc || blankFuncDesc});
+    desc = desc || blankFuncDesc;
+    if (desc !== this.state.desc) {
+      this.safeSetState({desc});
+    } else {
+      this.forceUpdate();
+    }
   };
 
   onClickContent = (e: React.MouseEvent) => {
@@ -270,7 +275,7 @@ export class NodeTreeRenderer extends PureDataRenderer<Props, any> {
         </Menu.Item>
       );
     }
-    if (item.editable) {
+    if (deleteAllowed.has(item.functionId)) {
       menuitems.push(
         <Menu.Item key="delete" onClick={this.onDeleteClicked}>
           <DeleteIcon />
@@ -293,20 +298,19 @@ export class NodeTreeRenderer extends PureDataRenderer<Props, any> {
   renderImpl() {
     let {item, style, selected} = this.props;
     let {hasChange, desc, error} = this.state;
-    let {blockClass, isJob} = item;
     let marginLeft = item.level * 20;
     let contentClassName = 'ticl-tree-node-content';
     if (selected) {
       contentClassName += ' ticl-tree-node-selected';
     }
     let icon: React.ReactElement;
-    if (isJob) {
+    if (saveAllowed.has(item.functionId)) {
       if (hasChange) {
         icon = <FileExclamationIcon />;
       } else {
         icon = <FileIcon />;
       }
-    } else if (blockClass === 'GlobalBlock' || blockClass === 'ConstBlock') {
+    } else if (item.functionId === 'job:const') {
       icon = <GlobalIcon />;
     } else {
       let [colorClass, iconName] = getFuncStyleFromDesc(desc, item.getConn(), 'ticl-bg--');
