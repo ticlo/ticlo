@@ -247,7 +247,7 @@ class JobStorage {
 
 (async () => {
   await initEditor();
-  Root.instance.setStorage(new JobStorage());
+  await Root.instance.setStorage(new JobStorage());
   let reactJob = Root.instance.addJob('example', reactData);
 
   let generalJob = Root.instance.addJob('example0', data);

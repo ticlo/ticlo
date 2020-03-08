@@ -275,7 +275,12 @@ class ServerDescWatcher extends ServerRequest implements DescListener {
 }
 
 function trackChange(property: BlockProperty, path: string, root: Root) {
-  let job = property._block._job;
+  let job: Job;
+  if (property._name === '@b-xyw') {
+    job = property._block._parent._job;
+  } else {
+    job = property._block._job;
+  }
   if (job instanceof SharedBlock) {
     let sharedPos = path.lastIndexOf('.#shared.');
     if (sharedPos > 0) {

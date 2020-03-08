@@ -200,7 +200,11 @@ class GlobalBlock extends ConstBlock {
   }
 }
 
-class JobMain extends Job {}
+class JobMain extends Job {
+  _save(): DataMap {
+    return this.getValue('@b-xyw');
+  }
+}
 
 export class Root extends Job {
   private static _instance: Root = new Root();
@@ -284,6 +288,11 @@ export class Root extends Job {
       return null;
     }
     let newJob = new JobMain(prop._block, null, prop);
+    let propValue = prop._value;
+    if (Array.isArray(propValue) && propValue.length === 3 && propValue.every((val) => typeof val === 'number')) {
+      // overwrite @b-xyw value from parent job
+      data = {...data, '@b-xyw': propValue};
+    }
     if (this._storage) {
       if (!data) {
         data = {};
