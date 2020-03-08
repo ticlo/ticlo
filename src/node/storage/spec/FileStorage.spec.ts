@@ -17,7 +17,7 @@ describe('FileStorage', function() {
     let job = root.addJob('job1');
     job.applyChange();
     let savedData: string;
-    await shouldHappen(() => (savedData = Fs.readFileSync(path, 'utf8')));
+    await shouldHappen(() => (savedData = Fs.existsSync(path) ? Fs.readFileSync(path, 'utf8') : null));
     assert.equal(savedData, '{\n"#is": ""\n}');
 
     root.deleteJob('job1');
