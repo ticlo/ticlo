@@ -8,28 +8,29 @@ import {insertGroupProperty, moveGroupProperty, removeGroupProperty, setGroupLen
 describe('GroupProperty', function() {
   it('setGroupLength', function() {
     let job = new Job();
-    job.load({
+    let aBlock = job.createBlock('a');
+    aBlock._load({
       '#is': 'add'
     });
 
-    setGroupLength(job, '', 3);
-    assert.deepEqual(job.getValue('#len'), 3);
-    assert.deepEqual(job.getValue('@b-p'), ['2']);
+    setGroupLength(aBlock, '', 3);
+    assert.deepEqual(aBlock.getValue('#len'), 3);
+    assert.deepEqual(aBlock.getValue('@b-p'), ['2']);
 
-    setGroupLength(job, '', 0);
-    assert.isUndefined(job.getValue('@b-p'));
+    setGroupLength(aBlock, '', 0);
+    assert.isUndefined(aBlock.getValue('@b-p'));
 
-    setGroupLength(job, '', 3);
-    assert.deepEqual(job.getValue('@b-p'), ['0', '1', '2']);
+    setGroupLength(aBlock, '', 3);
+    assert.deepEqual(aBlock.getValue('@b-p'), ['0', '1', '2']);
 
     // set -1 will use default length
-    setGroupLength(job, '', -1);
-    assert.deepEqual(job.getValue('@b-p'), ['0', '1']);
+    setGroupLength(aBlock, '', -1);
+    assert.deepEqual(aBlock.getValue('@b-p'), ['0', '1']);
 
     // invalid group, length should change but nothing else should happen
-    setGroupLength(job, 'invalidG', 3);
-    assert.deepEqual(job.getValue('invalidG#len'), 3);
-    assert.deepEqual(job.getValue('@b-p'), ['0', '1']);
+    setGroupLength(aBlock, 'invalidG', 3);
+    assert.deepEqual(aBlock.getValue('invalidG#len'), 3);
+    assert.deepEqual(aBlock.getValue('@b-p'), ['0', '1']);
   });
 
   it('setGroupLength on #custom', function() {
@@ -53,76 +54,79 @@ describe('GroupProperty', function() {
 
   it('insertGroupProperty', function() {
     let job = new Job();
-    job.load({
+    let aBlock = job.createBlock('a');
+    aBlock._load({
       '#is': 'add',
       '0': 0,
       '1': 1
     });
 
-    insertGroupProperty(job, '', 0);
-    assert.equal(job.getValue('#len'), 3);
-    assert.equal(job.getValue('1'), 0);
+    insertGroupProperty(aBlock, '', 0);
+    assert.equal(aBlock.getValue('#len'), 3);
+    assert.equal(aBlock.getValue('1'), 0);
 
-    insertGroupProperty(job, '', 3);
-    assert.equal(job.getValue('#len'), 4);
+    insertGroupProperty(aBlock, '', 3);
+    assert.equal(aBlock.getValue('#len'), 4);
 
     // invalid index, no change
-    insertGroupProperty(job, '', -1);
-    insertGroupProperty(job, '', 100);
-    assert.equal(job.getValue('#len'), 4);
+    insertGroupProperty(aBlock, '', -1);
+    insertGroupProperty(aBlock, '', 100);
+    assert.equal(aBlock.getValue('#len'), 4);
 
     // invalid group, no change
-    insertGroupProperty(job, 'invalidG', 0);
-    assert.isUndefined(job.getValue('invalidG#len'));
+    insertGroupProperty(aBlock, 'invalidG', 0);
+    assert.isUndefined(aBlock.getValue('invalidG#len'));
   });
 
   it('removeGroupProperty', function() {
     let job = new Job();
-    job.load({
+    let aBlock = job.createBlock('a');
+    aBlock._load({
       '#is': 'add',
       '0': 0,
       '1': 1
     });
 
-    removeGroupProperty(job, '', 0);
-    assert.equal(job.getValue('#len'), 1);
-    assert.equal(job.getValue('0'), 1);
+    removeGroupProperty(aBlock, '', 0);
+    assert.equal(aBlock.getValue('#len'), 1);
+    assert.equal(aBlock.getValue('0'), 1);
 
     // invalid index, no change
-    removeGroupProperty(job, '', -1);
-    removeGroupProperty(job, '', 100);
-    assert.equal(job.getValue('#len'), 1);
+    removeGroupProperty(aBlock, '', -1);
+    removeGroupProperty(aBlock, '', 100);
+    assert.equal(aBlock.getValue('#len'), 1);
 
     // invalid group, no change
-    removeGroupProperty(job, 'invalidG', 0);
-    assert.isUndefined(job.getValue('invalidG#len'));
+    removeGroupProperty(aBlock, 'invalidG', 0);
+    assert.isUndefined(aBlock.getValue('invalidG#len'));
   });
 
   it('moveGroupProperty', function() {
     let job = new Job();
-    job.load({
+    let aBlock = job.createBlock('a');
+    aBlock._load({
       '#is': 'add',
       '0': 0,
       '1': 1
     });
 
-    moveGroupProperty(job, '', 0, 1);
-    assert.equal(job.getValue('0'), 1);
-    assert.equal(job.getValue('1'), 0);
+    moveGroupProperty(aBlock, '', 0, 1);
+    assert.equal(aBlock.getValue('0'), 1);
+    assert.equal(aBlock.getValue('1'), 0);
 
-    moveGroupProperty(job, '', 1, 0);
-    assert.equal(job.getValue('0'), 0);
-    assert.equal(job.getValue('1'), 1);
+    moveGroupProperty(aBlock, '', 1, 0);
+    assert.equal(aBlock.getValue('0'), 0);
+    assert.equal(aBlock.getValue('1'), 1);
 
     // invalid index, no change
-    moveGroupProperty(job, '', 1, 100);
-    moveGroupProperty(job, '', 100, 0);
-    moveGroupProperty(job, '', 0, 0);
-    assert.equal(job.getValue('0'), 0);
-    assert.equal(job.getValue('1'), 1);
+    moveGroupProperty(aBlock, '', 1, 100);
+    moveGroupProperty(aBlock, '', 100, 0);
+    moveGroupProperty(aBlock, '', 0, 0);
+    assert.equal(aBlock.getValue('0'), 0);
+    assert.equal(aBlock.getValue('1'), 1);
 
     // invalid group, no change
-    moveGroupProperty(job, 'invalidG', 0, 1);
-    assert.isUndefined(job.getValue('invalidG#len'));
+    moveGroupProperty(aBlock, 'invalidG', 0, 1);
+    assert.isUndefined(aBlock.getValue('invalidG#len'));
   });
 });

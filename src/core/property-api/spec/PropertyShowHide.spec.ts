@@ -27,7 +27,8 @@ describe('PropertyOrder', function() {
 
   it('show hide Properties with order', function() {
     let job = new Job();
-    job.load({
+    let aBlock = job.createBlock('a');
+    aBlock._load({
       '#is': 'add',
       '#custom': [
         {name: 'aa', type: 'number'},
@@ -35,14 +36,14 @@ describe('PropertyOrder', function() {
       ]
     });
 
-    showProperties(job, ['#call', '1', 'bb']);
-    assert.deepEqual(job.getValue('@b-p'), ['#call', '1', 'bb']);
+    showProperties(aBlock, ['#call', '1', 'bb']);
+    assert.deepEqual(aBlock.getValue('@b-p'), ['#call', '1', 'bb']);
 
-    showProperties(job, ['1', '@a', 'aa', '#is', '5', '0']);
-    assert.deepEqual(job.getValue('@b-p'), ['#is', '#call', '0', '1', 'aa', 'bb', '@a', '5']);
+    showProperties(aBlock, ['1', '@a', 'aa', '#is', '5', '0']);
+    assert.deepEqual(aBlock.getValue('@b-p'), ['#is', '#call', '0', '1', 'aa', 'bb', '@a', '5']);
 
-    hideProperties(job, ['aa', '1', '@a', '@b']);
-    assert.deepEqual(job.getValue('@b-p'), ['#is', '#call', '0', 'bb', '5']);
+    hideProperties(aBlock, ['aa', '1', '@a', '@b']);
+    assert.deepEqual(aBlock.getValue('@b-p'), ['#is', '#call', '0', 'bb', '5']);
   });
 
   it('hideGroupProperties', function() {

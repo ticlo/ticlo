@@ -9,10 +9,10 @@ class BlockTypeConfig extends BlockProperty {
   }
 
   onChange(val: any, save?: boolean): boolean {
-    if (val == null) {
-      return super.onChange('', save);
-    } else {
+    if (typeof val === 'string' && !val.startsWith('job:')) {
       return super.onChange(val, save);
+    } else {
+      return super.onChange('', save);
     }
   }
 
@@ -127,26 +127,17 @@ export class BlockConstConfig extends BlockProperty {
   // }
 }
 
-class BlockInputTypeConfig extends BlockConstConfig {
-  constructor(block: Block, name: string) {
-    super(block, name, 'inputs');
+export function ConstTypeConfig(type: string) {
+  class BlockConstTypeConfig extends BlockConstConfig {
+    constructor(block: Block, name: string) {
+      super(block, name, type);
+    }
+    _save(): any {
+      // no need to save const types
+      return '';
+    }
   }
-
-  _save(): any {
-    // no need to save 'input'
-    return '';
-  }
-}
-
-class BlockOutputTypeConfig extends BlockConstConfig {
-  constructor(block: Block, name: string) {
-    super(block, name, 'outputs');
-  }
-
-  _save(): any {
-    // no need to save 'output'
-    return '';
-  }
+  return BlockConstTypeConfig;
 }
 
 export const ConfigGenerators: {[key: string]: typeof BlockProperty} = {
@@ -162,19 +153,20 @@ export const ConfigGenerators: {[key: string]: typeof BlockProperty} = {
 
 export const InputsConfigGenerators: {[key: string]: typeof BlockProperty} = {
   ...ConfigGenerators,
-  '#is': BlockInputTypeConfig,
+  '#is': ConstTypeConfig('inputs'),
   '#call': BlockProperty
 };
 
 export const OutputsConfigGenerators: {[key: string]: typeof BlockProperty} = {
   ...ConfigGenerators,
-  '#is': BlockOutputTypeConfig,
+  '#is': ConstTypeConfig('outputs'),
   '#call': BlockProperty,
   '#wait': BlockOutputWaitingConfig // directly forward wait to parent job
 };
 
 export const JobConfigGenerators: {[key: string]: typeof BlockProperty} = {
   ...ConfigGenerators,
+  '#is': ConstTypeConfig('job:main'),
   '#inputs': BlockInputsConfig,
   '#outputs': BlockOutputsConfig
 };

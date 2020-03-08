@@ -1,7 +1,13 @@
 import './Block';
 import {BlockConfig, BlockProperty} from './BlockProperty';
 import {DataMap, isSavedBlock} from '../util/DataTypes';
-import {BlockInputsConfig, BlockOutputsConfig, ConfigGenerators} from './BlockConfigs';
+import {
+  BlockInputsConfig,
+  BlockOutputsConfig,
+  ConfigGenerators,
+  ConstTypeConfig,
+  JobConfigGenerators
+} from './BlockConfigs';
 import {Job, Root} from './Job';
 import {Uid} from '../util/Uid';
 
@@ -68,9 +74,8 @@ export class SharedBlock extends Job {
 }
 
 const JobWithSharedConfigGenerators: {[key: string]: typeof BlockProperty} = {
-  ...ConfigGenerators,
-  '#inputs': BlockInputsConfig,
-  '#outputs': BlockOutputsConfig,
+  ...JobConfigGenerators,
+  '#is': ConstTypeConfig('job:shared'),
   '#shared': SharedConfig
 };
 

@@ -2,7 +2,7 @@ import {Block, InputsBlock, Runnable} from './Block';
 import {BlockConfig, BlockIO, BlockProperty, GlobalProperty} from './BlockProperty';
 import {Resolver} from './Resolver';
 import {FunctionOutput} from './BlockFunction';
-import {BlockConstConfig, JobConfigGenerators} from './BlockConfigs';
+import {BlockConstConfig, ConstTypeConfig, JobConfigGenerators} from './BlockConfigs';
 import {Event} from './Event';
 import {DataMap} from '../util/DataTypes';
 import {FunctionDesc} from './Descriptor';
@@ -176,7 +176,22 @@ export class Job extends Block {
   }
 }
 
-class GlobalBlock extends Job {
+export const JobConstConfigGenerators: {[key: string]: typeof BlockProperty} = {
+  ...JobConfigGenerators,
+  '#is': ConstTypeConfig('job:const')
+};
+
+class ConstBlock extends Job {
+  _createConfig(field: string): BlockProperty {
+    if (field in JobConstConfigGenerators) {
+      return new JobConstConfigGenerators[field](this, field);
+    } else {
+      return new BlockConfig(this, field);
+    }
+  }
+}
+
+class GlobalBlock extends ConstBlock {
   createGlobalProperty(name: string): BlockProperty {
     // inside the GlobalBlock, globalProperty is normal property
     let prop = new BlockIO(this, name);
@@ -185,9 +200,7 @@ class GlobalBlock extends Job {
   }
 }
 
-class ConstBlock extends Job {}
-
-class JobEntry extends Job {}
+class JobMain extends Job {}
 
 export class Root extends Job {
   private static _instance: Root = new Root();
@@ -270,7 +283,7 @@ export class Root extends Job {
       // invalid path
       return null;
     }
-    let newJob = new JobEntry(prop._block, null, prop);
+    let newJob = new JobMain(prop._block, null, prop);
     if (this._storage) {
       if (!data) {
         data = {};
@@ -293,7 +306,7 @@ export class Root extends Job {
         newJob.load(data);
       }
     }
-    prop.updateValue(newJob);
+    prop.setValue(newJob);
     return newJob;
   }
 
