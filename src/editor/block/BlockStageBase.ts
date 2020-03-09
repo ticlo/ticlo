@@ -253,10 +253,12 @@ export abstract class BlockStageBase<State> extends LazyUpdateComponent<StagePro
       let change = changes[name];
       let path = `${basePath}.${name}`;
       if (change === null) {
-        if (this._blocks.has(path)) {
-          if (this._blocks.get(path).selected) {
+        let block = this._blocks.get(path);
+        if (block) {
+          if (block.selected) {
             this.selectionChanged = true;
           }
+          // block.destroy(); // no need for destroy, already handled in block.onDetached();
           this._blocks.delete(path);
           this.forceUpdate();
         }
@@ -290,16 +292,34 @@ export abstract class BlockStageBase<State> extends LazyUpdateComponent<StagePro
     }
   };
   clearSharedBlocks() {
-    // TODO
+    let changed = false;
+    for (let [key, block] of this._blocks) {
+      if (block.shared) {
+        changed = true;
+        if (block.selected) {
+          this.selectionChanged = true;
+        }
+        // block.destroy(); // no need for destroy, already handled in block.onDetached();
+        this._blocks.delete(block.path);
+      }
+    }
+    if (changed) {
+      this.forceUpdate();
+      if (this.selectionChanged) {
+        this.onSelect();
+      }
+    }
   }
 
   sharedListener = new ValueSubscriber({
     onUpdate: (response: ValueUpdate) => {
-      if (String(response.cache.value).startsWith('SharedBlock ')) {
-        let {conn} = this.props;
-        conn.watch(this._sharedPath, this.sharedWatchListener);
-      } else {
-        this.clearSharedBlocks();
+      if (response.change.hasOwnProperty('value')) {
+        if (String(response.cache.value).startsWith('SharedBlock ')) {
+          let {conn} = this.props;
+          conn.watch(this._sharedPath, this.sharedWatchListener);
+        } else {
+          this.clearSharedBlocks();
+        }
       }
     }
   });
