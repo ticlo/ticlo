@@ -289,7 +289,9 @@ export abstract class BlockStageBase<State> extends LazyUpdateComponent<StagePro
       this.onChildUpdate(response.changes, this._sharedPath);
     }
   };
-  clearSharedBlocks() {}
+  clearSharedBlocks() {
+    // TODO
+  }
 
   sharedListener = new ValueSubscriber({
     onUpdate: (response: ValueUpdate) => {

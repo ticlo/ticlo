@@ -1,10 +1,10 @@
-import {JobWithShared} from '../block/SharedBlock';
+import {JobWithShared, JobWithSharedConfigGenerators} from '../block/SharedBlock';
 import {BlockProperty} from '..';
-import {ConstTypeConfig, JobConfigGenerators} from '../block/BlockConfigs';
+import {ConstTypeConfig} from '../block/BlockConfigs';
 import {BlockConfig} from '../block/BlockProperty';
 
 export const JobWorkerConfigGenerators: {[key: string]: typeof BlockProperty} = {
-  ...JobConfigGenerators,
+  ...JobWithSharedConfigGenerators,
   '#is': ConstTypeConfig('job:worker')
 };
 

@@ -73,7 +73,7 @@ export class SharedBlock extends Job {
   }
 }
 
-const JobWithSharedConfigGenerators: {[key: string]: typeof BlockProperty} = {
+export const JobWithSharedConfigGenerators: {[key: string]: typeof BlockProperty} = {
   ...JobConfigGenerators,
   '#is': ConstTypeConfig('job:shared'),
   '#shared': SharedConfig

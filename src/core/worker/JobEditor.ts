@@ -1,9 +1,9 @@
 import {Block, BlockChildWatch} from '../block/Block';
 import {DataMap} from '../util/DataTypes';
 import {WorkerFunction} from './WorkerFunction';
-import {JobWithShared} from '../block/SharedBlock';
+import {JobWithShared, JobWithSharedConfigGenerators} from '../block/SharedBlock';
 import {BlockProperty} from '..';
-import {ConstTypeConfig, JobConfigGenerators} from '../block/BlockConfigs';
+import {ConstTypeConfig} from '../block/BlockConfigs';
 import {BlockConfig} from '../block/BlockProperty';
 
 const blankWorker = {
@@ -12,7 +12,7 @@ const blankWorker = {
 };
 
 export const JobEditorConfigGenerators: {[key: string]: typeof BlockProperty} = {
-  ...JobConfigGenerators,
+  ...JobWithSharedConfigGenerators,
   '#is': ConstTypeConfig('job:editor')
 };
 export class JobEditor extends JobWithShared {
