@@ -1,4 +1,4 @@
-@import './style';
+@import './style.less';
 // no priority
 @ticl-color-prn: #a0a0a0;
 @ticl-color-prn-light: #ddd;
@@ -15,25 +15,25 @@
 @ticl-color-prr: mix(@gold-6, @gold-7, 70%);
 @ticl-color-prr-light: @gold-3;
 
-@import 'component/component';
+@import '../component/component';
 
-@import './block/BlockStage';
-@import './block/Block';
-@import './block/view/Note';
-@import './block/view/Slider';
-@import './block/Field';
-@import './icon/Icon';
-@import './node-tree/NodeTree';
-@import './property/Property';
-@import 'src/editor/function-selector/FunctionView';
-@import './component/ClickPopup';
-@import './object-tree/ObjectTree';
+@import '../block/BlockStage';
+@import '../block/Block';
+@import '../block/view/Note';
+@import '../block/view/Slider';
+@import '../block/Field';
+@import '../icon/Icon';
+@import '../node-tree/NodeTree';
+@import '../property/Property';
+@import '../function-selector/FunctionView';
+@import '../component/ClickPopup';
+@import '../object-tree/ObjectTree';
 @import './antd-extra';
-@import '../../node_modules/rc-dock/style/index';
+@import '../../../node_modules/rc-dock/style/index';
 @import './dock-extra';
-@import './dock/text-editor/TextEditorPane';
-@import './dock/block/BlockStagePane';
-@import './dock/node-tree/NodeTreePane';
+@import '../dock/text-editor/TextEditorPane';
+@import '../dock/block/BlockStagePane';
+@import '../dock/node-tree/NodeTreePane';
 
 div {
   scrollbar-color: #eee #fbfbfb;

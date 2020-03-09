@@ -1,7 +1,7 @@
 import {assert} from 'chai';
 import SimulateEvent from 'simulate-event';
 import React from 'react';
-import '../../../editor';
+import '../../index';
 import {PropertyEditor} from '../PropertyEditor';
 import {Block, Root} from '../../../../src/core';
 import '../../../core/functions/basic/math/Arithmetic';

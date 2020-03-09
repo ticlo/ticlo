@@ -1,7 +1,7 @@
 import {assert} from 'chai';
 import SimulateEvent from 'simulate-event';
 import React from 'react';
-import {NodeTree} from '../../../editor';
+import {NodeTree} from '../../index';
 import {Block, Root} from '../../../../src/core';
 import {destroyLastLocalConnection, makeLocalConnection} from '../../../../src/core/connect/LocalConnection';
 import {shouldHappen} from '../../../../src/core/util/test-util';
