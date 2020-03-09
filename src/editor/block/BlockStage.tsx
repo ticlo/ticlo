@@ -168,7 +168,6 @@ export class BlockStage extends BlockStageBase<StageState> {
         } else {
           this.onSelect();
         }
-
       }
       this.focus();
     }
