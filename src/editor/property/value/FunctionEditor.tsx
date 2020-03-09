@@ -63,7 +63,7 @@ export class FunctionEditor extends StringEditorBase {
 
     if (this._pendingValue != null) {
       value = this._pendingValue;
-    } else if (locked) {
+    } else if (locked || (typeof value === 'string' && value.startsWith('job:'))) {
       onChange = null;
     }
 
@@ -73,6 +73,7 @@ export class FunctionEditor extends StringEditorBase {
     if (funcDesc) {
       [colorClass, iconName] = getFuncStyleFromDesc(funcDesc, conn, 'ticl-bg--');
     }
+
     return (
       <DragDropDiv className="ticl-type-editor ticl-hbox" onDragOverT={this.onDragOver} onDropT={this.onDrop}>
         <TIcon icon={iconName} colorClass={colorClass} />
