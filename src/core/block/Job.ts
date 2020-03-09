@@ -30,8 +30,9 @@ export class Job extends Block {
     }
 
     if (parent) {
+      let parentJob = parent._job;
       this._resolver = new Resolver((resolver: Resolver) => {
-        Root.instance.queueBlock(this._resolver);
+        parentJob.queueBlock(this._resolver);
       });
     }
   }
