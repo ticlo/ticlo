@@ -162,7 +162,13 @@ export class BlockStage extends BlockStageBase<StageState> {
             blockItem.setSelected(false);
           }
         }
-        this.onSelect();
+
+        if (e.dx === 0 && e.dy === 0) {
+          this.onSelectBase();
+        } else {
+          this.onSelect();
+        }
+
       }
       this.focus();
     }

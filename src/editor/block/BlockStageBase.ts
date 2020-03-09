@@ -70,6 +70,13 @@ export abstract class BlockStageBase<State> extends LazyUpdateComponent<StagePro
     }
     this.selectionChanged = false;
   }
+  onSelectBase() {
+    let {onSelect, basePath} = this.props;
+    if (onSelect) {
+      onSelect([basePath]);
+    }
+    this.selectionChanged = false;
+  }
 
   selectionChanged = false;
 
