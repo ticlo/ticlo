@@ -26,17 +26,10 @@ export class Resolver implements Runnable {
 
   _resolving: boolean = false;
 
-  _onResolved?: () => void;
-
   private _schedule: (resolver: Resolver) => void;
 
   constructor(schedule: (resolver: Resolver) => void) {
     this._schedule = schedule;
-  }
-
-  set onResolved(func: () => void) {
-    this._onResolved = func;
-    this._schedule(this);
   }
 
   queueBlock(block: Runnable) {
@@ -133,9 +126,5 @@ export class Resolver implements Runnable {
     }
 
     this._resolving = false;
-
-    if (this._onResolved) {
-      Resolver._finalResolved.add(this._onResolved);
-    }
   }
 }

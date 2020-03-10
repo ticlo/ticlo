@@ -55,8 +55,6 @@ export class SharedBlock extends Job {
         sharedId = `${job._namespace}:__shared`;
       }
       result.load(data, sharedId);
-      // force the shared blocks to be resolved before owner job
-      result._resolver.run();
     }
     job._setSharedBlock(result);
   }

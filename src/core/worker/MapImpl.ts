@@ -113,7 +113,7 @@ export abstract class MapImpl extends BlockFunction {
       this._onWorkerReady(output, timeout)
     );
     let child = this._funcBlock.createOutputJob(JobWorker, key, this._src, output, this._applyWorkerChange);
-    child.onResolved = () => {
+    child.onReady = () => {
       if (!child._waiting) {
         output.workerReady();
       }

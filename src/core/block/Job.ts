@@ -10,8 +10,6 @@ import {Functions} from './Functions';
 import {Storage} from './Storage';
 
 export class Job extends Block {
-  _resolver: Resolver;
-
   _namespace: string;
   _loadFrom: string;
 
@@ -28,19 +26,12 @@ export class Job extends Block {
     if (!property) {
       this._prop = new BlockProperty(this, '');
     }
-
-    if (parent) {
-      let parentJob = parent._job;
-      this._resolver = new Resolver((resolver: Resolver) => {
-        parentJob.queueBlock(this._resolver);
-      });
-    }
   }
 
   onWait(val: any) {
     let wait = Boolean(val);
     if (!wait && wait !== this._waiting) {
-      this._resolver.schedule();
+      this.triggerOnReady();
     }
     super.onWait(wait);
   }
@@ -64,7 +55,7 @@ export class Job extends Block {
   }
 
   queueBlock(block: Runnable) {
-    this._resolver.queueBlock(block);
+    this._parent._job.queueBlock(block);
   }
 
   // return true when the related output block need to be put in queue
@@ -83,7 +74,7 @@ export class Job extends Block {
     } else {
       prop.updateValue(val);
     }
-    this._resolver.schedule();
+    // TODO check queued block, if no queued block and wait is false => triggerOnReady();
   }
 
   cancel() {
@@ -167,8 +158,16 @@ export class Job extends Block {
     this._loading = false;
   }
 
-  set onResolved(func: () => void) {
-    this._resolver.onResolved = func;
+  _onReady: () => void;
+  set onReady(func: () => void) {
+    this._onReady = func;
+  }
+  triggerOnReady() {
+    if (this._onReady) {
+      Resolver.callLater(this._onReady);
+      // TODO trigger resolver
+      // TODO make it not static
+    }
   }
 
   destroy(): void {
@@ -225,7 +224,12 @@ export class Root extends Job {
     this._instance.runAll(maxRound);
   }
 
+  _resolver: Resolver;
   _storage: Storage;
+
+  queueBlock(block: Runnable) {
+    this._resolver.queueBlock(block);
+  }
 
   async setStorage(storage: Storage) {
     Functions.setStorage(storage);
