@@ -1,13 +1,7 @@
 import './Block';
 import {BlockConfig, BlockProperty} from './BlockProperty';
 import {DataMap, isSavedBlock} from '../util/DataTypes';
-import {
-  BlockInputsConfig,
-  BlockOutputsConfig,
-  ConfigGenerators,
-  ConstTypeConfig,
-  JobConfigGenerators
-} from './BlockConfigs';
+import {ConstTypeConfig, JobConfigGenerators} from './BlockConfigs';
 import {Job, Root} from './Job';
 import {Uid} from '../util/Uid';
 

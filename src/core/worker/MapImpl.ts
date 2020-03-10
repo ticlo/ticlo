@@ -114,9 +114,7 @@ export abstract class MapImpl extends BlockFunction {
     );
     let child = this._funcBlock.createOutputJob(JobWorker, key, this._src, output, this._applyWorkerChange);
     child.onReady = () => {
-      if (!child._waiting) {
-        output.workerReady();
-      }
+      output.workerReady();
     };
     this._workers.set(key, child);
     child.updateInput(input);

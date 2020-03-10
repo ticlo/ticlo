@@ -28,14 +28,6 @@ export class Job extends Block {
     }
   }
 
-  onWait(val: any) {
-    let wait = Boolean(val);
-    if (!wait && wait !== this._waiting) {
-      this.triggerOnReady();
-    }
-    super.onWait(wait);
-  }
-
   _createConfig(field: string): BlockProperty {
     if (field in JobConfigGenerators) {
       return new JobConfigGenerators[field](this, field);
@@ -66,7 +58,6 @@ export class Job extends Block {
     return false;
   }
 
-  // make sure the input triggers a change
   updateInput(val: any) {
     let prop = this.getProperty('#inputs');
     if (prop._value instanceof InputsBlock) {
@@ -74,7 +65,6 @@ export class Job extends Block {
     } else {
       prop.updateValue(val);
     }
-    // TODO check queued block, if no queued block and wait is false => triggerOnReady();
   }
 
   cancel() {
@@ -156,18 +146,6 @@ export class Job extends Block {
     this._loading = true;
     this._liveUpdate(map);
     this._loading = false;
-  }
-
-  _onReady: () => void;
-  set onReady(func: () => void) {
-    this._onReady = func;
-  }
-  triggerOnReady() {
-    if (this._onReady) {
-      Resolver.callLater(this._onReady);
-      // TODO trigger resolver
-      // TODO make it not static
-    }
   }
 
   destroy(): void {
