@@ -190,14 +190,20 @@ export class ForEachFunction extends BlockFunction implements BlockChildWatch {
     return true;
   }
 
-  destroy(): void {
-    this._clearWorkers();
+  cleanup(): void {
     if (this._outputBlock) {
       this._data.deleteValue('#output');
     }
+    this._data.deleteValue('#func');
+  }
+
+  destroy(): void {
     this._outputBlock = null;
     this._funcBlock = null;
-    this._data.deleteValue('#func');
+    if (this._watchedInput) {
+      this._watchedInput.unwatch(this);
+      this._watchedInput = null;
+    }
     super.destroy();
   }
 }

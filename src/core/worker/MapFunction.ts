@@ -250,10 +250,13 @@ export class MapFunction extends MapImpl {
     return true;
   }
 
+  cleanup(): void {
+    this._data.deleteValue('#func');
+  }
+
   destroy(): void {
     this._clearWorkers();
     this._funcBlock = null;
-    this._data.deleteValue('#func');
     super.destroy();
   }
 }

@@ -22,7 +22,9 @@ export interface BlockChildWatch {
 }
 
 export interface Runnable {
+  // in the queue
   _queued: boolean;
+  // in the queue and will be run
   _queueToRun: boolean;
 
   getPriority(): number;
@@ -375,30 +377,23 @@ export class Block implements Runnable, FunctionData, PropListener<FunctionClass
   }
 
   setValue(field: string, val: any): void {
-    this.getProperty(field).setValue(val);
+    this.getProperty(field, val !== undefined)?.setValue(val);
   }
 
   updateValue(field: string, val: any): void {
-    this.getProperty(field).updateValue(val);
+    this.getProperty(field, val !== undefined)?.updateValue(val);
   }
 
   output(val: any, field: string = '#output'): void {
-    this.getProperty(field).setOutput(val);
+    this.getProperty(field, val !== undefined)?.setOutput(val);
   }
 
   deleteValue(field: string): void {
-    if (this._destroyed) {
-      return;
-    }
-
-    let prop = this.getProperty(field, false);
-    if (prop) {
-      return prop.setValue(undefined);
-    }
+    let prop = this.getProperty(field, false)?.setValue(undefined);
   }
 
   setBinding(field: string, path: string): void {
-    this.getProperty(field).setBinding(path);
+    this.getProperty(field, path != null)?.setBinding(path);
   }
 
   getValue(field: string): any {
@@ -719,6 +714,7 @@ export class Block implements Runnable, FunctionData, PropListener<FunctionClass
 
   onChange(cls: FunctionClass): void {
     if (this._function) {
+      this._function.cleanup();
       this._function.destroy();
       this._funcPromise = undefined;
       this.updateValue('#wait', undefined);

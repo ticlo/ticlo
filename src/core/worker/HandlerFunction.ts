@@ -233,11 +233,15 @@ export class HandlerFunction extends MapImpl {
     return null;
   }
 
+  cleanup(): void {
+    this._data.deleteValue('#func');
+  }
+
   destroy(): void {
     this._clearWorkers();
     this._called.length = 0;
     this._funcBlock = null;
-    this._data.deleteValue('#func');
+
     super.destroy();
   }
 }

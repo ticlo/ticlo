@@ -26,9 +26,8 @@ export class WorkerFunction extends BlockFunction {
     this._funcJob.updateInput(this._data);
   }
 
-  destroy(): void {
+  cleanup(): void {
     this._data.deleteValue('#func');
-    super.destroy();
   }
 
   static registerType(data: DataMap, desc: FunctionDesc, namespace?: string) {

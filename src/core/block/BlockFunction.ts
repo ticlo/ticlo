@@ -64,6 +64,9 @@ export abstract class BaseFunction<T extends FunctionData = FunctionData> {
     return null;
   }
 
+  cleanup(): void {
+    this._data.output(undefined);
+  }
   destroy(): void {
     this._data = undefined;
   }
@@ -102,6 +105,9 @@ export abstract class BlockFunction extends BaseFunction<Block> {
    */
   queue() {
     this._data._queueFunction();
+  }
+
+  cleanup(): void {
   }
 }
 

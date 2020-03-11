@@ -70,6 +70,10 @@ export class HtmlElementFunction extends BlockFunction {
     this._data.output(React.createElement(this.getComponent(), props, ...this.getChildren()), '#render');
     this._data.output(this._comp);
   }
+  cleanup(): void {
+    this._data.deleteValue('#output');
+    this._data.deleteValue('#render');
+  }
 }
 
 export const elementConfigs = ['#call', '#mode', '#priority', '#sync', '#render'];
