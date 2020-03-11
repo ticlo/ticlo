@@ -17,7 +17,8 @@ import {
   FunctionDesc,
   smartStrCompare,
   ValueSubscriber,
-  getOutputDesc
+  getOutputDesc,
+  getDisplayName
 } from '../../../src/core/editor';
 import {TIcon} from '../icon/Icon';
 import {TicloLayoutContext, TicloLayoutContextType} from '../component/LayoutContext';
@@ -329,7 +330,7 @@ export class NodeTreeRenderer extends PureDataRenderer<Props, any> {
       let [colorClass, iconName] = getFuncStyleFromDesc(desc, item.getConn(), 'ticl-bg--');
       icon = <TIcon icon={iconName} colorClass={colorClass} />;
     }
-    displayName = displayName || decodeURIComponent(item.name);
+    displayName = getDisplayName(item.name, displayName);
     let name: React.ReactElement;
     if (displayName === item.name) {
       name = <div className="ticl-tree-node-text">{item.name}</div>;

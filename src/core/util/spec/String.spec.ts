@@ -1,6 +1,6 @@
 import {assert} from 'chai';
 import {getPreNumber, getTailingNumber, isColorStr, smartStrCompare} from '../String';
-import {encodeURITiclo} from '../Name';
+import {encodeTicloName, getDisplayName} from '../Name';
 
 describe('String', function() {
   it('smartStrCompare', () => {
@@ -62,9 +62,16 @@ describe('String', function() {
     assert.isFalse(isColorStr('rgb()'));
   });
 
-  it('encodeURITiclo', function() {
-    assert.equal(encodeURITiclo('.'), '%2e');
+  it('encodeTicloName', function() {
+    assert.equal(encodeTicloName('.'), '%2e');
     // invalid input
-    assert.equal(encodeURITiclo('\0'), '');
+    assert.equal(encodeTicloName('\0'), '');
+  });
+
+  it('getDisplayName', function() {
+    assert.equal(getDisplayName('.', 'a'), 'a');
+    assert.equal(getDisplayName('b', null), 'b');
+    assert.equal(getDisplayName('%20', null), ' ');
+    assert.equal(getDisplayName('%20%', null), '%20%');
   });
 });
