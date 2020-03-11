@@ -107,8 +107,7 @@ export abstract class BlockFunction extends BaseFunction<Block> {
     this._data._queueFunction();
   }
 
-  cleanup(): void {
-  }
+  cleanup(): void {}
 }
 
 export type FunctionClass = new (block: FunctionData) => BaseFunction;
