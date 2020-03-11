@@ -6,13 +6,11 @@ import CloseCircleIcon from '@ant-design/icons/CloseCircleOutlined';
 import FilterIcon from '@ant-design/icons/FilterOutlined';
 import PlusSquareIcon from '@ant-design/icons/PlusSquareOutlined';
 import {FunctionTree} from './FunctionTree';
-import {ClientConn, DataMap, FunctionDesc} from '../../../src/core/editor';
+import {ClientConn, DataMap, FunctionDesc, encodeURITiclo} from '../../../src/core/editor';
 import {OnFunctionClick} from './FunctionView';
 import {RadioChangeEvent} from 'antd/lib/radio';
 import {FunctionList} from './FunctionList';
 import {TicloLayoutContext, TicloLayoutContextType} from '../component/LayoutContext';
-import {ClientCallbacks} from '../../core/connect/ClientRequests';
-import {encodeURITiclo} from '../../core/util/String';
 
 interface Props {
   conn: ClientConn;

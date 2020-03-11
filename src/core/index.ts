@@ -10,6 +10,7 @@ export {ServerConnection} from './connect/ServerConnection';
 export {DataMap, convertToObject, TRUNCATED} from './util/DataTypes';
 export {forAllPathsBetween} from './util/Path';
 export {encodeDisplay, decode, encode, encodeSorted} from './util/Serialize';
+export * from './util/Name';
 export {endsWithNumberReg, getTailingNumber, smartStrCompare, isColorStr} from './util/String';
 export * from './util/Moment';
 export {Logger} from './util/Logger';

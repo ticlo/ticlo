@@ -1,5 +1,5 @@
 import React from 'react';
-import {FunctionDesc, getDefaultFuncData, ClientConn} from '../../../src/core/editor';
+import {FunctionDesc, getDefaultFuncData, ClientConn, encodeURITiclo} from '../../../src/core/editor';
 import {TIcon} from '../icon/Icon';
 import {DragDropDiv, DragState} from 'rc-dock/lib';
 import {getFuncStyleFromDesc} from '../util/BlockColors';
@@ -8,7 +8,6 @@ import BuildIcon from '@ant-design/icons/BuildOutlined';
 import DeleteIcon from '@ant-design/icons/DeleteOutlined';
 import EditIcon from '@ant-design/icons/EditOutlined';
 import {TicloLayoutContext, TicloLayoutContextType} from '../component/LayoutContext';
-import {encodeURITiclo} from '../../core/util/String';
 
 export type OnFunctionClick = (name: string, desc: FunctionDesc, data: any) => void;
 

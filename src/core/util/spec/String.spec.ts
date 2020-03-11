@@ -1,5 +1,6 @@
 import {assert} from 'chai';
-import {encodeURITiclo, getPreNumber, getTailingNumber, isColorStr, smartStrCompare} from '../String';
+import {getPreNumber, getTailingNumber, isColorStr, smartStrCompare} from '../String';
+import {encodeURITiclo} from '../Name';
 
 describe('String', function() {
   it('smartStrCompare', () => {
