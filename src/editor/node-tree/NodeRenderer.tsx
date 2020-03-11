@@ -156,6 +156,7 @@ interface Props {
   getMenu: (item: NodeTreeItem) => React.ReactElement[];
 }
 interface State {
+  displayName?: string;
   hasChange: boolean;
   desc: FunctionDesc;
   error?: string;
@@ -233,10 +234,22 @@ export class NodeTreeRenderer extends PureDataRenderer<Props, any> {
     }
   });
 
+  nameListener = new ValueSubscriber({
+    onUpdate: (response: ValueUpdate) => {
+      let {value} = response.cache;
+      if (typeof value === 'string') {
+        this.safeSetState({displayName: value});
+      } else {
+        this.safeSetState({displayName: null});
+      }
+    }
+  });
+
   constructor(props: Props) {
     super(props);
     let {item} = props;
     this.subscriptionListener.subscribe(item.connection, `${item.key}.#is`, true);
+    this.nameListener.subscribe(item.connection, `${item.key}.@name`);
     if (item.canApply) {
       this.hasChangeListener.subscribe(item.connection, `${item.key}.@has-change`);
     }
@@ -297,7 +310,7 @@ export class NodeTreeRenderer extends PureDataRenderer<Props, any> {
 
   renderImpl() {
     let {item, style, selected} = this.props;
-    let {hasChange, desc, error} = this.state;
+    let {hasChange, displayName, desc, error} = this.state;
     let marginLeft = item.level * 20;
     let contentClassName = 'ticl-tree-node-content';
     if (selected) {
@@ -316,13 +329,24 @@ export class NodeTreeRenderer extends PureDataRenderer<Props, any> {
       let [colorClass, iconName] = getFuncStyleFromDesc(desc, item.getConn(), 'ticl-bg--');
       icon = <TIcon icon={iconName} colorClass={colorClass} />;
     }
+    displayName = displayName || decodeURIComponent(item.name);
+    let name: React.ReactElement;
+    if (displayName === item.name) {
+      name = <div className="ticl-tree-node-text">{item.name}</div>;
+    } else {
+      name = (
+        <div className="ticl-tree-node-text ticl-tree-node-display" title={item.name}>
+          {displayName}
+        </div>
+      );
+    }
     return (
       <div style={{...style, marginLeft}} className="ticl-tree-node">
         <ExpandIcon opened={item.opened} onClick={this.onExpandClicked} />
         <Dropdown overlay={this.getMenu} trigger={['contextMenu']}>
           <DragDropDiv className={contentClassName} onClick={this.onClickContent} onDragStartT={this.onDragStart}>
             {icon}
-            <div className="ticl-tree-node-text">{item.name}</div>
+            {name}
           </DragDropDiv>
         </Dropdown>
       </div>
@@ -332,6 +356,7 @@ export class NodeTreeRenderer extends PureDataRenderer<Props, any> {
   componentWillUnmount() {
     let {item} = this.props;
     this.subscriptionListener.unsubscribe();
+    this.nameListener.unsubscribe();
     this.hasChangeListener.unsubscribe();
     item.connection.unwatchDesc(this.descCallback);
     super.componentWillUnmount();

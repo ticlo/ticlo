@@ -63,6 +63,8 @@ describe('String', function() {
   });
 
   it('encodeURITiclo', function() {
-    assert.equal(encodeURITiclo('.'), '%2E');
+    assert.equal(encodeURITiclo('.'), '%2e');
+    // invalid input
+    assert.equal(encodeURITiclo('\0'), '');
   });
 });
