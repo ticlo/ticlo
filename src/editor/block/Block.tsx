@@ -7,6 +7,7 @@ import {LazyUpdateSubscriber} from '../component/LazyUpdateComponent';
 import {BlockWidget} from './view/BlockWidget';
 import {getFuncStyleFromDesc} from '../util/BlockColors';
 import {getDisplayName} from '../../core';
+import {Tooltip} from 'antd';
 
 interface BlockViewProps {
   item: BlockItem;
@@ -271,17 +272,18 @@ export class BlockView extends PureDataRenderer<BlockViewProps, BlockViewState> 
       return (
         <div ref={this.getRef} className={classNames.join(' ')} style={{top: item.y, left: item.x}}>
           <div className="ticl-block-min-bound" />
-          <DragDropDiv
-            className={headClasses}
-            directDragT={true}
-            onDoubleClick={this.expandBlock}
-            onDragStartT={this.selectAndDrag}
-            onDragMoveT={this.onDragMove}
-            onDragEndT={this.onDragEnd}
-            title={displayName}
-          >
-            <TIcon icon={icon} />
-          </DragDropDiv>
+          <Tooltip title={displayName} mouseEnterDelay={0}>
+            <DragDropDiv
+              className={headClasses}
+              directDragT={true}
+              onDoubleClick={this.expandBlock}
+              onDragStartT={this.selectAndDrag}
+              onDragMoveT={this.onDragMove}
+              onDragEndT={this.onDragEnd}
+            >
+              <TIcon icon={icon} />
+            </DragDropDiv>
+          </Tooltip>
         </div>
       );
     } else {
