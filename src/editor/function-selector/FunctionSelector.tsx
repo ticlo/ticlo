@@ -6,7 +6,7 @@ import CloseCircleIcon from '@ant-design/icons/CloseCircleOutlined';
 import FilterIcon from '@ant-design/icons/FilterOutlined';
 import PlusSquareIcon from '@ant-design/icons/PlusSquareOutlined';
 import {FunctionTree} from './FunctionTree';
-import {ClientConn, DataMap, FunctionDesc, encodeURITiclo} from '../../../src/core/editor';
+import {ClientConn, DataMap, FunctionDesc, encodeTicloName} from '../../../src/core/editor';
 import {OnFunctionClick} from './FunctionView';
 import {RadioChangeEvent} from 'antd/lib/radio';
 import {FunctionList} from './FunctionList';
@@ -55,7 +55,7 @@ export class FunctionSelect extends React.PureComponent<Props, State> {
     if (this.newFunctionName) {
       let {conn} = this.props;
       let funcId = `:${this.newFunctionName}`;
-      let editPath = `#temp.#edit-${encodeURITiclo(funcId)}`;
+      let editPath = `#temp.#edit-${encodeTicloName(funcId)}`;
       conn.editWorker(editPath, null, funcId, {'#inputs': {'#is': ''}, '#outputs': {'#is': ''}});
       this.context.editJob(editPath, () => {
         conn.applyJobChange(editPath);

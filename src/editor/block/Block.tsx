@@ -6,6 +6,7 @@ import {BaseBlockItem, BlockHeaderView, BlockItem, Stage, XYWRenderer} from './F
 import {LazyUpdateSubscriber} from '../component/LazyUpdateComponent';
 import {BlockWidget} from './view/BlockWidget';
 import {getFuncStyleFromDesc} from '../util/BlockColors';
+import {getDisplayName} from '../../core';
 
 interface BlockViewProps {
   item: BlockItem;
@@ -175,6 +176,7 @@ export class BlockView extends PureDataRenderer<BlockViewProps, BlockViewState> 
     if (moving) {
       classNames.push('ticl-block-moving');
     }
+    let displayName = getDisplayName(item.name, null);
     if (FullView) {
       classNames.push('ticl-block-full-view');
       let width = item.w;
@@ -233,7 +235,7 @@ export class BlockView extends PureDataRenderer<BlockViewProps, BlockViewState> 
             onDragEndT={this.onDragEnd}
           >
             <TIcon icon={icon} />
-            {item.name}
+            {displayName}
           </BlockHeaderView>
           {widget}
           <div className="ticl-block-body">{item.renderFields()}</div>
@@ -273,6 +275,7 @@ export class BlockView extends PureDataRenderer<BlockViewProps, BlockViewState> 
             onDragStartT={this.selectAndDrag}
             onDragMoveT={this.onDragMove}
             onDragEndT={this.onDragEnd}
+            title={displayName}
           >
             <TIcon icon={icon} />
           </DragDropDiv>

@@ -1,5 +1,5 @@
 import React from 'react';
-import {FunctionDesc, getDefaultFuncData, ClientConn, encodeURITiclo} from '../../../src/core/editor';
+import {FunctionDesc, getDefaultFuncData, ClientConn, encodeTicloName} from '../../../src/core/editor';
 import {TIcon} from '../icon/Icon';
 import {DragDropDiv, DragState} from 'rc-dock/lib';
 import {getFuncStyleFromDesc} from '../util/BlockColors';
@@ -51,7 +51,7 @@ export class FunctionView extends React.PureComponent<Props, any> {
   };
   onEditClicked = () => {
     let {conn, desc} = this.props;
-    let editPath = `#temp.#edit-${encodeURITiclo(desc.id)}`;
+    let editPath = `#temp.#edit-${encodeTicloName(desc.id)}`;
     conn.editWorker(editPath, null, desc.id);
     this.context.editJob(editPath, () => {
       conn.applyJobChange(editPath);
