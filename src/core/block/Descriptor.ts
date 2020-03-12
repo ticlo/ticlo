@@ -170,11 +170,12 @@ export function mapConfigDesc(configs: (string | PropDesc)[]): PropDesc[] {
 }
 
 export const attributeDescs: {[key: string]: PropDesc} = {
+  '@b-name': {name: '@b-name', type: 'string'},
   '@b-p': {name: '@b-p', type: 'array'},
   '@b-xyw': {name: '@b-xyw', type: 'array'}
 };
 
-export const attributeList: PropDesc[] = [attributeDescs['@b-p'], attributeDescs['@b-xyw']];
+export const attributeList: PropDesc[] = [attributeDescs['@b-name'], attributeDescs['@b-p'], attributeDescs['@b-xyw']];
 
 export function buildPropDescCache(
   funcDesc: FunctionDesc,

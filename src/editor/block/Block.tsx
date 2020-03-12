@@ -151,10 +151,12 @@ export class BlockView extends PureDataRenderer<BlockViewProps, BlockViewState> 
     this.safeSetState({footDropping: false});
   };
 
+  displayName = new LazyUpdateSubscriber(this);
   widget = new LazyUpdateSubscriber(this);
   constructor(props: BlockViewProps) {
     super(props);
     this.state = {moving: false, footDropping: false};
+    this.displayName.subscribe(props.item.conn, `${props.item.path}.@b-name`);
     this.widget.subscribe(props.item.conn, `${props.item.path}.@b-widget`);
   }
 
@@ -176,7 +178,8 @@ export class BlockView extends PureDataRenderer<BlockViewProps, BlockViewState> 
     if (moving) {
       classNames.push('ticl-block-moving');
     }
-    let displayName = getDisplayName(item.name, null);
+    let displayName = getDisplayName(item.name, this.displayName.value);
+
     if (FullView) {
       classNames.push('ticl-block-full-view');
       let width = item.w;
@@ -233,10 +236,10 @@ export class BlockView extends PureDataRenderer<BlockViewProps, BlockViewState> 
             onDragStartT={this.selectAndDrag}
             onDragMoveT={this.onDragMove}
             onDragEndT={this.onDragEnd}
-          >
-            <TIcon icon={icon} />
-            {displayName}
-          </BlockHeaderView>
+            name={item.name}
+            icon={icon}
+            displayName={displayName}
+          />
           {widget}
           <div className="ticl-block-body">{item.renderFields()}</div>
           <DragDropDiv
@@ -287,6 +290,7 @@ export class BlockView extends PureDataRenderer<BlockViewProps, BlockViewState> 
     }
   }
   componentWillUnmount() {
+    this.displayName.unsubscribe();
     this.widget.unsubscribe();
     super.componentWillUnmount();
   }

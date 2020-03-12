@@ -255,6 +255,9 @@ interface BlockHeaderProps extends FieldViewProps {
   onDragMoveT?: DragManager.DragHandler;
   onDragEndT?: DragManager.DragHandler;
   onDoubleClick?: MouseEventHandler;
+  name: string;
+  icon: string;
+  displayName: string;
 }
 
 export class BlockHeaderView extends PureDataRenderer<BlockHeaderProps, any> {
@@ -281,7 +284,7 @@ export class BlockHeaderView extends PureDataRenderer<BlockHeaderProps, any> {
   };
 
   renderImpl(): React.ReactNode {
-    let {item, shared, onDragStartT, onDragMoveT, onDragEndT, onDoubleClick, children} = this.props;
+    let {item, shared, onDragStartT, onDragMoveT, onDragEndT, onDoubleClick, icon, name, displayName} = this.props;
     let inBoundClass: string;
     let inBoundText: string;
     let inBoundTitle: string;
@@ -309,6 +312,12 @@ export class BlockHeaderView extends PureDataRenderer<BlockHeaderProps, any> {
     if (shared) {
       className = `${className} ticl-block-head-shared`;
     }
+    let nameNode: React.ReactNode;
+    if (displayName !== name) {
+      nameNode = <u title={name}>{displayName}</u>;
+    } else {
+      nameNode = name;
+    }
 
     return (
       <DragDropDiv
@@ -332,7 +341,8 @@ export class BlockHeaderView extends PureDataRenderer<BlockHeaderProps, any> {
             <TIcon icon={item.subBlock.desc.icon} />
           </div>
         ) : null}
-        {children}
+        <TIcon icon={icon} />
+        {nameNode}
       </DragDropDiv>
     );
   }

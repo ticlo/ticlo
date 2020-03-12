@@ -12,7 +12,7 @@ export function encodeTicloName(str: string) {
 }
 
 export function getDisplayName(name: string, disp: string) {
-  if (disp) {
+  if (disp && typeof disp === 'string') {
     return disp;
   }
   if (name && name.includes('%')) {
