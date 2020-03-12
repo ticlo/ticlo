@@ -107,7 +107,7 @@ export class BlockView extends PureDataRenderer<BlockViewProps, BlockViewState> 
 
   onDragWMove = (e: DragState) => {
     let {item} = this.props;
-    let newW = this._baseW + e.dx;
+    let newW = Math.round(this._baseW + e.dx);
     if (!(newW > 80)) {
       newW = 80;
     }

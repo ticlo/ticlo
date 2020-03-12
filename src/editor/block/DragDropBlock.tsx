@@ -26,7 +26,7 @@ export function onDropBlock(conn: ClientConn, e: DragState, createBlock: CreateB
 
     let onConfirmedBlockName = (name: string) => {
       let width = 150;
-      let xyw = [offsetX - 12, offsetY - 12, width];
+      let xyw = [Math.round(offsetX - 12), Math.round(offsetY - 12), width];
       if (blockData.hasOwnProperty('@b-xyw')) {
         let dataXyw = blockData['@b-xyw'];
         if (Array.isArray(dataXyw)) {

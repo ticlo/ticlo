@@ -133,7 +133,7 @@ export abstract class BlockStageBase<State> extends LazyUpdateComponent<StagePro
     conn.lockImmediate(e);
     for (let [block, x, y, w] of this._draggingBlocks) {
       if (!block._syncParent) {
-        block.setXYW(x + e.dx, y + e.dy, w, true);
+        block.setXYW(Math.round(x + e.dx), Math.round(y + e.dy), w, true);
       }
     }
     conn.unlockImmediate(e);
