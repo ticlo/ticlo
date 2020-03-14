@@ -47,12 +47,8 @@ describe('Math', function() {
     let job = new Job();
 
     let aBlock = job.createBlock('a');
+    aBlock._load({'#is': 'add', '0': 2, '1': 3, '2': 4, '#len': 3});
 
-    aBlock.setValue('#is', 'add');
-    aBlock.setValue('0', 2);
-    aBlock.setValue('1', 3);
-    aBlock.setValue('2', 4);
-    aBlock.setValue('#len', 3);
     Root.run();
     assert.equal(aBlock.getValue('#output'), 9, '2+3+4 == 9');
 
@@ -71,6 +67,16 @@ describe('Math', function() {
     aBlock.setValue('#len', 0);
     Root.run();
     assert.equal(aBlock.getValue('#output'), 0);
+  });
+
+  it('add array', function() {
+    let job = new Job();
+
+    let aBlock = job.createBlock('a');
+    aBlock._load({'#is': 'add', '#len': [1, 2]});
+
+    Root.run();
+    assert.equal(aBlock.getValue('#output'), 3);
   });
 
   it('subtract', function() {
