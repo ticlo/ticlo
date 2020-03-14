@@ -100,7 +100,7 @@ class BlockLoader extends MultiSelectLoader<PropertyList> {
 
 function getPropDescName(prop: PropDesc | PropGroupDesc) {
   if (prop.type === 'group') {
-    return `${prop.name}#len`;
+    return `${prop.name}[]`;
   } else if (prop.name) {
     return prop.name;
   }

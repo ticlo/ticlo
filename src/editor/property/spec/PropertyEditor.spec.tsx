@@ -109,7 +109,7 @@ describe('PropertyEditor', function() {
     // subblock should expand
     SimulateEvent.simulate(expandIcon, 'click');
     await shouldHappen(() => div.querySelector('.ticl-property-list'));
-    // find the child property group for #len 0 1
+    // find the child property group for [] 0 1
     await shouldHappen(() => div.querySelector('.ticl-property-group'));
 
     Root.instance.deleteValue('PropertyEditor2');

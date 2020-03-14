@@ -56,9 +56,6 @@ export class Functions {
     if (cls) {
       cls.prototype.priority = desc.priority;
       cls.prototype.defaultMode = desc.mode;
-      cls.prototype.useLength = Boolean(
-        desc.properties && desc.properties.find((desc) => desc.name === '' && desc.type === 'group')
-      );
       cls.prototype.type = id;
     }
 

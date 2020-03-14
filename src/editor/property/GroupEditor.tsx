@@ -1,15 +1,20 @@
 import React from 'react';
-import {ClientConn, ValueSubscriber, ValueUpdate} from '../../../src/core/editor';
-import {configDescs, FunctionDesc, PropDesc, PropGroupDesc} from '../../../src/core/editor';
+import {
+  ClientConn,
+  lengthPropDesc,
+  ValueSubscriber,
+  ValueUpdate,
+  FunctionDesc,
+  PropGroupDesc
+} from '../../../src/core/editor';
 import {MultiSelectComponent, MultiSelectLoader} from './MultiSelectComponent';
-import {PropertyList} from './PropertyList';
 import {PropertyEditor} from './PropertyEditor';
 import {CustomGroupPropertyReorder, CustomPropertyReorder, GroupPropertyReorder} from './PropertyReorder';
 
 class LengthPropertyEditor extends PropertyEditor {
   onChange = (value: any) => {
     let {conn, paths, name, propDesc} = this.props;
-    if (name.endsWith('#len')) {
+    if (name.endsWith('[]')) {
       let group = name.substring(0, name.length - 4);
       if (value === propDesc.default) {
         value = undefined;
@@ -37,7 +42,7 @@ class GroupLoader extends MultiSelectLoader<GroupEditor> {
   });
 
   init() {
-    this.lenListener.subscribe(this.conn, `${this.path}.${this.parent.props.groupDesc.name}#len`);
+    this.lenListener.subscribe(this.conn, `${this.path}.${this.parent.props.groupDesc.name}[]`);
   }
 
   destroy() {
@@ -72,8 +77,8 @@ export class GroupEditor extends MultiSelectComponent<Props, State, GroupLoader>
     let children: React.ReactNode[] = [];
     let {name: group} = groupDesc;
 
-    let lenName = `${group}#len`;
-    let lenDesc = {...configDescs['#len'], default: groupDesc.defaultLen, name: lenName};
+    let lenName = `${group}[]`;
+    let lenDesc = {...lengthPropDesc, default: groupDesc.defaultLen, name: lenName};
 
     if (this.loaders.size) {
       let minLen = Infinity;

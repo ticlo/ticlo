@@ -537,7 +537,7 @@ export class PropertyEditor extends MultiSelectComponent<PropertyEditorProps, St
   onRemoveCustom = () => {
     let {conn, paths, name, baseName, group} = this.props;
     let removeField = baseName != null ? baseName : name;
-    if (group != null && name === `${group}#len`) {
+    if (group != null && name === `${group}[]`) {
       name = null;
     }
     for (let path of paths) {
@@ -552,7 +552,7 @@ export class PropertyEditor extends MultiSelectComponent<PropertyEditorProps, St
 
     let onChange = propDesc.readonly ? null : this.onChange;
 
-    let isIndexed = group != null && !name.endsWith('#len');
+    let isIndexed = group != null && !name.endsWith('[]');
 
     let {count, value, valueSame, bindingPath, bindingSame, subBlock, display} = this.mergePropertyState();
     if (count === 0) {

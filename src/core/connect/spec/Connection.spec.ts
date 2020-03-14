@@ -622,11 +622,11 @@ describe('Connection', function() {
     let [server, client] = makeLocalConnection(Root.instance, false);
 
     let response1 = await client.insertGroupProp('Connection16.a', '', 0);
-    assert.equal(block1.getValue('#len'), 3);
+    assert.equal(block1.getValue('[]'), 3);
     assert.equal(block1.getValue('1'), 0);
 
     let response2 = await client.removeGroupProp('Connection16.a', '', 0);
-    assert.equal(block1.getValue('#len'), 2);
+    assert.equal(block1.getValue('[]'), 2);
     assert.equal(block1.getValue('0'), 0);
 
     let response3 = await client.moveGroupProp('Connection16.a', '', 0, 1);

@@ -113,7 +113,7 @@ export const blankPropDesc: PropDesc = {
   name: '',
   type: 'any'
 };
-
+export const lengthPropDesc: PropDesc = {name: '[]', type: 'number', default: 2, min: 0, step: 1};
 export const configDescs: {[key: string]: PropDesc} = {
   '#is': {name: '#is', type: 'type'},
   '#is(readonly)': {name: '#is', type: 'type', readonly: true},
@@ -123,7 +123,6 @@ export const configDescs: {[key: string]: PropDesc} = {
     options: BlockModeList,
     default: 'auto'
   },
-  '#len': {name: '#len', type: 'number', default: 2, min: 0, step: 1},
   '#call': {name: '#call', type: 'event'},
   '#sync': {name: '#sync', type: 'toggle'},
   '#wait': {name: '#wait', type: 'toggle', readonly: true},
@@ -190,7 +189,7 @@ export function buildPropDescCache(
     if (!props) return;
     for (let prop of props) {
       if (prop.type === 'group') {
-        result[`${prop.name}#len`] = configDescs['#len'];
+        result[`${prop.name}[]`] = configDescs['[]'];
         for (let gprop of (prop as PropGroupDesc).properties) {
           // add number index to the property name
           result[`${gprop.name}0`] = gprop;

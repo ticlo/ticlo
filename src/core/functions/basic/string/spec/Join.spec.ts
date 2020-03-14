@@ -33,12 +33,12 @@ describe('Join', function() {
     Root.run();
     assert.equal(aBlock.getValue('#output'), 'b,c,a');
 
-    aBlock.setValue('#len', 1);
+    aBlock.setValue('[]', 1);
 
     Root.run();
     assert.equal(aBlock.getValue('#output'), 'b,c');
 
-    aBlock.setValue('#len', 0);
+    aBlock.setValue('[]', 0);
     Root.run();
     assert.equal(aBlock.getValue('#output'), '');
   });

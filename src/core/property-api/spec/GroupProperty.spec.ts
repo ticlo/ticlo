@@ -14,7 +14,7 @@ describe('GroupProperty', function() {
     });
 
     setGroupLength(aBlock, '', 3);
-    assert.deepEqual(aBlock.getValue('#len'), 3);
+    assert.deepEqual(aBlock.getValue('[]'), 3);
     assert.deepEqual(aBlock.getValue('@b-p'), ['2']);
 
     setGroupLength(aBlock, '', 0);
@@ -29,7 +29,7 @@ describe('GroupProperty', function() {
 
     // invalid group, length should change but nothing else should happen
     setGroupLength(aBlock, 'invalidG', 3);
-    assert.deepEqual(aBlock.getValue('invalidG#len'), 3);
+    assert.deepEqual(aBlock.getValue('invalidG[]'), 3);
     assert.deepEqual(aBlock.getValue('@b-p'), ['0', '1']);
   });
 
@@ -48,7 +48,7 @@ describe('GroupProperty', function() {
     });
 
     setGroupLength(job, 'g', 3);
-    assert.deepEqual(job.getValue('g#len'), 3);
+    assert.deepEqual(job.getValue('g[]'), 3);
     assert.deepEqual(job.getValue('@b-p'), ['a2']);
   });
 
@@ -62,20 +62,20 @@ describe('GroupProperty', function() {
     });
 
     insertGroupProperty(aBlock, '', 0);
-    assert.equal(aBlock.getValue('#len'), 3);
+    assert.equal(aBlock.getValue('[]'), 3);
     assert.equal(aBlock.getValue('1'), 0);
 
     insertGroupProperty(aBlock, '', 3);
-    assert.equal(aBlock.getValue('#len'), 4);
+    assert.equal(aBlock.getValue('[]'), 4);
 
     // invalid index, no change
     insertGroupProperty(aBlock, '', -1);
     insertGroupProperty(aBlock, '', 100);
-    assert.equal(aBlock.getValue('#len'), 4);
+    assert.equal(aBlock.getValue('[]'), 4);
 
     // invalid group, no change
     insertGroupProperty(aBlock, 'invalidG', 0);
-    assert.isUndefined(aBlock.getValue('invalidG#len'));
+    assert.isUndefined(aBlock.getValue('invalidG[]'));
   });
 
   it('removeGroupProperty', function() {
@@ -88,17 +88,17 @@ describe('GroupProperty', function() {
     });
 
     removeGroupProperty(aBlock, '', 0);
-    assert.equal(aBlock.getValue('#len'), 1);
+    assert.equal(aBlock.getValue('[]'), 1);
     assert.equal(aBlock.getValue('0'), 1);
 
     // invalid index, no change
     removeGroupProperty(aBlock, '', -1);
     removeGroupProperty(aBlock, '', 100);
-    assert.equal(aBlock.getValue('#len'), 1);
+    assert.equal(aBlock.getValue('[]'), 1);
 
     // invalid group, no change
     removeGroupProperty(aBlock, 'invalidG', 0);
-    assert.isUndefined(aBlock.getValue('invalidG#len'));
+    assert.isUndefined(aBlock.getValue('invalidG[]'));
   });
 
   it('moveGroupProperty', function() {
@@ -127,6 +127,6 @@ describe('GroupProperty', function() {
 
     // invalid group, no change
     moveGroupProperty(aBlock, 'invalidG', 0, 1);
-    assert.isUndefined(aBlock.getValue('invalidG#len'));
+    assert.isUndefined(aBlock.getValue('invalidG[]'));
   });
 });

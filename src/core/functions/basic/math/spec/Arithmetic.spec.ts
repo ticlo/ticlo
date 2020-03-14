@@ -47,7 +47,7 @@ describe('Math', function() {
     let job = new Job();
 
     let aBlock = job.createBlock('a');
-    aBlock._load({'#is': 'add', '0': 2, '1': 3, '2': 4, '#len': 3});
+    aBlock._load({'#is': 'add', '0': 2, '1': 3, '2': 4, '[]': 3});
 
     Root.run();
     assert.equal(aBlock.getValue('#output'), 9, '2+3+4 == 9');
@@ -56,15 +56,15 @@ describe('Math', function() {
     Root.run();
     assert.equal(aBlock.getValue('#output'), 9, 'add new value but length is not changed');
 
-    aBlock.setValue('#len', 4);
+    aBlock.setValue('[]', 4);
     Root.run();
     assert.equal(aBlock.getValue('#output'), 14, '2+3+4+5 == 14');
 
-    aBlock.setValue('#len', 2);
+    aBlock.setValue('[]', 2);
     Root.run();
     assert.equal(aBlock.getValue('#output'), 5, 'length back to 2, 2+3 == 5');
 
-    aBlock.setValue('#len', 0);
+    aBlock.setValue('[]', 0);
     Root.run();
     assert.equal(aBlock.getValue('#output'), 0);
   });
@@ -73,7 +73,7 @@ describe('Math', function() {
     let job = new Job();
 
     let aBlock = job.createBlock('a');
-    aBlock._load({'#is': 'add', '#len': [1, 2]});
+    aBlock._load({'#is': 'add', '[]': [1, 2]});
 
     Root.run();
     assert.equal(aBlock.getValue('#output'), 3);
@@ -120,7 +120,7 @@ describe('Math', function() {
     aBlock.setValue('0', 2);
     aBlock.setValue('1', 3);
     aBlock.setValue('2', 5);
-    aBlock.setValue('#len', 3);
+    aBlock.setValue('[]', 3);
     Root.run();
     assert.equal(aBlock.getValue('#output'), 30, '2*3*5 == 30');
 
@@ -128,11 +128,11 @@ describe('Math', function() {
     Root.run();
     assert.equal(aBlock.getValue('#output'), undefined, '2*3*null == undefined');
 
-    aBlock.setValue('#len', -1);
+    aBlock.setValue('[]', -1);
     Root.run();
     assert.equal(aBlock.getValue('#output'), 6, 'when length is invalid, use length=2');
 
-    aBlock.setValue('#len', 0);
+    aBlock.setValue('[]', 0);
     Root.run();
     assert.equal(aBlock.getValue('#output'), 1);
   });

@@ -27,8 +27,6 @@ export abstract class BaseFunction<T extends FunctionData = FunctionData> {
   type?: string;
   priority: 0 | 1 | 2 | 3;
   defaultMode: BlockMode;
-  // whether the #len property is used
-  useLength: boolean;
 
   constructor(public _data?: T) {}
   initInputs() {}

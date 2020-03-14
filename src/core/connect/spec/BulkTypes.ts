@@ -6,7 +6,6 @@ class TestFunction extends BaseFunction {
 }
 
 TestFunction.prototype.priority = 0;
-TestFunction.prototype.useLength = false;
 
 let testDesc = {
   name: '',

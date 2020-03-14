@@ -21,8 +21,8 @@ describe('Descriptor', function() {
     assert.isUndefined(mapConfigDesc(null));
 
     const abcconfig: PropDesc = {name: '#abc', type: 'string'};
-    let mapped = mapConfigDesc(['#len', '#invalidConfig', abcconfig]);
-    assert.deepEqual(mapped, [configDescs['#len'], abcconfig]);
+    let mapped = mapConfigDesc(['#is', '#invalidConfig', abcconfig]);
+    assert.deepEqual(mapped, [configDescs['#is'], abcconfig]);
     assert.equal(mapped, mapConfigDesc(mapped));
   });
 

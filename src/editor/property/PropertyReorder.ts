@@ -15,7 +15,7 @@ export const CustomGroupPropertyReorder: PropertyReorder = {
     let {conn, paths, group, baseName, name, isCustom} = props;
     let moveFromPaths: string[] = DragState.getData('paths', conn.getBaseConn());
     if (moveFromPaths === paths) {
-      let isLen = group != null && name.endsWith('#len');
+      let isLen = group != null && name.endsWith('[]');
       let fromGroup = DragState.getData('fromGroup', conn.getBaseConn());
       if (isCustom) {
         // move custom property
@@ -48,7 +48,7 @@ export const CustomGroupPropertyReorder: PropertyReorder = {
   onDragDrop(props: PropertyEditorProps, e: DragState): void {
     let {conn, paths, group, baseName, name, isCustom} = props;
     // check reorder drag with right click
-    let isLen = group != null && name.endsWith('#len');
+    let isLen = group != null && name.endsWith('[]');
     let fromGroup = DragState.getData('fromGroup', conn.getBaseConn());
     let moveFromPaths: string[] = DragState.getData('paths', conn.getBaseConn());
     if (moveFromPaths === paths) {
@@ -99,7 +99,7 @@ export const CustomPropertyReorder: PropertyReorder = {
     let data: any = {paths};
     // move custom property
     let moveCustomField = baseName != null ? baseName : name;
-    if (group != null && name.endsWith('#len')) {
+    if (group != null && name.endsWith('[]')) {
       moveCustomField = group;
     }
     data.moveCustomField = moveCustomField;

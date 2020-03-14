@@ -653,26 +653,6 @@ export class Block implements Runnable, FunctionData, PropListener<FunctionClass
     }
   }
 
-  _cachedLength: number = NaN;
-
-  _lengthChanged(length: any) {
-    if (Array.isArray(length)) {
-      this._cachedLength = 0;
-      if (this._function && this._function.useLength) {
-        this._queueFunctionOnChange();
-      }
-    } else {
-      let newLen = Number(length);
-      if (newLen < 0) newLen = NaN;
-      if (!Object.is(newLen, this._cachedLength)) {
-        this._cachedLength = newLen;
-        if (this._function && this._function.useLength) {
-          this._queueFunctionOnChange();
-        }
-      }
-    }
-  }
-
   // value from #priority
   _controlPriority: number = -1;
 
@@ -693,13 +673,7 @@ export class Block implements Runnable, FunctionData, PropListener<FunctionClass
   }
 
   getLength(group?: string, defaultLength = 2): number {
-    if (!group) {
-      if (this._cachedLength >= 0) {
-        return this._cachedLength;
-      }
-      return defaultLength;
-    }
-    let result = this.getValue(`${group}#len`);
+    let result = this.getValue(`${group}[]`);
     if (result >= 0) {
       return result;
     }
@@ -707,7 +681,7 @@ export class Block implements Runnable, FunctionData, PropListener<FunctionClass
   }
 
   getArray(group = '', defaultLength = 2, fields?: string[]): any[] {
-    let lenOrArray = this.getValue(`${group}#len`);
+    let lenOrArray = this.getValue(`${group}[]`);
     if (Array.isArray(lenOrArray)) {
       // iterate native array
       return lenOrArray;

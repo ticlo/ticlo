@@ -39,12 +39,6 @@ class BlockModeConfig extends BlockProperty {
   }
 }
 
-class BlockLengthConfig extends BlockProperty {
-  _valueChanged() {
-    this._block._lengthChanged(this._value);
-  }
-}
-
 class BlockPriorityConfig extends BlockProperty {
   _valueChanged() {
     this._block._priorityChanged(this._value);
@@ -145,7 +139,6 @@ export const ConfigGenerators: {[key: string]: typeof BlockProperty} = {
   '#mode': BlockModeConfig,
   '#call': BlockCallConfig,
   '#sync': BlockSyncConfig,
-  '#len': BlockLengthConfig,
   '#wait': BlockWaitingConfig,
   '#cancel': BlockCancelConfig,
   '#priority': BlockPriorityConfig

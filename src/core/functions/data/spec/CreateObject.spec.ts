@@ -48,7 +48,7 @@ describe('CreateObject', function() {
     let aBlock = job.createBlock('a');
     aBlock._load({
       '#is': 'create-object',
-      'v#len': 3,
+      'v[]': 3,
       'v0': 1,
       'v1': 2,
       'a0': 3,

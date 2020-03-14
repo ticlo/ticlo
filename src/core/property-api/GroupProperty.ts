@@ -31,7 +31,7 @@ function findGroupDesc(block: Block, group: string): PropGroupDesc {
 }
 
 function updateGroupPropertyLength(block: Block, group: string, groupDesc: PropGroupDesc, length: number) {
-  let lengthField = `${group}#len`;
+  let lengthField = `${group}[]`;
   let oldLength = block.getLength(group, groupDesc.defaultLen);
   let newLength = length;
   if (!(newLength >= 0)) {
@@ -146,7 +146,7 @@ export function setGroupLength(block: Block, group: string, length: number) {
 
   if (!groupDesc) {
     // still can't find the group, only set value
-    block.setValue(`${group}#len`, length);
+    block.setValue(`${group}[]`, length);
     return;
   }
   updateGroupPropertyLength(block, group, groupDesc, length);
