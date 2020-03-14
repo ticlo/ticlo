@@ -21,14 +21,12 @@ export class CreateObjectFunction extends BaseFunction {
       for (let prop of custom) {
         if (prop) {
           if (prop.type === 'group') {
-            let length = this._data.getLength(prop.name, prop.defaultLen);
-            for (let groupProp of prop.properties) {
-              let arr: any[] = [];
-              for (let i = 0; i < length; ++i) {
-                arr.push(this._data.getValue(`${groupProp.name}${i}`));
-              }
-              output[groupProp.name] = arr;
+            let fields = prop.properties.map((p) => p.name);
+            if (fields.length === 1 && fields[0] === prop.name) {
+              // use flat array instead of array of Object wrapper when group name is same as field name
+              fields = null;
             }
+            output[prop.name] = this._data.getArray(prop.name, prop.defaultLen, fields);
           } else {
             let val = this._data.getValue(prop.name);
             if (val !== undefined) {

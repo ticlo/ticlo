@@ -58,9 +58,8 @@ export class HtmlElementFunction extends BlockFunction {
   }
   getChildren(): any[] {
     let result = [];
-    let len = this._data.getLength('', 0);
-    for (let i = 0; i < len; ++i) {
-      result.push(this._data.getValue(`${i}`));
+    for (let val of this._data.getArray('', 0)) {
+      result.push(val);
     }
     return result;
   }

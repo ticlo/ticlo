@@ -656,11 +656,19 @@ export class Block implements Runnable, FunctionData, PropListener<FunctionClass
   _cachedLength: number = NaN;
 
   _lengthChanged(length: any) {
-    let newLen = Number(length);
-    if (newLen !== this._cachedLength && (newLen === newLen || this._cachedLength === this._cachedLength)) {
-      this._cachedLength = newLen;
+    if (Array.isArray(length)) {
+      this._cachedLength = 0;
       if (this._function && this._function.useLength) {
         this._queueFunctionOnChange();
+      }
+    } else {
+      let newLen = Number(length);
+      if (newLen < 0) newLen = NaN;
+      if (!Object.is(newLen, this._cachedLength)) {
+        this._cachedLength = newLen;
+        if (this._function && this._function.useLength) {
+          this._queueFunctionOnChange();
+        }
       }
     }
   }
@@ -684,18 +692,50 @@ export class Block implements Runnable, FunctionData, PropListener<FunctionClass
     return -1;
   }
 
-  getLength(name?: string, defaultLength = 2): number {
-    if (!name) {
+  getLength(group?: string, defaultLength = 2): number {
+    if (!group) {
       if (this._cachedLength >= 0) {
         return this._cachedLength;
       }
       return defaultLength;
     }
-    let result = this.getValue(`${name}#len`);
+    let result = this.getValue(`${group}#len`);
     if (result >= 0) {
       return result;
     }
     return defaultLength;
+  }
+
+  getArray(group = '', defaultLength = 2, fields?: string[]): any[] {
+    let lenOrArray = this.getValue(`${group}#len`);
+    if (Array.isArray(lenOrArray)) {
+      // iterate native array
+      return lenOrArray;
+    }
+    let len: number;
+    if (lenOrArray >= 0) {
+      len = lenOrArray;
+    } else {
+      len = defaultLength;
+    }
+    let result: any[] = [];
+    if (len >= 0 && fields) {
+      // iterate block array with fields
+      for (let i = 0; i < len; ++i) {
+        // return object structure
+        let obj: any = {};
+        for (let field of fields) {
+          obj[field] = this.getValue(`${field}${i}`);
+        }
+        result.push(obj);
+      }
+    } else {
+      // iterate default block array
+      for (let i = 0; i < len; ++i) {
+        result.push(this.getValue(`${group}${i}`));
+      }
+    }
+    return result;
   }
 
   getOptionalProps(): string[] {

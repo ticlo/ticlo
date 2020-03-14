@@ -11,7 +11,9 @@ export interface FunctionOutput {
 export interface FunctionInput {
   getValue(field: string): any;
 
-  getLength(name?: string, defaultLength?: number): number;
+  getLength(group?: string, defaultLength?: number): number;
+
+  getArray(group?: string, defaultLength?: number, fields?: string[]): any[];
 
   getOptionalProps(): string[];
 }

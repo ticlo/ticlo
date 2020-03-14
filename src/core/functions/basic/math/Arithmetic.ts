@@ -33,21 +33,15 @@ const descriptor2: FunctionDesc = {
 
 export class AddFunction extends BaseFunction {
   run(): any {
-    let len = this._data.getLength();
-    if (len > 0) {
-      let sum = 0;
-      for (let i = 0; i < len; ++i) {
-        let val = this._data.getValue(String(i));
-        if (val == null) {
-          this._data.output(undefined);
-          return;
-        }
-        sum += Number(val);
+    let sum = 0;
+    for (let val of this._data.getArray()) {
+      if (val == null) {
+        this._data.output(undefined);
+        return;
       }
-      this._data.output(sum);
-    } else {
-      this._data.output(undefined);
+      sum += Number(val);
     }
+    this._data.output(sum);
   }
 }
 
@@ -59,21 +53,15 @@ Functions.add(AddFunction, {
 
 export class MultiplyFunction extends BaseFunction {
   run(): any {
-    let len = this._data.getLength();
-    if (len > 0) {
-      let product = 1;
-      for (let i = 0; i < len; ++i) {
-        let val = this._data.getValue(String(i));
-        if (val == null) {
-          this._data.output(undefined);
-          return;
-        }
-        product *= Number(val);
+    let product = 1;
+    for (let val of this._data.getArray()) {
+      if (val == null) {
+        this._data.output(undefined);
+        return;
       }
-      this._data.output(product);
-    } else {
-      this._data.output(undefined);
+      product *= Number(val);
     }
+    this._data.output(product);
   }
 }
 

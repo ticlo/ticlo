@@ -48,14 +48,26 @@ describe('CreateObject', function() {
     let aBlock = job.createBlock('a');
     aBlock._load({
       '#is': 'create-object',
-      'g#len': 3,
+      'v#len': 3,
       'v0': 1,
       'v1': 2,
-      '#custom': [{name: 'g', type: 'group', defaultLen: 2, properties: [{name: 'v', type: 'number'}]}]
+      'a0': 3,
+      '#custom': [
+        {name: 'v', type: 'group', defaultLen: 2, properties: [{name: 'v', type: 'number'}]},
+        {
+          name: 'g',
+          type: 'group',
+          defaultLen: 1,
+          properties: [
+            {name: 'a', type: 'number'},
+            {name: 'b', type: 'number'}
+          ]
+        }
+      ]
     });
 
     Root.run();
 
-    assert.deepEqual(aBlock.getValue('#output'), {v: [1, 2, undefined]});
+    assert.deepEqual(aBlock.getValue('#output'), {v: [1, 2, undefined], g: [{a: 3, b: undefined}]});
   });
 });

@@ -70,7 +70,7 @@ describe('Math', function() {
 
     aBlock.setValue('#len', 0);
     Root.run();
-    assert.equal(aBlock.getValue('#output'), undefined, 'return undefined when add nothing');
+    assert.equal(aBlock.getValue('#output'), 0);
   });
 
   it('subtract', function() {
@@ -128,6 +128,6 @@ describe('Math', function() {
 
     aBlock.setValue('#len', 0);
     Root.run();
-    assert.equal(aBlock.getValue('#output'), undefined, 'return undefined when multiply nothing');
+    assert.equal(aBlock.getValue('#output'), 1);
   });
 });
