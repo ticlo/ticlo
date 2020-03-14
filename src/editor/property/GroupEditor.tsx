@@ -15,7 +15,7 @@ class LengthPropertyEditor extends PropertyEditor {
   onChange = (value: any) => {
     let {conn, paths, name, propDesc} = this.props;
     if (name.endsWith('[]')) {
-      let group = name.substring(0, name.length - 4);
+      let group = name.substring(0, name.length - 2);
       if (value === propDesc.default) {
         value = undefined;
       }
