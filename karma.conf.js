@@ -16,7 +16,7 @@ module.exports = function (config) {
         "lcovonly": {
           "directory": "coverage",
           "subdirectory": "chrome",
-          "filename": "karma"
+          "filename": "karma.lcov"
         }
       },
       compilerOptions: {
@@ -51,3 +51,7 @@ module.exports = function (config) {
     browsers: ["ChromeHeadless"]
   });
 };
+
+// process.on('infrastructure_error', (error) => {
+//   console.error('infrastructure_error', error);
+// });

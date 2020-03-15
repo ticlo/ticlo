@@ -881,10 +881,10 @@
     "@types/connect" "*"
     "@types/node" "*"
 
-"@types/chai@^4.2.10":
-  version "4.2.10"
-  resolved "https://registry.yarnpkg.com/@types/chai/-/chai-4.2.10.tgz#1122da40faabb81795580dc9f06c1e71e2ebbbe4"
-  integrity sha512-TlWWgb21+0LdkuFqEqfmy7NEgfB/7Jjux15fWQAh3P93gbmXuwTM/vxEdzW89APIcI2BgKR48yjeAkdeH+4qvQ==
+"@types/chai@^4.2.11":
+  version "4.2.11"
+  resolved "https://registry.yarnpkg.com/@types/chai/-/chai-4.2.11.tgz#d3614d6c5f500142358e6ed24e1bf16657536c50"
+  integrity sha512-t7uW6eFafjO+qJ3BIV2gGUyZs27egcNRkUdalkud+Qa3+kg//f129iuOFivHDXQ+vnU3fDXuwgv0cqMCbcE8sw==
 
 "@types/codemirror@^0.0.87":
   version "0.0.87"
@@ -4419,10 +4419,10 @@ karma-mocha@^1.3.0:
   dependencies:
     minimist "1.2.0"
 
-karma-typescript@5.0.0-beta.1:
-  version "5.0.0-beta.1"
-  resolved "https://registry.yarnpkg.com/karma-typescript/-/karma-typescript-5.0.0-beta.1.tgz#25f3f02f6cbcc0c747fc1e026a396c295c0dc0b3"
-  integrity sha512-JNZG5gqKsAE+VseoK0xjTlN21lgKaIjEMOYS9KsitTa7wwbeOs254X40SF/cI50amfjfvOnC24UbQmGGNrbBAA==
+karma-typescript@^5.0.0:
+  version "5.0.0"
+  resolved "https://registry.yarnpkg.com/karma-typescript/-/karma-typescript-5.0.0.tgz#8c3c776c3c304aefd88b3daa2f54f5c51cb3b938"
+  integrity sha512-O8pQNKqbykAc20vjc1hd0CmIDycjxNAopK9ZADfG1ca7l2NA8M8HEnWDUxX2Q8pnsOipFkdLRRU3rogzdLufFA==
   dependencies:
     acorn "^7.1.0"
     acorn-walk "^7.0.0"
