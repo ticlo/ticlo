@@ -79,7 +79,6 @@ export class FieldItem extends DataRendererItem {
   outWires: Set<WireItem> = new Set<WireItem>();
 
   _bindingPath?: string;
-  _absBinding?: string;
   _bindingTargetPath?: string;
 
   setBindingPath(str: string) {

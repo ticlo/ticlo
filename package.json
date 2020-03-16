@@ -86,6 +86,9 @@
     "typescript": "^3.8.3",
     "ws": "^7.2.3"
   },
+  "resolutions": {
+    "**/minimist": "^1.2.5"
+  },
   "scripts": {
     "test-nyc-strict": "cross-env NODE_ENV=TEST nyc --skip-full mocha 'src/core/**/*.spec.ts' 'src/node/**/*.spec.ts' && nyc report --reporter=text-lcov > coverage/nyc-strict.log",
     "test-nyc": "nyc --skip-full mocha 'src/core/**/*.spec.ts' 'src/node/**/*.spec.ts' && nyc report --reporter=text-lcov > coverage/nyc.log",
@@ -102,9 +105,5 @@
     "browser-server": "parcel example/simple-editor/server.html example/simple-editor/editor-browser.html --open --out-dir temp --no-source-maps",
     "prettier-check": "prettier --check \"src/**/*.+(ts|tsx|less)\"",
     "prettier-write": "prettier --write \"src/**/*.+(ts|tsx|less)\""
-  },
-  "resolutions": {
-    "**/mkdirp": "^1.0.3",
-    "**/minimist": "^1.2.5"
   }
 }

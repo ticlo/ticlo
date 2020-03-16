@@ -154,6 +154,7 @@ export const OutputsConfigGenerators: {[key: string]: typeof BlockProperty} = {
   ...ConfigGenerators,
   '#is': ConstTypeConfig('job:outputs'),
   '#call': BlockProperty,
+  '#value': BlockIO,
   '#wait': BlockOutputWaitingConfig // directly forward wait to parent job
 };
 
