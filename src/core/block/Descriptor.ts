@@ -189,7 +189,7 @@ export function buildPropDescCache(
     if (!props) return;
     for (let prop of props) {
       if (prop.type === 'group') {
-        result[`${prop.name}[]`] = configDescs['[]'];
+        result[`${prop.name}[]`] = lengthPropDesc;
         for (let gprop of (prop as PropGroupDesc).properties) {
           // add number index to the property name
           result[`${gprop.name}0`] = gprop;

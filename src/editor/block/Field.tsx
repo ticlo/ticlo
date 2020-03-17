@@ -430,7 +430,7 @@ export class FieldView extends PureDataRenderer<FieldViewProps, any> {
         inBoundClass += ' ticl-inbound-path';
         inBoundText = item.cache.bindingPath;
       }
-    } else if (item.desc.readonly) {
+    } else if (item.desc?.readonly) {
       inBoundClass = null;
     }
     let indentChildren = [];
