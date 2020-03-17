@@ -121,7 +121,7 @@ export class BlockConstConfig extends BlockProperty {
   // }
 }
 
-export function ConstTypeConfig(type: string) {
+export function ConstTypeConfig(type: string): typeof BlockProperty {
   class BlockConstTypeConfig extends BlockConstConfig {
     constructor(block: Block, name: string) {
       super(block, name, type);
