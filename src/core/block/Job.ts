@@ -8,6 +8,7 @@ import {DataMap} from '../util/DataTypes';
 import {FunctionDesc} from './Descriptor';
 import {Functions} from './Functions';
 import {Storage} from './Storage';
+import {JobHistory} from './JobHistory';
 
 export class Job extends Block {
   _namespace: string;
@@ -17,6 +18,8 @@ export class Job extends Block {
   _loading: boolean = false;
 
   _outputObj?: FunctionOutput;
+
+  _history: JobHistory;
 
   constructor(parent: Block = Root.instance, output?: FunctionOutput, property?: BlockProperty) {
     super(null, null, property);
@@ -127,10 +130,28 @@ export class Job extends Block {
     super._load(map);
   }
 
+  startHistory() {
+    this._history = new JobHistory(this);
+  }
+  destroyHistory() {
+    if (this._history) {
+      this._history.destroy();
+      this._history = null;
+    }
+    this.deleteValue('@has-undo');
+    this.deleteValue('@has-redo');
+  }
   trackChange() {
     if (this._applyChange) {
       this.updateValue('@has-change', true);
+      this._history?.trackChange();
     }
+  }
+  undo() {
+    this._history?.undo();
+  }
+  redo() {
+    this._history?.redo();
   }
 
   applyChange() {
@@ -149,6 +170,8 @@ export class Job extends Block {
   }
 
   destroy(): void {
+    // this prevent history's debounced trackChange
+    this._history = null;
     this._onDestory?.();
     super.destroy();
   }
