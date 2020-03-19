@@ -6184,15 +6184,14 @@ rc-dialog@~7.6.0:
     rc-animate "2.x"
     rc-util "^4.16.1"
 
-rc-dock@^2.5.3:
-  version "2.5.3"
-  resolved "https://registry.yarnpkg.com/rc-dock/-/rc-dock-2.5.3.tgz#aa48c95fb506f30bc3e7e61027db7b9dfc29ca8b"
-  integrity sha512-0mETZcE8vYS1KQ2IYoNIUPqt+T6cX3WnfdehvVbK25Y33q5VGYPikbuwJA2r5QIoyuzkqTpVkslGxLibRRozHg==
+rc-dock@^2.5.6:
+  version "2.5.6"
+  resolved "https://registry.yarnpkg.com/rc-dock/-/rc-dock-2.5.6.tgz#6ae37e6dbd60c670ac7aa49a75c5e3524e67a36e"
+  integrity sha512-iiVK6zclnWjR+XbVVtOHQNMxbRxAOp8vzsD3fXEor0RNOr+mbIVVIZHro9uLd0nQOlHJbAitb8vxxgc0/2onWg==
   dependencies:
     classnames "^2.2.6"
     lodash "^4.17.15"
     rc-tabs "^10.1.0"
-    rc-util "^4.20.1"
     react-new-window "^0.1.2"
 
 rc-drawer@~3.1.1:
