@@ -128,6 +128,11 @@ export class Job extends Block {
   }
   _loadJobData(map: DataMap, funcId?: string) {
     super._load(map);
+    if (this._history) {
+      this.destroyHistory();
+      this._history = new JobHistory(this, map);
+      this.deleteValue('@has-change');
+    }
   }
 
   startHistory() {
@@ -143,9 +148,9 @@ export class Job extends Block {
   }
   trackChange() {
     if (this._applyChange) {
-      if (!this._history?.trackChange()) {
-        // skip this if history is already debouncing trackChange
-        // this reduces the unnecessary change update during dragging
+      if (this._history) {
+        this._history.trackChange();
+      } else {
         this.updateValue('@has-change', true);
       }
     }
@@ -159,9 +164,13 @@ export class Job extends Block {
 
   applyChange() {
     if (this._applyChange) {
-      let saved = this._applyChange(this.save());
-      this.deleteValue('@has-change');
-      return saved;
+      if (this._history) {
+        return this._history.applyChange();
+      } else {
+        let saved = this._applyChange(this.save());
+        this.deleteValue('@has-change');
+        return saved;
+      }
     }
     return false;
   }

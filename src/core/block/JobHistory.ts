@@ -4,49 +4,92 @@ import {/*type*/ Job} from './Job';
 import {deepEqual} from '../util/Compare';
 
 export class JobHistory {
+  _savedData: DataMap;
   _history: DataMap[];
   _current = 0;
 
   _hasUndo = false;
   _hasRedo = false;
+  _hasChange = false;
 
-  checkUndoRedo() {
-    let hasUndo = this._current > 0 || this._tracking;
+  setUndo(hasUndo: boolean) {
     if (hasUndo !== this._hasUndo) {
       this._hasUndo = hasUndo;
       this.job.updateValue('@has-undo', hasUndo || undefined); // true or undefined
     }
-
-    let hasRedo = this._current < this._history.length - 1;
+  }
+  setRedo(hasRedo: boolean) {
     if (hasRedo !== this._hasRedo) {
       this._hasRedo = hasRedo;
       this.job.updateValue('@has-redo', hasRedo || undefined); // true or undefined
     }
   }
 
-  constructor(public job: Job) {
-    this._history = [job.save()];
+  setHasChange(hasChange: boolean) {
+    if (hasChange !== this._hasChange) {
+      this._hasChange = hasChange;
+      this.job.updateValue('@has-change', hasChange || undefined); // true or undefined
+    }
+  }
+
+  constructor(public job: Job, savedData?: DataMap) {
+    if (savedData) {
+      this._savedData = savedData;
+      this._history = [savedData];
+    } else {
+      let data = job.save();
+      if (!job.getValue('@has-change')) {
+        this._savedData = data;
+      }
+      this._history = [data];
+    }
+  }
+
+  checkUndoRedo(data: DataMap) {
+    this.setUndo(this._current > 0 || this._tracking);
+
+    this.setRedo(this._current < this._history.length - 1);
+
+    if (this._savedData) {
+      this.setHasChange(data !== this._savedData);
+    }
+  }
+
+  applyData(data: DataMap) {
+    this.job.liveUpdate(data);
+    this.checkUndoRedo(data);
+  }
+
+  applyChange() {
+    this.cancelTrack();
+    let data = this.job.save();
+    if (deepEqual(data, this._history[this._current])) {
+      data = this._history[this._current];
+      this._savedData = data;
+      this.checkUndoRedo(data);
+    } else {
+      this._savedData = data;
+      this.add(data);
+    }
+    return data;
   }
 
   undo() {
     if (this._tracking) {
       // if _trackChangeCallback is not called yet, undo to the current saved state
-      this.job.liveUpdate(this._history[this._current]);
       this.cancelTrack();
-      this.checkUndoRedo();
+      this.applyData(this._history[this._current]);
     } else if (this._current > 0) {
       --this._current;
-      this.job.liveUpdate(this._history[this._current]);
-      this.checkUndoRedo();
+      this.applyData(this._history[this._current]);
     }
   }
 
   redo() {
     if (this._current < this._history.length - 1) {
-      ++this._current;
-      this.job.liveUpdate(this._history[this._current]);
       this.cancelTrack();
-      this.checkUndoRedo();
+      ++this._current;
+      this.applyData(this._history[this._current]);
     }
   }
 
@@ -54,7 +97,7 @@ export class JobHistory {
     ++this._current;
     this._history.length = this._current + 1;
     this._history[this._current] = data;
-    this.checkUndoRedo();
+    this.checkUndoRedo(data);
   }
 
   _trackChangeCallback = debounce(() => {
@@ -69,11 +112,12 @@ export class JobHistory {
 
   _tracking = false;
   trackChange() {
-    let result = this._tracking;
     this._tracking = true;
+    this.setUndo(true);
+    this.setHasChange(true);
     this._trackChangeCallback();
-    return result;
   }
+
   cancelTrack() {
     this._tracking = false;
     this._trackChangeCallback.cancel();

@@ -9,6 +9,11 @@ describe('JobHistory', function() {
     job.setValue('a', 1);
     job.startHistory();
     let history = job._history;
+
+    history.undo();
+    assert.isUndefined(job.getValue('@has-undo'));
+    assert.isUndefined(job.getValue('@has-redo'));
+
     job.setValue('a', 2);
     history.add(job.save());
 
@@ -48,9 +53,12 @@ describe('JobHistory', function() {
 
     job.trackChange();
     assert.isTrue(history._tracking);
+    assert.isTrue(job.getValue('@has-change'));
+
     job.undo();
     assert.isFalse(history._tracking);
     assert.equal(job.getValue('a'), 1);
+    assert.isUndefined(job.getValue('@has-change'));
 
     job.setValue('a', 3);
     job.trackChange();
@@ -60,10 +68,14 @@ describe('JobHistory', function() {
     job.setValue('a', 4);
     job.trackChange();
 
-    await shouldHappen(() => history._trackChangeCallback.timerId === undefined, 1500);
+    await shouldHappen(() => history._tracking === false, 1500);
+
+    job.applyChange();
+    assert.isUndefined(job.getValue('@has-change'));
 
     job.undo();
     assert.equal(job.getValue('a'), 1);
+    assert.isTrue(job.getValue('@has-change'));
 
     job.destroy();
   });
