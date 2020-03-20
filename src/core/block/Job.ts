@@ -143,8 +143,11 @@ export class Job extends Block {
   }
   trackChange() {
     if (this._applyChange) {
-      this.updateValue('@has-change', true);
-      this._history?.trackChange();
+      if (!this._history?.trackChange()) {
+        // skip this if history is already debouncing trackChange
+        // this reduces the unnecessary change update during dragging
+        this.updateValue('@has-change', true);
+      }
     }
   }
   undo() {

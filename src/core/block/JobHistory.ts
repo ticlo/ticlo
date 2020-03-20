@@ -11,7 +11,7 @@ export class JobHistory {
   _hasRedo = false;
 
   checkUndoRedo() {
-    let hasUndo = this._current > 0 || this.trackChange.timerId;
+    let hasUndo = this._current > 0 || this._tracking;
     if (hasUndo !== this._hasUndo) {
       this._hasUndo = hasUndo;
       this.job.updateValue('@has-undo', hasUndo || undefined); // true or undefined
@@ -29,10 +29,10 @@ export class JobHistory {
   }
 
   undo() {
-    if (this.trackChange.timerId) {
-      // if trackChange is not called yet, undo to the current saved state
+    if (this._tracking) {
+      // if _trackChangeCallback is not called yet, undo to the current saved state
       this.job.liveUpdate(this._history[this._current]);
-      this.trackChange.cancel();
+      this.cancelTrack();
       this.checkUndoRedo();
     } else if (this._current > 0) {
       --this._current;
@@ -45,7 +45,7 @@ export class JobHistory {
     if (this._current < this._history.length - 1) {
       ++this._current;
       this.job.liveUpdate(this._history[this._current]);
-      this.trackChange.cancel();
+      this.cancelTrack();
       this.checkUndoRedo();
     }
   }
@@ -57,7 +57,8 @@ export class JobHistory {
     this.checkUndoRedo();
   }
 
-  trackChange = debounce(() => {
+  _trackChangeCallback = debounce(() => {
+    this._tracking = false;
     if (this.job._history === this) {
       let data = this.job.save();
       if (!deepEqual(data, this._history[this._history.length - 1])) {
@@ -66,7 +67,18 @@ export class JobHistory {
     }
   }, 1000);
 
+  _tracking = false;
+  trackChange() {
+    let result = this._tracking;
+    this._tracking = true;
+    this._trackChangeCallback();
+    return result;
+  }
+  cancelTrack() {
+    this._tracking = false;
+    this._trackChangeCallback.cancel();
+  }
   destroy() {
-    this.trackChange.cancel();
+    this.cancelTrack();
   }
 }
