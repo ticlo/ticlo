@@ -11,7 +11,7 @@ import {DragDropDiv, DragState} from 'rc-dock';
 import {cssNumber} from '../util/Types';
 import {onDragBlockOver, onDropBlock} from './DragDropBlock';
 import ResizeObserver from 'resize-observer-polyfill';
-import {BlockStageBase, StageProps} from './BlockStageBase';
+import {BlockStageBase, StagePropsBase} from './BlockStageBase';
 import {MiniBlockView} from './MiniStage';
 import debounce from 'lodash/debounce';
 import clamp from 'lodash/clamp';
@@ -50,7 +50,11 @@ function getPrevZoom(v: number) {
   return result;
 }
 
-export class BlockStage extends BlockStageBase<StageState> {
+interface BlockStageProps extends StagePropsBase {
+  toolButtons?: React.ReactElement[];
+}
+
+export class BlockStage extends BlockStageBase<BlockStageProps, StageState> {
   private _rootNode!: HTMLElement;
   private getRootRef = (node: HTMLDivElement): void => {
     this._rootNode = node;
@@ -87,7 +91,7 @@ export class BlockStage extends BlockStageBase<StageState> {
     this._miniWindowNode = node;
   };
 
-  constructor(props: StageProps) {
+  constructor(props: StagePropsBase) {
     super(props);
     this.state = {
       zoom: 1,
@@ -219,7 +223,7 @@ export class BlockStage extends BlockStageBase<StageState> {
     }
   };
 
-  componentDidUpdate(prevProps: Readonly<StageProps>, prevState: Readonly<StageState>, snapshot?: any): void {
+  componentDidUpdate(prevProps: Readonly<StagePropsBase>, prevState: Readonly<StageState>, snapshot?: any): void {
     if (this._pendingScroll) {
       this._scrollX = this._pendingScroll[0];
       if (this._scrollX > this._scrollNode.scrollWidth - this._scrollNode.clientWidth) {
@@ -452,7 +456,7 @@ export class BlockStage extends BlockStageBase<StageState> {
   };
 
   renderImpl() {
-    let {style, conn, basePath} = this.props;
+    let {style, conn, basePath, toolButtons} = this.props;
     let {zoom, contentWidth, contentHeight, stageWidth, stageHeight} = this.state;
 
     let children: React.ReactNode[] = [];
@@ -548,6 +552,7 @@ export class BlockStage extends BlockStageBase<StageState> {
           {miniStage}
         </div>
         <div className="ticl-stage-toolbar">
+          {toolButtons}
           <Tooltip title="Undo" placement="left">
             <AutoDisableButton
               conn={conn}

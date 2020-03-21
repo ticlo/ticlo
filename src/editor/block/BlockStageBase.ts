@@ -11,14 +11,14 @@ import {DragState} from 'rc-dock';
 import {BlockItem, FieldItem, Stage} from './Field';
 import {LazyUpdateComponent} from '../component/LazyUpdateComponent';
 
-export interface StageProps {
+export interface StagePropsBase {
   conn: ClientConn;
   basePath: string;
   style?: React.CSSProperties;
   onSelect?: (paths: string[]) => void;
 }
 
-export abstract class BlockStageBase<State> extends LazyUpdateComponent<StageProps, State> implements Stage {
+export abstract class BlockStageBase<Props extends StagePropsBase, State> extends LazyUpdateComponent<Props, State> implements Stage {
   abstract getRefElement(): HTMLElement;
 
   abstract getRootElement(): HTMLElement;
@@ -324,7 +324,7 @@ export abstract class BlockStageBase<State> extends LazyUpdateComponent<StagePro
     }
   });
 
-  constructor(props: StageProps) {
+  constructor(props: Props) {
     super(props);
     let {conn, basePath} = props;
     this._sharedPath = `${basePath}.#shared`;
@@ -332,7 +332,7 @@ export abstract class BlockStageBase<State> extends LazyUpdateComponent<StagePro
     this.sharedListener.subscribe(conn, this._sharedPath);
   }
 
-  UNSAFE_componentWillReceiveProps(nextProps: StageProps) {
+  UNSAFE_componentWillReceiveProps(nextProps: Props) {
     if (nextProps.basePath !== this.props.basePath) {
       // TODO clear cached blocks
       this.props.conn.unwatch(this.props.basePath, this.watchListener);
