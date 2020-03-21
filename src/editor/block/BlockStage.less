@@ -28,7 +28,7 @@
   pointer-events: none;
   position: absolute;
   top: 4px;
-  right: 24px;
+  right: 36px;
   border: 1px solid #ddd;
   padding: 0 4px;
   border-radius: 12px;
@@ -48,7 +48,7 @@
 
 .ticl-mini-stage-bg {
   box-shadow: 0 0 1px 1px #f8f8f8;
-  margin: 6px 2px;
+  margin: 0 2px 6px;
   overflow: hidden;
   position: relative;
 }
@@ -64,4 +64,19 @@
   border: 1px solid rgba(170, 170, 170, 0.1);
   pointer-events: visible;
   cursor: move;
+}
+
+.ticl-stage-toolbar {
+  pointer-events: none;
+  position: absolute;
+  top: 28px;
+  right: 5px;
+  width: 24px;
+  & > .ant-btn {
+    margin-bottom: 6px;
+    pointer-events: visible;
+    &:disabled {
+      opacity: 0.5;
+    }
+  }
 }

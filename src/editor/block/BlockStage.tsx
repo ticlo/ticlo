@@ -1,7 +1,10 @@
 import React, {CSSProperties, KeyboardEvent} from 'react';
-import {Button} from 'antd';
+import {Button, Tooltip} from 'antd';
 import ZoomInIcon from '@ant-design/icons/ZoomInOutlined';
 import ZoomOutIcon from '@ant-design/icons/ZoomOutOutlined';
+import UndoIcon from '@ant-design/icons/UndoOutlined';
+import RedoIcon from '@ant-design/icons/ReloadOutlined';
+
 import {BlockView} from './Block';
 import {WireView} from './Wire';
 import {DragDropDiv, DragState} from 'rc-dock';
@@ -13,6 +16,7 @@ import {MiniBlockView} from './MiniStage';
 import debounce from 'lodash/debounce';
 import clamp from 'lodash/clamp';
 import {GestureState} from 'rc-dock/lib';
+import {AutoDisableButton} from '../component/AutoDisableButton';
 
 const MINI_WINDOW_SIZE = 128;
 
@@ -439,7 +443,7 @@ export class BlockStage extends BlockStageBase<StageState> {
   }
 
   renderImpl() {
-    let {style} = this.props;
+    let {style, conn, basePath} = this.props;
     let {zoom, contentWidth, contentHeight, stageWidth, stageHeight} = this.state;
 
     let children: React.ReactNode[] = [];
@@ -533,6 +537,26 @@ export class BlockStage extends BlockStageBase<StageState> {
             <Button className="ticl-icon-btn" shape="circle" icon={<ZoomInIcon />} onClick={this.zoomIn} />
           </div>
           {miniStage}
+        </div>
+        <div className="ticl-stage-toolbar">
+          <Tooltip title="Undo" placement="left">
+            <AutoDisableButton
+              conn={conn}
+              path={`${basePath}.@has-undo`}
+              shape="circle"
+              size="small"
+              icon={<UndoIcon />}
+            />
+          </Tooltip>
+          <Tooltip title="Redo" placement="left">
+            <AutoDisableButton
+              conn={conn}
+              path={`${basePath}.@has-redo`}
+              shape="circle"
+              size="small"
+              icon={<RedoIcon />}
+            />
+          </Tooltip>
         </div>
       </div>
     );
