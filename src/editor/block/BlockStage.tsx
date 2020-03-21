@@ -442,6 +442,15 @@ export class BlockStage extends BlockStageBase<StageState> {
     }
   }
 
+  undo = () => {
+    let {conn, basePath} = this.props;
+    conn.undo(basePath);
+  };
+  redo = () => {
+    let {conn, basePath} = this.props;
+    conn.redo(basePath);
+  };
+
   renderImpl() {
     let {style, conn, basePath} = this.props;
     let {zoom, contentWidth, contentHeight, stageWidth, stageHeight} = this.state;
@@ -546,6 +555,7 @@ export class BlockStage extends BlockStageBase<StageState> {
               shape="circle"
               size="small"
               icon={<UndoIcon />}
+              onClick={this.undo}
             />
           </Tooltip>
           <Tooltip title="Redo" placement="left">
@@ -555,6 +565,7 @@ export class BlockStage extends BlockStageBase<StageState> {
               shape="circle"
               size="small"
               icon={<RedoIcon />}
+              onClick={this.redo}
             />
           </Tooltip>
         </div>
