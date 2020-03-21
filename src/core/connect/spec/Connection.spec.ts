@@ -816,4 +816,24 @@ describe('Connection', function() {
     Root.instance.deleteValue('Connection22');
     Root.instance.deleteValue('Connection22_2');
   });
+
+  it('undo redo', async function() {
+    let job = Root.instance.addJob('Connection23');
+    job.load({'#is': '', 'a': 1}, null, (data: any) => true);
+
+    let [server, client] = makeLocalConnection(Root.instance, false);
+
+    client.watch('Connection23', {});
+    client.setValue('Connection23.a', 2);
+    client.applyJobChange('Connection23');
+    await client.undo('Connection23');
+
+    assert.equal(job.getValue('a'), 1);
+
+    await client.redo('Connection23');
+    assert.equal(job.getValue('a'), 2);
+
+    client.destroy();
+    Root.instance.deleteValue('Connection23');
+  });
 });

@@ -1,4 +1,4 @@
-import {Block, InputsBlock, Runnable} from './Block';
+import {Block, BlockChildWatch, InputsBlock, Runnable} from './Block';
 import {BlockConfig, BlockIO, BlockProperty, GlobalProperty} from './BlockProperty';
 import {Resolver} from './Resolver';
 import {FunctionOutput} from './BlockFunction';
@@ -136,8 +136,11 @@ export class Job extends Block {
   }
 
   startHistory() {
-    this._history = new JobHistory(this);
+    if (!this._history) {
+      this._history = new JobHistory(this);
+    }
   }
+
   destroyHistory() {
     if (this._history) {
       this._history.destroy();
@@ -160,6 +163,33 @@ export class Job extends Block {
   }
   redo() {
     this._history?.redo();
+  }
+
+  watch(watcher: BlockChildWatch) {
+    if (watcher.watchHistory) {
+      this.startHistory();
+    }
+    super.watch(watcher);
+  }
+
+  unwatch(watcher: BlockChildWatch) {
+    super.unwatch(watcher);
+
+    if (this._history) {
+      // check if history is still needed
+      let needHistory = false;
+      if (this._watchers) {
+        for (let watcher of this._watchers) {
+          if (watcher.watchHistory) {
+            needHistory = true;
+            break;
+          }
+        }
+      }
+      if (!needHistory) {
+        this.destroyHistory();
+      }
+    }
   }
 
   applyChange() {

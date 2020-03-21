@@ -150,6 +150,8 @@ class ServerWatch extends ServerRequest implements BlockChildWatch, PropListener
   property: BlockProperty;
   source: PropDispatcher<any>;
 
+  watchHistory = true;
+
   constructor(conn: ServerConnection, id: string, block: Block, prop: BlockProperty) {
     super();
     this.id = id;
@@ -274,12 +276,12 @@ class ServerDescWatcher extends ServerRequest implements DescListener {
   }
 }
 
-function trackChange(property: BlockProperty, path: string, root: Root) {
+function getTrackedJob(block: Block, path: string, root: Root): Job {
   let job: Job;
-  if (property._name === '@b-xyw') {
-    job = property._block._parent._job;
+  if (path.endsWith('.@b-xyw')) {
+    job = block._parent._job;
   } else {
-    job = property._block._job;
+    job = block._job;
   }
   if (job instanceof SharedBlock) {
     let sharedPos = path.lastIndexOf('.#shared.');
@@ -290,7 +292,10 @@ function trackChange(property: BlockProperty, path: string, root: Root) {
       }
     }
   }
-  job.trackChange();
+  return job;
+}
+function trackChange(property: BlockProperty, path: string, root: Root) {
+  getTrackedJob(property._block, path, root).trackChange();
 }
 
 export class ServerConnection extends Connection {
@@ -437,6 +442,14 @@ export class ServerConnection extends Connection {
           }
           case 'moveGroupProp': {
             result = this.moveGroupProp(request.path, request.group, request.oldIdx, request.newIdx);
+            break;
+          }
+          case 'undo': {
+            result = this.undo(request.path);
+            break;
+          }
+          case 'redo': {
+            result = this.redo(request.path);
             break;
           }
           default:
@@ -897,6 +910,25 @@ export class ServerConnection extends Connection {
     if (property && property._value instanceof Block) {
       moveGroupProperty(property._value, group, oldIdx, newIdx);
       trackChange(property, path, this.root);
+      return null;
+    } else {
+      return 'invalid path';
+    }
+  }
+
+  undo(path: string) {
+    let property = this.root.queryProperty(path);
+    if (property && property._value instanceof Block) {
+      getTrackedJob(property._value, path, this.root).undo();
+      return null;
+    } else {
+      return 'invalid path';
+    }
+  }
+  redo(path: string) {
+    let property = this.root.queryProperty(path);
+    if (property && property._value instanceof Block) {
+      getTrackedJob(property._value, path, this.root).redo();
       return null;
     } else {
       return 'invalid path';

@@ -17,11 +17,9 @@ export const JobEditorConfigGenerators: {[key: string]: typeof BlockProperty} = 
 };
 export class JobEditor extends JobWithShared {
   unwatch(watcher: BlockChildWatch) {
-    if (this._watchers) {
-      super.unwatch(watcher);
-      if (!this._watchers) {
-        this._prop.setValue(undefined);
-      }
+    super.unwatch(watcher);
+    if (!this._watchers) {
+      this._prop.setValue(undefined);
     }
   }
 

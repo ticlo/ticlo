@@ -110,6 +110,10 @@ export interface ClientConn {
     callbacks?: ClientCallbacks
   ): Promise<any> | string;
 
+  undo(path: string, callbacks?: ClientCallbacks): Promise<any> | string;
+
+  redo(path: string, callbacks?: ClientCallbacks): Promise<any> | string;
+
   watchDesc(id: string, listener?: ClientDescListener): FunctionDesc;
 
   unwatchDesc(listener: ClientDescListener): void;

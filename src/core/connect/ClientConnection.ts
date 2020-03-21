@@ -381,6 +381,14 @@ export abstract class ClientConnection extends Connection implements ClientConn 
     return this.simpleRequest({cmd: 'moveGroupProp', path, group, oldIdx, newIdx}, callbacks);
   }
 
+  undo(path: string, callbacks?: ClientCallbacks): Promise<any> | string {
+    return this.simpleRequest({cmd: 'undo', path}, callbacks);
+  }
+
+  redo(path: string, callbacks?: ClientCallbacks): Promise<any> | string {
+    return this.simpleRequest({cmd: 'redo', path}, callbacks);
+  }
+
   cancel(id: string) {
     let req: DataMap = this.requests.get(id);
     if (req instanceof ClientRequest) {

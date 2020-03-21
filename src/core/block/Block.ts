@@ -19,6 +19,7 @@ export const BlockModeList = ['auto', 'onLoad', 'onChange', 'onCall', 'disabled'
 
 export interface BlockChildWatch {
   onChildChange(property: BlockIO, saved?: boolean): void;
+  watchHistory?: boolean;
 }
 
 export interface Runnable {
