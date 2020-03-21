@@ -22,7 +22,11 @@ export class AutoDisableButton extends LazyUpdateComponent<Props, any> {
       mapEnabled = Boolean;
     }
     let enabled = mapEnabled(this.subscriber.value);
-    return <Button {...props} disabled={!enabled} />;
+    return (
+      <div className='ticl-auto-disable-btn'>
+        <Button {...props} disabled={!enabled} />
+      </div>
+    );
   }
   componentDidMount(): void {
     let {conn, path} = this.props;

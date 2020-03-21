@@ -51,7 +51,7 @@ function getPrevZoom(v: number) {
 }
 
 interface BlockStageProps extends StagePropsBase {
-  toolButtons?: React.ReactElement[];
+  toolButtons?: React.ReactNode;
 }
 
 export class BlockStage extends BlockStageBase<BlockStageProps, StageState> {
@@ -553,7 +553,7 @@ export class BlockStage extends BlockStageBase<BlockStageProps, StageState> {
         </div>
         <div className="ticl-stage-toolbar">
           {toolButtons}
-          <Tooltip title="Undo" placement="left">
+          <Tooltip title="Undo" placement="left" mouseLeaveDelay={0}>
             <AutoDisableButton
               conn={conn}
               path={`${basePath}.@has-undo`}
@@ -563,7 +563,7 @@ export class BlockStage extends BlockStageBase<BlockStageProps, StageState> {
               onClick={this.undo}
             />
           </Tooltip>
-          <Tooltip title="Redo" placement="left">
+          <Tooltip title="Redo" placement="left" mouseLeaveDelay={0}>
             <AutoDisableButton
               conn={conn}
               path={`${basePath}.@has-redo`}

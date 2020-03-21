@@ -1,7 +1,7 @@
 import React, {ReactNode} from 'react';
 import {Button, Tooltip} from 'antd';
-import UnorderedListIcon from '@ant-design/icons/UnorderedListOutlined';
-import CloseIcon from '@ant-design/icons/CloseOutlined';
+import MenuUnfoldIcon from '@ant-design/icons/MenuUnfoldOutlined';
+import MenuFoldIcon from '@ant-design/icons/MenuFoldOutlined';
 import {BlockStage, PropertyList} from '../..';
 import {Divider} from 'rc-dock/lib';
 import {arrayEqual, ClientConn, ValueSubscriber, ValueUpdate} from '../../../../src/core/editor';
@@ -120,6 +120,20 @@ export class BlockStagePane extends LazyUpdateComponent<Props, State> {
             basePath={basePath}
             onSelect={this.onSelect}
             style={{width: sizes[0], height: '100%'}}
+            toolButtons={
+              <Tooltip
+                title={showPropertyList ? 'Hide Properties' : 'Show Properties'}
+                placement="left"
+                mouseLeaveDelay={0}
+              >
+                <Button
+                  size="small"
+                  shape="circle"
+                  icon={showPropertyList ? <MenuUnfoldIcon /> : <MenuFoldIcon />}
+                  onClick={this.onShowPropertyList}
+                />
+              </Tooltip>
+            }
           />
         ) : (
           <div style={{width: sizes[0], height: '100%'}}>Invalid Input</div>
@@ -132,14 +146,6 @@ export class BlockStagePane extends LazyUpdateComponent<Props, State> {
             <PropertyList conn={conn} paths={selectedKeys} style={{width: sizes[1], height: '100%', padding: '8px'}} />
           </>
         ) : null}
-        <Button
-          className="ticl-square-icon-btn"
-          size="small"
-          shape="circle"
-          tabIndex={-1}
-          icon={showPropertyList ? <CloseIcon /> : <UnorderedListIcon />}
-          onClick={this.onShowPropertyList}
-        />
       </div>
     );
   }
