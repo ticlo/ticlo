@@ -13,6 +13,7 @@ import {Functions} from '../../block/Functions';
 import {DataMap, isDataTruncated} from '../../util/DataTypes';
 import {WorkerFunction} from '../../worker/WorkerFunction';
 import {JobEditor} from '../../worker/JobEditor';
+import {JobHistory} from '../../block/JobHistory';
 
 describe('Connection', function() {
   it('get', async function() {

@@ -45,6 +45,9 @@ describe('JobHistory', function() {
   });
 
   it('trackChange', async function() {
+    let debounceInterval = JobHistory._debounceInterval;
+    JobHistory._debounceInterval = 50;
+
     let job = new Job();
     job.load({a: 1}, null, (data) => true);
     job.startHistory();
@@ -68,7 +71,7 @@ describe('JobHistory', function() {
     job.setValue('a', 4);
     job.trackChange();
 
-    await shouldHappen(() => history._tracking === false, 1500);
+    await shouldHappen(() => history._tracking === false);
 
     job.applyChange();
     assert.isUndefined(job.getValue('@has-change'));
@@ -78,5 +81,6 @@ describe('JobHistory', function() {
     assert.isTrue(job.getValue('@has-change'));
 
     job.destroy();
+    JobHistory._debounceInterval = debounceInterval;
   });
 });

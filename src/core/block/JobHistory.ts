@@ -4,6 +4,8 @@ import {/*type*/ Job} from './Job';
 import {deepEqual} from '../util/Compare';
 
 export class JobHistory {
+  static _debounceInterval = 1000;
+
   _savedData: DataMap;
   _history: DataMap[];
   _current = 0;
@@ -61,31 +63,32 @@ export class JobHistory {
   }
 
   applyChange() {
-    this.cancelTrack();
     let data = this.job.save();
-    if (deepEqual(data, this._history[this._current])) {
+    if (this.checkAndAdd(data)) {
+      this._savedData = data;
+    } else {
       data = this._history[this._current];
       this._savedData = data;
       this.checkUndoRedo(data);
-    } else {
-      this._savedData = data;
-      this.add(data);
     }
     return data;
   }
 
   undo() {
     if (this._tracking) {
-      // if _trackChangeCallback is not called yet, undo to the current saved state
-      this.cancelTrack();
-      this.applyData(this._history[this._current]);
-    } else if (this._current > 0) {
+      this.checkAndAdd(this.job.save());
+    }
+    if (this._current > 0) {
       --this._current;
       this.applyData(this._history[this._current]);
     }
   }
 
   redo() {
+    if (this._tracking) {
+      // a new change is going to be added, there is nothing to redo
+      return;
+    }
     if (this._current < this._history.length - 1) {
       this.cancelTrack();
       ++this._current;
@@ -100,15 +103,22 @@ export class JobHistory {
     this.checkUndoRedo(data);
   }
 
+  checkAndAdd(data: DataMap) {
+    if (this._tracking) {
+      this.cancelTrack();
+    }
+    if (!deepEqual(data, this._history[this._current])) {
+      this.add(data);
+      return true;
+    }
+    return false;
+  }
   _trackChangeCallback = debounce(() => {
     this._tracking = false;
     if (this.job._history === this) {
-      let data = this.job.save();
-      if (!deepEqual(data, this._history[this._history.length - 1])) {
-        this.add(data);
-      }
+      this.checkAndAdd(this.job.save());
     }
-  }, 1000);
+  }, JobHistory._debounceInterval);
 
   _tracking = false;
   trackChange() {
