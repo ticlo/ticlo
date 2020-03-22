@@ -62,7 +62,7 @@ export class JobHistory {
     this.checkUndoRedo(data);
   }
 
-  applyChange() {
+  save() {
     let data = this.job.save();
     if (this.checkAndAdd(data)) {
       this._savedData = data;

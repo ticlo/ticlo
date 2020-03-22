@@ -196,7 +196,7 @@ export class Job extends Block {
   applyChange() {
     if (this._applyChange) {
       if (this._history) {
-        return this._history.applyChange();
+        return this._applyChange(this._history.save());
       } else {
         let saved = this._applyChange(this.save());
         this.deleteValue('@has-change');
