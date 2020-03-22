@@ -18,7 +18,8 @@ export interface StagePropsBase {
   onSelect?: (paths: string[]) => void;
 }
 
-export abstract class BlockStageBase<Props extends StagePropsBase, State> extends LazyUpdateComponent<Props, State> implements Stage {
+export abstract class BlockStageBase<Props extends StagePropsBase, State> extends LazyUpdateComponent<Props, State>
+  implements Stage {
   abstract getRefElement(): HTMLElement;
 
   abstract getRootElement(): HTMLElement;
