@@ -40,6 +40,7 @@ export abstract class LazyUpdateComponent<P extends LazyUpdateProps, S> extends 
   }
 
   safeForceUpdate = () => {
+    console.log(this._mounted, this._rendering);
     if (this._mounted && !this._rendering) {
       super.forceUpdate();
     }
@@ -87,6 +88,7 @@ export class LazyUpdateSubscriber extends ValueSubscriber {
     this.update();
   }
   update() {
+    console.log(this.path);
     if (typeof this.parent === 'function') {
       this.parent(this.value);
     } else {

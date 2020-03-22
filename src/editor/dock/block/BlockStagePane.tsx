@@ -7,6 +7,7 @@ import {Divider} from 'rc-dock/lib';
 import {arrayEqual, ClientConn, ValueSubscriber, ValueUpdate} from '../../../../src/core/editor';
 import {BlockStageTabButton} from './BlockStageTabButton';
 import {LazyUpdateComponent} from '../../component/LazyUpdateComponent';
+import {TooltipIconButton} from '../../component/TooltipIconButton';
 
 interface Props {
   conn: ClientConn;
@@ -121,18 +122,13 @@ export class BlockStagePane extends LazyUpdateComponent<Props, State> {
             onSelect={this.onSelect}
             style={{width: sizes[0], height: '100%'}}
             toolButtons={
-              <Tooltip
-                title={showPropertyList ? 'Hide Properties' : 'Show Properties'}
-                placement="left"
-                mouseLeaveDelay={0}
-              >
-                <Button
-                  size="small"
-                  shape="circle"
-                  icon={showPropertyList ? <MenuUnfoldIcon /> : <MenuFoldIcon />}
-                  onClick={this.onShowPropertyList}
-                />
-              </Tooltip>
+              <TooltipIconButton
+                conn={conn}
+                icon={showPropertyList ? <MenuUnfoldIcon /> : <MenuFoldIcon />}
+                onClick={this.onShowPropertyList}
+                tooltip={showPropertyList ? 'Hide Properties' : 'Show Properties'}
+                tooltipPlacement="left"
+              />
             }
           />
         ) : (

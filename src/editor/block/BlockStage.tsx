@@ -16,7 +16,7 @@ import {MiniBlockView} from './MiniStage';
 import debounce from 'lodash/debounce';
 import clamp from 'lodash/clamp';
 import {GestureState} from 'rc-dock/lib';
-import {AutoDisableButton} from '../component/AutoDisableButton';
+import {TooltipIconButton} from '../component/TooltipIconButton';
 
 const MINI_WINDOW_SIZE = 128;
 
@@ -553,26 +553,22 @@ export class BlockStage extends BlockStageBase<BlockStageProps, StageState> {
         </div>
         <div className="ticl-stage-toolbar">
           {toolButtons}
-          <Tooltip title="Undo" placement="left" mouseLeaveDelay={0}>
-            <AutoDisableButton
-              conn={conn}
-              path={`${basePath}.@has-undo`}
-              shape="circle"
-              size="small"
-              icon={<UndoIcon />}
-              onClick={this.undo}
-            />
-          </Tooltip>
-          <Tooltip title="Redo" placement="left" mouseLeaveDelay={0}>
-            <AutoDisableButton
-              conn={conn}
-              path={`${basePath}.@has-redo`}
-              shape="circle"
-              size="small"
-              icon={<RedoIcon />}
-              onClick={this.redo}
-            />
-          </Tooltip>
+          <TooltipIconButton
+            conn={conn}
+            path={`${basePath}.@has-undo`}
+            tooltip="Undo"
+            tooltipPlacement="left"
+            icon={<UndoIcon />}
+            onClick={this.undo}
+          />
+          <TooltipIconButton
+            conn={conn}
+            path={`${basePath}.@has-redo`}
+            tooltip="Redo"
+            tooltipPlacement="left"
+            icon={<RedoIcon />}
+            onClick={this.redo}
+          />
         </div>
       </div>
     );
