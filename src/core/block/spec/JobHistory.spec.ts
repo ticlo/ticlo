@@ -2,6 +2,7 @@ import {assert} from 'chai';
 import {Job} from '../Job';
 import {JobHistory} from '../JobHistory';
 import {shouldHappen} from '../../util/test-util';
+import {JobWorker} from '../../worker/JobWorker';
 
 describe('JobHistory', function() {
   it('undo redo', function() {
@@ -48,7 +49,7 @@ describe('JobHistory', function() {
     let debounceInterval = JobHistory._debounceInterval;
     JobHistory._debounceInterval = 50;
 
-    let job = new Job();
+    let job = new JobWorker();
     job.load({a: 1}, null, (data) => true);
     job.startHistory();
     let history = job._history;
@@ -79,6 +80,13 @@ describe('JobHistory', function() {
     job.undo();
     assert.equal(job.getValue('a'), 1);
     assert.isTrue(job.getValue('@has-change'));
+
+    job.setValue('a', 3);
+
+    // destroy history
+    job.unwatch({onChildChange: () => {}});
+    // reload from saved state
+    assert.equal(job.getValue('a'), 1);
 
     job.destroy();
     JobHistory._debounceInterval = debounceInterval;

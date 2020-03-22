@@ -773,6 +773,8 @@ describe('Connection', function() {
   });
 
   it('#shared #temp binding', async function() {
+    // #shared doesn't work when it's created at top Level
+    // but the binding path check still works
     let job1 = Root.instance.addJob('Connection22', {'#is': '', 'a': {'#is': ''}, '#shared': {'#is': ''}});
     let job2 = Root.instance.addJob('Connection22_2');
 

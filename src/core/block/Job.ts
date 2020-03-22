@@ -188,6 +188,7 @@ export class Job extends Block {
       }
       if (!needHistory) {
         this.destroyHistory();
+        this.cancelChange();
       }
     }
   }
@@ -204,6 +205,7 @@ export class Job extends Block {
     }
     return false;
   }
+  cancelChange() {}
 
   liveUpdate(map: DataMap) {
     this._loading = true;

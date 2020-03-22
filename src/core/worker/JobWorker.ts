@@ -1,9 +1,9 @@
-import {InputsBlock, Runnable} from '../block/Block';
 import {JobWithShared, JobWithSharedConfigGenerators} from '../block/SharedBlock';
 import {Root} from '../block/Job';
 import {ConstTypeConfig} from '../block/BlockConfigs';
 import {BlockConfig, BlockProperty} from '../block/BlockProperty';
 import {Resolver} from '../block/Resolver';
+import {DataMap} from '../util/DataTypes';
 
 export const JobWorkerConfigGenerators: {[key: string]: typeof BlockProperty} = {
   ...JobWithSharedConfigGenerators,
@@ -50,6 +50,18 @@ export class JobWorker extends JobWithShared {
       Resolver.callLater(this.checkReady);
       Root.instance._resolver.schedule();
       // TODO make it not static
+    }
+  }
+
+  _loadFromData: DataMap;
+  _loadJobData(map: DataMap, funcId?: string) {
+    this._loadFromData = map;
+    super._loadJobData(map, funcId);
+  }
+
+  cancelChange() {
+    if (this._loadFromData) {
+      this._liveUpdate(this._loadFromData);
     }
   }
 }
