@@ -4,6 +4,7 @@ import {ConstTypeConfig} from '../block/BlockConfigs';
 import {BlockConfig, BlockProperty} from '../block/BlockProperty';
 import {Resolver} from '../block/Resolver';
 import {DataMap} from '../util/DataTypes';
+import {JobHistory} from '../block/JobHistory';
 
 export const JobWorkerConfigGenerators: {[key: string]: typeof BlockProperty} = {
   ...JobWithSharedConfigGenerators,
@@ -50,6 +51,12 @@ export class JobWorker extends JobWithShared {
       Resolver.callLater(this.checkReady);
       Root.instance._resolver.schedule();
       // TODO make it not static
+    }
+  }
+
+  startHistory() {
+    if (!this._history) {
+      this._history = new JobHistory(this, this._loadFromData);
     }
   }
 

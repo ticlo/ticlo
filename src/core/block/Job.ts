@@ -214,8 +214,11 @@ export class Job extends Block {
   }
 
   destroy(): void {
-    // this prevent history's debounced trackChange
-    this._history = null;
+    if (this._history) {
+      this._history.destroy();
+      this._history = null;
+    }
+
     this._onDestory?.();
     super.destroy();
   }

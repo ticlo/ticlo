@@ -65,6 +65,9 @@ export class SharedBlock extends Job {
       SharedBlock._dict.delete(this._source);
     }
   }
+  startHistory() {
+    // history not allowed, maintained by the Job that used this shared block
+  }
 }
 
 export const JobWithSharedConfigGenerators: {[key: string]: typeof BlockProperty} = {

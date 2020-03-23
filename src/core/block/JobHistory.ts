@@ -3,6 +3,9 @@ import {DataMap} from '../util/DataTypes';
 import {/*type*/ Job} from './Job';
 import {deepEqual} from '../util/Compare';
 
+// when an change is applied, need to restore history from the previous saved data
+const _historyCache = new Map<any, DataMap[]>();
+
 export class JobHistory {
   static _debounceInterval = 1000;
 
@@ -37,7 +40,15 @@ export class JobHistory {
   constructor(public job: Job, savedData?: DataMap) {
     if (savedData) {
       this._savedData = savedData;
-      this._history = [savedData];
+      let cachedHistory = _historyCache.get(savedData);
+      if (cachedHistory && cachedHistory[cachedHistory.length - 1] === savedData) {
+        // use cached history
+        this._history = [..._historyCache.get(savedData)];
+        this._current = this._history.length - 1;
+        this.setUndo(true);
+      } else {
+        this._history = [savedData];
+      }
     } else {
       let data = job.save();
       if (!job.getValue('@has-change')) {
@@ -115,9 +126,7 @@ export class JobHistory {
   }
   _trackChangeCallback = debounce(() => {
     this._tracking = false;
-    if (this.job._history === this) {
-      this.checkAndAdd(this.job.save());
-    }
+    this.checkAndAdd(this.job.save());
   }, JobHistory._debounceInterval);
 
   _tracking = false;
@@ -134,5 +143,11 @@ export class JobHistory {
   }
   destroy() {
     this.cancelTrack();
+    if (this._history.length > 1 && this._history[this._history.length - 1] === this._savedData) {
+      _historyCache.set(this._savedData, this._history);
+      setTimeout(() => {
+        _historyCache.delete(this._savedData);
+      }, 1000);
+    }
   }
 }
