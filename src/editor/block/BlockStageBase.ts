@@ -316,7 +316,6 @@ export abstract class BlockStageBase<Props extends StagePropsBase, State> extend
     onUpdate: (response: ValueUpdate) => {
       if (response.change.hasOwnProperty('value')) {
         let blockTypeName = String(response.cache.value);
-        console.log(blockTypeName);
         if (blockTypeName.startsWith('SharedBlock ') || blockTypeName.startsWith('Block ')) {
           let {conn} = this.props;
           conn.watch(this._sharedPath, this.sharedWatchListener);

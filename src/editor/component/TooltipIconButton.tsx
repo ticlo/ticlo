@@ -22,6 +22,13 @@ interface State {
 export class TooltipIconButton extends LazyUpdateComponent<Props, any> {
   state: State = {tooltipVisible: false, disabled: false};
 
+  constructor(props: Props) {
+    super(props);
+    let {conn, path} = props;
+    if (path) {
+      this.subscriber.subscribe(conn, path);
+    }
+  }
   subscriber = new ValueSubscriber({
     onUpdate: (response: ValueUpdate) => {
       let {mapEnabled} = this.props;
@@ -56,13 +63,6 @@ export class TooltipIconButton extends LazyUpdateComponent<Props, any> {
         <Button shape="circle" size="small" {...props} disabled={disabled} />
       </Tooltip>
     );
-  }
-  componentDidMount(): void {
-    let {conn, path} = this.props;
-    if (path) {
-      this.subscriber.subscribe(conn, path);
-    }
-    super.componentDidMount();
   }
 
   componentWillUnmount() {
