@@ -14,6 +14,7 @@ import {DataMap, isDataTruncated} from '../../util/DataTypes';
 import {WorkerFunction} from '../../worker/WorkerFunction';
 import {JobEditor} from '../../worker/JobEditor';
 import {JobHistory} from '../../block/JobHistory';
+import {JobWorker} from '../../worker/JobWorker';
 
 describe('Connection', function() {
   it('get', async function() {
@@ -773,10 +774,12 @@ describe('Connection', function() {
   });
 
   it('#shared #temp binding', async function() {
-    // #shared doesn't work when it's created at top Level
-    // but the binding path check still works
-    let job1 = Root.instance.addJob('Connection22', {'#is': '', 'a': {'#is': ''}, '#shared': {'#is': ''}});
-    let job2 = Root.instance.addJob('Connection22_2');
+    let job1 = Root.instance.createOutputJob(JobWorker, 'Connection22', {
+      '#is': '',
+      'a': {'#is': ''},
+      '#shared': {'#is': ''}
+    });
+    Root.instance.createOutputJob(JobWorker, 'Connection22_2');
 
     let [server, client] = makeLocalConnection(Root.instance, false);
 
