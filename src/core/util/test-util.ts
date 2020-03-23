@@ -67,6 +67,6 @@ export const dummyInterface = new Proxy(
   {
     get() {
       return voidFunction;
-    }
+    },
   }
 );

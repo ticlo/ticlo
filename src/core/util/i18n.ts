@@ -27,12 +27,12 @@ export function translateProperty(type: string, name: string, namespace?: string
     let numStr = name.substr(numMatch.index);
     return `${i18next.t(`${type}.${baseName}.@name`, {
       ns: i18ns,
-      defaultValue: baseName
+      defaultValue: baseName,
     })}${numStr}`;
   } else {
     return i18next.t(`${type}.${name}.@name`, {
       ns: i18ns,
-      defaultValue: name
+      defaultValue: name,
     });
   }
 }

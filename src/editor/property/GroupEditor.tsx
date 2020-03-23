@@ -5,7 +5,7 @@ import {
   ValueSubscriber,
   ValueUpdate,
   FunctionDesc,
-  PropGroupDesc
+  PropGroupDesc,
 } from '../../../src/core/editor';
 import {MultiSelectComponent, MultiSelectLoader} from './MultiSelectComponent';
 import {PropertyEditor} from './PropertyEditor';
@@ -38,7 +38,7 @@ class GroupLoader extends MultiSelectLoader<GroupEditor> {
         this.len = len;
         this.parent.forceUpdate();
       }
-    }
+    },
   });
 
   init() {

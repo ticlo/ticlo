@@ -8,16 +8,16 @@ import {shouldHappen, waitTick} from '../../../../../src/core/util/test-util';
 import {blankPropDesc, PropDesc} from '../../../../../src/core/editor';
 import moment, {Moment} from 'moment';
 
-describe('DateRangeEditor', function() {
-  beforeEach(async function() {
+describe('DateRangeEditor', function () {
+  beforeEach(async function () {
     await initEditor();
   });
 
-  afterEach(async function() {
+  afterEach(async function () {
     removeLastTemplate();
   });
 
-  it('basic', async function() {
+  it('basic', async function () {
     let values: Moment[] = null;
     let onChange = (v: Moment[]) => {
       values = v;
@@ -29,7 +29,7 @@ describe('DateRangeEditor', function() {
     let dateRangeDiv = div.querySelector('.ticl-date-range-editor > div');
 
     // dont run the following test because of issue that karma skipping tests after this one
-    window.onerror = function(e) {};
+    window.onerror = function (e) {};
 
     SimulateEvent.simulate(dateRangeDiv.querySelector('input'), 'mousedown', fakeMouseEvent());
 

@@ -7,16 +7,16 @@ import {RadioButtonEditor} from '../RadioButtonEditor';
 import {shouldHappen} from '../../../../../src/core/util/test-util';
 import {blankPropDesc, PropDesc} from '../../../../../src/core/editor';
 
-describe('RadioButtonEditor', function() {
-  beforeEach(async function() {
+describe('RadioButtonEditor', function () {
+  beforeEach(async function () {
     await initEditor();
   });
 
-  afterEach(function() {
+  afterEach(function () {
     removeLastTemplate();
   });
 
-  it('basic', async function() {
+  it('basic', async function () {
     let value: string = null;
     let onChange = (v: string) => {
       value = v;

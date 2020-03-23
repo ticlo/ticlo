@@ -1,8 +1,8 @@
 import {assert} from 'chai';
 import {InfiniteQueue} from '../InfiniteQueue';
 
-describe('InfiniteQueue', function() {
-  it('basic', function() {
+describe('InfiniteQueue', function () {
+  it('basic', function () {
     let q = new InfiniteQueue();
 
     q.push(1);

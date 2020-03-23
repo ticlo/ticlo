@@ -8,16 +8,16 @@ import {shouldHappen} from '../../../../../src/core/util/test-util';
 import {blankPropDesc} from '../../../../../src/core/editor';
 import {simulateInput} from './simulate-input';
 
-describe('StringEditor', function() {
-  beforeEach(async function() {
+describe('StringEditor', function () {
+  beforeEach(async function () {
     await initEditor();
   });
 
-  afterEach(function() {
+  afterEach(function () {
     removeLastTemplate();
   });
 
-  it('basic', async function() {
+  it('basic', async function () {
     let editor: StringEditor;
     let getRef = (e: StringEditor): void => {
       editor = e;

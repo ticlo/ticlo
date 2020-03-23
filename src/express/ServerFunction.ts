@@ -55,7 +55,7 @@ export class ServerFunction extends BlockFunction {
           targetRoute.delete(targetPath);
         }
       }
-    }
+    },
   });
   requestHandler = (basePath: string, req: Request, res: Response) => {
     let contentType: RouteContentType;
@@ -152,7 +152,7 @@ Functions.add(
     name: 'express-server',
     icon: 'fas:network-wired',
     properties: [{name: '#output', type: 'object', readonly: true}],
-    tags: ['route-server']
+    tags: ['route-server'],
   },
   'http'
 );

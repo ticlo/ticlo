@@ -33,7 +33,7 @@ export class FunctionView extends React.PureComponent<Props, any> {
     e.setData(
       {
         blockName: desc.name,
-        blockData: data
+        blockData: data,
       },
       conn.getBaseConn()
     );

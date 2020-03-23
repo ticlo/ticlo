@@ -2,8 +2,8 @@ import {assert} from 'chai';
 import {TestFunctionRunner} from './TestFunction';
 import {Job, Root} from '../Job';
 
-describe('BlockConfig', function() {
-  it('readonly control', function() {
+describe('BlockConfig', function () {
+  it('readonly control', function () {
     let job = new Job();
 
     let block = job.createBlock('obj');
@@ -22,7 +22,7 @@ describe('BlockConfig', function() {
     assert.equal(block.getValue('##'), job, 'readonly property setBinding');
   });
 
-  it('#is', function() {
+  it('#is', function () {
     let job = new Job();
 
     let block = job.createBlock('obj');

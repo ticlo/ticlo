@@ -15,8 +15,8 @@ let testDesc = {
     {name: 'b', type: 'number', visible: 'high'},
     {name: 'c', type: 'number', visible: 'high'},
     {name: 'd', type: 'number', visible: 'high'},
-    {name: '#output', type: 'number', readonly: true}
-  ]
+    {name: '#output', type: 'number', readonly: true},
+  ],
 };
 
 export function addTestTypes(prefix: string, count: number) {

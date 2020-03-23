@@ -13,15 +13,15 @@ const handlerWorker = {
     '#is': '',
     'add': {'#is': 'add', '~0': '##.#inputs.n', '1': 1},
     '#inputs': {'#is': '', '#custom': [{name: 'n', type: 'number'}]},
-    '#outputs': {'#is': '', '~#value': '##.add.#output'}
-  }
+    '#outputs': {'#is': '', '~#value': '##.add.#output'},
+  },
 };
 
 const waitWorker = {
   '#is': {
     '#is': '',
-    '#outputs': {'#is': '', '#wait': true}
-  }
+    '#outputs': {'#is': '', '#wait': true},
+  },
 };
 
 class TestTask extends Task {
@@ -57,15 +57,15 @@ class TestTask extends Task {
   }
 }
 
-describe('TaskHandlerFunction', function() {
-  it('basic', function() {
+describe('TaskHandlerFunction', function () {
+  it('basic', function () {
     let job = new Job();
 
     let aBlock = job.createBlock('a');
 
     aBlock._load({
       '#is': 'handler',
-      'use': handlerWorker
+      'use': handlerWorker,
     });
 
     aBlock.setValue('#call', new TestTask(1));
@@ -78,7 +78,7 @@ describe('TaskHandlerFunction', function() {
     job.deleteValue('a');
   });
 
-  it('timeout', async function() {
+  it('timeout', async function () {
     let job = new Job();
 
     let aBlock = job.createBlock('a');
@@ -86,7 +86,7 @@ describe('TaskHandlerFunction', function() {
     aBlock._load({
       '#is': 'handler',
       'timeout': 0.01,
-      'use': waitWorker
+      'use': waitWorker,
     });
 
     aBlock.setValue('#call', new TestTask(1));
@@ -99,14 +99,14 @@ describe('TaskHandlerFunction', function() {
     job.deleteValue('a');
   });
 
-  it('cancel', async function() {
+  it('cancel', async function () {
     let job = new Job();
 
     let aBlock = job.createBlock('a');
 
     aBlock._load({
       '#is': 'handler',
-      'use': waitWorker
+      'use': waitWorker,
     });
 
     aBlock.setValue('#call', new TestTask(1));

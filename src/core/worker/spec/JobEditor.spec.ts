@@ -7,8 +7,8 @@ import {Functions} from '../../block/Functions';
 import {PropDesc, PropGroupDesc} from '../../block/Descriptor';
 import {DataMap} from '../../util/DataTypes';
 
-describe('JobEditor', function() {
-  it('delete editor after unwatch', function() {
+describe('JobEditor', function () {
+  it('delete editor after unwatch', function () {
     let job = new Job();
     let editor1 = JobEditor.create(job, '#edit-1', {});
     let editor2 = JobEditor.create(job, '#edit-2');
@@ -24,14 +24,14 @@ describe('JobEditor', function() {
     assert.isUndefined(job.getValue('#edit-1'));
   });
 
-  it('createFromField', function() {
+  it('createFromField', function () {
     let job = new Job();
     let block = job.createBlock('a');
     let data = {
       '#is': '',
       'add': {
-        '#is': 'add'
-      }
+        '#is': 'add',
+      },
     };
 
     WorkerFunction.registerType(data, {name: 'func1'}, 'JobEditor');
@@ -49,13 +49,13 @@ describe('JobEditor', function() {
     Functions.clear('JobEditor:func1');
   });
 
-  it('createFromFunction', function() {
+  it('createFromFunction', function () {
     let job = new Job();
     let data = {
       '#is': '',
       'add': {
-        '#is': 'subtract'
-      }
+        '#is': 'subtract',
+      },
     };
 
     WorkerFunction.registerType(data, {name: 'worker2'}, 'JobEditor');
@@ -69,7 +69,7 @@ describe('JobEditor', function() {
     Functions.clear('JobEditor:worker2');
   });
 
-  it('applyChange', function() {
+  it('applyChange', function () {
     let job = new Job();
     let editor = JobEditor.create(job, '#edit-v2', {}, null, false, (data: DataMap) => {
       job.setValue('v2', data);
@@ -79,7 +79,7 @@ describe('JobEditor', function() {
     assert.deepEqual(job.getValue('v2'), {'#is': ''});
   });
 
-  it('applyChange function', function() {
+  it('applyChange function', function () {
     let job = new Job();
 
     let expectedData = {
@@ -90,11 +90,11 @@ describe('JobEditor', function() {
             name: 'g',
             type: 'group',
             defaultLen: 2,
-            properties: [{name: 'a', type: 'number'}]
+            properties: [{name: 'a', type: 'number'}],
           },
-          {name: 'a', type: 'number'}
+          {name: 'a', type: 'number'},
         ],
-        '@b-p': ['a']
+        '@b-p': ['a'],
       },
       '#is': '',
       '#outputs': {
@@ -104,13 +104,13 @@ describe('JobEditor', function() {
             name: 'g',
             type: 'group',
             defaultLen: 2,
-            properties: [{name: 'b', type: 'number'}]
+            properties: [{name: 'b', type: 'number'}],
           },
-          {name: 'b', type: 'number'}
+          {name: 'b', type: 'number'},
         ],
-        '@b-p': ['b']
+        '@b-p': ['b'],
       },
-      '#desc': {icon: 'fas:plus'}
+      '#desc': {icon: 'fas:plus'},
     };
     let expectedDescProperties: (PropDesc | PropGroupDesc)[] = [
       {
@@ -119,11 +119,11 @@ describe('JobEditor', function() {
         defaultLen: 2,
         properties: [
           {name: 'a', type: 'number'},
-          {name: 'b', type: 'number', readonly: true}
-        ]
+          {name: 'b', type: 'number', readonly: true},
+        ],
       },
       {name: 'a', type: 'number'},
-      {name: 'b', type: 'number', readonly: true}
+      {name: 'b', type: 'number', readonly: true},
     ];
 
     WorkerFunction.registerType({'#is': ''}, {name: 'worker3', properties: []}, 'JobEditor');

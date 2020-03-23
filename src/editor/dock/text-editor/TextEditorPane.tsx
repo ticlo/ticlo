@@ -111,13 +111,13 @@ export class TextEditorPane extends React.PureComponent<Props, State> {
               onClose={onClose}
               readonly={readonly}
             />
-          )
-        }
+          ),
+        },
       ],
       x,
       y,
       w,
-      h
+      h,
     };
     layout.dockMove(newPanel, null, 'float');
   }
@@ -146,7 +146,7 @@ export class TextEditorPane extends React.PureComponent<Props, State> {
           this.setState({error: e.toString()});
         }
       }
-    }
+    },
   };
 
   constructor(props: Props) {
@@ -183,7 +183,7 @@ export class TextEditorPane extends React.PureComponent<Props, State> {
     },
     onUpdate: (response: DataMap) => {
       this.setState({value: this.convertValue(response.value), loading: false});
-    }
+    },
   };
 
   convertValue(value: any): string {
@@ -276,7 +276,7 @@ export class TextEditorPane extends React.PureComponent<Props, State> {
               lineNumbers: true,
               foldGutter: true,
               gutters: ['CodeMirror-linenumbers', 'CodeMirror-foldgutter'],
-              extraKeys: this.codeMirrorExtraKeys
+              extraKeys: this.codeMirrorExtraKeys,
             }}
             onChange={this.onChange}
           />

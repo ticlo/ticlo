@@ -13,10 +13,10 @@ import {JobEditor} from '../../../worker/JobEditor';
 const jobData = {
   '#is': '',
   'route': {'#is': 'http:route'},
-  'handler': {'#is': 'handler'}
+  'handler': {'#is': 'handler'},
 };
-describe('RouteFunction', function() {
-  it('register route', function() {
+describe('RouteFunction', function () {
+  it('register route', function () {
     let job = new Job();
 
     const serviceLog: any[] = [];
@@ -26,12 +26,12 @@ describe('RouteFunction', function() {
       },
       removeRoute(path: string, route: RouteFunction) {
         serviceLog.push(['-', path]);
-      }
+      },
     };
 
     let aBlock = job.createBlock('a');
     aBlock._load({
-      '#is': 'http:route'
+      '#is': 'http:route',
     });
 
     aBlock.setValue('path', '0');
@@ -45,14 +45,14 @@ describe('RouteFunction', function() {
       ['-', '1'],
       ['+', '2'],
       ['-', '2'],
-      ['+', '2']
+      ['+', '2'],
     ]);
     serviceLog.length = 0;
     aBlock.setValue('#is', '');
     assert.deepEqual(serviceLog, [['-', '2']]);
   });
 
-  it('method and contentType', function() {
+  it('method and contentType', function () {
     let job = new Job();
 
     let aBlock = job.createBlock('a');
@@ -72,7 +72,7 @@ describe('RouteFunction', function() {
     assert.deepEqual((aBlock._function as RouteFunction).contentTypes, []);
   });
 
-  it('emit', function() {
+  it('emit', function () {
     let job = new Job();
 
     let routeFunction: RouteFunction;
@@ -80,14 +80,14 @@ describe('RouteFunction', function() {
       addRoute(path: string, route: RouteFunction) {
         routeFunction = route;
       },
-      removeRoute() {}
+      removeRoute() {},
     };
 
     let aBlock = job.createBlock('a');
     aBlock._load({
       '#is': 'http:route',
       'path': 'a',
-      'server': mockService
+      'server': mockService,
     });
     aBlock.getProperty('#emit');
     let request = new HttpRequest({} as any);
@@ -96,12 +96,12 @@ describe('RouteFunction', function() {
     assert.equal(aBlock.getValue('#emit'), request);
   });
 
-  it('edit worker', function() {
+  it('edit worker', function () {
     let job = new Job();
     job.load({
       '#is': '',
       'route': {'#is': 'http:route'},
-      'handler': {'#is': 'handler', '~#call': '##.route.#emit'}
+      'handler': {'#is': 'handler', '~#call': '##.route.#emit'},
     });
     let route = job.getValue('route') as Block;
     let handler = job.getValue('handler') as Block;

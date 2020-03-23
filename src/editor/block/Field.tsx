@@ -16,7 +16,7 @@ import {
   PropGroupDesc,
   arrayEqual,
   deepEqual,
-  ValueSubscriber
+  ValueSubscriber,
 } from '../../../src/core/editor';
 import {TIcon} from '../icon/Icon';
 import {DragDropDiv, DragState} from 'rc-dock';
@@ -179,7 +179,7 @@ export class FieldItem extends DataRendererItem {
           this.forceUpdate();
         }
       }
-    }
+    },
   });
 
   constructor(block: BaseBlockItem, name: string) {
@@ -523,7 +523,7 @@ export abstract class BaseBlockItem extends DataRendererItem<XYWRenderer> {
         this.destroy();
         this.startSubscribe();
       }
-    }
+    },
   });
   customListener = new ValueSubscriber({
     onUpdate: (response: ValueUpdate) => {
@@ -535,7 +535,7 @@ export abstract class BaseBlockItem extends DataRendererItem<XYWRenderer> {
         this.custom = value;
         this.updatePropCache();
       }
-    }
+    },
   });
   pListener = new ValueSubscriber({
     onUpdate: (response: ValueUpdate) => {
@@ -543,7 +543,7 @@ export abstract class BaseBlockItem extends DataRendererItem<XYWRenderer> {
       if (Array.isArray(value)) {
         this.setP(value);
       }
-    }
+    },
   });
 
   descLoaded = false;
@@ -650,7 +650,7 @@ class SubBlockItem extends BaseBlockItem {
         this.onFieldsChanged();
         this.forceRendererChildren();
       }
-    }
+    },
   });
 
   startSubscribe() {
@@ -770,7 +770,7 @@ export class BlockItem extends BaseBlockItem {
         this.synced = newSynced;
         this.forceUpdate();
       }
-    }
+    },
   });
 
   xywListener = new ValueSubscriber({
@@ -789,7 +789,7 @@ export class BlockItem extends BaseBlockItem {
       } else if (this.xyzInvalid) {
         this.setXYW(...this.stage.getNextXYW());
       }
-    }
+    },
   });
 
   // height of special view area

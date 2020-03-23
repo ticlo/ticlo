@@ -1,6 +1,6 @@
 import debounce from 'lodash/debounce';
 import {DataMap} from '../util/DataTypes';
-import {/*type*/ Job} from './Job';
+import type {Job} from './Job';
 import {deepEqual} from '../util/Compare';
 
 // when an change is applied, need to restore history from the previous saved data

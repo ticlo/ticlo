@@ -13,7 +13,7 @@ import {
   PropDesc,
   PropGroupDesc,
   deepEqual,
-  mapConfigDesc
+  mapConfigDesc,
 } from '../../../src/core/editor';
 import {PropertyEditor} from './PropertyEditor';
 import {GroupEditor} from './GroupEditor';
@@ -43,7 +43,7 @@ class BlockLoader extends MultiSelectLoader<PropertyList> {
   isListener = new ValueSubscriber({
     onUpdate: (response: ValueUpdate) => {
       this.conn.watchDesc(response.cache.value, this.onDesc);
-    }
+    },
   });
 
   custom: (PropDesc | PropGroupDesc)[];
@@ -57,7 +57,7 @@ class BlockLoader extends MultiSelectLoader<PropertyList> {
         this.custom = value;
         this.parent.forceUpdate();
       }
-    }
+    },
   });
 
   widget: string = null;
@@ -71,7 +71,7 @@ class BlockLoader extends MultiSelectLoader<PropertyList> {
         this.widget = value;
         this.parent.forceUpdate();
       }
-    }
+    },
   });
 
   desc: FunctionDesc;

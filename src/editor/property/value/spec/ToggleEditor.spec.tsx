@@ -7,16 +7,16 @@ import {ToggleEditor} from '../ToggleEditor';
 import {shouldHappen} from '../../../../../src/core/util/test-util';
 import {blankPropDesc, PropDesc} from '../../../../../src/core/editor';
 
-describe('ToggleEditor', function() {
-  beforeEach(async function() {
+describe('ToggleEditor', function () {
+  beforeEach(async function () {
     await initEditor();
   });
 
-  afterEach(function() {
+  afterEach(function () {
     removeLastTemplate();
   });
 
-  it('click to true', async function() {
+  it('click to true', async function () {
     let value: boolean = null;
     let onChange = (v: boolean) => {
       value = v;
@@ -33,7 +33,7 @@ describe('ToggleEditor', function() {
     assert.isTrue(value);
   });
 
-  it('click to false', async function() {
+  it('click to false', async function () {
     let value: boolean = null;
     let onChange = (v: boolean) => {
       value = v;
@@ -50,7 +50,7 @@ describe('ToggleEditor', function() {
     assert.isFalse(value);
   });
 
-  it('click to true string', async function() {
+  it('click to true string', async function () {
     let value: any = null;
     let onChange = (v: any) => {
       value = v;
@@ -65,7 +65,7 @@ describe('ToggleEditor', function() {
     assert.equal(value, 'b');
   });
 
-  it('click to false string', async function() {
+  it('click to false string', async function () {
     let value: any = null;
     let onChange = (v: any) => {
       value = v;

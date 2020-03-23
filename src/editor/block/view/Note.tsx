@@ -36,7 +36,7 @@ class NoteView extends LazyUpdateComponent<BlockWidgetProps, any> {
         sanitizer(str: string) {
           needSanitize = true;
           return str;
-        }
+        },
       };
       rawHtml = marked(this.text.value, markedOptions);
       if (needSanitize) {
@@ -82,6 +82,6 @@ ClientConnection.addEditorDescriptor('note', {
     {name: 'text', type: 'string', mime: 'text/x-markdown'},
     {name: 'color', type: 'color'},
     {name: 'background', type: 'color'},
-    {name: 'border', type: 'string'}
-  ]
+    {name: 'border', type: 'string'},
+  ],
 });

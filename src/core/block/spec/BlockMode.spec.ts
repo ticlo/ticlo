@@ -3,7 +3,7 @@ import {TestAsyncFunctionPromise, TestFunctionRunner} from './TestFunction';
 import {Block} from '../Block';
 import {Job, Root} from '../Job';
 
-describe('BlockMode', function() {
+describe('BlockMode', function () {
   beforeEach(() => {
     TestFunctionRunner.clearLog();
   });
@@ -12,7 +12,7 @@ describe('BlockMode', function() {
     TestFunctionRunner.clearLog();
   });
 
-  it('basic block mode', function() {
+  it('basic block mode', function () {
     let job = new Job();
 
     let block = job.createBlock('obj');
@@ -48,7 +48,7 @@ describe('BlockMode', function() {
     assert.isEmpty(TestFunctionRunner.logs, 'disable mode function should never run');
   });
 
-  it('block mode on load', function() {
+  it('block mode on load', function () {
     let job = new Job();
 
     let b0 = job.createBlock('onLoad');
@@ -90,7 +90,7 @@ describe('BlockMode', function() {
     assert.deepEqual(TestFunctionRunner.logs, ['b0'], 'mode onLoad should be called after load');
   });
 
-  it('block mode on liveUpdate', function() {
+  it('block mode on liveUpdate', function () {
     let job = new Job();
 
     let b0 = job.createBlock('b0');
@@ -139,7 +139,7 @@ describe('BlockMode', function() {
     assert.deepEqual(TestFunctionRunner.logs, ['b0', 'b2'], 'redo to second snapshot');
   });
 
-  it('binding route change', function() {
+  it('binding route change', function () {
     let job = new Job();
 
     let block = job.createBlock('obj');

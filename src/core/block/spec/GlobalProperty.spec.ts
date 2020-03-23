@@ -4,8 +4,8 @@ import {Job, Root} from '../Job';
 import {DataMap} from '../../util/DataTypes';
 import {WorkerFunction} from '../../worker/WorkerFunction';
 
-describe('GlobalProperty', function() {
-  it('global from nested job', function() {
+describe('GlobalProperty', function () {
+  it('global from nested job', function () {
     let globalBlock: Block = Root.instance.getValue('#global');
     assert.instanceOf(globalBlock, Block);
 
@@ -16,7 +16,7 @@ describe('GlobalProperty', function() {
 
     let jobData: DataMap = {
       '#is': '',
-      '~v': '^top.v'
+      '~v': '^top.v',
     };
     WorkerFunction.registerType(jobData, {name: 'class1'}, 'GlobalProperty');
 

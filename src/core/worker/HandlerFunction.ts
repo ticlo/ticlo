@@ -18,7 +18,7 @@ export class HandlerFunction extends MapImpl {
     ['reuseWorker', HandlerFunction.prototype._onReuseWorkerChange],
     ['timeout', HandlerFunction.prototype._onTimeoutChange],
     ['keepOrder', HandlerFunction.prototype._onKeepOrderChange],
-    ['maxQueueSize', HandlerFunction.prototype._onMaxQueueSizeChange]
+    ['maxQueueSize', HandlerFunction.prototype._onMaxQueueSizeChange],
   ]);
   getInputMap() {
     return HandlerFunction.inputMap;
@@ -258,7 +258,7 @@ Functions.add(HandlerFunction, {
     {name: 'timeout', type: 'number', visible: 'low'},
     {name: 'keepOrder', type: 'toggle', visible: 'low'},
     {name: 'maxQueueSize', type: 'number', default: 0, min: 0, step: 1, visible: 'low'},
-    {name: 'queueSize', type: 'number', readonly: true, visible: 'low'}
+    {name: 'queueSize', type: 'number', readonly: true, visible: 'low'},
   ],
-  category: 'repeat'
+  category: 'repeat',
 });

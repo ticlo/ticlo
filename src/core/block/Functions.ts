@@ -5,7 +5,7 @@ import {PropDispatcher} from './Dispatcher';
 import {FunctionDesc} from './Descriptor';
 import {DataMap} from '../util/DataTypes';
 import {Storage} from './Storage';
-import {/*type*/ Job} from './Job';
+import type {Job} from './Job';
 
 export interface DescListener {
   onDescChange(id: string, desc: FunctionDesc): void;

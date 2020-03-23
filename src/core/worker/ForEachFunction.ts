@@ -47,7 +47,7 @@ export class ForEachFunction extends BlockFunction implements BlockChildWatch {
 
   static inputMap = new Map([
     ['input', ForEachFunction.prototype._onInputChange],
-    ['use', MapImpl.prototype._onSourceChange]
+    ['use', MapImpl.prototype._onSourceChange],
   ]);
   getInputMap() {
     return ForEachFunction.inputMap;
@@ -280,7 +280,7 @@ Functions.add(ForEachFunction, {
   properties: [
     {name: 'input', type: 'any'},
     {name: 'use', type: 'worker'},
-    {name: '#output', type: 'any', readonly: true}
+    {name: '#output', type: 'any', readonly: true},
   ],
-  category: 'repeat'
+  category: 'repeat',
 });

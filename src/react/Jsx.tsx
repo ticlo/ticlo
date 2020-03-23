@@ -43,14 +43,14 @@ Functions.add(
         name: 'script',
         type: 'string',
         mime: 'text/jsx',
-        visible: 'high'
+        visible: 'high',
       },
       {
         name: '#output',
         type: 'object',
-        readonly: true
-      }
-    ]
+        readonly: true,
+      },
+    ],
   },
   'react'
 );

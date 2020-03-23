@@ -3,15 +3,15 @@ import '../CompareString';
 import {Block} from '../../../../block/Block';
 import {Job, Root} from '../../../../block/Job';
 
-describe('CompareString', function() {
-  it('start with', function() {
+describe('CompareString', function () {
+  it('start with', function () {
     let job = new Job();
 
     let aBlock = job.createBlock('a');
     aBlock._load({
       '#is': 'start-with',
       '0': 'abc',
-      '1': 'ab'
+      '1': 'ab',
     });
 
     Root.run();
@@ -43,14 +43,14 @@ describe('CompareString', function() {
     assert.equal(aBlock.getValue('#output'), undefined);
   });
 
-  it('end with', function() {
+  it('end with', function () {
     let job = new Job();
 
     let aBlock = job.createBlock('a');
     aBlock._load({
       '#is': 'end-with',
       '0': 'abc',
-      '1': 'bc'
+      '1': 'bc',
     });
 
     Root.run();
@@ -82,14 +82,14 @@ describe('CompareString', function() {
     assert.equal(aBlock.getValue('#output'), undefined);
   });
 
-  it('contain', function() {
+  it('contain', function () {
     let job = new Job();
 
     let aBlock = job.createBlock('a');
     aBlock._load({
       '#is': 'contain',
       '0': 'abc',
-      '1': 'b'
+      '1': 'b',
     });
 
     Root.run();

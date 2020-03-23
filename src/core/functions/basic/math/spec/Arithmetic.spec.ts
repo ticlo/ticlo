@@ -3,8 +3,8 @@ import '../Arithmetic';
 import {Block} from '../../../../block/Block';
 import {Job, Root} from '../../../../block/Job';
 
-describe('Math', function() {
-  it('basic add', function() {
+describe('Math', function () {
+  it('basic add', function () {
     let job = new Job();
 
     let aBlock = job.createBlock('a');
@@ -43,7 +43,7 @@ describe('Math', function() {
     assert.equal(aBlock2.getValue('#output'), 6, 'run add function after loading saved data');
   });
 
-  it('add multiple', function() {
+  it('add multiple', function () {
     let job = new Job();
 
     let aBlock = job.createBlock('a');
@@ -69,7 +69,7 @@ describe('Math', function() {
     assert.equal(aBlock.getValue('#output'), 0);
   });
 
-  it('add array', function() {
+  it('add array', function () {
     let job = new Job();
 
     let aBlock = job.createBlock('a');
@@ -79,7 +79,7 @@ describe('Math', function() {
     assert.equal(aBlock.getValue('#output'), 3);
   });
 
-  it('subtract', function() {
+  it('subtract', function () {
     let job = new Job();
 
     let aBlock = job.createBlock('a');
@@ -95,7 +95,7 @@ describe('Math', function() {
     assert.equal(aBlock.getValue('#output'), undefined, '7-null == undefined');
   });
 
-  it('divide', function() {
+  it('divide', function () {
     let job = new Job();
 
     let aBlock = job.createBlock('a');
@@ -111,7 +111,7 @@ describe('Math', function() {
     assert.equal(aBlock.getValue('#output'), undefined, '7/null == undefined');
   });
 
-  it('multiply', function() {
+  it('multiply', function () {
     let job = new Job();
 
     let aBlock = job.createBlock('a');

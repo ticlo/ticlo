@@ -8,7 +8,7 @@ import {JobHistory} from '../block/JobHistory';
 
 export const JobWorkerConfigGenerators: {[key: string]: typeof BlockProperty} = {
   ...JobWithSharedConfigGenerators,
-  '#is': ConstTypeConfig('job:worker')
+  '#is': ConstTypeConfig('job:worker'),
 };
 
 export class JobWorker extends JobWithShared {

@@ -20,7 +20,7 @@ export class AddNewJob extends LazyUpdateComponent<Props, State> {
 
   formItems = {
     name: new FormInputItem<string>(this, 'name', 'Name'),
-    data: new FormInputItem<string>(this, 'data', 'Data')
+    data: new FormInputItem<string>(this, 'data', 'Data'),
   };
 
   addJob = () => {

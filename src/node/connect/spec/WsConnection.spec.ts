@@ -13,18 +13,18 @@ import {Functions} from '../../../core/block/Functions';
 
 const PORT = 8082;
 
-describe('WsConnect', function() {
+describe('WsConnect', function () {
   let server: MockWsServer;
-  before(async function() {
+  before(async function () {
     server = new MockWsServer(PORT);
     await server.init();
   });
 
-  after(function() {
+  after(function () {
     server.close();
   });
 
-  it('reconnect', async function() {
+  it('reconnect', async function () {
     let job = Root.instance.addJob('WsConnect1');
     let client = new WsClientConnection(`http://127.0.0.1:${PORT}`, false);
 
@@ -57,7 +57,7 @@ describe('WsConnect', function() {
     Root.instance.deleteValue('WsConnect1');
   });
 
-  it('desc frames', async function() {
+  it('desc frames', async function () {
     addTestTypes('A', 4000);
     let client = new WsClientConnection(`http://127.0.0.1:${PORT}`, true);
 

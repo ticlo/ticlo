@@ -10,7 +10,7 @@ class SliderView extends LazyUpdateComponent<BlockWidgetProps, any> {
     {name: '@b-w-field', type: 'string'},
     {name: '@b-w-min', type: 'number', default: 0, visible: 'low'},
     {name: '@b-w-max', type: 'number', default: 100, visible: 'low'},
-    {name: '@b-w-step', type: 'number', default: 1, min: 0, visible: 'low'}
+    {name: '@b-w-step', type: 'number', default: 1, min: 0, visible: 'low'},
   ];
 
   field = new LazyUpdateSubscriber((value: any) => {

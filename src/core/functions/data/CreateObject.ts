@@ -44,5 +44,5 @@ Functions.add(CreateObjectFunction, {
   name: 'create-object',
   icon: 'txt:{ }',
   properties: [{name: '#output', type: 'object', readonly: true}],
-  configs: [{name: '#extend', type: 'object'}, '#call', '#mode', '#priority', '#sync']
+  configs: [{name: '#extend', type: 'object'}, '#call', '#mode', '#priority', '#sync'],
 });

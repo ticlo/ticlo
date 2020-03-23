@@ -33,8 +33,8 @@ Functions.add(
     properties: [
       {name: 'parent', type: 'none', init: 'document'},
       {name: 'query', type: 'string', visible: 'high'},
-      {name: '#output', type: 'none', readonly: true}
-    ]
+      {name: '#output', type: 'none', readonly: true},
+    ],
   },
   'html'
 );

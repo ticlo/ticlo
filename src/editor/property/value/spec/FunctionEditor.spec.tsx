@@ -9,16 +9,16 @@ import {blankPropDesc, PropDesc} from '../../../../../src/core/editor';
 import {makeLocalConnection} from '../../../../core/connect/LocalConnection';
 import {Root} from '../../../../../src/core';
 
-describe('TypeEditor', function() {
-  beforeEach(async function() {
+describe('TypeEditor', function () {
+  beforeEach(async function () {
     await initEditor();
   });
 
-  afterEach(function() {
+  afterEach(function () {
     removeLastTemplate();
   });
 
-  it('expand type editor', async function() {
+  it('expand type editor', async function () {
     let [server, client] = makeLocalConnection(Root.instance, true);
 
     let value: string = null;
@@ -34,7 +34,7 @@ describe('TypeEditor', function() {
     await shouldHappen(() => div.querySelector('.anticon-down'));
 
     // work around of browser size causing  ResizeObserver - loop limit exceeded  Error
-    window.onerror = function(e) {};
+    window.onerror = function (e) {};
     SimulateEvent.simulate(div.querySelector('.anticon-down'), 'click');
     await shouldHappen(() => querySingle("//div.ticl-tree-type/span[text()='math']", document.body));
 

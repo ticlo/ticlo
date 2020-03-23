@@ -226,7 +226,7 @@ export class Job extends Block {
 
 export const JobConstConfigGenerators: {[key: string]: typeof BlockProperty} = {
   ...JobConfigGenerators,
-  '#is': ConstTypeConfig('job:const')
+  '#is': ConstTypeConfig('job:const'),
 };
 
 class ConstBlock extends Job {

@@ -10,17 +10,17 @@ import {removeLastTemplate, loadTemplate, querySingle, fakeMouseEvent} from '../
 import {initEditor} from '../../index';
 import {arrayEqual} from '../../../../src/core/editor';
 
-describe('editor BlockStage', function() {
-  beforeEach(async function() {
+describe('editor BlockStage', function () {
+  beforeEach(async function () {
     await initEditor();
   });
 
-  afterEach(function() {
+  afterEach(function () {
     removeLastTemplate();
     destroyLastLocalConnection();
   });
 
-  it('single block', async function() {
+  it('single block', async function () {
     let job = Root.instance.addJob('BlockStage1');
     job.load({
       add: {
@@ -28,8 +28,8 @@ describe('editor BlockStage', function() {
         '0': 1,
         '1': 2,
         '@b-xyw': [123, 234, 345],
-        '@b-p': ['0', '1', '#output']
-      }
+        '@b-p': ['0', '1', '#output'],
+      },
     });
 
     let [server, client] = makeLocalConnection(Root.instance);
@@ -70,14 +70,14 @@ describe('editor BlockStage', function() {
     Root.instance.deleteValue('BlockStage1');
   });
 
-  it('drag block', async function() {
+  it('drag block', async function () {
     let job = Root.instance.addJob('BlockStage2');
     job.load({
       add: {
         '#is': 'add',
         '@b-xyw': [123, 234, 345],
-        '@b-p': ['0', '1', '#output']
-      }
+        '@b-p': ['0', '1', '#output'],
+      },
     });
 
     let [server, client] = makeLocalConnection(Root.instance);
@@ -93,7 +93,7 @@ describe('editor BlockStage', function() {
     // mouse down
     SimulateEvent.simulate(document.querySelector('.ticl-stage-scroll .ticl-block-head'), 'mousedown', {
       clientX: 0,
-      clientY: 0
+      clientY: 0,
     });
 
     await shouldHappen(() => block.classList.contains('ticl-block-selected'));
@@ -103,7 +103,7 @@ describe('editor BlockStage', function() {
     assert.equal(block.offsetTop, 234);
     SimulateEvent.simulate(document.body, 'mousemove', {
       clientX: 100,
-      clientY: 100
+      clientY: 100,
     });
     await shouldHappen(() => block.offsetLeft === 223);
     assert.equal(block.offsetTop, 334);
@@ -116,21 +116,21 @@ describe('editor BlockStage', function() {
     // mouse move no longer drag block
     SimulateEvent.simulate(document.body, 'mousemove', {
       clientX: 200,
-      clientY: 200
+      clientY: 200,
     });
     await shouldReject(shouldHappen(() => block.offsetLeft !== 223));
 
     Root.instance.deleteValue('BlockStage2');
   });
 
-  it('drag block size', async function() {
+  it('drag block size', async function () {
     let job = Root.instance.addJob('BlockStage3');
     job.load({
       add: {
         '#is': 'add',
         '@b-xyw': [123, 234, 345],
-        '@b-p': ['0', '1', '#output']
-      }
+        '@b-p': ['0', '1', '#output'],
+      },
     });
 
     let [server, client] = makeLocalConnection(Root.instance);
@@ -162,21 +162,21 @@ describe('editor BlockStage', function() {
     Root.instance.deleteValue('BlockStage3');
   });
 
-  it('min block and wire', async function() {
+  it('min block and wire', async function () {
     let job = Root.instance.addJob('BlockStage4');
     job.load({
       add: {
         '#is': 'add',
         '0': 1,
         '@b-xyw': [100, 100, 150],
-        '@b-p': ['0', '1']
+        '@b-p': ['0', '1'],
       },
       subtract: {
         '#is': 'subtract',
         '~0': '##.add.0',
         '@b-xyw': [200, 200, 150],
-        '@b-p': ['0']
-      }
+        '@b-p': ['0'],
+      },
     });
 
     let [server, client] = makeLocalConnection(Root.instance);
@@ -234,19 +234,19 @@ describe('editor BlockStage', function() {
     Root.instance.deleteValue('BlockStage4');
   });
 
-  it('rect select', async function() {
+  it('rect select', async function () {
     let job = Root.instance.addJob('BlockStage5');
     job.load({
       add: {
         '#is': 'add',
         '@b-xyw': [100, 100, 100],
-        '@b-p': ['0']
+        '@b-p': ['0'],
       },
       subtract: {
         '#is': 'subtract',
         '@b-xyw': [200, 200, 100],
-        '@b-p': ['0']
-      }
+        '@b-p': ['0'],
+      },
     });
 
     let [server, client] = makeLocalConnection(Root.instance);
@@ -295,7 +295,7 @@ describe('editor BlockStage', function() {
     Root.instance.deleteValue('BlockStage5');
   });
 
-  it('automatic assign xy', async function() {
+  it('automatic assign xy', async function () {
     let job = Root.instance.addJob('BlockStage6');
     for (let i = 0; i < 10; ++i) {
       job.createBlock(`a${i}`);

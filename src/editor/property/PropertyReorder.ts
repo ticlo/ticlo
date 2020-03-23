@@ -79,7 +79,7 @@ export const CustomGroupPropertyReorder: PropertyReorder = {
         }
       }
     }
-  }
+  },
 };
 
 export const GroupPropertyReorder: PropertyReorder = {
@@ -90,7 +90,7 @@ export const GroupPropertyReorder: PropertyReorder = {
     return data;
   },
   onDragOver: CustomGroupPropertyReorder.onDragOver,
-  onDragDrop: CustomGroupPropertyReorder.onDragDrop
+  onDragDrop: CustomGroupPropertyReorder.onDragDrop,
 };
 
 export const CustomPropertyReorder: PropertyReorder = {
@@ -107,7 +107,7 @@ export const CustomPropertyReorder: PropertyReorder = {
     return data;
   },
   onDragOver: CustomGroupPropertyReorder.onDragOver,
-  onDragDrop: CustomGroupPropertyReorder.onDragDrop
+  onDragDrop: CustomGroupPropertyReorder.onDragDrop,
 };
 
 export const OptionalPropertyReorder: PropertyReorder = {
@@ -139,5 +139,5 @@ export const OptionalPropertyReorder: PropertyReorder = {
         }
       }
     }
-  }
+  },
 };

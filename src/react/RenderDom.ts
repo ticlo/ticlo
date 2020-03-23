@@ -37,8 +37,8 @@ Functions.add(
     icon: 'fab:react',
     properties: [
       {name: 'container', type: 'object'},
-      {name: 'component', type: 'object'}
-    ]
+      {name: 'component', type: 'object'},
+    ],
   },
   'react'
 );

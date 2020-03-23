@@ -6,24 +6,24 @@ import {
   loadTemplate,
   querySingle,
   fakeMouseEvent,
-  expandDocumentBody
+  expandDocumentBody,
 } from '../../../util/test-util';
 import {initEditor} from '../../../index';
 import {MultiSelectEditor, SelectEditor} from '../SelectEditor';
 import {shouldHappen, waitTick} from '../../../../../src/core/util/test-util';
 import {blankPropDesc, PropDesc} from '../../../../../src/core/editor';
 
-describe('SelectEditor', function() {
-  beforeEach(async function() {
+describe('SelectEditor', function () {
+  beforeEach(async function () {
     expandDocumentBody();
     await initEditor();
   });
 
-  afterEach(function() {
+  afterEach(function () {
     removeLastTemplate();
   });
 
-  it('basic', async function() {
+  it('basic', async function () {
     let value: string = null;
     let onChange = (v: string) => {
       value = v;
@@ -34,7 +34,7 @@ describe('SelectEditor', function() {
     await shouldHappen(() => div.querySelector('.ant-select-selector'));
     let selectDiv = div.querySelector('.ant-select-selector');
 
-    window.onerror = function(e) {};
+    window.onerror = function (e) {};
     SimulateEvent.simulate(selectDiv, 'mousedown');
     await shouldHappen(() => querySingle("//div.ant-select-item-option-content[text()='b']", document.body));
 
@@ -43,7 +43,7 @@ describe('SelectEditor', function() {
     assert.equal(value, 'b');
   });
 
-  it('multi-select', async function() {
+  it('multi-select', async function () {
     let value: string[] = null;
     let onChange = (v: string[]) => {
       value = v;
@@ -53,7 +53,7 @@ describe('SelectEditor', function() {
     await shouldHappen(() => div.querySelector('.ant-select-selector'));
     let selectDiv = div.querySelector('.ant-select-selector');
 
-    window.onerror = function(e) {};
+    window.onerror = function (e) {};
     SimulateEvent.simulate(selectDiv, 'mousedown');
     await shouldHappen(() => querySingle("//div.ant-select-item-option-content[text()='b']", document.body));
 

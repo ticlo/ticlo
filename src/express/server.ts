@@ -23,7 +23,7 @@ export function routeTiclo(app: Express.Application, basePath: string, globalBlo
 export function connectTiclo(app: Express.Application, routeTicloPath: string) {
   let expressWs = ExpressWs(app);
   let wsapp = expressWs.app;
-  wsapp.ws(routeTicloPath, function(ws, req) {
+  wsapp.ws(routeTicloPath, function (ws, req) {
     let serverConn = new WsServerConnection(ws, Root.instance);
   });
 }

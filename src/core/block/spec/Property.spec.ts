@@ -1,16 +1,16 @@
 import {assert} from 'chai';
 import {Job} from '../Job';
 
-describe('Property Save Load', function() {
-  it('save object with #is', function() {
+describe('Property Save Load', function () {
+  it('save object with #is', function () {
     let job = new Job();
 
     let v1Data = {'#is': 'add'};
     let expectedSave = {
       '#is': '',
       'v1': {
-        '#is': {'#is': 'add'}
-      }
+        '#is': {'#is': 'add'},
+      },
     };
 
     job.setValue('v1', v1Data);

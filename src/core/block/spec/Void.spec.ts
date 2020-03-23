@@ -7,8 +7,8 @@ import {PropDispatcher} from '../Dispatcher';
 import {VoidListeners} from './TestFunction';
 import {_strictMode} from '../BlockSettings';
 
-describe('VoidProperty', function() {
-  it('basic', function() {
+describe('VoidProperty', function () {
+  it('basic', function () {
     voidProperty.setValue(1);
     assert.isUndefined(voidProperty.getValue(), 'void property never change value');
     voidProperty.updateValue(2);

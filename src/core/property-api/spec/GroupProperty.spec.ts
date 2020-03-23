@@ -5,12 +5,12 @@ import {Job} from '../../block/Job';
 import '../../functions/basic/math/Arithmetic';
 import {insertGroupProperty, moveGroupProperty, removeGroupProperty, setGroupLength} from '../GroupProperty';
 
-describe('GroupProperty', function() {
-  it('setGroupLength', function() {
+describe('GroupProperty', function () {
+  it('setGroupLength', function () {
     let job = new Job();
     let aBlock = job.createBlock('a');
     aBlock._load({
-      '#is': 'add'
+      '#is': 'add',
     });
 
     setGroupLength(aBlock, '', 3);
@@ -33,7 +33,7 @@ describe('GroupProperty', function() {
     assert.deepEqual(aBlock.getValue('@b-p'), ['0', '1']);
   });
 
-  it('setGroupLength on #custom', function() {
+  it('setGroupLength on #custom', function () {
     let job = new Job();
     job.load({
       '#is': '',
@@ -42,9 +42,9 @@ describe('GroupProperty', function() {
           name: 'g',
           type: 'group',
           defaultLen: 2,
-          properties: [{name: 'a', type: 'number'}]
-        }
-      ]
+          properties: [{name: 'a', type: 'number'}],
+        },
+      ],
     });
 
     setGroupLength(job, 'g', 3);
@@ -52,13 +52,13 @@ describe('GroupProperty', function() {
     assert.deepEqual(job.getValue('@b-p'), ['a2']);
   });
 
-  it('insertGroupProperty', function() {
+  it('insertGroupProperty', function () {
     let job = new Job();
     let aBlock = job.createBlock('a');
     aBlock._load({
       '#is': 'add',
       '0': 0,
-      '1': 1
+      '1': 1,
     });
 
     insertGroupProperty(aBlock, '', 0);
@@ -78,13 +78,13 @@ describe('GroupProperty', function() {
     assert.isUndefined(aBlock.getValue('invalidG[]'));
   });
 
-  it('removeGroupProperty', function() {
+  it('removeGroupProperty', function () {
     let job = new Job();
     let aBlock = job.createBlock('a');
     aBlock._load({
       '#is': 'add',
       '0': 0,
-      '1': 1
+      '1': 1,
     });
 
     removeGroupProperty(aBlock, '', 0);
@@ -101,13 +101,13 @@ describe('GroupProperty', function() {
     assert.isUndefined(aBlock.getValue('invalidG[]'));
   });
 
-  it('moveGroupProperty', function() {
+  it('moveGroupProperty', function () {
     let job = new Job();
     let aBlock = job.createBlock('a');
     aBlock._load({
       '#is': 'add',
       '0': 0,
-      '1': 1
+      '1': 1,
     });
 
     moveGroupProperty(aBlock, '', 0, 1);

@@ -10,8 +10,8 @@ const descriptor: FunctionDesc = {
   properties: [
     {name: '0', type: 'number', visible: 'high'},
     {name: '1', type: 'number', visible: 'high'},
-    {name: '#output', type: 'toggle', readonly: true}
-  ]
+    {name: '#output', type: 'toggle', readonly: true},
+  ],
 };
 
 export class EqualFunction extends BaseFunction {
@@ -29,8 +29,8 @@ Functions.add(EqualFunction, {
   properties: [
     {name: '0', type: 'any', visible: 'high'},
     {name: '1', type: 'any', visible: 'high'},
-    {name: '#output', type: 'toggle', readonly: true}
-  ]
+    {name: '#output', type: 'toggle', readonly: true},
+  ],
 });
 
 export class NotEqualFunction extends BaseFunction {
@@ -48,8 +48,8 @@ Functions.add(NotEqualFunction, {
   properties: [
     {name: '0', type: 'any', visible: 'high'},
     {name: '1', type: 'any', visible: 'high'},
-    {name: '#output', type: 'toggle', readonly: true}
-  ]
+    {name: '#output', type: 'toggle', readonly: true},
+  ],
 });
 
 export class NotFunction extends BaseFunction {
@@ -65,8 +65,8 @@ Functions.add(NotFunction, {
   icon: 'txt:!',
   properties: [
     {name: '0', type: 'toggle', visible: 'high'},
-    {name: '#output', type: 'toggle', readonly: true}
-  ]
+    {name: '#output', type: 'toggle', readonly: true},
+  ],
 });
 
 export class GreaterThanFunction extends BaseFunction {
@@ -84,7 +84,7 @@ export class GreaterThanFunction extends BaseFunction {
 Functions.add(GreaterThanFunction, {
   ...descriptor,
   name: 'greater-than',
-  icon: 'fas:greater-than'
+  icon: 'fas:greater-than',
 });
 
 export class LessThanFunction extends BaseFunction {
@@ -102,7 +102,7 @@ export class LessThanFunction extends BaseFunction {
 Functions.add(LessThanFunction, {
   ...descriptor,
   name: 'less-than',
-  icon: 'fas:less-than'
+  icon: 'fas:less-than',
 });
 
 export class GreaterEqualFunction extends BaseFunction {
@@ -120,7 +120,7 @@ export class GreaterEqualFunction extends BaseFunction {
 Functions.add(GreaterEqualFunction, {
   ...descriptor,
   name: 'greater-equal',
-  icon: 'fas:greater-than-equal'
+  icon: 'fas:greater-than-equal',
 });
 
 export class LessEqualFunction extends BaseFunction {
@@ -138,5 +138,5 @@ export class LessEqualFunction extends BaseFunction {
 Functions.add(LessEqualFunction, {
   ...descriptor,
   name: 'less-equal',
-  icon: 'fas:less-than-equal'
+  icon: 'fas:less-than-equal',
 });

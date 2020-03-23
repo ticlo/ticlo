@@ -45,7 +45,7 @@ export class FieldValue extends LazyUpdateComponent<Props, any> {
         popup={this.getObjectMenu}
         popupAlign={{
           points: ['tl', 'tr'],
-          offset: [-6, 0]
+          offset: [-6, 0],
         }}
       >
         <div className="ticl-tree-arr ticl-tree-arr-expand" onDoubleClick={this.onExpandObjectTree} />

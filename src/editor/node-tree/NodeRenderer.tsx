@@ -18,7 +18,7 @@ import {
   smartStrCompare,
   ValueSubscriber,
   getOutputDesc,
-  getDisplayName
+  getDisplayName,
 } from '../../../src/core/editor';
 import {TIcon} from '../icon/Icon';
 import {TicloLayoutContext, TicloLayoutContextType} from '../component/LayoutContext';
@@ -226,13 +226,13 @@ export class NodeTreeRenderer extends PureDataRenderer<Props, any> {
         item.connection.unwatchDesc(this.descCallback);
         this.safeSetState({desc: blankFuncDesc});
       }
-    }
+    },
   });
 
   hasChangeListener = new ValueSubscriber({
     onUpdate: (response: ValueUpdate) => {
       this.safeSetState({hasChange: Boolean(response.cache.value)});
-    }
+    },
   });
 
   nameListener = new ValueSubscriber({
@@ -243,7 +243,7 @@ export class NodeTreeRenderer extends PureDataRenderer<Props, any> {
       } else {
         this.safeSetState({displayName: null});
       }
-    }
+    },
   });
 
   constructor(props: Props) {

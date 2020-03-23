@@ -3,11 +3,11 @@ import {assert} from 'chai';
 import {Job, PropDesc, PropGroupDesc} from '../..';
 import {showProperties, hideProperties, moveShownProperty, hideGroupProperties} from '../PropertyShowHide';
 
-describe('PropertyOrder', function() {
-  it('show hide Property', function() {
+describe('PropertyOrder', function () {
+  it('show hide Property', function () {
     let job = new Job();
     job.load({
-      '#is': 'add'
+      '#is': 'add',
     });
     hideProperties(job, ['@a']);
     assert.isUndefined(job.getValue('@b-p'));
@@ -25,15 +25,15 @@ describe('PropertyOrder', function() {
     assert.isUndefined(job.getValue('@b-p'));
   });
 
-  it('show hide Properties with order', function() {
+  it('show hide Properties with order', function () {
     let job = new Job();
     let aBlock = job.createBlock('a');
     aBlock._load({
       '#is': 'add',
       '#custom': [
         {name: 'aa', type: 'number'},
-        {name: 'bb', type: 'string'}
-      ]
+        {name: 'bb', type: 'string'},
+      ],
     });
 
     showProperties(aBlock, ['#call', '1', 'bb']);
@@ -46,12 +46,12 @@ describe('PropertyOrder', function() {
     assert.deepEqual(aBlock.getValue('@b-p'), ['#is', '#call', '0', 'bb', '5']);
   });
 
-  it('hideGroupProperties', function() {
+  it('hideGroupProperties', function () {
     let descG: PropGroupDesc = {
       name: 'g',
       type: 'group',
       defaultLen: 2,
-      properties: [{name: 'a', type: 'string'}]
+      properties: [{name: 'a', type: 'string'}],
     };
 
     let job = new Job();
@@ -62,7 +62,7 @@ describe('PropertyOrder', function() {
 
     job.load({
       '#is': 'add',
-      '@b-p': ['a', 'a1', 'b', 'a02', 'b0']
+      '@b-p': ['a', 'a1', 'b', 'a02', 'b0'],
     });
 
     hideGroupProperties(job, descG, 'b');
@@ -72,7 +72,7 @@ describe('PropertyOrder', function() {
     assert.deepEqual(job.getValue('@b-p'), ['a', 'b']);
   });
 
-  it('moveShownProperty', function() {
+  it('moveShownProperty', function () {
     let job = new Job();
 
     moveShownProperty(job, 'a', 'b');

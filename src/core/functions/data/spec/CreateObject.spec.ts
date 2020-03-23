@@ -3,8 +3,8 @@ import '../CreateObject';
 import {Block} from '../../../block/Block';
 import {Job, Root} from '../../../block/Job';
 
-describe('CreateObject', function() {
-  it('basic', function() {
+describe('CreateObject', function () {
+  it('basic', function () {
     let job = new Job();
 
     let aBlock = job.createBlock('a');
@@ -13,8 +13,8 @@ describe('CreateObject', function() {
       'v': 12,
       '#custom': [
         {name: 'v', type: 'number'},
-        {name: 'u', type: 'string'}
-      ]
+        {name: 'u', type: 'string'},
+      ],
     });
 
     Root.run();
@@ -22,7 +22,7 @@ describe('CreateObject', function() {
     assert.deepEqual(aBlock.getValue('#output'), {v: 12});
   });
 
-  it('extend', function() {
+  it('extend', function () {
     let job = new Job();
 
     let aBlock = job.createBlock('a');
@@ -31,7 +31,7 @@ describe('CreateObject', function() {
       '#extend': {v: 0, t: 1},
       'v': 13,
       'u': 14,
-      '#custom': [{name: 'v', type: 'number'}]
+      '#custom': [{name: 'v', type: 'number'}],
     });
 
     Root.run();
@@ -42,7 +42,7 @@ describe('CreateObject', function() {
     assert.deepEqual(aBlock.getValue('#output'), {v: 0, t: 1, u: 14});
   });
 
-  it('array', function() {
+  it('array', function () {
     let job = new Job();
 
     let aBlock = job.createBlock('a');
@@ -60,10 +60,10 @@ describe('CreateObject', function() {
           defaultLen: 1,
           properties: [
             {name: 'a', type: 'number'},
-            {name: 'b', type: 'number'}
-          ]
-        }
-      ]
+            {name: 'b', type: 'number'},
+          ],
+        },
+      ],
     });
 
     Root.run();

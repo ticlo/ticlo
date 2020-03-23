@@ -4,7 +4,7 @@ import {addCustomProperty, moveCustomProperty, removeCustomProperty} from '../Cu
 import {Job} from '../../block/Job';
 import {PropDesc, PropGroupDesc} from '../../block/Descriptor';
 
-describe('Custom Property', function() {
+describe('Custom Property', function () {
   let descA: PropDesc = {name: 'a', type: 'string'};
   let descB: PropDesc = {name: 'b', type: 'number'};
   let descBNumber: PropDesc = {name: 'b0', type: 'number'};
@@ -15,17 +15,17 @@ describe('Custom Property', function() {
     name: 'g',
     type: 'group',
     defaultLen: 1,
-    properties: []
+    properties: [],
   };
   let descG2: PropGroupDesc = {name: 'g', type: 'group'} as PropGroupDesc; // automatically fix group desc
   let descG2Fix: PropGroupDesc = {
     name: 'g',
     type: 'group',
     defaultLen: 2,
-    properties: []
+    properties: [],
   };
 
-  it('add remove CustomProperty', function() {
+  it('add remove CustomProperty', function () {
     let job = new Job();
 
     // remove should do nothing when #custom is undefined
@@ -126,7 +126,7 @@ describe('Custom Property', function() {
     assert.isUndefined(job.getValue('#custom'));
   });
 
-  it('move CustomProperty', function() {
+  it('move CustomProperty', function () {
     let job = new Job();
 
     moveCustomProperty(job, 'a', 'b');
@@ -139,9 +139,9 @@ describe('Custom Property', function() {
       descA,
       {
         ...descG,
-        properties: [descA, descC]
+        properties: [descA, descC],
       },
-      descB
+      descB,
     ]);
 
     moveCustomProperty(job, 'a', 'b');

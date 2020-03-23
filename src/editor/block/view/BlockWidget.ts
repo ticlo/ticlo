@@ -18,7 +18,7 @@ export class BlockWidget {
     name: '@b-widget',
     type: 'select',
     options: ['none'],
-    default: 'none'
+    default: 'none',
   };
   static _widgets = new Map<string, BlockWidgetType>();
   static register(name: string, component: BlockWidgetType) {

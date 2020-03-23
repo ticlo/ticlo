@@ -4,8 +4,8 @@ import {AsyncClientPromise} from '../../../core/connect/spec/AsyncClientPromise'
 import {FrameServerConnection} from '../FrameServerConnection';
 import {FrameClientConnection} from '../FrameClientConnection';
 
-describe('FrameConnection', function() {
-  it('basic', async function() {
+describe('FrameConnection', function () {
+  it('basic', async function () {
     let job = Root.instance.addJob('FrameConnect1');
     let server = new FrameServerConnection(window, Root.instance);
     let client = new FrameClientConnection(window, false);

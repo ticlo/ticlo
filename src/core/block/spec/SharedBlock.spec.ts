@@ -1,8 +1,8 @@
 import {assert} from 'chai';
 import {JobWithShared, SharedBlock} from '../SharedBlock';
 
-describe('SharedBlock', function() {
-  it('basic', function() {
+describe('SharedBlock', function () {
+  it('basic', function () {
     let data = {'#is': '', '#shared': {'#is': ''}};
 
     let job1 = new JobWithShared();

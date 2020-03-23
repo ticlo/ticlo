@@ -3,7 +3,7 @@ import {Uid} from '../util/Uid';
 export enum EventType {
   TRIGGER = 0,
   ERROR = 1,
-  VOID = 2 // void event should be ignored
+  VOID = 2, // void event should be ignored
 }
 
 export class Event {

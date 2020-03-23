@@ -36,12 +36,12 @@ export default class VirtualList extends React.Component<Props, State> {
 
   componentDidMount() {
     this.rootNode.addEventListener('scroll', this.handleScroll, {
-      passive: true
+      passive: true,
     });
 
     this.resizeObserver = new ResizeObserver((resizes: any) => {
       this.setState({
-        height: this.rootNode.clientHeight
+        height: this.rootNode.clientHeight,
       });
     });
     this.resizeObserver.observe(this.rootNode);
@@ -107,7 +107,7 @@ export default class VirtualList extends React.Component<Props, State> {
     }
 
     this.setState({
-      offset
+      offset,
     });
   };
 }

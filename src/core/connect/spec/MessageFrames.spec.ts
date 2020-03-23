@@ -11,8 +11,8 @@ import {DataMap} from '../../util/DataTypes';
 import {BaseFunction} from '../../block/BlockFunction';
 import {addTestTypes, removeTestTypes} from './BulkTypes';
 
-describe('Connection Message Frames', function() {
-  it('desc frames', async function() {
+describe('Connection Message Frames', function () {
+  it('desc frames', async function () {
     addTestTypes('a', 4000);
     let [server, client] = makeLocalConnection(Root.instance);
 

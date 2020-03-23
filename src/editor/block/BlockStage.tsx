@@ -98,7 +98,7 @@ export class BlockStage extends BlockStageBase<BlockStageProps, StageState> {
       contentWidth: 0,
       contentHeight: 0,
       stageWidth: 0,
-      stageHeight: 0
+      stageHeight: 0,
     };
   }
 
@@ -107,7 +107,7 @@ export class BlockStage extends BlockStageBase<BlockStageProps, StageState> {
   componentDidMount() {
     super.componentDidMount();
     this._scrollNode.addEventListener('scroll', this.handleScroll, {
-      passive: true
+      passive: true,
     });
 
     this.resizeObserver = new ResizeObserver(this.handleResize);
@@ -300,7 +300,7 @@ export class BlockStage extends BlockStageBase<BlockStageProps, StageState> {
       let {touches} = e.event;
       let event = {
         clientX: (touches[0].clientX + touches[1].clientX) / 2,
-        clientY: (touches[0].clientY + touches[1].clientY) / 2
+        clientY: (touches[0].clientY + touches[1].clientY) / 2,
       };
 
       if (newZoom !== zoom) {
@@ -332,17 +332,17 @@ export class BlockStage extends BlockStageBase<BlockStageProps, StageState> {
     }
 
     let miniStageStyle = {
-      transform: `scale(${miniScale},${miniScale})`
+      transform: `scale(${miniScale},${miniScale})`,
     };
     let minStageBgStyle = {
       width: Math.ceil(viewWidth * miniScale),
-      height: Math.ceil(viewHeight * miniScale)
+      height: Math.ceil(viewHeight * miniScale),
     };
     let miniWindowStyle = {
       width: windowWidth,
       height: windowHeight,
       left: (this._scrollX * miniScale) / zoom,
-      top: (this._scrollY * miniScale) / zoom
+      top: (this._scrollY * miniScale) / zoom,
     };
     return {miniStageStyle, minStageBgStyle, miniWindowStyle};
   }
@@ -415,7 +415,7 @@ export class BlockStage extends BlockStageBase<BlockStageProps, StageState> {
     }
     this.safeSetState({
       stageWidth: this._scrollNode.offsetWidth - 11,
-      stageHeight: this._scrollNode.offsetHeight - 11
+      stageHeight: this._scrollNode.offsetHeight - 11,
     });
   };
   onResizeDebounce = debounce(this.onResize, 500);
@@ -435,7 +435,7 @@ export class BlockStage extends BlockStageBase<BlockStageProps, StageState> {
     }
     this.safeSetState({
       contentWidth: width + 32,
-      contentHeight: height + 32
+      contentHeight: height + 32,
     });
   };
   measureChildrenDebounce = debounce(this.measureChildren, 40);
@@ -484,11 +484,11 @@ export class BlockStage extends BlockStageBase<BlockStageProps, StageState> {
     let contentLayerStyle = {
       transform: `scale(${zoom},${zoom})`,
       width: viewWidth * contentSizeZoom,
-      height: viewHeight * contentSizeZoom
+      height: viewHeight * contentSizeZoom,
     };
     let contentBgStyle = {
       width: viewWidth,
-      height: viewHeight
+      height: viewHeight,
     };
 
     let {miniStageStyle, minStageBgStyle, miniWindowStyle} = this.getMiniStageStyle();

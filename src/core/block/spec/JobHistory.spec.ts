@@ -4,8 +4,8 @@ import {JobHistory} from '../JobHistory';
 import {shouldHappen} from '../../util/test-util';
 import {JobWorker} from '../../worker/JobWorker';
 
-describe('JobHistory', function() {
-  it('undo redo', function() {
+describe('JobHistory', function () {
+  it('undo redo', function () {
     let job = new Job();
     job.setValue('a', 1);
     job.startHistory();
@@ -45,7 +45,7 @@ describe('JobHistory', function() {
     job.destroy();
   });
 
-  it('trackChange', async function() {
+  it('trackChange', async function () {
     let debounceInterval = JobHistory._debounceInterval;
     JobHistory._debounceInterval = 50;
 

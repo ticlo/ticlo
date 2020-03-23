@@ -8,16 +8,16 @@ import {shouldHappen} from '../../../../../src/core/util/test-util';
 import {blankPropDesc} from '../../../../../src/core/editor';
 import {simulateInput} from './simulate-input';
 
-describe('PasswordEditor', function() {
-  beforeEach(async function() {
+describe('PasswordEditor', function () {
+  beforeEach(async function () {
     await initEditor();
   });
 
-  afterEach(function() {
+  afterEach(function () {
     removeLastTemplate();
   });
 
-  it('basic', async function() {
+  it('basic', async function () {
     let editor: PasswordEditor;
     let getRef = (e: PasswordEditor): void => {
       editor = e;

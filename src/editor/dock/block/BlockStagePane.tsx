@@ -40,7 +40,7 @@ export class BlockStagePane extends LazyUpdateComponent<Props, State> {
       closable: !onSave,
       title: onSave ? <BlockStageTabButton conn={conn} id={id} path={path} title={tabName} onSave={onSave} /> : tabName,
       group: 'blockStage',
-      content: <BlockStagePane conn={conn} basePath={path} onSelect={onSelect} />
+      content: <BlockStagePane conn={conn} basePath={path} onSelect={onSelect} />,
     };
   }
 
@@ -63,7 +63,7 @@ export class BlockStagePane extends LazyUpdateComponent<Props, State> {
       } else {
         this.safeSetState({blockKey: null, selectedKeys: []});
       }
-    }
+    },
   });
 
   constructor(props: Props) {
@@ -99,7 +99,7 @@ export class BlockStagePane extends LazyUpdateComponent<Props, State> {
     return {
       element: this._rootNode,
       beforeDivider: [{size: blockStage.offsetWidth}],
-      afterDivider: [{size: propertyList.offsetWidth, minSize: 216}]
+      afterDivider: [{size: propertyList.offsetWidth, minSize: 216}],
     };
   };
 

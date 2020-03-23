@@ -22,7 +22,7 @@ import {
   Logger,
   ValueSubscriber,
   DataMap,
-  isBindable
+  isBindable,
 } from '../../../src/core/editor';
 import {MultiSelectComponent, MultiSelectLoader} from './MultiSelectComponent';
 import {StringEditor} from './value/StringEditor';
@@ -53,7 +53,7 @@ const typeEditorMap: {[key: string]: any} = {
   'type': FunctionEditor,
   'worker': WorkerEditor,
   'none': ReadonlyEditor,
-  'any': DynamicEditor
+  'any': DynamicEditor,
 };
 
 class PropertyLoader extends MultiSelectLoader<PropertyEditor> {
@@ -83,7 +83,7 @@ class PropertyLoader extends MultiSelectLoader<PropertyEditor> {
       if (changed) {
         this.parent.forceUpdate();
       }
-    }
+    },
   });
   displayListener = new ValueSubscriber({
     onUpdate: (response: ValueUpdate) => {
@@ -99,7 +99,7 @@ class PropertyLoader extends MultiSelectLoader<PropertyEditor> {
           this.parent.forceUpdate();
         }
       }
-    }
+    },
   });
 
   destroy() {
@@ -149,7 +149,7 @@ const notReadyState = {
   bindingSame: false,
   subBlock: false,
   display: false,
-  displaySame: false
+  displaySame: false,
 };
 
 export class PropertyEditor extends MultiSelectComponent<PropertyEditorProps, State, PropertyLoader> {

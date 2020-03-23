@@ -13,13 +13,13 @@ const defaultRouteWorker = {
     {name: 'path', type: 'string'},
     {name: 'body', type: 'any'},
     {name: 'query', type: 'object'},
-    {name: 'headers', type: 'object'}
+    {name: 'headers', type: 'object'},
   ]),
   '#outputs': getDefaultDataFromCustom([
     {name: 'data', type: 'any'},
     {name: 'headers', type: 'object'},
-    {name: 'status', type: 'number', min: 200, max: 999, step: 1, default: 200}
-  ])
+    {name: 'status', type: 'number', min: 200, max: 999, step: 1, default: 200},
+  ]),
 };
 
 export type RouteContentType = 'empty' | 'text' | 'json' | 'buffer' | 'form';
@@ -44,7 +44,7 @@ export class RouteFunction extends BlockFunction {
     ['path', RouteFunction.prototype._onPathChange],
     ['server', RouteFunction.prototype._onServerChange],
     ['method', RouteFunction.prototype._onMethodsChange],
-    ['contentType', RouteFunction.prototype._onContentTypesChange]
+    ['contentType', RouteFunction.prototype._onContentTypesChange],
   ]);
   getInputMap() {
     return RouteFunction.inputMap;
@@ -150,8 +150,8 @@ Functions.add(
       {name: 'server', type: 'service', options: ['route-server']},
       {name: 'path', type: 'string'},
       {name: 'method', type: 'multi-select', options: methodList, init: ['GET'], visible: 'low'},
-      {name: 'contentType', type: 'multi-select', options: contentTypeList, init: ['empty'], visible: 'low'}
-    ]
+      {name: 'contentType', type: 'multi-select', options: contentTypeList, init: ['empty'], visible: 'low'},
+    ],
   },
   'http'
 );

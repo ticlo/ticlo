@@ -23,7 +23,7 @@ export class ObjectTree extends LazyUpdateComponent<Props, any> {
       this.data = response.value;
       this.loading = false;
       this.forceUpdate();
-    }
+    },
   };
 
   constructor(props: Props) {

@@ -70,7 +70,7 @@ export class MapFunction extends MapImpl {
     ['use', MapFunction.prototype._onSourceChange],
     ['thread', MapFunction.prototype._onThreadChanged],
     ['reuseWorker', MapFunction.prototype._onReuseWorkerChange],
-    ['timeout', MapFunction.prototype._onTimeoutChange]
+    ['timeout', MapFunction.prototype._onTimeoutChange],
   ]);
   getInputMap() {
     return MapFunction.inputMap;
@@ -270,7 +270,7 @@ Functions.add(MapFunction, {
     {name: 'thread', type: 'number', default: 0, min: 0, step: 1},
     {name: 'reuseWorker', type: 'radio-button', options: ['none', 'reuse', 'persist'], default: 'none', visible: 'low'},
     {name: 'timeout', type: 'number', visible: 'low'},
-    {name: '#output', type: 'any', readonly: true}
+    {name: '#output', type: 'any', readonly: true},
   ],
-  category: 'repeat'
+  category: 'repeat',
 });

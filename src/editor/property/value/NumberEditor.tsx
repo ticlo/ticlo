@@ -28,14 +28,14 @@ const MathDeg = (() => {
   for (let name of ['sin', 'cos', 'tan']) {
     result[`${name}Rad`] = result[name];
     let f: Function = result[name];
-    result[name] = function(input: number) {
+    result[name] = function (input: number) {
       return f(input * deg2rad);
     };
   }
   for (let name of ['asin', 'acos', 'atan', 'atan2']) {
     result[`${name}Rad`] = result[name];
     let f: Function = result[name];
-    result[name] = function() {
+    result[name] = function () {
       return f(...arguments) * rad2deg;
     };
   }

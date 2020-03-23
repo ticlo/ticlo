@@ -7,8 +7,8 @@ import {BlockIO} from '../BlockProperty';
 import {VoidListeners} from './TestFunction';
 import {_strictMode} from '../BlockSettings';
 
-describe('Destroyed Block', function() {
-  it('throw on destroyed block in strict mode', function() {
+describe('Destroyed Block', function () {
+  it('throw on destroyed block in strict mode', function () {
     if (_strictMode) {
       let job = new Job();
 
@@ -31,7 +31,7 @@ describe('Destroyed Block', function() {
     }
   });
 
-  it('void on destroyed block in normal mode', function() {
+  it('void on destroyed block in normal mode', function () {
     if (!_strictMode) {
       let job = new Job();
 

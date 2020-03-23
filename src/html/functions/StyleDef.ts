@@ -15,9 +15,9 @@ export default {
       'flex-start',
       'start',
       'baseline',
-      'normal'
+      'normal',
     ],
-    types: ['select', 'string']
+    types: ['select', 'string'],
   },
   alignItems: {
     name: 'alignItems',
@@ -32,9 +32,9 @@ export default {
       'start',
       'baseline',
       'normal',
-      'stretch'
+      'stretch',
     ],
-    types: ['select', 'string']
+    types: ['select', 'string'],
   },
   alignSelf: {
     name: 'alignSelf',
@@ -50,50 +50,50 @@ export default {
       'auto',
       'baseline',
       'normal',
-      'stretch'
+      'stretch',
     ],
-    types: ['select', 'string']
+    types: ['select', 'string'],
   },
   animationDelay: {
     name: 'animationDelay',
-    type: 'string'
+    type: 'string',
   },
   animationDirection: {
     name: 'animationDirection',
     type: 'any',
     options: ['alternate', 'alternate-reverse', 'normal', 'reverse'],
-    types: ['string', 'select']
+    types: ['string', 'select'],
   },
   animationDuration: {
     name: 'animationDuration',
-    type: 'string'
+    type: 'string',
   },
   animationFillMode: {
     name: 'animationFillMode',
     type: 'any',
     options: ['backwards', 'both', 'forwards', 'none'],
-    types: ['string', 'select']
+    types: ['string', 'select'],
   },
   animationIterationCount: {
     name: 'animationIterationCount',
     type: 'any',
-    types: ['string', 'number']
+    types: ['string', 'number'],
   },
   animationName: {
     name: 'animationName',
-    type: 'string'
+    type: 'string',
   },
   animationPlayState: {
     name: 'animationPlayState',
     type: 'any',
     options: ['paused', 'running'],
-    types: ['string', 'select']
+    types: ['string', 'select'],
   },
   animationTimingFunction: {
     name: 'animationTimingFunction',
     type: 'any',
     options: ['ease', 'ease-in', 'ease-in-out', 'ease-out', 'step-end', 'step-start', 'linear'],
-    types: ['select', 'string']
+    types: ['select', 'string'],
   },
   appearance: {
     name: 'appearance',
@@ -114,29 +114,29 @@ export default {
       'textarea',
       'button',
       'none',
-      'textfield'
+      'textfield',
     ],
-    types: ['select', 'string']
+    types: ['select', 'string'],
   },
   aspectRatio: {
     name: 'aspectRatio',
-    type: 'string'
+    type: 'string',
   },
   backdropFilter: {
     name: 'backdropFilter',
-    type: 'string'
+    type: 'string',
   },
   backfaceVisibility: {
     name: 'backfaceVisibility',
     type: 'any',
     options: ['hidden', 'visible'],
-    types: ['select', 'string']
+    types: ['select', 'string'],
   },
   backgroundAttachment: {
     name: 'backgroundAttachment',
     type: 'any',
     options: ['fixed', 'local', 'scroll'],
-    types: ['string', 'select']
+    types: ['string', 'select'],
   },
   backgroundBlendMode: {
     name: 'backgroundBlendMode',
@@ -157,333 +157,333 @@ export default {
       'overlay',
       'saturation',
       'screen',
-      'soft-light'
+      'soft-light',
     ],
-    types: ['select', 'string']
+    types: ['select', 'string'],
   },
   backgroundClip: {
     name: 'backgroundClip',
     type: 'any',
     options: ['border-box', 'content-box', 'padding-box'],
-    types: ['string', 'select']
+    types: ['string', 'select'],
   },
   backgroundColor: {
     name: 'backgroundColor',
     type: 'any',
-    types: ['color', 'string']
+    types: ['color', 'string'],
   },
   backgroundImage: {
     name: 'backgroundImage',
-    type: 'string'
+    type: 'string',
   },
   backgroundOrigin: {
     name: 'backgroundOrigin',
     type: 'any',
     options: ['border-box', 'content-box', 'padding-box'],
-    types: ['string', 'select']
+    types: ['string', 'select'],
   },
   backgroundPosition: {
     name: 'backgroundPosition',
     type: 'any',
     options: ['bottom', 'center', 'left', 'right', 'top'],
-    types: ['string', 'select', 'number']
+    types: ['string', 'select', 'number'],
   },
   backgroundPositionX: {
     name: 'backgroundPositionX',
     type: 'any',
     options: ['center', 'left', 'right', 'x-end', 'x-start'],
-    types: ['string', 'select', 'number']
+    types: ['string', 'select', 'number'],
   },
   backgroundPositionY: {
     name: 'backgroundPositionY',
     type: 'any',
     options: ['bottom', 'center', 'top', 'y-end', 'y-start'],
-    types: ['string', 'select', 'number']
+    types: ['string', 'select', 'number'],
   },
   backgroundRepeat: {
     name: 'backgroundRepeat',
     type: 'any',
     options: ['no-repeat', 'repeat', 'repeat-x', 'repeat-y', 'round', 'space'],
-    types: ['select', 'string']
+    types: ['select', 'string'],
   },
   backgroundSize: {
     name: 'backgroundSize',
     type: 'any',
     options: ['auto', 'contain', 'cover'],
-    types: ['number', 'select', 'string']
+    types: ['number', 'select', 'string'],
   },
   blockSize: {
     name: 'blockSize',
     type: 'any',
     options: ['auto', 'available', 'fit-content', 'max-content', 'min-content'],
-    types: ['number', 'select', 'string']
+    types: ['number', 'select', 'string'],
   },
   borderBlockColor: {
     name: 'borderBlockColor',
     type: 'any',
-    types: ['color', 'string']
+    types: ['color', 'string'],
   },
   borderBlockEndColor: {
     name: 'borderBlockEndColor',
     type: 'any',
-    types: ['color', 'string']
+    types: ['color', 'string'],
   },
   borderBlockEndStyle: {
     name: 'borderBlockEndStyle',
     type: 'any',
     options: ['dashed', 'dotted', 'double', 'groove', 'hidden', 'inset', 'none', 'outset', 'ridge', 'solid'],
-    types: ['select', 'string']
+    types: ['select', 'string'],
   },
   borderBlockEndWidth: {
     name: 'borderBlockEndWidth',
     type: 'any',
     options: ['medium', 'thick', 'thin'],
-    types: ['number', 'select', 'string']
+    types: ['number', 'select', 'string'],
   },
   borderBlockStartColor: {
     name: 'borderBlockStartColor',
     type: 'any',
-    types: ['color', 'string']
+    types: ['color', 'string'],
   },
   borderBlockStartStyle: {
     name: 'borderBlockStartStyle',
     type: 'any',
     options: ['dashed', 'dotted', 'double', 'groove', 'hidden', 'inset', 'none', 'outset', 'ridge', 'solid'],
-    types: ['select', 'string']
+    types: ['select', 'string'],
   },
   borderBlockStartWidth: {
     name: 'borderBlockStartWidth',
     type: 'any',
     options: ['medium', 'thick', 'thin'],
-    types: ['number', 'select', 'string']
+    types: ['number', 'select', 'string'],
   },
   borderBlockStyle: {
     name: 'borderBlockStyle',
     type: 'any',
     options: ['dashed', 'dotted', 'double', 'groove', 'hidden', 'inset', 'none', 'outset', 'ridge', 'solid'],
-    types: ['select', 'string']
+    types: ['select', 'string'],
   },
   borderBlockWidth: {
     name: 'borderBlockWidth',
     type: 'any',
     options: ['medium', 'thick', 'thin'],
-    types: ['number', 'select', 'string']
+    types: ['number', 'select', 'string'],
   },
   borderBottomColor: {
     name: 'borderBottomColor',
     type: 'any',
-    types: ['color', 'string']
+    types: ['color', 'string'],
   },
   borderBottomLeftRadius: {
     name: 'borderBottomLeftRadius',
     type: 'any',
-    types: ['string', 'number']
+    types: ['string', 'number'],
   },
   borderBottomRightRadius: {
     name: 'borderBottomRightRadius',
     type: 'any',
-    types: ['string', 'number']
+    types: ['string', 'number'],
   },
   borderBottomStyle: {
     name: 'borderBottomStyle',
     type: 'any',
     options: ['dashed', 'dotted', 'double', 'groove', 'hidden', 'inset', 'none', 'outset', 'ridge', 'solid'],
-    types: ['select', 'string']
+    types: ['select', 'string'],
   },
   borderBottomWidth: {
     name: 'borderBottomWidth',
     type: 'any',
     options: ['medium', 'thick', 'thin'],
-    types: ['number', 'select', 'string']
+    types: ['number', 'select', 'string'],
   },
   borderCollapse: {
     name: 'borderCollapse',
     type: 'any',
     options: ['collapse', 'separate'],
-    types: ['select', 'string']
+    types: ['select', 'string'],
   },
   borderEndEndRadius: {
     name: 'borderEndEndRadius',
     type: 'any',
-    types: ['string', 'number']
+    types: ['string', 'number'],
   },
   borderEndStartRadius: {
     name: 'borderEndStartRadius',
     type: 'any',
-    types: ['string', 'number']
+    types: ['string', 'number'],
   },
   borderImageOutset: {
     name: 'borderImageOutset',
     type: 'any',
-    types: ['string', 'number']
+    types: ['string', 'number'],
   },
   borderImageRepeat: {
     name: 'borderImageRepeat',
     type: 'any',
     options: ['repeat', 'round', 'space', 'stretch'],
-    types: ['string', 'select']
+    types: ['string', 'select'],
   },
   borderImageSlice: {
     name: 'borderImageSlice',
     type: 'any',
-    types: ['string', 'number']
+    types: ['string', 'number'],
   },
   borderImageSource: {
     name: 'borderImageSource',
-    type: 'string'
+    type: 'string',
   },
   borderImageWidth: {
     name: 'borderImageWidth',
     type: 'any',
-    types: ['number', 'string']
+    types: ['number', 'string'],
   },
   borderInlineColor: {
     name: 'borderInlineColor',
     type: 'any',
-    types: ['color', 'string']
+    types: ['color', 'string'],
   },
   borderInlineEndColor: {
     name: 'borderInlineEndColor',
     type: 'any',
-    types: ['color', 'string']
+    types: ['color', 'string'],
   },
   borderInlineEndStyle: {
     name: 'borderInlineEndStyle',
     type: 'any',
     options: ['dashed', 'dotted', 'double', 'groove', 'hidden', 'inset', 'none', 'outset', 'ridge', 'solid'],
-    types: ['select', 'string']
+    types: ['select', 'string'],
   },
   borderInlineEndWidth: {
     name: 'borderInlineEndWidth',
     type: 'any',
     options: ['medium', 'thick', 'thin'],
-    types: ['number', 'select', 'string']
+    types: ['number', 'select', 'string'],
   },
   borderInlineStartColor: {
     name: 'borderInlineStartColor',
     type: 'any',
-    types: ['color', 'string']
+    types: ['color', 'string'],
   },
   borderInlineStartStyle: {
     name: 'borderInlineStartStyle',
     type: 'any',
     options: ['dashed', 'dotted', 'double', 'groove', 'hidden', 'inset', 'none', 'outset', 'ridge', 'solid'],
-    types: ['select', 'string']
+    types: ['select', 'string'],
   },
   borderInlineStartWidth: {
     name: 'borderInlineStartWidth',
     type: 'any',
     options: ['medium', 'thick', 'thin'],
-    types: ['number', 'select', 'string']
+    types: ['number', 'select', 'string'],
   },
   borderInlineStyle: {
     name: 'borderInlineStyle',
     type: 'any',
     options: ['dashed', 'dotted', 'double', 'groove', 'hidden', 'inset', 'none', 'outset', 'ridge', 'solid'],
-    types: ['select', 'string']
+    types: ['select', 'string'],
   },
   borderInlineWidth: {
     name: 'borderInlineWidth',
     type: 'any',
     options: ['medium', 'thick', 'thin'],
-    types: ['number', 'select', 'string']
+    types: ['number', 'select', 'string'],
   },
   borderLeftColor: {
     name: 'borderLeftColor',
     type: 'any',
-    types: ['color', 'string']
+    types: ['color', 'string'],
   },
   borderLeftStyle: {
     name: 'borderLeftStyle',
     type: 'any',
     options: ['dashed', 'dotted', 'double', 'groove', 'hidden', 'inset', 'none', 'outset', 'ridge', 'solid'],
-    types: ['select', 'string']
+    types: ['select', 'string'],
   },
   borderLeftWidth: {
     name: 'borderLeftWidth',
     type: 'any',
     options: ['medium', 'thick', 'thin'],
-    types: ['number', 'select', 'string']
+    types: ['number', 'select', 'string'],
   },
   borderRightColor: {
     name: 'borderRightColor',
     type: 'any',
-    types: ['color', 'string']
+    types: ['color', 'string'],
   },
   borderRightStyle: {
     name: 'borderRightStyle',
     type: 'any',
     options: ['dashed', 'dotted', 'double', 'groove', 'hidden', 'inset', 'none', 'outset', 'ridge', 'solid'],
-    types: ['select', 'string']
+    types: ['select', 'string'],
   },
   borderRightWidth: {
     name: 'borderRightWidth',
     type: 'any',
     options: ['medium', 'thick', 'thin'],
-    types: ['number', 'select', 'string']
+    types: ['number', 'select', 'string'],
   },
   borderSpacing: {
     name: 'borderSpacing',
     type: 'any',
-    types: ['string', 'number']
+    types: ['string', 'number'],
   },
   borderStartEndRadius: {
     name: 'borderStartEndRadius',
     type: 'any',
-    types: ['string', 'number']
+    types: ['string', 'number'],
   },
   borderStartStartRadius: {
     name: 'borderStartStartRadius',
     type: 'any',
-    types: ['string', 'number']
+    types: ['string', 'number'],
   },
   borderTopColor: {
     name: 'borderTopColor',
     type: 'any',
-    types: ['color', 'string']
+    types: ['color', 'string'],
   },
   borderTopLeftRadius: {
     name: 'borderTopLeftRadius',
     type: 'any',
-    types: ['string', 'number']
+    types: ['string', 'number'],
   },
   borderTopRightRadius: {
     name: 'borderTopRightRadius',
     type: 'any',
-    types: ['string', 'number']
+    types: ['string', 'number'],
   },
   borderTopStyle: {
     name: 'borderTopStyle',
     type: 'any',
     options: ['dashed', 'dotted', 'double', 'groove', 'hidden', 'inset', 'none', 'outset', 'ridge', 'solid'],
-    types: ['select', 'string']
+    types: ['select', 'string'],
   },
   borderTopWidth: {
     name: 'borderTopWidth',
     type: 'any',
     options: ['medium', 'thick', 'thin'],
-    types: ['number', 'select', 'string']
+    types: ['number', 'select', 'string'],
   },
   bottom: {
     name: 'bottom',
     type: 'any',
-    types: ['string', 'number']
+    types: ['string', 'number'],
   },
   boxDecorationBreak: {
     name: 'boxDecorationBreak',
     type: 'any',
     options: ['clone', 'slice'],
-    types: ['select', 'string']
+    types: ['select', 'string'],
   },
   boxShadow: {
     name: 'boxShadow',
-    type: 'string'
+    type: 'string',
   },
   boxSizing: {
     name: 'boxSizing',
     type: 'any',
     options: ['border-box', 'content-box'],
-    types: ['select', 'string']
+    types: ['select', 'string'],
   },
   breakAfter: {
     name: 'breakAfter',
@@ -502,9 +502,9 @@ export default {
       'recto',
       'region',
       'right',
-      'verso'
+      'verso',
     ],
-    types: ['select', 'string']
+    types: ['select', 'string'],
   },
   breakBefore: {
     name: 'breakBefore',
@@ -523,117 +523,117 @@ export default {
       'recto',
       'region',
       'right',
-      'verso'
+      'verso',
     ],
-    types: ['select', 'string']
+    types: ['select', 'string'],
   },
   breakInside: {
     name: 'breakInside',
     type: 'any',
     options: ['auto', 'avoid', 'avoid-column', 'avoid-page', 'avoid-region'],
-    types: ['select', 'string']
+    types: ['select', 'string'],
   },
   captionSide: {
     name: 'captionSide',
     type: 'any',
     options: ['block-end', 'block-start', 'bottom', 'inline-end', 'inline-start', 'top'],
-    types: ['select', 'string']
+    types: ['select', 'string'],
   },
   caretColor: {
     name: 'caretColor',
     type: 'any',
-    types: ['color', 'string']
+    types: ['color', 'string'],
   },
   clear: {
     name: 'clear',
     type: 'any',
     options: ['both', 'inline-end', 'inline-start', 'left', 'none', 'right'],
-    types: ['select', 'string']
+    types: ['select', 'string'],
   },
   clipPath: {
     name: 'clipPath',
     type: 'any',
     options: ['border-box', 'content-box', 'padding-box', 'fill-box', 'margin-box', 'stroke-box', 'view-box', 'none'],
-    types: ['select', 'string']
+    types: ['select', 'string'],
   },
   color: {
     name: 'color',
     type: 'any',
-    types: ['color', 'string']
+    types: ['color', 'string'],
   },
   colorAdjust: {
     name: 'colorAdjust',
     type: 'any',
     options: ['economy', 'exact'],
-    types: ['select', 'string']
+    types: ['select', 'string'],
   },
   columnCount: {
     name: 'columnCount',
     type: 'any',
-    types: ['number', 'string']
+    types: ['number', 'string'],
   },
   columnFill: {
     name: 'columnFill',
     type: 'any',
     options: ['auto', 'balance', 'balance-all'],
-    types: ['select', 'string']
+    types: ['select', 'string'],
   },
   columnGap: {
     name: 'columnGap',
     type: 'any',
-    types: ['string', 'number']
+    types: ['string', 'number'],
   },
   columnRuleColor: {
     name: 'columnRuleColor',
     type: 'any',
-    types: ['color', 'string']
+    types: ['color', 'string'],
   },
   columnRuleStyle: {
     name: 'columnRuleStyle',
     type: 'any',
     options: ['dashed', 'dotted', 'double', 'groove', 'hidden', 'inset', 'none', 'outset', 'ridge', 'solid'],
-    types: ['select', 'string']
+    types: ['select', 'string'],
   },
   columnRuleWidth: {
     name: 'columnRuleWidth',
     type: 'any',
     options: ['medium', 'thick', 'thin'],
-    types: ['number', 'select', 'string']
+    types: ['number', 'select', 'string'],
   },
   columnSpan: {
     name: 'columnSpan',
     type: 'any',
     options: ['all', 'none'],
-    types: ['select', 'string']
+    types: ['select', 'string'],
   },
   columnWidth: {
     name: 'columnWidth',
     type: 'any',
-    types: ['number', 'string']
+    types: ['number', 'string'],
   },
   contain: {
     name: 'contain',
     type: 'any',
     options: ['content', 'layout', 'none', 'paint', 'size', 'strict', 'style'],
-    types: ['select', 'string']
+    types: ['select', 'string'],
   },
   content: {
     name: 'content',
     type: 'any',
     options: ['close-quote', 'no-close-quote', 'no-open-quote', 'open-quote', 'contents', 'none', 'normal'],
-    types: ['select', 'string']
+    types: ['select', 'string'],
   },
   counterIncrement: {
     name: 'counterIncrement',
-    type: 'string'
+    type: 'string',
   },
   counterReset: {
     name: 'counterReset',
-    type: 'string'
+    type: 'string',
   },
   counterSet: {
     name: 'counterSet',
-    type: 'string'
+    type: 'string',
   },
   cursor: {
     name: 'cursor',
@@ -674,15 +674,15 @@ export default {
       'w-resize',
       'wait',
       'zoom-in',
-      'zoom-out'
+      'zoom-out',
     ],
-    types: ['select', 'string']
+    types: ['select', 'string'],
   },
   direction: {
     name: 'direction',
     type: 'any',
     options: ['ltr', 'rtl'],
-    types: ['select', 'string']
+    types: ['select', 'string'],
   },
   display: {
     name: 'display',
@@ -716,79 +716,79 @@ export default {
       'inline-table',
       'contents',
       'list-item',
-      'none'
+      'none',
     ],
-    types: ['select', 'string']
+    types: ['select', 'string'],
   },
   emptyCells: {
     name: 'emptyCells',
     type: 'any',
     options: ['hide', 'show'],
-    types: ['select', 'string']
+    types: ['select', 'string'],
   },
   filter: {
     name: 'filter',
-    type: 'string'
+    type: 'string',
   },
   flexBasis: {
     name: 'flexBasis',
     type: 'any',
     options: ['auto', 'available', 'content', 'fit-content', 'max-content', 'min-content'],
-    types: ['select', 'number', 'string']
+    types: ['select', 'number', 'string'],
   },
   flexDirection: {
     name: 'flexDirection',
     type: 'any',
     options: ['column', 'column-reverse', 'row', 'row-reverse'],
-    types: ['select', 'string']
+    types: ['select', 'string'],
   },
   flexGrow: {
     name: 'flexGrow',
     type: 'any',
-    types: ['number', 'string']
+    types: ['number', 'string'],
   },
   flexShrink: {
     name: 'flexShrink',
     type: 'any',
-    types: ['number', 'string']
+    types: ['number', 'string'],
   },
   flexWrap: {
     name: 'flexWrap',
     type: 'any',
     options: ['nowrap', 'wrap', 'wrap-reverse'],
-    types: ['select', 'string']
+    types: ['select', 'string'],
   },
   float: {
     name: 'float',
     type: 'any',
     options: ['inline-end', 'inline-start', 'left', 'none', 'right'],
-    types: ['select', 'string']
+    types: ['select', 'string'],
   },
   fontFamily: {
     name: 'fontFamily',
     type: 'any',
     options: ['cursive', 'fantasy', 'monospace', 'sans-serif', 'serif'],
-    types: ['string', 'select']
+    types: ['string', 'select'],
   },
   fontFeatureSettings: {
     name: 'fontFeatureSettings',
-    type: 'string'
+    type: 'string',
   },
   fontKerning: {
     name: 'fontKerning',
     type: 'any',
     options: ['auto', 'none', 'normal'],
-    types: ['select', 'string']
+    types: ['select', 'string'],
   },
   fontLanguageOverride: {
     name: 'fontLanguageOverride',
-    type: 'string'
+    type: 'string',
   },
   fontOpticalSizing: {
     name: 'fontOpticalSizing',
     type: 'any',
     options: ['auto', 'none'],
-    types: ['select', 'string']
+    types: ['select', 'string'],
   },
   fontSize: {
     name: 'fontSize',
@@ -803,14 +803,14 @@ export default {
       'xx-small',
       'xxx-large',
       'larger',
-      'smaller'
+      'smaller',
     ],
-    types: ['number', 'select', 'string']
+    types: ['number', 'select', 'string'],
   },
   fontSizeAdjust: {
     name: 'fontSizeAdjust',
     type: 'any',
-    types: ['number', 'string']
+    types: ['number', 'string'],
   },
   fontStretch: {
     name: 'fontStretch',
@@ -824,21 +824,21 @@ export default {
       'semi-condensed',
       'semi-expanded',
       'ultra-condensed',
-      'ultra-expanded'
+      'ultra-expanded',
     ],
-    types: ['select', 'string']
+    types: ['select', 'string'],
   },
   fontStyle: {
     name: 'fontStyle',
     type: 'any',
     options: ['italic', 'normal', 'oblique'],
-    types: ['string', 'select']
+    types: ['string', 'select'],
   },
   fontSynthesis: {
     name: 'fontSynthesis',
     type: 'any',
     options: ['none', 'style', 'weight'],
-    types: ['string', 'select']
+    types: ['string', 'select'],
   },
   fontVariant: {
     name: 'fontVariant',
@@ -877,15 +877,15 @@ export default {
       'stacked-fractions',
       'tabular-nums',
       'titling-caps',
-      'unicase'
+      'unicase',
     ],
-    types: ['select', 'string']
+    types: ['select', 'string'],
   },
   fontVariantCaps: {
     name: 'fontVariantCaps',
     type: 'any',
     options: ['all-petite-caps', 'all-small-caps', 'normal', 'petite-caps', 'small-caps', 'titling-caps', 'unicase'],
-    types: ['select', 'string']
+    types: ['select', 'string'],
   },
   fontVariantEastAsian: {
     name: 'fontVariantEastAsian',
@@ -900,9 +900,9 @@ export default {
       'full-width',
       'normal',
       'proportional-width',
-      'ruby'
+      'ruby',
     ],
-    types: ['select', 'string']
+    types: ['select', 'string'],
   },
   fontVariantLigatures: {
     name: 'fontVariantLigatures',
@@ -917,9 +917,9 @@ export default {
       'no-discretionary-ligatures',
       'no-historical-ligatures',
       'none',
-      'normal'
+      'normal',
     ],
-    types: ['select', 'string']
+    types: ['select', 'string'],
   },
   fontVariantNumeric: {
     name: 'fontVariantNumeric',
@@ -933,161 +933,161 @@ export default {
       'proportional-nums',
       'slashed-zero',
       'stacked-fractions',
-      'tabular-nums'
+      'tabular-nums',
     ],
-    types: ['select', 'string']
+    types: ['select', 'string'],
   },
   fontVariantPosition: {
     name: 'fontVariantPosition',
     type: 'any',
     options: ['normal', 'sub', 'super'],
-    types: ['select', 'string']
+    types: ['select', 'string'],
   },
   fontVariationSettings: {
     name: 'fontVariationSettings',
-    type: 'string'
+    type: 'string',
   },
   fontWeight: {
     name: 'fontWeight',
     type: 'any',
     options: ['bold', 'normal', 'bolder', 'lighter'],
-    types: ['select', 'number', 'string']
+    types: ['select', 'number', 'string'],
   },
   gridAutoColumns: {
     name: 'gridAutoColumns',
     type: 'any',
     options: ['auto', 'max-content', 'min-content'],
-    types: ['string', 'number', 'select']
+    types: ['string', 'number', 'select'],
   },
   gridAutoFlow: {
     name: 'gridAutoFlow',
     type: 'any',
     options: ['column', 'dense', 'row'],
-    types: ['string', 'select']
+    types: ['string', 'select'],
   },
   gridAutoRows: {
     name: 'gridAutoRows',
     type: 'any',
     options: ['auto', 'max-content', 'min-content'],
-    types: ['string', 'number', 'select']
+    types: ['string', 'number', 'select'],
   },
   gridColumnEnd: {
     name: 'gridColumnEnd',
     type: 'any',
-    types: ['string', 'number']
+    types: ['string', 'number'],
   },
   gridColumnStart: {
     name: 'gridColumnStart',
     type: 'any',
-    types: ['string', 'number']
+    types: ['string', 'number'],
   },
   gridRowEnd: {
     name: 'gridRowEnd',
     type: 'any',
-    types: ['string', 'number']
+    types: ['string', 'number'],
   },
   gridRowStart: {
     name: 'gridRowStart',
     type: 'any',
-    types: ['string', 'number']
+    types: ['string', 'number'],
   },
   gridTemplateAreas: {
     name: 'gridTemplateAreas',
-    type: 'string'
+    type: 'string',
   },
   gridTemplateColumns: {
     name: 'gridTemplateColumns',
     type: 'any',
     options: ['auto', 'max-content', 'min-content', 'none', 'subgrid'],
-    types: ['string', 'select', 'number']
+    types: ['string', 'select', 'number'],
   },
   gridTemplateRows: {
     name: 'gridTemplateRows',
     type: 'any',
     options: ['auto', 'max-content', 'min-content', 'none', 'subgrid'],
-    types: ['string', 'select', 'number']
+    types: ['string', 'select', 'number'],
   },
   hangingPunctuation: {
     name: 'hangingPunctuation',
     type: 'any',
     options: ['allow-end', 'first', 'force-end', 'last', 'none'],
-    types: ['string', 'select']
+    types: ['string', 'select'],
   },
   height: {
     name: 'height',
     type: 'any',
     options: ['auto', 'available', 'fit-content', 'max-content', 'min-content'],
-    types: ['number', 'select', 'string']
+    types: ['number', 'select', 'string'],
   },
   hyphens: {
     name: 'hyphens',
     type: 'any',
     options: ['auto', 'manual', 'none'],
-    types: ['select', 'string']
+    types: ['select', 'string'],
   },
   imageOrientation: {
     name: 'imageOrientation',
     type: 'any',
     options: ['flip', 'from-image'],
-    types: ['string', 'select']
+    types: ['string', 'select'],
   },
   imageRendering: {
     name: 'imageRendering',
     type: 'any',
     options: ['auto', 'crisp-edges', 'pixelated'],
-    types: ['select', 'string']
+    types: ['select', 'string'],
   },
   initialLetter: {
     name: 'initialLetter',
     type: 'any',
-    types: ['string', 'number']
+    types: ['string', 'number'],
   },
   inlineSize: {
     name: 'inlineSize',
     type: 'any',
     options: ['auto', 'available', 'fit-content', 'max-content', 'min-content'],
-    types: ['number', 'select', 'string']
+    types: ['number', 'select', 'string'],
   },
   inset: {
     name: 'inset',
     type: 'any',
-    types: ['string', 'number']
+    types: ['string', 'number'],
   },
   insetBlock: {
     name: 'insetBlock',
     type: 'any',
-    types: ['string', 'number']
+    types: ['string', 'number'],
   },
   insetBlockEnd: {
     name: 'insetBlockEnd',
     type: 'any',
-    types: ['string', 'number']
+    types: ['string', 'number'],
   },
   insetBlockStart: {
     name: 'insetBlockStart',
     type: 'any',
-    types: ['string', 'number']
+    types: ['string', 'number'],
   },
   insetInline: {
     name: 'insetInline',
     type: 'any',
-    types: ['string', 'number']
+    types: ['string', 'number'],
   },
   insetInlineEnd: {
     name: 'insetInlineEnd',
     type: 'any',
-    types: ['string', 'number']
+    types: ['string', 'number'],
   },
   insetInlineStart: {
     name: 'insetInlineStart',
     type: 'any',
-    types: ['string', 'number']
+    types: ['string', 'number'],
   },
   isolation: {
     name: 'isolation',
     type: 'any',
     options: ['auto', 'isolate'],
-    types: ['select', 'string']
+    types: ['select', 'string'],
   },
   justifyContent: {
     name: 'justifyContent',
@@ -1104,9 +1104,9 @@ export default {
       'start',
       'left',
       'normal',
-      'right'
+      'right',
     ],
-    types: ['select', 'string']
+    types: ['select', 'string'],
   },
   justifyItems: {
     name: 'justifyItems',
@@ -1124,9 +1124,9 @@ export default {
       'legacy',
       'normal',
       'right',
-      'stretch'
+      'stretch',
     ],
-    types: ['select', 'string']
+    types: ['select', 'string'],
   },
   justifySelf: {
     name: 'justifySelf',
@@ -1144,130 +1144,130 @@ export default {
       'left',
       'normal',
       'right',
-      'stretch'
+      'stretch',
     ],
-    types: ['select', 'string']
+    types: ['select', 'string'],
   },
   left: {
     name: 'left',
     type: 'any',
-    types: ['string', 'number']
+    types: ['string', 'number'],
   },
   letterSpacing: {
     name: 'letterSpacing',
     type: 'any',
-    types: ['number', 'string']
+    types: ['number', 'string'],
   },
   lineBreak: {
     name: 'lineBreak',
     type: 'any',
     options: ['anywhere', 'auto', 'loose', 'normal', 'strict'],
-    types: ['select', 'string']
+    types: ['select', 'string'],
   },
   lineHeight: {
     name: 'lineHeight',
     type: 'any',
-    types: ['number', 'string']
+    types: ['number', 'string'],
   },
   lineHeightStep: {
     name: 'lineHeightStep',
     type: 'any',
-    types: ['number', 'string']
+    types: ['number', 'string'],
   },
   listStyleImage: {
     name: 'listStyleImage',
-    type: 'string'
+    type: 'string',
   },
   listStylePosition: {
     name: 'listStylePosition',
     type: 'any',
     options: ['inside', 'outside'],
-    types: ['select', 'string']
+    types: ['select', 'string'],
   },
   listStyleType: {
     name: 'listStyleType',
-    type: 'string'
+    type: 'string',
   },
   marginBlock: {
     name: 'marginBlock',
     type: 'any',
-    types: ['string', 'number']
+    types: ['string', 'number'],
   },
   marginBlockEnd: {
     name: 'marginBlockEnd',
     type: 'any',
-    types: ['string', 'number']
+    types: ['string', 'number'],
   },
   marginBlockStart: {
     name: 'marginBlockStart',
     type: 'any',
-    types: ['string', 'number']
+    types: ['string', 'number'],
   },
   marginBottom: {
     name: 'marginBottom',
     type: 'any',
-    types: ['string', 'number']
+    types: ['string', 'number'],
   },
   marginInline: {
     name: 'marginInline',
     type: 'any',
-    types: ['string', 'number']
+    types: ['string', 'number'],
   },
   marginInlineEnd: {
     name: 'marginInlineEnd',
     type: 'any',
-    types: ['string', 'number']
+    types: ['string', 'number'],
   },
   marginInlineStart: {
     name: 'marginInlineStart',
     type: 'any',
-    types: ['string', 'number']
+    types: ['string', 'number'],
   },
   marginLeft: {
     name: 'marginLeft',
     type: 'any',
-    types: ['string', 'number']
+    types: ['string', 'number'],
   },
   marginRight: {
     name: 'marginRight',
     type: 'any',
-    types: ['string', 'number']
+    types: ['string', 'number'],
   },
   marginTop: {
     name: 'marginTop',
     type: 'any',
-    types: ['string', 'number']
+    types: ['string', 'number'],
   },
   maskBorderMode: {
     name: 'maskBorderMode',
     type: 'any',
     options: ['alpha', 'luminance'],
-    types: ['select', 'string']
+    types: ['select', 'string'],
   },
   maskBorderOutset: {
     name: 'maskBorderOutset',
     type: 'any',
-    types: ['string', 'number']
+    types: ['string', 'number'],
   },
   maskBorderRepeat: {
     name: 'maskBorderRepeat',
     type: 'any',
     options: ['repeat', 'round', 'space', 'stretch'],
-    types: ['string', 'select']
+    types: ['string', 'select'],
   },
   maskBorderSlice: {
     name: 'maskBorderSlice',
     type: 'any',
-    types: ['string', 'number']
+    types: ['string', 'number'],
   },
   maskBorderSource: {
     name: 'maskBorderSource',
-    type: 'string'
+    type: 'string',
   },
   maskBorderWidth: {
     name: 'maskBorderWidth',
     type: 'any',
-    types: ['number', 'string']
+    types: ['number', 'string'],
   },
   maskClip: {
     name: 'maskClip',
@@ -1280,103 +1280,103 @@ export default {
       'margin-box',
       'stroke-box',
       'view-box',
-      'no-clip'
+      'no-clip',
     ],
-    types: ['select', 'string']
+    types: ['select', 'string'],
   },
   maskComposite: {
     name: 'maskComposite',
     type: 'any',
     options: ['add', 'exclude', 'intersect', 'subtract'],
-    types: ['string', 'select']
+    types: ['string', 'select'],
   },
   maskImage: {
     name: 'maskImage',
-    type: 'string'
+    type: 'string',
   },
   maskMode: {
     name: 'maskMode',
     type: 'any',
     options: ['alpha', 'luminance', 'match-source'],
-    types: ['string', 'select']
+    types: ['string', 'select'],
   },
   maskOrigin: {
     name: 'maskOrigin',
     type: 'any',
     options: ['border-box', 'content-box', 'padding-box', 'margin-box'],
-    types: ['string', 'select']
+    types: ['string', 'select'],
   },
   maskPosition: {
     name: 'maskPosition',
     type: 'any',
     options: ['bottom', 'center', 'left', 'right', 'top'],
-    types: ['string', 'select', 'number']
+    types: ['string', 'select', 'number'],
   },
   maskRepeat: {
     name: 'maskRepeat',
     type: 'any',
     options: ['no-repeat', 'repeat', 'repeat-x', 'repeat-y', 'round', 'space'],
-    types: ['select', 'string']
+    types: ['select', 'string'],
   },
   maskSize: {
     name: 'maskSize',
     type: 'any',
     options: ['auto', 'contain', 'cover'],
-    types: ['number', 'select', 'string']
+    types: ['number', 'select', 'string'],
   },
   maskType: {
     name: 'maskType',
     type: 'any',
     options: ['alpha', 'luminance'],
-    types: ['select', 'string']
+    types: ['select', 'string'],
   },
   maxBlockSize: {
     name: 'maxBlockSize',
     type: 'any',
     options: ['fill-available', 'fit-content', 'max-content', 'min-content', 'none'],
-    types: ['number', 'select', 'string']
+    types: ['number', 'select', 'string'],
   },
   maxHeight: {
     name: 'maxHeight',
     type: 'any',
     options: ['fill-available', 'fit-content', 'intrinsic', 'max-content', 'min-content', 'none'],
-    types: ['number', 'select', 'string']
+    types: ['number', 'select', 'string'],
   },
   maxInlineSize: {
     name: 'maxInlineSize',
     type: 'any',
     options: ['fill-available', 'fit-content', 'max-content', 'min-content', 'none'],
-    types: ['number', 'select', 'string']
+    types: ['number', 'select', 'string'],
   },
   maxWidth: {
     name: 'maxWidth',
     type: 'any',
     options: ['fill-available', 'fit-content', 'intrinsic', 'max-content', 'min-content', 'none'],
-    types: ['number', 'select', 'string']
+    types: ['number', 'select', 'string'],
   },
   minBlockSize: {
     name: 'minBlockSize',
     type: 'any',
     options: ['auto', 'fill-available', 'fit-content', 'max-content', 'min-content'],
-    types: ['number', 'select', 'string']
+    types: ['number', 'select', 'string'],
   },
   minHeight: {
     name: 'minHeight',
     type: 'any',
     options: ['auto', 'fill-available', 'fit-content', 'intrinsic', 'max-content', 'min-content'],
-    types: ['number', 'select', 'string']
+    types: ['number', 'select', 'string'],
   },
   minInlineSize: {
     name: 'minInlineSize',
     type: 'any',
     options: ['auto', 'fill-available', 'fit-content', 'max-content', 'min-content'],
-    types: ['number', 'select', 'string']
+    types: ['number', 'select', 'string'],
   },
   minWidth: {
     name: 'minWidth',
     type: 'any',
     options: ['auto', 'fill-available', 'fit-content', 'intrinsic', 'max-content', 'min-content', 'min-intrinsic'],
-    types: ['number', 'select', 'string']
+    types: ['number', 'select', 'string'],
   },
   mixBlendMode: {
     name: 'mixBlendMode',
@@ -1397,255 +1397,255 @@ export default {
       'overlay',
       'saturation',
       'screen',
-      'soft-light'
+      'soft-light',
     ],
-    types: ['select', 'string']
+    types: ['select', 'string'],
   },
   motionDistance: {
     name: 'motionDistance',
     type: 'any',
-    types: ['string', 'number']
+    types: ['string', 'number'],
   },
   motionPath: {
     name: 'motionPath',
     type: 'any',
     options: ['border-box', 'content-box', 'padding-box', 'fill-box', 'margin-box', 'stroke-box', 'view-box', 'none'],
-    types: ['select', 'string']
+    types: ['select', 'string'],
   },
   motionRotation: {
     name: 'motionRotation',
     type: 'any',
     options: ['auto', 'reverse'],
-    types: ['string', 'select']
+    types: ['string', 'select'],
   },
   objectFit: {
     name: 'objectFit',
     type: 'any',
     options: ['contain', 'cover', 'fill', 'none', 'scale-down'],
-    types: ['select', 'string']
+    types: ['select', 'string'],
   },
   objectPosition: {
     name: 'objectPosition',
     type: 'any',
     options: ['bottom', 'center', 'left', 'right', 'top'],
-    types: ['string', 'select', 'number']
+    types: ['string', 'select', 'number'],
   },
   offsetAnchor: {
     name: 'offsetAnchor',
     type: 'any',
     options: ['bottom', 'center', 'left', 'right', 'top', 'auto'],
-    types: ['select', 'number', 'string']
+    types: ['select', 'number', 'string'],
   },
   offsetDistance: {
     name: 'offsetDistance',
     type: 'any',
-    types: ['string', 'number']
+    types: ['string', 'number'],
   },
   offsetPath: {
     name: 'offsetPath',
     type: 'any',
     options: ['border-box', 'content-box', 'padding-box', 'fill-box', 'margin-box', 'stroke-box', 'view-box', 'none'],
-    types: ['select', 'string']
+    types: ['select', 'string'],
   },
   offsetRotate: {
     name: 'offsetRotate',
     type: 'any',
     options: ['auto', 'reverse'],
-    types: ['string', 'select']
+    types: ['string', 'select'],
   },
   offsetRotation: {
     name: 'offsetRotation',
     type: 'any',
     options: ['auto', 'reverse'],
-    types: ['string', 'select']
+    types: ['string', 'select'],
   },
   opacity: {
     name: 'opacity',
     type: 'any',
-    types: ['string', 'number']
+    types: ['string', 'number'],
   },
   order: {
     name: 'order',
     type: 'any',
-    types: ['number', 'string']
+    types: ['number', 'string'],
   },
   orphans: {
     name: 'orphans',
     type: 'any',
-    types: ['number', 'string']
+    types: ['number', 'string'],
   },
   outlineColor: {
     name: 'outlineColor',
     type: 'any',
-    types: ['color', 'string']
+    types: ['color', 'string'],
   },
   outlineOffset: {
     name: 'outlineOffset',
     type: 'any',
-    types: ['number', 'string']
+    types: ['number', 'string'],
   },
   outlineStyle: {
     name: 'outlineStyle',
     type: 'any',
     options: ['dashed', 'dotted', 'double', 'groove', 'hidden', 'inset', 'none', 'outset', 'ridge', 'solid', 'auto'],
-    types: ['select', 'string']
+    types: ['select', 'string'],
   },
   outlineWidth: {
     name: 'outlineWidth',
     type: 'any',
     options: ['medium', 'thick', 'thin'],
-    types: ['number', 'select', 'string']
+    types: ['number', 'select', 'string'],
   },
   overflow: {
     name: 'overflow',
     type: 'any',
     options: ['auto', 'clip', 'hidden', 'scroll', 'visible'],
-    types: ['string', 'select']
+    types: ['string', 'select'],
   },
   overflowAnchor: {
     name: 'overflowAnchor',
     type: 'any',
     options: ['auto', 'none'],
-    types: ['select', 'string']
+    types: ['select', 'string'],
   },
   overflowBlock: {
     name: 'overflowBlock',
     type: 'any',
     options: ['auto', 'clip', 'hidden', 'scroll', 'visible'],
-    types: ['select', 'string']
+    types: ['select', 'string'],
   },
   overflowClipBox: {
     name: 'overflowClipBox',
     type: 'any',
     options: ['content-box', 'padding-box'],
-    types: ['select', 'string']
+    types: ['select', 'string'],
   },
   overflowInline: {
     name: 'overflowInline',
     type: 'any',
     options: ['auto', 'clip', 'hidden', 'scroll', 'visible'],
-    types: ['select', 'string']
+    types: ['select', 'string'],
   },
   overflowWrap: {
     name: 'overflowWrap',
     type: 'any',
     options: ['anywhere', 'break-word', 'normal'],
-    types: ['select', 'string']
+    types: ['select', 'string'],
   },
   overflowX: {
     name: 'overflowX',
     type: 'any',
     options: ['auto', 'clip', 'hidden', 'scroll', 'visible'],
-    types: ['select', 'string']
+    types: ['select', 'string'],
   },
   overflowY: {
     name: 'overflowY',
     type: 'any',
     options: ['auto', 'clip', 'hidden', 'scroll', 'visible'],
-    types: ['select', 'string']
+    types: ['select', 'string'],
   },
   overscrollBehavior: {
     name: 'overscrollBehavior',
     type: 'any',
     options: ['auto', 'contain', 'none'],
-    types: ['string', 'select']
+    types: ['string', 'select'],
   },
   overscrollBehaviorX: {
     name: 'overscrollBehaviorX',
     type: 'any',
     options: ['auto', 'contain', 'none'],
-    types: ['select', 'string']
+    types: ['select', 'string'],
   },
   overscrollBehaviorY: {
     name: 'overscrollBehaviorY',
     type: 'any',
     options: ['auto', 'contain', 'none'],
-    types: ['select', 'string']
+    types: ['select', 'string'],
   },
   paddingBlock: {
     name: 'paddingBlock',
     type: 'any',
-    types: ['string', 'number']
+    types: ['string', 'number'],
   },
   paddingBlockEnd: {
     name: 'paddingBlockEnd',
     type: 'any',
-    types: ['string', 'number']
+    types: ['string', 'number'],
   },
   paddingBlockStart: {
     name: 'paddingBlockStart',
     type: 'any',
-    types: ['string', 'number']
+    types: ['string', 'number'],
   },
   paddingBottom: {
     name: 'paddingBottom',
     type: 'any',
-    types: ['string', 'number']
+    types: ['string', 'number'],
   },
   paddingInline: {
     name: 'paddingInline',
     type: 'any',
-    types: ['string', 'number']
+    types: ['string', 'number'],
   },
   paddingInlineEnd: {
     name: 'paddingInlineEnd',
     type: 'any',
-    types: ['string', 'number']
+    types: ['string', 'number'],
   },
   paddingInlineStart: {
     name: 'paddingInlineStart',
     type: 'any',
-    types: ['string', 'number']
+    types: ['string', 'number'],
   },
   paddingLeft: {
     name: 'paddingLeft',
     type: 'any',
-    types: ['string', 'number']
+    types: ['string', 'number'],
   },
   paddingRight: {
     name: 'paddingRight',
     type: 'any',
-    types: ['string', 'number']
+    types: ['string', 'number'],
   },
   paddingTop: {
     name: 'paddingTop',
     type: 'any',
-    types: ['string', 'number']
+    types: ['string', 'number'],
   },
   pageBreakAfter: {
     name: 'pageBreakAfter',
     type: 'any',
     options: ['always', 'auto', 'avoid', 'left', 'recto', 'right', 'verso'],
-    types: ['select', 'string']
+    types: ['select', 'string'],
   },
   pageBreakBefore: {
     name: 'pageBreakBefore',
     type: 'any',
     options: ['always', 'auto', 'avoid', 'left', 'recto', 'right', 'verso'],
-    types: ['select', 'string']
+    types: ['select', 'string'],
   },
   pageBreakInside: {
     name: 'pageBreakInside',
     type: 'any',
     options: ['auto', 'avoid'],
-    types: ['select', 'string']
+    types: ['select', 'string'],
   },
   paintOrder: {
     name: 'paintOrder',
     type: 'any',
     options: ['fill', 'markers', 'normal', 'stroke'],
-    types: ['string', 'select']
+    types: ['string', 'select'],
   },
   perspective: {
     name: 'perspective',
     type: 'any',
-    types: ['number', 'string']
+    types: ['number', 'string'],
   },
   perspectiveOrigin: {
     name: 'perspectiveOrigin',
     type: 'any',
     options: ['bottom', 'center', 'left', 'right', 'top'],
-    types: ['string', 'select', 'number']
+    types: ['string', 'select', 'number'],
   },
   placeContent: {
     name: 'placeContent',
@@ -1661,9 +1661,9 @@ export default {
       'flex-start',
       'start',
       'baseline',
-      'normal'
+      'normal',
     ],
-    types: ['select', 'string']
+    types: ['select', 'string'],
   },
   pointerEvents: {
     name: 'pointerEvents',
@@ -1679,367 +1679,367 @@ export default {
       'visible',
       'visibleFill',
       'visiblePainted',
-      'visibleStroke'
+      'visibleStroke',
     ],
-    types: ['select', 'string']
+    types: ['select', 'string'],
   },
   position: {
     name: 'position',
     type: 'any',
     options: ['absolute', 'fixed', 'relative', 'static', 'sticky'],
-    types: ['select', 'string']
+    types: ['select', 'string'],
   },
   quotes: {
     name: 'quotes',
     type: 'any',
     options: ['auto', 'none'],
-    types: ['string', 'select']
+    types: ['string', 'select'],
   },
   resize: {
     name: 'resize',
     type: 'any',
     options: ['block', 'both', 'horizontal', 'inline', 'none', 'vertical'],
-    types: ['select', 'string']
+    types: ['select', 'string'],
   },
   right: {
     name: 'right',
     type: 'any',
-    types: ['string', 'number']
+    types: ['string', 'number'],
   },
   rotate: {
     name: 'rotate',
-    type: 'string'
+    type: 'string',
   },
   rowGap: {
     name: 'rowGap',
     type: 'any',
-    types: ['string', 'number']
+    types: ['string', 'number'],
   },
   rubyAlign: {
     name: 'rubyAlign',
     type: 'any',
     options: ['center', 'space-around', 'space-between', 'start'],
-    types: ['select', 'string']
+    types: ['select', 'string'],
   },
   rubyPosition: {
     name: 'rubyPosition',
     type: 'any',
     options: ['over', 'under'],
-    types: ['select', 'string']
+    types: ['select', 'string'],
   },
   scale: {
     name: 'scale',
     type: 'any',
-    types: ['string', 'number']
+    types: ['string', 'number'],
   },
   scrollBehavior: {
     name: 'scrollBehavior',
     type: 'any',
     options: ['auto', 'smooth'],
-    types: ['select', 'string']
+    types: ['select', 'string'],
   },
   scrollMargin: {
     name: 'scrollMargin',
     type: 'any',
-    types: ['string', 'number']
+    types: ['string', 'number'],
   },
   scrollMarginBlock: {
     name: 'scrollMarginBlock',
     type: 'any',
-    types: ['string', 'number']
+    types: ['string', 'number'],
   },
   scrollMarginBlockEnd: {
     name: 'scrollMarginBlockEnd',
     type: 'any',
-    types: ['number', 'string']
+    types: ['number', 'string'],
   },
   scrollMarginBlockStart: {
     name: 'scrollMarginBlockStart',
     type: 'any',
-    types: ['number', 'string']
+    types: ['number', 'string'],
   },
   scrollMarginBottom: {
     name: 'scrollMarginBottom',
     type: 'any',
-    types: ['number', 'string']
+    types: ['number', 'string'],
   },
   scrollMarginInline: {
     name: 'scrollMarginInline',
     type: 'any',
-    types: ['string', 'number']
+    types: ['string', 'number'],
   },
   scrollMarginInlineEnd: {
     name: 'scrollMarginInlineEnd',
     type: 'any',
-    types: ['number', 'string']
+    types: ['number', 'string'],
   },
   scrollMarginInlineStart: {
     name: 'scrollMarginInlineStart',
     type: 'any',
-    types: ['number', 'string']
+    types: ['number', 'string'],
   },
   scrollMarginLeft: {
     name: 'scrollMarginLeft',
     type: 'any',
-    types: ['number', 'string']
+    types: ['number', 'string'],
   },
   scrollMarginRight: {
     name: 'scrollMarginRight',
     type: 'any',
-    types: ['number', 'string']
+    types: ['number', 'string'],
   },
   scrollMarginTop: {
     name: 'scrollMarginTop',
     type: 'any',
-    types: ['number', 'string']
+    types: ['number', 'string'],
   },
   scrollPadding: {
     name: 'scrollPadding',
     type: 'any',
-    types: ['string', 'number']
+    types: ['string', 'number'],
   },
   scrollPaddingBlock: {
     name: 'scrollPaddingBlock',
     type: 'any',
-    types: ['string', 'number']
+    types: ['string', 'number'],
   },
   scrollPaddingBlockEnd: {
     name: 'scrollPaddingBlockEnd',
     type: 'any',
-    types: ['string', 'number']
+    types: ['string', 'number'],
   },
   scrollPaddingBlockStart: {
     name: 'scrollPaddingBlockStart',
     type: 'any',
-    types: ['string', 'number']
+    types: ['string', 'number'],
   },
   scrollPaddingBottom: {
     name: 'scrollPaddingBottom',
     type: 'any',
-    types: ['string', 'number']
+    types: ['string', 'number'],
   },
   scrollPaddingInline: {
     name: 'scrollPaddingInline',
     type: 'any',
-    types: ['string', 'number']
+    types: ['string', 'number'],
   },
   scrollPaddingInlineEnd: {
     name: 'scrollPaddingInlineEnd',
     type: 'any',
-    types: ['string', 'number']
+    types: ['string', 'number'],
   },
   scrollPaddingInlineStart: {
     name: 'scrollPaddingInlineStart',
     type: 'any',
-    types: ['string', 'number']
+    types: ['string', 'number'],
   },
   scrollPaddingLeft: {
     name: 'scrollPaddingLeft',
     type: 'any',
-    types: ['string', 'number']
+    types: ['string', 'number'],
   },
   scrollPaddingRight: {
     name: 'scrollPaddingRight',
     type: 'any',
-    types: ['string', 'number']
+    types: ['string', 'number'],
   },
   scrollPaddingTop: {
     name: 'scrollPaddingTop',
     type: 'any',
-    types: ['string', 'number']
+    types: ['string', 'number'],
   },
   scrollSnapAlign: {
     name: 'scrollSnapAlign',
     type: 'any',
     options: ['center', 'end', 'none', 'start'],
-    types: ['string', 'select']
+    types: ['string', 'select'],
   },
   scrollSnapStop: {
     name: 'scrollSnapStop',
     type: 'any',
     options: ['always', 'normal'],
-    types: ['select', 'string']
+    types: ['select', 'string'],
   },
   scrollSnapType: {
     name: 'scrollSnapType',
     type: 'any',
     options: ['block', 'both', 'inline', 'none', 'x', 'y'],
-    types: ['select', 'string']
+    types: ['select', 'string'],
   },
   scrollbarColor: {
     name: 'scrollbarColor',
     type: 'any',
     options: ['auto', 'dark', 'light'],
-    types: ['color', 'select', 'string']
+    types: ['color', 'select', 'string'],
   },
   scrollbarWidth: {
     name: 'scrollbarWidth',
     type: 'any',
     options: ['auto', 'none', 'thin'],
-    types: ['select', 'string']
+    types: ['select', 'string'],
   },
   shapeImageThreshold: {
     name: 'shapeImageThreshold',
     type: 'any',
-    types: ['string', 'number']
+    types: ['string', 'number'],
   },
   shapeMargin: {
     name: 'shapeMargin',
     type: 'any',
-    types: ['string', 'number']
+    types: ['string', 'number'],
   },
   shapeOutside: {
     name: 'shapeOutside',
     type: 'any',
     options: ['border-box', 'content-box', 'padding-box', 'margin-box', 'none'],
-    types: ['string', 'select']
+    types: ['string', 'select'],
   },
   tabSize: {
     name: 'tabSize',
     type: 'any',
-    types: ['number', 'string']
+    types: ['number', 'string'],
   },
   tableLayout: {
     name: 'tableLayout',
     type: 'any',
     options: ['auto', 'fixed'],
-    types: ['select', 'string']
+    types: ['select', 'string'],
   },
   textAlign: {
     name: 'textAlign',
     type: 'any',
     options: ['center', 'end', 'justify', 'left', 'match-parent', 'right', 'start'],
-    types: ['select', 'string']
+    types: ['select', 'string'],
   },
   textAlignLast: {
     name: 'textAlignLast',
     type: 'any',
     options: ['auto', 'center', 'end', 'justify', 'left', 'right', 'start'],
-    types: ['select', 'string']
+    types: ['select', 'string'],
   },
   textCombineUpright: {
     name: 'textCombineUpright',
     type: 'any',
     options: ['all', 'digits', 'none'],
-    types: ['string', 'select']
+    types: ['string', 'select'],
   },
   textDecorationColor: {
     name: 'textDecorationColor',
     type: 'any',
-    types: ['color', 'string']
+    types: ['color', 'string'],
   },
   textDecorationLine: {
     name: 'textDecorationLine',
     type: 'any',
     options: ['blink', 'grammar-error', 'line-through', 'none', 'overline', 'spelling-error', 'underline'],
-    types: ['select', 'string']
+    types: ['select', 'string'],
   },
   textDecorationSkip: {
     name: 'textDecorationSkip',
     type: 'any',
     options: ['box-decoration', 'edges', 'leading-spaces', 'none', 'objects', 'spaces', 'trailing-spaces'],
-    types: ['select', 'string']
+    types: ['select', 'string'],
   },
   textDecorationSkipInk: {
     name: 'textDecorationSkipInk',
     type: 'any',
     options: ['auto', 'none'],
-    types: ['select', 'string']
+    types: ['select', 'string'],
   },
   textDecorationStyle: {
     name: 'textDecorationStyle',
     type: 'any',
     options: ['dashed', 'dotted', 'double', 'solid', 'wavy'],
-    types: ['select', 'string']
+    types: ['select', 'string'],
   },
   textDecorationThickness: {
     name: 'textDecorationThickness',
     type: 'any',
     options: ['auto', 'from-font'],
-    types: ['number', 'select', 'string']
+    types: ['number', 'select', 'string'],
   },
   textDecorationWidth: {
     name: 'textDecorationWidth',
     type: 'any',
     options: ['auto', 'from-font'],
-    types: ['number', 'select', 'string']
+    types: ['number', 'select', 'string'],
   },
   textEmphasisColor: {
     name: 'textEmphasisColor',
     type: 'any',
-    types: ['color', 'string']
+    types: ['color', 'string'],
   },
   textEmphasisPosition: {
     name: 'textEmphasisPosition',
-    type: 'string'
+    type: 'string',
   },
   textEmphasisStyle: {
     name: 'textEmphasisStyle',
     type: 'any',
     options: ['circle', 'dot', 'double-circle', 'filled', 'none', 'open', 'sesame', 'triangle'],
-    types: ['select', 'string']
+    types: ['select', 'string'],
   },
   textIndent: {
     name: 'textIndent',
     type: 'any',
-    types: ['string', 'number']
+    types: ['string', 'number'],
   },
   textJustify: {
     name: 'textJustify',
     type: 'any',
     options: ['auto', 'inter-character', 'inter-word', 'none'],
-    types: ['select', 'string']
+    types: ['select', 'string'],
   },
   textOrientation: {
     name: 'textOrientation',
     type: 'any',
     options: ['mixed', 'sideways', 'upright'],
-    types: ['select', 'string']
+    types: ['select', 'string'],
   },
   textOverflow: {
     name: 'textOverflow',
     type: 'any',
     options: ['clip', 'ellipsis'],
-    types: ['string', 'select']
+    types: ['string', 'select'],
   },
   textRendering: {
     name: 'textRendering',
     type: 'any',
     options: ['auto', 'geometricPrecision', 'optimizeLegibility', 'optimizeSpeed'],
-    types: ['select', 'string']
+    types: ['select', 'string'],
   },
   textShadow: {
     name: 'textShadow',
-    type: 'string'
+    type: 'string',
   },
   textSizeAdjust: {
     name: 'textSizeAdjust',
     type: 'any',
     options: ['auto', 'none'],
-    types: ['string', 'select']
+    types: ['string', 'select'],
   },
   textTransform: {
     name: 'textTransform',
     type: 'any',
     options: ['capitalize', 'full-size-kana', 'full-width', 'lowercase', 'none', 'uppercase'],
-    types: ['select', 'string']
+    types: ['select', 'string'],
   },
   textUnderlineOffset: {
     name: 'textUnderlineOffset',
     type: 'any',
     options: ['auto', 'from-font'],
-    types: ['number', 'select', 'string']
+    types: ['number', 'select', 'string'],
   },
   textUnderlinePosition: {
     name: 'textUnderlinePosition',
     type: 'any',
     options: ['auto', 'left', 'right', 'under'],
-    types: ['string', 'select']
+    types: ['string', 'select'],
   },
   top: {
     name: 'top',
     type: 'any',
-    types: ['string', 'number']
+    types: ['string', 'number'],
   },
   touchAction: {
     name: 'touchAction',
@@ -2054,141 +2054,141 @@ export default {
       'pan-up',
       'pan-x',
       'pan-y',
-      'pinch-zoom'
+      'pinch-zoom',
     ],
-    types: ['select', 'string']
+    types: ['select', 'string'],
   },
   transform: {
     name: 'transform',
-    type: 'string'
+    type: 'string',
   },
   transformBox: {
     name: 'transformBox',
     type: 'any',
     options: ['border-box', 'fill-box', 'view-box'],
-    types: ['select', 'string']
+    types: ['select', 'string'],
   },
   transformOrigin: {
     name: 'transformOrigin',
     type: 'any',
     options: ['bottom', 'center', 'left', 'right', 'top'],
-    types: ['string', 'select', 'number']
+    types: ['string', 'select', 'number'],
   },
   transformStyle: {
     name: 'transformStyle',
     type: 'any',
     options: ['flat', 'preserve-3d'],
-    types: ['select', 'string']
+    types: ['select', 'string'],
   },
   transitionDelay: {
     name: 'transitionDelay',
-    type: 'string'
+    type: 'string',
   },
   transitionDuration: {
     name: 'transitionDuration',
-    type: 'string'
+    type: 'string',
   },
   transitionProperty: {
     name: 'transitionProperty',
     type: 'any',
     options: ['all', 'none'],
-    types: ['string', 'select']
+    types: ['string', 'select'],
   },
   transitionTimingFunction: {
     name: 'transitionTimingFunction',
     type: 'any',
     options: ['ease', 'ease-in', 'ease-in-out', 'ease-out', 'step-end', 'step-start', 'linear'],
-    types: ['select', 'string']
+    types: ['select', 'string'],
   },
   translate: {
     name: 'translate',
     type: 'any',
-    types: ['string', 'number']
+    types: ['string', 'number'],
   },
   unicodeBidi: {
     name: 'unicodeBidi',
     type: 'any',
     options: ['bidi-override', 'embed', 'isolate', 'isolate-override', 'normal', 'plaintext'],
-    types: ['select', 'string']
+    types: ['select', 'string'],
   },
   userSelect: {
     name: 'userSelect',
     type: 'any',
     options: ['all', 'auto', 'contain', 'element', 'none', 'text'],
-    types: ['select', 'string']
+    types: ['select', 'string'],
   },
   verticalAlign: {
     name: 'verticalAlign',
     type: 'any',
     options: ['baseline', 'bottom', 'middle', 'sub', 'super', 'text-bottom', 'text-top', 'top'],
-    types: ['select', 'number', 'string']
+    types: ['select', 'number', 'string'],
   },
   visibility: {
     name: 'visibility',
     type: 'any',
     options: ['collapse', 'hidden', 'visible'],
-    types: ['select', 'string']
+    types: ['select', 'string'],
   },
   whiteSpace: {
     name: 'whiteSpace',
     type: 'any',
     options: ['break-spaces', 'normal', 'nowrap', 'pre', 'pre-line', 'pre-wrap'],
-    types: ['select', 'string']
+    types: ['select', 'string'],
   },
   widows: {
     name: 'widows',
     type: 'any',
-    types: ['number', 'string']
+    types: ['number', 'string'],
   },
   width: {
     name: 'width',
     type: 'any',
     options: ['auto', 'available', 'fit-content', 'intrinsic', 'max-content', 'min-content', 'min-intrinsic'],
-    types: ['number', 'select', 'string']
+    types: ['number', 'select', 'string'],
   },
   willChange: {
     name: 'willChange',
     type: 'any',
     options: ['contents', 'scroll-position', 'auto'],
-    types: ['string', 'select']
+    types: ['string', 'select'],
   },
   wordBreak: {
     name: 'wordBreak',
     type: 'any',
     options: ['break-all', 'break-word', 'keep-all', 'normal'],
-    types: ['select', 'string']
+    types: ['select', 'string'],
   },
   wordSpacing: {
     name: 'wordSpacing',
     type: 'any',
-    types: ['string', 'number']
+    types: ['string', 'number'],
   },
   wordWrap: {
     name: 'wordWrap',
     type: 'any',
     options: ['break-word', 'normal'],
-    types: ['select', 'string']
+    types: ['select', 'string'],
   },
   writingMode: {
     name: 'writingMode',
     type: 'any',
     options: ['horizontal-tb', 'sideways-lr', 'sideways-rl', 'vertical-lr', 'vertical-rl'],
-    types: ['select', 'string']
+    types: ['select', 'string'],
   },
   zIndex: {
     name: 'zIndex',
     type: 'any',
-    types: ['number', 'string']
+    types: ['number', 'string'],
   },
   zoom: {
     name: 'zoom',
     type: 'any',
     options: ['normal', 'reset'],
-    types: ['string', 'number', 'select']
+    types: ['string', 'number', 'select'],
   },
   all: {
     name: 'all',
-    type: 'string'
+    type: 'string',
   },
   animation: {
     name: 'animation',
@@ -2211,9 +2211,9 @@ export default {
       'none',
       'infinite',
       'paused',
-      'running'
+      'running',
     ],
-    types: ['select', 'number', 'string']
+    types: ['select', 'number', 'string'],
   },
   background: {
     name: 'background',
@@ -2236,9 +2236,9 @@ export default {
       'border-box',
       'content-box',
       'padding-box',
-      'none'
+      'none',
     ],
-    types: ['string', 'select', 'color', 'number']
+    types: ['string', 'select', 'color', 'number'],
   },
   border: {
     name: 'border',
@@ -2256,9 +2256,9 @@ export default {
       'none',
       'outset',
       'ridge',
-      'solid'
+      'solid',
     ],
-    types: ['string', 'select', 'color', 'number']
+    types: ['string', 'select', 'color', 'number'],
   },
   borderBlock: {
     name: 'borderBlock',
@@ -2276,9 +2276,9 @@ export default {
       'none',
       'outset',
       'ridge',
-      'solid'
+      'solid',
     ],
-    types: ['string', 'select', 'color', 'number']
+    types: ['string', 'select', 'color', 'number'],
   },
   borderBlockEnd: {
     name: 'borderBlockEnd',
@@ -2296,9 +2296,9 @@ export default {
       'none',
       'outset',
       'ridge',
-      'solid'
+      'solid',
     ],
-    types: ['string', 'select', 'color', 'number']
+    types: ['string', 'select', 'color', 'number'],
   },
   borderBlockStart: {
     name: 'borderBlockStart',
@@ -2316,9 +2316,9 @@ export default {
       'none',
       'outset',
       'ridge',
-      'solid'
+      'solid',
     ],
-    types: ['string', 'select', 'color', 'number']
+    types: ['string', 'select', 'color', 'number'],
   },
   borderBottom: {
     name: 'borderBottom',
@@ -2336,20 +2336,20 @@ export default {
       'none',
       'outset',
       'ridge',
-      'solid'
+      'solid',
     ],
-    types: ['string', 'select', 'color', 'number']
+    types: ['string', 'select', 'color', 'number'],
   },
   borderColor: {
     name: 'borderColor',
     type: 'any',
-    types: ['color', 'string']
+    types: ['color', 'string'],
   },
   borderImage: {
     name: 'borderImage',
     type: 'any',
     options: ['none', 'repeat', 'round', 'space', 'stretch'],
-    types: ['string', 'select', 'number']
+    types: ['string', 'select', 'number'],
   },
   borderInline: {
     name: 'borderInline',
@@ -2367,9 +2367,9 @@ export default {
       'none',
       'outset',
       'ridge',
-      'solid'
+      'solid',
     ],
-    types: ['string', 'select', 'color', 'number']
+    types: ['string', 'select', 'color', 'number'],
   },
   borderInlineEnd: {
     name: 'borderInlineEnd',
@@ -2387,9 +2387,9 @@ export default {
       'none',
       'outset',
       'ridge',
-      'solid'
+      'solid',
     ],
-    types: ['string', 'select', 'color', 'number']
+    types: ['string', 'select', 'color', 'number'],
   },
   borderInlineStart: {
     name: 'borderInlineStart',
@@ -2407,9 +2407,9 @@ export default {
       'none',
       'outset',
       'ridge',
-      'solid'
+      'solid',
     ],
-    types: ['string', 'select', 'color', 'number']
+    types: ['string', 'select', 'color', 'number'],
   },
   borderLeft: {
     name: 'borderLeft',
@@ -2427,14 +2427,14 @@ export default {
       'none',
       'outset',
       'ridge',
-      'solid'
+      'solid',
     ],
-    types: ['string', 'select', 'color', 'number']
+    types: ['string', 'select', 'color', 'number'],
   },
   borderRadius: {
     name: 'borderRadius',
     type: 'any',
-    types: ['string', 'number']
+    types: ['string', 'number'],
   },
   borderRight: {
     name: 'borderRight',
@@ -2452,15 +2452,15 @@ export default {
       'none',
       'outset',
       'ridge',
-      'solid'
+      'solid',
     ],
-    types: ['string', 'select', 'color', 'number']
+    types: ['string', 'select', 'color', 'number'],
   },
   borderStyle: {
     name: 'borderStyle',
     type: 'any',
     options: ['dashed', 'dotted', 'double', 'groove', 'hidden', 'inset', 'none', 'outset', 'ridge', 'solid'],
-    types: ['select', 'string']
+    types: ['select', 'string'],
   },
   borderTop: {
     name: 'borderTop',
@@ -2478,15 +2478,15 @@ export default {
       'none',
       'outset',
       'ridge',
-      'solid'
+      'solid',
     ],
-    types: ['string', 'select', 'color', 'number']
+    types: ['string', 'select', 'color', 'number'],
   },
   borderWidth: {
     name: 'borderWidth',
     type: 'any',
     options: ['medium', 'thick', 'thin'],
-    types: ['number', 'select', 'string']
+    types: ['number', 'select', 'string'],
   },
   columnRule: {
     name: 'columnRule',
@@ -2504,71 +2504,71 @@ export default {
       'none',
       'outset',
       'ridge',
-      'solid'
+      'solid',
     ],
-    types: ['string', 'select', 'color', 'number']
+    types: ['string', 'select', 'color', 'number'],
   },
   columns: {
     name: 'columns',
     type: 'any',
-    types: ['string', 'number']
+    types: ['string', 'number'],
   },
   flex: {
     name: 'flex',
     type: 'any',
     options: ['auto', 'available', 'content', 'fit-content', 'max-content', 'min-content', 'none'],
-    types: ['select', 'number', 'string']
+    types: ['select', 'number', 'string'],
   },
   flexFlow: {
     name: 'flexFlow',
     type: 'any',
     options: ['column', 'column-reverse', 'nowrap', 'row', 'row-reverse', 'wrap', 'wrap-reverse'],
-    types: ['select', 'string']
+    types: ['select', 'string'],
   },
   font: {
     name: 'font',
     type: 'any',
     options: ['caption', 'icon', 'menu', 'message-box', 'small-caption', 'status-bar'],
-    types: ['select', 'string']
+    types: ['select', 'string'],
   },
   gap: {
     name: 'gap',
     type: 'any',
-    types: ['string', 'number']
+    types: ['string', 'number'],
   },
   grid: {
     name: 'grid',
-    type: 'string'
+    type: 'string',
   },
   gridArea: {
     name: 'gridArea',
     type: 'any',
-    types: ['string', 'number']
+    types: ['string', 'number'],
   },
   gridColumn: {
     name: 'gridColumn',
     type: 'any',
-    types: ['string', 'number']
+    types: ['string', 'number'],
   },
   gridRow: {
     name: 'gridRow',
     type: 'any',
-    types: ['string', 'number']
+    types: ['string', 'number'],
   },
   gridTemplate: {
     name: 'gridTemplate',
-    type: 'string'
+    type: 'string',
   },
   listStyle: {
     name: 'listStyle',
     type: 'any',
     options: ['inside', 'none', 'outside'],
-    types: ['string', 'select']
+    types: ['string', 'select'],
   },
   margin: {
     name: 'margin',
     type: 'any',
-    types: ['string', 'number']
+    types: ['string', 'number'],
   },
   mask: {
     name: 'mask',
@@ -2600,9 +2600,9 @@ export default {
       'luminance',
       'match-source',
       'no-clip',
-      'none'
+      'none',
     ],
-    types: ['select', 'number', 'string']
+    types: ['select', 'number', 'string'],
   },
   motion: {
     name: 'motion',
@@ -2621,9 +2621,9 @@ export default {
       'stroke-box',
       'view-box',
       'auto',
-      'none'
+      'none',
     ],
-    types: ['select', 'number', 'string']
+    types: ['select', 'number', 'string'],
   },
   offset: {
     name: 'offset',
@@ -2642,9 +2642,9 @@ export default {
       'stroke-box',
       'view-box',
       'auto',
-      'none'
+      'none',
     ],
-    types: ['number', 'select', 'string']
+    types: ['number', 'select', 'string'],
   },
   outline: {
     name: 'outline',
@@ -2664,14 +2664,14 @@ export default {
       'thick',
       'thin',
       'auto',
-      'invert'
+      'invert',
     ],
-    types: ['string', 'select', 'color', 'number']
+    types: ['string', 'select', 'color', 'number'],
   },
   padding: {
     name: 'padding',
     type: 'any',
-    types: ['string', 'number']
+    types: ['string', 'number'],
   },
   placeItems: {
     name: 'placeItems',
@@ -2686,9 +2686,9 @@ export default {
       'start',
       'baseline',
       'normal',
-      'stretch'
+      'stretch',
     ],
-    types: ['select', 'string']
+    types: ['select', 'string'],
   },
   placeSelf: {
     name: 'placeSelf',
@@ -2704,9 +2704,9 @@ export default {
       'auto',
       'baseline',
       'normal',
-      'stretch'
+      'stretch',
     ],
-    types: ['select', 'string']
+    types: ['select', 'string'],
   },
   textDecoration: {
     name: 'textDecoration',
@@ -2725,21 +2725,21 @@ export default {
       'solid',
       'spelling-error',
       'underline',
-      'wavy'
+      'wavy',
     ],
-    types: ['string', 'select', 'color', 'number']
+    types: ['string', 'select', 'color', 'number'],
   },
   textEmphasis: {
     name: 'textEmphasis',
     type: 'any',
     options: ['circle', 'dot', 'double-circle', 'filled', 'none', 'open', 'sesame', 'triangle'],
-    types: ['select', 'color', 'string']
+    types: ['select', 'color', 'string'],
   },
   transition: {
     name: 'transition',
     type: 'any',
     options: ['ease', 'ease-in', 'ease-in-out', 'ease-out', 'step-end', 'step-start', 'linear', 'all', 'none'],
-    types: ['select', 'string']
+    types: ['select', 'string'],
   },
   alignmentBaseline: {
     name: 'alignmentBaseline',
@@ -2756,37 +2756,37 @@ export default {
       'mathematical',
       'middle',
       'text-after-edge',
-      'text-before-edge'
+      'text-before-edge',
     ],
-    types: ['select', 'string']
+    types: ['select', 'string'],
   },
   baselineShift: {
     name: 'baselineShift',
     type: 'any',
     options: ['baseline', 'sub', 'super'],
-    types: ['string', 'number', 'select']
+    types: ['string', 'number', 'select'],
   },
   clip: {
     name: 'clip',
-    type: 'string'
+    type: 'string',
   },
   clipRule: {
     name: 'clipRule',
     type: 'any',
     options: ['evenodd', 'nonzero'],
-    types: ['select', 'string']
+    types: ['select', 'string'],
   },
   colorInterpolation: {
     name: 'colorInterpolation',
     type: 'any',
     options: ['auto', 'linearRGB', 'sRGB'],
-    types: ['select', 'string']
+    types: ['select', 'string'],
   },
   colorRendering: {
     name: 'colorRendering',
     type: 'any',
     options: ['auto', 'optimizeQuality', 'optimizeSpeed'],
-    types: ['select', 'string']
+    types: ['select', 'string'],
   },
   dominantBaseline: {
     name: 'dominantBaseline',
@@ -2803,132 +2803,132 @@ export default {
       'reset-size',
       'text-after-edge',
       'text-before-edge',
-      'use-script'
+      'use-script',
     ],
-    types: ['select', 'string']
+    types: ['select', 'string'],
   },
   fill: {
     name: 'fill',
     type: 'any',
     options: ['child', 'context-fill', 'context-stroke', 'none'],
-    types: ['string', 'select', 'color']
+    types: ['string', 'select', 'color'],
   },
   fillOpacity: {
     name: 'fillOpacity',
     type: 'any',
-    types: ['number', 'string']
+    types: ['number', 'string'],
   },
   fillRule: {
     name: 'fillRule',
     type: 'any',
     options: ['evenodd', 'nonzero'],
-    types: ['select', 'string']
+    types: ['select', 'string'],
   },
   floodColor: {
     name: 'floodColor',
     type: 'any',
-    types: ['color', 'string']
+    types: ['color', 'string'],
   },
   floodOpacity: {
     name: 'floodOpacity',
     type: 'any',
-    types: ['number', 'string']
+    types: ['number', 'string'],
   },
   glyphOrientationVertical: {
     name: 'glyphOrientationVertical',
     type: 'any',
-    types: ['string', 'number']
+    types: ['string', 'number'],
   },
   lightingColor: {
     name: 'lightingColor',
     type: 'any',
-    types: ['color', 'string']
+    types: ['color', 'string'],
   },
   marker: {
     name: 'marker',
-    type: 'string'
+    type: 'string',
   },
   markerEnd: {
     name: 'markerEnd',
-    type: 'string'
+    type: 'string',
   },
   markerMid: {
     name: 'markerMid',
-    type: 'string'
+    type: 'string',
   },
   markerStart: {
     name: 'markerStart',
-    type: 'string'
+    type: 'string',
   },
   shapeRendering: {
     name: 'shapeRendering',
     type: 'any',
     options: ['auto', 'crispEdges', 'geometricPrecision', 'optimizeSpeed'],
-    types: ['select', 'string']
+    types: ['select', 'string'],
   },
   stopColor: {
     name: 'stopColor',
     type: 'any',
-    types: ['color', 'string']
+    types: ['color', 'string'],
   },
   stopOpacity: {
     name: 'stopOpacity',
     type: 'any',
-    types: ['number', 'string']
+    types: ['number', 'string'],
   },
   stroke: {
     name: 'stroke',
     type: 'any',
     options: ['child', 'context-fill', 'context-stroke', 'none'],
-    types: ['string', 'select', 'color']
+    types: ['string', 'select', 'color'],
   },
   strokeDasharray: {
     name: 'strokeDasharray',
     type: 'any',
-    types: ['string', 'number']
+    types: ['string', 'number'],
   },
   strokeDashoffset: {
     name: 'strokeDashoffset',
     type: 'any',
-    types: ['number', 'string']
+    types: ['number', 'string'],
   },
   strokeLinecap: {
     name: 'strokeLinecap',
     type: 'any',
     options: ['butt', 'round', 'square'],
-    types: ['select', 'string']
+    types: ['select', 'string'],
   },
   strokeLinejoin: {
     name: 'strokeLinejoin',
     type: 'any',
     options: ['bevel', 'miter', 'round'],
-    types: ['select', 'string']
+    types: ['select', 'string'],
   },
   strokeMiterlimit: {
     name: 'strokeMiterlimit',
     type: 'any',
-    types: ['number', 'string']
+    types: ['number', 'string'],
   },
   strokeOpacity: {
     name: 'strokeOpacity',
     type: 'any',
-    types: ['number', 'string']
+    types: ['number', 'string'],
   },
   strokeWidth: {
     name: 'strokeWidth',
     type: 'any',
-    types: ['number', 'string']
+    types: ['number', 'string'],
   },
   textAnchor: {
     name: 'textAnchor',
     type: 'any',
     options: ['end', 'middle', 'start'],
-    types: ['select', 'string']
+    types: ['select', 'string'],
   },
   vectorEffect: {
     name: 'vectorEffect',
     type: 'any',
     options: ['non-scaling-stroke', 'none'],
-    types: ['select', 'string']
-  }
+    types: ['select', 'string'],
+  },
 } as {[key: string]: PropDesc};

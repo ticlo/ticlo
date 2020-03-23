@@ -41,7 +41,7 @@ export class TooltipIconButton extends LazyUpdateComponent<Props, any> {
       } else {
         this.safeSetState({disabled: true, tooltipVisible: false});
       }
-    }
+    },
   });
 
   onVisibleChange = (visible: boolean) => {

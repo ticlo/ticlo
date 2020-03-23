@@ -3,15 +3,15 @@ import '../Join';
 import {Block} from '../../../../block/Block';
 import {Job, Root} from '../../../../block/Job';
 
-describe('Join', function() {
-  it('basic join', function() {
+describe('Join', function () {
+  it('basic join', function () {
     let job = new Job();
 
     let aBlock = job.createBlock('a');
     aBlock._load({
       '#is': 'join',
       '0': 2,
-      '1': 'a'
+      '1': 'a',
     });
 
     Root.run();

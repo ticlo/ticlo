@@ -11,17 +11,17 @@ import {Root} from '../../../../../src/core';
 import {WorkerFunction} from '../../../../core/worker/WorkerFunction';
 import {Functions} from '../../../../core/block/Functions';
 
-describe('WorkerEditor', function() {
-  beforeEach(async function() {
+describe('WorkerEditor', function () {
+  beforeEach(async function () {
     expandDocumentBody();
     await initEditor();
   });
 
-  afterEach(function() {
+  afterEach(function () {
     removeLastTemplate();
   });
 
-  it('expand type editor', async function() {
+  it('expand type editor', async function () {
     WorkerFunction.registerType({'#is': ''}, {name: 'class1'}, 'WorkerEditor');
 
     let [server, client] = makeLocalConnection(Root.instance, true);
@@ -41,7 +41,7 @@ describe('WorkerEditor', function() {
 
     await shouldHappen(() => querySingle("//div.ticl-tree-type/span[text()='WorkerEditor']", document.body));
 
-    window.onerror = function(e) {};
+    window.onerror = function (e) {};
     SimulateEvent.simulate(
       querySingle("//div.ticl-tree-type/span[text()='WorkerEditor']/../div.ticl-tree-arr", document.body),
       'click'

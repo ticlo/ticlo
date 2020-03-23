@@ -4,7 +4,7 @@ import {
   elementConfigs,
   elementOutputProperty,
   elementStyleProperty,
-  HtmlElementFunction
+  HtmlElementFunction,
 } from '../BaseElement';
 import {ChangeEvent} from 'react';
 
@@ -39,7 +39,7 @@ const optional: {[key: string]: PropDesc} = {
   src: {name: 'src', type: 'string'},
   step: {name: 'step', type: 'any', types: ['number', 'string']},
   type: {name: 'type', type: 'string'},
-  width: {name: 'width', type: 'any', types: ['number', 'string']}
+  width: {name: 'width', type: 'any', types: ['number', 'string']},
 };
 
 const inputElementDesc: FunctionDesc = {
@@ -50,14 +50,14 @@ const inputElementDesc: FunctionDesc = {
     {
       name: 'value',
       type: 'any',
-      types: ['string', 'number']
+      types: ['string', 'number'],
     },
     elementClassProperty,
     elementStyleProperty,
-    elementOutputProperty
+    elementOutputProperty,
   ],
   optional,
-  category: 'react:elements'
+  category: 'react:elements',
 };
 
 class InputElementFunction extends HtmlElementFunction {

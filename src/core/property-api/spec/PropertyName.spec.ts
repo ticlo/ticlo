@@ -5,8 +5,8 @@ import {Job} from '../../block/Job';
 import '../../functions/basic/math/Arithmetic';
 import {findPropertyForNewBlock, renameProperty} from '../PropertyName';
 
-describe('PropertyUtil', function() {
-  it('findPropertyForNewBlock', function() {
+describe('PropertyUtil', function () {
+  it('findPropertyForNewBlock', function () {
     let job = new Job();
     job.setValue('#custom', [{name: 'add4', type: 'sting'}]);
 
@@ -31,7 +31,7 @@ describe('PropertyUtil', function() {
     assert.equal(p._name, 'add5');
   });
 
-  it('renameProperty', function() {
+  it('renameProperty', function () {
     let job = new Job();
 
     // move undefined property
@@ -81,9 +81,7 @@ describe('PropertyUtil', function() {
 
     // move child binding with same children names
     let a7 = job.createBlock('a7');
-    a7.createBlock('a7')
-      .createBlock('a7')
-      .setValue('v', 6);
+    a7.createBlock('a7').createBlock('a7').setValue('v', 6);
     job.setBinding('c7', 'a7.a7.a7.v');
     renameProperty(a7, 'a7', 'b7', true);
     assert.isFalse(a7.isPropertyUsed('a7'));

@@ -7,12 +7,12 @@ import {BlockConfig, BlockProperty} from '../block/BlockProperty';
 
 const blankWorker = {
   '#inputs': {'#is': ''},
-  '#outputs': {'#is': ''}
+  '#outputs': {'#is': ''},
 };
 
 export const JobEditorConfigGenerators: {[key: string]: typeof BlockProperty} = {
   ...JobConfigGenerators,
-  '#is': ConstTypeConfig('job:editor')
+  '#is': ConstTypeConfig('job:editor'),
 };
 export class JobEditor extends Job {
   unwatch(watcher: BlockChildWatch) {

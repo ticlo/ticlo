@@ -121,7 +121,7 @@ export interface SubscribeCallbacks {
 const defaultValueState: ValueState = {
   value: undefined,
   bindingPath: null,
-  hasListener: false
+  hasListener: false,
 };
 
 export class SubscribeRequest extends MergedClientRequest {
@@ -188,7 +188,7 @@ export class SubscribeRequest extends MergedClientRequest {
       this._getValueReqId = null;
       this._cachedFullValue = response.value;
       this.updateFullValue();
-    }
+    },
   };
 
   addFull(callbacks: SubscribeCallbacks) {
@@ -286,7 +286,7 @@ export class WatchRequest extends MergedClientRequest {
     if (callbacks.onUpdate && this._hasUpdate) {
       callbacks.onUpdate({
         changes: this._cachedMap,
-        cache: {...this._cachedMap}
+        cache: {...this._cachedMap},
       });
     }
   }

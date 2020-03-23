@@ -8,16 +8,16 @@ import {shouldHappen} from '../../../../../src/core/util/test-util';
 import {blankPropDesc, FunctionDesc, PropDesc} from '../../../../../src/core/editor';
 import {simulateInput} from './simulate-input';
 
-describe('NumberEditor', function() {
-  beforeEach(async function() {
+describe('NumberEditor', function () {
+  beforeEach(async function () {
     await initEditor();
   });
 
-  afterEach(function() {
+  afterEach(function () {
     removeLastTemplate();
   });
 
-  it('basic', async function() {
+  it('basic', async function () {
     let editor: NumberEditor;
     let getRef = (e: NumberEditor): void => {
       editor = e;
@@ -91,7 +91,7 @@ describe('NumberEditor', function() {
     assert.equal(value, 90); // not changed
   });
 
-  it('constraint', async function() {
+  it('constraint', async function () {
     let editor: NumberEditor;
     let getRef = (e: NumberEditor): void => {
       editor = e;
@@ -105,7 +105,7 @@ describe('NumberEditor', function() {
       type: 'number',
       max: 10,
       min: 2,
-      step: 2
+      step: 2,
     };
     let [component, div] = loadTemplate(
       <NumberEditor ref={getRef} value={6} desc={desc} onChange={onChange} />,

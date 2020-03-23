@@ -5,11 +5,11 @@ import {Job, Root, decode} from '../../../core';
 import {shouldHappen, shouldReject, waitTick} from '../../../core/util/test-util';
 import {FileStorage} from '../FileStorage';
 
-describe('FileStorage', function() {
-  before(function() {
+describe('FileStorage', function () {
+  before(function () {
     shelljs.mkdir('-p', './temp/storageTest');
   });
-  it('save and delete', async function() {
+  it('save and delete', async function () {
     const path = './temp/storageTest/job1.ticlo';
     let root = new Root();
     await root.setStorage(new FileStorage('./temp/storageTest'));
@@ -55,7 +55,7 @@ describe('FileStorage', function() {
 
     root.destroy();
   });
-  it('init loader', async function() {
+  it('init loader', async function () {
     let jobData = {'#is': '', 'value': 321};
     const path1 = './temp/storageTest/job5.subjob.ticlo';
     Fs.writeFileSync(path1, JSON.stringify(jobData));

@@ -4,7 +4,7 @@ import {
   elementConfigs,
   elementOutputProperty,
   elementStyleProperty,
-  HtmlElementFunction
+  HtmlElementFunction,
 } from '../BaseElement';
 
 const optional: {[key: string]: PropDesc} = {
@@ -15,7 +15,7 @@ const optional: {[key: string]: PropDesc} = {
   alt: {name: 'alt', type: 'string'},
   size: {name: 'size', type: 'string'},
   srcSet: {name: 'srcSet', type: 'string'},
-  useMap: {name: 'useMap', type: 'string'}
+  useMap: {name: 'useMap', type: 'string'},
 };
 
 const imgElementDesc: FunctionDesc = {
@@ -25,14 +25,14 @@ const imgElementDesc: FunctionDesc = {
   properties: [
     {
       name: 'src',
-      type: 'string'
+      type: 'string',
     },
     elementClassProperty,
     elementStyleProperty,
-    elementOutputProperty
+    elementOutputProperty,
   ],
   optional,
-  category: 'react:elements'
+  category: 'react:elements',
 };
 
 class ImgElementFunction extends HtmlElementFunction {

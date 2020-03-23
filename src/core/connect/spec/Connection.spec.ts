@@ -16,8 +16,8 @@ import {JobEditor} from '../../worker/JobEditor';
 import {JobHistory} from '../../block/JobHistory';
 import {JobWorker} from '../../worker/JobWorker';
 
-describe('Connection', function() {
-  it('get', async function() {
+describe('Connection', function () {
+  it('get', async function () {
     let job = Root.instance.addJob('Connection0');
     let data = {a: 0};
     job.setValue('v', data);
@@ -35,7 +35,7 @@ describe('Connection', function() {
     Root.instance.deleteValue('Connection0');
   });
 
-  it('subscribe', async function() {
+  it('subscribe', async function () {
     let job = Root.instance.addJob('Connection1');
     let [server, client] = makeLocalConnection(Root.instance, false);
 
@@ -58,7 +58,7 @@ describe('Connection', function() {
     Root.instance.deleteValue('Connection1');
   });
 
-  it('bind', async function() {
+  it('bind', async function () {
     let job = Root.instance.addJob('Connection1-2');
     let [server, client] = makeLocalConnection(Root.instance, false);
 
@@ -94,7 +94,7 @@ describe('Connection', function() {
     Root.instance.deleteValue('Connection1-2');
   });
 
-  it('multiple subscribe binding', async function() {
+  it('multiple subscribe binding', async function () {
     let job = Root.instance.addJob('Connection2');
     let [server, client] = makeLocalConnection(Root.instance, false);
 
@@ -142,7 +142,7 @@ describe('Connection', function() {
     Root.instance.deleteValue('Connection2');
   });
 
-  it('watch', async function() {
+  it('watch', async function () {
     let job = Root.instance.addJob('Connection3-0');
     let [server, client] = makeLocalConnection(Root.instance, false);
 
@@ -172,7 +172,7 @@ describe('Connection', function() {
     Root.instance.deleteValue('Connection3-0');
   });
 
-  it('multiple watch', async function() {
+  it('multiple watch', async function () {
     let job = Root.instance.addJob('Connection3');
     let [server, client] = makeLocalConnection(Root.instance, false);
 
@@ -219,7 +219,7 @@ describe('Connection', function() {
     Root.instance.deleteValue('Connection3');
   });
 
-  it('list', async function() {
+  it('list', async function () {
     let job = Root.instance.addJob('Connection4');
     let [server, client] = makeLocalConnection(Root.instance, false);
 
@@ -243,7 +243,7 @@ describe('Connection', function() {
     Root.instance.deleteValue('Connection4');
   });
 
-  it('watchDesc', async function() {
+  it('watchDesc', async function () {
     let job = Root.instance.addJob('Connection5');
     let [server, client] = makeLocalConnection(Root.instance, true);
 
@@ -269,7 +269,7 @@ describe('Connection', function() {
 
     assert.isNull(descCustom, 'custom class is not registered yet');
     JsFunction.registerType('this["out"] = 1', {
-      name: 'Connection-watchDesc1'
+      name: 'Connection-watchDesc1',
     });
     await shouldHappen(() => descCustom != null);
     Functions.clear('Connection-watchDesc1');
@@ -281,7 +281,7 @@ describe('Connection', function() {
     Root.instance.deleteValue('Connection5');
   });
 
-  it('merge set request', async function() {
+  it('merge set request', async function () {
     TestFunctionRunner.clearLog();
 
     let job = Root.instance.addJob('Connection6');
@@ -316,7 +316,7 @@ describe('Connection', function() {
     Root.instance.deleteValue('Connection6');
   });
 
-  it('merge update request', async function() {
+  it('merge update request', async function () {
     TestFunctionRunner.clearLog();
 
     let job = Root.instance.addJob('Connection6-2');
@@ -351,7 +351,7 @@ describe('Connection', function() {
     Root.instance.deleteValue('Connection6-2');
   });
 
-  it('merge bind request', async function() {
+  it('merge bind request', async function () {
     TestFunctionRunner.clearLog();
 
     let job = Root.instance.addJob('Connection6-3');
@@ -391,7 +391,7 @@ describe('Connection', function() {
     Root.instance.deleteValue('Connection6-3');
   });
 
-  it('subscribe listener', async function() {
+  it('subscribe listener', async function () {
     let job = Root.instance.addJob('Connection7');
     let [server, client] = makeLocalConnection(Root.instance, false);
 
@@ -399,7 +399,7 @@ describe('Connection', function() {
     let callbacks = {
       onUpdate(response: DataMap) {
         lastUpdate = response;
-      }
+      },
     };
 
     client.setValue('Connection7.v', 1);
@@ -414,7 +414,7 @@ describe('Connection', function() {
     Root.instance.deleteValue('Connection7');
   });
 
-  it('callImmediate', async function() {
+  it('callImmediate', async function () {
     let job = Root.instance.addJob('Connection8');
     let [server, client] = makeLocalConnection(Root.instance, false);
 
@@ -430,14 +430,14 @@ describe('Connection', function() {
         client.callImmediate(callback);
         updated++;
         assert.equal(called, 1, 'callback wont be called during update');
-      }
+      },
     };
     let callbacks2 = {
       onUpdate(response: DataMap) {
         client.callImmediate(callback);
         updated++;
         assert.equal(called, 1, 'callback wont be called during update');
-      }
+      },
     };
     client.setValue('Connection8.v', 1);
     client.subscribe('Connection8.v', callbacks1);
@@ -451,7 +451,7 @@ describe('Connection', function() {
     Root.instance.deleteValue('Connection8');
   });
 
-  it('set a saved block', async function() {
+  it('set a saved block', async function () {
     let job = Root.instance.addJob('Connection9');
     let [server, client] = makeLocalConnection(Root.instance, false);
 
@@ -468,18 +468,18 @@ describe('Connection', function() {
     Root.instance.deleteValue('Connection9');
   });
 
-  it('auto bind', async function() {
+  it('auto bind', async function () {
     let job1 = Root.instance.addJob('Connection10');
 
     job1.load({
       c: {
         '#is': '',
         'd': {'#is': ''},
-        'e': {'#is': ''}
+        'e': {'#is': ''},
       },
       f: {
-        '#is': ''
-      }
+        '#is': '',
+      },
     });
 
     let [server, client] = makeLocalConnection(Root.instance, false);
@@ -498,11 +498,11 @@ describe('Connection', function() {
     Root.instance.deleteValue('Connection10');
   });
 
-  it('full value', async function() {
+  it('full value', async function () {
     let job1 = Root.instance.addJob('Connection11');
 
     job1.load({
-      '@v': [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
+      '@v': [0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
     });
 
     let [server, client] = makeLocalConnection(Root.instance, false);
@@ -529,7 +529,7 @@ describe('Connection', function() {
     Root.instance.deleteValue('Connection11');
   });
 
-  it('helper property', async function() {
+  it('helper property', async function () {
     let job1 = Root.instance.addJob('Connection12');
 
     let [server, client] = makeLocalConnection(Root.instance, false);
@@ -553,7 +553,7 @@ describe('Connection', function() {
     Root.instance.deleteValue('Connection12');
   });
 
-  it('autoName', async function() {
+  it('autoName', async function () {
     let job1 = Root.instance.addJob('Connection13');
 
     let [server, client] = makeLocalConnection(Root.instance, false);
@@ -574,7 +574,7 @@ describe('Connection', function() {
     Root.instance.deleteValue('Connection13');
   });
 
-  it('show hide move props', async function() {
+  it('show hide move props', async function () {
     let job1 = Root.instance.addJob('Connection14');
     let block1 = job1.createBlock('a');
 
@@ -593,7 +593,7 @@ describe('Connection', function() {
     Root.instance.deleteValue('Connection14');
   });
 
-  it('add remove custom props', async function() {
+  it('add remove custom props', async function () {
     let job1 = Root.instance.addJob('Connection15');
     let block1 = job1.createBlock('a');
 
@@ -601,7 +601,7 @@ describe('Connection', function() {
 
     let response1 = await client.addCustomProp('Connection15.a', {
       name: 'a',
-      type: 'string'
+      type: 'string',
     });
     assert.deepEqual(block1.getValue('#custom'), [{name: 'a', type: 'string'}]);
 
@@ -612,13 +612,13 @@ describe('Connection', function() {
     Root.instance.deleteValue('Connection15');
   });
 
-  it('insert remove group props', async function() {
+  it('insert remove group props', async function () {
     let job1 = Root.instance.addJob('Connection16');
     let block1 = job1.createBlock('a');
     block1._load({
       '#is': 'add',
       '0': 0,
-      '1': 1
+      '1': 1,
     });
 
     let [server, client] = makeLocalConnection(Root.instance, false);
@@ -638,7 +638,7 @@ describe('Connection', function() {
     Root.instance.deleteValue('Connection16');
   });
 
-  it('set length', async function() {
+  it('set length', async function () {
     let job1 = Root.instance.addJob('Connection16-2');
     let block1 = job1.createBlock('a');
     block1.setValue('#is', 'add');
@@ -652,12 +652,12 @@ describe('Connection', function() {
     Root.instance.deleteValue('Connection16-2');
   });
 
-  it('move custom props', async function() {
+  it('move custom props', async function () {
     let job1 = Root.instance.addJob('Connection17');
     let block1 = job1.createBlock('a');
     block1.setValue('#custom', [
       {name: 'a', type: 'string'},
-      {name: 'b', type: 'string'}
+      {name: 'b', type: 'string'},
     ]);
 
     let [server, client] = makeLocalConnection(Root.instance, false);
@@ -665,14 +665,14 @@ describe('Connection', function() {
     let response1 = await client.moveCustomProp('Connection17.a', 'a', 'b');
     assert.deepEqual(block1.getValue('#custom'), [
       {name: 'b', type: 'string'},
-      {name: 'a', type: 'string'}
+      {name: 'a', type: 'string'},
     ]);
 
     client.destroy();
     Root.instance.deleteValue('Connection17');
   });
 
-  it('findGlobalBlocks', async function() {
+  it('findGlobalBlocks', async function () {
     let [server, client] = makeLocalConnection(Root.instance, true);
 
     let a = Root.instance._globalRoot.createBlock('^a');
@@ -695,12 +695,12 @@ describe('Connection', function() {
     client.destroy();
   });
 
-  it('JobEditor', async function() {
+  it('JobEditor', async function () {
     let job1 = Root.instance.addJob('Connection18');
     let block1 = job1.createBlock('a');
     let data = {
       '#is': '',
-      'add': {'#is': 'add'}
+      'add': {'#is': 'add'},
     };
 
     let [server, client] = makeLocalConnection(Root.instance, true);
@@ -721,7 +721,7 @@ describe('Connection', function() {
     Root.instance.deleteValue('Connection18');
   });
 
-  it('applyJobChange', async function() {
+  it('applyJobChange', async function () {
     let job1 = Root.instance.addJob('Connection19');
     let [server, client] = makeLocalConnection(Root.instance, true);
 
@@ -736,7 +736,7 @@ describe('Connection', function() {
     Root.instance.deleteValue('Connection19');
   });
 
-  it('createJob and DeleteJob', async function() {
+  it('createJob and DeleteJob', async function () {
     let [server, client] = makeLocalConnection(Root.instance, true);
 
     await client.addJob('Connection20', {value: 123});
@@ -751,7 +751,7 @@ describe('Connection', function() {
     client.destroy();
   });
 
-  it('add remove move optional props', async function() {
+  it('add remove move optional props', async function () {
     let job1 = Root.instance.addJob('Connection21');
     let block1 = job1.createBlock('a');
 
@@ -773,11 +773,11 @@ describe('Connection', function() {
     Root.instance.deleteValue('Connection21');
   });
 
-  it('#shared #temp binding', async function() {
+  it('#shared #temp binding', async function () {
     let job1 = Root.instance.createOutputJob(JobWorker, 'Connection22', {
       '#is': '',
       'a': {'#is': ''},
-      '#shared': {'#is': ''}
+      '#shared': {'#is': ''},
     });
     Root.instance.createOutputJob(JobWorker, 'Connection22_2');
 
@@ -823,7 +823,7 @@ describe('Connection', function() {
     Root.instance.deleteValue('Connection22_2');
   });
 
-  it('undo redo', async function() {
+  it('undo redo', async function () {
     let job = Root.instance.addJob('Connection23');
     job.load({'#is': '', 'a': 1}, null, (data: any) => true);
 

@@ -107,11 +107,11 @@ export interface FunctionDesc {
 export const blankFuncDesc: FunctionDesc = {
   name: '',
   icon: '',
-  properties: []
+  properties: [],
 };
 export const blankPropDesc: PropDesc = {
   name: '',
-  type: 'any'
+  type: 'any',
 };
 export const lengthPropDesc: PropDesc = {name: '[]', type: 'number', default: 2, min: 0, step: 1};
 export const configDescs: {[key: string]: PropDesc} = {
@@ -121,7 +121,7 @@ export const configDescs: {[key: string]: PropDesc} = {
     name: '#mode',
     type: 'select',
     options: BlockModeList,
-    default: 'auto'
+    default: 'auto',
   },
   '#call': {name: '#call', type: 'event'},
   '#sync': {name: '#sync', type: 'toggle'},
@@ -132,13 +132,13 @@ export const configDescs: {[key: string]: PropDesc} = {
     name: '#priority',
     type: 'select',
     options: ['auto', 0, 1, 2, 3],
-    default: 'auto'
+    default: 'auto',
   },
   '#value': {name: '#value', type: 'any'},
   '#render': {name: '#render', type: 'object', readonly: true},
   '#inputs': {name: '#inputs', type: 'any'},
   '#outputs': {name: '#outputs', type: 'any'},
-  '#desc': {name: '#desc', type: 'object'}
+  '#desc': {name: '#desc', type: 'object'},
 };
 
 export const configList: PropDesc[] = [
@@ -146,7 +146,7 @@ export const configList: PropDesc[] = [
   configDescs['#mode'],
   configDescs['#priority'],
   configDescs['#sync'],
-  configDescs['#wait']
+  configDescs['#wait'],
 ];
 
 export function mapConfigDesc(configs: (string | PropDesc)[]): PropDesc[] {
@@ -171,7 +171,7 @@ export function mapConfigDesc(configs: (string | PropDesc)[]): PropDesc[] {
 export const attributeDescs: {[key: string]: PropDesc} = {
   '@b-name': {name: '@b-name', type: 'string'},
   '@b-p': {name: '@b-p', type: 'array'},
-  '@b-xyw': {name: '@b-xyw', type: 'array'}
+  '@b-xyw': {name: '@b-xyw', type: 'array'},
 };
 
 export const attributeList: PropDesc[] = [attributeDescs['@b-name'], attributeDescs['@b-p'], attributeDescs['@b-xyw']];
@@ -264,7 +264,7 @@ function initBlockProperties(data: any, properties: (PropDesc | PropGroupDesc)[]
 
 export function getDefaultFuncData(desc: FunctionDesc, isSubBlock = false) {
   let data: any = {
-    '#is': desc.id
+    '#is': desc.id,
   };
   initBlockProperties(data, desc.properties, isSubBlock);
   return data;

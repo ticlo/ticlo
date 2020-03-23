@@ -5,7 +5,7 @@ import {
   BlockProperty,
   BlockPropertyEvent,
   BlockPropertySubscriber,
-  HelperProperty
+  HelperProperty,
 } from '../block/BlockProperty';
 import {DataMap, isPrimitiveType, truncateData} from '../util/DataTypes';
 import {Block, BlockChildWatch, InputsBlock} from '../block/Block';
@@ -19,7 +19,7 @@ import {
   insertGroupProperty,
   moveGroupProperty,
   removeGroupProperty,
-  setGroupLength
+  setGroupLength,
 } from '../property-api/GroupProperty';
 import {findPropertyForNewBlock} from '../property-api/PropertyName';
 import {hideProperties, moveShownProperty, showProperties} from '../property-api/PropertyShowHide';

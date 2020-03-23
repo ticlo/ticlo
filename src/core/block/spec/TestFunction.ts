@@ -82,7 +82,7 @@ export class TestAsyncFunctionPromise extends BaseFunction {
 
 Functions.add(TestAsyncFunctionPromise, {
   name: 'async-function-promise',
-  mode: 'onCall'
+  mode: 'onCall',
 });
 
 // async function that manually call block.wait, and return NOT_READY
@@ -125,7 +125,7 @@ export class TestAsyncFunctionManual extends BlockFunction {
 Functions.add(TestAsyncFunctionManual, {
   name: 'async-function-manual',
   priority: 1,
-  mode: 'onCall'
+  mode: 'onCall',
 });
 
 export const VoidListeners = {
@@ -156,5 +156,5 @@ export const VoidListeners = {
   onError(error: string, data?: DataMap): void {
     /* istanbul ignore next */
     throw new Error('should not be called');
-  }
+  },
 };

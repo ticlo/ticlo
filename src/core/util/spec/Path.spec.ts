@@ -5,8 +5,8 @@ import {Root} from '../../block/Job';
 import {DataMap} from '../DataTypes';
 import {propRelative} from '../PropPath';
 
-describe('Path', function() {
-  it('resolve', function() {
+describe('Path', function () {
+  it('resolve', function () {
     assert.equal(resolvePath('a', 'b'), 'a.b');
     assert.equal(resolvePath('c.d.e', '##.f'), 'c.d.f');
     assert.equal(resolvePath('g.h', '#.i'), 'g.h.i');
@@ -15,13 +15,13 @@ describe('Path', function() {
     assert.equal(resolvePath('n', null), null);
   });
 
-  it('relative', function() {
+  it('relative', function () {
     assert.equal(getRelativePath('a', 'a'), '');
 
     assert.equal(getRelativePath('b.c', 'b.d'), '##.d');
   });
 
-  it('forAllPathsBetween', function() {
+  it('forAllPathsBetween', function () {
     function getAllPathBetween(target: string, base: string): string[] {
       let result: string[] = [];
       forAllPathsBetween(target, base, (v) => result.push(v) === -1);
@@ -33,7 +33,7 @@ describe('Path', function() {
     assert.deepEqual(getAllPathBetween('g.h.i.j.k', 'g.h'), ['g.h.i.j.k', 'g.h.i.j', 'g.h.i']);
   });
 
-  it('propRelative', async function() {
+  it('propRelative', async function () {
     let job1 = Root.instance.addJob('PropRelative1');
     let job2 = Root.instance.addJob('PropRelative2');
 
@@ -41,15 +41,15 @@ describe('Path', function() {
       '#is': '',
       'A': {
         '#is': '',
-        'B': {'#is': 'PropRelative:class2'}
-      }
+        'B': {'#is': 'PropRelative:class2'},
+      },
     };
     let jobData2: DataMap = {
       '#is': '',
       'C': {
         '#is': '',
-        'D': {'#is': ''}
-      }
+        'D': {'#is': ''},
+      },
     };
     WorkerFunction.registerType(jobData1, {name: 'class1'}, 'PropRelative');
     WorkerFunction.registerType(jobData2, {name: 'class2'}, 'PropRelative');
@@ -58,23 +58,23 @@ describe('Path', function() {
       c: {
         '#is': '',
         'd': {'#is': 'PropRelative:class1'},
-        'e': {'#is': ''}
+        'e': {'#is': ''},
       },
       f: {
         '#is': '',
         '~g': {
-          '#is': ''
+          '#is': '',
         },
-        'h': {'#is': 'PropRelative:class1'}
-      }
+        'h': {'#is': 'PropRelative:class1'},
+      },
     });
 
     job2.load({
       o: {
         '#is': '',
         'p': {'#is': 'PropRelative:class1'},
-        'q': {'#is': ''}
-      }
+        'q': {'#is': ''},
+      },
     });
 
     Root.run();

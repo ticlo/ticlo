@@ -3,7 +3,7 @@ import {Block} from './Block';
 const defaultPropertyDescriptor = {
   writable: true,
   enumerable: true,
-  configurable: true
+  configurable: true,
 };
 
 export const BlockProxy = {
@@ -45,7 +45,7 @@ export const BlockProxy = {
   },
   getOwnPropertyDescriptor(block: Block, field: string): PropertyDescriptor | undefined {
     return defaultPropertyDescriptor;
-  }
+  },
 };
 
 export const BlockDeepProxy = {
@@ -61,5 +61,5 @@ export const BlockDeepProxy = {
       return val;
     }
     return undefined;
-  }
+  },
 };

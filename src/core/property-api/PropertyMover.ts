@@ -53,7 +53,7 @@ export class PropertyMover {
                     this.outboundLinks.push({
                       prop: targetProp,
                       preNames: names.slice(0, i),
-                      postNames: names.slice(i + 1)
+                      postNames: names.slice(i + 1),
                     });
                     break;
                   }

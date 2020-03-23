@@ -3,15 +3,15 @@ import '../Compare';
 import {Block} from '../../../../block/Block';
 import {Job, Root} from '../../../../block/Job';
 
-describe('Compare', function() {
-  it('equal', function() {
+describe('Compare', function () {
+  it('equal', function () {
     let job = new Job();
 
     let aBlock = job.createBlock('a');
     aBlock._load({
       '#is': 'equal',
       '0': 'a',
-      '1': 'a'
+      '1': 'a',
     });
 
     Root.run();
@@ -38,14 +38,14 @@ describe('Compare', function() {
     assert.equal(aBlock.getValue('#output'), true);
   });
 
-  it('not equal', function() {
+  it('not equal', function () {
     let job = new Job();
 
     let aBlock = job.createBlock('a');
     aBlock._load({
       '#is': 'not-equal',
       '0': 'a',
-      '1': 'a'
+      '1': 'a',
     });
 
     Root.run();
@@ -72,14 +72,14 @@ describe('Compare', function() {
     assert.equal(aBlock.getValue('#output'), false);
   });
 
-  it('greater than', function() {
+  it('greater than', function () {
     let job = new Job();
 
     let aBlock = job.createBlock('a');
     aBlock._load({
       '#is': 'greater-than',
       '0': 'b',
-      '1': 'a'
+      '1': 'a',
     });
 
     Root.run();
@@ -94,14 +94,14 @@ describe('Compare', function() {
     assert.equal(aBlock.getValue('#output'), true);
   });
 
-  it('greater equal', function() {
+  it('greater equal', function () {
     let job = new Job();
 
     let aBlock = job.createBlock('a');
     aBlock._load({
       '#is': 'greater-equal',
       '0': 'b',
-      '1': 'a'
+      '1': 'a',
     });
 
     Root.run();
@@ -116,14 +116,14 @@ describe('Compare', function() {
     assert.equal(aBlock.getValue('#output'), true);
   });
 
-  it('less than', function() {
+  it('less than', function () {
     let job = new Job();
 
     let aBlock = job.createBlock('a');
     aBlock._load({
       '#is': 'less-than',
       '0': 'b',
-      '1': 'a'
+      '1': 'a',
     });
 
     Root.run();
@@ -138,14 +138,14 @@ describe('Compare', function() {
     assert.equal(aBlock.getValue('#output'), true);
   });
 
-  it('less equal', function() {
+  it('less equal', function () {
     let job = new Job();
 
     let aBlock = job.createBlock('a');
     aBlock._load({
       '#is': 'less-equal',
       '0': 'b',
-      '1': 'a'
+      '1': 'a',
     });
 
     Root.run();

@@ -2,15 +2,15 @@ import {assert} from 'chai';
 import {Job} from '../Job';
 import {BlockIO} from '../BlockProperty';
 
-describe('Block Child Watch', function() {
-  it('basic', function() {
+describe('Block Child Watch', function () {
+  it('basic', function () {
     let job = new Job();
 
     let watchLog: any[] = [];
     let watch = {
       onChildChange(property: BlockIO, saved: boolean) {
         watchLog.push([property._name, property._value != null, Boolean(saved)]);
-      }
+      },
     };
     job.watch(watch);
 

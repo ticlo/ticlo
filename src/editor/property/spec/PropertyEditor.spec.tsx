@@ -12,30 +12,30 @@ import {initEditor} from '../../index';
 import {FunctionDesc, PropDesc, PropGroupDesc} from '../../../../src/core/editor';
 import {Functions} from '../../../../src/core/block/Functions';
 
-describe('PropertyEditor', function() {
+describe('PropertyEditor', function () {
   let [funcDesc] = Functions.getDescToSend('add');
   let propDesc = (funcDesc.properties[0] as PropGroupDesc).properties[0];
 
-  beforeEach(async function() {
+  beforeEach(async function () {
     await initEditor();
   });
 
-  afterEach(function() {
+  afterEach(function () {
     removeLastTemplate();
     destroyLastLocalConnection();
   });
 
-  it('editable', async function() {
+  it('editable', async function () {
     let job = Root.instance.addJob('PropertyEditor1');
     job.load({
       add1: {
         '#is': 'add',
-        '0': 1
+        '0': 1,
       },
       add2: {
         '#is': 'add',
-        '0': 1
-      }
+        '0': 1,
+      },
     });
 
     let [server, client] = makeLocalConnection(Root.instance, true);
@@ -72,17 +72,17 @@ describe('PropertyEditor', function() {
     Root.instance.deleteValue('PropertyEditor1');
   });
 
-  it('subblock', async function() {
+  it('subblock', async function () {
     let job = Root.instance.addJob('PropertyEditor2');
     job.load({
       add1: {
         '#is': 'add',
-        '~0': {'#is': 'add'}
+        '~0': {'#is': 'add'},
       },
       add2: {
         '#is': 'add',
-        '~0': {'#is': 'add'}
-      }
+        '~0': {'#is': 'add'},
+      },
     });
 
     let [server, client] = makeLocalConnection(Root.instance, true);

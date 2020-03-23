@@ -50,7 +50,7 @@ export class SubMenuItem extends React.PureComponent<SubMenuItemProps, SubMenuIt
         popupAlign={{
           points: ['tl', 'tr'],
           offset: [3, 0],
-          overflow: {adjustX: true, adjustY: true}
+          overflow: {adjustX: true, adjustY: true},
         }}
         prefixCls="ant-select-dropdown"
         popupVisible={showPopup}
@@ -139,7 +139,7 @@ export class Menu extends React.PureComponent<MenuProps, MenuState> {
           menuItems.push(
             React.cloneElement(element, {
               popupVisible: element.key === subMenuKey,
-              onItemEvent: this._getVisibleCallback(element.key as string)
+              onItemEvent: this._getVisibleCallback(element.key as string),
             })
           );
         } else {
@@ -210,13 +210,13 @@ export class Popup extends React.PureComponent<PopupProps, PopupState> {
       popupAlign = {
         points: ['tl', 'bl'],
         offset: [0, 3],
-        overflow: {adjustX: true, adjustY: true}
+        overflow: {adjustX: true, adjustY: true},
       };
     } else if (!popupAlign.overflow) {
       popupAlign.overflow = {adjustX: true, adjustY: true};
     }
     let builtinPlacements = {
-      topLeft: {points: ['tl', 'tl']}
+      topLeft: {points: ['tl', 'tl']},
     };
     let alignPoint: boolean;
     if (trigger[0] === 'contextMenu') {

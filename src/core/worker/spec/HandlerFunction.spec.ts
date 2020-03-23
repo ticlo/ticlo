@@ -30,11 +30,11 @@ const handlerWorker = {
     'runner': {'#is': 'test-runner', '#mode': 'onLoad', '#-log': 0},
     'add': {'#is': 'add', '~0': '##.#inputs.#value', '1': 1},
     '#inputs': {'#is': ''},
-    '#outputs': {'#is': '', '~#value': '##.add.#output'}
-  }
+    '#outputs': {'#is': '', '~#value': '##.add.#output'},
+  },
 };
 
-describe('HandlerFunction', function() {
+describe('HandlerFunction', function () {
   beforeEach(() => {
     TestFunctionRunner.clearLog();
   });
@@ -43,7 +43,7 @@ describe('HandlerFunction', function() {
     TestFunctionRunner.clearLog();
   });
 
-  it('basic', function() {
+  it('basic', function () {
     let job = new Job();
 
     let listener = new HandlerListener();
@@ -53,7 +53,7 @@ describe('HandlerFunction', function() {
     aBlock._load({
       '#is': 'handler',
       '#call': 1,
-      'use': handlerWorker
+      'use': handlerWorker,
     });
 
     Root.runAll(2);
@@ -64,7 +64,7 @@ describe('HandlerFunction', function() {
     job.deleteValue('a');
   });
 
-  it('syncInput', function() {
+  it('syncInput', function () {
     let job = new Job();
 
     let listener = new HandlerListener();
@@ -74,7 +74,7 @@ describe('HandlerFunction', function() {
     aBlock._load({
       '#is': 'handler',
       '#sync': true,
-      'use': handlerWorker
+      'use': handlerWorker,
     });
 
     aBlock.setValue('#call', 4);
@@ -91,7 +91,7 @@ describe('HandlerFunction', function() {
     job.deleteValue('a');
   });
 
-  it('thread non-reuse', function() {
+  it('thread non-reuse', function () {
     let job = new Job();
 
     let listener = new HandlerListener();
@@ -101,7 +101,7 @@ describe('HandlerFunction', function() {
     aBlock._load({
       '#is': 'handler',
       'thread': 2,
-      'use': handlerWorker
+      'use': handlerWorker,
     });
 
     aBlock.setValue('#call', 4);
@@ -118,7 +118,7 @@ describe('HandlerFunction', function() {
     job.deleteValue('a');
   });
 
-  it('thread reuse', function() {
+  it('thread reuse', function () {
     let job = new Job();
 
     let listener = new HandlerListener();
@@ -129,7 +129,7 @@ describe('HandlerFunction', function() {
       '#is': 'handler',
       'thread': 2,
       'reuseWorker': 'reuse',
-      'use': handlerWorker
+      'use': handlerWorker,
     });
 
     aBlock.setValue('#call', 4);
@@ -152,7 +152,7 @@ describe('HandlerFunction', function() {
     job.deleteValue('a');
   });
 
-  it('thread persist', function() {
+  it('thread persist', function () {
     let job = new Job();
 
     let listener = new HandlerListener();
@@ -163,7 +163,7 @@ describe('HandlerFunction', function() {
       '#is': 'handler',
       'thread': 2,
       'reuseWorker': 'persist',
-      'use': handlerWorker
+      'use': handlerWorker,
     });
 
     aBlock.setValue('#call', 4);
@@ -186,7 +186,7 @@ describe('HandlerFunction', function() {
     job.deleteValue('a');
   });
 
-  it('keepOrder', async function() {
+  it('keepOrder', async function () {
     let job = new Job();
 
     let listener = new HandlerListener(true);
@@ -203,9 +203,9 @@ describe('HandlerFunction', function() {
           'runner': {'#is': 'async-function-manual', '#mode': 'onLoad', '#-log': 0},
           'add': {'#is': 'add', '~0': '##.#inputs.#value', '1': 1},
           '#inputs': {'#is': ''},
-          '#outputs': {'#is': '', '~#value': '##.add.#output', '~#wait': '##.runner.#wait'}
-        }
-      }
+          '#outputs': {'#is': '', '~#value': '##.add.#output', '~#wait': '##.runner.#wait'},
+        },
+      },
     });
 
     aBlock.setValue('#call', 4);
@@ -223,7 +223,7 @@ describe('HandlerFunction', function() {
     job.deleteValue('a');
   });
 
-  it('timeout', async function() {
+  it('timeout', async function () {
     let job = new Job();
 
     let listener = new HandlerListener();
@@ -236,9 +236,9 @@ describe('HandlerFunction', function() {
       'use': {
         '#is': {
           '#is': '',
-          '#outputs': {'#is': '', '#wait': true}
-        }
-      }
+          '#outputs': {'#is': '', '#wait': true},
+        },
+      },
     });
 
     aBlock.setValue('#call', 4);
@@ -256,7 +256,7 @@ describe('HandlerFunction', function() {
     job.deleteValue('a');
   });
 
-  it('maxQueueSize', async function() {
+  it('maxQueueSize', async function () {
     let job = new Job();
 
     let listener = new HandlerListener(true);
@@ -268,7 +268,7 @@ describe('HandlerFunction', function() {
       '#sync': true,
       'maxQueueSize': 2,
       'thread': 1,
-      'use': handlerWorker
+      'use': handlerWorker,
     });
 
     aBlock.setValue('#call', 4);
@@ -287,19 +287,19 @@ describe('HandlerFunction', function() {
     job.deleteValue('a');
   });
 
-  it('chain handler blocks', async function() {
+  it('chain handler blocks', async function () {
     let job = new Job();
 
     job.load({
       a: {
         '#is': 'handler',
-        'use': handlerWorker
+        'use': handlerWorker,
       },
       b: {
         '~#call': '##.a.#emit',
         '#is': 'handler',
-        'use': handlerWorker
-      }
+        'use': handlerWorker,
+      },
     });
     let listener = new HandlerListener();
 
@@ -318,7 +318,7 @@ describe('HandlerFunction', function() {
     job.deleteValue('a');
   });
 
-  it('misc', async function() {
+  it('misc', async function () {
     let job = new Job();
 
     let listener = new HandlerListener(true);
@@ -329,7 +329,7 @@ describe('HandlerFunction', function() {
       '#is': 'handler',
       '#sync': true,
       'thread': 1,
-      'use': handlerWorker
+      'use': handlerWorker,
     });
 
     // invalid parameters

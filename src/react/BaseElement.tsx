@@ -81,20 +81,20 @@ export const elementStyleProperty: PropDesc = {
   name: 'style',
   type: 'object',
   visible: 'low',
-  create: 'html:create-style'
+  create: 'html:create-style',
 };
 export const elementClassProperty: PropDesc = {
   name: 'class',
-  type: 'string'
+  type: 'string',
 };
 export const elementChildrenProperty: PropGroupDesc = {
   name: '',
   type: 'group',
   defaultLen: 0,
-  properties: [{name: '', type: 'any'}]
+  properties: [{name: '', type: 'any'}],
 };
 export const elementOutputProperty: PropDesc = {
   name: '#output',
   type: 'object',
-  readonly: true
+  readonly: true,
 };

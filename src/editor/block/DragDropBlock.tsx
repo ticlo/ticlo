@@ -77,7 +77,7 @@ export function onDropBlock(conn: ClientConn, e: DragState, createBlock: CreateB
           if (blockName) {
             onConfirmedBlockName(blockName);
           }
-        }
+        },
       });
     } else {
       onConfirmedBlockName(blockName);

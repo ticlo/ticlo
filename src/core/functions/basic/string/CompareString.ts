@@ -10,8 +10,8 @@ const descriptor: FunctionDesc = {
   properties: [
     {name: '0', type: 'string', visible: 'high'},
     {name: '1', type: 'string', visible: 'high'},
-    {name: '#output', type: 'toggle', readonly: true}
-  ]
+    {name: '#output', type: 'toggle', readonly: true},
+  ],
 };
 
 export class StartWithFunction extends BaseFunction {
@@ -35,7 +35,7 @@ export class StartWithFunction extends BaseFunction {
 Functions.add(StartWithFunction, {
   ...descriptor,
   name: 'start-with',
-  icon: 'txt:a~'
+  icon: 'txt:a~',
 });
 
 export class EndWithFunction extends BaseFunction {
@@ -59,7 +59,7 @@ export class EndWithFunction extends BaseFunction {
 Functions.add(EndWithFunction, {
   ...descriptor,
   name: 'end-with',
-  icon: 'txt:~a'
+  icon: 'txt:~a',
 });
 
 export class ContainFunction extends BaseFunction {
@@ -80,5 +80,5 @@ export class ContainFunction extends BaseFunction {
 Functions.add(ContainFunction, {
   ...descriptor,
   name: 'contain',
-  icon: 'txt:.a.'
+  icon: 'txt:.a.',
 });

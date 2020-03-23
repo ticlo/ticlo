@@ -8,7 +8,7 @@ export const clientDescriptors: FunctionDesc[] = [
     icon: 'fas:arrow-circle-down',
     color: 'e91',
     properties: [],
-    configs: ['#value']
+    configs: ['#value'],
   },
   {
     priority: 0,
@@ -17,7 +17,7 @@ export const clientDescriptors: FunctionDesc[] = [
     icon: 'fas:arrow-circle-up',
     color: 'e91',
     properties: [],
-    configs: ['#value', '#wait(#outputs)']
+    configs: ['#value', '#wait(#outputs)'],
   },
   {
     priority: 0,
@@ -28,7 +28,7 @@ export const clientDescriptors: FunctionDesc[] = [
     color: 'e91',
     src: 'hidden',
     ns: 'job',
-    configs: []
+    configs: [],
   },
   {
     priority: 0,
@@ -39,7 +39,7 @@ export const clientDescriptors: FunctionDesc[] = [
     color: 'e91',
     src: 'hidden',
     ns: 'job',
-    configs: []
+    configs: [],
   },
   {
     priority: 0,
@@ -50,7 +50,7 @@ export const clientDescriptors: FunctionDesc[] = [
     color: 'e91',
     src: 'hidden',
     ns: 'job',
-    configs: ['#desc']
+    configs: ['#desc'],
   },
   {
     priority: 0,
@@ -61,7 +61,7 @@ export const clientDescriptors: FunctionDesc[] = [
     color: 'e91',
     src: 'hidden',
     ns: 'job',
-    configs: ['#desc']
+    configs: ['#desc'],
   },
   {
     priority: 0,
@@ -72,6 +72,6 @@ export const clientDescriptors: FunctionDesc[] = [
     color: 'e91',
     src: 'hidden',
     ns: 'job',
-    configs: []
-  }
+    configs: [],
+  },
 ];

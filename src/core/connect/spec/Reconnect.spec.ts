@@ -10,8 +10,8 @@ import {FunctionDesc} from '../../block/Descriptor';
 import {Functions} from '../../block/Functions';
 import {Logger} from '../../util/Logger';
 
-describe('Reconnect', function() {
-  it('reconnect', async function() {
+describe('Reconnect', function () {
+  it('reconnect', async function () {
     let job = Root.instance.addJob('Reconnect1');
     let [server, client] = makeLocalConnection(Root.instance, false);
 
@@ -42,7 +42,7 @@ describe('Reconnect', function() {
     Root.instance.deleteValue('Reconnect1');
   });
 
-  it('watch object after reconnect ', async function() {
+  it('watch object after reconnect ', async function () {
     let job = Root.instance.addJob('Reconnect2');
     let [server, client] = makeLocalConnection(Root.instance, false);
 
@@ -54,7 +54,7 @@ describe('Reconnect', function() {
     let result1 = await callbacks1.promise;
     assert.deepEqual(result1.cache, {
       c0: child0._blockId,
-      c1: child1._blockId
+      c1: child1._blockId,
     });
 
     client.onDisconnect();
@@ -65,7 +65,7 @@ describe('Reconnect', function() {
     let result2 = await callbacks1.promise;
     assert.deepEqual(result2.cache, {
       c0: child0._blockId,
-      c2: child2._blockId
+      c2: child2._blockId,
     });
     assert.deepEqual(result2.changes, {c1: null, c2: child2._blockId});
 
@@ -75,7 +75,7 @@ describe('Reconnect', function() {
     Root.instance.deleteValue('Reconnect2');
   });
 
-  it('watch desc after reconnect ', async function() {
+  it('watch desc after reconnect ', async function () {
     let job = Root.instance.addJob('Reconnect3');
     let [server, client] = makeLocalConnection(Root.instance, true);
 

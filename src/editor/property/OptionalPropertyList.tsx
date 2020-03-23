@@ -21,7 +21,7 @@ class OptionalPropertyLoader extends MultiSelectLoader<OptionalPropertyList> {
         this.optionalProps = value;
         this.parent.forceUpdate();
       }
-    }
+    },
   });
 
   init() {

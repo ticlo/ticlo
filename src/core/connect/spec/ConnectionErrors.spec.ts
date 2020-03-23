@@ -8,8 +8,8 @@ import {shouldReject} from '../../util/test-util';
 
 const initAdd = AddFunction;
 
-describe('Connection Error', function() {
-  it('common errors', async function() {
+describe('Connection Error', function () {
+  it('common errors', async function () {
     let job = Root.instance.addJob('ConnectionError1');
     let [server, client] = makeLocalConnection(Root.instance, false);
 
@@ -69,7 +69,7 @@ describe('Connection Error', function() {
       await shouldReject(
         client.addCustomProp('ConnectionError1.a.b.c', {
           name: 'a',
-          type: 'string'
+          type: 'string',
         }) as Promise<any>
       ),
       'invalid path'
@@ -122,7 +122,7 @@ describe('Connection Error', function() {
     Root.instance.deleteValue('ConnectionError1');
   });
 
-  it('parent removed', async function() {
+  it('parent removed', async function () {
     let job = Root.instance.addJob('ConnectionError2');
     let [server, client] = makeLocalConnection(Root.instance, false);
     let a = job.createBlock('a');

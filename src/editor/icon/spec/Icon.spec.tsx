@@ -5,12 +5,12 @@ import {shouldHappen} from '../../../../src/core/util/test-util';
 import ReactDOM from 'react-dom';
 import {removeLastTemplate, loadTemplate} from '../../util/test-util';
 
-describe('editor Icon', function() {
-  afterEach(function() {
+describe('editor Icon', function () {
+  afterEach(function () {
     removeLastTemplate();
   });
 
-  it('basic', async function() {
+  it('basic', async function () {
     let [component, div] = loadTemplate(
       <div style={{position: 'absolute'}}>
         <TIcon icon="fab:react" />

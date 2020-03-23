@@ -7,7 +7,7 @@ import {
   elementConfigs,
   elementOutputProperty,
   elementStyleProperty,
-  HtmlElementFunction
+  HtmlElementFunction,
 } from '../BaseElement';
 
 const divElementDesc: FunctionDesc = {
@@ -15,7 +15,7 @@ const divElementDesc: FunctionDesc = {
   base: 'react:element',
   configs: elementConfigs,
   properties: [elementChildrenProperty, elementClassProperty, elementStyleProperty, elementOutputProperty],
-  category: 'react:elements'
+  category: 'react:elements',
 };
 
 class DivElementFunction extends HtmlElementFunction {

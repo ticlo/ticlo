@@ -61,13 +61,13 @@ export const htmlAttributes: {[key: string]: PropDesc} = {
   inputMode: {
     name: 'inputMode',
     type: 'select',
-    options: ['none', 'text', 'tel', 'url', 'email', 'numeric', 'decimal', 'search']
+    options: ['none', 'text', 'tel', 'url', 'email', 'numeric', 'decimal', 'search'],
   },
   /**
    * Specify that a standard HTML element should behave like a defined custom built-in element
    * @see https://html.spec.whatwg.org/multipage/custom-elements.html#attr-is
    */
-  is: {name: 'is', type: 'string'}
+  is: {name: 'is', type: 'string'},
 };
 export const htmlEventHandlers: {[key: string]: PropDesc} = {
   // Clipboard Events
@@ -261,12 +261,12 @@ export const htmlEventHandlers: {[key: string]: PropDesc} = {
   onTransitionEndCapture: {name: 'onTransitionEndCapture', type: 'object', readonly: true}, // TransitionEvent
 
   // ref callback has similar behavior as event handlers
-  ref: {name: 'ref', type: 'object', readonly: true}
+  ref: {name: 'ref', type: 'object', readonly: true},
 };
 
 export const optionalHtmlProperties: {[key: string]: PropDesc} = {
   ...htmlAttributes,
-  ...htmlEventHandlers
+  ...htmlEventHandlers,
 };
 Functions.add(
   null,
@@ -274,7 +274,7 @@ Functions.add(
     name: 'element',
     src: 'hidden',
     properties: [],
-    optional: optionalHtmlProperties
+    optional: optionalHtmlProperties,
   },
   'react'
 );

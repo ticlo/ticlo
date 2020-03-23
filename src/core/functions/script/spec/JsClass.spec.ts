@@ -5,8 +5,8 @@ import {Functions} from '../../../block/Functions';
 import {TestLogger} from '../../../util/spec/Logger.spec';
 import {Logger} from '../../../util/Logger';
 
-describe('Js Type', function() {
-  it('basic', function() {
+describe('Js Type', function () {
+  it('basic', function () {
     let job = new Job();
 
     let aBlock = job.createBlock('a');
@@ -16,7 +16,7 @@ describe('Js Type', function() {
     JsFunction.registerType('this["out1"] = this["in1"]', {
       name: 'Js-type1',
       priority: 1,
-      mode: 'onCall'
+      mode: 'onCall',
     });
 
     Root.run();
@@ -28,7 +28,7 @@ describe('Js Type', function() {
     Functions.clear('Js-type1');
   });
 
-  it('unregister class', function() {
+  it('unregister class', function () {
     let job = new Job();
 
     let aBlock = job.createBlock('a');
@@ -43,14 +43,14 @@ describe('Js Type', function() {
     Functions.clear('Js-type2');
   });
 
-  it('invalid script', function() {
+  it('invalid script', function () {
     let logger = new TestLogger(Logger.ERROR);
     assert.isFalse(JsFunction.registerType('[[', {name: 'Js-type3'}));
     assert.deepEqual(logger.logs, ['invalid script:\n[[']);
     logger.cancel();
   });
 
-  it('trivial', function() {
+  it('trivial', function () {
     let job = new Job();
 
     let aBlock = job.createBlock('a');

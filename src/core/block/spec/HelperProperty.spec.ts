@@ -1,8 +1,8 @@
 import {assert} from 'chai';
 import {Job, Root} from '../Job';
 
-describe('HelperProperty', function() {
-  it('save load', function() {
+describe('HelperProperty', function () {
+  it('save load', function () {
     let job = new Job();
     let helper = job.createHelperBlock('v1');
     helper.setValue('#output', 'hello'); // use setValue so it's serialized

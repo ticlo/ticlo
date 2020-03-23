@@ -3,8 +3,8 @@ import {Job, Root} from '../Job';
 import {BlockDeepProxy, BlockProxy} from '../BlockProxy';
 import {_strictMode} from '../BlockSettings';
 
-describe('BlockProxy', function() {
-  it('deep proxy', function() {
+describe('BlockProxy', function () {
+  it('deep proxy', function () {
     let job = new Job();
     job.setValue('v1', 1);
 
@@ -48,7 +48,7 @@ describe('BlockProxy', function() {
     }
   });
 
-  it('shallow proxy', function() {
+  it('shallow proxy', function () {
     let job = new Job();
     job.setValue('v1', 1);
 

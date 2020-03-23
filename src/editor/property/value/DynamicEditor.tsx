@@ -25,7 +25,7 @@ export const dynamicEditorMap: {[key: string]: any} = {
   'date': DateEditor,
   'date-range': DateRangeEditor,
   'object': ObjectEditor,
-  'array': ObjectEditor
+  'array': ObjectEditor,
 };
 
 const dynamicTypeIcon: {[key: string]: React.ReactElement} = {
@@ -37,7 +37,7 @@ const dynamicTypeIcon: {[key: string]: React.ReactElement} = {
   'date': <div className="tico-txt">D</div>,
   'date-range': <div className="tico-txt">R</div>,
   'object': <div className="tico-txt tico-small-txt">{'{}'}</div>,
-  'array': <div className="tico-txt tico-small-txt">[]</div>
+  'array': <div className="tico-txt tico-small-txt">[]</div>,
 };
 
 const dynamicTypeMenuItem: {[key: string]: React.ReactElement} = {};

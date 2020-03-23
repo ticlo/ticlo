@@ -3,7 +3,7 @@ import {TestAsyncFunctionPromise, TestFunctionRunner} from './TestFunction';
 import {Job, Root} from '../Job';
 import {ErrorEvent} from '../Event';
 
-describe('SyncMode', function() {
+describe('SyncMode', function () {
   beforeEach(() => {
     TestFunctionRunner.clearLog();
   });
@@ -12,7 +12,7 @@ describe('SyncMode', function() {
     TestFunctionRunner.clearLog();
   });
 
-  it('basic', function() {
+  it('basic', function () {
     let job = new Job();
 
     let block = job.createBlock('obj');
@@ -24,7 +24,7 @@ describe('SyncMode', function() {
     assert.deepEqual(TestFunctionRunner.logs, ['obj'], 'sync mode should run function instantly when called');
   });
 
-  it('chained', function() {
+  it('chained', function () {
     let job = new Job();
 
     let block1 = job.createBlock('obj1');

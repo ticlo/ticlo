@@ -3,8 +3,8 @@ import {assert} from 'chai';
 import {addOptionalProperty, moveOptionalProperty, removeOptionalProperty} from '../OptionalProperty';
 import {Job} from '../../block/Job';
 
-describe('Optional Property', function() {
-  it('add remove OptionalProperty', function() {
+describe('Optional Property', function () {
+  it('add remove OptionalProperty', function () {
     let job = new Job();
 
     // remove should do nothing when #optional is undefined
@@ -33,7 +33,7 @@ describe('Optional Property', function() {
     assert.isUndefined(job.getValue('a'));
   });
 
-  it('move OptionalProperty', function() {
+  it('move OptionalProperty', function () {
     let job = new Job();
 
     moveOptionalProperty(job, 'a', 'b');

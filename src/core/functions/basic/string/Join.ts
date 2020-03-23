@@ -30,11 +30,11 @@ Functions.add(JoinFunction, {
       name: '',
       type: 'group',
       defaultLen: 2,
-      properties: [{name: '', type: 'string', visible: 'high'}]
+      properties: [{name: '', type: 'string', visible: 'high'}],
     },
     {name: 'separator', type: 'string'},
-    {name: '#output', type: 'string', readonly: true}
+    {name: '#output', type: 'string', readonly: true},
   ],
   recipient: '0',
-  category: 'string'
+  category: 'string',
 });

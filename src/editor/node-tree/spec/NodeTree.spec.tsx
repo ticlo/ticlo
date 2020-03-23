@@ -8,8 +8,8 @@ import {shouldHappen} from '../../../../src/core/util/test-util';
 import ReactDOM from 'react-dom';
 import {removeLastTemplate, loadTemplate, querySingle} from '../../util/test-util';
 
-describe('editor NodeTree', function() {
-  afterEach(function() {
+describe('editor NodeTree', function () {
+  afterEach(function () {
     removeLastTemplate();
     destroyLastLocalConnection();
   });
@@ -25,7 +25,7 @@ describe('editor NodeTree', function() {
     }
   }
 
-  it('basic', async function() {
+  it('basic', async function () {
     let job = Root.instance.addJob('NodeTree');
     addTestChildren(job, '', 3);
 

@@ -141,13 +141,13 @@ export const ConfigGenerators: {[key: string]: typeof BlockProperty} = {
   '#sync': BlockSyncConfig,
   '#wait': BlockWaitingConfig,
   '#cancel': BlockCancelConfig,
-  '#priority': BlockPriorityConfig
+  '#priority': BlockPriorityConfig,
 };
 
 export const InputsConfigGenerators: {[key: string]: typeof BlockProperty} = {
   ...ConfigGenerators,
   '#is': ConstTypeConfig('job:inputs'),
-  '#call': BlockProperty
+  '#call': BlockProperty,
 };
 
 export const OutputsConfigGenerators: {[key: string]: typeof BlockProperty} = {
@@ -155,12 +155,12 @@ export const OutputsConfigGenerators: {[key: string]: typeof BlockProperty} = {
   '#is': ConstTypeConfig('job:outputs'),
   '#call': BlockProperty,
   '#value': BlockIO,
-  '#wait': BlockOutputWaitingConfig // directly forward wait to parent job
+  '#wait': BlockOutputWaitingConfig, // directly forward wait to parent job
 };
 
 export const JobConfigGenerators: {[key: string]: typeof BlockProperty} = {
   ...ConfigGenerators,
   '#is': ConstTypeConfig('job:main'),
   '#inputs': BlockInputsConfig,
-  '#outputs': BlockOutputsConfig
+  '#outputs': BlockOutputsConfig,
 };

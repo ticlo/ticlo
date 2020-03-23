@@ -7,7 +7,7 @@ import {DataMap} from '../../util/DataTypes';
 import {ErrorEvent} from '../../block/Event';
 import {shouldTimeout} from '../../util/test-util';
 
-describe('MapFunction non-thread', function() {
+describe('MapFunction non-thread', function () {
   beforeEach(() => {
     TestFunctionRunner.clearLog();
   });
@@ -16,13 +16,13 @@ describe('MapFunction non-thread', function() {
     TestFunctionRunner.clearLog();
   });
 
-  it('basic', function() {
+  it('basic', function () {
     let job = new Job();
 
     job.setValue('a', {
       v1: 1,
       v2: 2,
-      v3: 3
+      v3: 3,
     });
 
     let bBlock = job.createBlock('b');
@@ -35,9 +35,9 @@ describe('MapFunction non-thread', function() {
           '#is': '',
           'runner': {'#is': 'test-runner', '#mode': 'onLoad', '#-log': 0},
           'add': {'#is': 'add', '~0': '##.#inputs', '1': 1},
-          '#outputs': {'#is': '', '~#value': '##.add.#output'}
-        }
-      }
+          '#outputs': {'#is': '', '~#value': '##.add.#output'},
+        },
+      },
     });
 
     Root.runAll(2);
@@ -47,7 +47,7 @@ describe('MapFunction non-thread', function() {
     job.setValue('a', {
       v1: 1,
       v2: 4,
-      v4: 5
+      v4: 5,
     });
 
     Root.runAll(2);
@@ -60,7 +60,7 @@ describe('MapFunction non-thread', function() {
     job.deleteValue('b');
   });
 
-  it('empty input', function() {
+  it('empty input', function () {
     let job = new Job();
 
     let bBlock = job.createBlock('b');
@@ -70,9 +70,9 @@ describe('MapFunction non-thread', function() {
       'input': {},
       'use': {
         '#is': {
-          '#is': ''
-        }
-      }
+          '#is': '',
+        },
+      },
     });
 
     Root.run();
@@ -81,12 +81,12 @@ describe('MapFunction non-thread', function() {
     job.deleteValue('b');
   });
 
-  it('#inputs', function() {
+  it('#inputs', function () {
     let job = new Job();
 
     job.setValue('a', {
       v1: {a: 1, b: 2},
-      v2: {a: 3, b: 4}
+      v2: {a: 3, b: 4},
     });
 
     let bBlock = job.createBlock('b');
@@ -97,9 +97,9 @@ describe('MapFunction non-thread', function() {
       'use': {
         '#is': {
           '#is': '',
-          '#outputs': {'#is': '', '~#value': '##.#inputs.a'}
-        }
-      }
+          '#outputs': {'#is': '', '~#value': '##.#inputs.a'},
+        },
+      },
     });
     Root.runAll(2);
     assert.deepEqual(bBlock.getValue('#output'), {v1: 1, v2: 3});
@@ -107,7 +107,7 @@ describe('MapFunction non-thread', function() {
     bBlock.setValue('use', {
       '#is': '',
       '#inputs': {'#is': ''},
-      '#outputs': {'#is': '', '~#value': '##.#inputs.#value.b'}
+      '#outputs': {'#is': '', '~#value': '##.#inputs.#value.b'},
     });
 
     Root.runAll(2);
@@ -116,7 +116,7 @@ describe('MapFunction non-thread', function() {
     bBlock.setValue('use', {
       '#is': '',
       '#inputs': {'#is': '', '#custom': [{name: 'a', type: 'number'}]},
-      '#outputs': {'#is': '', '~#value': '##.#inputs.a'}
+      '#outputs': {'#is': '', '~#value': '##.#inputs.a'},
     });
 
     Root.runAll(2);
@@ -126,13 +126,13 @@ describe('MapFunction non-thread', function() {
     job.deleteValue('b');
   });
 
-  it('input object', function() {
+  it('input object', function () {
     let job = new Job();
 
     const data = {
       v1: {v: 1},
       v2: {v: 2},
-      v3: {v: 3}
+      v3: {v: 3},
     };
 
     job.setValue('a', data);
@@ -145,9 +145,9 @@ describe('MapFunction non-thread', function() {
       'use': {
         '#is': {
           '#is': '',
-          '#outputs': {'#is': '', '~v': '##.#inputs.v'}
-        }
-      }
+          '#outputs': {'#is': '', '~v': '##.#inputs.v'},
+        },
+      },
     });
 
     Root.runAll(2);
@@ -158,13 +158,13 @@ describe('MapFunction non-thread', function() {
     job.deleteValue('b');
   });
 
-  it('change use', function() {
+  it('change use', function () {
     let job = new Job();
 
     job.setValue('a', {
       v1: 1,
       v2: 2,
-      v3: 3
+      v3: 3,
     });
 
     let bBlock = job.createBlock('b');
@@ -178,9 +178,9 @@ describe('MapFunction non-thread', function() {
           '#is': '',
           'runner': {'#is': 'test-runner', '#mode': 'onLoad', '#-log': 0},
           'add': {'#is': 'add', '~0': '##.#inputs', '1': 1},
-          '#outputs': {'#is': '', '~#value': '##.add.#output'}
-        }
-      }
+          '#outputs': {'#is': '', '~#value': '##.add.#output'},
+        },
+      },
     });
 
     Root.runAll(2);
@@ -191,7 +191,7 @@ describe('MapFunction non-thread', function() {
       '#is': '',
       'runner': {'#is': 'test-runner', '#mode': 'onLoad', '#-log': 0},
       'add': {'#is': 'add', '~0': '##.#inputs', '1': 2},
-      '#outputs': {'#is': '', '~#value': '##.add.#output'}
+      '#outputs': {'#is': '', '~#value': '##.add.#output'},
     });
 
     Root.runAll(2);
@@ -204,13 +204,13 @@ describe('MapFunction non-thread', function() {
     job.deleteValue('b');
   });
 
-  it('reuse worker', function() {
+  it('reuse worker', function () {
     let job = new Job();
 
     job.setValue('a', {
       v1: 1,
       v2: 2,
-      v3: 3
+      v3: 3,
     });
 
     let bBlock = job.createBlock('b');
@@ -224,9 +224,9 @@ describe('MapFunction non-thread', function() {
           '#is': '',
           'runner': {'#is': 'test-runner', '#mode': 'onLoad', '#-log': 0},
           'add': {'#is': 'add', '~0': '##.#inputs', '1': 1},
-          '#outputs': {'#is': '', '~#value': '##.add.#output'}
-        }
-      }
+          '#outputs': {'#is': '', '~#value': '##.add.#output'},
+        },
+      },
     });
 
     Root.run();
@@ -234,7 +234,7 @@ describe('MapFunction non-thread', function() {
     job.setValue('a', {
       v1: 1,
       v2: 4,
-      v4: 5
+      v4: 5,
     });
 
     Root.run();
@@ -252,13 +252,13 @@ describe('MapFunction non-thread', function() {
     job.deleteValue('b');
   });
 
-  it('persist worker', function() {
+  it('persist worker', function () {
     let job = new Job();
 
     job.setValue('a', {
       v1: 1,
       v2: 2,
-      v3: 3
+      v3: 3,
     });
 
     let bBlock = job.createBlock('b');
@@ -272,9 +272,9 @@ describe('MapFunction non-thread', function() {
           '#is': '',
           'runner': {'#is': 'test-runner', '#mode': 'onLoad', '#-log': 0},
           'add': {'#is': 'add', '~0': '##.#inputs', '1': 1},
-          '#outputs': {'#is': '', '~#value': '##.add.#output'}
-        }
-      }
+          '#outputs': {'#is': '', '~#value': '##.add.#output'},
+        },
+      },
     });
 
     Root.runAll(2);
@@ -284,7 +284,7 @@ describe('MapFunction non-thread', function() {
     job.setValue('a', {
       v1: 1,
       v2: 4,
-      v4: 5
+      v4: 5,
     });
 
     Root.runAll(2);
@@ -298,7 +298,7 @@ describe('MapFunction non-thread', function() {
     job.deleteValue('b');
   });
 
-  it('conversion from Block', function() {
+  it('conversion from Block', function () {
     let job = new Job();
 
     let aBlock = job.createBlock('a');
@@ -308,7 +308,7 @@ describe('MapFunction non-thread', function() {
       '#is': '',
       'obj1': {'#is': '', 'v': 1},
       'obj2': {'#is': '', 'v': 2},
-      'obj3': {v: 3}
+      'obj3': {v: 3},
     });
 
     bBlock._load({
@@ -319,9 +319,9 @@ describe('MapFunction non-thread', function() {
         '#is': {
           '#is': '',
           'add': {'#is': 'add', '~0': '##.#inputs.v', '1': 1},
-          '#outputs': {'#is': '', '~v': '##.add.#output'}
-        }
-      }
+          '#outputs': {'#is': '', '~v': '##.add.#output'},
+        },
+      },
     });
 
     Root.runAll(2);
@@ -329,20 +329,20 @@ describe('MapFunction non-thread', function() {
     assert.deepEqual(bBlock.getValue('#output'), {
       obj1: {v: 2},
       obj2: {v: 3},
-      obj3: {v: 4}
+      obj3: {v: 4},
     });
 
     // delete job;
     job.deleteValue('b');
   });
 
-  it('async worker', async function() {
+  it('async worker', async function () {
     let job = new Job();
 
     job.setValue('a', {
       v1: 1,
       v2: 2,
-      v3: 3
+      v3: 3,
     });
 
     let bBlock = job.createBlock('b');
@@ -360,15 +360,15 @@ describe('MapFunction non-thread', function() {
             '#mode': 'onCall',
             '~#call': '##.async.#emit',
             '~0': '##.#inputs',
-            '1': 1
+            '1': 1,
           },
           '#outputs': {
             '#is': '',
             '~#value': '##.add.#output',
-            '~#wait': '##.async.#wait'
-          }
-        }
-      }
+            '~#wait': '##.async.#wait',
+          },
+        },
+      },
     });
 
     Root.run();
@@ -380,7 +380,7 @@ describe('MapFunction non-thread', function() {
     job.setValue('a', {
       v1: 1,
       v2: 4,
-      v4: 5
+      v4: 5,
     });
 
     Root.run();
@@ -388,7 +388,7 @@ describe('MapFunction non-thread', function() {
     assert.deepEqual(await bBlock.waitNextValue('#output'), {
       v1: 2,
       v2: 5,
-      v4: 6
+      v4: 6,
     });
 
     assert.lengthOf(TestFunctionRunner.popLogs(), 6);
@@ -397,12 +397,12 @@ describe('MapFunction non-thread', function() {
     job.deleteValue('b');
   });
 
-  it('timeout', async function() {
+  it('timeout', async function () {
     let job = new Job();
 
     job.setValue('a', {
       v1: 1,
-      v2: 2
+      v2: 2,
     });
 
     let bBlock = job.createBlock('b');
@@ -413,9 +413,9 @@ describe('MapFunction non-thread', function() {
       'use': {
         '#is': {
           '#is': '',
-          '#wait': true
-        }
-      }
+          '#wait': true,
+        },
+      },
     });
 
     // without timeout, block would never have output
@@ -432,13 +432,13 @@ describe('MapFunction non-thread', function() {
     job.deleteValue('b');
   });
 
-  it('input race', function() {
+  it('input race', function () {
     let job = new Job();
 
     job.setValue('a', {
       v1: 1,
       v2: 2,
-      v3: 3
+      v3: 3,
     });
 
     let bBlock = job.createBlock('b');
@@ -451,9 +451,9 @@ describe('MapFunction non-thread', function() {
           '#is': '',
           'runner': {'#is': 'test-runner', '#mode': 'onLoad', '#-log': 0},
           'add': {'#is': 'add', '~0': '##.#inputs', '1': 1},
-          '#outputs': {'#is': '', '~#value': '##.add.#output'}
-        }
-      }
+          '#outputs': {'#is': '', '~#value': '##.add.#output'},
+        },
+      },
     });
 
     Root.runAll(2);
@@ -465,12 +465,12 @@ describe('MapFunction non-thread', function() {
     job.setValue('a', {
       v7: 7,
       v8: 8,
-      v9: 9
+      v9: 9,
     });
     job.setValue('a', {
       v1: 1,
       v2: 4,
-      v4: 5
+      v4: 5,
     });
 
     Root.runAll(2);
@@ -483,13 +483,13 @@ describe('MapFunction non-thread', function() {
     job.deleteValue('b');
   });
 
-  it('cancel worker', async function() {
+  it('cancel worker', async function () {
     let job = new Job();
 
     job.setValue('a', {
       v1: 1,
       v2: 2,
-      v3: 3
+      v3: 3,
     });
 
     let bBlock = job.createBlock('b');
@@ -507,15 +507,15 @@ describe('MapFunction non-thread', function() {
             '#mode': 'onCall',
             '~#call': '##.async.#emit',
             '~0': '##.#inputs',
-            '1': 1
+            '1': 1,
           },
           '#outputs': {
             '#is': '',
             '~#value': '##.add.#output',
-            '~#wait': '##.async.#wait'
-          }
-        }
-      }
+            '~#wait': '##.async.#wait',
+          },
+        },
+      },
     });
 
     Root.run();
@@ -528,7 +528,7 @@ describe('MapFunction non-thread', function() {
     job.setValue('a', {
       v1: 1,
       v2: 4,
-      v4: 5
+      v4: 5,
     });
 
     Root.run();
@@ -536,7 +536,7 @@ describe('MapFunction non-thread', function() {
     assert.deepEqual(await bBlock.waitNextValue('#output'), {
       v1: 2,
       v2: 5,
-      v4: 6
+      v4: 6,
     });
 
     assert.lengthOf(TestFunctionRunner.popLogs(), 3);
@@ -545,13 +545,13 @@ describe('MapFunction non-thread', function() {
     job.deleteValue('b');
   });
 
-  it('cancel worker reuse', async function() {
+  it('cancel worker reuse', async function () {
     let job = new Job();
 
     job.setValue('a', {
       v1: 1,
       v2: 2,
-      v3: 3
+      v3: 3,
     });
 
     let bBlock = job.createBlock('b');
@@ -570,15 +570,15 @@ describe('MapFunction non-thread', function() {
             '#mode': 'onCall',
             '~#call': '##.async.#emit',
             '~0': '##.#inputs',
-            '1': 1
+            '1': 1,
           },
           '#outputs': {
             '#is': '',
             '~#value': '##.add.#output',
-            '~#wait': '##.async.#wait'
-          }
-        }
-      }
+            '~#wait': '##.async.#wait',
+          },
+        },
+      },
     });
 
     Root.run();
@@ -589,7 +589,7 @@ describe('MapFunction non-thread', function() {
     job.setValue('a', {
       v1: 1,
       v2: 4,
-      v4: 5
+      v4: 5,
     });
 
     Root.run();

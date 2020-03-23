@@ -8,17 +8,17 @@ import {shouldHappen, shouldReject} from '../../../core/util/test-util';
 import {removeLastTemplate, loadTemplate, querySingle} from '../../util/test-util';
 import {initEditor} from '../../index';
 
-describe('editor Block Field', function() {
-  beforeEach(async function() {
+describe('editor Block Field', function () {
+  beforeEach(async function () {
     await initEditor();
   });
 
-  afterEach(function() {
+  afterEach(function () {
     removeLastTemplate();
     destroyLastLocalConnection();
   });
 
-  it('single block', async function() {
+  it('single block', async function () {
     let job = Root.instance.addJob('BlockField1');
     job.load({
       add: {
@@ -29,8 +29,8 @@ describe('editor Block Field', function() {
         'd': true,
         'e': null,
         '@b-xyw': [123, 234, 345],
-        '@b-p': ['a', 'b', 'c', 'd', 'e', 'z']
-      }
+        '@b-p': ['a', 'b', 'c', 'd', 'e', 'z'],
+      },
     });
 
     let [server, client] = makeLocalConnection(Root.instance);
@@ -67,14 +67,14 @@ describe('editor Block Field', function() {
     Root.instance.deleteValue('BlockField1');
   });
 
-  it('sub block', async function() {
+  it('sub block', async function () {
     let job = Root.instance.addJob('BlockField2');
     job.load({
       add: {
         '#is': 'add',
         '0': 1,
         '@b-xyw': [100, 100, 150],
-        '@b-p': ['0']
+        '@b-p': ['0'],
       },
       subtract: {
         '#is': 'subtract',
@@ -82,11 +82,11 @@ describe('editor Block Field', function() {
           '#is': 'add',
           '0': 1,
           '~1': '##.##.add.0',
-          '@b-p': ['0', '1']
+          '@b-p': ['0', '1'],
         },
         '@b-xyw': [120, 280, 150],
-        '@b-p': ['0']
-      }
+        '@b-p': ['0'],
+      },
     });
 
     let [server, client] = makeLocalConnection(Root.instance);
@@ -123,21 +123,21 @@ describe('editor Block Field', function() {
     Root.instance.deleteValue('BlockField2');
   });
 
-  it('indirect binding', async function() {
+  it('indirect binding', async function () {
     let job = Root.instance.addJob('BlockField3');
     job.load({
       add: {
         '#is': 'add',
         '0': {a: 3},
         '@b-xyw': [100, 100, 150],
-        '@b-p': ['0']
+        '@b-p': ['0'],
       },
       subtract: {
         '#is': 'subtract',
         '~0': '##.add.0.a',
         '@b-xyw': [260, 124, 150],
-        '@b-p': ['0']
-      }
+        '@b-p': ['0'],
+      },
     });
 
     let [server, client] = makeLocalConnection(Root.instance);

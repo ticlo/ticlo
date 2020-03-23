@@ -10,5 +10,5 @@ Functions.addCategory({
   id: 'react',
   name: 'react',
   icon: 'fab:react',
-  color: '5ce'
+  color: '5ce',
 });

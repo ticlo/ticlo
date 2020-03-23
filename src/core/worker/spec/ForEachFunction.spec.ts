@@ -5,8 +5,8 @@ import '../../functions/basic/math/Arithmetic';
 import '../ForEachFunction';
 import {DataMap} from '../../util/DataTypes';
 
-describe('ForEachFunction', function() {
-  it('chain block', function() {
+describe('ForEachFunction', function () {
+  it('chain block', function () {
     TestFunctionRunner.clearLog();
     let job = new Job();
 
@@ -17,7 +17,7 @@ describe('ForEachFunction', function() {
       '#is': '',
       'obj1': {'#is': '', 'v': 1},
       'obj2': {'#is': '', 'v': 2},
-      'obj3': {v: 3}
+      'obj3': {v: 3},
     });
     bBlock._load({
       '#is': 'foreach',
@@ -28,9 +28,9 @@ describe('ForEachFunction', function() {
           'test': {'#is': 'test-runner', '~#-log': '##.#inputs.v'},
           'add': {'#is': 'add', '~0': '##.#inputs.v', '1': 1},
           '#inputs': {'#is': '', '#custom': [{name: 'v', type: 'number'}]},
-          '#outputs': {'#is': '', '~v': '##.add.#output'}
-        }
-      }
+          '#outputs': {'#is': '', '~v': '##.add.#output'},
+        },
+      },
     });
     cBlock._load({
       '#is': 'foreach',
@@ -40,9 +40,9 @@ describe('ForEachFunction', function() {
           '#is': '',
           'multiply': {'#is': 'multiply', '~0': '##.#inputs.v', '1': 2},
           '#inputs': {'#is': '', '#custom': [{name: 'v', type: 'number'}]},
-          '#outputs': {'#is': '', '~v': '##.multiply.#output'}
-        }
-      }
+          '#outputs': {'#is': '', '~v': '##.multiply.#output'},
+        },
+      },
     });
     Root.runAll(2);
 
@@ -55,7 +55,7 @@ describe('ForEachFunction', function() {
       'test': {'#is': 'test-runner', '~#-log': '##.#inputs.v'},
       'subtract': {'#is': 'subtract', '~0': '##.#inputs.v', '1': 5},
       '#inputs': {'#is': '', '#custom': [{name: 'v', type: 'number'}]},
-      '#outputs': {'#is': '', '~v': '##.subtract.#output'}
+      '#outputs': {'#is': '', '~v': '##.subtract.#output'},
     });
     Root.runAll(2);
     assert.lengthOf(TestFunctionRunner.popLogs(), 3, 'worker run 3 times');
@@ -72,17 +72,17 @@ describe('ForEachFunction', function() {
 
     assert.deepEqual(cBlock.getValue('#output'), {
       obj1: {
-        v: -8
+        v: -8,
       },
       obj3: {
-        v: -4
+        v: -4,
       },
       obj4: {
-        v: -2
+        v: -2,
       },
       obj5: {
-        v: 0
-      }
+        v: 0,
+      },
     });
 
     job.updateValue('b', null);
@@ -95,7 +95,7 @@ describe('ForEachFunction', function() {
     assert.isEmpty(TestFunctionRunner.logs, 'worker should not run after destroyed');
   });
 
-  it('watch object', function() {
+  it('watch object', function () {
     let job = new Job();
 
     let bBlock = job.createBlock('b');
@@ -109,9 +109,9 @@ describe('ForEachFunction', function() {
           '#is': '',
           'add': {'#is': 'add', '~0': '##.#inputs.v', '1': 1},
           '#inputs': {'#is': '', '#custom': [{name: 'v', type: 'number'}]},
-          '#outputs': {'#is': '', '~v': '##.add.#output'}
-        }
-      }
+          '#outputs': {'#is': '', '~v': '##.add.#output'},
+        },
+      },
     });
 
     Root.run();
@@ -126,7 +126,7 @@ describe('ForEachFunction', function() {
     assert.isUndefined(bBlock.getValue('#func'), 'destroy ForEachFunction');
   });
 
-  it('foreach primitive types', function() {
+  it('foreach primitive types', function () {
     let job = new Job();
 
     let aBlock = job.createBlock('a');
@@ -134,7 +134,7 @@ describe('ForEachFunction', function() {
     aBlock._load({
       '#is': '',
       'v1': 1,
-      'v2': '2'
+      'v2': '2',
     });
     bBlock._load({
       '#is': 'foreach',
@@ -144,9 +144,9 @@ describe('ForEachFunction', function() {
           '#is': '',
           'add': {'#is': 'add', '~0': '##.#inputs.#value', '1': 1},
           '#inputs': {'#is': ''},
-          '#outputs': {'#is': '', '~#value': '##.add.#output'}
-        }
-      }
+          '#outputs': {'#is': '', '~#value': '##.add.#output'},
+        },
+      },
     });
 
     Root.run();
@@ -165,7 +165,7 @@ describe('ForEachFunction', function() {
     assert.isUndefined(bBlock.getValue('#output'), 'clear output when input is no longer Object or Block');
   });
 
-  it('clear foreach use', function() {
+  it('clear foreach use', function () {
     let job = new Job();
 
     let aBlock = job.createBlock('a');
@@ -178,9 +178,9 @@ describe('ForEachFunction', function() {
         '#is': {
           '#is': '',
           '#inputs': {'#is': ''},
-          '#outputs': {'#is': '', '~#value': '##.#inputs.#value'}
-        }
-      }
+          '#outputs': {'#is': '', '~#value': '##.#inputs.#value'},
+        },
+      },
     });
 
     Root.run();

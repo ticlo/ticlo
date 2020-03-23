@@ -12,7 +12,7 @@ import {
   SubscribeCallbacks,
   SubscribeRequest,
   WatchRequest,
-  MergedClientRequest
+  MergedClientRequest,
 } from './ClientRequests';
 import {ClientConn} from './ClientConn';
 import {StreamDispatcher} from '../block/Dispatcher';
@@ -106,7 +106,7 @@ export abstract class ClientConnection extends Connection implements ClientConn 
         callbacks = {
           onDone: resolve,
           onUpdate: resolve,
-          onError: reject
+          onError: reject,
         };
       });
     }
@@ -306,7 +306,7 @@ export abstract class ClientConnection extends Connection implements ClientConn 
       {
         cmd: 'deleteFunction',
         path: '#', // just to prevent the invalid path error
-        funcId
+        funcId,
       },
       callbacks
     );

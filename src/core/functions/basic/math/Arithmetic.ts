@@ -10,13 +10,13 @@ const descriptorN: FunctionDesc = {
       name: '',
       type: 'group',
       defaultLen: 2,
-      properties: [{name: '', type: 'number', visible: 'high'}]
+      properties: [{name: '', type: 'number', visible: 'high'}],
     },
-    {name: '#output', type: 'number', readonly: true}
+    {name: '#output', type: 'number', readonly: true},
   ],
   recipient: '0',
   tags: ['math', 'math-n'],
-  category: 'math'
+  category: 'math',
 };
 const descriptor2: FunctionDesc = {
   name: '',
@@ -24,11 +24,11 @@ const descriptor2: FunctionDesc = {
   properties: [
     {name: '0', type: 'number', visible: 'high'},
     {name: '1', type: 'number', visible: 'high'},
-    {name: '#output', type: 'number', readonly: true}
+    {name: '#output', type: 'number', readonly: true},
   ],
   recipient: '0',
   tags: ['math', 'math-2'],
-  category: 'math'
+  category: 'math',
 };
 
 export class AddFunction extends BaseFunction {
@@ -48,7 +48,7 @@ export class AddFunction extends BaseFunction {
 Functions.add(AddFunction, {
   ...descriptorN,
   name: 'add',
-  icon: 'fas:plus'
+  icon: 'fas:plus',
 });
 
 export class MultiplyFunction extends BaseFunction {
@@ -68,7 +68,7 @@ export class MultiplyFunction extends BaseFunction {
 Functions.add(MultiplyFunction, {
   ...descriptorN,
   name: 'multiply',
-  icon: 'fas:times'
+  icon: 'fas:times',
 });
 
 export class SubtractFunction extends BaseFunction {
@@ -86,7 +86,7 @@ export class SubtractFunction extends BaseFunction {
 Functions.add(SubtractFunction, {
   ...descriptor2,
   name: 'subtract',
-  icon: 'fas:minus'
+  icon: 'fas:minus',
 });
 
 export class DivideFunction extends BaseFunction {
@@ -104,5 +104,5 @@ export class DivideFunction extends BaseFunction {
 Functions.add(DivideFunction, {
   ...descriptor2,
   name: 'divide',
-  icon: 'fas:divide'
+  icon: 'fas:divide',
 });

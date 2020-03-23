@@ -6,7 +6,7 @@ Functions.addCategory({
   id: 'html',
   name: 'html',
   icon: 'fab:html5',
-  color: '4af'
+  color: '4af',
 });
 
 import './functions/QuerySelector';

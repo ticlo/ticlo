@@ -32,7 +32,7 @@ export class AddCustomPropertyMenu extends LazyUpdateComponent<Props, any> {
     optionStr: new FormInputItem<string>(this, 'optionStr', 'Options'),
     showAlpha: new FormItem<boolean>(this, 'showAlpha', 'Show Alpha', false),
     showTime: new FormItem<boolean>(this, 'showTime', 'Show Alpha', false),
-    visible: new FormInputItem<VisibleType>(this, 'visible', 'Visible')
+    visible: new FormInputItem<VisibleType>(this, 'visible', 'Visible'),
   };
 
   onSubmit = (e: React.FormEvent<HTMLElement>) => {
@@ -180,7 +180,7 @@ export class AddCustomPropertyMenu extends LazyUpdateComponent<Props, any> {
           ? [
               min.render(<InputNumber size="small" value={min.value} onChange={min.onChange} />),
               max.render(<InputNumber size="small" value={max.value} onChange={max.onChange} />),
-              step.render(<InputNumber size="small" value={step.value} onChange={step.onChange} min={0} />)
+              step.render(<InputNumber size="small" value={step.value} onChange={step.onChange} min={0} />),
             ]
           : null}
         {typeValue === 'toggle' || typeValue === 'select' || typeValue === 'radio-button'

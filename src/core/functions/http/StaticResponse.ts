@@ -31,8 +31,8 @@ Functions.add(
     properties: [
       {name: 'data', type: 'any'},
       {name: 'headers', type: 'object'},
-      {name: 'status', type: 'number', min: 200, max: 999, step: 1, default: 200}
-    ]
+      {name: 'status', type: 'number', min: 200, max: 999, step: 1, default: 200},
+    ],
   },
   'http'
 );

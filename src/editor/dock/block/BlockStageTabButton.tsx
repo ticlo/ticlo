@@ -34,7 +34,7 @@ export class BlockStageTabButton extends LazyUpdateComponent<Props, State> {
   hasChangeListener = new ValueSubscriber({
     onUpdate: (response: ValueUpdate) => {
       this.safeSetState({hasChange: Boolean(response.cache.value)});
-    }
+    },
   });
 
   componentWillUnmount(): void {

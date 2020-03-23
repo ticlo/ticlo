@@ -17,7 +17,7 @@ interface Props {
 
 export class NodeTree extends LazyUpdateComponent<Props, any> {
   static defaultProps: any = {
-    selectedKeys: []
+    selectedKeys: [],
   };
 
   rootList: NodeTreeItem[] = [];

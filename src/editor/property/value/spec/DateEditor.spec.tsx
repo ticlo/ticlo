@@ -8,16 +8,16 @@ import {shouldHappen, waitTick} from '../../../../../src/core/util/test-util';
 import {blankPropDesc, PropDesc} from '../../../../../src/core/editor';
 import {Moment, now} from 'moment';
 
-describe('DateEditor', function() {
-  beforeEach(async function() {
+describe('DateEditor', function () {
+  beforeEach(async function () {
     await initEditor();
   });
 
-  afterEach(function() {
+  afterEach(function () {
     removeLastTemplate();
   });
 
-  it('basic', async function() {
+  it('basic', async function () {
     let value: Moment = null;
     let onChange = (v: Moment) => {
       value = v;
