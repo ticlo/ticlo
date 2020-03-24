@@ -39,6 +39,10 @@ export class WireItem extends DataRendererItem {
     // forceUpdate even if source is not changed
     this.forceUpdate();
   }
+  forceUpdate() {
+    this.checkIsRightSide();
+    super.forceUpdate();
+  }
 
   constructor(souce: FieldItem, target: FieldItem) {
     super();
@@ -78,7 +82,7 @@ export class WireView extends PureDataRenderer<WireViewProps, any> {
       className = 'ticl-block-wire ticl-wire-dash';
     }
 
-    if (item.checkIsRightSide()) {
+    if (item._rightSide) {
       return this.renderRightSide(zIndex, className);
     } else {
       return this.renderNormal(zIndex, className);
