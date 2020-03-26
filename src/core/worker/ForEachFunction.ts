@@ -1,6 +1,6 @@
 import {Functions} from '../block/Functions';
 import {BlockFunction, FunctionOutput} from '../block/BlockFunction';
-import {BlockIO} from '../block/BlockProperty';
+import {BlockIO, BlockProperty} from '../block/BlockProperty';
 import {Block, BlockChildWatch} from '../block/Block';
 import {DataMap} from '../util/DataTypes';
 import {Event, EventType} from '../block/Event';
@@ -99,7 +99,7 @@ export class ForEachFunction extends BlockFunction implements BlockChildWatch {
     this._deleteOutput();
   }
 
-  onChildChange(property: BlockIO, saved?: boolean) {
+  onChildChange(property: BlockProperty, saved?: boolean) {
     this._childChanges.add(property._name);
     if (this._childChanges.size === 1) {
       // use _onCall so it triggers synchronously in sync mode

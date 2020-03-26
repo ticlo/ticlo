@@ -18,7 +18,7 @@ export type BlockMode = 'auto' | 'onLoad' | 'onChange' | 'onCall' | 'disabled';
 export const BlockModeList = ['auto', 'onLoad', 'onChange', 'onCall', 'disabled'];
 
 export interface BlockChildWatch {
-  onChildChange(property: BlockIO, saved?: boolean): void;
+  onChildChange(property: BlockProperty, saved?: boolean): void;
   watchHistory?: boolean;
 }
 
@@ -793,7 +793,7 @@ export class Block implements Runnable, FunctionData, PropListener<FunctionClass
     }
   }
 
-  _onChildChanged(property: BlockIO, saved?: boolean) {
+  _onChildChanged(property: BlockProperty, saved?: boolean) {
     for (let watcher of this._watchers) {
       watcher.onChildChange(property, saved);
     }
