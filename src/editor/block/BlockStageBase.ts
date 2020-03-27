@@ -5,7 +5,7 @@ import {
   deepEqual,
   forAllPathsBetween,
   ValueSubscriber,
-  ValueUpdate
+  ValueUpdate,
 } from '../../../src/core/editor';
 import {DragState} from 'rc-dock';
 import {BlockItem, FieldItem, Stage} from './Field';
@@ -285,12 +285,12 @@ export abstract class BlockStageBase<Props extends StagePropsBase, State> extend
   watchListener = {
     onUpdate: (response: DataMap) => {
       this.onChildUpdate(response.changes, this.props.basePath);
-    }
+    },
   };
   sharedWatchListener = {
     onUpdate: (response: DataMap) => {
       this.onChildUpdate(response.changes, this._sharedPath);
-    }
+    },
   };
   clearSharedBlocks() {
     let changed = false;
@@ -322,7 +322,7 @@ export abstract class BlockStageBase<Props extends StagePropsBase, State> extend
           this.clearSharedBlocks();
         }
       }
-    }
+    },
   });
 
   constructor(props: Props) {

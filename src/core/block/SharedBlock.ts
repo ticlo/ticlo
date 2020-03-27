@@ -4,6 +4,7 @@ import {DataMap, isSavedBlock} from '../util/DataTypes';
 import {ConstTypeConfig, JobConfigGenerators} from './BlockConfigs';
 import {Job, Root} from './Job';
 import {Uid} from '../util/Uid';
+import {encodeTicloName} from '..';
 
 export class SharedConfig extends BlockProperty {
   _load(val: any) {}
@@ -25,12 +26,41 @@ export class SharedConfig extends BlockProperty {
 export class SharedBlock extends Job {
   static uid = new Uid();
   static _dict = new Map<any, SharedBlock>();
+  static _funcDict = new Map<string, SharedBlock>();
   static loadSharedBlock(job: JobWithShared, funcId: string, data: DataMap) {
     let useCache = job.cacheShared();
-    let result: SharedBlock;
-    if (useCache && SharedBlock._dict.has(data)) {
-      result = SharedBlock._dict.get(data);
+    if (funcId && useCache) {
+      job._setSharedBlock(SharedBlock._loadFuncSharedBlock(job, funcId, data));
     } else {
+      job._setSharedBlock(SharedBlock._loadSharedBlock(job, funcId, data, useCache));
+    }
+  }
+
+  static _loadFuncSharedBlock(job: JobWithShared, funcId: string, data: DataMap) {
+    if (SharedBlock._funcDict.has(funcId)) {
+      return SharedBlock._dict.get(funcId);
+    } else {
+      let result: SharedBlock;
+      let sharedRoot = Root.instance._sharedRoot;
+      let prop = sharedRoot.getProperty(encodeTicloName(funcId));
+      result = new SharedBlock(sharedRoot, sharedRoot, prop);
+      result._source = funcId;
+      SharedBlock._funcDict.set(funcId, result);
+      prop.updateValue(result);
+      let sharedId;
+      if (funcId.includes(':')) {
+        sharedId = `${funcId}__shared`;
+      }
+      result.load(data, sharedId);
+      return result;
+    }
+  }
+
+  static _loadSharedBlock(job: JobWithShared, funcId: string, data: DataMap, useCache: boolean) {
+    if (useCache && SharedBlock._dict.has(data)) {
+      return SharedBlock._dict.get(data);
+    } else {
+      let result: SharedBlock;
       let uid = SharedBlock.uid;
       let sharedRoot = Root.instance._sharedRoot;
       while (sharedRoot.getProperty(uid.next(), false)?._value) {
@@ -52,8 +82,8 @@ export class SharedBlock extends Job {
         sharedId = `${job._namespace}:__shared`;
       }
       result.load(data, sharedId);
+      return result;
     }
-    job._setSharedBlock(result);
   }
 
   _source: any;
@@ -65,7 +95,11 @@ export class SharedBlock extends Job {
     this._jobs.delete(job);
     if (this._jobs.size === 0) {
       this._prop.setValue(undefined);
-      SharedBlock._dict.delete(this._source);
+      if (typeof this._source === 'string') {
+        SharedBlock._funcDict.delete(this._source);
+      } else {
+        SharedBlock._dict.delete(this._source);
+      }
     }
   }
   startHistory() {
