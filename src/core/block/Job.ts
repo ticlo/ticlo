@@ -12,6 +12,7 @@ import {JobHistory} from './JobHistory';
 
 export class Job extends Block {
   _namespace: string;
+  // function id, when Job is loaded from a function
   _loadFrom: string;
 
   _enabled: boolean = true;
