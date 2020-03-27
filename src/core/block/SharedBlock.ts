@@ -26,8 +26,9 @@ export class SharedBlock extends Job {
   static uid = new Uid();
   static _dict = new Map<any, SharedBlock>();
   static loadSharedBlock(job: JobWithShared, funcId: string, data: DataMap) {
+    let useCache = job.cacheShared();
     let result: SharedBlock;
-    if (SharedBlock._dict.has(data)) {
+    if (useCache && SharedBlock._dict.has(data)) {
       result = SharedBlock._dict.get(data);
     } else {
       let uid = SharedBlock.uid;
@@ -38,7 +39,9 @@ export class SharedBlock extends Job {
       let prop = sharedRoot.getProperty(uid.current);
       result = new SharedBlock(sharedRoot, sharedRoot, prop);
       result._source = data;
-      SharedBlock._dict.set(data, result);
+      if (useCache) {
+        SharedBlock._dict.set(data, result);
+      }
       prop.updateValue(result);
       let sharedId;
       if (funcId != null) {
@@ -78,6 +81,10 @@ export const JobWithSharedConfigGenerators: {[key: string]: typeof BlockProperty
 
 export class JobWithShared extends Job {
   _sharedBlock: SharedBlock;
+
+  cacheShared() {
+    return true;
+  }
 
   _createConfig(field: string): BlockProperty {
     if (field in JobWithSharedConfigGenerators) {

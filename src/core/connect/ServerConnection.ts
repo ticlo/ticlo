@@ -593,9 +593,6 @@ export class ServerConnection extends Connection {
         SharedBlock.loadSharedBlock(sharedProp._block as JobWithShared, null, {});
         // get the property again
         property = this.root.queryProperty(path, true);
-      } else if (sharedProp?._block instanceof JobEditor) {
-        sharedProp._block.createBlock('#shared');
-        property = this.root.queryProperty(path, true);
       }
     }
     if (property) {
