@@ -4,7 +4,10 @@ import {DataMap, isSavedBlock} from '../util/DataTypes';
 import {ConstTypeConfig, JobConfigGenerators} from './BlockConfigs';
 import {Job, Root} from './Job';
 import {Uid} from '../util/Uid';
-import {encodeTicloName} from '..';
+import {encodeTicloName, Functions} from '..';
+import {FunctionDispatcher} from './Functions';
+import {FunctionClass} from './BlockFunction';
+import {PropListener} from './Dispatcher';
 
 export class SharedConfig extends BlockProperty {
   _load(val: any) {}
@@ -38,13 +41,14 @@ export class SharedBlock extends Job {
 
   static _loadFuncSharedBlock(job: JobWithShared, funcId: string, data: DataMap) {
     if (SharedBlock._funcDict.has(funcId)) {
-      return SharedBlock._dict.get(funcId);
+      return SharedBlock._funcDict.get(funcId);
     } else {
       let result: SharedBlock;
       let sharedRoot = Root.instance._sharedRoot;
       let prop = sharedRoot.getProperty(encodeTicloName(funcId));
       result = new SharedBlock(sharedRoot, sharedRoot, prop);
-      result._source = funcId;
+      result._funcDispatcher = Functions.listenRaw(funcId, result._funcListener);
+      result._cacheKey = funcId;
       SharedBlock._funcDict.set(funcId, result);
       prop.updateValue(result);
       let sharedId;
@@ -68,7 +72,7 @@ export class SharedBlock extends Job {
       }
       let prop = sharedRoot.getProperty(uid.current);
       result = new SharedBlock(sharedRoot, sharedRoot, prop);
-      result._source = data;
+      result._cacheKey = data;
       if (useCache) {
         SharedBlock._dict.set(data, result);
       }
@@ -86,7 +90,19 @@ export class SharedBlock extends Job {
     }
   }
 
-  _source: any;
+  _funcDispatcher: FunctionDispatcher;
+  _funcListener: PropListener<FunctionClass> = {
+    onSourceChange(prop: any) {},
+    onChange: (val: FunctionClass) => {
+      // _source is set after listener is attached, so the first change will be skipped
+      if (this._cacheKey != null) {
+        // force detach
+        this._jobs.clear();
+        this.detachJob(null);
+      }
+    },
+  };
+  _cacheKey: any;
   _jobs = new Set<Job>();
   attachJob(job: Job) {
     this._jobs.add(job);
@@ -95,15 +111,22 @@ export class SharedBlock extends Job {
     this._jobs.delete(job);
     if (this._jobs.size === 0) {
       this._prop.setValue(undefined);
-      if (typeof this._source === 'string') {
-        SharedBlock._funcDict.delete(this._source);
+      if (typeof this._cacheKey === 'string') {
+        SharedBlock._funcDict.delete(this._cacheKey);
       } else {
-        SharedBlock._dict.delete(this._source);
+        SharedBlock._dict.delete(this._cacheKey);
       }
     }
   }
   startHistory() {
     // history not allowed, maintained by the Job that used this shared block
+  }
+
+  destroy(): void {
+    if (this._funcDispatcher) {
+      this._funcDispatcher.unlisten(this._funcListener);
+    }
+    super.destroy();
   }
 }
 

@@ -590,7 +590,8 @@ export class ServerConnection extends Connection {
       let sharedProp = this.root.queryProperty(sharedPath, true);
       if (sharedProp instanceof SharedConfig) {
         // create shared block automatically
-        SharedBlock.loadSharedBlock(sharedProp._block as JobWithShared, null, {});
+        let job = sharedProp._block as JobWithShared;
+        SharedBlock.loadSharedBlock(job, job._funcId, {});
         // get the property again
         property = this.root.queryProperty(path, true);
       }

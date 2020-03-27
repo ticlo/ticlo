@@ -1,7 +1,7 @@
 import JsonEsc from 'jsonesc';
 import {Block, BlockModeList} from './Block';
 import {FunctionClass} from './BlockFunction';
-import {PropDispatcher} from './Dispatcher';
+import {PropDispatcher, PropListener} from './Dispatcher';
 import {FunctionDesc} from './Descriptor';
 import {DataMap} from '../util/DataTypes';
 import {Storage} from './Storage';
@@ -114,13 +114,17 @@ export class Functions {
     return null;
   }
 
-  static listen(id: string, block: Block): FunctionDispatcher {
+  static listenBlock(id: string, block: Block): FunctionDispatcher {
     if (!id) {
       return;
     }
     if (id.startsWith(':') && block._job._namespace) {
       id = block._job._namespace + id;
     }
+    return Functions.listenRaw(id, block);
+  }
+
+  static listenRaw(id: string, block: PropListener<FunctionClass>): FunctionDispatcher {
     let dispatcher = _functions[id];
 
     if (!dispatcher) {

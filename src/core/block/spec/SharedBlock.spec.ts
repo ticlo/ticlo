@@ -9,7 +9,7 @@ describe('SharedBlock', function () {
     job1.load(data);
     let sharedBlock: SharedBlock = job1.getValue('#shared');
     assert.instanceOf(sharedBlock, SharedBlock);
-    assert.equal(sharedBlock._source, data['#shared']);
+    assert.equal(sharedBlock._cacheKey, data['#shared']);
 
     let job2 = new JobWithShared();
     job2.load(data);

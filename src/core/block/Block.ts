@@ -647,7 +647,7 @@ export class Block implements Runnable, FunctionData, PropListener<FunctionClass
       this._funcSrc.unlisten(this);
     }
     if (funcId && typeof funcId === 'string') {
-      this._funcSrc = Functions.listen(funcId, this);
+      this._funcSrc = Functions.listenBlock(funcId, this);
     } else {
       this._funcSrc = null;
       this.onChange(null);
