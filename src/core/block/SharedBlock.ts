@@ -4,8 +4,8 @@ import {DataMap, isSavedBlock} from '../util/DataTypes';
 import {ConstTypeConfig, JobConfigGenerators} from './BlockConfigs';
 import {Job, Root} from './Job';
 import {Uid} from '../util/Uid';
-import {encodeTicloName, Functions} from '..';
-import {FunctionDispatcher} from './Functions';
+import {encodeTicloName} from '../util/Name';
+import {FunctionDispatcher, Functions} from './Functions';
 import {FunctionClass} from './BlockFunction';
 import {PropListener} from './Dispatcher';
 
