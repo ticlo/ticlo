@@ -12,9 +12,11 @@ export abstract class MapImpl extends BlockFunction {
   _srcChanged: boolean; /* = false*/
 
   _onSourceChange(val: any): boolean {
+    if (this._src) {
+      this._data.deleteValue('#shared');
+    }
     if (typeof val === 'string' || isSavedBlock(val)) {
       this._src = val;
-      this._data.deleteValue('#shared');
       this._srcChanged = true;
       return true;
     }

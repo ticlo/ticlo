@@ -18,7 +18,7 @@ export const JobEditorConfigGenerators: {[key: string]: typeof BlockProperty} = 
 export class JobEditor extends JobWithShared {
   getCacheKey(funcId: string, data: DataMap): any {
     // do not cache shared block during editing
-    return null;
+    return this.getProperty('#shared', true);
   }
 
   unwatch(watcher: BlockChildWatch) {
