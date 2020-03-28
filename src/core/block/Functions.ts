@@ -114,17 +114,11 @@ export class Functions {
     return null;
   }
 
-  static listenBlock(id: string, block: Block): FunctionDispatcher {
+  static listen(id: string, block: PropListener<FunctionClass>): FunctionDispatcher {
     if (!id) {
       return;
     }
-    if (id.startsWith(':') && block._job._namespace) {
-      id = block._job._namespace + id;
-    }
-    return Functions.listenRaw(id, block);
-  }
 
-  static listenRaw(id: string, block: PropListener<FunctionClass>): FunctionDispatcher {
     let dispatcher = _functions[id];
 
     if (!dispatcher) {

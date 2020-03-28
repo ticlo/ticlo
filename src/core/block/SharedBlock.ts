@@ -51,7 +51,7 @@ export class SharedBlock extends Job {
       let sharedRoot = Root.instance._sharedRoot;
       let prop = sharedRoot.getProperty(encodeTicloName(funcId));
       sharedBlock = new SharedBlock(sharedRoot, sharedRoot, prop);
-      sharedBlock._funcDispatcher = Functions.listenRaw(funcId, sharedBlock._funcListener);
+      sharedBlock._funcDispatcher = Functions.listen(funcId, sharedBlock._funcListener);
       sharedBlock._cacheKey = funcId;
       sharedBlock._cacheMode = data['#cacheMode'];
       SharedBlock._dict.set(funcId, sharedBlock);
