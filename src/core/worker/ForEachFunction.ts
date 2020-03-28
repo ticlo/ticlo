@@ -278,7 +278,7 @@ Functions.add(ForEachFunction, {
   name: 'foreach',
   priority: 1,
   properties: [
-    {name: 'input', type: 'any'},
+    {name: 'input', type: 'object'},
     {name: 'use', type: 'worker'},
     {name: '#output', type: 'any', readonly: true},
   ],
