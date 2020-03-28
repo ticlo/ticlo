@@ -139,6 +139,7 @@ export const configDescs: {[key: string]: PropDesc} = {
   '#inputs': {name: '#inputs', type: 'any'},
   '#outputs': {name: '#outputs', type: 'any'},
   '#desc': {name: '#desc', type: 'object'},
+  '#cacheMode': {name: '#cacheMode', type: 'radio-button', options: ['auto', 'persist'], default: 'auto'},
 };
 
 export const configList: PropDesc[] = [

@@ -72,6 +72,6 @@ export const clientDescriptors: FunctionDesc[] = [
     color: 'e91',
     src: 'hidden',
     ns: 'job',
-    configs: [],
+    configs: ['#cacheMode'],
   },
 ];

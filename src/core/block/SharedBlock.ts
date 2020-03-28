@@ -26,6 +26,11 @@ export class SharedConfig extends BlockProperty {
   }
 }
 
+export const SharedBlockConfigGenerators: {[key: string]: typeof BlockProperty} = {
+  ...JobConfigGenerators,
+  '#is': ConstTypeConfig('job:shared'),
+};
+
 export class SharedBlock extends Job {
   static uid = new Uid();
   static _dict = new Map<any, SharedBlock>();
@@ -49,6 +54,7 @@ export class SharedBlock extends Job {
       result = new SharedBlock(sharedRoot, sharedRoot, prop);
       result._funcDispatcher = Functions.listenRaw(funcId, result._funcListener);
       result._cacheKey = funcId;
+      result._cacheMode = data['#cacheMode'];
       SharedBlock._funcDict.set(funcId, result);
       prop.updateValue(result);
       let sharedId;
@@ -90,6 +96,14 @@ export class SharedBlock extends Job {
     }
   }
 
+  _createConfig(field: string): BlockProperty {
+    if (field in SharedBlockConfigGenerators) {
+      return new SharedBlockConfigGenerators[field](this, field);
+    } else {
+      return new BlockConfig(this, field);
+    }
+  }
+
   _funcDispatcher: FunctionDispatcher;
   _funcListener: PropListener<FunctionClass> = {
     onSourceChange(prop: any) {},
@@ -103,6 +117,7 @@ export class SharedBlock extends Job {
     },
   };
   _cacheKey: any;
+  _cacheMode?: 'persist';
   _jobs = new Set<Job>();
   attachJob(job: Job) {
     this._jobs.add(job);
@@ -110,6 +125,10 @@ export class SharedBlock extends Job {
   detachJob(job: Job) {
     this._jobs.delete(job);
     if (this._jobs.size === 0) {
+      if (job != null && this._cacheMode === 'persist') {
+        // persisted SharedBlock only detach when detachJob(null)
+        return;
+      }
       this._prop.setValue(undefined);
       if (typeof this._cacheKey === 'string') {
         SharedBlock._funcDict.delete(this._cacheKey);
@@ -132,7 +151,6 @@ export class SharedBlock extends Job {
 
 export const JobWithSharedConfigGenerators: {[key: string]: typeof BlockProperty} = {
   ...JobConfigGenerators,
-  '#is': ConstTypeConfig('job:shared'),
   '#shared': SharedConfig,
 };
 
@@ -140,6 +158,7 @@ export class JobWithShared extends Job {
   _sharedBlock: SharedBlock;
 
   cacheShared() {
+    // shared block should be reused
     return true;
   }
 
