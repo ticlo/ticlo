@@ -72,3 +72,12 @@ export class JobWorker extends JobWithShared {
     }
   }
 }
+
+export class RepeaterWorker extends JobWorker {
+  getCacheKey(funcId: string, data: DataMap): any {
+    if (!funcId && data['#cacheMode']) {
+      return this._parent._parent.getProperty('#shared', true);
+    }
+    return super.getCacheKey(funcId, data);
+  }
+}

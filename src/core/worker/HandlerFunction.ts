@@ -6,7 +6,7 @@ import {Event, EventType, WAIT, NO_EMIT} from '../block/Event';
 import Denque from 'denque';
 import {InfiniteQueue} from '../util/InfiniteQueue';
 import {DefaultTask, Task} from '../block/Task';
-import {JobWorker} from './JobWorker';
+import {RepeaterWorker} from './JobWorker';
 
 export class HandlerFunction extends MapImpl {
   _queue = new Denque<Task>();
@@ -88,7 +88,7 @@ export class HandlerFunction extends MapImpl {
     return false;
   }
 
-  _updateWorkerInput(worker: JobWorker) {
+  _updateWorkerInput(worker: RepeaterWorker) {
     ++this._waitingWorker;
     let field: any;
     if (this._keepOrder) {

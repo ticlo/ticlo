@@ -5,7 +5,7 @@ import {ErrorEvent, Event, EventType, WAIT} from '../block/Event';
 import {MapImpl, WorkerOutput} from './MapImpl';
 import {BlockProxy} from '../block/BlockProxy';
 import {UnlimitedPool} from './ThreadPool';
-import {JobWorker} from './JobWorker';
+import {RepeaterWorker} from './JobWorker';
 
 interface KeyIterator {
   current(): string;
@@ -170,7 +170,7 @@ export class MapFunction extends MapImpl {
     this._pool.done(output.key, this._reuseWorker != null);
   }
 
-  _updateWorkerInput(worker: JobWorker) {
+  _updateWorkerInput(worker: RepeaterWorker) {
     ++this._waitingWorker;
     let key = this._pendingKeys.current();
     (worker._outputObj as WorkerOutput).reset(key, this._timeout, (output: WorkerOutput, timeout: boolean) =>

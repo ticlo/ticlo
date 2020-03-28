@@ -3,7 +3,7 @@ import {DataMap, isSavedBlock} from '../util/DataTypes';
 import {Block} from '../block/Block';
 import {ThreadPool, UnlimitedPool, WorkerPool} from './ThreadPool';
 import {Task} from '../block/Task';
-import {JobWorker} from './JobWorker';
+import {RepeaterWorker} from './JobWorker';
 
 export type MapWorkerMode = undefined | 'reuse' | 'persist';
 
@@ -14,6 +14,7 @@ export abstract class MapImpl extends BlockFunction {
   _onSourceChange(val: any): boolean {
     if (typeof val === 'string' || isSavedBlock(val)) {
       this._src = val;
+      this._data.deleteValue('#shared');
       this._srcChanged = true;
       return true;
     }
@@ -103,16 +104,16 @@ export abstract class MapImpl extends BlockFunction {
   }
 
   _funcBlock: Block;
-  _workers?: Map<string | number, JobWorker>;
+  _workers?: Map<string | number, RepeaterWorker>;
   _waitingWorker = 0;
 
   abstract _onWorkerReady(output: WorkerOutput, timeout: boolean): void;
 
-  _addWorker(key: string, field: string | number, input: any): JobWorker {
+  _addWorker(key: string, field: string | number, input: any): RepeaterWorker {
     let output = new WorkerOutput(key, field, this._timeout, (output: WorkerOutput, timeout: boolean) =>
       this._onWorkerReady(output, timeout)
     );
-    let child = this._funcBlock.createOutputJob(JobWorker, key, this._src, output, this._applyWorkerChange);
+    let child = this._funcBlock.createOutputJob(RepeaterWorker, key, this._src, output, this._applyWorkerChange);
     child.onReady = () => {
       output.workerReady();
     };

@@ -34,65 +34,77 @@ export const SharedBlockConfigGenerators: {[key: string]: typeof BlockProperty} 
 export class SharedBlock extends Job {
   static uid = new Uid();
   static _dict = new Map<any, SharedBlock>();
-  static _funcDict = new Map<string, SharedBlock>();
   static loadSharedBlock(job: JobWithShared, funcId: string, data: DataMap) {
-    let useCache = job.cacheShared();
-    if (funcId && useCache) {
-      job._setSharedBlock(SharedBlock._loadFuncSharedBlock(job, funcId, data));
+    let cacheKey = job.getCacheKey(funcId, data);
+    if (typeof cacheKey === 'string') {
+      job._setSharedBlock(SharedBlock._loadFuncSharedBlock(job, cacheKey, data));
     } else {
-      job._setSharedBlock(SharedBlock._loadSharedBlock(job, funcId, data, useCache));
+      job._setSharedBlock(SharedBlock._loadSharedBlock(job, funcId, data, cacheKey));
     }
   }
 
   static _loadFuncSharedBlock(job: JobWithShared, funcId: string, data: DataMap) {
-    if (SharedBlock._funcDict.has(funcId)) {
-      return SharedBlock._funcDict.get(funcId);
+    if (SharedBlock._dict.has(funcId)) {
+      return SharedBlock._dict.get(funcId);
     } else {
-      let result: SharedBlock;
+      let sharedBlock: SharedBlock;
       let sharedRoot = Root.instance._sharedRoot;
       let prop = sharedRoot.getProperty(encodeTicloName(funcId));
-      result = new SharedBlock(sharedRoot, sharedRoot, prop);
-      result._funcDispatcher = Functions.listenRaw(funcId, result._funcListener);
-      result._cacheKey = funcId;
-      result._cacheMode = data['#cacheMode'];
-      SharedBlock._funcDict.set(funcId, result);
-      prop.updateValue(result);
+      sharedBlock = new SharedBlock(sharedRoot, sharedRoot, prop);
+      sharedBlock._funcDispatcher = Functions.listenRaw(funcId, sharedBlock._funcListener);
+      sharedBlock._cacheKey = funcId;
+      sharedBlock._cacheMode = data['#cacheMode'];
+      SharedBlock._dict.set(funcId, sharedBlock);
+      prop.updateValue(sharedBlock);
       let sharedId;
       if (funcId.includes(':')) {
         sharedId = `${funcId}__shared`;
       }
-      result.load(data, sharedId);
-      return result;
+      sharedBlock.load(data, sharedId);
+      return sharedBlock;
     }
   }
 
-  static _loadSharedBlock(job: JobWithShared, funcId: string, data: DataMap, useCache: boolean) {
-    if (useCache && SharedBlock._dict.has(data)) {
-      return SharedBlock._dict.get(data);
+  static _loadSharedBlock(job: JobWithShared, funcId: string, data: DataMap, cacheKey: any) {
+    if (cacheKey && SharedBlock._dict.has(cacheKey)) {
+      return SharedBlock._dict.get(cacheKey);
     } else {
-      let result: SharedBlock;
-      let uid = SharedBlock.uid;
-      let sharedRoot = Root.instance._sharedRoot;
-      while (sharedRoot.getProperty(uid.next(), false)?._value) {
-        // loop until find a usable id
+      let sharedBlock: SharedBlock;
+
+      // find a property to store the shared block
+      let prop: BlockProperty;
+      if (cacheKey instanceof BlockProperty) {
+        // usually used by repeater blocks
+        prop = cacheKey;
+      } else {
+        // find a property from global sharedRoot
+        let uid = SharedBlock.uid;
+        let sharedRoot = Root.instance._sharedRoot;
+        while (sharedRoot.getProperty(uid.next(), false)?._value) {
+          // loop until find a usable id
+        }
+        prop = sharedRoot.getProperty(uid.current);
       }
-      let prop = sharedRoot.getProperty(uid.current);
-      result = new SharedBlock(sharedRoot, sharedRoot, prop);
-      result._cacheKey = data;
-      if (useCache) {
-        SharedBlock._dict.set(data, result);
+
+      sharedBlock = new SharedBlock(prop._block, null, prop);
+
+      if (cacheKey) {
+        sharedBlock._cacheKey = cacheKey;
+        sharedBlock._cacheMode = data['#cacheMode'];
+        SharedBlock._dict.set(cacheKey, sharedBlock);
       }
-      prop.updateValue(result);
-      let sharedId;
+      prop.updateValue(sharedBlock);
+      // shared block might need a temp function id to indicate its namespace
+      let tempFuncId;
       if (funcId != null) {
         if (funcId.includes(':')) {
-          sharedId = `${funcId}__shared`;
+          tempFuncId = `${funcId}__shared`;
         }
       } else if (job._namespace != null) {
-        sharedId = `${job._namespace}:__shared`;
+        tempFuncId = `${job._namespace}:__shared`;
       }
-      result.load(data, sharedId);
-      return result;
+      sharedBlock.load(data, tempFuncId);
+      return sharedBlock;
     }
   }
 
@@ -129,11 +141,8 @@ export class SharedBlock extends Job {
         // persisted SharedBlock only detach when detachJob(null)
         return;
       }
-      this._prop.setValue(undefined);
-      if (typeof this._cacheKey === 'string') {
-        SharedBlock._funcDict.delete(this._cacheKey);
-      } else {
-        SharedBlock._dict.delete(this._cacheKey);
+      if (this._prop._value === this) {
+        this._prop.setValue(undefined);
       }
     }
   }
@@ -144,6 +153,9 @@ export class SharedBlock extends Job {
   destroy(): void {
     if (this._funcDispatcher) {
       this._funcDispatcher.unlisten(this._funcListener);
+    }
+    if (this._cacheKey && SharedBlock._dict.get(this._cacheKey) === this) {
+      SharedBlock._dict.delete(this._cacheKey);
     }
     super.destroy();
   }
@@ -157,9 +169,8 @@ export const JobWithSharedConfigGenerators: {[key: string]: typeof BlockProperty
 export class JobWithShared extends Job {
   _sharedBlock: SharedBlock;
 
-  cacheShared() {
-    // shared block should be reused
-    return true;
+  getCacheKey(funcId: string, data: DataMap): any {
+    return funcId || data;
   }
 
   _createConfig(field: string): BlockProperty {
