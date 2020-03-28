@@ -90,8 +90,8 @@
     "**/minimist": "^1.2.5"
   },
   "scripts": {
-    "test-nyc-strict": "cross-env NODE_ENV=TEST nyc --skip-full mocha 'src/core/**/*.spec.ts' 'src/node/**/*.spec.ts' && nyc report --reporter=text-lcov > coverage/nyc-strict.log",
-    "test-nyc": "nyc --skip-full mocha 'src/core/**/*.spec.ts' 'src/node/**/*.spec.ts' && nyc report --reporter=text-lcov > coverage/nyc.log",
+    "test-nyc-strict": "cross-env NODE_ENV=TEST nyc --skip-full -source-map mocha 'src/core/**/*.spec.ts' 'src/node/**/*.spec.ts' && nyc report --reporter=text-lcov > coverage/nyc-strict.log",
+    "test-nyc": "nyc --skip-full -source-map mocha 'src/core/**/*.spec.ts' 'src/node/**/*.spec.ts' && nyc report --reporter=text-lcov > coverage/nyc.log",
     "test-karma": "karma start",
     "build-less": "lessc --js src/editor/style/antd.less dist/antd.css && lessc --js src/editor/style/editor.less dist/editor.css",
     "build-icons": "ts-node tool/build-icons",
