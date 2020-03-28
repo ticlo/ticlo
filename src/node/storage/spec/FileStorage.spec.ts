@@ -21,7 +21,7 @@ describe('FileStorage', function () {
     assert.equal(savedData, '{\n"#is": ""\n}');
 
     root.deleteJob('job1');
-    await shouldHappen(() => !Fs.existsSync(path));
+    await shouldHappen(() => !Fs.existsSync(path), 500);
 
     // overwrite multiple times
     job = root.addJob('job2');
