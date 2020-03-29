@@ -127,7 +127,8 @@ export class FieldItem extends DataRendererItem {
       this.x = x;
       this.y = y;
       this.w = w;
-      this.forceUpdateWires();
+      // don't redraw subblock's wire, because they will be redrawn in its updateFieldPos()
+      this.redrawWire(false, true);
     }
     if (!arrayEqual(indents, this.indents)) {
       this.indents = indents.concat();
@@ -146,16 +147,16 @@ export class FieldItem extends DataRendererItem {
     return y;
   }
 
-  forceUpdateWires(recursiv = false) {
+  redrawWire(recursiv = false, posChanged = false) {
     if (this.inWire) {
-      this.inWire.forceUpdate();
+      this.inWire.redraw(posChanged);
     }
     for (let outWire of this.outWires) {
-      outWire.forceUpdate();
+      outWire.redraw(posChanged);
     }
     if (recursiv && this.subBlock) {
       for (let [name, child] of this.subBlock.fieldItems) {
-        child.forceUpdateWires(true);
+        child.redrawWire(true, posChanged);
       }
     }
   }
@@ -820,7 +821,7 @@ export class BlockItem extends BaseBlockItem {
       this.selected = val;
       this.forceUpdate();
       for (let field of this.fields) {
-        this.fieldItems.get(field).forceUpdateWires(true);
+        this.fieldItems.get(field).redrawWire(true);
       }
     }
   }

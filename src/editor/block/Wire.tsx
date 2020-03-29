@@ -35,12 +35,16 @@ export class WireItem extends DataRendererItem {
         source.outWires.add(this);
       }
     }
-    // it's possible a indirect binding change to direct binding while source remains the same
-    // forceUpdate even if source is not changed
+    // it's possible an indirect binding change to direct binding while source remains the same
+    // so we need a forceUpdate even when source is not changed
     this.forceUpdate();
   }
-  forceUpdate() {
-    this.checkIsRightSide();
+
+  redraw(positionChanged: boolean) {
+    if (positionChanged) {
+      this.checkIsRightSide();
+      // TODO, even more optimization, maybe only update the wire's z index when there is no position change?
+    }
     super.forceUpdate();
   }
 
