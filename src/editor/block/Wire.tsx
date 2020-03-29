@@ -49,6 +49,7 @@ export class WireItem extends DataRendererItem {
     this.target = target;
     this.source = souce;
     this.source.outWires.add(this);
+    this.checkIsRightSide();
   }
 
   destroy() {
