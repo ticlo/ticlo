@@ -6,6 +6,7 @@ import {WorkerFunction} from '../WorkerFunction';
 import {Functions} from '../../block/Functions';
 import {PropDesc, PropGroupDesc} from '../../block/Descriptor';
 import {DataMap} from '../../util/DataTypes';
+import {SharedBlock} from '../../block/SharedBlock';
 
 describe('JobEditor', function () {
   it('delete editor after unwatch', function () {
@@ -141,5 +142,21 @@ describe('JobEditor', function () {
     assert.deepEqual(desc.properties, expectedDescProperties);
 
     Functions.clear('JobEditor:worker3');
+    job.destroy();
+  });
+
+  it('shared block', function () {
+    let job = new Job();
+
+    let editor = JobEditor.createFromFunction(job, '#edit-func', 'JobEditor:worker4', {
+      '#is': '',
+      '#shared': {'#is': ''},
+    });
+
+    let block: SharedBlock = editor.getValue('#shared');
+    assert.instanceOf(block, SharedBlock);
+    assert.equal(block._prop, editor.getProperty('#shared'));
+
+    job.destroy();
   });
 });
