@@ -32,9 +32,10 @@ describe('SharedBlock', function () {
     let sharedBlock: SharedBlock = job.getValue('#shared');
     let sharedProp = sharedBlock._prop;
     sharedBlock.setValue('v', 1);
+    sharedBlock.setValue('#custom', [{name: 'v', type: 'string'}]);
 
     let saved = job.save();
-    assert.deepEqual(saved, {'#is': '', '#shared': {'#is': '', 'v': 1}});
+    assert.deepEqual(saved, {'#is': '', '#shared': {'#is': '', 'v': 1, '#custom': [{name: 'v', type: 'string'}]}});
 
     sharedBlock.setValue('v', 2);
 
@@ -43,6 +44,7 @@ describe('SharedBlock', function () {
 
     job.liveUpdate({'#is': ''});
     assert.isUndefined(sharedBlock.getValue('v'));
+    assert.deepEqual(job.save(), {'#is': ''});
 
     job.destroy();
     assert.isUndefined(sharedProp.getValue());
@@ -54,9 +56,13 @@ describe('SharedBlock', function () {
 
     let job = new JobWorker();
     job.load(data, 'SharedBlock:cacheModeWorker1');
+    assert.deepEqual(job.save(), data);
+
     let sharedBlock: SharedBlock = job.getValue('#shared');
     assert.instanceOf(sharedBlock, SharedBlock);
     let sharedProp = sharedBlock._prop;
+
+    assert.deepEqual(job.save(), data);
 
     job.destroy();
     assert.equal(sharedProp.getValue(), sharedBlock);

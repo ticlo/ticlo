@@ -27,8 +27,19 @@ export class SharedConfig extends BlockProperty {
 
   _save(): any {
     if (this._value instanceof SharedBlock) {
-      return this._value.save();
+      let result = this._value.save();
+      // check if SharedBlock is needed even with no child block
+      if ('#cacheMode' in result || '#custom' in result) {
+        return result;
+      }
+      // check if there is a child block
+      for (let key in result) {
+        if (isSavedBlock(result[key])) {
+          return result;
+        }
+      }
     }
+    return undefined;
   }
 }
 
