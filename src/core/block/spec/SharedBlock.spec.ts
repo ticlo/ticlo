@@ -1,5 +1,8 @@
 import {assert} from 'chai';
 import {JobWithShared, SharedBlock} from '../SharedBlock';
+import {WorkerFunction} from '../../worker/WorkerFunction';
+import {Functions} from '../Functions';
+import {JobWorker} from '../../worker/JobWorker';
 
 describe('SharedBlock', function () {
   it('basic', function () {
@@ -19,5 +22,44 @@ describe('SharedBlock', function () {
     assert.isFalse(sharedBlock._destroyed);
     job2.destroy();
     assert.isTrue(sharedBlock._destroyed);
+  });
+
+  it('save load', function () {
+    let data = {'#is': '', '#shared': {'#is': ''}};
+
+    let job = new JobWithShared();
+    job.load(data);
+    let sharedBlock: SharedBlock = job.getValue('#shared');
+    let sharedProp = sharedBlock._prop;
+    sharedBlock.setValue('v', 1);
+
+    let saved = job.save();
+    assert.deepEqual(saved, {'#is': '', '#shared': {'#is': '', 'v': 1}});
+
+    sharedBlock.setValue('v', 2);
+
+    job.liveUpdate(saved);
+    assert.equal(sharedBlock.getValue('v'), 1);
+
+    job.destroy();
+    assert.isUndefined(sharedProp.getValue());
+  });
+
+  it('cacheMode', function () {
+    let data = {'#is': '', '#shared': {'#is': '', '#cacheMode': 'persist'}};
+    WorkerFunction.registerType(data, {name: 'cacheModeWorker1', properties: []}, 'SharedBlock');
+
+    let job = new JobWorker();
+    job.load(data, 'SharedBlock:cacheModeWorker1');
+    let sharedBlock: SharedBlock = job.getValue('#shared');
+    assert.instanceOf(sharedBlock, SharedBlock);
+    let sharedProp = sharedBlock._prop;
+
+    job.destroy();
+    assert.equal(sharedProp.getValue(), sharedBlock);
+
+    // destroy persisted SharedBlock only when function is destroyed
+    Functions.clear('SharedBlock:cacheModeWorker1');
+    assert.isUndefined(sharedProp.getValue());
   });
 });
