@@ -93,13 +93,6 @@ export class BlockProperty extends PropDispatcher<any> implements PropListener<a
     this.onChange(val, true);
   }
 
-  // clear saved value and binding path if they exist, otherwise leave runtime value unchanged
-  liveClear() {
-    if (this._bindingPath || this._saved !== undefined) {
-      this.setValue(undefined);
-    }
-  }
-
   isCleared() {
     return this._bindingPath == null && this._saved === undefined;
   }
@@ -205,6 +198,12 @@ export class BlockProperty extends PropDispatcher<any> implements PropListener<a
       }
     } else if (val !== this._saved) {
       this.onChange(val, true);
+    }
+  }
+  // clear saved value and binding path if they exist, otherwise leave runtime value unchanged
+  _liveClear() {
+    if (this._bindingPath || this._saved !== undefined) {
+      this.setValue(undefined);
     }
   }
 

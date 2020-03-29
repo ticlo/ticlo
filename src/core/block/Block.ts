@@ -367,7 +367,7 @@ export class Block implements Runnable, FunctionData, PropListener<FunctionClass
     for (let [key, prop] of this._props) {
       // clear properties that don't exist in saved data
       if (!loadedFields.hasOwnProperty(key)) {
-        prop.liveClear();
+        prop._liveClear();
       }
     }
     // function should change after all the properties

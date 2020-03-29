@@ -19,6 +19,12 @@ export class SharedConfig extends BlockProperty {
       }
     }
   }
+  _liveClear() {
+    if (this._value instanceof SharedBlock) {
+      this._value._liveUpdate({});
+    }
+  }
+
   _save(): any {
     if (this._value instanceof SharedBlock) {
       return this._value.save();

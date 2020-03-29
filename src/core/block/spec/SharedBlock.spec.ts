@@ -41,6 +41,9 @@ describe('SharedBlock', function () {
     job.liveUpdate(saved);
     assert.equal(sharedBlock.getValue('v'), 1);
 
+    job.liveUpdate({'#is': ''});
+    assert.isUndefined(sharedBlock.getValue('v'));
+
     job.destroy();
     assert.isUndefined(sharedProp.getValue());
   });
