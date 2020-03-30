@@ -303,15 +303,8 @@ export class Block implements Runnable, FunctionData, PropListener<FunctionClass
 
   _save(): DataMap {
     let result: DataMap = {};
-    for (let [name, prop] of this._props) {
-      if (prop._bindingPath) {
-        result[`~${name}`] = prop._saveBinding();
-      } else {
-        let saved = prop._save();
-        if (saved !== undefined) {
-          result[name] = saved;
-        }
-      }
+    for (let [, prop] of this._props) {
+      prop._saveToMap(result);
     }
     return result;
   }
@@ -342,7 +335,7 @@ export class Block implements Runnable, FunctionData, PropListener<FunctionClass
   }
 
   // load the data but keep runtime values
-  _liveUpdate(map: DataMap) {
+  _liveUpdate(map: DataMap, clearUnused = true) {
     let loadedFields: DataMap = {'#is': true};
     for (let key in map) {
       if (key.charCodeAt(0) === 126) {
@@ -364,12 +357,15 @@ export class Block implements Runnable, FunctionData, PropListener<FunctionClass
         loadedFields[key] = true;
       }
     }
-    for (let [key, prop] of this._props) {
-      // clear properties that don't exist in saved data
-      if (!loadedFields.hasOwnProperty(key)) {
-        prop._liveClear();
+    if (clearUnused) {
+      for (let [key, prop] of this._props) {
+        // clear properties that don't exist in saved data
+        if (!loadedFields.hasOwnProperty(key)) {
+          prop._liveClear();
+        }
       }
     }
+
     // function should change after all the properties
     if (this._pendingClass) {
       this.onChange(this._pendingClass);

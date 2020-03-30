@@ -25,7 +25,7 @@ export class SharedConfig extends BlockProperty {
     }
   }
 
-  _save(): any {
+  _saveValue(): any {
     if (this._value instanceof SharedBlock) {
       let result = this._value.save();
       // check if SharedBlock is needed even with no child block
@@ -53,11 +53,14 @@ export class SharedBlock extends Job {
   static _dict = new Map<any, SharedBlock>();
   static loadSharedBlock(job: JobWithShared, funcId: string, data: DataMap) {
     let cacheKey = job.getCacheKey(funcId, data);
+    let sharedBlock: SharedBlock;
     if (typeof cacheKey === 'string') {
-      job._setSharedBlock(SharedBlock._loadFuncSharedBlock(job, cacheKey, data));
+      sharedBlock = SharedBlock._loadFuncSharedBlock(job, cacheKey, data);
     } else {
-      job._setSharedBlock(SharedBlock._loadSharedBlock(job, funcId, data, cacheKey));
+      sharedBlock = SharedBlock._loadSharedBlock(job, funcId, data, cacheKey);
     }
+    job._setSharedBlock(sharedBlock);
+    return sharedBlock;
   }
 
   static _loadFuncSharedBlock(job: JobWithShared, funcId: string, data: DataMap) {

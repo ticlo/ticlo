@@ -36,7 +36,7 @@ export class PropertyMover {
       if (property._bindingPath) {
         this.binding = property._saveBinding();
       } else {
-        this.saved = property._save();
+        this.saved = property._saveValue();
       }
 
       let checkOutbound = (checkProp: BlockProperty) => {

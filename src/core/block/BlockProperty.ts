@@ -1,6 +1,6 @@
 import {PropDispatcher, PropListener, Destroyable} from './Dispatcher';
 import {Block} from './Block';
-import {isSavedBlock} from '../util/DataTypes';
+import {DataMap, isSavedBlock} from '../util/DataTypes';
 
 export interface BlockBindingSource extends PropDispatcher<any>, Destroyable {
   getProperty(): BlockProperty;
@@ -138,7 +138,7 @@ export class BlockProperty extends PropDispatcher<any> implements PropListener<a
     this._bindingProperty = prop;
   }
 
-  _save(): any {
+  _saveValue(): any {
     if (this._saved !== undefined) {
       if (this._saved instanceof Block) {
         return this._saved._save();
@@ -156,6 +156,17 @@ export class BlockProperty extends PropDispatcher<any> implements PropListener<a
       return this._bindingProperty.__save();
     }
     return this._bindingPath;
+  }
+
+  _saveToMap(map: DataMap) {
+    if (this._bindingPath) {
+      map[`~${this._name}`] = this._saveBinding();
+    } else {
+      let saved = this._saveValue();
+      if (saved !== undefined) {
+        map[this._name] = saved;
+      }
+    }
   }
 
   _load(val: any) {
@@ -385,7 +396,7 @@ export class GlobalProperty extends BlockIO {
 
 export class HelperProperty extends BlockProperty {
   // a helper block should only be saved from original property
-  _save(): any {
+  _saveValue(): any {
     return undefined;
   }
 

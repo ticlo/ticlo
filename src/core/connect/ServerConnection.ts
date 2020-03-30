@@ -28,6 +28,8 @@ import {JobEditor} from '../worker/JobEditor';
 import {addOptionalProperty, moveOptionalProperty, removeOptionalProperty} from '../property-api/OptionalProperty';
 import {WorkerFunction} from '../worker/WorkerFunction';
 import {isBindable} from '../util/Path';
+import {ClientCallbacks} from './ClientRequests';
+import {createSharedBlock} from '../property-api/CopyPaste';
 
 class ServerRequest extends ConnectionSendingData {
   id: string;
@@ -588,10 +590,8 @@ export class ServerConnection extends Connection {
     if (!property && /\.#shared\.[^.]+$/.test(path)) {
       let sharedPath = path.substring(0, path.lastIndexOf('.'));
       let sharedProp = this.root.queryProperty(sharedPath, true);
-      if (sharedProp instanceof SharedConfig) {
-        // create shared block automatically
-        let job = sharedProp._block as JobWithShared;
-        SharedBlock.loadSharedBlock(job, job._loadFrom, {});
+      // create shared block when possible
+      if (createSharedBlock(sharedProp)) {
         // get the property again
         property = this.root.queryProperty(path, true);
       }
@@ -609,7 +609,7 @@ export class ServerConnection extends Connection {
           // check the current value and binding
           if (baseProperty._saved !== undefined) {
             if (!(baseProperty._saved instanceof Block)) {
-              keepSaved = baseProperty._save();
+              keepSaved = baseProperty._saveValue();
             }
           } else if (baseProperty._bindingPath) {
             keepBinding = baseProperty._bindingPath;
@@ -930,6 +930,25 @@ export class ServerConnection extends Connection {
     let property = this.root.queryProperty(path);
     if (property && property._value instanceof Block) {
       getTrackedJob(property._value, path, this.root).redo();
+      return null;
+    } else {
+      return 'invalid path';
+    }
+  }
+
+  copy(path: string, blocks: string[], cut: boolean) {
+    let property = this.root.queryProperty(path);
+    if (property && property._value instanceof Block) {
+
+      return null;
+    } else {
+      return 'invalid path';
+    }
+  }
+  paste(path: string, data: DataMap) {
+    let property = this.root.queryProperty(path);
+    if (property && property._value instanceof Block) {
+      getTrackedJob(property._value, path, this.root).trackChange();
       return null;
     } else {
       return 'invalid path';

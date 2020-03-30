@@ -114,6 +114,10 @@ export interface ClientConn {
 
   redo(path: string, callbacks?: ClientCallbacks): Promise<any> | string;
 
+  copy(path: string, blocks: string[], cut?: boolean, callbacks?: ClientCallbacks): Promise<any> | string;
+
+  paste(path: string, data: DataMap, callbacks?: ClientCallbacks): Promise<any> | string;
+
   watchDesc(id: string, listener?: ClientDescListener): FunctionDesc;
 
   unwatchDesc(listener: ClientDescListener): void;

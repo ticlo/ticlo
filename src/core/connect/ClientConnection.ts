@@ -389,6 +389,14 @@ export abstract class ClientConnection extends Connection implements ClientConn 
     return this.simpleRequest({cmd: 'redo', path}, callbacks);
   }
 
+  copy(path: string, blocks: string[], cut?: boolean, callbacks?: ClientCallbacks): Promise<any> | string {
+    return this.simpleRequest({cmd: 'copy', path, blocks, cut}, callbacks);
+  }
+
+  paste(path: string, data: DataMap, callbacks?: ClientCallbacks): Promise<any> | string {
+    return this.simpleRequest({cmd: 'paste', path, data}, callbacks);
+  }
+
   cancel(id: string) {
     let req: DataMap = this.requests.get(id);
     if (req instanceof ClientRequest) {

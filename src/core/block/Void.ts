@@ -17,7 +17,7 @@ class VoidProperty extends BlockProperty {
     // do nothing
   }
 
-  _save(): any {
+  _saveValue(): any {
     if (_strictMode) {
       throw new Error('Can not save destroyed property');
     }

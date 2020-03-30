@@ -126,7 +126,7 @@ export function ConstTypeConfig(type: string): typeof BlockProperty {
     constructor(block: Block, name: string) {
       super(block, name, type);
     }
-    _save(): any {
+    _saveValue(): any {
       // no need to save const types
       return '';
     }
