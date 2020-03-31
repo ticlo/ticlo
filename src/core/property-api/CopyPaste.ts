@@ -17,6 +17,10 @@ function getProperty(parent: Block, field: string, create = false): [BlockProper
 }
 export function createSharedBlock(property: BlockProperty): SharedBlock {
   if (property instanceof SharedConfig) {
+    let value = property._value;
+    if (value instanceof SharedBlock) {
+      return value;
+    }
     let job = property._block as JobWithShared;
     return SharedBlock.loadSharedBlock(job, job._loadFrom, {});
   }
@@ -61,11 +65,30 @@ export function pasteProperties(parent: Block, data: DataMap, overwrite = true):
   }
 
   let {'#shared': sharedData, ...others} = data;
-  if (sharedData) {
-    let sharedBlock: SharedBlock = parent.getValue('#shared');
-    if (!(sharedBlock instanceof SharedBlock)) {
-      sharedBlock = createSharedBlock(parent.getProperty('#shared'));
+
+  if (!overwrite) {
+    let existingBlocks: string[] = [];
+    for (let field in others) {
+      if (parent.getProperty(field, false)?._saved instanceof Block) {
+        existingBlocks.push(field);
+      }
     }
+    if (sharedData) {
+      let sharedBlock: SharedBlock = createSharedBlock(parent.getProperty('#shared'));
+      for (let field in sharedData) {
+        if (sharedBlock.getProperty(field, false)?._saved instanceof Block) {
+          existingBlocks.push(`#shared.${field}`);
+        }
+      }
+    }
+    if (existingBlocks.length) {
+      return `block already exists on: ${existingBlocks.join(',')}`;
+    }
+  }
+
+  if (sharedData) {
+    let sharedBlock: SharedBlock = createSharedBlock(parent.getProperty('#shared'));
+
     if (sharedBlock == null) {
       return '#shared properties not allowed in this Block';
     }
