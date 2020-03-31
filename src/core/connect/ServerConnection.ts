@@ -29,7 +29,7 @@ import {addOptionalProperty, moveOptionalProperty, removeOptionalProperty} from 
 import {WorkerFunction} from '../worker/WorkerFunction';
 import {isBindable} from '../util/Path';
 import {ClientCallbacks} from './ClientRequests';
-import {createSharedBlock} from '../property-api/CopyPaste';
+import {copyProperties, createSharedBlock, deleteProperties, pasteProperties} from '../property-api/CopyPaste';
 
 class ServerRequest extends ConnectionSendingData {
   id: string;
@@ -936,18 +936,28 @@ export class ServerConnection extends Connection {
     }
   }
 
-  copy(path: string, blocks: string[], cut: boolean) {
+  copy(path: string, props: string[], cut: boolean) {
     let property = this.root.queryProperty(path);
     if (property && property._value instanceof Block) {
-
-      return null;
+      let value = copyProperties(property._value, props);
+      if (typeof value === 'string') {
+        return value;
+      }
+      if (cut) {
+        deleteProperties(property._value, props);
+      }
+      return {value};
     } else {
       return 'invalid path';
     }
   }
-  paste(path: string, data: DataMap) {
+  paste(path: string, data: DataMap, overwrite: boolean) {
     let property = this.root.queryProperty(path);
     if (property && property._value instanceof Block) {
+      let result = pasteProperties(property._value, data, overwrite);
+      if (result) {
+        return result;
+      }
       getTrackedJob(property._value, path, this.root).trackChange();
       return null;
     } else {

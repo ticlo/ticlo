@@ -22,9 +22,9 @@ export function createSharedBlock(property: BlockProperty): SharedBlock {
   }
   return null;
 }
-export function copyProperties(parent: Block, fields: string[]) {
+export function copyProperties(parent: Block, fields: string[]): DataMap | string {
   let result: any = {};
-  let sharedResult: any = {};
+  let sharedResult: any;
   for (let field of fields) {
     let [prop, sharedBlock] = getProperty(parent, field);
 
@@ -40,6 +40,9 @@ export function copyProperties(parent: Block, fields: string[]) {
       }
     }
   }
+  if (Object.keys(result).length === 0) {
+    return 'nothing to copy';
+  }
   return result;
 }
 
@@ -53,6 +56,10 @@ export function deleteProperties(parent: Block, fields: string[]) {
 }
 
 export function pasteProperties(parent: Block, data: DataMap, overwrite = true): string {
+  if (!data || typeof data !== 'object' || data.constructor !== Object) {
+    return 'invalid data';
+  }
+
   let {'#shared': sharedData, ...others} = data;
   if (sharedData) {
     let sharedBlock: SharedBlock = parent.getValue('#shared');
