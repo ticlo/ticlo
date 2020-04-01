@@ -892,7 +892,7 @@ export class BlockItem extends BaseBlockItem {
       for (let field of this.getRenderFields()) {
         y1 = this.fieldItems.get(field).updateFieldPos(x, y1, w, fieldHeight);
       }
-      this.setH(y1 - fieldYOffset + 20 - y); // footer height
+      this.setH(y1 - fieldYOffset + 23 - y); // footer height
     }
     if (this._syncChild) {
       this._syncChild.setXYW(this.x, this.y + this.h, this.w);

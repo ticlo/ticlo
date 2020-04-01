@@ -18,6 +18,17 @@ interface BlockViewState {
   footDropping: boolean;
 }
 
+function snapW(val: number): number {
+  val = Math.round(val);
+  let m = val % 24;
+  if (m > 20) {
+    return val - m + 23;
+  } else if (m < 2) {
+    return val - m;
+  }
+  return val;
+}
+
 export class BlockView extends PureDataRenderer<BlockViewProps, BlockViewState> implements XYWRenderer {
   private _rootNode!: HTMLElement;
   private getRef = (node: HTMLDivElement): void => {
@@ -108,7 +119,7 @@ export class BlockView extends PureDataRenderer<BlockViewProps, BlockViewState> 
 
   onDragWMove = (e: DragState) => {
     let {item} = this.props;
-    let newW = Math.round(this._baseW + e.dx);
+    let newW = snapW(this._baseW + e.dx);
     if (!(newW > 80)) {
       newW = 80;
     }

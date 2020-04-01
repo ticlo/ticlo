@@ -45,7 +45,7 @@ export abstract class BlockStageBase<Props extends StagePropsBase, State> extend
    * 6 7 8
    */
   getNextXYW() {
-    let result: [number, number, number] = [this.nextXYx * 200 + 32, this.nextXYy * 200 + 32, 150];
+    let result: [number, number, number] = [this.nextXYx * 192 + 36, this.nextXYy * 192 + 36, 143];
     if (this.nextXYx === this.nextXYy) {
       this.nextXYx = this.nextXYy + 1;
       this.nextXYy = 0;
