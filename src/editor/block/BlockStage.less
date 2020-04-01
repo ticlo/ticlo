@@ -3,7 +3,6 @@
   outline: none;
 }
 
-.ticl-stage-bg,
 .ticl-stage-scroll {
   position: absolute;
   width: 100%;
@@ -11,9 +10,14 @@
 }
 
 .ticl-stage-bg {
-  background-size: 32px 32px;
+  background-size: 24px 24px;
   /* image from assets/stage-bg.gif */
-  background-image: url('data:image/gif;base64,R0lGODdhIAAgAKECAN3d3e7u7v///////ywAAAAAIAAgAAACJZSPqcvtD6OctNqLs968+w92QWiMYBAAaGiy5AvH8kzX9o3ndgEAOw==');
+  background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAQAAABKfvVzAAAAJ0lEQVQ4y2NgGAXDCexuwCXDRKpRLDhMr9/NwMDg2jAQThoFIwUAAPWlBbkMlnfPAAAAAElFTkSuQmCC');
+  opacity: 0.3;
+}
+
+.ticl-stage:focus .ticl-stage-bg {
+  opacity: 1;
 }
 
 .ticl-stage-scroll {

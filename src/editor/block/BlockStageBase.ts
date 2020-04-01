@@ -18,6 +18,15 @@ export interface StagePropsBase {
   onSelect?: (paths: string[]) => void;
 }
 
+function snapXY(val: number): number {
+  val = Math.round(val);
+  let m = val % 24;
+  if (m > 9 && m < 15) {
+    return val - m + 12;
+  }
+  return val;
+}
+
 export abstract class BlockStageBase<Props extends StagePropsBase, State> extends LazyUpdateComponent<Props, State>
   implements Stage {
   abstract getRefElement(): HTMLElement;
@@ -134,7 +143,7 @@ export abstract class BlockStageBase<Props extends StagePropsBase, State> extend
     conn.lockImmediate(e);
     for (let [block, x, y, w] of this._draggingBlocks) {
       if (!block._syncParent) {
-        block.setXYW(Math.round(x + e.dx), Math.round(y + e.dy), w, true);
+        block.setXYW(snapXY(x + e.dx), snapXY(y + e.dy), w, true);
       }
     }
     conn.unlockImmediate(e);
