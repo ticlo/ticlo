@@ -168,13 +168,13 @@ describe('editor BlockStage', function () {
       add: {
         '#is': 'add',
         '0': 1,
-        '@b-xyw': [100, 100, 150],
+        '@b-xyw': [100, 100, 143],
         '@b-p': ['0', '1'],
       },
       subtract: {
         '#is': 'subtract',
         '~0': '##.add.0',
-        '@b-xyw': [200, 200, 150],
+        '@b-xyw': [200, 200, 143],
         '@b-p': ['0'],
       },
     });
@@ -190,7 +190,7 @@ describe('editor BlockStage', function () {
     await shouldHappen(() => div.querySelector('svg.ticl-block-wire'));
 
     let addBlock = querySingle("//div.ticl-block-head[text()='add']/..", div);
-    assert.equal(addBlock.offsetWidth, 150);
+    assert.equal(addBlock.offsetWidth, 143);
 
     let wire = div.querySelector('svg.ticl-block-wire') as SVGSVGElement;
 
@@ -217,7 +217,7 @@ describe('editor BlockStage', function () {
 
     // expand block
     SimulateEvent.simulate(addBlock.querySelector('.ticl-block-head'), 'dblclick');
-    await shouldHappen(() => addBlock.offsetWidth === 150);
+    await shouldHappen(() => addBlock.offsetWidth === 143);
 
     // wire should disappear when source not in stage
     job.queryProperty('subtract.0').setBinding('##.unknown');
@@ -312,14 +312,13 @@ describe('editor BlockStage', function () {
     await shouldHappen(() => (div.querySelector('.ticl-block') as HTMLDivElement).offsetLeft > 0);
 
     let blocks = div.querySelectorAll('.ticl-block');
-    let xarr = [32, 232, 32, 232, 432, 432, 32, 232, 432, 632];
-    let yarr = [32, 32, 232, 232, 32, 232, 432, 432, 432, 32];
+    let xarr = [36, 228, 36, 228, 420, 420, 36, 228, 420, 612];
+    let yarr = [36, 36, 228, 228, 36, 228, 420, 420, 420, 36];
     for (let i = 0; i < 10; ++i) {
       let block = blocks[i] as HTMLDivElement;
       assert.equal(block.offsetLeft, xarr[i]);
       assert.equal(block.offsetTop, yarr[i]);
     }
-
     Root.instance.deleteValue('BlockStage6');
   });
 });

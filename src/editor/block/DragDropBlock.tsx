@@ -13,6 +13,10 @@ export function onDragBlockOver(conn: ClientConn, e: DragState) {
 
 type CreateBlockCallback = (name: string, data: {[key: string]: any}, shared: boolean) => void;
 
+function alignXY(val: number) {
+  return Math.floor((val - 12) / 24) * 24 + 12;
+}
+
 export function onDropBlock(conn: ClientConn, e: DragState, createBlock: CreateBlockCallback, bgElement: HTMLElement) {
   let blockData = DragState.getData('blockData', conn.getBaseConn());
   if (blockData && blockData.hasOwnProperty('#is')) {
@@ -25,8 +29,8 @@ export function onDropBlock(conn: ClientConn, e: DragState, createBlock: CreateB
     let blockName = DragState.getData('blockName', conn.getBaseConn()) || blockData['#is'];
 
     let onConfirmedBlockName = (name: string) => {
-      let width = 150;
-      let xyw = [Math.round(offsetX - 12), Math.round(offsetY - 12), width];
+      let width = 143;
+      let xyw = [alignXY(offsetX), alignXY(offsetY), width];
       if (blockData.hasOwnProperty('@b-xyw')) {
         let dataXyw = blockData['@b-xyw'];
         if (Array.isArray(dataXyw)) {

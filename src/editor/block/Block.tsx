@@ -105,7 +105,7 @@ export class BlockView extends PureDataRenderer<BlockViewProps, BlockViewState> 
     if (item.w) {
       item.setXYW(item.x, item.y, 0);
     } else {
-      item.setXYW(item.x, item.y, 150);
+      item.setXYW(item.x, item.y, 143);
     }
   };
 
@@ -204,7 +204,7 @@ export class BlockView extends PureDataRenderer<BlockViewProps, BlockViewState> 
         />
       );
       if (!(width > 80)) {
-        width = 150;
+        width = 143;
       }
       return (
         <DragDropDiv

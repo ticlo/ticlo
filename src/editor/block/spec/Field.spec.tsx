@@ -73,7 +73,7 @@ describe('editor Block Field', function () {
       add: {
         '#is': 'add',
         '0': 1,
-        '@b-xyw': [100, 100, 150],
+        '@b-xyw': [100, 100, 143],
         '@b-p': ['0'],
       },
       subtract: {
@@ -84,7 +84,7 @@ describe('editor Block Field', function () {
           '~1': '##.##.add.0',
           '@b-p': ['0', '1'],
         },
-        '@b-xyw': [120, 280, 150],
+        '@b-xyw': [120, 280, 143],
         '@b-p': ['0'],
       },
     });
@@ -129,13 +129,13 @@ describe('editor Block Field', function () {
       add: {
         '#is': 'add',
         '0': {a: 3},
-        '@b-xyw': [100, 100, 150],
+        '@b-xyw': [100, 100, 143],
         '@b-p': ['0'],
       },
       subtract: {
         '#is': 'subtract',
         '~0': '##.add.0.a',
-        '@b-xyw': [260, 124, 150],
+        '@b-xyw': [260, 124, 143],
         '@b-p': ['0'],
       },
     });

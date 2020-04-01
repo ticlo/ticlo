@@ -52,7 +52,7 @@ export class MiniBlockView extends PureDataRenderer<MiniBlockViewProps, any> imp
       let width = item.w;
 
       if (!(width > 80)) {
-        width = 150;
+        width = 143;
       }
       return (
         <div
