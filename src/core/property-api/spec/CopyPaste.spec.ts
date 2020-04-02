@@ -37,7 +37,7 @@ describe('Copy Paste', function () {
     assert.equal(pasteProperties(job1, 1 as any), 'invalid data');
 
     job1.load(data);
-    assert.isTrue(pasteProperties(job1, copy, false).startsWith('block already exists on: '));
+    assert.isTrue(pasteProperties(job1, copy).startsWith('block already exists: '));
 
     assert.equal(pasteProperties(job1.getValue('add'), copy), '#shared properties not allowed in this Block');
   });

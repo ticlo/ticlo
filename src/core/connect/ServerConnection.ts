@@ -454,6 +454,14 @@ export class ServerConnection extends Connection {
             result = this.redo(request.path);
             break;
           }
+          case 'copy': {
+            result = this.copy(request.path, request.props, request.cut);
+            break;
+          }
+          case 'paste': {
+            result = this.paste(request.path, request.data, request.resolve);
+            break;
+          }
           default:
             result = 'invalid command';
         }
@@ -951,10 +959,10 @@ export class ServerConnection extends Connection {
       return 'invalid path';
     }
   }
-  paste(path: string, data: DataMap, overwrite: boolean) {
+  paste(path: string, data: DataMap, resolve: string) {
     let property = this.root.queryProperty(path);
     if (property && property._value instanceof Block) {
-      let result = pasteProperties(property._value, data, overwrite);
+      let result = pasteProperties(property._value, data, resolve);
       if (result) {
         return result;
       }

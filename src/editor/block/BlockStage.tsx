@@ -1,5 +1,5 @@
-import React, {CSSProperties, KeyboardEvent} from 'react';
-import {Button, Tooltip} from 'antd';
+import React, {ClipboardEventHandler, CSSProperties, KeyboardEvent} from 'react';
+import {Button, notification, Tooltip} from 'antd';
 import ZoomInIcon from '@ant-design/icons/ZoomInOutlined';
 import ZoomOutIcon from '@ant-design/icons/ZoomOutOutlined';
 import UndoIcon from '@ant-design/icons/UndoOutlined';
@@ -17,6 +17,7 @@ import debounce from 'lodash/debounce';
 import clamp from 'lodash/clamp';
 import {GestureState} from 'rc-dock/lib';
 import {TooltipIconButton} from '../component/TooltipIconButton';
+import {decode, encode} from '../../../src/core/editor';
 
 const MINI_WINDOW_SIZE = 128;
 
@@ -112,6 +113,9 @@ export class BlockStage extends BlockStageBase<BlockStageProps, StageState> {
 
     this.resizeObserver = new ResizeObserver(this.handleResize);
     this.resizeObserver.observe(this._rootNode);
+
+    // TODO figure out why directly adding listener on this._rootNode doesn't work
+    document.body.addEventListener('paste', this.onPaste);
   }
 
   _popupCount = 0;
@@ -580,10 +584,52 @@ export class BlockStage extends BlockStageBase<BlockStageProps, StageState> {
         this.deleteSelectedBlocks();
         return;
       }
+      case 'c': {
+        if (e.ctrlKey || e.metaKey) {
+          this.onCopy();
+        }
+        return;
+      }
+    }
+  };
+  onCopy = async () => {
+    try {
+      let {conn, basePath} = this.props;
+      let props: string[] = [];
+      let basePathDot = `${basePath}.`;
+      for (let [, blockItem] of this._blocks) {
+        if (blockItem.selected && blockItem.path.startsWith(basePathDot)) {
+          props.push(blockItem.path.substring(basePathDot.length));
+        }
+      }
+      if (!props.length) {
+        // nothing to copy
+        return;
+      }
+
+      let data = await conn.copy(basePath, props);
+      await window.navigator.clipboard.writeText(encode(data.value));
+    } catch (e) {
+      notification.error({message: 'Failed to copy', description: String(e)});
+    }
+  };
+  onPaste = async (e: ClipboardEvent) => {
+    if (this._rootNode && document.activeElement === this._rootNode) {
+      let txt = e.clipboardData.getData('Text');
+      try {
+        let data = decode(txt);
+        let {conn, basePath} = this.props;
+        // todo, check existing block and ask
+        await conn.paste(basePath, data);
+      } catch (e) {
+        notification.error({message: 'Failed to paste', description: String(e)});
+      }
     }
   };
 
   componentWillUnmount() {
+    document.body.removeEventListener('paste', this.onPaste);
+
     if (this.resizeObserver) {
       this.resizeObserver.disconnect();
     }

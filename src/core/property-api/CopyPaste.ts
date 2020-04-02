@@ -59,14 +59,14 @@ export function deleteProperties(parent: Block, fields: string[]) {
   }
 }
 
-export function pasteProperties(parent: Block, data: DataMap, overwrite = true): string {
+export function pasteProperties(parent: Block, data: DataMap, resolve?: 'overwrite' | 'rename'): string {
   if (!data || typeof data !== 'object' || data.constructor !== Object) {
     return 'invalid data';
   }
 
   let {'#shared': sharedData, ...others} = data;
 
-  if (!overwrite) {
+  if (resolve !== 'overwrite') {
     let existingBlocks: string[] = [];
     for (let field in others) {
       if (parent.getProperty(field, false)?._saved instanceof Block) {
@@ -75,14 +75,21 @@ export function pasteProperties(parent: Block, data: DataMap, overwrite = true):
     }
     if (sharedData) {
       let sharedBlock: SharedBlock = createSharedBlock(parent.getProperty('#shared'));
-      for (let field in sharedData) {
-        if (sharedBlock.getProperty(field, false)?._saved instanceof Block) {
-          existingBlocks.push(`#shared.${field}`);
+      if (sharedBlock) {
+        // ignore the shared block not allowed error here, handle it later
+        for (let field in sharedData) {
+          if (sharedBlock.getProperty(field, false)?._saved instanceof Block) {
+            existingBlocks.push(`#shared.${field}`);
+          }
         }
       }
     }
-    if (existingBlocks.length) {
-      return `block already exists on: ${existingBlocks.join(',')}`;
+    if (resolve === 'rename') {
+      // todo, handle rename;
+    } else {
+      if (existingBlocks.length) {
+        return `block already exists: ${existingBlocks.join(',')}`;
+      }
     }
   }
 
