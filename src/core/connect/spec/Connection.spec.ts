@@ -841,4 +841,23 @@ describe('Connection', function () {
     client.destroy();
     Root.instance.deleteValue('Connection23');
   });
+
+  it('copy paste', async function () {
+    let job = Root.instance.addJob('Connection24');
+    let data = {'#is': '', 'add': {'#is': 'add'}};
+    job.load(data);
+
+    let [server, client] = makeLocalConnection(Root.instance, false);
+
+    let copied = (await client.copy('Connection24', ['add'])).value;
+    assert.deepEqual(copied, {add: {'#is': 'add'}});
+
+    job.deleteValue('add');
+
+    await client.paste('Connection24', data);
+    assert.deepEqual(job.save(), data);
+
+    client.destroy();
+    Root.instance.deleteValue('Connection24');
+  });
 });

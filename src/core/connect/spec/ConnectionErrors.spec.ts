@@ -114,6 +114,12 @@ describe('Connection Error', function () {
     assert.equal(await shouldReject(client.undo('ConnectionError1.a.b.c') as Promise<any>), 'invalid path');
     assert.equal(await shouldReject(client.redo('ConnectionError1.a.b.c') as Promise<any>), 'invalid path');
 
+    assert.equal(await shouldReject(client.copy('ConnectionError1.a', ['add']) as Promise<any>), 'invalid path');
+    assert.equal(
+      await shouldReject(client.paste('ConnectionError1.a', {add: {'#is': 'add'}}) as Promise<any>),
+      'invalid path'
+    );
+
     let callbacks = new AsyncClientPromise();
     client.watch('ConnectionError1.a.b.c', callbacks);
     assert.equal(await shouldReject(callbacks.promise), 'invalid path');
