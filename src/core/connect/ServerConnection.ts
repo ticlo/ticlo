@@ -959,7 +959,7 @@ export class ServerConnection extends Connection {
       return 'invalid path';
     }
   }
-  paste(path: string, data: DataMap, resolve: string) {
+  paste(path: string, data: DataMap, resolve?: 'overwrite' | 'rename') {
     let property = this.root.queryProperty(path);
     if (property && property._value instanceof Block) {
       let result = pasteProperties(property._value, data, resolve);
