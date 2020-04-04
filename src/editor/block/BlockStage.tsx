@@ -584,16 +584,21 @@ export class BlockStage extends BlockStageBase<BlockStageProps, StageState> {
     switch (e.key) {
       case 'Delete': {
         this.deleteSelectedBlocks();
+        e.preventDefault();
+        e.stopPropagation();
         return;
       }
       case 'c': {
         if (e.ctrlKey || e.metaKey) {
           this.onCopy();
+          e.preventDefault();
+          e.stopPropagation();
         }
         return;
       }
     }
   };
+
   onCopy = async () => {
     try {
       let {conn, basePath} = this.props;

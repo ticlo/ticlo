@@ -1,4 +1,4 @@
-import React, {ReactNode} from 'react';
+import React, {KeyboardEvent, ReactNode} from 'react';
 import {Button, Tooltip} from 'antd';
 import MenuUnfoldIcon from '@ant-design/icons/MenuUnfoldOutlined';
 import MenuFoldIcon from '@ant-design/icons/MenuFoldOutlined';
@@ -13,6 +13,7 @@ interface Props {
   conn: ClientConn;
   basePath: string;
   onSelect?: (keys: string[], handled: boolean) => void;
+  onSave?: () => void;
 }
 
 interface State {
@@ -37,10 +38,10 @@ export class BlockStagePane extends LazyUpdateComponent<Props, State> {
     let tabName = decodeURIComponent(path.split('.').pop());
     return {
       id,
-      closable: !onSave,
+      closable: !onSave, // use the custom close button when onSave is not null
       title: onSave ? <BlockStageTabButton conn={conn} id={id} path={path} title={tabName} onSave={onSave} /> : tabName,
       group: 'blockStage',
-      content: <BlockStagePane conn={conn} basePath={path} onSelect={onSelect} />,
+      content: <BlockStagePane conn={conn} basePath={path} onSelect={onSelect} onSave={onSave} />,
     };
   }
 
@@ -108,12 +109,27 @@ export class BlockStagePane extends LazyUpdateComponent<Props, State> {
     this.setState({sizes});
   };
 
+  onKeyDown = (e: KeyboardEvent) => {
+    console.log(123);
+    let {onSave} = this.props;
+    switch (e.key) {
+      case 's': {
+        if (onSave && (e.ctrlKey || e.metaKey)) {
+          onSave();
+          e.preventDefault();
+          e.stopPropagation();
+        }
+        return;
+      }
+    }
+  };
+
   renderImpl() {
-    let {conn, basePath} = this.props;
+    let {conn, basePath, onSave} = this.props;
     let {showPropertyList, selectedKeys, sizes, blockKey} = this.state;
 
     return (
-      <div className="ticl-hbox ticl-stage-tab-content" ref={this.getRef}>
+      <div className="ticl-hbox ticl-stage-tab-content" ref={this.getRef} onKeyDown={this.onKeyDown} tabIndex={0}>
         {blockKey ? (
           <BlockStage
             key={blockKey}
