@@ -1,5 +1,5 @@
 import React, {ClipboardEventHandler, CSSProperties, KeyboardEvent} from 'react';
-import {Button, notification, Tooltip} from 'antd';
+import {Button, notification, Modal} from 'antd';
 import ZoomInIcon from '@ant-design/icons/ZoomInOutlined';
 import ZoomOutIcon from '@ant-design/icons/ZoomOutOutlined';
 import UndoIcon from '@ant-design/icons/UndoOutlined';
@@ -17,7 +17,7 @@ import debounce from 'lodash/debounce';
 import clamp from 'lodash/clamp';
 import {GestureState} from 'rc-dock/lib';
 import {TooltipIconButton} from '../component/TooltipIconButton';
-import {decode, encode} from '../../../src/core/editor';
+import {DataMap, decode, encode} from '../../../src/core/editor';
 
 const MINI_WINDOW_SIZE = 128;
 
@@ -27,6 +27,7 @@ interface StageState {
   contentHeight: number;
   stageWidth: number;
   stageHeight: number;
+  modal?: React.ReactElement;
 }
 
 const zooms = [0.25, 1 / 3, 0.5, 2 / 3, 0.75, 0.8, 0.9, 1, 1.1, 1.25, 1.5, 1.75, 2, 2.5, 3, 4];
@@ -461,7 +462,7 @@ export class BlockStage extends BlockStageBase<BlockStageProps, StageState> {
 
   renderImpl() {
     let {style, conn, basePath, toolButtons} = this.props;
-    let {zoom, contentWidth, contentHeight, stageWidth, stageHeight} = this.state;
+    let {zoom, contentWidth, contentHeight, stageWidth, stageHeight, modal} = this.state;
 
     let children: React.ReactNode[] = [];
     let miniChildren: React.ReactNode[] = [];
@@ -574,6 +575,7 @@ export class BlockStage extends BlockStageBase<BlockStageProps, StageState> {
             onClick={this.redo}
           />
         </div>
+        {modal}
       </div>
     );
   }
@@ -618,13 +620,88 @@ export class BlockStage extends BlockStageBase<BlockStageProps, StageState> {
       let txt = e.clipboardData.getData('Text');
       try {
         let data = decode(txt);
-        let {conn, basePath} = this.props;
-        // todo, check existing block and ask
-        await conn.paste(basePath, data);
+        if (data && typeof data === 'object') {
+          this.pasteData(data);
+        } else {
+          notification.error({message: 'Failed to paste', description: 'Invalid input'});
+        }
       } catch (e) {
         notification.error({message: 'Failed to paste', description: String(e)});
       }
     }
+  };
+  async pasteData(data: DataMap, resolve?: 'overwrite' | 'rename') {
+    let {conn, basePath} = this.props;
+    if (!resolve) {
+      let existing: string[] = [];
+      // check if object already exist
+      for (let key in data) {
+        if (key === '#shared') {
+          let shared = data['#shared'];
+          if (shared && typeof shared === 'object') {
+            for (let skey in shared) {
+              if (this._blocks.has(`${basePath}.#shared.${skey}`)) {
+                existing.push(`#shared.${skey}`);
+              }
+            }
+          }
+        } else if (this._blocks.has(`${basePath}.${key}`)) {
+          existing.push(key);
+        }
+      }
+      if (existing.length) {
+        this.showPasteConflict(existing, data);
+        return;
+      }
+    }
+    try {
+      await conn.paste(basePath, data, resolve);
+    } catch (e) {
+      notification.error({message: 'Failed to paste', description: String(e)});
+    }
+    this.closeModal();
+  }
+  showPasteConflict(blocks: string[], data: DataMap) {
+    this.setState({
+      modal: (
+        <Modal
+          visible={true}
+          title="Conflict"
+          onCancel={this.closeModal}
+          bodyStyle={{whiteSpace: 'pre'}}
+          footer={[
+            <Button key="cancel" onClick={this.closeModal}>
+              Cancel
+            </Button>,
+            <Button
+              key="rename"
+              onClick={
+                /* tslint:disable-next-line:jsx-no-lambda */
+                () => this.pasteData(data, 'rename')
+              }
+            >
+              Rename
+            </Button>,
+            <Button
+              key="overwrite"
+              onClick={
+                /* tslint:disable-next-line:jsx-no-lambda */
+                () => this.pasteData(data, 'overwrite')
+              }
+            >
+              Overwrite
+            </Button>,
+          ]}
+        >
+          <p>Following blocks already exist:</p>
+          <p>{blocks.join('\n')}</p>
+        </Modal>
+      ),
+    });
+  }
+
+  closeModal = () => {
+    this.setState({modal: null});
   };
 
   componentWillUnmount() {
