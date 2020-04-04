@@ -354,7 +354,7 @@ export abstract class BlockStageBase<Props extends StagePropsBase, State> extend
     let {conn, basePath} = this.props;
     let parentPath = shared ? this._sharedPath : basePath;
     try {
-      let newName = (await conn.createBlock(`${parentPath}.${name}`, blockData, true)).name;
+      let newName = (await conn.addBlock(`${parentPath}.${name}`, blockData, true)).name;
       let newPath = `${parentPath}.${newName}`;
       this.selectBlock(newPath, false);
       this.onSelect(); // update the property list

@@ -38,7 +38,7 @@ describe('Connection', function () {
     let job = Root.instance.addJob('Connection1');
     let [server, client] = makeLocalConnection(Root.instance, false);
 
-    await client.createBlock('Connection1.block1', {'#is': 'add'});
+    await client.addBlock('Connection1.block1', {'#is': 'add'});
     assert.equal(job.queryValue('block1.#is'), 'add', 'basic set');
 
     let callbacks = new AsyncClientPromise();
@@ -207,7 +207,7 @@ describe('Connection', function () {
     client.unwatch('Connection3', callbacks2);
     client.unwatch('Connection3', callbacks1);
 
-    await client.createBlock('Connection3.c2');
+    await client.addBlock('Connection3.c2');
     assert.equal(callbacks1.promise, cachedPromise1, "promise shouldn't be updated after unwatch");
     assert.isNull(job._watchers, 'job not watched after unwatch');
 
@@ -533,19 +533,19 @@ describe('Connection', function () {
 
     let [server, client] = makeLocalConnection(Root.instance, false);
 
-    await client.createBlock('Connection12.~a');
+    await client.addBlock('Connection12.~a');
 
     assert.instanceOf(job1.getValue('~a'), Block);
     assert.equal(job1.getProperty('a')._bindingPath, '~a.#output');
 
     // transfer property value
     await client.setValue('Connection12.b', 2);
-    await client.createBlock('Connection12.~b', {'#is': 'add'});
+    await client.addBlock('Connection12.~b', {'#is': 'add'});
     assert.equal(job1.queryValue('~b.0'), 2);
 
     // transfer property binding
     await client.setBinding('Connection12.c', '##.v');
-    await client.createBlock('Connection12.~c', {'#is': 'add'});
+    await client.addBlock('Connection12.~c', {'#is': 'add'});
     assert.equal(job1.queryProperty('~c.0')._bindingPath, '##.##.v');
 
     client.destroy();
@@ -557,9 +557,9 @@ describe('Connection', function () {
 
     let [server, client] = makeLocalConnection(Root.instance, false);
 
-    let response1 = await client.createBlock('Connection13.a', null, true);
-    let response2 = await client.createBlock('Connection13.a', null, true);
-    let response3 = await client.createBlock('Connection13.a', null, true);
+    let response1 = await client.addBlock('Connection13.a', null, true);
+    let response2 = await client.addBlock('Connection13.a', null, true);
+    let response3 = await client.addBlock('Connection13.a', null, true);
 
     // result names
     assert.equal(response1.name, 'a');

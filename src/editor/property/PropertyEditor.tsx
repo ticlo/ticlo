@@ -495,7 +495,7 @@ export class PropertyEditor extends MultiSelectComponent<PropertyEditorProps, St
     }
 
     for (let path of paths) {
-      conn.createBlock(`${path}.~${name}`, data);
+      conn.addBlock(`${path}.~${name}`, data);
     }
     this.safeSetState({showMenu: false, showSubBlock: true});
   };

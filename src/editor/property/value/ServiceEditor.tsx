@@ -35,7 +35,7 @@ export class ServiceEditor extends React.PureComponent<Props, State> {
     let {create} = desc;
     let funcDesc = conn.watchDesc(create);
     if (funcDesc) {
-      let createdBlock = await conn.createBlock(`#global.^${funcDesc.name}`, getDefaultFuncData(funcDesc), true);
+      let createdBlock = await conn.addBlock(`#global.^${funcDesc.name}`, getDefaultFuncData(funcDesc), true);
       if (createdBlock && createdBlock.hasOwnProperty('name')) {
         onPathChange(`${createdBlock.name}.#output`);
         this.openPopup();

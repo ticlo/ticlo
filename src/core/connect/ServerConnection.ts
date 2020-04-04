@@ -300,22 +300,11 @@ function trackChange(property: BlockProperty, path: string, root: Root) {
   getTrackedJob(property._block, path, root).trackChange();
 }
 
-export class ServerConnection extends Connection {
-  root: Root;
-
+class ServerConnectionCore extends Connection {
   requests: {[key: string]: ServerRequest} = {};
 
-  constructor(root: Root) {
+  constructor(public root: Root) {
     super();
-    this.root = root;
-  }
-
-  destroy() {
-    for (let key in this.requests) {
-      this.requests[key].close();
-    }
-    this.requests = null;
-    super.destroy();
   }
 
   addRequest(id: string, req: ServerRequest) {
@@ -332,139 +321,15 @@ export class ServerConnection extends Connection {
         return;
       }
       if (typeof request.path === 'string') {
-        let result: string | DataMap | ServerRequest;
-        switch (request.cmd) {
-          case 'set': {
-            result = this.setValue(request.path, request.value);
-            break;
+        let result: string | DataMap | ServerRequest = 'invalid command';
+        let cmd: string = request.cmd;
+        if (ServerConnection.prototype.hasOwnProperty(cmd)) {
+          let func: Function = (this as any)[cmd];
+          if (typeof func === 'function' && func.length === 1 && !cmd.startsWith('on')) {
+            result = func.call(this, request);
           }
-          case 'get': {
-            result = this.getValue(request.path);
-            break;
-          }
-          case 'bind': {
-            result = this.setBinding(request.path, request.from, request.absolute);
-            break;
-          }
-          case 'update': {
-            result = this.updateValue(request.path, request.value);
-            break;
-          }
-          case 'create': {
-            result = this.createBlock(request.path, request.data, request.anyName);
-            break;
-          }
-          case 'addJob': {
-            result = this.addJob(request.path, request.data);
-            break;
-          }
-          case 'command': {
-            break;
-          }
-          case 'subscribe': {
-            result = this.subscribeProperty(request.path, request.id);
-            break;
-          }
-          case 'watch': {
-            result = this.watchBlock(request.path, request.id);
-            break;
-          }
-          case 'list': {
-            result = this.listChildren(request.path, request.filter, request.max);
-            break;
-          }
-          case 'addType': {
-            break;
-          }
-          case 'watchDesc': {
-            result = this.watchDesc(request.id);
-            break;
-          }
-          case 'editWorker': {
-            result = this.editWorker(request.path, request.fromField, request.fromFunction, request.defaultData);
-            break;
-          }
-          case 'applyJobChange': {
-            result = this.applyJobChange(request.path, request.funcId);
-            break;
-          }
-          case 'deleteFunction': {
-            result = this.deleteFunction(request.funcId);
-            break;
-          }
-          //// property utils
-
-          case 'showProps': {
-            result = this.showProps(request.path, request.props);
-            break;
-          }
-          case 'hideProps': {
-            result = this.hideProps(request.path, request.props);
-            break;
-          }
-          case 'moveShownProp': {
-            result = this.moveShownProp(request.path, request.propFrom, request.propTo);
-            break;
-          }
-          case 'setLen': {
-            result = this.setLen(request.path, request.group, request.length);
-            break;
-          }
-          case 'addCustomProp': {
-            result = this.addCustomProp(request.path, request.desc, request.group);
-            break;
-          }
-          case 'removeCustomProp': {
-            result = this.removeCustomProp(request.path, request.name, request.group);
-            break;
-          }
-          case 'moveCustomProp': {
-            result = this.moveCustomProp(request.path, request.nameFrom, request.nameTo, request.group);
-            break;
-          }
-          case 'addOptionalProp': {
-            result = this.addOptionalProp(request.path, request.name);
-            break;
-          }
-          case 'removeOptionalProp': {
-            result = this.removeOptionalProp(request.path, request.name);
-            break;
-          }
-          case 'moveOptionalProp': {
-            result = this.moveOptionalProp(request.path, request.nameFrom, request.nameTo);
-            break;
-          }
-          case 'insertGroupProp': {
-            result = this.insertGroupProp(request.path, request.group, request.idx);
-            break;
-          }
-          case 'removeGroupProp': {
-            result = this.removeGroupProp(request.path, request.group, request.idx);
-            break;
-          }
-          case 'moveGroupProp': {
-            result = this.moveGroupProp(request.path, request.group, request.oldIdx, request.newIdx);
-            break;
-          }
-          case 'undo': {
-            result = this.undo(request.path);
-            break;
-          }
-          case 'redo': {
-            result = this.redo(request.path);
-            break;
-          }
-          case 'copy': {
-            result = this.copy(request.path, request.props, request.cut);
-            break;
-          }
-          case 'paste': {
-            result = this.paste(request.path, request.data, request.resolve);
-            break;
-          }
-          default:
-            result = 'invalid command';
         }
+
         if (result instanceof ServerRequest) {
           this.addRequest(request.id, result);
         } else if (result) {
@@ -476,7 +341,7 @@ export class ServerConnection extends Connection {
         } else {
           this.sendDone(request.id);
         }
-      } else if (request.id != null) {
+      } else {
         this.sendError(request.id, 'invalid path');
       }
     }
@@ -501,18 +366,30 @@ export class ServerConnection extends Connection {
     }
   }
 
-  setValue(path: string, val: any): string {
-    let property = this.root.queryProperty(path, val !== undefined);
+  destroy() {
+    for (let key in this.requests) {
+      this.requests[key].close();
+    }
+    this.requests = null;
+    super.destroy();
+  }
+}
+
+export class ServerConnection extends ServerConnectionCore {
+  // set value
+  set({path, value}: {path: string; value: any}): string {
+    let property = this.root.queryProperty(path, value !== undefined);
     if (property) {
-      property.setValue(val);
+      property.setValue(value);
       trackChange(property, path, this.root);
       return null;
-    } else if (val !== undefined) {
+    } else if (value !== undefined) {
       return 'invalid path';
     }
   }
 
-  getValue(path: string): DataMap | string {
+  // get value
+  get({path}: {path: string}): DataMap | string {
     let property = this.root.queryProperty(path, true);
     if (property) {
       return {value: property._value};
@@ -521,17 +398,19 @@ export class ServerConnection extends Connection {
     }
   }
 
-  updateValue(path: string, val: any): string {
+  // update value
+  update({path, value}: {path: string; value: any}): string {
     let property = this.root.queryProperty(path, true);
     if (property) {
-      property.updateValue(val);
+      property.updateValue(value);
       return null;
     } else {
       return 'invalid path';
     }
   }
 
-  setBinding(path: string, from: string, absolute: boolean): string {
+  // set binding
+  bind({path, from, absolute}: {path: string; from: string; absolute: boolean}): string {
     let property = this.root.queryProperty(path, true);
     if (property) {
       if (absolute) {
@@ -585,7 +464,7 @@ export class ServerConnection extends Connection {
     return 'invalid path';
   }
 
-  addJob(path: string, data?: DataMap): string | DataMap {
+  addJob({path, data}: {path: string; data?: DataMap}): string | DataMap {
     if (this.root.addJob(path, data)) {
       return null;
     } else {
@@ -593,7 +472,7 @@ export class ServerConnection extends Connection {
     }
   }
 
-  createBlock(path: string, data?: DataMap, anyName?: boolean): string | DataMap {
+  addBlock({path, data, anyName}: {path: string; data?: DataMap; anyName?: boolean}): string | DataMap {
     let property = this.root.queryProperty(path, true);
     if (!property && /\.#shared\.[^.]+$/.test(path)) {
       let sharedPath = path.substring(0, path.lastIndexOf('.'));
@@ -652,7 +531,7 @@ export class ServerConnection extends Connection {
     }
   }
 
-  listChildren(path: string, filter: string, max: number): string | DataMap {
+  list({path, filter, max}: {path: string; filter: string; max: number}): string | DataMap {
     let property = this.root.queryProperty(path, true);
     if (!(max > 0 && max < 1024)) {
       max = 16;
@@ -686,7 +565,7 @@ export class ServerConnection extends Connection {
     }
   }
 
-  subscribeProperty(path: string, id: string): string | ServerSubscribe {
+  subscribe({path, id}: {path: string; id: string}): string | ServerSubscribe {
     let property = this.root.queryProperty(path, true);
     if (property) {
       let subscriber = new ServerSubscribe(this, id, property);
@@ -697,7 +576,7 @@ export class ServerConnection extends Connection {
     }
   }
 
-  watchBlock(path: string, id: string): string | ServerWatch {
+  watch({path, id}: {path: string; id: string}): string | ServerWatch {
     let property = this.root.queryProperty(path, true);
     if (property && property._value instanceof Block) {
       let watch = new ServerWatch(this, id, property._value, property);
@@ -708,15 +587,25 @@ export class ServerConnection extends Connection {
     }
   }
 
-  watchDesc(id: string): ServerDescWatcher {
+  watchDesc({id}: {id: string}): ServerDescWatcher {
     return new ServerDescWatcher(this, id);
   }
 
-  blockCommand(path: string, command: string, params: DataMap) {
+  blockCommand({path, command, params}: {path: string; command: string; params: DataMap}) {
     // TODO
   }
 
-  editWorker(path: string, fromField: string, fromFunction: string, defaultData: DataMap) {
+  editWorker({
+    path,
+    fromField,
+    fromFunction,
+    defaultData,
+  }: {
+    path: string;
+    fromField: string;
+    fromFunction: string;
+    defaultData: DataMap;
+  }) {
     let property = this.root.queryProperty(path, true);
 
     if (property && property._name.startsWith('#edit-')) {
@@ -731,7 +620,7 @@ export class ServerConnection extends Connection {
     }
   }
 
-  applyJobChange(path: string, funcId: string) {
+  applyJobChange({path, funcId}: {path: string; funcId: string}) {
     let property = this.root.queryProperty(path, true);
     if (property && property._value instanceof Job) {
       if (funcId && property._value instanceof JobEditor) {
@@ -752,14 +641,14 @@ export class ServerConnection extends Connection {
     }
   }
 
-  deleteFunction(funcId: string): string {
+  deleteFunction({funcId}: {funcId: string}): string {
     if (funcId.startsWith(':')) {
       Functions.clear(funcId);
     }
     return null;
   }
 
-  showProps(path: string, props: string[]) {
+  showProps({path, props}: {path: string; props: string[]}) {
     if (!Array.isArray(props)) {
       return 'invalid properties';
     }
@@ -774,7 +663,7 @@ export class ServerConnection extends Connection {
     }
   }
 
-  hideProps(path: string, props: string[]) {
+  hideProps({path, props}: {path: string; props: string[]}) {
     if (!Array.isArray(props)) {
       return 'invalid properties';
     }
@@ -789,7 +678,7 @@ export class ServerConnection extends Connection {
     }
   }
 
-  moveShownProp(path: string, propFrom: string, propTo: string) {
+  moveShownProp({path, propFrom, propTo}: {path: string; propFrom: string; propTo: string}) {
     let property = this.root.queryProperty(path);
 
     if (property && property._value instanceof Block) {
@@ -801,7 +690,7 @@ export class ServerConnection extends Connection {
     }
   }
 
-  setLen(path: string, group: string, length: number) {
+  setLen({path, group, length}: {path: string; group: string; length: number}) {
     let property = this.root.queryProperty(path, true);
 
     if (property && property._value instanceof Block) {
@@ -813,7 +702,7 @@ export class ServerConnection extends Connection {
     }
   }
 
-  addCustomProp(path: string, desc: PropDesc | PropGroupDesc, group: string) {
+  addCustomProp({path, desc, group}: {path: string; desc: PropDesc | PropGroupDesc; group: string}) {
     if (!(desc instanceof Object && typeof desc.name === 'string')) {
       // TODO, full validation
       return 'invalid desc';
@@ -829,7 +718,7 @@ export class ServerConnection extends Connection {
     }
   }
 
-  removeCustomProp(path: string, name: string, group: string) {
+  removeCustomProp({path, name, group}: {path: string; name: string; group: string}) {
     let property = this.root.queryProperty(path);
 
     if (property && property._value instanceof Block) {
@@ -841,7 +730,7 @@ export class ServerConnection extends Connection {
     }
   }
 
-  moveCustomProp(path: string, nameFrom: string, nameTo: string, group: string) {
+  moveCustomProp({path, nameFrom, nameTo, group}: {path: string; nameFrom: string; nameTo: string; group: string}) {
     let property = this.root.queryProperty(path);
 
     if (property && property._value instanceof Block) {
@@ -853,7 +742,7 @@ export class ServerConnection extends Connection {
     }
   }
 
-  addOptionalProp(path: string, name: string) {
+  addOptionalProp({path, name}: {path: string; name: string}) {
     let property = this.root.queryProperty(path);
 
     if (property && property._value instanceof Block) {
@@ -865,7 +754,7 @@ export class ServerConnection extends Connection {
     }
   }
 
-  removeOptionalProp(path: string, name: string) {
+  removeOptionalProp({path, name}: {path: string; name: string}) {
     let property = this.root.queryProperty(path);
 
     if (property && property._value instanceof Block) {
@@ -877,7 +766,7 @@ export class ServerConnection extends Connection {
     }
   }
 
-  moveOptionalProp(path: string, nameFrom: string, nameTo: string) {
+  moveOptionalProp({path, nameFrom, nameTo}: {path: string; nameFrom: string; nameTo: string}) {
     let property = this.root.queryProperty(path);
 
     if (property && property._value instanceof Block) {
@@ -889,7 +778,7 @@ export class ServerConnection extends Connection {
     }
   }
 
-  insertGroupProp(path: string, group: string, idx: number) {
+  insertGroupProp({path, group, idx}: {path: string; group: string; idx: number}) {
     let property = this.root.queryProperty(path);
 
     if (property && property._value instanceof Block) {
@@ -901,7 +790,7 @@ export class ServerConnection extends Connection {
     }
   }
 
-  removeGroupProp(path: string, group: string, idx: number) {
+  removeGroupProp({path, group, idx}: {path: string; group: string; idx: number}) {
     let property = this.root.queryProperty(path);
 
     if (property && property._value instanceof Block) {
@@ -913,7 +802,7 @@ export class ServerConnection extends Connection {
     }
   }
 
-  moveGroupProp(path: string, group: string, oldIdx: number, newIdx: number) {
+  moveGroupProp({path, group, oldIdx, newIdx}: {path: string; group: string; oldIdx: number; newIdx: number}) {
     let property = this.root.queryProperty(path);
 
     if (property && property._value instanceof Block) {
@@ -925,7 +814,7 @@ export class ServerConnection extends Connection {
     }
   }
 
-  undo(path: string) {
+  undo({path}: {path: string}) {
     let property = this.root.queryProperty(path);
     if (property && property._value instanceof Block) {
       getTrackedJob(property._value, path, this.root).undo();
@@ -934,7 +823,7 @@ export class ServerConnection extends Connection {
       return 'invalid path';
     }
   }
-  redo(path: string) {
+  redo({path}: {path: string}) {
     let property = this.root.queryProperty(path);
     if (property && property._value instanceof Block) {
       getTrackedJob(property._value, path, this.root).redo();
@@ -944,7 +833,7 @@ export class ServerConnection extends Connection {
     }
   }
 
-  copy(path: string, props: string[], cut: boolean) {
+  copy({path, props, cut}: {path: string; props: string[]; cut: boolean}) {
     let property = this.root.queryProperty(path);
     if (property && property._value instanceof Block) {
       let value = copyProperties(property._value, props);
@@ -959,7 +848,7 @@ export class ServerConnection extends Connection {
       return 'invalid path';
     }
   }
-  paste(path: string, data: DataMap, resolve?: 'overwrite' | 'rename') {
+  paste({path, data, resolve}: {path: string; data: DataMap; resolve?: 'overwrite' | 'rename'}) {
     let property = this.root.queryProperty(path);
     if (property && property._value instanceof Block) {
       let result = pasteProperties(property._value, data, resolve);
