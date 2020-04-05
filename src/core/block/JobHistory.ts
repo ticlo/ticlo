@@ -80,8 +80,8 @@ export class JobHistory {
     } else {
       data = this._history[this._current];
       this._savedData = data;
-      this.checkUndoRedo(data);
     }
+    this.checkUndoRedo(data);
     return data;
   }
 
@@ -114,6 +114,7 @@ export class JobHistory {
     this.checkUndoRedo(data);
   }
 
+  // return true when data has change
   checkAndAdd(data: DataMap) {
     if (this._tracking) {
       this.cancelTrack();

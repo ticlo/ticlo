@@ -110,7 +110,6 @@ export class BlockStagePane extends LazyUpdateComponent<Props, State> {
   };
 
   onKeyDown = (e: KeyboardEvent) => {
-    console.log(123);
     let {onSave} = this.props;
     switch (e.key) {
       case 's': {
