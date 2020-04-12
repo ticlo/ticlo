@@ -37,7 +37,7 @@ describe('Copy Paste', function () {
     let job1 = new JobWorker();
     job1.load(data);
 
-    job1.createBlock('divide')._load({'#is': 'divide', '~0': '##.add.0'});
+    job1.createBlock('divide')._load({'#is': 'divide', '~0': '##.add.0', '@b-xyw': 'add'});
 
     let copied1 = copyProperties(job1, ['add', 'divide']) as DataMap;
     let copied2 = copyProperties(job1, ['#shared.subtract']) as DataMap;
@@ -53,9 +53,9 @@ describe('Copy Paste', function () {
         'subtract0': {'#is': 'subtract'},
       },
       'add': {'#is': 'add', '@b-xyw': [100, 100, 100]},
-      'divide': {'#is': 'divide', '~0': '##.add.0'},
+      'divide': {'#is': 'divide', '~0': '##.add.0', '@b-xyw': 'add'},
       'add0': {'#is': 'add', '@b-xyw': [124, 124, 100]},
-      'divide0': {'#is': 'divide', '~0': '##.add0.0'},
+      'divide0': {'#is': 'divide', '~0': '##.add0.0', '@b-xyw': 'add0'},
     });
 
     job1.destroy();

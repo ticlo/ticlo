@@ -160,6 +160,16 @@ function renameBlocks(parent: Block, data: DataMap, fields: string[]) {
     }
   }
   moveBinding(data, 0);
+  // move synced parent block
+  for (let key in data) {
+    let val = data[key];
+    if (val != null && val.constructor === Object) {
+      let xyw = val['@b-xyw'];
+      if (typeof xyw === 'string' && fields.includes(xyw)) {
+        val['@b-xyw'] = map.get(xyw);
+      }
+    }
+  }
 }
 
 function collectBlockPositions(parent: Block): Map<number, number[]> {
