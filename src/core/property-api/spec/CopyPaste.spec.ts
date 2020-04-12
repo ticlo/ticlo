@@ -5,9 +5,13 @@ import {copyProperties, deleteProperties, pasteProperties} from '../CopyPaste';
 import {DataMap} from '../../util/DataTypes';
 
 describe('Copy Paste', function () {
-  const data = {'#is': '', 'add': {'#is': 'add', '0': 2}, '#shared': {'#is': '', 'subtract': {'#is': 'subtract'}}};
+  const data = {
+    '#is': '',
+    'add': {'#is': 'add', '@b-xyw': [100, 100, 100]},
+    '#shared': {'#is': '', 'subtract': {'#is': 'subtract'}},
+  };
   const copy = {
-    'add': {'#is': 'add', '0': 2},
+    'add': {'#is': 'add', '@b-xyw': [100, 100, 100]},
     '#shared': {subtract: {'#is': 'subtract'}},
   };
 
@@ -35,9 +39,11 @@ describe('Copy Paste', function () {
 
     job1.createBlock('divide')._load({'#is': 'divide', '~0': '##.add.0'});
 
-    let copied = copyProperties(job1, ['add', 'divide', '#shared.subtract']) as DataMap;
+    let copied1 = copyProperties(job1, ['add', 'divide']) as DataMap;
+    let copied2 = copyProperties(job1, ['#shared.subtract']) as DataMap;
 
-    pasteProperties(job1, copied, 'rename');
+    pasteProperties(job1, copied1, 'rename');
+    pasteProperties(job1, copied2, 'rename');
 
     assert.deepEqual(job1.save(), {
       '#is': '',
@@ -46,9 +52,9 @@ describe('Copy Paste', function () {
         'subtract': {'#is': 'subtract'},
         'subtract0': {'#is': 'subtract'},
       },
-      'add': {'0': 2, '#is': 'add'},
+      'add': {'#is': 'add', '@b-xyw': [100, 100, 100]},
       'divide': {'#is': 'divide', '~0': '##.add.0'},
-      'add0': {'0': 2, '#is': 'add'},
+      'add0': {'#is': 'add', '@b-xyw': [124, 124, 100]},
       'divide0': {'#is': 'divide', '~0': '##.add0.0'},
     });
 

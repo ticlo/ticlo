@@ -4,6 +4,9 @@ import {BlockProperty} from '../block/BlockProperty';
 import {JobWithShared, SharedBlock, SharedConfig} from '../block/SharedBlock';
 import {findPropertyForNewBlock} from './PropertyName';
 import {Job} from '../block/Job';
+import {addMapArray} from '../util/Map';
+import {off} from 'codemirror';
+import {cloneToLevel} from '../util/Clone';
 
 function getProperty(parent: Block, field: string, create = false): [BlockProperty, Block] {
   if (field.startsWith('#shared.')) {
@@ -67,11 +70,10 @@ export function pasteProperties(parent: Block, data: DataMap, resolve?: 'overwri
   }
 
   let {'#shared': sharedData, ...others} = data;
+  others = cloneToLevel(others, 3);
+  sharedData = cloneToLevel(sharedData, 3);
 
-  let sharedBlock: SharedBlock;
-  if (sharedData) {
-    sharedBlock = createSharedBlock(parent.getProperty('#shared'));
-  }
+  let sharedBlock = createSharedBlock(parent.getProperty('#shared', sharedData != null));
 
   if (resolve !== 'overwrite') {
     let existingBlocks: string[] = [];
@@ -107,6 +109,12 @@ export function pasteProperties(parent: Block, data: DataMap, resolve?: 'overwri
     }
   }
 
+  let positions = collectBlockPositions(parent);
+  if (sharedBlock) {
+    positions = new Map([...positions, ...collectBlockPositions(sharedBlock)]);
+  }
+  moveBlockPositions(others, sharedData, positions);
+
   if (sharedData) {
     if (sharedBlock == null) {
       return '#shared properties not allowed in this Block';
@@ -119,7 +127,8 @@ export function pasteProperties(parent: Block, data: DataMap, resolve?: 'overwri
 function isParentBinding(str: string) {
   return str === '##';
 }
-function renameBlocks(parent: Block, data: DataMap, fields: string[]): Map<string, string> {
+
+function renameBlocks(parent: Block, data: DataMap, fields: string[]) {
   let map: Map<string, string> = new Map();
   let reservedNames: string[] = [];
   // move blocks
@@ -137,15 +146,77 @@ function renameBlocks(parent: Block, data: DataMap, fields: string[]): Map<strin
       let val = obj[key];
       if (key.startsWith('~') && typeof val === 'string') {
         let parts = val.split('.');
-        if (fields.includes(parts[level]) && parts.slice(0, level).every(isParentBinding)) {
+        if (isJob && parts[0] === '###' && fields.includes(parts[1])) {
+          // job binding
+          parts[1] = map.get(parts[1]);
+          obj[key] = parts.join('.');
+        } else if (fields.includes(parts[level]) && parts.slice(0, level).every(isParentBinding)) {
           parts[level] = map.get(parts[level]);
           obj[key] = parts.join('.');
         }
-      } else if (val != null && typeof val === 'object') {
+      } else if (val != null && val.constructor === Object) {
         moveBinding(val, level + 1);
       }
     }
   }
   moveBinding(data, 0);
-  return map;
+}
+
+function collectBlockPositions(parent: Block): Map<number, number[]> {
+  let result: Map<number, number[]> = new Map();
+  parent.forEach((key: string, prop) => {
+    if (prop._saved instanceof Block) {
+      let xyw = prop._saved.getValue('@b-xyw');
+      if (Array.isArray(xyw) && typeof xyw[0] === 'number' && typeof xyw[1] === 'number') {
+        addMapArray(result, xyw[0], xyw[1]);
+      }
+    }
+  });
+  return result;
+}
+
+function moveBlockPositions(data0: DataMap, data1: DataMap, positions: Map<number, number[]>) {
+  let xyws: number[][] = [];
+  function collectDataPosition(data: DataMap) {
+    for (let key in data) {
+      let value = data[key];
+      if (value != null && value.constructor === Object) {
+        let xyw = value['@b-xyw'];
+        if (Array.isArray(xyw) && typeof xyw[0] === 'number' && typeof xyw[1] === 'number') {
+          xyws.push(xyw);
+        }
+      }
+    }
+  }
+  // collection position in data
+  collectDataPosition(data0);
+  if (data1) {
+    collectDataPosition(data1);
+  }
+
+  // check block overlap and move positions
+  let offset = 0;
+  nextoffset: for (; true; offset += 24) {
+    for (let xyw of xyws) {
+      let x = xyw[0] + offset;
+      // find a range of y that we dont want to see another block
+      let ylow = xyw[1] + offset - 80;
+      let yhigh = ylow + 160;
+      let ys = positions.get(x);
+      if (ys) {
+        for (let y of ys) {
+          if (y > ylow && y < yhigh) {
+            continue nextoffset;
+          }
+        }
+      }
+    }
+    break;
+  }
+  if (offset > 0) {
+    for (let xyw of xyws) {
+      xyw[0] += offset;
+      xyw[1] += offset;
+    }
+  }
 }
