@@ -5,9 +5,9 @@ import {copyProperties, deleteProperties, pasteProperties} from '../CopyPaste';
 import {DataMap} from '../../util/DataTypes';
 
 describe('Copy Paste', function () {
-  const data = {'#is': '', 'add': {'#is': 'add'}, '#shared': {'#is': '', 'subtract': {'#is': 'subtract'}}};
+  const data = {'#is': '', 'add': {'#is': 'add', '0': 2}, '#shared': {'#is': '', 'subtract': {'#is': 'subtract'}}};
   const copy = {
-    'add': {'#is': 'add'},
+    'add': {'#is': 'add', '0': 2},
     '#shared': {subtract: {'#is': 'subtract'}},
   };
 
@@ -27,6 +27,32 @@ describe('Copy Paste', function () {
 
     job1.destroy();
     job2.destroy();
+  });
+
+  it('rename', function () {
+    let job1 = new JobWorker();
+    job1.load(data);
+
+    job1.createBlock('divide')._load({'#is': 'divide', '~0': '##.add.0'});
+
+    let copied = copyProperties(job1, ['add', 'divide', '#shared.subtract']) as DataMap;
+
+    pasteProperties(job1, copied, 'rename');
+
+    assert.deepEqual(job1.save(), {
+      '#is': '',
+      '#shared': {
+        '#is': '',
+        'subtract': {'#is': 'subtract'},
+        'subtract0': {'#is': 'subtract'},
+      },
+      'add': {'0': 2, '#is': 'add'},
+      'divide': {'#is': 'divide', '~0': '##.add.0'},
+      'add0': {'0': 2, '#is': 'add'},
+      'divide0': {'#is': 'divide', '~0': '##.add0.0'},
+    });
+
+    job1.destroy();
   });
 
   it('invalid copy paste', function () {

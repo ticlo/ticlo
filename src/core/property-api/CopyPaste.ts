@@ -2,6 +2,8 @@ import {Block} from '../block/Block';
 import {DataMap} from '../util/DataTypes';
 import {BlockProperty} from '../block/BlockProperty';
 import {JobWithShared, SharedBlock, SharedConfig} from '../block/SharedBlock';
+import {findPropertyForNewBlock} from './PropertyName';
+import {Job} from '../block/Job';
 
 function getProperty(parent: Block, field: string, create = false): [BlockProperty, Block] {
   if (field.startsWith('#shared.')) {
@@ -66,40 +68,84 @@ export function pasteProperties(parent: Block, data: DataMap, resolve?: 'overwri
 
   let {'#shared': sharedData, ...others} = data;
 
+  let sharedBlock: SharedBlock;
+  if (sharedData) {
+    sharedBlock = createSharedBlock(parent.getProperty('#shared'));
+  }
+
   if (resolve !== 'overwrite') {
     let existingBlocks: string[] = [];
+    let existingSharedBlocks: string[] = [];
     for (let field in others) {
       if (parent.getProperty(field, false)?._saved instanceof Block) {
         existingBlocks.push(field);
       }
     }
-    if (sharedData) {
-      let sharedBlock: SharedBlock = createSharedBlock(parent.getProperty('#shared'));
-      if (sharedBlock) {
-        // ignore the shared block not allowed error here, handle it later
-        for (let field in sharedData) {
-          if (sharedBlock.getProperty(field, false)?._saved instanceof Block) {
-            existingBlocks.push(`#shared.${field}`);
-          }
+    if (sharedData && sharedBlock) {
+      // ignore the shared block not allowed error here, handle it later
+      for (let field in sharedData) {
+        if (sharedBlock.getProperty(field, false)?._saved instanceof Block) {
+          existingSharedBlocks.push(field);
         }
       }
     }
-    if (resolve === 'rename') {
-      // todo, handle rename;
-    } else {
-      if (existingBlocks.length) {
-        return `block already exists: ${existingBlocks.join(',')}`;
+    if (existingBlocks.length || existingSharedBlocks.length) {
+      if (resolve === 'rename') {
+        if (existingBlocks.length) {
+          renameBlocks(parent, others, existingBlocks);
+        }
+        if (existingSharedBlocks.length) {
+          renameBlocks(sharedBlock, sharedData, existingSharedBlocks);
+        }
+      } else {
+        if (existingBlocks.length) {
+          return `block already exists: ${existingBlocks.join(',')},${existingSharedBlocks
+            .map((field) => `#shared.${field}`)
+            .join(',')}`;
+        }
       }
     }
   }
 
   if (sharedData) {
-    let sharedBlock: SharedBlock = createSharedBlock(parent.getProperty('#shared'));
-
     if (sharedBlock == null) {
       return '#shared properties not allowed in this Block';
     }
     sharedBlock._liveUpdate(sharedData, false);
   }
   parent._liveUpdate(others, false);
+}
+
+function isParentBinding(str: string) {
+  return str === '##';
+}
+function renameBlocks(parent: Block, data: DataMap, fields: string[]): Map<string, string> {
+  let map: Map<string, string> = new Map();
+  let reservedNames: string[] = [];
+  // move blocks
+  for (let field of fields) {
+    let newField = findPropertyForNewBlock(parent, field, reservedNames)._name;
+    map.set(field, newField);
+    reservedNames.push(newField);
+    data[newField] = data[field];
+    delete data[field];
+  }
+  let isJob = parent instanceof Job;
+  // move bindings
+  function moveBinding(obj: DataMap, level: number) {
+    for (let key in obj) {
+      let val = obj[key];
+      if (key.startsWith('~') && typeof val === 'string') {
+        let parts = val.split('.');
+        if (fields.includes(parts[level]) && parts.slice(0, level).every(isParentBinding)) {
+          parts[level] = map.get(parts[level]);
+          obj[key] = parts.join('.');
+        }
+      } else if (val != null && typeof val === 'object') {
+        moveBinding(val, level + 1);
+      }
+    }
+  }
+  moveBinding(data, 0);
+  return map;
 }

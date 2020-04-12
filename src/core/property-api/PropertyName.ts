@@ -5,8 +5,8 @@ import {PropertyMover} from './PropertyMover';
 
 const trailingNumberReg = /\d+$/;
 
-export function findPropertyForNewBlock(block: Block, baseName: string): BlockProperty {
-  let usedNames = buildPropertiesOrder(block);
+export function findPropertyForNewBlock(block: Block, baseName: string, reservedNames: string[] = []): BlockProperty {
+  let usedNames = buildPropertiesOrder(block).concat(reservedNames);
   if (!usedNames.includes(baseName)) {
     let p = block.getProperty(baseName);
     if (p.isCleared()) {
