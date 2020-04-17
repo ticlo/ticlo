@@ -854,7 +854,7 @@ describe('Connection', function () {
 
     job.deleteValue('add');
 
-    await client.paste('Connection24', data);
+    assert.deepEqual((await client.paste('Connection24', copied)).pasted, ['add']);
     assert.deepEqual(job.save(), data);
 
     client.destroy();

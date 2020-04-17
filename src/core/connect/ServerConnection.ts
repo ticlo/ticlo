@@ -852,11 +852,11 @@ export class ServerConnection extends ServerConnectionCore {
     let property = this.root.queryProperty(path);
     if (property && property._value instanceof Block) {
       let result = pasteProperties(property._value, data, resolve);
-      if (result) {
+      if (typeof result === 'string') {
         return result;
       }
       getTrackedJob(property._value, path, this.root).trackChange();
-      return null;
+      return {pasted: result};
     } else {
       return 'invalid path';
     }

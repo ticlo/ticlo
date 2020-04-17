@@ -1,7 +1,6 @@
 declare module 'lodash/debounce' {
   interface Debounce {
     (): void;
-    timerId: any;
     cancel(): void;
   }
 

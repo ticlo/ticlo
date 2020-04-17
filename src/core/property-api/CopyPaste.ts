@@ -64,7 +64,7 @@ export function deleteProperties(parent: Block, fields: string[]) {
   }
 }
 
-export function pasteProperties(parent: Block, data: DataMap, resolve?: 'overwrite' | 'rename'): string {
+export function pasteProperties(parent: Block, data: DataMap, resolve?: 'overwrite' | 'rename'): string | string[] {
   if (!data || typeof data !== 'object' || data.constructor !== Object) {
     return 'invalid data';
   }
@@ -122,6 +122,13 @@ export function pasteProperties(parent: Block, data: DataMap, resolve?: 'overwri
     sharedBlock._liveUpdate(sharedData, false);
   }
   parent._liveUpdate(others, false);
+
+  let result = [...Object.keys(others)];
+  if (sharedData) {
+    result = [...result, ...Object.keys(sharedData).map((name: string) => `#shared.${name}`)];
+  }
+
+  return result;
 }
 
 function isParentBinding(str: string) {

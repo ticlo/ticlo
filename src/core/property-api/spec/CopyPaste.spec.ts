@@ -23,7 +23,7 @@ describe('Copy Paste', function () {
     assert.deepEqual(copied, copy);
 
     let job2 = new JobWorker();
-    pasteProperties(job2, copied);
+    assert.deepEqual(pasteProperties(job2, copied), ['add', '#shared.subtract']);
     assert.deepEqual(job2.save(), data);
 
     deleteProperties(job1, ['add', '#shared.subtract']);
@@ -69,7 +69,7 @@ describe('Copy Paste', function () {
     assert.equal(pasteProperties(job1, 1 as any), 'invalid data');
 
     job1.load(data);
-    assert.isTrue(pasteProperties(job1, copy).startsWith('block already exists: '));
+    assert.isTrue((pasteProperties(job1, copy) as string).startsWith('block already exists: '));
 
     assert.equal(pasteProperties(job1.getValue('add'), copy), '#shared properties not allowed in this Block');
   });
