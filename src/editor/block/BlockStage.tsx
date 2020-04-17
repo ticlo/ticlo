@@ -660,7 +660,24 @@ export class BlockStage extends BlockStageBase<BlockStageProps, StageState> {
       }
     }
     try {
-      await conn.paste(basePath, data, resolve);
+      let response = await conn.paste(basePath, data, resolve);
+      if (Array.isArray(response.pasted) && response.pasted.length) {
+        setTimeout(() => {
+          // make sure this is not unmounted
+          if (this._mounted) {
+            let paths = new Set(response.pasted.map((s: string) => `${basePath}.${s}`));
+            for (let [blockKey, blockItem] of this._blocks) {
+              if (paths.has(blockKey)) {
+                blockItem.setSelected(true);
+              } else {
+                blockItem.setSelected(false);
+              }
+            }
+            this.onSelect();
+            this.focus();
+          }
+        }, 1);
+      }
     } catch (e) {
       notification.error({message: 'Failed to paste', description: String(e)});
     }
