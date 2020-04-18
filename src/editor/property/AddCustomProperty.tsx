@@ -32,12 +32,12 @@ export class AddCustomPropertyMenu extends LazyUpdateComponent<Props, any> {
     optionStr: new FormInputItem<string>(this, 'optionStr', 'Options'),
     showAlpha: new FormItem<boolean>(this, 'showAlpha', 'Show Alpha', false),
     showTime: new FormItem<boolean>(this, 'showTime', 'Show Alpha', false),
-    visible: new FormInputItem<boolean>(this, 'visible', 'Visible'),
+    pinned: new FormInputItem<boolean>(this, 'pinned', 'Pinned'),
   };
 
   onSubmit = (e: React.FormEvent<HTMLElement>) => {
     let {onAddProperty, group} = this.props;
-    let {type, name, defaultLen, placeholder, min, max, step, optionStr, showAlpha, showTime, visible} = this.formItems;
+    let {type, name, defaultLen, placeholder, min, max, step, optionStr, showAlpha, showTime, pinned} = this.formItems;
     e.preventDefault();
 
     let result: PropDesc | PropGroupDesc;
@@ -60,10 +60,7 @@ export class AddCustomPropertyMenu extends LazyUpdateComponent<Props, any> {
       }
       result = {name: name.value, type: 'group', defaultLen: defaultLen.value};
     } else {
-      result = {name: name.value, type: type.value};
-      if (visible.value) {
-        result.pinned = visible.value;
-      }
+      result = {name: name.value, type: type.value, pinned: pinned.value};
       switch (type.value) {
         case 'number': {
           if (min.value != null) {
@@ -150,7 +147,7 @@ export class AddCustomPropertyMenu extends LazyUpdateComponent<Props, any> {
 
   renderImpl() {
     let {group, onClick} = this.props;
-    let {type, name, defaultLen, placeholder, min, max, step, optionStr, showAlpha, showTime, visible} = this.formItems;
+    let {type, name, defaultLen, placeholder, min, max, step, optionStr, showAlpha, showTime, pinned} = this.formItems;
     let typeValue = type.value;
     return (
       <Form onClick={onClick} className="ticl-add-custom-prop" labelCol={{span: 9}} wrapperCol={{span: 15}}>
@@ -203,24 +200,7 @@ export class AddCustomPropertyMenu extends LazyUpdateComponent<Props, any> {
           ? placeholder.render(<Input value={placeholder.value} size="small" onChange={placeholder.onInputChange} />)
           : null}
         {typeValue !== 'group'
-          ? visible.render(
-              <RadioGroup
-                size="small"
-                buttonStyle="solid"
-                value={visible.value}
-                onChange={visible.onInputChange as any}
-              >
-                <RadioButton key="high" value="high">
-                  High
-                </RadioButton>
-                <RadioButton key="default" value={undefined}>
-                  Default
-                </RadioButton>
-                <RadioButton key="low" value="low">
-                  Low
-                </RadioButton>
-              </RadioGroup>
-            )
+          ? pinned.render(<Switch size="small" checked={pinned.value} onChange={pinned.onChange} />)
           : null}
         <Form.Item wrapperCol={{span: 15, offset: 9}}>
           <Button type="primary" htmlType="submit" onClick={this.onSubmit}>

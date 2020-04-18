@@ -11,10 +11,10 @@ let testDesc = {
   name: '',
   icon: 'fas:plus',
   properties: [
-    {name: 'a', type: 'number', visible: 'high'},
-    {name: 'b', type: 'number', visible: 'high'},
-    {name: 'c', type: 'number', visible: 'high'},
-    {name: 'd', type: 'number', visible: 'high'},
+    {name: 'a', type: 'number', pinned: true},
+    {name: 'b', type: 'number', pinned: true},
+    {name: 'c', type: 'number', pinned: true},
+    {name: 'd', type: 'number', pinned: true},
     {name: '#output', pinned: true, type: 'number', readonly: true},
   ],
 };
