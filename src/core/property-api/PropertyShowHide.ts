@@ -126,7 +126,7 @@ export function showGroupProperties(block: Block, desc: PropGroupDesc, field?: s
     }
   } else {
     for (let prop of desc.properties) {
-      if (prop.visible !== 'low') {
+      if (prop.pinned) {
         for (let i = 0; i < groupLength; ++i) {
           fields.push(`${prop.name}${i}`);
         }

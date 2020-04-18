@@ -114,7 +114,7 @@ Functions.add(JsFunction, {
       name: 'script',
       type: 'string',
       mime: 'text/javascript',
-      visible: 'high',
+      pinned: true,
     },
   ],
 });

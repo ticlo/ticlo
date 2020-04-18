@@ -5,12 +5,12 @@ import {Job} from '../../block/Job';
 import {PropDesc, PropGroupDesc} from '../../block/Descriptor';
 
 describe('Custom Property', function () {
-  let descA: PropDesc = {name: 'a', type: 'string'};
-  let descB: PropDesc = {name: 'b', type: 'number'};
-  let descBNumber: PropDesc = {name: 'b0', type: 'number'};
-  let descA2: PropDesc = {name: 'a', type: 'number', visible: 'low'};
-  let descC: PropDesc = {name: 'c', type: 'toggle'};
-  let descBlank: PropDesc = {name: '', type: 'string'};
+  let descA: PropDesc = {name: 'a', type: 'string', pinned: true};
+  let descB: PropDesc = {name: 'b', type: 'number', pinned: true};
+  let descBNumber: PropDesc = {name: 'b0', type: 'number', pinned: true};
+  let descA2: PropDesc = {name: 'a', type: 'number'};
+  let descC: PropDesc = {name: 'c', type: 'toggle', pinned: true};
+  let descBlank: PropDesc = {name: '', type: 'string', pinned: true};
   let descG: PropGroupDesc = {
     name: 'g',
     type: 'group',
@@ -37,7 +37,7 @@ describe('Custom Property', function () {
     assert.isUndefined(job.getValue('#custom'));
 
     // add invalid desc
-    addCustomProperty(job, {...descBlank, visible: 'low'});
+    addCustomProperty(job, {...descBlank});
     assert.isUndefined(job.getValue('#custom'));
 
     // add property into group that doesn't exist

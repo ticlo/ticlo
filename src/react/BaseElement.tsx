@@ -80,7 +80,6 @@ export const elementConfigs = ['#call', '#mode', '#priority', '#sync', '#render'
 export const elementStyleProperty: PropDesc = {
   name: 'style',
   type: 'object',
-  visible: 'low',
   create: 'html:create-style',
 };
 export const elementClassProperty: PropDesc = {
@@ -95,6 +94,7 @@ export const elementChildrenProperty: PropGroupDesc = {
 };
 export const elementOutputProperty: PropDesc = {
   name: '#output',
+  pinned: true,
   type: 'object',
   readonly: true,
 };

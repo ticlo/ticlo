@@ -2,6 +2,7 @@ let loaders: {[key: string]: Promise<Response>};
 
 if ('ticloFetch' in window) {
   loaders = (window as any).ticloFetch;
+  (window as any).ticloFetch = null;
   setTimeout(() => {
     // free memory after 10 seconds
     loaders = null;

@@ -36,7 +36,7 @@ export function addCustomProperty(block: Block, desc: PropDesc | PropGroupDesc, 
       showGroupProperties(block, groupDesc);
     } else if (group == null) {
       block.setValue('#custom', [desc]);
-      if ((desc as PropDesc).visible !== 'low') {
+      if ((desc as PropDesc).pinned) {
         showProperties(block, [desc.name]);
       }
     }
@@ -63,7 +63,7 @@ export function addCustomProperty(block: Block, desc: PropDesc | PropGroupDesc, 
           groupDesc.properties[groupChildIdx] = propDesc;
         } else {
           groupDesc.properties.push(propDesc);
-          if (propDesc.visible !== 'low') {
+          if (propDesc.pinned) {
             showGroupProperties(block, groupDesc, propDesc.name);
           }
         }
@@ -81,7 +81,7 @@ export function addCustomProperty(block: Block, desc: PropDesc | PropGroupDesc, 
       customProps[propIndex] = propDesc;
     } else {
       customProps.push(propDesc);
-      if ((desc as PropDesc).visible !== 'low') {
+      if ((desc as PropDesc).pinned) {
         showProperties(block, [desc.name]);
       }
     }

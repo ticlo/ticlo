@@ -23,6 +23,7 @@ import {
   ValueSubscriber,
   DataMap,
   isBindable,
+  getSubBlockFuncData,
 } from '../../../src/core/editor';
 import {MultiSelectComponent, MultiSelectLoader} from './MultiSelectComponent';
 import {StringEditor} from './value/StringEditor';
@@ -298,7 +299,7 @@ export class PropertyEditor extends MultiSelectComponent<PropertyEditorProps, St
       // check drag from type
       let blockData = DragState.getData('blockData', conn.getBaseConn());
       if (blockData && blockData['#is']) {
-        this.onAddSubBlock(blockData['#is'], null, blockData);
+        this.onAddSubBlock(blockData['#is'], null, getSubBlockFuncData(blockData));
         return;
       }
     }
@@ -491,7 +492,7 @@ export class PropertyEditor extends MultiSelectComponent<PropertyEditorProps, St
         Logger.error('unable to add sub block, missing id or desc or data', this);
         return;
       }
-      data = getDefaultFuncData(desc, true);
+      data = getSubBlockFuncData(getDefaultFuncData(desc));
     }
 
     for (let path of paths) {

@@ -8,9 +8,9 @@ const descriptor: FunctionDesc = {
   recipient: '0',
   category: 'compare',
   properties: [
-    {name: '0', type: 'number', visible: 'high'},
-    {name: '1', type: 'number', visible: 'high'},
-    {name: '#output', type: 'toggle', readonly: true},
+    {name: '0', type: 'number', pinned: true},
+    {name: '1', type: 'number', pinned: true},
+    {name: '#output', pinned: true, type: 'toggle', readonly: true},
   ],
 };
 
@@ -27,9 +27,9 @@ Functions.add(EqualFunction, {
   name: 'equal',
   icon: 'fas:equals',
   properties: [
-    {name: '0', type: 'any', visible: 'high'},
-    {name: '1', type: 'any', visible: 'high'},
-    {name: '#output', type: 'toggle', readonly: true},
+    {name: '0', type: 'any', pinned: true},
+    {name: '1', type: 'any', pinned: true},
+    {name: '#output', pinned: true, type: 'toggle', readonly: true},
   ],
 });
 
@@ -46,9 +46,9 @@ Functions.add(NotEqualFunction, {
   name: 'not-equal',
   icon: 'fas:not-equal',
   properties: [
-    {name: '0', type: 'any', visible: 'high'},
-    {name: '1', type: 'any', visible: 'high'},
-    {name: '#output', type: 'toggle', readonly: true},
+    {name: '0', type: 'any', pinned: true},
+    {name: '1', type: 'any', pinned: true},
+    {name: '#output', pinned: true, type: 'toggle', readonly: true},
   ],
 });
 
@@ -64,8 +64,8 @@ Functions.add(NotFunction, {
   name: 'not',
   icon: 'txt:!',
   properties: [
-    {name: '0', type: 'toggle', visible: 'high'},
-    {name: '#output', type: 'toggle', readonly: true},
+    {name: '0', type: 'toggle', pinned: true},
+    {name: '#output', pinned: true, type: 'toggle', readonly: true},
   ],
 });
 

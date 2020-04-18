@@ -1,6 +1,6 @@
 import {Block} from '../block/Block';
 import {HelperProperty} from '../block/BlockProperty';
-import {PropDesc, PropGroupDesc, shouldShowProperty} from '../block/Descriptor';
+import {PropDesc, PropGroupDesc} from '../block/Descriptor';
 import {Functions} from '../block/Functions';
 import {hideProperties, showProperties} from './PropertyShowHide';
 import {PropertyMover} from './PropertyMover';
@@ -46,7 +46,7 @@ function updateGroupPropertyLength(block: Block, group: string, groupDesc: PropG
     let isSubBlock = block._prop instanceof HelperProperty;
     for (let i = oldLength; i < newLength; ++i) {
       for (let prop of groupDesc.properties) {
-        if (shouldShowProperty(prop.visible, isSubBlock)) {
+        if (prop.pinned && !(isSubBlock && prop.name === '#output')) {
           propsToShow.push(`${prop.name}${i}`);
         }
       }

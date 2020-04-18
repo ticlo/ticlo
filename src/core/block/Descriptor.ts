@@ -1,11 +1,6 @@
 import {BlockMode, BlockModeList} from './Block';
 import {DataMap} from '..';
 
-// high: always show in block, unless toggled by user
-// low: always hide in block
-// undefined: show in block but not in sub block
-export type VisibleType = 'high' | 'low';
-
 export type ValueType =
   | 'number'
   | 'string'
@@ -33,7 +28,7 @@ export interface PropDesc {
   name: string;
   type: ValueType;
   readonly?: boolean;
-  visible?: VisibleType; // whether property is shown in block view
+  pinned?: boolean; // whether property is shown in block view
 
   // default value shown in editor when value is undefined
   default?: string | number | boolean;
@@ -228,22 +223,14 @@ export function findPropDesc(name: string, cache: {[key: string]: PropDesc}): Pr
   return blankPropDesc;
 }
 
-export function shouldShowProperty(visible: VisibleType, isSubBlock: boolean) {
-  if (isSubBlock) {
-    return visible === 'high';
-  } else {
-    return visible !== 'low';
-  }
-}
-
-function initBlockProperties(data: any, properties: (PropDesc | PropGroupDesc)[], isSubBlock = false) {
+function initBlockProperties(data: any, properties: (PropDesc | PropGroupDesc)[]) {
   let props: string[] = [];
   for (let propDesc of properties) {
     if ((propDesc as PropGroupDesc).properties) {
       for (let i = 0; i < (propDesc as PropGroupDesc).defaultLen; ++i) {
         for (let childDesc of (propDesc as PropGroupDesc).properties) {
           let propName = `${childDesc.name}${i}`;
-          if (shouldShowProperty(childDesc.visible, isSubBlock)) {
+          if (childDesc.pinned) {
             props.push(propName);
           }
           if (childDesc.init !== undefined) {
@@ -252,7 +239,7 @@ function initBlockProperties(data: any, properties: (PropDesc | PropGroupDesc)[]
         }
       }
     } else {
-      if (shouldShowProperty((propDesc as PropDesc).visible, isSubBlock)) {
+      if ((propDesc as PropDesc).pinned) {
         props.push(propDesc.name);
       }
       if ((propDesc as PropDesc).init !== undefined) {
@@ -263,11 +250,17 @@ function initBlockProperties(data: any, properties: (PropDesc | PropGroupDesc)[]
   data['@b-p'] = props;
 }
 
-export function getDefaultFuncData(desc: FunctionDesc, isSubBlock = false) {
+export function getDefaultFuncData(desc: FunctionDesc) {
   let data: any = {
     '#is': desc.id,
   };
-  initBlockProperties(data, desc.properties, isSubBlock);
+  initBlockProperties(data, desc.properties);
+  return data;
+}
+export function getSubBlockFuncData(data: DataMap) {
+  if (Array.isArray(data['@b-p']) && data['@b-p'].includes('#output')) {
+    return {...data, '@b-p': data['@b-p'].filter((str) => str !== '#output')};
+  }
   return data;
 }
 

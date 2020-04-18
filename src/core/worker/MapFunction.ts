@@ -268,9 +268,9 @@ Functions.add(MapFunction, {
     {name: 'input', type: 'object'},
     {name: 'use', type: 'worker'},
     {name: 'thread', type: 'number', default: 0, min: 0, step: 1},
-    {name: 'reuseWorker', type: 'radio-button', options: ['none', 'reuse', 'persist'], default: 'none', visible: 'low'},
-    {name: 'timeout', type: 'number', visible: 'low'},
-    {name: '#output', type: 'any', readonly: true},
+    {name: 'reuseWorker', type: 'radio-button', options: ['none', 'reuse', 'persist'], default: 'none'},
+    {name: 'timeout', type: 'number'},
+    {name: '#output', pinned: true, type: 'any', readonly: true},
   ],
   category: 'repeat',
 });

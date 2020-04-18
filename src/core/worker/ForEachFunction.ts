@@ -280,7 +280,7 @@ Functions.add(ForEachFunction, {
   properties: [
     {name: 'input', type: 'object'},
     {name: 'use', type: 'worker'},
-    {name: '#output', type: 'any', readonly: true},
+    {name: '#output', pinned: true, type: 'any', readonly: true},
   ],
   category: 'repeat',
 });

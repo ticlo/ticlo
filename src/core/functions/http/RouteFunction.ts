@@ -149,8 +149,8 @@ Functions.add(
     properties: [
       {name: 'server', type: 'service', options: ['route-server']},
       {name: 'path', type: 'string'},
-      {name: 'method', type: 'multi-select', options: methodList, init: ['GET'], visible: 'low'},
-      {name: 'contentType', type: 'multi-select', options: contentTypeList, init: ['empty'], visible: 'low'},
+      {name: 'method', type: 'multi-select', options: methodList, init: ['GET']},
+      {name: 'contentType', type: 'multi-select', options: contentTypeList, init: ['empty']},
     ],
   },
   'http'

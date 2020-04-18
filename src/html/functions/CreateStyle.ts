@@ -31,7 +31,7 @@ Functions.add(
     name: 'create-style',
     icon: 'fab:css3',
     optional: StyleDef,
-    properties: [{name: '#output', type: 'object', readonly: true}],
+    properties: [{name: '#output', pinned: true, type: 'object', readonly: true}],
     configs: [{name: '#extend', type: 'object'}, '#call', '#mode', '#priority', '#sync'],
   },
   'html'

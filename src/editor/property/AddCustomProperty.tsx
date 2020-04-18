@@ -1,6 +1,6 @@
 import React, {ChangeEvent} from 'react';
 import {Button, Input, Select, Form, Switch, InputNumber, Radio} from 'antd';
-import {PropDesc, PropGroupDesc, ValueType, VisibleType, endsWithNumberReg, ClientConn} from '../../../src/core/editor';
+import {PropDesc, PropGroupDesc, ValueType, endsWithNumberReg, ClientConn} from '../../../src/core/editor';
 import {LazyUpdateComponent} from '../component/LazyUpdateComponent';
 import {FormInputItem, FormItem} from '../component/FormItem';
 
@@ -32,7 +32,7 @@ export class AddCustomPropertyMenu extends LazyUpdateComponent<Props, any> {
     optionStr: new FormInputItem<string>(this, 'optionStr', 'Options'),
     showAlpha: new FormItem<boolean>(this, 'showAlpha', 'Show Alpha', false),
     showTime: new FormItem<boolean>(this, 'showTime', 'Show Alpha', false),
-    visible: new FormInputItem<VisibleType>(this, 'visible', 'Visible'),
+    visible: new FormInputItem<boolean>(this, 'visible', 'Visible'),
   };
 
   onSubmit = (e: React.FormEvent<HTMLElement>) => {
@@ -62,7 +62,7 @@ export class AddCustomPropertyMenu extends LazyUpdateComponent<Props, any> {
     } else {
       result = {name: name.value, type: type.value};
       if (visible.value) {
-        result.visible = visible.value;
+        result.pinned = visible.value;
       }
       switch (type.value) {
         case 'number': {

@@ -15,7 +15,7 @@ let testDesc = {
     {name: 'b', type: 'number', visible: 'high'},
     {name: 'c', type: 'number', visible: 'high'},
     {name: 'd', type: 'number', visible: 'high'},
-    {name: '#output', type: 'number', readonly: true},
+    {name: '#output', pinned: true, type: 'number', readonly: true},
   ],
 };
 

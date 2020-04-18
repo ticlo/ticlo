@@ -43,6 +43,6 @@ export class CreateObjectFunction extends BaseFunction {
 Functions.add(CreateObjectFunction, {
   name: 'create-object',
   icon: 'txt:{ }',
-  properties: [{name: '#output', type: 'object', readonly: true}],
+  properties: [{name: '#output', pinned: true, type: 'object', readonly: true}],
   configs: [{name: '#extend', type: 'object'}, '#call', '#mode', '#priority', '#sync'],
 });

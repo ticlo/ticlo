@@ -2,7 +2,7 @@ import React, {ReactElement} from 'react';
 import {Button, Input, Select} from 'antd';
 import PlusIcon from '@ant-design/icons/PlusOutlined';
 import EllipsisIcon from '@ant-design/icons/EllipsisOutlined';
-import {ClientConn, getDefaultFuncData, PropDesc} from '../../../../src/core/editor';
+import {ClientConn, getDefaultFuncData, getSubBlockFuncData, PropDesc} from '../../../../src/core/editor';
 import {Popup} from '../../component/ClickPopup';
 import {PropertyList} from '../PropertyList';
 
@@ -35,7 +35,10 @@ export class ServiceEditor extends React.PureComponent<Props, State> {
     let {create} = desc;
     let funcDesc = conn.watchDesc(create);
     if (funcDesc) {
-      let createdBlock = await conn.addBlock(`#global.^${funcDesc.name}`, getDefaultFuncData(funcDesc), true);
+      let createdBlock = await conn.addBlock(
+        `#global.^${funcDesc.name}`,
+        getSubBlockFuncData(getDefaultFuncData(funcDesc))
+      );
       if (createdBlock && createdBlock.hasOwnProperty('name')) {
         onPathChange(`${createdBlock.name}.#output`);
         this.openPopup();

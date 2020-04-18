@@ -32,8 +32,8 @@ Functions.add(
     icon: 'fab:html5',
     properties: [
       {name: 'parent', type: 'none', init: 'document'},
-      {name: 'query', type: 'string', visible: 'high'},
-      {name: '#output', type: 'none', readonly: true},
+      {name: 'query', type: 'string', pinned: true},
+      {name: '#output', pinned: true, type: 'none', readonly: true},
     ],
   },
   'html'

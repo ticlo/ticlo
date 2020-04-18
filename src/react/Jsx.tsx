@@ -43,10 +43,11 @@ Functions.add(
         name: 'script',
         type: 'string',
         mime: 'text/jsx',
-        visible: 'high',
+        pinned: true,
       },
       {
         name: '#output',
+        pinned: true,
         type: 'object',
         readonly: true,
       },

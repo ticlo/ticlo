@@ -8,9 +8,9 @@ import {PropDesc} from '../../../../src/core/editor';
 class SliderView extends LazyUpdateComponent<BlockWidgetProps, any> {
   static readonly viewProperties: PropDesc[] = [
     {name: '@b-w-field', type: 'string'},
-    {name: '@b-w-min', type: 'number', default: 0, visible: 'low'},
-    {name: '@b-w-max', type: 'number', default: 100, visible: 'low'},
-    {name: '@b-w-step', type: 'number', default: 1, min: 0, visible: 'low'},
+    {name: '@b-w-min', type: 'number', default: 0},
+    {name: '@b-w-max', type: 'number', default: 100},
+    {name: '@b-w-step', type: 'number', default: 1, min: 0},
   ];
 
   field = new LazyUpdateSubscriber((value: any) => {

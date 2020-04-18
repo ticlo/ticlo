@@ -12,7 +12,7 @@ export function translateType(type: string, namespace?: string): string {
   if (!type) {
     return '';
   }
-  let i18ns = namespace ? `ticlo-${namespace}` : 'ticlo-block';
+  let i18ns = `ticlo-${namespace}`;
   return i18next.t(`${type}.@name`, {ns: i18ns, defaultValue: type});
 }
 
@@ -20,7 +20,7 @@ export function translateProperty(type: string, name: string, namespace?: string
   if (!type) {
     return name || '';
   }
-  let i18ns = namespace ? `ticlo-${namespace}` : 'ticlo-block';
+  let i18ns = `ticlo-${namespace}`;
   let numMatch = name.match(numberReg);
   if (numMatch) {
     let baseName = name.substr(0, numMatch.index);

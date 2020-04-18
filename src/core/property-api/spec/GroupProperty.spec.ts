@@ -42,7 +42,7 @@ describe('GroupProperty', function () {
           name: 'g',
           type: 'group',
           defaultLen: 2,
-          properties: [{name: 'a', type: 'number'}],
+          properties: [{name: 'a', type: 'number', pinned: true}],
         },
       ],
     });

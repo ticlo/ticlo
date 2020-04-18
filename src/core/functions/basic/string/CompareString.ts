@@ -8,9 +8,9 @@ const descriptor: FunctionDesc = {
   recipient: '0',
   category: 'string',
   properties: [
-    {name: '0', type: 'string', visible: 'high'},
-    {name: '1', type: 'string', visible: 'high'},
-    {name: '#output', type: 'toggle', readonly: true},
+    {name: '0', type: 'string', pinned: true},
+    {name: '1', type: 'string', pinned: true},
+    {name: '#output', pinned: true, type: 'toggle', readonly: true},
   ],
 };
 
