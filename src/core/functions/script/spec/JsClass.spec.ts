@@ -1,5 +1,5 @@
 import {assert} from 'chai';
-import {Job, Root} from '../../../block/Job';
+import {Flow, Root} from '../../../block/Flow';
 import {JsFunction} from '../Js';
 import {Functions} from '../../../block/Functions';
 import {TestLogger} from '../../../util/spec/Logger.spec';
@@ -7,7 +7,7 @@ import {Logger} from '../../../util/Logger';
 
 describe('Js Type', function () {
   it('basic', function () {
-    let job = new Job();
+    let job = new Flow();
 
     let aBlock = job.createBlock('a');
     aBlock.setValue('in1', 321);
@@ -29,7 +29,7 @@ describe('Js Type', function () {
   });
 
   it('unregister class', function () {
-    let job = new Job();
+    let job = new Flow();
 
     let aBlock = job.createBlock('a');
     aBlock.setValue('#is', 'Js-type2');
@@ -51,7 +51,7 @@ describe('Js Type', function () {
   });
 
   it('trivial', function () {
-    let job = new Job();
+    let job = new Flow();
 
     let aBlock = job.createBlock('a');
     Functions.clear('');

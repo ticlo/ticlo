@@ -1,6 +1,6 @@
 import {assert} from 'chai';
 import {TestAsyncFunctionLog} from './TestFunction';
-import {Job, Root} from '../Job';
+import {Flow, Root} from '../Flow';
 import {ErrorEvent, Event} from '../Event';
 import {shouldReject, shouldTimeout} from '../../util/test-util';
 import '../../functions/basic/math/Arithmetic';
@@ -16,7 +16,7 @@ for (let typeName of ['async-function-promise', 'async-function-manual']) {
     });
 
     it('basic', async function () {
-      let job = new Job();
+      let job = new Flow();
 
       let block = job.createBlock('obj');
       block.setValue('#mode', 'onCall');
@@ -34,7 +34,7 @@ for (let typeName of ['async-function-promise', 'async-function-manual']) {
     });
 
     it('cancel call', async function () {
-      let job = new Job();
+      let job = new Flow();
 
       let block = job.createBlock('obj');
       block.setValue('#sync', true);
@@ -52,7 +52,7 @@ for (let typeName of ['async-function-promise', 'async-function-manual']) {
     });
 
     it('chain async call', async function () {
-      let job = new Job();
+      let job = new Flow();
 
       let block1 = job.createBlock('obj1');
       block1.setValue('#sync', true);
@@ -100,7 +100,7 @@ for (let typeName of ['async-function-promise', 'async-function-manual']) {
     });
 
     it('cancel async call', async function () {
-      let job = new Job();
+      let job = new Flow();
 
       let block1 = job.createBlock('obj1');
       block1.setValue('#sync', true);
@@ -119,7 +119,7 @@ for (let typeName of ['async-function-promise', 'async-function-manual']) {
     });
 
     it('reject async call', async function () {
-      let job = new Job();
+      let job = new Flow();
 
       let block1 = job.createBlock('obj1');
       block1.setValue('#sync', true);
@@ -132,7 +132,7 @@ for (let typeName of ['async-function-promise', 'async-function-manual']) {
     });
 
     it('async emit custom value', async function () {
-      let job = new Job();
+      let job = new Flow();
 
       let block1 = job.createBlock('obj1');
       block1.setValue('#sync', true);

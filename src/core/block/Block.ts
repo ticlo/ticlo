@@ -12,7 +12,7 @@ import {ConfigGenerators, BlockConstConfig, OutputsConfigGenerators, InputsConfi
 import {Task} from './Task';
 import {_strictMode} from './BlockSettings';
 
-import type {Job, Root} from './Job';
+import type {Flow, Root} from './Flow';
 
 export type BlockMode = 'auto' | 'onLoad' | 'onChange' | 'onCall' | 'disabled';
 export const BlockModeList = ['auto', 'onLoad', 'onChange', 'onCall', 'disabled'];
@@ -69,7 +69,7 @@ export class Block implements Runnable, FunctionData, PropListener<FunctionClass
 
   _blockId: string;
 
-  _job: Job;
+  _job: Flow;
   _parent: Block;
   _prop: BlockProperty;
 
@@ -100,7 +100,7 @@ export class Block implements Runnable, FunctionData, PropListener<FunctionClass
 
   _proxy: object;
 
-  constructor(job: Job, parent: Block, prop: BlockProperty) {
+  constructor(job: Flow, parent: Block, prop: BlockProperty) {
     this._job = job;
     this._parent = parent;
     this._prop = prop;
@@ -435,15 +435,15 @@ export class Block implements Runnable, FunctionData, PropListener<FunctionClass
     return block;
   }
 
-  createOutputJob<T extends Job>(
-    JobClass: new (parent: Block, output: FunctionOutput, property: BlockProperty) => T,
+  createOutputFlow<T extends Flow>(
+    FlowClass: new (parent: Block, output: FunctionOutput, property: BlockProperty) => T,
     field: string,
     src?: DataMap | string,
     output?: FunctionOutput,
     applyChange?: (data: DataMap) => boolean
   ): T {
     let prop = this.getProperty(field);
-    let job = new JobClass(this, output, prop);
+    let job = new FlowClass(this, output, prop);
     prop.setOutput(job);
     if (typeof src === 'string') {
       job.load(null, src, applyChange);

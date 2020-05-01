@@ -1,6 +1,6 @@
 import {assert} from 'chai';
 import {Block} from '../../block/Block';
-import {Job, Root} from '../../block/Job';
+import {Flow, Root} from '../../block/Flow';
 import {makeLocalConnection} from '../LocalConnection';
 import '../../functions/basic/math/Arithmetic';
 import '../../functions/Categories';
@@ -12,8 +12,8 @@ import {JsFunction} from '../../functions/script/Js';
 import {Functions} from '../../block/Functions';
 import {DataMap, isDataTruncated} from '../../util/DataTypes';
 import {WorkerFunction} from '../../worker/WorkerFunction';
-import {JobEditor} from '../../worker/JobEditor';
-import {JobWorker} from '../../worker/JobWorker';
+import {FlowEditor} from '../../worker/FlowEditor';
+import {WorkerFlow} from '../../worker/WorkerFlow';
 
 describe('Connection Client API', function () {
   before(function () {

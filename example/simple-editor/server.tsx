@@ -20,11 +20,11 @@ window.addEventListener('beforeunload', () => {
 });
 
 (async () => {
-  let reactJob = Root.instance.addJob('example');
-  reactJob.load(reactData);
+  let reactFlow = Root.instance.addFlow('example');
+  reactFlow.load(reactData);
 
-  let generalJob = Root.instance.addJob('example0');
-  generalJob.load(data);
+  let generalFlow = Root.instance.addFlow('example0');
+  generalFlow.load(data);
 
   // create some global blocks
   Root.instance._globalRoot.createBlock('^gAdd').setValue('#is', 'add');

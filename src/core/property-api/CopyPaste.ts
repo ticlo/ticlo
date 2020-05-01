@@ -1,9 +1,9 @@
 import {Block} from '../block/Block';
 import {DataMap} from '../util/DataTypes';
 import {BlockProperty} from '../block/BlockProperty';
-import {JobWithShared, SharedBlock, SharedConfig} from '../block/SharedBlock';
+import {FlowWithShared, SharedBlock, SharedConfig} from '../block/SharedBlock';
 import {findPropertyForNewBlock} from './PropertyName';
-import {Job} from '../block/Job';
+import {Flow} from '../block/Flow';
 import {addMapArray} from '../util/Map';
 import {off} from 'codemirror';
 import {cloneToLevel} from '../util/Clone';
@@ -26,7 +26,7 @@ export function createSharedBlock(property: BlockProperty): SharedBlock {
     if (value instanceof SharedBlock) {
       return value;
     }
-    let job = property._block as JobWithShared;
+    let job = property._block as FlowWithShared;
     return SharedBlock.loadSharedBlock(job, job._loadFrom, {});
   }
   return null;
@@ -146,14 +146,14 @@ function renameBlocks(parent: Block, data: DataMap, fields: string[]) {
     data[newField] = data[field];
     delete data[field];
   }
-  let isJob = parent instanceof Job;
+  let isFlow = parent instanceof Flow;
   // move bindings
   function moveBinding(obj: DataMap, level: number) {
     for (let key in obj) {
       let val = obj[key];
       if (key.startsWith('~') && typeof val === 'string') {
         let parts = val.split('.');
-        if (isJob && parts[0] === '###' && fields.includes(parts[1])) {
+        if (isFlow && parts[0] === '###' && fields.includes(parts[1])) {
           // job binding
           parts[1] = map.get(parts[1]);
           obj[key] = parts.join('.');

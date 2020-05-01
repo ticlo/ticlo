@@ -2,14 +2,14 @@ import {Functions} from '../block/Functions';
 import {BlockFunction} from '../block/BlockFunction';
 import {FunctionDesc, PropDesc, PropGroupDesc} from '../block/Descriptor';
 import {BlockIO} from '../block/BlockProperty';
-import {Job} from '../block/Job';
+import {Flow} from '../block/Flow';
 import {DataMap} from '../util/DataTypes';
-import {JobWorker} from './JobWorker';
+import {WorkerFlow} from './WorkerFlow';
 
 export class WorkerFunction extends BlockFunction {
   readonly type: string;
   _namespace: string;
-  _funcJob: JobWorker;
+  _funcFlow: WorkerFlow;
 
   inputChanged(input: BlockIO, val: any): boolean {
     return false;
@@ -19,11 +19,11 @@ export class WorkerFunction extends BlockFunction {
     let applyChange: (data: DataMap) => boolean;
     if (this._namespace === '') {
       applyChange = (data: DataMap) => {
-        return WorkerFunction.applyChangeToFunc(this._funcJob, null, data);
+        return WorkerFunction.applyChangeToFunc(this._funcFlow, null, data);
       };
     }
-    this._funcJob = this._data.createOutputJob(JobWorker, '#func', this.type, this._data, applyChange);
-    this._funcJob.updateInput(this._data);
+    this._funcFlow = this._data.createOutputFlow(WorkerFlow, '#func', this.type, this._data, applyChange);
+    this._funcFlow.updateInput(this._data);
   }
 
   cleanup(): void {
@@ -48,7 +48,7 @@ export class WorkerFunction extends BlockFunction {
   /**
    * save the worker to a function
    */
-  static applyChangeToFunc(job: Job, funcId: string, data?: DataMap) {
+  static applyChangeToFunc(job: Flow, funcId: string, data?: DataMap) {
     if (!data) {
       data = job.save();
     }

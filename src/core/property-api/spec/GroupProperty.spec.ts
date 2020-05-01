@@ -1,13 +1,13 @@
 import {assert} from 'chai';
 
 import {Block} from '../../block/Block';
-import {Job} from '../../block/Job';
+import {Flow} from '../../block/Flow';
 import '../../functions/basic/math/Arithmetic';
 import {insertGroupProperty, moveGroupProperty, removeGroupProperty, setGroupLength} from '../GroupProperty';
 
 describe('GroupProperty', function () {
   it('setGroupLength', function () {
-    let job = new Job();
+    let job = new Flow();
     let aBlock = job.createBlock('a');
     aBlock._load({
       '#is': 'add',
@@ -34,7 +34,7 @@ describe('GroupProperty', function () {
   });
 
   it('setGroupLength on #custom', function () {
-    let job = new Job();
+    let job = new Flow();
     job.load({
       '#is': '',
       '#custom': [
@@ -53,7 +53,7 @@ describe('GroupProperty', function () {
   });
 
   it('insertGroupProperty', function () {
-    let job = new Job();
+    let job = new Flow();
     let aBlock = job.createBlock('a');
     aBlock._load({
       '#is': 'add',
@@ -79,7 +79,7 @@ describe('GroupProperty', function () {
   });
 
   it('removeGroupProperty', function () {
-    let job = new Job();
+    let job = new Flow();
     let aBlock = job.createBlock('a');
     aBlock._load({
       '#is': 'add',
@@ -102,7 +102,7 @@ describe('GroupProperty', function () {
   });
 
   it('moveGroupProperty', function () {
-    let job = new Job();
+    let job = new Flow();
     let aBlock = job.createBlock('a');
     aBlock._load({
       '#is': 'add',

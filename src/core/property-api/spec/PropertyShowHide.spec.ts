@@ -1,11 +1,11 @@
 import {assert} from 'chai';
 
-import {Job, PropDesc, PropGroupDesc} from '../..';
+import {Flow, PropDesc, PropGroupDesc} from '../..';
 import {showProperties, hideProperties, moveShownProperty, hideGroupProperties} from '../PropertyShowHide';
 
 describe('PropertyOrder', function () {
   it('show hide Property', function () {
-    let job = new Job();
+    let job = new Flow();
     job.load({
       '#is': 'add',
     });
@@ -26,7 +26,7 @@ describe('PropertyOrder', function () {
   });
 
   it('show hide Properties with order', function () {
-    let job = new Job();
+    let job = new Flow();
     let aBlock = job.createBlock('a');
     aBlock._load({
       '#is': 'add',
@@ -54,7 +54,7 @@ describe('PropertyOrder', function () {
       properties: [{name: 'a', type: 'string'}],
     };
 
-    let job = new Job();
+    let job = new Flow();
 
     hideGroupProperties(job, descG);
     hideGroupProperties(job, descG, 'a');
@@ -73,7 +73,7 @@ describe('PropertyOrder', function () {
   });
 
   it('moveShownProperty', function () {
-    let job = new Job();
+    let job = new Flow();
 
     moveShownProperty(job, 'a', 'b');
     assert.isUndefined(job.getValue('@b-p'));

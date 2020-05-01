@@ -1,10 +1,10 @@
 import {assert} from 'chai';
-import {Job} from '../Job';
+import {Flow} from '../Flow';
 import {BlockIO} from '../BlockProperty';
 
 describe('Block Child Watch', function () {
   it('basic', function () {
-    let job = new Job();
+    let job = new Flow();
 
     let watchLog: any[] = [];
     let watch = {

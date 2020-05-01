@@ -1,11 +1,11 @@
 import {assert} from 'chai';
 import '../CreateObject';
 import {Block} from '../../../block/Block';
-import {Job, Root} from '../../../block/Job';
+import {Flow, Root} from '../../../block/Flow';
 
 describe('CreateObject', function () {
   it('basic', function () {
-    let job = new Job();
+    let job = new Flow();
 
     let aBlock = job.createBlock('a');
     aBlock._load({
@@ -23,7 +23,7 @@ describe('CreateObject', function () {
   });
 
   it('extend', function () {
-    let job = new Job();
+    let job = new Flow();
 
     let aBlock = job.createBlock('a');
     aBlock._load({
@@ -43,7 +43,7 @@ describe('CreateObject', function () {
   });
 
   it('array', function () {
-    let job = new Job();
+    let job = new Flow();
 
     let aBlock = job.createBlock('a');
     aBlock._load({

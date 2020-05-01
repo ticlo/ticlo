@@ -4,11 +4,11 @@ import '../RouteFunction';
 import {RouteFunction} from '../RouteFunction';
 import '../../../worker/HandlerFunction';
 import {Block} from '../../../block/Block';
-import {Job, Root} from '../../../block/Job';
+import {Flow, Root} from '../../../block/Flow';
 import {getDefaultFuncData} from '../../../block/Descriptor';
 import {Functions} from '../../../block/Functions';
 import {HttpRequest} from '../HttpRequest';
-import {JobEditor} from '../../../worker/JobEditor';
+import {FlowEditor} from '../../../worker/FlowEditor';
 
 const jobData = {
   '#is': '',
@@ -17,7 +17,7 @@ const jobData = {
 };
 describe('RouteFunction', function () {
   it('register route', function () {
-    let job = new Job();
+    let job = new Flow();
 
     const serviceLog: any[] = [];
     const mockService = {
@@ -53,7 +53,7 @@ describe('RouteFunction', function () {
   });
 
   it('method and contentType', function () {
-    let job = new Job();
+    let job = new Flow();
 
     let aBlock = job.createBlock('a');
     aBlock._load(getDefaultFuncData(Functions.getDescToSend('http:route')[0]));
@@ -73,7 +73,7 @@ describe('RouteFunction', function () {
   });
 
   it('emit', function () {
-    let job = new Job();
+    let job = new Flow();
 
     let routeFunction: RouteFunction;
     const mockService = {
@@ -97,7 +97,7 @@ describe('RouteFunction', function () {
   });
 
   it('edit worker', function () {
-    let job = new Job();
+    let job = new Flow();
     job.load({
       '#is': '',
       'route': {'#is': 'http:route'},
@@ -105,8 +105,8 @@ describe('RouteFunction', function () {
     });
     let route = job.getValue('route') as Block;
     let handler = job.getValue('handler') as Block;
-    JobEditor.createFromField(handler, '#edit-use', 'use');
+    FlowEditor.createFromField(handler, '#edit-use', 'use');
 
-    assert.deepEqual((handler.getValue('#edit-use') as Job).save(), route._function.getDefaultWorker('#emit'));
+    assert.deepEqual((handler.getValue('#edit-use') as Flow).save(), route._function.getDefaultWorker('#emit'));
   });
 });

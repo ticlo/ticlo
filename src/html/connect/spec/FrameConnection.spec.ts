@@ -6,7 +6,7 @@ import {FrameClientConnection} from '../FrameClientConnection';
 
 describe('FrameConnection', function () {
   it('basic', async function () {
-    let job = Root.instance.addJob('FrameConnect1');
+    let job = Root.instance.addFlow('FrameConnect1');
     let server = new FrameServerConnection(window, Root.instance);
     let client = new FrameClientConnection(window, false);
 

@@ -26,7 +26,7 @@ describe('editor NodeTree', function () {
   }
 
   it('basic', async function () {
-    let job = Root.instance.addJob('NodeTree');
+    let job = Root.instance.addFlow('NodeTree');
     addTestChildren(job, '', 3);
 
     let [server, client] = makeLocalConnection(Root.instance);

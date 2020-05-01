@@ -5,7 +5,7 @@ import {PropDispatcher, PropListener} from './Dispatcher';
 import {FunctionDesc} from './Descriptor';
 import {DataMap} from '../util/DataTypes';
 import {Storage} from './Storage';
-import type {Job} from './Job';
+import type {Flow} from './Flow';
 
 export interface DescListener {
   onDescChange(id: string, desc: FunctionDesc): void;
@@ -167,10 +167,10 @@ export class Functions {
   static setStorage(storage: Storage) {
     _storage = storage;
   }
-  static saveWorkerFunction(funcId: string, job: Job, data: DataMap) {
-    _storage?.saveJob(`#.${funcId.substring(1)}`, job, data);
+  static saveWorkerFunction(funcId: string, job: Flow, data: DataMap) {
+    _storage?.saveFlow(`#.${funcId.substring(1)}`, job, data);
   }
   static deleteFunction(funcId: string) {
-    _storage?.deleteJob(`#.${funcId.substring(1)}`);
+    _storage?.deleteFlow(`#.${funcId.substring(1)}`);
   }
 }

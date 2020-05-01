@@ -1,6 +1,6 @@
 import {assert} from 'chai';
 import {TestFunctionRunner} from './TestFunction';
-import {Job, Root} from '../Job';
+import {Flow, Root} from '../Flow';
 
 describe('BlockPriority', function () {
   beforeEach(() => {
@@ -12,7 +12,7 @@ describe('BlockPriority', function () {
   });
 
   it('basic function order', function () {
-    let job = new Job();
+    let job = new Flow();
 
     let p0 = job.createBlock('p0');
     let p1 = job.createBlock('p1');
@@ -69,7 +69,7 @@ describe('BlockPriority', function () {
   });
 
   it('order from binding', function () {
-    let job = new Job();
+    let job = new Flow();
 
     let p2 = job.createBlock('p2');
     let p0 = job.createBlock('p0');
@@ -106,7 +106,7 @@ describe('BlockPriority', function () {
   });
 
   it('priority change during resolving', function () {
-    let job = new Job();
+    let job = new Flow();
 
     let p0 = job.createBlock('p0');
     let p1 = job.createBlock('p1');

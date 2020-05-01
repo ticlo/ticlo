@@ -1,5 +1,5 @@
 import {assert} from 'chai';
-import {Root} from '../../block/Job';
+import {Root} from '../../block/Flow';
 import {makeLocalConnection} from '../LocalConnection';
 import {AsyncClientPromise} from './AsyncClientPromise';
 import {VoidListeners, TestFunctionRunner} from '../../block/spec/TestFunction';

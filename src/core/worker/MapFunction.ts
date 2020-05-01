@@ -5,7 +5,7 @@ import {ErrorEvent, Event, EventType, WAIT} from '../block/Event';
 import {MapImpl, WorkerOutput} from './MapImpl';
 import {BlockProxy} from '../block/BlockProxy';
 import {UnlimitedPool} from './ThreadPool';
-import {RepeaterWorker} from './JobWorker';
+import {RepeaterWorker} from './WorkerFlow';
 
 interface KeyIterator {
   current(): string;

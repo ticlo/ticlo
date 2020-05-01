@@ -1,5 +1,5 @@
 import {assert} from 'chai';
-import {Root} from '../../block/Job';
+import {Root} from '../../block/Flow';
 import {makeLocalConnection} from '../LocalConnection';
 import {AddFunction} from '../../functions/basic/math/Arithmetic';
 import {DataMap} from '../../util/DataTypes';
@@ -10,7 +10,7 @@ const initAdd = AddFunction;
 
 describe('Connection Error', function () {
   it('common errors', async function () {
-    let job = Root.instance.addJob('ConnectionError1');
+    let job = Root.instance.addFlow('ConnectionError1');
     let [server, client] = makeLocalConnection(Root.instance, false);
 
     assert.equal(
@@ -40,9 +40,9 @@ describe('Connection Error', function () {
 
     assert.equal(await shouldReject(client.editWorker('ConnectionError1.a.b.c') as Promise<any>), 'invalid path');
 
-    assert.equal(await shouldReject(client.applyJobChange('ConnectionError1.a.b.c') as Promise<any>), 'invalid path');
+    assert.equal(await shouldReject(client.applyFlowChange('ConnectionError1.a.b.c') as Promise<any>), 'invalid path');
 
-    assert.equal(await shouldReject(client.addJob('ConnectionError1') as Promise<any>), 'invalid path');
+    assert.equal(await shouldReject(client.addFlow('ConnectionError1') as Promise<any>), 'invalid path');
 
     assert.equal(
       await shouldReject(client.showProps('ConnectionError1.a.b.c', ['@a']) as Promise<any>),
@@ -129,7 +129,7 @@ describe('Connection Error', function () {
   });
 
   it('parent removed', async function () {
-    let job = Root.instance.addJob('ConnectionError2');
+    let job = Root.instance.addFlow('ConnectionError2');
     let [server, client] = makeLocalConnection(Root.instance, false);
     let a = job.createBlock('a');
     let b = a.createBlock('b');

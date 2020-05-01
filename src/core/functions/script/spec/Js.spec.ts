@@ -1,13 +1,13 @@
 import {assert} from 'chai';
 import {Block} from '../../../block/Block';
-import {Job, Root} from '../../../block/Job';
+import {Flow, Root} from '../../../block/Flow';
 import {WAIT} from '../../../block/Event';
 import {shouldReject, shouldTimeout} from '../../../util/test-util';
 import '../Js';
 
 describe('Js', function () {
   it('basic', function () {
-    let job = new Job();
+    let job = new Flow();
 
     let aBlock = job.createBlock('a');
 
@@ -20,7 +20,7 @@ describe('Js', function () {
   });
 
   it('nested function', function () {
-    let job = new Job();
+    let job = new Flow();
 
     let aBlock = job.createBlock('a');
 
@@ -36,7 +36,7 @@ describe('Js', function () {
 
     // save load
     let saved = job.save();
-    let job2 = new Job();
+    let job2 = new Flow();
     job2.load(saved);
 
     let aBlock2 = job2.getValue('a');
@@ -46,7 +46,7 @@ describe('Js', function () {
   });
 
   it('errors', async function () {
-    let job = new Job();
+    let job = new Flow();
 
     let aBlock = job.createBlock('a');
     aBlock.setValue('#is', 'js');

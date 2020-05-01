@@ -19,7 +19,7 @@ describe('editor Block Field', function () {
   });
 
   it('single block', async function () {
-    let job = Root.instance.addJob('BlockField1');
+    let job = Root.instance.addFlow('BlockField1');
     job.load({
       add: {
         '#is': '',
@@ -68,7 +68,7 @@ describe('editor Block Field', function () {
   });
 
   it('sub block', async function () {
-    let job = Root.instance.addJob('BlockField2');
+    let job = Root.instance.addFlow('BlockField2');
     job.load({
       add: {
         '#is': 'add',
@@ -124,7 +124,7 @@ describe('editor Block Field', function () {
   });
 
   it('indirect binding', async function () {
-    let job = Root.instance.addJob('BlockField3');
+    let job = Root.instance.addFlow('BlockField3');
     job.load({
       add: {
         '#is': 'add',

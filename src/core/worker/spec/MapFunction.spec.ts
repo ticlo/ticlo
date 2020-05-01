@@ -1,5 +1,5 @@
 import {assert} from 'chai';
-import {Job, Root} from '../../block/Job';
+import {Flow, Root} from '../../block/Flow';
 import {TestFunctionRunner, TestAsyncFunctionPromise} from '../../block/spec/TestFunction';
 import '../../functions/basic/math/Arithmetic';
 import '../MapFunction';
@@ -17,7 +17,7 @@ describe('MapFunction non-thread', function () {
   });
 
   it('basic', function () {
-    let job = new Job();
+    let job = new Flow();
 
     job.setValue('a', {
       v1: 1,
@@ -61,7 +61,7 @@ describe('MapFunction non-thread', function () {
   });
 
   it('empty input', function () {
-    let job = new Job();
+    let job = new Flow();
 
     let bBlock = job.createBlock('b');
 
@@ -82,7 +82,7 @@ describe('MapFunction non-thread', function () {
   });
 
   it('#inputs', function () {
-    let job = new Job();
+    let job = new Flow();
 
     job.setValue('a', {
       v1: {a: 1, b: 2},
@@ -127,7 +127,7 @@ describe('MapFunction non-thread', function () {
   });
 
   it('input object', function () {
-    let job = new Job();
+    let job = new Flow();
 
     const data = {
       v1: {v: 1},
@@ -159,7 +159,7 @@ describe('MapFunction non-thread', function () {
   });
 
   it('change use', function () {
-    let job = new Job();
+    let job = new Flow();
 
     job.setValue('a', {
       v1: 1,
@@ -205,7 +205,7 @@ describe('MapFunction non-thread', function () {
   });
 
   it('reuse worker', function () {
-    let job = new Job();
+    let job = new Flow();
 
     job.setValue('a', {
       v1: 1,
@@ -253,7 +253,7 @@ describe('MapFunction non-thread', function () {
   });
 
   it('persist worker', function () {
-    let job = new Job();
+    let job = new Flow();
 
     job.setValue('a', {
       v1: 1,
@@ -299,7 +299,7 @@ describe('MapFunction non-thread', function () {
   });
 
   it('conversion from Block', function () {
-    let job = new Job();
+    let job = new Flow();
 
     let aBlock = job.createBlock('a');
     let bBlock = job.createBlock('b');
@@ -337,7 +337,7 @@ describe('MapFunction non-thread', function () {
   });
 
   it('async worker', async function () {
-    let job = new Job();
+    let job = new Flow();
 
     job.setValue('a', {
       v1: 1,
@@ -398,7 +398,7 @@ describe('MapFunction non-thread', function () {
   });
 
   it('timeout', async function () {
-    let job = new Job();
+    let job = new Flow();
 
     job.setValue('a', {
       v1: 1,
@@ -433,7 +433,7 @@ describe('MapFunction non-thread', function () {
   });
 
   it('input race', function () {
-    let job = new Job();
+    let job = new Flow();
 
     job.setValue('a', {
       v1: 1,
@@ -484,7 +484,7 @@ describe('MapFunction non-thread', function () {
   });
 
   it('cancel worker', async function () {
-    let job = new Job();
+    let job = new Flow();
 
     job.setValue('a', {
       v1: 1,
@@ -546,7 +546,7 @@ describe('MapFunction non-thread', function () {
   });
 
   it('cancel worker reuse', async function () {
-    let job = new Job();
+    let job = new Flow();
 
     job.setValue('a', {
       v1: 1,

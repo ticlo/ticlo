@@ -1,5 +1,5 @@
 import {assert} from 'chai';
-import {Job, Root} from '../../block/Job';
+import {Flow, Root} from '../../block/Flow';
 import {TestFunctionRunner, TestAsyncFunctionLog} from '../../block/spec/TestFunction';
 import '../../functions/basic/math/Arithmetic';
 import '../HandlerFunction';
@@ -44,7 +44,7 @@ describe('HandlerFunction', function () {
   });
 
   it('basic', function () {
-    let job = new Job();
+    let job = new Flow();
 
     let listener = new HandlerListener();
     let aBlock = job.createBlock('a');
@@ -65,7 +65,7 @@ describe('HandlerFunction', function () {
   });
 
   it('syncInput', function () {
-    let job = new Job();
+    let job = new Flow();
 
     let listener = new HandlerListener();
     let aBlock = job.createBlock('a');
@@ -92,7 +92,7 @@ describe('HandlerFunction', function () {
   });
 
   it('thread non-reuse', function () {
-    let job = new Job();
+    let job = new Flow();
 
     let listener = new HandlerListener();
     let aBlock = job.createBlock('a');
@@ -119,7 +119,7 @@ describe('HandlerFunction', function () {
   });
 
   it('thread reuse', function () {
-    let job = new Job();
+    let job = new Flow();
 
     let listener = new HandlerListener();
     let aBlock = job.createBlock('a');
@@ -153,7 +153,7 @@ describe('HandlerFunction', function () {
   });
 
   it('thread persist', function () {
-    let job = new Job();
+    let job = new Flow();
 
     let listener = new HandlerListener();
     let aBlock = job.createBlock('a');
@@ -187,7 +187,7 @@ describe('HandlerFunction', function () {
   });
 
   it('keepOrder', async function () {
-    let job = new Job();
+    let job = new Flow();
 
     let listener = new HandlerListener(true);
     let aBlock = job.createBlock('a');
@@ -224,7 +224,7 @@ describe('HandlerFunction', function () {
   });
 
   it('timeout', async function () {
-    let job = new Job();
+    let job = new Flow();
 
     let listener = new HandlerListener();
     let aBlock = job.createBlock('a');
@@ -257,7 +257,7 @@ describe('HandlerFunction', function () {
   });
 
   it('maxQueueSize', async function () {
-    let job = new Job();
+    let job = new Flow();
 
     let listener = new HandlerListener(true);
     let aBlock = job.createBlock('a');
@@ -288,7 +288,7 @@ describe('HandlerFunction', function () {
   });
 
   it('chain handler blocks', async function () {
-    let job = new Job();
+    let job = new Flow();
 
     job.load({
       a: {
@@ -319,7 +319,7 @@ describe('HandlerFunction', function () {
   });
 
   it('misc', async function () {
-    let job = new Job();
+    let job = new Flow();
 
     let listener = new HandlerListener(true);
     let aBlock = job.createBlock('a');

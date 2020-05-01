@@ -1,7 +1,7 @@
 import {assert} from 'chai';
 import {getRelativePath, resolvePath, forAllPathsBetween} from '../Path';
 import {WorkerFunction} from '../../worker/WorkerFunction';
-import {Root} from '../../block/Job';
+import {Root} from '../../block/Flow';
 import {DataMap} from '../DataTypes';
 import {propRelative} from '../PropPath';
 
@@ -34,8 +34,8 @@ describe('Path', function () {
   });
 
   it('propRelative', async function () {
-    let job1 = Root.instance.addJob('PropRelative1');
-    let job2 = Root.instance.addJob('PropRelative2');
+    let job1 = Root.instance.addFlow('PropRelative1');
+    let job2 = Root.instance.addFlow('PropRelative2');
 
     let jobData1: DataMap = {
       '#is': '',
@@ -105,9 +105,9 @@ describe('Path', function () {
       'B.#func.C.v'
     );
 
-    let job11 = Root.instance.addJob('PropRelative1.1');
-    let job111 = Root.instance.addJob('PropRelative1.1.1');
-    let job1c1 = Root.instance.addJob('PropRelative1.c.1');
+    let job11 = Root.instance.addFlow('PropRelative1.1');
+    let job111 = Root.instance.addFlow('PropRelative1.1.1');
+    let job1c1 = Root.instance.addFlow('PropRelative1.c.1');
 
     assert.equal(propRelative(job1.queryValue('1.1'), job1.queryProperty('v', true)), '##.###.##.v');
     assert.equal(propRelative(job1.queryValue('c.1'), job1.queryProperty('v', true)), '##.###.v');

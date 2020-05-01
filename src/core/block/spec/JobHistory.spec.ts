@@ -1,12 +1,12 @@
 import {assert} from 'chai';
-import {Job} from '../Job';
-import {JobHistory} from '../JobHistory';
+import {Flow} from '../Flow';
+import {FlowHistory} from '../FlowHistory';
 import {shouldHappen} from '../../util/test-util';
-import {JobWorker} from '../../worker/JobWorker';
+import {WorkerFlow} from '../../worker/WorkerFlow';
 
-describe('JobHistory', function () {
+describe('FlowHistory', function () {
   it('undo redo', function () {
-    let job = new Job();
+    let job = new Flow();
     job.setValue('a', 1);
     job.startHistory();
     let history = job._history;
@@ -46,10 +46,10 @@ describe('JobHistory', function () {
   });
 
   it('trackChange', async function () {
-    let debounceInterval = JobHistory._debounceInterval;
-    JobHistory._debounceInterval = 50;
+    let debounceInterval = FlowHistory._debounceInterval;
+    FlowHistory._debounceInterval = 50;
 
-    let job = new JobWorker();
+    let job = new WorkerFlow();
     job.load({a: 1}, null, (data) => true);
     job.startHistory();
     let history = job._history;
@@ -89,6 +89,6 @@ describe('JobHistory', function () {
     assert.equal(job.getValue('a'), 1);
 
     job.destroy();
-    JobHistory._debounceInterval = debounceInterval;
+    FlowHistory._debounceInterval = debounceInterval;
   });
 });

@@ -1,9 +1,9 @@
 import {Block} from '../block/Block';
-import {Job, Root} from '../block/Job';
+import {Flow, Root} from '../block/Flow';
 import {BlockProperty, HelperProperty} from '../block/BlockProperty';
 
 function propRelativeImpl(
-  job: Job,
+  job: Flow,
   baseBlock: Block,
   fromBlock: Block,
   fromField: string,
@@ -70,34 +70,34 @@ export function propRelative(base: Block, from: BlockProperty): string {
     return propRelativeImpl(baseBlock._job, baseBlock, fromBlock, from._name);
   } else {
     // base and from different jobs
-    let baseJob = baseBlock._job;
-    let fromJob = fromBlock._job;
-    let fromJobs: Job[] = [];
-    let baseJobs: Job[] = [];
+    let baseFlow = baseBlock._job;
+    let fromFlow = fromBlock._job;
+    let fromFlows: Flow[] = [];
+    let baseFlows: Flow[] = [];
 
     // trace job tree
-    while (fromJob && fromJob !== Root.instance) {
-      fromJobs.push(fromJob);
-      fromJob = fromJob._parent._job;
+    while (fromFlow && fromFlow !== Root.instance) {
+      fromFlows.push(fromFlow);
+      fromFlow = fromFlow._parent._job;
     }
-    while (baseJob && baseJob !== Root.instance) {
-      baseJobs.push(baseJob);
-      baseJob = baseJob._parent._job;
+    while (baseFlow && baseFlow !== Root.instance) {
+      baseFlows.push(baseFlow);
+      baseFlow = baseFlow._parent._job;
     }
-    let commonJob: Job = Root.instance;
+    let commonFlow: Flow = Root.instance;
     // find common job
-    while (baseJobs.length && baseJobs[baseJobs.length - 1] === fromJobs[fromJobs.length - 1]) {
-      commonJob = baseJobs.pop();
-      fromJobs.pop();
+    while (baseFlows.length && baseFlows[baseFlows.length - 1] === fromFlows[fromFlows.length - 1]) {
+      commonFlow = baseFlows.pop();
+      fromFlows.pop();
     }
 
-    if (baseJobs.length === 0) {
+    if (baseFlows.length === 0) {
       // binding source is a sub job in the base job
-      return propRelativeImpl(commonJob, baseBlock, fromBlock, from._name);
+      return propRelativeImpl(commonFlow, baseBlock, fromBlock, from._name);
     }
 
     let resultPaths: string[] = [];
-    for (let job of baseJobs) {
+    for (let job of baseFlows) {
       if (job === base._job) {
         if (base !== job) {
           resultPaths.unshift('###');
@@ -106,7 +106,7 @@ export function propRelative(base: Block, from: BlockProperty): string {
         resultPaths.push('##.###');
       }
     }
-    return propRelativeImpl(commonJob, baseJobs[baseJobs.length - 1], fromBlock, from._name, resultPaths.join('.'));
+    return propRelativeImpl(commonFlow, baseFlows[baseFlows.length - 1], fromBlock, from._name, resultPaths.join('.'));
   }
   // TODO, bind from service job
 }

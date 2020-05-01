@@ -1,11 +1,11 @@
 import {assert} from 'chai';
-import {Job, Root} from '../Job';
+import {Flow, Root} from '../Flow';
 import {BlockDeepProxy, BlockProxy} from '../BlockProxy';
 import {_strictMode} from '../BlockSettings';
 
 describe('BlockProxy', function () {
   it('deep proxy', function () {
-    let job = new Job();
+    let job = new Flow();
     job.setValue('v1', 1);
 
     let bBlock = job.createBlock('b');
@@ -49,7 +49,7 @@ describe('BlockProxy', function () {
   });
 
   it('shallow proxy', function () {
-    let job = new Job();
+    let job = new Flow();
     job.setValue('v1', 1);
 
     let bBlock = job.createBlock('b');

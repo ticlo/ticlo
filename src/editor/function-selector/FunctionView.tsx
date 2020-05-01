@@ -53,8 +53,8 @@ export class FunctionView extends React.PureComponent<Props, any> {
     let {conn, desc} = this.props;
     let editPath = `#temp.#edit-${encodeTicloName(desc.id)}`;
     conn.editWorker(editPath, null, desc.id);
-    this.context.editJob(editPath, () => {
-      conn.applyJobChange(editPath);
+    this.context.editFlow(editPath, () => {
+      conn.applyFlowChange(editPath);
     });
   };
   onDeleteClicked = () => {
@@ -96,7 +96,7 @@ export class FunctionView extends React.PureComponent<Props, any> {
       </DragDropDiv>
     );
 
-    if (ns === '' && desc.src === 'worker' && this.context.editJob) {
+    if (ns === '' && desc.src === 'worker' && this.context.editFlow) {
       return (
         <Dropdown overlay={this.getMenu} trigger={['contextMenu']}>
           {typeView}

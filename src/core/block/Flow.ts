@@ -2,17 +2,17 @@ import {Block, BlockChildWatch, InputsBlock, Runnable} from './Block';
 import {BlockConfig, BlockIO, BlockProperty, GlobalProperty} from './BlockProperty';
 import {Resolver} from './Resolver';
 import {FunctionOutput} from './BlockFunction';
-import {BlockConstConfig, ConstTypeConfig, JobConfigGenerators} from './BlockConfigs';
+import {BlockConstConfig, ConstTypeConfig, FlowConfigGenerators} from './BlockConfigs';
 import {Event} from './Event';
 import {DataMap} from '../util/DataTypes';
 import {FunctionDesc} from './Descriptor';
 import {Functions} from './Functions';
 import {Storage} from './Storage';
-import {JobHistory} from './JobHistory';
+import {FlowHistory} from './FlowHistory';
 
-export class Job extends Block {
+export class Flow extends Block {
   _namespace: string;
-  // function id, when Job is loaded from a function
+  // function id, when Flow is loaded from a function
   _loadFrom: string;
 
   _enabled: boolean = true;
@@ -20,7 +20,7 @@ export class Job extends Block {
 
   _outputObj?: FunctionOutput;
 
-  _history: JobHistory;
+  _history: FlowHistory;
 
   constructor(parent: Block = Root.instance, output?: FunctionOutput, property?: BlockProperty) {
     super(null, null, property);
@@ -33,8 +33,8 @@ export class Job extends Block {
   }
 
   _createConfig(field: string): BlockProperty {
-    if (field in JobConfigGenerators) {
-      return new JobConfigGenerators[field](this, field);
+    if (field in FlowConfigGenerators) {
+      return new FlowConfigGenerators[field](this, field);
     } else {
       return new BlockConfig(this, field);
     }
@@ -98,7 +98,7 @@ export class Job extends Block {
         if (data) {
           this._namespace = desc.ns;
           this._loadFrom = funcId;
-          this._loadJobData(data, funcId);
+          this._loadFlowData(data, funcId);
           loaded = true;
         }
       } else if (src) {
@@ -109,14 +109,14 @@ export class Job extends Block {
           this._namespace = null;
         }
         this._loadFrom = funcId;
-        this._loadJobData(src, funcId);
+        this._loadFlowData(src, funcId);
         loaded = true;
       }
     } else {
       this._namespace = this._parent._job._namespace;
       this._loadFrom = null;
       if (src) {
-        this._loadJobData(src);
+        this._loadFlowData(src);
         loaded = true;
       }
     }
@@ -127,18 +127,18 @@ export class Job extends Block {
     this._loading = false;
     return loaded;
   }
-  _loadJobData(map: DataMap, funcId?: string) {
+  _loadFlowData(map: DataMap, funcId?: string) {
     super._load(map);
     if (this._history) {
       this.destroyHistory();
-      this._history = new JobHistory(this, map);
+      this._history = new FlowHistory(this, map);
       this.deleteValue('@has-change');
     }
   }
 
   startHistory() {
     if (!this._history) {
-      this._history = new JobHistory(this);
+      this._history = new FlowHistory(this);
     }
   }
 
@@ -225,15 +225,15 @@ export class Job extends Block {
   }
 }
 
-export const JobConstConfigGenerators: {[key: string]: typeof BlockProperty} = {
-  ...JobConfigGenerators,
+export const FlowConstConfigGenerators: {[key: string]: typeof BlockProperty} = {
+  ...FlowConfigGenerators,
   '#is': ConstTypeConfig('job:const'),
 };
 
-class ConstBlock extends Job {
+class ConstBlock extends Flow {
   _createConfig(field: string): BlockProperty {
-    if (field in JobConstConfigGenerators) {
-      return new JobConstConfigGenerators[field](this, field);
+    if (field in FlowConstConfigGenerators) {
+      return new FlowConstConfigGenerators[field](this, field);
     } else {
       return new BlockConfig(this, field);
     }
@@ -249,13 +249,13 @@ class GlobalBlock extends ConstBlock {
   }
 }
 
-class JobMain extends Job {
+class FlowMain extends Flow {
   _save(): DataMap {
     return this.getValue('@b-xyw');
   }
 }
 
-export class Root extends Job {
+export class Root extends Flow {
   private static _instance: Root = new Root();
   static get instance() {
     return this._instance;
@@ -303,9 +303,9 @@ export class Root extends Job {
     }
   }
 
-  _globalRoot: Job;
-  _sharedRoot: Job;
-  _tempRoot: Job;
+  _globalRoot: Flow;
+  _sharedRoot: Flow;
+  _tempRoot: Flow;
 
   constructor() {
     super();
@@ -332,7 +332,7 @@ export class Root extends Job {
     return this._globalRoot.getProperty(name);
   }
 
-  addJob(path?: string, data?: DataMap): Job {
+  addFlow(path?: string, data?: DataMap): Flow {
     if (!path) {
       path = Block.nextUid();
     }
@@ -341,7 +341,7 @@ export class Root extends Job {
       // invalid path
       return null;
     }
-    let newJob = new JobMain(prop._block, null, prop);
+    let newFlow = new FlowMain(prop._block, null, prop);
     let propValue = prop._value;
     if (Array.isArray(propValue) && propValue.length === 3 && propValue.every((val) => typeof val === 'number')) {
       // overwrite @b-xyw value from parent job
@@ -352,32 +352,32 @@ export class Root extends Job {
         data = {};
       }
       let loader = this._storage;
-      newJob.load(
+      newFlow.load(
         data,
         null,
         (saveData) => {
-          loader.saveJob(path, newJob, saveData);
+          loader.saveFlow(path, newFlow, saveData);
           return true;
         },
         () => {
-          loader.deleteJob(path);
+          loader.deleteFlow(path);
         }
       );
-      this._storage.saveJob(path, newJob, data);
+      this._storage.saveFlow(path, newFlow, data);
     } else {
       if (data) {
-        newJob.load(data);
+        newFlow.load(data);
       }
     }
-    prop.setValue(newJob);
-    return newJob;
+    prop.setValue(newFlow);
+    return newFlow;
   }
 
-  deleteJob(name: string) {
+  deleteFlow(name: string) {
     let prop = this.getProperty(name, false);
-    if (prop?._value instanceof Job) {
+    if (prop?._value instanceof Flow) {
       if (this._storage) {
-        this._storage.deleteJob(name);
+        this._storage.deleteFlow(name);
       }
       prop.setValue(undefined);
     }

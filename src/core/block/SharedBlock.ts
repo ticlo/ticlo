@@ -1,8 +1,8 @@
 import './Block';
 import {BlockConfig, BlockProperty} from './BlockProperty';
 import {DataMap, isSavedBlock} from '../util/DataTypes';
-import {ConstTypeConfig, JobConfigGenerators} from './BlockConfigs';
-import {Job, Root} from './Job';
+import {ConstTypeConfig, FlowConfigGenerators} from './BlockConfigs';
+import {Flow, Root} from './Flow';
 import {Uid} from '../util/Uid';
 import {encodeTicloName} from '../util/Name';
 import {FunctionDispatcher, Functions} from './Functions';
@@ -44,14 +44,14 @@ export class SharedConfig extends BlockProperty {
 }
 
 export const SharedBlockConfigGenerators: {[key: string]: typeof BlockProperty} = {
-  ...JobConfigGenerators,
+  ...FlowConfigGenerators,
   '#is': ConstTypeConfig('job:shared'),
 };
 
-export class SharedBlock extends Job {
+export class SharedBlock extends Flow {
   static uid = new Uid();
   static _dict = new Map<any, SharedBlock>();
-  static loadSharedBlock(job: JobWithShared, funcId: string, data: DataMap) {
+  static loadSharedBlock(job: FlowWithShared, funcId: string, data: DataMap) {
     let cacheKey = job.getCacheKey(funcId, data);
     let sharedBlock: SharedBlock;
     if (typeof cacheKey === 'string') {
@@ -63,7 +63,7 @@ export class SharedBlock extends Job {
     return sharedBlock;
   }
 
-  static _loadFuncSharedBlock(job: JobWithShared, funcId: string, data: DataMap) {
+  static _loadFuncSharedBlock(job: FlowWithShared, funcId: string, data: DataMap) {
     if (SharedBlock._dict.has(funcId)) {
       return SharedBlock._dict.get(funcId);
     } else {
@@ -85,7 +85,7 @@ export class SharedBlock extends Job {
     }
   }
 
-  static _loadSharedBlock(job: JobWithShared, funcId: string, data: DataMap, cacheKey: any) {
+  static _loadSharedBlock(job: FlowWithShared, funcId: string, data: DataMap, cacheKey: any) {
     if (cacheKey && SharedBlock._dict.has(cacheKey)) {
       return SharedBlock._dict.get(cacheKey);
     } else {
@@ -144,21 +144,21 @@ export class SharedBlock extends Job {
       if (this._cacheKey != null) {
         // force detach
         this._jobs.clear();
-        this.detachJob(null);
+        this.detachFlow(null);
       }
     },
   };
   _cacheKey: any;
   _cacheMode?: 'persist';
-  _jobs = new Set<Job>();
-  attachJob(job: Job) {
+  _jobs = new Set<Flow>();
+  attachFlow(job: Flow) {
     this._jobs.add(job);
   }
-  detachJob(job: Job) {
+  detachFlow(job: Flow) {
     this._jobs.delete(job);
     if (this._jobs.size === 0) {
       if (job != null && this._cacheMode === 'persist') {
-        // persisted SharedBlock only detach when detachJob(null)
+        // persisted SharedBlock only detach when detachFlow(null)
         return;
       }
       if (this._prop._value === this) {
@@ -167,7 +167,7 @@ export class SharedBlock extends Job {
     }
   }
   startHistory() {
-    // history not allowed, maintained by the Job that used this shared block
+    // history not allowed, maintained by the Flow that used this shared block
   }
 
   destroy(): void {
@@ -181,12 +181,12 @@ export class SharedBlock extends Job {
   }
 }
 
-export const JobWithSharedConfigGenerators: {[key: string]: typeof BlockProperty} = {
-  ...JobConfigGenerators,
+export const FlowWithSharedConfigGenerators: {[key: string]: typeof BlockProperty} = {
+  ...FlowConfigGenerators,
   '#shared': SharedConfig,
 };
 
-export class JobWithShared extends Job {
+export class FlowWithShared extends Flow {
   _sharedBlock: SharedBlock;
 
   getCacheKey(funcId: string, data: DataMap): any {
@@ -194,14 +194,14 @@ export class JobWithShared extends Job {
   }
 
   _createConfig(field: string): BlockProperty {
-    if (field in JobWithSharedConfigGenerators) {
-      return new JobWithSharedConfigGenerators[field](this, field);
+    if (field in FlowWithSharedConfigGenerators) {
+      return new FlowWithSharedConfigGenerators[field](this, field);
     } else {
       return new BlockConfig(this, field);
     }
   }
 
-  _loadJobData(map: DataMap, funcId?: string) {
+  _loadFlowData(map: DataMap, funcId?: string) {
     if (isSavedBlock(map['#shared'])) {
       SharedBlock.loadSharedBlock(this, funcId, map['#shared']);
     }
@@ -212,17 +212,17 @@ export class JobWithShared extends Job {
       return;
     }
     if (this._sharedBlock) {
-      this._sharedBlock.detachJob(this);
+      this._sharedBlock.detachFlow(this);
     }
     this._sharedBlock = block;
     if (block) {
-      this._sharedBlock.attachJob(this);
+      this._sharedBlock.attachFlow(this);
     }
     this.updateValue('#shared', block);
   }
   destroy(): void {
     if (this._sharedBlock) {
-      this._sharedBlock.detachJob(this);
+      this._sharedBlock.detachFlow(this);
       this._sharedBlock = null;
     }
     super.destroy();

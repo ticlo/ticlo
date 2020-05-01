@@ -1,6 +1,6 @@
 import {assert} from 'chai';
 import {TestAsyncFunctionPromise, TestFunctionRunner} from './TestFunction';
-import {Job, Root} from '../Job';
+import {Flow, Root} from '../Flow';
 import {ErrorEvent} from '../Event';
 
 describe('SyncMode', function () {
@@ -13,7 +13,7 @@ describe('SyncMode', function () {
   });
 
   it('basic', function () {
-    let job = new Job();
+    let job = new Flow();
 
     let block = job.createBlock('obj');
     block.setValue('#mode', 'onCall');
@@ -25,7 +25,7 @@ describe('SyncMode', function () {
   });
 
   it('chained', function () {
-    let job = new Job();
+    let job = new Flow();
 
     let block1 = job.createBlock('obj1');
     block1.setValue('#mode', 'onCall');

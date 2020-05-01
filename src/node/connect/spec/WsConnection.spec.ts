@@ -1,5 +1,5 @@
 import {assert} from 'chai';
-import {Root} from '../../../core/block/Job';
+import {Root} from '../../../core/block/Flow';
 import {AsyncClientPromise} from '../../../core/connect/spec/AsyncClientPromise';
 import {shouldHappen, shouldReject} from '../../../core/util/test-util';
 import {initEditor} from '../../../editor';
@@ -25,7 +25,7 @@ describe('WsConnect', function () {
   });
 
   it('reconnect', async function () {
-    let job = Root.instance.addJob('WsConnect1');
+    let job = Root.instance.addFlow('WsConnect1');
     let client = new WsClientConnection(`http://127.0.0.1:${PORT}`, false);
 
     job.setValue('o', 1);

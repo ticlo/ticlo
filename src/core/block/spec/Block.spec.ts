@@ -1,12 +1,12 @@
 import {assert} from 'chai';
 import {Block} from '../Block';
-import {Job, Root} from '../Job';
+import {Flow, Root} from '../Flow';
 import {PropDispatcher} from '../Dispatcher';
 import '../../functions/basic/math/Arithmetic';
 
 describe('Block', function () {
   it('basic', function () {
-    let job = new Job();
+    let job = new Flow();
     job.setValue('@a', 357);
     job.setBinding('@b', '@a');
     assert.equal(job.getValue('@b'), 357, 'basic binding');
@@ -32,7 +32,7 @@ describe('Block', function () {
   });
 
   it('query property', function () {
-    let job = new Job();
+    let job = new Flow();
     let block1 = job.createBlock('block1');
     let block2 = block1.createBlock('block2');
     block2.setValue('p1', 1);
@@ -48,7 +48,7 @@ describe('Block', function () {
   });
 
   it('destroy binding chain', function () {
-    let job = new Job();
+    let job = new Flow();
     let block1 = job.createBlock('block1');
     let block1c = block1.createOutputBlock('c');
     let block2 = job.createBlock('block2');
@@ -62,14 +62,14 @@ describe('Block', function () {
   });
 
   it('set same value', function () {
-    let job = new Job();
+    let job = new Flow();
     job.updateValue('a', 1);
     job.setValue('a', 1);
     assert.equal(job.getProperty('a')._saved, 1);
   });
 
   it('update listener within listener', function () {
-    let job = new Job();
+    let job = new Flow();
     let listener1 = {
       value: 0,
       onSourceChange(prop: PropDispatcher<any>) {
@@ -105,7 +105,7 @@ describe('Block', function () {
 
     assert.equal(Root.instance.getValue(''), Root.instance);
 
-    let job = Root.instance.addJob();
+    let job = Root.instance.addFlow();
 
     let subjob = job.createOutputBlock('sub');
     subjob._load({'#is': 'add', '0': 1, '1': 2});

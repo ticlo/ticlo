@@ -28,14 +28,14 @@ export function connectTiclo(app: Express.Application, routeTicloPath: string) {
   });
 }
 
-export function getEditorUrl(host: string, defaultJob: string) {
+export function getEditorUrl(host: string, defaultFlow: string) {
   let protocol = 'http';
   if (host.startsWith('wss://')) {
     protocol = 'https';
   }
   let url = `${protocol}://ticlo.org/editor.html?host=${host}`;
-  if (defaultJob) {
-    url += `&job=${defaultJob}`;
+  if (defaultFlow) {
+    url += `&job=${defaultFlow}`;
   }
   return url;
 }

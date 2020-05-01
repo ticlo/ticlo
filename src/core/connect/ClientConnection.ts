@@ -213,8 +213,8 @@ export abstract class ClientConnection extends Connection implements ClientConn 
     return result;
   }
 
-  addJob(path: string, data?: DataMap, callbacks?: ClientCallbacks): Promise<any> | string {
-    let result = this.simpleRequest({cmd: 'addJob', path, data}, callbacks);
+  addFlow(path: string, data?: DataMap, callbacks?: ClientCallbacks): Promise<any> | string {
+    let result = this.simpleRequest({cmd: 'addFlow', path, data}, callbacks);
     this._childrenChangeStream.dispatch({path: path.substring(0, path.lastIndexOf('.')), showNode: true});
     return result;
   }
@@ -297,8 +297,8 @@ export abstract class ClientConnection extends Connection implements ClientConn 
     return this.simpleRequest({cmd: 'editWorker', path, fromField, fromFunction, defaultData}, callbacks);
   }
 
-  applyJobChange(path: string, funcId?: string, callbacks?: ClientCallbacks): Promise<any> | string {
-    return this.simpleRequest({cmd: 'applyJobChange', path, funcId}, callbacks);
+  applyFlowChange(path: string, funcId?: string, callbacks?: ClientCallbacks): Promise<any> | string {
+    return this.simpleRequest({cmd: 'applyFlowChange', path, funcId}, callbacks);
   }
 
   deleteFunction(funcId?: string, callbacks?: ClientCallbacks): Promise<any> | string {

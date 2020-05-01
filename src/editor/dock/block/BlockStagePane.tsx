@@ -24,7 +24,7 @@ interface State {
 }
 
 export class BlockStagePane extends LazyUpdateComponent<Props, State> {
-  state: State = {showPropertyList: true, selectedKeys: [], sizes: [1000, 1], blockKey: 'Job'};
+  state: State = {showPropertyList: true, selectedKeys: [], sizes: [1000, 1], blockKey: 'Flow'};
 
   static editorCount = 0;
 

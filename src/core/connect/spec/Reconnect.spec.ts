@@ -1,6 +1,6 @@
 import {assert} from 'chai';
 import {Block} from '../../block/Block';
-import {Root} from '../../block/Job';
+import {Root} from '../../block/Flow';
 import {makeLocalConnection} from '../LocalConnection';
 import '../../functions/basic/math/Arithmetic';
 import {AsyncClientPromise} from './AsyncClientPromise';
@@ -12,7 +12,7 @@ import {Logger} from '../../util/Logger';
 
 describe('Reconnect', function () {
   it('reconnect', async function () {
-    let job = Root.instance.addJob('Reconnect1');
+    let job = Root.instance.addFlow('Reconnect1');
     let [server, client] = makeLocalConnection(Root.instance, false);
 
     job.setValue('o', 1);
@@ -43,7 +43,7 @@ describe('Reconnect', function () {
   });
 
   it('watch object after reconnect ', async function () {
-    let job = Root.instance.addJob('Reconnect2');
+    let job = Root.instance.addFlow('Reconnect2');
     let [server, client] = makeLocalConnection(Root.instance, false);
 
     let child0 = job.createBlock('c0');
@@ -76,7 +76,7 @@ describe('Reconnect', function () {
   });
 
   it('watch desc after reconnect ', async function () {
-    let job = Root.instance.addJob('Reconnect3');
+    let job = Root.instance.addFlow('Reconnect3');
     let [server, client] = makeLocalConnection(Root.instance, true);
 
     JsFunction.registerType('', {name: 'ReconnectType1'});

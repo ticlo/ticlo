@@ -1,6 +1,6 @@
 import {assert} from 'chai';
 import {Block} from '../../block/Block';
-import {Job, Root} from '../../block/Job';
+import {Flow, Root} from '../../block/Flow';
 import '../../functions/basic/math/Arithmetic';
 import '../HandlerFunction';
 import {convertToOutput, DataMap} from '../../util/DataTypes';
@@ -59,7 +59,7 @@ class TestTask extends Task {
 
 describe('TaskHandlerFunction', function () {
   it('basic', function () {
-    let job = new Job();
+    let job = new Flow();
 
     let aBlock = job.createBlock('a');
 
@@ -79,7 +79,7 @@ describe('TaskHandlerFunction', function () {
   });
 
   it('timeout', async function () {
-    let job = new Job();
+    let job = new Flow();
 
     let aBlock = job.createBlock('a');
 
@@ -100,7 +100,7 @@ describe('TaskHandlerFunction', function () {
   });
 
   it('cancel', async function () {
-    let job = new Job();
+    let job = new Flow();
 
     let aBlock = job.createBlock('a');
 

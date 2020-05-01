@@ -1,10 +1,10 @@
-import {Job, Root} from './Job';
+import {Flow, Root} from './Flow';
 import {DataMap} from '../util/DataTypes';
 
 export interface Storage {
-  deleteJob(name: string): void;
+  deleteFlow(name: string): void;
 
-  saveJob(name: string, job: Job, data: DataMap): void;
+  saveFlow(name: string, job: Flow, data: DataMap): void;
 
   init(root: Root): any; // void or promise
 }

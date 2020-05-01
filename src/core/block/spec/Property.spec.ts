@@ -1,9 +1,9 @@
 import {assert} from 'chai';
-import {Job} from '../Job';
+import {Flow} from '../Flow';
 
 describe('Property Save Load', function () {
   it('save object with #is', function () {
-    let job = new Job();
+    let job = new Flow();
 
     let v1Data = {'#is': 'add'};
     let expectedSave = {

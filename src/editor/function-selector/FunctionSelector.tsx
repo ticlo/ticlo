@@ -57,8 +57,8 @@ export class FunctionSelect extends React.PureComponent<Props, State> {
       let funcId = `:${this.newFunctionName}`;
       let editPath = `#temp.#edit-${encodeTicloName(funcId)}`;
       conn.editWorker(editPath, null, funcId, {'#inputs': {'#is': ''}, '#outputs': {'#is': ''}});
-      this.context.editJob(editPath, () => {
-        conn.applyJobChange(editPath);
+      this.context.editFlow(editPath, () => {
+        conn.applyFlowChange(editPath);
       });
 
       this.newFunctionName = '';
@@ -106,7 +106,7 @@ export class FunctionSelect extends React.PureComponent<Props, State> {
               )
             }
           />
-          {this.context?.editJob ? (
+          {this.context?.editFlow ? (
             <Tooltip title={'New'}>
               <Button size="small" onClick={this.onAddFunction} icon={<PlusSquareIcon />} />
             </Tooltip>

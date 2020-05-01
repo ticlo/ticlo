@@ -1,11 +1,11 @@
 import {assert} from 'chai';
 import '../Compare';
 import {Block} from '../../../../block/Block';
-import {Job, Root} from '../../../../block/Job';
+import {Flow, Root} from '../../../../block/Flow';
 
 describe('Compare', function () {
   it('equal', function () {
-    let job = new Job();
+    let job = new Flow();
 
     let aBlock = job.createBlock('a');
     aBlock._load({
@@ -39,7 +39,7 @@ describe('Compare', function () {
   });
 
   it('not equal', function () {
-    let job = new Job();
+    let job = new Flow();
 
     let aBlock = job.createBlock('a');
     aBlock._load({
@@ -73,7 +73,7 @@ describe('Compare', function () {
   });
 
   it('greater than', function () {
-    let job = new Job();
+    let job = new Flow();
 
     let aBlock = job.createBlock('a');
     aBlock._load({
@@ -95,7 +95,7 @@ describe('Compare', function () {
   });
 
   it('greater equal', function () {
-    let job = new Job();
+    let job = new Flow();
 
     let aBlock = job.createBlock('a');
     aBlock._load({
@@ -117,7 +117,7 @@ describe('Compare', function () {
   });
 
   it('less than', function () {
-    let job = new Job();
+    let job = new Flow();
 
     let aBlock = job.createBlock('a');
     aBlock._load({
@@ -139,7 +139,7 @@ describe('Compare', function () {
   });
 
   it('less equal', function () {
-    let job = new Job();
+    let job = new Flow();
 
     let aBlock = job.createBlock('a');
     aBlock._load({

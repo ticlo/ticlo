@@ -1,6 +1,6 @@
 import {assert} from 'chai';
 import '../../functions/basic/math/Arithmetic';
-import {JobWorker} from '../../worker/JobWorker';
+import {WorkerFlow} from '../../worker/WorkerFlow';
 import {copyProperties, deleteProperties, pasteProperties} from '../CopyPaste';
 import {DataMap} from '../../util/DataTypes';
 
@@ -16,13 +16,13 @@ describe('Copy Paste', function () {
   };
 
   it('basic', function () {
-    let job1 = new JobWorker();
+    let job1 = new WorkerFlow();
 
     job1.load(data);
     let copied = copyProperties(job1, ['add', '#shared.subtract']) as DataMap;
     assert.deepEqual(copied, copy);
 
-    let job2 = new JobWorker();
+    let job2 = new WorkerFlow();
     assert.deepEqual(pasteProperties(job2, copied), ['add', '#shared.subtract']);
     assert.deepEqual(job2.save(), data);
 
@@ -34,7 +34,7 @@ describe('Copy Paste', function () {
   });
 
   it('rename', function () {
-    let job1 = new JobWorker();
+    let job1 = new WorkerFlow();
     job1.load(data);
 
     job1.createBlock('divide')._load({'#is': 'divide', '~0': '##.add.0', '@b-xyw': 'add'});
@@ -62,7 +62,7 @@ describe('Copy Paste', function () {
   });
 
   it('invalid copy paste', function () {
-    let job1 = new JobWorker();
+    let job1 = new WorkerFlow();
     assert.equal(copyProperties(job1, ['add', '#shared.subtract']), 'nothing to copy');
     assert.equal(pasteProperties(job1, null), 'invalid data');
     assert.equal(pasteProperties(job1, []), 'invalid data');

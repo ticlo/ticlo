@@ -1,7 +1,7 @@
 import {assert} from 'chai';
 import {TestAsyncFunctionPromise, TestFunctionRunner} from './TestFunction';
 import {Block} from '../Block';
-import {Job, Root} from '../Job';
+import {Flow, Root} from '../Flow';
 
 describe('BlockMode', function () {
   beforeEach(() => {
@@ -13,7 +13,7 @@ describe('BlockMode', function () {
   });
 
   it('basic block mode', function () {
-    let job = new Job();
+    let job = new Flow();
 
     let block = job.createBlock('obj');
     block.setValue('#mode', 'onCall');
@@ -49,7 +49,7 @@ describe('BlockMode', function () {
   });
 
   it('block mode on load', function () {
-    let job = new Job();
+    let job = new Flow();
 
     let b0 = job.createBlock('onLoad');
     b0.setValue('#mode', 'onLoad');
@@ -83,7 +83,7 @@ describe('BlockMode', function () {
     assert.deepEqual(TestFunctionRunner.popLogs(), ['b0', 'b1'], 'mode onLoad and onChange should be called');
 
     let saved = job.save();
-    let job2 = new Job();
+    let job2 = new Flow();
     job2.load(saved);
 
     Root.run();
@@ -91,7 +91,7 @@ describe('BlockMode', function () {
   });
 
   it('block mode on liveUpdate', function () {
-    let job = new Job();
+    let job = new Flow();
 
     let b0 = job.createBlock('b0');
     b0.setValue('#mode', 'onLoad');
@@ -140,7 +140,7 @@ describe('BlockMode', function () {
   });
 
   it('binding route change', function () {
-    let job = new Job();
+    let job = new Flow();
 
     let block = job.createBlock('obj');
     block.setValue('#mode', 'onCall');

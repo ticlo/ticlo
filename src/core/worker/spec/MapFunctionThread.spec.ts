@@ -1,5 +1,5 @@
 import {assert} from 'chai';
-import {Job, Root} from '../../block/Job';
+import {Flow, Root} from '../../block/Flow';
 import {TestFunctionRunner, TestAsyncFunctionPromise} from '../../block/spec/TestFunction';
 import '../../functions/basic/math/Arithmetic';
 import '../MapFunction';
@@ -23,7 +23,7 @@ describe('MapFunction Thread', function () {
   }
 
   it('basic', async function () {
-    let job = new Job();
+    let job = new Flow();
 
     job.setValue('a', inputObj);
 
@@ -80,7 +80,7 @@ describe('MapFunction Thread', function () {
   });
 
   it('input object', async function () {
-    let job = new Job();
+    let job = new Flow();
 
     const data = {
       v1: {v: 1},
@@ -113,7 +113,7 @@ describe('MapFunction Thread', function () {
   });
 
   it('change use', async function () {
-    let job = new Job();
+    let job = new Flow();
 
     job.setValue('a', {
       v1: 1,
@@ -161,7 +161,7 @@ describe('MapFunction Thread', function () {
   });
 
   it('async worker', async function () {
-    let job = new Job();
+    let job = new Flow();
 
     job.setValue('a', inputObj);
 
@@ -228,7 +228,7 @@ describe('MapFunction Thread', function () {
   });
 
   it('async worker reuse', async function () {
-    let job = new Job();
+    let job = new Flow();
 
     job.setValue('a', inputObj);
 
@@ -296,7 +296,7 @@ describe('MapFunction Thread', function () {
   });
 
   it('async worker persist', async function () {
-    let job = new Job();
+    let job = new Flow();
 
     job.setValue('a', inputObj);
 
@@ -361,7 +361,7 @@ describe('MapFunction Thread', function () {
   });
 
   it('data race', async function () {
-    let job = new Job();
+    let job = new Flow();
 
     job.setValue('a', inputObj);
 

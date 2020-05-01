@@ -1,13 +1,13 @@
 import {assert} from 'chai';
 
 import {Block} from '../../block/Block';
-import {Job} from '../../block/Job';
+import {Flow} from '../../block/Flow';
 import '../../functions/basic/math/Arithmetic';
 import {findPropertyForNewBlock, renameProperty} from '../PropertyName';
 
 describe('PropertyUtil', function () {
   it('findPropertyForNewBlock', function () {
-    let job = new Job();
+    let job = new Flow();
     job.setValue('#custom', [{name: 'add4', type: 'sting'}]);
 
     job.setValue('add1', 1);
@@ -32,7 +32,7 @@ describe('PropertyUtil', function () {
   });
 
   it('renameProperty', function () {
-    let job = new Job();
+    let job = new Flow();
 
     // move undefined property
     renameProperty(job, 'a0', 'b0', true);

@@ -1,20 +1,20 @@
-import {JobWithShared, JobWithSharedConfigGenerators} from '../block/SharedBlock';
-import {Root} from '../block/Job';
+import {FlowWithShared, FlowWithSharedConfigGenerators} from '../block/SharedBlock';
+import {Root} from '../block/Flow';
 import {ConstTypeConfig} from '../block/BlockConfigs';
 import {BlockConfig, BlockProperty} from '../block/BlockProperty';
 import {Resolver} from '../block/Resolver';
 import {DataMap} from '../util/DataTypes';
-import {JobHistory} from '../block/JobHistory';
+import {FlowHistory} from '../block/FlowHistory';
 
-export const JobWorkerConfigGenerators: {[key: string]: typeof BlockProperty} = {
-  ...JobWithSharedConfigGenerators,
+export const WorkerFlowConfigGenerators: {[key: string]: typeof BlockProperty} = {
+  ...FlowWithSharedConfigGenerators,
   '#is': ConstTypeConfig('job:worker'),
 };
 
-export class JobWorker extends JobWithShared {
+export class WorkerFlow extends FlowWithShared {
   _createConfig(field: string): BlockProperty {
-    if (field in JobWorkerConfigGenerators) {
-      return new JobWorkerConfigGenerators[field](this, field);
+    if (field in WorkerFlowConfigGenerators) {
+      return new WorkerFlowConfigGenerators[field](this, field);
     } else {
       return new BlockConfig(this, field);
     }
@@ -56,14 +56,14 @@ export class JobWorker extends JobWithShared {
 
   startHistory() {
     if (!this._history) {
-      this._history = new JobHistory(this, this._loadFromData);
+      this._history = new FlowHistory(this, this._loadFromData);
     }
   }
 
   _loadFromData: DataMap;
-  _loadJobData(map: DataMap, funcId?: string) {
+  _loadFlowData(map: DataMap, funcId?: string) {
     this._loadFromData = map;
-    super._loadJobData(map, funcId);
+    super._loadFlowData(map, funcId);
   }
 
   cancelChange() {
@@ -73,7 +73,7 @@ export class JobWorker extends JobWithShared {
   }
 }
 
-export class RepeaterWorker extends JobWorker {
+export class RepeaterWorker extends WorkerFlow {
   getCacheKey(funcId: string, data: DataMap): any {
     if (!funcId && data['#cacheMode']) {
       return this._parent._parent.getProperty('#shared', true);

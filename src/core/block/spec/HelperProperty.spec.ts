@@ -1,9 +1,9 @@
 import {assert} from 'chai';
-import {Job, Root} from '../Job';
+import {Flow, Root} from '../Flow';
 
 describe('HelperProperty', function () {
   it('save load', function () {
-    let job = new Job();
+    let job = new Flow();
     let helper = job.createHelperBlock('v1');
     helper.setValue('#output', 'hello'); // use setValue so it's serialized
 
@@ -43,7 +43,7 @@ describe('HelperProperty', function () {
     assert.equal(job.getProperty('v1')._bindingPath, '~v1.#output');
     assert.equal(job.getValue('v1'), 'hello', 'basic output');
 
-    let job2 = new Job();
+    let job2 = new Flow();
 
     job2.load(saved);
     assert.equal(job2.queryValue('~v1.#output'), 'hello', 'basic save load');

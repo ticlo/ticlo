@@ -1,11 +1,11 @@
 import {assert} from 'chai';
 import '../CompareString';
 import {Block} from '../../../../block/Block';
-import {Job, Root} from '../../../../block/Job';
+import {Flow, Root} from '../../../../block/Flow';
 
 describe('CompareString', function () {
   it('start with', function () {
-    let job = new Job();
+    let job = new Flow();
 
     let aBlock = job.createBlock('a');
     aBlock._load({
@@ -44,7 +44,7 @@ describe('CompareString', function () {
   });
 
   it('end with', function () {
-    let job = new Job();
+    let job = new Flow();
 
     let aBlock = job.createBlock('a');
     aBlock._load({
@@ -83,7 +83,7 @@ describe('CompareString', function () {
   });
 
   it('contain', function () {
-    let job = new Job();
+    let job = new Flow();
 
     let aBlock = job.createBlock('a');
     aBlock._load({

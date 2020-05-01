@@ -1,6 +1,6 @@
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
-import {Block, DataMap, decode, encodeSorted, FunctionDesc, Job, PropDesc, Root} from '../../src/core';
+import {Block, DataMap, decode, encodeSorted, FunctionDesc, Flow, PropDesc, Root} from '../../src/core';
 import {makeLocalConnection} from '../../src/core/connect/LocalConnection';
 import {data} from '../sample-data/data';
 import reactData from '../sample-data/react';
@@ -113,7 +113,7 @@ class App extends React.PureComponent<Props, State> implements TicloLayoutContex
   }
 
   /// implements TicloLayoutContext
-  editJob(path: string, onSave: () => void) {
+  editFlow(path: string, onSave: () => void) {
     this.layout.dockMove(this.createBlockEditorTab(path, onSave), this.layout.find('main'), 'middle');
   }
 
@@ -235,10 +235,10 @@ class App extends React.PureComponent<Props, State> implements TicloLayoutContex
   }
 }
 
-class JobStorage {
-  deleteJob(name: string) {}
+class FlowStorage {
+  deleteFlow(name: string) {}
 
-  saveJob(name: string, job: Job, data?: DataMap) {
+  saveFlow(name: string, job: Flow, data?: DataMap) {
     console.log(JsonEsc.stringify(data));
   }
 
@@ -247,10 +247,10 @@ class JobStorage {
 
 (async () => {
   await initEditor();
-  await Root.instance.setStorage(new JobStorage());
-  let reactJob = Root.instance.addJob('example', reactData);
+  await Root.instance.setStorage(new FlowStorage());
+  let reactFlow = Root.instance.addFlow('example', reactData);
 
-  let generalJob = Root.instance.addJob('example0', data);
+  let generalFlow = Root.instance.addFlow('example0', data);
 
   // create some global blocks
   Root.instance._globalRoot.createBlock('^gAdd').setValue('#is', 'add');

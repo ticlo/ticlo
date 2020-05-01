@@ -1,5 +1,5 @@
 import {assert} from 'chai';
-import {Job, Root} from '../Job';
+import {Flow, Root} from '../Flow';
 import {Event} from '../Event';
 import {TestFunctionRunner} from './TestFunction';
 
@@ -14,7 +14,7 @@ describe('Event', function () {
   it('event life cycle', function () {
     TestFunctionRunner.clearLog();
 
-    let job = new Job();
+    let job = new Flow();
 
     let block = job.createBlock('obj');
     block.setValue('#-log', 'obj');

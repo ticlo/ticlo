@@ -2,7 +2,7 @@ import * as React from 'react';
 import {PropDesc, PropDispatcher} from '../../../src/core/editor';
 
 export interface TicloLayoutContext {
-  editJob?(path: string, onSave: () => void): void;
+  editFlow?(path: string, onSave: () => void): void;
 
   editProperty?(paths: string[], propDesc: PropDesc, defaultValue?: any, mime?: string, readonly?: boolean): void;
 

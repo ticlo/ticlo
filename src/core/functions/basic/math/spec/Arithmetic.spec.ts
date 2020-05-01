@@ -1,11 +1,11 @@
 import {assert} from 'chai';
 import '../Arithmetic';
 import {Block} from '../../../../block/Block';
-import {Job, Root} from '../../../../block/Job';
+import {Flow, Root} from '../../../../block/Flow';
 
 describe('Math', function () {
   it('basic add', function () {
-    let job = new Job();
+    let job = new Flow();
 
     let aBlock = job.createBlock('a');
 
@@ -34,7 +34,7 @@ describe('Math', function () {
 
     // save load
     let saved = job.save();
-    let job2 = new Job();
+    let job2 = new Flow();
     job2.load(saved);
 
     let aBlock2 = job2.getValue('a2');
@@ -44,7 +44,7 @@ describe('Math', function () {
   });
 
   it('add multiple', function () {
-    let job = new Job();
+    let job = new Flow();
 
     let aBlock = job.createBlock('a');
     aBlock._load({'#is': 'add', '0': 2, '1': 3, '2': 4, '[]': 3});
@@ -70,7 +70,7 @@ describe('Math', function () {
   });
 
   it('add array', function () {
-    let job = new Job();
+    let job = new Flow();
 
     let aBlock = job.createBlock('a');
     aBlock._load({'#is': 'add', '[]': [1, 2]});
@@ -80,7 +80,7 @@ describe('Math', function () {
   });
 
   it('subtract', function () {
-    let job = new Job();
+    let job = new Flow();
 
     let aBlock = job.createBlock('a');
 
@@ -96,7 +96,7 @@ describe('Math', function () {
   });
 
   it('divide', function () {
-    let job = new Job();
+    let job = new Flow();
 
     let aBlock = job.createBlock('a');
 
@@ -112,7 +112,7 @@ describe('Math', function () {
   });
 
   it('multiply', function () {
-    let job = new Job();
+    let job = new Flow();
 
     let aBlock = job.createBlock('a');
 

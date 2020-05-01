@@ -9,8 +9,8 @@ import {
 } from '../block/BlockProperty';
 import {DataMap, isPrimitiveType, truncateData} from '../util/DataTypes';
 import {Block, BlockChildWatch, InputsBlock} from '../block/Block';
-import {Job, Root} from '../block/Job';
-import {JobWithShared, SharedBlock, SharedConfig} from '../block/SharedBlock';
+import {Flow, Root} from '../block/Flow';
+import {FlowWithShared, SharedBlock, SharedConfig} from '../block/SharedBlock';
 import {PropDispatcher, PropListener} from '../block/Dispatcher';
 import {Functions, DescListener} from '../block/Functions';
 import {FunctionDesc, PropDesc, PropGroupDesc} from '../block/Descriptor';
@@ -24,7 +24,7 @@ import {
 import {findPropertyForNewBlock} from '../property-api/PropertyName';
 import {hideProperties, moveShownProperty, showProperties} from '../property-api/PropertyShowHide';
 import {addCustomProperty, moveCustomProperty, removeCustomProperty} from '../property-api/CustomProperty';
-import {JobEditor} from '../worker/JobEditor';
+import {FlowEditor} from '../worker/FlowEditor';
 import {addOptionalProperty, moveOptionalProperty, removeOptionalProperty} from '../property-api/OptionalProperty';
 import {WorkerFunction} from '../worker/WorkerFunction';
 import {isBindable} from '../util/Path';
@@ -278,8 +278,8 @@ class ServerDescWatcher extends ServerRequest implements DescListener {
   }
 }
 
-function getTrackedJob(block: Block, path: string, root: Root): Job {
-  let job: Job;
+function getTrackedFlow(block: Block, path: string, root: Root): Flow {
+  let job: Flow;
   if (path.endsWith('.@b-xyw')) {
     job = block._parent._job;
   } else {
@@ -297,7 +297,7 @@ function getTrackedJob(block: Block, path: string, root: Root): Job {
   return job;
 }
 function trackChange(property: BlockProperty, path: string, root: Root) {
-  getTrackedJob(property._block, path, root).trackChange();
+  getTrackedFlow(property._block, path, root).trackChange();
 }
 
 class ServerConnectionCore extends Connection {
@@ -464,8 +464,8 @@ export class ServerConnection extends ServerConnectionCore {
     return 'invalid path';
   }
 
-  addJob({path, data}: {path: string; data?: DataMap}): string | DataMap {
-    if (this.root.addJob(path, data)) {
+  addFlow({path, data}: {path: string; data?: DataMap}): string | DataMap {
+    if (this.root.addFlow(path, data)) {
       return null;
     } else {
       return 'invalid path';
@@ -550,7 +550,7 @@ export class ServerConnection extends ServerConnectionCore {
             // filter
             if (count < max) {
               let result: any = {id: (prop._value as Block)._blockId};
-              if (prop._value instanceof Job && prop._value._applyChange) {
+              if (prop._value instanceof Flow && prop._value._applyChange) {
                 result.canApply = true;
               }
               children[field] = result;
@@ -610,9 +610,9 @@ export class ServerConnection extends ServerConnectionCore {
 
     if (property && property._name.startsWith('#edit-')) {
       if (fromField) {
-        JobEditor.createFromField(property._block, property._name, fromField);
+        FlowEditor.createFromField(property._block, property._name, fromField);
       } else if (fromFunction && fromFunction.startsWith(':')) {
-        JobEditor.createFromFunction(property._block, property._name, fromFunction, defaultData);
+        FlowEditor.createFromFunction(property._block, property._name, fromFunction, defaultData);
       }
       return null;
     } else {
@@ -620,10 +620,10 @@ export class ServerConnection extends ServerConnectionCore {
     }
   }
 
-  applyJobChange({path, funcId}: {path: string; funcId: string}) {
+  applyFlowChange({path, funcId}: {path: string; funcId: string}) {
     let property = this.root.queryProperty(path, true);
-    if (property && property._value instanceof Job) {
-      if (funcId && property._value instanceof JobEditor) {
+    if (property && property._value instanceof Flow) {
+      if (funcId && property._value instanceof FlowEditor) {
         WorkerFunction.applyChangeToFunc(property._value, funcId);
       } else {
         property._value.applyChange();
@@ -634,10 +634,10 @@ export class ServerConnection extends ServerConnectionCore {
     }
   }
 
-  deleteJob(property: BlockProperty) {
+  deleteFlow(property: BlockProperty) {
     let job = property.getValue();
-    if (job instanceof Job) {
-      this.root.deleteJob(property._name);
+    if (job instanceof Flow) {
+      this.root.deleteFlow(property._name);
     }
   }
 
@@ -817,7 +817,7 @@ export class ServerConnection extends ServerConnectionCore {
   undo({path}: {path: string}) {
     let property = this.root.queryProperty(path);
     if (property && property._value instanceof Block) {
-      getTrackedJob(property._value, path, this.root).undo();
+      getTrackedFlow(property._value, path, this.root).undo();
       return null;
     } else {
       return 'invalid path';
@@ -826,7 +826,7 @@ export class ServerConnection extends ServerConnectionCore {
   redo({path}: {path: string}) {
     let property = this.root.queryProperty(path);
     if (property && property._value instanceof Block) {
-      getTrackedJob(property._value, path, this.root).redo();
+      getTrackedFlow(property._value, path, this.root).redo();
       return null;
     } else {
       return 'invalid path';
@@ -855,7 +855,7 @@ export class ServerConnection extends ServerConnectionCore {
       if (typeof result === 'string') {
         return result;
       }
-      getTrackedJob(property._value, path, this.root).trackChange();
+      getTrackedFlow(property._value, path, this.root).trackChange();
       return {pasted: result};
     } else {
       return 'invalid path';

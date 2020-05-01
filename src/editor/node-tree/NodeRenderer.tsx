@@ -184,12 +184,12 @@ export class NodeTreeRenderer extends PureDataRenderer<Props, any> {
 
   onOpenClicked = () => {
     const {item} = this.props;
-    if (this.context && this.context.editJob) {
-      this.context.editJob(
+    if (this.context && this.context.editFlow) {
+      this.context.editFlow(
         item.key,
         item.canApply
           ? () => {
-              item.getConn().applyJobChange(item.key);
+              item.getConn().applyFlowChange(item.key);
             }
           : null
       );
@@ -197,7 +197,7 @@ export class NodeTreeRenderer extends PureDataRenderer<Props, any> {
   };
   onSaveClicked = () => {
     let {item} = this.props;
-    item.getConn().applyJobChange(item.key);
+    item.getConn().applyFlowChange(item.key);
   };
   onDeleteClicked = () => {
     let {item} = this.props;
@@ -271,9 +271,9 @@ export class NodeTreeRenderer extends PureDataRenderer<Props, any> {
 
   getMenu = () => {
     let {item, getMenu} = this.props;
-    let editJob = this.context && this.context.editJob;
+    let editFlow = this.context && this.context.editFlow;
     let menuitems: React.ReactElement[] = [];
-    if (editJob) {
+    if (editFlow) {
       menuitems.push(
         <Menu.Item key="open" onClick={this.onOpenClicked}>
           <BuildIcon />

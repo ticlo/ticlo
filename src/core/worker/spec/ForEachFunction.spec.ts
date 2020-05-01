@@ -1,5 +1,5 @@
 import {assert} from 'chai';
-import {Job, Root} from '../../block/Job';
+import {Flow, Root} from '../../block/Flow';
 import {TestFunctionRunner} from '../../block/spec/TestFunction';
 import '../../functions/basic/math/Arithmetic';
 import '../ForEachFunction';
@@ -8,7 +8,7 @@ import {DataMap} from '../../util/DataTypes';
 describe('ForEachFunction', function () {
   it('chain block', function () {
     TestFunctionRunner.clearLog();
-    let job = new Job();
+    let job = new Flow();
 
     let aBlock = job.createBlock('a');
     let bBlock = job.createBlock('b');
@@ -96,7 +96,7 @@ describe('ForEachFunction', function () {
   });
 
   it('watch object', function () {
-    let job = new Job();
+    let job = new Flow();
 
     let bBlock = job.createBlock('b');
 
@@ -127,7 +127,7 @@ describe('ForEachFunction', function () {
   });
 
   it('foreach primitive types', function () {
-    let job = new Job();
+    let job = new Flow();
 
     let aBlock = job.createBlock('a');
     let bBlock = job.createBlock('b');
@@ -166,7 +166,7 @@ describe('ForEachFunction', function () {
   });
 
   it('clear foreach use', function () {
-    let job = new Job();
+    let job = new Flow();
 
     let aBlock = job.createBlock('a');
     let bBlock = job.createBlock('b');

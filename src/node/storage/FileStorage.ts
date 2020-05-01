@@ -1,9 +1,9 @@
 import Fs from 'fs';
 import Path from 'path';
-import {Job, Root, encodeSorted, decode, DataMap, Storage} from '../../../src/core';
+import {Flow, Root, encodeSorted, decode, DataMap, Storage} from '../../../src/core';
 import {WorkerFunction} from '../../core/worker/WorkerFunction';
 
-class JobIOTask {
+class FlowIOTask {
   current?: 'write' | 'delete';
   next?: 'write' | 'delete';
   nextData: string;
@@ -58,18 +58,18 @@ class JobIOTask {
 }
 
 export class FileStorage implements Storage {
-  tasks: Map<string, JobIOTask> = new Map();
+  tasks: Map<string, FlowIOTask> = new Map();
 
   getTask(name: string) {
     if (this.tasks.has(name)) {
       return this.tasks.get(name);
     } else {
-      let task = new JobIOTask(this, name, Path.join(this.dir, `${name}.ticlo`));
+      let task = new FlowIOTask(this, name, Path.join(this.dir, `${name}.ticlo`));
       this.tasks.set(name, task);
       return task;
     }
   }
-  taskDone(task: JobIOTask) {
+  taskDone(task: FlowIOTask) {
     if (this.tasks.get(task.name) === task) {
       this.tasks.delete(task.name);
     }
@@ -80,10 +80,10 @@ export class FileStorage implements Storage {
     this.dir = Path.resolve(dir);
   }
 
-  deleteJob(name: string) {
+  deleteFlow(name: string) {
     this.getTask(name).delete();
   }
-  saveJob(name: string, job: Job, data?: DataMap) {
+  saveFlow(name: string, job: Flow, data?: DataMap) {
     if (!data) {
       data = job.save();
     }
@@ -124,16 +124,16 @@ export class FileStorage implements Storage {
 
     // load global block
     root._globalRoot.load(globalData, null, (saveData: DataMap) => {
-      this.saveJob('#global', root._globalRoot, saveData);
+      this.saveFlow('#global', root._globalRoot, saveData);
       return true;
     });
 
     // load job entries
-    // sort the name to make sure parent Job is loaded before children jobs
+    // sort the name to make sure parent Flow is loaded before children jobs
     for (let name of jobFiles.sort()) {
       try {
         let data = decode(Fs.readFileSync(Path.join(this.dir, `${name}.ticlo`), 'utf8'));
-        root.addJob(name, data);
+        root.addFlow(name, data);
       } catch (err) {
         // TODO Logger
       }

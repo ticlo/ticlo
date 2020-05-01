@@ -1,11 +1,11 @@
 import {assert, AssertionError} from 'chai';
-import {Job} from '../Job';
+import {Flow} from '../Flow';
 import {ErrorEvent} from '../Event';
 import {shouldReject} from '../../util/test-util';
 
 describe('ListenPromise', function () {
   it('basic', async function () {
-    let job = new Job();
+    let job = new Flow();
 
     setTimeout(() => job.setValue('a', 1), 0);
     assert.equal(await job.waitValue('a'), 1);
@@ -19,7 +19,7 @@ describe('ListenPromise', function () {
   });
 
   it('validator', async function () {
-    let job = new Job();
+    let job = new Flow();
 
     let timer;
     let count = 0;
@@ -30,7 +30,7 @@ describe('ListenPromise', function () {
   });
 
   it('destroyed dispatcher', async function () {
-    let job = new Job();
+    let job = new Flow();
     let block = job.createBlock('a');
 
     setTimeout(() => job.deleteValue('a'), 0);

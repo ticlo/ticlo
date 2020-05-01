@@ -5,7 +5,7 @@ import {NodeTree} from '../..';
 import {Button, Input, Menu, Tooltip} from 'antd';
 import FileAddIcon from '@ant-design/icons/FileAddOutlined';
 import ReloadIcon from '@ant-design/icons/ReloadOutlined';
-import {AddNewJob} from './AddNewJob';
+import {AddNewFlow} from './AddNewFlow';
 import {DragDropDiv, DragState} from 'rc-dock/lib';
 import {NodeTreeItem} from '../../node-tree/NodeRenderer';
 import {ClickParam} from 'antd/lib/menu';
@@ -52,7 +52,7 @@ export class NodeTreePane extends React.PureComponent<Props, State> {
     this._nodeTree?.reload();
   };
 
-  onAddNewJobClick = (param: ClickParam) => {
+  onAddNewFlowClick = (param: ClickParam) => {
     let path = param.item.props.defaultValue;
     this.setState({jobBasePath: `${path}.`, jobModelVisible: true});
   };
@@ -65,12 +65,12 @@ export class NodeTreePane extends React.PureComponent<Props, State> {
       while (seekParent.functionId === 'job:main') {
         seekParent = seekParent.parent;
       }
-      // find the root node, so every level of parents is Job
+      // find the root node, so every level of parents is Flow
       if (seekParent.id === '') {
         menuItems.push(
-          <Menu.Item key="addJob" defaultValue={item.key} onClick={this.onAddNewJobClick}>
+          <Menu.Item key="addFlow" defaultValue={item.key} onClick={this.onAddNewFlowClick}>
             <FileAddIcon />
-            Add Child Job
+            Add Child Flow
           </Menu.Item>
         );
       }
@@ -78,21 +78,21 @@ export class NodeTreePane extends React.PureComponent<Props, State> {
     return menuItems;
   };
 
-  showNewJobModel = () => {
+  showNewFlowModel = () => {
     this.setState({jobModelVisible: true, jobBasePath: null});
   };
-  hideNewJobModel = () => {
+  hideNewFlowModel = () => {
     this.setState({jobModelVisible: false});
   };
 
-  newJobDragOver = (e: DragState) => {
+  newFlowDragOver = (e: DragState) => {
     let {conn} = this.props;
     let path = DragState.getData('path', conn.getBaseConn());
     if (path) {
       e.accept('tico-fas-plus-square');
     }
   };
-  newJobDrop = (e: DragState) => {
+  newFlowDrop = (e: DragState) => {
     let {conn} = this.props;
     let path = DragState.getData('path', conn.getBaseConn());
     if (path) {
@@ -110,12 +110,12 @@ export class NodeTreePane extends React.PureComponent<Props, State> {
             <Tooltip title="Reload">
               <Button size="small" icon={<ReloadIcon />} onClick={this.reload} />
             </Tooltip>
-            <Tooltip title="New Job">
-              <DragDropDiv onDragOverT={this.newJobDragOver} onDropT={this.newJobDrop}>
-                <Button size="small" icon={<FileAddIcon />} onClick={this.showNewJobModel} />
+            <Tooltip title="New Flow">
+              <DragDropDiv onDragOverT={this.newFlowDragOver} onDropT={this.newFlowDrop}>
+                <Button size="small" icon={<FileAddIcon />} onClick={this.showNewFlowModel} />
               </DragDropDiv>
             </Tooltip>
-            <AddNewJob conn={conn} onClose={this.hideNewJobModel} visible={jobModelVisible} basePath={jobBasePath} />
+            <AddNewFlow conn={conn} onClose={this.hideNewFlowModel} visible={jobModelVisible} basePath={jobBasePath} />
           </div>
         ) : null}
         <NodeTree

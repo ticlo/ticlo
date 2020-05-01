@@ -21,7 +21,7 @@ describe('editor BlockStage', function () {
   });
 
   it('single block', async function () {
-    let job = Root.instance.addJob('BlockStage1');
+    let job = Root.instance.addFlow('BlockStage1');
     job.load({
       add: {
         '#is': 'add',
@@ -71,7 +71,7 @@ describe('editor BlockStage', function () {
   });
 
   it('drag block', async function () {
-    let job = Root.instance.addJob('BlockStage2');
+    let job = Root.instance.addFlow('BlockStage2');
     job.load({
       add: {
         '#is': 'add',
@@ -124,7 +124,7 @@ describe('editor BlockStage', function () {
   });
 
   it('drag block size', async function () {
-    let job = Root.instance.addJob('BlockStage3');
+    let job = Root.instance.addFlow('BlockStage3');
     job.load({
       add: {
         '#is': 'add',
@@ -163,7 +163,7 @@ describe('editor BlockStage', function () {
   });
 
   it('min block and wire', async function () {
-    let job = Root.instance.addJob('BlockStage4');
+    let job = Root.instance.addFlow('BlockStage4');
     job.load({
       add: {
         '#is': 'add',
@@ -235,7 +235,7 @@ describe('editor BlockStage', function () {
   });
 
   it('rect select', async function () {
-    let job = Root.instance.addJob('BlockStage5');
+    let job = Root.instance.addFlow('BlockStage5');
     job.load({
       add: {
         '#is': 'add',
@@ -296,7 +296,7 @@ describe('editor BlockStage', function () {
   });
 
   it('automatic assign xy', async function () {
-    let job = Root.instance.addJob('BlockStage6');
+    let job = Root.instance.addFlow('BlockStage6');
     for (let i = 0; i < 10; ++i) {
       job.createBlock(`a${i}`);
     }

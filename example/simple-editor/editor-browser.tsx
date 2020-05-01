@@ -60,7 +60,7 @@ class App extends React.PureComponent<Props, State> implements TicloLayoutContex
   }
 
   /// implements TicloLayoutContext
-  editJob(path: string, onSave: () => void) {
+  editFlow(path: string, onSave: () => void) {
     this.layout.dockMove(this.createBlockEditorTab(path, onSave), this.layout.find('main'), 'middle');
   }
   editProperty(paths: string[], propDesc: PropDesc, defaultValue?: any, mime?: string, readonly?: boolean): void {

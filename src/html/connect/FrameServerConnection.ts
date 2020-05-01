@@ -2,7 +2,7 @@ import {DataMap} from '../../../src/core/util/DataTypes';
 import {decode, encode} from '../../../src/core/util/Serialize';
 import {Logger} from '../../../src/core/util/Logger';
 import {ServerConnection} from '../../../src/core/connect/ServerConnection';
-import {Root} from '../../../src/core/block/Job';
+import {Root} from '../../../src/core/block/Flow';
 
 export class FrameServerConnection extends ServerConnection {
   checkClosedTimer: any;

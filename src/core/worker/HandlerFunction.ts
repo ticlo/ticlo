@@ -6,7 +6,7 @@ import {Event, EventType, WAIT, NO_EMIT} from '../block/Event';
 import Denque from 'denque';
 import {InfiniteQueue} from '../util/InfiniteQueue';
 import {DefaultTask, Task} from '../block/Task';
-import {RepeaterWorker} from './JobWorker';
+import {RepeaterWorker} from './WorkerFlow';
 
 export class HandlerFunction extends MapImpl {
   _queue = new Denque<Task>();

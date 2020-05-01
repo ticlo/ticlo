@@ -15,7 +15,7 @@ interface Props {
 
 interface State {}
 
-export class AddNewJob extends LazyUpdateComponent<Props, State> {
+export class AddNewFlow extends LazyUpdateComponent<Props, State> {
   state: State = {visible: false};
 
   formItems = {
@@ -23,7 +23,7 @@ export class AddNewJob extends LazyUpdateComponent<Props, State> {
     data: new FormInputItem<string>(this, 'data', 'Data'),
   };
 
-  addJob = () => {
+  addFlow = () => {
     let {conn, basePath} = this.props;
     let {name, data} = this.formItems;
     if (!name.value) {
@@ -45,7 +45,7 @@ export class AddNewJob extends LazyUpdateComponent<Props, State> {
       if (basePath) {
         path = `${basePath}${path}`;
       }
-      conn.addJob(path, dataData);
+      conn.addFlow(path, dataData);
     } catch (e) {
       data.setError(String(e));
       name.setError(null);
@@ -66,7 +66,7 @@ export class AddNewJob extends LazyUpdateComponent<Props, State> {
     let {visible, onClose, basePath} = this.props;
     let {name, data} = this.formItems;
     return (
-      <Modal title="Add New Job" visible={visible} onOk={this.addJob} onCancel={this.onClose}>
+      <Modal title="Add New Flow" visible={visible} onOk={this.addFlow} onCancel={this.onClose}>
         <Form labelCol={{span: 3}} wrapperCol={{span: 21}}>
           {name.render(<Input addonBefore={basePath} onChange={name.onInputChange} />)}
           {data.render(<TextArea onChange={data.onInputChange} />)}

@@ -3,7 +3,7 @@ import {DataMap, isSavedBlock} from '../util/DataTypes';
 import {Block} from '../block/Block';
 import {ThreadPool, UnlimitedPool, WorkerPool} from './ThreadPool';
 import {Task} from '../block/Task';
-import {RepeaterWorker} from './JobWorker';
+import {RepeaterWorker} from './WorkerFlow';
 
 export type MapWorkerMode = undefined | 'reuse' | 'persist';
 
@@ -115,7 +115,7 @@ export abstract class MapImpl extends BlockFunction {
     let output = new WorkerOutput(key, field, this._timeout, (output: WorkerOutput, timeout: boolean) =>
       this._onWorkerReady(output, timeout)
     );
-    let child = this._funcBlock.createOutputJob(RepeaterWorker, key, this._src, output, this._applyWorkerChange);
+    let child = this._funcBlock.createOutputFlow(RepeaterWorker, key, this._src, output, this._applyWorkerChange);
     child.onReady = () => {
       output.workerReady();
     };

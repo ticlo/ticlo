@@ -1,7 +1,7 @@
 import {Block, BlockChildWatch} from '../block/Block';
 import {DataMap} from '../util/DataTypes';
 import {WorkerFunction} from './WorkerFunction';
-import {JobWithShared, JobWithSharedConfigGenerators} from '../block/SharedBlock';
+import {FlowWithShared, FlowWithSharedConfigGenerators} from '../block/SharedBlock';
 import {BlockProperty} from '..';
 import {ConstTypeConfig} from '../block/BlockConfigs';
 import {BlockConfig} from '../block/BlockProperty';
@@ -11,11 +11,11 @@ const blankWorker = {
   '#outputs': {'#is': ''},
 };
 
-export const JobEditorConfigGenerators: {[key: string]: typeof BlockProperty} = {
-  ...JobWithSharedConfigGenerators,
+export const FlowEditorConfigGenerators: {[key: string]: typeof BlockProperty} = {
+  ...FlowWithSharedConfigGenerators,
   '#is': ConstTypeConfig('job:editor'),
 };
-export class JobEditor extends JobWithShared {
+export class FlowEditor extends FlowWithShared {
   getCacheKey(funcId: string, data: DataMap): any {
     // do not cache shared block during editing
     return this.getProperty('#shared', true);
@@ -29,8 +29,8 @@ export class JobEditor extends JobWithShared {
   }
 
   _createConfig(field: string): BlockProperty {
-    if (field in JobEditorConfigGenerators) {
-      return new JobEditorConfigGenerators[field](this, field);
+    if (field in FlowEditorConfigGenerators) {
+      return new FlowEditorConfigGenerators[field](this, field);
     } else {
       return new BlockConfig(this, field);
     }
@@ -43,10 +43,10 @@ export class JobEditor extends JobWithShared {
     funcId?: string,
     forceLoad = false,
     applyChange?: (data: DataMap) => boolean
-  ): JobEditor {
+  ): FlowEditor {
     let prop = parent.getProperty(field);
-    let job: JobEditor;
-    if (prop._value instanceof JobEditor) {
+    let job: FlowEditor;
+    if (prop._value instanceof FlowEditor) {
       // do not override the existing one that's being edited
       if (forceLoad) {
         job = prop._value;
@@ -54,7 +54,7 @@ export class JobEditor extends JobWithShared {
         return prop._value;
       }
     } else {
-      job = new JobEditor(parent, null, prop);
+      job = new FlowEditor(parent, null, prop);
       prop.setOutput(job);
     }
     if (funcId?.startsWith(':') && !applyChange) {
@@ -70,23 +70,23 @@ export class JobEditor extends JobWithShared {
     }
   }
 
-  static createFromField(parent: Block, field: string, fromField: string): JobEditor {
+  static createFromField(parent: Block, field: string, fromField: string): FlowEditor {
     let fromValue = parent.getValue(fromField);
     let forceReload = false;
     // already has worker data ?
     if (fromValue && (typeof fromValue === 'string' || fromValue.constructor === Object)) {
-      let newJob: JobEditor;
+      let newFlow: FlowEditor;
       if (typeof fromValue === 'string') {
-        newJob = JobEditor.create(parent, field, null, fromValue);
+        newFlow = FlowEditor.create(parent, field, null, fromValue);
       } else {
-        newJob = JobEditor.create(parent, field, fromValue, null, false, (data: DataMap) => {
+        newFlow = FlowEditor.create(parent, field, fromValue, null, false, (data: DataMap) => {
           parent.setValue(fromField, data);
           return true;
         });
       }
 
-      if (newJob) {
-        return newJob;
+      if (newFlow) {
+        return newFlow;
       }
       // reload the existing job only when the previous loading failed
       forceReload = true;
@@ -94,7 +94,7 @@ export class JobEditor extends JobWithShared {
 
     if (parent._function) {
       let data = parent._function.getDefaultWorker(fromField) || blankWorker;
-      return JobEditor.create(parent, field, data, null, forceReload, (data: DataMap) => {
+      return FlowEditor.create(parent, field, data, null, forceReload, (data: DataMap) => {
         parent.setValue(fromField, data);
         return true;
       });
@@ -103,9 +103,9 @@ export class JobEditor extends JobWithShared {
     return null;
   }
 
-  static createFromFunction(parent: Block, field: string, fromFunction: string, defaultData: DataMap): JobEditor {
+  static createFromFunction(parent: Block, field: string, fromFunction: string, defaultData: DataMap): FlowEditor {
     if (typeof fromFunction === 'string') {
-      return JobEditor.create(parent, field, defaultData, fromFunction);
+      return FlowEditor.create(parent, field, defaultData, fromFunction);
     }
     return null;
   }

@@ -1,12 +1,12 @@
 import debounce from 'lodash/debounce';
 import {DataMap} from '../util/DataTypes';
-import type {Job} from './Job';
+import type {Flow} from './Flow';
 import {deepEqual} from '../util/Compare';
 
 // when an change is applied, need to restore history from the previous saved data
 const _historyCache = new Map<any, DataMap[]>();
 
-export class JobHistory {
+export class FlowHistory {
   static _debounceInterval = 1000;
 
   _savedData: DataMap;
@@ -37,7 +37,7 @@ export class JobHistory {
     }
   }
 
-  constructor(public job: Job, savedData?: DataMap) {
+  constructor(public job: Flow, savedData?: DataMap) {
     if (savedData) {
       this._savedData = savedData;
       let cachedHistory = _historyCache.get(savedData);
@@ -128,7 +128,7 @@ export class JobHistory {
   _trackChangeCallback = debounce(() => {
     this._tracking = false;
     this.checkAndAdd(this.job.save());
-  }, JobHistory._debounceInterval);
+  }, FlowHistory._debounceInterval);
 
   _tracking = false;
   trackChange() {

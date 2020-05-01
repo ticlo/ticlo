@@ -1,6 +1,6 @@
 import {assert} from 'chai';
 import {Block} from '../../block/Block';
-import {Job, Root} from '../../block/Job';
+import {Flow, Root} from '../../block/Flow';
 import {makeLocalConnection} from '../LocalConnection';
 import '../../functions/basic/math/Arithmetic';
 import '../../functions/Categories';
@@ -12,12 +12,12 @@ import {JsFunction} from '../../functions/script/Js';
 import {Functions} from '../../block/Functions';
 import {DataMap, isDataTruncated} from '../../util/DataTypes';
 import {WorkerFunction} from '../../worker/WorkerFunction';
-import {JobEditor} from '../../worker/JobEditor';
-import {JobWorker} from '../../worker/JobWorker';
+import {FlowEditor} from '../../worker/FlowEditor';
+import {WorkerFlow} from '../../worker/WorkerFlow';
 
 describe('Connection', function () {
   it('get', async function () {
-    let job = Root.instance.addJob('Connection0');
+    let job = Root.instance.addFlow('Connection0');
     let data = {a: 0};
     job.setValue('v', data);
 
@@ -35,7 +35,7 @@ describe('Connection', function () {
   });
 
   it('subscribe', async function () {
-    let job = Root.instance.addJob('Connection1');
+    let job = Root.instance.addFlow('Connection1');
     let [server, client] = makeLocalConnection(Root.instance, false);
 
     await client.addBlock('Connection1.block1', {'#is': 'add'});
@@ -58,7 +58,7 @@ describe('Connection', function () {
   });
 
   it('bind', async function () {
-    let job = Root.instance.addJob('Connection1-2');
+    let job = Root.instance.addFlow('Connection1-2');
     let [server, client] = makeLocalConnection(Root.instance, false);
 
     job.setValue('a', 3);
@@ -94,7 +94,7 @@ describe('Connection', function () {
   });
 
   it('multiple subscribe binding', async function () {
-    let job = Root.instance.addJob('Connection2');
+    let job = Root.instance.addFlow('Connection2');
     let [server, client] = makeLocalConnection(Root.instance, false);
 
     client.setBinding('Connection2.p', 'p0');
@@ -142,7 +142,7 @@ describe('Connection', function () {
   });
 
   it('watch', async function () {
-    let job = Root.instance.addJob('Connection3-0');
+    let job = Root.instance.addFlow('Connection3-0');
     let [server, client] = makeLocalConnection(Root.instance, false);
 
     let child0 = job.createBlock('c0');
@@ -172,7 +172,7 @@ describe('Connection', function () {
   });
 
   it('multiple watch', async function () {
-    let job = Root.instance.addJob('Connection3');
+    let job = Root.instance.addFlow('Connection3');
     let [server, client] = makeLocalConnection(Root.instance, false);
 
     let child0 = job.createBlock('c0');
@@ -219,7 +219,7 @@ describe('Connection', function () {
   });
 
   it('list', async function () {
-    let job = Root.instance.addJob('Connection4');
+    let job = Root.instance.addFlow('Connection4');
     let [server, client] = makeLocalConnection(Root.instance, false);
 
     for (let i = 0; i < 100; ++i) {
@@ -243,7 +243,7 @@ describe('Connection', function () {
   });
 
   it('watchDesc', async function () {
-    let job = Root.instance.addJob('Connection5');
+    let job = Root.instance.addFlow('Connection5');
     let [server, client] = makeLocalConnection(Root.instance, true);
 
     let descCustom: FunctionDesc;
@@ -283,7 +283,7 @@ describe('Connection', function () {
   it('merge set request', async function () {
     TestFunctionRunner.clearLog();
 
-    let job = Root.instance.addJob('Connection6');
+    let job = Root.instance.addFlow('Connection6');
     let [server, client] = makeLocalConnection(Root.instance, false);
 
     let b = job.createBlock('b');
@@ -318,7 +318,7 @@ describe('Connection', function () {
   it('merge update request', async function () {
     TestFunctionRunner.clearLog();
 
-    let job = Root.instance.addJob('Connection6-2');
+    let job = Root.instance.addFlow('Connection6-2');
     let [server, client] = makeLocalConnection(Root.instance, false);
 
     let b = job.createBlock('b');
@@ -353,7 +353,7 @@ describe('Connection', function () {
   it('merge bind request', async function () {
     TestFunctionRunner.clearLog();
 
-    let job = Root.instance.addJob('Connection6-3');
+    let job = Root.instance.addFlow('Connection6-3');
     let [server, client] = makeLocalConnection(Root.instance, false);
 
     let b = job.createBlock('b');
@@ -391,7 +391,7 @@ describe('Connection', function () {
   });
 
   it('subscribe listener', async function () {
-    let job = Root.instance.addJob('Connection7');
+    let job = Root.instance.addFlow('Connection7');
     let [server, client] = makeLocalConnection(Root.instance, false);
 
     let lastUpdate: DataMap;
@@ -414,7 +414,7 @@ describe('Connection', function () {
   });
 
   it('callImmediate', async function () {
-    let job = Root.instance.addJob('Connection8');
+    let job = Root.instance.addFlow('Connection8');
     let [server, client] = makeLocalConnection(Root.instance, false);
 
     let called = 0;
@@ -451,7 +451,7 @@ describe('Connection', function () {
   });
 
   it('set a saved block', async function () {
-    let job = Root.instance.addJob('Connection9');
+    let job = Root.instance.addFlow('Connection9');
     let [server, client] = makeLocalConnection(Root.instance, false);
 
     await client.setValue('Connection9.v', {'#is': 'hello'});
@@ -468,7 +468,7 @@ describe('Connection', function () {
   });
 
   it('auto bind', async function () {
-    let job1 = Root.instance.addJob('Connection10');
+    let job1 = Root.instance.addFlow('Connection10');
 
     job1.load({
       c: {
@@ -498,7 +498,7 @@ describe('Connection', function () {
   });
 
   it('full value', async function () {
-    let job1 = Root.instance.addJob('Connection11');
+    let job1 = Root.instance.addFlow('Connection11');
 
     job1.load({
       '@v': [0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
@@ -529,7 +529,7 @@ describe('Connection', function () {
   });
 
   it('helper property', async function () {
-    let job1 = Root.instance.addJob('Connection12');
+    let job1 = Root.instance.addFlow('Connection12');
 
     let [server, client] = makeLocalConnection(Root.instance, false);
 
@@ -553,7 +553,7 @@ describe('Connection', function () {
   });
 
   it('autoName', async function () {
-    let job1 = Root.instance.addJob('Connection13');
+    let job1 = Root.instance.addFlow('Connection13');
 
     let [server, client] = makeLocalConnection(Root.instance, false);
 
@@ -574,7 +574,7 @@ describe('Connection', function () {
   });
 
   it('show hide move props', async function () {
-    let job1 = Root.instance.addJob('Connection14');
+    let job1 = Root.instance.addFlow('Connection14');
     let block1 = job1.createBlock('a');
 
     let [server, client] = makeLocalConnection(Root.instance, false);
@@ -593,7 +593,7 @@ describe('Connection', function () {
   });
 
   it('add remove custom props', async function () {
-    let job1 = Root.instance.addJob('Connection15');
+    let job1 = Root.instance.addFlow('Connection15');
     let block1 = job1.createBlock('a');
 
     let [server, client] = makeLocalConnection(Root.instance, false);
@@ -612,7 +612,7 @@ describe('Connection', function () {
   });
 
   it('insert remove group props', async function () {
-    let job1 = Root.instance.addJob('Connection16');
+    let job1 = Root.instance.addFlow('Connection16');
     let block1 = job1.createBlock('a');
     block1._load({
       '#is': 'add',
@@ -638,7 +638,7 @@ describe('Connection', function () {
   });
 
   it('set length', async function () {
-    let job1 = Root.instance.addJob('Connection16-2');
+    let job1 = Root.instance.addFlow('Connection16-2');
     let block1 = job1.createBlock('a');
     block1.setValue('#is', 'add');
 
@@ -652,7 +652,7 @@ describe('Connection', function () {
   });
 
   it('move custom props', async function () {
-    let job1 = Root.instance.addJob('Connection17');
+    let job1 = Root.instance.addFlow('Connection17');
     let block1 = job1.createBlock('a');
     block1.setValue('#custom', [
       {name: 'a', type: 'string'},
@@ -694,8 +694,8 @@ describe('Connection', function () {
     client.destroy();
   });
 
-  it('JobEditor', async function () {
-    let job1 = Root.instance.addJob('Connection18');
+  it('FlowEditor', async function () {
+    let job1 = Root.instance.addFlow('Connection18');
     let block1 = job1.createBlock('a');
     let data = {
       '#is': '',
@@ -720,29 +720,29 @@ describe('Connection', function () {
     Root.instance.deleteValue('Connection18');
   });
 
-  it('applyJobChange', async function () {
-    let job1 = Root.instance.addJob('Connection19');
+  it('applyFlowChange', async function () {
+    let job1 = Root.instance.addFlow('Connection19');
     let [server, client] = makeLocalConnection(Root.instance, true);
 
-    let editor = JobEditor.create(job1, '#edit-v', {}, null, false, (data: DataMap) => {
+    let editor = FlowEditor.create(job1, '#edit-v', {}, null, false, (data: DataMap) => {
       job1.setValue('v', data);
       return true;
     });
-    await client.applyJobChange('Connection19.#edit-v');
+    await client.applyFlowChange('Connection19.#edit-v');
     assert.deepEqual(job1.getValue('v'), {'#is': ''});
 
     client.destroy();
     Root.instance.deleteValue('Connection19');
   });
 
-  it('createJob and DeleteJob', async function () {
+  it('createFlow and DeleteFlow', async function () {
     let [server, client] = makeLocalConnection(Root.instance, true);
 
-    await client.addJob('Connection20', {value: 123});
-    assert.instanceOf(Root.instance.getValue('Connection20'), Job);
+    await client.addFlow('Connection20', {value: 123});
+    assert.instanceOf(Root.instance.getValue('Connection20'), Flow);
 
-    await client.addJob('Connection20.subjob', {value: 123});
-    assert.instanceOf(Root.instance.queryValue('Connection20.subjob'), Job);
+    await client.addFlow('Connection20.subjob', {value: 123});
+    assert.instanceOf(Root.instance.queryValue('Connection20.subjob'), Flow);
 
     await client.setValue('Connection20', undefined, true);
     assert.isUndefined(Root.instance.getValue('Connection20'));
@@ -751,7 +751,7 @@ describe('Connection', function () {
   });
 
   it('add remove move optional props', async function () {
-    let job1 = Root.instance.addJob('Connection21');
+    let job1 = Root.instance.addFlow('Connection21');
     let block1 = job1.createBlock('a');
 
     let [server, client] = makeLocalConnection(Root.instance, false);
@@ -773,12 +773,12 @@ describe('Connection', function () {
   });
 
   it('#shared #temp binding', async function () {
-    let job1 = Root.instance.createOutputJob(JobWorker, 'Connection22', {
+    let job1 = Root.instance.createOutputFlow(WorkerFlow, 'Connection22', {
       '#is': '',
       'a': {'#is': ''},
       '#shared': {'#is': ''},
     });
-    Root.instance.createOutputJob(JobWorker, 'Connection22_2');
+    Root.instance.createOutputFlow(WorkerFlow, 'Connection22_2');
 
     let [server, client] = makeLocalConnection(Root.instance, false);
 
@@ -823,14 +823,14 @@ describe('Connection', function () {
   });
 
   it('undo redo', async function () {
-    let job = Root.instance.addJob('Connection23');
+    let job = Root.instance.addFlow('Connection23');
     job.load({'#is': '', 'a': 1}, null, (data: any) => true);
 
     let [server, client] = makeLocalConnection(Root.instance, false);
 
     client.watch('Connection23', {});
     client.setValue('Connection23.a', 2);
-    client.applyJobChange('Connection23');
+    client.applyFlowChange('Connection23');
     await client.undo('Connection23');
 
     assert.equal(job.getValue('a'), 1);
@@ -843,7 +843,7 @@ describe('Connection', function () {
   });
 
   it('copy paste', async function () {
-    let job = Root.instance.addJob('Connection24');
+    let job = Root.instance.addFlow('Connection24');
     let data = {'#is': '', 'add': {'#is': 'add'}};
     job.load(data);
 

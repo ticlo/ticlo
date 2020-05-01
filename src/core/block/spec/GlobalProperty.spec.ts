@@ -1,6 +1,6 @@
 import {assert} from 'chai';
 import {Block} from '../Block';
-import {Job, Root} from '../Job';
+import {Flow, Root} from '../Flow';
 import {DataMap} from '../../util/DataTypes';
 import {WorkerFunction} from '../../worker/WorkerFunction';
 
@@ -9,7 +9,7 @@ describe('GlobalProperty', function () {
     let globalBlock: Block = Root.instance.getValue('#global');
     assert.instanceOf(globalBlock, Block);
 
-    let job = new Job();
+    let job = new Flow();
     let aBlock = job.createBlock('a');
 
     aBlock.setValue('#is', 'GlobalProperty:class1');
@@ -22,8 +22,8 @@ describe('GlobalProperty', function () {
 
     Root.run();
 
-    let impl: Job = aBlock.getValue('#func') as Job;
-    assert.instanceOf(impl, Job, 'get #func of nested job');
+    let impl: Flow = aBlock.getValue('#func') as Flow;
+    assert.instanceOf(impl, Flow, 'get #func of nested job');
     // v not ready yet
     assert.isUndefined(impl.getValue('v'));
 

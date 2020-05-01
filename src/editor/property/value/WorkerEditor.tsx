@@ -22,8 +22,8 @@ export class WorkerEditor extends FunctionEditor {
     if (keys.length) {
       let jobEditorPath = `${keys[0]}.#edit-${desc.name}`;
       conn.editWorker(jobEditorPath, desc.name);
-      this.context.editJob(jobEditorPath, () => {
-        conn.applyJobChange(jobEditorPath);
+      this.context.editFlow(jobEditorPath, () => {
+        conn.applyFlowChange(jobEditorPath);
       });
     }
   };

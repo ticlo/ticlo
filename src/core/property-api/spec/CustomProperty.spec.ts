@@ -1,7 +1,7 @@
 import {assert} from 'chai';
 
 import {addCustomProperty, moveCustomProperty, removeCustomProperty} from '../CustomProperty';
-import {Job} from '../../block/Job';
+import {Flow} from '../../block/Flow';
 import {PropDesc, PropGroupDesc} from '../../block/Descriptor';
 
 describe('Custom Property', function () {
@@ -26,7 +26,7 @@ describe('Custom Property', function () {
   };
 
   it('add remove CustomProperty', function () {
-    let job = new Job();
+    let job = new Flow();
 
     // remove should do nothing when #custom is undefined
     removeCustomProperty(job, 'a');
@@ -127,7 +127,7 @@ describe('Custom Property', function () {
   });
 
   it('move CustomProperty', function () {
-    let job = new Job();
+    let job = new Flow();
 
     moveCustomProperty(job, 'a', 'b');
     assert.isUndefined(job.getValue('#custom'));

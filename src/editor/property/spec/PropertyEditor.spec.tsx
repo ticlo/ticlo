@@ -26,7 +26,7 @@ describe('PropertyEditor', function () {
   });
 
   it('editable', async function () {
-    let job = Root.instance.addJob('PropertyEditor1');
+    let job = Root.instance.addFlow('PropertyEditor1');
     job.load({
       add1: {
         '#is': 'add',
@@ -73,7 +73,7 @@ describe('PropertyEditor', function () {
   });
 
   it('subblock', async function () {
-    let job = Root.instance.addJob('PropertyEditor2');
+    let job = Root.instance.addFlow('PropertyEditor2');
     job.load({
       add1: {
         '#is': 'add',

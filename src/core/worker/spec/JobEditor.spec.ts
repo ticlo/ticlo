@@ -1,6 +1,6 @@
 import {assert} from 'chai';
-import {Job, Root} from '../../block/Job';
-import {JobEditor} from '../JobEditor';
+import {Flow, Root} from '../../block/Flow';
+import {FlowEditor} from '../FlowEditor';
 import {VoidListeners} from '../../block/spec/TestFunction';
 import {WorkerFunction} from '../WorkerFunction';
 import {Functions} from '../../block/Functions';
@@ -8,14 +8,14 @@ import {PropDesc, PropGroupDesc} from '../../block/Descriptor';
 import {DataMap} from '../../util/DataTypes';
 import {SharedBlock} from '../../block/SharedBlock';
 
-describe('JobEditor', function () {
+describe('FlowEditor', function () {
   it('delete editor after unwatch', function () {
-    let job = new Job();
-    let editor1 = JobEditor.create(job, '#edit-1', {});
-    let editor2 = JobEditor.create(job, '#edit-2');
+    let job = new Flow();
+    let editor1 = FlowEditor.create(job, '#edit-1', {});
+    let editor2 = FlowEditor.create(job, '#edit-2');
 
     assert.isNull(editor2, 'failed to load');
-    assert.instanceOf(job.getValue('#edit-2'), JobEditor);
+    assert.instanceOf(job.getValue('#edit-2'), FlowEditor);
 
     editor1.watch(VoidListeners);
     assert.equal(job.getValue('#edit-1'), editor1);
@@ -26,7 +26,7 @@ describe('JobEditor', function () {
   });
 
   it('createFromField', function () {
-    let job = new Job();
+    let job = new Flow();
     let block = job.createBlock('a');
     let data = {
       '#is': '',
@@ -35,23 +35,23 @@ describe('JobEditor', function () {
       },
     };
 
-    WorkerFunction.registerType(data, {name: 'func1'}, 'JobEditor');
+    WorkerFunction.registerType(data, {name: 'func1'}, 'FlowEditor');
 
     // editor with map data
     block.setValue('use1', data);
-    JobEditor.createFromField(block, '#edit-use1', 'use1');
+    FlowEditor.createFromField(block, '#edit-use1', 'use1');
     assert.deepEqual(block.getValue('#edit-use1').save(), data);
 
     // editor with registered worker function
-    block.setValue('use2', 'JobEditor:func1');
-    JobEditor.createFromField(block, '#edit-use2', 'use2');
+    block.setValue('use2', 'FlowEditor:func1');
+    FlowEditor.createFromField(block, '#edit-use2', 'use2');
     assert.deepEqual(block.getValue('#edit-use2').save(), data);
 
-    Functions.clear('JobEditor:func1');
+    Functions.clear('FlowEditor:func1');
   });
 
   it('createFromFunction', function () {
-    let job = new Job();
+    let job = new Flow();
     let data = {
       '#is': '',
       'add': {
@@ -59,20 +59,20 @@ describe('JobEditor', function () {
       },
     };
 
-    WorkerFunction.registerType(data, {name: 'worker2'}, 'JobEditor');
+    WorkerFunction.registerType(data, {name: 'worker2'}, 'FlowEditor');
 
-    JobEditor.createFromFunction(job, '#edit-func', 'JobEditor:worker2', null);
+    FlowEditor.createFromFunction(job, '#edit-func', 'FlowEditor:worker2', null);
     assert.deepEqual(job.getValue('#edit-func').save(), data);
 
-    JobEditor.createFromFunction(job, '#edit-func', 'JobEditor:worker2-2', data);
+    FlowEditor.createFromFunction(job, '#edit-func', 'FlowEditor:worker2-2', data);
     assert.deepEqual(job.getValue('#edit-func').save(), data);
 
-    Functions.clear('JobEditor:worker2');
+    Functions.clear('FlowEditor:worker2');
   });
 
   it('applyChange', function () {
-    let job = new Job();
-    let editor = JobEditor.create(job, '#edit-v2', {}, null, false, (data: DataMap) => {
+    let job = new Flow();
+    let editor = FlowEditor.create(job, '#edit-v2', {}, null, false, (data: DataMap) => {
       job.setValue('v2', data);
       return true;
     });
@@ -81,7 +81,7 @@ describe('JobEditor', function () {
   });
 
   it('applyChange function', function () {
-    let job = new Job();
+    let job = new Flow();
 
     let expectedData = {
       '#inputs': {
@@ -127,28 +127,28 @@ describe('JobEditor', function () {
       {name: 'b', type: 'number', readonly: true},
     ];
 
-    WorkerFunction.registerType({'#is': ''}, {name: 'worker3', properties: []}, 'JobEditor');
+    WorkerFunction.registerType({'#is': ''}, {name: 'worker3', properties: []}, 'FlowEditor');
 
-    let editor = JobEditor.createFromFunction(job, '#edit-func', 'JobEditor:worker3', null);
+    let editor = FlowEditor.createFromFunction(job, '#edit-func', 'FlowEditor:worker3', null);
     editor.createBlock('#inputs')._load(expectedData['#inputs']);
     editor.createBlock('#outputs')._load(expectedData['#outputs']);
     editor.setValue('#desc', expectedData['#desc']);
-    WorkerFunction.applyChangeToFunc(editor, 'JobEditor:worker3');
+    WorkerFunction.applyChangeToFunc(editor, 'FlowEditor:worker3');
 
-    assert.deepEqual(Functions.getWorkerData('JobEditor:worker3'), expectedData);
+    assert.deepEqual(Functions.getWorkerData('FlowEditor:worker3'), expectedData);
 
-    let desc = Functions.getDescToSend('JobEditor:worker3')[0];
+    let desc = Functions.getDescToSend('FlowEditor:worker3')[0];
     assert.equal(desc.icon, 'fas:plus');
     assert.deepEqual(desc.properties, expectedDescProperties);
 
-    Functions.clear('JobEditor:worker3');
+    Functions.clear('FlowEditor:worker3');
     job.destroy();
   });
 
   it('shared block', function () {
-    let job = new Job();
+    let job = new Flow();
 
-    let editor = JobEditor.createFromFunction(job, '#edit-func', 'JobEditor:worker4', {
+    let editor = FlowEditor.createFromFunction(job, '#edit-func', 'FlowEditor:worker4', {
       '#is': '',
       '#shared': {'#is': ''},
     });

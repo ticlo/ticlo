@@ -5,7 +5,7 @@ import {Block, BlockChildWatch} from '../block/Block';
 import {DataMap} from '../util/DataTypes';
 import {Event, EventType} from '../block/Event';
 import {MapImpl} from './MapImpl';
-import {RepeaterWorker} from './JobWorker';
+import {RepeaterWorker} from './WorkerFlow';
 import {Resolver} from '../block/Resolver';
 
 class ForEachOutput implements FunctionOutput {
@@ -189,7 +189,7 @@ export class ForEachFunction extends BlockFunction implements BlockChildWatch {
 
   _addWorker(key: string, input: any) {
     let output = new ForEachOutput(this, key);
-    let child = this._funcBlock.createOutputJob(RepeaterWorker, key, this._src, output, this._applyWorkerChange);
+    let child = this._funcBlock.createOutputFlow(RepeaterWorker, key, this._src, output, this._applyWorkerChange);
     this._workers.set(key, child);
     child.updateInput(input);
   }

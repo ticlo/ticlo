@@ -1,6 +1,6 @@
 import {assert} from 'chai';
 import {Block} from '../Block';
-import {Job, Root} from '../Job';
+import {Flow, Root} from '../Flow';
 import {PropDispatcher} from '../Dispatcher';
 import {voidProperty} from '../Void';
 import {BlockIO} from '../BlockProperty';
@@ -10,7 +10,7 @@ import {_strictMode} from '../BlockSettings';
 describe('Destroyed Block', function () {
   it('throw on destroyed block in strict mode', function () {
     if (_strictMode) {
-      let job = new Job();
+      let job = new Flow();
 
       let block = job.createBlock('a');
       let propB = job.getProperty('b');
@@ -33,7 +33,7 @@ describe('Destroyed Block', function () {
 
   it('void on destroyed block in normal mode', function () {
     if (!_strictMode) {
-      let job = new Job();
+      let job = new Flow();
 
       let block = job.createBlock('a');
       let propB = job.getProperty('b');

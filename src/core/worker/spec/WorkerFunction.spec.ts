@@ -1,5 +1,5 @@
 import {assert} from 'chai';
-import {Job, Root} from '../../block/Job';
+import {Flow, Root} from '../../block/Flow';
 import {WorkerFunction} from '../WorkerFunction';
 import {TestFunctionRunner} from '../../block/spec/TestFunction';
 import '../../functions/basic/math/Arithmetic';
@@ -8,7 +8,7 @@ import {DataMap} from '../../util/DataTypes';
 describe('WorkerFunction', function () {
   it('basic', function () {
     TestFunctionRunner.clearLog();
-    let job = new Job();
+    let job = new Flow();
 
     let aBlock = job.createBlock('a');
 
@@ -27,8 +27,8 @@ describe('WorkerFunction', function () {
     Root.run();
     assert.deepEqual(TestFunctionRunner.popLogs(), ['nest1'], 'nested job should be created');
 
-    let impl: Job = aBlock.getValue('#func') as Job;
-    assert.instanceOf(impl, Job, 'get #func of nested job');
+    let impl: Flow = aBlock.getValue('#func') as Flow;
+    assert.instanceOf(impl, Flow, 'get #func of nested job');
 
     assert.deepEqual(impl.save(), jobData, 'serialize nested job');
 
@@ -45,7 +45,7 @@ describe('WorkerFunction', function () {
   });
 
   it('output', function () {
-    let job = new Job();
+    let job = new Flow();
 
     let aBlock = job.createBlock('a');
 
@@ -64,7 +64,7 @@ describe('WorkerFunction', function () {
   });
 
   it('namespace', function () {
-    let job = new Job();
+    let job = new Flow();
 
     let aBlock = job.createBlock('a');
     aBlock.setValue('in0', 2);

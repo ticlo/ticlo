@@ -1,7 +1,7 @@
 import {assert} from 'chai';
 import {voidProperty} from '../Void';
 
-import {Job, Root} from '../Job';
+import {Flow, Root} from '../Flow';
 import {BlockPropertyEvent} from '../BlockProperty';
 import {PropDispatcher} from '../Dispatcher';
 import {VoidListeners} from './TestFunction';

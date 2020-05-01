@@ -1,20 +1,20 @@
 import {assert} from 'chai';
-import {JobWithShared, SharedBlock} from '../SharedBlock';
+import {FlowWithShared, SharedBlock} from '../SharedBlock';
 import {WorkerFunction} from '../../worker/WorkerFunction';
 import {Functions} from '../Functions';
-import {JobWorker} from '../../worker/JobWorker';
+import {WorkerFlow} from '../../worker/WorkerFlow';
 
 describe('SharedBlock', function () {
   it('basic', function () {
     let data = {'#is': '', '#shared': {'#is': ''}};
 
-    let job1 = new JobWithShared();
+    let job1 = new FlowWithShared();
     job1.load(data);
     let sharedBlock: SharedBlock = job1.getValue('#shared');
     assert.instanceOf(sharedBlock, SharedBlock);
     assert.equal(sharedBlock._cacheKey, data['#shared']);
 
-    let job2 = new JobWithShared();
+    let job2 = new FlowWithShared();
     job2.load(data);
     assert.equal(job2.getValue('#shared'), sharedBlock);
 
@@ -27,7 +27,7 @@ describe('SharedBlock', function () {
   it('save load', function () {
     let data = {'#is': '', '#shared': {'#is': ''}};
 
-    let job = new JobWithShared();
+    let job = new FlowWithShared();
     job.load(data);
     let sharedBlock: SharedBlock = job.getValue('#shared');
     let sharedProp = sharedBlock._prop;
@@ -54,7 +54,7 @@ describe('SharedBlock', function () {
     let data = {'#is': '', '#shared': {'#is': '', '#cacheMode': 'persist'}};
     WorkerFunction.registerType(data, {name: 'cacheModeWorker1', properties: []}, 'SharedBlock');
 
-    let job = new JobWorker();
+    let job = new WorkerFlow();
     job.load(data, 'SharedBlock:cacheModeWorker1');
     assert.deepEqual(job.save(), data);
 
