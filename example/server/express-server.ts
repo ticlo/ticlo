@@ -21,8 +21,8 @@ import {data} from '../sample-data/data';
     res.end();
   });
 
-  app.listen(8010);
-
-  console.log('listening on 8010');
-  console.log(getEditorUrl('ws://127.0.0.1:8010/ticlo', 'example'));
+  app.listen(8010, () => {
+    console.log('listening on 8010');
+    console.log(getEditorUrl('ws://127.0.0.1:8010/ticlo', 'example'));
+  });
 })();
