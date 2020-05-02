@@ -45,25 +45,25 @@ export class SharedConfig extends BlockProperty {
 
 export const SharedBlockConfigGenerators: {[key: string]: typeof BlockProperty} = {
   ...FlowConfigGenerators,
-  '#is': ConstTypeConfig('job:shared'),
+  '#is': ConstTypeConfig('flow:shared'),
 };
 
 export class SharedBlock extends Flow {
   static uid = new Uid();
   static _dict = new Map<any, SharedBlock>();
-  static loadSharedBlock(job: FlowWithShared, funcId: string, data: DataMap) {
-    let cacheKey = job.getCacheKey(funcId, data);
+  static loadSharedBlock(flow: FlowWithShared, funcId: string, data: DataMap) {
+    let cacheKey = flow.getCacheKey(funcId, data);
     let sharedBlock: SharedBlock;
     if (typeof cacheKey === 'string') {
-      sharedBlock = SharedBlock._loadFuncSharedBlock(job, cacheKey, data);
+      sharedBlock = SharedBlock._loadFuncSharedBlock(flow, cacheKey, data);
     } else {
-      sharedBlock = SharedBlock._loadSharedBlock(job, funcId, data, cacheKey);
+      sharedBlock = SharedBlock._loadSharedBlock(flow, funcId, data, cacheKey);
     }
-    job._setSharedBlock(sharedBlock);
+    flow._setSharedBlock(sharedBlock);
     return sharedBlock;
   }
 
-  static _loadFuncSharedBlock(job: FlowWithShared, funcId: string, data: DataMap) {
+  static _loadFuncSharedBlock(flow: FlowWithShared, funcId: string, data: DataMap) {
     if (SharedBlock._dict.has(funcId)) {
       return SharedBlock._dict.get(funcId);
     } else {
@@ -85,7 +85,7 @@ export class SharedBlock extends Flow {
     }
   }
 
-  static _loadSharedBlock(job: FlowWithShared, funcId: string, data: DataMap, cacheKey: any) {
+  static _loadSharedBlock(flow: FlowWithShared, funcId: string, data: DataMap, cacheKey: any) {
     if (cacheKey && SharedBlock._dict.has(cacheKey)) {
       return SharedBlock._dict.get(cacheKey);
     } else {
@@ -120,8 +120,8 @@ export class SharedBlock extends Flow {
         if (funcId.includes(':')) {
           tempFuncId = `${funcId}__shared`;
         }
-      } else if (job._namespace != null) {
-        tempFuncId = `${job._namespace}:__shared`;
+      } else if (flow._namespace != null) {
+        tempFuncId = `${flow._namespace}:__shared`;
       }
       sharedBlock.load(data, tempFuncId);
       return sharedBlock;
@@ -143,21 +143,21 @@ export class SharedBlock extends Flow {
       // _source is set after listener is attached, so the first change will be skipped
       if (this._cacheKey != null) {
         // force detach
-        this._jobs.clear();
+        this._flows.clear();
         this.detachFlow(null);
       }
     },
   };
   _cacheKey: any;
   _cacheMode?: 'persist';
-  _jobs = new Set<Flow>();
-  attachFlow(job: Flow) {
-    this._jobs.add(job);
+  _flows = new Set<Flow>();
+  attachFlow(flow: Flow) {
+    this._flows.add(flow);
   }
-  detachFlow(job: Flow) {
-    this._jobs.delete(job);
-    if (this._jobs.size === 0) {
-      if (job != null && this._cacheMode === 'persist') {
+  detachFlow(flow: Flow) {
+    this._flows.delete(flow);
+    if (this._flows.size === 0) {
+      if (flow != null && this._cacheMode === 'persist') {
         // persisted SharedBlock only detach when detachFlow(null)
         return;
       }

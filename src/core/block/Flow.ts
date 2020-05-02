@@ -24,7 +24,7 @@ export class Flow extends Block {
 
   constructor(parent: Block = Root.instance, output?: FunctionOutput, property?: BlockProperty) {
     super(null, null, property);
-    this._job = this;
+    this._flow = this;
     this._parent = parent;
     this._outputObj = output;
     if (!property) {
@@ -51,7 +51,7 @@ export class Flow extends Block {
   }
 
   queueBlock(block: Runnable) {
-    this._parent._job.queueBlock(block);
+    this._parent._flow.queueBlock(block);
   }
 
   // return true when the related output block need to be put in queue
@@ -76,7 +76,7 @@ export class Flow extends Block {
   }
 
   _save(): DataMap {
-    // job shouldn't be saved within parent Block
+    // flow shouldn't be saved within parent Block
     return undefined;
   }
 
@@ -113,7 +113,7 @@ export class Flow extends Block {
         loaded = true;
       }
     } else {
-      this._namespace = this._parent._job._namespace;
+      this._namespace = this._parent._flow._namespace;
       this._loadFrom = null;
       if (src) {
         this._loadFlowData(src);
@@ -227,7 +227,7 @@ export class Flow extends Block {
 
 export const FlowConstConfigGenerators: {[key: string]: typeof BlockProperty} = {
   ...FlowConfigGenerators,
-  '#is': ConstTypeConfig('job:const'),
+  '#is': ConstTypeConfig('flow:const'),
 };
 
 class ConstBlock extends Flow {
@@ -344,7 +344,7 @@ export class Root extends Flow {
     let newFlow = new FlowMain(prop._block, null, prop);
     let propValue = prop._value;
     if (Array.isArray(propValue) && propValue.length === 3 && propValue.every((val) => typeof val === 'number')) {
-      // overwrite @b-xyw value from parent job
+      // overwrite @b-xyw value from parent flow
       data = {...data, '@b-xyw': propValue};
     }
     if (this._storage) {

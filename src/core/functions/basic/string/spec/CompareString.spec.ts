@@ -5,9 +5,9 @@ import {Flow, Root} from '../../../../block/Flow';
 
 describe('CompareString', function () {
   it('start with', function () {
-    let job = new Flow();
+    let flow = new Flow();
 
-    let aBlock = job.createBlock('a');
+    let aBlock = flow.createBlock('a');
     aBlock._load({
       '#is': 'start-with',
       '0': 'abc',
@@ -44,9 +44,9 @@ describe('CompareString', function () {
   });
 
   it('end with', function () {
-    let job = new Flow();
+    let flow = new Flow();
 
-    let aBlock = job.createBlock('a');
+    let aBlock = flow.createBlock('a');
     aBlock._load({
       '#is': 'end-with',
       '0': 'abc',
@@ -83,9 +83,9 @@ describe('CompareString', function () {
   });
 
   it('contain', function () {
-    let job = new Flow();
+    let flow = new Flow();
 
-    let aBlock = job.createBlock('a');
+    let aBlock = flow.createBlock('a');
     aBlock._load({
       '#is': 'contain',
       '0': 'abc',

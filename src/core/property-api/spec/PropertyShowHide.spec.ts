@@ -5,29 +5,29 @@ import {showProperties, hideProperties, moveShownProperty, hideGroupProperties} 
 
 describe('PropertyOrder', function () {
   it('show hide Property', function () {
-    let job = new Flow();
-    job.load({
+    let flow = new Flow();
+    flow.load({
       '#is': 'add',
     });
-    hideProperties(job, ['@a']);
-    assert.isUndefined(job.getValue('@b-p'));
+    hideProperties(flow, ['@a']);
+    assert.isUndefined(flow.getValue('@b-p'));
 
-    showProperties(job, ['@a']);
-    assert.deepEqual(job.getValue('@b-p'), ['@a']);
+    showProperties(flow, ['@a']);
+    assert.deepEqual(flow.getValue('@b-p'), ['@a']);
 
-    showProperties(job, ['@a']);
-    assert.deepEqual(job.getValue('@b-p'), ['@a']);
+    showProperties(flow, ['@a']);
+    assert.deepEqual(flow.getValue('@b-p'), ['@a']);
 
-    hideProperties(job, ['@b']); // remove a property not in the list
-    assert.deepEqual(job.getValue('@b-p'), ['@a']); // no change
+    hideProperties(flow, ['@b']); // remove a property not in the list
+    assert.deepEqual(flow.getValue('@b-p'), ['@a']); // no change
 
-    hideProperties(job, ['@a']);
-    assert.isUndefined(job.getValue('@b-p'));
+    hideProperties(flow, ['@a']);
+    assert.isUndefined(flow.getValue('@b-p'));
   });
 
   it('show hide Properties with order', function () {
-    let job = new Flow();
-    let aBlock = job.createBlock('a');
+    let flow = new Flow();
+    let aBlock = flow.createBlock('a');
     aBlock._load({
       '#is': 'add',
       '#custom': [
@@ -54,40 +54,40 @@ describe('PropertyOrder', function () {
       properties: [{name: 'a', type: 'string'}],
     };
 
-    let job = new Flow();
+    let flow = new Flow();
 
-    hideGroupProperties(job, descG);
-    hideGroupProperties(job, descG, 'a');
-    assert.isUndefined(job.getValue('@b-p'));
+    hideGroupProperties(flow, descG);
+    hideGroupProperties(flow, descG, 'a');
+    assert.isUndefined(flow.getValue('@b-p'));
 
-    job.load({
+    flow.load({
       '#is': 'add',
       '@b-p': ['a', 'a1', 'b', 'a02', 'b0'],
     });
 
-    hideGroupProperties(job, descG, 'b');
-    assert.deepEqual(job.getValue('@b-p'), ['a', 'a1', 'b', 'a02']);
+    hideGroupProperties(flow, descG, 'b');
+    assert.deepEqual(flow.getValue('@b-p'), ['a', 'a1', 'b', 'a02']);
 
-    hideGroupProperties(job, descG);
-    assert.deepEqual(job.getValue('@b-p'), ['a', 'b']);
+    hideGroupProperties(flow, descG);
+    assert.deepEqual(flow.getValue('@b-p'), ['a', 'b']);
   });
 
   it('moveShownProperty', function () {
-    let job = new Flow();
+    let flow = new Flow();
 
-    moveShownProperty(job, 'a', 'b');
-    assert.isUndefined(job.getValue('@b-p'));
+    moveShownProperty(flow, 'a', 'b');
+    assert.isUndefined(flow.getValue('@b-p'));
 
-    showProperties(job, ['a', 'b', 'c']);
-    assert.deepEqual(job.getValue('@b-p'), ['a', 'b', 'c']);
+    showProperties(flow, ['a', 'b', 'c']);
+    assert.deepEqual(flow.getValue('@b-p'), ['a', 'b', 'c']);
 
-    moveShownProperty(job, 'a', 'b');
-    assert.deepEqual(job.getValue('@b-p'), ['b', 'a', 'c']);
+    moveShownProperty(flow, 'a', 'b');
+    assert.deepEqual(flow.getValue('@b-p'), ['b', 'a', 'c']);
 
-    moveShownProperty(job, 'a', 'b');
-    assert.deepEqual(job.getValue('@b-p'), ['a', 'b', 'c']);
+    moveShownProperty(flow, 'a', 'b');
+    assert.deepEqual(flow.getValue('@b-p'), ['a', 'b', 'c']);
 
-    moveShownProperty(job, 'a', 'a');
-    assert.deepEqual(job.getValue('@b-p'), ['a', 'b', 'c']);
+    moveShownProperty(flow, 'a', 'a');
+    assert.deepEqual(flow.getValue('@b-p'), ['a', 'b', 'c']);
   });
 });

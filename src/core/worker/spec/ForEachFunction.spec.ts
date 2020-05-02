@@ -8,11 +8,11 @@ import {DataMap} from '../../util/DataTypes';
 describe('ForEachFunction', function () {
   it('chain block', function () {
     TestFunctionRunner.clearLog();
-    let job = new Flow();
+    let flow = new Flow();
 
-    let aBlock = job.createBlock('a');
-    let bBlock = job.createBlock('b');
-    let cBlock = job.createBlock('c');
+    let aBlock = flow.createBlock('a');
+    let bBlock = flow.createBlock('b');
+    let cBlock = flow.createBlock('c');
     aBlock._load({
       '#is': '',
       'obj1': {'#is': '', 'v': 1},
@@ -85,7 +85,7 @@ describe('ForEachFunction', function () {
       },
     });
 
-    job.updateValue('b', null);
+    flow.updateValue('b', null);
     aBlock.updateValue('obj6', {v: 6});
 
     Root.run();
@@ -96,11 +96,11 @@ describe('ForEachFunction', function () {
   });
 
   it('watch object', function () {
-    let job = new Flow();
+    let flow = new Flow();
 
-    let bBlock = job.createBlock('b');
+    let bBlock = flow.createBlock('b');
 
-    job.updateValue('a', {obj1: {v: 1}, obj2: {v: 2}});
+    flow.updateValue('a', {obj1: {v: 1}, obj2: {v: 2}});
     bBlock._load({
       '#is': 'foreach',
       '~input': '##.a',
@@ -117,7 +117,7 @@ describe('ForEachFunction', function () {
     Root.run();
     assert.deepEqual(bBlock.getValue('#output'), {obj1: {v: 2}, obj2: {v: 3}});
 
-    job.updateValue('a', {obj3: {v: 3}, obj2: {v: 2}});
+    flow.updateValue('a', {obj3: {v: 3}, obj2: {v: 2}});
     Root.run();
     assert.deepEqual(bBlock.getValue('#output'), {obj2: {v: 3}, obj3: {v: 4}});
 
@@ -127,10 +127,10 @@ describe('ForEachFunction', function () {
   });
 
   it('foreach primitive types', function () {
-    let job = new Flow();
+    let flow = new Flow();
 
-    let aBlock = job.createBlock('a');
-    let bBlock = job.createBlock('b');
+    let aBlock = flow.createBlock('a');
+    let bBlock = flow.createBlock('b');
     aBlock._load({
       '#is': '',
       'v1': 1,
@@ -159,17 +159,17 @@ describe('ForEachFunction', function () {
 
     assert.deepEqual(bBlock.getValue('#output'), {v2: 3, v3: 4});
 
-    job.setValue('a', 1);
+    flow.setValue('a', 1);
 
     Root.run();
     assert.isUndefined(bBlock.getValue('#output'), 'clear output when input is no longer Object or Block');
   });
 
   it('clear foreach use', function () {
-    let job = new Flow();
+    let flow = new Flow();
 
-    let aBlock = job.createBlock('a');
-    let bBlock = job.createBlock('b');
+    let aBlock = flow.createBlock('a');
+    let bBlock = flow.createBlock('b');
     aBlock._load({v1: 1});
     bBlock._load({
       '#is': 'foreach',

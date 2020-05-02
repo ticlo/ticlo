@@ -13,7 +13,7 @@ const blankWorker = {
 
 export const FlowEditorConfigGenerators: {[key: string]: typeof BlockProperty} = {
   ...FlowWithSharedConfigGenerators,
-  '#is': ConstTypeConfig('job:editor'),
+  '#is': ConstTypeConfig('flow:editor'),
 };
 export class FlowEditor extends FlowWithShared {
   getCacheKey(funcId: string, data: DataMap): any {
@@ -45,26 +45,26 @@ export class FlowEditor extends FlowWithShared {
     applyChange?: (data: DataMap) => boolean
   ): FlowEditor {
     let prop = parent.getProperty(field);
-    let job: FlowEditor;
+    let flow: FlowEditor;
     if (prop._value instanceof FlowEditor) {
       // do not override the existing one that's being edited
       if (forceLoad) {
-        job = prop._value;
+        flow = prop._value;
       } else {
         return prop._value;
       }
     } else {
-      job = new FlowEditor(parent, null, prop);
-      prop.setOutput(job);
+      flow = new FlowEditor(parent, null, prop);
+      prop.setOutput(flow);
     }
     if (funcId?.startsWith(':') && !applyChange) {
       applyChange = (data: DataMap) => {
-        return WorkerFunction.applyChangeToFunc(job, null, data);
+        return WorkerFunction.applyChangeToFunc(flow, null, data);
       };
     }
-    let success = job.load(src, funcId, applyChange);
+    let success = flow.load(src, funcId, applyChange);
     if (success) {
-      return job;
+      return flow;
     } else {
       return null;
     }
@@ -88,7 +88,7 @@ export class FlowEditor extends FlowWithShared {
       if (newFlow) {
         return newFlow;
       }
-      // reload the existing job only when the previous loading failed
+      // reload the existing flow only when the previous loading failed
       forceReload = true;
     }
 

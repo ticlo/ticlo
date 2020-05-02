@@ -66,7 +66,7 @@ export class AddNewFlow extends LazyUpdateComponent<Props, State> {
     let {visible, onClose, basePath} = this.props;
     let {name, data} = this.formItems;
     return (
-      <Modal title="Add New Flow" visible={visible} onOk={this.addFlow} onCancel={this.onClose}>
+      <Modal title="New Dataflow" visible={visible} onOk={this.addFlow} onCancel={this.onClose}>
         <Form labelCol={{span: 3}} wrapperCol={{span: 21}}>
           {name.render(<Input addonBefore={basePath} onChange={name.onInputChange} />)}
           {data.render(<TextArea onChange={data.onInputChange} />)}

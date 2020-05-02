@@ -167,8 +167,8 @@ export class Functions {
   static setStorage(storage: Storage) {
     _storage = storage;
   }
-  static saveWorkerFunction(funcId: string, job: Flow, data: DataMap) {
-    _storage?.saveFlow(`#.${funcId.substring(1)}`, job, data);
+  static saveWorkerFunction(funcId: string, flow: Flow, data: DataMap) {
+    _storage?.saveFlow(`#.${funcId.substring(1)}`, flow, data);
   }
   static deleteFunction(funcId: string) {
     _storage?.deleteFlow(`#.${funcId.substring(1)}`);

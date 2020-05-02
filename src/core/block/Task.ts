@@ -22,7 +22,7 @@ export class Task {
   }
 
   /**
-   * called when the task is completed, it ignores the keepOrder parameter and called at the order job is done, not the same order as emitted output
+   * called when the task is completed, it ignores the keepOrder parameter and called at the order flow is done, not the same order as emitted output
    * @param worker
    * @param output
    */

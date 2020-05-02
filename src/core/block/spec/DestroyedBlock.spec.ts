@@ -10,12 +10,12 @@ import {_strictMode} from '../BlockSettings';
 describe('Destroyed Block', function () {
   it('throw on destroyed block in strict mode', function () {
     if (_strictMode) {
-      let job = new Flow();
+      let flow = new Flow();
 
-      let block = job.createBlock('a');
-      let propB = job.getProperty('b');
+      let block = flow.createBlock('a');
+      let propB = flow.getProperty('b');
 
-      job.setValue('a', null);
+      flow.setValue('a', null);
 
       assert(block.isDestroyed(), 'block should be destroyed');
 
@@ -33,12 +33,12 @@ describe('Destroyed Block', function () {
 
   it('void on destroyed block in normal mode', function () {
     if (!_strictMode) {
-      let job = new Flow();
+      let flow = new Flow();
 
-      let block = job.createBlock('a');
-      let propB = job.getProperty('b');
+      let block = flow.createBlock('a');
+      let propB = flow.getProperty('b');
 
-      job.setValue('a', null);
+      flow.setValue('a', null);
 
       assert(block.isDestroyed(), 'block should be destroyed');
 

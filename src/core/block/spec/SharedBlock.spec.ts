@@ -8,45 +8,45 @@ describe('SharedBlock', function () {
   it('basic', function () {
     let data = {'#is': '', '#shared': {'#is': ''}};
 
-    let job1 = new FlowWithShared();
-    job1.load(data);
-    let sharedBlock: SharedBlock = job1.getValue('#shared');
+    let flow1 = new FlowWithShared();
+    flow1.load(data);
+    let sharedBlock: SharedBlock = flow1.getValue('#shared');
     assert.instanceOf(sharedBlock, SharedBlock);
     assert.equal(sharedBlock._cacheKey, data['#shared']);
 
-    let job2 = new FlowWithShared();
-    job2.load(data);
-    assert.equal(job2.getValue('#shared'), sharedBlock);
+    let flow2 = new FlowWithShared();
+    flow2.load(data);
+    assert.equal(flow2.getValue('#shared'), sharedBlock);
 
-    job1.destroy();
+    flow1.destroy();
     assert.isFalse(sharedBlock._destroyed);
-    job2.destroy();
+    flow2.destroy();
     assert.isTrue(sharedBlock._destroyed);
   });
 
   it('save load', function () {
     let data = {'#is': '', '#shared': {'#is': ''}};
 
-    let job = new FlowWithShared();
-    job.load(data);
-    let sharedBlock: SharedBlock = job.getValue('#shared');
+    let flow = new FlowWithShared();
+    flow.load(data);
+    let sharedBlock: SharedBlock = flow.getValue('#shared');
     let sharedProp = sharedBlock._prop;
     sharedBlock.setValue('v', 1);
     sharedBlock.setValue('#custom', [{name: 'v', type: 'string'}]);
 
-    let saved = job.save();
+    let saved = flow.save();
     assert.deepEqual(saved, {'#is': '', '#shared': {'#is': '', 'v': 1, '#custom': [{name: 'v', type: 'string'}]}});
 
     sharedBlock.setValue('v', 2);
 
-    job.liveUpdate(saved);
+    flow.liveUpdate(saved);
     assert.equal(sharedBlock.getValue('v'), 1);
 
-    job.liveUpdate({'#is': ''});
+    flow.liveUpdate({'#is': ''});
     assert.isUndefined(sharedBlock.getValue('v'));
-    assert.deepEqual(job.save(), {'#is': ''});
+    assert.deepEqual(flow.save(), {'#is': ''});
 
-    job.destroy();
+    flow.destroy();
     assert.isUndefined(sharedProp.getValue());
   });
 
@@ -54,17 +54,17 @@ describe('SharedBlock', function () {
     let data = {'#is': '', '#shared': {'#is': '', '#cacheMode': 'persist'}};
     WorkerFunction.registerType(data, {name: 'cacheModeWorker1', properties: []}, 'SharedBlock');
 
-    let job = new WorkerFlow();
-    job.load(data, 'SharedBlock:cacheModeWorker1');
-    assert.deepEqual(job.save(), data);
+    let flow = new WorkerFlow();
+    flow.load(data, 'SharedBlock:cacheModeWorker1');
+    assert.deepEqual(flow.save(), data);
 
-    let sharedBlock: SharedBlock = job.getValue('#shared');
+    let sharedBlock: SharedBlock = flow.getValue('#shared');
     assert.instanceOf(sharedBlock, SharedBlock);
     let sharedProp = sharedBlock._prop;
 
-    assert.deepEqual(job.save(), data);
+    assert.deepEqual(flow.save(), data);
 
-    job.destroy();
+    flow.destroy();
     assert.equal(sharedProp.getValue(), sharedBlock);
 
     // destroy persisted SharedBlock only when function is destroyed

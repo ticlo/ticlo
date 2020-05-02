@@ -6,12 +6,12 @@ import {FrameClientConnection} from '../FrameClientConnection';
 
 describe('FrameConnection', function () {
   it('basic', async function () {
-    let job = Root.instance.addFlow('FrameConnect1');
+    let flow = Root.instance.addFlow('FrameConnect1');
     let server = new FrameServerConnection(window, Root.instance);
     let client = new FrameClientConnection(window, false);
 
-    job.setValue('o', 1);
-    job.setBinding('a', 'o');
+    flow.setValue('o', 1);
+    flow.setBinding('a', 'o');
 
     let subcallbacks = new AsyncClientPromise();
     client.subscribe('FrameConnect1.a', subcallbacks);

@@ -48,21 +48,21 @@ export class WorkerFunction extends BlockFunction {
   /**
    * save the worker to a function
    */
-  static applyChangeToFunc(job: Flow, funcId: string, data?: DataMap) {
+  static applyChangeToFunc(flow: Flow, funcId: string, data?: DataMap) {
     if (!data) {
-      data = job.save();
+      data = flow.save();
     }
     if (!funcId) {
-      funcId = job._loadFrom;
+      funcId = flow._loadFrom;
     }
     if (!funcId) {
       return false;
     }
     let desc = WorkerFunction.collectDesc(funcId, data);
     if (funcId.startsWith(':')) {
-      Functions.saveWorkerFunction(funcId, job, data);
+      Functions.saveWorkerFunction(funcId, flow, data);
     }
-    WorkerFunction.registerType(data, desc, job._namespace);
+    WorkerFunction.registerType(data, desc, flow._namespace);
     return true;
   }
 

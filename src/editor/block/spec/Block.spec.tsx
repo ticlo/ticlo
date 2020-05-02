@@ -21,8 +21,8 @@ describe('editor BlockStage', function () {
   });
 
   it('single block', async function () {
-    let job = Root.instance.addFlow('BlockStage1');
-    job.load({
+    let flow = Root.instance.addFlow('BlockStage1');
+    flow.load({
       add: {
         '#is': 'add',
         '0': 1,
@@ -55,12 +55,12 @@ describe('editor BlockStage', function () {
     assert.isNotNull(querySingle('//div.tico-icon-svg.tico-fas-plus', div));
 
     // test value update
-    job.queryProperty('add.0').updateValue(5);
+    flow.queryProperty('add.0').updateValue(5);
     await shouldHappen(() => querySingle("//div.ticl-field-name[text()='0']/../div.ticl-field-value[text()='5']", div));
     assert.isNotNull(querySingle("//div.ticl-field-name[text()='#output']/../div.ticl-field-value[text()='7']", div));
 
     // test change type
-    job.queryProperty('add.#is').setValue('subtract');
+    flow.queryProperty('add.#is').setValue('subtract');
     await shouldHappen(() =>
       querySingle("//div.ticl-field-name[text()='#output']/../div.ticl-field-value[text()='3']", div)
     );
@@ -71,8 +71,8 @@ describe('editor BlockStage', function () {
   });
 
   it('drag block', async function () {
-    let job = Root.instance.addFlow('BlockStage2');
-    job.load({
+    let flow = Root.instance.addFlow('BlockStage2');
+    flow.load({
       add: {
         '#is': 'add',
         '@b-xyw': [123, 234, 345],
@@ -111,7 +111,7 @@ describe('editor BlockStage', function () {
     // mouse up to stop dragging
     SimulateEvent.simulate(document.body, 'mouseup');
 
-    await shouldHappen(() => arrayEqual(job.queryValue('add.@b-xyw'), [223, 334, 345]));
+    await shouldHappen(() => arrayEqual(flow.queryValue('add.@b-xyw'), [223, 334, 345]));
 
     // mouse move no longer drag block
     SimulateEvent.simulate(document.body, 'mousemove', {
@@ -124,8 +124,8 @@ describe('editor BlockStage', function () {
   });
 
   it('drag block size', async function () {
-    let job = Root.instance.addFlow('BlockStage3');
-    job.load({
+    let flow = Root.instance.addFlow('BlockStage3');
+    flow.load({
       add: {
         '#is': 'add',
         '@b-xyw': [123, 234, 345],
@@ -154,7 +154,7 @@ describe('editor BlockStage', function () {
 
     await shouldHappen(() => block.offsetWidth === 445);
 
-    await shouldHappen(() => arrayEqual(job.queryValue('add.@b-xyw'), [123, 234, 445]));
+    await shouldHappen(() => arrayEqual(flow.queryValue('add.@b-xyw'), [123, 234, 445]));
 
     // mouse up to stop dragging
     SimulateEvent.simulate(document.body, 'mouseup');
@@ -163,8 +163,8 @@ describe('editor BlockStage', function () {
   });
 
   it('min block and wire', async function () {
-    let job = Root.instance.addFlow('BlockStage4');
-    job.load({
+    let flow = Root.instance.addFlow('BlockStage4');
+    flow.load({
       add: {
         '#is': 'add',
         '0': 1,
@@ -220,23 +220,23 @@ describe('editor BlockStage', function () {
     await shouldHappen(() => addBlock.offsetWidth === 143);
 
     // wire should disappear when source not in stage
-    job.queryProperty('subtract.0').setBinding('##.unknown');
+    flow.queryProperty('subtract.0').setBinding('##.unknown');
     await shouldHappen(() => div.querySelector('svg.ticl-block-wire') == null);
 
     // wire should be back when binding is set again
-    job.queryProperty('subtract.0').setBinding('##.add.1');
+    flow.queryProperty('subtract.0').setBinding('##.add.1');
     await shouldHappen(() => div.querySelector('svg.ticl-block-wire'));
 
     // wire should disappear when unbound
-    job.queryProperty('subtract.0').setValue(1);
+    flow.queryProperty('subtract.0').setValue(1);
     await shouldHappen(() => div.querySelector('svg.ticl-block-wire') == null);
 
     Root.instance.deleteValue('BlockStage4');
   });
 
   it('rect select', async function () {
-    let job = Root.instance.addFlow('BlockStage5');
-    job.load({
+    let flow = Root.instance.addFlow('BlockStage5');
+    flow.load({
       add: {
         '#is': 'add',
         '@b-xyw': [100, 100, 100],
@@ -296,9 +296,9 @@ describe('editor BlockStage', function () {
   });
 
   it('automatic assign xy', async function () {
-    let job = Root.instance.addFlow('BlockStage6');
+    let flow = Root.instance.addFlow('BlockStage6');
     for (let i = 0; i < 10; ++i) {
-      job.createBlock(`a${i}`);
+      flow.createBlock(`a${i}`);
     }
 
     let [server, client] = makeLocalConnection(Root.instance);

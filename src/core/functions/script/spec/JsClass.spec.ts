@@ -7,9 +7,9 @@ import {Logger} from '../../../util/Logger';
 
 describe('Js Type', function () {
   it('basic', function () {
-    let job = new Flow();
+    let flow = new Flow();
 
-    let aBlock = job.createBlock('a');
+    let aBlock = flow.createBlock('a');
     aBlock.setValue('in1', 321);
     aBlock.setValue('#is', 'Js-type1');
 
@@ -29,9 +29,9 @@ describe('Js Type', function () {
   });
 
   it('unregister class', function () {
-    let job = new Flow();
+    let flow = new Flow();
 
-    let aBlock = job.createBlock('a');
+    let aBlock = flow.createBlock('a');
     aBlock.setValue('#is', 'Js-type2');
     JsFunction.registerType('this["out1"] = 1', {name: 'Js-type2'});
 
@@ -51,9 +51,9 @@ describe('Js Type', function () {
   });
 
   it('trivial', function () {
-    let job = new Flow();
+    let flow = new Flow();
 
-    let aBlock = job.createBlock('a');
+    let aBlock = flow.createBlock('a');
     Functions.clear('');
     assert.deepEqual(Functions.getDescToSend(''), [null, 0]);
     assert.isUndefined(Functions.listen('', aBlock), 'listen without class name');

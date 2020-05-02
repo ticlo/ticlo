@@ -44,10 +44,10 @@ describe('HandlerFunction', function () {
   });
 
   it('basic', function () {
-    let job = new Flow();
+    let flow = new Flow();
 
     let listener = new HandlerListener();
-    let aBlock = job.createBlock('a');
+    let aBlock = flow.createBlock('a');
 
     aBlock.getProperty('#emit').listen(listener);
     aBlock._load({
@@ -61,14 +61,14 @@ describe('HandlerFunction', function () {
     assert.deepEqual(listener.emits, [WAIT, 2]);
 
     // delete handler;
-    job.deleteValue('a');
+    flow.deleteValue('a');
   });
 
   it('syncInput', function () {
-    let job = new Flow();
+    let flow = new Flow();
 
     let listener = new HandlerListener();
-    let aBlock = job.createBlock('a');
+    let aBlock = flow.createBlock('a');
 
     aBlock.getProperty('#emit').listen(listener);
     aBlock._load({
@@ -88,14 +88,14 @@ describe('HandlerFunction', function () {
     assert.lengthOf(TestFunctionRunner.popLogs(), 4);
 
     // delete handler;
-    job.deleteValue('a');
+    flow.deleteValue('a');
   });
 
   it('thread non-reuse', function () {
-    let job = new Flow();
+    let flow = new Flow();
 
     let listener = new HandlerListener();
-    let aBlock = job.createBlock('a');
+    let aBlock = flow.createBlock('a');
 
     aBlock.getProperty('#emit').listen(listener);
     aBlock._load({
@@ -115,14 +115,14 @@ describe('HandlerFunction', function () {
     assert.lengthOf(TestFunctionRunner.popLogs(), 4);
 
     // delete handler;
-    job.deleteValue('a');
+    flow.deleteValue('a');
   });
 
   it('thread reuse', function () {
-    let job = new Flow();
+    let flow = new Flow();
 
     let listener = new HandlerListener();
-    let aBlock = job.createBlock('a');
+    let aBlock = flow.createBlock('a');
 
     aBlock.getProperty('#emit').listen(listener);
     aBlock._load({
@@ -149,14 +149,14 @@ describe('HandlerFunction', function () {
     assert.lengthOf(TestFunctionRunner.popLogs(), 1); // a new worker is created
 
     // delete handler;
-    job.deleteValue('a');
+    flow.deleteValue('a');
   });
 
   it('thread persist', function () {
-    let job = new Flow();
+    let flow = new Flow();
 
     let listener = new HandlerListener();
-    let aBlock = job.createBlock('a');
+    let aBlock = flow.createBlock('a');
 
     aBlock.getProperty('#emit').listen(listener);
     aBlock._load({
@@ -183,14 +183,14 @@ describe('HandlerFunction', function () {
     assert.isEmpty(TestFunctionRunner.popLogs()); // no new worker is created
 
     // delete handler;
-    job.deleteValue('a');
+    flow.deleteValue('a');
   });
 
   it('keepOrder', async function () {
-    let job = new Flow();
+    let flow = new Flow();
 
     let listener = new HandlerListener(true);
-    let aBlock = job.createBlock('a');
+    let aBlock = flow.createBlock('a');
 
     aBlock.getProperty('#emit').listen(listener);
     aBlock._load({
@@ -220,14 +220,14 @@ describe('HandlerFunction', function () {
     assert.deepEqual(listener.emits, [5, 4, 3, 2, 1]);
 
     // delete handler;
-    job.deleteValue('a');
+    flow.deleteValue('a');
   });
 
   it('timeout', async function () {
-    let job = new Flow();
+    let flow = new Flow();
 
     let listener = new HandlerListener();
-    let aBlock = job.createBlock('a');
+    let aBlock = flow.createBlock('a');
 
     aBlock.getProperty('#emit').listen(listener);
     aBlock._load({
@@ -253,14 +253,14 @@ describe('HandlerFunction', function () {
     await shouldHappen(() => listener.emits.length >= 5);
 
     // delete handler;
-    job.deleteValue('a');
+    flow.deleteValue('a');
   });
 
   it('maxQueueSize', async function () {
-    let job = new Flow();
+    let flow = new Flow();
 
     let listener = new HandlerListener(true);
-    let aBlock = job.createBlock('a');
+    let aBlock = flow.createBlock('a');
 
     aBlock.getProperty('#emit').listen(listener);
     aBlock._load({
@@ -284,13 +284,13 @@ describe('HandlerFunction', function () {
     assert.deepEqual(listener.emits, [5, 2, 1]);
 
     // delete handler;
-    job.deleteValue('a');
+    flow.deleteValue('a');
   });
 
   it('chain handler blocks', async function () {
-    let job = new Flow();
+    let flow = new Flow();
 
-    job.load({
+    flow.load({
       a: {
         '#is': 'handler',
         'use': handlerWorker,
@@ -303,9 +303,9 @@ describe('HandlerFunction', function () {
     });
     let listener = new HandlerListener();
 
-    let aBlock = job.getValue('a');
+    let aBlock = flow.getValue('a');
 
-    job.queryProperty('b.#emit', true).listen(listener);
+    flow.queryProperty('b.#emit', true).listen(listener);
 
     aBlock.setValue('#call', 4);
     aBlock.setValue('#call', 3);
@@ -315,14 +315,14 @@ describe('HandlerFunction', function () {
 
     assert.lengthOf(TestFunctionRunner.popLogs(), 4);
     // delete handler;
-    job.deleteValue('a');
+    flow.deleteValue('a');
   });
 
   it('misc', async function () {
-    let job = new Flow();
+    let flow = new Flow();
 
     let listener = new HandlerListener(true);
-    let aBlock = job.createBlock('a');
+    let aBlock = flow.createBlock('a');
 
     aBlock.getProperty('#emit').listen(listener);
     aBlock._load({
@@ -351,6 +351,6 @@ describe('HandlerFunction', function () {
     assert.deepEqual(listener.emits, [5, 3]);
 
     // delete handler;
-    job.deleteValue('a');
+    flow.deleteValue('a');
   });
 });

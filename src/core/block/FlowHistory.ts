@@ -20,24 +20,24 @@ export class FlowHistory {
   setUndo(hasUndo: boolean) {
     if (hasUndo !== this._hasUndo) {
       this._hasUndo = hasUndo;
-      this.job.updateValue('@has-undo', hasUndo || undefined); // true or undefined
+      this.flow.updateValue('@has-undo', hasUndo || undefined); // true or undefined
     }
   }
   setRedo(hasRedo: boolean) {
     if (hasRedo !== this._hasRedo) {
       this._hasRedo = hasRedo;
-      this.job.updateValue('@has-redo', hasRedo || undefined); // true or undefined
+      this.flow.updateValue('@has-redo', hasRedo || undefined); // true or undefined
     }
   }
 
   setHasChange(hasChange: boolean) {
     if (hasChange !== this._hasChange) {
       this._hasChange = hasChange;
-      this.job.updateValue('@has-change', hasChange || undefined); // true or undefined
+      this.flow.updateValue('@has-change', hasChange || undefined); // true or undefined
     }
   }
 
-  constructor(public job: Flow, savedData?: DataMap) {
+  constructor(public flow: Flow, savedData?: DataMap) {
     if (savedData) {
       this._savedData = savedData;
       let cachedHistory = _historyCache.get(savedData);
@@ -50,8 +50,8 @@ export class FlowHistory {
         this._history = [savedData];
       }
     } else {
-      let data = job.save();
-      if (!job.getValue('@has-change')) {
+      let data = flow.save();
+      if (!flow.getValue('@has-change')) {
         this._savedData = data;
       }
       this._history = [data];
@@ -69,12 +69,12 @@ export class FlowHistory {
   }
 
   applyData(data: DataMap) {
-    this.job.liveUpdate(data);
+    this.flow.liveUpdate(data);
     this.checkUndoRedo(data);
   }
 
   save() {
-    let data = this.job.save();
+    let data = this.flow.save();
     if (this.checkAndAdd(data)) {
       this._savedData = data;
     } else {
@@ -87,7 +87,7 @@ export class FlowHistory {
 
   undo() {
     if (this._tracking) {
-      this.checkAndAdd(this.job.save());
+      this.checkAndAdd(this.flow.save());
     }
     if (this._current > 0) {
       --this._current;
@@ -127,7 +127,7 @@ export class FlowHistory {
   }
   _trackChangeCallback = debounce(() => {
     this._tracking = false;
-    this.checkAndAdd(this.job.save());
+    this.checkAndAdd(this.flow.save());
   }, FlowHistory._debounceInterval);
 
   _tracking = false;

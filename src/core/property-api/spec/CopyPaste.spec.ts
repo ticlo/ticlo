@@ -16,36 +16,36 @@ describe('Copy Paste', function () {
   };
 
   it('basic', function () {
-    let job1 = new WorkerFlow();
+    let flow1 = new WorkerFlow();
 
-    job1.load(data);
-    let copied = copyProperties(job1, ['add', '#shared.subtract']) as DataMap;
+    flow1.load(data);
+    let copied = copyProperties(flow1, ['add', '#shared.subtract']) as DataMap;
     assert.deepEqual(copied, copy);
 
-    let job2 = new WorkerFlow();
-    assert.deepEqual(pasteProperties(job2, copied), ['add', '#shared.subtract']);
-    assert.deepEqual(job2.save(), data);
+    let flow2 = new WorkerFlow();
+    assert.deepEqual(pasteProperties(flow2, copied), ['add', '#shared.subtract']);
+    assert.deepEqual(flow2.save(), data);
 
-    deleteProperties(job1, ['add', '#shared.subtract']);
-    assert.deepEqual(job1.save(), {'#is': ''});
+    deleteProperties(flow1, ['add', '#shared.subtract']);
+    assert.deepEqual(flow1.save(), {'#is': ''});
 
-    job1.destroy();
-    job2.destroy();
+    flow1.destroy();
+    flow2.destroy();
   });
 
   it('rename', function () {
-    let job1 = new WorkerFlow();
-    job1.load(data);
+    let flow1 = new WorkerFlow();
+    flow1.load(data);
 
-    job1.createBlock('divide')._load({'#is': 'divide', '~0': '##.add.0', '@b-xyw': 'add'});
+    flow1.createBlock('divide')._load({'#is': 'divide', '~0': '##.add.0', '@b-xyw': 'add'});
 
-    let copied1 = copyProperties(job1, ['add', 'divide']) as DataMap;
-    let copied2 = copyProperties(job1, ['#shared.subtract']) as DataMap;
+    let copied1 = copyProperties(flow1, ['add', 'divide']) as DataMap;
+    let copied2 = copyProperties(flow1, ['#shared.subtract']) as DataMap;
 
-    pasteProperties(job1, copied1, 'rename');
-    pasteProperties(job1, copied2, 'rename');
+    pasteProperties(flow1, copied1, 'rename');
+    pasteProperties(flow1, copied2, 'rename');
 
-    assert.deepEqual(job1.save(), {
+    assert.deepEqual(flow1.save(), {
       '#is': '',
       '#shared': {
         '#is': '',
@@ -58,19 +58,19 @@ describe('Copy Paste', function () {
       'divide0': {'#is': 'divide', '~0': '##.add0.0', '@b-xyw': 'add0'},
     });
 
-    job1.destroy();
+    flow1.destroy();
   });
 
   it('invalid copy paste', function () {
-    let job1 = new WorkerFlow();
-    assert.equal(copyProperties(job1, ['add', '#shared.subtract']), 'nothing to copy');
-    assert.equal(pasteProperties(job1, null), 'invalid data');
-    assert.equal(pasteProperties(job1, []), 'invalid data');
-    assert.equal(pasteProperties(job1, 1 as any), 'invalid data');
+    let flow1 = new WorkerFlow();
+    assert.equal(copyProperties(flow1, ['add', '#shared.subtract']), 'nothing to copy');
+    assert.equal(pasteProperties(flow1, null), 'invalid data');
+    assert.equal(pasteProperties(flow1, []), 'invalid data');
+    assert.equal(pasteProperties(flow1, 1 as any), 'invalid data');
 
-    job1.load(data);
-    assert.isTrue((pasteProperties(job1, copy) as string).startsWith('block already exists: '));
+    flow1.load(data);
+    assert.isTrue((pasteProperties(flow1, copy) as string).startsWith('block already exists: '));
 
-    assert.equal(pasteProperties(job1.getValue('add'), copy), '#shared properties not allowed in this Block');
+    assert.equal(pasteProperties(flow1.getValue('add'), copy), '#shared properties not allowed in this Block');
   });
 });

@@ -59,9 +59,9 @@ class TestTask extends Task {
 
 describe('TaskHandlerFunction', function () {
   it('basic', function () {
-    let job = new Flow();
+    let flow = new Flow();
 
-    let aBlock = job.createBlock('a');
+    let aBlock = flow.createBlock('a');
 
     aBlock._load({
       '#is': 'handler',
@@ -75,13 +75,13 @@ describe('TaskHandlerFunction', function () {
     assert.deepEqual(TestTask.popLogs(), [2]);
 
     // delete handler;
-    job.deleteValue('a');
+    flow.deleteValue('a');
   });
 
   it('timeout', async function () {
-    let job = new Flow();
+    let flow = new Flow();
 
-    let aBlock = job.createBlock('a');
+    let aBlock = flow.createBlock('a');
 
     aBlock._load({
       '#is': 'handler',
@@ -96,13 +96,13 @@ describe('TaskHandlerFunction', function () {
     assert.deepEqual(TestTask.popLogs(), ['timeout']);
 
     // delete handler;
-    job.deleteValue('a');
+    flow.deleteValue('a');
   });
 
   it('cancel', async function () {
-    let job = new Flow();
+    let flow = new Flow();
 
-    let aBlock = job.createBlock('a');
+    let aBlock = flow.createBlock('a');
 
     aBlock._load({
       '#is': 'handler',
@@ -117,6 +117,6 @@ describe('TaskHandlerFunction', function () {
     assert.deepEqual(TestTask.popLogs(), ['cancel']);
 
     // delete handler;
-    job.deleteValue('a');
+    flow.deleteValue('a');
   });
 });

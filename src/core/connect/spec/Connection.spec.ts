@@ -17,9 +17,9 @@ import {WorkerFlow} from '../../worker/WorkerFlow';
 
 describe('Connection', function () {
   it('get', async function () {
-    let job = Root.instance.addFlow('Connection0');
+    let flow = Root.instance.addFlow('Connection0');
     let data = {a: 0};
-    job.setValue('v', data);
+    flow.setValue('v', data);
 
     let [server, client] = makeLocalConnection(Root.instance, false);
 
@@ -35,11 +35,11 @@ describe('Connection', function () {
   });
 
   it('subscribe', async function () {
-    let job = Root.instance.addFlow('Connection1');
+    let flow = Root.instance.addFlow('Connection1');
     let [server, client] = makeLocalConnection(Root.instance, false);
 
     await client.addBlock('Connection1.block1', {'#is': 'add'});
-    assert.equal(job.queryValue('block1.#is'), 'add', 'basic set');
+    assert.equal(flow.queryValue('block1.#is'), 'add', 'basic set');
 
     let callbacks = new AsyncClientPromise();
     client.subscribe('Connection1.block1.#output', callbacks);
@@ -58,34 +58,34 @@ describe('Connection', function () {
   });
 
   it('bind', async function () {
-    let job = Root.instance.addFlow('Connection1-2');
+    let flow = Root.instance.addFlow('Connection1-2');
     let [server, client] = makeLocalConnection(Root.instance, false);
 
-    job.setValue('a', 3);
-    job.setValue('b', 'b');
-    job.setValue('o', [{p: 'p'}]);
+    flow.setValue('a', 3);
+    flow.setValue('b', 'b');
+    flow.setValue('o', [{p: 'p'}]);
     await client.setBinding('Connection1-2.v', 'a', false, true);
-    assert.equal(job.getValue('v'), 3);
+    assert.equal(flow.getValue('v'), 3);
     await client.setBinding('Connection1-2.v', 'Connection1-2.b', true, true);
-    assert.equal(job.getValue('v'), 'b');
+    assert.equal(flow.getValue('v'), 'b');
     await client.setBinding('Connection1-2.v', 'Connection1-2.o..0.p', true, true);
-    assert.equal(job.getValue('v'), 'p');
+    assert.equal(flow.getValue('v'), 'p');
 
     await client.setBinding('Connection1-2.v', null, false, true);
-    assert.equal(job.getValue('v'), undefined);
+    assert.equal(flow.getValue('v'), undefined);
 
     await client.setBinding('Connection1-2.v', 'a', false, true);
     // clear binding but keep value (when it's primitive)
     await client.setBinding('Connection1-2.v', null, true, true);
-    assert.equal(job.getValue('v'), 3);
+    assert.equal(flow.getValue('v'), 3);
 
     // binding from global block
     let a = Root.instance._globalRoot.createBlock('^g');
     a.setValue('0', 'global');
 
     await client.setBinding('Connection1-2.v', '#global.^g.0', true, true);
-    assert.equal(job.getValue('v'), 'global');
-    assert.equal(job.getProperty('v')._bindingPath, '^g.0');
+    assert.equal(flow.getValue('v'), 'global');
+    assert.equal(flow.getProperty('v')._bindingPath, '^g.0');
 
     // clear #global
     Root.instance._globalRoot._liveUpdate({});
@@ -94,7 +94,7 @@ describe('Connection', function () {
   });
 
   it('multiple subscribe binding', async function () {
-    let job = Root.instance.addFlow('Connection2');
+    let flow = Root.instance.addFlow('Connection2');
     let [server, client] = makeLocalConnection(Root.instance, false);
 
     client.setBinding('Connection2.p', 'p0');
@@ -131,7 +131,7 @@ describe('Connection', function () {
     client.setValue('Connection2.p2', 'world');
     await client.setBinding('Connection2.p', 'p2', false, true);
     assert.equal(callbacks1.promise, cachedPromise1, "promise shouldn't be updated after unsubscribe");
-    assert.isEmpty(job.getProperty('p')._listeners, 'property not listened after unsubscribe');
+    assert.isEmpty(flow.getProperty('p')._listeners, 'property not listened after unsubscribe');
 
     // clean up
     callbacks1.cancel();
@@ -142,10 +142,10 @@ describe('Connection', function () {
   });
 
   it('watch', async function () {
-    let job = Root.instance.addFlow('Connection3-0');
+    let flow = Root.instance.addFlow('Connection3-0');
     let [server, client] = makeLocalConnection(Root.instance, false);
 
-    let child0 = job.createBlock('c0');
+    let child0 = flow.createBlock('c0');
 
     let callbacks1 = new AsyncClientPromise();
     client.watch('Connection3-0', callbacks1);
@@ -153,15 +153,15 @@ describe('Connection', function () {
     assert.deepEqual(result1.changes, {c0: child0._blockId}, 'initial value');
     assert.deepEqual(result1.cache, {c0: child0._blockId}, 'initial cache');
 
-    job.deleteValue('c0');
+    flow.deleteValue('c0');
     let result2 = await callbacks1.promise;
     assert.deepEqual(result2.changes, {c0: null}, 'delete value');
 
-    let child1 = job.createBlock('c1');
+    let child1 = flow.createBlock('c1');
     let result3 = await callbacks1.promise;
     assert.deepEqual(result3.changes, {c1: child1._blockId});
 
-    job.deleteValue('c1');
+    flow.deleteValue('c1');
     let result4 = await callbacks1.promise;
     assert.deepEqual(result4.changes, {c1: null});
 
@@ -172,10 +172,10 @@ describe('Connection', function () {
   });
 
   it('multiple watch', async function () {
-    let job = Root.instance.addFlow('Connection3');
+    let flow = Root.instance.addFlow('Connection3');
     let [server, client] = makeLocalConnection(Root.instance, false);
 
-    let child0 = job.createBlock('c0');
+    let child0 = flow.createBlock('c0');
 
     let callbacks1 = new AsyncClientPromise();
     client.watch('Connection3', callbacks1);
@@ -189,8 +189,8 @@ describe('Connection', function () {
     assert.deepEqual(result2.changes, {c0: child0._blockId}, 'initial value');
     assert.deepEqual(result2.cache, {c0: child0._blockId}, 'initial cache');
 
-    let child1 = job.createBlock('c1');
-    job.createOutputBlock('t1'); // temp block shouldn't show in watch result
+    let child1 = flow.createBlock('c1');
+    flow.createOutputBlock('t1'); // temp block shouldn't show in watch result
     [result1, result2] = await Promise.all([callbacks1.promise, callbacks2.promise]);
     assert.deepEqual(result1.changes, {c1: child1._blockId}, 'add block changes');
     assert.deepEqual(result1.cache, {c0: child0._blockId, c1: child1._blockId}, 'add block cache');
@@ -209,7 +209,7 @@ describe('Connection', function () {
 
     await client.addBlock('Connection3.c2');
     assert.equal(callbacks1.promise, cachedPromise1, "promise shouldn't be updated after unwatch");
-    assert.isNull(job._watchers, 'job not watched after unwatch');
+    assert.isNull(flow._watchers, 'flow not watched after unwatch');
 
     // clean up
     callbacks1.cancel();
@@ -219,12 +219,12 @@ describe('Connection', function () {
   });
 
   it('list', async function () {
-    let job = Root.instance.addFlow('Connection4');
+    let flow = Root.instance.addFlow('Connection4');
     let [server, client] = makeLocalConnection(Root.instance, false);
 
     for (let i = 0; i < 100; ++i) {
-      job.createBlock('a' + i);
-      job.createBlock('b' + i);
+      flow.createBlock('a' + i);
+      flow.createBlock('b' + i);
     }
 
     let result1 = await client.listChildren('Connection4', null, 32);
@@ -243,7 +243,7 @@ describe('Connection', function () {
   });
 
   it('watchDesc', async function () {
-    let job = Root.instance.addFlow('Connection5');
+    let flow = Root.instance.addFlow('Connection5');
     let [server, client] = makeLocalConnection(Root.instance, true);
 
     let descCustom: FunctionDesc;
@@ -283,10 +283,10 @@ describe('Connection', function () {
   it('merge set request', async function () {
     TestFunctionRunner.clearLog();
 
-    let job = Root.instance.addFlow('Connection6');
+    let flow = Root.instance.addFlow('Connection6');
     let [server, client] = makeLocalConnection(Root.instance, false);
 
-    let b = job.createBlock('b');
+    let b = flow.createBlock('b');
     b.setValue('#mode', 'onCall');
     b.setValue('#sync', true);
     b.setValue('#-log', 0);
@@ -318,10 +318,10 @@ describe('Connection', function () {
   it('merge update request', async function () {
     TestFunctionRunner.clearLog();
 
-    let job = Root.instance.addFlow('Connection6-2');
+    let flow = Root.instance.addFlow('Connection6-2');
     let [server, client] = makeLocalConnection(Root.instance, false);
 
-    let b = job.createBlock('b');
+    let b = flow.createBlock('b');
     b.updateValue('#mode', 'onCall');
     b.updateValue('#sync', true);
     b.updateValue('#-log', 0);
@@ -353,10 +353,10 @@ describe('Connection', function () {
   it('merge bind request', async function () {
     TestFunctionRunner.clearLog();
 
-    let job = Root.instance.addFlow('Connection6-3');
+    let flow = Root.instance.addFlow('Connection6-3');
     let [server, client] = makeLocalConnection(Root.instance, false);
 
-    let b = job.createBlock('b');
+    let b = flow.createBlock('b');
     b.setValue('@1', 1);
     b.setValue('@2', 2);
     b.setValue('@3', 3);
@@ -391,7 +391,7 @@ describe('Connection', function () {
   });
 
   it('subscribe listener', async function () {
-    let job = Root.instance.addFlow('Connection7');
+    let flow = Root.instance.addFlow('Connection7');
     let [server, client] = makeLocalConnection(Root.instance, false);
 
     let lastUpdate: DataMap;
@@ -414,7 +414,7 @@ describe('Connection', function () {
   });
 
   it('callImmediate', async function () {
-    let job = Root.instance.addFlow('Connection8');
+    let flow = Root.instance.addFlow('Connection8');
     let [server, client] = makeLocalConnection(Root.instance, false);
 
     let called = 0;
@@ -451,7 +451,7 @@ describe('Connection', function () {
   });
 
   it('set a saved block', async function () {
-    let job = Root.instance.addFlow('Connection9');
+    let flow = Root.instance.addFlow('Connection9');
     let [server, client] = makeLocalConnection(Root.instance, false);
 
     await client.setValue('Connection9.v', {'#is': 'hello'});
@@ -468,9 +468,9 @@ describe('Connection', function () {
   });
 
   it('auto bind', async function () {
-    let job1 = Root.instance.addFlow('Connection10');
+    let flow1 = Root.instance.addFlow('Connection10');
 
-    job1.load({
+    flow1.load({
       c: {
         '#is': '',
         'd': {'#is': ''},
@@ -488,19 +488,19 @@ describe('Connection', function () {
     client.setBinding('Connection10.c.e.v3', 'Connection10.f.v3', true);
     client.setBinding('Connection10.c.v4', 'Connection10.f.v4', true);
 
-    await shouldHappen(() => job1.queryProperty('c.e.v2', true)._bindingPath === 'v1');
-    await shouldHappen(() => job1.queryProperty('c.e.v1', true)._bindingPath === '##.d.v1');
-    await shouldHappen(() => job1.queryProperty('c.e.v3', true)._bindingPath === '###.f.v3');
-    await shouldHappen(() => job1.queryProperty('c.v4', true)._bindingPath === '##.f.v4');
+    await shouldHappen(() => flow1.queryProperty('c.e.v2', true)._bindingPath === 'v1');
+    await shouldHappen(() => flow1.queryProperty('c.e.v1', true)._bindingPath === '##.d.v1');
+    await shouldHappen(() => flow1.queryProperty('c.e.v3', true)._bindingPath === '###.f.v3');
+    await shouldHappen(() => flow1.queryProperty('c.v4', true)._bindingPath === '##.f.v4');
 
     client.destroy();
     Root.instance.deleteValue('Connection10');
   });
 
   it('full value', async function () {
-    let job1 = Root.instance.addFlow('Connection11');
+    let flow1 = Root.instance.addFlow('Connection11');
 
-    job1.load({
+    flow1.load({
       '@v': [0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
     });
 
@@ -529,31 +529,31 @@ describe('Connection', function () {
   });
 
   it('helper property', async function () {
-    let job1 = Root.instance.addFlow('Connection12');
+    let flow1 = Root.instance.addFlow('Connection12');
 
     let [server, client] = makeLocalConnection(Root.instance, false);
 
     await client.addBlock('Connection12.~a');
 
-    assert.instanceOf(job1.getValue('~a'), Block);
-    assert.equal(job1.getProperty('a')._bindingPath, '~a.#output');
+    assert.instanceOf(flow1.getValue('~a'), Block);
+    assert.equal(flow1.getProperty('a')._bindingPath, '~a.#output');
 
     // transfer property value
     await client.setValue('Connection12.b', 2);
     await client.addBlock('Connection12.~b', {'#is': 'add'});
-    assert.equal(job1.queryValue('~b.0'), 2);
+    assert.equal(flow1.queryValue('~b.0'), 2);
 
     // transfer property binding
     await client.setBinding('Connection12.c', '##.v');
     await client.addBlock('Connection12.~c', {'#is': 'add'});
-    assert.equal(job1.queryProperty('~c.0')._bindingPath, '##.##.v');
+    assert.equal(flow1.queryProperty('~c.0')._bindingPath, '##.##.v');
 
     client.destroy();
     Root.instance.deleteValue('Connection12');
   });
 
   it('autoName', async function () {
-    let job1 = Root.instance.addFlow('Connection13');
+    let flow1 = Root.instance.addFlow('Connection13');
 
     let [server, client] = makeLocalConnection(Root.instance, false);
 
@@ -567,15 +567,15 @@ describe('Connection', function () {
     assert.equal(response3.name, 'a1');
 
     // a a0 a1 should all be created
-    assert.instanceOf(job1.getValue('a1'), Block);
+    assert.instanceOf(flow1.getValue('a1'), Block);
 
     client.destroy();
     Root.instance.deleteValue('Connection13');
   });
 
   it('show hide move props', async function () {
-    let job1 = Root.instance.addFlow('Connection14');
-    let block1 = job1.createBlock('a');
+    let flow1 = Root.instance.addFlow('Connection14');
+    let block1 = flow1.createBlock('a');
 
     let [server, client] = makeLocalConnection(Root.instance, false);
 
@@ -593,8 +593,8 @@ describe('Connection', function () {
   });
 
   it('add remove custom props', async function () {
-    let job1 = Root.instance.addFlow('Connection15');
-    let block1 = job1.createBlock('a');
+    let flow1 = Root.instance.addFlow('Connection15');
+    let block1 = flow1.createBlock('a');
 
     let [server, client] = makeLocalConnection(Root.instance, false);
 
@@ -612,8 +612,8 @@ describe('Connection', function () {
   });
 
   it('insert remove group props', async function () {
-    let job1 = Root.instance.addFlow('Connection16');
-    let block1 = job1.createBlock('a');
+    let flow1 = Root.instance.addFlow('Connection16');
+    let block1 = flow1.createBlock('a');
     block1._load({
       '#is': 'add',
       '0': 0,
@@ -638,8 +638,8 @@ describe('Connection', function () {
   });
 
   it('set length', async function () {
-    let job1 = Root.instance.addFlow('Connection16-2');
-    let block1 = job1.createBlock('a');
+    let flow1 = Root.instance.addFlow('Connection16-2');
+    let block1 = flow1.createBlock('a');
     block1.setValue('#is', 'add');
 
     let [server, client] = makeLocalConnection(Root.instance, false);
@@ -652,8 +652,8 @@ describe('Connection', function () {
   });
 
   it('move custom props', async function () {
-    let job1 = Root.instance.addFlow('Connection17');
-    let block1 = job1.createBlock('a');
+    let flow1 = Root.instance.addFlow('Connection17');
+    let block1 = flow1.createBlock('a');
     block1.setValue('#custom', [
       {name: 'a', type: 'string'},
       {name: 'b', type: 'string'},
@@ -695,8 +695,8 @@ describe('Connection', function () {
   });
 
   it('FlowEditor', async function () {
-    let job1 = Root.instance.addFlow('Connection18');
-    let block1 = job1.createBlock('a');
+    let flow1 = Root.instance.addFlow('Connection18');
+    let block1 = flow1.createBlock('a');
     let data = {
       '#is': '',
       'add': {'#is': 'add'},
@@ -721,15 +721,15 @@ describe('Connection', function () {
   });
 
   it('applyFlowChange', async function () {
-    let job1 = Root.instance.addFlow('Connection19');
+    let flow1 = Root.instance.addFlow('Connection19');
     let [server, client] = makeLocalConnection(Root.instance, true);
 
-    let editor = FlowEditor.create(job1, '#edit-v', {}, null, false, (data: DataMap) => {
-      job1.setValue('v', data);
+    let editor = FlowEditor.create(flow1, '#edit-v', {}, null, false, (data: DataMap) => {
+      flow1.setValue('v', data);
       return true;
     });
     await client.applyFlowChange('Connection19.#edit-v');
-    assert.deepEqual(job1.getValue('v'), {'#is': ''});
+    assert.deepEqual(flow1.getValue('v'), {'#is': ''});
 
     client.destroy();
     Root.instance.deleteValue('Connection19');
@@ -741,8 +741,8 @@ describe('Connection', function () {
     await client.addFlow('Connection20', {value: 123});
     assert.instanceOf(Root.instance.getValue('Connection20'), Flow);
 
-    await client.addFlow('Connection20.subjob', {value: 123});
-    assert.instanceOf(Root.instance.queryValue('Connection20.subjob'), Flow);
+    await client.addFlow('Connection20.subflow', {value: 123});
+    assert.instanceOf(Root.instance.queryValue('Connection20.subflow'), Flow);
 
     await client.setValue('Connection20', undefined, true);
     assert.isUndefined(Root.instance.getValue('Connection20'));
@@ -751,8 +751,8 @@ describe('Connection', function () {
   });
 
   it('add remove move optional props', async function () {
-    let job1 = Root.instance.addFlow('Connection21');
-    let block1 = job1.createBlock('a');
+    let flow1 = Root.instance.addFlow('Connection21');
+    let block1 = flow1.createBlock('a');
 
     let [server, client] = makeLocalConnection(Root.instance, false);
 
@@ -773,7 +773,7 @@ describe('Connection', function () {
   });
 
   it('#shared #temp binding', async function () {
-    let job1 = Root.instance.createOutputFlow(WorkerFlow, 'Connection22', {
+    let flow1 = Root.instance.createOutputFlow(WorkerFlow, 'Connection22', {
       '#is': '',
       'a': {'#is': ''},
       '#shared': {'#is': ''},
@@ -783,12 +783,12 @@ describe('Connection', function () {
     let [server, client] = makeLocalConnection(Root.instance, false);
 
     await client.setBinding('Connection22.a.v', 'Connection22.#shared.a', true, true);
-    assert.equal(job1.queryProperty('a.v')._bindingPath, '##.#shared.a');
+    assert.equal(flow1.queryProperty('a.v')._bindingPath, '##.#shared.a');
 
     await client.setBinding('Connection22.#shared.v', 'Connection22.#shared.a', true, true);
-    assert.equal(job1.queryProperty('#shared.v')._bindingPath, 'a');
+    assert.equal(flow1.queryProperty('#shared.v')._bindingPath, 'a');
 
-    // can't bind to different job
+    // can't bind to different flow
     let error = await shouldReject(
       client.setBinding('Connection22_2.v1', 'Connection22.#shared.a', true, true) as Promise<any>
     );
@@ -823,8 +823,8 @@ describe('Connection', function () {
   });
 
   it('undo redo', async function () {
-    let job = Root.instance.addFlow('Connection23');
-    job.load({'#is': '', 'a': 1}, null, (data: any) => true);
+    let flow = Root.instance.addFlow('Connection23');
+    flow.load({'#is': '', 'a': 1}, null, (data: any) => true);
 
     let [server, client] = makeLocalConnection(Root.instance, false);
 
@@ -833,29 +833,29 @@ describe('Connection', function () {
     client.applyFlowChange('Connection23');
     await client.undo('Connection23');
 
-    assert.equal(job.getValue('a'), 1);
+    assert.equal(flow.getValue('a'), 1);
 
     await client.redo('Connection23');
-    assert.equal(job.getValue('a'), 2);
+    assert.equal(flow.getValue('a'), 2);
 
     client.destroy();
     Root.instance.deleteValue('Connection23');
   });
 
   it('copy paste', async function () {
-    let job = Root.instance.addFlow('Connection24');
+    let flow = Root.instance.addFlow('Connection24');
     let data = {'#is': '', 'add': {'#is': 'add'}};
-    job.load(data);
+    flow.load(data);
 
     let [server, client] = makeLocalConnection(Root.instance, false);
 
     let copied = (await client.copy('Connection24', ['add'])).value;
     assert.deepEqual(copied, {add: {'#is': 'add'}});
 
-    job.deleteValue('add');
+    flow.deleteValue('add');
 
     assert.deepEqual((await client.paste('Connection24', copied)).pasted, ['add']);
-    assert.deepEqual(job.save(), data);
+    assert.deepEqual(flow.save(), data);
 
     client.destroy();
     Root.instance.deleteValue('Connection24');

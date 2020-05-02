@@ -26,8 +26,8 @@ describe('editor NodeTree', function () {
   }
 
   it('basic', async function () {
-    let job = Root.instance.addFlow('NodeTree');
-    addTestChildren(job, '', 3);
+    let flow = Root.instance.addFlow('NodeTree');
+    addTestChildren(flow, '', 3);
 
     let [server, client] = makeLocalConnection(Root.instance);
 
@@ -83,7 +83,7 @@ describe('editor NodeTree', function () {
     await shouldHappen(() => querySingle("//div.ticl-tree-node-text[text()='NodeTree']", div));
 
     // remove one child block
-    job.setValue('5', undefined);
+    flow.setValue('5', undefined);
 
     // close children
     SimulateEvent.simulate(

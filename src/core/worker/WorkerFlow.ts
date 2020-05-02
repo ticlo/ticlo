@@ -8,7 +8,7 @@ import {FlowHistory} from '../block/FlowHistory';
 
 export const WorkerFlowConfigGenerators: {[key: string]: typeof BlockProperty} = {
   ...FlowWithSharedConfigGenerators,
-  '#is': ConstTypeConfig('job:worker'),
+  '#is': ConstTypeConfig('flow:worker'),
 };
 
 export class WorkerFlow extends FlowWithShared {

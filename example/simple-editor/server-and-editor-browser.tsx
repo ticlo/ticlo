@@ -238,7 +238,7 @@ class App extends React.PureComponent<Props, State> implements TicloLayoutContex
 class FlowStorage {
   deleteFlow(name: string) {}
 
-  saveFlow(name: string, job: Flow, data?: DataMap) {
+  saveFlow(name: string, flow: Flow, data?: DataMap) {
     console.log(JsonEsc.stringify(data));
   }
 

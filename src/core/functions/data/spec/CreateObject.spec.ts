@@ -5,9 +5,9 @@ import {Flow, Root} from '../../../block/Flow';
 
 describe('CreateObject', function () {
   it('basic', function () {
-    let job = new Flow();
+    let flow = new Flow();
 
-    let aBlock = job.createBlock('a');
+    let aBlock = flow.createBlock('a');
     aBlock._load({
       '#is': 'create-object',
       'v': 12,
@@ -23,9 +23,9 @@ describe('CreateObject', function () {
   });
 
   it('extend', function () {
-    let job = new Flow();
+    let flow = new Flow();
 
-    let aBlock = job.createBlock('a');
+    let aBlock = flow.createBlock('a');
     aBlock._load({
       '#is': 'create-object',
       '#extend': {v: 0, t: 1},
@@ -43,9 +43,9 @@ describe('CreateObject', function () {
   });
 
   it('array', function () {
-    let job = new Flow();
+    let flow = new Flow();
 
-    let aBlock = job.createBlock('a');
+    let aBlock = flow.createBlock('a');
     aBlock._load({
       '#is': 'create-object',
       'v[]': 3,

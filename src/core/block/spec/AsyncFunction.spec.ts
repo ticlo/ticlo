@@ -16,9 +16,9 @@ for (let typeName of ['async-function-promise', 'async-function-manual']) {
     });
 
     it('basic', async function () {
-      let job = new Flow();
+      let flow = new Flow();
 
-      let block = job.createBlock('obj');
+      let block = flow.createBlock('obj');
       block.setValue('#mode', 'onCall');
       block.setValue('#-log', 'obj');
       block.setValue('#is', typeName);
@@ -30,13 +30,13 @@ for (let typeName of ['async-function-promise', 'async-function-manual']) {
       await block.waitNextValue('#emit');
       assert.deepEqual(TestAsyncFunctionLog.asyncLog, ['obj'], 'triggered');
 
-      job.setValue('obj', null);
+      flow.setValue('obj', null);
     });
 
     it('cancel call', async function () {
-      let job = new Flow();
+      let flow = new Flow();
 
-      let block = job.createBlock('obj');
+      let block = flow.createBlock('obj');
       block.setValue('#sync', true);
       block.setValue('#-log', 'obj');
       block.setValue('#is', typeName);
@@ -52,20 +52,20 @@ for (let typeName of ['async-function-promise', 'async-function-manual']) {
     });
 
     it('chain async call', async function () {
-      let job = new Flow();
+      let flow = new Flow();
 
-      let block1 = job.createBlock('obj1');
+      let block1 = flow.createBlock('obj1');
       block1.setValue('#sync', true);
       block1.setValue('#-log', 'obj1');
       block1.setValue('#is', typeName);
 
-      let block2 = job.createBlock('obj2');
+      let block2 = flow.createBlock('obj2');
       block2.setValue('#sync', true);
       block2.setValue('#-log', 'obj2');
       block2.setValue('#is', typeName);
       block2.setBinding('#call', '##.obj1.#emit');
 
-      let block3 = job.createBlock('obj3');
+      let block3 = flow.createBlock('obj3');
       block3.setValue('#is', 'add');
       block3.setBinding('#call', '##.obj2.#emit');
 
@@ -100,9 +100,9 @@ for (let typeName of ['async-function-promise', 'async-function-manual']) {
     });
 
     it('cancel async call', async function () {
-      let job = new Flow();
+      let flow = new Flow();
 
-      let block1 = job.createBlock('obj1');
+      let block1 = flow.createBlock('obj1');
       block1.setValue('#sync', true);
       block1.setValue('#-log', 'obj1');
       block1.setValue('#is', typeName);
@@ -119,9 +119,9 @@ for (let typeName of ['async-function-promise', 'async-function-manual']) {
     });
 
     it('reject async call', async function () {
-      let job = new Flow();
+      let flow = new Flow();
 
-      let block1 = job.createBlock('obj1');
+      let block1 = flow.createBlock('obj1');
       block1.setValue('#sync', true);
       block1.setValue('#-log', 'obj1');
       block1.setValue('#-reject', true);
@@ -132,9 +132,9 @@ for (let typeName of ['async-function-promise', 'async-function-manual']) {
     });
 
     it('async emit custom value', async function () {
-      let job = new Flow();
+      let flow = new Flow();
 
-      let block1 = job.createBlock('obj1');
+      let block1 = flow.createBlock('obj1');
       block1.setValue('#sync', true);
       block1.setValue('#-log', 'obj1');
       block1.setValue('#-resolve', 'ticlo');

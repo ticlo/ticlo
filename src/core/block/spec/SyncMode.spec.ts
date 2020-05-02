@@ -13,9 +13,9 @@ describe('SyncMode', function () {
   });
 
   it('basic', function () {
-    let job = new Flow();
+    let flow = new Flow();
 
-    let block = job.createBlock('obj');
+    let block = flow.createBlock('obj');
     block.setValue('#mode', 'onCall');
     block.setValue('#-log', 'obj');
     block.setValue('#is', 'test-runner');
@@ -25,29 +25,29 @@ describe('SyncMode', function () {
   });
 
   it('chained', function () {
-    let job = new Flow();
+    let flow = new Flow();
 
-    let block1 = job.createBlock('obj1');
+    let block1 = flow.createBlock('obj1');
     block1.setValue('#mode', 'onCall');
     block1.setValue('#-log', 'obj1');
     block1.setValue('#is', 'test-runner');
     block1.setValue('#sync', true);
 
-    let block2 = job.createBlock('obj2');
+    let block2 = flow.createBlock('obj2');
     block2.setValue('#mode', 'onLoad');
     block2.setValue('#-log', 'obj2');
     block2.setValue('#is', 'test-runner');
     block2.setValue('#sync', true);
     block2.setBinding('#call', '##.obj1.#emit');
 
-    let block3 = job.createBlock('obj3');
+    let block3 = flow.createBlock('obj3');
     block3.setValue('#mode', 'onCall');
     block3.setValue('#-log', 'obj3');
     block3.setValue('#is', 'test-runner-wont-cancel');
     block3.setValue('#sync', true);
     block3.setBinding('#call', '##.obj2.#emit');
 
-    let block4 = job.createBlock('obj4');
+    let block4 = flow.createBlock('obj4');
     block4.setValue('#mode', 'onCall');
     block4.setValue('#-log', 'obj4');
     block4.setValue('#is', 'test-runner');

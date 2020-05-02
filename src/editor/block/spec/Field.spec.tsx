@@ -19,8 +19,8 @@ describe('editor Block Field', function () {
   });
 
   it('single block', async function () {
-    let job = Root.instance.addFlow('BlockField1');
-    job.load({
+    let flow = Root.instance.addFlow('BlockField1');
+    flow.load({
       add: {
         '#is': '',
         'a': 1,
@@ -55,7 +55,7 @@ describe('editor Block Field', function () {
     assert.isNotNull(querySingle("//div.ticl-field-name[text()='e']/../div.ticl-field-value[text()='null']", div));
     assert.isNotNull(querySingle("//div.ticl-field-name[text()='z']/../div.ticl-field-value[not(text())]", div));
 
-    job.queryProperty('add.c').setValue(3);
+    flow.queryProperty('add.c').setValue(3);
     // no longer a string value
     await shouldHappen(() =>
       querySingle(
@@ -68,8 +68,8 @@ describe('editor Block Field', function () {
   });
 
   it('sub block', async function () {
-    let job = Root.instance.addFlow('BlockField2');
-    job.load({
+    let flow = Root.instance.addFlow('BlockField2');
+    flow.load({
       add: {
         '#is': 'add',
         '0': 1,
@@ -124,8 +124,8 @@ describe('editor Block Field', function () {
   });
 
   it('indirect binding', async function () {
-    let job = Root.instance.addFlow('BlockField3');
-    job.load({
+    let flow = Root.instance.addFlow('BlockField3');
+    flow.load({
       add: {
         '#is': 'add',
         '0': {a: 3},
@@ -155,7 +155,7 @@ describe('editor Block Field', function () {
     assert.isTrue(wire.classList.contains('ticl-wire-dash'));
 
     // switch to direct binding
-    job.queryProperty('subtract.0').setBinding('##.add.0');
+    flow.queryProperty('subtract.0').setBinding('##.add.0');
 
     await shouldHappen(() => !wire.classList.contains('ticl-wire-dash'));
 

@@ -265,7 +265,7 @@ export class BlockProperty extends PropDispatcher<any> implements PropListener<a
   }
 
   createBlock(save: boolean) {
-    let block = new Block(this._block._job, this._block, this);
+    let block = new Block(this._block._flow, this._block, this);
     if (save) {
       this.setValue(block);
     } else if (save === false) {
@@ -390,7 +390,7 @@ export class GlobalProperty extends BlockIO {
   }
 
   listenToParentGlobal() {
-    this._listenRaw(this._block._job._parent._job.getGlobalProperty(this._name));
+    this._listenRaw(this._block._flow._parent._flow.getGlobalProperty(this._name));
   }
 }
 

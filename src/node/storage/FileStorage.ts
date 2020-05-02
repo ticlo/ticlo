@@ -83,15 +83,15 @@ export class FileStorage implements Storage {
   deleteFlow(name: string) {
     this.getTask(name).delete();
   }
-  saveFlow(name: string, job: Flow, data?: DataMap) {
+  saveFlow(name: string, flow: Flow, data?: DataMap) {
     if (!data) {
-      data = job.save();
+      data = flow.save();
     }
-    let str = encodeSorted(job.save());
+    let str = encodeSorted(flow.save());
     this.getTask(name).write(str);
   }
   init(root: Root): void {
-    let jobFiles: string[] = [];
+    let flowFiles: string[] = [];
     let functionFiles: string[] = [];
     let globalData = {'#is': ''};
     for (let file of Fs.readdirSync(this.dir)) {
@@ -106,7 +106,7 @@ export class FileStorage implements Storage {
         } else if (file.startsWith('#.')) {
           functionFiles.push(name.substring(2));
         } else {
-          jobFiles.push(name);
+          flowFiles.push(name);
         }
       }
     }
@@ -128,9 +128,9 @@ export class FileStorage implements Storage {
       return true;
     });
 
-    // load job entries
-    // sort the name to make sure parent Flow is loaded before children jobs
-    for (let name of jobFiles.sort()) {
+    // load flow entries
+    // sort the name to make sure parent Flow is loaded before children flows
+    for (let name of flowFiles.sort()) {
       try {
         let data = decode(Fs.readFileSync(Path.join(this.dir, `${name}.ticlo`), 'utf8'));
         root.addFlow(name, data);

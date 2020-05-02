@@ -4,7 +4,7 @@ import {BlockIO} from '../BlockProperty';
 
 describe('Block Child Watch', function () {
   it('basic', function () {
-    let job = new Flow();
+    let flow = new Flow();
 
     let watchLog: any[] = [];
     let watch = {
@@ -12,29 +12,29 @@ describe('Block Child Watch', function () {
         watchLog.push([property._name, property._value != null, Boolean(saved)]);
       },
     };
-    job.watch(watch);
+    flow.watch(watch);
 
-    job.createBlock('a');
+    flow.createBlock('a');
     assert.deepEqual(watchLog, [['a', true, true]], 'new block');
     watchLog = [];
 
-    job.createOutputBlock('a');
+    flow.createOutputBlock('a');
     assert.deepEqual(watchLog, [['a', true, false]], 'replace with temp block');
     watchLog = [];
 
-    job.createBlock('a');
+    flow.createBlock('a');
     assert.deepEqual(watchLog, [['a', true, true]], 'replace with normal block');
     watchLog = [];
 
-    job.setValue('a', null);
+    flow.setValue('a', null);
     assert.deepEqual(watchLog, [['a', false, true]], 'remove block');
     watchLog = [];
 
-    job.createOutputBlock('a');
+    flow.createOutputBlock('a');
     assert.deepEqual(watchLog, [['a', true, false]], 'new temp block');
     watchLog = [];
 
-    job.setBinding('a', 'b');
+    flow.setBinding('a', 'b');
     assert.deepEqual(watchLog, [['a', false, false]], 'remove block with binding');
     watchLog = [];
   });

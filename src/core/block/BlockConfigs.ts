@@ -9,7 +9,7 @@ class BlockTypeConfig extends BlockProperty {
   }
 
   onChange(val: any, save?: boolean): boolean {
-    if (typeof val === 'string' && !val.startsWith('job:')) {
+    if (typeof val === 'string' && !val.startsWith('flow:')) {
       return super.onChange(val, save);
     } else {
       return super.onChange('', save);
@@ -47,7 +47,7 @@ class BlockPriorityConfig extends BlockProperty {
 
 export class BlockInputsConfig extends BlockIO {
   createBlock(save: boolean): Block {
-    let block = new InputsBlock(this._block._job, this._block, this);
+    let block = new InputsBlock(this._block._flow, this._block, this);
     if (save) {
       this.setValue(block);
     } else if (save === false) {
@@ -60,7 +60,7 @@ export class BlockInputsConfig extends BlockIO {
 
 export class BlockOutputsConfig extends BlockIO {
   createBlock(save: boolean): Block {
-    let block = new OutputsBlock(this._block._job, this._block, this);
+    let block = new OutputsBlock(this._block._flow, this._block, this);
     if (save) {
       this.setValue(block);
     } else if (save === false) {
@@ -79,7 +79,7 @@ class BlockWaitingConfig extends BlockProperty {
 
 class BlockOutputWaitingConfig extends BlockProperty {
   _valueChanged() {
-    this._block._job.onWait(this._value);
+    this._block._flow.onWait(this._value);
   }
 }
 
@@ -146,21 +146,21 @@ export const ConfigGenerators: {[key: string]: typeof BlockProperty} = {
 
 export const InputsConfigGenerators: {[key: string]: typeof BlockProperty} = {
   ...ConfigGenerators,
-  '#is': ConstTypeConfig('job:inputs'),
+  '#is': ConstTypeConfig('flow:inputs'),
   '#call': BlockProperty,
 };
 
 export const OutputsConfigGenerators: {[key: string]: typeof BlockProperty} = {
   ...ConfigGenerators,
-  '#is': ConstTypeConfig('job:outputs'),
+  '#is': ConstTypeConfig('flow:outputs'),
   '#call': BlockProperty,
   '#value': BlockIO,
-  '#wait': BlockOutputWaitingConfig, // directly forward wait to parent job
+  '#wait': BlockOutputWaitingConfig, // directly forward wait to parent flow
 };
 
 export const FlowConfigGenerators: {[key: string]: typeof BlockProperty} = {
   ...ConfigGenerators,
-  '#is': ConstTypeConfig('job:main'),
+  '#is': ConstTypeConfig('flow:main'),
   '#inputs': BlockInputsConfig,
   '#outputs': BlockOutputsConfig,
 };

@@ -26,8 +26,8 @@ export function createSharedBlock(property: BlockProperty): SharedBlock {
     if (value instanceof SharedBlock) {
       return value;
     }
-    let job = property._block as FlowWithShared;
-    return SharedBlock.loadSharedBlock(job, job._loadFrom, {});
+    let flow = property._block as FlowWithShared;
+    return SharedBlock.loadSharedBlock(flow, flow._loadFrom, {});
   }
   return null;
 }
@@ -154,7 +154,7 @@ function renameBlocks(parent: Block, data: DataMap, fields: string[]) {
       if (key.startsWith('~') && typeof val === 'string') {
         let parts = val.split('.');
         if (isFlow && parts[0] === '###' && fields.includes(parts[1])) {
-          // job binding
+          // flow binding
           parts[1] = map.get(parts[1]);
           obj[key] = parts.join('.');
         } else if (fields.includes(parts[level]) && parts.slice(0, level).every(isParentBinding)) {

@@ -25,11 +25,11 @@ describe('WsConnect', function () {
   });
 
   it('reconnect', async function () {
-    let job = Root.instance.addFlow('WsConnect1');
+    let flow = Root.instance.addFlow('WsConnect1');
     let client = new WsClientConnection(`http://127.0.0.1:${PORT}`, false);
 
-    job.setValue('o', 1);
-    job.setBinding('a', 'o');
+    flow.setValue('o', 1);
+    flow.setBinding('a', 'o');
 
     let subcallbacks = new AsyncClientPromise();
     client.subscribe('WsConnect1.a', subcallbacks);
@@ -45,7 +45,7 @@ describe('WsConnect', function () {
 
     await promiseReject; // setValue should receive error
 
-    job.setValue('a', 2);
+    flow.setValue('a', 2);
     result = await subcallbacks.promise;
     assert.equal(result.cache.value, 2);
     assert.isNull(result.cache.bindingPath);

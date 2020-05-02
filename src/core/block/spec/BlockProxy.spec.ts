@@ -5,10 +5,10 @@ import {_strictMode} from '../BlockSettings';
 
 describe('BlockProxy', function () {
   it('deep proxy', function () {
-    let job = new Flow();
-    job.setValue('v1', 1);
+    let flow = new Flow();
+    flow.setValue('v1', 1);
 
-    let bBlock = job.createBlock('b');
+    let bBlock = flow.createBlock('b');
     bBlock.setValue('v2', 2);
     bBlock.setValue('v3', 3);
     bBlock.deleteValue('v3');
@@ -35,7 +35,7 @@ describe('BlockProxy', function () {
     keys2.sort();
     assert.deepEqual(keys2, ['v2', 'v4']);
 
-    job.deleteValue('b');
+    flow.deleteValue('b');
 
     // block is destroyed
     // Proxy should act like an empty Object
@@ -49,10 +49,10 @@ describe('BlockProxy', function () {
   });
 
   it('shallow proxy', function () {
-    let job = new Flow();
-    job.setValue('v1', 1);
+    let flow = new Flow();
+    flow.setValue('v1', 1);
 
-    let bBlock = job.createBlock('b');
+    let bBlock = flow.createBlock('b');
     bBlock.setValue('v2', 2);
     bBlock.setValue('v3', 3);
     bBlock.deleteValue('v3');
@@ -60,7 +60,7 @@ describe('BlockProxy', function () {
     bBlock.createHelperBlock('v4').output(4); // property helper should not be iterated
     let b: any = new Proxy(bBlock, BlockProxy);
 
-    assert.equal(b['###'], job);
+    assert.equal(b['###'], flow);
     assert.equal(b.v2, 2);
     assert.equal(b['@v'], 0);
     assert.equal(b['@notExist'], undefined);
@@ -79,7 +79,7 @@ describe('BlockProxy', function () {
     keys2.sort();
     assert.deepEqual(keys2, ['v2', 'v4']);
 
-    job.deleteValue('b');
+    flow.deleteValue('b');
 
     // block is destroyed
     // Proxy should act like an empty Object

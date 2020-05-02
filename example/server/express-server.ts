@@ -5,7 +5,7 @@ import {connectTiclo, routeTiclo, getEditorUrl} from '../../src/express';
 import {data} from '../sample-data/data';
 
 (async () => {
-  let job = Root.instance.addFlow('example', data);
+  let flow = Root.instance.addFlow('example', data);
 
   // create some global blocks
   Root.instance._globalRoot.createBlock('^gAdd').setValue('#is', 'add');

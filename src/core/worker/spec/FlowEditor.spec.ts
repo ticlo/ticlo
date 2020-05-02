@@ -10,24 +10,24 @@ import {SharedBlock} from '../../block/SharedBlock';
 
 describe('FlowEditor', function () {
   it('delete editor after unwatch', function () {
-    let job = new Flow();
-    let editor1 = FlowEditor.create(job, '#edit-1', {});
-    let editor2 = FlowEditor.create(job, '#edit-2');
+    let flow = new Flow();
+    let editor1 = FlowEditor.create(flow, '#edit-1', {});
+    let editor2 = FlowEditor.create(flow, '#edit-2');
 
     assert.isNull(editor2, 'failed to load');
-    assert.instanceOf(job.getValue('#edit-2'), FlowEditor);
+    assert.instanceOf(flow.getValue('#edit-2'), FlowEditor);
 
     editor1.watch(VoidListeners);
-    assert.equal(job.getValue('#edit-1'), editor1);
+    assert.equal(flow.getValue('#edit-1'), editor1);
 
     // value deleted after unwatch
     editor1.unwatch(VoidListeners);
-    assert.isUndefined(job.getValue('#edit-1'));
+    assert.isUndefined(flow.getValue('#edit-1'));
   });
 
   it('createFromField', function () {
-    let job = new Flow();
-    let block = job.createBlock('a');
+    let flow = new Flow();
+    let block = flow.createBlock('a');
     let data = {
       '#is': '',
       'add': {
@@ -51,7 +51,7 @@ describe('FlowEditor', function () {
   });
 
   it('createFromFunction', function () {
-    let job = new Flow();
+    let flow = new Flow();
     let data = {
       '#is': '',
       'add': {
@@ -61,27 +61,27 @@ describe('FlowEditor', function () {
 
     WorkerFunction.registerType(data, {name: 'worker2'}, 'FlowEditor');
 
-    FlowEditor.createFromFunction(job, '#edit-func', 'FlowEditor:worker2', null);
-    assert.deepEqual(job.getValue('#edit-func').save(), data);
+    FlowEditor.createFromFunction(flow, '#edit-func', 'FlowEditor:worker2', null);
+    assert.deepEqual(flow.getValue('#edit-func').save(), data);
 
-    FlowEditor.createFromFunction(job, '#edit-func', 'FlowEditor:worker2-2', data);
-    assert.deepEqual(job.getValue('#edit-func').save(), data);
+    FlowEditor.createFromFunction(flow, '#edit-func', 'FlowEditor:worker2-2', data);
+    assert.deepEqual(flow.getValue('#edit-func').save(), data);
 
     Functions.clear('FlowEditor:worker2');
   });
 
   it('applyChange', function () {
-    let job = new Flow();
-    let editor = FlowEditor.create(job, '#edit-v2', {}, null, false, (data: DataMap) => {
-      job.setValue('v2', data);
+    let flow = new Flow();
+    let editor = FlowEditor.create(flow, '#edit-v2', {}, null, false, (data: DataMap) => {
+      flow.setValue('v2', data);
       return true;
     });
     editor.applyChange();
-    assert.deepEqual(job.getValue('v2'), {'#is': ''});
+    assert.deepEqual(flow.getValue('v2'), {'#is': ''});
   });
 
   it('applyChange function', function () {
-    let job = new Flow();
+    let flow = new Flow();
 
     let expectedData = {
       '#inputs': {
@@ -129,7 +129,7 @@ describe('FlowEditor', function () {
 
     WorkerFunction.registerType({'#is': ''}, {name: 'worker3', properties: []}, 'FlowEditor');
 
-    let editor = FlowEditor.createFromFunction(job, '#edit-func', 'FlowEditor:worker3', null);
+    let editor = FlowEditor.createFromFunction(flow, '#edit-func', 'FlowEditor:worker3', null);
     editor.createBlock('#inputs')._load(expectedData['#inputs']);
     editor.createBlock('#outputs')._load(expectedData['#outputs']);
     editor.setValue('#desc', expectedData['#desc']);
@@ -142,13 +142,13 @@ describe('FlowEditor', function () {
     assert.deepEqual(desc.properties, expectedDescProperties);
 
     Functions.clear('FlowEditor:worker3');
-    job.destroy();
+    flow.destroy();
   });
 
   it('shared block', function () {
-    let job = new Flow();
+    let flow = new Flow();
 
-    let editor = FlowEditor.createFromFunction(job, '#edit-func', 'FlowEditor:worker4', {
+    let editor = FlowEditor.createFromFunction(flow, '#edit-func', 'FlowEditor:worker4', {
       '#is': '',
       '#shared': {'#is': ''},
     });
@@ -157,6 +157,6 @@ describe('FlowEditor', function () {
     assert.instanceOf(block, SharedBlock);
     assert.equal(block._prop, editor.getProperty('#shared'));
 
-    job.destroy();
+    flow.destroy();
   });
 });

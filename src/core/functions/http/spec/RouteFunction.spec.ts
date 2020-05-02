@@ -10,14 +10,14 @@ import {Functions} from '../../../block/Functions';
 import {HttpRequest} from '../HttpRequest';
 import {FlowEditor} from '../../../worker/FlowEditor';
 
-const jobData = {
+const flowData = {
   '#is': '',
   'route': {'#is': 'http:route'},
   'handler': {'#is': 'handler'},
 };
 describe('RouteFunction', function () {
   it('register route', function () {
-    let job = new Flow();
+    let flow = new Flow();
 
     const serviceLog: any[] = [];
     const mockService = {
@@ -29,7 +29,7 @@ describe('RouteFunction', function () {
       },
     };
 
-    let aBlock = job.createBlock('a');
+    let aBlock = flow.createBlock('a');
     aBlock._load({
       '#is': 'http:route',
     });
@@ -53,9 +53,9 @@ describe('RouteFunction', function () {
   });
 
   it('method and contentType', function () {
-    let job = new Flow();
+    let flow = new Flow();
 
-    let aBlock = job.createBlock('a');
+    let aBlock = flow.createBlock('a');
     aBlock._load(getDefaultFuncData(Functions.getDescToSend('http:route')[0]));
 
     assert.deepEqual(aBlock.getValue('method'), ['GET']);
@@ -73,7 +73,7 @@ describe('RouteFunction', function () {
   });
 
   it('emit', function () {
-    let job = new Flow();
+    let flow = new Flow();
 
     let routeFunction: RouteFunction;
     const mockService = {
@@ -83,7 +83,7 @@ describe('RouteFunction', function () {
       removeRoute() {},
     };
 
-    let aBlock = job.createBlock('a');
+    let aBlock = flow.createBlock('a');
     aBlock._load({
       '#is': 'http:route',
       'path': 'a',
@@ -97,14 +97,14 @@ describe('RouteFunction', function () {
   });
 
   it('edit worker', function () {
-    let job = new Flow();
-    job.load({
+    let flow = new Flow();
+    flow.load({
       '#is': '',
       'route': {'#is': 'http:route'},
       'handler': {'#is': 'handler', '~#call': '##.route.#emit'},
     });
-    let route = job.getValue('route') as Block;
-    let handler = job.getValue('handler') as Block;
+    let route = flow.getValue('route') as Block;
+    let handler = flow.getValue('handler') as Block;
     FlowEditor.createFromField(handler, '#edit-use', 'use');
 
     assert.deepEqual((handler.getValue('#edit-use') as Flow).save(), route._function.getDefaultWorker('#emit'));

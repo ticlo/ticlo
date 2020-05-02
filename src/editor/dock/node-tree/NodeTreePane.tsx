@@ -19,8 +19,8 @@ interface Props {
 }
 
 interface State {
-  jobModelVisible: boolean;
-  jobBasePath?: string;
+  flowModelVisible: boolean;
+  flowBasePath?: string;
   selectedKeys: string[];
 }
 
@@ -28,7 +28,7 @@ export class NodeTreePane extends React.PureComponent<Props, State> {
   static contextType = TicloLayoutContextType;
   context!: TicloLayoutContext;
 
-  state: State = {selectedKeys: [], jobModelVisible: false};
+  state: State = {selectedKeys: [], flowModelVisible: false};
 
   _nodeTree: NodeTree;
   getNodeTree = (ref: NodeTree) => {
@@ -54,7 +54,7 @@ export class NodeTreePane extends React.PureComponent<Props, State> {
 
   onAddNewFlowClick = (param: ClickParam) => {
     let path = param.item.props.defaultValue;
-    this.setState({jobBasePath: `${path}.`, jobModelVisible: true});
+    this.setState({flowBasePath: `${path}.`, flowModelVisible: true});
   };
 
   getMenu = (item: NodeTreeItem) => {
@@ -62,7 +62,7 @@ export class NodeTreePane extends React.PureComponent<Props, State> {
     let menuItems: React.ReactElement[] = [];
     if (showMenu) {
       let seekParent = item;
-      while (seekParent.functionId === 'job:main') {
+      while (seekParent.functionId === 'flow:main') {
         seekParent = seekParent.parent;
       }
       // find the root node, so every level of parents is Flow
@@ -79,10 +79,10 @@ export class NodeTreePane extends React.PureComponent<Props, State> {
   };
 
   showNewFlowModel = () => {
-    this.setState({jobModelVisible: true, jobBasePath: null});
+    this.setState({flowModelVisible: true, flowBasePath: null});
   };
   hideNewFlowModel = () => {
-    this.setState({jobModelVisible: false});
+    this.setState({flowModelVisible: false});
   };
 
   newFlowDragOver = (e: DragState) => {
@@ -96,12 +96,12 @@ export class NodeTreePane extends React.PureComponent<Props, State> {
     let {conn} = this.props;
     let path = DragState.getData('path', conn.getBaseConn());
     if (path) {
-      this.setState({jobBasePath: `${path}.`, jobModelVisible: true});
+      this.setState({flowBasePath: `${path}.`, flowModelVisible: true});
     }
   };
   render() {
     let {conn, basePaths, hideRoot, onSelect, showMenu} = this.props;
-    let {selectedKeys, jobModelVisible, jobBasePath} = this.state;
+    let {selectedKeys, flowModelVisible, flowBasePath} = this.state;
 
     return (
       <div className="ticl-node-tree-pane">
@@ -115,7 +115,7 @@ export class NodeTreePane extends React.PureComponent<Props, State> {
                 <Button size="small" icon={<FileAddIcon />} onClick={this.showNewFlowModel} />
               </DragDropDiv>
             </Tooltip>
-            <AddNewFlow conn={conn} onClose={this.hideNewFlowModel} visible={jobModelVisible} basePath={jobBasePath} />
+            <AddNewFlow conn={conn} onClose={this.hideNewFlowModel} visible={flowModelVisible} basePath={flowBasePath} />
           </div>
         ) : null}
         <NodeTree

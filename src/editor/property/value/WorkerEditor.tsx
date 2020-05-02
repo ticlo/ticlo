@@ -20,10 +20,10 @@ export class WorkerEditor extends FunctionEditor {
   editWorker = () => {
     let {conn, keys, desc} = this.props;
     if (keys.length) {
-      let jobEditorPath = `${keys[0]}.#edit-${desc.name}`;
-      conn.editWorker(jobEditorPath, desc.name);
-      this.context.editFlow(jobEditorPath, () => {
-        conn.applyFlowChange(jobEditorPath);
+      let flowEditorPath = `${keys[0]}.#edit-${desc.name}`;
+      conn.editWorker(flowEditorPath, desc.name);
+      this.context.editFlow(flowEditorPath, () => {
+        conn.applyFlowChange(flowEditorPath);
       });
     }
   };

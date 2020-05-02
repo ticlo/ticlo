@@ -12,11 +12,11 @@ import {Logger} from '../../util/Logger';
 
 describe('Reconnect', function () {
   it('reconnect', async function () {
-    let job = Root.instance.addFlow('Reconnect1');
+    let flow = Root.instance.addFlow('Reconnect1');
     let [server, client] = makeLocalConnection(Root.instance, false);
 
-    job.setValue('o', 1);
-    job.setBinding('a', 'o');
+    flow.setValue('o', 1);
+    flow.setBinding('a', 'o');
 
     let subcallbacks = new AsyncClientPromise();
     client.subscribe('Reconnect1.a', subcallbacks);
@@ -30,7 +30,7 @@ describe('Reconnect', function () {
     client.onDisconnect();
     await promiseReject; // setValue should receive error
 
-    job.setValue('a', 2);
+    flow.setValue('a', 2);
     result = await subcallbacks.promise;
     assert.equal(result.cache.value, 2);
     assert.isNull(result.cache.bindingPath);
@@ -43,11 +43,11 @@ describe('Reconnect', function () {
   });
 
   it('watch object after reconnect ', async function () {
-    let job = Root.instance.addFlow('Reconnect2');
+    let flow = Root.instance.addFlow('Reconnect2');
     let [server, client] = makeLocalConnection(Root.instance, false);
 
-    let child0 = job.createBlock('c0');
-    let child1 = job.createBlock('c1');
+    let child0 = flow.createBlock('c0');
+    let child1 = flow.createBlock('c1');
 
     let callbacks1 = new AsyncClientPromise();
     client.watch('Reconnect2', callbacks1);
@@ -59,8 +59,8 @@ describe('Reconnect', function () {
 
     client.onDisconnect();
 
-    let child2 = job.createBlock('c2');
-    job.deleteValue('c1');
+    let child2 = flow.createBlock('c2');
+    flow.deleteValue('c1');
 
     let result2 = await callbacks1.promise;
     assert.deepEqual(result2.cache, {
@@ -76,7 +76,7 @@ describe('Reconnect', function () {
   });
 
   it('watch desc after reconnect ', async function () {
-    let job = Root.instance.addFlow('Reconnect3');
+    let flow = Root.instance.addFlow('Reconnect3');
     let [server, client] = makeLocalConnection(Root.instance, true);
 
     JsFunction.registerType('', {name: 'ReconnectType1'});

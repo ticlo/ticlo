@@ -35,7 +35,7 @@ export function getEditorUrl(host: string, defaultFlow: string) {
   }
   let url = `${protocol}://ticlo.org/editor.html?host=${host}`;
   if (defaultFlow) {
-    url += `&job=${defaultFlow}`;
+    url += `&flow=${defaultFlow}`;
   }
   return url;
 }

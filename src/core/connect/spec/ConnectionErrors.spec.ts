@@ -10,7 +10,7 @@ const initAdd = AddFunction;
 
 describe('Connection Error', function () {
   it('common errors', async function () {
-    let job = Root.instance.addFlow('ConnectionError1');
+    let flow = Root.instance.addFlow('ConnectionError1');
     let [server, client] = makeLocalConnection(Root.instance, false);
 
     assert.equal(
@@ -129,9 +129,9 @@ describe('Connection Error', function () {
   });
 
   it('parent removed', async function () {
-    let job = Root.instance.addFlow('ConnectionError2');
+    let flow = Root.instance.addFlow('ConnectionError2');
     let [server, client] = makeLocalConnection(Root.instance, false);
-    let a = job.createBlock('a');
+    let a = flow.createBlock('a');
     let b = a.createBlock('b');
     // bind c to b
     a.setBinding('c', 'b');
@@ -153,7 +153,7 @@ describe('Connection Error', function () {
     assert.equal(result3, 'block changed', 'watch error when block changed');
     client.unwatch('ConnectionError2.a.c', callbacks3);
 
-    job.setValue('a', null);
+    flow.setValue('a', null);
 
     let [result1, result2] = await Promise.all([shouldReject(callbacks1.promise), shouldReject(callbacks2.promise)]);
 

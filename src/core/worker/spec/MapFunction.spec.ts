@@ -17,15 +17,15 @@ describe('MapFunction non-thread', function () {
   });
 
   it('basic', function () {
-    let job = new Flow();
+    let flow = new Flow();
 
-    job.setValue('a', {
+    flow.setValue('a', {
       v1: 1,
       v2: 2,
       v3: 3,
     });
 
-    let bBlock = job.createBlock('b');
+    let bBlock = flow.createBlock('b');
 
     bBlock._load({
       '#is': 'map',
@@ -44,7 +44,7 @@ describe('MapFunction non-thread', function () {
 
     assert.deepEqual(bBlock.getValue('#output'), {v1: 2, v2: 3, v3: 4});
 
-    job.setValue('a', {
+    flow.setValue('a', {
       v1: 1,
       v2: 4,
       v4: 5,
@@ -56,14 +56,14 @@ describe('MapFunction non-thread', function () {
 
     assert.lengthOf(TestFunctionRunner.popLogs(), 6);
 
-    // delete job;
-    job.deleteValue('b');
+    // delete flow;
+    flow.deleteValue('b');
   });
 
   it('empty input', function () {
-    let job = new Flow();
+    let flow = new Flow();
 
-    let bBlock = job.createBlock('b');
+    let bBlock = flow.createBlock('b');
 
     bBlock._load({
       '#is': 'map',
@@ -78,18 +78,18 @@ describe('MapFunction non-thread', function () {
     Root.run();
     assert.deepEqual(bBlock.getValue('#output'), {});
 
-    job.deleteValue('b');
+    flow.deleteValue('b');
   });
 
   it('#inputs', function () {
-    let job = new Flow();
+    let flow = new Flow();
 
-    job.setValue('a', {
+    flow.setValue('a', {
       v1: {a: 1, b: 2},
       v2: {a: 3, b: 4},
     });
 
-    let bBlock = job.createBlock('b');
+    let bBlock = flow.createBlock('b');
 
     bBlock._load({
       '#is': 'map',
@@ -122,12 +122,12 @@ describe('MapFunction non-thread', function () {
     Root.runAll(2);
     assert.deepEqual(bBlock.getValue('#output'), {v1: 1, v2: 3});
 
-    // delete job;
-    job.deleteValue('b');
+    // delete flow;
+    flow.deleteValue('b');
   });
 
   it('input object', function () {
-    let job = new Flow();
+    let flow = new Flow();
 
     const data = {
       v1: {v: 1},
@@ -135,9 +135,9 @@ describe('MapFunction non-thread', function () {
       v3: {v: 3},
     };
 
-    job.setValue('a', data);
+    flow.setValue('a', data);
 
-    let bBlock = job.createBlock('b');
+    let bBlock = flow.createBlock('b');
 
     bBlock._load({
       '#is': 'map',
@@ -154,20 +154,20 @@ describe('MapFunction non-thread', function () {
 
     assert.deepEqual(bBlock.getValue('#output'), data);
 
-    // delete job;
-    job.deleteValue('b');
+    // delete flow;
+    flow.deleteValue('b');
   });
 
   it('change use', function () {
-    let job = new Flow();
+    let flow = new Flow();
 
-    job.setValue('a', {
+    flow.setValue('a', {
       v1: 1,
       v2: 2,
       v3: 3,
     });
 
-    let bBlock = job.createBlock('b');
+    let bBlock = flow.createBlock('b');
 
     bBlock._load({
       '#is': 'map',
@@ -200,20 +200,20 @@ describe('MapFunction non-thread', function () {
 
     assert.lengthOf(TestFunctionRunner.popLogs(), 6);
 
-    // delete job;
-    job.deleteValue('b');
+    // delete flow;
+    flow.deleteValue('b');
   });
 
   it('reuse worker', function () {
-    let job = new Flow();
+    let flow = new Flow();
 
-    job.setValue('a', {
+    flow.setValue('a', {
       v1: 1,
       v2: 2,
       v3: 3,
     });
 
-    let bBlock = job.createBlock('b');
+    let bBlock = flow.createBlock('b');
 
     bBlock._load({
       '#is': 'map',
@@ -231,7 +231,7 @@ describe('MapFunction non-thread', function () {
 
     Root.run();
 
-    job.setValue('a', {
+    flow.setValue('a', {
       v1: 1,
       v2: 4,
       v4: 5,
@@ -248,20 +248,20 @@ describe('MapFunction non-thread', function () {
 
     assert.lengthOf(TestFunctionRunner.popLogs(), 4);
 
-    // delete job;
-    job.deleteValue('b');
+    // delete flow;
+    flow.deleteValue('b');
   });
 
   it('persist worker', function () {
-    let job = new Flow();
+    let flow = new Flow();
 
-    job.setValue('a', {
+    flow.setValue('a', {
       v1: 1,
       v2: 2,
       v3: 3,
     });
 
-    let bBlock = job.createBlock('b');
+    let bBlock = flow.createBlock('b');
 
     bBlock._load({
       '#is': 'map',
@@ -281,7 +281,7 @@ describe('MapFunction non-thread', function () {
 
     assert.deepEqual(bBlock.getValue('#output'), {v1: 2, v2: 3, v3: 4});
 
-    job.setValue('a', {
+    flow.setValue('a', {
       v1: 1,
       v2: 4,
       v4: 5,
@@ -294,15 +294,15 @@ describe('MapFunction non-thread', function () {
 
     assert.lengthOf(TestFunctionRunner.popLogs(), 4);
 
-    // delete job;
-    job.deleteValue('b');
+    // delete flow;
+    flow.deleteValue('b');
   });
 
   it('conversion from Block', function () {
-    let job = new Flow();
+    let flow = new Flow();
 
-    let aBlock = job.createBlock('a');
-    let bBlock = job.createBlock('b');
+    let aBlock = flow.createBlock('a');
+    let bBlock = flow.createBlock('b');
 
     aBlock._load({
       '#is': '',
@@ -332,20 +332,20 @@ describe('MapFunction non-thread', function () {
       obj3: {v: 4},
     });
 
-    // delete job;
-    job.deleteValue('b');
+    // delete flow;
+    flow.deleteValue('b');
   });
 
   it('async worker', async function () {
-    let job = new Flow();
+    let flow = new Flow();
 
-    job.setValue('a', {
+    flow.setValue('a', {
       v1: 1,
       v2: 2,
       v3: 3,
     });
 
-    let bBlock = job.createBlock('b');
+    let bBlock = flow.createBlock('b');
 
     bBlock._load({
       '#is': 'map',
@@ -377,7 +377,7 @@ describe('MapFunction non-thread', function () {
 
     assert.deepEqual(await bBlock.waitNextValue('#output'), {v1: 2, v2: 3, v3: 4}, 'async workers finish');
 
-    job.setValue('a', {
+    flow.setValue('a', {
       v1: 1,
       v2: 4,
       v4: 5,
@@ -393,19 +393,19 @@ describe('MapFunction non-thread', function () {
 
     assert.lengthOf(TestFunctionRunner.popLogs(), 6);
 
-    // delete job;
-    job.deleteValue('b');
+    // delete flow;
+    flow.deleteValue('b');
   });
 
   it('timeout', async function () {
-    let job = new Flow();
+    let flow = new Flow();
 
-    job.setValue('a', {
+    flow.setValue('a', {
       v1: 1,
       v2: 2,
     });
 
-    let bBlock = job.createBlock('b');
+    let bBlock = flow.createBlock('b');
 
     bBlock._load({
       '#is': 'map',
@@ -428,20 +428,20 @@ describe('MapFunction non-thread', function () {
     assert.instanceOf(output.v1, ErrorEvent, 'value is timeout error');
     assert.instanceOf(output.v2, ErrorEvent, 'value is timeout error');
 
-    // delete job;
-    job.deleteValue('b');
+    // delete flow;
+    flow.deleteValue('b');
   });
 
   it('input race', function () {
-    let job = new Flow();
+    let flow = new Flow();
 
-    job.setValue('a', {
+    flow.setValue('a', {
       v1: 1,
       v2: 2,
       v3: 3,
     });
 
-    let bBlock = job.createBlock('b');
+    let bBlock = flow.createBlock('b');
 
     bBlock._load({
       '#is': 'map',
@@ -462,12 +462,12 @@ describe('MapFunction non-thread', function () {
     assert.lengthOf(TestFunctionRunner.popLogs(), 3);
 
     // set 2 inputs at same time
-    job.setValue('a', {
+    flow.setValue('a', {
       v7: 7,
       v8: 8,
       v9: 9,
     });
-    job.setValue('a', {
+    flow.setValue('a', {
       v1: 1,
       v2: 4,
       v4: 5,
@@ -479,20 +479,20 @@ describe('MapFunction non-thread', function () {
 
     assert.lengthOf(TestFunctionRunner.popLogs(), 3);
 
-    // delete job;
-    job.deleteValue('b');
+    // delete flow;
+    flow.deleteValue('b');
   });
 
   it('cancel worker', async function () {
-    let job = new Flow();
+    let flow = new Flow();
 
-    job.setValue('a', {
+    flow.setValue('a', {
       v1: 1,
       v2: 2,
       v3: 3,
     });
 
-    let bBlock = job.createBlock('b');
+    let bBlock = flow.createBlock('b');
 
     bBlock._load({
       '#is': 'map',
@@ -525,7 +525,7 @@ describe('MapFunction non-thread', function () {
 
     assert.lengthOf(TestFunctionRunner.popLogs(), 3);
 
-    job.setValue('a', {
+    flow.setValue('a', {
       v1: 1,
       v2: 4,
       v4: 5,
@@ -541,20 +541,20 @@ describe('MapFunction non-thread', function () {
 
     assert.lengthOf(TestFunctionRunner.popLogs(), 3);
 
-    // delete job;
-    job.deleteValue('b');
+    // delete flow;
+    flow.deleteValue('b');
   });
 
   it('cancel worker reuse', async function () {
-    let job = new Flow();
+    let flow = new Flow();
 
-    job.setValue('a', {
+    flow.setValue('a', {
       v1: 1,
       v2: 2,
       v3: 3,
     });
 
-    let bBlock = job.createBlock('b');
+    let bBlock = flow.createBlock('b');
 
     bBlock._load({
       '#is': 'map',
@@ -586,7 +586,7 @@ describe('MapFunction non-thread', function () {
     assert.lengthOf(TestFunctionRunner.popLogs(), 3);
     bBlock.setValue('#cancel', {});
 
-    job.setValue('a', {
+    flow.setValue('a', {
       v1: 1,
       v2: 4,
       v4: 5,
@@ -598,7 +598,7 @@ describe('MapFunction non-thread', function () {
 
     assert.lengthOf(TestFunctionRunner.popLogs(), 1);
 
-    // delete job;
-    job.deleteValue('b');
+    // delete flow;
+    flow.deleteValue('b');
   });
 });

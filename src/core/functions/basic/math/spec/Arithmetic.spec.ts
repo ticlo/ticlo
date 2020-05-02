@@ -5,9 +5,9 @@ import {Flow, Root} from '../../../../block/Flow';
 
 describe('Math', function () {
   it('basic add', function () {
-    let job = new Flow();
+    let flow = new Flow();
 
-    let aBlock = job.createBlock('a');
+    let aBlock = flow.createBlock('a');
 
     aBlock.setValue('#is', 'add');
     aBlock.setValue('0', 2);
@@ -22,7 +22,7 @@ describe('Math', function () {
     Root.run();
     assert.equal(aBlock.getValue('#output'), 7, 'update parameter, 4+3 == 5');
 
-    aBlock = job.createBlock('a2');
+    aBlock = flow.createBlock('a2');
 
     // set class last
     aBlock.setValue('0', 2.5);
@@ -33,20 +33,20 @@ describe('Math', function () {
     assert.equal(aBlock.getValue('#output'), 6, 'update type after value, 2.5+3.5==6');
 
     // save load
-    let saved = job.save();
-    let job2 = new Flow();
-    job2.load(saved);
+    let saved = flow.save();
+    let flow2 = new Flow();
+    flow2.load(saved);
 
-    let aBlock2 = job2.getValue('a2');
+    let aBlock2 = flow2.getValue('a2');
     assert.instanceOf(aBlock2, Block, 'load add block from saved data');
     Root.run();
     assert.equal(aBlock2.getValue('#output'), 6, 'run add function after loading saved data');
   });
 
   it('add multiple', function () {
-    let job = new Flow();
+    let flow = new Flow();
 
-    let aBlock = job.createBlock('a');
+    let aBlock = flow.createBlock('a');
     aBlock._load({'#is': 'add', '0': 2, '1': 3, '2': 4, '[]': 3});
 
     Root.run();
@@ -70,9 +70,9 @@ describe('Math', function () {
   });
 
   it('add array', function () {
-    let job = new Flow();
+    let flow = new Flow();
 
-    let aBlock = job.createBlock('a');
+    let aBlock = flow.createBlock('a');
     aBlock._load({'#is': 'add', '[]': [1, 2]});
 
     Root.run();
@@ -80,9 +80,9 @@ describe('Math', function () {
   });
 
   it('subtract', function () {
-    let job = new Flow();
+    let flow = new Flow();
 
-    let aBlock = job.createBlock('a');
+    let aBlock = flow.createBlock('a');
 
     aBlock.setValue('#is', 'subtract');
     aBlock.setValue('0', 7);
@@ -96,9 +96,9 @@ describe('Math', function () {
   });
 
   it('divide', function () {
-    let job = new Flow();
+    let flow = new Flow();
 
-    let aBlock = job.createBlock('a');
+    let aBlock = flow.createBlock('a');
 
     aBlock.setValue('#is', 'divide');
     aBlock.setValue('0', 7);
@@ -112,9 +112,9 @@ describe('Math', function () {
   });
 
   it('multiply', function () {
-    let job = new Flow();
+    let flow = new Flow();
 
-    let aBlock = job.createBlock('a');
+    let aBlock = flow.createBlock('a');
 
     aBlock.setValue('#is', 'multiply');
     aBlock.setValue('0', 2);

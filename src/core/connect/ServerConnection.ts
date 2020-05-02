@@ -279,22 +279,22 @@ class ServerDescWatcher extends ServerRequest implements DescListener {
 }
 
 function getTrackedFlow(block: Block, path: string, root: Root): Flow {
-  let job: Flow;
+  let flow: Flow;
   if (path.endsWith('.@b-xyw')) {
-    job = block._parent._job;
+    flow = block._parent._flow;
   } else {
-    job = block._job;
+    flow = block._flow;
   }
-  if (job instanceof SharedBlock) {
+  if (flow instanceof SharedBlock) {
     let sharedPos = path.lastIndexOf('.#shared.');
     if (sharedPos > 0) {
       let sharedProp = root.queryProperty(path.substring(0, sharedPos + 8));
       if (sharedProp instanceof SharedConfig) {
-        job = sharedProp._block._job;
+        flow = sharedProp._block._flow;
       }
     }
   }
-  return job;
+  return flow;
 }
 function trackChange(property: BlockProperty, path: string, root: Root) {
   getTrackedFlow(property._block, path, root).trackChange();
@@ -635,8 +635,8 @@ export class ServerConnection extends ServerConnectionCore {
   }
 
   deleteFlow(property: BlockProperty) {
-    let job = property.getValue();
-    if (job instanceof Flow) {
+    let flow = property.getValue();
+    if (flow instanceof Flow) {
       this.root.deleteFlow(property._name);
     }
   }

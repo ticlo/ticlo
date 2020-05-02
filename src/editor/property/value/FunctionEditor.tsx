@@ -63,7 +63,7 @@ export class FunctionEditor extends StringEditorBase {
 
     if (this._pendingValue != null) {
       value = this._pendingValue;
-    } else if (locked || (typeof value === 'string' && value.startsWith('job:'))) {
+    } else if (locked || (typeof value === 'string' && value.startsWith('flow:'))) {
       onChange = null;
     }
 

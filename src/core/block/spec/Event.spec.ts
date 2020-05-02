@@ -14,9 +14,9 @@ describe('Event', function () {
   it('event life cycle', function () {
     TestFunctionRunner.clearLog();
 
-    let job = new Flow();
+    let flow = new Flow();
 
-    let block = job.createBlock('obj');
+    let block = flow.createBlock('obj');
     block.setValue('#-log', 'obj');
     block.setValue('#is', 'test-runner');
 

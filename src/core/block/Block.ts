@@ -69,7 +69,7 @@ export class Block implements Runnable, FunctionData, PropListener<FunctionClass
 
   _blockId: string;
 
-  _job: Flow;
+  _flow: Flow;
   _parent: Block;
   _prop: BlockProperty;
 
@@ -87,7 +87,7 @@ export class Block implements Runnable, FunctionData, PropListener<FunctionClass
   _funcId: string;
   _funcSrc: FunctionDispatcher;
 
-  // whether the block has a function running async job
+  // whether the block has a function running async flow
   _waiting: boolean = false;
 
   // queued in Resolver
@@ -100,8 +100,8 @@ export class Block implements Runnable, FunctionData, PropListener<FunctionClass
 
   _proxy: object;
 
-  constructor(job: Flow, parent: Block, prop: BlockProperty) {
-    this._job = job;
+  constructor(flow: Flow, parent: Block, prop: BlockProperty) {
+    this._flow = flow;
     this._parent = parent;
     this._prop = prop;
     this._blockId = `${this.constructor.name} ${prop?._name}#${Block.nextUid().padStart(3, '0')}`;
@@ -195,7 +195,7 @@ export class Block implements Runnable, FunctionData, PropListener<FunctionClass
           prop = new BlockConstConfig(this, field, this._parent);
           break;
         case '###':
-          prop = new BlockConstConfig(this, field, this._job);
+          prop = new BlockConstConfig(this, field, this._flow);
           break;
         case '#':
           prop = new BlockConstConfig(this, field, this);
@@ -240,7 +240,7 @@ export class Block implements Runnable, FunctionData, PropListener<FunctionClass
   }
 
   createGlobalProperty(name: string): BlockProperty {
-    return this._job.getGlobalProperty(name);
+    return this._flow.getGlobalProperty(name);
   }
 
   createBinding(path: string, listener: PropListener<any>): BlockBindingSource {
@@ -263,7 +263,7 @@ export class Block implements Runnable, FunctionData, PropListener<FunctionClass
         return this._parent.createBinding(path.substring(3), listener);
       }
       if (path.startsWith('###.')) {
-        return this._job.createBinding(path.substring(4), listener);
+        return this._flow.createBinding(path.substring(4), listener);
       }
     }
 
@@ -443,15 +443,15 @@ export class Block implements Runnable, FunctionData, PropListener<FunctionClass
     applyChange?: (data: DataMap) => boolean
   ): T {
     let prop = this.getProperty(field);
-    let job = new FlowClass(this, output, prop);
-    prop.setOutput(job);
+    let flow = new FlowClass(this, output, prop);
+    prop.setOutput(flow);
     if (typeof src === 'string') {
-      job.load(null, src, applyChange);
+      flow.load(null, src, applyChange);
     } else {
-      job.load(src, null, applyChange);
+      flow.load(src, null, applyChange);
     }
 
-    return job;
+    return flow;
   }
 
   inputChanged(input: BlockIO, val: any) {
@@ -480,7 +480,7 @@ export class Block implements Runnable, FunctionData, PropListener<FunctionClass
 
   run() {
     this._queueToRun = false;
-    if (!this._job._enabled) {
+    if (!this._flow._enabled) {
       return;
     }
 
@@ -618,8 +618,8 @@ export class Block implements Runnable, FunctionData, PropListener<FunctionClass
   _queueFunctionOnChange() {
     if (this._runOnChange) {
       if (!this._queued) {
-        if (this._runOnLoad || !this._job._loading) {
-          this._job.queueBlock(this);
+        if (this._runOnLoad || !this._flow._loading) {
+          this._flow.queueBlock(this);
         }
       }
     }
@@ -628,7 +628,7 @@ export class Block implements Runnable, FunctionData, PropListener<FunctionClass
   _queueFunction() {
     // put it in queue
     if (!this._queued) {
-      this._job.queueBlock(this);
+      this._flow.queueBlock(this);
     }
   }
 
@@ -637,8 +637,8 @@ export class Block implements Runnable, FunctionData, PropListener<FunctionClass
   }
 
   _typeChanged(funcId: any) {
-    if (this._job._namespace && typeof funcId === 'string' && funcId.startsWith(':')) {
-      funcId = `${this._job._namespace}${funcId}`;
+    if (this._flow._namespace && typeof funcId === 'string' && funcId.startsWith(':')) {
+      funcId = `${this._flow._namespace}${funcId}`;
     }
     if (funcId === this._funcId) return;
     this._funcId = funcId;
@@ -735,7 +735,7 @@ export class Block implements Runnable, FunctionData, PropListener<FunctionClass
       this._called = false;
     }
     if (cls) {
-      if (this._job._loading && cls !== this._pendingClass) {
+      if (this._flow._loading && cls !== this._pendingClass) {
         // when function changed during load() or liveUpdate()
         // don't create the function until loading is done
         this._pendingClass = cls;
@@ -897,7 +897,7 @@ export class InputsBlock extends Block {
 export class OutputsBlock extends Block {
   inputChanged(input: BlockIO, val: any) {
     super.inputChanged(input, val);
-    this._job.outputChanged(input, val);
+    this._flow.outputChanged(input, val);
   }
 
   configChanged(input: BlockConfig, val: any) {
@@ -907,7 +907,7 @@ export class OutputsBlock extends Block {
       case '#value':
         break;
       default:
-        this._job.outputChanged(input, val);
+        this._flow.outputChanged(input, val);
     }
   }
 

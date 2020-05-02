@@ -13,9 +13,9 @@ describe('BlockMode', function () {
   });
 
   it('basic block mode', function () {
-    let job = new Flow();
+    let flow = new Flow();
 
-    let block = job.createBlock('obj');
+    let block = flow.createBlock('obj');
     block.setValue('#mode', 'onCall');
     block.setValue('#-log', 'obj');
     block.setValue('#is', 'test-runner');
@@ -49,18 +49,18 @@ describe('BlockMode', function () {
   });
 
   it('block mode on load', function () {
-    let job = new Flow();
+    let flow = new Flow();
 
-    let b0 = job.createBlock('onLoad');
+    let b0 = flow.createBlock('onLoad');
     b0.setValue('#mode', 'onLoad');
-    let b1 = job.createBlock('onChange');
+    let b1 = flow.createBlock('onChange');
     b1.setValue('#mode', 'onChange');
-    let b2 = job.createBlock('onCall');
+    let b2 = flow.createBlock('onCall');
     b2.setValue('#mode', 'onCall');
-    let b3 = job.createBlock('sync');
+    let b3 = flow.createBlock('sync');
     b3.setValue('#mode', 'onCall');
     b3.setValue('#sync', true);
-    let b4 = job.createBlock('disabled');
+    let b4 = flow.createBlock('disabled');
     b4.setValue('#mode', 'disabled');
 
     b0.setValue('#-log', 'b0');
@@ -82,20 +82,20 @@ describe('BlockMode', function () {
     Root.run();
     assert.deepEqual(TestFunctionRunner.popLogs(), ['b0', 'b1'], 'mode onLoad and onChange should be called');
 
-    let saved = job.save();
-    let job2 = new Flow();
-    job2.load(saved);
+    let saved = flow.save();
+    let flow2 = new Flow();
+    flow2.load(saved);
 
     Root.run();
     assert.deepEqual(TestFunctionRunner.logs, ['b0'], 'mode onLoad should be called after load');
   });
 
   it('block mode on liveUpdate', function () {
-    let job = new Flow();
+    let flow = new Flow();
 
-    let b0 = job.createBlock('b0');
+    let b0 = flow.createBlock('b0');
     b0.setValue('#mode', 'onLoad');
-    let b1 = job.createBlock('b1');
+    let b1 = flow.createBlock('b1');
     b1.setValue('#mode', 'onChange');
 
     b0.setValue('#-log', 'b0');
@@ -107,11 +107,11 @@ describe('BlockMode', function () {
     Root.run();
     assert.deepEqual(TestFunctionRunner.popLogs(), ['b0', 'b1'], 'first snapshot');
 
-    let save1 = job.save();
+    let save1 = flow.save();
 
-    let b2 = job.createBlock('b2');
+    let b2 = flow.createBlock('b2');
     b2.setValue('#mode', 'onLoad');
-    let b3 = job.createBlock('b3');
+    let b3 = flow.createBlock('b3');
     b3.setValue('#mode', 'onChange');
 
     b0.setValue('input', 2);
@@ -125,24 +125,24 @@ describe('BlockMode', function () {
 
     Root.run();
     assert.deepEqual(TestFunctionRunner.popLogs(), ['b0', 'b1', 'b2', 'b3'], 'second snapshot');
-    let save2 = job.save();
+    let save2 = flow.save();
 
-    job.liveUpdate(save1);
+    flow.liveUpdate(save1);
     Root.run();
     assert.deepEqual(TestFunctionRunner.logs, ['b0'], 'undo to first snapshot');
-    let save1New = job.save();
+    let save1New = flow.save();
     assert.deepEqual(save1, save1New, 'saved data should be same after live update');
     TestFunctionRunner.clearLog();
 
-    job.liveUpdate(save2);
+    flow.liveUpdate(save2);
     Root.run();
     assert.deepEqual(TestFunctionRunner.logs, ['b0', 'b2'], 'redo to second snapshot');
   });
 
   it('binding route change', function () {
-    let job = new Flow();
+    let flow = new Flow();
 
-    let block = job.createBlock('obj');
+    let block = flow.createBlock('obj');
     block.setValue('#mode', 'onCall');
     block.setValue('#-log', 'obj');
     block.setValue('#is', 'test-runner');

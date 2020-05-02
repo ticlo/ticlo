@@ -25,8 +25,8 @@ import {TicloLayoutContext, TicloLayoutContextType} from '../component/LayoutCon
 import {DragDropDiv, DragState} from 'rc-dock/lib';
 import {getFuncStyleFromDesc} from '../util/BlockColors';
 
-const saveAllowed = new Set<string>(['job:editor', 'job:worker', 'job:main']);
-const deleteAllowed = new Set<string>(['job:editor', 'job:main']);
+const saveAllowed = new Set<string>(['flow:editor', 'flow:worker', 'flow:main']);
+const deleteAllowed = new Set<string>(['flow:editor', 'flow:main']);
 
 export class NodeTreeItem extends TreeItem<NodeTreeItem> {
   childPrefix: string;
@@ -324,7 +324,7 @@ export class NodeTreeRenderer extends PureDataRenderer<Props, any> {
       } else {
         icon = <FileIcon />;
       }
-    } else if (item.functionId === 'job:const') {
+    } else if (item.functionId === 'flow:const') {
       icon = <GlobalIcon />;
     } else {
       let [colorClass, iconName] = getFuncStyleFromDesc(desc, item.getConn(), 'ticl-bg--');

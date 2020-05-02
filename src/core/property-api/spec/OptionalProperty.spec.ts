@@ -5,53 +5,53 @@ import {Flow} from '../../block/Flow';
 
 describe('Optional Property', function () {
   it('add remove OptionalProperty', function () {
-    let job = new Flow();
+    let flow = new Flow();
 
     // remove should do nothing when #optional is undefined
-    removeOptionalProperty(job, 'a');
-    assert.isUndefined(job.getValue('#optional'));
+    removeOptionalProperty(flow, 'a');
+    assert.isUndefined(flow.getValue('#optional'));
 
-    addOptionalProperty(job, 'a');
-    assert.deepEqual(job.getValue('#optional'), ['a']);
-    assert.deepEqual(job.getValue('@b-p'), ['a']);
+    addOptionalProperty(flow, 'a');
+    assert.deepEqual(flow.getValue('#optional'), ['a']);
+    assert.deepEqual(flow.getValue('@b-p'), ['a']);
 
-    addOptionalProperty(job, 'b');
-    assert.deepEqual(job.getValue('#optional'), ['a', 'b']);
-    assert.deepEqual(job.getValue('@b-p'), ['a', 'b']);
+    addOptionalProperty(flow, 'b');
+    assert.deepEqual(flow.getValue('#optional'), ['a', 'b']);
+    assert.deepEqual(flow.getValue('@b-p'), ['a', 'b']);
 
     // when prop name is same
-    addOptionalProperty(job, 'a');
-    assert.deepEqual(job.getValue('#optional'), ['a', 'b']);
+    addOptionalProperty(flow, 'a');
+    assert.deepEqual(flow.getValue('#optional'), ['a', 'b']);
 
-    removeOptionalProperty(job, 'b');
-    assert.deepEqual(job.getValue('#optional'), ['a']);
-    assert.deepEqual(job.getValue('@b-p'), ['a']);
+    removeOptionalProperty(flow, 'b');
+    assert.deepEqual(flow.getValue('#optional'), ['a']);
+    assert.deepEqual(flow.getValue('@b-p'), ['a']);
 
-    job.setValue('a', 1);
-    removeOptionalProperty(job, 'a');
-    assert.isUndefined(job.getValue('#optional'));
-    assert.isUndefined(job.getValue('a'));
+    flow.setValue('a', 1);
+    removeOptionalProperty(flow, 'a');
+    assert.isUndefined(flow.getValue('#optional'));
+    assert.isUndefined(flow.getValue('a'));
   });
 
   it('move OptionalProperty', function () {
-    let job = new Flow();
+    let flow = new Flow();
 
-    moveOptionalProperty(job, 'a', 'b');
-    assert.isUndefined(job.getValue('#optional'));
+    moveOptionalProperty(flow, 'a', 'b');
+    assert.isUndefined(flow.getValue('#optional'));
 
-    moveOptionalProperty(job, 'a', 'a');
-    assert.isUndefined(job.getValue('#optional'));
+    moveOptionalProperty(flow, 'a', 'a');
+    assert.isUndefined(flow.getValue('#optional'));
 
-    job.setValue('#optional', ['a', 'b']);
+    flow.setValue('#optional', ['a', 'b']);
 
-    moveOptionalProperty(job, 'a', 'b');
-    assert.deepEqual(job.getValue('#optional'), ['b', 'a']);
+    moveOptionalProperty(flow, 'a', 'b');
+    assert.deepEqual(flow.getValue('#optional'), ['b', 'a']);
 
-    moveOptionalProperty(job, 'a', 'b');
-    assert.deepEqual(job.getValue('#optional'), ['a', 'b']);
+    moveOptionalProperty(flow, 'a', 'b');
+    assert.deepEqual(flow.getValue('#optional'), ['a', 'b']);
 
-    moveOptionalProperty(job, 'c', 'a');
-    assert.deepEqual(job.getValue('#optional'), ['c', 'a', 'b']);
-    assert.deepEqual(job.getValue('@b-p'), ['c']);
+    moveOptionalProperty(flow, 'c', 'a');
+    assert.deepEqual(flow.getValue('#optional'), ['c', 'a', 'b']);
+    assert.deepEqual(flow.getValue('@b-p'), ['c']);
   });
 });

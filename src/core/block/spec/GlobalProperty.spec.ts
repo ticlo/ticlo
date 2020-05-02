@@ -5,25 +5,25 @@ import {DataMap} from '../../util/DataTypes';
 import {WorkerFunction} from '../../worker/WorkerFunction';
 
 describe('GlobalProperty', function () {
-  it('global from nested job', function () {
+  it('global from nested flow', function () {
     let globalBlock: Block = Root.instance.getValue('#global');
     assert.instanceOf(globalBlock, Block);
 
-    let job = new Flow();
-    let aBlock = job.createBlock('a');
+    let flow = new Flow();
+    let aBlock = flow.createBlock('a');
 
     aBlock.setValue('#is', 'GlobalProperty:class1');
 
-    let jobData: DataMap = {
+    let flowData: DataMap = {
       '#is': '',
       '~v': '^top.v',
     };
-    WorkerFunction.registerType(jobData, {name: 'class1'}, 'GlobalProperty');
+    WorkerFunction.registerType(flowData, {name: 'class1'}, 'GlobalProperty');
 
     Root.run();
 
     let impl: Flow = aBlock.getValue('#func') as Flow;
-    assert.instanceOf(impl, Flow, 'get #func of nested job');
+    assert.instanceOf(impl, Flow, 'get #func of nested flow');
     // v not ready yet
     assert.isUndefined(impl.getValue('v'));
 
@@ -31,25 +31,25 @@ describe('GlobalProperty', function () {
     top.setValue('v', 123);
     assert.equal(impl.getValue('v'), 123);
 
-    // overwrite the global block in the local job
-    let topOverwrite = job.createBlock('^top');
+    // overwrite the global block in the local flow
+    let topOverwrite = flow.createBlock('^top');
     assert.isUndefined(impl.getValue('v'));
 
     topOverwrite.setValue('v', 456);
     assert.equal(impl.getValue('v'), 456);
 
     // clear the overwrite, restore the global link
-    job.deleteValue('^top');
+    flow.deleteValue('^top');
     assert.equal(impl.getValue('v'), 123);
 
     globalBlock._liveUpdate({}); // clear global object
     assert.equal(impl.getValue('v'), undefined);
 
     // global property is in use
-    assert.isTrue(job._props.has('^top'));
+    assert.isTrue(flow._props.has('^top'));
 
-    job.deleteValue('a');
+    flow.deleteValue('a');
     // global property is no longer in use
-    assert.isFalse(job._props.has('^top'));
+    assert.isFalse(flow._props.has('^top'));
   });
 });

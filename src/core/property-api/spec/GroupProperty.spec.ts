@@ -7,8 +7,8 @@ import {insertGroupProperty, moveGroupProperty, removeGroupProperty, setGroupLen
 
 describe('GroupProperty', function () {
   it('setGroupLength', function () {
-    let job = new Flow();
-    let aBlock = job.createBlock('a');
+    let flow = new Flow();
+    let aBlock = flow.createBlock('a');
     aBlock._load({
       '#is': 'add',
     });
@@ -34,8 +34,8 @@ describe('GroupProperty', function () {
   });
 
   it('setGroupLength on #custom', function () {
-    let job = new Flow();
-    job.load({
+    let flow = new Flow();
+    flow.load({
       '#is': '',
       '#custom': [
         {
@@ -47,14 +47,14 @@ describe('GroupProperty', function () {
       ],
     });
 
-    setGroupLength(job, 'g', 3);
-    assert.deepEqual(job.getValue('g[]'), 3);
-    assert.deepEqual(job.getValue('@b-p'), ['a2']);
+    setGroupLength(flow, 'g', 3);
+    assert.deepEqual(flow.getValue('g[]'), 3);
+    assert.deepEqual(flow.getValue('@b-p'), ['a2']);
   });
 
   it('insertGroupProperty', function () {
-    let job = new Flow();
-    let aBlock = job.createBlock('a');
+    let flow = new Flow();
+    let aBlock = flow.createBlock('a');
     aBlock._load({
       '#is': 'add',
       '0': 0,
@@ -79,8 +79,8 @@ describe('GroupProperty', function () {
   });
 
   it('removeGroupProperty', function () {
-    let job = new Flow();
-    let aBlock = job.createBlock('a');
+    let flow = new Flow();
+    let aBlock = flow.createBlock('a');
     aBlock._load({
       '#is': 'add',
       '0': 0,
@@ -102,8 +102,8 @@ describe('GroupProperty', function () {
   });
 
   it('moveGroupProperty', function () {
-    let job = new Flow();
-    let aBlock = job.createBlock('a');
+    let flow = new Flow();
+    let aBlock = flow.createBlock('a');
     aBlock._load({
       '#is': 'add',
       '0': 0,

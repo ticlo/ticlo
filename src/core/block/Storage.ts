@@ -4,7 +4,7 @@ import {DataMap} from '../util/DataTypes';
 export interface Storage {
   deleteFlow(name: string): void;
 
-  saveFlow(name: string, job: Flow, data: DataMap): void;
+  saveFlow(name: string, flow: Flow, data: DataMap): void;
 
   init(root: Root): any; // void or promise
 }

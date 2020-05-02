@@ -26,8 +26,8 @@ describe('PropertyEditor', function () {
   });
 
   it('editable', async function () {
-    let job = Root.instance.addFlow('PropertyEditor1');
-    job.load({
+    let flow = Root.instance.addFlow('PropertyEditor1');
+    flow.load({
       add1: {
         '#is': 'add',
         '0': 1,
@@ -58,23 +58,23 @@ describe('PropertyEditor', function () {
     assert.isFalse(input.classList.contains('ticl-number-input-disabled'));
 
     // value is not editable when value is different
-    job.queryProperty('add1.0').setValue(2);
+    flow.queryProperty('add1.0').setValue(2);
     await shouldHappen(() => input.classList.contains('ticl-number-input-disabled'));
 
-    job.queryProperty('add1.0').setValue(undefined);
-    job.queryProperty('add2.0').setValue(undefined);
+    flow.queryProperty('add1.0').setValue(undefined);
+    flow.queryProperty('add2.0').setValue(undefined);
     await shouldHappen(() => !input.classList.contains('ticl-number-input-disabled'));
 
     // value is not editable when there is a binding
-    job.queryProperty('add1.0').setBinding('1');
+    flow.queryProperty('add1.0').setBinding('1');
     await shouldHappen(() => input.classList.contains('ticl-number-input-disabled'));
 
     Root.instance.deleteValue('PropertyEditor1');
   });
 
   it('subblock', async function () {
-    let job = Root.instance.addFlow('PropertyEditor2');
-    job.load({
+    let flow = Root.instance.addFlow('PropertyEditor2');
+    flow.load({
       add1: {
         '#is': 'add',
         '~0': {'#is': 'add'},
