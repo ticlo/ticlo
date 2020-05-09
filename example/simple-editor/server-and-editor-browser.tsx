@@ -1,6 +1,8 @@
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
+import {ConfigProvider} from 'antd';
 import {Block, DataMap, decode, encodeSorted, FunctionDesc, Flow, PropDesc, Root} from '../../src/core';
+import {translateEditor as t} from '../../src/core/editor';
 import {makeLocalConnection} from '../../src/core/connect/LocalConnection';
 import {data} from '../sample-data/data';
 import reactData from '../sample-data/react';
@@ -24,6 +26,11 @@ import '../../src/react';
 import {FunctionSelect} from '../../src/editor/function-selector/FunctionSelector';
 import JsonEsc from 'jsonesc/dist';
 
+import i18next from 'i18next';
+// @ts-ignore
+import zhLocal from '../../src/editor/i18n/zh.yaml';
+import zhAntd from 'antd/lib/locale/zh_CN';
+
 const layoutGroups = {
   blockStage: {
     animated: false,
@@ -35,7 +42,8 @@ interface Props {
   conn: ClientConnection;
 }
 
-interface State {}
+interface State {
+}
 
 WorkerFunction.registerType(
   {
@@ -84,7 +92,7 @@ WorkerFunction.registerType(
   ''
 );
 
-class App extends React.PureComponent<Props, State> implements TicloLayoutContext {
+class App extends React.PureComponent<Props, State> {
   constructor(props: Props) {
     super(props);
   }
@@ -97,6 +105,28 @@ class App extends React.PureComponent<Props, State> implements TicloLayoutContex
   layout: DockLayout;
   getLayout = (layout: DockLayout) => {
     this.layout = layout;
+  };
+
+  /// implements TicloLayoutContext
+  ticloContext: TicloLayoutContext = {
+
+    editFlow: (path: string, onSave: () => void) => {
+      this.layout.dockMove(this.createBlockEditorTab(path, onSave), this.layout.find('main'), 'middle');
+    },
+
+    editProperty: (paths: string[], propDesc: PropDesc, defaultValue?: any, mime?: string, readonly?: boolean) => {
+      let {conn} = this.props;
+      if (!mime) {
+        if (propDesc.mime) {
+          mime = propDesc.mime;
+        } else if (propDesc.type === 'object' || propDesc.type === 'array') {
+          mime = 'application/json';
+        }
+      }
+      TextEditorPane.openFloatPanel(this.layout, conn, paths, defaultValue, mime, readonly);
+    },
+    getSelectedPaths: () => this.selectedPaths
+
   };
 
   selectedPaths: PropDispatcher<string[]> = new PropDispatcher();
@@ -112,22 +142,6 @@ class App extends React.PureComponent<Props, State> implements TicloLayoutContex
     return BlockStagePane.createDockTab(path, conn, this.onSelect, onSave);
   }
 
-  /// implements TicloLayoutContext
-  editFlow(path: string, onSave: () => void) {
-    this.layout.dockMove(this.createBlockEditorTab(path, onSave), this.layout.find('main'), 'middle');
-  }
-
-  editProperty(paths: string[], propDesc: PropDesc, defaultValue?: any, mime?: string, readonly?: boolean): void {
-    let {conn} = this.props;
-    if (!mime) {
-      if (propDesc.mime) {
-        mime = propDesc.mime;
-      } else if (propDesc.type === 'object' || propDesc.type === 'array') {
-        mime = 'application/json';
-      }
-    }
-    TextEditorPane.openFloatPanel(this.layout, conn, paths, defaultValue, mime, readonly);
-  }
 
   onDragBlock = (e: DragState) => {
     let {conn} = this.props;
@@ -172,9 +186,8 @@ class App extends React.PureComponent<Props, State> implements TicloLayoutContex
                 tabs: [
                   {
                     id: 'Navigation',
-                    title: 'Navigation',
+                    title: t('Navigation'),
                     cached: true,
-                    cacheContext: TicloLayoutContextType,
                     content: (
                       <NodeTreePane
                         conn={conn}
@@ -189,7 +202,7 @@ class App extends React.PureComponent<Props, State> implements TicloLayoutContex
                     id: 'Test UI',
                     title: 'Test UI',
                     cached: true,
-                    content: <div id="main" />
+                    content: <div id="main"/>
                   }
                 ]
               },
@@ -197,17 +210,15 @@ class App extends React.PureComponent<Props, State> implements TicloLayoutContex
                 tabs: [
                   {
                     id: 'Functions',
-                    title: 'Functions',
+                    title: t('Functions'),
                     cached: true,
-                    cacheContext: TicloLayoutContextType,
-                    content: <FunctionSelect conn={conn} />
+                    content: <FunctionSelect conn={conn}/>
                   },
                   {
                     id: 'Properties',
-                    title: 'Properties',
+                    title: t('Properties'),
                     cached: true,
-                    cacheContext: TicloLayoutContextType,
-                    content: <PropertyListPane conn={conn} />
+                    content: <PropertyListPane conn={conn}/>
                   }
                 ]
               }
@@ -223,30 +234,38 @@ class App extends React.PureComponent<Props, State> implements TicloLayoutContex
       }
     };
     return (
-      <TicloLayoutContextType.Provider value={this}>
-        <DockLayout
-          defaultLayout={layout}
-          ref={this.getLayout}
-          groups={layoutGroups}
-          style={{position: 'absolute', left: 10, top: 10, right: 10, bottom: 10}}
-        />
-      </TicloLayoutContextType.Provider>
+      <ConfigProvider locale={zhAntd}>
+        <TicloLayoutContextType.Provider value={this.ticloContext}>
+          <DockLayout
+            defaultLayout={layout}
+            ref={this.getLayout}
+            groups={layoutGroups}
+            style={{position: 'absolute', left: 10, top: 10, right: 10, bottom: 10}}
+          />
+        </TicloLayoutContextType.Provider>
+      </ConfigProvider>
     );
   }
 }
 
 class FlowStorage {
-  deleteFlow(name: string) {}
+  deleteFlow(name: string) {
+  }
 
   saveFlow(name: string, flow: Flow, data?: DataMap) {
     console.log(JsonEsc.stringify(data));
   }
 
-  init(root: Root): void {}
+  init(root: Root): void {
+  }
 }
 
 (async () => {
   await initEditor();
+
+  await i18next.init({lng: 'zh'});
+  i18next.addResourceBundle('zh', 'ticlo-editor', zhLocal);
+
   await Root.instance.setStorage(new FlowStorage());
   let reactFlow = Root.instance.addFlow('example', reactData);
 
@@ -258,7 +277,7 @@ class FlowStorage {
 
   let [server, client] = makeLocalConnection(Root.instance);
 
-  ReactDOM.render(<App conn={client} />, document.getElementById('app'));
+  ReactDOM.render(<App conn={client}/>, document.getElementById('app'));
 })();
 
 (window as any).Logger = Logger;

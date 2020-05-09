@@ -1,7 +1,7 @@
 import {LazyUpdateComponent} from '../../component/LazyUpdateComponent';
 import {Form, Input, Modal} from 'antd';
 import React from 'react';
-import {ClientConn, validateNodeName} from '../../../../src/core/editor';
+import {ClientConn, validateNodeName, translateEditor as t} from '../../../../src/core/editor';
 import {FormInputItem} from '../../component/FormItem';
 
 const {TextArea} = Input;
@@ -66,7 +66,7 @@ export class AddNewFlow extends LazyUpdateComponent<Props, State> {
     let {visible, onClose, basePath} = this.props;
     let {name, data} = this.formItems;
     return (
-      <Modal title="New Dataflow" visible={visible} onOk={this.addFlow} onCancel={this.onClose}>
+      <Modal title={t('New Dataflow')} visible={visible} onOk={this.addFlow} onCancel={this.onClose}>
         <Form labelCol={{span: 3}} wrapperCol={{span: 21}}>
           {name.render(<Input addonBefore={basePath} onChange={name.onInputChange} />)}
           {data.render(<TextArea onChange={data.onInputChange} />)}

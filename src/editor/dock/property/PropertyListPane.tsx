@@ -24,8 +24,10 @@ export class PropertyListPane extends React.PureComponent<Props, State> {
   onSourceChange(source: any): void {}
 
   componentDidMount(): void {
-    // tslint:disable-next-line
-    this.context.selectedPaths.listen(this);
+    this.context?.getSelectedPaths().listen(this);
+  }
+  componentWillUnmount(): void {
+    this.context?.getSelectedPaths().unlisten(this);
   }
 
   render() {

@@ -7,6 +7,7 @@ import {ClientConn, ValueSubscriber} from '../../core/connect/ClientConn';
 import {ValueUpdate} from '../../core/connect/ClientRequests';
 import {OptionalPropertyEditor} from './OptionalPropertyEditor';
 import {FunctionDesc, PropDesc} from '../../core';
+import {translateEditor as t} from '../../core/util/i18n';
 
 class OptionalPropertyLoader extends MultiSelectLoader<OptionalPropertyList> {
   optionalProps: string[];
@@ -208,7 +209,7 @@ export class OptionalPropertyList extends MultiSelectComponent<Props, State, Opt
                 size="small"
                 value={search}
                 autoFocus={true}
-                placeholder="optional"
+                placeholder={t('Optional')}
                 onChange={this.onSearchChange}
                 onKeyDown={this.onSearchKeyDown}
               />

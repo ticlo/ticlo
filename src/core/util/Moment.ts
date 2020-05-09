@@ -1,4 +1,5 @@
 import moment from 'moment';
+import MomentTz from 'moment-timezone';
 
 const startTs = moment();
 export const MomentConstructor = startTs.constructor;

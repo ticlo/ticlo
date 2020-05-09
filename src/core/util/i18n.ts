@@ -8,16 +8,16 @@ export async function init(lng?: string) {
 
 const numberReg = /[0-9]/;
 
-export function translateType(type: string, namespace?: string): string {
-  if (!type) {
+export function translateFunction(funcId: string, namespace?: string): string {
+  if (!funcId) {
     return '';
   }
   let i18ns = `ticlo-${namespace}`;
-  return i18next.t(`${type}.@name`, {ns: i18ns, defaultValue: type});
+  return i18next.t(`${funcId}.@name`, {ns: i18ns, defaultValue: funcId});
 }
 
-export function translateProperty(type: string, name: string, namespace?: string): string {
-  if (!type) {
+export function translateProperty(funcId: string, name: string, namespace?: string): string {
+  if (!funcId) {
     return name || '';
   }
   let i18ns = `ticlo-${namespace}`;
@@ -25,14 +25,33 @@ export function translateProperty(type: string, name: string, namespace?: string
   if (numMatch) {
     let baseName = name.substr(0, numMatch.index);
     let numStr = name.substr(numMatch.index);
-    return `${i18next.t(`${type}.${baseName}.@name`, {
+    return `${i18next.t(`${funcId}.${baseName}.@name`, {
       ns: i18ns,
-      defaultValue: baseName,
+      defaultValue: baseName
     })}${numStr}`;
   } else {
-    return i18next.t(`${type}.${name}.@name`, {
+    return i18next.t(`${funcId}.${name}.@name`, {
       ns: i18ns,
-      defaultValue: name,
+      defaultValue: name
     });
   }
+}
+
+export function translateEditor(key: string, group?: string): string {
+  if (group) {
+    let result = i18next.t(`${group}.${key}`, {
+      ns: 'ticlo-editor',
+      defaultValue: ''
+    });
+    if (result) {
+      return result;
+    }
+  }
+  return i18next.t(key, {
+    ns: 'ticlo-editor'
+  });
+}
+
+export function translateEditorGroup(group: string) {
+  return (key: string) => translateEditor(key, group);
 }

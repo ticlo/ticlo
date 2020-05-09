@@ -117,21 +117,18 @@ class App extends React.PureComponent<Props, State> implements TicloLayoutContex
                 id: 'Functions',
                 title: 'Functions',
                 cached: true,
-                cacheContext: TicloLayoutContextType,
                 content: <FunctionSelect conn={conn}/>
               },
               {
                 id: 'Properties',
                 title: 'Properties',
                 cached: true,
-                cacheContext: TicloLayoutContextType,
                 content: <PropertyListPane conn={conn} />
               },
               {
                 id: 'Navigation',
                 title: 'Navigation',
                 cached: true,
-                cacheContext: TicloLayoutContextType,
                 content: <NodeTreePane conn={conn} basePaths={['']} hideRoot={true} onSelect={this.onSelect} />
               }
             ]

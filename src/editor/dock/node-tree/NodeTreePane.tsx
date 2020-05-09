@@ -1,5 +1,5 @@
 import React, {ChangeEvent} from 'react';
-import {ClientConn, decode} from '../../../../src/core/editor';
+import {ClientConn, decode, translateEditor as t} from '../../../../src/core/editor';
 import {TicloLayoutContext, TicloLayoutContextType} from '../../component/LayoutContext';
 import {NodeTree} from '../..';
 import {Button, Input, Menu, Tooltip} from 'antd';
@@ -42,10 +42,10 @@ export class NodeTreePane extends React.PureComponent<Props, State> {
   onSourceChange(source: any): void {}
 
   componentDidMount(): void {
-    this.context?.selectedPaths.listen(this);
+    this.context?.getSelectedPaths().listen(this);
   }
   componentWillUnmount(): void {
-    this.context?.selectedPaths.unlisten(this);
+    this.context?.getSelectedPaths().unlisten(this);
   }
 
   reload = () => {
@@ -107,10 +107,10 @@ export class NodeTreePane extends React.PureComponent<Props, State> {
       <div className="ticl-node-tree-pane">
         {showMenu ? (
           <div className="tlcl-top-menu-box ticl-hbox">
-            <Tooltip title="Reload">
+            <Tooltip title={t('Reload')}>
               <Button size="small" icon={<ReloadIcon />} onClick={this.reload} />
             </Tooltip>
-            <Tooltip title="New Flow">
+            <Tooltip title={t('New Dataflow')}>
               <DragDropDiv onDragOverT={this.newFlowDragOver} onDropT={this.newFlowDrop}>
                 <Button size="small" icon={<FileAddIcon />} onClick={this.showNewFlowModel} />
               </DragDropDiv>

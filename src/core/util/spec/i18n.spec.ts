@@ -16,11 +16,11 @@ describe('i18n', function () {
   });
 
   it('class name', function () {
-    assert.equal(i18n.translateType(null), '');
-    assert.equal(i18n.translateType('aaa'), 'aaa');
+    assert.equal(i18n.translateFunction(null), '');
+    assert.equal(i18n.translateFunction('aaa'), 'aaa');
 
-    assert.equal(i18n.translateType(null, 'testi18n'), '');
-    assert.equal(i18n.translateType('aaa', 'testi18n'), 'AAA');
+    assert.equal(i18n.translateFunction(null, 'testi18n'), '');
+    assert.equal(i18n.translateFunction('aaa', 'testi18n'), 'AAA');
   });
 
   it('property name', function () {

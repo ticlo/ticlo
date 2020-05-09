@@ -9,7 +9,7 @@ export interface TicloLayoutContext {
   showObjectTree?(path: string, value: any, element: HTMLElement, source: any): void;
   closeObjectTree?(path: string, source: any): void;
 
-  selectedPaths?: PropDispatcher<string[]>;
+  getSelectedPaths(): PropDispatcher<string[]>;
 }
 
 export const TicloLayoutContextType = React.createContext<TicloLayoutContext>(null);

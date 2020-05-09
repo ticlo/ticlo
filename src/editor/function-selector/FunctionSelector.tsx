@@ -6,7 +6,7 @@ import CloseCircleIcon from '@ant-design/icons/CloseCircleOutlined';
 import FilterIcon from '@ant-design/icons/FilterOutlined';
 import PlusSquareIcon from '@ant-design/icons/PlusSquareOutlined';
 import {FunctionTree} from './FunctionTree';
-import {ClientConn, DataMap, FunctionDesc, encodeTicloName} from '../../../src/core/editor';
+import {ClientConn, DataMap, FunctionDesc, encodeTicloName, translateEditor as t} from '../../../src/core/editor';
 import {OnFunctionClick} from './FunctionView';
 import {RadioChangeEvent} from 'antd/lib/radio';
 import {FunctionList} from './FunctionList';
@@ -95,7 +95,7 @@ export class FunctionSelect extends React.PureComponent<Props, State> {
           <Input
             size="small"
             value={search}
-            placeholder={'search'}
+            placeholder={t('Search')}
             style={{display: tab === 'tree' ? '' : 'none'}}
             onChange={this.onFilterChange}
             suffix={
@@ -107,12 +107,12 @@ export class FunctionSelect extends React.PureComponent<Props, State> {
             }
           />
           {this.context?.editFlow ? (
-            <Tooltip title={'New'}>
+            <Tooltip title={t('Search')}>
               <Button size="small" onClick={this.onAddFunction} icon={<PlusSquareIcon />} />
             </Tooltip>
           ) : null}
           <Modal
-            title="Function Name?"
+            title={t('Function Name?')}
             visible={this.state.modelVisible}
             onOk={this.onAddFunctionOk}
             onCancel={this.onAddFunctionCancel}
