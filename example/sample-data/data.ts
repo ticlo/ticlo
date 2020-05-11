@@ -17,8 +17,8 @@ let sharedCustom: any[] = [
     name: 'worker',
     type: 'worker',
     inputs: [{name: 'name', type: 'string'}],
-    outputs: [{name: 'result', type: 'string'}]
-  }
+    outputs: [{name: 'result', type: 'string'}],
+  },
 ];
 let len = sharedCustom.length;
 for (let i = 0; i < len; ++i) {
@@ -34,7 +34,7 @@ export const data: any = {
     '1': 4,
     '@b-xyw': [100, 100, 150],
     '@b-p': ['0', '1', '#output', '@b-p', '#is'],
-    '#custom': sharedCustom
+    '#custom': sharedCustom,
   },
   subtract: {
     '#is': 'subtract',
@@ -42,7 +42,7 @@ export const data: any = {
     '~1': '##.add.#output',
     '@hide': {v1: 3},
     '@b-xyw': [300, 200, 0],
-    '@b-p': ['0', '1', '#output']
+    '@b-p': ['0', '1', '#output'],
   },
   multiply: {
     '#is': 'multiply',
@@ -56,41 +56,41 @@ export const data: any = {
           '#is': 'divide',
           '0': 2,
           '1': '3',
-          '@b-p': ['0', '1']
+          '@b-p': ['0', '1'],
         },
-        '@b-p': ['0', '1']
+        '@b-p': ['0', '1'],
       },
       '~1': {
         '#is': 'divide',
         '0': 2,
         '1': '3',
         '@b-p': ['0', '1'],
-        '@b-hide': true
+        '@b-hide': true,
       },
-      '@b-p': ['0', '1']
+      '@b-p': ['0', '1'],
     },
     '#length': 2,
     '@b-xyw': [400, 200, 150],
     '@b-p': ['0', '1', '#output'],
-    '#custom': sharedCustom
+    '#custom': sharedCustom,
   },
   equal: {
     '#is': 'equal',
     '0': 'a',
     '1': 4,
     '@b-xyw': [100, 300, 150],
-    '@b-p': ['0', '1', '#output', '@big']
+    '@b-p': ['0', '1', '#output', '@big'],
   },
   note: {
     '#is': 'note',
     '@b-xyw': [340, 100, 150],
-    'text': 'hello'
+    'text': 'hello',
   },
   css: {
     '#is': 'html:create-style',
     '@b-xyw': [100, 500, 150],
-    '#optional': ['width', 'height']
-  }
+    '#optional': ['width', 'height'],
+  },
 };
 
 data.equal['@big'] = JSON.parse(JSON.stringify(data));

@@ -6,7 +6,7 @@ import {
   ValueType,
   endsWithNumberReg,
   ClientConn,
-  translateEditor as t
+  translateEditor as t,
 } from '../../../src/core/editor';
 import {LazyUpdateComponent} from '../component/LazyUpdateComponent';
 import {FormInputItem, FormItem} from '../component/FormItem';
@@ -39,7 +39,7 @@ export class AddCustomPropertyMenu extends LazyUpdateComponent<Props, any> {
     optionStr: new FormInputItem<string>(this, 'optionStr', t('Options')),
     showAlpha: new FormItem<boolean>(this, 'showAlpha', t('Show Alpha'), false),
     showTime: new FormItem<boolean>(this, 'showTime', t('Show Alpha'), false),
-    pinned: new FormInputItem<boolean>(this, 'pinned', t('Pinned'))
+    pinned: new FormInputItem<boolean>(this, 'pinned', t('Pinned')),
   };
 
   onSubmit = (e: React.FormEvent<HTMLElement>) => {
@@ -54,7 +54,7 @@ export class AddCustomPropertyMenu extends LazyUpdateComponent<Props, any> {
     if (
       typeof name.value !== 'string' ||
       (name.value === '' &&
-        type.value !== 'group' && // allow group to use empty name (default group)
+      type.value !== 'group' && // allow group to use empty name (default group)
         group !== '') // allow default group to have child with empty name
     ) {
       errors.set('name', t('Invalid Name'));
@@ -158,7 +158,7 @@ export class AddCustomPropertyMenu extends LazyUpdateComponent<Props, any> {
     let typeValue = type.value;
     return (
       <Form onClick={onClick} className="ticl-add-custom-prop" labelCol={{span: 9}} wrapperCol={{span: 15}}>
-        {name.render(<Input size="small" value={name.value} onChange={name.onInputChange}/>)}
+        {name.render(<Input size="small" value={name.value} onChange={name.onInputChange} />)}
         {type.render(
           <Select size="small" value={type.value} onChange={type.onChange}>
             <Option value="number">{t('number')}</Option>
@@ -171,43 +171,44 @@ export class AddCustomPropertyMenu extends LazyUpdateComponent<Props, any> {
             <Option value="date-range">{t('date-range')}</Option>
             <Option value="password">{t('passwor')}d</Option>
             <Option value="any">{t('dynamic')}</Option>
-            {group == null ? <Option value="group">{t('group')}</Option> : null // dont add group if it's in already a group
+            {
+              group == null ? <Option value="group">{t('group')}</Option> : null // dont add group if it's in already a group
             }
           </Select>
         )}
         {typeValue === 'group'
           ? defaultLen.render(
-            <InputNumber size="small" min={0} step={1} value={defaultLen.value} onChange={defaultLen.onChange}/>
-          )
+              <InputNumber size="small" min={0} step={1} value={defaultLen.value} onChange={defaultLen.onChange} />
+            )
           : null}
         {typeValue === 'number'
           ? [
-            min.render(<InputNumber size="small" value={min.value} onChange={min.onChange}/>),
-            max.render(<InputNumber size="small" value={max.value} onChange={max.onChange}/>),
-            step.render(<InputNumber size="small" value={step.value} onChange={step.onChange} min={0}/>)
-          ]
+              min.render(<InputNumber size="small" value={min.value} onChange={min.onChange} />),
+              max.render(<InputNumber size="small" value={max.value} onChange={max.onChange} />),
+              step.render(<InputNumber size="small" value={step.value} onChange={step.onChange} min={0} />),
+            ]
           : null}
         {typeValue === 'toggle' || typeValue === 'select' || typeValue === 'radio-button'
           ? optionStr.render(
-            <Input
-              size="small"
-              placeholder={t('Comma separated')}
-              value={optionStr.value}
-              onChange={optionStr.onInputChange}
-            />
-          )
+              <Input
+                size="small"
+                placeholder={t('Comma separated')}
+                value={optionStr.value}
+                onChange={optionStr.onInputChange}
+              />
+            )
           : null}
         {typeValue === 'color'
-          ? showAlpha.render(<Switch size="small" checked={showAlpha.value} onChange={showAlpha.onChange}/>)
+          ? showAlpha.render(<Switch size="small" checked={showAlpha.value} onChange={showAlpha.onChange} />)
           : null}
         {typeValue === 'date' || typeValue === 'date-range'
-          ? showTime.render(<Switch size="small" checked={showTime.value} onChange={showTime.onChange}/>)
+          ? showTime.render(<Switch size="small" checked={showTime.value} onChange={showTime.onChange} />)
           : null}
         {typeValue === 'string' || typeValue === 'number'
-          ? placeholder.render(<Input value={placeholder.value} size="small" onChange={placeholder.onInputChange}/>)
+          ? placeholder.render(<Input value={placeholder.value} size="small" onChange={placeholder.onInputChange} />)
           : null}
         {typeValue !== 'group'
-          ? pinned.render(<Switch size="small" checked={pinned.value} onChange={pinned.onChange}/>)
+          ? pinned.render(<Switch size="small" checked={pinned.value} onChange={pinned.onChange} />)
           : null}
         <Form.Item wrapperCol={{span: 15, offset: 9}}>
           <Button type="primary" htmlType="submit" onClick={this.onSubmit}>

@@ -115,7 +115,12 @@ export class NodeTreePane extends React.PureComponent<Props, State> {
                 <Button size="small" icon={<FileAddIcon />} onClick={this.showNewFlowModel} />
               </DragDropDiv>
             </Tooltip>
-            <AddNewFlow conn={conn} onClose={this.hideNewFlowModel} visible={flowModelVisible} basePath={flowBasePath} />
+            <AddNewFlow
+              conn={conn}
+              onClose={this.hideNewFlowModel}
+              visible={flowModelVisible}
+              basePath={flowBasePath}
+            />
           </div>
         ) : null}
         <NodeTree

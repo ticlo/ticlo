@@ -27,12 +27,12 @@ export function translateProperty(funcId: string, name: string, namespace?: stri
     let numStr = name.substr(numMatch.index);
     return `${i18next.t(`${funcId}.${baseName}.@name`, {
       ns: i18ns,
-      defaultValue: baseName
+      defaultValue: baseName,
     })}${numStr}`;
   } else {
     return i18next.t(`${funcId}.${name}.@name`, {
       ns: i18ns,
-      defaultValue: name
+      defaultValue: name,
     });
   }
 }
@@ -41,14 +41,14 @@ export function translateEditor(key: string, group?: string): string {
   if (group) {
     let result = i18next.t(`${group}.${key}`, {
       ns: 'ticlo-editor',
-      defaultValue: ''
+      defaultValue: '',
     });
     if (result) {
       return result;
     }
   }
   return i18next.t(key, {
-    ns: 'ticlo-editor'
+    ns: 'ticlo-editor',
   });
 }
 

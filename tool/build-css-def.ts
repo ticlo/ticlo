@@ -16,7 +16,7 @@ class InterfaceParser extends Parser {
     for (let cls of [
       'interface StandardLonghandProperties<',
       'interface StandardShorthandProperties<',
-      'interface SvgProperties<'
+      'interface SvgProperties<',
     ]) {
       if (line.includes(cls)) {
         return this;
@@ -86,12 +86,7 @@ class MultiLineTypeParser extends Parser {
   }
   values: string[] = [];
   addType(line: string) {
-    this.values.push(
-      line
-        .split('|')
-        .pop()
-        .trim()
-    );
+    this.values.push(line.split('|').pop().trim());
   }
   parseLine(line: string): Parser {
     if (line.endsWith(';')) {

@@ -50,6 +50,7 @@
     "@types/tinycolor2": "^1.4.2",
     "@types/ws": "^7.2.4",
     "antd": "^4.2.0",
+    "axios": "^0.19.2",
     "body-parser": "^1.19.0",
     "chai": "^4.2.0",
     "codemirror": "^5.53.2",
@@ -97,15 +98,13 @@
     "build-less": "lessc --js src/editor/style/antd.less dist/antd.css && lessc --js src/editor/style/editor.less dist/editor.css",
     "build-icons": "ts-node tool/build-icons",
     "build-i18n": "ts-node tool/merge-lng",
-    "collect-editor-trans": "ts-node tool/collect-editor-translate.ts",
     "build-package": "ts-node tool/build-package.ts",
-    "build-css-def": "ts-node tool/build-css-def.ts",
     "test": "cross-env NODE_ENV=TEST mocha 'src/core/**/*.spec.ts' 'src/node/**/*.spec.ts'",
     "express-server": "node -r ts-node/register example/server/express-server",
     "editor": "parcel example/simple-editor/editor-browser.html --open --out-dir temp --no-source-maps",
     "server-and-editor-browser": "parcel example/simple-editor/server-and-editor-browser.html --open --out-dir temp --no-source-maps",
     "browser-server": "parcel example/simple-editor/server.html example/simple-editor/editor-browser.html --open --out-dir temp --no-source-maps",
-    "prettier-check": "prettier --check \"src/**/*.+(ts|tsx|less)\"",
-    "prettier-write": "prettier --write \"src/**/*.+(ts|tsx|less)\""
+    "prettier-check": "prettier --check \"(src|tool|example)/**/*.+(ts|tsx|less)\"",
+    "prettier-write": "prettier --write \"(src|tool|example)/**/*.+(ts|tsx|less)\""
   }
 }

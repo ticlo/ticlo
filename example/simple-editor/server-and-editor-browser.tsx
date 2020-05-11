@@ -34,16 +34,15 @@ import zhAntd from 'antd/lib/locale/zh_CN';
 const layoutGroups = {
   blockStage: {
     animated: false,
-    floatable: true
-  }
+    floatable: true,
+  },
 };
 
 interface Props {
   conn: ClientConnection;
 }
 
-interface State {
-}
+interface State {}
 
 WorkerFunction.registerType(
   {
@@ -55,8 +54,8 @@ WorkerFunction.registerType(
         '1': 2,
         '#is': 'add',
         '@b-p': ['0', '1', '#output'],
-        '@b-xyw': [11, 212, 150]
-      }
+        '@b-xyw': [11, 212, 150],
+      },
     },
     '#inputs': {
       '#is': '',
@@ -64,9 +63,9 @@ WorkerFunction.registerType(
       '#custom': [
         {
           name: 'num',
-          type: 'number'
-        }
-      ]
+          type: 'number',
+        },
+      ],
     },
     '#outputs': {
       '#is': '',
@@ -74,21 +73,27 @@ WorkerFunction.registerType(
       '#custom': [
         {
           name: 'ooo',
-          type: 'number'
-        }
+          type: 'number',
+        },
       ],
       '@b-p': ['ooo'],
-      '~ooo': '##.multiply.#output'
+      '~ooo': '##.multiply.#output',
     },
     'multiply': {
       '0': 1,
       '#is': 'multiply',
       '@b-p': ['0', '1', '#output'],
       '@b-xyw': [269, 239, 150],
-      '~1': '##.#shared.add.#output'
-    }
+      '~1': '##.#shared.add.#output',
+    },
   },
-  {name: 'class1', properties: [{name: 'num', type: 'number'}, {name: 'ooo', type: 'number'}]},
+  {
+    name: 'class1',
+    properties: [
+      {name: 'num', type: 'number'},
+      {name: 'ooo', type: 'number'},
+    ],
+  },
   ''
 );
 
@@ -109,7 +114,6 @@ class App extends React.PureComponent<Props, State> {
 
   /// implements TicloLayoutContext
   ticloContext: TicloLayoutContext = {
-
     editFlow: (path: string, onSave: () => void) => {
       this.layout.dockMove(this.createBlockEditorTab(path, onSave), this.layout.find('main'), 'middle');
     },
@@ -125,8 +129,7 @@ class App extends React.PureComponent<Props, State> {
       }
       TextEditorPane.openFloatPanel(this.layout, conn, paths, defaultValue, mime, readonly);
     },
-    getSelectedPaths: () => this.selectedPaths
-
+    getSelectedPaths: () => this.selectedPaths,
   };
 
   selectedPaths: PropDispatcher<string[]> = new PropDispatcher();
@@ -142,7 +145,6 @@ class App extends React.PureComponent<Props, State> {
     return BlockStagePane.createDockTab(path, conn, this.onSelect, onSave);
   }
 
-
   onDragBlock = (e: DragState) => {
     let {conn} = this.props;
     e.setData(
@@ -150,8 +152,8 @@ class App extends React.PureComponent<Props, State> {
         block: {
           '#is': 'add',
           '1': 4,
-          '@b-p': ['0', '1', 'output', '@b-p', '#is']
-        }
+          '@b-p': ['0', '1', 'output', '@b-p', '#is'],
+        },
       },
       conn
     );
@@ -163,8 +165,8 @@ class App extends React.PureComponent<Props, State> {
       {
         block: {
           '#is': 'slider-view',
-          '@b-p': ['value']
-        }
+          '@b-p': ['value'],
+        },
       },
       conn
     );
@@ -196,15 +198,15 @@ class App extends React.PureComponent<Props, State> {
                         onSelect={this.onSelect}
                         showMenu={true}
                       />
-                    )
+                    ),
                   },
                   {
                     id: 'Test UI',
                     title: 'Test UI',
                     cached: true,
-                    content: <div id="main"/>
-                  }
-                ]
+                    content: <div id="main" />,
+                  },
+                ],
               },
               {
                 tabs: [
@@ -212,26 +214,26 @@ class App extends React.PureComponent<Props, State> {
                     id: 'Functions',
                     title: t('Functions'),
                     cached: true,
-                    content: <FunctionSelect conn={conn}/>
+                    content: <FunctionSelect conn={conn} />,
                   },
                   {
                     id: 'Properties',
                     title: t('Properties'),
                     cached: true,
-                    content: <PropertyListPane conn={conn}/>
-                  }
-                ]
-              }
-            ]
+                    content: <PropertyListPane conn={conn} />,
+                  },
+                ],
+              },
+            ],
           },
           {
             size: 800,
             tabs: [this.createBlockEditorTab('example'), this.createBlockEditorTab('example')],
             id: 'main',
-            panelLock: {panelStyle: 'main'}
-          }
-        ]
-      }
+            panelLock: {panelStyle: 'main'},
+          },
+        ],
+      },
     };
     return (
       <ConfigProvider locale={zhAntd}>
@@ -249,15 +251,13 @@ class App extends React.PureComponent<Props, State> {
 }
 
 class FlowStorage {
-  deleteFlow(name: string) {
-  }
+  deleteFlow(name: string) {}
 
   saveFlow(name: string, flow: Flow, data?: DataMap) {
     console.log(JsonEsc.stringify(data));
   }
 
-  init(root: Root): void {
-  }
+  init(root: Root): void {}
 }
 
 (async () => {
@@ -277,7 +277,7 @@ class FlowStorage {
 
   let [server, client] = makeLocalConnection(Root.instance);
 
-  ReactDOM.render(<App conn={client}/>, document.getElementById('app'));
+  ReactDOM.render(<App conn={client} />, document.getElementById('app'));
 })();
 
 (window as any).Logger = Logger;

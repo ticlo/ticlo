@@ -47,4 +47,3 @@ for (let pkg of ['editor', 'core', 'express', 'html', 'node', 'react']) {
   }
   mergeI18n(`./src/${pkg}/**/i18n`, outdir);
 }
-

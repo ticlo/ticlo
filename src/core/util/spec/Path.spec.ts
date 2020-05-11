@@ -95,7 +95,10 @@ describe('Path', function () {
     assert.equal(propRelative(flow1.queryValue('c.d.#func.A'), flow1.queryProperty('c.v', true)), '###.##.##.v');
     assert.equal(propRelative(flow1.queryValue('c'), flow1.queryProperty('c.d.#func.A.v', true)), 'd.#func.A.v');
     assert.equal(propRelative(flow1.queryValue('f'), flow1.queryProperty('c.d.#func.A.v', true)), '##.c.d.#func.A.v');
-    assert.equal(propRelative(flow1.queryValue('f.h'), flow1.queryProperty('c.d.#func.A.v', true)), '###.c.d.#func.A.v');
+    assert.equal(
+      propRelative(flow1.queryValue('f.h'), flow1.queryProperty('c.d.#func.A.v', true)),
+      '###.c.d.#func.A.v'
+    );
     assert.equal(
       propRelative(flow1.queryValue('c.d.#func.A'), flow1.queryProperty('f.h.#func.A.v', true)),
       '###.##.###.f.h.#func.A.v'

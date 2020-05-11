@@ -19,8 +19,8 @@ import {FunctionSelect} from '../../src/editor/function-selector/FunctionSelecto
 const layoutGroups = {
   blockStage: {
     animated: false,
-    floatable: true
-  }
+    floatable: true,
+  },
 };
 
 interface Props {
@@ -82,8 +82,8 @@ class App extends React.PureComponent<Props, State> implements TicloLayoutContex
         block: {
           '#is': 'add',
           '1': 4,
-          '@b-p': ['0', '1', 'output', '@b-p', '#is']
-        }
+          '@b-p': ['0', '1', 'output', '@b-p', '#is'],
+        },
       },
       conn
     );
@@ -95,8 +95,8 @@ class App extends React.PureComponent<Props, State> implements TicloLayoutContex
       {
         block: {
           '#is': 'slider-view',
-          '@b-p': ['value']
-        }
+          '@b-p': ['value'],
+        },
       },
       conn
     );
@@ -117,30 +117,30 @@ class App extends React.PureComponent<Props, State> implements TicloLayoutContex
                 id: 'Functions',
                 title: 'Functions',
                 cached: true,
-                content: <FunctionSelect conn={conn}/>
+                content: <FunctionSelect conn={conn} />,
               },
               {
                 id: 'Properties',
                 title: 'Properties',
                 cached: true,
-                content: <PropertyListPane conn={conn} />
+                content: <PropertyListPane conn={conn} />,
               },
               {
                 id: 'Navigation',
                 title: 'Navigation',
                 cached: true,
-                content: <NodeTreePane conn={conn} basePaths={['']} hideRoot={true} onSelect={this.onSelect} />
-              }
-            ]
+                content: <NodeTreePane conn={conn} basePaths={['']} hideRoot={true} onSelect={this.onSelect} />,
+              },
+            ],
           },
           {
             size: 800,
             tabs: [this.createBlockEditorTab('example')],
             id: 'main',
-            panelLock: {panelStyle: 'main'}
-          }
-        ]
-      }
+            panelLock: {panelStyle: 'main'},
+          },
+        ],
+      },
     };
     return (
       <TicloLayoutContextType.Provider value={this}>

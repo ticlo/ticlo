@@ -15,7 +15,11 @@ describe('ListenPromise', function () {
     assert.equal(await flow.waitNextValue('a'), 2, 'wait next value');
 
     setTimeout(() => flow.setValue('c', new ErrorEvent('')), 0);
-    assert.instanceOf(await shouldReject(flow.waitValue('c')), ErrorEvent, 'waitValue should be rejected on ErrorEvent');
+    assert.instanceOf(
+      await shouldReject(flow.waitValue('c')),
+      ErrorEvent,
+      'waitValue should be rejected on ErrorEvent'
+    );
   });
 
   it('validator', async function () {
