@@ -1,0 +1,4 @@
+js:
+  '@name': JS
+  script:
+    '@name': Script

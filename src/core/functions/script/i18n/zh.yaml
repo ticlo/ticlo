@@ -1,0 +1,4 @@
+js:
+  '@name': Js # generated
+  script:
+    '@name': 脚本 # generated

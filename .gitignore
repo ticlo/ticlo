@@ -16,3 +16,5 @@ build
 /tool/**/*.js
 /temp
 /example/**/*.ticlo
+en.base.yaml
+/i18n

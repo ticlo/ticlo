@@ -1,6 +1,10 @@
 import axios from 'axios';
 import glob from 'glob';
+import fs from 'fs';
 import {lanToAntd} from '../../src/editor/util/Languages';
+import {TranslatePkg} from './TranslatePkg';
+import {OutputYamlData, YamlData} from './YamlData';
+import {translate} from './TranslateRequest';
 
 const keyReg = /^[0-9a-f]{32}$/;
 
@@ -18,27 +22,26 @@ async function main() {
     pkg.collectEn();
   }
 
-  for (let lan of lanToAntd.keys()) {
+  for (let lan of ['zh']/*lanToAntd.keys()*/) {
+    let outputs: OutputYamlData[] = [];
+    let translateMap = new Map<string, string>();
     for (let pkg of pkgs) {
-      pkg.collectLan(lan);
+      let outputpkg = pkg.prepareOutput(lan);
+      outputs.push(outputpkg);
+      for (let [key, row] of outputpkg.toBeTranslated) {
+        translateMap.set(row.enRow.value, null);
+      }
+    }
+    await translate(translateMap, lan, key);
+    for (let output of outputs) {
+      output.applyTranslate(translateMap);
     }
   }
 
-  console.log(pkgs);
+  // save a backup of current version
+
+
   return;
-  let result = await axios.post(
-    'https://api.cognitive.microsofttranslator.com/translate',
-    [
-      {
-        Text: 'Hello, what is your name?',
-      },
-    ],
-    {
-      headers: {'Ocp-Apim-Subscription-Key': key},
-      params: {'api-version': '3.0', 'from': 'en', 'to': 'zh-hant'},
-    }
-  );
-  console.log(JSON.stringify(result.data, null, 2));
 }
 
 main();

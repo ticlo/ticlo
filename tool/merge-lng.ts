@@ -23,13 +23,23 @@ function mergeI18n(src: string, dest: string) {
   let files: string[] = glob.sync(`${src}/*.yaml`);
 
   for (let path of files) {
+    if (path.endsWith('en.base.yaml')) {
+      // ignore en base files
+      continue;
+    }
     console.log(`find ${path}`);
     let name = path.substr(path.lastIndexOf('/') + 1);
     let data = YAML.parse(fs.readFileSync(path, 'utf8'));
     if (outputs.has(name)) {
       mergeData(outputs.get(name), data);
     } else {
-      outputs.set(name, data);
+      let initData: any = {};
+      for (let key in data) {
+        if (key !== data[key]) {
+          initData[key] = data[key];
+        }
+      }
+      outputs.set(name, initData);
     }
   }
 

@@ -32,10 +32,15 @@ function main() {
       }
     }
   }
-  let out: string[] = ['---'];
+  let out: string[] = [];
   for (let [key, comment] of sharedKeys) {
     if (comment.includes(' & ')) {
-      out.push(`'${key}': '${key}' # ${comment}`);
+      out.push(
+        `# ${comment
+          .split(' & ')
+          .map((str: string) => str.split('/').pop())
+          .join(' & ')}\n'${key}': '${key}'`
+      );
     } else {
       // remove it from shared keys
       sharedKeys.delete(key);
