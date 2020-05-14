@@ -1,12 +1,12 @@
 add:
-  '@name': 添加 # generated
+  '@name': 加法
   '':
-    '@name': 输入 # generated
+    '@name': 输入
   output:
-    '@name': 输出 # generated
+    '@name': 输出
 subtract:
-  '@name': 减去 # generated
+  '@name': 减法
   '':
-    '@name': 输入 # generated
+    '@name': 输入
   output:
-    '@name': 输出 # generated
+    '@name': 输出

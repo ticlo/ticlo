@@ -10,33 +10,38 @@
 
 # property/AddCustomProperty.tsx
 'Type': 类型
-'Name': 名字
+'Name': 名称
 'Default Length': 默认长度
 'Min': 最小值
 'Max': 最大值
 'Step': 间隔
 'Place Holder': 占位字符
 'Options': 选项
-'Show Alpha': 显示 Alpha
-'Pinned': 显示
+'Show Alpha': 显示透明度
+'Pinned': 直接显示
 'Invalid Name': 无效名称
 'Number character not allowed': 不允许数字
 'Error': 错误
 'Require more than one option': 需要多个选项
-'Must have 0 or 2 options': 只支持 0 或 2 个选项
-'number': 数量
+'Must have 0 or 2 options': 只支持0个或2个选项
+'number': 数值
 'string': 字符串
-'toggle': 切换
-'select': 选择
+'toggle': 布尔
+'select': 下拉菜单
 'radio-button': 单选按钮
 'color': 颜色
 'date': 日期
 'date-range': 日期范围
-'password': 密码
-'dynamic': 动态
+'password': 密码 # generated
+'dynamic': 动态类型
 'group': 属性组
 'Comma separated': 逗号分隔
 'Add Property': 添加属性
 
 # property/OptionalPropertyList.tsx
 'Optional': 可选
+
+# util/i18n-common.ts
+'Navigation': 导航
+'Properties': 属性
+'Functions': 功能

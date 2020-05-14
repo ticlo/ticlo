@@ -40,3 +40,8 @@
 
 # property/OptionalPropertyList.tsx
 'Optional': 'Optional'
+
+# util/i18n-common.ts
+'Navigation': 'Navigation'
+'Properties': 'Properties'
+'Functions': 'Functions'

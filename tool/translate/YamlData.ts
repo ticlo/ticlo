@@ -154,7 +154,7 @@ export class OutputYamlData {
             outrow.comment = oldRow.comment;
           }
         } else {
-          if (!key.includes('.') && !oldRow.comment?.includes('generated')) {
+          if (!key.includes('.') && oldRow.value && !oldRow.comment?.includes('generated')) {
             // top level manual translation need to be kept
             this.unused.push(oldRow);
           }
@@ -181,6 +181,13 @@ export class OutputYamlData {
   writeToYaml() {
     console.log(`writing to ${this.yamlPath}`);
     let output: string[] = [];
+    if (this.unused.length) {
+      output.push('# no longer used');
+      for (let row of this.unused) {
+        output.push(row.raw);
+      }
+      output.push('\n');
+    }
     for (let row of this.rows) {
       let {rawkey, indent, raw, value} = row.enRow;
       if (value) {
