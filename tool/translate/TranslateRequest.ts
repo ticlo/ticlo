@@ -1,6 +1,8 @@
 import axios from 'axios';
 
 export async function translate(map: Map<string, string>, lan: string, key: string) {
+  console.log(`translating ${map.size} items to ${lan}`);
+
   let texts = [...map.keys()];
   let shotTexts = texts.filter((str: string) => str.length < 500);
   let longTexts = texts.filter((str: string) => str.length >= 500);

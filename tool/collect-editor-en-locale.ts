@@ -1,7 +1,7 @@
 import * as glob from 'glob';
 import fs from 'fs';
 
-const treg = /\bt\('([^']*?)'\)/g;
+const treg = /\bt\(['"]([^']*?)['"](\)|, \{)/g;
 
 let substrLen = './src/editor/'.length;
 
@@ -39,7 +39,7 @@ function main() {
         `# ${comment
           .split(' & ')
           .map((str: string) => str.split('/').pop())
-          .join(' & ')}\n'${key}': '${key}'`
+          .join(' & ')}\n"${key}": "${key}"`
       );
     } else {
       // remove it from shared keys
@@ -51,7 +51,7 @@ function main() {
     if (uniqueKeys.length) {
       out.push(`\n# ${comment}`);
       for (let key of uniqueKeys) {
-        out.push(`'${key}': '${key}'`);
+        out.push(`"${key}": "${key}"`);
       }
     }
   }

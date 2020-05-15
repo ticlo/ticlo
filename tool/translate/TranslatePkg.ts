@@ -13,24 +13,7 @@ export class TranslatePkg {
   collectEn() {
     let str = fs.readFileSync(this.enPath, {encoding: 'utf8'});
     this.enData = new YamlData(str);
-    this.checkTransBase(str);
-  }
-
-  checkTransBase(currentStr: string) {
-    let transBasePath = `${this.path}en.base.yaml`;
-    if (fs.existsSync(transBasePath)) {
-      let str = fs.readFileSync(transBasePath, {encoding: 'utf8'});
-      let baseData = new YamlData(str);
-      for (let [key, row] of baseData.mapping) {
-        if (this.enData.mapping.has(key)) {
-          let newRow = this.enData.mapping.get(key);
-          if (newRow.value === row.value) {
-            newRow.changed = false;
-          }
-        }
-      }
-    }
-    fs.writeFileSync(transBasePath, `# backup of en.yaml translated at ${new Date().toISOString()}\n\n${currentStr}`);
+    this.enData.calculateValueHash();
   }
 
   prepareOutput(locale: string): OutputYamlData {

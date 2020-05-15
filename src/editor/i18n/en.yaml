@@ -1,47 +1,65 @@
 # AddNewFlow.tsx & NodeTreePane.tsx
-'New Dataflow': 'New Dataflow'
+"New Dataflow": "New Dataflow"
+# AddCustomProperty.tsx & PropertyEditor.tsx
+"Pinned": "Pinned"
 
 # dock/node-tree/NodeTreePane.tsx
-'Reload': 'Reload'
+"Reload": "Reload"
 
 # function-selector/FunctionSelector.tsx
-'Search': 'Search'
-'Function Name?': 'Function Name?'
+"Search": "Search"
+"Function Name?": "Function Name?"
 
 # property/AddCustomProperty.tsx
-'Type': 'Type'
-'Name': 'Name'
-'Default Length': 'Default Length'
-'Min': 'Min'
-'Max': 'Max'
-'Step': 'Step'
-'Place Holder': 'Place Holder'
-'Options': 'Options'
-'Show Alpha': 'Show Alpha'
-'Pinned': 'Pinned'
-'Invalid Name': 'Invalid Name'
-'Number character not allowed': 'Number character not allowed'
-'Error': 'Error'
-'Require more than one option': 'Require more than one option'
-'Must have 0 or 2 options': 'Must have 0 or 2 options'
-'number': 'number'
-'string': 'string'
-'toggle': 'toggle'
-'select': 'select'
-'radio-button': 'radio-button'
-'color': 'color'
-'date': 'date'
-'date-range': 'date-range'
-'password': 'password'
-'dynamic': 'dynamic'
-'group': 'group'
-'Comma separated': 'Comma separated'
-'Add Property': 'Add Property'
+"Type": "Type"
+"Name": "Name"
+"Default Length": "Default Length"
+"Min": "Min"
+"Max": "Max"
+"Step": "Step"
+"Place Holder": "Place Holder"
+"Options": "Options"
+"Show Alpha": "Show Alpha"
+"Invalid Name": "Invalid Name"
+"Number character not allowed": "Number character not allowed"
+"Error": "Error"
+"Require more than one option": "Require more than one option"
+"Must have 0 or 2 options": "Must have 0 or 2 options"
+"number": "number"
+"string": "string"
+"toggle": "toggle"
+"select": "select"
+"radio-button": "radio-button"
+"color": "color"
+"date": "date"
+"date-range": "date-range"
+"password": "password"
+"dynamic": "dynamic"
+"group": "group"
+"Comma separated": "Comma separated"
+"Add Property": "Add Property"
 
 # property/OptionalPropertyList.tsx
-'Optional': 'Optional'
+"Optional": "Optional"
+
+# property/PropertyEditor.tsx
+"Add Sub Block": "Add Sub Block"
+"Binding:": "Binding:"
+"Clear": "Clear"
+"Insert at {{n}}": "Insert at {{n}}"
+"Delete at {{n}}": "Delete at {{n}}"
+"Remove Property": "Remove Property"
+"Add Child Property": "Add Child Property"
+"Unlocked for editing\nDouble click to lock": "Unlocked for editing\nDouble click to lock"
+"Editing blocked by binding\nDouble click to edit": "Editing blocked by binding\nDouble click to edit"
+"Inconsistent values\nDouble click to edit": "Inconsistent values\nDouble click to edit"
+
+# property/PropertyList.tsx
+"Config": "Config"
+"Block": "Block"
+"Custom": "Custom"
 
 # util/i18n-common.ts
-'Navigation': 'Navigation'
-'Properties': 'Properties'
-'Functions': 'Functions'
+"Navigation": "Navigation"
+"Properties": "Properties"
+"Functions": "Functions"

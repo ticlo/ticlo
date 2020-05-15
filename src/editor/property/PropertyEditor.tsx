@@ -24,6 +24,7 @@ import {
   DataMap,
   isBindable,
   getSubBlockFuncData,
+  translateEditor as t,
 } from '../../../src/core/editor';
 import {MultiSelectComponent, MultiSelectLoader} from './MultiSelectComponent';
 import {StringEditor} from './value/StringEditor';
@@ -383,13 +384,13 @@ export class PropertyEditor extends MultiSelectComponent<PropertyEditorProps, St
                 // </Menu.Item>
               }
             >
-              Add Sub Block
+              {t('Add Sub Block')}
             </SubMenuItem>
           );
         }
         menuItems.push(
           <div key="deleteBinding" className="ticl-hbox">
-            <span style={{flex: '0 1 100%'}}>Binding:</span>
+            <span style={{flex: '0 1 100%'}}>{t('Binding:')}</span>
             {bindingPath ? (
               <Button
                 className="ticl-icon-btn"
@@ -410,7 +411,7 @@ export class PropertyEditor extends MultiSelectComponent<PropertyEditorProps, St
         if (value !== undefined || bindingPath) {
           menuItems.push(
             <Button key="clear" shape="round" onClick={this.onClear}>
-              Clear
+              {t('Clear')}
             </Button>
           );
         }
@@ -420,12 +421,12 @@ export class PropertyEditor extends MultiSelectComponent<PropertyEditorProps, St
         if (groupIndex > -1) {
           menuItems.push(
             <Button key="insertIndex" shape="round" onClick={this.onInsertIndex}>
-              Insert at {groupIndex}
+              {t('Insert at {{n}}', {n: groupIndex})}
             </Button>
           );
           menuItems.push(
             <Button key="deleteIndex" shape="round" onClick={this.onDeleteIndex}>
-              Delete at {groupIndex}
+              {t('Delete at {{n}}', {n: groupIndex})}
             </Button>
           );
         }
@@ -433,13 +434,13 @@ export class PropertyEditor extends MultiSelectComponent<PropertyEditorProps, St
 
       menuItems.push(
         <Checkbox key="showHide" onChange={this.onShowHide} checked={display}>
-          Show
+          {t('Pinned')}
         </Checkbox>
       );
       if (isCustom) {
         menuItems.push(
           <Button key="removeFromCustom" shape="round" onClick={this.onRemoveCustom}>
-            Remove Property
+            {t('Remove Property')}
           </Button>
         );
         if (group != null) {
@@ -448,7 +449,7 @@ export class PropertyEditor extends MultiSelectComponent<PropertyEditorProps, St
               key="addCustomProp"
               popup={<AddCustomPropertyMenu conn={conn} onAddProperty={this.onAddCustomGroupChild} group={group} />}
             >
-              Add Child Property
+              {t('Add Child Property')}
             </SubMenuItem>
           );
         }
@@ -586,13 +587,13 @@ export class PropertyEditor extends MultiSelectComponent<PropertyEditorProps, St
     let lockIcon: React.ReactNode;
     if (renderLockIcon) {
       if (unlocked) {
-        locktooltip = 'Unlocked for editing\nDouble click to lock';
+        locktooltip = t('Unlocked for editing\nDouble click to lock');
         lockIcon = <EditIcon />;
       } else if (bindingPath) {
-        locktooltip = 'Editing blocked by binding\nDouble click to edit';
+        locktooltip = t('Editing blocked by binding\nDouble click to edit');
         lockIcon = <LockFilledIcon />;
       } else if (!valueSame) {
-        locktooltip = 'Inconsistent values\nDouble click to edit';
+        locktooltip = t('Inconsistent values\nDouble click to edit');
         lockIcon = <LockIcon />;
       }
     }
@@ -609,9 +610,9 @@ export class PropertyEditor extends MultiSelectComponent<PropertyEditorProps, St
       renderLockIcon = locked && !propDesc.readonly;
       if (renderLockIcon) {
         if (unlocked) {
-          locktooltip = 'Unlocked for editing\nDouble click to lock';
+          locktooltip = t('Unlocked for editing\nDouble click to lock');
         } else if (!bindingSame) {
-          locktooltip = 'Inconsistent values\nDouble click to edit';
+          locktooltip = t('Inconsistent values\nDouble click to edit');
         }
       }
       editor = (

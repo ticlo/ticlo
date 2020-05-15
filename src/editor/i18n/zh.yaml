@@ -1,47 +1,75 @@
+# no longer used
+"Show": 显示
+
+
 # AddNewFlow.tsx & NodeTreePane.tsx
-'New Dataflow': 新建数据流
+"New Dataflow": 新建数据流
+# AddCustomProperty.tsx & PropertyEditor.tsx
+"Pinned": 直接显示
 
 # dock/node-tree/NodeTreePane.tsx
-'Reload': 重新载入
+"Reload": 重新载入
 
 # function-selector/FunctionSelector.tsx
-'Search': 搜索
-'Function Name?': 功能名称？
+"Search": 搜索
+"Function Name?": 功能名称？
 
 # property/AddCustomProperty.tsx
-'Type': 类型
-'Name': 名称
-'Default Length': 默认长度
-'Min': 最小值
-'Max': 最大值
-'Step': 间隔
-'Place Holder': 占位字符
-'Options': 选项
-'Show Alpha': 显示透明度
-'Pinned': 直接显示
-'Invalid Name': 无效名称
-'Number character not allowed': 不允许数字
-'Error': 错误
-'Require more than one option': 需要多个选项
-'Must have 0 or 2 options': 只支持0个或2个选项
-'number': 数值
-'string': 字符串
-'toggle': 布尔
-'select': 下拉菜单
-'radio-button': 单选按钮
-'color': 颜色
-'date': 日期
-'date-range': 日期范围
-'password': 密码 # generated
-'dynamic': 动态类型
-'group': 属性组
-'Comma separated': 逗号分隔
-'Add Property': 添加属性
+"Type": 类型
+"Name": 名称
+"Default Length": 默认长度
+"Min": 最小值
+"Max": 最大值
+"Step": 间隔
+"Place Holder": 占位字符
+"Options": 选项
+"Show Alpha": 显示透明度
+"Invalid Name": 无效名称
+"Number character not allowed": 不允许数字
+"Error": 错误
+"Require more than one option": 需要多个选项
+"Must have 0 or 2 options": 只支持0个或2个选项
+"number": 数值
+"string": 字符串
+"toggle": 布尔
+"select": 下拉菜单
+"radio-button": 单选按钮
+"color": 颜色
+"date": 日期
+"date-range": 日期范围
+"password": 密码 # generated
+"dynamic": 动态类型
+"group": 属性组
+"Comma separated": 逗号分隔
+"Add Property": 添加属性
 
 # property/OptionalPropertyList.tsx
-'Optional': 可选
+"Optional": 可选
+
+# property/PropertyEditor.tsx
+"Add Sub Block": 添加子块
+"Binding:": 绑定： # auto translated from hash: ZloniY4n
+"Clear": 清空
+"Insert at {{n}}": 在{{n}}处插入
+"Delete at {{n}}": 在{{n}}处删除
+"Remove Property": 删除属性
+"Add Child Property": 添加子属性
+"Unlocked for editing\nDouble click to lock": |- # auto translated from hash: DtUOcgdR
+  已解锁编辑
+  双击锁定
+"Editing blocked by binding\nDouble click to edit": |- # auto translated from hash: YWf4ParO
+  编辑被绑定阻止
+  双击编辑
+"Inconsistent values\nDouble click to edit": |- # auto translated from hash: inF4uHrI
+  值不一致
+  双击编辑
+
+# property/PropertyList.tsx
+"Config": 设置
+"Block": 数据块
+"Custom": 自定义
 
 # util/i18n-common.ts
-'Navigation': 导航
-'Properties': 属性
-'Functions': 功能
+"Navigation": 导航
+"Properties": 属性
+"Functions": 功能

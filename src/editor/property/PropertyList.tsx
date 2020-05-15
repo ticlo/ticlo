@@ -14,6 +14,7 @@ import {
   PropGroupDesc,
   deepEqual,
   mapConfigDesc,
+  translateEditor as t,
 } from '../../../src/core/editor';
 import {PropertyEditor} from './PropertyEditor';
 import {GroupEditor} from './GroupEditor';
@@ -373,7 +374,7 @@ export class PropertyList extends MultiSelectComponent<Props, State, BlockLoader
           <div className="ticl-property-divider">
             <div className="ticl-h-line" style={{maxWidth: '16px'}} />
             <ExpandIcon opened={showConfig ? 'opened' : 'closed'} onClick={this.onShowConfigClick} />
-            <span>config</span>
+            <span>{t('Config')}</span>
             <div className="ticl-h-line" />
           </div>
           {configChildren}
@@ -382,7 +383,7 @@ export class PropertyList extends MultiSelectComponent<Props, State, BlockLoader
             <div className="ticl-property-divider">
               <div className="ticl-h-line" style={{maxWidth: '16px'}} />
               <ExpandIcon opened={showAttribute ? 'opened' : 'closed'} onClick={this.onShowAttributeClick} />
-              <span>block</span>
+              <span>{t('Block')}</span>
               <div className="ticl-h-line" />
             </div>
           ) : null}
@@ -393,7 +394,7 @@ export class PropertyList extends MultiSelectComponent<Props, State, BlockLoader
           <div className="ticl-property-divider">
             <div className="ticl-h-line" style={{maxWidth: '16px'}} />
             <ExpandIcon opened={customExpand} onClick={this.onShowCustomClick} />
-            <span>custom</span>
+            <span>{t('Custom')}</span>
             <Popup
               popupVisible={showAddCustomPopup}
               onPopupVisibleChange={this.onAddCustomPopup}

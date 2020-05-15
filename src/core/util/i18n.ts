@@ -37,7 +37,7 @@ export function translateProperty(funcId: string, name: string, namespace?: stri
   }
 }
 
-export function translateEditor(key: string, group?: string): string {
+export function translateEditor(key: string, options?: any, group?: string): string {
   if (group) {
     let result = i18next.t(`${group}.${key}`, {
       ns: 'ticlo-editor',

@@ -1,8 +1,9 @@
 // this is not a generic yaml parser, it only supports object structure and string types
 import YAML from 'yaml';
 import fs from 'fs';
+import crypto from 'crypto';
 
-const rowreg = /^( *)([^:]+):(.*?)(#[^'"]+)?$/;
+const rowreg = /^( *)(([^:'"]+)|('[^']+')|("[^"]+")):(.*?)(#[^'"]+)?$/;
 
 function parseYamlString(str: string) {
   if (str.startsWith('"') || str.startsWith("'")) {
@@ -11,10 +12,13 @@ function parseYamlString(str: string) {
   return str;
 }
 
+function hashValue(str: string | Buffer): string {
+  const hash = crypto.createHash('md5');
+  hash.update(str);
+  return hash.digest().toString('base64').substring(0, 8);
+}
+
 function writeYamlString(str: string, comment: string, indent: number) {
-  if (!str) {
-    debugger;
-  }
   if (str.includes('\n')) {
     let firstRow = '|-';
     if (comment) {
@@ -56,17 +60,27 @@ export class YamlData {
       }
     }
   }
+
+  calculateValueHash() {
+    for (let [key, row] of this.mapping) {
+      if (row.value) {
+        row.valueHash = hashValue(row.value);
+      }
+    }
+  }
 }
 
 class YamlRow {
+  static genertedFromHash = 'auto translated from hash: ';
+  static genertedFromHashLen = YamlRow.genertedFromHash.length;
+
   parent: YamlRow;
   indent: number;
   rawkey: string;
   key: string;
   value: string;
   comment: string;
-
-  changed = true;
+  valueHash: string;
 
   // when the value uses multi-line format
   multiLineIndent: string;
@@ -88,7 +102,7 @@ class YamlRow {
         this.parent = previous;
       }
 
-      this.value = match[3].trim();
+      this.value = match[6].trim();
       if (this.value === '|-') {
         // handle multi-line
         this.value = '';
@@ -97,7 +111,7 @@ class YamlRow {
         this.value = parseYamlString(this.value);
       }
 
-      this.comment = match[4]?.trim();
+      this.comment = match[7]?.trim();
     } else if (previous?.multiLineIndent) {
       // handle multi-line
       if (raw.startsWith(previous.multiLineIndent)) {
@@ -149,12 +163,20 @@ export class OutputYamlData {
       for (let [key, oldRow] of oldData.mapping) {
         if (this.mapping.has(key)) {
           let outrow = this.mapping.get(key);
-          if (!outrow.enRow.changed) {
-            outrow.translated = oldRow.value;
-            outrow.comment = oldRow.comment;
+          let generatedPos = oldRow.comment?.indexOf(YamlRow.genertedFromHash);
+          if (generatedPos > 0) {
+            let hash = oldRow.comment.substring(
+              generatedPos + YamlRow.genertedFromHashLen,
+              generatedPos + YamlRow.genertedFromHashLen + 8
+            );
+            if (hash !== outrow.enRow.valueHash) {
+              continue;
+            }
           }
+          outrow.translated = oldRow.value;
+          outrow.comment = oldRow.comment;
         } else {
-          if (!key.includes('.') && oldRow.value && !oldRow.comment?.includes('generated')) {
+          if (!key.includes('.') && oldRow.value && !oldRow.comment?.includes(YamlRow.genertedFromHash)) {
             // top level manual translation need to be kept
             this.unused.push(oldRow);
           }
@@ -174,7 +196,8 @@ export class OutputYamlData {
   applyTranslate(map: Map<string, string>) {
     for (let [key, row] of this.toBeTranslated) {
       row.translated = map.get(row.enRow.value);
-      row.comment = row.comment ? `${row.comment} generated` : '# generated';
+      let generatedStr = `${YamlRow.genertedFromHash}${row.enRow.valueHash}`;
+      row.comment = row.comment ? `${row.comment} ${generatedStr}` : `# ${generatedStr}`;
     }
     this.writeToYaml();
   }
