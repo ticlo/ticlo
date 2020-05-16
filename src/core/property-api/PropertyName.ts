@@ -15,7 +15,7 @@ export function findPropertyForNewBlock(block: Block, baseName: string, reserved
   }
 
   baseName = baseName.replace(trailingNumberReg, '');
-  for (let i = 0; ; ++i) {
+  for (let i = 1; ; ++i) {
     let newName = `${baseName}${i}`;
     if (!usedNames.includes(newName)) {
       let p = block.getProperty(`${baseName}${i}`);
