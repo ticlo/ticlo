@@ -6,19 +6,30 @@ export async function init(lng?: string) {
   });
 }
 
+export class TicloI18nSettings {
+  static useLocalizedBlockName = true;
+  static translatePropertyName = true;
+}
+
 const numberReg = /[0-9]/;
 
 export function translateFunction(funcId: string, namespace?: string): string {
   if (!funcId) {
     return '';
   }
+  if (!namespace) {
+    namespace = 'core';
+  }
   let i18ns = `ticlo-${namespace}`;
   return i18next.t(`${funcId}.@name`, {ns: i18ns, defaultValue: funcId});
 }
 
 export function translateProperty(funcId: string, name: string, namespace?: string): string {
-  if (!funcId) {
+  if (!TicloI18nSettings.translatePropertyName || !funcId) {
     return name || '';
+  }
+  if (!namespace) {
+    namespace = 'core';
   }
   let i18ns = `ticlo-${namespace}`;
   let numMatch = name.match(numberReg);

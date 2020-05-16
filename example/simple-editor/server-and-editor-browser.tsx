@@ -28,7 +28,10 @@ import JsonEsc from 'jsonesc/dist';
 
 import i18next from 'i18next';
 // @ts-ignore
-import zhLocal from '../../src/editor/i18n/zh.yaml';
+import zhLocal from '../../i18n/editor/zh.json';
+// @ts-ignore
+import zhMathLocal from '../../i18n/core/zh.json';
+
 import zhAntd from 'antd/lib/locale/zh_CN';
 
 const layoutGroups = {
@@ -265,6 +268,7 @@ class FlowStorage {
 
   await i18next.init({lng: 'zh'});
   i18next.addResourceBundle('zh', 'ticlo-editor', zhLocal);
+  i18next.addResourceBundle('zh', 'ticlo-core', zhMathLocal);
 
   await Root.instance.setStorage(new FlowStorage());
   let reactFlow = Root.instance.addFlow('example', reactData);

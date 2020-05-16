@@ -2,11 +2,11 @@ add:
   '@name': 加法
   '':
     '@name': 输入
-  output:
-    '@name': 输出
+  '#output':
+    '@name': 输出 # auto translated from hash: KcLAKjYc
 subtract:
   '@name': 减法
   '':
     '@name': 输入
-  output:
-    '@name': 输出
+  '#output':
+    '@name': 输出 # auto translated from hash: KcLAKjYc

@@ -10,6 +10,11 @@
 "Search": "Search"
 "Function Name?": "Function Name?"
 
+# function-selector/FunctionView.tsx
+"Edit": "Edit"
+"Rename": "Rename"
+"Delete": "Delete"
+
 # property/AddCustomProperty.tsx
 "Type": "Type"
 "Name": "Name"

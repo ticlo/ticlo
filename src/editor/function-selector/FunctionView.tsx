@@ -1,5 +1,13 @@
 import React from 'react';
-import {FunctionDesc, getDefaultFuncData, ClientConn, encodeTicloName} from '../../../src/core/editor';
+import {
+  FunctionDesc,
+  getDefaultFuncData,
+  ClientConn,
+  encodeTicloName,
+  translateEditor as t,
+  translateFunction,
+  TicloI18nSettings,
+} from '../../../src/core/editor';
 import {TIcon} from '../icon/Icon';
 import {DragDropDiv, DragState} from 'rc-dock/lib';
 import {getFuncStyleFromDesc} from '../util/BlockColors';
@@ -30,9 +38,13 @@ export class FunctionView extends React.PureComponent<Props, any> {
       data = getDefaultFuncData(desc);
     }
 
+    let name = desc.name;
+    if (TicloI18nSettings.useLocalizedBlockName) {
+      name = translateFunction(desc.id, desc.ns);
+    }
     e.setData(
       {
-        blockName: desc.name,
+        blockName: name,
         blockData: data,
       },
       conn.getBaseConn()
@@ -67,15 +79,15 @@ export class FunctionView extends React.PureComponent<Props, any> {
       <Menu selectable={false}>
         <Menu.Item key="edit" onClick={this.onEditClicked}>
           <BuildIcon />
-          Edit
+          {t('Edit')}
         </Menu.Item>
         <Menu.Item key="rename">
           <EditIcon />
-          Rename
+          {t('Rename')}
         </Menu.Item>
         <Menu.Item key="delete" onClick={this.onDeleteClicked}>
           <DeleteIcon />
-          Delete
+          {t('Delete')}
         </Menu.Item>
       </Menu>
     );
@@ -86,13 +98,14 @@ export class FunctionView extends React.PureComponent<Props, any> {
     if (!name) {
       name = desc.name;
     }
+    let dispName = translateFunction(desc.id, desc.ns);
     let {ns} = desc;
     let [colorClass, iconName] = getFuncStyleFromDesc(desc, conn, 'ticl-bg--');
     let typeView = (
       <DragDropDiv className={`${colorClass} ticl-func-view`} onClick={this.onClick} onDragStartT={this.onDrag}>
         <TIcon icon={iconName} />
         {ns != null ? <span className="ticl-func-ns">{ns}</span> : null}
-        <span className="ticl-func-name">{name}</span>
+        <span className="ticl-func-name">{dispName}</span>
       </DragDropDiv>
     );
 

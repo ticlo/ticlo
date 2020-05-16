@@ -2,11 +2,11 @@ add:
   '@name': Add
   '':
     '@name': 'Input '
-  output:
-    '@name': Output
+  '#output':
+    '@name': 'Output'
 subtract:
   '@name': Subtract
   '':
     '@name': 'Input '
-  output:
-    '@name': Output
+  '#output':
+    '@name': 'Output'
