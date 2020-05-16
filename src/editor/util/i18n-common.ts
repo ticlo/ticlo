@@ -1,8 +1,13 @@
-// collect all the common words used by i18n
-// import {translateEditor as t} from '../../../src/core/editor';
+import {translateEditor as t} from '../../../src/core/editor';
 
-/*
-t('Navigation')
-t('Properties')
-t('Functions')
- */
+t('Name');
+t('Type');
+t('Block');
+t('Edit');
+t('Delete');
+t('Error');
+t('Rename');
+t('Navigation');
+t('Properties');
+t('Functions');
+t('Pinned');

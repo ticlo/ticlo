@@ -1,7 +1,18 @@
+# Common
+"Name": "Name"
+"Type": "Type"
+"Block": "Block"
+"Edit": "Edit"
+"Delete": "Delete"
+"Error": "Error"
+"Rename": "Rename"
+"Navigation": "Navigation"
+"Properties": "Properties"
+"Functions": "Functions"
+"Pinned": "Pinned"
+
 # AddNewFlow.tsx & NodeTreePane.tsx
 "New Dataflow": "New Dataflow"
-# AddCustomProperty.tsx & PropertyEditor.tsx
-"Pinned": "Pinned"
 
 # dock/node-tree/NodeTreePane.tsx
 "Reload": "Reload"
@@ -10,14 +21,7 @@
 "Search": "Search"
 "Function Name?": "Function Name?"
 
-# function-selector/FunctionView.tsx
-"Edit": "Edit"
-"Rename": "Rename"
-"Delete": "Delete"
-
 # property/AddCustomProperty.tsx
-"Type": "Type"
-"Name": "Name"
 "Default Length": "Default Length"
 "Min": "Min"
 "Max": "Max"
@@ -27,7 +31,6 @@
 "Show Alpha": "Show Alpha"
 "Invalid Name": "Invalid Name"
 "Number character not allowed": "Number character not allowed"
-"Error": "Error"
 "Require more than one option": "Require more than one option"
 "Must have 0 or 2 options": "Must have 0 or 2 options"
 "number": "number"
@@ -61,10 +64,4 @@
 
 # property/PropertyList.tsx
 "Config": "Config"
-"Block": "Block"
 "Custom": "Custom"
-
-# util/i18n-common.ts
-"Navigation": "Navigation"
-"Properties": "Properties"
-"Functions": "Functions"

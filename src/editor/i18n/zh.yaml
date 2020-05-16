@@ -1,7 +1,18 @@
+# Common
+"Name": 名称
+"Type": 类型
+"Block": 数据块
+"Edit": 编辑 # auto translated from hash: fc4SIASW
+"Delete": 删除 # auto translated from hash: 8qbEmPuQ
+"Error": 错误
+"Rename": 重命名
+"Navigation": 导航
+"Properties": 属性
+"Functions": 功能
+"Pinned": 直接显示
+
 # AddNewFlow.tsx & NodeTreePane.tsx
 "New Dataflow": 新建数据流
-# AddCustomProperty.tsx & PropertyEditor.tsx
-"Pinned": 直接显示
 
 # dock/node-tree/NodeTreePane.tsx
 "Reload": 重新载入
@@ -10,14 +21,7 @@
 "Search": 搜索
 "Function Name?": 功能名称？
 
-# function-selector/FunctionView.tsx
-"Edit": 编辑 # auto translated from hash: fc4SIASW
-"Rename": 重命名
-"Delete": 删除 # auto translated from hash: 8qbEmPuQ
-
 # property/AddCustomProperty.tsx
-"Type": 类型
-"Name": 名称
 "Default Length": 默认长度
 "Min": 最小值
 "Max": 最大值
@@ -27,7 +31,6 @@
 "Show Alpha": 显示透明度
 "Invalid Name": 无效名称
 "Number character not allowed": 不允许数字
-"Error": 错误
 "Require more than one option": 需要多个选项
 "Must have 0 or 2 options": 只支持0个或2个选项
 "number": 数值
@@ -67,10 +70,4 @@
 
 # property/PropertyList.tsx
 "Config": 设置
-"Block": 数据块
 "Custom": 自定义
-
-# util/i18n-common.ts
-"Navigation": 导航
-"Properties": 属性
-"Functions": 功能

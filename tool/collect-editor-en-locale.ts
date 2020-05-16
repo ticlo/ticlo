@@ -1,15 +1,17 @@
 import * as glob from 'glob';
 import fs from 'fs';
 
-const treg = /\bt\(['"]([^']*?)['"](\)|, \{)/g;
+const treg = /\bt\(['"](.*?)['"](\)|, \{)/g;
 
 let substrLen = './src/editor/'.length;
+let commonPath = './src/editor/util/i18n-common.ts';
 
 let sharedKeys = new Map<string, string>();
 let allFiles = new Map<string, string[]>();
 
 function main() {
   let files: string[] = glob.sync(`./src/editor/**/*.{ts,tsx}`);
+  files.unshift(commonPath);
   for (let path of files) {
     let data = fs.readFileSync(path, 'utf8');
     if (data.includes('translateEditor as t')) {
@@ -32,10 +34,14 @@ function main() {
       }
     }
   }
-  let out: string[] = [];
+
+  let common: string[] = [];
+  let multipleOccur: string[] = [];
   for (let [key, comment] of sharedKeys) {
-    if (comment.includes(' & ')) {
-      out.push(
+    if (comment.includes('util/i18n-common.ts')) {
+      common.push(`"${key}": "${key}"`);
+    } else if (comment.includes(' & ')) {
+      multipleOccur.push(
         `# ${comment
           .split(' & ')
           .map((str: string) => str.split('/').pop())
@@ -46,6 +52,7 @@ function main() {
       sharedKeys.delete(key);
     }
   }
+  let out: string[] = ['# Common'].concat(common).concat(['']).concat(multipleOccur);
   for (let [comment, keys] of allFiles) {
     let uniqueKeys = keys.filter((key: string) => !sharedKeys.has(key));
     if (uniqueKeys.length) {
