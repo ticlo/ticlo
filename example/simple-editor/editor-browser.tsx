@@ -46,11 +46,12 @@ class App extends React.PureComponent<Props, State> implements TicloLayoutContex
     this.layout = layout;
   };
 
-  selectedPaths: PropDispatcher<string[]> = new PropDispatcher();
+  _selectedPaths: PropDispatcher<string[]> = new PropDispatcher();
+  getSelectedPaths = () => this._selectedPaths;
 
   onSelect = (paths: string[], handled: boolean = false) => {
     if (!handled) {
-      this.selectedPaths.updateValue(paths);
+      this._selectedPaths.updateValue(paths);
     }
   };
 

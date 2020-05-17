@@ -17,7 +17,7 @@
     "jsonesc": "^0.4.11",
     "lodash": "^4.17.15",
     "moment": "^2.25.3",
-    "moment-timezone": "^0.5.29",
+    "moment-timezone": "0.5.28",
     "qs": "^6.9.4"
   },
   "devDependencies": {
@@ -44,7 +44,7 @@
     "@types/shelljs": "^0.8.8",
     "@types/tinycolor2": "^1.4.2",
     "@types/ws": "^7.2.4",
-    "antd": "^4.2.3",
+    "antd": "4.2.2",
     "axios": "^0.19.2",
     "body-parser": "^1.19.0",
     "chai": "^4.2.0",

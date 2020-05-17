@@ -8,7 +8,7 @@ export interface HttpRequestData {
   url: string;
   path: string;
   body: any;
-  query: {[key: string]: string | string[]};
+  query: {[key: string]: any};
   headers: {[key: string]: string | string[]};
 }
 
