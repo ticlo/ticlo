@@ -308,7 +308,7 @@ export class Root extends Flow {
   _tempRoot: Flow;
 
   constructor() {
-    super();
+    super(null);
     this._parent = this;
     this._resolver = new Resolver((resolver: Resolver) => {
       resolver._queued = true;
