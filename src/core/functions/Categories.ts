@@ -14,12 +14,6 @@ Functions.addCategory({
   color: '4af',
 });
 
-Functions.addCategory({
-  id: 'string',
-  name: 'string',
-  icon: 'txt:str',
-  color: '4af',
-});
 
 Functions.addCategory({
   id: 'compare',

@@ -8,24 +8,31 @@ export async function init(lng?: string) {
 
 export class TicloI18nSettings {
   static useLocalizedBlockName = true;
-  static translatePropertyName = true;
+  static shouldTranslateFunction = true;
+
+  static shouldUseLocalizatedBlockName() {
+    return TicloI18nSettings.shouldTranslateFunction && TicloI18nSettings.useLocalizedBlockName;
+  }
 }
 
 const numberReg = /[0-9]/;
 
-export function translateFunction(funcId: string, namespace?: string): string {
-  if (!funcId) {
-    return '';
+export function translateFunction(funcId: string, name?: string, namespace?: string): string {
+  if (!TicloI18nSettings.shouldTranslateFunction || !funcId) {
+    return name || '';
   }
   if (!namespace) {
     namespace = 'core';
   }
+  if (funcId.endsWith(':')) {
+    funcId = `@category.${funcId.substring(0, funcId.length - 1)}`;
+  }
   let i18ns = `ticlo-${namespace}`;
-  return i18next.t(`${funcId}.@name`, {ns: i18ns, defaultValue: funcId});
+  return i18next.t(`${funcId}.@name`, {ns: i18ns, defaultValue: name});
 }
 
 export function translateProperty(funcId: string, name: string, namespace?: string): string {
-  if (!TicloI18nSettings.translatePropertyName || !funcId) {
+  if (!TicloI18nSettings.shouldTranslateFunction || !funcId) {
     return name || '';
   }
   if (!namespace) {
@@ -33,18 +40,23 @@ export function translateProperty(funcId: string, name: string, namespace?: stri
   }
   let i18ns = `ticlo-${namespace}`;
   let numMatch = name.match(numberReg);
-  if (numMatch) {
-    let baseName = name.substr(0, numMatch.index);
-    let numStr = name.substr(numMatch.index);
-    return `${i18next.t(`${funcId}.${baseName}.@name`, {
-      ns: i18ns,
+  let baseName = numMatch ? name.substr(0, numMatch.index) : name;
+  let translated = i18next.t(`${funcId}.${baseName}.@name`, {
+    ns: i18ns,
+    defaultValue: '',
+  });
+  if (!translated) {
+    // fallback to @shared property name
+    translated = i18next.t(`@shared.${baseName}.@name`, {
+      ns: 'ticlo-core',
       defaultValue: baseName,
-    })}${numStr}`;
-  } else {
-    return i18next.t(`${funcId}.${name}.@name`, {
-      ns: i18ns,
-      defaultValue: name,
     });
+  }
+  if (numMatch) {
+    let numStr = name.substr(numMatch.index);
+    return `${translated}${numStr}`;
+  } else {
+    return translated;
   }
 }
 

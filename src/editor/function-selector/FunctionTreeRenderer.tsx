@@ -1,7 +1,7 @@
 import React from 'react';
 import {ExpandIcon} from '../component/Tree';
 import {TIcon} from '../icon/Icon';
-import {blankFuncDesc, FunctionDesc} from '../../../src/core/editor';
+import {blankFuncDesc, FunctionDesc, translateFunction} from '../../../src/core/editor';
 import {FunctionView} from './FunctionView';
 import {FunctionTreeItem} from './FunctionTreeItem';
 import {PureDataRenderer} from '../component/DataRenderer';
@@ -54,12 +54,18 @@ export class FunctionTreeRenderer extends PureDataRenderer<Props, any> {
         name = nameParts[nameParts.length - 1];
         desc = {ns: nameParts[0], name};
       }
+      let dispName = name;
+      if (desc) {
+        dispName = translateFunction(desc.id, desc.name, desc.ns);
+      } else {
+        dispName = translateFunction(item.key, name);
+      }
       let [colorClass, iconName] = getFuncStyleFromDesc(desc, item.getConn(), 'ticl-bg--');
       return (
         <div style={{...style, marginLeft}} className="ticl-tree-type">
           <ExpandIcon opened={item.opened} onClick={this.onExpandClicked} />
           <TIcon icon={iconName} colorClass={colorClass} />
-          <span>{name}</span>
+          <span>{dispName}</span>
         </div>
       );
     }

@@ -39,8 +39,8 @@ export class FunctionView extends React.PureComponent<Props, any> {
     }
 
     let name = desc.name;
-    if (TicloI18nSettings.useLocalizedBlockName) {
-      name = translateFunction(desc.id, desc.ns);
+    if (TicloI18nSettings.shouldUseLocalizatedBlockName()) {
+      name = translateFunction(desc.id, desc.name, desc.ns);
     }
     e.setData(
       {
@@ -94,11 +94,8 @@ export class FunctionView extends React.PureComponent<Props, any> {
   };
 
   render() {
-    let {desc, name, conn} = this.props;
-    if (!name) {
-      name = desc.name;
-    }
-    let dispName = translateFunction(desc.id, desc.ns);
+    let {desc, conn} = this.props;
+    let dispName = translateFunction(desc.id, desc.name, desc.ns);
     let {ns} = desc;
     let [colorClass, iconName] = getFuncStyleFromDesc(desc, conn, 'ticl-bg--');
     let typeView = (

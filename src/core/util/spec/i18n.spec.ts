@@ -19,8 +19,8 @@ describe('i18n', function () {
     assert.equal(i18n.translateFunction(null), '');
     assert.equal(i18n.translateFunction('aaa'), 'aaa');
 
-    assert.equal(i18n.translateFunction(null, 'testi18n'), '');
-    assert.equal(i18n.translateFunction('aaa', 'testi18n'), 'AAA');
+    assert.equal(i18n.translateFunction(null, null, 'testi18n'), '');
+    assert.equal(i18n.translateFunction('aaa', null, 'testi18n'), 'AAA');
   });
 
   it('property name', function () {

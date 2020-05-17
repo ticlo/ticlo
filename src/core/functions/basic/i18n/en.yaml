@@ -1,12 +1,20 @@
+'@category':
+  math:
+    '@name': Math
+  string:
+    '@name': String
+  compare:
+    '@name': Compare
+  repeat:
+    '@name': Repeat
+
+'@shared':
+  '':
+    '@name': 'Input '
+  '#output':
+    '@name': 'Output'
+
 add:
   '@name': Add
-  '':
-    '@name': 'Input '
-  '#output':
-    '@name': 'Output'
 subtract:
   '@name': Subtract
-  '':
-    '@name': 'Input '
-  '#output':
-    '@name': 'Output'
