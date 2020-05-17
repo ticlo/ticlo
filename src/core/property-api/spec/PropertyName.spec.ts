@@ -10,7 +10,6 @@ describe('PropertyUtil', function () {
     let flow = new Flow();
     flow.setValue('#custom', [{name: 'add4', type: 'sting'}]);
 
-    flow.setValue('add1', 1);
     flow.setBinding('add2', 'add1');
 
     let p = findPropertyForNewBlock(flow, 'add');
@@ -18,7 +17,7 @@ describe('PropertyUtil', function () {
     p.setValue(1);
 
     p = findPropertyForNewBlock(flow, 'add');
-    assert.equal(p._name, 'add0');
+    assert.equal(p._name, 'add1');
     p.setValue(1);
 
     // skip 2 names because they are already used

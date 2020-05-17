@@ -563,11 +563,11 @@ describe('Connection', function () {
 
     // result names
     assert.equal(response1.name, 'a');
-    assert.equal(response2.name, 'a0');
-    assert.equal(response3.name, 'a1');
+    assert.equal(response2.name, 'a1');
+    assert.equal(response3.name, 'a2');
 
     // a a0 a1 should all be created
-    assert.instanceOf(flow1.getValue('a1'), Block);
+    assert.instanceOf(flow1.getValue('a2'), Block);
 
     client.destroy();
     Root.instance.deleteValue('Connection13');

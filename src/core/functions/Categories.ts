@@ -14,7 +14,6 @@ Functions.addCategory({
   color: '4af',
 });
 
-
 Functions.addCategory({
   id: 'compare',
   name: 'compare',

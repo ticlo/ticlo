@@ -17,7 +17,7 @@ describe('i18n', function () {
 
   it('class name', function () {
     assert.equal(i18n.translateFunction(null), '');
-    assert.equal(i18n.translateFunction('aaa'), 'aaa');
+    assert.equal(i18n.translateFunction('aaa', 'aaa'), 'aaa');
 
     assert.equal(i18n.translateFunction(null, null, 'testi18n'), '');
     assert.equal(i18n.translateFunction('aaa', null, 'testi18n'), 'AAA');

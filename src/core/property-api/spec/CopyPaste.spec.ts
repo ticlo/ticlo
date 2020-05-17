@@ -50,12 +50,12 @@ describe('Copy Paste', function () {
       '#shared': {
         '#is': '',
         'subtract': {'#is': 'subtract'},
-        'subtract0': {'#is': 'subtract'},
+        'subtract1': {'#is': 'subtract'},
       },
       'add': {'#is': 'add', '@b-xyw': [100, 100, 100]},
       'divide': {'#is': 'divide', '~0': '##.add.0', '@b-xyw': 'add'},
-      'add0': {'#is': 'add', '@b-xyw': [124, 124, 100]},
-      'divide0': {'#is': 'divide', '~0': '##.add0.0', '@b-xyw': 'add0'},
+      'add1': {'#is': 'add', '@b-xyw': [124, 124, 100]},
+      'divide1': {'#is': 'divide', '~0': '##.add1.0', '@b-xyw': 'add1'},
     });
 
     flow1.destroy();
