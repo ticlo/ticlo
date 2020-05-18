@@ -1,5 +1,5 @@
 import React, {useContext} from 'react';
-import {FunctionDesc, translateEditor, translateFunction} from '../../../src/core/editor';
+import {FunctionDesc, translateEditor, translateFunction, translateProperty} from '../../../src/core/editor';
 import {TicloLayoutContextType} from './LayoutContext';
 
 export const LocalizedLabel = ({label, options}: {label: string; options?: any}) => {
@@ -17,6 +17,15 @@ export const LocalizedFunctionName = ({desc, className}: {desc: FunctionDesc; cl
   return <span className={className}>{translateFunction(desc.id, desc.name, desc.ns)}</span>;
 };
 
-export const LocalizedPropertyName = () => {
+export const LocalizedPropertyName = ({
+  desc,
+  className,
+  name,
+}: {
+  desc: FunctionDesc;
+  name: string;
+  className?: string;
+}) => {
   useContext(TicloLayoutContextType);
+  return <span className={className}>{translateProperty(desc.id, name, desc.ns)}</span>;
 };

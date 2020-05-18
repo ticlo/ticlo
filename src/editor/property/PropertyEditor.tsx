@@ -14,7 +14,6 @@ import {
   getDefaultFuncData,
   PropDesc,
   PropGroupDesc,
-  translateProperty,
   arrayEqual,
   deepEqual,
   stopPropagation,
@@ -43,7 +42,7 @@ import {WorkerEditor} from './value/WorkerEditor';
 import {DynamicEditor, dynamicEditorMap} from './value/DynamicEditor';
 import {ReadonlyEditor} from './value/ReadonlyEditor';
 import {ComboEditor} from './value/ComboEditor';
-import {t} from '../component/LocalizedLabel';
+import {LocalizedPropertyName, t} from '../component/LocalizedLabel';
 
 const typeEditorMap: {[key: string]: any} = {
   ...dynamicEditorMap,
@@ -561,7 +560,9 @@ export class PropertyEditor extends MultiSelectComponent<PropertyEditorProps, St
       // not ready yet
       return (
         <div className="ticl-property">
-          <div className="ticl-property-name">{translateProperty(funcDesc.name, name, funcDesc.ns)}</div>
+          <div className="ticl-property-name">
+            <LocalizedPropertyName desc={funcDesc} name={name} />
+          </div>
           <div className="ticl-property-value">
             <div className="ticl-property-loader" />
           </div>
@@ -670,7 +671,7 @@ export class PropertyEditor extends MultiSelectComponent<PropertyEditorProps, St
             onDragOverT={this.onDragOver}
             onDropT={this.onDrop}
           >
-            {translateProperty(funcDesc.name, name, funcDesc.ns)}
+            <LocalizedPropertyName desc={funcDesc} name={name} />
           </DragDropDiv>
         </Popup>
         {renderLockIcon ? (

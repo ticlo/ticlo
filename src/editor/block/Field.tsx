@@ -2,9 +2,7 @@ import React, {MouseEventHandler} from 'react';
 import {WireItem} from './Wire';
 import {DataRendererItem, PureDataRenderer} from '../component/DataRenderer';
 import {
-  getRelativePath,
   resolvePath,
-  translateProperty,
   ClientConn,
   ValueUpdate,
   blankFuncDesc,
@@ -23,6 +21,7 @@ import {DragDropDiv, DragState} from 'rc-dock';
 import * as DragManager from 'rc-dock/src/dragdrop/DragManager';
 import {FieldValue} from './FieldValue';
 import {isBindable} from '../../core/util/Path';
+import {LocalizedPropertyName} from '../component/LocalizedLabel';
 
 export interface Stage {
   getBlock(path: string): BlockItem;
@@ -460,7 +459,7 @@ export class FieldView extends PureDataRenderer<FieldViewProps, any> {
               <TIcon icon={item.subBlock.desc.icon} />
             </div>
           ) : null}
-          {translateProperty(desc.name, item.name, desc.ns)}
+          <LocalizedPropertyName desc={desc} name={item.name} />
         </div>
         <FieldValue conn={item.getConn()} path={item.path} />
       </DragDropDiv>

@@ -29,8 +29,11 @@ import JsonEsc from 'jsonesc/dist';
 import i18next from 'i18next';
 // @ts-ignore
 import zhLocal from '../../i18n/editor/zh.json';
+
 // @ts-ignore
 import zhMathLocal from '../../i18n/core/zh.json';
+// @ts-ignore
+import enMathLocal from '../../i18n/core/en.json';
 
 import zhAntd from 'antd/lib/locale/zh_CN';
 import enAntd from 'antd/lib/locale/en_US';
@@ -138,8 +141,8 @@ class App extends React.PureComponent<Props, State> {
                     content: <div id="main" />,
                   },
                   {
-                    id: 'Switch Language',
-                    title: 'Switch Language',
+                    id: 'Test Language',
+                    title: 'Test Language',
                     content: (
                       <div style={{margin: 12}}>
                         <Switch
@@ -314,6 +317,7 @@ class FlowStorage {
   await i18next.init({lng: 'zh'});
   i18next.addResourceBundle('zh', 'ticlo-editor', zhLocal);
   i18next.addResourceBundle('zh', 'ticlo-core', zhMathLocal);
+  i18next.addResourceBundle('en', 'ticlo-core', enMathLocal);
 
   await Root.instance.setStorage(new FlowStorage());
   let reactFlow = Root.instance.addFlow('example', reactData);
