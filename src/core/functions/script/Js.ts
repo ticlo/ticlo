@@ -117,4 +117,5 @@ Functions.add(JsFunction, {
       pinned: true,
     },
   ],
+  category: 'script',
 });

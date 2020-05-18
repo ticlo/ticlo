@@ -3,6 +3,8 @@
     '@name': 数学 # auto translated from hash: pJlQqgR8
   string:
     '@name': 字符串 # auto translated from hash: JxGDJgBt
+  script:
+    '@name': 脚本 # auto translated from hash: +QfmURZH
   compare:
     '@name': 比较 # auto translated from hash: fuzlHPOT
   repeat:

@@ -3,6 +3,8 @@
     '@name': Math
   string:
     '@name': String
+  script:
+    '@name': Script
   compare:
     '@name': Compare
   repeat:
