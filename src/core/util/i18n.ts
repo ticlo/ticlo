@@ -9,10 +9,6 @@ export async function init(lng?: string) {
 export class TicloI18nSettings {
   static useLocalizedBlockName = true;
   static shouldTranslateFunction = true;
-
-  static shouldUseLocalizatedBlockName() {
-    return TicloI18nSettings.shouldTranslateFunction && TicloI18nSettings.useLocalizedBlockName;
-  }
 }
 
 const numberReg = /[0-9]/;

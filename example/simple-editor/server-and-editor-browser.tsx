@@ -1,6 +1,6 @@
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
-import {ConfigProvider, Switch} from 'antd';
+import {Checkbox, ConfigProvider, Switch} from 'antd';
 import {Block, DataMap, decode, encodeSorted, FunctionDesc, Flow, PropDesc, Root} from '../../src/core';
 import {TicloI18nSettings} from '../../src/core/editor';
 import {makeLocalConnection} from '../../src/core/connect/LocalConnection';
@@ -157,18 +157,30 @@ class App extends React.PureComponent<Props, State> {
                           }
                         />
                         <br />
-                        <Switch
-                          checkedChildren="translate function"
-                          unCheckedChildren="translate function"
-                          defaultChecked={true}
+                        <Checkbox
+                          defaultChecked={TicloI18nSettings.shouldTranslateFunction}
                           onChange={
                             // tslint:disable-next-line:jsx-no-lambda
-                            (checked: boolean) => {
-                              TicloI18nSettings.shouldTranslateFunction = checked;
+                            (e) => {
+                              TicloI18nSettings.shouldTranslateFunction = e.target.checked;
                               this.switchLan(this.lng);
                             }
                           }
-                        />
+                        >
+                          translate function
+                        </Checkbox>
+                        <br />
+                        <Checkbox
+                          defaultChecked={TicloI18nSettings.useLocalizedBlockName}
+                          onChange={
+                            // tslint:disable-next-line:jsx-no-lambda
+                            (e) => {
+                              TicloI18nSettings.useLocalizedBlockName = e.target.checked;
+                            }
+                          }
+                        >
+                          localize block name
+                        </Checkbox>
                       </div>
                     ),
                   },

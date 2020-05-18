@@ -39,7 +39,7 @@ export class FunctionView extends React.PureComponent<Props, any> {
     }
 
     let name = desc.name;
-    if (TicloI18nSettings.shouldUseLocalizatedBlockName()) {
+    if (TicloI18nSettings.useLocalizedBlockName) {
       name = translateFunction(desc.id, desc.name, desc.ns);
     }
     e.setData(

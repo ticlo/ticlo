@@ -14,7 +14,7 @@ import {
   TicloI18NConsumer,
   TicloLayoutContext,
   TicloLayoutContextConsumer,
-  TicloLayoutContextType
+  TicloLayoutContextType,
 } from '../component/LayoutContext';
 import {t} from '../component/LocalizedLabel';
 

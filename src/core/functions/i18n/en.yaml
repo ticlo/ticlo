@@ -1,0 +1,15 @@
+'@category':
+  math:
+    '@name': Math
+  string:
+    '@name': String
+  compare:
+    '@name': Compare
+  repeat:
+    '@name': Repeat
+
+'@shared':
+  '':
+    '@name': 'Input '
+  '#output':
+    '@name': 'Output'
