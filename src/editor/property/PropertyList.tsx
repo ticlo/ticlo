@@ -14,7 +14,6 @@ import {
   PropGroupDesc,
   deepEqual,
   mapConfigDesc,
-  translateEditor as t,
 } from '../../../src/core/editor';
 import {PropertyEditor} from './PropertyEditor';
 import {GroupEditor} from './GroupEditor';
@@ -26,6 +25,7 @@ import {BlockWidget} from '../block/view/BlockWidget';
 import {LazyUpdateComponent, LazyUpdateSubscriber} from '../component/LazyUpdateComponent';
 import {OptionalPropertyList} from './OptionalPropertyList';
 import {CustomPropertyReorder} from './PropertyReorder';
+import {t} from '../component/LocalizedLabel';
 
 function descToEditor(conn: ClientConn, paths: string[], funcDesc: FunctionDesc, propDesc: PropDesc) {
   return (
@@ -374,7 +374,7 @@ export class PropertyList extends MultiSelectComponent<Props, State, BlockLoader
           <div className="ticl-property-divider">
             <div className="ticl-h-line" style={{maxWidth: '16px'}} />
             <ExpandIcon opened={showConfig ? 'opened' : 'closed'} onClick={this.onShowConfigClick} />
-            <span>{t('Config')}</span>
+            {t('Config')}
             <div className="ticl-h-line" />
           </div>
           {configChildren}
@@ -383,7 +383,7 @@ export class PropertyList extends MultiSelectComponent<Props, State, BlockLoader
             <div className="ticl-property-divider">
               <div className="ticl-h-line" style={{maxWidth: '16px'}} />
               <ExpandIcon opened={showAttribute ? 'opened' : 'closed'} onClick={this.onShowAttributeClick} />
-              <span>{t('Block')}</span>
+              {t('Block')}
               <div className="ticl-h-line" />
             </div>
           ) : null}
@@ -394,7 +394,7 @@ export class PropertyList extends MultiSelectComponent<Props, State, BlockLoader
           <div className="ticl-property-divider">
             <div className="ticl-h-line" style={{maxWidth: '16px'}} />
             <ExpandIcon opened={customExpand} onClick={this.onShowCustomClick} />
-            <span>{t('Custom')}</span>
+            {t('Custom')}
             <Popup
               popupVisible={showAddCustomPopup}
               onPopupVisibleChange={this.onAddCustomPopup}

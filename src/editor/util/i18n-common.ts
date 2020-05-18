@@ -1,4 +1,4 @@
-import {translateEditor as t} from '../../../src/core/editor';
+import {t} from '../component/LocalizedLabel';
 
 t('Name');
 t('Type');

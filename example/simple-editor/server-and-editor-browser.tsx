@@ -1,8 +1,8 @@
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
-import {ConfigProvider} from 'antd';
+import {ConfigProvider, Switch} from 'antd';
 import {Block, DataMap, decode, encodeSorted, FunctionDesc, Flow, PropDesc, Root} from '../../src/core';
-import {translateEditor as t} from '../../src/core/editor';
+import {TicloI18nSettings} from '../../src/core/editor';
 import {makeLocalConnection} from '../../src/core/connect/LocalConnection';
 import {data} from '../sample-data/data';
 import reactData from '../sample-data/react';
@@ -33,6 +33,8 @@ import zhLocal from '../../i18n/editor/zh.json';
 import zhMathLocal from '../../i18n/core/zh.json';
 
 import zhAntd from 'antd/lib/locale/zh_CN';
+import enAntd from 'antd/lib/locale/en_US';
+import {LocalizedLabel, t} from '../../src/editor/component/LocalizedLabel';
 
 const layoutGroups = {
   blockStage: {
@@ -101,9 +103,112 @@ WorkerFunction.registerType(
 );
 
 class App extends React.PureComponent<Props, State> {
+  defaultDockLayout: any;
   constructor(props: Props) {
     super(props);
+    let {conn} = props;
+    this.defaultDockLayout = {
+      dockbox: {
+        mode: 'horizontal',
+        children: [
+          {
+            mode: 'vertical',
+            size: 200,
+            children: [
+              {
+                tabs: [
+                  {
+                    id: 'Navigation',
+                    title: t('Navigation'),
+                    cached: true,
+                    content: (
+                      <NodeTreePane
+                        conn={conn}
+                        basePaths={['']}
+                        hideRoot={true}
+                        onSelect={this.onSelect}
+                        showMenu={true}
+                      />
+                    ),
+                  },
+                  {
+                    id: 'Test UI',
+                    title: 'Test UI',
+                    cached: true,
+                    content: <div id="main" />,
+                  },
+                  {
+                    id: 'Switch Language',
+                    title: 'Switch Language',
+                    content: (
+                      <div style={{margin: 12}}>
+                        <Switch
+                          checkedChildren="zh"
+                          unCheckedChildren="en"
+                          defaultChecked={this.lng === 'zh'}
+                          onChange={
+                            // tslint:disable-next-line:jsx-no-lambda
+                            (checked: boolean) => {
+                              this.switchLan(checked ? 'zh' : 'en');
+                            }
+                          }
+                        />
+                        <br />
+                        <Switch
+                          checkedChildren="translate function"
+                          unCheckedChildren="translate function"
+                          defaultChecked={true}
+                          onChange={
+                            // tslint:disable-next-line:jsx-no-lambda
+                            (checked: boolean) => {
+                              TicloI18nSettings.shouldTranslateFunction = checked;
+                              this.switchLan(this.lng);
+                            }
+                          }
+                        />
+                      </div>
+                    ),
+                  },
+                ],
+              },
+              {
+                tabs: [
+                  {
+                    id: 'Functions',
+                    title: t('Functions'),
+                    cached: true,
+                    content: <FunctionSelect conn={conn} />,
+                  },
+                  {
+                    id: 'Properties',
+                    title: t('Properties'),
+                    cached: true,
+                    content: <PropertyListPane conn={conn} />,
+                  },
+                ],
+              },
+            ],
+          },
+          {
+            size: 800,
+            tabs: [this.createBlockEditorTab('example'), this.createBlockEditorTab('example')],
+            id: 'main',
+            panelLock: {panelStyle: 'main'},
+          },
+        ],
+      },
+    };
   }
+
+  lng: string = 'zh';
+  lngConfig = zhAntd;
+  switchLan = (lng: string) => {
+    this.lng = lng;
+    this.lngConfig = lng === 'zh' ? zhAntd : enAntd;
+    // force a reload of the context
+    this.ticloContext = {...this.ticloContext};
+    i18next.changeLanguage(lng, this.forceUpdateImmediate);
+  };
 
   forceUpdateLambda = () => this.forceUpdate();
   forceUpdateImmediate = () => {
@@ -178,71 +283,11 @@ class App extends React.PureComponent<Props, State> {
 
   render() {
     let {conn} = this.props;
-
-    let layout: any = {
-      dockbox: {
-        mode: 'horizontal',
-        children: [
-          {
-            mode: 'vertical',
-            size: 200,
-            children: [
-              {
-                tabs: [
-                  {
-                    id: 'Navigation',
-                    title: t('Navigation'),
-                    cached: true,
-                    content: (
-                      <NodeTreePane
-                        conn={conn}
-                        basePaths={['']}
-                        hideRoot={true}
-                        onSelect={this.onSelect}
-                        showMenu={true}
-                      />
-                    ),
-                  },
-                  {
-                    id: 'Test UI',
-                    title: 'Test UI',
-                    cached: true,
-                    content: <div id="main" />,
-                  },
-                ],
-              },
-              {
-                tabs: [
-                  {
-                    id: 'Functions',
-                    title: t('Functions'),
-                    cached: true,
-                    content: <FunctionSelect conn={conn} />,
-                  },
-                  {
-                    id: 'Properties',
-                    title: t('Properties'),
-                    cached: true,
-                    content: <PropertyListPane conn={conn} />,
-                  },
-                ],
-              },
-            ],
-          },
-          {
-            size: 800,
-            tabs: [this.createBlockEditorTab('example'), this.createBlockEditorTab('example')],
-            id: 'main',
-            panelLock: {panelStyle: 'main'},
-          },
-        ],
-      },
-    };
     return (
-      <ConfigProvider locale={zhAntd}>
+      <ConfigProvider locale={this.lngConfig}>
         <TicloLayoutContextType.Provider value={this.ticloContext}>
           <DockLayout
-            defaultLayout={layout}
+            defaultLayout={this.defaultDockLayout}
             ref={this.getLayout}
             groups={layoutGroups}
             style={{position: 'absolute', left: 10, top: 10, right: 10, bottom: 10}}

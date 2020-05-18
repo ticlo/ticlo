@@ -6,11 +6,17 @@ import CloseCircleIcon from '@ant-design/icons/CloseCircleOutlined';
 import FilterIcon from '@ant-design/icons/FilterOutlined';
 import PlusSquareIcon from '@ant-design/icons/PlusSquareOutlined';
 import {FunctionTree} from './FunctionTree';
-import {ClientConn, DataMap, FunctionDesc, encodeTicloName, translateEditor as t} from '../../../src/core/editor';
+import {ClientConn, DataMap, FunctionDesc, encodeTicloName, translateEditor} from '../../../src/core/editor';
 import {OnFunctionClick} from './FunctionView';
 import {RadioChangeEvent} from 'antd/lib/radio';
 import {FunctionList} from './FunctionList';
-import {TicloLayoutContext, TicloLayoutContextType} from '../component/LayoutContext';
+import {
+  TicloI18NConsumer,
+  TicloLayoutContext,
+  TicloLayoutContextConsumer,
+  TicloLayoutContextType
+} from '../component/LayoutContext';
+import {t} from '../component/LocalizedLabel';
 
 interface Props {
   conn: ClientConn;
@@ -92,20 +98,24 @@ export class FunctionSelect extends React.PureComponent<Props, State> {
               </Radio.Button>
             </Tooltip>
           </Radio.Group>
-          <Input
-            size="small"
-            value={search}
-            placeholder={t('Search')}
-            style={{display: tab === 'tree' ? '' : 'none'}}
-            onChange={this.onFilterChange}
-            suffix={
-              search ? (
-                <CloseCircleIcon title={'clear'} style={{color: 'rgba(0,0,0,.45)'}} onClick={this.onFilterClear} />
-              ) : (
-                <FilterIcon style={{color: 'rgba(0,0,0,.45)'}} />
-              )
-            }
-          />
+          <TicloI18NConsumer>
+            {() => (
+              <Input
+                size="small"
+                value={search}
+                placeholder={translateEditor('Search')}
+                style={{display: tab === 'tree' ? '' : 'none'}}
+                onChange={this.onFilterChange}
+                suffix={
+                  search ? (
+                    <CloseCircleIcon title={'clear'} style={{color: 'rgba(0,0,0,.45)'}} onClick={this.onFilterClear} />
+                  ) : (
+                    <FilterIcon style={{color: 'rgba(0,0,0,.45)'}} />
+                  )
+                }
+              />
+            )}
+          </TicloI18NConsumer>
           {this.context?.editFlow ? (
             <Tooltip title={t('Search')}>
               <Button size="small" onClick={this.onAddFunction} icon={<PlusSquareIcon />} />

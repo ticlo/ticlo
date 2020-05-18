@@ -4,7 +4,6 @@ import {
   getDefaultFuncData,
   ClientConn,
   encodeTicloName,
-  translateEditor as t,
   translateFunction,
   TicloI18nSettings,
 } from '../../../src/core/editor';
@@ -16,6 +15,7 @@ import BuildIcon from '@ant-design/icons/BuildOutlined';
 import DeleteIcon from '@ant-design/icons/DeleteOutlined';
 import EditIcon from '@ant-design/icons/EditOutlined';
 import {TicloLayoutContext, TicloLayoutContextType} from '../component/LayoutContext';
+import {LocalizedFunctionName, t} from '../component/LocalizedLabel';
 
 export type OnFunctionClick = (name: string, desc: FunctionDesc, data: any) => void;
 
@@ -95,14 +95,13 @@ export class FunctionView extends React.PureComponent<Props, any> {
 
   render() {
     let {desc, conn} = this.props;
-    let dispName = translateFunction(desc.id, desc.name, desc.ns);
     let {ns} = desc;
     let [colorClass, iconName] = getFuncStyleFromDesc(desc, conn, 'ticl-bg--');
     let typeView = (
       <DragDropDiv className={`${colorClass} ticl-func-view`} onClick={this.onClick} onDragStartT={this.onDrag}>
         <TIcon icon={iconName} />
         {ns != null ? <span className="ticl-func-ns">{ns}</span> : null}
-        <span className="ticl-func-name">{dispName}</span>
+        <LocalizedFunctionName desc={desc} className="ticl-func-name" />
       </DragDropDiv>
     );
 

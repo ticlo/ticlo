@@ -7,7 +7,8 @@ import {ClientConn, ValueSubscriber} from '../../core/connect/ClientConn';
 import {ValueUpdate} from '../../core/connect/ClientRequests';
 import {OptionalPropertyEditor} from './OptionalPropertyEditor';
 import {FunctionDesc, PropDesc} from '../../core';
-import {translateEditor as t} from '../../core/util/i18n';
+import {TicloI18NConsumer} from '../component/LayoutContext';
+import {translateEditor} from '../../core/util/i18n';
 
 class OptionalPropertyLoader extends MultiSelectLoader<OptionalPropertyList> {
   optionalProps: string[];
@@ -205,14 +206,18 @@ export class OptionalPropertyList extends MultiSelectComponent<Props, State, Opt
             </>
           ) : (
             <>
-              <Input
-                size="small"
-                value={search}
-                autoFocus={true}
-                placeholder={t('Optional')}
-                onChange={this.onSearchChange}
-                onKeyDown={this.onSearchKeyDown}
-              />
+              <TicloI18NConsumer>
+                {() => (
+                  <Input
+                    size="small"
+                    value={search}
+                    autoFocus={true}
+                    placeholder={translateEditor('Optional')}
+                    onChange={this.onSearchChange}
+                    onKeyDown={this.onSearchKeyDown}
+                  />
+                )}
+              </TicloI18NConsumer>
               <CloseIcon onClick={this.clearSearch} />
             </>
           )}

@@ -1,7 +1,7 @@
 import * as glob from 'glob';
 import fs from 'fs';
 
-const treg = /\bt\(['"](.*?)['"](\)|, \{)/g;
+const treg = /\b(?:t|translateEditor)\(['"](.*?)['"](\)|, \{)/g;
 
 let substrLen = './src/editor/'.length;
 let commonPath = './src/editor/util/i18n-common.ts';
@@ -14,24 +14,22 @@ function main() {
   files.unshift(commonPath);
   for (let path of files) {
     let data = fs.readFileSync(path, 'utf8');
-    if (data.includes('translateEditor as t')) {
-      let comment = path.substring(substrLen);
-      let keys: string[] = [];
-      for (let match of data.matchAll(treg)) {
-        let key = match[1];
-        if (sharedKeys.has(key)) {
-          let previousComment = sharedKeys.get(key);
-          if (!previousComment.includes(comment)) {
-            sharedKeys.set(key, `${previousComment} & ${comment}`);
-          }
-        } else {
-          sharedKeys.set(key, comment);
-          keys.push(key);
+    let comment = path.substring(substrLen);
+    let keys: string[] = [];
+    for (let match of data.matchAll(treg)) {
+      let key = match[1];
+      if (sharedKeys.has(key)) {
+        let previousComment = sharedKeys.get(key);
+        if (!previousComment.includes(comment)) {
+          sharedKeys.set(key, `${previousComment} & ${comment}`);
         }
+      } else {
+        sharedKeys.set(key, comment);
+        keys.push(key);
       }
-      if (keys.length) {
-        allFiles.set(comment, keys);
-      }
+    }
+    if (keys.length) {
+      allFiles.set(comment, keys);
     }
   }
 

@@ -16,3 +16,6 @@ export const TicloLayoutContextType = React.createContext<TicloLayoutContext>(nu
 
 export const TicloLayoutContextProvider = TicloLayoutContextType.Provider;
 export const TicloLayoutContextConsumer = TicloLayoutContextType.Consumer;
+
+// alias name to make it easier to read code
+export const TicloI18NConsumer = TicloLayoutContextConsumer;

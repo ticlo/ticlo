@@ -24,7 +24,6 @@ import {
   DataMap,
   isBindable,
   getSubBlockFuncData,
-  translateEditor as t,
 } from '../../../src/core/editor';
 import {MultiSelectComponent, MultiSelectLoader} from './MultiSelectComponent';
 import {StringEditor} from './value/StringEditor';
@@ -44,6 +43,7 @@ import {WorkerEditor} from './value/WorkerEditor';
 import {DynamicEditor, dynamicEditorMap} from './value/DynamicEditor';
 import {ReadonlyEditor} from './value/ReadonlyEditor';
 import {ComboEditor} from './value/ComboEditor';
+import {t} from '../component/LocalizedLabel';
 
 const typeEditorMap: {[key: string]: any} = {
   ...dynamicEditorMap,
@@ -390,7 +390,7 @@ export class PropertyEditor extends MultiSelectComponent<PropertyEditorProps, St
         }
         menuItems.push(
           <div key="deleteBinding" className="ticl-hbox">
-            <span style={{flex: '0 1 100%'}}>{t('Binding:')}</span>
+            <span style={{flex: '0 1 100%'}}>{t('Binding')}:</span>
             {bindingPath ? (
               <Button
                 className="ticl-icon-btn"
@@ -583,7 +583,7 @@ export class PropertyEditor extends MultiSelectComponent<PropertyEditorProps, St
     // lock icon
     let locked = bindingPath || !valueSame;
     let renderLockIcon = locked && !propDesc.readonly;
-    let locktooltip: string;
+    let locktooltip: React.ReactNode;
     let lockIcon: React.ReactNode;
     if (renderLockIcon) {
       if (unlocked) {

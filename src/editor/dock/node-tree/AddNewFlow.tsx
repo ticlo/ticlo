@@ -1,8 +1,9 @@
 import {LazyUpdateComponent} from '../../component/LazyUpdateComponent';
 import {Form, Input, Modal} from 'antd';
 import React from 'react';
-import {ClientConn, validateNodeName, translateEditor as t} from '../../../../src/core/editor';
+import {ClientConn, validateNodeName} from '../../../../src/core/editor';
 import {FormInputItem} from '../../component/FormItem';
+import {t} from '../../component/LocalizedLabel';
 
 const {TextArea} = Input;
 

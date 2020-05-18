@@ -52,7 +52,7 @@
 
 # property/PropertyEditor.tsx
 "Add Sub Block": "Add Sub Block"
-"Binding:": "Binding:"
+"Binding": "Binding"
 "Clear": "Clear"
 "Insert at {{n}}": "Insert at {{n}}"
 "Delete at {{n}}": "Delete at {{n}}"

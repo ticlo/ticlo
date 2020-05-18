@@ -1,5 +1,5 @@
-import React, {ChangeEvent} from 'react';
-import {ClientConn, decode, translateEditor as t} from '../../../../src/core/editor';
+import React from 'react';
+import {ClientConn} from '../../../../src/core/editor';
 import {TicloLayoutContext, TicloLayoutContextType} from '../../component/LayoutContext';
 import {NodeTree} from '../..';
 import {Button, Input, Menu, Tooltip} from 'antd';
@@ -9,6 +9,7 @@ import {AddNewFlow} from './AddNewFlow';
 import {DragDropDiv, DragState} from 'rc-dock/lib';
 import {NodeTreeItem} from '../../node-tree/NodeRenderer';
 import {ClickParam} from 'antd/lib/menu';
+import {t} from '../../component/LocalizedLabel';
 
 interface Props {
   conn: ClientConn;

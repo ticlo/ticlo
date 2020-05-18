@@ -6,10 +6,12 @@ import {
   ValueType,
   endsWithNumberReg,
   ClientConn,
-  translateEditor as t,
+  translateEditor,
 } from '../../../src/core/editor';
 import {LazyUpdateComponent} from '../component/LazyUpdateComponent';
 import {FormInputItem, FormItem} from '../component/FormItem';
+import {t} from '../component/LocalizedLabel';
+import {TicloI18NConsumer} from '../component/LayoutContext';
 
 const RadioButton = Radio.Button;
 const RadioGroup = Radio.Group;
@@ -29,17 +31,17 @@ type CustomValueType = ValueType | 'group';
 
 export class AddCustomPropertyMenu extends LazyUpdateComponent<Props, any> {
   formItems = {
-    type: new FormItem<CustomValueType>(this, 'type', t('Type'), 'string'),
-    name: new FormInputItem<string>(this, 'name', t('Name')),
-    defaultLen: new FormItem<number>(this, 'defaultLen', t('Default Length'), 2),
-    min: new FormItem<number>(this, 'min', t('Min')),
-    max: new FormItem<number>(this, 'max', t('Max')),
-    step: new FormItem<number>(this, 'step', t('Step')),
-    placeholder: new FormInputItem<string>(this, 'placeholder', t('Place Holder'), ''),
-    optionStr: new FormInputItem<string>(this, 'optionStr', t('Options')),
-    showAlpha: new FormItem<boolean>(this, 'showAlpha', t('Show Alpha'), false),
-    showTime: new FormItem<boolean>(this, 'showTime', t('Show Alpha'), false),
-    pinned: new FormInputItem<boolean>(this, 'pinned', t('Pinned')),
+    type: new FormItem<CustomValueType>(this, 'type', translateEditor('Type'), 'string'),
+    name: new FormInputItem<string>(this, 'name', translateEditor('Name')),
+    defaultLen: new FormItem<number>(this, 'defaultLen', translateEditor('Default Length'), 2),
+    min: new FormItem<number>(this, 'min', translateEditor('Min')),
+    max: new FormItem<number>(this, 'max', translateEditor('Max')),
+    step: new FormItem<number>(this, 'step', translateEditor('Step')),
+    placeholder: new FormInputItem<string>(this, 'placeholder', translateEditor('Place Holder'), ''),
+    optionStr: new FormInputItem<string>(this, 'optionStr', translateEditor('Options')),
+    showAlpha: new FormItem<boolean>(this, 'showAlpha', translateEditor('Show Alpha'), false),
+    showTime: new FormItem<boolean>(this, 'showTime', translateEditor('Show Alpha'), false),
+    pinned: new FormInputItem<boolean>(this, 'pinned', translateEditor('Pinned')),
   };
 
   onSubmit = (e: React.FormEvent<HTMLElement>) => {
@@ -57,13 +59,13 @@ export class AddCustomPropertyMenu extends LazyUpdateComponent<Props, any> {
       type.value !== 'group' && // allow group to use empty name (default group)
         group !== '') // allow default group to have child with empty name
     ) {
-      errors.set('name', t('Invalid Name'));
+      errors.set('name', translateEditor('Invalid Name'));
     } else if (group != null && name.value.match(endsWithNumberReg)) {
-      errors.set('name', t('Number character not allowed'));
+      errors.set('name', translateEditor('Number character not allowed'));
     }
     if (type.value === 'group') {
       if (defaultLen.value == null || !(defaultLen.value >= 0)) {
-        errors.set('defaultLen', t('Error'));
+        errors.set('defaultLen', translateEditor('Error'));
       }
       result = {name: name.value, type: 'group', defaultLen: defaultLen.value};
     } else {
@@ -72,24 +74,24 @@ export class AddCustomPropertyMenu extends LazyUpdateComponent<Props, any> {
         case 'number': {
           if (min.value != null) {
             if (typeof min.value !== 'number' || min.value !== min.value) {
-              errors.set('min', t('Error'));
+              errors.set('min', translateEditor('Error'));
             } else {
               result.min = min.value;
             }
           }
           if (max.value != null) {
             if (typeof max.value !== 'number' || max.value !== max.value) {
-              errors.set('max', t('Error'));
+              errors.set('max', translateEditor('Error'));
             } else if (result.hasOwnProperty('min') && result.min >= max.value) {
-              errors.set('min', t('Error'));
-              errors.set('max', t('Error'));
+              errors.set('min', translateEditor('Error'));
+              errors.set('max', translateEditor('Error'));
             } else {
               result.max = max.value;
             }
           }
           if (step.value != null) {
             if (typeof step.value !== 'number' || step.value !== step.value) {
-              errors.set('step', t('Error'));
+              errors.set('step', translateEditor('Error'));
             } else {
               result.step = step.value;
             }
@@ -109,7 +111,7 @@ export class AddCustomPropertyMenu extends LazyUpdateComponent<Props, any> {
         case 'radio-button': {
           let options: string[] = optionStr.value.split(',');
           if (options.length < 2) {
-            errors.set('option', t('Require more than one option'));
+            errors.set('option', translateEditor('Require more than one option'));
           } else {
             result.options = options;
           }
@@ -119,7 +121,7 @@ export class AddCustomPropertyMenu extends LazyUpdateComponent<Props, any> {
           if (optionStr.value) {
             let options: string[] = optionStr.value.split(',');
             if (options.length !== 2) {
-              errors.set('optionErr', t('Must have 0 or 2 options'));
+              errors.set('optionErr', translateEditor('Must have 0 or 2 options'));
             } else {
               result.options = options;
             }
@@ -190,12 +192,16 @@ export class AddCustomPropertyMenu extends LazyUpdateComponent<Props, any> {
           : null}
         {typeValue === 'toggle' || typeValue === 'select' || typeValue === 'radio-button'
           ? optionStr.render(
-              <Input
-                size="small"
-                placeholder={t('Comma separated')}
-                value={optionStr.value}
-                onChange={optionStr.onInputChange}
-              />
+              <TicloI18NConsumer>
+                {() => (
+                  <Input
+                    size="small"
+                    placeholder={translateEditor('Comma separated')}
+                    value={optionStr.value}
+                    onChange={optionStr.onInputChange}
+                  />
+                )}
+              </TicloI18NConsumer>
             )
           : null}
         {typeValue === 'color'
