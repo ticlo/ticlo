@@ -30,7 +30,21 @@ class GroupLoader extends MultiSelectLoader<GroupEditor> {
   len: number = -1;
   lenListener = new ValueSubscriber({
     onUpdate: (response: ValueUpdate) => {
-      let len = parseInt(response.cache.value);
+      let lenValue = response.cache.value;
+      let len = -1;
+      switch (typeof lenValue) {
+        case 'number':
+          len = Math.floor(lenValue);
+          break;
+        case 'string':
+          parseInt(lenValue);
+          break;
+        case 'object':
+          if (Array.isArray(lenValue)) {
+            len = 0;
+          }
+          break;
+      }
       if (!(len >= 0)) {
         len = this.parent.props.groupDesc.defaultLen;
       }

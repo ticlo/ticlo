@@ -19,10 +19,6 @@ function hashValue(str: string | Buffer): string {
 }
 
 function writeYamlString(str: string, comment: string, indent: number) {
-  if (str == null) {
-    debugger;
-  }
-
   if (str.includes('\n')) {
     let firstRow = '|-';
     if (comment) {
