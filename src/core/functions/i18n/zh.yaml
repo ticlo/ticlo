@@ -1,4 +1,4 @@
-'@category':
+'@namespace':
   math:
     '@name': 数学 # auto translated from hash: pJlQqgR8
   string:
@@ -15,3 +15,35 @@
     '@name': 输入 # auto translated from hash: 6EIpzKWh
   '#output':
     '@name': 输出 # auto translated from hash: KcLAKjYc
+
+  '#is':
+    '@name': 功能
+  '#call':
+    '@name': 触发
+  '#mode':
+    '@name': 模式 # auto translated from hash: ZQvmGJK/
+  '#priority':
+    '@name': 优先级
+  '#sync':
+    '@name': 同步 # auto translated from hash: sYuWDFen
+  '#wait':
+    '@name': 等待 # auto translated from hash: D2gQF3K9
+  '#cancel':
+    '@name': 取消 # auto translated from hash: 6keIcF5o
+  '#value':
+    '@name': 值
+  '#render':
+    '@name': 渲染
+  '#inputs':
+    '@name': 输入 # auto translated from hash: 7mEci537
+  '#outputs':
+    '@name': 输出 # auto translated from hash: vzMkxmCA
+
+  '@b-name':
+    '@name': 名称
+  '@b-p':
+    '@name': 属性列表
+  '@b-xyw':
+    '@name': XYW
+  '@b-widget':
+    '@name': 组件

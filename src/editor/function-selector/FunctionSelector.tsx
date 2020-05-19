@@ -87,12 +87,12 @@ export class FunctionSelect extends React.PureComponent<Props, State> {
       <div className="ticl-func-select" onClick={onClick}>
         <div className="tlcl-top-menu-box ticl-hbox">
           <Radio.Group defaultValue="tree" size="small" onChange={this.onToggleChange}>
-            <Tooltip title={'Tree'}>
+            <Tooltip title={t('Function Tree')}>
               <Radio.Button value="tree">
                 <AppStoreIcon />
               </Radio.Button>
             </Tooltip>
-            <Tooltip title={'Recent'}>
+            <Tooltip title={t('Recent')}>
               <Radio.Button value="recent">
                 <HistoryIcon />
               </Radio.Button>
@@ -117,7 +117,7 @@ export class FunctionSelect extends React.PureComponent<Props, State> {
             )}
           </TicloI18NConsumer>
           {this.context?.editFlow ? (
-            <Tooltip title={t('Search')}>
+            <Tooltip title={t('Add Function')}>
               <Button size="small" onClick={this.onAddFunction} icon={<PlusSquareIcon />} />
             </Tooltip>
           ) : null}

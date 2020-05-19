@@ -21,7 +21,7 @@ export function translateFunction(funcId: string, name?: string, namespace?: str
     namespace = 'core';
   }
   if (funcId.endsWith(':')) {
-    funcId = `@category.${funcId.substring(0, funcId.length - 1)}`;
+    funcId = `@namespace.${funcId.substring(0, funcId.length - 1)}`;
   }
   let i18ns = `ticlo-${namespace}`;
   return i18next.t(`${funcId}.@name`, {ns: i18ns, defaultValue: name});

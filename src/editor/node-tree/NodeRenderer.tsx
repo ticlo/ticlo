@@ -24,6 +24,7 @@ import {TIcon} from '../icon/Icon';
 import {TicloLayoutContext, TicloLayoutContextType} from '../component/LayoutContext';
 import {DragDropDiv, DragState} from 'rc-dock/lib';
 import {getFuncStyleFromDesc} from '../util/BlockColors';
+import {t} from '../component/LocalizedLabel';
 
 const saveAllowed = new Set<string>(['flow:editor', 'flow:worker', 'flow:main']);
 const deleteAllowed = new Set<string>(['flow:editor', 'flow:main']);
@@ -277,7 +278,7 @@ export class NodeTreeRenderer extends PureDataRenderer<Props, any> {
       menuitems.push(
         <Menu.Item key="open" onClick={this.onOpenClicked}>
           <BuildIcon />
-          Open
+          {t('Open')}
         </Menu.Item>
       );
     }
@@ -285,7 +286,7 @@ export class NodeTreeRenderer extends PureDataRenderer<Props, any> {
       menuitems.push(
         <Menu.Item key="save" onClick={this.onSaveClicked}>
           <SaveIcon />
-          Save
+          {t('Save')}
         </Menu.Item>
       );
     }
@@ -293,14 +294,14 @@ export class NodeTreeRenderer extends PureDataRenderer<Props, any> {
       menuitems.push(
         <Menu.Item key="delete" onClick={this.onDeleteClicked}>
           <DeleteIcon />
-          Delete
+          {t('Delete')}
         </Menu.Item>
       );
     }
     menuitems.push(
       <Menu.Item key="search">
         <SearchIcon />
-        Search
+        {t('Search')}
       </Menu.Item>
     );
     if (getMenu) {

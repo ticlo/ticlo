@@ -8,6 +8,7 @@ import {arrayEqual, ClientConn, ValueSubscriber, ValueUpdate} from '../../../../
 import {BlockStageTabButton} from './BlockStageTabButton';
 import {LazyUpdateComponent} from '../../component/LazyUpdateComponent';
 import {TooltipIconButton} from '../../component/TooltipIconButton';
+import {t} from '../../component/LocalizedLabel';
 
 interface Props {
   conn: ClientConn;
@@ -141,7 +142,7 @@ export class BlockStagePane extends LazyUpdateComponent<Props, State> {
                 conn={conn}
                 icon={showPropertyList ? <MenuUnfoldIcon /> : <MenuFoldIcon />}
                 onClick={this.onShowPropertyList}
-                tooltip={showPropertyList ? 'Hide Properties' : 'Show Properties'}
+                tooltip={showPropertyList ? t('Hide Properties') : t('Show Properties')}
                 tooltipPlacement="left"
               />
             }

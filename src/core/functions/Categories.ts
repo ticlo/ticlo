@@ -15,6 +15,13 @@ Functions.addCategory({
 });
 
 Functions.addCategory({
+  id: 'script',
+  name: 'script',
+  icon: 'txt:{ }',
+  color: '1bb',
+});
+
+Functions.addCategory({
   id: 'compare',
   name: 'compare',
   icon: 'fas:equals',

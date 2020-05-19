@@ -10,7 +10,7 @@ export class FormItem<T> {
   constructor(
     public component: {forceUpdate: () => void},
     public key: string,
-    public label: string,
+    public label: React.ReactNode,
     public value?: T
   ) {}
 

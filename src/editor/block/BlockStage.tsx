@@ -18,6 +18,7 @@ import clamp from 'lodash/clamp';
 import {GestureState} from 'rc-dock/lib';
 import {TooltipIconButton} from '../component/TooltipIconButton';
 import {DataMap, decode, encode} from '../../../src/core/editor';
+import {t} from '../component/LocalizedLabel';
 
 const MINI_WINDOW_SIZE = 128;
 
@@ -561,7 +562,7 @@ export class BlockStage extends BlockStageBase<BlockStageProps, StageState> {
           <TooltipIconButton
             conn={conn}
             path={`${basePath}.@has-undo`}
-            tooltip="Undo"
+            tooltip={t('Undo')}
             tooltipPlacement="left"
             icon={<UndoIcon />}
             onClick={this.undo}
@@ -569,7 +570,7 @@ export class BlockStage extends BlockStageBase<BlockStageProps, StageState> {
           <TooltipIconButton
             conn={conn}
             path={`${basePath}.@has-redo`}
-            tooltip="Redo"
+            tooltip={t('Redo')}
             tooltipPlacement="left"
             icon={<RedoIcon />}
             onClick={this.redo}

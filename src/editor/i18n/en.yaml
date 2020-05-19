@@ -2,8 +2,11 @@
 "Name": "Name"
 "Type": "Type"
 "Block": "Block"
+"Open": "Open"
+"Save": "Save"
 "Edit": "Edit"
 "Delete": "Delete"
+"Search": "Search"
 "Error": "Error"
 "Rename": "Rename"
 "Navigation": "Navigation"
@@ -14,11 +17,25 @@
 # AddNewFlow.tsx & NodeTreePane.tsx
 "New Dataflow": "New Dataflow"
 
+# block/BlockStage.tsx
+"Undo": "Undo"
+"Redo": "Redo"
+
+# dock/block/BlockStagePane.tsx
+"Hide Properties": "Hide Properties"
+"Show Properties": "Show Properties"
+
+# dock/node-tree/AddNewFlow.tsx
+"Data": "Data"
+
 # dock/node-tree/NodeTreePane.tsx
+"Add Child Dataflow": "Add Child Dataflow"
 "Reload": "Reload"
 
 # function-selector/FunctionSelector.tsx
-"Search": "Search"
+"Function Tree": "Function Tree"
+"Recent": "Recent"
+"Add Function": "Add Function"
 "Function Name?": "Function Name?"
 
 # property/AddCustomProperty.tsx

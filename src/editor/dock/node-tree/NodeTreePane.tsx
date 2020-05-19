@@ -71,7 +71,7 @@ export class NodeTreePane extends React.PureComponent<Props, State> {
         menuItems.push(
           <Menu.Item key="addFlow" defaultValue={item.key} onClick={this.onAddNewFlowClick}>
             <FileAddIcon />
-            Add Child Flow
+            {t('Add Child Dataflow')}
           </Menu.Item>
         );
       }

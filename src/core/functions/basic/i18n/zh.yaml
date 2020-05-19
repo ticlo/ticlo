@@ -2,3 +2,22 @@ add:
   '@name': 加法
 subtract:
   '@name': 减法
+multiply:
+  '@name': 乘法 # auto translated from hash: 4lc3bZE/
+divide:
+  '@name': 除法 # auto translated from hash: C5FOGWGC
+
+equal:
+  '@name': 相等
+'not-equal':
+  '@name': 不相等 # auto translated from hash: ObkbcVwE
+'greater-than':
+  '@name': 大于 # auto translated from hash: cohFT6RC
+'less-than':
+  '@name': 少于 # auto translated from hash: Re0c4EvP
+'greater-equal':
+  '@name': 大于等于
+'less-equal':
+  '@name': 小于等于
+'not':
+  '@name': 非

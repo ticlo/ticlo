@@ -10,7 +10,7 @@ interface Props extends ButtonProps {
   conn: ClientConn;
   path?: string;
   mapEnabled?: (value: any) => boolean;
-  tooltip: string;
+  tooltip: React.ReactNode;
   tooltipPlacement?: TooltipPlacement;
 }
 

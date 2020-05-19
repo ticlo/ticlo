@@ -2,3 +2,22 @@ add:
   '@name': Add
 subtract:
   '@name': Subtract
+multiply:
+  '@name': Multiply
+divide:
+  '@name': Divide
+
+equal:
+  '@name': Equal
+'not-equal':
+  '@name': Not Equal
+'greater-than':
+  '@name': Greater Than
+'less-than':
+  '@name': Less Than
+'greater-equal':
+  '@name': Greater Than or Equal
+'less-equal':
+  '@name': Less Than or Equal
+'not':
+  '@name': Not

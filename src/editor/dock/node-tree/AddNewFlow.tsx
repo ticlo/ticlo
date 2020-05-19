@@ -20,8 +20,8 @@ export class AddNewFlow extends LazyUpdateComponent<Props, State> {
   state: State = {visible: false};
 
   formItems = {
-    name: new FormInputItem<string>(this, 'name', 'Name'),
-    data: new FormInputItem<string>(this, 'data', 'Data'),
+    name: new FormInputItem<string>(this, 'name', t('Name')),
+    data: new FormInputItem<string>(this, 'data', t('Data')),
   };
 
   addFlow = () => {

@@ -1,4 +1,4 @@
-'@category':
+'@namespace':
   math:
     '@name': Math
   string:
@@ -15,3 +15,35 @@
     '@name': 'Input '
   '#output':
     '@name': 'Output'
+
+  '#is':
+    '@name': 'Function'
+  '#call':
+    '@name': 'Call'
+  '#mode':
+    '@name': 'Mode'
+  '#priority':
+    '@name': 'Priority'
+  '#sync':
+    '@name': 'Synchronize'
+  '#wait':
+    '@name': 'Wait'
+  '#cancel':
+    '@name': 'Cancel'
+  '#value':
+    '@name': 'Value'
+  '#render':
+    '@name': 'Render'
+  '#inputs':
+    '@name': 'Inputs'
+  '#outputs':
+    '@name': 'Outputs'
+
+  '@b-name':
+    '@name': 'Name'
+  '@b-p':
+    '@name': 'Propert List'
+  '@b-xyw':
+    '@name': 'XYW'
+  '@b-widget':
+    '@name': 'Widget'
