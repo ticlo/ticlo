@@ -1,80 +1,80 @@
 # Common
-'Name': 名称
-'Type': 类型
-'Block': 数据块
-'Open': 打开 # auto translated from hash: w79Efqvm
-'Save': 保存
-'Edit': 编辑 # auto translated from hash: fc4SIASW
-'Delete': 删除 # auto translated from hash: 8qbEmPuQ
-'Search': 搜索
-'Error': 错误
-'Rename': 重命名
-'Navigation': 导航
-'Properties': 属性
-'Functions': 功能
-'Pinned': 直接显示
+"Name": 名称
+"Type": 类型
+"Block": 数据块
+"Open": 打开 # auto translated from hash: w79Efqvm
+"Save": 保存
+"Edit": 编辑 # auto translated from hash: fc4SIASW
+"Delete": 删除 # auto translated from hash: 8qbEmPuQ
+"Search": 搜索
+"Error": 错误
+"Rename": 重命名
+"Navigation": 导航
+"Properties": 属性
+"Functions": 功能
+"Pinned": 直接显示
 
 # AddNewFlow.tsx & NodeTreePane.tsx
-'New Dataflow': 新建数据流
+"New Dataflow": 新建数据流
 
 # block/BlockStage.tsx
-'Undo': 撤消
-'Redo': 重做
+"Undo": 撤消
+"Redo": 重做
 
 # dock/block/BlockStagePane.tsx
-'Hide Properties': 隐藏属性 # auto translated from hash: vJTYlQYF
-'Show Properties': 显示属性 # auto translated from hash: btIcJj0g
+"Hide Properties": 隐藏属性 # auto translated from hash: vJTYlQYF
+"Show Properties": 显示属性 # auto translated from hash: btIcJj0g
 
 # dock/node-tree/AddNewFlow.tsx
-'Data': 数据 # auto translated from hash: 9gaNqinb
+"Data": 数据 # auto translated from hash: 9gaNqinb
 
 # dock/node-tree/NodeTreePane.tsx
-'Add Child Dataflow': 添加子数据流 # auto translated from hash: CEWO/gs9
-'Reload': 重新载入
+"Add Child Dataflow": 添加子数据流 # auto translated from hash: CEWO/gs9
+"Reload": 重新载入
 
 # function-selector/FunctionSelector.tsx
-'Function Tree': 功能目录
-'Recent': 最近使用
-'Add Function': 增加功能
-'Function Name?': 功能名称？
+"Function Tree": 功能目录
+"Recent": 最近使用
+"Add Function": 增加功能
+"Function Name?": 功能名称？
 
 # property/AddCustomProperty.tsx
-'Default Length': 默认长度
-'Min': 最小值
-'Max': 最大值
-'Step': 间隔
-'Place Holder': 占位字符
-'Options': 选项
-'Show Alpha': 显示透明度
-'Invalid Name': 无效名称
-'Number character not allowed': 不允许数字
-'Require more than one option': 需要多个选项
-'Must have 0 or 2 options': 只支持0个或2个选项
-'number': 数值
-'string': 字符串
-'toggle': 布尔
-'select': 下拉菜单
-'radio-button': 单选按钮
-'color': 颜色
-'date': 日期
-'date-range': 日期范围
-'password': 密码 # generated
-'dynamic': 动态类型
-'group': 属性组
-'Comma separated': 逗号分隔
-'Add Property': 添加属性
+"Default Length": 默认长度
+"Min": 最小值
+"Max": 最大值
+"Step": 间隔
+"Place Holder": 占位字符
+"Options": 选项
+"Show Alpha": 显示透明度
+"Invalid Name": 无效名称
+"Number character not allowed": 不允许数字
+"Require more than one option": 需要多个选项
+"Must have 0 or 2 options": 只支持0个或2个选项
+"number": 数值
+"string": 字符串
+"toggle": 布尔
+"select": 下拉菜单
+"radio-button": 单选按钮
+"color": 颜色
+"date": 日期
+"date-range": 日期范围
+"password": 密码 # generated
+"dynamic": 动态类型
+"group": 属性组
+"Comma separated": 逗号分隔
+"Add Property": 添加属性
 
 # property/OptionalPropertyList.tsx
-'Optional': 可选
+"Optional": 可选
 
 # property/PropertyEditor.tsx
-'Add Sub Block': 添加子块
-'Binding': 绑定 # auto translated from hash: ouv+Do4W
-'Clear': 清空
-'Insert at {{n}}': 在{{n}}处插入
-'Delete at {{n}}': 在{{n}}处删除
-'Remove Property': 删除属性
-'Add Child Property': 添加子属性
+"Add Sub Block": 添加子块
+"Binding": 绑定 # auto translated from hash: ouv+Do4W
+"Clear": 清空
+"Insert at {{n}}": 在{{n}}处插入
+"Delete at {{n}}": 在{{n}}处删除
+"Remove Property": 删除属性
+"Add Child Property": 添加子属性
 "Unlocked for editing\nDouble click to lock": |- # auto translated from hash: DtUOcgdR
   已解锁编辑
   双击锁定
@@ -86,5 +86,5 @@
   双击编辑
 
 # property/PropertyList.tsx
-'Config': 设置
-'Custom': 自定义
+"Config": 设置
+"Custom": 自定义

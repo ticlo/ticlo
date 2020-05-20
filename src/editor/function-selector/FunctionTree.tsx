@@ -45,6 +45,7 @@ export class FunctionTree extends React.PureComponent<Props, State> {
 
   refreshList() {
     let {search} = this.props;
+    search = search.trim().toLowerCase();
     this.list.length = 0;
     for (let item of this.rootNode.children) {
       item.addToList(this.list, search);

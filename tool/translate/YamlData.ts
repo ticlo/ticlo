@@ -31,7 +31,10 @@ function writeYamlString(str: string, comment: string, indent: number) {
     }
     return results.join('\n');
   } else {
-    let result = YAML.stringify(str).trim();
+    let result = '';
+    if (str !== '') {
+      result = YAML.stringify(str).trim();
+    }
     if (comment) {
       return `${result} ${comment}`;
     }
@@ -132,7 +135,14 @@ class OutputRow {
   translated: string;
   comment: string;
 
-  constructor(public enRow: YamlRow) {}
+  constructor(public enRow: YamlRow) {
+    if (enRow.comment?.includes('no translate')) {
+      this.translated = enRow.value;
+      this.comment = enRow.comment;
+    } else if (enRow.rawkey === "'@keywords'") {
+      this.translated = '';
+    }
+  }
 }
 
 export class OutputYamlData {

@@ -1,13 +1,16 @@
 import {TreeItem} from '../component/Tree';
-import {ClientConn, FunctionDesc} from '../../../src/core/editor';
+import {ClientConn, FunctionDesc, getKeywords, translateFunction} from '../../../src/core/editor';
 import {OnFunctionClick} from './FunctionView';
+import i18next from 'i18next';
 
 export class FunctionTreeItem extends TreeItem<FunctionTreeItem> {
   root: FunctionTreeRoot;
   desc: FunctionDesc;
   name?: string;
-  label: string;
   data?: any;
+  // used in searching
+  keywords: {[lng: string]: string} = {};
+  names: {[lng: string]: string} = {};
 
   children: FunctionTreeItem[] = [];
 
@@ -29,8 +32,10 @@ export class FunctionTreeItem extends TreeItem<FunctionTreeItem> {
       this.opened = 'empty';
     }
     this.name = name;
-    this.label = name; // TODO: translate
     this.key = key;
+    if (key == null) {
+      debugger;
+    }
     this.update(desc, data);
   }
 
@@ -99,43 +104,67 @@ export class FunctionTreeItem extends TreeItem<FunctionTreeItem> {
       }
     }
   }
-
-  matchFilter(filter: string): boolean {
-    if (!filter) {
+  matchKeywords(lng: string, search: string) {
+    if (!this.names.hasOwnProperty(lng)) {
+      this.names[lng] = translateFunction(this.desc.id, this.name, this.desc.ns, lng)?.toLowerCase();
+      this.keywords[lng] = getKeywords(this.desc.id, this.desc.ns, lng)?.toLowerCase();
+    }
+    let name = this.names[lng];
+    if (name?.includes(search)) {
       return true;
     }
-    return this.label.includes(filter) || this.key.includes(filter);
+    let keyword = this.keywords[lng];
+    return keyword?.includes(search);
   }
 
-  addToList(list: FunctionTreeItem[], filter?: string) {
-    if (this.matchFilter(filter)) {
+  matchSearch(search: string): boolean {
+    if (!search) {
+      return true;
+    }
+    if (this.desc) {
+      // check keywords from i18n
+      if (i18next.language !== 'en') {
+        if (this.matchKeywords(i18next.language, search)) {
+          return true;
+        }
+      }
+      if (this.matchKeywords('en', search)) {
+        return true;
+      }
+    }
+
+    return this.key.includes(search) || this.name.includes(search);
+  }
+
+  addToList(list: FunctionTreeItem[], search?: string) {
+    if (this.matchSearch(search)) {
       list.push(this);
       if (this.opened === 'opened' && this.children) {
         for (let child of this.children) {
           child.addToList(list);
         }
       }
-    } else if (filter && this.children.length) {
+    } else if (search && this.children.length) {
       // check if there is any matched child
-      let filterdChildren: FunctionTreeItem[] = [];
+      let searchChildren: FunctionTreeItem[] = [];
       for (let child of this.children) {
-        child.addToList(filterdChildren, filter);
+        child.addToList(searchChildren, search);
       }
 
-      let strongFilter = filter.length > 1 || filter.charCodeAt(0) > 128;
+      let strongFilter = search.length > 1 || search.charCodeAt(0) > 128;
 
-      if (filterdChildren.length) {
+      if (searchChildren.length) {
         list.push(this);
         if (strongFilter) {
           this.opened = 'opened';
         }
         if (this.opened === 'opened') {
-          for (let child of filterdChildren) {
+          for (let child of searchChildren) {
             list.push(child);
           }
         }
       } else if (strongFilter) {
-        // close it if no child matches filter
+        // close it if no child matches search
         this.opened = 'closed';
       }
     }
