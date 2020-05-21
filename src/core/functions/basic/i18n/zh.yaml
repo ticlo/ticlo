@@ -1,15 +1,15 @@
 add:
   '@name': 加法
-  '@keywords':
+  '@keywords': 
 subtract:
   '@name': 减法
-  '@keywords':
+  '@keywords': 
 multiply:
   '@name': 乘法 # auto translated from hash: 4lc3bZE/
-  '@keywords':
+  '@keywords': 
 divide:
   '@name': 除法 # auto translated from hash: C5FOGWGC
-  '@keywords':
+  '@keywords': 
 
 equal:
   '@name': 相等

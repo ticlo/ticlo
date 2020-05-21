@@ -674,6 +674,9 @@ export class Block implements Runnable, FunctionData, PropListener<FunctionClass
 
   getLength(group?: string, defaultLength = 2): number {
     let result = this.getValue(`${group}[]`);
+    if (Array.isArray(result)) {
+      return 0;
+    }
     if (result >= 0) {
       return result;
     }

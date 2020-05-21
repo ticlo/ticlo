@@ -68,6 +68,7 @@ export function translateEditor(key: string, options?: any, group?: string): str
     }
   }
   return i18next.t(key, {
+    ...options,
     ns: 'ticlo-editor',
   });
 }

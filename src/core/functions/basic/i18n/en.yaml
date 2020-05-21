@@ -1,34 +1,34 @@
 add:
   '@name': Add
-  '@keywords': plus,addition
+  '@keywords': 'plus,addition,+'
 subtract:
   '@name': Subtract
-  '@keywords': minus,subtraction
+  '@keywords': 'minus,subtraction,-'
 multiply:
   '@name': Multiply
-  '@keywords': multiplication,times
+  '@keywords': 'multiplication,times,*'
 divide:
   '@name': Divide
-  '@keywords': division
+  '@keywords': 'division,/'
 
 equal:
   '@name': Equal
-  '@keywords': equals to
+  '@keywords': 'equals to,='
 'not-equal':
   '@name': Not Equal
-  '@keywords': not equals to
+  '@keywords': 'not equals to,!='
 'greater-than':
   '@name': Greater Than
-  '@keywords':
+  '@keywords': '>'
 'less-than':
   '@name': Less Than
-  '@keywords':
+  '@keywords': '<'
 'greater-equal':
   '@name': Greater Than or Equal
-  '@keywords':
+  '@keywords': '>='
 'less-equal':
   '@name': Less Than or Equal
-  '@keywords':
+  '@keywords': '<='
 'not':
   '@name': Not
-  '@keywords':
+  '@keywords': '!'
