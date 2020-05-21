@@ -1,6 +1,7 @@
 import React from 'react';
 import {Select} from 'antd';
 import {ValueEditorProps} from './ValueEditorBase';
+import {LocalizedEnumOption} from '../../component/LocalizedLabel';
 
 const {Option} = Select;
 
@@ -11,13 +12,14 @@ export class SelectEditor extends React.PureComponent<ValueEditorProps, any> {
   };
 
   getOptions() {
-    let {options} = this.props.desc;
+    let {desc, name, funcDesc} = this.props;
+    let {options} = desc;
     let optionNodes: React.ReactNode[] = [];
     if (Array.isArray(options)) {
       for (let opt of options) {
         optionNodes.push(
           <Option key={String(opt)} value={opt}>
-            {opt}
+            <LocalizedEnumOption desc={funcDesc} propName={name} option={opt} />
           </Option>
         );
       }

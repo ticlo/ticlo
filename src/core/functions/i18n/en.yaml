@@ -14,16 +14,23 @@
   '':
     '@name': 'Input '
   '#output':
-    '@name': 'Output'
-
+    '@name': Output
   '#is':
-    '@name': 'Function'
+    '@name': Function
   '#call':
-    '@name': 'Call'
+    '@name': Call
   '#mode':
-    '@name': 'Mode'
+    '@name': Mode
+    '@options':
+      auto: Auto
+      onLoad: On Load
+      onChange: On Change
+      onCall: On Call
+      disabled: Disabled
   '#priority':
     '@name': 'Priority'
+    '@options':
+      auto: Auto
   '#sync':
     '@name': 'Synchronize'
   '#wait':

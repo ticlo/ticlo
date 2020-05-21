@@ -1,5 +1,11 @@
 import React, {useContext} from 'react';
-import {FunctionDesc, translateEditor, translateFunction, translateProperty} from '../../../src/core/editor';
+import {
+  FunctionDesc,
+  translateEditor,
+  translateEnumOption,
+  translateFunction,
+  translateProperty,
+} from '../../../src/core/editor';
 import {TicloLayoutContextType} from './LayoutContext';
 
 export const LocalizedLabel = ({label, options}: {label: string; options?: any}) => {
@@ -28,4 +34,17 @@ export const LocalizedPropertyName = ({
 }) => {
   useContext(TicloLayoutContextType);
   return <span className={className}>{translateProperty(desc.id, name, desc.ns)}</span>;
+};
+
+export const LocalizedEnumOption = ({
+  desc,
+  propName,
+  option,
+}: {
+  desc: FunctionDesc;
+  propName: string;
+  option: string | number;
+}) => {
+  useContext(TicloLayoutContextType);
+  return <span>{translateEnumOption(desc.id, propName, String(option), desc.ns)}</span>;
 };

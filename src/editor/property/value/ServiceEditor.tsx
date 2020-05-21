@@ -2,7 +2,7 @@ import React, {ReactElement} from 'react';
 import {Button, Input, Select} from 'antd';
 import PlusIcon from '@ant-design/icons/PlusOutlined';
 import EllipsisIcon from '@ant-design/icons/EllipsisOutlined';
-import {ClientConn, getDefaultFuncData, getSubBlockFuncData, PropDesc} from '../../../../src/core/editor';
+import {ClientConn, FunctionDesc, getDefaultFuncData, getSubBlockFuncData, PropDesc} from '../../../../src/core/editor';
 import {Popup} from '../../component/ClickPopup';
 import {PropertyList} from '../PropertyList';
 
@@ -13,6 +13,7 @@ export interface Props {
   keys: string[];
   value: any;
   bindingPath: string;
+  funcDesc: FunctionDesc;
   desc: PropDesc;
   locked?: boolean;
   onPathChange?: (path: string) => void;

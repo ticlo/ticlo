@@ -8,6 +8,7 @@ export interface ValueEditorProps {
   keys?: string[];
   name?: string;
   value: any;
+  funcDesc: FunctionDesc;
   desc: PropDesc;
   locked?: boolean;
   onChange?: (value: any) => void;

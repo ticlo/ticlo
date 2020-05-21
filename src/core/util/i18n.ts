@@ -30,7 +30,7 @@ export function translateFunction(funcId: string, name?: string, namespace?: str
 }
 
 export function translateProperty(funcId: string, name: string, namespace?: string): string {
-  if (!TicloI18nSettings.shouldTranslateFunction || !funcId) {
+  if (!TicloI18nSettings.shouldTranslateFunction) {
     return name || '';
   }
   if (!namespace) {
@@ -39,10 +39,14 @@ export function translateProperty(funcId: string, name: string, namespace?: stri
   let i18ns = `ticlo-${namespace}`;
   let numMatch = name.match(numberReg);
   let baseName = numMatch ? name.substr(0, numMatch.index) : name;
-  let translated = i18next.t(`${funcId}.${baseName}.@name`, {
-    ns: i18ns,
-    defaultValue: '',
-  });
+
+  let translated: string;
+  if (funcId) {
+    translated = i18next.t(`${funcId}.${baseName}.@name`, {
+      ns: i18ns,
+      defaultValue: '',
+    });
+  }
   if (!translated) {
     // fallback to @shared property name
     translated = i18next.t(`@shared.${baseName}.@name`, {
@@ -56,6 +60,28 @@ export function translateProperty(funcId: string, name: string, namespace?: stri
   } else {
     return translated;
   }
+}
+
+export function translateEnumOption(funcId: string, propName: string, option: string, namespace?: string): string {
+  if (!TicloI18nSettings.shouldTranslateFunction) {
+    return option || '';
+  }
+  if (!namespace) {
+    namespace = 'core';
+  }
+  let i18ns = `ticlo-${namespace}`;
+  let translated: string;
+  if (funcId) {
+    translated = i18next.t(`${funcId}.${propName}.@options.${option}`, {ns: i18ns, defaultValue: ''});
+  }
+  if (!translated) {
+    // fallback to @shared property name
+    translated = i18next.t(`@shared.${propName}.@options.${option}`, {
+      ns: 'ticlo-core',
+      defaultValue: option,
+    });
+  }
+  return translated;
 }
 
 export function translateEditor(key: string, options?: any, group?: string): string {
