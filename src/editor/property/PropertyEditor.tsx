@@ -22,7 +22,8 @@ import {
   ValueSubscriber,
   DataMap,
   isBindable,
-  getSubBlockFuncData, blankFuncDesc
+  getSubBlockFuncData,
+  blankFuncDesc,
 } from '../../../src/core/editor';
 import {MultiSelectComponent, MultiSelectLoader} from './MultiSelectComponent';
 import {StringEditor} from './value/StringEditor';
@@ -403,7 +404,12 @@ export class PropertyEditor extends MultiSelectComponent<PropertyEditorProps, St
         );
         menuItems.push(
           <div key="bindingInput" className="ticl-hbox">
-            <StringEditor value={bindingPath || ''} funcDesc={blankFuncDesc} desc={blankPropDesc} onChange={this.onBindChange} />
+            <StringEditor
+              value={bindingPath || ''}
+              funcDesc={blankFuncDesc}
+              desc={blankPropDesc}
+              onChange={this.onBindChange}
+            />
           </div>
         );
 

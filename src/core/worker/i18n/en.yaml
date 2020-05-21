@@ -1,0 +1,11 @@
+map:
+  '@name': Map
+  '@keywords': 'mapping'
+  thread:
+    '@name': Number of Thread
+  reuseWorker:
+    '@name': Reuse Worker
+    '@options':
+      none: None
+      reuse: Reuse
+      persist: Persist

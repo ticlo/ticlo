@@ -2,6 +2,7 @@ import React from 'react';
 import {Radio} from 'antd';
 import {ValueEditorProps} from './ValueEditorBase';
 import {RadioChangeEvent} from 'antd/lib/radio';
+import {LocalizedEnumOption} from '../../component/LocalizedLabel';
 
 const RadioButton = Radio.Button;
 const RadioGroup = Radio.Group;
@@ -13,14 +14,14 @@ export class RadioButtonEditor extends React.PureComponent<ValueEditorProps, any
   };
 
   render() {
-    let {desc, value, locked, onChange} = this.props;
+    let {desc, name, funcDesc, value, locked, onChange} = this.props;
     let {options} = desc;
     let optionNodes: React.ReactNode[] = [];
     if (Array.isArray(options)) {
       for (let opt of options) {
         optionNodes.push(
           <RadioButton key={String(opt)} value={opt}>
-            {opt}
+            <LocalizedEnumOption desc={funcDesc} propName={name} option={opt} />
           </RadioButton>
         );
       }
