@@ -11,7 +11,8 @@ export class TicloI18nSettings {
   static shouldTranslateFunction = true;
 }
 
-const numberReg = /[0-9]/;
+// match numbers in the end of inputs, as well as the array input []
+const numberReg = /([0-9]+|\[\])$/;
 
 export function translateFunction(funcId: string, name?: string, namespace?: string, lng?: string): string {
   if (!TicloI18nSettings.shouldTranslateFunction || !funcId) {
