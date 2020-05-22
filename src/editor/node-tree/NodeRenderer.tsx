@@ -24,7 +24,7 @@ import {TIcon} from '../icon/Icon';
 import {TicloLayoutContext, TicloLayoutContextType} from '../component/LayoutContext';
 import {DragDropDiv, DragState} from 'rc-dock/lib';
 import {getFuncStyleFromDesc} from '../util/BlockColors';
-import {t} from '../component/LocalizedLabel';
+import {LocalizedNodeName, t} from '../component/LocalizedLabel';
 
 const saveAllowed = new Set<string>(['flow:editor', 'flow:worker', 'flow:main']);
 const deleteAllowed = new Set<string>(['flow:editor', 'flow:main']);
@@ -331,14 +331,17 @@ export class NodeTreeRenderer extends PureDataRenderer<Props, any> {
       let [colorClass, iconName] = getFuncStyleFromDesc(desc, item.getConn(), 'ticl-bg--');
       icon = <TIcon icon={iconName} colorClass={colorClass} />;
     }
-    displayName = getDisplayName(item.name, displayName);
-    let name: React.ReactElement;
-    if (displayName === item.name) {
-      name = <div className="ticl-tree-node-text">{item.name}</div>;
+    let nameLabel: string | React.ReactNode = getDisplayName(item.name, displayName);
+    if (item.name.startsWith('#')) {
+      nameLabel = <LocalizedNodeName name={nameLabel as string} />;
+    }
+    let nameNode: React.ReactElement;
+    if (nameLabel === item.name) {
+      nameNode = <div className="ticl-tree-node-text">{item.name}</div>;
     } else {
-      name = (
+      nameNode = (
         <div className="ticl-tree-node-text ticl-tree-node-display" title={item.name}>
-          {displayName}
+          {nameLabel}
         </div>
       );
     }
@@ -348,7 +351,7 @@ export class NodeTreeRenderer extends PureDataRenderer<Props, any> {
         <Dropdown overlay={this.getMenu} trigger={['contextMenu']}>
           <DragDropDiv className={contentClassName} onClick={this.onClickContent} onDragStartT={this.onDragStart}>
             {icon}
-            {name}
+            {nameNode}
           </DragDropDiv>
         </Dropdown>
       </div>

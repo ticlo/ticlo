@@ -1,12 +1,14 @@
 import React, {useContext} from 'react';
 import {
   FunctionDesc,
+  TicloI18nSettings,
   translateEditor,
   translateEnumOption,
   translateFunction,
   translateProperty,
 } from '../../../src/core/editor';
 import {TicloLayoutContextType} from './LayoutContext';
+import i18next from 'i18next';
 
 export const LocalizedLabel = ({label, options}: {label: string; options?: any}) => {
   useContext(TicloLayoutContextType);
@@ -47,4 +49,18 @@ export const LocalizedEnumOption = ({
 }) => {
   useContext(TicloLayoutContextType);
   return <span>{translateEnumOption(desc.id, propName, String(option), desc.ns)}</span>;
+};
+
+const specialNodeNamePrefix = /^#\w+\b/;
+function localizeNodeNamePrefix(match: string) {
+  return i18next.t(`@nodename.${match}`, {
+    ns: 'ticlo-core',
+  });
+}
+export const LocalizedNodeName = ({name}: {name: string}) => {
+  useContext(TicloLayoutContextType);
+  if (TicloI18nSettings.shouldTranslateFunction) {
+    name = name.replace(specialNodeNamePrefix, localizeNodeNamePrefix);
+  }
+  return <span>{name}</span>;
 };

@@ -8,7 +8,7 @@ import {ClientConn, ValueSubscriber, ValueUpdate} from '../../../../src/core/edi
 
 interface Props {
   conn: ClientConn;
-  title: string;
+  title: React.ReactNode;
   id: string;
   path: string;
   onSave: () => void;

@@ -84,16 +84,7 @@ export function translateEnumOption(funcId: string, propName: string, option: st
   return translated;
 }
 
-export function translateEditor(key: string, options?: any, group?: string): string {
-  if (group) {
-    let result = i18next.t(`${group}.${key}`, {
-      ns: 'ticlo-editor',
-      defaultValue: '',
-    });
-    if (result) {
-      return result;
-    }
-  }
+export function translateEditor(key: string, options?: any): string {
   return i18next.t(key, {
     ...options,
     ns: 'ticlo-editor',

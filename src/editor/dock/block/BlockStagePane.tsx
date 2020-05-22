@@ -4,11 +4,11 @@ import MenuUnfoldIcon from '@ant-design/icons/MenuUnfoldOutlined';
 import MenuFoldIcon from '@ant-design/icons/MenuFoldOutlined';
 import {BlockStage, PropertyList} from '../..';
 import {Divider} from 'rc-dock/lib';
-import {arrayEqual, ClientConn, ValueSubscriber, ValueUpdate} from '../../../../src/core/editor';
+import {arrayEqual, ClientConn, getDisplayName, ValueSubscriber, ValueUpdate} from '../../../../src/core/editor';
 import {BlockStageTabButton} from './BlockStageTabButton';
 import {LazyUpdateComponent} from '../../component/LazyUpdateComponent';
 import {TooltipIconButton} from '../../component/TooltipIconButton';
-import {t} from '../../component/LocalizedLabel';
+import {LocalizedNodeName, t} from '../../component/LocalizedLabel';
 
 interface Props {
   conn: ClientConn;
@@ -36,7 +36,10 @@ export class BlockStagePane extends LazyUpdateComponent<Props, State> {
     onSave?: () => void
   ) {
     let id = `blockEditor${BlockStagePane.editorCount++}`;
-    let tabName = decodeURIComponent(path.split('.').pop());
+    let tabName: string | React.ReactNode = getDisplayName(path.split('.').pop(), null);
+    if ((tabName as string).startsWith('#')) {
+      tabName = <LocalizedNodeName name={tabName as string} />;
+    }
     return {
       id,
       closable: !onSave, // use the custom close button when onSave is not null
