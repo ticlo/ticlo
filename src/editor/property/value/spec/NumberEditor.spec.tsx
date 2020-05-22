@@ -5,8 +5,9 @@ import {removeLastTemplate, loadTemplate, querySingle} from '../../../util/test-
 import {initEditor} from '../../../index';
 import {NumberEditor} from '../NumberEditor';
 import {shouldHappen} from '../../../../../src/core/util/test-util';
-import {blankPropDesc, FunctionDesc, PropDesc} from '../../../../../src/core/editor';
+import {blankFuncDesc, blankPropDesc, FunctionDesc, PropDesc} from '../../../../../src/core/editor';
 import {simulateInput} from './simulate-input';
+import {DateEditor} from '../DateEditor';
 
 describe('NumberEditor', function () {
   beforeEach(async function () {
@@ -27,7 +28,7 @@ describe('NumberEditor', function () {
       value = n;
     };
     let [component, div] = loadTemplate(
-      <NumberEditor ref={getRef} value={1} desc={blankPropDesc} onChange={onChange} />,
+      <NumberEditor ref={getRef} value={1} funcDesc={blankFuncDesc} desc={blankPropDesc} onChange={onChange} />,
       'editor'
     );
 
@@ -108,7 +109,7 @@ describe('NumberEditor', function () {
       step: 2,
     };
     let [component, div] = loadTemplate(
-      <NumberEditor ref={getRef} value={6} desc={desc} onChange={onChange} />,
+      <NumberEditor ref={getRef} value={6} funcDesc={blankFuncDesc} desc={desc} onChange={onChange} />,
       'editor'
     );
 

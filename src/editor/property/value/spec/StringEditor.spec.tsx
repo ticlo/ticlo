@@ -5,8 +5,9 @@ import {removeLastTemplate, loadTemplate, querySingle} from '../../../util/test-
 import {initEditor} from '../../../index';
 import {StringEditor} from '../StringEditor';
 import {shouldHappen} from '../../../../../src/core/util/test-util';
-import {blankPropDesc} from '../../../../../src/core/editor';
+import {blankFuncDesc, blankPropDesc} from '../../../../../src/core/editor';
 import {simulateInput} from './simulate-input';
+import {DateEditor} from '../DateEditor';
 
 describe('StringEditor', function () {
   beforeEach(async function () {
@@ -27,7 +28,7 @@ describe('StringEditor', function () {
       value = str;
     };
     let [component, div] = loadTemplate(
-      <StringEditor ref={getRef} value="1" desc={blankPropDesc} onChange={onChange} />,
+      <StringEditor ref={getRef} value="1" funcDesc={blankFuncDesc} desc={blankPropDesc} onChange={onChange} />,
       'editor'
     );
 

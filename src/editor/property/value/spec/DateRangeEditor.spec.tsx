@@ -5,8 +5,9 @@ import {removeLastTemplate, loadTemplate, querySingle, fakeMouseEvent} from '../
 import {initEditor} from '../../../index';
 import {DateRangeEditor} from '../DateRangeEditor';
 import {shouldHappen, waitTick} from '../../../../../src/core/util/test-util';
-import {blankPropDesc, PropDesc} from '../../../../../src/core/editor';
+import {blankFuncDesc, blankPropDesc, PropDesc} from '../../../../../src/core/editor';
 import moment, {Moment} from 'moment';
+import {DateEditor} from '../DateEditor';
 
 describe('DateRangeEditor', function () {
   beforeEach(async function () {
@@ -23,7 +24,10 @@ describe('DateRangeEditor', function () {
       values = v;
     };
     let desc: PropDesc = {name: '', type: 'date-range', showTime: false};
-    let [component, div] = loadTemplate(<DateRangeEditor value={null} desc={desc} onChange={onChange} />, 'editor');
+    let [component, div] = loadTemplate(
+      <DateRangeEditor value={null} funcDesc={blankFuncDesc} desc={desc} onChange={onChange} />,
+      'editor'
+    );
 
     await shouldHappen(() => div.querySelector('.ticl-date-range-editor > div'));
     let dateRangeDiv = div.querySelector('.ticl-date-range-editor > div');

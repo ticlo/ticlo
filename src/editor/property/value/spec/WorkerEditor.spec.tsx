@@ -5,11 +5,12 @@ import {removeLastTemplate, loadTemplate, querySingle, expandDocumentBody} from 
 import {initEditor} from '../../../index';
 import {WorkerEditor} from '../WorkerEditor';
 import {shouldHappen, waitTick} from '../../../../core/util/test-util';
-import {blankPropDesc, PropDesc} from '../../../../../src/core/editor';
+import {blankFuncDesc, blankPropDesc, PropDesc} from '../../../../../src/core/editor';
 import {makeLocalConnection} from '../../../../core/connect/LocalConnection';
 import {Root} from '../../../../../src/core';
 import {WorkerFunction} from '../../../../core/worker/WorkerFunction';
 import {Functions} from '../../../../core/block/Functions';
+import {DateEditor} from '../DateEditor';
 
 describe('WorkerEditor', function () {
   beforeEach(async function () {
@@ -32,7 +33,7 @@ describe('WorkerEditor', function () {
     };
     let desc: PropDesc = {name: '', type: 'type'};
     let [component, div] = loadTemplate(
-      <WorkerEditor value="" conn={client} desc={desc} onChange={onChange} />,
+      <WorkerEditor value="" conn={client} funcDesc={blankFuncDesc} desc={desc} onChange={onChange} />,
       'editor'
     );
 

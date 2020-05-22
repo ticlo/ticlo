@@ -11,7 +11,8 @@ import {
 import {initEditor} from '../../../index';
 import {MultiSelectEditor, SelectEditor} from '../SelectEditor';
 import {shouldHappen, waitTick} from '../../../../../src/core/util/test-util';
-import {blankPropDesc, PropDesc} from '../../../../../src/core/editor';
+import {blankFuncDesc, blankPropDesc, PropDesc} from '../../../../../src/core/editor';
+import {DateEditor} from '../DateEditor';
 
 describe('SelectEditor', function () {
   beforeEach(async function () {
@@ -29,16 +30,19 @@ describe('SelectEditor', function () {
       value = v;
     };
     let desc: PropDesc = {name: '', type: 'select', options: ['a', 'b', 'c']};
-    let [component, div] = loadTemplate(<SelectEditor value="a" desc={desc} onChange={onChange} />, 'editor');
+    let [component, div] = loadTemplate(
+      <SelectEditor value="a" funcDesc={blankFuncDesc} desc={desc} onChange={onChange} />,
+      'editor'
+    );
 
     await shouldHappen(() => div.querySelector('.ant-select-selector'));
     let selectDiv = div.querySelector('.ant-select-selector');
 
     window.onerror = function (e) {};
     SimulateEvent.simulate(selectDiv, 'mousedown');
-    await shouldHappen(() => querySingle("//div.ant-select-item-option-content[text()='b']", document.body));
+    await shouldHappen(() => querySingle("//div.ant-select-item-option-content/span[text()='b']", document.body));
 
-    SimulateEvent.simulate(querySingle("//div.ant-select-item-option-content[text()='b']", document.body), 'click');
+    SimulateEvent.simulate(querySingle("//div.ant-select-item-option-content/span[text()='b']", document.body), 'click');
 
     assert.equal(value, 'b');
   });
@@ -49,15 +53,18 @@ describe('SelectEditor', function () {
       value = v;
     };
     let desc: PropDesc = {name: '', type: 'multi-select', options: ['a', 'b', 'c']};
-    let [component, div] = loadTemplate(<MultiSelectEditor value={['a']} desc={desc} onChange={onChange} />, 'editor');
+    let [component, div] = loadTemplate(
+      <MultiSelectEditor value={['a']} funcDesc={blankFuncDesc} desc={desc} onChange={onChange} />,
+      'editor'
+    );
     await shouldHappen(() => div.querySelector('.ant-select-selector'));
     let selectDiv = div.querySelector('.ant-select-selector');
 
     window.onerror = function (e) {};
     SimulateEvent.simulate(selectDiv, 'mousedown');
-    await shouldHappen(() => querySingle("//div.ant-select-item-option-content[text()='b']", document.body));
+    await shouldHappen(() => querySingle("//div.ant-select-item-option-content/span[text()='b']", document.body));
 
-    SimulateEvent.simulate(querySingle("//div.ant-select-item-option-content[text()='b']", document.body), 'click');
+    SimulateEvent.simulate(querySingle("//div.ant-select-item-option-content/span[text()='b']", document.body), 'click');
 
     assert.deepEqual(value, ['a', 'b']);
 

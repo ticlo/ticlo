@@ -5,7 +5,7 @@ import {removeLastTemplate, loadTemplate, querySingle, fakeMouseEvent} from '../
 import {initEditor} from '../../../index';
 import {DateEditor} from '../DateEditor';
 import {shouldHappen, waitTick} from '../../../../../src/core/util/test-util';
-import {blankPropDesc, PropDesc} from '../../../../../src/core/editor';
+import {blankFuncDesc, blankPropDesc, PropDesc} from '../../../../../src/core/editor';
 import {Moment, now} from 'moment';
 
 describe('DateEditor', function () {
@@ -23,7 +23,10 @@ describe('DateEditor', function () {
       value = v;
     };
     let desc: PropDesc = {name: '', type: 'date'};
-    let [component, div] = loadTemplate(<DateEditor value="2019-01-01" desc={desc} onChange={onChange} />, 'editor');
+    let [component, div] = loadTemplate(
+      <DateEditor value="2019-01-01" funcDesc={blankFuncDesc} desc={desc} onChange={onChange} />,
+      'editor'
+    );
 
     await shouldHappen(() => div.querySelector('.ticl-date-editor > div'));
     let editorDiv = div.querySelector('.ticl-date-editor > div');

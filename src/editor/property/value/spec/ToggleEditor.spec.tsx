@@ -5,7 +5,8 @@ import {removeLastTemplate, loadTemplate, querySingle} from '../../../util/test-
 import {initEditor} from '../../../index';
 import {ToggleEditor} from '../ToggleEditor';
 import {shouldHappen} from '../../../../../src/core/util/test-util';
-import {blankPropDesc, PropDesc} from '../../../../../src/core/editor';
+import {blankFuncDesc, blankPropDesc, PropDesc} from '../../../../../src/core/editor';
+import {DateEditor} from '../DateEditor';
 
 describe('ToggleEditor', function () {
   beforeEach(async function () {
@@ -22,7 +23,7 @@ describe('ToggleEditor', function () {
       value = v;
     };
     let [component, div] = loadTemplate(
-      <ToggleEditor value={false} desc={blankPropDesc} onChange={onChange} />,
+      <ToggleEditor value={false} funcDesc={blankFuncDesc} desc={blankPropDesc} onChange={onChange} />,
       'editor'
     );
 
@@ -39,7 +40,7 @@ describe('ToggleEditor', function () {
       value = v;
     };
     let [component, div] = loadTemplate(
-      <ToggleEditor value={true} desc={blankPropDesc} onChange={onChange} />,
+      <ToggleEditor value={true} funcDesc={blankFuncDesc} desc={blankPropDesc} onChange={onChange} />,
       'editor'
     );
 
@@ -56,7 +57,10 @@ describe('ToggleEditor', function () {
       value = v;
     };
     let desc: PropDesc = {name: '', type: 'toggle', options: ['a', 'b']};
-    let [component, div] = loadTemplate(<ToggleEditor value="a" desc={desc} onChange={onChange} />, 'editor');
+    let [component, div] = loadTemplate(
+      <ToggleEditor value="a" funcDesc={blankFuncDesc} desc={desc} onChange={onChange} />,
+      'editor'
+    );
 
     await shouldHappen(() => div.querySelector('.ant-switch'));
     let switchButton = div.querySelector('.ant-switch');
@@ -71,7 +75,10 @@ describe('ToggleEditor', function () {
       value = v;
     };
     let desc: PropDesc = {name: '', type: 'toggle', options: ['a', 'b']};
-    let [component, div] = loadTemplate(<ToggleEditor value="b" desc={desc} onChange={onChange} />, 'editor');
+    let [component, div] = loadTemplate(
+      <ToggleEditor value="b" funcDesc={blankFuncDesc} desc={desc} onChange={onChange} />,
+      'editor'
+    );
 
     await shouldHappen(() => div.querySelector('.ant-switch'));
     let switchButton = div.querySelector('.ant-switch');

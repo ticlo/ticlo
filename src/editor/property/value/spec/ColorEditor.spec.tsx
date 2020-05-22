@@ -5,7 +5,7 @@ import {removeLastTemplate, loadTemplate, querySingle} from '../../../util/test-
 import {initEditor} from '../../../index';
 import {ColorEditor} from '../ColorEditor';
 import {shouldHappen} from '../../../../../src/core/util/test-util';
-import {blankPropDesc, PropDesc} from '../../../../../src/core/editor';
+import {blankFuncDesc, blankPropDesc, PropDesc} from '../../../../../src/core/editor';
 
 describe('ColorEditor', function () {
   beforeEach(async function () {
@@ -22,7 +22,10 @@ describe('ColorEditor', function () {
       value = v;
     };
     let desc: PropDesc = {name: '', type: 'color'};
-    let [component, div] = loadTemplate(<ColorEditor value="#000000" desc={desc} onChange={onChange} />, 'editor');
+    let [component, div] = loadTemplate(
+      <ColorEditor value="#000000" funcDesc={blankFuncDesc} desc={desc} onChange={onChange} />,
+      'editor'
+    );
 
     await shouldHappen(() => div.querySelector('.ticl-color-editor'));
     let colorDiv = div.querySelector('.ticl-color-editor');

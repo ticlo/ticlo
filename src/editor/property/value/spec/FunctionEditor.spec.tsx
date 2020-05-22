@@ -5,9 +5,10 @@ import {removeLastTemplate, loadTemplate, querySingle} from '../../../util/test-
 import {initEditor} from '../../../index';
 import {FunctionEditor} from '../FunctionEditor';
 import {shouldHappen} from '../../../../core/util/test-util';
-import {blankPropDesc, PropDesc} from '../../../../../src/core/editor';
+import {blankFuncDesc, blankPropDesc, PropDesc} from '../../../../../src/core/editor';
 import {makeLocalConnection} from '../../../../core/connect/LocalConnection';
 import {Root} from '../../../../../src/core';
+import {DateEditor} from '../DateEditor';
 
 describe('TypeEditor', function () {
   beforeEach(async function () {
@@ -27,7 +28,7 @@ describe('TypeEditor', function () {
     };
     let desc: PropDesc = {name: '', type: 'type'};
     let [component, div] = loadTemplate(
-      <FunctionEditor value="" conn={client} desc={desc} onChange={onChange} />,
+      <FunctionEditor value="" conn={client} funcDesc={blankFuncDesc} desc={desc} onChange={onChange} />,
       'editor'
     );
 

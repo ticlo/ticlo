@@ -5,8 +5,9 @@ import {removeLastTemplate, loadTemplate, querySingle} from '../../../util/test-
 import {initEditor} from '../../../index';
 import {PasswordEditor} from '../PasswordEditor';
 import {shouldHappen} from '../../../../../src/core/util/test-util';
-import {blankPropDesc} from '../../../../../src/core/editor';
+import {blankFuncDesc, blankPropDesc} from '../../../../../src/core/editor';
 import {simulateInput} from './simulate-input';
+import {DateEditor} from '../DateEditor';
 
 describe('PasswordEditor', function () {
   beforeEach(async function () {
@@ -27,7 +28,7 @@ describe('PasswordEditor', function () {
       value = str;
     };
     let [component, div] = loadTemplate(
-      <PasswordEditor ref={getRef} value="1" desc={blankPropDesc} onChange={onChange} />,
+      <PasswordEditor ref={getRef} value="1" funcDesc={blankFuncDesc} desc={blankPropDesc} onChange={onChange} />,
       'editor'
     );
 

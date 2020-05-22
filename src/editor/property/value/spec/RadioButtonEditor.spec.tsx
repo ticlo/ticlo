@@ -5,7 +5,8 @@ import {removeLastTemplate, loadTemplate, querySingle} from '../../../util/test-
 import {initEditor} from '../../../index';
 import {RadioButtonEditor} from '../RadioButtonEditor';
 import {shouldHappen} from '../../../../../src/core/util/test-util';
-import {blankPropDesc, PropDesc} from '../../../../../src/core/editor';
+import {blankFuncDesc, blankPropDesc, PropDesc} from '../../../../../src/core/editor';
+import {DateEditor} from '../DateEditor';
 
 describe('RadioButtonEditor', function () {
   beforeEach(async function () {
@@ -22,7 +23,10 @@ describe('RadioButtonEditor', function () {
       value = v;
     };
     let desc: PropDesc = {name: '', type: 'select', options: ['a', 'b', 'c']};
-    let [component, div] = loadTemplate(<RadioButtonEditor value="a" desc={desc} onChange={onChange} />, 'editor');
+    let [component, div] = loadTemplate(
+      <RadioButtonEditor value="a" funcDesc={blankFuncDesc} desc={desc} onChange={onChange} />,
+      'editor'
+    );
 
     await shouldHappen(() => div.querySelectorAll('.ant-radio-button').length === 3);
     let buttons = div.querySelectorAll('.ant-radio-button');
