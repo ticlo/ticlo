@@ -42,7 +42,10 @@ describe('SelectEditor', function () {
     SimulateEvent.simulate(selectDiv, 'mousedown');
     await shouldHappen(() => querySingle("//div.ant-select-item-option-content/span[text()='b']", document.body));
 
-    SimulateEvent.simulate(querySingle("//div.ant-select-item-option-content/span[text()='b']", document.body), 'click');
+    SimulateEvent.simulate(
+      querySingle("//div.ant-select-item-option-content/span[text()='b']", document.body),
+      'click'
+    );
 
     assert.equal(value, 'b');
   });
@@ -64,7 +67,10 @@ describe('SelectEditor', function () {
     SimulateEvent.simulate(selectDiv, 'mousedown');
     await shouldHappen(() => querySingle("//div.ant-select-item-option-content/span[text()='b']", document.body));
 
-    SimulateEvent.simulate(querySingle("//div.ant-select-item-option-content/span[text()='b']", document.body), 'click');
+    SimulateEvent.simulate(
+      querySingle("//div.ant-select-item-option-content/span[text()='b']", document.body),
+      'click'
+    );
 
     assert.deepEqual(value, ['a', 'b']);
 

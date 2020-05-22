@@ -11,7 +11,7 @@ const defaultTimes = {
 };
 
 export class DateRangeEditor extends React.PureComponent<ValueEditorProps, any> {
-  onValueChange = (range: Moment[]) => {
+  onValueChange = (range: [Moment, Moment]) => {
     let {desc, onChange} = this.props;
     onChange(range);
   };
