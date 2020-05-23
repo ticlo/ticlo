@@ -82,3 +82,8 @@
 # property/PropertyList.tsx
 "Config": "Config"
 "Custom": "Custom"
+
+'#global': '#global'
+'#shared': '#shared'
+'#temp': '#temp'
+'#edit': '#edit'

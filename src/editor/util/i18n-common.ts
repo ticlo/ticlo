@@ -14,3 +14,10 @@ t('Navigation');
 t('Properties');
 t('Functions');
 t('Pinned');
+
+// node names
+
+t('#global');
+t('#shared');
+t('#temp');
+t('#edit');

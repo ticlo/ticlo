@@ -53,9 +53,7 @@ export const LocalizedEnumOption = ({
 
 const specialNodeNamePrefix = /^#\w+\b/;
 function localizeNodeNamePrefix(match: string) {
-  return i18next.t(`@nodename.${match}`, {
-    ns: 'ticlo-core',
-  });
+  return translateEditor(match);
 }
 export const LocalizedNodeName = ({name}: {name: string}) => {
   useContext(TicloLayoutContextType);

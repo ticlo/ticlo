@@ -54,9 +54,3 @@
     '@name': 'XYW'
   '@b-widget':
     '@name': 'Widget'
-
-'@nodename':
-  '#global': '#global'
-  '#shared': '#shared'
-  '#temp': '#temp'
-  '#edit': '#edit'

@@ -54,9 +54,3 @@
     '@name': XYW
   '@b-widget':
     '@name': 组件
-
-'@nodename':
-  '#global': "#全局"
-  '#shared': "#公用"
-  '#temp': "#临时"
-  '#edit': "#编辑"
