@@ -120,6 +120,7 @@ export const configDescs: {[key: string]: PropDesc} = {
   },
   '#call': {name: '#call', type: 'event'},
   '#sync': {name: '#sync', type: 'toggle'},
+  '#disabled': {name: '#disabled', type: 'toggle', default: false},
   '#wait': {name: '#wait', type: 'toggle', readonly: true},
   '#wait(#outputs)': {name: '#wait', type: 'toggle'},
   '#cancel': {name: '#cancel', type: 'event'},
@@ -142,6 +143,7 @@ export const configList: PropDesc[] = [
   configDescs['#mode'],
   configDescs['#priority'],
   configDescs['#sync'],
+  configDescs['#disabled'],
   configDescs['#wait'],
 ];
 

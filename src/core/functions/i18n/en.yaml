@@ -33,6 +33,8 @@
       auto: Auto
   '#sync':
     '@name': 'Synchronize'
+  '#disabled':
+    '@name': 'Disabled'
   '#wait':
     '@name': 'Wait'
   '#cancel':

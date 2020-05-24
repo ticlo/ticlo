@@ -1,7 +1,7 @@
 import {BlockIO, BlockProperty} from './BlockProperty';
 import {Block, InputsBlock, OutputsBlock} from './Block';
 
-class BlockTypeConfig extends BlockProperty {
+class BlockFuncIdConfig extends BlockProperty {
   constructor(block: Block, name: string) {
     super(block, name);
     this._value = '';
@@ -17,7 +17,7 @@ class BlockTypeConfig extends BlockProperty {
   }
 
   _valueChanged() {
-    this._block._typeChanged(this._value);
+    this._block._funcidChanged(this._value);
   }
 }
 
@@ -36,6 +36,12 @@ class BlockSyncConfig extends BlockProperty {
 class BlockModeConfig extends BlockProperty {
   _valueChanged() {
     this._block._modeChanged(this._value);
+  }
+}
+
+class BlockDisabledConfig extends BlockProperty {
+  _valueChanged() {
+    this._block._disabledChanged(this._value);
   }
 }
 
@@ -135,7 +141,8 @@ export function ConstTypeConfig(type: string): typeof BlockProperty {
 }
 
 export const ConfigGenerators: {[key: string]: typeof BlockProperty} = {
-  '#is': BlockTypeConfig,
+  '#is': BlockFuncIdConfig,
+  '#disabled': BlockDisabledConfig,
   '#mode': BlockModeConfig,
   '#call': BlockCallConfig,
   '#sync': BlockSyncConfig,

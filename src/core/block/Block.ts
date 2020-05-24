@@ -14,8 +14,8 @@ import {_strictMode} from './BlockSettings';
 
 import type {Flow, Root} from './Flow';
 
-export type BlockMode = 'auto' | 'onLoad' | 'onChange' | 'onCall' | 'disabled';
-export const BlockModeList = ['auto', 'onLoad', 'onChange', 'onCall', 'disabled'];
+export type BlockMode = 'auto' | 'onLoad' | 'onChange' | 'onCall';
+export const BlockModeList = ['auto', 'onLoad', 'onChange', 'onCall'];
 
 export interface BlockChildWatch {
   onChildChange(property: BlockProperty, saved?: boolean): void;
@@ -73,10 +73,11 @@ export class Block implements Runnable, FunctionData, PropListener<FunctionClass
   _parent: Block;
   _prop: BlockProperty;
 
+  _disabled = false;
   _mode: BlockMode = 'auto';
-  _runOnChange: boolean = true;
-  _runOnLoad: boolean = false;
-  _sync: boolean = false;
+  _runOnChange = true;
+  _runOnLoad = false;
+  _sync = false;
 
   _props: Map<string, BlockProperty> = new Map();
   // a cache for blockIO, generated on demand
@@ -538,7 +539,6 @@ export class Block implements Runnable, FunctionData, PropListener<FunctionClass
       case 'onLoad':
       case 'onChange':
       case 'onCall':
-      case 'disabled':
         this._mode = mode;
         break;
       default: {
@@ -574,7 +574,7 @@ export class Block implements Runnable, FunctionData, PropListener<FunctionClass
   _called = false;
 
   _onCall(val: any): void {
-    if (this._mode !== 'disabled') {
+    if (!this._disabled) {
       if (val === WAIT) {
         // ignore NOT_READY
       } else {
@@ -632,20 +632,40 @@ export class Block implements Runnable, FunctionData, PropListener<FunctionClass
     }
   }
 
+  _disabledChanged(disabled: any) {
+    let newDisabled = this._flow._disabled || Boolean(disabled);
+    if (newDisabled !== this._disabled) {
+      this._disabled = newDisabled;
+      if (newDisabled) {
+        this._applyFuncid(null);
+      } else {
+        this._applyFuncid(this._funcId);
+      }
+    }
+  }
+
   _syncChanged(sync: any) {
     this._sync = !!sync;
   }
 
-  _typeChanged(funcId: any) {
-    if (this._flow._namespace && typeof funcId === 'string' && funcId.startsWith(':')) {
+  _funcidChanged(funcId: any) {
+    if (typeof funcId !== 'string') {
+      funcId = null;
+    }
+    if (this._flow._namespace && funcId?.startsWith(':')) {
       funcId = `${this._flow._namespace}${funcId}`;
     }
     if (funcId === this._funcId) return;
     this._funcId = funcId;
+    if (!this._disabled) {
+      this._applyFuncid(funcId);
+    }
+  }
+  _applyFuncid(funcId: string) {
     if (this._funcSrc) {
       this._funcSrc.unlisten(this);
     }
-    if (funcId && typeof funcId === 'string') {
+    if (funcId) {
       this._funcSrc = Functions.listen(funcId, this);
     } else {
       this._funcSrc = null;
@@ -729,6 +749,7 @@ export class Block implements Runnable, FunctionData, PropListener<FunctionClass
     // not needed
   }
 
+  // function class changed
   onChange(cls: FunctionClass): void {
     if (this._function) {
       this._function.cleanup();
@@ -760,13 +781,18 @@ export class Block implements Runnable, FunctionData, PropListener<FunctionClass
           this._queueFunction();
         }
       }
-    } else if (this._function) {
-      this._function = null;
-      this._queueToRun = false;
-      if (this._mode === 'auto') {
-        // fast version of this._configMode();
-        this._runOnChange = true;
-        this._runOnLoad = false;
+    } else {
+      if (this._function) {
+        this._function = null;
+        this._queueToRun = false;
+        if (this._mode === 'auto') {
+          // fast version of this._configMode();
+          this._runOnChange = true;
+          this._runOnLoad = false;
+        }
+      }
+      if (this._pendingClass) {
+        this._pendingClass = null;
       }
     }
   }

@@ -33,6 +33,8 @@
       auto: 自动 # auto translated from hash: BrkoHjlt
   '#sync':
     '@name': 同步 # auto translated from hash: sYuWDFen
+  '#disabled':
+    '@name': 禁用 # auto translated from hash: ufXHl+u/
   '#wait':
     '@name': 等待 # auto translated from hash: D2gQF3K9
   '#cancel':

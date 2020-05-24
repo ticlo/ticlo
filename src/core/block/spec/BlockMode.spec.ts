@@ -41,7 +41,7 @@ describe('BlockMode', function () {
     Root.run();
     assert.deepEqual(TestFunctionRunner.popLogs(), ['obj'], 'auto mode should trigger block when io property changed');
 
-    block.setValue('#mode', 'disabled');
+    block.setValue('#disabled', true);
     block.setValue('#call', {});
     block.setValue('input', {});
     Root.run();
@@ -61,7 +61,7 @@ describe('BlockMode', function () {
     b3.setValue('#mode', 'onCall');
     b3.setValue('#sync', true);
     let b4 = flow.createBlock('disabled');
-    b4.setValue('#mode', 'disabled');
+    b4.setValue('#disabled', true);
 
     b0.setValue('#-log', 'b0');
     b0.setValue('#is', 'test-runner');
