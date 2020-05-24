@@ -1,4 +1,4 @@
-import {Block, BlockFunction, BlockIO, DataMap, Functions, PropDesc, PropGroupDesc} from '../core';
+import {Block, BlockFunction, BlockIO, DataMap, defaultConfigs, Functions, PropDesc, PropGroupDesc} from '../core';
 import React from 'react';
 import {TicloComp} from './TicloComp';
 import {htmlAttributes, htmlEventHandlers, optionalHtmlProperties} from './HtmlAttributes';
@@ -75,7 +75,7 @@ export class HtmlElementFunction extends BlockFunction {
   }
 }
 
-export const elementConfigs = ['#call', '#mode', '#priority', '#sync', '#render'];
+export const elementConfigs = defaultConfigs.concat('#render');
 
 export const elementStyleProperty: PropDesc = {
   name: 'style',

@@ -1,4 +1,4 @@
-import {BaseFunction, Functions, PropDesc, PropGroupDesc} from '../../../src/core';
+import {BaseFunction, defaultConfigs, Functions, PropDesc, PropGroupDesc} from '../../../src/core';
 import StyleDef from './StyleDef';
 import {BlockConfig} from '../../core/block/BlockProperty';
 
@@ -32,7 +32,7 @@ Functions.add(
     icon: 'fab:css3',
     optional: StyleDef,
     properties: [{name: '#output', pinned: true, type: 'object', readonly: true}],
-    configs: [{name: '#extend', type: 'object'}, '#call', '#mode', '#priority', '#sync'],
+    configs: ([{name: '#extend', type: 'object'}] as (string | PropDesc)[]).concat(defaultConfigs),
   },
   'html'
 );

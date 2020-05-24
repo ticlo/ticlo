@@ -8,7 +8,7 @@ import {
   ValueUpdate,
   blankFuncDesc,
   configDescs,
-  configList,
+  defaultConfigDescs,
   FunctionDesc,
   PropDesc,
   PropGroupDesc,
@@ -326,7 +326,7 @@ export class PropertyList extends MultiSelectComponent<Props, State, BlockLoader
         for (let [path, subscriber] of this.loaders) {
           if (subscriber.desc) {
             console.log(subscriber.desc.configs);
-            configMerger.add(mapConfigDesc(subscriber.desc.configs) || configList);
+            configMerger.add(mapConfigDesc(subscriber.desc.configs) || defaultConfigDescs);
           } else {
             // properties not ready
             configMerger.map = null;

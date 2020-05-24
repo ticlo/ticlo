@@ -26,7 +26,6 @@
       onLoad: 加载时 # auto translated from hash: E7DolRJP
       onChange: 更改时 # auto translated from hash: nxXEf16N
       onCall: 触发时
-      disabled: 禁用
   '#priority':
     '@name': 优先级
     '@options':

@@ -138,14 +138,9 @@ export const configDescs: {[key: string]: PropDesc} = {
   '#cacheMode': {name: '#cacheMode', type: 'radio-button', options: ['auto', 'persist'], default: 'auto'},
 };
 
-export const configList: PropDesc[] = [
-  configDescs['#call'],
-  configDescs['#mode'],
-  configDescs['#priority'],
-  configDescs['#sync'],
-  configDescs['#disabled'],
-  configDescs['#wait'],
-];
+export const defaultConfigs = ['#call', '#mode', '#priority', '#sync', '#disabled', '#wait'];
+
+export const defaultConfigDescs: PropDesc[] = defaultConfigs.map((name: string) => configDescs[name]);
 
 export function mapConfigDesc(configs: (string | PropDesc)[]): PropDesc[] {
   if (configs == null) {

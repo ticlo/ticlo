@@ -26,7 +26,6 @@
       onLoad: On Load
       onChange: On Change
       onCall: On Call
-      disabled: Disabled
   '#priority':
     '@name': 'Priority'
     '@options':

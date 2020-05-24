@@ -1,6 +1,6 @@
 import {BaseFunction} from '../../block/BlockFunction';
 import {Functions} from '../../block/Functions';
-import {PropDesc, PropGroupDesc} from '../../block/Descriptor';
+import {defaultConfigs, PropDesc, PropGroupDesc} from '../../block/Descriptor';
 import {BlockConfig} from '../../block/BlockProperty';
 
 export class CreateObjectFunction extends BaseFunction {
@@ -44,5 +44,5 @@ Functions.add(CreateObjectFunction, {
   name: 'create-object',
   icon: 'txt:{ }',
   properties: [{name: '#output', pinned: true, type: 'object', readonly: true}],
-  configs: [{name: '#extend', type: 'object'}, '#call', '#mode', '#priority', '#sync'],
+  configs: ([{name: '#extend', type: 'object'}] as (string | PropDesc)[]).concat(defaultConfigs),
 });
