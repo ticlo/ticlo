@@ -28,7 +28,7 @@ export const clientDescriptors: FunctionDesc[] = [
     color: 'e91',
     src: 'hidden',
     ns: 'flow',
-    configs: [],
+    configs: ['#disabled'],
   },
   {
     priority: 0,
@@ -50,7 +50,7 @@ export const clientDescriptors: FunctionDesc[] = [
     color: 'e91',
     src: 'hidden',
     ns: 'flow',
-    configs: ['#desc'],
+    configs: ['#desc', '#disabled'],
   },
   {
     priority: 0,
@@ -61,7 +61,7 @@ export const clientDescriptors: FunctionDesc[] = [
     color: 'e91',
     src: 'hidden',
     ns: 'flow',
-    configs: ['#desc'],
+    configs: ['#desc', '#disabled'],
   },
   {
     priority: 0,
@@ -72,6 +72,6 @@ export const clientDescriptors: FunctionDesc[] = [
     color: 'e91',
     src: 'hidden',
     ns: 'flow',
-    configs: ['#cacheMode'],
+    configs: ['#cacheMode', '#disabled'],
   },
 ];
