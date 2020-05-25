@@ -632,16 +632,41 @@ export class Block implements Runnable, FunctionData, PropListener<FunctionClass
     }
   }
 
+  _flowDisabled() {
+    this._disabledChanged(true);
+    for (let [key, prop] of this._props) {
+      let val = prop._value;
+      if (val instanceof Block && val._prop === prop) {
+        val._flowDisabled();
+      }
+    }
+  }
+  _flowEnabled() {
+    this._disabledChanged(this.getValue('#disabled'));
+    for (let [key, prop] of this._props) {
+      let val = prop._value;
+      if (val instanceof Block && val._prop === prop) {
+        val._flowEnabled();
+      }
+    }
+  }
+
   _disabledChanged(disabled: any) {
     let newDisabled = this._flow._disabled || Boolean(disabled);
     if (newDisabled !== this._disabled) {
       this._disabled = newDisabled;
       if (newDisabled) {
-        this._applyFuncid(null);
+        this._disableBlock();
       } else {
-        this._applyFuncid(this._funcId);
+        this._enabledBlock();
       }
     }
+  }
+  _disableBlock() {
+    this._applyFuncid(null);
+  }
+  _enabledBlock() {
+    this._applyFuncid(this._funcId);
   }
 
   _syncChanged(sync: any) {

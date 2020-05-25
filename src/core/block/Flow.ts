@@ -40,6 +40,46 @@ export class Flow extends Block {
     }
   }
 
+  _disabledChanged(disabled: any) {
+    let newDisabled = this._parent._flow._disabled || Boolean(disabled);
+    if (newDisabled !== this._disabled) {
+      this._disabled = newDisabled;
+      if (newDisabled) {
+        this._disableBlock();
+      } else {
+        this._enabledBlock();
+      }
+    }
+  }
+
+  // override default behavior, dont directly call _flowDisabled on children
+  _flowDisabled() {
+    this._disabledChanged(true);
+  }
+  // override default behavior, dont directly call _flowEnabled on children
+  _flowEnabled() {
+    this._disabledChanged(this.getValue('#disabled'));
+  }
+
+  _disableBlock() {
+    this._applyFuncid(null);
+    for (let [key, prop] of this._props) {
+      let val = prop._value;
+      if (val instanceof Block && val._prop === prop) {
+        val._flowDisabled();
+      }
+    }
+  }
+  _enabledBlock() {
+    this._applyFuncid(this._funcId);
+    for (let [key, prop] of this._props) {
+      let val = prop._value;
+      if (val instanceof Block && val._prop === prop) {
+        val._flowEnabled();
+      }
+    }
+  }
+
   createGlobalProperty(name: string): BlockProperty {
     let prop = new GlobalProperty(this, name);
     this._props.set(name, prop);
