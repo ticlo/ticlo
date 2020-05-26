@@ -73,7 +73,7 @@ export class Block implements Runnable, FunctionData, PropListener<FunctionClass
   _parent: Block;
   _prop: BlockProperty;
 
-  _disabled = false;
+  _disabled: boolean;
   _mode: BlockMode = 'auto';
   _runOnChange = true;
   _runOnLoad = false;
@@ -105,6 +105,7 @@ export class Block implements Runnable, FunctionData, PropListener<FunctionClass
     this._flow = flow;
     this._parent = parent;
     this._prop = prop;
+    this._disabled = Boolean(flow?._disabled);
     this._blockId = `${this.constructor.name} ${prop?._name}#${Block.nextUid().padStart(3, '0')}`;
     // #is should always be initialized
     this.getProperty('#is');

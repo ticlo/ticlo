@@ -40,12 +40,7 @@ describe('BlockMode', function () {
     block.setValue('input', {});
     Root.run();
     assert.deepEqual(TestFunctionRunner.popLogs(), ['obj'], 'auto mode should trigger block when io property changed');
-
-    block.setValue('#disabled', true);
-    block.setValue('#call', {});
-    block.setValue('input', {});
-    Root.run();
-    assert.isEmpty(TestFunctionRunner.logs, 'disable mode function should never run');
+    
   });
 
   it('block mode on load', function () {

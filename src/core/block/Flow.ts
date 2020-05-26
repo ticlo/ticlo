@@ -30,6 +30,9 @@ export class Flow extends Block {
     if (!property) {
       this._prop = new BlockProperty(this, '');
     }
+    if (parent) {
+      this._disabled =  this._parent._flow._disabled;
+    }
   }
 
   _createConfig(field: string): BlockProperty {
@@ -290,6 +293,7 @@ class GlobalBlock extends ConstBlock {
 }
 
 class FlowMain extends Flow {
+  // used when save from parent job
   _save(): DataMap {
     return this.getValue('@b-xyw');
   }
