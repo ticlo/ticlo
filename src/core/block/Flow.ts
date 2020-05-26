@@ -31,7 +31,7 @@ export class Flow extends Block {
       this._prop = new BlockProperty(this, '');
     }
     if (parent) {
-      this._disabled =  this._parent._flow._disabled;
+      this._disabled = this._parent._flow._disabled;
     }
   }
 

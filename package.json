@@ -93,7 +93,7 @@
     "build-icons": "ts-node tool/build-icons",
     "build-i18n": "ts-node tool/merge-lng",
     "build-package": "ts-node tool/build-package.ts",
-    "test": "cross-env NODE_ENV=TEST mocha 'src/core/**/*.spec.ts' 'src/node/**/*.spec.ts'",
+    "test": "cross-env NODE_ENV=TEST mocha 'src/core/**/*.spec.js' 'src/node/**/*.spec.js'",
     "express-server": "node -r ts-node/register example/server/express-server",
     "editor": "parcel example/simple-editor/editor-browser.html --open --out-dir temp --no-source-maps",
     "server-and-editor-browser": "parcel example/simple-editor/server-and-editor-browser.html --open --out-dir temp --no-source-maps",

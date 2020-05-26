@@ -40,7 +40,6 @@ describe('BlockMode', function () {
     block.setValue('input', {});
     Root.run();
     assert.deepEqual(TestFunctionRunner.popLogs(), ['obj'], 'auto mode should trigger block when io property changed');
-    
   });
 
   it('block mode on load', function () {

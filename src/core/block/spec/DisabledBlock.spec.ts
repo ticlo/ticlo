@@ -71,7 +71,7 @@ describe('Disabled Block', function () {
     flow.setValue('#disabled', false);
     Root.run();
     assert.deepEqual(TestFunctionRunner.popLogs(), ['obj']);
-    
+
     flow.destroy();
   });
 });
