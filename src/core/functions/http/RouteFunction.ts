@@ -125,7 +125,7 @@ export class RouteFunction extends BlockFunction {
     return NO_EMIT;
   }
 
-  getDefaultWorker(field: string): DataMap {
+  static getDefaultWorker(block: any, field: string, blockStack: Map<any, any>): DataMap {
     if (field === '#emit') {
       return defaultRouteWorker;
     }

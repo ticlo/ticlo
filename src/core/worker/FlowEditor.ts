@@ -92,8 +92,8 @@ export class FlowEditor extends FlowWithShared {
       forceReload = true;
     }
 
-    if (parent._function) {
-      let data = parent._function.getDefaultWorker(fromField) || blankWorker;
+    if (parent._funcId) {
+      let data = parent.getDefaultWorker(fromField) || blankWorker;
       return FlowEditor.create(parent, field, data, null, forceReload, (data: DataMap) => {
         parent.setValue(fromField, data);
         return true;

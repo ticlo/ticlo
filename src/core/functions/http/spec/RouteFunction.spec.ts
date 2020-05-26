@@ -107,6 +107,6 @@ describe('RouteFunction', function () {
     let handler = flow.getValue('handler') as Block;
     FlowEditor.createFromField(handler, '#edit-use', 'use');
 
-    assert.deepEqual((handler.getValue('#edit-use') as Flow).save(), route._function.getDefaultWorker('#emit'));
+    assert.deepEqual((handler.getValue('#edit-use') as Flow).save(), route.getDefaultWorker('#emit'));
   });
 });

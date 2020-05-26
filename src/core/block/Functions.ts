@@ -125,7 +125,9 @@ export class Functions {
       dispatcher = new FunctionDispatcher(id);
       _functions[id] = dispatcher;
     }
-    dispatcher.listen(block);
+    if (block) {
+      dispatcher.listen(block);
+    }
     return dispatcher;
   }
 

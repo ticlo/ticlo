@@ -1,6 +1,6 @@
 import {MapImpl, WorkerOutput} from './MapImpl';
 import {DataMap} from '../util/DataTypes';
-import {BlockMode} from '../block/Block';
+import {Block, BlockMode} from '../block/Block';
 import {Functions} from '../block/Functions';
 import {Event, EventType, WAIT, NO_EMIT} from '../block/Event';
 import Denque from 'denque';
@@ -214,20 +214,16 @@ export class HandlerFunction extends MapImpl {
     return true;
   }
 
-  _deadLoopProtect = false;
-  getDefaultWorker(field: string): DataMap {
+  static getDefaultWorker(block: Block, field: string, blockStack: Map<any, any>): DataMap {
     if (field === 'use') {
-      if (this._deadLoopProtect) {
-        this._deadLoopProtect = false;
+      if (blockStack.has(this)) {
         return null;
       }
+      blockStack.set(this, true);
       // proxy the default work to the original block
-      let fromProp = this._data.getProperty('#call', false)?._bindingSource?.getProperty();
-      if (fromProp && fromProp._block._function) {
-        this._deadLoopProtect = true;
-        let result = fromProp._block._function.getDefaultWorker(fromProp._name);
-        this._deadLoopProtect = false;
-        return result;
+      let fromProp = block.getProperty('#call', false)?._bindingSource?.getProperty();
+      if (fromProp) {
+        return fromProp._block.getDefaultWorker(fromProp._name, blockStack);
       }
     }
     return null;
