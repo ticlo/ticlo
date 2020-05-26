@@ -3,7 +3,7 @@ import {Button, Tooltip} from 'antd';
 import MenuUnfoldIcon from '@ant-design/icons/MenuUnfoldOutlined';
 import MenuFoldIcon from '@ant-design/icons/MenuFoldOutlined';
 import {BlockStage, PropertyList} from '../..';
-import {Divider} from 'rc-dock/lib';
+import {Divider, TabData} from 'rc-dock/lib';
 import {arrayEqual, ClientConn, getDisplayName, ValueSubscriber, ValueUpdate} from '../../../../src/core/editor';
 import {BlockStageTabButton} from './BlockStageTabButton';
 import {LazyUpdateComponent} from '../../component/LazyUpdateComponent';
@@ -46,7 +46,7 @@ export class BlockStagePane extends LazyUpdateComponent<Props, State> {
       title: onSave ? <BlockStageTabButton conn={conn} id={id} path={path} title={tabName} onSave={onSave} /> : tabName,
       group: 'blockStage',
       content: <BlockStagePane conn={conn} basePath={path} onSelect={onSelect} onSave={onSave} />,
-    };
+    } as TabData;
   }
 
   private _rootNode!: HTMLElement;
