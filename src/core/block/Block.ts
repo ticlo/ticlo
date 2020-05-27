@@ -875,16 +875,10 @@ export class Block implements Runnable, FunctionData, PropListener<FunctionClass
 
   getDefaultWorker(field: string, blockStack?: Map<any, any>): DataMap {
     if (this._funcId) {
-      let getWorkerFunction: (block: any, field: string, blockStack: Map<any, any>) => DataMap = (Functions.listen(
-        this._funcId,
-        null
-      )._value as any)?.getDefaultWorker;
-      if (getWorkerFunction) {
-        if (!blockStack) {
-          blockStack = new Map();
-        }
-        return getWorkerFunction(this, field, blockStack);
+      if (!blockStack) {
+        blockStack = new Map();
       }
+      return Functions.listen(this._funcId, null).getDefaultWorker(this, field, blockStack);
     }
     return null;
   }

@@ -214,21 +214,6 @@ export class HandlerFunction extends MapImpl {
     return true;
   }
 
-  static getDefaultWorker(block: Block, field: string, blockStack: Map<any, any>): DataMap {
-    if (field === 'use') {
-      if (blockStack.has(this)) {
-        return null;
-      }
-      blockStack.set(this, true);
-      // proxy the default work to the original block
-      let fromProp = block.getProperty('#call', false)?._bindingSource?.getProperty();
-      if (fromProp) {
-        return fromProp._block.getDefaultWorker(fromProp._name, blockStack);
-      }
-    }
-    return null;
-  }
-
   cleanup(): void {
     this._data.deleteValue('#func');
   }
@@ -242,19 +227,39 @@ export class HandlerFunction extends MapImpl {
   }
 }
 
-Functions.add(HandlerFunction, {
-  name: 'handler',
-  icon: 'fas:grip-lines-vertical',
-  priority: 3,
-  mode: 'onChange',
-  properties: [
-    {name: 'use', type: 'worker'},
-    {name: 'thread', type: 'number', default: 0, min: 0, step: 1},
-    {name: 'reuseWorker', type: 'radio-button', options: ['none', 'reuse', 'persist'], default: 'none'},
-    {name: 'timeout', type: 'number'},
-    {name: 'keepOrder', type: 'toggle'},
-    {name: 'maxQueueSize', type: 'number', default: 0, min: 0, step: 1},
-    {name: 'queueSize', type: 'number', readonly: true},
-  ],
-  category: 'repeat',
-});
+function getDefaultWorker(block: Block, field: string, blockStack: Map<any, any>): DataMap {
+  if (field === 'use') {
+    if (blockStack.has(this)) {
+      return null;
+    }
+    blockStack.set(this, true);
+    // proxy the default work to the original block
+    let fromProp = block.getProperty('#call', false)?._bindingSource?.getProperty();
+    if (fromProp) {
+      return fromProp._block.getDefaultWorker(fromProp._name, blockStack);
+    }
+  }
+  return null;
+}
+
+Functions.add(
+  HandlerFunction,
+  {
+    name: 'handler',
+    icon: 'fas:grip-lines-vertical',
+    priority: 3,
+    mode: 'onChange',
+    properties: [
+      {name: 'use', type: 'worker'},
+      {name: 'thread', type: 'number', default: 0, min: 0, step: 1},
+      {name: 'reuseWorker', type: 'radio-button', options: ['none', 'reuse', 'persist'], default: 'none'},
+      {name: 'timeout', type: 'number'},
+      {name: 'keepOrder', type: 'toggle'},
+      {name: 'maxQueueSize', type: 'number', default: 0, min: 0, step: 1},
+      {name: 'queueSize', type: 'number', readonly: true},
+    ],
+    category: 'repeat',
+  },
+  null,
+  {getDefaultWorker}
+);

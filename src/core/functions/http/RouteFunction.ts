@@ -125,19 +125,19 @@ export class RouteFunction extends BlockFunction {
     return NO_EMIT;
   }
 
-  static getDefaultWorker(block: any, field: string, blockStack: Map<any, any>): DataMap {
-    if (field === '#emit') {
-      return defaultRouteWorker;
-    }
-    return null;
-  }
-
   destroy(): void {
     if (this._server && this._path) {
       this._server.removeRoute(this._path, this);
     }
     super.destroy();
   }
+}
+
+function getDefaultWorker(block: any, field: string, blockStack: Map<any, any>): DataMap {
+  if (field === '#emit') {
+    return defaultRouteWorker;
+  }
+  return null;
 }
 
 Functions.add(
@@ -153,5 +153,6 @@ Functions.add(
       {name: 'contentType', type: 'multi-select', options: contentTypeList, init: ['empty']},
     ],
   },
-  'http'
+  'http',
+  {getDefaultWorker}
 );

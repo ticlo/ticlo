@@ -11,10 +11,15 @@ export interface DescListener {
   onDescChange(id: string, desc: FunctionDesc): void;
 }
 
-export class FunctionDispatcher extends PropDispatcher<FunctionClass> {
+interface FunctionApi {
+  getDefaultWorker(block: Block, field: string, blockStack: Map<any, any>): DataMap;
+}
+
+export class FunctionDispatcher extends PropDispatcher<FunctionClass> implements FunctionApi {
   _id: string;
   _desc: FunctionDesc;
   _descSize: number = 0;
+  _functionApi: FunctionApi;
 
   constructor(id: string) {
     super();
@@ -29,12 +34,16 @@ export class FunctionDispatcher extends PropDispatcher<FunctionClass> {
       this._descSize = 0;
     }
   }
+
+  getDefaultWorker(block: Block, field: string, blockStack: Map<any, any>): DataMap {
+    return this._functionApi?.getDefaultWorker(block, field, blockStack) || null;
+  }
 }
 
 const _functions: {[key: string]: FunctionDispatcher} = {};
 let _storage: Storage;
 export class Functions {
-  static add(cls: FunctionClass, desc: FunctionDesc, namespace?: string) {
+  static add(cls: FunctionClass, desc: FunctionDesc, namespace?: string, functionApi?: FunctionApi) {
     if (!desc.properties) {
       // function must have properties
       desc.properties = [];
@@ -66,6 +75,7 @@ export class Functions {
     }
     func.updateValue(cls);
     func.setDesc(desc);
+    func._functionApi = functionApi;
     Functions.dispatchDescChange(id, desc);
   }
   static addCategory(category: FunctionDesc) {
