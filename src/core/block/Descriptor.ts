@@ -220,14 +220,14 @@ export function findPropDesc(name: string, cache: {[key: string]: PropDesc}): Pr
   return blankPropDesc;
 }
 
-function initBlockProperties(data: any, properties: (PropDesc | PropGroupDesc)[]) {
+function initBlockProperties(data: any, properties: (PropDesc | PropGroupDesc)[], pinAll: boolean = false) {
   let props: string[] = [];
   for (let propDesc of properties) {
     if ((propDesc as PropGroupDesc).properties) {
       for (let i = 0; i < (propDesc as PropGroupDesc).defaultLen; ++i) {
         for (let childDesc of (propDesc as PropGroupDesc).properties) {
           let propName = `${childDesc.name}${i}`;
-          if (childDesc.pinned) {
+          if (pinAll || childDesc.pinned) {
             props.push(propName);
           }
           if (childDesc.init !== undefined) {
@@ -236,7 +236,7 @@ function initBlockProperties(data: any, properties: (PropDesc | PropGroupDesc)[]
         }
       }
     } else {
-      if ((propDesc as PropDesc).pinned) {
+      if (pinAll || (propDesc as PropDesc).pinned) {
         props.push(propDesc.name);
       }
       if ((propDesc as PropDesc).init !== undefined) {
@@ -261,9 +261,13 @@ export function getSubBlockFuncData(data: DataMap) {
   return data;
 }
 
-export function getDefaultDataFromCustom(custom: (PropDesc | PropGroupDesc)[], base: DataMap = {'#is': ''}) {
+export function getDefaultDataFromCustom(
+  custom: (PropDesc | PropGroupDesc)[],
+  base: DataMap = {'#is': ''},
+  pinAll: boolean = true
+) {
   let data: any = {...base, '#custom': custom};
-  initBlockProperties(data, custom);
+  initBlockProperties(data, custom, pinAll);
   return data;
 }
 
