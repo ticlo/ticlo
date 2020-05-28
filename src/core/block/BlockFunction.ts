@@ -55,10 +55,6 @@ export abstract class BaseFunction<T extends FunctionData = FunctionData> {
     return true;
   }
 
-  blockCommand(command: string, params: {[key: string]: any}): any {
-    // to be overridden
-  }
-
   cleanup(): void {
     this._data.output(undefined);
   }

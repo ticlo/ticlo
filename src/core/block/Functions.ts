@@ -12,7 +12,8 @@ export interface DescListener {
 }
 
 interface FunctionApi {
-  getDefaultWorker(block: Block, field: string, blockStack: Map<any, any>): DataMap;
+  getDefaultWorker?(block: Block, field: string, blockStack: Map<any, any>): DataMap;
+  command?(command: string, params: {[key: string]: any}): any;
 }
 
 export class FunctionDispatcher extends PropDispatcher<FunctionClass> implements FunctionApi {
@@ -36,7 +37,7 @@ export class FunctionDispatcher extends PropDispatcher<FunctionClass> implements
   }
 
   getDefaultWorker(block: Block, field: string, blockStack: Map<any, any>): DataMap {
-    return this._functionApi?.getDefaultWorker(block, field, blockStack) || null;
+    return this._functionApi?.getDefaultWorker?.(block, field, blockStack) || null;
   }
 }
 
