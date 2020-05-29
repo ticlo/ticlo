@@ -1,0 +1,11 @@
+map:
+  '@name': 映射
+  '@keywords': 
+  thread:
+    '@name': 线程数
+  reuseWorker:
+    '@name': 重用线程
+    '@options':
+      none: 无
+      reuse: 重用
+      persist: 保留

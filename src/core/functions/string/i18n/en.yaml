@@ -1,0 +1,18 @@
+join:
+  '@name': Join
+  '@keywords': 'concatenate'
+'start-with':
+  '@name': Start With
+  '@keywords': 'starts with'
+  search:
+    '@name': Search
+'end-with':
+  '@name': End With
+  '@keywords': 'ends with'
+  search:
+    '@name': Search
+contain:
+  '@name': Contain
+  '@keywords': 'include'
+  search:
+    '@name': Search

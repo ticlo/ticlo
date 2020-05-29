@@ -13,6 +13,8 @@
 '@shared':
   '':
     '@name': 'Input '
+  'input':
+    '@name': Input
   '#output':
     '@name': Output
   '#is':

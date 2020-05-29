@@ -8,16 +8,16 @@ const descriptor: FunctionDesc = {
   recipient: '0',
   category: 'string',
   properties: [
-    {name: '0', type: 'string', pinned: true},
-    {name: '1', type: 'string', pinned: true},
+    {name: 'input', type: 'string', pinned: true},
+    {name: 'search', type: 'string', pinned: true},
     {name: '#output', pinned: true, type: 'toggle', readonly: true},
   ],
 };
 
 export class StartWithFunction extends BaseFunction {
   run(): any {
-    let v0 = this._data.getValue('0');
-    let v1 = this._data.getValue('1');
+    let v0 = this._data.getValue('input');
+    let v1 = this._data.getValue('search');
     if (Array.isArray(v0)) {
       if (v0.length) {
         this._data.output(Object.is(v0[0], v1));
@@ -40,8 +40,8 @@ Functions.add(StartWithFunction, {
 
 export class EndWithFunction extends BaseFunction {
   run(): any {
-    let v0 = this._data.getValue('0');
-    let v1 = this._data.getValue('1');
+    let v0 = this._data.getValue('input');
+    let v1 = this._data.getValue('search');
     if (Array.isArray(v0)) {
       if (v0.length) {
         this._data.output(Object.is(v0[v0.length - 1], v1));
@@ -64,8 +64,8 @@ Functions.add(EndWithFunction, {
 
 export class ContainFunction extends BaseFunction {
   run(): any {
-    let v0 = this._data.getValue('0');
-    let v1 = this._data.getValue('1');
+    let v0 = this._data.getValue('input');
+    let v1 = this._data.getValue('search');
 
     if (Array.isArray(v0)) {
       this._data.output(v0.includes(v1));

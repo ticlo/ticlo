@@ -13,6 +13,8 @@
 '@shared':
   '':
     '@name': 输入 # auto translated from hash: 6EIpzKWh
+  'input':
+    '@name': 输入 # auto translated from hash: MkEYpnId
   '#output':
     '@name': 输出 # auto translated from hash: KcLAKjYc
   '#is':

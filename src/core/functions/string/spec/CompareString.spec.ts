@@ -10,35 +10,35 @@ describe('CompareString', function () {
     let aBlock = flow.createBlock('a');
     aBlock._load({
       '#is': 'start-with',
-      '0': 'abc',
-      '1': 'ab',
+      'input': 'abc',
+      'search': 'ab',
     });
 
     Root.run();
 
     assert.equal(aBlock.getValue('#output'), true);
 
-    aBlock.setValue('0', 'aabc');
+    aBlock.setValue('input', 'aabc');
     Root.run();
     assert.equal(aBlock.getValue('#output'), false);
 
     // array input
-    aBlock.setValue('0', ['ab', 'c']);
+    aBlock.setValue('input', ['ab', 'c']);
     Root.run();
     assert.equal(aBlock.getValue('#output'), true);
 
-    aBlock.setValue('0', []);
+    aBlock.setValue('input', []);
     Root.run();
     assert.equal(aBlock.getValue('#output'), false);
 
     // invalid input
-    aBlock.setValue('0', 'a');
-    aBlock.setValue('1', null);
+    aBlock.setValue('input', 'a');
+    aBlock.setValue('search', null);
     Root.run();
     assert.equal(aBlock.getValue('#output'), undefined);
 
     // invalid input
-    aBlock.setValue('0', 0);
+    aBlock.setValue('input', 0);
     Root.run();
     assert.equal(aBlock.getValue('#output'), undefined);
   });
@@ -49,35 +49,35 @@ describe('CompareString', function () {
     let aBlock = flow.createBlock('a');
     aBlock._load({
       '#is': 'end-with',
-      '0': 'abc',
-      '1': 'bc',
+      'input': 'abc',
+      'search': 'bc',
     });
 
     Root.run();
 
     assert.equal(aBlock.getValue('#output'), true);
 
-    aBlock.setValue('0', 'abcc');
+    aBlock.setValue('input', 'abcc');
     Root.run();
     assert.equal(aBlock.getValue('#output'), false);
 
     // array input
-    aBlock.setValue('0', ['a', 'bc']);
+    aBlock.setValue('input', ['a', 'bc']);
     Root.run();
     assert.equal(aBlock.getValue('#output'), true);
 
-    aBlock.setValue('0', []);
+    aBlock.setValue('input', []);
     Root.run();
     assert.equal(aBlock.getValue('#output'), false);
 
     // invalid input
-    aBlock.setValue('0', 'a');
-    aBlock.setValue('1', {});
+    aBlock.setValue('input', 'a');
+    aBlock.setValue('search', {});
     Root.run();
     assert.equal(aBlock.getValue('#output'), undefined);
 
     // invalid input
-    aBlock.setValue('0', false);
+    aBlock.setValue('input', false);
     Root.run();
     assert.equal(aBlock.getValue('#output'), undefined);
   });
@@ -88,35 +88,35 @@ describe('CompareString', function () {
     let aBlock = flow.createBlock('a');
     aBlock._load({
       '#is': 'contain',
-      '0': 'abc',
-      '1': 'b',
+      'input': 'abc',
+      'search': 'b',
     });
 
     Root.run();
 
     assert.equal(aBlock.getValue('#output'), true);
 
-    aBlock.setValue('1', 'd');
+    aBlock.setValue('search', 'd');
     Root.run();
     assert.equal(aBlock.getValue('#output'), false);
 
     // array input
-    aBlock.setValue('0', ['a', 'd', 'g']);
+    aBlock.setValue('input', ['a', 'd', 'g']);
     Root.run();
     assert.equal(aBlock.getValue('#output'), true);
 
-    aBlock.setValue('0', []);
+    aBlock.setValue('input', []);
     Root.run();
     assert.equal(aBlock.getValue('#output'), false);
 
     // invalid input
-    aBlock.setValue('0', 'a');
-    aBlock.setValue('1', {});
+    aBlock.setValue('input', 'a');
+    aBlock.setValue('search', {});
     Root.run();
     assert.equal(aBlock.getValue('#output'), undefined);
 
     // invalid input
-    aBlock.setValue('0', false);
+    aBlock.setValue('input', false);
     Root.run();
     assert.equal(aBlock.getValue('#output'), undefined);
   });
