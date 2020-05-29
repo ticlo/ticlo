@@ -4,7 +4,7 @@ import React from 'react';
 import '../../index';
 import {PropertyEditor} from '../PropertyEditor';
 import {Block, Root} from '../../../../src/core';
-import '../../../core/functions/basic/math/Arithmetic';
+import '../../../core/functions/math/Arithmetic';
 import {destroyLastLocalConnection, makeLocalConnection} from '../../../core/connect/LocalConnection';
 import {shouldHappen, shouldReject} from '../../../core/util/test-util';
 import {removeLastTemplate, loadTemplate, querySingle} from '../../util/test-util';

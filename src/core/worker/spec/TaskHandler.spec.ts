@@ -1,7 +1,7 @@
 import {assert} from 'chai';
 import {Block} from '../../block/Block';
 import {Flow, Root} from '../../block/Flow';
-import '../../functions/basic/math/Arithmetic';
+import '../../functions/math/Arithmetic';
 import '../HandlerFunction';
 import {convertToOutput, DataMap} from '../../util/DataTypes';
 import {CompleteEvent, ErrorEvent, Event, WAIT} from '../../block/Event';

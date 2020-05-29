@@ -2,7 +2,7 @@ import {assert} from 'chai';
 import {Flow, Root} from '../../block/Flow';
 import {WorkerFunction} from '../WorkerFunction';
 import {TestFunctionRunner} from '../../block/spec/TestFunction';
-import '../../functions/basic/math/Arithmetic';
+import '../../functions/math/Arithmetic';
 import {DataMap} from '../../util/DataTypes';
 
 describe('WorkerFunction', function () {

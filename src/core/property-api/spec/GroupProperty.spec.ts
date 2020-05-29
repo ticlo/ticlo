@@ -2,7 +2,7 @@ import {assert} from 'chai';
 
 import {Block} from '../../block/Block';
 import {Flow} from '../../block/Flow';
-import '../../functions/basic/math/Arithmetic';
+import '../../functions/math/Arithmetic';
 import {insertGroupProperty, moveGroupProperty, removeGroupProperty, setGroupLength} from '../GroupProperty';
 
 describe('GroupProperty', function () {

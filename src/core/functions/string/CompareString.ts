@@ -1,6 +1,6 @@
-import {BaseFunction} from '../../../block/BlockFunction';
-import {Functions} from '../../../block/Functions';
-import {FunctionDesc} from '../../../block/Descriptor';
+import {BaseFunction} from '../../block/BlockFunction';
+import {Functions} from '../../block/Functions';
+import {FunctionDesc} from '../../block/Descriptor';
 
 const descriptor: FunctionDesc = {
   name: '',

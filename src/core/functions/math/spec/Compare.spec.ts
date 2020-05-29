@@ -1,7 +1,7 @@
 import {assert} from 'chai';
 import '../Compare';
-import {Block} from '../../../../block/Block';
-import {Flow, Root} from '../../../../block/Flow';
+import {Block} from '../../../block/Block';
+import {Flow, Root} from '../../../block/Flow';
 
 describe('Compare', function () {
   it('equal', function () {

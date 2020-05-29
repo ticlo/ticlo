@@ -2,7 +2,7 @@ import {assert} from 'chai';
 import {Block} from '../Block';
 import {Flow, Root} from '../Flow';
 import {PropDispatcher} from '../Dispatcher';
-import '../../functions/basic/math/Arithmetic';
+import '../../functions/math/Arithmetic';
 
 describe('Block', function () {
   it('basic', function () {

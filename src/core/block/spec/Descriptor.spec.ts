@@ -1,5 +1,5 @@
 import {assert} from 'chai';
-import '../../functions/basic/math/Arithmetic';
+import '../../functions/math/Arithmetic';
 import '../../functions/script/Js';
 import {
   blankPropDesc,

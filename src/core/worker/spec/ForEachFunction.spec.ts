@@ -1,7 +1,7 @@
 import {assert} from 'chai';
 import {Flow, Root} from '../../block/Flow';
 import {TestFunctionRunner} from '../../block/spec/TestFunction';
-import '../../functions/basic/math/Arithmetic';
+import '../../functions/math/Arithmetic';
 import '../ForEachFunction';
 import {DataMap} from '../../util/DataTypes';
 

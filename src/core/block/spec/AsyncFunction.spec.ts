@@ -3,7 +3,7 @@ import {TestAsyncFunctionLog} from './TestFunction';
 import {Flow, Root} from '../Flow';
 import {ErrorEvent, Event} from '../Event';
 import {shouldReject, shouldTimeout} from '../../util/test-util';
-import '../../functions/basic/math/Arithmetic';
+import '../../functions/math/Arithmetic';
 
 for (let typeName of ['async-function-promise', 'async-function-manual']) {
   describe(typeName, function () {

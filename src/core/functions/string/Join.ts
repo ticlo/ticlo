@@ -1,5 +1,5 @@
-import {Functions} from '../../../block/Functions';
-import {BaseFunction} from '../../../block/BlockFunction';
+import {Functions} from '../../block/Functions';
+import {BaseFunction} from '../../block/BlockFunction';
 
 export class JoinFunction extends BaseFunction {
   run(): any {

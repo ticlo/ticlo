@@ -1,7 +1,7 @@
 import {assert} from 'chai';
 import '../Join';
-import {Block} from '../../../../block/Block';
-import {Flow, Root} from '../../../../block/Flow';
+import {Block} from '../../../block/Block';
+import {Flow, Root} from '../../../block/Flow';
 
 describe('Join', function () {
   it('basic join', function () {

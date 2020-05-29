@@ -1,5 +1,5 @@
 import {assert} from 'chai';
-import '../../functions/basic/math/Arithmetic';
+import '../../functions/math/Arithmetic';
 import {WorkerFlow} from '../../worker/WorkerFlow';
 import {copyProperties, deleteProperties, pasteProperties} from '../CopyPaste';
 import {DataMap} from '../../util/DataTypes';
