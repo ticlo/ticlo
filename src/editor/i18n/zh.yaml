@@ -13,6 +13,10 @@
 "Properties": 属性
 "Functions": 功能
 "Pinned": 直接显示
+"#global": "#全局"
+"#shared": "#公用"
+"#temp": "#临时"
+"#edit": "#编辑"
 
 # AddNewFlow.tsx & NodeTreePane.tsx
 "New Dataflow": 新建数据流
@@ -88,8 +92,3 @@
 # property/PropertyList.tsx
 "Config": 设置
 "Custom": 自定义
-
-'#global': "#全局"
-'#shared': "#公用"
-'#temp': "#临时"
-'#edit': "#编辑"

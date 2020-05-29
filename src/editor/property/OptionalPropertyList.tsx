@@ -9,6 +9,7 @@ import {OptionalPropertyEditor} from './OptionalPropertyEditor';
 import {FunctionDesc, PropDesc} from '../../core';
 import {TicloI18NConsumer} from '../component/LayoutContext';
 import {translateEditor} from '../../core/util/i18n';
+import {t} from '../component/LocalizedLabel';
 
 class OptionalPropertyLoader extends MultiSelectLoader<OptionalPropertyList> {
   optionalProps: string[];
@@ -201,7 +202,7 @@ export class OptionalPropertyList extends MultiSelectComponent<Props, State, Opt
           </Tooltip>
           {search == null ? (
             <>
-              <span onClick={this.startSearch}>optional</span>
+              <span onClick={this.startSearch}>{t('Optional')}</span>
               <div className="ticl-h-line" />
             </>
           ) : (

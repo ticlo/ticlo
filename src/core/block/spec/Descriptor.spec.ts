@@ -68,7 +68,7 @@ describe('Descriptor', function () {
       '#custom': custom,
       'a': 'hello',
       '0': 'world',
-      '@b-p': ['a'],
+      '@b-p': ['a', '0'],
     });
   });
 });

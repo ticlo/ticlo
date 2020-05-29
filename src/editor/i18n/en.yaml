@@ -13,6 +13,10 @@
 "Properties": "Properties"
 "Functions": "Functions"
 "Pinned": "Pinned"
+"#global": "#global"
+"#shared": "#shared"
+"#temp": "#temp"
+"#edit": "#edit"
 
 # AddNewFlow.tsx & NodeTreePane.tsx
 "New Dataflow": "New Dataflow"
@@ -82,8 +86,3 @@
 # property/PropertyList.tsx
 "Config": "Config"
 "Custom": "Custom"
-
-'#global': '#global'
-'#shared': '#shared'
-'#temp': '#temp'
-'#edit': '#edit'
