@@ -1,6 +1,9 @@
 join:
   '@name': Join
   '@keywords': 'concatenate'
+split:
+  '@name': split
+  '@keywords':
 'start-with':
   '@name': Start With
   '@keywords': 'starts with'

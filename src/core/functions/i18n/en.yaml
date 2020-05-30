@@ -15,6 +15,11 @@
     '@name': 'Input '
   'input':
     '@name': Input
+  'separator':
+    '@name': Separator
+  'regExp':
+    '@name': RegExp
+
   '#output':
     '@name': Output
   '#is':

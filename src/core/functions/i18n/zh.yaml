@@ -15,6 +15,11 @@
     '@name': 输入 # auto translated from hash: 6EIpzKWh
   'input':
     '@name': 输入 # auto translated from hash: MkEYpnId
+  'separator':
+    '@name': 分隔符
+  'regExp':
+    '@name': 正则表达式
+
   '#output':
     '@name': 输出 # auto translated from hash: KcLAKjYc
   '#is':

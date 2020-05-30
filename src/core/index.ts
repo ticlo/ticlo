@@ -24,6 +24,7 @@ import './functions/math/Arithmetic';
 import './functions/math/Compare';
 import './functions/string/CompareString';
 import './functions/string/Join';
+import './functions/string/Split';
 import './functions/data/CreateObject';
 import './functions/http/HttpRequest';
 import './functions/http/RouteFunction';

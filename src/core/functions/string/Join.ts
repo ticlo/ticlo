@@ -24,7 +24,7 @@ export class JoinFunction extends BaseFunction {
 
 Functions.add(JoinFunction, {
   name: 'join',
-  icon: 'txt:a,b',
+  icon: 'txt:j,o',
   properties: [
     {
       name: '',
