@@ -29,8 +29,8 @@ Functions.add(
     icon: 'fas:network-wired',
     mode: 'onCall',
     properties: [
-      {name: 'data', type: 'any'},
-      {name: 'headers', type: 'object'},
+      {name: 'data', type: 'any', pinned: true},
+      {name: 'headers', type: 'object', pinned: true},
       {name: 'status', type: 'number', min: 200, max: 999, step: 1, default: 200},
     ],
   },

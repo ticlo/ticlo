@@ -54,7 +54,7 @@ export class FunctionTreeRenderer extends PureDataRenderer<Props, any> {
         if (name.includes(':')) {
           let nameParts = name.split(':');
           name = nameParts[nameParts.length - 1];
-          desc = {ns: nameParts[0], name};
+          desc = {id: item.key, name, ns: nameParts[0]};
         } else {
           desc = {id: item.key, name};
         }

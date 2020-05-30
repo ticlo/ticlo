@@ -1,0 +1,15 @@
+'@namespace':
+  react:
+    '@name': React # no translate
+  'react:elements':
+    '@name': Elements
+
+'@shared':
+  '':
+    '@name': 'Children '
+  style:
+    '@name': Style
+
+jsx:
+  script:
+    '@name': Script

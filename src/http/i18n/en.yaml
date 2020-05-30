@@ -1,0 +1,20 @@
+# these functions are defined in core
+# but i18n need to have a top level folder for every namespace
+
+route:
+  server:
+    '@name': Server
+  path:
+    '@name': Path
+  method:
+    '@name': Method
+  contentType:
+    '@name': Content Type
+
+'static-response':
+  data:
+    '@name': Data
+  headers:
+    '@name': Headers
+  status:
+    '@name': Status

@@ -148,8 +148,8 @@ Functions.add(
     mode: 'onCall',
     properties: [
       {name: 'server', type: 'service', options: ['route-server']},
-      {name: 'path', type: 'string'},
-      {name: 'method', type: 'multi-select', options: methodList, init: ['GET']},
+      {name: 'path', type: 'string', pinned: true},
+      {name: 'method', type: 'multi-select', options: methodList, init: ['GET'], pinned: true},
       {name: 'contentType', type: 'multi-select', options: contentTypeList, init: ['empty']},
     ],
   },

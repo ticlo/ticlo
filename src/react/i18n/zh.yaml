@@ -1,0 +1,15 @@
+'@namespace':
+  react:
+    '@name': React # no translate
+  'react:elements':
+    '@name': 元素 # auto translated from hash: qlai5l2B
+
+'@shared':
+  '':
+    '@name': 子元素
+  style:
+    '@name': 样式
+
+jsx:
+  script:
+    '@name': 脚本 # auto translated from hash: +QfmURZH

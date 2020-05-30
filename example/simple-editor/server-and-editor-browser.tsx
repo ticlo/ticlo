@@ -33,7 +33,11 @@ import zhLocal from '../../i18n/editor/zh.json';
 // @ts-ignore
 import zhMathLocal from '../../i18n/core/zh.json';
 // @ts-ignore
+import zhReactLocal from '../../i18n/react/zh.json';
+// @ts-ignore
 import enMathLocal from '../../i18n/core/en.json';
+// @ts-ignore
+import enReactLocal from '../../i18n/react/en.json';
 
 import zhAntd from 'antd/lib/locale/zh_CN';
 import enAntd from 'antd/lib/locale/en_US';
@@ -330,6 +334,8 @@ class FlowStorage {
   i18next.addResourceBundle('zh', 'ticlo-editor', zhLocal);
   i18next.addResourceBundle('zh', 'ticlo-core', zhMathLocal);
   i18next.addResourceBundle('en', 'ticlo-core', enMathLocal);
+  i18next.addResourceBundle('zh', 'ticlo-react', zhReactLocal);
+  i18next.addResourceBundle('en', 'ticlo-react', enReactLocal);
 
   await Root.instance.setStorage(new FlowStorage());
   let reactFlow = Root.instance.addFlow('example', reactData);

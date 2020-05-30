@@ -7,8 +7,9 @@ import './elements/ImgElement';
 import './elements/InputElement';
 
 Functions.addCategory({
-  id: 'react',
+  id: 'react:',
   name: 'react',
   icon: 'fab:react',
   color: '5ce',
+  ns: 'react',
 });

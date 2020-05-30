@@ -33,6 +33,7 @@ Functions.addCategory({
   name: 'http',
   icon: 'fas:network-wired',
   color: '4af',
+  ns: 'http',
 });
 
 Functions.addCategory({

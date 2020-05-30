@@ -2,7 +2,7 @@ import i18next from 'i18next';
 
 export async function init(lng?: string) {
   await new Promise((receive, reject) => {
-    i18next.init({lng}, receive);
+    i18next.init({lng, nsSeparator: false}, receive);
   });
 }
 
@@ -50,6 +50,13 @@ export function translateProperty(funcId: string, name: string, namespace?: stri
   if (!translated) {
     // fallback to @shared property name
     translated = i18next.t(`@shared.${baseName}.@name`, {
+      ns: i18ns,
+      defaultValue: '',
+    });
+  }
+  if (!translated && namespace !== 'core') {
+    // fallback to @shared property name in core namespace
+    translated = i18next.t(`@shared.${baseName}.@name`, {
       ns: 'ticlo-core',
       defaultValue: baseName,
     });
@@ -72,7 +79,10 @@ export function translateEnumOption(funcId: string, propName: string, option: st
   let i18ns = `ticlo-${namespace}`;
   let translated: string;
   if (funcId) {
-    translated = i18next.t(`${funcId}.${propName}.@options.${option}`, {ns: i18ns, defaultValue: ''});
+    translated = i18next.t(`${funcId}.${propName}.@options.${option}`, {
+      ns: i18ns,
+      defaultValue: '',
+    });
   }
   if (!translated) {
     // fallback to @shared property name
