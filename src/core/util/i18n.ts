@@ -47,14 +47,14 @@ export function translateProperty(funcId: string, name: string, namespace?: stri
       defaultValue: '',
     });
   }
-  if (!translated) {
+  if (!translated && namespace !== 'core') {
     // fallback to @shared property name
     translated = i18next.t(`@shared.${baseName}.@name`, {
       ns: i18ns,
       defaultValue: '',
     });
   }
-  if (!translated && namespace !== 'core') {
+  if (!translated) {
     // fallback to @shared property name in core namespace
     translated = i18next.t(`@shared.${baseName}.@name`, {
       ns: 'ticlo-core',
