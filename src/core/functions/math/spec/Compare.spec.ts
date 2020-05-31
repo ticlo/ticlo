@@ -38,6 +38,23 @@ describe('Compare', function () {
     assert.equal(aBlock.getValue('#output'), true);
   });
 
+  it('not', function () {
+    let flow = new Flow();
+
+    let aBlock = flow.createBlock('a');
+    aBlock._load({
+      '#is': 'not',
+      'input': 'a',
+    });
+
+    Root.run();
+    assert.equal(aBlock.getValue('#output'), false);
+
+    aBlock.setValue('input', null);
+    Root.run();
+    assert.equal(aBlock.getValue('#output'), true);
+  });
+
   it('not equal', function () {
     let flow = new Flow();
 

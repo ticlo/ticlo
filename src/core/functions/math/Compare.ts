@@ -54,7 +54,7 @@ Functions.add(NotEqualFunction, {
 
 export class NotFunction extends BaseFunction {
   run(): any {
-    let v0 = this._data.getValue('0');
+    let v0 = this._data.getValue('input');
     this._data.output(!Boolean(v0));
   }
 }
@@ -64,7 +64,7 @@ Functions.add(NotFunction, {
   name: 'not',
   icon: 'txt:!',
   properties: [
-    {name: '0', type: 'toggle', pinned: true},
+    {name: 'input', type: 'toggle', pinned: true},
     {name: '#output', pinned: true, type: 'toggle', readonly: true},
   ],
 });
