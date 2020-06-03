@@ -67,6 +67,7 @@ Functions.add(NotFunction, {
     {name: 'input', type: 'toggle', pinned: true},
     {name: '#output', pinned: true, type: 'toggle', readonly: true},
   ],
+  recipient: 'input',
 });
 
 export class GreaterThanFunction extends BaseFunction {
