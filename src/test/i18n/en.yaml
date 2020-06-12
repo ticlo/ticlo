@@ -1,0 +1,16 @@
+'@namespace':
+  test:
+    '@name': Test
+
+assert:
+  '@name': Assert
+  '@keywords': 'test'
+  expect:
+    '@name': 'Expect '
+  actual:
+    '@name': 'Actual '
+  matchMode:
+    '@name': Match Mode
+    '@options':
+      match-once: Match Once
+      always-match: Always Match

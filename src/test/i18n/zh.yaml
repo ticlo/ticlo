@@ -1,0 +1,16 @@
+'@namespace':
+  test:
+    '@name': 测试 # auto translated from hash: DLxmEfVU
+
+assert:
+  '@name': 匹配
+  '@keywords': 
+  expect:
+    '@name': 期望 # auto translated from hash: FCVo1dIu
+  actual:
+    '@name': 实际 # auto translated from hash: w2pkry/T
+  matchMode:
+    '@name': 匹配模式 # auto translated from hash: vB/EagS4
+    '@options':
+      match-once: 匹配一次 # auto translated from hash: bf8CiiVf
+      always-match: 始终匹配 # auto translated from hash: wq4vzxHA

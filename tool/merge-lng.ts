@@ -50,7 +50,7 @@ function mergeI18n(src: string, dest: string) {
   }
 }
 
-for (let pkg of ['editor', 'core', 'express', 'html', 'node', 'react']) {
+for (let pkg of ['editor', 'core', 'express', 'html', 'node', 'react', 'test']) {
   let outdir = `./i18n/${pkg}`;
   if (!fs.existsSync(outdir)) {
     fs.mkdirSync(outdir);
