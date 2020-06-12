@@ -35,7 +35,7 @@ export const LocalizedPropertyName = ({
   className?: string;
 }) => {
   useContext(TicloLayoutContextType);
-  return <span className={className}>{translateProperty(desc.id, name, desc.ns)}</span>;
+  return <span className={className}>{translateProperty(desc.name, name, desc.ns)}</span>;
 };
 
 export const LocalizedEnumOption = ({
@@ -48,7 +48,7 @@ export const LocalizedEnumOption = ({
   option: string | number;
 }) => {
   useContext(TicloLayoutContextType);
-  return <span>{translateEnumOption(desc.id, propName, String(option), desc.ns)}</span>;
+  return <span>{translateEnumOption(desc.name, propName, String(option), desc.ns)}</span>;
 };
 
 const specialNodeNamePrefix = /^#\w+\b/;

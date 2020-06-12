@@ -107,7 +107,7 @@ export class FunctionTreeItem extends TreeItem<FunctionTreeItem> {
   matchKeywords(lng: string, search: string) {
     if (!this.names.hasOwnProperty(lng)) {
       this.names[lng] = translateFunction(this.desc.id, this.name, this.desc.ns, lng)?.toLowerCase();
-      this.keywords[lng] = getKeywords(this.desc.id, this.desc.ns, lng)?.toLowerCase();
+      this.keywords[lng] = getKeywords(this.desc.name, this.desc.ns, lng)?.toLowerCase();
     }
     let name = this.names[lng];
     if (name?.includes(search)) {

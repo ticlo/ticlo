@@ -14,35 +14,36 @@ export class TicloI18nSettings {
 // match numbers in the end of inputs, as well as the array input []
 const numberReg = /([0-9]+|\[\])$/;
 
-export function translateFunction(funcId: string, name?: string, namespace?: string, lng?: string): string {
+export function translateFunction(funcId: string, funcName?: string, namespace?: string, lng?: string): string {
   if (!TicloI18nSettings.shouldTranslateFunction || !funcId) {
-    return name || '';
+    return funcName || '';
   }
   if (!namespace) {
     namespace = 'core';
   }
+  let funcNameKey = funcName;
   if (funcId.endsWith(':')) {
     // function categories and namespaces should be translated from @namespace
-    funcId = `@namespace.${funcId.substring(0, funcId.length - 1)}`;
+    funcNameKey = `@namespace.${funcId.substring(0, funcId.length - 1)}`;
   }
   let i18ns = `ticlo-${namespace}`;
-  return i18next.t(`${funcId}.@name`, {ns: i18ns, defaultValue: name, lng});
+  return i18next.t(`${funcNameKey}.@name`, {ns: i18ns, defaultValue: funcName, lng});
 }
 
-export function translateProperty(funcId: string, name: string, namespace?: string): string {
+export function translateProperty(funcName: string, propName: string, namespace?: string): string {
   if (!TicloI18nSettings.shouldTranslateFunction) {
-    return name || '';
+    return propName || '';
   }
   if (!namespace) {
     namespace = 'core';
   }
   let i18ns = `ticlo-${namespace}`;
-  let numMatch = name.match(numberReg);
-  let baseName = numMatch ? name.substr(0, numMatch.index) : name;
+  let numMatch = propName.match(numberReg);
+  let baseName = numMatch ? propName.substr(0, numMatch.index) : propName;
 
   let translated: string;
-  if (funcId) {
-    translated = i18next.t(`${funcId}.${baseName}.@name`, {
+  if (funcName) {
+    translated = i18next.t(`${funcName}.${baseName}.@name`, {
       ns: i18ns,
       defaultValue: '',
     });
@@ -62,14 +63,14 @@ export function translateProperty(funcId: string, name: string, namespace?: stri
     });
   }
   if (numMatch) {
-    let numStr = name.substr(numMatch.index);
+    let numStr = propName.substr(numMatch.index);
     return `${translated}${numStr}`;
   } else {
     return translated;
   }
 }
 
-export function translateEnumOption(funcId: string, propName: string, option: string, namespace?: string): string {
+export function translateEnumOption(funcName: string, propName: string, option: string, namespace?: string): string {
   if (!TicloI18nSettings.shouldTranslateFunction) {
     return option || '';
   }
@@ -78,8 +79,8 @@ export function translateEnumOption(funcId: string, propName: string, option: st
   }
   let i18ns = `ticlo-${namespace}`;
   let translated: string;
-  if (funcId) {
-    translated = i18next.t(`${funcId}.${propName}.@options.${option}`, {
+  if (funcName) {
+    translated = i18next.t(`${funcName}.${propName}.@options.${option}`, {
       ns: i18ns,
       defaultValue: '',
     });
@@ -101,13 +102,13 @@ export function translateEditor(key: string, options?: any): string {
   });
 }
 
-export function getKeywords(funcId: string, namespace?: string, lng?: string): string {
-  if (!funcId) {
+export function getKeywords(funcName: string, namespace?: string, lng?: string): string {
+  if (!funcName) {
     return '';
   }
   if (!namespace) {
     namespace = 'core';
   }
   let i18ns = `ticlo-${namespace}`;
-  return i18next.t(`${funcId}.@keywords`, {ns: i18ns, defaultValue: null, lng});
+  return i18next.t(`${funcName}.@keywords`, {ns: i18ns, defaultValue: null, lng});
 }
