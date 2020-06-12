@@ -19,10 +19,13 @@ export function deepEqual(a: any, b: any) {
   }
 
   if (a && b && typeof a === 'object' && typeof b === 'object') {
-    let arrA = isArray(a);
-    let arrB = isArray(b);
+    let Cls = a.constructor;
+    let Clsb = b.constructor;
+    if (Cls !== Clsb) {
+      return false;
+    }
 
-    if (arrA && arrB) {
+    if (isArray(a)) {
       let length = a.length;
       if (length !== b.length) return false;
       for (let i = length - 1; i >= 0; --i) {
@@ -31,21 +34,34 @@ export function deepEqual(a: any, b: any) {
       return true;
     }
 
-    if (arrA !== arrB) return false;
+    switch (Cls) {
+      case Object: {
+        let keys = keyList(a);
+        if (keys.length !== keyList(b).length) {
+          return false;
+        }
 
-    let keys = keyList(a);
+        for (let key of keys) {
+          if (!deepEqual(a[key], b[key])) {
+            return false;
+          }
+        }
+        return true;
+      }
+      // TODO compare Map and Set ?
+      default: {
+        // default compare with shallow equal
+        let keys = keyList(a);
+        if (keys.length !== keyList(b).length) {
+          return false;
+        }
 
-    if (keys.length !== keyList(b).length) {
-      return false;
-    }
-
-    for (let key of keys) {
-      if (!deepEqual(a[key], b[key])) {
-        return false;
+        for (let key of keys) {
+          if (!Object.is(a[key], b[key])) return false;
+        }
+        return true;
       }
     }
-
-    return true;
   }
   return false;
 }
