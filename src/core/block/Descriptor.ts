@@ -71,6 +71,10 @@ export interface PropGroupDesc {
   properties?: PropDesc[];
 }
 
+export interface FunctionCommandDesc {
+  parameters: PropDesc[];
+}
+
 export interface FunctionDesc {
   name: string;
   id?: string;
@@ -86,6 +90,7 @@ export interface FunctionDesc {
   // optional properties defined in base function, base function can be the current function itself
   base?: string;
   optional?: {[key: string]: PropDesc};
+  commands?: {[key: string]: FunctionCommandDesc};
   /** recipient property will receive value or binding when parent property is converted to subblock of this type */
   recipient?: string;
   // used by service editor to filter global blocks

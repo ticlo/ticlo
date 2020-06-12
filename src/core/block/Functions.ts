@@ -13,10 +13,13 @@ export interface DescListener {
 
 interface FunctionApi {
   getDefaultWorker?(block: Block, field: string, blockStack: Map<any, any>): DataMap;
-  command?(command: string, params: {[key: string]: any}): any;
+  commands?: {
+    // commands
+    [key: string]: (params: {[key: string]: any; property?: string}) => any;
+  };
 }
 
-export class FunctionDispatcher extends PropDispatcher<FunctionClass> implements FunctionApi {
+export class FunctionDispatcher extends PropDispatcher<FunctionClass> {
   _id: string;
   _desc: FunctionDesc;
   _descSize: number = 0;
@@ -34,10 +37,6 @@ export class FunctionDispatcher extends PropDispatcher<FunctionClass> implements
     } else {
       this._descSize = 0;
     }
-  }
-
-  getDefaultWorker(block: Block, field: string, blockStack: Map<any, any>): DataMap {
-    return this._functionApi?.getDefaultWorker?.(block, field, blockStack) || null;
   }
 }
 
@@ -175,6 +174,25 @@ export class Functions {
       return [functionDispatcher._desc, functionDispatcher._descSize];
     }
     return [null, 0];
+  }
+
+  static getDefaultWorker(id: string, block: Block, field: string, blockStack: Map<any, any>): DataMap {
+    if (id) {
+      let dispatcher = _functions[id];
+      if (dispatcher) {
+        return dispatcher._functionApi?.getDefaultWorker?.(block, field, blockStack) || null;
+      }
+    }
+    return null;
+  }
+  static runCommand(id: string, command: string, params: DataMap): any {
+    if (id) {
+      let dispatcher = _functions[id];
+      if (dispatcher) {
+        return dispatcher._functionApi?.commands?.[command]?.(params);
+      }
+    }
+    return null;
   }
 
   static setStorage(storage: Storage) {

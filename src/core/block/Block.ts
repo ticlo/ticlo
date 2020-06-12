@@ -878,7 +878,14 @@ export class Block implements Runnable, FunctionData, PropListener<FunctionClass
       if (!blockStack) {
         blockStack = new Map();
       }
-      return Functions.listen(this._funcId, null).getDefaultWorker(this, field, blockStack);
+      return Functions.getDefaultWorker(this._funcId, this, field, blockStack);
+    }
+    return null;
+  }
+
+  runCommand(command: string, params: DataMap): DataMap {
+    if (this._funcId) {
+      return Functions.runCommand(this._funcId, command, params);
     }
     return null;
   }
