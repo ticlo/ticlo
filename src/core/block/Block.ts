@@ -782,6 +782,7 @@ export class Block implements Runnable, FunctionData, PropListener<FunctionClass
       this._function.destroy();
       this._funcPromise = undefined;
       this.updateValue('#wait', undefined);
+      this.updateValue('#emit', undefined);
       this._called = false;
     }
     if (cls) {

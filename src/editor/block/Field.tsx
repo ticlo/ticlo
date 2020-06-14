@@ -767,6 +767,8 @@ export class BlockItem extends BaseBlockItem {
       super.setDesc(desc);
       if (desc.dynamicStyle) {
         this.styleListener.subscribe(this.conn, `${this.path}.@b-style`, true);
+      } else {
+        this.styleListener.unsubscribe();
       }
     }
   }

@@ -9,8 +9,6 @@ assert:
     '@name': 'Expect '
   actual:
     '@name': 'Actual '
-  message:
-    '@name': Message
   matchMode:
     '@name': Match Mode
     '@options':

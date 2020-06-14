@@ -13,8 +13,10 @@ function convertActual(actual: any) {
 
 export class AssertFunction extends BlockFunction {
   _matchedOnce = false;
+  _called: any;
   onCall(val: any): boolean {
     if (val !== undefined) {
+      this._called = val;
       this._matchedOnce = false;
       this._data.deleteValue('@b-style');
     }
@@ -22,6 +24,10 @@ export class AssertFunction extends BlockFunction {
   }
 
   run(): any {
+    if (this._data._sync && !this._called) {
+      // in sync mode, must be called to run
+      return;
+    }
     if (this._matchedOnce && this._data.getValue('matchMode') !== 'always-match') {
       return;
     }
@@ -42,7 +48,7 @@ export class AssertFunction extends BlockFunction {
     if (this._data._flow instanceof FlowTestCase) {
       let message: string = null;
       if (!matched) {
-        message = this._data.getValue('message');
+        message = this._data.getValue('@b-name');
         if (!message || typeof message !== 'string') {
           message = this._data._prop._name;
         }
@@ -87,7 +93,6 @@ Functions.add(
           {name: 'actual', type: 'any', pinned: true},
         ],
       },
-      {name: 'message', type: 'string', pinned: true},
       {name: 'matchMode', type: 'radio-button', options: ['match-once', 'always-match'], default: 'match-once'},
       {name: '#output', type: 'toggle', readonly: true, pinned: true},
     ],

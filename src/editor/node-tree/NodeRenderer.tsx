@@ -19,6 +19,7 @@ import {
   ValueSubscriber,
   getOutputDesc,
   getDisplayName,
+  deepEqual,
 } from '../../../src/core/editor';
 import {TIcon} from '../icon/Icon';
 import {TicloLayoutContext, TicloLayoutContextType} from '../component/LayoutContext';
@@ -159,6 +160,7 @@ interface Props {
 }
 interface State {
   displayName?: string;
+  dynamicStyle?: {color?: string; icon?: string};
   hasChange: boolean;
   desc: FunctionDesc;
   error?: string;
@@ -168,7 +170,7 @@ export class NodeTreeRenderer extends PureDataRenderer<Props, any> {
   static contextType = TicloLayoutContextType;
   context!: TicloLayoutContext;
 
-  state: State = {hasChange: false, desc: blankFuncDesc};
+  state: State = {hasChange: false, desc: blankFuncDesc, dynamicStyle: null};
 
   onExpandClicked = () => {
     let {item} = this.props;
@@ -247,6 +249,21 @@ export class NodeTreeRenderer extends PureDataRenderer<Props, any> {
     },
   });
 
+  styleListener = new ValueSubscriber({
+    onUpdate: (response: ValueUpdate) => {
+      let {value} = response.cache;
+      let {dynamicStyle} = this.state;
+      if (deepEqual(value, dynamicStyle)) {
+        return;
+      }
+      if (value?.constructor === Object) {
+        this.safeSetState({dynamicStyle: value});
+      } else {
+        this.safeSetState({dynamicStyle: null});
+      }
+    },
+  });
+
   constructor(props: Props) {
     super(props);
     let {item} = props;
@@ -261,6 +278,12 @@ export class NodeTreeRenderer extends PureDataRenderer<Props, any> {
     desc = desc || blankFuncDesc;
     if (desc !== this.state.desc) {
       this.safeSetState({desc});
+      if (desc.dynamicStyle) {
+        let {item} = this.props;
+        this.styleListener.subscribe(item.connection, `${item.key}.@b-style`, true);
+      } else {
+        this.styleListener.unsubscribe();
+      }
     } else {
       this.forceUpdate();
     }
@@ -312,25 +335,38 @@ export class NodeTreeRenderer extends PureDataRenderer<Props, any> {
 
   renderImpl() {
     let {item, style, selected} = this.props;
-    let {hasChange, displayName, desc, error} = this.state;
+    let {hasChange, displayName, desc, dynamicStyle, error} = this.state;
     let marginLeft = item.level * 20;
     let contentClassName = 'ticl-tree-node-content';
     if (selected) {
       contentClassName += ' ticl-tree-node-selected';
     }
     let icon: React.ReactElement;
-    if (saveAllowed.has(item.functionId)) {
-      if (hasChange) {
-        icon = <FileExclamationIcon />;
-      } else {
-        icon = <FileIcon />;
+
+    let [colorClass, iconName] = getFuncStyleFromDesc(desc, item.getConn(), 'ticl-bg--');
+    if (dynamicStyle) {
+      let [dynamicColor, dynamicIcon] = getFuncStyleFromDesc(dynamicStyle, null, 'ticl-bg--');
+      if (dynamicColor) {
+        colorClass = dynamicColor;
       }
-    } else if (item.functionId === 'flow:const') {
-      icon = <GlobalIcon />;
-    } else {
-      let [colorClass, iconName] = getFuncStyleFromDesc(desc, item.getConn(), 'ticl-bg--');
-      icon = <TIcon icon={iconName} colorClass={colorClass} />;
+      if (dynamicIcon) {
+        iconName = dynamicIcon;
+      }
     }
+    icon = <TIcon icon={iconName} colorClass={colorClass} />;
+
+    if (!dynamicStyle) {
+      if (saveAllowed.has(item.functionId)) {
+        if (hasChange) {
+          icon = <FileExclamationIcon />;
+        } else {
+          icon = <FileIcon />;
+        }
+      } else if (item.functionId === 'flow:const') {
+        icon = <GlobalIcon />;
+      }
+    }
+
     let nameLabel: string | React.ReactNode = getDisplayName(item.name, displayName);
     if (item.name.startsWith('#')) {
       nameLabel = <LocalizedNodeName name={nameLabel as string} />;
