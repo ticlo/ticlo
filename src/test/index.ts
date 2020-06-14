@@ -5,6 +5,9 @@ Functions.addCategory({
   id: 'test:',
   name: 'test',
   icon: 'fas:vial',
-  color: '4b2',
+  color: 'fa1',
   ns: 'test',
 });
+
+// green 4b2
+// red f44

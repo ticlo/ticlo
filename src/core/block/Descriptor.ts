@@ -100,6 +100,8 @@ export interface FunctionDesc {
   view?: any;
 
   color?: string;
+  // block color and icon can change with @b-style={color,icon}
+  dynamicStyle?: boolean;
 
   category?: string;
 }

@@ -32,7 +32,7 @@ export abstract class BaseFunction<T extends FunctionData = FunctionData> {
   initInputs() {}
 
   onCall(val: any): boolean {
-    return true;
+    return val !== undefined;
   }
 
   // return true when it needs to be put in queue

@@ -25,12 +25,16 @@ export function addBlockColor(color: string) {
 }
 
 const priorityColors = ['4af', '1bb', '8c1', 'f72'];
-export function getFuncStyleFromDesc(desc: FunctionDesc, conn: ClientConn, prefix = 'ticl-block--'): [string, string] {
+export function getFuncStyleFromDesc(
+  desc: {color?: string; icon?: string; ns?: string; category?: string},
+  conn: ClientConn,
+  prefix = 'ticl-block--'
+): [string, string] {
   let color = '999';
   let icon: string;
   if (desc) {
     ({color, icon} = desc);
-    if (!color || !icon) {
+    if ((!color || !icon) && conn) {
       let category = desc.ns;
       if (category == null) {
         category = desc.category || 'other'; // TODO remove other

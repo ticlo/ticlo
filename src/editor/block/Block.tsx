@@ -223,83 +223,90 @@ export class BlockView extends PureDataRenderer<BlockViewProps, BlockViewState> 
           {widthDrag}
         </DragDropDiv>
       );
-    } else if (item.w) {
-      classNames.push('ticl-block');
+    } else if (!item.descLoaded) {
+      // data not ready, don't renderer
+      return <div ref={this.getRef} />;
+    } else {
       let [colorClass, icon] = getFuncStyleFromDesc(item.desc, item.conn);
-      classNames.push(colorClass);
-
-      let widget: React.ReactNode;
-      let WidgetType = BlockWidget.get(this.widget.value);
-      if (WidgetType) {
-        widget = (
-          <div className="ticl-block-view">
-            <WidgetType conn={item.conn} path={item.path} updateViewHeight={item.setViewH} />
-          </div>
-        );
-      } else {
-        item.setViewH(0);
-      }
-      return (
-        <div ref={this.getRef} className={classNames.join(' ')} style={{top: item.y, left: item.x, width: item.w}}>
-          <BlockHeaderView
-            item={item.getHeaderCallField()}
-            shared={item.shared}
-            onDoubleClick={this.expandBlock}
-            onDragStartT={this.selectAndDrag}
-            onDragMoveT={this.onDragMove}
-            onDragEndT={this.onDragEnd}
-            name={item.name}
-            icon={icon}
-            displayName={displayName}
-          />
-          {widget}
-          <div className="ticl-block-body">{item.renderFields()}</div>
-          <DragDropDiv
-            className="ticl-block-foot"
-            directDragT={true}
-            onDragStartT={this.selectAndNotDrag}
-            onDragOverT={this.onDragOverFoot}
-            onDropT={this.onDropFoot}
-            onDragLeaveT={this.onDragLeaveFoot}
-          >
-            <DragDropDiv
-              className="ticl-width-drag"
-              onDragStartT={this.startDragW}
-              onDragMoveT={this.onDragWMove}
-              onDragEndT={this.onDragWEnd}
-            />
-          </DragDropDiv>
-        </div>
-      );
-    } else if (item.descLoaded) {
       classNames.push('ticl-block');
-      classNames.push('ticl-block-min');
-      let headClasses = 'ticl-block-head ticl-block-prbg';
-      if (item.shared) {
-        headClasses = `${headClasses} ticl-block-head-shared`;
+      if (item.dynamicStyle) {
+        let [dynamicColor, dynamicIcon] = getFuncStyleFromDesc(item.dynamicStyle, null);
+        if (dynamicColor) {
+          colorClass = dynamicColor;
+        }
+        if (dynamicIcon) {
+          icon = dynamicIcon;
+        }
       }
-      let [colorClass, icon] = getFuncStyleFromDesc(item.desc, item.conn);
       classNames.push(colorClass);
-      return (
-        <div ref={this.getRef} className={classNames.join(' ')} style={{top: item.y, left: item.x}}>
-          <div className="ticl-block-min-bound" />
-          <Tooltip title={displayName} mouseEnterDelay={0}>
-            <DragDropDiv
-              className={headClasses}
-              directDragT={true}
+      if (item.w) {
+        let widget: React.ReactNode;
+        let WidgetType = BlockWidget.get(this.widget.value);
+        if (WidgetType) {
+          widget = (
+            <div className="ticl-block-view">
+              <WidgetType conn={item.conn} path={item.path} updateViewHeight={item.setViewH} />
+            </div>
+          );
+        } else {
+          item.setViewH(0);
+        }
+        return (
+          <div ref={this.getRef} className={classNames.join(' ')} style={{top: item.y, left: item.x, width: item.w}}>
+            <BlockHeaderView
+              item={item.getHeaderCallField()}
+              shared={item.shared}
               onDoubleClick={this.expandBlock}
               onDragStartT={this.selectAndDrag}
               onDragMoveT={this.onDragMove}
               onDragEndT={this.onDragEnd}
+              name={item.name}
+              icon={icon}
+              displayName={displayName}
+            />
+            {widget}
+            <div className="ticl-block-body">{item.renderFields()}</div>
+            <DragDropDiv
+              className="ticl-block-foot"
+              directDragT={true}
+              onDragStartT={this.selectAndNotDrag}
+              onDragOverT={this.onDragOverFoot}
+              onDropT={this.onDropFoot}
+              onDragLeaveT={this.onDragLeaveFoot}
             >
-              <TIcon icon={icon} />
+              <DragDropDiv
+                className="ticl-width-drag"
+                onDragStartT={this.startDragW}
+                onDragMoveT={this.onDragWMove}
+                onDragEndT={this.onDragWEnd}
+              />
             </DragDropDiv>
-          </Tooltip>
-        </div>
-      );
-    } else {
-      // data not ready, don't renderer
-      return <div ref={this.getRef} />;
+          </div>
+        );
+      } else {
+        classNames.push('ticl-block-min');
+        let headClasses = 'ticl-block-head ticl-block-prbg';
+        if (item.shared) {
+          headClasses = `${headClasses} ticl-block-head-shared`;
+        }
+        return (
+          <div ref={this.getRef} className={classNames.join(' ')} style={{top: item.y, left: item.x}}>
+            <div className="ticl-block-min-bound" />
+            <Tooltip title={displayName} mouseEnterDelay={0}>
+              <DragDropDiv
+                className={headClasses}
+                directDragT={true}
+                onDoubleClick={this.expandBlock}
+                onDragStartT={this.selectAndDrag}
+                onDragMoveT={this.onDragMove}
+                onDragEndT={this.onDragEnd}
+              >
+                <TIcon icon={icon} />
+              </DragDropDiv>
+            </Tooltip>
+          </div>
+        );
+      }
     }
   }
   componentWillUnmount() {

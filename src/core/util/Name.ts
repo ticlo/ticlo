@@ -11,6 +11,7 @@ export function encodeTicloName(str: string) {
   return str.replace(/[\u0000-\u0020.\\\/?%*"|:<>]/g, encodeTicloNameReplacer);
 }
 
+// unescape name string to get a better display name
 export function getDisplayName(name: string, disp: string) {
   if (disp && typeof disp === 'string') {
     return disp;

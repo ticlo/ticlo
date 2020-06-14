@@ -762,6 +762,31 @@ export class BlockItem extends BaseBlockItem {
     this.xywListener.subscribe(this.conn, `${this.path}.@b-xyw`, true);
   }
 
+  setDesc(desc: FunctionDesc) {
+    if (desc !== this.desc) {
+      super.setDesc(desc);
+      if (desc.dynamicStyle) {
+        this.styleListener.subscribe(this.conn, `${this.path}.@b-style`, true);
+      }
+    }
+  }
+
+  dynamicStyle: {color?: string; icon?: string};
+  styleListener = new ValueSubscriber({
+    onUpdate: (response: ValueUpdate) => {
+      let style = response.cache.value;
+      if (deepEqual(style, this.dynamicStyle)) {
+        return;
+      }
+      if (style?.constructor === Object) {
+        this.dynamicStyle = style;
+      } else {
+        this.dynamicStyle = null;
+      }
+      this.forceUpdate();
+    },
+  });
+
   synced = false;
   syncListener = new ValueSubscriber({
     onUpdate: (response: ValueUpdate) => {
@@ -978,6 +1003,7 @@ export class BlockItem extends BaseBlockItem {
   destroy() {
     this.syncListener.unsubscribe();
     this.xywListener.unsubscribe();
+    this.styleListener.unsubscribe();
     super.destroy();
     this.actualFields = [];
   }
