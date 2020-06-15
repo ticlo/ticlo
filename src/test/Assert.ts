@@ -83,6 +83,7 @@ Functions.add(
   {
     name: 'assert',
     priority: 2,
+    mode: 'onChange',
     properties: [
       {
         name: '',
