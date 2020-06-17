@@ -39,7 +39,7 @@ describe('editor BlockStage', function () {
       'editor'
     );
 
-    await shouldHappen(() => div.querySelector('.ticl-block'), 100, 'find block');
+    await shouldHappen(() => div.querySelector('.ticl-block'), 500, 'find block');
 
     let block = div.querySelector('.ticl-block') as HTMLDivElement;
     assert.equal(block.offsetLeft, 123);
