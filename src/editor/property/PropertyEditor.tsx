@@ -44,6 +44,7 @@ import {DynamicEditor, dynamicEditorMap} from './value/DynamicEditor';
 import {ReadonlyEditor} from './value/ReadonlyEditor';
 import {ComboEditor} from './value/ComboEditor';
 import {LocalizedPropertyName, t} from '../component/LocalizedLabel';
+import {PropertyPopup} from '../popup/PropertyPopup';
 
 const typeEditorMap: {[key: string]: any} = {
   ...dynamicEditorMap,
@@ -300,18 +301,11 @@ export class PropertyEditor extends MultiSelectComponent<PropertyEditorProps, St
       // check drag from type
       let blockData = DragState.getData('blockData', conn.getBaseConn());
       if (blockData && blockData['#is']) {
-        this.onAddSubBlock(blockData['#is'], null, getSubBlockFuncData(blockData));
+        PropertyPopup.addSubBlock(this.props, blockData['#is'], null, getSubBlockFuncData(blockData));
+        this.onAddSubBlock();
         return;
       }
     }
-  };
-
-  onAddCustomGroupChild = (desc: PropDesc | PropGroupDesc) => {
-    let {conn, group} = this.props;
-    for (let [key, subscriber] of this.loaders) {
-      conn.addCustomProp(key, desc, group);
-    }
-    this.closeMenu();
   };
 
   mergePropertyState(): PropertyState {
@@ -362,117 +356,6 @@ export class PropertyEditor extends MultiSelectComponent<PropertyEditorProps, St
     return {count, value, valueSame, bindingPath, bindingSame, subBlock, display, displaySame};
   }
 
-  getMenu = () => {
-    let {conn, isCustom, name, group, propDesc} = this.props;
-    let {count, value, valueSame, bindingPath, bindingSame, subBlock, display} = this.mergePropertyState();
-
-    if (this.state.showMenu) {
-      let menuItems: React.ReactElement[] = [];
-      if (!propDesc.readonly) {
-        if (!bindingPath) {
-          menuItems.push(
-            <SubMenuItem
-              key="addSubBlock"
-              popup={
-                // <Menu.Item className='ticl-type-submenu'>
-                <FunctionSelect
-                  onClick={stopPropagation}
-                  conn={conn}
-                  showPreset={true}
-                  onFunctionClick={this.onAddSubBlock}
-                />
-                // </Menu.Item>
-              }
-            >
-              {t('Add Sub Block')}
-            </SubMenuItem>
-          );
-        }
-        menuItems.push(
-          <div key="deleteBinding" className="ticl-hbox">
-            <span style={{flex: '0 1 100%'}}>{t('Binding')}:</span>
-            {bindingPath ? (
-              <Button
-                className="ticl-icon-btn"
-                shape="circle"
-                size="small"
-                icon={<DeleteIcon />}
-                onClick={this.onUnbindClick}
-              />
-            ) : null}
-          </div>
-        );
-        menuItems.push(
-          <div key="bindingInput" className="ticl-hbox">
-            <StringEditor
-              value={bindingPath || ''}
-              funcDesc={blankFuncDesc}
-              desc={blankPropDesc}
-              onChange={this.onBindChange}
-            />
-          </div>
-        );
-
-        if (value !== undefined || bindingPath) {
-          menuItems.push(
-            <Button key="clear" shape="round" onClick={this.onClear}>
-              {t('Clear')}
-            </Button>
-          );
-        }
-      }
-      if (group != null) {
-        let groupIndex = getTailingNumber(name);
-        if (groupIndex > -1) {
-          menuItems.push(
-            <Button key="insertIndex" shape="round" onClick={this.onInsertIndex}>
-              {t('Insert at {{n}}', {n: groupIndex})}
-            </Button>
-          );
-          menuItems.push(
-            <Button key="deleteIndex" shape="round" onClick={this.onDeleteIndex}>
-              {t('Delete at {{n}}', {n: groupIndex})}
-            </Button>
-          );
-        }
-      }
-
-      menuItems.push(
-        <Checkbox key="showHide" onChange={this.onShowHide} checked={display}>
-          {t('Pinned')}
-        </Checkbox>
-      );
-      if (isCustom) {
-        menuItems.push(
-          <Button key="removeFromCustom" shape="round" onClick={this.onRemoveCustom}>
-            {t('Remove Property')}
-          </Button>
-        );
-        if (group != null) {
-          menuItems.push(
-            <SubMenuItem
-              key="addCustomProp"
-              popup={<AddCustomPropertyMenu conn={conn} onAddProperty={this.onAddCustomGroupChild} group={group} />}
-            >
-              {t('Add Child Property')}
-            </SubMenuItem>
-          );
-        }
-      }
-      return <Menu>{menuItems}</Menu>;
-    } else {
-      // need this to hide all the submebu
-      return <Menu />;
-    }
-  };
-
-  closeMenu() {
-    this.safeSetState({showMenu: false});
-  }
-
-  onMenuVisibleChange = (flag: boolean) => {
-    this.safeSetState({showMenu: flag});
-  };
   onBindChange = (str: string) => {
     let {conn, paths, name} = this.props;
     if (str === '') {
@@ -482,79 +365,13 @@ export class PropertyEditor extends MultiSelectComponent<PropertyEditorProps, St
       conn.setBinding(`${key}.${name}`, str);
     }
   };
-  onUnbindClick = (e: any) => {
-    let {conn, paths, name} = this.props;
-    for (let key of paths) {
-      conn.setBinding(`${key}.${name}`, null, true);
-    }
-  };
-  onAddSubBlock = (id: string, desc?: FunctionDesc, data?: any) => {
-    let {conn, paths, name} = this.props;
-    if (!desc) {
-      desc = conn.watchDesc(id);
-    }
-    if (!data) {
-      if (!desc) {
-        Logger.error('unable to add sub block, missing id or desc or data', this);
-        return;
-      }
-      data = getSubBlockFuncData(getDefaultFuncData(desc));
-    }
 
-    for (let path of paths) {
-      conn.addBlock(`${path}.~${name}`, data);
-    }
-    this.safeSetState({showMenu: false, showSubBlock: true});
-  };
-  onShowHide = (e: CheckboxChangeEvent) => {
-    let {conn, paths, name} = this.props;
-    for (let path of paths) {
-      if (e.target.checked) {
-        conn.showProps(path, [name]);
-      } else {
-        conn.hideProps(path, [name]);
-      }
-    }
-  };
-  onClear = () => {
-    let {conn, paths, name} = this.props;
-    for (let path of paths) {
-      conn.setValue(`${path}.${name}`, undefined);
-    }
-    this.closeMenu();
-  };
-
-  onInsertIndex = () => {
-    let {conn, paths, name, group} = this.props;
-    let index = getTailingNumber(name);
-    for (let path of paths) {
-      conn.insertGroupProp(path, group, index);
-    }
-    this.closeMenu();
-  };
-  onDeleteIndex = () => {
-    let {conn, paths, name, group} = this.props;
-    let index = getTailingNumber(name);
-    for (let path of paths) {
-      conn.removeGroupProp(path, group, index);
-    }
-    this.closeMenu();
-  };
-
-  onRemoveCustom = () => {
-    let {conn, paths, name, baseName, group} = this.props;
-    let removeField = baseName != null ? baseName : name;
-    if (group != null && name === `${group}[]`) {
-      name = null;
-    }
-    for (let path of paths) {
-      conn.removeCustomProp(path, removeField, group);
-    }
-    this.closeMenu();
+  onAddSubBlock = () => {
+    this.safeSetState({showSubBlock: true});
   };
 
   renderImpl() {
-    let {conn, paths, funcDesc, propDesc, name, reorder, group} = this.props;
+    let {conn, paths, funcDesc, propDesc, name, reorder, group, isCustom, baseName} = this.props;
     let {unlocked, showSubBlock, showMenu} = this.state;
 
     let onChange = propDesc.readonly ? null : this.onChange;
@@ -666,11 +483,18 @@ export class PropertyEditor extends MultiSelectComponent<PropertyEditorProps, St
     return (
       <div className="ticl-property">
         {inBoundClass ? <div className={inBoundClass} title={bindingPath} /> : null}
-        <Popup
-          popup={this.getMenu}
-          trigger={['contextMenu']}
-          popupVisible={showMenu}
-          onPopupVisibleChange={this.onMenuVisibleChange}
+        <PropertyPopup
+          propDesc={propDesc}
+          bindingPath={bindingPath}
+          conn={conn}
+          group={group}
+          value={value}
+          isCustom={isCustom}
+          display={display}
+          paths={paths}
+          name={name}
+          baseName={baseName}
+          onAddSubBlock={this.onAddSubBlock}
         >
           <DragDropDiv
             className={nameClass}
@@ -681,7 +505,7 @@ export class PropertyEditor extends MultiSelectComponent<PropertyEditorProps, St
           >
             <LocalizedPropertyName desc={funcDesc} name={name} />
           </DragDropDiv>
-        </Popup>
+        </PropertyPopup>
         {renderLockIcon ? (
           <Tooltip title={locktooltip} overlayClassName="ticl-tooltip">
             <Button

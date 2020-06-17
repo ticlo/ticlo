@@ -24,6 +24,10 @@ export type ValueType =
   | 'worker'
   | 'service';
 
+export interface FunctionCommandDesc {
+  parameters: PropDesc[];
+}
+
 export interface PropDesc {
   name: string;
   type: ValueType;
@@ -62,6 +66,8 @@ export interface PropDesc {
 
   // allowed types in editor for dynamic types
   types?: ValueType[];
+
+  commands?: {[key: string]: FunctionCommandDesc};
 }
 
 export interface PropGroupDesc {
@@ -69,10 +75,6 @@ export interface PropGroupDesc {
   type: 'group';
   defaultLen: number;
   properties?: PropDesc[];
-}
-
-export interface FunctionCommandDesc {
-  parameters: PropDesc[];
 }
 
 export interface FunctionDesc {
