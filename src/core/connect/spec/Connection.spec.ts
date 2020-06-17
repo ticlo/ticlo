@@ -61,18 +61,25 @@ describe('Connection', function () {
     let flow = Root.instance.addFlow('Connection1-2');
     let [server, client] = makeLocalConnection(Root.instance, false);
 
+    let callbacks = new AsyncClientPromise();
+    client.subscribe('Connection1-2.v', callbacks);
+
     flow.setValue('a', 3);
     flow.setValue('b', 'b');
     flow.setValue('o', [{p: 'p'}]);
     await client.setBinding('Connection1-2.v', 'a', false, true);
     assert.equal(flow.getValue('v'), 3);
+    assert.equal((await callbacks.firstPromise).cache.bindingPath, 'a');
+
     await client.setBinding('Connection1-2.v', 'Connection1-2.b', true, true);
     assert.equal(flow.getValue('v'), 'b');
     await client.setBinding('Connection1-2.v', 'Connection1-2.o..0.p', true, true);
     assert.equal(flow.getValue('v'), 'p');
 
+    let nextPromise = callbacks.promise;
     await client.setBinding('Connection1-2.v', null, false, true);
     assert.equal(flow.getValue('v'), undefined);
+    assert.isNull((await nextPromise).cache.bindingPath);
 
     await client.setBinding('Connection1-2.v', 'a', false, true);
     // clear binding but keep value (when it's primitive)
@@ -88,6 +95,7 @@ describe('Connection', function () {
     assert.equal(flow.getProperty('v')._bindingPath, '^g.0');
 
     // clear #global
+    callbacks.cancel();
     Root.instance._globalRoot._liveUpdate({});
     client.destroy();
     Root.instance.deleteValue('Connection1-2');
