@@ -233,7 +233,7 @@ export class Popup extends React.PureComponent<PopupProps, PopupState> {
         alignPoint={alignPoint}
         popupPlacement="topLeft"
         builtinPlacements={builtinPlacements}
-        prefixCls="ant-dropdown"
+        prefixCls="ticl-popup"
         popupVisible={showPopup}
         onPopupVisibleChange={this.showPopup}
         popup={popup}
