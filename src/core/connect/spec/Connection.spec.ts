@@ -76,8 +76,11 @@ describe('Connection', function () {
     await client.setBinding('Connection1-2.v', 'Connection1-2.o..0.p', true, true);
     assert.equal(flow.getValue('v'), 'p');
 
+    await client.setBinding('Connection1-2.v', 'Connection1-2.o', true, true);
+    assert.deepEqual(flow.getValue('v'), [{p: 'p'}]);
+
     let nextPromise = callbacks.promise;
-    await client.setBinding('Connection1-2.v', null, false, true);
+    await client.setBinding('Connection1-2.v', null, true, true);
     assert.equal(flow.getValue('v'), undefined);
     assert.isNull((await nextPromise).cache.bindingPath);
 

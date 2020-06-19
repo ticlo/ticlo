@@ -420,7 +420,7 @@ export class ServerConnection extends ServerConnectionCore {
           if (isPrimitiveType(val)) {
             property.setValue(val);
           } else {
-            property.setBinding(undefined);
+            property.setValue(undefined);
           }
         } else {
           let fromParts = from.split('..');
