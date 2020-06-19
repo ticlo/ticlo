@@ -52,7 +52,7 @@ export class SubMenuItem extends React.PureComponent<SubMenuItemProps, SubMenuIt
           offset: [3, 0],
           overflow: {adjustX: true, adjustY: true},
         }}
-        prefixCls="ant-select-dropdown"
+        prefixCls="ticl-dropdown"
         popupVisible={showPopup}
         onPopupVisibleChange={this.showPopup}
         popup={popup}
@@ -233,7 +233,7 @@ export class Popup extends React.PureComponent<PopupProps, PopupState> {
         alignPoint={alignPoint}
         popupPlacement="topLeft"
         builtinPlacements={builtinPlacements}
-        prefixCls="ticl-popup"
+        prefixCls="ticl-dropdown"
         popupVisible={showPopup}
         onPopupVisibleChange={this.showPopup}
         popup={popup}

@@ -1,4 +1,4 @@
-.ticl-popup {
+.ticl-dropdown {
   box-shadow: 0 0.5px 3px 1px rgba(0, 0, 0, 0.15);
   margin: 0;
   color: rgba(0, 0, 0, 0.75);
@@ -16,9 +16,13 @@
   background-color: #fff;
   border-radius: 2px;
   outline: none;
+
+  & > .ant-dropdown-menu {
+    box-shadow: none;
+  }
 }
 
-.ticl-popup-hidden {
+.ticl-dropdown-hidden {
   display: none;
 }
 
