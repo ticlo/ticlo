@@ -40,9 +40,9 @@ export class SubMenuItem extends React.PureComponent<SubMenuItemProps, SubMenuIt
 
     let {children, popup} = this.props;
 
-    let cls = 'ticl-popup-menu-item';
+    let cls = 'ticl-dropdown-menu-item';
     if (showPopup) {
-      cls += ' ticl-popup-menu-item-active';
+      cls += ' ticl-dropdown-menu-item-active';
     }
     return (
       <Trigger
@@ -80,7 +80,7 @@ export class MenuItem extends React.PureComponent<MenuItemProps, MenuItemState> 
   render() {
     let {children} = this.props;
     return (
-      <div className="ticl-popup-menu-item" onMouseOver={this.onHover}>
+      <div className="ticl-dropdown-menu-item" onMouseOver={this.onHover}>
         {children}
       </div>
     );
