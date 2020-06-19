@@ -37,18 +37,24 @@ interface Props {
   onAddSubBlock: () => void;
 }
 
+const PendingUpdate = <div />;
 interface State {
-  showMenu: boolean;
+  popupElement?: React.ReactElement | any;
+  lastBindingPath: string;
 }
 export class PropertyPopup extends React.PureComponent<Props, State> {
-  state: State = {showMenu: false};
+  state: State = {lastBindingPath: null};
 
   closeMenu() {
-    this.setState({showMenu: false});
+    this.setState({popupElement: null});
   }
 
   onMenuVisibleChange = (flag: boolean) => {
-    this.setState({showMenu: flag});
+    if (flag) {
+      this.updateMenu();
+    } else {
+      // this.setState({popupElement: null});
+    }
   };
 
   onInsertIndex = () => {
@@ -149,120 +155,123 @@ export class PropertyPopup extends React.PureComponent<Props, State> {
   onAddSubBlock = (id: string, desc?: FunctionDesc, data?: any) => {
     let {onAddSubBlock} = this.props;
     PropertyPopup.addSubBlock(this.props, id, desc, data);
-    this.setState({showMenu: false});
+    this.setState({popupElement: null});
     onAddSubBlock?.();
   };
 
-  getMenu = () => {
-    if (this.state.showMenu) {
-      let {propDesc, bindingPath, group, conn, value, isCustom, display} = this.props;
-      let menuItems: React.ReactElement[] = [];
-      if (!propDesc.readonly) {
-        if (!bindingPath) {
-          menuItems.push(
-            <SubMenuItem
-              key="addSubBlock"
-              popup={
-                // <Menu.Item className='ticl-type-submenu'>
-                <FunctionSelect
-                  onClick={stopPropagation}
-                  conn={conn}
-                  showPreset={true}
-                  onFunctionClick={this.onAddSubBlock}
-                />
-                // </Menu.Item>
-              }
-            >
-              {t('Add Sub Block')}
-            </SubMenuItem>
-          );
-        }
+  updateMenu() {
+    let {propDesc, bindingPath, group, conn, value, isCustom, display} = this.props;
+    let menuItems: React.ReactElement[] = [];
+    if (!propDesc.readonly) {
+      if (!bindingPath) {
         menuItems.push(
-          <div key="deleteBinding" className="ticl-hbox">
-            <span style={{flex: '0 1 100%'}}>{t('Binding')}:</span>
-            {bindingPath ? (
-              <Button
-                className="ticl-icon-btn"
-                shape="circle"
-                size="small"
-                icon={<DeleteIcon />}
-                onClick={this.onUnbindClick}
+          <SubMenuItem
+            key="addSubBlock"
+            popup={
+              // <Menu.Item className='ticl-type-submenu'>
+              <FunctionSelect
+                onClick={stopPropagation}
+                conn={conn}
+                showPreset={true}
+                onFunctionClick={this.onAddSubBlock}
               />
-            ) : null}
-          </div>
+              // </Menu.Item>
+            }
+          >
+            {t('Add Sub Block')}
+          </SubMenuItem>
         );
-        menuItems.push(
-          <div key="bindingInput" className="ticl-hbox">
-            <StringEditor
-              value={bindingPath || ''}
-              funcDesc={blankFuncDesc}
-              desc={blankPropDesc}
-              onChange={this.onBindChange}
-            />
-          </div>
-        );
-
-        if (value !== undefined || bindingPath) {
-          menuItems.push(
-            <Button key="clear" shape="round" onClick={this.onClear}>
-              {t('Clear')}
-            </Button>
-          );
-        }
       }
-      if (group != null) {
-        let groupIndex = getTailingNumber(name);
-        if (groupIndex > -1) {
-          menuItems.push(
-            <Button key="insertIndex" shape="round" onClick={this.onInsertIndex}>
-              {t('Insert at {{n}}', {n: groupIndex})}
-            </Button>
-          );
-          menuItems.push(
-            <Button key="deleteIndex" shape="round" onClick={this.onDeleteIndex}>
-              {t('Delete at {{n}}', {n: groupIndex})}
-            </Button>
-          );
-        }
-      }
-
       menuItems.push(
-        <Checkbox key="showHide" onChange={this.onShowHide} checked={display}>
-          {t('Pinned')}
-        </Checkbox>
+        <div key="deleteBinding" className="ticl-hbox">
+          <span style={{flex: '0 1 100%'}}>{t('Binding')}:</span>
+          {bindingPath ? (
+            <Button
+              className="ticl-icon-btn"
+              shape="circle"
+              size="small"
+              icon={<DeleteIcon />}
+              onClick={this.onUnbindClick}
+            />
+          ) : null}
+        </div>
       );
-      if (isCustom) {
+      menuItems.push(
+        <div key="bindingInput" className="ticl-hbox">
+          <StringEditor
+            value={bindingPath || ''}
+            funcDesc={blankFuncDesc}
+            desc={blankPropDesc}
+            onChange={this.onBindChange}
+          />
+        </div>
+      );
+
+      if (value !== undefined || bindingPath) {
         menuItems.push(
-          <Button key="removeFromCustom" shape="round" onClick={this.onRemoveCustom}>
-            {t('Remove Property')}
+          <Button key="clear" shape="round" onClick={this.onClear}>
+            {t('Clear')}
           </Button>
         );
-        if (group != null) {
-          menuItems.push(
-            <SubMenuItem
-              key="addCustomProp"
-              popup={<AddCustomPropertyMenu conn={conn} onAddProperty={this.onAddCustomGroupChild} group={group} />}
-            >
-              {t('Add Child Property')}
-            </SubMenuItem>
-          );
-        }
       }
-      return <Menu>{menuItems}</Menu>;
-    } else {
-      // need this to hide all the submebu
-      return <Menu />;
     }
-  };
+    if (group != null) {
+      let groupIndex = getTailingNumber(name);
+      if (groupIndex > -1) {
+        menuItems.push(
+          <Button key="insertIndex" shape="round" onClick={this.onInsertIndex}>
+            {t('Insert at {{n}}', {n: groupIndex})}
+          </Button>
+        );
+        menuItems.push(
+          <Button key="deleteIndex" shape="round" onClick={this.onDeleteIndex}>
+            {t('Delete at {{n}}', {n: groupIndex})}
+          </Button>
+        );
+      }
+    }
+
+    menuItems.push(
+      <Checkbox key="showHide" onChange={this.onShowHide} checked={display}>
+        {t('Pinned')}
+      </Checkbox>
+    );
+    if (isCustom) {
+      menuItems.push(
+        <Button key="removeFromCustom" shape="round" onClick={this.onRemoveCustom}>
+          {t('Remove Property')}
+        </Button>
+      );
+      if (group != null) {
+        menuItems.push(
+          <SubMenuItem
+            key="addCustomProp"
+            popup={<AddCustomPropertyMenu conn={conn} onAddProperty={this.onAddCustomGroupChild} group={group} />}
+          >
+            {t('Add Child Property')}
+          </SubMenuItem>
+        );
+      }
+    }
+    this.setState({popupElement: <Menu>{menuItems}</Menu>, lastBindingPath: bindingPath});
+  }
+
+  componentDidUpdate(prevProps: Readonly<Props>, prevState: Readonly<State>, snapshot?: any) {
+    let {bindingPath} = this.props;
+    let {lastBindingPath, popupElement} = this.state;
+    if (popupElement && lastBindingPath !== bindingPath) {
+      this.updateMenu();
+    }
+  }
 
   render(): any {
     let {children} = this.props;
-    let {showMenu} = this.state;
+    let {popupElement} = this.state;
     return (
       <Popup
-        popup={this.getMenu}
+        popup={popupElement}
         trigger={['contextMenu']}
-        popupVisible={showMenu}
+        popupVisible={popupElement != null}
         onPopupVisibleChange={this.onMenuVisibleChange}
       >
         {children}
