@@ -120,16 +120,23 @@ export class BlockStage extends BlockStageBase<BlockStageProps, StageState> {
     document.body.addEventListener('paste', this.onPaste);
   }
 
-  _popupCount = 0;
+  _hasPopup = false;
 
   static findOpenPopups() {
-    let result1 = document.querySelectorAll(
-      'body>div:not([id])>div>div.ant-select-dropdown:not(.ant-select-dropdown-hidden):not(.slide-up-leave)'
+    return (
+      document.querySelector(
+        'body>div:not([id])>div>div.ant-select-dropdown:not(.ant-select-dropdown-hidden):not(.slide-up-leave)'
+      ) != null ||
+      document.querySelector(
+        'body>div:not([id])>div>div.ant-picker-dropdown:not(.ant-picker-dropdown-hidden):not(.slide-up-leave)'
+      ) != null ||
+      document.querySelector(
+        'body>div:not([id])>div>div.ant-dropdown:not(.ant-dropdown-hidden):not(.slide-up-leave)'
+      ) != null ||
+      document.querySelector(
+        'body>div:not([id])>div>div.ticl-dropdown:not(.ticl-dropdown-hidden):not(.slide-up-leave)'
+      ) != null
     );
-    let result2 = document.querySelectorAll(
-      'body>div:not([id])>div>div.ant-picker-dropdown:not(.ant-picker-dropdown-hidden):not(.slide-up-leave)'
-    );
-    return result1.length + result2.length;
   }
 
   onSelectRectDragStart = (e: DragState) => {
@@ -138,7 +145,7 @@ export class BlockStage extends BlockStageBase<BlockStageProps, StageState> {
       this._dragingSelect = [(e.clientX - rect.left) * e.component.scaleX, (e.clientY - rect.top) * e.component.scaleY];
       e.startDrag(null, null);
       this._selectRectNode.style.display = 'block';
-      this._popupCount = BlockStage.findOpenPopups();
+      this._hasPopup = BlockStage.findOpenPopups();
     }
   };
 
@@ -155,7 +162,7 @@ export class BlockStage extends BlockStageBase<BlockStageProps, StageState> {
     // if e==null, then the dragging is canceled
     if (e && e.event) {
       // when single click blank area closed some popups, skip the de-selecting
-      if (!(e.dx === 0 && e.dy === 0 && this._popupCount > 0 && BlockStage.findOpenPopups() === 0)) {
+      if (!(e.dx === 0 && e.dy === 0 && this._hasPopup && !BlockStage.findOpenPopups())) {
         let [x1, y1] = this._dragingSelect;
         let x2 = e.dx + x1;
         let y2 = e.dy + y1;
