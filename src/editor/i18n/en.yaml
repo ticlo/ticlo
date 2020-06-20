@@ -42,6 +42,16 @@
 "Add Function": "Add Function"
 "Function Name?": "Function Name?"
 
+# popup/PropertyPopup.tsx
+"Add Sub Block": "Add Sub Block"
+"Binding": "Binding"
+"Clear": "Clear"
+"Insert at {{n}}": "Insert at {{n}}"
+"Delete at {{n}}": "Delete at {{n}}"
+"Remove Property": "Remove Property"
+"Add Child Property": "Add Child Property"
+"Execute Command": "Execute Command"
+
 # property/AddCustomProperty.tsx
 "Default Length": "Default Length"
 "Min": "Min"
@@ -72,13 +82,6 @@
 "Optional": "Optional"
 
 # property/PropertyEditor.tsx
-"Add Sub Block": "Add Sub Block"
-"Binding": "Binding"
-"Clear": "Clear"
-"Insert at {{n}}": "Insert at {{n}}"
-"Delete at {{n}}": "Delete at {{n}}"
-"Remove Property": "Remove Property"
-"Add Child Property": "Add Child Property"
 "Unlocked for editing\nDouble click to lock": "Unlocked for editing\nDouble click to lock"
 "Editing blocked by binding\nDouble click to edit": "Editing blocked by binding\nDouble click to edit"
 "Inconsistent values\nDouble click to edit": "Inconsistent values\nDouble click to edit"

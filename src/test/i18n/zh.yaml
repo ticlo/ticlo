@@ -4,11 +4,14 @@
 
 assert:
   '@name': 匹配
-  '@keywords':
-  expect:
-    '@name': 期望 # auto translated from hash: FCVo1dIu
+  '@keywords': 
   actual:
     '@name': 实际 # auto translated from hash: w2pkry/T
+  expect:
+    '@name': 预期
+    '@commands':
+      copyFromExpect:
+        '@name': 从实际复制 # auto translated from hash: 29YPUdK0
   matchMode:
     '@name': 匹配模式 # auto translated from hash: vB/EagS4
     '@options':

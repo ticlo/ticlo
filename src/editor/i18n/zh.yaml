@@ -42,6 +42,16 @@
 "Add Function": 增加功能
 "Function Name?": 功能名称？
 
+# popup/PropertyPopup.tsx
+"Add Sub Block": 添加子块
+"Binding": 绑定 # auto translated from hash: ouv+Do4W
+"Clear": 清空
+"Insert at {{n}}": 在{{n}}处插入
+"Delete at {{n}}": 在{{n}}处删除
+"Remove Property": 删除属性
+"Add Child Property": 添加子属性
+"Execute Command": 执行指令
+
 # property/AddCustomProperty.tsx
 "Default Length": 默认长度
 "Min": 最小值
@@ -72,13 +82,6 @@
 "Optional": 可选
 
 # property/PropertyEditor.tsx
-"Add Sub Block": 添加子块
-"Binding": 绑定 # auto translated from hash: ouv+Do4W
-"Clear": 清空
-"Insert at {{n}}": 在{{n}}处插入
-"Delete at {{n}}": 在{{n}}处删除
-"Remove Property": 删除属性
-"Add Child Property": 添加子属性
 "Unlocked for editing\nDouble click to lock": |- # auto translated from hash: DtUOcgdR
   已解锁编辑
   双击锁定

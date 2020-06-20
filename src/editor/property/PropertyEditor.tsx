@@ -484,6 +484,7 @@ export class PropertyEditor extends MultiSelectComponent<PropertyEditorProps, St
       <div className="ticl-property">
         {inBoundClass ? <div className={inBoundClass} title={bindingPath} /> : null}
         <PropertyPopup
+          funcDesc={funcDesc}
           propDesc={propDesc}
           bindingPath={bindingPath}
           conn={conn}

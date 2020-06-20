@@ -51,6 +51,27 @@ export const LocalizedEnumOption = ({
   return <span>{translateEnumOption(desc.name, propName, String(option), desc.ns)}</span>;
 };
 
+export const LocalizedFuncCommand = ({desc, command}: {desc: FunctionDesc; command: string}) => {
+  useContext(TicloLayoutContextType);
+  return <span>{translateFunction(desc.id, `${desc.name}.@commands.${command}`, desc.ns)}</span>;
+};
+
+export const LocalizedPropCommand = ({
+  funcDesc,
+  propBaseName,
+  command,
+}: {
+  funcDesc: FunctionDesc;
+  propBaseName: string;
+  command: string;
+}) => {
+  useContext(TicloLayoutContextType);
+  debugger;
+  return (
+    <span>{translateFunction(funcDesc.id, `${funcDesc.name}.${propBaseName}.@commands.${command}`, funcDesc.ns)}</span>
+  );
+};
+
 const specialNodeNamePrefix = /^#\w+\b/;
 function localizeNodeNamePrefix(match: string) {
   return translateEditor(match);

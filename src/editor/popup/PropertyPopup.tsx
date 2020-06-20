@@ -11,9 +11,10 @@ import {
   Logger,
   PropDesc,
   PropGroupDesc,
+  smartStrCompare,
   stopPropagation,
 } from '../../../src/core';
-import {LocalizedPropertyName, t} from '../component/LocalizedLabel';
+import {LocalizedPropCommand, LocalizedPropertyName, t} from '../component/LocalizedLabel';
 import {Button, Checkbox} from 'antd';
 import DeleteIcon from '@ant-design/icons/DeleteOutlined';
 import {StringEditor} from '../property/value/StringEditor';
@@ -23,7 +24,7 @@ import {CheckboxChangeEvent} from 'antd/lib/checkbox';
 
 interface Props {
   children: React.ReactElement;
-
+  funcDesc: FunctionDesc;
   propDesc: PropDesc;
   bindingPath: string;
   conn: ClientConn;
@@ -53,7 +54,7 @@ export class PropertyPopup extends React.PureComponent<Props, State> {
     if (flag) {
       this.updateMenu();
     } else {
-      // this.setState({popupElement: null});
+      this.setState({popupElement: null});
     }
   };
 
@@ -160,7 +161,7 @@ export class PropertyPopup extends React.PureComponent<Props, State> {
   };
 
   updateMenu() {
-    let {propDesc, bindingPath, group, conn, value, isCustom, display} = this.props;
+    let {funcDesc, propDesc, bindingPath, group, conn, value, isCustom, display} = this.props;
     let menuItems: React.ReactElement[] = [];
     if (!propDesc.readonly) {
       if (!bindingPath) {
@@ -249,6 +250,25 @@ export class PropertyPopup extends React.PureComponent<Props, State> {
             popup={<AddCustomPropertyMenu conn={conn} onAddProperty={this.onAddCustomGroupChild} group={group} />}
           >
             {t('Add Child Property')}
+          </SubMenuItem>
+        );
+      }
+    }
+    if (propDesc.commands) {
+      let commands = Object.keys(propDesc.commands);
+      commands.sort(smartStrCompare);
+      if (commands.length) {
+        let commandMenus: React.ReactElement[] = [];
+        for (let command of commands) {
+          commandMenus.push(
+            <span onClick={}>
+              <LocalizedPropCommand key={command} funcDesc={funcDesc} propBaseName={propDesc.name} command={command} />
+            </span>
+          );
+        }
+        menuItems.push(
+          <SubMenuItem key="propCommands" popup={<Menu>{commandMenus}</Menu>}>
+            {t('Execute Command')}
           </SubMenuItem>
         );
       }

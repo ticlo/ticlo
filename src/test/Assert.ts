@@ -90,8 +90,8 @@ Functions.add(
         type: 'group',
         defaultLen: 1,
         properties: [
-          {name: 'expect', type: 'any', pinned: true},
           {name: 'actual', type: 'any', pinned: true},
+          {name: 'expect', type: 'any', pinned: true, commands: {copyFromExpect: {parameters: []}}},
         ],
       },
       {name: 'matchMode', type: 'radio-button', options: ['match-once', 'always-match'], default: 'match-once'},

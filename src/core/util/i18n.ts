@@ -25,6 +25,11 @@ export function translateFunction(funcId: string, funcName?: string, namespace?:
   if (funcId.endsWith(':')) {
     // function categories and namespaces should be translated from @namespace
     funcNameKey = `@namespace.${funcId.substring(0, funcId.length - 1)}`;
+  } else {
+    let dotPos = funcName.lastIndexOf('.');
+    if (dotPos > 0 && dotPos < funcName.length - 1) {
+      funcName = funcName.substring(dotPos + 1);
+    }
   }
   let i18ns = `ticlo-${namespace}`;
   return i18next.t(`${funcNameKey}.@name`, {ns: i18ns, defaultValue: funcName, lng});

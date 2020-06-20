@@ -5,10 +5,13 @@
 assert:
   '@name': Assert
   '@keywords': 'test'
-  expect:
-    '@name': 'Expect '
   actual:
     '@name': 'Actual '
+  expect:
+    '@name': 'Expect '
+    '@commands':
+      copyFromExpect:
+        '@name': 'Copy from Actual'
   matchMode:
     '@name': Match Mode
     '@options':
