@@ -3,7 +3,7 @@ import {BaseFunction, BlockFunction} from '../BlockFunction';
 import {BlockIO, BlockPropertyEvent} from '../BlockProperty';
 import {CompleteEvent, ErrorEvent, Event, EventType, WAIT} from '../Event';
 import {PropDispatcher} from '../Dispatcher';
-import {BlockMode} from '../Block';
+import {Block, BlockMode} from '../Block';
 import {DataMap} from '../../util/DataTypes';
 
 export class TestFunctionRunner extends BaseFunction {
@@ -23,8 +23,14 @@ export class TestFunctionRunner extends BaseFunction {
     TestFunctionRunner.logs.push(this._data.getValue('#-log'));
   }
 }
-
-Functions.add(TestFunctionRunner, {name: 'test-runner'});
+const TestFunctionApi = {
+  commands: {
+    test: (block: Block, params: any) => {
+      block.setValue('#-log', 'command');
+    },
+  },
+};
+Functions.add(TestFunctionRunner, {name: 'test-runner'}, null, TestFunctionApi);
 
 class TestFunctionRunnerWontCancel extends TestFunctionRunner {
   cancel(reason: EventType = EventType.TRIGGER, mode: BlockMode = 'auto') {
