@@ -116,6 +116,8 @@ export interface ClientConn {
 
   copy(path: string, props: string[], cut?: boolean, callbacks?: ClientCallbacks): Promise<any> | string;
 
+  executeCommand(path: string, command: string, params?: DataMap, callbacks?: ClientCallbacks): Promise<any> | string;
+
   paste(
     path: string,
     data: DataMap,

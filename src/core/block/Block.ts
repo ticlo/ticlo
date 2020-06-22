@@ -884,9 +884,9 @@ export class Block implements Runnable, FunctionData, PropListener<FunctionClass
     return null;
   }
 
-  runCommand(command: string, params: DataMap): DataMap {
+  executeCommand(command: string, params: DataMap): DataMap {
     if (this._funcId) {
-      return Functions.runCommand(this._funcId, command, params);
+      return Functions.executeCommand(this._funcId, this, command, params);
     }
     return null;
   }

@@ -4,13 +4,13 @@
 
 assert:
   '@name': 匹配
-  '@keywords': 
+  '@keywords':
   actual:
     '@name': 实际 # auto translated from hash: w2pkry/T
   expect:
     '@name': 预期
     '@commands':
-      copyFromExpect:
+      copyFromActual:
         '@name': 从实际复制 # auto translated from hash: 29YPUdK0
   matchMode:
     '@name': 匹配模式 # auto translated from hash: vB/EagS4

@@ -393,6 +393,10 @@ export abstract class ClientConnection extends Connection implements ClientConn 
     return this.simpleRequest({cmd: 'copy', path, props, cut}, callbacks);
   }
 
+  executeCommand(path: string, command: string, params?: DataMap, callbacks?: ClientCallbacks): Promise<any> | string {
+    return this.simpleRequest({cmd: 'executeCommand', path, command, params}, callbacks);
+  }
+
   paste(
     path: string,
     data: DataMap,

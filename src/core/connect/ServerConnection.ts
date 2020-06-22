@@ -591,8 +591,21 @@ export class ServerConnection extends ServerConnectionCore {
     return new ServerDescWatcher(this, id);
   }
 
-  blockCommand({path, command, params}: {path: string; command: string; params: DataMap}) {
-    // TODO
+  executeCommand({path, command, params}: {path: string; command: string; params: DataMap}) {
+    if (typeof command !== 'string') {
+      return 'invalid command';
+    }
+    let property = this.root.queryProperty(path);
+
+    if (property && property._value instanceof Block) {
+      let result = property._value.executeCommand(command, params);
+      if (result != null) {
+        return {result};
+      }
+      return null;
+    } else {
+      return 'invalid path';
+    }
   }
 
   editWorker({

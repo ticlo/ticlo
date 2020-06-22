@@ -4,6 +4,9 @@ import {isPrimitiveType} from '../../src/core/util/DataTypes';
 import {updateObjectValue} from '../../src/core/property-api/ObjectValue';
 import {FlowTestCase} from './FlowTestCase';
 
+const EXPECT = 'expect';
+const ACTUAL = 'actual';
+
 function convertActual(actual: any) {
   if (isPrimitiveType(actual) || Array.isArray(actual) || actual.constructor === Object) {
     return actual;
@@ -31,7 +34,7 @@ export class AssertFunction extends BlockFunction {
     if (this._matchedOnce && this._data.getValue('matchMode') !== 'always-match') {
       return;
     }
-    let compares: {expect: any; actual: any}[] = this._data.getArray('', 1, ['expect', 'actual']);
+    let compares: {expect: any; actual: any}[] = this._data.getArray('', 1, [EXPECT, ACTUAL]);
     let matched = compares.length > 0;
     for (let {expect, actual} of compares) {
       if (actual === undefined) {
@@ -74,7 +77,15 @@ export class AssertFunction extends BlockFunction {
 
 const API = {
   commands: {
-    copyActualValue: (params: {[key: string]: any; property?: string}) => {},
+    copyFromActual: (block: Block, params: {[key: string]: any; property?: string}) => {
+      let property = params?.property;
+      if (typeof property === 'string' && property.startsWith(EXPECT)) {
+        let copyFrom = block.getProperty(`${ACTUAL}${property.substring(EXPECT.length)}`, false);
+        if (copyFrom) {
+          block.getProperty(property).setValue(convertActual(copyFrom._value));
+        }
+      }
+    },
   },
 };
 
@@ -90,8 +101,8 @@ Functions.add(
         type: 'group',
         defaultLen: 1,
         properties: [
-          {name: 'actual', type: 'any', pinned: true},
-          {name: 'expect', type: 'any', pinned: true, commands: {copyFromExpect: {parameters: []}}},
+          {name: ACTUAL, type: 'any', pinned: true},
+          {name: EXPECT, type: 'any', pinned: true, commands: {copyFromActual: {parameters: []}}},
         ],
       },
       {name: 'matchMode', type: 'radio-button', options: ['match-once', 'always-match'], default: 'match-once'},

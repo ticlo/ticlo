@@ -15,7 +15,7 @@ interface FunctionApi {
   getDefaultWorker?(block: Block, field: string, blockStack: Map<any, any>): DataMap;
   commands?: {
     // commands
-    [key: string]: (params: {[key: string]: any; property?: string}) => any;
+    [key: string]: (block: Block, params: {[key: string]: any; property?: string}) => any;
   };
 }
 
@@ -185,11 +185,11 @@ export class Functions {
     }
     return null;
   }
-  static runCommand(id: string, command: string, params: DataMap): any {
+  static executeCommand(id: string, block: Block, command: string, params: DataMap): any {
     if (id) {
       let dispatcher = _functions[id];
       if (dispatcher) {
-        return dispatcher._functionApi?.commands?.[command]?.(params);
+        return dispatcher._functionApi?.commands?.[command]?.(block, params);
       }
     }
     return null;

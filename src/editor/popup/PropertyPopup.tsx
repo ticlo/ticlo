@@ -4,6 +4,7 @@ import {FunctionSelect} from '../function-selector/FunctionSelector';
 import {
   blankFuncDesc,
   blankPropDesc,
+  FunctionCommandDesc,
   FunctionDesc,
   getDefaultFuncData,
   getSubBlockFuncData,
@@ -125,6 +126,17 @@ export class PropertyPopup extends React.PureComponent<Props, State> {
     }
     this.closeMenu();
   };
+  onExeCommand(command: string) {
+    let {conn, paths, name, propDesc} = this.props;
+    let commandDesc = propDesc.commands[command];
+    if (commandDesc.parameters?.length) {
+    } else {
+      for (let path of paths) {
+        conn.executeCommand(path, command, {property: name});
+      }
+    }
+    this.closeMenu();
+  }
 
   static addSubBlock(
     props: {
@@ -261,7 +273,8 @@ export class PropertyPopup extends React.PureComponent<Props, State> {
         let commandMenus: React.ReactElement[] = [];
         for (let command of commands) {
           commandMenus.push(
-            <span onClick={}>
+            // tslint:disable-next-line:jsx-no-lambda
+            <span key={command} onClick={() => this.onExeCommand(command)}>
               <LocalizedPropCommand key={command} funcDesc={funcDesc} propBaseName={propDesc.name} command={command} />
             </span>
           );

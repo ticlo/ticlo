@@ -10,7 +10,7 @@ assert:
   expect:
     '@name': 'Expect '
     '@commands':
-      copyFromExpect:
+      copyFromActual:
         '@name': 'Copy from Actual'
   matchMode:
     '@name': Match Mode
