@@ -44,7 +44,7 @@ interface State {
   popupElement?: React.ReactElement | any;
   lastBindingPath: string;
 }
-export class PropertyPopup extends React.PureComponent<Props, State> {
+export class PropertyDropdown extends React.PureComponent<Props, State> {
   state: State = {lastBindingPath: null};
 
   closeMenu() {
@@ -167,7 +167,7 @@ export class PropertyPopup extends React.PureComponent<Props, State> {
 
   onAddSubBlock = (id: string, desc?: FunctionDesc, data?: any) => {
     let {onAddSubBlock} = this.props;
-    PropertyPopup.addSubBlock(this.props, id, desc, data);
+    PropertyDropdown.addSubBlock(this.props, id, desc, data);
     this.setState({popupElement: null});
     onAddSubBlock?.();
   };

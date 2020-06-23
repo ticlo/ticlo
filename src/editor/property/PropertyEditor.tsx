@@ -44,7 +44,7 @@ import {DynamicEditor, dynamicEditorMap} from './value/DynamicEditor';
 import {ReadonlyEditor} from './value/ReadonlyEditor';
 import {ComboEditor} from './value/ComboEditor';
 import {LocalizedPropertyName, t} from '../component/LocalizedLabel';
-import {PropertyPopup} from '../popup/PropertyPopup';
+import {PropertyDropdown} from '../popup/PropertyDropdown';
 
 const typeEditorMap: {[key: string]: any} = {
   ...dynamicEditorMap,
@@ -301,7 +301,7 @@ export class PropertyEditor extends MultiSelectComponent<PropertyEditorProps, St
       // check drag from type
       let blockData = DragState.getData('blockData', conn.getBaseConn());
       if (blockData && blockData['#is']) {
-        PropertyPopup.addSubBlock(this.props, blockData['#is'], null, getSubBlockFuncData(blockData));
+        PropertyDropdown.addSubBlock(this.props, blockData['#is'], null, getSubBlockFuncData(blockData));
         this.onAddSubBlock();
         return;
       }
@@ -483,7 +483,7 @@ export class PropertyEditor extends MultiSelectComponent<PropertyEditorProps, St
     return (
       <div className="ticl-property">
         {inBoundClass ? <div className={inBoundClass} title={bindingPath} /> : null}
-        <PropertyPopup
+        <PropertyDropdown
           funcDesc={funcDesc}
           propDesc={propDesc}
           bindingPath={bindingPath}
@@ -506,7 +506,7 @@ export class PropertyEditor extends MultiSelectComponent<PropertyEditorProps, St
           >
             <LocalizedPropertyName desc={funcDesc} name={name} />
           </DragDropDiv>
-        </PropertyPopup>
+        </PropertyDropdown>
         {renderLockIcon ? (
           <Tooltip title={locktooltip} overlayClassName="ticl-tooltip">
             <Button
