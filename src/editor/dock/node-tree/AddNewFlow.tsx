@@ -9,15 +9,15 @@ const {TextArea} = Input;
 
 interface Props {
   conn: ClientConn;
-  onClose: () => void;
-  visible: boolean;
   basePath?: string;
 }
 
-interface State {}
+interface State {
+  visible: boolean;
+}
 
 export class AddNewFlow extends LazyUpdateComponent<Props, State> {
-  state: State = {visible: false};
+  state: State = {visible: true};
 
   formItems = {
     name: new FormInputItem<string>(this, 'name', t('Name')),
@@ -56,15 +56,15 @@ export class AddNewFlow extends LazyUpdateComponent<Props, State> {
   };
 
   onClose = () => {
-    let {onClose} = this.props;
     let {name, data} = this.formItems;
     name.setError(null);
     data.setError(null);
-    onClose();
+    this.setState({visible: false});
   };
 
   renderImpl() {
-    let {visible, onClose, basePath} = this.props;
+    let {basePath} = this.props;
+    let {visible} = this.state;
     let {name, data} = this.formItems;
     return (
       <Modal title={t('New Dataflow')} visible={visible} onOk={this.addFlow} onCancel={this.onClose}>

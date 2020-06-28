@@ -60,7 +60,9 @@ interface Props {
   conn: ClientConnection;
 }
 
-interface State {}
+interface State {
+  modal?: React.ReactElement;
+}
 
 WorkerFunction.registerType(
   {
@@ -116,6 +118,7 @@ WorkerFunction.registerType(
 );
 
 class App extends React.PureComponent<Props, State> {
+  state: State = {};
   defaultDockLayout: any;
   constructor(props: Props) {
     super(props);
@@ -263,6 +266,7 @@ class App extends React.PureComponent<Props, State> {
       TextEditorPane.openFloatPanel(this.layout, conn, paths, defaultValue, mime, readonly);
     },
     getSelectedPaths: () => this.selectedPaths,
+    showModal: (modal: React.ReactElement) => this.setState({modal}),
   };
 
   selectedPaths: PropDispatcher<string[]> = new PropDispatcher();
@@ -308,6 +312,7 @@ class App extends React.PureComponent<Props, State> {
 
   render() {
     let {conn} = this.props;
+    let {modal} = this.state;
     return (
       <ConfigProvider locale={this.lngConfig}>
         <TicloLayoutContextType.Provider value={this.ticloContext}>
@@ -317,6 +322,7 @@ class App extends React.PureComponent<Props, State> {
             groups={layoutGroups}
             style={{position: 'absolute', left: 10, top: 10, right: 10, bottom: 10}}
           />
+          {modal}
         </TicloLayoutContextType.Provider>
       </ConfigProvider>
     );
