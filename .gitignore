@@ -6,6 +6,7 @@ node_modules
 /playground
 /.idea
 /.cache
+/.parcel-cache
 build
 /dist
 /src/**/*.js

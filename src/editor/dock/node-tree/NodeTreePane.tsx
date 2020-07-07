@@ -8,7 +8,6 @@ import ReloadIcon from '@ant-design/icons/ReloadOutlined';
 import {AddNewFlow} from './AddNewFlow';
 import {DragDropDiv, DragState} from 'rc-dock/lib';
 import {NodeTreeItem} from '../../node-tree/NodeRenderer';
-import {ClickParam} from 'antd/lib/menu';
 import {t} from '../../component/LocalizedLabel';
 import {showModal} from '../../popup/ShowModal';
 
@@ -52,7 +51,7 @@ export class NodeTreePane extends React.PureComponent<Props, State> {
     this._nodeTree?.reload();
   };
 
-  onAddNewFlowClick = (param: ClickParam) => {
+  onAddNewFlowClick = (param: any) => {
     let {conn} = this.props;
     let path = param.item.props.defaultValue;
     showModal(<AddNewFlow conn={conn} basePath={`${path}.`} />, this.context.showModal);

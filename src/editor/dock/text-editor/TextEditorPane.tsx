@@ -1,7 +1,6 @@
 import React from 'react';
 import {ClientConn, decode, encode, DataMap, isDataTruncated} from '../../../../src/core/editor';
 import {Menu, Dropdown, Button, Spin} from 'antd';
-import {ClickParam} from 'antd/lib/menu';
 import {UnControlled as CodeMirror} from 'react-codemirror2';
 import {Editor, EditorChange} from 'codemirror';
 
@@ -211,8 +210,8 @@ export class TextEditorPane extends React.PureComponent<Props, State> {
     }
   };
 
-  onReloadClick = (e: ClickParam) => {
-    this.loadData(e.key);
+  onReloadClick = (e: {key: React.Key}) => {
+    this.loadData(e.key as string);
   };
 
   onApply = () => {

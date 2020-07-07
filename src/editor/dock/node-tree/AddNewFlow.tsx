@@ -56,9 +56,6 @@ export class AddNewFlow extends LazyUpdateComponent<Props, State> {
   };
 
   onClose = () => {
-    let {name, data} = this.formItems;
-    name.setError(null);
-    data.setError(null);
     this.setState({visible: false});
   };
 

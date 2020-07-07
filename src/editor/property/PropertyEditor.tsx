@@ -9,55 +9,24 @@ import {
   getOutputDesc,
   ValueState,
   ValueUpdate,
-  blankPropDesc,
   FunctionDesc,
-  getDefaultFuncData,
   PropDesc,
-  PropGroupDesc,
   arrayEqual,
   deepEqual,
-  stopPropagation,
-  getTailingNumber,
-  Logger,
   ValueSubscriber,
   DataMap,
   isBindable,
   getSubBlockFuncData,
-  blankFuncDesc,
 } from '../../../src/core/editor';
 import {MultiSelectComponent, MultiSelectLoader} from './MultiSelectComponent';
-import {StringEditor} from './value/StringEditor';
-import {SelectEditor, MultiSelectEditor} from './value/SelectEditor';
-import {RadioButtonEditor} from './value/RadioButtonEditor';
 import {DragDropDiv, DragState} from 'rc-dock';
-import {PasswordEditor} from './value/PasswordEditor';
 import {ExpandIcon} from '../component/Tree';
 import {PropertyList} from './PropertyList';
-import {FunctionEditor} from './value/FunctionEditor';
-import {FunctionSelect} from '../function-selector/FunctionSelector';
-import {CheckboxChangeEvent} from 'antd/lib/checkbox';
-import {AddCustomPropertyMenu} from './AddCustomProperty';
-import {Popup, Menu, SubMenuItem} from '../component/ClickPopup';
 import {ServiceEditor} from './value/ServiceEditor';
-import {WorkerEditor} from './value/WorkerEditor';
-import {DynamicEditor, dynamicEditorMap} from './value/DynamicEditor';
 import {ReadonlyEditor} from './value/ReadonlyEditor';
-import {ComboEditor} from './value/ComboEditor';
 import {LocalizedPropertyName, t} from '../component/LocalizedLabel';
 import {PropertyDropdown} from '../popup/PropertyDropdown';
-
-const typeEditorMap: {[key: string]: any} = {
-  ...dynamicEditorMap,
-  'select': SelectEditor,
-  'multi-select': MultiSelectEditor,
-  'combo-box': ComboEditor,
-  'password': PasswordEditor,
-  'radio-button': RadioButtonEditor,
-  'type': FunctionEditor,
-  'worker': WorkerEditor,
-  'none': ReadonlyEditor,
-  'any': DynamicEditor,
-};
+import {typeEditorMap} from './value';
 
 class PropertyLoader extends MultiSelectLoader<PropertyEditor> {
   name: string;
@@ -456,25 +425,23 @@ export class PropertyEditor extends MultiSelectComponent<PropertyEditorProps, St
       if (!EditorClass) {
         EditorClass = ReadonlyEditor;
       }
-      if (EditorClass) {
-        let editorValue = value;
-        if (value === undefined && propDesc.default != null) {
-          editorValue = propDesc.default;
-        }
-        editor = (
-          <EditorClass
-            conn={conn}
-            keys={paths}
-            value={editorValue}
-            funcDesc={funcDesc}
-            desc={propDesc}
-            name={name}
-            locked={locked && !unlocked}
-            onChange={onChange}
-            addSubBlock={this.onAddSubBlock}
-          />
-        );
+      let editorValue = value;
+      if (value === undefined && propDesc.default != null) {
+        editorValue = propDesc.default;
       }
+      editor = (
+        <EditorClass
+          conn={conn}
+          keys={paths}
+          value={editorValue}
+          funcDesc={funcDesc}
+          desc={propDesc}
+          name={name}
+          locked={locked && !unlocked}
+          onChange={onChange}
+          addSubBlock={this.onAddSubBlock}
+        />
+      );
     }
 
     let nameClass = `ticl-property-name${propDesc.readonly ? ' ticl-property-readonly' : ''}${

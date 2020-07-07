@@ -9,7 +9,6 @@ import {ToggleEditor} from './ToggleEditor';
 import {ColorEditor} from './ColorEditor';
 import {DateEditor} from './DateEditor';
 import {DateRangeEditor} from './DateRangeEditor';
-import {ClickParam} from 'antd/lib/menu';
 import {ReadonlyEditor} from './ReadonlyEditor';
 import {ObjectEditor} from './ObjectEditor';
 import {SelectEditor} from './SelectEditor';
@@ -102,7 +101,7 @@ export class DynamicEditor extends React.PureComponent<ValueEditorProps, State> 
     onChange(value);
   };
 
-  onMenuClick = (param: ClickParam) => {
+  onMenuClick = (param: {key: React.Key}) => {
     this.setState({currentType: param.key as ValueType});
   };
 
