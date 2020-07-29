@@ -67,7 +67,7 @@ export const LocalizedPropCommand = ({
 }) => {
   useContext(TicloLayoutContextType);
   return (
-    <span>{translateFunction(funcDesc.id, `${funcDesc.name}.${propBaseName}.@commands.${command}`, funcDesc.ns)}</span>
+    <span>{translateProperty(`${funcDesc.name}.${propBaseName}.@commands`, command, funcDesc.ns)}</span>
   );
 };
 

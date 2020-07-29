@@ -4,6 +4,7 @@ import {FunctionSelect} from '../function-selector/FunctionSelector';
 import {
   blankFuncDesc,
   blankPropDesc,
+  DataMap,
   FunctionCommandDesc,
   FunctionDesc,
   getDefaultFuncData,
@@ -22,6 +23,7 @@ import {StringEditor} from '../property/value/StringEditor';
 import {AddCustomPropertyMenu} from '../property/AddCustomProperty';
 import {ClientConn} from '../../core/connect/ClientConn';
 import {CheckboxChangeEvent} from 'antd/lib/checkbox';
+import {ParameterInput} from './ParameterInput';
 
 interface Props {
   children: React.ReactElement;
@@ -43,6 +45,7 @@ const PendingUpdate = <div />;
 interface State {
   popupElement?: React.ReactElement | any;
   lastBindingPath: string;
+  modal?: React.ReactElement;
 }
 export class PropertyDropdown extends React.PureComponent<Props, State> {
   state: State = {lastBindingPath: null};
@@ -126,10 +129,33 @@ export class PropertyDropdown extends React.PureComponent<Props, State> {
     }
     this.closeMenu();
   };
+  onCloseCommandModal = () => {
+    this.setState({modal: null});
+  };
+
   onExeCommand(command: string) {
-    let {conn, paths, name, propDesc} = this.props;
+    let {conn, paths, name, funcDesc, propDesc} = this.props;
     let commandDesc = propDesc.commands[command];
     if (commandDesc.parameters?.length) {
+      let onConfirmCommandModal = (values: DataMap) => {
+        for (let path of paths) {
+          conn.executeCommand(path, command, {...values, property: name});
+        }
+        this.onCloseCommandModal();
+      };
+      let modal = (
+        <ParameterInput
+          title={
+            <LocalizedPropCommand key={command} funcDesc={funcDesc} propBaseName={propDesc.name} command={command} />
+          }
+          funcName={`${funcDesc.name}.${propDesc.name}.@commands.${command}`}
+          parameters={commandDesc.parameters}
+          ns={funcDesc.ns}
+          onOk={onConfirmCommandModal}
+          onCancel={this.onCloseCommandModal}
+        />
+      );
+      this.setState({modal});
     } else {
       for (let path of paths) {
         conn.executeCommand(path, command, {property: name});
@@ -299,16 +325,19 @@ export class PropertyDropdown extends React.PureComponent<Props, State> {
 
   render(): any {
     let {children} = this.props;
-    let {popupElement} = this.state;
+    let {popupElement, modal} = this.state;
     return (
-      <Popup
-        popup={popupElement}
-        trigger={['contextMenu']}
-        popupVisible={popupElement != null}
-        onPopupVisibleChange={this.onMenuVisibleChange}
-      >
-        {children}
-      </Popup>
+      <>
+        <Popup
+          popup={popupElement}
+          trigger={['contextMenu']}
+          popupVisible={popupElement != null}
+          onPopupVisibleChange={this.onMenuVisibleChange}
+        >
+          {children}
+        </Popup>
+        {modal}
+      </>
     );
   }
 }
