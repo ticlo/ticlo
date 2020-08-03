@@ -21,3 +21,7 @@ t('#global');
 t('#shared');
 t('#temp');
 t('#edit');
+
+t('-running-#');
+t('-passed-#');
+t('-failed-#');

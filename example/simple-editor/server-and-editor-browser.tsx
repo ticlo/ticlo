@@ -48,6 +48,7 @@ import enTestLocal from '../../i18n/test/en.json';
 import zhAntd from 'antd/lib/locale/zh_CN';
 import enAntd from 'antd/lib/locale/en_US';
 import {LocalizedLabel, t} from '../../src/editor/component/LocalizedLabel';
+import {FlowTestCase} from '../../src/test/FlowTestCase';
 
 const layoutGroups = {
   blockStage: {
@@ -355,6 +356,7 @@ class FlowStorage {
   let reactFlow = Root.instance.addFlow('example', reactData);
 
   let generalFlow = Root.instance.addFlow('example0', data);
+  FlowTestCase.create(Root.instance, 'test');
 
   // create some global blocks
   Root.instance._globalRoot.createBlock('^gAdd').setValue('#is', 'add');

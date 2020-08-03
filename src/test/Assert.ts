@@ -15,12 +15,12 @@ function convertActual(actual: any) {
 }
 
 export class AssertFunction extends BlockFunction {
-  _matchedOnce = false;
+  _matched = false;
   _called: any;
   onCall(val: any): boolean {
     if (val !== undefined) {
       this._called = val;
-      this._matchedOnce = false;
+      this._matched = false;
       this._data.deleteValue('@b-style');
     }
     return super.onCall(val);
@@ -31,7 +31,7 @@ export class AssertFunction extends BlockFunction {
       // in sync mode, must be called to run
       return;
     }
-    if (this._matchedOnce && this._data.getValue('matchMode') !== 'always-match') {
+    if (this._matched && this._data.getValue('matchMode') !== 'always-match') {
       return;
     }
     let compares: {expect: any; actual: any}[] = this._data.getArray('', 1, [EXPECT, ACTUAL]);
@@ -46,21 +46,20 @@ export class AssertFunction extends BlockFunction {
         break;
       }
     }
+    this._matched = matched;
     this._data.output(matched);
 
     if (this._data._flow instanceof FlowTestCase) {
-      let message: string = null;
-      if (!matched) {
-        message = this._data.getValue('@b-name');
-        if (!message || typeof message !== 'string') {
-          message = this._data._prop._name;
-        }
-      }
-      this._data._flow.updateResult(this._data, message);
+      // let message: string = null;
+      // if (!matched) {
+      //   message = this._data.getValue('@b-name');
+      //   if (!message || typeof message !== 'string') {
+      //     message = this._data._prop._name;
+      //   }
+      // }
+      this._data._flow.updateResult(this._data, matched);
     }
-
     if (matched) {
-      this._matchedOnce = true;
       updateObjectValue(this._data, '@b-style', {color: '4b2'});
     } else {
       updateObjectValue(this._data, '@b-style', {color: 'f44'});
@@ -102,7 +101,12 @@ Functions.add(
         defaultLen: 1,
         properties: [
           {name: ACTUAL, type: 'any', pinned: true},
-          {name: EXPECT, type: 'any', pinned: true, commands: {copyFromActual: {parameters: []}}},
+          {
+            name: EXPECT,
+            type: 'any',
+            pinned: true,
+            commands: {copyFromActual: {parameters: []}},
+          },
         ],
       },
       {name: 'matchMode', type: 'radio-button', options: ['match-once', 'always-match'], default: 'match-once'},

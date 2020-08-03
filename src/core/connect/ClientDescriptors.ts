@@ -74,4 +74,16 @@ export const clientDescriptors: FunctionDesc[] = [
     ns: 'flow',
     configs: ['#cacheMode', '#disabled'],
   },
+  {
+    priority: 0,
+    name: 'test-case',
+    id: 'flow:test-case',
+    properties: [],
+    icon: 'fas:vial',
+    color: 'fa1',
+    src: 'hidden',
+    ns: 'flow',
+    configs: ['#disabled'],
+    dynamicStyle: true,
+  },
 ];

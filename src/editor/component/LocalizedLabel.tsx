@@ -66,19 +66,20 @@ export const LocalizedPropCommand = ({
   command: string;
 }) => {
   useContext(TicloLayoutContextType);
-  return (
-    <span>{translateProperty(`${funcDesc.name}.${propBaseName}.@commands`, command, funcDesc.ns)}</span>
-  );
+  return <span>{translateProperty(`${funcDesc.name}.${propBaseName}.@commands`, command, funcDesc.ns)}</span>;
 };
 
 const specialNodeNamePrefix = /^#\w+\b/;
-function localizeNodeNamePrefix(match: string) {
+const specialNodeNamePostfix = /-\w+-#$/;
+function localizeNodeName(match: string) {
   return translateEditor(match);
 }
 export const LocalizedNodeName = ({name}: {name: string}) => {
   useContext(TicloLayoutContextType);
   if (TicloI18nSettings.shouldTranslateFunction) {
-    name = name.replace(specialNodeNamePrefix, localizeNodeNamePrefix);
+    name = name
+      .replace(specialNodeNamePrefix, localizeNodeName)
+      .replace(specialNodeNamePostfix, localizeNodeName);
   }
   return <span>{name}</span>;
 };
