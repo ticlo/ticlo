@@ -1,9 +1,10 @@
-import {Block, BlockFunction, BlockProperty, DataMap, Flow} from '../core';
+import {Block, BlockFunction, BlockProperty, DataMap, Flow, Root} from '../core';
 import {ConstTypeConfig, FlowConfigGenerators} from '../core/block/BlockConfigs';
 import {BlockConfig} from '../core/block/BlockProperty';
 import {WorkerFunction} from '../core/worker/WorkerFunction';
 import type {AssertFunction} from './Assert';
 import {updateObjectValue} from '../core/property-api/ObjectValue';
+import {FunctionOutput} from '../core/block/BlockFunction';
 
 export const FlowTestConfigGenerators: {[key: string]: typeof BlockProperty} = {
   ...FlowConfigGenerators,
@@ -11,16 +12,17 @@ export const FlowTestConfigGenerators: {[key: string]: typeof BlockProperty} = {
 };
 
 export class FlowTestCase extends Flow {
-  static timeoutMs = 1000;
   static create(
     parent: Block,
     field: string,
     src?: DataMap,
-    forceLoad = false,
-    applyChange?: (data: DataMap) => boolean
+    timeoutMs = -1,
+    applyChange?: (data: DataMap) => boolean,
+    onPass?: () => void,
+    onFail?: () => void
   ): FlowTestCase {
     let prop = parent.getProperty(field);
-    let testCase: FlowTestCase = new FlowTestCase(parent, null, prop);
+    let testCase: FlowTestCase = new FlowTestCase(parent, prop, timeoutMs, onPass, onFail);
 
     prop.setOutput(testCase);
 
@@ -29,6 +31,20 @@ export class FlowTestCase extends Flow {
       return testCase;
     } else {
       return null;
+    }
+  }
+
+  constructor(
+    parent: Block,
+    property: BlockProperty,
+    public timeoutMs: number,
+    public onPass: () => void,
+    public onFail: () => void
+  ) {
+    super(parent, null, property);
+    if (this.timeoutMs > 0) {
+      this._timeout = setTimeout(this.onTimeout, timeoutMs);
+      this.updateLabel('running');
     }
   }
 
@@ -46,9 +62,6 @@ export class FlowTestCase extends Flow {
   updateResult(testBlock: Block, result: boolean | null) {
     if (this.results.get(testBlock) === result) {
       return;
-    }
-    if (!this._timeout) {
-      this._timeout = setTimeout(this.onTimeout, FlowTestCase.timeoutMs);
     }
     if (result == null) {
       this.results.delete(testBlock);
@@ -69,6 +82,7 @@ export class FlowTestCase extends Flow {
     this._queueToRun = false;
     let passed = 0;
     let failed = 0;
+    let waiting = 0;
     for (let [block, msg] of this.results) {
       let f = block._function;
       if (f) {
@@ -79,17 +93,19 @@ export class FlowTestCase extends Flow {
         }
       }
     }
+    if (waiting > 0) {
+      return;
+    }
+    this.clearTimeout();
+
     if (failed > 0) {
-      if (!this._timeout) {
-        updateObjectValue(this, '@b-style', {color: 'f44'});
-        this.updateLabel('failed');
-      } else {
-        this.updateLabel('running');
-      }
+      updateObjectValue(this, '@b-style', {color: 'f44'});
+      this.updateLabel('failed');
+      this.onFail?.();
     } else {
-      this.clearTimeout();
       updateObjectValue(this, '@b-style', {color: '4b2'});
       this.updateLabel('passed');
+      this.onPass?.();
     }
   }
   onTimeout = () => {
@@ -110,6 +126,6 @@ export class FlowTestCase extends Flow {
   }
 
   updateLabel(stat: string) {
-    this.setValue('@b-name', `${this._prop._name}-${stat}-#`);
+    this.updateValue('@b-name', `${this._prop._name}-${stat}-#`);
   }
 }

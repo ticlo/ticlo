@@ -15,7 +15,7 @@ function convertActual(actual: any) {
 }
 
 export class AssertFunction extends BlockFunction {
-  _matched = false;
+  _matched?: boolean;
   _called: any;
   onCall(val: any): boolean {
     if (val !== undefined) {

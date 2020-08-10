@@ -283,33 +283,6 @@ class App extends React.PureComponent<Props, State> {
     return BlockStagePane.createDockTab(path, conn, this.onSelect, onSave);
   }
 
-  onDragBlock = (e: DragState) => {
-    let {conn} = this.props;
-    e.setData(
-      {
-        block: {
-          '#is': 'add',
-          '1': 4,
-          '@b-p': ['0', '1', 'output', '@b-p', '#is'],
-        },
-      },
-      conn
-    );
-    e.startDrag();
-  };
-  onDragSlider = (e: DragState) => {
-    let {conn} = this.props;
-    e.setData(
-      {
-        block: {
-          '#is': 'slider-view',
-          '@b-p': ['value'],
-        },
-      },
-      conn
-    );
-    e.startDrag();
-  };
 
   render() {
     let {conn} = this.props;
