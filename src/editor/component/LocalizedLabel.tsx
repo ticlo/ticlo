@@ -77,9 +77,7 @@ function localizeNodeName(match: string) {
 export const LocalizedNodeName = ({name}: {name: string}) => {
   useContext(TicloLayoutContextType);
   if (TicloI18nSettings.shouldTranslateFunction) {
-    name = name
-      .replace(specialNodeNamePrefix, localizeNodeName)
-      .replace(specialNodeNamePostfix, localizeNodeName);
+    name = name.replace(specialNodeNamePrefix, localizeNodeName).replace(specialNodeNamePostfix, localizeNodeName);
   }
   return <span>{name}</span>;
 };

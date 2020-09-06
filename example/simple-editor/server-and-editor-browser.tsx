@@ -283,7 +283,6 @@ class App extends React.PureComponent<Props, State> {
     return BlockStagePane.createDockTab(path, conn, this.onSelect, onSave);
   }
 
-
   render() {
     let {conn} = this.props;
     let {modal} = this.state;

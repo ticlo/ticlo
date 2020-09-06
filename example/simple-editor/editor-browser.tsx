@@ -63,7 +63,6 @@ interface State {
 
 WorkerFunction.registerType({'#is': ''}, {name: 'class1'}, 'WorkerEditor');
 
-
 class App extends React.PureComponent<Props, State> {
   state: State = {};
   defaultDockLayout: any;
@@ -222,7 +221,6 @@ class App extends React.PureComponent<Props, State> {
     let {conn} = this.props;
     return BlockStagePane.createDockTab(path, conn, this.onSelect, onSave);
   }
-
 
   render() {
     let {conn} = this.props;
