@@ -61,7 +61,7 @@
     "marked": "^1.2.2",
     "mocha": "^8.2.0",
     "nyc": "^15.1.0",
-    "parcel": "^1.12.4",
+    "parcel": "nightly",
     "prettier": "^2.1.2",
     "rc-dock": "^2.6.2",
     "rc-trigger": "^5.0.7",
@@ -94,9 +94,9 @@
     "build-package": "ts-node tool/build-package.ts",
     "test": "cross-env NODE_ENV=TEST mocha 'src/core/**/*.spec.ts' 'src/node/**/*.spec.ts'",
     "express-server": "node -r ts-node/register example/server/express-server",
-    "editor": "parcel serve example/simple-editor/editor-browser.html --open --out-dir temp --no-source-maps",
-    "server-and-editor-browser": "parcel serve example/simple-editor/server-and-editor-browser.html --open --out-dir temp --no-source-maps",
-    "browser-server": "parcel serve example/simple-editor/server.html example/simple-editor/editor-browser.html --open --out-dir temp --no-source-maps",
+    "editor": "parcel serve example/simple-editor/editor-browser.html --open --dist-dir temp --no-source-maps",
+    "server-and-editor-browser": "parcel serve example/simple-editor/server-and-editor-browser.html --open --dist-dir temp --no-source-maps",
+    "browser-server": "parcel serve example/simple-editor/server.html example/simple-editor/editor-browser.html --open --dist-dir temp --no-source-maps",
     "prettier-check": "prettier --check \"(src|tool|example)/**/*.+(ts|tsx|less)\"",
     "prettier-write": "prettier --write \"(src|tool|example)/**/*.+(ts|tsx|less)\""
   }
