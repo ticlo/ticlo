@@ -256,8 +256,7 @@ export class Flow extends Block {
     return false;
   }
 
-  cancelChange() {
-  }
+  cancelChange() {}
 
   liveUpdate(map: DataMap) {
     this._loading = true;
@@ -278,7 +277,7 @@ export class Flow extends Block {
 
 export const FlowConstConfigGenerators: {[key: string]: typeof BlockProperty} = {
   ...FlowConfigGenerators,
-  '#is': ConstTypeConfig('flow:const')
+  '#is': ConstTypeConfig('flow:const'),
 };
 
 class ConstBlock extends Flow {
