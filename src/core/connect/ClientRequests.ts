@@ -5,7 +5,7 @@ import {ClientConnection} from './ClientConnection';
 import {clientDescriptors} from './ClientDescriptors';
 
 export interface ClientCallbacks {
-  onDone?(): void;
+  onDone?(data?: any): void;
 
   onUpdate?(response: DataMap): void;
 
@@ -202,6 +202,7 @@ export class SubscribeRequest extends MergedClientRequest {
       }
     }
   }
+
   remove(callbacks: SubscribeCallbacks) {
     if (this._fullCallbackSet.has(callbacks)) {
       this._fullCallbackSet.delete(callbacks);
@@ -212,6 +213,7 @@ export class SubscribeRequest extends MergedClientRequest {
       super.remove(callbacks);
     }
   }
+
   isEmpty(): boolean {
     return super.isEmpty() && this._fullCallbackSet.size === 0;
   }
@@ -221,6 +223,7 @@ export class SubscribeRequest extends MergedClientRequest {
       this._getValueReqId = this.conn.getValue(this.path, this.fullValueCallbacks) as string;
     }
   }
+
   updateFullValue() {
     for (let callbacks of this._fullCallbackSet) {
       if (callbacks.onUpdate) {

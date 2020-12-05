@@ -199,7 +199,7 @@ export class PropertyDropdown extends React.PureComponent<Props, State> {
   };
 
   updateMenu() {
-    let {funcDesc, propDesc, bindingPath, group, conn, value, isCustom, display} = this.props;
+    let {funcDesc, propDesc, bindingPath, group, name, conn, value, isCustom, display} = this.props;
     let menuItems: React.ReactElement[] = [];
     if (!propDesc.readonly) {
       if (!bindingPath) {

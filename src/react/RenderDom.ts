@@ -17,7 +17,7 @@ export class RenderDomFunction extends BaseFunction {
     this._container = container;
     if (container) {
       return new Promise((resolve) => {
-        ReactDOM.render(component, container, resolve);
+        ReactDOM.render(component, container, () => resolve(null));
       });
     }
   }

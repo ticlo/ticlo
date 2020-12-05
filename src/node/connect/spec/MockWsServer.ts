@@ -13,7 +13,7 @@ export class MockWsServer {
   init(): Promise<any> {
     this.server.on('connection', this.onConnect);
     return new Promise((resolve, reject) => {
-      this.server.on('listening', () => resolve());
+      this.server.on('listening', () => resolve(null));
     });
   }
 

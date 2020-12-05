@@ -59,6 +59,7 @@ export class Flow extends Block {
   _flowDisabled() {
     this._disabledChanged(true);
   }
+
   // override default behavior, dont directly call _flowEnabled on children
   _flowEnabled() {
     this._disabledChanged(this.getValue('#disabled'));
@@ -73,6 +74,7 @@ export class Flow extends Block {
       }
     }
   }
+
   _enabledBlock() {
     this._applyFuncid(this._funcId);
     for (let [key, prop] of this._props) {
@@ -170,6 +172,7 @@ export class Flow extends Block {
     this._loading = false;
     return loaded;
   }
+
   _loadFlowData(map: DataMap, funcId?: string) {
     super._load(map);
     if (this._history) {
@@ -193,6 +196,7 @@ export class Flow extends Block {
     this.deleteValue('@has-undo');
     this.deleteValue('@has-redo');
   }
+
   trackChange() {
     if (this._applyChange) {
       if (this._history) {
@@ -202,9 +206,11 @@ export class Flow extends Block {
       }
     }
   }
+
   undo() {
     this._history?.undo();
   }
+
   redo() {
     this._history?.redo();
   }
@@ -249,7 +255,9 @@ export class Flow extends Block {
     }
     return false;
   }
-  cancelChange() {}
+
+  cancelChange() {
+  }
 
   liveUpdate(map: DataMap) {
     this._loading = true;
@@ -270,7 +278,7 @@ export class Flow extends Block {
 
 export const FlowConstConfigGenerators: {[key: string]: typeof BlockProperty} = {
   ...FlowConfigGenerators,
-  '#is': ConstTypeConfig('flow:const'),
+  '#is': ConstTypeConfig('flow:const')
 };
 
 class ConstBlock extends Flow {
@@ -376,7 +384,7 @@ export class Root extends Flow {
     return this._globalRoot.getProperty(name);
   }
 
-  addFlow(path?: string, data?: DataMap): Flow {
+  addFlow(path?: string, data?: DataMap, flowGenerator?: (prop: BlockProperty) => Flow): Flow {
     if (!path) {
       path = Block.nextUid();
     }
@@ -385,7 +393,12 @@ export class Root extends Flow {
       // invalid path
       return null;
     }
-    let newFlow = new FlowMain(prop._block, null, prop);
+    let newFlow: Flow;
+    if (flowGenerator) {
+      newFlow = flowGenerator(prop);
+    } else {
+      newFlow = new FlowMain(prop._block, null, prop);
+    }
     let propValue = prop._value;
     if (Array.isArray(propValue) && propValue.length === 3 && propValue.every((val) => typeof val === 'number')) {
       // overwrite @b-xyw value from parent flow
