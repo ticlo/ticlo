@@ -55,6 +55,11 @@ const layoutGroups = {
     animated: false,
     floatable: true,
   },
+  tool: {
+    floatable: true,
+    maximizable: true,
+    newWindow: true,
+  },
 };
 
 interface Props {
@@ -135,7 +140,7 @@ class App extends React.PureComponent<Props, State> {
               {
                 tabs: [
                   {
-                    id: 'Navigation',
+                    group: "tool", id: 'Navigation',
                     title: t('Navigation'),
                     cached: true,
                     content: (
@@ -149,13 +154,13 @@ class App extends React.PureComponent<Props, State> {
                     ),
                   },
                   {
-                    id: 'Test UI',
+                    group: "tool", id: 'Test UI',
                     title: 'Test UI',
                     cached: true,
                     content: <div id="main" />,
                   },
                   {
-                    id: 'Test Language',
+                    group: "tool", id: 'Test Language',
                     title: 'Test Language',
                     content: (
                       <div style={{margin: 12}}>
@@ -203,13 +208,13 @@ class App extends React.PureComponent<Props, State> {
               {
                 tabs: [
                   {
-                    id: 'Functions',
+                    group: "tool", id: 'Functions',
                     title: t('Functions'),
                     cached: true,
                     content: <FunctionSelect conn={conn} />,
                   },
                   {
-                    id: 'Properties',
+                    group: "tool", id: 'Properties',
                     title: t('Properties'),
                     cached: true,
                     content: <PropertyListPane conn={conn} />,
