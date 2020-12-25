@@ -1,6 +1,6 @@
 import Fs from 'fs';
 import Path from 'path';
-import {Flow, Root, encodeSorted, decode, DataMap, Storage} from '../../../src/core';
+import {Flow, Root, encodeSorted, decode, DataMap, Storage, BlockProperty} from '../../../src/core';
 import {WorkerFunction} from '../../core/worker/WorkerFunction';
 
 class FlowIOTask {
@@ -69,6 +69,7 @@ export class FileStorage implements Storage {
       return task;
     }
   }
+
   taskDone(task: FlowIOTask) {
     if (this.tasks.get(task.name) === task) {
       this.tasks.delete(task.name);
@@ -76,20 +77,36 @@ export class FileStorage implements Storage {
   }
 
   dir: string;
+
   constructor(dir: string) {
     this.dir = Path.resolve(dir);
+  }
+
+  getFlowLoader(name: string, flow: Flow): [(data: DataMap) => boolean, () => void] {
+    return [
+      (data: DataMap) => {
+        this.saveFlow(name, null, data);
+        return true;
+      },
+      () => this.deleteFlow(name),
+    ];
   }
 
   deleteFlow(name: string) {
     this.getTask(name).delete();
   }
+
   saveFlow(name: string, flow: Flow, data?: DataMap) {
+    // prevent saving in the middle of loading
+    if (!this._inited) return;
     if (!data) {
       data = flow.save();
     }
-    let str = encodeSorted(flow.save());
+    let str = encodeSorted(data);
     this.getTask(name).write(str);
   }
+
+  _inited = false;
   init(root: Root): void {
     let flowFiles: string[] = [];
     let functionFiles: string[] = [];
@@ -138,5 +155,6 @@ export class FileStorage implements Storage {
         // TODO Logger
       }
     }
+    this._inited = true;
   }
 }

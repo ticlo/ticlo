@@ -140,7 +140,8 @@ class App extends React.PureComponent<Props, State> {
               {
                 tabs: [
                   {
-                    group: "tool", id: 'Navigation',
+                    group: 'tool',
+                    id: 'Navigation',
                     title: t('Navigation'),
                     cached: true,
                     content: (
@@ -154,13 +155,15 @@ class App extends React.PureComponent<Props, State> {
                     ),
                   },
                   {
-                    group: "tool", id: 'Test UI',
+                    group: 'tool',
+                    id: 'Test UI',
                     title: 'Test UI',
                     cached: true,
                     content: <div id="main" />,
                   },
                   {
-                    group: "tool", id: 'Test Language',
+                    group: 'tool',
+                    id: 'Test Language',
                     title: 'Test Language',
                     content: (
                       <div style={{margin: 12}}>
@@ -208,13 +211,15 @@ class App extends React.PureComponent<Props, State> {
               {
                 tabs: [
                   {
-                    group: "tool", id: 'Functions',
+                    group: 'tool',
+                    id: 'Functions',
                     title: t('Functions'),
                     cached: true,
                     content: <FunctionSelect conn={conn} />,
                   },
                   {
-                    group: "tool", id: 'Properties',
+                    group: 'tool',
+                    id: 'Properties',
                     title: t('Properties'),
                     cached: true,
                     content: <PropertyListPane conn={conn} />,

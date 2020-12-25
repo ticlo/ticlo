@@ -10,6 +10,8 @@ import {Functions} from './Functions';
 import {Storage} from './Storage';
 import {FlowHistory} from './FlowHistory';
 
+const emptyObject = {};
+
 export class Flow extends Block {
   _namespace: string;
   // function id, when Flow is loaded from a function
@@ -405,21 +407,13 @@ export class Root extends Flow {
     }
     if (this._storage) {
       if (!data) {
-        data = {};
+        data = emptyObject;
       }
-      let loader = this._storage;
-      newFlow.load(
-        data,
-        null,
-        (saveData) => {
-          loader.saveFlow(path, newFlow, saveData);
-          return true;
-        },
-        () => {
-          loader.deleteFlow(path);
-        }
-      );
-      this._storage.saveFlow(path, newFlow, data);
+      let storage = this._storage;
+      newFlow.load(data, null, ...storage.getFlowLoader(path, newFlow));
+      if (data !== emptyObject) {
+        this._storage.saveFlow(path, newFlow, data);
+      }
     } else {
       if (data) {
         newFlow.load(data);

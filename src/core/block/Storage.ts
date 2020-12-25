@@ -7,4 +7,7 @@ export interface Storage {
   saveFlow(name: string, flow: Flow, data: DataMap): void;
 
   init(root: Root): any; // void or promise
+
+  // return [applyChange,onDestroy] of a flow
+  getFlowLoader(name: string, flow: Flow): [(data: DataMap) => boolean, () => void];
 }
