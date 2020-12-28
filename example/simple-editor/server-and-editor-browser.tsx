@@ -320,6 +320,9 @@ class FlowStorage {
   }
 
   init(root: Root): void {}
+  getFlowLoader(name: string, flow: Flow): [(data: DataMap) => boolean, () => void] {
+    return [undefined, undefined];
+  }
 }
 
 (async () => {

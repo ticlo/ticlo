@@ -7,7 +7,8 @@ import {
   BlockPropertySubscriber,
   HelperProperty,
 } from '../block/BlockProperty';
-import {DataMap, isPrimitiveType, truncateData} from '../util/DataTypes';
+import {DataMap, isPrimitiveType} from '../util/DataTypes';
+import {truncateData} from '../util/DataTruncate';
 import {Block, BlockChildWatch, InputsBlock} from '../block/Block';
 import {Flow, Root} from '../block/Flow';
 import {FlowWithShared, SharedBlock, SharedConfig} from '../block/SharedBlock';
