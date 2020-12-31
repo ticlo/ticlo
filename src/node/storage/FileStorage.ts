@@ -1,9 +1,10 @@
 import Fs from 'fs';
 import Path from 'path';
 import {Flow, Root, encodeSorted, decode, DataMap, Storage, BlockProperty} from '../../../src/core';
-import {WorkerFunction} from '../../core/worker/WorkerFunction';
+import {WorkerFunction} from '../../../src/core/worker/WorkerFunction';
+import {FlowLoader} from '../../../src/core/block/Flow';
 
-class FlowIOTask {
+export class FlowIOTask {
   current?: 'write' | 'delete';
   next?: 'write' | 'delete';
   nextData: string;
@@ -82,14 +83,14 @@ export class FileStorage implements Storage {
     this.dir = Path.resolve(dir);
   }
 
-  getFlowLoader(name: string, flow: Flow): [(data: DataMap) => boolean, () => void] {
-    return [
-      (data: DataMap) => {
+  getFlowLoader(name: string, prop: BlockProperty): FlowLoader {
+    return {
+      applyChange: (data: DataMap) => {
         this.saveFlow(name, null, data);
         return true;
       },
-      () => this.deleteFlow(name),
-    ];
+      onDestroy: () => this.deleteFlow(name),
+    };
   }
 
   deleteFlow(name: string) {
@@ -97,8 +98,6 @@ export class FileStorage implements Storage {
   }
 
   saveFlow(name: string, flow: Flow, data?: DataMap) {
-    // prevent saving in the middle of loading
-    if (!this._inited) return;
     if (!data) {
       data = flow.save();
     }
@@ -106,7 +105,7 @@ export class FileStorage implements Storage {
     this.getTask(name).write(str);
   }
 
-  _inited = false;
+  inited = false;
   init(root: Root): void {
     let flowFiles: string[] = [];
     let functionFiles: string[] = [];
@@ -155,6 +154,6 @@ export class FileStorage implements Storage {
         // TODO Logger
       }
     }
-    this._inited = true;
+    this.inited = true;
   }
 }

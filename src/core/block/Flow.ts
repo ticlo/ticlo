@@ -10,7 +10,11 @@ import {Functions} from './Functions';
 import {Storage} from './Storage';
 import {FlowHistory} from './FlowHistory';
 
-const emptyObject = {};
+export interface FlowLoader {
+  createFlow?(prop: BlockProperty): Flow;
+  applyChange?(data: DataMap): boolean;
+  onDestroy?(): void;
+}
 
 export class Flow extends Block {
   _namespace: string;
@@ -335,8 +339,8 @@ export class Root extends Flow {
 
   async setStorage(storage: Storage) {
     Functions.setStorage(storage);
-    await storage.init(this);
     this._storage = storage;
+    await storage.init(this);
   }
 
   _run = () => {
@@ -385,7 +389,7 @@ export class Root extends Flow {
     return this._globalRoot.getProperty(name);
   }
 
-  addFlow(path?: string, data?: DataMap, flowGenerator?: (prop: BlockProperty) => Flow): Flow {
+  addFlow(path?: string, data?: DataMap, loader?: FlowLoader): Flow {
     if (!path) {
       path = Block.nextUid();
     }
@@ -394,9 +398,12 @@ export class Root extends Flow {
       // invalid path
       return null;
     }
+    if (!loader && this._storage) {
+      loader = this._storage.getFlowLoader(path, prop);
+    }
     let newFlow: Flow;
-    if (flowGenerator) {
-      newFlow = flowGenerator(prop);
+    if (loader?.createFlow) {
+      newFlow = loader.createFlow(prop);
     } else {
       newFlow = new FlowMain(prop._block, null, prop);
     }
@@ -405,13 +412,12 @@ export class Root extends Flow {
       // overwrite @b-xyw value from parent flow
       data = {...data, '@b-xyw': propValue};
     }
-    if (this._storage) {
+    if (loader) {
       if (!data) {
-        data = emptyObject;
+        data = {};
       }
-      let storage = this._storage;
-      newFlow.load(data, null, ...storage.getFlowLoader(path, newFlow));
-      if (data !== emptyObject) {
+      newFlow.load(data, null, loader.applyChange, loader.onDestroy);
+      if (this._storage?.inited && Object.keys(data).length) {
         this._storage.saveFlow(path, newFlow, data);
       }
     } else {

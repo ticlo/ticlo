@@ -38,8 +38,8 @@ export class FlowTestCase extends Flow {
     parent: Block,
     property: BlockProperty,
     public timeoutMs: number,
-    public onPass: () => void,
-    public onFail: () => void
+    public onPass?: () => void,
+    public onFail?: () => void
   ) {
     super(parent, null, property);
     if (this.timeoutMs > 0) {

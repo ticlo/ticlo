@@ -86,4 +86,16 @@ export const clientDescriptors: FunctionDesc[] = [
     configs: ['#disabled'],
     dynamicStyle: true,
   },
+  {
+    priority: 0,
+    name: 'test-group',
+    id: 'flow:test-group',
+    properties: [],
+    icon: 'fas:vials',
+    color: 'fa1',
+    src: 'hidden',
+    ns: 'flow',
+    configs: ['#disabled'],
+    dynamicStyle: true,
+  },
 ];

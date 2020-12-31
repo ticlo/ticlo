@@ -1,13 +1,16 @@
-import {Flow, Root} from './Flow';
+import {Block} from './Block';
+import {Flow, FlowLoader, Root} from './Flow';
 import {DataMap} from '../util/DataTypes';
+import {BlockProperty} from './BlockProperty';
 
 export interface Storage {
   deleteFlow(name: string): void;
 
   saveFlow(name: string, flow: Flow, data: DataMap): void;
 
+  inited?: boolean;
   init(root: Root): any; // void or promise
 
   // return [applyChange,onDestroy] of a flow
-  getFlowLoader(name: string, flow: Flow): [(data: DataMap) => boolean, () => void];
+  getFlowLoader(name: string, prop: BlockProperty): FlowLoader;
 }

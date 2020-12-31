@@ -1,7 +1,21 @@
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import {Checkbox, ConfigProvider, Switch} from 'antd';
-import {Block, DataMap, decode, encodeSorted, FunctionDesc, Flow, PropDesc, Root} from '../../src/core';
+import {
+  Block,
+  DataMap,
+  decode,
+  encodeSorted,
+  FunctionDesc,
+  Functions,
+  Logger,
+  PropDispatcher,
+  Flow,
+  PropDesc,
+  Root,
+  Storage,
+  BlockProperty,
+} from '../../src/core';
 import {TicloI18nSettings} from '../../src/core/editor';
 import {makeLocalConnection} from '../../src/core/connect/LocalConnection';
 import {data} from '../sample-data/data';
@@ -9,15 +23,11 @@ import reactData from '../sample-data/react';
 import {initEditor, PropertyList, BlockStage, NodeTree} from '../../src/editor';
 import {DragDropDiv, DragState, DockLayout, DockContextType} from 'rc-dock';
 import {ClientConnection} from '../../src/core/connect/ClientConnection';
-import {Functions} from '../../src/core/block/Functions';
-import {FunctionTree} from '../../src/editor/function-selector/FunctionTree';
 
 import './sample-blocks';
-import {Logger} from '../../src/core/util/Logger';
 import {WorkerFunction} from '../../src/core/worker/WorkerFunction';
 import {BlockStagePane} from '../../src/editor/dock/block/BlockStagePane';
 import {TicloLayoutContext, TicloLayoutContextType} from '../../src/editor/component/LayoutContext';
-import {PropDispatcher} from '../../src/core/block/Dispatcher';
 import {PropertyListPane} from '../../src/editor/dock/property/PropertyListPane';
 import {NodeTreePane} from '../../src/editor/dock/node-tree/NodeTreePane';
 import {TextEditorPane} from '../../src/editor/dock/text-editor/TextEditorPane';
@@ -49,6 +59,7 @@ import zhAntd from 'antd/lib/locale/zh_CN';
 import enAntd from 'antd/lib/locale/en_US';
 import {LocalizedLabel, t} from '../../src/editor/component/LocalizedLabel';
 import {FlowTestCase} from '../../src/test/FlowTestCase';
+import {FlowLoader} from '../../src/core/block/Flow';
 
 const layoutGroups = {
   blockStage: {
@@ -312,7 +323,7 @@ class App extends React.PureComponent<Props, State> {
   }
 }
 
-class FlowStorage {
+class FlowStorage implements Storage {
   deleteFlow(name: string) {}
 
   saveFlow(name: string, flow: Flow, data?: DataMap) {
@@ -320,8 +331,8 @@ class FlowStorage {
   }
 
   init(root: Root): void {}
-  getFlowLoader(name: string, flow: Flow): [(data: DataMap) => boolean, () => void] {
-    return [undefined, undefined];
+  getFlowLoader(name: string, prop: BlockProperty) {
+    return {};
   }
 }
 
