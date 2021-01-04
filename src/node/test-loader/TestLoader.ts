@@ -104,7 +104,7 @@ export class TestLoader extends FileStorage {
         let path = Path.join(dir, file);
         let stat = Fs.statSync(path);
         if (stat.isDirectory()) {
-          if (file !== 'spec') {
+          if (file !== 'spec' && file !== 'i18n') {
             iterateDir(path, `${blockPath}.${file}`);
           }
         }
