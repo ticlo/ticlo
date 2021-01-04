@@ -1,8 +1,9 @@
-import {Block, BlockFunction, DataMap, Functions, encode, decode, NO_EMIT} from '../../src/core';
+import {Block, BlockFunction, decode, encode, Functions, NO_EMIT} from '../../src/core';
 import {deepEqual} from '../../src/core/util/Compare';
 import {isPrimitiveType} from '../../src/core/util/DataTypes';
 import {updateObjectValue} from '../../src/core/property-api/ObjectValue';
 import {FlowTestCase} from './FlowTestCase';
+import {TestState} from './Interface';
 
 const EXPECT = 'expect';
 const ACTUAL = 'actual';
@@ -15,23 +16,39 @@ function convertActual(actual: any) {
 }
 
 export class AssertFunction extends BlockFunction {
-  _matched?: boolean;
-  _called: any;
+  _state: TestState;
   onCall(val: any): boolean {
     if (val !== undefined) {
-      this._called = val;
-      this._matched = false;
+      this.changeTestState(TestState.RUNNING);
       this._data.deleteValue('@b-style');
     }
     return super.onCall(val);
   }
 
-  run(): any {
-    if (this._data._sync && !this._called) {
-      // in sync mode, must be called to run
-      return;
+  changeTestState(state: TestState) {
+    if (state !== this._state) {
+      this._state = state;
+      this.notifyParent();
     }
-    if (this._matched && this._data.getValue('matchMode') !== 'always-match') {
+  }
+  notifyParent() {
+    if (this._data._flow instanceof FlowTestCase) {
+      // let message: string = null;
+      // if (!matched) {
+      //   message = this._data.getValue('@b-name');
+      //   if (!message || typeof message !== 'string') {
+      //     message = this._data._prop._name;
+      //   }
+      // }
+      this._data._flow.updateTestState(this._data, this._state);
+    }
+  }
+  run(): any {
+    // if (this._data._sync && !this._called) {
+    //   // in sync mode, must be called to run
+    //   return;
+    // }
+    if (this._state === TestState.PASSED && this._data.getValue('matchMode') !== 'always-match') {
       return;
     }
     let compares: {expect: any; actual: any}[] = this._data.getArray('', 1, [EXPECT, ACTUAL]);
@@ -46,19 +63,9 @@ export class AssertFunction extends BlockFunction {
         break;
       }
     }
-    this._matched = matched;
+    this.changeTestState(matched ? TestState.PASSED : TestState.FAILED);
     this._data.output(matched);
 
-    if (this._data._flow instanceof FlowTestCase) {
-      // let message: string = null;
-      // if (!matched) {
-      //   message = this._data.getValue('@b-name');
-      //   if (!message || typeof message !== 'string') {
-      //     message = this._data._prop._name;
-      //   }
-      // }
-      this._data._flow.updateResult(this._data, matched);
-    }
     if (matched) {
       updateObjectValue(this._data, '@b-style', {color: '4b2'});
     } else {
@@ -68,9 +75,7 @@ export class AssertFunction extends BlockFunction {
   }
   cleanup(): void {
     this._data.deleteValue('@b-style');
-    if (this._data._flow instanceof FlowTestCase) {
-      this._data._flow.updateResult(this._data, null);
-    }
+    this.changeTestState(TestState.REMOVED);
   }
 }
 

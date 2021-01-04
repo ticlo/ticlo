@@ -96,7 +96,7 @@
     "test": "cross-env NODE_ENV=TEST mocha 'src/core/**/*.spec.ts' 'src/node/**/*.spec.ts'",
     "express-server": "node -r ts-node/register example/server/express-server",
     "express-test-server": "node -r ts-node/register example/test-server/test-server",
-    "editor-browser": "parcel serve example/simple-editor/editor-browser.html --open --dist-dir temp --no-source-maps",
+    "editor-browser": "parcel serve example/simple-editor/editor-browser.html --open --dist-dir temp --no-source-maps --no-hmr",
     "server-and-editor-browser": "parcel serve example/simple-editor/server-and-editor-browser.html --open --dist-dir temp --no-source-maps --no-hmr",
     "browser-server": "parcel serve example/simple-editor/server.html example/simple-editor/editor-browser.html --open --dist-dir temp --no-source-maps",
     "prettier-check": "prettier --check \"(src|tool|example)/**/*.+(ts|tsx|less)\"",

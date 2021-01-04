@@ -92,7 +92,7 @@ export const clientDescriptors: FunctionDesc[] = [
     id: 'flow:test-group',
     properties: [],
     icon: 'fas:vials',
-    color: 'fa1',
+    color: '999',
     src: 'hidden',
     ns: 'flow',
     configs: ['#disabled'],

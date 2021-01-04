@@ -1,46 +1,17 @@
-import {Block, BlockFunction, BlockProperty, DataMap, Flow, Root} from '../core';
+import {Block, BlockProperty, DataMap, Flow} from '../core';
 import {ConstTypeConfig, FlowConfigGenerators} from '../core/block/BlockConfigs';
 import {BlockConfig} from '../core/block/BlockProperty';
-import {WorkerFunction} from '../core/worker/WorkerFunction';
 import type {AssertFunction} from './Assert';
 import {updateObjectValue} from '../core/property-api/ObjectValue';
-import {FunctionOutput} from '../core/block/BlockFunction';
+import {TestsRunner, TestState} from './Interface';
 
 export const FlowTestConfigGenerators: {[key: string]: typeof BlockProperty} = {
   ...FlowConfigGenerators,
   '#is': ConstTypeConfig('flow:test-case'),
 };
 
-export class FlowTestCase extends Flow {
-  static create(
-    parent: Block,
-    field: string,
-    src?: DataMap,
-    timeoutMs = -1,
-    applyChange?: (data: DataMap) => boolean,
-    onPass?: () => void,
-    onFail?: () => void
-  ): FlowTestCase {
-    let prop = parent.getProperty(field);
-    let testCase: FlowTestCase = new FlowTestCase(parent, prop, timeoutMs, onPass, onFail);
-
-    prop.setOutput(testCase);
-
-    let success = testCase.load(src, null, applyChange);
-    if (success) {
-      return testCase;
-    } else {
-      return null;
-    }
-  }
-
-  constructor(
-    parent: Block,
-    property: BlockProperty,
-    public timeoutMs: number,
-    public onPass?: () => void,
-    public onFail?: () => void
-  ) {
+export class FlowTestCase extends Flow implements TestsRunner {
+  constructor(parent: Block, property: BlockProperty, public timeoutMs: number, public testParent?: TestsRunner) {
     super(parent, null, property);
     if (this.timeoutMs > 0) {
       this._timeout = setTimeout(this.onTimeout, timeoutMs);
@@ -56,14 +27,15 @@ export class FlowTestCase extends Flow {
     }
   }
 
-  results = new Map<Block, boolean>();
+  results = new Map<Block, TestState>();
 
   _timeout: any;
-  updateResult(testBlock: Block, result: boolean | null) {
+  _timeouted = false;
+  updateTestState(testBlock: Block, result: TestState) {
     if (this.results.get(testBlock) === result) {
       return;
     }
-    if (result == null) {
+    if (result === TestState.REMOVED) {
       this.results.delete(testBlock);
     } else {
       this.results.set(testBlock, result);
@@ -83,33 +55,45 @@ export class FlowTestCase extends Flow {
     let passed = 0;
     let failed = 0;
     let waiting = 0;
-    for (let [block, msg] of this.results) {
-      let f = block._function;
-      if (f) {
-        if ((f as AssertFunction)._matched) {
+    for (let [block, state] of this.results) {
+      switch (state) {
+        case TestState.PASSED: {
           ++passed;
-        } else {
+          break;
+        }
+        case TestState.FAILED: {
           ++failed;
+          break;
+        }
+        case TestState.NEW:
+        case TestState.RUNNING: {
+          ++waiting;
+          break;
+        }
+        // case TestState.DISABLED:
+        default: {
+          // void
         }
       }
     }
-    if (waiting > 0) {
+    if (waiting > 0 && !this._timeouted) {
       return;
     }
     this.clearTimeout();
 
-    if (failed > 0) {
+    if (failed > 0 || this._timeouted) {
       updateObjectValue(this, '@b-style', {color: 'f44'});
       this.updateLabel('failed');
-      this.onFail?.();
+      this.testParent?.updateTestState(this, TestState.FAILED);
     } else {
       updateObjectValue(this, '@b-style', {color: '4b2'});
       this.updateLabel('passed');
-      this.onPass?.();
+      this.testParent?.updateTestState(this, TestState.PASSED);
     }
   }
   onTimeout = () => {
     this._timeout = null;
+    this._timeouted = true;
     this._queueFunction();
   };
   clearTimeout() {
@@ -120,9 +104,7 @@ export class FlowTestCase extends Flow {
   }
   destroy() {
     this.clearTimeout();
-    if (this._flow instanceof FlowTestCase) {
-      this._flow.updateResult(this, null);
-    }
+    this.testParent?.updateTestState(this, TestState.REMOVED);
   }
 
   updateLabel(stat: string) {

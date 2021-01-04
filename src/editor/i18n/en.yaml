@@ -17,9 +17,9 @@
 '#shared': '#shared'
 '#temp': '#temp'
 '#edit': '#edit'
-'-running-#': ' ( running )'
-'-passed-#': ' ( passed )'
-'-failed-#': ' ( failed )'
+'-running-#': ' ( running{{- detail}} )'
+'-passed-#': ' ( passed{{- detail}} )'
+'-failed-#': ' ( failed{{- detail}} )'
 
 # AddNewFlow.tsx & NodeTreePane.tsx
 'New Dataflow': 'New Dataflow'

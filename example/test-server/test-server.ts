@@ -1,5 +1,6 @@
 import Express from 'express';
 import {Root} from '../../src/core';
+import '../../src/test';
 import {connectTiclo, routeTiclo, getEditorUrl} from '../../src/express';
 import {data} from '../sample-data/data';
 import {TestLoader} from '../../src/node/test-loader/TestLoader';

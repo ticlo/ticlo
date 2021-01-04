@@ -17,9 +17,9 @@
 '#shared': "#公用"
 '#temp': "#临时"
 '#edit': "#编辑"
-'-running-#': ' (运行中)'
-'-passed-#': ' (通过)'
-'-failed-#':  ' (失败)'
+'-running-#': ' ( 运行中{{- detail}} )'
+'-passed-#': ' ( 通过{{- detail}} )'
+'-failed-#':  ' ( 失败{{- detail}} )'
 
 # AddNewFlow.tsx & NodeTreePane.tsx
 'New Dataflow': 新建数据流

@@ -56,7 +56,7 @@ export class TestLoader extends FileStorage {
   getFlowLoader(name: string, prop: BlockProperty): FlowLoader {
     if (prop == null || prop._block instanceof FlowTestGroup) {
       return {
-        createFlow: (p: BlockProperty) => new FlowTestCase(p._block, p, this.timeout),
+        createFlow: (p: BlockProperty) => new FlowTestCase(p._block, p, this.timeout, p._block as FlowTestGroup),
         applyChange: (data: DataMap) => {
           this.saveFlow(name, null, data);
           return true;
@@ -67,10 +67,15 @@ export class TestLoader extends FileStorage {
     return {};
   }
   init(root: Root): void {
+    const testGroupLoader = {
+      createFlow: (p: BlockProperty) =>
+        new FlowTestGroup(p._block, p, this.timeout, p._block instanceof FlowTestGroup ? p._block : null),
+    };
+
     let flowFiles: string[] = [];
     // let functionFiles: string[] = [];
 
-    const loadSpec = (dir: string, blockPath: string) => {
+    const loadSpec = (dir: string, parentBlockPath: string) => {
       let specDir = Path.join(dir, 'spec');
       if (Fs.existsSync(specDir)) {
         let stat = Fs.statSync(specDir);
@@ -80,7 +85,8 @@ export class TestLoader extends FileStorage {
               try {
                 let data = decode(Fs.readFileSync(Path.join(specDir, file), 'utf8'));
                 let name = file.substring(0, file.length - 6);
-                root.addFlow(`${blockPath}.${name}`, data, this.getFlowLoader(name, null));
+                let blockPath = `${parentBlockPath}.${name}`;
+                root.addFlow(blockPath, data, this.getFlowLoader(blockPath, null));
               } catch (e) {
                 console.log(`failed to load test:${file} ${e.toString()}`);
               }
@@ -90,7 +96,7 @@ export class TestLoader extends FileStorage {
       }
     };
     const iterateDir = (dir: string, blockPath: string) => {
-      root.addFlow(blockPath, {}, {createFlow: (prop: BlockProperty) => new FlowTestGroup(prop._block, null, prop)});
+      root.addFlow(blockPath, {}, testGroupLoader);
       for (let file of Fs.readdirSync(dir)) {
         if (file.includes('.')) {
           continue;
@@ -105,7 +111,7 @@ export class TestLoader extends FileStorage {
       }
       loadSpec(dir, blockPath);
     };
-    root.addFlow('tests', {});
+    root.addFlow('tests', {}, testGroupLoader);
     for (let [flow, path] of this.flowToPathMap) {
       iterateDir(path, `tests.${flow}`);
     }

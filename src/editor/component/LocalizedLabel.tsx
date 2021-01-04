@@ -71,12 +71,13 @@ export const LocalizedPropCommand = ({
 
 const specialNodeNamePrefix = /^#\w+\b/;
 const specialNodeNamePostfix = /-\w+-#$/;
-function localizeNodeName(match: string) {
-  return translateEditor(match);
-}
-export const LocalizedNodeName = ({name}: {name: string}) => {
+
+export const LocalizedNodeName = ({name, options}: {name: string; options?: any}) => {
   useContext(TicloLayoutContextType);
   if (TicloI18nSettings.shouldTranslateFunction) {
+    function localizeNodeName(match: string) {
+      return translateEditor(match, options);
+    }
     name = name.replace(specialNodeNamePrefix, localizeNodeName).replace(specialNodeNamePostfix, localizeNodeName);
   }
   return <span>{name}</span>;
