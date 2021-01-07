@@ -47,6 +47,7 @@ export class FlowTestGroup extends Flow implements TestsRunner {
   passed = 0;
   failed = 0;
   waiting = 0;
+
   run() {
     this._queueToRun = false;
     let passed = 0;

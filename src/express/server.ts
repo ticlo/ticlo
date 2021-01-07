@@ -7,6 +7,12 @@ import {ServerFunction} from './ServerFunction';
 // force import
 console.log(ServerFunction);
 
+/**
+ * open a port for the http:express-server service
+ * @param app
+ * @param basePath
+ * @param globalBlockName
+ */
 export function routeTiclo(app: Express.Application, basePath: string, globalBlockName: string = 'server') {
   if (!globalBlockName.startsWith('^')) {
     globalBlockName = '^' + globalBlockName;
@@ -20,6 +26,11 @@ export function routeTiclo(app: Express.Application, basePath: string, globalBlo
   });
 }
 
+/**
+ * open a websocket port for the editor
+ * @param app
+ * @param routeTicloPath
+ */
 export function connectTiclo(app: Express.Application, routeTicloPath: string) {
   let expressWs = ExpressWs(app);
   let wsapp = expressWs.app;

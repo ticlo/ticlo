@@ -115,7 +115,7 @@ Functions.add(
         ],
       },
       {name: 'matchMode', type: 'radio-button', options: ['match-once', 'always-match'], default: 'match-once'},
-      {name: '#output', type: 'toggle', readonly: true, pinned: true},
+      {name: '#output', type: 'toggle', readonly: true, pinned: false},
     ],
     dynamicStyle: true,
   },

@@ -1,11 +1,12 @@
 import Express from 'express';
-import {Root} from '../../src/core';
-import '../../src/test';
-import {connectTiclo, routeTiclo, getEditorUrl} from '../../src/express';
-import {TestLoader} from '../../src/node/test-loader/TestLoader';
+import {Root} from '../src/core';
+import '../src/test';
+import '../src/node';
+import {connectTiclo, routeTiclo, getEditorUrl} from '../src/express';
+import {TestLoader} from '../src/node/test-loader/TestLoader';
 
 (async () => {
-  await Root.instance.setStorage(new TestLoader(['./src/core', './src/express', './src/node']));
+  await Root.instance.setStorage(new TestLoader(['./src/core', './src/express', './src/node', './src/http']));
 
   let app = Express();
   connectTiclo(app, '/ticlo');

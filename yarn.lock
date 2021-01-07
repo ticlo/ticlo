@@ -7287,10 +7287,10 @@ rc-dialog@~8.4.0:
     rc-motion "^2.3.0"
     rc-util "^5.0.1"
 
-rc-dock@^3.0.0-alpha.3:
-  version "3.0.0-alpha.3"
-  resolved "https://registry.yarnpkg.com/rc-dock/-/rc-dock-3.0.0-alpha.3.tgz#533f86195fde974ce254f708e3fccc0c88d1e412"
-  integrity sha512-+wVfOuGewHBhEuJS5+/5/FBmQ+WL/28e9rqGypnwYTd4Zr7EzpnImyJ5TGEM4Fn2QlrvUoYX2VYz5Xwjb5XlOA==
+rc-dock@^3.0.0:
+  version "3.0.0"
+  resolved "https://registry.yarnpkg.com/rc-dock/-/rc-dock-3.0.0.tgz#ee15b0e308db7a9c2360b31eb4cd8d6f19192788"
+  integrity sha512-dSaRNkdhHsf3v1JyNvLjW/6N51cI7bjR74cK1JdxYTaqrDaQEm1h1Sep8ThX0EplR8HjsvV1zR/fcjTn7cl5ag==
   dependencies:
     classnames "^2.2.6"
     lodash "^4.17.20"

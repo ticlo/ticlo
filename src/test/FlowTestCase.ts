@@ -13,10 +13,19 @@ export const FlowTestConfigGenerators: {[key: string]: typeof BlockProperty} = {
 export class FlowTestCase extends Flow implements TestsRunner {
   constructor(parent: Block, property: BlockProperty, public timeoutMs: number, public testParent?: TestsRunner) {
     super(parent, null, property);
+    this.updateValue('#disabled', true);
+  }
+
+  start() {
     if (this.timeoutMs > 0) {
-      this._timeout = setTimeout(this.onTimeout, timeoutMs);
-      this.updateLabel('running');
+      this._timeout = setTimeout(this.onTimeout, this.timeoutMs);
     }
+    this.updateLabel('running');
+    this.updateValue('#disabled', undefined);
+  }
+
+  load(src: DataMap, funcId?: string, applyChange?: (data: DataMap) => boolean, onDestory?: () => void): boolean {
+    return super.load(src, funcId, applyChange, onDestory);
   }
 
   _createConfig(field: string): BlockProperty {
@@ -48,7 +57,7 @@ export class FlowTestCase extends Flow implements TestsRunner {
     if (this._controlPriority >= 0) {
       return this._controlPriority;
     }
-    return 3;
+    return 2;
   }
   run() {
     this._queueToRun = false;
