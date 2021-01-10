@@ -5,7 +5,7 @@ import {WsServerConnection} from '../../src/node';
 import {ServerFunction} from './ServerFunction';
 
 // force import
-()=>{}(ServerFunction);
+((v: any) => {})(ServerFunction);
 
 /**
  * open a port for the http:express-server service
