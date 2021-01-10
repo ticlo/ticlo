@@ -1,4 +1,6 @@
 import {Block} from '../core';
+import type {FlowTestCase} from './FlowTestCase';
+import type {FlowTestGroup} from './FlowTestGroup';
 
 export enum TestState {
   REMOVED = -2,

@@ -16,11 +16,17 @@ export class FlowTestCase extends Flow implements TestsRunner {
     this.updateValue('#disabled', true);
   }
 
-  start() {
+  onPassed: (testcase: FlowTestCase) => void;
+  onFailed: (testcase: FlowTestCase) => void;
+  start(onPassed?: (testcase: FlowTestCase) => void, onFailed?: (testcase: FlowTestCase) => void) {
+    this.onPassed = onPassed;
+    this.onFailed = onFailed;
+    this.clearTimeout();
     if (this.timeoutMs > 0) {
       this._timeout = setTimeout(this.onTimeout, this.timeoutMs);
     }
     this.updateLabel('running');
+    this.deleteValue('@b-style');
     this.updateValue('#disabled', undefined);
   }
 
@@ -94,10 +100,12 @@ export class FlowTestCase extends Flow implements TestsRunner {
       updateObjectValue(this, '@b-style', {color: 'f44'});
       this.updateLabel('failed');
       this.testParent?.updateTestState(this, TestState.FAILED);
+      this.onFailed?.(this);
     } else {
       updateObjectValue(this, '@b-style', {color: '4b2'});
       this.updateLabel('passed');
       this.testParent?.updateTestState(this, TestState.PASSED);
+      this.onPassed?.(this);
     }
   }
   onTimeout = () => {

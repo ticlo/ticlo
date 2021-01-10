@@ -111,18 +111,22 @@ export class Block implements Runnable, FunctionData, PropListener<FunctionClass
     this.getProperty('#is');
   }
 
-  // _cachedFullPath: string;
-  // fullPath(): string {
-  //   if (this._cachedFullPath) {
-  //     return this._cachedFullPath;
-  //   }
-  //   if (this._parent === Root.instance) {
-  //     this._cachedFullPath = this._prop._name;
-  //   } else {
-  //     this._cachedFullPath = this._parent.fullPath() + '.' + this._prop._name;
-  //   }
-  //   return this._cachedFullPath;
-  // }
+  _cachedFullPath: string;
+  getFullPath(): string {
+    if (this._cachedFullPath == null) {
+      if (this._parent == null || this._parent === this) {
+        // root nodes
+        this._cachedFullPath = this._prop._name;
+      } else {
+        let parentPath = `${this._parent.getFullPath()}.`;
+        if (parentPath === '.') {
+          parentPath = '';
+        }
+        this._cachedFullPath = `${parentPath}${this._prop._name}`;
+      }
+    }
+    return this._cachedFullPath;
+  }
 
   onWait(val: any) {
     this._waiting = Boolean(val);

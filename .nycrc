@@ -6,13 +6,13 @@
   "include": [
     "src/core/**/*",
     "src/node/**/*",
-    "src/express/**/*"
+    "src/express/**/*",
+    "src/test/**/*"
   ],
   "exclude": [
     "**/*.d.ts",
     "**/node_modules/**"
   ],
-  "check-coverage": true,
    "branches": 75,
    "lines": 90,
    "functions": 85,

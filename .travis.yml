@@ -12,6 +12,7 @@ script:
   - yarn prettier-check
   - yarn test-nyc-strict
   - yarn test-nyc
+  - yarn ticlo-test-nyc
   - yarn build-icons
   - yarn build-less
   - yarn build-package

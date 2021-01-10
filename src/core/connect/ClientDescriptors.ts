@@ -85,6 +85,7 @@ export const clientDescriptors: FunctionDesc[] = [
     ns: 'flow',
     configs: ['#disabled'],
     dynamicStyle: true,
+    commands: {start: {parameters: []}},
   },
   {
     priority: 0,
