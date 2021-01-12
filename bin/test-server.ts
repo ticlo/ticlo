@@ -34,7 +34,7 @@ const packagesToTest = ['./src/core', './src/express', './src/node', './src/http
         type: 'boolean',
       },
       port: {
-        default: 8018,
+        default: 8010,
         describe: 'Port of the server',
         type: 'number',
       },

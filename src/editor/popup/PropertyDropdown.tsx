@@ -24,6 +24,7 @@ import {AddCustomPropertyMenu} from '../property/AddCustomProperty';
 import {ClientConn} from '../../core/connect/ClientConn';
 import {CheckboxChangeEvent} from 'antd/lib/checkbox';
 import {ParameterInput} from './ParameterInput';
+import {ExpandIcon} from '../component/Tree';
 
 interface Props {
   children: React.ReactElement;
@@ -305,11 +306,22 @@ export class PropertyDropdown extends React.PureComponent<Props, State> {
             </span>
           );
         }
-        menuItems.push(
-          <SubMenuItem key="propCommands" popup={<Menu>{commandMenus}</Menu>}>
-            {t('Execute Command')}
-          </SubMenuItem>
-        );
+
+        if (commandMenus.length) {
+          menuItems.push(
+            <div className="ticl-property-divider">
+              {t('Execute Command')}
+              <div className="ticl-h-line" />
+            </div>
+          );
+          menuItems.push(...commandMenus);
+        }
+
+        // menuItems.push(
+        //   <SubMenuItem key="propCommands" popup={<Menu>{commandMenus}</Menu>}>
+        //     {t('Execute Command')}
+        //   </SubMenuItem>
+        // );
       }
     }
     this.setState({popupElement: <Menu>{menuItems}</Menu>, lastBindingPath: bindingPath});
