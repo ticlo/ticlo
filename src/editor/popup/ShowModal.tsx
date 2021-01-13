@@ -15,7 +15,7 @@ export function showModal(component: React.ReactElement, overrideFunction: (moda
   if (component) {
     // rotate the key
     key = (key + 1) % Number.MAX_SAFE_INTEGER;
-    React.cloneElement(component, {key: `modal-${key}`});
+    component = React.cloneElement(component, {key: `modal-${key}`});
   }
 
   if (overrideFunction !== lastOverrideFunction) {

@@ -11,6 +11,8 @@ import {NodeTreeItem} from '../../node-tree/NodeRenderer';
 import {t} from '../../component/LocalizedLabel';
 import {showModal} from '../../popup/ShowModal';
 
+const addChildFlowAllowed = new Set<string>(['flow:main', 'flow:test-group']);
+
 interface Props {
   conn: ClientConn;
   basePaths: string[];
@@ -62,7 +64,7 @@ export class NodeTreePane extends React.PureComponent<Props, State> {
     let menuItems: React.ReactElement[] = [];
     if (showMenu) {
       let seekParent = item;
-      while (seekParent.functionId === 'flow:main') {
+      while (addChildFlowAllowed.has(seekParent.functionId)) {
         seekParent = seekParent.parent;
       }
       // find the root node, so every level of parents is Flow
