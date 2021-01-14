@@ -1,0 +1,109 @@
+{
+"#is": "",
+"assert": {
+ "#is": "test:assert",
+ "@b-p": [
+  "actual0",
+  "expect0",
+  "actual1",
+  "expect1",
+  "actual2",
+  "expect2"
+ ],
+ "@b-xyw": [
+  324,
+  84,
+  143
+ ],
+ "[]": 3,
+ "expect0": true,
+ "expect1": false,
+ "expect2": false,
+ "matchMode": "always-match",
+ "~actual0": "##.greater-than.#output",
+ "~actual1": "##.greater-than1.#output",
+ "~actual2": "##.greater-than2.#output"
+},
+"assertUndefined": {
+ "#is": "test:assert",
+ "@b-p": [
+  "actual0",
+  "expect0"
+ ],
+ "@b-xyw": [
+  324,
+  612,
+  167
+ ],
+ "expect0": true,
+ "matchMode": "always-match",
+ "~actual0": {
+  "#is": "equal",
+  "@b-hide": true,
+  "@b-p": [
+   "0",
+   "1"
+  ],
+  "~0": "##.##.greater-than3.#output"
+ }
+},
+"greater-than": {
+ "#is": "greater-than",
+ "0": 2,
+ "1": 1,
+ "@b-p": [
+  "0",
+  "1",
+  "#output"
+ ],
+ "@b-xyw": [
+  84,
+  84,
+  143
+ ]
+},
+"greater-than1": {
+ "#is": "greater-than",
+ "0": 1,
+ "1": 1,
+ "@b-p": [
+  "0",
+  "1",
+  "#output"
+ ],
+ "@b-xyw": [
+  84,
+  228,
+  143
+ ]
+},
+"greater-than2": {
+ "#is": "greater-than",
+ "0": 1,
+ "1": 2,
+ "@b-p": [
+  "0",
+  "1",
+  "#output"
+ ],
+ "@b-xyw": [
+  84,
+  372,
+  143
+ ]
+},
+"greater-than3": {
+ "#is": "greater-than",
+ "0": 1,
+ "@b-p": [
+  "0",
+  "1",
+  "#output"
+ ],
+ "@b-xyw": [
+  84,
+  564,
+  143
+ ]
+}
+}
