@@ -6,20 +6,31 @@ addons:
   chrome: stable
 cache:
   yarn: true
-script:
-  - mkdir coverage
-  - mkdir dist
-  - yarn prettier-check
-  - yarn test-nyc-strict
-  - yarn test-nyc
-  - yarn ticlo-test-nyc
-  - yarn build-icons
-  - yarn build-less
-  - yarn build-package
-  - yarn test-karma
-  - ls coverage -al
-after_success:
-  - COVERALLS_FLAG_NAME=strict cat coverage/nyc-strict.log | yarn run coveralls
-  - COVERALLS_FLAG_NAME=base cat coverage/nyc.log | yarn run coveralls
-  - COVERALLS_FLAG_NAME=ticlo cat coverage/nyc-ticlo.log | yarn run coveralls
-  - COVERALLS_FLAG_NAME=karma cat coverage/chrome/karma.lcov | yarn run coveralls
+env:
+  global:
+    - COVERALLS_PARALLEL=true
+jobs:
+  include:
+    - script:
+        - mkdir dist
+        - yarn prettier-check
+        - yarn build-icons
+        - yarn build-less
+        - yarn build-package
+    - script:
+      - export COVERALLS_FLAG_NAME=karma
+      - yarn test-karma
+      - cat coverage/chrome/karma.lcov | yarn run coveralls
+    - script:
+      - export COVERALLS_FLAG_NAME=nyc
+      - yarn test-nyc
+    - script:
+      - export NODE_ENV=TEST
+      - export COVERALLS_FLAG_NAME=strict
+      - yarn test-nyc
+    - script:
+      - export COVERALLS_FLAG_NAME=ticlo
+      - yarn ticlo-test-nyc
+
+notifications:
+  webhooks: https://coveralls.io/webhook
