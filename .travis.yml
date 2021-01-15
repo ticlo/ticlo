@@ -11,25 +11,29 @@ env:
     - COVERALLS_PARALLEL=true
 jobs:
   include:
+    - name: format check
     - script:
-        - mkdir dist
-        - yarn prettier-check
-        - yarn build-icons
-        - yarn build-less
-        - yarn build-package
+      - yarn prettier-check
+      - yarn build-package
+    - name: karma
     - script:
       - export COVERALLS_FLAG_NAME=karma
+      - mkdir dist
+      - yarn build-icons
+      - yarn build-less
       - yarn test-karma
       - cat coverage/chrome/karma.lcov | yarn run coveralls
+    - name: nyc
     - script:
       - export COVERALLS_FLAG_NAME=nyc
       - yarn test-nyc
+    - name: strict nyc
     - script:
       - export NODE_ENV=TEST
       - export COVERALLS_FLAG_NAME=strict
       - yarn test-nyc
+    - name: ticlo nyc
     - script:
-      - export COVERALLS_FLAG_NAME=ticlo
       - yarn ticlo-test-nyc
 
 notifications:
