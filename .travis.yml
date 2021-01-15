@@ -34,6 +34,7 @@ jobs:
       - yarn test-nyc
     - name: ticlo nyc
       script:
+      - export COVERALLS_FLAG_NAME=ticlo
       - yarn ticlo-test-nyc
 
 notifications:
