@@ -58,7 +58,6 @@
     "karma-chrome-launcher": "^3.1.0",
     "karma-mocha": "^2.0.1",
     "karma-typescript": "^5.2.0",
-    "lcov-result-merger": "^3.1.0",
     "less": "^4.0.0",
     "marked": "^1.2.7",
     "mocha": "^8.2.1",
