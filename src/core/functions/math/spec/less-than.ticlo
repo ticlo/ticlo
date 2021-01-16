@@ -1,0 +1,109 @@
+{
+"#is": "",
+"assert": {
+ "#is": "test:assert",
+ "@b-p": [
+  "actual0",
+  "expect0",
+  "actual1",
+  "expect1",
+  "actual2",
+  "expect2"
+ ],
+ "@b-xyw": [
+  324,
+  84,
+  143
+ ],
+ "[]": 3,
+ "expect0": false,
+ "expect1": false,
+ "expect2": true,
+ "matchMode": "always-match",
+ "~actual0": "##.less-than.#output",
+ "~actual1": "##.less-than1.#output",
+ "~actual2": "##.less-than2.#output"
+},
+"assertUndefined": {
+ "#is": "test:assert",
+ "@b-p": [
+  "actual0",
+  "expect0"
+ ],
+ "@b-xyw": [
+  324,
+  612,
+  167
+ ],
+ "expect0": true,
+ "matchMode": "always-match",
+ "~actual0": {
+  "#is": "equal",
+  "@b-hide": true,
+  "@b-p": [
+   "0",
+   "1"
+  ],
+  "~0": "##.##.less-than3.#output"
+ }
+},
+"less-than": {
+ "#is": "less-than",
+ "0": 2,
+ "1": 1,
+ "@b-p": [
+  "0",
+  "1",
+  "#output"
+ ],
+ "@b-xyw": [
+  84,
+  84,
+  143
+ ]
+},
+"less-than1": {
+ "#is": "less-than",
+ "0": 1,
+ "1": 1,
+ "@b-p": [
+  "0",
+  "1",
+  "#output"
+ ],
+ "@b-xyw": [
+  84,
+  228,
+  143
+ ]
+},
+"less-than2": {
+ "#is": "less-than",
+ "0": 1,
+ "1": 2,
+ "@b-p": [
+  "0",
+  "1",
+  "#output"
+ ],
+ "@b-xyw": [
+  84,
+  372,
+  143
+ ]
+},
+"less-than3": {
+ "#is": "less-than",
+ "0": 1,
+ "@b-p": [
+  "0",
+  "1",
+  "#output"
+ ],
+ "@b-xyw": [
+  84,
+  564,
+  143
+ ]
+}
+}

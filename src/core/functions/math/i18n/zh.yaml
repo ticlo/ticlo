@@ -1,15 +1,15 @@
 add:
   '@name': 加法
-  '@keywords': 
+  '@keywords':
 subtract:
   '@name': 减法
-  '@keywords': 
+  '@keywords':
 multiply:
   '@name': 乘法 # auto translated from hash: 4lc3bZE/
-  '@keywords': 
+  '@keywords':
 divide:
   '@name': 除法 # auto translated from hash: C5FOGWGC
-  '@keywords': 
+  '@keywords':
 
 equal:
   '@name': 相等
@@ -19,16 +19,16 @@ equal:
   '@keywords': 不等于
 'greater-than':
   '@name': 大于 # auto translated from hash: cohFT6RC
-  '@keywords': 
+  '@keywords':
 'less-than':
-  '@name': 少于 # auto translated from hash: Re0c4EvP
-  '@keywords': 
+  '@name': 小于
+  '@keywords':
 'greater-equal':
   '@name': 大于等于
-  '@keywords': 
+  '@keywords':
 'less-equal':
   '@name': 小于等于
-  '@keywords': 
+  '@keywords':
 'not':
   '@name': 非
-  '@keywords': 
+  '@keywords':

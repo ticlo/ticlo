@@ -26,9 +26,6 @@ export class FlowTestGroup extends Flow implements TestsRunner {
   results = new Map<Block, TestState>();
 
   updateTestState(testBlock: Block, result: TestState) {
-    if (this.results.get(testBlock) === result) {
-      return;
-    }
     if (result === TestState.REMOVED) {
       this.results.delete(testBlock);
     } else {

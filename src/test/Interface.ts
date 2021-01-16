@@ -7,8 +7,8 @@ export enum TestState {
   DISABLED = -1,
   NEW,
   RUNNING,
-  PASSED,
   FAILED,
+  PASSED,
 }
 
 export interface TestsRunner {
