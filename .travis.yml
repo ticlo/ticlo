@@ -23,10 +23,6 @@ jobs:
       - yarn build-less
       - yarn test-karma
       - cat coverage/chrome/karma.lcov | yarn run coveralls
-    - name: nyc
-      script:
-      - export COVERALLS_FLAG_NAME=nyc
-      - yarn test-nyc
     - name: strict nyc
       script:
       - export NODE_ENV=TEST
