@@ -1,4 +1,4 @@
-import {Block, BlockProperty, DataMap, Flow} from '../core';
+import {Block, BlockIO, BlockProperty, DataMap, Flow} from '../core';
 import {ConstTypeConfig, FlowConfigGenerators} from '../core/block/BlockConfigs';
 import {BlockConfig} from '../core/block/BlockProperty';
 import type {AssertFunction} from './Assert';
@@ -30,7 +30,15 @@ export class FlowTestCase extends Flow implements TestsRunner {
   }
 
   load(src: DataMap, funcId?: string, applyChange?: (data: DataMap) => boolean, onDestory?: () => void): boolean {
-    return super.load(src, funcId, applyChange, onDestory);
+    let loaded = super.load(src, funcId, applyChange, onDestory);
+    this.results.clear();
+    this.forEach((field: string, prop: BlockIO) => {
+      let value = prop._saved;
+      if (value instanceof Block && value.getValue('#is') === 'test:assert') {
+        this.results.set(value, TestState.NEW);
+      }
+    });
+    return loaded;
   }
 
   _createConfig(field: string): BlockProperty {
@@ -62,7 +70,7 @@ export class FlowTestCase extends Flow implements TestsRunner {
     if (this._controlPriority >= 0) {
       return this._controlPriority;
     }
-    return 2;
+    return 3;
   }
   run() {
     this._queueToRun = false;
