@@ -13,7 +13,7 @@ export class TestRunner {
   passed = 0;
   failed = 0;
 
-  constructor(testGroup: FlowTestGroup, public onDone?: () => void) {
+  constructor(testGroup: FlowTestGroup, public onDone?: () => void, public allowEditing: boolean = false) {
     this.stack = [{target: testGroup, processed: false}];
   }
 
@@ -36,7 +36,7 @@ export class TestRunner {
       Resolver.callLater(this.run);
       console.log(`test passed: ${this.getDisplayPath(testCase)}`);
       lastTask.target.updateValue('#disabled', true);
-    } else {
+    } else if (!this.allowEditing) {
       console.error(`unexpected test passed event: ${this.getDisplayPath(testCase)}`);
     }
   };
@@ -48,7 +48,7 @@ export class TestRunner {
       Resolver.callLater(this.run);
       console.log(`test failed: ${this.getDisplayPath(testCase)}`);
       lastTask.target.updateValue('#disabled', true);
-    } else {
+    } else if (!this.allowEditing) {
       console.error(`unexpected test passed event: ${this.getDisplayPath(testCase)}`);
     }
   };

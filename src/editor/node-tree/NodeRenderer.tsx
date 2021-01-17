@@ -27,7 +27,8 @@ import {DragDropDiv, DragState} from 'rc-dock/lib';
 import {getFuncStyleFromDesc} from '../util/BlockColors';
 import {LocalizedNodeName, t} from '../component/LocalizedLabel';
 
-const saveAllowed = new Set<string>(['flow:editor', 'flow:worker', 'flow:main']);
+const saveAllowed = new Set<string>(['flow:editor', 'flow:worker', 'flow:main', 'flow:test-case']);
+const quickOpenAllowed = new Set<string>(['flow:editor', 'flow:worker', 'flow:main', 'flow:test-case', 'flow:const']);
 const deleteAllowed = new Set<string>(['flow:editor', 'flow:main']);
 
 export class NodeTreeItem extends TreeItem<NodeTreeItem> {
@@ -295,7 +296,7 @@ export class NodeTreeRenderer extends PureDataRenderer<Props, any> {
 
   getMenu = () => {
     let {item, getMenu} = this.props;
-    let editFlow = this.context && this.context.editFlow;
+    let editFlow = this.context?.editFlow;
     let menuitems: React.ReactElement[] = [];
     if (editFlow) {
       menuitems.push(
@@ -381,11 +382,17 @@ export class NodeTreeRenderer extends PureDataRenderer<Props, any> {
         </div>
       );
     }
+    let onDoubleClick = this.context?.editFlow && quickOpenAllowed.has(item.functionId) ? this.onOpenClicked : null;
     return (
       <div style={{...style, marginLeft}} className="ticl-tree-node">
         <ExpandIcon opened={item.opened} onClick={this.onExpandClicked} />
         <Dropdown overlay={this.getMenu} trigger={['contextMenu']}>
-          <DragDropDiv className={contentClassName} onClick={this.onClickContent} onDragStartT={this.onDragStart}>
+          <DragDropDiv
+            className={contentClassName}
+            onClick={this.onClickContent}
+            onDragStartT={this.onDragStart}
+            onDoubleClick={onDoubleClick}
+          >
             {icon}
             {nameNode}
           </DragDropDiv>

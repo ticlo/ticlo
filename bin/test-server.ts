@@ -62,15 +62,19 @@ const packagesToTest = ['./src/core', './src/express', './src/node', './src/http
   });
 
   if (argv.run) {
-    let testRunner = new TestRunner(Root.instance.getValue('tests') as FlowTestGroup, () => {
-      if (argv.quitOnFinish || (argv.quitOnSuccess && testRunner.failed === 0)) {
-        if (testRunner.failed > 0) {
-          process.exit(3);
-        } else {
-          process.exit(0);
+    let testRunner = new TestRunner(
+      Root.instance.getValue('tests') as FlowTestGroup,
+      () => {
+        if (argv.quitOnFinish || (argv.quitOnSuccess && testRunner.failed === 0)) {
+          if (testRunner.failed > 0) {
+            process.exit(3);
+          } else {
+            process.exit(0);
+          }
         }
-      }
-    });
+      },
+      argv.serve // allow editing when editing server is enabled
+    );
     testRunner.run();
   } else if (!argv.serve) {
     console.error('at least one of these flag is needed: --run , --serve ');
