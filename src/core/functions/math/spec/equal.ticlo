@@ -1,0 +1,61 @@
+{
+"#is": "",
+"assert2": {
+ "#is": "test:assert",
+ "@b-p": [
+  "actual0",
+  "expect0"
+ ],
+ "@b-xyw": [
+  340,
+  195,
+  143
+ ],
+ "expect0": false,
+ "matchMode": "always-match",
+ "~actual0": "##.equal.#output"
+},
+"assert3": {
+ "#is": "test:assert",
+ "@b-p": [
+  "actual0",
+  "expect0"
+ ],
+ "@b-xyw": [
+  341,
+  380,
+  143
+ ],
+ "expect0": true,
+ "matchMode": "always-match",
+ "~actual0": "##.equal1.#output"
+},
+"equal": {
+ "#is": "equal",
+ "0": "1",
+ "1": 1,
+ "@b-p": [
+  "0",
+  "1",
+  "#output"
+ ],
+ "@b-xyw": [
+  73,
+  145,
+  143
+ ]
+},
+"equal1": {
+ "#is": "equal",
+ "@b-p": [
+  "0",
+  "1",
+  "#output"
+ ],
+ "@b-xyw": [
+  74,
+  337,
+  143
+ ]
+}
+}
