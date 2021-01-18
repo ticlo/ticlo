@@ -29,7 +29,7 @@ import {LocalizedNodeName, t} from '../component/LocalizedLabel';
 
 const saveAllowed = new Set<string>(['flow:editor', 'flow:worker', 'flow:main', 'flow:test-case']);
 const quickOpenAllowed = new Set<string>(['flow:editor', 'flow:worker', 'flow:main', 'flow:test-case', 'flow:const']);
-const deleteAllowed = new Set<string>(['flow:editor', 'flow:main']);
+const deleteAllowed = new Set<string>(['flow:editor', 'flow:main', 'flow:test-case']);
 
 export class NodeTreeItem extends TreeItem<NodeTreeItem> {
   childPrefix: string;
@@ -376,6 +376,7 @@ export class NodeTreeRenderer extends PureDataRenderer<Props, any> {
     if (nameLabel === item.name) {
       nameNode = <div className="ticl-tree-node-text">{item.name}</div>;
     } else {
+      // display element title to show the real name
       nameNode = (
         <div className="ticl-tree-node-text ticl-tree-node-display" title={item.name}>
           {nameLabel}

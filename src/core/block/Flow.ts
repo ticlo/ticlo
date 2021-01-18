@@ -429,11 +429,11 @@ export class Root extends Flow {
     return newFlow;
   }
 
-  deleteFlow(name: string) {
-    let prop = this.getProperty(name, false);
+  deleteFlow(path: string) {
+    let prop = this.queryProperty(path, false);
     if (prop?._value instanceof Flow) {
       if (this._storage) {
-        this._storage.deleteFlow(name);
+        this._storage.deleteFlow(path);
       }
       prop.setValue(undefined);
     }

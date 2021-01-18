@@ -381,6 +381,9 @@ export class ServerConnection extends ServerConnectionCore {
   set({path, value}: {path: string; value: any}): string {
     let property = this.root.queryProperty(path, value !== undefined);
     if (property) {
+      if (property._value instanceof Flow) {
+        this.root.deleteFlow(path);
+      }
       property.setValue(value);
       trackChange(property, path, this.root);
       return null;
@@ -645,13 +648,6 @@ export class ServerConnection extends ServerConnectionCore {
       return null;
     } else {
       return 'invalid path';
-    }
-  }
-
-  deleteFlow(property: BlockProperty) {
-    let flow = property.getValue();
-    if (flow instanceof Flow) {
-      this.root.deleteFlow(property._name);
     }
   }
 
