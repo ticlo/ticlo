@@ -29,14 +29,16 @@ import {FunctionSelect} from '../../src/editor/function-selector/FunctionSelecto
 import JsonEsc from 'jsonesc/dist';
 
 import i18next from 'i18next';
+
 // @ts-ignore
 import zhLocal from '../../i18n/editor/zh.json';
-
 // @ts-ignore
 import zhMathLocal from '../../i18n/core/zh.json';
 // @ts-ignore
 import zhTestLocal from '../../i18n/test/zh.json';
 
+// @ts-ignore
+import enLocal from '../../i18n/editor/en.json';
 // @ts-ignore
 import enMathLocal from '../../i18n/core/en.json';
 // @ts-ignore
@@ -247,6 +249,7 @@ class App extends React.PureComponent<Props, State> {
   await initEditor();
   await i18next.init({lng: 'zh'});
   i18next.addResourceBundle('zh', 'ticlo-editor', zhLocal);
+  i18next.addResourceBundle('en', 'ticlo-editor', enLocal);
   i18next.addResourceBundle('zh', 'ticlo-core', zhMathLocal);
   i18next.addResourceBundle('en', 'ticlo-core', enMathLocal);
   i18next.addResourceBundle('zh', 'ticlo-test', zhTestLocal);
