@@ -57,7 +57,7 @@ export class BlockView extends PureDataRenderer<BlockViewProps, BlockViewState> 
       item.stage.selectBlock(item.path);
     }
     if (item.selected) {
-      let draggingBlocks = item.stage.startDragBlock(e);
+      let draggingBlocks = item.stage.startDragBlock(e, item);
       if (draggingBlocks.length === 1 && item.w) {
         // when dragging 1 block that's not minimized, check if it can be dropped into block footer
         e.setData({moveBlock: item.path}, item.stage);

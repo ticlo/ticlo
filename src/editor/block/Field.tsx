@@ -44,7 +44,7 @@ export interface Stage {
 
   selectBlock(path: string, ctrl?: boolean): void;
 
-  startDragBlock(e: DragState): [BlockItem, number, number, number][];
+  startDragBlock(e: DragState, item: BlockItem): [BlockItem, number, number, number][];
 
   onDragBlockMove(e: DragState): void;
 

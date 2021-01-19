@@ -129,10 +129,12 @@ export abstract class BlockStageBase<Props extends StagePropsBase, State>
   }
 
   // drag a block, return true when the dragging is started
-  startDragBlock(e: DragState) {
-    this._draggingBlocks = [];
+  startDragBlock(e: DragState, item: BlockItem) {
+    // first item is the one being dragged
+    this._draggingBlocks = [[item, item.x, item.y, item.w]];
+
     for (let [, blockItem] of this._blocks) {
-      if (blockItem.selected) {
+      if (blockItem.selected && blockItem !== item) {
         this._draggingBlocks.push([blockItem, blockItem.x, blockItem.y, blockItem.w]);
       }
     }
@@ -141,13 +143,18 @@ export abstract class BlockStageBase<Props extends StagePropsBase, State>
 
   onDragBlockMove(e: DragState) {
     let {conn} = this.props;
-    conn.lockImmediate(e);
-    for (let [block, x, y, w] of this._draggingBlocks) {
-      if (!block._syncParent) {
-        block.setXYW(snapXY(x + e.dx), snapXY(y + e.dy), w, true);
+    if (this._draggingBlocks?.length) {
+      conn.lockImmediate(e);
+      let [firstItem, firstX, firstY] = this._draggingBlocks[0];
+      let dx = snapXY(firstX + e.dx) - firstX;
+      let dy = snapXY(firstY + e.dy) - firstY;
+      for (let [blockItem, x, y, w] of this._draggingBlocks) {
+        if (!blockItem._syncParent) {
+          blockItem.setXYW(x + dx, y + dy, w, true);
+        }
       }
+      conn.unlockImmediate(e);
     }
-    conn.unlockImmediate(e);
   }
 
   onDragBlockEnd(e: DragState) {
