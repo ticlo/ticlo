@@ -10,10 +10,15 @@ import {Functions} from './Functions';
 import {Storage} from './Storage';
 import {FlowHistory} from './FlowHistory';
 
+export enum FlowState {
+  enabled,
+  disabled,
+  destroyed,
+}
 export interface FlowLoader {
   createFlow?(prop: BlockProperty): Flow;
   applyChange?(data: DataMap): boolean;
-  onDestroy?(): void;
+  onStateChange?(flow: Flow, state: FlowState): void;
 }
 
 export class Flow extends Block {
@@ -73,6 +78,7 @@ export class Flow extends Block {
 
   _disableBlock() {
     this._applyFuncid(null);
+    this._onStateChange?.(this, FlowState.disabled);
     for (let [key, prop] of this._props) {
       let val = prop._value;
       if (val instanceof Block && val._prop === prop) {
@@ -83,6 +89,7 @@ export class Flow extends Block {
 
   _enabledBlock() {
     this._applyFuncid(this._funcId);
+    this._onStateChange?.(this, FlowState.enabled);
     for (let [key, prop] of this._props) {
       let val = prop._value;
       if (val instanceof Block && val._prop === prop) {
@@ -136,9 +143,14 @@ export class Flow extends Block {
   }
 
   _applyChange: (data: DataMap) => boolean;
-  _onDestory: () => void;
+  _onStateChange: (flow: Flow, state: FlowState) => void;
 
-  load(src: DataMap, funcId?: string, applyChange?: (data: DataMap) => boolean, onDestory?: () => void): boolean {
+  load(
+    src: DataMap,
+    funcId?: string,
+    applyChange?: (data: DataMap) => boolean,
+    onStateChange?: (flow: Flow, state: FlowState) => void
+  ): boolean {
     this._loading = true;
     let loaded = false;
     if (funcId) {
@@ -173,10 +185,14 @@ export class Flow extends Block {
     }
     if (loaded) {
       this._applyChange = applyChange;
-      this._onDestory = onDestory;
+      this._onStateChange = onStateChange;
     }
     this._loading = false;
     return loaded;
+  }
+  // load data but not update applyChange or onStateChange
+  loadData(data: DataMap) {
+    this.load(data, null, this._applyChange, this._onStateChange);
   }
 
   _loadFlowData(map: DataMap, funcId?: string) {
@@ -276,7 +292,7 @@ export class Flow extends Block {
       this._history = null;
     }
 
-    this._onDestory?.();
+    this._onStateChange?.(this, FlowState.destroyed);
     super.destroy();
   }
 }
@@ -416,7 +432,7 @@ export class Root extends Flow {
       if (!data) {
         data = {};
       }
-      newFlow.load(data, null, loader.applyChange, loader.onDestroy);
+      newFlow.load(data, null, loader.applyChange, loader.onStateChange);
       if (this._storage?.inited && Object.keys(data).length) {
         this._storage.saveFlow(path, newFlow, data);
       }

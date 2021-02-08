@@ -11,6 +11,6 @@ export interface Storage {
   inited?: boolean;
   init(root: Root): any; // void or promise
 
-  // return [applyChange,onDestroy] of a flow
+  // return [applyChange,onStateChange] of a flow
   getFlowLoader(name: string, prop: BlockProperty): FlowLoader;
 }

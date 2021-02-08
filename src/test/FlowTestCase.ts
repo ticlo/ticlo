@@ -1,8 +1,8 @@
-import {Block, BlockIO, BlockProperty, DataMap, Flow} from '../core';
-import {ConstTypeConfig, FlowConfigGenerators} from '../core/block/BlockConfigs';
-import {BlockConfig} from '../core/block/BlockProperty';
-import type {AssertFunction} from './Assert';
-import {updateObjectValue} from '../core/property-api/ObjectValue';
+import {Block, BlockIO, BlockProperty, DataMap, Flow} from '../../src/core';
+import {ConstTypeConfig, FlowConfigGenerators} from '../../src/core/block/BlockConfigs';
+import {BlockConfig} from '../../src/core/block/BlockProperty';
+import {updateObjectValue} from '../../src/core/property-api/ObjectValue';
+import {FlowState} from '../../src/core/block/Flow';
 import {TestsRunner, TestState} from './Interface';
 
 export const FlowTestConfigGenerators: {[key: string]: typeof BlockProperty} = {
@@ -29,8 +29,13 @@ export class FlowTestCase extends Flow implements TestsRunner {
     this.updateValue('#disabled', undefined);
   }
 
-  load(src: DataMap, funcId?: string, applyChange?: (data: DataMap) => boolean, onDestory?: () => void): boolean {
-    let loaded = super.load(src, funcId, applyChange, onDestory);
+  load(
+    src: DataMap,
+    funcId?: string,
+    applyChange?: (data: DataMap) => boolean,
+    onStateChange?: (flow: Flow, state: FlowState) => void
+  ): boolean {
+    let loaded = super.load(src, funcId, applyChange, onStateChange);
     this.results.clear();
     this.forEach((field: string, prop: BlockIO) => {
       let value = prop._saved;

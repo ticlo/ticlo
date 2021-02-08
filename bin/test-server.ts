@@ -23,6 +23,11 @@ const packagesToTest = ['./src/core', './src/express', './src/node', './src/http
         describe: 'Start the test server',
         type: 'boolean',
       },
+      onDemandLoad: {
+        default: false,
+        describe: 'Load test when its enabled, and unload it when disabled',
+        type: 'boolean',
+      },
       quitOnFinish: {
         default: false,
         describe: 'End the test process when all tests are finished',
@@ -40,12 +45,12 @@ const packagesToTest = ['./src/core', './src/express', './src/node', './src/http
       },
     })
     .help();
-  let argv = parser.parse();
+  let {onDemandLoad, serve, port, run, quitOnSuccess, quitOnFinish} = parser.parse();
 
-  await Root.instance.setStorage(new TestLoader(packagesToTest));
+  await Root.instance.setStorage(new TestLoader(packagesToTest, {onDemandLoad}));
 
   let app = Express();
-  if (argv.serve) {
+  if (serve) {
     connectTiclo(app, '/ticlo');
   }
   routeTiclo(app, '/ticlo');
@@ -54,18 +59,18 @@ const packagesToTest = ['./src/core', './src/express', './src/node', './src/http
     res.end();
   });
 
-  let server = app.listen(argv.port, () => {
-    console.log(`listening on ${argv.port}`);
-    if (argv.serve) {
-      console.log(getEditorUrl(`ws://127.0.0.1:${argv.port}/ticlo`, 'example'));
+  let server = app.listen(port, () => {
+    console.log(`listening on ${port}`);
+    if (serve) {
+      console.log(getEditorUrl(`ws://127.0.0.1:${port}/ticlo`, 'example'));
     }
   });
 
-  if (argv.run) {
+  if (run) {
     let testRunner = new TestRunner(
       Root.instance.getValue('tests') as FlowTestGroup,
       () => {
-        if (argv.quitOnFinish || (argv.quitOnSuccess && testRunner.failed === 0)) {
+        if (quitOnFinish || (quitOnSuccess && testRunner.failed === 0)) {
           if (testRunner.failed > 0) {
             process.exit(3);
           } else {
@@ -73,10 +78,10 @@ const packagesToTest = ['./src/core', './src/express', './src/node', './src/http
           }
         }
       },
-      argv.serve // allow editing when editing server is enabled
+      serve // allow editing when editing server is enabled
     );
     testRunner.run();
-  } else if (!argv.serve) {
+  } else if (!serve) {
     console.error('at least one of these flag is needed: --run , --serve ');
     process.exit(1);
   }

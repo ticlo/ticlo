@@ -1,15 +1,38 @@
 import Fs from 'fs';
 import Path from 'path';
-import {Flow, Root, encodeSorted, decode, DataMap, Storage, BlockProperty} from '../../../src/core';
+import {BlockProperty, DataMap, decode, encodeSorted, Flow, Root, Storage} from '../../../src/core';
 import {WorkerFunction} from '../../../src/core/worker/WorkerFunction';
-import {FlowLoader} from '../../../src/core/block/Flow';
+import {FlowLoader, FlowState} from '../../../src/core/block/Flow';
 
 export class FlowIOTask {
-  current?: 'write' | 'delete';
+  current?: 'write' | 'delete' | 'read';
   next?: 'write' | 'delete';
+  reading: Promise<string>;
+  _resolveReading: Function;
   nextData: string;
 
   constructor(public loader: FileStorage, public name: string, public path: string) {}
+
+  read() {
+    if (!this.reading) {
+      this.reading = new Promise<string>((resolve) => {
+        this._resolveReading = resolve;
+      });
+    }
+    if (!this.current) {
+      this.current = 'read';
+      Fs.readFile(this.path, 'utf8', this.onRead);
+    }
+    return this.reading;
+  }
+  onRead = (err: NodeJS.ErrnoException | null, data: string) => {
+    if (this._resolveReading) {
+      this._resolveReading(data);
+    }
+    this.reading = null;
+    this._resolveReading = null;
+    this.onDone();
+  };
 
   write(data: string) {
     if (this.next || this.current) {
@@ -39,11 +62,12 @@ export class FlowIOTask {
   }
 
   onDone = () => {
+    this.current = null;
     if (this.next) {
       let {next, nextData} = this;
       this.next = null;
       this.nextData = null;
-      this.current = null;
+
       switch (next) {
         case 'delete':
           this.delete();
@@ -52,6 +76,8 @@ export class FlowIOTask {
           this.write(nextData);
           return;
       }
+    } else if (this.reading) {
+      let ignoredPromise = this.read();
     } else {
       this.loader.taskDone(this);
     }
@@ -89,8 +115,16 @@ export class FileStorage implements Storage {
         this.saveFlow(name, null, data);
         return true;
       },
-      onDestroy: () => this.deleteFlow(name),
+      onStateChange: (flow: Flow, state: FlowState) => this.flowStateChanged(flow, name, state),
     };
+  }
+
+  flowStateChanged(flow: Flow, name: string, state: FlowState) {
+    switch (state) {
+      case FlowState.destroyed:
+        this.deleteFlow(name);
+        break;
+    }
   }
 
   deleteFlow(name: string) {
