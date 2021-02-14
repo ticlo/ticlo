@@ -325,7 +325,6 @@ export class PropertyList extends MultiSelectComponent<Props, State, BlockLoader
       if (showConfig) {
         for (let [path, subscriber] of this.loaders) {
           if (subscriber.desc) {
-            console.log(subscriber.desc.configs);
             configMerger.add(mapConfigDesc(subscriber.desc.configs) || defaultConfigDescs);
           } else {
             // properties not ready

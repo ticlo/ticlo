@@ -1,0 +1,363 @@
+{
+"#is": "",
+"assert": {
+ "#is": "test:assert",
+ "@b-p": [
+  "actual0",
+  "expect0"
+ ],
+ "@b-xyw": [
+  434,
+  156,
+  143
+ ],
+ "expect0": [
+  2,
+  3,
+  4
+ ],
+ "~actual0": "##.map.#output"
+},
+"assert1": {
+ "#is": "test:assert",
+ "@b-p": [
+  "actual0",
+  "expect0"
+ ],
+ "@b-xyw": [
+  396,
+  396,
+  270
+ ],
+ "expect0": [
+  {
+   "a": 2
+  },
+  {
+   "a": 3
+  },
+  {
+   "a": 4
+  }
+ ],
+ "~actual0": "##.map1.#output"
+},
+"assert2": {
+ "#is": "test:assert",
+ "@b-p": [
+  "actual0",
+  "expect0"
+ ],
+ "@b-xyw": [
+  396,
+  588,
+  254
+ ],
+ "expect0": [
+  2,
+  3,
+  4
+ ],
+ "~actual0": "##.map2.#output"
+},
+"assert3": {
+ "#is": "test:assert",
+ "@b-p": [
+  "actual0",
+  "expect0"
+ ],
+ "@b-xyw": [
+  396,
+  775,
+  269
+ ],
+ "expect0": [
+  {
+   "a": 2
+  },
+  {
+   "a": 3
+  },
+  {
+   "a": 4
+  }
+ ],
+ "~actual0": "##.map3.#output"
+},
+"map": {
+ "#is": "map",
+ "@b-p": [
+  "input",
+  "#output"
+ ],
+ "@b-xyw": [
+  84,
+  132,
+  269
+ ],
+ "input": [
+  1,
+  2,
+  3
+ ],
+ "use": {
+  "#is": {
+   "#inputs": {
+    "#is": "",
+    "@b-p": [
+     "#value"
+    ],
+    "@b-xyw": [
+     36,
+     36,
+     143
+    ]
+   },
+   "#is": "",
+   "#outputs": {
+    "#is": "",
+    "@b-p": [
+     "#value"
+    ],
+    "@b-xyw": [
+     573,
+     36,
+     143
+    ],
+    "~#value": "##.add.#output"
+   },
+   "add": {
+    "#is": "add",
+    "1": 1,
+    "@b-p": [
+     "0",
+     "1",
+     "#output"
+    ],
+    "@b-xyw": [
+     300,
+     47,
+     143
+    ],
+    "~0": "##.#inputs.#value"
+   }
+  }
+ }
+},
+"map1": {
+ "#is": "map",
+ "@b-p": [
+  "input",
+  "#output"
+ ],
+ "@b-xyw": [
+  60,
+  372,
+  283
+ ],
+ "input": [
+  1,
+  2,
+  3
+ ],
+ "use": {
+  "#is": {
+   "#inputs": {
+    "#is": "",
+    "@b-p": [
+     "#value"
+    ],
+    "@b-xyw": [
+     36,
+     36,
+     143
+    ]
+   },
+   "#is": "",
+   "#outputs": {
+    "#custom": [
+     {
+      "name": "a",
+      "type": "number"
+     }
+    ],
+    "#is": "",
+    "@b-p": [
+     "a"
+    ],
+    "@b-xyw": [
+     573,
+     36,
+     143
+    ],
+    "~a": "##.add.#output"
+   },
+   "add": {
+    "#is": "add",
+    "1": 1,
+    "@b-p": [
+     "0",
+     "1",
+     "#output"
+    ],
+    "@b-xyw": [
+     300,
+     47,
+     143
+    ],
+    "~0": "##.#inputs.#value"
+   }
+  }
+ }
+},
+"map2": {
+ "#is": "map",
+ "@b-p": [
+  "input",
+  "#output"
+ ],
+ "@b-xyw": [
+  60,
+  564,
+  288
+ ],
+ "input": [
+  {
+   "a": 1
+  },
+  {
+   "a": 2
+  },
+  {
+   "a": 3
+  }
+ ],
+ "use": {
+  "#is": {
+   "#inputs": {
+    "#custom": [
+     {
+      "name": "a",
+      "type": "number"
+     }
+    ],
+    "#is": "",
+    "@b-p": [
+     "a"
+    ],
+    "@b-xyw": [
+     36,
+     36,
+     143
+    ]
+   },
+   "#is": "",
+   "#outputs": {
+    "#is": "",
+    "@b-p": [
+     "#value"
+    ],
+    "@b-xyw": [
+     573,
+     36,
+     143
+    ],
+    "~#value": "##.add.#output"
+   },
+   "add": {
+    "#is": "add",
+    "1": 1,
+    "@b-p": [
+     "0",
+     "1",
+     "#output"
+    ],
+    "@b-xyw": [
+     300,
+     47,
+     143
+    ],
+    "~0": "##.#inputs.a"
+   }
+  }
+ }
+},
+"map3": {
+ "#is": "map",
+ "@b-p": [
+  "input",
+  "#output"
+ ],
+ "@b-xyw": [
+  60,
+  751,
+  288
+ ],
+ "input": [
+  {
+   "a": 1
+  },
+  {
+   "a": 2
+  },
+  {
+   "a": 3
+  }
+ ],
+ "use": {
+  "#is": {
+   "#inputs": {
+    "#custom": [
+     {
+      "name": "a",
+      "type": "number"
+     }
+    ],
+    "#is": "",
+    "@b-p": [
+     "a"
+    ],
+    "@b-xyw": [
+     36,
+     36,
+     143
+    ]
+   },
+   "#is": "",
+   "#outputs": {
+    "#custom": [
+     {
+      "name": "a",
+      "type": "number"
+     }
+    ],
+    "#is": "",
+    "@b-p": [
+     "a"
+    ],
+    "@b-xyw": [
+     573,
+     36,
+     143
+    ],
+    "~a": "##.add.#output"
+   },
+   "add": {
+    "#is": "add",
+    "1": 1,
+    "@b-p": [
+     "0",
+     "1",
+     "#output"
+    ],
+    "@b-xyw": [
+     300,
+     47,
+     143
+    ],
+    "~0": "##.#inputs.a"
+   }
+  }
+ }
+}
+}
