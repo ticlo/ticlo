@@ -542,6 +542,8 @@ export abstract class BaseBlockItem extends DataRendererItem<XYWRenderer> {
       let {value} = response.cache;
       if (Array.isArray(value)) {
         this.setP(value);
+      } else {
+        this.setP([]);
       }
     },
   });
