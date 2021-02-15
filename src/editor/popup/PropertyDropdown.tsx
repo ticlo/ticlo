@@ -45,11 +45,11 @@ interface Props {
 const PendingUpdate = <div />;
 interface State {
   popupElement?: React.ReactElement | any;
-  lastBindingPath: string;
+  popupProps: Props;
   modal?: React.ReactElement;
 }
 export class PropertyDropdown extends React.PureComponent<Props, State> {
-  state: State = {lastBindingPath: null};
+  state: State = {popupProps: null};
 
   closeMenu() {
     this.setState({popupElement: null});
@@ -324,13 +324,13 @@ export class PropertyDropdown extends React.PureComponent<Props, State> {
         // );
       }
     }
-    this.setState({popupElement: <Menu>{menuItems}</Menu>, lastBindingPath: bindingPath});
+    this.setState({popupElement: <Menu>{menuItems}</Menu>, popupProps: this.props});
   }
 
   componentDidUpdate(prevProps: Readonly<Props>, prevState: Readonly<State>, snapshot?: any) {
-    let {bindingPath} = this.props;
-    let {lastBindingPath, popupElement} = this.state;
-    if (popupElement && lastBindingPath !== bindingPath) {
+    let {bindingPath, display} = this.props;
+    let {popupProps, popupElement} = this.state;
+    if (popupElement && (popupProps.bindingPath !== bindingPath || popupProps.display !== display)) {
       this.updateMenu();
     }
   }
