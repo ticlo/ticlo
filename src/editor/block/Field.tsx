@@ -15,6 +15,7 @@ import {
   arrayEqual,
   deepEqual,
   ValueSubscriber,
+  voidFunction,
 } from '../../../src/core/editor';
 import {TIcon} from '../icon/Icon';
 import {DragDropDiv, DragState} from 'rc-dock';
@@ -22,6 +23,7 @@ import * as DragManager from 'rc-dock/src/dragdrop/DragManager';
 import {FieldValue} from './FieldValue';
 import {isBindable} from '../../core/util/Path';
 import {LocalizedPropertyName} from '../component/LocalizedLabel';
+import {PropertyDropdown} from '../popup/PropertyDropdown';
 
 export interface Stage {
   getBlock(path: string): BlockItem;
@@ -65,6 +67,8 @@ export class FieldItem extends DataRendererItem {
   block: BaseBlockItem;
   name: string;
   path: string;
+  // a cached array used by PropertyDropdown to prevent re-render
+  pathArrayCache: string[];
   desc: PropDesc = blankPropDesc;
 
   indent = 0;
@@ -187,6 +191,7 @@ export class FieldItem extends DataRendererItem {
     this.name = name;
     this.block = block;
     this.path = `${block.path}.${name}`;
+    this.pathArrayCache = [block.path];
     this.listener.subscribe(this.block.conn, this.path);
     this.block.stage.registerField(this.path, this);
   }
@@ -438,6 +443,25 @@ export class FieldView extends PureDataRenderer<FieldViewProps, any> {
       indentChildren.push(<div key={i} className={`ticl-field-indent${item.indents[i]}`} />);
     }
 
+    let propName = (
+      <PropertyDropdown
+        funcDesc={item.block.desc}
+        propDesc={item.desc}
+        bindingPath={item._bindingPath}
+        conn={item.getConn()}
+        display={true}
+        paths={item.pathArrayCache}
+        name={item.name}
+        onAddSubBlock={voidFunction} // TODO
+        // group={group}
+        // valueDefined={valueDefined}
+        // isCustom={isCustom}
+        // baseName={baseName}
+      >
+        <LocalizedPropertyName desc={desc} name={item.name} />
+      </PropertyDropdown>
+    );
+
     return (
       <DragDropDiv
         className={fieldClass}
@@ -459,7 +483,7 @@ export class FieldView extends PureDataRenderer<FieldViewProps, any> {
               <TIcon icon={item.subBlock.desc.icon} />
             </div>
           ) : null}
-          <LocalizedPropertyName desc={desc} name={item.name} />
+          {propName}
         </div>
         <FieldValue conn={item.getConn()} path={item.path} />
       </DragDropDiv>

@@ -456,7 +456,7 @@ export class PropertyEditor extends MultiSelectComponent<PropertyEditorProps, St
           bindingPath={bindingPath}
           conn={conn}
           group={group}
-          value={value}
+          valueDefined={value !== undefined}
           isCustom={isCustom}
           display={display}
           paths={paths}

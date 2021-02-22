@@ -1,4 +1,4 @@
-import React, {useContext} from 'react';
+import React, {MouseEventHandler, useContext} from 'react';
 import {
   FunctionDesc,
   TicloI18nSettings,
@@ -29,13 +29,19 @@ export const LocalizedPropertyName = ({
   desc,
   className,
   name,
+  onContextMenu,
 }: {
   desc: FunctionDesc;
   name: string;
   className?: string;
+  onContextMenu?: MouseEventHandler<HTMLSpanElement>;
 }) => {
   useContext(TicloLayoutContextType);
-  return <span className={className}>{translateProperty(desc.name, name, desc.ns)}</span>;
+  return (
+    <span className={className} onContextMenu={onContextMenu}>
+      {translateProperty(desc.name, name, desc.ns)}
+    </span>
+  );
 };
 
 export const LocalizedEnumOption = ({

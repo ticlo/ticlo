@@ -21,10 +21,11 @@ import {Button, Checkbox} from 'antd';
 import DeleteIcon from '@ant-design/icons/DeleteOutlined';
 import {StringEditor} from '../property/value/StringEditor';
 import {AddCustomPropertyMenu} from '../property/AddCustomProperty';
-import {ClientConn} from '../../core/connect/ClientConn';
+import {ClientConn, ValueSubscriber} from '../../core/connect/ClientConn';
 import {CheckboxChangeEvent} from 'antd/lib/checkbox';
 import {ParameterInput} from './ParameterInput';
 import {ExpandIcon} from '../component/Tree';
+import {ValueUpdate} from '../../core/connect/ClientRequests';
 
 interface Props {
   children: React.ReactElement;
@@ -32,35 +33,50 @@ interface Props {
   propDesc: PropDesc;
   bindingPath: string;
   conn: ClientConn;
-  group: string;
-  value: any;
-  isCustom: boolean;
+  group?: string;
+  valueDefined?: boolean;
+  isCustom?: boolean;
   display: boolean;
   paths: string[];
   name: string;
-  baseName: string;
+  baseName?: string;
   onAddSubBlock: () => void;
 }
 
 const PendingUpdate = <div />;
 interface State {
-  popupElement?: React.ReactElement | any;
-  popupProps: Props;
+  visible: boolean;
+  valueDenfinedOverride?: boolean;
   modal?: React.ReactElement;
 }
 export class PropertyDropdown extends React.PureComponent<Props, State> {
-  state: State = {popupProps: null};
+  state: State = {visible: false};
 
-  closeMenu() {
-    this.setState({popupElement: null});
+  subscriber = new ValueSubscriber({
+    onUpdate: (response: ValueUpdate) => {
+      let {value} = response.cache;
+      this.setState({valueDenfinedOverride: value !== undefined});
+    },
+  });
+
+  componentDidMount() {
+    let {conn, valueDefined, paths, name} = this.props;
+    if (valueDefined === undefined && paths?.length === 1) {
+      // when parent component doesn't know the value, subscribe the value inside the
+      this.subscriber.subscribe(conn, `${paths[0]}.${name}`);
+    }
   }
 
-  onMenuVisibleChange = (flag: boolean) => {
-    if (flag) {
-      this.updateMenu();
-    } else {
-      this.setState({popupElement: null});
-    }
+  componentWillUnmount() {
+    this.subscriber.unsubscribe();
+  }
+
+  closeMenu() {
+    this.setState({visible: false});
+  }
+
+  onMenuVisibleChange = (visible: boolean) => {
+    this.setState({visible});
   };
 
   onInsertIndex = () => {
@@ -195,12 +211,13 @@ export class PropertyDropdown extends React.PureComponent<Props, State> {
   onAddSubBlock = (id: string, desc?: FunctionDesc, data?: any) => {
     let {onAddSubBlock} = this.props;
     PropertyDropdown.addSubBlock(this.props, id, desc, data);
-    this.setState({popupElement: null});
+    this.setState({visible: false});
     onAddSubBlock?.();
   };
 
-  updateMenu() {
-    let {funcDesc, propDesc, bindingPath, group, name, conn, value, isCustom, display} = this.props;
+  getMenu() {
+    let {funcDesc, propDesc, bindingPath, group, name, conn, valueDefined, isCustom, display} = this.props;
+    let {valueDenfinedOverride} = this.state;
     let menuItems: React.ReactElement[] = [];
     if (!propDesc.readonly) {
       if (!bindingPath) {
@@ -247,7 +264,9 @@ export class PropertyDropdown extends React.PureComponent<Props, State> {
         </div>
       );
 
-      if (value !== undefined || bindingPath) {
+      // need this temporary variable to work around a compiler issue that () get removed and ?? and || can't be used together
+      let resolvedValueDefined = valueDefined ?? valueDenfinedOverride;
+      if (resolvedValueDefined || bindingPath) {
         menuItems.push(
           <Button key="clear" shape="round" onClick={this.onClear}>
             {t('Clear')}
@@ -324,26 +343,19 @@ export class PropertyDropdown extends React.PureComponent<Props, State> {
         // );
       }
     }
-    this.setState({popupElement: <Menu>{menuItems}</Menu>, popupProps: this.props});
-  }
-
-  componentDidUpdate(prevProps: Readonly<Props>, prevState: Readonly<State>, snapshot?: any) {
-    let {bindingPath, display} = this.props;
-    let {popupProps, popupElement} = this.state;
-    if (popupElement && (popupProps.bindingPath !== bindingPath || popupProps.display !== display)) {
-      this.updateMenu();
-    }
+    return <Menu>{menuItems}</Menu>;
   }
 
   render(): any {
     let {children} = this.props;
-    let {popupElement, modal} = this.state;
+    let {visible, modal} = this.state;
+    let popup = visible ? this.getMenu() : null;
     return (
       <>
         <Popup
-          popup={popupElement}
+          popup={popup}
           trigger={['contextMenu']}
-          popupVisible={popupElement != null}
+          popupVisible={visible}
           onPopupVisibleChange={this.onMenuVisibleChange}
         >
           {children}
