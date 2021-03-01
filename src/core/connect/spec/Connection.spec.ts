@@ -871,4 +871,19 @@ describe('Connection', function () {
     client.destroy();
     Root.instance.deleteValue('Connection24');
   });
+
+  it('rename props', async function () {
+    let flow = Root.instance.addFlow('Connection25');
+    flow.setValue('a', 1);
+
+    let [server, client] = makeLocalConnection(Root.instance, false);
+
+    await client.renameProp('Connection25.a', 'b');
+
+    assert.isUndefined(flow.getValue('a'));
+    assert.equal(flow.getValue('b'), 1);
+
+    client.destroy();
+    Root.instance.deleteValue('Connection25');
+  });
 });

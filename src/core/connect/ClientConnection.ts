@@ -328,6 +328,10 @@ export abstract class ClientConnection extends Connection implements ClientConn 
     return this.simpleRequest({cmd: 'setLen', path, group, length}, callbacks);
   }
 
+  renameProp(path: string, newName: string, callbacks?: ClientCallbacks): Promise<any> | string {
+    return this.simpleRequest({cmd: 'renameProp', path, newName}, callbacks);
+  }
+
   addCustomProp(
     path: string,
     desc: PropDesc | PropGroupDesc,

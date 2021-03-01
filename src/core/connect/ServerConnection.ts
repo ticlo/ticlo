@@ -31,6 +31,7 @@ import {WorkerFunction} from '../worker/WorkerFunction';
 import {isBindable} from '../util/Path';
 import {ClientCallbacks} from './ClientRequests';
 import {copyProperties, createSharedBlock, deleteProperties, pasteProperties} from '../property-api/CopyPaste';
+import {moveProperty, PropertyMover} from '../property-api/PropertyMover';
 
 class ServerRequest extends ConnectionSendingData {
   id: string;
@@ -707,6 +708,17 @@ export class ServerConnection extends ServerConnectionCore {
       setGroupLength(property._value, group, length);
       trackChange(property, path, this.root);
       return null;
+    } else {
+      return 'invalid path';
+    }
+  }
+
+  renameProp({path, newName}: {path: string; newName: string}) {
+    let property = this.root.queryProperty(path, true);
+
+    // TODO: validate new name
+    if (property) {
+      return moveProperty(property._block, property._name, newName, true);
     } else {
       return 'invalid path';
     }

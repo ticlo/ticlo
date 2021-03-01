@@ -97,3 +97,13 @@ export class PropertyMover {
     }
   }
 }
+
+export function moveProperty(
+  block: Block,
+  oldName: string,
+  newName: string,
+  moveOutboundLinks: boolean = false
+): string {
+  new PropertyMover(block, oldName, moveOutboundLinks).moveTo(newName);
+  return null;
+}

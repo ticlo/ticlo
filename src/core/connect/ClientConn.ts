@@ -75,6 +75,8 @@ export interface ClientConn {
 
   setLen(path: string, group: string, length: number, callbacks?: ClientCallbacks): Promise<any> | string;
 
+  renameProp(path: string, newName: string): Promise<any> | string;
+
   addCustomProp(
     path: string,
     desc: PropDesc | PropGroupDesc,
