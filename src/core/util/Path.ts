@@ -1,5 +1,13 @@
 import {Logger} from './Logger';
 
+export function splitPathName(currentPath: string): [string, string] {
+  let dotPos = currentPath.lastIndexOf('.');
+  if (dotPos > -1) {
+    return [currentPath.substring(0, dotPos), currentPath.substring(dotPos + 1)];
+  }
+  return ['', currentPath];
+}
+
 export function resolvePath(currentPath: string, relativePath: string): string {
   if (relativePath == null) {
     return null;

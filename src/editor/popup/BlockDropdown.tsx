@@ -14,6 +14,7 @@ import {FunctionDesc, PropDesc} from '../../core';
 import {ClientConn} from '../../core/connect/ClientConn';
 import {Popup} from '../component/ClickPopup';
 import {RenameDialog} from './RenameDialog';
+import {splitPathName} from '../../core/util/Path';
 
 const deleteForbidden = new Set<string>(['flow:test-group', 'flow:const']);
 const renameForbidden = new Set<string>(['flow:test-group', 'flow:const']);
@@ -30,7 +31,6 @@ interface Props {
 
 interface State {
   visible: boolean;
-  modal?: React.ReactElement;
 }
 
 export class BlockDropdown extends React.PureComponent<Props, State> {
@@ -52,7 +52,7 @@ export class BlockDropdown extends React.PureComponent<Props, State> {
   onDeleteClicked = () => {
     let {conn, path} = this.props;
     conn.setValue(path, undefined);
-    // item.parent?.open();
+    conn.childrenChangeStream().dispatch({path: splitPathName(path)[0]});
   };
 
   onRenameClicked = () => {
@@ -106,20 +106,17 @@ export class BlockDropdown extends React.PureComponent<Props, State> {
 
   render(): any {
     let {children} = this.props;
-    let {visible, modal} = this.state;
+    let {visible} = this.state;
     let popup = visible ? this.getMenu() : null;
     return (
-      <>
-        <Popup
-          popup={popup}
-          trigger={['contextMenu']}
-          popupVisible={visible}
-          onPopupVisibleChange={this.onMenuVisibleChange}
-        >
-          {children}
-        </Popup>
-        {modal}
-      </>
+      <Popup
+        popup={popup}
+        trigger={['contextMenu']}
+        popupVisible={visible}
+        onPopupVisibleChange={this.onMenuVisibleChange}
+      >
+        {children}
+      </Popup>
     );
   }
 }

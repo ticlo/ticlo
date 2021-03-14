@@ -1,7 +1,7 @@
 import {LazyUpdateComponent} from '../component/LazyUpdateComponent';
 import {Form, Input, Switch, Modal} from 'antd';
 import React from 'react';
-import {ClientConn, validateNodeName} from '../../core/editor';
+import {ClientConn, splitPathName, validateNodeName} from '../../core/editor';
 import {FormInputItem, FormItem} from '../component/FormItem';
 import {t} from '../component/LocalizedLabel';
 
@@ -41,9 +41,10 @@ export class RenameDialog extends LazyUpdateComponent<Props, State> {
         conn.setValue(`${path}.@b-name`, dispEditor.value || undefined);
       }
     } else {
-      let name = path.split('.').pop();
+      let [parentPath, name] = splitPathName(path);
       if (nameEditor.value !== name) {
         conn.renameProp(path, nameEditor.value);
+        let basePath = conn.childrenChangeStream().dispatch({path: parentPath});
       }
     }
     this.onClose();
