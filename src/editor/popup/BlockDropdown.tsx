@@ -15,7 +15,8 @@ import {ClientConn} from '../../core/connect/ClientConn';
 import {Popup} from '../component/ClickPopup';
 import {RenameDialog} from './RenameDialog';
 
-const deleteAllowed = new Set<string>(['flow:editor', 'flow:main', 'flow:test-case']);
+const deleteForbidden = new Set<string>(['flow:test-group', 'flow:const']);
+const renameForbidden = new Set<string>(['flow:test-group', 'flow:const']);
 
 interface Props {
   children: React.ReactElement;
@@ -56,14 +57,11 @@ export class BlockDropdown extends React.PureComponent<Props, State> {
 
   onRenameClicked = () => {
     let {conn, path, displayName} = this.props;
-
-    let modal = <RenameDialog conn={conn} path={path} displayName={displayName} />;
-    this.setState({modal});
+    showModal(<RenameDialog conn={conn} path={path} displayName={displayName} />, this.context.showModal);
   };
 
   onAddNewFlowClick = (param: any) => {
-    let {conn} = this.props;
-    let path = param.item.props.defaultValue;
+    let {conn, path} = this.props;
     showModal(<AddNewFlowDialog conn={conn} basePath={`${path}.`} />, this.context.showModal);
   };
 
@@ -82,7 +80,7 @@ export class BlockDropdown extends React.PureComponent<Props, State> {
         </Menu.Item>
       );
     }
-    if (deleteAllowed.has(functionId)) {
+    if (!deleteForbidden.has(functionId)) {
       menuitems.push(
         <Menu.Item key="delete" onClick={this.onDeleteClicked}>
           <DeleteIcon />
@@ -90,13 +88,14 @@ export class BlockDropdown extends React.PureComponent<Props, State> {
         </Menu.Item>
       );
     }
-
-    menuitems.push(
-      <Menu.Item key="rename" onClick={this.onRenameClicked}>
-        <EditIcon />
-        {t('Rename')}
-      </Menu.Item>
-    );
+    if (!renameForbidden.has(functionId)) {
+      menuitems.push(
+        <Menu.Item key="rename" onClick={this.onRenameClicked}>
+          <EditIcon />
+          {t('Rename')}
+        </Menu.Item>
+      );
+    }
 
     return (
       <Menu prefixCls="ant-dropdown-menu" selectable={false} onClick={this.closeMenu}>
