@@ -19,7 +19,7 @@ interface State {
   values: DataMap;
 }
 
-export class ParameterInput extends React.PureComponent<Props, State> {
+export class ParameterInputDialog extends React.PureComponent<Props, State> {
   state: State;
 
   constructor(props: Props) {

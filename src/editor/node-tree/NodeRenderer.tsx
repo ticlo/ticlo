@@ -20,16 +20,21 @@ import {
   getOutputDesc,
   getDisplayName,
   deepEqual,
+  ClientConn,
 } from '../../../src/core/editor';
 import {TIcon} from '../icon/Icon';
 import {TicloLayoutContext, TicloLayoutContextType} from '../component/LayoutContext';
 import {DragDropDiv, DragState} from 'rc-dock/lib';
 import {getFuncStyleFromDesc} from '../util/BlockColors';
 import {LocalizedNodeName, t} from '../component/LocalizedLabel';
+import {BlockDropdown} from '../popup/BlockDropdown';
+import {showModal} from '../popup/ShowModal';
+import {AddNewFlowDialog} from '../popup/AddNewFlowDialog';
+import FileAddIcon from '@ant-design/icons/FileAddOutlined';
 
 const saveAllowed = new Set<string>(['flow:editor', 'flow:worker', 'flow:main', 'flow:test-case']);
 const quickOpenAllowed = new Set<string>(['flow:editor', 'flow:worker', 'flow:main', 'flow:test-case', 'flow:const']);
-const deleteAllowed = new Set<string>(['flow:editor', 'flow:main', 'flow:test-case']);
+const addChildFlowAllowed = new Set<string>(['flow:main', 'flow:test-group']);
 
 export class NodeTreeItem extends TreeItem<NodeTreeItem> {
   childPrefix: string;
@@ -157,7 +162,6 @@ interface Props {
   style: React.CSSProperties;
   selected: boolean;
   onClick: (item: NodeTreeItem, event: React.MouseEvent) => void;
-  getMenu: (item: NodeTreeItem) => React.ReactElement[];
 }
 interface State {
   displayName?: string;
@@ -186,7 +190,7 @@ export class NodeTreeRenderer extends PureDataRenderer<Props, any> {
     }
   };
 
-  onOpenClicked = () => {
+  onOpenBlock = () => {
     const {item} = this.props;
     if (this.context && this.context.editFlow) {
       this.context.editFlow(
@@ -199,14 +203,48 @@ export class NodeTreeRenderer extends PureDataRenderer<Props, any> {
       );
     }
   };
-  onSaveClicked = () => {
+
+  onAddNewFlowClick = (param: any) => {
     let {item} = this.props;
-    item.getConn().applyFlowChange(item.key);
+    let path = param.item.props.defaultValue;
+    showModal(<AddNewFlowDialog conn={item.getConn()} basePath={`${path}.`} />, this.context.showModal);
   };
-  onDeleteClicked = () => {
+
+  getMenu = () => {
     let {item} = this.props;
-    item.getConn().setValue(item.key, undefined);
-    item.parent?.open();
+
+    let menuItems: React.ReactElement[] = [];
+
+    let editFlow = this.context?.editFlow;
+    if (editFlow) {
+      menuItems.push(
+        <Menu.Item key="open" onClick={this.onOpenBlock}>
+          <BuildIcon />
+          {t('Open')}
+        </Menu.Item>
+      );
+    }
+    let seekParent = item;
+    while (addChildFlowAllowed.has(seekParent.functionId)) {
+      seekParent = seekParent.parent;
+    }
+    // find the root node, so every level of parents is Flow
+    if (seekParent.id === '') {
+      menuItems.push(
+        <Menu.Item key="addFlow" defaultValue={item.key} onClick={this.onAddNewFlowClick}>
+          <FileAddIcon />
+          {t('Add Child Dataflow')}
+        </Menu.Item>
+      );
+    }
+    menuItems.push(
+      <Menu.Item key="search">
+        <SearchIcon />
+        {t('Search')}
+      </Menu.Item>
+    );
+
+    return menuItems;
   };
 
   onDragStart = (e: DragState) => {
@@ -294,46 +332,6 @@ export class NodeTreeRenderer extends PureDataRenderer<Props, any> {
     this.props.onClick(this.props.item, e);
   };
 
-  getMenu = () => {
-    let {item, getMenu} = this.props;
-    let editFlow = this.context?.editFlow;
-    let menuitems: React.ReactElement[] = [];
-    if (editFlow) {
-      menuitems.push(
-        <Menu.Item key="open" onClick={this.onOpenClicked}>
-          <BuildIcon />
-          {t('Open')}
-        </Menu.Item>
-      );
-    }
-    if (item.canApply) {
-      menuitems.push(
-        <Menu.Item key="save" onClick={this.onSaveClicked}>
-          <SaveIcon />
-          {t('Save')}
-        </Menu.Item>
-      );
-    }
-    if (deleteAllowed.has(item.functionId)) {
-      menuitems.push(
-        <Menu.Item key="delete" onClick={this.onDeleteClicked}>
-          <DeleteIcon />
-          {t('Delete')}
-        </Menu.Item>
-      );
-    }
-    menuitems.push(
-      <Menu.Item key="search">
-        <SearchIcon />
-        {t('Search')}
-      </Menu.Item>
-    );
-    if (getMenu) {
-      menuitems = menuitems.concat(getMenu(item));
-    }
-    return <Menu selectable={false}>{menuitems}</Menu>;
-  };
-
   renderImpl() {
     let {item, style, selected} = this.props;
     let {hasChange, displayName, desc, dynamicStyle, error} = this.state;
@@ -383,11 +381,19 @@ export class NodeTreeRenderer extends PureDataRenderer<Props, any> {
         </div>
       );
     }
-    let onDoubleClick = this.context?.editFlow && quickOpenAllowed.has(item.functionId) ? this.onOpenClicked : null;
+    let onDoubleClick = this.context?.editFlow && quickOpenAllowed.has(item.functionId) ? this.onOpenBlock : null;
+
     return (
       <div style={{...style, marginLeft}} className="ticl-tree-node">
         <ExpandIcon opened={item.opened} onClick={this.onExpandClicked} />
-        <Dropdown overlay={this.getMenu} trigger={['contextMenu']}>
+        <BlockDropdown
+          conn={item.getConn()}
+          path={item.key}
+          displayName={displayName}
+          functionId={item.functionId}
+          canApply={item.canApply}
+          getMenu={this.getMenu}
+        >
           <DragDropDiv
             className={contentClassName}
             onClick={this.onClickContent}
@@ -397,7 +403,7 @@ export class NodeTreeRenderer extends PureDataRenderer<Props, any> {
             {icon}
             {nameNode}
           </DragDropDiv>
-        </Dropdown>
+        </BlockDropdown>
       </div>
     );
   }

@@ -65,7 +65,7 @@ export function forAllPathsBetween(target: string, base: string, callback: (valu
 const invalidNameReg = /[\\\/?*:|"<>]/;
 const invalidPathReg = /[\\\/?*:|"<>.]/;
 export function validateNodeName(name: string) {
-  return name.search(invalidNameReg) < 0;
+  return name?.search(invalidNameReg) < 0;
 }
 export function validateNodePath(path: string) {
   return path.search(invalidPathReg) < 0;

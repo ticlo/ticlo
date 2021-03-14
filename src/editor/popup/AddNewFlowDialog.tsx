@@ -1,9 +1,9 @@
-import {LazyUpdateComponent} from '../../component/LazyUpdateComponent';
+import {LazyUpdateComponent} from '../component/LazyUpdateComponent';
 import {Form, Input, Modal} from 'antd';
 import React from 'react';
-import {ClientConn, validateNodeName} from '../../../../src/core/editor';
-import {FormInputItem} from '../../component/FormItem';
-import {t} from '../../component/LocalizedLabel';
+import {ClientConn, validateNodeName} from '../../core/editor';
+import {FormInputItem} from '../component/FormItem';
+import {t} from '../component/LocalizedLabel';
 
 const {TextArea} = Input;
 
@@ -16,7 +16,7 @@ interface State {
   visible: boolean;
 }
 
-export class AddNewFlow extends LazyUpdateComponent<Props, State> {
+export class AddNewFlowDialog extends LazyUpdateComponent<Props, State> {
   state: State = {visible: true};
 
   formItems = {

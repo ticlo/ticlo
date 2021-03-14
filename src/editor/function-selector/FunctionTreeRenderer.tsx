@@ -54,9 +54,9 @@ export class FunctionTreeRenderer extends PureDataRenderer<Props, any> {
         if (name.includes(':')) {
           let nameParts = name.split(':');
           name = nameParts[nameParts.length - 1];
-          desc = {id: item.key, name, ns: nameParts[0]};
+          desc = {id: item.key, name: name, ns: nameParts[0]};
         } else {
-          desc = {id: item.key, name};
+          desc = {id: item.key, name: name};
         }
       }
       let [colorClass, iconName] = getFuncStyleFromDesc(desc, item.getConn(), 'ticl-bg--');

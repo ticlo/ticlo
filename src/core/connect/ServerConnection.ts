@@ -298,6 +298,7 @@ function getTrackedFlow(block: Block, path: string, root: Root): Flow {
   }
   return flow;
 }
+
 function trackChange(property: BlockProperty, path: string, root: Root) {
   getTrackedFlow(property._block, path, root).trackChange();
 }
@@ -845,6 +846,7 @@ export class ServerConnection extends ServerConnectionCore {
       return 'invalid path';
     }
   }
+
   redo({path}: {path: string}) {
     let property = this.root.queryProperty(path);
     if (property && property._value instanceof Block) {
@@ -870,6 +872,7 @@ export class ServerConnection extends ServerConnectionCore {
       return 'invalid path';
     }
   }
+
   paste({path, data, resolve}: {path: string; data: DataMap; resolve?: 'overwrite' | 'rename'}) {
     let property = this.root.queryProperty(path);
     if (property && property._value instanceof Block) {

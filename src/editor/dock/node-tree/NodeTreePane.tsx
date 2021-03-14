@@ -5,13 +5,13 @@ import {NodeTree} from '../..';
 import {Button, Input, Menu, Tooltip} from 'antd';
 import FileAddIcon from '@ant-design/icons/FileAddOutlined';
 import ReloadIcon from '@ant-design/icons/ReloadOutlined';
-import {AddNewFlow} from './AddNewFlow';
+import {AddNewFlowDialog} from '../../popup/AddNewFlowDialog';
 import {DragDropDiv, DragState} from 'rc-dock/lib';
 import {NodeTreeItem} from '../../node-tree/NodeRenderer';
 import {t} from '../../component/LocalizedLabel';
 import {showModal} from '../../popup/ShowModal';
-
-const addChildFlowAllowed = new Set<string>(['flow:main', 'flow:test-group']);
+import SearchIcon from '@ant-design/icons/SearchOutlined';
+import BuildIcon from '@ant-design/icons/BuildOutlined';
 
 interface Props {
   conn: ClientConn;
@@ -53,36 +53,9 @@ export class NodeTreePane extends React.PureComponent<Props, State> {
     this._nodeTree?.reload();
   };
 
-  onAddNewFlowClick = (param: any) => {
-    let {conn} = this.props;
-    let path = param.item.props.defaultValue;
-    showModal(<AddNewFlow conn={conn} basePath={`${path}.`} />, this.context.showModal);
-  };
-
-  getMenu = (item: NodeTreeItem) => {
-    let {showMenu} = this.props;
-    let menuItems: React.ReactElement[] = [];
-    if (showMenu) {
-      let seekParent = item;
-      while (addChildFlowAllowed.has(seekParent.functionId)) {
-        seekParent = seekParent.parent;
-      }
-      // find the root node, so every level of parents is Flow
-      if (seekParent.id === '') {
-        menuItems.push(
-          <Menu.Item key="addFlow" defaultValue={item.key} onClick={this.onAddNewFlowClick}>
-            <FileAddIcon />
-            {t('Add Child Dataflow')}
-          </Menu.Item>
-        );
-      }
-    }
-    return menuItems;
-  };
-
   showNewFlowModel = () => {
     let {conn} = this.props;
-    showModal(<AddNewFlow conn={conn} basePath={null} />, this.context.showModal);
+    showModal(<AddNewFlowDialog conn={conn} basePath={null} />, this.context.showModal);
   };
 
   newFlowDragOver = (e: DragState) => {
@@ -96,7 +69,7 @@ export class NodeTreePane extends React.PureComponent<Props, State> {
     let {conn} = this.props;
     let path = DragState.getData('path', conn.getBaseConn());
     if (path) {
-      showModal(<AddNewFlow conn={conn} basePath={`${path}.`} />, this.context.showModal);
+      showModal(<AddNewFlowDialog conn={conn} basePath={`${path}.`} />, this.context.showModal);
     }
   };
   render() {
@@ -124,7 +97,6 @@ export class NodeTreePane extends React.PureComponent<Props, State> {
           hideRoot={hideRoot}
           selectedKeys={selectedKeys || []}
           onSelect={onSelect}
-          getMenu={this.getMenu}
         />
       </div>
     );

@@ -12,7 +12,6 @@ interface Props {
   hideRoot?: boolean;
   selectedKeys?: string[];
   onSelect?: (keys: string[]) => void;
-  getMenu?: (item: NodeTreeItem) => React.ReactElement[];
 }
 
 export class NodeTree extends LazyUpdateComponent<Props, any> {
@@ -74,7 +73,7 @@ export class NodeTree extends LazyUpdateComponent<Props, any> {
   };
 
   renderChild = (idx: number, style: React.CSSProperties) => {
-    let {selectedKeys, getMenu} = this.props;
+    let {selectedKeys} = this.props;
     const item = this.list[idx];
     return (
       <NodeTreeRenderer
@@ -83,7 +82,6 @@ export class NodeTree extends LazyUpdateComponent<Props, any> {
         style={style}
         selected={selectedKeys.includes(item.key)}
         onClick={this.onItemClick}
-        getMenu={getMenu}
       />
     );
   };

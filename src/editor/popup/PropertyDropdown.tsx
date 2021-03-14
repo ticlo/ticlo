@@ -23,7 +23,7 @@ import {StringEditor} from '../property/value/StringEditor';
 import {AddCustomPropertyMenu} from '../property/AddCustomProperty';
 import {ClientConn, ValueSubscriber} from '../../core/connect/ClientConn';
 import {CheckboxChangeEvent} from 'antd/lib/checkbox';
-import {ParameterInput} from './ParameterInput';
+import {ParameterInputDialog} from './ParameterInputDialog';
 import {ExpandIcon} from '../component/Tree';
 import {ValueUpdate} from '../../core/connect/ClientRequests';
 
@@ -36,6 +36,7 @@ interface Props {
   group?: string;
   valueDefined?: boolean;
   isCustom?: boolean;
+  // whether property is shown in block view
   display: boolean;
   paths: string[];
   name: string;
@@ -161,7 +162,7 @@ export class PropertyDropdown extends React.PureComponent<Props, State> {
         this.onCloseCommandModal();
       };
       let modal = (
-        <ParameterInput
+        <ParameterInputDialog
           title={
             <LocalizedPropCommand key={command} funcDesc={funcDesc} propBaseName={propDesc.name} command={command} />
           }
