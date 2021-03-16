@@ -40,7 +40,7 @@ export abstract class BlockStageBase<Props extends StagePropsBase, State>
   nextXYx = 0;
   nextXYy = 0;
 
-  /**
+  /** order of new block's auto position
    * 0 1 4
    * 2 3 5
    * 6 7 8
@@ -350,11 +350,11 @@ export abstract class BlockStageBase<Props extends StagePropsBase, State>
     this.sharedListener.subscribe(conn, this._sharedPath);
   }
 
-  UNSAFE_componentWillReceiveProps(nextProps: Props) {
-    if (nextProps.basePath !== this.props.basePath) {
+  getSnapshotBeforeUpdate(prevProps: Props) {
+    if (prevProps.basePath !== this.props.basePath) {
       // TODO clear cached blocks
-      this.props.conn.unwatch(this.props.basePath, this.watchListener);
-      this.props.conn.watch(nextProps.basePath, this.watchListener);
+      this.props.conn.unwatch(prevProps.basePath, this.watchListener);
+      this.props.conn.watch(this.props.basePath, this.watchListener);
     }
   }
 

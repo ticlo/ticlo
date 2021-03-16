@@ -59,10 +59,12 @@ export abstract class PureDataRenderer<P extends DataRendererProps<any>, S> exte
     this._mounted = true;
   }
 
-  UNSAFE_componentWillReceiveProps(nextProps: P) {
-    if (nextProps.item !== this.props.item) {
-      nextProps.item?.attachedRenderer(this);
-      this.props.item?.detachRenderer(this);
+  // attach renderer in getSnapshotBeforeUpdate instead of componentDidUpdate
+  // because it's possible that item's state changed between render() and componentDidUpdate(), causing a forceUpdate() to be ignored
+  getSnapshotBeforeUpdate(prevProps: P) {
+    if (this.props.item !== prevProps.item) {
+      this.props.item?.attachedRenderer(this);
+      prevProps.item?.detachRenderer(this);
     }
   }
 
