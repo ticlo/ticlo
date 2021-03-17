@@ -350,11 +350,11 @@ export abstract class BlockStageBase<Props extends StagePropsBase, State>
     this.sharedListener.subscribe(conn, this._sharedPath);
   }
 
-  getSnapshotBeforeUpdate(prevProps: Props) {
-    if (prevProps.basePath !== this.props.basePath) {
+  UNSAFE_componentWillReceiveProps(nextProps: Props) {
+    if (nextProps.basePath !== this.props.basePath) {
       // TODO clear cached blocks
-      this.props.conn.unwatch(prevProps.basePath, this.watchListener);
-      this.props.conn.watch(this.props.basePath, this.watchListener);
+      this.props.conn.unwatch(this.props.basePath, this.watchListener);
+      this.props.conn.watch(nextProps.basePath, this.watchListener);
     }
   }
 

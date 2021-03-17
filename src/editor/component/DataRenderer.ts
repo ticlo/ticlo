@@ -45,8 +45,8 @@ export interface DataRendererProps<T extends DataRendererItem> {
 }
 
 export abstract class PureDataRenderer<P extends DataRendererProps<any>, S> extends React.PureComponent<P, S> {
-  _rendering = false;
-  _mounted = false;
+  // value is undefined when not mounted
+  _rendering: boolean = undefined;
 
   constructor(props: P) {
     super(props);
@@ -55,22 +55,18 @@ export abstract class PureDataRenderer<P extends DataRendererProps<any>, S> exte
     }
   }
 
-  componentDidMount(): void {
-    this._mounted = true;
-  }
-
-  // attach renderer in getSnapshotBeforeUpdate instead of componentDidUpdate
+  // attach renderer in UNSAFE_componentWillReceiveProps instead of componentDidUpdate
   // because it's possible that item's state changed between render() and componentDidUpdate(), causing a forceUpdate() to be ignored
-  getSnapshotBeforeUpdate(prevProps: P) {
-    if (this.props.item !== prevProps.item) {
-      this.props.item?.attachedRenderer(this);
-      prevProps.item?.detachRenderer(this);
+  UNSAFE_componentWillReceiveProps(nextProps: P) {
+    if (nextProps.item !== this.props.item) {
+      nextProps.item?.attachedRenderer(this);
+      this.props.item?.detachRenderer(this);
     }
   }
 
   componentWillUnmount() {
     this.props.item?.detachRenderer(this);
-    this._mounted = false;
+    this._rendering = undefined;
   }
 
   render(): React.ReactNode {
@@ -81,7 +77,7 @@ export abstract class PureDataRenderer<P extends DataRendererProps<any>, S> exte
   }
 
   safeSetState<K extends keyof S>(state: Pick<S, K> | S | null, callback?: () => void): void {
-    if (this._mounted) {
+    if (this._rendering !== undefined) {
       super.setState(state, callback);
     } else {
       this.state = {...this.state, ...state};
@@ -92,7 +88,8 @@ export abstract class PureDataRenderer<P extends DataRendererProps<any>, S> exte
 
   // @ts-ignore
   forceUpdate = () => {
-    if (this._mounted && !this._rendering) {
+    if (this._rendering === false) {
+      // can't be true or undefined
       super.forceUpdate();
     }
   };

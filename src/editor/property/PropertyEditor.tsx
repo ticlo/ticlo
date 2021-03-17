@@ -144,9 +144,9 @@ export class PropertyEditor extends MultiSelectComponent<PropertyEditorProps, St
     this.subBlockPaths = paths.map((s: string) => `${s}.~${name}`);
   }
 
-  getSnapshotBeforeUpdate(prevProps: PropertyEditorProps) {
-    if (this.subBlockPaths && !arrayEqual(prevProps.paths, this.props.paths)) {
-      this.buildSubBlockPaths(this.props);
+  UNSAFE_componentWillReceiveProps(nextProps: PropertyEditorProps) {
+    if (this.subBlockPaths && !arrayEqual(nextProps.paths, this.props.paths)) {
+      this.buildSubBlockPaths(nextProps);
     }
   }
 
