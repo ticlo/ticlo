@@ -55,22 +55,20 @@ export abstract class PureDataRenderer<P extends DataRendererProps<any>, S> exte
     }
   }
 
-  // attach renderer in UNSAFE_componentWillReceiveProps instead of componentDidUpdate
-  // because it's possible that item's state changed between render() and componentDidUpdate(), causing a forceUpdate() to be ignored
-  UNSAFE_componentWillReceiveProps(nextProps: P) {
-    if (nextProps.item !== this.props.item) {
-      nextProps.item?.attachedRenderer(this);
-      this.props.item?.detachRenderer(this);
-    }
-  }
-
   componentWillUnmount() {
-    this.props.item?.detachRenderer(this);
+    this.attachedItem?.detachRenderer(this);
     this._rendering = undefined;
   }
 
+  attachedItem: DataRendererItem;
   render(): React.ReactNode {
+    let {item} = this.props;
     this._rendering = true;
+    if (item !== this.attachedItem) {
+      item.attachedRenderer(this);
+      this.attachedItem?.detachRenderer(this);
+      this.attachedItem = item;
+    }
     let result = this.renderImpl();
     this._rendering = false;
     return result;
