@@ -1,5 +1,5 @@
 import {Block} from '../block/Block';
-import {BlockProperty} from '../block/BlockProperty';
+import {BlockProperty, HelperProperty} from '../block/BlockProperty';
 
 /**
  *
@@ -27,6 +27,8 @@ export class PropertyMover {
     preNames: string[];
     postNames: string[];
   }[];
+  // move the helper property
+  helperMover: PropertyMover;
 
   constructor(block: Block, oldName: string, moveOutboundLinks = false) {
     this.block = block;
@@ -34,7 +36,13 @@ export class PropertyMover {
     let property = block.getProperty(oldName, false);
     if (property) {
       if (property._bindingPath) {
-        this.binding = property._saveBinding();
+        this.binding = property._bindingPath;
+        if (property._bindingProperty) {
+          this.helperMover = new PropertyMover(block, property._bindingProperty._name, moveOutboundLinks);
+        }
+      } else if (property instanceof HelperProperty) {
+        // default _saveValue for HelperProperty always return null, use __save() instead
+        this.saved = property.__save();
       } else {
         this.saved = property._saveValue();
       }
@@ -62,7 +70,7 @@ export class PropertyMover {
             }
           }
         }
-
+        // return false to call this recursively on children blocks
         return false;
       };
 
@@ -85,12 +93,11 @@ export class PropertyMover {
       }
     }
     if (this.binding) {
-      if (typeof this.binding === 'string') {
-        // normal binding
-        this.block.setBinding(newName, this.binding);
+      if (this.helperMover) {
+        this.block.createHelperBlock(newName);
+        this.helperMover.moveTo(`~${newName}`);
       } else {
-        // binding helper
-        this.block.createHelperBlock(newName)._liveUpdate(this.binding);
+        this.block.setBinding(newName, this.binding);
       }
     } else {
       this.block.getProperty(newName)._liveUpdate(this.saved);

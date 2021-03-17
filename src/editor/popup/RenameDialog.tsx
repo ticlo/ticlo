@@ -51,7 +51,6 @@ export class RenameDialog extends LazyUpdateComponent<Props, State> {
   };
 
   onClose = () => {
-    console.log(1123);
     this.setState({visible: false});
   };
 
