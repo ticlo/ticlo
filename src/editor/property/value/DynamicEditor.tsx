@@ -58,7 +58,7 @@ interface State {
 export class DynamicEditor extends React.PureComponent<ValueEditorProps, State> {
   state: State = {};
 
-  static getTypeFromValue(value: any): ValueType {
+  static getTypeFromValue(value: any, options?: (string | number)[]): ValueType {
     if (value == null) {
       return null;
     }
@@ -81,6 +81,9 @@ export class DynamicEditor extends React.PureComponent<ValueEditorProps, State> 
       case 'string': {
         if (isColorStr(value)) {
           return 'color';
+        }
+        if (options?.includes(value)) {
+          return 'select';
         }
         return 'string';
       }
@@ -112,7 +115,12 @@ export class DynamicEditor extends React.PureComponent<ValueEditorProps, State> 
     if (!onChange) {
       currentType = 'object';
     } else if (!currentType || !onChange) {
-      currentType = DynamicEditor.getTypeFromValue(value);
+      if (types.includes('select')) {
+        currentType = DynamicEditor.getTypeFromValue(value, desc.options);
+      } else {
+        currentType = DynamicEditor.getTypeFromValue(value);
+      }
+
       if (!currentType || !types.includes(currentType)) {
         // when not readonly, must use one of the allowed types
         currentType = types[0];
@@ -123,7 +131,7 @@ export class DynamicEditor extends React.PureComponent<ValueEditorProps, State> 
   }
 
   render() {
-    let {conn, keys, name, desc, value, locked, onChange, addSubBlock} = this.props;
+    let {conn, keys, name, funcDesc, desc, value, locked, onChange, addSubBlock} = this.props;
     let types = desc.types || defaultTypes;
     let currentType = this.getCurrentType();
 
@@ -136,6 +144,7 @@ export class DynamicEditor extends React.PureComponent<ValueEditorProps, State> 
           keys={keys}
           name={name}
           value={value}
+          funcDesc={funcDesc}
           desc={desc}
           locked={locked}
           onChange={this.onValueChange}
