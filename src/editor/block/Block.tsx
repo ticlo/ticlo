@@ -190,7 +190,6 @@ export class BlockView extends PureDataRenderer<BlockViewProps, BlockViewState> 
     if (moving) {
       classNames.push('ticl-block-moving');
     }
-    let displayName = getDisplayName(item.name, this.displayName.value);
 
     if (FullView) {
       classNames.push('ticl-block-full-view');
@@ -240,6 +239,7 @@ export class BlockView extends PureDataRenderer<BlockViewProps, BlockViewState> 
       }
       classNames.push(colorClass);
       if (item.w) {
+        // not minimized
         let widget: React.ReactNode;
         let WidgetType = BlockWidget.get(this.widget.value);
         if (WidgetType) {
@@ -262,7 +262,7 @@ export class BlockView extends PureDataRenderer<BlockViewProps, BlockViewState> 
               onDragEndT={this.onDragEnd}
               name={item.name}
               icon={icon}
-              displayName={displayName}
+              displayName={this.displayName.value}
             />
             {widget}
             <div className="ticl-block-body">{item.renderFields()}</div>
@@ -284,6 +284,7 @@ export class BlockView extends PureDataRenderer<BlockViewProps, BlockViewState> 
           </div>
         );
       } else {
+        // minimized block
         classNames.push('ticl-block-min');
         let headClasses = 'ticl-block-head ticl-block-prbg';
         if (item.shared) {
@@ -292,7 +293,7 @@ export class BlockView extends PureDataRenderer<BlockViewProps, BlockViewState> 
         return (
           <div ref={this.getRef} className={classNames.join(' ')} style={{top: item.y, left: item.x}}>
             <div className="ticl-block-min-bound" />
-            <Tooltip title={displayName} mouseEnterDelay={0}>
+            <Tooltip title={getDisplayName(item.name, this.displayName.value)} mouseEnterDelay={0}>
               <DragDropDiv
                 className={headClasses}
                 directDragT={true}

@@ -16,6 +16,7 @@ import {
   deepEqual,
   ValueSubscriber,
   voidFunction,
+  getDisplayName,
 } from '../../../src/core/editor';
 import {TIcon} from '../icon/Icon';
 import {DragDropDiv, DragState} from 'rc-dock';
@@ -24,6 +25,7 @@ import {FieldValue} from './FieldValue';
 import {isBindable} from '../../core/util/Path';
 import {LocalizedPropertyName} from '../component/LocalizedLabel';
 import {PropertyDropdown} from '../popup/PropertyDropdown';
+import {BlockDropdown} from '../popup/BlockDropdown';
 
 export interface Stage {
   getBlock(path: string): BlockItem;
@@ -316,11 +318,16 @@ export class BlockHeaderView extends PureDataRenderer<BlockHeaderProps, any> {
     if (shared) {
       className = `${className} ticl-block-head-shared`;
     }
-    let nameNode: React.ReactNode;
-    if (displayName !== name) {
-      nameNode = <u title={name}>{displayName}</u>;
+    let nameNode: React.ReactElement;
+    let nameLabel = getDisplayName(name, displayName);
+    if (nameLabel !== name) {
+      nameNode = (
+        <u className="ticl-block-head-label" title={name}>
+          {nameLabel}
+        </u>
+      );
     } else {
-      nameNode = name;
+      nameNode = <div className="ticl-block-head-label">{name}</div>;
     }
 
     return (
@@ -346,7 +353,15 @@ export class BlockHeaderView extends PureDataRenderer<BlockHeaderProps, any> {
           </div>
         ) : null}
         <TIcon icon={icon} />
-        {nameNode}
+        <BlockDropdown
+          functionId={item.block.desc.id}
+          conn={item.getConn()}
+          path={item.block.path}
+          displayName={displayName}
+          canApply={false}
+        >
+          {nameNode}
+        </BlockDropdown>
       </DragDropDiv>
     );
   }

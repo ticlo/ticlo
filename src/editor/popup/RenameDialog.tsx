@@ -22,8 +22,8 @@ export class RenameDialog extends LazyUpdateComponent<Props, State> {
 
   formItems = {
     changeDisp: new FormItem<boolean>(this, 'changeDisp', t('Change'), Boolean(this.props.displayName)),
-    nameEditor: new FormInputItem<string>(this, 'name', t('Name')),
-    dispEditor: new FormInputItem<string>(this, 'dispName', t('Name')),
+    nameEditor: new FormInputItem<string>(this, 'name', t('Name'), this.props.path.split('.').pop()),
+    dispEditor: new FormInputItem<string>(this, 'dispName', t('Name'), this.props.displayName ?? ''),
   };
 
   renameBlock = () => {
@@ -61,14 +61,25 @@ export class RenameDialog extends LazyUpdateComponent<Props, State> {
     let name = path.split('.').pop();
     let enabled = changeDisp.value ? dispEditor.value !== displayName : nameEditor.value !== name;
     return (
-      <Modal title={t('Rename')} visible={visible} onOk={this.renameBlock} onCancel={this.onClose}>
+      <Modal
+        title={t('Rename')}
+        visible={visible}
+        onOk={this.renameBlock}
+        onCancel={this.onClose}
+        okButtonProps={{disabled: !enabled}}
+      >
         <Form labelCol={{span: 4}} wrapperCol={{span: 20}}>
           {changeDisp.render(
-            <Switch onChange={changeDisp.onChange} checkedChildren={t('Display Name')} unCheckedChildren={t('Name')} />
+            <Switch
+              onChange={changeDisp.onChange}
+              checked={changeDisp.value}
+              checkedChildren={t('Display Name')}
+              unCheckedChildren={t('Name')}
+            />
           )}
           {changeDisp.value
-            ? dispEditor.render(<Input defaultValue={displayName || ''} onChange={dispEditor.onInputChange} />)
-            : nameEditor.render(<Input defaultValue={name} onChange={nameEditor.onInputChange} />)}
+            ? dispEditor.render(<Input value={dispEditor.value} onChange={dispEditor.onInputChange} />)
+            : nameEditor.render(<Input value={nameEditor.value} onChange={nameEditor.onInputChange} />)}
         </Form>
       </Modal>
     );

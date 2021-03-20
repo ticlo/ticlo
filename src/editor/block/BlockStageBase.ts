@@ -37,25 +37,26 @@ export abstract class BlockStageBase<Props extends StagePropsBase, State>
   abstract onChildrenSizeChanged(): void;
 
   // automatic block location
-  nextXYx = 0;
-  nextXYy = 0;
+  nextBlockX = 0;
+  nextBlockY = 0;
 
   /** order of new block's auto position
-   * 0 1 4
-   * 2 3 5
-   * 6 7 8
+   * 0 1 4 9
+   * 2 3 5 A
+   * 6 7 8 B
+   * C D E F
    */
   getNextXYW() {
-    let result: [number, number, number] = [this.nextXYx * 192 + 36, this.nextXYy * 192 + 36, 143];
-    if (this.nextXYx === this.nextXYy) {
-      this.nextXYx = this.nextXYy + 1;
-      this.nextXYy = 0;
-    } else if (this.nextXYy > this.nextXYx) {
-      this.nextXYx++;
+    let result: [number, number, number] = [this.nextBlockX * 192 + 36, this.nextBlockY * 192 + 36, 143];
+    if (this.nextBlockX === this.nextBlockY) {
+      this.nextBlockX = this.nextBlockY + 1;
+      this.nextBlockY = 0;
+    } else if (this.nextBlockY > this.nextBlockX) {
+      this.nextBlockX++;
     } else {
-      this.nextXYy++;
-      if (this.nextXYx === this.nextXYy) {
-        this.nextXYx = 0;
+      this.nextBlockY++;
+      if (this.nextBlockX === this.nextBlockY) {
+        this.nextBlockX = 0;
       }
     }
     return result;
