@@ -1,88 +1,94 @@
 # Common
-'Name': 'Name'
-'Type': 'Type'
-'Block': 'Block'
-'Open': 'Open'
-'Save': 'Save'
-'Edit': 'Edit'
-'Delete': 'Delete'
-'Search': 'Search'
-'Error': 'Error'
-'Rename': 'Rename'
-'Navigation': 'Navigation'
-'Properties': 'Properties'
-'Functions': 'Functions'
-'Pinned': 'Pinned'
-'#global': '#global'
-'#shared': '#shared'
-'#temp': '#temp'
-'#edit': '#edit'
-'-running-#': ' ( running{{- detail}} )'
-'-passed-#': ' ( passed{{- detail}} )'
-'-failed-#': ' ( failed{{- detail}} )'
+"Name": "Name"
+"Type": "Type"
+"Block": "Block"
+"Open": "Open"
+"Save": "Save"
+"Edit": "Edit"
+"Delete": "Delete"
+"Search": "Search"
+"Error": "Error"
+"Rename": "Rename"
+"Navigation": "Navigation"
+"Properties": "Properties"
+"Functions": "Functions"
+"Pinned": "Pinned"
+"#global": "#global"
+"#shared": "#shared"
+"#temp": "#temp"
+"#edit": "#edit"
+"-running-#": "-running-#"
+"-passed-#": "-passed-#"
+"-failed-#": "-failed-#"
 
-# AddNewFlow.tsx & NodeTreePane.tsx
-'New Dataflow': 'New Dataflow'
+# NodeTreePane.tsx & AddNewFlowDialog.tsx
+"New Dataflow": "New Dataflow"
 
 # block/BlockStage.tsx
-'Undo': 'Undo'
-'Redo': 'Redo'
+"Undo": "Undo"
+"Redo": "Redo"
 
 # dock/block/BlockStagePane.tsx
-'Hide Properties': 'Hide Properties'
-'Show Properties': 'Show Properties'
-
-# dock/node-tree/AddNewFlow.tsx
-'Data': 'Data'
+"Hide Properties": "Hide Properties"
+"Show Properties": "Show Properties"
 
 # dock/node-tree/NodeTreePane.tsx
-'Add Child Dataflow': 'Add Child Dataflow'
-'Reload': 'Reload'
+"Reload": "Reload"
 
 # function-selector/FunctionSelector.tsx
-'Function Tree': 'Function Tree'
-'Recent': 'Recent'
-'Add Function': 'Add Function'
-'Function Name?': 'Function Name?'
+"Function Tree": "Function Tree"
+"Recent": "Recent"
+"Add Function": "Add Function"
+"Function Name?": "Function Name?"
 
-# popup/PropertyPopup.tsx
-'Add Sub Block': 'Add Sub Block'
-'Binding': 'Binding'
-'Clear': 'Clear'
-'Insert at {{n}}': 'Insert at {{n}}'
-'Delete at {{n}}': 'Delete at {{n}}'
-'Remove Property': 'Remove Property'
-'Add Child Property': 'Add Child Property'
-'Execute Command': 'Execute Command'
+# node-tree/NodeRenderer.tsx
+"Add Child Dataflow": "Add Child Dataflow"
+
+# popup/AddNewFlowDialog.tsx
+"Data": "Data"
+
+# popup/PropertyDropdown.tsx
+"Add Sub Block": "Add Sub Block"
+"Binding": "Binding"
+"Clear": "Clear"
+"Insert at {{n}}": "Insert at {{n}}"
+"Delete at {{n}}": "Delete at {{n}}"
+"Remove Property": "Remove Property"
+"Add Child Property": "Add Child Property"
+"Execute Command": "Execute Command"
+
+# popup/RenameDialog.tsx
+"Change": "Change"
+"Display Name": "Display Name"
 
 # property/AddCustomProperty.tsx
-'Default Length': 'Default Length'
-'Min': 'Min'
-'Max': 'Max'
-'Step': 'Step'
-'Place Holder': 'Place Holder'
-'Options': 'Options'
-'Show Alpha': 'Show Alpha'
-'Invalid Name': 'Invalid Name'
-'Number character not allowed': 'Number character not allowed'
-'Require more than one option': 'Require more than one option'
-'Must have 0 or 2 options': 'Must have 0 or 2 options'
-'number': 'number'
-'string': 'string'
-'toggle': 'toggle'
-'select': 'select'
-'radio-button': 'radio-button'
-'color': 'color'
-'date': 'date'
-'date-range': 'date-range'
-'password': 'password'
-'dynamic': 'dynamic'
-'group': 'group'
-'Comma separated': 'Comma separated'
-'Add Property': 'Add Property'
+"Default Length": "Default Length"
+"Min": "Min"
+"Max": "Max"
+"Step": "Step"
+"Place Holder": "Place Holder"
+"Options": "Options"
+"Show Alpha": "Show Alpha"
+"Invalid Name": "Invalid Name"
+"Number character not allowed": "Number character not allowed"
+"Require more than one option": "Require more than one option"
+"Must have 0 or 2 options": "Must have 0 or 2 options"
+"number": "number"
+"string": "string"
+"toggle": "toggle"
+"select": "select"
+"radio-button": "radio-button"
+"color": "color"
+"date": "date"
+"date-range": "date-range"
+"password": "password"
+"dynamic": "dynamic"
+"group": "group"
+"Comma separated": "Comma separated"
+"Add Property": "Add Property"
 
 # property/OptionalPropertyList.tsx
-'Optional': 'Optional'
+"Optional": "Optional"
 
 # property/PropertyEditor.tsx
 "Unlocked for editing\nDouble click to lock": "Unlocked for editing\nDouble click to lock"
@@ -90,5 +96,5 @@
 "Inconsistent values\nDouble click to edit": "Inconsistent values\nDouble click to edit"
 
 # property/PropertyList.tsx
-'Config': 'Config'
-'Custom': 'Custom'
+"Config": "Config"
+"Custom": "Custom"
