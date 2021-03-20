@@ -16,7 +16,7 @@
   3,
   4
  ],
- "~actual0": "##.map.#output"
+ "~actual0": "##.map_number_to_number.#output"
 },
 "assert1": {
  "#is": "test:assert",
@@ -40,7 +40,7 @@
    "a": 4
   }
  ],
- "~actual0": "##.map1.#output"
+ "~actual0": "##.map_number_to_object.#output"
 },
 "assert2": {
  "#is": "test:assert",
@@ -58,7 +58,7 @@
   3,
   4
  ],
- "~actual0": "##.map2.#output"
+ "~actual0": "##.map_object_to_number.#output"
 },
 "assert3": {
  "#is": "test:assert",
@@ -82,9 +82,9 @@
    "a": 4
   }
  ],
- "~actual0": "##.map3.#output"
+ "~actual0": "##.map_object_to_object.#output"
 },
-"map": {
+"map_number_to_number": {
  "#is": "map",
  "@b-p": [
   "input",
@@ -144,7 +144,7 @@
   }
  }
 },
-"map1": {
+"map_number_to_object": {
  "#is": "map",
  "@b-p": [
   "input",
@@ -210,7 +210,7 @@
   }
  }
 },
-"map2": {
+"map_object_to_number": {
  "#is": "map",
  "@b-p": [
   "input",
@@ -282,7 +282,7 @@
   }
  }
 },
-"map3": {
+"map_object_to_object": {
  "#is": "map",
  "@b-p": [
   "input",
