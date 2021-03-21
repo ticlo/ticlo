@@ -1,18 +1,29 @@
 import {Block} from '../block/Block';
 import {BlockProperty, HelperProperty} from '../block/BlockProperty';
+import {PropListener} from '../block/Dispatcher';
+import {BlockBinding} from '../block/BlockBinding';
 
-/**
- *
- * @param block
- * @param callback return true on sub block to skip children properties
- */
-export function iterateProperties(block: Block, callback: (property: BlockProperty) => boolean) {
-  for (let [name, prop] of block._props) {
-    if (!prop.isCleared()) {
-      let skipChildren = callback(prop);
-      if (!skipChildren && prop._saved instanceof Block && prop._saved._prop === prop) {
-        iterateProperties(prop._saved, callback);
-      }
+// /**
+//  * @param block
+//  * @param callback return true on sub block to skip children properties
+//  */
+// export function iterateProperties(block: Block, callback: (property: BlockProperty) => boolean) {
+//   for (let [name, prop] of block._props) {
+//     if (!prop.isCleared()) {
+//       let skipChildren = callback(prop);
+//       if (!skipChildren && prop._saved instanceof Block && prop._saved._prop === prop) {
+//         iterateProperties(prop._saved, callback);
+//       }
+//     }
+//   }
+// }
+
+function iterateListeners(listeners: Set<PropListener<any>>, callback: (property: BlockProperty) => void) {
+  for (let listener of listeners) {
+    if (listener instanceof BlockBinding) {
+      iterateListeners(listener._listeners, callback);
+    } else if (listener instanceof BlockProperty) {
+      callback(listener);
     }
   }
 }
@@ -47,39 +58,30 @@ export class PropertyMover {
         this.saved = property._saveValue();
       }
 
-      let checkOutbound = (checkProp: BlockProperty) => {
-        for (let targetProp of checkProp._listeners) {
-          // find binding targets
-          if (targetProp instanceof BlockProperty) {
-            if (targetProp._bindingPath && targetProp._bindingPath.includes(oldName)) {
-              let names = targetProp._bindingPath.split('.');
-              for (let i = 0; i < names.length; ++i) {
-                if (names[i] === oldName) {
-                  // check if the binding path touchs the property we are moving
-                  let bindSourceProp = targetProp._block.queryProperty(names.slice(0, i + 1).join('.'));
-                  if (bindSourceProp === property) {
-                    this.outboundLinks.push({
-                      prop: targetProp,
-                      preNames: names.slice(0, i),
-                      postNames: names.slice(i + 1),
-                    });
-                    break;
-                  }
-                }
+      const checkOutBound = (checkProp: BlockProperty) => {
+        let bindingPath = checkProp._bindingPath;
+        if (bindingPath) {
+          let names = bindingPath.split('.');
+          for (let i = 0; i < names.length; ++i) {
+            if (names[i] === oldName) {
+              // double check if the binding path touches the property we are moving
+              let bindSourceProp = checkProp._block.queryProperty(names.slice(0, i + 1).join('.'));
+              if (bindSourceProp === property) {
+                this.outboundLinks.push({
+                  prop: checkProp,
+                  preNames: names.slice(0, i),
+                  postNames: names.slice(i + 1),
+                });
+                break;
               }
             }
           }
         }
-        // return false to call this recursively on children blocks
-        return false;
       };
 
       if (moveOutboundLinks) {
         this.outboundLinks = [];
-        checkOutbound(property);
-        if (property._saved instanceof Block && property._saved._prop === property) {
-          iterateProperties(property._saved, checkOutbound);
-        }
+        iterateListeners(property._listeners, checkOutBound);
       }
       block.setValue(oldName, undefined);
     }
