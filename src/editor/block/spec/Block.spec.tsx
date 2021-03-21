@@ -205,7 +205,7 @@ describe('editor BlockStage', function () {
     // wait for the wire
     await shouldHappen(() => div.querySelector('svg.ticl-block-wire'));
 
-    let addBlock = querySingle("//div.ticl-block-head[text()='add']/..", div);
+    let addBlock = querySingle("//div.ticl-block-head.ticl-block-head-label[text()='add']/../..", div);
     assert.equal(addBlock.offsetWidth, 143);
 
     let wire = div.querySelector('svg.ticl-block-wire') as SVGSVGElement;
@@ -225,7 +225,7 @@ describe('editor BlockStage', function () {
     assert.equal(div.querySelector('svg'), wire);
 
     // click the other block
-    SimulateEvent.simulate(querySingle("//div.ticl-block-head[text()='subtract']", div), 'mousedown');
+    SimulateEvent.simulate(querySingle("//div.ticl-block-head.ticl-block-head-label[text()='subtract']/..", div), 'mousedown');
     // addBlock is no longer selected
     await shouldHappen(() => !addBlock.classList.contains('ticl-block-selected'));
     // since subtract block is now selected, wire should still have zindex

@@ -111,7 +111,7 @@ describe('editor Block Field', function () {
 
     await shouldHappen(() => div.querySelector('.ticl-block'));
 
-    let subtractBlock = querySingle("//div.ticl-block-head[text()='subtract']/..", div);
+    let subtractBlock = querySingle("//div.ticl-block-head.ticl-block-head-label[text()='subtract']/../..", div);
 
     await shouldHappen(() => subtractBlock.querySelectorAll('.ticl-field').length === 3);
 
