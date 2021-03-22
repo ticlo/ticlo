@@ -65,7 +65,7 @@ export abstract class PureDataRenderer<P extends DataRendererProps<any>, S> exte
     let {item} = this.props;
     this._rendering = true;
     if (item !== this.attachedItem) {
-      item.attachedRenderer(this);
+      item?.attachedRenderer(this);
       this.attachedItem?.detachRenderer(this);
       this.attachedItem = item;
     }

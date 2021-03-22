@@ -261,9 +261,9 @@ interface BlockHeaderProps extends FieldViewProps {
   onDragMoveT?: DragManager.DragHandler;
   onDragEndT?: DragManager.DragHandler;
   onDoubleClick?: MouseEventHandler;
-  name: string;
   icon: string;
   displayName: string;
+  blockItem: BlockItem;
 }
 
 export class BlockHeaderView extends PureDataRenderer<BlockHeaderProps, any> {
@@ -290,7 +290,7 @@ export class BlockHeaderView extends PureDataRenderer<BlockHeaderProps, any> {
   };
 
   renderImpl(): React.ReactNode {
-    let {item, shared, onDragStartT, onDragMoveT, onDragEndT, onDoubleClick, icon, name, displayName} = this.props;
+    let {item, shared, onDragStartT, onDragMoveT, onDragEndT, onDoubleClick, icon, blockItem, displayName} = this.props;
     let inBoundClass: string;
     let inBoundText: string;
     let inBoundTitle: string;
@@ -319,15 +319,15 @@ export class BlockHeaderView extends PureDataRenderer<BlockHeaderProps, any> {
       className = `${className} ticl-block-head-shared`;
     }
     let nameNode: React.ReactElement;
-    let nameLabel = getDisplayName(name, displayName);
-    if (nameLabel !== name) {
+    let nameLabel = getDisplayName(blockItem.name, displayName);
+    if (nameLabel !== blockItem.name) {
       nameNode = (
-        <u className="ticl-block-head-label" title={name}>
+        <u className="ticl-block-head-label" title={blockItem.name}>
           {nameLabel}
         </u>
       );
     } else {
-      nameNode = <div className="ticl-block-head-label">{name}</div>;
+      nameNode = <div className="ticl-block-head-label">{nameLabel}</div>;
     }
 
     return (
@@ -347,16 +347,16 @@ export class BlockHeaderView extends PureDataRenderer<BlockHeaderProps, any> {
           </div>
         ) : null}
         {showOutBound ? <div className="ticl-outbound" /> : null}
-        {item && item.subBlock ? (
+        {item?.subBlock ? (
           <div className="ticl-field-subicon ticl-block-prbg">
             <TIcon icon={item.subBlock.desc.icon} />
           </div>
         ) : null}
         <TIcon icon={icon} />
         <BlockDropdown
-          functionId={item.block.desc.id}
-          conn={item.getConn()}
-          path={item.block.path}
+          functionId={blockItem.desc.id}
+          conn={blockItem.conn}
+          path={blockItem.path}
           displayName={displayName}
           canApply={false}
         >

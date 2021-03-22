@@ -260,7 +260,7 @@ export class BlockView extends PureDataRenderer<BlockViewProps, BlockViewState> 
               onDragStartT={this.selectAndDrag}
               onDragMoveT={this.onDragMove}
               onDragEndT={this.onDragEnd}
-              name={item.name}
+              blockItem={item}
               icon={icon}
               displayName={this.displayName.value}
             />
