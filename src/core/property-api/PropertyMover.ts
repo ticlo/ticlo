@@ -48,8 +48,8 @@ export class PropertyMover {
     if (property) {
       if (property._bindingPath) {
         this.binding = property._bindingPath;
-        if (property._bindingProperty) {
-          this.helperMover = new PropertyMover(block, property._bindingProperty._name, moveOutboundLinks);
+        if (property._helperProperty) {
+          this.helperMover = new PropertyMover(block, property._helperProperty._name, moveOutboundLinks);
         }
       } else if (property instanceof HelperProperty) {
         // default _saveValue for HelperProperty always return null, use __save() instead

@@ -886,4 +886,28 @@ describe('Connection', function () {
     client.destroy();
     Root.instance.deleteValue('Connection25');
   });
+
+  it('call function', async function () {
+    let flow = Root.instance.addFlow('Connection26');
+    let addBlock = flow.createBlock('add');
+    addBlock._load({
+      '#mode': 'onCall',
+      '#is': 'add',
+      '0': 1,
+      '1': 2,
+    });
+
+    Root.run();
+    assert.isUndefined(addBlock.getValue('#output'));
+
+    let [server, client] = makeLocalConnection(Root.instance, false);
+
+    await client.callFunction('Connection26.add');
+    Root.run();
+
+    assert.equal(addBlock.getValue('#output'), 3);
+
+    client.destroy();
+    Root.instance.deleteValue('Connection26');
+  });
 });

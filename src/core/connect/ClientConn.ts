@@ -127,6 +127,8 @@ export interface ClientConn {
     callbacks?: ClientCallbacks
   ): Promise<any> | string;
 
+  callFunction(path: string, callbacks?: ClientCallbacks): Promise<any> | string;
+
   watchDesc(id: string, listener?: ClientDescListener): FunctionDesc;
 
   unwatchDesc(listener: ClientDescListener): void;

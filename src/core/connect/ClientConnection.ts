@@ -410,6 +410,10 @@ export abstract class ClientConnection extends Connection implements ClientConn 
     return this.simpleRequest({cmd: 'paste', path, data, resolve}, callbacks);
   }
 
+  callFunction(path: string, callbacks?: ClientCallbacks): Promise<any> | string {
+    return this.simpleRequest({cmd: 'callFunction', path}, callbacks);
+  }
+
   cancel(id: string) {
     let req: DataMap = this.requests.get(id);
     if (req instanceof ClientRequest) {

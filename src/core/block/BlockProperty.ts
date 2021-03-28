@@ -21,7 +21,7 @@ export class BlockProperty extends PropDispatcher<any> implements PropListener<a
   readonly _name: string;
   _bindingPath: string;
   _bindingSource: BlockBindingSource;
-  _bindingProperty: HelperProperty;
+  _helperProperty: HelperProperty;
 
   _saved: any;
 
@@ -80,9 +80,9 @@ export class BlockProperty extends PropDispatcher<any> implements PropListener<a
   setValue(val: any) {
     if (this._bindingSource) {
       this._bindingSource.unlisten(this);
-      if (this._bindingProperty) {
-        this._bindingProperty.setValue(undefined);
-        this._bindingProperty = null;
+      if (this._helperProperty) {
+        this._helperProperty.setValue(undefined);
+        this._helperProperty = null;
       }
       this._bindingPath = null;
       this._bindingSource = null;
@@ -107,9 +107,9 @@ export class BlockProperty extends PropDispatcher<any> implements PropListener<a
     if (this._bindingSource) {
       this._bindingSource.unlisten(this);
     }
-    if (this._bindingProperty) {
-      this._bindingProperty.setValue(undefined);
-      this._bindingProperty = null;
+    if (this._helperProperty) {
+      this._helperProperty.setValue(undefined);
+      this._helperProperty = null;
     }
     this._bindingPath = path;
 
@@ -135,7 +135,7 @@ export class BlockProperty extends PropDispatcher<any> implements PropListener<a
   }
 
   setBindProperty(prop: HelperProperty) {
-    this._bindingProperty = prop;
+    this._helperProperty = prop;
   }
 
   _saveValue(): any {
@@ -152,8 +152,8 @@ export class BlockProperty extends PropDispatcher<any> implements PropListener<a
   }
 
   _saveBinding(): any {
-    if (this._bindingProperty) {
-      return this._bindingProperty.__save();
+    if (this._helperProperty) {
+      return this._helperProperty.__save();
     }
     return this._bindingPath;
   }

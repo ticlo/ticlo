@@ -85,6 +85,12 @@ export interface FunctionDesc {
   ns?: string;
   src?: 'worker' | 'js' | 'category' | 'hidden';
   help?: string;
+  /**
+   * 0: light function that can emit result synchronously
+   * 1: heavy function that can emit result synchronously
+   * 2: async function
+   * 3: async function with side effect, need to avoid running it multiple times, like calling rest api
+   */
   priority?: 0 | 1 | 2 | 3;
   mode?: BlockMode;
   properties?: (PropDesc | PropGroupDesc)[];

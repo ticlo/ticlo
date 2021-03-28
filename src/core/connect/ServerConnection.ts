@@ -886,4 +886,16 @@ export class ServerConnection extends ServerConnectionCore {
       return 'invalid path';
     }
   }
+
+  callFunction({path}: {path: string}) {
+    let property = this.root.queryProperty(path);
+    if (property && property._value instanceof Block) {
+      if (property._value._function) {
+        property._value._queueFunction();
+      }
+      return null;
+    } else {
+      return 'invalid path';
+    }
+  }
 }
