@@ -120,6 +120,8 @@ describe('Connection Error', function () {
       'invalid path'
     );
 
+    assert.equal(await shouldReject(client.callFunction('ConnectionError1.a') as Promise<any>), 'invalid path');
+
     assert.equal(
       await shouldReject(client.executeCommand('ConnectionError1.a.b.c', 'test', {}) as Promise<any>),
       'invalid path'
