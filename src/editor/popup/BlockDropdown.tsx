@@ -9,6 +9,7 @@ import BuildIcon from '@ant-design/icons/BuildOutlined';
 import SaveIcon from '@ant-design/icons/SaveOutlined';
 import DeleteIcon from '@ant-design/icons/DeleteOutlined';
 import EditIcon from '@ant-design/icons/EditOutlined';
+import PlayIcon from '@ant-design/icons/CaretRightOutlined';
 import SearchIcon from '@ant-design/icons/SearchOutlined';
 import {FunctionDesc, PropDesc} from '../../core';
 import {ClientConn} from '../../core/connect/ClientConn';
@@ -60,13 +61,17 @@ export class BlockDropdown extends React.PureComponent<Props, State> {
     showModal(<RenameDialog conn={conn} path={path} displayName={displayName} />, this.context.showModal);
   };
 
+  onCallClicked = () => {
+    let {conn, path} = this.props;
+    conn.callFunction(path);
+  };
   onAddNewFlowClick = (param: any) => {
     let {conn, path} = this.props;
     showModal(<AddNewFlowDialog conn={conn} basePath={`${path}.`} />, this.context.showModal);
   };
 
   getMenu = () => {
-    let {canApply, functionId, getMenu} = this.props;
+    let {conn, canApply, functionId, getMenu} = this.props;
 
     let menuitems: React.ReactElement[] = [];
     if (getMenu) {
@@ -97,6 +102,31 @@ export class BlockDropdown extends React.PureComponent<Props, State> {
       );
     }
 
+    let showCallMenu = !functionId.startsWith('flow:');
+    let commandMenus: React.ReactElement[] = [];
+
+    if (showCallMenu || commandMenus.length) {
+      menuitems.push(
+        <Menu.Item key="divider">
+          <div className="ticl-property-divider">
+            {t('Execute Command')}
+            <div className="ticl-h-line" />
+          </div>
+        </Menu.Item>
+      );
+
+      if (showCallMenu) {
+        menuitems.push(
+          <Menu.Item key="call" onClick={this.onCallClicked}>
+            <PlayIcon />
+            {t('Call')}
+          </Menu.Item>
+        );
+      }
+
+      menuitems.push(...commandMenus);
+    }
+
     return (
       <Menu prefixCls="ant-dropdown-menu" selectable={false} onClick={this.closeMenu}>
         {menuitems}
@@ -109,12 +139,7 @@ export class BlockDropdown extends React.PureComponent<Props, State> {
     let {visible} = this.state;
     let popup = visible ? this.getMenu() : null;
     return (
-      <Popup
-        popup={popup}
-        trigger={['contextMenu']}
-        popupVisible={visible}
-        onPopupVisibleChange={this.onMenuVisibleChange}
-      >
+      <Popup popup={popup} trigger={['contextMenu']} popupVisible={visible} onPopupVisibleChange={this.onMenuVisibleChange}>
         {children}
       </Popup>
     );

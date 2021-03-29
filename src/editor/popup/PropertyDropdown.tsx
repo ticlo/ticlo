@@ -321,7 +321,7 @@ export class PropertyDropdown extends React.PureComponent<Props, State> {
         for (let command of commands) {
           commandMenus.push(
             // tslint:disable-next-line:jsx-no-lambda
-            <span key={command} onClick={() => this.onExeCommand(command)}>
+            <span key={`cmd-${command}`} onClick={() => this.onExeCommand(command)}>
               <LocalizedPropCommand key={command} funcDesc={funcDesc} propBaseName={propDesc.name} command={command} />
             </span>
           );
@@ -329,7 +329,7 @@ export class PropertyDropdown extends React.PureComponent<Props, State> {
 
         if (commandMenus.length) {
           menuItems.push(
-            <div className="ticl-property-divider">
+            <div key='divider' className="ticl-property-divider">
               {t('Execute Command')}
               <div className="ticl-h-line" />
             </div>
