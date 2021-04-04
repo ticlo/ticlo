@@ -31,6 +31,7 @@ import {BlockDropdown} from '../popup/BlockDropdown';
 import {showModal} from '../popup/ShowModal';
 import {AddNewFlowDialog} from '../popup/AddNewFlowDialog';
 import FileAddIcon from '@ant-design/icons/FileAddOutlined';
+import {MenuItem} from '../component/ClickPopup';
 
 const saveAllowed = new Set<string>(['flow:editor', 'flow:worker', 'flow:main', 'flow:test-case']);
 const quickOpenAllowed = new Set<string>(['flow:editor', 'flow:worker', 'flow:main', 'flow:test-case', 'flow:const']);
@@ -204,9 +205,8 @@ export class NodeTreeRenderer extends PureDataRenderer<Props, any> {
     }
   };
 
-  onAddNewFlowClick = (param: any) => {
+  onAddNewFlowClick = (path: string) => {
     let {item} = this.props;
-    let path = param.item.props.defaultValue;
     showModal(<AddNewFlowDialog conn={item.getConn()} basePath={`${path}.`} />, this.context.showModal);
   };
 
@@ -218,10 +218,10 @@ export class NodeTreeRenderer extends PureDataRenderer<Props, any> {
     let editFlow = this.context?.editFlow;
     if (editFlow) {
       menuItems.push(
-        <Menu.Item key="open" onClick={this.onOpenBlock}>
+        <MenuItem key="open" onClick={this.onOpenBlock}>
           <BuildIcon />
           {t('Open')}
-        </Menu.Item>
+        </MenuItem>
       );
     }
     let seekParent = item;
@@ -231,17 +231,17 @@ export class NodeTreeRenderer extends PureDataRenderer<Props, any> {
     // find the root node, so every level of parents is Flow
     if (seekParent.id === '') {
       menuItems.push(
-        <Menu.Item key="addFlow" defaultValue={item.key} onClick={this.onAddNewFlowClick}>
+        <MenuItem key="addFlow" value={item.key} onClick={this.onAddNewFlowClick}>
           <FileAddIcon />
           {t('Add Child Dataflow')}
-        </Menu.Item>
+        </MenuItem>
       );
     }
     menuItems.push(
-      <Menu.Item key="search">
+      <MenuItem key="search">
         <SearchIcon />
         {t('Search')}
-      </Menu.Item>
+      </MenuItem>
     );
 
     return menuItems;

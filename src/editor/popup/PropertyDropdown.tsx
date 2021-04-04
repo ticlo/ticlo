@@ -1,5 +1,5 @@
 import React from 'react';
-import {Menu, Popup, SubMenuItem} from '../component/ClickPopup';
+import {Menu, Popup, SubMenuItem, MenuItem} from '../component/ClickPopup';
 import {FunctionSelect} from '../function-selector/FunctionSelector';
 import {
   blankFuncDesc,
@@ -179,7 +179,6 @@ export class PropertyDropdown extends React.PureComponent<Props, State> {
         conn.executeCommand(path, command, {property: name});
       }
     }
-    this.closeMenu();
   }
 
   static addSubBlock(
@@ -321,15 +320,15 @@ export class PropertyDropdown extends React.PureComponent<Props, State> {
         for (let command of commands) {
           commandMenus.push(
             // tslint:disable-next-line:jsx-no-lambda
-            <span key={`cmd-${command}`} onClick={() => this.onExeCommand(command)}>
+            <MenuItem key={`cmd-${command}`} value={command} onClick={this.onExeCommand}>
               <LocalizedPropCommand key={command} funcDesc={funcDesc} propBaseName={propDesc.name} command={command} />
-            </span>
+            </MenuItem>
           );
         }
 
         if (commandMenus.length) {
           menuItems.push(
-            <div key='divider' className="ticl-property-divider">
+            <div key="divider" className="ticl-property-divider">
               {t('Execute Command')}
               <div className="ticl-h-line" />
             </div>

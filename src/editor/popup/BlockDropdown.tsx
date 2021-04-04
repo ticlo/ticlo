@@ -2,7 +2,6 @@ import {showModal} from './ShowModal';
 import {AddNewFlowDialog} from './AddNewFlowDialog';
 import {NodeTreeItem} from '../node-tree/NodeRenderer';
 import React from 'react';
-import {Menu} from 'antd';
 import FileAddIcon from '@ant-design/icons/FileAddOutlined';
 import {LocalizedPropCommand, t} from '../component/LocalizedLabel';
 import BuildIcon from '@ant-design/icons/BuildOutlined';
@@ -13,7 +12,7 @@ import PlayIcon from '@ant-design/icons/CaretRightOutlined';
 import SearchIcon from '@ant-design/icons/SearchOutlined';
 import {FunctionDesc, PropDesc} from '../../core';
 import {ClientConn} from '../../core/connect/ClientConn';
-import {Popup} from '../component/ClickPopup';
+import {Popup, Menu, MenuItem} from '../component/ClickPopup';
 import {RenameDialog} from './RenameDialog';
 import {splitPathName} from '../../core/util/Path';
 
@@ -36,10 +35,6 @@ interface State {
 
 export class BlockDropdown extends React.PureComponent<Props, State> {
   state: State = {visible: false};
-
-  closeMenu = () => {
-    this.setState({visible: false});
-  };
 
   onMenuVisibleChange = (visible: boolean) => {
     this.setState({visible});
@@ -79,26 +74,26 @@ export class BlockDropdown extends React.PureComponent<Props, State> {
     }
     if (canApply) {
       menuitems.push(
-        <Menu.Item key="save" onClick={this.onSaveClicked}>
+        <MenuItem key="save" onClick={this.onSaveClicked}>
           <SaveIcon />
           {t('Save')}
-        </Menu.Item>
+        </MenuItem>
       );
     }
     if (!deleteForbidden.has(functionId)) {
       menuitems.push(
-        <Menu.Item key="delete" onClick={this.onDeleteClicked}>
+        <MenuItem key="delete" onClick={this.onDeleteClicked}>
           <DeleteIcon />
           {t('Delete')}
-        </Menu.Item>
+        </MenuItem>
       );
     }
     if (!renameForbidden.has(functionId)) {
       menuitems.push(
-        <Menu.Item key="rename" onClick={this.onRenameClicked}>
+        <MenuItem key="rename" onClick={this.onRenameClicked}>
           <EditIcon />
           {t('Rename')}
-        </Menu.Item>
+        </MenuItem>
       );
     }
 
@@ -107,20 +102,20 @@ export class BlockDropdown extends React.PureComponent<Props, State> {
 
     if (showCallMenu || commandMenus.length) {
       menuitems.push(
-        <Menu.Item key="divider">
+        <MenuItem key="divider">
           <div className="ticl-property-divider">
             {t('Execute Command')}
             <div className="ticl-h-line" />
           </div>
-        </Menu.Item>
+        </MenuItem>
       );
 
       if (showCallMenu) {
         menuitems.push(
-          <Menu.Item key="call" onClick={this.onCallClicked}>
+          <MenuItem key="call" onClick={this.onCallClicked}>
             <PlayIcon />
             {t('Call')}
-          </Menu.Item>
+          </MenuItem>
         );
       }
 
@@ -128,7 +123,7 @@ export class BlockDropdown extends React.PureComponent<Props, State> {
     }
 
     return (
-      <Menu prefixCls="ant-dropdown-menu" selectable={false} onClick={this.closeMenu}>
+      <Menu>
         {menuitems}
       </Menu>
     );
@@ -139,7 +134,12 @@ export class BlockDropdown extends React.PureComponent<Props, State> {
     let {visible} = this.state;
     let popup = visible ? this.getMenu() : null;
     return (
-      <Popup popup={popup} trigger={['contextMenu']} popupVisible={visible} onPopupVisibleChange={this.onMenuVisibleChange}>
+      <Popup
+        popup={popup}
+        trigger={['contextMenu']}
+        popupVisible={visible}
+        onPopupVisibleChange={this.onMenuVisibleChange}
+      >
         {children}
       </Popup>
     );
