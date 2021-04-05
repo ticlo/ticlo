@@ -23,6 +23,8 @@
 
 # NodeTreePane.tsx & AddNewFlowDialog.tsx
 "New Dataflow": 新建数据流
+# BlockDropdown.tsx & PropertyDropdown.tsx
+"Execute Command": 执行指令
 
 # block/BlockStage.tsx
 "Undo": 撤消
@@ -47,6 +49,9 @@
 # popup/AddNewFlowDialog.tsx
 "Data": 数据 # auto translated from hash: 9gaNqinb
 
+# popup/BlockDropdown.tsx
+"Call": 触发
+
 # popup/PropertyDropdown.tsx
 "Add Sub Block": 添加子块
 "Binding": 绑定 # auto translated from hash: ouv+Do4W
@@ -55,7 +60,6 @@
 "Delete at {{n}}": 在{{n}}处删除
 "Remove Property": 删除属性
 "Add Child Property": 添加子属性
-"Execute Command": 执行指令
 
 # popup/RenameDialog.tsx
 "Change": 改变 # auto translated from hash: 9OxfV71N

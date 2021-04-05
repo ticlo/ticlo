@@ -23,6 +23,8 @@
 
 # NodeTreePane.tsx & AddNewFlowDialog.tsx
 "New Dataflow": "New Dataflow"
+# BlockDropdown.tsx & PropertyDropdown.tsx
+"Execute Command": "Execute Command"
 
 # block/BlockStage.tsx
 "Undo": "Undo"
@@ -47,6 +49,9 @@
 # popup/AddNewFlowDialog.tsx
 "Data": "Data"
 
+# popup/BlockDropdown.tsx
+"Call": "Call"
+
 # popup/PropertyDropdown.tsx
 "Add Sub Block": "Add Sub Block"
 "Binding": "Binding"
@@ -55,7 +60,6 @@
 "Delete at {{n}}": "Delete at {{n}}"
 "Remove Property": "Remove Property"
 "Add Child Property": "Add Child Property"
-"Execute Command": "Execute Command"
 
 # popup/RenameDialog.tsx
 "Change": "Change"
