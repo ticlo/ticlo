@@ -151,7 +151,7 @@ export class PropertyDropdown extends React.PureComponent<Props, State> {
     this.setState({modal: null});
   };
 
-  onExeCommand(command: string) {
+  onExeCommand = (command: string) => {
     let {conn, paths, name, funcDesc, propDesc} = this.props;
     let commandDesc = propDesc.commands[command];
     if (commandDesc.parameters?.length) {
@@ -179,7 +179,7 @@ export class PropertyDropdown extends React.PureComponent<Props, State> {
         conn.executeCommand(path, command, {property: name});
       }
     }
-  }
+  };
 
   static addSubBlock(
     props: {
@@ -314,12 +314,11 @@ export class PropertyDropdown extends React.PureComponent<Props, State> {
     }
     if (propDesc.commands) {
       let commands = Object.keys(propDesc.commands);
-      commands.sort(smartStrCompare);
       if (commands.length) {
+        commands.sort(smartStrCompare);
         let commandMenus: React.ReactElement[] = [];
         for (let command of commands) {
           commandMenus.push(
-            // tslint:disable-next-line:jsx-no-lambda
             <MenuItem key={`cmd-${command}`} value={command} onClick={this.onExeCommand}>
               <LocalizedPropCommand key={command} funcDesc={funcDesc} propBaseName={propDesc.name} command={command} />
             </MenuItem>
