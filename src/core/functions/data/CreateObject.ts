@@ -45,4 +45,5 @@ Functions.add(CreateObjectFunction, {
   icon: 'txt:{ }',
   properties: [{name: '#output', pinned: true, type: 'object', readonly: true}],
   configs: ([{name: '#extend', type: 'object'}] as (string | PropDesc)[]).concat(defaultConfigs),
+  category: 'data',
 });

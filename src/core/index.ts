@@ -31,6 +31,7 @@ import './functions/http/HttpRequest';
 import './functions/http/RouteFunction';
 import './functions/http/StaticResponse';
 import './functions/script/Js';
+import './functions/data/State';
 import './worker/MapFunction';
 import './worker/ForEachFunction';
 import './worker/HandlerFunction';

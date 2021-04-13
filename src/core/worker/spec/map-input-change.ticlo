@@ -1,0 +1,127 @@
+{
+"#disabled": true,
+"#is": "",
+"assert": {
+ "#is": "test:assert",
+ "@b-p": [
+  "actual0",
+  "expect0"
+ ],
+ "@b-xyw": [
+  605,
+  214,
+  143
+ ],
+ "expect0": [
+  1,
+  2,
+  3
+ ],
+ "~actual0": "##.map.#output"
+},
+"assert1": {
+ "#is": "test:assert",
+ "@b-p": [
+  "actual0",
+  "expect0"
+ ],
+ "@b-xyw": [
+  609,
+  430,
+  143
+ ],
+ "expect0": [
+  4,
+  5,
+  6
+ ],
+ "~actual0": "##.map.#output"
+},
+"assert2": {
+ "#is": "test:assert",
+ "@b-p": [
+  "actual0",
+  "expect0"
+ ],
+ "@b-xyw": [
+  607,
+  654,
+  143
+ ],
+ "expect0": [
+  7,
+  8,
+  9
+ ],
+ "~actual0": "##.map.#output"
+},
+"map": {
+ "#is": "map",
+ "@b-p": [
+  "input",
+  "#output"
+ ],
+ "@b-xyw": [
+  121,
+  113,
+  143
+ ],
+ "input": [
+  1,
+  2,
+  3
+ ],
+ "use": {
+  "#is": {
+   "#inputs": {
+    "#is": "",
+    "@b-p": [
+     "#value"
+    ]
+   },
+   "#is": "",
+   "#outputs": {
+    "#is": "",
+    "@b-p": [
+     "#value"
+    ],
+    "~#value": "##.#inputs.#value"
+   }
+  }
+ }
+},
+"set-state": {
+ "#is": "set-state",
+ "#sync": true,
+ "@b-p": [
+  "input0",
+  "target0"
+ ],
+ "@b-xyw": "assert",
+ "async": true,
+ "target0": [
+  4,
+  5,
+  6
+ ],
+ "~#call": "##.assert.#emit",
+ "~input0": "##.map.input"
+},
+"set-state1": {
+ "#is": "set-state",
+ "#sync": true,
+ "@b-p": [
+  "input0",
+  "target0"
+ ],
+ "@b-xyw": "assert1",
+ "async": true,
+ "target0": [
+  7,
+  8,
+  9
+ ],
+ "~#call": "##.assert1.#emit",
+ "~input0": "##.map.input"
+}
+}

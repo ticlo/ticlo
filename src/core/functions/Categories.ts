@@ -52,6 +52,13 @@ Functions.addCategory({
 });
 
 Functions.addCategory({
+  id: 'data',
+  name: 'data',
+  icon: 'fas:code-branch',
+  color: '4af',
+});
+
+Functions.addCategory({
   id: '',
   name: '',
   icon: 'fas:cubes',

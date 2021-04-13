@@ -1,0 +1,9 @@
+'set-state':
+  '@name': 设置状态
+  '':
+    '@name': 状态
+  input:
+    '@name': 输入
+  target:
+    '@name': 目标
+

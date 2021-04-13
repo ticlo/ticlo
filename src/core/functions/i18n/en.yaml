@@ -9,6 +9,8 @@
     '@name': Compare
   repeat:
     '@name': Repeat
+  data:
+    '@name': Data
 
 '@shared':
   '':

@@ -1,4 +1,4 @@
-import {Block, BlockIO, BlockProperty, DataMap, Flow} from '../../src/core';
+import {Block, BlockIO, BlockProperty, DataMap, Flow, Functions} from '../../src/core';
 import {ConstTypeConfig, FlowConfigGenerators} from '../../src/core/block/BlockConfigs';
 import {BlockConfig} from '../../src/core/block/BlockProperty';
 import {updateObjectValue} from '../../src/core/property-api/ObjectValue';
@@ -138,5 +138,15 @@ export class FlowTestCase extends Flow implements TestsRunner {
 
   updateLabel(stat: string) {
     this.updateValue('@b-name', `${this._prop._name}-${stat}-#`);
+  }
+
+  executeCommand(command: string, params: DataMap): DataMap {
+    switch (command) {
+      case 'start': {
+        this.start();
+        break;
+      }
+    }
+    return null;
   }
 }

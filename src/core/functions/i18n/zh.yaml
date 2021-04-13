@@ -1,14 +1,16 @@
 '@namespace':
   math:
-    '@name': 数学 # auto translated from hash: pJlQqgR8
+    '@name': 数学
   string:
-    '@name': 字符串 # auto translated from hash: JxGDJgBt
+    '@name': 字符串
   script:
-    '@name': 脚本 # auto translated from hash: +QfmURZH
+    '@name': 脚本
   compare:
-    '@name': 比较 # auto translated from hash: fuzlHPOT
+    '@name': 比较
   repeat:
-    '@name': 重复 # auto translated from hash: cCBCbPsK
+    '@name': 重复
+  data:
+    '@name': 数据
 
 '@shared':
   '':
