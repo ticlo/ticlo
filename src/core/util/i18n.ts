@@ -1,4 +1,5 @@
 import i18next from 'i18next';
+import {nameFromPath} from './String';
 
 export async function init(lng?: string) {
   await new Promise((receive, reject) => {
@@ -16,7 +17,7 @@ const numberReg = /([0-9]+|\[\])$/;
 
 export function translateFunction(funcId: string, funcName?: string, namespace?: string, lng?: string): string {
   if (!TicloI18nSettings.shouldTranslateFunction || !funcId) {
-    return funcName || '';
+    return nameFromPath(funcName) || '';
   }
   if (!namespace) {
     namespace = 'core';
