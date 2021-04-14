@@ -1,5 +1,5 @@
 import {assert} from 'chai';
-import {getPreNumber, getTailingNumber, isColorStr, smartStrCompare} from '../String';
+import {getPreNumber, getTailingNumber, isColorStr, nameFromPath, smartStrCompare} from '../String';
 import {encodeTicloName, getDisplayName} from '../Name';
 
 describe('String', function () {
@@ -52,5 +52,11 @@ describe('String', function () {
     assert.equal(getDisplayName('b', null), 'b');
     assert.equal(getDisplayName('%20', null), ' ');
     assert.equal(getDisplayName('%20%', null), '%20%');
+  });
+
+  it('nameFromPath', function () {
+    assert.equal(nameFromPath(null), null);
+    assert.equal(nameFromPath('a'), 'a');
+    assert.equal(nameFromPath('a.b'), 'b');
   });
 });

@@ -100,3 +100,13 @@ const colorPattern = /^#[a-fA-F0-9]{3,8}|rgba?\([\d ,.]{5,}\)$/;
 export function isColorStr(str: string) {
   return colorPattern.test(str);
 }
+
+export function nameFromPath(path: string) {
+  if (path) {
+    let lastDot = path.lastIndexOf('.');
+    if (lastDot > -1) {
+      return path.substring(lastDot + 1);
+    }
+  }
+  return path;
+}
