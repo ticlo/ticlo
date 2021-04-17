@@ -1,0 +1,131 @@
+{
+"#is": "",
+"assert": {
+ "#is": "test:assert",
+ "@b-p": [
+  "actual0",
+  "expect0"
+ ],
+ "@b-xyw": [
+  605,
+  214,
+  143
+ ],
+ "expect0": [
+  1,
+  1,
+  1
+ ],
+ "~actual0": "##.map.#output"
+},
+"assert1": {
+ "#is": "test:assert",
+ "#sync": true,
+ "@b-p": [
+  "actual0",
+  "expect0"
+ ],
+ "@b-xyw": "set-state",
+ "expect0": [
+  2,
+  2,
+  2
+ ],
+ "~#call": "##.set-state.#emit",
+ "~actual0": "##.map.#output"
+},
+"assert2": {
+ "#is": "test:assert",
+ "#sync": true,
+ "@b-p": [
+  "actual0",
+  "expect0"
+ ],
+ "@b-xyw": "set-state1",
+ "expect0": [
+  3,
+  3,
+  3
+ ],
+ "~#call": "##.set-state1.#emit",
+ "~actual0": "##.map.#output"
+},
+"map": {
+ "#is": "map",
+ "@b-p": [
+  "input",
+  "use",
+  "#output"
+ ],
+ "@b-xyw": [
+  121,
+  112,
+  143
+ ],
+ "input": [
+  1,
+  2,
+  3
+ ],
+ "use": {
+  "#is": {
+   "#is": "",
+   "#outputs": {
+    "#is": "",
+    "#value": 1,
+    "@b-p": [
+     "#value"
+    ]
+   }
+  }
+ }
+},
+"set-state": {
+ "#is": "set-state",
+ "#sync": true,
+ "@b-p": [
+  "input0",
+  "target0"
+ ],
+ "@b-xyw": "assert",
+ "async": true,
+ "target0": {
+  "#is": {
+   "#is": "",
+   "#outputs": {
+    "#is": "",
+    "#value": 2,
+    "@b-p": [
+     "#value"
+    ]
+   }
+  }
+ },
+ "~#call": "##.assert.#emit",
+ "~input0": "##.map.use"
+},
+"set-state1": {
+ "#is": "set-state",
+ "#sync": true,
+ "@b-p": [
+  "input0",
+  "target0"
+ ],
+ "@b-xyw": "assert1",
+ "async": true,
+ "target0": {
+  "#is": {
+   "#is": "",
+   "#outputs": {
+    "#is": "",
+    "#value": 3,
+    "@b-p": [
+     "#value"
+    ]
+   }
+  }
+ },
+ "~#call": "##.assert1.#emit",
+ "~input0": "##.map.use"
+}
+}
