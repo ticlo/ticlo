@@ -1,4 +1,4 @@
-import {Block, BlockFunction, decode, encode, Functions, NO_EMIT} from '../../src/core';
+import {Block, BlockFunction, BlockIO, decode, encode, Event, EventType, Functions, NO_EMIT} from '../../src/core';
 import {deepEqual} from '../../src/core/util/Compare';
 import {isPrimitiveType} from '../../src/core/util/DataTypes';
 import {updateObjectValue} from '../../src/core/property-api/ObjectValue';
@@ -17,14 +17,40 @@ function convertActual(actual: any) {
 
 export class AssertFunction extends BlockFunction {
   _state: TestState;
+  _calledSync = false;
+  _alwaysMatch = false;
+
   onCall(val: any): boolean {
-    if (val !== undefined) {
+    if (Event.check(val) === EventType.TRIGGER) {
       this.changeTestState(TestState.RUNNING);
       this._data.deleteValue('@b-style');
+
+      if (this._data._sync) {
+        if (this._calledSync && !this._alwaysMatch) {
+          return false;
+        }
+        this._calledSync = true;
+        // called as sync block, but still put into queue instead of running at once
+        this._data._queueFunction();
+        return false;
+      }
     }
+
     return super.onCall(val);
   }
 
+  inputChanged(input: BlockIO, val: any): boolean {
+    if (input._name === 'matchMode') {
+      this._alwaysMatch = Boolean(input._value);
+    }
+    if (this._data._sync && !this._calledSync) {
+      return false;
+    }
+    if (this._state === TestState.PASSED && !this._alwaysMatch) {
+      return false;
+    }
+    return true;
+  }
   changeTestState(state: TestState) {
     if (state !== this._state) {
       this._state = state;
@@ -44,12 +70,8 @@ export class AssertFunction extends BlockFunction {
     }
   }
   run(): any {
-    // if (this._data._sync && !this._called) {
-    //   // in sync mode, must be called to run
-    //   return;
-    // }
-    if (this._state === TestState.PASSED && this._data.getValue('matchMode') !== 'always-match') {
-      return;
+    if (this._state === TestState.PASSED && !this._alwaysMatch) {
+      return NO_EMIT;
     }
     let compares: {expect: any; actual: any}[] = this._data.getArray('', 1, [EXPECT, ACTUAL]);
     let matched = compares.length > 0;

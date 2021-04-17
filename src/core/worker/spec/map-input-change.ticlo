@@ -21,38 +21,34 @@
 },
 "assert1": {
  "#is": "test:assert",
+ "#sync": true,
  "@b-p": [
   "actual0",
   "expect0"
  ],
- "@b-xyw": [
-  609,
-  430,
-  143
- ],
+ "@b-xyw": "set-state",
  "expect0": [
   4,
   5,
   6
  ],
+ "~#call": "##.set-state.#emit",
  "~actual0": "##.map.#output"
 },
 "assert2": {
  "#is": "test:assert",
+ "#sync": true,
  "@b-p": [
   "actual0",
   "expect0"
  ],
- "@b-xyw": [
-  607,
-  654,
-  143
- ],
+ "@b-xyw": "set-state1",
  "expect0": [
   7,
   8,
   9
  ],
+ "~#call": "##.set-state1.#emit",
  "~actual0": "##.map.#output"
 },
 "map": {

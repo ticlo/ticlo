@@ -867,6 +867,7 @@ export class Block implements Runnable, FunctionData, PropListener<FunctionClass
     }
   }
 
+  // iterate all BlockIO with a value, ignores all undefined value
   forEach(callback: (field: string, prop: BlockIO) => void) {
     if (!this._ioCache) {
       this._initIoCache();
@@ -876,6 +877,22 @@ export class Block implements Runnable, FunctionData, PropListener<FunctionClass
         callback(field, prop);
       }
     }
+  }
+
+  // iterate all BlockIO with a value, ignores all undefined value
+  findFirst(callback: (field: string, prop: BlockIO) => any): any {
+    if (!this._ioCache) {
+      this._initIoCache();
+    }
+    for (let [field, prop] of this._ioCache) {
+      if (prop._value !== undefined) {
+        let result = callback(field, prop);
+        if (result !== undefined) {
+          return result;
+        }
+      }
+    }
+    return undefined;
   }
 
   getDefaultWorker(field: string, blockStack?: Map<any, any>): DataMap {

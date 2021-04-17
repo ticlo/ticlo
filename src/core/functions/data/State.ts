@@ -6,6 +6,10 @@ import {Resolver} from '../../block/Resolver';
 
 export class StateFunction extends BlockFunction {
   writeState() {
+    if (!this._data) {
+      // _data is null when function is destroyed
+      return;
+    }
     let savable = this._data.getValue('savable');
     let states = this._data.getArray('', 1, ['input', 'target']);
     let len = states.length;

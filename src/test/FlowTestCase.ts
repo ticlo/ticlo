@@ -4,6 +4,7 @@ import {BlockConfig} from '../../src/core/block/BlockProperty';
 import {updateObjectValue} from '../../src/core/property-api/ObjectValue';
 import {FlowState} from '../../src/core/block/Flow';
 import {TestsRunner, TestState} from './Interface';
+import {Resolver} from '../core/block/Resolver';
 
 export const FlowTestConfigGenerators: {[key: string]: typeof BlockProperty} = {
   ...FlowConfigGenerators,
@@ -58,6 +59,7 @@ export class FlowTestCase extends Flow implements TestsRunner {
 
   _timeout: any;
   _timeouted = false;
+  _pending: any = null;
   updateTestState(testBlock: Block, result: TestState) {
     if (this.results.get(testBlock) === result) {
       return;
@@ -67,9 +69,17 @@ export class FlowTestCase extends Flow implements TestsRunner {
     } else {
       this.results.set(testBlock, result);
     }
-
-    this._queueFunction();
+    if (!this._pending) {
+      this._pending = setTimeout(this.queueFunction, 0);
+    }
   }
+  // bind _queueFunction with arrow function
+  queueFunction = () => {
+    this._pending = null;
+    if (!this._disabled) {
+      this._queueFunction();
+    }
+  };
 
   getPriority(): number {
     if (this._controlPriority >= 0) {
@@ -79,6 +89,16 @@ export class FlowTestCase extends Flow implements TestsRunner {
   }
   run() {
     this._queueToRun = false;
+    if (!this._timeouted) {
+      let waiting = this.findFirst((field: string, prop: BlockIO) => {
+        if (prop._value instanceof Block && prop._value._waiting) {
+          return true;
+        }
+      });
+      if (waiting) {
+        return;
+      }
+    }
     let passed = 0;
     let failed = 0;
     let waiting = 0;
@@ -132,6 +152,9 @@ export class FlowTestCase extends Flow implements TestsRunner {
     }
   }
   destroy() {
+    if (!this._pending) {
+      clearTimeout(this._pending);
+    }
     this.clearTimeout();
     this.testParent?.updateTestState(this, TestState.REMOVED);
   }

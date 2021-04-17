@@ -55,6 +55,7 @@ export abstract class BaseFunction<T extends FunctionData = FunctionData> {
     return true;
   }
 
+  // cleanup when function is destroyed but data needs to be reused
   cleanup(): void {
     this._data.output(undefined);
   }
@@ -98,6 +99,7 @@ export abstract class BlockFunction extends BaseFunction<Block> {
     this._data._queueFunction();
   }
 
+  // cleanup when function is destroyed but _data needs to be reused
   cleanup(): void {}
 }
 
