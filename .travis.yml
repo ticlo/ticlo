@@ -22,16 +22,16 @@ jobs:
       - yarn build-icons
       - yarn build-less
       - yarn test-karma
-      - cat coverage/chrome/karma.lcov | yarn run coveralls
+      - cat coverage/chrome/karma.lcov | yarn coveralls
     - name: strict nyc
       script:
       - export NODE_ENV=TEST
       - export COVERALLS_FLAG_NAME=strict
-      - yarn test-nyc
+      - yarn test-nyc | yarn coveralls
     - name: ticlo nyc
       script:
       - export COVERALLS_FLAG_NAME=ticlo
-      - yarn ticlo-test-nyc
+      - yarn ticlo-test-nyc | yarn coveralls
 
 notifications:
   webhooks: https://coveralls.io/webhook

@@ -99,8 +99,8 @@
   },
   "scripts": {
     "test-nyc-strict": "cross-env NODE_ENV=TEST nyc --skip-full --check-coverage=true mocha 'src/core/**/*.spec.ts' 'src/node/**/*.spec.ts' && nyc report --reporter=text-lcov > coverage/nyc-strict.log",
-    "test-nyc": "nyc --skip-full --check-coverage=true mocha 'src/core/**/*.spec.ts' 'src/node/**/*.spec.ts' && nyc report --reporter=text-lcov | coveralls",
-    "ticlo-test-nyc": "nyc --silent --check-coverage=false ts-node ./bin/test-server.ts --run --quitOnFinish && nyc report --reporter=text-lcov | coveralls",
+    "test-nyc": "nyc --skip-full --check-coverage=true mocha 'src/core/**/*.spec.ts' 'src/node/**/*.spec.ts' && nyc report --reporter=text-lcov",
+    "ticlo-test-nyc": "nyc --silent --check-coverage=false ts-node ./bin/test-server.ts --run --quitOnFinish && nyc report --reporter=text-lcov",
     "test-karma": "karma start",
     "build-less": "lessc --js src/editor/style/antd.less dist/antd.css && lessc --js src/editor/style/editor.less dist/editor.css",
     "build-icons": "ts-node tool/build-icons",
