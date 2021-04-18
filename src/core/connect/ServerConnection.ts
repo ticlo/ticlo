@@ -87,7 +87,11 @@ class ServerSubscribe extends ServerRequest implements BlockPropertySubscriber, 
     let total = 0;
     if (this.valueChanged) {
       let value = this.property.getValue();
-      if (!this.property._bindingSource && this.property._saved !== undefined && !Object.is(this.property._saved, value)) {
+      if (
+        !this.property._bindingSource &&
+        this.property._saved !== undefined &&
+        !Object.is(this.property._saved, value)
+      ) {
         data.temp = true;
         total += 8;
       }
