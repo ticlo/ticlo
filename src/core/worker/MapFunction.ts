@@ -251,6 +251,7 @@ export class MapFunction extends MapImpl {
   }
 
   cleanup(): void {
+    this._data.deleteValue('#output');
     this._data.deleteValue('#func');
   }
 

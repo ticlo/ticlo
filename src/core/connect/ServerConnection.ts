@@ -86,13 +86,19 @@ class ServerSubscribe extends ServerRequest implements BlockPropertySubscriber, 
     let data: DataMap = {id: this.id, cmd: 'update'};
     let total = 0;
     if (this.valueChanged) {
-      let value: any;
-      let size: number;
-      [value, size] = truncateData(this.property.getValue());
-      total += size;
-      data.value = value;
+      let value = this.property.getValue();
+      if (!this.property._bindingSource && this.property._saved !== undefined && !Object.is(this.property._saved, value)) {
+        data.temp = true;
+        total += 8;
+      }
       if (value === undefined) {
         data.undefined = true;
+        total += 13;
+      } else {
+        let size: number;
+        [value, size] = truncateData(value);
+        total += size;
+        data.value = value;
       }
       this.valueChanged = false;
     }

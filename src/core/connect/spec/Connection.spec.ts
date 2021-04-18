@@ -14,6 +14,7 @@ import {DataMap, isDataTruncated} from '../../util/DataTypes';
 import {WorkerFunction} from '../../worker/WorkerFunction';
 import {FlowEditor} from '../../worker/FlowEditor';
 import {WorkerFlow} from '../../worker/WorkerFlow';
+import {Logger} from '../../util/Logger';
 
 describe('Connection', function () {
   it('get', async function () {
@@ -102,6 +103,28 @@ describe('Connection', function () {
     Root.instance._globalRoot._liveUpdate({});
     client.destroy();
     Root.instance.deleteValue('Connection1-2');
+  });
+
+  it('temp value', async function () {
+    // temp value (subscribed value not equal to saved value)
+    let flow = Root.instance.addFlow('Connection1-3');
+    let [server, client] = makeLocalConnection(Root.instance, false);
+
+    let callbacks = new AsyncClientPromise();
+    client.subscribe('Connection1-3.a', callbacks);
+
+    await client.setValue('Connection1-3.a', 2, true);
+    client.updateValue('Connection1-3.a', 3, true);
+    let result = await callbacks.promise;
+
+    assert.equal(flow.getProperty('a')._saved, 2);
+    assert.equal(result.change.value, 3, 'temp value');
+    assert.isTrue(result.change.temp, 'temp value');
+
+    // clean up
+    callbacks.cancel();
+    client.destroy();
+    Root.instance.deleteValue('Connection1-3');
   });
 
   it('multiple subscribe binding', async function () {

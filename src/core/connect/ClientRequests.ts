@@ -100,6 +100,9 @@ export class MergedClientRequest extends ConnectionSend implements ClientCallbac
 
 export interface ValueState {
   value?: any;
+  // whether value is same as saved value
+  temp?: boolean;
+  // whether value is undefined
   undefined?: boolean;
   bindingPath?: string;
   hasListener?: boolean;
@@ -144,6 +147,9 @@ export class SubscribeRequest extends MergedClientRequest {
       if (this._cache.value !== undefined && !response.hasOwnProperty('value')) {
         response.value = undefined;
       }
+      if (this._cache.temp && !response.hasOwnProperty('temp')) {
+        response.temp = undefined;
+      }
       if (this._cache.bindingPath != null && !response.hasOwnProperty('bindingPath')) {
         response.bindingPath = null;
       }
@@ -157,9 +163,11 @@ export class SubscribeRequest extends MergedClientRequest {
     let valueChanged = false;
     if (response.undefined) {
       response.value = undefined;
-    }
-    if (response.hasOwnProperty('value')) {
+      this._cache.temp = response.temp;
+      valueChanged = true;
+    } else if (response.hasOwnProperty('value')) {
       this._cache.value = response.value;
+      this._cache.temp = response.temp;
       valueChanged = true;
     }
     if (response.hasOwnProperty('bindingPath')) {
