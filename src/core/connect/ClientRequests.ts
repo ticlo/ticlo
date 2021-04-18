@@ -163,9 +163,8 @@ export class SubscribeRequest extends MergedClientRequest {
     let valueChanged = false;
     if (response.undefined) {
       response.value = undefined;
-      this._cache.temp = response.temp;
-      valueChanged = true;
-    } else if (response.hasOwnProperty('value')) {
+    }
+    if (response.hasOwnProperty('value')) {
       this._cache.value = response.value;
       this._cache.temp = response.temp;
       valueChanged = true;
