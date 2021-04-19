@@ -48,6 +48,7 @@ interface Props {
 const PendingUpdate = <div />;
 interface State {
   visible: boolean;
+  isTempOverride?: boolean;
   valueDenfinedOverride?: boolean;
   modal?: React.ReactElement;
 }
@@ -56,8 +57,8 @@ export class PropertyDropdown extends React.PureComponent<Props, State> {
 
   subscriber = new ValueSubscriber({
     onUpdate: (response: ValueUpdate) => {
-      let {value} = response.cache;
-      this.setState({valueDenfinedOverride: value !== undefined});
+      let {value, temp} = response.cache;
+      this.setState({valueDenfinedOverride: value !== undefined, isTempOverride: temp});
     },
   });
 
@@ -225,7 +226,7 @@ export class PropertyDropdown extends React.PureComponent<Props, State> {
 
   getMenu() {
     let {funcDesc, propDesc, bindingPath, group, name, conn, valueDefined, isCustom, isTemp, display} = this.props;
-    let {valueDenfinedOverride} = this.state;
+    let {valueDenfinedOverride, isTempOverride} = this.state;
     let menuItems: React.ReactElement[] = [];
     if (!propDesc.readonly) {
       if (!bindingPath) {
@@ -282,7 +283,7 @@ export class PropertyDropdown extends React.PureComponent<Props, State> {
         );
       }
 
-      if (isTemp) {
+      if (isTemp ?? isTempOverride) {
         menuItems.push(
           <Button key="restoreSaved" shape="round" onClick={this.onRestoreSaved}>
             {t('Restore Saved Value')}
