@@ -105,28 +105,6 @@ describe('Connection', function () {
     Root.instance.deleteValue('Connection1-2');
   });
 
-  it('temp value', async function () {
-    // temp value (subscribed value not equal to saved value)
-    let flow = Root.instance.addFlow('Connection1-3');
-    let [server, client] = makeLocalConnection(Root.instance, false);
-
-    let callbacks = new AsyncClientPromise();
-    client.subscribe('Connection1-3.a', callbacks);
-
-    await client.setValue('Connection1-3.a', 2, true);
-    client.updateValue('Connection1-3.a', 3, true);
-    let result = await callbacks.promise;
-
-    assert.equal(flow.getProperty('a')._saved, 2);
-    assert.equal(result.change.value, 3, 'temp value');
-    assert.isTrue(result.change.temp, 'temp value');
-
-    // clean up
-    callbacks.cancel();
-    client.destroy();
-    Root.instance.deleteValue('Connection1-3');
-  });
-
   it('multiple subscribe binding', async function () {
     let flow = Root.instance.addFlow('Connection2');
     let [server, client] = makeLocalConnection(Root.instance, false);
@@ -932,5 +910,31 @@ describe('Connection', function () {
 
     client.destroy();
     Root.instance.deleteValue('Connection26');
+  });
+
+  it('temp value and restoreSaved', async function () {
+    // temp value (subscribed value not equal to saved value)
+    let flow = Root.instance.addFlow('Connection27');
+    let [server, client] = makeLocalConnection(Root.instance, false);
+
+    let callbacks = new AsyncClientPromise();
+    client.subscribe('Connection27.a', callbacks);
+
+    await client.setValue('Connection27.a', 2, true);
+    client.updateValue('Connection27.a', 3, true);
+    let result = await callbacks.promise;
+
+    assert.equal(flow.getProperty('a')._saved, 2);
+    assert.equal(result.change.value, 3, 'temp value');
+    assert.isTrue(result.change.temp, 'temp value');
+
+    client.restoreSaved('Connection27.a');
+    result = await callbacks.promise;
+    assert.equal(result.change.value, 2, 'saved value');
+
+    // clean up
+    callbacks.cancel();
+    client.destroy();
+    Root.instance.deleteValue('Connection27');
   });
 });
