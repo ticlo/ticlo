@@ -22,7 +22,11 @@ export interface ClientConn {
   // unimportant request may be merged with other set request on same path
   setValue(path: string, value: any, important?: boolean | ClientCallbacks): Promise<any> | string;
 
+  // unimportant request may be merged with other set request on same path
   updateValue(path: string, value: any, important?: boolean | ClientCallbacks): Promise<any> | string;
+
+  // restore saved value if current value not equal to saved value
+  restoreSaved(path: string, callbacks?: ClientCallbacks): Promise<any> | string;
 
   /**
    *

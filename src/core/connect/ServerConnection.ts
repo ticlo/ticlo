@@ -425,6 +425,19 @@ export class ServerConnection extends ServerConnectionCore {
     }
   }
 
+  // restore saved value if current value not equal to saved value
+  restoreSaved({path}: {path: string}): string {
+    let property = this.root.queryProperty(path, true);
+    if (property) {
+      if (!Object.is(property._saved, property._value) && !property._bindingSource) {
+        property.updateValue(property._saved);
+      }
+      return null;
+    } else {
+      return 'invalid path';
+    }
+  }
+
   // set binding
   bind({path, from, absolute}: {path: string; from: string; absolute: boolean}): string {
     let property = this.root.queryProperty(path, true);

@@ -93,6 +93,7 @@ export interface PropertyEditorProps {
   funcDesc: FunctionDesc;
   propDesc: PropDesc;
   isCustom?: boolean;
+  isTemp?: boolean;
   group?: string;
   baseName?: string; // the name used in propDesc.name
   reorder?: PropertyReorder;
@@ -108,6 +109,7 @@ interface PropertyState {
   count: number;
   value?: any;
   valueSame: boolean;
+  isTemp: boolean;
   bindingPath?: string;
   bindingSame: boolean;
   subBlock: boolean;
@@ -118,6 +120,7 @@ interface PropertyState {
 const notReadyState = {
   count: 0,
   valueSame: false,
+  isTemp: false,
   bindingSame: false,
   subBlock: false,
   display: false,
@@ -290,6 +293,7 @@ export class PropertyEditor extends MultiSelectComponent<PropertyEditorProps, St
     let count = this.loaders.size;
     let value = firstCache.value;
     let valueSame = true;
+    let isTemp = firstCache.temp;
     let bindingPath = firstCache.bindingPath;
     let bindingSame = true;
     let subBlock = firstLoader.subBlock;
@@ -303,6 +307,9 @@ export class PropertyEditor extends MultiSelectComponent<PropertyEditorProps, St
       }
       if (!Object.is(value, cache.value)) {
         valueSame = false;
+      }
+      if (cache.temp) {
+        isTemp = true;
       }
       if (bindingPath !== cache.bindingPath) {
         bindingSame = false;
@@ -322,7 +329,7 @@ export class PropertyEditor extends MultiSelectComponent<PropertyEditorProps, St
         }
       }
     }
-    return {count, value, valueSame, bindingPath, bindingSame, subBlock, display, displaySame};
+    return {count, value, valueSame, isTemp, bindingPath, bindingSame, subBlock, display, displaySame};
   }
 
   onBindChange = (str: string) => {
@@ -347,7 +354,8 @@ export class PropertyEditor extends MultiSelectComponent<PropertyEditorProps, St
 
     let isIndexed = group != null && !name.endsWith('[]');
 
-    let {count, value, valueSame, bindingPath, bindingSame, subBlock, display} = this.mergePropertyState();
+    let {count, value, valueSame, isTemp, bindingPath, bindingSame, subBlock, display} = this.mergePropertyState();
+    console.log(isTemp);
     if (count === 0) {
       // not ready yet
       return (
@@ -458,6 +466,7 @@ export class PropertyEditor extends MultiSelectComponent<PropertyEditorProps, St
           group={group}
           valueDefined={value !== undefined}
           isCustom={isCustom}
+          isTemp={isTemp}
           display={display}
           paths={paths}
           name={name}

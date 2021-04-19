@@ -172,6 +172,10 @@ export abstract class ClientConnection extends Connection implements ClientConn 
     }
   }
 
+  restoreSaved(path: string, callbacks?: ClientCallbacks): Promise<any> | string {
+    return this.simpleRequest({cmd: 'restoreSaved', path}, callbacks);
+  }
+
   setBinding(
     path: string,
     from: string,

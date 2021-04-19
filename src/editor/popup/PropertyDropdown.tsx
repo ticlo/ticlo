@@ -35,6 +35,7 @@ interface Props {
   conn: ClientConn;
   group?: string;
   valueDefined?: boolean;
+  isTemp?: boolean;
   isCustom?: boolean;
   // whether property is shown in block view
   display: boolean;
@@ -101,6 +102,13 @@ export class PropertyDropdown extends React.PureComponent<Props, State> {
     let {conn, paths, name} = this.props;
     for (let path of paths) {
       conn.setValue(`${path}.${name}`, undefined);
+    }
+    this.closeMenu();
+  };
+  onRestoreSaved = () => {
+    let {conn, paths, name} = this.props;
+    for (let path of paths) {
+      conn.restoreSaved(`${path}.${name}`);
     }
     this.closeMenu();
   };
@@ -216,7 +224,7 @@ export class PropertyDropdown extends React.PureComponent<Props, State> {
   };
 
   getMenu() {
-    let {funcDesc, propDesc, bindingPath, group, name, conn, valueDefined, isCustom, display} = this.props;
+    let {funcDesc, propDesc, bindingPath, group, name, conn, valueDefined, isCustom, isTemp, display} = this.props;
     let {valueDenfinedOverride} = this.state;
     let menuItems: React.ReactElement[] = [];
     if (!propDesc.readonly) {
@@ -270,6 +278,14 @@ export class PropertyDropdown extends React.PureComponent<Props, State> {
         menuItems.push(
           <Button key="clear" shape="round" onClick={this.onClear}>
             {t('Clear')}
+          </Button>
+        );
+      }
+
+      if (isTemp) {
+        menuItems.push(
+          <Button key="restoreSaved" shape="round" onClick={this.onRestoreSaved}>
+            {t('Restore Saved Value')}
           </Button>
         );
       }
