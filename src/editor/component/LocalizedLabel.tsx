@@ -80,11 +80,10 @@ const specialNodeNamePostfix = /-\w+-#$/;
 
 export const LocalizedNodeName = ({name, options}: {name: string; options?: any}) => {
   useContext(TicloLayoutContextType);
-  if (TicloI18nSettings.shouldTranslateFunction) {
-    function localizeNodeName(match: string) {
-      return translateEditor(match, options);
-    }
-    name = name.replace(specialNodeNamePrefix, localizeNodeName).replace(specialNodeNamePostfix, localizeNodeName);
+  function localizeNodeName(match: string) {
+    console.log(name, options, match);
+    return translateEditor(match, options);
   }
+  name = name.replace(specialNodeNamePrefix, localizeNodeName).replace(specialNodeNamePostfix, localizeNodeName);
   return <span>{name}</span>;
 };
