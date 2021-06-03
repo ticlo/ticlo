@@ -4,7 +4,6 @@ import {BlockConfig} from '../../src/core/block/BlockProperty';
 import {updateObjectValue} from '../../src/core/property-api/ObjectValue';
 import {FlowState} from '../../src/core/block/Flow';
 import {TestsRunner, TestState} from './Interface';
-import {Resolver} from '../core/block/Resolver';
 
 export const FlowTestConfigGenerators: {[key: string]: typeof BlockProperty} = {
   ...FlowConfigGenerators,

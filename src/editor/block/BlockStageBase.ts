@@ -29,7 +29,8 @@ function snapXY(val: number): number {
 
 export abstract class BlockStageBase<Props extends StagePropsBase, State>
   extends LazyUpdateComponent<Props, State>
-  implements Stage {
+  implements Stage
+{
   abstract getRefElement(): HTMLElement;
 
   abstract getRootElement(): HTMLElement;
