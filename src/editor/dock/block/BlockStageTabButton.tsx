@@ -5,6 +5,7 @@ import CloseIcon from '@ant-design/icons/CloseOutlined';
 import {DockContext, DockContextType} from 'rc-dock/lib';
 import {LazyUpdateComponent} from '../../component/LazyUpdateComponent';
 import {ClientConn, ValueSubscriber, ValueUpdate} from '../../../../src/core/editor';
+import {TabData} from 'rc-dock/src/DockData';
 
 interface Props {
   conn: ClientConn;
@@ -45,7 +46,7 @@ export class BlockStageTabButton extends LazyUpdateComponent<Props, State> {
 
   onClose = () => {
     const {id} = this.props;
-    this.context.dockMove(this.context.find(id), null, 'remove');
+    this.context.dockMove(this.context.find(id) as TabData, null, 'remove');
   };
   onSave = () => {
     const {onSave} = this.props;

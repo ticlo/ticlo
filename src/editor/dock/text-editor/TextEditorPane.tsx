@@ -18,6 +18,7 @@ import 'codemirror/theme/eclipse.css';
 import 'codemirror/addon/fold/foldgutter.css';
 
 import {DockLayout} from 'rc-dock/lib';
+import {TabData} from 'rc-dock/src/DockData';
 
 interface Props {
   conn: ClientConn;
@@ -50,7 +51,7 @@ export class TextEditorPane extends React.PureComponent<Props, State> {
     }
     let sortedPaths = [...paths].sort();
     let id = `textEditor-${sortedPaths.join('..')}`;
-    let oldTab = layout.find(id);
+    let oldTab = layout.find(id) as TabData;
     if (oldTab) {
       layout.dockMove(oldTab, null, 'front');
       return;
@@ -88,7 +89,7 @@ export class TextEditorPane extends React.PureComponent<Props, State> {
     }
 
     const onClose = () => {
-      let tab = layout.find(id);
+      let tab = layout.find(id) as TabData;
       if (tab) {
         layout.dockMove(tab, null, 'remove');
       }
