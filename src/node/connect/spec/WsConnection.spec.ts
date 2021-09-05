@@ -26,7 +26,7 @@ describe('WsConnect', function () {
 
   it('reconnect', async function () {
     let flow = Root.instance.addFlow('WsConnect1');
-    let client = new WsClientConnection(`http://127.0.0.1:${PORT}`, false);
+    let client = new WsClientConnection(`ws://127.0.0.1:${PORT}`, false);
 
     flow.setValue('o', 1);
     flow.setBinding('a', 'o');
@@ -59,7 +59,7 @@ describe('WsConnect', function () {
 
   it('desc frames', async function () {
     addTestTypes('A', 4000);
-    let client = new WsClientConnection(`http://127.0.0.1:${PORT}`, true);
+    let client = new WsClientConnection(`ws://127.0.0.1:${PORT}`, true);
 
     await shouldHappen(() => client.watchDesc('A100'));
 

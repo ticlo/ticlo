@@ -19,10 +19,11 @@ export class WsServerConnection extends ServerConnection {
     this._ws.send(json);
   }
 
-  onMessage = (data: string) => {
-    if (typeof data === 'string') {
-      Logger.trace(() => 'server receive ' + data, this);
-      let decoded = decode(data);
+  onMessage = (data: string, isBinary: boolean) => {
+    if (!isBinary) {
+      let str = data.toString();
+      Logger.trace(() => 'server receive ' + str, this);
+      let decoded = decode(str);
       if (Array.isArray(decoded)) {
         this.onReceive(decoded);
       }

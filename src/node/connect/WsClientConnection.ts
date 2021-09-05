@@ -8,6 +8,9 @@ export class WsClientConnection extends ClientConnection {
 
   constructor(url: string, editorListeners = true) {
     super(editorListeners);
+    if (url.startsWith('http')) {
+      url = url.replace('http', 'ws');
+    }
     this._url = url;
     this.reconnect();
   }
@@ -37,10 +40,11 @@ export class WsClientConnection extends ClientConnection {
     this._ws.send(json);
   }
 
-  onMessage = (data: string) => {
-    if (typeof data === 'string') {
-      Logger.trace(() => 'client receive ' + data, this);
-      let decoded = decode(data);
+  onMessage = (data: string, isBinary: boolean) => {
+    if (!isBinary) {
+      let str = data.toString();
+      Logger.trace(() => 'client receive ' + str, this);
+      let decoded = decode(str);
       if (Array.isArray(decoded)) {
         this.onReceive(decoded);
       }
