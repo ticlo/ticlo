@@ -45,7 +45,7 @@ const packagesToTest = ['./src/core', './src/express', './src/node', './src/http
       },
     })
     .help();
-  let {onDemandLoad, serve, port, run, quitOnSuccess, quitOnFinish} = parser.parse();
+  let {onDemandLoad, serve, port, run, quitOnSuccess, quitOnFinish} = parser.parse() as any;
 
   await Root.instance.setStorage(new TestLoader(packagesToTest, {onDemandLoad}));
 
