@@ -32,6 +32,7 @@ module.exports = function (config) {
         ],
         "alwaysStrict": true,
         "noImplicitAny": true,
+        "skipLibCheck": true,
         "sourceMap": true,
         "typeRoots": [
           "node_modules/@types",
