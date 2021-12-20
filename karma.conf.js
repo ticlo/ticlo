@@ -36,7 +36,10 @@ module.exports = function (config) {
         "typeRoots": [
           "node_modules/@types",
           "@types"
-        ]
+        ],
+        "paths": {
+          "resize-observer-polyfill": ["./@types/resize-observer-polyfill"]
+        }
       },
       compileOnSave: true,
       include: [

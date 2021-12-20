@@ -1,5 +1,5 @@
 import React from 'react';
-import marked from 'marked';
+import {marked} from 'marked';
 import Dompurify from 'dompurify';
 import {BlockWidgetProps} from './BlockWidget';
 import {LazyUpdateComponent, LazyUpdateSubscriber} from '../../component/LazyUpdateComponent';
