@@ -1,0 +1,70 @@
+name: Test
+
+on:
+  push:
+    branches: [ master ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        node-version: [16.x]
+
+    steps:
+      - uses: actions/checkout@v2
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v2
+        with:
+          node-version: ${{ matrix.node-version }}
+      - run: yarn install
+      - run: prettier-check
+      - run: yarn build-package
+      - name: Test Node (Strict)
+        run: yarn test-nyc-strict
+      - name: Coveralls Node Strict
+        uses: coverallsapp/github-action@v1.1.3
+        env:
+          NODE_COVERALLS_DEBUG: 1
+        with:
+          github-token: ${{ secrets.github_token }}
+          path-to-lcov: ./coverage/nyc-strict.lcov
+          parallel: true
+          flag-name: strict
+      - name: Test Karma
+        run: |
+          mkdir dist
+          yarn build-icons
+          yarn build-less
+          yarn test-karma
+      - name: Coveralls Karma
+        uses: coverallsapp/github-action@v1.1.3
+        env:
+          NODE_COVERALLS_DEBUG: 1
+        with:
+          github-token: ${{ secrets.github_token }}
+          path-to-lcov: ./coverage/chrome/karma.lcov
+          parallel: true
+          flag-name: karma
+      - name: Test Ticlo
+        run: yarn ticlo-test-nyc
+      - name: Coveralls Ticlo
+        uses: coverallsapp/github-action@v1.1.3
+        env:
+          NODE_COVERALLS_DEBUG: 1
+        with:
+          github-token: ${{ secrets.github_token }}
+          path-to-lcov: ./coverage/nyc-ticlo.lcov
+          parallel: true
+          flag-name: ticlo
+
+  finish:
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Coveralls Finished
+        uses: coverallsapp/github-action@v1.1.3
+        with:
+          github-token: ${{ secrets.github_token }}
+          parallel-finished: true
