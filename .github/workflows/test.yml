@@ -33,6 +33,10 @@ jobs:
         with:
           node-version: ${{ matrix.node-version }}
       - run: yarn install
+      - name: make dir
+        run: |
+          mkdir dist
+          mkdir coverage
       - name: Test Node (Strict)
         run: yarn test-nyc-strict
       - name: Coveralls Node Strict
@@ -46,7 +50,6 @@ jobs:
           flag-name: strict
       - name: Test Karma
         run: |
-          mkdir dist
           yarn build-icons
           yarn build-less
           yarn test-karma
