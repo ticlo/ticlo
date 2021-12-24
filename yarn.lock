@@ -1445,7 +1445,7 @@
   resolved "https://registry.yarnpkg.com/@types/trusted-types/-/trusted-types-2.0.2.tgz#fc25ad9943bcac11cceb8168db4f275e0e72e756"
   integrity sha512-F5DIZ36YVLE+PN+Zwws4kJogq47hNgX3Nx6WyDJ3kcplxyke3XIzB8uK5n/Lpm1HBsbGzd6nmGehL8cPekP+Tg==
 
-"@types/ws@^8.2.2", "@types/ws@*":
+"@types/ws@*", "@types/ws@^8.2.2":
   version "8.2.2"
   resolved "https://registry.yarnpkg.com/@types/ws/-/ws-8.2.2.tgz#7c5be4decb19500ae6b3d563043cd407bf366c21"
   integrity sha512-NOn5eIcgWLOo6qW8AcuLZ7G8PycXu0xTxxkS6Q18VWFxgPUSOwV0pBj2a/4viNZVu25i7RIB7GttdkAIUUXOOg==
@@ -6020,16 +6020,16 @@ rc-dialog@~8.6.0:
     rc-motion "^2.3.0"
     rc-util "^5.6.1"
 
-rc-dock@^3.2.5:
-  version "3.2.5"
-  resolved "https://registry.yarnpkg.com/rc-dock/-/rc-dock-3.2.5.tgz#edb89a67c217936fc644a73b93237cdd0c5c9af1"
-  integrity sha512-y6nAwalTD/PoSESouKQeYZgThSpYTfJynsxGRPT+SMgHHw2m0tAouinTNXhvUmWWxA17X04WD8Asbgtv9s5ufw==
+rc-dock@^3.2.6:
+  version "3.2.6"
+  resolved "https://registry.yarnpkg.com/rc-dock/-/rc-dock-3.2.6.tgz#bf9f18e7647e18b3962cc36fd17feade6bbc3ec8"
+  integrity sha512-zAIC3pvUB7R3wvejdj3YTvL4QJtf3nXoLZCbGU7qKehX+4m1C3/PAWqYwTmHh2EyHPikz3RxOzIVBzU/OuVTlA==
   dependencies:
     classnames "^2.2.6"
-    lodash "^4.17.20"
+    lodash "^4.17.21"
     rc-dropdown "^3.2.0"
-    rc-menu "^8.10.5"
-    rc-new-window "^0.1.12"
+    rc-menu "^8.10.8"
+    rc-new-window "^0.1.13"
     rc-tabs "^11.7.3"
 
 rc-drawer@~4.4.2:
@@ -6090,7 +6090,7 @@ rc-mentions@~1.6.1:
     rc-trigger "^5.0.4"
     rc-util "^5.0.1"
 
-rc-menu@^8.10.5:
+rc-menu@^8.10.8:
   version "8.10.8"
   resolved "https://registry.yarnpkg.com/rc-menu/-/rc-menu-8.10.8.tgz#c3eb2158b3983e42a67192babad9c8128755d26a"
   integrity sha512-0gnSR0nmR/60NnK+72EGd+QheHyPSQ3wYg1TwX1zl0JJ9Gm0purFFykCXVv/G0Jynpt0QySPAos+bpHpjMZdoQ==
@@ -6126,10 +6126,10 @@ rc-motion@^2.0.0, rc-motion@^2.0.1, rc-motion@^2.2.0, rc-motion@^2.3.0, rc-motio
     classnames "^2.2.1"
     rc-util "^5.2.1"
 
-rc-new-window@^0.1.12:
-  version "0.1.12"
-  resolved "https://registry.yarnpkg.com/rc-new-window/-/rc-new-window-0.1.12.tgz#0be61030f3b8fa67857d705ed4592861c82d6da0"
-  integrity sha512-Jk8QbyYcEKUKZVTuv0QpZYWFg3+i2MkoY1oKUfcdxGE7ZenKG1tSAcjExHJgtQ0fr1LQSFhCMh1fH7MXeMPGpg==
+rc-new-window@^0.1.13:
+  version "0.1.13"
+  resolved "https://registry.yarnpkg.com/rc-new-window/-/rc-new-window-0.1.13.tgz#f0354ce9d7355ab1c91b16b03d3768fae1a2278c"
+  integrity sha512-KqANLQVfgNcfs+R4ntpzV5ELyqXMlAUimdSfFHapk2VwsoZX3y+BK2RjFBFb7q865yqAshP87g0PbIPqblKVTg==
   dependencies:
     "@babel/runtime" "^7.10.1"
     bowser "^2.11.0"

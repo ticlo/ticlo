@@ -15,7 +15,7 @@ import {BlockStageBase, StagePropsBase} from './BlockStageBase';
 import {MiniBlockView} from './MiniStage';
 import debounce from 'lodash/debounce';
 import clamp from 'lodash/clamp';
-import {GestureState} from 'rc-dock/lib';
+import {GestureState} from 'rc-dock';
 import {TooltipIconButton} from '../component/TooltipIconButton';
 import {DataMap, decode, encode} from '../../../src/core/editor';
 import {t} from '../component/LocalizedLabel';

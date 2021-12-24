@@ -1,7 +1,7 @@
 import React from 'react';
 import {ClientConn} from '../../../src/core/editor';
 import {Modal, Input} from 'antd';
-import {DragState} from 'rc-dock/lib';
+import {DragState} from 'rc-dock';
 
 export function onDragBlockOver(conn: ClientConn, e: DragState) {
   let blockData = DragState.getData('blockData', conn.getBaseConn());

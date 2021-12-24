@@ -6,7 +6,7 @@ import {Button, Input, Menu, Tooltip} from 'antd';
 import FileAddIcon from '@ant-design/icons/FileAddOutlined';
 import ReloadIcon from '@ant-design/icons/ReloadOutlined';
 import {AddNewFlowDialog} from '../../popup/AddNewFlowDialog';
-import {DragDropDiv, DragState} from 'rc-dock/lib';
+import {DragDropDiv, DragState} from 'rc-dock';
 import {NodeTreeItem} from '../../node-tree/NodeRenderer';
 import {t} from '../../component/LocalizedLabel';
 import {showModal} from '../../popup/ShowModal';

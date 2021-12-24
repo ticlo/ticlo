@@ -8,7 +8,7 @@ import {
   TicloI18nSettings,
 } from '../../../src/core/editor';
 import {TIcon} from '../icon/Icon';
-import {DragDropDiv, DragState} from 'rc-dock/lib';
+import {DragDropDiv, DragState} from 'rc-dock';
 import {getFuncStyleFromDesc} from '../util/BlockColors';
 import {Dropdown, Menu} from 'antd';
 import BuildIcon from '@ant-design/icons/BuildOutlined';

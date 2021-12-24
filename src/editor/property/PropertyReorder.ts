@@ -1,6 +1,6 @@
 import {DataMap, getTailingNumber} from '../../core';
 import {PropertyEditorProps, PropertyReorder} from './PropertyEditor';
-import {DragState} from 'rc-dock/lib';
+import {DragState} from 'rc-dock';
 import {deepEqual} from '../../core/util/Compare';
 
 export const CustomGroupPropertyReorder: PropertyReorder = {

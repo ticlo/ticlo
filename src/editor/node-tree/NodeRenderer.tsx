@@ -24,7 +24,7 @@ import {
 } from '../../../src/core/editor';
 import {TIcon} from '../icon/Icon';
 import {TicloLayoutContext, TicloLayoutContextType} from '../component/LayoutContext';
-import {DragDropDiv, DragState} from 'rc-dock/lib';
+import {DragDropDiv, DragState} from 'rc-dock';
 import {getFuncStyleFromDesc} from '../util/BlockColors';
 import {LocalizedNodeName, t} from '../component/LocalizedLabel';
 import {BlockDropdown} from '../popup/BlockDropdown';

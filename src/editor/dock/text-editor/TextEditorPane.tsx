@@ -17,7 +17,7 @@ import 'codemirror/lib/codemirror.css';
 import 'codemirror/theme/eclipse.css';
 import 'codemirror/addon/fold/foldgutter.css';
 
-import {DockLayout} from 'rc-dock/lib';
+import {DockLayout} from 'rc-dock';
 import {TabData} from 'rc-dock/src/DockData';
 
 interface Props {
