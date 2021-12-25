@@ -13,5 +13,3 @@ ___
 )](https://discord.gg/d3NcyAw)
 <br>
 <a href="https://app.fossa.io/projects/git%2Bgithub.com%2Fticlo%2Fticlo?ref=badge_shield" alt="FOSSA Status"><img src="https://app.fossa.io/api/projects/git%2Bgithub.com%2Fticlo%2Fticlo.svg?type=shield"/></a>
-[![dependencies Status](https://david-dm.org/ticlo/ticlo/status.svg)](https://david-dm.org/ticlo/ticlo)
-[![devDependencies Status](https://david-dm.org/ticlo/ticlo/dev-status.svg)](https://david-dm.org/ticlo/ticlo?type=dev)
