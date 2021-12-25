@@ -15,7 +15,7 @@ export class StaticResponse extends BlockFunction {
   run(): any {
     for (let request of this._called) {
       if (request.attachHandler(this)) {
-        request.onComplete(this._data, this._data);
+        request.onResolve(this._data, this._data);
       }
     }
     this._called.length = 0;

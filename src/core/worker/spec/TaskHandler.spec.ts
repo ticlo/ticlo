@@ -41,7 +41,7 @@ class TestTask extends Task {
     return {n: this.n};
   }
 
-  onComplete(worker: Block, output: Block): DataMap {
+  onResolve(worker: Block, output: any): DataMap {
     let result = convertToOutput(output);
     TestTask.logs.push(result);
     return result;

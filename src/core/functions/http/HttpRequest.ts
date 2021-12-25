@@ -21,7 +21,7 @@ export class HttpRequest extends Task {
     return this.data;
   }
 
-  onComplete(worker: Block, output: Block): DataMap {
+  onResolve(worker: Block, output: any): DataMap {
     return convertToOutput(output);
   }
 

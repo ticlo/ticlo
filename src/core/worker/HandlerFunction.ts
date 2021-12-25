@@ -170,7 +170,7 @@ export class HandlerFunction extends MapImpl {
       result = output.task.onTimeout();
     } else {
       let worker = this._workers.get(output.key);
-      result = output.task.onComplete(worker, worker.getValue('#outputs'));
+      result = output.task.onResolve(worker, worker.getValue('#outputs'));
     }
 
     if (result === undefined) {

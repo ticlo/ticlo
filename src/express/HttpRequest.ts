@@ -10,8 +10,8 @@ export class ExpressHttpRequest extends HttpRequest {
     this.req = req;
   }
 
-  onComplete(worker: Block, output: Block): DataMap {
-    let response = super.onComplete(worker, output);
+  onResolve(worker: Block, output: any): DataMap {
+    let response = super.onResolve(worker, output);
     if (response) {
       let status = response.status || 200;
       let data = response.data;
