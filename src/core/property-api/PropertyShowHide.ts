@@ -3,7 +3,7 @@ import {configDescs, PropDesc, PropGroupDesc} from '../block/Descriptor';
 import {Functions} from '../block/Functions';
 import {getPreNumber} from '../util/String';
 
-const configList = Object.keys(configDescs);
+const configList = Object.keys(configDescs).filter((str: string) => !str.endsWith(')'));
 
 export function buildPropertiesOrder(block: Block): string[] {
   let orders = [...configList];
