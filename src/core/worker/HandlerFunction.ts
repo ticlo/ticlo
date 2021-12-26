@@ -10,7 +10,7 @@ import {RepeaterWorker} from './WorkerFlow';
 
 export class HandlerFunction extends MapImpl {
   _queue = new Denque<Task>();
-  _outQueue = new InfiniteQueue<any>();
+  _outQueue = new InfiniteQueue<any>(); // use InfiniteQueue to maintain the order of output
 
   static inputMap = new Map([
     ['use', HandlerFunction.prototype._onSourceChange],

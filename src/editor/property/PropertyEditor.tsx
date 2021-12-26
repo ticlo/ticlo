@@ -355,7 +355,6 @@ export class PropertyEditor extends MultiSelectComponent<PropertyEditorProps, St
     let isIndexed = group != null && !name.endsWith('[]');
 
     let {count, value, valueSame, isTemp, bindingPath, bindingSame, subBlock, display} = this.mergePropertyState();
-    console.log(isTemp);
     if (count === 0) {
       // not ready yet
       return (

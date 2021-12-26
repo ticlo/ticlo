@@ -6,6 +6,9 @@ import {Flow} from '../block/Flow';
 import {DataMap} from '../util/DataTypes';
 import {WorkerFlow} from './WorkerFlow';
 
+/**
+ * WorkerFunction is the function wrapper for all custom subflow functions
+ */
 export class WorkerFunction extends BlockFunction {
   readonly type: string;
   _namespace: string;

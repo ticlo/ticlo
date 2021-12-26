@@ -32,6 +32,7 @@ import {isBindable} from '../util/Path';
 import {ClientCallbacks} from './ClientRequests';
 import {copyProperties, createSharedBlock, deleteProperties, pasteProperties} from '../property-api/CopyPaste';
 import {moveProperty, PropertyMover} from '../property-api/PropertyMover';
+import {BlockInputsConfig, BlockOutputsConfig} from '../block/BlockConfigs';
 
 class ServerRequest extends ConnectionSendingData {
   id: string;
@@ -515,7 +516,25 @@ export class ServerConnection extends ServerConnectionCore {
     if (property) {
       let keepSaved: any;
       let keepBinding: string;
-      if (anyName) {
+      let funcId = data?.['#is'];
+      if (typeof funcId === 'string' && funcId.startsWith('flow:')) {
+        if (funcId === 'flow:inputs') {
+          property = property._block.getProperty('#inputs');
+          if (property instanceof BlockInputsConfig && property.isCleared()) {
+            property._block.createBlock('#inputs');
+          } else {
+            return 'invalid path';
+          }
+        } else if (funcId === 'flow:outputs' && property.isCleared()) {
+          property = property._block.getProperty('#outputs');
+          if (property instanceof BlockOutputsConfig) {
+            property._block.createBlock('#outputs');
+          } else {
+            return 'invalid path';
+          }
+        }
+        return 'invalid function';
+      } else if (anyName) {
         property = findPropertyForNewBlock(property._block, property._name);
         property._block.createBlock(property._name);
       } else {
@@ -541,7 +560,7 @@ export class ServerConnection extends ServerConnectionCore {
           property._block.createBlock(property._name);
         }
       }
-      if (data && data.hasOwnProperty('#is')) {
+      if (data?.hasOwnProperty('#is')) {
         (property._value as Block)._load(data);
         let desc = Functions.getDescToSend(data['#is'])[0];
         if (desc && desc.recipient && !data.hasOwnProperty(desc.recipient)) {
