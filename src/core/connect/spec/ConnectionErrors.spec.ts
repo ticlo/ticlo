@@ -11,6 +11,7 @@ const initAdd = AddFunction;
 describe('Connection Error', function () {
   it('common errors', async function () {
     let flow = Root.instance.addFlow('ConnectionError1');
+    flow.createBlock('validChild');
     let [server, client] = makeLocalConnection(Root.instance, false);
 
     assert.equal(
@@ -37,6 +38,24 @@ describe('Connection Error', function () {
     assert.equal(await shouldReject(client.listChildren('ConnectionError1.a.b.c') as Promise<any>), 'invalid path');
 
     assert.equal(await shouldReject(client.addBlock('ConnectionError1.a.b.c') as Promise<any>), 'invalid path');
+
+    assert.isObject(await client.addBlock('ConnectionError1.#inputs', {'#is': 'flow:inputs'}));
+    // Can not create #inputs again
+    assert.equal(
+      await shouldReject(client.addBlock('ConnectionError1.#inputs', {'#is': 'flow:inputs'}) as Promise<any>),
+      'invalid path'
+    );
+    assert.isObject(await client.addBlock('ConnectionError1.#outputs', {'#is': 'flow:outputs'}));
+    // Can not create #outputs again
+    assert.equal(
+      await shouldReject(client.addBlock('ConnectionError1.#outputs', {'#is': 'flow:outputs'}) as Promise<any>),
+      'invalid path'
+    );
+
+    assert.equal(
+      await shouldReject(client.addBlock('ConnectionError1.#invalidFunction', {'#is': 'flow:invalidFunction'}) as Promise<any>),
+      'invalid function'
+    );
 
     assert.equal(await shouldReject(client.editWorker('ConnectionError1.a.b.c') as Promise<any>), 'invalid path');
 

@@ -525,15 +525,16 @@ export class ServerConnection extends ServerConnectionCore {
           } else {
             return 'invalid path';
           }
-        } else if (funcId === 'flow:outputs' && property.isCleared()) {
+        } else if (funcId === 'flow:outputs') {
           property = property._block.getProperty('#outputs');
-          if (property instanceof BlockOutputsConfig) {
+          if (property instanceof BlockOutputsConfig && property.isCleared()) {
             property._block.createBlock('#outputs');
           } else {
             return 'invalid path';
           }
+        } else {
+          return 'invalid function';
         }
-        return 'invalid function';
       } else if (anyName) {
         property = findPropertyForNewBlock(property._block, property._name);
         property._block.createBlock(property._name);
@@ -560,9 +561,9 @@ export class ServerConnection extends ServerConnectionCore {
           property._block.createBlock(property._name);
         }
       }
-      if (data?.hasOwnProperty('#is')) {
+      if (typeof funcId === 'string') {
         (property._value as Block)._load(data);
-        let desc = Functions.getDescToSend(data['#is'])[0];
+        let desc = Functions.getDescToSend(funcId)[0];
         if (desc && desc.recipient && !data.hasOwnProperty(desc.recipient)) {
           // transfer parent property to the recipient
           if (keepSaved !== undefined) {
