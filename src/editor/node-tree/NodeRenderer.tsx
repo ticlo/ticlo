@@ -34,7 +34,14 @@ import FileAddIcon from '@ant-design/icons/FileAddOutlined';
 import {MenuItem} from '../component/ClickPopup';
 
 const saveAllowed = new Set<string>(['flow:editor', 'flow:worker', 'flow:main', 'flow:sub', 'flow:test-case']);
-const quickOpenAllowed = new Set<string>(['flow:editor', 'flow:worker', 'flow:main', 'flow:sub', 'flow:test-case', 'flow:const']);
+const quickOpenAllowed = new Set<string>([
+  'flow:editor',
+  'flow:worker',
+  'flow:main',
+  'flow:sub',
+  'flow:test-case',
+  'flow:const',
+]);
 const addChildFlowAllowed = new Set<string>(['flow:main', 'flow:sub', 'flow:test-group']);
 
 export class NodeTreeItem extends TreeItem<NodeTreeItem> {
