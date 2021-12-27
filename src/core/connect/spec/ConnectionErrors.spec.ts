@@ -53,7 +53,9 @@ describe('Connection Error', function () {
     );
 
     assert.equal(
-      await shouldReject(client.addBlock('ConnectionError1.#invalidFunction', {'#is': 'flow:invalidFunction'}) as Promise<any>),
+      await shouldReject(
+        client.addBlock('ConnectionError1.#invalidFunction', {'#is': 'flow:invalidFunction'}) as Promise<any>
+      ),
       'invalid function'
     );
 

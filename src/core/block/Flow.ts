@@ -286,6 +286,10 @@ export class Flow extends Block {
     this._loading = false;
   }
 
+  _applyFuncid(funcId: string) {
+    // function must be fixed and only destroyed during destroy()
+  }
+
   destroy(): void {
     if (this._history) {
       this._history.destroy();
@@ -321,10 +325,20 @@ class GlobalBlock extends ConstBlock {
   }
 }
 
-class FlowMain extends Flow {
-  // used when save from parent job
+export const FlowSubConfigGenerators: {[key: string]: typeof BlockProperty} = {
+  ...FlowConfigGenerators,
+  '#is': ConstTypeConfig('flow:sub'),
+};
+class FlowSub extends Flow {
   _save(): DataMap {
     return this.getValue('@b-xyw');
+  }
+  _createConfig(field: string): BlockProperty {
+    if (field in FlowSubConfigGenerators) {
+      return new FlowSubConfigGenerators[field](this, field);
+    } else {
+      return new BlockConfig(this, field);
+    }
   }
 }
 
@@ -420,8 +434,10 @@ export class Root extends Flow {
     let newFlow: Flow;
     if (loader?.createFlow) {
       newFlow = loader.createFlow(prop);
+    } else if (path.includes('.')) {
+      newFlow = new FlowSub(prop._block, null, prop);
     } else {
-      newFlow = new FlowMain(prop._block, null, prop);
+      newFlow = new Flow(prop._block, null, prop);
     }
     let propValue = prop._value;
     if (Array.isArray(propValue) && propValue.length === 3 && propValue.every((val) => typeof val === 'number')) {
