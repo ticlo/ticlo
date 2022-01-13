@@ -93,10 +93,7 @@
     "yaml": "^1.10.2"
   },
   "resolutions": {
-    "**/minimist": "^1.2.5",
-    "**/node-forge": "^0.10.0",
-    "**/highlight.js": "10.7.2",
-    "**/is-svg": "^4.2.2"
+    "**/postcss": "^8.4.5"
   },
   "scripts": {
     "test-nyc-strict": "cross-env NODE_ENV=TEST nyc --skip-full --check-coverage=true mocha 'src/core/**/*.spec.ts' 'src/node/**/*.spec.ts' && nyc report --reporter=text-lcov > coverage/nyc-strict.lcov",
