@@ -1,7 +1,7 @@
 import {Block, BlockChildWatch, InputsBlock, Runnable} from './Block';
 import {BlockConfig, BlockIO, BlockProperty, GlobalProperty} from './BlockProperty';
 import {Resolver} from './Resolver';
-import {FunctionOutput} from './BlockFunction';
+import {BlockFunction, FunctionOutput} from './BlockFunction';
 import {BlockConstConfig, ConstTypeConfig, FlowConfigGenerators} from './BlockConfigs';
 import {Event} from './Event';
 import {DataMap} from '../util/DataTypes';
@@ -16,7 +16,7 @@ export enum FlowState {
   destroyed,
 }
 export interface FlowLoader {
-  createFlow?(prop: BlockProperty): Flow;
+  createFlow?(path: string, prop: BlockProperty): Flow;
   applyChange?(data: DataMap): boolean;
   onStateChange?(flow: Flow, state: FlowState): void;
 }
@@ -325,23 +325,6 @@ class GlobalBlock extends ConstBlock {
   }
 }
 
-export const FlowSubConfigGenerators: {[key: string]: typeof BlockProperty} = {
-  ...FlowConfigGenerators,
-  '#is': ConstTypeConfig('flow:sub'),
-};
-class FlowSub extends Flow {
-  _save(): DataMap {
-    return this.getValue('@b-xyw');
-  }
-  _createConfig(field: string): BlockProperty {
-    if (field in FlowSubConfigGenerators) {
-      return new FlowSubConfigGenerators[field](this, field);
-    } else {
-      return new BlockConfig(this, field);
-    }
-  }
-}
-
 export class Root extends Flow {
   private static _instance: Root = new Root();
   static get instance() {
@@ -351,6 +334,8 @@ export class Root extends Flow {
   static run() {
     this._instance._run();
   }
+
+  static defaultCreateFlow: (path: string, prop: BlockProperty) => Flow;
 
   /**
    * resolve recursively
@@ -433,12 +418,11 @@ export class Root extends Flow {
     }
     let newFlow: Flow;
     if (loader?.createFlow) {
-      newFlow = loader.createFlow(prop);
-    } else if (path.includes('.')) {
-      newFlow = new FlowSub(prop._block, null, prop);
+      newFlow = loader.createFlow(path, prop);
     } else {
-      newFlow = new Flow(prop._block, null, prop);
+      newFlow = Root.defaultCreateFlow(path, prop);
     }
+
     let propValue = prop._value;
     if (Array.isArray(propValue) && propValue.length === 3 && propValue.every((val) => typeof val === 'number')) {
       // overwrite @b-xyw value from parent flow

@@ -66,7 +66,7 @@ export class TestLoader extends FileStorage {
   getFlowLoader(name: string, prop: BlockProperty): FlowLoader {
     if (prop == null || prop._block instanceof FlowTestGroup) {
       return {
-        createFlow: (p: BlockProperty) => {
+        createFlow: (path: string, p: BlockProperty) => {
           let testCase = new FlowTestCase(p._block, p, this.timeout, p._block as FlowTestGroup);
           if (!this.inited) {
             // test cases created during initialization should not start all at same time
@@ -107,7 +107,7 @@ export class TestLoader extends FileStorage {
   }
   init(root: Root): void {
     const testGroupLoader = {
-      createFlow: (p: BlockProperty) =>
+      createFlow: (path: string, p: BlockProperty) =>
         new FlowTestGroup(p._block, p, this.timeout, p._block instanceof FlowTestGroup ? p._block : null),
     };
 
