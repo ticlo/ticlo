@@ -27,15 +27,15 @@ describe('ColorEditor', function () {
       'editor'
     );
 
-    await shouldHappen(() => div.querySelector('.ticl-color-editor'));
+    await shouldHappen(() => div.querySelector('.ticl-color-editor'), 200, 'editor should be created');
     let colorDiv = div.querySelector('.ticl-color-editor');
 
     SimulateEvent.simulate(colorDiv, 'click');
 
-    await shouldHappen(() => querySingle("//div[@title='#FFFFFF']", document.body));
+    await shouldHappen(() => querySingle("//div[@title='#FFFFFF']", document.body), 200, 'white block should show in color editor');
 
     SimulateEvent.simulate(querySingle("//div[@title='#FFFFFF']", document.body), 'click');
 
-    await shouldHappen(() => value === '#ffffff');
+    await shouldHappen(() => value === '#ffffff', 200, 'value should be white');
   });
 });
