@@ -28,14 +28,15 @@ async function main() {
     let data = fs
       .readFileSync(path, 'utf8')
       .trim()
-      .replace('<path ', '<path fill="white" ')
+      .replace('<path ', "<path fill='white' ")
+      .replaceAll('"', "'")
       .replace(/</g, '%3C')
       .replace(/>/g, '%3E')
       .replace(/#/g, '%23');
 
     output.push(`
 .tico-${group}-${name} {
-  background-image: url('data:image/svg+xml,${data}');
+  background-image: url("data:image/svg+xml,${data}");
 }`);
   }
 
