@@ -32,7 +32,11 @@ describe('ColorEditor', function () {
 
     SimulateEvent.simulate(colorDiv, 'click');
 
-    await shouldHappen(() => querySingle("//div[@title='#FFFFFF']", document.body), 200, 'white block should show in color editor');
+    await shouldHappen(
+      () => querySingle("//div[@title='#FFFFFF']", document.body),
+      200,
+      'white block should show in color editor'
+    );
 
     SimulateEvent.simulate(querySingle("//div[@title='#FFFFFF']", document.body), 'click');
 
