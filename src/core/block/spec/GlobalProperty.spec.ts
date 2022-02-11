@@ -22,8 +22,8 @@ describe('GlobalProperty', function () {
 
     Root.run();
 
-    let impl: Flow = aBlock.getValue('#func') as Flow;
-    assert.instanceOf(impl, Flow, 'get #func of nested flow');
+    let impl: Flow = aBlock.getValue('#flow') as Flow;
+    assert.instanceOf(impl, Flow, 'get #flow of nested flow');
     // v not ready yet
     assert.isUndefined(impl.getValue('v'));
 

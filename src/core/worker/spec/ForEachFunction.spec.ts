@@ -123,7 +123,7 @@ describe('ForEachFunction', function () {
 
     bBlock.setValue('#is', '');
     assert.isUndefined(bBlock.getValue('#output'), 'destroy ForEachFunction');
-    assert.isUndefined(bBlock.getValue('#func'), 'destroy ForEachFunction');
+    assert.isUndefined(bBlock.getValue('#flow'), 'destroy ForEachFunction');
   });
 
   it('foreach primitive types', function () {

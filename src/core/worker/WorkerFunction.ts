@@ -25,12 +25,12 @@ export class WorkerFunction extends BlockFunction {
         return WorkerFunction.applyChangeToFunc(this._funcFlow, null, data);
       };
     }
-    this._funcFlow = this._data.createOutputFlow(WorkerFlow, '#func', this.type, this._data, applyChange);
+    this._funcFlow = this._data.createOutputFlow(WorkerFlow, '#flow', this.type, this._data, applyChange);
     this._funcFlow.updateInput(this._data);
   }
 
   cleanup(): void {
-    this._data.deleteValue('#func');
+    this._data.deleteValue('#flow');
   }
 
   static registerType(data: DataMap, desc: FunctionDesc, namespace?: string) {

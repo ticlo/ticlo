@@ -27,8 +27,8 @@ describe('WorkerFunction', function () {
     Root.run();
     assert.deepEqual(TestFunctionRunner.popLogs(), ['nest1'], 'nested flow should be created');
 
-    let impl: Flow = aBlock.getValue('#func') as Flow;
-    assert.instanceOf(impl, Flow, 'get #func of nested flow');
+    let impl: Flow = aBlock.getValue('#flow') as Flow;
+    assert.instanceOf(impl, Flow, 'get #flow of nested flow');
 
     assert.deepEqual(impl.save(), flowData, 'serialize nested flow');
 

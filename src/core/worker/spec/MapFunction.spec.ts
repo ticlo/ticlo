@@ -244,7 +244,7 @@ describe('MapFunction non-thread', function () {
     Root.run();
 
     assert.deepEqual(bBlock.getValue('#output'), {v1: 2, v2: 5, v4: 6});
-    assert.isUndefined(bBlock.queryValue('#func.v3.#outputs'), 'unused worker should be removed');
+    assert.isUndefined(bBlock.queryValue('#flow.v3.#outputs'), 'unused worker should be removed');
 
     assert.lengthOf(TestFunctionRunner.popLogs(), 4);
 
@@ -290,7 +290,7 @@ describe('MapFunction non-thread', function () {
     Root.runAll(2);
 
     assert.deepEqual(bBlock.getValue('#output'), {v1: 2, v2: 5, v4: 6});
-    assert.equal(bBlock.queryValue('#func.v3.#outputs.#value'), 4, 'unused worker is still kept');
+    assert.equal(bBlock.queryValue('#flow.v3.#outputs.#value'), 4, 'unused worker is still kept');
 
     assert.lengthOf(TestFunctionRunner.popLogs(), 4);
 

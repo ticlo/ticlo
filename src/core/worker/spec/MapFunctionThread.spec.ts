@@ -354,7 +354,7 @@ describe('MapFunction Thread', function () {
     for (let i = 0; i < 20; ++i) {
       assert.equal(outputArr[i], i + 101);
     }
-    assert.notEqual(bBlock.queryValue('#func.4.#outputs'), undefined, 'persist worker still exists');
+    assert.notEqual(bBlock.queryValue('#flow.4.#outputs'), undefined, 'persist worker still exists');
 
     // delete flow;
     flow.deleteValue('b');

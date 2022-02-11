@@ -92,20 +92,20 @@ describe('Path', function () {
 
     // different flow
     assert.equal(propRelative(flow1.queryValue('c'), flow2.queryProperty('o.v', true)), '###.##.PropRelative2.o.v');
-    assert.equal(propRelative(flow1.queryValue('c.d.#func.A'), flow1.queryProperty('c.v', true)), '###.##.##.v');
-    assert.equal(propRelative(flow1.queryValue('c'), flow1.queryProperty('c.d.#func.A.v', true)), 'd.#func.A.v');
-    assert.equal(propRelative(flow1.queryValue('f'), flow1.queryProperty('c.d.#func.A.v', true)), '##.c.d.#func.A.v');
+    assert.equal(propRelative(flow1.queryValue('c.d.#flow.A'), flow1.queryProperty('c.v', true)), '###.##.##.v');
+    assert.equal(propRelative(flow1.queryValue('c'), flow1.queryProperty('c.d.#flow.A.v', true)), 'd.#flow.A.v');
+    assert.equal(propRelative(flow1.queryValue('f'), flow1.queryProperty('c.d.#flow.A.v', true)), '##.c.d.#flow.A.v');
     assert.equal(
-      propRelative(flow1.queryValue('f.h'), flow1.queryProperty('c.d.#func.A.v', true)),
-      '###.c.d.#func.A.v'
+      propRelative(flow1.queryValue('f.h'), flow1.queryProperty('c.d.#flow.A.v', true)),
+      '###.c.d.#flow.A.v'
     );
     assert.equal(
-      propRelative(flow1.queryValue('c.d.#func.A'), flow1.queryProperty('f.h.#func.A.v', true)),
-      '###.##.###.f.h.#func.A.v'
+      propRelative(flow1.queryValue('c.d.#flow.A'), flow1.queryProperty('f.h.#flow.A.v', true)),
+      '###.##.###.f.h.#flow.A.v'
     );
     assert.equal(
-      propRelative(flow1.queryValue('c.d.#func.A'), flow1.queryProperty('c.d.#func.A.B.#func.C.v', true)),
-      'B.#func.C.v'
+      propRelative(flow1.queryValue('c.d.#flow.A'), flow1.queryProperty('c.d.#flow.A.B.#flow.C.v', true)),
+      'B.#flow.C.v'
     );
 
     let flow11 = Root.instance.addFlow('PropRelative1.1');
