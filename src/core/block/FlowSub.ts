@@ -1,7 +1,8 @@
+import './Block';
+import {Flow, Root} from './Flow';
 import {BlockConfig, BlockProperty} from './BlockProperty';
 import {ConstTypeConfig, FlowConfigGenerators} from './BlockConfigs';
 import {DataMap} from '../util/DataTypes';
-import {Flow, Root} from './Flow';
 
 export const FlowSubConfigGenerators: {[key: string]: typeof BlockProperty} = {
   ...FlowConfigGenerators,
@@ -12,6 +13,7 @@ class FlowSub extends Flow {
   _save(): DataMap {
     return this.getValue('@b-xyw');
   }
+
   _createConfig(field: string): BlockProperty {
     if (field in FlowSubConfigGenerators) {
       return new FlowSubConfigGenerators[field](this, field);

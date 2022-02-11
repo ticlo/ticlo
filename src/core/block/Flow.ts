@@ -77,7 +77,6 @@ export class Flow extends Block {
   }
 
   _disableBlock() {
-    this._applyFuncid(null);
     this._onStateChange?.(this, FlowState.disabled);
     for (let [key, prop] of this._props) {
       let val = prop._value;
@@ -88,7 +87,6 @@ export class Flow extends Block {
   }
 
   _enabledBlock() {
-    this._applyFuncid(this._funcId);
     this._onStateChange?.(this, FlowState.enabled);
     for (let [key, prop] of this._props) {
       let val = prop._value;
@@ -335,6 +333,7 @@ export class Root extends Flow {
     this._instance._run();
   }
 
+  // implemented in FlowSub
   static defaultCreateFlow: (path: string, prop: BlockProperty) => Flow;
 
   /**
