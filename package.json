@@ -64,7 +64,7 @@
     "express": "^4.17.2",
     "express-ws": "^5.0.2",
     "glob": "^7.2.0",
-    "karma": "6.3.14",
+    "karma": "^6.3.16",
     "karma-chrome-launcher": "^3.1.0",
     "karma-mocha": "^2.0.1",
     "karma-typescript": "^5.5.3",
