@@ -139,6 +139,15 @@ export class FileStorage implements Storage {
     this.getTask(name).write(str);
   }
 
+  async loadFlow(name: string) {
+    try {
+      let str = await this.getTask(name).read();
+      return decode(str);
+    } catch (e) {
+      return null;
+    }
+  }
+
   inited = false;
   init(root: Root): void {
     let flowFiles: string[] = [];

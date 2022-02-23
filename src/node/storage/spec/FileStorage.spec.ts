@@ -12,7 +12,8 @@ describe('FileStorage', function () {
   it('save and delete', async function () {
     const path = './temp/storageTest/flow1.ticlo';
     let root = new Root();
-    await root.setStorage(new FileStorage('./temp/storageTest'));
+    let storage = new FileStorage('./temp/storageTest');
+    await root.setStorage(storage);
 
     let flow = root.addFlow('flow1');
     flow.applyChange();
@@ -33,8 +34,8 @@ describe('FileStorage', function () {
     flow.setValue('value', 456);
     flow.applyChange();
     await waitTick(20);
-    await shouldHappen(() => (savedData = Fs.readFileSync('./temp/storageTest/flow2.ticlo', 'utf8')));
-    assert.deepEqual(decode(savedData), {'#is': '', 'value': 456});
+    let readResult = await storage.loadFlow('flow2');
+    assert.deepEqual(readResult, {'#is': '', 'value': 456});
 
     // overwrite delete after write
     flow = root.addFlow('flow3');
