@@ -332,6 +332,10 @@ class FlowStorage implements Storage {
   getFlowLoader(name: string, prop: BlockProperty) {
     return {};
   }
+
+  loadFlow(name: string): Promise<DataMap> {
+    return Promise.resolve(undefined);
+  }
 }
 
 (async () => {

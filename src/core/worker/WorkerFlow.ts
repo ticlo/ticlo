@@ -48,9 +48,7 @@ export class WorkerFlow extends FlowWithShared {
 
   scheduleCheckReady() {
     if (this._onReady) {
-      Resolver.callLater(this.checkReady);
-      Root.instance._resolver.schedule();
-      // TODO make it not static
+      Root.callLater(this.checkReady);
     }
   }
 

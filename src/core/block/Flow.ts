@@ -333,6 +333,11 @@ export class Root extends Flow {
     this._instance._run();
   }
 
+  static callLater(callback: () => void) {
+    Resolver.callLater(callback);
+    Root.instance._resolver.schedule();
+  }
+
   // implemented in FlowSub
   static defaultCreateFlow: (path: string, prop: BlockProperty) => Flow;
 

@@ -19,6 +19,7 @@ export const BlockModeList = ['auto', 'onLoad', 'onChange', 'onCall'];
 
 export interface BlockChildWatch {
   onChildChange(property: BlockProperty, saved?: boolean): void;
+
   watchHistory?: boolean;
 }
 
@@ -30,7 +31,8 @@ export interface Runnable {
 
   getPriority(): number;
 
-  run(): void;
+  // return false if not actually run
+  run(reason?: any): void;
 }
 
 class PromiseWrapper {
@@ -112,6 +114,7 @@ export class Block implements Runnable, FunctionData, PropListener<FunctionClass
   }
 
   _cachedFullPath: string;
+
   getFullPath(): string {
     if (this._cachedFullPath == null) {
       if (this._parent == null || this._parent === this) {
@@ -484,7 +487,7 @@ export class Block implements Runnable, FunctionData, PropListener<FunctionClass
     return true;
   }
 
-  run() {
+  run(reason?: any) {
     this._queueToRun = false;
     if (!this._flow._enabled) {
       return;
@@ -508,7 +511,15 @@ export class Block implements Runnable, FunctionData, PropListener<FunctionClass
         }
         result = WAIT;
       }
-      this.emit(result);
+      if (result === undefined && Event.passThrough(reason)) {
+        // pass the event to the next block
+        this.emit(reason);
+      } else {
+        this.emit(result);
+      }
+    } else if (Event.passThrough(reason)) {
+      // pass the event to the next block
+      this.emit(reason);
     }
   }
 
@@ -599,7 +610,7 @@ export class Block implements Runnable, FunctionData, PropListener<FunctionClass
                 }
               } else {
                 this._called = true;
-                this.run();
+                this.run(val);
               }
             } else if (this._function) {
               if (Event.check(val) === EventType.TRIGGER) {
@@ -646,6 +657,7 @@ export class Block implements Runnable, FunctionData, PropListener<FunctionClass
       }
     }
   }
+
   _flowEnabled() {
     this._disabledChanged(this.getValue('#disabled'));
     for (let [key, prop] of this._props) {
@@ -667,9 +679,11 @@ export class Block implements Runnable, FunctionData, PropListener<FunctionClass
       }
     }
   }
+
   _disableBlock() {
     this._applyFuncid(null);
   }
+
   _enabledBlock() {
     this._applyFuncid(this._funcId);
   }
@@ -691,6 +705,7 @@ export class Block implements Runnable, FunctionData, PropListener<FunctionClass
       this._applyFuncid(funcId);
     }
   }
+
   _applyFuncid(funcId: string) {
     if (this._funcSrc) {
       this._funcSrc.unlisten(this);
