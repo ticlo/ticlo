@@ -89,9 +89,12 @@ export class FlowTestCase extends Flow implements TestsRunner {
   run() {
     this._queueToRun = false;
     if (!this._timeouted) {
-      let waiting = this.findFirst(
-        (field: string, prop: BlockIO) => prop._value instanceof Block && prop._value._waiting
-      );
+      let waiting = this.findFirst((field: string, prop: BlockIO) => {
+        if (prop._value instanceof Block && prop._value._waiting) {
+          // return anything !== undefined is enough
+          return true;
+        }
+      });
       if (waiting) {
         return;
       }
