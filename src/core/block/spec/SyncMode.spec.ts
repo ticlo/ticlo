@@ -36,7 +36,7 @@ describe('SyncMode', function () {
     let block2 = flow.createBlock('obj2');
     block2.setValue('#mode', 'onLoad');
     block2.setValue('#-log', 'obj2');
-    block2.setValue('#is', 'test-runner');
+    block2.setValue('#is', 'test-runner-immutable');
     block2.setValue('#sync', true);
     block2.setBinding('#call', '##.obj1.#emit');
 

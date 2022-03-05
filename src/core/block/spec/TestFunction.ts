@@ -32,6 +32,11 @@ const TestFunctionApi = {
 };
 Functions.add(TestFunctionRunner, {name: 'test-runner'}, null, TestFunctionApi);
 
+class TestFunctionRunnerImmutable extends TestFunctionRunner {
+  immutable = true;
+}
+Functions.add(TestFunctionRunnerImmutable, {name: 'test-runner-immutable'});
+
 class TestFunctionRunnerWontCancel extends TestFunctionRunner {
   cancel(reason: EventType = EventType.TRIGGER, mode: BlockMode = 'auto') {
     return false;

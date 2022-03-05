@@ -45,6 +45,7 @@ export class Event {
 
 export class ErrorEvent extends Event {
   detail: any;
+  passThrough = true;
 
   constructor(type: string, detail?: any) {
     super(type);

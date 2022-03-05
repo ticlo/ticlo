@@ -28,6 +28,12 @@ export abstract class BaseFunction<T extends FunctionData = FunctionData> {
   priority: 0 | 1 | 2 | 3;
   defaultMode: BlockMode;
 
+  /**
+   * Whether esult will always be the same when inputs are same,
+   * and function doesn't emit any value.
+   */
+  immutable: boolean;
+
   constructor(public _data?: T) {}
   initInputs() {}
 

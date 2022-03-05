@@ -14,7 +14,12 @@ import {_strictMode} from './BlockSettings';
 
 import type {Flow, Root} from './Flow';
 
-export type BlockMode = 'auto' | 'onLoad' | 'onChange' | 'onCall';
+export type BlockMode =
+  | 'auto' // defined by function
+  | 'onLoad' // run onLoad, onChange and onCall
+  | 'onChange' // run onChange and onCall
+  | 'onCall'; // onCall only
+
 export const BlockModeList = ['auto', 'onLoad', 'onChange', 'onCall'];
 
 export interface BlockChildWatch {
@@ -517,9 +522,6 @@ export class Block implements Runnable, FunctionData, PropListener<FunctionClass
       } else {
         this.emit(result);
       }
-    } else if (Event.passThrough(reason)) {
-      // pass the event to the next block
-      this.emit(reason);
     }
   }
 
@@ -600,33 +602,43 @@ export class Block implements Runnable, FunctionData, PropListener<FunctionClass
         }
         switch (Event.check(val)) {
           case EventType.TRIGGER: {
-            if (this._sync) {
-              if (this._runOnChange && this._runOnLoad && !this._queueToRun) {
-                // if sync block has mode onLoad, it can't be called synchronously without a change
-                let prop = this._props.get('#emit');
-                if (prop && Object.isExtensible(prop._value) && prop._value.constructor === CompleteEvent) {
-                  // re-emit complete event
-                  prop.updateValue(new CompleteEvent());
+            if (this._function) {
+              if (this._sync) {
+                if (this._function.immutable && this._runOnChange && !this._queueToRun) {
+                  // if function is immutable, it can't be called synchronously without a change
+                  let prop = this._props.get('#emit');
+                  if (prop && Object.isExtensible(prop._value) && prop._value.constructor === CompleteEvent) {
+                    // re-emit complete event
+                    prop.updateValue(new CompleteEvent());
+                  }
+                } else {
+                  this._called = true;
+                  this.run(val);
                 }
               } else {
-                this._called = true;
-                this.run(val);
+                if (Event.check(val) === EventType.TRIGGER) {
+                  this._called = true;
+                  this._queueFunction();
+                }
               }
-            } else if (this._function) {
-              if (Event.check(val) === EventType.TRIGGER) {
-                this._called = true;
-                this._queueFunction();
-              }
+            } else {
+              this._queueToRun = false;
             }
             break;
           }
           case EventType.ERROR: {
             if (this._cancelFunction(EventType.ERROR)) {
-              this.emit(val);
+              if (Event.passThrough(val)) {
+                this.emit(val);
+              }
             }
             break;
           }
         }
+      }
+    } else if (this._sync) {
+      if (Event.passThrough(val)) {
+        this.emit(val);
       }
     }
   }
