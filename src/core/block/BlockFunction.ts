@@ -32,7 +32,7 @@ export abstract class BaseFunction<T extends FunctionData = FunctionData> {
    * Whether esult will always be the same when inputs are same,
    * and function doesn't emit any value.
    */
-  immutable: boolean;
+  immutable = true;
 
   constructor(public _data?: T) {}
   initInputs() {}
@@ -71,6 +71,8 @@ export abstract class BaseFunction<T extends FunctionData = FunctionData> {
 }
 
 export abstract class BlockFunction extends BaseFunction<Block> {
+  immutable = false;
+
   initInputs() {
     let inputMap = this.getInputMap();
     if (inputMap) {

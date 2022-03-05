@@ -19,6 +19,7 @@ export class TestFunctionRunner extends BaseFunction {
     TestFunctionRunner.logs.length = 0;
   }
 
+  immutable = false;
   run(): any {
     TestFunctionRunner.logs.push(this._data.getValue('#-log'));
   }
