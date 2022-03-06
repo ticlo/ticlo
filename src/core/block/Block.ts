@@ -37,7 +37,7 @@ export interface Runnable {
   getPriority(): number;
 
   // return false if not actually run
-  run(reason?: any): void;
+  run(): void;
 }
 
 class PromiseWrapper {
@@ -492,7 +492,7 @@ export class Block implements Runnable, FunctionData, PropListener<FunctionClass
     return true;
   }
 
-  run(reason?: any) {
+  run() {
     this._queueToRun = false;
     if (!this._flow._enabled) {
       return;
@@ -516,12 +516,7 @@ export class Block implements Runnable, FunctionData, PropListener<FunctionClass
         }
         result = WAIT;
       }
-      if (result === undefined && Event.passThrough(reason)) {
-        // pass the event to the next block
-        this.emit(reason);
-      } else {
-        this.emit(result);
-      }
+      this.emit(result);
     }
   }
 
@@ -598,6 +593,7 @@ export class Block implements Runnable, FunctionData, PropListener<FunctionClass
       } else {
         if (this._function && !this._function.onCall(val)) {
           // rejected by onCall
+          // TODO: if #emit and #call is same, need to clear #emit value when #call become undefined
           return;
         }
         switch (Event.check(val)) {
@@ -613,7 +609,7 @@ export class Block implements Runnable, FunctionData, PropListener<FunctionClass
                   }
                 } else {
                   this._called = true;
-                  this.run(val);
+                  this.run();
                 }
               } else {
                 if (Event.check(val) === EventType.TRIGGER) {
@@ -622,23 +618,17 @@ export class Block implements Runnable, FunctionData, PropListener<FunctionClass
                 }
               }
             } else {
-              this._queueToRun = false;
+              // this._queueToRun = false; // No need to reset since it won't be set if function is null.
             }
             break;
           }
           case EventType.ERROR: {
             if (this._cancelFunction(EventType.ERROR)) {
-              if (Event.passThrough(val)) {
-                this.emit(val);
-              }
+              this.emit(val);
             }
             break;
           }
         }
-      }
-    } else if (this._sync) {
-      if (Event.passThrough(val)) {
-        this.emit(val);
       }
     }
   }

@@ -36,3 +36,5 @@ import './functions/data/State';
 import './worker/MapFunction';
 import './worker/ForEachFunction';
 import './worker/HandlerFunction';
+import './subflows/SubFlowFunction';
+import './subflows/SelectFlowFunction';

@@ -14,8 +14,6 @@ export class Event {
 
   loopId: string;
   type: string;
-  /** When a Block is disabled, whether the event should be passed to next block in sync mode */
-  passThrough: boolean;
 
   constructor(type: string) {
     this.type = type;
@@ -31,9 +29,6 @@ export class Event {
     }
     return EventType.TRIGGER;
   }
-  static passThrough(val: any): boolean {
-    return val instanceof Event && val.passThrough;
-  }
 
   check(): number {
     if (this.loopId === Event.uid) {
@@ -45,7 +40,6 @@ export class Event {
 
 export class ErrorEvent extends Event {
   detail: any;
-  passThrough = true;
 
   constructor(type: string, detail?: any) {
     super(type);
