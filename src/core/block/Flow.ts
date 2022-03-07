@@ -338,9 +338,6 @@ export class Root extends Flow {
     Root.instance._resolver.schedule();
   }
 
-  // implemented in FlowSub
-  static defaultCreateFlow: (path: string, prop: BlockProperty) => Flow;
-
   /**
    * resolve recursively
    */
@@ -424,7 +421,7 @@ export class Root extends Flow {
     if (loader?.createFlow) {
       newFlow = loader.createFlow(path, prop);
     } else {
-      newFlow = Root.defaultCreateFlow(path, prop);
+      newFlow = new Flow(prop._block, null, prop);
     }
 
     let propValue = prop._value;
