@@ -1,0 +1,130 @@
+{
+"#is": "",
+"assert": {
+ "#is": "test:assert",
+ "@b-p": [
+  "actual0",
+  "expect0",
+  "actual1",
+  "expect1",
+  "actual2",
+  "expect2"
+ ],
+ "@b-xyw": [
+  511,
+  192,
+  143
+ ],
+ "[]": 3,
+ "expect0": "disable",
+ "expect1": "on",
+ "expect2": "disable",
+ "~actual0": "##.sub-flow1.#subflow",
+ "~actual1": "##.sub-flow2.#subflow",
+ "~actual2": "##.sub-flow3.#subflow"
+},
+"assert1": {
+ "#is": "test:assert",
+ "@b-p": [
+  "actual0",
+  "expect0",
+  "actual1",
+  "expect1",
+  "actual2",
+  "expect2"
+ ],
+ "@b-xyw": [
+  504,
+  606,
+  143
+ ],
+ "[]": 3,
+ "expect0": "off",
+ "expect1": "off",
+ "expect2": "on",
+ "~actual0": "##.sub-flow4.#subflow",
+ "~actual1": "##.sub-flow5.#subflow",
+ "~actual2": "##.sub-flow6.#subflow"
+},
+"select-flow-disable-unused": {
+ "#is": "select-flow",
+ "@b-p": [
+  "name",
+  "unusedFlow"
+ ],
+ "@b-xyw": [
+  47,
+  72,
+  224
+ ],
+ "name": "sub-flow2"
+},
+"select-flow-unload-unused": {
+ "#is": "select-flow",
+ "@b-p": [
+  "name",
+  "unusedFlow"
+ ],
+ "@b-xyw": [
+  40,
+  486,
+  239
+ ],
+ "name": "sub-flow6",
+ "unusedFlow": "off"
+},
+"sub-flow1": {
+ "#is": "sub-flow",
+ "#sync": true,
+ "@b-p": [
+  "#subflow"
+ ],
+ "@b-xyw": "select-flow-disable-unused",
+ "~#call": "##.select-flow-disable-unused.#emit"
+},
+"sub-flow2": {
+ "#is": "sub-flow",
+ "#sync": true,
+ "@b-p": [
+  "#subflow"
+ ],
+ "@b-xyw": "sub-flow1",
+ "~#call": "##.sub-flow1.#emit"
+},
+"sub-flow3": {
+ "#is": "sub-flow",
+ "#sync": true,
+ "@b-p": [
+  "#subflow"
+ ],
+ "@b-xyw": "sub-flow2",
+ "~#call": "##.sub-flow2.#emit"
+},
+"sub-flow4": {
+ "#is": "sub-flow",
+ "#sync": true,
+ "@b-p": [
+  "#subflow"
+ ],
+ "@b-xyw": "select-flow-unload-unused",
+ "~#call": "##.select-flow-unload-unused.#emit"
+},
+"sub-flow5": {
+ "#is": "sub-flow",
+ "#sync": true,
+ "@b-p": [
+  "#subflow"
+ ],
+ "@b-xyw": "sub-flow4",
+ "~#call": "##.sub-flow4.#emit"
+},
+"sub-flow6": {
+ "#is": "sub-flow",
+ "#sync": true,
+ "@b-p": [
+  "#subflow"
+ ],
+ "@b-xyw": "sub-flow5",
+ "~#call": "##.sub-flow5.#emit"
+}
+}
