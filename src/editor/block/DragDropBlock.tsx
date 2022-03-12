@@ -58,7 +58,7 @@ export function onDropBlock(conn: ClientConn, e: DragState, createBlock: CreateB
           onConfirmedBlockName(blockName);
         }
       };
-      let onGetRef = (ref: Input) => {
+      let onGetRef = (ref: any) => {
         if (ref) {
           ref.select();
         }
