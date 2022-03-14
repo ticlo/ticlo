@@ -58,6 +58,7 @@ import enTestLocal from '../../i18n/test/en.json';
 import zhAntd from 'antd/lib/locale/zh_CN';
 import enAntd from 'antd/lib/locale/en_US';
 import {LocalizedLabel, t} from '../../src/editor/component/LocalizedLabel';
+import {IndexDbStorage} from '../../src/html/storage/IndexDbStorage';
 
 const layoutGroups = {
   blockStage: {
@@ -321,23 +322,6 @@ class App extends React.PureComponent<Props, State> {
   }
 }
 
-class FlowStorage implements Storage {
-  deleteFlow(name: string) {}
-
-  saveFlow(name: string, flow: Flow, data?: DataMap) {
-    console.log(JsonEsc.stringify(data));
-  }
-
-  init(root: Root): void {}
-  getFlowLoader(name: string, prop: BlockProperty) {
-    return {};
-  }
-
-  loadFlow(name: string): Promise<DataMap> {
-    return Promise.resolve(undefined);
-  }
-}
-
 (async () => {
   await initEditor();
 
@@ -350,14 +334,16 @@ class FlowStorage implements Storage {
   i18next.addResourceBundle('zh', 'ticlo-test', zhTestLocal);
   i18next.addResourceBundle('en', 'ticlo-test', enTestLocal);
 
-  await Root.instance.setStorage(new FlowStorage());
-  let reactFlow = Root.instance.addFlow('example', reactData);
-
-  let generalFlow = Root.instance.addFlow('example0', data);
+  await Root.instance.setStorage(new IndexDbStorage());
+  if (!(Root.instance.getValue('example') instanceof Flow)) {
+    console.log('initialize the database');
+    Root.instance.addFlow('example', reactData);
+    Root.instance.addFlow('example0', data);
+  }
 
   // create some global blocks
-  Root.instance._globalRoot.createBlock('^gAdd').setValue('#is', 'add');
-  Root.instance._globalRoot.createBlock('^gSub').setValue('#is', 'subtract');
+  Root.instance._globalRoot.createBlock('^gAdd')?.setValue('#is', 'add');
+  Root.instance._globalRoot.createBlock('^gSub')?.setValue('#is', 'subtract');
 
   let [server, client] = makeLocalConnection(Root.instance);
 

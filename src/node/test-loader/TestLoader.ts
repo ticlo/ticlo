@@ -120,7 +120,10 @@ export class TestLoader extends FileStorage {
         let stat = Fs.statSync(specDir);
         if (stat.isDirectory()) {
           for (let file of Fs.readdirSync(specDir)) {
-            if (file.endsWith('.ticlo')) {
+            if (
+              file.endsWith('.ticlo') &&
+              !file.startsWith('#') // Do not load subflow during initialization.
+            ) {
               try {
                 let data = {};
                 if (!this.onDemandLoad) {

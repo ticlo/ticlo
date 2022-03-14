@@ -62,6 +62,10 @@ export class SubFlowFunction extends BlockFunction {
     data.getProperty('#emit');
   }
 
+  getStoragePath() {
+    return `${this._data.getFullPath()}.#flow`;
+  }
+
   configChanged(config: BlockConfig, val: any): boolean {
     switch (config._name) {
       case '#subflow':
@@ -91,7 +95,7 @@ export class SubFlowFunction extends BlockFunction {
       if (!this._loading && !disable) {
         // don't load the subflow when it's disabled
         this._loading = true;
-        LoadFunctionCache.loadData(this._data.getFullPath(), this);
+        LoadFunctionCache.loadData(this.getStoragePath(), this);
       }
     } else {
       this._funcFlow.updateValue('#disabled', disable || undefined);
@@ -125,10 +129,6 @@ export class SubFlowFunction extends BlockFunction {
       }
     }
 
-    if (this._funcFlow == null && !this._loading) {
-      this._loading = true;
-      LoadFunctionCache.loadData(this._data.getFullPath(), this);
-    }
     if (this._collector) {
       this._collector.addSubFlow(this._data);
       let result = this._collector;
@@ -142,10 +142,10 @@ export class SubFlowFunction extends BlockFunction {
     let subFlowMode: SubFlowMode = this._data.getValue('#subflow');
     if (this._funcFlow == null && subFlowMode === 'on') {
       this._src = src;
-      let applyChange: (data: DataMap) => boolean;
-      applyChange = (data: DataMap) => {
+      let storagePath = this.getStoragePath();
+      let applyChange = (data: DataMap) => {
         this._src = data;
-        Root.instance._storage.saveFlow(this._data.getFullPath(), null, data);
+        Root.instance._storage.saveFlow(storagePath, null, data);
         return true;
       };
       this._funcFlow = this._data.createOutputFlow(WorkerFlow, '#flow', this._src, this._data, applyChange);

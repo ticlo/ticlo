@@ -154,7 +154,10 @@ export class FileStorage implements Storage {
     let functionFiles: string[] = [];
     let globalData = {'#is': ''};
     for (let file of Fs.readdirSync(this.dir)) {
-      if (file.endsWith('.ticlo')) {
+      if (
+        file.endsWith('.ticlo') &&
+        !file.includes('.#') // Do not load subflow during initialization.
+      ) {
         let name = file.substring(0, file.length - '.ticlo'.length);
         if (name === '#global') {
           try {
