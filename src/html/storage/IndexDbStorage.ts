@@ -1,4 +1,4 @@
-import {openDB, deleteDB, wrap, unwrap, IDBPDatabase} from 'idb';
+import idb, {openDB, deleteDB, wrap, unwrap, IDBPDatabase} from 'idb';
 import {BlockProperty, DataMap, decode, encodeSorted, Flow, Root, Storage} from '../../../src/core';
 import {WorkerFunction} from '../../../src/core/worker/WorkerFunction';
 import {FlowLoader, FlowState} from '../../../src/core/block/Flow';
@@ -7,16 +7,14 @@ export class IndexDbStorage implements Storage {
   dbPromise: Promise<IDBPDatabase>;
 
   constructor(dbName: string = 'ticlo') {
-    (async () => {
-      this.dbPromise = openDB(dbName, undefined, {
-        upgrade(db, oldVersion, newVersion, transaction) {
-          db.createObjectStore('flows');
-        },
-        blocked() {},
-        blocking() {},
-        terminated() {},
-      });
-    })();
+    this.dbPromise = openDB(dbName, undefined, {
+      upgrade(db, oldVersion, newVersion, transaction) {
+        db.createObjectStore('flows');
+      },
+      blocked() {},
+      blocking() {},
+      terminated() {},
+    });
   }
 
   getFlowLoader(name: string, prop: BlockProperty): FlowLoader {
@@ -82,8 +80,6 @@ export class IndexDbStorage implements Storage {
         }
       }
     }
-    console.log(functionFiles);
-    console.log(flowFiles);
 
     // load custom types
     for (let name of functionFiles.sort()) {

@@ -240,7 +240,11 @@ class App extends React.PureComponent<Props, State> {
           },
           {
             size: 800,
-            tabs: [this.createBlockEditorTab('example'), this.createBlockEditorTab('example')],
+            tabs: [
+              this.createBlockEditorTab('example', () => {
+                conn.applyFlowChange('example');
+              }),
+            ],
             id: 'main',
             panelLock: {panelStyle: 'main'},
           },
