@@ -65,7 +65,7 @@ describe('FileStorage', function () {
     Fs.writeFileSync(path2, JSON.stringify(flowData));
 
     let root = new Root();
-    root.setStorage(new FileStorage('./temp/storageTest'));
+    await root.setStorage(new FileStorage('./temp/storageTest'));
 
     assert.equal(root.queryValue('flow5.value'), 321);
     assert.equal(root.queryValue('flow5.subflow.value'), 321);
