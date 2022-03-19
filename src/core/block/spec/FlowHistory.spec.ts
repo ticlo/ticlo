@@ -72,7 +72,7 @@ describe('FlowHistory', function () {
     flow.setValue('a', 4);
     flow.trackChange();
 
-    await shouldHappen(() => history._tracking === false);
+    await shouldHappen(() => history._tracking === false, 500);
 
     flow.applyChange();
     assert.isUndefined(flow.getValue('@has-change'));
