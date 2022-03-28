@@ -33,6 +33,7 @@ import {ClientCallbacks} from './ClientRequests';
 import {copyProperties, createSharedBlock, deleteProperties, pasteProperties} from '../property-api/CopyPaste';
 import {moveProperty, PropertyMover} from '../property-api/PropertyMover';
 import {BlockInputsConfig, BlockOutputsConfig} from '../block/BlockConfigs';
+import {WorkerFlow} from '../worker/WorkerFlow';
 
 class ServerRequest extends ConnectionSendingData {
   id: string;
@@ -521,14 +522,33 @@ export class ServerConnection extends ServerConnectionCore {
         if (funcId === 'flow:inputs') {
           property = property._block.getProperty('#inputs');
           if (property instanceof BlockInputsConfig && property.isCleared()) {
-            property._block.createBlock('#inputs');
+            let inputBlock = property._block.createBlock('#inputs');
+            if (property._block instanceof Flow) {
+              let defaultFlow = property._block._parent.getDefaultWorker(null);
+              let inputs = defaultFlow?.['#inputs'];
+              if (inputs) {
+                inputBlock._load({...data, ...inputs});
+                // Since data is already loaded, we can skip the next load.
+                data = null;
+                (property._block as WorkerFlow).updateInput(property._block._lastInput);
+              }
+            }
           } else {
             return 'invalid path';
           }
         } else if (funcId === 'flow:outputs') {
           property = property._block.getProperty('#outputs');
           if (property instanceof BlockOutputsConfig && property.isCleared()) {
-            property._block.createBlock('#outputs');
+            let outputBlock = property._block.createBlock('#outputs');
+            if (property._block instanceof Flow) {
+              let defaultFlow = property._block._parent.getDefaultWorker(null);
+              let inputs = defaultFlow?.['#outputs'];
+              if (inputs) {
+                outputBlock._load({...data, ...inputs});
+                // Since data is already loaded, we can skip the next load.
+                data = null;
+              }
+            }
           } else {
             return 'invalid path';
           }
@@ -561,7 +581,7 @@ export class ServerConnection extends ServerConnectionCore {
           property._block.createBlock(property._name);
         }
       }
-      if (typeof funcId === 'string') {
+      if (typeof funcId === 'string' && data) {
         (property._value as Block)._load(data);
         let desc = Functions.getDescToSend(funcId)[0];
         if (desc && desc.recipient && !data.hasOwnProperty(desc.recipient)) {

@@ -118,7 +118,9 @@ export class Flow extends Block {
     return false;
   }
 
+  _lastInput: any;
   updateInput(val: any) {
+    this._lastInput = val;
     let prop = this.getProperty('#inputs');
     if (prop._value instanceof InputsBlock) {
       prop._value._setInputValue(val);

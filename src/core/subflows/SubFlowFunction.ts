@@ -1,5 +1,5 @@
 import {BlockFunction} from '../block/BlockFunction';
-import {FunctionDesc, PropDesc, PropGroupDesc} from '../block/Descriptor';
+import {FunctionDesc, getDefaultDataFromCustom, PropDesc, PropGroupDesc} from '../block/Descriptor';
 import {BlockConfig, BlockIO} from '../block/BlockProperty';
 import {Flow, Root} from '../block/Flow';
 import {Event, EventType} from '../block/Event';
@@ -63,7 +63,7 @@ export class SubFlowFunction extends BlockFunction {
   }
 
   getStoragePath() {
-    return `${this._data.getFullPath()}.#flow`;
+    return `${this._data.getFullPath()}.#`;
   }
 
   configChanged(config: BlockConfig, val: any): boolean {
@@ -139,8 +139,8 @@ export class SubFlowFunction extends BlockFunction {
 
   onDataLoaded(src: DataMap) {
     this._loading = false;
-    let subFlowMode: SubFlowMode = this._data.getValue('#subflow');
-    if (this._funcFlow == null && subFlowMode === 'on') {
+    let subFlowMode: SubFlowMode = this._data.getValue('#subflow') ?? SubFlowMode.ON;
+    if (this._funcFlow == null && subFlowMode === SubFlowMode.ON) {
       this._src = src;
       let storagePath = this.getStoragePath();
       let applyChange = (data: DataMap) => {
@@ -156,19 +156,50 @@ export class SubFlowFunction extends BlockFunction {
   cleanup(): void {
     this._data.deleteValue('#flow');
   }
+  destroy() {
+    if (this._data._destroyed && !this._data._flow._destroyed) {
+      Root.instance._storage.deleteFlow(this.getStoragePath());
+    }
+    super.destroy();
+  }
+}
+function getDefaultWorker(block: Block, field: string, blockStack: Map<any, any>): DataMap {
+  // only works with work instance #input #output
+  // not for any field
+  if (field == null) {
+    let custom = block.getValue('#custom');
+    if (Array.isArray(custom) && custom.length) {
+      let inputs = custom.filter((data) => !data.readonly);
+      let outputs = custom.filter((data) => data.readonly).map((data) => ({...data, readonly: false}));
+      let result: any = {'#is': ''};
+      if (inputs.length) {
+        result['#inputs'] = getDefaultDataFromCustom(inputs);
+      }
+      if (outputs.length) {
+        result['#outputs'] = getDefaultDataFromCustom(outputs);
+      }
+      return result;
+    }
+  }
+  return null;
 }
 
-Functions.add(SubFlowFunction, {
-  name: 'sub-flow',
-  priority: 3,
-  properties: [
-    {
-      name: '#subflow',
-      type: 'radio-button',
-      options: SubFlowModeOptions,
-      default: SubFlowMode.ON,
-    },
-  ],
-  category: 'repeat',
-  icon: 'fas:file',
-});
+Functions.add(
+  SubFlowFunction,
+  {
+    name: 'sub-flow',
+    priority: 3,
+    properties: [
+      {
+        name: '#subflow',
+        type: 'radio-button',
+        options: SubFlowModeOptions,
+        default: SubFlowMode.ON,
+      },
+    ],
+    category: 'repeat',
+    icon: 'fas:file',
+  },
+  null,
+  {getDefaultWorker}
+);

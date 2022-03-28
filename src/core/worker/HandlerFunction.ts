@@ -228,7 +228,7 @@ export class HandlerFunction extends MapImpl {
 }
 
 function getDefaultWorker(block: Block, field: string, blockStack: Map<any, any>): DataMap {
-  if (field === 'use') {
+  if (field === 'use' || field == null) {
     if (blockStack.has(this)) {
       return null;
     }
