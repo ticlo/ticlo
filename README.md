@@ -1,5 +1,5 @@
 <p align="center">
-  <img src ="https://ticlo.github.io/ticlo/assets/ticlo-icon.svg" />
+  <!--img src ="https://ticlo.github.io/ticlo/assets/ticlo-icon.svg" /-->
   <br/>
   <b>ticlo</b> : a general puurpose visual programming language
 </p>
