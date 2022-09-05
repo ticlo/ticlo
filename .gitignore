@@ -18,4 +18,4 @@ build
 /temp
 /example/**/*.ticlo
 en.base.yaml
-/i18n
+/i18n/*
