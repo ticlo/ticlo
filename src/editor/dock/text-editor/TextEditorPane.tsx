@@ -1,24 +1,15 @@
 import React from 'react';
-import {ClientConn, decode, encode, DataMap, isDataTruncated} from '../../../../src/core/editor';
+import {ClientConn, decode, encode, DataMap, isDataTruncated, translateEditor} from '../../../../src/core/editor';
 import {Menu, Dropdown, Button, Spin} from 'antd';
-import {UnControlled as CodeMirror} from 'react-codemirror2';
-import {Editor, EditorChange} from 'codemirror';
+import CodeMirror from '@uiw/react-codemirror';
 
-import 'codemirror/mode/xml/xml';
-import 'codemirror/mode/javascript/javascript';
-import 'codemirror/mode/jsx/jsx';
-
-import 'codemirror/addon/fold/foldcode.js';
-import 'codemirror/addon/fold/foldgutter.js';
-import 'codemirror/addon/fold/brace-fold';
-import 'codemirror/addon/fold/comment-fold';
-
-import 'codemirror/lib/codemirror.css';
-import 'codemirror/theme/eclipse.css';
-import 'codemirror/addon/fold/foldgutter.css';
+import {javascript} from '@codemirror/lang-javascript';
+import {markdown, markdownLanguage} from '@codemirror/lang-markdown';
+import {json} from '@codemirror/lang-json';
 
 import {DockLayout} from 'rc-dock';
 import {TabData} from 'rc-dock/src/DockData';
+import {EditorView} from '@codemirror/view';
 
 interface Props {
   conn: ClientConn;
@@ -83,7 +74,7 @@ export class TextEditorPane extends React.PureComponent<Props, State> {
     }
 
     let firstPathParts = paths[0].split('.');
-    let tabName = `Edit ${firstPathParts.slice(firstPathParts.length - 2).join('.')}`;
+    let tabName = `${translateEditor('Edit')} ${firstPathParts.slice(firstPathParts.length - 2).join('.')}`;
     if (paths.length > 1) {
       tabName = `${tabName} (+${paths.length - 1})`;
     }
@@ -122,32 +113,52 @@ export class TextEditorPane extends React.PureComponent<Props, State> {
     layout.dockMove(newPanel, null, 'float');
   }
 
-  codeMirrorExtraKeys = {
-    'Tab': (cm: Editor) => {
-      if (cm.getMode().name === 'null') {
-        cm.execCommand('insertTab');
-      } else {
-        if (cm.somethingSelected()) {
-          cm.execCommand('indentCustom');
-        } else {
-          cm.execCommand('insertSoftTab');
-        }
-      }
-    },
-    'Shift-Alt-F': (cm: Editor) => {
+  onKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'F' && e.shiftKey && e.altKey) {
       // format code
       let {mime} = this.props;
       if (mime === 'application/json') {
-        let value = cm.getValue();
+        let value = this._currentValue;
         try {
           let obj = decode(value);
-          cm.setValue(encode(obj, 2));
+          this._codeMirrorView?.dispatch({
+            changes: {from: 0, to: this._codeMirrorView.state.doc.length, insert: encode(obj, 2)},
+          });
         } catch (e) {
           this.setState({error: e.toString()});
         }
       }
-    },
+      e.stopPropagation();
+      e.preventDefault();
+    }
   };
+
+  // codeMirrorExtraKeys = {
+  //   'Tab': (cm: Editor) => {
+  //     if (cm.getMode().name === 'null') {
+  //       cm.execCommand('insertTab');
+  //     } else {
+  //       if (cm.somethingSelected()) {
+  //         cm.execCommand('indentCustom');
+  //       } else {
+  //         cm.execCommand('insertSoftTab');
+  //       }
+  //     }
+  //   },
+  //   'Shift-Alt-F': (cm: Editor) => {
+  //     // format code
+  //     let {mime} = this.props;
+  //     if (mime === 'application/json') {
+  //       let value = cm.getValue();
+  //       try {
+  //         let obj = decode(value);
+  //         cm.setValue(encode(obj, 2));
+  //       } catch (e) {
+  //         this.setState({error: e.toString()});
+  //       }
+  //     }
+  //   },
+  // };
 
   constructor(props: Props) {
     super(props);
@@ -160,18 +171,13 @@ export class TextEditorPane extends React.PureComponent<Props, State> {
     } else {
       this.state = {value: this.convertValue(defaultValue), loading: false};
     }
+    this._currentValue = this.state.value;
   }
-  _codeMirror: CodeMirror;
-  getCodeMirror = (cm: CodeMirror) => {
-    this._codeMirror = cm;
-  };
 
-  getEditor() {
-    if (this._codeMirror) {
-      return (this._codeMirror as any).editor as Editor;
-    }
-    return null;
-  }
+  _codeMirrorView: EditorView;
+  getCodeMirror = (codeMirror: {view: EditorView}) => {
+    this._codeMirrorView = codeMirror?.view;
+  };
 
   loadData(path: string) {
     let {conn} = this.props;
@@ -205,7 +211,9 @@ export class TextEditorPane extends React.PureComponent<Props, State> {
     return value;
   }
 
-  onChange = (editor: Editor, data: EditorChange, value: string) => {
+  _currentValue: string;
+  onChange = (value: string) => {
+    this._currentValue = value;
     if (this.state.error) {
       this.setState({error: null});
     }
@@ -221,7 +229,7 @@ export class TextEditorPane extends React.PureComponent<Props, State> {
     if (loading) {
       return false;
     }
-    let value: any = this.getEditor().getValue();
+    let value: any = this._currentValue;
     if (asObject) {
       try {
         value = decode(value);
@@ -256,9 +264,23 @@ export class TextEditorPane extends React.PureComponent<Props, State> {
   render() {
     let {mime, readonly, onClose} = this.props;
     let {value, error, loading} = this.state;
-
+    let extensions: any;
+    switch (mime) {
+      case 'application/json':
+        extensions = [json()];
+        break;
+      case 'text/javascript':
+        extensions = [javascript()];
+        break;
+      case 'text/jsx':
+        extensions = [javascript({jsx: true})];
+        break;
+      case 'text/x-markdown':
+        extensions = [markdown({base: markdownLanguage})];
+        break;
+    }
     return (
-      <div className="ticl-text-editor">
+      <div className="ticl-text-editor" onKeyDownCapture={this.onKeyDown}>
         {loading ? (
           <div className="ticl-spacer ticl-hbox ticl-center-box">
             <Spin tip="Loading..." />
@@ -266,18 +288,15 @@ export class TextEditorPane extends React.PureComponent<Props, State> {
         ) : (
           <CodeMirror
             ref={this.getCodeMirror}
-            className={error ? 'ticl-error-box' : null}
+            className={error ? 'ticl-text-codemirror ticl-error-box' : 'ticl-text-codemirror'}
             value={value}
-            options={{
-              mode: mime,
-              theme: 'eclipse',
-              tabSize: 2,
-              autofocus: true,
-              lineNumbers: true,
-              foldGutter: true,
-              gutters: ['CodeMirror-linenumbers', 'CodeMirror-foldgutter'],
-              extraKeys: this.codeMirrorExtraKeys,
-            }}
+            theme="light"
+            autoFocus={true}
+            extensions={extensions}
+            // options={{
+            //   tabSize: 2,
+            //   extraKeys: this.codeMirrorExtraKeys,
+            // }}
             onChange={this.onChange}
           />
         )}
