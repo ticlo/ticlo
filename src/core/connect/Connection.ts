@@ -135,9 +135,8 @@ export class Connection {
     let sendingSize = 0;
     for (let s of this._sending) {
       this._sending.delete(s);
-      let sendingData = s.getSendingData();
-      if (sendingData != null) {
-        const {data, size} = sendingData;
+      const {data, size} = s.getSendingData();
+      if (data != null) {
         sendingSize += size;
         sending.push(data);
       }

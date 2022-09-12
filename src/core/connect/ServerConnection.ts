@@ -164,7 +164,7 @@ class ServerSubscribe extends ServerRequest implements BlockPropertySubscriber, 
     if (updateNeeded) {
       return {data, size: total};
     }
-    return null;
+    return {data: null, size: 0};
   }
 
   close() {
