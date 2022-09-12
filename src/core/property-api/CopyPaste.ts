@@ -5,7 +5,6 @@ import {FlowWithShared, SharedBlock, SharedConfig} from '../block/SharedBlock';
 import {findPropertyForNewBlock} from './PropertyName';
 import {Flow} from '../block/Flow';
 import {addMapArray} from '../util/Map';
-import {off} from 'codemirror';
 import {cloneToLevel} from '../util/Clone';
 
 function getProperty(parent: Block, field: string, create = false): [BlockProperty, Block] {

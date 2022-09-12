@@ -180,10 +180,11 @@ export class SubscribeRequest extends MergedClientRequest {
     if (this._fullCallbackSet.size) {
       if (valueChanged && isDataTruncated(response.value)) {
         this.loadFullValue();
-      } else {
+      } else if (response.hasOwnProperty('value')) {
         this._cachedFullValue = response.value;
         this.updateFullValue();
       }
+      
     }
   }
 
