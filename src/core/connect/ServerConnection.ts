@@ -49,7 +49,9 @@ class ServerSubscribe extends ServerRequest implements BlockPropertySubscriber, 
   property: BlockProperty;
   source: BlockBindingSource;
 
-  valueChanged = false;
+  // make sure the initial value is treat as a change for new subscription
+  valueChanged = true;
+  hasListener?: boolean = undefined;
   events: BlockPropertyEvent[] = [];
 
   constructor(conn: ServerConnection, id: string, prop: BlockProperty) {
@@ -85,6 +87,7 @@ class ServerSubscribe extends ServerRequest implements BlockPropertySubscriber, 
     if (!this.property) {
       return {data: null, size: 0};
     }
+    let updateNeeded = false;
     let data: DataMap = {id: this.id, cmd: 'update'};
     let total = 0;
     if (this.valueChanged) {
@@ -107,6 +110,7 @@ class ServerSubscribe extends ServerRequest implements BlockPropertySubscriber, 
         data.value = value;
       }
       this.valueChanged = false;
+      updateNeeded = true;
     }
     let sendEvent: BlockPropertyEvent[] = [];
     let bindingChanged = false;
@@ -127,11 +131,15 @@ class ServerSubscribe extends ServerRequest implements BlockPropertySubscriber, 
           sendEvent.push(e);
         }
       }
-      data.events = sendEvent;
+      if (sendEvent.length) {
+        data.events = sendEvent;
+        updateNeeded = true;
+      }
       this.events = [];
     }
     if (bindingChanged) {
       data.bindingPath = this.property._bindingPath;
+      updateNeeded = true;
     }
     if (listenerChanged) {
       let hasListener = false;
@@ -139,7 +147,7 @@ class ServerSubscribe extends ServerRequest implements BlockPropertySubscriber, 
         for (let listener of this.property._listeners) {
           if (listener instanceof PropDispatcher) {
             if (listener instanceof BlockProperty && listener._block instanceof InputsBlock && !listener._bindingPath) {
-              // InputsBlock is a special case, dont show hasListener dot
+              // InputsBlock is a special case, don't show hasListener dot
             } else {
               hasListener = true;
             }
@@ -147,9 +155,16 @@ class ServerSubscribe extends ServerRequest implements BlockPropertySubscriber, 
           }
         }
       }
-      data.hasListener = hasListener;
+      if (hasListener !== this.hasListener) {
+        this.hasListener = hasListener;
+        data.hasListener = hasListener;
+        updateNeeded = true;
+      }
     }
-    return {data, size: total};
+    if (updateNeeded) {
+      return {data, size: total};
+    }
+    return null;
   }
 
   close() {

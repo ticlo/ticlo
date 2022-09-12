@@ -19,6 +19,9 @@ export class Connection {
   _waitingReceive: boolean = false;
   _scheduled: any;
 
+  // must send something to the other side as an ack
+  _mustSend = false;
+
   /* istanbul ignore next */
   doSend(datas: DataMap[]): void {
     // to be overridden
@@ -89,6 +92,9 @@ export class Connection {
 
   onReceive(data: DataMap[]) {
     this._waitingReceive = false;
+    if (data.length) {
+      this._mustSend = true;
+    }
     if ((this._sending.size > 0 || data.length > 0) && !this._scheduled) {
       this._schedule();
     }
@@ -129,8 +135,9 @@ export class Connection {
     let sendingSize = 0;
     for (let s of this._sending) {
       this._sending.delete(s);
-      let {data, size} = s.getSendingData();
-      if (data != null) {
+      let sendingData = s.getSendingData();
+      if (sendingData != null) {
+        const {data, size} = sendingData;
         sendingSize += size;
         sending.push(data);
       }
@@ -138,10 +145,13 @@ export class Connection {
         break;
       }
     }
-    this.doSend(sending);
     if (sending.length) {
+      this.doSend(sending);
       this._waitingReceive = true;
+    } else if (this._mustSend) {
+      this.doSend([]);
     }
+    this._mustSend = false;
   }
 
   _destroyed = false;
