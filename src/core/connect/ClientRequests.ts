@@ -184,7 +184,6 @@ export class SubscribeRequest extends MergedClientRequest {
         this._cachedFullValue = response.value;
         this.updateFullValue();
       }
-      
     }
   }
 

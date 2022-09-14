@@ -16,7 +16,7 @@ import {Popup, Menu, MenuItem} from '../component/ClickPopup';
 import {RenameDialog} from './RenameDialog';
 import {splitPathName} from '../../core/util/Path';
 import {ParameterInputDialog} from './ParameterInputDialog';
-import {TicloLayoutContext, TicloLayoutContextType} from "../component/LayoutContext";
+import {TicloLayoutContext, TicloLayoutContextType} from '../component/LayoutContext';
 
 const deleteForbidden = new Set<string>(['flow:test-group', 'flow:const']);
 const renameForbidden = new Set<string>(['flow:test-group', 'flow:const']);
