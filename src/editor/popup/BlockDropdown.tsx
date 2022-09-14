@@ -16,6 +16,7 @@ import {Popup, Menu, MenuItem} from '../component/ClickPopup';
 import {RenameDialog} from './RenameDialog';
 import {splitPathName} from '../../core/util/Path';
 import {ParameterInputDialog} from './ParameterInputDialog';
+import {TicloLayoutContext, TicloLayoutContextType} from "../component/LayoutContext";
 
 const deleteForbidden = new Set<string>(['flow:test-group', 'flow:const']);
 const renameForbidden = new Set<string>(['flow:test-group', 'flow:const']);
@@ -36,6 +37,9 @@ interface State {
 }
 
 export class BlockDropdown extends React.PureComponent<Props, State> {
+  static contextType = TicloLayoutContextType;
+  context!: TicloLayoutContext;
+
   state: State = {visible: false};
 
   onMenuVisibleChange = (visible: boolean) => {

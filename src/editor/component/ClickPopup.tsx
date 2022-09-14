@@ -1,4 +1,4 @@
-import React, {MouseEventHandler, ReactElement} from 'react';
+import React from 'react';
 import Trigger from 'rc-trigger';
 import RightIcon from '@ant-design/icons/RightOutlined';
 
@@ -6,9 +6,10 @@ type ItemEventHandler = (event: 'show' | 'hide' | 'hover' | 'close') => void;
 
 interface SubMenuItemProps {
   popup?: React.ReactElement | (() => React.ReactElement);
-
   popupVisible?: boolean;
   onItemEvent?: ItemEventHandler;
+
+  children?: React.ReactNode;
 }
 
 interface SubMenuItemState {
@@ -70,6 +71,8 @@ interface MenuItemProps {
   onItemEvent?: ItemEventHandler;
   onClick?: (value: any) => void | boolean;
   value?: any;
+
+  children?: React.ReactNode;
 }
 
 interface MenuItemState {}
@@ -207,7 +210,7 @@ export class Popup extends React.PureComponent<PopupProps, PopupState> {
 
   onBodyKeydown: (e: KeyboardEvent) => void;
 
-  fixMenu(element: ReactElement): ReactElement {
+  fixMenu(element: React.ReactElement): React.ReactElement {
     if (element?.type === Menu) {
       return React.cloneElement(element, {closeMenu: this.hidePopup});
     }
