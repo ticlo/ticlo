@@ -38,7 +38,7 @@ interface State {
 
 export class BlockDropdown extends React.PureComponent<Props, State> {
   static contextType = TicloLayoutContextType;
-  context!: TicloLayoutContext;
+  declare context: TicloLayoutContext;
 
   state: State = {visible: false};
 

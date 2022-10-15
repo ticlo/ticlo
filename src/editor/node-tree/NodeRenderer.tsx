@@ -181,7 +181,7 @@ interface State {
 
 export class NodeTreeRenderer extends PureDataRenderer<Props, any> {
   static contextType = TicloLayoutContextType;
-  context!: TicloLayoutContext;
+  declare context: TicloLayoutContext;
 
   state: State = {hasChange: false, desc: blankFuncDesc, dynamicStyle: null};
 

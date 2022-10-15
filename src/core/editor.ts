@@ -3,7 +3,7 @@ export * from './connect/ClientConnection';
 export * from './block/Descriptor';
 export * from './util/i18n';
 export * from './util/Compare';
-export {DataMap, isDataTruncated, TRUNCATED} from './util/DataTypes';
+export {type DataMap, isDataTruncated, TRUNCATED} from './util/DataTypes';
 export {encodeDisplay, decode, encode} from './util/Serialize';
 export * from './util/Name';
 export {endsWithNumberReg, getTailingNumber, smartStrCompare, isColorStr} from './util/String';

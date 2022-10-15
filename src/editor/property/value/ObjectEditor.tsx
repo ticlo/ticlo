@@ -8,7 +8,7 @@ import {TicloLayoutContext, TicloLayoutContextType} from '../../component/Layout
 
 export class ObjectEditor extends React.PureComponent<ValueEditorProps, any> {
   static contextType = TicloLayoutContextType;
-  context!: TicloLayoutContext;
+  declare context: TicloLayoutContext;
 
   createObject = () => {
     let {conn, keys, desc, addSubBlock} = this.props;

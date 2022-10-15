@@ -17,7 +17,7 @@ import {
 import {ClientConn} from './ClientConn';
 import {StreamDispatcher} from '../block/Dispatcher';
 
-export {ValueUpdate, ValueState} from './ClientRequests';
+export type {ValueUpdate, ValueState} from './ClientRequests';
 
 export abstract class ClientConnection extends Connection implements ClientConn {
   static addEditorDescriptor(id: string, desc: FunctionDesc) {

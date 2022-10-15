@@ -68,7 +68,7 @@ interface Props {
 
 export class ObjectTreeRenderer extends PureDataRenderer<Props, any> {
   // static contextType = TicloLayoutContextType;
-  // context!: TicloLayoutContext;
+  // declare context: TicloLayoutContext;
 
   onExpandClicked = () => {
     let {item} = this.props;

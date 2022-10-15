@@ -1,13 +1,13 @@
-export {Block, BlockMode} from './block/Block';
+export {Block, type BlockMode} from './block/Block';
 export {Root, Flow} from './block/Flow';
-export {Storage} from './block/Storage';
+export {type Storage} from './block/Storage';
 export {BlockProperty, BlockIO} from './block/BlockProperty';
 export {BaseFunction, BlockFunction} from './block/BlockFunction';
 export {Functions} from './block/Functions';
 export * from './block/Event';
 export * from './block/Descriptor';
 export {ServerConnection} from './connect/ServerConnection';
-export {DataMap, TRUNCATED} from './util/DataTypes';
+export {type DataMap, TRUNCATED} from './util/DataTypes';
 export {convertToObject} from './util/DataTruncate';
 export {forAllPathsBetween} from './util/Path';
 export {encodeDisplay, decode, encode, encodeSorted} from './util/Serialize';

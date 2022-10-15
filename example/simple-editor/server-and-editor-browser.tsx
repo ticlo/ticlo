@@ -16,6 +16,7 @@ import {
   Storage,
   BlockProperty,
 } from '../../src/core';
+import {BlockStagePane} from '../../src/editor/dock/block/BlockStagePane';
 import {TicloI18nSettings} from '../../src/core/editor';
 import {makeLocalConnection} from '../../src/core/connect/LocalConnection';
 import {data} from '../sample-data/data';
@@ -26,7 +27,7 @@ import {ClientConnection} from '../../src/core/connect/ClientConnection';
 
 import './sample-blocks';
 import {WorkerFunction} from '../../src/core/worker/WorkerFunction';
-import {BlockStagePane} from '../../src/editor/dock/block/BlockStagePane';
+
 import {TicloLayoutContext, TicloLayoutContextType} from '../../src/editor/component/LayoutContext';
 import {PropertyListPane} from '../../src/editor/dock/property/PropertyListPane';
 import {NodeTreePane} from '../../src/editor/dock/node-tree/NodeTreePane';

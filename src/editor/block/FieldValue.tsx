@@ -13,7 +13,7 @@ interface Props {
 
 export class FieldValue extends LazyUpdateComponent<Props, any> {
   static contextType = TicloLayoutContextType;
-  context!: TicloLayoutContext;
+  declare context: TicloLayoutContext;
 
   valueSub = new LazyUpdateSubscriber(this);
 

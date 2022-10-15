@@ -34,7 +34,7 @@ interface State {
 
 export class FunctionSelect extends React.PureComponent<Props, State> {
   static contextType = TicloLayoutContextType;
-  context!: TicloLayoutContext;
+  declare context: TicloLayoutContext;
 
   state = {tab: 'tree', search: '', modelVisible: false};
   newFunctionName: string = '';

@@ -8,3 +8,6 @@
   }
   return parts.join('');
 };
+
+// export empty object to make it a module
+export {};

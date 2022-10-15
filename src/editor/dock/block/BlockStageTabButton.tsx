@@ -21,7 +21,7 @@ interface State {
 
 export class BlockStageTabButton extends LazyUpdateComponent<Props, State> {
   static contextType = DockContextType;
-  context!: DockContext;
+  declare context: DockContext;
 
   state: State = {hasChange: false};
   constructor(props: Props) {

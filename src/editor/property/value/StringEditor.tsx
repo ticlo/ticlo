@@ -8,7 +8,7 @@ const {TextArea} = Input;
 
 export class StringEditor extends StringEditorBase {
   static contextType = TicloLayoutContextType;
-  context!: TicloLayoutContext;
+  declare context: TicloLayoutContext;
 
   popup = () => {
     let {keys, name, desc, value} = this.props;

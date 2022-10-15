@@ -11,7 +11,7 @@ import {TicloLayoutContext, TicloLayoutContextType} from '../../component/Layout
 
 export class WorkerEditor extends FunctionEditor {
   static contextType = TicloLayoutContextType;
-  context!: TicloLayoutContext;
+  declare context: TicloLayoutContext;
 
   static filterWorkerFunction(desc: FunctionDesc) {
     return desc.src === 'worker';

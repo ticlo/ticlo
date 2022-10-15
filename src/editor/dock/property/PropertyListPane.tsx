@@ -13,7 +13,7 @@ interface State {
 
 export class PropertyListPane extends React.PureComponent<Props, State> {
   static contextType = TicloLayoutContextType;
-  context!: TicloLayoutContext;
+  declare context: TicloLayoutContext;
 
   state: State = {selectedPaths: []};
 
