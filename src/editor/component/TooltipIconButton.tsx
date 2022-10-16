@@ -57,8 +57,8 @@ export class TooltipIconButton extends LazyUpdateComponent<Props, any> {
         title={tooltip}
         mouseLeaveDelay={0}
         placement={tooltipPlacement}
-        visible={tooltipVisible}
-        onVisibleChange={this.onVisibleChange}
+        open={tooltipVisible}
+        onOpenChange={this.onVisibleChange}
       >
         <Button shape="circle" size="small" {...props} disabled={disabled} />
       </Tooltip>

@@ -1,4 +1,5 @@
 import ReactDOM from 'react-dom';
+import {createRoot, Root} from 'react-dom/client';
 
 function loadOneCss(url: string) {
   let head = document.querySelector('head');
@@ -23,6 +24,7 @@ function loadCssInHeader() {
 }
 
 let _lastTemplateDiv: HTMLDivElement;
+let _lastTemplateRoot: Root;
 
 export function loadTemplate<T extends Element>(element: any, style?: string): [any, HTMLDivElement] {
   if (style === 'editor') {
@@ -30,7 +32,8 @@ export function loadTemplate<T extends Element>(element: any, style?: string): [
   }
   _lastTemplateDiv = document.createElement('div');
   document.body.appendChild(_lastTemplateDiv);
-  return [ReactDOM.render(element, _lastTemplateDiv), _lastTemplateDiv];
+  _lastTemplateRoot = createRoot(_lastTemplateDiv);
+  return [_lastTemplateRoot.render(element), _lastTemplateDiv];
 }
 
 export function expandDocumentBody() {
@@ -41,8 +44,8 @@ export function expandDocumentBody() {
 
 // remove the last loaded template
 export function removeLastTemplate() {
-  if (_lastTemplateDiv) {
-    ReactDOM.unmountComponentAtNode(_lastTemplateDiv);
+  if (_lastTemplateRoot) {
+    _lastTemplateRoot.unmount();
     if (_lastTemplateDiv.parentElement) {
       _lastTemplateDiv.parentElement.removeChild(_lastTemplateDiv);
     }

@@ -695,7 +695,7 @@ export class BlockStage extends BlockStageBase<BlockStageProps, StageState> {
     this.setState({
       modal: (
         <Modal
-          visible={true}
+          open={true}
           title="Conflict"
           onCancel={this.closeModal}
           bodyStyle={{whiteSpace: 'pre'}}

@@ -2,7 +2,6 @@ import {assert} from 'chai';
 import React from 'react';
 import {TIcon} from '../Icon';
 import {shouldHappen} from '../../../../src/core/util/test-util';
-import ReactDOM from 'react-dom';
 import {removeLastTemplate, loadTemplate} from '../../util/test-util';
 
 describe('editor Icon', function () {
@@ -28,6 +27,8 @@ describe('editor Icon', function () {
       </div>,
       'editor'
     );
+
+    await shouldHappen(() => document.querySelector('.tico'));
 
     let icons: NodeListOf<HTMLDivElement> = document.querySelectorAll('.tico');
     assert.lengthOf(icons, 11);

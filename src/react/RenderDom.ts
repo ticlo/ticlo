@@ -1,9 +1,10 @@
-import ReactDOM from 'react-dom';
+import {createRoot, Root} from 'react-dom/client';
 import {BaseFunction} from '../../src/core/block/BlockFunction';
 import {Functions} from '../../src/core/block/Functions';
 
 export class RenderDomFunction extends BaseFunction {
   _container: Element;
+  _root: Root;
   run(): any {
     let container = this._data.getValue('container');
     let component = this._data.getValue('component');
@@ -11,20 +12,29 @@ export class RenderDomFunction extends BaseFunction {
     if (!(container instanceof Element)) {
       container = null;
     }
-    if (this._container && container !== this._container) {
-      ReactDOM.render(null, this._container);
+    if (container !== this._container) {
+      if (this._root) {
+        this._root.unmount();
+      }
+      if (container) {
+        this._root = createRoot(container);
+      } else {
+        this._root = null;
+      }
     }
     this._container = container;
-    if (container) {
+
+    if (this._root) {
       return new Promise((resolve) => {
-        ReactDOM.render(component, container, () => resolve(null));
+        this._root.render(component);
+        window.requestIdleCallback(resolve, {timeout: 200});
       });
     }
   }
 
   destroy(): void {
-    if (this._container) {
-      ReactDOM.render(null, this._container);
+    if (this._root) {
+      this._root.unmount();
     }
     super.destroy();
   }

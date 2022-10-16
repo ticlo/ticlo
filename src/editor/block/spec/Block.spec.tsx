@@ -5,7 +5,6 @@ import {BlockStage} from '../BlockStage';
 import {Block, Root} from '../../../../src/core';
 import {destroyLastLocalConnection, makeLocalConnection} from '../../../core/connect/LocalConnection';
 import {shouldHappen, shouldReject} from '../../../core/util/test-util';
-import ReactDOM from 'react-dom';
 import {removeLastTemplate, loadTemplate, querySingle, fakeMouseEvent} from '../../util/test-util';
 import {initEditor} from '../../index';
 import {arrayEqual} from '../../../../src/core/editor';
@@ -282,7 +281,7 @@ describe('editor BlockStage', function () {
     );
 
     // wait for the field
-    await shouldHappen(() => (div.querySelector('.ticl-stage-bg') as HTMLElement).offsetWidth);
+    await shouldHappen(() => (div.querySelector('.ticl-stage-bg') as HTMLElement)?.offsetWidth);
     // background
     let rectBg = div.querySelector('.ticl-stage-bg');
 

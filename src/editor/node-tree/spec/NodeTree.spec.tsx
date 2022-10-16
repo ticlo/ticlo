@@ -5,7 +5,6 @@ import {NodeTree} from '../../index';
 import {Block, Root} from '../../../../src/core';
 import {destroyLastLocalConnection, makeLocalConnection} from '../../../../src/core/connect/LocalConnection';
 import {shouldHappen} from '../../../../src/core/util/test-util';
-import ReactDOM from 'react-dom';
 import {removeLastTemplate, loadTemplate, querySingle} from '../../util/test-util';
 
 describe('editor NodeTree', function () {
@@ -35,6 +34,7 @@ describe('editor NodeTree', function () {
       <NodeTree conn={client} basePaths={['NodeTree']} style={{width: '600px', height: '600px'}} />,
       'editor'
     );
+    await shouldHappen(() => div.querySelector('.ticl-node-tree'));
     await shouldHappen(() => div.querySelector('.ticl-v-scroll-content'));
     let contentDiv = div.querySelector('.ticl-v-scroll-content');
     await shouldHappen(() => contentDiv.childNodes.length >= 1);

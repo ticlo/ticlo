@@ -123,7 +123,7 @@ export class FunctionSelect extends React.PureComponent<Props, State> {
           ) : null}
           <Modal
             title={t('Function Name?')}
-            visible={this.state.modelVisible}
+            open={this.state.modelVisible}
             onOk={this.onAddFunctionOk}
             onCancel={this.onAddFunctionCancel}
           >

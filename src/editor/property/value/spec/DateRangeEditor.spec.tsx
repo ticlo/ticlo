@@ -29,20 +29,20 @@ describe('DateRangeEditor', function () {
       'editor'
     );
 
-    await shouldHappen(() => div.querySelector('.ticl-date-range-editor > div'));
+    await shouldHappen(() => div.querySelector('.ticl-date-range-editor > div'), 500);
     let dateRangeDiv = div.querySelector('.ticl-date-range-editor > div');
 
-    // dont run the following test because of issue that karma skipping tests after this one
+    // don't run the following test because of issue that karma skipping tests after this one
     window.onerror = function (e) {};
 
     SimulateEvent.simulate(dateRangeDiv.querySelector('input'), 'mousedown', fakeMouseEvent());
 
     await shouldHappen(() => document.querySelector('.ant-picker-panels'));
-
     let dateCell = document.querySelector('.ant-picker-cell-today');
     let dateStr = (dateCell as HTMLElement).title;
     // click twice
     SimulateEvent.simulate(dateCell, 'click');
+    await waitTick(1);
     SimulateEvent.simulate(dateCell, 'click');
 
     await shouldHappen(() => values != null);

@@ -1,5 +1,4 @@
 import * as React from 'react';
-import * as ReactDOM from 'react-dom';
 import {Checkbox, ConfigProvider, Switch} from 'antd';
 import {
   Block,
@@ -60,6 +59,7 @@ import zhAntd from 'antd/lib/locale/zh_CN';
 import enAntd from 'antd/lib/locale/en_US';
 import {LocalizedLabel, t} from '../../src/editor/component/LocalizedLabel';
 import {IndexDbStorage} from '../../src/html/storage/IndexDbStorage';
+import {createRoot} from 'react-dom/client';
 
 const layoutGroups = {
   blockStage: {
@@ -351,8 +351,7 @@ class App extends React.PureComponent<Props, State> {
   Root.instance._globalRoot.createBlock('^gSub')?.setValue('#is', 'subtract');
 
   let [server, client] = makeLocalConnection(Root.instance);
-
-  ReactDOM.render(<App conn={client} />, document.getElementById('app'));
+  createRoot(document.getElementById('app')).render(<App conn={client} />);
 })();
 
 (window as any).Logger = Logger;

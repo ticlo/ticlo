@@ -63,7 +63,7 @@ export class RenameDialog extends LazyUpdateComponent<Props, State> {
     return (
       <Modal
         title={t('Rename')}
-        visible={visible}
+        open={visible}
         onOk={this.renameBlock}
         onCancel={this.onClose}
         okButtonProps={{disabled: !enabled}}

@@ -1,14 +1,17 @@
 import React from 'react';
 import * as ReactDOM from 'react-dom';
+import {createRoot, Root} from 'react-dom/client';
 
 let key = 0;
-let div: HTMLDivElement;
+let root: Root;
 let lastOverrideFunction: (modal: React.ReactElement) => void;
-function getDiv() {
-  if (!div) {
-    div = document.createElement('div');
+function getModalRoot() {
+  if (!root) {
+    const div = document.createElement('div');
+    root = createRoot(div);
   }
-  return div;
+
+  return root;
 }
 
 export function showModal(component: React.ReactElement, overrideFunction: (modal: React.ReactElement) => void) {
@@ -21,18 +24,17 @@ export function showModal(component: React.ReactElement, overrideFunction: (moda
   if (overrideFunction !== lastOverrideFunction) {
     if (lastOverrideFunction) {
       lastOverrideFunction(null);
-    } else if (div) {
-      ReactDOM.unmountComponentAtNode(div);
-      div = null;
+    } else if (root) {
+      root.unmount();
     }
   }
 
   if (overrideFunction) {
     overrideFunction(component);
   } else if (component) {
-    ReactDOM.render(component, getDiv());
-  } else if (div) {
-    ReactDOM.unmountComponentAtNode(div);
+    getModalRoot().render(component);
+  } else if (root) {
+    root.unmount();
   } else if (lastOverrideFunction) {
     lastOverrideFunction(null);
   }
