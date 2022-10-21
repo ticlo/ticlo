@@ -100,7 +100,7 @@ export class Resolver implements Runnable {
     whileResolver: while (true) {
       let queue0 = this._queue[0];
       while (queue0.length) {
-        let block = queue0[queue0.length - 1];
+        let block = queue0.at(-1);
         if (block._queueToRun) {
           this._runBlock(block, 0);
         } else {
@@ -111,7 +111,7 @@ export class Resolver implements Runnable {
       for (let p = 1; p <= 3; ++p) {
         let queueP = this._queue[p];
         while (queueP.length) {
-          let block = queueP[queueP.length - 1];
+          let block = queueP.at(-1);
           if (block._queueToRun) {
             if (this._runBlock(block, p)) {
               continue whileResolver;

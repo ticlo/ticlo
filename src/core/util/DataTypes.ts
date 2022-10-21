@@ -36,7 +36,7 @@ export function isDataTruncated(val: any): boolean {
     return val.endsWith(TRUNCATED);
   }
   if (Array.isArray(val)) {
-    return val.length > 0 && val[val.length - 1] === TRUNCATED;
+    return val.length > 0 && val.at(-1) === TRUNCATED;
   }
   if (val.constructor === Object) {
     return Boolean(val[TRUNCATED]);

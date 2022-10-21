@@ -41,7 +41,7 @@ export class FlowHistory {
     if (savedData) {
       this._savedData = savedData;
       let cachedHistory = _historyCache.get(savedData);
-      if (cachedHistory && cachedHistory[cachedHistory.length - 1] === savedData) {
+      if (cachedHistory && cachedHistory.at(-1) === savedData) {
         // use cached history
         this._history = [..._historyCache.get(savedData)];
         this._current = this._history.length - 1;
@@ -144,7 +144,7 @@ export class FlowHistory {
   }
   destroy() {
     this.cancelTrack();
-    if (this._history.length > 1 && this._history[this._history.length - 1] === this._savedData) {
+    if (this._history.length > 1 && this._history.at(-1) === this._savedData) {
       _historyCache.set(this._savedData, this._history);
       setTimeout(() => {
         _historyCache.delete(this._savedData);

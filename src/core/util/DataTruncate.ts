@@ -87,7 +87,7 @@ export function truncateData(val: any, maxSize: number = 1024): [any, number] {
   let [result, total, truncated] = truncateObj(val, maxSize);
   if (truncated) {
     if (Array.isArray(result)) {
-      if (result[result.length - 1] !== TRUNCATED) {
+      if (result.at(-1) !== TRUNCATED) {
         result.push(TRUNCATED);
       }
     } else if (result.constructor === Object) {

@@ -9,8 +9,11 @@ export default defineConfig({
     assetsDir: './',
     rollupOptions: {
       input: {
-        appMain: fileURLToPath(new URL('./example/simple-editor/server-and-editor-browser.html', import.meta.url)),
-        //appOther: fileURLToPath(new URL('./resources/other/index.html', import.meta.url)),
+        'server-and-editor': fileURLToPath(
+          new URL('./example/simple-editor/server-and-editor-browser.html', import.meta.url)
+        ),
+        'editor': fileURLToPath(new URL('./example/simple-editor/editor-browser.html', import.meta.url)),
+        'server': fileURLToPath(new URL('./example/simple-editor/server.html', import.meta.url)),
       },
       output: {
         entryFileNames: `assets/[name].js`,

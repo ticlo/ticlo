@@ -8,8 +8,8 @@ async function main() {
   let faIcons: string[] = glob.sync(`icons/font-awesome/**/*.svg`);
   for (let path of faIcons) {
     let paths = path.split('/');
-    let fileName = paths[paths.length - 1];
-    let name = fileName.substr(0, fileName.length - 4);
+    let fileName = paths.at(-1);
+    let name = fileName.substring(0, fileName.length - 4);
     let folderName = paths[paths.length - 2];
     let group: string;
     switch (folderName) {

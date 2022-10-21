@@ -32,7 +32,7 @@ function propRelativeImpl(
     baseBlock = baseBlock._parent;
   }
   let commonParent: Block = flow;
-  while (baseBlocks.length && baseBlocks[baseBlocks.length - 1] === fromBlocks[fromBlocks.length - 1]) {
+  while (baseBlocks.length && baseBlocks.at(-1) === fromBlocks.at(-1)) {
     commonParent = baseBlocks.pop();
     fromBlocks.pop();
   }
@@ -86,7 +86,7 @@ export function propRelative(base: Block, from: BlockProperty): string {
     }
     let commonFlow: Flow = Root.instance;
     // find common flow
-    while (baseFlows.length && baseFlows[baseFlows.length - 1] === fromFlows[fromFlows.length - 1]) {
+    while (baseFlows.length && baseFlows.at(-1) === fromFlows.at(-1)) {
       commonFlow = baseFlows.pop();
       fromFlows.pop();
     }
@@ -106,7 +106,7 @@ export function propRelative(base: Block, from: BlockProperty): string {
         resultPaths.push('##.###');
       }
     }
-    return propRelativeImpl(commonFlow, baseFlows[baseFlows.length - 1], fromBlock, from._name, resultPaths.join('.'));
+    return propRelativeImpl(commonFlow, baseFlows.at(-1), fromBlock, from._name, resultPaths.join('.'));
   }
   // TODO, bind from service flow
 }

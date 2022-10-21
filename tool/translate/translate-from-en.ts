@@ -9,7 +9,7 @@ import {translate} from './TranslateRequest';
 const keyReg = /^[0-9a-f]{32}$/;
 
 async function main() {
-  let key = process.argv[process.argv.length - 1];
+  let key = process.argv.at(-1);
 
   if (!keyReg.test(key)) {
     console.error('invalid key');

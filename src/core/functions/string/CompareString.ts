@@ -44,7 +44,7 @@ export class EndWithFunction extends BaseFunction {
     let v1 = this._data.getValue('search');
     if (Array.isArray(v0)) {
       if (v0.length) {
-        this._data.output(Object.is(v0[v0.length - 1], v1));
+        this._data.output(Object.is(v0.at(-1), v1));
       } else {
         this._data.output(false);
       }

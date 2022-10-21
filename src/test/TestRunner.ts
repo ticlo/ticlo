@@ -19,7 +19,7 @@ export class TestRunner {
 
   getLastTask() {
     if (this.stack.length) {
-      return this.stack[this.stack.length - 1];
+      return this.stack.at(-1);
     }
     return null;
   }
