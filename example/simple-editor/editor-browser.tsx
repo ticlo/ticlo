@@ -25,7 +25,6 @@ import {TextEditorPane} from '../../src/editor/dock/text-editor/TextEditorPane';
 
 import '../../src/test';
 import {FunctionSelect} from '../../src/editor/function-selector/FunctionSelector';
-import JsonEsc from 'jsonesc/dist';
 
 import i18next from 'i18next';
 

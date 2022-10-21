@@ -35,7 +35,6 @@ import '../../src/html';
 import '../../src/react';
 import '../../src/test';
 import {FunctionSelect} from '../../src/editor/function-selector/FunctionSelector';
-import JsonEsc from 'jsonesc/dist';
 
 import i18next from 'i18next';
 // @ts-ignore

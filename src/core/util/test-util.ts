@@ -29,7 +29,7 @@ export function shouldTimeout(promise: Promise<any>, ms: number): Promise<any> {
   });
 }
 
-export function shouldHappen(callback: () => any, timeoutMs: number = 100, errorMsg: string = 'timeout'): Promise<any> {
+export function shouldHappen(callback: () => any, timeoutMs: number = 200, errorMsg: string = 'timeout'): Promise<any> {
   // prepare a Error first to maintain the original call stack
   let error = new Error(errorMsg);
 
