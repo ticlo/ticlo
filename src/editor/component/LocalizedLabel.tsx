@@ -8,15 +8,15 @@ import {
   translateProperty,
 } from '../../../src/core/editor';
 import {TicloLayoutContextType} from './LayoutContext';
-import i18next from 'i18next';
+import i18next, {StringMap} from 'i18next';
 
-export const LocalizedLabel = ({label, options}: {label: string; options?: any}) => {
+export const LocalizedLabel = ({label, options}: {label: string; options?: StringMap}) => {
   useContext(TicloLayoutContextType);
   return <span>{translateEditor(label, options)}</span>;
 };
 
 // quick access for LocalizedLabel
-export function t(label: string, options?: any) {
+export function t(label: string, options?: StringMap) {
   return <LocalizedLabel label={label} options={options} />;
 }
 

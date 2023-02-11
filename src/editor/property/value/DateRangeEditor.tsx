@@ -2,16 +2,16 @@ import React from 'react';
 import {DatePicker, Tooltip} from 'antd';
 import {PropDesc, isMomentValid, formatMoment} from '../../../../src/core/editor';
 import {ValueEditorProps} from './ValueEditorBase';
-import {isMoment, Moment, parseZone} from 'moment';
+import moment from 'moment';
 
 const {RangePicker} = DatePicker;
 
 const defaultTimes = {
-  defaultValue: [parseZone('00:00:00.000', 'HH:mm:ss.SSS'), parseZone('23:59:59.999', 'HH:mm:ss.SSS')],
+  defaultValue: [moment.parseZone('00:00:00.000', 'HH:mm:ss.SSS'), moment.parseZone('23:59:59.999', 'HH:mm:ss.SSS')],
 };
 
 export class DateRangeEditor extends React.PureComponent<ValueEditorProps, any> {
-  onValueChange = (range: [Moment, Moment]) => {
+  onValueChange = (range: [moment.Moment, moment.Moment]) => {
     let {desc, onChange} = this.props;
     onChange(range);
   };
@@ -24,7 +24,7 @@ export class DateRangeEditor extends React.PureComponent<ValueEditorProps, any> 
     let title: string;
     if (Array.isArray(value) && value.length === 2) {
       if (typeof value[0] === 'string' && typeof value[1] === 'string') {
-        value = [parseZone(value[0]), parseZone(value[1])];
+        value = [moment.parseZone(value[0]), moment.parseZone(value[1])];
       }
       if (!isMomentValid(value[0]) || !isMomentValid(value[1])) {
         value = null;

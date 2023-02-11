@@ -1,4 +1,4 @@
-import i18next from 'i18next';
+import i18next, {StringMap} from 'i18next';
 import {nameFromPath} from './String';
 
 export async function init(lng?: string) {
@@ -101,7 +101,7 @@ export function translateEnumOption(funcName: string, propName: string, option: 
   return translated;
 }
 
-export function translateEditor(key: string, options?: any): string {
+export function translateEditor(key: string, options?: StringMap): string {
   return i18next.t(key, {
     ...options,
     ns: 'ticlo-editor',

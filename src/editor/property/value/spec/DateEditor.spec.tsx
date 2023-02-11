@@ -6,7 +6,7 @@ import {initEditor} from '../../../index';
 import {DateEditor} from '../DateEditor';
 import {shouldHappen, waitTick} from '../../../../../src/core/util/test-util';
 import {blankFuncDesc, blankPropDesc, PropDesc} from '../../../../../src/core/editor';
-import {Moment, now} from 'moment';
+import moment from 'moment';
 
 describe('DateEditor', function () {
   beforeEach(async function () {
@@ -18,8 +18,8 @@ describe('DateEditor', function () {
   });
 
   it('basic', async function () {
-    let value: Moment = null;
-    let onChange = (v: Moment) => {
+    let value: moment.Moment = null;
+    let onChange = (v: moment.Moment) => {
       value = v;
     };
     let desc: PropDesc = {name: '', type: 'date'};
@@ -43,7 +43,7 @@ describe('DateEditor', function () {
     SimulateEvent.simulate(document.querySelector('.ant-picker-today-btn'), 'click');
 
     await shouldHappen(() => value != null);
-    let valueNow = now();
+    let valueNow = moment.now();
     assert.approximately(value.valueOf(), valueNow.valueOf(), 1000);
   });
 });
