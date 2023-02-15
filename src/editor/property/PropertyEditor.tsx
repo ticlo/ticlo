@@ -273,8 +273,7 @@ export class PropertyEditor extends MultiSelectComponent<PropertyEditorProps, St
       // check drag from type
       let blockData = DragState.getData('blockData', conn.getBaseConn());
       if (blockData && blockData['#is']) {
-        PropertyDropdown.addSubBlock(this.props, blockData['#is'], null, getSubBlockFuncData(blockData));
-        this.onAddSubBlock();
+        this.onAddSubBlock(blockData['#is'], null, getSubBlockFuncData(blockData));
         return;
       }
     }
@@ -342,7 +341,8 @@ export class PropertyEditor extends MultiSelectComponent<PropertyEditorProps, St
     }
   };
 
-  onAddSubBlock = () => {
+  onAddSubBlock = (id: string, desc?: FunctionDesc, data?: any) => {
+    PropertyDropdown.addSubBlock(this.props, id, desc, data);
     this.safeSetState({showSubBlock: true});
   };
 

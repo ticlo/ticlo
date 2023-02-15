@@ -42,7 +42,7 @@ interface Props {
   paths: string[];
   name: string;
   baseName?: string;
-  onAddSubBlock: () => void;
+  onAddSubBlock: (id: string, desc?: FunctionDesc, data?: any) => void;
 }
 
 const PendingUpdate = <div />;
@@ -219,9 +219,8 @@ export class PropertyDropdown extends React.PureComponent<Props, State> {
 
   onAddSubBlock = (id: string, desc?: FunctionDesc, data?: any) => {
     let {onAddSubBlock} = this.props;
-    PropertyDropdown.addSubBlock(this.props, id, desc, data);
     this.setState({visible: false});
-    onAddSubBlock?.();
+    onAddSubBlock?.(id, desc, data);
   };
 
   getMenu() {

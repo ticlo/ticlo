@@ -5,7 +5,7 @@ import {htmlAttributes, htmlEventHandlers, optionalHtmlProperties} from './HtmlA
 import {BlockConfig} from '../../src/core/block/BlockProperty';
 
 export class HtmlElementFunction extends BlockFunction {
-  // _comp never changes, this prevent re-render of any parent component, TicloComp should handle all the changes internally
+  // _comp never changes, this prevents re-render of any parent component, TicloComp should handle all the changes internally
   readonly _comp: React.ReactNode;
 
   readonly _eventHandlers = new Map<string, (e: any) => void>();
