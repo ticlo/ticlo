@@ -40,17 +40,32 @@ export class FetchFunction extends BaseFunction {
         responseType: this._data.getValue('responseType'),
         withCredentials: this._data.getValue('withCredentials'),
         signal: this._abortController.signal,
-      }).then((response: AxiosResponse) => {
-        this._data.output(response.status, 'status');
-        this._data.output({...response.headers}, 'responseHeaders');
-        this._data.output(response.data);
-      });
+      })
+        .then((response: AxiosResponse) => {
+          this._data.output(response.status, 'status');
+          this._data.output({...response.headers}, 'responseHeaders');
+          this._data.output(response.data);
+        })
+        .catch((error) => {
+          if (error.response) {
+            this._data.output(error.response.status, 'status');
+            this._data.output({...error.response.headers}, 'responseHeaders');
+            this._data.output(error.response.data);
+          } else {
+            this._data.output(undefined, 'status');
+            this._data.output(undefined, 'responseHeaders');
+            this._data.output(undefined);
+          }
+          throw error;
+        });
     }
     return new ErrorEvent('invalid url');
   }
 
   cancel(reason: EventType = EventType.TRIGGER, mode: BlockMode = 'auto') {
-    this._abortController?.abort();
+    if (this._abortController?.signal.aborted === false) {
+      this._abortController?.abort();
+    }
     return true;
   }
 

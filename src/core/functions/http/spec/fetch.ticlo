@@ -1,0 +1,101 @@
+{
+"#is": "",
+"assert-get": {
+ "#is": "test:assert",
+ "@b-p": [
+  "actual0",
+  "expect0"
+ ],
+ "@b-xyw": [
+  516,
+  132,
+  191
+ ],
+ "expect0": "User-agent: *\nDisallow: /deny\n",
+ "~actual0": "##.fetch-get.#output"
+},
+"asset-post": {
+ "#is": "test:assert",
+ "@b-p": [
+  "actual0",
+  "expect0"
+ ],
+ "@b-xyw": [
+  516,
+  396,
+  191
+ ],
+ "expect0": "Hello Ticlo",
+ "~actual0": "##.fetch-post.#output.data"
+},
+"asset-status-error": {
+ "#is": "test:assert",
+ "@b-p": [
+  "actual0",
+  "expect0"
+ ],
+ "@b-xyw": [
+  516,
+  612,
+  191
+ ],
+ "expect0": 404,
+ "~actual0": "##.fetch-status-error.status"
+},
+"fetch-get": {
+ "#is": "http:fetch",
+ "@b-p": [
+  "url",
+  "method",
+  "#output"
+ ],
+ "@b-xyw": [
+  108,
+  84,
+  268
+ ],
+ "url": "http://httpbin.org/robots.txt"
+},
+"fetch-post": {
+ "#is": "http:fetch",
+ "@b-p": [
+  "url",
+  "method",
+  "requestBody",
+  "#output"
+ ],
+ "@b-xyw": [
+  108,
+  324,
+  273
+ ],
+ "method": "POST",
+ "requestBody": "Hello Ticlo",
+ "url": "http://httpbin.org/post",
+ "~requestHeaders": {
+  "#is": "http:create-headers",
+  "#optional": [
+   "Content-Type"
+  ],
+  "@b-p": [
+   "Content-Type"
+  ],
+  "Content-Type": "text/plain"
+ }
+},
+"fetch-status-error": {
+ "#is": "http:fetch",
+ "@b-p": [
+  "url",
+  "method",
+  "status",
+  "#output"
+ ],
+ "@b-xyw": [
+  108,
+  564,
+  263
+ ],
+ "url": "http://httpbin.org/status/404"
+}
+}

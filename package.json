@@ -2,6 +2,7 @@
   "name": "ticlo",
   "version": "0.0.4",
   "description": "ticlo runtime",
+
   "repository": {
     "type": "git",
     "url": "https://github.com/ticlo/ticlo.git"
@@ -96,15 +97,15 @@
   "scripts": {
     "test-nyc-strict": "cross-env NODE_ENV=TEST TS_NODE_PROJECT='tsconfig.node.json' nyc --skip-full --check-coverage=true mocha 'src/core/**/*.spec.ts' 'src/node/**/*.spec.ts' && nyc report --reporter=text-lcov > coverage/nyc-strict.lcov",
     "test-nyc": "cross-env TS_NODE_PROJECT='tsconfig.node.json' nyc --skip-full --check-coverage=true mocha 'src/core/**/*.spec.ts' 'src/node/**/*.spec.ts' && nyc report --reporter=text-lcov",
-    "ticlo-test-nyc": "nyc --silent --check-coverage=false ts-node  -P tsconfig.node.json ./bin/test-server.ts --run --quitOnFinish && nyc report --reporter=text-lcov > coverage/nyc-ticlo.lcov",
+    "ticlo-test-nyc": "nyc --silent --check-coverage=false ts-node --project tsconfig.node.json ./bin/test-server.ts --run --quitOnFinish && nyc report --reporter=text-lcov > coverage/nyc-ticlo.lcov",
     "test-karma": "karma start",
     "build-less": "lessc --js src/editor/style/antd.less dist/antd.css && lessc --js src/editor/style/editor.less dist/editor.css",
-    "build-icons": "ts-node  -P tsconfig.node.json tool/build-icons",
-    "build-i18n": "ts-node  -P tsconfig.node.json tool/merge-lng",
-    "build-package": "ts-node  -P tsconfig.node.json tool/build-package.ts",
+    "build-icons": "ts-node --project tsconfig.node.json tool/build-icons",
+    "build-i18n": "ts-node --project tsconfig.node.json tool/merge-lng",
+    "build-package": "ts-node --project tsconfig.node.json tool/build-package.ts",
     "test": "cross-env NODE_ENV=TEST TS_NODE_PROJECT='tsconfig.node.json' mocha 'src/core/**/*.spec.ts' 'src/node/**/*.spec.ts'",
-    "express-server": "ts-node  -P tsconfig.node.json example/server/express-server.ts",
-    "ticlo-test-server": "ts-node  -P tsconfig.node.json bin/test-server --serve --run",
+    "express-server": "ts-node --project tsconfig.node.json example/server/express-server.ts",
+    "ticlo-test-server": "ts-node --project tsconfig.node.json bin/test-server --serve --run",
     "vite-dev": "vite",
     "prettier-check": "prettier --check \"(src|tool|example)/**/*.+(ts|tsx|less)\"",
     "prettier-write": "prettier --write \"(src|tool|example)/**/*.+(ts|tsx|less)\""

@@ -29,9 +29,17 @@ Functions.addCategory({
 });
 
 Functions.addCategory({
+  id: 'server',
+  name: 'server',
+  icon: 'fas:network-wired',
+  color: '4af',
+  ns: 'server',
+});
+
+Functions.addCategory({
   id: 'http',
   name: 'http',
-  icon: 'fas:network-wired',
+  icon: 'txt:://',
   color: '4af',
   ns: 'http',
 });

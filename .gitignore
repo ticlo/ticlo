@@ -19,3 +19,7 @@ build
 /example/**/*.ticlo
 en.base.yaml
 /i18n/*
+/icons/font-awesome/solid/removed
+/icons/font-awesome/solid/_cleanup-icons.bat
+/es
+/js
