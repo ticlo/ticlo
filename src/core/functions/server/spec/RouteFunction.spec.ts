@@ -12,7 +12,7 @@ import {FlowEditor} from '../../../worker/FlowEditor';
 
 const flowData = {
   '#is': '',
-  'route': {'#is': 'http:route'},
+  'route': {'#is': 'server:route'},
   'handler': {'#is': 'handler'},
 };
 describe('RouteFunction', function () {
@@ -31,7 +31,7 @@ describe('RouteFunction', function () {
 
     let aBlock = flow.createBlock('a');
     aBlock._load({
-      '#is': 'http:route',
+      '#is': 'server:route',
     });
 
     aBlock.setValue('path', '0');
@@ -56,7 +56,7 @@ describe('RouteFunction', function () {
     let flow = new Flow();
 
     let aBlock = flow.createBlock('a');
-    aBlock._load(getDefaultFuncData(Functions.getDescToSend('http:route')[0]));
+    aBlock._load(getDefaultFuncData(Functions.getDescToSend('server:route')[0]));
 
     assert.deepEqual(aBlock.getValue('method'), ['GET']);
     assert.deepEqual(aBlock.getValue('contentType'), ['empty']);
@@ -85,7 +85,7 @@ describe('RouteFunction', function () {
 
     let aBlock = flow.createBlock('a');
     aBlock._load({
-      '#is': 'http:route',
+      '#is': 'server:route',
       'path': 'a',
       'server': mockService,
     });
@@ -100,7 +100,7 @@ describe('RouteFunction', function () {
     let flow = new Flow();
     flow.load({
       '#is': '',
-      'route': {'#is': 'http:route'},
+      'route': {'#is': 'server:route'},
       'handler': {'#is': 'handler', '~#call': '##.route.#emit'},
     });
     let route = flow.getValue('route') as Block;
