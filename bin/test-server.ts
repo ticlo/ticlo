@@ -8,7 +8,7 @@ import {TestLoader} from '../src/node/test-loader/TestLoader';
 import {TestRunner} from '../src/test/TestRunner';
 import type {FlowTestGroup} from '../src/test/FlowTestGroup';
 
-const packagesToTest = ['./src/core', './src/express', './src/node', './src/http', './src/server'];
+const packagesToTest = ['./src/core', './src/express', './src/node', './src/server'];
 
 (async () => {
   let parser = yargs
