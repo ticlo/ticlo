@@ -1,4 +1,4 @@
-import axios, {AxiosResponse} from 'axios';
+import axios, {AxiosResponse, CanceledError} from 'axios';
 import {BaseFunction, BlockFunction} from '../../block/BlockFunction';
 import {ErrorEvent, EventType, WAIT} from '../../block/Event';
 import {Functions} from '../../block/Functions';
@@ -13,18 +13,7 @@ const methodList: RouteMethod[] = ['GET', 'POST', 'PUT', 'DELETE'];
 const responseTypeList = ['arraybuffer', 'blob', 'document', 'json', 'text'];
 
 export class FetchFunction extends BaseFunction {
-  static inputMap = new Map<string, (this: BlockFunction, val: any) => boolean>([
-    // ['path', FetchFunction.prototype._onPathChange],
-    // ['server', FetchFunction.prototype._onServerChange],
-    // ['method', FetchFunction.prototype._onMethodsChange],
-    // ['contentType', FetchFunction.prototype._onContentTypesChange],
-  ]);
-
   _abortController: AbortController;
-
-  getInputMap() {
-    return FetchFunction.inputMap;
-  }
 
   run(): any {
     let url = this._data.getValue('url');
@@ -51,11 +40,15 @@ export class FetchFunction extends BaseFunction {
             this._data.output(error.response.status, 'status');
             this._data.output({...error.response.headers}, 'responseHeaders');
             this._data.output(error.response.data);
-          } else {
-            this._data.output(undefined, 'status');
-            this._data.output(undefined, 'responseHeaders');
-            this._data.output(undefined);
+            throw error.response;
           }
+          if (error instanceof CanceledError) {
+            // don't throw
+            return;
+          }
+          this._data.output(undefined, 'status');
+          this._data.output(undefined, 'responseHeaders');
+          this._data.output(undefined);
           throw error;
         });
     }
