@@ -13,6 +13,8 @@ const methodList: RouteMethod[] = ['GET', 'POST', 'PUT', 'DELETE'];
 const responseTypeList = ['arraybuffer', 'blob', 'document', 'json', 'text'];
 
 export class FetchFunction extends BaseFunction {
+  immutable = false;
+
   _abortController: AbortController;
 
   run(): any {
@@ -74,6 +76,7 @@ Functions.add(
     name: 'fetch',
     icon: 'fas:file-arrow-down',
     mode: 'onLoad',
+    priority: 2,
     properties: [
       {name: 'url', type: 'string', pinned: true},
       {name: 'method', type: 'select', options: methodList, default: 'GET', pinned: true},
