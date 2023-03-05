@@ -651,6 +651,7 @@ export class Block implements Runnable, FunctionData, PropListener<FunctionClass
   }
 
   _flowDisabled() {
+    // disable parent before children
     this._disabledChanged(true);
     for (let [key, prop] of this._props) {
       let val = prop._value;
@@ -661,13 +662,14 @@ export class Block implements Runnable, FunctionData, PropListener<FunctionClass
   }
 
   _flowEnabled() {
-    this._disabledChanged(this.getValue('#disabled'));
     for (let [key, prop] of this._props) {
       let val = prop._value;
       if (val instanceof Block && val._prop === prop) {
         val._flowEnabled();
       }
     }
+    // enable children before parent
+    this._disabledChanged(this.getValue('#disabled'));
   }
 
   _disabledChanged(disabled: any) {
