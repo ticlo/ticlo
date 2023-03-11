@@ -1,7 +1,7 @@
-import {BaseFunction} from '../../block/BlockFunction';
+import {PureFunction} from '../../block/BlockFunction';
 import {Functions} from '../../block/Functions';
 
-class TestFunction extends BaseFunction {
+class TestFunction extends PureFunction {
   run() {}
 }
 

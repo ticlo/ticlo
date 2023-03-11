@@ -1,8 +1,9 @@
-import axios, {AxiosResponse, CanceledError} from 'axios';
-import {BaseFunction, BlockFunction} from '../../block/BlockFunction';
+import axios, {AxiosRequestConfig, AxiosResponse, CanceledError} from 'axios';
+import {PureFunction, BlockFunction, ImpureFunction} from '../../block/BlockFunction';
 import {ErrorEvent, EventType, WAIT} from '../../block/Event';
 import {Functions} from '../../block/Functions';
 import {BlockMode} from '../../block/Block';
+import {type HttpClient} from './HttpClient';
 
 export type RouteContentType = 'empty' | 'text' | 'json' | 'buffer' | 'form';
 const contentTypeList: RouteContentType[] = ['empty', 'text', 'json', 'buffer', 'form'];
@@ -12,26 +13,39 @@ const methodList: RouteMethod[] = ['GET', 'POST', 'PUT', 'DELETE'];
 
 const responseTypeList = ['arraybuffer', 'blob', 'document', 'json', 'text'];
 
-export class FetchFunction extends BaseFunction {
-  immutable = false;
+const httpClient: HttpClient = {
+  request(config: AxiosRequestConfig) {
+    const url = config.url;
+    if (typeof url === 'string' && (url.startsWith('https://') || url.startsWith('http://') || url.startsWith('//'))) {
+      return axios(config);
+    }
+    throw new Error('Invalid Url');
+  },
+};
 
+export class FetchFunction extends ImpureFunction {
   _abortController: AbortController;
 
   run(): any {
+    let client: HttpClient = this._data.getValue('client');
     let url = this._data.getValue('url');
     if (typeof url === 'string' && url) {
       // cancel the previous request
       this._abortController?.abort();
       this._abortController = new AbortController();
-      return axios({
-        url,
-        method: this._data.getValue('method'),
-        headers: this._data.getValue('requestHeaders'),
-        data: this._data.getValue('requestBody'),
-        responseType: this._data.getValue('responseType'),
-        withCredentials: this._data.getValue('withCredentials'),
-        signal: this._abortController.signal,
-      })
+      if (typeof client?.request !== 'function') {
+        client = httpClient;
+      }
+      return client
+        .request({
+          url,
+          method: this._data.getValue('method'),
+          headers: this._data.getValue('requestHeaders'),
+          data: this._data.getValue('requestBody'),
+          responseType: this._data.getValue('responseType'),
+          withCredentials: this._data.getValue('withCredentials'),
+          signal: this._abortController.signal,
+        })
         .then((response: AxiosResponse) => {
           this._data.output(response.status, 'status');
           this._data.output({...response.headers}, 'responseHeaders');
@@ -78,6 +92,7 @@ Functions.add(
     mode: 'onLoad',
     priority: 2,
     properties: [
+      {name: 'client', type: 'service', options: ['http-client']},
       {name: 'url', type: 'string', pinned: true},
       {name: 'method', type: 'select', options: methodList, default: 'GET', pinned: true},
       {name: 'requestHeaders', type: 'object', create: 'http:create-headers'},

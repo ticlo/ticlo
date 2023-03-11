@@ -1,8 +1,8 @@
 import {createRoot, Root} from 'react-dom/client';
-import {BaseFunction} from '../../src/core/block/BlockFunction';
+import {PureFunction} from '../../src/core/block/BlockFunction';
 import {Functions} from '../../src/core/block/Functions';
 
-export class RenderDomFunction extends BaseFunction {
+export class RenderDomFunction extends PureFunction {
   _container: Element;
   _root: Root;
   run(): any {

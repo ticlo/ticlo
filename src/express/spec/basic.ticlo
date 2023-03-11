@@ -7,12 +7,12 @@
   "expect0"
  ],
  "@b-xyw": [
-  516,
-  132,
+  732,
+  156,
   191
  ],
- "expect0": "User-agent: *\nDisallow: /deny\n",
- "~actual0": "##.fetch-get.#output"
+ "~actual0": "##.fetch-get.#output",
+ "~expect0": "##.static-response.data"
 },
 "asset-post": {
  "#is": "test:assert",
@@ -21,12 +21,12 @@
   "expect0"
  ],
  "@b-xyw": [
-  516,
+  732,
   396,
   191
  ],
- "expect0": "Hello Ticlo",
- "~actual0": "##.fetch-post.#output.data"
+ "~actual0": "##.fetch-post.#output.data",
+ "~expect0": "##.fetch-post.requestBody"
 },
 "asset-status-error": {
  "#is": "test:assert",
@@ -35,7 +35,7 @@
   "expect0"
  ],
  "@b-xyw": [
-  516,
+  732,
   612,
   191
  ],
@@ -50,11 +50,11 @@
   "#output"
  ],
  "@b-xyw": [
-  108,
+  324,
   84,
   268
  ],
- "url": "http://httpbin.org/robots.txt"
+ "url": "http://127.0.0.1:8010/ticlo/basic1"
 },
 "fetch-post": {
  "#is": "http:fetch",
@@ -65,7 +65,7 @@
   "#output"
  ],
  "@b-xyw": [
-  108,
+  324,
   324,
   273
  ],
@@ -92,10 +92,41 @@
   "#output"
  ],
  "@b-xyw": [
-  108,
+  324,
   564,
   263
  ],
  "url": "http://httpbin.org/status/404"
+},
+"route-basic1": {
+ "#is": "server:route",
+ "@b-p": [
+  "path",
+  "method"
+ ],
+ "@b-xyw": [
+  40,
+  84,
+  191
+ ],
+ "contentType": [
+  "empty"
+ ],
+ "method": [
+  "GET"
+ ],
+ "path": "/basic1",
+ "~server": "^server.#output"
+},
+"static-response": {
+ "#is": "server:static-response",
+ "#sync": true,
+ "@b-p": [
+  "data",
+  "headers"
+ ],
+ "@b-xyw": "route-basic1",
+ "data": "Hello Ticlo",
+ "~#call": "##.route-basic1.#emit"
 }
 }

@@ -600,7 +600,7 @@ export class Block implements Runnable, FunctionData, PropListener<FunctionClass
           case EventType.TRIGGER: {
             if (this._function) {
               if (this._sync) {
-                if (this._function.immutable && this._runOnChange && !this._queueToRun) {
+                if (this._function.isPure && this._runOnChange && !this._queueToRun) {
                   // if function is immutable, it can't be called synchronously without a change
                   let prop = this._props.get('#emit');
                   if (prop && Object.isExtensible(prop._value) && prop._value.constructor === CompleteEvent) {

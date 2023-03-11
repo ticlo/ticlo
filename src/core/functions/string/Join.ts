@@ -1,7 +1,7 @@
 import {Functions} from '../../block/Functions';
-import {BaseFunction} from '../../block/BlockFunction';
+import {PureFunction} from '../../block/BlockFunction';
 
-export class JoinFunction extends BaseFunction {
+export class JoinFunction extends PureFunction {
   run(): any {
     let arr: any[] = [];
     for (let val of this._data.getArray()) {

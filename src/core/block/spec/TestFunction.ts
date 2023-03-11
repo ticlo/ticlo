@@ -1,12 +1,12 @@
 import {Functions} from '../Functions';
-import {BaseFunction, BlockFunction} from '../BlockFunction';
+import {PureFunction, BlockFunction} from '../BlockFunction';
 import {BlockIO, BlockPropertyEvent} from '../BlockProperty';
 import {CompleteEvent, ErrorEvent, Event, EventType, WAIT} from '../Event';
 import {PropDispatcher} from '../Dispatcher';
 import {Block, BlockMode} from '../Block';
 import {DataMap} from '../../util/DataTypes';
 
-export class TestFunctionRunner extends BaseFunction {
+export class TestFunctionRunner extends PureFunction {
   static logs: any[] = [];
 
   static popLogs(): any[] {
@@ -19,7 +19,7 @@ export class TestFunctionRunner extends BaseFunction {
     TestFunctionRunner.logs.length = 0;
   }
 
-  immutable = false;
+  isPure = false;
   run(): any {
     TestFunctionRunner.logs.push(this._data.getValue('#-log'));
   }
@@ -34,7 +34,7 @@ const TestFunctionApi = {
 Functions.add(TestFunctionRunner, {name: 'test-runner'}, null, TestFunctionApi);
 
 class TestFunctionRunnerImmutable extends TestFunctionRunner {
-  immutable = true;
+  isPure = true;
 }
 Functions.add(TestFunctionRunnerImmutable, {name: 'test-runner-immutable'});
 
@@ -57,7 +57,7 @@ export class TestAsyncFunctionLog {
 }
 
 // async function that returns Promise
-export class TestAsyncFunctionPromise extends BaseFunction {
+export class TestAsyncFunctionPromise extends PureFunction {
   timeOut: any;
   reject: Function;
 

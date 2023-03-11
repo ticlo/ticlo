@@ -1,9 +1,9 @@
-import {BaseFunction} from '../../block/BlockFunction';
+import {PureFunction} from '../../block/BlockFunction';
 import {Functions} from '../../block/Functions';
 import {defaultConfigs, PropDesc, PropGroupDesc} from '../../block/Descriptor';
 import {BlockConfig} from '../../block/BlockProperty';
 
-export class CreateObjectFunction extends BaseFunction {
+export class CreateObjectFunction extends PureFunction {
   configChanged(config: BlockConfig, val: any): boolean {
     switch (config._name) {
       case '#custom':
@@ -48,7 +48,7 @@ Functions.add(CreateObjectFunction, {
   category: 'data',
 });
 
-export class CreateObjectFunctionOptional extends BaseFunction {
+export class CreateObjectFunctionOptional extends PureFunction {
   configChanged(config: BlockConfig, val: any): boolean {
     switch (config._name) {
       case '#extend':

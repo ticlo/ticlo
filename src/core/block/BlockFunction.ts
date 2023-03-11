@@ -29,10 +29,10 @@ export abstract class BaseFunction<T extends FunctionData = FunctionData> {
   defaultMode: BlockMode;
 
   /**
-   * Whether esult will always be the same when inputs are same,
+   * Whether result will always be the same when inputs are same,
    * and function doesn't emit any value.
    */
-  immutable = true;
+  abstract isPure: boolean;
 
   constructor(public _data?: T) {}
   initInputs() {}
@@ -70,8 +70,15 @@ export abstract class BaseFunction<T extends FunctionData = FunctionData> {
   }
 }
 
+export abstract class PureFunction extends BaseFunction {
+  isPure = true;
+}
+export abstract class ImpureFunction extends BaseFunction {
+  isPure = false;
+}
+
 export abstract class BlockFunction extends BaseFunction<Block> {
-  immutable = false;
+  isPure = false;
 
   initInputs() {
     let inputMap = this.getInputMap();

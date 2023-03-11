@@ -1,7 +1,7 @@
 import './registerJsonEsc';
-import {BaseFunction, Functions, ErrorEvent} from '../../../src/core';
+import {PureFunction, Functions, ErrorEvent} from '../../../src/core';
 
-export class QuerySelectorFunction extends BaseFunction {
+export class QuerySelectorFunction extends PureFunction {
   run() {
     let parent = this._data.getValue('parent');
     let query = this._data.getValue('query');

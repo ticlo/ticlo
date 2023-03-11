@@ -1,8 +1,8 @@
 import {Functions} from '../../block/Functions';
-import {BaseFunction} from '../../block/BlockFunction';
+import {PureFunction} from '../../block/BlockFunction';
 import {ErrorEvent} from '../../block/Event';
 
-export class SplitFunction extends BaseFunction {
+export class SplitFunction extends PureFunction {
   run(): any {
     let input = this._data.getValue('input');
     if (typeof input === 'string') {

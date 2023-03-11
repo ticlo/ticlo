@@ -1,5 +1,5 @@
 import {Functions} from '../../block/Functions';
-import {BaseFunction} from '../../block/BlockFunction';
+import {PureFunction} from '../../block/BlockFunction';
 import {FunctionDesc} from '../../block/Descriptor';
 
 const descriptorN: FunctionDesc = {
@@ -31,7 +31,7 @@ const descriptor2: FunctionDesc = {
   category: 'math',
 };
 
-export class AddFunction extends BaseFunction {
+export class AddFunction extends PureFunction {
   run(): any {
     let sum = 0;
     for (let val of this._data.getArray()) {
@@ -51,7 +51,7 @@ Functions.add(AddFunction, {
   icon: 'fas:plus',
 });
 
-export class MultiplyFunction extends BaseFunction {
+export class MultiplyFunction extends PureFunction {
   run(): any {
     let product = 1;
     for (let val of this._data.getArray()) {
@@ -71,7 +71,7 @@ Functions.add(MultiplyFunction, {
   icon: 'fas:times',
 });
 
-export class SubtractFunction extends BaseFunction {
+export class SubtractFunction extends PureFunction {
   run(): any {
     let v0 = this._data.getValue('0');
     let v1 = this._data.getValue('1');
@@ -89,7 +89,7 @@ Functions.add(SubtractFunction, {
   icon: 'fas:minus',
 });
 
-export class DivideFunction extends BaseFunction {
+export class DivideFunction extends PureFunction {
   run(): any {
     let v0 = this._data.getValue('0');
     let v1 = this._data.getValue('1');

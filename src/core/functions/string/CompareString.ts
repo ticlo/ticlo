@@ -1,4 +1,4 @@
-import {BaseFunction} from '../../block/BlockFunction';
+import {PureFunction} from '../../block/BlockFunction';
 import {Functions} from '../../block/Functions';
 import {FunctionDesc} from '../../block/Descriptor';
 
@@ -14,7 +14,7 @@ const descriptor: FunctionDesc = {
   ],
 };
 
-export class StartWithFunction extends BaseFunction {
+export class StartWithFunction extends PureFunction {
   run(): any {
     let v0 = this._data.getValue('input');
     let v1 = this._data.getValue('search');
@@ -38,7 +38,7 @@ Functions.add(StartWithFunction, {
   icon: 'txt:a~',
 });
 
-export class EndWithFunction extends BaseFunction {
+export class EndWithFunction extends PureFunction {
   run(): any {
     let v0 = this._data.getValue('input');
     let v1 = this._data.getValue('search');
@@ -62,7 +62,7 @@ Functions.add(EndWithFunction, {
   icon: 'txt:~a',
 });
 
-export class ContainFunction extends BaseFunction {
+export class ContainFunction extends PureFunction {
   run(): any {
     let v0 = this._data.getValue('input');
     let v1 = this._data.getValue('search');
