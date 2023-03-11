@@ -6,7 +6,7 @@
   "include": [
     "src/core/**/*",
     "src/node/**/*",
-    "src/express/**/*",
+    "src/web-server/**/*",
     "src/test/**/*"
   ],
   "exclude": [

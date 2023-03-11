@@ -99,7 +99,7 @@
  "url": "http://httpbin.org/status/404"
 },
 "route-basic1": {
- "#is": "server:route",
+ "#is": "web-server:route",
  "@b-p": [
   "path",
   "method"
@@ -116,10 +116,10 @@
   "GET"
  ],
  "path": "/basic1",
- "~server": "^server.#output"
+ "~server": "^local-server.#output"
 },
 "static-response": {
- "#is": "server:static-response",
+ "#is": "web-server:static-response",
  "#sync": true,
  "@b-p": [
   "data",

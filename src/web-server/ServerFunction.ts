@@ -1,4 +1,4 @@
-import {RouteContentType, RouteFunction, RouteMethod, RouteService} from '../core/functions/server/RouteFunction';
+import {RouteContentType, RouteFunction, RouteMethod, RouteService} from '../core/functions/web-server/RouteFunction';
 import {Functions} from '../../src/core/block/Functions';
 import {BlockFunction} from '../../src/core/block/BlockFunction';
 import {Request, Response, RequestHandler} from 'express';
@@ -154,5 +154,5 @@ Functions.add(
     properties: [{name: '#output', pinned: true, type: 'object', readonly: true}],
     tags: ['route-server'],
   },
-  'server'
+  'web-server'
 );

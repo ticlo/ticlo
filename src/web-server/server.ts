@@ -11,16 +11,18 @@ import {ServerFunction} from './ServerFunction';
  * open a port for the http:express-server service
  * @param app
  * @param basePath
- * @param globalBlockName
+ * @param globalBlockPrefix
  */
-export function routeTiclo(app: Express.Application, basePath: string, globalBlockName: string = 'server') {
-  if (!globalBlockName.startsWith('^')) {
-    globalBlockName = '^' + globalBlockName;
-  }
-  Root.instance._globalRoot.createBlock(globalBlockName);
-  let globalServiceBlock = Root.instance._globalRoot.getValue(globalBlockName);
-  globalServiceBlock._load({'#is': 'server:express-server'});
-  let serverFunction: ServerFunction = globalServiceBlock._function as ServerFunction;
+export function routeTiclo(app: Express.Application, basePath: string, globalBlockPrefix: string = 'local') {
+  let serverName = `^${globalBlockPrefix}-server`;
+  let globalServerBlock = Root.instance._globalRoot.createBlock(serverName);
+  globalServerBlock._load({'#is': 'web-server:express-server'});
+
+  let clientName = `^${globalBlockPrefix}-client`;
+  let globalClientBlock = Root.instance._globalRoot.createBlock(clientName);
+  globalClientBlock._load({'#is': 'http:client', 'url': 'http://127.0.0.1/ticlo/'});
+
+  let serverFunction: ServerFunction = globalServerBlock._function as ServerFunction;
   app.all(`${basePath}/*`, (req: Request, res: Response) => {
     serverFunction.requestHandler(basePath, req, res);
   });

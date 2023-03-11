@@ -153,6 +153,6 @@ Functions.add(
       {name: 'contentType', type: 'multi-select', options: contentTypeList, init: ['empty']},
     ],
   },
-  'server',
+  'web-server',
   {getDefaultWorker}
 );

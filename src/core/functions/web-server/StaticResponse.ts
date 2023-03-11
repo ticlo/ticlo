@@ -34,5 +34,5 @@ Functions.add(
       {name: 'status', type: 'number', min: 200, max: 999, step: 1, default: 200},
     ],
   },
-  'server'
+  'web-server'
 );

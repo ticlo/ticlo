@@ -1,7 +1,7 @@
 import Express from 'express';
 import {Root} from '../../src/core';
 import {FileStorage} from '../../src/node';
-import {connectTiclo, routeTiclo, getEditorUrl} from '../../src/express';
+import {connectTiclo, routeTiclo, getEditorUrl} from '../../src/web-server';
 import {data} from '../sample-data/data';
 
 (async () => {
