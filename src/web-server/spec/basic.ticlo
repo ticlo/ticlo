@@ -14,6 +14,34 @@
  "~actual0": "##.fetch-get.#output",
  "~expect0": "##.static-response.data"
 },
+"assert-get-on-post-only": {
+ "#is": "test:assert",
+ "@b-p": [
+  "actual0",
+  "expect0"
+ ],
+ "@b-xyw": [
+  732,
+  588,
+  216
+ ],
+ "expect0": 404,
+ "~actual0": "##.fetch-get-on-post-only.status"
+},
+"assert-wrong-data-type": {
+ "#is": "test:assert",
+ "@b-p": [
+  "actual0",
+  "expect0"
+ ],
+ "@b-xyw": [
+  732,
+  804,
+  196
+ ],
+ "expect0": 404,
+ "~actual0": "##.fetch-wrong-data-type.status"
+},
 "asset-post": {
  "#is": "test:assert",
  "@b-p": [
@@ -22,10 +50,10 @@
  ],
  "@b-xyw": [
   732,
-  396,
+  420,
   191
  ],
- "~actual0": "##.fetch-post.#output.data",
+ "~actual0": "##.fetch-post.#output",
  "~expect0": "##.fetch-post.requestBody"
 },
 "asset-status-error": {
@@ -36,11 +64,11 @@
  ],
  "@b-xyw": [
   732,
-  612,
+  996,
   191
  ],
- "expect0": 404,
- "~actual0": "##.fetch-status-error.status"
+ "~actual0": "##.fetch-status-error.status",
+ "~expect0": "##.static-response-error.status"
 },
 "fetch-get": {
  "#is": "http:fetch",
@@ -54,24 +82,41 @@
   84,
   268
  ],
- "url": "http://127.0.0.1:8010/ticlo/basic1"
+ "~client": "^local-client.#output",
+ "~url": "##.route-basic1.path"
+},
+"fetch-get-on-post-only": {
+ "#is": "http:fetch",
+ "@b-p": [
+  "url",
+  "method",
+  "status"
+ ],
+ "@b-xyw": [
+  324,
+  540,
+  263
+ ],
+ "~client": "^local-client.#output",
+ "~url": "##.route-post1.path"
 },
 "fetch-post": {
  "#is": "http:fetch",
  "@b-p": [
   "url",
   "method",
+  "requestHeaders",
   "requestBody",
   "#output"
  ],
  "@b-xyw": [
   324,
   324,
-  273
+  263
  ],
  "method": "POST",
  "requestBody": "Hello Ticlo",
- "url": "http://httpbin.org/post",
+ "~client": "^local-client.#output",
  "~requestHeaders": {
   "#is": "http:create-headers",
   "#optional": [
@@ -81,22 +126,136 @@
    "Content-Type"
   ],
   "Content-Type": "text/plain"
- }
+ },
+ "~url": "##.route-post1.path"
 },
 "fetch-status-error": {
  "#is": "http:fetch",
  "@b-p": [
   "url",
-  "method",
   "status",
   "#output"
  ],
  "@b-xyw": [
-  324,
-  564,
+  321,
+  924,
   263
  ],
- "url": "http://httpbin.org/status/404"
+ "~client": "^local-client.#output",
+ "~url": "##.route-error1.path"
+},
+"fetch-wrong-data-type": {
+ "#is": "http:fetch",
+ "@b-p": [
+  "url",
+  "method",
+  "requestHeaders",
+  "requestBody",
+  "status"
+ ],
+ "@b-xyw": [
+  324,
+  684,
+  263
+ ],
+ "method": "POST",
+ "requestBody": {},
+ "~client": "^local-client.#output",
+ "~requestHeaders": {
+  "#is": "http:create-headers",
+  "#optional": [
+   "Content-Type"
+  ],
+  "@b-p": [
+   "Content-Type"
+  ],
+  "Content-Type": "application/json"
+ },
+ "~url": "##.route-post1.path"
+},
+"handle-post1": {
+ "#is": "handler",
+ "#sync": true,
+ "@b-p": [],
+ "@b-xyw": "route-post1",
+ "use": {
+  "#is": {
+   "#inputs": {
+    "#custom": [
+     {
+      "name": "method",
+      "type": "string"
+     },
+     {
+      "name": "path",
+      "type": "string"
+     },
+     {
+      "name": "body",
+      "type": "any"
+     },
+     {
+      "name": "query",
+      "type": "object"
+     },
+     {
+      "name": "headers",
+      "type": "object"
+     }
+    ],
+    "#is": "",
+    "@b-p": [
+     "method",
+     "path",
+     "body",
+     "query",
+     "headers"
+    ]
+   },
+   "#is": "",
+   "#outputs": {
+    "#custom": [
+     {
+      "name": "data",
+      "type": "any"
+     },
+     {
+      "name": "headers",
+      "type": "object"
+     },
+     {
+      "default": 200,
+      "max": 999,
+      "min": 200,
+      "name": "status",
+      "step": 1,
+      "type": "number"
+     }
+    ],
+    "#is": "",
+    "@b-p": [
+     "data",
+     "headers",
+     "status"
+    ],
+    "@b-xyw": [
+     228,
+     84,
+     143
+    ],
+    "~data": "##.#inputs.body"
+   }
+  }
+ },
+ "~#call": "##.route-post1.#emit"
+},
+"note": {
+ "#is": "note",
+ "#sync": true,
+ "@b-p": [],
+ "@b-xyw": "handle-post1",
+ "text": "the hander returns the body back in response data",
+ "~#call": "##.handle-post1.#emit"
 },
 "route-basic1": {
  "#is": "web-server:route",
@@ -105,7 +264,7 @@
   "method"
  ],
  "@b-xyw": [
-  40,
+  36,
   84,
   191
  ],
@@ -115,18 +274,67 @@
  "method": [
   "GET"
  ],
- "path": "/basic1",
+ "path": "/get1",
+ "~server": "^local-server.#output"
+},
+"route-error1": {
+ "#is": "web-server:route",
+ "@b-p": [
+  "path",
+  "method"
+ ],
+ "@b-xyw": [
+  36,
+  924,
+  192
+ ],
+ "contentType": [
+  "empty"
+ ],
+ "method": [
+  "GET"
+ ],
+ "path": "/error/456",
+ "~server": "^local-server.#output"
+},
+"route-post1": {
+ "#is": "web-server:route",
+ "@b-p": [
+  "path",
+  "method"
+ ],
+ "@b-xyw": [
+  36,
+  324,
+  192
+ ],
+ "contentType": [
+  "text"
+ ],
+ "method": [
+  "POST"
+ ],
+ "path": "/post1",
  "~server": "^local-server.#output"
 },
 "static-response": {
  "#is": "web-server:static-response",
  "#sync": true,
  "@b-p": [
-  "data",
-  "headers"
+  "data"
  ],
  "@b-xyw": "route-basic1",
  "data": "Hello Ticlo",
  "~#call": "##.route-basic1.#emit"
+},
+"static-response-error": {
+ "#is": "web-server:static-response",
+ "#sync": true,
+ "@b-p": [
+  "status"
+ ],
+ "@b-xyw": "route-error1",
+ "status": 456,
+ "~#call": "##.route-error1.#emit"
 }
 }

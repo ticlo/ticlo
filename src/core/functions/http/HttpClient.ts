@@ -1,10 +1,10 @@
 import {URL} from 'url';
-import axios, {AxiosPromise, AxiosRequestConfig, AxiosRequestHeaders} from 'axios';
+import axios, {AxiosPromise, AxiosRequestConfig, AxiosRequestHeaders, AxiosResponse} from 'axios';
 import {ImpureFunction} from '../../block/BlockFunction';
 import {Functions} from '../../block/Functions';
 
 export interface HttpClient {
-  request(config: AxiosRequestConfig): AxiosPromise;
+  request(config: AxiosRequestConfig): Promise<AxiosResponse>;
 }
 
 export const axiosClient: HttpClient = {
@@ -24,8 +24,16 @@ class HttpClientObject implements HttpClient {
     this.optionalHeaders = optionalHeaders;
   }
 
-  request(config: AxiosRequestConfig): AxiosPromise {
-    const url = new URL(config.url, this.baseUrl).href;
+  async request(config: AxiosRequestConfig) {
+    let url = config.url;
+    // don't allow parent path
+    if (url.startsWith('/')) {
+      url = url.replace(/\/+/, '');
+    }
+    url = new URL(url, this.baseUrl).href;
+    if (!url.startsWith(this.baseUrl)) {
+      throw new Error(`Invalid Url: ${url}`);
+    }
     let headers = config.headers;
     if (this.headers || this.optionalHeaders) {
       headers = {...this.optionalHeaders, ...headers, ...this.headers};

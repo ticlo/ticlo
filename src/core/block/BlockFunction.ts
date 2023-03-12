@@ -62,9 +62,7 @@ export abstract class BaseFunction<T extends FunctionData = FunctionData> {
   }
 
   // cleanup when function is destroyed but data needs to be reused
-  cleanup(): void {
-    this._data.output(undefined);
-  }
+  cleanup(): void {}
   destroy(): void {
     this._data = undefined;
   }
@@ -72,6 +70,10 @@ export abstract class BaseFunction<T extends FunctionData = FunctionData> {
 
 export abstract class PureFunction extends BaseFunction {
   isPure = true;
+
+  cleanup(): void {
+    this._data.output(undefined);
+  }
 }
 export abstract class ImpureFunction extends BaseFunction {
   isPure = false;

@@ -55,6 +55,9 @@ const packagesToTest = ['./src/core', './src/web-server', './src/node'];
   }
   routeTiclo(app, '/ticlo');
 
+  let globalClientBlock = Root.instance._globalRoot.createBlock('^local-client');
+  globalClientBlock._load({'#is': 'http:client', 'url': `http://127.0.0.1:${port}/ticlo/`});
+
   app.get('/', (req, res) => {
     res.end();
   });

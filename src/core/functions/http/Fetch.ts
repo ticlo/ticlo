@@ -14,12 +14,12 @@ const methodList: RouteMethod[] = ['GET', 'POST', 'PUT', 'DELETE'];
 const responseTypeList = ['arraybuffer', 'blob', 'document', 'json', 'text'];
 
 const httpClient: HttpClient = {
-  request(config: AxiosRequestConfig) {
+  async request(config: AxiosRequestConfig) {
     const url = config.url;
-    if (typeof url === 'string' && (url.startsWith('https://') || url.startsWith('http://') || url.startsWith('//'))) {
+    if (typeof url === 'string' && (url.startsWith('https://') || url.startsWith('http://'))) {
       return axios(config);
     }
-    throw new Error('Invalid Url');
+    throw new Error(`Invalid Url: ${url}`);
   },
 };
 
@@ -62,9 +62,7 @@ export class FetchFunction extends ImpureFunction {
             // don't throw
             return;
           }
-          this._data.output(undefined, 'status');
-          this._data.output(undefined, 'responseHeaders');
-          this._data.output(undefined);
+          this.cleanup();
           throw error;
         });
     }
@@ -76,6 +74,12 @@ export class FetchFunction extends ImpureFunction {
       this._abortController?.abort();
     }
     return true;
+  }
+
+  cleanup(): void {
+    this._data.output(undefined, 'status');
+    this._data.output(undefined, 'responseHeaders');
+    this._data.output(undefined);
   }
 
   destroy() {

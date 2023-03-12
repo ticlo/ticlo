@@ -127,6 +127,9 @@ export class BlockProperty extends PropDispatcher<any> implements PropListener<a
 
   _listenRaw(source: BlockBindingSource) {
     if (this._bindingSource) {
+      if (source === this._bindingSource) {
+        return;
+      }
       this._bindingSource.unlisten(this);
       this._bindingPath = null;
     }
