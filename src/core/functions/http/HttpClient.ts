@@ -7,9 +7,32 @@ export interface HttpClient {
   request(config: AxiosRequestConfig): Promise<AxiosResponse>;
 }
 
+function adjustRequestHeaders(config: AxiosRequestConfig) {
+  if (config.data) {
+    if (!(config.headers?.['Content-Type'] || config.headers?.['content-type'])) {
+      const headers = {...config.headers};
+      if (typeof config.data === 'string') {
+        headers['content-type'] = 'text/plain';
+      } else if (typeof config.data === 'object') {
+        if (config.data instanceof Uint8Array) {
+          headers['content-type'] = 'application/octet-stream';
+        } else {
+          headers['content-type'] = 'application/json';
+        }
+      }
+      return {...config, headers};
+    }
+  }
+  return config;
+}
+
+export function httpRequest(config: AxiosRequestConfig) {
+  return axios(adjustRequestHeaders(config));
+}
+
 export const axiosClient: HttpClient = {
   request(config: AxiosRequestConfig) {
-    return axios(config);
+    return httpRequest(config);
   },
 };
 
@@ -38,7 +61,8 @@ class HttpClientObject implements HttpClient {
     if (this.headers || this.optionalHeaders) {
       headers = {...this.optionalHeaders, ...headers, ...this.headers};
     }
-    return axios({...config, url, headers});
+
+    return httpRequest({...config, url, headers});
   }
 }
 

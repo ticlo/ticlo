@@ -1,15 +1,27 @@
+.ticl-comment-view{
+  padding: 0 4px;
+  max-height: 512px;
+}
+
 .ticl-block-note {
-  line-height: 1.5;
   border: 1px solid mix(@yellow-7, white, 30%);
   background: mix(@yellow-1, white, 30%);
   padding: 6px 10px;
   max-height: 1024px;
-  width: 100%;
   overflow-y: auto;
-  overflow-x: hidden;
 
   transition-property: border;
   transition-duration: 0.2s;
+}
+
+.ticl-block-note:hover {
+  border-color: fade(@yellow-8, 50%);
+}
+
+.ticl-markdown {
+  line-height: 1.5;
+  width: 100%;
+  overflow-x: hidden;
 
   & > *:last-child {
     margin-bottom: 0;
@@ -386,8 +398,4 @@
     background-color: transparent;
     border: none;
   }
-}
-
-.ticl-block-note:hover {
-  border-color: fade(@yellow-8, 50%);
 }

@@ -85,12 +85,19 @@ export class ServerFunction extends BlockFunction {
     let method: string = req.method;
     let targetRoute: RouteFunction[] = [];
 
+    let statusError = 404;
     // check static route
     if (this.strictRoute.has(path)) {
       for (let route of this.strictRoute.get(path)) {
-        if (route.methods.includes(method as RouteMethod) && route.contentTypes.includes(contentType)) {
-          targetRoute.push(route);
+        if (!route.methods.includes(method as RouteMethod)) {
+          statusError = 405;
+          continue;
         }
+        if (!route.contentTypes.includes(contentType)) {
+          statusError = 415;
+          continue;
+        }
+        targetRoute.push(route);
       }
     }
     // check dynamic route
@@ -100,9 +107,15 @@ export class ServerFunction extends BlockFunction {
         let parentPath = pathParts.join('/');
         if (this.wildcardRoute.has(parentPath)) {
           for (let route of this.wildcardRoute.get(parentPath)) {
-            if (route.methods.includes(method as RouteMethod) && route.contentTypes.includes(contentType)) {
-              targetRoute.push(route);
+            if (!route.methods.includes(method as RouteMethod)) {
+              statusError = 405;
+              continue;
             }
+            if (!route.contentTypes.includes(contentType)) {
+              statusError = 415;
+              continue;
+            }
+            targetRoute.push(route);
           }
           if (targetRoute.length > 0) {
             break;
@@ -111,7 +124,7 @@ export class ServerFunction extends BlockFunction {
       }
     }
     if (targetRoute.length === 0) {
-      res.status(404).end();
+      res.status(statusError).end();
       return;
     }
     const emitTask = () => {

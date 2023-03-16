@@ -30,7 +30,7 @@ export class SelectFlowFunction extends BlockFunction {
 
 Functions.add(SelectFlowFunction, {
   name: 'select-flow',
-  icon: 'txt:js',
+  icon: 'fas:file-circle-question',
   priority: 2,
   properties: [
     {

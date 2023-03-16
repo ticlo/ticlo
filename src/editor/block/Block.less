@@ -94,6 +94,7 @@
 
 .ticl-block-head-shared {
   font-weight: bold;
+
   &::before {
     position: absolute;
     top: 1px;
@@ -105,14 +106,21 @@
     content: ' ';
   }
 }
+
 .ticl-block-body {
   width: 100%;
 }
 
 .ticl-block-view {
   width: 100%;
-  padding: 4px;
-  border-bottom: 1px solid #d0d0d0;
+  padding: 1px 4px;
+  border: 2px dotted #d0d0d0;
+  border-radius: 0 0 8px 8px;
+  display: flex;
+  align-items: center;
+  & > * {
+    width: 100%;
+  }
 }
 
 .ticl-block-foot {

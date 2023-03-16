@@ -863,9 +863,11 @@ export class BlockItem extends BaseBlockItem {
   // height of special view area
   viewH: number = 0;
   setViewH = (h: number) => {
-    if (h !== this.viewH && h > 0) {
-      this.viewH = h;
+    let h24 = Math.ceil(h / 24) * 24;
+    if (h24 !== this.viewH) {
+      this.viewH = h24;
       this.conn.callImmediate(this.updateFieldPosition);
+      this.forceUpdate();
     }
   };
 

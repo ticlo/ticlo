@@ -54,7 +54,12 @@ class NoteView extends LazyUpdateComponent<BlockWidgetProps, any> {
       style.color = this.color.value;
     }
     return (
-      <div ref={this.getRef} className="ticl-block-note" style={style} dangerouslySetInnerHTML={{__html: rawHtml}} />
+      <div
+        ref={this.getRef}
+        className="ticl-block-note ticl-markdown"
+        style={style}
+        dangerouslySetInnerHTML={{__html: rawHtml}}
+      />
     );
   }
 

@@ -141,3 +141,55 @@ Functions.add(LessEqualFunction, {
   name: 'less-equal',
   icon: 'fas:less-than-equal',
 });
+
+export class WithinRangeFunction extends PureFunction {
+  run(): any {
+    let input = this._data.getValue('input');
+    let min = this._data.getValue('min');
+    let max = this._data.getValue('max');
+    if (input == null || min == null || max == null) {
+      this._data.output(undefined);
+    } else {
+      this._data.output(input >= min && input <= max);
+    }
+  }
+}
+
+Functions.add(WithinRangeFunction, {
+  ...descriptor,
+  name: 'within-range',
+  icon: 'txt:[,]',
+  properties: [
+    {name: 'input', type: 'number', pinned: true},
+    {name: 'min', type: 'number', pinned: true},
+    {name: 'max', type: 'number', pinned: true},
+    {name: '#output', pinned: true, type: 'number', readonly: true},
+  ],
+  recipient: 'input',
+});
+
+export class WithinIntervalFunction extends PureFunction {
+  run(): any {
+    let input = this._data.getValue('input');
+    let min = this._data.getValue('min');
+    let max = this._data.getValue('max');
+    if (input == null || min == null || max == null) {
+      this._data.output(undefined);
+    } else {
+      this._data.output(input >= min && input < max);
+    }
+  }
+}
+
+Functions.add(WithinIntervalFunction, {
+  ...descriptor,
+  name: 'within-interval',
+  icon: 'txt:[,)',
+  properties: [
+    {name: 'input', type: 'number', pinned: true},
+    {name: 'min', type: 'number', pinned: true},
+    {name: 'max', type: 'number', pinned: true},
+    {name: '#output', pinned: true, type: 'number', readonly: true},
+  ],
+  recipient: 'input',
+});

@@ -246,7 +246,7 @@ Functions.add(
   HandlerFunction,
   {
     name: 'handler',
-    icon: 'fas:grip-lines-vertical',
+    icon: 'fas:snowplow',
     priority: 3,
     mode: 'onChange',
     properties: [

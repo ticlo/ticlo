@@ -1,6 +1,7 @@
 import {Request} from 'express';
 import {Block, convertToObject, DataMap} from '../../src/core';
 import {HttpRequest} from '../core/functions/web-server/HttpRequest';
+import {number} from 'yargs';
 
 export class ExpressHttpRequest extends HttpRequest {
   req: Request;
@@ -19,6 +20,30 @@ export class ExpressHttpRequest extends HttpRequest {
       if (headers) {
         this.req.res.set(convertToObject(headers));
       }
+      if (data != null) {
+        switch (typeof data) {
+          case 'boolean':
+          case 'bigint':
+          case 'number':
+            // Can not send number in response directly, it will be treated as status code.
+            data = String(data);
+            break;
+          case 'string':
+            break;
+          case 'object':
+            if (data.constructor !== Object && !(data instanceof Uint8Array)) {
+              // invalid data type
+              this.req.res.status(status).end();
+              return;
+            }
+            break;
+          default:
+            // invalid data type
+            this.req.res.status(status).end();
+            return;
+        }
+      }
+
       this.req.res.status(status).send(data);
     } else {
       this.req.res.status(501).end();

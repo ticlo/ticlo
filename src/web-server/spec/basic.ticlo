@@ -16,30 +16,34 @@
 },
 "assert-get-on-post-only": {
  "#is": "test:assert",
+ "@b-comment": "returns 405 when method is not post",
  "@b-p": [
   "actual0",
   "expect0"
  ],
+ "@b-widget": "comment",
  "@b-xyw": [
-  732,
-  588,
+  729,
+  564,
   216
  ],
- "expect0": 404,
+ "expect0": 405,
  "~actual0": "##.fetch-get-on-post-only.status"
 },
 "assert-wrong-data-type": {
  "#is": "test:assert",
+ "@b-comment": "returns 415 when content type is not text",
  "@b-p": [
   "actual0",
   "expect0"
  ],
+ "@b-widget": "comment",
  "@b-xyw": [
   732,
-  804,
-  196
+  780,
+  215
  ],
- "expect0": 404,
+ "expect0": 415,
  "~actual0": "##.fetch-wrong-data-type.status"
 },
 "asset-post": {
@@ -64,7 +68,7 @@
  ],
  "@b-xyw": [
   732,
-  996,
+  1044,
   191
  ],
  "~actual0": "##.fetch-status-error.status",
@@ -94,7 +98,7 @@
  ],
  "@b-xyw": [
   324,
-  540,
+  588,
   263
  ],
  "~client": "^local-client.#output",
@@ -105,7 +109,6 @@
  "@b-p": [
   "url",
   "method",
-  "requestHeaders",
   "requestBody",
   "#output"
  ],
@@ -117,16 +120,6 @@
  "method": "POST",
  "requestBody": "Hello Ticlo",
  "~client": "^local-client.#output",
- "~requestHeaders": {
-  "#is": "http:create-headers",
-  "#optional": [
-   "Content-Type"
-  ],
-  "@b-p": [
-   "Content-Type"
-  ],
-  "Content-Type": "text/plain"
- },
  "~url": "##.route-post1.path"
 },
 "fetch-status-error": {
@@ -138,7 +131,7 @@
  ],
  "@b-xyw": [
   321,
-  924,
+  972,
   263
  ],
  "~client": "^local-client.#output",
@@ -149,34 +142,25 @@
  "@b-p": [
   "url",
   "method",
-  "requestHeaders",
   "requestBody",
   "status"
  ],
  "@b-xyw": [
   324,
-  684,
+  732,
   263
  ],
  "method": "POST",
  "requestBody": {},
  "~client": "^local-client.#output",
- "~requestHeaders": {
-  "#is": "http:create-headers",
-  "#optional": [
-   "Content-Type"
-  ],
-  "@b-p": [
-   "Content-Type"
-  ],
-  "Content-Type": "application/json"
- },
  "~url": "##.route-post1.path"
 },
 "handle-post1": {
  "#is": "handler",
  "#sync": true,
+ "@b-comment": "the hander returns the body back in response data",
  "@b-p": [],
+ "@b-widget": "comment",
  "@b-xyw": "route-post1",
  "use": {
   "#is": {
@@ -249,14 +233,6 @@
  },
  "~#call": "##.route-post1.#emit"
 },
-"note": {
- "#is": "note",
- "#sync": true,
- "@b-p": [],
- "@b-xyw": "handle-post1",
- "text": "the hander returns the body back in response data",
- "~#call": "##.handle-post1.#emit"
-},
 "route-basic1": {
  "#is": "web-server:route",
  "@b-p": [
@@ -285,7 +261,7 @@
  ],
  "@b-xyw": [
   36,
-  924,
+  972,
   192
  ],
  "contentType": [

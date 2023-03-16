@@ -68,7 +68,7 @@ export class MultiplyFunction extends PureFunction {
 Functions.add(MultiplyFunction, {
   ...descriptorN,
   name: 'multiply',
-  icon: 'fas:times',
+  icon: 'fas:xmark',
 });
 
 export class SubtractFunction extends PureFunction {

@@ -8,6 +8,7 @@ import * as ticloI18n from '../../src/core/editor';
 
 import './block/view/Note';
 import './block/view/Slider';
+import './block/view/Comment';
 
 export async function initEditor() {
   let lng = window.localStorage.getItem('ticlo-lng');

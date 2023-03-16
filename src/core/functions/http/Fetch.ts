@@ -3,10 +3,7 @@ import {PureFunction, BlockFunction, ImpureFunction} from '../../block/BlockFunc
 import {ErrorEvent, EventType, WAIT} from '../../block/Event';
 import {Functions} from '../../block/Functions';
 import {BlockMode} from '../../block/Block';
-import {type HttpClient} from './HttpClient';
-
-export type RouteContentType = 'empty' | 'text' | 'json' | 'buffer' | 'form';
-const contentTypeList: RouteContentType[] = ['empty', 'text', 'json', 'buffer', 'form'];
+import {httpRequest, type HttpClient} from './HttpClient';
 
 export type RouteMethod = 'GET' | 'POST' | 'PUT' | 'DELETE';
 const methodList: RouteMethod[] = ['GET', 'POST', 'PUT', 'DELETE'];
@@ -16,10 +13,10 @@ const responseTypeList = ['arraybuffer', 'blob', 'document', 'json', 'text'];
 const httpClient: HttpClient = {
   async request(config: AxiosRequestConfig) {
     const url = config.url;
-    if (typeof url === 'string' && (url.startsWith('https://') || url.startsWith('http://'))) {
-      return axios(config);
+    if (typeof url !== 'string' || !(url.startsWith('https://') || url.startsWith('http://'))) {
+      throw new Error(`Invalid Url: ${url}`);
     }
-    throw new Error(`Invalid Url: ${url}`);
+    return httpRequest(config);
   },
 };
 
@@ -40,6 +37,7 @@ export class FetchFunction extends ImpureFunction {
         .request({
           url,
           method: this._data.getValue('method'),
+          params: this._data.getValue('params'),
           headers: this._data.getValue('requestHeaders'),
           data: this._data.getValue('requestBody'),
           responseType: this._data.getValue('responseType'),
@@ -99,6 +97,7 @@ Functions.add(
       {name: 'client', type: 'service', options: ['http-client']},
       {name: 'url', type: 'string', pinned: true},
       {name: 'method', type: 'select', options: methodList, default: 'GET', pinned: true},
+      {name: 'params', type: 'object', create: 'create-object'},
       {name: 'requestHeaders', type: 'object', create: 'http:create-headers'},
       {name: 'requestBody', type: 'any'},
       {name: 'withCredentials', type: 'toggle'},

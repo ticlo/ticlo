@@ -54,7 +54,7 @@ class SliderView extends LazyUpdateComponent<BlockWidgetProps, any> {
     this.max.subscribe(conn, `${path}.@b-w-max`);
     this.step.subscribe(conn, `${path}.@b-w-step`);
 
-    updateViewHeight(61);
+    updateViewHeight(57);
   }
 
   renderImpl(): React.ReactNode {

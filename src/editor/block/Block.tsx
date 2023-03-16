@@ -164,7 +164,15 @@ export class BlockView extends PureDataRenderer<BlockViewProps, BlockViewState> 
   };
 
   displayName = new LazyUpdateSubscriber(this);
-  widget = new LazyUpdateSubscriber(this);
+
+  widget = new LazyUpdateSubscriber((widgetName: string) => {
+    if (!widgetName) {
+      let {item} = this.props;
+      item.setViewH(0);
+    }
+    this.forceUpdate();
+  });
+
   constructor(props: BlockViewProps) {
     super(props);
     this.state = {moving: false, footDropping: false};
@@ -244,12 +252,10 @@ export class BlockView extends PureDataRenderer<BlockViewProps, BlockViewState> 
         let WidgetType = BlockWidget.get(this.widget.value);
         if (WidgetType) {
           widget = (
-            <div className="ticl-block-view">
+            <div className="ticl-block-view" style={{minHeight: item.viewH}}>
               <WidgetType conn={item.conn} path={item.path} updateViewHeight={item.setViewH} />
             </div>
           );
-        } else {
-          item.setViewH(0);
         }
         return (
           <div ref={this.getRef} className={classNames.join(' ')} style={{top: item.y, left: item.x, width: item.w}}>
