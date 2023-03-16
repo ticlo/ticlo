@@ -52,24 +52,6 @@ Functions.add(NotEqualFunction, {
   ],
 });
 
-export class NotFunction extends PureFunction {
-  run(): any {
-    let v0 = this._data.getValue('input');
-    this._data.output(!Boolean(v0));
-  }
-}
-
-Functions.add(NotFunction, {
-  ...descriptor,
-  name: 'not',
-  icon: 'txt:!',
-  properties: [
-    {name: 'input', type: 'toggle', pinned: true},
-    {name: '#output', pinned: true, type: 'toggle', readonly: true},
-  ],
-  recipient: 'input',
-});
-
 export class GreaterThanFunction extends PureFunction {
   run(): any {
     let v0 = this._data.getValue('0');

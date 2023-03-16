@@ -1,0 +1,312 @@
+{
+"#is": "",
+"assert": {
+ "#is": "test:assert",
+ "@b-p": [
+  "actual0",
+  "expect0"
+ ],
+ "@b-xyw": [
+  732,
+  300,
+  215
+ ],
+ "expect0": 8,
+ "~actual0": "##.fetch.#output"
+},
+"fetch": {
+ "#is": "http:fetch",
+ "@b-p": [
+  "url",
+  "params",
+  "#output"
+ ],
+ "@b-xyw": [
+  420,
+  252,
+  143
+ ],
+ "~client": "^local-client.#output",
+ "~params": {
+  "#custom": [
+   {
+    "name": "n",
+    "type": "number"
+   }
+  ],
+  "#is": "create-object",
+  "@b-p": [
+   "n"
+  ],
+  "n": 6
+ },
+ "~url": "##.route.path"
+},
+"handler": {
+ "#is": "handler",
+ "#sync": true,
+ "@b-comment": "recursively fetch /fibonacci",
+ "@b-p": [],
+ "@b-widget": "comment",
+ "@b-xyw": "route",
+ "use": {
+  "#is": {
+   "#inputs": {
+    "#custom": [
+     {
+      "name": "method",
+      "type": "string"
+     },
+     {
+      "name": "path",
+      "type": "string"
+     },
+     {
+      "name": "body",
+      "type": "any"
+     },
+     {
+      "name": "query",
+      "type": "object"
+     },
+     {
+      "name": "headers",
+      "type": "object"
+     }
+    ],
+    "#is": "",
+    "@b-p": [
+     "method",
+     "path",
+     "body",
+     "query",
+     "headers"
+    ]
+   },
+   "#is": "",
+   "#outputs": {
+    "#custom": [
+     {
+      "name": "data",
+      "type": "any"
+     },
+     {
+      "name": "headers",
+      "type": "object"
+     },
+     {
+      "default": 200,
+      "max": 999,
+      "min": 200,
+      "name": "status",
+      "step": 1,
+      "type": "number"
+     }
+    ],
+    "#is": "",
+    "@b-p": [
+     "#wait",
+     "data"
+    ],
+    "@b-xyw": [
+     917,
+     702,
+     143
+    ],
+    "~#wait": {
+     "#is": "or",
+     "@b-p": [
+      "0",
+      "1"
+     ],
+     "~0": "##.##.fetch1.#wait",
+     "~1": "##.##.fetch2.#wait"
+    },
+    "~data": "##.default-value.#output"
+   },
+   "add": {
+    "#is": "add",
+    "@b-p": [
+     "0",
+     "1",
+     "#output"
+    ],
+    "@b-xyw": [
+     892,
+     383,
+     143
+    ],
+    "~0": "##.fetch1.#output",
+    "~1": "##.fetch2.#output"
+   },
+   "default-value": {
+    "#is": "default-value",
+    "@b-p": [
+     "input",
+     "default",
+     "#output"
+    ],
+    "@b-xyw": [
+     924,
+     526,
+     143
+    ],
+    "default": 1,
+    "~input": "##.add.#output"
+   },
+   "fetch1": {
+    "#is": "http:fetch",
+    "#mode": "onLoad",
+    "@b-p": [
+     "#disabled",
+     "url",
+     "params",
+     "#output"
+    ],
+    "@b-xyw": [
+     660,
+     139,
+     191
+    ],
+    "url": "/fibonacci",
+    "~#disabled": "##.not.#output",
+    "~client": "^local-client.#output",
+    "~params": {
+     "#custom": [
+      {
+       "name": "n",
+       "type": "number"
+      }
+     ],
+     "#is": "create-object",
+     "@b-p": [
+      "n"
+     ],
+     "~n": "##.##.subtract1.#output"
+    }
+   },
+   "fetch2": {
+    "#is": "http:fetch",
+    "#mode": "onLoad",
+    "@b-p": [
+     "#disabled",
+     "url",
+     "params",
+     "#output"
+    ],
+    "@b-xyw": [
+     660,
+     523,
+     191
+    ],
+    "url": "/fibonacci",
+    "~#disabled": "##.not.#output",
+    "~client": "^local-client.#output",
+    "~params": {
+     "#custom": [
+      {
+       "name": "n",
+       "type": "number"
+      }
+     ],
+     "#is": "create-object",
+     "@b-p": [
+      "n"
+     ],
+     "~n": "##.##.subtract2.#output"
+    }
+   },
+   "not": {
+    "#is": "not",
+    "@b-p": [
+     "input",
+     "#output"
+    ],
+    "@b-xyw": [
+     327,
+     327,
+     0
+    ],
+    "~input": "##.within-range.#output"
+   },
+   "note": {
+    "#is": "note",
+    "@b-p": [],
+    "@b-xyw": [
+     28,
+     461,
+     243
+    ],
+    "text": "Only handle limited amount of request. Ignore the request if n is too large."
+   },
+   "subtract1": {
+    "#is": "subtract",
+    "1": 1,
+    "@b-p": [
+     "0",
+     "1",
+     "#output"
+    ],
+    "@b-xyw": [
+     375,
+     99,
+     143
+    ],
+    "~0": "##.#inputs.query.n"
+   },
+   "subtract2": {
+    "#is": "subtract",
+    "1": 2,
+    "@b-p": [
+     "0",
+     "1",
+     "#output"
+    ],
+    "@b-xyw": [
+     382,
+     527,
+     143
+    ],
+    "~0": "##.#inputs.query.n"
+   },
+   "within-range": {
+    "#is": "within-range",
+    "@b-p": [
+     "input",
+     "min",
+     "max",
+     "#output"
+    ],
+    "@b-xyw": [
+     45,
+     309,
+     146
+    ],
+    "max": 9,
+    "min": 3,
+    "~input": "##.#inputs.query.n"
+   }
+  }
+ },
+ "~#call": "##.route.#emit"
+},
+"route": {
+ "#is": "web-server:route",
+ "@b-p": [
+  "path"
+ ],
+ "@b-xyw": [
+  57,
+  228,
+  172
+ ],
+ "contentType": [
+  "empty"
+ ],
+ "method": [
+  "GET"
+ ],
+ "path": "/fibonacci",
+ "~server": "^local-server.#output"
+}
+}

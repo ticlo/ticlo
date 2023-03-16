@@ -647,6 +647,9 @@ export class Block implements Runnable, FunctionData, PropListener<FunctionClass
     // put it in queue
     if (!this._queued) {
       this._flow.queueBlock(this);
+    } else if (this._queueToRun === null) {
+      // It's not run previously, just canceled. So it should be able to run once.
+      this._queueToRun = true;
     }
   }
 
@@ -814,7 +817,10 @@ export class Block implements Runnable, FunctionData, PropListener<FunctionClass
         // don't create the function until loading is done
         this._pendingClass = cls;
         if (this._function) {
-          this._queueToRun = false;
+          if (this._queueToRun) {
+            // set _queueToRun to null indicate it's not run yet
+            this._queueToRun = null;
+          }
           this._function = null;
         }
       } else {
@@ -834,7 +840,10 @@ export class Block implements Runnable, FunctionData, PropListener<FunctionClass
     } else {
       if (this._function) {
         this._function = null;
-        this._queueToRun = false;
+        if (this._queueToRun) {
+          // set _queueToRun to null indicate it's not run yet
+          this._queueToRun = null;
+        }
         if (this._mode === 'auto') {
           // fast version of this._configMode();
           this._runOnChange = true;
