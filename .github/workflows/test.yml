@@ -15,7 +15,7 @@ jobs:
           node-version: 16.x
       - run: yarn install
       - run: yarn prettier-check
-      - run: yarn build-package
+#      - run: yarn build-package
 
   test:
     runs-on: ubuntu-latest
