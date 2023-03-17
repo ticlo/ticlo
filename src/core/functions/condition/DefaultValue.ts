@@ -21,5 +21,5 @@ Functions.add(DefaultValueFunction, {
     {name: '#output', pinned: true, type: 'any', readonly: true},
   ],
   recipient: '0',
-  category: 'event',
+  category: 'condition',
 });

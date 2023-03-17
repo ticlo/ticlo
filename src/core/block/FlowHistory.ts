@@ -114,6 +114,9 @@ export class FlowHistory {
     this.checkUndoRedo(data);
   }
 
+  hasChange() {
+    return !deepEqual(this.flow.save(), this._history[this._current]);
+  }
   // return true when data has change
   checkAndAdd(data: DataMap) {
     if (this._tracking) {

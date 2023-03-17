@@ -30,7 +30,7 @@ export function getFuncStyleFromDesc(
   conn: ClientConn,
   prefix = 'ticl-block--'
 ): [string, string] {
-  let color = '999';
+  let color: string;
   let icon: string;
   if (desc) {
     ({color, icon} = desc);
@@ -48,6 +48,7 @@ export function getFuncStyleFromDesc(
       }
     }
   }
+  color = color || '999';
   addBlockColor(color);
   return [prefix + color, icon];
 }

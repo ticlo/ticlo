@@ -18,13 +18,20 @@ export interface StagePropsBase {
   onSelect?: (paths: string[]) => void;
 }
 
-function snapXY(val: number): number {
-  val = Math.round(val);
-  let m = val % 24;
-  if (m > 9 && m < 15) {
-    return val - m + 12;
+function snapXY(x: number, y: number): [number, number] {
+  let xi = Math.round(x);
+  let yi = Math.round(y);
+  let xm = xi % 24;
+  let ym = yi % 24;
+  let dx = Math.abs(xm - 12);
+  let dy = Math.abs(ym - 12);
+  if (dx + dy + Math.max(dx, dy) < 10) {
+    return [xi - xm + 12, yi - ym + 12];
   }
-  return val;
+  if (dy < 3) {
+    return [xi, yi - ym + 12];
+  }
+  return [xi, yi];
 }
 
 export abstract class BlockStageBase<Props extends StagePropsBase, State>
@@ -148,8 +155,9 @@ export abstract class BlockStageBase<Props extends StagePropsBase, State>
     if (this._draggingBlocks?.length) {
       conn.lockImmediate(e);
       let [firstItem, firstX, firstY] = this._draggingBlocks[0];
-      let dx = snapXY(firstX + e.dx) - firstX;
-      let dy = snapXY(firstY + e.dy) - firstY;
+      let [ax, ay] = snapXY(firstX + e.dx, firstY + e.dy);
+      let dx = ax - firstX;
+      let dy = ay - firstY;
       for (let [blockItem, x, y, w] of this._draggingBlocks) {
         if (!blockItem._syncParent) {
           blockItem.setXYW(x + dx, y + dy, w, true);

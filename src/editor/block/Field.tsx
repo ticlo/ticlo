@@ -169,9 +169,11 @@ export class FieldItem extends DataRendererItem {
   getConn() {
     return this.block.conn;
   }
+
   getBaseConn() {
     return this.block.conn.getBaseConn();
   }
+
   cache: any = {};
   listener = new ValueSubscriber({
     onUpdate: (response: ValueUpdate) => {
@@ -936,7 +938,7 @@ export class BlockItem extends BaseBlockItem {
       this.setH(this.viewH); // footer height
     } else if (!w) {
       // minimized block
-      let y1 = y + fieldYOffset;
+      let y1 = y + fieldYOffset + 1;
       x -= 1;
       w = fieldHeight + 2;
       for (let field of this.fields) {

@@ -29,11 +29,18 @@ Functions.addCategory({
 });
 
 Functions.addCategory({
+  id: 'condition',
+  name: 'condition',
+  icon: 'txt:if',
+  color: '4af',
+});
+
+Functions.addCategory({
   id: 'web-server',
   name: 'web-server',
   icon: 'fas:network-wired',
   color: '4af',
-  ns: 'server',
+  ns: 'web-server',
 });
 
 Functions.addCategory({

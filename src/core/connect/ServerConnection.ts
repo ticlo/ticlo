@@ -724,6 +724,9 @@ export class ServerConnection extends ServerConnectionCore {
         WorkerFunction.applyChangeToFunc(property._value, funcId);
       } else {
         property._value.applyChange();
+        if (property._block._flow._history?.hasChange()) {
+          trackChange(property, path, this.root);
+        }
       }
       return null;
     } else {
