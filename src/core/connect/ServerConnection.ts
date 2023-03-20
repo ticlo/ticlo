@@ -798,8 +798,11 @@ export class ServerConnection extends ServerConnectionCore {
   renameProp({path, newName}: {path: string; newName: string}) {
     let property = this.root.queryProperty(path, true);
 
-    // TODO: validate new name
     if (property) {
+      let existingProp = property._block.getProperty(newName, false);
+      if (existingProp?._saved instanceof Block) {
+        return 'invalid new name';
+      }
       return moveProperty(property._block, property._name, newName, true);
     } else {
       return 'invalid path';

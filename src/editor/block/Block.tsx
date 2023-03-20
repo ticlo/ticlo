@@ -8,6 +8,7 @@ import {BlockWidget} from './view/BlockWidget';
 import {getFuncStyleFromDesc} from '../util/BlockColors';
 import {getDisplayName} from '../../core';
 import {Tooltip} from 'antd';
+import {BlockDropdown} from '../popup/BlockDropdown';
 
 interface BlockViewProps {
   item: BlockItem;
@@ -102,6 +103,10 @@ export class BlockView extends PureDataRenderer<BlockViewProps, BlockViewState> 
 
   expandBlock = (e: React.MouseEvent) => {
     let {item} = this.props;
+    if (item._syncParent) {
+      // Only allow user to double-click the parent block to expand/minimize the block.
+      return;
+    }
     if (item.w) {
       item.setXYW(item.x, item.y, 0);
     } else {
@@ -205,6 +210,7 @@ export class BlockView extends PureDataRenderer<BlockViewProps, BlockViewState> 
       let widthDrag = item._syncParent ? null : (
         <DragDropDiv
           className="ticl-width-drag"
+          directDragT={true}
           onDragStartT={this.startDragW}
           onDragMoveT={this.onDragWMove}
           onDragEndT={this.onDragWEnd}
@@ -299,18 +305,20 @@ export class BlockView extends PureDataRenderer<BlockViewProps, BlockViewState> 
         return (
           <div ref={this.getRef} className={classNames.join(' ')} style={{top: item.y, left: item.x}}>
             <div className="ticl-block-min-bound" />
-            <Tooltip title={getDisplayName(item.name, this.displayName.value)} mouseEnterDelay={0}>
-              <DragDropDiv
-                className={headClasses}
-                directDragT={true}
-                onDoubleClick={this.expandBlock}
-                onDragStartT={this.selectAndDrag}
-                onDragMoveT={this.onDragMove}
-                onDragEndT={this.onDragEnd}
-              >
-                <TIcon icon={icon} />
-              </DragDropDiv>
-            </Tooltip>
+            <BlockDropdown functionId={item.desc.id} conn={item.conn} path={item.path} displayName="" canApply={false}>
+              <Tooltip title={getDisplayName(item.name, this.displayName.value)} mouseEnterDelay={0}>
+                <DragDropDiv
+                  className={headClasses}
+                  directDragT={true}
+                  onDoubleClick={this.expandBlock}
+                  onDragStartT={this.selectAndDrag}
+                  onDragMoveT={this.onDragMove}
+                  onDragEndT={this.onDragEnd}
+                >
+                  <TIcon icon={icon} />
+                </DragDropDiv>
+              </Tooltip>
+            </BlockDropdown>
           </div>
         );
       }

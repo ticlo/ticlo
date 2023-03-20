@@ -1051,6 +1051,9 @@ export class BlockItem extends BaseBlockItem {
     this.syncListener.unsubscribe();
     this.xywListener.unsubscribe();
     this.styleListener.unsubscribe();
+    if (this._syncChild?._syncParent === this) {
+      this._syncChild._syncParent = null;
+    }
     super.destroy();
     this.actualFields = [];
   }

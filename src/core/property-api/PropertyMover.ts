@@ -1,5 +1,5 @@
 import {Block} from '../block/Block';
-import {BlockProperty, HelperProperty} from '../block/BlockProperty';
+import {BlockIO, BlockProperty, HelperProperty} from '../block/BlockProperty';
 import {PropListener} from '../block/Dispatcher';
 import {BlockBinding} from '../block/BlockBinding';
 
@@ -38,6 +38,8 @@ export class PropertyMover {
     preNames: string[];
     postNames: string[];
   }[];
+  syncChildren: Block[];
+
   // move the helper property
   helperMover: PropertyMover;
 
@@ -83,6 +85,14 @@ export class PropertyMover {
         this.outboundLinks = [];
         iterateListeners(property._listeners, checkOutBound);
       }
+      if (property._saved instanceof Block && property._saved.getValue('@b-xyw')) {
+        this.syncChildren = [];
+        property._block.forEach((field: string, prop: BlockIO) => {
+          if (prop !== property && prop._saved instanceof Block && prop._saved.getValue('@b-xyw') === oldName) {
+            this.syncChildren.push(prop._saved);
+          }
+        });
+      }
       block.setValue(oldName, undefined);
     }
   }
@@ -103,6 +113,11 @@ export class PropertyMover {
       }
     } else {
       this.block.getProperty(newName)._liveUpdate(this.saved);
+    }
+    if (this.syncChildren) {
+      for (let block of this.syncChildren) {
+        block.setValue('@b-xyw', newName);
+      }
     }
   }
 }
