@@ -1,7 +1,7 @@
 import React from 'react';
 
-import {Dropdown, Button, Input, Menu, InputNumber} from 'antd';
 import BuildIcon from '@ant-design/icons/BuildOutlined';
+import PauseCircleOutlined from '@ant-design/icons/PauseCircleOutlined';
 import SaveIcon from '@ant-design/icons/SaveOutlined';
 import DeleteIcon from '@ant-design/icons/DeleteOutlined';
 import SearchIcon from '@ant-design/icons/SearchOutlined';
@@ -32,6 +32,7 @@ import {showModal} from '../popup/ShowModal';
 import {AddNewFlowDialog} from '../popup/AddNewFlowDialog';
 import FileAddIcon from '@ant-design/icons/FileAddOutlined';
 import {MenuItem} from '../component/ClickPopup';
+import {LazyUpdateSubscriber} from '../component/LazyUpdateComponent';
 
 const saveAllowed = new Set<string>(['flow:editor', 'flow:worker', 'flow:main', 'flow:sub', 'flow:test-case']);
 const quickOpenAllowed = new Set<string>([
@@ -171,10 +172,8 @@ interface Props {
   selected: boolean;
   onClick: (item: NodeTreeItem, event: React.MouseEvent) => void;
 }
+
 interface State {
-  displayName?: string;
-  dynamicStyle?: {color?: string; icon?: string};
-  hasChange: boolean;
   desc: FunctionDesc;
   error?: string;
 }
@@ -183,7 +182,7 @@ export class NodeTreeRenderer extends PureDataRenderer<Props, any> {
   static contextType = TicloLayoutContextType;
   declare context: TicloLayoutContext;
 
-  state: State = {hasChange: false, desc: blankFuncDesc, dynamicStyle: null};
+  state: State = {desc: blankFuncDesc};
 
   onExpandClicked = () => {
     let {item} = this.props;
@@ -278,42 +277,16 @@ export class NodeTreeRenderer extends PureDataRenderer<Props, any> {
     },
   });
 
-  hasChangeListener = new ValueSubscriber({
-    onUpdate: (response: ValueUpdate) => {
-      this.safeSetState({hasChange: Boolean(response.cache.value)});
-    },
-  });
-
-  nameListener = new ValueSubscriber({
-    onUpdate: (response: ValueUpdate) => {
-      let {value} = response.cache;
-      if (typeof value === 'string') {
-        this.safeSetState({displayName: value});
-      } else {
-        this.safeSetState({displayName: null});
-      }
-    },
-  });
-
-  styleListener = new ValueSubscriber({
-    onUpdate: (response: ValueUpdate) => {
-      let {value} = response.cache;
-      let {dynamicStyle} = this.state;
-      if (deepEqual(value, dynamicStyle)) {
-        return;
-      }
-      if (value?.constructor === Object) {
-        this.safeSetState({dynamicStyle: value});
-      } else {
-        this.safeSetState({dynamicStyle: null});
-      }
-    },
-  });
+  disabledListener = new LazyUpdateSubscriber(this);
+  hasChangeListener = new LazyUpdateSubscriber(this);
+  nameListener = new LazyUpdateSubscriber(this);
+  styleListener = new LazyUpdateSubscriber(this);
 
   constructor(props: Props) {
     super(props);
     let {item} = props;
     this.subscriptionListener.subscribe(item.connection, `${item.key}.#is`, true);
+    this.disabledListener.subscribe(item.connection, `${item.key}.#disabled`, true);
     this.nameListener.subscribe(item.connection, `${item.key}.@b-name`);
     if (item.canApply) {
       this.hasChangeListener.subscribe(item.connection, `${item.key}.@has-change`);
@@ -341,7 +314,9 @@ export class NodeTreeRenderer extends PureDataRenderer<Props, any> {
 
   renderImpl() {
     let {item, style, selected} = this.props;
-    let {hasChange, displayName, desc, dynamicStyle, error} = this.state;
+    let {desc, error} = this.state;
+    let dynamicStyle = this.styleListener.value;
+    let displayName = this.nameListener.value;
     let marginLeft = item.level * 20;
     let contentClassName = 'ticl-tree-node-content';
     if (selected) {
@@ -350,6 +325,7 @@ export class NodeTreeRenderer extends PureDataRenderer<Props, any> {
     let icon: React.ReactElement;
 
     let [colorClass, iconName] = getFuncStyleFromDesc(desc, item.getConn(), 'ticl-bg--');
+
     if (dynamicStyle) {
       let [dynamicColor, dynamicIcon] = getFuncStyleFromDesc(dynamicStyle, null, 'ticl-bg--');
       if (dynamicColor) {
@@ -363,7 +339,7 @@ export class NodeTreeRenderer extends PureDataRenderer<Props, any> {
 
     if (!dynamicStyle) {
       if (saveAllowed.has(item.functionId)) {
-        if (hasChange) {
+        if (this.hasChangeListener.value) {
           icon = <FileExclamationIcon />;
         } else {
           icon = <FileIcon />;
@@ -390,6 +366,11 @@ export class NodeTreeRenderer extends PureDataRenderer<Props, any> {
     }
     let onDoubleClick = this.context?.editFlow && quickOpenAllowed.has(item.functionId) ? this.onOpenBlock : null;
 
+    let disabled = this.disabledListener.value;
+    if (disabled == null && saveAllowed.has(item.functionId)) {
+      // Force the DropDown to show the disable menu by not giving it null value
+      disabled = false;
+    }
     return (
       <div style={{...style, marginLeft}} className="ticl-tree-node">
         <ExpandIcon opened={item.opened} onClick={this.onExpandClicked} />
@@ -400,6 +381,7 @@ export class NodeTreeRenderer extends PureDataRenderer<Props, any> {
           functionId={item.functionId}
           canApply={item.canApply}
           getMenu={this.getMenu}
+          disabled={disabled}
         >
           <DragDropDiv
             className={contentClassName}
@@ -409,6 +391,7 @@ export class NodeTreeRenderer extends PureDataRenderer<Props, any> {
           >
             {icon}
             {nameNode}
+            {this.disabledListener.value ? <PauseCircleOutlined /> : null}
           </DragDropDiv>
         </BlockDropdown>
       </div>

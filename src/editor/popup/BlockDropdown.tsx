@@ -9,6 +9,8 @@ import SaveIcon from '@ant-design/icons/SaveOutlined';
 import DeleteIcon from '@ant-design/icons/DeleteOutlined';
 import EditIcon from '@ant-design/icons/EditOutlined';
 import PlayIcon from '@ant-design/icons/CaretRightOutlined';
+import PauseCircleOutlined from '@ant-design/icons/PauseCircleOutlined';
+import PlayCircleOutlined from '@ant-design/icons/PlayCircleOutlined';
 import SearchIcon from '@ant-design/icons/SearchOutlined';
 import {DataMap, FunctionDesc, PropDesc, smartStrCompare} from '../../core';
 import {ClientConn} from '../../core/connect/ClientConn';
@@ -28,6 +30,8 @@ interface Props {
   path: string;
   displayName: string;
   canApply: boolean;
+  // When disabled is null, don't show the menu item.
+  disabled?: boolean;
   getMenu?: () => React.ReactElement[];
 }
 
@@ -60,6 +64,15 @@ export class BlockDropdown extends React.PureComponent<Props, State> {
   onRenameClicked = () => {
     let {conn, path, displayName} = this.props;
     showModal(<RenameDialog conn={conn} path={path} displayName={displayName} />, this.context.showModal);
+  };
+
+  onEnableClicked = () => {
+    let {conn, path} = this.props;
+    conn.updateValue(`${path}.#disabled`, undefined);
+  };
+  onDisableClicked = () => {
+    let {conn, path} = this.props;
+    conn.updateValue(`${path}.#disabled`, true);
   };
 
   onCallClicked = () => {
@@ -100,7 +113,7 @@ export class BlockDropdown extends React.PureComponent<Props, State> {
   };
 
   getMenu = () => {
-    let {conn, canApply, functionId, getMenu} = this.props;
+    let {conn, canApply, disabled, functionId, getMenu} = this.props;
     let funcDesc = conn.watchDesc(functionId);
 
     let menuitems: React.ReactElement[] = [];
@@ -128,6 +141,22 @@ export class BlockDropdown extends React.PureComponent<Props, State> {
         <MenuItem key="rename" onClick={this.onRenameClicked}>
           <EditIcon />
           {t('Rename')}
+        </MenuItem>
+      );
+    }
+
+    if (disabled === true) {
+      menuitems.push(
+        <MenuItem key="rename" onClick={this.onEnableClicked}>
+          <PlayCircleOutlined />
+          {t('Enable')}
+        </MenuItem>
+      );
+    } else if (disabled === false) {
+      menuitems.push(
+        <MenuItem key="rename" onClick={this.onDisableClicked}>
+          <PauseCircleOutlined />
+          {t('Disable')}
         </MenuItem>
       );
     }

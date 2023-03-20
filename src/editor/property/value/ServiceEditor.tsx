@@ -87,9 +87,8 @@ export class ServiceEditor extends React.PureComponent<Props, State> {
 
     let selectValue = bindingPath;
     if (typeof selectValue === 'string' && selectValue.endsWith('.#output')) {
-      selectValue = selectValue.substring(0, selectValue.length - 7);
+      selectValue = selectValue.substring(0, selectValue.length - 8);
     }
-
     let button: React.ReactElement;
     if (bindingPath) {
       button = (
