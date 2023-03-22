@@ -17,9 +17,9 @@
 "#shared": "#shared"
 "#temp": "#temp"
 "#edit": "#edit"
-"-running-#": " ( Running {{- detail}} )"
-"-passed-#": " ( Passed {{- detail}} )"
-"-failed-#": " ( Failed {{- detail}} )"
+"-running-#": " ( Running {{- detail, optional}} )"
+"-passed-#": " ( Passed {{- detail, optional}} )"
+"-failed-#": " ( Failed {{- detail, optional}} )"
 
 # NodeTreePane.tsx & AddNewFlowDialog.tsx
 "New Dataflow": "New Dataflow"
@@ -50,6 +50,8 @@
 "Data": "Data"
 
 # popup/BlockDropdown.tsx
+"Enable": "Enable"
+"Disable": "Disable"
 "Call": "Call"
 
 # popup/PropertyDropdown.tsx

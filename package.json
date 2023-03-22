@@ -106,6 +106,7 @@
     "ticlo-test-server": "ts-node --project tsconfig.node.json bin/test-server --serve --run",
     "vite-dev": "vite",
     "prettier-check": "prettier --check \"(src|tool|example)/**/*.+(ts|tsx|less)\"",
-    "prettier-write": "prettier --write \"(src|tool|example)/**/*.+(ts|tsx|less)\""
+    "prettier-write": "prettier --write \"(src|tool|example)/**/*.+(ts|tsx|less)\"",
+    "collect-edirot-en": "ts-node --project tsconfig.node.json tool/collect-editor-en-locale.ts"
   }
 }

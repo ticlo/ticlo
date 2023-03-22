@@ -17,9 +17,9 @@
 "#shared": "#公用"
 "#temp": "#临时"
 "#edit": "#编辑"
-"-running-#": " ( 运行中{{- detail}} )"
-"-passed-#": " ( 通过{{- detail}} )"
-"-failed-#": " ( 失败{{- detail}} )"
+"-running-#": " ( 运行中{{- detail, optional}} )"
+"-passed-#": " ( 通过{{- detail, optional}} )"
+"-failed-#": " ( 失败{{- detail, optional}} )"
 
 # NodeTreePane.tsx & AddNewFlowDialog.tsx
 "New Dataflow": 新建数据流
@@ -50,6 +50,8 @@
 "Data": 数据 # auto translated from hash: 9gaNqinb
 
 # popup/BlockDropdown.tsx
+"Enable": 启用
+"Disable": 禁用 # auto translated from hash: vPrM6/dF
 "Call": 触发
 
 # popup/PropertyDropdown.tsx

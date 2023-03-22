@@ -4,6 +4,12 @@ import {nameFromPath} from './String';
 export async function init(lng?: string) {
   await new Promise((receive, reject) => {
     i18next.init({lng, nsSeparator: false}, receive);
+    i18next.services.formatter.add('optional', (value, lng, options) => {
+      if (value == null) {
+        return '';
+      }
+      return value;
+    });
   });
 }
 

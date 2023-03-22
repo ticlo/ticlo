@@ -21,7 +21,7 @@ export class Event {
   }
 
   static check(val: any): EventType {
-    if (val == null) {
+    if (val == null || val === false) {
       return EventType.VOID;
     }
     if (val instanceof Event) {

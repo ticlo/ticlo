@@ -18,6 +18,8 @@ export class FlowTestCase extends Flow implements TestsRunner {
   onPassed: (testcase: FlowTestCase) => void;
   onFailed: (testcase: FlowTestCase) => void;
   start(onPassed?: (testcase: FlowTestCase) => void, onFailed?: (testcase: FlowTestCase) => void) {
+    // Set #disabled to true first to clear all the cache.
+    this.updateValue('#disabled', true);
     this.onPassed = onPassed;
     this.onFailed = onFailed;
     this.clearTimeout();
@@ -26,6 +28,7 @@ export class FlowTestCase extends Flow implements TestsRunner {
     }
     this.updateLabel('running');
     this.deleteValue('@b-style');
+    // Clear #disabled to restart the test.
     this.updateValue('#disabled', undefined);
   }
 

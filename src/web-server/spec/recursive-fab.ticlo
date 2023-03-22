@@ -7,11 +7,11 @@
   "expect0"
  ],
  "@b-xyw": [
-  732,
-  300,
+  739,
+  270,
   215
  ],
- "expect0": 6,
+ "expect0": 8,
  "~actual0": "##.fetch.#output"
 },
 "fetch": {
@@ -22,8 +22,8 @@
   "#output"
  ],
  "@b-xyw": [
-  420,
-  252,
+  438,
+  191,
   143
  ],
  "~client": "^local-client.#output",
@@ -42,14 +42,43 @@
  },
  "~url": "##.route.path"
 },
+"fetch1": {
+ "#is": "http:fetch",
+ "@b-p": [
+  "url",
+  "params",
+  "#output"
+ ],
+ "@b-xyw": [
+  443,
+  456,
+  143
+ ],
+ "~client": "^local-client.#output",
+ "~params": {
+  "#custom": [
+   {
+    "name": "n",
+    "type": "number"
+   }
+  ],
+  "#is": "create-object",
+  "@b-p": [
+   "n"
+  ],
+  "n": -4
+ },
+ "~url": "##.route.path"
+},
 "handler": {
  "#is": "handler",
  "#sync": true,
- "@b-comment": "recursively fetch /plus1 to calculate:\n f(n) = f(n-1)+ 1",
+ "@b-comment": "recursively fetch /fibonacci",
  "@b-p": [],
  "@b-widget": "comment",
  "@b-xyw": "route",
  "maxQueueSize": 100,
+ "reuseWorker": "persist",
  "use": {
   "#is": {
    "#inputs": {
@@ -110,55 +139,61 @@
      "data"
     ],
     "@b-xyw": [
-     1129,
-     159,
-     201
+     1196,
+     333,
+     209
     ],
-    "~#wait": "##.fetch1.#wait",
+    "~#wait": {
+     "#is": "or",
+     "@b-p": [
+      "0",
+      "1"
+     ],
+     "~0": "##.##.fetch1.#wait",
+     "~1": "##.##.fetch2.#wait"
+    },
     "~data": {
      "#is": "default-value",
-     "@b-hide": true,
      "@b-p": [
       "input",
       "default"
      ],
-     "default": 0,
+     "default": 1,
      "~0": "##.##.default-value.#output",
      "~input": "##.##.add.#output"
     }
    },
    "add": {
     "#is": "add",
-    "1": 1,
     "@b-p": [
      "0",
      "1",
      "#output"
     ],
     "@b-xyw": [
-     874,
-     307,
+     892,
+     383,
      143
     ],
-    "~0": "##.fetch1.#output"
+    "~0": "##.fetch1.#output",
+    "~1": "##.fetch2.#output"
    },
    "fetch1": {
     "#is": "http:fetch",
-    "#mode": "onCall",
+    "#mode": "onLoad",
     "@b-p": [
-     "url",
      "#disabled",
-     "#wait",
+     "url",
      "params",
-     "#mode",
      "#output"
     ],
     "@b-xyw": [
-     612,
-     60,
+     660,
+     139,
      191
     ],
-    "~#call": "##.within-range.#output",
+    "url": "/fibonacci",
+    "~#disabled": "##.not.#output",
     "~client": "^local-client.#output",
     "~params": {
      "#custom": [
@@ -172,8 +207,51 @@
       "n"
      ],
      "~n": "##.##.subtract1.#output"
-    },
-    "~url": "##.#inputs.path"
+    }
+   },
+   "fetch2": {
+    "#is": "http:fetch",
+    "#mode": "onLoad",
+    "@b-p": [
+     "#disabled",
+     "url",
+     "params",
+     "#output"
+    ],
+    "@b-xyw": [
+     660,
+     523,
+     191
+    ],
+    "url": "/fibonacci",
+    "~#disabled": "##.not.#output",
+    "~client": "^local-client.#output",
+    "~params": {
+     "#custom": [
+      {
+       "name": "n",
+       "type": "number"
+      }
+     ],
+     "#is": "create-object",
+     "@b-p": [
+      "n"
+     ],
+     "~n": "##.##.subtract2.#output"
+    }
+   },
+   "not": {
+    "#is": "not",
+    "@b-p": [
+     "input",
+     "#output"
+    ],
+    "@b-xyw": [
+     327,
+     327,
+     0
+    ],
+    "~input": "##.within-range.#output"
    },
    "note": {
     "#is": "note",
@@ -194,8 +272,23 @@
      "#output"
     ],
     "@b-xyw": [
-     324,
+     372,
      108,
+     143
+    ],
+    "~0": "##.#inputs.query.n"
+   },
+   "subtract2": {
+    "#is": "subtract",
+    "1": 2,
+    "@b-p": [
+     "0",
+     "1",
+     "#output"
+    ],
+    "@b-xyw": [
+     382,
+     527,
      143
     ],
     "~0": "##.#inputs.query.n"
@@ -209,12 +302,12 @@
      "#output"
     ],
     "@b-xyw": [
-     228,
-     276,
+     45,
+     309,
      146
     ],
-    "max": 100,
-    "min": 1,
+    "max": 9,
+    "min": 3,
     "~input": "##.#inputs.query.n"
    }
   }
@@ -237,7 +330,7 @@
  "method": [
   "GET"
  ],
- "path": "/plus1",
+ "path": "/fibonacci",
  "~server": "^local-server.#output"
 }
 }

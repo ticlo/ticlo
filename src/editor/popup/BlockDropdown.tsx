@@ -147,14 +147,14 @@ export class BlockDropdown extends React.PureComponent<Props, State> {
 
     if (disabled === true) {
       menuitems.push(
-        <MenuItem key="rename" onClick={this.onEnableClicked}>
+        <MenuItem key="enable" onClick={this.onEnableClicked}>
           <PlayCircleOutlined />
           {t('Enable')}
         </MenuItem>
       );
     } else if (disabled === false) {
       menuitems.push(
-        <MenuItem key="rename" onClick={this.onDisableClicked}>
+        <MenuItem key="disable" onClick={this.onDisableClicked}>
           <PauseCircleOutlined />
           {t('Disable')}
         </MenuItem>
