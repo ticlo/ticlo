@@ -25,6 +25,7 @@ export class Flow extends Block {
   _namespace: string;
   // function id, when Flow is loaded from a function
   _loadFrom: string;
+  _storageKey: string;
 
   _enabled: boolean = true;
   _loading: boolean = false;
@@ -33,11 +34,12 @@ export class Flow extends Block {
 
   _history: FlowHistory;
 
-  constructor(parent: Block = Root.instance, output?: FunctionOutput, property?: BlockProperty) {
+  constructor(parent: Block = Root.instance, output?: FunctionOutput, property?: BlockProperty, storageKey?: string) {
     super(null, null, property);
     this._flow = this;
     this._parent = parent;
     this._outputObj = output;
+    this._storageKey = storageKey;
     if (!property) {
       this._prop = new BlockProperty(this, '');
     }
@@ -392,7 +394,7 @@ export class Root extends Flow {
     });
 
     // create the readolny global block
-    this._globalRoot = this._createConstBlock('#global', (prop) => new GlobalBlock(this, this, prop))._value;
+    this._globalRoot = this._createConstBlock('#global', (prop) => new GlobalBlock(this, this, prop, '#global'))._value;
     this._tempRoot = this._createConstBlock('#temp', (prop) => new ConstBlock(this, this._globalRoot, prop))._value;
     this._sharedRoot = this._createConstBlock('#shared', (prop) => new ConstBlock(this, this._globalRoot, prop))._value;
 
@@ -437,7 +439,7 @@ export class Root extends Flow {
       }
       newFlow.load(data, null, loader.applyChange, loader.onStateChange);
       if (this._storage?.inited && Object.keys(data).length) {
-        this._storage.saveFlow(path, newFlow, data);
+        this._storage.saveFlow(newFlow, data);
       }
     } else {
       if (data) {

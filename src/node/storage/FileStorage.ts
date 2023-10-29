@@ -109,13 +109,13 @@ export class FileStorage implements Storage {
     this.dir = Path.resolve(dir);
   }
 
-  getFlowLoader(name: string, prop: BlockProperty): FlowLoader {
+  getFlowLoader(key: string, prop: BlockProperty): FlowLoader {
     return {
       applyChange: (data: DataMap) => {
-        this.saveFlow(name, null, data);
+        this.saveFlow(null, data, key);
         return true;
       },
-      onStateChange: (flow: Flow, state: FlowState) => this.flowStateChanged(flow, name, state),
+      onStateChange: (flow: Flow, state: FlowState) => this.flowStateChanged(flow, key, state),
     };
   }
 
@@ -131,12 +131,13 @@ export class FileStorage implements Storage {
     this.getTask(name).delete();
   }
 
-  saveFlow(name: string, flow: Flow, data?: DataMap) {
+  saveFlow(flow: Flow, data?: DataMap, overrideKey?: string) {
     if (!data) {
       data = flow.save();
     }
+    let key = overrideKey ?? flow._storageKey;
     let str = encodeSorted(data);
-    this.getTask(name).write(str);
+    this.getTask(key).write(str);
   }
 
   async loadFlow(name: string) {
@@ -186,7 +187,7 @@ export class FileStorage implements Storage {
 
     // load global block
     root._globalRoot.load(globalData, null, (saveData: DataMap) => {
-      this.saveFlow('#global', root._globalRoot, saveData);
+      this.saveFlow(root._globalRoot, saveData);
       return true;
     });
 

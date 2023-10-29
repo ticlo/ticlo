@@ -39,7 +39,16 @@ export class TestLoader extends FileStorage {
     }
     nameParts.shift();
     nameParts[0] = this.flowToPathMap.get(nameParts[0]);
-    let filename = nameParts.pop();
+    let filename: string;
+    if (nameParts.includes('#')) {
+      // subflow
+      let pos = nameParts.indexOf('#') - 2;
+      filename = nameParts.slice(pos).join('.');
+      nameParts = nameParts.slice(0, pos);
+      console.log(filename, nameParts);
+    } else {
+      filename = nameParts.pop();
+    }
 
     let specDir = `${nameParts.join('/')}/spec`;
     let realPath = `${specDir}/${filename}`;
@@ -55,15 +64,16 @@ export class TestLoader extends FileStorage {
       return task;
     }
   }
-  saveFlow(name: string, flow: Flow, data?: DataMap) {
+  saveFlow(flow: Flow, data?: DataMap, overrideKey?: string) {
     if (flow?._disabled) {
-      console.log(`unable to save disabled flow: ${name}`);
+      let key = overrideKey ?? flow._storageKey;
+      console.log(`unable to save disabled flow: ${key}`);
       return;
     }
-    super.saveFlow(name, flow, data);
+    super.saveFlow(flow, data, overrideKey);
   }
 
-  getFlowLoader(name: string, prop: BlockProperty): FlowLoader {
+  getFlowLoader(key: string, prop: BlockProperty): FlowLoader {
     if (prop == null || prop._block instanceof FlowTestGroup) {
       return {
         createFlow: (path: string, p: BlockProperty) => {
@@ -75,19 +85,19 @@ export class TestLoader extends FileStorage {
           return testCase;
         },
         applyChange: (data: DataMap) => {
-          this.saveFlow(name, null, data);
+          this.saveFlow(null, data, key);
           return true;
         },
-        onStateChange: (flow: Flow, state: FlowState) => this.flowStateChanged(flow, name, state),
+        onStateChange: (flow: Flow, state: FlowState) => this.flowStateChanged(flow, key, state),
       };
     }
     return {};
   }
-  async flowStateChanged(flow: Flow, name: string, state: FlowState) {
+  async flowStateChanged(flow: Flow, key: string, state: FlowState) {
     if (this.onDemandLoad) {
       switch (state) {
         case FlowState.enabled: {
-          let task = this.getTask(name);
+          let task = this.getTask(key);
           let str = await task.read();
           try {
             let data = decode(str);
@@ -103,7 +113,7 @@ export class TestLoader extends FileStorage {
         }
       }
     }
-    super.flowStateChanged(flow, name, state);
+    super.flowStateChanged(flow, key, state);
   }
   init(root: Root): void {
     const testGroupLoader = {

@@ -5,7 +5,7 @@ import {BlockProperty} from './BlockProperty';
 export interface Storage {
   deleteFlow(name: string): void;
 
-  saveFlow(name: string, flow: Flow, data: DataMap): void;
+  saveFlow(flow: Flow, data: DataMap, overrideKey?: string): void;
 
   loadFlow(name: string): Promise<DataMap>;
 
@@ -13,5 +13,5 @@ export interface Storage {
   init(root: Root): any; // void or promise
 
   // return [applyChange,onStateChange] of a flow
-  getFlowLoader(name: string, prop: BlockProperty): FlowLoader;
+  getFlowLoader(key: string, prop: BlockProperty): FlowLoader;
 }

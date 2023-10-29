@@ -23,34 +23,35 @@ export class IndexDbStorage implements Storage {
     });
   }
 
-  getFlowLoader(name: string, prop: BlockProperty): FlowLoader {
+  getFlowLoader(key: string, prop: BlockProperty): FlowLoader {
     return {
       applyChange: (data: DataMap) => {
-        this.saveFlow(name, null, data);
+        this.saveFlow(null, data, key);
         return true;
       },
-      onStateChange: (flow: Flow, state: FlowState) => this.flowStateChanged(flow, name, state),
+      onStateChange: (flow: Flow, state: FlowState) => this.flowStateChanged(flow, key, state),
     };
   }
 
-  flowStateChanged(flow: Flow, name: string, state: FlowState) {
+  flowStateChanged(flow: Flow, key: string, state: FlowState) {
     switch (state) {
       case FlowState.destroyed:
-        this.deleteFlow(name);
+        this.deleteFlow(key);
         break;
     }
   }
 
-  async deleteFlow(name: string) {
-    await (await this.dbPromise).delete(STORE_NAME, name);
+  async deleteFlow(key: string) {
+    await (await this.dbPromise).delete(STORE_NAME, key);
   }
 
-  async saveFlow(name: string, flow: Flow, data?: DataMap) {
+  async saveFlow(flow: Flow, data?: DataMap, overrideKey?: string) {
     if (!data) {
       data = flow.save();
     }
+    let key = overrideKey ?? flow._storageKey;
     let str = encodeSorted(data);
-    await (await this.dbPromise).put(STORE_NAME, str, name);
+    await (await this.dbPromise).put(STORE_NAME, str, key);
   }
 
   async loadFlow(name: string) {
@@ -100,7 +101,7 @@ export class IndexDbStorage implements Storage {
 
     // load global block
     root._globalRoot.load(globalData, null, (saveData: DataMap) => {
-      this.saveFlow('#global', root._globalRoot, saveData);
+      this.saveFlow(root._globalRoot, saveData);
       return true;
     });
 

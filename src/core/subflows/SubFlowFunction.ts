@@ -20,7 +20,9 @@ export enum SubFlowMode {
    */
   LAZY = 'lazy',
 }
+
 export const SubFlowModeOptions = Object.values(SubFlowMode);
+
 class LoadFunctionCache {
   static async loadData(path: string, func: SubFlowFunction) {
     let data = await Root.instance._storage.loadFlow(path);
@@ -145,7 +147,7 @@ export class SubFlowFunction extends BlockFunction {
       let storagePath = this.getStoragePath();
       let applyChange = (data: DataMap) => {
         this._src = data;
-        Root.instance._storage.saveFlow(storagePath, null, data);
+        Root.instance._storage.saveFlow(null, data, storagePath);
         return true;
       };
       this._funcFlow = this._data.createOutputFlow(WorkerFlow, '#flow', this._src, this._data, applyChange);
@@ -156,6 +158,7 @@ export class SubFlowFunction extends BlockFunction {
   cleanup(): void {
     this._data.deleteValue('#flow');
   }
+
   destroy() {
     if (this._data._destroyed && !this._data._flow._destroyed) {
       Root.instance._storage.deleteFlow(this.getStoragePath());
@@ -163,6 +166,7 @@ export class SubFlowFunction extends BlockFunction {
     super.destroy();
   }
 }
+
 function getDefaultWorker(block: Block, field: string, blockStack: Map<any, any>): DataMap {
   // only works with work instance #input #output
   // not for any field

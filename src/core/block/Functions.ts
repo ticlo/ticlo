@@ -199,7 +199,7 @@ export class Functions {
     _storage = storage;
   }
   static saveWorkerFunction(funcId: string, flow: Flow, data: DataMap) {
-    _storage?.saveFlow(`#.${funcId.substring(1)}`, flow, data);
+    _storage?.saveFlow(flow, data, `#.${funcId.substring(1)}`);
   }
   static deleteFunction(funcId: string) {
     _storage?.deleteFlow(`#.${funcId.substring(1)}`);
