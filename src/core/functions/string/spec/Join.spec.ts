@@ -1,4 +1,4 @@
-import {assert} from 'chai';
+import expect from 'expect';
 import '../Join';
 import {Block} from '../../../block/Block';
 import {Flow, Root} from '../../../block/Flow';
@@ -16,30 +16,30 @@ describe('Join', function () {
 
     Root.run();
 
-    assert.equal(aBlock.getValue('#output'), '2a');
+    expect(aBlock.getValue('#output')).toEqual('2a');
 
     aBlock.setValue('0', null);
 
     Root.run();
-    assert.equal(aBlock.getValue('#output'), undefined);
+    expect(aBlock.getValue('#output')).toEqual(undefined);
 
     aBlock.setValue('0', ['b', 'c']);
 
     Root.run();
-    assert.equal(aBlock.getValue('#output'), 'bca');
+    expect(aBlock.getValue('#output')).toEqual('bca');
 
     aBlock.setValue('separator', ',');
 
     Root.run();
-    assert.equal(aBlock.getValue('#output'), 'b,c,a');
+    expect(aBlock.getValue('#output')).toEqual('b,c,a');
 
     aBlock.setValue('[]', 1);
 
     Root.run();
-    assert.equal(aBlock.getValue('#output'), 'b,c');
+    expect(aBlock.getValue('#output')).toEqual('b,c');
 
     aBlock.setValue('[]', 0);
     Root.run();
-    assert.equal(aBlock.getValue('#output'), '');
+    expect(aBlock.getValue('#output')).toEqual('');
   });
 });

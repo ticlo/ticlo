@@ -1,4 +1,4 @@
-import {assert} from 'chai';
+import expect from 'expect';
 import {Flow} from '../Flow';
 
 describe('Property Save Load', function () {
@@ -16,12 +16,12 @@ describe('Property Save Load', function () {
     flow.setValue('v1', v1Data);
 
     let saved = flow.save();
-    assert.deepEqual(saved, expectedSave);
+    expect(saved).toEqual(expectedSave);
 
     flow.load(expectedSave);
-    assert.deepEqual(flow.getValue('v1'), v1Data);
+    expect(flow.getValue('v1')).toEqual(v1Data);
 
     flow.liveUpdate(expectedSave);
-    assert.deepEqual(flow.getValue('v1'), v1Data);
+    expect(flow.getValue('v1')).toEqual(v1Data);
   });
 });

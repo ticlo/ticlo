@@ -1,62 +1,61 @@
-import {assert} from 'chai';
+import expect from 'expect';
 import {getPreNumber, getTailingNumber, isColorStr, nameFromPath, smartStrCompare} from '../String';
 import {encodeTicloName, getDisplayName} from '../Name';
 
 describe('String', function () {
   it('smartStrCompare', () => {
-    assert.equal('3,1,2'.split(',').sort(smartStrCompare).join(','), '1,2,3');
+    expect('3,1,2'.split(',').sort(smartStrCompare).join(',')).toEqual('1,2,3');
 
     // test number
-    assert.equal('a123,a13,b12,b8,a4,a55,c1'.split(',').sort(smartStrCompare).join(','), 'a4,a13,a55,a123,b8,b12,c1');
+    expect('a123,a13,b12,b8,a4,a55,c1'.split(',').sort(smartStrCompare).join(',')).toEqual('a4,a13,a55,a123,b8,b12,c1');
 
     // test sign
-    assert.equal(
-      'a+123,a+13c,a+4,a-123,a-13,a+14b,a-4,a+13d,a0'.split(',').sort(smartStrCompare).join(','),
-      'a-123,a-13,a-4,a+4,a+13c,a+13d,a+14b,a+123,a0'
-    );
+    expect(
+      'a+123,a+13c,a+4,a-123,a-13,a+14b,a-4,a+13d,a0'.split(',').sort(smartStrCompare).join(',')
+    ).toEqual('a-123,a-13,a-4,a+4,a+13c,a+13d,a+14b,a+123,a0');
 
     // test upper lower case
-    assert.equal('aAA,AaA,aCa,AAa,aAa,AAB'.split(',').sort(smartStrCompare).join(','), 'AAa,AaA,aAA,aAa,AAB,aCa');
+    expect('aAA,AaA,aCa,AAa,aAa,AAB'.split(',').sort(smartStrCompare).join(',')).toEqual('AAa,AaA,aAA,aAa,AAB,aCa');
   });
 
   it('getTailingNumber', function () {
-    assert.equal(getTailingNumber('1'), 1);
-    assert.equal(getTailingNumber('a02'), 2);
-    assert.equal(getTailingNumber('a'), -1);
+    expect(getTailingNumber('1')).toEqual(1);
+    expect(getTailingNumber('a02')).toEqual(2);
+    expect(getTailingNumber('a')).toEqual(-1);
   });
 
   it('getPreNumber', function () {
-    assert.equal(getPreNumber('1'), '');
-    assert.equal(getPreNumber('a02'), 'a');
-    assert.equal(getPreNumber('a'), null);
+    expect(getPreNumber('1')).toEqual('');
+    expect(getPreNumber('a02')).toEqual('a');
+    expect(getPreNumber('a')).toEqual(null);
   });
 
   it('isColor', function () {
-    assert.isTrue(isColorStr('#aaa'));
-    assert.isTrue(isColorStr('#FFFFFFFF'));
-    assert.isTrue(isColorStr('rgb(1, 2, 3)'));
-    assert.isTrue(isColorStr('rgba(1,2,3,0.5)'));
+    expect(isColorStr('#aaa')).toBe(true);
+    expect(isColorStr('#FFFFFFFF')).toBe(true);
+    expect(isColorStr('rgb(1, 2, 3)')).toBe(true);
+    expect(isColorStr('rgba(1,2,3,0.5)')).toBe(true);
 
-    assert.isFalse(isColorStr(' #aaa'));
-    assert.isFalse(isColorStr('rgb()'));
+    expect(isColorStr(' #aaa')).toBe(false);
+    expect(isColorStr('rgb()')).toBe(false);
   });
 
   it('encodeTicloName', function () {
-    assert.equal(encodeTicloName('.'), '%2e');
+    expect(encodeTicloName('.')).toEqual('%2e');
     // invalid input
-    assert.equal(encodeTicloName('\0'), '');
+    expect(encodeTicloName('\0')).toEqual('');
   });
 
   it('getDisplayName', function () {
-    assert.equal(getDisplayName('.', 'a'), 'a');
-    assert.equal(getDisplayName('b', null), 'b');
-    assert.equal(getDisplayName('%20', null), ' ');
-    assert.equal(getDisplayName('%20%', null), '%20%');
+    expect(getDisplayName('.', 'a')).toEqual('a');
+    expect(getDisplayName('b', null)).toEqual('b');
+    expect(getDisplayName('%20', null)).toEqual(' ');
+    expect(getDisplayName('%20%', null)).toEqual('%20%');
   });
 
   it('nameFromPath', function () {
-    assert.equal(nameFromPath(null), null);
-    assert.equal(nameFromPath('a'), 'a');
-    assert.equal(nameFromPath('a.b'), 'b');
+    expect(nameFromPath(null)).toEqual(null);
+    expect(nameFromPath('a')).toEqual('a');
+    expect(nameFromPath('a.b')).toEqual('b');
   });
 });

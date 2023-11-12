@@ -1,4 +1,4 @@
-import {assert} from 'chai';
+import expect from 'expect';
 import SimulateEvent from 'simulate-event';
 import React from 'react';
 import {removeLastTemplate, loadTemplate, querySingle, expandDocumentBody} from '../../../util/test-util';

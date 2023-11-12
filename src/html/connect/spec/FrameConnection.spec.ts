@@ -1,4 +1,4 @@
-import {assert} from 'chai';
+import expect from 'expect';
 import {Block, Root} from '../../../../src/core';
 import {AsyncClientPromise} from '../../../core/connect/spec/AsyncClientPromise';
 import {FrameServerConnection} from '../FrameServerConnection';
@@ -16,7 +16,7 @@ describe('FrameConnection', function () {
     let subcallbacks = new AsyncClientPromise();
     client.subscribe('FrameConnect1.a', subcallbacks);
     let result = await subcallbacks.promise;
-    assert.equal(result.cache.value, 1);
+    expect(result.cache.value).toEqual(1);
 
     // clean up
     subcallbacks.cancel();

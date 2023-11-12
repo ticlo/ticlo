@@ -1,4 +1,4 @@
-import {assert} from 'chai';
+import expect from 'expect';
 import '../CreateObject';
 import {Block} from '../../../block/Block';
 import {Flow, Root} from '../../../block/Flow';
@@ -19,7 +19,7 @@ describe('CreateObject', function () {
 
     Root.run();
 
-    assert.deepEqual(aBlock.getValue('#output'), {v: 12});
+    expect(aBlock.getValue('#output')).toEqual({v: 12});
   });
 
   it('extend', function () {
@@ -35,11 +35,11 @@ describe('CreateObject', function () {
     });
 
     Root.run();
-    assert.deepEqual(aBlock.getValue('#output'), {v: 13, t: 1});
+    expect(aBlock.getValue('#output')).toEqual({v: 13, t: 1});
 
     aBlock.setValue('#custom', [{name: 'u', type: 'number'}]);
     Root.run();
-    assert.deepEqual(aBlock.getValue('#output'), {v: 0, t: 1, u: 14});
+    expect(aBlock.getValue('#output')).toEqual({v: 0, t: 1, u: 14});
   });
 
   it('array', function () {
@@ -68,6 +68,6 @@ describe('CreateObject', function () {
 
     Root.run();
 
-    assert.deepEqual(aBlock.getValue('#output'), {v: [1, 2, undefined], g: [{a: 3, b: undefined}]});
+    expect(aBlock.getValue('#output')).toEqual({v: [1, 2, undefined], g: [{a: 3, b: undefined}]});
   });
 });

@@ -1,4 +1,4 @@
-import {assert} from 'chai';
+import expect from 'expect';
 import {encode, decode, encodeDisplay} from '../Serialize';
 import moment from 'moment';
 
@@ -7,13 +7,13 @@ describe('Serialize', function () {
     let iso8601 = '2014-11-27T11:07:00.000-08:00';
     let str = `"\\u001bTs:${iso8601}"`;
     let time = moment.parseZone(iso8601);
-    assert.isTrue(time.isSame(decode(str)));
-    assert.equal(encode(time), str);
+    expect(time.isSame(decode(str))).toBe(true);
+    expect(encode(time)).toEqual(str);
   });
 
   it('encodeDisplay', function () {
-    assert.equal(encodeDisplay(NaN), 'NaN');
-    assert.equal(encodeDisplay(undefined), 'undefined');
-    assert.equal(encodeDisplay(-Infinity), '-Inf');
+    expect(encodeDisplay(NaN)).toEqual('NaN');
+    expect(encodeDisplay(undefined)).toEqual('undefined');
+    expect(encodeDisplay(-Infinity)).toEqual('-Inf');
   });
 });

@@ -1,4 +1,4 @@
-import {assert} from 'chai';
+import expect from 'expect';
 import {Block} from '../Block';
 import {Flow, Root} from '../Flow';
 import {PropDispatcher} from '../Dispatcher';
@@ -17,15 +17,15 @@ describe('Destroyed Block', function () {
 
       flow.setValue('a', null);
 
-      assert(block.isDestroyed(), 'block should be destroyed');
+      expect(block.isDestroyed()).toBeTruthy();
 
-      assert.throw(() => block.getProperty('a'));
-      assert.throw(() => block.setValue('a', 1));
-      assert.throw(() => block.updateValue('a', 1));
-      assert.throw(() => block.setBinding('a', 'b'));
-      assert.throw(() => block.output(1));
-      assert.throw(() => block.createBinding('##', propB));
-      assert.throw(() => block.watch(VoidListeners));
+      expect(() => block.getProperty('a')).toThrow();
+      expect(() => block.setValue('a', 1)).toThrow();
+      expect(() => block.updateValue('a', 1)).toThrow();
+      expect(() => block.setBinding('a', 'b')).toThrow();
+      expect(() => block.output(1)).toThrow();
+      expect(() => block.createBinding('##', propB)).toThrow();
+      expect(() => block.watch(VoidListeners)).toThrow();
 
       block.destroy(); // destroy twice should be safe
     }
@@ -40,12 +40,12 @@ describe('Destroyed Block', function () {
 
       flow.setValue('a', null);
 
-      assert(block.isDestroyed(), 'block should be destroyed');
+      expect(block.isDestroyed()).toBeTruthy();
 
-      assert.equal(block.getProperty('a'), voidProperty);
-      assert.equal(block.createBinding('##', propB), voidProperty);
-      assert.doesNotThrow(() => block.watch(VoidListeners));
-      assert.isNull(block._watchers);
+      expect(block.getProperty('a')).toEqual(voidProperty);
+      expect(block.createBinding('##', propB)).toEqual(voidProperty);
+      expect(() => block.watch(VoidListeners)).not.toThrow();
+      expect(block._watchers).toBeNull();
 
       block.destroy(); // destroy twice should be safe
     }

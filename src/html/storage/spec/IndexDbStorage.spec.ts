@@ -1,4 +1,4 @@
-import {assert} from 'chai';
+import expect from 'expect';
 import Fs from 'fs';
 import {Flow, Root, decode} from '../../../core';
 import {shouldHappen, shouldReject, waitTick} from '../../../core/util/test-util';
@@ -19,11 +19,11 @@ describe('IndexDbStorage', function () {
     flow.applyChange();
     await waitTick(20);
     let savedData: string = await db.get(STORE_NAME, 'flow1');
-    assert.equal(savedData, '{\n"#is": ""\n}');
+    expect(savedData).toEqual('{\n"#is": ""\n}');
 
     root.deleteFlow('flow1');
     await waitTick(20);
-    assert.isUndefined(await db.get(STORE_NAME, 'flow1'));
+    expect(await db.get(STORE_NAME, 'flow1')).not.toBeDefined();
 
     // overwrite multiple times
     flow = root.addFlow('flow2');
@@ -36,7 +36,7 @@ describe('IndexDbStorage', function () {
     flow.applyChange();
     await waitTick(20);
     let readResult = await storage.loadFlow('flow2');
-    assert.deepEqual(readResult, {'#is': '', 'value': 456});
+    expect(readResult).toEqual({'#is': '', 'value': 456});
 
     root.destroy();
   });
@@ -51,9 +51,9 @@ describe('IndexDbStorage', function () {
     let root = new Root();
     await root.setStorage(storage);
 
-    assert.equal(root.queryValue('flow5.value'), 321);
-    assert.equal(root.queryValue('flow5.subflow.value'), 321);
-    assert.deepEqual((root.getValue('flow5') as Flow).save(), flowData);
+    expect(root.queryValue('flow5.value')).toEqual(321);
+    expect(root.queryValue('flow5.subflow.value')).toEqual(321);
+    expect((root.getValue('flow5') as Flow).save()).toEqual(flowData);
 
     root.destroy();
   });

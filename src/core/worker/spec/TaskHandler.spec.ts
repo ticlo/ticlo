@@ -1,4 +1,4 @@
-import {assert} from 'chai';
+import expect from 'expect';
 import {Block} from '../../block/Block';
 import {Flow, Root} from '../../block/Flow';
 import '../../functions/math/Arithmetic';
@@ -72,7 +72,7 @@ describe('TaskHandlerFunction', function () {
 
     Root.runAll(2);
 
-    assert.deepEqual(TestTask.popLogs(), [2]);
+    expect(TestTask.popLogs()).toEqual([2]);
 
     // delete handler;
     flow.deleteValue('a');
@@ -93,7 +93,7 @@ describe('TaskHandlerFunction', function () {
 
     Root.run();
     await shouldHappen(() => TestTask.logs.length);
-    assert.deepEqual(TestTask.popLogs(), ['timeout']);
+    expect(TestTask.popLogs()).toEqual(['timeout']);
 
     // delete handler;
     flow.deleteValue('a');
@@ -114,7 +114,7 @@ describe('TaskHandlerFunction', function () {
     Root.run();
     aBlock.setValue('#cancel', {});
 
-    assert.deepEqual(TestTask.popLogs(), ['cancel']);
+    expect(TestTask.popLogs()).toEqual(['cancel']);
 
     // delete handler;
     flow.deleteValue('a');

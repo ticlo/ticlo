@@ -1,4 +1,4 @@
-import {assert} from 'chai';
+import expect from 'expect';
 import {Block} from '../Block';
 import {Flow, Root} from '../Flow';
 import {PropDispatcher} from '../Dispatcher';
@@ -9,26 +9,26 @@ describe('Block', function () {
     let flow = new Flow();
     flow.setValue('@a', 357);
     flow.setBinding('@b', '@a');
-    assert.equal(flow.getValue('@b'), 357, 'basic binding');
+    expect(flow.getValue('@b')).toEqual(357);
 
     let block = flow.createBlock('obj');
-    assert.equal(block instanceof Block, true, 'createBlock');
-    assert.equal(block, flow.getValue('obj'), 'get child block');
-    assert.isNull(flow.createBlock('obj'), 'can not create block twice');
+    expect(block instanceof Block).toEqual(true);
+    expect(block).toEqual(flow.getValue('obj'));
+    expect(flow.createBlock('obj')).toBeNull();
     // assert.equal(block.getValue(''), block, 'self property');
 
     block.setValue('@c', 468);
     flow.setBinding('@d', 'obj.@c');
-    assert.equal(flow.getValue('@d'), 468, 'path binding');
+    expect(flow.getValue('@d')).toEqual(468);
 
     block.setBinding('@e', '##.@b');
-    assert.equal(block.getValue('@e'), 357, 'parent binding');
+    expect(block.getValue('@e')).toEqual(357);
 
     block.setBinding('@f', '###.@a');
-    assert.equal(block.getValue('@f'), 357, 'flow binding');
+    expect(block.getValue('@f')).toEqual(357);
 
     flow.setBinding('@d', null);
-    assert.equal(flow.getValue('@d'), null, 'clear binding');
+    expect(flow.getValue('@d')).toBeUndefined();
   });
 
   it('query property', function () {
@@ -37,14 +37,14 @@ describe('Block', function () {
     let block2 = block1.createBlock('block2');
     block2.setValue('p1', 1);
 
-    assert.isTrue(flow.queryProperty('block3.p2', true) == null, 'query on non-exist block');
-    assert.equal(flow.queryValue('block1.block2.p1'), 1, 'query on existing property');
-    assert.isTrue(flow.queryProperty('block1.block2.p2') == null, 'query on non-exist property');
-    assert.isTrue(flow.queryProperty('block1.block2.p3', true) != null, 'query and create property');
+    expect(flow.queryProperty('block3.p2', true) == null).toBe(true);
+    expect(flow.queryValue('block1.block2.p1')).toEqual(1);
+    expect(flow.queryProperty('block1.block2.p2') == null).toBe(true);
+    expect(flow.queryProperty('block1.block2.p3', true) != null).toBe(true);
 
-    assert.equal(flow.queryValue('block1.block2.#'), block2, 'query self');
-    assert.equal(flow.queryValue('block1.block2.##'), block1, 'query parent');
-    assert.equal(flow.queryValue('block1.block2.###'), flow, 'query flow');
+    expect(flow.queryValue('block1.block2.#')).toEqual(block2);
+    expect(flow.queryValue('block1.block2.##')).toEqual(block1);
+    expect(flow.queryValue('block1.block2.###')).toEqual(flow);
   });
 
   it('destroy binding chain', function () {
@@ -54,18 +54,18 @@ describe('Block', function () {
     let block2 = flow.createBlock('block2');
     block2.setBinding('c', '##.block1.c');
 
-    assert.equal(block2.getValue('c'), block1c, 'setup binding chain');
+    expect(block2.getValue('c')).toEqual(block1c);
 
     flow.deleteValue('block1');
 
-    assert.equal(block2.getValue('c'), undefined, 'destroy binding chain');
+    expect(block2.getValue('c')).toEqual(undefined);
   });
 
   it('set same value', function () {
     let flow = new Flow();
     flow.updateValue('a', 1);
     flow.setValue('a', 1);
-    assert.equal(flow.getProperty('a')._saved, 1);
+    expect(flow.getProperty('a')._saved).toEqual(1);
   });
 
   it('update listener within listener', function () {
@@ -94,25 +94,25 @@ describe('Block', function () {
     };
     let binding1 = flow.createBinding('a', listener1);
     flow.setValue('a', 17);
-    assert.equal(listener2.value, 17, 'listener2 should be bound');
+    expect(listener2.value).toEqual(17);
     flow.setValue('a', 19);
-    assert.equal(listener2.value, 19);
-    assert.equal(listener1.value, 17, 'listener1 should be unbound');
+    expect(listener2.value).toEqual(19);
+    expect(listener1.value).toEqual(17);
   });
 
   it('misc', function () {
-    assert.isNull(Root.instance.save(), 'root can not be saved');
+    expect(Root.instance.save()).toBeNull();
 
-    assert.equal(Root.instance.getValue(''), Root.instance);
+    expect(Root.instance.getValue('')).toEqual(Root.instance);
 
     let flow = Root.instance.addFlow();
 
     let subflow = flow.createOutputBlock('sub');
     subflow._load({'#is': 'add', '0': 1, '1': 2});
     Root.run();
-    assert.equal(flow.queryValue('sub.#output'), 3, 'not load src directly in createOutputBloc, load sub flow later');
+    expect(flow.queryValue('sub.#output')).toEqual(3);
 
     Root.instance.deleteValue(flow._prop._name);
-    assert.isTrue(subflow.isDestroyed(), 'delete flow with auto assigned name');
+    expect(subflow.isDestroyed()).toBe(true);
   });
 });

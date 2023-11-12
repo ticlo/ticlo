@@ -1,5 +1,5 @@
-import {assert} from 'chai';
-import {TestAsyncFunctionPromise, TestFunctionRunner} from './TestFunction';
+import expect from 'expect';
+import {TestAsyncFunctionLog, TestAsyncFunctionPromise, TestFunctionRunner} from './TestFunction';
 import {Block} from '../Block';
 import {Flow, Root} from '../Flow';
 
@@ -22,24 +22,24 @@ describe('BlockMode', function () {
     block.setValue('input', {});
 
     Root.run();
-    assert.isEmpty(TestFunctionRunner.logs, 'manual mode should not trigger function');
+    expect(TestFunctionRunner.logs).toEqual([]);
 
     block.setValue('#call', {});
 
     Root.run();
-    assert.deepEqual(TestFunctionRunner.popLogs(), ['obj'], 'manual mode should trigger block when called');
+    expect(TestFunctionRunner.popLogs()).toEqual(['obj']);
 
     block.setValue('#mode', 'onChange');
     Root.run();
-    assert.deepEqual(TestFunctionRunner.logs, [], 'change mode to onChange should not trigger function');
+    expect(TestFunctionRunner.logs).toEqual([]);
 
     block.setValue('#mode', 'onLoad');
     Root.run();
-    assert.deepEqual(TestFunctionRunner.popLogs(), ['obj'], 'change mode to onLoad should trigger function');
+    expect(TestFunctionRunner.popLogs()).toEqual(['obj']);
 
     block.setValue('input', {});
     Root.run();
-    assert.deepEqual(TestFunctionRunner.popLogs(), ['obj'], 'auto mode should trigger block when io property changed');
+    expect(TestFunctionRunner.popLogs()).toEqual(['obj']);
   });
 
   it('block mode on load', function () {
@@ -74,14 +74,14 @@ describe('BlockMode', function () {
     b4.setValue('input', {});
 
     Root.run();
-    assert.deepEqual(TestFunctionRunner.popLogs(), ['b0', 'b1'], 'mode onLoad and onChange should be called');
+    expect(TestFunctionRunner.popLogs()).toEqual(['b0', 'b1']);
 
     let saved = flow.save();
     let flow2 = new Flow();
     flow2.load(saved);
 
     Root.run();
-    assert.deepEqual(TestFunctionRunner.logs, ['b0'], 'mode onLoad should be called after load');
+    expect(TestFunctionRunner.logs).toEqual(['b0']);
   });
 
   it('block mode on liveUpdate', function () {
@@ -99,7 +99,7 @@ describe('BlockMode', function () {
     b1.setValue('#is', 'test-runner');
     b1.setBinding('input', '##.b0.input');
     Root.run();
-    assert.deepEqual(TestFunctionRunner.popLogs(), ['b0', 'b1'], 'first snapshot');
+    expect(TestFunctionRunner.popLogs()).toEqual(['b0', 'b1']);
 
     let save1 = flow.save();
 
@@ -118,19 +118,19 @@ describe('BlockMode', function () {
     b3.setValue('input', 2);
 
     Root.run();
-    assert.deepEqual(TestFunctionRunner.popLogs(), ['b0', 'b1', 'b2', 'b3'], 'second snapshot');
+    expect(TestFunctionRunner.popLogs()).toEqual(['b0', 'b1', 'b2', 'b3']);
     let save2 = flow.save();
 
     flow.liveUpdate(save1);
     Root.run();
-    assert.deepEqual(TestFunctionRunner.logs, ['b0'], 'undo to first snapshot');
+    expect(TestFunctionRunner.logs).toEqual(['b0']);
     let save1New = flow.save();
-    assert.deepEqual(save1, save1New, 'saved data should be same after live update');
+    expect(save1).toEqual(save1New);
     TestFunctionRunner.clearLog();
 
     flow.liveUpdate(save2);
     Root.run();
-    assert.deepEqual(TestFunctionRunner.logs, ['b0', 'b2'], 'redo to second snapshot');
+    expect(TestFunctionRunner.logs).toEqual(['b0', 'b2']);
   });
 
   it('binding route change', function () {
@@ -141,7 +141,7 @@ describe('BlockMode', function () {
     block.setValue('#-log', 'obj');
     block.setValue('#is', 'test-runner');
     block.setBinding('#call', '#');
-    assert.equal(block.getValue('#call'), block);
+    expect(block.getValue('#call')).toEqual(block);
     Root.run();
     TestFunctionRunner.clearLog();
 
@@ -150,19 +150,19 @@ describe('BlockMode', function () {
     block.setBinding('@child', 'a');
     block.setBinding('#call', '@child.@parent');
     Root.run();
-    assert.equal(block.getValue('#call'), block);
-    assert.isEmpty(TestFunctionRunner.logs, 'change binding path but not value should not trigger function');
+    expect(block.getValue('#call')).toEqual(block);
+    expect(TestFunctionRunner.logs).toEqual([]);
 
     let blockB = block.createBlock('b');
     blockB.setBinding('@parent', '##');
     block.setBinding('@child', 'b');
     Root.run();
-    assert.equal(block.getValue('#call'), block);
-    assert.isEmpty(TestFunctionRunner.logs, 'change binding path but not value should not trigger function');
+    expect(block.getValue('#call')).toEqual(block);
+    expect(TestFunctionRunner.logs).toEqual([]);
 
     block.updateValue('@child', {'@parent': block});
     Root.run();
-    assert.equal(block.getValue('#call'), block);
-    assert.isEmpty(TestFunctionRunner.logs, 'change binding path but not value should not trigger function');
+    expect(block.getValue('#call')).toEqual(block);
+    expect(TestFunctionRunner.logs).toEqual([]);
   });
 });

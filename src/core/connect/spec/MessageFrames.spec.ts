@@ -1,4 +1,4 @@
-import {assert} from 'chai';
+import expect from 'expect';
 import {Root} from '../../block/Flow';
 import {makeLocalConnection} from '../LocalConnection';
 import {AsyncClientPromise} from './AsyncClientPromise';
@@ -18,8 +18,8 @@ describe('Connection Message Frames', function () {
 
     await shouldHappen(() => client.watchDesc('a100'));
 
-    assert.isTrue(client.watchDesc('a1000') != null, 'a1000 should be sent in the same batch as a100');
-    assert.isTrue(client.watchDesc('a3999') == null, 'a3999 should be sent in a later frame');
+    expect(client.watchDesc('a1000') != null).toBe(true);
+    expect(client.watchDesc('a3999') == null).toBe(true);
     await shouldHappen(() => client.watchDesc('a3999'), 500);
 
     addTestTypes('b', 4000);
@@ -31,6 +31,6 @@ describe('Connection Message Frames', function () {
     removeTestTypes('a', 4000);
     removeTestTypes('b', 4000);
 
-    assert.isTrue(Functions.getAllFunctionIds().length < 4000, 'removeTestType should clear up the map');
+    expect(Functions.getAllFunctionIds().length < 4000).toBe(true);
   });
 });

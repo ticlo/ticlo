@@ -1,53 +1,53 @@
-import {assert} from 'chai';
+import expect from 'expect';
 import {arrayEqual, deepEqual, shallowEqual} from '../Compare';
 
 describe('Compare', function () {
   it('arrayEqual', function () {
-    assert.isTrue(arrayEqual([1, 2], [1, 2]));
-    assert.isFalse(arrayEqual([1, 2], [2, 1]));
-    assert.isFalse(arrayEqual([1, 2], [1, 2, 3]));
-    assert.isFalse(arrayEqual([1, 2, 3], [1, 2]));
+    expect(arrayEqual([1, 2], [1, 2])).toBe(true);
+    expect(arrayEqual([1, 2], [2, 1])).toBe(false);
+    expect(arrayEqual([1, 2], [1, 2, 3])).toBe(false);
+    expect(arrayEqual([1, 2, 3], [1, 2])).toBe(false);
   });
 
   it('deepEqual', function () {
-    assert.isTrue(deepEqual(1, 1));
-    assert.isTrue(deepEqual(NaN, NaN));
-    assert.isTrue(deepEqual(undefined, undefined));
-    assert.isTrue(deepEqual('a', 'a'));
-    assert.isTrue(deepEqual(true, true));
-    assert.isTrue(deepEqual([1, 'a'], [1, 'a']));
-    assert.isTrue(deepEqual({a: 1}, {a: 1}));
+    expect(deepEqual(1, 1)).toBe(true);
+    expect(deepEqual(NaN, NaN)).toBe(true);
+    expect(deepEqual(undefined, undefined)).toBe(true);
+    expect(deepEqual('a', 'a')).toBe(true);
+    expect(deepEqual(true, true)).toBe(true);
+    expect(deepEqual([1, 'a'], [1, 'a'])).toBe(true);
+    expect(deepEqual({a: 1}, {a: 1})).toBe(true);
 
-    assert.isTrue(deepEqual({a: {aa: 1}, b: [2]}, {a: {aa: 1}, b: [2]}));
+    expect(deepEqual({a: {aa: 1}, b: [2]}, {a: {aa: 1}, b: [2]})).toBe(true);
 
-    assert.isFalse(deepEqual('a', 1));
-    assert.isFalse(deepEqual(null, undefined));
-    assert.isFalse(deepEqual([], {}));
-    assert.isFalse(deepEqual([1], [1, 1]));
-    assert.isFalse(deepEqual([1], [2]));
-    assert.isFalse(deepEqual({a: 1}, {a: 2}));
-    assert.isFalse(deepEqual({a: 1, b: 1}, {a: 1}));
-    assert.isFalse(deepEqual({a: 1}, {a: 1, b: undefined}));
+    expect(deepEqual('a', 1)).toBe(false);
+    expect(deepEqual(null, undefined)).toBe(false);
+    expect(deepEqual([], {})).toBe(false);
+    expect(deepEqual([1], [1, 1])).toBe(false);
+    expect(deepEqual([1], [2])).toBe(false);
+    expect(deepEqual({a: 1}, {a: 2})).toBe(false);
+    expect(deepEqual({a: 1, b: 1}, {a: 1})).toBe(false);
+    expect(deepEqual({a: 1}, {a: 1, b: undefined})).toBe(false);
   });
 
   it('shallowEqual', function () {
-    assert.isTrue(shallowEqual(1, 1));
-    assert.isTrue(shallowEqual(NaN, NaN));
-    assert.isTrue(shallowEqual(undefined, undefined));
-    assert.isTrue(shallowEqual('a', 'a'));
-    assert.isTrue(shallowEqual(true, true));
-    assert.isTrue(shallowEqual([1, 'a'], [1, 'a']));
-    assert.isTrue(shallowEqual({a: 1}, {a: 1}));
+    expect(shallowEqual(1, 1)).toBe(true);
+    expect(shallowEqual(NaN, NaN)).toBe(true);
+    expect(shallowEqual(undefined, undefined)).toBe(true);
+    expect(shallowEqual('a', 'a')).toBe(true);
+    expect(shallowEqual(true, true)).toBe(true);
+    expect(shallowEqual([1, 'a'], [1, 'a'])).toBe(true);
+    expect(shallowEqual({a: 1}, {a: 1})).toBe(true);
 
-    assert.isFalse(shallowEqual({a: {aa: 1}, b: [2]}, {a: {aa: 1}, b: [2]}));
+    expect(shallowEqual({a: {aa: 1}, b: [2]}, {a: {aa: 1}, b: [2]})).toBe(false);
 
-    assert.isFalse(shallowEqual('a', 1));
-    assert.isFalse(shallowEqual(null, undefined));
-    assert.isFalse(shallowEqual([], {}));
-    assert.isFalse(shallowEqual([1], [1, 1]));
-    assert.isFalse(shallowEqual([1], [2]));
-    assert.isFalse(shallowEqual({a: 1}, {a: 2}));
-    assert.isFalse(shallowEqual({a: 1, b: 1}, {a: 1}));
-    assert.isFalse(shallowEqual({a: 1}, {a: 1, b: undefined}));
+    expect(shallowEqual('a', 1)).toBe(false);
+    expect(shallowEqual(null, undefined)).toBe(false);
+    expect(shallowEqual([], {})).toBe(false);
+    expect(shallowEqual([1], [1, 1])).toBe(false);
+    expect(shallowEqual([1], [2])).toBe(false);
+    expect(shallowEqual({a: 1}, {a: 2})).toBe(false);
+    expect(shallowEqual({a: 1, b: 1}, {a: 1})).toBe(false);
+    expect(shallowEqual({a: 1}, {a: 1, b: undefined})).toBe(false);
   });
 });

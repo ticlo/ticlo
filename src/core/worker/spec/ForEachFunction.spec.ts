@@ -1,4 +1,4 @@
-import {assert} from 'chai';
+import expect from 'expect';
 import {Flow, Root} from '../../block/Flow';
 import {TestFunctionRunner} from '../../block/spec/TestFunction';
 import '../../functions/math/Arithmetic';
@@ -46,9 +46,9 @@ describe('ForEachFunction', function () {
     });
     Root.runAll(2);
 
-    assert.lengthOf(TestFunctionRunner.popLogs(), 3, 'worker run 3 times');
-    assert.deepEqual(bBlock.getValue('#output'), {obj1: {v: 2}, obj2: {v: 3}, obj3: {v: 4}});
-    assert.deepEqual(cBlock.getValue('#output'), {obj1: {v: 4}, obj2: {v: 6}, obj3: {v: 8}});
+    expect(TestFunctionRunner.popLogs().length).toBe(3);
+    expect(bBlock.getValue('#output')).toEqual({obj1: {v: 2}, obj2: {v: 3}, obj3: {v: 4}});
+    expect(cBlock.getValue('#output')).toEqual({obj1: {v: 4}, obj2: {v: 6}, obj3: {v: 8}});
 
     bBlock.updateValue('use', {
       '#is': '',
@@ -58,9 +58,9 @@ describe('ForEachFunction', function () {
       '#outputs': {'#is': '', '~v': '##.subtract.#output'},
     });
     Root.runAll(2);
-    assert.lengthOf(TestFunctionRunner.popLogs(), 3, 'worker run 3 times');
+    expect(TestFunctionRunner.popLogs().length).toBe(3);
 
-    assert.deepEqual(cBlock.getValue('#output'), {obj1: {v: -8}, obj2: {v: -6}, obj3: {v: -4}});
+    expect(cBlock.getValue('#output')).toEqual({obj1: {v: -8}, obj2: {v: -6}, obj3: {v: -4}});
 
     aBlock.deleteValue('obj2');
     let obj4 = aBlock.createBlock('obj4');
@@ -68,9 +68,9 @@ describe('ForEachFunction', function () {
     aBlock.updateValue('obj5', {v: 5});
 
     Root.runAll(2);
-    assert.lengthOf(TestFunctionRunner.popLogs(), 2, 'worker run twice on 2 change items');
+    expect(TestFunctionRunner.popLogs().length).toBe(2);
 
-    assert.deepEqual(cBlock.getValue('#output'), {
+    expect(cBlock.getValue('#output')).toEqual({
       obj1: {
         v: -8,
       },
@@ -90,9 +90,9 @@ describe('ForEachFunction', function () {
 
     Root.run();
 
-    assert.isUndefined(cBlock.getValue('#output'), 'output is removed when input is empty');
+    expect(cBlock.getValue('#output')).not.toBeDefined();
 
-    assert.isEmpty(TestFunctionRunner.logs, 'worker should not run after destroyed');
+    expect(TestFunctionRunner.logs).toEqual([]);
   });
 
   it('watch object', function () {
@@ -115,15 +115,15 @@ describe('ForEachFunction', function () {
     });
 
     Root.run();
-    assert.deepEqual(bBlock.getValue('#output'), {obj1: {v: 2}, obj2: {v: 3}});
+    expect(bBlock.getValue('#output')).toEqual({obj1: {v: 2}, obj2: {v: 3}});
 
     flow.updateValue('a', {obj3: {v: 3}, obj2: {v: 2}});
     Root.run();
-    assert.deepEqual(bBlock.getValue('#output'), {obj2: {v: 3}, obj3: {v: 4}});
+    expect(bBlock.getValue('#output')).toEqual({obj2: {v: 3}, obj3: {v: 4}});
 
     bBlock.setValue('#is', '');
-    assert.isUndefined(bBlock.getValue('#output'), 'destroy ForEachFunction');
-    assert.isUndefined(bBlock.getValue('#flow'), 'destroy ForEachFunction');
+    expect(bBlock.getValue('#output')).not.toBeDefined();
+    expect(bBlock.getValue('#flow')).not.toBeDefined();
   });
 
   it('foreach primitive types', function () {
@@ -150,19 +150,19 @@ describe('ForEachFunction', function () {
     });
 
     Root.run();
-    assert.deepEqual(bBlock.getValue('#output'), {v1: 2, v2: 3});
+    expect(bBlock.getValue('#output')).toEqual({v1: 2, v2: 3});
 
     aBlock.setValue('v3', 3);
     aBlock.deleteValue('v1');
 
     Root.run();
 
-    assert.deepEqual(bBlock.getValue('#output'), {v2: 3, v3: 4});
+    expect(bBlock.getValue('#output')).toEqual({v2: 3, v3: 4});
 
     flow.setValue('a', 1);
 
     Root.run();
-    assert.isUndefined(bBlock.getValue('#output'), 'clear output when input is no longer Object or Block');
+    expect(bBlock.getValue('#output')).not.toBeDefined();
   });
 
   it('clear foreach use', function () {
@@ -184,10 +184,10 @@ describe('ForEachFunction', function () {
     });
 
     Root.run();
-    assert.deepEqual(bBlock.getValue('#output'), {v1: 1});
+    expect(bBlock.getValue('#output')).toEqual({v1: 1});
 
     bBlock.setValue('use', null);
     Root.run();
-    assert.isUndefined(bBlock.getValue('#output'), 'clear output when use is invalid');
+    expect(bBlock.getValue('#output')).not.toBeDefined();
   });
 });

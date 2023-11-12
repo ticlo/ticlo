@@ -1,4 +1,4 @@
-import {assert} from 'chai';
+import expect from 'expect';
 import {Flow, Root} from '../../../block/Flow';
 import {JsFunction} from '../Js';
 import {Functions} from '../../../block/Functions';
@@ -20,11 +20,11 @@ describe('Js Type', function () {
     });
 
     Root.run();
-    assert.isUndefined(aBlock.getValue('out1'), 'no change yet');
+    expect(aBlock.getValue('out1')).not.toBeDefined();
     aBlock.setValue('#call', {});
 
     Root.run();
-    assert.equal(aBlock.getValue('out1'), 321, 'basic script output');
+    expect(aBlock.getValue('out1')).toEqual(321);
     Functions.clear('Js-type1');
   });
 
@@ -35,18 +35,18 @@ describe('Js Type', function () {
     aBlock.setValue('#is', 'Js-type2');
     JsFunction.registerType('this["out1"] = 1', {name: 'Js-type2'});
 
-    assert(aBlock._queued, 'script is _queued');
+    expect(aBlock._queued).toBeTruthy();
     Functions.clear('Js-type2');
     Root.run();
-    assert(!aBlock._queued, 'script is no longer _queued');
-    assert.isUndefined(aBlock.getValue('out1'), 'clear class after called');
+    expect(!aBlock._queued).toBeTruthy();
+    expect(aBlock.getValue('out1')).not.toBeDefined();
     Functions.clear('Js-type2');
   });
 
   it('invalid script', function () {
     let logger = new TestLogger(Logger.ERROR);
-    assert.isFalse(JsFunction.registerType('[[', {name: 'Js-type3'}));
-    assert.deepEqual(logger.logs, ['invalid script:\n[[']);
+    expect(JsFunction.registerType('[[', {name: 'Js-type3'})).toBe(false);
+    expect(logger.logs).toEqual(['invalid script:\n[[']);
     logger.cancel();
   });
 
@@ -55,7 +55,7 @@ describe('Js Type', function () {
 
     let aBlock = flow.createBlock('a');
     Functions.clear('');
-    assert.deepEqual(Functions.getDescToSend(''), [null, 0]);
-    assert.isUndefined(Functions.listen('', aBlock), 'listen without class name');
+    expect(Functions.getDescToSend('')).toEqual([null, 0]);
+    expect(Functions.listen('', aBlock)).not.toBeDefined();
   });
 });

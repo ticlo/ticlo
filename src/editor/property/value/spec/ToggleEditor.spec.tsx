@@ -1,4 +1,4 @@
-import {assert} from 'chai';
+import expect from 'expect';
 import SimulateEvent from 'simulate-event';
 import React from 'react';
 import {removeLastTemplate, loadTemplate, querySingle} from '../../../util/test-util';
@@ -31,7 +31,7 @@ describe('ToggleEditor', function () {
     let switchButton = div.querySelector('.ant-switch');
 
     SimulateEvent.simulate(switchButton, 'click');
-    assert.isTrue(value);
+    expect(value).toBe(true);
   });
 
   it('click to false', async function () {
@@ -48,7 +48,7 @@ describe('ToggleEditor', function () {
     let switchButton = div.querySelector('.ant-switch');
 
     SimulateEvent.simulate(switchButton, 'click');
-    assert.isFalse(value);
+    expect(value).toBe(false);
   });
 
   it('click to true string', async function () {
@@ -66,7 +66,7 @@ describe('ToggleEditor', function () {
     let switchButton = div.querySelector('.ant-switch');
 
     SimulateEvent.simulate(switchButton, 'click');
-    assert.equal(value, 'b');
+    expect(value).toEqual('b');
   });
 
   it('click to false string', async function () {
@@ -84,6 +84,6 @@ describe('ToggleEditor', function () {
     let switchButton = div.querySelector('.ant-switch');
 
     SimulateEvent.simulate(switchButton, 'click');
-    assert.equal(value, 'a');
+    expect(value).toEqual('a');
   });
 });

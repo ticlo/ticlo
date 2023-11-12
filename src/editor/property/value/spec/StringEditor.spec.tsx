@@ -1,4 +1,4 @@
-import {assert} from 'chai';
+import expect from 'expect';
 import SimulateEvent from 'simulate-event';
 import React from 'react';
 import {removeLastTemplate, loadTemplate, querySingle} from '../../../util/test-util';
@@ -35,31 +35,31 @@ describe('StringEditor', function () {
     await shouldHappen(() => editor && div.querySelector('textarea.ant-input'));
 
     simulateInput(editor, {key: 'A'}, 'A');
-    assert.isNull(value);
+    expect(value).toBeNull();
 
     simulateInput(editor, {key: 'Enter'}, null);
-    assert.equal(value, 'A');
+    expect(value).toEqual('A');
 
     // test shift key
     simulateInput(editor, {key: 'Enter', shiftKey: true, target: document.querySelector('textarea')}, 'A\n');
-    assert.equal(value, 'A');
+    expect(value).toEqual('A');
 
     simulateInput(editor, {key: 'Enter'}, null);
-    assert.equal(value, 'A\n');
+    expect(value).toEqual('A\n');
 
     // test escape key
     simulateInput(editor, {key: 'B'}, 'AB');
-    assert.equal(value, 'A\n');
+    expect(value).toEqual('A\n');
 
     simulateInput(editor, {key: 'Escape'}, null);
     simulateInput(editor, {key: 'Enter'}, null);
-    assert.equal(value, '1'); // blur back to the value from Props
+    expect(value).toEqual('1'); // blur back to the value from Props
 
     // onBlur
     simulateInput(editor, {key: 'C'}, 'ABC');
-    assert.notEqual(value, 'ABC');
+    expect(value).not.toEqual('ABC');
 
     editor.onBlur();
-    assert.equal(value, 'ABC');
+    expect(value).toEqual('ABC');
   });
 });

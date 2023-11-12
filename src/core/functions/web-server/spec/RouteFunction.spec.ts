@@ -1,4 +1,4 @@
-import {assert} from 'chai';
+import expect from 'expect';
 import '../RouteFunction';
 // tslint:disable-next-line:no-duplicate-imports
 import {RouteFunction} from '../RouteFunction';
@@ -40,7 +40,7 @@ describe('RouteFunction', function () {
     aBlock.setValue('path', '2');
     aBlock.setValue('server', null);
     aBlock.setValue('server', mockService);
-    assert.deepEqual(serviceLog, [
+    expect(serviceLog).toEqual([
       ['+', '1'],
       ['-', '1'],
       ['+', '2'],
@@ -49,7 +49,7 @@ describe('RouteFunction', function () {
     ]);
     serviceLog.length = 0;
     aBlock.setValue('#is', '');
-    assert.deepEqual(serviceLog, [['-', '2']]);
+    expect(serviceLog).toEqual([['-', '2']]);
   });
 
   it('method and contentType', function () {
@@ -58,18 +58,18 @@ describe('RouteFunction', function () {
     let aBlock = flow.createBlock('a');
     aBlock._load(getDefaultFuncData(Functions.getDescToSend('web-server:route')[0]));
 
-    assert.deepEqual(aBlock.getValue('method'), ['GET']);
-    assert.deepEqual(aBlock.getValue('contentType'), ['empty']);
+    expect(aBlock.getValue('method')).toEqual(['GET']);
+    expect(aBlock.getValue('contentType')).toEqual(['empty']);
 
     aBlock.setValue('method', null);
     aBlock.setValue('method', 1);
 
-    assert.deepEqual((aBlock._function as RouteFunction).methods, []);
+    expect((aBlock._function as RouteFunction).methods).toEqual([]);
 
     aBlock.setValue('contentType', null);
     aBlock.setValue('contentType', 1);
 
-    assert.deepEqual((aBlock._function as RouteFunction).contentTypes, []);
+    expect((aBlock._function as RouteFunction).contentTypes).toEqual([]);
   });
 
   it('emit', function () {
@@ -93,7 +93,7 @@ describe('RouteFunction', function () {
     let request = new HttpRequest({} as any);
     routeFunction.addRequest(request);
     Root.run();
-    assert.equal(aBlock.getValue('#emit'), request);
+    expect(aBlock.getValue('#emit')).toEqual(request);
   });
 
   it('edit worker', function () {
@@ -107,6 +107,6 @@ describe('RouteFunction', function () {
     let handler = flow.getValue('handler') as Block;
     FlowEditor.createFromField(handler, '#edit-use', 'use');
 
-    assert.deepEqual((handler.getValue('#edit-use') as Flow).save(), route.getDefaultWorker('#emit'));
+    expect((handler.getValue('#edit-use') as Flow).save()).toEqual(route.getDefaultWorker('#emit'));
   });
 });

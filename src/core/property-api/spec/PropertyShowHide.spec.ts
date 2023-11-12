@@ -1,4 +1,4 @@
-import {assert} from 'chai';
+import expect from 'expect';
 
 import {Flow, PropDesc, PropGroupDesc} from '../..';
 import {showProperties, hideProperties, moveShownProperty, hideGroupProperties} from '../PropertyShowHide';
@@ -10,19 +10,19 @@ describe('PropertyOrder', function () {
       '#is': 'add',
     });
     hideProperties(flow, ['@a']);
-    assert.isUndefined(flow.getValue('@b-p'));
+    expect(flow.getValue('@b-p')).not.toBeDefined();
 
     showProperties(flow, ['@a']);
-    assert.deepEqual(flow.getValue('@b-p'), ['@a']);
+    expect(flow.getValue('@b-p')).toEqual(['@a']);
 
     showProperties(flow, ['@a']);
-    assert.deepEqual(flow.getValue('@b-p'), ['@a']);
+    expect(flow.getValue('@b-p')).toEqual(['@a']);
 
     hideProperties(flow, ['@b']); // remove a property not in the list
-    assert.deepEqual(flow.getValue('@b-p'), ['@a']); // no change
+    expect(flow.getValue('@b-p')).toEqual(['@a']); // no change
 
     hideProperties(flow, ['@a']);
-    assert.isUndefined(flow.getValue('@b-p'));
+    expect(flow.getValue('@b-p')).not.toBeDefined();
   });
 
   it('show hide Properties with order', function () {
@@ -37,13 +37,13 @@ describe('PropertyOrder', function () {
     });
 
     showProperties(aBlock, ['#call', '1', 'bb']);
-    assert.deepEqual(aBlock.getValue('@b-p'), ['#call', '1', 'bb']);
+    expect(aBlock.getValue('@b-p')).toEqual(['#call', '1', 'bb']);
 
     showProperties(aBlock, ['1', '@a', 'aa', '#is', '5', '0']);
-    assert.deepEqual(aBlock.getValue('@b-p'), ['#is', '#call', '0', '1', 'aa', 'bb', '@a', '5']);
+    expect(aBlock.getValue('@b-p')).toEqual(['#is', '#call', '0', '1', 'aa', 'bb', '@a', '5']);
 
     hideProperties(aBlock, ['aa', '1', '@a', '@b']);
-    assert.deepEqual(aBlock.getValue('@b-p'), ['#is', '#call', '0', 'bb', '5']);
+    expect(aBlock.getValue('@b-p')).toEqual(['#is', '#call', '0', 'bb', '5']);
   });
 
   it('hideGroupProperties', function () {
@@ -58,7 +58,7 @@ describe('PropertyOrder', function () {
 
     hideGroupProperties(flow, descG);
     hideGroupProperties(flow, descG, 'a');
-    assert.isUndefined(flow.getValue('@b-p'));
+    expect(flow.getValue('@b-p')).not.toBeDefined();
 
     flow.load({
       '#is': 'add',
@@ -66,28 +66,28 @@ describe('PropertyOrder', function () {
     });
 
     hideGroupProperties(flow, descG, 'b');
-    assert.deepEqual(flow.getValue('@b-p'), ['a', 'a1', 'b', 'a02']);
+    expect(flow.getValue('@b-p')).toEqual(['a', 'a1', 'b', 'a02']);
 
     hideGroupProperties(flow, descG);
-    assert.deepEqual(flow.getValue('@b-p'), ['a', 'b']);
+    expect(flow.getValue('@b-p')).toEqual(['a', 'b']);
   });
 
   it('moveShownProperty', function () {
     let flow = new Flow();
 
     moveShownProperty(flow, 'a', 'b');
-    assert.isUndefined(flow.getValue('@b-p'));
+    expect(flow.getValue('@b-p')).not.toBeDefined();
 
     showProperties(flow, ['a', 'b', 'c']);
-    assert.deepEqual(flow.getValue('@b-p'), ['a', 'b', 'c']);
+    expect(flow.getValue('@b-p')).toEqual(['a', 'b', 'c']);
 
     moveShownProperty(flow, 'a', 'b');
-    assert.deepEqual(flow.getValue('@b-p'), ['b', 'a', 'c']);
+    expect(flow.getValue('@b-p')).toEqual(['b', 'a', 'c']);
 
     moveShownProperty(flow, 'a', 'b');
-    assert.deepEqual(flow.getValue('@b-p'), ['a', 'b', 'c']);
+    expect(flow.getValue('@b-p')).toEqual(['a', 'b', 'c']);
 
     moveShownProperty(flow, 'a', 'a');
-    assert.deepEqual(flow.getValue('@b-p'), ['a', 'b', 'c']);
+    expect(flow.getValue('@b-p')).toEqual(['a', 'b', 'c']);
   });
 });

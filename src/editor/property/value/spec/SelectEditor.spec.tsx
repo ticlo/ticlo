@@ -1,4 +1,4 @@
-import {assert} from 'chai';
+import expect from 'expect';
 import SimulateEvent from 'simulate-event';
 import React from 'react';
 import {
@@ -47,7 +47,7 @@ describe('SelectEditor', function () {
       'click'
     );
 
-    assert.equal(value, 'b');
+    expect(value).toEqual('b');
   });
 
   it('multi-select', async function () {
@@ -72,7 +72,7 @@ describe('SelectEditor', function () {
       'click'
     );
 
-    assert.deepEqual(value, ['a', 'b']);
+    expect(value).toEqual(['a', 'b']);
 
     await waitTick();
   });

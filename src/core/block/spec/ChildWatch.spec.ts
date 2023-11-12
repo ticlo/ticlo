@@ -1,4 +1,4 @@
-import {assert} from 'chai';
+import expect from 'expect';
 import {Flow} from '../Flow';
 import {BlockIO} from '../BlockProperty';
 
@@ -15,27 +15,27 @@ describe('Block Child Watch', function () {
     flow.watch(watch);
 
     flow.createBlock('a');
-    assert.deepEqual(watchLog, [['a', true, true]], 'new block');
+    expect(watchLog).toEqual([['a', true, true]]);
     watchLog = [];
 
     flow.createOutputBlock('a');
-    assert.deepEqual(watchLog, [['a', true, false]], 'replace with temp block');
+    expect(watchLog).toEqual([['a', true, false]]);
     watchLog = [];
 
     flow.createBlock('a');
-    assert.deepEqual(watchLog, [['a', true, true]], 'replace with normal block');
+    expect(watchLog).toEqual([['a', true, true]]);
     watchLog = [];
 
     flow.setValue('a', null);
-    assert.deepEqual(watchLog, [['a', false, true]], 'remove block');
+    expect(watchLog).toEqual([['a', false, true]]);
     watchLog = [];
 
     flow.createOutputBlock('a');
-    assert.deepEqual(watchLog, [['a', true, false]], 'new temp block');
+    expect(watchLog).toEqual([['a', true, false]]);
     watchLog = [];
 
     flow.setBinding('a', 'b');
-    assert.deepEqual(watchLog, [['a', false, false]], 'remove block with binding');
+    expect(watchLog).toEqual([['a', false, false]]);
     watchLog = [];
   });
 });

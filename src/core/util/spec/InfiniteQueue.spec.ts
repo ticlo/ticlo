@@ -1,4 +1,4 @@
-import {assert} from 'chai';
+import expect from 'expect';
 import {InfiniteQueue} from '../InfiniteQueue';
 
 describe('InfiniteQueue', function () {
@@ -6,28 +6,28 @@ describe('InfiniteQueue', function () {
     let q = new InfiniteQueue();
 
     q.push(1);
-    assert.equal(q.total, 1);
+    expect(q.total).toEqual(1);
     q.push(2);
-    assert.equal(q.total, 2);
-    assert.equal(q.newSlot(), 2);
+    expect(q.total).toEqual(2);
+    expect(q.newSlot()).toEqual(2);
 
     q.shift();
-    assert.equal(q.from, 1);
-    assert.equal(q.total, 3);
-    assert.equal(q.at(1), 2);
+    expect(q.from).toEqual(1);
+    expect(q.total).toEqual(3);
+    expect(q.at(1)).toEqual(2);
     q.setAt(2, 3);
-    assert.equal(q.at(2), 3);
+    expect(q.at(2)).toEqual(3);
 
     q.clear();
-    assert.equal(q.from, 0);
-    assert.equal(q.total, 0);
+    expect(q.from).toEqual(0);
+    expect(q.total).toEqual(0);
 
     // invalid shift should not change from
     q.shift();
-    assert.equal(q.from, 0);
+    expect(q.from).toEqual(0);
 
-    assert.throw(() => q.setAt(0.1, 0));
-    assert.throw(() => q.setAt(2, 0));
-    assert.throw(() => q.setAt(-2, 0));
+    expect(() => q.setAt(0.1, 0)).toThrow();
+    expect(() => q.setAt(2, 0)).toThrow();
+    expect(() => q.setAt(-2, 0)).toThrow();
   });
 });

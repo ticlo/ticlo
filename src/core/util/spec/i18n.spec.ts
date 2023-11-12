@@ -1,4 +1,4 @@
-import {assert} from 'chai';
+import expect from 'expect';
 import * as i18n from '../i18n';
 import i18next from 'i18next';
 
@@ -16,21 +16,21 @@ describe('i18n', function () {
   });
 
   it('class name', function () {
-    assert.equal(i18n.translateFunction(null), '');
-    assert.equal(i18n.translateFunction('aaa', 'aaa'), 'aaa');
+    expect(i18n.translateFunction(null)).toEqual('');
+    expect(i18n.translateFunction('aaa', 'aaa')).toEqual('aaa');
 
-    assert.equal(i18n.translateFunction(null, null, 'testi18n'), '');
-    assert.equal(i18n.translateFunction('aaa', 'aaa', 'testi18n'), 'AAA');
+    expect(i18n.translateFunction(null, null, 'testi18n')).toEqual('');
+    expect(i18n.translateFunction('aaa', 'aaa', 'testi18n')).toEqual('AAA');
   });
 
   it('property name', function () {
-    assert.equal(i18n.translateProperty('aaa', ''), '');
-    assert.equal(i18n.translateProperty('', 'bbb'), 'bbb');
+    expect(i18n.translateProperty('aaa', '')).toEqual('');
+    expect(i18n.translateProperty('', 'bbb')).toEqual('bbb');
 
-    assert.equal(i18n.translateProperty('aaa', 'bbb'), 'bbb');
-    assert.equal(i18n.translateProperty('aaa', 'bbb1'), 'bbb1');
+    expect(i18n.translateProperty('aaa', 'bbb')).toEqual('bbb');
+    expect(i18n.translateProperty('aaa', 'bbb1')).toEqual('bbb1');
 
-    assert.equal(i18n.translateProperty('aaa', 'bbb', 'testi18n'), 'BBB');
-    assert.equal(i18n.translateProperty('aaa', 'bbb1', 'testi18n'), 'BBB1');
+    expect(i18n.translateProperty('aaa', 'bbb', 'testi18n')).toEqual('BBB');
+    expect(i18n.translateProperty('aaa', 'bbb1', 'testi18n')).toEqual('BBB1');
   });
 });

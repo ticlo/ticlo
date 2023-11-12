@@ -1,4 +1,4 @@
-import {assert} from 'chai';
+import expect from 'expect';
 import {getRelativePath, resolvePath, forAllPathsBetween} from '../Path';
 import {WorkerFunction} from '../../worker/WorkerFunction';
 import {Root} from '../../block/Flow';
@@ -7,18 +7,18 @@ import {propRelative} from '../PropPath';
 
 describe('Path', function () {
   it('resolve', function () {
-    assert.equal(resolvePath('a', 'b'), 'a.b');
-    assert.equal(resolvePath('c.d.e', '##.f'), 'c.d.f');
-    assert.equal(resolvePath('g.h', '#.i'), 'g.h.i');
-    assert.equal(resolvePath('j', '##.##.k'), '##.k');
-    assert.equal(resolvePath('l', '###.m'), '###.m');
-    assert.equal(resolvePath('n', null), null);
+    expect(resolvePath('a', 'b')).toEqual('a.b');
+    expect(resolvePath('c.d.e', '##.f')).toEqual('c.d.f');
+    expect(resolvePath('g.h', '#.i')).toEqual('g.h.i');
+    expect(resolvePath('j', '##.##.k')).toEqual('##.k');
+    expect(resolvePath('l', '###.m')).toEqual('###.m');
+    expect(resolvePath('n', null)).toEqual(null);
   });
 
   it('relative', function () {
-    assert.equal(getRelativePath('a', 'a'), '');
+    expect(getRelativePath('a', 'a')).toEqual('');
 
-    assert.equal(getRelativePath('b.c', 'b.d'), '##.d');
+    expect(getRelativePath('b.c', 'b.d')).toEqual('##.d');
   });
 
   it('forAllPathsBetween', function () {
@@ -28,9 +28,9 @@ describe('Path', function () {
       return result;
     }
 
-    assert.deepEqual(getAllPathBetween('a.b', 'c.d'), [], 'unrelated paths');
-    assert.deepEqual(getAllPathBetween('e.f', 'e.f'), ['e.f'], 'same path');
-    assert.deepEqual(getAllPathBetween('g.h.i.j.k', 'g.h'), ['g.h.i.j.k', 'g.h.i.j', 'g.h.i']);
+    expect(getAllPathBetween('a.b', 'c.d')).toEqual([]);
+    expect(getAllPathBetween('e.f', 'e.f')).toEqual(['e.f']);
+    expect(getAllPathBetween('g.h.i.j.k', 'g.h')).toEqual(['g.h.i.j.k', 'g.h.i.j', 'g.h.i']);
   });
 
   it('propRelative', async function () {
@@ -80,40 +80,39 @@ describe('Path', function () {
     Root.run();
 
     // same flow
-    assert.equal(propRelative(flow1.queryValue('c.e'), flow1.queryProperty('c.e.v', true)), 'v');
-    assert.equal(propRelative(flow1.queryValue('c.e'), flow1.queryProperty('c.d.v', true)), '##.d.v');
-    assert.equal(propRelative(flow1.queryValue('c.e'), flow1.queryProperty('f.v', true)), '###.f.v');
-    assert.equal(propRelative(flow1.queryValue('c'), flow1.queryProperty('f.v', true)), '##.f.v');
-    assert.equal(
-      propRelative(flow1.queryValue('f.~g'), flow1.queryProperty('c.v', true)),
-      '##.##.c.v',
-      'helper block should use ##'
-    );
+    expect(propRelative(flow1.queryValue('c.e'), flow1.queryProperty('c.e.v', true))).toEqual('v');
+    expect(propRelative(flow1.queryValue('c.e'), flow1.queryProperty('c.d.v', true))).toEqual('##.d.v');
+    expect(propRelative(flow1.queryValue('c.e'), flow1.queryProperty('f.v', true))).toEqual('###.f.v');
+    expect(propRelative(flow1.queryValue('c'), flow1.queryProperty('f.v', true))).toEqual('##.f.v');
+    expect(propRelative(flow1.queryValue('f.~g'), flow1.queryProperty('c.v', true))).toEqual('##.##.c.v');
 
     // different flow
-    assert.equal(propRelative(flow1.queryValue('c'), flow2.queryProperty('o.v', true)), '###.##.PropRelative2.o.v');
-    assert.equal(propRelative(flow1.queryValue('c.d.#flow.A'), flow1.queryProperty('c.v', true)), '###.##.##.v');
-    assert.equal(propRelative(flow1.queryValue('c'), flow1.queryProperty('c.d.#flow.A.v', true)), 'd.#flow.A.v');
-    assert.equal(propRelative(flow1.queryValue('f'), flow1.queryProperty('c.d.#flow.A.v', true)), '##.c.d.#flow.A.v');
-    assert.equal(
-      propRelative(flow1.queryValue('f.h'), flow1.queryProperty('c.d.#flow.A.v', true)),
-      '###.c.d.#flow.A.v'
-    );
-    assert.equal(
-      propRelative(flow1.queryValue('c.d.#flow.A'), flow1.queryProperty('f.h.#flow.A.v', true)),
-      '###.##.###.f.h.#flow.A.v'
-    );
-    assert.equal(
-      propRelative(flow1.queryValue('c.d.#flow.A'), flow1.queryProperty('c.d.#flow.A.B.#flow.C.v', true)),
-      'B.#flow.C.v'
-    );
+    expect(propRelative(flow1.queryValue('c'), flow2.queryProperty('o.v', true))).toEqual('###.##.PropRelative2.o.v');
+    expect(
+      propRelative(flow1.queryValue('c.d.#flow.A'), flow1.queryProperty('c.v', true))
+    ).toEqual('###.##.##.v');
+    expect(
+      propRelative(flow1.queryValue('c'), flow1.queryProperty('c.d.#flow.A.v', true))
+    ).toEqual('d.#flow.A.v');
+    expect(
+      propRelative(flow1.queryValue('f'), flow1.queryProperty('c.d.#flow.A.v', true))
+    ).toEqual('##.c.d.#flow.A.v');
+    expect(
+      propRelative(flow1.queryValue('f.h'), flow1.queryProperty('c.d.#flow.A.v', true))
+    ).toEqual('###.c.d.#flow.A.v');
+    expect(
+      propRelative(flow1.queryValue('c.d.#flow.A'), flow1.queryProperty('f.h.#flow.A.v', true))
+    ).toEqual('###.##.###.f.h.#flow.A.v');
+    expect(
+      propRelative(flow1.queryValue('c.d.#flow.A'), flow1.queryProperty('c.d.#flow.A.B.#flow.C.v', true))
+    ).toEqual('B.#flow.C.v');
 
     let flow11 = Root.instance.addFlow('PropRelative1.1');
     let flow111 = Root.instance.addFlow('PropRelative1.1.1');
     let flow1c1 = Root.instance.addFlow('PropRelative1.c.1');
 
-    assert.equal(propRelative(flow1.queryValue('1.1'), flow1.queryProperty('v', true)), '##.###.##.v');
-    assert.equal(propRelative(flow1.queryValue('c.1'), flow1.queryProperty('v', true)), '##.###.v');
+    expect(propRelative(flow1.queryValue('1.1'), flow1.queryProperty('v', true))).toEqual('##.###.##.v');
+    expect(propRelative(flow1.queryValue('c.1'), flow1.queryProperty('v', true))).toEqual('##.###.v');
 
     Root.instance.deleteValue('PropRelative1');
     Root.instance.deleteValue('PropRelative2');

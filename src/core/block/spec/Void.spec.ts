@@ -1,4 +1,4 @@
-import {assert} from 'chai';
+import expect from 'expect';
 import {voidProperty} from '../Void';
 
 import {Flow, Root} from '../Flow';
@@ -10,27 +10,27 @@ import {_strictMode} from '../BlockSettings';
 describe('VoidProperty', function () {
   it('basic', function () {
     voidProperty.setValue(1);
-    assert.isUndefined(voidProperty.getValue(), 'void property never change value');
+    expect(voidProperty.getValue()).not.toBeDefined();
     voidProperty.updateValue(2);
     voidProperty.setBinding('a');
-    assert.isUndefined(voidProperty.getValue(), 'void property never change value');
+    expect(voidProperty.getValue()).not.toBeDefined();
 
     voidProperty.listen(VoidListeners);
-    assert.isEmpty(voidProperty._listeners, 'void property wont listen');
+    expect(voidProperty._listeners).toEqual(new Set());
 
     voidProperty.subscribe(VoidListeners);
-    assert.isUndefined(voidProperty._subscribers, 'void property wont subscribe');
+    expect(voidProperty._subscribers).not.toBeDefined();
 
     if (_strictMode) {
-      assert.throw(() => voidProperty._saveValue(), 'Can not save destroyed property');
-      assert.throw(() => voidProperty._load({}), 'Can not load destroyed property');
-      assert.throw(() => voidProperty._liveUpdate({}), 'Can not liveUpdate destroyed property');
+      expect(() => voidProperty._saveValue()).toThrow();
+      expect(() => voidProperty._load({})).toThrow();
+      expect(() => voidProperty._liveUpdate({})).toThrow();
     } else {
-      assert.isUndefined(voidProperty._saveValue());
+      expect(voidProperty._saveValue()).not.toBeDefined();
       voidProperty._load(123);
-      assert.isUndefined(voidProperty.getValue());
+      expect(voidProperty.getValue()).not.toBeDefined();
       voidProperty._liveUpdate('123');
-      assert.isUndefined(voidProperty.getValue());
+      expect(voidProperty.getValue()).not.toBeDefined();
     }
   });
 });

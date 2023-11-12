@@ -1,4 +1,4 @@
-import {assert} from 'chai';
+import expect from 'expect';
 import {Root} from '../../../core/block/Flow';
 import {AsyncClientPromise} from '../../../core/connect/spec/AsyncClientPromise';
 import {shouldHappen, shouldReject} from '../../../core/util/test-util';
@@ -34,7 +34,7 @@ describe('WsConnect', function () {
     let subcallbacks = new AsyncClientPromise();
     client.subscribe('WsConnect1.a', subcallbacks);
     let result = await subcallbacks.promise;
-    assert.equal(result.cache.value, 1);
+    expect(result.cache.value).toEqual(1);
 
     let setcallbacks = new AsyncClientPromise();
     client.setValue('WsConnect1.a', 3, setcallbacks);
@@ -47,9 +47,9 @@ describe('WsConnect', function () {
 
     flow.setValue('a', 2);
     result = await subcallbacks.promise;
-    assert.equal(result.cache.value, 2);
-    assert.isNull(result.cache.bindingPath);
-    assert.isNull(result.change.bindingPath);
+    expect(result.cache.value).toEqual(2);
+    expect(result.cache.bindingPath).toBeNull();
+    expect(result.change.bindingPath).toBeNull();
 
     // clean up
     subcallbacks.cancel();
@@ -63,8 +63,8 @@ describe('WsConnect', function () {
 
     await shouldHappen(() => client.watchDesc('A100'));
 
-    assert.isTrue(client.watchDesc('A1000') != null, 'A1000 should be sent in the same batch as A100');
-    assert.isTrue(client.watchDesc('A3999') == null, 'A3999 should be sent in a later frame');
+    expect(client.watchDesc('A1000') != null).toBe(true);
+    expect(client.watchDesc('A3999') == null).toBe(true);
     await shouldHappen(() => client.watchDesc('A3999'), 2500);
 
     addTestTypes('B', 4000);

@@ -1,4 +1,4 @@
-import {assert} from 'chai';
+import expect from 'expect';
 
 import {addOptionalProperty, moveOptionalProperty, removeOptionalProperty} from '../OptionalProperty';
 import {Flow} from '../../block/Flow';
@@ -9,49 +9,49 @@ describe('Optional Property', function () {
 
     // remove should do nothing when #optional is undefined
     removeOptionalProperty(flow, 'a');
-    assert.isUndefined(flow.getValue('#optional'));
+    expect(flow.getValue('#optional')).not.toBeDefined();
 
     addOptionalProperty(flow, 'a');
-    assert.deepEqual(flow.getValue('#optional'), ['a']);
-    assert.deepEqual(flow.getValue('@b-p'), ['a']);
+    expect(flow.getValue('#optional')).toEqual(['a']);
+    expect(flow.getValue('@b-p')).toEqual(['a']);
 
     addOptionalProperty(flow, 'b');
-    assert.deepEqual(flow.getValue('#optional'), ['a', 'b']);
-    assert.deepEqual(flow.getValue('@b-p'), ['a', 'b']);
+    expect(flow.getValue('#optional')).toEqual(['a', 'b']);
+    expect(flow.getValue('@b-p')).toEqual(['a', 'b']);
 
     // when prop name is same
     addOptionalProperty(flow, 'a');
-    assert.deepEqual(flow.getValue('#optional'), ['a', 'b']);
+    expect(flow.getValue('#optional')).toEqual(['a', 'b']);
 
     removeOptionalProperty(flow, 'b');
-    assert.deepEqual(flow.getValue('#optional'), ['a']);
-    assert.deepEqual(flow.getValue('@b-p'), ['a']);
+    expect(flow.getValue('#optional')).toEqual(['a']);
+    expect(flow.getValue('@b-p')).toEqual(['a']);
 
     flow.setValue('a', 1);
     removeOptionalProperty(flow, 'a');
-    assert.isUndefined(flow.getValue('#optional'));
-    assert.isUndefined(flow.getValue('a'));
+    expect(flow.getValue('#optional')).not.toBeDefined();
+    expect(flow.getValue('a')).not.toBeDefined();
   });
 
   it('move OptionalProperty', function () {
     let flow = new Flow();
 
     moveOptionalProperty(flow, 'a', 'b');
-    assert.isUndefined(flow.getValue('#optional'));
+    expect(flow.getValue('#optional')).not.toBeDefined();
 
     moveOptionalProperty(flow, 'a', 'a');
-    assert.isUndefined(flow.getValue('#optional'));
+    expect(flow.getValue('#optional')).not.toBeDefined();
 
     flow.setValue('#optional', ['a', 'b']);
 
     moveOptionalProperty(flow, 'a', 'b');
-    assert.deepEqual(flow.getValue('#optional'), ['b', 'a']);
+    expect(flow.getValue('#optional')).toEqual(['b', 'a']);
 
     moveOptionalProperty(flow, 'a', 'b');
-    assert.deepEqual(flow.getValue('#optional'), ['a', 'b']);
+    expect(flow.getValue('#optional')).toEqual(['a', 'b']);
 
     moveOptionalProperty(flow, 'c', 'a');
-    assert.deepEqual(flow.getValue('#optional'), ['c', 'a', 'b']);
-    assert.deepEqual(flow.getValue('@b-p'), ['c']);
+    expect(flow.getValue('#optional')).toEqual(['c', 'a', 'b']);
+    expect(flow.getValue('@b-p')).toEqual(['c']);
   });
 });

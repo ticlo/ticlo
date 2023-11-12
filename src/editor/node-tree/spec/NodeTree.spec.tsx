@@ -1,4 +1,4 @@
-import {assert} from 'chai';
+import expect from 'expect';
 import SimulateEvent from 'simulate-event';
 import React from 'react';
 import {NodeTree} from '../../index';
@@ -99,7 +99,7 @@ describe('editor NodeTree', function () {
     );
     await shouldHappen(() => contentDiv.childNodes.length === 14);
     // node is removed
-    assert.isNull(querySingle("//div.ticl-tree-node-text[text()='5']"));
+    expect(querySingle("//div.ticl-tree-node-text[text()='5']")).toBeNull();
 
     Root.instance.deleteValue('NodeTree');
   });

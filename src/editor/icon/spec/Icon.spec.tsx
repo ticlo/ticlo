@@ -1,4 +1,4 @@
-import {assert} from 'chai';
+import expect from 'expect';
 import React from 'react';
 import {TIcon} from '../Icon';
 import {shouldHappen} from '../../../../src/core/util/test-util';
@@ -31,14 +31,14 @@ describe('editor Icon', function () {
     await shouldHappen(() => document.querySelector('.tico'));
 
     let icons: NodeListOf<HTMLDivElement> = document.querySelectorAll('.tico');
-    assert.lengthOf(icons, 11);
+    expect(icons.length).toBe(11);
 
-    assert.isTrue(icons[0].children[0].classList.contains('tico-fab-react'));
+    expect(icons[0].children[0].classList.contains('tico-fab-react')).toBe(true);
 
-    assert.isTrue(icons[1].children[0].classList.contains('tico-fas-plus'));
-    assert.isTrue(icons[1].classList.contains('tico-pr1'));
+    expect(icons[1].children[0].classList.contains('tico-fas-plus')).toBe(true);
+    expect(icons[1].classList.contains('tico-pr1')).toBe(true);
 
-    assert.isTrue(icons[2].children[0].classList.contains('tico-fas-minus'));
+    expect(icons[2].children[0].classList.contains('tico-fas-minus')).toBe(true);
 
     icons[2].style.width = 'auto';
     await shouldHappen(() => {
@@ -47,24 +47,24 @@ describe('editor Icon', function () {
       return icons[2].offsetWidth < 50; // < 50 still proves the icon font is working
     }, 1000);
 
-    assert.isTrue(icons[3].classList.contains('tico-txt'));
-    assert.equal(icons[3].innerText, 'A');
+    expect(icons[3].classList.contains('tico-txt')).toBe(true);
+    expect(icons[3].innerText).toEqual('A');
 
-    assert.isTrue(icons[4].classList.contains('tico-txt'));
-    assert.isTrue(icons[4].classList.contains('tico-yoff'));
+    expect(icons[4].classList.contains('tico-txt')).toBe(true);
+    expect(icons[4].classList.contains('tico-yoff')).toBe(true);
 
-    assert.isTrue(icons[5].classList.contains('tico-txt'));
-    assert.isTrue(icons[5].style.fontSize === '8px');
+    expect(icons[5].classList.contains('tico-txt')).toBe(true);
+    expect(icons[5].style.fontSize === '8px').toBe(true);
 
-    assert.isTrue(icons[6].classList.contains('tico-txt'));
-    assert.equal(icons[6].innerText, '文');
+    expect(icons[6].classList.contains('tico-txt')).toBe(true);
+    expect(icons[6].innerText).toEqual('文');
 
-    assert.isTrue(icons[7].classList.contains('tico-txt'));
-    assert.isTrue(icons[7].style.fontSize === '12px', 'override size');
+    expect(icons[7].classList.contains('tico-txt')).toBe(true);
+    expect(icons[7].style.fontSize === '12px').toBe(true);
 
     // invalid icon input
     for (let i = 8; i < 11; ++i) {
-      assert.equal(icons[i].classList.length, 1, 'invalid icon has no other style');
+      expect(icons[i].classList.length).toEqual(1);
     }
   });
 });

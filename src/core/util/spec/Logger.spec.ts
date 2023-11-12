@@ -1,4 +1,4 @@
-import {assert} from 'chai';
+import expect from 'expect';
 import {Logger} from '../Logger';
 
 export class TestLogger {
@@ -45,21 +45,21 @@ describe('Logger', function () {
     Logger.config('config');
     Logger.fatal('fatal');
 
-    assert.deepEqual(traceLogger1.logs, ['trace']);
-    assert.deepEqual(traceLogger2.logs, ['trace', 'debug', 'fine', 'warn', 'info'], 'logger canceled');
-    assert.deepEqual(debugLogger1.logs, ['debug']);
-    assert.deepEqual(debugLogger2.logs, ['debug', 'fine', 'warn', 'info', 'error', 'config', 'fatal']);
-    assert.deepEqual(fineLogger1.logs, ['fine']);
-    assert.deepEqual(fineLogger2.logs, ['fine', 'warn', 'info', 'error', 'config', 'fatal']);
-    assert.deepEqual(warnLogger1.logs, ['warn']);
-    assert.deepEqual(warnLogger2.logs, ['warn', 'info', 'error', 'config', 'fatal']);
-    assert.deepEqual(infoLogger1.logs, ['info']);
-    assert.deepEqual(infoLogger2.logs, ['info', 'error', 'config', 'fatal']);
-    assert.deepEqual(errorLogger1.logs, ['error']);
-    assert.deepEqual(errorLogger2.logs, ['error', 'config', 'fatal']);
-    assert.deepEqual(configLogger1.logs, ['config']);
-    assert.deepEqual(configLogger2.logs, ['config', 'fatal']);
-    assert.deepEqual(fatalLogger1.logs, ['fatal']);
+    expect(traceLogger1.logs).toEqual(['trace']);
+    expect(traceLogger2.logs).toEqual(['trace', 'debug', 'fine', 'warn', 'info']);
+    expect(debugLogger1.logs).toEqual(['debug']);
+    expect(debugLogger2.logs).toEqual(['debug', 'fine', 'warn', 'info', 'error', 'config', 'fatal']);
+    expect(fineLogger1.logs).toEqual(['fine']);
+    expect(fineLogger2.logs).toEqual(['fine', 'warn', 'info', 'error', 'config', 'fatal']);
+    expect(warnLogger1.logs).toEqual(['warn']);
+    expect(warnLogger2.logs).toEqual(['warn', 'info', 'error', 'config', 'fatal']);
+    expect(infoLogger1.logs).toEqual(['info']);
+    expect(infoLogger2.logs).toEqual(['info', 'error', 'config', 'fatal']);
+    expect(errorLogger1.logs).toEqual(['error']);
+    expect(errorLogger2.logs).toEqual(['error', 'config', 'fatal']);
+    expect(configLogger1.logs).toEqual(['config']);
+    expect(configLogger2.logs).toEqual(['config', 'fatal']);
+    expect(fatalLogger1.logs).toEqual(['fatal']);
 
     traceLogger1.cancel();
     debugLogger1.cancel();
@@ -87,13 +87,13 @@ describe('Logger', function () {
 
     Logger.trace(message);
 
-    assert.equal(count, 0, 'callback should not be called');
-    assert.isEmpty(logger.logs);
+    expect(count).toEqual(0);
+    expect(logger.logs).toEqual([]);
 
     Logger.info(message);
 
-    assert.equal(count, 1);
-    assert.deepEqual(logger.logs, ['message']);
+    expect(count).toEqual(1);
+    expect(logger.logs).toEqual(['message']);
     logger.cancel();
   });
 });

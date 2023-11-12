@@ -1,4 +1,4 @@
-import {assert} from 'chai';
+import expect from 'expect';
 import SimulateEvent from 'simulate-event';
 import React from 'react';
 import {BlockStage} from '../BlockStage';
@@ -49,24 +49,22 @@ describe('editor Block Field', function () {
     await shouldHappen(() =>
       querySingle("//div.ticl-field-name/span[text()='a']/..//../../div.ticl-field-value[text()='1']", div)
     );
-    assert.isNotNull(
+    expect(
       querySingle("//div.ticl-field-name/span[text()='b']/..//../../div.ticl-field-value[text()='1.333']", div)
-    );
-    assert.isNotNull(
-      querySingle(
-        "//div.ticl-field-name/span[text()='c']/..//../../div.ticl-field-value/span.ticl-string-value[text()='ccc']",
-        div
-      )
-    );
-    assert.isNotNull(
+    ).not.toBeNull();
+    expect(querySingle(
+      "//div.ticl-field-name/span[text()='c']/..//../../div.ticl-field-value/span.ticl-string-value[text()='ccc']",
+      div
+    )).not.toBeNull();
+    expect(
       querySingle("//div.ticl-field-name/span[text()='d']/..//../../div.ticl-field-value[text()='true']", div)
-    );
-    assert.isNotNull(
+    ).not.toBeNull();
+    expect(
       querySingle("//div.ticl-field-name/span[text()='e']/..//../../div.ticl-field-value[text()='null']", div)
-    );
-    assert.isNotNull(
+    ).not.toBeNull();
+    expect(
       querySingle("//div.ticl-field-name/span[text()='z']/..//../../div.ticl-field-value[not(text())]", div)
-    );
+    ).not.toBeNull();
 
     flow.queryProperty('add.c').setValue(3);
     // no longer a string value
@@ -116,17 +114,17 @@ describe('editor Block Field', function () {
     await shouldHappen(() => subtractBlock.querySelectorAll('.ticl-field').length === 3);
 
     let fieldNames = subtractBlock.querySelectorAll('.ticl-field-name');
-    assert.equal(fieldNames[0].textContent, '0');
+    expect(fieldNames[0].textContent).toEqual('0');
     // property from sub blocks
-    assert.equal(fieldNames[1].textContent, '0');
-    assert.equal(fieldNames[2].textContent, '1');
+    expect(fieldNames[1].textContent).toEqual('0');
+    expect(fieldNames[2].textContent).toEqual('1');
 
     // hide sub block
     SimulateEvent.simulate(fieldNames[0], 'dblclick');
 
     await shouldHappen(() => subtractBlock.querySelectorAll('.ticl-field').length === 1);
     // wire should still exists
-    assert.isNotNull(document.querySelector('svg'));
+    expect(document.querySelector('svg')).not.toBeNull();
 
     // show sub block again
     SimulateEvent.simulate(fieldNames[0], 'dblclick');
@@ -165,7 +163,7 @@ describe('editor Block Field', function () {
     let wire = div.querySelector('.ticl-block-wire');
 
     // indirect binding should have dash style
-    assert.isTrue(wire.classList.contains('ticl-wire-dash'));
+    expect(wire.classList.contains('ticl-wire-dash')).toBe(true);
 
     // switch to direct binding
     flow.queryProperty('subtract.0').setBinding('##.add.0');

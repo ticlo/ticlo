@@ -1,4 +1,4 @@
-import {assert} from 'chai';
+import expect from 'expect';
 import {Flow, Root} from '../Flow';
 import {Event} from '../Event';
 import {TestFunctionRunner} from './TestFunction';
@@ -6,9 +6,9 @@ import {TestFunctionRunner} from './TestFunction';
 describe('Event', function () {
   it('Event Uid Change in Root', function () {
     let uid = Event.uid;
-    assert.equal(uid, Event.uid);
+    expect(uid).toEqual(Event.uid);
     Root.run();
-    assert.notEqual(uid, Event.uid);
+    expect(uid).not.toEqual(Event.uid);
   });
 
   it('event life cycle', function () {
@@ -23,14 +23,14 @@ describe('Event', function () {
     let event = new Event('');
     block.setValue('#call', event);
     Root.run();
-    assert.deepEqual(TestFunctionRunner.popLogs(), ['obj']);
+    expect(TestFunctionRunner.popLogs()).toEqual(['obj']);
 
     block.setValue('#call', new Event(''));
     Root.run();
-    assert.deepEqual(TestFunctionRunner.popLogs(), ['obj']);
+    expect(TestFunctionRunner.popLogs()).toEqual(['obj']);
 
     block.setValue('#call', event);
     Root.run();
-    assert.deepEqual(TestFunctionRunner.popLogs(), [], 'old event should not trigger event');
+    expect(TestFunctionRunner.popLogs()).toEqual([]);
   });
 });

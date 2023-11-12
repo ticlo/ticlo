@@ -1,4 +1,4 @@
-import {assert} from 'chai';
+import expect from 'expect';
 import {Block} from '../../../block/Block';
 import {Flow, Root} from '../../../block/Flow';
 import {WAIT} from '../../../block/Event';
@@ -16,7 +16,7 @@ describe('Js', function () {
     aBlock.setValue('in1', 321);
     Root.run();
 
-    assert.equal(aBlock.getValue('out1'), 321, 'basic script output');
+    expect(aBlock.getValue('out1')).toEqual(321);
   });
 
   it('nested function', function () {
@@ -28,11 +28,11 @@ describe('Js', function () {
     aBlock.setValue('script', 'let temp = 456; return function(){this["out2"] = ++temp;}');
 
     Root.run();
-    assert.equal(aBlock.getValue('out2'), 457, 'nested function script output');
+    expect(aBlock.getValue('out2')).toEqual(457);
 
     aBlock.updateValue('#call', {});
     Root.run();
-    assert.equal(aBlock.getValue('out2'), 458, 'nested function script local value');
+    expect(aBlock.getValue('out2')).toEqual(458);
 
     // save load
     let saved = flow.save();
@@ -40,9 +40,9 @@ describe('Js', function () {
     flow2.load(saved);
 
     let aBlock2 = flow2.getValue('a');
-    assert.instanceOf(aBlock2, Block, 'load add block from saved data');
+    expect(aBlock2).toBeInstanceOf(Block);
     Root.run();
-    assert.equal(aBlock2.getValue('out2'), 457, 'run script function after loading saved data');
+    expect(aBlock2.getValue('out2')).toEqual(457);
   });
 
   it('errors', async function () {
@@ -56,11 +56,11 @@ describe('Js', function () {
     aBlock.deleteValue('#emit');
     aBlock.setValue('script', undefined);
     await shouldTimeout(aBlock.waitNextValue('#emit'), 5);
-    assert.isUndefined(aBlock.getValue('#emit'), 'changing script to undefined should not trigger it');
+    expect(aBlock.getValue('#emit')).not.toBeDefined();
 
     aBlock.setValue('#call', {});
     await shouldTimeout(aBlock.waitNextValue('#emit'), 5); // NOT_READY won't resolve the promise
-    assert.equal(aBlock.getValue('#emit'), WAIT, 'called without script should return NOT_READY');
+    expect(aBlock.getValue('#emit')).toEqual(WAIT);
 
     let bBlock = flow.createBlock('b');
     bBlock.setValue('#is', 'js');

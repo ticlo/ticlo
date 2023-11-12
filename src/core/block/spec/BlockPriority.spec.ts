@@ -1,4 +1,4 @@
-import {assert} from 'chai';
+import expect from 'expect';
 import {TestFunctionRunner} from './TestFunction';
 import {Flow, Root} from '../Flow';
 
@@ -30,13 +30,9 @@ describe('BlockPriority', function () {
     p2.setValue('#is', 'test-runner');
     Root.run();
 
-    assert.deepEqual(
-      TestFunctionRunner.popLogs(),
-      ['p3', 'p0', 'p1', 'p2'],
-      'function should run in the same order as type is set'
-    );
+    expect(TestFunctionRunner.popLogs()).toEqual(['p3', 'p0', 'p1', 'p2']);
 
-    assert.deepEqual(TestFunctionRunner.popLogs(), [], 'logs should be cleared');
+    expect(TestFunctionRunner.popLogs()).toEqual([]);
 
     p3.updateValue('#call', {});
     p1.updateValue('#call', {});
@@ -44,11 +40,7 @@ describe('BlockPriority', function () {
     p0.updateValue('#call', {});
     Root.run();
 
-    assert.deepEqual(
-      TestFunctionRunner.popLogs(),
-      ['p3', 'p1', 'p2', 'p0'],
-      'function should run in the same order as they are called'
-    );
+    expect(TestFunctionRunner.popLogs()).toEqual(['p3', 'p1', 'p2', 'p0']);
 
     p1.setValue('#priority', 1);
     p3.setValue('#priority', 3);
@@ -61,11 +53,7 @@ describe('BlockPriority', function () {
     p0.updateValue('#call', {});
     Root.run();
 
-    assert.deepEqual(
-      TestFunctionRunner.popLogs(),
-      ['p0', 'p1', 'p2', 'p3'],
-      'function should run in the same order as their priority'
-    );
+    expect(TestFunctionRunner.popLogs()).toEqual(['p0', 'p1', 'p2', 'p3']);
   });
 
   it('order from binding', function () {
@@ -98,11 +86,7 @@ describe('BlockPriority', function () {
 
     p0.updateValue('input', {});
     Root.run();
-    assert.deepEqual(
-      TestFunctionRunner.popLogs(),
-      ['p0', 'p1', 'p2', 'p3'],
-      'function should run in the same order as binding chain'
-    );
+    expect(TestFunctionRunner.popLogs()).toEqual(['p0', 'p1', 'p2', 'p3']);
   });
 
   it('priority change during resolving', function () {
@@ -133,10 +117,6 @@ describe('BlockPriority', function () {
 
     p1.setValue('#call', {});
     Root.run();
-    assert.deepEqual(
-      TestFunctionRunner.popLogs(),
-      ['p1', 'p0', 'p2'],
-      'next priority to run in resolver changes during iteration'
-    );
+    expect(TestFunctionRunner.popLogs()).toEqual(['p1', 'p0', 'p2']);
   });
 });

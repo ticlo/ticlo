@@ -1,4 +1,4 @@
-import {assert} from 'chai';
+import expect from 'expect';
 import {TestAsyncFunctionPromise, TestFunctionRunner} from './TestFunction';
 import {Flow, Root} from '../Flow';
 import {ErrorEvent} from '../Event';
@@ -21,7 +21,7 @@ describe('SyncMode', function () {
     block.setValue('#is', 'test-runner');
     block.setValue('#sync', true);
     block.setValue('#call', {});
-    assert.deepEqual(TestFunctionRunner.logs, ['obj'], 'sync mode should run function instantly when called');
+    expect(TestFunctionRunner.logs).toEqual(['obj']);
   });
 
   it('chained', function () {
@@ -55,26 +55,14 @@ describe('SyncMode', function () {
     block4.setBinding('#call', '##.obj3.#emit');
 
     block1.setValue('#call', {});
-    assert.deepEqual(
-      TestFunctionRunner.popLogs(),
-      ['obj1', 'obj2', 'obj3', 'obj4'],
-      'sync mode should run chained functions instantly when called'
-    );
+    expect(TestFunctionRunner.popLogs()).toEqual(['obj1', 'obj2', 'obj3', 'obj4']);
 
     block1.setValue('#call', {});
-    assert.deepEqual(
-      TestFunctionRunner.popLogs(),
-      ['obj1', 'obj3', 'obj4'],
-      "sync call should skip block that doesn't need update"
-    );
+    expect(TestFunctionRunner.popLogs()).toEqual(['obj1', 'obj3', 'obj4']);
 
     block1.setValue('#call', new ErrorEvent(''));
-    assert.isEmpty(TestFunctionRunner.logs, 'error should not trigger chained blocks');
-    assert.instanceOf(block3.getValue('#call'), ErrorEvent, 'error should get passed through the chain');
-    assert.notInstanceOf(
-      block4.getValue('#call'),
-      ErrorEvent,
-      'error should not be passed when function.cancel() return false'
-    );
+    expect(TestFunctionRunner.logs).toEqual([]);
+    expect(block3.getValue('#call')).toBeInstanceOf(ErrorEvent);
+    expect(block4.getValue('#call')).not.toBeInstanceOf(ErrorEvent);
   });
 });

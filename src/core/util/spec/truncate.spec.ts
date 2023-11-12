@@ -1,4 +1,4 @@
-import {assert} from 'chai';
+import expect from 'expect';
 import {measureObjSize, TRUNCATED, DataMap, isDataTruncated} from '../DataTypes';
 import {truncateData} from '../DataTruncate';
 
@@ -14,15 +14,15 @@ describe('truncateData', function () {
 
   it('big string', function () {
     let tstr: string = truncateData(longstr)[0] as string;
-    assert.lengthOf(tstr, 131, 'length of str is 128 + 3 dot');
-    assert(isDataTruncated(tstr));
+    expect(tstr.length).toBe(131);
+    expect(isDataTruncated(tstr)).toBeTruthy();
   });
 
   it('big obj', function () {
     let tobj: DataMap = truncateData(bigObj)[0];
-    assert(JSON.stringify(tobj).length < 2048, 'truncated object cannot be more than2048 bytes');
-    assert.lengthOf(Object.keys(tobj), 10, 'all 10 keys are in output');
-    assert(isDataTruncated(tobj));
+    expect(JSON.stringify(tobj).length < 2048).toBeTruthy();
+    expect(Object.keys(tobj).length).toBe(10);
+    expect(isDataTruncated(tobj)).toBeTruthy();
   });
 
   it('max number of item', function () {
@@ -34,18 +34,18 @@ describe('truncateData', function () {
     }
 
     let objResult = truncateData(obj)[0];
-    assert.equal(Object.keys(objResult).length, 10, 'truncated object cannot be more than 10 keys');
-    assert.isTrue(isDataTruncated(objResult));
+    expect(Object.keys(objResult).length).toEqual(10);
+    expect(isDataTruncated(objResult)).toBe(true);
 
     let arrResult = truncateData(arr)[0];
-    assert.equal(arrResult.length, 10, 'truncated array cannot be more than 10 items');
-    assert.isTrue(isDataTruncated(arrResult));
+    expect(arrResult.length).toEqual(10);
+    expect(isDataTruncated(arrResult)).toBe(true);
   });
 
   it('measure object', function () {
     let size1 = measureObjSize(bigObj, 1024);
-    assert.isAtLeast(size1, 1024);
+    expect(size1).toBeGreaterThanOrEqual(1024);
     let size2 = measureObjSize(bigObj, Infinity);
-    assert.isAbove(size2, size1, 'full size is bigger than limited measured size');
+    expect(size2).toBeGreaterThan(size1);
   });
 });

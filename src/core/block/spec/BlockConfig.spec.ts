@@ -1,4 +1,4 @@
-import {assert} from 'chai';
+import expect from 'expect';
 import {TestFunctionRunner} from './TestFunction';
 import {Flow, Root} from '../Flow';
 
@@ -8,18 +8,18 @@ describe('BlockConfig', function () {
 
     let block = flow.createBlock('obj');
 
-    assert.equal(block.getValue('##'), flow, 'get ##');
-    assert.equal(block.getValue('###'), flow, 'get ###');
+    expect(block.getValue('##')).toEqual(flow);
+    expect(block.getValue('###')).toEqual(flow);
 
     block.setValue('##', 1);
-    assert.equal(block.getValue('##'), flow, 'readonly property setValue');
+    expect(block.getValue('##')).toEqual(flow);
 
     block.updateValue('##', 1);
-    assert.equal(block.getValue('##'), flow, 'readonly property updateValue');
+    expect(block.getValue('##')).toEqual(flow);
 
     block.setValue('a', 1);
     block.setBinding('##', 'a');
-    assert.equal(block.getValue('##'), flow, 'readonly property setBinding');
+    expect(block.getValue('##')).toEqual(flow);
   });
 
   it('#is', function () {
@@ -27,15 +27,15 @@ describe('BlockConfig', function () {
 
     let block = flow.createBlock('obj');
 
-    assert.equal(block.getValue('#is'), '', '#is "" by default');
+    expect(block.getValue('#is')).toEqual('');
 
     block.setValue('@is', 'add');
     block.setBinding('#is', '@is');
-    assert.equal(block.getValue('#is'), 'add', '#is with binding');
-    assert.deepEqual(flow.save(), {'#is': '', 'obj': {'@is': 'add', '~#is': '@is'}}, 'save #is');
+    expect(block.getValue('#is')).toEqual('add');
+    expect(flow.save()).toEqual({'#is': '', 'obj': {'@is': 'add', '~#is': '@is'}});
 
     block.setBinding('#is', null);
-    assert.equal(block.getValue('#is'), '', '#is revert back to "" after unbind');
-    assert.deepEqual(flow.save(), {'#is': '', 'obj': {'@is': 'add', '#is': ''}}, 'save #is');
+    expect(block.getValue('#is')).toEqual('');
+    expect(flow.save()).toEqual({'#is': '', 'obj': {'@is': 'add', '#is': ''}});
   });
 });

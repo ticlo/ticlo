@@ -1,4 +1,4 @@
-import {assert} from 'chai';
+import expect from 'expect';
 import {TestFunctionRunner} from './TestFunction';
 import {Flow, Root} from '../Flow';
 
@@ -11,6 +11,6 @@ describe('executeCommand', function () {
 
     block.executeCommand('test', {});
     Root.run();
-    assert.deepEqual(TestFunctionRunner.popLogs(), ['command']);
+    expect(TestFunctionRunner.popLogs()).toEqual(['command']);
   });
 });

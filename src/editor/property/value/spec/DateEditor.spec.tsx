@@ -1,4 +1,4 @@
-import {assert} from 'chai';
+import expect from 'expect';
 import SimulateEvent from 'simulate-event';
 import React from 'react';
 import {removeLastTemplate, loadTemplate, querySingle, fakeMouseEvent} from '../../../util/test-util';
@@ -34,7 +34,7 @@ describe('DateEditor', function () {
     let inputDiv = editorDiv.querySelector('input');
 
     // test if string input is converted to moment
-    assert.equal(inputDiv.value, '2019-01-01');
+    expect(inputDiv.value).toEqual('2019-01-01');
 
     SimulateEvent.simulate(inputDiv, 'mousedown', fakeMouseEvent());
 
@@ -44,6 +44,6 @@ describe('DateEditor', function () {
 
     await shouldHappen(() => value != null);
     let valueNow = moment.now();
-    assert.approximately(value.valueOf(), valueNow.valueOf(), 1000);
+    expect(Math.abs(value.valueOf() - valueNow.valueOf())).toBeLessThanOrEqual(1000);
   });
 });

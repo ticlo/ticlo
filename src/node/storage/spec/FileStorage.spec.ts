@@ -1,4 +1,4 @@
-import {assert} from 'chai';
+import expect from 'expect';
 import shelljs from 'shelljs';
 import Fs from 'fs';
 import {Flow, Root, decode} from '../../../core';
@@ -19,7 +19,7 @@ describe('FileStorage', function () {
     flow.applyChange();
     let savedData: string;
     await shouldHappen(() => (savedData = Fs.existsSync(path) ? Fs.readFileSync(path, 'utf8') : null));
-    assert.equal(savedData, '{\n"#is": ""\n}');
+    expect(savedData).toEqual('{\n"#is": ""\n}');
 
     root.deleteFlow('flow1');
     await shouldHappen(() => !Fs.existsSync(path), 500);
@@ -35,7 +35,7 @@ describe('FileStorage', function () {
     flow.applyChange();
     await waitTick(20);
     let readResult = await storage.loadFlow('flow2');
-    assert.deepEqual(readResult, {'#is': '', 'value': 456});
+    expect(readResult).toEqual({'#is': '', 'value': 456});
 
     // overwrite delete after write
     flow = root.addFlow('flow3');
@@ -52,7 +52,7 @@ describe('FileStorage', function () {
     flow = root.addFlow('flow4');
     root.deleteFlow('flow4');
     await waitTick(40);
-    assert.isFalse(Fs.existsSync('./temp/storageTest/flow4.ticlo'));
+    expect(Fs.existsSync('./temp/storageTest/flow4.ticlo')).toBe(false);
 
     root.destroy();
   });
@@ -67,9 +67,9 @@ describe('FileStorage', function () {
     let root = new Root();
     await root.setStorage(new FileStorage('./temp/storageTest'));
 
-    assert.equal(root.queryValue('flow5.value'), 321);
-    assert.equal(root.queryValue('flow5.subflow.value'), 321);
-    assert.deepEqual((root.getValue('flow5') as Flow).save(), flowData);
+    expect(root.queryValue('flow5.value')).toEqual(321);
+    expect(root.queryValue('flow5.subflow.value')).toEqual(321);
+    expect((root.getValue('flow5') as Flow).save()).toEqual(flowData);
 
     Fs.unlinkSync(path2);
     root.destroy();

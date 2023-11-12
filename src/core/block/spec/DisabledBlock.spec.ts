@@ -1,4 +1,4 @@
-import {assert} from 'chai';
+import expect from 'expect';
 import {TestFunctionRunner} from './TestFunction';
 import {Flow, Root} from '../Flow';
 
@@ -12,30 +12,30 @@ describe('Disabled Block', function () {
     block.setValue('#is', 'test-runner');
 
     Root.run();
-    assert.deepEqual(TestFunctionRunner.popLogs(), ['obj']);
+    expect(TestFunctionRunner.popLogs()).toEqual(['obj']);
 
     block.setValue('#disabled', true);
     block.setValue('#call', {});
     block.setValue('input', {});
     Root.run();
-    assert.isEmpty(TestFunctionRunner.logs);
+    expect(TestFunctionRunner.logs).toEqual([]);
 
     block.setValue('#disabled', undefined);
     Root.run();
-    assert.deepEqual(TestFunctionRunner.popLogs(), ['obj']);
+    expect(TestFunctionRunner.popLogs()).toEqual(['obj']);
 
     block.setValue('#disabled', true);
     block.setValue('#mode', 'onChange');
     Root.run();
-    assert.isEmpty(TestFunctionRunner.logs);
+    expect(TestFunctionRunner.logs).toEqual([]);
 
     block.setValue('#disabled', undefined);
     Root.run();
-    assert.isEmpty(TestFunctionRunner.logs, 'turn disabled to false while mode is onChange should not cause update');
+    expect(TestFunctionRunner.logs).toEqual([]);
 
     block.setValue('input', {});
     Root.run();
-    assert.deepEqual(TestFunctionRunner.popLogs(), ['obj']);
+    expect(TestFunctionRunner.popLogs()).toEqual(['obj']);
 
     flow.destroy();
   });
@@ -55,22 +55,22 @@ describe('Disabled Block', function () {
     block.setValue('#is', 'test-runner');
 
     Root.run();
-    assert.isEmpty(TestFunctionRunner.logs);
+    expect(TestFunctionRunner.logs).toEqual([]);
 
     subFlow.setValue('#disabled', false);
 
     Root.run();
-    assert.deepEqual(TestFunctionRunner.popLogs(), ['obj']);
+    expect(TestFunctionRunner.popLogs()).toEqual(['obj']);
 
     flow.setValue('#disabled', true);
     block.setValue('#call', {});
 
     Root.run();
-    assert.isEmpty(TestFunctionRunner.logs);
+    expect(TestFunctionRunner.logs).toEqual([]);
 
     flow.setValue('#disabled', false);
     Root.run();
-    assert.deepEqual(TestFunctionRunner.popLogs(), ['obj']);
+    expect(TestFunctionRunner.popLogs()).toEqual(['obj']);
 
     flow.destroy();
   });

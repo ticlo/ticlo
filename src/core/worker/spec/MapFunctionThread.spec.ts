@@ -1,4 +1,4 @@
-import {assert} from 'chai';
+import expect from 'expect';
 import {Flow, Root} from '../../block/Flow';
 import {TestFunctionRunner, TestAsyncFunctionPromise} from '../../block/spec/TestFunction';
 import '../../functions/math/Arithmetic';
@@ -44,14 +44,14 @@ describe('MapFunction Thread', function () {
     });
 
     Root.run();
-    assert.isUndefined(bBlock.getValue('#output'), 'async worker should not finish right after run');
+    expect(bBlock.getValue('#output')).not.toBeDefined();
 
     let output = await bBlock.waitValue('#output');
-    assert.lengthOf(Object.keys(output), 20);
-    assert.lengthOf(TestFunctionRunner.popLogs(), 20);
+    expect(Object.keys(output).length).toBe(20);
+    expect(TestFunctionRunner.popLogs().length).toBe(20);
 
     for (let i = 0; i < 20; ++i) {
-      assert.equal(output['v' + i], i + 1);
+      expect(output['v' + i]).toEqual(i + 1);
     }
 
     flow.setValue('a', {
@@ -62,18 +62,18 @@ describe('MapFunction Thread', function () {
 
     output = await bBlock.waitNextValue('#output');
 
-    assert.deepEqual(output, {v1: 2, v2: 5, v4: 6}, 'input change');
-    assert.lengthOf(TestFunctionRunner.popLogs(), 3);
+    expect(output).toEqual({v1: 2, v2: 5, v4: 6});
+    expect(TestFunctionRunner.popLogs().length).toBe(3);
 
     flow.setValue('a', inputArr);
     let outputArr = await bBlock.waitNextValue('#output');
-    assert.lengthOf(outputArr, 20, 'output array');
+    expect(outputArr.length).toBe(20);
 
     for (let i = 0; i < 20; ++i) {
-      assert.equal(outputArr[i], i + 101);
+      expect(outputArr[i]).toEqual(i + 101);
     }
 
-    assert.lengthOf(TestFunctionRunner.popLogs(), 20);
+    expect(TestFunctionRunner.popLogs().length).toBe(20);
 
     // delete flow;
     flow.deleteValue('b');
@@ -106,7 +106,7 @@ describe('MapFunction Thread', function () {
 
     Root.run();
     let output = await bBlock.waitValue('#output');
-    assert.deepEqual(output, data);
+    expect(output).toEqual(data);
 
     // delete flow;
     flow.deleteValue('b');
@@ -141,7 +141,7 @@ describe('MapFunction Thread', function () {
     Root.run();
 
     let output = await bBlock.waitValue('#output');
-    assert.deepEqual(output, {v1: 2, v2: 3, v3: 4});
+    expect(output).toEqual({v1: 2, v2: 3, v3: 4});
 
     bBlock.setValue('use', {
       '#is': '',
@@ -152,9 +152,9 @@ describe('MapFunction Thread', function () {
 
     Root.run();
     await shouldHappen(() => bBlock.getValue('#output') !== output);
-    assert.deepEqual(bBlock.getValue('#output'), {v1: 3, v2: 4, v3: 5});
+    expect(bBlock.getValue('#output')).toEqual({v1: 3, v2: 4, v3: 5});
 
-    assert.lengthOf(TestFunctionRunner.popLogs(), 2);
+    expect(TestFunctionRunner.popLogs().length).toBe(2);
 
     // delete flow;
     flow.deleteValue('b');
@@ -193,14 +193,14 @@ describe('MapFunction Thread', function () {
     });
 
     Root.run();
-    assert.isUndefined(bBlock.getValue('#output'), 'async worker should not finish right after run');
+    expect(bBlock.getValue('#output')).not.toBeDefined();
 
     let output = await bBlock.waitValue('#output');
-    assert.lengthOf(Object.keys(output), 20);
-    assert.lengthOf(TestFunctionRunner.popLogs(), 20);
+    expect(Object.keys(output).length).toBe(20);
+    expect(TestFunctionRunner.popLogs().length).toBe(20);
 
     for (let i = 0; i < 20; ++i) {
-      assert.equal(output['v' + i], i + 1);
+      expect(output['v' + i]).toEqual(i + 1);
     }
     flow.setValue('a', {
       v1: 1,
@@ -210,18 +210,18 @@ describe('MapFunction Thread', function () {
 
     output = await bBlock.waitNextValue('#output');
 
-    assert.deepEqual(output, {v1: 2, v2: 5, v4: 6}, 'input change');
-    assert.lengthOf(TestFunctionRunner.popLogs(), 3);
+    expect(output).toEqual({v1: 2, v2: 5, v4: 6});
+    expect(TestFunctionRunner.popLogs().length).toBe(3);
 
     flow.setValue('a', inputArr);
     let outputArr = await bBlock.waitNextValue('#output');
-    assert.lengthOf(outputArr, 20, 'output array');
+    expect(outputArr.length).toBe(20);
 
     for (let i = 0; i < 20; ++i) {
-      assert.equal(outputArr[i], i + 101);
+      expect(outputArr[i]).toEqual(i + 101);
     }
 
-    assert.lengthOf(TestFunctionRunner.popLogs(), 20);
+    expect(TestFunctionRunner.popLogs().length).toBe(20);
 
     // delete flow;
     flow.deleteValue('b');
@@ -261,14 +261,14 @@ describe('MapFunction Thread', function () {
     });
 
     Root.run();
-    assert.isUndefined(bBlock.getValue('#output'), 'async worker should not finish right after run');
+    expect(bBlock.getValue('#output')).not.toBeDefined();
 
     let output = await bBlock.waitValue('#output');
-    assert.lengthOf(Object.keys(output), 20);
-    assert.lengthOf(TestFunctionRunner.popLogs(), 5);
+    expect(Object.keys(output).length).toBe(20);
+    expect(TestFunctionRunner.popLogs().length).toBe(5);
 
     for (let i = 0; i < 20; ++i) {
-      assert.equal(output['v' + i], i + 1);
+      expect(output['v' + i]).toEqual(i + 1);
     }
 
     flow.setValue('a', {
@@ -279,16 +279,16 @@ describe('MapFunction Thread', function () {
 
     output = await bBlock.waitNextValue('#output');
 
-    assert.deepEqual(output, {v1: 2, v2: 5, v4: 6}, 'input change');
-    assert.lengthOf(TestFunctionRunner.popLogs(), 3);
+    expect(output).toEqual({v1: 2, v2: 5, v4: 6});
+    expect(TestFunctionRunner.popLogs().length).toBe(3);
 
     flow.setValue('a', inputArr);
     let outputArr = await bBlock.waitNextValue('#output');
-    assert.lengthOf(outputArr, 20, 'output array');
-    assert.lengthOf(TestFunctionRunner.popLogs(), 5);
+    expect(outputArr.length).toBe(20);
+    expect(TestFunctionRunner.popLogs().length).toBe(5);
 
     for (let i = 0; i < 20; ++i) {
-      assert.equal(outputArr[i], i + 101);
+      expect(outputArr[i]).toEqual(i + 101);
     }
 
     // delete flow;
@@ -329,13 +329,13 @@ describe('MapFunction Thread', function () {
     });
 
     Root.run();
-    assert.isUndefined(bBlock.getValue('#output'), 'async worker should not finish right after run');
+    expect(bBlock.getValue('#output')).not.toBeDefined();
 
     let output = await bBlock.waitValue('#output');
-    assert.lengthOf(Object.keys(output), 20);
+    expect(Object.keys(output).length).toBe(20);
 
     for (let i = 0; i < 20; ++i) {
-      assert.equal(output['v' + i], i + 1);
+      expect(output['v' + i]).toEqual(i + 1);
     }
     flow.setValue('a', {
       v1: 1,
@@ -345,16 +345,16 @@ describe('MapFunction Thread', function () {
 
     output = await bBlock.waitNextValue('#output');
 
-    assert.deepEqual(output, {v1: 2, v2: 5, v4: 6}, 'input change');
+    expect(output).toEqual({v1: 2, v2: 5, v4: 6});
 
     flow.setValue('a', inputArr);
     let outputArr = await bBlock.waitNextValue('#output');
-    assert.lengthOf(outputArr, 20, 'output array');
+    expect(outputArr.length).toBe(20);
 
     for (let i = 0; i < 20; ++i) {
-      assert.equal(outputArr[i], i + 101);
+      expect(outputArr[i]).toEqual(i + 101);
     }
-    assert.notEqual(bBlock.queryValue('#flow.4.#outputs'), undefined, 'persist worker still exists');
+    expect(bBlock.queryValue('#flow.4.#outputs')).not.toEqual(undefined);
 
     // delete flow;
     flow.deleteValue('b');
@@ -393,7 +393,7 @@ describe('MapFunction Thread', function () {
     });
 
     Root.run();
-    assert.isUndefined(bBlock.getValue('#output'), 'async worker should not finish right after run');
+    expect(bBlock.getValue('#output')).not.toBeDefined();
 
     // set 3 inputs at same time
     flow.setValue('a', {
@@ -405,16 +405,16 @@ describe('MapFunction Thread', function () {
     flow.setValue('a', inputArr);
 
     let output = await bBlock.waitValue('#output');
-    assert.lengthOf(Object.keys(output), 20);
+    expect(Object.keys(output).length).toBe(20);
 
     let outputArr = await bBlock.waitNextValue('#output');
-    assert.lengthOf(outputArr, 20, 'output array');
+    expect(outputArr.length).toBe(20);
 
     for (let i = 0; i < 20; ++i) {
-      assert.equal(outputArr[i], i + 101);
+      expect(outputArr[i]).toEqual(i + 101);
     }
 
-    assert.lengthOf(TestFunctionRunner.popLogs(), 40);
+    expect(TestFunctionRunner.popLogs().length).toBe(40);
 
     // delete flow;
     flow.deleteValue('b');

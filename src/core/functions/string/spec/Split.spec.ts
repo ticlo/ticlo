@@ -1,4 +1,4 @@
-import {assert} from 'chai';
+import expect from 'expect';
 import '../Split';
 import {Block} from '../../../block/Block';
 import {Flow, Root} from '../../../block/Flow';
@@ -9,25 +9,25 @@ describe('Split', function () {
 
     let aBlock = flow.createBlock('a');
     aBlock.setValue('#is', 'split');
-    assert.isUndefined(aBlock.getValue('#output'));
+    expect(aBlock.getValue('#output')).not.toBeDefined();
 
     aBlock.setValue('input', 'a,b, c');
     Root.run();
-    assert.deepEqual(aBlock.getValue('#output'), ['a', 'b', ' c']);
+    expect(aBlock.getValue('#output')).toEqual(['a', 'b', ' c']);
 
     aBlock.setValue('separator', ',');
     Root.run();
-    assert.deepEqual(aBlock.getValue('#output'), ['a', 'b', ' c']);
+    expect(aBlock.getValue('#output')).toEqual(['a', 'b', ' c']);
 
     Root.run();
-    assert.deepEqual(aBlock.getValue('#output'), ['a', 'b', ' c']);
+    expect(aBlock.getValue('#output')).toEqual(['a', 'b', ' c']);
 
     aBlock.setValue('regExp', true);
     Root.run();
-    assert.deepEqual(aBlock.getValue('#output'), ['a', 'b', ' c']);
+    expect(aBlock.getValue('#output')).toEqual(['a', 'b', ' c']);
 
     aBlock.setValue('separator', ', ?');
     Root.run();
-    assert.deepEqual(aBlock.getValue('#output'), ['a', 'b', 'c']);
+    expect(aBlock.getValue('#output')).toEqual(['a', 'b', 'c']);
   });
 });

@@ -1,4 +1,4 @@
-import {assert} from 'chai';
+import expect from 'expect';
 import '../Arithmetic';
 import {Block} from '../../../block/Block';
 import {Flow, Root} from '../../../block/Flow';
@@ -15,12 +15,12 @@ describe('Math', function () {
 
     Root.run();
 
-    assert.equal(aBlock.getValue('#output'), 5, '2+3 == 5');
+    expect(aBlock.getValue('#output')).toEqual(5);
 
     aBlock.setValue('0', 4);
 
     Root.run();
-    assert.equal(aBlock.getValue('#output'), 7, 'update parameter, 4+3 == 5');
+    expect(aBlock.getValue('#output')).toEqual(7);
 
     aBlock = flow.createBlock('a2');
 
@@ -30,7 +30,7 @@ describe('Math', function () {
     aBlock.setValue('#is', 'add');
 
     Root.run();
-    assert.equal(aBlock.getValue('#output'), 6, 'update type after value, 2.5+3.5==6');
+    expect(aBlock.getValue('#output')).toEqual(6);
 
     // save load
     let saved = flow.save();
@@ -38,9 +38,9 @@ describe('Math', function () {
     flow2.load(saved);
 
     let aBlock2 = flow2.getValue('a2');
-    assert.instanceOf(aBlock2, Block, 'load add block from saved data');
+    expect(aBlock2).toBeInstanceOf(Block);
     Root.run();
-    assert.equal(aBlock2.getValue('#output'), 6, 'run add function after loading saved data');
+    expect(aBlock2.getValue('#output')).toEqual(6);
   });
 
   it('add multiple', function () {
@@ -50,23 +50,23 @@ describe('Math', function () {
     aBlock._load({'#is': 'add', '0': 2, '1': 3, '2': 4, '[]': 3});
 
     Root.run();
-    assert.equal(aBlock.getValue('#output'), 9, '2+3+4 == 9');
+    expect(aBlock.getValue('#output')).toEqual(9);
 
     aBlock.setValue('3', 5);
     Root.run();
-    assert.equal(aBlock.getValue('#output'), 9, 'add new value but length is not changed');
+    expect(aBlock.getValue('#output')).toEqual(9);
 
     aBlock.setValue('[]', 4);
     Root.run();
-    assert.equal(aBlock.getValue('#output'), 14, '2+3+4+5 == 14');
+    expect(aBlock.getValue('#output')).toEqual(14);
 
     aBlock.setValue('[]', 2);
     Root.run();
-    assert.equal(aBlock.getValue('#output'), 5, 'length back to 2, 2+3 == 5');
+    expect(aBlock.getValue('#output')).toEqual(5);
 
     aBlock.setValue('[]', 0);
     Root.run();
-    assert.equal(aBlock.getValue('#output'), 0);
+    expect(aBlock.getValue('#output')).toEqual(0);
   });
 
   it('add array', function () {
@@ -76,7 +76,7 @@ describe('Math', function () {
     aBlock._load({'#is': 'add', '[]': [1, 2]});
 
     Root.run();
-    assert.equal(aBlock.getValue('#output'), 3);
+    expect(aBlock.getValue('#output')).toEqual(3);
   });
 
   it('subtract', function () {
@@ -88,11 +88,11 @@ describe('Math', function () {
     aBlock.setValue('0', 7);
     aBlock.setValue('1', 3);
     Root.run();
-    assert.equal(aBlock.getValue('#output'), 4, '7-3 == 4');
+    expect(aBlock.getValue('#output')).toEqual(4);
 
     aBlock.setValue('1', null);
     Root.run();
-    assert.equal(aBlock.getValue('#output'), undefined, '7-null == undefined');
+    expect(aBlock.getValue('#output')).toEqual(undefined);
   });
 
   it('divide', function () {
@@ -104,11 +104,11 @@ describe('Math', function () {
     aBlock.setValue('0', 7);
     aBlock.setValue('1', 2);
     Root.run();
-    assert.equal(aBlock.getValue('#output'), 3.5, '7/2 == 3.5');
+    expect(aBlock.getValue('#output')).toEqual(3.5);
 
     aBlock.setValue('1', null);
     Root.run();
-    assert.equal(aBlock.getValue('#output'), undefined, '7/null == undefined');
+    expect(aBlock.getValue('#output')).toEqual(undefined);
   });
 
   it('multiply', function () {
@@ -122,18 +122,18 @@ describe('Math', function () {
     aBlock.setValue('2', 5);
     aBlock.setValue('[]', 3);
     Root.run();
-    assert.equal(aBlock.getValue('#output'), 30, '2*3*5 == 30');
+    expect(aBlock.getValue('#output')).toEqual(30);
 
     aBlock.setValue('2', null);
     Root.run();
-    assert.equal(aBlock.getValue('#output'), undefined, '2*3*null == undefined');
+    expect(aBlock.getValue('#output')).toEqual(undefined);
 
     aBlock.setValue('[]', -1);
     Root.run();
-    assert.equal(aBlock.getValue('#output'), 6, 'when length is invalid, use length=2');
+    expect(aBlock.getValue('#output')).toEqual(6);
 
     aBlock.setValue('[]', 0);
     Root.run();
-    assert.equal(aBlock.getValue('#output'), 1);
+    expect(aBlock.getValue('#output')).toEqual(1);
   });
 });

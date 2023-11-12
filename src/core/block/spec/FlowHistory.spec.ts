@@ -1,4 +1,4 @@
-import {assert} from 'chai';
+import expect from 'expect';
 import {Flow} from '../Flow';
 import {FlowHistory} from '../FlowHistory';
 import {shouldHappen} from '../../util/test-util';
@@ -12,35 +12,35 @@ describe('FlowHistory', function () {
     let history = flow._history;
 
     history.undo();
-    assert.isUndefined(flow.getValue('@has-undo'));
-    assert.isUndefined(flow.getValue('@has-redo'));
+    expect(flow.getValue('@has-undo')).not.toBeDefined();
+    expect(flow.getValue('@has-redo')).not.toBeDefined();
 
     flow.setValue('a', 2);
     history.add(flow.save());
 
-    assert.equal(flow.getValue('@has-undo'), true);
-    assert.isUndefined(flow.getValue('@has-redo'));
+    expect(flow.getValue('@has-undo')).toEqual(true);
+    expect(flow.getValue('@has-redo')).not.toBeDefined();
 
     history.undo();
-    assert.equal(flow.getValue('a'), 1);
+    expect(flow.getValue('a')).toEqual(1);
 
-    assert.isUndefined(flow.getValue('@has-undo'));
-    assert.equal(flow.getValue('@has-redo'), true);
+    expect(flow.getValue('@has-undo')).not.toBeDefined();
+    expect(flow.getValue('@has-redo')).toEqual(true);
 
     flow.setValue('a', 3);
     history.add(flow.save());
 
-    assert.equal(flow.getValue('@has-undo'), true);
-    assert.isUndefined(flow.getValue('@has-redo'));
+    expect(flow.getValue('@has-undo')).toEqual(true);
+    expect(flow.getValue('@has-redo')).not.toBeDefined();
 
     history.undo();
     history.redo();
-    assert.equal(flow.getValue('a'), 3);
+    expect(flow.getValue('a')).toEqual(3);
 
     flow.destroyHistory();
-    assert.isUndefined(flow.getValue('@has-undo'));
-    assert.isUndefined(flow.getValue('@has-redo'));
-    assert.isNull(flow._history);
+    expect(flow.getValue('@has-undo')).not.toBeDefined();
+    expect(flow.getValue('@has-redo')).not.toBeDefined();
+    expect(flow._history).toBeNull();
 
     flow.destroy();
   });
@@ -56,18 +56,18 @@ describe('FlowHistory', function () {
     flow.setValue('a', 2);
 
     flow.trackChange();
-    assert.isTrue(history._tracking);
-    assert.isTrue(flow.getValue('@has-change'));
+    expect(history._tracking).toBe(true);
+    expect(flow.getValue('@has-change')).toBe(true);
 
     flow.undo();
-    assert.isFalse(history._tracking);
-    assert.equal(flow.getValue('a'), 1);
-    assert.isUndefined(flow.getValue('@has-change'));
+    expect(history._tracking).toBe(false);
+    expect(flow.getValue('a')).toEqual(1);
+    expect(flow.getValue('@has-change')).not.toBeDefined();
 
     flow.setValue('a', 3);
     flow.trackChange();
     flow.redo(); // shouldn't do anything
-    assert.isTrue(history._tracking);
+    expect(history._tracking).toBe(true);
 
     flow.setValue('a', 4);
     flow.trackChange();
@@ -75,18 +75,18 @@ describe('FlowHistory', function () {
     await shouldHappen(() => history._tracking === false, 500);
 
     flow.applyChange();
-    assert.isUndefined(flow.getValue('@has-change'));
+    expect(flow.getValue('@has-change')).not.toBeDefined();
 
     flow.undo();
-    assert.equal(flow.getValue('a'), 1);
-    assert.isTrue(flow.getValue('@has-change'));
+    expect(flow.getValue('a')).toEqual(1);
+    expect(flow.getValue('@has-change')).toBe(true);
 
     flow.setValue('a', 3);
 
     // destroy history
     flow.unwatch({onChildChange: () => {}});
     // reload from saved state
-    assert.equal(flow.getValue('a'), 1);
+    expect(flow.getValue('a')).toEqual(1);
 
     flow.destroy();
     FlowHistory._debounceInterval = debounceInterval;

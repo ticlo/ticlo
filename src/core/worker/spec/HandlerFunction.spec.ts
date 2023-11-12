@@ -1,4 +1,4 @@
-import {assert} from 'chai';
+import expect from 'expect';
 import {Flow, Root} from '../../block/Flow';
 import {TestFunctionRunner, TestAsyncFunctionLog} from '../../block/spec/TestFunction';
 import '../../functions/math/Arithmetic';
@@ -58,7 +58,7 @@ describe('HandlerFunction', function () {
 
     Root.runAll(2);
 
-    assert.deepEqual(listener.emits, [WAIT, 2]);
+    expect(listener.emits).toEqual([WAIT, 2]);
 
     // delete handler;
     flow.deleteValue('a');
@@ -83,9 +83,9 @@ describe('HandlerFunction', function () {
     aBlock.setValue('#call', 1);
     Root.run();
 
-    assert.deepEqual(listener.emits, [WAIT, 5, 4, 3, 2]);
+    expect(listener.emits).toEqual([WAIT, 5, 4, 3, 2]);
 
-    assert.lengthOf(TestFunctionRunner.popLogs(), 4);
+    expect(TestFunctionRunner.popLogs().length).toBe(4);
 
     // delete handler;
     flow.deleteValue('a');
@@ -110,9 +110,9 @@ describe('HandlerFunction', function () {
     aBlock.setValue('#call', 1);
     Root.runAll();
 
-    assert.deepEqual(listener.emits, [WAIT, 5, 4, WAIT, 3, 2]);
+    expect(listener.emits).toEqual([WAIT, 5, 4, WAIT, 3, 2]);
 
-    assert.lengthOf(TestFunctionRunner.popLogs(), 4);
+    expect(TestFunctionRunner.popLogs().length).toBe(4);
 
     // delete handler;
     flow.deleteValue('a');
@@ -138,15 +138,15 @@ describe('HandlerFunction', function () {
     aBlock.setValue('#call', 1);
     Root.runAll();
 
-    assert.deepEqual(listener.emits, [WAIT, 5, 4, WAIT, 3, 2]);
+    expect(listener.emits).toEqual([WAIT, 5, 4, WAIT, 3, 2]);
 
-    assert.lengthOf(TestFunctionRunner.popLogs(), 2);
+    expect(TestFunctionRunner.popLogs().length).toBe(2);
 
     aBlock.setValue('#call', 0);
     Root.runAll();
-    assert.deepEqual(listener.emits, [WAIT, 5, 4, WAIT, 3, 2, WAIT, 1]);
+    expect(listener.emits).toEqual([WAIT, 5, 4, WAIT, 3, 2, WAIT, 1]);
 
-    assert.lengthOf(TestFunctionRunner.popLogs(), 1); // a new worker is created
+    expect(TestFunctionRunner.popLogs().length).toBe(1); // a new worker is created
 
     // delete handler;
     flow.deleteValue('a');
@@ -172,15 +172,15 @@ describe('HandlerFunction', function () {
     aBlock.setValue('#call', 1);
     Root.runAll();
 
-    assert.deepEqual(listener.emits, [WAIT, 5, 4, WAIT, 3, 2]);
+    expect(listener.emits).toEqual([WAIT, 5, 4, WAIT, 3, 2]);
 
-    assert.lengthOf(TestFunctionRunner.popLogs(), 2);
+    expect(TestFunctionRunner.popLogs().length).toBe(2);
 
     aBlock.setValue('#call', 0);
     Root.runAll();
-    assert.deepEqual(listener.emits, [WAIT, 5, 4, WAIT, 3, 2, WAIT, 1]);
+    expect(listener.emits).toEqual([WAIT, 5, 4, WAIT, 3, 2, WAIT, 1]);
 
-    assert.isEmpty(TestFunctionRunner.popLogs()); // no new worker is created
+    expect(TestFunctionRunner.popLogs()).toEqual([]); // no new worker is created
 
     // delete handler;
     flow.deleteValue('a');
@@ -217,7 +217,7 @@ describe('HandlerFunction', function () {
 
     await shouldHappen(() => listener.emits.length === 5);
 
-    assert.deepEqual(listener.emits, [5, 4, 3, 2, 1]);
+    expect(listener.emits).toEqual([5, 4, 3, 2, 1]);
 
     // delete handler;
     flow.deleteValue('a');
@@ -247,7 +247,7 @@ describe('HandlerFunction', function () {
     aBlock.setValue('#call', 1);
     Root.runAll();
 
-    assert.deepEqual(listener.emits, [WAIT]);
+    expect(listener.emits).toEqual([WAIT]);
 
     aBlock.setValue('timeout', 0.01);
     await shouldHappen(() => listener.emits.length >= 5);
@@ -281,7 +281,7 @@ describe('HandlerFunction', function () {
 
     await shouldHappen(() => listener.emits.length >= 3);
 
-    assert.deepEqual(listener.emits, [5, 2, 1]);
+    expect(listener.emits).toEqual([5, 2, 1]);
 
     // delete handler;
     flow.deleteValue('a');
@@ -311,9 +311,9 @@ describe('HandlerFunction', function () {
     aBlock.setValue('#call', 3);
 
     Root.runAll();
-    assert.deepEqual(listener.emits, [WAIT, 6, 5]);
+    expect(listener.emits).toEqual([WAIT, 6, 5]);
 
-    assert.lengthOf(TestFunctionRunner.popLogs(), 4);
+    expect(TestFunctionRunner.popLogs().length).toBe(4);
     // delete handler;
     flow.deleteValue('a');
   });
@@ -348,7 +348,7 @@ describe('HandlerFunction', function () {
 
     await shouldHappen(() => listener.emits.length >= 2);
 
-    assert.deepEqual(listener.emits, [5, 3]);
+    expect(listener.emits).toEqual([5, 3]);
 
     // delete handler;
     flow.deleteValue('a');

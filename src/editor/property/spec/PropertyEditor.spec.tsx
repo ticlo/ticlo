@@ -1,4 +1,4 @@
-import {assert} from 'chai';
+import expect from 'expect';
 import SimulateEvent from 'simulate-event';
 import React from 'react';
 import '../../index';
@@ -55,7 +55,7 @@ describe('PropertyEditor', function () {
     let input = div.querySelector('.ticl-number-input');
 
     // value is editable when value is same
-    assert.isFalse(input.classList.contains('ticl-number-input-disabled'));
+    expect(input.classList.contains('ticl-number-input-disabled')).toBe(false);
 
     // value is not editable when value is different
     flow.queryProperty('add1.0').setValue(2);
@@ -103,8 +103,8 @@ describe('PropertyEditor', function () {
 
     let expandIcon = div.querySelector('.ticl-tree-arr-expand');
 
-    assert.isNotNull(expandIcon);
-    assert.isNull(div.querySelector('.ticl-property-list'));
+    expect(expandIcon).not.toBeNull();
+    expect(div.querySelector('.ticl-property-list')).toBeNull();
 
     // subblock should expand
     SimulateEvent.simulate(expandIcon, 'click');

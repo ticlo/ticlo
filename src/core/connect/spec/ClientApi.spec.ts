@@ -1,4 +1,4 @@
-import {assert} from 'chai';
+import expect from 'expect';
 import {Block} from '../../block/Block';
 import {Flow, Root} from '../../block/Flow';
 import {makeLocalConnection} from '../LocalConnection';
@@ -86,11 +86,11 @@ describe('Connection Client API', function () {
     let func4 = client.watchDesc('ClientConnection:func4');
     let func5 = client.watchDesc('ClientConnection:func5');
 
-    assert.equal(client.getCommonBaseFunc(new Set([func5])), func5);
-    assert.equal(client.getCommonBaseFunc(new Set([func3, func5])), func2);
-    assert.equal(client.getCommonBaseFunc(new Set([func2, func3, func5])), func2);
-    assert.equal(client.getCommonBaseFunc(new Set([func2, func4])), func1);
-    assert.equal(client.getCommonBaseFunc(new Set([func3, func5, func4])), func1);
+    expect(client.getCommonBaseFunc(new Set([func5]))).toEqual(func5);
+    expect(client.getCommonBaseFunc(new Set([func3, func5]))).toEqual(func2);
+    expect(client.getCommonBaseFunc(new Set([func2, func3, func5]))).toEqual(func2);
+    expect(client.getCommonBaseFunc(new Set([func2, func4]))).toEqual(func1);
+    expect(client.getCommonBaseFunc(new Set([func3, func5, func4]))).toEqual(func1);
     client.destroy();
   });
 
@@ -101,8 +101,8 @@ describe('Connection Client API', function () {
     let func1 = client.watchDesc('ClientConnection:func1');
     let func5 = client.watchDesc('ClientConnection:func5');
 
-    assert.sameMembers(Object.keys(client.getOptionalProps(func1)), ['p1']);
-    assert.sameMembers(Object.keys(client.getOptionalProps(func5)), ['p1', 'p2', 'p5']);
+    expect(Object.keys(client.getOptionalProps(func1))).toEqual(['p1']);
+    expect(Object.keys(client.getOptionalProps(func5))).toEqual(['p1', 'p2', 'p5']);
 
     client.destroy();
   });

@@ -1,4 +1,4 @@
-import {assert} from 'chai';
+import expect from 'expect';
 import '../../functions/math/Arithmetic';
 import '../../functions/script/Js';
 import {
@@ -18,36 +18,36 @@ import {Functions} from '../Functions';
 
 describe('Descriptor', function () {
   it('mapConfigDesc', function () {
-    assert.isUndefined(mapConfigDesc(null));
+    expect(mapConfigDesc(null)).not.toBeDefined();
 
     const abcconfig: PropDesc = {name: '#abc', type: 'string'};
     let mapped = mapConfigDesc(['#is', '#invalidConfig', abcconfig]);
-    assert.deepEqual(mapped, [configDescs['#is'], abcconfig]);
-    assert.equal(mapped, mapConfigDesc(mapped));
+    expect([...mapped]).toEqual([configDescs['#is'], abcconfig]);
+    expect(mapped).toEqual(mapConfigDesc(mapped));
   });
 
   it('desc cache', function () {
-    assert.isNull(buildPropDescCache(null, null));
-    assert.equal(findPropDesc('a', null), blankPropDesc);
+    expect(buildPropDescCache(null, null)).toBeNull();
+    expect(findPropDesc('a', null)).toEqual(blankPropDesc);
 
     let cache = buildPropDescCache(Functions.getDescToSend('add')[0], null);
-    assert.equal(findPropDesc('', cache), blankPropDesc);
-    assert.equal(findPropDesc('1', cache), cache['0']);
+    expect(findPropDesc('', cache)).toEqual(blankPropDesc);
+    expect(findPropDesc('1', cache)).toEqual(cache['0']);
   });
 
   it('getOutputDesc', function () {
-    assert.isNull(getOutputDesc(null));
-    assert.isNull(getOutputDesc({name: ''}));
-    assert.isNull(getOutputDesc(Functions.getDescToSend('js')[0]));
-    assert.isNotNull(getOutputDesc(Functions.getDescToSend('add')[0]));
+    expect(getOutputDesc(null)).toBeNull();
+    expect(getOutputDesc({name: ''})).toBeNull();
+    expect(getOutputDesc(Functions.getDescToSend('js')[0])).toBeNull();
+    expect(getOutputDesc(Functions.getDescToSend('add')[0])).not.toBeNull();
   });
 
   it('getDefaultFuncData', function () {
-    assert.deepEqual(getSubBlockFuncData(getDefaultFuncData(Functions.getDescToSend('add')[0])), {
+    expect(getSubBlockFuncData(getDefaultFuncData(Functions.getDescToSend('add')[0]))).toEqual({
       '#is': 'add',
       '@b-p': ['0', '1'],
     });
-    assert.deepEqual(getDefaultFuncData(Functions.getDescToSend('add')[0]), {
+    expect(getDefaultFuncData(Functions.getDescToSend('add')[0])).toEqual({
       '#is': 'add',
       '@b-p': ['0', '1', '#output'],
     });
@@ -63,7 +63,7 @@ describe('Descriptor', function () {
         properties: [{name: '', type: 'string', init: 'world'}],
       },
     ];
-    assert.deepEqual(getDefaultDataFromCustom(custom), {
+    expect(getDefaultDataFromCustom(custom)).toEqual({
       '#is': '',
       '#custom': custom,
       'a': 'hello',

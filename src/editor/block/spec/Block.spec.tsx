@@ -1,4 +1,4 @@
-import {assert} from 'chai';
+import expect from 'expect';
 import SimulateEvent from 'simulate-event';
 import React from 'react';
 import {BlockStage} from '../BlockStage';
@@ -41,9 +41,9 @@ describe('editor BlockStage', function () {
     await shouldHappen(() => div.querySelector('.ticl-block'), 500, 'find block');
 
     let block = div.querySelector('.ticl-block') as HTMLDivElement;
-    assert.equal(block.offsetLeft, 123);
-    assert.equal(block.offsetTop, 234);
-    assert.equal(block.offsetWidth, 345);
+    expect(block.offsetLeft).toEqual(123);
+    expect(block.offsetTop).toEqual(234);
+    expect(block.offsetWidth).toEqual(345);
 
     // test all fields in the block body
     await shouldHappen(
@@ -51,15 +51,15 @@ describe('editor BlockStage', function () {
       100,
       'find field 1'
     );
-    assert.isNotNull(
+    expect(
       querySingle("//div.ticl-field-name/span[text()='1']/..//../../div.ticl-field-value[text()='2']", div)
-    );
-    assert.isNotNull(
+    ).not.toBeNull();
+    expect(
       querySingle("//div.ticl-field-name/span[text()='#output']/..//../../div.ticl-field-value[text()='3']", div)
-    );
+    ).not.toBeNull();
 
     // check block icon
-    assert.isNotNull(querySingle('//div.tico-icon-svg.tico-fas-plus', div));
+    expect(querySingle('//div.tico-icon-svg.tico-fas-plus', div)).not.toBeNull();
 
     // test value update
     flow.queryProperty('add.0').updateValue(5);
@@ -68,9 +68,9 @@ describe('editor BlockStage', function () {
       100,
       'find field 5'
     );
-    assert.isNotNull(
+    expect(
       querySingle("//div.ticl-field-name/span[text()='#output']/..//../../div.ticl-field-value[text()='7']", div)
-    );
+    ).not.toBeNull();
 
     // test change type
     flow.queryProperty('add.#is').setValue('subtract');
@@ -80,7 +80,7 @@ describe('editor BlockStage', function () {
       'find field 3'
     );
     // check block icon again
-    assert.isNotNull(querySingle('//div.tico-icon-svg.tico-fas-minus', div));
+    expect(querySingle('//div.tico-icon-svg.tico-fas-minus', div)).not.toBeNull();
 
     Root.instance.deleteValue('BlockStage1');
   });
@@ -114,14 +114,14 @@ describe('editor BlockStage', function () {
     await shouldHappen(() => block.classList.contains('ticl-block-selected'));
 
     // mouse move to drag
-    assert.equal(block.offsetLeft, 123);
-    assert.equal(block.offsetTop, 234);
+    expect(block.offsetLeft).toEqual(123);
+    expect(block.offsetTop).toEqual(234);
     SimulateEvent.simulate(document.body, 'mousemove', {
       clientX: 100,
       clientY: 100,
     });
     await shouldHappen(() => block.offsetLeft === 223);
-    assert.equal(block.offsetTop, 334);
+    expect(block.offsetTop).toEqual(334);
 
     // mouse up to stop dragging
     SimulateEvent.simulate(document.body, 'mouseup');
@@ -205,7 +205,7 @@ describe('editor BlockStage', function () {
     await shouldHappen(() => div.querySelector('svg.ticl-block-wire'));
 
     let addBlock = querySingle("//div.ticl-block-head.ticl-block-head-label[text()='add']/../..", div);
-    assert.equal(addBlock.offsetWidth, 143);
+    expect(addBlock.offsetWidth).toEqual(143);
 
     let wire = div.querySelector('svg.ticl-block-wire') as SVGSVGElement;
 
@@ -218,10 +218,10 @@ describe('editor BlockStage', function () {
     // minimize the block
     SimulateEvent.simulate(addBlock.querySelector('.ticl-block-head'), 'dblclick');
     await shouldHappen(() => addBlock.offsetWidth === 24);
-    assert.equal(addBlock.offsetHeight, 24);
+    expect(addBlock.offsetHeight).toEqual(24);
 
     // wrie instance should be reused
-    assert.equal(div.querySelector('svg'), wire);
+    expect(div.querySelector('svg')).toEqual(wire);
 
     // click the other block
     SimulateEvent.simulate(
@@ -231,7 +231,7 @@ describe('editor BlockStage', function () {
     // addBlock is no longer selected
     await shouldHappen(() => !addBlock.classList.contains('ticl-block-selected'));
     // since subtract block is now selected, wire should still have zindex
-    assert.equal(wire.style.zIndex, '100');
+    expect(wire.style.zIndex).toEqual('100');
 
     // expand block
     SimulateEvent.simulate(addBlock.querySelector('.ticl-block-head'), 'dblclick');
@@ -291,7 +291,7 @@ describe('editor BlockStage', function () {
 
     // both block are selected
     await shouldHappen(() => div.querySelectorAll('.ticl-stage-scroll .ticl-block-selected').length === 2);
-    assert.sameMembers(selectedPaths, ['BlockStage5.add', 'BlockStage5.subtract']);
+    expect(selectedPaths).toEqual(['BlockStage5.add', 'BlockStage5.subtract']);
 
     // select all
     SimulateEvent.simulate(rectBg, 'mousedown', fakeMouseEvent(210, 210));
@@ -299,7 +299,7 @@ describe('editor BlockStage', function () {
 
     // one block selected
     await shouldHappen(() => div.querySelectorAll('.ticl-stage-scroll .ticl-block-selected').length === 1);
-    assert.sameMembers(selectedPaths, ['BlockStage5.add']);
+    expect(selectedPaths).toEqual(['BlockStage5.add']);
 
     // select none
     // select all
@@ -308,7 +308,7 @@ describe('editor BlockStage', function () {
 
     // one block selected
     await shouldHappen(() => div.querySelectorAll('.ticl-block-selected').length === 0);
-    assert.isEmpty(selectedPaths);
+    expect(selectedPaths).toEqual([]);
 
     Root.instance.deleteValue('BlockStage5');
   });
@@ -334,8 +334,8 @@ describe('editor BlockStage', function () {
     let yarr = [36, 36, 228, 228, 36, 228, 420, 420, 420, 36];
     for (let i = 0; i < 10; ++i) {
       let block = blocks[i] as HTMLDivElement;
-      assert.equal(block.offsetLeft, xarr[i]);
-      assert.equal(block.offsetTop, yarr[i]);
+      expect(block.offsetLeft).toEqual(xarr[i]);
+      expect(block.offsetTop).toEqual(yarr[i]);
     }
     Root.instance.deleteValue('BlockStage6');
   });

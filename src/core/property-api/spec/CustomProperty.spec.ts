@@ -1,4 +1,4 @@
-import {assert} from 'chai';
+import expect from 'expect';
 
 import {addCustomProperty, moveCustomProperty, removeCustomProperty} from '../CustomProperty';
 import {Flow} from '../../block/Flow';
@@ -30,110 +30,110 @@ describe('Custom Property', function () {
 
     // remove should do nothing when #custom is undefined
     removeCustomProperty(flow, 'a');
-    assert.isUndefined(flow.getValue('#custom'));
+    expect(flow.getValue('#custom')).not.toBeDefined();
 
     // add invalid desc
     addCustomProperty(flow, {} as any);
-    assert.isUndefined(flow.getValue('#custom'));
+    expect(flow.getValue('#custom')).not.toBeDefined();
 
     // add invalid desc
     addCustomProperty(flow, {...descBlank});
-    assert.isUndefined(flow.getValue('#custom'));
+    expect(flow.getValue('#custom')).not.toBeDefined();
 
     // add property into group that doesn't exist
     addCustomProperty(flow, descA, 'g');
-    assert.isUndefined(flow.getValue('#custom'));
+    expect(flow.getValue('#custom')).not.toBeDefined();
 
     addCustomProperty(flow, descA);
-    assert.deepEqual(flow.getValue('#custom'), [descA]);
-    assert.deepEqual(flow.getValue('@b-p'), ['a']);
+    expect(flow.getValue('#custom')).toEqual([descA]);
+    expect(flow.getValue('@b-p')).toEqual(['a']);
 
     addCustomProperty(flow, descB);
-    assert.deepEqual(flow.getValue('#custom'), [descA, descB]);
-    assert.deepEqual(flow.getValue('@b-p'), ['a', 'b']);
+    expect(flow.getValue('#custom')).toEqual([descA, descB]);
+    expect(flow.getValue('@b-p')).toEqual(['a', 'b']);
 
     // when prop name is same, overwrite the previous one
     addCustomProperty(flow, descA2);
-    assert.deepEqual(flow.getValue('#custom'), [descA2, descB]);
+    expect(flow.getValue('#custom')).toEqual([descA2, descB]);
 
     // add property into group that doesn't exist
     addCustomProperty(flow, descA, 'g');
-    assert.deepEqual(flow.getValue('#custom'), [descA2, descB]);
+    expect(flow.getValue('#custom')).toEqual([descA2, descB]);
 
     addCustomProperty(flow, descG);
-    assert.deepEqual(flow.getValue('#custom'), [descA2, descB, descG]);
-    assert.deepEqual(flow.getValue('@b-p'), ['a', 'b']);
+    expect(flow.getValue('#custom')).toEqual([descA2, descB, descG]);
+    expect(flow.getValue('@b-p')).toEqual(['a', 'b']);
 
     // add property into group
     addCustomProperty(flow, descA2, 'g');
-    assert.deepEqual(flow.getValue('#custom'), [descA2, descB, {...descG, properties: [descA2]}]);
-    assert.deepEqual(flow.getValue('@b-p'), ['a', 'b']);
+    expect(flow.getValue('#custom')).toEqual([descA2, descB, {...descG, properties: [descA2]}]);
+    expect(flow.getValue('@b-p')).toEqual(['a', 'b']);
 
     // cant add property name ends with number into a group
     addCustomProperty(flow, descBNumber, 'g');
-    assert.deepEqual(flow.getValue('#custom'), [descA2, descB, {...descG, properties: [descA2]}]);
+    expect(flow.getValue('#custom')).toEqual([descA2, descB, {...descG, properties: [descA2]}]);
 
     // add property with blank name into group
     addCustomProperty(flow, descBlank, 'g');
-    assert.deepEqual(flow.getValue('#custom'), [descA2, descB, {...descG, properties: [descA2, descBlank]}]);
-    assert.deepEqual(flow.getValue('@b-p'), ['a', 'b', '0']);
+    expect(flow.getValue('#custom')).toEqual([descA2, descB, {...descG, properties: [descA2, descBlank]}]);
+    expect(flow.getValue('@b-p')).toEqual(['a', 'b', '0']);
 
     // replace property in group
     addCustomProperty(flow, descA, 'g');
-    assert.deepEqual(flow.getValue('#custom'), [descA2, descB, {...descG, properties: [descA, descBlank]}]);
+    expect(flow.getValue('#custom')).toEqual([descA2, descB, {...descG, properties: [descA, descBlank]}]);
 
     // replace the group
     addCustomProperty(flow, descG2);
-    assert.deepEqual(flow.getValue('#custom'), [descA2, descB, descG2Fix]);
-    assert.deepEqual(flow.getValue('@b-p'), ['a', 'b']);
+    expect(flow.getValue('#custom')).toEqual([descA2, descB, descG2Fix]);
+    expect(flow.getValue('@b-p')).toEqual(['a', 'b']);
 
     addCustomProperty(flow, descA, 'g');
-    assert.deepEqual(flow.getValue('#custom'), [descA2, descB, {...descG2Fix, properties: [descA]}]);
-    assert.deepEqual(flow.getValue('@b-p'), ['a', 'b', 'a0', 'a1']);
+    expect(flow.getValue('#custom')).toEqual([descA2, descB, {...descG2Fix, properties: [descA]}]);
+    expect(flow.getValue('@b-p')).toEqual(['a', 'b', 'a0', 'a1']);
 
     // remove property from group
     flow.setValue('a0', 1);
     removeCustomProperty(flow, 'a', 'g');
-    assert.deepEqual(flow.getValue('#custom'), [descA2, descB, descG2Fix]);
-    assert.deepEqual(flow.getValue('@b-p'), ['a', 'b']);
-    assert.isUndefined(flow.getValue('a0'));
+    expect(flow.getValue('#custom')).toEqual([descA2, descB, descG2Fix]);
+    expect(flow.getValue('@b-p')).toEqual(['a', 'b']);
+    expect(flow.getValue('a0')).not.toBeDefined();
     // again
     removeCustomProperty(flow, 'a', 'g');
-    assert.deepEqual(flow.getValue('#custom'), [descA2, descB, descG2Fix]);
+    expect(flow.getValue('#custom')).toEqual([descA2, descB, descG2Fix]);
 
     flow.setValue('a', 1);
     removeCustomProperty(flow, 'a');
-    assert.deepEqual(flow.getValue('#custom'), [descB, descG2Fix]);
-    assert.deepEqual(flow.getValue('@b-p'), ['b']);
-    assert.isUndefined(flow.getValue('a'));
+    expect(flow.getValue('#custom')).toEqual([descB, descG2Fix]);
+    expect(flow.getValue('@b-p')).toEqual(['b']);
+    expect(flow.getValue('a')).not.toBeDefined();
     // again
     removeCustomProperty(flow, 'a');
-    assert.deepEqual(flow.getValue('#custom'), [descB, descG2Fix]);
+    expect(flow.getValue('#custom')).toEqual([descB, descG2Fix]);
 
     // remove the group
     removeCustomProperty(flow, null, 'g');
-    assert.deepEqual(flow.getValue('#custom'), [descB]);
+    expect(flow.getValue('#custom')).toEqual([descB]);
     // again
     removeCustomProperty(flow, null, 'g');
-    assert.deepEqual(flow.getValue('#custom'), [descB]);
+    expect(flow.getValue('#custom')).toEqual([descB]);
 
     // remove nothing
     removeCustomProperty(flow, null, null);
-    assert.deepEqual(flow.getValue('#custom'), [descB]);
+    expect(flow.getValue('#custom')).toEqual([descB]);
 
     // cleared
     removeCustomProperty(flow, 'b');
-    assert.isUndefined(flow.getValue('#custom'));
+    expect(flow.getValue('#custom')).not.toBeDefined();
   });
 
   it('move CustomProperty', function () {
     let flow = new Flow();
 
     moveCustomProperty(flow, 'a', 'b');
-    assert.isUndefined(flow.getValue('#custom'));
+    expect(flow.getValue('#custom')).not.toBeDefined();
 
     moveCustomProperty(flow, 'a', 'a');
-    assert.isUndefined(flow.getValue('#custom'));
+    expect(flow.getValue('#custom')).not.toBeDefined();
 
     flow.setValue('#custom', [
       descA,
@@ -145,24 +145,24 @@ describe('Custom Property', function () {
     ]);
 
     moveCustomProperty(flow, 'a', 'b');
-    assert.deepEqual(flow.getValue('#custom'), [{...descG, properties: [descA, descC]}, descB, descA]);
+    expect(flow.getValue('#custom')).toEqual([{...descG, properties: [descA, descC]}, descB, descA]);
 
     moveCustomProperty(flow, 'a', 'b');
-    assert.deepEqual(flow.getValue('#custom'), [{...descG, properties: [descA, descC]}, descA, descB]);
+    expect(flow.getValue('#custom')).toEqual([{...descG, properties: [descA, descC]}, descA, descB]);
 
     moveCustomProperty(flow, 'a', 'g');
-    assert.deepEqual(flow.getValue('#custom'), [descA, {...descG, properties: [descA, descC]}, descB]);
+    expect(flow.getValue('#custom')).toEqual([descA, {...descG, properties: [descA, descC]}, descB]);
 
     moveCustomProperty(flow, 'a', 'c', 'g');
-    assert.deepEqual(flow.getValue('#custom'), [descA, {...descG, properties: [descC, descA]}, descB]);
+    expect(flow.getValue('#custom')).toEqual([descA, {...descG, properties: [descC, descA]}, descB]);
 
     moveCustomProperty(flow, 'a', 'c', 'g2'); // group doesn't exist
-    assert.deepEqual(flow.getValue('#custom'), [descA, {...descG, properties: [descC, descA]}, descB]);
+    expect(flow.getValue('#custom')).toEqual([descA, {...descG, properties: [descC, descA]}, descB]);
 
     moveCustomProperty(flow, 'a', 'c'); // property doesn't exist
-    assert.deepEqual(flow.getValue('#custom'), [descA, {...descG, properties: [descC, descA]}, descB]);
+    expect(flow.getValue('#custom')).toEqual([descA, {...descG, properties: [descC, descA]}, descB]);
 
     moveCustomProperty(flow, 'c', 'b'); // property doesn't exist
-    assert.deepEqual(flow.getValue('#custom'), [descA, {...descG, properties: [descC, descA]}, descB]);
+    expect(flow.getValue('#custom')).toEqual([descA, {...descG, properties: [descC, descA]}, descB]);
   });
 });

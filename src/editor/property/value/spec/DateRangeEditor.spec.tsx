@@ -1,4 +1,4 @@
-import {assert} from 'chai';
+import expect from 'expect';
 import SimulateEvent from 'simulate-event';
 import React from 'react';
 import {removeLastTemplate, loadTemplate, querySingle, fakeMouseEvent} from '../../../util/test-util';
@@ -47,7 +47,7 @@ describe('DateRangeEditor', function () {
 
     await shouldHappen(() => values != null);
     let clickedMoment = moment(dateStr, 'YYYY-MM-DD');
-    assert.isTrue(clickedMoment.isSameOrBefore(values[0]));
-    assert.isTrue(clickedMoment.isBefore(values[1]));
+    expect(clickedMoment.isSameOrBefore(values[0])).toBe(true);
+    expect(clickedMoment.isBefore(values[1])).toBe(true);
   });
 });

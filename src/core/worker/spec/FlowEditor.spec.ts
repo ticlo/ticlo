@@ -1,4 +1,4 @@
-import {assert} from 'chai';
+import expect from 'expect';
 import {Flow, Root} from '../../block/Flow';
 import {FlowEditor} from '../FlowEditor';
 import {VoidListeners} from '../../block/spec/TestFunction';
@@ -14,15 +14,15 @@ describe('FlowEditor', function () {
     let editor1 = FlowEditor.create(flow, '#edit-1', {});
     let editor2 = FlowEditor.create(flow, '#edit-2');
 
-    assert.isNull(editor2, 'failed to load');
-    assert.instanceOf(flow.getValue('#edit-2'), FlowEditor);
+    expect(editor2).toBeNull();
+    expect(flow.getValue('#edit-2')).toBeInstanceOf(FlowEditor);
 
     editor1.watch(VoidListeners);
-    assert.equal(flow.getValue('#edit-1'), editor1);
+    expect(flow.getValue('#edit-1')).toEqual(editor1);
 
     // value deleted after unwatch
     editor1.unwatch(VoidListeners);
-    assert.isUndefined(flow.getValue('#edit-1'));
+    expect(flow.getValue('#edit-1')).not.toBeDefined();
   });
 
   it('createFromField', function () {
@@ -40,12 +40,12 @@ describe('FlowEditor', function () {
     // editor with map data
     block.setValue('use1', data);
     FlowEditor.createFromField(block, '#edit-use1', 'use1');
-    assert.deepEqual(block.getValue('#edit-use1').save(), data);
+    expect(block.getValue('#edit-use1').save()).toEqual(data);
 
     // editor with registered worker function
     block.setValue('use2', 'FlowEditor:func1');
     FlowEditor.createFromField(block, '#edit-use2', 'use2');
-    assert.deepEqual(block.getValue('#edit-use2').save(), data);
+    expect(block.getValue('#edit-use2').save()).toEqual(data);
 
     Functions.clear('FlowEditor:func1');
   });
@@ -62,10 +62,10 @@ describe('FlowEditor', function () {
     WorkerFunction.registerType(data, {name: 'worker2'}, 'FlowEditor');
 
     FlowEditor.createFromFunction(flow, '#edit-func', 'FlowEditor:worker2', null);
-    assert.deepEqual(flow.getValue('#edit-func').save(), data);
+    expect(flow.getValue('#edit-func').save()).toEqual(data);
 
     FlowEditor.createFromFunction(flow, '#edit-func', 'FlowEditor:worker2-2', data);
-    assert.deepEqual(flow.getValue('#edit-func').save(), data);
+    expect(flow.getValue('#edit-func').save()).toEqual(data);
 
     Functions.clear('FlowEditor:worker2');
   });
@@ -77,7 +77,7 @@ describe('FlowEditor', function () {
       return true;
     });
     editor.applyChange();
-    assert.deepEqual(flow.getValue('v2'), {'#is': ''});
+    expect(flow.getValue('v2')).toEqual({'#is': ''});
   });
 
   it('applyChange function', function () {
@@ -135,11 +135,11 @@ describe('FlowEditor', function () {
     editor.setValue('#desc', expectedData['#desc']);
     WorkerFunction.applyChangeToFunc(editor, 'FlowEditor:worker3');
 
-    assert.deepEqual(Functions.getWorkerData('FlowEditor:worker3'), expectedData);
+    expect(Functions.getWorkerData('FlowEditor:worker3')).toEqual(expectedData);
 
     let desc = Functions.getDescToSend('FlowEditor:worker3')[0];
-    assert.equal(desc.icon, 'fas:plus');
-    assert.deepEqual(desc.properties, expectedDescProperties);
+    expect(desc.icon).toEqual('fas:plus');
+    expect(desc.properties).toEqual(expectedDescProperties);
 
     Functions.clear('FlowEditor:worker3');
     flow.destroy();
@@ -154,8 +154,8 @@ describe('FlowEditor', function () {
     });
 
     let block: SharedBlock = editor.getValue('#shared');
-    assert.instanceOf(block, SharedBlock);
-    assert.equal(block._prop, editor.getProperty('#shared'));
+    expect(block).toBeInstanceOf(SharedBlock);
+    expect(block._prop).toEqual(editor.getProperty('#shared'));
 
     flow.destroy();
   });

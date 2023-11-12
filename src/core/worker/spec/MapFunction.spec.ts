@@ -1,4 +1,4 @@
-import {assert} from 'chai';
+import expect from 'expect';
 import {Flow, Root} from '../../block/Flow';
 import {TestFunctionRunner, TestAsyncFunctionPromise} from '../../block/spec/TestFunction';
 import '../../functions/math/Arithmetic';
@@ -42,7 +42,7 @@ describe('MapFunction non-thread', function () {
 
     Root.runAll(2);
 
-    assert.deepEqual(bBlock.getValue('#output'), {v1: 2, v2: 3, v3: 4});
+    expect(bBlock.getValue('#output')).toEqual({v1: 2, v2: 3, v3: 4});
 
     flow.setValue('a', {
       v1: 1,
@@ -52,9 +52,9 @@ describe('MapFunction non-thread', function () {
 
     Root.runAll(2);
 
-    assert.deepEqual(bBlock.getValue('#output'), {v1: 2, v2: 5, v4: 6});
+    expect(bBlock.getValue('#output')).toEqual({v1: 2, v2: 5, v4: 6});
 
-    assert.lengthOf(TestFunctionRunner.popLogs(), 6);
+    expect(TestFunctionRunner.popLogs().length).toBe(6);
 
     // delete flow;
     flow.deleteValue('b');
@@ -76,7 +76,7 @@ describe('MapFunction non-thread', function () {
     });
 
     Root.run();
-    assert.deepEqual(bBlock.getValue('#output'), {});
+    expect(bBlock.getValue('#output')).toEqual({});
 
     flow.deleteValue('b');
   });
@@ -102,7 +102,7 @@ describe('MapFunction non-thread', function () {
       },
     });
     Root.runAll(2);
-    assert.deepEqual(bBlock.getValue('#output'), {v1: 1, v2: 3});
+    expect(bBlock.getValue('#output')).toEqual({v1: 1, v2: 3});
 
     bBlock.setValue('use', {
       '#is': '',
@@ -111,7 +111,7 @@ describe('MapFunction non-thread', function () {
     });
 
     Root.runAll(2);
-    assert.deepEqual(bBlock.getValue('#output'), {v1: 2, v2: 4});
+    expect(bBlock.getValue('#output')).toEqual({v1: 2, v2: 4});
 
     bBlock.setValue('use', {
       '#is': '',
@@ -120,7 +120,7 @@ describe('MapFunction non-thread', function () {
     });
 
     Root.runAll(2);
-    assert.deepEqual(bBlock.getValue('#output'), {v1: 1, v2: 3});
+    expect(bBlock.getValue('#output')).toEqual({v1: 1, v2: 3});
 
     // delete flow;
     flow.deleteValue('b');
@@ -152,7 +152,7 @@ describe('MapFunction non-thread', function () {
 
     Root.runAll(2);
 
-    assert.deepEqual(bBlock.getValue('#output'), data);
+    expect(bBlock.getValue('#output')).toEqual(data);
 
     // delete flow;
     flow.deleteValue('b');
@@ -185,7 +185,7 @@ describe('MapFunction non-thread', function () {
 
     Root.runAll(2);
 
-    assert.deepEqual(bBlock.getValue('#output'), {v1: 2, v2: 3, v3: 4});
+    expect(bBlock.getValue('#output')).toEqual({v1: 2, v2: 3, v3: 4});
 
     bBlock.setValue('use', {
       '#is': '',
@@ -196,9 +196,9 @@ describe('MapFunction non-thread', function () {
 
     Root.runAll(2);
 
-    assert.deepEqual(bBlock.getValue('#output'), {v1: 3, v2: 4, v3: 5});
+    expect(bBlock.getValue('#output')).toEqual({v1: 3, v2: 4, v3: 5});
 
-    assert.lengthOf(TestFunctionRunner.popLogs(), 6);
+    expect(TestFunctionRunner.popLogs().length).toBe(6);
 
     // delete flow;
     flow.deleteValue('b');
@@ -239,14 +239,14 @@ describe('MapFunction non-thread', function () {
 
     Root.run();
 
-    assert.deepEqual(bBlock.getValue('#output'), {v1: 2, v2: 3, v3: 4});
+    expect(bBlock.getValue('#output')).toEqual({v1: 2, v2: 3, v3: 4});
 
     Root.run();
 
-    assert.deepEqual(bBlock.getValue('#output'), {v1: 2, v2: 5, v4: 6});
-    assert.isUndefined(bBlock.queryValue('#flow.v3.#outputs'), 'unused worker should be removed');
+    expect(bBlock.getValue('#output')).toEqual({v1: 2, v2: 5, v4: 6});
+    expect(bBlock.queryValue('#flow.v3.#outputs')).not.toBeDefined();
 
-    assert.lengthOf(TestFunctionRunner.popLogs(), 4);
+    expect(TestFunctionRunner.popLogs().length).toBe(4);
 
     // delete flow;
     flow.deleteValue('b');
@@ -279,7 +279,7 @@ describe('MapFunction non-thread', function () {
 
     Root.runAll(2);
 
-    assert.deepEqual(bBlock.getValue('#output'), {v1: 2, v2: 3, v3: 4});
+    expect(bBlock.getValue('#output')).toEqual({v1: 2, v2: 3, v3: 4});
 
     flow.setValue('a', {
       v1: 1,
@@ -289,10 +289,10 @@ describe('MapFunction non-thread', function () {
 
     Root.runAll(2);
 
-    assert.deepEqual(bBlock.getValue('#output'), {v1: 2, v2: 5, v4: 6});
-    assert.equal(bBlock.queryValue('#flow.v3.#outputs.#value'), 4, 'unused worker is still kept');
+    expect(bBlock.getValue('#output')).toEqual({v1: 2, v2: 5, v4: 6});
+    expect(bBlock.queryValue('#flow.v3.#outputs.#value')).toEqual(4);
 
-    assert.lengthOf(TestFunctionRunner.popLogs(), 4);
+    expect(TestFunctionRunner.popLogs().length).toBe(4);
 
     // delete flow;
     flow.deleteValue('b');
@@ -326,7 +326,7 @@ describe('MapFunction non-thread', function () {
 
     Root.runAll(2);
 
-    assert.deepEqual(bBlock.getValue('#output'), {
+    expect(bBlock.getValue('#output')).toEqual({
       obj1: {v: 2},
       obj2: {v: 3},
       obj3: {v: 4},
@@ -373,9 +373,9 @@ describe('MapFunction non-thread', function () {
 
     Root.run();
 
-    assert.isUndefined(bBlock.getValue('#output'), 'async worker should not finish right after run');
+    expect(bBlock.getValue('#output')).not.toBeDefined();
 
-    assert.deepEqual(await bBlock.waitNextValue('#output'), {v1: 2, v2: 3, v3: 4}, 'async workers finish');
+    expect(await bBlock.waitNextValue('#output')).toEqual({v1: 2, v2: 3, v3: 4});
 
     flow.setValue('a', {
       v1: 1,
@@ -385,13 +385,13 @@ describe('MapFunction non-thread', function () {
 
     Root.run();
 
-    assert.deepEqual(await bBlock.waitNextValue('#output'), {
+    expect(await bBlock.waitNextValue('#output')).toEqual({
       v1: 2,
       v2: 5,
       v4: 6,
     });
 
-    assert.lengthOf(TestFunctionRunner.popLogs(), 6);
+    expect(TestFunctionRunner.popLogs().length).toBe(6);
 
     // delete flow;
     flow.deleteValue('b');
@@ -425,8 +425,8 @@ describe('MapFunction non-thread', function () {
 
     let output = await bBlock.waitNextValue('#output');
 
-    assert.instanceOf(output.v1, ErrorEvent, 'value is timeout error');
-    assert.instanceOf(output.v2, ErrorEvent, 'value is timeout error');
+    expect(output.v1).toBeInstanceOf(ErrorEvent);
+    expect(output.v2).toBeInstanceOf(ErrorEvent);
 
     // delete flow;
     flow.deleteValue('b');
@@ -458,8 +458,8 @@ describe('MapFunction non-thread', function () {
 
     Root.runAll(2);
 
-    assert.deepEqual(bBlock.getValue('#output'), {v1: 2, v2: 3, v3: 4});
-    assert.lengthOf(TestFunctionRunner.popLogs(), 3);
+    expect(bBlock.getValue('#output')).toEqual({v1: 2, v2: 3, v3: 4});
+    expect(TestFunctionRunner.popLogs().length).toBe(3);
 
     // set 2 inputs at same time
     flow.setValue('a', {
@@ -475,9 +475,9 @@ describe('MapFunction non-thread', function () {
 
     Root.runAll(2);
 
-    assert.deepEqual(bBlock.getValue('#output'), {v1: 2, v2: 5, v4: 6});
+    expect(bBlock.getValue('#output')).toEqual({v1: 2, v2: 5, v4: 6});
 
-    assert.lengthOf(TestFunctionRunner.popLogs(), 3);
+    expect(TestFunctionRunner.popLogs().length).toBe(3);
 
     // delete flow;
     flow.deleteValue('b');
@@ -523,7 +523,7 @@ describe('MapFunction non-thread', function () {
     bBlock.setValue('#cancel', {});
     await shouldTimeout(bBlock.waitNextValue('#output'), 10);
 
-    assert.lengthOf(TestFunctionRunner.popLogs(), 3);
+    expect(TestFunctionRunner.popLogs().length).toBe(3);
 
     flow.setValue('a', {
       v1: 1,
@@ -533,13 +533,13 @@ describe('MapFunction non-thread', function () {
 
     Root.run();
 
-    assert.deepEqual(await bBlock.waitNextValue('#output'), {
+    expect(await bBlock.waitNextValue('#output')).toEqual({
       v1: 2,
       v2: 5,
       v4: 6,
     });
 
-    assert.lengthOf(TestFunctionRunner.popLogs(), 3);
+    expect(TestFunctionRunner.popLogs().length).toBe(3);
 
     // delete flow;
     flow.deleteValue('b');
@@ -583,7 +583,7 @@ describe('MapFunction non-thread', function () {
 
     Root.run();
 
-    assert.lengthOf(TestFunctionRunner.popLogs(), 3);
+    expect(TestFunctionRunner.popLogs().length).toBe(3);
     bBlock.setValue('#cancel', {});
 
     flow.setValue('a', {
@@ -594,9 +594,9 @@ describe('MapFunction non-thread', function () {
 
     Root.run();
 
-    assert.deepEqual(await bBlock.waitValue('#output'), {v1: 2, v2: 5, v4: 6});
+    expect(await bBlock.waitValue('#output')).toEqual({v1: 2, v2: 5, v4: 6});
 
-    assert.lengthOf(TestFunctionRunner.popLogs(), 1);
+    expect(TestFunctionRunner.popLogs().length).toBe(1);
 
     // delete flow;
     flow.deleteValue('b');

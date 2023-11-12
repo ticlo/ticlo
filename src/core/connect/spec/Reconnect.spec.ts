@@ -1,4 +1,4 @@
-import {assert} from 'chai';
+import expect from 'expect';
 import {Block} from '../../block/Block';
 import {Root} from '../../block/Flow';
 import {makeLocalConnection} from '../LocalConnection';
@@ -21,7 +21,7 @@ describe('Reconnect', function () {
     let subcallbacks = new AsyncClientPromise();
     client.subscribe('Reconnect1.a', subcallbacks);
     let result = await subcallbacks.promise;
-    assert.equal(result.cache.value, 1);
+    expect(result.cache.value).toEqual(1);
 
     let setcallbacks = new AsyncClientPromise();
     client.setValue('Reconnect1.a', 3, setcallbacks);
@@ -32,9 +32,9 @@ describe('Reconnect', function () {
 
     flow.setValue('a', 2);
     result = await subcallbacks.promise;
-    assert.equal(result.cache.value, 2);
-    assert.isNull(result.cache.bindingPath);
-    assert.isNull(result.change.bindingPath);
+    expect(result.cache.value).toEqual(2);
+    expect(result.cache.bindingPath).toBeNull();
+    expect(result.change.bindingPath).toBeNull();
 
     // clean up
     subcallbacks.cancel();
@@ -52,7 +52,7 @@ describe('Reconnect', function () {
     let callbacks1 = new AsyncClientPromise();
     client.watch('Reconnect2', callbacks1);
     let result1 = await callbacks1.promise;
-    assert.deepEqual(result1.cache, {
+    expect(result1.cache).toEqual({
       c0: child0._blockId,
       c1: child1._blockId,
     });
@@ -63,11 +63,11 @@ describe('Reconnect', function () {
     flow.deleteValue('c1');
 
     let result2 = await callbacks1.promise;
-    assert.deepEqual(result2.cache, {
+    expect(result2.cache).toEqual({
       c0: child0._blockId,
       c2: child2._blockId,
     });
-    assert.deepEqual(result2.changes, {c1: null, c2: child2._blockId});
+    expect(result2.changes).toEqual({c1: null, c2: child2._blockId});
 
     // clean up
     callbacks1.cancel();

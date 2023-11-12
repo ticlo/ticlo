@@ -1,4 +1,4 @@
-import {assert} from 'chai';
+import expect from 'expect';
 import {FlowWithShared, SharedBlock} from '../SharedBlock';
 import {WorkerFunction} from '../../worker/WorkerFunction';
 import {Functions} from '../Functions';
@@ -11,17 +11,17 @@ describe('SharedBlock', function () {
     let flow1 = new FlowWithShared();
     flow1.load(data);
     let sharedBlock: SharedBlock = flow1.getValue('#shared');
-    assert.instanceOf(sharedBlock, SharedBlock);
-    assert.equal(sharedBlock._cacheKey, data['#shared']);
+    expect(sharedBlock).toBeInstanceOf(SharedBlock);
+    expect(sharedBlock._cacheKey).toEqual(data['#shared']);
 
     let flow2 = new FlowWithShared();
     flow2.load(data);
-    assert.equal(flow2.getValue('#shared'), sharedBlock);
+    expect(flow2.getValue('#shared')).toEqual(sharedBlock);
 
     flow1.destroy();
-    assert.isFalse(sharedBlock._destroyed);
+    expect(sharedBlock._destroyed).toBe(false);
     flow2.destroy();
-    assert.isTrue(sharedBlock._destroyed);
+    expect(sharedBlock._destroyed).toBe(true);
   });
 
   it('save load', function () {
@@ -35,19 +35,21 @@ describe('SharedBlock', function () {
     sharedBlock.setValue('#custom', [{name: 'v', type: 'string'}]);
 
     let saved = flow.save();
-    assert.deepEqual(saved, {'#is': '', '#shared': {'#is': '', 'v': 1, '#custom': [{name: 'v', type: 'string'}]}});
+    expect(saved).toEqual(
+      {'#is': '', '#shared': {'#is': '', 'v': 1, '#custom': [{name: 'v', type: 'string'}]}}
+    );
 
     sharedBlock.setValue('v', 2);
 
     flow.liveUpdate(saved);
-    assert.equal(sharedBlock.getValue('v'), 1);
+    expect(sharedBlock.getValue('v')).toEqual(1);
 
     flow.liveUpdate({'#is': ''});
-    assert.isUndefined(sharedBlock.getValue('v'));
-    assert.deepEqual(flow.save(), {'#is': ''});
+    expect(sharedBlock.getValue('v')).not.toBeDefined();
+    expect(flow.save()).toEqual({'#is': ''});
 
     flow.destroy();
-    assert.isUndefined(sharedProp.getValue());
+    expect(sharedProp.getValue()).not.toBeDefined();
   });
 
   it('cacheMode', function () {
@@ -56,19 +58,19 @@ describe('SharedBlock', function () {
 
     let flow = new WorkerFlow();
     flow.load(data, 'SharedBlock:cacheModeWorker1');
-    assert.deepEqual(flow.save(), data);
+    expect(flow.save()).toEqual(data);
 
     let sharedBlock: SharedBlock = flow.getValue('#shared');
-    assert.instanceOf(sharedBlock, SharedBlock);
+    expect(sharedBlock).toBeInstanceOf(SharedBlock);
     let sharedProp = sharedBlock._prop;
 
-    assert.deepEqual(flow.save(), data);
+    expect(flow.save()).toEqual(data);
 
     flow.destroy();
-    assert.equal(sharedProp.getValue(), sharedBlock);
+    expect(sharedProp.getValue()).toEqual(sharedBlock);
 
     // destroy persisted SharedBlock only when function is destroyed
     Functions.clear('SharedBlock:cacheModeWorker1');
-    assert.isUndefined(sharedProp.getValue());
+    expect(sharedProp.getValue()).not.toBeDefined();
   });
 });

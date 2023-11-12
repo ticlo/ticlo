@@ -1,4 +1,4 @@
-import {assert} from 'chai';
+import expect from 'expect';
 import '../../functions/math/Arithmetic';
 import {WorkerFlow} from '../../worker/WorkerFlow';
 import {copyProperties, deleteProperties, pasteProperties} from '../CopyPaste';
@@ -20,14 +20,14 @@ describe('Copy Paste', function () {
 
     flow1.load(data);
     let copied = copyProperties(flow1, ['add', '#shared.subtract']) as DataMap;
-    assert.deepEqual(copied, copy);
+    expect(copied).toEqual(copy);
 
     let flow2 = new WorkerFlow();
-    assert.deepEqual(pasteProperties(flow2, copied), ['add', '#shared.subtract']);
-    assert.deepEqual(flow2.save(), data);
+    expect(pasteProperties(flow2, copied)).toEqual(['add', '#shared.subtract']);
+    expect(flow2.save()).toEqual(data);
 
     deleteProperties(flow1, ['add', '#shared.subtract']);
-    assert.deepEqual(flow1.save(), {'#is': ''});
+    expect(flow1.save()).toEqual({'#is': ''});
 
     flow1.destroy();
     flow2.destroy();
@@ -45,7 +45,7 @@ describe('Copy Paste', function () {
     pasteProperties(flow1, copied1, 'rename');
     pasteProperties(flow1, copied2, 'rename');
 
-    assert.deepEqual(flow1.save(), {
+    expect(flow1.save()).toEqual({
       '#is': '',
       '#shared': {
         '#is': '',
@@ -63,14 +63,16 @@ describe('Copy Paste', function () {
 
   it('invalid copy paste', function () {
     let flow1 = new WorkerFlow();
-    assert.equal(copyProperties(flow1, ['add', '#shared.subtract']), 'nothing to copy');
-    assert.equal(pasteProperties(flow1, null), 'invalid data');
-    assert.equal(pasteProperties(flow1, []), 'invalid data');
-    assert.equal(pasteProperties(flow1, 1 as any), 'invalid data');
+    expect(copyProperties(flow1, ['add', '#shared.subtract'])).toEqual('nothing to copy');
+    expect(pasteProperties(flow1, null)).toEqual('invalid data');
+    expect(pasteProperties(flow1, [])).toEqual('invalid data');
+    expect(pasteProperties(flow1, 1 as any)).toEqual('invalid data');
 
     flow1.load(data);
-    assert.isTrue((pasteProperties(flow1, copy) as string).startsWith('block already exists: '));
+    expect(
+      (pasteProperties(flow1, copy) as string).startsWith('block already exists: ')
+    ).toBe(true);
 
-    assert.equal(pasteProperties(flow1.getValue('add'), copy), '#shared properties not allowed in this Block');
+    expect(pasteProperties(flow1.getValue('add'), copy)).toEqual('#shared properties not allowed in this Block');
   });
 });

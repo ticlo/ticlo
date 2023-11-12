@@ -1,4 +1,4 @@
-import {assert} from 'chai';
+import expect from 'expect';
 import {Flow, Root} from '../../block/Flow';
 import {WorkerFunction} from '../WorkerFunction';
 import {TestFunctionRunner} from '../../block/spec/TestFunction';
@@ -25,23 +25,23 @@ describe('WorkerFunction', function () {
     WorkerFunction.registerType(flowData, {name: 'class1'}, 'WorkerFunction');
 
     Root.run();
-    assert.deepEqual(TestFunctionRunner.popLogs(), ['nest1'], 'nested flow should be created');
+    expect(TestFunctionRunner.popLogs()).toEqual(['nest1']);
 
     let impl: Flow = aBlock.getValue('#flow') as Flow;
-    assert.instanceOf(impl, Flow, 'get #flow of nested flow');
+    expect(impl).toBeInstanceOf(Flow);
 
-    assert.deepEqual(impl.save(), flowData, 'serialize nested flow');
+    expect(impl.save()).toEqual(flowData);
 
     aBlock.setValue('in1', 1);
     Root.run();
-    assert.deepEqual(TestFunctionRunner.popLogs(), ['nest1'], 'nested flow triggered with binding');
+    expect(TestFunctionRunner.popLogs()).toEqual(['nest1']);
 
     aBlock.setValue('in1', 2);
     aBlock.setValue('#is', null);
     Root.run();
-    assert.isEmpty(TestFunctionRunner.logs, 'nested flow destroy');
+    expect(TestFunctionRunner.logs).toEqual([]);
 
-    assert.deepEqual(impl.save(), flowData, 'serialize nested flow after destroy');
+    expect(impl.save()).toEqual(flowData);
   });
 
   it('output', function () {
@@ -60,7 +60,7 @@ describe('WorkerFunction', function () {
     aBlock.setValue('in1', 2);
     Root.run();
 
-    assert.equal(aBlock.getValue('out1'), 3, 'output from nested logic');
+    expect(aBlock.getValue('out1')).toEqual(3);
   });
 
   it('namespace', function () {
@@ -84,6 +84,6 @@ describe('WorkerFunction', function () {
     WorkerFunction.registerType(flowData2, {name: 'class2'}, 'test_namespace');
     Root.run();
 
-    assert.equal(aBlock.getValue('out1'), 3, 'output from 2 layer of  nested logic');
+    expect(aBlock.getValue('out1')).toEqual(3);
   });
 });
