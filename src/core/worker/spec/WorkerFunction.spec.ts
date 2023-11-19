@@ -60,7 +60,7 @@ describe('WorkerFunction', function () {
     aBlock.setValue('in1', 2);
     Root.run();
 
-    expect(aBlock.getValue('out1')).toEqual(3);
+    expect(aBlock.getValue('out1')).toBe(3);
   });
 
   it('namespace', function () {
@@ -84,6 +84,6 @@ describe('WorkerFunction', function () {
     WorkerFunction.registerType(flowData2, {name: 'class2'}, 'test_namespace');
     Root.run();
 
-    expect(aBlock.getValue('out1')).toEqual(3);
+    expect(aBlock.getValue('out1')).toBe(3);
   });
 });

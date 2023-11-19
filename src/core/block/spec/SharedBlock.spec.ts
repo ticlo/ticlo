@@ -40,7 +40,7 @@ describe('SharedBlock', function () {
     sharedBlock.setValue('v', 2);
 
     flow.liveUpdate(saved);
-    expect(sharedBlock.getValue('v')).toEqual(1);
+    expect(sharedBlock.getValue('v')).toBe(1);
 
     flow.liveUpdate({'#is': ''});
     expect(sharedBlock.getValue('v')).not.toBeDefined();

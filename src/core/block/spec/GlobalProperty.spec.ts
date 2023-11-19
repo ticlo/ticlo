@@ -29,18 +29,18 @@ describe('GlobalProperty', function () {
 
     let top = globalBlock.createBlock('^top');
     top.setValue('v', 123);
-    expect(impl.getValue('v')).toEqual(123);
+    expect(impl.getValue('v')).toBe(123);
 
     // overwrite the global block in the local flow
     let topOverwrite = flow.createBlock('^top');
     expect(impl.getValue('v')).not.toBeDefined();
 
     topOverwrite.setValue('v', 456);
-    expect(impl.getValue('v')).toEqual(456);
+    expect(impl.getValue('v')).toBe(456);
 
     // clear the overwrite, restore the global link
     flow.deleteValue('^top');
-    expect(impl.getValue('v')).toEqual(123);
+    expect(impl.getValue('v')).toBe(123);
 
     globalBlock._liveUpdate({}); // clear global object
     expect(impl.getValue('v')).toEqual(undefined);

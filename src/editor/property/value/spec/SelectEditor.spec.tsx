@@ -47,7 +47,7 @@ describe('SelectEditor', function () {
       'click'
     );
 
-    expect(value).toEqual('b');
+    expect(value).toBe('b');
   });
 
   it('multi-select', async function () {

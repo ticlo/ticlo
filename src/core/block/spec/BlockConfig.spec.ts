@@ -27,15 +27,15 @@ describe('BlockConfig', function () {
 
     let block = flow.createBlock('obj');
 
-    expect(block.getValue('#is')).toEqual('');
+    expect(block.getValue('#is')).toBe('');
 
     block.setValue('@is', 'add');
     block.setBinding('#is', '@is');
-    expect(block.getValue('#is')).toEqual('add');
+    expect(block.getValue('#is')).toBe('add');
     expect(flow.save()).toEqual({'#is': '', 'obj': {'@is': 'add', '~#is': '@is'}});
 
     block.setBinding('#is', null);
-    expect(block.getValue('#is')).toEqual('');
+    expect(block.getValue('#is')).toBe('');
     expect(flow.save()).toEqual({'#is': '', 'obj': {'@is': 'add', '#is': ''}});
   });
 });

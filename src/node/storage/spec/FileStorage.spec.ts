@@ -21,7 +21,7 @@ describe('FileStorage', function () {
     flow.applyChange();
     let savedData: string;
     await shouldHappen(() => (savedData = Fs.existsSync(path) ? Fs.readFileSync(path, 'utf8') : null));
-    expect(savedData).toEqual('{\n"#is": ""\n}');
+    expect(savedData).toBe('{\n"#is": ""\n}');
 
     root.deleteFlow('flow1');
     await shouldHappen(() => !Fs.existsSync(path), 500);
@@ -69,8 +69,8 @@ describe('FileStorage', function () {
     let root = new Root();
     await root.setStorage(new FileStorage('./temp/storageTest'));
 
-    expect(root.queryValue('flow5.value')).toEqual(321);
-    expect(root.queryValue('flow5.subflow.value')).toEqual(321);
+    expect(root.queryValue('flow5.value')).toBe(321);
+    expect(root.queryValue('flow5.subflow.value')).toBe(321);
     expect((root.getValue('flow5') as Flow).save()).toEqual(flowData);
 
     Fs.unlinkSync(path2);

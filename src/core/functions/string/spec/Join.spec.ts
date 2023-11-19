@@ -16,7 +16,7 @@ describe('Join', function () {
 
     Root.run();
 
-    expect(aBlock.getValue('#output')).toEqual('2a');
+    expect(aBlock.getValue('#output')).toBe('2a');
 
     aBlock.setValue('0', null);
 
@@ -26,20 +26,20 @@ describe('Join', function () {
     aBlock.setValue('0', ['b', 'c']);
 
     Root.run();
-    expect(aBlock.getValue('#output')).toEqual('bca');
+    expect(aBlock.getValue('#output')).toBe('bca');
 
     aBlock.setValue('separator', ',');
 
     Root.run();
-    expect(aBlock.getValue('#output')).toEqual('b,c,a');
+    expect(aBlock.getValue('#output')).toBe('b,c,a');
 
     aBlock.setValue('[]', 1);
 
     Root.run();
-    expect(aBlock.getValue('#output')).toEqual('b,c');
+    expect(aBlock.getValue('#output')).toBe('b,c');
 
     aBlock.setValue('[]', 0);
     Root.run();
-    expect(aBlock.getValue('#output')).toEqual('');
+    expect(aBlock.getValue('#output')).toBe('');
   });
 });

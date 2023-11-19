@@ -40,7 +40,7 @@ describe('Connection', function () {
     let [server, client] = makeLocalConnection(Root.instance, false);
 
     await client.addBlock('Connection1.block1', {'#is': 'add'});
-    expect(flow.queryValue('block1.#is')).toEqual('add');
+    expect(flow.queryValue('block1.#is')).toBe('add');
 
     let callbacks = new AsyncClientPromise();
     client.subscribe('Connection1.block1.#output', callbacks);
@@ -50,7 +50,7 @@ describe('Connection', function () {
     client.setValue('Connection1.block1.0', 2);
     client.updateValue('Connection1.block1.1', 3);
     result = await callbacks.promise;
-    expect(result.change.value).toEqual(5);
+    expect(result.change.value).toBe(5);
 
     // clean up
     callbacks.cancel();
@@ -69,13 +69,13 @@ describe('Connection', function () {
     flow.setValue('b', 'b');
     flow.setValue('o', [{p: 'p'}]);
     await client.setBinding('Connection1-2.v', 'a', false, true);
-    expect(flow.getValue('v')).toEqual(3);
-    expect((await callbacks.firstPromise).cache.bindingPath).toEqual('a');
+    expect(flow.getValue('v')).toBe(3);
+    expect((await callbacks.firstPromise).cache.bindingPath).toBe('a');
 
     await client.setBinding('Connection1-2.v', 'Connection1-2.b', true, true);
-    expect(flow.getValue('v')).toEqual('b');
+    expect(flow.getValue('v')).toBe('b');
     await client.setBinding('Connection1-2.v', 'Connection1-2.o..0.p', true, true);
-    expect(flow.getValue('v')).toEqual('p');
+    expect(flow.getValue('v')).toBe('p');
 
     await client.setBinding('Connection1-2.v', 'Connection1-2.o', true, true);
     expect(flow.getValue('v')).toEqual([{p: 'p'}]);
@@ -88,15 +88,15 @@ describe('Connection', function () {
     await client.setBinding('Connection1-2.v', 'a', false, true);
     // clear binding but keep value (when it's primitive)
     await client.setBinding('Connection1-2.v', null, true, true);
-    expect(flow.getValue('v')).toEqual(3);
+    expect(flow.getValue('v')).toBe(3);
 
     // binding from global block
     let a = Root.instance._globalRoot.createBlock('^g');
     a.setValue('0', 'global');
 
     await client.setBinding('Connection1-2.v', '#global.^g.0', true, true);
-    expect(flow.getValue('v')).toEqual('global');
-    expect(flow.getProperty('v')._bindingPath).toEqual('^g.0');
+    expect(flow.getValue('v')).toBe('global');
+    expect(flow.getProperty('v')._bindingPath).toBe('^g.0');
 
     // clear #global
     callbacks.cancel();
@@ -115,12 +115,12 @@ describe('Connection', function () {
     client.subscribe('Connection2.p', callbacks1);
     let result1 = await callbacks1.promise;
     expect(result1.change.value).toBeUndefined();
-    expect(result1.change.bindingPath).toEqual('p0');
+    expect(result1.change.bindingPath).toBe('p0');
 
     let callbacks2 = new AsyncClientPromise();
     client.subscribe('Connection2.p', callbacks2);
     let result2 = await callbacks2.firstPromise;
-    expect(result1.change.bindingPath).toEqual('p0');
+    expect(result1.change.bindingPath).toBe('p0');
 
     client.setValue('Connection2.p1', 'hello');
     client.setBinding('Connection2.p', 'p1');
@@ -131,8 +131,8 @@ describe('Connection', function () {
     let result3 = await callbacks3.firstPromise;
 
     for (let obj of [result1.cache, result2.cache, result3.cache, result1.change, result2.change]) {
-      expect(obj.value).toEqual('hello');
-      expect(obj.bindingPath).toEqual('p1');
+      expect(obj.value).toBe('hello');
+      expect(obj.bindingPath).toBe('p1');
     }
     let cachedPromise1 = callbacks1.promise;
 
@@ -240,15 +240,15 @@ describe('Connection', function () {
     }
 
     let result1 = await client.listChildren('Connection4', null, 32);
-    expect(Object.keys(result1.children).length).toEqual(32);
-    expect(result1.count).toEqual(200);
+    expect(Object.keys(result1.children).length).toBe(32);
+    expect(result1.count).toBe(200);
 
     let id2: string = client.listChildren('Connection4', 'any', 32, VoidListeners) as string;
     client.cancel(id2);
 
     let result3 = await client.listChildren('Connection4', 'a\\d+', 9999);
-    expect(Object.keys(result3.children).length).toEqual(16);
-    expect(result3.count).toEqual(100);
+    expect(Object.keys(result3.children).length).toBe(16);
+    expect(result3.count).toBe(100);
 
     client.destroy();
     Root.instance.deleteValue('Connection4');
@@ -286,7 +286,7 @@ describe('Connection', function () {
     Functions.clear('Connection-watchDesc1');
     await shouldHappen(() => descCustom == null);
 
-    expect(client.getCategory('math').color).toEqual('4af');
+    expect(client.getCategory('math').color).toBe('4af');
 
     client.destroy();
     Root.instance.deleteValue('Connection5');
@@ -419,27 +419,27 @@ describe('Connection', function () {
     let callback = () => called++;
 
     client.callImmediate(callback);
-    expect(called).toEqual(1);
+    expect(called).toBe(1);
 
     let callbacks1 = {
       onUpdate(response: DataMap) {
         client.callImmediate(callback);
         updated++;
-        expect(called).toEqual(1);
+        expect(called).toBe(1);
       },
     };
     let callbacks2 = {
       onUpdate(response: DataMap) {
         client.callImmediate(callback);
         updated++;
-        expect(called).toEqual(1);
+        expect(called).toBe(1);
       },
     };
     client.setValue('Connection8.v', 1);
     client.subscribe('Connection8.v', callbacks1);
     client.subscribe('Connection8.v', callbacks2);
 
-    expect(called).toEqual(1);
+    expect(called).toBe(1);
 
     await shouldHappen(() => updated === 2 && called === 2);
 
@@ -533,17 +533,17 @@ describe('Connection', function () {
     await client.addBlock('Connection12.~a');
 
     expect(flow1.getValue('~a')).toBeInstanceOf(Block);
-    expect(flow1.getProperty('a')._bindingPath).toEqual('~a.#output');
+    expect(flow1.getProperty('a')._bindingPath).toBe('~a.#output');
 
     // transfer property value
     await client.setValue('Connection12.b', 2);
     await client.addBlock('Connection12.~b', {'#is': 'add'});
-    expect(flow1.queryValue('~b.0')).toEqual(2);
+    expect(flow1.queryValue('~b.0')).toBe(2);
 
     // transfer property binding
     await client.setBinding('Connection12.c', '##.v');
     await client.addBlock('Connection12.~c', {'#is': 'add'});
-    expect(flow1.queryProperty('~c.0')._bindingPath).toEqual('##.##.v');
+    expect(flow1.queryProperty('~c.0')._bindingPath).toBe('##.##.v');
 
     client.destroy();
     Root.instance.deleteValue('Connection12');
@@ -559,9 +559,9 @@ describe('Connection', function () {
     let response3 = await client.addBlock('Connection13.a', null, true);
 
     // result names
-    expect(response1.name).toEqual('a');
-    expect(response2.name).toEqual('a1');
-    expect(response3.name).toEqual('a2');
+    expect(response1.name).toBe('a');
+    expect(response2.name).toBe('a1');
+    expect(response3.name).toBe('a2');
 
     // a a0 a1 should all be created
     expect(flow1.getValue('a2')).toBeInstanceOf(Block);
@@ -620,15 +620,15 @@ describe('Connection', function () {
     let [server, client] = makeLocalConnection(Root.instance, false);
 
     let response1 = await client.insertGroupProp('Connection16.a', '', 0);
-    expect(block1.getValue('[]')).toEqual(3);
-    expect(block1.getValue('1')).toEqual(0);
+    expect(block1.getValue('[]')).toBe(3);
+    expect(block1.getValue('1')).toBe(0);
 
     let response2 = await client.removeGroupProp('Connection16.a', '', 0);
-    expect(block1.getValue('[]')).toEqual(2);
-    expect(block1.getValue('0')).toEqual(0);
+    expect(block1.getValue('[]')).toBe(2);
+    expect(block1.getValue('0')).toBe(0);
 
     let response3 = await client.moveGroupProp('Connection16.a', '', 0, 1);
-    expect(block1.getValue('1')).toEqual(0);
+    expect(block1.getValue('1')).toBe(0);
 
     client.destroy();
     Root.instance.deleteValue('Connection16');
@@ -780,38 +780,38 @@ describe('Connection', function () {
     let [server, client] = makeLocalConnection(Root.instance, false);
 
     await client.setBinding('Connection22.a.v', 'Connection22.#shared.a', true, true);
-    expect(flow1.queryProperty('a.v')._bindingPath).toEqual('##.#shared.a');
+    expect(flow1.queryProperty('a.v')._bindingPath).toBe('##.#shared.a');
 
     await client.setBinding('Connection22.#shared.v', 'Connection22.#shared.a', true, true);
-    expect(flow1.queryProperty('#shared.v')._bindingPath).toEqual('a');
+    expect(flow1.queryProperty('#shared.v')._bindingPath).toBe('a');
 
     // can't bind to different flow
     let error = await shouldReject(
       client.setBinding('Connection22_2.v1', 'Connection22.#shared.a', true, true) as Promise<any>
     );
-    expect(error).toEqual('invalid binding path');
+    expect(error).toBe('invalid binding path');
 
     // can't bind into #shared
     error = await shouldReject(
       client.setBinding('Connection22.#shared.a', 'Connection22.v1', true, true) as Promise<any>
     );
-    expect(error).toEqual('invalid binding path');
+    expect(error).toBe('invalid binding path');
 
     // can't bind from global #temp object
     error = await shouldReject(client.setBinding('Connection22_2.v2', '#temp.v', true, true) as Promise<any>);
-    expect(error).toEqual('invalid binding path');
+    expect(error).toBe('invalid binding path');
 
     // can't bind to global #shared object
     error = await shouldReject(client.setBinding('#shared.v', 'Connection22_2.v', true, true) as Promise<any>);
-    expect(error).toEqual('invalid binding path');
+    expect(error).toBe('invalid binding path');
 
     // can't bind to global #temp object
     error = await shouldReject(client.setBinding('#temp.v', 'Connection22_2.v', true, true) as Promise<any>);
-    expect(error).toEqual('invalid binding path');
+    expect(error).toBe('invalid binding path');
 
     // binding to #shared is allowed only when it's from #global
     await client.setBinding('#temp.v', '#global.v', true, true);
-    expect(Root.instance.queryProperty('#temp.v')._bindingPath).toEqual('##.#global.v');
+    expect(Root.instance.queryProperty('#temp.v')._bindingPath).toBe('##.#global.v');
 
     client.destroy();
     client.setValue('#temp.v', undefined, true);
@@ -830,10 +830,10 @@ describe('Connection', function () {
     client.applyFlowChange('Connection23');
     await client.undo('Connection23');
 
-    expect(flow.getValue('a')).toEqual(1);
+    expect(flow.getValue('a')).toBe(1);
 
     await client.redo('Connection23');
-    expect(flow.getValue('a')).toEqual(2);
+    expect(flow.getValue('a')).toBe(2);
 
     client.destroy();
     Root.instance.deleteValue('Connection23');
@@ -867,7 +867,7 @@ describe('Connection', function () {
     await client.renameProp('Connection25.a', 'b');
 
     expect(flow.getValue('a')).not.toBeDefined();
-    expect(flow.getValue('b')).toEqual(1);
+    expect(flow.getValue('b')).toBe(1);
 
     client.destroy();
     Root.instance.deleteValue('Connection25');
@@ -891,7 +891,7 @@ describe('Connection', function () {
     await client.callFunction('Connection26.add');
     Root.run();
 
-    expect(addBlock.getValue('#output')).toEqual(3);
+    expect(addBlock.getValue('#output')).toBe(3);
 
     client.destroy();
     Root.instance.deleteValue('Connection26');
@@ -909,13 +909,13 @@ describe('Connection', function () {
     client.updateValue('Connection27.a', 3, true);
     let result = await callbacks.promise;
 
-    expect(flow.getProperty('a')._saved).toEqual(2);
-    expect(result.change.value).toEqual(3);
+    expect(flow.getProperty('a')._saved).toBe(2);
+    expect(result.change.value).toBe(3);
     expect(result.change.temp).toBe(true);
 
     client.restoreSaved('Connection27.a');
     result = await callbacks.promise;
-    expect(result.change.value).toEqual(2);
+    expect(result.change.value).toBe(2);
 
     // clean up
     callbacks.cancel();

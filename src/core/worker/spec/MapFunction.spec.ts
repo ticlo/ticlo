@@ -290,7 +290,7 @@ describe('MapFunction non-thread', function () {
     Root.runAll(2);
 
     expect(bBlock.getValue('#output')).toEqual({v1: 2, v2: 5, v4: 6});
-    expect(bBlock.queryValue('#flow.v3.#outputs.#value')).toEqual(4);
+    expect(bBlock.queryValue('#flow.v3.#outputs.#value')).toBe(4);
 
     expect(TestFunctionRunner.popLogs().length).toBe(4);
 

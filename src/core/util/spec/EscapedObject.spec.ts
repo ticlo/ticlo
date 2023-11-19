@@ -7,6 +7,6 @@ describe('EscapedObject', function () {
     let esc = new EscapedObject('title');
     expect(JSON.stringify(esc)).toEqual(encodedString);
 
-    expect(decodeUnknown(JSON.parse(encodedString)).title).toEqual('title');
+    expect(decodeUnknown(JSON.parse(encodedString)).title).toBe('title');
   });
 });

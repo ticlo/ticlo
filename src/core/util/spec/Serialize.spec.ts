@@ -12,8 +12,8 @@ describe('Serialize', function () {
   });
 
   it('encodeDisplay', function () {
-    expect(encodeDisplay(NaN)).toEqual('NaN');
-    expect(encodeDisplay(undefined)).toEqual('undefined');
-    expect(encodeDisplay(-Infinity)).toEqual('-Inf');
+    expect(encodeDisplay(NaN)).toBe('NaN');
+    expect(encodeDisplay(undefined)).toBe('undefined');
+    expect(encodeDisplay(-Infinity)).toBe('-Inf');
   });
 });

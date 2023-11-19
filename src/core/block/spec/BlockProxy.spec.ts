@@ -16,9 +16,9 @@ describe('BlockProxy', function () {
     bBlock.createHelperBlock('v4').output(4); // property helper should not be iterated
     let b: any = new Proxy(bBlock, BlockDeepProxy);
 
-    expect(b['###'].v1).toEqual(1);
-    expect(b.v2).toEqual(2);
-    expect(b['@v']).toEqual('0');
+    expect(b['###'].v1).toBe(1);
+    expect(b.v2).toBe(2);
+    expect(b['@v']).toBe('0');
     expect(b['@notExist']).toEqual(undefined);
     expect('v3' in b).toEqual(false);
     expect(Object.prototype.hasOwnProperty.call(b, 'v4')).toEqual(true);
@@ -61,8 +61,8 @@ describe('BlockProxy', function () {
     let b: any = new Proxy(bBlock, BlockProxy);
 
     expect(b['###']).toEqual(flow);
-    expect(b.v2).toEqual(2);
-    expect(b['@v']).toEqual('0');
+    expect(b.v2).toBe(2);
+    expect(b['@v']).toBe('0');
     expect(b['@notExist']).toEqual(undefined);
     expect('v3' in b).toEqual(false);
     expect(Object.prototype.hasOwnProperty.call(b, 'v4')).toEqual(true);

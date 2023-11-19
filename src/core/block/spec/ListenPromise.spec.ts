@@ -8,11 +8,11 @@ describe('ListenPromise', function () {
     let flow = new Flow();
 
     setTimeout(() => flow.setValue('a', 1), 0);
-    expect(await flow.waitValue('a')).toEqual(1);
+    expect(await flow.waitValue('a')).toBe(1);
 
-    expect(await flow.waitValue('a')).toEqual(1);
+    expect(await flow.waitValue('a')).toBe(1);
     setTimeout(() => flow.setValue('a', 2), 0);
-    expect(await flow.waitNextValue('a')).toEqual(2);
+    expect(await flow.waitNextValue('a')).toBe(2);
 
     setTimeout(() => flow.setValue('c', new ErrorEvent('')), 0);
     expect(await shouldReject(flow.waitValue('c'))).toBeInstanceOf(ErrorEvent);
@@ -25,7 +25,7 @@ describe('ListenPromise', function () {
     let count = 0;
     timer = setInterval(() => flow.setValue('b', ++count), 1);
     let result = await flow.waitValue('b', (val) => val > 5);
-    expect(result).toEqual(6);
+    expect(result).toBe(6);
     clearInterval(timer);
   });
 

@@ -16,7 +16,7 @@ describe('Js', function () {
     aBlock.setValue('in1', 321);
     Root.run();
 
-    expect(aBlock.getValue('out1')).toEqual(321);
+    expect(aBlock.getValue('out1')).toBe(321);
   });
 
   it('nested function', function () {
@@ -28,11 +28,11 @@ describe('Js', function () {
     aBlock.setValue('script', 'let temp = 456; return function(){this["out2"] = ++temp;}');
 
     Root.run();
-    expect(aBlock.getValue('out2')).toEqual(457);
+    expect(aBlock.getValue('out2')).toBe(457);
 
     aBlock.updateValue('#call', {});
     Root.run();
-    expect(aBlock.getValue('out2')).toEqual(458);
+    expect(aBlock.getValue('out2')).toBe(458);
 
     // save load
     let saved = flow.save();
@@ -42,7 +42,7 @@ describe('Js', function () {
     let aBlock2 = flow2.getValue('a');
     expect(aBlock2).toBeInstanceOf(Block);
     Root.run();
-    expect(aBlock2.getValue('out2')).toEqual(457);
+    expect(aBlock2.getValue('out2')).toBe(457);
   });
 
   it('errors', async function () {

@@ -138,7 +138,7 @@ describe('FlowEditor', function () {
     expect(Functions.getWorkerData('FlowEditor:worker3')).toEqual(expectedData);
 
     let desc = Functions.getDescToSend('FlowEditor:worker3')[0];
-    expect(desc.icon).toEqual('fas:plus');
+    expect(desc.icon).toBe('fas:plus');
     expect(desc.properties).toEqual(expectedDescProperties);
 
     Functions.clear('FlowEditor:worker3');

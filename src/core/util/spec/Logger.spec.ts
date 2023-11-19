@@ -87,12 +87,12 @@ describe('Logger', function () {
 
     Logger.trace(message);
 
-    expect(count).toEqual(0);
+    expect(count).toBe(0);
     expect(logger.logs).toEqual([]);
 
     Logger.info(message);
 
-    expect(count).toEqual(1);
+    expect(count).toBe(1);
     expect(logger.logs).toEqual(['message']);
     logger.cancel();
   });

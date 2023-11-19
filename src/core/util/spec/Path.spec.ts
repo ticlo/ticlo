@@ -7,18 +7,18 @@ import {propRelative} from '../PropPath';
 
 describe('Path', function () {
   it('resolve', function () {
-    expect(resolvePath('a', 'b')).toEqual('a.b');
-    expect(resolvePath('c.d.e', '##.f')).toEqual('c.d.f');
-    expect(resolvePath('g.h', '#.i')).toEqual('g.h.i');
-    expect(resolvePath('j', '##.##.k')).toEqual('##.k');
-    expect(resolvePath('l', '###.m')).toEqual('###.m');
+    expect(resolvePath('a', 'b')).toBe('a.b');
+    expect(resolvePath('c.d.e', '##.f')).toBe('c.d.f');
+    expect(resolvePath('g.h', '#.i')).toBe('g.h.i');
+    expect(resolvePath('j', '##.##.k')).toBe('##.k');
+    expect(resolvePath('l', '###.m')).toBe('###.m');
     expect(resolvePath('n', null)).toEqual(null);
   });
 
   it('relative', function () {
-    expect(getRelativePath('a', 'a')).toEqual('');
+    expect(getRelativePath('a', 'a')).toBe('');
 
-    expect(getRelativePath('b.c', 'b.d')).toEqual('##.d');
+    expect(getRelativePath('b.c', 'b.d')).toBe('##.d');
   });
 
   it('forAllPathsBetween', function () {
@@ -80,17 +80,17 @@ describe('Path', function () {
     Root.run();
 
     // same flow
-    expect(propRelative(flow1.queryValue('c.e'), flow1.queryProperty('c.e.v', true))).toEqual('v');
-    expect(propRelative(flow1.queryValue('c.e'), flow1.queryProperty('c.d.v', true))).toEqual('##.d.v');
-    expect(propRelative(flow1.queryValue('c.e'), flow1.queryProperty('f.v', true))).toEqual('###.f.v');
-    expect(propRelative(flow1.queryValue('c'), flow1.queryProperty('f.v', true))).toEqual('##.f.v');
-    expect(propRelative(flow1.queryValue('f.~g'), flow1.queryProperty('c.v', true))).toEqual('##.##.c.v');
+    expect(propRelative(flow1.queryValue('c.e'), flow1.queryProperty('c.e.v', true))).toBe('v');
+    expect(propRelative(flow1.queryValue('c.e'), flow1.queryProperty('c.d.v', true))).toBe('##.d.v');
+    expect(propRelative(flow1.queryValue('c.e'), flow1.queryProperty('f.v', true))).toBe('###.f.v');
+    expect(propRelative(flow1.queryValue('c'), flow1.queryProperty('f.v', true))).toBe('##.f.v');
+    expect(propRelative(flow1.queryValue('f.~g'), flow1.queryProperty('c.v', true))).toBe('##.##.c.v');
 
     // different flow
-    expect(propRelative(flow1.queryValue('c'), flow2.queryProperty('o.v', true))).toEqual('###.##.PropRelative2.o.v');
-    expect(propRelative(flow1.queryValue('c.d.#flow.A'), flow1.queryProperty('c.v', true))).toEqual('###.##.##.v');
-    expect(propRelative(flow1.queryValue('c'), flow1.queryProperty('c.d.#flow.A.v', true))).toEqual('d.#flow.A.v');
-    expect(propRelative(flow1.queryValue('f'), flow1.queryProperty('c.d.#flow.A.v', true))).toEqual('##.c.d.#flow.A.v');
+    expect(propRelative(flow1.queryValue('c'), flow2.queryProperty('o.v', true))).toBe('###.##.PropRelative2.o.v');
+    expect(propRelative(flow1.queryValue('c.d.#flow.A'), flow1.queryProperty('c.v', true))).toBe('###.##.##.v');
+    expect(propRelative(flow1.queryValue('c'), flow1.queryProperty('c.d.#flow.A.v', true))).toBe('d.#flow.A.v');
+    expect(propRelative(flow1.queryValue('f'), flow1.queryProperty('c.d.#flow.A.v', true))).toBe('##.c.d.#flow.A.v');
     expect(propRelative(flow1.queryValue('f.h'), flow1.queryProperty('c.d.#flow.A.v', true))).toEqual(
       '###.c.d.#flow.A.v'
     );
@@ -105,8 +105,8 @@ describe('Path', function () {
     let flow111 = Root.instance.addFlow('PropRelative1.1.1');
     let flow1c1 = Root.instance.addFlow('PropRelative1.c.1');
 
-    expect(propRelative(flow1.queryValue('1.1'), flow1.queryProperty('v', true))).toEqual('##.###.##.v');
-    expect(propRelative(flow1.queryValue('c.1'), flow1.queryProperty('v', true))).toEqual('##.###.v');
+    expect(propRelative(flow1.queryValue('1.1'), flow1.queryProperty('v', true))).toBe('##.###.##.v');
+    expect(propRelative(flow1.queryValue('c.1'), flow1.queryProperty('v', true))).toBe('##.###.v');
 
     Root.instance.deleteValue('PropRelative1');
     Root.instance.deleteValue('PropRelative2');

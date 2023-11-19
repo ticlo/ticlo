@@ -17,7 +17,7 @@ describe('Connection Error', function () {
     expect(await shouldReject(client.simpleRequest({cmd: 'invalid_command', path: ''}, null) as Promise<any>)).toEqual(
       'invalid command'
     );
-    expect(await shouldReject(client.simpleRequest({cmd: 'get'}, null) as Promise<any>)).toEqual('invalid path');
+    expect(await shouldReject(client.simpleRequest({cmd: 'get'}, null) as Promise<any>)).toBe('invalid path');
 
     expect(await shouldReject(client.setValue('ConnectionError1.a.b.c', 1, true) as Promise<any>)).toEqual(
       'invalid path'
@@ -29,36 +29,36 @@ describe('Connection Error', function () {
       'invalid path'
     );
 
-    expect(await shouldReject(client.getValue('ConnectionError1.a.b.c') as Promise<any>)).toEqual('invalid path');
+    expect(await shouldReject(client.getValue('ConnectionError1.a.b.c') as Promise<any>)).toBe('invalid path');
 
-    expect(await shouldReject(client.listChildren('ConnectionError1.a.b.c') as Promise<any>)).toEqual('invalid path');
+    expect(await shouldReject(client.listChildren('ConnectionError1.a.b.c') as Promise<any>)).toBe('invalid path');
 
-    expect(await shouldReject(client.addBlock('ConnectionError1.a.b.c') as Promise<any>)).toEqual('invalid path');
+    expect(await shouldReject(client.addBlock('ConnectionError1.a.b.c') as Promise<any>)).toBe('invalid path');
 
     expect(typeof (await client.addBlock('ConnectionError1.#inputs', {'#is': 'flow:inputs'}))).toBe('object');
     // Can not create #inputs again
     expect(
       await shouldReject(client.addBlock('ConnectionError1.#inputs', {'#is': 'flow:inputs'}) as Promise<any>)
-    ).toEqual('invalid path');
+    ).toBe('invalid path');
     expect(typeof (await client.addBlock('ConnectionError1.#outputs', {'#is': 'flow:outputs'}))).toBe('object');
     // Can not create #outputs again
     expect(
       await shouldReject(client.addBlock('ConnectionError1.#outputs', {'#is': 'flow:outputs'}) as Promise<any>)
-    ).toEqual('invalid path');
+    ).toBe('invalid path');
 
     expect(
       await shouldReject(
         client.addBlock('ConnectionError1.#invalidFunction', {'#is': 'flow:invalidFunction'}) as Promise<any>
       )
-    ).toEqual('invalid function');
+    ).toBe('invalid function');
 
-    expect(await shouldReject(client.editWorker('ConnectionError1.a.b.c') as Promise<any>)).toEqual('invalid path');
+    expect(await shouldReject(client.editWorker('ConnectionError1.a.b.c') as Promise<any>)).toBe('invalid path');
 
     expect(await shouldReject(client.applyFlowChange('ConnectionError1.a.b.c') as Promise<any>)).toEqual(
       'invalid path'
     );
 
-    expect(await shouldReject(client.addFlow('ConnectionError1') as Promise<any>)).toEqual('invalid path');
+    expect(await shouldReject(client.addFlow('ConnectionError1') as Promise<any>)).toBe('invalid path');
 
     expect(await shouldReject(client.showProps('ConnectionError1.a.b.c', ['@a']) as Promise<any>)).toEqual(
       'invalid path'
@@ -76,7 +76,7 @@ describe('Connection Error', function () {
       'invalid properties'
     );
 
-    expect(await shouldReject(client.addCustomProp('a', null) as Promise<any>)).toEqual('invalid desc');
+    expect(await shouldReject(client.addCustomProp('a', null) as Promise<any>)).toBe('invalid desc');
     expect(
       await shouldReject(
         client.addCustomProp('ConnectionError1.a.b.c', {
@@ -84,7 +84,7 @@ describe('Connection Error', function () {
           type: 'string',
         }) as Promise<any>
       )
-    ).toEqual('invalid path');
+    ).toBe('invalid path');
     expect(await shouldReject(client.removeCustomProp('ConnectionError1.a.b.c', 'a') as Promise<any>)).toEqual(
       'invalid path'
     );
@@ -92,7 +92,7 @@ describe('Connection Error', function () {
       'invalid path'
     );
 
-    expect(await shouldReject(client.addOptionalProp('a', null) as Promise<any>)).toEqual('invalid path');
+    expect(await shouldReject(client.addOptionalProp('a', null) as Promise<any>)).toBe('invalid path');
     expect(await shouldReject(client.addOptionalProp('ConnectionError1.a.b.c', 'a') as Promise<any>)).toEqual(
       'invalid path'
     );
@@ -103,7 +103,7 @@ describe('Connection Error', function () {
       'invalid path'
     );
 
-    expect(await shouldReject(client.setLen('ConnectionError1.a.b', '', null) as Promise<any>)).toEqual('invalid path');
+    expect(await shouldReject(client.setLen('ConnectionError1.a.b', '', null) as Promise<any>)).toBe('invalid path');
     expect(await shouldReject(client.insertGroupProp('ConnectionError1.a.b.c', '', 0) as Promise<any>)).toEqual(
       'invalid path'
     );
@@ -114,25 +114,25 @@ describe('Connection Error', function () {
       'invalid path'
     );
 
-    expect(await shouldReject(client.undo('ConnectionError1.a.b.c') as Promise<any>)).toEqual('invalid path');
-    expect(await shouldReject(client.redo('ConnectionError1.a.b.c') as Promise<any>)).toEqual('invalid path');
+    expect(await shouldReject(client.undo('ConnectionError1.a.b.c') as Promise<any>)).toBe('invalid path');
+    expect(await shouldReject(client.redo('ConnectionError1.a.b.c') as Promise<any>)).toBe('invalid path');
 
-    expect(await shouldReject(client.copy('ConnectionError1.a', ['add']) as Promise<any>)).toEqual('invalid path');
+    expect(await shouldReject(client.copy('ConnectionError1.a', ['add']) as Promise<any>)).toBe('invalid path');
     expect(await shouldReject(client.paste('ConnectionError1.a', {add: {'#is': 'add'}}) as Promise<any>)).toEqual(
       'invalid path'
     );
 
-    expect(await shouldReject(client.callFunction('ConnectionError1.a') as Promise<any>)).toEqual('invalid path');
+    expect(await shouldReject(client.callFunction('ConnectionError1.a') as Promise<any>)).toBe('invalid path');
 
     expect(await shouldReject(client.executeCommand('ConnectionError1.a.b.c', 'test', {}) as Promise<any>)).toEqual(
       'invalid path'
     );
 
-    expect(await shouldReject(client.restoreSaved('ConnectionError1.a.b.c') as Promise<any>)).toEqual('invalid path');
+    expect(await shouldReject(client.restoreSaved('ConnectionError1.a.b.c') as Promise<any>)).toBe('invalid path');
 
     let callbacks = new AsyncClientPromise();
     client.watch('ConnectionError1.a.b.c', callbacks);
-    expect(await shouldReject(callbacks.promise)).toEqual('invalid path');
+    expect(await shouldReject(callbacks.promise)).toBe('invalid path');
 
     client.destroy();
     Root.instance.deleteValue('ConnectionError1');
@@ -160,15 +160,15 @@ describe('Connection Error', function () {
 
     a.createBlock('c');
     let result3 = await shouldReject(callbacks3.promise);
-    expect(result3).toEqual('block changed');
+    expect(result3).toBe('block changed');
     client.unwatch('ConnectionError2.a.c', callbacks3);
 
     flow.setValue('a', null);
 
     let [result1, result2] = await Promise.all([shouldReject(callbacks1.promise), shouldReject(callbacks2.promise)]);
 
-    expect(result1).toEqual('source changed');
-    expect(result2).toEqual('source changed');
+    expect(result1).toBe('source changed');
+    expect(result2).toBe('source changed');
 
     // clean up
     callbacks1.cancel();

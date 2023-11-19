@@ -14,7 +14,7 @@ describe('GroupProperty', function () {
     });
 
     setGroupLength(aBlock, '', 3);
-    expect(aBlock.getValue('[]')).toEqual(3);
+    expect(aBlock.getValue('[]')).toBe(3);
     expect(aBlock.getValue('@b-p')).toEqual(['2']);
 
     setGroupLength(aBlock, '', 0);
@@ -29,7 +29,7 @@ describe('GroupProperty', function () {
 
     // invalid group, length should change but nothing else should happen
     setGroupLength(aBlock, 'invalidG', 3);
-    expect(aBlock.getValue('invalidG[]')).toEqual(3);
+    expect(aBlock.getValue('invalidG[]')).toBe(3);
     expect(aBlock.getValue('@b-p')).toEqual(['0', '1']);
   });
 
@@ -48,7 +48,7 @@ describe('GroupProperty', function () {
     });
 
     setGroupLength(flow, 'g', 3);
-    expect(flow.getValue('g[]')).toEqual(3);
+    expect(flow.getValue('g[]')).toBe(3);
     expect(flow.getValue('@b-p')).toEqual(['a2']);
   });
 
@@ -62,16 +62,16 @@ describe('GroupProperty', function () {
     });
 
     insertGroupProperty(aBlock, '', 0);
-    expect(aBlock.getValue('[]')).toEqual(3);
-    expect(aBlock.getValue('1')).toEqual(0);
+    expect(aBlock.getValue('[]')).toBe(3);
+    expect(aBlock.getValue('1')).toBe(0);
 
     insertGroupProperty(aBlock, '', 3);
-    expect(aBlock.getValue('[]')).toEqual(4);
+    expect(aBlock.getValue('[]')).toBe(4);
 
     // invalid index, no change
     insertGroupProperty(aBlock, '', -1);
     insertGroupProperty(aBlock, '', 100);
-    expect(aBlock.getValue('[]')).toEqual(4);
+    expect(aBlock.getValue('[]')).toBe(4);
 
     // invalid group, no change
     insertGroupProperty(aBlock, 'invalidG', 0);
@@ -88,13 +88,13 @@ describe('GroupProperty', function () {
     });
 
     removeGroupProperty(aBlock, '', 0);
-    expect(aBlock.getValue('[]')).toEqual(1);
-    expect(aBlock.getValue('0')).toEqual(1);
+    expect(aBlock.getValue('[]')).toBe(1);
+    expect(aBlock.getValue('0')).toBe(1);
 
     // invalid index, no change
     removeGroupProperty(aBlock, '', -1);
     removeGroupProperty(aBlock, '', 100);
-    expect(aBlock.getValue('[]')).toEqual(1);
+    expect(aBlock.getValue('[]')).toBe(1);
 
     // invalid group, no change
     removeGroupProperty(aBlock, 'invalidG', 0);
@@ -111,19 +111,19 @@ describe('GroupProperty', function () {
     });
 
     moveGroupProperty(aBlock, '', 0, 1);
-    expect(aBlock.getValue('0')).toEqual(1);
-    expect(aBlock.getValue('1')).toEqual(0);
+    expect(aBlock.getValue('0')).toBe(1);
+    expect(aBlock.getValue('1')).toBe(0);
 
     moveGroupProperty(aBlock, '', 1, 0);
-    expect(aBlock.getValue('0')).toEqual(0);
-    expect(aBlock.getValue('1')).toEqual(1);
+    expect(aBlock.getValue('0')).toBe(0);
+    expect(aBlock.getValue('1')).toBe(1);
 
     // invalid index, no change
     moveGroupProperty(aBlock, '', 1, 100);
     moveGroupProperty(aBlock, '', 100, 0);
     moveGroupProperty(aBlock, '', 0, 0);
-    expect(aBlock.getValue('0')).toEqual(0);
-    expect(aBlock.getValue('1')).toEqual(1);
+    expect(aBlock.getValue('0')).toBe(0);
+    expect(aBlock.getValue('1')).toBe(1);
 
     // invalid group, no change
     moveGroupProperty(aBlock, 'invalidG', 0, 1);

@@ -38,28 +38,28 @@ describe('StringEditor', function () {
     expect(value).toBeNull();
 
     simulateInput(editor, {key: 'Enter'}, null);
-    expect(value).toEqual('A');
+    expect(value).toBe('A');
 
     // test shift key
     simulateInput(editor, {key: 'Enter', shiftKey: true, target: document.querySelector('textarea')}, 'A\n');
-    expect(value).toEqual('A');
+    expect(value).toBe('A');
 
     simulateInput(editor, {key: 'Enter'}, null);
-    expect(value).toEqual('A\n');
+    expect(value).toBe('A\n');
 
     // test escape key
     simulateInput(editor, {key: 'B'}, 'AB');
-    expect(value).toEqual('A\n');
+    expect(value).toBe('A\n');
 
     simulateInput(editor, {key: 'Escape'}, null);
     simulateInput(editor, {key: 'Enter'}, null);
-    expect(value).toEqual('1'); // blur back to the value from Props
+    expect(value).toBe('1'); // blur back to the value from Props
 
     // onBlur
     simulateInput(editor, {key: 'C'}, 'ABC');
-    expect(value).not.toEqual('ABC');
+    expect(value).not.toBe('ABC');
 
     editor.onBlur();
-    expect(value).toEqual('ABC');
+    expect(value).toBe('ABC');
   });
 });

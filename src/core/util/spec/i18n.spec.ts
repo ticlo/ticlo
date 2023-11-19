@@ -18,21 +18,21 @@ describe('i18n', function () {
   });
 
   it('class name', function () {
-    expect(i18n.translateFunction(null)).toEqual('');
-    expect(i18n.translateFunction('aaa', 'aaa')).toEqual('aaa');
+    expect(i18n.translateFunction(null)).toBe('');
+    expect(i18n.translateFunction('aaa', 'aaa')).toBe('aaa');
 
-    expect(i18n.translateFunction(null, null, 'testi18n')).toEqual('');
-    expect(i18n.translateFunction('aaa', 'aaa', 'testi18n')).toEqual('AAA');
+    expect(i18n.translateFunction(null, null, 'testi18n')).toBe('');
+    expect(i18n.translateFunction('aaa', 'aaa', 'testi18n')).toBe('AAA');
   });
 
   it('property name', function () {
-    expect(i18n.translateProperty('aaa', '')).toEqual('');
-    expect(i18n.translateProperty('', 'bbb')).toEqual('bbb');
+    expect(i18n.translateProperty('aaa', '')).toBe('');
+    expect(i18n.translateProperty('', 'bbb')).toBe('bbb');
 
-    expect(i18n.translateProperty('aaa', 'bbb')).toEqual('bbb');
-    expect(i18n.translateProperty('aaa', 'bbb1')).toEqual('bbb1');
+    expect(i18n.translateProperty('aaa', 'bbb')).toBe('bbb');
+    expect(i18n.translateProperty('aaa', 'bbb1')).toBe('bbb1');
 
-    expect(i18n.translateProperty('aaa', 'bbb', 'testi18n')).toEqual('BBB');
-    expect(i18n.translateProperty('aaa', 'bbb1', 'testi18n')).toEqual('BBB1');
+    expect(i18n.translateProperty('aaa', 'bbb', 'testi18n')).toBe('BBB');
+    expect(i18n.translateProperty('aaa', 'bbb1', 'testi18n')).toBe('BBB1');
   });
 });

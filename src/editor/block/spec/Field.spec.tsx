@@ -116,10 +116,10 @@ describe('editor Block Field', function () {
     await shouldHappen(() => subtractBlock.querySelectorAll('.ticl-field').length === 3);
 
     let fieldNames = subtractBlock.querySelectorAll('.ticl-field-name');
-    expect(fieldNames[0].textContent).toEqual('0');
+    expect(fieldNames[0].textContent).toBe('0');
     // property from sub blocks
-    expect(fieldNames[1].textContent).toEqual('0');
-    expect(fieldNames[2].textContent).toEqual('1');
+    expect(fieldNames[1].textContent).toBe('0');
+    expect(fieldNames[2].textContent).toBe('1');
 
     // hide sub block
     SimulateEvent.simulate(fieldNames[0], 'dblclick');

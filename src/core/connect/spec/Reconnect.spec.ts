@@ -21,7 +21,7 @@ describe('Reconnect', function () {
     let subcallbacks = new AsyncClientPromise();
     client.subscribe('Reconnect1.a', subcallbacks);
     let result = await subcallbacks.promise;
-    expect(result.cache.value).toEqual(1);
+    expect(result.cache.value).toBe(1);
 
     let setcallbacks = new AsyncClientPromise();
     client.setValue('Reconnect1.a', 3, setcallbacks);
@@ -32,7 +32,7 @@ describe('Reconnect', function () {
 
     flow.setValue('a', 2);
     result = await subcallbacks.promise;
-    expect(result.cache.value).toEqual(2);
+    expect(result.cache.value).toBe(2);
     expect(result.cache.bindingPath).toBeNull();
     expect(result.change.bindingPath).toBeNull();
 

@@ -141,7 +141,7 @@ for (let typeName of ['async-function-promise', 'async-function-manual']) {
       block1.setValue('#is', typeName);
 
       block1.setValue('#call', {});
-      expect(await block1.waitValue('#emit')).toEqual('ticlo');
+      expect(await block1.waitValue('#emit')).toBe('ticlo');
     });
   });
 }
