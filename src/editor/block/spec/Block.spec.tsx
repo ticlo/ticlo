@@ -221,7 +221,7 @@ describe('editor BlockStage', function () {
     expect(addBlock.offsetHeight).toBe(24);
 
     // wrie instance should be reused
-    expect(div.querySelector('svg')).toEqual(wire);
+    expect(div.querySelector('svg')).toBe(wire);
 
     // click the other block
     SimulateEvent.simulate(
@@ -334,8 +334,8 @@ describe('editor BlockStage', function () {
     let yarr = [36, 36, 228, 228, 36, 228, 420, 420, 420, 36];
     for (let i = 0; i < 10; ++i) {
       let block = blocks[i] as HTMLDivElement;
-      expect(block.offsetLeft).toEqual(xarr[i]);
-      expect(block.offsetTop).toEqual(yarr[i]);
+      expect(block.offsetLeft).toBe(xarr[i]);
+      expect(block.offsetTop).toBe(yarr[i]);
     }
     Root.instance.deleteValue('BlockStage6');
   });

@@ -12,7 +12,7 @@ describe('Path', function () {
     expect(resolvePath('g.h', '#.i')).toBe('g.h.i');
     expect(resolvePath('j', '##.##.k')).toBe('##.k');
     expect(resolvePath('l', '###.m')).toBe('###.m');
-    expect(resolvePath('n', null)).toEqual(null);
+    expect(resolvePath('n', null)).toBe(null);
   });
 
   it('relative', function () {

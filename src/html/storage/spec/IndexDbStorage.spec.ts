@@ -53,7 +53,7 @@ describe('IndexDbStorage', function () {
 
     expect(root.queryValue('flow5.value')).toBe(321);
     expect(root.queryValue('flow5.subflow.value')).toBe(321);
-    expect((root.getValue('flow5') as Flow).save()).toEqual(flowData);
+    expect((root.getValue('flow5') as Flow).save()).toBe(flowData);
 
     root.destroy();
   });

@@ -18,19 +18,19 @@ describe('FlowHistory', function () {
     flow.setValue('a', 2);
     history.add(flow.save());
 
-    expect(flow.getValue('@has-undo')).toEqual(true);
+    expect(flow.getValue('@has-undo')).toBe(true);
     expect(flow.getValue('@has-redo')).not.toBeDefined();
 
     history.undo();
     expect(flow.getValue('a')).toBe(1);
 
     expect(flow.getValue('@has-undo')).not.toBeDefined();
-    expect(flow.getValue('@has-redo')).toEqual(true);
+    expect(flow.getValue('@has-redo')).toBe(true);
 
     flow.setValue('a', 3);
     history.add(flow.save());
 
-    expect(flow.getValue('@has-undo')).toEqual(true);
+    expect(flow.getValue('@has-undo')).toBe(true);
     expect(flow.getValue('@has-redo')).not.toBeDefined();
 
     history.undo();

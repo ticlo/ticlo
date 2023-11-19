@@ -23,16 +23,16 @@ describe('Descriptor', function () {
     const abcconfig: PropDesc = {name: '#abc', type: 'string'};
     let mapped = mapConfigDesc(['#is', '#invalidConfig', abcconfig]);
     expect([...mapped]).toEqual([configDescs['#is'], abcconfig]);
-    expect(mapped).toEqual(mapConfigDesc(mapped));
+    expect(mapped).toBe(mapConfigDesc(mapped));
   });
 
   it('desc cache', function () {
     expect(buildPropDescCache(null, null)).toBeNull();
-    expect(findPropDesc('a', null)).toEqual(blankPropDesc);
+    expect(findPropDesc('a', null)).toBe(blankPropDesc);
 
     let cache = buildPropDescCache(Functions.getDescToSend('add')[0], null);
-    expect(findPropDesc('', cache)).toEqual(blankPropDesc);
-    expect(findPropDesc('1', cache)).toEqual(cache['0']);
+    expect(findPropDesc('', cache)).toBe(blankPropDesc);
+    expect(findPropDesc('1', cache)).toBe(cache['0']);
   });
 
   it('getOutputDesc', function () {

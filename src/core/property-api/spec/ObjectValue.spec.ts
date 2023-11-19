@@ -16,6 +16,6 @@ describe('ObjectValue', function () {
 
     let currentValue = flow.getValue('v');
     updateObjectValue(flow, 'v', {b: 2});
-    expect(flow.getValue('v')).toEqual(currentValue);
+    expect(flow.getValue('v')).toBe(currentValue);
   });
 });

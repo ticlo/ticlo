@@ -42,8 +42,8 @@ describe('Destroyed Block', function () {
 
       expect(block.isDestroyed()).toBeTruthy();
 
-      expect(block.getProperty('a')).toEqual(voidProperty);
-      expect(block.createBinding('##', propB)).toEqual(voidProperty);
+      expect(block.getProperty('a')).toBe(voidProperty);
+      expect(block.createBinding('##', propB)).toBe(voidProperty);
       expect(() => block.watch(VoidListeners)).not.toThrow();
       expect(block._watchers).toBeNull();
 

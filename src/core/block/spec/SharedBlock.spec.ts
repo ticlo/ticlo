@@ -12,11 +12,11 @@ describe('SharedBlock', function () {
     flow1.load(data);
     let sharedBlock: SharedBlock = flow1.getValue('#shared');
     expect(sharedBlock).toBeInstanceOf(SharedBlock);
-    expect(sharedBlock._cacheKey).toEqual(data['#shared']);
+    expect(sharedBlock._cacheKey).toBe(data['#shared']);
 
     let flow2 = new FlowWithShared();
     flow2.load(data);
-    expect(flow2.getValue('#shared')).toEqual(sharedBlock);
+    expect(flow2.getValue('#shared')).toBe(sharedBlock);
 
     flow1.destroy();
     expect(sharedBlock._destroyed).toBe(false);
@@ -65,7 +65,7 @@ describe('SharedBlock', function () {
     expect(flow.save()).toEqual(data);
 
     flow.destroy();
-    expect(sharedProp.getValue()).toEqual(sharedBlock);
+    expect(sharedProp.getValue()).toBe(sharedBlock);
 
     // destroy persisted SharedBlock only when function is destroyed
     Functions.clear('SharedBlock:cacheModeWorker1');

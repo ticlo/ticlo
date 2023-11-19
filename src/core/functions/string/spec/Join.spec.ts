@@ -21,7 +21,7 @@ describe('Join', function () {
     aBlock.setValue('0', null);
 
     Root.run();
-    expect(aBlock.getValue('#output')).toEqual(undefined);
+    expect(aBlock.getValue('#output')).toBe(undefined);
 
     aBlock.setValue('0', ['b', 'c']);
 

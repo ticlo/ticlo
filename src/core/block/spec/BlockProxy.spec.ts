@@ -19,10 +19,10 @@ describe('BlockProxy', function () {
     expect(b['###'].v1).toBe(1);
     expect(b.v2).toBe(2);
     expect(b['@v']).toBe('0');
-    expect(b['@notExist']).toEqual(undefined);
-    expect('v3' in b).toEqual(false);
-    expect(Object.prototype.hasOwnProperty.call(b, 'v4')).toEqual(true);
-    expect(Object.isExtensible(b)).toEqual(true);
+    expect(b['@notExist']).toBe(undefined);
+    expect('v3' in b).toBe(false);
+    expect(Object.prototype.hasOwnProperty.call(b, 'v4')).toBe(true);
+    expect(Object.isExtensible(b)).toBe(true);
 
     let keys = [];
     for (let key in b) {
@@ -41,9 +41,9 @@ describe('BlockProxy', function () {
     // Proxy should act like an empty Object
 
     if (!_strictMode) {
-      expect(b['###']).toEqual(undefined);
+      expect(b['###']).toBe(undefined);
       b.v2 = 22;
-      expect(b.v2).toEqual(undefined);
+      expect(b.v2).toBe(undefined);
       expect(Object.keys(b)).toEqual([]);
     }
   });
@@ -60,13 +60,13 @@ describe('BlockProxy', function () {
     bBlock.createHelperBlock('v4').output(4); // property helper should not be iterated
     let b: any = new Proxy(bBlock, BlockProxy);
 
-    expect(b['###']).toEqual(flow);
+    expect(b['###']).toBe(flow);
     expect(b.v2).toBe(2);
     expect(b['@v']).toBe('0');
-    expect(b['@notExist']).toEqual(undefined);
-    expect('v3' in b).toEqual(false);
-    expect(Object.prototype.hasOwnProperty.call(b, 'v4')).toEqual(true);
-    expect(Object.isExtensible(b)).toEqual(true);
+    expect(b['@notExist']).toBe(undefined);
+    expect('v3' in b).toBe(false);
+    expect(Object.prototype.hasOwnProperty.call(b, 'v4')).toBe(true);
+    expect(Object.isExtensible(b)).toBe(true);
 
     let keys = [];
     for (let key in b) {
@@ -85,9 +85,9 @@ describe('BlockProxy', function () {
     // Proxy should act like an empty Object
 
     if (!_strictMode) {
-      expect(b['###']).toEqual(undefined);
+      expect(b['###']).toBe(undefined);
       b.v2 = 22;
-      expect(b.v2).toEqual(undefined);
+      expect(b.v2).toBe(undefined);
       expect(Object.keys(b)).toEqual([]);
     }
   });

@@ -60,7 +60,7 @@ describe('Js', function () {
 
     aBlock.setValue('#call', {});
     await shouldTimeout(aBlock.waitNextValue('#emit'), 5); // NOT_READY won't resolve the promise
-    expect(aBlock.getValue('#emit')).toEqual(WAIT);
+    expect(aBlock.getValue('#emit')).toBe(WAIT);
 
     let bBlock = flow.createBlock('b');
     bBlock.setValue('#is', 'js');

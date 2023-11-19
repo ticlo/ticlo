@@ -8,18 +8,18 @@ describe('BlockConfig', function () {
 
     let block = flow.createBlock('obj');
 
-    expect(block.getValue('##')).toEqual(flow);
-    expect(block.getValue('###')).toEqual(flow);
+    expect(block.getValue('##')).toBe(flow);
+    expect(block.getValue('###')).toBe(flow);
 
     block.setValue('##', 1);
-    expect(block.getValue('##')).toEqual(flow);
+    expect(block.getValue('##')).toBe(flow);
 
     block.updateValue('##', 1);
-    expect(block.getValue('##')).toEqual(flow);
+    expect(block.getValue('##')).toBe(flow);
 
     block.setValue('a', 1);
     block.setBinding('##', 'a');
-    expect(block.getValue('##')).toEqual(flow);
+    expect(block.getValue('##')).toBe(flow);
   });
 
   it('#is', function () {

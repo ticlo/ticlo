@@ -24,7 +24,7 @@ describe('HelperProperty', function () {
     flow.setValue('v1', 0);
 
     expect(helper._destroyed).toBe(true);
-    expect(flow.queryValue('~v1')).toEqual(undefined);
+    expect(flow.queryValue('~v1')).toBe(undefined);
 
     flow.liveUpdate(saved);
 
@@ -34,8 +34,8 @@ describe('HelperProperty', function () {
 
     flow.setValue('v2', 1);
     flow.setBinding('v1', 'v2');
-    expect(flow.queryValue('~v1.#output')).toEqual(undefined);
-    expect(flow.queryValue('~v1')).toEqual(undefined);
+    expect(flow.queryValue('~v1.#output')).toBe(undefined);
+    expect(flow.queryValue('~v1')).toBe(undefined);
 
     flow.liveUpdate(saved);
 

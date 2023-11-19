@@ -12,8 +12,8 @@ describe('Block', function () {
     expect(flow.getValue('@b')).toBe(357);
 
     let block = flow.createBlock('obj');
-    expect(block instanceof Block).toEqual(true);
-    expect(block).toEqual(flow.getValue('obj'));
+    expect(block instanceof Block).toBe(true);
+    expect(block).toBe(flow.getValue('obj'));
     expect(flow.createBlock('obj')).toBeNull();
     // assert.equal(block.getValue(''), block, 'self property');
 
@@ -42,9 +42,9 @@ describe('Block', function () {
     expect(flow.queryProperty('block1.block2.p2') == null).toBe(true);
     expect(flow.queryProperty('block1.block2.p3', true) != null).toBe(true);
 
-    expect(flow.queryValue('block1.block2.#')).toEqual(block2);
-    expect(flow.queryValue('block1.block2.##')).toEqual(block1);
-    expect(flow.queryValue('block1.block2.###')).toEqual(flow);
+    expect(flow.queryValue('block1.block2.#')).toBe(block2);
+    expect(flow.queryValue('block1.block2.##')).toBe(block1);
+    expect(flow.queryValue('block1.block2.###')).toBe(flow);
   });
 
   it('destroy binding chain', function () {
@@ -54,11 +54,11 @@ describe('Block', function () {
     let block2 = flow.createBlock('block2');
     block2.setBinding('c', '##.block1.c');
 
-    expect(block2.getValue('c')).toEqual(block1c);
+    expect(block2.getValue('c')).toBe(block1c);
 
     flow.deleteValue('block1');
 
-    expect(block2.getValue('c')).toEqual(undefined);
+    expect(block2.getValue('c')).toBe(undefined);
   });
 
   it('set same value', function () {
@@ -103,7 +103,7 @@ describe('Block', function () {
   it('misc', function () {
     expect(Root.instance.save()).toBeNull();
 
-    expect(Root.instance.getValue('')).toEqual(Root.instance);
+    expect(Root.instance.getValue('')).toBe(Root.instance);
 
     let flow = Root.instance.addFlow();
 

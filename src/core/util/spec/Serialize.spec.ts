@@ -8,7 +8,7 @@ describe('Serialize', function () {
     let str = `"\\u001bTs:${iso8601}"`;
     let time = moment.parseZone(iso8601);
     expect(time.isSame(decode(str))).toBe(true);
-    expect(encode(time)).toEqual(str);
+    expect(encode(time)).toBe(str);
   });
 
   it('encodeDisplay', function () {

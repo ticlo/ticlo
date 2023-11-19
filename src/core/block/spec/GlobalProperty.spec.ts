@@ -43,7 +43,7 @@ describe('GlobalProperty', function () {
     expect(impl.getValue('v')).toBe(123);
 
     globalBlock._liveUpdate({}); // clear global object
-    expect(impl.getValue('v')).toEqual(undefined);
+    expect(impl.getValue('v')).toBe(undefined);
 
     // global property is in use
     expect(flow._props.has('^top')).toBe(true);

@@ -27,7 +27,7 @@ describe('String', function () {
   it('getPreNumber', function () {
     expect(getPreNumber('1')).toBe('');
     expect(getPreNumber('a02')).toBe('a');
-    expect(getPreNumber('a')).toEqual(null);
+    expect(getPreNumber('a')).toBe(null);
   });
 
   it('isColor', function () {
@@ -54,7 +54,7 @@ describe('String', function () {
   });
 
   it('nameFromPath', function () {
-    expect(nameFromPath(null)).toEqual(null);
+    expect(nameFromPath(null)).toBe(null);
     expect(nameFromPath('a')).toBe('a');
     expect(nameFromPath('a.b')).toBe('b');
   });

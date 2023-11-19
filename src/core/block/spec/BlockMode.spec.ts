@@ -141,7 +141,7 @@ describe('BlockMode', function () {
     block.setValue('#-log', 'obj');
     block.setValue('#is', 'test-runner');
     block.setBinding('#call', '#');
-    expect(block.getValue('#call')).toEqual(block);
+    expect(block.getValue('#call')).toBe(block);
     Root.run();
     TestFunctionRunner.clearLog();
 
@@ -150,19 +150,19 @@ describe('BlockMode', function () {
     block.setBinding('@child', 'a');
     block.setBinding('#call', '@child.@parent');
     Root.run();
-    expect(block.getValue('#call')).toEqual(block);
+    expect(block.getValue('#call')).toBe(block);
     expect(TestFunctionRunner.logs).toEqual([]);
 
     let blockB = block.createBlock('b');
     blockB.setBinding('@parent', '##');
     block.setBinding('@child', 'b');
     Root.run();
-    expect(block.getValue('#call')).toEqual(block);
+    expect(block.getValue('#call')).toBe(block);
     expect(TestFunctionRunner.logs).toEqual([]);
 
     block.updateValue('@child', {'@parent': block});
     Root.run();
-    expect(block.getValue('#call')).toEqual(block);
+    expect(block.getValue('#call')).toBe(block);
     expect(TestFunctionRunner.logs).toEqual([]);
   });
 });

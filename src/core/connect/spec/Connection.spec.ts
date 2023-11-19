@@ -82,7 +82,7 @@ describe('Connection', function () {
 
     let nextPromise = callbacks.promise;
     await client.setBinding('Connection1-2.v', null, true, true);
-    expect(flow.getValue('v')).toEqual(undefined);
+    expect(flow.getValue('v')).toBe(undefined);
     expect((await nextPromise).cache.bindingPath).toBeNull();
 
     await client.setBinding('Connection1-2.v', 'a', false, true);
@@ -142,8 +142,8 @@ describe('Connection', function () {
 
     client.setValue('Connection2.p2', 'world');
     await client.setBinding('Connection2.p', 'p2', false, true);
-    expect(callbacks1.promise).toEqual(cachedPromise1);
-    expect(flow.getProperty('p')._listeners).toEqual(new Set());
+    expect(callbacks1.promise).toBe(cachedPromise1);
+    expect(flow.getProperty('p')._listeners.size).toBe(0);
 
     // clean up
     callbacks1.cancel();
@@ -220,7 +220,7 @@ describe('Connection', function () {
     client.unwatch('Connection3', callbacks1);
 
     await client.addBlock('Connection3.c2');
-    expect(callbacks1.promise).toEqual(cachedPromise1);
+    expect(callbacks1.promise).toBe(cachedPromise1);
     expect(flow._watchers).toBeNull();
 
     // clean up

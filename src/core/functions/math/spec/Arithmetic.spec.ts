@@ -92,7 +92,7 @@ describe('Math', function () {
 
     aBlock.setValue('1', null);
     Root.run();
-    expect(aBlock.getValue('#output')).toEqual(undefined);
+    expect(aBlock.getValue('#output')).toBe(undefined);
   });
 
   it('divide', function () {
@@ -108,7 +108,7 @@ describe('Math', function () {
 
     aBlock.setValue('1', null);
     Root.run();
-    expect(aBlock.getValue('#output')).toEqual(undefined);
+    expect(aBlock.getValue('#output')).toBe(undefined);
   });
 
   it('multiply', function () {
@@ -126,7 +126,7 @@ describe('Math', function () {
 
     aBlock.setValue('2', null);
     Root.run();
-    expect(aBlock.getValue('#output')).toEqual(undefined);
+    expect(aBlock.getValue('#output')).toBe(undefined);
 
     aBlock.setValue('[]', -1);
     Root.run();

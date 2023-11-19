@@ -93,7 +93,7 @@ describe('RouteFunction', function () {
     let request = new HttpRequest({} as any);
     routeFunction.addRequest(request);
     Root.run();
-    expect(aBlock.getValue('#emit')).toEqual(request);
+    expect(aBlock.getValue('#emit')).toBe(request);
   });
 
   it('edit worker', function () {

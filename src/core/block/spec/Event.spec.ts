@@ -6,9 +6,9 @@ import {TestFunctionRunner} from './TestFunction';
 describe('Event', function () {
   it('Event Uid Change in Root', function () {
     let uid = Event.uid;
-    expect(uid).toEqual(Event.uid);
+    expect(uid).toBe(Event.uid);
     Root.run();
-    expect(uid).not.toEqual(Event.uid);
+    expect(uid).not.toBe(Event.uid);
   });
 
   it('event life cycle', function () {
