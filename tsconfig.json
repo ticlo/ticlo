@@ -17,6 +17,7 @@
     "sourceMap": true,
     "skipLibCheck": true,
     "isolatedModules": true,
+    "useDefineForClassFields": true,
     "typeRoots": [
       "node_modules/@types",
       "@types"

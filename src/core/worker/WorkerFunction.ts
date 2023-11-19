@@ -10,9 +10,9 @@ import {WorkerFlow} from './WorkerFlow';
  * WorkerFunction is the function wrapper for all custom subflow functions
  */
 export class WorkerFunction extends BlockFunction {
-  readonly type: string;
-  _namespace: string;
-  _funcFlow: WorkerFlow;
+  declare readonly type: string;
+  declare _namespace: string;
+  declare _funcFlow: WorkerFlow;
 
   inputChanged(input: BlockIO, val: any): boolean {
     return false;

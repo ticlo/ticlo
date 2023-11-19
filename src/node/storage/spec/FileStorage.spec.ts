@@ -5,8 +5,10 @@ import {Flow, Root, decode} from '../../../core';
 import {shouldHappen, shouldReject, waitTick} from '../../../core/util/test-util';
 import {FileStorage} from '../FileStorage';
 
+const beforeAll = globalThis.beforeAll ?? globalThis.before;
+
 describe('FileStorage', function () {
-  before(function () {
+  beforeAll(function () {
     shelljs.mkdir('-p', './temp/storageTest');
   });
   it('save and delete', async function () {

@@ -4,11 +4,11 @@ import Denque from 'denque';
  * A queue class that always maintain the original index when item is pushed to the list
  */
 export class InfiniteQueue<T> extends Denque<T> {
-  _list!: T[];
-  _head!: number;
-  _tail!: number;
-  _capacityMask!: number;
-  size!: () => number;
+  declare _list: T[];
+  declare _head: number;
+  declare _tail: number;
+  declare _capacityMask: number;
+  declare size: () => number;
 
   // TODO use BigInt ?
   from = 0;

@@ -69,9 +69,7 @@ describe('Copy Paste', function () {
     expect(pasteProperties(flow1, 1 as any)).toEqual('invalid data');
 
     flow1.load(data);
-    expect(
-      (pasteProperties(flow1, copy) as string).startsWith('block already exists: ')
-    ).toBe(true);
+    expect((pasteProperties(flow1, copy) as string).startsWith('block already exists: ')).toBe(true);
 
     expect(pasteProperties(flow1.getValue('add'), copy)).toEqual('#shared properties not allowed in this Block');
   });

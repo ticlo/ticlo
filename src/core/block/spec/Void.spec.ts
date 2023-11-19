@@ -1,7 +1,7 @@
 import expect from 'expect';
-import {voidProperty} from '../Void';
 
-import {Flow, Root} from '../Flow';
+import '../Flow';
+import {voidProperty} from '../Void';
 import {BlockPropertyEvent} from '../BlockProperty';
 import {PropDispatcher} from '../Dispatcher';
 import {VoidListeners} from './TestFunction';

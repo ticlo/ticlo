@@ -10,9 +10,9 @@ describe('String', function () {
     expect('a123,a13,b12,b8,a4,a55,c1'.split(',').sort(smartStrCompare).join(',')).toEqual('a4,a13,a55,a123,b8,b12,c1');
 
     // test sign
-    expect(
-      'a+123,a+13c,a+4,a-123,a-13,a+14b,a-4,a+13d,a0'.split(',').sort(smartStrCompare).join(',')
-    ).toEqual('a-123,a-13,a-4,a+4,a+13c,a+13d,a+14b,a+123,a0');
+    expect('a+123,a+13c,a+4,a-123,a-13,a+14b,a-4,a+13d,a0'.split(',').sort(smartStrCompare).join(',')).toEqual(
+      'a-123,a-13,a-4,a+4,a+13c,a+13d,a+14b,a+123,a0'
+    );
 
     // test upper lower case
     expect('aAA,AaA,aCa,AAa,aAa,AAB'.split(',').sort(smartStrCompare).join(',')).toEqual('AAa,AaA,aAA,aAa,AAB,aCa');

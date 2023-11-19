@@ -1,5 +1,6 @@
 import expect from 'expect';
 import '../Compare';
+import '../Boolean';
 import {Block} from '../../../block/Block';
 import {Flow, Root} from '../../../block/Flow';
 

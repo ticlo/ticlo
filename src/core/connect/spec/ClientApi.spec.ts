@@ -15,8 +15,11 @@ import {WorkerFunction} from '../../worker/WorkerFunction';
 import {FlowEditor} from '../../worker/FlowEditor';
 import {WorkerFlow} from '../../worker/WorkerFlow';
 
+const beforeAll = globalThis.beforeAll ?? globalThis.before;
+const afterAll = globalThis.afterAll ?? globalThis.after;
+
 describe('Connection Client API', function () {
-  before(function () {
+  beforeAll(function () {
     Functions.add(
       null,
       {
@@ -68,7 +71,7 @@ describe('Connection Client API', function () {
     );
   });
 
-  after(function () {
+  afterAll(function () {
     Functions.deleteFunction('ClientConnection:func1');
     Functions.deleteFunction('ClientConnection:func2');
     Functions.deleteFunction('ClientConnection:func3');

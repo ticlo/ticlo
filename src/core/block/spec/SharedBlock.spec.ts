@@ -35,9 +35,7 @@ describe('SharedBlock', function () {
     sharedBlock.setValue('#custom', [{name: 'v', type: 'string'}]);
 
     let saved = flow.save();
-    expect(saved).toEqual(
-      {'#is': '', '#shared': {'#is': '', 'v': 1, '#custom': [{name: 'v', type: 'string'}]}}
-    );
+    expect(saved).toEqual({'#is': '', '#shared': {'#is': '', 'v': 1, '#custom': [{name: 'v', type: 'string'}]}});
 
     sharedBlock.setValue('v', 2);
 

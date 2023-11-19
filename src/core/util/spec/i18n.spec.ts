@@ -2,8 +2,10 @@ import expect from 'expect';
 import * as i18n from '../i18n';
 import i18next from 'i18next';
 
+const beforeAll = globalThis.beforeAll ?? globalThis.before;
+
 describe('i18n', function () {
-  before(async function () {
+  beforeAll(async function () {
     await i18n.init('en');
     i18next.addResourceBundle('en', 'ticlo-testi18n', {
       aaa: {

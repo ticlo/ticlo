@@ -13,14 +13,17 @@ import {Functions} from '../../../core/block/Functions';
 
 const PORT = 8082;
 
+const beforeAll = globalThis.beforeAll ?? globalThis.before;
+const afterAll = globalThis.afterAll ?? globalThis.after;
+
 describe('WsConnect', function () {
   let server: MockWsServer;
-  before(async function () {
+  beforeAll(async function () {
     server = new MockWsServer(PORT);
     await server.init();
   });
 
-  after(function () {
+  afterAll(function () {
     server.close();
   });
 

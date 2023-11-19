@@ -24,9 +24,9 @@ export interface FunctionData extends FunctionInput, FunctionOutput {
 }
 
 export abstract class BaseFunction<T extends FunctionData = FunctionData> {
-  type?: string;
-  priority: 0 | 1 | 2 | 3;
-  defaultMode: BlockMode;
+  declare type?: string;
+  declare priority: 0 | 1 | 2 | 3;
+  declare defaultMode: BlockMode;
 
   /**
    * Whether result will always be the same when inputs are same,

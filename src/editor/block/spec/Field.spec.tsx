@@ -52,10 +52,12 @@ describe('editor Block Field', function () {
     expect(
       querySingle("//div.ticl-field-name/span[text()='b']/..//../../div.ticl-field-value[text()='1.333']", div)
     ).not.toBeNull();
-    expect(querySingle(
-      "//div.ticl-field-name/span[text()='c']/..//../../div.ticl-field-value/span.ticl-string-value[text()='ccc']",
-      div
-    )).not.toBeNull();
+    expect(
+      querySingle(
+        "//div.ticl-field-name/span[text()='c']/..//../../div.ticl-field-value/span.ticl-string-value[text()='ccc']",
+        div
+      )
+    ).not.toBeNull();
     expect(
       querySingle("//div.ticl-field-name/span[text()='d']/..//../../div.ticl-field-value[text()='true']", div)
     ).not.toBeNull();
