@@ -1,4 +1,4 @@
-import expect from 'expect';
+import {expect} from 'vitest';
 import {Flow, Root} from '../Flow';
 import {Event} from '../Event';
 import {TestFunctionRunner} from './TestFunction';

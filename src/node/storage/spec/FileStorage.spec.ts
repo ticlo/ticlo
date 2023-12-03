@@ -1,4 +1,4 @@
-import expect from 'expect';
+import {expect} from 'vitest';
 import shelljs from 'shelljs';
 import Fs from 'fs';
 import {Flow, Root, decode} from '../../../core';

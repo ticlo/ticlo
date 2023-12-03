@@ -1,4 +1,4 @@
-import expect from 'expect';
+import {expect} from 'vitest';
 import {Root} from '../../block/Flow';
 import {makeLocalConnection} from '../LocalConnection';
 import {AddFunction} from '../../functions/math/Arithmetic';

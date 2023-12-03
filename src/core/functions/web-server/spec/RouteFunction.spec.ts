@@ -1,4 +1,4 @@
-import expect from 'expect';
+import {expect} from 'vitest';
 import '../RouteFunction';
 // tslint:disable-next-line:no-duplicate-imports
 import {RouteFunction} from '../RouteFunction';

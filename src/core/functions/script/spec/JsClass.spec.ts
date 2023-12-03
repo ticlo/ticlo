@@ -1,4 +1,4 @@
-import expect from 'expect';
+import {expect} from 'vitest';
 import {Flow, Root} from '../../../block/Flow';
 import {JsFunction} from '../Js';
 import {Functions} from '../../../block/Functions';

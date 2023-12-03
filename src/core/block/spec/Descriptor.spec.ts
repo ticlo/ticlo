@@ -1,4 +1,4 @@
-import expect from 'expect';
+import {expect} from 'vitest';
 import '../../functions/math/Arithmetic';
 import '../../functions/script/Js';
 import {

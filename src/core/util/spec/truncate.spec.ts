@@ -1,4 +1,4 @@
-import expect from 'expect';
+import {expect} from 'vitest';
 import {measureObjSize, TRUNCATED, DataMap, isDataTruncated} from '../DataTypes';
 import {truncateData} from '../DataTruncate';
 

@@ -1,4 +1,4 @@
-import expect from 'expect';
+import {expect} from 'vitest';
 import '../../functions/math/Arithmetic';
 import {WorkerFlow} from '../../worker/WorkerFlow';
 import {copyProperties, deleteProperties, pasteProperties} from '../CopyPaste';

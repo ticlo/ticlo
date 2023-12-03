@@ -1,4 +1,4 @@
-import expect from 'expect';
+import {expect} from 'vitest';
 import {decodeUnknown, EscapedObject} from '../EscapedObject';
 
 describe('EscapedObject', function () {

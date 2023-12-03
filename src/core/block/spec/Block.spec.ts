@@ -1,4 +1,4 @@
-import expect from 'expect';
+import {expect} from 'vitest';
 import {Block} from '../Block';
 import {Flow, Root} from '../Flow';
 import {PropDispatcher} from '../Dispatcher';

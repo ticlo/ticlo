@@ -1,4 +1,4 @@
-import expect from 'expect';
+import {expect} from 'vitest';
 import '../Join';
 import {Block} from '../../../block/Block';
 import {Flow, Root} from '../../../block/Flow';

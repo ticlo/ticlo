@@ -1,4 +1,4 @@
-import expect from 'expect';
+import {expect} from 'vitest';
 import {TestAsyncFunctionLog} from './TestFunction';
 import {Flow, Root} from '../Flow';
 import {ErrorEvent, Event} from '../Event';

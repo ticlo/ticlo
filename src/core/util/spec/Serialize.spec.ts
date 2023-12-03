@@ -1,4 +1,4 @@
-import expect from 'expect';
+import {expect} from 'vitest';
 import {encode, decode, encodeDisplay} from '../Serialize';
 import moment from 'moment';
 

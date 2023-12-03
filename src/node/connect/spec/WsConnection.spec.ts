@@ -1,4 +1,4 @@
-import expect from 'expect';
+import {expect} from 'vitest';
 import {Root} from '../../../core/block/Flow';
 import {AsyncClientPromise} from '../../../core/connect/spec/AsyncClientPromise';
 import {shouldHappen, shouldReject} from '../../../core/util/test-util';
@@ -19,7 +19,12 @@ const afterAll = globalThis.afterAll ?? globalThis.after;
 describe('WsConnect', function () {
   let server: MockWsServer;
   beforeAll(async function () {
-    server = new MockWsServer(PORT);
+    try {
+      server = new MockWsServer(PORT);
+    } catch (err) {
+      console.log(err);
+    }
+
     await server.init();
   });
 

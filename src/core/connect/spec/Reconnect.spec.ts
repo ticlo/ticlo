@@ -1,4 +1,4 @@
-import expect from 'expect';
+import {expect} from 'vitest';
 import {Block} from '../../block/Block';
 import {Root} from '../../block/Flow';
 import {makeLocalConnection} from '../LocalConnection';

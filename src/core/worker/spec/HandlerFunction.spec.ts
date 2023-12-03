@@ -1,4 +1,4 @@
-import expect from 'expect';
+import {expect} from 'vitest';
 import {Flow, Root} from '../../block/Flow';
 import {TestFunctionRunner, TestAsyncFunctionLog} from '../../block/spec/TestFunction';
 import '../../functions/math/Arithmetic';

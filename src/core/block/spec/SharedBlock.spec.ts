@@ -1,4 +1,4 @@
-import expect from 'expect';
+import {expect} from 'vitest';
 import {FlowWithShared, SharedBlock} from '../SharedBlock';
 import {WorkerFunction} from '../../worker/WorkerFunction';
 import {Functions} from '../Functions';

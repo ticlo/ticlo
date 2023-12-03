@@ -1,4 +1,4 @@
-import expect from 'expect';
+import {expect} from 'vitest';
 import {getRelativePath, resolvePath, forAllPathsBetween} from '../Path';
 import {WorkerFunction} from '../../worker/WorkerFunction';
 import {Root} from '../../block/Flow';

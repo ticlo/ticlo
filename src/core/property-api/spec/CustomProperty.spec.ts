@@ -1,4 +1,4 @@
-import expect from 'expect';
+import {expect} from 'vitest';
 
 import {addCustomProperty, moveCustomProperty, removeCustomProperty} from '../CustomProperty';
 import {Flow} from '../../block/Flow';

@@ -1,4 +1,4 @@
-import expect from 'expect';
+import {expect} from 'vitest';
 import Fs from 'fs';
 import {Flow, Root, decode} from '../../../core';
 import {shouldHappen, shouldReject, waitTick} from '../../../core/util/test-util';

@@ -1,4 +1,4 @@
-import expect from 'expect';
+import {expect} from 'vitest';
 import React from 'react';
 import {TIcon} from '../Icon';
 import {shouldHappen} from '../../../../src/core/util/test-util';

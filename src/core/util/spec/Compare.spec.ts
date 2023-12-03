@@ -1,4 +1,4 @@
-import expect from 'expect';
+import {expect} from 'vitest';
 import {arrayEqual, deepEqual, shallowEqual} from '../Compare';
 
 describe('Compare', function () {

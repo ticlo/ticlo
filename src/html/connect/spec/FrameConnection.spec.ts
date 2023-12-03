@@ -1,4 +1,4 @@
-import expect from 'expect';
+import {expect} from 'vitest';
 import {Block, Root} from '../../../../src/core';
 import {AsyncClientPromise} from '../../../core/connect/spec/AsyncClientPromise';
 import {FrameServerConnection} from '../FrameServerConnection';

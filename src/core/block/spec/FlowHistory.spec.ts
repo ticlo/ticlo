@@ -1,4 +1,4 @@
-import expect from 'expect';
+import {expect} from 'vitest';
 import {Flow} from '../Flow';
 import {FlowHistory} from '../FlowHistory';
 import {shouldHappen} from '../../util/test-util';

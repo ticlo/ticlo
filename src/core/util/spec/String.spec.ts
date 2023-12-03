@@ -1,4 +1,4 @@
-import expect from 'expect';
+import {expect} from 'vitest';
 import {getPreNumber, getTailingNumber, isColorStr, nameFromPath, smartStrCompare} from '../String';
 import {encodeTicloName, getDisplayName} from '../Name';
 

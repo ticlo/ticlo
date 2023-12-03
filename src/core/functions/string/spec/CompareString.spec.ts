@@ -1,4 +1,4 @@
-import expect from 'expect';
+import {expect} from 'vitest';
 import '../CompareString';
 import {Block} from '../../../block/Block';
 import {Flow, Root} from '../../../block/Flow';
