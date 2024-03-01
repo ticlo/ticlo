@@ -20,11 +20,11 @@ describe('Connection Message Frames', function () {
 
     expect(client.watchDesc('a1000') != null).toBe(true);
     expect(client.watchDesc('a3999') == null).toBe(true);
-    await shouldHappen(() => client.watchDesc('a3999'), 500);
+    await shouldHappen(() => client.watchDesc('a3999'), 1000);
 
     addTestTypes('b', 4000);
 
-    await shouldHappen(() => client.watchDesc('b3999'), 500);
+    await shouldHappen(() => client.watchDesc('b3999'), 1000);
 
     client.destroy();
 

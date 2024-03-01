@@ -30,31 +30,42 @@ jobs:
         run: |
           mkdir dist
           mkdir coverage
-      - name: Test Node (Strict)
-        run: yarn test-nyc-strict
-      - name: Coveralls Node Strict
+      - name: Vitest
+        run: yarn test-coverage
+      - name: Coveralls Vitest
         uses: coverallsapp/github-action@master
         env:
           NODE_COVERALLS_DEBUG: 1
         with:
           github-token: ${{ secrets.github_token }}
-          path-to-lcov: ./coverage/nyc-strict.lcov
+          path-to-lcov: ./coverage/lcov.info
           parallel: true
           flag-name: strict
-      - name: Test Karma
-        run: |
-          yarn build-icons
-          yarn build-less
-          yarn test-karma
-      - name: Coveralls Karma
-        uses: coverallsapp/github-action@master
-        env:
-          NODE_COVERALLS_DEBUG: 1
-        with:
-          github-token: ${{ secrets.github_token }}
-          path-to-lcov: ./coverage/chrome/karma.lcov
-          parallel: true
-          flag-name: karma
+#      - name: Test Node (Strict)
+#        run: yarn test-nyc-strict
+#      - name: Coveralls Node Strict
+#        uses: coverallsapp/github-action@master
+#        env:
+#          NODE_COVERALLS_DEBUG: 1
+#        with:
+#          github-token: ${{ secrets.github_token }}
+#          path-to-lcov: ./coverage/nyc-strict.lcov
+#          parallel: true
+#          flag-name: strict
+#      - name: Test Karma
+#        run: |
+#          yarn build-icons
+#          yarn build-less
+#          yarn test-karma
+#      - name: Coveralls Karma
+#        uses: coverallsapp/github-action@master
+#        env:
+#          NODE_COVERALLS_DEBUG: 1
+#        with:
+#          github-token: ${{ secrets.github_token }}
+#          path-to-lcov: ./coverage/chrome/karma.lcov
+#          parallel: true
+#          flag-name: karma
       - name: Test Ticlo
         run: yarn ticlo-test-nyc
       - name: Coveralls Ticlo
