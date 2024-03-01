@@ -1,4 +1,4 @@
-import expect from 'expect';
+import {expect} from 'vitest';
 import SimulateEvent from 'simulate-event';
 import React from 'react';
 import {
@@ -47,7 +47,7 @@ describe('SelectEditor', function () {
       'click'
     );
 
-    expect(value).toEqual('b');
+    expect(value).toBe('b');
   });
 
   it('multi-select', async function () {

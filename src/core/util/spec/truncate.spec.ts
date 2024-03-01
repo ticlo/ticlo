@@ -1,4 +1,4 @@
-import expect from 'expect';
+import {expect} from 'vitest';
 import {measureObjSize, TRUNCATED, DataMap, isDataTruncated} from '../DataTypes';
 import {truncateData} from '../DataTruncate';
 
@@ -34,11 +34,11 @@ describe('truncateData', function () {
     }
 
     let objResult = truncateData(obj)[0];
-    expect(Object.keys(objResult).length).toEqual(10);
+    expect(Object.keys(objResult).length).toBe(10);
     expect(isDataTruncated(objResult)).toBe(true);
 
     let arrResult = truncateData(arr)[0];
-    expect(arrResult.length).toEqual(10);
+    expect(arrResult.length).toBe(10);
     expect(isDataTruncated(arrResult)).toBe(true);
   });
 

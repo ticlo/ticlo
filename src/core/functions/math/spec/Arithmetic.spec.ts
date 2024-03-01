@@ -1,4 +1,4 @@
-import expect from 'expect';
+import {expect} from 'vitest';
 import '../Arithmetic';
 import {Block} from '../../../block/Block';
 import {Flow, Root} from '../../../block/Flow';
@@ -15,12 +15,12 @@ describe('Math', function () {
 
     Root.run();
 
-    expect(aBlock.getValue('#output')).toEqual(5);
+    expect(aBlock.getValue('#output')).toBe(5);
 
     aBlock.setValue('0', 4);
 
     Root.run();
-    expect(aBlock.getValue('#output')).toEqual(7);
+    expect(aBlock.getValue('#output')).toBe(7);
 
     aBlock = flow.createBlock('a2');
 
@@ -30,7 +30,7 @@ describe('Math', function () {
     aBlock.setValue('#is', 'add');
 
     Root.run();
-    expect(aBlock.getValue('#output')).toEqual(6);
+    expect(aBlock.getValue('#output')).toBe(6);
 
     // save load
     let saved = flow.save();
@@ -40,7 +40,7 @@ describe('Math', function () {
     let aBlock2 = flow2.getValue('a2');
     expect(aBlock2).toBeInstanceOf(Block);
     Root.run();
-    expect(aBlock2.getValue('#output')).toEqual(6);
+    expect(aBlock2.getValue('#output')).toBe(6);
   });
 
   it('add multiple', function () {
@@ -50,23 +50,23 @@ describe('Math', function () {
     aBlock._load({'#is': 'add', '0': 2, '1': 3, '2': 4, '[]': 3});
 
     Root.run();
-    expect(aBlock.getValue('#output')).toEqual(9);
+    expect(aBlock.getValue('#output')).toBe(9);
 
     aBlock.setValue('3', 5);
     Root.run();
-    expect(aBlock.getValue('#output')).toEqual(9);
+    expect(aBlock.getValue('#output')).toBe(9);
 
     aBlock.setValue('[]', 4);
     Root.run();
-    expect(aBlock.getValue('#output')).toEqual(14);
+    expect(aBlock.getValue('#output')).toBe(14);
 
     aBlock.setValue('[]', 2);
     Root.run();
-    expect(aBlock.getValue('#output')).toEqual(5);
+    expect(aBlock.getValue('#output')).toBe(5);
 
     aBlock.setValue('[]', 0);
     Root.run();
-    expect(aBlock.getValue('#output')).toEqual(0);
+    expect(aBlock.getValue('#output')).toBe(0);
   });
 
   it('add array', function () {
@@ -76,7 +76,7 @@ describe('Math', function () {
     aBlock._load({'#is': 'add', '[]': [1, 2]});
 
     Root.run();
-    expect(aBlock.getValue('#output')).toEqual(3);
+    expect(aBlock.getValue('#output')).toBe(3);
   });
 
   it('subtract', function () {
@@ -88,11 +88,11 @@ describe('Math', function () {
     aBlock.setValue('0', 7);
     aBlock.setValue('1', 3);
     Root.run();
-    expect(aBlock.getValue('#output')).toEqual(4);
+    expect(aBlock.getValue('#output')).toBe(4);
 
     aBlock.setValue('1', null);
     Root.run();
-    expect(aBlock.getValue('#output')).toEqual(undefined);
+    expect(aBlock.getValue('#output')).toBe(undefined);
   });
 
   it('divide', function () {
@@ -104,11 +104,11 @@ describe('Math', function () {
     aBlock.setValue('0', 7);
     aBlock.setValue('1', 2);
     Root.run();
-    expect(aBlock.getValue('#output')).toEqual(3.5);
+    expect(aBlock.getValue('#output')).toBe(3.5);
 
     aBlock.setValue('1', null);
     Root.run();
-    expect(aBlock.getValue('#output')).toEqual(undefined);
+    expect(aBlock.getValue('#output')).toBe(undefined);
   });
 
   it('multiply', function () {
@@ -122,18 +122,18 @@ describe('Math', function () {
     aBlock.setValue('2', 5);
     aBlock.setValue('[]', 3);
     Root.run();
-    expect(aBlock.getValue('#output')).toEqual(30);
+    expect(aBlock.getValue('#output')).toBe(30);
 
     aBlock.setValue('2', null);
     Root.run();
-    expect(aBlock.getValue('#output')).toEqual(undefined);
+    expect(aBlock.getValue('#output')).toBe(undefined);
 
     aBlock.setValue('[]', -1);
     Root.run();
-    expect(aBlock.getValue('#output')).toEqual(6);
+    expect(aBlock.getValue('#output')).toBe(6);
 
     aBlock.setValue('[]', 0);
     Root.run();
-    expect(aBlock.getValue('#output')).toEqual(1);
+    expect(aBlock.getValue('#output')).toBe(1);
   });
 });

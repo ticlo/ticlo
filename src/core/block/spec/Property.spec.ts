@@ -1,4 +1,4 @@
-import expect from 'expect';
+import {expect} from 'vitest';
 import {Flow} from '../Flow';
 
 describe('Property Save Load', function () {

@@ -1,4 +1,4 @@
-import expect from 'expect';
+import {expect} from 'vitest';
 import SimulateEvent from 'simulate-event';
 import React from 'react';
 import {removeLastTemplate, loadTemplate, querySingle} from '../../../util/test-util';
@@ -38,21 +38,21 @@ describe('PasswordEditor', function () {
     expect(value).toBeNull();
 
     simulateInput(editor, {key: 'Enter'}, null);
-    expect(value).toEqual('A');
+    expect(value).toBe('A');
 
     // test escape key
     simulateInput(editor, {key: 'B'}, 'AB');
-    expect(value).toEqual('A');
+    expect(value).toBe('A');
 
     simulateInput(editor, {key: 'Escape'}, null);
     simulateInput(editor, {key: 'Enter'}, null);
-    expect(value).toEqual('1'); // blur back to the value from Props
+    expect(value).toBe('1'); // blur back to the value from Props
 
     // onBlur
     simulateInput(editor, {key: 'C'}, 'ABC');
-    expect(value).not.toEqual('ABC');
+    expect(value).not.toBe('ABC');
 
     editor.onBlur();
-    expect(value).toEqual('ABC');
+    expect(value).toBe('ABC');
   });
 });

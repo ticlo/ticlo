@@ -1,4 +1,4 @@
-import expect from 'expect';
+import {expect} from 'vitest';
 import {Flow, Root} from '../Flow';
 import {Event} from '../Event';
 import {TestFunctionRunner} from './TestFunction';
@@ -6,9 +6,9 @@ import {TestFunctionRunner} from './TestFunction';
 describe('Event', function () {
   it('Event Uid Change in Root', function () {
     let uid = Event.uid;
-    expect(uid).toEqual(Event.uid);
+    expect(uid).toBe(Event.uid);
     Root.run();
-    expect(uid).not.toEqual(Event.uid);
+    expect(uid).not.toBe(Event.uid);
   });
 
   it('event life cycle', function () {

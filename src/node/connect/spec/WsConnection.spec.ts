@@ -1,4 +1,4 @@
-import expect from 'expect';
+import {expect} from 'vitest';
 import {Root} from '../../../core/block/Flow';
 import {AsyncClientPromise} from '../../../core/connect/spec/AsyncClientPromise';
 import {shouldHappen, shouldReject} from '../../../core/util/test-util';
@@ -19,7 +19,12 @@ const afterAll = globalThis.afterAll ?? globalThis.after;
 describe('WsConnect', function () {
   let server: MockWsServer;
   beforeAll(async function () {
-    server = new MockWsServer(PORT);
+    try {
+      server = new MockWsServer(PORT);
+    } catch (err) {
+      console.log(err);
+    }
+
     await server.init();
   });
 
@@ -37,7 +42,7 @@ describe('WsConnect', function () {
     let subcallbacks = new AsyncClientPromise();
     client.subscribe('WsConnect1.a', subcallbacks);
     let result = await subcallbacks.promise;
-    expect(result.cache.value).toEqual(1);
+    expect(result.cache.value).toBe(1);
 
     let setcallbacks = new AsyncClientPromise();
     client.setValue('WsConnect1.a', 3, setcallbacks);
@@ -50,7 +55,7 @@ describe('WsConnect', function () {
 
     flow.setValue('a', 2);
     result = await subcallbacks.promise;
-    expect(result.cache.value).toEqual(2);
+    expect(result.cache.value).toBe(2);
     expect(result.cache.bindingPath).toBeNull();
     expect(result.change.bindingPath).toBeNull();
 

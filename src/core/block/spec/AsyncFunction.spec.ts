@@ -1,4 +1,4 @@
-import expect from 'expect';
+import {expect} from 'vitest';
 import {TestAsyncFunctionLog} from './TestFunction';
 import {Flow, Root} from '../Flow';
 import {ErrorEvent, Event} from '../Event';
@@ -45,7 +45,7 @@ for (let typeName of ['async-function-promise', 'async-function-manual']) {
       expect(TestAsyncFunctionLog.syncLog).toEqual(['obj']);
       expect(TestAsyncFunctionLog.asyncLog).toEqual([]);
 
-      expect(block.getValue('#wait')).not.toEqual(undefined);
+      expect(block.getValue('#wait')).not.toBe(undefined);
       block.setValue('#call', new ErrorEvent(''));
       expect(block.getValue('#wait')).not.toBeDefined();
       expect(TestAsyncFunctionLog.asyncLog).toEqual([]);
@@ -85,8 +85,8 @@ for (let typeName of ['async-function-promise', 'async-function-manual']) {
       TestAsyncFunctionLog.clearLog();
 
       block2.updateValue('#call', {});
-      expect(block2.getValue('#wait')).not.toEqual(undefined);
-      expect(block3.getValue('#wait')).toEqual(undefined);
+      expect(block2.getValue('#wait')).not.toBe(undefined);
+      expect(block3.getValue('#wait')).toBe(undefined);
 
       let block2EmitPromise = block2.waitNextValue('#emit');
       // #emit need to have binding before next line, otherwise it wont emit
@@ -141,7 +141,7 @@ for (let typeName of ['async-function-promise', 'async-function-manual']) {
       block1.setValue('#is', typeName);
 
       block1.setValue('#call', {});
-      expect(await block1.waitValue('#emit')).toEqual('ticlo');
+      expect(await block1.waitValue('#emit')).toBe('ticlo');
     });
   });
 }

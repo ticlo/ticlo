@@ -1,4 +1,4 @@
-import Websocket from 'ws';
+import Websocket, {WebSocketServer} from 'ws';
 import {Root} from '../../../../src/core';
 import {WsServerConnection} from '../WsServerConnection';
 
@@ -7,7 +7,7 @@ export class MockWsServer {
   lastConnection: WsServerConnection;
 
   constructor(port: number) {
-    this.server = new Websocket.Server({port});
+    this.server = new WebSocketServer({port});
   }
 
   init(): Promise<any> {

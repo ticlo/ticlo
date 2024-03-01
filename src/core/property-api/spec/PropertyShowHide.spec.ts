@@ -1,4 +1,4 @@
-import expect from 'expect';
+import {expect} from 'vitest';
 
 import {Flow, PropDesc, PropGroupDesc} from '../..';
 import {showProperties, hideProperties, moveShownProperty, hideGroupProperties} from '../PropertyShowHide';

@@ -1,4 +1,4 @@
-import expect from 'expect';
+import {expect} from 'vitest';
 import {Flow} from '../Flow';
 import {BlockIO} from '../BlockProperty';
 

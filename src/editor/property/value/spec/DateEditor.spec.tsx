@@ -1,4 +1,4 @@
-import expect from 'expect';
+import {expect} from 'vitest';
 import SimulateEvent from 'simulate-event';
 import React from 'react';
 import {removeLastTemplate, loadTemplate, querySingle, fakeMouseEvent} from '../../../util/test-util';
@@ -34,7 +34,7 @@ describe('DateEditor', function () {
     let inputDiv = editorDiv.querySelector('input');
 
     // test if string input is converted to moment
-    expect(inputDiv.value).toEqual('2019-01-01');
+    expect(inputDiv.value).toBe('2019-01-01');
 
     SimulateEvent.simulate(inputDiv, 'mousedown', fakeMouseEvent());
 

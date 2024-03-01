@@ -1,4 +1,4 @@
-import expect from 'expect';
+import {expect} from 'vitest';
 import {Flow} from '../Flow';
 import {FlowHistory} from '../FlowHistory';
 import {shouldHappen} from '../../util/test-util';
@@ -18,24 +18,24 @@ describe('FlowHistory', function () {
     flow.setValue('a', 2);
     history.add(flow.save());
 
-    expect(flow.getValue('@has-undo')).toEqual(true);
+    expect(flow.getValue('@has-undo')).toBe(true);
     expect(flow.getValue('@has-redo')).not.toBeDefined();
 
     history.undo();
-    expect(flow.getValue('a')).toEqual(1);
+    expect(flow.getValue('a')).toBe(1);
 
     expect(flow.getValue('@has-undo')).not.toBeDefined();
-    expect(flow.getValue('@has-redo')).toEqual(true);
+    expect(flow.getValue('@has-redo')).toBe(true);
 
     flow.setValue('a', 3);
     history.add(flow.save());
 
-    expect(flow.getValue('@has-undo')).toEqual(true);
+    expect(flow.getValue('@has-undo')).toBe(true);
     expect(flow.getValue('@has-redo')).not.toBeDefined();
 
     history.undo();
     history.redo();
-    expect(flow.getValue('a')).toEqual(3);
+    expect(flow.getValue('a')).toBe(3);
 
     flow.destroyHistory();
     expect(flow.getValue('@has-undo')).not.toBeDefined();
@@ -61,7 +61,7 @@ describe('FlowHistory', function () {
 
     flow.undo();
     expect(history._tracking).toBe(false);
-    expect(flow.getValue('a')).toEqual(1);
+    expect(flow.getValue('a')).toBe(1);
     expect(flow.getValue('@has-change')).not.toBeDefined();
 
     flow.setValue('a', 3);
@@ -78,7 +78,7 @@ describe('FlowHistory', function () {
     expect(flow.getValue('@has-change')).not.toBeDefined();
 
     flow.undo();
-    expect(flow.getValue('a')).toEqual(1);
+    expect(flow.getValue('a')).toBe(1);
     expect(flow.getValue('@has-change')).toBe(true);
 
     flow.setValue('a', 3);
@@ -86,7 +86,7 @@ describe('FlowHistory', function () {
     // destroy history
     flow.unwatch({onChildChange: () => {}});
     // reload from saved state
-    expect(flow.getValue('a')).toEqual(1);
+    expect(flow.getValue('a')).toBe(1);
 
     flow.destroy();
     FlowHistory._debounceInterval = debounceInterval;

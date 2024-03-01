@@ -1,4 +1,4 @@
-import expect from 'expect';
+import {expect} from 'vitest';
 import SimulateEvent from 'simulate-event';
 import React from 'react';
 import {BlockStage} from '../BlockStage';
@@ -41,9 +41,9 @@ describe('editor BlockStage', function () {
     await shouldHappen(() => div.querySelector('.ticl-block'), 500, 'find block');
 
     let block = div.querySelector('.ticl-block') as HTMLDivElement;
-    expect(block.offsetLeft).toEqual(123);
-    expect(block.offsetTop).toEqual(234);
-    expect(block.offsetWidth).toEqual(345);
+    expect(block.offsetLeft).toBe(123);
+    expect(block.offsetTop).toBe(234);
+    expect(block.offsetWidth).toBe(345);
 
     // test all fields in the block body
     await shouldHappen(
@@ -114,14 +114,14 @@ describe('editor BlockStage', function () {
     await shouldHappen(() => block.classList.contains('ticl-block-selected'));
 
     // mouse move to drag
-    expect(block.offsetLeft).toEqual(123);
-    expect(block.offsetTop).toEqual(234);
+    expect(block.offsetLeft).toBe(123);
+    expect(block.offsetTop).toBe(234);
     SimulateEvent.simulate(document.body, 'mousemove', {
       clientX: 100,
       clientY: 100,
     });
     await shouldHappen(() => block.offsetLeft === 223);
-    expect(block.offsetTop).toEqual(334);
+    expect(block.offsetTop).toBe(334);
 
     // mouse up to stop dragging
     SimulateEvent.simulate(document.body, 'mouseup');
@@ -205,7 +205,7 @@ describe('editor BlockStage', function () {
     await shouldHappen(() => div.querySelector('svg.ticl-block-wire'));
 
     let addBlock = querySingle("//div.ticl-block-head.ticl-block-head-label[text()='add']/../..", div);
-    expect(addBlock.offsetWidth).toEqual(143);
+    expect(addBlock.offsetWidth).toBe(143);
 
     let wire = div.querySelector('svg.ticl-block-wire') as SVGSVGElement;
 
@@ -218,10 +218,10 @@ describe('editor BlockStage', function () {
     // minimize the block
     SimulateEvent.simulate(addBlock.querySelector('.ticl-block-head'), 'dblclick');
     await shouldHappen(() => addBlock.offsetWidth === 24);
-    expect(addBlock.offsetHeight).toEqual(24);
+    expect(addBlock.offsetHeight).toBe(24);
 
     // wrie instance should be reused
-    expect(div.querySelector('svg')).toEqual(wire);
+    expect(div.querySelector('svg')).toBe(wire);
 
     // click the other block
     SimulateEvent.simulate(
@@ -231,7 +231,7 @@ describe('editor BlockStage', function () {
     // addBlock is no longer selected
     await shouldHappen(() => !addBlock.classList.contains('ticl-block-selected'));
     // since subtract block is now selected, wire should still have zindex
-    expect(wire.style.zIndex).toEqual('100');
+    expect(wire.style.zIndex).toBe('100');
 
     // expand block
     SimulateEvent.simulate(addBlock.querySelector('.ticl-block-head'), 'dblclick');
@@ -334,8 +334,8 @@ describe('editor BlockStage', function () {
     let yarr = [36, 36, 228, 228, 36, 228, 420, 420, 420, 36];
     for (let i = 0; i < 10; ++i) {
       let block = blocks[i] as HTMLDivElement;
-      expect(block.offsetLeft).toEqual(xarr[i]);
-      expect(block.offsetTop).toEqual(yarr[i]);
+      expect(block.offsetLeft).toBe(xarr[i]);
+      expect(block.offsetTop).toBe(yarr[i]);
     }
     Root.instance.deleteValue('BlockStage6');
   });

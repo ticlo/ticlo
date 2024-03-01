@@ -1,4 +1,4 @@
-import expect from 'expect';
+import {expect} from 'vitest';
 import React from 'react';
 import {TIcon} from '../Icon';
 import {shouldHappen} from '../../../../src/core/util/test-util';
@@ -48,7 +48,7 @@ describe('editor Icon', function () {
     }, 1000);
 
     expect(icons[3].classList.contains('tico-txt')).toBe(true);
-    expect(icons[3].innerText).toEqual('A');
+    expect(icons[3].innerText).toBe('A');
 
     expect(icons[4].classList.contains('tico-txt')).toBe(true);
     expect(icons[4].classList.contains('tico-yoff')).toBe(true);
@@ -57,14 +57,14 @@ describe('editor Icon', function () {
     expect(icons[5].style.fontSize === '8px').toBe(true);
 
     expect(icons[6].classList.contains('tico-txt')).toBe(true);
-    expect(icons[6].innerText).toEqual('文');
+    expect(icons[6].innerText).toBe('文');
 
     expect(icons[7].classList.contains('tico-txt')).toBe(true);
     expect(icons[7].style.fontSize === '12px').toBe(true);
 
     // invalid icon input
     for (let i = 8; i < 11; ++i) {
-      expect(icons[i].classList.length).toEqual(1);
+      expect(icons[i].classList.length).toBe(1);
     }
   });
 });

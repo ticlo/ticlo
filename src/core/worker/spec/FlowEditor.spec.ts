@@ -1,4 +1,4 @@
-import expect from 'expect';
+import {expect} from 'vitest';
 import {Flow, Root} from '../../block/Flow';
 import {FlowEditor} from '../FlowEditor';
 import {VoidListeners} from '../../block/spec/TestFunction';
@@ -18,7 +18,7 @@ describe('FlowEditor', function () {
     expect(flow.getValue('#edit-2')).toBeInstanceOf(FlowEditor);
 
     editor1.watch(VoidListeners);
-    expect(flow.getValue('#edit-1')).toEqual(editor1);
+    expect(flow.getValue('#edit-1')).toBe(editor1);
 
     // value deleted after unwatch
     editor1.unwatch(VoidListeners);
@@ -138,7 +138,7 @@ describe('FlowEditor', function () {
     expect(Functions.getWorkerData('FlowEditor:worker3')).toEqual(expectedData);
 
     let desc = Functions.getDescToSend('FlowEditor:worker3')[0];
-    expect(desc.icon).toEqual('fas:plus');
+    expect(desc.icon).toBe('fas:plus');
     expect(desc.properties).toEqual(expectedDescProperties);
 
     Functions.clear('FlowEditor:worker3');
@@ -155,7 +155,7 @@ describe('FlowEditor', function () {
 
     let block: SharedBlock = editor.getValue('#shared');
     expect(block).toBeInstanceOf(SharedBlock);
-    expect(block._prop).toEqual(editor.getProperty('#shared'));
+    expect(block._prop).toBe(editor.getProperty('#shared'));
 
     flow.destroy();
   });

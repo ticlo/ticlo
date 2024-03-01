@@ -1,4 +1,4 @@
-import expect from 'expect';
+import {expect} from 'vitest';
 import {encode, decode, encodeDisplay} from '../Serialize';
 import moment from 'moment';
 
@@ -8,12 +8,12 @@ describe('Serialize', function () {
     let str = `"\\u001bTs:${iso8601}"`;
     let time = moment.parseZone(iso8601);
     expect(time.isSame(decode(str))).toBe(true);
-    expect(encode(time)).toEqual(str);
+    expect(encode(time)).toBe(str);
   });
 
   it('encodeDisplay', function () {
-    expect(encodeDisplay(NaN)).toEqual('NaN');
-    expect(encodeDisplay(undefined)).toEqual('undefined');
-    expect(encodeDisplay(-Infinity)).toEqual('-Inf');
+    expect(encodeDisplay(NaN)).toBe('NaN');
+    expect(encodeDisplay(undefined)).toBe('undefined');
+    expect(encodeDisplay(-Infinity)).toBe('-Inf');
   });
 });

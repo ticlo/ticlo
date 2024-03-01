@@ -1,4 +1,4 @@
-import expect from 'expect';
+import {expect} from 'vitest';
 import {Flow, Root} from '../../../block/Flow';
 import {JsFunction} from '../Js';
 import {Functions} from '../../../block/Functions';
@@ -24,7 +24,7 @@ describe('Js Type', function () {
     aBlock.setValue('#call', {});
 
     Root.run();
-    expect(aBlock.getValue('out1')).toEqual(321);
+    expect(aBlock.getValue('out1')).toBe(321);
     Functions.clear('Js-type1');
   });
 

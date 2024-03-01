@@ -1,4 +1,4 @@
-import expect from 'expect';
+import {expect} from 'vitest';
 import Fs from 'fs';
 import {Flow, Root, decode} from '../../../core';
 import {shouldHappen, shouldReject, waitTick} from '../../../core/util/test-util';
@@ -19,7 +19,7 @@ describe('IndexDbStorage', function () {
     flow.applyChange();
     await waitTick(20);
     let savedData: string = await db.get(STORE_NAME, 'flow1');
-    expect(savedData).toEqual('{\n"#is": ""\n}');
+    expect(savedData).toBe('{\n"#is": ""\n}');
 
     root.deleteFlow('flow1');
     await waitTick(20);
@@ -51,9 +51,9 @@ describe('IndexDbStorage', function () {
     let root = new Root();
     await root.setStorage(storage);
 
-    expect(root.queryValue('flow5.value')).toEqual(321);
-    expect(root.queryValue('flow5.subflow.value')).toEqual(321);
-    expect((root.getValue('flow5') as Flow).save()).toEqual(flowData);
+    expect(root.queryValue('flow5.value')).toBe(321);
+    expect(root.queryValue('flow5.subflow.value')).toBe(321);
+    expect((root.getValue('flow5') as Flow).save()).toBe(flowData);
 
     root.destroy();
   });

@@ -1,4 +1,4 @@
-import expect from 'expect';
+import {expect} from 'vitest';
 import SimulateEvent from 'simulate-event';
 import React from 'react';
 import '../../index';

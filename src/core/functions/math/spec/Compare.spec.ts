@@ -1,4 +1,4 @@
-import expect from 'expect';
+import {expect} from 'vitest';
 import '../Compare';
 import '../Boolean';
 import {Block} from '../../../block/Block';
@@ -16,27 +16,27 @@ describe('Compare', function () {
     });
 
     Root.run();
-    expect(aBlock.getValue('#output')).toEqual(true);
+    expect(aBlock.getValue('#output')).toBe(true);
 
     aBlock.setValue('0', NaN);
     Root.run();
-    expect(aBlock.getValue('#output')).toEqual(false);
+    expect(aBlock.getValue('#output')).toBe(false);
 
     aBlock.setValue('1', NaN);
     Root.run();
-    expect(aBlock.getValue('#output')).toEqual(false);
+    expect(aBlock.getValue('#output')).toBe(false);
 
     aBlock.setValue('0', undefined);
     Root.run();
-    expect(aBlock.getValue('#output')).toEqual(false);
+    expect(aBlock.getValue('#output')).toBe(false);
 
     aBlock.setValue('1', null);
     Root.run();
-    expect(aBlock.getValue('#output')).toEqual(false);
+    expect(aBlock.getValue('#output')).toBe(false);
 
     aBlock.setValue('1', undefined);
     Root.run();
-    expect(aBlock.getValue('#output')).toEqual(true);
+    expect(aBlock.getValue('#output')).toBe(true);
   });
 
   it('not', function () {
@@ -49,11 +49,11 @@ describe('Compare', function () {
     });
 
     Root.run();
-    expect(aBlock.getValue('#output')).toEqual(false);
+    expect(aBlock.getValue('#output')).toBe(false);
 
     aBlock.setValue('input', null);
     Root.run();
-    expect(aBlock.getValue('#output')).toEqual(true);
+    expect(aBlock.getValue('#output')).toBe(true);
   });
 
   it('not equal', function () {
@@ -67,27 +67,27 @@ describe('Compare', function () {
     });
 
     Root.run();
-    expect(aBlock.getValue('#output')).toEqual(false);
+    expect(aBlock.getValue('#output')).toBe(false);
 
     aBlock.setValue('0', NaN);
     Root.run();
-    expect(aBlock.getValue('#output')).toEqual(true);
+    expect(aBlock.getValue('#output')).toBe(true);
 
     aBlock.setValue('1', NaN);
     Root.run();
-    expect(aBlock.getValue('#output')).toEqual(true);
+    expect(aBlock.getValue('#output')).toBe(true);
 
     aBlock.setValue('0', undefined);
     Root.run();
-    expect(aBlock.getValue('#output')).toEqual(true);
+    expect(aBlock.getValue('#output')).toBe(true);
 
     aBlock.setValue('1', null);
     Root.run();
-    expect(aBlock.getValue('#output')).toEqual(true);
+    expect(aBlock.getValue('#output')).toBe(true);
 
     aBlock.setValue('1', undefined);
     Root.run();
-    expect(aBlock.getValue('#output')).toEqual(false);
+    expect(aBlock.getValue('#output')).toBe(false);
   });
 
   it('greater than', function () {
@@ -101,15 +101,15 @@ describe('Compare', function () {
     });
 
     Root.run();
-    expect(aBlock.getValue('#output')).toEqual(true);
+    expect(aBlock.getValue('#output')).toBe(true);
 
     aBlock.setValue('0', 2);
     Root.run();
-    expect(aBlock.getValue('#output')).toEqual(false);
+    expect(aBlock.getValue('#output')).toBe(false);
 
     aBlock.setValue('1', 1);
     Root.run();
-    expect(aBlock.getValue('#output')).toEqual(true);
+    expect(aBlock.getValue('#output')).toBe(true);
   });
 
   it('greater equal', function () {
@@ -123,15 +123,15 @@ describe('Compare', function () {
     });
 
     Root.run();
-    expect(aBlock.getValue('#output')).toEqual(true);
+    expect(aBlock.getValue('#output')).toBe(true);
 
     aBlock.setValue('0', 2);
     Root.run();
-    expect(aBlock.getValue('#output')).toEqual(false);
+    expect(aBlock.getValue('#output')).toBe(false);
 
     aBlock.setValue('1', 2);
     Root.run();
-    expect(aBlock.getValue('#output')).toEqual(true);
+    expect(aBlock.getValue('#output')).toBe(true);
   });
 
   it('less than', function () {
@@ -145,15 +145,15 @@ describe('Compare', function () {
     });
 
     Root.run();
-    expect(aBlock.getValue('#output')).toEqual(false);
+    expect(aBlock.getValue('#output')).toBe(false);
 
     aBlock.setValue('0', 2);
     Root.run();
-    expect(aBlock.getValue('#output')).toEqual(false);
+    expect(aBlock.getValue('#output')).toBe(false);
 
     aBlock.setValue('1', 3);
     Root.run();
-    expect(aBlock.getValue('#output')).toEqual(true);
+    expect(aBlock.getValue('#output')).toBe(true);
   });
 
   it('less equal', function () {
@@ -167,14 +167,14 @@ describe('Compare', function () {
     });
 
     Root.run();
-    expect(aBlock.getValue('#output')).toEqual(false);
+    expect(aBlock.getValue('#output')).toBe(false);
 
     aBlock.setValue('0', 2);
     Root.run();
-    expect(aBlock.getValue('#output')).toEqual(false);
+    expect(aBlock.getValue('#output')).toBe(false);
 
     aBlock.setValue('1', 2);
     Root.run();
-    expect(aBlock.getValue('#output')).toEqual(true);
+    expect(aBlock.getValue('#output')).toBe(true);
   });
 });

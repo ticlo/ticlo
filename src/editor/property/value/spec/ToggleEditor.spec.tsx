@@ -1,4 +1,4 @@
-import expect from 'expect';
+import {expect} from 'vitest';
 import SimulateEvent from 'simulate-event';
 import React from 'react';
 import {removeLastTemplate, loadTemplate, querySingle} from '../../../util/test-util';
@@ -66,7 +66,7 @@ describe('ToggleEditor', function () {
     let switchButton = div.querySelector('.ant-switch');
 
     SimulateEvent.simulate(switchButton, 'click');
-    expect(value).toEqual('b');
+    expect(value).toBe('b');
   });
 
   it('click to false string', async function () {
@@ -84,6 +84,6 @@ describe('ToggleEditor', function () {
     let switchButton = div.querySelector('.ant-switch');
 
     SimulateEvent.simulate(switchButton, 'click');
-    expect(value).toEqual('a');
+    expect(value).toBe('a');
   });
 });

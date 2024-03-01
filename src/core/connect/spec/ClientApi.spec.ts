@@ -1,4 +1,4 @@
-import expect from 'expect';
+import {expect} from 'vitest';
 import {Block} from '../../block/Block';
 import {Flow, Root} from '../../block/Flow';
 import {makeLocalConnection} from '../LocalConnection';
@@ -89,11 +89,11 @@ describe('Connection Client API', function () {
     let func4 = client.watchDesc('ClientConnection:func4');
     let func5 = client.watchDesc('ClientConnection:func5');
 
-    expect(client.getCommonBaseFunc(new Set([func5]))).toEqual(func5);
-    expect(client.getCommonBaseFunc(new Set([func3, func5]))).toEqual(func2);
-    expect(client.getCommonBaseFunc(new Set([func2, func3, func5]))).toEqual(func2);
-    expect(client.getCommonBaseFunc(new Set([func2, func4]))).toEqual(func1);
-    expect(client.getCommonBaseFunc(new Set([func3, func5, func4]))).toEqual(func1);
+    expect(client.getCommonBaseFunc(new Set([func5]))).toBe(func5);
+    expect(client.getCommonBaseFunc(new Set([func3, func5]))).toBe(func2);
+    expect(client.getCommonBaseFunc(new Set([func2, func3, func5]))).toBe(func2);
+    expect(client.getCommonBaseFunc(new Set([func2, func4]))).toBe(func1);
+    expect(client.getCommonBaseFunc(new Set([func3, func5, func4]))).toBe(func1);
     client.destroy();
   });
 

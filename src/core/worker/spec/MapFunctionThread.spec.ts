@@ -1,4 +1,4 @@
-import expect from 'expect';
+import {expect} from 'vitest';
 import {Flow, Root} from '../../block/Flow';
 import {TestFunctionRunner, TestAsyncFunctionPromise} from '../../block/spec/TestFunction';
 import '../../functions/math/Arithmetic';
@@ -51,7 +51,7 @@ describe('MapFunction Thread', function () {
     expect(TestFunctionRunner.popLogs().length).toBe(20);
 
     for (let i = 0; i < 20; ++i) {
-      expect(output['v' + i]).toEqual(i + 1);
+      expect(output['v' + i]).toBe(i + 1);
     }
 
     flow.setValue('a', {
@@ -70,7 +70,7 @@ describe('MapFunction Thread', function () {
     expect(outputArr.length).toBe(20);
 
     for (let i = 0; i < 20; ++i) {
-      expect(outputArr[i]).toEqual(i + 101);
+      expect(outputArr[i]).toBe(i + 101);
     }
 
     expect(TestFunctionRunner.popLogs().length).toBe(20);
@@ -200,7 +200,7 @@ describe('MapFunction Thread', function () {
     expect(TestFunctionRunner.popLogs().length).toBe(20);
 
     for (let i = 0; i < 20; ++i) {
-      expect(output['v' + i]).toEqual(i + 1);
+      expect(output['v' + i]).toBe(i + 1);
     }
     flow.setValue('a', {
       v1: 1,
@@ -218,7 +218,7 @@ describe('MapFunction Thread', function () {
     expect(outputArr.length).toBe(20);
 
     for (let i = 0; i < 20; ++i) {
-      expect(outputArr[i]).toEqual(i + 101);
+      expect(outputArr[i]).toBe(i + 101);
     }
 
     expect(TestFunctionRunner.popLogs().length).toBe(20);
@@ -268,7 +268,7 @@ describe('MapFunction Thread', function () {
     expect(TestFunctionRunner.popLogs().length).toBe(5);
 
     for (let i = 0; i < 20; ++i) {
-      expect(output['v' + i]).toEqual(i + 1);
+      expect(output['v' + i]).toBe(i + 1);
     }
 
     flow.setValue('a', {
@@ -288,7 +288,7 @@ describe('MapFunction Thread', function () {
     expect(TestFunctionRunner.popLogs().length).toBe(5);
 
     for (let i = 0; i < 20; ++i) {
-      expect(outputArr[i]).toEqual(i + 101);
+      expect(outputArr[i]).toBe(i + 101);
     }
 
     // delete flow;
@@ -335,7 +335,7 @@ describe('MapFunction Thread', function () {
     expect(Object.keys(output).length).toBe(20);
 
     for (let i = 0; i < 20; ++i) {
-      expect(output['v' + i]).toEqual(i + 1);
+      expect(output['v' + i]).toBe(i + 1);
     }
     flow.setValue('a', {
       v1: 1,
@@ -352,9 +352,9 @@ describe('MapFunction Thread', function () {
     expect(outputArr.length).toBe(20);
 
     for (let i = 0; i < 20; ++i) {
-      expect(outputArr[i]).toEqual(i + 101);
+      expect(outputArr[i]).toBe(i + 101);
     }
-    expect(bBlock.queryValue('#flow.4.#outputs')).not.toEqual(undefined);
+    expect(bBlock.queryValue('#flow.4.#outputs')).not.toBe(undefined);
 
     // delete flow;
     flow.deleteValue('b');
@@ -411,7 +411,7 @@ describe('MapFunction Thread', function () {
     expect(outputArr.length).toBe(20);
 
     for (let i = 0; i < 20; ++i) {
-      expect(outputArr[i]).toEqual(i + 101);
+      expect(outputArr[i]).toBe(i + 101);
     }
 
     expect(TestFunctionRunner.popLogs().length).toBe(40);

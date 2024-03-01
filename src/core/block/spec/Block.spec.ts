@@ -1,4 +1,4 @@
-import expect from 'expect';
+import {expect} from 'vitest';
 import {Block} from '../Block';
 import {Flow, Root} from '../Flow';
 import {PropDispatcher} from '../Dispatcher';
@@ -9,23 +9,23 @@ describe('Block', function () {
     let flow = new Flow();
     flow.setValue('@a', 357);
     flow.setBinding('@b', '@a');
-    expect(flow.getValue('@b')).toEqual(357);
+    expect(flow.getValue('@b')).toBe(357);
 
     let block = flow.createBlock('obj');
-    expect(block instanceof Block).toEqual(true);
-    expect(block).toEqual(flow.getValue('obj'));
+    expect(block instanceof Block).toBe(true);
+    expect(block).toBe(flow.getValue('obj'));
     expect(flow.createBlock('obj')).toBeNull();
     // assert.equal(block.getValue(''), block, 'self property');
 
     block.setValue('@c', 468);
     flow.setBinding('@d', 'obj.@c');
-    expect(flow.getValue('@d')).toEqual(468);
+    expect(flow.getValue('@d')).toBe(468);
 
     block.setBinding('@e', '##.@b');
-    expect(block.getValue('@e')).toEqual(357);
+    expect(block.getValue('@e')).toBe(357);
 
     block.setBinding('@f', '###.@a');
-    expect(block.getValue('@f')).toEqual(357);
+    expect(block.getValue('@f')).toBe(357);
 
     flow.setBinding('@d', null);
     expect(flow.getValue('@d')).toBeUndefined();
@@ -38,13 +38,13 @@ describe('Block', function () {
     block2.setValue('p1', 1);
 
     expect(flow.queryProperty('block3.p2', true) == null).toBe(true);
-    expect(flow.queryValue('block1.block2.p1')).toEqual(1);
+    expect(flow.queryValue('block1.block2.p1')).toBe(1);
     expect(flow.queryProperty('block1.block2.p2') == null).toBe(true);
     expect(flow.queryProperty('block1.block2.p3', true) != null).toBe(true);
 
-    expect(flow.queryValue('block1.block2.#')).toEqual(block2);
-    expect(flow.queryValue('block1.block2.##')).toEqual(block1);
-    expect(flow.queryValue('block1.block2.###')).toEqual(flow);
+    expect(flow.queryValue('block1.block2.#')).toBe(block2);
+    expect(flow.queryValue('block1.block2.##')).toBe(block1);
+    expect(flow.queryValue('block1.block2.###')).toBe(flow);
   });
 
   it('destroy binding chain', function () {
@@ -54,18 +54,18 @@ describe('Block', function () {
     let block2 = flow.createBlock('block2');
     block2.setBinding('c', '##.block1.c');
 
-    expect(block2.getValue('c')).toEqual(block1c);
+    expect(block2.getValue('c')).toBe(block1c);
 
     flow.deleteValue('block1');
 
-    expect(block2.getValue('c')).toEqual(undefined);
+    expect(block2.getValue('c')).toBe(undefined);
   });
 
   it('set same value', function () {
     let flow = new Flow();
     flow.updateValue('a', 1);
     flow.setValue('a', 1);
-    expect(flow.getProperty('a')._saved).toEqual(1);
+    expect(flow.getProperty('a')._saved).toBe(1);
   });
 
   it('update listener within listener', function () {
@@ -94,23 +94,23 @@ describe('Block', function () {
     };
     let binding1 = flow.createBinding('a', listener1);
     flow.setValue('a', 17);
-    expect(listener2.value).toEqual(17);
+    expect(listener2.value).toBe(17);
     flow.setValue('a', 19);
-    expect(listener2.value).toEqual(19);
-    expect(listener1.value).toEqual(17);
+    expect(listener2.value).toBe(19);
+    expect(listener1.value).toBe(17);
   });
 
   it('misc', function () {
     expect(Root.instance.save()).toBeNull();
 
-    expect(Root.instance.getValue('')).toEqual(Root.instance);
+    expect(Root.instance.getValue('')).toBe(Root.instance);
 
     let flow = Root.instance.addFlow();
 
     let subflow = flow.createOutputBlock('sub');
     subflow._load({'#is': 'add', '0': 1, '1': 2});
     Root.run();
-    expect(flow.queryValue('sub.#output')).toEqual(3);
+    expect(flow.queryValue('sub.#output')).toBe(3);
 
     Root.instance.deleteValue(flow._prop._name);
     expect(subflow.isDestroyed()).toBe(true);
