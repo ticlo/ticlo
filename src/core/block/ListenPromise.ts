@@ -10,7 +10,7 @@ export class ListenPromise<T> implements PropListener<T> {
   _promise: Promise<T>;
   _validator?: (val: T) => EventType | boolean;
   _resolve: (value?: T | PromiseLike<T>) => void;
-  _reject: (reason?: any) => void;
+  _reject: (reason?: unknown) => void;
 
   constructor(validator?: (val: T) => EventType | boolean) {
     this._validator = validator;

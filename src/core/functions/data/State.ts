@@ -1,7 +1,7 @@
 import {BlockFunction} from '../../block/BlockFunction';
 import {Functions} from '../../block/Functions';
 import {Block} from '../../block/Block';
-import {isPrimitiveType} from '../../util/DataTypes';
+import {isDataMap, isPrimitiveType} from '../../util/DataTypes';
 import {Resolver} from '../../block/Resolver';
 
 export class StateFunction extends BlockFunction {
@@ -14,15 +14,18 @@ export class StateFunction extends BlockFunction {
     let states = this._data.getArray('', 1, ['input', 'target']);
     let len = states.length;
     for (let i = 0; i < len; ++i) {
-      let {input, target} = states[i];
-      if (!Object.is(input, target)) {
-        let inputProp = this._data.getProperty(`input${i}`);
-        let sourceProp = inputProp?._bindingSource?.getProperty();
-        if (sourceProp) {
-          if (savable) {
-            sourceProp.setValue(target);
-          } else {
-            sourceProp.updateValue(target);
+      const state = states[i];
+      if (isDataMap(state)) {
+        let {input, target} = state;
+        if (!Object.is(input, target)) {
+          let inputProp = this._data.getProperty(`input${i}`);
+          let sourceProp = inputProp?._bindingSource?.getProperty();
+          if (sourceProp) {
+            if (savable) {
+              sourceProp.setValue(target);
+            } else {
+              sourceProp.updateValue(target);
+            }
           }
         }
       }
@@ -51,9 +54,12 @@ const API = {
       let states = block.getArray('', 1, ['input', 'target']);
       let len = states.length;
       for (let i = 0; i < len; ++i) {
-        let {input, target} = states[i];
-        if (input !== target && isPrimitiveType(input)) {
-          block.setValue(`target${i}`, input);
+        const state = states[i];
+        if (isDataMap(state)) {
+          let {input, target} = state;
+          if (input !== target && isPrimitiveType(input)) {
+            block.setValue(`target${i}`, input);
+          }
         }
       }
     },

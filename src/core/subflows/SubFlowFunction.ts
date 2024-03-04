@@ -108,7 +108,7 @@ export class SubFlowFunction extends BlockFunction {
     if (this._collector) {
       this._collector.addSubFlow(this._data);
     }
-    let subFlowMode: SubFlowMode = this._data.getValue('#subflow');
+    let subFlowMode = this._data.getValue('#subflow');
     switch (subFlowMode) {
       case 'off': {
         if (this._funcFlow != null) {
@@ -141,7 +141,7 @@ export class SubFlowFunction extends BlockFunction {
 
   onDataLoaded(src: DataMap) {
     this._loading = false;
-    let subFlowMode: SubFlowMode = this._data.getValue('#subflow') ?? SubFlowMode.ON;
+    let subFlowMode = this._data.getValue('#subflow') ?? SubFlowMode.ON;
     if (this._funcFlow == null && subFlowMode === SubFlowMode.ON) {
       this._src = src;
       let storagePath = this.getStoragePath();

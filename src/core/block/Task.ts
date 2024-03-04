@@ -3,9 +3,9 @@ import {Block} from './Block';
 import {ErrorEvent} from './Event';
 
 export class Task {
-  _handler: any = null;
+  _handler: unknown = null;
 
-  attachHandler(handler: any): boolean {
+  attachHandler(handler: unknown): boolean {
     if (this._handler) {
       return false;
     }
@@ -16,14 +16,14 @@ export class Task {
   /**
    * Get the raw input element
    */
-  getData() {
+  getData(): unknown {
     return this;
   }
 
   /**
    * Get the input structure used by worker
    */
-  getDataMap(): any {
+  getDataMap(): unknown {
     return null;
   }
 
@@ -32,11 +32,11 @@ export class Task {
    * @param worker
    * @param output
    */
-  onResolve(worker: Block, output: any): DataMap {
+  onResolve(worker: Block, output: unknown): DataMap {
     return convertToOutput(output);
   }
 
-  onTimeout(): any {
+  onTimeout(): unknown {
     return new ErrorEvent('timeout');
   }
 
@@ -44,21 +44,21 @@ export class Task {
 }
 
 export class DefaultTask extends Task {
-  data: any;
+  data: unknown;
 
-  constructor(data: any) {
+  constructor(data: unknown) {
     super();
     this.data = data;
   }
 
-  attachHandler(handler: any): boolean {
+  attachHandler(handler: unknown): boolean {
     return false;
   }
 
-  getData() {
+  getData(): unknown {
     return this.data;
   }
-  getDataMap(): any {
+  getDataMap(): unknown {
     return this.data;
   }
 }

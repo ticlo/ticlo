@@ -1,13 +1,14 @@
 import {PropDispatcher, PropListener} from './Dispatcher';
 import {Block} from './Block';
 import {BlockBindingSource, BlockProperty} from './BlockProperty';
+import {DataMap} from '../util/DataTypes';
 
 export class BlockBinding extends PropDispatcher implements PropListener, BlockBindingSource {
   private _block: Block;
   private _path: string;
   private _field: string;
 
-  private _source: any = null;
+  private _source: unknown = null;
 
   _parent: BlockBindingSource = null;
 
@@ -50,7 +51,7 @@ export class BlockBinding extends PropDispatcher implements PropListener, BlockB
     // do nothing
   }
 
-  onChange(val: any): any {
+  onChange(val: unknown): unknown {
     if (Object.is(this._source, val)) {
       return;
     }
@@ -59,9 +60,9 @@ export class BlockBinding extends PropDispatcher implements PropListener, BlockB
       this._propChanged(val.getProperty(this._field));
     } else {
       this._propChanged(null);
-      if (val != null && typeof val === 'object' && val.hasOwnProperty(this._field)) {
+      if (val?.hasOwnProperty(this._field)) {
         // drill down into object children
-        this.updateValue(val[this._field]);
+        this.updateValue((val as DataMap)[this._field]);
       } else {
         this.updateValue(undefined);
       }

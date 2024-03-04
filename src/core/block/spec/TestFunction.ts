@@ -7,9 +7,9 @@ import {Block, BlockMode} from '../Block';
 import {DataMap} from '../../util/DataTypes';
 
 export class TestFunctionRunner extends PureFunction {
-  static logs: any[] = [];
+  static logs: unknown[] = [];
 
-  static popLogs(): any[] {
+  static popLogs(): unknown[] {
     let result = TestFunctionRunner.logs;
     TestFunctionRunner.logs = [];
     return result;
@@ -20,13 +20,14 @@ export class TestFunctionRunner extends PureFunction {
   }
 
   isPure = false;
-  run(): any {
+  run(): unknown {
     TestFunctionRunner.logs.push(this._data.getValue('#-log'));
+    return;
   }
 }
 const TestFunctionApi = {
   commands: {
-    test: (block: Block, params: any) => {
+    test: (block: Block, params: unknown) => {
       block.setValue('#-log', 'command');
     },
   },
@@ -47,8 +48,8 @@ class TestFunctionRunnerWontCancel extends TestFunctionRunner {
 Functions.add(TestFunctionRunnerWontCancel, {name: 'test-runner-wont-cancel'});
 
 export class TestAsyncFunctionLog {
-  static syncLog: any[] = [];
-  static asyncLog: any[] = [];
+  static syncLog: unknown[] = [];
+  static asyncLog: unknown[] = [];
 
   static clearLog() {
     TestAsyncFunctionLog.syncLog.length = 0;
@@ -58,10 +59,10 @@ export class TestAsyncFunctionLog {
 
 // async function that returns Promise
 export class TestAsyncFunctionPromise extends PureFunction {
-  timeOut: any;
+  timeOut: NodeJS.Timeout | string | number | undefined;
   reject: Function;
 
-  run(): any {
+  run(): unknown {
     let promise = new Promise((resolve, reject) => {
       this.reject = reject;
       TestAsyncFunctionLog.syncLog.push(this._data.getValue('#-log'));
@@ -99,9 +100,9 @@ Functions.add(TestAsyncFunctionPromise, {
 
 // async function that manually call block.wait, and return NOT_READY
 export class TestAsyncFunctionManual extends BlockFunction {
-  timeOut: any;
+  timeOut: NodeJS.Timeout | string | number | undefined;
 
-  run(): any {
+  run(): unknown {
     TestAsyncFunctionLog.syncLog.push(this._data.getValue('#-log'));
     this.timeOut = setTimeout(() => {
       TestAsyncFunctionLog.asyncLog.push(this._data.getValue('#-log'));
@@ -145,7 +146,7 @@ export const VoidListeners = {
     /* istanbul ignore next */
     throw new Error('should not be called');
   },
-  onChange(val: any) {
+  onChange(val: unknown) {
     /* istanbul ignore next */
     throw new Error('should not be called');
   },

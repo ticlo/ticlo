@@ -2,7 +2,7 @@ import {expect} from 'vitest';
 import SimulateEvent from 'simulate-event';
 import React from 'react';
 import {BlockStage} from '../BlockStage';
-import {Block, Root} from '../../../../src/core';
+import {Block, Root, Flow} from '../../../../src/core';
 import {destroyLastLocalConnection, makeLocalConnection} from '../../../core/connect/LocalConnection';
 import {shouldHappen, shouldReject} from '../../../core/util/test-util';
 import {removeLastTemplate, loadTemplate, querySingle, fakeMouseEvent} from '../../util/test-util';
@@ -126,7 +126,7 @@ describe('editor BlockStage', function () {
     // mouse up to stop dragging
     SimulateEvent.simulate(document.body, 'mouseup');
 
-    await shouldHappen(() => arrayEqual(flow.queryValue('add.@b-xyw'), [223, 334, 345]));
+    await shouldHappen(() => arrayEqual((flow as Flow).queryValue('add.@b-xyw') as unknown[], [223, 334, 345]));
 
     // mouse move no longer drag block
     SimulateEvent.simulate(document.body, 'mousemove', {
@@ -169,7 +169,7 @@ describe('editor BlockStage', function () {
 
     await shouldHappen(() => block.offsetWidth === 445);
 
-    await shouldHappen(() => arrayEqual(flow.queryValue('add.@b-xyw'), [123, 234, 445]));
+    await shouldHappen(() => arrayEqual((flow as Flow).queryValue('add.@b-xyw') as unknown[], [123, 234, 445]));
 
     // mouse up to stop dragging
     SimulateEvent.simulate(document.body, 'mouseup');

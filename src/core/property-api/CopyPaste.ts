@@ -1,5 +1,5 @@
 import {Block} from '../block/Block';
-import {DataMap} from '../util/DataTypes';
+import {DataMap, isDataMap} from '../util/DataTypes';
 import {BlockProperty} from '../block/BlockProperty';
 import {FlowWithShared, SharedBlock, SharedConfig} from '../block/SharedBlock';
 import {findPropertyForNewBlock} from './PropertyName';
@@ -13,7 +13,7 @@ function getProperty(parent: Block, field: string, create = false): [BlockProper
     if (sharedBlock instanceof Block) {
       return [sharedBlock.getProperty(field.substring(8)), sharedBlock];
     } else {
-      return [null, sharedBlock];
+      return [null, null];
     }
   } else {
     return [parent.getProperty(field), null];
@@ -68,9 +68,9 @@ export function pasteProperties(parent: Block, data: DataMap, resolve?: 'overwri
     return 'invalid data';
   }
 
-  let {'#shared': sharedData, ...others} = data;
+  let {'#shared': shared, ...others} = data;
   others = cloneToLevel(others, 3);
-  sharedData = cloneToLevel(sharedData, 3);
+  let sharedData = cloneToLevel(shared, 3) as DataMap;
 
   let sharedBlock = createSharedBlock(parent.getProperty('#shared', sharedData != null));
 
@@ -160,7 +160,7 @@ function renameBlocks(parent: Block, data: DataMap, fields: string[]) {
           parts[level] = map.get(parts[level]);
           obj[key] = parts.join('.');
         }
-      } else if (val != null && val.constructor === Object) {
+      } else if (isDataMap(val)) {
         moveBinding(val, level + 1);
       }
     }
@@ -169,7 +169,7 @@ function renameBlocks(parent: Block, data: DataMap, fields: string[]) {
   // move synced parent block
   for (let key in data) {
     let val = data[key];
-    if (val != null && val.constructor === Object) {
+    if (isDataMap(val)) {
       let xyw = val['@b-xyw'];
       if (typeof xyw === 'string' && fields.includes(xyw)) {
         val['@b-xyw'] = map.get(xyw);
@@ -196,7 +196,7 @@ function moveBlockPositions(data0: DataMap, data1: DataMap, positions: Map<numbe
   function collectDataPosition(data: DataMap) {
     for (let key in data) {
       let value = data[key];
-      if (value != null && value.constructor === Object) {
+      if (isDataMap(value)) {
         let xyw = value['@b-xyw'];
         if (Array.isArray(xyw) && typeof xyw[0] === 'number' && typeof xyw[1] === 'number') {
           xyws.push(xyw);
@@ -215,7 +215,7 @@ function moveBlockPositions(data0: DataMap, data1: DataMap, positions: Map<numbe
   nextoffset: for (; true; offset += 24) {
     for (let xyw of xyws) {
       let x = xyw[0] + offset;
-      // find a range of y that we dont want to see another block
+      // find a range of y that we don't want to see another block
       let ylow = xyw[1] + offset - 80;
       let yhigh = ylow + 160;
       let ys = positions.get(x);

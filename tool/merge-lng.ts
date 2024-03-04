@@ -7,7 +7,7 @@ function mergeData(to: DataMap, from: DataMap) {
   for (let key in from) {
     if (to.hasOwnProperty(key)) {
       if (typeof to[key] === 'object') {
-        mergeData(to[key], from[key]);
+        mergeData(to[key] as DataMap, from[key] as DataMap);
       } else {
         throw new Error(`conflict on key: ${key}`);
       }

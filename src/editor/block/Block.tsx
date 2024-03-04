@@ -4,7 +4,7 @@ import {TIcon} from '../icon/Icon';
 import {DragDropDiv, DragState} from 'rc-dock';
 import {BaseBlockItem, BlockHeaderView, BlockItem, Stage, XYWRenderer} from './Field';
 import {LazyUpdateSubscriber} from '../component/LazyUpdateComponent';
-import {BlockWidget} from './view/BlockWidget';
+import {BlockWidget, BlockWidgetProps} from './view/BlockWidget';
 import {getFuncStyleFromDesc} from '../util/BlockColors';
 import {getDisplayName} from '../../core';
 import {Tooltip} from 'antd';
@@ -188,7 +188,7 @@ export class BlockView extends PureDataRenderer<BlockViewProps, BlockViewState> 
   renderImpl() {
     let {item} = this.props;
     let {moving, footDropping} = this.state;
-    let FullView = item.desc.view;
+    let FullView = item.desc.view as new () => React.Component<BlockWidgetProps>;
 
     let classNames: string[] = [];
     if (item.selected) {

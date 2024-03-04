@@ -311,12 +311,12 @@ export abstract class BlockStageBase<Props extends StagePropsBase, State>
   }
   watchListener = {
     onUpdate: (response: DataMap) => {
-      this.onChildUpdate(response.changes, this.props.basePath);
+      this.onChildUpdate(response.changes as DataMap, this.props.basePath);
     },
   };
   sharedWatchListener = {
     onUpdate: (response: DataMap) => {
-      this.onChildUpdate(response.changes, this._sharedPath);
+      this.onChildUpdate(response.changes as DataMap, this._sharedPath);
     },
   };
   clearSharedBlocks() {

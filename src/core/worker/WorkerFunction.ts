@@ -92,7 +92,7 @@ export class WorkerFunction extends BlockFunction {
     let properties: (PropDesc | PropGroupDesc)[] = [];
     let groups: Map<string, PropGroupDesc> = new Map();
     // add inputs
-    let inputs = data['#inputs']?.['#custom'];
+    let inputs = (data['#inputs'] as DataMap)?.['#custom'];
     if (Array.isArray(inputs)) {
       for (let input of inputs) {
         let copyInput = {...input};
@@ -105,7 +105,7 @@ export class WorkerFunction extends BlockFunction {
       }
     }
     // add outputs
-    let outputs = data['#outputs']?.['#custom'];
+    let outputs = (data['#outputs'] as DataMap)?.['#custom'];
     let mainOutput: PropDesc;
     if (Array.isArray(outputs)) {
       for (let output of outputs) {

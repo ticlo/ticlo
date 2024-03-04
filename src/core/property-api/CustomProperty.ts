@@ -27,7 +27,7 @@ export function addCustomProperty(block: Block, desc: PropDesc | PropGroupDesc, 
     }
   }
 
-  let customProps = block.getValue('#custom');
+  let customProps = block.getValue('#custom') as unknown[];
 
   if (!Array.isArray(customProps)) {
     // if it's not a child property in a group
@@ -50,14 +50,14 @@ export function addCustomProperty(block: Block, desc: PropDesc | PropGroupDesc, 
     let groupIdx = customProps.findIndex((g: PropGroupDesc) => g.name === group);
     if (groupIdx > -1) {
       if (groupDesc) {
-        hideGroupProperties(block, customProps[groupIdx]);
+        hideGroupProperties(block, customProps[groupIdx] as PropGroupDesc);
         // replace existing group
         customProps[groupIdx] = groupDesc;
         block.setValue('#custom', customProps);
         showGroupProperties(block, groupDesc);
       } else {
         // add property to existing group
-        groupDesc = customProps[groupIdx];
+        groupDesc = customProps[groupIdx] as PropGroupDesc;
         let groupChildIdx = groupDesc.properties.findIndex((p: PropDesc) => p.name === propDesc.name);
         if (groupChildIdx > -1) {
           groupDesc.properties[groupChildIdx] = propDesc;
@@ -90,7 +90,7 @@ export function addCustomProperty(block: Block, desc: PropDesc | PropGroupDesc, 
 }
 
 export function removeCustomProperty(block: Block, name: string, group?: string) {
-  let customProps: any[] = block.getValue('#custom');
+  let customProps = block.getValue('#custom') as unknown[];
 
   if (!Array.isArray(customProps)) {
     return;
@@ -100,7 +100,7 @@ export function removeCustomProperty(block: Block, name: string, group?: string)
   if (group) {
     let groupIdx = customProps.findIndex((g: PropGroupDesc) => g.name === group && g.type === 'group');
     if (groupIdx > -1) {
-      let groupDesc: PropGroupDesc = customProps[groupIdx];
+      let groupDesc: PropGroupDesc = customProps[groupIdx] as PropGroupDesc;
       if (name) {
         let groupChildIdx = groupDesc.properties.findIndex((p: PropDesc) => p.name === name);
         if (groupChildIdx > -1) {
@@ -146,7 +146,7 @@ export function moveCustomProperty(block: Block, nameFrom: string, nameTo: strin
     return;
   }
 
-  let customProps: any[] = block.getValue('#custom');
+  let customProps = block.getValue('#custom') as unknown[];
   if (!Array.isArray(customProps)) {
     return;
   }
@@ -154,7 +154,7 @@ export function moveCustomProperty(block: Block, nameFrom: string, nameTo: strin
 
   let targetProps = customProps;
   if (group != null) {
-    let foundGroup: PropGroupDesc = customProps.find((g: PropGroupDesc) => g.name === group && g.type === 'group');
+    let foundGroup = customProps.find((g: PropGroupDesc) => g.name === group && g.type === 'group') as PropGroupDesc;
     if (foundGroup) {
       targetProps = foundGroup.properties;
     } else {

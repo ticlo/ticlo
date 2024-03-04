@@ -6,7 +6,7 @@ export class SplitFunction extends PureFunction {
   run(): any {
     let input = this._data.getValue('input');
     if (typeof input === 'string') {
-      let separator: string | RegExp = this._data.getValue('separator');
+      let separator: string | RegExp = this._data.getValue('separator') as string;
       if (typeof separator !== 'string') {
         separator = ',';
       } else if (this._data.getValue('regExp')) {

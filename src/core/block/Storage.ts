@@ -10,7 +10,7 @@ export interface Storage {
   loadFlow(name: string): Promise<DataMap>;
 
   inited?: boolean;
-  init(root: Root): any; // void or promise
+  init(root: Root): unknown; // void or promise
 
   // return [applyChange,onStateChange] of a flow
   getFlowLoader(key: string, prop: BlockProperty): FlowLoader;

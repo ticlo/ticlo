@@ -2,6 +2,7 @@ import {PureFunction} from '../../block/BlockFunction';
 import {Functions} from '../../block/Functions';
 import {defaultConfigs, PropDesc, PropGroupDesc} from '../../block/Descriptor';
 import {BlockConfig} from '../../block/BlockProperty';
+import {DataMap} from '../../util/DataTypes';
 
 export class CreateObjectFunction extends PureFunction {
   configChanged(config: BlockConfig, val: any): boolean {
@@ -13,10 +14,11 @@ export class CreateObjectFunction extends PureFunction {
         return false;
     }
   }
+
   run() {
     let baseObj = this._data.getValue('#extend');
-    let output = baseObj ? {...baseObj} : {};
-    let custom: PropDesc | PropGroupDesc[] = this._data.getValue('#custom');
+    let output: DataMap = typeof baseObj === 'object' ? {...baseObj} : {};
+    let custom = this._data.getValue('#custom') as PropDesc | PropGroupDesc[];
     if (Array.isArray(custom)) {
       for (let prop of custom) {
         if (prop) {
@@ -58,9 +60,10 @@ export class CreateObjectFunctionOptional extends PureFunction {
         return false;
     }
   }
+
   run() {
     let baseObj = this._data.getValue('#extend');
-    let output = baseObj ? {...baseObj} : {};
+    let output: DataMap = typeof baseObj === 'object' ? {...baseObj} : {};
     for (let field of this._data.getOptionalProps()) {
       let value = this._data.getValue(field);
       if (value !== undefined) {

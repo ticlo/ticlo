@@ -6,7 +6,7 @@ import {WorkerFunction} from '../../worker/WorkerFunction';
 
 describe('GlobalProperty', function () {
   it('global from nested flow', function () {
-    let globalBlock: Block = Root.instance.getValue('#global');
+    let globalBlock: Block = Root.instance.getValue('#global') as Block;
     expect(globalBlock).toBeInstanceOf(Block);
 
     let flow = new Flow();

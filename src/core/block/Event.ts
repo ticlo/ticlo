@@ -20,7 +20,7 @@ export class Event {
     this.loopId = Event.uid;
   }
 
-  static check(val: any): EventType {
+  static check(val: unknown): EventType {
     if (val == null || val === false) {
       return EventType.VOID;
     }
@@ -39,9 +39,9 @@ export class Event {
 }
 
 export class ErrorEvent extends Event {
-  detail: any;
+  detail: unknown;
 
-  constructor(type: string, detail?: any) {
+  constructor(type: string, detail?: unknown) {
     super(type);
     this.detail = detail;
   }

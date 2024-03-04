@@ -14,7 +14,7 @@ export class ExpressHttpRequest extends HttpRequest {
   onResolve(worker: Block, output: any): DataMap {
     let response = super.onResolve(worker, output);
     if (response) {
-      let status = response.status || 200;
+      let status = typeof response.status === 'number' ? response.status : 200;
       let data = response.data;
       let headers = response.headers;
       if (headers) {

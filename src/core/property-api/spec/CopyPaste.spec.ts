@@ -3,6 +3,7 @@ import '../../functions/math/Arithmetic';
 import {WorkerFlow} from '../../worker/WorkerFlow';
 import {copyProperties, deleteProperties, pasteProperties} from '../CopyPaste';
 import {DataMap} from '../../util/DataTypes';
+import type {Block} from '../../block/Block';
 
 describe('Copy Paste', function () {
   const data = {
@@ -65,12 +66,12 @@ describe('Copy Paste', function () {
     let flow1 = new WorkerFlow();
     expect(copyProperties(flow1, ['add', '#shared.subtract'])).toBe('nothing to copy');
     expect(pasteProperties(flow1, null)).toBe('invalid data');
-    expect(pasteProperties(flow1, [])).toBe('invalid data');
+    expect(pasteProperties(flow1, [] as any)).toBe('invalid data');
     expect(pasteProperties(flow1, 1 as any)).toBe('invalid data');
 
     flow1.load(data);
     expect((pasteProperties(flow1, copy) as string).startsWith('block already exists: ')).toBe(true);
 
-    expect(pasteProperties(flow1.getValue('add'), copy)).toBe('#shared properties not allowed in this Block');
+    expect(pasteProperties(flow1.getValue('add') as Block, copy)).toBe('#shared properties not allowed in this Block');
   });
 });

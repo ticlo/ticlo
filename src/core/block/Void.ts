@@ -5,11 +5,11 @@ import {_strictMode} from './BlockSettings';
 class VoidProperty extends BlockProperty {
   static readonly instance = new VoidProperty(null, '');
 
-  onChange(val: any, save?: boolean): boolean {
+  onChange(val: unknown, save?: boolean): boolean {
     return false;
   }
 
-  setValue(val: any) {
+  setValue(val: unknown) {
     // do nothing
   }
 
@@ -17,19 +17,20 @@ class VoidProperty extends BlockProperty {
     // do nothing
   }
 
-  _saveValue(): any {
+  _saveValue(): unknown {
     if (_strictMode) {
       throw new Error('Can not save destroyed property');
     }
+    return;
   }
 
-  _load(val: any) {
+  _load(val: unknown) {
     if (_strictMode) {
       throw new Error('Can not load destroyed property');
     }
   }
 
-  _liveUpdate(val: any) {
+  _liveUpdate(val: unknown) {
     if (_strictMode) {
       throw new Error('Can not liveUpdate destroyed property');
     }

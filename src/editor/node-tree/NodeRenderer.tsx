@@ -126,16 +126,16 @@ export class NodeTreeItem extends TreeItem<NodeTreeItem> {
     if (this.listingId) {
       this.listingId = null;
     }
-    let children: DataMap = response.children;
+    let children = response.children as DataMap;
     let names = Object.keys(children);
     names.sort(smartStrCompare);
     for (let key of names) {
-      let data = children[key];
+      let data = children[key] as DataMap;
       if (previousChildren.get(key)?.id === data.id) {
         this.children.push(previousChildren.get(key));
         previousChildren.delete(key);
       } else {
-        this.children.push(new NodeTreeItem(key, data.id, this, data.canApply));
+        this.children.push(new NodeTreeItem(key, data.id?.toString(), this, Boolean(data.canApply)));
       }
     }
     this.opened = 'opened';

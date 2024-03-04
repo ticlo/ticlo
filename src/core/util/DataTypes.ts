@@ -4,7 +4,11 @@ import {Block} from '../block/Block';
 import {BlockIO} from '../block/BlockProperty';
 
 export interface DataMap {
-  [key: string]: any;
+  [key: string]: unknown;
+}
+
+export function isDataMap(val: unknown): val is DataMap {
+  return Object.isExtensible(val);
 }
 
 export const TRUNCATED = '·∙·'; // '\u00b7\u2219\u00b7'
@@ -24,7 +28,7 @@ export function isPrimitiveType(val: any) {
   }
 }
 
-export function isSavedBlock(val: any): boolean {
+export function isSavedBlock(val: unknown): val is DataMap {
   return Object.isExtensible(val) && (val.hasOwnProperty('#is') || val.hasOwnProperty('~#is'));
 }
 

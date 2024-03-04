@@ -4,7 +4,7 @@ import {truncateData} from '../DataTruncate';
 
 describe('truncateData', function () {
   let longstr = '1234567890';
-  let bigObj: DataMap = {child: {}, arr: []};
+  let bigObj: {child: DataMap; arr: unknown[]} & DataMap = {child: {}, arr: []};
   for (let i = 0; i < 8; i++) {
     longstr += longstr;
     bigObj[i] = longstr;

@@ -2,7 +2,7 @@ import {Block} from '../block/Block';
 import {hideProperties, showProperties} from './PropertyShowHide';
 
 export function addOptionalProperty(block: Block, name: string) {
-  let optionalProps: string[] = block.getValue('#optional');
+  let optionalProps: string[] = block.getValue('#optional') as string[];
 
   if (!Array.isArray(optionalProps)) {
     optionalProps = [name];
@@ -17,7 +17,7 @@ export function addOptionalProperty(block: Block, name: string) {
 }
 
 export function removeOptionalProperty(block: Block, name: string) {
-  let optionalProps: string[] = block.getValue('#optional');
+  let optionalProps: string[] = block.getValue('#optional') as string[];
 
   if (!Array.isArray(optionalProps)) {
     return;
@@ -45,7 +45,7 @@ export function moveOptionalProperty(block: Block, nameFrom: string, nameTo: str
     return;
   }
 
-  let optionalProps: string[] = block.getValue('#optional');
+  let optionalProps: string[] = block.getValue('#optional') as string[];
   if (!Array.isArray(optionalProps)) {
     return;
   }

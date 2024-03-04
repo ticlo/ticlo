@@ -10,9 +10,9 @@ import {FunctionClass} from './BlockFunction';
 import {PropListener} from './Dispatcher';
 
 export class SharedConfig extends BlockProperty {
-  _load(val: any) {}
+  _load(val: unknown) {}
 
-  _liveUpdate(val: any) {
+  _liveUpdate(val: unknown) {
     if (isSavedBlock(val)) {
       if (this._value instanceof SharedBlock) {
         this._value._liveUpdate(val);
@@ -25,7 +25,7 @@ export class SharedConfig extends BlockProperty {
     }
   }
 
-  _saveValue(): any {
+  _saveValue(): unknown {
     if (this._value instanceof SharedBlock) {
       let result = this._value.save();
       // check if SharedBlock is needed even with no child block
@@ -85,7 +85,7 @@ export class SharedBlock extends Flow {
     }
   }
 
-  static _loadSharedBlock(flow: FlowWithShared, funcId: string, data: DataMap, cacheKey: any) {
+  static _loadSharedBlock(flow: FlowWithShared, funcId: string, data: DataMap, cacheKey: unknown) {
     if (cacheKey && SharedBlock._dict.has(cacheKey)) {
       return SharedBlock._dict.get(cacheKey);
     } else {
@@ -138,7 +138,7 @@ export class SharedBlock extends Flow {
 
   _funcDispatcher: FunctionDispatcher;
   _funcListener: PropListener<FunctionClass> = {
-    onSourceChange(prop: any) {},
+    onSourceChange(prop: unknown) {},
     onChange: (val: FunctionClass) => {
       // _source is set after listener is attached, so the first change will be skipped
       if (this._cacheKey != null) {
@@ -148,8 +148,8 @@ export class SharedBlock extends Flow {
       }
     },
   };
-  _cacheKey: any;
-  _cacheMode?: 'persist';
+  _cacheKey: unknown;
+  _cacheMode?: 'persist' | unknown;
   _flows = new Set<Flow>();
   attachFlow(flow: Flow) {
     this._flows.add(flow);
@@ -189,7 +189,7 @@ export const FlowWithSharedConfigGenerators: {[key: string]: typeof BlockPropert
 export class FlowWithShared extends Flow {
   _sharedBlock: SharedBlock;
 
-  getCacheKey(funcId: string, data: DataMap): any {
+  getCacheKey(funcId: string, data: DataMap): unknown {
     return funcId || data;
   }
 

@@ -23,7 +23,7 @@ export class BlockProperty extends PropDispatcher<any> implements PropListener<a
   _bindingSource: BlockBindingSource;
   _helperProperty: HelperProperty;
 
-  _saved: any;
+  _saved: unknown;
 
   constructor(block: Block, name: string) {
     super();
@@ -43,11 +43,11 @@ export class BlockProperty extends PropDispatcher<any> implements PropListener<a
     // to be overridden
   }
 
-  updateValue(val: any): boolean {
+  updateValue(val: unknown): boolean {
     return this.onChange(val);
   }
 
-  onChange(val: any, save?: boolean): boolean {
+  onChange(val: unknown, save?: boolean): boolean {
     if (Object.is(this._value, val)) {
       if (save && !Object.is(this._saved, val)) {
         this._saved = val;
@@ -73,11 +73,11 @@ export class BlockProperty extends PropDispatcher<any> implements PropListener<a
 
   // output the value but doesn't notify the function
   // to be overriden in BlockIo
-  setOutput(val: any): boolean {
+  setOutput(val: unknown): boolean {
     return this.onChange(val);
   }
 
-  setValue(val: any) {
+  setValue(val: unknown) {
     if (this._bindingSource) {
       this._bindingSource.unlisten(this);
       if (this._helperProperty) {
@@ -141,7 +141,7 @@ export class BlockProperty extends PropDispatcher<any> implements PropListener<a
     this._helperProperty = prop;
   }
 
-  _saveValue(): any {
+  _saveValue(): unknown {
     if (this._saved !== undefined) {
       if (this._saved instanceof Block) {
         return this._saved._save();
@@ -154,7 +154,7 @@ export class BlockProperty extends PropDispatcher<any> implements PropListener<a
     }
   }
 
-  _saveBinding(): any {
+  _saveBinding(): unknown {
     if (this._helperProperty) {
       return this._helperProperty.__save();
     }
@@ -172,7 +172,7 @@ export class BlockProperty extends PropDispatcher<any> implements PropListener<a
     }
   }
 
-  _load(val: any) {
+  _load(val: unknown) {
     if (isSavedBlock(val)) {
       if (typeof val['#is'] === 'object') {
         // not a saved block, but a wrapped object
@@ -187,7 +187,7 @@ export class BlockProperty extends PropDispatcher<any> implements PropListener<a
     }
   }
 
-  _liveUpdate(val: any) {
+  _liveUpdate(val: unknown) {
     if (this._bindingSource) {
       this._bindingSource.unlisten(this);
       this._bindingSource = null;
@@ -324,7 +324,7 @@ export class BlockIO extends BlockProperty {
   _outputing: boolean = false;
 
   // outputs the value but doesn't notify the function
-  setOutput(val: any): boolean {
+  setOutput(val: unknown): boolean {
     this._outputing = true;
     let changed = this.onChange(val);
     this._outputing = false;
@@ -345,7 +345,7 @@ export class BlockConfig extends BlockProperty {
   _outputing: boolean = false;
 
   // outputs the value but doesn't notify the function
-  setOutput(val: any): boolean {
+  setOutput(val: unknown): boolean {
     this._outputing = true;
     let changed = this.onChange(val);
     this._outputing = false;
@@ -359,7 +359,7 @@ export class GlobalProperty extends BlockIO {
     this.listenToParentGlobal();
   }
 
-  onChange(val: any, save?: boolean): boolean {
+  onChange(val: unknown, save?: boolean): boolean {
     if (super.onChange(val, save) && save) {
       this.checkInUse();
       return true;
@@ -399,12 +399,12 @@ export class GlobalProperty extends BlockIO {
 
 export class HelperProperty extends BlockProperty {
   // a helper block should only be saved from original property
-  _saveValue(): any {
+  _saveValue(): unknown {
     return undefined;
   }
 
   // call the raw save function
-  __save(): any {
+  __save(): unknown {
     if (this._saved instanceof Block) {
       return this._saved._save();
     } else {

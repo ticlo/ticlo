@@ -5,15 +5,15 @@ import {DataMap} from '../util/DataTypes';
 
 export interface FunctionOutput {
   // field is '#output' by default
-  output(value: any, field?: string): void;
+  output(value: unknown, field?: string): void;
 }
 
 export interface FunctionInput {
-  getValue(field: string): any;
+  getValue(field: string): unknown;
 
   getLength(group?: string, defaultLength?: number): number;
 
-  getArray(group?: string, defaultLength?: number, fields?: string[]): any[];
+  getArray(group?: string, defaultLength?: number, fields?: string[]): unknown[];
 
   getOptionalProps(): string[];
 }
@@ -37,21 +37,21 @@ export abstract class BaseFunction<T extends FunctionData = FunctionData> {
   constructor(public _data?: T) {}
   initInputs() {}
 
-  onCall(val: any): boolean {
+  onCall(val: unknown): boolean {
     return val !== undefined;
   }
 
   // return true when it needs to be put in queue
-  inputChanged(input: BlockIO, val: any): boolean {
+  inputChanged(input: BlockIO, val: unknown): boolean {
     return true;
   }
   // return true when it needs to be put in queue
-  configChanged(config: BlockConfig, val: any): boolean {
+  configChanged(config: BlockConfig, val: unknown): boolean {
     return false;
   }
 
   // return stream output
-  abstract run(): any;
+  abstract run(): unknown;
 
   /**
    *  cancel any async operation
@@ -91,12 +91,12 @@ export abstract class BlockFunction extends BaseFunction<Block> {
     }
   }
 
-  getInputMap(): Map<string, (this: BlockFunction, val: any) => boolean> {
+  getInputMap(): Map<string, (this: BlockFunction, val: unknown) => boolean> {
     return null;
   }
 
   // return true when it needs to be put in queue
-  inputChanged(input: BlockIO, val: any): boolean {
+  inputChanged(input: BlockIO, val: unknown): boolean {
     let inputMap = this.getInputMap();
     if (inputMap) {
       const inputCallback = this.getInputMap().get(input._name);

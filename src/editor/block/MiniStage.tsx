@@ -3,6 +3,7 @@ import {PureDataRenderer} from '../component/DataRenderer';
 import {TIcon} from '../icon/Icon';
 import {BaseBlockItem, BlockItem, Stage, XYWRenderer} from './Field';
 import {getFuncStyleFromDesc} from '../util/BlockColors';
+import {DataMap} from '../../core/util/DataTypes';
 
 interface MiniBlockViewProps {
   item: BlockItem;
@@ -47,7 +48,7 @@ export class MiniBlockView extends PureDataRenderer<MiniBlockViewProps, any> imp
       classNames.push('ticl-block-sync-parent');
     }
 
-    if (SpecialView && SpecialView.fullView) {
+    if ((SpecialView as DataMap)?.fullView) {
       classNames.push('ticl-block-full-view-zoom');
       let width = item.w;
 

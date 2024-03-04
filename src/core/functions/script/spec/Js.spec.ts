@@ -39,7 +39,7 @@ describe('Js', function () {
     let flow2 = new Flow();
     flow2.load(saved);
 
-    let aBlock2 = flow2.getValue('a');
+    let aBlock2 = flow2.getValue('a') as Block;
     expect(aBlock2).toBeInstanceOf(Block);
     Root.run();
     expect(aBlock2.getValue('out2')).toBe(457);

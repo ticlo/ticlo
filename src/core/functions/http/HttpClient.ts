@@ -2,6 +2,7 @@ import {URL} from 'url';
 import axios, {AxiosPromise, AxiosRequestConfig, AxiosRequestHeaders, AxiosResponse} from 'axios';
 import {ImpureFunction} from '../../block/BlockFunction';
 import {Functions} from '../../block/Functions';
+import {isDataMap} from '../../util/DataTypes';
 
 export interface HttpClient {
   request(config: AxiosRequestConfig): Promise<AxiosResponse>;
@@ -41,10 +42,16 @@ class HttpClientObject implements HttpClient {
   readonly headers?: AxiosRequestHeaders;
   readonly optionalHeaders?: AxiosRequestHeaders;
 
-  constructor(baseUrl: string, headers?: AxiosRequestHeaders, optionalHeaders?: AxiosRequestHeaders) {
-    this.baseUrl = baseUrl;
-    this.headers = headers;
-    this.optionalHeaders = optionalHeaders;
+  constructor(baseUrl: unknown, headers?: unknown, optionalHeaders?: unknown) {
+    if (typeof baseUrl === 'string') {
+      this.baseUrl = baseUrl;
+    }
+    if (isDataMap(headers)) {
+      this.headers = headers;
+    }
+    if (isDataMap(optionalHeaders)) {
+      this.optionalHeaders = optionalHeaders;
+    }
   }
 
   async request(config: AxiosRequestConfig) {

@@ -15,6 +15,7 @@ import {WorkerFunction} from '../../worker/WorkerFunction';
 import {FlowEditor} from '../../worker/FlowEditor';
 import {WorkerFlow} from '../../worker/WorkerFlow';
 import {Logger} from '../../util/Logger';
+import {ValueState} from '../ClientRequests';
 
 describe('Connection', function () {
   it('get', async function () {
@@ -401,9 +402,9 @@ describe('Connection', function () {
     client.setValue('Connection7.v', 1);
     client.subscribe('Connection7.v', callbacks);
     await client.setBinding('Connection7.p', 'v', false, true);
-    expect(lastUpdate.change.hasListener).toBe(true);
+    expect((lastUpdate.change as ValueState).hasListener).toBe(true);
     await client.setBinding('Connection7.p', null, false, true);
-    expect(lastUpdate.change.hasListener).toBe(false);
+    expect((lastUpdate.change as ValueState).hasListener).toBe(false);
     client.unsubscribe('Connection7.v', callbacks);
 
     client.destroy();
@@ -516,7 +517,7 @@ describe('Connection', function () {
     expect(isDataTruncated(result2.cache.value)).toBe(false);
 
     // callback1 should not receive a full update
-    expect(isDataTruncated(callbacks1.lastResponse.cache.value)).toBe(true);
+    expect(isDataTruncated((callbacks1.lastResponse.cache as ValueState).value)).toBe(true);
 
     callbacks1.cancel();
     callbacks2.cancel();
@@ -704,13 +705,13 @@ describe('Connection', function () {
     // edit from field
     client.setValue('Connection18.a.use', data);
     await client.editWorker('Connection18.a.#edit-use', 'use');
-    expect(block1.getValue('#edit-use').save()).toEqual(data);
+    expect((block1.getValue('#edit-use') as Flow).save()).toEqual(data);
 
     WorkerFunction.registerType(data, {name: 'func1'}, '');
 
     // edit from worker function
     await client.editWorker('Connection18.a.#edit-func1', null, ':func1');
-    expect(block1.getValue('#edit-func1').save()).toEqual(data);
+    expect((block1.getValue('#edit-func1') as Flow).save()).toEqual(data);
 
     Functions.clear(':func1');
     client.destroy();

@@ -18,7 +18,7 @@ export class JoinFunction extends PureFunction {
     if (typeof separator !== 'string') {
       separator = '';
     }
-    this._data.output(arr.join(separator));
+    this._data.output(arr.join(separator as string));
   }
 }
 

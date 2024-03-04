@@ -1,13 +1,13 @@
 import {DataMap} from './DataTypes';
 
-export function deepClone(val: any): any {
+export function deepClone<T>(val: T): T {
   if (val != null && typeof val === 'object') {
     if (Array.isArray(val)) {
       let arr: any[] = [];
       for (let o of val) {
         arr.push(deepClone(o));
       }
-      return arr;
+      return arr as T;
     } else if (val instanceof Object) {
       let obj: any = {};
       for (let k in val) {
@@ -21,16 +21,16 @@ export function deepClone(val: any): any {
 
 /**
  * @param val
- * @param level, level=0 return val directly, level=1 shallow clone, level=2 clone to second layer children, etc...
+ * @param level level=0 return val directly, level=1 shallow clone, level=2 clone to second layer children, etc...
  */
-export function cloneToLevel(val: any, level: number): DataMap {
+export function cloneToLevel<T>(val: T, level: number): T {
   if (level-- && val != null && typeof val === 'object') {
     if (Array.isArray(val)) {
       let arr: any[] = [];
       for (let o of val) {
         arr.push(cloneToLevel(o, level));
       }
-      return arr;
+      return arr as T;
     } else if (val instanceof Object) {
       let obj: any = {};
       for (let k in val) {

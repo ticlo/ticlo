@@ -73,7 +73,7 @@ export class AssertFunction extends BlockFunction {
     if (this._state === TestState.PASSED && !this._alwaysMatch) {
       return NO_EMIT;
     }
-    let compares: {expect: any; actual: any}[] = this._data.getArray('', 1, [EXPECT, ACTUAL]);
+    let compares = this._data.getArray('', 1, [EXPECT, ACTUAL]) as {expect: any; actual: any}[];
     let matched = compares.length > 0;
     for (let {expect, actual} of compares) {
       if (actual === undefined) {

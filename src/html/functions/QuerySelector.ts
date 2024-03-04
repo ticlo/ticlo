@@ -5,7 +5,7 @@ export class QuerySelectorFunction extends PureFunction {
   run() {
     let parent = this._data.getValue('parent');
     let query = this._data.getValue('query');
-    if (query) {
+    if (typeof query === 'string') {
       if (parent === 'document') {
         parent = document;
       } else if (!(parent instanceof Element)) {
@@ -13,7 +13,7 @@ export class QuerySelectorFunction extends PureFunction {
       }
       if (parent) {
         try {
-          this._data.output(parent.querySelector(query));
+          this._data.output((parent as Element).querySelector(query));
           return;
         } catch (e) {
           this._data.output(undefined);

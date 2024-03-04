@@ -25,12 +25,12 @@ export function buildPropertiesOrder(block: Block): string[] {
     }
   }
 
-  let [desc, size] = Functions.getDescToSend(block.getValue('#is'));
+  let [desc, size] = Functions.getDescToSend(block.getValue('#is')?.toString());
   if (desc) {
     addProps(desc.properties);
   }
 
-  let optionalFields: string[] = block.getValue('#optional');
+  let optionalFields = block.getValue('#optional') as unknown[];
   if (Array.isArray(optionalFields)) {
     for (let field of optionalFields) {
       if (!orders.includes(field)) {
@@ -200,7 +200,7 @@ export function hideGroupProperties(block: Block, desc: PropGroupDesc, field?: s
 }
 
 export function moveShownProperty(block: Block, fieldFrom: string, fieldTo: string) {
-  let bp = block.getValue('@b-p');
+  let bp = block.getValue('@b-p') as unknown[];
   if (!Array.isArray(bp) || fieldFrom === fieldTo) {
     return;
   }

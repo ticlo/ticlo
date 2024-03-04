@@ -1,4 +1,4 @@
-import {DataMap, isDataTruncated, measureObjSize} from '../util/DataTypes';
+import {DataMap, isDataMap, isDataTruncated, measureObjSize} from '../util/DataTypes';
 import {ConnectionSend} from './Connection';
 import {FunctionDesc, mapConfigDesc} from '../block/Descriptor';
 import {ClientConnection} from './ClientConnection';
@@ -108,12 +108,12 @@ export interface ValueState {
   hasListener?: boolean;
 }
 
-export interface ValueUpdate {
+export interface ValueUpdate extends DataMap {
   cache: ValueState;
   change?: ValueState;
 }
 
-export interface SubscribeCallbacks {
+export interface SubscribeCallbacks extends ClientCallbacks {
   onDone?(): void;
 
   onUpdate?(response: ValueUpdate): void;
@@ -305,22 +305,26 @@ export class WatchRequest extends MergedClientRequest {
     if (this._disconnectd) {
       // after disconnect, server might not be aware of these changes, fill in them in client side
       let changes = response.changes;
-      for (let name in this._cachedMap) {
-        if (!changes.hasOwnProperty(name)) {
-          changes[name] = null;
-        } else if (changes[name] === this._cachedMap[name]) {
-          delete changes[name];
+      if (isDataMap(changes)) {
+        for (let name in this._cachedMap) {
+          if (!changes.hasOwnProperty(name)) {
+            changes[name] = null;
+          } else if (changes[name] === this._cachedMap[name]) {
+            delete changes[name];
+          }
         }
       }
     }
     if (Object.isExtensible(response.changes)) {
       let changes = response.changes;
-      for (let key in changes) {
-        let id = changes[key];
-        if (id == null) {
-          delete this._cachedMap[key];
-        } else {
-          this._cachedMap[key] = id;
+      if (isDataMap(changes)) {
+        for (let key in changes) {
+          let id = changes[key];
+          if (id == null) {
+            delete this._cachedMap[key];
+          } else if (typeof id === 'string') {
+            this._cachedMap[key] = id;
+          }
         }
       }
     }
@@ -346,7 +350,7 @@ export class DescRequest extends ConnectionSend implements ClientCallbacks {
   onDone(): void {}
 
   onUpdate(response: DataMap): void {
-    if (response.changes) {
+    if (Array.isArray(response.changes)) {
       for (let change of response.changes) {
         if (change && 'id' in change) {
           let id = change.id;

@@ -37,7 +37,7 @@ describe('Math', function () {
     let flow2 = new Flow();
     flow2.load(saved);
 
-    let aBlock2 = flow2.getValue('a2');
+    let aBlock2 = flow2.getValue('a2') as Block;
     expect(aBlock2).toBeInstanceOf(Block);
     Root.run();
     expect(aBlock2.getValue('#output')).toBe(6);

@@ -1,3 +1,4 @@
+import type React from 'react';
 import {createRoot, Root} from 'react-dom/client';
 import {PureFunction} from '../../src/core/block/BlockFunction';
 import {Functions} from '../../src/core/block/Functions';
@@ -6,8 +7,10 @@ export class RenderDomFunction extends PureFunction {
   _container: Element;
   _root: Root;
   run(): any {
-    let container = this._data.getValue('container');
-    let component = this._data.getValue('component');
+    let container = this._data.getValue('container') as Element;
+    let component = this._data.getValue('component') as React.ReactNode;
+
+    // TODO validate component?
 
     if (!(container instanceof Element)) {
       container = null;

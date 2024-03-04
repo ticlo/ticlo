@@ -17,7 +17,7 @@ function findGroupDesc(block: Block, group: string): PropGroupDesc {
     return null;
   }
 
-  let [desc, size] = Functions.getDescToSend(block.getValue('#is'));
+  let [desc, size] = Functions.getDescToSend(block.getValue('#is')?.toString());
   if (desc) {
     groupDesc = findGroup(desc.properties);
   }

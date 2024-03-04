@@ -72,12 +72,12 @@ export abstract class ClientConnection extends Connection implements ClientConn 
       }
       let req = this.requests.get(response.id);
       if (req instanceof SubscribeRequest) {
-        if (this.subscribes.get(req._data.path) === req) {
-          this.subscribes.delete(req._data.path);
+        if (this.subscribes.get(req._data.path as string) === req) {
+          this.subscribes.delete(req._data.path as string);
         }
       } else if (req instanceof WatchRequest) {
-        if (this.watches.get(req._data.path) === req) {
-          this.watches.delete(req._data.path);
+        if (this.watches.get(req._data.path as string) === req) {
+          this.watches.delete(req._data.path as string);
         }
       }
 
@@ -89,7 +89,7 @@ export abstract class ClientConnection extends Connection implements ClientConn 
           break;
         }
         case 'error': {
-          req.onError(response.msg);
+          req.onError(String(response.msg));
           break;
         }
         default:
@@ -255,7 +255,7 @@ export abstract class ClientConnection extends Connection implements ClientConn 
     if (req) {
       req.remove(callbacks);
       if (req.isEmpty()) {
-        let id = req._data.id;
+        let id = String(req._data.id);
         req._data = {cmd: 'close', id};
         this.addSend(req);
         this.subscribes.delete(path);
@@ -282,7 +282,7 @@ export abstract class ClientConnection extends Connection implements ClientConn 
     if (req) {
       req.remove(callbacks);
       if (req.isEmpty()) {
-        let id = req._data.id;
+        let id = String(req._data.id);
         req._data = {cmd: 'close', id};
         this.addSend(req);
         this.watches.delete(path);
@@ -419,7 +419,7 @@ export abstract class ClientConnection extends Connection implements ClientConn 
   }
 
   cancel(id: string) {
-    let req: DataMap = this.requests.get(id);
+    let req = this.requests.get(id);
     if (req instanceof ClientRequest) {
       req.cancel();
       this.requests.delete(id);

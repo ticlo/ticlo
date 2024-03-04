@@ -1,9 +1,10 @@
-import axios, {AxiosRequestConfig, AxiosResponse, CanceledError} from 'axios';
+import axios, {AxiosRequestConfig, AxiosResponse, CanceledError, ResponseType} from 'axios';
 import {PureFunction, BlockFunction, ImpureFunction} from '../../block/BlockFunction';
 import {ErrorEvent, EventType, WAIT} from '../../block/Event';
 import {Functions} from '../../block/Functions';
 import {BlockMode} from '../../block/Block';
 import {httpRequest, type HttpClient} from './HttpClient';
+import {DataMap} from '../../util/DataTypes';
 
 export type RouteMethod = 'GET' | 'POST' | 'PUT' | 'DELETE';
 const methodList: RouteMethod[] = ['GET', 'POST', 'PUT', 'DELETE'];
@@ -24,7 +25,7 @@ export class FetchFunction extends ImpureFunction {
   _abortController: AbortController;
 
   run(): any {
-    let client: HttpClient = this._data.getValue('client');
+    let client: HttpClient = this._data.getValue('client') as HttpClient;
     let url = this._data.getValue('url');
     if (typeof url === 'string' && url) {
       // cancel the previous request
@@ -36,12 +37,12 @@ export class FetchFunction extends ImpureFunction {
       return client
         .request({
           url,
-          method: this._data.getValue('method'),
+          method: this._data.getValue('method')?.toString(),
           params: this._data.getValue('params'),
-          headers: this._data.getValue('requestHeaders'),
+          headers: this._data.getValue('requestHeaders') as DataMap,
           data: this._data.getValue('requestBody'),
-          responseType: this._data.getValue('responseType'),
-          withCredentials: this._data.getValue('withCredentials'),
+          responseType: this._data.getValue('responseType') as ResponseType,
+          withCredentials: Boolean(this._data.getValue('withCredentials')),
           signal: this._abortController.signal,
         })
         .then((response: AxiosResponse) => {

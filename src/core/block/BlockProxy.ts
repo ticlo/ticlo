@@ -7,7 +7,7 @@ const defaultPropertyDescriptor = {
 };
 
 export const BlockProxy = {
-  get(block: Block, field: string, receiver: object): any {
+  get(block: Block, field: string, receiver: object): unknown {
     let prop = block.getProperty(field, false);
     if (prop) {
       return prop._value;
@@ -15,7 +15,7 @@ export const BlockProxy = {
     return undefined;
   },
 
-  set(block: Block, field: string, value: any, receiver: object): boolean {
+  set(block: Block, field: string, value: unknown, receiver: object): boolean {
     let prop = block.getProperty(field);
     prop.updateValue(value);
     return true;
@@ -51,7 +51,7 @@ export const BlockProxy = {
 export const BlockDeepProxy = {
   ...BlockProxy,
 
-  get(block: Block, field: string, receiver: object): any {
+  get(block: Block, field: string, receiver: object): unknown {
     let prop = block.getProperty(field, false);
     if (prop) {
       let val = prop._value;

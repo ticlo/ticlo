@@ -541,8 +541,8 @@ export class ServerConnection extends ServerConnectionCore {
             if (property._block instanceof Flow) {
               let defaultFlow = property._block._parent.getDefaultWorker(null);
               let inputs = defaultFlow?.['#inputs'];
-              if (inputs) {
-                inputBlock._load({...data, ...inputs});
+              if (Object.isExtensible(inputs)) {
+                inputBlock._load({...data, ...(inputs as DataMap)});
                 // Since data is already loaded, we can skip the next load.
                 data = null;
                 (property._block as WorkerFlow).updateInput(property._block._lastInput);
@@ -558,8 +558,8 @@ export class ServerConnection extends ServerConnectionCore {
             if (property._block instanceof Flow) {
               let defaultFlow = property._block._parent.getDefaultWorker(null);
               let inputs = defaultFlow?.['#outputs'];
-              if (inputs) {
-                outputBlock._load({...data, ...inputs});
+              if (Object.isExtensible(inputs)) {
+                outputBlock._load({...data, ...(inputs as DataMap)});
                 // Since data is already loaded, we can skip the next load.
                 data = null;
               }

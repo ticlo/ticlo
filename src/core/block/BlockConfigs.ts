@@ -8,7 +8,7 @@ class BlockFuncIdConfig extends BlockProperty {
     this._saved = '';
   }
 
-  onChange(val: any, save?: boolean): boolean {
+  onChange(val: unknown, save?: boolean): boolean {
     if (typeof val === 'string' && !val.startsWith('flow:')) {
       return super.onChange(val, save);
     } else {
@@ -96,17 +96,17 @@ class BlockCancelConfig extends BlockProperty {
 }
 
 export class BlockConstConfig extends BlockProperty {
-  constructor(block: Block, name: string, value?: any) {
+  constructor(block: Block, name: string, value?: unknown) {
     super(block, name);
     this._value = value;
   }
 
-  updateValue(val: any): boolean {
+  updateValue(val: unknown): boolean {
     // disable updateValue
     return false;
   }
 
-  setValue(val: any) {
+  setValue(val: unknown) {
     // disable setValue
   }
 
@@ -114,7 +114,7 @@ export class BlockConstConfig extends BlockProperty {
     // disable setBinding
   }
 
-  onChange(val: any, save?: boolean): boolean {
+  onChange(val: unknown, save?: boolean): boolean {
     return false;
   }
 
@@ -132,7 +132,7 @@ export function ConstTypeConfig(type: string): typeof BlockProperty {
     constructor(block: Block, name: string) {
       super(block, name, type);
     }
-    _saveValue(): any {
+    _saveValue(): unknown {
       // no need to save const types
       return '';
     }

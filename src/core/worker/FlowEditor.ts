@@ -79,7 +79,7 @@ export class FlowEditor extends FlowWithShared {
       if (typeof fromValue === 'string') {
         newFlow = FlowEditor.create(parent, field, null, fromValue);
       } else {
-        newFlow = FlowEditor.create(parent, field, fromValue, null, false, (data: DataMap) => {
+        newFlow = FlowEditor.create(parent, field, fromValue as DataMap, null, false, (data: DataMap) => {
           parent.setValue(fromField, data);
           return true;
         });

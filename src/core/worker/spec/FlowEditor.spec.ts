@@ -1,5 +1,5 @@
 import {expect} from 'vitest';
-import {Flow, Root} from '../../block/Flow';
+import {Flow} from '../../block/Flow';
 import {FlowEditor} from '../FlowEditor';
 import {VoidListeners} from '../../block/spec/TestFunction';
 import {WorkerFunction} from '../WorkerFunction';
@@ -40,12 +40,12 @@ describe('FlowEditor', function () {
     // editor with map data
     block.setValue('use1', data);
     FlowEditor.createFromField(block, '#edit-use1', 'use1');
-    expect(block.getValue('#edit-use1').save()).toEqual(data);
+    expect((block.getValue('#edit-use1') as Flow).save()).toEqual(data);
 
     // editor with registered worker function
     block.setValue('use2', 'FlowEditor:func1');
     FlowEditor.createFromField(block, '#edit-use2', 'use2');
-    expect(block.getValue('#edit-use2').save()).toEqual(data);
+    expect((block.getValue('#edit-use2') as Flow).save()).toEqual(data);
 
     Functions.clear('FlowEditor:func1');
   });
@@ -62,10 +62,10 @@ describe('FlowEditor', function () {
     WorkerFunction.registerType(data, {name: 'worker2'}, 'FlowEditor');
 
     FlowEditor.createFromFunction(flow, '#edit-func', 'FlowEditor:worker2', null);
-    expect(flow.getValue('#edit-func').save()).toEqual(data);
+    expect((flow.getValue('#edit-func') as Flow).save()).toEqual(data);
 
     FlowEditor.createFromFunction(flow, '#edit-func', 'FlowEditor:worker2-2', data);
-    expect(flow.getValue('#edit-func').save()).toEqual(data);
+    expect((flow.getValue('#edit-func') as Flow).save()).toEqual(data);
 
     Functions.clear('FlowEditor:worker2');
   });
@@ -153,7 +153,7 @@ describe('FlowEditor', function () {
       '#shared': {'#is': ''},
     });
 
-    let block: SharedBlock = editor.getValue('#shared');
+    let block: SharedBlock = editor.getValue('#shared') as SharedBlock;
     expect(block).toBeInstanceOf(SharedBlock);
     expect(block._prop).toBe(editor.getProperty('#shared'));
 

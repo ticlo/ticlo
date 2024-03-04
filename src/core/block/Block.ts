@@ -42,24 +42,24 @@ export interface Runnable {
 
 class PromiseWrapper {
   _block: Block;
-  _done: any;
+  _done: unknown;
 
   constructor(block: Block) {
     this._block = block;
   }
 
   listen(promise: Promise<any>) {
-    promise.then((val: any) => this.onResolve(val)).catch((reason: any) => this.onError(reason));
+    promise.then((val: unknown) => this.onResolve(val)).catch((reason: unknown) => this.onError(reason));
   }
 
-  onResolve(val: any) {
+  onResolve(val: unknown) {
     if (this._block._funcPromise === this) {
       this._block.emit(val);
       this._block._funcPromise = undefined;
     }
   }
 
-  onError(reason: any) {
+  onError(reason: unknown) {
     if (this._block._funcPromise === this) {
       this._block.emit(new ErrorEvent('rejected', reason));
       this._block._funcPromise = undefined;
@@ -92,7 +92,7 @@ export class Block implements Runnable, FunctionData, PropListener<FunctionClass
   _bindings: Map<string, BlockBinding> = new Map();
   _function: BaseFunction;
   _funcPromise: PromiseWrapper;
-  _funcId: string;
+  _funcId?: string;
   _funcSrc: FunctionDispatcher;
 
   // whether the block has a function running async flow
@@ -136,11 +136,11 @@ export class Block implements Runnable, FunctionData, PropListener<FunctionClass
     return this._cachedFullPath;
   }
 
-  onWait(val: any) {
+  onWait(val: unknown) {
     this._waiting = Boolean(val);
   }
 
-  onCancel(val: any): void {
+  onCancel(val: unknown): void {
     if (this._function && Event.check(val) === EventType.TRIGGER) {
       this._cancelFunction(EventType.TRIGGER);
     }
@@ -150,7 +150,7 @@ export class Block implements Runnable, FunctionData, PropListener<FunctionClass
     return this._queryProperty(path.split('.'), create);
   }
 
-  queryValue(path: string): any {
+  queryValue(path: string): unknown {
     let prop = this._queryProperty(path.split('.'), false);
     if (prop) {
       return prop._value;
@@ -301,14 +301,14 @@ export class Block implements Runnable, FunctionData, PropListener<FunctionClass
     this._bindings.delete(path);
   }
 
-  waitValue(path: string, validator?: (val: any) => EventType | boolean): Promise<any> {
+  waitValue(path: string, validator?: (val: unknown) => EventType | boolean): Promise<any> {
     let listenPromise = new ListenPromise(validator);
     listenPromise._valid = true;
     listenPromise._source = this.createBinding(path, listenPromise);
     return listenPromise._promise;
   }
 
-  waitNextValue(path: string, validator?: (val: any) => EventType | boolean): Promise<any> {
+  waitNextValue(path: string, validator?: (val: unknown) => EventType | boolean): Promise<any> {
     let listenPromise = new ListenPromise(validator);
     listenPromise._source = this.createBinding(path, listenPromise);
     listenPromise._valid = true;
@@ -332,10 +332,10 @@ export class Block implements Runnable, FunctionData, PropListener<FunctionClass
           // normal binding
           let name = key.substring(1);
           this.setBinding(name, val);
-        } else {
+        } else if (Object.isExtensible(val)) {
           // binding helper
           let name = key.substring(1);
-          this.createHelperBlock(name)._load(val);
+          this.createHelperBlock(name)._load(val as DataMap);
         }
       } else {
         this.getProperty(key)._load(map[key]);
@@ -359,10 +359,10 @@ export class Block implements Runnable, FunctionData, PropListener<FunctionClass
           let name = key.substring(1);
           this.setBinding(name, val);
           loadedFields[name] = true;
-        } else {
+        } else if (Object.isExtensible(val)) {
           // binding helper
           let name = key.substring(1);
-          this.createHelperBlock(name)._liveUpdate(val);
+          this.createHelperBlock(name)._liveUpdate(val as DataMap);
           loadedFields[name] = true;
           loadedFields[key] = true;
         }
@@ -387,15 +387,15 @@ export class Block implements Runnable, FunctionData, PropListener<FunctionClass
     }
   }
 
-  setValue(field: string, val: any): void {
+  setValue(field: string, val: unknown): void {
     this.getProperty(field, val !== undefined)?.setValue(val);
   }
 
-  updateValue(field: string, val: any): void {
+  updateValue(field: string, val: unknown): void {
     this.getProperty(field, val !== undefined)?.updateValue(val);
   }
 
-  output(val: any, field: string = '#output'): void {
+  output(val: unknown, field: string = '#output'): void {
     this.getProperty(field, val !== undefined)?.setOutput(val);
   }
 
@@ -407,7 +407,7 @@ export class Block implements Runnable, FunctionData, PropListener<FunctionClass
     this.getProperty(field, path != null)?.setBinding(path);
   }
 
-  getValue(field: string): any {
+  getValue(field: string): unknown {
     let prop = this.getProperty(field, false);
     if (prop) {
       return prop.getValue();
@@ -468,13 +468,13 @@ export class Block implements Runnable, FunctionData, PropListener<FunctionClass
     return flow;
   }
 
-  inputChanged(input: BlockIO, val: any) {
+  inputChanged(input: BlockIO, val: unknown) {
     if (this._function && this._function.inputChanged(input, val)) {
       this._queueFunctionOnChange();
     }
   }
 
-  configChanged(input: BlockConfig, val: any) {
+  configChanged(input: BlockConfig, val: unknown) {
     if (this._function && this._function.configChanged(input, val)) {
       this._queueFunctionOnChange();
     }
@@ -507,7 +507,7 @@ export class Block implements Runnable, FunctionData, PropListener<FunctionClass
       let result = this._function.run();
       this._running = false;
       this._called = false;
-      if (result && result.constructor === Promise) {
+      if (result?.constructor === Promise) {
         this._funcPromise = new PromiseWrapper(this);
         this._funcPromise.listen(result);
         if (this._funcPromise === null) {
@@ -520,7 +520,7 @@ export class Block implements Runnable, FunctionData, PropListener<FunctionClass
     }
   }
 
-  emit(val: any) {
+  emit(val: unknown) {
     if (val === WAIT) {
       this.updateValue('#wait', true);
     } else {
@@ -538,13 +538,13 @@ export class Block implements Runnable, FunctionData, PropListener<FunctionClass
   }
 
   // emit value but maintain the current #wait state
-  emitOnly(val: any) {
+  emitOnly(val: unknown) {
     if (this._props.has('#emit')) {
       this._props.get('#emit').updateValue(val);
     }
   }
 
-  _modeChanged(mode: any) {
+  _modeChanged(mode: unknown) {
     if (mode === this._mode) {
       return;
     }
@@ -586,7 +586,7 @@ export class Block implements Runnable, FunctionData, PropListener<FunctionClass
 
   _called = false;
 
-  _onCall(val: any): void {
+  _onCall(val: unknown): void {
     if (!this._disabled) {
       if (val === WAIT) {
         // ignore NOT_READY
@@ -675,7 +675,7 @@ export class Block implements Runnable, FunctionData, PropListener<FunctionClass
     this._disabledChanged(this.getValue('#disabled'));
   }
 
-  _disabledChanged(disabled: any) {
+  _disabledChanged(disabled: unknown) {
     let newDisabled = this._flow._disabled || Boolean(disabled);
     if (newDisabled !== this._disabled) {
       this._disabled = newDisabled;
@@ -695,21 +695,21 @@ export class Block implements Runnable, FunctionData, PropListener<FunctionClass
     this._applyFuncid(this._funcId);
   }
 
-  _syncChanged(sync: any) {
+  _syncChanged(sync: unknown) {
     this._sync = !!sync;
   }
 
-  _funcidChanged(funcId: any) {
+  _funcidChanged(funcId: unknown) {
     if (typeof funcId !== 'string') {
       funcId = null;
     }
-    if (this._flow._namespace && funcId?.startsWith(':')) {
+    if (this._flow._namespace && (funcId as string)?.startsWith(':')) {
       funcId = `${this._flow._namespace}${funcId}`;
     }
     if (funcId === this._funcId) return;
-    this._funcId = funcId;
+    this._funcId = funcId as string;
     if (!this._disabled) {
-      this._applyFuncid(funcId);
+      this._applyFuncid(funcId as string);
     }
   }
 
@@ -728,9 +728,9 @@ export class Block implements Runnable, FunctionData, PropListener<FunctionClass
   // value from #priority
   _controlPriority: number = -1;
 
-  _priorityChanged(priority: any) {
+  _priorityChanged(priority: unknown) {
     if (priority >= 0 && priority <= 3) {
-      this._controlPriority = Math.round(priority);
+      this._controlPriority = Math.round(priority as number);
     }
   }
 
@@ -750,12 +750,12 @@ export class Block implements Runnable, FunctionData, PropListener<FunctionClass
       return 0;
     }
     if (result >= 0) {
-      return result;
+      return Number(result);
     }
     return defaultLength;
   }
 
-  getArray(group = '', defaultLength = 2, fields?: string[]): any[] {
+  getArray(group = '', defaultLength = 2, fields?: string[]): unknown[] {
     let lenOrArray = this.getValue(`${group}[]`);
     if (Array.isArray(lenOrArray)) {
       // iterate native array
@@ -763,16 +763,16 @@ export class Block implements Runnable, FunctionData, PropListener<FunctionClass
     }
     let len: number;
     if (lenOrArray >= 0) {
-      len = lenOrArray;
+      len = Number(lenOrArray);
     } else {
       len = defaultLength;
     }
-    let result: any[] = [];
+    let result: unknown[] = [];
     if (len >= 0 && fields) {
       // iterate block array with fields
       for (let i = 0; i < len; ++i) {
         // return object structure
-        let obj: any = {};
+        let obj: DataMap = {};
         for (let field of fields) {
           obj[field] = this.getValue(`${field}${i}`);
         }
@@ -908,7 +908,7 @@ export class Block implements Runnable, FunctionData, PropListener<FunctionClass
   }
 
   // iterate all BlockIO with a value, ignores all undefined value
-  findFirst(callback: (field: string, prop: BlockIO) => any): any {
+  findFirst(callback: (field: string, prop: BlockIO) => any): unknown {
     if (!this._ioCache) {
       this._initIoCache();
     }
@@ -933,7 +933,7 @@ export class Block implements Runnable, FunctionData, PropListener<FunctionClass
     return null;
   }
 
-  executeCommand(command: string, params: DataMap): DataMap {
+  executeCommand(command: string, params: DataMap): unknown {
     if (this._funcId) {
       return Functions.executeCommand(this._funcId, this, command, params);
     }
@@ -990,7 +990,7 @@ export class InputsBlock extends Block {
     }
   }
 
-  _setInputValue(val: any) {
+  _setInputValue(val: unknown) {
     if (val instanceof Task) {
       this.updateValue('#value', val.getData());
       val = val.getDataMap();
@@ -1009,7 +1009,7 @@ export class InputsBlock extends Block {
       let customList = this.getValue('#custom');
       if (Array.isArray(customList)) {
         for (let customProp of customList) {
-          this.updateValue(customProp.name, val[customProp.name]);
+          this.updateValue(customProp.name, (val as DataMap)[customProp.name]);
         }
       }
     }
@@ -1017,12 +1017,12 @@ export class InputsBlock extends Block {
 }
 
 export class OutputsBlock extends Block {
-  inputChanged(input: BlockIO, val: any) {
+  inputChanged(input: BlockIO, val: unknown) {
     super.inputChanged(input, val);
     this._flow.outputChanged(input, val);
   }
 
-  configChanged(input: BlockConfig, val: any) {
+  configChanged(input: BlockConfig, val: unknown) {
     super.configChanged(input, val);
     switch (input._name) {
       case '#custom':

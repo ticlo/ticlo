@@ -6,6 +6,7 @@ import '../HandlerFunction';
 import {DataMap} from '../../util/DataTypes';
 import {CompleteEvent, Event, WAIT} from '../../block/Event';
 import {shouldHappen, shouldTimeout} from '../../util/test-util';
+import {Block} from '../../block/Block';
 
 class HandlerListener {
   ignoreEvent: boolean;
@@ -303,7 +304,7 @@ describe('HandlerFunction', function () {
     });
     let listener = new HandlerListener();
 
-    let aBlock = flow.getValue('a');
+    let aBlock = flow.getValue('a') as Block;
 
     flow.queryProperty('b.#emit', true).listen(listener);
 

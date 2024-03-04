@@ -4,6 +4,7 @@ import {WorkerFunction} from '../../worker/WorkerFunction';
 import {Root} from '../../block/Flow';
 import {DataMap} from '../DataTypes';
 import {propRelative} from '../PropPath';
+import {Block} from '../../block/Block';
 
 describe('Path', function () {
   it('resolve', function () {
@@ -80,33 +81,41 @@ describe('Path', function () {
     Root.run();
 
     // same flow
-    expect(propRelative(flow1.queryValue('c.e'), flow1.queryProperty('c.e.v', true))).toBe('v');
-    expect(propRelative(flow1.queryValue('c.e'), flow1.queryProperty('c.d.v', true))).toBe('##.d.v');
-    expect(propRelative(flow1.queryValue('c.e'), flow1.queryProperty('f.v', true))).toBe('###.f.v');
-    expect(propRelative(flow1.queryValue('c'), flow1.queryProperty('f.v', true))).toBe('##.f.v');
-    expect(propRelative(flow1.queryValue('f.~g'), flow1.queryProperty('c.v', true))).toBe('##.##.c.v');
+    expect(propRelative(flow1.queryValue('c.e') as Block, flow1.queryProperty('c.e.v', true))).toBe('v');
+    expect(propRelative(flow1.queryValue('c.e') as Block, flow1.queryProperty('c.d.v', true))).toBe('##.d.v');
+    expect(propRelative(flow1.queryValue('c.e') as Block, flow1.queryProperty('f.v', true))).toBe('###.f.v');
+    expect(propRelative(flow1.queryValue('c') as Block, flow1.queryProperty('f.v', true))).toBe('##.f.v');
+    expect(propRelative(flow1.queryValue('f.~g') as Block, flow1.queryProperty('c.v', true))).toBe('##.##.c.v');
 
     // different flow
-    expect(propRelative(flow1.queryValue('c'), flow2.queryProperty('o.v', true))).toBe('###.##.PropRelative2.o.v');
-    expect(propRelative(flow1.queryValue('c.d.#flow.A'), flow1.queryProperty('c.v', true))).toBe('###.##.##.v');
-    expect(propRelative(flow1.queryValue('c'), flow1.queryProperty('c.d.#flow.A.v', true))).toBe('d.#flow.A.v');
-    expect(propRelative(flow1.queryValue('f'), flow1.queryProperty('c.d.#flow.A.v', true))).toBe('##.c.d.#flow.A.v');
-    expect(propRelative(flow1.queryValue('f.h'), flow1.queryProperty('c.d.#flow.A.v', true))).toEqual(
+    expect(propRelative(flow1.queryValue('c') as Block, flow2.queryProperty('o.v', true))).toBe(
+      '###.##.PropRelative2.o.v'
+    );
+    expect(propRelative(flow1.queryValue('c.d.#flow.A') as Block, flow1.queryProperty('c.v', true))).toBe(
+      '###.##.##.v'
+    );
+    expect(propRelative(flow1.queryValue('c') as Block, flow1.queryProperty('c.d.#flow.A.v', true))).toBe(
+      'd.#flow.A.v'
+    );
+    expect(propRelative(flow1.queryValue('f') as Block, flow1.queryProperty('c.d.#flow.A.v', true))).toBe(
+      '##.c.d.#flow.A.v'
+    );
+    expect(propRelative(flow1.queryValue('f.h') as Block, flow1.queryProperty('c.d.#flow.A.v', true))).toEqual(
       '###.c.d.#flow.A.v'
     );
-    expect(propRelative(flow1.queryValue('c.d.#flow.A'), flow1.queryProperty('f.h.#flow.A.v', true))).toEqual(
+    expect(propRelative(flow1.queryValue('c.d.#flow.A') as Block, flow1.queryProperty('f.h.#flow.A.v', true))).toEqual(
       '###.##.###.f.h.#flow.A.v'
     );
-    expect(propRelative(flow1.queryValue('c.d.#flow.A'), flow1.queryProperty('c.d.#flow.A.B.#flow.C.v', true))).toEqual(
-      'B.#flow.C.v'
-    );
+    expect(
+      propRelative(flow1.queryValue('c.d.#flow.A') as Block, flow1.queryProperty('c.d.#flow.A.B.#flow.C.v', true))
+    ).toEqual('B.#flow.C.v');
 
     let flow11 = Root.instance.addFlow('PropRelative1.1');
     let flow111 = Root.instance.addFlow('PropRelative1.1.1');
     let flow1c1 = Root.instance.addFlow('PropRelative1.c.1');
 
-    expect(propRelative(flow1.queryValue('1.1'), flow1.queryProperty('v', true))).toBe('##.###.##.v');
-    expect(propRelative(flow1.queryValue('c.1'), flow1.queryProperty('v', true))).toBe('##.###.v');
+    expect(propRelative(flow1.queryValue('1.1') as Block, flow1.queryProperty('v', true))).toBe('##.###.##.v');
+    expect(propRelative(flow1.queryValue('c.1') as Block, flow1.queryProperty('v', true))).toBe('##.###.v');
 
     Root.instance.deleteValue('PropRelative1');
     Root.instance.deleteValue('PropRelative2');

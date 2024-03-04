@@ -10,7 +10,7 @@ export interface Destroyable {
   isDestroyed(): boolean;
 }
 
-export class PropDispatcher<T = any> {
+export class PropDispatcher<T = unknown> {
   _listeners: Set<PropListener<T>> = new Set<PropListener<T>>();
   _updating = false;
   _value: T;

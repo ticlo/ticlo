@@ -16,6 +16,7 @@ export default defineConfig({
       'src/editor/**',
       'bin/**',
       'example/**',
+      'tool/**',
     ],
   },
 });

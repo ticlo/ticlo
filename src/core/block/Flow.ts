@@ -56,7 +56,7 @@ export class Flow extends Block {
     }
   }
 
-  _disabledChanged(disabled: any) {
+  _disabledChanged(disabled: unknown) {
     let newDisabled = this._parent._flow._disabled || Boolean(disabled);
     if (newDisabled !== this._disabled) {
       this._disabled = newDisabled;
@@ -113,15 +113,15 @@ export class Flow extends Block {
   }
 
   // return true when the related output block need to be put in queue
-  outputChanged(input: BlockIO, val: any): boolean {
+  outputChanged(input: BlockIO, val: unknown): boolean {
     if (this._outputObj) {
       this._outputObj.output(val, input._name);
     }
     return false;
   }
 
-  _lastInput: any;
-  updateInput(val: any) {
+  _lastInput: unknown;
+  updateInput(val: unknown) {
     this._lastInput = val;
     let prop = this.getProperty('#inputs');
     if (prop._value instanceof InputsBlock) {

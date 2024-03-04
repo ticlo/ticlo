@@ -38,7 +38,7 @@ export interface PropDesc {
   default?: string | number | boolean;
 
   // initialize new block with the init value
-  init?: any;
+  init?: unknown;
 
   // number, string
   placeholder?: string;
@@ -105,7 +105,7 @@ export interface FunctionDesc {
   tags?: string[];
   // a React class to display special component in block UI in the editor
   // not used on server side
-  view?: any;
+  view?: unknown;
 
   color?: string;
   // block color and icon can change with @b-style={color,icon}
@@ -235,7 +235,7 @@ export function findPropDesc(name: string, cache: {[key: string]: PropDesc}): Pr
   return blankPropDesc;
 }
 
-function initBlockProperties(data: any, properties: (PropDesc | PropGroupDesc)[], pinAll: boolean = false) {
+function initBlockProperties(data: DataMap, properties: (PropDesc | PropGroupDesc)[], pinAll: boolean = false) {
   let props: string[] = [];
   for (let propDesc of properties) {
     if ((propDesc as PropGroupDesc).properties) {
@@ -263,7 +263,7 @@ function initBlockProperties(data: any, properties: (PropDesc | PropGroupDesc)[]
 }
 
 export function getDefaultFuncData(desc: FunctionDesc) {
-  let data: any = {
+  let data: DataMap = {
     '#is': desc.id,
   };
   initBlockProperties(data, desc.properties);
@@ -281,7 +281,7 @@ export function getDefaultDataFromCustom(
   base: DataMap = {'#is': ''},
   pinAll: boolean = true
 ) {
-  let data: any = {...base, '#custom': custom};
+  let data: DataMap = {...base, '#custom': custom};
   initBlockProperties(data, custom, pinAll);
   return data;
 }

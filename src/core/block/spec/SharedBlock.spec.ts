@@ -10,7 +10,7 @@ describe('SharedBlock', function () {
 
     let flow1 = new FlowWithShared();
     flow1.load(data);
-    let sharedBlock: SharedBlock = flow1.getValue('#shared');
+    let sharedBlock: SharedBlock = flow1.getValue('#shared') as SharedBlock;
     expect(sharedBlock).toBeInstanceOf(SharedBlock);
     expect(sharedBlock._cacheKey).toBe(data['#shared']);
 
@@ -29,7 +29,7 @@ describe('SharedBlock', function () {
 
     let flow = new FlowWithShared();
     flow.load(data);
-    let sharedBlock: SharedBlock = flow.getValue('#shared');
+    let sharedBlock: SharedBlock = flow.getValue('#shared') as SharedBlock;
     let sharedProp = sharedBlock._prop;
     sharedBlock.setValue('v', 1);
     sharedBlock.setValue('#custom', [{name: 'v', type: 'string'}]);
@@ -58,7 +58,7 @@ describe('SharedBlock', function () {
     flow.load(data, 'SharedBlock:cacheModeWorker1');
     expect(flow.save()).toEqual(data);
 
-    let sharedBlock: SharedBlock = flow.getValue('#shared');
+    let sharedBlock: SharedBlock = flow.getValue('#shared') as SharedBlock;
     expect(sharedBlock).toBeInstanceOf(SharedBlock);
     let sharedProp = sharedBlock._prop;
 
