@@ -1,5 +1,3 @@
-import {isMoment} from 'moment';
-import QS from 'qs';
 import {Block} from '../block/Block';
 import {BlockIO} from '../block/BlockProperty';
 
@@ -83,7 +81,7 @@ export function measureObjSize(val: any, maxSize: number = 1024): number {
     if (val.constructor === Object) {
       return measureMap(val, maxSize);
     }
-    // TODO moment and binary
+    // TODO dayjs and binary
   } else if (typeof val === 'string') {
     return val.length;
   }

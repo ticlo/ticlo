@@ -1,4 +1,4 @@
-import moment from 'moment';
+import dayjs from 'dayjs';
 import {DataMap, TRUNCATED} from './DataTypes';
 import {decode, encodeRaw} from './Serialize';
 import QS from 'qs';
@@ -57,7 +57,7 @@ function truncateObj(val: any, maxSize: number = 1024): [any, number, boolean] {
     if (Array.isArray(val)) {
       return truncateArray(val, maxSize);
     }
-    if (moment.isMoment(val)) {
+    if (dayjs.isDayjs(val)) {
       return [val, 33, false];
     }
     if (val.constructor === Object) {

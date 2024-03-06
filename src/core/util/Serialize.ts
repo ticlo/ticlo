@@ -1,10 +1,10 @@
 import JsonEsc from 'jsonesc';
-import {decodeMoment, encodeMoment, MomentConstructor} from './Moment';
+import {decodeDayjs, encodeDayjs, DayjsConstructor} from './Dayjs';
 import {decodeUnknown, encodeUnknown, EscapedObject} from './EscapedObject';
 import {Block} from '../block/Block';
 
 let jsonesc = new JsonEsc();
-jsonesc.registerRaw('Ts', MomentConstructor, encodeMoment, decodeMoment);
+jsonesc.registerRaw('Ts', DayjsConstructor, encodeDayjs, decodeDayjs);
 jsonesc.registerRaw('', EscapedObject, encodeUnknown, decodeUnknown);
 jsonesc.registerRaw(null, Block, encodeUnknown, null);
 

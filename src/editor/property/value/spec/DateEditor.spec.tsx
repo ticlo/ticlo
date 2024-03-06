@@ -6,7 +6,7 @@ import {initEditor} from '../../../index';
 import {DateEditor} from '../DateEditor';
 import {shouldHappen, waitTick} from '../../../../../src/core/util/test-util';
 import {blankFuncDesc, blankPropDesc, PropDesc} from '../../../../../src/core/editor';
-import moment from 'moment';
+import dayjs, {Dayjs} from 'dayjs';
 
 describe('DateEditor', function () {
   beforeEach(async function () {
@@ -18,8 +18,8 @@ describe('DateEditor', function () {
   });
 
   it('basic', async function () {
-    let value: moment.Moment = null;
-    let onChange = (v: moment.Moment) => {
+    let value: Dayjs = null;
+    let onChange = (v: Dayjs) => {
       value = v;
     };
     let desc: PropDesc = {name: '', type: 'date'};
@@ -33,7 +33,7 @@ describe('DateEditor', function () {
     await waitTick();
     let inputDiv = editorDiv.querySelector('input');
 
-    // test if string input is converted to moment
+    // test if string input is converted to dayjs
     expect(inputDiv.value).toBe('2019-01-01');
 
     SimulateEvent.simulate(inputDiv, 'mousedown', fakeMouseEvent());
@@ -43,7 +43,7 @@ describe('DateEditor', function () {
     SimulateEvent.simulate(document.querySelector('.ant-picker-today-btn'), 'click');
 
     await shouldHappen(() => value != null);
-    let valueNow = moment.now();
+    let valueNow = dayjs();
     expect(Math.abs(value.valueOf() - valueNow.valueOf())).toBeLessThanOrEqual(1000);
   });
 });

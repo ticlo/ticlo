@@ -338,13 +338,12 @@ class App extends React.PureComponent<Props, State> {
   i18next.addResourceBundle('zh', 'ticlo-test', zhTestLocal);
   i18next.addResourceBundle('en', 'ticlo-test', enTestLocal);
 
-  await Root.instance.setStorage(new IndexDbStorage());
   if (!(Root.instance.getValue('example') instanceof Flow)) {
     console.log('initialize the database');
     Root.instance.addFlow('example', reactData);
     Root.instance.addFlow('example0', data);
   }
-
+  await Root.instance.setStorage(new IndexDbStorage());
   // create some global blocks
   Root.instance._globalRoot.createBlock('^gAdd')?.setValue('#is', 'add');
   Root.instance._globalRoot.createBlock('^gSub')?.setValue('#is', 'subtract');

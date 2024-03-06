@@ -13,7 +13,7 @@ export {forAllPathsBetween} from './util/Path';
 export {encodeDisplay, decode, encode, encodeSorted} from './util/Serialize';
 export * from './util/Name';
 export {endsWithNumberReg, getTailingNumber, smartStrCompare, isColorStr} from './util/String';
-export * from './util/Moment';
+export * from './util/Dayjs';
 export {Logger} from './util/Logger';
 export {stopPropagation, voidFunction} from './util/Functions';
 export {PropDispatcher} from './block/Dispatcher';

@@ -1,4 +1,4 @@
-import {openDB, deleteDB, wrap, unwrap, IDBPDatabase} from '../3rd_party/idb'; // 'idb';
+import {openDB, deleteDB, wrap, unwrap, IDBPDatabase} from 'idb';
 import {BlockProperty, DataMap, decode, encodeSorted, Flow, Root, Storage} from '../../../src/core';
 import {WorkerFunction} from '../../../src/core/worker/WorkerFunction';
 import {FlowLoader, FlowState} from '../../../src/core/block/Flow';
@@ -51,7 +51,9 @@ export class IndexDbStorage implements Storage {
     }
     let key = overrideKey ?? flow._storageKey;
     let str = encodeSorted(data);
-    await (await this.dbPromise).put(STORE_NAME, str, key);
+    if (key) {
+      await (await this.dbPromise).put(STORE_NAME, str, key);
+    }
   }
 
   async loadFlow(name: string) {

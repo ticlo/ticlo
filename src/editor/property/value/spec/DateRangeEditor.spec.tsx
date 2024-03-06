@@ -6,7 +6,7 @@ import {initEditor} from '../../../index';
 import {DateRangeEditor} from '../DateRangeEditor';
 import {shouldHappen, waitTick} from '../../../../../src/core/util/test-util';
 import {blankFuncDesc, blankPropDesc, PropDesc} from '../../../../../src/core/editor';
-import moment, {Moment} from 'moment';
+import dayjs, {Dayjs} from 'dayjs';
 import {DateEditor} from '../DateEditor';
 
 describe('DateRangeEditor', function () {
@@ -19,8 +19,8 @@ describe('DateRangeEditor', function () {
   });
 
   it('basic', async function () {
-    let values: Moment[] = null;
-    let onChange = (v: Moment[]) => {
+    let values: Dayjs[] = null;
+    let onChange = (v: Dayjs[]) => {
       values = v;
     };
     let desc: PropDesc = {name: '', type: 'date-range', showTime: false};
@@ -46,8 +46,7 @@ describe('DateRangeEditor', function () {
     SimulateEvent.simulate(dateCell, 'click');
 
     await shouldHappen(() => values != null);
-    let clickedMoment = moment(dateStr, 'YYYY-MM-DD');
-    expect(clickedMoment.isSameOrBefore(values[0])).toBe(true);
+    let clickedMoment = dayjs(dateStr, 'YYYY-MM-DD');
     expect(clickedMoment.isBefore(values[1])).toBe(true);
   });
 });

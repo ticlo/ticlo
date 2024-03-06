@@ -1,5 +1,5 @@
 import React, {ReactElement} from 'react';
-import moment from 'moment';
+import dayjs from 'dayjs';
 import {Menu, Dropdown} from 'antd';
 import {ValueEditorProps} from './ValueEditorBase';
 import {ValueType, isColorStr} from '../../../../src/core/editor';
@@ -67,11 +67,11 @@ export class DynamicEditor extends React.PureComponent<ValueEditorProps, State> 
         return 'number';
       }
       case 'object': {
-        if (moment.isMoment(value)) {
+        if (dayjs.isDayjs(value)) {
           return 'date';
         }
         if (Array.isArray(value)) {
-          if (value.length === 2 && moment.isMoment(value[0] && moment.isMoment(value[1]))) {
+          if (value.length === 2 && dayjs.isDayjs(value[0] && dayjs.isDayjs(value[1]))) {
             return 'date-range';
           }
           return 'array';
