@@ -1444,7 +1444,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@babel/runtime@npm:^7.10.1, @babel/runtime@npm:^7.10.4, @babel/runtime@npm:^7.11.1, @babel/runtime@npm:^7.11.2, @babel/runtime@npm:^7.12.5, @babel/runtime@npm:^7.16.7, @babel/runtime@npm:^7.18.0, @babel/runtime@npm:^7.18.3, @babel/runtime@npm:^7.18.6, @babel/runtime@npm:^7.20.0, @babel/runtime@npm:^7.20.6, @babel/runtime@npm:^7.20.7, @babel/runtime@npm:^7.21.0, @babel/runtime@npm:^7.23.2, @babel/runtime@npm:^7.8.4":
+"@babel/runtime@npm:^7.10.1, @babel/runtime@npm:^7.10.4, @babel/runtime@npm:^7.11.1, @babel/runtime@npm:^7.11.2, @babel/runtime@npm:^7.12.5, @babel/runtime@npm:^7.16.7, @babel/runtime@npm:^7.18.0, @babel/runtime@npm:^7.18.3, @babel/runtime@npm:^7.18.6, @babel/runtime@npm:^7.20.0, @babel/runtime@npm:^7.20.6, @babel/runtime@npm:^7.20.7, @babel/runtime@npm:^7.21.0, @babel/runtime@npm:^7.8.4":
   version: 7.23.2
   resolution: "@babel/runtime@npm:7.23.2"
   dependencies:
@@ -2099,7 +2099,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@rc-component/portal@npm:^1.0.0-8, @rc-component/portal@npm:^1.0.2, @rc-component/portal@npm:^1.1.0, @rc-component/portal@npm:^1.1.1":
+"@rc-component/portal@npm:^1.0.0-8, @rc-component/portal@npm:^1.0.2, @rc-component/portal@npm:^1.1.1":
   version: 1.1.2
   resolution: "@rc-component/portal@npm:1.1.2"
   dependencies:
@@ -2110,23 +2110,6 @@ __metadata:
     react: ">=16.9.0"
     react-dom: ">=16.9.0"
   checksum: 3c0297356635d47f364be79de02bb16009f06b1ce82124c3e63da9a71b8e7d3ea2c147e4703ead9cae0f662435a21e9feb30d2edf7197108bc3dbf969f3ca51f
-  languageName: node
-  linkType: hard
-
-"@rc-component/trigger@npm:^1.17.0":
-  version: 1.18.0
-  resolution: "@rc-component/trigger@npm:1.18.0"
-  dependencies:
-    "@babel/runtime": "npm:^7.23.2"
-    "@rc-component/portal": "npm:^1.1.0"
-    classnames: "npm:^2.3.2"
-    rc-motion: "npm:^2.0.0"
-    rc-resize-observer: "npm:^1.3.1"
-    rc-util: "npm:^5.38.0"
-  peerDependencies:
-    react: ">=16.9.0"
-    react-dom: ">=16.9.0"
-  checksum: 35b0db2f593bdf0f992e58e256cd3be85d83ff8283426c8e49ad76feaf86152893339c8f92be7ecc1fd71f8452a402623b56036849079f4167c3aa6c6f06a69c
   languageName: node
   linkType: hard
 
@@ -3576,6 +3559,13 @@ __metadata:
   version: 2.3.2
   resolution: "classnames@npm:2.3.2"
   checksum: cd50ead57b4f97436aaa9f9885c6926323efc7c2bea8e3d4eb10e4e972aa6a1cfca1c7a0e06f8a199ca7498d4339e30bb6002e589e61c9f21248cbf3e8b0b18d
+  languageName: node
+  linkType: hard
+
+"classnames@npm:^2.5.1":
+  version: 2.5.1
+  resolution: "classnames@npm:2.5.1"
+  checksum: afff4f77e62cea2d79c39962980bf316bacb0d7c49e13a21adaadb9221e1c6b9d3cdb829d8bb1b23c406f4e740507f37e1dcf506f7e3b7113d17c5bab787aa69
   languageName: node
   linkType: hard
 
@@ -7032,20 +7022,20 @@ __metadata:
   languageName: node
   linkType: hard
 
-"rc-dock@npm:^3.2.17":
-  version: 3.2.18
-  resolution: "rc-dock@npm:3.2.18"
+"rc-dock@npm:^3.2.19":
+  version: 3.2.19
+  resolution: "rc-dock@npm:3.2.19"
   dependencies:
-    classnames: "npm:^2.3.1"
+    classnames: "npm:^2.5.1"
     lodash: "npm:^4.17.21"
-    rc-dropdown: "npm:^3.2.2"
-    rc-menu: "npm:^9.3.0"
+    rc-dropdown: "npm:~4.0.1"
+    rc-menu: "npm:~9.8.4"
     rc-new-window: "npm:^0.1.13"
-    rc-tabs: "npm:^11.10.5"
+    rc-tabs: "npm:~11.16.1"
   peerDependencies:
-    react: ">=15.0.0"
-    react-dom: ">=15.0.0"
-  checksum: 9a69dc4cae7ad23ea39d968ba6770de5ad52f48262f01c07be87e67e1570f6d2992a290f4ff447296c24c65b1293e55fb83b4a49ed0bb2680346b6e5cfe30994
+    react: ">=17.0.0"
+    react-dom: ">=17.0.0"
+  checksum: d2b4cbf6185cac8a85e1783c61946d974b5b170cc3d1f2e04f065851a2d8651f4e240f2dcd805ae5fe591629a588d1d5b74fb772c49b891c39346422555fb312
   languageName: node
   linkType: hard
 
@@ -7062,21 +7052,6 @@ __metadata:
     react: ">=16.9.0"
     react-dom: ">=16.9.0"
   checksum: d8220e7683f83ac2d4d864502dc0d11abcb6e751e7368002210843b8cd71d4a9b0a78efe0c95f5a3743ef07f23fc41aeb3b3dee4b62db0c8ac9f3717c661ae93
-  languageName: node
-  linkType: hard
-
-"rc-dropdown@npm:^3.2.2":
-  version: 3.6.2
-  resolution: "rc-dropdown@npm:3.6.2"
-  dependencies:
-    "@babel/runtime": "npm:^7.10.1"
-    classnames: "npm:^2.2.6"
-    rc-trigger: "npm:^5.0.4"
-    rc-util: "npm:^5.17.0"
-  peerDependencies:
-    react: ">=16.11.0"
-    react-dom: ">=16.11.0"
-  checksum: 54ba767a917e22e18f58a5c342452719b4b6c46579894e08bda1907ad7b9d617f3c9c316a9e9186e575032f5ca03737b83ddbcac41ee60d2a0defb1ed594c3d2
   languageName: node
   linkType: hard
 
@@ -7171,23 +7146,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"rc-menu@npm:^9.3.0":
-  version: 9.12.2
-  resolution: "rc-menu@npm:9.12.2"
-  dependencies:
-    "@babel/runtime": "npm:^7.10.1"
-    "@rc-component/trigger": "npm:^1.17.0"
-    classnames: "npm:2.x"
-    rc-motion: "npm:^2.4.3"
-    rc-overflow: "npm:^1.3.1"
-    rc-util: "npm:^5.27.0"
-  peerDependencies:
-    react: ">=16.9.0"
-    react-dom: ">=16.9.0"
-  checksum: e5d44eb09b625c0b218279ffb1628b5c002a4c73fddad71c84ffba6d3c6b9f47d7098d320de78e39468a3f0cc7701c1805600abd9c58b946b9b3880acef86309
-  languageName: node
-  linkType: hard
-
 "rc-menu@npm:~9.6.0":
   version: 9.6.4
   resolution: "rc-menu@npm:9.6.4"
@@ -7267,7 +7225,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"rc-overflow@npm:^1.0.0, rc-overflow@npm:^1.2.0, rc-overflow@npm:^1.2.8, rc-overflow@npm:^1.3.1":
+"rc-overflow@npm:^1.0.0, rc-overflow@npm:^1.2.0, rc-overflow@npm:^1.2.8":
   version: 1.3.2
   resolution: "rc-overflow@npm:1.3.2"
   dependencies:
@@ -7449,7 +7407,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"rc-tabs@npm:^11.10.5":
+"rc-tabs@npm:~11.16.1":
   version: 11.16.1
   resolution: "rc-tabs@npm:11.16.1"
   dependencies:
@@ -8521,7 +8479,7 @@ __metadata:
     postcss: "npm:^8.4.5"
     prettier: "npm:^2.8.4"
     qs: "npm:^6.11.0"
-    rc-dock: "npm:^3.2.17"
+    rc-dock: "npm:^3.2.19"
     rc-trigger: "npm:^5.3.4"
     react: "npm:^18.2.0"
     react-color: "npm:^2.19.3"

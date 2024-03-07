@@ -71,7 +71,7 @@
     "nyc": "^15.1.0",
     "postcss": "^8.4.5",
     "prettier": "^2.8.4",
-    "rc-dock": "^3.2.17",
+    "rc-dock": "^3.2.19",
     "rc-trigger": "^5.3.4",
     "react": "^18.2.0",
     "react-color": "^2.19.3",
