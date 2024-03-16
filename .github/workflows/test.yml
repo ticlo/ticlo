@@ -49,7 +49,7 @@ jobs:
           github-token: ${{ secrets.github_token }}
           path-to-lcov: ./coverage/browser/lcov.info
           parallel: true
-          flag-name: strict
+          flag-name: browser
   test:
     runs-on: ubuntu-latest
     steps:
