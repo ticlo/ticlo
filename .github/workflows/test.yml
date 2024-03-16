@@ -22,6 +22,34 @@ jobs:
       - run: yarn prettier-check
 #      - run: yarn build-package
 
+  test-browser:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: enable corepack
+        run: corepack enable
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v2
+        with:
+          node-version: 16.x
+      - run: yarn install
+      - name: make dir
+        run: |
+          mkdir coverage
+      - name: Vitest Browser Build Cache
+        run: yarn test-browser-coverage
+        continue-on-error: true
+      - name: Vitest Browser
+        run: yarn test-browser-coverage
+      - name: Coveralls Vitest Browser
+        uses: coverallsapp/github-action@master
+        env:
+          NODE_COVERALLS_DEBUG: 1
+        with:
+          github-token: ${{ secrets.github_token }}
+          path-to-lcov: ./coverage/browser/lcov.info
+          parallel: true
+          flag-name: strict
   test:
     runs-on: ubuntu-latest
     steps:
@@ -46,17 +74,6 @@ jobs:
         with:
           github-token: ${{ secrets.github_token }}
           path-to-lcov: ./coverage/node/lcov.info
-          parallel: true
-          flag-name: strict
-      - name: Vitest Browser
-        run: yarn test-browser-coverage
-      - name: Coveralls Vitest Browser
-        uses: coverallsapp/github-action@master
-        env:
-          NODE_COVERALLS_DEBUG: 1
-        with:
-          github-token: ${{ secrets.github_token }}
-          path-to-lcov: ./coverage/browser/lcov.info
           parallel: true
           flag-name: strict
 #      - name: Test Node (Strict)
