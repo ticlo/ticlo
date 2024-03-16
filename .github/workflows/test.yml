@@ -113,8 +113,8 @@ jobs:
           parallel: true
           flag-name: ticlo
 
-  finish:
-    needs: test
+  finish-coverage:
+    needs: [test, test-browser]
     runs-on: ubuntu-latest
     steps:
       - name: Coveralls Finished
