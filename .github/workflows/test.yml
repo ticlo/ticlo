@@ -45,7 +45,18 @@ jobs:
           NODE_COVERALLS_DEBUG: 1
         with:
           github-token: ${{ secrets.github_token }}
-          path-to-lcov: ./coverage/lcov.info
+          path-to-lcov: ./coverage/node/lcov.info
+          parallel: true
+          flag-name: strict
+      - name: Vitest Browser
+        run: yarn test-browser-coverage
+      - name: Coveralls Vitest Browser
+        uses: coverallsapp/github-action@master
+        env:
+          NODE_COVERALLS_DEBUG: 1
+        with:
+          github-token: ${{ secrets.github_token }}
+          path-to-lcov: ./coverage/browser/lcov.info
           parallel: true
           flag-name: strict
 #      - name: Test Node (Strict)
