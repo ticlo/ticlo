@@ -10,7 +10,7 @@ export default defineConfig({
       name: 'chrome',
     },
     coverage: {
-      provider: 'v8',
+      provider: 'istanbul',
       reporter: ['lcov'],
       reportsDirectory: './coverage/browser',
     },
