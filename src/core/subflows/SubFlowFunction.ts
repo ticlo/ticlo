@@ -5,7 +5,7 @@ import {Flow, Root} from '../block/Flow';
 import {Event, EventType} from '../block/Event';
 import {DataMap} from '../util/DataTypes';
 import {WorkerFlow} from '../worker/WorkerFlow';
-import {Storage} from '../block/Storage';
+import {FlowStorage} from '../block/Storage';
 import {deepEqual} from '../util/Compare';
 import {Functions} from '../block/Functions';
 import {Block} from '../block/Block';
@@ -161,7 +161,7 @@ export class SubFlowFunction extends BlockFunction {
 
   destroy() {
     if (this._data._destroyed && !this._data._flow._destroyed) {
-      Root.instance._storage.deleteFlow(this.getStoragePath());
+      Root.instance._storage.delete(this.getStoragePath());
     }
     super.destroy();
   }

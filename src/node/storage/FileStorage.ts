@@ -1,6 +1,6 @@
 import Fs from 'fs';
 import Path from 'path';
-import {BlockProperty, DataMap, decode, encodeSorted, Flow, Root, Storage} from '../../../src/core';
+import {BlockProperty, DataMap, decode, encodeSorted, Flow, Root, FlowStorage, Storage} from '../../../src/core';
 import {WorkerFunction} from '../../../src/core/worker/WorkerFunction';
 import {FlowLoader, FlowState} from '../../../src/core/block/Flow';
 
@@ -11,7 +11,7 @@ export class FlowIOTask {
   _resolveReading: Function;
   nextData: string;
 
-  constructor(public loader: FileStorage, public name: string, public path: string) {}
+  constructor(public readonly loader: FileStorage, public readonly name: string, public readonly path: string) {}
 
   read() {
     if (!this.reading) {
@@ -85,28 +85,46 @@ export class FlowIOTask {
 }
 
 export class FileStorage implements Storage {
+  readonly dir: string;
+
+  constructor(dir: string, public readonly ext: string) {
+    this.dir = Path.resolve(dir);
+  }
+
   tasks: Map<string, FlowIOTask> = new Map();
 
   getTask(name: string) {
     if (this.tasks.has(name)) {
       return this.tasks.get(name);
     } else {
-      let task = new FlowIOTask(this, name, Path.join(this.dir, `${name}.ticlo`));
+      let task = new FlowIOTask(this, name, Path.join(this.dir, `${name}${this.ext}`));
       this.tasks.set(name, task);
       return task;
     }
   }
-
   taskDone(task: FlowIOTask) {
     if (this.tasks.get(task.name) === task) {
       this.tasks.delete(task.name);
     }
   }
 
-  dir: string;
-
+  delete(name: string) {
+    this.getTask(name).delete();
+  }
+  save(key: string, data: string): void {
+    this.getTask(key).write(data);
+  }
+  async load(name: string) {
+    try {
+      return await this.getTask(name).read();
+    } catch (e) {
+      return null;
+    }
+  }
+}
+export class FileFlowStorage extends FileStorage implements FlowStorage {
   constructor(dir: string) {
-    this.dir = Path.resolve(dir);
+    super(dir, '.ticlo');
   }
 
   getFlowLoader(key: string, prop: BlockProperty): FlowLoader {
@@ -122,13 +140,9 @@ export class FileStorage implements Storage {
   flowStateChanged(flow: Flow, name: string, state: FlowState) {
     switch (state) {
       case FlowState.destroyed:
-        this.deleteFlow(name);
+        this.delete(name);
         break;
     }
-  }
-
-  deleteFlow(name: string) {
-    this.getTask(name).delete();
   }
 
   saveFlow(flow: Flow, data?: DataMap, overrideKey?: string) {
@@ -137,16 +151,15 @@ export class FileStorage implements Storage {
     }
     let key = overrideKey ?? flow._storageKey;
     let str = encodeSorted(data);
-    this.getTask(key).write(str);
+    this.save(key, str);
   }
 
   async loadFlow(name: string) {
     try {
-      let str = await this.getTask(name).read();
-      return decode(str);
-    } catch (e) {
-      return null;
-    }
+      let str = await this.load(name);
+      return decode(str); // decode(null) will return null
+    } catch (e) {}
+    return null;
   }
 
   inited = false;
@@ -156,13 +169,13 @@ export class FileStorage implements Storage {
     let globalData = {'#is': ''};
     for (let file of Fs.readdirSync(this.dir)) {
       if (
-        file.endsWith('.ticlo') &&
+        file.endsWith(this.ext) &&
         !file.includes('.#') // Do not load subflow during initialization.
       ) {
-        let name = file.substring(0, file.length - '.ticlo'.length);
+        let name = file.substring(0, file.length - this.ext.length);
         if (name === '#global') {
           try {
-            globalData = decode(Fs.readFileSync(Path.join(this.dir, `${name}.ticlo`), 'utf8'));
+            globalData = decode(Fs.readFileSync(Path.join(this.dir, `${name}${this.ext}`), 'utf8'));
           } catch (err) {
             // TODO Logger
           }
@@ -177,7 +190,7 @@ export class FileStorage implements Storage {
     // load custom types
     for (let name of functionFiles.sort()) {
       try {
-        let data = decode(Fs.readFileSync(Path.join(this.dir, `#.${name}.ticlo`), 'utf8'));
+        let data = decode(Fs.readFileSync(Path.join(this.dir, `#.${name}${this.ext}`), 'utf8'));
         let desc = WorkerFunction.collectDesc(`:${name}`, data);
         WorkerFunction.registerType(data, desc, '');
       } catch (err) {
@@ -195,7 +208,7 @@ export class FileStorage implements Storage {
     // sort the name to make sure parent Flow is loaded before children flows
     for (let name of flowFiles.sort()) {
       try {
-        let data = decode(Fs.readFileSync(Path.join(this.dir, `${name}.ticlo`), 'utf8'));
+        let data = decode(Fs.readFileSync(Path.join(this.dir, `${name}${this.ext}`), 'utf8'));
         root.addFlow(name, data);
       } catch (err) {
         // TODO Logger

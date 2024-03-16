@@ -1,2 +1,2 @@
 export {WsServerConnection} from './connect/WsServerConnection';
-export {FileStorage} from './storage/FileStorage';
+export {FileFlowStorage} from './storage/FileStorage';

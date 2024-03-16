@@ -4,7 +4,7 @@ import {FunctionClass} from './BlockFunction';
 import {PropDispatcher, PropListener} from './Dispatcher';
 import {FunctionDesc} from './Descriptor';
 import {DataMap} from '../util/DataTypes';
-import {Storage} from './Storage';
+import {FlowStorage} from './Storage';
 import type {Flow} from './Flow';
 
 export interface DescListener {
@@ -41,7 +41,7 @@ export class FunctionDispatcher extends PropDispatcher<FunctionClass> {
 }
 
 const _functions: {[key: string]: FunctionDispatcher} = {};
-let _storage: Storage;
+let _storage: FlowStorage;
 export class Functions {
   static add(cls: FunctionClass, desc: FunctionDesc, namespace?: string, functionApi?: FunctionApi) {
     if (!desc.properties) {
@@ -195,13 +195,13 @@ export class Functions {
     return null;
   }
 
-  static setStorage(storage: Storage) {
+  static setStorage(storage: FlowStorage) {
     _storage = storage;
   }
   static saveWorkerFunction(funcId: string, flow: Flow, data: DataMap) {
     _storage?.saveFlow(flow, data, `#.${funcId.substring(1)}`);
   }
   static deleteFunction(funcId: string) {
-    _storage?.deleteFlow(`#.${funcId.substring(1)}`);
+    _storage?.delete(`#.${funcId.substring(1)}`);
   }
 }

@@ -1,5 +1,5 @@
 import {openDB, deleteDB, wrap, unwrap, IDBPDatabase} from 'idb';
-import {BlockProperty, DataMap, decode, encodeSorted, Flow, Root, Storage} from '../../../src/core';
+import {BlockProperty, DataMap, decode, encodeSorted, Flow, Root, FlowStorage, Storage} from '../../../src/core';
 import {WorkerFunction} from '../../../src/core/worker/WorkerFunction';
 import {FlowLoader, FlowState} from '../../../src/core/block/Flow';
 
@@ -7,12 +7,7 @@ export const STORE_NAME = 'flows';
 
 export class IndexDbStorage implements Storage {
   dbPromise: Promise<IDBPDatabase>;
-
-  static deleteDb(dbName: string) {
-    return deleteDB(dbName);
-  }
-
-  constructor(dbName: string = 'ticlo') {
+  constructor(dbName: string) {
     this.dbPromise = openDB(dbName, undefined, {
       upgrade(db, oldVersion, newVersion, transaction) {
         db.createObjectStore(STORE_NAME);
@@ -21,6 +16,32 @@ export class IndexDbStorage implements Storage {
       blocking() {},
       terminated() {},
     });
+  }
+
+  async delete(key: string) {
+    await (await this.dbPromise).delete(STORE_NAME, key);
+  }
+
+  async save(key: string, data: string) {
+    await (await this.dbPromise).put(STORE_NAME, data, key);
+  }
+
+  async load(name: string) {
+    try {
+      return await (await this.dbPromise).get(STORE_NAME, name);
+    } catch (e) {
+      return null;
+    }
+  }
+}
+
+export class IndexDbFlowStorage extends IndexDbStorage implements FlowStorage {
+  static deleteDb(dbName: string) {
+    return deleteDB(dbName);
+  }
+
+  constructor(dbName: string = 'ticlo') {
+    super(dbName);
   }
 
   getFlowLoader(key: string, prop: BlockProperty): FlowLoader {
@@ -36,13 +57,9 @@ export class IndexDbStorage implements Storage {
   flowStateChanged(flow: Flow, key: string, state: FlowState) {
     switch (state) {
       case FlowState.destroyed:
-        this.deleteFlow(key);
+        this.delete(key);
         break;
     }
-  }
-
-  async deleteFlow(key: string) {
-    await (await this.dbPromise).delete(STORE_NAME, key);
   }
 
   async saveFlow(flow: Flow, data?: DataMap, overrideKey?: string) {
@@ -52,14 +69,14 @@ export class IndexDbStorage implements Storage {
     let key = overrideKey ?? flow._storageKey;
     let str = encodeSorted(data);
     if (key) {
-      await (await this.dbPromise).put(STORE_NAME, str, key);
+      await this.save(key, str);
     }
   }
 
   async loadFlow(name: string) {
     try {
-      let str = await (await this.dbPromise).get(STORE_NAME, name);
-      return decode(str);
+      let str = await this.load(name);
+      return decode(str); // decode(null) will return null
     } catch (e) {
       return null;
     }

@@ -12,7 +12,7 @@ import {
   Flow,
   PropDesc,
   Root,
-  Storage,
+  FlowStorage,
   BlockProperty,
 } from '../../src/core';
 import {BlockStagePane} from '../../src/editor/dock/block/BlockStagePane';
@@ -57,7 +57,7 @@ import enTestLocal from '../../i18n/test/en.json';
 import zhAntd from 'antd/lib/locale/zh_CN';
 import enAntd from 'antd/lib/locale/en_US';
 import {LocalizedLabel, t} from '../../src/editor/component/LocalizedLabel';
-import {IndexDbStorage} from '../../src/html/storage/IndexDbStorage';
+import {IndexDbFlowStorage} from '../../src/html/storage/IndexDbStorage';
 import {createRoot} from 'react-dom/client';
 
 const layoutGroups = {
@@ -343,7 +343,7 @@ class App extends React.PureComponent<Props, State> {
     Root.instance.addFlow('example', reactData);
     Root.instance.addFlow('example0', data);
   }
-  await Root.instance.setStorage(new IndexDbStorage());
+  await Root.instance.setStorage(new IndexDbFlowStorage());
   // create some global blocks
   Root.instance._globalRoot.createBlock('^gAdd')?.setValue('#is', 'add');
   Root.instance._globalRoot.createBlock('^gSub')?.setValue('#is', 'subtract');

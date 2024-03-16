@@ -4,14 +4,14 @@ import {BlockProperty, DataMap, decode, Flow, Root} from '../../../src/core';
 import {FlowLoader, FlowState} from '../../../src/core/block/Flow';
 import {FlowTestGroup} from '../../../src/test/FlowTestGroup';
 import {FlowTestCase} from '../../../src/test/FlowTestCase';
-import {FileStorage, FlowIOTask} from '../storage/FileStorage';
+import {FileFlowStorage, FlowIOTask} from '../storage/FileStorage';
 
 interface TestLoaderOptions {
   timeout?: number;
   onDemandLoad?: boolean;
 }
 
-export class TestLoader extends FileStorage {
+export class TestLoader extends FileFlowStorage {
   flowToPathMap = new Map<string, string>();
   timeout: number;
   onDemandLoad: boolean;

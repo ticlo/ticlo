@@ -1,6 +1,6 @@
 export {Block, type BlockMode} from './block/Block';
 export {Root, Flow} from './block/Flow';
-export {type Storage} from './block/Storage';
+export {type FlowStorage, type Storage} from './block/Storage';
 export {BlockProperty, BlockIO} from './block/BlockProperty';
 export {BaseFunction, BlockFunction, PureFunction, ImpureFunction} from './block/BlockFunction';
 export {Functions} from './block/Functions';

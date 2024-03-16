@@ -3,7 +3,15 @@ import {DataMap} from '../util/DataTypes';
 import {BlockProperty} from './BlockProperty';
 
 export interface Storage {
-  deleteFlow(name: string): void;
+  delete(key: string): void;
+
+  save(key: string, data: string): void;
+
+  load(key: string): Promise<string>;
+}
+
+export interface FlowStorage {
+  delete(name: string): void;
 
   saveFlow(flow: Flow, data: DataMap, overrideKey?: string): void;
 

@@ -1,6 +1,6 @@
 import Express from 'express';
 import {Root} from '../../src/core';
-import {FileStorage} from '../../src/node';
+import {FileFlowStorage} from '../../src/node';
 import {connectTiclo, routeTiclo, getEditorUrl} from '../../src/web-server';
 import {data} from '../sample-data/data';
 
@@ -11,7 +11,7 @@ import {data} from '../sample-data/data';
   Root.instance._globalRoot.createBlock('^gAdd').setValue('#is', 'add');
   Root.instance._globalRoot.createBlock('^gSub').setValue('#is', 'subtract');
 
-  await Root.instance.setStorage(new FileStorage('./example/server'));
+  await Root.instance.setStorage(new FileFlowStorage('./example/server'));
 
   let app = Express();
   connectTiclo(app, '/ticlo');

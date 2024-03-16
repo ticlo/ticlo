@@ -2,15 +2,15 @@ import {expect} from 'vitest';
 import Fs from 'fs';
 import {Flow, Root, decode} from '../../../core';
 import {shouldHappen, shouldReject, waitTick} from '../../../core/util/test-util';
-import {IndexDbStorage, STORE_NAME} from '../IndexDbStorage';
+import {IndexDbFlowStorage, STORE_NAME} from '../IndexDbStorage';
 
 const testDbName = 'ticloTestIndexDbStorage';
 describe('IndexDbStorage', function () {
   it('save and delete', async function () {
-    await IndexDbStorage.deleteDb(testDbName);
+    await IndexDbFlowStorage.deleteDb(testDbName);
 
     let root = new Root();
-    let storage = new IndexDbStorage(testDbName);
+    let storage = new IndexDbFlowStorage(testDbName);
     await root.setStorage(storage);
 
     const db = await storage.dbPromise;
@@ -42,7 +42,7 @@ describe('IndexDbStorage', function () {
   });
   it('init loader', async function () {
     let flowData = {'#is': '', 'value': 321};
-    let storage = new IndexDbStorage(testDbName);
+    let storage = new IndexDbFlowStorage(testDbName);
 
     const db = await storage.dbPromise;
     db.put(STORE_NAME, JSON.stringify(flowData), 'flow5');

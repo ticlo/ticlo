@@ -3,7 +3,7 @@ import shelljs from 'shelljs';
 import Fs from 'fs';
 import {Flow, Root, decode} from '../../../core';
 import {shouldHappen, shouldReject, waitTick} from '../../../core/util/test-util';
-import {FileStorage} from '../FileStorage';
+import {FileFlowStorage} from '../FileStorage';
 
 const beforeAll = globalThis.beforeAll ?? globalThis.before;
 
@@ -14,7 +14,7 @@ describe('FileStorage', function () {
   it('save and delete', async function () {
     const path = './temp/storageTest/flow1.ticlo';
     let root = new Root();
-    let storage = new FileStorage('./temp/storageTest');
+    let storage = new FileFlowStorage('./temp/storageTest');
     await root.setStorage(storage);
 
     let flow = root.addFlow('flow1');
@@ -67,7 +67,7 @@ describe('FileStorage', function () {
     Fs.writeFileSync(path2, JSON.stringify(flowData));
 
     let root = new Root();
-    await root.setStorage(new FileStorage('./temp/storageTest'));
+    await root.setStorage(new FileFlowStorage('./temp/storageTest'));
 
     expect(root.queryValue('flow5.value')).toBe(321);
     expect(root.queryValue('flow5.subflow.value')).toBe(321);

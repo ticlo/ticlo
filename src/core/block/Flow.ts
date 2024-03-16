@@ -7,7 +7,7 @@ import {Event} from './Event';
 import {DataMap} from '../util/DataTypes';
 import {FunctionDesc} from './Descriptor';
 import {Functions} from './Functions';
-import {Storage} from './Storage';
+import {FlowStorage} from './Storage';
 import {FlowHistory} from './FlowHistory';
 
 export enum FlowState {
@@ -351,13 +351,13 @@ export class Root extends Flow {
   }
 
   _resolver: Resolver;
-  _storage: Storage;
+  _storage: FlowStorage;
 
   queueBlock(block: Runnable) {
     this._resolver.queueBlock(block);
   }
 
-  async setStorage(storage: Storage) {
+  async setStorage(storage: FlowStorage) {
     Functions.setStorage(storage);
     this._storage = storage;
     await storage.init(this);
@@ -454,7 +454,7 @@ export class Root extends Flow {
     let prop = this.queryProperty(path, false);
     if (prop?._value instanceof Flow) {
       if (this._storage) {
-        this._storage.deleteFlow(path);
+        this._storage.delete(path);
       }
       prop.setValue(undefined);
     }
