@@ -3,7 +3,7 @@ import shelljs from 'shelljs';
 import Fs from 'fs';
 import {Flow, Root, decode} from '../../../core';
 import {shouldHappen, shouldReject, waitTick} from '../../../core/util/test-util';
-import {FileFlowStorage} from '../FileStorage';
+import {FileFlowStorage, FileStorage} from '../FileStorage';
 
 const beforeAll = globalThis.beforeAll ?? globalThis.before;
 
@@ -11,7 +11,29 @@ describe('FileStorage', function () {
   beforeAll(function () {
     shelljs.mkdir('-p', './temp/storageTest');
   });
-  it('save and delete', async function () {
+  it('listen to value', async function () {
+    let storage = new FileStorage('./temp/storageTest');
+    storage.save('key1', 'value1');
+    expect(await storage.load('key1')).toBe('value1');
+    expect(await storage.load('invalid key')).toBeUndefined();
+
+    let result: string;
+    const listener = (str: string) => (result = str);
+    storage.listen('key2', listener);
+    storage.save('key2', 'value2');
+    expect(result).toBe('value2');
+
+    storage.unlisten('key2', listener);
+    storage.save('key2', 'new value');
+    // should not change after unlisten
+    expect(result).toBe('value2');
+
+    storage.delete('key1');
+    storage.delete('key2');
+    await waitTick(20);
+    await shouldHappen(() => !Fs.existsSync('./temp/storageTest/key1') && !Fs.existsSync('./temp/storageTest/key2'));
+  });
+  it('save and delete flow', async function () {
     const path = './temp/storageTest/flow1.ticlo';
     let root = new Root();
     let storage = new FileFlowStorage('./temp/storageTest');

@@ -63,4 +63,8 @@ export class StreamDispatcher<T = any> {
       listener(value);
     }
   }
+
+  isEmpty() {
+    return this._listeners.size === 0;
+  }
 }

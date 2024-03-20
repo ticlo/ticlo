@@ -2,15 +2,18 @@ import {openDB, deleteDB, wrap, unwrap, IDBPDatabase} from 'idb';
 import {BlockProperty, DataMap, decode, encodeSorted, Flow, Root, FlowStorage, Storage} from '../../../src/core';
 import {WorkerFunction} from '../../../src/core/worker/WorkerFunction';
 import {FlowLoader, FlowState} from '../../../src/core/block/Flow';
+import {StreamDispatcher} from '../../core/block/Dispatcher';
 
 export const STORE_NAME = 'flows';
-
+export const DB_NAME = 'ticlo';
 export class IndexDbStorage implements Storage {
-  dbPromise: Promise<IDBPDatabase>;
-  constructor(dbName: string) {
+  readonly dbPromise: Promise<IDBPDatabase>;
+  readonly streams: Map<string, StreamDispatcher<string>> = new Map();
+
+  constructor(dbName: string, public readonly storeName: string) {
     this.dbPromise = openDB(dbName, undefined, {
       upgrade(db, oldVersion, newVersion, transaction) {
-        db.createObjectStore(STORE_NAME);
+        db.createObjectStore(storeName);
       },
       blocked() {},
       blocking() {},
@@ -19,18 +22,38 @@ export class IndexDbStorage implements Storage {
   }
 
   async delete(key: string) {
-    await (await this.dbPromise).delete(STORE_NAME, key);
+    await (await this.dbPromise).delete(this.storeName, key);
   }
 
   async save(key: string, data: string) {
-    await (await this.dbPromise).put(STORE_NAME, data, key);
+    await (await this.dbPromise).put(this.storeName, data, key);
+    this.streams.get(key)?.dispatch(data);
   }
 
   async load(name: string) {
     try {
-      return await (await this.dbPromise).get(STORE_NAME, name);
+      return await (await this.dbPromise).get(this.storeName, name);
     } catch (e) {
       return null;
+    }
+  }
+
+  listen(key: string, listener: (val: string) => void) {
+    let stream = this.streams.get(key);
+    if (!stream) {
+      stream = new StreamDispatcher<string>();
+      this.streams.set(key, stream);
+    }
+    stream.listen(listener);
+  }
+
+  unlisten(key: string, listener: (val: string) => void) {
+    let stream = this.streams.get(key);
+    if (stream) {
+      stream.unlisten(listener);
+      if (stream.isEmpty()) {
+        this.streams.delete(key);
+      }
     }
   }
 }
@@ -40,8 +63,8 @@ export class IndexDbFlowStorage extends IndexDbStorage implements FlowStorage {
     return deleteDB(dbName);
   }
 
-  constructor(dbName: string = 'ticlo') {
-    super(dbName);
+  constructor(dbName: string = DB_NAME) {
+    super(dbName, STORE_NAME);
   }
 
   getFlowLoader(key: string, prop: BlockProperty): FlowLoader {
@@ -89,13 +112,13 @@ export class IndexDbFlowStorage extends IndexDbStorage implements FlowStorage {
     let flowFiles: string[] = [];
     let functionFiles: string[] = [];
     let globalData = {'#is': ''};
-    for (let storeKey of (await db.getAllKeys(STORE_NAME)) as string[]) {
+    for (let storeKey of (await db.getAllKeys(this.storeName)) as string[]) {
       if (
         !storeKey.includes('.#') // Do not load subflow during initialization.
       ) {
         if (storeKey === '#global') {
           try {
-            globalData = decode(await db.get(STORE_NAME, storeKey));
+            globalData = decode(await db.get(this.storeName, storeKey));
           } catch (err) {
             // TODO Logger
           }
@@ -110,7 +133,7 @@ export class IndexDbFlowStorage extends IndexDbStorage implements FlowStorage {
     // load custom types
     for (let name of functionFiles.sort()) {
       try {
-        let data = decode(await db.get(STORE_NAME, `#.${name}`));
+        let data = decode(await db.get(this.storeName, `#.${name}`));
         let desc = WorkerFunction.collectDesc(`:${name}`, data);
         WorkerFunction.registerType(data, desc, '');
       } catch (err) {
@@ -128,7 +151,7 @@ export class IndexDbFlowStorage extends IndexDbStorage implements FlowStorage {
     // sort the name to make sure parent Flow is loaded before children flows
     for (let name of flowFiles.sort()) {
       try {
-        let data = decode(await (await this.dbPromise).get(STORE_NAME, name));
+        let data = decode(await (await this.dbPromise).get(this.storeName, name));
         root.addFlow(name, data);
       } catch (err) {
         // TODO Logger

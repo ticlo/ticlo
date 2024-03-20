@@ -2,15 +2,41 @@ import {expect} from 'vitest';
 import Fs from 'fs';
 import {Flow, Root, decode} from '../../../core';
 import {shouldHappen, shouldReject, waitTick} from '../../../core/util/test-util';
-import {IndexDbFlowStorage, STORE_NAME} from '../IndexDbStorage';
+import {IndexDbFlowStorage, IndexDbStorage, STORE_NAME} from '../IndexDbStorage';
+const testDbName1 = 'testIndexDbStorage';
+const testDbName2 = 'ticloTestIndexDbStorage';
 
-const testDbName = 'ticloTestIndexDbStorage';
 describe('IndexDbStorage', function () {
-  it('save and delete', async function () {
-    await IndexDbFlowStorage.deleteDb(testDbName);
+  beforeAll(async () => {
+    await IndexDbFlowStorage.deleteDb(testDbName1);
+    await IndexDbFlowStorage.deleteDb(testDbName2);
+  });
+  it('listen to value', async function () {
+    const storage = new IndexDbStorage(testDbName1, 'store');
+    const db = await storage.dbPromise;
 
-    let root = new Root();
-    let storage = new IndexDbFlowStorage(testDbName);
+    await storage.save('key1', 'value1');
+    expect(await storage.load('key1')).toBe('value1');
+    expect(await storage.load('invalid key')).toBeUndefined();
+
+    let result: string;
+    const listener = (str: string) => (result = str);
+    storage.listen('key2', listener);
+    await storage.save('key2', 'value2');
+    expect(result).toBe('value2');
+
+    storage.unlisten('key2', listener);
+    await storage.save('key2', 'new value');
+    // should not change after unlisten
+    expect(result).toBe('value2');
+
+    await storage.delete('key1');
+    expect(await db.get('store', 'key1')).not.toBeDefined();
+  });
+
+  it('save and delete', async function () {
+    const root = new Root();
+    const storage = new IndexDbFlowStorage(testDbName2);
     await root.setStorage(storage);
 
     const db = await storage.dbPromise;
@@ -42,7 +68,7 @@ describe('IndexDbStorage', function () {
   });
   it('init loader', async function () {
     let flowData = {'#is': '', 'value': 321};
-    let storage = new IndexDbFlowStorage(testDbName);
+    let storage = new IndexDbFlowStorage(testDbName2);
 
     const db = await storage.dbPromise;
     db.put(STORE_NAME, JSON.stringify(flowData), 'flow5');

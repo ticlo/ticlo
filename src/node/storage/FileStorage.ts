@@ -3,23 +3,24 @@ import Path from 'path';
 import {BlockProperty, DataMap, decode, encodeSorted, Flow, Root, FlowStorage, Storage} from '../../../src/core';
 import {WorkerFunction} from '../../../src/core/worker/WorkerFunction';
 import {FlowLoader, FlowState} from '../../../src/core/block/Flow';
+import {StreamDispatcher} from '../../core/block/Dispatcher';
 
-export class FlowIOTask {
+export class FlowIOTask extends StreamDispatcher<string> {
   current?: 'write' | 'delete' | 'read';
   next?: 'write' | 'delete';
   reading: Promise<string>;
   _resolveReading: Function;
   nextData: string;
 
-  constructor(public readonly loader: FileStorage, public readonly name: string, public readonly path: string) {}
+  constructor(public readonly loader: FileStorage, public readonly name: string, public readonly path: string) {
+    super();
+  }
 
   read() {
     if (!this.reading) {
       this.reading = new Promise<string>((resolve) => {
         this._resolveReading = resolve;
       });
-    }
-    if (!this.current) {
       this.current = 'read';
       Fs.readFile(this.path, 'utf8', this.onRead);
     }
@@ -28,10 +29,9 @@ export class FlowIOTask {
   onRead = (err: NodeJS.ErrnoException | null, data: string) => {
     if (this._resolveReading) {
       this._resolveReading(data);
+      this._resolveReading = null;
+      this.onDone();
     }
-    this.reading = null;
-    this._resolveReading = null;
-    this.onDone();
   };
 
   write(data: string) {
@@ -41,6 +41,8 @@ export class FlowIOTask {
     } else {
       this.current = 'write';
       Fs.writeFile(this.path, data, this.onDone);
+      this.reading = Promise.resolve(data);
+      this.dispatch(data);
     }
   }
 
@@ -87,7 +89,7 @@ export class FlowIOTask {
 export class FileStorage implements Storage {
   readonly dir: string;
 
-  constructor(dir: string, public readonly ext: string) {
+  constructor(dir: string, public readonly ext: string = '') {
     this.dir = Path.resolve(dir);
   }
 
@@ -112,7 +114,8 @@ export class FileStorage implements Storage {
     this.getTask(name).delete();
   }
   save(key: string, data: string): void {
-    this.getTask(key).write(data);
+    let task = this.getTask(key);
+    task.write(data);
   }
   async load(name: string) {
     try {
@@ -120,6 +123,14 @@ export class FileStorage implements Storage {
     } catch (e) {
       return null;
     }
+  }
+
+  listen(key: string, listener: (val: string) => void) {
+    this.getTask(key).listen(listener);
+  }
+
+  unlisten(key: string, listener: (val: string) => void) {
+    this.getTask(key)?.unlisten(listener);
   }
 }
 export class FileFlowStorage extends FileStorage implements FlowStorage {

@@ -8,6 +8,10 @@ export interface Storage {
   save(key: string, data: string): void;
 
   load(key: string): Promise<string>;
+
+  listen(key: string, listener: (val: string) => void): void;
+
+  unlisten(key: string, listener: (val: string) => void): void;
 }
 
 export interface FlowStorage {
