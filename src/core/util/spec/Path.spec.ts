@@ -1,5 +1,5 @@
 import {expect} from 'vitest';
-import {getRelativePath, resolvePath, forAllPathsBetween} from '../Path';
+import {getRelativePath, resolvePath, forAllPathsBetween, encodeFileName} from '../Path';
 import {WorkerFunction} from '../../worker/WorkerFunction';
 import {Root} from '../../block/Flow';
 import {DataMap} from '../DataTypes';
@@ -20,6 +20,12 @@ describe('Path', function () {
     expect(getRelativePath('a', 'a')).toBe('');
 
     expect(getRelativePath('b.c', 'b.d')).toBe('##.d');
+  });
+
+  it('encodeFileName', function () {
+    expect(encodeFileName('\\/?*:|"<>')).toBe('%5c%2f%3f%2a%3a%7c%22%3c%3e');
+    expect(encodeFileName('\u0001')).toBe('%01');
+    expect(encodeFileName('周1A')).toBe('周1A');
   });
 
   it('forAllPathsBetween', function () {

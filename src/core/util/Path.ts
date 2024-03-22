@@ -70,13 +70,28 @@ export function forAllPathsBetween(target: string, base: string, callback: (valu
   return false;
 }
 
-const invalidNameReg = /[\\\/?*:|"<>]/;
-const invalidPathReg = /[\\\/?*:|"<>.]/;
+const invalidNameReg = /[\u0000-\u0019\\\/?*:|"<>]/;
+const encodeNameReg = /[\u0000-\u0019\\\/?*:|"<>]/g;
+const invalidPathReg = /[\u0000-\u0019\\\/?*:|"<>.]/;
 export function validateNodeName(name: string) {
   return name?.search(invalidNameReg) < 0;
 }
 export function validateNodePath(path: string) {
   return path.search(invalidPathReg) < 0;
+}
+
+// Escape single byte character, faster than escape or encodeURIComponent.
+function escapeChar(s: string) {
+  const c = s.charCodeAt(0);
+  if (c < 16) {
+    return `%0${c.toString(16)}`;
+  } else {
+    return `%${c.toString(16)}`;
+  }
+}
+
+export function encodeFileName(path: string) {
+  return path.replace(encodeNameReg, escapeChar);
 }
 
 export function isBindable(toPath: string, fromPath: string): boolean | 'shared' {

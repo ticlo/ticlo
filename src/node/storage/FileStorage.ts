@@ -4,6 +4,7 @@ import {BlockProperty, DataMap, decode, encodeSorted, Flow, Root, FlowStorage, S
 import {WorkerFunction} from '../../../src/core/worker/WorkerFunction';
 import {FlowLoader, FlowState} from '../../../src/core/block/Flow';
 import {StreamDispatcher} from '../../core/block/Dispatcher';
+import {encodeFileName} from '../../core/util/Path';
 
 export class FlowIOTask extends StreamDispatcher<string> {
   current?: 'write' | 'delete' | 'read';
@@ -99,7 +100,7 @@ export class FileStorage implements Storage {
     if (this.tasks.has(name)) {
       return this.tasks.get(name);
     } else {
-      let task = new FlowIOTask(this, name, Path.join(this.dir, `${name}${this.ext}`));
+      let task = new FlowIOTask(this, name, Path.join(this.dir, `${encodeFileName(name)}${this.ext}`));
       this.tasks.set(name, task);
       return task;
     }
