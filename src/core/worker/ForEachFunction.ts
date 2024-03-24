@@ -9,7 +9,10 @@ import {RepeaterWorker} from './WorkerFlow';
 import {Resolver} from '../block/Resolver';
 
 class ForEachOutput implements FunctionOutput {
-  constructor(public func: ForEachFunction, public key: string) {}
+  constructor(
+    public func: ForEachFunction,
+    public key: string
+  ) {}
 
   _overrideValue: any;
   _result: any = {};

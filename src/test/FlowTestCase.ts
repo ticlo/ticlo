@@ -11,7 +11,12 @@ export const FlowTestConfigGenerators: {[key: string]: typeof BlockProperty} = {
 };
 
 export class FlowTestCase extends Flow implements TestsRunner {
-  constructor(parent: Block, property: BlockProperty, public timeoutMs: number, public testParent?: TestsRunner) {
+  constructor(
+    parent: Block,
+    property: BlockProperty,
+    public timeoutMs: number,
+    public testParent?: TestsRunner
+  ) {
     super(parent, null, property);
   }
 

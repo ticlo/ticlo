@@ -130,7 +130,11 @@ const defaultValueState: ValueState = {
 export class SubscribeRequest extends MergedClientRequest {
   _cache: ValueState = {...defaultValueState};
 
-  constructor(data: DataMap, public path: string, public conn: ClientConnection) {
+  constructor(
+    data: DataMap,
+    public path: string,
+    public conn: ClientConnection
+  ) {
     super(data, null);
   }
 

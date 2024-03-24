@@ -60,7 +60,7 @@ export class ThreadPool {
   }
 
   done(n: number | string, pending: boolean) {
-    if (n < this._size) {
+    if (Number(n) < this._size) {
       if (pending) {
         this._pending.push(n);
       } else {

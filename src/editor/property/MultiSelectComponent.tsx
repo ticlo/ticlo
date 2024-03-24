@@ -10,7 +10,10 @@ interface MultiSelectProps {
 export abstract class MultiSelectLoader<T extends MultiSelectComponent<any, any, any>> {
   conn: ClientConn;
 
-  constructor(public path: string, public parent: T) {
+  constructor(
+    public path: string,
+    public parent: T
+  ) {
     this.conn = (parent.props as MultiSelectProps).conn;
   }
 
@@ -22,7 +25,7 @@ export abstract class MultiSelectLoader<T extends MultiSelectComponent<any, any,
 export abstract class MultiSelectComponent<
   P extends MultiSelectProps,
   S,
-  Loader extends MultiSelectLoader<MultiSelectComponent<P, S, Loader>>
+  Loader extends MultiSelectLoader<MultiSelectComponent<P, S, Loader>>,
 > extends LazyUpdateComponent<P, S> {
   loaders: Map<string, Loader> = new Map<string, Loader>();
 

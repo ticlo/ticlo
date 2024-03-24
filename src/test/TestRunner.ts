@@ -13,7 +13,11 @@ export class TestRunner {
   passed = 0;
   failed = 0;
 
-  constructor(testGroup: FlowTestGroup, public onDone?: () => void, public allowEditing: boolean = false) {
+  constructor(
+    testGroup: FlowTestGroup,
+    public onDone?: () => void,
+    public allowEditing: boolean = false
+  ) {
     this.stack = [{target: testGroup, processed: false}];
   }
 

@@ -534,7 +534,11 @@ export abstract class BaseBlockItem extends DataRendererItem<XYWRenderer> {
 
   abstract get selected(): boolean;
 
-  constructor(connection: ClientConn, public stage: Stage, public path: string) {
+  constructor(
+    connection: ClientConn,
+    public stage: Stage,
+    public path: string
+  ) {
     super();
     this.conn = connection;
     this.name = path.substr(path.lastIndexOf('.') + 1);
@@ -795,7 +799,12 @@ export class BlockItem extends BaseBlockItem {
     return null;
   }
 
-  constructor(connection: ClientConn, stage: Stage, path: string, public shared?: boolean) {
+  constructor(
+    connection: ClientConn,
+    stage: Stage,
+    path: string,
+    public shared?: boolean
+  ) {
     super(connection, stage, path);
   }
 

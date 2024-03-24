@@ -47,10 +47,10 @@ class HttpClientObject implements HttpClient {
       this.baseUrl = baseUrl;
     }
     if (isDataMap(headers)) {
-      this.headers = headers;
+      this.headers = headers as AxiosRequestHeaders;
     }
     if (isDataMap(optionalHeaders)) {
-      this.optionalHeaders = optionalHeaders;
+      this.optionalHeaders = optionalHeaders as AxiosRequestHeaders;
     }
   }
 

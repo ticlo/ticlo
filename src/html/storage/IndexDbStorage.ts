@@ -14,7 +14,10 @@ export class IndexDbStorage implements Storage {
   readonly streams: Map<string, StreamDispatcher<string>> = new Map();
   db: IDBPDatabase;
 
-  constructor(public readonly storeName: string, dbPromise?: Promise<IDBPDatabase>) {
+  constructor(
+    public readonly storeName: string,
+    dbPromise?: Promise<IDBPDatabase>
+  ) {
     if (dbPromise) {
       this.dbPromise = dbPromise;
     } else {

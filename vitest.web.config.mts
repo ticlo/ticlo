@@ -5,6 +5,7 @@ import {nodePolyfills} from 'vite-plugin-node-polyfills';
 export default defineConfig({
   plugins: [react(), nodePolyfills()],
   test: {
+    isolate: false,
     globals: true,
     include: ['src/core/**/*.spec.ts', 'src/html/**/*.spec.ts'],
     setupFiles: ['src/html/vitest.setup.ts', 'src/react/vitest.setup.ts'],

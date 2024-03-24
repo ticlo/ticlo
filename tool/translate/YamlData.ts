@@ -91,7 +91,10 @@ class YamlRow {
   // true when this is a line that's already merged into a previous multi-line value
   merged = false;
 
-  constructor(public raw: string, previous: YamlRow) {
+  constructor(
+    public raw: string,
+    previous: YamlRow
+  ) {
     let match = raw.match(rowreg);
     if (match) {
       this.indent = match[1].length;
@@ -155,7 +158,10 @@ export class OutputYamlData {
   mapping = new Map<string, OutputRow>();
   toBeTranslated = new Map<string, OutputRow>();
 
-  constructor(public enSource: YamlData, public yamlPath: string) {
+  constructor(
+    public enSource: YamlData,
+    public yamlPath: string
+  ) {
     for (let row of enSource.rows) {
       let outrow = new OutputRow(row);
       this.rows.push(outrow);

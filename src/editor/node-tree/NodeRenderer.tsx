@@ -54,7 +54,12 @@ export class NodeTreeItem extends TreeItem<NodeTreeItem> {
 
   max: number = 32;
 
-  constructor(name: string, public id: string, parent?: NodeTreeItem, public canApply = false) {
+  constructor(
+    name: string,
+    public id: string,
+    parent?: NodeTreeItem,
+    public canApply = false
+  ) {
     super(parent);
     if (parent) {
       this.key = `${parent.childPrefix}${name}`;

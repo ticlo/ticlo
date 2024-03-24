@@ -6,7 +6,10 @@ import {Root} from '../../../src/core/block/Flow';
 
 export class FrameServerConnection extends ServerConnection {
   checkClosedTimer: any;
-  constructor(public remote: Window, root: Root) {
+  constructor(
+    public remote: Window,
+    root: Root
+  ) {
     super(root);
     this.checkClosedTimer = setInterval(this.checkClosed, 1000);
     window.addEventListener('message', this.onMessage);

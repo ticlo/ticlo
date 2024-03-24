@@ -37,7 +37,10 @@ export class FlowHistory {
     }
   }
 
-  constructor(public flow: Flow, savedData?: DataMap) {
+  constructor(
+    public flow: Flow,
+    savedData?: DataMap
+  ) {
     if (savedData) {
       this._savedData = savedData;
       let cachedHistory = _historyCache.get(savedData);

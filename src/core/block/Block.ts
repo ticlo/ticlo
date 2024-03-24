@@ -729,7 +729,7 @@ export class Block implements Runnable, FunctionData, PropListener<FunctionClass
   _controlPriority: number = -1;
 
   _priorityChanged(priority: unknown) {
-    if (priority >= 0 && priority <= 3) {
+    if ((priority as number) >= 0 && (priority as number) <= 3) {
       this._controlPriority = Math.round(priority as number);
     }
   }
@@ -749,7 +749,7 @@ export class Block implements Runnable, FunctionData, PropListener<FunctionClass
     if (Array.isArray(result)) {
       return 0;
     }
-    if (result >= 0) {
+    if ((result as number) >= 0) {
       return Number(result);
     }
     return defaultLength;
@@ -762,7 +762,7 @@ export class Block implements Runnable, FunctionData, PropListener<FunctionClass
       return lenOrArray;
     }
     let len: number;
-    if (lenOrArray >= 0) {
+    if ((lenOrArray as number) >= 0) {
       len = Number(lenOrArray);
     } else {
       len = defaultLength;

@@ -1,4 +1,4 @@
-import axios, {AxiosRequestConfig, AxiosResponse, CanceledError, ResponseType} from 'axios';
+import axios, {AxiosRequestConfig, AxiosRequestHeaders, AxiosResponse, CanceledError, ResponseType} from 'axios';
 import {PureFunction, BlockFunction, ImpureFunction} from '../../block/BlockFunction';
 import {ErrorEvent, EventType, WAIT} from '../../block/Event';
 import {Functions} from '../../block/Functions';
@@ -39,7 +39,7 @@ export class FetchFunction extends ImpureFunction {
           url,
           method: this._data.getValue('method')?.toString(),
           params: this._data.getValue('params'),
-          headers: this._data.getValue('requestHeaders') as DataMap,
+          headers: this._data.getValue('requestHeaders') as AxiosRequestHeaders,
           data: this._data.getValue('requestBody'),
           responseType: this._data.getValue('responseType') as ResponseType,
           withCredentials: Boolean(this._data.getValue('withCredentials')),

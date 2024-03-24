@@ -14,7 +14,11 @@ export class FlowIOTask extends StreamDispatcher<string> {
   _resolveReading: Function;
   nextData: string;
 
-  constructor(public readonly loader: FileStorage, public readonly name: string, public readonly path: string) {
+  constructor(
+    public readonly loader: FileStorage,
+    public readonly name: string,
+    public readonly path: string
+  ) {
     super();
   }
 
@@ -92,7 +96,10 @@ export class FlowIOTask extends StreamDispatcher<string> {
 export class FileStorage implements Storage {
   readonly dir: string;
 
-  constructor(dir: string, public readonly ext: string = '') {
+  constructor(
+    dir: string,
+    public readonly ext: string = ''
+  ) {
     this.dir = Path.resolve(dir);
     shelljs.mkdir('-p', this.dir);
   }

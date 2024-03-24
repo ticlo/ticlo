@@ -4,7 +4,10 @@ import {Logger} from '../../../src/core/util/Logger';
 import {decode, encode} from '../../../src/core/util/Serialize';
 
 export class FrameClientConnection extends ClientConnection {
-  constructor(public remote: Window, editorListeners = true) {
+  constructor(
+    public remote: Window,
+    editorListeners = true
+  ) {
     super(editorListeners);
     this.reconnect();
   }
