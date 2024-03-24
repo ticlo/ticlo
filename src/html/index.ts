@@ -1,4 +1,8 @@
 import {Functions} from '../../src/core';
+import {setDefaultStorageFunctionProvider} from '../core/functions/data/Storage';
+import {FUNCTION_STORE_NAME, IndexDbStorage} from './storage/IndexDbStorage';
+import './functions/QuerySelector';
+import './functions/CreateStyle';
 
 export * from './connect/FrameServerConnection';
 
@@ -9,5 +13,4 @@ Functions.addCategory({
   color: '4af',
 });
 
-import './functions/QuerySelector';
-import './functions/CreateStyle';
+setDefaultStorageFunctionProvider(() => new IndexDbStorage(FUNCTION_STORE_NAME));

@@ -1,6 +1,5 @@
 import {expect} from 'vitest';
 import '../CreateObject';
-import {Block} from '../../../block/Block';
 import {Flow, Root} from '../../../block/Flow';
 
 describe('CreateObject', function () {

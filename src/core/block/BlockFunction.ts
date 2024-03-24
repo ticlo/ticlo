@@ -63,6 +63,7 @@ export abstract class BaseFunction<T extends FunctionData = FunctionData> {
 
   // cleanup when function is destroyed but data needs to be reused
   cleanup(): void {}
+  // destroy the function, any change applied to _data will be handled in cleanup()
   destroy(): void {
     this._data = undefined;
   }

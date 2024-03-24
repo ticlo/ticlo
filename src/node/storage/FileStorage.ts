@@ -5,6 +5,7 @@ import {WorkerFunction} from '../../../src/core/worker/WorkerFunction';
 import {FlowLoader, FlowState} from '../../../src/core/block/Flow';
 import {StreamDispatcher} from '../../core/block/Dispatcher';
 import {encodeFileName} from '../../core/util/Path';
+import shelljs from 'shelljs';
 
 export class FlowIOTask extends StreamDispatcher<string> {
   current?: 'write' | 'delete' | 'read';
@@ -92,6 +93,7 @@ export class FileStorage implements Storage {
 
   constructor(dir: string, public readonly ext: string = '') {
     this.dir = Path.resolve(dir);
+    shelljs.mkdir('-p', this.dir);
   }
 
   tasks: Map<string, FlowIOTask> = new Map();

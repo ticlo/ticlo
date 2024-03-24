@@ -1,18 +1,28 @@
 import {expect} from 'vitest';
-import Fs from 'fs';
+import {deleteDB, IDBPDatabase, openDB} from 'idb';
 import {Flow, Root, decode} from '../../../core';
 import {shouldHappen, shouldReject, waitTick} from '../../../core/util/test-util';
-import {IndexDbFlowStorage, IndexDbStorage, STORE_NAME} from '../IndexDbStorage';
-const testDbName1 = 'testIndexDbStorage';
-const testDbName2 = 'ticloTestIndexDbStorage';
+import {IndexDbFlowStorage, IndexDbStorage, FLOW_STORE_NAME} from '../IndexDbStorage';
+
+const testDbName = 'testIndexDb';
 
 describe('IndexDbStorage', function () {
+  let dbPromise: Promise<IDBPDatabase>;
+
   beforeAll(async () => {
-    await IndexDbFlowStorage.deleteDb(testDbName1);
-    await IndexDbFlowStorage.deleteDb(testDbName2);
+    await deleteDB(testDbName);
+    dbPromise = openDB(testDbName, undefined, {
+      upgrade(db, oldVersion, newVersion, transaction) {
+        db.createObjectStore('store');
+        db.createObjectStore(FLOW_STORE_NAME);
+      },
+      blocked() {},
+      blocking() {},
+      terminated() {},
+    });
   });
   it('listen to value', async function () {
-    const storage = new IndexDbStorage(testDbName1, 'store');
+    const storage = new IndexDbStorage('store', dbPromise);
     const db = await storage.dbPromise;
 
     await storage.save('key1', 'value1');
@@ -36,7 +46,7 @@ describe('IndexDbStorage', function () {
 
   it('save and delete', async function () {
     const root = new Root();
-    const storage = new IndexDbFlowStorage(testDbName2);
+    const storage = new IndexDbFlowStorage(FLOW_STORE_NAME, dbPromise);
     await root.setStorage(storage);
 
     const db = await storage.dbPromise;
@@ -44,12 +54,12 @@ describe('IndexDbStorage', function () {
     let flow = root.addFlow('flow1');
     flow.applyChange();
     await waitTick(20);
-    let savedData: string = await db.get(STORE_NAME, 'flow1');
+    let savedData: string = await db.get(FLOW_STORE_NAME, 'flow1');
     expect(savedData).toBe('{\n"#is": ""\n}');
 
     root.deleteFlow('flow1');
     await waitTick(20);
-    expect(await db.get(STORE_NAME, 'flow1')).not.toBeDefined();
+    expect(await db.get(FLOW_STORE_NAME, 'flow1')).not.toBeDefined();
 
     // overwrite multiple times
     flow = root.addFlow('flow2');
@@ -68,11 +78,11 @@ describe('IndexDbStorage', function () {
   });
   it('init loader', async function () {
     let flowData = {'#is': '', 'value': 321};
-    let storage = new IndexDbFlowStorage(testDbName2);
+    let storage = new IndexDbFlowStorage(FLOW_STORE_NAME, dbPromise);
 
     const db = await storage.dbPromise;
-    db.put(STORE_NAME, JSON.stringify(flowData), 'flow5');
-    await db.put(STORE_NAME, JSON.stringify(flowData), 'flow5.subflow');
+    db.put(FLOW_STORE_NAME, JSON.stringify(flowData), 'flow5');
+    await db.put(FLOW_STORE_NAME, JSON.stringify(flowData), 'flow5.subflow');
 
     let root = new Root();
     await root.setStorage(storage);

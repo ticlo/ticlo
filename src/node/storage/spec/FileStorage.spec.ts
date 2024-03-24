@@ -8,9 +8,6 @@ import {FileFlowStorage, FileStorage} from '../FileStorage';
 const beforeAll = globalThis.beforeAll ?? globalThis.before;
 
 describe('FileStorage', function () {
-  beforeAll(function () {
-    shelljs.mkdir('-p', './temp/storageTest');
-  });
   it('listen to value', async function () {
     let storage = new FileStorage('./temp/storageTest');
     storage.save('key1', 'value1');

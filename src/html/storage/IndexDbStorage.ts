@@ -4,35 +4,61 @@ import {WorkerFunction} from '../../../src/core/worker/WorkerFunction';
 import {FlowLoader, FlowState} from '../../../src/core/block/Flow';
 import {StreamDispatcher} from '../../core/block/Dispatcher';
 
-export const STORE_NAME = 'flows';
 export const DB_NAME = 'ticlo';
+
+export const FLOW_STORE_NAME = 'flows';
+export const FUNCTION_STORE_NAME = 'storageFunction';
+const DEFAULT_STORES = [FLOW_STORE_NAME, FUNCTION_STORE_NAME];
 export class IndexDbStorage implements Storage {
   readonly dbPromise: Promise<IDBPDatabase>;
   readonly streams: Map<string, StreamDispatcher<string>> = new Map();
+  db: IDBPDatabase;
 
-  constructor(dbName: string, public readonly storeName: string) {
-    this.dbPromise = openDB(dbName, undefined, {
-      upgrade(db, oldVersion, newVersion, transaction) {
-        db.createObjectStore(storeName);
-      },
-      blocked() {},
-      blocking() {},
-      terminated() {},
-    });
+  constructor(public readonly storeName: string, dbPromise?: Promise<IDBPDatabase>) {
+    if (dbPromise) {
+      this.dbPromise = dbPromise;
+    } else {
+      if (DEFAULT_STORES.includes(storeName)) {
+        // use the default ticlo database
+        this.dbPromise = openDB(DB_NAME, undefined, {
+          upgrade(db, oldVersion, newVersion, transaction) {
+            for (let defaultStoreName of DEFAULT_STORES) {
+              db.createObjectStore(defaultStoreName);
+            }
+          },
+          blocked() {},
+          blocking() {},
+          terminated() {},
+        });
+      } else {
+        // create a new database that contains single object store
+        this.dbPromise = openDB(storeName, undefined, {
+          upgrade(db, oldVersion, newVersion, transaction) {
+            db.createObjectStore(storeName);
+          },
+          blocked() {},
+          blocking() {},
+          terminated() {},
+        });
+      }
+      this.dbPromise.then((db) => {
+        this.db = db;
+      });
+    }
   }
 
   async delete(key: string) {
-    await (await this.dbPromise).delete(this.storeName, key);
+    await (this.db ?? (await this.dbPromise)).delete(this.storeName, key);
   }
 
   async save(key: string, data: string) {
-    await (await this.dbPromise).put(this.storeName, data, key);
+    await (this.db ?? (await this.dbPromise)).put(this.storeName, data, key);
     this.streams.get(key)?.dispatch(data);
   }
 
   async load(name: string) {
     try {
-      return await (await this.dbPromise).get(this.storeName, name);
+      return await (this.db ?? (await this.dbPromise)).get(this.storeName, name);
     } catch (e) {
       return null;
     }
@@ -59,12 +85,8 @@ export class IndexDbStorage implements Storage {
 }
 
 export class IndexDbFlowStorage extends IndexDbStorage implements FlowStorage {
-  static deleteDb(dbName: string) {
-    return deleteDB(dbName);
-  }
-
-  constructor(dbName: string = DB_NAME) {
-    super(dbName, STORE_NAME);
+  constructor(storeName: string = FLOW_STORE_NAME, dbPromise?: Promise<IDBPDatabase>) {
+    super(storeName, dbPromise);
   }
 
   getFlowLoader(key: string, prop: BlockProperty): FlowLoader {
@@ -151,7 +173,7 @@ export class IndexDbFlowStorage extends IndexDbStorage implements FlowStorage {
     // sort the name to make sure parent Flow is loaded before children flows
     for (let name of flowFiles.sort()) {
       try {
-        let data = decode(await (await this.dbPromise).get(this.storeName, name));
+        let data = decode(await (this.db ?? (await this.dbPromise)).get(this.storeName, name));
         root.addFlow(name, data);
       } catch (err) {
         // TODO Logger

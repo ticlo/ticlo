@@ -18,6 +18,7 @@ export {Logger} from './util/Logger';
 export {stopPropagation, voidFunction} from './util/Functions';
 export {PropDispatcher} from './block/Dispatcher';
 export {resolvePath, getRelativePath} from './util/Path';
+export {setDefaultStorageFunctionProvider} from './functions/data/Storage';
 
 // register functions
 import './functions/Categories';
@@ -36,6 +37,7 @@ import './functions/http/HttpClient';
 import './functions/http/Fetch';
 import './functions/script/Js';
 import './functions/data/State';
+import './functions/data/Storage';
 import './functions/condition/DefaultValue';
 import './functions/condition/If';
 import './worker/MapFunction';
