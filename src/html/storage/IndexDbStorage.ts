@@ -49,6 +49,7 @@ export class IndexDbStorage implements Storage {
 
   async delete(key: string) {
     await (this.db ?? (await this.dbPromise)).delete(this.storeName, key);
+    this.streams.get(key)?.dispatch(null);
   }
 
   async save(key: string, data: string) {

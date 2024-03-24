@@ -62,6 +62,7 @@ export class FlowIOTask extends StreamDispatcher<string> {
     } else {
       this.current = 'delete';
       Fs.unlink(this.path, this.onDone);
+      this.dispatch(null);
     }
   }
 

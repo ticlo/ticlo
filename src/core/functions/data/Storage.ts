@@ -17,8 +17,13 @@ export class WriteStorageFunction extends PureFunction {
     if (key && typeof key === 'string') {
       const value = this._data.getValue('input');
       if (value !== undefined) {
-        const encoded = encode(value);
-        storageInstance.save(key, encoded);
+        if (value === null) {
+          // delete key when value is null
+          storageInstance.delete(key);
+        } else {
+          const encoded = encode(value);
+          storageInstance.save(key, encoded);
+        }
         return;
       }
     }
