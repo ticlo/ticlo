@@ -40,7 +40,6 @@
     "@types/express-ws": "^3.0.4",
     "@types/glob": "^8.1.0",
     "@types/jest": "^29.5.12",
-    "@types/marked": "^6.0.0",
     "@types/mocha": "^10.0.6",
     "@types/node": "^20.11.30",
     "@types/qs": "^6.9.14",

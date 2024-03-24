@@ -2,7 +2,7 @@ import React from 'react';
 import {BlockWidget, BlockWidgetProps} from './BlockWidget';
 import {LazyUpdateComponent, LazyUpdateSubscriber} from '../../component/LazyUpdateComponent';
 import {PropDesc} from '../../../../src/core/editor';
-import {marked} from 'marked';
+import {marked, MarkedOptions} from 'marked';
 import Dompurify from 'dompurify';
 
 class CommentView extends LazyUpdateComponent<BlockWidgetProps, any> {
@@ -25,19 +25,11 @@ class CommentView extends LazyUpdateComponent<BlockWidgetProps, any> {
     let rawHtml: string;
     let text = this.comment.value;
     if (text) {
-      let needSanitize = false;
-      let markedOptions: marked.MarkedOptions = {
-        sanitize: true,
+      let markedOptions: MarkedOptions = {
         silent: true,
-        sanitizer(str: string) {
-          needSanitize = true;
-          return str;
-        },
       };
-      rawHtml = marked(text, markedOptions);
-      if (needSanitize) {
-        rawHtml = Dompurify.sanitize(rawHtml);
-      }
+      rawHtml = marked(text, markedOptions) as string;
+      rawHtml = Dompurify.sanitize(rawHtml);
     }
     return (
       <div ref={this.getRef} className="ticl-comment-view ticl-markdown" dangerouslySetInnerHTML={{__html: rawHtml}} />

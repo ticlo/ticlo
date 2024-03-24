@@ -1,5 +1,5 @@
 import React from 'react';
-import {marked} from 'marked';
+import {marked, MarkedOptions} from 'marked';
 import Dompurify from 'dompurify';
 import {BlockWidgetProps} from './BlockWidget';
 import {LazyUpdateComponent, LazyUpdateSubscriber} from '../../component/LazyUpdateComponent';
@@ -29,19 +29,11 @@ class NoteView extends LazyUpdateComponent<BlockWidgetProps, any> {
     let rawHtml: string;
     let text = this.text.value;
     if (text) {
-      let needSanitize = false;
-      let markedOptions: marked.MarkedOptions = {
-        sanitize: true,
+      let markedOptions: MarkedOptions = {
         silent: true,
-        sanitizer(str: string) {
-          needSanitize = true;
-          return str;
-        },
       };
-      rawHtml = marked(this.text.value, markedOptions);
-      if (needSanitize) {
-        rawHtml = Dompurify.sanitize(rawHtml);
-      }
+      rawHtml = marked(this.text.value, markedOptions) as string;
+      rawHtml = Dompurify.sanitize(rawHtml);
     }
     let style: React.CSSProperties = {};
     if (typeof this.background.value === 'string') {

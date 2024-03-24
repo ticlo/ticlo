@@ -1,5 +1,6 @@
-import i18next, {StringMap} from 'i18next';
+import i18next from 'i18next';
 import {nameFromPath} from './String';
+import {DataMap} from './DataTypes';
 
 export async function init(lng?: string) {
   await new Promise((receive, reject) => {
@@ -107,7 +108,7 @@ export function translateEnumOption(funcName: string, propName: string, option: 
   return translated;
 }
 
-export function translateEditor(key: string, options?: StringMap): string {
+export function translateEditor(key: string, options?: DataMap): string {
   return i18next.t(key, {
     ...options,
     ns: 'ticlo-editor',

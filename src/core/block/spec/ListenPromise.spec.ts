@@ -24,7 +24,7 @@ describe('ListenPromise', function () {
     let timer;
     let count = 0;
     timer = setInterval(() => flow.setValue('b', ++count), 1);
-    let result = await flow.waitValue('b', (val) => val > 5);
+    let result = await flow.waitValue('b', (val) => (val as number) > 5);
     expect(result).toBe(6);
     clearInterval(timer);
   });

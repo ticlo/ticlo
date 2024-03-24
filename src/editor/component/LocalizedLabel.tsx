@@ -1,5 +1,6 @@
 import React, {MouseEventHandler, useContext} from 'react';
 import {
+  DataMap,
   FunctionDesc,
   TicloI18nSettings,
   translateEditor,
@@ -8,15 +9,14 @@ import {
   translateProperty,
 } from '../../../src/core/editor';
 import {TicloLayoutContextType} from './LayoutContext';
-import i18next, {StringMap} from 'i18next';
 
-export const LocalizedLabel = ({label, options}: {label: string; options?: StringMap}) => {
+export const LocalizedLabel = ({label, options}: {label: string; options?: DataMap}) => {
   useContext(TicloLayoutContextType);
   return <span>{translateEditor(label, options)}</span>;
 };
 
 // quick access for LocalizedLabel
-export function t(label: string, options?: StringMap) {
+export function t(label: string, options?: DataMap) {
   return <LocalizedLabel label={label} options={options} />;
 }
 
