@@ -29,6 +29,7 @@
   },
   "compileOnSave": true,
   "include": [
+    "bin/**/*",
     "src/**/*",
     "tool/**/*",
     "example/**/*",
