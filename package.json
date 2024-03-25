@@ -99,19 +99,19 @@
     "test-nyc-strict": "cross-env NODE_ENV=TEST TS_NODE_PROJECT='tsconfig.node.json' nyc --skip-full --check-coverage=true mocha 'src/core/**/*.spec.ts' 'src/node/**/*.spec.ts' && nyc report --reporter=text-lcov > coverage/nyc-strict.lcov",
     "test-nyc": "cross-env TS_NODE_PROJECT='tsconfig.node.json' nyc --skip-full --check-coverage=true mocha 'src/core/**/*.spec.ts' 'src/node/**/*.spec.ts' && nyc report --reporter=text-lcov",
     "build-less": "lessc --js src/editor/style/antd.less dist/antd.css && lessc --js src/editor/style/editor.less dist/editor.css",
-    "build-icons": "ts-node --project tsconfig.node.json tool/build-icons",
-    "build-i18n": "ts-node --project tsconfig.node.json tool/merge-lng",
-    "build-package": "ts-node --project tsconfig.node.json tool/build-package.ts",
+    "build-icons": "ts-node tool/build-icons",
+    "build-i18n": "ts-node tool/merge-lng",
+    "build-package": "ts-node tool/build-package.ts",
     "test": "cross-env NODE_ENV=TEST vitest",
     "test-coverage": "cross-env NODE_ENV=TEST vitest run --coverage",
     "test-browser": "cross-env NODE_ENV=TEST vitest -c vitest.web.config.mts",
     "test-browser-coverage": "cross-env NODE_ENV=TEST vitest -c vitest.web.config.mts run --coverage",
-    "express-server": "ts-node --project tsconfig.node.json example/server/express-server.ts",
-    "ticlo-test-server": "ts-node --project tsconfig.node.json bin/test-server --serve --run",
-    "ticlo-test-nyc": "nyc --silent --check-coverage=false ts-node --project tsconfig.node.json ./bin/test-server.ts --run --quitOnFinish && nyc report --reporter=text-lcov > coverage/nyc-ticlo.lcov",
+    "express-server": "ts-node example/server/express-server.ts",
+    "ticlo-test-server": "ts-node bin/test-server --serve --run",
+    "ticlo-test-nyc": "nyc --silent --check-coverage=false ts-node ./bin/test-server.ts --run --quitOnFinish && nyc report --reporter=text-lcov > coverage/nyc-ticlo.lcov",
     "prettier-check": "prettier --check \"(src|tool|example)/**/*.+(ts|tsx|less)\"",
     "prettier-write": "prettier --write \"(src|tool|example)/**/*.+(ts|tsx|less)\"",
-    "collect-edirot-en": "ts-node --project tsconfig.node.json tool/collect-editor-en-locale.ts"
+    "collect-edirot-en": "ts-node tool/collect-editor-en-locale.ts"
   },
   "packageManager": "yarn@4.0.1"
 }

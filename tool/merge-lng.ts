@@ -20,7 +20,7 @@ function mergeData(to: DataMap, from: DataMap) {
 function mergeI18n(src: string, dest: string) {
   let outputs: Map<string, any> = new Map<string, any>();
 
-  let files: string[] = glob.sync(`${src}/*.yaml`);
+  let files: string[] = glob.sync(`${src}/*.yaml`, {posix: true});
 
   for (let path of files) {
     if (path.endsWith('en.base.yaml')) {
@@ -28,7 +28,7 @@ function mergeI18n(src: string, dest: string) {
       continue;
     }
     console.log(`find ${path}`);
-    let name = path.substr(path.lastIndexOf('/') + 1);
+    let name = path.substring(path.lastIndexOf('/') + 1);
     let data = YAML.parse(fs.readFileSync(path, 'utf8'));
     if (outputs.has(name)) {
       mergeData(outputs.get(name), data);
