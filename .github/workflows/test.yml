@@ -19,8 +19,6 @@ jobs:
         run: corepack enable
       - run: yarn install
       - run: yarn prettier-check
-      - run: yarn build-icons
-      - run: yarn build-less
 #      - run: yarn build-package
 
   test-browser:
@@ -33,6 +31,9 @@ jobs:
       - name: make dir
         run: |
           mkdir coverage
+          mkdir dist
+      - run: yarn build-icons
+      - run: yarn build-less
       - name: Vitest Browser Build Cache
         run: yarn test-browser-coverage
         continue-on-error: true
@@ -55,9 +56,7 @@ jobs:
         run: corepack enable
       - run: yarn install
       - name: make dir
-        run: |
-          mkdir dist
-          mkdir coverage
+        run: mkdir coverage
       - name: Vitest
         run: yarn test-coverage
       - name: Coveralls Vitest
