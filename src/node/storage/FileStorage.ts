@@ -101,7 +101,9 @@ export class FileStorage implements Storage {
     public readonly ext: string = ''
   ) {
     this.dir = Path.resolve(dir);
-    shelljs.mkdir('-p', this.dir);
+    if (!Fs.existsSync(this.dir)) {
+      shelljs.mkdir('-p', this.dir);
+    }
   }
 
   tasks: Map<string, FlowIOTask> = new Map();
