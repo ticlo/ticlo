@@ -40,7 +40,9 @@
   ],
   "ts-node": {
     "compilerOptions": {
-      "module": "commonjs"
-    }
+      "module": "es2020",
+      "esModuleInterop": true
+    },
+    "esm": true
   }
 }
