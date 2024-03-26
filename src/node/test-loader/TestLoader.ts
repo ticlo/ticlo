@@ -45,7 +45,6 @@ export class TestLoader extends FileFlowStorage {
       let pos = nameParts.indexOf('#') - 2;
       filename = nameParts.slice(pos).join('.');
       nameParts = nameParts.slice(0, pos);
-      console.log(filename, nameParts);
     } else {
       filename = nameParts.pop();
     }
