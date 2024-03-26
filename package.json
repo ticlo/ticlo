@@ -113,6 +113,5 @@
     "prettier-check": "prettier --check \"(src|tool|example)/**/*.+(ts|tsx|less)\"",
     "prettier-write": "prettier --write \"(src|tool|example)/**/*.+(ts|tsx|less)\"",
     "collect-edirot-en": "ts-node tool/collect-editor-en-locale.ts"
-  },
-  "packageManager": "yarn@4.0.1"
+  }
 }
