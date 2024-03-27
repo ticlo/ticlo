@@ -10,6 +10,7 @@ import {json} from '@codemirror/lang-json';
 import {DockLayout} from 'rc-dock';
 import {TabData} from 'rc-dock/src/DockData';
 import {EditorView} from '@codemirror/view';
+import {MenuProps} from 'antd/lib/menu';
 
 interface Props {
   conn: ClientConn;
@@ -252,13 +253,14 @@ export class TextEditorPane extends React.PureComponent<Props, State> {
     }
   };
 
-  getReloadMenu = () => {
+  getReloadMenu = (): MenuProps => {
     let {paths} = this.props;
-    let options: React.ReactNode[] = [];
+
+    let menu: MenuProps = {items: [], onClick: this.onReloadClick};
     for (let path of paths) {
-      options.push(<Menu.Item key={path}>{path}</Menu.Item>);
+      menu.items.push({label: path, key: path});
     }
-    return <Menu onClick={this.onReloadClick}>{options}</Menu>;
+    return menu;
   };
 
   render() {
@@ -302,7 +304,7 @@ export class TextEditorPane extends React.PureComponent<Props, State> {
         )}
         {error ? <div className="ticl-error-message">{error}</div> : null}
         <div className="ticl-box-footer">
-          <Dropdown overlay={this.getReloadMenu} trigger={['click']}>
+          <Dropdown menu={this.getReloadMenu()} trigger={['click']}>
             <Button size="small">Reload</Button>
           </Dropdown>
           <div className="ticl-spacer" />

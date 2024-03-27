@@ -16,6 +16,7 @@ import DeleteIcon from '@ant-design/icons/DeleteOutlined';
 import EditIcon from '@ant-design/icons/EditOutlined';
 import {TicloLayoutContext, TicloLayoutContextType} from '../component/LayoutContext';
 import {LocalizedFunctionName, t} from '../component/LocalizedLabel';
+import {MenuProps} from 'antd/lib/menu';
 
 export type OnFunctionClick = (name: string, desc: FunctionDesc, data: any) => void;
 
@@ -74,23 +75,41 @@ export class FunctionView extends React.PureComponent<Props, any> {
     conn.deleteFunction(desc.id);
   };
 
-  getMenu = () => {
-    return (
-      <Menu selectable={false}>
-        <Menu.Item key="edit" onClick={this.onEditClicked}>
-          <BuildIcon />
-          {t('Edit')}
-        </Menu.Item>
-        <Menu.Item key="rename">
-          <EditIcon />
-          {t('Rename')}
-        </Menu.Item>
-        <Menu.Item key="delete" onClick={this.onDeleteClicked}>
-          <DeleteIcon />
-          {t('Delete')}
-        </Menu.Item>
-      </Menu>
-    );
+  getMenu = (): MenuProps => {
+    return {
+      selectable: false,
+      items: [
+        {
+          key: 'edit',
+          onClick: this.onEditClicked,
+          label: (
+            <>
+              <BuildIcon />
+              {t('Edit')}
+            </>
+          ),
+        },
+        {
+          key: 'rename',
+          label: (
+            <>
+              <EditIcon />
+              {t('Rename')}
+            </>
+          ),
+        },
+        {
+          key: 'delete',
+          onClick: this.onEditClicked,
+          label: (
+            <>
+              <DeleteIcon />
+              {t('Delete')}
+            </>
+          ),
+        },
+      ],
+    };
   };
 
   render() {
@@ -107,7 +126,7 @@ export class FunctionView extends React.PureComponent<Props, any> {
 
     if (ns === '' && desc.src === 'worker' && this.context.editFlow) {
       return (
-        <Dropdown overlay={this.getMenu} trigger={['contextMenu']}>
+        <Dropdown menu={this.getMenu()} trigger={['contextMenu']}>
           {typeView}
         </Dropdown>
       );

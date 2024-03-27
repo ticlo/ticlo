@@ -1,4 +1,4 @@
-import React, {ReactElement} from 'react';
+import React from 'react';
 import dayjs from 'dayjs';
 import {Menu, Dropdown} from 'antd';
 import {ValueEditorProps} from './ValueEditorBase';
@@ -39,16 +39,17 @@ const dynamicTypeIcon: {[key: string]: React.ReactElement} = {
   'array': <div className="tico-txt tico-small-txt">[]</div>,
 };
 
-const dynamicTypeMenuItem: {[key: string]: React.ReactElement} = {};
+const dynamicTypeMenuItem: {[key: string]: {key: string; label: React.ReactElement}} = {};
 for (let type in dynamicTypeIcon) {
-  dynamicTypeMenuItem[type] = (
-    <Menu.Item key={type}>
+  dynamicTypeMenuItem[type] = {
+    key: type,
+    label: (
       <span className="ticl-dynamic-type-menu-item">
         <div className="ticl-dynamic-type-icon">{dynamicTypeIcon[type]}</div>
         {type}
       </span>
-    </Menu.Item>
-  );
+    ),
+  };
 }
 
 interface State {
@@ -158,9 +159,9 @@ export class DynamicEditor extends React.PureComponent<ValueEditorProps, State> 
       </div>
     );
     if (onChange && types.length > 1) {
-      const menu = <Menu onClick={this.onMenuClick}>{types.map((type) => dynamicTypeMenuItem[type])}</Menu>;
+      const menu = {items: types.map((type) => dynamicTypeMenuItem[type]), onClick: this.onMenuClick};
       typeIcon = (
-        <Dropdown overlay={menu} trigger={['click']}>
+        <Dropdown menu={menu} trigger={['click']}>
           {typeIcon}
         </Dropdown>
       );
