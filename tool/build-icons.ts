@@ -5,7 +5,7 @@ import * as glob from 'glob';
 async function main() {
   let output: string[] = [];
 
-  let faIcons: string[] = glob.sync(`icons/font-awesome/**/*.svg`);
+  let faIcons: string[] = glob.sync(`icons/font-awesome/**/*.svg`, {posix: true});
   for (let path of faIcons) {
     let paths = path.split('/');
     let fileName = paths.at(-1);

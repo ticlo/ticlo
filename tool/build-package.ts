@@ -36,7 +36,7 @@ async function buildPackage(name: string, replaceImport = true) {
   const importedPackages = new Set<string>();
   const regex = / from '([^@'.\/]+|@[^'.\/]+\/[^'.\/]+)/g;
 
-  let srcFiles: string[] = glob.sync(`${fromDir}/**/*.{ts,tsx}`);
+  let srcFiles: string[] = glob.sync(`${fromDir}/**/*.{ts,tsx}`, {posix: true});
   let sourceFiles: string[] = [`${targetDir}/tsconfig.json`]; // files to be deleted after compiling
   for (let tsFile of srcFiles) {
     if (!tsFile.includes('/spec/')) {

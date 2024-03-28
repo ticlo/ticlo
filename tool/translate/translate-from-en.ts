@@ -16,7 +16,7 @@ async function main() {
     return;
   }
 
-  let pkgs = glob.sync(`./src/**/i18n/en.yaml`).map((str: string) => new TranslatePkg(str));
+  let pkgs = glob.sync(`./src/**/i18n/en.yaml`, {posix: true}).map((str: string) => new TranslatePkg(str));
 
   for (let pkg of pkgs) {
     pkg.collectEn();

@@ -10,7 +10,7 @@ let sharedKeys = new Map<string, string>();
 let allFiles = new Map<string, string[]>();
 
 function main() {
-  let files: string[] = glob.sync(`./src/editor/**/*.{ts,tsx}`);
+  let files: string[] = glob.sync(`./src/editor/**/*.{ts,tsx}`, {posix: true});
   files.unshift(commonPath);
   for (let path of files) {
     let data = fs.readFileSync(path, 'utf8');
