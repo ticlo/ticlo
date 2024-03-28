@@ -44,10 +44,10 @@ for (let type in dynamicTypeIcon) {
   dynamicTypeMenuItem[type] = {
     key: type,
     label: (
-      <span className="ticl-dynamic-type-menu-item">
+      <div className="ticl-dynamic-type-menu-item">
         <div className="ticl-dynamic-type-icon">{dynamicTypeIcon[type]}</div>
         {type}
-      </span>
+      </div>
     ),
   };
 }
