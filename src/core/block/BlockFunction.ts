@@ -55,7 +55,10 @@ export abstract class BaseFunction<T extends FunctionData = FunctionData> {
 
   /**
    *  cancel any async operation
-   *  return false when function shouldn't be canceled
+   *  it can happen when:
+   *  - block is called before the previous one is finished, in this case reason=EventType.VOID
+   *  - #cancel is triggered
+   *  return false when function does not need to be canceled
    */
   cancel(reason: EventType = EventType.TRIGGER, mode: BlockMode = 'auto'): boolean {
     return true;
@@ -65,6 +68,13 @@ export abstract class BaseFunction<T extends FunctionData = FunctionData> {
   cleanup(): void {}
   // destroy the function, any change applied to _data will be handled in cleanup()
   destroy(): void {
+    /*
+     * this.cancel() should be handled by the destroy() of each function
+     * in most case destroy already cancels the logic, no need to duplicate the call.
+     */
+    /*
+     * this.cleanup() is not necessary, since _data will be destroyed.
+     */
     this._data = undefined;
   }
 }

@@ -7,6 +7,7 @@ import Denque from 'denque';
 import {InfiniteQueue} from '../util/InfiniteQueue';
 import {DefaultTask, Task} from '../block/Task';
 import {RepeaterWorker} from './WorkerFlow';
+import {defaultConfigs} from '../block/Descriptor';
 
 export class HandlerFunction extends MapImpl {
   _queue = new Denque<Task>();
@@ -249,6 +250,7 @@ Functions.add(
     icon: 'fas:snowplow',
     priority: 3,
     mode: 'onChange',
+    configs: defaultConfigs.concat('#cancel'),
     properties: [
       {name: 'use', type: 'worker'},
       {name: 'thread', type: 'number', default: 0, min: 0, step: 1},

@@ -5,6 +5,7 @@ import {Functions} from '../../block/Functions';
 import {BlockMode} from '../../block/Block';
 import {httpRequest, type HttpClient} from './HttpClient';
 import {DataMap} from '../../util/DataTypes';
+import {defaultConfigs} from '../../block/Descriptor';
 
 export type RouteMethod = 'GET' | 'POST' | 'PUT' | 'DELETE';
 const methodList: RouteMethod[] = ['GET', 'POST', 'PUT', 'DELETE'];
@@ -94,6 +95,7 @@ Functions.add(
     icon: 'fas:file-arrow-down',
     mode: 'onLoad',
     priority: 2,
+    configs: defaultConfigs.concat('#cancel'),
     properties: [
       {name: 'client', type: 'service', options: ['http-client']},
       {name: 'url', type: 'string', pinned: true},

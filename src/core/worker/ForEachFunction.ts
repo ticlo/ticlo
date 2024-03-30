@@ -7,6 +7,7 @@ import {Event, EventType} from '../block/Event';
 import {MapImpl} from './MapImpl';
 import {RepeaterWorker} from './WorkerFlow';
 import {Resolver} from '../block/Resolver';
+import {defaultConfigs} from '../block/Descriptor';
 
 class ForEachOutput implements FunctionOutput {
   constructor(
@@ -280,6 +281,7 @@ ForEachFunction.prototype._applyWorkerChange = MapImpl.prototype._applyWorkerCha
 Functions.add(ForEachFunction, {
   name: 'foreach',
   priority: 1,
+  configs: defaultConfigs.concat('#cancel'),
   properties: [
     {name: 'input', type: 'object'},
     {name: 'use', type: 'worker'},

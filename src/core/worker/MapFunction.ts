@@ -6,6 +6,7 @@ import {MapImpl, WorkerOutput} from './MapImpl';
 import {BlockProxy} from '../block/BlockProxy';
 import {UnlimitedPool} from './ThreadPool';
 import {RepeaterWorker} from './WorkerFlow';
+import {defaultConfigs} from '../block/Descriptor';
 
 interface KeyIterator {
   current(): string;
@@ -265,6 +266,7 @@ export class MapFunction extends MapImpl {
 Functions.add(MapFunction, {
   name: 'map',
   priority: 3,
+  configs: defaultConfigs.concat('#cancel'),
   properties: [
     {name: 'input', type: 'object'},
     {name: 'use', type: 'worker'},
