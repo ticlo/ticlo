@@ -974,7 +974,7 @@ export class ServerConnection extends ServerConnectionCore {
   callFunction({path}: {path: string}) {
     let property = this.root.queryProperty(path);
     if (property && property._value instanceof Block) {
-      if (property._value._function) {
+      if (property._value.getFunctionClass()) {
         property._value._queueFunction();
       }
       return null;

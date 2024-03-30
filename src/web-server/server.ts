@@ -2,7 +2,7 @@ import Express, {Request, Response} from 'express';
 import ExpressWs from 'express-ws';
 import {Root} from '../../src/core';
 import {WsServerConnection} from '../../src/node';
-import {ServerFunction} from './ServerFunction';
+import {requestHandlerSymbol, ServerFunction} from './ServerFunction';
 
 // force import
 ((v: any) => {})(ServerFunction);
@@ -19,10 +19,15 @@ export function routeTiclo(app: Express.Application, basePath: string, globalBlo
   }
   let globalServiceBlock = Root.instance._globalRoot.createBlock(globalBlockName);
   globalServiceBlock._load({'#is': 'web-server:express-server'});
-  let serverFunction: ServerFunction = globalServiceBlock._function as ServerFunction;
-  app.all(`${basePath}/*`, (req: Request, res: Response) => {
-    serverFunction.requestHandler(basePath, req, res);
-  });
+  Root.run(); // output the requestHandler
+  const requestHandler: (basePath: string, req: Request, res: Response) => void = (
+    globalServiceBlock.getValue('#output') as any
+  )?.[requestHandlerSymbol];
+  if (requestHandler) {
+    app.all(`${basePath}/*`, (req: Request, res: Response) => {
+      requestHandler(basePath, req, res);
+    });
+  }
 }
 
 /**

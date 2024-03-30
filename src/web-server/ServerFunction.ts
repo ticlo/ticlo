@@ -15,6 +15,7 @@ const textParser = BodyParser.text({});
 const bufferParser = BodyParser.raw({});
 
 const serviceId: Uid = new Uid();
+export const requestHandlerSymbol = Symbol('requestHandler');
 
 export class ServerFunction extends BlockFunction {
   strictRoute: Map<string, Set<RouteFunction>> = new Map();
@@ -36,27 +37,6 @@ export class ServerFunction extends BlockFunction {
     return [targetRoutes, path];
   }
 
-  service: RouteService = escapedObject(`express-server-${serviceId.next(10)}`, {
-    addRoute: (path: string, routeFunction: RouteFunction) => {
-      let [targetRoute, targetPath] = this.chooseRouteType(path);
-      let routes: Set<RouteFunction> = targetRoute.get(targetPath);
-      if (!routes) {
-        routes = new Set();
-        targetRoute.set(targetPath, routes);
-      }
-      routes.add(routeFunction);
-    },
-    removeRoute: (path: string, routeFunction: RouteFunction) => {
-      let [targetRoute, targetPath] = this.chooseRouteType(path);
-      let routes: Set<RouteFunction> = targetRoute.get(targetPath);
-      if (routes) {
-        routes.delete(routeFunction);
-        if (routes.size === 0) {
-          targetRoute.delete(targetPath);
-        }
-      }
-    },
-  });
   requestHandler = (basePath: string, req: Request, res: Response) => {
     let contentType: RouteContentType;
     let midware: RequestHandler;
@@ -143,6 +123,30 @@ export class ServerFunction extends BlockFunction {
       emitTask();
     }
   };
+
+  service: RouteService = escapedObject(`express-server-${serviceId.next(10)}`, {
+    addRoute: (path: string, routeFunction: RouteFunction) => {
+      let [targetRoute, targetPath] = this.chooseRouteType(path);
+      let routes: Set<RouteFunction> = targetRoute.get(targetPath);
+      if (!routes) {
+        routes = new Set();
+        targetRoute.set(targetPath, routes);
+      }
+      routes.add(routeFunction);
+    },
+    removeRoute: (path: string, routeFunction: RouteFunction) => {
+      let [targetRoute, targetPath] = this.chooseRouteType(path);
+      let routes: Set<RouteFunction> = targetRoute.get(targetPath);
+      if (routes) {
+        routes.delete(routeFunction);
+        if (routes.size === 0) {
+          targetRoute.delete(targetPath);
+        }
+      }
+    },
+    [requestHandlerSymbol]: this.requestHandler,
+  });
+
   checkPendingTasks = () => {
     for (let task of this.pendingTasks) {
       if (!task._handler) {

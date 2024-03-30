@@ -90,7 +90,7 @@ export class Block implements Runnable, FunctionData, PropListener<FunctionClass
   // a cache for blockIO, generated on demand
   _ioCache: Map<string, BlockIO>;
   _bindings: Map<string, BlockBinding> = new Map();
-  _function: BaseFunction;
+  #function: BaseFunction;
   _funcPromise: PromiseWrapper;
   _funcId?: string;
   _funcSrc: FunctionDispatcher;
@@ -141,7 +141,7 @@ export class Block implements Runnable, FunctionData, PropListener<FunctionClass
   }
 
   onCancel(val: unknown): void {
-    if (this._function && Event.check(val) === EventType.TRIGGER) {
+    if (this.#function && Event.check(val) === EventType.TRIGGER) {
       this._cancelFunction(EventType.TRIGGER);
     }
   }
@@ -172,6 +172,9 @@ export class Block implements Runnable, FunctionData, PropListener<FunctionClass
     return block.getProperty(path[lastIdx], create);
   }
 
+  getFunctionClass(): Function {
+    return this.#function?.constructor;
+  }
   // return true when there is no value or binding
   isPropertyUsed(field: string) {
     if (this._destroyed) {
@@ -469,20 +472,20 @@ export class Block implements Runnable, FunctionData, PropListener<FunctionClass
   }
 
   inputChanged(input: BlockIO, val: unknown) {
-    if (this._function && this._function.inputChanged(input, val)) {
+    if (this.#function && this.#function.inputChanged(input, val)) {
       this._queueFunctionOnChange();
     }
   }
 
   configChanged(input: BlockConfig, val: unknown) {
-    if (this._function && this._function.configChanged(input, val)) {
+    if (this.#function && this.#function.configChanged(input, val)) {
       this._queueFunctionOnChange();
     }
   }
 
   _cancelFunction(reason: EventType) {
-    if (this._function) {
-      let result = this._function.cancel(reason, this._mode);
+    if (this.#function) {
+      let result = this.#function.cancel(reason, this._mode);
       if (result) {
         this._funcPromise = undefined;
         this.updateValue('#wait', undefined);
@@ -498,13 +501,13 @@ export class Block implements Runnable, FunctionData, PropListener<FunctionClass
       return;
     }
 
-    if (this._function) {
+    if (this.#function) {
       if (this._called && this._waiting) {
         // previous call is still running, cancel it first
         this._cancelFunction(EventType.VOID);
       }
       this._running = true;
-      let result = this._function.run();
+      let result = this.#function.run();
       this._running = false;
       this._called = false;
       if (result?.constructor === Promise) {
@@ -562,15 +565,15 @@ export class Block implements Runnable, FunctionData, PropListener<FunctionClass
       }
     }
     this._configMode();
-    if (this._runOnLoad && this._function != null) {
+    if (this._runOnLoad && this.#function != null) {
       this._queueFunction();
     }
   }
 
   _configMode() {
     let resolvedMode = this._mode;
-    if (this._mode === 'auto' && this._function != null) {
-      resolvedMode = this._function.defaultMode;
+    if (this._mode === 'auto' && this.#function != null) {
+      resolvedMode = this.#function.defaultMode;
     }
     if (resolvedMode === 'onLoad') {
       this._runOnChange = true;
@@ -591,16 +594,16 @@ export class Block implements Runnable, FunctionData, PropListener<FunctionClass
       if (val === WAIT) {
         // ignore NOT_READY
       } else {
-        if (this._function && !this._function.onCall(val)) {
+        if (this.#function && !this.#function.onCall(val)) {
           // rejected by onCall
           // TODO: if #emit and #call is same, need to clear #emit value when #call become undefined
           return;
         }
         switch (Event.check(val)) {
           case EventType.TRIGGER: {
-            if (this._function) {
+            if (this.#function) {
               if (this._sync) {
-                if (this._function.isPure && this._runOnChange && !this._queueToRun) {
+                if (this.#function.isPure && this._runOnChange && !this._queueToRun) {
                   // if function is pure, it can't be called synchronously without a change
                   let prop = this._props.get('#emit');
                   if (prop && Object.isExtensible(prop._value) && prop._value.constructor === CompleteEvent) {
@@ -738,8 +741,8 @@ export class Block implements Runnable, FunctionData, PropListener<FunctionClass
     if (this._controlPriority >= 0) {
       return this._controlPriority;
     }
-    if (this._function) {
-      return this._function.priority;
+    if (this.#function) {
+      return this.#function.priority;
     }
     return -1;
   }
@@ -803,9 +806,9 @@ export class Block implements Runnable, FunctionData, PropListener<FunctionClass
 
   // function class changed
   onChange(cls: FunctionClass): void {
-    if (this._function) {
-      this._function.cleanup();
-      this._function.destroy();
+    if (this.#function) {
+      this.#function.cleanup();
+      this.#function.destroy();
       this._funcPromise = undefined;
       this.updateValue('#wait', undefined);
       this.updateValue('#emit', undefined);
@@ -816,30 +819,30 @@ export class Block implements Runnable, FunctionData, PropListener<FunctionClass
         // when function changed during load() or liveUpdate()
         // don't create the function until loading is done
         this._pendingClass = cls;
-        if (this._function) {
+        if (this.#function) {
           if (this._queueToRun) {
             // set _queueToRun to null indicate it's not run yet
             this._queueToRun = null;
           }
-          this._function = null;
+          this.#function = null;
         }
       } else {
-        this._function = new cls(this);
+        this.#function = new cls(this);
         if (this._mode === 'auto') {
           this._configMode();
         }
-        this._function.initInputs();
+        this.#function.initInputs();
         if (this._runOnLoad) {
           let callValue = this.getValue('#call');
           if (callValue !== undefined) {
-            this._function.onCall(callValue);
+            this.#function.onCall(callValue);
           }
           this._queueFunction();
         }
       }
     } else {
-      if (this._function) {
-        this._function = null;
+      if (this.#function) {
+        this.#function = null;
         if (this._queueToRun) {
           // set _queueToRun to null indicate it's not run yet
           this._queueToRun = null;
@@ -947,9 +950,9 @@ export class Block implements Runnable, FunctionData, PropListener<FunctionClass
     this._destroyed = true;
 
     if (this._funcSrc) {
-      if (this._function) {
-        this._function.destroy();
-        this._function = null;
+      if (this.#function) {
+        this.#function.destroy();
+        this.#function = null;
         this._funcPromise = undefined;
         this._called = false;
       }

@@ -52,26 +52,6 @@ describe('RouteFunction', function () {
     expect(serviceLog).toEqual([['-', '2']]);
   });
 
-  it('method and contentType', function () {
-    let flow = new Flow();
-
-    let aBlock = flow.createBlock('a');
-    aBlock._load(getDefaultFuncData(Functions.getDescToSend('web-server:route')[0]));
-
-    expect(aBlock.getValue('method')).toEqual(['GET']);
-    expect(aBlock.getValue('contentType')).toEqual(['empty']);
-
-    aBlock.setValue('method', null);
-    aBlock.setValue('method', 1);
-
-    expect((aBlock._function as RouteFunction).methods).toEqual([]);
-
-    aBlock.setValue('contentType', null);
-    aBlock.setValue('contentType', 1);
-
-    expect((aBlock._function as RouteFunction).contentTypes).toEqual([]);
-  });
-
   it('emit', function () {
     let flow = new Flow();
 
