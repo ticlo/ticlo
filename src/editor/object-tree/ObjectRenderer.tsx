@@ -108,7 +108,7 @@ export class ObjectTreeRenderer extends PureDataRenderer<Props, any> {
     switch (typeof val) {
       case 'string':
         if (val.length > 512) {
-          val = `${val.substr(0, 128)}${TRUNCATED}`;
+          val = `${val.substring(0, 128)}${TRUNCATED}`;
         }
         child = <span className="ticl-string-value">{val}</span>;
         break;
