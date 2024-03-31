@@ -13,6 +13,7 @@ import {Task} from './Task';
 import {_strictMode} from './BlockSettings';
 
 import type {Flow, Root} from './Flow';
+import {Storage} from './Storage';
 
 export type BlockMode =
   | 'auto' // defined by function
@@ -26,6 +27,11 @@ export interface BlockChildWatch {
   onChildChange(property: BlockProperty, saved?: boolean): void;
 
   watchHistory?: boolean;
+}
+
+let secretCodec: {encode: (str: string) => unknown; decode: (data: unknown) => string};
+export function setSecretCodec(codec: {encode: (str: string) => unknown; decode: (data: unknown) => string}) {
+  secretCodec = codec;
 }
 
 export interface Runnable {
@@ -981,6 +987,50 @@ export class Block implements Runnable, FunctionData, PropListener<FunctionClass
 
   toJsonEsc() {
     return `\u001b:${this._blockId}`;
+  }
+
+  #secret?: string;
+  #secretCodec: {encode: (str: string) => unknown; decode: (data: unknown) => string};
+  _setSecret(str?: string): boolean {
+    if (typeof str === 'string' || str == null) {
+      if (this.#secret !== str) {
+        this.#secret = str;
+        if (str === undefined) {
+          // reset codec when value is cleared
+          this.#secretCodec = undefined;
+        }
+        return true;
+      }
+    }
+    return false;
+  }
+  // only allow the function to access the secret
+  _getSecret(f: BaseFunction): string {
+    if (f === this.#function) {
+      return this.#secret;
+    }
+    return null;
+  }
+  _saveSecret(): unknown {
+    if (this.#secret && this.#secretCodec === undefined) {
+      this.#secretCodec = secretCodec;
+    }
+    return this.#secretCodec?.encode(this.#secret);
+  }
+  _loadSecret(data: unknown) {
+    if (this.#secretCodec === undefined) {
+      this.#secretCodec = secretCodec;
+    }
+    if (this.#secretCodec?.decode) {
+      let str = this.#secretCodec?.decode(data);
+      if (typeof str !== 'string') {
+        str = undefined;
+      }
+      if (str !== this.#secret) {
+        this.#secret = str;
+        this.configChanged(this.getProperty('#secret') as BlockConfig, str);
+      }
+    }
   }
 }
 

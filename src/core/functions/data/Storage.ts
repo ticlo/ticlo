@@ -1,17 +1,17 @@
-import {BlockFunction, PureFunction} from '../../block/BlockFunction';
+import {BlockFunction, ImpureFunction, PureFunction} from '../../block/BlockFunction';
 import {Functions} from '../../block/Functions';
 import {Storage} from '../../block/Storage';
 import {encode, decode} from '../../util/Serialize';
 import {BlockIO} from '../../block/BlockProperty';
 
 let storageInstance: Storage;
-export function setDefaultStorageFunctionProvider(getStorage: () => Storage) {
+export function setStorageFunctionProvider(getStorage: () => Storage) {
   if (storageInstance == null) {
     storageInstance = getStorage();
   }
 }
 
-export class WriteStorageFunction extends PureFunction {
+export class WriteStorageFunction extends ImpureFunction {
   run() {
     const key = this._data.getValue('key');
     if (key && typeof key === 'string') {

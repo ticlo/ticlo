@@ -1,4 +1,4 @@
-import {BlockIO, BlockProperty} from './BlockProperty';
+import {BlockConfig, BlockIO, BlockProperty} from './BlockProperty';
 import {Block, InputsBlock, OutputsBlock} from './Block';
 
 class BlockFuncIdConfig extends BlockProperty {
@@ -95,6 +95,30 @@ class BlockCancelConfig extends BlockProperty {
   }
 }
 
+class BlockSecretConfig extends BlockConfig {
+  onChange(val: unknown, save?: boolean): boolean {
+    if (save && this._block._setSecret(val as string)) {
+      this._block.configChanged(this, val);
+    }
+    return false;
+  }
+  setBinding(path: string) {
+    // disable setBinding
+  }
+  _saveValue(): unknown {
+    return this._block._saveSecret();
+  }
+  _load(val: unknown) {
+    this._block._loadSecret(val);
+  }
+  _liveUpdate(val: unknown) {
+    this._block._loadSecret(val);
+  }
+  _liveClear() {
+    this._block._loadSecret(undefined);
+  }
+}
+
 export class BlockConstConfig extends BlockProperty {
   constructor(block: Block, name: string, value?: unknown) {
     super(block, name);
@@ -148,6 +172,7 @@ export const ConfigGenerators: {[key: string]: typeof BlockProperty} = {
   '#sync': BlockSyncConfig,
   '#wait': BlockWaitingConfig,
   '#cancel': BlockCancelConfig,
+  '#secret': BlockSecretConfig,
   '#priority': BlockPriorityConfig,
 };
 

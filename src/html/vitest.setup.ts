@@ -1,4 +1,4 @@
-import {setDefaultStorageFunctionProvider} from '../core';
+import {setStorageFunctionProvider} from '../core';
 import {IndexDbStorage} from './storage/IndexDbStorage';
 
-setDefaultStorageFunctionProvider(() => new IndexDbStorage('testFunctionStorage'));
+setStorageFunctionProvider(() => new IndexDbStorage('testFunctionStorage'));

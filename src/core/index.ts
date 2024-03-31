@@ -18,7 +18,8 @@ export {Logger} from './util/Logger';
 export {stopPropagation, voidFunction} from './util/Functions';
 export {PropDispatcher} from './block/Dispatcher';
 export {resolvePath, getRelativePath} from './util/Path';
-export {setDefaultStorageFunctionProvider} from './functions/data/Storage';
+export {setStorageFunctionProvider} from './functions/data/Storage';
+export {setSecretCodec} from './block/Block';
 
 // register functions
 import './functions/Categories';

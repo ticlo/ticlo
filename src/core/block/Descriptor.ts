@@ -145,6 +145,7 @@ export const configDescs: {[key: string]: PropDesc} = {
     options: ['auto', 0, 1, 2, 3],
     default: 'auto',
   },
+  '#secret': {name: '#secret', type: 'password'},
   '#value': {name: '#value', type: 'any'},
   '#render': {name: '#render', type: 'object', readonly: true},
   '#inputs': {name: '#inputs', type: 'any'},

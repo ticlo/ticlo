@@ -21,7 +21,7 @@
     '@name': Separator
   'regExp':
     '@name': RegExp
-
+  'key': Key
   '#output':
     '@name': Output
   '#is':
