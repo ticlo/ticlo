@@ -995,10 +995,6 @@ export class Block implements Runnable, FunctionData, PropListener<FunctionClass
     if (typeof str === 'string' || str == null) {
       if (this.#secret !== str) {
         this.#secret = str;
-        if (str === undefined) {
-          // reset cipher when value is cleared
-          this.#secretCipher = undefined;
-        }
         return true;
       }
     }

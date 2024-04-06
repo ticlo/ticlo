@@ -23,12 +23,17 @@ describe('Secret Property', function () {
     aBlock._load({'#is': 'test-secret'});
     aBlock.setValue('#secret', 'abc123');
     aBlock.setBinding('a', '#secret');
-    aBlock.setBinding('#secret', '#is');
     Root.run();
     expect(aBlock.getValue('#secret')).toBeUndefined(); // #secret is not readable
-    expect(aBlock.getProperty('#secret')._bindingPath).toBeUndefined(); // can not bind to #secret
     expect(aBlock.getValue('a')).toBeUndefined(); // #secret can not be bound from
     expect(aBlock.getValue('#output')).toBe('abc123');
+
+    // test secret with binding
+    aBlock.setValue('b', 'new secret');
+    aBlock.setBinding('#secret', 'b');
+    Root.run();
+    expect(aBlock.getValue('#secret')).toBeUndefined();
+    expect(aBlock.getValue('#output')).toBe('new secret');
   });
   it('save and load secret', function () {
     const codec1 = {
@@ -68,8 +73,5 @@ describe('Secret Property', function () {
     expect(aBlock._save()).toEqual({'#is': 'test-secret', '#secret': '1abc'});
     setSecretCipher(codec2);
     expect(aBlock._save()).toEqual({'#is': 'test-secret', '#secret': '1abc'}); // codec should not change unless value is reset
-    aBlock.setValue('#secret', undefined);
-    aBlock.setValue('#secret', 'abc');
-    expect(aBlock._save()).toEqual({'#is': 'test-secret', '#secret': '22abc'}); // codec should change after value is reset
   });
 });

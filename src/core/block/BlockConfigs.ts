@@ -97,13 +97,10 @@ class BlockCancelConfig extends BlockProperty {
 
 class BlockSecretConfig extends BlockConfig {
   onChange(val: unknown, save?: boolean): boolean {
-    if (save && this._block._setSecret(val as string)) {
+    if (this._block._setSecret(val as string)) {
       this._block.configChanged(this, val);
     }
     return false;
-  }
-  setBinding(path: string) {
-    // disable setBinding
   }
   _saveValue(): unknown {
     return this._block._saveSecret();
