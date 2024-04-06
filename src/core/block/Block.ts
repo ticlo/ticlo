@@ -29,9 +29,9 @@ export interface BlockChildWatch {
   watchHistory?: boolean;
 }
 
-let secretCodec: {encode: (str: string) => unknown; decode: (data: unknown) => string};
-export function setSecretCodec(codec: {encode: (str: string) => unknown; decode: (data: unknown) => string}) {
-  secretCodec = codec;
+let secretCipher: {encode: (str: string) => unknown; decode: (data: unknown) => string};
+export function setSecretCipher(cipher: {encode: (str: string) => unknown; decode: (data: unknown) => string}) {
+  secretCipher = cipher;
 }
 
 export interface Runnable {
@@ -990,14 +990,14 @@ export class Block implements Runnable, FunctionData, PropListener<FunctionClass
   }
 
   #secret?: string;
-  #secretCodec: {encode: (str: string) => unknown; decode: (data: unknown) => string};
+  #secretCipher: {encode: (str: string) => unknown; decode: (data: unknown) => string};
   _setSecret(str?: string): boolean {
     if (typeof str === 'string' || str == null) {
       if (this.#secret !== str) {
         this.#secret = str;
         if (str === undefined) {
-          // reset codec when value is cleared
-          this.#secretCodec = undefined;
+          // reset cipher when value is cleared
+          this.#secretCipher = undefined;
         }
         return true;
       }
@@ -1012,17 +1012,17 @@ export class Block implements Runnable, FunctionData, PropListener<FunctionClass
     return null;
   }
   _saveSecret(): unknown {
-    if (this.#secret && this.#secretCodec === undefined) {
-      this.#secretCodec = secretCodec;
+    if (this.#secret && this.#secretCipher === undefined) {
+      this.#secretCipher = secretCipher;
     }
-    return this.#secretCodec?.encode(this.#secret);
+    return this.#secretCipher?.encode(this.#secret);
   }
   _loadSecret(data: unknown) {
-    if (this.#secretCodec === undefined) {
-      this.#secretCodec = secretCodec;
+    if (this.#secretCipher === undefined) {
+      this.#secretCipher = secretCipher;
     }
-    if (this.#secretCodec?.decode) {
-      let str = this.#secretCodec?.decode(data);
+    if (this.#secretCipher?.decode) {
+      let str = this.#secretCipher?.decode(data);
       if (typeof str !== 'string') {
         str = undefined;
       }

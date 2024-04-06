@@ -19,7 +19,7 @@ export {stopPropagation, voidFunction} from './util/Functions';
 export {PropDispatcher} from './block/Dispatcher';
 export {resolvePath, getRelativePath} from './util/Path';
 export {setStorageFunctionProvider} from './functions/data/Storage';
-export {setSecretCodec} from './block/Block';
+export {setSecretCipher} from './block/Block';
 
 // register functions
 import './functions/Categories';

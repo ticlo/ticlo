@@ -1,5 +1,5 @@
 import {BlockFunction, PureFunction} from '../BlockFunction';
-import {Block, setSecretCodec} from '../Block';
+import {Block, setSecretCipher} from '../Block';
 import {Functions} from '../Functions';
 import {Flow, Root} from '../Flow';
 import {expect} from 'vitest';
@@ -59,14 +59,14 @@ describe('Secret Property', function () {
         return undefined;
       },
     };
-    setSecretCodec(codec1);
+    setSecretCipher(codec1);
     let flow = new Flow();
     let aBlock = flow.createBlock('a');
     aBlock._load({'#is': 'test-secret', '#secret': '1abc'});
     Root.run();
     expect(aBlock.getValue('#output')).toBe('abc');
     expect(aBlock._save()).toEqual({'#is': 'test-secret', '#secret': '1abc'});
-    setSecretCodec(codec2);
+    setSecretCipher(codec2);
     expect(aBlock._save()).toEqual({'#is': 'test-secret', '#secret': '1abc'}); // codec should not change unless value is reset
     aBlock.setValue('#secret', undefined);
     aBlock.setValue('#secret', 'abc');
