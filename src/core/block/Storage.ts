@@ -27,3 +27,17 @@ export interface FlowStorage {
   // return [applyChange,onStateChange] of a flow
   getFlowLoader(key: string, prop: BlockProperty): FlowLoader;
 }
+
+export const voidStorage = {
+  delete(key: string) {},
+
+  save(key: string, data: string) {},
+
+  async load(key: string): Promise<string> {
+    return '';
+  },
+
+  listen(key: string, listener: (val: string) => void) {},
+
+  unlisten(key: string, listener: (val: string) => void) {},
+};

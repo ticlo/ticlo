@@ -1,12 +1,12 @@
 import {BlockFunction, ImpureFunction, PureFunction} from '../../block/BlockFunction';
 import {Functions} from '../../block/Functions';
-import {Storage} from '../../block/Storage';
+import {Storage, voidStorage} from '../../block/Storage';
 import {encode, decode} from '../../util/Serialize';
 import {BlockIO} from '../../block/BlockProperty';
 
-let storageInstance: Storage;
+let storageInstance: Storage = voidStorage;
 export function setStorageFunctionProvider(getStorage: () => Storage) {
-  if (storageInstance == null) {
+  if (storageInstance == null || storageInstance === voidStorage) {
     storageInstance = getStorage();
   }
 }

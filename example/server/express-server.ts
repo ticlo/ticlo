@@ -1,17 +1,19 @@
 import Express from 'express';
-import {Root} from '../../src/core';
-import {FileFlowStorage} from '../../src/node';
+import {Root, setStorageFunctionProvider} from '../../src/core';
+import {FileFlowStorage, FileStorage} from '../../src/node';
 import {connectTiclo, routeTiclo, getEditorUrl} from '../../src/web-server';
 import {data} from '../sample-data/data';
 
 (async () => {
+  setStorageFunctionProvider(() => new FileStorage('./example/server/storage', '.str'));
+
   let flow = Root.instance.addFlow('example', data);
 
   // create some global blocks
   Root.instance._globalRoot.createBlock('^gAdd').setValue('#is', 'add');
   Root.instance._globalRoot.createBlock('^gSub').setValue('#is', 'subtract');
 
-  await Root.instance.setStorage(new FileFlowStorage('./example/server'));
+  await Root.instance.setStorage(new FileFlowStorage('./example/server/flows'));
 
   let app = Express();
   connectTiclo(app, '/ticlo');
