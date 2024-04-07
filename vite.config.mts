@@ -17,7 +17,7 @@ export default defineConfig({
         'server-and-editor': fileURLToPath(
           new URL('./example/simple-editor/server-and-editor-browser.html', import.meta.url)
         ),
-        'editor': fileURLToPath(new URL('./example/simple-editor/editor-browser.html', import.meta.url)),
+        'editor': fileURLToPath(new URL('./example/simple-editor/editor.html', import.meta.url)),
         'server': fileURLToPath(new URL('./example/simple-editor/server.html', import.meta.url)),
       },
       output: {
