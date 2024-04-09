@@ -70,3 +70,13 @@ export const dummyInterface = new Proxy(
     },
   }
 );
+
+export class CallbackLogger {
+  logs: unknown[] = [];
+  log = (data: unknown) => {
+    this.logs.push(data);
+  };
+  clear() {
+    this.logs.length = 0;
+  }
+}
