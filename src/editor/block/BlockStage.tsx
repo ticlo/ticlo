@@ -7,7 +7,7 @@ import RedoIcon from '@ant-design/icons/ReloadOutlined';
 
 import {BlockView} from './Block';
 import {WireView} from './Wire';
-import {DragDropDiv, DragState} from 'rc-dock';
+import {DragDropDiv, DragState, GestureState} from 'rc-dock';
 import {cssNumber} from '../util/Types';
 import {onDragBlockOver, onDropBlock} from './DragDropBlock';
 import ResizeObserver from 'resize-observer-polyfill';
@@ -15,7 +15,6 @@ import {BlockStageBase, StagePropsBase} from './BlockStageBase';
 import {MiniBlockView} from './MiniStage';
 import debounce from 'lodash/debounce';
 import clamp from 'lodash/clamp';
-import {GestureState} from 'rc-dock';
 import {TooltipIconButton} from '../component/TooltipIconButton';
 import {DataMap, decode, encode} from '../../../src/core/editor';
 import {t} from '../component/LocalizedLabel';
@@ -105,7 +104,7 @@ export class BlockStage extends BlockStageBase<BlockStageProps, StageState> {
     };
   }
 
-  resizeObserver: any;
+  resizeObserver: ResizeObserver;
 
   componentDidMount() {
     super.componentDidMount();
