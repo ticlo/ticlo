@@ -1,3 +1,6 @@
+import {DayjsConstructor} from './Dayjs';
+import dayjs from 'dayjs';
+
 export function arrayEqual(a1: any[], a2: any[]) {
   if (a1.length !== a2.length) {
     return false;
@@ -47,6 +50,9 @@ export function deepEqual(a: any, b: any) {
           }
         }
         return true;
+      }
+      case DayjsConstructor: {
+        return (a as dayjs.Dayjs).isSame(b);
       }
       // TODO compare Map and Set ?
       default: {

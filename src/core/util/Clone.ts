@@ -1,5 +1,3 @@
-import {DataMap} from './DataTypes';
-
 export function deepClone<T>(val: T): T {
   if (val != null && typeof val === 'object') {
     if (Array.isArray(val)) {
@@ -9,6 +7,11 @@ export function deepClone<T>(val: T): T {
       }
       return arr as T;
     } else if (val instanceof Object) {
+      if (val.constructor !== Object) {
+        if (typeof (val as any).clone === 'function') {
+          return (val as any).clone();
+        }
+      }
       let obj: any = {};
       for (let k in val) {
         obj[k] = deepClone(val[k]);
@@ -32,6 +35,11 @@ export function cloneToLevel<T>(val: T, level: number): T {
       }
       return arr as T;
     } else if (val instanceof Object) {
+      if (val.constructor !== Object) {
+        if (typeof (val as any).clone === 'function') {
+          return (val as any).clone();
+        }
+      }
       let obj: any = {};
       for (let k in val) {
         obj[k] = cloneToLevel(val[k], level);
