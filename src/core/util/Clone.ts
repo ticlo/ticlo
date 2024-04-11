@@ -6,19 +6,19 @@ export function deepClone<T>(val: T): T {
         arr.push(deepClone(o));
       }
       return arr as T;
-    } else if (val instanceof Object) {
-      if (val.constructor !== Object) {
-        if (typeof (val as any).clone === 'function') {
-          return (val as any).clone();
-        }
-      }
-      let obj: any = {};
-      for (let k in val) {
-        obj[k] = deepClone(val[k]);
-      }
-      return obj;
     }
+    if (val.constructor !== Object) {
+      if (typeof (val as any).clone === 'function') {
+        return (val as any).clone();
+      }
+    }
+    let obj: any = {};
+    for (let k in val) {
+      obj[k] = deepClone(val[k]);
+    }
+    return obj;
   }
+
   return val;
 }
 
@@ -34,18 +34,17 @@ export function cloneToLevel<T>(val: T, level: number): T {
         arr.push(cloneToLevel(o, level));
       }
       return arr as T;
-    } else if (val instanceof Object) {
-      if (val.constructor !== Object) {
-        if (typeof (val as any).clone === 'function') {
-          return (val as any).clone();
-        }
-      }
-      let obj: any = {};
-      for (let k in val) {
-        obj[k] = cloneToLevel(val[k], level);
-      }
-      return obj;
     }
+    if (val.constructor !== Object) {
+      if (typeof (val as any).clone === 'function') {
+        return (val as any).clone();
+      }
+    }
+    let obj: any = {};
+    for (let k in val) {
+      obj[k] = cloneToLevel(val[k], level);
+    }
+    return obj;
   }
   return val;
 }
