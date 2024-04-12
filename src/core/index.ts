@@ -38,7 +38,7 @@ import './functions/http/HttpClient';
 import './functions/http/Fetch';
 import './functions/script/Js';
 import './functions/data/State';
-import './functions/data/Storage';
+import './functions/date';
 import './functions/condition/DefaultValue';
 import './functions/condition/If';
 import './worker/MapFunction';

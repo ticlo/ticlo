@@ -1,0 +1,147 @@
+{
+"#is": "",
+"assert-null": {
+ "#is": "test:assert",
+ "@b-p": [
+  "actual0",
+  "expect0",
+  "actual1",
+  "expect1"
+ ],
+ "@b-xyw": [
+  669,
+  180,
+  154
+ ],
+ "[]": 2,
+ "expect0": null,
+ "expect1": null,
+ "matchMode": "always-match",
+ "~actual0": "##.invalid-date.#output",
+ "~actual1": "##.invalid-timezone.#output"
+},
+"assert1": {
+ "#is": "test:assert",
+ "@b-p": [
+  "actual0",
+  "expect0",
+  "actual1",
+  "expect1",
+  "actual2",
+  "expect2"
+ ],
+ "@b-xyw": [
+  752,
+  684,
+  374
+ ],
+ "[]": 3,
+ "expect0": "\u001bTs:2001-02-01T01:01:01.001+08:00",
+ "expect1": "\u001bTs:2001-02-01T00:00:00.000+08:00",
+ "expect2": "\u001bTs:2001-02-01T00:00:00.000-01:15",
+ "matchMode": "always-match",
+ "~actual0": "##.create-date1.#output",
+ "~actual1": "##.create-date2.#output",
+ "~actual2": "##.create-date3.#output"
+},
+"create-date1": {
+ "#is": "create-date",
+ "@b-p": [
+  "year",
+  "month",
+  "date",
+  "hour",
+  "minute",
+  "#output"
+ ],
+ "@b-xyw": [
+  80,
+  564,
+  366
+ ],
+ "date": 1,
+ "hour": 1,
+ "millisecond": 1,
+ "minute": 1,
+ "month": 1,
+ "second": 1,
+ "timezone": "+08:00",
+ "year": 2001
+},
+"create-date2": {
+ "#is": "create-date",
+ "@b-p": [
+  "year",
+  "month",
+  "date",
+  "hour",
+  "minute",
+  "#output"
+ ],
+ "@b-xyw": [
+  80,
+  780,
+  366
+ ],
+ "date": 1,
+ "month": 1,
+ "timezone": "+08:00",
+ "year": 2001
+},
+"create-date3": {
+ "#is": "create-date",
+ "@b-p": [
+  "year",
+  "month",
+  "date",
+  "hour",
+  "minute",
+  "#output"
+ ],
+ "@b-xyw": [
+  80,
+  996,
+  366
+ ],
+ "date": 1,
+ "month": 1,
+ "timezone": "-01:15",
+ "year": 2001
+},
+"invalid-date": {
+ "#is": "create-date",
+ "@b-p": [
+  "year",
+  "month",
+  "date",
+  "hour",
+  "minute",
+  "#output"
+ ],
+ "@b-xyw": [
+  84,
+  60,
+  143
+ ]
+},
+"invalid-timezone": {
+ "#is": "create-date",
+ "@b-p": [
+  "year",
+  "month",
+  "date",
+  "hour",
+  "minute",
+  "#output"
+ ],
+ "@b-xyw": [
+  84,
+  276,
+  279
+ ],
+ "date": 1,
+ "month": 1,
+ "timezone": "invalid",
+ "year": 2000
+}
+}

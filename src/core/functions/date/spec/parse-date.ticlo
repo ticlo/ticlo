@@ -1,0 +1,186 @@
+{
+"#is": "",
+"assert": {
+ "#is": "test:assert",
+ "@b-p": [
+  "actual0",
+  "expect0",
+  "actual1",
+  "expect1",
+  "actual2",
+  "expect2",
+  "actual3",
+  "expect3",
+  "actual4",
+  "expect4",
+  "actual5",
+  "expect5"
+ ],
+ "@b-xyw": [
+  900,
+  156,
+  417
+ ],
+ "[]": 6,
+ "expect0": 2000,
+ "expect1": 1,
+ "expect2": 2,
+ "expect3": 3,
+ "expect4": "+06:00",
+ "expect5": "\u001bTs:2000-02-02T03:00:00.000+06:00",
+ "matchMode": "always-match",
+ "~actual0": "##.parse-date.year",
+ "~actual1": "##.parse-date.month",
+ "~actual2": "##.parse-date.date",
+ "~actual3": "##.parse-date.hour",
+ "~actual4": "##.parse-date.timezone",
+ "~actual5": "##.parse-date.#output"
+},
+"assert invalid": {
+ "#is": "test:assert",
+ "@b-p": [
+  "actual0",
+  "expect0",
+  "actual1",
+  "expect1",
+  "actual2",
+  "expect2",
+  "actual3",
+  "expect3",
+  "actual4",
+  "expect4",
+  "actual5",
+  "expect5"
+ ],
+ "@b-xyw": [
+  660,
+  468,
+  143
+ ],
+ "[]": 6,
+ "expect0": null,
+ "expect1": null,
+ "expect2": null,
+ "expect3": null,
+ "expect4": null,
+ "expect5": null,
+ "matchMode": "always-match",
+ "~actual0": "##.invalid date.year",
+ "~actual1": "##.invalid date.month",
+ "~actual2": "##.invalid date.date",
+ "~actual3": "##.invalid date.hour",
+ "~actual4": "##.invalid date.timezone",
+ "~actual5": "##.invalid date.#output"
+},
+"assert1": {
+ "#is": "test:assert",
+ "@b-p": [
+  "actual0",
+  "expect0",
+  "actual1",
+  "expect1",
+  "actual2",
+  "expect2",
+  "actual3",
+  "expect3",
+  "actual4",
+  "expect4",
+  "actual5",
+  "expect5"
+ ],
+ "@b-xyw": [
+  660,
+  828,
+  143
+ ],
+ "[]": 6,
+ "expect0": 2012,
+ "expect1": 2,
+ "expect2": 4,
+ "expect3": 5,
+ "expect4": "-03:00",
+ "expect5": "\u001bTs:2012-03-04T05:06:07.890-03:00",
+ "matchMode": "always-match",
+ "~actual0": "##.parse string.year",
+ "~actual1": "##.parse string.month",
+ "~actual2": "##.parse string.date",
+ "~actual3": "##.parse string.hour",
+ "~actual4": "##.parse string.timezone",
+ "~actual5": "##.parse string.#output"
+},
+"create-date": {
+ "#is": "create-date",
+ "@b-p": [
+  "year",
+  "month",
+  "date",
+  "hour",
+  "timezone",
+  "#output"
+ ],
+ "@b-xyw": [
+  36,
+  60,
+  143
+ ],
+ "date": 2,
+ "hour": 3,
+ "month": 1,
+ "timezone": "+06:00",
+ "year": 2000
+},
+"invalid date": {
+ "#is": "parse-date",
+ "@b-p": [
+  "input",
+  "year",
+  "month",
+  "date",
+  "hour",
+  "timezone",
+  "#output"
+ ],
+ "@b-xyw": [
+  35,
+  516,
+  373
+ ],
+ "input": "invalid"
+},
+"parse string": {
+ "#is": "parse-date",
+ "@b-p": [
+  "input",
+  "year",
+  "month",
+  "date",
+  "hour",
+  "timezone",
+  "#output"
+ ],
+ "@b-xyw": [
+  36,
+  828,
+  359
+ ],
+ "input": "2012-03-04T05:06:07.890-03:00"
+},
+"parse-date": {
+ "#is": "parse-date",
+ "@b-p": [
+  "input",
+  "year",
+  "month",
+  "date",
+  "hour",
+  "timezone",
+  "#output"
+ ],
+ "@b-xyw": [
+  252,
+  180,
+  373
+ ],
+ "~input": "##.create-date.#output"
+}
+}

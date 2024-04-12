@@ -74,6 +74,19 @@ Functions.addCategory({
 });
 
 Functions.addCategory({
+  id: 'date',
+  name: 'date',
+  icon: 'fas:clock',
+  color: '4af',
+});
+
+Functions.addCategory({
+  id: 'time',
+  name: 'time',
+  icon: 'fas:stopwatch',
+  color: '4af',
+});
+Functions.addCategory({
   id: '',
   name: '',
   icon: 'fas:cubes',
