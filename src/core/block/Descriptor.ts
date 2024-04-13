@@ -58,7 +58,7 @@ export interface PropDesc {
   // color
   disableAlpha?: boolean;
 
-  // date, date-range
+  // date, date-range, default is true
   showTime?: boolean;
 
   // service, object

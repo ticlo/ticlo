@@ -19,7 +19,7 @@ export class DateEditor extends React.PureComponent<ValueEditorProps, any> {
 
   render() {
     let {desc, value, locked, onChange} = this.props;
-    let {showTime} = desc;
+    let showTime = desc.showTime !== false;
     let showTimeOption = showTime ? defaultTime : null;
     let title: string;
     if (typeof value === 'string') {

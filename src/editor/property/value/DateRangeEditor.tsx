@@ -22,7 +22,7 @@ export class DateRangeEditor extends React.PureComponent<ValueEditorProps, any> 
 
   render() {
     let {desc, value, locked, onChange} = this.props;
-    let {showTime} = desc;
+    let showTime = desc.showTime !== false;
     let showTimeOption = showTime ? defaultTimes : null;
 
     let title: string;
