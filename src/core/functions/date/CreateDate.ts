@@ -16,20 +16,23 @@ export class CreateDateFunction extends PureFunction {
   }
 }
 
-Functions.add(CreateDateFunction, {
-  name: 'create-date',
-  icon: 'fas:clock',
-  priority: 0,
-  properties: [
-    {name: 'year', type: 'number', pinned: true},
-    {name: 'month', type: 'number', pinned: true},
-    {name: 'date', type: 'number', pinned: true},
-    {name: 'hour', type: 'number', pinned: true},
-    {name: 'minute', type: 'number', pinned: true},
-    {name: 'second', type: 'number'},
-    {name: 'millisecond', type: 'number'},
-    {name: 'timezone', type: 'any', types: ['string', 'number']},
-    {name: '#output', type: 'date', pinned: true, readonly: true},
-  ],
-  category: 'date',
-});
+Functions.add(
+  CreateDateFunction,
+  {
+    name: 'create',
+    icon: 'fas:clock',
+    priority: 0,
+    properties: [
+      {name: 'year', type: 'number', pinned: true},
+      {name: 'month', type: 'number', pinned: true},
+      {name: 'date', type: 'number', pinned: true},
+      {name: 'hour', type: 'number', pinned: true},
+      {name: 'minute', type: 'number', pinned: true},
+      {name: 'second', type: 'number'},
+      {name: 'millisecond', type: 'number'},
+      {name: 'timezone', type: 'any', types: ['string', 'number']},
+      {name: '#output', type: 'date', pinned: true, readonly: true},
+    ],
+  },
+  'date'
+);

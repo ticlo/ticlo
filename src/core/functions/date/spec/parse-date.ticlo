@@ -108,8 +108,40 @@
  "~actual4": "##.parse string.timezone",
  "~actual5": "##.parse string.#output"
 },
+"assert2": {
+ "#is": "test:assert",
+ "@b-p": [
+  "actual0",
+  "expect0",
+  "actual1",
+  "expect1",
+  "actual2",
+  "expect2",
+  "actual3",
+  "expect3",
+  "actual4",
+  "expect4"
+ ],
+ "@b-xyw": [
+  658,
+  1179,
+  345
+ ],
+ "[]": 5,
+ "expect0": 2012,
+ "expect1": 2,
+ "expect2": 4,
+ "expect3": 5,
+ "expect4": 890,
+ "matchMode": "always-match",
+ "~actual0": "##.parse string no tz.year",
+ "~actual1": "##.parse string no tz.month",
+ "~actual2": "##.parse string no tz.date",
+ "~actual3": "##.parse string no tz.hour",
+ "~actual4": "##.parse string no tz.millisecond"
+},
 "create-date": {
- "#is": "create-date",
+ "#is": "date:create",
  "@b-p": [
   "year",
   "month",
@@ -130,7 +162,7 @@
  "year": 2000
 },
 "invalid date": {
- "#is": "parse-date",
+ "#is": "date:parse",
  "@b-p": [
   "input",
   "year",
@@ -148,7 +180,7 @@
  "input": "invalid"
 },
 "parse string": {
- "#is": "parse-date",
+ "#is": "date:parse",
  "@b-p": [
   "input",
   "year",
@@ -161,12 +193,30 @@
  "@b-xyw": [
   36,
   828,
-  359
+  365
  ],
  "input": "2012-03-04T05:06:07.890-03:00"
 },
+"parse string no tz": {
+ "#is": "date:parse",
+ "@b-p": [
+  "input",
+  "year",
+  "month",
+  "date",
+  "hour",
+  "millisecond",
+  "#output"
+ ],
+ "@b-xyw": [
+  34,
+  1179,
+  362
+ ],
+ "input": "2012-03-04T05:06:07.890"
+},
 "parse-date": {
- "#is": "parse-date",
+ "#is": "date:parse",
  "@b-p": [
   "input",
   "year",

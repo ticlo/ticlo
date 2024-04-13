@@ -24,6 +24,9 @@ jobs:
   test-browser:
     runs-on: ubuntu-latest
     steps:
+      - uses: szenius/set-timezone@v2
+        with:
+          timezoneLinux: "America/Los_Angeles"
       - uses: actions/checkout@v2
       - name: enable corepack
         run: corepack enable
@@ -79,20 +82,6 @@ jobs:
 #          path-to-lcov: ./coverage/nyc-strict.lcov
 #          parallel: true
 #          flag-name: strict
-#      - name: Test Karma
-#        run: |
-#          yarn build-icons
-#          yarn build-less
-#          yarn test-karma
-#      - name: Coveralls Karma
-#        uses: coverallsapp/github-action@master
-#        env:
-#          NODE_COVERALLS_DEBUG: 1
-#        with:
-#          github-token: ${{ secrets.github_token }}
-#          path-to-lcov: ./coverage/chrome/karma.lcov
-#          parallel: true
-#          flag-name: karma
       - name: Test Ticlo
         run: yarn ticlo-test-nyc
       - name: Coveralls Ticlo

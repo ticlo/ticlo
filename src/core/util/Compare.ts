@@ -1,4 +1,4 @@
-import {DayjsConstructor} from './Dayjs';
+import {DayjsConstructor, isDayjsSame} from './Dayjs';
 import dayjs from 'dayjs';
 
 export function arrayEqual(a1: any[], a2: any[]) {
@@ -16,6 +16,7 @@ export function arrayEqual(a1: any[], a2: any[]) {
 const isArray = Array.isArray;
 const keyList = Object.keys;
 
+// used to check of something has changed. so NaN should equal to NaN and invalid date should equal to invalid date
 export function deepEqual(a: any, b: any) {
   if (Object.is(a, b)) {
     return true;
@@ -52,7 +53,8 @@ export function deepEqual(a: any, b: any) {
         return true;
       }
       case DayjsConstructor: {
-        return (a as dayjs.Dayjs).isSame(b);
+        // Make sure invalid dayjs is equal to invalid dayjs
+        return isDayjsSame(a as dayjs.Dayjs, b as dayjs.Dayjs);
       }
       // TODO compare Map and Set ?
       default: {

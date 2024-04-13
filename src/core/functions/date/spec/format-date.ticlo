@@ -1,0 +1,62 @@
+{
+"#is": "",
+"assert": {
+ "#is": "test:assert",
+ "@b-p": [
+  "actual0",
+  "expect0"
+ ],
+ "@b-xyw": [
+  564,
+  84,
+  143
+ ],
+ "expect0": "2011",
+ "matchMode": "always-match",
+ "~actual0": "##.format-date.#output"
+},
+"assert1": {
+ "#is": "test:assert",
+ "@b-p": [
+  "actual0",
+  "expect0"
+ ],
+ "@b-xyw": [
+  524,
+  293,
+  330
+ ],
+ "expect0": "2011-02-25T18:05:06-08:00",
+ "matchMode": "always-match",
+ "~actual0": "##.format-date1.#output"
+},
+"format-date": {
+ "#is": "date:format",
+ "@b-p": [
+  "input",
+  "format",
+  "#output"
+ ],
+ "@b-xyw": [
+  45,
+  69,
+  376
+ ],
+ "format": "YYYY",
+ "input": "2011-02-03T04:05:06.789+02:00"
+},
+"format-date1": {
+ "#is": "date:format",
+ "@b-p": [
+  "input",
+  "format",
+  "#output"
+ ],
+ "@b-xyw": [
+  43,
+  244,
+  376
+ ],
+ "input": "\u001bTs:2011-02-25T18:05:06.789-08:00"
+}
+}

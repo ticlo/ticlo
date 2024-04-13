@@ -14,8 +14,8 @@
   154
  ],
  "[]": 2,
- "expect0": null,
- "expect1": null,
+ "expect0": "\u001bTs:Invalid Date",
+ "expect1": "\u001bTs:Invalid Date",
  "matchMode": "always-match",
  "~actual0": "##.invalid-date.#output",
  "~actual1": "##.invalid-timezone.#output"
@@ -28,24 +28,28 @@
   "actual1",
   "expect1",
   "actual2",
-  "expect2"
+  "expect2",
+  "actual3",
+  "expect3"
  ],
  "@b-xyw": [
   752,
   684,
   374
  ],
- "[]": 3,
+ "[]": 4,
  "expect0": "\u001bTs:2001-02-01T01:01:01.001+08:00",
  "expect1": "\u001bTs:2001-02-01T00:00:00.000+08:00",
  "expect2": "\u001bTs:2001-02-01T00:00:00.000-01:15",
+ "expect3": "\u001bTs:2001-02-01T00:00:00.000",
  "matchMode": "always-match",
  "~actual0": "##.create-date1.#output",
  "~actual1": "##.create-date2.#output",
- "~actual2": "##.create-date3.#output"
+ "~actual2": "##.create-date3.#output",
+ "~actual3": "##.create-date4.#output"
 },
 "create-date1": {
- "#is": "create-date",
+ "#is": "date:create",
  "@b-p": [
   "year",
   "month",
@@ -69,7 +73,7 @@
  "year": 2001
 },
 "create-date2": {
- "#is": "create-date",
+ "#is": "date:create",
  "@b-p": [
   "year",
   "month",
@@ -89,7 +93,7 @@
  "year": 2001
 },
 "create-date3": {
- "#is": "create-date",
+ "#is": "date:create",
  "@b-p": [
   "year",
   "month",
@@ -108,8 +112,27 @@
  "timezone": "-01:15",
  "year": 2001
 },
+"create-date4": {
+ "#is": "date:create",
+ "@b-p": [
+  "year",
+  "month",
+  "date",
+  "hour",
+  "minute",
+  "#output"
+ ],
+ "@b-xyw": [
+  84,
+  1212,
+  366
+ ],
+ "date": 1,
+ "month": 1,
+ "year": 2001
+},
 "invalid-date": {
- "#is": "create-date",
+ "#is": "date:create",
  "@b-p": [
   "year",
   "month",
@@ -125,7 +148,7 @@
  ]
 },
 "invalid-timezone": {
- "#is": "create-date",
+ "#is": "date:create",
  "@b-p": [
   "year",
   "month",
