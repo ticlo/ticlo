@@ -11,17 +11,8 @@ import {voidProperty} from './Void';
 import {ConfigGenerators, BlockConstConfig, OutputsConfigGenerators, InputsConfigGenerators} from './BlockConfigs';
 import {Task} from './Task';
 import {_strictMode} from './BlockSettings';
-
 import type {Flow, Root} from './Flow';
-import {Storage} from './Storage';
-
-export type BlockMode =
-  | 'auto' // defined by function
-  | 'onLoad' // run onLoad, onChange and onCall
-  | 'onChange' // run onChange and onCall
-  | 'onCall'; // onCall only
-
-export const BlockModeList = ['auto', 'onLoad', 'onChange', 'onCall'];
+import {BlockMode} from './Descriptor';
 
 export interface BlockChildWatch {
   onChildChange(property: BlockProperty, saved?: boolean): void;

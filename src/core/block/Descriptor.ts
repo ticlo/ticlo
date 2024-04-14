@@ -1,5 +1,12 @@
-import {BlockMode, BlockModeList} from './Block';
 import {DataMap} from '..';
+
+export const BlockModeList = [
+  'auto', // defined by function
+  'onLoad', // run onLoad, onChange and onCall
+  'onChange', // run onChange and onCall
+  'onCall', // onCall only
+];
+export type BlockMode = (typeof BlockModeList)[number];
 
 export type ValueType =
   | 'number'

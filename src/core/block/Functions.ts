@@ -1,8 +1,8 @@
 import JsonEsc from 'jsonesc';
-import {Block, BlockModeList} from './Block';
+import {Block} from './Block';
 import {FunctionClass} from './BlockFunction';
 import {PropDispatcher, PropListener} from './Dispatcher';
-import {FunctionDesc} from './Descriptor';
+import {BlockModeList, FunctionDesc} from './Descriptor';
 import {DataMap} from '../util/DataTypes';
 import {FlowStorage} from './Storage';
 import type {Flow} from './Flow';
