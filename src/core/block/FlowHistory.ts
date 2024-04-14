@@ -120,7 +120,7 @@ export class FlowHistory {
   hasChange() {
     return !deepEqual(this.flow.save(), this._history[this._current]);
   }
-  // return true when data has change
+  // return true when data is changed
   checkAndAdd(data: DataMap) {
     if (this._tracking) {
       this.cancelTrack();

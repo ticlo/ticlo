@@ -686,6 +686,7 @@ export class ServerConnection extends ServerConnectionCore {
       if (result != null) {
         return {result};
       }
+      trackChange(property, path, this.root);
       return null;
     } else {
       return 'invalid path';
