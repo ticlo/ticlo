@@ -7,11 +7,11 @@
   "expect0"
  ],
  "@b-xyw": [
-  660,
-  204,
+  884,
+  241,
   359
  ],
- "expect0": "\u001bTs:2012-03-05T05:06:07.890-03:00",
+ "expect0": "\u001bTs:gzf873f6@UTC-3",
  "matchMode": "always-match",
  "~actual0": "##.modify-date.#output"
 },
@@ -22,11 +22,11 @@
   "expect0"
  ],
  "@b-xyw": [
-  660,
-  420,
+  884,
+  457,
   360
  ],
- "expect0": "\u001bTs:2012-02-04T05:06:07.890-03:00",
+ "expect0": "\u001bTs:gy8czjf6@UTC-3",
  "matchMode": "always-match",
  "~actual0": "##.modify-date1.#output"
 },
@@ -37,11 +37,11 @@
   "expect0"
  ],
  "@b-xyw": [
-  660,
-  636,
+  884,
+  673,
   360
  ],
- "expect0": "\u001bTs:2024-03-04T05:06:07.890-03:00",
+ "expect0": "\u001bTs:ltcnpwr6@UTC-3",
  "matchMode": "always-match",
  "~actual0": "##.modify-date2.#output"
 },
@@ -52,13 +52,37 @@
   "expect0"
  ],
  "@b-xyw": [
-  660,
-  852,
+  884,
+  889,
   359
  ],
- "expect0": "\u001bTs:2012-03-19T05:06:07.890-03:00",
+ "expect0": "\u001bTs:gzz8d0r6@UTC-3",
  "matchMode": "always-match",
  "~actual0": "##.modify-date3.#output"
+},
+"create": {
+ "#is": "date:create",
+ "@b-p": [
+  "year",
+  "month",
+  "day",
+  "hour",
+  "minute",
+  "#output"
+ ],
+ "@b-xyw": [
+  36,
+  36,
+  167
+ ],
+ "day": 4,
+ "hour": 5,
+ "millisecond": 890,
+ "minute": 6,
+ "month": 3,
+ "second": 7,
+ "timezone": "UTC-3",
+ "year": 2012
 },
 "modify-date": {
  "#is": "date:modify",
@@ -70,14 +94,14 @@
   "#output"
  ],
  "@b-xyw": [
-  60,
-  108,
+  284,
+  145,
   372
  ],
- "base": "2012-03-04T05:06:07.890-03:00",
  "count": 1,
  "op": "add",
- "unit": "day"
+ "unit": "day",
+ "~base": "##.create.#output"
 },
 "modify-date1": {
  "#is": "date:modify",
@@ -89,14 +113,14 @@
   "#output"
  ],
  "@b-xyw": [
-  60,
-  324,
+  284,
+  361,
   372
  ],
- "base": "2012-03-04T05:06:07.890-03:00",
  "count": 1,
  "op": "subtract",
- "unit": "month"
+ "unit": "month",
+ "~base": "##.create.#output"
 },
 "modify-date2": {
  "#is": "date:modify",
@@ -108,14 +132,14 @@
   "#output"
  ],
  "@b-xyw": [
-  60,
-  540,
+  284,
+  577,
   372
  ],
- "base": "2012-03-04T05:06:07.890-03:00",
  "count": 2024,
  "op": "set",
- "unit": "year"
+ "unit": "year",
+ "~base": "##.create.#output"
 },
 "modify-date3": {
  "#is": "date:modify",
@@ -127,13 +151,13 @@
   "#output"
  ],
  "@b-xyw": [
-  60,
-  756,
+  284,
+  793,
   374
  ],
- "base": "2012-03-04T05:06:07.890-03:00",
  "count": 1296000000,
  "op": "add",
- "unit": "millisecond"
+ "unit": "millisecond",
+ "~base": "##.create.#output"
 }
 }

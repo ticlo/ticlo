@@ -1,18 +1,17 @@
 import React from 'react';
 import {Tooltip} from 'antd';
-import dayjs, {Dayjs} from 'dayjs';
-// tslint:disable-next-line:no-implicit-dependencies
-import dayjsGenerateConfig from 'rc-picker/es/generate/dayjs';
+import {DateTime} from 'luxon';
 import generatePicker from 'antd/es/date-picker/generatePicker';
-import {PropDesc, isDayjsValid, formatDayjs} from '../../../../src/core/editor';
+import {formatDate} from '../../../../src/core/editor';
 import {ValueEditorProps} from './ValueEditorBase';
+import luxonConfig from './3rd-party/luxonConfig';
 
-const DatePicker = generatePicker<Dayjs>(dayjsGenerateConfig);
+const DatePicker = generatePicker<DateTime>(luxonConfig);
 
-const defaultTime = {defaultValue: dayjs('00:00:00.000', 'HH:mm:ss.SSS')};
+const defaultTime = {defaultValue: DateTime.fromFormat('00:00:00.000', 'HH:mm:ss.SSS')};
 
 export class DateEditor extends React.PureComponent<ValueEditorProps, any> {
-  onValueChange = (day: Dayjs) => {
+  onValueChange = (day: DateTime) => {
     let {desc, onChange} = this.props;
     onChange(day);
   };
@@ -23,12 +22,12 @@ export class DateEditor extends React.PureComponent<ValueEditorProps, any> {
     let showTimeOption = showTime ? defaultTime : null;
     let title: string;
     if (typeof value === 'string') {
-      value = dayjs(value);
+      value = DateTime.fromISO(value, {setZone: true});
     }
-    if (!isDayjsValid(value)) {
+    if (!value?.isValid) {
       value = null;
     } else {
-      title = formatDayjs(value, showTime);
+      title = formatDate(value, showTime);
     }
 
     return (

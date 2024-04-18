@@ -1,21 +1,23 @@
 import React from 'react';
 import {Tooltip} from 'antd';
-import dayjs, {Dayjs} from 'dayjs';
-// tslint:disable-next-line:no-implicit-dependencies
-import dayjsGenerateConfig from 'rc-picker/es/generate/dayjs';
+import {DateTime} from 'luxon';
 import generatePicker from 'antd/es/date-picker/generatePicker';
-import {PropDesc, isDayjsValid, formatDayjs} from '../../../../src/core/editor';
+import {formatDate} from '../../../../src/core/editor';
 import {ValueEditorProps} from './ValueEditorBase';
+import luxonConfig from './3rd-party/luxonConfig';
 
-const DatePicker = generatePicker<Dayjs>(dayjsGenerateConfig);
+const DatePicker = generatePicker<DateTime>(luxonConfig);
 const {RangePicker} = DatePicker;
 
 const defaultTimes = {
-  defaultValue: [dayjs('00:00:00.000', 'HH:mm:ss.SSS'), dayjs('23:59:59.999', 'HH:mm:ss.SSS')],
+  defaultValue: [
+    DateTime.fromFormat('00:00:00.000', 'HH:mm:ss.SSS'),
+    DateTime.fromFormat('23:59:59.999', 'HH:mm:ss.SSS'),
+  ],
 };
 
 export class DateRangeEditor extends React.PureComponent<ValueEditorProps, any> {
-  onValueChange = (range: [Dayjs, Dayjs]) => {
+  onValueChange = (range: [DateTime, DateTime]) => {
     let {desc, onChange} = this.props;
     onChange(range);
   };
@@ -28,12 +30,12 @@ export class DateRangeEditor extends React.PureComponent<ValueEditorProps, any> 
     let title: string;
     if (Array.isArray(value) && value.length === 2) {
       if (typeof value[0] === 'string' && typeof value[1] === 'string') {
-        value = [dayjs(value[0]), dayjs(value[1])];
+        value = [DateTime.fromISO(value[0], {setZone: true}), DateTime.fromISO(value[1], {setZone: true})];
       }
-      if (!isDayjsValid(value[0]) || !isDayjsValid(value[1])) {
+      if (!value[0]?.isValid || !value[1]?.isValid) {
         value = null;
       } else {
-        title = `${formatDayjs(value[0], showTime)}\n${formatDayjs(value[1], showTime)}`;
+        title = `${formatDate(value[0], showTime)}\n${formatDate(value[1], showTime)}`;
       }
     } else {
       value = null;

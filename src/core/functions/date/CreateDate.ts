@@ -1,18 +1,25 @@
 import {PureFunction} from '../../block/BlockFunction';
 import {Functions} from '../../block/Functions';
-import {createDayjs} from '../../util/Dayjs';
+import {DateTime} from 'luxon';
+import {invalidDate} from '../../util/DateTime';
 
 export class CreateDateFunction extends PureFunction {
   run() {
     const year = Number(this._data.getValue('year'));
     const month = Number(this._data.getValue('month'));
-    const date = Number(this._data.getValue('date'));
-    const hour = Number(this._data.getValue('hour'));
-    const minute = Number(this._data.getValue('minute'));
-    const second = Number(this._data.getValue('second'));
-    const millisecond = Number(this._data.getValue('millisecond'));
+    const day = Number(this._data.getValue('day'));
+    const hour = Number(this._data.getValue('hour')) || 0;
+    const minute = Number(this._data.getValue('minute')) || 0;
+    const second = Number(this._data.getValue('second')) || 0;
+    const millisecond = Number(this._data.getValue('millisecond')) || 0;
     const timezone = this._data.getValue('timezone');
-    this._data.output(createDayjs(year, month, date, hour, minute, second, millisecond, timezone));
+    try {
+      this._data.output(
+        DateTime.fromObject({year, month, day, hour, minute, second, millisecond}, {zone: timezone as string})
+      );
+    } catch (err) {
+      this._data.output(invalidDate);
+    }
   }
 }
 
@@ -25,11 +32,11 @@ Functions.add(
     properties: [
       {name: 'year', type: 'number', pinned: true},
       {name: 'month', type: 'number', pinned: true},
-      {name: 'date', type: 'number', pinned: true},
-      {name: 'hour', type: 'number', pinned: true},
-      {name: 'minute', type: 'number', pinned: true},
-      {name: 'second', type: 'number'},
-      {name: 'millisecond', type: 'number'},
+      {name: 'day', type: 'number', pinned: true},
+      {name: 'hour', type: 'number', default: 0, pinned: true},
+      {name: 'minute', type: 'number', default: 0, pinned: true},
+      {name: 'second', type: 'number', default: 0},
+      {name: 'millisecond', type: 'number', default: 0},
       {name: 'timezone', type: 'any', types: ['string', 'number']},
       {name: '#output', type: 'date', pinned: true, readonly: true},
     ],

@@ -2,10 +2,9 @@ import axios, {AxiosRequestConfig, AxiosRequestHeaders, AxiosResponse, CanceledE
 import {PureFunction, BlockFunction, ImpureFunction} from '../../block/BlockFunction';
 import {ErrorEvent, EventType, WAIT} from '../../block/Event';
 import {Functions} from '../../block/Functions';
-import {BlockMode} from '../../block/Block';
+import {defaultConfigs, BlockMode} from '../../block/Descriptor';
 import {httpRequest, type HttpClient} from './HttpClient';
 import {DataMap} from '../../util/DataTypes';
-import {defaultConfigs} from '../../block/Descriptor';
 
 export type RouteMethod = 'GET' | 'POST' | 'PUT' | 'DELETE';
 const methodList: RouteMethod[] = ['GET', 'POST', 'PUT', 'DELETE'];

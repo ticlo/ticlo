@@ -3,8 +3,9 @@ import {PureFunction, BlockFunction} from '../BlockFunction';
 import {BlockIO, BlockPropertyEvent} from '../BlockProperty';
 import {CompleteEvent, ErrorEvent, Event, EventType, WAIT} from '../Event';
 import {PropDispatcher} from '../Dispatcher';
-import {Block, BlockMode} from '../Block';
+import {Block} from '../Block';
 import {DataMap} from '../../util/DataTypes';
+import {BlockMode} from '../Descriptor';
 
 export class TestFunctionRunner extends PureFunction {
   static logs: unknown[] = [];

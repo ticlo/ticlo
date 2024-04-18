@@ -2467,6 +2467,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@types/luxon@npm:^3":
+  version: 3.4.2
+  resolution: "@types/luxon@npm:3.4.2"
+  checksum: d835467de3daf7e17ba78b50bb5a14efd94272439ca067990d71332a54b311544459c69623eddd243b511b28d70194c9591a9ee8cf9c038962c965f991affd7e
+  languageName: node
+  linkType: hard
+
 "@types/mime@npm:*":
   version: 3.0.4
   resolution: "@types/mime@npm:3.0.4"
@@ -4313,7 +4320,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"dayjs@npm:1.x, dayjs@npm:^1.11.10":
+"dayjs@npm:1.x":
   version: 1.11.10
   resolution: "dayjs@npm:1.11.10"
   checksum: 4de9af50639d47df87f2e15fa36bb07e0f9ed1e9c52c6caa1482788ee9a384d668f1dbd00c54f82aaab163db07d61d2899384b8254da3a9184fc6deca080e2fe
@@ -6552,6 +6559,13 @@ __metadata:
   version: 7.18.3
   resolution: "lru-cache@npm:7.18.3"
   checksum: b3a452b491433db885beed95041eb104c157ef7794b9c9b4d647be503be91769d11206bb573849a16b4cc0d03cbd15ffd22df7960997788b74c1d399ac7a4fed
+  languageName: node
+  linkType: hard
+
+"luxon@npm:^3.4.4":
+  version: 3.4.4
+  resolution: "luxon@npm:3.4.4"
+  checksum: 02e26a0b039c11fd5b75e1d734c8f0332c95510f6a514a9a0991023e43fb233884da02d7f966823ffb230632a733fc86d4a4b1e63c3fbe00058b8ee0f8c728af
   languageName: node
   linkType: hard
 
@@ -9593,6 +9607,7 @@ __metadata:
     "@types/express-ws": "npm:^3.0.4"
     "@types/glob": "npm:^8.1.0"
     "@types/jest": "npm:^29.5.12"
+    "@types/luxon": "npm:^3"
     "@types/mocha": "npm:^10.0.6"
     "@types/node": "npm:^20.11.30"
     "@types/qs": "npm:^6.9.14"
@@ -9615,7 +9630,6 @@ __metadata:
     body-parser: "npm:^1.20.2"
     codemirror: "npm:^6.0.1"
     cross-env: "npm:^7.0.3"
-    dayjs: "npm:^1.11.10"
     denque: "npm:^2.1.0"
     diff-sequences: "npm:^29.6.3"
     dompurify: "npm:^3.0.11"
@@ -9629,6 +9643,7 @@ __metadata:
     jsonesc: "npm:^0.4.13"
     less: "npm:^4.2.0"
     lodash: "npm:^4.17.21"
+    luxon: "npm:^3.4.4"
     marked: "npm:^12.0.1"
     mocha: "npm:^10.3.0"
     nyc: "npm:^15.1.0"

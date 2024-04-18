@@ -1,5 +1,5 @@
-import {DayjsConstructor, isDayjsSame} from './Dayjs';
-import dayjs from 'dayjs';
+import {isDateSame} from './DateTime';
+import {DateTime} from 'luxon';
 
 export function arrayEqual(a1: any[], a2: any[]) {
   if (a1.length !== a2.length) {
@@ -52,9 +52,9 @@ export function deepEqual(a: any, b: any) {
         }
         return true;
       }
-      case DayjsConstructor: {
+      case DateTime: {
         // Make sure invalid dayjs is equal to invalid dayjs
-        return isDayjsSame(a as dayjs.Dayjs, b as dayjs.Dayjs);
+        return isDateSame(a as DateTime, b as DateTime);
       }
       // TODO compare Map and Set ?
       default: {

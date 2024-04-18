@@ -22,13 +22,43 @@
   "expect0"
  ],
  "@b-xyw": [
-  524,
+  519,
   293,
   330
  ],
- "expect0": "2011-02-25T18:05:06-08:00",
+ "expect0": "2011-02-02 18:05 -08:00",
  "matchMode": "always-match",
  "~actual0": "##.format-date1.#output"
+},
+"assert2": {
+ "#is": "test:assert",
+ "@b-p": [
+  "actual0",
+  "expect0"
+ ],
+ "@b-xyw": [
+  516,
+  516,
+  330
+ ],
+ "expect0": "Feb 2, 2011, 6:05 PM",
+ "matchMode": "always-match",
+ "~actual0": "##.format-date2.#output"
+},
+"assert3": {
+ "#is": "test:assert",
+ "@b-p": [
+  "actual0",
+  "expect0"
+ ],
+ "@b-xyw": [
+  516,
+  756,
+  330
+ ],
+ "expect0": "2011年2月2日 18:05",
+ "matchMode": "always-match",
+ "~actual0": "##.format-date3.#output"
 },
 "format-date": {
  "#is": "date:format",
@@ -42,7 +72,7 @@
   69,
   376
  ],
- "format": "YYYY",
+ "format": "yyyy",
  "input": "2011-02-03T04:05:06.789+02:00"
 },
 "format-date1": {
@@ -53,10 +83,42 @@
   "#output"
  ],
  "@b-xyw": [
-  43,
-  244,
+  47,
+  243,
   376
  ],
- "input": "\u001bTs:2011-02-25T18:05:06.789-08:00"
+ "input": "2011-02-03T04:05:06.789+02:00"
+},
+"format-date2": {
+ "#is": "date:format",
+ "@b-p": [
+  "input",
+  "format",
+  "#output"
+ ],
+ "@b-xyw": [
+  60,
+  468,
+  376
+ ],
+ "format": "ff",
+ "input": "2011-02-03T04:05:06.789+02:00"
+},
+"format-date3": {
+ "#is": "date:format",
+ "@b-p": [
+  "input",
+  "format",
+  "locale",
+  "#output"
+ ],
+ "@b-xyw": [
+  60,
+  684,
+  376
+ ],
+ "format": "ff",
+ "input": "2011-02-03T04:05:06.789+02:00",
+ "locale": "zh"
 }
 }

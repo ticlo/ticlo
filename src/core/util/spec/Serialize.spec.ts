@@ -1,23 +1,32 @@
 import {expect} from 'vitest';
 import {encode, decode, encodeDisplay} from '../Serialize';
-import dayjs from 'dayjs';
+import {DateTime} from 'luxon';
+import {formatDate, isDateSame} from '../DateTime';
 
 describe('Serialize', function () {
-  it('dayjs local', function () {
+  it('DateTime local', function () {
     const dateStr = '2014-11-27T11:07:00.000';
-    const encodedStr = `"\\u001bTs:${dateStr}"`;
-    const time = dayjs(dateStr);
-    const decoded = decode(encodedStr);
-    expect(time.isSame(decoded)).toBe(true);
-    expect(encode(decoded)).toBe(encodedStr);
+    const date = DateTime.fromISO(dateStr);
+    const encodedStr = encode(date);
+    expect(encodedStr).toBe('"\\u001bTs:i30ht9uo"');
+    expect(isDateSame(date, decode(encodedStr))).toBe(true);
+    expect(encodeDisplay(date)).toBe('2014-11-27 11:07:00 PST');
+    expect(formatDate(date, false)).toBe('2014-11-27');
   });
-  it('dayjs tz', function () {
-    const dateStrTz = '2014-11-27T11:07:00.000-03:00';
-    const encodedStrTz = `"\\u001bTs:${dateStrTz}"`;
-    const timeTz = dayjs(dateStrTz);
-    const decodedTz = decode(encodedStrTz);
-    expect(timeTz.isSame(decodedTz)).toBe(true);
-    expect(encode(decodedTz)).toBe(encodedStrTz);
+  it('DateTime tz', function () {
+    const dateStr = '2014-11-27T11:07:00.000-03:00';
+    const date = DateTime.fromISO(dateStr, {setZone: true});
+    const encodedStr = encode(date);
+    expect(encodedStr).toBe('"\\u001bTs:i3073gyo@UTC-3"');
+    expect(isDateSame(date, decode(encodedStr))).toBe(true);
+    expect(encodeDisplay(date)).toBe('2014-11-27 11:07:00 UTC-3');
+  });
+  it('DateTime invalid', function () {
+    const date = DateTime.invalid('test invalid');
+    const encodedStr = encode(date);
+    expect(encodedStr).toBe('"\\u001bTs:!test invalid"');
+    expect(isDateSame(date, decode(encodedStr))).toBe(true);
+    expect(encodeDisplay(date)).toBe('test invalid');
   });
 
   it('encodeDisplay', function () {

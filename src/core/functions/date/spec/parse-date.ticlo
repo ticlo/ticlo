@@ -26,12 +26,12 @@
  "expect1": 1,
  "expect2": 2,
  "expect3": 3,
- "expect4": "+06:00",
- "expect5": "\u001bTs:2000-02-02T03:00:00.000+06:00",
+ "expect4": "UTC+6",
+ "expect5": "\u001bTs:c2xop400@UTC+6",
  "matchMode": "always-match",
  "~actual0": "##.parse-date.year",
  "~actual1": "##.parse-date.month",
- "~actual2": "##.parse-date.date",
+ "~actual2": "##.parse-date.day",
  "~actual3": "##.parse-date.hour",
  "~actual4": "##.parse-date.timezone",
  "~actual5": "##.parse-date.#output"
@@ -67,46 +67,10 @@
  "matchMode": "always-match",
  "~actual0": "##.invalid date.year",
  "~actual1": "##.invalid date.month",
- "~actual2": "##.invalid date.date",
+ "~actual2": "##.invalid date.day",
  "~actual3": "##.invalid date.hour",
  "~actual4": "##.invalid date.timezone",
  "~actual5": "##.invalid date.#output"
-},
-"assert1": {
- "#is": "test:assert",
- "@b-p": [
-  "actual0",
-  "expect0",
-  "actual1",
-  "expect1",
-  "actual2",
-  "expect2",
-  "actual3",
-  "expect3",
-  "actual4",
-  "expect4",
-  "actual5",
-  "expect5"
- ],
- "@b-xyw": [
-  660,
-  828,
-  143
- ],
- "[]": 6,
- "expect0": 2012,
- "expect1": 2,
- "expect2": 4,
- "expect3": 5,
- "expect4": "-03:00",
- "expect5": "\u001bTs:2012-03-04T05:06:07.890-03:00",
- "matchMode": "always-match",
- "~actual0": "##.parse string.year",
- "~actual1": "##.parse string.month",
- "~actual2": "##.parse string.date",
- "~actual3": "##.parse string.hour",
- "~actual4": "##.parse string.timezone",
- "~actual5": "##.parse string.#output"
 },
 "assert2": {
  "#is": "test:assert",
@@ -120,32 +84,40 @@
   "actual3",
   "expect3",
   "actual4",
-  "expect4"
+  "expect4",
+  "actual5",
+  "expect5",
+  "actual6",
+  "expect6"
  ],
  "@b-xyw": [
-  658,
-  1179,
+  655,
+  835,
   345
  ],
- "[]": 5,
+ "[]": 7,
  "expect0": 2012,
- "expect1": 2,
+ "expect1": 3,
  "expect2": 4,
  "expect3": 5,
  "expect4": 890,
+ "expect5": "America/Los_Angeles",
+ "expect6": "\u001bTs:gze3h1n6",
  "matchMode": "always-match",
  "~actual0": "##.parse string no tz.year",
  "~actual1": "##.parse string no tz.month",
- "~actual2": "##.parse string no tz.date",
+ "~actual2": "##.parse string no tz.day",
  "~actual3": "##.parse string no tz.hour",
- "~actual4": "##.parse string no tz.millisecond"
+ "~actual4": "##.parse string no tz.millisecond",
+ "~actual5": "##.parse string no tz.timezone",
+ "~actual6": "##.parse string no tz.#output"
 },
 "create-date": {
  "#is": "date:create",
  "@b-p": [
   "year",
   "month",
-  "date",
+  "day",
   "hour",
   "timezone",
   "#output"
@@ -155,10 +127,10 @@
   60,
   143
  ],
- "date": 2,
+ "day": 2,
  "hour": 3,
  "month": 1,
- "timezone": "+06:00",
+ "timezone": "UTC+6",
  "year": 2000
 },
 "invalid date": {
@@ -167,35 +139,17 @@
   "input",
   "year",
   "month",
-  "date",
-  "hour",
-  "timezone",
-  "#output"
- ],
- "@b-xyw": [
-  35,
-  516,
-  373
- ],
- "input": "invalid"
-},
-"parse string": {
- "#is": "date:parse",
- "@b-p": [
-  "input",
-  "year",
-  "month",
-  "date",
+  "day",
   "hour",
   "timezone",
   "#output"
  ],
  "@b-xyw": [
   36,
-  828,
-  365
+  516,
+  373
  ],
- "input": "2012-03-04T05:06:07.890-03:00"
+ "input": "invalid"
 },
 "parse string no tz": {
  "#is": "date:parse",
@@ -203,14 +157,15 @@
   "input",
   "year",
   "month",
-  "date",
+  "day",
   "hour",
   "millisecond",
+  "timezone",
   "#output"
  ],
  "@b-xyw": [
-  34,
-  1179,
+  31,
+  835,
   362
  ],
  "input": "2012-03-04T05:06:07.890"
@@ -221,13 +176,13 @@
   "input",
   "year",
   "month",
-  "date",
+  "day",
   "hour",
   "timezone",
   "#output"
  ],
  "@b-xyw": [
-  252,
+  253,
   180,
   373
  ],

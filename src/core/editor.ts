@@ -7,7 +7,7 @@ export {type DataMap, isDataTruncated, TRUNCATED} from './util/DataTypes';
 export {encodeDisplay, decode, encode} from './util/Serialize';
 export * from './util/Name';
 export {endsWithNumberReg, getTailingNumber, smartStrCompare, isColorStr} from './util/String';
-export * from './util/Dayjs';
+export * from './util/DateTime';
 export {Logger} from './util/Logger';
 export {stopPropagation, voidFunction} from './util/Functions';
 export {PropDispatcher} from './block/Dispatcher';

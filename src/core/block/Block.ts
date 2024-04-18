@@ -504,7 +504,12 @@ export class Block implements Runnable, FunctionData, PropListener<FunctionClass
         this._cancelFunction(EventType.VOID);
       }
       this._running = true;
-      let result = this.#function.run();
+      let result: unknown;
+      try {
+        result = this.#function.run();
+      } catch (err) {
+        result = new ErrorEvent('runtime error', err);
+      }
       this._running = false;
       this._called = false;
       if (result?.constructor === Promise) {

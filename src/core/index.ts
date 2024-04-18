@@ -1,4 +1,4 @@
-export {Block, type BlockMode} from './block/Block';
+export {Block} from './block/Block';
 export {Root, Flow} from './block/Flow';
 export {type FlowStorage, type Storage} from './block/Storage';
 export {BlockProperty, BlockIO} from './block/BlockProperty';
@@ -13,7 +13,7 @@ export {forAllPathsBetween} from './util/Path';
 export {encodeDisplay, decode, encode, encodeSorted} from './util/Serialize';
 export * from './util/Name';
 export {endsWithNumberReg, getTailingNumber, smartStrCompare, isColorStr} from './util/String';
-export * from './util/Dayjs';
+export * from './util/DateTime';
 export {Logger} from './util/Logger';
 export {stopPropagation, voidFunction} from './util/Functions';
 export {PropDispatcher} from './block/Dispatcher';

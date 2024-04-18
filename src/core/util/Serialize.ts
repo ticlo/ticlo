@@ -1,10 +1,11 @@
 import JsonEsc from 'jsonesc';
-import {decodeDayjs, encodeDayjs, DayjsConstructor} from './Dayjs';
+import {DateTime} from 'luxon';
+import {decodeDateTime, encodeDateTime, formatDate} from './DateTime';
 import {decodeUnknown, encodeUnknown, EscapedObject} from './EscapedObject';
 import {Block} from '../block/Block';
 
 let jsonesc = new JsonEsc();
-jsonesc.registerRaw('Ts', DayjsConstructor, encodeDayjs, decodeDayjs);
+jsonesc.registerRaw('Ts', DateTime, encodeDateTime, decodeDateTime);
 jsonesc.registerRaw('', EscapedObject, encodeUnknown, decodeUnknown);
 jsonesc.registerRaw(null, Block, encodeUnknown, null);
 
@@ -32,9 +33,17 @@ function replaceDisplay(str: string, g1: string, g2: string) {
   return g2;
 }
 
-export function encodeDisplay(value: any): string {
+export function encodeDisplay(value: any, expandArray = true): string {
   if (value === undefined) {
     return 'undefined';
+  }
+  if (expandArray && Array.isArray(value)) {
+    return `[${value.map((v) => encodeDisplay(v, false)).join(',')}]`;
+  }
+  if (value && typeof value === 'object') {
+    if (value.constructor === DateTime) {
+      return formatDate(value, true);
+    }
   }
   return jsonesc.stringify(value).replace(displayRegex, replaceDisplay);
 }

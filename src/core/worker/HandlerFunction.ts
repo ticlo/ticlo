@@ -1,13 +1,13 @@
 import {MapImpl, WorkerOutput} from './MapImpl';
 import {DataMap} from '../util/DataTypes';
-import {Block, BlockMode} from '../block/Block';
+import {Block} from '../block/Block';
 import {Functions} from '../block/Functions';
 import {Event, EventType, WAIT, NO_EMIT} from '../block/Event';
 import Denque from 'denque';
 import {InfiniteQueue} from '../util/InfiniteQueue';
 import {DefaultTask, Task} from '../block/Task';
 import {RepeaterWorker} from './WorkerFlow';
-import {defaultConfigs} from '../block/Descriptor';
+import {BlockMode, defaultConfigs} from '../block/Descriptor';
 
 export class HandlerFunction extends MapImpl {
   _queue = new Denque<Task>();

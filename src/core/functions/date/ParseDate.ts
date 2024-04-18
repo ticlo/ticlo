@@ -1,22 +1,23 @@
 import {PureFunction} from '../../block/BlockFunction';
 import {Functions} from '../../block/Functions';
-import {toDayjs} from '../../util/Dayjs';
+import {toDateTime} from '../../util/DateTime';
 
 export class ParseDateFunction extends PureFunction {
   run() {
     const input = this._data.getValue('input');
-    let d = toDayjs(input);
-    if (d.isValid()) {
+    let d = toDateTime(input);
+    if (d.isValid) {
       this._data.output(d);
-      this._data.output(d.year(), 'year');
-      this._data.output(d.month(), 'month');
-      this._data.output(d.date(), 'date');
-      this._data.output(d.day(), 'day');
-      this._data.output(d.hour(), 'hour');
-      this._data.output(d.minute(), 'minute');
-      this._data.output(d.second(), 'second');
-      this._data.output(d.millisecond(), 'millisecond');
-      this._data.output(d.format('Z'), 'timezone');
+      this._data.output(d.year, 'year');
+      this._data.output(d.month, 'month');
+      this._data.output(d.day, 'day');
+      this._data.output(d.hour, 'hour');
+      this._data.output(d.minute, 'minute');
+      this._data.output(d.second, 'second');
+      this._data.output(d.millisecond, 'millisecond');
+      this._data.output(d.weekday, 'weekday');
+      this._data.output(d.valueOf(), 'timestamp');
+      this._data.output(d.zoneName, 'timezone');
       return;
     }
     this._data.output(null);
@@ -28,6 +29,8 @@ export class ParseDateFunction extends PureFunction {
     this._data.output(null, 'minute');
     this._data.output(null, 'second');
     this._data.output(null, 'millisecond');
+    this._data.output(null, 'weekday');
+    this._data.output(null, 'timestamp');
     this._data.output(null, 'timezone');
   }
 }
@@ -42,11 +45,13 @@ Functions.add(
       {name: 'input', type: 'any', pinned: true},
       {name: 'year', type: 'number', readonly: true, pinned: true},
       {name: 'month', type: 'number', readonly: true, pinned: true},
-      {name: 'date', type: 'number', readonly: true, pinned: true},
+      {name: 'day', type: 'number', readonly: true, pinned: true},
       {name: 'hour', type: 'number', readonly: true, pinned: true},
       {name: 'minute', type: 'number', readonly: true, pinned: true},
-      {name: 'second', type: 'number', readonly: true},
-      {name: 'millisecond', type: 'number', readonly: true},
+      {name: 'second', type: 'number'},
+      {name: 'millisecond', type: 'number'},
+      {name: 'weekday', type: 'number', readonly: true},
+      {name: 'timestamp', type: 'number', readonly: true},
       {name: 'timezone', type: 'string', readonly: true},
       {name: '#output', type: 'date', pinned: true, readonly: true},
     ],
