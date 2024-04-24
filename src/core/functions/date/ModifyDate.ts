@@ -11,9 +11,9 @@ export class FormatDateFunction extends PureFunction {
     let d = toDateTime(base);
     if (d.isValid) {
       const op = this._data.getValue('op') || 'add';
-      let count = Number(this._data.getValue('count') ?? 1);
-      const unit = (this._data.getValue('unit') as any) || 'day';
-      if (Number.isFinite(count) && typeof unit === 'string') {
+      const count = Number(this._data.getValue('count') ?? 1);
+      const unit = (this._data.getValue('unit') as string) ?? 'day';
+      if (Number.isInteger(count) && DATE_UNITS.includes(unit)) {
         try {
           switch (op) {
             case 'add':
@@ -41,9 +41,9 @@ Functions.add(
     priority: 0,
     properties: [
       {name: 'base', type: 'any', pinned: true},
-      {name: 'op', type: 'select', options: OPERATIONS, default: 'add', pinned: true},
-      {name: 'count', type: 'number', default: 1, pinned: true},
-      {name: 'unit', type: 'select', options: DATE_UNITS, default: 'day', pinned: true},
+      {name: 'op', type: 'select', options: OPERATIONS, init: 'add', pinned: true},
+      {name: 'count', type: 'number', init: 1, pinned: true},
+      {name: 'unit', type: 'select', options: DATE_UNITS, init: 'day', pinned: true},
       {name: '#output', type: 'string', pinned: true, readonly: true},
     ],
   },

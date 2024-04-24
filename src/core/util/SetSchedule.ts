@@ -1,7 +1,7 @@
 type ScheduleCallback = (actualTime?: number) => void;
 const CHECK_INTERVAL = 60_000;
 
-class ScheduleEvent {
+export class ScheduleEvent {
   #expire: number;
   constructor(
     public readonly callback: ScheduleCallback,
@@ -127,6 +127,9 @@ function nextTimeout() {
 }
 
 export function setSchedule(callback: ScheduleCallback, time: number, expire = Infinity) {
+  if (!Number.isFinite(time)) {
+    return null;
+  }
   const current = new Date().getTime();
   if (time <= current) {
     callback(current);

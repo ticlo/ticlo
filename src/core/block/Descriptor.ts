@@ -1,7 +1,7 @@
 import {DataMap} from '..';
 
 export const BlockModeList = [
-  'auto', // defined by function
+  'auto', // defined by function, this mode also allows block to update by itself automatically, like with internal timer
   'onLoad', // run onLoad, onChange and onCall
   'onChange', // run onChange and onCall
   'onCall', // onCall only

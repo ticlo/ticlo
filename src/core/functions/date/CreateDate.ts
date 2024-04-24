@@ -15,7 +15,10 @@ export class CreateDateFunction extends PureFunction {
     const timezone = this._data.getValue('timezone');
     try {
       this._data.output(
-        DateTime.fromObject({year, month, day, hour, minute, second, millisecond}, {zone: timezone as string})
+        DateTime.fromObject(
+          {year, month, day, hour, minute, second, millisecond},
+          {zone: timezone as string} // convert empty string to undefined
+        )
       );
     } catch (err) {
       this._data.output(invalidDate);
@@ -37,7 +40,7 @@ Functions.add(
       {name: 'minute', type: 'number', default: 0, pinned: true},
       {name: 'second', type: 'number', default: 0},
       {name: 'millisecond', type: 'number', default: 0},
-      {name: 'timezone', type: 'any', types: ['string', 'number']},
+      {name: 'timezone', type: 'string', default: ''},
       {name: '#output', type: 'date', pinned: true, readonly: true},
     ],
   },
