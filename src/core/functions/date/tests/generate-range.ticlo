@@ -1,0 +1,182 @@
+{
+"#is": "",
+"assert": {
+ "#is": "test:assert",
+ "@b-p": [
+  "actual0",
+  "expect0",
+  "actual1",
+  "expect1",
+  "actual2",
+  "expect2"
+ ],
+ "@b-xyw": [
+  1020,
+  156,
+  143
+ ],
+ "[]": 3,
+ "expect0": 1,
+ "expect1": 1,
+ "expect2": 1,
+ "~actual0": "##.subtract.#output",
+ "~actual1": "##.subtract1.#output",
+ "~actual2": "##.subtract2.#output"
+},
+"generate-range": {
+ "#is": "date:generate-range",
+ "@b-p": [
+  "mode",
+  "current",
+  "count",
+  "unit",
+  "#output"
+ ],
+ "@b-xyw": [
+  108,
+  300,
+  328
+ ],
+ "count": 1,
+ "mode": "previous",
+ "unit": "day"
+},
+"generate-range1": {
+ "#is": "date:generate-range",
+ "@b-p": [
+  "mode",
+  "current",
+  "count",
+  "unit",
+  "#output"
+ ],
+ "@b-xyw": [
+  108,
+  60,
+  328
+ ],
+ "count": 1,
+ "current": true,
+ "mode": "previous",
+ "unit": "day"
+},
+"generate-range2": {
+ "#is": "date:generate-range",
+ "@b-p": [
+  "mode",
+  "current",
+  "count",
+  "unit",
+  "#output"
+ ],
+ "@b-xyw": [
+  110,
+  763,
+  328
+ ],
+ "count": 1,
+ "mode": "previous",
+ "unit": "week"
+},
+"generate-range3": {
+ "#is": "date:generate-range",
+ "@b-p": [
+  "mode",
+  "current",
+  "count",
+  "unit",
+  "#output"
+ ],
+ "@b-xyw": [
+  110,
+  523,
+  328
+ ],
+ "count": 1,
+ "current": true,
+ "mode": "previous",
+ "unit": "week"
+},
+"generate-range4": {
+ "#is": "date:generate-range",
+ "@b-p": [
+  "mode",
+  "current",
+  "count",
+  "unit",
+  "#output"
+ ],
+ "@b-xyw": [
+  107,
+  1221,
+  330
+ ],
+ "count": 1,
+ "mode": "previous",
+ "unit": "month"
+},
+"generate-range5": {
+ "#is": "date:generate-range",
+ "@b-p": [
+  "mode",
+  "current",
+  "count",
+  "unit",
+  "#output"
+ ],
+ "@b-xyw": [
+  107,
+  981,
+  330
+ ],
+ "count": 1,
+ "current": true,
+ "mode": "previous",
+ "unit": "month"
+},
+"subtract": {
+ "#is": "subtract",
+ "@b-p": [
+  "0",
+  "1",
+  "#output"
+ ],
+ "@b-xyw": [
+  612,
+  156,
+  0
+ ],
+ "~0": "##.generate-range1.#output.0",
+ "~1": "##.generate-range.#output.1"
+},
+"subtract1": {
+ "#is": "subtract",
+ "@b-p": [
+  "0",
+  "1",
+  "#output"
+ ],
+ "@b-xyw": [
+  614,
+  619,
+  192
+ ],
+ "~0": "##.generate-range3.#output.0",
+ "~1": "##.generate-range2.#output.1"
+},
+"subtract2": {
+ "#is": "subtract",
+ "@b-p": [
+  "0",
+  "1",
+  "#output"
+ ],
+ "@b-xyw": [
+  632,
+  1068,
+  197
+ ],
+ "~0": "##.generate-range5.#output.0",
+ "~1": "##.generate-range4.#output.1"
+}
+}

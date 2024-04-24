@@ -9,7 +9,7 @@ import {ScheduleEvent, setSchedule} from '../../util/SetSchedule';
 const UNIT_OPTIONS = ['year', 'month', 'day', 'hour', 'minute', 'week'] as const;
 export type UNIT_TYPE = (typeof UNIT_OPTIONS)[number];
 
-export class CreateDateFunction extends ImpureFunction {
+export class GenerateDateFunction extends ImpureFunction {
   #schedule: ScheduleEvent;
   #onTimer = (time: number) => {
     this.#schedule = null;
@@ -74,7 +74,7 @@ export class CreateDateFunction extends ImpureFunction {
           }
           dStart += count - 1;
         }
-        const result = [start.plus({[unit]: dStart}), end.plus({[unit]: dEnd})];
+        const result = [start.plus({[unit]: dStart}), start.plus({[unit]: dEnd}).endOf(unit)];
         this._data.output(result);
 
         if (this.#autoUpdate) {
@@ -102,9 +102,9 @@ export class CreateDateFunction extends ImpureFunction {
 }
 
 Functions.add(
-  CreateDateFunction,
+  GenerateDateFunction,
   {
-    name: 'create-range',
+    name: 'generate-range',
     icon: 'fas:clock',
     priority: 0,
     properties: [
