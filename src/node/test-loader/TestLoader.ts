@@ -49,7 +49,7 @@ export class TestLoader extends FileFlowStorage {
       filename = nameParts.pop();
     }
 
-    let specDir = `${nameParts.join('/')}/spec`;
+    let specDir = `${nameParts.join('/')}/tests`;
     let realPath = `${specDir}/${filename}`;
 
     if (this.tasks.has(realPath)) {
@@ -124,7 +124,7 @@ export class TestLoader extends FileFlowStorage {
     // let functionFiles: string[] = [];
 
     const loadSpec = (dir: string, parentBlockPath: string) => {
-      let specDir = Path.join(dir, 'spec');
+      let specDir = Path.join(dir, 'tests');
       if (Fs.existsSync(specDir)) {
         let stat = Fs.statSync(specDir);
         if (stat.isDirectory()) {
@@ -158,7 +158,7 @@ export class TestLoader extends FileFlowStorage {
         let path = Path.join(dir, file);
         let stat = Fs.statSync(path);
         if (stat.isDirectory()) {
-          if (file !== 'spec' && file !== 'i18n') {
+          if (file !== 'tests' && file !== 'i18n') {
             iterateDir(path, `${blockPath}.${file}`);
           }
         }
