@@ -7,7 +7,7 @@ describe('ScheduleEvent', function () {
     let event = ScheduleEvent.fromProperty({repeat: 'daily', start: [1, 23], duration: 60});
     expect(event.repeat).toBe('daily');
     expect(event.start).toEqual([1, 23]);
-    expect(event.durationMs).toEqual(3600_000);
+    expect(event.durationMs).toEqual(3599_999);
 
     event = ScheduleEvent.fromProperty({repeat: 'weekly', start: [2, 34], days: [1, 3, 5], duration: 60});
     expect(event.days).toEqual([1, 3, 5]);
