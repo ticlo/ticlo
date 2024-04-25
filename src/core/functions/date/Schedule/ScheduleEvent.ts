@@ -2,6 +2,7 @@ import {DateTime, Duration} from 'luxon';
 import z from '../../../util/Validator';
 
 const ONE_HOUR = 3600_000;
+const ONE_MINUTE = 60_000;
 
 export const RepeatModeList = [
   'hourly',
@@ -29,7 +30,7 @@ const ConfigValidator = {
   name: z.nullable('string'),
   repeat: z.enum(RepeatModeList),
   start: [23, 59],
-  duration: z.nullable(z.notNegative),
+  duration: z.notNegative,
   after: z.nullable(z.datetime),
   before: z.nullable(z.datetime),
   priority: z.nullable(z.notNegative),
@@ -61,7 +62,7 @@ export class ScheduleEvent {
     public readonly repeat: RepeatMode,
     public readonly start: [number, number], // hour, minute
     public readonly name?: string,
-    public readonly duration?: number, // duration in minutes
+    public readonly durationMs?: number, // duration in ms
     public readonly after?: number,
     public readonly before?: number,
     // default 0
@@ -72,15 +73,15 @@ export class ScheduleEvent {
     public readonly special?: [number, number, number][]
   ) {}
 
-  static fromProperty(config: unknown): ScheduleEvent {
+  static fromProperty(config: ScheduleConfig): ScheduleEvent {
     if (config) {
       if (z.check(config, ConfigValidator)) {
-        const {name, start, duration, after, before, priority, repeat, days, special} = config as ScheduleConfig;
+        const {name, start, duration, after, before, priority, repeat, days, special} = config;
         return new ScheduleEvent(
           repeat,
           start,
           name,
-          duration,
+          duration * ONE_MINUTE - 1,
           after?.valueOf() ?? -Infinity,
           before?.valueOf() ?? Infinity,
           priority ?? Infinity,
@@ -168,19 +169,22 @@ export class ScheduleEvent {
       fromTs = this.after;
     }
 
-    for (let startTs of this.#generateEvent(fromTs - this.duration, timezone)) {
-      let endTs = startTs + this.duration;
+    for (let startTs of this.#generateEvent(fromTs - this.durationMs, timezone)) {
+      if (this.after - startTs > this.durationMs) {
+        continue;
+      }
+      let endTs = startTs + this.durationMs;
       if (endTs >= ts) {
         if (current) {
           if (startTs > ts) {
             // next one is in the future, the current can be returned
-            if (startTs > current.end) {
+            if (startTs < current.end) {
               current.end = startTs - 1;
             }
             break;
           }
         }
-        current = new EventOccur(this, startTs, startTs + this.duration);
+        current = new EventOccur(this, startTs, startTs + this.durationMs);
       }
     }
 
