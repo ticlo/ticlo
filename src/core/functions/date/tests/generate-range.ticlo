@@ -75,7 +75,8 @@
   328
  ],
  "count": 1,
- "mode": "previous",
+ "current": true,
+ "mode": "next",
  "unit": "week"
 },
 "generate-range3": {
@@ -93,8 +94,7 @@
   328
  ],
  "count": 1,
- "current": true,
- "mode": "previous",
+ "mode": "next",
  "unit": "week"
 },
 "generate-range4": {
@@ -136,45 +136,51 @@
 },
 "subtract": {
  "#is": "subtract",
+ "@b-comment": "previous day vs current day should have 1 ms difference",
  "@b-p": [
   "0",
   "1",
   "#output"
  ],
+ "@b-widget": "comment",
  "@b-xyw": [
   612,
   156,
-  0
+  231
  ],
  "~0": "##.generate-range1.#output.0",
  "~1": "##.generate-range.#output.1"
 },
 "subtract1": {
  "#is": "subtract",
+ "@b-comment": "next week vs current week should have 1 ms difference",
  "@b-p": [
   "0",
   "1",
   "#output"
  ],
+ "@b-widget": "comment",
  "@b-xyw": [
   614,
   619,
-  192
+  243
  ],
  "~0": "##.generate-range3.#output.0",
  "~1": "##.generate-range2.#output.1"
 },
 "subtract2": {
  "#is": "subtract",
+ "@b-comment": "previous month vs current month should have 1 ms difference",
  "@b-p": [
   "0",
   "1",
   "#output"
  ],
+ "@b-widget": "comment",
  "@b-xyw": [
-  632,
+  625,
   1068,
-  197
+  245
  ],
  "~0": "##.generate-range5.#output.0",
  "~1": "##.generate-range4.#output.1"
