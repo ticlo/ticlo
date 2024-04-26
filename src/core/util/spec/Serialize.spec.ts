@@ -12,6 +12,8 @@ describe('Serialize', function () {
     expect(isDateSame(date, decode(encodedStr))).toBe(true);
     expect(encodeDisplay(date)).toBe('2014-11-27 11:07:00 PST');
     expect(formatDate(date, false)).toBe('2014-11-27');
+    // decode from ISO format
+    expect(isDateSame(date, decode(`"\\u001bTs:${dateStr}"`))).toBe(true);
   });
   it('DateTime tz', function () {
     const dateStr = '2014-11-27T11:07:00.000-03:00';

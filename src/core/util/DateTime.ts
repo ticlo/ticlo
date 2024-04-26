@@ -43,6 +43,11 @@ export function decodeDateTime(str: string): any {
       // with timezone
       return DateTime.fromMillis(parseInt(str.substring(4, atPos), 36), {zone: str.substring(atPos + 1)});
     }
+    // 23 ISO length + 4 bytes header
+    if (str.length >= 27) {
+      // parse as ISO format
+      return DateTime.fromISO(str.substring(4), {setZone: true});
+    }
     // local time
     return DateTime.fromMillis(parseInt(str.substring(4), 36));
   } else {
