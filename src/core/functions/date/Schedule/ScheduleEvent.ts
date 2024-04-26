@@ -20,8 +20,7 @@ interface ScheduleConfig {
   duration?: number; // duration in minutes
   after?: DateTime;
   before?: DateTime;
-  // when priority is 0, it overwrites the default value
-  priority?: number;
+  urgency?: number;
   days?: number[];
   // array of [year, month, day] that the special event may occur, must be sorted
   special?: [number, number, number][];
@@ -33,7 +32,7 @@ const ConfigValidator = {
   duration: z.notNegative,
   after: z.nullable(z.datetime),
   before: z.nullable(z.datetime),
-  priority: z.nullable(z.notNegative),
+  urgency: z.nullable(Number.isFinite),
   // used in monthly and weekly
   days: (value: unknown, config: ScheduleConfig) => {
     switch (config.repeat) {
@@ -49,14 +48,16 @@ const ConfigValidator = {
     config.repeat === 'special' ? z.array(value, [[z.int, z.num1n(12), z.num1n(31)]]) : value == null,
 };
 
-class EventOccur {
+export class EventOccur {
   constructor(
-    public event: ScheduleEvent,
     public start: number,
     public end: number
   ) {}
+  isValid() {
+    return this.start < Infinity;
+  }
 }
-const expired = new EventOccur(null, Infinity, Infinity);
+const expired = new EventOccur(Infinity, Infinity);
 export class ScheduleEvent {
   constructor(
     public readonly repeat: RepeatMode,
@@ -66,17 +67,17 @@ export class ScheduleEvent {
     public readonly after?: number,
     public readonly before?: number,
     // default 0
-    public readonly priority?: number,
+    public readonly urgency?: number,
 
     public readonly days?: number[],
     // array of [year, month, day] that the special event may occur, must be sorted
     public readonly special?: [number, number, number][]
   ) {}
 
-  static fromProperty(config: ScheduleConfig): ScheduleEvent {
+  static fromProperty(config: unknown): ScheduleEvent {
     if (config) {
       if (z.check(config, ConfigValidator)) {
-        const {name, start, duration, after, before, priority, repeat, days, special} = config;
+        const {name, start, duration, after, before, urgency, repeat, days, special} = config as ScheduleConfig;
         return new ScheduleEvent(
           repeat,
           start,
@@ -84,7 +85,7 @@ export class ScheduleEvent {
           duration * ONE_MINUTE - 1,
           after?.valueOf() ?? -Infinity,
           before?.valueOf() ?? Infinity,
-          priority ?? Infinity,
+          urgency ?? 0,
           days,
           special
         );
@@ -157,7 +158,7 @@ export class ScheduleEvent {
   }
 
   #current: EventOccur;
-  getEvent(ts: number, timezone?: string): EventOccur {
+  getOccur(ts: number, timezone?: string): EventOccur {
     if (this.#current && this.#current.end >= ts) {
       return this.#current;
     }
@@ -184,7 +185,7 @@ export class ScheduleEvent {
             break;
           }
         }
-        current = new EventOccur(this, startTs, startTs + this.durationMs);
+        current = new EventOccur(startTs, startTs + this.durationMs);
       }
     }
 

@@ -1,48 +1,12 @@
-import {FunctionData, ImpureFunction, PureFunction} from '../../block/BlockFunction';
 import {Functions} from '../../block/Functions';
 import {DateTime} from 'luxon';
 import {invalidDate} from '../../util/DateTime';
-import type {BlockConfig} from '../../block/BlockProperty';
-import {Block} from '../../block/Block';
-import {ScheduleEvent, setSchedule} from '../../util/SetSchedule';
+import {AutoUpdateFunction} from '../base/AutoUpdateFunction';
 
 const UNIT_OPTIONS = ['year', 'month', 'day', 'hour', 'minute', 'week'] as const;
 export type UNIT_TYPE = (typeof UNIT_OPTIONS)[number];
 
-export class GenerateDateFunction extends ImpureFunction {
-  #schedule: ScheduleEvent;
-  #onTimer = (time: number) => {
-    this.#schedule = null;
-    if (this._data instanceof Block) {
-      this._data._queueFunction();
-    }
-  };
-
-  #autoUpdate: boolean;
-  #setAutoUpdate(v: boolean) {
-    if (v !== this.#autoUpdate && this._data instanceof Block) {
-      this.#autoUpdate = v;
-      if (!v && this.#schedule) {
-        this.#schedule.cancel();
-        this.#schedule = null;
-      }
-      return true;
-    }
-    return false;
-  }
-
-  constructor(data: FunctionData) {
-    super(data);
-    this.#autoUpdate = data instanceof Block;
-  }
-
-  configChanged(config: BlockConfig, val: unknown): boolean {
-    if (config._name === 'mode') {
-      return this.#setAutoUpdate(config._value == null || config._value === 'auto');
-    }
-    return false;
-  }
-
+export class GenerateDateFunction extends AutoUpdateFunction {
   run() {
     const count = Number(this._data.getValue('count') ?? 1);
     const unit = (this._data.getValue('unit') as UNIT_TYPE) ?? 'day';
@@ -77,12 +41,7 @@ export class GenerateDateFunction extends ImpureFunction {
         const result = [start.plus({[unit]: dStart}), start.plus({[unit]: dEnd}).endOf(unit)];
         this._data.output(result);
 
-        if (this.#autoUpdate) {
-          if (nextCheck !== this.#schedule?.start) {
-            this.#schedule?.cancel();
-            this.#schedule = setSchedule(this.#onTimer, nextCheck);
-          }
-        }
+        this.addSchedule(nextCheck);
 
         return;
       } catch (err) {
@@ -91,21 +50,13 @@ export class GenerateDateFunction extends ImpureFunction {
     }
     this._data.output([invalidDate, invalidDate]);
   }
-  cleanup() {
-    this.#schedule?.cancel();
-    super.cleanup();
-  }
-  destroy() {
-    this.#schedule?.cancel();
-    super.destroy();
-  }
 }
 
 Functions.add(
   GenerateDateFunction,
   {
     name: 'generate-range',
-    icon: 'fas:clock',
+    icon: 'fas:calendar',
     priority: 0,
     properties: [
       {name: 'mode', type: 'select', options: ['previous', 'next'], init: 'previous', pinned: true},

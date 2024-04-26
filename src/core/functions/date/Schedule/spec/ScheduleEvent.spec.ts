@@ -29,29 +29,29 @@ describe('ScheduleEvent', function () {
 
   it('next event', function () {
     const event = ScheduleEvent.fromProperty({repeat: 'daily', start: [12, 20], duration: 60});
-    const occur1 = event.getEvent(new Date('2024-01-01').getTime());
+    const occur1 = event.getOccur(new Date('2024-01-01').getTime());
     expect(occur1.start).toBe(new Date('2024-01-01T12:20').getTime());
 
-    const occur2 = event.getEvent(new Date('2024-01-01T11:00').getTime());
+    const occur2 = event.getOccur(new Date('2024-01-01T11:00').getTime());
     expect(occur2).toBe(occur1); // not changed
 
-    const occur3 = event.getEvent(new Date('2024-01-01T12:30').getTime());
+    const occur3 = event.getOccur(new Date('2024-01-01T12:30').getTime());
     expect(occur3).toBe(occur1); // not changed
 
     // next
-    const occur4 = event.getEvent(new Date('2024-01-01T13:20').getTime());
+    const occur4 = event.getOccur(new Date('2024-01-01T13:20').getTime());
     expect(occur4.start).toBe(new Date('2024-01-02T12:20').getTime());
   });
 
   it('duration overflow', function () {
     const event = ScheduleEvent.fromProperty({repeat: 'hourly', start: [0, 0], duration: 120});
-    const occur1 = event.getEvent(DateTime.fromISO('2024-01-01').valueOf());
+    const occur1 = event.getOccur(DateTime.fromISO('2024-01-01').valueOf());
     expect(occur1.start).toBe(DateTime.fromISO('2024-01-01T00:00').valueOf());
 
     // when duration pass the next start, it should end before the next start
     expect(occur1.end - occur1.start).toBe(3600_000 - 1);
 
-    const occur2 = event.getEvent(new Date('2024-01-01T01:00').getTime());
+    const occur2 = event.getOccur(new Date('2024-01-01T01:00').getTime());
     expect(occur2.start).toBe(DateTime.fromISO('2024-01-01T01:00').valueOf());
   });
 
@@ -62,10 +62,10 @@ describe('ScheduleEvent', function () {
       duration: 90,
       after: DateTime.fromISO('2024-01-05'),
     });
-    const occur1 = event.getEvent(DateTime.fromISO('2024-01-01').valueOf());
+    const occur1 = event.getOccur(DateTime.fromISO('2024-01-01').valueOf());
     expect(occur1.start).toBe(DateTime.fromISO('2024-01-05T12:10').valueOf());
 
-    const occur2 = event.getEvent(DateTime.fromISO('2024-01-07').valueOf());
+    const occur2 = event.getOccur(DateTime.fromISO('2024-01-07').valueOf());
     expect(occur2.start).toBe(DateTime.fromISO('2024-01-07T12:10').valueOf());
   });
 
@@ -76,10 +76,10 @@ describe('ScheduleEvent', function () {
       duration: 90,
       before: DateTime.fromISO('2024-01-05'),
     });
-    const occur1 = event.getEvent(DateTime.fromISO('2024-01-01').valueOf());
+    const occur1 = event.getOccur(DateTime.fromISO('2024-01-01').valueOf());
     expect(occur1.start).toBe(DateTime.fromISO('2024-01-01T12:10').valueOf());
 
-    const occur2 = event.getEvent(DateTime.fromISO('2024-01-07').valueOf());
+    const occur2 = event.getOccur(DateTime.fromISO('2024-01-07').valueOf());
     expect(occur2.start).toBe(Infinity);
   });
 });

@@ -11,11 +11,8 @@ export class Event {
   static get uid(): string {
     return Event._uid.current;
   }
-
   loopId: string;
-  type: string;
-
-  constructor(type: string) {
+  constructor(public readonly type: string) {
     this.type = type;
     this.loopId = Event.uid;
   }
@@ -39,9 +36,10 @@ export class Event {
 }
 
 export class ErrorEvent extends Event {
-  detail: unknown;
-
-  constructor(type: string, detail?: unknown) {
+  constructor(
+    type: string,
+    public readonly detail?: unknown
+  ) {
     super(type);
     this.detail = detail;
   }
@@ -74,6 +72,16 @@ export class NoEmit extends Event {
 export class CompleteEvent extends Event {
   constructor() {
     super('complete');
+  }
+}
+
+export class ValueUpdateEvent extends Event {
+  constructor(
+    public readonly name: string,
+    public readonly value: unknown,
+    public readonly ts?: number
+  ) {
+    super('valueUpdate');
   }
 }
 

@@ -23,7 +23,7 @@ function checkO(
   validator: {[key: string]: ValidatorAny},
   root?: unknown
 ): value is object {
-  if (typeof value !== 'object' || value == null) {
+  if (typeof value !== 'object' || value === null) {
     return false;
   }
   for (const key of Object.keys(validator)) {

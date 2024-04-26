@@ -4,3 +4,5 @@ import './FormatDate';
 import './ModifyDate';
 
 import './GenerateRange';
+
+import './Schedule/Schedule';
