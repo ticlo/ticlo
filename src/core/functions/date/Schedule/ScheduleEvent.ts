@@ -9,7 +9,7 @@ export const RepeatModeList = [
   'daily',
   'weekly',
   'monthly',
-  'special', // repeat on special days
+  'dates', // repeat on special dates
 ] as const;
 export type RepeatMode = (typeof RepeatModeList)[number];
 
@@ -23,7 +23,7 @@ interface ScheduleConfig {
   urgency?: number;
   days?: number[];
   // array of [year, month, day] that the special event may occur, must be sorted
-  special?: [number, number, number][];
+  dates?: [number, number, number][];
 }
 const ConfigValidator = {
   name: z.nullable('string'),
@@ -44,8 +44,8 @@ const ConfigValidator = {
         return value == null;
     }
   },
-  special: (value: unknown, config: ScheduleConfig) =>
-    config.repeat === 'special' ? z.array(value, [[z.int, z.num1n(12), z.num1n(31)]]) : value == null,
+  dates: (value: unknown, config: ScheduleConfig) =>
+    config.repeat === 'dates' ? z.array(value, [[z.int, z.num1n(12), z.num1n(31)]]) : value == null,
 };
 
 export class EventOccur {
@@ -71,13 +71,13 @@ export class ScheduleEvent {
 
     public readonly days?: number[],
     // array of [year, month, day] that the special event may occur, must be sorted
-    public readonly special?: [number, number, number][]
+    public readonly dates?: [number, number, number][]
   ) {}
 
   static fromProperty(config: unknown): ScheduleEvent {
     if (config) {
       if (z.check(config, ConfigValidator)) {
-        const {name, start, duration, after, before, urgency, repeat, days, special} = config as ScheduleConfig;
+        const {name, start, duration, after, before, urgency, repeat, days, dates} = config as ScheduleConfig;
         return new ScheduleEvent(
           repeat,
           start,
@@ -87,7 +87,7 @@ export class ScheduleEvent {
           before?.valueOf() ?? Infinity,
           urgency ?? 0,
           days,
-          special
+          dates
         );
       }
     }
@@ -132,8 +132,8 @@ export class ScheduleEvent {
         }
       }
       // tslint:disable-next-line:no-switch-case-fall-through
-      case 'special': {
-        for (let [year, month, day] of this.special) {
+      case 'dates': {
+        for (let [year, month, day] of this.dates) {
           yield DateTime.fromObject(
             {year, month, day, hour: this.start[0], minute: this.start[1]},
             {zone: timezone}

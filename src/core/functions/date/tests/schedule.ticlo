@@ -1,0 +1,448 @@
+{
+"#is": "",
+"assert": {
+ "#is": "test:assert",
+ "@b-p": [
+  "actual0",
+  "expect0"
+ ],
+ "@b-xyw": [
+  396,
+  84,
+  143
+ ],
+ "expect0": "hello",
+ "matchMode": "always-match",
+ "~actual0": "##.test-schedule.#output"
+},
+"assert1": {
+ "#is": "test:assert",
+ "@b-p": [
+  "actual0",
+  "expect0"
+ ],
+ "@b-xyw": [
+  396,
+  300,
+  143
+ ],
+ "expect0": "v1",
+ "matchMode": "always-match",
+ "~actual0": "##.test-daily.#output"
+},
+"assert2": {
+ "#is": "test:assert",
+ "@b-p": [
+  "actual0",
+  "expect0"
+ ],
+ "@b-xyw": [
+  396,
+  516,
+  143
+ ],
+ "expect0": "v2",
+ "matchMode": "always-match",
+ "~actual0": "##.test-weekly.#output"
+},
+"assert3": {
+ "#is": "test:assert",
+ "@b-p": [
+  "actual0",
+  "expect0"
+ ],
+ "@b-xyw": [
+  396,
+  732,
+  143
+ ],
+ "expect0": "v3",
+ "matchMode": "always-match",
+ "~actual0": "##.test-monthly.#output"
+},
+"assert4": {
+ "#is": "test:assert",
+ "@b-p": [
+  "actual0",
+  "expect0"
+ ],
+ "@b-xyw": [
+  396,
+  948,
+  143
+ ],
+ "expect0": "v4",
+ "matchMode": "always-match",
+ "~actual0": "##.test-hourly.#output"
+},
+"assert5": {
+ "#is": "test:assert",
+ "@b-p": [
+  "actual0",
+  "expect0"
+ ],
+ "@b-xyw": [
+  847,
+  1164,
+  143
+ ],
+ "expect0": "v5",
+ "~actual0": "##.test-dates.#output"
+},
+"assert6": {
+ "#is": "test:assert",
+ "@b-p": [
+  "actual0",
+  "expect0"
+ ],
+ "@b-xyw": [
+  972,
+  204,
+  143
+ ],
+ "expect0": "b",
+ "matchMode": "always-match",
+ "~actual0": "##.test-urgency.#output"
+},
+"assert7": {
+ "#is": "test:assert",
+ "@b-p": [
+  "actual0",
+  "expect0"
+ ],
+ "@b-xyw": [
+  972,
+  516,
+  143
+ ],
+ "expect0": "c",
+ "matchMode": "always-match",
+ "~actual0": "##.test-same-urgency.#output"
+},
+"generate-range": {
+ "#is": "date:generate-range",
+ "@b-p": [
+  "mode",
+  "current",
+  "count",
+  "unit",
+  "#output"
+ ],
+ "@b-xyw": [
+  84,
+  1044,
+  143
+ ],
+ "count": 1,
+ "current": true,
+ "mode": "previous",
+ "unit": "day"
+},
+"js": {
+ "#custom": [
+  {
+   "name": "y",
+   "pinned": true,
+   "type": "number"
+  },
+  {
+   "name": "m",
+   "pinned": true,
+   "type": "number"
+  },
+  {
+   "name": "d",
+   "pinned": true,
+   "type": "number"
+  },
+  {
+   "name": "output",
+   "pinned": true,
+   "type": "any"
+  }
+ ],
+ "#is": "js",
+ "@b-p": [
+  "script",
+  "y",
+  "m",
+  "d",
+  "output"
+ ],
+ "@b-xyw": [
+  439,
+  1140,
+  143
+ ],
+ "script": "this.output = {\n  repeat:'dates',\n  start:[0,0],\n  duration: 1500,\n  dates:[[this.y, this.m, this.d]]\n};",
+ "~d": "##.parse.day",
+ "~m": "##.parse.month",
+ "~y": "##.parse.year"
+},
+"parse": {
+ "#is": "date:parse",
+ "@b-p": [
+  "input",
+  "year",
+  "month",
+  "day"
+ ],
+ "@b-xyw": [
+  252,
+  1140,
+  143
+ ],
+ "~input": "##.generate-range.#output.0"
+},
+"test-daily": {
+ "#is": "schedule",
+ "@b-p": [
+  "config0",
+  "value0",
+  "default",
+  "#output"
+ ],
+ "@b-xyw": [
+  84,
+  228,
+  176
+ ],
+ "[]": 1,
+ "config0": {
+  "duration": 1500,
+  "repeat": "daily",
+  "start": [
+   0,
+   0
+  ]
+ },
+ "default": "default",
+ "value0": "v1"
+},
+"test-dates": {
+ "#is": "schedule",
+ "@b-p": [
+  "config0",
+  "value0",
+  "default",
+  "#output"
+ ],
+ "@b-xyw": [
+  636,
+  1092,
+  176
+ ],
+ "[]": 1,
+ "default": "default",
+ "value0": "v5",
+ "~config0": "##.js.output"
+},
+"test-hourly": {
+ "#is": "schedule",
+ "@b-p": [
+  "config0",
+  "value0",
+  "default",
+  "#output"
+ ],
+ "@b-xyw": [
+  84,
+  876,
+  176
+ ],
+ "[]": 1,
+ "config0": {
+  "duration": 60,
+  "repeat": "hourly",
+  "start": [
+   0,
+   0
+  ]
+ },
+ "default": "default",
+ "value0": "v4"
+},
+"test-monthly": {
+ "#is": "schedule",
+ "@b-p": [
+  "config0",
+  "value0",
+  "default",
+  "#output"
+ ],
+ "@b-xyw": [
+  84,
+  660,
+  176
+ ],
+ "[]": 1,
+ "config0": {
+  "days": [
+   1,
+   2,
+   3,
+   4,
+   5,
+   6,
+   7,
+   8,
+   9,
+   10,
+   11,
+   12,
+   13,
+   14,
+   15,
+   16,
+   17,
+   18,
+   19,
+   20,
+   21,
+   22,
+   23,
+   24,
+   25,
+   26,
+   27,
+   28,
+   29,
+   30,
+   31
+  ],
+  "duration": 1500,
+  "repeat": "monthly",
+  "start": [
+   0,
+   0
+  ]
+ },
+ "default": "default",
+ "value0": "v3"
+},
+"test-same-urgency": {
+ "#is": "schedule",
+ "@b-comment": "When urgency is same, event with lower index has higher priority",
+ "@b-p": [
+  "config0",
+  "value0",
+  "config1",
+  "value1",
+  "default",
+  "#output"
+ ],
+ "@b-widget": "comment",
+ "@b-xyw": [
+  660,
+  324,
+  211
+ ],
+ "[]": 2,
+ "config0": {
+  "duration": 1500,
+  "repeat": "daily",
+  "start": [
+   0,
+   0
+  ],
+  "urgency": 1
+ },
+ "config1": {
+  "duration": 1500,
+  "repeat": "daily",
+  "start": [
+   0,
+   0
+  ],
+  "urgency": 1
+ },
+ "default": "default",
+ "value0": "c",
+ "value1": "d"
+},
+"test-schedule": {
+ "#is": "schedule",
+ "@b-p": [
+  "default",
+  "#output"
+ ],
+ "@b-xyw": [
+  84,
+  60,
+  143
+ ],
+ "default": "hello"
+},
+"test-urgency": {
+ "#is": "schedule",
+ "@b-p": [
+  "config0",
+  "value0",
+  "config1",
+  "value1",
+  "default",
+  "#output"
+ ],
+ "@b-xyw": [
+  660,
+  84,
+  176
+ ],
+ "[]": 2,
+ "config0": {
+  "duration": 1500,
+  "repeat": "daily",
+  "start": [
+   0,
+   0
+  ],
+  "urgency": 1
+ },
+ "config1": {
+  "duration": 1500,
+  "repeat": "daily",
+  "start": [
+   0,
+   0
+  ],
+  "urgency": 2
+ },
+ "default": "default",
+ "value0": "a",
+ "value1": "b"
+},
+"test-weekly": {
+ "#is": "schedule",
+ "@b-p": [
+  "config0",
+  "value0",
+  "default",
+  "#output"
+ ],
+ "@b-xyw": [
+  84,
+  444,
+  176
+ ],
+ "[]": 1,
+ "config0": {
+  "days": [
+   1,
+   2,
+   3,
+   4,
+   5,
+   6,
+   7
+  ],
+  "duration": 1500,
+  "repeat": "weekly",
+  "start": [
+   0,
+   0
+  ]
+ },
+ "default": "default",
+ "value0": "v2"
+}
+}
