@@ -36,7 +36,7 @@ function checkO(
 // if validator length is 1, it's applied to all children
 // if validator size is 0, it only checks if value is Array
 function checkA(value: unknown, validator: ValidatorDynamic[], root?: unknown): value is unknown[] {
-  if (!Array.isArray(value)) {
+  if (!Array.isArray(value) || value.length === 0) {
     return false;
   }
   if (validator.length === 1) {
@@ -69,6 +69,24 @@ function anyValidator(...validators: ValidatorDynamic[]) {
     validators.find((validator: ValidatorDynamic) => checkDynamic(value, validator, root)) !== undefined;
 }
 
+function conditionValidator(condition: (root: any) => boolean, validator: ValidatorDynamic) {
+  return (value: unknown, root: unknown) => {
+    if (condition(root)) {
+      return checkDynamic(value, validator, root);
+    }
+    return value == null;
+  };
+}
+
+function switchValidator(validator: {[key: string]: ValidatorDynamic}) {
+  return (value: string, root: unknown) => {
+    if (validator.hasOwnProperty(value)) {
+      return checkDynamic(root, validator[value], root);
+    }
+    return false;
+  };
+}
+
 function number0toN(max: number) {
   return (value: unknown): value is number =>
     Number.isInteger(value) && (value as number) >= 0 && (value as number) <= max;
@@ -94,6 +112,8 @@ const Validator = {
   notNegative: (value: unknown) => typeof value === 'number' && value >= 0,
   num0n: number0toN,
   num1n: number1toN,
+  condition: conditionValidator,
+  switch: switchValidator,
 };
 
 export default Validator;

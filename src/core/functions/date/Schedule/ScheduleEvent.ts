@@ -25,36 +25,30 @@ interface ScheduleConfig {
   days?: number[];
   // for yearly
   months?: number[];
-  // single number for days, and 2 numbers for nth weekday
-  monthDays?: (number | [number, number])[];
+  // for yearly
+  monthDays?: number[];
+  monthWeekDays?: [number, number][];
   // array of [year, month, day] that the special event may occur, must be sorted
   dates?: [number, number, number][];
 }
 const ConfigValidator = {
   name: z.nullable('string'),
-  repeat: z.enum(RepeatModeList),
   start: [23, 59],
   duration: Number.isInteger,
   after: z.nullable(z.datetime),
   before: z.nullable(z.datetime),
   urgency: z.nullable(Number.isFinite),
-  // used in monthly and weekly
-  days: (value: unknown, config: ScheduleConfig) => {
-    switch (config.repeat) {
-      case 'weekly':
-        return z.array(value, [z.num1n(7)]) && value.length > 0;
-      case 'monthly':
-        return z.array(value, [z.num1n(31)]) && value.length > 0;
-      default:
-        return value == null;
-    }
-  },
-  months: (value: unknown, config: ScheduleConfig) =>
-    config.repeat === 'yearly' ? z.array(value, [z.num1n(12)]) : value == null,
-  monthDays: (value: unknown, config: ScheduleConfig) =>
-    config.repeat === 'yearly' ? z.array(value, [z.any(z.num1n(31), ['number', z.num1n(7)])]) : value == null,
-  dates: (value: unknown, config: ScheduleConfig) =>
-    config.repeat === 'dates' ? z.array(value, [[z.int, z.num1n(12), z.num1n(31)]]) : value == null,
+  repeat: z.switch({
+    daily: {},
+    weekly: {days: [z.num1n(7)]},
+    monthly: {days: [z.num1n(31)]},
+    yearly: {
+      months: [z.num1n(12)],
+      monthDays: [z.num1n(31)],
+      monthWeekDays: [['number', z.num1n(7)]],
+    },
+    dates: {dates: [[z.int, z.num1n(12), z.num1n(31)]]},
+  }),
 };
 
 export class EventOccur {
@@ -82,8 +76,10 @@ export class ScheduleEvent {
     public readonly days?: number[],
     // for yearly
     public readonly months?: number[],
-    // single number for days, and 2 numbers for nth weekday
-    public readonly monthDays?: (number | [number, number])[],
+    public readonly monthDays?: number[],
+    // nth weekday
+    public readonly monthWeekDays?: [number, number][],
+
     // array of [year, month, day] that the special event may occur
     public readonly dates?: [number, number, number][]
   ) {}
@@ -91,7 +87,7 @@ export class ScheduleEvent {
   static fromProperty(config: unknown): ScheduleEvent {
     if (config) {
       if (z.check(config, ConfigValidator)) {
-        const {name, start, duration, after, before, urgency, repeat, days, months, monthDays, dates} =
+        const {name, start, duration, after, before, urgency, repeat, days, months, monthDays, monthWeekDays, dates} =
           config as ScheduleConfig;
         return new ScheduleEvent(
           repeat,
@@ -104,6 +100,7 @@ export class ScheduleEvent {
           days,
           months,
           monthDays,
+          monthWeekDays,
           dates
         );
       }
@@ -166,6 +163,17 @@ export class ScheduleEvent {
         return;
       }
       case 'yearly': {
+        let year = refDay.year;
+        for (let year = refDay.year; true; ++year) {
+          for (let month = 1; month <= 12; ++month) {
+            if (this.months.includes(month)) {
+              const startOfMonth = DateTime.fromObject({year, month, day: 1}, {zone: timezone});
+              const endOfMonth = startOfMonth.endOf('month');
+              const days = this.monthDays.filter((v) => typeof v === 'number');
+              for (let day = 1; day <= endOfMonth.day; ++day) {}
+            }
+          }
+        }
       }
     }
   }
