@@ -73,7 +73,7 @@
  ],
  "expect0": "v4",
  "matchMode": "always-match",
- "~actual0": "##.test-hourly.#output"
+ "~actual0": "##.test-fullday.#output"
 },
 "assert5": {
  "#is": "test:assert",
@@ -237,7 +237,7 @@
  "value0": "v5",
  "~config0": "##.js.output"
 },
-"test-hourly": {
+"test-fullday": {
  "#is": "schedule",
  "@b-p": [
   "config0",
@@ -252,8 +252,8 @@
  ],
  "[]": 1,
  "config0": {
-  "duration": 60,
-  "repeat": "hourly",
+  "duration": -1,
+  "repeat": "daily",
   "start": [
    0,
    0

@@ -44,15 +44,15 @@ describe('ScheduleEvent', function () {
   });
 
   it('duration overflow', function () {
-    const event = ScheduleEvent.fromProperty({repeat: 'hourly', start: [0, 0], duration: 120});
+    const event = ScheduleEvent.fromProperty({repeat: 'daily', start: [0, 0], duration: 3000});
     const occur1 = event.getOccur(DateTime.fromISO('2024-01-01').valueOf());
     expect(occur1.start).toBe(DateTime.fromISO('2024-01-01T00:00').valueOf());
 
     // when duration pass the next start, it should end before the next start
-    expect(occur1.end - occur1.start).toBe(3600_000 - 1);
+    expect(occur1.end - occur1.start).toBe(3600_000 * 24 - 1);
 
-    const occur2 = event.getOccur(new Date('2024-01-01T01:00').getTime());
-    expect(occur2.start).toBe(DateTime.fromISO('2024-01-01T01:00').valueOf());
+    const occur2 = event.getOccur(new Date('2024-01-02T00:00').getTime());
+    expect(occur2.start).toBe(DateTime.fromISO('2024-01-02T00:00').valueOf());
   });
 
   it('after', function () {

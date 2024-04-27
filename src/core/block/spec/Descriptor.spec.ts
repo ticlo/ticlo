@@ -1,6 +1,6 @@
 import {expect} from 'vitest';
 import '../../functions/math/Arithmetic';
-import '../../functions/script/Js';
+import '../../functions/data/State';
 import {
   blankPropDesc,
   buildPropDescCache,
@@ -38,7 +38,7 @@ describe('Descriptor', function () {
   it('getOutputDesc', function () {
     expect(getOutputDesc(null)).toBeNull();
     expect(getOutputDesc({name: ''})).toBeNull();
-    expect(getOutputDesc(Functions.getDescToSend('js')[0])).toBeNull();
+    expect(getOutputDesc(Functions.getDescToSend('set-state')[0])).toBeNull();
     expect(getOutputDesc(Functions.getDescToSend('add')[0])).not.toBeNull();
   });
 

@@ -74,7 +74,7 @@ export class JsFunction extends BlockFunction {
     } catch (err) {
       return new ErrorEvent(SCRIPT_ERROR, err);
     }
-    return rslt;
+    this._data.output(rslt);
   }
 
   static registerType(script: string, desc: FunctionDesc, namespace?: string): boolean {
@@ -115,6 +115,12 @@ Functions.add(JsFunction, {
       type: 'string',
       mime: 'text/javascript',
       pinned: true,
+    },
+    {
+      name: '#output',
+      type: 'any',
+      pinned: true,
+      readonly: true,
     },
   ],
   category: 'script',

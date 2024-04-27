@@ -126,6 +126,7 @@ export class ScheduleFunction extends AutoUpdateFunction {
     this._data.output(outputValue);
 
     if (current) {
+      // TODO make sure event is different from last one
       return new ValueUpdateEvent(current.event.name, current.value, current.occur.start);
     }
   }
@@ -146,6 +147,7 @@ Functions.add(ScheduleFunction, {
       ],
     },
     {name: 'default', type: 'any', pinned: true},
+    {name: 'override', type: 'any'},
     {name: 'timezone', type: 'string', default: ''},
     {name: '#output', type: 'any', readonly: true, pinned: true},
   ],

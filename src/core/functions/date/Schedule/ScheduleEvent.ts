@@ -5,10 +5,10 @@ const ONE_HOUR = 3600_000;
 const ONE_MINUTE = 60_000;
 
 export const RepeatModeList = [
-  'hourly',
   'daily',
   'weekly',
   'monthly',
+  'yearly',
   'dates', // repeat on special dates
 ] as const;
 export type RepeatMode = (typeof RepeatModeList)[number];
@@ -21,7 +21,12 @@ interface ScheduleConfig {
   after?: DateTime;
   before?: DateTime;
   urgency?: number;
+  // for daily, weekly
   days?: number[];
+  // for yearly
+  months?: number[];
+  // single number for days, and 2 numbers for nth weekday
+  monthDays?: (number | [number, number])[];
   // array of [year, month, day] that the special event may occur, must be sorted
   dates?: [number, number, number][];
 }
@@ -29,7 +34,7 @@ const ConfigValidator = {
   name: z.nullable('string'),
   repeat: z.enum(RepeatModeList),
   start: [23, 59],
-  duration: z.notNegative,
+  duration: Number.isInteger,
   after: z.nullable(z.datetime),
   before: z.nullable(z.datetime),
   urgency: z.nullable(Number.isFinite),
@@ -44,6 +49,10 @@ const ConfigValidator = {
         return value == null;
     }
   },
+  months: (value: unknown, config: ScheduleConfig) =>
+    config.repeat === 'yearly' ? z.array(value, [z.num1n(12)]) : value == null,
+  monthDays: (value: unknown, config: ScheduleConfig) =>
+    config.repeat === 'yearly' ? z.array(value, [z.any(z.num1n(31), ['number', z.num1n(7)])]) : value == null,
   dates: (value: unknown, config: ScheduleConfig) =>
     config.repeat === 'dates' ? z.array(value, [[z.int, z.num1n(12), z.num1n(31)]]) : value == null,
 };
@@ -63,21 +72,27 @@ export class ScheduleEvent {
     public readonly repeat: RepeatMode,
     public readonly start: [number, number], // hour, minute
     public readonly name?: string,
-    public readonly durationMs?: number, // duration in ms
+    public readonly durationMs?: number, // duration in ms, -1 for full day
     public readonly after?: number,
     public readonly before?: number,
     // default 0
     public readonly urgency?: number,
 
+    // for daily, weekly
     public readonly days?: number[],
-    // array of [year, month, day] that the special event may occur, must be sorted
+    // for yearly
+    public readonly months?: number[],
+    // single number for days, and 2 numbers for nth weekday
+    public readonly monthDays?: (number | [number, number])[],
+    // array of [year, month, day] that the special event may occur
     public readonly dates?: [number, number, number][]
   ) {}
 
   static fromProperty(config: unknown): ScheduleEvent {
     if (config) {
       if (z.check(config, ConfigValidator)) {
-        const {name, start, duration, after, before, urgency, repeat, days, dates} = config as ScheduleConfig;
+        const {name, start, duration, after, before, urgency, repeat, days, months, monthDays, dates} =
+          config as ScheduleConfig;
         return new ScheduleEvent(
           repeat,
           start,
@@ -87,13 +102,23 @@ export class ScheduleEvent {
           before?.valueOf() ?? Infinity,
           urgency ?? 0,
           days,
+          months,
+          monthDays,
           dates
         );
       }
     }
     return null;
   }
-  *#generateEvent(fromTs: number, timezone?: string) {
+  *#generateEvent(fromTs: number, timezone?: string): Generator<[number, number]> {
+    const toRange = (startDate: DateTime): [number, number] => {
+      let startTs = startDate.valueOf();
+      if (this.durationMs < 0) {
+        // end of day
+        return [startTs, startDate.set({hour: 23, minute: 59, second: 59, millisecond: 999}).valueOf()];
+      }
+      return [startTs, startTs + this.durationMs];
+    };
     let refDay = DateTime.fromMillis(fromTs, {zone: timezone}).set({
       hour: 12,
       minute: 0,
@@ -103,7 +128,7 @@ export class ScheduleEvent {
     switch (this.repeat) {
       case 'daily': {
         while (true) {
-          yield refDay.set({hour: this.start[0], minute: this.start[1]}).valueOf();
+          yield toRange(refDay.set({hour: this.start[0], minute: this.start[1]}));
           refDay = refDay.plus({day: 1});
         }
       }
@@ -111,7 +136,7 @@ export class ScheduleEvent {
       case 'weekly': {
         while (true) {
           for (const weekday of this.days) {
-            yield refDay.set({weekday: weekday as any, hour: this.start[0], minute: this.start[1]}).valueOf();
+            yield toRange(refDay.set({weekday: weekday as any, hour: this.start[0], minute: this.start[1]}));
           }
           refDay = refDay.plus({week: 1});
         }
@@ -125,7 +150,7 @@ export class ScheduleEvent {
             const result = refDay.set({day: day as any, hour: this.start[0], minute: this.start[1]});
             if (result.month === refDay.month) {
               // make sure it doesn't fall to next month because of day number overflow
-              yield result.valueOf();
+              yield toRange(result);
             }
           }
           refDay = refDay.plus({month: 1});
@@ -134,25 +159,13 @@ export class ScheduleEvent {
       // tslint:disable-next-line:no-switch-case-fall-through
       case 'dates': {
         for (let [year, month, day] of this.dates) {
-          yield DateTime.fromObject(
-            {year, month, day, hour: this.start[0], minute: this.start[1]},
-            {zone: timezone}
-          ).valueOf();
+          yield toRange(
+            DateTime.fromObject({year, month, day, hour: this.start[0], minute: this.start[1]}, {zone: timezone})
+          );
         }
         return;
       }
-      case 'hourly': {
-        let ts = DateTime.fromMillis(fromTs, {zone: timezone})
-          .set({
-            minute: this.start[1],
-            second: 0,
-            millisecond: 0,
-          })
-          .valueOf();
-        while (true) {
-          yield ts;
-          ts += ONE_HOUR;
-        }
+      case 'yearly': {
       }
     }
   }
@@ -170,11 +183,10 @@ export class ScheduleEvent {
       fromTs = this.after;
     }
 
-    for (let startTs of this.#generateEvent(fromTs - this.durationMs, timezone)) {
+    for (let [startTs, endTs] of this.#generateEvent(fromTs - this.durationMs, timezone)) {
       if (this.after - startTs > this.durationMs) {
         continue;
       }
-      let endTs = startTs + this.durationMs;
       if (endTs >= ts) {
         if (current) {
           if (startTs > ts) {
