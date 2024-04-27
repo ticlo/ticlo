@@ -14,7 +14,7 @@ interface State {
 
 export class TicloComp extends React.Component<Props, State> {
   static toJsonEsc() {
-    return '\u001b:<TicloComp>';
+    return '͢:<TicloComp>';
   }
 
   static getDerivedStateFromError(error: Error) {

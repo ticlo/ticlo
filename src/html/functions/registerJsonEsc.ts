@@ -1,5 +1,5 @@
 (Element.prototype as any).toJsonEsc = function () {
-  let parts = ['\u001b:', this.tagName];
+  let parts = ['͢:', this.tagName];
   if (this.id) {
     parts.push('#', this.id);
   }

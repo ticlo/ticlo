@@ -6387,9 +6387,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"jsonesc@npm:^0.4.13":
-  version: 0.4.13
-  resolution: "jsonesc@npm:0.4.13"
+"jsonesc@npm:^1.0.0":
+  version: 1.0.0
+  resolution: "jsonesc@npm:1.0.0"
   checksum: c7e9b0fe5fdb78d0862287e6b407d511e8541be181c32d4c41ad28bfaa360e78ca36edcbd0902817d9a993a75375e784da43db3a9a685980c2a1c9698d1b7e0e
   languageName: node
   linkType: hard
@@ -9803,7 +9803,7 @@ __metadata:
     i18next: "npm:^23.10.1"
     idb: "npm:^8.0.0"
     is-svg: "npm:^5.0.0"
-    jsonesc: "npm:^0.4.13"
+    jsonesc: "npm:^1.0.0"
     less: "npm:^4.2.0"
     lodash: "npm:^4.17.21"
     luxon: "npm:^3.4.4"

@@ -11,7 +11,7 @@
   241,
   359
  ],
- "expect0": "\u001bTs:gzf873f6@UTC-3",
+ "expect0": "͢Ts:gzf873f6@UTC-3",
  "matchMode": "always-match",
  "~actual0": "##.modify-date.#output"
 },
@@ -26,7 +26,7 @@
   457,
   360
  ],
- "expect0": "\u001bTs:gy8czjf6@UTC-3",
+ "expect0": "͢Ts:gy8czjf6@UTC-3",
  "matchMode": "always-match",
  "~actual0": "##.modify-date1.#output"
 },
@@ -41,7 +41,7 @@
   673,
   360
  ],
- "expect0": "\u001bTs:ltcnpwr6@UTC-3",
+ "expect0": "͢Ts:ltcnpwr6@UTC-3",
  "matchMode": "always-match",
  "~actual0": "##.modify-date2.#output"
 },
@@ -56,7 +56,7 @@
   889,
   359
  ],
- "expect0": "\u001bTs:gzz8d0r6@UTC-3",
+ "expect0": "͢Ts:gzz8d0r6@UTC-3",
  "matchMode": "always-match",
  "~actual0": "##.modify-date3.#output"
 },

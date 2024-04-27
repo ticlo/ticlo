@@ -25,12 +25,12 @@ export function isDateSame(a: DateTime, b: DateTime) {
 
 export function encodeDateTime(val: DateTime): string {
   if (val.invalidReason) {
-    return `\u001bTs:!${val.invalidReason}`;
+    return `͢Ts:!${val.invalidReason}`;
   }
   if (val.zone.type === 'system') {
-    return `\u001bTs:${val.valueOf().toString(36)}`;
+    return `͢Ts:${val.valueOf().toString(36)}`;
   }
-  return `\u001bTs:${val.valueOf().toString(36)}@${val.zoneName}`;
+  return `͢Ts:${val.valueOf().toString(36)}@${val.zoneName}`;
 }
 
 export function decodeDateTime(str: string): any {

@@ -2,7 +2,7 @@ import {expect} from 'vitest';
 import {decodeUnknown, EscapedObject} from '../EscapedObject';
 
 describe('EscapedObject', function () {
-  const encodedString = '"\\u001b:title"';
+  const encodedString = '"͢:title"';
   it('basic', function () {
     let esc = new EscapedObject('title');
     expect(JSON.stringify(esc)).toBe(encodedString);

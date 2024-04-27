@@ -14,8 +14,8 @@
   154
  ],
  "[]": 2,
- "expect0": "\u001bTs:!invalid input",
- "expect1": "\u001bTs:!unsupported zone",
+ "expect0": "͢Ts:!invalid input",
+ "expect1": "͢Ts:!unsupported zone",
  "matchMode": "always-match",
  "~actual0": "##.invalid-date.#output",
  "~actual1": "##.invalid-timezone.#output"
@@ -38,10 +38,10 @@
   374
  ],
  "[]": 4,
- "expect0": "\u001bTs:chezvpah@UTC+8",
- "expect1": "\u001bTs:chexp8g0@UTC+8",
- "expect2": "\u001bTs:chfvzsw0",
- "expect3": "\u001bTs:cq4ra740",
+ "expect0": "͢Ts:chezvpah@UTC+8",
+ "expect1": "͢Ts:chexp8g0@UTC+8",
+ "expect2": "͢Ts:chfvzsw0",
+ "expect3": "͢Ts:cq4ra740",
  "matchMode": "always-match",
  "~actual0": "##.create-date1.#output",
  "~actual1": "##.create-date2.#output",

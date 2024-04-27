@@ -5,7 +5,7 @@ export class EscapedObject {
     return this.title;
   }
   toJSON() {
-    return `\u001b:${this.title}`;
+    return `͢:${this.title}`;
   }
 }
 
@@ -14,7 +14,7 @@ export function decodeUnknown(str: string): any {
 }
 
 export function encodeUnknown(obj: object): any {
-  return `\u001b:${obj.toString()}`;
+  return `͢:${obj.toString()}`;
 }
 
 export function escapedObject<T>(title: string, obj: T): T & EscapedObject {

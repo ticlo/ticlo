@@ -982,7 +982,7 @@ export class Block implements Runnable, FunctionData, PropListener<FunctionClass
   }
 
   toJsonEsc() {
-    return `\u001b:${this._blockId}`;
+    return `͢:${this._blockId}`;
   }
 
   #secret?: string;

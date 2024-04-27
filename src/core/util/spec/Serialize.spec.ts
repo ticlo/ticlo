@@ -8,25 +8,25 @@ describe('Serialize', function () {
     const dateStr = '2014-11-27T11:07:00.000';
     const date = DateTime.fromISO(dateStr);
     const encodedStr = encode(date);
-    expect(encodedStr).toBe('"\\u001bTs:i30ht9uo"');
+    expect(encodedStr).toBe('"͢Ts:i30ht9uo"');
     expect(isDateSame(date, decode(encodedStr))).toBe(true);
     expect(encodeDisplay(date)).toBe('2014-11-27 11:07:00 PST');
     expect(formatDate(date, false)).toBe('2014-11-27');
     // decode from ISO format
-    expect(isDateSame(date, decode(`"\\u001bTs:${dateStr}"`))).toBe(true);
+    expect(isDateSame(date, decode(`"͢Ts:${dateStr}"`))).toBe(true);
   });
   it('DateTime tz', function () {
     const dateStr = '2014-11-27T11:07:00.000-03:00';
     const date = DateTime.fromISO(dateStr, {setZone: true});
     const encodedStr = encode(date);
-    expect(encodedStr).toBe('"\\u001bTs:i3073gyo@UTC-3"');
+    expect(encodedStr).toBe('"͢Ts:i3073gyo@UTC-3"');
     expect(isDateSame(date, decode(encodedStr))).toBe(true);
     expect(encodeDisplay(date)).toBe('2014-11-27 11:07:00 UTC-3');
   });
   it('DateTime invalid', function () {
     const date = DateTime.invalid('test invalid');
     const encodedStr = encode(date);
-    expect(encodedStr).toBe('"\\u001bTs:!test invalid"');
+    expect(encodedStr).toBe('"͢Ts:!test invalid"');
     expect(isDateSame(date, decode(encodedStr))).toBe(true);
     expect(encodeDisplay(date)).toBe('test invalid');
   });
