@@ -1,5 +1,4 @@
 import React from 'react';
-import dayjs from 'dayjs';
 import {Menu, Dropdown} from 'antd';
 import {ValueEditorProps} from './ValueEditorBase';
 import {ValueType, isColorStr} from '../../../../src/core/editor';
@@ -12,6 +11,7 @@ import {DateRangeEditor} from './DateRangeEditor';
 import {ReadonlyEditor} from './ReadonlyEditor';
 import {ObjectEditor} from './ObjectEditor';
 import {SelectEditor} from './SelectEditor';
+import {DateTime} from 'luxon';
 
 const defaultTypes: ValueType[] = ['string', 'number', 'toggle', 'color', 'date', 'date-range', 'object', 'array'];
 
@@ -68,11 +68,11 @@ export class DynamicEditor extends React.PureComponent<ValueEditorProps, State> 
         return 'number';
       }
       case 'object': {
-        if (dayjs.isDayjs(value)) {
+        if (DateTime.isDateTime(value)) {
           return 'date';
         }
         if (Array.isArray(value)) {
-          if (value.length === 2 && dayjs.isDayjs(value[0] && dayjs.isDayjs(value[1]))) {
+          if (value.length === 2 && DateTime.isDateTime(value[0] && DateTime.isDateTime(value[1]))) {
             return 'date-range';
           }
           return 'array';

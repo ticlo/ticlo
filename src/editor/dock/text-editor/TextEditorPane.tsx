@@ -2,10 +2,11 @@ import React from 'react';
 import {ClientConn, decode, encode, DataMap, isDataTruncated, translateEditor} from '../../../../src/core/editor';
 import {Menu, Dropdown, Button, Spin} from 'antd';
 import CodeMirror from '@uiw/react-codemirror';
+import {parse as ParseYaml} from 'yaml';
 
 import {javascript} from '@codemirror/lang-javascript';
 import {markdown, markdownLanguage} from '@codemirror/lang-markdown';
-import {json} from '@codemirror/lang-json';
+import {yaml} from '@codemirror/lang-yaml';
 
 import {DockLayout} from 'rc-dock';
 import {TabData} from 'rc-dock/src/DockData';
@@ -121,7 +122,9 @@ export class TextEditorPane extends React.PureComponent<Props, State> {
       if (mime === 'application/json') {
         let value = this._currentValue;
         try {
-          let obj = decode(value);
+          // parse yaml first, then convert it to json, and decode with jsonesc
+          let yamlParsed = ParseYaml(value);
+          let obj = decode(JSON.stringify(yamlParsed));
           this._codeMirrorView?.dispatch({
             changes: {from: 0, to: this._codeMirrorView.state.doc.length, insert: encode(obj, 2)},
           });
@@ -233,7 +236,8 @@ export class TextEditorPane extends React.PureComponent<Props, State> {
     let value: any = this._currentValue;
     if (asObject) {
       try {
-        value = decode(value);
+        let yamlParsed = ParseYaml(value);
+        value = decode(JSON.stringify(yamlParsed));
       } catch (e) {
         this.setState({error: e.toString()});
         return false;
@@ -269,7 +273,7 @@ export class TextEditorPane extends React.PureComponent<Props, State> {
     let extensions: any;
     switch (mime) {
       case 'application/json':
-        extensions = [json()];
+        extensions = [yaml()];
         break;
       case 'text/javascript':
         extensions = [javascript()];
