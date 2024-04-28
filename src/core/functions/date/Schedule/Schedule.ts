@@ -19,14 +19,14 @@ export class ScheduleValue {
     if (!current) {
       return true;
     }
-    if (this.event.urgency === current.event.urgency) {
+    if (this.event.priority === current.event.priority) {
       if (this.occur.start === current.occur.start) {
         // when everything is same, lower index is more important
         return this.index < current.index;
       }
       return this.occur.start > current.occur.start;
     }
-    return this.event.urgency > current.event.urgency;
+    return this.event.priority < current.event.priority;
   }
   shouldReplaceNext(current: ScheduleValue, next: ScheduleValue) {
     if (current) {

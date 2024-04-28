@@ -1,4 +1,5 @@
 {
+"#disabled": true,
 "#is": "",
 "assert": {
  "#is": "test:assert",
@@ -102,7 +103,7 @@
  ],
  "expect0": "b",
  "matchMode": "always-match",
- "~actual0": "##.test-urgency.#output"
+ "~actual0": "##.test-priority.#output"
 },
 "assert7": {
  "#is": "test:assert",
@@ -117,7 +118,7 @@
  ],
  "expect0": "c",
  "matchMode": "always-match",
- "~actual0": "##.test-same-urgency.#output"
+ "~actual0": "##.test-same-priority.#output"
 },
 "generate-range": {
  "#is": "date:generate-range",
@@ -320,60 +321,7 @@
  "default": "default",
  "value0": "v3"
 },
-"test-same-urgency": {
- "#is": "schedule",
- "@b-comment": "When urgency is same, event with lower index has higher priority",
- "@b-p": [
-  "config0",
-  "value0",
-  "config1",
-  "value1",
-  "default",
-  "#output"
- ],
- "@b-widget": "comment",
- "@b-xyw": [
-  660,
-  324,
-  211
- ],
- "[]": 2,
- "config0": {
-  "duration": 1500,
-  "repeat": "daily",
-  "start": [
-   0,
-   0
-  ],
-  "urgency": 1
- },
- "config1": {
-  "duration": 1500,
-  "repeat": "daily",
-  "start": [
-   0,
-   0
-  ],
-  "urgency": 1
- },
- "default": "default",
- "value0": "c",
- "value1": "d"
-},
-"test-schedule": {
- "#is": "schedule",
- "@b-p": [
-  "default",
-  "#output"
- ],
- "@b-xyw": [
-  84,
-  60,
-  143
- ],
- "default": "hello"
-},
-"test-urgency": {
+"test-priority": {
  "#is": "schedule",
  "@b-p": [
   "config0",
@@ -391,25 +339,78 @@
  "[]": 2,
  "config0": {
   "duration": 1500,
+  "priority": 3,
   "repeat": "daily",
   "start": [
    0,
    0
-  ],
-  "urgency": 1
+  ]
  },
  "config1": {
   "duration": 1500,
+  "priority": 2,
   "repeat": "daily",
   "start": [
    0,
    0
-  ],
-  "urgency": 2
+  ]
  },
  "default": "default",
  "value0": "a",
  "value1": "b"
+},
+"test-same-priority": {
+ "#is": "schedule",
+ "@b-comment": "When priority is same, event with lower index has higher priority",
+ "@b-p": [
+  "config0",
+  "value0",
+  "config1",
+  "value1",
+  "default",
+  "#output"
+ ],
+ "@b-widget": "comment",
+ "@b-xyw": [
+  660,
+  324,
+  211
+ ],
+ "[]": 2,
+ "config0": {
+  "duration": 1500,
+  "priority": 1,
+  "repeat": "daily",
+  "start": [
+   0,
+   0
+  ]
+ },
+ "config1": {
+  "duration": 1500,
+  "priority": 1,
+  "repeat": "daily",
+  "start": [
+   0,
+   0
+  ]
+ },
+ "default": "default",
+ "value0": "c",
+ "value1": "d"
+},
+"test-schedule": {
+ "#is": "schedule",
+ "@b-p": [
+  "default",
+  "#output"
+ ],
+ "@b-xyw": [
+  84,
+  60,
+  143
+ ],
+ "default": "hello"
 },
 "test-weekly": {
  "#is": "schedule",

@@ -87,6 +87,20 @@ function switchValidator(validator: {[key: string]: ValidatorDynamic}) {
   };
 }
 
+function emptyArrayValidator(validator: ValidatorDynamic) {
+  return (value: string, root: unknown) => {
+    if (!Array.isArray(value)) {
+      return false;
+    }
+    for (const val of value) {
+      if (!checkDynamic(val, validator, root)) {
+        return false;
+      }
+    }
+    return true;
+  };
+}
+
 function number0toN(max: number) {
   return (value: unknown): value is number =>
     Number.isInteger(value) && (value as number) >= 0 && (value as number) <= max;
@@ -102,8 +116,9 @@ function check(value: unknown, validator: ValidatorDynamic) {
 
 const Validator = {
   check,
-  obj: checkO,
-  array: checkA,
+  checkO,
+  checkA,
+  array0: emptyArrayValidator,
   nullable: nullableValidator,
   any: anyValidator,
   enum: enumValidator,
