@@ -1,31 +1,31 @@
-import JsonEsc from 'jsonesc';
+import Arrow from 'arrow-code';
 import {DateTime} from 'luxon';
 import {decodeDateTime, encodeDateTime, formatDate} from './DateTime';
 import {decodeUnknown, encodeUnknown, EscapedObject} from './EscapedObject';
 import {Block} from '../block/Block';
 
-let jsonesc = new JsonEsc();
-jsonesc.registerRaw('Ts', DateTime, encodeDateTime, decodeDateTime);
-jsonesc.registerRaw('', EscapedObject, encodeUnknown, decodeUnknown);
-jsonesc.registerRaw(null, Block, encodeUnknown, null);
+let arrow = new Arrow({encodeDate: false});
+arrow.registerRaw('Ts', DateTime, encodeDateTime, decodeDateTime);
+arrow.registerRaw('', EscapedObject, encodeUnknown, decodeUnknown);
+arrow.registerRaw(null, Block, encodeUnknown, null);
 
 export function encodeRaw(obj: object) {
-  return jsonesc.replacer('', obj, null);
+  return arrow.replacer('', obj, null);
 }
 
 export function encode(value: any, space = 0): string {
-  return jsonesc.stringify(value, space);
+  return arrow.stringify(value, space);
 }
 
 export function encodeSorted(value: any, space = 1): string {
-  return jsonesc.stringifySorted(value, space);
+  return arrow.stringifySorted(value, space);
 }
 
 export function decode(str: string): any {
-  return jsonesc.parse(str);
+  return arrow.parse(str);
 }
 
-export const decodeReceiver = (key: string, value: any) => jsonesc.reviver(key, value);
+export const decodeReceiver = (key: string, value: any) => arrow.reviver(key, value);
 
 const displayRegex = /"͢(\w*:)?([^"]*)"/g;
 
@@ -45,5 +45,5 @@ export function encodeDisplay(value: any, expandArray = true): string {
       return formatDate(value, true);
     }
   }
-  return jsonesc.stringify(value).replace(displayRegex, replaceDisplay);
+  return arrow.stringify(value).replace(displayRegex, replaceDisplay);
 }

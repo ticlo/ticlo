@@ -981,7 +981,7 @@ export class Block implements Runnable, FunctionData, PropListener<FunctionClass
     return this._destroyed;
   }
 
-  toJsonEsc() {
+  toArrow() {
     return `͢:${this._blockId}`;
   }
 

@@ -13,7 +13,7 @@ interface State {
 }
 
 export class TicloComp extends React.Component<Props, State> {
-  static toJsonEsc() {
+  static toArrow() {
     return '͢:<TicloComp>';
   }
 

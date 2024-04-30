@@ -1,4 +1,4 @@
-(Element.prototype as any).toJsonEsc = function () {
+(Element.prototype as any).toArrow = function () {
   let parts = ['͢:', this.tagName];
   if (this.id) {
     parts.push('#', this.id);

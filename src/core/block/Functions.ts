@@ -1,4 +1,3 @@
-import JsonEsc from 'jsonesc';
 import {Block} from './Block';
 import {FunctionClass} from './BlockFunction';
 import {PropDispatcher, PropListener} from './Dispatcher';
@@ -6,6 +5,7 @@ import {BlockModeList, FunctionDesc} from './Descriptor';
 import {DataMap} from '../util/DataTypes';
 import {FlowStorage} from './Storage';
 import type {Flow} from './Flow';
+import {encode} from '../util/Serialize';
 
 export interface DescListener {
   onDescChange(id: string, desc: FunctionDesc): void;
@@ -33,7 +33,7 @@ export class FunctionDispatcher extends PropDispatcher<FunctionClass> {
   setDesc(desc?: FunctionDesc) {
     this._desc = desc;
     if (desc) {
-      this._descSize = JsonEsc.stringify(desc).length;
+      this._descSize = encode(desc).length;
     } else {
       this._descSize = 0;
     }

@@ -1,4 +1,4 @@
-import './registerJsonEsc';
+import './registerArrow';
 import {PureFunction, Functions, ErrorEvent} from '../../../src/core';
 
 export class QuerySelectorFunction extends PureFunction {

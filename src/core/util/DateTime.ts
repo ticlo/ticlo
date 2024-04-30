@@ -51,7 +51,7 @@ export function decodeDateTime(str: string): any {
     // local time
     return DateTime.fromMillis(parseInt(str.substring(4), 36));
   } else {
-    return DateTime.invalid('invalid jsonEsc Encode');
+    return DateTime.invalid('invalid Arrow COde');
   }
 }
 
