@@ -13,6 +13,7 @@ import {Task} from './Task';
 import {_strictMode} from './BlockSettings';
 import type {Flow, Root} from './Flow';
 import {BlockMode} from './Descriptor';
+import {encodeToUnknown} from '../util/Serialize';
 
 export interface BlockChildWatch {
   onChildChange(property: BlockProperty, saved?: boolean): void;
@@ -1025,6 +1026,8 @@ export class Block implements Runnable, FunctionData, PropListener<FunctionClass
     }
   }
 }
+// register the Block for serialization, it can be encoded for display purpose, but not decoded back to a Block
+encodeToUnknown(Block);
 
 export class InputsBlock extends Block {
   _createConfig(field: string): BlockProperty {

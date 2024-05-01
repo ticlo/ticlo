@@ -1,4 +1,4 @@
-import './registerArrow';
+import './registerArrowCode';
 import {PureFunction, Functions, ErrorEvent} from '../../../src/core';
 
 export class QuerySelectorFunction extends PureFunction {

@@ -3274,10 +3274,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"arrow-code@npm:^0.2.0":
-  version: 0.2.0
-  resolution: "arrow-code@npm:0.2.0"
-  checksum: eca897896344fcc762a0361e603d5e76ffaa1e9ea571bd24fc6972d897f23d83c5f4e750e59b4388ee31af41be04c97a7b0ff6e426a861437e9a8f8a1e996f5a
+"arrow-code@npm:^0.3.0":
+  version: 0.3.0
+  resolution: "arrow-code@npm:0.3.0"
+  checksum: 0c30224094911575824a8f7ed8645ec00d9b0e5bb9cbef89ebf058e28e41b0bee7430e59dea1abea14f720621b7bf66789eacf0f9359f60e4dc2314c19497d67
   languageName: node
   linkType: hard
 
@@ -9792,7 +9792,7 @@ __metadata:
     "@vitest/coverage-istanbul": "npm:^1.4.0"
     "@vitest/coverage-v8": "npm:^1.4.0"
     antd: "npm:4.24.16"
-    arrow-code: "npm:^0.2.0"
+    arrow-code: "npm:^0.3.0"
     axios: "npm:1.6.8"
     base64-js: "npm:^1.5.1"
     body-parser: "npm:^1.20.2"

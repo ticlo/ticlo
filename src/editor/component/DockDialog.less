@@ -1,10 +1,20 @@
 .ticl-dock-dialog {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+
   & > .ticl-text-codemirror {
     height: 0;
     flex-grow: 1;
 
     .cm-editor {
       height: 100%;
+    }
+  }
+
+  & > .ticl-box-footer {
+    & > * {
+      margin: 0 6px;
     }
   }
 }

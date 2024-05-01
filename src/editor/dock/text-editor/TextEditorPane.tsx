@@ -12,6 +12,7 @@ import {DockLayout} from 'rc-dock';
 import {TabData} from 'rc-dock/src/DockData';
 import {EditorView} from '@codemirror/view';
 import {MenuProps} from 'antd/lib/menu';
+import {createDockDialog, DockDialogPane} from '../../component/DockDialogPane';
 
 interface Props {
   conn: ClientConn;
@@ -20,7 +21,6 @@ interface Props {
   paths: string[];
   defaultValue: any;
   readonly?: boolean;
-  onClose?: () => void;
 }
 
 interface State {
@@ -44,10 +44,11 @@ export class TextEditorPane extends React.PureComponent<Props, State> {
     }
     let sortedPaths = [...paths].sort();
     let id = `textEditor-${sortedPaths.join('..')}`;
-    let oldTab = layout.find(id) as TabData;
-    if (oldTab) {
-      layout.dockMove(oldTab, null, 'front');
-      return;
+
+    let firstPathParts = paths[0].split('.');
+    let title = `${translateEditor('Edit')} ${firstPathParts.slice(firstPathParts.length - 2).join('.')}`;
+    if (paths.length > 1) {
+      title = `${title} (+${paths.length - 1})`;
     }
 
     let asObject = false;
@@ -56,63 +57,20 @@ export class TextEditorPane extends React.PureComponent<Props, State> {
       asObject = true;
     }
 
-    let w = 400;
-    let h = 500;
-    let {width, height} = layout.getLayoutSize();
-    if (!width || !height) {
-      return;
-    }
-
-    if (w > width) {
-      w = width;
-    }
-    if (h > height) {
-      h = height;
-    }
-    let x = (width - w) >> 1;
-    let y = (height - h) >> 1;
-    if (y > 320) {
-      y = 320;
-    }
-
-    let firstPathParts = paths[0].split('.');
-    let tabName = `${translateEditor('Edit')} ${firstPathParts.slice(firstPathParts.length - 2).join('.')}`;
-    if (paths.length > 1) {
-      tabName = `${tabName} (+${paths.length - 1})`;
-    }
-
-    const onClose = () => {
-      let tab = layout.find(id) as TabData;
-      if (tab) {
-        layout.dockMove(tab, null, 'remove');
-      }
-    };
-    let newPanel = {
-      activeId: id,
-      tabs: [
-        {
-          id,
-          closable: true,
-          title: tabName,
-          content: (
-            <TextEditorPane
-              conn={conn}
-              mime={mime}
-              asObject={asObject}
-              paths={paths}
-              defaultValue={defaultValue}
-              onClose={onClose}
-              readonly={readonly}
-            />
-          ),
-        },
-      ],
-      x,
-      y,
-      w,
-      h,
-    };
-    layout.dockMove(newPanel, null, 'float');
+    createDockDialog(
+      layout,
+      title,
+      <TextEditorPane
+        conn={conn}
+        mime={mime}
+        asObject={asObject}
+        paths={paths}
+        defaultValue={defaultValue}
+        readonly={readonly}
+      />,
+      id,
+      {preferredWidth: 400, preferredHeight: 500}
+    );
   }
 
   onKeyDown = (e: React.KeyboardEvent) => {
@@ -122,7 +80,7 @@ export class TextEditorPane extends React.PureComponent<Props, State> {
       if (mime === 'application/json') {
         let value = this._currentValue;
         try {
-          // parse yaml first, then convert it to json, and decode with jsonesc
+          // parse yaml first, then convert it to json, and decode with arrow
           let yamlParsed = ParseYaml(value);
           let obj = decode(JSON.stringify(yamlParsed));
           this._codeMirrorView?.dispatch({
@@ -248,14 +206,6 @@ export class TextEditorPane extends React.PureComponent<Props, State> {
     }
     return true;
   };
-  onClose = () => {
-    this.props.onClose?.();
-  };
-  onOK = () => {
-    if (this.onApply()) {
-      this.onClose();
-    }
-  };
 
   getReloadMenu = (): MenuProps => {
     let {paths} = this.props;
@@ -268,7 +218,7 @@ export class TextEditorPane extends React.PureComponent<Props, State> {
   };
 
   render() {
-    let {mime, readonly, onClose} = this.props;
+    let {mime, readonly} = this.props;
     let {value, error, loading} = this.state;
     let extensions: any;
     switch (mime) {
@@ -285,8 +235,19 @@ export class TextEditorPane extends React.PureComponent<Props, State> {
         extensions = [markdown({base: markdownLanguage})];
         break;
     }
+
     return (
-      <div className="ticl-text-editor" onKeyDownCapture={this.onKeyDown}>
+      <DockDialogPane
+        onApply={readonly ? null : this.onApply}
+        saveDisabled={loading}
+        footerExtra={
+          <Dropdown menu={this.getReloadMenu()} trigger={['click']}>
+            <Button size="small">Reload</Button>
+          </Dropdown>
+        }
+        error={error}
+        onKeyDownCapture={this.onKeyDown}
+      >
         {loading ? (
           <div className="ticl-spacer ticl-hbox ticl-center-box">
             <Spin tip="Loading..." />
@@ -306,29 +267,7 @@ export class TextEditorPane extends React.PureComponent<Props, State> {
             onChange={this.onChange}
           />
         )}
-        {error ? <div className="ticl-error-message">{error}</div> : null}
-        <div className="ticl-box-footer">
-          <Dropdown menu={this.getReloadMenu()} trigger={['click']}>
-            <Button size="small">Reload</Button>
-          </Dropdown>
-          <div className="ticl-spacer" />
-          {onClose ? (
-            <Button size="small" onClick={this.onClose}>
-              Close
-            </Button>
-          ) : null}
-          {!readonly ? (
-            <Button size="small" disabled={loading} onClick={this.onApply}>
-              Apply
-            </Button>
-          ) : null}
-          {onClose && !readonly ? (
-            <Button size="small" disabled={loading} onClick={this.onOK}>
-              OK
-            </Button>
-          ) : null}
-        </div>
-      </div>
+      </DockDialogPane>
     );
   }
 }

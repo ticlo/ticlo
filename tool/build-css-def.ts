@@ -1,3 +1,7 @@
+/**
+ * This script generates the /src/html/functions/StyleDef.ts
+ * Which creates css property definitions used by the CreateStyle function
+ */
 import fs from 'fs';
 import {FunctionDesc, PropDesc, ValueType} from '../src/core';
 

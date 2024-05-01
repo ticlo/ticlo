@@ -2,12 +2,15 @@ import Arrow from 'arrow-code';
 import {DateTime} from 'luxon';
 import {decodeDateTime, encodeDateTime, formatDate} from './DateTime';
 import {decodeUnknown, encodeUnknown, EscapedObject} from './EscapedObject';
-import {Block} from '../block/Block';
 
 let arrow = new Arrow({encodeDate: false});
 arrow.registerRaw('Ts', DateTime, encodeDateTime, decodeDateTime);
 arrow.registerRaw('', EscapedObject, encodeUnknown, decodeUnknown);
-arrow.registerRaw(null, Block, encodeUnknown, null);
+
+// allow the type to be encoded, but it won't be decoded
+export function encodeToUnknown(type: object) {
+  arrow.registerRaw(null, type, encodeUnknown, null);
+}
 
 export function encodeRaw(obj: object) {
   return arrow.replacer('', obj, null);
