@@ -156,6 +156,7 @@ export class Block implements Runnable, FunctionData, PropListener<FunctionClass
     return undefined;
   }
 
+  // return undefined if parent doesn't exist, return null if create=false
   _queryProperty(path: string[], create: boolean): BlockProperty {
     let lastIdx = path.length - 1;
     let block: Block = this;
@@ -164,7 +165,7 @@ export class Block implements Runnable, FunctionData, PropListener<FunctionClass
       if (property && property._value instanceof Block) {
         block = property._value;
       } else {
-        return null;
+        return undefined;
       }
     }
     return block.getProperty(path[lastIdx], create);

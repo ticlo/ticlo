@@ -1,11 +1,10 @@
-import {ErrorEvent} from '../block/Event';
-
 export function shouldReject(promise: Promise<any>): Promise<any> {
+  const error = new Error('not rejected');
   return new Promise<any>((resolve, reject) => {
     promise
       .then((val) => {
         /* istanbul ignore next */
-        reject(new ErrorEvent('not rejected', val));
+        reject(error);
       })
       .catch((err) => {
         resolve(err);
@@ -14,12 +13,13 @@ export function shouldReject(promise: Promise<any>): Promise<any> {
 }
 
 export function shouldTimeout(promise: Promise<any>, ms: number): Promise<any> {
+  const error = new Error('not timeout');
   return new Promise<any>((resolve, reject) => {
     setTimeout(() => resolve(null), ms);
     promise.then(
       (val) => {
         /* istanbul ignore next */
-        reject(new ErrorEvent('not timeout', val));
+        reject(error);
       },
       (err) => {
         /* istanbul ignore next */
