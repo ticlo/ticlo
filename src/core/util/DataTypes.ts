@@ -1,9 +1,7 @@
 import {Block} from '../block/Block';
 import {BlockIO} from '../block/BlockProperty';
 
-export interface DataMap {
-  [key: string]: unknown;
-}
+export type DataMap = Record<string, unknown>;
 
 export function isDataMap(val: unknown): val is DataMap {
   return Object.isExtensible(val);

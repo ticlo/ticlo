@@ -1,7 +1,7 @@
-import dayjs from 'dayjs';
 import {DataMap, TRUNCATED} from './DataTypes';
 import {decode, encodeRaw} from './Serialize';
 import QS from 'qs';
+import {DateTime} from 'luxon';
 
 function truncateMap(val: DataMap, maxSize: number): [any, number, boolean] {
   let total = 0;
@@ -57,7 +57,7 @@ function truncateObj(val: any, maxSize: number = 1024): [any, number, boolean] {
     if (Array.isArray(val)) {
       return truncateArray(val, maxSize);
     }
-    if (dayjs.isDayjs(val)) {
+    if (DateTime.isDateTime(val)) {
       return [val, 33, false];
     }
     if (val.constructor === Object) {

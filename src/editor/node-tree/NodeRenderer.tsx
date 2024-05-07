@@ -91,7 +91,7 @@ export class NodeTreeItem extends TreeItem<NodeTreeItem> {
       return;
     }
     this.opened = 'loading';
-    this.listingId = this.connection.listChildren(this.key, null, this.max, this) as string;
+    this.listingId = this.connection.list(this.key, null, this.max, this) as string;
     this.forceUpdate();
   }
 

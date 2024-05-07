@@ -3,6 +3,7 @@ import {ClientCallbacks, ClientDescListener, SubscribeCallbacks, ValueUpdate} fr
 
 import {DataMap} from '../util/DataTypes';
 import {StreamDispatcher} from '../block/Dispatcher';
+import {Query} from './Query';
 
 /**
  * interface for ClientConnect and its wrappers
@@ -49,7 +50,9 @@ export interface ClientConn {
 
   addFlow(path: string, data?: DataMap, callbacks?: ClientCallbacks): Promise<any> | string;
 
-  listChildren(path: string, filter?: string, max?: number, callbacks?: ClientCallbacks): Promise<any> | string;
+  list(path: string, filter?: string, max?: number, callbacks?: ClientCallbacks): Promise<any> | string;
+
+  query(path: string, query: Query, callbacks?: ClientCallbacks): Promise<any> | string;
 
   subscribe(path: string, callbacks: SubscribeCallbacks, fullValue?: boolean): void;
 

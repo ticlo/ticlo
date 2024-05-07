@@ -16,6 +16,7 @@ import {
 } from './ClientRequests';
 import {ClientConn} from './ClientConn';
 import {StreamDispatcher} from '../block/Dispatcher';
+import {Query} from './Query';
 
 export type {ValueUpdate, ValueState} from './ClientRequests';
 
@@ -223,8 +224,12 @@ export abstract class ClientConnection extends Connection implements ClientConn 
     return result;
   }
 
-  listChildren(path: string, filter?: string, max: number = 16, callbacks?: ClientCallbacks): Promise<any> | string {
+  list(path: string, filter?: string, max: number = 16, callbacks?: ClientCallbacks): Promise<any> | string {
     return this.simpleRequest({cmd: 'list', path, filter, max}, callbacks);
+  }
+
+  query(path: string, query: Query, callbacks?: ClientCallbacks): Promise<any> | string {
+    return this.simpleRequest({cmd: 'query', path, query}, callbacks);
   }
 
   subscribe(path: string, callbacks: SubscribeCallbacks, fullValue: boolean = false) {

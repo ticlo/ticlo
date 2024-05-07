@@ -240,14 +240,14 @@ describe('Connection', function () {
       flow.createBlock('b' + i);
     }
 
-    let result1 = await client.listChildren('Connection4', null, 32);
+    let result1 = await client.list('Connection4', null, 32);
     expect(Object.keys(result1.children).length).toBe(32);
     expect(result1.count).toBe(200);
 
-    let id2: string = client.listChildren('Connection4', 'any', 32, VoidListeners) as string;
+    let id2: string = client.list('Connection4', 'any', 32, VoidListeners) as string;
     client.cancel(id2);
 
-    let result3 = await client.listChildren('Connection4', 'a\\d+', 9999);
+    let result3 = await client.list('Connection4', 'a\\d+', 9999);
     expect(Object.keys(result3.children).length).toBe(16);
     expect(result3.count).toBe(100);
 

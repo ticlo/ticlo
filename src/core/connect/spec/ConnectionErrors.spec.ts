@@ -31,7 +31,7 @@ describe('Connection Error', function () {
 
     expect(await shouldReject(client.getValue('ConnectionError1.a.b.c') as Promise<any>)).toBe('invalid path');
 
-    expect(await shouldReject(client.listChildren('ConnectionError1.a.b.c') as Promise<any>)).toBe('invalid path');
+    expect(await shouldReject(client.list('ConnectionError1.a.b.c') as Promise<any>)).toBe('invalid path');
 
     expect(await shouldReject(client.addBlock('ConnectionError1.a.b.c') as Promise<any>)).toBe('invalid path');
 

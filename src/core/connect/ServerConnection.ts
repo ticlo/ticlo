@@ -34,6 +34,7 @@ import {copyProperties, createSharedBlock, deleteProperties, pasteProperties} fr
 import {moveProperty, PropertyMover} from '../property-api/PropertyMover';
 import {BlockInputsConfig, BlockOutputsConfig} from '../block/BlockConfigs';
 import {WorkerFlow} from '../worker/WorkerFlow';
+import {Query, queryBlock} from './Query';
 
 class ServerRequest extends ConnectionSendingData {
   id: string;
@@ -423,9 +424,18 @@ export class ServerConnection extends ServerConnectionCore {
 
   // get value
   get({path}: {path: string}): DataMap | string {
-    let property = this.root.queryProperty(path, true);
+    let property = this.root.queryProperty(path);
     if (property) {
       return {value: property._value};
+    } else {
+      return 'invalid path';
+    }
+  }
+
+  query({path, query}: {path: string; query: Query}) {
+    let property = this.root.queryProperty(path);
+    if (property && property._value instanceof Block) {
+      return {value: queryBlock(property._value, query)};
     } else {
       return 'invalid path';
     }
