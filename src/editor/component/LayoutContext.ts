@@ -5,7 +5,7 @@ export interface TicloLayoutContext {
   editFlow?(path: string, onSave: () => void): void;
 
   editProperty?(paths: string[], propDesc: PropDesc, defaultValue?: any, mime?: string, readonly?: boolean): void;
-  editSchedule?(path: string, selectedIndex?: number): void;
+  editSchedule?(path: string, scheduleName?: string, index?: number): void;
 
   showObjectTree?(path: string, value: any, element: HTMLElement, source: any): void;
   closeObjectTree?(path: string, source: any): void;

@@ -2369,13 +2369,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/date-arithmetic@npm:*":
-  version: 4.1.4
-  resolution: "@types/date-arithmetic@npm:4.1.4"
-  checksum: 4ee68b5a422bd5f1cf08923d18a08db558e653bbdc597677e0465a330f1e807da0e79b06b72651b62b19b4b922a779470f84657cbd765805f84f33af518b408f
-  languageName: node
-  linkType: hard
-
 "@types/dompurify@npm:^3.0.5":
   version: 3.0.5
   resolution: "@types/dompurify@npm:3.0.5"
@@ -2558,17 +2551,6 @@ __metadata:
   version: 1.2.7
   resolution: "@types/range-parser@npm:1.2.7"
   checksum: 361bb3e964ec5133fa40644a0b942279ed5df1949f21321d77de79f48b728d39253e5ce0408c9c17e4e0fd95ca7899da36841686393b9f7a1e209916e9381a3c
-  languageName: node
-  linkType: hard
-
-"@types/react-big-calendar@npm:^1":
-  version: 1.8.9
-  resolution: "@types/react-big-calendar@npm:1.8.9"
-  dependencies:
-    "@types/date-arithmetic": "npm:*"
-    "@types/prop-types": "npm:*"
-    "@types/react": "npm:*"
-  checksum: 38fc1c3889ceffb2caf216f357966514e373e4faeb030315b8a712c73c0cd6056b51edd6b777c18059a41398b350b2b8f1f6c6d8d791bc3d95b676301cb00967
   languageName: node
   linkType: hard
 
@@ -4398,7 +4380,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"dayjs@npm:1.x, dayjs@npm:^1.11.7":
+"dayjs@npm:1.x":
   version: 1.11.10
   resolution: "dayjs@npm:1.11.10"
   checksum: 4de9af50639d47df87f2e15fa36bb07e0f9ed1e9c52c6caa1482788ee9a384d668f1dbd00c54f82aaab163db07d61d2899384b8254da3a9184fc6deca080e2fe
@@ -7088,16 +7070,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"moment-timezone@npm:^0.5.40":
-  version: 0.5.45
-  resolution: "moment-timezone@npm:0.5.45"
-  dependencies:
-    moment: "npm:^2.29.4"
-  checksum: 7497f23c4b8c875dbf07c03f9a1253f79edaeedc29d5732e36bfd3c5577e25aed1924fbd84cbb713ce1920dbe822be0e21bd487851a7d13907226f289a5e568b
-  languageName: node
-  linkType: hard
-
-"moment@npm:^2.24.0, moment@npm:^2.29.2, moment@npm:^2.29.4":
+"moment@npm:^2.24.0, moment@npm:^2.29.2":
   version: 2.30.1
   resolution: "moment@npm:2.30.1"
   checksum: 865e4279418c6de666fca7786607705fd0189d8a7b7624e2e56be99290ac846f90878a6f602e34b4e0455c549b85385b1baf9966845962b313699e7cb847543a
@@ -8655,33 +8628,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"react-big-calendar@npm:^1.12.0":
-  version: 1.12.0
-  resolution: "react-big-calendar@npm:1.12.0"
-  dependencies:
-    "@babel/runtime": "npm:^7.20.7"
-    clsx: "npm:^1.2.1"
-    date-arithmetic: "npm:^4.1.0"
-    dayjs: "npm:^1.11.7"
-    dom-helpers: "npm:^5.2.1"
-    globalize: "npm:^0.1.1"
-    invariant: "npm:^2.2.4"
-    lodash: "npm:^4.17.21"
-    lodash-es: "npm:^4.17.21"
-    luxon: "npm:^3.2.1"
-    memoize-one: "npm:^6.0.0"
-    moment: "npm:^2.29.4"
-    moment-timezone: "npm:^0.5.40"
-    prop-types: "npm:^15.8.1"
-    react-overlays: "npm:^5.2.1"
-    uncontrollable: "npm:^7.2.1"
-  peerDependencies:
-    react: ^16.14.0 || ^17 || ^18
-    react-dom: ^16.14.0 || ^17 || ^18
-  checksum: 56ef4a42ea7eb708782b089c175050eae8296be3ed7682409ca6aed3668db267ab9ec1795795a21d22a0c56f23985d6421021ce5b238db4e16b253d53e2f0dfb
-  languageName: node
-  linkType: hard
-
 "react-color@npm:^2.19.3":
   version: 2.19.3
   resolution: "react-color@npm:2.19.3"
@@ -9753,6 +9699,30 @@ __metadata:
   languageName: node
   linkType: hard
 
+"ticlo-big-calendar@npm:^1.12.2":
+  version: 1.12.2
+  resolution: "ticlo-big-calendar@npm:1.12.2"
+  dependencies:
+    "@babel/runtime": "npm:^7.20.7"
+    clsx: "npm:^1.2.1"
+    date-arithmetic: "npm:^4.1.0"
+    dom-helpers: "npm:^5.2.1"
+    globalize: "npm:^0.1.1"
+    invariant: "npm:^2.2.4"
+    lodash: "npm:^4.17.21"
+    lodash-es: "npm:^4.17.21"
+    luxon: "npm:^3.2.1"
+    memoize-one: "npm:^6.0.0"
+    prop-types: "npm:^15.8.1"
+    react-overlays: "npm:^5.2.1"
+    uncontrollable: "npm:^7.2.1"
+  peerDependencies:
+    react: ^16.14.0 || ^17 || ^18
+    react-dom: ^16.14.0 || ^17 || ^18
+  checksum: e9a52b7d146fecc11be6eaa1235957a7b262a493782a4966e0e6a5c33ee93de96dd5e6c9149cada29f6a20ba759ab463460ed2553f198f4a85c907b6f6f23e48
+  languageName: node
+  linkType: hard
+
 "ticlo@workspace:.":
   version: 0.0.0-use.local
   resolution: "ticlo@workspace:."
@@ -9778,7 +9748,6 @@ __metadata:
     "@types/node": "npm:^20.11.30"
     "@types/qs": "npm:^6.9.14"
     "@types/react": "npm:^18.2.69"
-    "@types/react-big-calendar": "npm:^1"
     "@types/react-color": "npm:^3.0.12"
     "@types/react-dom": "npm:^18.2.22"
     "@types/shelljs": "npm:^0.8.15"
@@ -9821,12 +9790,12 @@ __metadata:
     rc-dock: "npm:^3.2.19"
     rc-trigger: "npm:^5.3.4"
     react: "npm:^18.2.0"
-    react-big-calendar: "npm:^1.12.0"
     react-color: "npm:^2.19.3"
     react-dom: "npm:^18.2.0"
     resize-observer-polyfill: "npm:^1.5.1"
     shelljs: "npm:^0.8.5"
     simulate-event: "ticlo/simulate-event#master"
+    ticlo-big-calendar: "npm:^1.12.2"
     tinycolor2: "npm:^1.6.0"
     ts-node: "npm:^10.9.2"
     tslib: "npm:^2.6.2"

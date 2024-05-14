@@ -2,6 +2,7 @@ import React, {createContext, KeyboardEventHandler, useCallback, useContext} fro
 import {Button} from 'antd';
 import {DockLayout} from 'rc-dock';
 import {TabData} from 'rc-dock/src/DockData';
+import {t} from './LocalizedLabel';
 
 export const DialogContext = createContext<{onClose?: () => void}>({});
 const {Provider} = DialogContext;
@@ -34,17 +35,17 @@ export function DockDialogPane(props: Props) {
         <div className="ticl-spacer" />
         {onClose ? (
           <Button size="small" onClick={onClose}>
-            Close
+            {t('Close')}
           </Button>
         ) : null}
         {onApply ? (
           <Button size="small" disabled={saveDisabled} onClick={onApply}>
-            Apply
+            {t('Apply')}
           </Button>
         ) : null}
         {onClose && onApply ? (
           <Button size="small" disabled={saveDisabled} onClick={onOK}>
-            OK
+            {t('OK')}
           </Button>
         ) : null}
       </div>

@@ -5,7 +5,8 @@ import {ClientConnection} from './ClientConnection';
 import {clientDescriptors} from './ClientDescriptors';
 
 export interface ClientCallbacks {
-  onDone?(data?: any): void;
+  // parameter should not be used
+  onDone?(_?: unknown): void;
 
   onUpdate?(response: DataMap): void;
 

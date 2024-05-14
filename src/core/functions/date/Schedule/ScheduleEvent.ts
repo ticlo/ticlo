@@ -23,7 +23,7 @@ interface ScheduleConfig {
   priority?: number;
   // true for weekday, false for weekend, null for both
   isWeekDay?: boolean;
-  // for daily, weekly
+  // for monthly, weekly
   days?: number[];
   // for advanced
   years?: number[];
@@ -54,6 +54,9 @@ const ConfigValidator = {
     dates: {dates: [[z.int, z.num1n(12), z.num1n(31)]]},
   }),
 };
+export function validateEventConfig(config: unknown) {
+  return z.check(config, ConfigValidator);
+}
 
 export class EventOccur {
   constructor(
@@ -93,7 +96,7 @@ export class ScheduleEvent {
 
   static fromProperty(config: unknown): ScheduleEvent {
     if (config) {
-      if (z.check(config, ConfigValidator)) {
+      if (validateEventConfig(config)) {
         const {
           name,
           start,

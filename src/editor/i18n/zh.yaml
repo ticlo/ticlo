@@ -111,3 +111,14 @@
 # property/PropertyList.tsx
 "Config": 设置
 "Custom": 自定义
+
+# schedule/CalendarToolbar.tsx
+"Week": "周"
+"Previous Week": "上一周"
+"Current Week": "当前周"
+"Next Week": "下一周"
+
+"Month": "月"
+"Previous Month": "上一月"
+"Current Month": "当前月"
+"Next Month": "下一月"

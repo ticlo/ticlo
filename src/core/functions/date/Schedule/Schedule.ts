@@ -140,9 +140,9 @@ Functions.add(ScheduleFunction, {
     {
       name: '',
       type: 'group',
-      defaultLen: 0,
+      defaultLen: 1,
       properties: [
-        {name: 'config', type: 'object', pinned: true},
+        {name: 'config', type: 'schedule', pinned: true},
         {name: 'value', type: 'any', pinned: true},
       ],
     },

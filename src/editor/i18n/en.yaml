@@ -17,58 +17,38 @@
 "#shared": "#shared"
 "#temp": "#temp"
 "#edit": "#edit"
-"-running-#": " ( Running {{- detail, optional}} )"
-"-passed-#": " ( Passed {{- detail, optional}} )"
-"-failed-#": " ( Failed {{- detail, optional}} )"
+"-running-#": "-running-#"
+"-passed-#": "-passed-#"
+"-failed-#": "-failed-#"
 
-# NodeTreePane.tsx & AddNewFlowDialog.tsx
-"New Dataflow": "New Dataflow"
-# BlockDropdown.tsx & PropertyDropdown.tsx
+# PropertyDropdown.tsx & BlockDropdown.tsx
 "Execute Command": "Execute Command"
+# AddNewFlowDialog.tsx & NodeTreePane.tsx
+"New Dataflow": "New Dataflow"
 
-# block/BlockStage.tsx
-"Undo": "Undo"
-"Redo": "Redo"
+# hedule/CalendarToolbar.tsx
+"Week": "Week"
+"Month": "Month"
+"Previous Week": "Previous Week"
+"Current Week": "Current Week"
+"Next Week": "Next Week"
+"Previous Month": "Previous Month"
+"Current Month": "Current Month"
+"Next Month": "Next Month"
 
-# dock/block/BlockStagePane.tsx
-"Hide Properties": "Hide Properties"
-"Show Properties": "Show Properties"
+# operty/PropertyList.tsx
+"Config": "Config"
+"Custom": "Custom"
 
-# dock/node-tree/NodeTreePane.tsx
-"Reload": "Reload"
+# operty/PropertyEditor.tsx
+"Unlocked for editing\nDouble click to lock": "Unlocked for editing\nDouble click to lock"
+"Editing blocked by binding\nDouble click to edit": "Editing blocked by binding\nDouble click to edit"
+"Inconsistent values\nDouble click to edit": "Inconsistent values\nDouble click to edit"
 
-# function-selector/FunctionSelector.tsx
-"Function Tree": "Function Tree"
-"Recent": "Recent"
-"Add Function": "Add Function"
-"Function Name?": "Function Name?"
+# operty/OptionalPropertyList.tsx
+"Optional": "Optional"
 
-# node-tree/NodeRenderer.tsx
-"Add Child Dataflow": "Add Child Dataflow"
-
-# popup/AddNewFlowDialog.tsx
-"Data": "Data"
-
-# popup/BlockDropdown.tsx
-"Enable": "Enable"
-"Disable": "Disable"
-"Call": "Call"
-
-# popup/PropertyDropdown.tsx
-"Add Sub Block": "Add Sub Block"
-"Binding": "Binding"
-"Clear": "Clear"
-"Restore Saved Value": "Restore Saved Value"
-"Insert at {{n}}": "Insert at {{n}}"
-"Delete at {{n}}": "Delete at {{n}}"
-"Remove Property": "Remove Property"
-"Add Child Property": "Add Child Property"
-
-# popup/RenameDialog.tsx
-"Change": "Change"
-"Display Name": "Display Name"
-
-# property/AddCustomProperty.tsx
+# operty/AddCustomProperty.tsx
 "Default Length": "Default Length"
 "Min": "Min"
 "Max": "Max"
@@ -94,14 +74,52 @@
 "Comma separated": "Comma separated"
 "Add Property": "Add Property"
 
-# property/OptionalPropertyList.tsx
-"Optional": "Optional"
+# pup/RenameDialog.tsx
+"Change": "Change"
+"Display Name": "Display Name"
 
-# property/PropertyEditor.tsx
-"Unlocked for editing\nDouble click to lock": "Unlocked for editing\nDouble click to lock"
-"Editing blocked by binding\nDouble click to edit": "Editing blocked by binding\nDouble click to edit"
-"Inconsistent values\nDouble click to edit": "Inconsistent values\nDouble click to edit"
+# pup/PropertyDropdown.tsx
+"Add Sub Block": "Add Sub Block"
+"Binding": "Binding"
+"Clear": "Clear"
+"Restore Saved Value": "Restore Saved Value"
+"Insert at {{n}}": "Insert at {{n}}"
+"Delete at {{n}}": "Delete at {{n}}"
+"Remove Property": "Remove Property"
+"Add Child Property": "Add Child Property"
 
-# property/PropertyList.tsx
-"Config": "Config"
-"Custom": "Custom"
+# pup/BlockDropdown.tsx
+"Enable": "Enable"
+"Disable": "Disable"
+"Call": "Call"
+
+# pup/AddNewFlowDialog.tsx
+"Data": "Data"
+
+# de-tree/NodeRenderer.tsx
+"Add Child Dataflow": "Add Child Dataflow"
+
+# nction-selector/FunctionSelector.tsx
+"Function Tree": "Function Tree"
+"Recent": "Recent"
+"Add Function": "Add Function"
+"Function Name?": "Function Name?"
+
+# ck/schedule/SchedulePane.tsx
+"Schedule": "Schedule"
+
+# ck/node-tree/NodeTreePane.tsx
+"Reload": "Reload"
+
+# ck/block/BlockStagePane.tsx
+"Hide Properties": "Hide Properties"
+"Show Properties": "Show Properties"
+
+# mponent/DockDialogPane.tsx
+"Close": "Close"
+"Apply": "Apply"
+"OK": "OK"
+
+# ock/BlockStage.tsx
+"Undo": "Undo"
+"Redo": "Redo"

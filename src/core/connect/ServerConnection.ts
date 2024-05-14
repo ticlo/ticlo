@@ -426,6 +426,7 @@ export class ServerConnection extends ServerConnectionCore {
   get({path}: {path: string}): DataMap | string {
     let property = this.root.queryProperty(path);
     if (property === null) {
+      // property === undefined, parent block exists but property is not created
       return {};
     } else if (property) {
       return {value: property._value};

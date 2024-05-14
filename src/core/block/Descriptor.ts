@@ -29,7 +29,8 @@ export type ValueType =
   // special editors
   | 'type'
   | 'worker'
-  | 'service';
+  | 'service'
+  | 'schedule';
 
 export interface FunctionCommandDesc {
   parameters: PropDesc[];
