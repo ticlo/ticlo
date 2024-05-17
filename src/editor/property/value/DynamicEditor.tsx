@@ -59,7 +59,7 @@ interface State {
 export class DynamicEditor extends React.PureComponent<ValueEditorProps, State> {
   state: State = {};
 
-  static getTypeFromValue(value: any, options?: (string | number)[]): ValueType {
+  static getTypeFromValue(value: any, options?: readonly (string | number)[]): ValueType {
     if (value == null) {
       return null;
     }
@@ -96,13 +96,13 @@ export class DynamicEditor extends React.PureComponent<ValueEditorProps, State> 
   }
 
   onValueChange = (value: any) => {
-    let {onChange} = this.props;
+    let {onChange, name} = this.props;
     let {currentType} = this.state;
     // automatically set the currentType when there is a value change
     if (!currentType) {
       this.setState({currentType: this.getCurrentType()});
     }
-    onChange(value);
+    onChange(value, name);
   };
 
   onMenuClick = (param: {key: React.Key}) => {

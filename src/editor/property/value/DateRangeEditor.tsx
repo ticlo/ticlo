@@ -18,8 +18,8 @@ const defaultTimes = {
 
 export class DateRangeEditor extends React.PureComponent<ValueEditorProps, any> {
   onValueChange = (range: [DateTime, DateTime]) => {
-    let {desc, onChange} = this.props;
-    onChange(range);
+    let {name, onChange} = this.props;
+    onChange(range, name);
   };
 
   render() {

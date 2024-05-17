@@ -8,8 +8,8 @@ const {Option} = AutoComplete;
 
 export class ComboEditor extends React.PureComponent<ValueEditorProps, any> {
   onValueChange = (value: string | number) => {
-    let {onChange} = this.props;
-    onChange(value);
+    let {onChange, name} = this.props;
+    onChange(value, name);
   };
 
   getOptions() {

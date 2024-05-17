@@ -5,13 +5,13 @@ import {LocalizedEnumOption} from '../../component/LocalizedLabel';
 
 export class ToggleEditor extends React.PureComponent<ValueEditorProps, any> {
   onValueChange = (checked: boolean) => {
-    let {desc, onChange} = this.props;
+    let {desc, onChange, name} = this.props;
     let {options} = desc;
     if (options && options.length >= 2) {
       // convert string to boolean
-      onChange(checked ? options[1] : options[0]);
+      onChange(checked ? options[1] : options[0], name);
     } else {
-      onChange(checked);
+      onChange(checked, name);
     }
   };
 

@@ -9,8 +9,8 @@ const RadioGroup = Radio.Group;
 
 export class RadioButtonEditor extends React.PureComponent<ValueEditorProps, any> {
   onValueChange = (e: RadioChangeEvent) => {
-    let {onChange} = this.props;
-    onChange(e.target.value);
+    let {onChange, name} = this.props;
+    onChange(e.target.value, name);
   };
 
   render() {

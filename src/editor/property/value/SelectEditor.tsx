@@ -7,8 +7,8 @@ const {Option} = Select;
 
 export class SelectEditor extends React.PureComponent<ValueEditorProps, any> {
   onValueChange = (value: string | number) => {
-    let {onChange} = this.props;
-    onChange(value);
+    let {onChange, name} = this.props;
+    onChange(value, name);
   };
 
   getOptions() {
@@ -40,8 +40,8 @@ export class SelectEditor extends React.PureComponent<ValueEditorProps, any> {
 
 export class MultiSelectEditor extends SelectEditor {
   onValuesChange = (value: string | number[]) => {
-    let {onChange} = this.props;
-    onChange(value);
+    let {onChange, name} = this.props;
+    onChange(value, name);
   };
 
   render() {

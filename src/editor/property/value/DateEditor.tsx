@@ -12,8 +12,8 @@ const defaultTime = {defaultValue: DateTime.fromFormat('00:00:00.000', 'HH:mm:ss
 
 export class DateEditor extends React.PureComponent<ValueEditorProps, any> {
   onValueChange = (day: DateTime) => {
-    let {desc, onChange} = this.props;
-    onChange(day);
+    let {name, onChange} = this.props;
+    onChange(day, name);
   };
 
   render() {
