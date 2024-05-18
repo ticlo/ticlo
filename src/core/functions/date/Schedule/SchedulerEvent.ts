@@ -8,12 +8,12 @@ export const RepeatModeList = [
   'daily',
   'weekly',
   'monthly',
-  'advanced',
   'dates', // repeat on special dates
+  'advanced',
 ] as const;
 export type RepeatMode = (typeof RepeatModeList)[number];
 
-interface ScheduleConfig {
+export interface SchedulerConfig {
   repeat: RepeatMode;
   start: [number, number]; // hour, minute
   name?: string;
@@ -33,11 +33,13 @@ interface ScheduleConfig {
   range?: boolean;
   // array of [year, month, day] that the special event may occur, must be sorted
   dates?: [number, number, number][];
+  color?: string;
+  field?: string;
 }
 const ConfigValidator = {
   name: z.nullable('string'),
   start: [23, 59],
-  duration: Number.isInteger,
+  duration: z.notNegative,
   after: z.nullable(z.datetime),
   before: z.nullable(z.datetime),
   priority: z.nullable(Number.isFinite),
@@ -53,6 +55,8 @@ const ConfigValidator = {
     },
     dates: {dates: [[z.int, z.num1n(12), z.num1n(31)]]},
   }),
+  color: z.nullable('string'),
+  field: z.nullable('string'),
 };
 export function validateEventConfig(config: unknown) {
   return z.check(config, ConfigValidator);
@@ -68,7 +72,7 @@ export class EventOccur {
   }
 }
 const expired = new EventOccur(Infinity, Infinity);
-export class ScheduleEvent {
+export class SchedulerEvent {
   constructor(
     public readonly repeat: RepeatMode,
     public readonly start: [number, number], // hour, minute
@@ -91,10 +95,12 @@ export class ScheduleEvent {
     public readonly range?: boolean,
 
     // array of [year, month, day] that the special event may occur
-    public readonly dates?: [number, number, number][]
+    public readonly dates?: [number, number, number][],
+    public readonly color?: string,
+    public readonly field?: string
   ) {}
 
-  static fromProperty(config: unknown): ScheduleEvent {
+  static fromProperty(config: unknown): SchedulerEvent {
     if (config) {
       if (validateEventConfig(config)) {
         const {
@@ -112,8 +118,10 @@ export class ScheduleEvent {
           monthDays,
           range,
           dates,
-        } = config as ScheduleConfig;
-        return new ScheduleEvent(
+          color,
+          field,
+        } = config as SchedulerConfig;
+        return new SchedulerEvent(
           repeat,
           start,
           name,
@@ -127,7 +135,9 @@ export class ScheduleEvent {
           months,
           monthDays,
           range,
-          dates
+          dates,
+          color,
+          field
         );
       }
     }
@@ -143,11 +153,12 @@ export class ScheduleEvent {
         return;
       }
       loopCount = 0;
-      if (this.durationMs < 0) {
+      if (this.durationMs <= 0) {
         // end of day
         yield [startTs, startDate.set({hour: 23, minute: 59, second: 59, millisecond: 999}).valueOf()];
+      } else {
+        yield [startTs, startTs + this.durationMs];
       }
-      yield [startTs, startTs + this.durationMs];
     }.bind(this);
 
     function checkDeadLoop() {
@@ -232,6 +243,10 @@ export class ScheduleEvent {
                   // check for 31 instead of lastDay, because overflow is allowed in range mode
                   days.push(v);
                 }
+                if (v === -1) {
+                  // last day
+                  days.push(endOfMonth.day);
+                }
                 return;
               }
 
@@ -310,7 +325,7 @@ export class ScheduleEvent {
             break;
           }
         }
-        current = new EventOccur(startTs, startTs + this.durationMs);
+        current = new EventOccur(startTs, endTs);
       }
     }
 

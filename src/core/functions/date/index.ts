@@ -5,4 +5,4 @@ import './ModifyDate';
 
 import './GenerateRange';
 
-import './Schedule/Schedule';
+import './Schedule/Scheduler';

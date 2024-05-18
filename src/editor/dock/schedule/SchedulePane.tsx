@@ -8,7 +8,7 @@ import {DockLayout} from 'rc-dock';
 import {EditorView} from '@codemirror/view';
 import {MenuProps} from 'antd/lib/menu';
 import {createDockDialog, DockDialogPane} from '../../component/DockDialogPane';
-import {ScheduleCalendar} from '../../schedule/Calendar';
+import {ScheduleCalendar} from '../../scheduler/Calendar';
 
 export class SchedulePane {
   static openFloatPanel(layout: DockLayout, conn: ClientConn, parentPath: string, scheduleName: string, index: number) {

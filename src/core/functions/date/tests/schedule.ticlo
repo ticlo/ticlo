@@ -196,7 +196,7 @@
  "~input": "##.generate-range.#output.0"
 },
 "test-daily": {
- "#is": "schedule",
+ "#is": "scheduler",
  "@b-p": [
   "config0",
   "value0",
@@ -221,7 +221,7 @@
  "value0": "v1"
 },
 "test-dates": {
- "#is": "schedule",
+ "#is": "scheduler",
  "@b-p": [
   "config0",
   "value0",
@@ -239,7 +239,7 @@
  "~config0": "##.js.output"
 },
 "test-fullday": {
- "#is": "schedule",
+ "#is": "scheduler",
  "@b-p": [
   "config0",
   "value0",
@@ -264,7 +264,7 @@
  "value0": "v4"
 },
 "test-monthly": {
- "#is": "schedule",
+ "#is": "scheduler",
  "@b-p": [
   "config0",
   "value0",
@@ -322,7 +322,7 @@
  "value0": "v3"
 },
 "test-priority": {
- "#is": "schedule",
+ "#is": "scheduler",
  "@b-p": [
   "config0",
   "value0",
@@ -360,7 +360,7 @@
  "value1": "b"
 },
 "test-same-priority": {
- "#is": "schedule",
+ "#is": "scheduler",
  "@b-comment": "When priority is same, event with lower index has higher priority",
  "@b-p": [
   "config0",
@@ -400,7 +400,7 @@
  "value1": "d"
 },
 "test-schedule": {
- "#is": "schedule",
+ "#is": "scheduler",
  "@b-p": [
   "default",
   "#output"
@@ -413,7 +413,7 @@
  "default": "hello"
 },
 "test-weekly": {
- "#is": "schedule",
+ "#is": "scheduler",
  "@b-p": [
   "config0",
   "value0",

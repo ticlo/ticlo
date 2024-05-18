@@ -186,6 +186,7 @@
     "jsx-no-multiline-js": false,
     "jsx-alignment": false,
     "jsx-curly-spacing": false,
-    "jsx-wrap-multiline": false
+    "jsx-wrap-multiline": false,
+    "jsx-no-lambda": false
   }
 }

@@ -113,6 +113,11 @@
 "Custom": 自定义
 
 # schedule/CalendarToolbar.tsx
+"Day": "日"
+"Previous Day": "上一天"
+"Current Day": "今天"
+"Next Day": "下一天"
+
 "Week": "周"
 "Previous Week": "上一周"
 "Current Week": "当前周"

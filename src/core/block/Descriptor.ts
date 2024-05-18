@@ -61,7 +61,7 @@ export interface PropDesc {
   step?: number;
 
   // bool, select, multi-select, radio-button, service
-  options?: (string | number)[];
+  options?: readonly (string | number)[];
 
   // color
   disableAlpha?: boolean;

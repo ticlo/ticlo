@@ -15,8 +15,8 @@ const data = {
     '~container': '##.query-selector.#output',
     '~component': '##.jsx.#output',
   },
-  'schedule': {
-    '#is': 'schedule',
+  'scheduler': {
+    '#is': 'scheduler',
     'config0': {
       repeat: 'weekly',
       start: [3, 30],

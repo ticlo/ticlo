@@ -10,22 +10,31 @@ const {Provider} = DialogContext;
 interface Props {
   // return true to allow close
   onApply?: () => boolean;
+  onCancel?: (isClosing: boolean) => void;
   saveDisabled?: boolean;
+  cancelDisabled?: boolean;
   footerExtra?: React.ReactElement;
   children?: React.ReactNode;
   error?: string;
   onKeyDownCapture?: KeyboardEventHandler;
+  hideOk?: boolean;
 }
 
 export function DockDialogPane(props: Props) {
-  let {children, onApply, error, saveDisabled, footerExtra, onKeyDownCapture} = props;
+  let {children, onApply, onCancel, error, saveDisabled, cancelDisabled, footerExtra, onKeyDownCapture, hideOk} = props;
   const {onClose} = useContext(DialogContext);
   const onOK = useCallback(() => {
     if (onApply()) {
       onClose();
     }
   }, [onApply, onClose]);
-
+  const onCloseClicked = useCallback(() => {
+    onCancel?.(true);
+    onClose();
+  }, [onApply, onClose]);
+  const onCancelClicked = useCallback(() => {
+    onCancel?.(false);
+  }, [onApply, onClose]);
   return (
     <div className="ticl-dock-dialog" onKeyDownCapture={onKeyDownCapture}>
       {children}
@@ -33,19 +42,25 @@ export function DockDialogPane(props: Props) {
       <div className="ticl-box-footer">
         {footerExtra}
         <div className="ticl-spacer" />
-        {onClose ? (
-          <Button size="small" onClick={onClose}>
-            {t('Close')}
+        {!hideOk && onClose && onApply ? (
+          <Button size="small" disabled={saveDisabled} onClick={onOK}>
+            {t('OK')}
           </Button>
         ) : null}
+
         {onApply ? (
           <Button size="small" disabled={saveDisabled} onClick={onApply}>
             {t('Apply')}
           </Button>
         ) : null}
-        {onClose && onApply ? (
-          <Button size="small" disabled={saveDisabled} onClick={onOK}>
-            {t('OK')}
+        {onCancel ? (
+          <Button size="small" disabled={cancelDisabled} onClick={onCancelClicked}>
+            {t('Cancel')}
+          </Button>
+        ) : null}
+        {onClose ? (
+          <Button size="small" onClick={onCloseClicked}>
+            {t('Close')}
           </Button>
         ) : null}
       </div>

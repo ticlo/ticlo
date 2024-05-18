@@ -1,13 +1,13 @@
 import {Functions} from '../../../block/Functions';
 import {AutoUpdateFunction} from '../../base/AutoUpdateFunction';
-import {type EventOccur, ScheduleEvent} from './ScheduleEvent';
+import {type EventOccur, SchedulerEvent} from './SchedulerEvent';
 import {BlockIO} from '../../../block/BlockProperty';
 import {ValueUpdateEvent} from '../../../block/Event';
 
 export class ScheduleValue {
   occur: EventOccur;
   constructor(
-    public readonly event: ScheduleEvent,
+    public readonly event: SchedulerEvent,
     public value: unknown,
     public index: number
   ) {}
@@ -55,14 +55,20 @@ export class ScheduleFunction extends AutoUpdateFunction {
   #events: ScheduleValue[];
 
   inputChanged(input: BlockIO, val: unknown): boolean {
-    if (input._name !== 'default') {
-      // re-generate events when input changes.
+    if (input._name.startsWith('config') || input._name === '[]') {
+      // re-generate events when config changes.
       this.#events = null;
     }
     return true;
   }
 
   run() {
+    const override = this._data.getValue('override');
+    const mergeMode = this._data.getValue('resolveMode') === 'merge';
+    if (override !== undefined && !mergeMode) {
+      this._data.output(override);
+      return;
+    }
     const eventsData = this._data.getArray('', 1, ['config', 'value']) as {config: unknown; value: unknown}[];
     if (!this.#events) {
       // generate events
@@ -72,7 +78,7 @@ export class ScheduleFunction extends AutoUpdateFunction {
         let {config, value} = eventsData[i];
         let sv = this.#cache.get(config as object);
         if (!sv) {
-          let event = ScheduleEvent.fromProperty(config);
+          let event = SchedulerEvent.fromProperty(config);
           if (!event) {
             continue;
           }
@@ -90,50 +96,53 @@ export class ScheduleFunction extends AutoUpdateFunction {
     if (typeof timezone !== 'string') {
       timezone = null;
     }
-    const occurs: EventOccur[] = [];
-    let ts = new Date().getTime();
-    let current: ScheduleValue;
-    let next: ScheduleValue;
-    // check the current
-    for (let sv of this.#events) {
-      const occur = sv.getOccur(ts, timezone);
-      if (occur.isValid()) {
-        if (occur.start <= ts) {
-          if (sv.shouldReplace(current)) {
-            current = sv;
+    if (mergeMode) {
+    } else {
+      const occurs: EventOccur[] = [];
+      let ts = new Date().getTime();
+      let current: ScheduleValue;
+      let next: ScheduleValue;
+      // check the current
+      for (let sv of this.#events) {
+        const occur = sv.getOccur(ts, timezone);
+        if (occur.isValid()) {
+          if (occur.start <= ts) {
+            if (sv.shouldReplace(current)) {
+              current = sv;
+            }
           }
         }
       }
-    }
-    // check the next
-    for (let sv of this.#events) {
-      const occur = sv.occur;
-      if (occur.isValid()) {
-        if (occur.start > ts) {
-          if (sv.shouldReplaceNext(current, next)) {
-            next = sv;
+      // check the next
+      for (let sv of this.#events) {
+        const occur = sv.occur;
+        if (occur.isValid()) {
+          if (occur.start > ts) {
+            if (sv.shouldReplaceNext(current, next)) {
+              next = sv;
+            }
           }
         }
       }
-    }
-    if (next) {
-      this.addSchedule(next.occur.start);
-    } else if (current) {
-      this.addSchedule(current.occur.end + 1);
-    }
+      if (next) {
+        this.addSchedule(next.occur.start);
+      } else if (current) {
+        this.addSchedule(current.occur.end + 1);
+      }
 
-    let outputValue = current ? current.value : this._data.getValue('default');
-    this._data.output(outputValue);
+      let outputValue = current ? current.value : this._data.getValue('default');
+      this._data.output(outputValue);
 
-    if (current) {
-      // TODO make sure event is different from last one
-      return new ValueUpdateEvent(current.event.name, current.value, current.occur.start);
+      if (current) {
+        // TODO make sure event is different from last one
+        return new ValueUpdateEvent(current.event.name, current.value, current.occur.start);
+      }
     }
   }
 }
 
 Functions.add(ScheduleFunction, {
-  name: 'schedule',
+  name: 'scheduler',
   icon: 'fas:calendar-days',
   priority: 1,
   properties: [
@@ -148,6 +157,7 @@ Functions.add(ScheduleFunction, {
     },
     {name: 'default', type: 'any', pinned: true},
     {name: 'override', type: 'any'},
+    {name: 'resolveMode', type: 'select', options: ['overwrite', 'merge', 'max', 'min'], default: 'overwrite'},
     {name: 'timezone', type: 'string', default: ''},
     {name: '#output', type: 'any', readonly: true, pinned: true},
   ],

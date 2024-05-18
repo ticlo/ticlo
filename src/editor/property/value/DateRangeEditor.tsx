@@ -1,13 +1,9 @@
 import React from 'react';
 import {Tooltip} from 'antd';
 import {DateTime} from 'luxon';
-import generatePicker from 'antd/es/date-picker/generatePicker';
 import {formatDate} from '../../../../src/core/editor';
 import {ValueEditorProps} from './ValueEditorBase';
-import luxonConfig from './3rd-party/luxonConfig';
-
-const DatePicker = generatePicker<DateTime>(luxonConfig);
-const {RangePicker} = DatePicker;
+import {RangePicker} from '../../component/DateTimePicker';
 
 const defaultTimes = {
   defaultValue: [

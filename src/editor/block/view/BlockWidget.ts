@@ -23,7 +23,7 @@ export class BlockWidget {
   static _widgets = new Map<string, BlockWidgetType>();
   static register(name: string, component: BlockWidgetType) {
     if (!BlockWidget.widgetDesc.options.includes(name)) {
-      BlockWidget.widgetDesc.options.push(name);
+      BlockWidget.widgetDesc.options = [...BlockWidget.widgetDesc.options, name];
     }
     BlockWidget._widgets.set(name, component);
   }

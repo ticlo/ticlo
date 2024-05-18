@@ -83,7 +83,7 @@
     "resize-observer-polyfill": "^1.5.1",
     "shelljs": "^0.8.5",
     "simulate-event": "ticlo/simulate-event#master",
-    "ticlo-big-calendar": "^1.12.2",
+    "ticlo-big-calendar": "^1.12.3",
     "tinycolor2": "^1.6.0",
     "ts-node": "^10.9.2",
     "tslib": "^2.6.2",
@@ -104,6 +104,7 @@
     "build-less": "lessc --js src/editor/style/antd.less dist/antd.css && lessc --js src/editor/style/editor.less dist/editor.css",
     "build-icons": "ts-node tool/build-icons",
     "build-i18n": "ts-node tool/merge-lng",
+    "build-i18n-pre-collect-en": "ts-node tool/collect-editor-en-locale.ts",
     "build-package": "ts-node tool/build-package.ts",
     "test": "cross-env NODE_ENV=TEST vitest",
     "test-coverage": "cross-env NODE_ENV=TEST vitest run --coverage",
@@ -113,8 +114,7 @@
     "ticlo-test-server": "ts-node bin/test-server --serve --run",
     "ticlo-test-nyc": "nyc --silent --check-coverage=false ts-node ./bin/test-server.ts --run --quitOnFinish && nyc report --reporter=text-lcov > coverage/nyc-ticlo.lcov",
     "prettier-check": "prettier --check \"(src|tool|example)/**/*.+(ts|tsx|less)\"",
-    "prettier-write": "prettier --write \"(src|tool|example)/**/*.+(ts|tsx|less)\"",
-    "collect-edirot-en": "ts-node tool/collect-editor-en-locale.ts"
+    "prettier-write": "prettier --write \"(src|tool|example)/**/*.+(ts|tsx|less)\""
   },
   "packageManager": "yarn@4.0.1"
 }

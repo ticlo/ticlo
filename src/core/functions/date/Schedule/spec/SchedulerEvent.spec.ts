@@ -1,34 +1,34 @@
 import {expect} from 'vitest';
-import {ScheduleEvent} from '../ScheduleEvent';
+import {SchedulerEvent} from '../SchedulerEvent';
 import {DateTime} from 'luxon';
 
 describe('ScheduleEvent', function () {
   it('parse', function () {
-    let event = ScheduleEvent.fromProperty({repeat: 'daily', start: [1, 23], duration: 60});
+    let event = SchedulerEvent.fromProperty({repeat: 'daily', start: [1, 23], duration: 60});
     expect(event.repeat).toBe('daily');
     expect(event.start).toEqual([1, 23]);
     expect(event.durationMs).toEqual(3599_999);
 
-    event = ScheduleEvent.fromProperty({repeat: 'weekly', start: [2, 34], days: [1, 3, 5], duration: 60});
+    event = SchedulerEvent.fromProperty({repeat: 'weekly', start: [2, 34], days: [1, 3, 5], duration: 60});
     expect(event.days).toEqual([1, 3, 5]);
 
-    event = ScheduleEvent.fromProperty({repeat: 'monthly', start: [3, 45], days: [1, 11, 21, 31], duration: 60});
+    event = SchedulerEvent.fromProperty({repeat: 'monthly', start: [3, 45], days: [1, 11, 21, 31], duration: 60});
     expect(event.days).toEqual([1, 11, 21, 31]);
   });
 
   it('parse invalid', function () {
-    let event = ScheduleEvent.fromProperty({repeat: 'daily', start: [99, 23], duration: 60});
+    let event = SchedulerEvent.fromProperty({repeat: 'daily', start: [99, 23], duration: 60});
     expect(event).toBeNull();
 
-    event = ScheduleEvent.fromProperty({repeat: 'weekly', start: [2, 34], days: [0, 1], duration: 60});
+    event = SchedulerEvent.fromProperty({repeat: 'weekly', start: [2, 34], days: [0, 1], duration: 60});
     expect(event).toBeNull();
 
-    event = ScheduleEvent.fromProperty({repeat: 'monthly', start: [3, 45], days: [2, 12, 22, 32], duration: 60});
+    event = SchedulerEvent.fromProperty({repeat: 'monthly', start: [3, 45], days: [2, 12, 22, 32], duration: 60});
     expect(event).toBeNull();
   });
 
   it('next event', function () {
-    const event = ScheduleEvent.fromProperty({repeat: 'daily', start: [12, 20], duration: 60});
+    const event = SchedulerEvent.fromProperty({repeat: 'daily', start: [12, 20], duration: 60});
     const occur1 = event.getOccur(new Date('2024-01-01').getTime());
     expect(occur1.start).toBe(new Date('2024-01-01T12:20').getTime());
 
@@ -44,7 +44,7 @@ describe('ScheduleEvent', function () {
   });
 
   it('duration overflow', function () {
-    const event = ScheduleEvent.fromProperty({repeat: 'daily', start: [0, 0], duration: 3000});
+    const event = SchedulerEvent.fromProperty({repeat: 'daily', start: [0, 0], duration: 3000});
     const occur1 = event.getOccur(DateTime.fromISO('2024-01-01').valueOf());
     expect(occur1.start).toBe(DateTime.fromISO('2024-01-01T00:00').valueOf());
 
@@ -56,7 +56,7 @@ describe('ScheduleEvent', function () {
   });
 
   it('after', function () {
-    const event = ScheduleEvent.fromProperty({
+    const event = SchedulerEvent.fromProperty({
       repeat: 'daily',
       start: [12, 10],
       duration: 90,
@@ -70,7 +70,7 @@ describe('ScheduleEvent', function () {
   });
 
   it('before', function () {
-    const event = ScheduleEvent.fromProperty({
+    const event = SchedulerEvent.fromProperty({
       repeat: 'daily',
       start: [12, 10],
       duration: 90,

@@ -9699,9 +9699,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"ticlo-big-calendar@npm:^1.12.2":
-  version: 1.12.2
-  resolution: "ticlo-big-calendar@npm:1.12.2"
+"ticlo-big-calendar@npm:^1.12.3":
+  version: 1.12.3
+  resolution: "ticlo-big-calendar@npm:1.12.3"
   dependencies:
     "@babel/runtime": "npm:^7.20.7"
     clsx: "npm:^1.2.1"
@@ -9719,7 +9719,7 @@ __metadata:
   peerDependencies:
     react: ^16.14.0 || ^17 || ^18
     react-dom: ^16.14.0 || ^17 || ^18
-  checksum: e9a52b7d146fecc11be6eaa1235957a7b262a493782a4966e0e6a5c33ee93de96dd5e6c9149cada29f6a20ba759ab463460ed2553f198f4a85c907b6f6f23e48
+  checksum: 9829bf687b245377136f2b4cb3e5c5a82d6f0177bd32508a1a8531c8e85fae76bf08165006407f8edb41947ca6f3b9ed34ebe190587ba64683640b999c7c389d
   languageName: node
   linkType: hard
 
@@ -9795,7 +9795,7 @@ __metadata:
     resize-observer-polyfill: "npm:^1.5.1"
     shelljs: "npm:^0.8.5"
     simulate-event: "ticlo/simulate-event#master"
-    ticlo-big-calendar: "npm:^1.12.2"
+    ticlo-big-calendar: "npm:^1.12.3"
     tinycolor2: "npm:^1.6.0"
     ts-node: "npm:^10.9.2"
     tslib: "npm:^2.6.2"

@@ -27,8 +27,12 @@
 "New Dataflow": "New Dataflow"
 
 # hedule/CalendarToolbar.tsx
+"Day": "Day"
 "Week": "Week"
 "Month": "Month"
+"Previous Day": "Previous Day"
+"Current Day": "Current Day"
+"Next Day": "Next Day"
 "Previous Week": "Previous Week"
 "Current Week": "Current Week"
 "Next Week": "Next Week"

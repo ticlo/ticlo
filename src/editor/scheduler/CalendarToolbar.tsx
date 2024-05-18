@@ -35,6 +35,9 @@ export class CalendarToolbar extends React.Component<ToolbarProps, State> {
         <div className="ticl-clndr-toolbar">{label}</div>
         <div className="ticl-clndr-toolbar">
           <Radio.Group value={view} buttonStyle="solid">
+            <Radio.Button value="day" onClick={this.day}>
+              {t('Day')}
+            </Radio.Button>
             <Radio.Button value="week" onClick={this.week}>
               {t('Week')}
             </Radio.Button>
@@ -56,6 +59,9 @@ export class CalendarToolbar extends React.Component<ToolbarProps, State> {
   today = () => {
     this.props.onNavigate('TODAY');
   };
+  day = () => {
+    this.props.onView('day');
+  };
   week = () => {
     this.props.onView('week');
   };
@@ -74,6 +80,9 @@ export class CalendarToolbar extends React.Component<ToolbarProps, State> {
 }
 
 // keep these comments so collect-editor-en script can find these translation key
+// t('Previous Day')
+// t('Current Day')
+// t('Next Day')
 // t('Previous Week')
 // t('Current Week')
 // t('Next Week')
