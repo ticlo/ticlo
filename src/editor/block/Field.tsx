@@ -541,7 +541,7 @@ export abstract class BaseBlockItem extends DataRendererItem<XYWRenderer> {
   ) {
     super();
     this.conn = connection;
-    this.name = path.substr(path.lastIndexOf('.') + 1);
+    this.name = path.substring(path.lastIndexOf('.') + 1);
   }
 
   // renderer both the block and children fields

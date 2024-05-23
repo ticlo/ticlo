@@ -69,7 +69,7 @@ export class NodeTreeItem extends TreeItem<NodeTreeItem> {
       if (name) {
         this.key = name;
         this.childPrefix = `${name}.`;
-        this.name = name.substr(name.indexOf('.') + 1);
+        this.name = name.substring(name.indexOf('.') + 1);
       } else {
         // root element;
         this.key = '';

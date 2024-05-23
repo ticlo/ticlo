@@ -232,7 +232,7 @@ export function findPropDesc(name: string, cache: {[key: string]: PropDesc}): Pr
   }
   let numMatch = name.match(numberReg);
   if (numMatch) {
-    let baseName = name.substr(0, numMatch.index);
+    let baseName = name.substring(0, numMatch.index);
     name = `${baseName}0`;
   }
   if (cache.hasOwnProperty(name)) {

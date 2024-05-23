@@ -20,8 +20,8 @@ function iconNameWidth(str: string): [string, number, boolean] {
   if (str.length > 2) {
     let colonPos = str.indexOf(':');
     if (colonPos > 0) {
-      overrideSize = parseInt(str.substr(colonPos + 1));
-      str = str.substr(0, colonPos);
+      overrideSize = parseInt(str.substring(colonPos + 1));
+      str = str.substring(0, colonPos);
     }
   }
   let size = str.length;
@@ -64,8 +64,8 @@ export function TIcon(props: Props) {
 
   let colonPos = icon.indexOf(':');
   if (colonPos > 0) {
-    let iconType = icon.substr(0, colonPos);
-    let iconName = icon.substr(colonPos + 1);
+    let iconType = icon.substring(0, colonPos);
+    let iconName = icon.substring(colonPos + 1);
     switch (iconType) {
       case 'fas':
       case 'fab':
@@ -81,7 +81,7 @@ export function TIcon(props: Props) {
 
       case 'txt':
         if (iconName.length > 3) {
-          iconName = iconName.substr(0, 3);
+          iconName = iconName.substring(0, 3);
         }
         let [outName, fontSize, needOffset] = iconNameWidth(iconName);
         if (fontSize > 0) {

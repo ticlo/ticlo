@@ -72,9 +72,9 @@ function truncateObj(val: any, maxSize: number = 1024): [any, number, boolean] {
   } else if (typeof val === 'string') {
     if (val.length > maxSize / 2) {
       if (maxSize > 256) {
-        return [`${val.substr(0, 128)}${TRUNCATED}`, 128, true];
+        return [`${val.substring(0, 128)}${TRUNCATED}`, 128, true];
       } else {
-        return [`${val.substr(0, 8)}${TRUNCATED}`, 8, true];
+        return [`${val.substring(0, 8)}${TRUNCATED}`, 8, true];
       }
     }
     return [val, val.length, false];
