@@ -3,6 +3,7 @@ import {defineConfig} from 'vitest/config';
 export default defineConfig({
   test: {
     globals: true,
+    globalSetup: 'src/node/vitest.global.setup.ts',
     setupFiles: 'src/node/vitest.setup.ts',
     include: ['src/core/**/*.spec.ts', 'src/node/**/*.spec.ts'],
     coverage: {
