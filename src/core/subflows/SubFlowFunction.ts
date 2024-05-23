@@ -26,7 +26,10 @@ export const SubFlowModeOptions = Object.values(SubFlowMode);
 class LoadFunctionCache {
   static async loadData(path: string, func: SubFlowFunction) {
     let data = await Root.instance._storage.loadFlow(path);
-    func.onDataLoaded(data ?? {});
+    // check if func is destroyed
+    if (func._data) {
+      func.onDataLoaded(data ?? {});
+    }
   }
 }
 

@@ -110,3 +110,14 @@ export function nameFromPath(path: string) {
   }
   return path;
 }
+
+// a faster way to concat string, can be used to generate css
+export function scat(...inputs: unknown[]): string {
+  let out = '';
+  for (let s of inputs) {
+    if (typeof s === 'string') {
+      out += (out && ' ') + s;
+    }
+  }
+  return out;
+}

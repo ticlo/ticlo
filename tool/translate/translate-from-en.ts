@@ -1,5 +1,5 @@
 import axios from 'axios';
-import glob from 'glob';
+import * as glob from 'glob';
 import fs from 'fs';
 import {lanToAntd} from '../../src/editor/util/Languages';
 import {TranslatePkg} from './TranslatePkg';

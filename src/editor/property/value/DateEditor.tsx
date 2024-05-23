@@ -36,10 +36,6 @@ export class DateEditor extends React.PureComponent<ValueEditorProps, any> {
           disabled={locked || onChange == null}
           showTime={showTimeOption}
           onChange={this.onValueChange}
-          style={
-            /*work around of https://github.com/ant-design/ant-design/issues/16651*/
-            {minWidth: null}
-          }
         />
       </Tooltip>
     );

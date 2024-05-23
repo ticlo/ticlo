@@ -13,6 +13,7 @@ import {TabData} from 'rc-dock/src/DockData';
 import {EditorView} from '@codemirror/view';
 import {MenuProps} from 'antd/lib/menu';
 import {createDockDialog, DockDialogPane} from '../../component/DockDialogPane';
+import {t} from '../../component/LocalizedLabel';
 
 interface Props {
   conn: ClientConn;
@@ -242,7 +243,7 @@ export class TextEditorPane extends React.PureComponent<Props, State> {
         saveDisabled={loading}
         footerExtra={
           <Dropdown menu={this.getReloadMenu()} trigger={['click']}>
-            <Button size="small">Reload</Button>
+            <Button size="small">{t('Reload')}</Button>
           </Dropdown>
         }
         error={error}

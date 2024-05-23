@@ -1,7 +1,7 @@
 import {PureFunction} from '../../block/BlockFunction';
 import {Functions} from '../../block/Functions';
 import {DateTime} from 'luxon';
-import {invalidDate} from '../../util/DateTime';
+import {getZone, invalidDate} from '../../util/DateTime';
 
 export class CreateDateFunction extends PureFunction {
   run() {
@@ -17,7 +17,7 @@ export class CreateDateFunction extends PureFunction {
       this._data.output(
         DateTime.fromObject(
           {year, month, day, hour, minute, second, millisecond},
-          {zone: timezone as string} // convert empty string to undefined
+          getZone(timezone) // convert empty string to undefined
         )
       );
     } catch (err) {

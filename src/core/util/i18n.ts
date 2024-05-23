@@ -52,7 +52,7 @@ export function translateProperty(funcName: string, propName: string, namespace?
   }
   let i18ns = `ticlo-${namespace}`;
   let numMatch = propName.match(numberReg);
-  let baseName = numMatch ? propName.substr(0, numMatch.index) : propName;
+  let baseName = numMatch ? propName.substring(0, numMatch.index) : propName;
 
   let translated: string;
   if (funcName) {
@@ -76,7 +76,7 @@ export function translateProperty(funcName: string, propName: string, namespace?
     });
   }
   if (numMatch) {
-    let numStr = propName.substr(numMatch.index);
+    let numStr = propName.substring(numMatch.index);
     return `${translated}${numStr}`;
   } else {
     return translated;

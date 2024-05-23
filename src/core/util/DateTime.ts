@@ -1,6 +1,7 @@
 import {DateTime} from 'luxon';
 
 const startDate = DateTime.now();
+export const systemZone = startDate.zoneName;
 export const invalidDate = DateTime.invalid('invalid input');
 
 // this is for display purpose only, not for serialization
@@ -8,6 +9,9 @@ export function formatDate(m: DateTime, showTime: boolean): string {
   if (m) {
     if (m.isValid) {
       if (showTime) {
+        if (m.zoneName === 'Factory') {
+          return m.toFormat('yyyy-LL-dd HH:mm:ss');
+        }
         return m.toFormat('yyyy-LL-dd HH:mm:ss ZZZZ');
       }
       return m.toFormat('yyyy-LL-dd');
@@ -30,6 +34,10 @@ export function encodeDateTime(val: DateTime): string {
   if (val.zone.type === 'system') {
     return `͢Ts:${val.valueOf().toString(36)}`;
   }
+  if (val.zoneName === 'Factory') {
+    // DateTime without timezone
+    return `͢Ts:${val.valueOf().toString(36)}@?`;
+  }
   return `͢Ts:${val.valueOf().toString(36)}@${val.zoneName}`;
 }
 
@@ -41,7 +49,12 @@ export function decodeDateTime(str: string): any {
     const atPos = str.indexOf('@');
     if (atPos >= 0) {
       // with timezone
-      return DateTime.fromMillis(parseInt(str.substring(4, atPos), 36), {zone: str.substring(atPos + 1)});
+      let zone = str.substring(atPos + 1);
+      if (zone === '?') {
+        // use Factory zone to store a DateTime without timezone
+        zone = 'Factory';
+      }
+      return DateTime.fromMillis(parseInt(str.substring(4, atPos), 36), {zone});
     }
     // 23 ISO length + 4 bytes header
     if (str.length >= 27) {
@@ -55,8 +68,22 @@ export function decodeDateTime(str: string): any {
   }
 }
 
-export function toDateTime(input: unknown) {
+export function toDateTime(input: unknown, zone?: string) {
   if (DateTime.isDateTime(input)) {
+    if (input.zoneName === 'Factory') {
+      return DateTime.fromObject(
+        {
+          year: input.year,
+          month: input.month,
+          day: input.day,
+          hour: input.hour,
+          minute: input.minute,
+          second: input.second,
+          millisecond: input.millisecond,
+        },
+        {zone}
+      );
+    }
     return input;
   }
   switch (typeof input) {
@@ -70,6 +97,16 @@ export function toDateTime(input: unknown) {
     }
   }
   return invalidDate;
+}
+
+export function getZone(zoneName: unknown): {zone: string} {
+  if (zoneName && typeof zoneName === 'string') {
+    if (zoneName === '?') {
+      return {zone: 'Factory'};
+    }
+    return {zone: zoneName};
+  }
+  return undefined;
 }
 
 export const DATE_UNITS = ['year', 'month', 'day', 'hour', 'minute', 'second', 'millisecond', 'week'];

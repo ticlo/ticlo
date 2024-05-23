@@ -21,7 +21,12 @@
     '@name': Separator
   'regExp':
     '@name': RegExp
-  'key': Key
+  'key':
+    '@name': Key
+  'value':
+    '@name': Value
+  'config':
+    '@name': Config
   '#output':
     '@name': Output
   '#is':

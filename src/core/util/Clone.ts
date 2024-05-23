@@ -1,3 +1,5 @@
+import {DateTime} from 'luxon';
+
 export function deepClone<T>(val: T): T {
   if (val != null && typeof val === 'object') {
     if (Array.isArray(val)) {
@@ -11,6 +13,7 @@ export function deepClone<T>(val: T): T {
       if (typeof (val as any).clone === 'function') {
         return (val as any).clone();
       }
+      return val;
     }
     let obj: any = {};
     for (let k in val) {
@@ -39,6 +42,7 @@ export function cloneToLevel<T>(val: T, level: number): T {
       if (typeof (val as any).clone === 'function') {
         return (val as any).clone();
       }
+      return val;
     }
     let obj: any = {};
     for (let k in val) {

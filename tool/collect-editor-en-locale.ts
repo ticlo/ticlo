@@ -3,8 +3,8 @@ import fs from 'fs';
 
 const treg = /\b(?:t|translateEditor)\(['"](.*?)['"](\)|, \{)/g;
 
-let substrLen = './src/editor/'.length;
-let commonPath = './src/editor/util/i18n-common.ts';
+let substrLen = 'src/editor/'.length;
+let commonPath = 'src/editor/util/i18n-common.ts';
 
 let sharedKeys = new Map<string, string>();
 let allFiles = new Map<string, string[]>();

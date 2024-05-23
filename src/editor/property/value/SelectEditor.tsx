@@ -54,6 +54,7 @@ export class MultiSelectEditor extends SelectEditor {
         value={value}
         disabled={locked || onChange == null}
         onChange={this.onValuesChange}
+        placeholder={desc.placeholder}
       >
         {optionNodes}
       </Select>

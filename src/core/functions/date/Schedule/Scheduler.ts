@@ -3,6 +3,7 @@ import {AutoUpdateFunction} from '../../base/AutoUpdateFunction';
 import {type EventOccur, SchedulerEvent} from './SchedulerEvent';
 import {BlockIO} from '../../../block/BlockProperty';
 import {ValueUpdateEvent} from '../../../block/Event';
+import {systemZone} from '../../../util/DateTime';
 
 export class ScheduleValue {
   occur: EventOccur;
@@ -11,8 +12,8 @@ export class ScheduleValue {
     public value: unknown,
     public index: number
   ) {}
-  getOccur(ts: number, timezone: string): EventOccur {
-    this.occur = this.event.getOccur(ts, timezone);
+  getOccur(ts: number): EventOccur {
+    this.occur = this.event.getOccur(ts);
     return this.occur;
   }
   shouldReplace(current: ScheduleValue) {
@@ -55,7 +56,7 @@ export class ScheduleFunction extends AutoUpdateFunction {
   #events: ScheduleValue[];
 
   inputChanged(input: BlockIO, val: unknown): boolean {
-    if (input._name.startsWith('config') || input._name === '[]') {
+    if (input._name.startsWith('config') || input._name === '[]' || input._name === 'timezone') {
       // re-generate events when config changes.
       this.#events = null;
     }
@@ -71,6 +72,10 @@ export class ScheduleFunction extends AutoUpdateFunction {
     }
     const eventsData = this._data.getArray('', 1, ['config', 'value']) as {config: unknown; value: unknown}[];
     if (!this.#events) {
+      let timezone = this._data.getValue('timezone') as string;
+      if (typeof timezone !== 'string' || timezone === 'Factory' || timezone === '?') {
+        timezone = systemZone;
+      }
       // generate events
       this.#events = [];
       const newCache = new WeakMap<object, ScheduleValue>();
@@ -78,7 +83,7 @@ export class ScheduleFunction extends AutoUpdateFunction {
         let {config, value} = eventsData[i];
         let sv = this.#cache.get(config as object);
         if (!sv) {
-          let event = SchedulerEvent.fromProperty(config);
+          let event = SchedulerEvent.fromProperty(config, timezone);
           if (!event) {
             continue;
           }
@@ -92,10 +97,7 @@ export class ScheduleFunction extends AutoUpdateFunction {
       }
       this.#cache = newCache;
     }
-    let timezone = this._data.getValue('timezone') as string;
-    if (typeof timezone !== 'string') {
-      timezone = null;
-    }
+
     if (mergeMode) {
     } else {
       const occurs: EventOccur[] = [];
@@ -104,7 +106,7 @@ export class ScheduleFunction extends AutoUpdateFunction {
       let next: ScheduleValue;
       // check the current
       for (let sv of this.#events) {
-        const occur = sv.getOccur(ts, timezone);
+        const occur = sv.getOccur(ts);
         if (occur.isValid()) {
           if (occur.start <= ts) {
             if (sv.shouldReplace(current)) {

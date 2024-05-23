@@ -16,7 +16,7 @@ export class SchedulePane {
       // invalid paths
       return;
     }
-    let id = `textEditor-${parentPath}`;
+    let id = `schedule-${parentPath}.${scheduleName}`;
     let title = `${translateEditor('Schedule')} ${parentPath.split('.').at(-1)}`;
 
     createDockDialog(

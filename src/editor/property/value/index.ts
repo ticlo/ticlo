@@ -8,6 +8,7 @@ import {WorkerEditor} from './WorkerEditor';
 import {ReadonlyEditor} from './ReadonlyEditor';
 import {EventEditor} from './EventEditor';
 import {ScheduleEditor} from './ScheduleEditor';
+import {TimeEditor} from './TimeEditor';
 
 export const typeEditorMap: {[key: string]: any} = {
   ...dynamicEditorMap,
@@ -17,6 +18,7 @@ export const typeEditorMap: {[key: string]: any} = {
   'combo-box': ComboEditor,
   'password': PasswordEditor,
   'radio-button': RadioButtonEditor,
+  'time': TimeEditor,
   'type': FunctionEditor,
   'worker': WorkerEditor,
   'none': ReadonlyEditor,

@@ -26,7 +26,7 @@
 # AddNewFlowDialog.tsx & NodeTreePane.tsx
 "New Dataflow": "New Dataflow"
 
-# hedule/CalendarToolbar.tsx
+# scheduler/CalendarToolbar.tsx
 "Day": "Day"
 "Week": "Week"
 "Month": "Month"
@@ -40,19 +40,36 @@
 "Current Month": "Current Month"
 "Next Month": "Next Month"
 
-# operty/PropertyList.tsx
+# scheduler/CalendarEventEditor.tsx
+"Repeat": "Repeat"
+"Advanced": "Advanced"
+"Priority": "Priority"
+"Not Before": "Not Before"
+"Not After": "Not After"
+"Only Week Days": "Only Week Days"
+"Key": "Key"
+"Color": "Color"
+
+# scheduler/editors/TimeRange.tsx
+"M": "M"
+"H": "H"
+"All Day": "All Day"
+"Start": "Start"
+"Duration": "Duration"
+
+# property/PropertyList.tsx
 "Config": "Config"
 "Custom": "Custom"
 
-# operty/PropertyEditor.tsx
+# property/PropertyEditor.tsx
 "Unlocked for editing\nDouble click to lock": "Unlocked for editing\nDouble click to lock"
 "Editing blocked by binding\nDouble click to edit": "Editing blocked by binding\nDouble click to edit"
 "Inconsistent values\nDouble click to edit": "Inconsistent values\nDouble click to edit"
 
-# operty/OptionalPropertyList.tsx
+# property/OptionalPropertyList.tsx
 "Optional": "Optional"
 
-# operty/AddCustomProperty.tsx
+# property/AddCustomProperty.tsx
 "Default Length": "Default Length"
 "Min": "Min"
 "Max": "Max"
@@ -78,11 +95,11 @@
 "Comma separated": "Comma separated"
 "Add Property": "Add Property"
 
-# pup/RenameDialog.tsx
+# popup/RenameDialog.tsx
 "Change": "Change"
 "Display Name": "Display Name"
 
-# pup/PropertyDropdown.tsx
+# popup/PropertyDropdown.tsx
 "Add Sub Block": "Add Sub Block"
 "Binding": "Binding"
 "Clear": "Clear"
@@ -92,38 +109,39 @@
 "Remove Property": "Remove Property"
 "Add Child Property": "Add Child Property"
 
-# pup/BlockDropdown.tsx
+# popup/BlockDropdown.tsx
 "Enable": "Enable"
 "Disable": "Disable"
 "Call": "Call"
 
-# pup/AddNewFlowDialog.tsx
+# popup/AddNewFlowDialog.tsx
 "Data": "Data"
 
-# de-tree/NodeRenderer.tsx
+# node-tree/NodeRenderer.tsx
 "Add Child Dataflow": "Add Child Dataflow"
 
-# nction-selector/FunctionSelector.tsx
+# function-selector/FunctionSelector.tsx
 "Function Tree": "Function Tree"
 "Recent": "Recent"
 "Add Function": "Add Function"
 "Function Name?": "Function Name?"
 
-# ck/schedule/SchedulePane.tsx
+# dock/schedule/SchedulePane.tsx
 "Schedule": "Schedule"
 
-# ck/node-tree/NodeTreePane.tsx
+# dock/node-tree/NodeTreePane.tsx
 "Reload": "Reload"
 
-# ck/block/BlockStagePane.tsx
+# dock/block/BlockStagePane.tsx
 "Hide Properties": "Hide Properties"
 "Show Properties": "Show Properties"
 
-# mponent/DockDialogPane.tsx
-"Close": "Close"
-"Apply": "Apply"
+# component/DockDialogPane.tsx
 "OK": "OK"
+"Apply": "Apply"
+"Cancel": "Cancel"
+"Close": "Close"
 
-# ock/BlockStage.tsx
+# block/BlockStage.tsx
 "Undo": "Undo"
 "Redo": "Redo"

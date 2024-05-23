@@ -19,8 +19,8 @@ const data = {
     '#is': 'scheduler',
     'config0': {
       repeat: 'weekly',
-      start: [3, 30],
-      days: [1, 2, 5],
+      start: '3:30',
+      wDays: [1, 2, 5],
       name: 'hello',
       duration: 600,
     },

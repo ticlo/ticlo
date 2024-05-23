@@ -23,6 +23,14 @@ describe('Serialize', function () {
     expect(isDateSame(date, decode(encodedStr))).toBe(true);
     expect(encodeDisplay(date)).toBe('2014-11-27 11:07:00 UTC-3');
   });
+  it('DateTime unknown timezone', function () {
+    const dateStr = '2014-11-27T11:07:00.000Z';
+    const date = DateTime.fromISO(dateStr, {zone: 'Factory'});
+    const encodedStr = encode(date);
+    expect(encodedStr).toBe('"͢Ts:i300nzmo@?"');
+    expect(isDateSame(date, decode(encodedStr))).toBe(true);
+    expect(encodeDisplay(date)).toBe('2014-11-27 11:07:00');
+  });
   it('DateTime invalid', function () {
     const date = DateTime.invalid('test invalid');
     const encodedStr = encode(date);

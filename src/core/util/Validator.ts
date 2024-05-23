@@ -1,7 +1,7 @@
 import {DateTime} from 'luxon';
 
 type Validator = (v: unknown, root?: unknown) => boolean;
-type ValidatorDynamic = Validator | {[key: string]: ValidatorDynamic} | ValidatorDynamic[] | string | number;
+type ValidatorDynamic = Validator | {[key: string]: ValidatorDynamic} | ValidatorDynamic[] | string | number | RegExp;
 
 function checkDynamic(value: unknown, validator: ValidatorDynamic, root: unknown) {
   switch (typeof validator) {
@@ -10,6 +10,9 @@ function checkDynamic(value: unknown, validator: ValidatorDynamic, root: unknown
     case 'object':
       if (Array.isArray(validator)) {
         return checkA(value, validator, root);
+      }
+      if (validator instanceof RegExp) {
+        return typeof value === 'string' && validator.test(value);
       }
       return checkO(value, validator, root);
     case 'string':

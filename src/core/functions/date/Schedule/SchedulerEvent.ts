@@ -1,7 +1,6 @@
 import {DateTime, Duration} from 'luxon';
 import z from '../../../util/Validator';
 
-const ONE_HOUR = 3600_000;
 const ONE_MINUTE = 60_000;
 
 export const RepeatModeList = [
@@ -15,48 +14,50 @@ export type RepeatMode = (typeof RepeatModeList)[number];
 
 export interface SchedulerConfig {
   repeat: RepeatMode;
-  start: [number, number]; // hour, minute
+  start: string; // hour:minute
   name?: string;
   duration?: number; // duration in minutes
   after?: DateTime;
   before?: DateTime;
   priority?: number;
   // true for weekday, false for weekend, null for both
-  isWeekDay?: boolean;
-  // for monthly, weekly
-  days?: number[];
+  onlyWeekday?: boolean;
+  // weekly
+  wDays?: number[];
+  // monthly
+  mDays?: number[];
   // for advanced
   years?: number[];
   months?: number[];
   // for advanced
-  monthDays?: number[];
+  days?: number[];
   range?: boolean;
-  // array of [year, month, day] that the special event may occur, must be sorted
-  dates?: [number, number, number][];
+  // array of year-month-day that the special event may occur, must be sorted
+  dates?: string[];
   color?: string;
-  field?: string;
+  key?: string;
 }
 const ConfigValidator = {
   name: z.nullable('string'),
-  start: [23, 59],
+  start: /^\d{1,2}:\d{1,2}$/,
   duration: z.notNegative,
   after: z.nullable(z.datetime),
   before: z.nullable(z.datetime),
   priority: z.nullable(Number.isFinite),
-  isWeekDay: z.nullable('boolean'),
+  onlyWeekday: z.nullable('boolean'),
   repeat: z.switch({
     daily: {},
-    weekly: {days: [z.num1n(7)]},
-    monthly: {days: [z.num1n(31)]},
+    weekly: {wDays: [z.num1n(7)]},
+    monthly: {mDays: [z.num1n(31)]},
     advanced: {
       years: z.nullable([z.num1n(31)]),
       months: z.nullable([z.num1n(12)]),
-      monthDays: [z.any(z.num1n(31), ['number', z.num1n(7)])],
+      days: [z.any(z.num1n(31), ['number', z.num1n(7)])],
     },
-    dates: {dates: [[z.int, z.num1n(12), z.num1n(31)]]},
+    dates: {dates: [/^\d{4}-\d{2}-\d{2}$/]},
   }),
   color: z.nullable('string'),
-  field: z.nullable('string'),
+  key: z.nullable('string'),
 };
 export function validateEventConfig(config: unknown) {
   return z.check(config, ConfigValidator);
@@ -73,83 +74,73 @@ export class EventOccur {
 }
 const expired = new EventOccur(Infinity, Infinity);
 export class SchedulerEvent {
-  constructor(
-    public readonly repeat: RepeatMode,
-    public readonly start: [number, number], // hour, minute
-    public readonly name?: string,
-    public readonly durationMs?: number, // duration in ms, -1 for full day
-    public readonly after?: number,
-    public readonly before?: number,
-    // default 0
-    public readonly priority?: number,
-    // true for weekday, false for weekend, null for both
-    public readonly isWeekDay?: boolean,
-    // for daily, weekly
-    public readonly days?: number[],
-    // for advanced
-    public readonly years?: number[],
-    public readonly months?: number[],
-    // since number for day, 2 numbers for nth weekday
-    public readonly monthDays?: (number | [number, number])[],
-    // nth weekday
-    public readonly range?: boolean,
+  readonly repeat: RepeatMode;
+  readonly start: [number, number]; // hour, minute
+  readonly name?: string;
+  readonly durationMs?: number; // duration in ms, -1 for full day
+  readonly after?: number;
+  readonly before?: number;
+  // default 0
+  readonly priority?: number;
+  // true for weekday, false for weekend, null for both
+  readonly onlyWeekday?: boolean;
+  // weekly
+  readonly wDays?: number[];
+  // monthly
+  readonly mDays?: number[];
+  // for advanced
+  readonly years?: number[];
+  readonly months?: number[];
+  // since number for day, 2 numbers for nth weekday
+  readonly days?: (number | [number, number])[];
+  // nth weekday
+  readonly range?: boolean;
 
-    // array of [year, month, day] that the special event may occur
-    public readonly dates?: [number, number, number][],
-    public readonly color?: string,
-    public readonly field?: string
-  ) {}
+  // array of [year, month, day] that the special event may occur
+  readonly dates?: DateTime[];
+  readonly color?: string;
+  readonly key?: string;
 
-  static fromProperty(config: unknown): SchedulerEvent {
+  readonly timezone?: string;
+
+  constructor(config: SchedulerConfig, timezone?: string) {
+    this.repeat = config.repeat;
+    this.start = config.start.split(':').map(Number.parseFloat) as [number, number];
+    this.name = config.name;
+    this.durationMs = config.duration * ONE_MINUTE - 1;
+    this.after = config.after?.valueOf() ?? -Infinity;
+    this.before = config.before?.valueOf() ?? Infinity;
+    this.priority = config.priority ?? Infinity;
+    this.onlyWeekday = config.onlyWeekday;
+    this.wDays = config.wDays;
+    this.mDays = config.mDays;
+    this.years = config.years;
+    this.months = config.months;
+    this.days = config.days;
+    this.range = config.range;
+    this.dates = config.dates?.map((s) =>
+      DateTime.fromISO(s, {zone: timezone}).set({hour: this.start[0], minute: this.start[1]})
+    );
+    this.color = config.color;
+    this.key = config.key;
+    this.timezone = timezone;
+  }
+
+  static fromProperty(config: unknown, timezone?: string): SchedulerEvent {
     if (config) {
       if (validateEventConfig(config)) {
-        const {
-          name,
-          start,
-          duration,
-          after,
-          before,
-          priority,
-          isWeekDay,
-          repeat,
-          days,
-          years,
-          months,
-          monthDays,
-          range,
-          dates,
-          color,
-          field,
-        } = config as SchedulerConfig;
-        return new SchedulerEvent(
-          repeat,
-          start,
-          name,
-          duration * ONE_MINUTE - 1,
-          after?.valueOf() ?? -Infinity,
-          before?.valueOf() ?? Infinity,
-          priority ?? Infinity,
-          isWeekDay,
-          days,
-          years,
-          months,
-          monthDays,
-          range,
-          dates,
-          color,
-          field
-        );
+        return new SchedulerEvent(config as SchedulerConfig, timezone);
       }
     }
     return null;
   }
 
-  *#generateEvent(fromTs: number, timezone?: string): Generator<[number, number]> {
+  *#generateEvent(fromTs: number): Generator<[number, number]> {
     let loopCount = 0;
     const checkAndYield = function* _checkAndYield(startDate: DateTime): Generator<[number, number]> {
       let startTs = startDate.valueOf();
 
-      if (startDate.isWeekend === this.isWeekDay) {
+      if (startDate.isWeekend === this.onlyWeekday) {
         return;
       }
       loopCount = 0;
@@ -166,7 +157,7 @@ export class SchedulerEvent {
       return loopCount > 20;
     }
 
-    let refDay = DateTime.fromMillis(fromTs, {zone: timezone}).set({
+    let refDay = DateTime.fromMillis(fromTs, {zone: this.timezone}).set({
       hour: 12,
       minute: 0,
       second: 0,
@@ -185,7 +176,7 @@ export class SchedulerEvent {
       // tslint:disable-next-line:no-switch-case-fall-through
       case 'weekly': {
         while (true) {
-          for (const weekday of this.days) {
+          for (const weekday of this.wDays) {
             yield* checkAndYield(refDay.set({weekday: weekday as any, hour: this.start[0], minute: this.start[1]}));
           }
           refDay = refDay.plus({week: 1});
@@ -199,7 +190,7 @@ export class SchedulerEvent {
         // move to first day
         refDay = refDay.set({day: 1});
         while (true) {
-          for (const day of this.days) {
+          for (const day of this.mDays) {
             const result = refDay.set({day: day as any, hour: this.start[0], minute: this.start[1]});
             if (result.month === refDay.month) {
               // make sure it doesn't fall to next month because of day number overflow
@@ -214,10 +205,8 @@ export class SchedulerEvent {
       }
       // tslint:disable-next-line:no-switch-case-fall-through
       case 'dates': {
-        for (let [year, month, day] of this.dates) {
-          yield* checkAndYield(
-            DateTime.fromObject({year, month, day, hour: this.start[0], minute: this.start[1]}, {zone: timezone})
-          );
+        for (let d of this.dates) {
+          yield* checkAndYield(d);
         }
         return;
       }
@@ -230,14 +219,14 @@ export class SchedulerEvent {
             continue;
           }
           for (let month = 1; month <= 12; ++month) {
-            if (!this.months?.length || this.months.includes(month)) {
+            if (this.months?.length && !this.months.includes(month)) {
               continue;
             }
-            const startOfMonth = DateTime.fromObject({year, month, day: 1}, {zone: timezone});
+            const startOfMonth = DateTime.fromObject({year, month, day: 1}, {zone: this.timezone});
             const endOfMonth = startOfMonth.endOf('month');
             const lastDay = endOfMonth.day;
             const days: number[] = [];
-            for (let v of this.monthDays) {
+            for (let v of this.days) {
               if (typeof v === 'number') {
                 if (v >= 1 && v <= 31) {
                   // check for 31 instead of lastDay, because overflow is allowed in range mode
@@ -299,7 +288,10 @@ export class SchedulerEvent {
   }
 
   #current: EventOccur;
-  getOccur(ts: number, timezone?: string): EventOccur {
+  getOccur(ts: number): EventOccur {
+    if (ts > this.before) {
+      return expired;
+    }
     if (this.#current && this.#current.end >= ts) {
       return this.#current;
     }
@@ -311,7 +303,7 @@ export class SchedulerEvent {
       fromTs = this.after;
     }
 
-    for (let [startTs, endTs] of this.#generateEvent(fromTs - this.durationMs, timezone)) {
+    for (let [startTs, endTs] of this.#generateEvent(fromTs - this.durationMs)) {
       if (this.after - startTs > this.durationMs) {
         continue;
       }
@@ -340,11 +332,11 @@ export class SchedulerEvent {
       } else if (current.end > this.before) {
         current.end = this.before;
       }
+      this.#current = current;
     } else {
       this.#current = expired;
     }
-    this.#current = current;
-    return current;
+    return this.#current;
   }
   clearCache() {
     this.#current = null;

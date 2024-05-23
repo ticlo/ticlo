@@ -83,8 +83,8 @@
   "expect0"
  ],
  "@b-xyw": [
-  847,
-  1164,
+  946,
+  1084,
   143
  ],
  "expect0": "v5",
@@ -120,6 +120,21 @@
  "matchMode": "always-match",
  "~actual0": "##.test-same-priority.#output"
 },
+"format": {
+ "#is": "date:format",
+ "@b-p": [
+  "input",
+  "format",
+  "#output"
+ ],
+ "@b-xyw": [
+  287,
+  1068,
+  143
+ ],
+ "format": "yyyy-MM-dd",
+ "~input": "##.generate-range.#output.0"
+},
 "generate-range": {
  "#is": "date:generate-range",
  "@b-p": [
@@ -142,19 +157,8 @@
 "js": {
  "#custom": [
   {
-   "name": "y",
-   "pinned": true,
-   "type": "number"
-  },
-  {
-   "name": "m",
-   "pinned": true,
-   "type": "number"
-  },
-  {
-   "name": "d",
-   "pinned": true,
-   "type": "number"
+   "name": "date",
+   "type": "string"
   },
   {
    "name": "output",
@@ -165,35 +169,16 @@
  "#is": "js",
  "@b-p": [
   "script",
-  "y",
-  "m",
-  "d",
+  "date",
   "output"
  ],
  "@b-xyw": [
-  439,
-  1140,
+  448,
+  1063,
   143
  ],
- "script": "this.output = {\n  repeat:'dates',\n  start:[0,0],\n  duration: 1500,\n  dates:[[this.y, this.m, this.d]]\n};",
- "~d": "##.parse.day",
- "~m": "##.parse.month",
- "~y": "##.parse.year"
-},
-"parse": {
- "#is": "date:parse",
- "@b-p": [
-  "input",
-  "year",
-  "month",
-  "day"
- ],
- "@b-xyw": [
-  252,
-  1140,
-  143
- ],
- "~input": "##.generate-range.#output.0"
+ "script": "this.output = {\n  repeat:'dates',\n  start:'0:0',\n  duration: 0,\n  dates:[this.date]\n};",
+ "~date": "##.format.#output"
 },
 "test-daily": {
  "#is": "scheduler",
@@ -212,10 +197,7 @@
  "config0": {
   "duration": 1500,
   "repeat": "daily",
-  "start": [
-   0,
-   0
-  ]
+  "start": "0:0"
  },
  "default": "default",
  "value0": "v1"
@@ -225,15 +207,17 @@
  "@b-p": [
   "config0",
   "value0",
+  "config1",
+  "value1",
   "default",
   "#output"
  ],
  "@b-xyw": [
-  636,
-  1092,
+  652,
+  1026,
   176
  ],
- "[]": 1,
+ "[]": 2,
  "default": "default",
  "value0": "v5",
  "~config0": "##.js.output"
@@ -253,12 +237,9 @@
  ],
  "[]": 1,
  "config0": {
-  "duration": -1,
+  "duration": 0,
   "repeat": "daily",
-  "start": [
-   0,
-   0
-  ]
+  "start": "0:0"
  },
  "default": "default",
  "value0": "v4"
@@ -278,7 +259,8 @@
  ],
  "[]": 1,
  "config0": {
-  "days": [
+  "duration": 1500,
+  "mDays": [
    1,
    2,
    3,
@@ -311,12 +293,8 @@
    30,
    31
   ],
-  "duration": 1500,
   "repeat": "monthly",
-  "start": [
-   0,
-   0
-  ]
+  "start": "0:0"
  },
  "default": "default",
  "value0": "v3"
@@ -341,19 +319,13 @@
   "duration": 1500,
   "priority": 3,
   "repeat": "daily",
-  "start": [
-   0,
-   0
-  ]
+  "start": "0:0"
  },
  "config1": {
   "duration": 1500,
   "priority": 2,
   "repeat": "daily",
-  "start": [
-   0,
-   0
-  ]
+  "start": "0:0"
  },
  "default": "default",
  "value0": "a",
@@ -381,19 +353,13 @@
   "duration": 1500,
   "priority": 1,
   "repeat": "daily",
-  "start": [
-   0,
-   0
-  ]
+  "start": "0:0"
  },
  "config1": {
   "duration": 1500,
   "priority": 1,
   "repeat": "daily",
-  "start": [
-   0,
-   0
-  ]
+  "start": "0:0"
  },
  "default": "default",
  "value0": "c",
@@ -427,7 +393,10 @@
  ],
  "[]": 1,
  "config0": {
-  "days": [
+  "duration": 1500,
+  "repeat": "weekly",
+  "start": "0:0",
+  "wDays": [
    1,
    2,
    3,
@@ -435,12 +404,6 @@
    5,
    6,
    7
-  ],
-  "duration": 1500,
-  "repeat": "weekly",
-  "start": [
-   0,
-   0
   ]
  },
  "default": "default",

@@ -10,6 +10,7 @@ import {cacheCall} from '../util/CachedCallback';
 import {CalendarEvent, ScheduleLoader} from './ScheduleLoader';
 import {CalendarToolbar} from './CalendarToolbar';
 import {CalendarEventEditor} from './CalendarEventEditor';
+import {SchedulerConfig} from '../../core/functions/date/Schedule/SchedulerEvent';
 
 const CalendarT = Calendar<CalendarEvent>;
 
@@ -45,7 +46,7 @@ export class ScheduleCalendar extends LazyUpdateComponent<Props, State> {
     const {scheduleOptions} = this.state;
     conn.query(
       parentPath,
-      {'/.*/': {'?filter': {field: '#is', type: '=', value: 'schedule'}}},
+      {'/.*/': {'?filter': {field: '#is', type: '=', value: 'scheduler'}}},
       {
         onUpdate: (response) => {
           if (response?.value) {
@@ -108,15 +109,22 @@ export class ScheduleCalendar extends LazyUpdateComponent<Props, State> {
     ));
   }
 
+  updateConfig = (config: SchedulerConfig) => {
+    const {conn, parentPath} = this.props;
+    const {selectedSchedule, selectedIdx} = this.state;
+    conn.setValue(`${parentPath}.${selectedSchedule}.config${selectedIdx}`, config);
+  };
+
   _calendar: {state: {context: any}};
   getCalendarRef = (c: any) => (this._calendar = c);
 
   renderImpl() {
-    let {parentPath} = this.props;
+    let {parentPath, conn} = this.props;
     let {scheduleOptions, selectedSchedule, timeRange, selectedId, selectedIdx} = this.state;
 
+    const schedulePath = `${parentPath}.${selectedSchedule}`;
     this.loadOptions(parentPath);
-    this.loadEvents(`${parentPath}.${selectedSchedule}`);
+    this.loadEvents(schedulePath);
     const dummyEvents = this.scheduleLoader.getDummyEvents();
     const events = timeRange ? this.scheduleLoader.getEvents(...timeRange) : [];
 
@@ -144,11 +152,21 @@ export class ScheduleCalendar extends LazyUpdateComponent<Props, State> {
         />
 
         <div className="ticl-schedule-side">
-          <div className="ticl-clndr-toolbar">
-            <Select options={scheduleOptions} value={selectedSchedule} />
+          <div className="ticl-schedule-head">
+            <Select
+              options={scheduleOptions}
+              value={selectedSchedule}
+              onChange={(value) => this.setState({selectedSchedule: value})}
+            />
           </div>
           <div className="ticl-schedule-list">{this.getEventList(dummyEvents)}</div>
-          <CalendarEventEditor config={dummyEvents[selectedIdx]?.parent.config} />
+          <CalendarEventEditor
+            conn={conn}
+            path={schedulePath}
+            index={selectedIdx}
+            config={dummyEvents[selectedIdx]?.parent.config}
+            onChange={this.updateConfig}
+          />
         </div>
       </div>
     );

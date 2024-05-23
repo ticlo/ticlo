@@ -21,52 +21,59 @@
 "-passed-#": " ( 通过{{- detail, optional}} )"
 "-failed-#": " ( 失败{{- detail, optional}} )"
 
-# NodeTreePane.tsx & AddNewFlowDialog.tsx
-"New Dataflow": 新建数据流
-# BlockDropdown.tsx & PropertyDropdown.tsx
+# PropertyDropdown.tsx & BlockDropdown.tsx
 "Execute Command": 执行指令
+# AddNewFlowDialog.tsx & NodeTreePane.tsx
+"New Dataflow": 新建数据流
 
-# block/BlockStage.tsx
-"Undo": 撤消
-"Redo": 重做
+# scheduler/CalendarToolbar.tsx
+"Day": 日
+"Week": 周
+"Month": 月
+"Previous Day": 上一天
+"Current Day": 今天
+"Next Day": 下一天
+"Previous Week": 上一周
+"Current Week": 当前周
+"Next Week": 下一周
+"Previous Month": 上一月
+"Current Month": 当前月
+"Next Month": 下一月
 
-# dock/block/BlockStagePane.tsx
-"Hide Properties": 隐藏属性 # auto translated from hash: vJTYlQYF
-"Show Properties": 显示属性 # auto translated from hash: btIcJj0g
+# scheduler/CalendarEventEditor.tsx
+"Repeat": 重复 # auto translated from hash: cCBCbPsK
+"Advanced": 高级
+"Priority": 优先级
+"Not Before": 不早于
+"Not After": 不晚于
+"Only Week Days": 仅限工作日 # auto translated from hash: 3rqBd10D
+"Key": 键值
+"Color": 颜色 # auto translated from hash: y1/rG3MU
 
-# dock/node-tree/NodeTreePane.tsx
-"Reload": 重新载入
+# scheduler/editors/TimeRange.tsx
+"M": 分钟
+"H": 小时
+"All Day": 全天
+"Start": 开始
+"Duration": 时长
 
-# function-selector/FunctionSelector.tsx
-"Function Tree": 功能目录
-"Recent": 最近使用
-"Add Function": 增加功能
-"Function Name?": 功能名称？
+# property/PropertyList.tsx
+"Config": 设置
+"Custom": 自定义
 
-# node-tree/NodeRenderer.tsx
-"Add Child Dataflow": 添加子数据流 # auto translated from hash: CEWO/gs9
+# property/PropertyEditor.tsx
+"Unlocked for editing\nDouble click to lock": |- # auto translated from hash: DtUOcgdR
+  已解锁编辑
+  双击锁定
+"Editing blocked by binding\nDouble click to edit": |- # auto translated from hash: YWf4ParO
+  编辑被绑定阻止
+  双击编辑
+"Inconsistent values\nDouble click to edit": |- # auto translated from hash: inF4uHrI
+  值不一致
+  双击编辑
 
-# popup/AddNewFlowDialog.tsx
-"Data": 数据 # auto translated from hash: 9gaNqinb
-
-# popup/BlockDropdown.tsx
-"Enable": 启用
-"Disable": 禁用 # auto translated from hash: vPrM6/dF
-"Call": 触发
-
-# popup/PropertyDropdown.tsx
-"Add Sub Block": 添加子块
-"Binding": 绑定 # auto translated from hash: ouv+Do4W
-"Clear": 清空
-"Restore Saved Value": 恢复保存值 # auto translated from hash: 7f4LJ/i0
-"Insert at {{n}}": 在{{n}}处插入
-"Delete at {{n}}": 在{{n}}处删除
-"Remove Property": 删除属性
-"Add Child Property": 添加子属性
-
-# popup/RenameDialog.tsx
-"Change": 改变 # auto translated from hash: 9OxfV71N
-"Display Name": 显示名称 # auto translated from hash: tIlo4ckS
+# property/OptionalPropertyList.tsx
+"Optional": 可选
 
 # property/AddCustomProperty.tsx
 "Default Length": 默认长度
@@ -94,36 +101,53 @@
 "Comma separated": 逗号分隔
 "Add Property": 添加属性
 
-# property/OptionalPropertyList.tsx
-"Optional": 可选
+# popup/RenameDialog.tsx
+"Change": 改变 # auto translated from hash: 9OxfV71N
+"Display Name": 显示名称 # auto translated from hash: tIlo4ckS
 
-# property/PropertyEditor.tsx
-"Unlocked for editing\nDouble click to lock": |- # auto translated from hash: DtUOcgdR
-  已解锁编辑
-  双击锁定
-"Editing blocked by binding\nDouble click to edit": |- # auto translated from hash: YWf4ParO
-  编辑被绑定阻止
-  双击编辑
-"Inconsistent values\nDouble click to edit": |- # auto translated from hash: inF4uHrI
-  值不一致
-  双击编辑
+# popup/PropertyDropdown.tsx
+"Add Sub Block": 添加子块
+"Binding": 绑定 # auto translated from hash: ouv+Do4W
+"Clear": 清空
+"Restore Saved Value": 恢复保存值 # auto translated from hash: 7f4LJ/i0
+"Insert at {{n}}": 在{{n}}处插入
+"Delete at {{n}}": 在{{n}}处删除
+"Remove Property": 删除属性
+"Add Child Property": 添加子属性
 
-# property/PropertyList.tsx
-"Config": 设置
-"Custom": 自定义
+# popup/BlockDropdown.tsx
+"Enable": 启用
+"Disable": 禁用 # auto translated from hash: vPrM6/dF
+"Call": 触发
 
-# schedule/CalendarToolbar.tsx
-"Day": "日"
-"Previous Day": "上一天"
-"Current Day": "今天"
-"Next Day": "下一天"
+# popup/AddNewFlowDialog.tsx
+"Data": 数据 # auto translated from hash: 9gaNqinb
 
-"Week": "周"
-"Previous Week": "上一周"
-"Current Week": "当前周"
-"Next Week": "下一周"
+# node-tree/NodeRenderer.tsx
+"Add Child Dataflow": 添加子数据流 # auto translated from hash: CEWO/gs9
 
-"Month": "月"
-"Previous Month": "上一月"
-"Current Month": "当前月"
-"Next Month": "下一月"
+# function-selector/FunctionSelector.tsx
+"Function Tree": 功能目录
+"Recent": 最近使用
+"Add Function": 增加功能
+"Function Name?": 功能名称？
+
+# dock/schedule/SchedulePane.tsx
+"Schedule": 日程表
+
+# dock/node-tree/NodeTreePane.tsx
+"Reload": 重新载入
+
+# dock/block/BlockStagePane.tsx
+"Hide Properties": 隐藏属性 # auto translated from hash: vJTYlQYF
+"Show Properties": 显示属性 # auto translated from hash: btIcJj0g
+
+# component/DockDialogPane.tsx
+"OK": 确定
+"Apply": 应用
+"Cancel": 取消
+"Close": 关闭
+
+# block/BlockStage.tsx
+"Undo": 撤消
+"Redo": 重做

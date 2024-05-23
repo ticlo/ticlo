@@ -47,6 +47,7 @@ import enAntd from 'antd/lib/locale/en_US';
 import {LocalizedLabel, t} from '../../src/editor/component/LocalizedLabel';
 import {FlowTestCase} from '../../src/test/FlowTestCase';
 import {createRoot} from 'react-dom/client';
+import {SchedulePane} from '../../src/editor/dock/schedule/SchedulePane';
 const layoutGroups = {
   blockStage: {
     animated: false,
@@ -207,6 +208,10 @@ class App extends React.PureComponent<Props, State> {
         }
       }
       TextEditorPane.openFloatPanel(this.layout, conn, paths, defaultValue, mime, readonly);
+    },
+    editSchedule: (path: string, scheduleName?: string, index?: number) => {
+      let {conn} = this.props;
+      SchedulePane.openFloatPanel(this.layout, conn, path, scheduleName, index);
     },
     getSelectedPaths: () => this.selectedPaths,
     showModal: (modal: React.ReactElement) => this.setState({modal}),

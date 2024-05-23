@@ -14,12 +14,23 @@ import {encodeDisplay} from '../../core';
 
 const priorityStr = '⓿❶❷❸❹❺❻❼❽❾❿';
 
+function encodeEventDisplay(e: unknown) {
+  if (e && typeof e === 'object' && !Array.isArray(e)) {
+    const result: string[] = [];
+    for (const key of Object.keys(e)) {
+      result.push(`${key}: ${encodeDisplay((e as any)[key])}`);
+    }
+    return result.join('\n');
+  }
+  return encodeDisplay(e);
+}
+
 function getTitle(config: SchedulerConfig, value: unknown) {
   const parts: string[] = [];
   if (config?.name) {
     parts.push(config.name);
   }
-  parts.push(encodeDisplay(value));
+  parts.push(encodeEventDisplay(value));
   return parts.join('\n');
 }
 
@@ -66,7 +77,7 @@ class ConfigValuePair {
         if (typeof this.config !== 'object' || Array.isArray(this.config)) {
           this.config = null;
         }
-        const event = SchedulerEvent.fromProperty(this.config);
+        const event = SchedulerEvent.fromProperty(this.config, this.parent.zone);
         if (event) {
           this.event = event;
           this.buildStyle();
@@ -159,6 +170,11 @@ class ConfigValuePair {
 }
 
 export class ScheduleLoader {
+  timezoneSub = new ValueSubscriber({
+    onUpdate: (response: ValueUpdate) => {
+      this.updateZone(response.cache.value);
+    },
+  });
   eventsLenSub = new ValueSubscriber({
     onUpdate: (response: ValueUpdate) => {
       this.updateEventLength(response.cache.value);
@@ -169,15 +185,37 @@ export class ScheduleLoader {
     public readonly conn: ClientConn,
     public readonly schedulePath: string
   ) {
+    this.timezoneSub.subscribe(conn, `${schedulePath}.timezone`, true);
     this.eventsLenSub.subscribe(conn, `${schedulePath}.[]`, true);
   }
   subs: ConfigValuePair[] = [];
 
+  zone: string = 'notReady';
+  updateZone(zone: string) {
+    if (this.zone !== zone) {
+      this.zone = zone;
+      for (let sub of this.subs) {
+        sub.destroy();
+      }
+      this.createPairs();
+    }
+  }
+  length: number;
   updateEventLength(v: unknown) {
     let len = 1;
     if (Number.isInteger(v) && (v as number) > 1) {
       len = v as number;
     }
+    if (this.length !== len) {
+      this.length = len;
+      this.createPairs();
+    }
+  }
+  createPairs() {
+    if (this.length == null || this.zone === 'notReady') {
+      return;
+    }
+    const len = this.length;
     if (len !== this.subs.length) {
       if (len < this.subs.length) {
         for (let i = len; i < this.subs.length; i++) {
@@ -206,7 +244,9 @@ export class ScheduleLoader {
     }
     return result;
   }
+
   destroy(): void {
+    this.timezoneSub.unsubscribe();
     this.eventsLenSub.unsubscribe();
     for (let sub of this.subs) {
       sub.destroy();

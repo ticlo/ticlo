@@ -1,5 +1,5 @@
 import {cloneToLevel, deepClone} from '../Clone';
-import dayjs from 'dayjs';
+import {DateTime} from 'luxon';
 
 const data = {
   a: {
@@ -23,15 +23,12 @@ describe('Clone', function () {
     expect(cloneToLevel(data, 2).a.b).toBe(data.a.b);
   });
 
-  it('clone dayjs', function () {
-    const day = dayjs();
+  it('clone DateTime', function () {
+    const day = DateTime.now();
     const clone = deepClone(day);
     const clone1 = cloneToLevel(day, 1);
 
-    expect(clone).not.toBe(day);
-    expect(clone1).not.toBe(day);
-
-    expect(clone.isSame(day)).toBeTruthy();
-    expect(clone1.isSame(day)).toBeTruthy();
+    expect(clone.equals(day)).toBeTruthy();
+    expect(clone1.equals(day)).toBeTruthy();
   });
 });

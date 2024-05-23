@@ -17,11 +17,10 @@ interface Props {
   children?: React.ReactNode;
   error?: string;
   onKeyDownCapture?: KeyboardEventHandler;
-  hideOk?: boolean;
 }
 
 export function DockDialogPane(props: Props) {
-  let {children, onApply, onCancel, error, saveDisabled, cancelDisabled, footerExtra, onKeyDownCapture, hideOk} = props;
+  let {children, onApply, onCancel, error, saveDisabled, cancelDisabled, footerExtra, onKeyDownCapture} = props;
   const {onClose} = useContext(DialogContext);
   const onOK = useCallback(() => {
     if (onApply()) {
@@ -42,7 +41,7 @@ export function DockDialogPane(props: Props) {
       <div className="ticl-box-footer">
         {footerExtra}
         <div className="ticl-spacer" />
-        {!hideOk && onClose && onApply ? (
+        {onClose && onApply ? (
           <Button size="small" disabled={saveDisabled} onClick={onOK}>
             {t('OK')}
           </Button>
@@ -115,6 +114,7 @@ export function createDockDialog(
     tabs: [
       {
         id,
+        cached: true,
         closable: true,
         title,
         content: <Provider value={{onClose}}>{content}</Provider>,
