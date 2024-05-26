@@ -4,7 +4,7 @@ import {
   FunctionDesc,
   TicloI18nSettings,
   translateEditor,
-  translateEnumOption,
+  translatePropContent,
   translateFunction,
   translateProperty,
 } from '../../../src/core/editor';
@@ -54,7 +54,7 @@ export const LocalizedEnumOption = ({
   option: string | number;
 }) => {
   useContext(TicloLayoutContextType);
-  return <span>{translateEnumOption(desc.name, propName, String(option), desc.ns)}</span>;
+  return <span>{translatePropContent(desc.name, propName, String(option), desc.ns)}</span>;
 };
 
 export const LocalizedFuncCommand = ({desc, command}: {desc: FunctionDesc; command: string}) => {

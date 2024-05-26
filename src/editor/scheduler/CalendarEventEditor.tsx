@@ -2,9 +2,9 @@ import React from 'react';
 import {DockDialogPane} from '../component/DockDialogPane';
 import {ScheduleEvent} from '../../core/util/SetSchedule';
 import {RepeatModeList, SchedulerConfig} from '../../core/functions/date/Schedule/SchedulerEvent';
-import {t} from '../component/LocalizedLabel';
+import {LocalizedPropertyName, t} from '../component/LocalizedLabel';
 import {SelectEditor} from '../property/value/SelectEditor';
-import {type FunctionDesc, type PropDesc, PropGroupDesc} from '../../core';
+import {type FunctionDesc, type PropDesc, PropGroupDesc, smartStrCompare} from '../../core';
 import {deepEqual} from '../../core/util/Compare';
 import {StringEditor} from '../property/value/StringEditor';
 import {ColorEditor} from '../property/value/ColorEditor';
@@ -14,40 +14,14 @@ import {ExpandIcon} from '../component/Tree';
 import {PropertyEditor} from '../property/PropertyEditor';
 import {ClientConn} from '../../core/connect/ClientConn';
 import {DatesSelector} from './editors/DatesSelector';
-
-const funcDesc: FunctionDesc = {name: 'scheduler'};
-const descs: Record<string, PropDesc> = {
-  repeat: {name: 'repeat', type: 'select', options: RepeatModeList},
-  name: {name: 'name', type: 'string', default: ''},
-  key: {name: 'key', type: 'string', default: ''},
-  color: {name: 'color', type: 'color'},
-  priority: {name: 'priority', type: 'number', min: 0},
-  after: {name: 'after', type: 'date'},
-  before: {name: 'before', type: 'date'},
-  onlyWeekday: {name: 'onlyWeekday', type: 'toggle'},
-  wDays: {name: 'wDays', type: 'multi-select', options: [1, 2, 3, 4, 5, 6, 7]},
-  mDays: {
-    name: 'mDays',
-    type: 'multi-select',
-    options: Array.from({length: 31}, (_, i) => i + 1),
-  },
-  years: {name: 'years', type: 'array'},
-  months: {
-    name: 'months',
-    type: 'multi-select',
-    placeholder: 'Any Month',
-    options: Array.from({length: 12}, (_, i) => i + 1),
-  },
-  days: {name: 'days', type: 'array'},
-};
+import {AdvancedSelector} from './editors/AdvancedSelector';
+import {descs, funcDesc} from './editors/descs';
 
 function P({
-  label,
   field,
   current,
   onChange,
 }: {
-  label?: React.ReactNode;
   field: string;
   current: any;
   onChange: (value: unknown, field: string) => void;
@@ -56,9 +30,17 @@ function P({
   const EditorClass = typeEditorMap[propDesc.type];
   return (
     <div className="ticl-property">
-      <div className="ticl-property-name">{label}</div>
+      <div className="ticl-property-name">
+        <LocalizedPropertyName desc={funcDesc} name={field} />
+      </div>
       <div className="ticl-property-value">
-        <EditorClass name={field} value={current?.[field]} desc={propDesc} funcDesc={funcDesc} onChange={onChange} />
+        <EditorClass
+          name={propDesc.name}
+          value={current?.[field]}
+          desc={propDesc}
+          funcDesc={funcDesc}
+          onChange={onChange}
+        />
       </div>
     </div>
   );
@@ -68,26 +50,14 @@ function sortItem(a: unknown, b: unknown) {
   if (typeof a === 'number' && typeof b === 'number') {
     return a - b;
   }
-  if (Array.isArray(a) && Array.isArray(b)) {
-    if (a.length !== b.length) {
-      return a.length - b.length;
-    }
-    for (let i = 0; i < a.length; ++i) {
-      let d = a[i] - b[i];
-      if (d !== 0) {
-        return d;
-      }
-    }
-    return 0;
-  }
   if (typeof a === 'string' && typeof b === 'string') {
-    return a.localeCompare(b);
+    return smartStrCompare(a, b, false);
   }
   if (typeof a === 'number') {
     return -1;
   }
   if (typeof b === 'number') {
-    return -1;
+    return 1;
   }
   return 0;
 }
@@ -108,20 +78,6 @@ interface State {
   // cache the path array to reduce re-render
   paths?: string[];
 }
-
-//   isWeekday: z.nullable('boolean'),
-//   repeat: z.switch({
-//   daily: {},
-//   weekly: {days: [z.num1n(7)]},
-//   monthly: {days: [z.num1n(31)]},
-//   advanced: {
-//     years: z.nullable([z.num1n(31)]),
-//     months: z.nullable([z.num1n(12)]),
-//     days: [z.any(z.num1n(31), ['number', z.num1n(7)])],
-//   },
-//   dates: {dates: [[z.int, z.num1n(12), z.num1n(31)]]},
-// }),
-//
 
 const emptyConfig: Partial<SchedulerConfig> = {};
 
@@ -172,6 +128,7 @@ export class CalendarEventEditor extends React.PureComponent<Props, State> {
       let v = value;
       if (Array.isArray(v)) {
         v.sort(sortItem);
+        console.log(v);
       }
       this.onValuesChange({[field]: v});
     }
@@ -205,15 +162,10 @@ export class CalendarEventEditor extends React.PureComponent<Props, State> {
             propDesc={valueDesc}
           />
           <TimeRangeEditor current={current} onChange={this.onValuesChange} />
-          <P label={t('Repeat')} field="repeat" current={current} onChange={this.onValueChange} />
+          <P field="repeat" current={current} onChange={this.onValueChange} />
           {repeat === 'weekly' ? <P field="wDays" current={current} onChange={this.onValueChange} /> : null}
-          {repeat === 'monthly' ? <P field="mDays" current={current} onChange={this.onValueChange} /> : null}
-          {repeat === 'dates' ? <DatesSelector dates={current.dates} onChange={this.onValueChange} /> : null}
-          {repeat === 'advanced' ? (
-            <>
-              <P label={t('Months')} field="months" current={current} onChange={this.onValueChange} />
-            </>
-          ) : null}
+          {repeat === 'dates' ? <DatesSelector dates={current.dates} onValueChange={this.onValueChange} /> : null}
+          {repeat === 'advanced' ? <AdvancedSelector onValueChange={this.onValueChange} current={current} /> : null}
           <div className="ticl-property-divider">
             <div className="ticl-h-line" style={{maxWidth: '16px'}} />
             <ExpandIcon opened={showOptional ? 'opened' : 'closed'} onClick={this.onshowOptionalClicked} />
@@ -222,13 +174,13 @@ export class CalendarEventEditor extends React.PureComponent<Props, State> {
           </div>
           {showOptional ? (
             <>
-              <P label={t('Name')} field="name" current={current} onChange={this.onValueChange} />
-              <P label={t('Priority')} field="priority" current={current} onChange={this.onValueChange} />
-              <P label={t('Not Before')} field="after" current={current} onChange={this.onValueChange} />
-              <P label={t('Not After')} field="before" current={current} onChange={this.onValueChange} />
-              <P label={t('Only Week Days')} field="onlyWeekday" current={current} onChange={this.onValueChange} />
-              <P label={t('Key')} field="key" current={current} onChange={this.onValueChange} />
-              <P label={t('Color')} field="color" current={current} onChange={this.onValueChange} />
+              <P field="name" current={current} onChange={this.onValueChange} />
+              <P field="priority" current={current} onChange={this.onValueChange} />
+              <P field="after" current={current} onChange={this.onValueChange} />
+              <P field="before" current={current} onChange={this.onValueChange} />
+              <P field="onlyWeekday" current={current} onChange={this.onValueChange} />
+              <P field="key" current={current} onChange={this.onValueChange} />
+              <P field="color" current={current} onChange={this.onValueChange} />
             </>
           ) : null}
         </div>

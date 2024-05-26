@@ -3,7 +3,7 @@ export const endsWithNumberReg = /\d$/;
 /**
  * when sorting string, "A200" should come after "A9"
  */
-export function smartStrCompare(str1: string, str2: string) {
+export function smartStrCompare(str1: string, str2: string, checkNegative = true) {
   let len1 = str1.length;
   let len2 = str2.length;
   let lenMin = len1 < len2 ? len1 : len2;
@@ -61,7 +61,7 @@ export function smartStrCompare(str1: string, str2: string) {
         caseDif = code2Uppercase;
       }
     }
-    if (code1 === 45) {
+    if (code1 === 45 && checkNegative) {
       numSign = -1;
     } else {
       numSign = 1;

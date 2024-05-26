@@ -1,13 +1,20 @@
 import i18next from 'i18next';
+import rangePlural from './i18n-ranged-plural';
 import {nameFromPath} from './String';
 import {DataMap} from './DataTypes';
 
 export async function init(lng?: string) {
   await new Promise((receive, reject) => {
-    i18next.init({lng, nsSeparator: false}, receive);
+    i18next.use(rangePlural).init({lng, nsSeparator: false}, receive);
     i18next.services.formatter.add('optional', (value, lng, options) => {
       if (value == null) {
         return '';
+      }
+      return value;
+    });
+    i18next.services.formatter.add('abs', (value: any, lng, options) => {
+      if (value < 0) {
+        return -value;
       }
       return value;
     });
@@ -83,9 +90,18 @@ export function translateProperty(funcName: string, propName: string, namespace?
   }
 }
 
-export function translateEnumOption(funcName: string, propName: string, option: string, namespace?: string): string {
+export function translatePropContent(
+  funcName: string,
+  propName: string,
+  content: string,
+  namespace?: string,
+  options?: any
+): string {
   if (!TicloI18nSettings.shouldTranslateFunction) {
-    return option || '';
+    if (!content || content.startsWith('@')) {
+      return '';
+    }
+    return options?.defaultValue ?? content;
   }
   if (!namespace) {
     namespace = 'core';
@@ -93,17 +109,19 @@ export function translateEnumOption(funcName: string, propName: string, option: 
   let i18ns = `ticlo-${namespace}`;
   let translated: string;
   if (funcName) {
-    translated = i18next.t(`${funcName}.${propName}.@options.${option}`, {
+    translated = i18next.t(`${funcName}.${propName}.@options.${content}`, {
       ns: i18ns,
       defaultValue: '',
-    });
+      ...options,
+    }) as string;
   }
   if (!translated) {
     // fallback to @shared property name
-    translated = i18next.t(`@shared.${propName}.@options.${option}`, {
+    translated = i18next.t(`@shared.${propName}.@options.${content}`, {
       ns: 'ticlo-core',
-      defaultValue: option,
-    });
+      defaultValue: content,
+      ...options,
+    }) as string;
   }
   return translated;
 }

@@ -2,9 +2,12 @@ import React from 'react';
 import {ValueEditorProps} from '../../property/value/ValueEditorBase';
 import {DateTime} from 'luxon';
 import {TimePicker} from '../../component/DateTimePicker';
-import {t} from '../../component/LocalizedLabel';
+import {LocalizedPropertyName, t} from '../../component/LocalizedLabel';
 import {InputNumber, Select} from 'antd';
 import {SchedulerConfig} from '../../../core/functions/date/Schedule/SchedulerEvent';
+import type {FunctionDesc} from '../../../core';
+
+const funcDesc: FunctionDesc = {name: 'create-schedule'};
 
 const {Option} = Select;
 
@@ -99,7 +102,9 @@ export class TimeRangeEditor extends React.PureComponent<Props, State> {
     return (
       <>
         <div className="ticl-property">
-          <div className="ticl-property-name">{t('Start')}</div>{' '}
+          <div className="ticl-property-name">
+            <LocalizedPropertyName desc={funcDesc} name="start" />
+          </div>
           <div className="ticl-property-value">
             <TimePicker
               className="ticl-date-editor"
@@ -113,7 +118,9 @@ export class TimeRangeEditor extends React.PureComponent<Props, State> {
           </div>
         </div>
         <div className="ticl-property">
-          <div className="ticl-property-name">{t('Duration')}</div>{' '}
+          <div className="ticl-property-name">
+            <LocalizedPropertyName desc={funcDesc} name="duration" />
+          </div>
           <div className="ticl-property-value">
             {unit > 0 ? (
               <InputNumber

@@ -11,9 +11,6 @@ describe('ScheduleEvent', function () {
 
     event = SchedulerEvent.fromProperty({repeat: 'weekly', start: '2:34', wDays: [1, 3, 5], duration: 60});
     expect(event.wDays).toEqual([1, 3, 5]);
-
-    event = SchedulerEvent.fromProperty({repeat: 'monthly', start: '3:45', mDays: [1, 11, 21, 31], duration: 60});
-    expect(event.mDays).toEqual([1, 11, 21, 31]);
   });
 
   it('parse invalid', function () {

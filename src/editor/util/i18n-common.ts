@@ -1,5 +1,7 @@
 import {t} from '../component/LocalizedLabel';
 
+/*
+
 t('Name');
 t('Type');
 t('Block');
@@ -25,3 +27,5 @@ t('#edit');
 t('-running-#');
 t('-passed-#');
 t('-failed-#');
+
+*/

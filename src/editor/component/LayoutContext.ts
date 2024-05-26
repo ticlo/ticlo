@@ -13,6 +13,8 @@ export interface TicloLayoutContext {
   showModal?(model: React.ReactElement): void;
 
   getSelectedPaths(): PropDispatcher<string[]>;
+
+  language: string;
 }
 
 export const TicloLayoutContextType = React.createContext<TicloLayoutContext>(null);

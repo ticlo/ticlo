@@ -74,8 +74,20 @@ export function deepEqual(a: any, b: any) {
   return false;
 }
 
-export function shallowEqual(a: any, b: any) {
+export function isValueEqual(a: any, b: any) {
   if (Object.is(a, b)) {
+    return true;
+  }
+  if (a && b && typeof a === 'object' && typeof b === 'object' && a.constructor === b.constructor) {
+    if (a.constructor === DateTime) {
+      return isDateSame(a as DateTime, b as DateTime);
+    }
+  }
+  return false;
+}
+
+export function shallowEqual(a: any, b: any) {
+  if (isValueEqual(a, b)) {
     return true;
   }
 
@@ -87,7 +99,7 @@ export function shallowEqual(a: any, b: any) {
       let length = a.length;
       if (length !== b.length) return false;
       for (let i = length - 1; i >= 0; --i) {
-        if (!Object.is(a[i], b[i])) return false;
+        if (!isValueEqual(a[i], b[i])) return false;
       }
       return true;
     }
@@ -101,7 +113,7 @@ export function shallowEqual(a: any, b: any) {
     }
 
     for (let key of keys) {
-      if (!Object.is(a[key], b[key])) {
+      if (!isValueEqual(a[key], b[key])) {
         return false;
       }
     }

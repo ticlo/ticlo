@@ -1,0 +1,70 @@
+scheduler:
+  '@name': 调度
+
+'create-schedule':
+  start:
+    '@name': 开始时间
+  duration:
+    '@name': 时长
+  repeat:
+    '@name': 重复
+    '@options':
+      daily: 每天
+      weekly: 每周
+      dates: 按日期
+      advanced: 高级
+  months:
+    '@name': 月
+    '@options':
+      '@placeholder': 每个月
+      1: 一月
+      2: 二月
+      3: 三月
+      4: 四月
+      5: 五月
+      6: 六月
+      7: 七月
+      8: 八月
+      9: 九月
+      10: 十月
+      11: 十一月
+      12: 十二月
+  years:
+    '@name': 年
+    '@options':
+      '@placeholder': 每年
+  days:
+    '@name': 日
+    '@options':
+      '@placeholder': 每天
+      '@dayUnit': 个
+      0: 天
+      1: 星期一
+      2: 星期二
+      3: 星期三
+      4: 星期四
+      5: 星期五
+      6: 星期六
+      7: 星期日
+      8: 工作日
+      9: 非工作日
+      'nth_ranged': '~-2~倒数第{{count, abs}}{{u}}{{d}};0~每{{u}}{{d}};-1~最后1{{u}}{{d}}'
+      'nth_other': '第{{count}}{{u}}{{d}}'
+  wDays:
+    '@name': ' '
+  range:
+    '@name': '之间的每一天'
+  name:
+    '@name': 名称
+  priority:
+    '@name': 优先级
+  after:
+    '@name': 不早于
+  before:
+    '@name': 不晚于
+  onlyWeekday:
+    '@name': 仅工作日
+  key:
+    '@name': 键值
+  color:
+    '@name': 颜色

@@ -21,10 +21,14 @@
 "-passed-#": "-passed-#"
 "-failed-#": "-failed-#"
 
+# CalendarEventEditor.tsx & OptionalPropertyList.tsx
+"Optional": "Optional"
 # PropertyDropdown.tsx & BlockDropdown.tsx
 "Execute Command": "Execute Command"
 # AddNewFlowDialog.tsx & NodeTreePane.tsx
 "New Dataflow": "New Dataflow"
+# TextEditorPane.tsx & NodeTreePane.tsx
+"Reload": "Reload"
 
 # scheduler/CalendarToolbar.tsx
 "Day": "Day"
@@ -40,22 +44,13 @@
 "Current Month": "Current Month"
 "Next Month": "Next Month"
 
-# scheduler/CalendarEventEditor.tsx
-"Repeat": "Repeat"
-"Advanced": "Advanced"
-"Priority": "Priority"
-"Not Before": "Not Before"
-"Not After": "Not After"
-"Only Week Days": "Only Week Days"
-"Key": "Key"
-"Color": "Color"
-
 # scheduler/editors/TimeRange.tsx
 "M": "M"
 "H": "H"
 "All Day": "All Day"
-"Start": "Start"
-"Duration": "Duration"
+
+# scheduler/editors/DatesSelector.tsx
+"Dates": "Dates"
 
 # property/PropertyList.tsx
 "Config": "Config"
@@ -65,9 +60,6 @@
 "Unlocked for editing\nDouble click to lock": "Unlocked for editing\nDouble click to lock"
 "Editing blocked by binding\nDouble click to edit": "Editing blocked by binding\nDouble click to edit"
 "Inconsistent values\nDouble click to edit": "Inconsistent values\nDouble click to edit"
-
-# property/OptionalPropertyList.tsx
-"Optional": "Optional"
 
 # property/AddCustomProperty.tsx
 "Default Length": "Default Length"
@@ -128,9 +120,6 @@
 
 # dock/schedule/SchedulePane.tsx
 "Schedule": "Schedule"
-
-# dock/node-tree/NodeTreePane.tsx
-"Reload": "Reload"
 
 # dock/block/BlockStagePane.tsx
 "Hide Properties": "Hide Properties"

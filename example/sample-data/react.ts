@@ -18,11 +18,12 @@ const data = {
   'scheduler': {
     '#is': 'scheduler',
     'config0': {
-      repeat: 'weekly',
+      repeat: 'advanced',
       start: '3:30',
       wDays: [1, 2, 5],
       name: 'hello',
       duration: 600,
+      days: [1, 4, '1>1', '-1>0', '2>2', '-2>3'],
     },
     '@b-p': ['config0', 'value0', '#output'],
     '@b-xyw': [500, 254, 150],

@@ -1,17 +1,13 @@
 import React from 'react';
-import {t} from '../../component/LocalizedLabel';
-import {MultiSelectEditor} from '../../property/value/SelectEditor';
-import {Select} from 'antd';
-import {DatePicker, Calendar} from '../../component/DateTimePicker';
+import {LocalizedPropertyName, t} from '../../component/LocalizedLabel';
+import {Checkbox, Select} from 'antd';
+import {Calendar} from '../../component/DateTimePicker';
 import {DateTime} from 'luxon';
-import {translateEditor} from '../../../core/util/i18n';
-import {scat} from '../../../core/util/String';
-
-const defaultDate = DateTime.now();
+import {funcDesc} from './descs';
 
 interface Props {
   dates: string[];
-  onChange: (dates: string[], field: string) => void;
+  onValueChange: (value: unknown, field: string) => void;
 }
 interface State {}
 export class DatesSelector extends React.PureComponent<Props, State> {
@@ -20,27 +16,24 @@ export class DatesSelector extends React.PureComponent<Props, State> {
   };
 
   onDatesChange = (value: string[]) => {
-    this.props.onChange?.(value, 'dates');
+    this.props.onValueChange?.(value, 'dates');
   };
-  onNewDate = (value: DateTime) => {
-    const newDate = value.toFormat('yyyy-MM-dd');
-    const {dates, onChange} = this.props;
-    if (!dates?.includes(newDate)) {
-      onChange([...dates, newDate], 'dates');
-    }
+
+  onRangeChange = (e: {target: {checked: boolean}}) => {
+    this.props.onValueChange(e.target.checked, 'range');
   };
 
   getCell = (date: DateTime) => {
-    const {dates, onChange} = this.props;
+    const {dates, onValueChange} = this.props;
     const s = date.toFormat('yyyy-MM-dd');
     const pos = dates.indexOf(s);
     const onClick =
       pos >= 0
         ? () => {
-            onChange(dates.toSpliced(pos, 1), 'dates');
+            onValueChange(dates.toSpliced(pos, 1), 'dates');
           }
         : () => {
-            onChange([...dates, s], 'dates');
+            onValueChange([...dates, s], 'dates');
           };
     return (
       <div className={pos >= 0 ? 'ticl-calender-selected-cell' : null} onClick={onClick}>
@@ -50,22 +43,34 @@ export class DatesSelector extends React.PureComponent<Props, State> {
   };
 
   render() {
-    const {dates, onChange} = this.props;
+    const {dates} = this.props;
     return (
-      <div className="ticl-property">
-        <div className="ticl-property-name">{t('Dates')}</div>
-        <div className="ticl-property-value">
-          <Select
-            size="small"
-            mode="multiple"
-            value={dates}
-            onChange={this.onDatesChange}
-            dropdownMatchSelectWidth={false}
-            placement="bottomRight"
-            dropdownRender={(menu) => <Calendar fullscreen={false} dateFullCellRender={this.getCell} />}
-          />
+      <>
+        <div className="ticl-property">
+          <div className="ticl-property-name">{t('Dates')}</div>
+          <div className="ticl-property-value">
+            <Select
+              size="small"
+              mode="multiple"
+              value={dates}
+              onChange={this.onDatesChange}
+              dropdownMatchSelectWidth={false}
+              placement="bottomRight"
+              dropdownRender={() => <Calendar fullscreen={false} dateFullCellRender={this.getCell} />}
+            />
+          </div>
         </div>
-      </div>
+        {dates.length === 2 && (
+          <div className="ticl-property">
+            <div className="ticl-property-name" />
+            <div className="ticl-property-value">
+              <Checkbox onChange={this.onRangeChange}>
+                <LocalizedPropertyName desc={funcDesc} name="range" />
+              </Checkbox>
+            </div>
+          </div>
+        )}
+      </>
     );
   }
 }

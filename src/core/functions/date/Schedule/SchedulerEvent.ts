@@ -6,7 +6,6 @@ const ONE_MINUTE = 60_000;
 export const RepeatModeList = [
   'daily',
   'weekly',
-  'monthly',
   'dates', // repeat on special dates
   'advanced',
 ] as const;
@@ -24,19 +23,28 @@ export interface SchedulerConfig {
   onlyWeekday?: boolean;
   // weekly
   wDays?: number[];
-  // monthly
-  mDays?: number[];
   // for advanced
   years?: number[];
   months?: number[];
   // for advanced
-  days?: number[];
+  days?: (number | string)[];
   range?: boolean;
   // array of year-month-day that the special event may occur, must be sorted
   dates?: string[];
   color?: string;
   key?: string;
 }
+
+function convertDay(v: number | string): number | [number, number] {
+  if (typeof v === 'number') {
+    return v;
+  }
+  if (typeof v === 'string') {
+    return v.split('>').map(parseFloat) as [number, number];
+  }
+  return 0;
+}
+
 const ConfigValidator = {
   name: z.nullable('string'),
   start: /^\d{1,2}:\d{1,2}$/,
@@ -48,11 +56,10 @@ const ConfigValidator = {
   repeat: z.switch({
     daily: {},
     weekly: {wDays: [z.num1n(7)]},
-    monthly: {mDays: [z.num1n(31)]},
     advanced: {
       years: z.nullable([z.num1n(31)]),
       months: z.nullable([z.num1n(12)]),
-      days: [z.any(z.num1n(31), ['number', z.num1n(7)])],
+      days: [z.any(z.num1n(31), /^-?\d:-?\d$/)],
     },
     dates: {dates: [/^\d{4}-\d{2}-\d{2}$/]},
   }),
@@ -86,14 +93,12 @@ export class SchedulerEvent {
   readonly onlyWeekday?: boolean;
   // weekly
   readonly wDays?: number[];
-  // monthly
-  readonly mDays?: number[];
   // for advanced
   readonly years?: number[];
   readonly months?: number[];
   // since number for day, 2 numbers for nth weekday
   readonly days?: (number | [number, number])[];
-  // nth weekday
+  // dates mode and advanced mode, when there are only 2 input
   readonly range?: boolean;
 
   // array of [year, month, day] that the special event may occur
@@ -113,11 +118,10 @@ export class SchedulerEvent {
     this.priority = config.priority ?? Infinity;
     this.onlyWeekday = config.onlyWeekday;
     this.wDays = config.wDays;
-    this.mDays = config.mDays;
     this.years = config.years;
     this.months = config.months;
-    this.days = config.days;
-    this.range = config.range;
+    this.days = config.days?.map(convertDay);
+    this.range = Boolean(config.range);
     this.dates = config.dates?.map((s) =>
       DateTime.fromISO(s, {zone: timezone}).set({hour: this.start[0], minute: this.start[1]})
     );
@@ -180,24 +184,6 @@ export class SchedulerEvent {
             yield* checkAndYield(refDay.set({weekday: weekday as any, hour: this.start[0], minute: this.start[1]}));
           }
           refDay = refDay.plus({week: 1});
-          if (checkDeadLoop()) {
-            return;
-          }
-        }
-      }
-      // tslint:disable-next-line:no-switch-case-fall-through
-      case 'monthly': {
-        // move to first day
-        refDay = refDay.set({day: 1});
-        while (true) {
-          for (const day of this.mDays) {
-            const result = refDay.set({day: day as any, hour: this.start[0], minute: this.start[1]});
-            if (result.month === refDay.month) {
-              // make sure it doesn't fall to next month because of day number overflow
-              yield* checkAndYield(result);
-            }
-          }
-          refDay = refDay.plus({month: 1});
           if (checkDeadLoop()) {
             return;
           }

@@ -260,7 +260,7 @@ class App extends React.PureComponent<Props, State> {
     this.lng = lng;
     this.lngConfig = lng === 'zh' ? zhAntd : enAntd;
     // force a reload of the context
-    this.ticloContext = {...this.ticloContext};
+    this.ticloContext = {...this.ticloContext, language: lng};
     i18next.changeLanguage(lng, this.forceUpdateImmediate);
   };
 
@@ -276,6 +276,7 @@ class App extends React.PureComponent<Props, State> {
 
   /// implements TicloLayoutContext
   ticloContext: TicloLayoutContext = {
+    language: this.lng,
     editFlow: (path: string, onSave: () => void) => {
       this.layout.dockMove(this.createBlockEditorTab(path, onSave), this.layout.find('main'), 'middle');
     },
