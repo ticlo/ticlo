@@ -46,21 +46,6 @@
  "matchMode": "always-match",
  "~actual0": "##.test-weekly.#output"
 },
-"assert3": {
- "#is": "test:assert",
- "@b-p": [
-  "actual0",
-  "expect0"
- ],
- "@b-xyw": [
-  396,
-  732,
-  143
- ],
- "expect0": "v3",
- "matchMode": "always-match",
- "~actual0": "##.test-monthly.#output"
-},
 "assert4": {
  "#is": "test:assert",
  "@b-p": [
@@ -69,7 +54,7 @@
  ],
  "@b-xyw": [
   396,
-  948,
+  732,
   143
  ],
  "expect0": "v4",
@@ -83,8 +68,8 @@
   "expect0"
  ],
  "@b-xyw": [
-  946,
-  1084,
+  948,
+  924,
   143
  ],
  "expect0": "v5",
@@ -129,7 +114,7 @@
  ],
  "@b-xyw": [
   287,
-  1068,
+  852,
   143
  ],
  "format": "yyyy-MM-dd",
@@ -146,7 +131,7 @@
  ],
  "@b-xyw": [
   84,
-  1044,
+  828,
   143
  ],
  "count": 1,
@@ -173,8 +158,8 @@
   "output"
  ],
  "@b-xyw": [
-  448,
-  1063,
+  449,
+  847,
   143
  ],
  "script": "this.output = {\n  repeat:'dates',\n  start:'0:0',\n  duration: 0,\n  dates:[this.date]\n};",
@@ -213,8 +198,8 @@
   "#output"
  ],
  "@b-xyw": [
-  652,
-  1026,
+  660,
+  804,
   176
  ],
  "[]": 2,
@@ -232,7 +217,7 @@
  ],
  "@b-xyw": [
   84,
-  876,
+  660,
   176
  ],
  "[]": 1,
@@ -243,61 +228,6 @@
  },
  "default": "default",
  "value0": "v4"
-},
-"test-monthly": {
- "#is": "scheduler",
- "@b-p": [
-  "config0",
-  "value0",
-  "default",
-  "#output"
- ],
- "@b-xyw": [
-  84,
-  660,
-  176
- ],
- "[]": 1,
- "config0": {
-  "duration": 1500,
-  "mDays": [
-   1,
-   2,
-   3,
-   4,
-   5,
-   6,
-   7,
-   8,
-   9,
-   10,
-   11,
-   12,
-   13,
-   14,
-   15,
-   16,
-   17,
-   18,
-   19,
-   20,
-   21,
-   22,
-   23,
-   24,
-   25,
-   26,
-   27,
-   28,
-   29,
-   30,
-   31
-  ],
-  "repeat": "monthly",
-  "start": "0:0"
- },
- "default": "default",
- "value0": "v3"
 },
 "test-priority": {
  "#is": "scheduler",
