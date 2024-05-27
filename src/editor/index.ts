@@ -6,9 +6,9 @@ import * as ticloI18n from '../../src/core/editor';
 
 // register special view
 
-import './block/view/Note';
-import './block/view/Slider';
-import './block/view/Comment';
+import './block/view/NoteView';
+import './block/view/SliderWidget';
+import './block/view/NoteWidget';
 
 export async function initEditor() {
   let lng = window.localStorage.getItem('ticlo-lng');

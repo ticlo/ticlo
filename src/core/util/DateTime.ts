@@ -41,6 +41,16 @@ export function encodeDateTime(val: DateTime): string {
   return `͢Ts:${val.valueOf().toString(36)}@${val.zoneName}`;
 }
 
+export function encodeDateTimeDisplay(val: DateTime): string {
+  if (val.invalidReason) {
+    return `͢Ts:!${val.invalidReason}`;
+  }
+  if (val.zone.type === 'system') {
+    return `͢Ts:${val.toISO({includeOffset: !val.zone.isUniversal})}`;
+  }
+  return `͢Ts:${val.toISO({includeOffset: !val.zone.isUniversal, extendedZone: true}).replace('[Factory]', '[?]')}`;
+}
+
 export function decodeDateTime(str: string): any {
   if (str.length > 5) {
     if (str.charAt(4) === '!') {
@@ -59,7 +69,7 @@ export function decodeDateTime(str: string): any {
     // 23 ISO length + 4 bytes header
     if (str.length >= 27) {
       // parse as ISO format
-      return DateTime.fromISO(str.substring(4), {setZone: true});
+      return DateTime.fromISO(str.substring(4).replace('[?]', '[Factory'), {setZone: true});
     }
     // local time
     return DateTime.fromMillis(parseInt(str.substring(4), 36));

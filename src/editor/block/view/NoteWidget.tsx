@@ -1,13 +1,21 @@
 import React from 'react';
 import {BlockWidget, BlockWidgetProps} from './BlockWidget';
+import {stringify as stringifyYaml} from 'yaml';
 import {LazyUpdateComponent, LazyUpdateSubscriber} from '../../component/LazyUpdateComponent';
 import {PropDesc} from '../../../../src/core/editor';
 import {marked, MarkedOptions} from 'marked';
 import Dompurify from 'dompurify';
 import ResizeObserver from 'resize-observer-polyfill';
+import {encodeSorted} from '../../../core';
+
+import {verboseReplacer, verboseReviver} from '../../../core/util/Serialize';
+import {stringify} from 'yaml/dist/public-api';
 
 class CommentView extends LazyUpdateComponent<BlockWidgetProps, any> {
-  static readonly viewProperties: PropDesc[] = [{name: '@b-comment', type: 'string', mime: 'text/x-markdown'}];
+  static readonly viewProperties: PropDesc[] = [
+    {name: '@b-note', type: 'any', mime: 'text/x-markdown'},
+    {name: '@b-note-mode', type: 'select', options: ['markdown', 'json', 'yaml'], default: 'markdown'},
+  ];
 
   #rootNode!: HTMLElement;
   private getRef = (node: HTMLDivElement): void => {
@@ -20,23 +28,33 @@ class CommentView extends LazyUpdateComponent<BlockWidgetProps, any> {
 
   #resizeObserver: ResizeObserver;
 
-  comment = new LazyUpdateSubscriber(this);
+  note = new LazyUpdateSubscriber(this);
+  mode = new LazyUpdateSubscriber(this);
 
   constructor(props: BlockWidgetProps) {
     super(props);
     let {conn, path} = props;
-    this.comment.subscribe(conn, `${path}.@b-comment`, true);
+    this.note.subscribe(conn, `${path}.@b-note`, true);
+    this.mode.subscribe(conn, `${path}.@b-note-mode`, true);
   }
 
   renderImpl(): React.ReactNode {
     let rawHtml: string;
-    let text = this.comment.value;
+    const text = this.note.value;
+    const mode = this.mode.value;
     if (text) {
-      let markedOptions: MarkedOptions = {
-        silent: true,
-      };
-      rawHtml = marked(text, markedOptions) as string;
-      rawHtml = Dompurify.sanitize(rawHtml);
+      if (mode === 'yaml') {
+        rawHtml = `<pre>${Dompurify.sanitize(stringifyYaml(text, verboseReplacer))}</pre>`;
+      } else if (mode === 'json') {
+        rawHtml = `<pre>${Dompurify.sanitize(encodeSorted(text))}</pre>`;
+      } else {
+        // if (mode === 'markdown') {
+        let markedOptions: MarkedOptions = {
+          silent: true,
+        };
+        rawHtml = marked(text, markedOptions) as string;
+        rawHtml = Dompurify.sanitize(rawHtml);
+      }
     }
     return (
       <div ref={this.getRef} className="ticl-comment-view ticl-markdown" dangerouslySetInnerHTML={{__html: rawHtml}} />
@@ -54,8 +72,8 @@ class CommentView extends LazyUpdateComponent<BlockWidgetProps, any> {
   componentWillUnmount(): void {
     let {conn, path} = this.props;
     this.#resizeObserver?.disconnect();
-    this.comment.unsubscribe();
+    this.note.unsubscribe();
     super.componentWillUnmount();
   }
 }
-BlockWidget.register('comment', CommentView);
+BlockWidget.register('note', CommentView);

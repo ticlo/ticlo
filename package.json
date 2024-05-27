@@ -14,7 +14,6 @@
   "dependencies": {
     "arrow-code": "^0.3.0",
     "denque": "^2.1.0",
-    "highlight.js": "11.9.0",
     "i18next": "^23.10.1",
     "idb": "^8.0.0",
     "is-svg": "^5.0.0",
@@ -68,6 +67,7 @@
     "express": "^4.19.1",
     "express-ws": "^5.0.2",
     "glob": "^10.3.10",
+    "highlight.js": "11.9.0",
     "less": "^4.2.0",
     "marked": "^12.0.1",
     "mocha": "^10.3.0",
@@ -95,7 +95,7 @@
     "vitest": "^1.4.0",
     "webdriverio": "^8.35.1",
     "ws": "^8.16.0",
-    "yaml": "^2.4.1"
+    "yaml": "^2.4.2"
   },
   "scripts": {
     "vite-dev": "vite",

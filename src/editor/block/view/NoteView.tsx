@@ -2,8 +2,11 @@ import React from 'react';
 import {marked, MarkedOptions} from 'marked';
 import Dompurify from 'dompurify';
 import {BlockWidgetProps} from './BlockWidget';
+import {stringify as stringifyYaml} from 'yaml';
 import {LazyUpdateComponent, LazyUpdateSubscriber} from '../../component/LazyUpdateComponent';
 import {ClientConnection} from '../../../../src/core/editor';
+import {encodeSorted} from '../../../core';
+import {verboseReplacer, verboseReviver} from '../../../core/util/Serialize';
 
 class NoteView extends LazyUpdateComponent<BlockWidgetProps, any> {
   private _rootNode!: HTMLElement;
@@ -11,7 +14,8 @@ class NoteView extends LazyUpdateComponent<BlockWidgetProps, any> {
     this._rootNode = node;
   };
 
-  text = new LazyUpdateSubscriber(this);
+  input = new LazyUpdateSubscriber(this);
+  mode = new LazyUpdateSubscriber(this);
   background = new LazyUpdateSubscriber(this);
   border = new LazyUpdateSubscriber(this);
   color = new LazyUpdateSubscriber(this);
@@ -19,7 +23,8 @@ class NoteView extends LazyUpdateComponent<BlockWidgetProps, any> {
   constructor(props: BlockWidgetProps) {
     super(props);
     let {conn, path} = props;
-    this.text.subscribe(conn, `${path}.text`, true);
+    this.input.subscribe(conn, `${path}.input`, true);
+    this.mode.subscribe(conn, `${path}.mode`, true);
     this.background.subscribe(conn, `${path}.background`, true);
     this.border.subscribe(conn, `${path}.border`, true);
     this.color.subscribe(conn, `${path}.color`, true);
@@ -27,13 +32,21 @@ class NoteView extends LazyUpdateComponent<BlockWidgetProps, any> {
 
   renderImpl(): React.ReactNode {
     let rawHtml: string;
-    let text = this.text.value;
+    let text = this.input.value;
+    let mode = this.mode.value;
     if (text) {
-      let markedOptions: MarkedOptions = {
-        silent: true,
-      };
-      rawHtml = marked(this.text.value, markedOptions) as string;
-      rawHtml = Dompurify.sanitize(rawHtml);
+      if (mode === 'yaml') {
+        rawHtml = `<pre>${Dompurify.sanitize(stringifyYaml(text, verboseReplacer))}</pre>`;
+      } else if (mode === 'json') {
+        rawHtml = `<pre>${Dompurify.sanitize(encodeSorted(text))}</pre>`;
+      } else {
+        // if (mode === 'markdown') {
+        let markedOptions: MarkedOptions = {
+          silent: true,
+        };
+        rawHtml = marked(text, markedOptions) as string;
+        rawHtml = Dompurify.sanitize(rawHtml);
+      }
     }
     let style: React.CSSProperties = {};
     if (typeof this.background.value === 'string') {
@@ -61,8 +74,8 @@ class NoteView extends LazyUpdateComponent<BlockWidgetProps, any> {
   }
 
   componentWillUnmount(): void {
-    let {conn, path} = this.props;
-    this.text.unsubscribe();
+    this.input.unsubscribe();
+    this.mode.unsubscribe();
     this.background.unsubscribe();
     this.border.unsubscribe();
     this.color.unsubscribe();
@@ -76,7 +89,8 @@ ClientConnection.addEditorDescriptor('note', {
   id: 'note',
   icon: 'fas:align-left',
   properties: [
-    {name: 'text', type: 'string', mime: 'text/x-markdown'},
+    {name: 'input', type: 'any', mime: 'text/x-markdown'},
+    {name: 'mode', type: 'select', options: ['markdown', 'json', 'yaml'], default: 'markdown'},
     {name: 'color', type: 'color'},
     {name: 'background', type: 'color'},
     {name: 'border', type: 'string'},

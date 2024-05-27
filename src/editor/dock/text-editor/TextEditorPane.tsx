@@ -14,6 +14,7 @@ import {EditorView} from '@codemirror/view';
 import {MenuProps} from 'antd/lib/menu';
 import {createDockDialog, DockDialogPane} from '../../component/DockDialogPane';
 import {t} from '../../component/LocalizedLabel';
+import {encodeVerbose, verboseReviver} from '../../../core/util/Serialize';
 
 interface Props {
   conn: ClientConn;
@@ -82,10 +83,9 @@ export class TextEditorPane extends React.PureComponent<Props, State> {
         let value = this._currentValue;
         try {
           // parse yaml first, then convert it to json, and decode with arrow
-          let yamlParsed = ParseYaml(value);
-          let obj = decode(JSON.stringify(yamlParsed));
+          let yamlParsed = ParseYaml(value, verboseReviver);
           this._codeMirrorView?.dispatch({
-            changes: {from: 0, to: this._codeMirrorView.state.doc.length, insert: encode(obj, 2)},
+            changes: {from: 0, to: this._codeMirrorView.state.doc.length, insert: value},
           });
         } catch (e) {
           this.setState({error: e.toString()});
@@ -161,7 +161,7 @@ export class TextEditorPane extends React.PureComponent<Props, State> {
       return '';
     }
     if (asObject) {
-      return encode(value, 2);
+      return encodeVerbose(value, 2);
     }
     if (value === null) {
       // allow null to be encoded only when asObject=true
@@ -169,7 +169,7 @@ export class TextEditorPane extends React.PureComponent<Props, State> {
       return '';
     }
     if (typeof value !== 'string') {
-      return encode(value, 2);
+      return encodeVerbose(value, 2);
     }
     return value;
   }
@@ -195,8 +195,7 @@ export class TextEditorPane extends React.PureComponent<Props, State> {
     let value: any = this._currentValue;
     if (asObject) {
       try {
-        let yamlParsed = ParseYaml(value);
-        value = decode(JSON.stringify(yamlParsed));
+        value = ParseYaml(value, verboseReviver);
       } catch (e) {
         this.setState({error: e.toString()});
         return false;
