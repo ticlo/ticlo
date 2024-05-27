@@ -19,10 +19,6 @@ export class DatesSelector extends React.PureComponent<Props, State> {
     this.props.onValueChange?.(value, 'dates');
   };
 
-  onRangeChange = (e: {target: {checked: boolean}}) => {
-    this.props.onValueChange(e.target.checked, 'range');
-  };
-
   getCell = (date: DateTime) => {
     const {dates, onValueChange} = this.props;
     const s = date.toFormat('yyyy-MM-dd');
@@ -60,16 +56,6 @@ export class DatesSelector extends React.PureComponent<Props, State> {
             />
           </div>
         </div>
-        {dates.length === 2 && (
-          <div className="ticl-property">
-            <div className="ticl-property-name" />
-            <div className="ticl-property-value">
-              <Checkbox onChange={this.onRangeChange}>
-                <LocalizedPropertyName desc={funcDesc} name="range" />
-              </Checkbox>
-            </div>
-          </div>
-        )}
       </>
     );
   }

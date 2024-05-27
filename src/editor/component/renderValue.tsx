@@ -15,7 +15,7 @@ export function renderValue(val: any, getPopup?: (val: any) => void) {
       if (val && (Array.isArray(val) || val.constructor === Object)) {
         return (
           <>
-            <span className="ticl-object-value">{display}</span>
+            <div className="ticl-object-value">{display}</div>
             {getPopup ? getPopup(val) : null}
           </>
         );

@@ -59,7 +59,7 @@ const ConfigValidator = {
     advanced: {
       years: z.nullable([z.num1n(31)]),
       months: z.nullable([z.num1n(12)]),
-      days: [z.any(z.num1n(31), /^-?\d:-?\d$/)],
+      days: [z.any(z.num1n(31), /^-?\d>\d$/)],
     },
     dates: {dates: [/^\d{4}-\d{2}-\d{2}$/]},
   }),
@@ -201,7 +201,7 @@ export class SchedulerEvent {
           if (checkDeadLoop()) {
             return;
           }
-          if (!this.years?.length || this.years.includes(year)) {
+          if (this.years?.length && !this.years.includes(year)) {
             continue;
           }
           for (let month = 1; month <= 12; ++month) {
@@ -212,42 +212,93 @@ export class SchedulerEvent {
             const endOfMonth = startOfMonth.endOf('month');
             const lastDay = endOfMonth.day;
             const days: number[] = [];
-            for (let v of this.days) {
+            loop: for (let v of this.days) {
               if (typeof v === 'number') {
                 if (v >= 1 && v <= 31) {
                   // check for 31 instead of lastDay, because overflow is allowed in range mode
                   days.push(v);
-                }
-                if (v === -1) {
+                } else if (v === -1) {
                   // last day
                   days.push(endOfMonth.day);
                 }
-                return;
-              }
-
-              // check nth weekday
-              if (Array.isArray(v) && (v as unknown[]).length === 2) {
+              } else if (Array.isArray(v) && (v as unknown[]).length === 2) {
+                // check nth weekday
                 let targetDay = -1;
-                const [weekCount, weekDay] = v as [number, number];
-                if (weekCount === 0) {
-                  // 0 for every week
-                  let day = 1 + ((weekDay + 7 - startOfMonth.weekday) % 7);
-                  for (; day <= lastDay; day += 7) {
-                    days.push(targetDay);
-                  }
-                } else if (weekCount > 0) {
-                  targetDay = 1 + (weekCount - 1) * 7 + ((weekDay + 7 - startOfMonth.weekday) % 7);
-                } else if (weekCount < 0) {
-                  targetDay = lastDay + (weekCount + 1) * 7 - ((endOfMonth.weekday + 7 - weekDay) % 7);
-                }
-                if (targetDay >= 1 && targetDay <= lastDay) {
-                  days.push(targetDay);
+                const [dayCount, dayType] = v as [number, number];
+                let isDayTypeWeekend = false;
+                switch (dayType) {
+                  case 0: // any day
+                    if (dayCount === 0) {
+                      for (let i = 1; i <= lastDay; ++i) {
+                        days.push(i);
+                      }
+                      break loop;
+                    }
+                    if (dayCount > 0) {
+                      days.push(dayCount);
+                    } else if (dayCount < 0) {
+                      // the last nth day
+                      days.push(lastDay + 1 + dayCount);
+                    }
+                    break;
+                  case 9: // non-week day
+                    isDayTypeWeekend = true;
+                  // tslint:disable-next-line:no-switch-case-fall-through
+                  case 8: // week day
+                    if (dayCount === 0) {
+                      for (let i = 1; i <= lastDay; ++i) {
+                        let targetDay = startOfMonth.set({day: i, hour: this.start[0], minute: this.start[1]});
+                        if (targetDay.isWeekend === isDayTypeWeekend) {
+                          days.push(i);
+                        }
+                      }
+                    } else if (dayCount > 0) {
+                      let counter = 0;
+                      for (let i = 1; i <= lastDay; ++i) {
+                        let targetDay = startOfMonth.set({day: i, hour: this.start[0], minute: this.start[1]});
+                        if (targetDay.isWeekend === isDayTypeWeekend) {
+                          counter++;
+                          if (counter === dayCount) {
+                            days.push(i);
+                            break;
+                          }
+                        }
+                      }
+                    } else if (dayCount < 0) {
+                      let counter = 0;
+                      for (let i = lastDay; i >= 1; --i) {
+                        let targetDay = startOfMonth.set({day: i, hour: this.start[0], minute: this.start[1]});
+                        if (targetDay.isWeekend === isDayTypeWeekend) {
+                          counter++;
+                          if (counter === dayCount) {
+                            days.push(i);
+                            break;
+                          }
+                        }
+                      }
+                    }
+                    break;
+                  default: // 1~7
+                    if (dayCount === 0) {
+                      // 0 for every week
+                      let day = 1 + ((dayType + 7 - startOfMonth.weekday) % 7);
+                      for (; day <= lastDay; day += 7) {
+                        days.push(targetDay);
+                      }
+                    } else if (dayCount > 0) {
+                      targetDay = 1 + (dayCount - 1) * 7 + ((dayType + 7 - startOfMonth.weekday) % 7);
+                    } else if (dayCount < 0) {
+                      targetDay = lastDay + (dayCount + 1) * 7 - ((endOfMonth.weekday + 7 - dayType) % 7);
+                    }
+                    if (targetDay >= 1 && targetDay <= lastDay) {
+                      days.push(targetDay);
+                    }
                 }
               }
             }
-            if (this.range) {
+            if (this.range && this.days.length === 2) {
               if (days.length === 2) {
-                let [min, max] = days.sort();
+                let [min, max] = days.sort((a, b) => a - b);
                 if (max > lastDay) {
                   if (min > lastDay) {
                     // invalid range
@@ -256,14 +307,15 @@ export class SchedulerEvent {
                   max = lastDay;
                 }
                 for (let day = min; day <= max; day++) {
-                  yield* checkAndYield(startOfMonth.set({day}));
+                  yield* checkAndYield(startOfMonth.set({day, hour: this.start[0], minute: this.start[1]}));
                 }
               } // else { the range doesn't exist for this month }
             } else {
-              const uniqueDays = [...new Set(days)].sort();
+              // remove duplicated days
+              const uniqueDays = [...new Set(days)].sort((a, b) => a - b);
               for (let day of uniqueDays) {
                 if (day <= lastDay) {
-                  yield* checkAndYield(startOfMonth.set({day}));
+                  yield* checkAndYield(startOfMonth.set({day, hour: this.start[0], minute: this.start[1]}));
                 }
               }
             }

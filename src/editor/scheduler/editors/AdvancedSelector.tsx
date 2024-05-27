@@ -18,6 +18,10 @@ const YEAR_OPTIONS = Array.from({length: 20}, (_, i) => ({
 
 const RIGHT_ALIGN_STYLE = {display: 'flex', justifyContent: 'end', overflow: 'visible'};
 
+function isRangeAllowed(days: (number | string)[]) {
+  return days.length === 2 && !days.find((v) => typeof v === 'string' && v.startsWith('0>'));
+}
+
 // Tag for the days multi-selector
 function DayTag({value, onClose}: {value: number | string; onClose: (e: React.MouseEvent<HTMLElement>) => void}) {
   let label: string;
@@ -83,6 +87,9 @@ export class AdvancedSelector extends React.PureComponent<Props, States> {
   };
   onDaysChange = (days: (number | string)[]) => {
     this.props.onValueChange(days, 'days');
+    if (!isRangeAllowed(days) && this.props.current.range) {
+      this.props.onValueChange(false, 'range');
+    }
   };
   onRangeChange = (e: {target: {checked: boolean}}) => {
     this.props.onValueChange(e.target.checked, 'range');
@@ -217,7 +224,6 @@ export class AdvancedSelector extends React.PureComponent<Props, States> {
     } = this.getLocalizedOptions(
       [this.context] // add extra layer of array, so the shallow equal will only compare the whole object, not internal content
     );
-    let showRange = days.length === 2 && !days.find((v) => typeof v === 'string' && v.startsWith('0>'));
     return (
       <>
         <div className="ticl-property">
@@ -262,7 +268,7 @@ export class AdvancedSelector extends React.PureComponent<Props, States> {
             />
           </div>
         </div>
-        {showRange && (
+        {isRangeAllowed(days) && (
           <div className="ticl-property">
             <div className="ticl-property-name" />
             <div className="ticl-property-value">
