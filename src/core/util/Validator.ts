@@ -39,7 +39,7 @@ function checkO(
 // if validator length is 1, it's applied to all children
 // if validator size is 0, it only checks if value is Array
 function checkA(value: unknown, validator: ValidatorDynamic[], root?: unknown): value is unknown[] {
-  if (!Array.isArray(value) || value.length === 0) {
+  if (!Array.isArray(value)) {
     return false;
   }
   if (validator.length === 1) {

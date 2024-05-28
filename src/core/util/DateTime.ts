@@ -69,7 +69,7 @@ export function decodeDateTime(str: string): any {
     // 23 ISO length + 4 bytes header
     if (str.length >= 27) {
       // parse as ISO format
-      return DateTime.fromISO(str.substring(4).replace('[?]', '[Factory'), {setZone: true});
+      return DateTime.fromISO(str.substring(4).replace('[?]', '[Factory]'), {setZone: str.endsWith(']')});
     }
     // local time
     return DateTime.fromMillis(parseInt(str.substring(4), 36));

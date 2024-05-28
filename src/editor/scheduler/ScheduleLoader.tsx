@@ -11,26 +11,17 @@ import {
 import {cacheCall} from '../util/CachedCallback';
 import {deepEqual} from '../../core/util/Compare';
 import {encodeDisplay} from '../../core';
+import {stringify as stringifyYaml} from 'yaml';
+import {verboseReplacer} from '../../core/util/Serialize';
 
 const priorityStr = '⓿❶❷❸❹❺❻❼❽❾❿';
-
-function encodeEventDisplay(e: unknown) {
-  if (e && typeof e === 'object' && !Array.isArray(e)) {
-    const result: string[] = [];
-    for (const key of Object.keys(e)) {
-      result.push(`${key}: ${encodeDisplay((e as any)[key])}`);
-    }
-    return result.join('\n');
-  }
-  return encodeDisplay(e);
-}
 
 function getTitle(config: SchedulerConfig, value: unknown) {
   const parts: string[] = [];
   if (config?.name) {
     parts.push(config.name);
   }
-  parts.push(encodeEventDisplay(value));
+  parts.push(stringifyYaml(value, verboseReplacer));
   return parts.join('\n');
 }
 

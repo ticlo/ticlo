@@ -1,0 +1,482 @@
+{
+"#disabled": true,
+"#is": "",
+"assert": {
+ "#is": "test:assert",
+ "@b-p": [
+  "actual0",
+  "expect0",
+  "actual1",
+  "expect1",
+  "actual2",
+  "expect2",
+  "actual3",
+  "expect3"
+ ],
+ "@b-xyw": [
+  468,
+  108,
+  143
+ ],
+ "[]": 4,
+ "expect0": "1",
+ "expect1": "2",
+ "expect2": "3",
+ "expect3": "4",
+ "matchMode": "always-match",
+ "~actual0": "##.test-schedule.#output",
+ "~actual1": "##.test-schedule1.#output",
+ "~actual2": "##.test-schedule2.#output",
+ "~actual3": "##.test-schedule3.#output"
+},
+"assert-every": {
+ "#is": "test:assert",
+ "@b-p": [
+  "actual0",
+  "expect0",
+  "actual1",
+  "expect1",
+  "actual2",
+  "expect2"
+ ],
+ "@b-xyw": [
+  468,
+  684,
+  143
+ ],
+ "[]": 3,
+ "expect0": "5",
+ "expect1": "6",
+ "expect2": "7",
+ "matchMode": "always-match",
+ "~actual0": "##.test-every.#output",
+ "~actual1": "##.test-every1.#output",
+ "~actual2": "##.test-every2.#output"
+},
+"assert-first": {
+ "#is": "test:assert",
+ "@b-p": [
+  "actual0",
+  "expect0",
+  "actual1",
+  "expect1",
+  "actual2",
+  "expect2"
+ ],
+ "@b-xyw": [
+  1102,
+  97,
+  270
+ ],
+ "[]": 3,
+ "expect0": "8",
+ "expect1": "9",
+ "expect2": "a",
+ "matchMode": "always-match",
+ "~actual0": "##.test-first.#output",
+ "~actual1": "##.test-first1.#output",
+ "~actual2": "##.test-first2.#output"
+},
+"assert-last": {
+ "#is": "test:assert",
+ "@b-p": [
+  "actual0",
+  "expect0",
+  "actual1",
+  "expect1",
+  "actual2",
+  "expect2"
+ ],
+ "@b-xyw": [
+  1091,
+  576,
+  167
+ ],
+ "[]": 3,
+ "expect0": "b",
+ "expect1": "c",
+ "expect2": "d",
+ "matchMode": "always-match",
+ "~actual0": "##.test-last.#output",
+ "~actual1": "##.test-last1.#output",
+ "~actual2": "##.test-last2.#output"
+},
+"test-every": {
+ "#is": "scheduler",
+ "@b-p": [
+  "default",
+  "lockTime",
+  "#output"
+ ],
+ "@b-xyw": [
+  84,
+  684,
+  287
+ ],
+ "config0": {
+  "days": [
+   "0>1"
+  ],
+  "duration": 120,
+  "months": [
+   5
+  ],
+  "repeat": "advanced",
+  "start": "3:0",
+  "years": [
+   2024
+  ]
+ },
+ "default": "0",
+ "lockTime": "͢Ts:lwoux2kk",
+ "value0": "5"
+},
+"test-every1": {
+ "#is": "scheduler",
+ "@b-p": [
+  "default",
+  "lockTime",
+  "#output"
+ ],
+ "@b-xyw": [
+  84,
+  828,
+  287
+ ],
+ "config0": {
+  "days": [
+   "0>8"
+  ],
+  "duration": 120,
+  "months": [
+   5
+  ],
+  "repeat": "advanced",
+  "start": "3:0",
+  "years": [
+   2024
+  ]
+ },
+ "default": "0",
+ "lockTime": "͢Ts:lwoux2kk",
+ "value0": "6"
+},
+"test-every2": {
+ "#is": "scheduler",
+ "@b-p": [
+  "default",
+  "lockTime",
+  "#output"
+ ],
+ "@b-xyw": [
+  84,
+  972,
+  287
+ ],
+ "config0": {
+  "days": [
+   "0>9"
+  ],
+  "duration": 120,
+  "months": [
+   5
+  ],
+  "repeat": "advanced",
+  "start": "3:0",
+  "years": [
+   2024
+  ]
+ },
+ "default": "0",
+ "lockTime": "͢Ts:lwnfh7wk",
+ "value0": "7"
+},
+"test-first": {
+ "#is": "scheduler",
+ "@b-p": [
+  "default",
+  "lockTime",
+  "#output"
+ ],
+ "@b-xyw": [
+  708,
+  84,
+  287
+ ],
+ "config0": {
+  "days": [
+   "4>1"
+  ],
+  "duration": 120,
+  "months": [
+   5
+  ],
+  "repeat": "advanced",
+  "start": "3:0",
+  "years": [
+   2024
+  ]
+ },
+ "default": "0",
+ "lockTime": "͢Ts:lwoux2kk",
+ "value0": "8"
+},
+"test-first1": {
+ "#is": "scheduler",
+ "@b-p": [
+  "default",
+  "lockTime",
+  "#output"
+ ],
+ "@b-xyw": [
+  708,
+  228,
+  287
+ ],
+ "config0": {
+  "days": [
+   "2>8"
+  ],
+  "duration": 120,
+  "months": [
+   5
+  ],
+  "repeat": "advanced",
+  "start": "3:0",
+  "years": [
+   2024
+  ]
+ },
+ "default": "0",
+ "lockTime": "͢Ts:lvp4wrwk",
+ "value0": "9"
+},
+"test-first2": {
+ "#is": "scheduler",
+ "@b-p": [
+  "default",
+  "lockTime",
+  "#output"
+ ],
+ "@b-xyw": [
+  708,
+  372,
+  287
+ ],
+ "config0": {
+  "days": [
+   "3>9"
+  ],
+  "duration": 120,
+  "months": [
+   5
+  ],
+  "repeat": "advanced",
+  "start": "3:0",
+  "years": [
+   2024
+  ]
+ },
+ "default": "0",
+ "lockTime": "͢Ts:lw1zvfwk",
+ "value0": "a"
+},
+"test-last": {
+ "#is": "scheduler",
+ "@b-p": [
+  "default",
+  "lockTime",
+  "#output"
+ ],
+ "@b-xyw": [
+  708,
+  564,
+  287
+ ],
+ "config0": {
+  "days": [
+   "-1>1"
+  ],
+  "duration": 120,
+  "months": [
+   5
+  ],
+  "repeat": "advanced",
+  "start": "3:0",
+  "years": [
+   2024
+  ]
+ },
+ "default": "0",
+ "lockTime": "͢Ts:lwoux2kk",
+ "value0": "b"
+},
+"test-last1": {
+ "#is": "scheduler",
+ "@b-p": [
+  "default",
+  "lockTime",
+  "#output"
+ ],
+ "@b-xyw": [
+  708,
+  708,
+  287
+ ],
+ "config0": {
+  "days": [
+   "-1>8"
+  ],
+  "duration": 120,
+  "months": [
+   5
+  ],
+  "repeat": "advanced",
+  "start": "3:0",
+  "years": [
+   2024
+  ]
+ },
+ "default": "0",
+ "lockTime": "͢Ts:lwukoh8k",
+ "value0": "c"
+},
+"test-last2": {
+ "#is": "scheduler",
+ "@b-p": [
+  "default",
+  "lockTime",
+  "#output"
+ ],
+ "@b-xyw": [
+  708,
+  852,
+  287
+ ],
+ "config0": {
+  "days": [
+   "-1>9"
+  ],
+  "duration": 120,
+  "months": [
+   5
+  ],
+  "repeat": "advanced",
+  "start": "3:0",
+  "years": [
+   2024
+  ]
+ },
+ "default": "0",
+ "lockTime": "͢Ts:lwnfh7wk",
+ "value0": "d"
+},
+"test-schedule": {
+ "#is": "scheduler",
+ "@b-p": [
+  "default",
+  "lockTime",
+  "#output"
+ ],
+ "@b-xyw": [
+  84,
+  60,
+  287
+ ],
+ "config0": {
+  "days": [
+   27
+  ],
+  "duration": 120,
+  "months": [
+   5
+  ],
+  "repeat": "advanced",
+  "start": "3:0",
+  "years": [
+   2024
+  ]
+ },
+ "default": "0",
+ "lockTime": "͢Ts:lwoux2kk",
+ "value0": "1"
+},
+"test-schedule1": {
+ "#is": "scheduler",
+ "@b-p": [
+  "default",
+  "lockTime",
+  "#output"
+ ],
+ "@b-xyw": [
+  84,
+  204,
+  287
+ ],
+ "config0": {
+  "days": [
+   "-1>1"
+  ],
+  "duration": 120,
+  "months": [
+   4,
+   5,
+   6
+  ],
+  "repeat": "advanced",
+  "start": "3:0",
+  "years": [
+   2024,
+   2025
+  ]
+ },
+ "default": "0",
+ "lockTime": "͢Ts:lwoux2kk",
+ "value0": "2"
+},
+"test-schedule2": {
+ "#is": "scheduler",
+ "@b-p": [
+  "default",
+  "lockTime",
+  "#output"
+ ],
+ "@b-xyw": [
+  84,
+  348,
+  287
+ ],
+ "config0": {
+  "days": [],
+  "duration": 120,
+  "months": [],
+  "repeat": "advanced",
+  "start": "3:0",
+  "years": []
+ },
+ "default": "0",
+ "lockTime": "͢Ts:lwoux2kk",
+ "value0": "3"
+},
+"test-schedule3": {
+ "#is": "scheduler",
+ "@b-p": [
+  "default",
+  "lockTime",
+  "#output"
+ ],
+ "@b-xyw": [
+  84,
+  492,
+  287
+ ],
+ "config0": {
+  "duration": 120,
+  "repeat": "advanced",
+  "start": "3:0"
+ },
+ "default": "0",
+ "lockTime": "͢Ts:lwoux2kk",
+ "value0": "4"
+}
+}

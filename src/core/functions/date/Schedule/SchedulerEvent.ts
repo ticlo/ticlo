@@ -47,7 +47,7 @@ function convertDay(v: number | string): number | [number, number] {
 
 const ConfigValidator = {
   name: z.nullable('string'),
-  start: /^\d{1,2}:\d{1,2}$/,
+  start: z.nullable(/^\d{1,2}:\d{1,2}$/),
   duration: z.notNegative,
   after: z.nullable(z.datetime),
   before: z.nullable(z.datetime),
@@ -57,9 +57,9 @@ const ConfigValidator = {
     daily: {},
     weekly: {wDays: [z.num1n(7)]},
     advanced: {
-      years: z.nullable([z.num1n(31)]),
+      years: z.nullable([Number.isInteger]),
       months: z.nullable([z.num1n(12)]),
-      days: [z.any(z.num1n(31), /^-?\d>\d$/)],
+      days: z.nullable([z.any(z.num1n(31), /^-?\d>\d$/)]),
     },
     dates: {dates: [/^\d{4}-\d{2}-\d{2}$/]},
   }),
@@ -110,7 +110,7 @@ export class SchedulerEvent {
 
   constructor(config: SchedulerConfig, timezone?: string) {
     this.repeat = config.repeat;
-    this.start = config.start.split(':').map(Number.parseFloat) as [number, number];
+    this.start = (config.start?.split(':').map(Number.parseFloat) as [number, number]) ?? [0, 0];
     this.name = config.name;
     this.durationMs = config.duration * ONE_MINUTE - 1;
     this.after = config.after?.valueOf() ?? -Infinity;
@@ -212,7 +212,8 @@ export class SchedulerEvent {
             const endOfMonth = startOfMonth.endOf('month');
             const lastDay = endOfMonth.day;
             const days: number[] = [];
-            loop: for (let v of this.days) {
+            const daysConfig = this.days?.length ? this.days : [[0, 0]];
+            loop: for (let v of daysConfig) {
               if (typeof v === 'number') {
                 if (v >= 1 && v <= 31) {
                   // check for 31 instead of lastDay, because overflow is allowed in range mode
@@ -269,7 +270,7 @@ export class SchedulerEvent {
                       for (let i = lastDay; i >= 1; --i) {
                         let targetDay = startOfMonth.set({day: i, hour: this.start[0], minute: this.start[1]});
                         if (targetDay.isWeekend === isDayTypeWeekend) {
-                          counter++;
+                          counter--;
                           if (counter === dayCount) {
                             days.push(i);
                             break;
@@ -283,7 +284,7 @@ export class SchedulerEvent {
                       // 0 for every week
                       let day = 1 + ((dayType + 7 - startOfMonth.weekday) % 7);
                       for (; day <= lastDay; day += 7) {
-                        days.push(targetDay);
+                        days.push(day);
                       }
                     } else if (dayCount > 0) {
                       targetDay = 1 + (dayCount - 1) * 7 + ((dayType + 7 - startOfMonth.weekday) % 7);

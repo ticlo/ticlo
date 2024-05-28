@@ -128,7 +128,6 @@ export class CalendarEventEditor extends React.PureComponent<Props, State> {
       let v = value;
       if (Array.isArray(v)) {
         v.sort(sortItem);
-        console.log(v);
       }
       this.onValuesChange({[field]: v});
     }

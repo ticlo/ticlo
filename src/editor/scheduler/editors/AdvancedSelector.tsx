@@ -19,7 +19,7 @@ const YEAR_OPTIONS = Array.from({length: 20}, (_, i) => ({
 const RIGHT_ALIGN_STYLE = {display: 'flex', justifyContent: 'end', overflow: 'visible'};
 
 function isRangeAllowed(days: (number | string)[]) {
-  return days.length === 2 && !days.find((v) => typeof v === 'string' && v.startsWith('0>'));
+  return days?.length === 2 && !days.find((v) => typeof v === 'string' && v.startsWith('0>'));
 }
 
 // Tag for the days multi-selector
@@ -109,7 +109,7 @@ export class AdvancedSelector extends React.PureComponent<Props, States> {
     }
     const {days} = this.props.current;
     const str = `${dayCount}>${dayType}`;
-    if (!days.includes(str)) {
+    if (!days?.includes(str)) {
       this.props.onValueChange([...days, str], 'days');
     }
   };

@@ -3,7 +3,8 @@ import {AutoUpdateFunction} from '../../base/AutoUpdateFunction';
 import {type EventOccur, SchedulerEvent} from './SchedulerEvent';
 import {BlockIO} from '../../../block/BlockProperty';
 import {ValueUpdateEvent} from '../../../block/Event';
-import {systemZone} from '../../../util/DateTime';
+import {systemZone, toDateTime} from '../../../util/DateTime';
+import {DateTime} from 'luxon';
 
 export class ScheduleValue {
   occur: EventOccur;
@@ -55,10 +56,19 @@ export class ScheduleFunction extends AutoUpdateFunction {
   #cache = new WeakMap<object, ScheduleValue>();
   #events: ScheduleValue[];
 
+  #valueChanged = false;
   inputChanged(input: BlockIO, val: unknown): boolean {
     if (input._name.startsWith('config') || input._name === '[]' || input._name === 'timezone') {
       // re-generate events when config changes.
       this.#events = null;
+    } else if (input._name === 'lockTime') {
+      if (this.#events) {
+        for (let event of this.#events) {
+          event.event.clearCache();
+        }
+      }
+    } else if (input._name.startsWith('value')) {
+      this.#valueChanged = true;
     }
     return true;
   }
@@ -70,9 +80,22 @@ export class ScheduleFunction extends AutoUpdateFunction {
       this._data.output(override);
       return;
     }
-    const eventsData = this._data.getArray('', 1, ['config', 'value']) as {config: unknown; value: unknown}[];
+
+    let timezone = this._data.getValue('timezone') as string;
+    if (this.#valueChanged && this.#events) {
+      // update value but not event config
+      const eventsData = this._data.getArray('', 1, ['value']) as {config: unknown; value: unknown}[];
+      if (eventsData.length === this.#events.length) {
+        for (let i = 0; i < eventsData.length; ++i) {
+          this.#events[i].value = eventsData[i].value;
+        }
+        this.#valueChanged = false;
+      } else {
+        this.#events = null;
+      }
+    }
     if (!this.#events) {
-      let timezone = this._data.getValue('timezone') as string;
+      const eventsData = this._data.getArray('', 1, ['config', 'value']) as {config: unknown; value: unknown}[];
       if (typeof timezone !== 'string' || timezone === 'Factory' || timezone === '?') {
         timezone = systemZone;
       }
@@ -96,12 +119,23 @@ export class ScheduleFunction extends AutoUpdateFunction {
         this.#events.push(sv);
       }
       this.#cache = newCache;
+      this.#valueChanged = false;
+    }
+    let ts = new Date().getTime();
+    const lockTime = this._data.getValue('lockTime');
+    let lockDt: DateTime;
+    if (lockTime != null) {
+      const dt = toDateTime(lockTime, timezone);
+      if (dt.isValid) {
+        lockDt = dt;
+        ts = dt.valueOf();
+      }
     }
 
     if (mergeMode) {
     } else {
       const occurs: EventOccur[] = [];
-      let ts = new Date().getTime();
+
       let current: ScheduleValue;
       let next: ScheduleValue;
       // check the current
@@ -126,10 +160,12 @@ export class ScheduleFunction extends AutoUpdateFunction {
           }
         }
       }
-      if (next) {
-        this.addSchedule(next.occur.start);
-      } else if (current) {
-        this.addSchedule(current.occur.end + 1);
+      if (!lockDt) {
+        if (next) {
+          this.addSchedule(next.occur.start);
+        } else if (current) {
+          this.addSchedule(current.occur.end + 1);
+        }
       }
 
       let outputValue = current ? current.value : this._data.getValue('default');
@@ -159,6 +195,7 @@ Functions.add(ScheduleFunction, {
     },
     {name: 'default', type: 'any', pinned: true},
     {name: 'override', type: 'any'},
+    {name: 'lockTime', type: 'date'},
     {name: 'resolveMode', type: 'select', options: ['overwrite', 'merge', 'max', 'min'], default: 'overwrite'},
     {name: 'timezone', type: 'string', default: ''},
     {name: '#output', type: 'any', readonly: true, pinned: true},
