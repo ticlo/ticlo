@@ -56,7 +56,6 @@ export class ScheduleFunction extends AutoUpdateFunction {
   #cache = new WeakMap<object, ScheduleValue>();
   #events: ScheduleValue[];
 
-  #valueChanged = false;
   inputChanged(input: BlockIO, val: unknown): boolean {
     if (input._name.startsWith('config') || input._name === '[]' || input._name === 'timezone') {
       // re-generate events when config changes.
@@ -67,8 +66,11 @@ export class ScheduleFunction extends AutoUpdateFunction {
           event.event.clearCache();
         }
       }
-    } else if (input._name.startsWith('value')) {
-      this.#valueChanged = true;
+    } else if (this.#events && input._name.startsWith('value')) {
+      let index = parseInt(input._name.substring(5 /* 'value'.length */));
+      if (this.#events[index]) {
+        this.#events[index].value = val;
+      }
     }
     return true;
   }
@@ -82,18 +84,7 @@ export class ScheduleFunction extends AutoUpdateFunction {
     }
 
     let timezone = this._data.getValue('timezone') as string;
-    if (this.#valueChanged && this.#events) {
-      // update value but not event config
-      const eventsData = this._data.getArray('', 1, ['value']) as {config: unknown; value: unknown}[];
-      if (eventsData.length === this.#events.length) {
-        for (let i = 0; i < eventsData.length; ++i) {
-          this.#events[i].value = eventsData[i].value;
-        }
-        this.#valueChanged = false;
-      } else {
-        this.#events = null;
-      }
-    }
+
     if (!this.#events) {
       const eventsData = this._data.getArray('', 1, ['config', 'value']) as {config: unknown; value: unknown}[];
       if (typeof timezone !== 'string' || timezone === 'Factory' || timezone === '?') {
@@ -119,7 +110,6 @@ export class ScheduleFunction extends AutoUpdateFunction {
         this.#events.push(sv);
       }
       this.#cache = newCache;
-      this.#valueChanged = false;
     }
     let ts = new Date().getTime();
     const lockTime = this._data.getValue('lockTime');

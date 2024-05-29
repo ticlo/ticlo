@@ -50,6 +50,8 @@ scheduler:
       9: Non-weekday
       'nth_ranged': '-1~Last {{d}};0~Every {{d}};1~1st {{d}};2~2nd {{d}};3~3rd {{d}}'
       'nth_other': '{{count}}th {{d}}'
+  dates:
+    '@name': Dates
   wDays:
     '@name': ' '
   range:

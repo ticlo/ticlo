@@ -11,6 +11,7 @@ import {CalendarEvent, ScheduleLoader} from './ScheduleLoader';
 import {CalendarToolbar} from './CalendarToolbar';
 import {CalendarEventEditor} from './CalendarEventEditor';
 import {SchedulerConfig} from '../../core/functions/date/Schedule/SchedulerEvent';
+import {scat} from '../../core/util/String';
 
 const CalendarT = Calendar<CalendarEvent>;
 
@@ -31,13 +32,20 @@ interface State {
   timeRange?: [number, number];
   selectedId?: string;
   selectedIdx?: number;
+  view: View;
+  date?: Date;
 }
 export class ScheduleCalendar extends LazyUpdateComponent<Props, State> {
   declare state: State;
   constructor(props: Props) {
     super(props);
     const {parentPath, scheduleName, index} = props;
-    this.state = {scheduleOptions: [{value: scheduleName}], selectedSchedule: scheduleName, selectedIdx: index};
+    this.state = {
+      scheduleOptions: [{value: scheduleName}],
+      selectedSchedule: scheduleName,
+      selectedIdx: index,
+      view: 'week',
+    };
     this.loadOptions(parentPath);
     this.loadEvents(`${parentPath}.${scheduleName}`);
   }
@@ -77,10 +85,21 @@ export class ScheduleCalendar extends LazyUpdateComponent<Props, State> {
   onRangeChange = (range: {start: Date; end: Date}, view?: View) => {
     this.setState({timeRange: [range.start.getTime(), range.end.getTime()]});
   };
+
+  onNavigate = (date: Date) => {
+    this.setState({date});
+  };
+  onView = (view: View) => {
+    this.setState({view});
+  };
   eventPropGetter = (event: CalendarEvent, start: Date, end: Date, isSelected: boolean) => {
     const {selectedIdx, selectedId} = this.state;
     const className: string = selectedId == null && selectedIdx === event.parent.idx ? 'rbc-selected' : undefined;
     return {className, style: event.parent.style};
+  };
+  tooltipAccessor = (event: CalendarEvent) => {
+    console.log(event);
+    return event.title;
   };
 
   getEventList(dummyEvents: CalendarEvent[]) {
@@ -99,12 +118,13 @@ export class ScheduleCalendar extends LazyUpdateComponent<Props, State> {
           icon={event.parent.visible ? <EyeFilled /> : <EyeInvisibleOutlined />}
           onClick={() => event.parent.toggleVisible()}
         />
-        <EventCell
-          event={event}
-          selected={event.parent.idx === selectedIdx}
-          onSelect={() => this.safeSetState({selectedIdx: event.parent.idx, selectedId: null})}
-          {...otherContext}
-        />
+        <div
+          className={scat('rbc-event', event.parent.idx === selectedIdx && 'rbc-selected')}
+          style={event.parent.style}
+          onClick={() => this.safeSetState({selectedIdx: event.parent.idx, selectedId: null})}
+        >
+          <div className="rbc-event-content">{event.title}</div>
+        </div>
       </div>
     ));
   }
@@ -120,7 +140,7 @@ export class ScheduleCalendar extends LazyUpdateComponent<Props, State> {
 
   renderImpl() {
     let {parentPath, conn} = this.props;
-    let {scheduleOptions, selectedSchedule, timeRange, selectedId, selectedIdx} = this.state;
+    let {scheduleOptions, selectedSchedule, timeRange, selectedId, selectedIdx, view, date} = this.state;
 
     const schedulePath = `${parentPath}.${selectedSchedule}`;
     this.loadOptions(parentPath);
@@ -138,17 +158,21 @@ export class ScheduleCalendar extends LazyUpdateComponent<Props, State> {
           localizer={calendarLocalizer}
           culture="zh"
           views={{day: true, week: true, month: true}}
-          defaultView={Views.WEEK}
+          view={view}
+          date={date}
           eventPropGetter={this.eventPropGetter}
           events={events}
           showMultiDayTimes={true}
-          step={30}
+          step={view === 'day' ? 15 : 30}
           selectable={true}
           popup={true}
           selected={selectedEvent}
           onSelectSlot={this.onSelectSlot}
           onSelectEvent={this.onSelectEvent}
           onRangeChange={this.onRangeChange}
+          onNavigate={this.onNavigate}
+          onView={this.onView}
+          tooltipAccessor={this.tooltipAccessor}
         />
 
         <div className="ticl-schedule-side">

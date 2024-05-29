@@ -4005,10 +4005,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"clsx@npm:^1.2.1":
-  version: 1.2.1
-  resolution: "clsx@npm:1.2.1"
-  checksum: 34dead8bee24f5e96f6e7937d711978380647e936a22e76380290e35486afd8634966ce300fc4b74a32f3762c7d4c0303f442c3e259f4ce02374eb0c82834f27
+"clsx@npm:^2.1.1":
+  version: 2.1.1
+  resolution: "clsx@npm:2.1.1"
+  checksum: c4c8eb865f8c82baab07e71bfa8897c73454881c4f99d6bc81585aecd7c441746c1399d08363dc096c550cceaf97bd4ce1e8854e1771e9998d9f94c4fe075839
   languageName: node
   linkType: hard
 
@@ -9699,12 +9699,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"ticlo-big-calendar@npm:^1.12.3":
-  version: 1.12.3
-  resolution: "ticlo-big-calendar@npm:1.12.3"
+"ticlo-big-calendar@npm:^1.12.6":
+  version: 1.12.6
+  resolution: "ticlo-big-calendar@npm:1.12.6"
   dependencies:
     "@babel/runtime": "npm:^7.20.7"
-    clsx: "npm:^1.2.1"
+    clsx: "npm:^2.1.1"
     date-arithmetic: "npm:^4.1.0"
     dom-helpers: "npm:^5.2.1"
     globalize: "npm:^0.1.1"
@@ -9715,11 +9715,10 @@ __metadata:
     memoize-one: "npm:^6.0.0"
     prop-types: "npm:^15.8.1"
     react-overlays: "npm:^5.2.1"
-    uncontrollable: "npm:^7.2.1"
   peerDependencies:
     react: ^16.14.0 || ^17 || ^18
     react-dom: ^16.14.0 || ^17 || ^18
-  checksum: 9829bf687b245377136f2b4cb3e5c5a82d6f0177bd32508a1a8531c8e85fae76bf08165006407f8edb41947ca6f3b9ed34ebe190587ba64683640b999c7c389d
+  checksum: c1acd4ebeba9dcd1c7e7e2eea81e3148716b47047a38a1318e5891954750033729e0b54fc904a3952bad7ad9ac43441f04cbebddb5689cad2961e3be5f5c9c2d
   languageName: node
   linkType: hard
 
@@ -9795,7 +9794,7 @@ __metadata:
     resize-observer-polyfill: "npm:^1.5.1"
     shelljs: "npm:^0.8.5"
     simulate-event: "ticlo/simulate-event#master"
-    ticlo-big-calendar: "npm:^1.12.3"
+    ticlo-big-calendar: "npm:^1.12.6"
     tinycolor2: "npm:^1.6.0"
     ts-node: "npm:^10.9.2"
     tslib: "npm:^2.6.2"

@@ -178,7 +178,6 @@ export class CalendarEventEditor extends React.PureComponent<Props, State> {
               <P field="after" current={current} onChange={this.onValueChange} />
               <P field="before" current={current} onChange={this.onValueChange} />
               <P field="onlyWeekday" current={current} onChange={this.onValueChange} />
-              <P field="key" current={current} onChange={this.onValueChange} />
               <P field="color" current={current} onChange={this.onValueChange} />
             </>
           ) : null}

@@ -32,7 +32,6 @@ export interface SchedulerConfig {
   // array of year-month-day that the special event may occur, must be sorted
   dates?: string[];
   color?: string;
-  key?: string;
 }
 
 function convertDay(v: number | string): number | [number, number] {
@@ -64,7 +63,6 @@ const ConfigValidator = {
     dates: {dates: [/^\d{4}-\d{2}-\d{2}$/]},
   }),
   color: z.nullable('string'),
-  key: z.nullable('string'),
 };
 export function validateEventConfig(config: unknown) {
   return z.check(config, ConfigValidator);
@@ -104,7 +102,6 @@ export class SchedulerEvent {
   // array of [year, month, day] that the special event may occur
   readonly dates?: DateTime[];
   readonly color?: string;
-  readonly key?: string;
 
   readonly timezone?: string;
 
@@ -126,7 +123,6 @@ export class SchedulerEvent {
       DateTime.fromISO(s, {zone: timezone}).set({hour: this.start[0], minute: this.start[1]})
     );
     this.color = config.color;
-    this.key = config.key;
     this.timezone = timezone;
   }
 

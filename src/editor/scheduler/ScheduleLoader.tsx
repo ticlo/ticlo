@@ -34,7 +34,7 @@ export class CalendarEvent implements Event {
   constructor(
     start: number,
     end: number,
-    public readonly title: React.ReactNode,
+    public readonly title: string,
     public readonly parent: ConfigValuePair
   ) {
     this.start = new Date(start);
