@@ -2,11 +2,17 @@ import {Functions} from '../../../block/Functions';
 import {AutoUpdateFunction} from '../../base/AutoUpdateFunction';
 import {type EventOccur, SchedulerEvent} from './SchedulerEvent';
 import {BlockIO} from '../../../block/BlockProperty';
-import {ValueUpdateEvent} from '../../../block/Event';
 import {systemZone, toDateTime} from '../../../util/DateTime';
 import {DateTime} from 'luxon';
 
 export class ScheduleValue {
+  static compare(a: ScheduleValue, b: ScheduleValue) {
+    if (a.shouldReplace(b)) {
+      return 1;
+    }
+    return -1;
+  }
+
   occur: EventOccur;
   constructor(
     public readonly event: SchedulerEvent,
@@ -77,7 +83,8 @@ export class ScheduleFunction extends AutoUpdateFunction {
 
   run() {
     const override = this._data.getValue('override');
-    const mergeMode = this._data.getValue('resolveMode') === 'merge';
+    const resolveMode = this._data.getValue('resolveMode');
+    const mergeMode = resolveMode === 'merge';
     if (override !== undefined && !mergeMode) {
       this._data.output(override);
       return;
@@ -122,49 +129,138 @@ export class ScheduleFunction extends AutoUpdateFunction {
       }
     }
 
-    if (mergeMode) {
+    let candidates: ScheduleValue[] = [];
+
+    // check the current
+    for (let sv of this.#events) {
+      const occur = sv.getOccur(ts);
+      if (occur.isValid()) {
+        if (occur.start <= ts) {
+          candidates.push(sv);
+        }
+      }
+    }
+    candidates.sort(ScheduleValue.compare);
+    let current = candidates.at(-1);
+    let result: any;
+    switch (resolveMode) {
+      case 'merge': {
+        result = {};
+        function addResult(value: unknown) {
+          if (value !== undefined) {
+            if (value?.constructor === Object) {
+              result = {...result, ...(value as object)};
+            } else {
+              result = {...result, value};
+            }
+          }
+        }
+        addResult(this._data.getValue('default'));
+        for (let candidate of candidates) {
+          addResult(candidate.value);
+        }
+        addResult(override);
+        break;
+      }
+      case 'min':
+        if (candidates.length) {
+          let currentNum = Infinity;
+          for (let candidate of candidates) {
+            let n = Number(candidate.value);
+            if (n <= currentNum) {
+              current = candidate;
+              currentNum = n;
+            }
+          }
+          result = current.value;
+        }
+        break;
+      case 'max':
+        if (candidates.length) {
+          let currentNum = -Infinity;
+          for (let candidate of candidates) {
+            let n = Number(candidate.value);
+            if (n >= currentNum) {
+              current = candidate;
+              currentNum = n;
+            }
+          }
+          result = current.value;
+        }
+        break;
+      default:
+        result = current?.value;
+    }
+
+    if (!lockDt) {
+      let nextTs = Infinity;
+      switch (resolveMode) {
+        case 'merge': {
+          for (let sv of this.#events) {
+            const occur = sv.occur;
+            if (occur.isValid() && sv.value !== undefined) {
+              if (occur.start > ts) {
+                if (occur.start < nextTs) {
+                  nextTs = occur.start;
+                }
+              } else if (occur.end < nextTs) {
+                nextTs = occur.end + 1;
+              }
+            }
+          }
+          break;
+        }
+        case 'min': {
+          const currentNum = current?.value ?? Infinity;
+          if (current) {
+            nextTs = current.occur.end + 1;
+          }
+          for (let sv of this.#events) {
+            if (sv.occur.isValid() && sv.occur.start > ts && sv.occur.start < nextTs && sv.value < currentNum) {
+              nextTs = sv.occur.start;
+            }
+          }
+          break;
+        }
+        case 'max': {
+          const currentNum = current?.value ?? -Infinity;
+          if (current) {
+            nextTs = current.occur.end + 1;
+          }
+          for (let sv of this.#events) {
+            if (sv.occur.isValid() && sv.occur.start > ts && sv.occur.start < nextTs && sv.value > currentNum) {
+              nextTs = sv.occur.start;
+            }
+          }
+          break;
+        }
+        default: {
+          let next: ScheduleValue;
+          for (let sv of this.#events) {
+            const occur = sv.occur;
+            if (occur.isValid()) {
+              if (occur.start > ts) {
+                if (sv.shouldReplaceNext(current, next)) {
+                  next = sv;
+                }
+              }
+            }
+          }
+          if (next) {
+            nextTs = next.occur.start;
+          } else if (current) {
+            nextTs = current.occur.end + 1;
+          }
+        }
+      }
+      if (nextTs !== Infinity) {
+        this.addSchedule(nextTs);
+      }
+    }
+    if (result !== undefined) {
+      this._data.output(result);
     } else {
-      const occurs: EventOccur[] = [];
-
-      let current: ScheduleValue;
-      let next: ScheduleValue;
-      // check the current
-      for (let sv of this.#events) {
-        const occur = sv.getOccur(ts);
-        if (occur.isValid()) {
-          if (occur.start <= ts) {
-            if (sv.shouldReplace(current)) {
-              current = sv;
-            }
-          }
-        }
-      }
-      // check the next
-      for (let sv of this.#events) {
-        const occur = sv.occur;
-        if (occur.isValid()) {
-          if (occur.start > ts) {
-            if (sv.shouldReplaceNext(current, next)) {
-              next = sv;
-            }
-          }
-        }
-      }
-      if (!lockDt) {
-        if (next) {
-          this.addSchedule(next.occur.start);
-        } else if (current) {
-          this.addSchedule(current.occur.end + 1);
-        }
-      }
-
-      let outputValue = current ? current.value : this._data.getValue('default');
-      this._data.output(outputValue);
-
-      if (current) {
-        // TODO make sure event is different from last one
-        return new ValueUpdateEvent(current.event.name, current.value, current.occur.start);
-      }
+      this._data.output(this._data.getValue('default'));
     }
   }
 }

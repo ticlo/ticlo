@@ -1,0 +1,201 @@
+{
+"#is": "",
+"assert": {
+ "#is": "test:assert",
+ "@b-p": [
+  "actual0",
+  "expect0",
+  "actual1",
+  "expect1",
+  "actual2",
+  "expect2",
+  "actual3",
+  "expect3"
+ ],
+ "@b-xyw": [
+  813,
+  180,
+  380
+ ],
+ "[]": 4,
+ "expect0": {
+  "a": 2,
+  "b": 0,
+  "c": "O",
+  "value": "1"
+ },
+ "expect1": "1",
+ "expect2": 4,
+ "expect3": "4",
+ "matchMode": "always-match",
+ "~actual0": "##.test-merge.#output",
+ "~actual1": "##.test-min.#output",
+ "~actual2": "##.test-max.#output",
+ "~actual3": "##.test-max1.#output"
+},
+"test-max": {
+ "#is": "scheduler",
+ "@b-p": [
+  "config1",
+  "value1",
+  "config2",
+  "value2",
+  "default",
+  "#output"
+ ],
+ "@b-xyw": [
+  81,
+  600,
+  496
+ ],
+ "[]": 3,
+ "config0": {
+  "duration": 0,
+  "repeat": "daily",
+  "start": "0:0"
+ },
+ "config1": {
+  "duration": 120,
+  "repeat": "daily",
+  "start": "9:0"
+ },
+ "config2": {
+  "duration": 300,
+  "priority": 2,
+  "repeat": "daily",
+  "start": "7:0"
+ },
+ "default": "hello",
+ "lockTime": "͢Ts:lws2nqk8",
+ "resolveMode": "max",
+ "value0": 4,
+ "value1": "1",
+ "value2": "2"
+},
+"test-max1": {
+ "#is": "scheduler",
+ "@b-p": [
+  "config1",
+  "value1",
+  "config2",
+  "value2",
+  "default",
+  "#output"
+ ],
+ "@b-xyw": [
+  83,
+  846,
+  496
+ ],
+ "[]": 3,
+ "config0": {
+  "duration": 0,
+  "repeat": "daily",
+  "start": "0:0"
+ },
+ "config1": {
+  "duration": 120,
+  "repeat": "daily",
+  "start": "9:0"
+ },
+ "config2": {
+  "duration": 300,
+  "priority": 2,
+  "repeat": "daily",
+  "start": "7:0"
+ },
+ "default": "hello",
+ "lockTime": "͢Ts:lws2nqk8",
+ "resolveMode": "max",
+ "value0": 4,
+ "value1": 4,
+ "value2": "4"
+},
+"test-merge": {
+ "#is": "scheduler",
+ "@b-p": [
+  "config1",
+  "value1",
+  "config2",
+  "value2",
+  "default",
+  "#output"
+ ],
+ "@b-xyw": [
+  84,
+  60,
+  659
+ ],
+ "[]": 3,
+ "config0": {
+  "duration": 0,
+  "repeat": "daily",
+  "start": "0:0"
+ },
+ "config1": {
+  "duration": 120,
+  "repeat": "daily",
+  "start": "9:0"
+ },
+ "config2": {
+  "duration": 300,
+  "priority": 2,
+  "repeat": "daily",
+  "start": "7:0"
+ },
+ "default": "hello",
+ "lockTime": "͢Ts:lws2nqk8",
+ "override": {
+  "c": "O"
+ },
+ "resolveMode": "merge",
+ "value0": {
+  "a": 0,
+  "b": 0,
+  "c": 0
+ },
+ "value1": "1",
+ "value2": {
+  "a": 2
+ }
+},
+"test-min": {
+ "#is": "scheduler",
+ "@b-p": [
+  "config1",
+  "value1",
+  "config2",
+  "value2",
+  "default",
+  "#output"
+ ],
+ "@b-xyw": [
+  85,
+  384,
+  496
+ ],
+ "[]": 3,
+ "config0": {
+  "duration": 0,
+  "repeat": "daily",
+  "start": "0:0"
+ },
+ "config1": {
+  "duration": 120,
+  "repeat": "daily",
+  "start": "9:0"
+ },
+ "config2": {
+  "duration": 300,
+  "priority": 2,
+  "repeat": "daily",
+  "start": "7:0"
+ },
+ "default": "hello",
+ "lockTime": "͢Ts:lws2nqk8",
+ "resolveMode": "min",
+ "value0": 4,
+ "value1": "1",
+ "value2": "2"
+}
+}

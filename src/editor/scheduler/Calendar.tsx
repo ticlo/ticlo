@@ -97,10 +97,6 @@ export class ScheduleCalendar extends LazyUpdateComponent<Props, State> {
     const className: string = selectedId == null && selectedIdx === event.parent.idx ? 'rbc-selected' : undefined;
     return {className, style: event.parent.style};
   };
-  tooltipAccessor = (event: CalendarEvent) => {
-    console.log(event);
-    return event.title;
-  };
 
   getEventList(dummyEvents: CalendarEvent[]) {
     const calendarContext = this._calendar?.state?.context;
@@ -172,7 +168,6 @@ export class ScheduleCalendar extends LazyUpdateComponent<Props, State> {
           onRangeChange={this.onRangeChange}
           onNavigate={this.onNavigate}
           onView={this.onView}
-          tooltipAccessor={this.tooltipAccessor}
         />
 
         <div className="ticl-schedule-side">

@@ -50,7 +50,7 @@ export class TestRunner {
       ++this.failed;
       this.stack.pop();
       Resolver.callLater(this.run);
-      console.log(`test failed: ${this.getDisplayPath(testCase)}`);
+      console.warn(`test failed: ${this.getDisplayPath(testCase)}`);
       lastTask.target.updateValue('#disabled', true);
     } else if (!this.allowEditing) {
       console.error(`unexpected test passed event: ${this.getDisplayPath(testCase)}`);
