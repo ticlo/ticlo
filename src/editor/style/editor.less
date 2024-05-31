@@ -1,4 +1,3 @@
-@import './style.less';
 // no priority
 @ticl-color-prn: #a0a0a0;
 @ticl-color-prn-light: #ddd;
@@ -15,6 +14,8 @@
 @ticl-color-prr: mix(@gold-6, @gold-7, 70%);
 @ticl-color-prr-light: @gold-3;
 
+@import 'rc-dock/style/index-light';
+
 @import '../component/component';
 @import '../component/DockDialogPane';
 
@@ -30,7 +31,6 @@
 @import '../component/ClickPopup';
 @import '../object-tree/ObjectTree';
 @import '../scheduler/Calendar';
-@import '../scheduler/CalendarToolbar';
 @import './antd-extra';
 @import './dock-extra';
 @import '../dock/text-editor/TextEditorPane';

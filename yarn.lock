@@ -8088,9 +8088,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"rc-dock@npm:^3.2.19":
-  version: 3.2.19
-  resolution: "rc-dock@npm:3.2.19"
+"rc-dock@npm:^3.3.0":
+  version: 3.3.0
+  resolution: "rc-dock@npm:3.3.0"
   dependencies:
     classnames: "npm:^2.5.1"
     lodash: "npm:^4.17.21"
@@ -8101,7 +8101,7 @@ __metadata:
   peerDependencies:
     react: ">=17.0.0"
     react-dom: ">=17.0.0"
-  checksum: d2b4cbf6185cac8a85e1783c61946d974b5b170cc3d1f2e04f065851a2d8651f4e240f2dcd805ae5fe591629a588d1d5b74fb772c49b891c39346422555fb312
+  checksum: 97003333adedb2e485c6cc1884fcf2ed0f29d7f3a0779d933392afaee577a633790ba1958cb99be1aa618a0e1007248bfab177b783aab13e89423565644d9f35
   languageName: node
   linkType: hard
 
@@ -9786,7 +9786,7 @@ __metadata:
     prettier: "npm:^3.2.5"
     pretty-format: "npm:^29.7.0"
     qs: "npm:^6.12.0"
-    rc-dock: "npm:^3.2.19"
+    rc-dock: "npm:^3.3.0"
     rc-trigger: "npm:^5.3.4"
     react: "npm:^18.2.0"
     react-color: "npm:^2.19.3"
