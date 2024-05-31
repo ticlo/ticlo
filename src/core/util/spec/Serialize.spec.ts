@@ -27,7 +27,7 @@ describe('Serialize', function () {
     const dateStr = '2014-11-27T11:07:00.000Z';
     const date = DateTime.fromISO(dateStr, {zone: 'Factory'});
     const encodedStr = encode(date);
-    expect(encodedStr).toBe('"͢Ts:i300nzmo@?"');
+    expect(encodedStr).toBe('"͢Ts:i300nzmo@auto"');
     expect(isDateSame(date, decode(encodedStr))).toBe(true);
     expect(encodeDisplay(date)).toBe('2014-11-27 11:07:00');
   });

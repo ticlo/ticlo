@@ -36,7 +36,7 @@ export function encodeDateTime(val: DateTime): string {
   }
   if (val.zoneName === 'Factory') {
     // DateTime without timezone
-    return `͢Ts:${val.valueOf().toString(36)}@?`;
+    return `͢Ts:${val.valueOf().toString(36)}@auto`;
   }
   return `͢Ts:${val.valueOf().toString(36)}@${val.zoneName}`;
 }
@@ -60,7 +60,7 @@ export function decodeDateTime(str: string): any {
     if (atPos >= 0) {
       // with timezone
       let zone = str.substring(atPos + 1);
-      if (zone === '?') {
+      if (zone === 'auto') {
         // use Factory zone to store a DateTime without timezone
         zone = 'Factory';
       }
@@ -69,7 +69,7 @@ export function decodeDateTime(str: string): any {
     // 23 ISO length + 4 bytes header
     if (str.length >= 27) {
       // parse as ISO format
-      return DateTime.fromISO(str.substring(4).replace('[?]', '[Factory]'), {setZone: str.endsWith(']')});
+      return DateTime.fromISO(str.substring(4).replace('[auto]', '[Factory]'), {setZone: str.endsWith(']')});
     }
     // local time
     return DateTime.fromMillis(parseInt(str.substring(4), 36));
@@ -111,7 +111,7 @@ export function toDateTime(input: unknown, zone?: string) {
 
 export function getZone(zoneName: unknown): {zone: string} {
   if (zoneName && typeof zoneName === 'string') {
-    if (zoneName === '?') {
+    if (zoneName === 'auto') {
       return {zone: 'Factory'};
     }
     return {zone: zoneName};
