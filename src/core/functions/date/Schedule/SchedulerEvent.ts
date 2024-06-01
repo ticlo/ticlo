@@ -163,6 +163,10 @@ export class SchedulerEvent {
       second: 0,
       millisecond: 0,
     });
+    if (!refDay.isValid) {
+      yield [Infinity, Infinity];
+      return;
+    }
     switch (this.repeat) {
       case 'daily': {
         while (true) {
@@ -322,12 +326,13 @@ export class SchedulerEvent {
     }
   }
 
+  #currentCheckTs: number;
   #current: EventOccur;
   getOccur(ts: number): EventOccur {
     if (ts > this.before) {
       return expired;
     }
-    if (this.#current && this.#current.end >= ts) {
+    if (this.#current && ts >= this.#currentCheckTs && this.#current.end >= ts) {
       return this.#current;
     }
 
@@ -371,9 +376,7 @@ export class SchedulerEvent {
     } else {
       this.#current = expired;
     }
+    this.#currentCheckTs = ts;
     return this.#current;
-  }
-  clearCache() {
-    this.#current = null;
   }
 }

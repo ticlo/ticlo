@@ -65,18 +65,7 @@ class ConfigValuePair {
     onUpdate: (response: ValueUpdate) => {
       if (this.config !== response.cache.value) {
         this.config = response.cache.value;
-        if (typeof this.config !== 'object' || Array.isArray(this.config)) {
-          this.config = null;
-        }
-        const event = SchedulerEvent.fromProperty(this.config, this.parent.zone);
-        if (event) {
-          this.event = event;
-          this.buildStyle();
-        } else {
-          this.event = null;
-          this.buildStyle();
-        }
-        this.parent.parent.forceUpdate();
+        this.createEvent();
       }
     },
   });
@@ -96,11 +85,28 @@ class ConfigValuePair {
     this.configSub.subscribe(parent.conn, `${parent.schedulePath}.config${idx}`, true);
     this.valueSub.subscribe(parent.conn, `${parent.schedulePath}.value${idx}`);
   }
+
   config: SchedulerConfig;
   event: SchedulerEvent;
   value: unknown;
   style?: CSSProperties = {borderLeftStyle: 'dotted'};
   visible = true;
+
+  createEvent() {
+    if (typeof this.config !== 'object' || Array.isArray(this.config)) {
+      this.config = null;
+    }
+    const event = SchedulerEvent.fromProperty(this.config, this.parent.zone);
+    if (event) {
+      this.event = event;
+      this.buildStyle();
+    } else {
+      this.event = null;
+      this.buildStyle();
+    }
+    this.parent.parent.forceUpdate();
+  }
+
   toggleVisible() {
     this.visible = !this.visible;
     this.parent.parent.forceUpdate();
@@ -116,11 +122,14 @@ class ConfigValuePair {
     this.style = style;
   }
 
+  updateZone(zone: string) {
+    this.createEvent();
+  }
+
   #getCachedEvents = cacheCall(
     ([start, end, event, value]: [number, number, SchedulerEvent, unknown]) => {
       const result: CalendarEvent[] = [];
       if (event) {
-        event.clearCache();
         let next = start;
         while (next <= end) {
           let o = event.getOccur(next);
@@ -182,13 +191,14 @@ export class ScheduleLoader {
   subs: ConfigValuePair[] = [];
 
   zone: string = 'notReady';
-  updateZone(zone: string) {
+  updateZone(z: string) {
+    let zone = z;
+    if (zone === 'auto') zone = 'Factory';
     if (this.zone !== zone) {
       this.zone = zone;
       for (let sub of this.subs) {
-        sub.destroy();
+        sub.updateZone(zone);
       }
-      this.createPairs();
     }
   }
   length: number;

@@ -66,12 +66,6 @@ export class ScheduleFunction extends AutoUpdateFunction {
     if (input._name.startsWith('config') || input._name === '[]' || input._name === 'timezone') {
       // re-generate events when config changes.
       this.#events = null;
-    } else if (input._name === 'lockTime') {
-      if (this.#events) {
-        for (let event of this.#events) {
-          event.event.clearCache();
-        }
-      }
     } else if (this.#events && input._name.startsWith('value')) {
       let index = parseInt(input._name.substring(5 /* 'value'.length */));
       if (this.#events[index]) {
@@ -94,7 +88,7 @@ export class ScheduleFunction extends AutoUpdateFunction {
 
     if (!this.#events) {
       const eventsData = this._data.getArray('', 1, ['config', 'value']) as {config: unknown; value: unknown}[];
-      if (typeof timezone !== 'string' || timezone === 'Factory' || timezone === '?') {
+      if (typeof timezone !== 'string' || timezone === 'Factory' || timezone === 'auto') {
         timezone = systemZone;
       }
       // generate events
