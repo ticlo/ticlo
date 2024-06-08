@@ -417,10 +417,13 @@ export class Block implements Runnable, FunctionData, PropListener<FunctionClass
     return undefined;
   }
 
-  createBlock(field: string): Block {
+  createBlock(field: string, getIfExist = false): Block {
     let prop = this.getProperty(field);
     if (!(prop._saved instanceof Block) || prop._saved._prop !== prop) {
       return prop.createBlock(true);
+    }
+    if (getIfExist) {
+      return prop._saved;
     }
     return null;
   }

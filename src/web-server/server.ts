@@ -17,7 +17,7 @@ export function routeTiclo(app: Express.Application, basePath: string, globalBlo
   if (!globalBlockName.startsWith('^')) {
     globalBlockName = '^' + globalBlockName;
   }
-  let globalServiceBlock = Root.instance._globalRoot.createBlock(globalBlockName);
+  let globalServiceBlock = Root.instance._globalRoot.createBlock(globalBlockName, true);
   globalServiceBlock._load({'#is': 'web-server:express-server'});
   Root.run(); // output the requestHandler
   const requestHandler: (basePath: string, req: Request, res: Response) => void = (

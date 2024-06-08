@@ -1,5 +1,6 @@
 import {BlockConfig, BlockIO, BlockProperty} from './BlockProperty';
 import {Block, InputsBlock, OutputsBlock} from './Block';
+import type {Flow} from './Flow';
 
 class BlockFuncIdConfig extends BlockProperty {
   constructor(block: Block, name: string) {
@@ -63,7 +64,7 @@ export class BlockInputsConfig extends BlockIO {
     return block;
   }
 }
-
+// extends from BlockIO so it shows in the tree
 export class BlockOutputsConfig extends BlockIO {
   createBlock(save: boolean): Block {
     let block = new OutputsBlock(this._block._flow, this._block, this);
@@ -76,7 +77,7 @@ export class BlockOutputsConfig extends BlockIO {
     return block;
   }
 }
-
+// extends from BlockIO so it shows in the tree
 class BlockWaitingConfig extends BlockProperty {
   _valueChanged() {
     this._block.onWait(this._value);
@@ -182,7 +183,7 @@ export const InputsConfigGenerators: {[key: string]: typeof BlockProperty} = {
 export const OutputsConfigGenerators: {[key: string]: typeof BlockProperty} = {
   ...ConfigGenerators,
   '#is': ConstTypeConfig('flow:outputs'),
-  '#call': BlockProperty,
+  '#call': BlockProperty, // call not allowed
   '#value': BlockIO,
   '#wait': BlockOutputWaitingConfig, // directly forward wait to parent flow
 };

@@ -9,6 +9,7 @@ import {FunctionDesc} from './Descriptor';
 import {Functions} from './Functions';
 import {FlowStorage} from './Storage';
 import {FlowHistory} from './FlowHistory';
+import {GlobalConfigGenerators} from './SettingsBlock';
 
 export enum FlowState {
   enabled,
@@ -318,7 +319,23 @@ class ConstBlock extends Flow {
   }
 }
 
-class GlobalBlock extends ConstBlock {
+class GlobalBlock extends Flow {
+  _createConfig(field: string): BlockProperty {
+    if (field in GlobalConfigGenerators) {
+      return new GlobalConfigGenerators[field](this, field);
+    } else {
+      return new BlockConfig(this, field);
+    }
+  }
+  createGlobalProperty(name: string): BlockProperty {
+    // inside the GlobalBlock, globalProperty is normal property
+    let prop = new BlockIO(this, name);
+    this._props.set(name, prop);
+    return prop;
+  }
+}
+
+class SettingsBlock extends ConstBlock {
   createGlobalProperty(name: string): BlockProperty {
     // inside the GlobalBlock, globalProperty is normal property
     let prop = new BlockIO(this, name);
@@ -395,6 +412,7 @@ export class Root extends Flow {
 
     // create the readolny global block
     this._globalRoot = this._createConstBlock('#global', (prop) => new GlobalBlock(this, this, prop, '#global'))._value;
+    this._globalRoot.load({'#settings': {'#is': '#flow:settings'}});
     this._tempRoot = this._createConstBlock('#temp', (prop) => new ConstBlock(this, this._globalRoot, prop))._value;
     this._sharedRoot = this._createConstBlock('#shared', (prop) => new ConstBlock(this, this._globalRoot, prop))._value;
 
