@@ -3,6 +3,7 @@ import {Functions} from '../../block/Functions';
 import {Block} from '../../block/Block';
 import {isDataMap, isPrimitiveType} from '../../util/DataTypes';
 import {Resolver} from '../../block/Resolver';
+import {getInputsArray} from '../../block/FunctonData';
 
 export class StateFunction extends BlockFunction {
   writeState() {
@@ -11,7 +12,7 @@ export class StateFunction extends BlockFunction {
       return;
     }
     let savable = this._data.getValue('savable');
-    let states = this._data.getArray('', 1, ['input', 'target']);
+    let states = getInputsArray(this._data, '', 1, ['input', 'target']);
     let len = states.length;
     for (let i = 0; i < len; ++i) {
       const state = states[i];
@@ -51,7 +52,7 @@ const API = {
   commands: {
     saveSnapshot: (block: Block, params: {[key: string]: any}) => {
       let property = params?.property;
-      let states = block.getArray('', 1, ['input', 'target']);
+      let states = getInputsArray(block, '', 1, ['input', 'target']);
       let len = states.length;
       for (let i = 0; i < len; ++i) {
         const state = states[i];

@@ -223,7 +223,7 @@ export class FileFlowStorage extends FileStorage implements FlowStorage {
     }
 
     // load global block
-    root._globalRoot.load(globalData, null, (saveData: DataMap) => {
+    root.loadGlobal(globalData, (saveData: DataMap) => {
       this.saveFlow(root._globalRoot, saveData);
       return true;
     });

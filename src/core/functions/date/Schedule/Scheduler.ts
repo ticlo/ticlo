@@ -4,6 +4,7 @@ import {type EventOccur, SchedulerEvent} from './SchedulerEvent';
 import {BlockIO} from '../../../block/BlockProperty';
 import {systemZone, toDateTime} from '../../../util/DateTime';
 import {DateTime} from 'luxon';
+import {getInputsArray} from '../../../block/FunctonData';
 
 export class ScheduleValue {
   static compare(a: ScheduleValue, b: ScheduleValue) {
@@ -87,7 +88,7 @@ export class ScheduleFunction extends AutoUpdateFunction {
     let timezone = this._data.getValue('timezone') as string;
 
     if (!this.#events) {
-      const eventsData = this._data.getArray('', 1, ['config', 'value']) as {config: unknown; value: unknown}[];
+      const eventsData = getInputsArray(this._data, '', 1, ['config', 'value']) as {config: unknown; value: unknown}[];
       if (typeof timezone !== 'string' || timezone === 'Factory' || timezone === 'auto') {
         timezone = systemZone;
       }

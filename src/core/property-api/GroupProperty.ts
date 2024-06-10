@@ -4,6 +4,7 @@ import {PropDesc, PropGroupDesc} from '../block/Descriptor';
 import {Functions} from '../block/Functions';
 import {hideProperties, showProperties} from './PropertyShowHide';
 import {PropertyMover} from './PropertyMover';
+import {getInputsLength} from '../block/FunctonData';
 
 function findGroupDesc(block: Block, group: string): PropGroupDesc {
   let groupDesc: PropGroupDesc;
@@ -32,7 +33,7 @@ function findGroupDesc(block: Block, group: string): PropGroupDesc {
 
 function updateGroupPropertyLength(block: Block, group: string, groupDesc: PropGroupDesc, length: number) {
   let lengthField = `${group}[]`;
-  let oldLength = block.getLength(group, groupDesc.defaultLen);
+  let oldLength = getInputsLength(block, group, groupDesc.defaultLen);
   let newLength = length;
   if (!(newLength >= 0)) {
     newLength = groupDesc.defaultLen;
@@ -71,7 +72,7 @@ export function insertGroupProperty(block: Block, group: string, idx: number) {
   if (!groupDesc) {
     return;
   }
-  let oldLength = block.getLength(group, groupDesc.defaultLen);
+  let oldLength = getInputsLength(block, group, groupDesc.defaultLen);
   if (idx < 0 || idx > oldLength || Math.round(idx) !== idx) {
     // invalid idx
     return;
@@ -90,7 +91,7 @@ export function removeGroupProperty(block: Block, group: string, idx: number) {
   if (!groupDesc) {
     return;
   }
-  let oldLength = block.getLength(group, groupDesc.defaultLen);
+  let oldLength = getInputsLength(block, group, groupDesc.defaultLen);
   if (idx < 0 || idx >= oldLength || Math.round(idx) !== idx) {
     // invalid idx
     return;
@@ -109,7 +110,7 @@ export function moveGroupProperty(block: Block, group: string, oldIdx: number, n
   if (!groupDesc) {
     return;
   }
-  let length = block.getLength(group, groupDesc.defaultLen);
+  let length = getInputsLength(block, group, groupDesc.defaultLen);
   if (
     oldIdx < 0 ||
     oldIdx >= length ||

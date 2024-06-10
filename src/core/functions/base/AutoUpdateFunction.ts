@@ -1,7 +1,8 @@
-import {FunctionData, ImpureFunction} from '../../block/BlockFunction';
+import {ImpureFunction} from '../../block/BlockFunction';
 import {ScheduleEvent, setSchedule} from '../../util/SetSchedule';
 import {Block} from '../../block/Block';
 import type {BlockConfig} from '../../block/BlockProperty';
+import {FunctionData} from '../../block/FunctonData';
 
 export abstract class AutoUpdateFunction extends ImpureFunction {
   #schedule: ScheduleEvent;

@@ -35,6 +35,7 @@ import {moveProperty, PropertyMover} from '../property-api/PropertyMover';
 import {BlockInputsConfig, BlockOutputsConfig} from '../block/BlockConfigs';
 import {WorkerFlow} from '../worker/WorkerFlow';
 import {Query, queryBlock} from './Query';
+import {getGlobalSettings} from '../block/Settings';
 
 class ServerRequest extends ConnectionSendingData {
   id: string;
@@ -407,6 +408,10 @@ class ServerConnectionCore extends Connection {
 }
 
 export class ServerConnection extends ServerConnectionCore {
+  getSettings({id}: {id: string}) {
+    return getGlobalSettings().getData();
+  }
+
   // set value
   set({path, value}: {path: string; value: any}): string {
     let property = this.root.queryProperty(path, value !== undefined);

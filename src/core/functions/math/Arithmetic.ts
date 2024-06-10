@@ -1,6 +1,7 @@
 import {Functions} from '../../block/Functions';
 import {PureFunction} from '../../block/BlockFunction';
 import {FunctionDesc} from '../../block/Descriptor';
+import {getInputsArray} from '../../block/FunctonData';
 
 const descriptorN: FunctionDesc = {
   name: '',
@@ -34,7 +35,7 @@ const descriptor2: FunctionDesc = {
 export class AddFunction extends PureFunction {
   run(): any {
     let sum = 0;
-    for (let val of this._data.getArray()) {
+    for (let val of getInputsArray(this._data)) {
       if (val == null) {
         this._data.output(undefined);
         return;
@@ -54,7 +55,7 @@ Functions.add(AddFunction, {
 export class MultiplyFunction extends PureFunction {
   run(): any {
     let product = 1;
-    for (let val of this._data.getArray()) {
+    for (let val of getInputsArray(this._data)) {
       if (val == null) {
         this._data.output(undefined);
         return;

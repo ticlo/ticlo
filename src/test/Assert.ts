@@ -4,6 +4,7 @@ import {isPrimitiveType} from '../../src/core/util/DataTypes';
 import {updateObjectValue} from '../../src/core/property-api/ObjectValue';
 import {FlowTestCase} from './FlowTestCase';
 import {TestState} from './Interface';
+import {getInputsArray} from '../core/block/FunctonData';
 
 const EXPECT = 'expect';
 const ACTUAL = 'actual';
@@ -73,7 +74,7 @@ export class AssertFunction extends BlockFunction {
     if (this._state === TestState.PASSED && !this._alwaysMatch) {
       return NO_EMIT;
     }
-    let compares = this._data.getArray('', 1, [EXPECT, ACTUAL]) as {expect: any; actual: any}[];
+    let compares = getInputsArray(this._data, '', 1, [EXPECT, ACTUAL]) as {expect: any; actual: any}[];
     let matched = compares.length > 0;
     for (let {expect, actual} of compares) {
       if (actual === undefined) {

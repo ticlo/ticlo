@@ -17,6 +17,8 @@ import {
 import {ClientConn} from './ClientConn';
 import {StreamDispatcher} from '../block/Dispatcher';
 import {Query} from './Query';
+import {TicloSettings, updateGlobalSettings} from '../block/Settings';
+import {DataWrapper} from '../block/FunctonData';
 
 export type {ValueUpdate, ValueState} from './ClientRequests';
 
@@ -39,9 +41,11 @@ export abstract class ClientConnection extends Connection implements ClientConn 
   readonly descReq: DescRequest;
   readonly globalWatch: GlobalWatch;
 
-  constructor(editorListeners: boolean) {
+  protected constructor(editorListeners: boolean) {
     super();
     if (editorListeners) {
+      this._sendSettingsRequest();
+
       // watchDesc
       let id = this.uid.next();
       let data = {cmd: 'watchDesc', path: '', id};
@@ -120,6 +124,22 @@ export abstract class ClientConnection extends Connection implements ClientConn 
       return promise;
     }
     return id;
+  }
+
+  _settings: TicloSettings;
+  getSettings() {
+    return this._settings;
+  }
+
+  _sendSettingsRequest() {
+    this.simpleRequest(
+      {cmd: 'getSettings', path: ''},
+      {
+        onUpdate(response: DataMap) {
+          this._settings = new TicloSettings(new DataWrapper(response));
+        },
+      }
+    );
   }
 
   // important request will always be sent
@@ -568,6 +588,7 @@ export abstract class ClientConnection extends Connection implements ClientConn 
         this._sending.delete(req as any);
       }
     }
+    this._sendSettingsRequest();
     if (!this._destroyed) {
       // reconnect after N seconds, N = 1,2,3,4 ... 60
       this._reconnectTimeout = setTimeout(() => this.reconnect(), this._reconnectInterval * 1000);

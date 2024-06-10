@@ -1,7 +1,6 @@
 import {Block, BlockChildWatch, InputsBlock, Runnable} from './Block';
 import {BlockConfig, BlockIO, BlockProperty, GlobalProperty} from './BlockProperty';
 import {Resolver} from './Resolver';
-import {BlockFunction, FunctionOutput} from './BlockFunction';
 import {BlockConstConfig, ConstTypeConfig, FlowConfigGenerators} from './BlockConfigs';
 import {Event} from './Event';
 import {DataMap} from '../util/DataTypes';
@@ -9,7 +8,9 @@ import {FunctionDesc} from './Descriptor';
 import {Functions} from './Functions';
 import {FlowStorage} from './Storage';
 import {FlowHistory} from './FlowHistory';
-import {GlobalConfigGenerators} from './SettingsBlock';
+import {GlobalConfigGenerators, SettingsBlock} from './SettingsBlock';
+import {updateGlobalSettings} from './Settings';
+import {FunctionOutput} from './FunctonData';
 
 export enum FlowState {
   enabled,
@@ -335,15 +336,6 @@ class GlobalBlock extends Flow {
   }
 }
 
-class SettingsBlock extends ConstBlock {
-  createGlobalProperty(name: string): BlockProperty {
-    // inside the GlobalBlock, globalProperty is normal property
-    let prop = new BlockIO(this, name);
-    this._props.set(name, prop);
-    return prop;
-  }
-}
-
 export class Root extends Flow {
   private static _instance: Root = new Root();
   static get instance() {
@@ -417,6 +409,13 @@ export class Root extends Flow {
     this._sharedRoot = this._createConstBlock('#shared', (prop) => new ConstBlock(this, this._globalRoot, prop))._value;
 
     this._props.set('', new BlockConstConfig(this, '', this));
+  }
+
+  loadGlobal(data: DataMap, applyChange?: (data: DataMap) => boolean) {
+    const settingBlock = this._globalRoot.getValue('#settings') as SettingsBlock;
+    settingBlock._preLoad(data['#settings']);
+    updateGlobalSettings(settingBlock);
+    this._globalRoot.load(data, null, applyChange);
   }
 
   createGlobalProperty(name: string): BlockProperty {

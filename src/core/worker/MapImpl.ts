@@ -1,9 +1,10 @@
-import {BlockFunction, FunctionOutput} from '../block/BlockFunction';
+import {BlockFunction} from '../block/BlockFunction';
 import {DataMap, isSavedBlock} from '../util/DataTypes';
 import {Block} from '../block/Block';
 import {ThreadPool, UnlimitedPool, WorkerPool} from './ThreadPool';
 import {Task} from '../block/Task';
 import {RepeaterWorker} from './WorkerFlow';
+import {FunctionOutput} from '../block/FunctonData';
 
 export type MapWorkerMode = undefined | 'reuse' | 'persist';
 

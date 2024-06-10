@@ -87,6 +87,20 @@ export const clientDescriptors: FunctionDesc[] = [
   },
   {
     priority: 0,
+    name: 'settings',
+    id: 'flow:settings',
+    properties: [
+      {name: 'defaultLanguage', type: 'string'},
+      {name: 'timezone', type: 'string', readonly: true},
+      {name: 'firstDayOfWeek', type: 'number', step: 1, min: 1, max: 7, default: 7},
+    ],
+    icon: 'fas:gear',
+    color: '9bd',
+    src: 'hidden',
+    ns: 'flow',
+  },
+  {
+    priority: 0,
     name: 'test-case',
     id: 'flow:test-case',
     properties: [],

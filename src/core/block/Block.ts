@@ -1,7 +1,7 @@
 import {BlockProperty, BlockIO, HelperProperty, BlockBindingSource, BlockConfig} from './BlockProperty';
 import {ListenPromise} from './ListenPromise';
 import {BlockBinding} from './BlockBinding';
-import {FunctionData, FunctionClass, BaseFunction, FunctionOutput} from './BlockFunction';
+import {FunctionClass, BaseFunction} from './BlockFunction';
 import {PropDispatcher, PropListener, Destroyable} from './Dispatcher';
 import {FunctionDispatcher, Functions} from './Functions';
 import {CompleteEvent, ErrorEvent, Event, EventType, NO_EMIT, WAIT} from './Event';
@@ -14,6 +14,7 @@ import {_strictMode} from './BlockSettings';
 import type {Flow, Root} from './Flow';
 import {BlockMode} from './Descriptor';
 import {encodeToUnknown} from '../util/Serialize';
+import {FunctionData, FunctionOutput} from './FunctonData';
 
 export interface BlockChildWatch {
   onChildChange(property: BlockProperty, saved?: boolean): void;
@@ -752,49 +753,6 @@ export class Block implements Runnable, FunctionData, PropListener<FunctionClass
       return this.#function.priority;
     }
     return -1;
-  }
-
-  getLength(group?: string, defaultLength = 2): number {
-    let result = this.getValue(`${group}[]`);
-    if (Array.isArray(result)) {
-      return 0;
-    }
-    if ((result as number) >= 0) {
-      return Number(result);
-    }
-    return defaultLength;
-  }
-
-  getArray(group = '', defaultLength = 2, fields?: string[]): unknown[] {
-    let lenOrArray = this.getValue(`${group}[]`);
-    if (Array.isArray(lenOrArray)) {
-      // iterate native array
-      return lenOrArray;
-    }
-    let len: number;
-    if ((lenOrArray as number) >= 0) {
-      len = Number(lenOrArray);
-    } else {
-      len = defaultLength;
-    }
-    let result: unknown[] = [];
-    if (len >= 0 && fields) {
-      // iterate block array with fields
-      for (let i = 0; i < len; ++i) {
-        // return object structure
-        let obj: DataMap = {};
-        for (let field of fields) {
-          obj[field] = this.getValue(`${field}${i}`);
-        }
-        result.push(obj);
-      }
-    } else {
-      // iterate default block array
-      for (let i = 0; i < len; ++i) {
-        result.push(this.getValue(`${group}${i}`));
-      }
-    }
-    return result;
   }
 
   getOptionalProps(): string[] {

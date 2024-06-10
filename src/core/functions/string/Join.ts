@@ -1,10 +1,11 @@
 import {Functions} from '../../block/Functions';
 import {PureFunction} from '../../block/BlockFunction';
+import {getInputsArray} from '../../block/FunctonData';
 
 export class JoinFunction extends PureFunction {
   run(): any {
     let arr: any[] = [];
-    for (let val of this._data.getArray()) {
+    for (let val of getInputsArray(this._data)) {
       if (val == null) {
         this._data.output(undefined);
         return;

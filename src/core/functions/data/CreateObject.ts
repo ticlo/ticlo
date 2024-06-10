@@ -3,6 +3,7 @@ import {Functions} from '../../block/Functions';
 import {defaultConfigs, PropDesc, PropGroupDesc} from '../../block/Descriptor';
 import {BlockConfig} from '../../block/BlockProperty';
 import {DataMap} from '../../util/DataTypes';
+import {getInputsArray} from '../../block/FunctonData';
 
 export class CreateObjectFunction extends PureFunction {
   configChanged(config: BlockConfig, val: any): boolean {
@@ -28,7 +29,7 @@ export class CreateObjectFunction extends PureFunction {
               // use flat array instead of array of Object wrapper when group name is same as field name
               fields = null;
             }
-            output[prop.name] = this._data.getArray(prop.name, prop.defaultLen, fields);
+            output[prop.name] = getInputsArray(this._data, prop.name, prop.defaultLen, fields);
           } else {
             let val = this._data.getValue(prop.name);
             if (val !== undefined) {

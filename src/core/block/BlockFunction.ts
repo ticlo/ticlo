@@ -3,26 +3,7 @@ import {Block} from './Block';
 import {EventType} from './Event';
 import {DataMap} from '../util/DataTypes';
 import {BlockMode} from './Descriptor';
-
-export interface FunctionOutput {
-  // field is '#output' by default
-  output(value: unknown, field?: string): void;
-}
-
-export interface FunctionInput {
-  getValue(field: string): unknown;
-
-  getLength(group?: string, defaultLength?: number): number;
-
-  getArray(group?: string, defaultLength?: number, fields?: string[]): unknown[];
-
-  getOptionalProps(): string[];
-}
-
-export interface FunctionData extends FunctionInput, FunctionOutput {
-  // get the property when it's a block, otherwise return null
-  getProperty(field: string, create: boolean): BlockProperty;
-}
+import {FunctionData} from './FunctonData';
 
 export abstract class BaseFunction<T extends FunctionData = FunctionData> {
   declare type?: string;

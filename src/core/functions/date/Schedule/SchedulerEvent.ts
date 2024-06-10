@@ -1,5 +1,5 @@
 import {DateTime, Duration} from 'luxon';
-import z from '../../../util/Validator';
+import vl from '../../../util/Validator';
 
 const ONE_MINUTE = 60_000;
 
@@ -45,27 +45,27 @@ function convertDay(v: number | string): number | [number, number] {
 }
 
 const ConfigValidator = {
-  name: z.nullable('string'),
-  start: z.nullable(/^\d{1,2}:\d{1,2}$/),
-  duration: z.notNegative,
-  after: z.nullable(z.datetime),
-  before: z.nullable(z.datetime),
-  priority: z.nullable(Number.isFinite),
-  onlyWeekday: z.nullable('boolean'),
-  repeat: z.switch({
+  name: vl.nullable('string'),
+  start: vl.nullable(/^\d{1,2}:\d{1,2}$/),
+  duration: vl.notNegative,
+  after: vl.nullable(vl.datetime),
+  before: vl.nullable(vl.datetime),
+  priority: vl.nullable(Number.isFinite),
+  onlyWeekday: vl.nullable('boolean'),
+  repeat: vl.switch({
     daily: {},
-    weekly: {wDays: [z.num1n(7)]},
+    weekly: {wDays: [vl.num1n(7)]},
     advanced: {
-      years: z.nullable([Number.isInteger]),
-      months: z.nullable([z.num1n(12)]),
-      days: z.nullable([z.any(z.num1n(31), /^-?\d>\d$/)]),
+      years: vl.nullable([Number.isInteger]),
+      months: vl.nullable([vl.num1n(12)]),
+      days: vl.nullable([vl.any(vl.num1n(31), /^-?\d>\d$/)]),
     },
     dates: {dates: [/^\d{4}-\d{2}-\d{2}$/]},
   }),
-  color: z.nullable('string'),
+  color: vl.nullable('string'),
 };
 export function validateEventConfig(config: unknown) {
-  return z.check(config, ConfigValidator);
+  return vl.check(config, ConfigValidator);
 }
 
 export class EventOccur {

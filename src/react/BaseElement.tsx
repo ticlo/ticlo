@@ -3,6 +3,7 @@ import React from 'react';
 import {TicloComp} from './TicloComp';
 import {htmlAttributes, htmlEventHandlers, optionalHtmlProperties} from './HtmlAttributes';
 import {BlockConfig} from '../../src/core/block/BlockProperty';
+import {getInputsArray} from '../core/block/FunctonData';
 
 export class HtmlElementFunction extends BlockFunction {
   // _comp never changes, this prevents re-render of any parent component, TicloComp should handle all the changes internally
@@ -58,7 +59,7 @@ export class HtmlElementFunction extends BlockFunction {
   }
   getChildren(): any[] {
     let result = [];
-    for (let val of this._data.getArray('', 0)) {
+    for (let val of getInputsArray(this._data, '', 0)) {
       result.push(val);
     }
     return result;

@@ -1,5 +1,5 @@
 import {Functions} from '../block/Functions';
-import {BlockFunction, FunctionOutput} from '../block/BlockFunction';
+import {BlockFunction} from '../block/BlockFunction';
 import {BlockIO, BlockProperty} from '../block/BlockProperty';
 import {Block, BlockChildWatch} from '../block/Block';
 import {DataMap} from '../util/DataTypes';
@@ -8,6 +8,7 @@ import {MapImpl} from './MapImpl';
 import {RepeaterWorker} from './WorkerFlow';
 import {Resolver} from '../block/Resolver';
 import {defaultConfigs} from '../block/Descriptor';
+import {FunctionOutput} from '../block/FunctonData';
 
 class ForEachOutput implements FunctionOutput {
   constructor(
