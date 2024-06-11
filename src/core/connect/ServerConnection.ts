@@ -35,7 +35,7 @@ import {moveProperty, PropertyMover} from '../property-api/PropertyMover';
 import {BlockInputsConfig, BlockOutputsConfig} from '../block/BlockConfigs';
 import {WorkerFlow} from '../worker/WorkerFlow';
 import {Query, queryBlock} from './Query';
-import {getGlobalSettings} from '../block/Settings';
+import {getGlobalSettings} from '../util/Settings';
 
 class ServerRequest extends ConnectionSendingData {
   id: string;

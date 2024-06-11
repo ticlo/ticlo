@@ -14,6 +14,10 @@ arrowVerbose.registerRaw('', EscapedObject, encodeUnknown, decodeUnknown);
 export const verboseReplacer = arrowVerbose.replacer.bind(arrowVerbose);
 export const verboseReviver = arrowVerbose.reviver.bind(arrowVerbose);
 
+class ZoneEncoder {
+  constructor(public readonly zone: string) {}
+}
+
 // allow the type to be encoded, but it won't be decoded
 export function encodeToUnknown(type: object) {
   arrow.registerRaw(null, type, encodeUnknown, null);

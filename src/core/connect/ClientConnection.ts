@@ -17,7 +17,7 @@ import {
 import {ClientConn} from './ClientConn';
 import {StreamDispatcher} from '../block/Dispatcher';
 import {Query} from './Query';
-import {TicloSettings, updateGlobalSettings} from '../block/Settings';
+import {Settings, updateGlobalSettings} from '../util/Settings';
 import {DataWrapper} from '../block/FunctonData';
 
 export type {ValueUpdate, ValueState} from './ClientRequests';
@@ -126,7 +126,7 @@ export abstract class ClientConnection extends Connection implements ClientConn 
     return id;
   }
 
-  _settings: TicloSettings;
+  _settings: Settings;
   getSettings() {
     return this._settings;
   }
@@ -136,7 +136,7 @@ export abstract class ClientConnection extends Connection implements ClientConn 
       {cmd: 'getSettings', path: ''},
       {
         onUpdate(response: DataMap) {
-          this._settings = new TicloSettings(new DataWrapper(response));
+          this._settings = new Settings(new DataWrapper(response));
         },
       }
     );

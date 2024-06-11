@@ -9,7 +9,7 @@ import {Functions} from './Functions';
 import {FlowStorage} from './Storage';
 import {FlowHistory} from './FlowHistory';
 import {GlobalConfigGenerators, SettingsBlock} from './SettingsBlock';
-import {updateGlobalSettings} from './Settings';
+import {updateGlobalSettings} from '../util/Settings';
 import {FunctionOutput} from './FunctonData';
 
 export enum FlowState {
