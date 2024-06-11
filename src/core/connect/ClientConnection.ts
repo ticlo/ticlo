@@ -17,7 +17,7 @@ import {
 import {ClientConn} from './ClientConn';
 import {StreamDispatcher} from '../block/Dispatcher';
 import {Query} from './Query';
-import {Settings, updateGlobalSettings} from '../util/Settings';
+import {updateGlobalSettings} from '../util/Settings';
 import {DataWrapper} from '../block/FunctonData';
 
 export type {ValueUpdate, ValueState} from './ClientRequests';
@@ -126,17 +126,12 @@ export abstract class ClientConnection extends Connection implements ClientConn 
     return id;
   }
 
-  _settings: Settings;
-  getSettings() {
-    return this._settings;
-  }
-
   _sendSettingsRequest() {
     this.simpleRequest(
       {cmd: 'getSettings', path: ''},
       {
         onUpdate(response: DataMap) {
-          this._settings = new Settings(new DataWrapper(response));
+          updateGlobalSettings(new DataWrapper(response));
         },
       }
     );

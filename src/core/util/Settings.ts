@@ -1,36 +1,36 @@
-import {systemZone} from './DateTime';
 import vl from './Validator';
+import {DateTime} from 'luxon';
 
-export class Settings {
-  readonly timezone: string;
-  readonly firstDayOfWeek: number;
-  readonly workDays: Set<number>;
-  constructor(source?: {getValue(field: string): unknown}) {
-    let firstDayOfWeek = source?.getValue('firstDayOfWeek') as number;
-    let timezone = source?.getValue('firstDayOfWeek') as string;
-    let workDays = source?.getValue('workDays') as number[];
-    this.firstDayOfWeek =
-      Number.isInteger(firstDayOfWeek) && firstDayOfWeek >= 1 && firstDayOfWeek <= 7 ? firstDayOfWeek : 7;
-    this.timezone = typeof timezone === 'string' ? timezone : systemZone;
-    workDays = vl.check(workDays, vl.num1n(7)) ? workDays : [1, 2, 3, 4, 5];
-    this.workDays = new Set<number>(workDays);
-  }
+const startDate = DateTime.now();
+export const systemZone = startDate.zoneName;
 
-  getData() {
-    return {
-      timezone: this.timezone,
-      firstDayOfWeek: this.firstDayOfWeek,
-      workDays: [...this.workDays.values()].sort(),
-    };
-  }
+let timezone: string;
+let firstDayOfWeek: number;
+let weekDays: Set<number>;
+
+export function updateGlobalSettings(source?: {getValue(field: string): unknown}) {
+  let firstDayOfWeekV = source?.getValue('firstDayOfWeek') as number;
+  let timezoneV = source?.getValue('firstDayOfWeek') as string;
+  let weekDaysV = source?.getValue('weekDays') as number[];
+  firstDayOfWeek =
+    Number.isInteger(firstDayOfWeekV) && firstDayOfWeekV >= 1 && firstDayOfWeekV <= 7 ? firstDayOfWeekV : 7;
+  timezone = typeof timezoneV === 'string' ? timezoneV : systemZone;
+  weekDaysV = vl.check(weekDays, vl.num1n(7)) ? weekDaysV : [1, 2, 3, 4, 5];
+  weekDays = new Set<number>(weekDaysV);
+}
+updateGlobalSettings();
+
+export function getGlobalSettingsData() {
+  return {
+    timezone,
+    firstDayOfWeek,
+    weekDays: [...weekDays.values()].sort(),
+  };
 }
 
-let _globalSettings = new Settings();
-
-export function updateGlobalSettings(source: {getValue(field: string): unknown}) {
-  _globalSettings = new Settings(source);
+export function getDefaultZone() {
+  return timezone;
 }
-
-export function getGlobalSettings() {
-  return _globalSettings;
+export function isWeekDay(n: number): boolean {
+  return weekDays.has(n);
 }

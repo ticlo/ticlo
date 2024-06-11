@@ -7,12 +7,8 @@ const arrow = new Arrow({encodeDate: false});
 arrow.registerRaw('Ts', DateTime, encodeDateTime, decodeDateTime);
 arrow.registerRaw('', EscapedObject, encodeUnknown, decodeUnknown);
 
-export const arrowVerbose = new Arrow({encodeDate: false});
-arrowVerbose.registerRaw('Ts', DateTime, encodeDateTimeDisplay, decodeDateTime);
-arrowVerbose.registerRaw('', EscapedObject, encodeUnknown, decodeUnknown);
-
-export const verboseReplacer = arrowVerbose.replacer.bind(arrowVerbose);
-export const verboseReviver = arrowVerbose.reviver.bind(arrowVerbose);
+export const arrowReplacer = arrow.replacer.bind(arrow);
+export const arrowReviver = arrow.reviver.bind(arrow);
 
 class ZoneEncoder {
   constructor(public readonly zone: string) {}
@@ -30,9 +26,7 @@ export function encodeRaw(obj: object) {
 export function encode(value: any, space = 0): string {
   return arrow.stringify(value, space);
 }
-export function encodeVerbose(value: any, space = 2) {
-  return arrowVerbose.stringify(value, space);
-}
+
 export function encodeSorted(value: any, space = 1): string {
   return arrow.stringifySorted(value, space);
 }
@@ -61,5 +55,5 @@ export function encodeDisplay(value: any, expandArray = true): string {
       return formatDate(value, true);
     }
   }
-  return arrowVerbose.stringify(value).replace(displayRegex, replaceDisplay);
+  return arrow.stringify(value).replace(displayRegex, replaceDisplay);
 }

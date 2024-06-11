@@ -2,8 +2,8 @@ import {Block} from './Block';
 import {BlockConfig, BlockIO, BlockProperty} from './BlockProperty';
 import {BlockConstConfig, ConstTypeConfig, FlowConfigGenerators} from './BlockConfigs';
 import type {Flow} from './Flow';
-import {systemZone} from '../util/DateTime';
 import {DataMap, isDataMap} from '../util/DataTypes';
+import {getDefaultZone} from '../util/Settings';
 
 class SettingProperty extends BlockProperty {
   setBinding(path: string) {
@@ -18,7 +18,7 @@ const SettingsConfigGenerators: {[key: string]: typeof BlockProperty} = {
 export class SettingsBlock extends Block {
   constructor(flow: Flow, parent: Block, prop: BlockProperty) {
     super(flow, parent, prop);
-    this._props.set('timezone', new BlockConstConfig(this, 'timezone', systemZone));
+    this._props.set('timezone', new BlockConstConfig(this, 'timezone', getDefaultZone()));
   }
   getProperty(field: string, create: boolean = true): BlockProperty {
     if (this._destroyed) {

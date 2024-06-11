@@ -93,6 +93,7 @@ export const clientDescriptors: FunctionDesc[] = [
       {name: 'defaultLanguage', type: 'string'},
       {name: 'timezone', type: 'string', readonly: true},
       {name: 'firstDayOfWeek', type: 'number', step: 1, min: 1, max: 7, default: 7},
+      {name: 'weekDays', type: 'multi-select', options: [1, 2, 3, 4, 5, 6, 7]},
     ],
     icon: 'fas:gear',
     color: '9bd',

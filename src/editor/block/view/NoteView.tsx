@@ -6,7 +6,7 @@ import {stringify as stringifyYaml} from 'yaml';
 import {LazyUpdateComponent, LazyUpdateSubscriber} from '../../component/LazyUpdateComponent';
 import {ClientConnection} from '../../../../src/core/editor';
 import {encodeSorted} from '../../../core';
-import {verboseReplacer, verboseReviver} from '../../../core/util/Serialize';
+import {arrowReplacer, arrowReviver} from '../../../core/util/Serialize';
 
 class NoteView extends LazyUpdateComponent<BlockWidgetProps, any> {
   private _rootNode!: HTMLElement;
@@ -36,7 +36,7 @@ class NoteView extends LazyUpdateComponent<BlockWidgetProps, any> {
     let mode = this.mode.value;
     if (text) {
       if (mode === 'yaml') {
-        rawHtml = `<pre>${Dompurify.sanitize(stringifyYaml(text, verboseReplacer))}</pre>`;
+        rawHtml = `<pre>${Dompurify.sanitize(stringifyYaml(text, arrowReplacer))}</pre>`;
       } else if (mode === 'json') {
         rawHtml = `<pre>${Dompurify.sanitize(encodeSorted(text))}</pre>`;
       } else {

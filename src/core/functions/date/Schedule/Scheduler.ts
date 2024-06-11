@@ -2,9 +2,10 @@ import {Functions} from '../../../block/Functions';
 import {AutoUpdateFunction} from '../../base/AutoUpdateFunction';
 import {type EventOccur, SchedulerEvent} from './SchedulerEvent';
 import {BlockIO} from '../../../block/BlockProperty';
-import {systemZone, toDateTime} from '../../../util/DateTime';
+import {toDateTime} from '../../../util/DateTime';
 import {DateTime} from 'luxon';
 import {getInputsArray} from '../../../block/FunctonData';
+import {getDefaultZone} from '../../../util/Settings';
 
 export class ScheduleValue {
   static compare(a: ScheduleValue, b: ScheduleValue) {
@@ -90,7 +91,7 @@ export class ScheduleFunction extends AutoUpdateFunction {
     if (!this.#events) {
       const eventsData = getInputsArray(this._data, '', 1, ['config', 'value']) as {config: unknown; value: unknown}[];
       if (typeof timezone !== 'string' || timezone === 'Factory' || timezone === 'auto') {
-        timezone = systemZone;
+        timezone = getDefaultZone();
       }
       // generate events
       this.#events = [];

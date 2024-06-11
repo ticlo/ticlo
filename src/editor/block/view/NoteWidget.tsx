@@ -8,7 +8,7 @@ import Dompurify from 'dompurify';
 import ResizeObserver from 'resize-observer-polyfill';
 import {encodeSorted} from '../../../core';
 
-import {verboseReplacer, verboseReviver} from '../../../core/util/Serialize';
+import {arrowReplacer, arrowReviver} from '../../../core/util/Serialize';
 import {stringify} from 'yaml/dist/public-api';
 
 class CommentView extends LazyUpdateComponent<BlockWidgetProps, any> {
@@ -44,7 +44,7 @@ class CommentView extends LazyUpdateComponent<BlockWidgetProps, any> {
     const mode = this.mode.value;
     if (text) {
       if (mode === 'yaml') {
-        rawHtml = `<pre>${Dompurify.sanitize(stringifyYaml(text, verboseReplacer))}</pre>`;
+        rawHtml = `<pre>${Dompurify.sanitize(stringifyYaml(text, arrowReplacer))}</pre>`;
       } else if (mode === 'json') {
         rawHtml = `<pre>${Dompurify.sanitize(encodeSorted(text))}</pre>`;
       } else {

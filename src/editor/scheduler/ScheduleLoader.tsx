@@ -12,7 +12,7 @@ import {cacheCall} from '../util/CachedCallback';
 import {deepEqual} from '../../core/util/Compare';
 import {encodeDisplay} from '../../core';
 import {stringify as stringifyYaml} from 'yaml';
-import {verboseReplacer} from '../../core/util/Serialize';
+import {arrowReplacer} from '../../core/util/Serialize';
 
 const priorityStr = '⓿❶❷❸❹❺❻❼❽❾❿';
 
@@ -21,7 +21,7 @@ function getTitle(config: SchedulerConfig, value: unknown) {
   if (config?.name) {
     parts.push(config.name);
   }
-  parts.push(stringifyYaml(value, verboseReplacer));
+  parts.push(stringifyYaml(value, arrowReplacer));
   return parts.join('\n');
 }
 
@@ -193,7 +193,6 @@ export class ScheduleLoader {
   zone: string = 'notReady';
   updateZone(z: string) {
     let zone = z;
-    if (zone === 'auto') zone = 'Factory';
     if (this.zone !== zone) {
       this.zone = zone;
       for (let sub of this.subs) {
