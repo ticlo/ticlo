@@ -1,6 +1,6 @@
 import Arrow from 'arrow-code';
 import {DateTime} from 'luxon';
-import {decodeDateTime, encodeDateTime, encodeDateTimeDisplay, formatDate} from './DateTime';
+import {decodeDateTime, encodeDateTime, formatDate} from './DateTime';
 import {decodeUnknown, encodeUnknown, EscapedObject} from './EscapedObject';
 
 const arrow = new Arrow({encodeDate: false});

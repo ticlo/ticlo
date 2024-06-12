@@ -1,5 +1,5 @@
 import React from 'react';
-import {ClientConn, decode, encode, DataMap, isDataTruncated, translateEditor} from '../../../../src/core/editor';
+import {ClientConn, encode, DataMap, isDataTruncated, translateEditor} from '../../../../src/core/editor';
 import {Menu, Dropdown, Button, Spin} from 'antd';
 import CodeMirror from '@uiw/react-codemirror';
 import {parse as ParseYaml} from 'yaml';
@@ -9,7 +9,6 @@ import {markdown, markdownLanguage} from '@codemirror/lang-markdown';
 import {yaml} from '@codemirror/lang-yaml';
 
 import {DockLayout} from 'rc-dock';
-import {TabData} from 'rc-dock/src/DockData';
 import {EditorView} from '@codemirror/view';
 import {MenuProps} from 'antd/lib/menu';
 import {createDockDialog, DockDialogPane} from '../../component/DockDialogPane';
