@@ -1,5 +1,6 @@
 import {DateTime, Duration} from 'luxon';
 import vl from '../../../util/Validator';
+import {isWeekDay} from '../../../util/Settings';
 
 const ONE_MINUTE = 60_000;
 
@@ -140,7 +141,8 @@ export class SchedulerEvent {
     const checkAndYield = function* _checkAndYield(startDate: DateTime): Generator<[number, number]> {
       let startTs = startDate.valueOf();
 
-      if (startDate.isWeekend === this.onlyWeekday) {
+      // this.onlyWeekday could be null, so do not use !==
+      if (!isWeekDay(startDate.weekday) === this.onlyWeekday) {
         return;
       }
       loopCount = 0;
@@ -249,7 +251,7 @@ export class SchedulerEvent {
                     if (dayCount === 0) {
                       for (let i = 1; i <= lastDay; ++i) {
                         let targetDay = startOfMonth.set({day: i, hour: this.start[0], minute: this.start[1]});
-                        if (targetDay.isWeekend === isDayTypeWeekend) {
+                        if (isWeekDay(targetDay.weekday) !== isDayTypeWeekend) {
                           days.push(i);
                         }
                       }
@@ -257,7 +259,7 @@ export class SchedulerEvent {
                       let counter = 0;
                       for (let i = 1; i <= lastDay; ++i) {
                         let targetDay = startOfMonth.set({day: i, hour: this.start[0], minute: this.start[1]});
-                        if (targetDay.isWeekend === isDayTypeWeekend) {
+                        if (isWeekDay(targetDay.weekday) !== isDayTypeWeekend) {
                           counter++;
                           if (counter === dayCount) {
                             days.push(i);
@@ -269,7 +271,7 @@ export class SchedulerEvent {
                       let counter = 0;
                       for (let i = lastDay; i >= 1; --i) {
                         let targetDay = startOfMonth.set({day: i, hour: this.start[0], minute: this.start[1]});
-                        if (targetDay.isWeekend === isDayTypeWeekend) {
+                        if (isWeekDay(targetDay.weekday) !== isDayTypeWeekend) {
                           counter--;
                           if (counter === dayCount) {
                             days.push(i);
