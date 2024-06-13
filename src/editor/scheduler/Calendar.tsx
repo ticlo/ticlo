@@ -9,9 +9,10 @@ import {deepEqual} from '../../core/util/Compare';
 import {cacheCall} from '../util/CachedCallback';
 import {CalendarEvent, ScheduleLoader} from './ScheduleLoader';
 import {CalendarToolbar} from './CalendarToolbar';
-import {CalendarEventEditor} from './CalendarEventEditor';
+import {CalendarEventEditor, sortDateItem} from './CalendarEventEditor';
 import {SchedulerConfig} from '../../core/functions/date/Schedule/SchedulerEvent';
 import {scat} from '../../core/util/String';
+import {toDateTime} from '../../core';
 
 const CalendarT = Calendar<CalendarEvent>;
 
@@ -76,7 +77,49 @@ export class ScheduleCalendar extends LazyUpdateComponent<Props, State> {
     this.scheduleLoader = new ScheduleLoader(this, conn, schedulePath);
   });
   onSelectSlot = (slot: SlotInfo) => {
-    console.log(slot);
+    const {selectedIdx} = this.state;
+    const dummyEvents = this.scheduleLoader.getDummyEvents();
+    const config = dummyEvents[selectedIdx]?.parent.config ?? ({} as SchedulerConfig);
+    let startDate = toDateTime(slot.start);
+    let start = startDate.toFormat('HH:mm');
+    let duration = (slot.end.valueOf() - slot.start.valueOf()) / 60000;
+    if (slot.end.getHours() === 59 && slot.end.getMinutes() === 59) {
+      duration = 0;
+    }
+    let newConfig = {...config, start, duration};
+    switch (config.repeat) {
+      case 'weekly': {
+        let weekDay = startDate.weekday;
+        if (!config.wDays?.includes(weekDay)) {
+          newConfig.wDays = [...(config.wDays ?? []), weekDay].sort();
+        }
+        break;
+      }
+      case 'dates': {
+        let date = startDate.toFormat('yyyy-MM-dd');
+        if (!config.dates?.includes(date)) {
+          newConfig.dates = [...(config.dates ?? []), date].sort(sortDateItem);
+        }
+        break;
+      }
+      case 'advanced': {
+        let day = startDate.day;
+        if (!config.days?.includes(day)) {
+          newConfig.days = [...(config.days ?? []), day].sort(sortDateItem);
+        }
+        break;
+      }
+      case 'daily': {
+        // nothing else to change
+        break;
+      }
+      default: {
+        // no repeat mode, convert to weekly
+        newConfig.repeat = 'weekly';
+        newConfig.wDays = [startDate.weekday];
+      }
+    }
+    this.updateConfig(newConfig);
   };
   onSelectEvent = (event: CalendarEvent) => {
     this.safeSetState({selectedId: event.id});

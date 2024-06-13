@@ -79,31 +79,20 @@ export function decodeDateTime(str: string): any {
 
 export function toDateTime(input: unknown, zone?: string) {
   if (DateTime.isDateTime(input)) {
-    if (input.zoneName === 'Factory') {
-      return DateTime.fromObject(
-        {
-          year: input.year,
-          month: input.month,
-          day: input.day,
-          hour: input.hour,
-          minute: input.minute,
-          second: input.second,
-          millisecond: input.millisecond,
-        },
-        getZoneObject(zone)
-      );
-    }
     return input;
   }
   switch (typeof input) {
     case 'number':
-      return DateTime.fromMillis(input);
+      return DateTime.fromMillis(input, getZoneObject(zone));
     case 'string': {
       if (input.endsWith(']')) {
         return DateTime.fromISO(input, {setZone: true});
       }
-      return DateTime.fromISO(input);
+      return DateTime.fromISO(input, getZoneObject(zone));
     }
+  }
+  if (input instanceof Date) {
+    return DateTime.fromJSDate(input, getZoneObject(zone));
   }
   return invalidDate;
 }

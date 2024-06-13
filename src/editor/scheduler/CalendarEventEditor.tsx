@@ -46,7 +46,7 @@ function P({
   );
 }
 
-function sortItem(a: unknown, b: unknown) {
+export function sortDateItem(a: unknown, b: unknown) {
   if (typeof a === 'number' && typeof b === 'number') {
     return a - b;
   }
@@ -127,7 +127,7 @@ export class CalendarEventEditor extends React.PureComponent<Props, State> {
     } else {
       let v = value;
       if (Array.isArray(v)) {
-        v.sort(sortItem);
+        v.sort(sortDateItem);
       }
       this.onValuesChange({[field]: v});
     }
