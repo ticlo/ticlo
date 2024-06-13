@@ -1,7 +1,7 @@
 import React from 'react';
 import {DockDialogPane} from '../component/DockDialogPane';
 import {ScheduleEvent} from '../../core/util/SetSchedule';
-import {RepeatModeList, SchedulerConfig} from '../../core/functions/date/Schedule/SchedulerEvent';
+import {RepeatMode, RepeatModeList, SchedulerConfig} from '../../core/functions/date/Schedule/SchedulerEvent';
 import {LocalizedPropertyName, t} from '../component/LocalizedLabel';
 import {SelectEditor} from '../property/value/SelectEditor';
 import {type FunctionDesc, type PropDesc, PropGroupDesc, smartStrCompare} from '../../core';
@@ -106,8 +106,7 @@ export class CalendarEventEditor extends React.PureComponent<Props, State> {
 
   onValuesChange = (values: any, fullValue = false) => {
     const {onChange} = this.props;
-    const {current} = this.state;
-    const newConfig = fullValue ? values : {...current, ...values};
+    const newConfig = fullValue ? values : {...this.state.current, ...values};
     onChange?.(newConfig);
     this.setState({current: newConfig});
   };
@@ -131,6 +130,23 @@ export class CalendarEventEditor extends React.PureComponent<Props, State> {
       }
       this.onValuesChange({[field]: v});
     }
+  };
+
+  onRepeatChange = (repeat: RepeatMode) => {
+    const {current} = this.state;
+    const newConfig = {...current, repeat};
+    if (repeat !== 'weekly') {
+      delete newConfig.wDays;
+    }
+    if (repeat !== 'dates') {
+      delete newConfig.dates;
+    }
+    if (repeat !== 'advanced') {
+      delete newConfig.years;
+      delete newConfig.months;
+      delete newConfig.days;
+    }
+    this.onValuesChange(newConfig, true);
   };
 
   onshowOptionalClicked = () => {
@@ -161,7 +177,7 @@ export class CalendarEventEditor extends React.PureComponent<Props, State> {
             propDesc={valueDesc}
           />
           <TimeRangeEditor current={current} onChange={this.onValuesChange} />
-          <P field="repeat" current={current} onChange={this.onValueChange} />
+          <P field="repeat" current={current} onChange={this.onRepeatChange} />
           {repeat === 'weekly' ? <P field="wDays" current={current} onChange={this.onValueChange} /> : null}
           {repeat === 'dates' ? <DatesSelector dates={current.dates} onValueChange={this.onValueChange} /> : null}
           {repeat === 'advanced' ? <AdvancedSelector onValueChange={this.onValueChange} current={current} /> : null}
