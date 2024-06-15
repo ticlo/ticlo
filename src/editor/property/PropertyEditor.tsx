@@ -147,12 +147,6 @@ export class PropertyEditor extends MultiSelectComponent<PropertyEditorProps, St
     this.subBlockPaths = paths.map((s: string) => `${s}.~${name}`);
   }
 
-  UNSAFE_componentWillReceiveProps(nextProps: PropertyEditorProps) {
-    if (this.subBlockPaths && !arrayEqual(nextProps.paths, this.props.paths)) {
-      this.buildSubBlockPaths(nextProps);
-    }
-  }
-
   unlock = (e: any) => {
     this.safeSetState({unlocked: !this.state.unlocked});
   };
@@ -346,9 +340,15 @@ export class PropertyEditor extends MultiSelectComponent<PropertyEditorProps, St
     this.safeSetState({showSubBlock: true});
   };
 
+  cachedPaths: string[] = [];
   renderImpl() {
     let {conn, paths, funcDesc, propDesc, name, reorder, group, isCustom, baseName} = this.props;
     let {unlocked, showSubBlock, showMenu} = this.state;
+
+    if (this.subBlockPaths && !arrayEqual(this.cachedPaths, paths)) {
+      this.cachedPaths = paths;
+      this.buildSubBlockPaths(this.props);
+    }
 
     let onChange = propDesc.readonly ? null : this.onChange;
 

@@ -352,7 +352,7 @@ export abstract class BlockStageBase<Props extends StagePropsBase, State>
     },
   });
 
-  constructor(props: Props) {
+  protected constructor(props: Props) {
     super(props);
     let {conn, basePath} = props;
     this._sharedPath = `${basePath}.#shared`;
@@ -360,12 +360,16 @@ export abstract class BlockStageBase<Props extends StagePropsBase, State>
     this.sharedListener.subscribe(conn, this._sharedPath);
   }
 
-  UNSAFE_componentWillReceiveProps(nextProps: Props) {
-    if (nextProps.basePath !== this.props.basePath) {
+  basePathCache: string;
+  render() {
+    const {basePath} = this.props;
+    if (this.basePathCache !== basePath) {
+      this.basePathCache = basePath;
       // TODO clear cached blocks
-      this.props.conn.unwatch(this.props.basePath, this.watchListener);
-      this.props.conn.watch(nextProps.basePath, this.watchListener);
+      this.props.conn.unwatch(this.basePathCache, this.watchListener);
+      this.props.conn.watch(basePath, this.watchListener);
     }
+    return super.render();
   }
 
   createBlock = async (name: string, blockData: {[key: string]: any}, shared: boolean) => {
