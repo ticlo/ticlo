@@ -356,17 +356,19 @@ export abstract class BlockStageBase<Props extends StagePropsBase, State>
     super(props);
     let {conn, basePath} = props;
     this._sharedPath = `${basePath}.#shared`;
+    this.watchingPath = basePath;
     conn.watch(basePath, this.watchListener);
     this.sharedListener.subscribe(conn, this._sharedPath);
   }
 
-  basePathCache: string;
+  watchingPath: string;
   render() {
     const {basePath} = this.props;
-    if (this.basePathCache !== basePath) {
-      this.basePathCache = basePath;
+    if (this.watchingPath !== basePath) {
+      
       // TODO clear cached blocks
-      this.props.conn.unwatch(this.basePathCache, this.watchListener);
+      this.props.conn.unwatch(this.watchingPath, this.watchListener);
+      this.watchingPath = basePath;
       this.props.conn.watch(basePath, this.watchListener);
     }
     return super.render();
