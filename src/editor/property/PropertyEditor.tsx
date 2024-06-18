@@ -350,6 +350,8 @@ export class PropertyEditor extends MultiSelectComponent<PropertyEditorProps, St
       this.buildSubBlockPaths(this.props);
     }
 
+    const propertyName = isCustom ? <span>{name}</span> : <LocalizedPropertyName desc={funcDesc} name={name} />;
+
     let onChange = propDesc.readonly ? null : this.onChange;
 
     let isIndexed = group != null && !name.endsWith('[]');
@@ -359,9 +361,7 @@ export class PropertyEditor extends MultiSelectComponent<PropertyEditorProps, St
       // not ready yet
       return (
         <div className="ticl-property">
-          <div className="ticl-property-name">
-            <LocalizedPropertyName desc={funcDesc} name={name} />
-          </div>
+          <div className="ticl-property-name">{propertyName}</div>
           <div className="ticl-property-value">
             <div className="ticl-property-loader" />
           </div>
@@ -479,7 +479,7 @@ export class PropertyEditor extends MultiSelectComponent<PropertyEditorProps, St
             onDragOverT={this.onDragOver}
             onDropT={this.onDrop}
           >
-            <LocalizedPropertyName desc={funcDesc} name={name} />
+            {propertyName}
           </DragDropDiv>
         </PropertyDropdown>
         {renderLockIcon ? (
