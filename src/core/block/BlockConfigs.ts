@@ -149,12 +149,6 @@ export class BlockConstConfig extends BlockProperty {
   // }
 }
 
-class BlockNameConfig extends BlockConstConfig {
-  constructor(block: Block, name: string) {
-    super(block, name, block._prop._name);
-  }
-}
-
 export function ConstTypeConfig(type: string): typeof BlockProperty {
   class BlockConstTypeConfig extends BlockConstConfig {
     constructor(block: Block, name: string) {
@@ -171,7 +165,6 @@ export function ConstTypeConfig(type: string): typeof BlockProperty {
 export const ConfigGenerators: {[key: string]: typeof BlockProperty} = {
   '#is': BlockFuncIdConfig,
   '#disabled': BlockDisabledConfig,
-  '#name': BlockNameConfig,
   '#mode': BlockModeConfig,
   '#call': BlockCallConfig,
   '#sync': BlockSyncConfig,

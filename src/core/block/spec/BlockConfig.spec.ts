@@ -10,6 +10,7 @@ describe('BlockConfig', function () {
 
     expect(block.getValue('##')).toBe(flow);
     expect(block.getValue('###')).toBe(flow);
+    expect(block.getValue('#name')).toBe('obj');
 
     block.setValue('##', 1);
     expect(block.getValue('##')).toBe(flow);

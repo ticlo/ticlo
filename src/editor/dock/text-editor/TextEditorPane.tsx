@@ -181,8 +181,12 @@ export class TextEditorPane extends React.PureComponent<Props, State> {
     }
   };
 
-  onReloadClick = (e: {key: React.Key}) => {
+  onReloadMenuClick = (e: {key: React.Key}) => {
     this.loadData(e.key as string);
+  };
+  onReloadClick = () => {
+    let {paths} = this.props;
+    this.loadData(paths[0]);
   };
 
   onApply = () => {
@@ -209,7 +213,7 @@ export class TextEditorPane extends React.PureComponent<Props, State> {
   getReloadMenu = (): MenuProps => {
     let {paths} = this.props;
 
-    let menu: MenuProps = {items: [], onClick: this.onReloadClick};
+    let menu: MenuProps = {items: [], onClick: this.onReloadMenuClick};
     for (let path of paths) {
       menu.items.push({label: path, key: path});
     }
@@ -217,7 +221,7 @@ export class TextEditorPane extends React.PureComponent<Props, State> {
   };
 
   render() {
-    let {mime, readonly} = this.props;
+    let {mime, readonly, paths} = this.props;
     let {value, error, loading} = this.state;
     let extensions: any;
     switch (mime) {
@@ -240,9 +244,15 @@ export class TextEditorPane extends React.PureComponent<Props, State> {
         onApply={readonly ? null : this.onApply}
         saveDisabled={loading}
         footerExtra={
-          <Dropdown menu={this.getReloadMenu()} trigger={['click']}>
-            <Button size="small">{t('Reload')}</Button>
-          </Dropdown>
+          paths.length === 1 ? (
+            <Button size="small" onClick={this.onReloadClick}>
+              {t('Reload')}
+            </Button>
+          ) : (
+            <Dropdown menu={this.getReloadMenu()} trigger={['click']}>
+              <Button size="small">{t('Reload')}</Button>
+            </Dropdown>
+          )
         }
         error={error}
         onKeyDownCapture={this.onKeyDown}

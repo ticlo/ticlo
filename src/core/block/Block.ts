@@ -208,6 +208,7 @@ export class Block implements Runnable, FunctionData, PropListener<FunctionClass
     if (firstChar === 35) {
       // # controls
       switch (field) {
+        // read only const config, convert this to a Map if there are more than 10
         case '##':
           prop = new BlockConstConfig(this, field, this._parent);
           break;
@@ -216,6 +217,9 @@ export class Block implements Runnable, FunctionData, PropListener<FunctionClass
           break;
         case '#':
           prop = new BlockConstConfig(this, field, this);
+          break;
+        case '#name':
+          prop = new BlockConstConfig(this, field, this._prop._name);
           break;
         default: {
           if (!create) {
