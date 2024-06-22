@@ -2,7 +2,7 @@ import {Block} from '../block/Block';
 import {configDescs, PropDesc, PropGroupDesc} from '../block/Descriptor';
 import {Functions} from '../block/Functions';
 import {getPreNumber} from '../util/String';
-import {getInputsLength} from '../block/FunctonData';
+import {getInputsLength, MAX_GROUP_LENGTH} from '../block/FunctonData';
 
 const configList = Object.keys(configDescs).filter((str: string) => !str.endsWith(')'));
 
@@ -14,7 +14,7 @@ export function buildPropertiesOrder(block: Block): string[] {
       if (propDesc.type === 'group') {
         let lenField = `${propDesc.name}[]`;
         orders.push(lenField);
-        let groupLength = getInputsLength(block, propDesc.name, propDesc.defaultLen);
+        let groupLength = getInputsLength(block, propDesc.name, propDesc.defaultLen, propDesc.maxLen);
         for (let i = 0; i < groupLength; ++i) {
           for (let childDesc of (propDesc as PropGroupDesc).properties) {
             orders.push(`${childDesc.name}${i}`);
@@ -119,7 +119,7 @@ export function showGroupProperties(block: Block, desc: PropGroupDesc, field?: s
   if (desc.type !== 'group') {
     return;
   }
-  let groupLength = getInputsLength(block, desc.name, desc.defaultLen);
+  let groupLength = getInputsLength(block, desc.name, desc.defaultLen, desc.maxLen);
   let fields: string[] = [];
   if (field != null) {
     for (let i = 0; i < groupLength; ++i) {

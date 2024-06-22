@@ -82,6 +82,7 @@ export interface PropGroupDesc {
   name: string;
   type: 'group';
   defaultLen: number;
+  maxLen?: number;
   properties?: PropDesc[];
 }
 

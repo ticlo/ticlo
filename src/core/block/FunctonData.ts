@@ -1,6 +1,8 @@
 import {BlockProperty} from './BlockProperty';
 import {DataMap} from '../util/DataTypes';
 
+export const MAX_GROUP_LENGTH = 256;
+
 export interface FunctionOutput {
   // field is '#output' by default
   output(value: unknown, field?: string): void;
@@ -37,18 +39,28 @@ export class DataWrapper implements FunctionData {
   }
 }
 
-export function getInputsLength(input: FunctionInput, group?: string, defaultLength = 2) {
+export function getInputsLength(input: FunctionInput, group?: string, defaultLength = 2, maxLength = MAX_GROUP_LENGTH) {
   let result = input.getValue(`${group}[]`);
   if (Array.isArray(result)) {
     return 0;
   }
+  let realMaxLength = Number.isInteger(maxLength) ? maxLength : MAX_GROUP_LENGTH;
   if ((result as number) >= 0) {
-    return Number(result);
+    if ((result as number) <= realMaxLength) {
+      return Number(result);
+    }
+    return realMaxLength;
   }
   return defaultLength;
 }
 
-export function getInputsArray(input: FunctionInput, group = '', defaultLength = 2, fields?: string[]): unknown[] {
+export function getInputsArray(
+  input: FunctionInput,
+  group = '',
+  defaultLength = 2,
+  fields?: string[],
+  maxLength = MAX_GROUP_LENGTH
+): unknown[] {
   let lenOrArray = input.getValue(`${group}[]`);
   if (Array.isArray(lenOrArray)) {
     // iterate native array
@@ -57,6 +69,10 @@ export function getInputsArray(input: FunctionInput, group = '', defaultLength =
   let len: number;
   if ((lenOrArray as number) >= 0) {
     len = Number(lenOrArray);
+    let realMaxLength = Number.isInteger(maxLength) ? maxLength : MAX_GROUP_LENGTH;
+    if (len > realMaxLength) {
+      len = realMaxLength;
+    }
   } else {
     len = defaultLength;
   }

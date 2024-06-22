@@ -365,7 +365,6 @@ export abstract class BlockStageBase<Props extends StagePropsBase, State>
   render() {
     const {basePath} = this.props;
     if (this.watchingPath !== basePath) {
-      
       // TODO clear cached blocks
       this.props.conn.unwatch(this.watchingPath, this.watchListener);
       this.watchingPath = basePath;

@@ -10,6 +10,7 @@ import {
 import {MultiSelectComponent, MultiSelectLoader} from './MultiSelectComponent';
 import {PropertyEditor} from './PropertyEditor';
 import {CustomGroupPropertyReorder, CustomPropertyReorder, GroupPropertyReorder} from './PropertyReorder';
+import {MAX_GROUP_LENGTH} from '../../core/block/FunctonData';
 
 class LengthPropertyEditor extends PropertyEditor {
   onChange = (value: any) => {
@@ -95,7 +96,8 @@ export class GroupEditor extends MultiSelectComponent<Props, State, GroupLoader>
     let lenDesc = {...lengthPropDesc, default: groupDesc.defaultLen, name: lenName};
 
     if (this.loaders.size) {
-      let minLen = Infinity;
+      // group editor doesn't support virtual scroll, limit it to 256 to prevent crash
+      let minLen = MAX_GROUP_LENGTH;
       for (let [key, loader] of this.loaders) {
         if (loader.len < minLen) minLen = loader.len;
       }

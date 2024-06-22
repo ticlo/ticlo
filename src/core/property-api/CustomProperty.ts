@@ -3,7 +3,7 @@ import {Block} from '../block/Block';
 import {deepClone} from '../util/Clone';
 import {endsWithNumberReg} from '../util/String';
 import {hideGroupProperties, hideProperties, showGroupProperties, showProperties} from './PropertyShowHide';
-import {getInputsLength} from '../block/FunctonData';
+import {getInputsLength, MAX_GROUP_LENGTH} from '../block/FunctonData';
 
 export function addCustomProperty(block: Block, desc: PropDesc | PropGroupDesc, group?: string) {
   let propDesc: PropDesc;
@@ -109,7 +109,7 @@ export function removeCustomProperty(block: Block, name: string, group?: string)
           block.setValue('#custom', customProps);
           hideGroupProperties(block, groupDesc, name);
 
-          let gLength = getInputsLength(block, groupDesc.name, groupDesc.defaultLen);
+          let gLength = getInputsLength(block, groupDesc.name, groupDesc.defaultLen, groupDesc.maxLen);
           for (let i = 0; i < gLength; ++i) {
             block.deleteValue(`${name}${i}`);
           }
@@ -118,7 +118,7 @@ export function removeCustomProperty(block: Block, name: string, group?: string)
         customProps.splice(groupIdx, 1);
         block.setValue('#custom', customProps);
         hideGroupProperties(block, groupDesc, null);
-        let gLength = getInputsLength(block, groupDesc.name, groupDesc.defaultLen);
+        let gLength = getInputsLength(block, groupDesc.name, groupDesc.defaultLen, groupDesc.maxLen);
         for (let prop of groupDesc.properties) {
           let baseName = prop.name;
           for (let i = 0; i < gLength; ++i) {
