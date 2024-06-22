@@ -3,6 +3,7 @@ import {Button} from 'antd';
 import MinusIcon from '@ant-design/icons/MinusOutlined';
 import PlusIcon from '@ant-design/icons/PlusOutlined';
 import {ValueEditorProps} from './ValueEditorBase';
+import {scat} from '../../../core/util/String';
 
 // remove thousand separator
 const formatNumberRegx = /[,\s]+/g;
@@ -43,7 +44,7 @@ const MathDeg = (() => {
 })();
 
 export class NumberEditor extends React.PureComponent<ValueEditorProps, any> {
-  // this is not a state because in commitChange() editorValue is changed but we don't want a re-render until prop change
+  // this is not a state because in commitChange() editorValue is changed, but we don't want a re-render until prop change
   _pendingValue: string = null;
 
   commitChange(value: string | number) {
@@ -201,7 +202,7 @@ export class NumberEditor extends React.PureComponent<ValueEditorProps, any> {
     }
     let disabled = onChange == null;
     return (
-      <div className={`ticl-number-input${disabled ? ' ticl-number-input-disabled' : ''}`}>
+      <div className={scat('ticl-number-input', disabled && ' ticl-number-input-disabled')}>
         <Button size="small" icon={<MinusIcon />} onClick={this.onMinusClick} disabled={disabled} />
         <input
           className="ant-input ant-input-sm"
@@ -214,6 +215,7 @@ export class NumberEditor extends React.PureComponent<ValueEditorProps, any> {
           onKeyDown={this.onKeyDown}
         />
         <Button size="small" icon={<PlusIcon />} onClick={this.onPlusClick} disabled={disabled} />
+        {desc.unit ? <div className="ticl-number-unit">{desc.unit}</div> : null}
       </div>
     );
   }

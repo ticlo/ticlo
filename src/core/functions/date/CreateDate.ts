@@ -38,7 +38,7 @@ Functions.add(
       {name: 'day', type: 'number', pinned: true},
       {name: 'hour', type: 'number', default: 0, pinned: true},
       {name: 'minute', type: 'number', default: 0, pinned: true},
-      {name: 'second', type: 'number', default: 0},
+      {name: 'second', type: 'number', default: 0, unit: 's'},
       {name: 'millisecond', type: 'number', default: 0},
       {name: 'timezone', type: 'string', default: ''},
       {name: '#output', type: 'date', pinned: true, readonly: true},

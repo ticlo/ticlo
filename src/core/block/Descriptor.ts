@@ -59,6 +59,7 @@ export interface PropDesc {
   min?: number;
   max?: number;
   step?: number;
+  unit?: string;
 
   // bool, select, multi-select, radio-button, service
   options?: readonly (string | number)[];
