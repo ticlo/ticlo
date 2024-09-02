@@ -22,6 +22,7 @@ export {setStorageFunctionProvider} from './functions/data/Storage';
 export {setSecretCipher} from './block/Block';
 
 // register functions
+import './functions/core/Group';
 import './functions/Categories';
 import './functions/math/Arithmetic';
 import './functions/math/Compare';
@@ -39,6 +40,7 @@ import './functions/http/Fetch';
 import './functions/script/Js';
 import './functions/data/State';
 import './functions/date';
+import './functions/time/Delay';
 import './functions/condition/DefaultValue';
 import './functions/condition/If';
 import './worker/MapFunction';
