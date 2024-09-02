@@ -6,7 +6,7 @@ import {FunctionData} from '../../block/FunctonData';
 
 export abstract class AutoUpdateFunction extends ImpureFunction {
   #schedule: ScheduleEvent;
-  #onTimer = (time: number) => {
+  #onSchedule = (time: number) => {
     this.#schedule = null;
     if (this._data instanceof Block) {
       this._data._queueFunction();
@@ -26,13 +26,15 @@ export abstract class AutoUpdateFunction extends ImpureFunction {
     return false;
   }
 
-  addSchedule(nextCheck: number) {
+  addSchedule(nextCheck: number): ScheduleEvent {
     if (this.#autoUpdate) {
       if (nextCheck !== this.#schedule?.start) {
         this.#schedule?.cancel();
-        this.#schedule = setSchedule(this.#onTimer, nextCheck);
+        this.#schedule = setSchedule(this.#onSchedule, nextCheck);
+        return this.#schedule;
       }
     }
+    return null;
   }
 
   constructor(data: FunctionData) {

@@ -11,8 +11,10 @@ export class ScheduleEvent {
     this.#expire = expire;
   }
   cancel() {
-    this.#expire = -Infinity;
-    scheduleGroups.get(this.start)?.events.delete(this);
+    if (this.#expire !== -Infinity) {
+      this.#expire = -Infinity;
+      scheduleGroups.get(this.start)?.events.delete(this);
+    }
   }
   run(current: number) {
     if (current < this.#expire) {
