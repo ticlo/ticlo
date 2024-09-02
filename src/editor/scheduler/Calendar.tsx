@@ -192,6 +192,7 @@ export class ScheduleCalendar extends LazyUpdateComponent<Props, State> {
     return (
       <div className="ticl-calendar-box">
         <CalendarT
+          allDayMaxRows={2}
           ref={this.getCalendarRef}
           components={{toolbar: CalendarToolbar}}
           localizer={calendarLocalizer}
