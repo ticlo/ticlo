@@ -624,7 +624,14 @@ export class Block implements Runnable, FunctionData, PropListener<FunctionClass
                   }
                 } else {
                   this._called = true;
-                  this.run();
+                  if (this._queued) {
+                    this.run();
+                  } else {
+                    // Make sure block is not put into queue again while running itself
+                    this._queued = true;
+                    this.run();
+                    this._queued = false;
+                  }
                 }
               } else {
                 if (Event.check(val) === EventType.TRIGGER) {
