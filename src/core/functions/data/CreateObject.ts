@@ -51,6 +51,7 @@ Functions.add(CreateObjectFunction, {
   category: 'data',
 });
 
+// Class used for CreateHeader and CreateStyle
 export class CreateObjectFunctionOptional extends PureFunction {
   configChanged(config: BlockConfig, val: any): boolean {
     switch (config._name) {

@@ -69,6 +69,8 @@ export class NoEmit extends Event {
     return EventType.VOID;
   }
 }
+
+// Emit when a function is run().
 export class CompleteEvent extends Event {
   constructor() {
     super('complete');

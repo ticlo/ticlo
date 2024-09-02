@@ -25,7 +25,7 @@ export const clientDescriptors: FunctionDesc[] = [
     id: 'flow:main',
     properties: [],
     icon: 'fas:file',
-    color: '4af',
+    color: '9bd',
     src: 'hidden',
     ns: 'flow',
     configs: ['#disabled'],

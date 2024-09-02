@@ -17,6 +17,8 @@ export interface FunctionInput {
 export interface FunctionData extends FunctionInput, FunctionOutput {
   // get the property when it's a block, otherwise return null
   getProperty(field: string, create: boolean): BlockProperty;
+  // emit output event
+  emit(val: unknown): void;
 }
 
 export class DataWrapper implements FunctionData {
@@ -37,6 +39,7 @@ export class DataWrapper implements FunctionData {
   getProperty(field: string, create: boolean): BlockProperty {
     return null;
   }
+  emit(val: unknown): void {}
 }
 
 export function getInputsLength(input: FunctionInput, group?: string, defaultLength = 2, maxLength = MAX_GROUP_LENGTH) {
