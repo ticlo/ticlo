@@ -1,5 +1,5 @@
 import {Functions} from '../block/Functions';
-import {BlockFunction} from '../block/BlockFunction';
+import {StatefulFunction} from '../block/BlockFunction';
 import {BlockIO, BlockProperty} from '../block/BlockProperty';
 import {Block, BlockChildWatch} from '../block/Block';
 import {DataMap} from '../util/DataTypes';
@@ -33,7 +33,7 @@ class ForEachOutput implements FunctionOutput {
   }
 }
 
-export class ForEachFunction extends BlockFunction implements BlockChildWatch {
+export class ForEachFunction extends StatefulFunction implements BlockChildWatch {
   _src: DataMap | string;
   _srcChanged: boolean = false;
 

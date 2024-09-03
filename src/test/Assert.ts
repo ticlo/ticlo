@@ -1,4 +1,15 @@
-import {Block, BlockFunction, BlockIO, decode, encode, Event, EventType, Functions, NO_EMIT} from '../../src/core';
+import {
+  Block,
+  StatefulFunction,
+  BlockIO,
+  decode,
+  encode,
+  Event,
+  EventType,
+  Functions,
+  NO_EMIT,
+  BaseFunction,
+} from '../../src/core';
 import {deepEqual} from '../../src/core/util/Compare';
 import {isPrimitiveType} from '../../src/core/util/DataTypes';
 import {updateObjectValue} from '../../src/core/property-api/ObjectValue';
@@ -16,7 +27,7 @@ function convertActual(actual: any) {
   return decode(encode(actual));
 }
 
-export class AssertFunction extends BlockFunction {
+export class AssertFunction extends BaseFunction<Block> {
   _state: TestState;
   _calledSync = false;
   _alwaysMatch = false;

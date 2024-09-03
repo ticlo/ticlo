@@ -36,6 +36,7 @@ import {LazyUpdateSubscriber} from '../component/LazyUpdateComponent';
 
 const saveAllowed = new Set<string>(['flow:editor', 'flow:worker', 'flow:main', 'flow:sub', 'flow:test-case']);
 const quickOpenAllowed = new Set<string>([
+  'group',
   'flow:editor',
   'flow:worker',
   'flow:main',

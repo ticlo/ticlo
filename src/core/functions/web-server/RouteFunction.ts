@@ -1,4 +1,4 @@
-import {BlockFunction} from '../../block/BlockFunction';
+import {StatefulFunction} from '../../block/BlockFunction';
 import {NO_EMIT} from '../../block/Event';
 import {Functions} from '../../block/Functions';
 import {HttpRequest} from './HttpRequest';
@@ -33,7 +33,7 @@ export interface RouteService {
   removeRoute(path: string, route: RouteFunction): void;
 }
 
-export class RouteFunction extends BlockFunction {
+export class RouteFunction extends StatefulFunction {
   _pendingRequests: HttpRequest[] = [];
   addRequest(request: HttpRequest) {
     this._pendingRequests.push(request);

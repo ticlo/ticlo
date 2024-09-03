@@ -1,11 +1,11 @@
-import {Block, BlockFunction, BlockIO, DataMap, defaultConfigs, Functions, PropDesc, PropGroupDesc} from '../core';
+import {Block, StatefulFunction, BlockIO, DataMap, defaultConfigs, Functions, PropDesc, PropGroupDesc} from '../core';
 import React from 'react';
 import {TicloComp} from './TicloComp';
 import {htmlAttributes, htmlEventHandlers, optionalHtmlProperties} from './HtmlAttributes';
 import {BlockConfig} from '../../src/core/block/BlockProperty';
 import {getInputsArray} from '../core/block/FunctonData';
 
-export class HtmlElementFunction extends BlockFunction {
+export class HtmlElementFunction extends StatefulFunction {
   // _comp never changes, this prevents re-render of any parent component, TicloComp should handle all the changes internally
   readonly _comp: React.ReactNode;
 

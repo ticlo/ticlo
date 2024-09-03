@@ -1,10 +1,10 @@
-import {ImpureFunction} from '../../block/BlockFunction';
+import {BaseFunction} from '../../block/BlockFunction';
 import {ScheduleEvent, setSchedule} from '../../util/SetSchedule';
 import {Block} from '../../block/Block';
 import type {BlockConfig} from '../../block/BlockProperty';
 import {FunctionData} from '../../block/FunctonData';
 
-export abstract class AutoUpdateFunction extends ImpureFunction {
+export abstract class AutoUpdateFunction extends BaseFunction {
   #schedule: ScheduleEvent;
   #onSchedule = (time: number) => {
     this.#schedule = null;

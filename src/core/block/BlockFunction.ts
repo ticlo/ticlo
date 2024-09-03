@@ -1,11 +1,10 @@
 import {BlockConfig, BlockIO, BlockProperty} from './BlockProperty';
-import {Block} from './Block';
+import {type Block} from './Block';
 import {EventType} from './Event';
-import {DataMap} from '../util/DataTypes';
 import {BlockMode} from './Descriptor';
-import {FunctionData} from './FunctonData';
+import {type FunctionData} from './FunctonData';
 
-export abstract class BaseFunction<T extends FunctionData = FunctionData> {
+export class BaseFunction<T extends FunctionData = FunctionData> {
   declare type?: string;
   declare priority: 0 | 1 | 2 | 3;
   declare defaultMode: BlockMode;
@@ -14,7 +13,7 @@ export abstract class BaseFunction<T extends FunctionData = FunctionData> {
    * Whether result will always be the same when inputs are same,
    * and function doesn't emit any value.
    */
-  abstract isPure: boolean;
+  isPure: boolean;
 
   constructor(public _data?: T) {}
   initInputs() {}
@@ -33,7 +32,9 @@ export abstract class BaseFunction<T extends FunctionData = FunctionData> {
   }
 
   // return stream output
-  abstract run(): unknown;
+  run(): unknown {
+    return;
+  }
 
   /**
    *  cancel any async operation
@@ -61,20 +62,13 @@ export abstract class BaseFunction<T extends FunctionData = FunctionData> {
   }
 }
 
-export abstract class PureFunction extends BaseFunction {
-  isPure = true;
-
+export abstract class PureFunction<T extends FunctionData = FunctionData> extends BaseFunction<T> {
   cleanup(): void {
     this._data.output(undefined);
   }
 }
-export abstract class ImpureFunction extends BaseFunction {
-  isPure = false;
-}
 
-export abstract class BlockFunction extends BaseFunction<Block> {
-  isPure = false;
-
+export abstract class StatefulFunction extends BaseFunction<Block> {
   initInputs() {
     let inputMap = this.getInputMap();
     if (inputMap) {
@@ -84,7 +78,7 @@ export abstract class BlockFunction extends BaseFunction<Block> {
     }
   }
 
-  getInputMap(): Map<string, (this: BlockFunction, val: unknown) => boolean> {
+  getInputMap(): Map<string, (this: StatefulFunction, val: unknown) => boolean> {
     return null;
   }
 

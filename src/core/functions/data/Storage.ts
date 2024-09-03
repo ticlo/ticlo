@@ -1,4 +1,4 @@
-import {BlockFunction, ImpureFunction, PureFunction} from '../../block/BlockFunction';
+import {StatefulFunction, BaseFunction, PureFunction, BaseFunction} from '../../block/BlockFunction';
 import {Functions} from '../../block/Functions';
 import {Storage, voidStorage} from '../../block/Storage';
 import {encode, decode} from '../../util/Serialize';
@@ -11,7 +11,7 @@ export function setStorageFunctionProvider(getStorage: () => Storage) {
   }
 }
 
-export class WriteStorageFunction extends ImpureFunction {
+export class WriteStorageFunction extends BaseFunction {
   run() {
     const key = this._data.getValue('key');
     if (key && typeof key === 'string') {
@@ -44,7 +44,7 @@ Functions.add(WriteStorageFunction, {
   color: '1bb',
 });
 
-export class ReadStorageFunction extends BlockFunction {
+export class ReadStorageFunction extends BaseFunction {
   #listeningKey: string = null;
   #updateListener(key: unknown, autoRefresh: unknown) {
     if (autoRefresh && key && typeof key === 'string') {

@@ -1,11 +1,11 @@
-import {BlockFunction} from '../../block/BlockFunction';
+import {BaseFunction, StatefulFunction} from '../../block/BlockFunction';
 import {Functions} from '../../block/Functions';
-import {Block} from '../../block/Block';
+import {type Block} from '../../block/Block';
 import {isDataMap, isPrimitiveType} from '../../util/DataTypes';
 import {Resolver} from '../../block/Resolver';
 import {getInputsArray} from '../../block/FunctonData';
 
-export class StateFunction extends BlockFunction {
+export class StateFunction extends BaseFunction<Block> {
   writeState() {
     if (!this._data) {
       // _data is null when function is destroyed

@@ -1,15 +1,16 @@
 import {Functions} from '../block/Functions';
-import {BlockFunction} from '../block/BlockFunction';
+import {BaseFunction, StatefulFunction} from '../block/BlockFunction';
 import {FunctionDesc, PropDesc, PropGroupDesc} from '../block/Descriptor';
 import {BlockIO} from '../block/BlockProperty';
 import {Flow} from '../block/Flow';
 import {DataMap} from '../util/DataTypes';
 import {WorkerFlow} from './WorkerFlow';
+import type {Block} from '../block/Block';
 
 /**
  * WorkerFunction is the function wrapper for all custom subflow functions
  */
-export class WorkerFunction extends BlockFunction {
+export class WorkerFunction extends BaseFunction<Block> {
   declare readonly type: string;
   declare _namespace: string;
   declare _funcFlow: WorkerFlow;

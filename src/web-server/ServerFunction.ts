@@ -1,6 +1,6 @@
 import {RouteContentType, RouteFunction, RouteMethod, RouteService} from '../core/functions/web-server/RouteFunction';
 import {Functions} from '../../src/core/block/Functions';
-import {BlockFunction} from '../../src/core/block/BlockFunction';
+import {BaseFunction, StatefulFunction} from '../core/block/BlockFunction';
 import {Request, Response, RequestHandler} from 'express';
 import BodyParser from 'body-parser';
 import {decodeReceiver, encode} from '../../src/core/util/Serialize';
@@ -8,6 +8,7 @@ import {escapedObject} from '../../src/core/util/EscapedObject';
 import {Uid} from '../../src/core/util/Uid';
 import {ExpressHttpRequest} from './HttpRequest';
 import {Resolver} from '../../src/core/block/Resolver';
+import type {Block} from '../core';
 
 const formParser = BodyParser.urlencoded({extended: false});
 const jsonParser = BodyParser.json({reviver: decodeReceiver});
@@ -17,7 +18,7 @@ const bufferParser = BodyParser.raw({});
 const serviceId: Uid = new Uid();
 export const requestHandlerSymbol = Symbol('requestHandler');
 
-export class ServerFunction extends BlockFunction {
+export class ServerFunction extends BaseFunction<Block> {
   strictRoute: Map<string, Set<RouteFunction>> = new Map();
   wildcardRoute: Map<string, Set<RouteFunction>> = new Map();
 

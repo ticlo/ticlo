@@ -1,4 +1,4 @@
-import {BlockFunction} from '../block/BlockFunction';
+import {BaseFunction, StatefulFunction} from '../block/BlockFunction';
 import {FunctionDesc, getDefaultDataFromCustom, PropDesc, PropGroupDesc} from '../block/Descriptor';
 import {BlockConfig, BlockIO} from '../block/BlockProperty';
 import {Flow, Root} from '../block/Flow';
@@ -55,7 +55,7 @@ export class SubFlowCollector extends Event {
 /**
  * LoadFlowFunction is the function to load another flow
  */
-export class SubFlowFunction extends BlockFunction {
+export class SubFlowFunction extends BaseFunction<Block> {
   _funcFlow: WorkerFlow;
   _src: DataMap;
   _loading = false;

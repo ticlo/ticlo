@@ -103,6 +103,8 @@ export interface FunctionDesc {
    */
   priority?: 0 | 1 | 2 | 3;
   mode?: BlockMode;
+  // whether the function's output purely depends on input values.
+  isPure?: boolean;
   properties?: (PropDesc | PropGroupDesc)[];
   configs?: (string | PropDesc)[];
   // optional properties defined in base function, base function can be the current function itself

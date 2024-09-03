@@ -1,5 +1,5 @@
 import {Functions} from '../../block/Functions';
-import {BlockFunction} from '../../block/BlockFunction';
+import {BaseFunction, StatefulFunction} from '../../block/BlockFunction';
 import {BlockIO} from '../../block/BlockProperty';
 import {ErrorEvent, WAIT} from '../../block/Event';
 import {Block} from '../../block/Block';
@@ -9,7 +9,7 @@ import {Logger} from '../../util/Logger';
 
 const SCRIPT_ERROR = 'scriptError';
 
-export class JsFunction extends BlockFunction {
+export class JsFunction extends BaseFunction<Block> {
   _compiledFunction: Function;
   _runFunction: Function;
 

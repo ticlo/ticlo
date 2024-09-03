@@ -1,11 +1,11 @@
-import {BlockFunction} from '../block/BlockFunction';
+import {BaseFunction, StatefulFunction} from '../block/BlockFunction';
 import {Functions} from '../block/Functions';
 import {JsFunction} from '../functions/script/Js';
 import {SubFlowCollector, SubFlowMode, SubFlowModeOptions} from './SubFlowFunction';
 import {Flow, Root} from '../block/Flow';
 import {Block} from '../block/Block';
 
-export class SelectFlowFunction extends BlockFunction {
+export class SelectFlowFunction extends BaseFunction<Block> {
   collector: SubFlowCollector;
 
   constructor(data: Block) {

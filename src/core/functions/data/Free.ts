@@ -1,5 +1,6 @@
-import {BlockFunction} from '../../block/BlockFunction';
+import {BaseFunction, StatefulFunction} from '../../block/BlockFunction';
+import type {Block} from '../../block/Block';
 
-export class FreeFunction extends BlockFunction {
+export class FreeFunction extends BaseFunction<Block> {
   run() {}
 }

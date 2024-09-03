@@ -1,12 +1,13 @@
 import {Functions} from '../../block/Functions';
-import {BlockFunction} from '../../block/BlockFunction';
+import {BaseFunction, StatefulFunction} from '../../block/BlockFunction';
 import {BlockIO} from '../../block/BlockProperty';
 import {NO_EMIT, WAIT} from '../../block/Event';
+import type {Block} from '../../block/Block';
 
 const MIN_DELAY = 0.001;
 const DEFAULT_DELAY = 1;
 
-export class DelayFunction extends BlockFunction {
+export class DelayFunction extends BaseFunction<Block> {
   #timeout?: any;
   #onTimer = () => {
     this.#timeout = null;
@@ -79,7 +80,7 @@ Functions.add(
     properties: [
       {name: 'input', type: 'any', pinned: true},
       {name: '#output', type: 'any', pinned: true, readonly: true},
-      {name: 'delay', type: 'number', min: MIN_DELAY, default: DEFAULT_DELAY},
+      {name: 'delay', type: 'number', min: MIN_DELAY, default: DEFAULT_DELAY, unit: 's'},
       {name: 'mode', type: 'select', options: ['wait', 'window'], default: 'wait'},
     ],
   },

@@ -1,5 +1,5 @@
 import {Functions} from '../Functions';
-import {PureFunction, BlockFunction} from '../BlockFunction';
+import {PureFunction, StatefulFunction} from '../BlockFunction';
 import {BlockIO, BlockPropertyEvent} from '../BlockProperty';
 import {CompleteEvent, ErrorEvent, Event, EventType, WAIT} from '../Event';
 import {PropDispatcher} from '../Dispatcher';
@@ -100,7 +100,7 @@ Functions.add(TestAsyncFunctionPromise, {
 });
 
 // async function that manually call block.wait, and return NOT_READY
-export class TestAsyncFunctionManual extends BlockFunction {
+export class TestAsyncFunctionManual extends StatefulFunction {
   timeOut: NodeJS.Timeout | string | number | undefined;
 
   run(): unknown {

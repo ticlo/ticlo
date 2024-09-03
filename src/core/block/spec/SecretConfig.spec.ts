@@ -1,10 +1,10 @@
-import {BlockFunction, PureFunction} from '../BlockFunction';
+import {BaseFunction} from '../BlockFunction';
 import {Block, setSecretCipher} from '../Block';
 import {Functions} from '../Functions';
 import {Flow, Root} from '../Flow';
 import {expect} from 'vitest';
 
-export class TestSecretFunction extends BlockFunction {
+export class TestSecretFunction extends BaseFunction<Block> {
   run() {
     const secret = this._data._getSecret(this);
     this._data.output(secret);

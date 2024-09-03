@@ -1,8 +1,9 @@
-import {BlockFunction} from '../../block/BlockFunction';
+import {BaseFunction, StatefulFunction} from '../../block/BlockFunction';
 import {HttpRequest} from './HttpRequest';
 import {Functions} from '../../block/Functions';
+import type {Block} from '../../block/Block';
 
-export class StaticResponse extends BlockFunction {
+export class StaticResponse extends BaseFunction<Block> {
   _called: HttpRequest[] = [];
   onCall(val: any): boolean {
     if (val instanceof HttpRequest) {

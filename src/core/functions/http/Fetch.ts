@@ -1,5 +1,5 @@
 import axios, {AxiosRequestConfig, AxiosRequestHeaders, AxiosResponse, CanceledError, ResponseType} from 'axios';
-import {PureFunction, BlockFunction, ImpureFunction} from '../../block/BlockFunction';
+import {PureFunction, StatefulFunction, BaseFunction} from '../../block/BlockFunction';
 import {ErrorEvent, EventType, WAIT} from '../../block/Event';
 import {Functions} from '../../block/Functions';
 import {defaultConfigs, BlockMode} from '../../block/Descriptor';
@@ -21,7 +21,7 @@ const httpClient: HttpClient = {
   },
 };
 
-export class FetchFunction extends ImpureFunction {
+export class FetchFunction extends BaseFunction {
   _abortController: AbortController;
 
   run(): any {

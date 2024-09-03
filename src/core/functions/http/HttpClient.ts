@@ -1,6 +1,6 @@
 import {URL} from 'url';
 import axios, {AxiosPromise, AxiosRequestConfig, AxiosRequestHeaders, AxiosResponse} from 'axios';
-import {ImpureFunction} from '../../block/BlockFunction';
+import {BaseFunction} from '../../block/BlockFunction';
 import {Functions} from '../../block/Functions';
 import {isDataMap} from '../../util/DataTypes';
 
@@ -73,7 +73,7 @@ class HttpClientObject implements HttpClient {
   }
 }
 
-class HttpClientFunction extends ImpureFunction {
+class HttpClientFunction extends BaseFunction {
   run(): any {
     let url = this._data.getValue('url');
     let headers = this._data.getValue('headers');

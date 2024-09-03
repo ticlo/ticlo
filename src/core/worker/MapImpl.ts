@@ -1,4 +1,4 @@
-import {BlockFunction} from '../block/BlockFunction';
+import {StatefulFunction} from '../block/BlockFunction';
 import {DataMap, isSavedBlock} from '../util/DataTypes';
 import {Block} from '../block/Block';
 import {ThreadPool, UnlimitedPool, WorkerPool} from './ThreadPool';
@@ -8,7 +8,7 @@ import {FunctionOutput} from '../block/FunctonData';
 
 export type MapWorkerMode = undefined | 'reuse' | 'persist';
 
-export abstract class MapImpl extends BlockFunction {
+export abstract class MapImpl extends StatefulFunction {
   _src: DataMap | string;
   _srcChanged: boolean; /* = false*/
 
