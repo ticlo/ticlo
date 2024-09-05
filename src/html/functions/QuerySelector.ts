@@ -1,7 +1,7 @@
 import './registerArrowCode';
-import {PureFunction, Functions, ErrorEvent} from '../../../src/core';
+import {PureFunction, Functions, ErrorEvent, BaseFunction} from '../../../src/core';
 
-export class QuerySelectorFunction extends PureFunction {
+export class QuerySelectorFunction extends BaseFunction {
   run() {
     let parent = this._data.getValue('parent');
     let query = this._data.getValue('query');
@@ -21,6 +21,9 @@ export class QuerySelectorFunction extends PureFunction {
         }
       }
     }
+    this._data.output(undefined);
+  }
+  cleanup(): void {
     this._data.output(undefined);
   }
 }

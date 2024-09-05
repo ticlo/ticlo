@@ -66,7 +66,7 @@ export class Functions {
       cls.prototype.priority = desc.priority;
       cls.prototype.defaultMode = desc.mode;
       cls.prototype.type = id;
-      cls.prototype.isPure = Boolean(desc.isPure);
+      cls.prototype.isPure ||= Boolean(desc.isPure);
     }
 
     let func = _functions[id];

@@ -3,6 +3,8 @@ import {ScheduleEvent, setSchedule} from '../../util/SetSchedule';
 import {Block} from '../../block/Block';
 import type {BlockConfig} from '../../block/BlockProperty';
 import {FunctionData} from '../../block/FunctonData';
+import type {EventType} from '../../block/Event';
+import type {BlockMode} from '../../block/Descriptor';
 
 export abstract class AutoUpdateFunction extends BaseFunction {
   #schedule: ScheduleEvent;
@@ -45,6 +47,15 @@ export abstract class AutoUpdateFunction extends BaseFunction {
   configChanged(config: BlockConfig, val: unknown): boolean {
     if (config._name === 'mode') {
       return this.#setAutoUpdate(config._value == null || config._value === 'auto');
+    }
+    return false;
+  }
+
+  cancel(reason: EventType, mode: BlockMode): boolean {
+    if (this.#schedule) {
+      this.#schedule.cancel();
+      this.#schedule = null;
+      return true;
     }
     return false;
   }

@@ -1,8 +1,9 @@
 import {Functions} from '../../block/Functions';
 import {BaseFunction, StatefulFunction} from '../../block/BlockFunction';
 import {BlockIO} from '../../block/BlockProperty';
-import {NO_EMIT, WAIT} from '../../block/Event';
+import {EventType, NO_EMIT, WAIT} from '../../block/Event';
 import type {Block} from '../../block/Block';
+import {BlockMode} from '../../block/Descriptor';
 
 const MIN_DELAY = 0.001;
 const DEFAULT_DELAY = 1;
@@ -57,12 +58,24 @@ export class DelayFunction extends BaseFunction<Block> {
     }
     return NO_EMIT;
   }
+
+  cancel(reason: EventType, mode: BlockMode): boolean {
+    if (this.#timeout) {
+      clearTimeout(this.#timeout);
+      this.#timeout = null;
+      return true;
+    }
+    return false;
+  }
+
   cleanup() {
     if (this.#timeout) {
       clearTimeout(this.#timeout);
     }
+    this._data.output(undefined);
     super.cleanup();
   }
+
   destroy() {
     if (this.#timeout) {
       clearTimeout(this.#timeout);

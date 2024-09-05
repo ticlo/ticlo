@@ -63,6 +63,7 @@ export class BaseFunction<T extends FunctionData = FunctionData> {
 }
 
 export abstract class PureFunction<T extends FunctionData = FunctionData> extends BaseFunction<T> {
+  isPure = true;
   cleanup(): void {
     this._data.output(undefined);
   }
