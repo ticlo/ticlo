@@ -1,4 +1,4 @@
-import {StatefulFunction, BaseFunction, PureFunction, BaseFunction} from '../../block/BlockFunction';
+import {StatefulFunction, BaseFunction, PureFunction} from '../../block/BlockFunction';
 import {Functions} from '../../block/Functions';
 import {Storage, voidStorage} from '../../block/Storage';
 import {encode, decode} from '../../util/Serialize';
