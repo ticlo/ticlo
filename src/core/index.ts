@@ -41,6 +41,7 @@ import './functions/script/Js';
 import './functions/data/State';
 import './functions/date';
 import './functions/time/Delay';
+import './functions/time/Timer';
 import './functions/condition/DefaultValue';
 import './functions/condition/If';
 import './worker/MapFunction';

@@ -65,6 +65,7 @@ export class DelayFunction extends BaseFunction<Block> {
       this.#timeout = null;
       return true;
     }
+    this.#timerTriggered = false;
     return false;
   }
 
