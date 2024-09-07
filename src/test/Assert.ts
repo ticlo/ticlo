@@ -87,9 +87,13 @@ export class AssertFunction extends BaseFunction<Block> {
     if (this._state === TestState.PASSED && !this._alwaysMatch) {
       return NO_EMIT;
     }
-    let compares = getInputsArray(this._data, '', 1, [EXPECT, ACTUAL]) as {expect: any; actual: any; i: number}[];
+    let compares = getInputsArray(this._data, '', 1, [EXPECT, ACTUAL]) as {
+      expect: any;
+      actual: any;
+    }[];
     let matched = compares.length > 0;
-    for (let {expect, actual, i} of compares) {
+    for (let i = 0; i < compares.length; ++i) {
+      const {expect, actual} = compares[i];
       if (actual === undefined) {
         // ignore when input is undefined
         return NO_EMIT;
