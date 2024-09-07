@@ -101,7 +101,10 @@ export class NumberEditor extends React.PureComponent<ValueEditorProps, any> {
   }
 
   onKeyDown = (e: React.KeyboardEvent) => {
-    e.stopPropagation();
+    if (!e.ctrlKey && !e.metaKey) {
+      // allow shortcut like ctrl+S to propagate
+      e.stopPropagation();
+    }
     switch (e.key) {
       case 'Escape': {
         if (this._pendingValue != null) {

@@ -32,6 +32,10 @@ export abstract class StringEditorBase extends React.PureComponent<ValueEditorPr
   };
 
   onKeyDown = (e: React.KeyboardEvent) => {
+    if (!e.ctrlKey && !e.metaKey) {
+      // allow shortcut like ctrl+S to propagate
+      e.stopPropagation();
+    }
     if (e.key === 'Escape') {
       if (this._pendingValue != null) {
         this._pendingValue = null;
@@ -47,6 +51,5 @@ export abstract class StringEditorBase extends React.PureComponent<ValueEditorPr
       e.preventDefault();
       return;
     }
-    e.stopPropagation();
   };
 }
