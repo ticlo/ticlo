@@ -3,7 +3,7 @@ import {Functions} from '../../block/Functions';
 import {type Block} from '../../block/Block';
 import {isDataMap, isPrimitiveType} from '../../util/DataTypes';
 import {Resolver} from '../../block/Resolver';
-import {getInputsArray} from '../../block/FunctonData';
+import {getInputsArray, getInputsLength} from '../../block/FunctonData';
 
 export class StateFunction extends BaseFunction<Block> {
   writeState() {
@@ -44,6 +44,20 @@ export class StateFunction extends BaseFunction<Block> {
       });
     } else {
       this.writeState();
+    }
+  }
+
+  cleanup() {
+    let savable = this._data.getValue('savable');
+    if (!savable) {
+      const len = getInputsLength(this._data, '', 1);
+      for (let i = 0; i < len; ++i) {
+        let inputProp = this._data.getProperty(`input${i}`);
+        let sourceProp = inputProp?._bindingSource?.getProperty();
+        if (sourceProp) {
+          sourceProp.revertUpdate();
+        }
+      }
     }
   }
 }

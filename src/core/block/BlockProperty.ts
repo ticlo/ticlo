@@ -47,6 +47,20 @@ export class BlockProperty extends PropDispatcher<any> implements PropListener<a
     return this.onChange(val);
   }
 
+  revertUpdate() {
+    let val: unknown;
+    if (this._saved !== undefined) {
+      val = this._saved;
+    } else if (this._bindingSource) {
+      val = this._bindingSource.getProperty()._value;
+    } else {
+      return;
+    }
+    if (!Object.is(this._value, val)) {
+      this.onChange(val);
+    }
+  }
+
   onChange(val: unknown, save?: boolean): boolean {
     if (Object.is(this._value, val)) {
       if (save && !Object.is(this._saved, val)) {
