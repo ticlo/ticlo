@@ -36,6 +36,7 @@ import {BlockInputsConfig, BlockOutputsConfig} from '../block/BlockConfigs';
 import {WorkerFlow} from '../worker/WorkerFlow';
 import {Query, queryBlock} from './Query';
 import {getGlobalSettingsData} from '../util/Settings';
+import {DoneEvent} from '../block/Event';
 
 class ServerRequest extends ConnectionSendingData {
   id: string;
@@ -995,7 +996,7 @@ export class ServerConnection extends ServerConnectionCore {
     let property = this.root.queryProperty(path);
     if (property && property._value instanceof Block) {
       if (property._value.getFunctionClass()) {
-        property._value._queueFunction();
+        property._value._onCall(new DoneEvent());
       }
       return null;
     } else {

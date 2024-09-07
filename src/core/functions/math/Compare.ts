@@ -145,7 +145,7 @@ Functions.add(WithinRangeFunction, {
     {name: 'input', type: 'number', pinned: true},
     {name: 'min', type: 'number', pinned: true},
     {name: 'max', type: 'number', pinned: true},
-    {name: '#output', pinned: true, type: 'number', readonly: true},
+    {name: '#output', pinned: true, type: 'toggle', readonly: true},
   ],
   recipient: 'input',
 });
@@ -171,7 +171,7 @@ Functions.add(WithinIntervalFunction, {
     {name: 'input', type: 'number', pinned: true},
     {name: 'min', type: 'number', pinned: true},
     {name: 'max', type: 'number', pinned: true},
-    {name: '#output', pinned: true, type: 'number', readonly: true},
+    {name: '#output', pinned: true, type: 'toggle', readonly: true},
   ],
   recipient: 'input',
 });
