@@ -1057,6 +1057,14 @@ export class BlockItem extends BaseBlockItem {
   }
 
   destroy() {
+    if (this._syncChild) {
+      this._syncChild.syncParent = null;
+      this._syncChild = null;
+    }
+    if (this._syncParent) {
+      this._syncParent.syncChild = null;
+      this._syncParent = null;
+    }
     this.syncListener.unsubscribe();
     this.xywListener.unsubscribe();
     this.styleListener.unsubscribe();
