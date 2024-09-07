@@ -1,0 +1,374 @@
+{
+"#disabled": true,
+"#is": "",
+"assert": {
+ "#is": "test:assert",
+ "#mode": "onCall",
+ "#sync": true,
+ "@b-p": [
+  "actual0",
+  "expect0"
+ ],
+ "@b-xyw": "set-state7",
+ "expect0": 3,
+ "~#call": "##.set-state7.#emit",
+ "~actual0": "##.delay-window-5.#output"
+},
+"assert1": {
+ "#is": "test:assert",
+ "@b-p": [
+  "actual0",
+  "expect0"
+ ],
+ "@b-xyw": [
+  381,
+  66,
+  143
+ ],
+ "expect0": 1,
+ "~actual0": "##.delay-window-5.#output"
+},
+"assert2": {
+ "#is": "test:assert",
+ "#mode": "onCall",
+ "#sync": true,
+ "@b-p": [
+  "actual0",
+  "expect0"
+ ],
+ "@b-xyw": "timer1",
+ "expect0": 4,
+ "~#call": "##.timer1.#emit",
+ "~actual0": "##.delay-window-5.#output"
+},
+"assert3": {
+ "#is": "test:assert",
+ "@b-p": [
+  "actual0",
+  "expect0"
+ ],
+ "@b-xyw": [
+  985,
+  77,
+  143
+ ],
+ "expect0": 1,
+ "~actual0": "##.delay-wait-5.#output"
+},
+"assert4": {
+ "#is": "test:assert",
+ "#mode": "onCall",
+ "#sync": true,
+ "@b-p": [
+  "actual0",
+  "expect0"
+ ],
+ "@b-xyw": "timer3",
+ "expect0": 1,
+ "~#call": "##.timer3.#emit",
+ "~actual0": "##.delay-wait-5.#output"
+},
+"assert5": {
+ "#is": "test:assert",
+ "#mode": "onCall",
+ "#sync": true,
+ "@b-p": [
+  "actual0",
+  "expect0"
+ ],
+ "@b-xyw": "timer4",
+ "expect0": 5,
+ "~#call": "##.timer4.#emit",
+ "~actual0": "##.delay-wait-5.#output"
+},
+"assert6": {
+ "#is": "test:assert",
+ "#mode": "onCall",
+ "#sync": true,
+ "@b-p": [
+  "actual0",
+  "expect0"
+ ],
+ "@b-xyw": "timer2",
+ "expect0": 5,
+ "~#call": "##.timer2.#emit",
+ "~actual0": "##.delay-window-5.#output"
+},
+"delay-wait-5": {
+ "#is": "time:delay",
+ "@b-p": [
+  "input",
+  "#output"
+ ],
+ "@b-xyw": [
+  655,
+  570,
+  143
+ ],
+ "delay": 0.1,
+ "input": 1
+},
+"delay-window-5": {
+ "#is": "time:delay",
+ "@b-p": [
+  "input",
+  "#output"
+ ],
+ "@b-xyw": [
+  36,
+  564,
+  151
+ ],
+ "delay": 0.1,
+ "input": 1,
+ "mode": "window"
+},
+"set-state1": {
+ "#is": "set-state",
+ "#mode": "onCall",
+ "#sync": true,
+ "@b-p": [
+  "input0",
+  "target0"
+ ],
+ "@b-xyw": "timer5",
+ "target0": 2,
+ "~#call": "##.timer5.#emit",
+ "~input0": "##.delay-wait-5.input"
+},
+"set-state2": {
+ "#is": "set-state",
+ "#mode": "onCall",
+ "#sync": true,
+ "@b-p": [
+  "input0",
+  "target0"
+ ],
+ "@b-xyw": "timer6",
+ "target0": 3,
+ "~#call": "##.timer6.#emit",
+ "~input0": "##.delay-wait-5.input"
+},
+"set-state3": {
+ "#is": "set-state",
+ "#mode": "onCall",
+ "#sync": true,
+ "@b-p": [
+  "input0",
+  "target0"
+ ],
+ "@b-xyw": "timer7",
+ "target0": 4,
+ "~#call": "##.timer7.#emit",
+ "~input0": "##.delay-wait-5.input"
+},
+"set-state4": {
+ "#is": "set-state",
+ "#mode": "onCall",
+ "#sync": true,
+ "@b-p": [
+  "input0",
+  "target0"
+ ],
+ "@b-xyw": "timer8",
+ "target0": 5,
+ "~#call": "##.timer8.#emit",
+ "~input0": "##.delay-wait-5.input"
+},
+"set-state5": {
+ "#is": "set-state",
+ "#mode": "onCall",
+ "#sync": true,
+ "@b-p": [
+  "input0",
+  "target0"
+ ],
+ "@b-xyw": "timer9",
+ "target0": 2,
+ "~#call": "##.timer9.#emit",
+ "~input0": "##.delay-window-5.input"
+},
+"set-state6": {
+ "#is": "set-state",
+ "#mode": "onCall",
+ "#sync": true,
+ "@b-p": [
+  "input0",
+  "target0"
+ ],
+ "@b-xyw": "timer10",
+ "target0": 3,
+ "~#call": "##.timer10.#emit",
+ "~input0": "##.delay-window-5.input"
+},
+"set-state7": {
+ "#is": "set-state",
+ "#mode": "onCall",
+ "#sync": true,
+ "@b-p": [
+  "input0",
+  "target0"
+ ],
+ "@b-xyw": "timer11",
+ "target0": 4,
+ "~#call": "##.timer11.#emit",
+ "~input0": "##.delay-window-5.input"
+},
+"set-state8": {
+ "#is": "set-state",
+ "#mode": "onCall",
+ "#sync": true,
+ "@b-p": [
+  "input0",
+  "target0"
+ ],
+ "@b-xyw": "timer12",
+ "target0": 5,
+ "~#call": "##.timer12.#emit",
+ "~input0": "##.delay-window-5.input"
+},
+"timer1": {
+ "#is": "time:timer",
+ "#mode": "onCall",
+ "#sync": true,
+ "@b-p": [
+  "interval"
+ ],
+ "@b-xyw": "set-state8",
+ "interval": 0.01,
+ "max": 1,
+ "~#call": "##.set-state8.#emit"
+},
+"timer10": {
+ "#is": "time:timer",
+ "#mode": "onCall",
+ "#sync": true,
+ "@b-p": [
+  "interval"
+ ],
+ "@b-xyw": "set-state5",
+ "interval": 0.05,
+ "max": 1,
+ "~#call": "##.set-state5.#emit"
+},
+"timer11": {
+ "#is": "time:timer",
+ "#mode": "onCall",
+ "#sync": true,
+ "@b-p": [
+  "interval"
+ ],
+ "@b-xyw": "set-state6",
+ "interval": 0.05,
+ "max": 1,
+ "~#call": "##.set-state6.#emit"
+},
+"timer12": {
+ "#is": "time:timer",
+ "#mode": "onCall",
+ "#sync": true,
+ "@b-p": [
+  "interval"
+ ],
+ "@b-xyw": "assert",
+ "interval": 0.1,
+ "max": 1,
+ "~#call": "##.assert.#emit"
+},
+"timer2": {
+ "#is": "time:timer",
+ "#mode": "onCall",
+ "#sync": true,
+ "@b-p": [
+  "interval"
+ ],
+ "@b-xyw": "assert2",
+ "interval": 0.1,
+ "max": 1,
+ "~#call": "##.assert2.#emit"
+},
+"timer3": {
+ "#is": "time:timer",
+ "#mode": "onCall",
+ "#sync": true,
+ "@b-p": [
+  "interval"
+ ],
+ "@b-xyw": "set-state4",
+ "interval": 0.01,
+ "max": 1,
+ "~#call": "##.set-state4.#emit"
+},
+"timer4": {
+ "#is": "time:timer",
+ "#mode": "onCall",
+ "#sync": true,
+ "@b-p": [
+  "interval"
+ ],
+ "@b-xyw": "assert4",
+ "interval": 0.1,
+ "max": 1,
+ "~#call": "##.assert4.#emit"
+},
+"timer5": {
+ "#is": "time:timer",
+ "#mode": "onCall",
+ "#sync": true,
+ "@b-p": [
+  "interval"
+ ],
+ "@b-xyw": "assert3",
+ "interval": 0.01,
+ "max": 1,
+ "~#call": "##.assert3.#emit"
+},
+"timer6": {
+ "#is": "time:timer",
+ "#mode": "onCall",
+ "#sync": true,
+ "@b-p": [
+  "interval"
+ ],
+ "@b-xyw": "set-state1",
+ "interval": 0.05,
+ "max": 1,
+ "~#call": "##.set-state1.#emit"
+},
+"timer7": {
+ "#is": "time:timer",
+ "#mode": "onCall",
+ "#sync": true,
+ "@b-p": [
+  "interval"
+ ],
+ "@b-xyw": "set-state2",
+ "interval": 0.05,
+ "max": 1,
+ "~#call": "##.set-state2.#emit"
+},
+"timer8": {
+ "#is": "time:timer",
+ "#mode": "onCall",
+ "#sync": true,
+ "@b-p": [
+  "interval"
+ ],
+ "@b-xyw": "set-state3",
+ "interval": 0.05,
+ "max": 1,
+ "~#call": "##.set-state3.#emit"
+},
+"timer9": {
+ "#is": "time:timer",
+ "#mode": "onCall",
+ "#sync": true,
+ "@b-p": [
+  "interval"
+ ],
+ "@b-xyw": "assert1",
+ "interval": 0.01,
+ "max": 1,
+ "~#call": "##.assert1.#emit"
+}
+}

@@ -8,12 +8,16 @@ import type {BlockMode} from '../../block/Descriptor';
 
 interface ScheduleListener {
   cancel(): void;
-  start?: number;
+  start: number;
 }
 
 class TimeoutListener implements ScheduleListener {
   timeout: any;
-  constructor(callback: (time: number) => void, ms: number) {
+  constructor(
+    callback: (time: number) => void,
+    ms: number,
+    public start: number
+  ) {
     this.timeout = setTimeout(callback, ms);
   }
   cancel() {
@@ -61,10 +65,10 @@ export abstract class AutoUpdateFunction<T extends FunctionData = FunctionData> 
     }
     return null;
   }
-  addTimeout(ms: number): ScheduleListener {
+  addTimeout(ms: number, start?: number): ScheduleListener {
     if (this.#autoUpdate) {
       this.#schedule?.cancel();
-      this.#schedule = new TimeoutListener(this.#onSchedule, ms);
+      this.#schedule = new TimeoutListener(this.#onSchedule, ms, start);
       return this.#schedule;
     }
     return null;

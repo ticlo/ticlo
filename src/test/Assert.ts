@@ -19,6 +19,7 @@ import {getInputsArray} from '../core/block/FunctonData';
 
 const EXPECT = 'expect';
 const ACTUAL = 'actual';
+const FAULT = 'fault';
 
 function convertActual(actual: any) {
   if (isPrimitiveType(actual) || Array.isArray(actual) || actual.constructor === Object) {
@@ -39,6 +40,7 @@ export class AssertFunction extends BaseFunction<Block> {
 
       if (this._data._sync) {
         if (this._calledSync && !this._alwaysMatch) {
+          // in sync mode, match once must match the first test, and after that any trigger would be ignored
           return false;
         }
         this._calledSync = true;
@@ -85,15 +87,16 @@ export class AssertFunction extends BaseFunction<Block> {
     if (this._state === TestState.PASSED && !this._alwaysMatch) {
       return NO_EMIT;
     }
-    let compares = getInputsArray(this._data, '', 1, [EXPECT, ACTUAL]) as {expect: any; actual: any}[];
+    let compares = getInputsArray(this._data, '', 1, [EXPECT, ACTUAL]) as {expect: any; actual: any; i: number}[];
     let matched = compares.length > 0;
-    for (let {expect, actual} of compares) {
+    for (let {expect, actual, i} of compares) {
       if (actual === undefined) {
         // ignore when input is undefined
         return NO_EMIT;
       }
       if (!deepEqual(actual, expect)) {
         matched = false;
+        this._data.output(actual, `${FAULT}${i}`);
         break;
       }
     }
@@ -146,6 +149,7 @@ Functions.add(
             pinned: true,
             commands: {copyFromActual: {parameters: []}},
           },
+          {name: FAULT, type: 'any', readonly: true},
         ],
       },
       {name: 'matchMode', type: 'radio-button', options: ['match-once', 'always-match'], default: 'match-once'},

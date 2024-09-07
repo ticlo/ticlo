@@ -3,7 +3,10 @@ import React from 'react';
 export function displayNumber(val: number): string {
   let rslt1 = val.toString();
   let rslt2 = val.toPrecision(4);
-  if (rslt1.length < rslt2.length + 3) {
+  if (!rslt1.includes('.')) {
+    return rslt1;
+  }
+  if (rslt1.length < 11) {
     // use full string if it's not too long
     return rslt1;
   } else {

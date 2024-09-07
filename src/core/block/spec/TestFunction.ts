@@ -1,7 +1,7 @@
 import {Functions} from '../Functions';
 import {PureFunction, StatefulFunction} from '../BlockFunction';
 import {BlockIO, BlockPropertyEvent} from '../BlockProperty';
-import {CompleteEvent, ErrorEvent, Event, EventType, WAIT} from '../Event';
+import {DoneEvent, ErrorEvent, Event, EventType, WAIT} from '../Event';
 import {PropDispatcher} from '../Dispatcher';
 import {Block} from '../Block';
 import {DataMap} from '../../util/DataTypes';
@@ -113,7 +113,7 @@ export class TestAsyncFunctionManual extends StatefulFunction {
         if (this._data.getValue('#-resolve')) {
           this._data.emit(this._data.getValue('#-resolve'));
         } else {
-          this._data.emit(new CompleteEvent());
+          this._data.emit(new DoneEvent());
         }
       }
       this.timeOut = null;

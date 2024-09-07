@@ -4,7 +4,7 @@ import {Flow, Root} from '../../block/Flow';
 import '../../functions/math/Arithmetic';
 import '../HandlerFunction';
 import {convertToOutput, DataMap} from '../../util/DataTypes';
-import {CompleteEvent, ErrorEvent, Event, WAIT} from '../../block/Event';
+import {DoneEvent, ErrorEvent, Event, WAIT} from '../../block/Event';
 import {shouldHappen, shouldTimeout} from '../../util/test-util';
 import {Task} from '../../block/Task';
 

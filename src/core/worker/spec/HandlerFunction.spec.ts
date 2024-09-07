@@ -4,7 +4,7 @@ import {TestFunctionRunner, TestAsyncFunctionLog} from '../../block/spec/TestFun
 import '../../functions/math/Arithmetic';
 import '../HandlerFunction';
 import {DataMap} from '../../util/DataTypes';
-import {CompleteEvent, Event, WAIT} from '../../block/Event';
+import {DoneEvent, Event, WAIT} from '../../block/Event';
 import {shouldHappen, shouldTimeout} from '../../util/test-util';
 import {Block} from '../../block/Block';
 

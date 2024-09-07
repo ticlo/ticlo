@@ -84,7 +84,7 @@ export function getInputsArray(
     // iterate block array with fields
     for (let i = 0; i < len; ++i) {
       // return object structure
-      let obj: DataMap = {};
+      let obj: DataMap = {i};
       for (let field of fields) {
         obj[field] = input.getValue(`${field}${i}`);
       }

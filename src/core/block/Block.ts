@@ -4,7 +4,7 @@ import {BlockBinding} from './BlockBinding';
 import {FunctionClass, BaseFunction} from './BlockFunction';
 import {PropDispatcher, PropListener, Destroyable} from './Dispatcher';
 import {FunctionDispatcher, Functions} from './Functions';
-import {CompleteEvent, ErrorEvent, Event, EventType, NO_EMIT, WAIT} from './Event';
+import {DoneEvent, ErrorEvent, Event, EventType, NO_EMIT, WAIT} from './Event';
 import {DataMap} from '../util/DataTypes';
 import {Uid} from '../util/Uid';
 import {voidProperty} from './Void';
@@ -546,7 +546,7 @@ export class Block implements Runnable, FunctionData, PropListener<FunctionClass
     }
     if (this._props.has('#emit')) {
       if (val === undefined) {
-        val = new CompleteEvent();
+        val = new DoneEvent();
       }
       this._props.get('#emit').updateValue(val);
     }
@@ -618,9 +618,9 @@ export class Block implements Runnable, FunctionData, PropListener<FunctionClass
                 if (this.#function.isPure && this._runOnChange && !this._queueToRun) {
                   // if function is pure, it can't be called synchronously without a change
                   let prop = this._props.get('#emit');
-                  if (prop && Object.isExtensible(prop._value) && prop._value.constructor === CompleteEvent) {
+                  if (prop && Object.isExtensible(prop._value) && prop._value.constructor === DoneEvent) {
                     // re-emit complete event
-                    prop.updateValue(new CompleteEvent());
+                    prop.updateValue(new DoneEvent());
                   }
                 } else {
                   this._called = true;

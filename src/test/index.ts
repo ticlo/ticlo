@@ -1,4 +1,5 @@
 import './Assert';
+import './LogTime';
 import {Functions} from '../core';
 
 Functions.addCategory({
