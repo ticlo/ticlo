@@ -1,7 +1,7 @@
 import {Block, BlockChildWatch, InputsBlock, Runnable} from './Block';
 import {BlockConfig, BlockIO, BlockProperty, GlobalProperty} from './BlockProperty';
 import {Resolver} from './Resolver';
-import {BlockConstConfig, ConstTypeConfig, FlowConfigGenerators} from './BlockConfigs';
+import {BlockConstConfig, ConstTypeConfig, FlowConfigGenerators, FlowFolderConfigGenerators} from './BlockConfigs';
 import {Event} from './Event';
 import {DataMap} from '../util/DataTypes';
 import {FunctionDesc} from './Descriptor';
@@ -19,6 +19,7 @@ export enum FlowState {
 }
 export interface FlowLoader {
   createFlow?(path: string, prop: BlockProperty): Flow;
+  createFolder?(path: string, prop: BlockProperty): FlowFolder;
   applyChange?(data: DataMap): boolean;
   onStateChange?(flow: Flow, state: FlowState): void;
 }
@@ -336,7 +337,17 @@ class GlobalBlock extends Flow {
   }
 }
 
-export class Root extends Flow {
+export class FlowFolder extends Flow {
+  _createConfig(field: string): BlockProperty {
+    if (field in FlowFolderConfigGenerators) {
+      return new FlowFolderConfigGenerators[field](this, field);
+    } else {
+      return new BlockConfig(this, field);
+    }
+  }
+}
+
+export class Root extends FlowFolder {
   private static _instance: Root = new Root();
   static get instance() {
     return this._instance;
@@ -426,6 +437,27 @@ export class Root extends Flow {
     return this._globalRoot.getProperty(name);
   }
 
+  addFlowFolder(path: string, loader?: FlowLoader): FlowFolder {
+    let prop = this.queryProperty(path, true);
+    if (!prop || prop._value instanceof Block) {
+      // invalid path
+      return null;
+    }
+    if (!(prop._block instanceof FlowFolder)) {
+      // can't create flow under a block or regular flow
+      return null;
+    }
+
+    let newGroup: Flow;
+    if (loader?.createFolder) {
+      newGroup = loader.createFolder(path, prop);
+    } else {
+      newGroup = new FlowFolder(prop._block, null, prop);
+    }
+    prop.setValue(newGroup);
+    return newGroup;
+  }
+
   addFlow(path?: string, data?: DataMap, loader?: FlowLoader): Flow {
     if (!path) {
       path = Block.nextUid();
@@ -435,6 +467,11 @@ export class Root extends Flow {
       // invalid path
       return null;
     }
+    if (!(prop._block instanceof FlowFolder)) {
+      // can't create flow under a block or regular flow
+      return null;
+    }
+
     if (!loader && this._storage) {
       loader = this._storage.getFlowLoader(path, prop);
     }

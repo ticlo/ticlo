@@ -239,6 +239,12 @@ export abstract class ClientConnection extends Connection implements ClientConn 
     return result;
   }
 
+  addFlowFolder(path: string, callbacks?: ClientCallbacks): Promise<any> | string {
+    let result = this.simpleRequest({cmd: 'addFlowFolder', path}, callbacks);
+    this._childrenChangeStream.dispatch({path: path.substring(0, path.lastIndexOf('.')), showNode: true});
+    return result;
+  }
+
   list(path: string, filter?: string, max: number = 16, callbacks?: ClientCallbacks): Promise<any> | string {
     return this.simpleRequest({cmd: 'list', path, filter, max}, callbacks);
   }

@@ -538,6 +538,14 @@ export class ServerConnection extends ServerConnectionCore {
     }
   }
 
+  addFlowFolder({path}: {path: string}): string | DataMap {
+    if (this.root.addFlowFolder(path)) {
+      return null;
+    } else {
+      return 'invalid path';
+    }
+  }
+
   addBlock({path, data, anyName}: {path: string; data?: DataMap; anyName?: boolean}): string | DataMap {
     let property = this.root.queryProperty(path, true);
     if (!property && /\.#shared\.[^.]+$/.test(path)) {

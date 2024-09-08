@@ -32,6 +32,17 @@ export const clientDescriptors: FunctionDesc[] = [
   },
   {
     priority: 0,
+    name: 'folder',
+    id: 'flow:folder',
+    properties: [],
+    icon: 'fas:folder',
+    color: '9bd',
+    src: 'hidden',
+    ns: 'flow',
+    configs: ['#disabled'],
+  },
+  {
+    priority: 0,
     name: 'sub',
     id: 'flow:sub',
     properties: [],

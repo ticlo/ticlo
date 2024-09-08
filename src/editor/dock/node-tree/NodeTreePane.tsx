@@ -4,14 +4,12 @@ import {TicloLayoutContext, TicloLayoutContextType} from '../../component/Layout
 import {NodeTree} from '../..';
 import {Button, Input, Menu, Tooltip} from 'antd';
 import FileAddIcon from '@ant-design/icons/FileAddOutlined';
+import FolderAddIcon from '@ant-design/icons/FolderAddOutlined';
 import ReloadIcon from '@ant-design/icons/ReloadOutlined';
 import {AddNewFlowDialog} from '../../popup/AddNewFlowDialog';
 import {DragDropDiv, DragState} from 'rc-dock';
-import {NodeTreeItem} from '../../node-tree/NodeRenderer';
 import {t} from '../../component/LocalizedLabel';
 import {showModal} from '../../popup/ShowModal';
-import SearchIcon from '@ant-design/icons/SearchOutlined';
-import BuildIcon from '@ant-design/icons/BuildOutlined';
 
 interface Props {
   conn: ClientConn;
@@ -57,9 +55,19 @@ export class NodeTreePane extends React.PureComponent<Props, State> {
     let {conn} = this.props;
     showModal(<AddNewFlowDialog conn={conn} basePath={null} />, this.context.showModal);
   };
-
-  newFlowDragOver = (e: DragState) => {
+  showNewFolderModel = () => {
     let {conn} = this.props;
+    showModal(<AddNewFlowDialog conn={conn} basePath={null} isFolder={true} />, this.context.showModal);
+  };
+
+  newFlowOrFolderDragOver = (e: DragState) => {
+    let {conn} = this.props;
+    let functionId = DragState.getData('functionId', conn.getBaseConn());
+    console.log(functionId);
+    if (functionId !== 'flow:folder') {
+      e.reject();
+      return;
+    }
     let path = DragState.getData('path', conn.getBaseConn());
     if (path) {
       e.accept('tico-fas-plus-square');
@@ -70,6 +78,13 @@ export class NodeTreePane extends React.PureComponent<Props, State> {
     let path = DragState.getData('path', conn.getBaseConn());
     if (path) {
       showModal(<AddNewFlowDialog conn={conn} basePath={`${path}.`} />, this.context.showModal);
+    }
+  };
+  newFolderDrop = (e: DragState) => {
+    let {conn} = this.props;
+    let path = DragState.getData('path', conn.getBaseConn());
+    if (path) {
+      showModal(<AddNewFlowDialog conn={conn} basePath={`${path}.`} isFolder={true} />, this.context.showModal);
     }
   };
   render() {
@@ -84,8 +99,13 @@ export class NodeTreePane extends React.PureComponent<Props, State> {
               <Button size="small" icon={<ReloadIcon />} onClick={this.reload} />
             </Tooltip>
             <Tooltip title={t('New Dataflow')}>
-              <DragDropDiv onDragOverT={this.newFlowDragOver} onDropT={this.newFlowDrop}>
+              <DragDropDiv onDragOverT={this.newFlowOrFolderDragOver} onDropT={this.newFlowDrop}>
                 <Button size="small" icon={<FileAddIcon />} onClick={this.showNewFlowModel} />
+              </DragDropDiv>
+            </Tooltip>
+            <Tooltip title={t('New Folder')}>
+              <DragDropDiv onDragOverT={this.newFlowOrFolderDragOver} onDropT={this.newFolderDrop}>
+                <Button size="small" icon={<FolderAddIcon />} onClick={this.showNewFolderModel} />
               </DragDropDiv>
             </Tooltip>
           </div>

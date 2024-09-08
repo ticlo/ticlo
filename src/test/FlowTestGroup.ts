@@ -1,4 +1,4 @@
-import {Block, BlockProperty, DataMap, Flow} from '../core';
+import {Block, BlockProperty, DataMap, Flow, FlowFolder} from '../core';
 import {ConstTypeConfig, FlowConfigGenerators} from '../core/block/BlockConfigs';
 import {BlockConfig} from '../core/block/BlockProperty';
 import {TestsRunner, TestState} from './Interface';
@@ -10,7 +10,7 @@ export const FlowTestGroupConfigGenerators: {[key: string]: typeof BlockProperty
   '#is': ConstTypeConfig('flow:test-group'),
 };
 
-export class FlowTestGroup extends Flow implements TestsRunner {
+export class FlowTestGroup extends FlowFolder implements TestsRunner {
   constructor(
     parent: Block,
     property: BlockProperty,

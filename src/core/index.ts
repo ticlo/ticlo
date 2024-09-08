@@ -1,5 +1,5 @@
 export {Block} from './block/Block';
-export {Root, Flow} from './block/Flow';
+export {Root, Flow, FlowFolder} from './block/Flow';
 export {type FlowStorage, type Storage} from './block/Storage';
 export {BlockProperty, BlockIO} from './block/BlockProperty';
 export {BaseFunction, StatefulFunction, PureFunction} from './block/BlockFunction';

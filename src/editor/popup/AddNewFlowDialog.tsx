@@ -10,6 +10,7 @@ const {TextArea} = Input;
 interface Props {
   conn: ClientConn;
   basePath?: string;
+  isFolder?: boolean;
 }
 
 interface State {
@@ -25,7 +26,7 @@ export class AddNewFlowDialog extends LazyUpdateComponent<Props, State> {
   };
 
   addFlow = () => {
-    let {conn, basePath} = this.props;
+    let {conn, basePath, isFolder} = this.props;
     let {name, data} = this.formItems;
     if (!name.value) {
       name.setError('Name is Empty');
@@ -46,7 +47,11 @@ export class AddNewFlowDialog extends LazyUpdateComponent<Props, State> {
       if (basePath) {
         path = `${basePath}${path}`;
       }
-      conn.addFlow(path, dataData);
+      if (isFolder) {
+        conn.addFlowFolder(path);
+      } else {
+        conn.addFlow(path, dataData);
+      }
     } catch (e) {
       data.setError(String(e));
       name.setError(null);
@@ -60,14 +65,19 @@ export class AddNewFlowDialog extends LazyUpdateComponent<Props, State> {
   };
 
   renderImpl() {
-    let {basePath} = this.props;
+    let {basePath, isFolder} = this.props;
     let {visible} = this.state;
     let {name, data} = this.formItems;
     return (
-      <Modal title={t('New Dataflow')} visible={visible} onOk={this.addFlow} onCancel={this.onClose}>
+      <Modal
+        title={isFolder ? t('New Folder') : t('New Dataflow')}
+        open={visible}
+        onOk={this.addFlow}
+        onCancel={this.onClose}
+      >
         <Form labelCol={{span: 3}} wrapperCol={{span: 21}}>
           {name.render(<Input addonBefore={basePath} onChange={name.onInputChange} />)}
-          {data.render(<TextArea onChange={data.onInputChange} />)}
+          {!isFolder && data.render(<TextArea onChange={data.onInputChange} />)}
         </Form>
       </Modal>
     );

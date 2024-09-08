@@ -194,3 +194,8 @@ export const FlowConfigGenerators: {[key: string]: typeof BlockProperty} = {
   '#inputs': BlockInputsConfig,
   '#outputs': BlockOutputsConfig,
 };
+
+export const FlowFolderConfigGenerators: {[key: string]: typeof BlockProperty} = {
+  ...ConfigGenerators,
+  '#is': ConstTypeConfig('flow:folder'),
+};

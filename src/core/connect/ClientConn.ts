@@ -50,6 +50,8 @@ export interface ClientConn {
 
   addFlow(path: string, data?: DataMap, callbacks?: ClientCallbacks): Promise<any> | string;
 
+  addFlowFolder(path: string, callbacks?: ClientCallbacks): Promise<any> | string;
+
   list(path: string, filter?: string, max?: number, callbacks?: ClientCallbacks): Promise<any> | string;
 
   query(path: string, query: Query, callbacks?: ClientCallbacks): Promise<any> | string;

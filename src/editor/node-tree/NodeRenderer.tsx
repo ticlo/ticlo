@@ -6,6 +6,7 @@ import SaveIcon from '@ant-design/icons/SaveOutlined';
 import DeleteIcon from '@ant-design/icons/DeleteOutlined';
 import SearchIcon from '@ant-design/icons/SearchOutlined';
 import FileIcon from '@ant-design/icons/FileOutlined';
+import FolderIcon from '@ant-design/icons/FolderOpenOutlined';
 import FileExclamationIcon from '@ant-design/icons/FileTextOutlined';
 import GlobalIcon from '@ant-design/icons/GlobalOutlined';
 import {ExpandIcon, ExpandState, TreeItem} from '../component/Tree';
@@ -262,7 +263,7 @@ export class NodeTreeRenderer extends PureDataRenderer<Props, any> {
   onDragStart = (e: DragState) => {
     let {item} = this.props;
     let {desc} = this.state;
-    let data: any = {path: item.key};
+    let data: any = {path: item.key, functionId: item.functionId};
     if (getOutputDesc(desc)) {
       data = {...data, fields: [`${item.key}.#output`]};
     }
@@ -352,6 +353,8 @@ export class NodeTreeRenderer extends PureDataRenderer<Props, any> {
         }
       } else if (item.functionId === 'flow:const') {
         icon = <GlobalIcon />;
+      } else if (item.functionId === 'flow:folder') {
+        icon = <FolderIcon />;
       }
     }
 
