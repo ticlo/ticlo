@@ -22,6 +22,7 @@ export interface FlowLoader {
   createFolder?(path: string, prop: BlockProperty): FlowFolder;
   applyChange?(data: DataMap): boolean;
   onStateChange?(flow: Flow, state: FlowState): void;
+  autoCreateFolder?: boolean;
 }
 
 export class Flow extends Block {
@@ -439,6 +440,11 @@ export class Root extends FlowFolder {
 
   addFlowFolder(path: string, loader?: FlowLoader): FlowFolder {
     let prop = this.queryProperty(path, true);
+    if (!prop && loader?.autoCreateFolder) {
+      // get the prop again
+      this.addFlowFolder(path.substring(0, path.lastIndexOf('.')), loader);
+      prop = this.queryProperty(path, true);
+    }
     if (!prop || prop._value instanceof Block) {
       // invalid path
       return null;
@@ -463,6 +469,11 @@ export class Root extends FlowFolder {
       path = Block.nextUid();
     }
     let prop = this.queryProperty(path, true);
+    if (!prop && loader?.autoCreateFolder) {
+      // get the prop again
+      this.addFlowFolder(path.substring(0, path.lastIndexOf('.')), loader);
+      prop = this.queryProperty(path, true);
+    }
     if (!prop || prop._value instanceof Block) {
       // invalid path
       return null;

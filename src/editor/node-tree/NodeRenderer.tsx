@@ -35,17 +35,17 @@ import FileAddIcon from '@ant-design/icons/FileAddOutlined';
 import {MenuItem} from '../component/ClickPopup';
 import {LazyUpdateSubscriber} from '../component/LazyUpdateComponent';
 
-const saveAllowed = new Set<string>(['flow:editor', 'flow:worker', 'flow:main', 'flow:sub', 'flow:test-case']);
+const saveAllowed = new Set<string>(['flow:editor', 'flow:worker', 'flow:main', 'flow:test-case']);
 const quickOpenAllowed = new Set<string>([
   'group',
   'flow:editor',
   'flow:worker',
   'flow:main',
-  'flow:sub',
   'flow:test-case',
   'flow:const',
 ]);
-const addChildFlowAllowed = new Set<string>(['flow:main', 'flow:sub', 'flow:test-group']);
+const addFlowAllowed = ['flow:folder', 'flow:test-group'];
+const addFolderAllowed = ['flow:folder'];
 
 export class NodeTreeItem extends TreeItem<NodeTreeItem> {
   childPrefix: string;
@@ -218,9 +218,13 @@ export class NodeTreeRenderer extends PureDataRenderer<Props, any> {
     }
   };
 
-  onAddNewFlowClick = (path: string) => {
+  onAddFlowClick = (path: string) => {
     let {item} = this.props;
     showModal(<AddNewFlowDialog conn={item.getConn()} basePath={`${path}.`} />, this.context.showModal);
+  };
+  onAddFolderClick = (path: string) => {
+    let {item} = this.props;
+    showModal(<AddNewFlowDialog conn={item.getConn()} basePath={`${path}.`} isFolder={true} />, this.context.showModal);
   };
 
   getMenu = () => {
@@ -237,16 +241,20 @@ export class NodeTreeRenderer extends PureDataRenderer<Props, any> {
         </MenuItem>
       );
     }
-    let seekParent = item;
-    while (addChildFlowAllowed.has(seekParent.functionId)) {
-      seekParent = seekParent.parent;
-    }
     // find the root node, so every level of parents is Flow
-    if (seekParent.id === '') {
+    if (addFlowAllowed.includes(item.functionId)) {
       menuItems.push(
-        <MenuItem key="addFlow" value={item.key} onClick={this.onAddNewFlowClick}>
+        <MenuItem key="addFlow" value={item.key} onClick={this.onAddFlowClick}>
           <FileAddIcon />
-          {t('Add Child Dataflow')}
+          {t('Add Dataflow')}
+        </MenuItem>
+      );
+    }
+    if (addFolderAllowed.includes(item.functionId)) {
+      menuItems.push(
+        <MenuItem key="addFolder" value={item.key} onClick={this.onAddFolderClick}>
+          <FileAddIcon />
+          {t('Add Folder')}
         </MenuItem>
       );
     }

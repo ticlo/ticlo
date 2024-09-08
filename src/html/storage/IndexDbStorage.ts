@@ -178,7 +178,7 @@ export class IndexDbFlowStorage extends IndexDbStorage implements FlowStorage {
     for (let name of flowFiles.sort()) {
       try {
         let data = decode(await (this.db ?? (await this.dbPromise)).get(this.storeName, name));
-        root.addFlow(name, data);
+        root.addFlow(name, data, {autoCreateFolder: true});
       } catch (err) {
         // TODO Logger
       }
