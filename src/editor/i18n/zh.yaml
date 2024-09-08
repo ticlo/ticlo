@@ -1,3 +1,13 @@
+# no longer used
+"Advanced": 高级
+"Priority": 优先级
+"Not Before": 不早于
+"Not After": 不晚于
+"Key": 键值
+"Start": 开始
+"Duration": 时长
+
+
 # Common
 "Name": 名称
 "Type": 类型
@@ -21,10 +31,16 @@
 "-passed-#": " ( 通过{{- detail, optional}} )"
 "-failed-#": " ( 失败{{- detail, optional}} )"
 
+# CalendarEventEditor.tsx & OptionalPropertyList.tsx
+"Optional": 可选
 # PropertyDropdown.tsx & BlockDropdown.tsx
 "Execute Command": 执行指令
 # AddNewFlowDialog.tsx & NodeTreePane.tsx
+"New Folder": 新建文件夹 # auto translated from hash: UUiQXttG
+# AddNewFlowDialog.tsx & NodeTreePane.tsx
 "New Dataflow": 新建数据流
+# TextEditorPane.tsx & NodeTreePane.tsx
+"Reload": 重新载入
 
 # scheduler/CalendarToolbar.tsx
 "Day": 日
@@ -40,22 +56,16 @@
 "Current Month": 当前月
 "Next Month": 下一月
 
-# scheduler/CalendarEventEditor.tsx
-"Repeat": 重复 # auto translated from hash: cCBCbPsK
-"Advanced": 高级
-"Priority": 优先级
-"Not Before": 不早于
-"Not After": 不晚于
-"Only Week Days": 仅限工作日 # auto translated from hash: 3rqBd10D
-"Key": 键值
-"Color": 颜色 # auto translated from hash: y1/rG3MU
-
 # scheduler/editors/TimeRange.tsx
 "M": 分钟
 "H": 小时
 "All Day": 全天
-"Start": 开始
-"Duration": 时长
+
+# scheduler/editors/DatesSelector.tsx
+"Dates": 日期 # auto translated from hash: Xwyj6LN7
+
+# scheduler/editors/AdvancedSelector.tsx
+"Add Day": 添加日期 # auto translated from hash: irtCt9Xi
 
 # property/PropertyList.tsx
 "Config": 设置
@@ -71,9 +81,6 @@
 "Inconsistent values\nDouble click to edit": |- # auto translated from hash: inF4uHrI
   值不一致
   双击编辑
-
-# property/OptionalPropertyList.tsx
-"Optional": 可选
 
 # property/AddCustomProperty.tsx
 "Default Length": 默认长度
@@ -124,7 +131,8 @@
 "Data": 数据 # auto translated from hash: 9gaNqinb
 
 # node-tree/NodeRenderer.tsx
-"Add Child Dataflow": 添加子数据流 # auto translated from hash: CEWO/gs9
+"Add Dataflow": 添加数据流 # auto translated from hash: im4EONli
+"Add Folder": 添加文件夹 # auto translated from hash: 8jHIxVXQ
 
 # function-selector/FunctionSelector.tsx
 "Function Tree": 功能目录
@@ -134,9 +142,6 @@
 
 # dock/schedule/SchedulePane.tsx
 "Schedule": 日程表
-
-# dock/node-tree/NodeTreePane.tsx
-"Reload": 重新载入
 
 # dock/block/BlockStagePane.tsx
 "Hide Properties": 隐藏属性 # auto translated from hash: vJTYlQYF

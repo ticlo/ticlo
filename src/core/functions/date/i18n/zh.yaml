@@ -48,12 +48,12 @@ scheduler:
       7: 星期日
       8: 工作日
       9: 非工作日
-      'nth_ranged': '~-2~倒数第{{count, abs}}{{u}}{{d}};0~每{{u}}{{d}};-1~最后1{{u}}{{d}}'
-      'nth_other': '第{{count}}{{u}}{{d}}'
+      'nth_ranged': ~-2~倒数第{{count, abs}}{{u}}{{d}};0~每{{u}}{{d}};-1~最后1{{u}}{{d}}
+      'nth_other': 第{{count}}{{u}}{{d}}
   dates:
     '@name': 日期
   wDays:
-    '@name': ' '
+    '@name': " "
   range:
     '@name': 之间的每一天
   name:

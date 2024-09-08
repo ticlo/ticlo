@@ -17,14 +17,16 @@
 "#shared": "#shared"
 "#temp": "#temp"
 "#edit": "#edit"
-"-running-#": "-running-#"
-"-passed-#": "-passed-#"
-"-failed-#": "-failed-#"
+"-running-#": " ( Running {{- detail, optional}} )"
+"-passed-#": " ( Passed {{- detail, optional}} )"
+"-failed-#": " ( Failed {{- detail, optional}} )"
 
 # CalendarEventEditor.tsx & OptionalPropertyList.tsx
 "Optional": "Optional"
 # PropertyDropdown.tsx & BlockDropdown.tsx
 "Execute Command": "Execute Command"
+# AddNewFlowDialog.tsx & NodeTreePane.tsx
+"New Folder": "New Folder"
 # AddNewFlowDialog.tsx & NodeTreePane.tsx
 "New Dataflow": "New Dataflow"
 # TextEditorPane.tsx & NodeTreePane.tsx
@@ -51,6 +53,9 @@
 
 # scheduler/editors/DatesSelector.tsx
 "Dates": "Dates"
+
+# scheduler/editors/AdvancedSelector.tsx
+"Add Day": "Add Day"
 
 # property/PropertyList.tsx
 "Config": "Config"
@@ -110,7 +115,8 @@
 "Data": "Data"
 
 # node-tree/NodeRenderer.tsx
-"Add Child Dataflow": "Add Child Dataflow"
+"Add Dataflow": "Add Dataflow"
+"Add Folder": "Add Folder"
 
 # function-selector/FunctionSelector.tsx
 "Function Tree": "Function Tree"
