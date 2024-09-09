@@ -1,6 +1,6 @@
 import {expect} from 'vitest';
 import {deleteDB, IDBPDatabase, openDB} from 'idb';
-import {Flow, Root, decode} from '../../../core';
+import {Flow, Root, decode, FlowFolder} from '../../../core';
 import {shouldHappen, shouldReject, waitTick} from '../../../core/util/test-util';
 import {IndexDbFlowStorage, IndexDbStorage, FLOW_STORE_NAME} from '../IndexDbStorage';
 
@@ -81,15 +81,16 @@ describe('IndexDbStorage', function () {
     let storage = new IndexDbFlowStorage(FLOW_STORE_NAME, dbPromise);
 
     const db = await storage.dbPromise;
-    db.put(FLOW_STORE_NAME, JSON.stringify(flowData), 'flow5');
-    await db.put(FLOW_STORE_NAME, JSON.stringify(flowData), 'flow5.subflow');
+    await db.put(FLOW_STORE_NAME, JSON.stringify(flowData), 'folder5.subflow');
 
     let root = new Root();
     await root.setStorage(storage);
 
-    expect(root.queryValue('flow5.value')).toBe(321);
-    expect(root.queryValue('flow5.subflow.value')).toBe(321);
-    expect((root.getValue('flow5') as Flow).save()).toEqual(flowData);
+    expect(root.queryValue('folder5')).instanceof(FlowFolder);
+    expect(root.queryValue('folder5.subflow.value')).toBe(321);
+    expect((root.queryValue('folder5.subflow') as Flow).save()).toEqual(flowData);
+
+    root.deleteFlow('folder5.subflow');
 
     root.destroy();
   });
