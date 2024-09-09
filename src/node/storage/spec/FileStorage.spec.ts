@@ -87,8 +87,9 @@ describe('FileStorage', function () {
 
     expect(root.queryValue('folder5')).instanceof(FlowFolder);
     expect(root.queryValue('folder5.subflow.value')).toBe(321);
-    expect((root.getValue('flow5') as Flow).save()).toEqual(flowData);
+    expect((root.queryValue('folder5.subflow') as Flow).save()).toEqual(flowData);
 
+    root.deleteFlow('folder5.subflow');
     root.destroy();
   });
 });

@@ -2685,6 +2685,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@types/ws@npm:^8.5.10":
+  version: 8.5.12
+  resolution: "@types/ws@npm:8.5.12"
+  dependencies:
+    "@types/node": "npm:*"
+  checksum: 3fd77c9e4e05c24ce42bfc7647f7506b08c40a40fe2aea236ef6d4e96fc7cb4006a81ed1b28ec9c457e177a74a72924f4768b7b4652680b42dfd52bc380e15f9
+  languageName: node
+  linkType: hard
+
 "@types/yargs-parser@npm:*":
   version: 21.0.3
   resolution: "@types/yargs-parser@npm:21.0.3"
@@ -9751,6 +9760,7 @@ __metadata:
     "@types/react-dom": "npm:^18.2.22"
     "@types/shelljs": "npm:^0.8.15"
     "@types/tinycolor2": "npm:^1.4.6"
+    "@types/ws": "npm:^8.5.10"
     "@types/yargs": "npm:^17.0.32"
     "@uiw/codemirror-theme-eclipse": "npm:^4.21.25"
     "@uiw/react-codemirror": "npm:^4.21.25"
@@ -9804,6 +9814,7 @@ __metadata:
     vite-plugin-node-polyfills: "npm:^0.21.0"
     vitest: "npm:^1.4.0"
     webdriverio: "npm:^8.35.1"
+    ws: "npm:^8.16.0"
     yaml: "npm:^2.4.2"
     yargs: "npm:^17.7.2"
   languageName: unknown
@@ -10669,7 +10680,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"ws@npm:^8.8.0":
+"ws@npm:^8.16.0, ws@npm:^8.8.0":
   version: 8.18.0
   resolution: "ws@npm:8.18.0"
   peerDependencies:
