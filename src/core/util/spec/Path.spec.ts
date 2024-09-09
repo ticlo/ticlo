@@ -1,7 +1,7 @@
 import {expect} from 'vitest';
 import {getRelativePath, resolvePath, forAllPathsBetween, encodeFileName} from '../Path';
 import {WorkerFunction} from '../../worker/WorkerFunction';
-import {Root} from '../../block/Flow';
+import {FlowFolder, Root} from '../../block/Flow';
 import {DataMap} from '../DataTypes';
 import {propRelative} from '../PropPath';
 import {Block} from '../../block/Block';
@@ -116,14 +116,13 @@ describe('Path', function () {
       propRelative(flow1.queryValue('c.d.#flow.A') as Block, flow1.queryProperty('c.d.#flow.A.B.#flow.C.v', true))
     ).toEqual('B.#flow.C.v');
 
-    let flow11 = Root.instance.addFlow('PropRelative1.1');
-    let flow111 = Root.instance.addFlow('PropRelative1.1.1');
-    let flow1c1 = Root.instance.addFlow('PropRelative1.c.1');
+    let flow111 = Root.instance.addFlow('FolderRelative1.1.1', null, {autoCreateFolder: true});
+    let folder1 = Root.instance.getValue('FolderRelative1') as FlowFolder;
 
-    expect(propRelative(flow1.queryValue('1.1') as Block, flow1.queryProperty('v', true))).toBe('##.###.##.v');
-    expect(propRelative(flow1.queryValue('c.1') as Block, flow1.queryProperty('v', true))).toBe('##.###.v');
+    expect(propRelative(folder1.queryValue('1.1') as Block, folder1.queryProperty('v', true))).toBe('##.###.##.v');
 
     Root.instance.deleteValue('PropRelative1');
     Root.instance.deleteValue('PropRelative2');
+    Root.instance.deleteValue('FolderRelative1');
   });
 });

@@ -1,6 +1,6 @@
 import {expect} from 'vitest';
 import {Block} from '../../block/Block';
-import {Flow, Root} from '../../block/Flow';
+import {Flow, FlowFolder, Root} from '../../block/Flow';
 import {makeLocalConnection} from '../LocalConnection';
 import '../../functions/math/Arithmetic';
 import '../../functions/Categories';
@@ -736,11 +736,11 @@ describe('Connection', function () {
   it('createFlow and DeleteFlow', async function () {
     let [server, client] = makeLocalConnection(Root.instance, true);
 
-    await client.addFlow('Connection20', {value: 123});
-    expect(Root.instance.getValue('Connection20')).toBeInstanceOf(Flow);
+    await client.addFlowFolder('Connection20');
+    expect(Root.instance.getValue('Connection20')).toBeInstanceOf(FlowFolder);
 
-    await client.addFlow('Connection20.subflow', {value: 123});
-    expect(Root.instance.queryValue('Connection20.subflow')).toBeInstanceOf(Flow);
+    await client.addFlow('Connection20.childFlow', {value: 123});
+    expect(Root.instance.queryValue('Connection20.childFlow')).toBeInstanceOf(Flow);
 
     await client.setValue('Connection20', undefined, true);
     expect(Root.instance.getValue('Connection20')).not.toBeDefined();

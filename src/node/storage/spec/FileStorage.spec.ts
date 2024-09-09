@@ -1,7 +1,7 @@
 import {expect} from 'vitest';
 import shelljs from 'shelljs';
 import Fs from 'fs';
-import {Flow, Root, decode} from '../../../core';
+import {Flow, Root, decode, FlowFolder} from '../../../core';
 import {shouldHappen, shouldReject, waitTick} from '../../../core/util/test-util';
 import {FileFlowStorage, FileStorage} from '../FileStorage';
 
@@ -79,20 +79,16 @@ describe('FileStorage', function () {
   });
   it('init loader', async function () {
     let flowData = {'#is': '', 'value': 321};
-    const path1 = './temp/storageTest/flow5.subflow.ticlo';
+    const path1 = './temp/storageTest/folder5.subflow.ticlo';
     Fs.writeFileSync(path1, JSON.stringify(flowData));
-
-    const path2 = './temp/storageTest/flow5.ticlo';
-    Fs.writeFileSync(path2, JSON.stringify(flowData));
 
     let root = new Root();
     await root.setStorage(new FileFlowStorage('./temp/storageTest'));
 
-    expect(root.queryValue('flow5.value')).toBe(321);
-    expect(root.queryValue('flow5.subflow.value')).toBe(321);
+    expect(root.queryValue('folder5')).instanceof(FlowFolder);
+    expect(root.queryValue('folder5.subflow.value')).toBe(321);
     expect((root.getValue('flow5') as Flow).save()).toEqual(flowData);
 
-    Fs.unlinkSync(path2);
     root.destroy();
   });
 });
