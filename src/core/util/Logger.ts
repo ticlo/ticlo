@@ -84,3 +84,19 @@ export class Logger {
     Logger.log(msg, Logger.FATAL, source);
   }
 }
+
+export function addConsoleLogger(level = Logger.WARN_AND_ABOVE) {
+  Logger.add(function (msg, level, source) {
+    switch (level) {
+      case Logger.WARN:
+        console.warn(source, msg);
+        break;
+      case Logger.ERROR:
+      case Logger.FATAL:
+        console.error(source, msg);
+        break;
+      default:
+        console.log(source, msg);
+    }
+  }, level);
+}

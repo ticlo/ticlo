@@ -154,7 +154,7 @@ export class SubFlowFunction extends BaseFunction<Block> {
         return true;
       };
       this._funcFlow = this._data.createOutputFlow(WorkerFlow, '#flow', this._src, this._data, applyChange);
-      this._funcFlow.updateInput(this._data);
+      this._funcFlow?.updateInput(this._data);
     }
   }
 

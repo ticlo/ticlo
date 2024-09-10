@@ -15,6 +15,8 @@ import type {Flow, Root} from './Flow';
 import {BlockMode} from './Descriptor';
 import {encodeToUnknown} from '../util/Serialize';
 import {FunctionData, FunctionOutput} from './FunctonData';
+import {getMaxFlowDepth} from '../util/Settings';
+import {Logger} from '../util/Logger';
 
 export interface BlockChildWatch {
   onChildChange(property: BlockProperty, saved?: boolean): void;
@@ -466,6 +468,10 @@ export class Block implements Runnable, FunctionData, PropListener<FunctionClass
     output?: FunctionOutput,
     applyChange?: (data: DataMap) => boolean
   ): T {
+    if (this._flow._depth >= getMaxFlowDepth()) {
+      Logger.error(`failed to create output flow at ${this.getFullPath()}.${field}`);
+      return null;
+    }
     let prop = this.getProperty(field);
     let flow = new FlowClass(this, output, prop);
     prop.setOutput(flow);

@@ -14,7 +14,7 @@ export {encodeDisplay, decode, encode, encodeSorted} from './util/Serialize';
 export * from './util/Name';
 export {endsWithNumberReg, getTailingNumber, smartStrCompare, isColorStr} from './util/String';
 export * from './util/DateTime';
-export {Logger} from './util/Logger';
+export {Logger, addConsoleLogger} from './util/Logger';
 export {stopPropagation, voidFunction} from './util/Functions';
 export {PropDispatcher} from './block/Dispatcher';
 export {resolvePath, getRelativePath} from './util/Path';

@@ -8,6 +8,7 @@ import {
   FunctionDesc,
   Functions,
   Logger,
+  addConsoleLogger,
   PropDispatcher,
   Flow,
   PropDesc,
@@ -333,6 +334,7 @@ class App extends React.PureComponent<Props, State> {
 }
 
 (async () => {
+  addConsoleLogger();
   await initEditor();
 
   await i18next.init({lng: 'zh'});
