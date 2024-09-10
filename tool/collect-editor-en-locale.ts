@@ -1,15 +1,19 @@
+import YAML from 'yaml';
 import * as glob from 'glob';
 import fs from 'fs';
 
 const treg = /\b(?:t|translateEditor)\(['"](.*?)['"](\)|, \{)/g;
 
-let substrLen = 'src/editor/'.length;
-let commonPath = 'src/editor/util/i18n-common.ts';
+const enyaml = './src/editor/i18n/en.yaml';
+const substrLen = 'src/editor/'.length;
+const commonPath = 'src/editor/util/i18n-common.ts';
 
 let sharedKeys = new Map<string, string>();
 let allFiles = new Map<string, string[]>();
 
 function main() {
+  const existingEn = fs.readFileSync(enyaml, {encoding: 'utf-8'});
+  const enMap: Record<string, string> = YAML.parse(existingEn);
   let files: string[] = glob.sync(`./src/editor/**/*.{ts,tsx}`, {posix: true});
   files.unshift(commonPath);
   for (let path of files) {
@@ -37,13 +41,13 @@ function main() {
   let multipleOccur: string[] = [];
   for (let [key, comment] of sharedKeys) {
     if (comment.includes('util/i18n-common.ts')) {
-      common.push(`"${key}": "${key}"`);
+      common.push(`"${key}": "${enMap[key] ?? key}"`);
     } else if (comment.includes(' & ')) {
       multipleOccur.push(
         `# ${comment
           .split(' & ')
           .map((str: string) => str.split('/').pop())
-          .join(' & ')}\n"${key}": "${key}"`
+          .join(' & ')}\n"${key}": "${enMap[key] ?? key}"`
       );
     } else {
       // remove it from shared keys
@@ -56,12 +60,12 @@ function main() {
     if (uniqueKeys.length) {
       out.push(`\n# ${comment}`);
       for (let key of uniqueKeys) {
-        out.push(`"${key}": "${key}"`);
+        out.push(`"${key}": "${enMap[key] ?? key}"`);
       }
     }
   }
 
-  fs.writeFileSync('./src/editor/i18n/en.yaml', out.join('\n'));
+  fs.writeFileSync(enyaml, out.join('\n'));
 }
 
 main();
