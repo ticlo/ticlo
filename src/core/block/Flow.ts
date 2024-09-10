@@ -22,7 +22,6 @@ export interface FlowLoader {
   createFolder?(path: string, prop: BlockProperty): FlowFolder;
   applyChange?(data: DataMap): boolean;
   onStateChange?(flow: Flow, state: FlowState): void;
-  autoCreateFolder?: boolean;
 }
 
 export class Flow extends Block {
@@ -38,10 +37,13 @@ export class Flow extends Block {
 
   _history: FlowHistory;
 
+  readonly _depth: number;
+
   constructor(parent: Block = Root.instance, output?: FunctionOutput, property?: BlockProperty, storageKey?: string) {
     super(null, null, property);
     this._flow = this;
     this._parent = parent;
+    this._depth = parent ? parent._flow._depth + 1 : 0;
     this._outputObj = output;
     this._storageKey = storageKey;
     if (!property) {
@@ -223,6 +225,7 @@ export class Flow extends Block {
     }
     this.deleteValue('@has-undo');
     this.deleteValue('@has-redo');
+    this.deleteValue('@has-change');
   }
 
   trackChange() {
@@ -438,9 +441,9 @@ export class Root extends FlowFolder {
     return this._globalRoot.getProperty(name);
   }
 
-  addFlowFolder(path: string, loader?: FlowLoader): FlowFolder {
+  addFlowFolder(path: string, loader?: FlowLoader, autoCreateFolder?: boolean): FlowFolder {
     let prop = this.queryProperty(path, true);
-    if (!prop && loader?.autoCreateFolder) {
+    if (!prop && autoCreateFolder) {
       // get the prop again
       this.addFlowFolder(path.substring(0, path.lastIndexOf('.')), loader);
       prop = this.queryProperty(path, true);
@@ -464,12 +467,12 @@ export class Root extends FlowFolder {
     return newGroup;
   }
 
-  addFlow(path?: string, data?: DataMap, loader?: FlowLoader): Flow {
+  addFlow(path?: string, data?: DataMap, loader?: FlowLoader, autoCreateFolder?: boolean): Flow {
     if (!path) {
       path = Block.nextUid();
     }
     let prop = this.queryProperty(path, true);
-    if (!prop && loader?.autoCreateFolder) {
+    if (!prop && autoCreateFolder) {
       // get the prop again
       this.addFlowFolder(path.substring(0, path.lastIndexOf('.')), loader);
       prop = this.queryProperty(path, true);

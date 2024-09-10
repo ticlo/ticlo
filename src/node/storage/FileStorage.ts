@@ -233,7 +233,7 @@ export class FileFlowStorage extends FileStorage implements FlowStorage {
     for (let name of flowFiles.sort()) {
       try {
         let data = decode(Fs.readFileSync(Path.join(this.dir, `${name}${this.ext}`), 'utf8'));
-        root.addFlow(name, data, {autoCreateFolder: true});
+        root.addFlow(name, data, null, true);
       } catch (err) {
         // TODO Logger
       }

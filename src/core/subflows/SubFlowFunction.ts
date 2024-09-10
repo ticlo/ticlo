@@ -53,7 +53,7 @@ export class SubFlowCollector extends Event {
 }
 
 /**
- * LoadFlowFunction is the function to load another flow
+ * SubFlowFunction is the function to load another flow from storage, not as a reusable worker
  */
 export class SubFlowFunction extends BaseFunction<Block> {
   _funcFlow: WorkerFlow;
