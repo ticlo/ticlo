@@ -474,7 +474,7 @@ export class Root extends FlowFolder {
     let prop = this.queryProperty(path, true);
     if (!prop && autoCreateFolder) {
       // get the prop again
-      this.addFlowFolder(path.substring(0, path.lastIndexOf('.')), loader);
+      this.addFlowFolder(path.substring(0, path.lastIndexOf('.')), loader, autoCreateFolder);
       prop = this.queryProperty(path, true);
     }
     if (!prop || prop._value instanceof Block) {

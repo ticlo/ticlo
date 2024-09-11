@@ -116,7 +116,7 @@ describe('Path', function () {
       propRelative(flow1.queryValue('c.d.#flow.A') as Block, flow1.queryProperty('c.d.#flow.A.B.#flow.C.v', true))
     ).toEqual('B.#flow.C.v');
 
-    let flow111 = Root.instance.addFlow('FolderRelative1.1.1', null, {autoCreateFolder: true});
+    let flow111 = Root.instance.addFlow('FolderRelative1.1.1', null, null, true);
     let folder1 = Root.instance.getValue('FolderRelative1') as FlowFolder;
 
     expect(propRelative(folder1.queryValue('1.1') as Block, folder1.queryProperty('v', true))).toBe('##.###.##.v');

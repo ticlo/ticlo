@@ -354,7 +354,7 @@ describe('MapFunction Thread', function () {
     for (let i = 0; i < 20; ++i) {
       expect(outputArr[i]).toBe(i + 101);
     }
-    expect(bBlock.queryValue('#flow.4.#outputs')).not.toBe(undefined);
+    expect(bBlock.queryValue('#flows.4.#outputs')).not.toBe(undefined);
 
     // delete flow;
     flow.deleteValue('b');

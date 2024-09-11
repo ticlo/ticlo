@@ -144,7 +144,7 @@ export class HandlerFunction extends MapImpl {
     // clear running workers update on sync run
 
     if (!this._funcBlock) {
-      this._funcBlock = this._data.createOutputBlock('#flow');
+      this._funcBlock = this._data.createOutputBlock('#flows');
     }
 
     if (!this._queue.isEmpty()) {
@@ -216,7 +216,7 @@ export class HandlerFunction extends MapImpl {
   }
 
   cleanup(): void {
-    this._data.deleteValue('#flow');
+    this._data.deleteValue('#flows');
   }
 
   destroy(): void {

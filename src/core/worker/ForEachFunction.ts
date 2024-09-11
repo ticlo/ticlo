@@ -73,7 +73,7 @@ export class ForEachFunction extends StatefulFunction implements BlockChildWatch
 
   run(): any {
     if (!this._funcBlock) {
-      this._funcBlock = this._data.createOutputBlock('#flow');
+      this._funcBlock = this._data.createOutputBlock('#flows');
     }
     if (this._srcChanged) {
       this._clearWorkers();
@@ -264,7 +264,7 @@ export class ForEachFunction extends StatefulFunction implements BlockChildWatch
 
   cleanup(): void {
     this._data.deleteValue('#output');
-    this._data.deleteValue('#flow');
+    this._data.deleteValue('#flows');
   }
 
   destroy(): void {
