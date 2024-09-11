@@ -60,15 +60,17 @@ export class SubFlowFunction extends BaseFunction<Block> {
   _src: DataMap;
   _loading = false;
   _subflowModeChanged = false;
+  readonly #storagePath: string;
 
   constructor(data: Block) {
     super(data);
+    let fullPath = data.getFullPath();
+    if (fullPath.includes('#flows.')) {
+      fullPath = fullPath.replaceAll(/#flows\.[^.]+/, '0');
+    }
+    this.#storagePath = `${fullPath}.#`;
     // make sure collector is emitted even when there are no sync block under it
     data.getProperty('#emit');
-  }
-
-  getStoragePath() {
-    return `${this._data.getFullPath()}.#`;
   }
 
   configChanged(config: BlockConfig, val: any): boolean {
@@ -100,7 +102,7 @@ export class SubFlowFunction extends BaseFunction<Block> {
       if (!this._loading && !disable) {
         // don't load the subflow when it's disabled
         this._loading = true;
-        LoadFunctionCache.loadData(this.getStoragePath(), this);
+        LoadFunctionCache.loadData(this.#storagePath, this);
       }
     } else {
       this._funcFlow.updateValue('#disabled', disable || undefined);
@@ -147,7 +149,7 @@ export class SubFlowFunction extends BaseFunction<Block> {
     let subFlowMode = this._data.getValue('#subflow') ?? SubFlowMode.ON;
     if (this._funcFlow == null && subFlowMode === SubFlowMode.ON) {
       this._src = src;
-      let storagePath = this.getStoragePath();
+      let storagePath = this.#storagePath;
       let applyChange = (data: DataMap) => {
         this._src = data;
         Root.instance._storage.saveFlow(null, data, storagePath);
@@ -164,7 +166,7 @@ export class SubFlowFunction extends BaseFunction<Block> {
 
   destroy() {
     if (this._data._destroyed && !this._data._flow._destroyed) {
-      Root.instance._storage.delete(this.getStoragePath());
+      Root.instance._storage.delete(this.#storagePath);
     }
     super.destroy();
   }
