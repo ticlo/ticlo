@@ -19,9 +19,9 @@
  "expect0": "disable",
  "expect1": "on",
  "expect2": "disable",
- "~actual0": "##.sub-flow1.#subflow",
- "~actual1": "##.sub-flow2.#subflow",
- "~actual2": "##.sub-flow3.#subflow"
+ "~actual0": "##.sub-flow1.#state",
+ "~actual1": "##.sub-flow2.#state",
+ "~actual2": "##.sub-flow3.#state"
 },
 "assert1": {
  "#is": "test:assert",
@@ -42,9 +42,9 @@
  "expect0": "off",
  "expect1": "off",
  "expect2": "on",
- "~actual0": "##.sub-flow4.#subflow",
- "~actual1": "##.sub-flow5.#subflow",
- "~actual2": "##.sub-flow6.#subflow"
+ "~actual0": "##.sub-flow4.#state",
+ "~actual1": "##.sub-flow5.#state",
+ "~actual2": "##.sub-flow6.#state"
 },
 "select-flow-disable-unused": {
  "#is": "select-flow",
@@ -77,7 +77,7 @@
  "#is": "sub-flow",
  "#sync": true,
  "@b-p": [
-  "#subflow"
+  "#state"
  ],
  "@b-xyw": "select-flow-disable-unused",
  "~#call": "##.select-flow-disable-unused.#emit"
@@ -86,7 +86,7 @@
  "#is": "sub-flow",
  "#sync": true,
  "@b-p": [
-  "#subflow"
+  "#state"
  ],
  "@b-xyw": "sub-flow1",
  "~#call": "##.sub-flow1.#emit"
@@ -95,7 +95,7 @@
  "#is": "sub-flow",
  "#sync": true,
  "@b-p": [
-  "#subflow"
+  "#state"
  ],
  "@b-xyw": "sub-flow2",
  "~#call": "##.sub-flow2.#emit"
@@ -104,7 +104,7 @@
  "#is": "sub-flow",
  "#sync": true,
  "@b-p": [
-  "#subflow"
+  "#state"
  ],
  "@b-xyw": "select-flow-unload-unused",
  "~#call": "##.select-flow-unload-unused.#emit"
@@ -113,7 +113,7 @@
  "#is": "sub-flow",
  "#sync": true,
  "@b-p": [
-  "#subflow"
+  "#state"
  ],
  "@b-xyw": "sub-flow4",
  "~#call": "##.sub-flow4.#emit"
@@ -122,7 +122,7 @@
  "#is": "sub-flow",
  "#sync": true,
  "@b-p": [
-  "#subflow"
+  "#state"
  ],
  "@b-xyw": "sub-flow5",
  "~#call": "##.sub-flow5.#emit"

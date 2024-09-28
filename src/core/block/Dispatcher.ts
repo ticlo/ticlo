@@ -1,3 +1,5 @@
+import {DataMap} from '../util/DataTypes';
+
 export interface PropListener<T = any> {
   onSourceChange?(prop: PropDispatcher<T>): void;
 
@@ -50,6 +52,11 @@ export class PropDispatcher<T = unknown> {
 export class StreamDispatcher<T = any> {
   _listeners: Set<(val: T) => void> = new Set<(val: T) => void>();
 
+  #value: T = null;
+  get value() {
+    return this.#value;
+  }
+
   listen(listener: (val: T) => void) {
     this._listeners.add(listener);
   }
@@ -59,6 +66,10 @@ export class StreamDispatcher<T = any> {
   }
 
   dispatch(value: T): void {
+    if (Object.is(value, this.#value)) {
+      return;
+    }
+    this.#value = value;
     for (let listener of this._listeners) {
       listener(value);
     }

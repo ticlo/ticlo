@@ -19,7 +19,7 @@ export interface FlowStorage {
 
   saveFlow(flow: Flow, data: DataMap, overrideKey?: string): void;
 
-  loadFlow(name: string): Promise<DataMap>;
+  loadFlow(name: string): Promise<DataMap | null>;
 
   inited?: boolean;
   init(root: Root): unknown; // void or promise

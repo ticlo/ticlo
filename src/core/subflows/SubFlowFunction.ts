@@ -75,7 +75,7 @@ export class SubFlowFunction extends BaseFunction<Block> {
 
   configChanged(config: BlockConfig, val: any): boolean {
     switch (config._name) {
-      case '#subflow':
+      case '#state':
         this._subflowModeChanged = true;
         return true;
       default:
@@ -113,7 +113,7 @@ export class SubFlowFunction extends BaseFunction<Block> {
     if (this._collector) {
       this._collector.addSubFlow(this._data);
     }
-    let subFlowMode = this._data.getValue('#subflow');
+    let subFlowMode = this._data.getValue('#state');
     switch (subFlowMode) {
       case 'off': {
         if (this._funcFlow != null) {
@@ -146,7 +146,7 @@ export class SubFlowFunction extends BaseFunction<Block> {
 
   onDataLoaded(src: DataMap) {
     this._loading = false;
-    let subFlowMode = this._data.getValue('#subflow') ?? SubFlowMode.ON;
+    let subFlowMode = this._data.getValue('#state') ?? SubFlowMode.ON;
     if (this._funcFlow == null && subFlowMode === SubFlowMode.ON) {
       this._src = src;
       let storagePath = this.#storagePath;
@@ -196,11 +196,11 @@ function getDefaultWorker(block: Block, field: string, blockStack: Map<any, any>
 Functions.add(
   SubFlowFunction,
   {
-    name: 'sub-flow',
+    name: 'worker',
     priority: 3,
     properties: [
       {
-        name: '#subflow',
+        name: '#state',
         type: 'radio-button',
         options: SubFlowModeOptions,
         default: SubFlowMode.ON,

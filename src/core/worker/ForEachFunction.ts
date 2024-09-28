@@ -4,11 +4,11 @@ import {BlockIO, BlockProperty} from '../block/BlockProperty';
 import {Block, BlockChildWatch} from '../block/Block';
 import {DataMap} from '../util/DataTypes';
 import {Event, EventType} from '../block/Event';
-import {MapImpl} from './MapImpl';
 import {RepeaterWorker} from './WorkerFlow';
 import {Resolver} from '../block/Resolver';
 import {defaultConfigs} from '../block/Descriptor';
 import {FunctionOutput} from '../block/FunctonData';
+import {WorkerControl, type WorkerHost} from './WorkerControl';
 
 class ForEachOutput implements FunctionOutput {
   constructor(
@@ -33,11 +33,9 @@ class ForEachOutput implements FunctionOutput {
   }
 }
 
-export class ForEachFunction extends StatefulFunction implements BlockChildWatch {
-  _src: DataMap | string;
-  _srcChanged: boolean = false;
-
-  _applyWorkerChange!: (data: DataMap) => boolean;
+export class ForEachFunction extends StatefulFunction implements BlockChildWatch, WorkerHost {
+  workerField = 'use';
+  readonly control: WorkerControl;
 
   _input: any;
   _inputChanged: boolean = false;
@@ -52,7 +50,7 @@ export class ForEachFunction extends StatefulFunction implements BlockChildWatch
 
   static inputMap = new Map([
     ['input', ForEachFunction.prototype._onInputChange],
-    ['use', MapImpl.prototype._onSourceChange],
+    ['use', WorkerControl.onSourceChange],
   ]);
   getInputMap() {
     return ForEachFunction.inputMap;
@@ -71,13 +69,18 @@ export class ForEachFunction extends StatefulFunction implements BlockChildWatch
     return false;
   }
 
+  constructor(data: Block) {
+    super(data);
+    this.control = new WorkerControl(this, data);
+  }
+
   run(): any {
     if (!this._funcBlock) {
       this._funcBlock = this._data.createOutputBlock('#flows');
     }
-    if (this._srcChanged) {
+    if (this.control._srcChanged) {
       this._clearWorkers();
-      this._srcChanged = false;
+      this.control._srcChanged = false;
     } else if (!this._inputChanged) {
       this._checkChanges();
       this._applyPendingOutput();
@@ -86,7 +89,7 @@ export class ForEachFunction extends StatefulFunction implements BlockChildWatch
       // since input block is changed
       this._clearWorkers();
     }
-    if (this._src) {
+    if (this.control.isReady()) {
       this._inputChanged = false;
       // watch input when input changed or use changed
       if (this._input && typeof this._input === 'object') {
@@ -193,8 +196,9 @@ export class ForEachFunction extends StatefulFunction implements BlockChildWatch
   }
 
   _addWorker(key: string, input: any) {
+    const {src, saveCallback} = this.control.getSaveParameter();
     let output = new ForEachOutput(this, key);
-    let child = this._funcBlock.createOutputFlow(RepeaterWorker, key, this._src, output, this._applyWorkerChange);
+    let child = this._funcBlock.createOutputFlow(RepeaterWorker, key, src, output, saveCallback);
     this._workers.set(key, child);
     child.updateInput(input);
   }
@@ -263,11 +267,17 @@ export class ForEachFunction extends StatefulFunction implements BlockChildWatch
   }
 
   cleanup(): void {
+    this.control.destroy();
     this._data.deleteValue('#output');
     this._data.deleteValue('#flows');
+    if (this._watchedInputBlock) {
+      this._watchedInputBlock.unwatch(this);
+      this._watchedInputBlock = null;
+    }
   }
 
   destroy(): void {
+    this.control.destroy();
     this._funcBlock = null;
     if (this._watchedInputBlock) {
       this._watchedInputBlock.unwatch(this);
@@ -277,15 +287,13 @@ export class ForEachFunction extends StatefulFunction implements BlockChildWatch
   }
 }
 
-ForEachFunction.prototype._applyWorkerChange = MapImpl.prototype._applyWorkerChange;
-
 Functions.add(ForEachFunction, {
   name: 'foreach',
   priority: 1,
   configs: defaultConfigs.concat('#cancel'),
   properties: [
     {name: 'input', type: 'object'},
-    {name: 'use', type: 'worker'},
+    {name: 'use', type: 'worker', init: ''},
     {name: '#output', pinned: true, type: 'any', readonly: true},
   ],
   category: 'repeat',

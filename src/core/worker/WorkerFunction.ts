@@ -8,7 +8,7 @@ import {WorkerFlow} from './WorkerFlow';
 import type {Block} from '../block/Block';
 
 /**
- * WorkerFunction is the function wrapper for all custom subflow functions
+ * WorkerFunction is the function wrapper for all custom functions
  */
 export class WorkerFunction extends BaseFunction<Block> {
   declare readonly type: string;
