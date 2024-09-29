@@ -1,12 +1,12 @@
 import {BaseFunction, StatefulFunction} from '../block/BlockFunction';
 import {Functions} from '../block/Functions';
 import {JsFunction} from '../functions/script/Js';
-import {SubFlowCollector, SubFlowMode, SubFlowModeOptions} from './SubFlowFunction';
+import {WorkerCollector, WorkerMode, WorkerModeOptions} from './WorkerFunction';
 import {Flow, Root} from '../block/Flow';
 import {Block} from '../block/Block';
 
 export class SelectFlowFunction extends BaseFunction<Block> {
-  collector: SubFlowCollector;
+  collector: WorkerCollector;
 
   constructor(data: Block) {
     super(data);
@@ -15,7 +15,7 @@ export class SelectFlowFunction extends BaseFunction<Block> {
   }
 
   run(): any {
-    this.collector = new SubFlowCollector('selectFlow', this.onCollect);
+    this.collector = new WorkerCollector('selectFlow', this.onCollect);
     return this.collector;
   }
 
@@ -23,7 +23,7 @@ export class SelectFlowFunction extends BaseFunction<Block> {
     if (block._prop._name === this._data.getValue('name')) {
       block.updateValue('#state', 'on');
     } else {
-      block.updateValue('#state', this._data.getValue('unusedFlow') || SubFlowMode.DISABLE);
+      block.updateValue('#state', this._data.getValue('unusedFlow') || WorkerMode.DISABLE);
     }
   };
 }
@@ -41,8 +41,8 @@ Functions.add(SelectFlowFunction, {
     {
       name: 'unusedFlow',
       type: 'radio-button',
-      options: SubFlowModeOptions,
-      default: SubFlowMode.DISABLE,
+      options: WorkerModeOptions,
+      default: WorkerMode.DISABLE,
     },
   ],
   category: 'repeat',

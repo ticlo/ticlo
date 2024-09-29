@@ -8,7 +8,7 @@ import {shouldHappen, waitTick} from '../../../../core/util/test-util';
 import {blankFuncDesc, blankPropDesc, PropDesc} from '../../../../../src/core/editor';
 import {makeLocalConnection} from '../../../../core/connect/LocalConnection';
 import {Root} from '../../../../../src/core';
-import {WorkerFunction} from '../../../../core/worker/WorkerFunction';
+import {WorkerFunctionGen} from '../../../../core/worker/WorkerFunctionGen';
 import {Functions} from '../../../../core/block/Functions';
 import {DateEditor} from '../DateEditor';
 
@@ -23,7 +23,7 @@ describe('WorkerEditor', function () {
   });
 
   it('expand type editor', async function () {
-    WorkerFunction.registerType({'#is': ''}, {name: 'class1'}, 'WorkerEditor');
+    WorkerFunctionGen.registerType({'#is': ''}, {name: 'class1'}, 'WorkerEditor');
 
     let [server, client] = makeLocalConnection(Root.instance, true);
 

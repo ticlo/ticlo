@@ -1,6 +1,6 @@
 import {expect} from 'vitest';
 import {FlowWithShared, SharedBlock} from '../SharedBlock';
-import {WorkerFunction} from '../../worker/WorkerFunction';
+import {WorkerFunctionGen} from '../../worker/WorkerFunctionGen';
 import {Functions} from '../Functions';
 import {WorkerFlow} from '../../worker/WorkerFlow';
 
@@ -52,7 +52,7 @@ describe('SharedBlock', function () {
 
   it('cacheMode', function () {
     let data = {'#is': '', '#shared': {'#is': '', '#cacheMode': 'persist'}};
-    WorkerFunction.registerType(data, {name: 'cacheModeWorker1', properties: []}, 'SharedBlock');
+    WorkerFunctionGen.registerType(data, {name: 'cacheModeWorker1', properties: []}, 'SharedBlock');
 
     let flow = new WorkerFlow();
     flow.load(data, 'SharedBlock:cacheModeWorker1');

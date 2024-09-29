@@ -2,7 +2,7 @@ import {expect} from 'vitest';
 import {Flow} from '../../block/Flow';
 import {FlowEditor} from '../FlowEditor';
 import {VoidListeners} from '../../block/spec/TestFunction';
-import {WorkerFunction} from '../WorkerFunction';
+import {WorkerFunctionGen} from '../WorkerFunctionGen';
 import {Functions} from '../../block/Functions';
 import {PropDesc, PropGroupDesc} from '../../block/Descriptor';
 import {DataMap} from '../../util/DataTypes';
@@ -35,7 +35,7 @@ describe('FlowEditor', function () {
       },
     };
 
-    WorkerFunction.registerType(data, {name: 'func1'}, 'FlowEditor');
+    WorkerFunctionGen.registerType(data, {name: 'func1'}, 'FlowEditor');
 
     // editor with map data
     block.setValue('use1', data);
@@ -59,7 +59,7 @@ describe('FlowEditor', function () {
       },
     };
 
-    WorkerFunction.registerType(data, {name: 'worker2'}, 'FlowEditor');
+    WorkerFunctionGen.registerType(data, {name: 'worker2'}, 'FlowEditor');
 
     FlowEditor.createFromFunction(flow, '#edit-func', 'FlowEditor:worker2', null);
     expect((flow.getValue('#edit-func') as Flow).save()).toEqual(data);
@@ -127,13 +127,13 @@ describe('FlowEditor', function () {
       {name: 'b', type: 'number', readonly: true},
     ];
 
-    WorkerFunction.registerType({'#is': ''}, {name: 'worker3', properties: []}, 'FlowEditor');
+    WorkerFunctionGen.registerType({'#is': ''}, {name: 'worker3', properties: []}, 'FlowEditor');
 
     let editor = FlowEditor.createFromFunction(flow, '#edit-func', 'FlowEditor:worker3', null);
     editor.createBlock('#inputs')._load(expectedData['#inputs']);
     editor.createBlock('#outputs')._load(expectedData['#outputs']);
     editor.setValue('#desc', expectedData['#desc']);
-    WorkerFunction.applyChangeToFunc(editor, 'FlowEditor:worker3');
+    WorkerFunctionGen.applyChangeToFunc(editor, 'FlowEditor:worker3');
 
     expect(Functions.getWorkerData('FlowEditor:worker3')).toEqual(expectedData);
 

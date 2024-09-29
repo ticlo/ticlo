@@ -4,13 +4,14 @@ import {BlockConfig, BlockIO} from '../block/BlockProperty';
 import {Flow, Root} from '../block/Flow';
 import {Event, EventType} from '../block/Event';
 import {DataMap} from '../util/DataTypes';
-import {WorkerFlow} from '../worker/WorkerFlow';
+import {RepeaterWorker, WorkerFlow} from '../worker/WorkerFlow';
 import {FlowStorage} from '../block/Storage';
 import {deepEqual} from '../util/Compare';
 import {Functions} from '../block/Functions';
-import {Block} from '../block/Block';
+import {Block, BlockChildWatch} from '../block/Block';
+import {WorkerControl, type WorkerHost} from '../worker/WorkerControl';
 
-export enum SubFlowMode {
+export enum WorkerMode {
   ON = 'on',
   OFF = 'off',
   DISABLE = 'disable',
@@ -21,19 +22,9 @@ export enum SubFlowMode {
   LAZY = 'lazy',
 }
 
-export const SubFlowModeOptions = Object.values(SubFlowMode);
+export const WorkerModeOptions = Object.values(WorkerMode);
 
-class LoadFunctionCache {
-  static async loadData(path: string, func: SubFlowFunction) {
-    let data = await Root.instance._storage.loadFlow(path);
-    // check if func is destroyed
-    if (func._data) {
-      func.onDataLoaded(data ?? {});
-    }
-  }
-}
-
-export class SubFlowCollector extends Event {
+export class WorkerCollector extends Event {
   passThrough = true;
   onPush: (block: Block) => void;
 
@@ -55,20 +46,15 @@ export class SubFlowCollector extends Event {
 /**
  * SubFlowFunction is the function to load another flow from storage, not as a reusable worker
  */
-export class SubFlowFunction extends BaseFunction<Block> {
+export class WorkerFunction extends BaseFunction<Block> implements WorkerHost {
+  readonly workerField = 'use';
+  readonly control: WorkerControl;
+
   _funcFlow: WorkerFlow;
-  _src: DataMap;
-  _loading = false;
-  _subflowModeChanged = false;
-  readonly #storagePath: string;
 
   constructor(data: Block) {
     super(data);
-    let fullPath = data.getFullPath();
-    if (fullPath.includes('#flows.')) {
-      fullPath = fullPath.replaceAll(/#flows\.[^.]+/, '0');
-    }
-    this.#storagePath = `${fullPath}.#`;
+    this.control = new WorkerControl(this, data);
     // make sure collector is emitted even when there are no sync block under it
     data.getProperty('#emit');
   }
@@ -76,8 +62,9 @@ export class SubFlowFunction extends BaseFunction<Block> {
   configChanged(config: BlockConfig, val: any): boolean {
     switch (config._name) {
       case '#state':
-        this._subflowModeChanged = true;
         return true;
+      case '#use':
+        return this.control.onSourceChange(val);
       default:
         return false;
     }
@@ -87,22 +74,26 @@ export class SubFlowFunction extends BaseFunction<Block> {
     return false;
   }
 
-  _collector: SubFlowCollector;
+  _collector: WorkerCollector;
 
   onCall(val: any): boolean {
-    if (val instanceof SubFlowCollector) {
+    if (val instanceof WorkerCollector) {
       this._collector = val;
       return true;
     }
     return false;
   }
 
-  loadFunctionFlow(disable: boolean) {
+  createWorker(disable: boolean) {
+    if (!this.control.isReady()) {
+      return;
+    }
     if (this._funcFlow == null) {
-      if (!this._loading && !disable) {
-        // don't load the subflow when it's disabled
-        this._loading = true;
-        LoadFunctionCache.loadData(this.#storagePath, this);
+      const {src, saveCallback} = this.control.getSaveParameter();
+      let subFlowMode = this._data.getValue('#state') ?? WorkerMode.ON;
+      if (subFlowMode === WorkerMode.ON) {
+        this._funcFlow = this._data.createOutputFlow(RepeaterWorker, '#flow', src, this._data, saveCallback);
+        this._funcFlow?.updateInput(this._data);
       }
     } else {
       this._funcFlow.updateValue('#disabled', disable || undefined);
@@ -113,50 +104,39 @@ export class SubFlowFunction extends BaseFunction<Block> {
     if (this._collector) {
       this._collector.addSubFlow(this._data);
     }
+    if (this.control._srcChanged) {
+      this._data.deleteValue('#flow');
+      this._funcFlow = null;
+      this.control._srcChanged = false;
+    }
+
     let subFlowMode = this._data.getValue('#state');
     switch (subFlowMode) {
-      case 'off': {
+      case WorkerMode.OFF: {
         if (this._funcFlow != null) {
           this._data.deleteValue('#flow');
           this._funcFlow = null;
         }
         break;
       }
-      case 'disable': {
-        this.loadFunctionFlow(true);
+      case WorkerMode.DISABLE: {
+        this.createWorker(true);
         break;
       }
-      case 'lazy': {
+      case WorkerMode.LAZY: {
         // Do nothing
         break;
       }
       // case 'on:
       default: {
-        this.loadFunctionFlow(false);
+        this.createWorker(false);
       }
     }
 
     if (this._collector) {
-      this._collector.addSubFlow(this._data);
       let result = this._collector;
       this._collector = null;
       return result;
-    }
-  }
-
-  onDataLoaded(src: DataMap) {
-    this._loading = false;
-    let subFlowMode = this._data.getValue('#state') ?? SubFlowMode.ON;
-    if (this._funcFlow == null && subFlowMode === SubFlowMode.ON) {
-      this._src = src;
-      let storagePath = this.#storagePath;
-      let applyChange = (data: DataMap) => {
-        this._src = data;
-        Root.instance._storage.saveFlow(null, data, storagePath);
-        return true;
-      };
-      this._funcFlow = this._data.createOutputFlow(WorkerFlow, '#flow', this._src, this._data, applyChange);
-      this._funcFlow?.updateInput(this._data);
     }
   }
 
@@ -165,9 +145,7 @@ export class SubFlowFunction extends BaseFunction<Block> {
   }
 
   destroy() {
-    if (this._data._destroyed && !this._data._flow._destroyed) {
-      Root.instance._storage.delete(this.#storagePath);
-    }
+    this.control.destroy();
     super.destroy();
   }
 }
@@ -194,7 +172,7 @@ function getDefaultWorker(block: Block, field: string, blockStack: Map<any, any>
 }
 
 Functions.add(
-  SubFlowFunction,
+  WorkerFunction,
   {
     name: 'worker',
     priority: 3,
@@ -202,8 +180,12 @@ Functions.add(
       {
         name: '#state',
         type: 'radio-button',
-        options: SubFlowModeOptions,
-        default: SubFlowMode.ON,
+        options: WorkerModeOptions,
+        default: WorkerMode.ON,
+      },
+      {
+        name: '#use',
+        type: 'worker',
       },
     ],
     category: 'repeat',

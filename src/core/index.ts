@@ -47,5 +47,5 @@ import './functions/condition/If';
 import './worker/MapFunction';
 import './worker/ForEachFunction';
 import './worker/HandlerFunction';
-import './subflows/SubFlowFunction';
+import './subflows/WorkerFunction';
 import './subflows/SelectFlowFunction';

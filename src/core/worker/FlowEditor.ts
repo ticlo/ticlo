@@ -1,6 +1,6 @@
 import {Block, BlockChildWatch} from '../block/Block';
 import {DataMap} from '../util/DataTypes';
-import {WorkerFunction} from './WorkerFunction';
+import {WorkerFunctionGen} from './WorkerFunctionGen';
 import {FlowWithShared, FlowWithSharedConfigGenerators} from '../block/SharedBlock';
 import {BlockProperty} from '..';
 import {ConstTypeConfig} from '../block/BlockConfigs';
@@ -57,7 +57,7 @@ export class FlowEditor extends FlowWithShared {
     }
     if (funcId?.startsWith(':') && !applyChange) {
       applyChange = (data: DataMap) => {
-        return WorkerFunction.applyChangeToFunc(flow, null, data);
+        return WorkerFunctionGen.applyChangeToFunc(flow, null, data);
       };
     }
     let success = flow.load(src, funcId, applyChange);

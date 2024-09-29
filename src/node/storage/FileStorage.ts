@@ -1,7 +1,7 @@
 import Fs from 'fs';
 import Path from 'path';
 import {BlockProperty, DataMap, decode, encodeSorted, Flow, Root, FlowStorage, Storage} from '../../../src/core';
-import {WorkerFunction} from '../../../src/core/worker/WorkerFunction';
+import {WorkerFunctionGen} from '../../core/worker/WorkerFunctionGen';
 import {FlowLoader, FlowState} from '../../../src/core/block/Flow';
 import {StreamDispatcher} from '../../core/block/Dispatcher';
 import {encodeFileName} from '../../core/util/Path';
@@ -215,8 +215,8 @@ export class FileFlowStorage extends FileStorage implements FlowStorage {
     for (let name of functionFiles.sort()) {
       try {
         let data = decode(Fs.readFileSync(Path.join(this.dir, `#.${name}${this.ext}`), 'utf8'));
-        let desc = WorkerFunction.collectDesc(`:${name}`, data);
-        WorkerFunction.registerType(data, desc, '');
+        let desc = WorkerFunctionGen.collectDesc(`:${name}`, data);
+        WorkerFunctionGen.registerType(data, desc, '');
       } catch (err) {
         // TODO Logger
       }

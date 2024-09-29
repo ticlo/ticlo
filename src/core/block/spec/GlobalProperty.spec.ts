@@ -2,7 +2,7 @@ import {expect} from 'vitest';
 import {Block} from '../Block';
 import {Flow, Root} from '../Flow';
 import {DataMap} from '../../util/DataTypes';
-import {WorkerFunction} from '../../worker/WorkerFunction';
+import {WorkerFunctionGen} from '../../worker/WorkerFunctionGen';
 
 describe('GlobalProperty', function () {
   it('global from nested flow', function () {
@@ -18,7 +18,7 @@ describe('GlobalProperty', function () {
       '#is': '',
       '~v': '^top.v',
     };
-    WorkerFunction.registerType(flowData, {name: 'class1'}, 'GlobalProperty');
+    WorkerFunctionGen.registerType(flowData, {name: 'class1'}, 'GlobalProperty');
 
     Root.run();
 

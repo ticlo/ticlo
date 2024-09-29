@@ -1,6 +1,6 @@
 import {expect} from 'vitest';
 import {Flow, Root} from '../../block/Flow';
-import {WorkerFunction} from '../WorkerFunction';
+import {WorkerFunctionGen} from '../WorkerFunctionGen';
 import {TestFunctionRunner} from '../../block/spec/TestFunction';
 import '../../functions/math/Arithmetic';
 import {DataMap} from '../../util/DataTypes';
@@ -22,7 +22,7 @@ describe('WorkerFunction', function () {
         '~#call': '##.#inputs.in1',
       },
     };
-    WorkerFunction.registerType(flowData, {name: 'class1'}, 'WorkerFunction');
+    WorkerFunctionGen.registerType(flowData, {name: 'class1'}, 'WorkerFunction');
 
     Root.run();
     expect(TestFunctionRunner.popLogs()).toEqual(['nest1']);
@@ -56,7 +56,7 @@ describe('WorkerFunction', function () {
       'add': {'#is': 'add', '~0': '##.#inputs.in1', '1': 1},
       '#outputs': {'#is': '', '~out1': '##.add.#output'},
     };
-    WorkerFunction.registerType(flowData, {name: 'class2'}, 'WorkerFunction');
+    WorkerFunctionGen.registerType(flowData, {name: 'class2'}, 'WorkerFunction');
     aBlock.setValue('in1', 2);
     Root.run();
 
@@ -80,8 +80,8 @@ describe('WorkerFunction', function () {
       'add': {'#is': 'add', '~0': '##.#inputs.in1', '1': 1},
       '#outputs': {'#is': '', '~out2': '##.add.#output'},
     };
-    WorkerFunction.registerType(flowData1, {name: 'class1'}, 'test_namespace');
-    WorkerFunction.registerType(flowData2, {name: 'class2'}, 'test_namespace');
+    WorkerFunctionGen.registerType(flowData1, {name: 'class1'}, 'test_namespace');
+    WorkerFunctionGen.registerType(flowData2, {name: 'class2'}, 'test_namespace');
     Root.run();
 
     expect(aBlock.getValue('out1')).toBe(3);

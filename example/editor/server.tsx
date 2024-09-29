@@ -4,11 +4,11 @@ import {data} from '../sample-data/data';
 import reactData from '../sample-data/react';
 import './sample-blocks';
 import {Logger} from '../../src/core/util/Logger';
-import {WorkerFunction} from '../../src/core/worker/WorkerFunction';
+import {WorkerFunctionGen} from '../../src/core/worker/WorkerFunctionGen';
 import '../../src/react';
 import {FrameServerConnection} from '../../src/html';
 
-WorkerFunction.registerType({'#is': ''}, {name: 'class1'}, 'WorkerEditor');
+WorkerFunctionGen.registerType({'#is': ''}, {name: 'class1'}, 'WorkerEditor');
 
 let editors: Window[] = [];
 window.addEventListener('beforeunload', () => {

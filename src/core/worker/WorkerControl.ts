@@ -2,7 +2,7 @@ import {type Block} from '../block/Block';
 import {DataMap, isDataMap, isSavedBlock} from '../util/DataTypes';
 import {Root} from '../block/Flow';
 import {StreamDispatcher} from '../block/Dispatcher';
-import {StatefulFunction} from '../block/BlockFunction';
+import {BaseFunction} from '../block/BlockFunction';
 import {getBlockStoragePath} from '../util/Path';
 
 export interface WorkerHost {
@@ -10,7 +10,7 @@ export interface WorkerHost {
   get workerField(): string;
 }
 
-type WorkerHostFunction = WorkerHost & StatefulFunction;
+type WorkerHostFunction = WorkerHost & BaseFunction<Block>;
 
 export class SubflowLoader extends StreamDispatcher<DataMap> {
   static readonly loaders = new Map<string, SubflowLoader>();

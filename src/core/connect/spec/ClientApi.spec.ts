@@ -11,7 +11,7 @@ import {shouldHappen, shouldReject} from '../../util/test-util';
 import {JsFunction} from '../../functions/script/Js';
 import {Functions} from '../../block/Functions';
 import {DataMap, isDataTruncated} from '../../util/DataTypes';
-import {WorkerFunction} from '../../worker/WorkerFunction';
+import {WorkerFunctionGen} from '../../worker/WorkerFunctionGen';
 import {FlowEditor} from '../../worker/FlowEditor';
 import {WorkerFlow} from '../../worker/WorkerFlow';
 

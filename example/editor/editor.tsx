@@ -13,7 +13,7 @@ import {FunctionTree} from '../../src/editor/function-selector/FunctionTree';
 
 import './sample-blocks';
 import {Logger} from '../../src/core/util/Logger';
-import {WorkerFunction} from '../../src/core/worker/WorkerFunction';
+import {WorkerFunctionGen} from '../../src/core/worker/WorkerFunctionGen';
 import {BlockStagePane} from '../../src/editor/dock/block/BlockStagePane';
 import {TicloLayoutContext, TicloLayoutContextType} from '../../src/editor/component/LayoutContext';
 import {PropDispatcher} from '../../src/core/block/Dispatcher';
@@ -63,7 +63,7 @@ interface State {
   modal?: React.ReactElement;
 }
 
-WorkerFunction.registerType({'#is': ''}, {name: 'class1'}, 'WorkerEditor');
+WorkerFunctionGen.registerType({'#is': ''}, {name: 'class1'}, 'WorkerEditor');
 
 class App extends React.PureComponent<Props, State> {
   state: State = {};

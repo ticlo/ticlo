@@ -1,6 +1,6 @@
 import {expect} from 'vitest';
 import {getRelativePath, resolvePath, forAllPathsBetween, encodeFileName} from '../Path';
-import {WorkerFunction} from '../../worker/WorkerFunction';
+import {WorkerFunctionGen} from '../../worker/WorkerFunctionGen';
 import {FlowFolder, Root} from '../../block/Flow';
 import {DataMap} from '../DataTypes';
 import {propRelative} from '../PropPath';
@@ -58,8 +58,8 @@ describe('Path', function () {
         'D': {'#is': ''},
       },
     };
-    WorkerFunction.registerType(flowData1, {name: 'class1'}, 'PropRelative');
-    WorkerFunction.registerType(flowData2, {name: 'class2'}, 'PropRelative');
+    WorkerFunctionGen.registerType(flowData1, {name: 'class1'}, 'PropRelative');
+    WorkerFunctionGen.registerType(flowData2, {name: 'class2'}, 'PropRelative');
 
     flow1.load({
       c: {

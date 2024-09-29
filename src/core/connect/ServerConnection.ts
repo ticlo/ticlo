@@ -27,7 +27,7 @@ import {hideProperties, moveShownProperty, showProperties} from '../property-api
 import {addCustomProperty, moveCustomProperty, removeCustomProperty} from '../property-api/CustomProperty';
 import {FlowEditor} from '../worker/FlowEditor';
 import {addOptionalProperty, moveOptionalProperty, removeOptionalProperty} from '../property-api/OptionalProperty';
-import {WorkerFunction} from '../worker/WorkerFunction';
+import {WorkerFunctionGen} from '../worker/WorkerFunctionGen';
 import {isBindable} from '../util/Path';
 import {ClientCallbacks} from './ClientRequests';
 import {copyProperties, createSharedBlock, deleteProperties, pasteProperties} from '../property-api/CopyPaste';
@@ -750,7 +750,7 @@ export class ServerConnection extends ServerConnectionCore {
     let property = this.root.queryProperty(path, true);
     if (property && property._value instanceof Flow) {
       if (funcId && property._value instanceof FlowEditor) {
-        WorkerFunction.applyChangeToFunc(property._value, funcId);
+        WorkerFunctionGen.applyChangeToFunc(property._value, funcId);
       } else {
         property._value.applyChange();
         if (property._block._flow._history?.hasChange()) {

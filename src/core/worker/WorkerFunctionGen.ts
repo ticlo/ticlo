@@ -10,7 +10,7 @@ import type {Block} from '../block/Block';
 /**
  * WorkerFunction is the function wrapper for all custom functions
  */
-export class WorkerFunction extends BaseFunction<Block> {
+export class WorkerFunctionGen extends BaseFunction<Block> {
   declare readonly type: string;
   declare _namespace: string;
   declare _funcFlow: WorkerFlow;
@@ -23,7 +23,7 @@ export class WorkerFunction extends BaseFunction<Block> {
     let applyChange: (data: DataMap) => boolean;
     if (this._namespace === '') {
       applyChange = (data: DataMap) => {
-        return WorkerFunction.applyChangeToFunc(this._funcFlow, null, data);
+        return WorkerFunctionGen.applyChangeToFunc(this._funcFlow, null, data);
       };
     }
     this._funcFlow = this._data.createOutputFlow(WorkerFlow, '#flow', this.type, this._data, applyChange);
@@ -35,7 +35,7 @@ export class WorkerFunction extends BaseFunction<Block> {
   }
 
   static registerType(data: DataMap, desc: FunctionDesc, namespace?: string) {
-    class CustomWorkerFunction extends WorkerFunction {
+    class CustomWorkerFunction extends WorkerFunctionGen {
       static ticlWorkerData = data;
     }
 
@@ -62,11 +62,11 @@ export class WorkerFunction extends BaseFunction<Block> {
     if (!funcId) {
       return false;
     }
-    let desc = WorkerFunction.collectDesc(funcId, data);
+    let desc = WorkerFunctionGen.collectDesc(funcId, data);
     if (funcId.startsWith(':')) {
       Functions.saveWorkerFunction(funcId, flow, data);
     }
-    WorkerFunction.registerType(data, desc, flow._namespace);
+    WorkerFunctionGen.registerType(data, desc, flow._namespace);
     return true;
   }
 
@@ -78,7 +78,7 @@ export class WorkerFunction extends BaseFunction<Block> {
     } else {
       return null;
     }
-    let desc: FunctionDesc = {name, properties: WorkerFunction.collectProperties(data)};
+    let desc: FunctionDesc = {name, properties: WorkerFunctionGen.collectProperties(data)};
     let savedDesc = data['#desc'] as FunctionDesc;
     if (savedDesc && typeof savedDesc === 'object' && savedDesc.constructor === Object) {
       desc = {...savedDesc, ...desc};

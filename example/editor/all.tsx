@@ -26,7 +26,7 @@ import {DragDropDiv, DragState, DockLayout, DockContextType} from 'rc-dock';
 import {ClientConnection} from '../../src/core/connect/ClientConnection';
 
 import './sample-blocks';
-import {WorkerFunction} from '../../src/core/worker/WorkerFunction';
+import {WorkerFunctionGen} from '../../src/core/worker/WorkerFunctionGen';
 
 import {TicloLayoutContext, TicloLayoutContextType} from '../../src/editor/component/LayoutContext';
 import {PropertyListPane} from '../../src/editor/dock/property/PropertyListPane';
@@ -82,7 +82,7 @@ interface State {
   modal?: React.ReactElement;
 }
 
-WorkerFunction.registerType(
+WorkerFunctionGen.registerType(
   {
     '#is': '',
     '#shared': {

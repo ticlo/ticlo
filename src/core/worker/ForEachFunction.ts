@@ -34,7 +34,7 @@ class ForEachOutput implements FunctionOutput {
 }
 
 export class ForEachFunction extends StatefulFunction implements BlockChildWatch, WorkerHost {
-  workerField = 'use';
+  readonly workerField = 'use';
   readonly control: WorkerControl;
 
   _input: any;
