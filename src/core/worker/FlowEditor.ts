@@ -5,11 +5,9 @@ import {FlowWithShared, FlowWithSharedConfigGenerators} from '../block/SharedBlo
 import {BlockProperty} from '..';
 import {ConstTypeConfig} from '../block/BlockConfigs';
 import {BlockConfig} from '../block/BlockProperty';
-
-const blankWorker = {
-  '#inputs': {'#is': ''},
-  '#outputs': {'#is': ''},
-};
+import {SubflowLoader} from './WorkerControl';
+import {defaultWorkerData} from '../defaults/DefaultFlows';
+import {getBlockStoragePath} from '../util/Path';
 
 export const FlowEditorConfigGenerators: {[key: string]: typeof BlockProperty} = {
   ...FlowWithSharedConfigGenerators,
@@ -77,7 +75,20 @@ export class FlowEditor extends FlowWithShared {
     if (fromValue && (typeof fromValue === 'string' || fromValue.constructor === Object)) {
       let newFlow: FlowEditor;
       if (typeof fromValue === 'string') {
-        newFlow = FlowEditor.create(parent, field, null, fromValue);
+        if (fromValue === '#') {
+          const loader = SubflowLoader.getLoader(getBlockStoragePath(parent));
+          loader.load((data: DataMap) => {
+            if (!parent.isDestroyed() && parent.getValue(fromField) === '#') {
+              newFlow = FlowEditor.create(parent, field, data ?? defaultWorkerData, null, false, (data: DataMap) => {
+                loader.save(data);
+                return true;
+              });
+            }
+          });
+          return null;
+        } else {
+          newFlow = FlowEditor.create(parent, field, null, fromValue);
+        }
       } else {
         newFlow = FlowEditor.create(parent, field, fromValue as DataMap, null, false, (data: DataMap) => {
           parent.setValue(fromField, data);
@@ -93,7 +104,7 @@ export class FlowEditor extends FlowWithShared {
     }
 
     if (parent._funcId) {
-      let data = parent.getDefaultWorker(fromField) || blankWorker;
+      let data = parent.getDefaultWorker(fromField) || defaultWorkerData;
       return FlowEditor.create(parent, field, data, null, forceReload, (data: DataMap) => {
         parent.setValue(fromField, data);
         return true;

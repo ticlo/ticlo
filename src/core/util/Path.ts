@@ -1,4 +1,5 @@
 import {Logger} from './Logger';
+import {type Block} from '../block/Block';
 
 export function splitPathName(currentPath: string): [string, string] {
   let dotPos = currentPath.lastIndexOf('.');
@@ -122,4 +123,13 @@ export function isBindable(toPath: string, fromPath: string): boolean | 'shared'
     }
   }
   return true;
+}
+
+export function getBlockStoragePath(block: Block) {
+  // get the storage path for subflow
+  let fullPath = block.getFullPath();
+  if (fullPath.includes('#flows.')) {
+    fullPath = fullPath.replaceAll(/#flows\.[^.]+/g, '#flows._');
+  }
+  return `${fullPath}.#`;
 }

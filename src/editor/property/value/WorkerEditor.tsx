@@ -8,6 +8,8 @@ import {Popup} from '../../component/ClickPopup';
 import {FunctionEditor} from './FunctionEditor';
 import {FunctionDesc} from '../../../../src/core/editor';
 import {TicloLayoutContext, TicloLayoutContextType} from '../../component/LayoutContext';
+import {t} from '../../component/LocalizedLabel';
+import {defaultWorkerData} from '../../../core/defaults/DefaultFlows';
 
 export class WorkerEditor extends FunctionEditor {
   static contextType = TicloLayoutContextType;
@@ -28,6 +30,18 @@ export class WorkerEditor extends FunctionEditor {
     }
   };
 
+  onFunctionClick = (name: string, desc: FunctionDesc) => {
+    if (desc.id === '{}') {
+      const {onChange, name} = this.props;
+      this._pendingValue = null;
+      onChange(defaultWorkerData, name);
+    } else {
+      this.commitChange(desc.id);
+    }
+
+    this.setState({opened: false});
+  };
+
   render() {
     let {desc, value, locked, onChange, conn} = this.props;
     let {opened} = this.state;
@@ -38,30 +52,44 @@ export class WorkerEditor extends FunctionEditor {
       onChange = null;
     }
 
-    let label: string;
+    let label: string | React.ReactNode;
     if (typeof value === 'string') {
-      label = value;
+      if (value === '#') {
+        label = t('Subflow');
+      } else {
+        label = value;
+      }
     } else if (value && value.constructor === Object) {
-      label = '{}';
+      label = t('Inline');
     }
 
     return (
       <DragDropDiv className="ticl-worker-editor ticl-hbox" onDragOverT={this.onDragOver} onDropT={this.onDrop}>
-        <Input value={value} disabled={true} size="small" />
+        <div className="ticl-object-editor" style={{flexGrow: 1}}>
+          {label}
+        </div>
         <Popup
           popupVisible={opened}
           onPopupVisibleChange={this.onPopupClose}
           popup={
             <FunctionSelect
+              useFlow={true}
               conn={conn}
               onFunctionClick={this.onFunctionClick}
               filter={WorkerEditor.filterWorkerFunction}
+              currentValue={value}
             />
           }
         >
           <Button className="ticl-square-icon-btn" size="small" icon={<DownIcon />} onClick={this.openPopup} />
         </Popup>
-        <Button className="ticl-square-icon-btn" size="small" icon={<EditIcon />} onClick={this.editWorker} />
+        <Button
+          className="ticl-square-icon-btn"
+          disabled={value == null}
+          size="small"
+          icon={<EditIcon />}
+          onClick={this.editWorker}
+        />
       </DragDropDiv>
     );
   }

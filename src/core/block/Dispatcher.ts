@@ -52,7 +52,7 @@ export class PropDispatcher<T = unknown> {
 export class StreamDispatcher<T = any> {
   _listeners: Set<(val: T) => void> = new Set<(val: T) => void>();
 
-  #value: T = null;
+  #value: T = undefined;
   get value() {
     return this.#value;
   }
@@ -63,6 +63,18 @@ export class StreamDispatcher<T = any> {
 
   unlisten(listener: (val: T) => void) {
     this._listeners.delete(listener);
+  }
+
+  load(listener: (val: T) => void) {
+    if (this.#value !== undefined) {
+      listener(this.#value);
+      return;
+    }
+    let tempListener = (val: T) => {
+      listener(val);
+      this.unlisten(tempListener);
+    };
+    this._listeners.add(tempListener);
   }
 
   dispatch(value: T): void {

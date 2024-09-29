@@ -5,6 +5,8 @@ import HistoryIcon from '@ant-design/icons/HistoryOutlined';
 import CloseCircleIcon from '@ant-design/icons/CloseCircleOutlined';
 import FilterIcon from '@ant-design/icons/FilterOutlined';
 import PlusSquareIcon from '@ant-design/icons/PlusSquareOutlined';
+import SubnodeIcon from '@ant-design/icons/SubnodeOutlined';
+import InlineIcon from '@ant-design/icons/BorderlessTableOutlined';
 import {FunctionTree} from './FunctionTree';
 import {ClientConn, DataMap, FunctionDesc, encodeTicloName, translateEditor} from '../../../src/core/editor';
 import {OnFunctionClick} from './FunctionView';
@@ -24,6 +26,8 @@ interface Props {
   onFunctionClick?: OnFunctionClick;
   onClick?: React.MouseEventHandler;
   filter?: (desc: FunctionDesc) => boolean;
+  useFlow?: boolean;
+  currentValue?: unknown;
 }
 
 interface State {
@@ -76,8 +80,20 @@ export class FunctionSelect extends React.PureComponent<Props, State> {
   onAddFunctionCancel = () => {
     this.setState({modelVisible: false});
   };
+  onSubflowClick = () => {
+    let {currentValue, onFunctionClick} = this.props;
+    if (currentValue !== '') {
+      onFunctionClick('', {name: '', id: '#'}, null);
+    }
+  };
+  onInlineClick = () => {
+    let {currentValue, onFunctionClick} = this.props;
+    if (!currentValue || currentValue.constructor !== Object) {
+      this.props.onFunctionClick('', {name: 'inline', id: '{}'}, null);
+    }
+  };
   render() {
-    let {conn, showPreset, onFunctionClick, onClick, filter} = this.props;
+    let {conn, showPreset, onFunctionClick, onClick, filter, useFlow, currentValue} = this.props;
     let {tab, search, modelVisible} = this.state;
 
     if (!conn) {
@@ -130,6 +146,26 @@ export class FunctionSelect extends React.PureComponent<Props, State> {
             <Input size="small" defaultValue={this.newFunctionName} onChange={this.onFunctionNameChange} />
           </Modal>
         </div>
+        {useFlow && (
+          <>
+            <Button
+              type={currentValue === '#' ? 'primary' : 'default'}
+              icon={<SubnodeIcon />}
+              size="small"
+              onClick={this.onSubflowClick}
+            >
+              {t('Subflow')}
+            </Button>
+            <Button
+              type={typeof currentValue === 'object' ? 'primary' : 'default'}
+              icon={<InlineIcon />}
+              size="small"
+              onClick={this.onInlineClick}
+            >
+              {t('Inline')}
+            </Button>
+          </>
+        )}
         <FunctionTree
           conn={conn}
           showPreset={showPreset}

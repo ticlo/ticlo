@@ -3,6 +3,7 @@ import {DataMap, isDataMap, isSavedBlock} from '../util/DataTypes';
 import {Root} from '../block/Flow';
 import {StreamDispatcher} from '../block/Dispatcher';
 import {StatefulFunction} from '../block/BlockFunction';
+import {getBlockStoragePath} from '../util/Path';
 
 export interface WorkerHost {
   get control(): WorkerControl;
@@ -11,13 +12,13 @@ export interface WorkerHost {
 
 type WorkerHostFunction = WorkerHost & StatefulFunction;
 
-class WorkerLoader extends StreamDispatcher<DataMap> {
-  static readonly loaders = new Map<string, WorkerLoader>();
+export class SubflowLoader extends StreamDispatcher<DataMap> {
+  static readonly loaders = new Map<string, SubflowLoader>();
   static getLoader(path: string) {
-    let loader = WorkerLoader.loaders.get(path);
+    let loader = SubflowLoader.loaders.get(path);
     if (!loader) {
-      loader = new WorkerLoader(path);
-      WorkerLoader.loaders.set(path, loader);
+      loader = new SubflowLoader(path);
+      SubflowLoader.loaders.set(path, loader);
     }
     return loader;
   }
@@ -45,17 +46,13 @@ export class WorkerControl {
   static onSourceChange(this: WorkerHostFunction, val: unknown) {
     return this.control.onSourceChange(val);
   }
-  loader: WorkerLoader;
+  loader: SubflowLoader;
   readonly storagePath: string;
   constructor(
     public readonly func: WorkerHostFunction,
     public readonly block: Block
   ) {
-    let fullPath = block.getFullPath();
-    if (fullPath.includes('#flows.')) {
-      fullPath = fullPath.replaceAll(/#flows\.[^.]+/g, '#flows._');
-    }
-    this.storagePath = `${fullPath}.#`;
+    this.storagePath = getBlockStoragePath(block);
   }
 
   _src: DataMap | string;
@@ -75,9 +72,9 @@ export class WorkerControl {
       this._src = undefined;
       this._srcChanged = true;
     }
-    // empty string for stored worker
-    if (val === '') {
-      this.loader = WorkerLoader.getLoader(this.storagePath);
+    // # for stored worker
+    if (val === '#') {
+      this.loader = SubflowLoader.getLoader(this.storagePath);
       this.loader.listen(this.onLoad);
     } else if (this.loader) {
       this.loader.unlisten(this.onLoad);
@@ -89,7 +86,7 @@ export class WorkerControl {
     this.block._queueFunction();
   };
   isReady() {
-    if (this._src === '') {
+    if (this._src === '#') {
       return this.loader.value != null;
     }
     return this._src != null;
@@ -109,7 +106,7 @@ export class WorkerControl {
 
   getSaveParameter(): {src?: string | DataMap; saveCallback?: (data: DataMap) => boolean} {
     let src: string | DataMap = this._src;
-    if (src === '') {
+    if (src === '#') {
       return {src: this.loader?.value, saveCallback: this.saveStorage};
     }
     if (typeof src === 'string') {
