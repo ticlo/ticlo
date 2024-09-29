@@ -83,6 +83,7 @@ export class WorkerControl {
     return true;
   }
   onLoad = (val: DataMap) => {
+    this._srcChanged = true;
     this.block._queueFunction();
   };
   isReady() {
