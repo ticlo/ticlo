@@ -1,0 +1,94 @@
+{
+"#is": "",
+"assert": {
+ "#is": "test:assert",
+ "@b-p": [
+  "actual0",
+  "expect0"
+ ],
+ "@b-xyw": [
+  324,
+  132,
+  143
+ ],
+ "expect0": 12,
+ "matchMode": "always-match",
+ "~actual0": "##.worker.b"
+},
+"worker": {
+ "#custom": [
+  {
+   "name": "a",
+   "type": "number"
+  },
+  {
+   "name": "b",
+   "pinned": true,
+   "type": "number"
+  }
+ ],
+ "#is": "worker",
+ "#use": {
+  "#is": {
+   "#inputs": {
+    "#custom": [
+     {
+      "name": "a",
+      "pinned": true,
+      "type": "number"
+     }
+    ],
+    "#is": "",
+    "@b-p": [
+     "a"
+    ]
+   },
+   "#is": "",
+   "#outputs": {
+    "#custom": [
+     {
+      "name": "b",
+      "pinned": true,
+      "type": "number"
+     }
+    ],
+    "#is": "",
+    "@b-p": [
+     "b"
+    ],
+    "@b-xyw": [
+     313,
+     40,
+     143
+    ],
+    "~b": "##.multiply.#output"
+   },
+   "multiply": {
+    "#is": "multiply",
+    "1": 3,
+    "@b-p": [
+     "0",
+     "1",
+     "#output"
+    ],
+    "@b-xyw": [
+     204,
+     156,
+     143
+    ],
+    "~0": "##.#inputs.a"
+   }
+  }
+ },
+ "@b-p": [
+  "a",
+  "b"
+ ],
+ "@b-xyw": [
+  84,
+  108,
+  143
+ ],
+ "a": 4
+}
+}
