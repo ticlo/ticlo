@@ -69,6 +69,9 @@ export class WorkerFunction extends BaseFunction<Block> implements WorkerHost {
         return false;
     }
   }
+  initInputs() {
+    this.control.onSourceChange(this._data.getValue('#use'));
+  }
 
   inputChanged(input: BlockIO, val: any): boolean {
     return false;
