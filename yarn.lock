@@ -9773,6 +9773,7 @@ __metadata:
     axios: "npm:1.7.4"
     base64-js: "npm:^1.5.1"
     body-parser: "npm:^1.20.2"
+    chalk: "npm:^4.1.2"
     codemirror: "npm:^6.0.1"
     cross-env: "npm:^7.0.3"
     denque: "npm:^2.1.0"

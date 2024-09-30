@@ -60,6 +60,7 @@
     "axios": "1.7.4",
     "base64-js": "^1.5.1",
     "body-parser": "^1.20.2",
+    "chalk": "^4.1.2",
     "codemirror": "^6.0.1",
     "cross-env": "^7.0.3",
     "diff-sequences": "^29.6.3",

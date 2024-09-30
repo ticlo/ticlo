@@ -1,3 +1,4 @@
+import chalk from 'chalk';
 import {FlowTestCase} from './FlowTestCase';
 import {FlowTestGroup} from './FlowTestGroup';
 import {Resolver} from '../../src/core/block/Resolver';
@@ -25,6 +26,14 @@ export class TestRunner {
     if (this.stack.length) {
       return this.stack.at(-1);
     }
+    if (this.failed) {
+      console.log(
+        `done ${chalk.green(`${this.passed}`)} / ${this.passed + this.failed}, ${chalk.red(`${this.failed} failed`)}`
+      );
+    } else {
+      console.log(`done ${chalk.green(`${this.passed} / ${this.passed}`)}`);
+    }
+
     return null;
   }
 
@@ -38,7 +47,7 @@ export class TestRunner {
       ++this.passed;
       this.stack.pop();
       Resolver.callLater(this.run);
-      console.log(`test passed: ${this.getDisplayPath(testCase)}`);
+      console.log(`${chalk.green('test passed')}: ${this.getDisplayPath(testCase)}`);
       lastTask.target.updateValue('#disabled', true);
     } else if (!this.allowEditing) {
       console.error(`unexpected test passed event: ${this.getDisplayPath(testCase)}`);
@@ -50,7 +59,7 @@ export class TestRunner {
       ++this.failed;
       this.stack.pop();
       Resolver.callLater(this.run);
-      console.warn(`test failed: ${this.getDisplayPath(testCase)}`);
+      console.warn(`${chalk.red('test failed')}: ${this.getDisplayPath(testCase)}`);
       lastTask.target.updateValue('#disabled', true);
     } else if (!this.allowEditing) {
       console.error(`unexpected test passed event: ${this.getDisplayPath(testCase)}`);
