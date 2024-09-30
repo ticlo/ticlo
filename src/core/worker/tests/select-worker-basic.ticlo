@@ -47,7 +47,7 @@
  "~actual2": "##.sub-flow6.#state"
 },
 "select-flow-disable-unused": {
- "#is": "select-flow",
+ "#is": "select-worker",
  "@b-p": [
   "name",
   "unusedFlow"
@@ -60,7 +60,7 @@
  "name": "sub-flow2"
 },
 "select-flow-unload-unused": {
- "#is": "select-flow",
+ "#is": "select-worker",
  "@b-p": [
   "name",
   "unusedFlow"
@@ -74,7 +74,7 @@
  "unusedFlow": "off"
 },
 "sub-flow1": {
- "#is": "sub-flow",
+ "#is": "worker",
  "#sync": true,
  "@b-p": [
   "#state"
@@ -83,7 +83,7 @@
  "~#call": "##.select-flow-disable-unused.#emit"
 },
 "sub-flow2": {
- "#is": "sub-flow",
+ "#is": "worker",
  "#sync": true,
  "@b-p": [
   "#state"
@@ -92,7 +92,7 @@
  "~#call": "##.sub-flow1.#emit"
 },
 "sub-flow3": {
- "#is": "sub-flow",
+ "#is": "worker",
  "#sync": true,
  "@b-p": [
   "#state"
@@ -101,7 +101,7 @@
  "~#call": "##.sub-flow2.#emit"
 },
 "sub-flow4": {
- "#is": "sub-flow",
+ "#is": "worker",
  "#sync": true,
  "@b-p": [
   "#state"
@@ -110,7 +110,7 @@
  "~#call": "##.select-flow-unload-unused.#emit"
 },
 "sub-flow5": {
- "#is": "sub-flow",
+ "#is": "worker",
  "#sync": true,
  "@b-p": [
   "#state"
@@ -119,7 +119,7 @@
  "~#call": "##.sub-flow4.#emit"
 },
 "sub-flow6": {
- "#is": "sub-flow",
+ "#is": "worker",
  "#sync": true,
  "@b-p": [
   "#state"

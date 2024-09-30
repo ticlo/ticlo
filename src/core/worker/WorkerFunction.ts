@@ -4,12 +4,12 @@ import {BlockConfig, BlockIO} from '../block/BlockProperty';
 import {Flow, Root} from '../block/Flow';
 import {Event, EventType} from '../block/Event';
 import {DataMap} from '../util/DataTypes';
-import {RepeaterWorker, WorkerFlow} from '../worker/WorkerFlow';
+import {RepeaterWorker, WorkerFlow} from './WorkerFlow';
 import {FlowStorage} from '../block/Storage';
 import {deepEqual} from '../util/Compare';
 import {Functions} from '../block/Functions';
 import {Block, BlockChildWatch} from '../block/Block';
-import {WorkerControl, type WorkerHost} from '../worker/WorkerControl';
+import {WorkerControl, type WorkerHost} from './WorkerControl';
 
 export enum WorkerMode {
   ON = 'on',

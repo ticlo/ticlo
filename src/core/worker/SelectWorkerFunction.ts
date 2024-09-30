@@ -5,7 +5,7 @@ import {WorkerCollector, WorkerMode, WorkerModeOptions} from './WorkerFunction';
 import {Flow, Root} from '../block/Flow';
 import {Block} from '../block/Block';
 
-export class SelectFlowFunction extends BaseFunction<Block> {
+export class SelectWorkerFunction extends BaseFunction<Block> {
   collector: WorkerCollector;
 
   constructor(data: Block) {
@@ -28,8 +28,8 @@ export class SelectFlowFunction extends BaseFunction<Block> {
   };
 }
 
-Functions.add(SelectFlowFunction, {
-  name: 'select-flow',
+Functions.add(SelectWorkerFunction, {
+  name: 'select-worker',
   icon: 'fas:file-circle-question',
   priority: 2,
   properties: [
