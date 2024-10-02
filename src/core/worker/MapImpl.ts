@@ -1,39 +1,24 @@
 import {StatefulFunction} from '../block/BlockFunction';
 import {DataMap, isSavedBlock} from '../util/DataTypes';
-import {Block} from '../block/Block';
+import {type Block} from '../block/Block';
 import {ThreadPool, UnlimitedPool, WorkerPool} from './ThreadPool';
 import {Task} from '../block/Task';
 import {RepeaterWorker} from './WorkerFlow';
 import {FunctionOutput} from '../block/FunctonData';
+import {WorkerControl, WorkerHost} from './WorkerControl';
 
 export type MapWorkerMode = undefined | 'reuse' | 'persist';
 
-export abstract class MapImpl extends StatefulFunction {
-  _src: DataMap | string;
-  _srcChanged: boolean; /* = false*/
-
-  _onSourceChange(val: any): boolean {
-    if (this._src) {
-      this._data.deleteValue('#shared');
-    }
-    if (typeof val === 'string' || isSavedBlock(val)) {
-      this._src = val;
-      this._srcChanged = true;
-      return true;
-    }
-    if (this._src) {
-      this._src = undefined;
-      this._srcChanged = true;
-      return true;
-    }
-    return false;
-  }
-  _applyWorkerChange = (data: DataMap) => {
-    this._data.setValue('use', data);
-    return true;
-  };
+export abstract class MapImpl extends StatefulFunction implements WorkerHost {
+  readonly workerField = 'use';
+  readonly control: WorkerControl;
 
   _reuseWorker: MapWorkerMode;
+
+  constructor(data: Block) {
+    super(data);
+    this.control = new WorkerControl(this, data);
+  }
 
   _onReuseWorkerChange(val: any): boolean {
     if (val !== 'reuse' && val !== 'persist') {
@@ -42,7 +27,7 @@ export abstract class MapImpl extends StatefulFunction {
     if (val !== this._reuseWorker) {
       this._reuseWorker = val;
       // reuseWorker change should be treated same as use change
-      this._srcChanged = true;
+      this.control._srcChanged = true;
       return true;
     }
     return false;
@@ -81,7 +66,7 @@ export abstract class MapImpl extends StatefulFunction {
     let n = Number(val);
     if (!(n >= 1)) {
       if (this._pool.constructor !== UnlimitedPool) {
-        this._srcChanged = true;
+        this.control._srcChanged = true;
         this._pool.clear();
         this._pool = new UnlimitedPool(
           (n: number) => this._removeWorker(n.toString()),
@@ -91,7 +76,7 @@ export abstract class MapImpl extends StatefulFunction {
       }
     } else {
       if (this._pool.constructor !== ThreadPool) {
-        this._srcChanged = true;
+        this.control._srcChanged = true;
         this._pool.clear();
         this._pool = new ThreadPool(
           n,
@@ -113,10 +98,11 @@ export abstract class MapImpl extends StatefulFunction {
   abstract _onWorkerReady(output: WorkerOutput, timeout: boolean): void;
 
   _addWorker(key: string, field: string | number, input: any): RepeaterWorker {
+    const {src, saveCallback} = this.control.getSaveParameter();
     let output = new WorkerOutput(key, field, this._timeout, (output: WorkerOutput, timeout: boolean) =>
       this._onWorkerReady(output, timeout)
     );
-    let child = this._funcBlock.createOutputFlow(RepeaterWorker, key, this._src, output, this._applyWorkerChange);
+    let child = this._funcBlock.createOutputFlow(RepeaterWorker, key, src, output, saveCallback);
     child.onReady = () => {
       output.workerReady();
     };

@@ -8,13 +8,14 @@ import {InfiniteQueue} from '../util/InfiniteQueue';
 import {DefaultTask, Task} from '../block/Task';
 import {RepeaterWorker} from './WorkerFlow';
 import {BlockMode, defaultConfigs} from '../block/Descriptor';
+import {WorkerControl} from './WorkerControl';
 
 export class HandlerFunction extends MapImpl {
   _queue = new Denque<Task>();
   _outQueue = new InfiniteQueue<any>(); // use InfiniteQueue to maintain the order of output
 
   static inputMap = new Map([
-    ['use', HandlerFunction.prototype._onSourceChange],
+    ['use', WorkerControl.onSourceChange],
     ['thread', HandlerFunction.prototype._onThreadChanged],
     ['reuseWorker', HandlerFunction.prototype._onReuseWorkerChange],
     ['timeout', HandlerFunction.prototype._onTimeoutChange],
@@ -145,6 +146,9 @@ export class HandlerFunction extends MapImpl {
 
     if (!this._funcBlock) {
       this._funcBlock = this._data.createOutputBlock('#flows');
+    }
+    if (!this.control.isReady()) {
+      return WAIT;
     }
 
     if (!this._queue.isEmpty()) {

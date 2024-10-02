@@ -2,7 +2,7 @@ import {type Block} from '../block/Block';
 import {DataMap, isDataMap, isSavedBlock} from '../util/DataTypes';
 import {Root} from '../block/Flow';
 import {StreamDispatcher} from '../block/Dispatcher';
-import {BaseFunction} from '../block/BlockFunction';
+import {BaseFunction, StatefulFunction} from '../block/BlockFunction';
 import {getBlockStoragePath} from '../util/Path';
 
 export interface WorkerHost {
@@ -43,8 +43,8 @@ export class SubflowLoader extends StreamDispatcher<DataMap> {
 
 export class WorkerControl {
   // register this function in
-  static onSourceChange(this: WorkerHostFunction, val: unknown) {
-    return this.control.onSourceChange(val);
+  static onSourceChange(this: StatefulFunction, val: unknown) {
+    return (this as unknown as WorkerHostFunction).control.onSourceChange(val);
   }
   loader: SubflowLoader;
   readonly storagePath: string;

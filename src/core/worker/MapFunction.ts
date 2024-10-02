@@ -7,6 +7,7 @@ import {BlockProxy} from '../block/BlockProxy';
 import {UnlimitedPool} from './ThreadPool';
 import {RepeaterWorker} from './WorkerFlow';
 import {defaultConfigs} from '../block/Descriptor';
+import {WorkerControl} from './WorkerControl';
 
 interface KeyIterator {
   current(): string;
@@ -68,7 +69,7 @@ export class MapFunction extends MapImpl {
 
   static inputMap = new Map([
     ['input', MapFunction.prototype._onInputChange],
-    ['use', MapFunction.prototype._onSourceChange],
+    ['use', WorkerControl.onSourceChange],
     ['thread', MapFunction.prototype._onThreadChanged],
     ['reuseWorker', MapFunction.prototype._onReuseWorkerChange],
     ['timeout', MapFunction.prototype._onTimeoutChange],
@@ -109,9 +110,9 @@ export class MapFunction extends MapImpl {
   }
 
   run(): any {
-    if (this._srcChanged) {
+    if (this.control._srcChanged) {
       this._clearWorkers();
-      this._srcChanged = false;
+      this.control._srcChanged = false;
       if (!this._pendingInput) {
         // when source changed, redo the mapping on current input
         this._onInputChange(this._data.getValue('input'));
@@ -124,6 +125,10 @@ export class MapFunction extends MapImpl {
 
     if (!this._funcBlock) {
       this._funcBlock = this._data.createOutputBlock('#flows');
+    }
+
+    if (!this.control.isReady()) {
+      return WAIT;
     }
 
     if (this._input) {
