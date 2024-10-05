@@ -9,16 +9,19 @@ import {FileFlowStorage, FlowIOTask} from '../storage/FileStorage';
 interface TestLoaderOptions {
   timeout?: number;
   onDemandLoad?: boolean;
+  ignoreFolders?: string[];
 }
 
 export class TestLoader extends FileFlowStorage {
   flowToPathMap = new Map<string, string>();
   timeout: number;
   onDemandLoad: boolean;
+  ignoreFolders: string[];
   constructor(map: ([string, string] | string)[], options?: TestLoaderOptions) {
     super('.');
     this.timeout = options?.timeout ?? 5000;
     this.onDemandLoad = Boolean(options?.onDemandLoad);
+    this.ignoreFolders = options?.ignoreFolders ?? ['i18n', 'spec'];
     for (let item of map) {
       let path: string;
       let flow: string;
@@ -158,7 +161,7 @@ export class TestLoader extends FileFlowStorage {
         let path = Path.join(dir, file);
         let stat = Fs.statSync(path);
         if (stat.isDirectory()) {
-          if (file !== 'tests' && file !== 'i18n') {
+          if (file !== 'tests' && !this.ignoreFolders.includes(file)) {
             iterateDir(path, `${blockPath}.${file}`);
           }
         }

@@ -12,7 +12,7 @@ import {WorkerControl, type WorkerHost} from './WorkerControl';
 
 class ForEachOutput implements FunctionOutput {
   constructor(
-    public func: ForEachFunction,
+    public func: MultiWorkerFunction,
     public key: string
   ) {}
 
@@ -33,7 +33,7 @@ class ForEachOutput implements FunctionOutput {
   }
 }
 
-export class ForEachFunction extends StatefulFunction implements BlockChildWatch, WorkerHost {
+export class MultiWorkerFunction extends StatefulFunction implements BlockChildWatch, WorkerHost {
   readonly workerField = 'use';
   readonly control: WorkerControl;
 
@@ -49,11 +49,11 @@ export class ForEachFunction extends StatefulFunction implements BlockChildWatch
   _currentOutput: any;
 
   static inputMap = new Map([
-    ['input', ForEachFunction.prototype._onInputChange],
+    ['input', MultiWorkerFunction.prototype._onInputChange],
     ['use', WorkerControl.onSourceChange],
   ]);
   getInputMap() {
-    return ForEachFunction.inputMap;
+    return MultiWorkerFunction.inputMap;
   }
 
   _onInputChange(val: any): boolean {
@@ -85,8 +85,7 @@ export class ForEachFunction extends StatefulFunction implements BlockChildWatch
       this._checkChanges();
       this._applyPendingOutput();
       return;
-    } else if (this._watchedInputBlock) {
-      // since input block is changed
+    } else {
       this._clearWorkers();
     }
     if (this.control.isReady()) {
@@ -287,12 +286,12 @@ export class ForEachFunction extends StatefulFunction implements BlockChildWatch
   }
 }
 
-Functions.add(ForEachFunction, {
-  name: 'foreach',
+Functions.add(MultiWorkerFunction, {
+  name: 'multi-worker',
   priority: 1,
   configs: defaultConfigs.concat('#cancel'),
   properties: [
-    {name: 'input', type: 'object'},
+    {name: 'input', pinned: true, type: 'object'},
     {name: 'use', type: 'worker', init: ''},
     {name: '#output', pinned: true, type: 'any', readonly: true},
   ],

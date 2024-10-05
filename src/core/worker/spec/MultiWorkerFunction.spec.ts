@@ -2,7 +2,7 @@ import {expect} from 'vitest';
 import {Flow, Root} from '../../block/Flow';
 import {TestFunctionRunner} from '../../block/spec/TestFunction';
 import '../../functions/math/Arithmetic';
-import '../ForEachFunction';
+import '../MultiWorkerFunction';
 import {DataMap} from '../../util/DataTypes';
 
 describe('ForEachFunction', function () {
@@ -20,7 +20,7 @@ describe('ForEachFunction', function () {
       'obj3': {v: 3},
     });
     bBlock._load({
-      '#is': 'foreach',
+      '#is': 'multi-worker',
       '~input': '##.a',
       'use': {
         '#is': {
@@ -33,7 +33,7 @@ describe('ForEachFunction', function () {
       },
     });
     cBlock._load({
-      '#is': 'foreach',
+      '#is': 'multi-worker',
       '~input': '##.b.#output',
       'use': {
         '#is': {
@@ -102,7 +102,7 @@ describe('ForEachFunction', function () {
 
     flow.updateValue('a', {obj1: {v: 1}, obj2: {v: 2}});
     bBlock._load({
-      '#is': 'foreach',
+      '#is': 'multi-worker',
       '~input': '##.a',
       'use': {
         '#is': {
@@ -126,7 +126,7 @@ describe('ForEachFunction', function () {
     expect(bBlock.getValue('#flow')).not.toBeDefined();
   });
 
-  it('foreach primitive types', function () {
+  it('multi-worker primitive types', function () {
     let flow = new Flow();
 
     let aBlock = flow.createBlock('a');
@@ -137,7 +137,7 @@ describe('ForEachFunction', function () {
       'v2': '2',
     });
     bBlock._load({
-      '#is': 'foreach',
+      '#is': 'multi-worker',
       '~input': '##.a',
       'use': {
         '#is': {
@@ -165,14 +165,14 @@ describe('ForEachFunction', function () {
     expect(bBlock.getValue('#output')).not.toBeDefined();
   });
 
-  it('clear foreach use', function () {
+  it('clear multi-worker use', function () {
     let flow = new Flow();
 
     let aBlock = flow.createBlock('a');
     let bBlock = flow.createBlock('b');
     aBlock._load({v1: 1});
     bBlock._load({
-      '#is': 'foreach',
+      '#is': 'multi-worker',
       '~input': '##.a',
       'use': {
         '#is': {

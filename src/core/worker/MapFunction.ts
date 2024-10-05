@@ -273,7 +273,7 @@ Functions.add(MapFunction, {
   priority: 3,
   configs: defaultConfigs.concat('#cancel'),
   properties: [
-    {name: 'input', type: 'object'},
+    {name: 'input', pinned: true, type: 'object'},
     {name: 'use', type: 'worker'},
     {name: 'thread', type: 'number', default: 0, min: 0, step: 1},
     {name: 'reuseWorker', type: 'radio-button', options: ['none', 'reuse', 'persist'], default: 'none'},

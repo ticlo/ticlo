@@ -45,7 +45,7 @@ import './functions/time/Timer';
 import './functions/condition/DefaultValue';
 import './functions/condition/If';
 import './worker/MapFunction';
-import './worker/ForEachFunction';
+import './worker/MultiWorkerFunction';
 import './worker/HandlerFunction';
 import './worker/WorkerFunction';
 import './worker/SelectWorkerFunction';
