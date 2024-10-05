@@ -50,7 +50,7 @@ export class MultiWorkerFunction extends StatefulFunction implements BlockChildW
 
   static inputMap = new Map([
     ['input', MultiWorkerFunction.prototype._onInputChange],
-    ['use', WorkerControl.onSourceChange],
+    ['use', WorkerControl.onUseChange],
   ]);
   getInputMap() {
     return MultiWorkerFunction.inputMap;
@@ -289,6 +289,7 @@ export class MultiWorkerFunction extends StatefulFunction implements BlockChildW
 Functions.add(MultiWorkerFunction, {
   name: 'multi-worker',
   priority: 1,
+  icon: 'fas:list',
   configs: defaultConfigs.concat('#cancel'),
   properties: [
     {name: 'input', pinned: true, type: 'object'},

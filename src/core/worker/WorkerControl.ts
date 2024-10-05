@@ -2,8 +2,10 @@ import {type Block} from '../block/Block';
 import {DataMap, isDataMap, isSavedBlock} from '../util/DataTypes';
 import {Root} from '../block/Flow';
 import {StreamDispatcher} from '../block/Dispatcher';
-import {BaseFunction, StatefulFunction} from '../block/BlockFunction';
+import {BaseFunction, FunctionClass, StatefulFunction} from '../block/BlockFunction';
 import {getBlockStoragePath} from '../util/Path';
+import {WorkerFunctionGen} from './WorkerFunctionGen';
+import {FunctionDispatcher, Functions} from '../block/Functions';
 
 export interface WorkerHost {
   get control(): WorkerControl;
@@ -43,8 +45,8 @@ export class SubflowLoader extends StreamDispatcher<DataMap> {
 
 export class WorkerControl {
   // register this function in
-  static onSourceChange(this: StatefulFunction, val: unknown) {
-    return (this as unknown as WorkerHostFunction).control.onSourceChange(val);
+  static onUseChange(this: StatefulFunction, val: unknown) {
+    return (this as unknown as WorkerHostFunction).control.onUseChange(val);
   }
   loader: SubflowLoader;
   readonly storagePath: string;
@@ -57,20 +59,29 @@ export class WorkerControl {
 
   _src: DataMap | string;
   _srcChanged: boolean; /* = false*/
+  _funcSrc: FunctionDispatcher;
 
-  onSourceChange(val: any): boolean {
+  // When use field is changed
+  onUseChange(val: any): boolean {
     if (this._src) {
       this.block.deleteValue('#shared');
     }
     if (val === this._src) {
       return false;
     }
-    if (typeof val === 'string' || isSavedBlock(val) || val == null) {
+    if (typeof val === 'string' || isSavedBlock(val)) {
       this._src = val;
       this._srcChanged = true;
     } else if (this._src != null) {
       this._src = undefined;
       this._srcChanged = true;
+    }
+    if (this._funcSrc) {
+      this._funcSrc.unlisten(this);
+      this._funcSrc = null;
+    }
+    if (typeof this._src === 'string' && this._src !== '#') {
+      this._funcSrc = Functions.listen(this._src, this);
     }
     // # for stored worker
     if (val === '#') {
@@ -82,6 +93,12 @@ export class WorkerControl {
     }
     return true;
   }
+  // When registered function is changed
+  onChange(value: FunctionClass) {
+    this._srcChanged = true;
+    this.block._queueFunction();
+  }
+  // When subflow is changed
   onLoad = (val: DataMap) => {
     this._srcChanged = true;
     this.block._queueFunction();
@@ -93,9 +110,6 @@ export class WorkerControl {
     return this._src != null;
   }
 
-  saveRegistered = (data: DataMap) => {
-    return true;
-  };
   saveInline = (data: DataMap) => {
     this.block.setValue(this.func.workerField, data);
     return true;
@@ -112,7 +126,12 @@ export class WorkerControl {
     }
     if (typeof src === 'string') {
       if (src.startsWith(':')) {
-        return {src, saveCallback: this.saveRegistered};
+        return {
+          src,
+          saveCallback: (data: DataMap) => {
+            return WorkerFunctionGen.applyChangeToFunc(null, src, '', data);
+          },
+        };
       }
       // readonly
       return {src};
@@ -129,6 +148,9 @@ export class WorkerControl {
   destroy() {
     if (this.loader) {
       this.loader.unlisten(this.onLoad);
+    }
+    if (this._funcSrc) {
+      this._funcSrc.unlisten(this);
     }
   }
 }

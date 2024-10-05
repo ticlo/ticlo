@@ -57,7 +57,7 @@ export class FlowEditor extends FlowWithShared {
     }
     if (funcId?.startsWith(':') && !applyChange) {
       applyChange = (data: DataMap) => {
-        return WorkerFunctionGen.applyChangeToFunc(flow, null, data);
+        return WorkerFunctionGen.applyChangeToFunc(flow, null, null, data);
       };
     }
     let success = flow.load(src, funcId, applyChange);

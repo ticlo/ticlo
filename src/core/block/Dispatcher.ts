@@ -20,7 +20,7 @@ export class PropDispatcher<T = unknown> {
   listen(listener: PropListener<T>) {
     this._listeners.add(listener);
 
-    listener.onSourceChange(this);
+    listener.onSourceChange?.(this);
     if (!this._updating) {
       // skip extra update if it's already in updating iteration
       listener.onChange(this._value);

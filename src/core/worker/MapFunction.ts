@@ -69,7 +69,7 @@ export class MapFunction extends MapImpl {
 
   static inputMap = new Map([
     ['input', MapFunction.prototype._onInputChange],
-    ['use', WorkerControl.onSourceChange],
+    ['use', WorkerControl.onUseChange],
     ['thread', MapFunction.prototype._onThreadChanged],
     ['reuseWorker', MapFunction.prototype._onReuseWorkerChange],
     ['timeout', MapFunction.prototype._onTimeoutChange],

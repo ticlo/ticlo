@@ -23,7 +23,7 @@ export class WorkerFunctionGen extends BaseFunction<Block> {
     let applyChange: (data: DataMap) => boolean;
     if (this._namespace === '') {
       applyChange = (data: DataMap) => {
-        return WorkerFunctionGen.applyChangeToFunc(this._funcFlow, null, data);
+        return WorkerFunctionGen.applyChangeToFunc(this._funcFlow, null, null, data);
       };
     }
     this._funcFlow = this._data.createOutputFlow(WorkerFlow, '#flow', this.type, this._data, applyChange);
@@ -52,7 +52,7 @@ export class WorkerFunctionGen extends BaseFunction<Block> {
   /**
    * save the worker to a function
    */
-  static applyChangeToFunc(flow: Flow, funcId: string, data?: DataMap) {
+  static applyChangeToFunc(flow: Flow, funcId: string, namespace?: string, data?: DataMap) {
     if (!data) {
       data = flow.save();
     }
@@ -62,11 +62,12 @@ export class WorkerFunctionGen extends BaseFunction<Block> {
     if (!funcId) {
       return false;
     }
-    let desc = WorkerFunctionGen.collectDesc(funcId, data);
-    if (funcId.startsWith(':')) {
-      Functions.saveWorkerFunction(funcId, flow, data);
+    if (namespace == null) {
+      namespace = flow._namespace;
     }
-    WorkerFunctionGen.registerType(data, desc, flow._namespace);
+    let desc = WorkerFunctionGen.collectDesc(funcId, data);
+    Functions.saveWorkerFunction(funcId, flow, data);
+    WorkerFunctionGen.registerType(data, desc, namespace);
     return true;
   }
 

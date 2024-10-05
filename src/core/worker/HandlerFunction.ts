@@ -15,7 +15,7 @@ export class HandlerFunction extends MapImpl {
   _outQueue = new InfiniteQueue<any>(); // use InfiniteQueue to maintain the order of output
 
   static inputMap = new Map([
-    ['use', WorkerControl.onSourceChange],
+    ['use', WorkerControl.onUseChange],
     ['thread', HandlerFunction.prototype._onThreadChanged],
     ['reuseWorker', HandlerFunction.prototype._onReuseWorkerChange],
     ['timeout', HandlerFunction.prototype._onTimeoutChange],
