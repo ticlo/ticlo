@@ -1,7 +1,7 @@
-import {ClientConnection} from '../../../src/core/connect/ClientConnection';
-import {DataMap} from '../../../src/core/util/DataTypes';
-import {Logger} from '../../../src/core/util/Logger';
-import {decode, encode} from '../../../src/core/util/Serialize';
+import {ClientConnection} from '@ticlo/core/connect/ClientConnection';
+import {DataMap} from '@ticlo/core/util/DataTypes';
+import {Logger} from '@ticlo/core/util/Logger';
+import {decode, encode} from '@ticlo/core/util/Serialize';
 
 export class WsBrowserConnection extends ClientConnection {
   _ws: WebSocket;

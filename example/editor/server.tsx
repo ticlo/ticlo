@@ -1,12 +1,12 @@
-import {Block, FunctionDesc, Root} from '../../src/core';
-import {makeLocalConnection} from '../../src/core/connect/LocalConnection';
+import {Block, FunctionDesc, Root} from '@ticlo/core';
+import {makeLocalConnection} from '@ticlo/core/connect/LocalConnection';
 import {data} from '../sample-data/data';
 import reactData from '../sample-data/react';
 import './sample-blocks';
-import {Logger} from '../../src/core/util/Logger';
-import {WorkerFunctionGen} from '../../src/core/worker/WorkerFunctionGen';
+import {Logger} from '@ticlo/core/util/Logger';
+import {WorkerFunctionGen} from '@ticlo/core/worker/WorkerFunctionGen';
 import '../../src/react';
-import {FrameServerConnection} from '../../src/html';
+import {FrameServerConnection} from '@ticlo/html';
 
 WorkerFunctionGen.registerType({'#is': ''}, {name: 'class1'}, 'WorkerEditor');
 

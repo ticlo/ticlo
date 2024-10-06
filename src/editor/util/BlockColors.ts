@@ -1,6 +1,6 @@
-import {globalStyle} from '../../../src/html/style/CssRules';
-import {FunctionDesc} from '../../core';
-import {ClientConn} from '../../core/connect/ClientConn';
+import {globalStyle} from '@ticlo/html/style/CssRules';
+import {FunctionDesc} from '@ticlo/core';
+import {ClientConn} from '@ticlo/core/connect/ClientConn';
 
 const usedColors = new Set<string>();
 

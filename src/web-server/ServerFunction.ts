@@ -1,14 +1,19 @@
-import {RouteContentType, RouteFunction, RouteMethod, RouteService} from '../core/functions/web-server/RouteFunction';
-import {Functions} from '../../src/core/block/Functions';
-import {BaseFunction, StatefulFunction} from '../core/block/BlockFunction';
+import {
+  RouteContentType,
+  RouteFunction,
+  RouteMethod,
+  RouteService,
+} from '@ticlo/core/functions/web-server/RouteFunction';
+import {Functions} from '@ticlo/core/block/Functions';
+import {BaseFunction, StatefulFunction} from '@ticlo/core/block/BlockFunction';
 import {Request, Response, RequestHandler} from 'express';
 import BodyParser from 'body-parser';
-import {decodeReceiver, encode} from '../../src/core/util/Serialize';
-import {escapedObject} from '../../src/core/util/EscapedObject';
-import {Uid} from '../../src/core/util/Uid';
+import {decodeReceiver, encode} from '@ticlo/core/util/Serialize';
+import {escapedObject} from '@ticlo/core/util/EscapedObject';
+import {Uid} from '@ticlo/core/util/Uid';
 import {ExpressHttpRequest} from './HttpRequest';
-import {Resolver} from '../../src/core/block/Resolver';
-import type {Block} from '../core';
+import {Resolver} from '@ticlo/core/block/Resolver';
+import type {Block} from '@ticlo/core';
 
 const formParser = BodyParser.urlencoded({extended: false});
 const jsonParser = BodyParser.json({reviver: decodeReceiver});

@@ -1,8 +1,8 @@
 import {openDB, deleteDB, wrap, unwrap, IDBPDatabase} from 'idb';
-import {BlockProperty, DataMap, decode, encodeSorted, Flow, Root, FlowStorage, Storage} from '../../../src/core';
-import {WorkerFunctionGen} from '../../core/worker/WorkerFunctionGen';
-import {FlowLoader, FlowState} from '../../../src/core/block/Flow';
-import {StreamDispatcher} from '../../core/block/Dispatcher';
+import {BlockProperty, DataMap, decode, encodeSorted, Flow, Root, FlowStorage, Storage} from '@ticlo/core';
+import {WorkerFunctionGen} from '@ticlo/core/worker/WorkerFunctionGen';
+import {FlowLoader, FlowState} from '@ticlo/core/block/Flow';
+import {StreamDispatcher} from '@ticlo/core/block/Dispatcher';
 
 export const DB_NAME = 'ticlo';
 

@@ -1,5 +1,5 @@
 import {randomBytes, createCipheriv, createDecipheriv} from 'crypto';
-import {Logger} from '../../core';
+import {Logger} from '@ticlo/core';
 
 export class SecretCipher {
   readonly #key = Buffer.alloc(16, 0);

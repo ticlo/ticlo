@@ -3,7 +3,7 @@ import {PureDataRenderer} from '../component/DataRenderer';
 import {TIcon} from '../icon/Icon';
 import {BaseBlockItem, BlockItem, Stage, XYWRenderer} from './Field';
 import {getFuncStyleFromDesc} from '../util/BlockColors';
-import {DataMap} from '../../core/util/DataTypes';
+import {DataMap} from '@ticlo/core/util/DataTypes';
 
 interface MiniBlockViewProps {
   item: BlockItem;

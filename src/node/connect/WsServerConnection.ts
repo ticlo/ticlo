@@ -1,5 +1,5 @@
 import Websocket from 'ws';
-import {ServerConnection, DataMap, Logger, decode, encode, Root} from '../../../src/core';
+import {ServerConnection, DataMap, Logger, decode, encode, Root} from '@ticlo/core';
 
 export class WsServerConnection extends ServerConnection {
   _ws: Websocket;

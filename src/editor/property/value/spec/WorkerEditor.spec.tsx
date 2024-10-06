@@ -4,12 +4,12 @@ import React from 'react';
 import {removeLastTemplate, loadTemplate, querySingle, expandDocumentBody} from '../../../util/test-util';
 import {initEditor} from '../../../index';
 import {WorkerEditor} from '../WorkerEditor';
-import {shouldHappen, waitTick} from '../../../../core/util/test-util';
-import {blankFuncDesc, blankPropDesc, PropDesc} from '../../../../../src/core/editor';
-import {makeLocalConnection} from '../../../../core/connect/LocalConnection';
-import {Root} from '../../../../../src/core';
-import {WorkerFunctionGen} from '../../../../core/worker/WorkerFunctionGen';
-import {Functions} from '../../../../core/block/Functions';
+import {shouldHappen, waitTick} from '@ticlo/core/util/test-util';
+import {blankFuncDesc, blankPropDesc, PropDesc} from '@ticlo/core/editor';
+import {makeLocalConnection} from '@ticlo/core/connect/LocalConnection';
+import {Root} from '@ticlo/core';
+import {WorkerFunctionGen} from '@ticlo/core/worker/WorkerFunctionGen';
+import {Functions} from '@ticlo/core/block/Functions';
 import {DateEditor} from '../DateEditor';
 
 describe('WorkerEditor', function () {

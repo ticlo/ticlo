@@ -3,7 +3,7 @@ import {Button} from 'antd';
 import MinusIcon from '@ant-design/icons/MinusOutlined';
 import PlusIcon from '@ant-design/icons/PlusOutlined';
 import {ValueEditorProps} from './ValueEditorBase';
-import {scat} from '../../../core/util/String';
+import {scat} from '@ticlo/core/util/String';
 
 // remove thousand separator
 const formatNumberRegx = /[,\s]+/g;

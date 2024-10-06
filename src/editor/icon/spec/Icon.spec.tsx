@@ -1,7 +1,7 @@
 import {expect} from 'vitest';
 import React from 'react';
 import {TIcon} from '../Icon';
-import {shouldHappen} from '../../../../src/core/util/test-util';
+import {shouldHappen} from '@ticlo/core/util/test-util';
 import {removeLastTemplate, loadTemplate} from '../../util/test-util';
 
 describe('editor Icon', function () {

@@ -4,10 +4,10 @@ import React from 'react';
 import {removeLastTemplate, loadTemplate, querySingle} from '../../../util/test-util';
 import {initEditor} from '../../../index';
 import {FunctionEditor} from '../FunctionEditor';
-import {shouldHappen} from '../../../../core/util/test-util';
-import {blankFuncDesc, blankPropDesc, PropDesc} from '../../../../../src/core/editor';
-import {makeLocalConnection} from '../../../../core/connect/LocalConnection';
-import {Root} from '../../../../../src/core';
+import {shouldHappen} from '@ticlo/core/util/test-util';
+import {blankFuncDesc, blankPropDesc, PropDesc} from '@ticlo/core/editor';
+import {makeLocalConnection} from '@ticlo/core/connect/LocalConnection';
+import {Root} from '@ticlo/core';
 import {DateEditor} from '../DateEditor';
 
 describe('TypeEditor', function () {

@@ -2,9 +2,9 @@ import {expect} from 'vitest';
 import SimulateEvent from 'simulate-event';
 import React from 'react';
 import {BlockStage} from '../BlockStage';
-import {Block, Root} from '../../../../src/core';
-import {destroyLastLocalConnection, makeLocalConnection} from '../../../core/connect/LocalConnection';
-import {shouldHappen, shouldReject} from '../../../core/util/test-util';
+import {Block, Root} from '@ticlo/core';
+import {destroyLastLocalConnection, makeLocalConnection} from '@ticlo/core/connect/LocalConnection';
+import {shouldHappen, shouldReject} from '@ticlo/core/util/test-util';
 import {removeLastTemplate, loadTemplate, querySingle} from '../../util/test-util';
 import {initEditor} from '../../index';
 

@@ -1,6 +1,6 @@
 import {Request} from 'express';
-import {Block, convertToObject, DataMap} from '../../src/core';
-import {HttpRequest} from '../core/functions/web-server/HttpRequest';
+import {Block, convertToObject, DataMap} from '@ticlo/core';
+import {HttpRequest} from '@ticlo/core/functions/web-server/HttpRequest';
 import {number} from 'yargs';
 
 export class ExpressHttpRequest extends HttpRequest {

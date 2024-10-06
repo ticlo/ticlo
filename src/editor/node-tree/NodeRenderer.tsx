@@ -22,7 +22,7 @@ import {
   getDisplayName,
   deepEqual,
   ClientConn,
-} from '../../../src/core/editor';
+} from '@ticlo/core/editor';
 import {TIcon} from '../icon/Icon';
 import {TicloLayoutContext, TicloLayoutContextType} from '../component/LayoutContext';
 import {DragDropDiv, DragState} from 'rc-dock';

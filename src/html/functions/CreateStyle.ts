@@ -1,6 +1,6 @@
-import {BaseFunction, defaultConfigs, Functions, PropDesc, PropGroupDesc} from '../../../src/core';
+import {BaseFunction, defaultConfigs, Functions, PropDesc, PropGroupDesc} from '@ticlo/core';
 import StyleDef from './StyleDef';
-import {CreateObjectFunctionOptional} from '../../core/functions/data/CreateObject';
+import {CreateObjectFunctionOptional} from '@ticlo/core/functions/data/CreateObject';
 
 Functions.add(
   CreateObjectFunctionOptional,

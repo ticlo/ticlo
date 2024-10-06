@@ -1,8 +1,8 @@
-import {DataMap} from '../../../src/core/util/DataTypes';
-import {decode, encode} from '../../../src/core/util/Serialize';
-import {Logger} from '../../../src/core/util/Logger';
-import {ServerConnection} from '../../../src/core/connect/ServerConnection';
-import {Root} from '../../../src/core/block/Flow';
+import {DataMap} from '@ticlo/core/util/DataTypes';
+import {decode, encode} from '@ticlo/core/util/Serialize';
+import {Logger} from '@ticlo/core/util/Logger';
+import {ServerConnection} from '@ticlo/core/connect/ServerConnection';
+import {Root} from '@ticlo/core/block/Flow';
 
 export class FrameServerConnection extends ServerConnection {
   checkClosedTimer: any;

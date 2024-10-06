@@ -28,7 +28,8 @@
       "@types"
     ],
     "paths": {
-      "resize-observer-polyfill": ["./@types/resize-observer-polyfill"]
+      "resize-observer-polyfill": ["./@types/resize-observer-polyfill"],
+      "@ticlo/*": ["./src/*"]
     },
     "outDir": "es"
   },

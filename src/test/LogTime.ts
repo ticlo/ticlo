@@ -1,4 +1,4 @@
-import {Functions, PureFunction} from '../core';
+import {Functions, PureFunction} from '@ticlo/core';
 
 export class LogTimeFunction extends PureFunction {
   run() {

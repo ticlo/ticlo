@@ -3,7 +3,7 @@ import {BlockWidget, BlockWidgetProps} from './BlockWidget';
 import {LazyUpdateComponent, LazyUpdateSubscriber} from '../../component/LazyUpdateComponent';
 import {Slider} from 'antd';
 import {displayNumber} from '../../util/Types';
-import {PropDesc} from '../../../../src/core/editor';
+import {PropDesc} from '@ticlo/core/editor';
 
 class SliderView extends LazyUpdateComponent<BlockWidgetProps, any> {
   static readonly viewProperties: PropDesc[] = [

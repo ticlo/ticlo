@@ -1,8 +1,8 @@
 import {expect} from 'vitest';
 import shelljs from 'shelljs';
 import Fs from 'fs';
-import {Flow, Root, decode, FlowFolder} from '../../../core';
-import {shouldHappen, shouldReject, waitTick} from '../../../core/util/test-util';
+import {Flow, Root, decode, FlowFolder} from '@ticlo/core';
+import {shouldHappen, shouldReject, waitTick} from '@ticlo/core/util/test-util';
 import {FileFlowStorage, FileStorage} from '../FileStorage';
 
 const beforeAll = globalThis.beforeAll ?? globalThis.before;

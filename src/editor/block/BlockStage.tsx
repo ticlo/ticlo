@@ -16,7 +16,7 @@ import {MiniBlockView} from './MiniStage';
 import debounce from 'lodash/debounce';
 import clamp from 'lodash/clamp';
 import {TooltipIconButton} from '../component/TooltipIconButton';
-import {DataMap, decode, encode} from '../../../src/core/editor';
+import {DataMap, decode, encode} from '@ticlo/core/editor';
 import {t} from '../component/LocalizedLabel';
 
 const MINI_WINDOW_SIZE = 128;

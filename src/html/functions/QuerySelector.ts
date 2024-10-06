@@ -1,5 +1,5 @@
 import './registerArrowCode';
-import {PureFunction, Functions, ErrorEvent, BaseFunction} from '../../../src/core';
+import {PureFunction, Functions, ErrorEvent, BaseFunction} from '@ticlo/core';
 
 export class QuerySelectorFunction extends BaseFunction {
   run() {

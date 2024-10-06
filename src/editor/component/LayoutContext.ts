@@ -1,5 +1,5 @@
 import * as React from 'react';
-import {PropDesc, PropDispatcher} from '../../../src/core/editor';
+import {PropDesc, PropDispatcher} from '@ticlo/core/editor';
 
 export interface TicloLayoutContext {
   editFlow?(path: string, onSave: () => void): void;

@@ -6,10 +6,10 @@ import {DragDropDiv, DragState} from 'rc-dock';
 import {FunctionSelect} from '../../function-selector/FunctionSelector';
 import {Popup} from '../../component/ClickPopup';
 import {FunctionEditor} from './FunctionEditor';
-import {FunctionDesc} from '../../../../src/core/editor';
+import {FunctionDesc} from '@ticlo/core/editor';
 import {TicloLayoutContext, TicloLayoutContextType} from '../../component/LayoutContext';
 import {t} from '../../component/LocalizedLabel';
-import {defaultWorkerData} from '../../../core/defaults/DefaultFlows';
+import {defaultWorkerData} from '@ticlo/core/defaults/DefaultFlows';
 
 export class WorkerEditor extends FunctionEditor {
   static contextType = TicloLayoutContextType;

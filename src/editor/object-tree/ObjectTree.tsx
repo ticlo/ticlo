@@ -1,6 +1,6 @@
 import React from 'react';
 import {Spin} from 'antd';
-import {ClientConn, deepEqual, DataMap, isDataTruncated} from '../../../src/core/editor';
+import {ClientConn, deepEqual, DataMap, isDataTruncated} from '@ticlo/core/editor';
 import VirtualList from '../component/Virtual';
 import {ObjectTreeItem, ObjectTreeRenderer} from './ObjectRenderer';
 import {LazyUpdateComponent} from '../component/LazyUpdateComponent';

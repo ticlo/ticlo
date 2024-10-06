@@ -1,5 +1,5 @@
 import React from 'react';
-import {ClientConn, PropDesc, PropGroupDesc} from '../../../../src/core/editor';
+import {ClientConn, PropDesc, PropGroupDesc} from '@ticlo/core/editor';
 
 export interface BlockWidgetProps {
   conn: ClientConn;

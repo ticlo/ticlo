@@ -1,18 +1,18 @@
 import React, {CSSProperties} from 'react';
 import {Event} from 'ticlo-big-calendar';
-import {ClientConn, ValueSubscriber} from '../../core/connect/ClientConn';
-import {ValueUpdate} from '../../core/connect/ClientRequests';
+import {ClientConn, ValueSubscriber} from '@ticlo/core/connect/ClientConn';
+import {ValueUpdate} from '@ticlo/core/connect/ClientRequests';
 import {
   EventOccur,
   SchedulerConfig,
   SchedulerEvent,
   validateEventConfig,
-} from '../../core/functions/date/Schedule/SchedulerEvent';
+} from '@ticlo/core/functions/date/Schedule/SchedulerEvent';
 import {cacheCall} from '../util/CachedCallback';
-import {deepEqual} from '../../core/util/Compare';
-import {encodeDisplay} from '../../core';
+import {deepEqual} from '@ticlo/core/util/Compare';
+import {encodeDisplay} from '@ticlo/core';
 import {stringify as stringifyYaml} from 'yaml';
-import {arrowReplacer} from '../../core/util/Serialize';
+import {arrowReplacer} from '@ticlo/core/util/Serialize';
 
 const priorityStr = '⓿❶❷❸❹❺❻❼❽❾❿';
 

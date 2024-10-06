@@ -1,4 +1,4 @@
-import {DataMap, FunctionDesc, Functions, PropDesc} from '../../core';
+import {DataMap, FunctionDesc, Functions, PropDesc} from '@ticlo/core';
 import {
   elementClassProperty,
   elementConfigs,

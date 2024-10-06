@@ -1,5 +1,5 @@
-import type {FunctionDesc, PropDesc} from '../../../core';
-import {RepeatModeList} from '../../../core/functions/date/Schedule/SchedulerEvent';
+import type {FunctionDesc, PropDesc} from '@ticlo/core';
+import {RepeatModeList} from '@ticlo/core/functions/date/Schedule/SchedulerEvent';
 
 // a fake function name that only exist for localization purpose
 export const FUNC = 'create-schedule';

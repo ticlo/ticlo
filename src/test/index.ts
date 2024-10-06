@@ -1,6 +1,6 @@
 import './Assert';
 import './LogTime';
-import {Functions} from '../core';
+import {Functions} from '@ticlo/core';
 
 Functions.addCategory({
   id: 'test:',

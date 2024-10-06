@@ -12,11 +12,11 @@ import PlayIcon from '@ant-design/icons/CaretRightOutlined';
 import PauseCircleOutlined from '@ant-design/icons/PauseCircleOutlined';
 import PlayCircleOutlined from '@ant-design/icons/PlayCircleOutlined';
 import SearchIcon from '@ant-design/icons/SearchOutlined';
-import {DataMap, FunctionDesc, PropDesc, smartStrCompare} from '../../core';
-import {ClientConn} from '../../core/connect/ClientConn';
+import {DataMap, FunctionDesc, PropDesc, smartStrCompare} from '@ticlo/core';
+import {ClientConn} from '@ticlo/core/connect/ClientConn';
 import {Popup, Menu, MenuItem} from '../component/ClickPopup';
 import {RenameDialog} from './RenameDialog';
-import {splitPathName} from '../../core/util/Path';
+import {splitPathName} from '@ticlo/core/util/Path';
 import {ParameterInputDialog} from './ParameterInputDialog';
 import {TicloLayoutContext, TicloLayoutContextType} from '../component/LayoutContext';
 

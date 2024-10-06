@@ -1,12 +1,12 @@
 import Express from 'express';
 import yargs from 'yargs';
-import {Root} from '../src/core';
+import {Root} from '@ticlo/core';
 import '../src/test';
 import '../src/node';
-import {connectTiclo, routeTiclo, getEditorUrl} from '../src/web-server';
-import {TestLoader} from '../src/node/test-loader/TestLoader';
-import {TestRunner} from '../src/test/TestRunner';
-import type {FlowTestGroup} from '../src/test/FlowTestGroup';
+import {connectTiclo, routeTiclo, getEditorUrl} from '@ticlo/web-server';
+import {TestLoader} from '@ticlo/node/test-loader/TestLoader';
+import {TestRunner} from '@ticlo/test/TestRunner';
+import type {FlowTestGroup} from '@ticlo/test/FlowTestGroup';
 
 const packagesToTest = ['./src/core', './src/web-server', './src/node'];
 

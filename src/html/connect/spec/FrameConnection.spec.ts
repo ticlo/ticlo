@@ -1,6 +1,6 @@
 import {expect} from 'vitest';
-import {Block, Root} from '../../../../src/core';
-import {AsyncClientPromise} from '../../../core/connect/spec/AsyncClientPromise';
+import {Block, Root} from '@ticlo/core';
+import {AsyncClientPromise} from '@ticlo/core/connect/spec/AsyncClientPromise';
 import {FrameServerConnection} from '../FrameServerConnection';
 import {FrameClientConnection} from '../FrameClientConnection';
 

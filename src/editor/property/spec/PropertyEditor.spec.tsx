@@ -3,14 +3,14 @@ import SimulateEvent from 'simulate-event';
 import React from 'react';
 import '../../index';
 import {PropertyEditor} from '../PropertyEditor';
-import {Block, Root} from '../../../../src/core';
+import {Block, Root} from '@ticlo/core';
 import '../../../core/functions/math/Arithmetic';
-import {destroyLastLocalConnection, makeLocalConnection} from '../../../core/connect/LocalConnection';
-import {shouldHappen, shouldReject} from '../../../core/util/test-util';
+import {destroyLastLocalConnection, makeLocalConnection} from '@ticlo/core/connect/LocalConnection';
+import {shouldHappen, shouldReject} from '@ticlo/core/util/test-util';
 import {removeLastTemplate, loadTemplate, querySingle} from '../../util/test-util';
 import {initEditor} from '../../index';
-import {FunctionDesc, PropDesc, PropGroupDesc} from '../../../../src/core/editor';
-import {Functions} from '../../../../src/core/block/Functions';
+import {FunctionDesc, PropDesc, PropGroupDesc} from '@ticlo/core/editor';
+import {Functions} from '@ticlo/core/block/Functions';
 
 describe('PropertyEditor', function () {
   let [funcDesc] = Functions.getDescToSend('add');

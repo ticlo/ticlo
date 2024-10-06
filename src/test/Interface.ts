@@ -1,4 +1,4 @@
-import {Block} from '../core';
+import {Block} from '@ticlo/core';
 import type {FlowTestCase} from './FlowTestCase';
 import type {FlowTestGroup} from './FlowTestGroup';
 

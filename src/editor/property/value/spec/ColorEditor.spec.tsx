@@ -4,8 +4,8 @@ import React from 'react';
 import {removeLastTemplate, loadTemplate, querySingle} from '../../../util/test-util';
 import {initEditor} from '../../../index';
 import {ColorEditor} from '../ColorEditor';
-import {shouldHappen} from '../../../../../src/core/util/test-util';
-import {blankFuncDesc, blankPropDesc, PropDesc} from '../../../../../src/core/editor';
+import {shouldHappen} from '@ticlo/core/util/test-util';
+import {blankFuncDesc, blankPropDesc, PropDesc} from '@ticlo/core/editor';
 
 describe('ColorEditor', function () {
   beforeEach(async function () {

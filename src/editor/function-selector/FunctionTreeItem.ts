@@ -1,5 +1,5 @@
 import {TreeItem} from '../component/Tree';
-import {ClientConn, FunctionDesc, getKeywords, translateFunction} from '../../../src/core/editor';
+import {ClientConn, FunctionDesc, getKeywords, translateFunction} from '@ticlo/core/editor';
 import {OnFunctionClick} from './FunctionView';
 import i18next from 'i18next';
 

@@ -4,7 +4,7 @@ import SaveIcon from '@ant-design/icons/SaveOutlined';
 import CloseIcon from '@ant-design/icons/CloseOutlined';
 import {DockContext, DockContextType} from 'rc-dock';
 import {LazyUpdateComponent} from '../../component/LazyUpdateComponent';
-import {ClientConn, ValueSubscriber, ValueUpdate} from '../../../../src/core/editor';
+import {ClientConn, ValueSubscriber, ValueUpdate} from '@ticlo/core/editor';
 import {TabData} from 'rc-dock/src/DockData';
 
 interface Props {

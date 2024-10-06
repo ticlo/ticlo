@@ -6,11 +6,11 @@ import {
   ValueUpdate,
   FunctionDesc,
   PropGroupDesc,
-} from '../../../src/core/editor';
+} from '@ticlo/core/editor';
 import {MultiSelectComponent, MultiSelectLoader} from './MultiSelectComponent';
 import {PropertyEditor} from './PropertyEditor';
 import {CustomGroupPropertyReorder, CustomPropertyReorder, GroupPropertyReorder} from './PropertyReorder';
-import {MAX_GROUP_LENGTH} from '../../core/block/FunctonData';
+import {MAX_GROUP_LENGTH} from '@ticlo/core/block/FunctonData';
 
 class LengthPropertyEditor extends PropertyEditor {
   onChange = (value: any) => {

@@ -15,17 +15,17 @@ import {
   PropGroupDesc,
   smartStrCompare,
   stopPropagation,
-} from '../../../src/core';
+} from '@ticlo/core';
 import {LocalizedPropCommand, LocalizedPropertyName, t} from '../component/LocalizedLabel';
 import {Button, Checkbox} from 'antd';
 import DeleteIcon from '@ant-design/icons/DeleteOutlined';
 import {StringEditor} from '../property/value/StringEditor';
 import {AddCustomPropertyMenu} from '../property/AddCustomProperty';
-import {ClientConn, ValueSubscriber} from '../../core/connect/ClientConn';
+import {ClientConn, ValueSubscriber} from '@ticlo/core/connect/ClientConn';
 import {CheckboxChangeEvent} from 'antd/lib/checkbox';
 import {ParameterInputDialog} from './ParameterInputDialog';
 import {ExpandIcon} from '../component/Tree';
-import {ValueUpdate} from '../../core/connect/ClientRequests';
+import {ValueUpdate} from '@ticlo/core/connect/ClientRequests';
 
 interface Props {
   children: React.ReactElement;

@@ -3,16 +3,16 @@ import {DateTime} from 'luxon';
 import {EyeFilled, EyeInvisibleOutlined} from '@ant-design/icons';
 import {Button, Select} from 'antd';
 import {Calendar, Views, luxonLocalizer, Event, SlotInfo, View, EventCell} from 'ticlo-big-calendar';
-import {ClientConn} from '../../core/connect/ClientConn';
+import {ClientConn} from '@ticlo/core/connect/ClientConn';
 import {LazyUpdateComponent} from '../component/LazyUpdateComponent';
-import {deepEqual} from '../../core/util/Compare';
+import {deepEqual} from '@ticlo/core/util/Compare';
 import {cacheCall} from '../util/CachedCallback';
 import {CalendarEvent, ScheduleLoader} from './ScheduleLoader';
 import {CalendarToolbar} from './CalendarToolbar';
 import {CalendarEventEditor, sortDateItem} from './CalendarEventEditor';
-import {SchedulerConfig} from '../../core/functions/date/Schedule/SchedulerEvent';
-import {scat} from '../../core/util/String';
-import {toDateTime} from '../../core';
+import {SchedulerConfig} from '@ticlo/core/functions/date/Schedule/SchedulerEvent';
+import {scat} from '@ticlo/core/util/String';
+import {toDateTime} from '@ticlo/core';
 
 const CalendarT = Calendar<CalendarEvent>;
 

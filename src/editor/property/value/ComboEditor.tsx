@@ -1,6 +1,6 @@
 import React from 'react';
 import {AutoComplete} from 'antd';
-import {PropDesc} from '../../../../src/core/editor';
+import {PropDesc} from '@ticlo/core/editor';
 import {ValueEditorProps} from './ValueEditorBase';
 import {LocalizedEnumOption} from '../../component/LocalizedLabel';
 

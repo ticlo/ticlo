@@ -1,5 +1,5 @@
 import React from 'react';
-import {ClientConn} from '../../../src/core/editor';
+import {ClientConn} from '@ticlo/core/editor';
 import {LazyUpdateComponent} from '../component/LazyUpdateComponent';
 
 interface MultiSelectProps {

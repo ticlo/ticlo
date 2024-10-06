@@ -1,9 +1,9 @@
 import Path from 'path';
 import Fs from 'fs';
-import {BlockProperty, DataMap, decode, Flow, Root} from '../../../src/core';
-import {FlowLoader, FlowState} from '../../../src/core/block/Flow';
-import {FlowTestGroup} from '../../../src/test/FlowTestGroup';
-import {FlowTestCase} from '../../../src/test/FlowTestCase';
+import {BlockProperty, DataMap, decode, Flow, Root} from '@ticlo/core';
+import {FlowLoader, FlowState} from '@ticlo/core/block/Flow';
+import {FlowTestGroup} from '@ticlo/test/FlowTestGroup';
+import {FlowTestCase} from '@ticlo/test/FlowTestCase';
 import {FileFlowStorage, FlowIOTask} from '../storage/FileStorage';
 
 interface TestLoaderOptions {

@@ -1,4 +1,4 @@
-import {Functions} from '../../src/core';
+import {Functions} from '@ticlo/core';
 import './functions/QuerySelector';
 import './functions/CreateStyle';
 

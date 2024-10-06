@@ -1,8 +1,8 @@
 import chalk from 'chalk';
 import {FlowTestCase} from './FlowTestCase';
 import {FlowTestGroup} from './FlowTestGroup';
-import {Resolver} from '../../src/core/block/Resolver';
-import {Block, BlockIO} from '../../src/core';
+import {Resolver} from '@ticlo/core/block/Resolver';
+import {Block, BlockIO} from '@ticlo/core';
 
 interface TestTask {
   target: FlowTestCase | FlowTestGroup;

@@ -1,15 +1,15 @@
 import {expect} from 'vitest';
-import {Root} from '../../../core/block/Flow';
-import {AsyncClientPromise} from '../../../core/connect/spec/AsyncClientPromise';
-import {shouldHappen, shouldReject} from '../../../core/util/test-util';
-import {initEditor} from '../../../editor';
+import {Root} from '@ticlo/core/block/Flow';
+import {AsyncClientPromise} from '@ticlo/core/connect/spec/AsyncClientPromise';
+import {shouldHappen, shouldReject} from '@ticlo/core/util/test-util';
+import {initEditor} from '@ticlo/editor';
 import {MockWsServer} from './MockWsServer';
 import {WsClientConnection} from '../WsClientConnection';
-import {Logger} from '../../../core/util/Logger';
-import {addTestTypes, removeTestTypes} from '../../../core/connect/spec/BulkTypes';
-import {makeLocalConnection} from '../../../core/connect/LocalConnection';
-import {FunctionDesc} from '../../../core/block/Descriptor';
-import {Functions} from '../../../core/block/Functions';
+import {Logger} from '@ticlo/core/util/Logger';
+import {addTestTypes, removeTestTypes} from '@ticlo/core/connect/spec/BulkTypes';
+import {makeLocalConnection} from '@ticlo/core/connect/LocalConnection';
+import {FunctionDesc} from '@ticlo/core/block/Descriptor';
+import {Functions} from '@ticlo/core/block/Functions';
 
 const PORT = 8082;
 

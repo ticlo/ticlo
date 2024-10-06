@@ -17,12 +17,12 @@ import {
   ValueSubscriber,
   voidFunction,
   getDisplayName,
-} from '../../../src/core/editor';
+} from '@ticlo/core/editor';
 import {TIcon} from '../icon/Icon';
 import {DragDropDiv, DragState} from 'rc-dock';
 import * as DragManager from 'rc-dock/src/dragdrop/DragManager';
 import {FieldValue} from './FieldValue';
-import {isBindable} from '../../core/util/Path';
+import {isBindable} from '@ticlo/core/util/Path';
 import {LocalizedPropertyName} from '../component/LocalizedLabel';
 import {PropertyDropdown} from '../popup/PropertyDropdown';
 import {BlockDropdown} from '../popup/BlockDropdown';

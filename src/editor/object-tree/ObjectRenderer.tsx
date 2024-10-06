@@ -3,7 +3,7 @@ import React from 'react';
 import {ExpandIcon, ExpandState, TreeItem} from '../component/Tree';
 import {PureDataRenderer} from '../component/DataRenderer';
 import {DragDropDiv, DragState} from 'rc-dock';
-import {TRUNCATED, encodeDisplay} from '../../../src/core/editor';
+import {TRUNCATED, encodeDisplay} from '@ticlo/core/editor';
 import {displayNumber} from '../util/Types';
 
 export class ObjectTreeItem extends TreeItem<ObjectTreeItem> {

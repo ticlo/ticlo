@@ -1,7 +1,7 @@
 import React from 'react';
 import {Menu, Dropdown} from 'antd';
 import {ValueEditorProps} from './ValueEditorBase';
-import {ValueType, isColorStr} from '../../../../src/core/editor';
+import {ValueType, isColorStr} from '@ticlo/core/editor';
 import {NumberEditor} from './NumberEditor';
 import {StringEditor} from './StringEditor';
 import {ToggleEditor} from './ToggleEditor';

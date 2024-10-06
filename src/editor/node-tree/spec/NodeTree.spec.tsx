@@ -2,9 +2,9 @@ import {expect} from 'vitest';
 import SimulateEvent from 'simulate-event';
 import React from 'react';
 import {NodeTree} from '../../index';
-import {Block, Root} from '../../../../src/core';
-import {destroyLastLocalConnection, makeLocalConnection} from '../../../../src/core/connect/LocalConnection';
-import {shouldHappen} from '../../../../src/core/util/test-util';
+import {Block, Root} from '@ticlo/core';
+import {destroyLastLocalConnection, makeLocalConnection} from '@ticlo/core/connect/LocalConnection';
+import {shouldHappen} from '@ticlo/core/util/test-util';
 import {removeLastTemplate, loadTemplate, querySingle} from '../../util/test-util';
 
 describe('editor NodeTree', function () {

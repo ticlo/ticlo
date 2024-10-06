@@ -1,7 +1,7 @@
 import axios from 'axios';
 import * as glob from 'glob';
 import fs from 'fs';
-import {lanToAntd} from '../../src/editor/util/Languages';
+import {lanToAntd} from '@ticlo/editor/util/Languages';
 import {TranslatePkg} from './TranslatePkg';
 import {OutputYamlData, YamlData} from './YamlData';
 import {translate} from './TranslateRequest';

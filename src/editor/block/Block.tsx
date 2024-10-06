@@ -6,7 +6,7 @@ import {BaseBlockItem, BlockHeaderView, BlockItem, Stage, XYWRenderer} from './F
 import {LazyUpdateSubscriber} from '../component/LazyUpdateComponent';
 import {BlockWidget, BlockWidgetProps} from './view/BlockWidget';
 import {getFuncStyleFromDesc} from '../util/BlockColors';
-import {getDisplayName} from '../../core';
+import {getDisplayName} from '@ticlo/core';
 import {Tooltip} from 'antd';
 import {BlockDropdown} from '../popup/BlockDropdown';
 

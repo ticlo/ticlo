@@ -1,7 +1,7 @@
 import Express, {Request, Response} from 'express';
 import ExpressWs from 'express-ws';
-import {Root} from '../../src/core';
-import {WsServerConnection} from '../../src/node';
+import {Root} from '@ticlo/core';
+import {WsServerConnection} from '@ticlo/node';
 import {requestHandlerSymbol, ServerFunction} from './ServerFunction';
 
 // force import

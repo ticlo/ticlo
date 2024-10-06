@@ -1,5 +1,5 @@
 import Websocket, {WebSocketServer} from 'ws';
-import {Root} from '../../../../src/core';
+import {Root} from '@ticlo/core';
 import {WsServerConnection} from '../WsServerConnection';
 
 export class MockWsServer {

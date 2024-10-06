@@ -1,4 +1,4 @@
-import {Functions, PropDesc} from '../../src/core';
+import {Functions, PropDesc} from '@ticlo/core';
 
 export const htmlAttributes: {[key: string]: PropDesc} = {
   // React-specific Attributes

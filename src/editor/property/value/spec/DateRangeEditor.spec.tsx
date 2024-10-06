@@ -4,8 +4,8 @@ import React from 'react';
 import {removeLastTemplate, loadTemplate, querySingle, fakeMouseEvent} from '../../../util/test-util';
 import {initEditor} from '../../../index';
 import {DateRangeEditor} from '../DateRangeEditor';
-import {shouldHappen, waitTick} from '../../../../../src/core/util/test-util';
-import {blankFuncDesc, blankPropDesc, PropDesc} from '../../../../../src/core/editor';
+import {shouldHappen, waitTick} from '@ticlo/core/util/test-util';
+import {blankFuncDesc, blankPropDesc, PropDesc} from '@ticlo/core/editor';
 import dayjs, {Dayjs} from 'dayjs';
 import {DateEditor} from '../DateEditor';
 

@@ -1,5 +1,5 @@
 import React from 'react';
-import {TRUNCATED, encodeDisplay} from '../../../src/core/editor';
+import {TRUNCATED, encodeDisplay} from '@ticlo/core/editor';
 import {displayNumber} from '../util/Types';
 
 // render value for Block value field

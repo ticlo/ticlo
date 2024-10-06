@@ -9,13 +9,13 @@ import {
   Functions,
   NO_EMIT,
   BaseFunction,
-} from '../../src/core';
-import {deepEqual} from '../../src/core/util/Compare';
-import {isPrimitiveType} from '../../src/core/util/DataTypes';
-import {updateObjectValue} from '../../src/core/property-api/ObjectValue';
+} from '@ticlo/core';
+import {deepEqual} from '@ticlo/core/util/Compare';
+import {isPrimitiveType} from '@ticlo/core/util/DataTypes';
+import {updateObjectValue} from '@ticlo/core/property-api/ObjectValue';
 import {FlowTestCase} from './FlowTestCase';
 import {TestState} from './Interface';
-import {getInputsArray} from '../core/block/FunctonData';
+import {getInputsArray} from '@ticlo/core/block/FunctonData';
 
 const EXPECT = 'expect';
 const ACTUAL = 'actual';

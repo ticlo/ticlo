@@ -2,12 +2,12 @@ import {expect} from 'vitest';
 import SimulateEvent from 'simulate-event';
 import React from 'react';
 import {BlockStage} from '../BlockStage';
-import {Block, Root, Flow} from '../../../../src/core';
-import {destroyLastLocalConnection, makeLocalConnection} from '../../../core/connect/LocalConnection';
-import {shouldHappen, shouldReject} from '../../../core/util/test-util';
+import {Block, Root, Flow} from '@ticlo/core';
+import {destroyLastLocalConnection, makeLocalConnection} from '@ticlo/core/connect/LocalConnection';
+import {shouldHappen, shouldReject} from '@ticlo/core/util/test-util';
 import {removeLastTemplate, loadTemplate, querySingle, fakeMouseEvent} from '../../util/test-util';
 import {initEditor} from '../../index';
-import {arrayEqual} from '../../../../src/core/editor';
+import {arrayEqual} from '@ticlo/core/editor';
 
 describe('editor BlockStage', function () {
   beforeEach(async function () {

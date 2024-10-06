@@ -4,9 +4,9 @@ import Dompurify from 'dompurify';
 import {BlockWidgetProps} from './BlockWidget';
 import {stringify as stringifyYaml} from 'yaml';
 import {LazyUpdateComponent, LazyUpdateSubscriber} from '../../component/LazyUpdateComponent';
-import {ClientConnection} from '../../../../src/core/editor';
-import {encodeSorted} from '../../../core';
-import {arrowReplacer, arrowReviver} from '../../../core/util/Serialize';
+import {ClientConnection} from '@ticlo/core/editor';
+import {encodeSorted} from '@ticlo/core';
+import {arrowReplacer, arrowReviver} from '@ticlo/core/util/Serialize';
 
 class NoteView extends LazyUpdateComponent<BlockWidgetProps, any> {
   private _rootNode!: HTMLElement;

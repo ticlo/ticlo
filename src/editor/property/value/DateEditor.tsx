@@ -1,7 +1,7 @@
 import React from 'react';
 import {Tooltip} from 'antd';
 import {DateTime} from 'luxon';
-import {formatDate} from '../../../../src/core/editor';
+import {formatDate} from '@ticlo/core/editor';
 import {ValueEditorProps} from './ValueEditorBase';
 import {DatePicker} from '../../component/DateTimePicker';
 

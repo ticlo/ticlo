@@ -2,9 +2,9 @@ import React from 'react';
 import {Button, Tooltip} from 'antd';
 import {ButtonProps} from 'antd/lib/button';
 import {TooltipPlacement} from 'antd/lib/tooltip';
-import {ClientConn, ValueSubscriber} from '../../../src/core/connect/ClientConn';
+import {ClientConn, ValueSubscriber} from '@ticlo/core/connect/ClientConn';
 import {LazyUpdateComponent, LazyUpdateSubscriber} from './LazyUpdateComponent';
-import {ValueUpdate} from '../../core/connect/ClientRequests';
+import {ValueUpdate} from '@ticlo/core/connect/ClientRequests';
 
 interface Props extends ButtonProps {
   conn: ClientConn;

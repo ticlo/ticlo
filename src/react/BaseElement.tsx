@@ -1,9 +1,18 @@
-import {Block, StatefulFunction, BlockIO, DataMap, defaultConfigs, Functions, PropDesc, PropGroupDesc} from '../core';
+import {
+  Block,
+  StatefulFunction,
+  BlockIO,
+  DataMap,
+  defaultConfigs,
+  Functions,
+  PropDesc,
+  PropGroupDesc,
+} from '@ticlo/core';
 import React from 'react';
 import {TicloComp} from './TicloComp';
 import {htmlAttributes, htmlEventHandlers, optionalHtmlProperties} from './HtmlAttributes';
-import {BlockConfig} from '../../src/core/block/BlockProperty';
-import {getInputsArray} from '../core/block/FunctonData';
+import {BlockConfig} from '@ticlo/core/block/BlockProperty';
+import {getInputsArray} from '@ticlo/core/block/FunctonData';
 
 export class HtmlElementFunction extends StatefulFunction {
   // _comp never changes, this prevents re-render of any parent component, TicloComp should handle all the changes internally

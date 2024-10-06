@@ -4,8 +4,8 @@ import {DateTime} from 'luxon';
 import {TimePicker} from '../../component/DateTimePicker';
 import {LocalizedPropertyName, t} from '../../component/LocalizedLabel';
 import {InputNumber, Select} from 'antd';
-import {SchedulerConfig} from '../../../core/functions/date/Schedule/SchedulerEvent';
-import type {FunctionDesc} from '../../../core';
+import {SchedulerConfig} from '@ticlo/core/functions/date/Schedule/SchedulerEvent';
+import type {FunctionDesc} from '@ticlo/core';
 
 const funcDesc: FunctionDesc = {name: 'create-schedule'};
 

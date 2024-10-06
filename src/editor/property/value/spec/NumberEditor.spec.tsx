@@ -4,8 +4,8 @@ import React from 'react';
 import {removeLastTemplate, loadTemplate, querySingle} from '../../../util/test-util';
 import {initEditor} from '../../../index';
 import {NumberEditor} from '../NumberEditor';
-import {shouldHappen} from '../../../../../src/core/util/test-util';
-import {blankFuncDesc, blankPropDesc, FunctionDesc, PropDesc} from '../../../../../src/core/editor';
+import {shouldHappen} from '@ticlo/core/util/test-util';
+import {blankFuncDesc, blankPropDesc, FunctionDesc, PropDesc} from '@ticlo/core/editor';
 import {simulateInput} from './simulate-input';
 import {DateEditor} from '../DateEditor';
 

@@ -3,12 +3,12 @@ import {Button, Input, Tooltip} from 'antd';
 import SearchIcon from '@ant-design/icons/SearchOutlined';
 import CloseIcon from '@ant-design/icons/CloseCircleFilled';
 import {MultiSelectComponent, MultiSelectLoader} from './MultiSelectComponent';
-import {ClientConn, ValueSubscriber} from '../../core/connect/ClientConn';
-import {ValueUpdate} from '../../core/connect/ClientRequests';
+import {ClientConn, ValueSubscriber} from '@ticlo/core/connect/ClientConn';
+import {ValueUpdate} from '@ticlo/core/connect/ClientRequests';
 import {OptionalPropertyEditor} from './OptionalPropertyEditor';
-import {FunctionDesc, PropDesc} from '../../core';
+import {FunctionDesc, PropDesc} from '@ticlo/core';
 import {TicloI18NConsumer} from '../component/LayoutContext';
-import {translateEditor} from '../../core/util/i18n';
+import {translateEditor} from '@ticlo/core/util/i18n';
 import {t} from '../component/LocalizedLabel';
 
 class OptionalPropertyLoader extends MultiSelectLoader<OptionalPropertyList> {

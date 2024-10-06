@@ -1,7 +1,7 @@
 import React from 'react';
 import {ExpandIcon} from '../component/Tree';
 import {TIcon} from '../icon/Icon';
-import {blankFuncDesc, FunctionDesc} from '../../../src/core/editor';
+import {blankFuncDesc, FunctionDesc} from '@ticlo/core/editor';
 import {FunctionView} from './FunctionView';
 import {FunctionTreeItem} from './FunctionTreeItem';
 import {PureDataRenderer} from '../component/DataRenderer';

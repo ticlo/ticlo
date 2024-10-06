@@ -1,7 +1,7 @@
 import {expect} from 'vitest';
 import {deleteDB, IDBPDatabase, openDB} from 'idb';
-import {Flow, Root, decode, FlowFolder} from '../../../core';
-import {shouldHappen, shouldReject, waitTick} from '../../../core/util/test-util';
+import {Flow, Root, decode, FlowFolder} from '@ticlo/core';
+import {shouldHappen, shouldReject, waitTick} from '@ticlo/core/util/test-util';
 import {IndexDbFlowStorage, IndexDbStorage, FLOW_STORE_NAME} from '../IndexDbStorage';
 
 const testDbName = 'testIndexDb';

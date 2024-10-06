@@ -1,6 +1,6 @@
 import React from 'react';
-import {Functions} from '../../core/block/Functions';
-import {FunctionDesc, PropDesc, PropGroupDesc} from '../../core/block/Descriptor';
+import {Functions} from '@ticlo/core/block/Functions';
+import {FunctionDesc, PropDesc, PropGroupDesc} from '@ticlo/core/block/Descriptor';
 import {
   elementChildrenProperty,
   elementClassProperty,

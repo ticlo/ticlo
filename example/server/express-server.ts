@@ -1,7 +1,7 @@
 import Express from 'express';
-import {Root, setStorageFunctionProvider} from '../../src/core';
-import {FileFlowStorage, FileStorage} from '../../src/node';
-import {connectTiclo, routeTiclo, getEditorUrl} from '../../src/web-server';
+import {Root, setStorageFunctionProvider} from '@ticlo/core';
+import {FileFlowStorage, FileStorage} from '@ticlo/node';
+import {connectTiclo, routeTiclo, getEditorUrl} from '@ticlo/web-server';
 import {data} from '../sample-data/data';
 
 (async () => {

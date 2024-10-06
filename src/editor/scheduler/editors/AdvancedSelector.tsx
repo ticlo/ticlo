@@ -1,12 +1,12 @@
 import React, {ReactElement} from 'react';
 import {Button, Checkbox, Select, Tag, Tooltip} from 'antd';
 import PlusIcon from '@ant-design/icons/PlusOutlined';
-import {SchedulerConfig} from '../../../core/functions/date/Schedule/SchedulerEvent';
+import {SchedulerConfig} from '@ticlo/core/functions/date/Schedule/SchedulerEvent';
 import {cacheCall} from '../../util/CachedCallback';
-import {translateProperty, translatePropContent} from '../../../core/util/i18n';
+import {translateProperty, translatePropContent} from '@ticlo/core/util/i18n';
 import {TicloLayoutContext, TicloLayoutContextType} from '../../component/LayoutContext';
 import CloseOutlined from '@ant-design/icons/CloseOutlined';
-import {stopPropagation} from '../../../core';
+import {stopPropagation} from '@ticlo/core';
 import {LocalizedPropertyName, t} from '../../component/LocalizedLabel';
 import {FUNC, funcDesc} from './descs';
 

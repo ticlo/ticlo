@@ -1,7 +1,7 @@
-import {DataMap, getTailingNumber} from '../../core';
+import {DataMap, getTailingNumber} from '@ticlo/core';
 import {PropertyEditorProps, PropertyReorder} from './PropertyEditor';
 import {DragState} from 'rc-dock';
-import {deepEqual} from '../../core/util/Compare';
+import {deepEqual} from '@ticlo/core/util/Compare';
 
 export const CustomGroupPropertyReorder: PropertyReorder = {
   getDragData(props: PropertyEditorProps): DataMap {

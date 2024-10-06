@@ -1,7 +1,7 @@
 import * as fs from 'fs';
 import * as glob from 'glob';
 import YAML from 'yaml';
-import {DataMap} from '../src/core/util/DataTypes';
+import {DataMap} from '@ticlo/core/util/DataTypes';
 
 function mergeData(to: DataMap, from: DataMap) {
   for (let key in from) {

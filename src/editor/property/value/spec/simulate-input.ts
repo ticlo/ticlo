@@ -1,4 +1,4 @@
-import {voidFunction} from '../../../../../src/core/editor';
+import {voidFunction} from '@ticlo/core/editor';
 
 export function simulateInput(input: any, event: any, value: string) {
   if ('onKeyDown' in input && event) {
