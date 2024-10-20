@@ -102,10 +102,10 @@
   },
   "peerDependencies": {
     "@ticlo/core": ">0.0.0",
-    "@ticlo/node": ">0.0.0",
+    "@ticlo/editor": ">0.0.0",
     "@ticlo/html": ">0.0.0",
-    "@ticlo/test": ">0.0.0",
-    "@ticlo/editor": ">0.0.0"
+    "@ticlo/node": ">0.0.0",
+    "@ticlo/test": ">0.0.0"
   },
   "scripts": {
     "vite-dev": "vite",
