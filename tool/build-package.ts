@@ -42,11 +42,6 @@ async function buildPackage(name: string, replaceImport = true) {
     if (!tsFile.includes('/spec/')) {
       let data = fs.readFileSync(tsFile, {encoding: 'utf8'});
 
-      // fix local imports
-      if (replaceImport) {
-        data = data.replace(/from '(..\/)+src\//g, "from '@ticlo/");
-      }
-
       // analyze imports
       regex.lastIndex = 0;
       for (let result = regex.exec(data); result; result = regex.exec(data)) {

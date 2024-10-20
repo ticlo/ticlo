@@ -7,17 +7,20 @@ import {BlockDeepProxy} from '../../block/BlockProxy';
 import {FunctionDesc} from '../../block/Descriptor';
 import {Logger} from '../../util/Logger';
 
-const SCRIPT_ERROR = 'scriptError';
+export const SCRIPT_ERROR = 'scriptError';
 
 export class JsFunction extends BaseFunction<Block> {
   _compiledFunction: Function;
   _runFunction: Function;
-
-  _proxy: object;
+  // whether compiled function is run for the first time
+  _preProcessed: boolean;
 
   constructor(block: Block) {
     super(block);
-    this._proxy = new Proxy(block, BlockDeepProxy);
+  }
+
+  getDataProxy() {
+    return new Proxy(this._data, BlockDeepProxy);
   }
 
   inputChanged(input: BlockIO, val: any): boolean {
@@ -25,20 +28,43 @@ export class JsFunction extends BaseFunction<Block> {
     if (input._name === 'script') {
       this._compiledFunction = null;
       this._runFunction = null;
+      this._preProcessed = false;
       return val !== undefined;
     }
     return Boolean(this._runFunction);
   }
 
   parseFunction(script: string): Function {
-    return new Function('__block__', script);
+    return new Function(script);
   }
-  applyFunction(f: Function): any {
-    return f.call(this._proxy, this._data);
+  applyFunction(): any {
+    if (this._runFunction) {
+      return this._runFunction.call(this.getDataProxy());
+    }
+    return undefined;
+  }
+  // first time script is compiled
+  preProcessCompileResult() {
+    let result: unknown;
+    try {
+      result = this._compiledFunction.call(this.getDataProxy());
+    } catch (err) {
+      this._compiledFunction = null;
+      return new ErrorEvent(SCRIPT_ERROR, err);
+    }
+    if (typeof result === 'function') {
+      // let the function run again
+      this._runFunction = result;
+    } else {
+      this._runFunction = this._compiledFunction;
+      return result;
+    }
   }
 
   run(): any {
-    if (this._runFunction == null) {
+    let result: unknown;
+    if (!this._preProcessed) {
+      this._preProcessed = true;
       if (this._compiledFunction == null) {
         let script = this._data.getValue('script');
         if (typeof script === 'string') {
@@ -53,28 +79,22 @@ export class JsFunction extends BaseFunction<Block> {
           return new ErrorEvent(SCRIPT_ERROR, 'script is not string');
         }
       }
-      let rslt;
-      try {
-        rslt = this.applyFunction(this._compiledFunction);
-      } catch (err) {
-        this._compiledFunction = null;
-        return new ErrorEvent(SCRIPT_ERROR, err);
-      }
-      if (typeof rslt === 'function') {
-        // let the function run again
-        this._runFunction = rslt;
-      } else {
-        this._runFunction = this._compiledFunction;
-        return rslt;
+      result = this.preProcessCompileResult();
+      if (this._runFunction === this._compiledFunction) {
+        return result;
       }
     }
-    let rslt: any;
     try {
-      rslt = this.applyFunction(this._runFunction);
+      result = this.applyFunction();
     } catch (err) {
       return new ErrorEvent(SCRIPT_ERROR, err);
     }
-    this._data.output(rslt);
+
+    this._data.output(result);
+  }
+
+  cleanup() {
+    this._data.output(undefined);
   }
 
   static registerType(script: string, desc: FunctionDesc, namespace?: string): boolean {

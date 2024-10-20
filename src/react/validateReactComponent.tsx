@@ -29,7 +29,3 @@ export function validateReactComponent(component: any) {
   }
   return component;
 }
-
-export function isReactComponent(component: any) {
-  return component && typeof component === 'object' && component.$$typeof === reactTypeof;
-}

@@ -1,35 +1,96 @@
 import React from 'react';
-import {JsFunction} from '@ticlo/core/functions/script/Js';
+import {JsFunction, SCRIPT_ERROR} from '@ticlo/core/functions/script/Js';
 import {Functions} from '@ticlo/core/block/Functions';
 import {Block} from '@ticlo/core/block/Block';
 import {TicloComp} from './TicloComp';
 import {validateReactComponent} from './validateReactComponent';
 import {elementConfigs} from './BaseElement';
+import {BlockIO, ErrorEvent} from '@ticlo/core';
+
+const HOOKS = `const {
+  useContext,
+  useState,
+  useEffect,
+  useCallback,
+  useMemo,
+  useRef
+} = React;`;
 
 export class JsxFunction extends JsFunction {
   readonly _comp: React.ReactNode;
+  _functionalComponent: Function;
+
   constructor(block: Block) {
     super(block);
     this._comp = <TicloComp key={block._blockId} block={block} />;
     this._data.output(this._comp);
   }
+  inputChanged(input: BlockIO, val: any): boolean {
+    // ignore parent implementation of inputChanged
+    if (input._name === 'script') {
+      this._compiledFunction = null;
+      this._runFunction = null;
+      this._functionalComponent = null;
+      this._preProcessed = false;
+      return val !== undefined;
+    }
+    return Boolean(this._runFunction || this._functionalComponent);
+  }
 
   parseFunction(script: string): Function {
     const Babel = (window as any).Babel;
+
     if (Babel) {
-      let toTransform = `"use strict";function F_(React){${script}}`;
-      script = Babel.transform(toTransform, {presets: ['es2017', 'react']}).code.substring(34);
+      let toTransform = `"use strict";const React={};${HOOKS}function F_(){${script}}`;
+      let code = Babel.transform(toTransform, {presets: ['es2017', 'react']}).code;
+      script = code.substring(HOOKS.length + 48);
     }
-    return new Function('React', '__block__', script);
+    return new Function('React', script);
   }
-  applyFunction(f: Function): any {
-    let result = f.call(this._proxy, React, this._data);
-    if (this._runFunction || typeof result !== 'function') {
-      // output when runFunction is ready
+
+  outputResult(result: unknown) {
+    if (validateReactComponent(result)) {
       this._data.output(result, '#render');
-      this._data.output(this._comp);
+      return this._comp;
+    } else {
+      this._data.output(undefined, '#render');
     }
     return result;
+  }
+
+  applyFunction(): any {
+    let result: unknown;
+    if (this._runFunction) {
+      result = super.applyFunction();
+    } else if (this._functionalComponent) {
+      const Comp = this._functionalComponent;
+
+      // @ts-ignore
+      result = <Comp data={this.getDataProxy()} />;
+    }
+    return this.outputResult(result);
+  }
+
+  preProcessCompileResult() {
+    let result: unknown;
+    try {
+      result = this._compiledFunction.call(this.getDataProxy(), React);
+    } catch (err) {
+      this._compiledFunction = null;
+      return new ErrorEvent(SCRIPT_ERROR, err);
+    }
+    if (typeof result === 'function') {
+      // let the function run again
+      this._functionalComponent = result;
+    } else {
+      this._runFunction = this._compiledFunction;
+      return this.outputResult(result);
+    }
+    return undefined;
+  }
+  cleanup() {
+    this._data.output(undefined, '#render');
+    super.cleanup();
   }
 }
 
