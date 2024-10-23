@@ -22,9 +22,8 @@ describe('Jsx', function () {
     aBlock.setValue(
       'script',
       `return function Foo({data}){
-console.log('loglog:', data);
-return <span>{data.value}</span>;
-}`
+  return <span>{data.value}</span>;
+  }`
     );
     Root.run();
     expect(aBlock.getValue('#render')).toMatchSnapshot();

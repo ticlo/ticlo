@@ -7,9 +7,8 @@ exports[`Jsx > functional 1`] = `
   data={
     {
       "script": "return function Foo({data}){
-console.log('loglog:', data);
-return <span>{data.value}</span>;
-}",
+  return <span>{data.value}</span>;
+  }",
       "value": "v",
     }
   }
