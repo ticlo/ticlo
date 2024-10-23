@@ -9,7 +9,7 @@ export default defineConfig({
     isolate: false,
     globals: true,
     include: ['src/core/**/*.spec.ts', 'src/html/**/*.spec.ts', 'src/react/**/*.spec.(ts|tsx)'],
-    setupFiles: ['src/html/vitest.setup.ts', 'src/react/vitest.setup.ts'],
+    setupFiles: ['src/html/vitest.setup.ts'],
     browser: {
       enabled: true,
       headless: true,

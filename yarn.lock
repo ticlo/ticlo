@@ -1415,6 +1415,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@babel/standalone@npm:^7.25.9":
+  version: 7.25.9
+  resolution: "@babel/standalone@npm:7.25.9"
+  checksum: fb21fea7f94e70870e0be0c81711b51bbc9af6cca5d015011fecbbf6896e7db36bfa5b3ab0b2b49a9616d97dfca892a0c06d39d7d7be2d379ed479c1c64867bc
+  languageName: node
+  linkType: hard
+
 "@babel/template@npm:^7.22.15, @babel/template@npm:^7.24.0":
   version: 7.24.0
   resolution: "@babel/template@npm:7.24.0"
@@ -2323,7 +2330,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/babel__core@npm:^7.20.5":
+"@types/babel__core@npm:^7.1.0, @types/babel__core@npm:^7.20.5":
   version: 7.20.5
   resolution: "@types/babel__core@npm:7.20.5"
   dependencies:
@@ -2349,6 +2356,15 @@ __metadata:
   version: 7.9.6
   resolution: "@types/babel__preset-env@npm:7.9.6"
   checksum: 639bcf58094530eb8509b302de9c42fc1a9e44e236bcbfd218e987aba7a2c15052c3a1cac7ca7f260255e74beb3b489ff877b9870f8587394457cd3aa9f64934
+  languageName: node
+  linkType: hard
+
+"@types/babel__standalone@npm:^7":
+  version: 7.1.7
+  resolution: "@types/babel__standalone@npm:7.1.7"
+  dependencies:
+    "@types/babel__core": "npm:^7.1.0"
+  checksum: 967b6d1a7fb18a90c7853060917b0019685b973ba328ae1a29c7f07d53dfecb5444415e706281a47e1ad80e0d3f729233598d0e9235665e6778daf1c2644b57b
   languageName: node
   linkType: hard
 
@@ -9823,11 +9839,13 @@ __metadata:
     "@babel/preset-env": "npm:^7.24.3"
     "@babel/preset-typescript": "npm:^7.24.1"
     "@babel/register": "npm:^7.23.7"
+    "@babel/standalone": "npm:^7.25.9"
     "@codemirror/lang-javascript": "npm:^6.2.2"
     "@codemirror/lang-markdown": "npm:^6.2.4"
     "@codemirror/lang-yaml": "npm:^6.1.1"
     "@codemirror/view": "npm:^6.26.0"
     "@types/babel__preset-env": "npm:^7.9.6"
+    "@types/babel__standalone": "npm:^7"
     "@types/body-parser": "npm:^1.19.5"
     "@types/dompurify": "npm:^3.0.5"
     "@types/express": "npm:^4.17.21"

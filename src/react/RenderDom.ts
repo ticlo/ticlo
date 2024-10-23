@@ -34,6 +34,11 @@ export class RenderDomFunction extends BaseFunction {
       });
     }
   }
+  cleanup() {
+    if (this._root) {
+      this._root.unmount();
+    }
+  }
 
   destroy(): void {
     if (this._root) {

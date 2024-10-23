@@ -1,0 +1,17 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`Jsx > basic 1`] = `<span />`;
+
+exports[`Jsx > functional 1`] = `
+<Foo
+  data={
+    {
+      "script": "return function Foo({data}){
+console.log('loglog:', data);
+return <span>{data.value}</span>;
+}",
+      "value": "v",
+    }
+  }
+/>
+`;
