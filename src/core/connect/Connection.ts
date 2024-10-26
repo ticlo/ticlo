@@ -1,4 +1,4 @@
-import {DataMap, measureObjSize} from '../util/DataTypes';
+import {DataMap, measureObjSize, WS_FRAME_SIZE} from '../util/DataTypes';
 import {Logger} from '../util/Logger';
 
 export class ConnectionSendingData {
@@ -140,7 +140,7 @@ export class Connection {
         sendingSize += size;
         sending.push(data);
       }
-      if (sendingSize >= 0x80000) {
+      if (sendingSize >= WS_FRAME_SIZE) {
         break;
       }
     }

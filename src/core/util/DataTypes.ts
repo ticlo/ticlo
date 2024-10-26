@@ -7,6 +7,8 @@ export function isDataMap(val: unknown): val is DataMap {
   return Object.isExtensible(val);
 }
 
+export const WS_FRAME_SIZE = 0x80000;
+
 export const TRUNCATED = '·∙·'; // '\u00b7\u2219\u00b7'
 
 export function isPrimitiveType(val: any) {

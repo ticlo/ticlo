@@ -3,6 +3,7 @@ import ExpressWs from 'express-ws';
 import {Root} from '@ticlo/core';
 import {WsServerConnection} from '@ticlo/node';
 import {requestHandlerSymbol, ServerFunction} from './ServerFunction';
+import {RestServerConnection} from '@ticlo/node/connect/RestServerConnection';
 
 // force import
 ((v: any) => {})(ServerFunction);
@@ -11,13 +12,13 @@ import {requestHandlerSymbol, ServerFunction} from './ServerFunction';
  * open a port for the http:express-server service
  * @param app
  * @param basePath
- * @param globalBlockName
+ * @param serverBlockName
  */
-export function routeTiclo(app: Express.Application, basePath: string, globalBlockName: string = '^local-server') {
-  if (!globalBlockName.startsWith('^')) {
-    globalBlockName = '^' + globalBlockName;
+export function routeTiclo(app: Express.Application, basePath: string, serverBlockName: string = '^local-server') {
+  if (!serverBlockName.startsWith('^')) {
+    serverBlockName = '^' + serverBlockName;
   }
-  let globalServiceBlock = Root.instance._globalRoot.createBlock(globalBlockName, true);
+  let globalServiceBlock = Root.instance._globalRoot.createBlock(serverBlockName, true);
   globalServiceBlock._load({'#is': 'web-server:express-server'});
   Root.run(); // output the requestHandler
   const requestHandler: (basePath: string, req: Request, res: Response) => void = (
@@ -36,11 +37,15 @@ export function routeTiclo(app: Express.Application, basePath: string, globalBlo
  * @param routeTicloPath
  */
 export function connectTiclo(app: Express.Application, routeTicloPath: string) {
+  const restServer = new RestServerConnection(Root.instance);
   let expressWs = ExpressWs(app);
   let wsapp = expressWs.app;
   wsapp.ws(routeTicloPath, function (ws, req) {
     let serverConn = new WsServerConnection(ws, Root.instance);
   });
+
+  app.post(routeTicloPath, restServer.onHttpPost);
+  app.get(routeTicloPath, restServer.onHttpGet);
 }
 
 export function getEditorUrl(host: string, defaultFlow: string) {

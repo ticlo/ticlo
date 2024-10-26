@@ -38,7 +38,7 @@ import {Query, queryBlock} from './Query';
 import {getGlobalSettingsData} from '../util/Settings';
 import {DoneEvent} from '../block/Event';
 
-class ServerRequest extends ConnectionSendingData {
+export class ServerRequest extends ConnectionSendingData {
   id: string;
   connection: ServerConnection;
 

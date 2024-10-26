@@ -35,7 +35,7 @@ export function decode(str: string): any {
   return arrow.parse(str);
 }
 
-export const decodeReceiver = (key: string, value: any) => arrow.reviver(key, value);
+export const decodeReviver = (key: string, value: any) => arrow.reviver(key, value);
 
 const displayRegex = /"͢(\w*:)?([^"]*)"/g;
 

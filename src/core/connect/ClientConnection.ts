@@ -103,10 +103,10 @@ export abstract class ClientConnection extends Connection implements ClientConn 
       }
     }
   }
-
-  simpleRequest(data: DataMap, callbacks: ClientCallbacks): Promise<any> | string {
+  _initSimpleRequest(c: ClientCallbacks): {promise: Promise<any>; callbacks: ClientCallbacks} {
+    let callbacks: ClientCallbacks = c;
     let promise: Promise<any>;
-    if (callbacks == null) {
+    if (!c) {
       promise = new Promise((resolve, reject) => {
         callbacks = {
           onDone: resolve,
@@ -115,15 +115,17 @@ export abstract class ClientConnection extends Connection implements ClientConn 
         };
       });
     }
+
+    return {promise, callbacks};
+  }
+  simpleRequest(data: DataMap, c: ClientCallbacks): Promise<any> | string {
+    let {promise, callbacks} = this._initSimpleRequest(c);
     let id = this.uid.next();
     data.id = id;
     let req = new ClientRequest(data, callbacks);
     this.requests.set(id, req);
     this.addSend(req);
-    if (promise) {
-      return promise;
-    }
-    return id;
+    return promise ?? id;
   }
 
   _sendSettingsRequest() {
@@ -135,6 +137,9 @@ export abstract class ClientConnection extends Connection implements ClientConn 
         },
       }
     );
+  }
+  _sendLargeData(data: DataMap, c: ClientCallbacks = null): Promise<any> | null {
+    return null;
   }
 
   // important request will always be sent

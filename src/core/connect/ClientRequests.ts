@@ -1,4 +1,4 @@
-import {DataMap, isDataMap, isDataTruncated, measureObjSize} from '../util/DataTypes';
+import {DataMap, isDataMap, isDataTruncated, measureObjSize, WS_FRAME_SIZE} from '../util/DataTypes';
 import {ConnectionSend} from './Connection';
 import {FunctionDesc, mapConfigDesc} from '../block/Descriptor';
 import {ClientConnection} from './ClientConnection';
@@ -22,21 +22,15 @@ export class ClientRequest extends ConnectionSend implements ClientCallbacks {
   }
 
   onDone(): void {
-    if (this._callbacks.onDone) {
-      this._callbacks.onDone();
-    }
+    this._callbacks.onDone?.();
   }
 
   onUpdate(response: DataMap): void {
-    if (this._callbacks.onUpdate) {
-      this._callbacks.onUpdate(response);
-    }
+    this._callbacks.onUpdate?.(response);
   }
 
   onError(error: string, data?: DataMap): void {
-    if (this._callbacks.onError) {
-      this._callbacks.onError(error, data || this._data);
-    }
+    this._callbacks.onError?.(error, data || this._data);
   }
 
   cancel() {
@@ -69,9 +63,7 @@ export class MergedClientRequest extends ConnectionSend implements ClientCallbac
 
   onDone(): void {
     for (let callbacks of this._callbackSet) {
-      if (callbacks.onDone) {
-        callbacks.onDone();
-      }
+      callbacks.onDone?.();
     }
   }
 
@@ -281,7 +273,12 @@ export class SetRequest extends ConnectionSend {
       this.conn.setRequests.delete(this.path);
       this.conn = null;
     }
-    return {data: this._data, size: measureObjSize(this._data, 0x80000)};
+    const size = measureObjSize(this._data, WS_FRAME_SIZE);
+    if (size > WS_FRAME_SIZE && this.conn._sendLargeData(this._data)) {
+      // TODO, handle in rest api
+      return {data: null, size: 0};
+    }
+    return {data: this._data, size};
   }
 
   cancel() {

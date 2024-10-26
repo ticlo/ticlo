@@ -48,6 +48,7 @@ import {LocalizedLabel, t} from '@ticlo/editor/component/LocalizedLabel';
 import {FlowTestCase} from '@ticlo/test/FlowTestCase';
 import {createRoot} from 'react-dom/client';
 import {SchedulePane} from '@ticlo/editor/dock/schedule/SchedulePane';
+import {MixedBrowserConnection} from '@ticlo/html/connect/MixedBrowserConnection';
 const layoutGroups = {
   blockStage: {
     animated: false,
@@ -262,7 +263,7 @@ class App extends React.PureComponent<Props, State> {
 
   let client = window.opener
     ? new FrameClientConnection(window.opener) // used by server-window.html
-    : new WsBrowserConnection(`ws://127.0.0.1:8010/ticlo`); // used by express server
+    : new MixedBrowserConnection(`http://127.0.0.1:8010/ticlo`); // used by express server
   createRoot(document.getElementById('app')).render(<App conn={client} />);
 })();
 

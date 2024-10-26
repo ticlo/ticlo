@@ -22,8 +22,8 @@ const defaultRouteWorker = {
   ]),
 };
 
-export type RouteContentType = 'empty' | 'text' | 'json' | 'buffer' | 'form';
-const contentTypeList: RouteContentType[] = ['empty', 'text', 'json', 'buffer', 'form'];
+const contentTypeList = ['empty', 'text', 'json', 'buffer', 'urlencoded' /* , 'multi-part' */];
+export type RouteContentType = (typeof contentTypeList)[number];
 
 export type RouteMethod = 'GET' | 'POST' | 'PUT' | 'DELETE';
 const methodList: RouteMethod[] = ['GET', 'POST', 'PUT', 'DELETE'];

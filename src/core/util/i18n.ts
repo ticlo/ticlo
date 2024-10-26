@@ -22,7 +22,7 @@ export async function init(lng?: string) {
 }
 
 export class TicloI18nSettings {
-  static useLocalizedBlockName = true;
+  static useLocalizedBlockName = false;
   static shouldTranslateFunction = true;
 }
 

@@ -10,7 +10,7 @@ export {ServerConnection} from './connect/ServerConnection';
 export {type DataMap, TRUNCATED} from './util/DataTypes';
 export {convertToObject} from './util/DataTruncate';
 export {forAllPathsBetween} from './util/Path';
-export {encodeDisplay, decode, encode, encodeSorted} from './util/Serialize';
+export {encodeDisplay, decode, encode, encodeSorted, decodeReviver} from './util/Serialize';
 export * from './util/Name';
 export {endsWithNumberReg, getTailingNumber, smartStrCompare, isColorStr} from './util/String';
 export * from './util/DateTime';

@@ -5,16 +5,16 @@ import {decode, encode} from '@ticlo/core/util/Serialize';
 
 export class WsBrowserConnection extends ClientConnection {
   _ws: WebSocket;
-  _url: string;
+  _wsUrl: string;
 
   constructor(url: string, editorListeners = true) {
     super(editorListeners);
-    this._url = url;
+    this._wsUrl = url;
     this.reconnect();
   }
 
   reconnect() {
-    this._ws = new WebSocket(this._url);
+    this._ws = new WebSocket(this._wsUrl);
     this._ws.addEventListener('message', this.onMessage);
     this._ws.addEventListener('open', () => this.onConnect());
     this._ws.addEventListener('error', () => this.onClose);

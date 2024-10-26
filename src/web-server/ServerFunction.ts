@@ -6,19 +6,18 @@ import {
 } from '@ticlo/core/functions/web-server/RouteFunction';
 import {Functions} from '@ticlo/core/block/Functions';
 import {BaseFunction, StatefulFunction} from '@ticlo/core/block/BlockFunction';
-import {Request, Response, RequestHandler} from 'express';
-import BodyParser from 'body-parser';
-import {decodeReceiver, encode} from '@ticlo/core/util/Serialize';
+import * as Express from 'express';
+import {decodeReviver, encode} from '@ticlo/core/util/Serialize';
 import {escapedObject} from '@ticlo/core/util/EscapedObject';
 import {Uid} from '@ticlo/core/util/Uid';
 import {ExpressHttpRequest} from './HttpRequest';
 import {Resolver} from '@ticlo/core/block/Resolver';
 import type {Block} from '@ticlo/core';
 
-const formParser = BodyParser.urlencoded({extended: false});
-const jsonParser = BodyParser.json({reviver: decodeReceiver});
-const textParser = BodyParser.text({});
-const bufferParser = BodyParser.raw({});
+const urlencodedParser = Express.urlencoded({extended: false});
+const jsonParser = Express.json({reviver: decodeReviver});
+const textParser = Express.text();
+const bufferParser = Express.raw();
 
 const serviceId: Uid = new Uid();
 export const requestHandlerSymbol = Symbol('requestHandler');
@@ -43,9 +42,9 @@ export class ServerFunction extends BaseFunction<Block> {
     return [targetRoutes, path];
   }
 
-  requestHandler = (basePath: string, req: Request, res: Response) => {
+  requestHandler = (basePath: string, req: Express.Request, res: Express.Response) => {
     let contentType: RouteContentType;
-    let midware: RequestHandler;
+    let midware: Express.RequestHandler;
 
     switch (req.headers['content-type']) {
       case 'application/json':
@@ -57,9 +56,13 @@ export class ServerFunction extends BaseFunction<Block> {
         midware = textParser;
         break;
       case 'application/x-www-form-urlencoded':
-        contentType = 'form';
-        midware = formParser;
+        contentType = 'urlencoded';
+        midware = urlencodedParser;
         break;
+      // case 'multipart/form-data':
+      //   contentType = 'multi-part';
+      //   midware = multipartParser;
+      //   break;
       case 'application/octet-stream':
         contentType = 'buffer';
         midware = bufferParser;

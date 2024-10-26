@@ -2387,7 +2387,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/body-parser@npm:*, @types/body-parser@npm:^1.19.5":
+"@types/body-parser@npm:*":
   version: 1.19.5
   resolution: "@types/body-parser@npm:1.19.5"
   dependencies:
@@ -3541,7 +3541,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"body-parser@npm:1.20.3, body-parser@npm:^1.20.2":
+"body-parser@npm:1.20.3":
   version: 1.20.3
   resolution: "body-parser@npm:1.20.3"
   dependencies:
@@ -9846,7 +9846,6 @@ __metadata:
     "@codemirror/view": "npm:^6.26.0"
     "@types/babel__preset-env": "npm:^7.9.6"
     "@types/babel__standalone": "npm:^7"
-    "@types/body-parser": "npm:^1.19.5"
     "@types/dompurify": "npm:^3.0.5"
     "@types/express": "npm:^4.17.21"
     "@types/express-ws": "npm:^3.0.5"
@@ -9873,7 +9872,6 @@ __metadata:
     arrow-code: "npm:^0.3.0"
     axios: "npm:1.7.4"
     base64-js: "npm:^1.5.1"
-    body-parser: "npm:^1.20.2"
     chalk: "npm:^4.1.2"
     codemirror: "npm:^6.0.1"
     cross-env: "npm:^7.0.3"
@@ -9927,6 +9925,7 @@ __metadata:
     "@ticlo/html": ">0.0.0"
     "@ticlo/node": ">0.0.0"
     "@ticlo/test": ">0.0.0"
+    "@ticlo/web-server": ">0.0.0"
   languageName: unknown
   linkType: soft
 
