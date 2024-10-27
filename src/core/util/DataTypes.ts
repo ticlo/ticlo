@@ -26,12 +26,9 @@ export function isPrimitiveType(val: unknown) {
   }
 }
 
-export function isBaseObject(val: unknown) {
-  if (val != null && typeof val === 'object') {
-    const constructor = val.constructor;
-    return constructor === undefined || constructor === Object;
-  }
-  return false;
+export function isBaseObject(val: object) {
+  const constructor = val.constructor;
+  return constructor === undefined || constructor === Object;
 }
 
 export function isSavedBlock(val: unknown): val is DataMap {

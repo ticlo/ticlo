@@ -120,8 +120,9 @@ export class HandlerFunction extends MapImpl {
   }
 
   run(): any {
-    if (this._keepOrderChanged) {
+    if (this._keepOrderChanged || this.control._srcChanged) {
       this._keepOrderChanged = false;
+      this.control._srcChanged = false;
       this._clearWorkers();
     }
 

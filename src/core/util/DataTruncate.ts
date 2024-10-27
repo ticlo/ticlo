@@ -1,4 +1,4 @@
-import {DataMap, TRUNCATED} from './DataTypes';
+import {DataMap, isBaseObject, TRUNCATED} from './DataTypes';
 import {decode, encodeRaw} from './Serialize';
 import QS from 'qs';
 import {DateTime} from 'luxon';
@@ -60,7 +60,7 @@ function truncateObj(val: any, maxSize: number = 1024): [any, number, boolean] {
     if (DateTime.isDateTime(val)) {
       return [val, 33, false];
     }
-    if (val.constructor === Object) {
+    if (isBaseObject(val)) {
       return truncateMap(val, maxSize);
     }
     let encoded = encodeRaw(val);
