@@ -54,7 +54,7 @@ export class YamlData {
 
       if (yamlRow.key) {
         current = yamlRow;
-        if (yamlRow.value || yamlRow.multiLineIndent) {
+        if (yamlRow.value != null || yamlRow.multiLineIndent) {
           this.mapping.set(yamlRow.key, yamlRow);
         }
       }
@@ -229,11 +229,14 @@ export class OutputYamlData {
     }
     for (let row of this.rows) {
       let {rawkey, indent, raw, value} = row.enRow;
-      if (value) {
-        output.push(`${''.padStart(indent)}${rawkey}: ${writeYamlString(row.translated, row.comment, indent)}`);
-      } else {
-        output.push(raw);
+      if (value != null) {
+        let rowValue = writeYamlString(row.translated, row.comment, indent);
+        if (rowValue) {
+          output.push(`${''.padStart(indent)}${rawkey}: ${rowValue}`);
+          continue;
+        }
       }
+      output.push(raw);
     }
     let outputStr = output.join('\n');
     fs.writeFileSync(this.yamlPath, outputStr);
