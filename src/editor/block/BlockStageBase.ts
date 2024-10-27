@@ -334,7 +334,7 @@ export abstract class BlockStageBase<Props extends StagePropsBase, State>
 
   sharedListener = new ValueSubscriber({
     onUpdate: (response: ValueUpdate) => {
-      if (response.change.hasOwnProperty('value')) {
+      if (Object.hasOwn(response.change, 'value')) {
         if (String(response.cache.value).startsWith('SharedBlock ')) {
           let {conn} = this.props;
           conn.watch(this._sharedPath, this.sharedWatchListener);

@@ -42,12 +42,12 @@ export class HtmlElementFunction extends StatefulFunction {
     let result: DataMap = {style: this._data.getValue('style'), className: this._data.getValue('class')};
     let optional = this._data.getOptionalProps();
     for (let field of optional) {
-      if (htmlAttributes.hasOwnProperty(field)) {
+      if (Object.hasOwn(htmlAttributes, field)) {
         let value = this._data.getValue(field);
         if (value !== undefined) {
           result[field] = value;
         }
-      } else if (htmlEventHandlers.hasOwnProperty(field)) {
+      } else if (Object.hasOwn(htmlEventHandlers, field)) {
         let handler = this._eventHandlers.get(field);
         // create the handler on demand
         if (!handler) {

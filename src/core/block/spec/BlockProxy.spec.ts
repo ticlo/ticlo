@@ -21,7 +21,7 @@ describe('BlockProxy', function () {
     expect(b['@v']).toBe('0');
     expect(b['@notExist']).toBe(undefined);
     expect('v3' in b).toBe(false);
-    expect(Object.prototype.hasOwnProperty.call(b, 'v4')).toBe(true);
+    expect(Object.hasOwn(b, 'v4')).toBe(true);
     expect(Object.isExtensible(b)).toBe(true);
 
     let keys = [];
@@ -65,7 +65,7 @@ describe('BlockProxy', function () {
     expect(b['@v']).toBe('0');
     expect(b['@notExist']).toBe(undefined);
     expect('v3' in b).toBe(false);
-    expect(Object.prototype.hasOwnProperty.call(b, 'v4')).toBe(true);
+    expect(Object.hasOwn(b, 'v4')).toBe(true);
     expect(Object.isExtensible(b)).toBe(true);
 
     let keys = [];

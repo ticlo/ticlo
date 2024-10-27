@@ -182,7 +182,7 @@ export function mapConfigDesc(configs: (string | PropDesc)[]): PropDesc[] {
   for (let config of configs) {
     if (typeof config === 'object') {
       result.push(config);
-    } else if (configDescs.hasOwnProperty(config)) {
+    } else if (Object.hasOwn(configDescs, config)) {
       result.push(configDescs[config]);
     }
   }
@@ -239,10 +239,10 @@ export function findPropDesc(name: string, cache: {[key: string]: PropDesc}): Pr
     let baseName = name.substring(0, numMatch.index);
     name = `${baseName}0`;
   }
-  if (cache.hasOwnProperty(name)) {
+  if (Object.hasOwn(cache, name)) {
     return cache[name];
   }
-  if (configDescs.hasOwnProperty(name)) {
+  if (Object.hasOwn(configDescs, name)) {
     return configDescs[name];
   }
   return blankPropDesc;

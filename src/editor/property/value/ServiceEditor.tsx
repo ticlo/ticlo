@@ -40,7 +40,7 @@ export class ServiceEditor extends React.PureComponent<Props, State> {
         `#global.^${funcDesc.name}`,
         getSubBlockFuncData(getDefaultFuncData(funcDesc))
       );
-      if (createdBlock && createdBlock.hasOwnProperty('name')) {
+      if (createdBlock && Object.hasOwn(createdBlock, 'name')) {
         onPathChange(`${createdBlock.name}.#output`);
         this.openPopup();
       }

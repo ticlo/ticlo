@@ -83,7 +83,7 @@ function conditionValidator(condition: (root: any) => boolean, validator: Valida
 
 function switchValidator(validator: {[key: string]: ValidatorDynamic}) {
   return (value: string, root: unknown) => {
-    if (validator.hasOwnProperty(value)) {
+    if (Object.hasOwn(validator, value)) {
       return checkDynamic(root, validator[value], root);
     }
     return false;

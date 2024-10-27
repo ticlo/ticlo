@@ -6,7 +6,7 @@ import {DragState} from 'rc-dock';
 export function onDragBlockOver(conn: ClientConn, e: DragState) {
   let blockData = DragState.getData('blockData', conn.getBaseConn());
 
-  if (blockData && blockData.hasOwnProperty('#is')) {
+  if (blockData && Object.hasOwn(blockData, '#is')) {
     e.accept('tico-fas-plus');
   }
 }
@@ -19,7 +19,7 @@ function alignXY(val: number) {
 
 export function onDropBlock(conn: ClientConn, e: DragState, createBlock: CreateBlockCallback, bgElement: HTMLElement) {
   let blockData = DragState.getData('blockData', conn.getBaseConn());
-  if (blockData && blockData.hasOwnProperty('#is')) {
+  if (blockData && Object.hasOwn(blockData, '#is')) {
     let rect = bgElement.getBoundingClientRect();
     let scaleX = bgElement.offsetWidth / Math.round(rect.width);
     let scaleY = bgElement.offsetHeight / Math.round(rect.height);
@@ -31,7 +31,7 @@ export function onDropBlock(conn: ClientConn, e: DragState, createBlock: CreateB
     let onConfirmedBlockName = (name: string) => {
       let width = 143;
       let xyw = [alignXY(offsetX), alignXY(offsetY), width];
-      if (blockData.hasOwnProperty('@b-xyw')) {
+      if (Object.hasOwn(blockData, '@b-xyw')) {
         let dataXyw = blockData['@b-xyw'];
         if (Array.isArray(dataXyw)) {
           width = dataXyw[2];

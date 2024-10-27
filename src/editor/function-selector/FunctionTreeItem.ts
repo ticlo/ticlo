@@ -105,7 +105,7 @@ export class FunctionTreeItem extends TreeItem<FunctionTreeItem> {
     }
   }
   matchKeywords(lng: string, search: string) {
-    if (!this.names.hasOwnProperty(lng)) {
+    if (!Object.hasOwn(this.names, lng)) {
       this.names[lng] = translateFunction(this.desc.id, this.name, this.desc.ns, lng)?.toLowerCase();
       this.keywords[lng] = getKeywords(this.desc.name, this.desc.ns, lng)?.toLowerCase();
     }

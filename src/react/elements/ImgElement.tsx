@@ -40,7 +40,7 @@ class ImgElementFunction extends HtmlElementFunction {
     return 'img';
   }
   checkOptionalProp(field: string): any {
-    if (optional.hasOwnProperty(field)) {
+    if (Object.hasOwn(optional, field)) {
       return this._data.getValue(field);
     }
     return undefined;

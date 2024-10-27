@@ -60,7 +60,7 @@ export class BlockBinding extends PropDispatcher implements PropListener, BlockB
       this._propChanged(val.getProperty(this._field));
     } else {
       this._propChanged(null);
-      if (val?.hasOwnProperty(this._field)) {
+      if (val && typeof val === 'object' && Object.hasOwn(val, this._field)) {
         // drill down into object children
         this.updateValue((val as DataMap)[this._field]);
       } else {

@@ -341,7 +341,7 @@ class ServerConnectionCore extends Connection {
   }
 
   addRequest(id: string, req: ServerRequest) {
-    if (this.requests.hasOwnProperty(id)) {
+    if (Object.hasOwn(this.requests, id)) {
       this.requests[id].close();
     }
     this.requests[id] = req;
@@ -356,7 +356,7 @@ class ServerConnectionCore extends Connection {
       if (typeof request.path === 'string') {
         let result: string | DataMap | ServerRequest = 'invalid command';
         let cmd: string = request.cmd;
-        if (ServerConnection.prototype.hasOwnProperty(cmd)) {
+        if (Object.hasOwn(ServerConnection.prototype, cmd)) {
           let func: Function = (this as any)[cmd];
           if (typeof func === 'function' && func.length === 1 && !cmd.startsWith('on')) {
             result = func.call(this, request);
@@ -393,7 +393,7 @@ class ServerConnectionCore extends Connection {
   }
 
   close(id: string) {
-    if (this.requests.hasOwnProperty(id)) {
+    if (Object.hasOwn(this.requests, id)) {
       this.requests[id].close();
       delete this.requests[id];
     }
@@ -627,7 +627,7 @@ export class ServerConnection extends ServerConnectionCore {
       if (typeof funcId === 'string' && data) {
         (property._value as Block)._load(data);
         let desc = Functions.getDescToSend(funcId)[0];
-        if (desc && desc.recipient && !data.hasOwnProperty(desc.recipient)) {
+        if (desc && desc.recipient && !Object.hasOwn(data, desc.recipient)) {
           // transfer parent property to the recipient
           if (keepSaved !== undefined) {
             (property._value as Block).getProperty(desc.recipient)._liveUpdate(keepSaved);

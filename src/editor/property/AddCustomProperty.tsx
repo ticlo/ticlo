@@ -75,7 +75,7 @@ export class AddCustomPropertyMenu extends LazyUpdateComponent<Props, any> {
           if (max.value != null) {
             if (typeof max.value !== 'number' || max.value !== max.value) {
               errors.set('max', translateEditor('Error'));
-            } else if (result.hasOwnProperty('min') && result.min >= max.value) {
+            } else if (Object.hasOwn(result, 'min') && result.min >= max.value) {
               errors.set('min', translateEditor('Error'));
               errors.set('max', translateEditor('Error'));
             } else {

@@ -89,7 +89,7 @@ export class NumberEditor extends React.PureComponent<ValueEditorProps, any> {
   evalFormula(str: string): number {
     try {
       let converted = str.replace(formulaNameRegx, (str: string) => {
-        if (MathDeg.hasOwnProperty(str)) {
+        if (Object.hasOwn(MathDeg, str)) {
           return `(MathDeg.${str})`;
         }
         throw 1;

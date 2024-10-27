@@ -5,7 +5,7 @@ import {DataMap} from '@ticlo/core/util/DataTypes';
 
 function mergeData(to: DataMap, from: DataMap) {
   for (let key in from) {
-    if (to.hasOwnProperty(key)) {
+    if (Object.hasOwn(to, key)) {
       if (typeof to[key] === 'object') {
         mergeData(to[key] as DataMap, from[key] as DataMap);
       } else {

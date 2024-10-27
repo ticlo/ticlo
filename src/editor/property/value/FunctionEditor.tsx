@@ -43,7 +43,7 @@ export class FunctionEditor extends StringEditorBase {
     let {conn} = this.props;
     let blockData = DragState.getData('block', conn.getBaseConn());
 
-    if (blockData && blockData.hasOwnProperty('#is')) {
+    if (blockData && Object.hasOwn(blockData, '#is')) {
       e.accept('');
     }
   };
@@ -52,7 +52,7 @@ export class FunctionEditor extends StringEditorBase {
     let {conn} = this.props;
     let blockData = DragState.getData('block', conn.getBaseConn());
 
-    if (blockData && blockData.hasOwnProperty('#is')) {
+    if (blockData && Object.hasOwn(blockData, '#is')) {
       this.commitChange(blockData['#is']);
     }
   };

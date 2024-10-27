@@ -181,8 +181,8 @@ export class FieldItem extends DataRendererItem {
       if (!deepEqual(response.cache, this.cache)) {
         this.cache = response.cache;
         if (
-          (change.hasOwnProperty('bindingPath') && this.setBindingPath(response.cache.bindingPath)) ||
-          change.hasOwnProperty('hasListener')
+          (Object.hasOwn(change, 'bindingPath') && this.setBindingPath(response.cache.bindingPath)) ||
+          Object.hasOwn(change, 'hasListener')
         ) {
           this.forceUpdate();
         }

@@ -35,7 +35,7 @@ export function isBaseObject(val: unknown) {
 }
 
 export function isSavedBlock(val: unknown): val is DataMap {
-  return Object.isExtensible(val) && (val.hasOwnProperty('#is') || val.hasOwnProperty('~#is'));
+  return Object.isExtensible(val) && (Object.hasOwn(val as object, '#is') || Object.hasOwn(val as object, '~#is'));
 }
 
 export function isDataTruncated(val: any): boolean {

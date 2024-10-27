@@ -141,16 +141,16 @@ export class SubscribeRequest extends MergedClientRequest {
   onUpdate(response: ValueState): void {
     if (this._disconnectd) {
       // after disconnect, server might not be aware of these changes, fill in them in client side
-      if (this._cache.value !== undefined && !response.hasOwnProperty('value')) {
+      if (this._cache.value !== undefined && !Object.hasOwn(response, 'value')) {
         response.value = undefined;
       }
-      if (this._cache.temp && !response.hasOwnProperty('temp')) {
+      if (this._cache.temp && !Object.hasOwn(response, 'temp')) {
         response.temp = undefined;
       }
-      if (this._cache.bindingPath != null && !response.hasOwnProperty('bindingPath')) {
+      if (this._cache.bindingPath != null && !Object.hasOwn(response, 'bindingPath')) {
         response.bindingPath = null;
       }
-      if (this._cache.hasListener && !response.hasOwnProperty('hasListener')) {
+      if (this._cache.hasListener && !Object.hasOwn(response, 'hasListener')) {
         response.hasListener = false;
       }
       this._cache = {...defaultValueState};
@@ -161,15 +161,15 @@ export class SubscribeRequest extends MergedClientRequest {
     if (response.undefined) {
       response.value = undefined;
     }
-    if (response.hasOwnProperty('value')) {
+    if (Object.hasOwn(response, 'value')) {
       this._cache.value = response.value;
       this._cache.temp = response.temp;
       valueChanged = true;
     }
-    if (response.hasOwnProperty('bindingPath')) {
+    if (Object.hasOwn(response, 'bindingPath')) {
       this._cache.bindingPath = response.bindingPath;
     }
-    if (response.hasOwnProperty('hasListener')) {
+    if (Object.hasOwn(response, 'hasListener')) {
       this._cache.hasListener = response.hasListener;
     }
     this._hasUpdate = true;
@@ -177,7 +177,7 @@ export class SubscribeRequest extends MergedClientRequest {
     if (this._fullCallbackSet.size) {
       if (valueChanged && isDataTruncated(response.value)) {
         this.loadFullValue();
-      } else if (response.hasOwnProperty('value')) {
+      } else if (Object.hasOwn(response, 'value')) {
         this._cachedFullValue = response.value;
         this.updateFullValue();
       }
@@ -309,7 +309,7 @@ export class WatchRequest extends MergedClientRequest {
       let changes = response.changes;
       if (isDataMap(changes)) {
         for (let name in this._cachedMap) {
-          if (!changes.hasOwnProperty(name)) {
+          if (!Object.hasOwn(changes, name)) {
             changes[name] = null;
           } else if (changes[name] === this._cachedMap[name]) {
             delete changes[name];

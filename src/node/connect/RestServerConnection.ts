@@ -8,7 +8,7 @@ export class RestServerConnection extends ServerConnection {
     parseArrowJson(req, res, () => {
       const request = req.body;
       const cmd = request?.cmd as string;
-      if (typeof cmd === 'string' && ServerConnection.prototype.hasOwnProperty(cmd)) {
+      if (typeof cmd === 'string' && Object.hasOwn(ServerConnection.prototype, cmd)) {
         let func: Function = (this as any)[cmd];
         if (typeof func === 'function' && func.length === 1 && !cmd.startsWith('on')) {
           const result = func.call(this, request);
