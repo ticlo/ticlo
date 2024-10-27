@@ -1,14 +1,13 @@
 import Express from 'express';
-import {Root, setStorageFunctionProvider} from '@ticlo/core';
+import {Flow, Root, setStorageFunctionProvider} from '@ticlo/core';
 import {FileFlowStorage, FileStorage} from '@ticlo/node';
 import {connectTiclo, routeTiclo, getEditorUrl} from '@ticlo/web-server';
 import '@ticlo/test';
 import {data} from '../sample-data/data';
+import reactData from '../sample-data/react';
 
 (async () => {
   setStorageFunctionProvider(() => new FileStorage('./example/server/storage', '.str'));
-
-  let flow = Root.instance.addFlow('example', data);
 
   // create some global blocks
   Root.instance._globalRoot.createBlock('^gAdd').setValue('#is', 'add');
@@ -16,8 +15,13 @@ import {data} from '../sample-data/data';
 
   await Root.instance.setStorage(new FileFlowStorage('./example/server/flows'));
 
+  if (!(Root.instance.getValue('example') instanceof Flow)) {
+    console.log('initialize the database');
+    let flow = Root.instance.addFlow('example', data);
+  }
+
   let app = Express();
-  app.all('/*', function (req, res, next) {
+  app.all('/*aPath', function (req, res, next) {
     res.header('Access-Control-Allow-Origin', '*');
     res.header('Access-Control-Allow-Headers', 'content-type');
     next();

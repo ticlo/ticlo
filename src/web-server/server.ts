@@ -25,7 +25,7 @@ export function routeTiclo(app: Express.Application, basePath: string, serverBlo
     globalServiceBlock.getValue('#output') as any
   )?.[requestHandlerSymbol];
   if (requestHandler) {
-    app.all(`${basePath}/*`, (req: Request, res: Response) => {
+    app.all(`${basePath}/*tPath`, (req: Request, res: Response) => {
       requestHandler(basePath, req, res);
     });
   }

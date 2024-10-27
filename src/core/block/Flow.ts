@@ -507,7 +507,7 @@ export class Root extends FlowFolder {
       }
       newFlow.load(data, null, loader.applyChange, loader.onStateChange);
       if (this._storage?.inited && Object.keys(data).length) {
-        this._storage.saveFlow(newFlow, data);
+        newFlow.applyChange();
       }
     } else {
       if (data) {

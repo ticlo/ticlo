@@ -11,7 +11,7 @@ export const WS_FRAME_SIZE = 0x80000;
 
 export const TRUNCATED = '·∙·'; // '\u00b7\u2219\u00b7'
 
-export function isPrimitiveType(val: any) {
+export function isPrimitiveType(val: unknown) {
   if (val == null) {
     return true;
   }
@@ -24,6 +24,14 @@ export function isPrimitiveType(val: any) {
     default:
       return false;
   }
+}
+
+export function isBaseObject(val: unknown) {
+  if (val != null && typeof val === 'object') {
+    const constructor = val.constructor;
+    return constructor === undefined || constructor === Object;
+  }
+  return false;
 }
 
 export function isSavedBlock(val: unknown): val is DataMap {
