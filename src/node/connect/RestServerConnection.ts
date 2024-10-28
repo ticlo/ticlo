@@ -24,10 +24,12 @@ export class RestServerConnection extends ServerConnection {
             res.end();
           }
         }
+      } else {
+        res.status(400).end();
       }
     });
   };
   onHttpGet = (req: Request, res: Response) => {
-    console.log('get', req);
+    console.log('get', req.toString());
   };
 }

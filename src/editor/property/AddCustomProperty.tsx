@@ -34,7 +34,7 @@ export class AddCustomPropertyMenu extends LazyUpdateComponent<Props, any> {
     optionStr: new FormInputItem<string>(this, 'optionStr', translateEditor('Options')),
     showAlpha: new FormItem<boolean>(this, 'showAlpha', translateEditor('Show Alpha'), false),
     showTime: new FormItem<boolean>(this, 'showTime', translateEditor('Show Alpha'), false),
-    pinned: new FormInputItem<boolean>(this, 'pinned', translateEditor('Pinned')),
+    pinned: new FormInputItem<boolean>(this, 'pinned', translateEditor('Pinned'), true),
   };
 
   onSubmit = (e: React.FormEvent<HTMLElement>) => {
