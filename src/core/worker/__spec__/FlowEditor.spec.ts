@@ -1,7 +1,7 @@
 import {expect} from 'vitest';
 import {Flow} from '../../block/Flow';
 import {FlowEditor} from '../FlowEditor';
-import {VoidListeners} from '../../block/spec/TestFunction';
+import {VoidListeners} from '@ticlo/core/block/__spec__/TestFunction';
 import {WorkerFunctionGen} from '../WorkerFunctionGen';
 import {Functions} from '../../block/Functions';
 import {PropDesc, PropGroupDesc} from '../../block/Descriptor';

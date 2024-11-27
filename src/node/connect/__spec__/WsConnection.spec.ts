@@ -1,12 +1,12 @@
 import {expect} from 'vitest';
 import {Root} from '@ticlo/core/block/Flow';
-import {AsyncClientPromise} from '@ticlo/core/connect/spec/AsyncClientPromise';
+import {AsyncClientPromise} from '@ticlo/core/connect/__spec__/AsyncClientPromise';
 import {shouldHappen, shouldReject} from '@ticlo/core/util/test-util';
 import {initEditor} from '@ticlo/editor';
 import {MockWsServer} from './MockWsServer';
 import {WsClientConnection} from '../WsClientConnection';
 import {Logger} from '@ticlo/core/util/Logger';
-import {addTestTypes, removeTestTypes} from '@ticlo/core/connect/spec/BulkTypes';
+import {addTestTypes, removeTestTypes} from '@ticlo/core/connect/__spec__/BulkTypes';
 import {makeLocalConnection} from '@ticlo/core/connect/LocalConnection';
 import {FunctionDesc} from '@ticlo/core/block/Descriptor';
 import {Functions} from '@ticlo/core/block/Functions';

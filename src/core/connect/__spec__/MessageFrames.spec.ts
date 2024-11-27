@@ -2,7 +2,7 @@ import {expect} from 'vitest';
 import {Root} from '../../block/Flow';
 import {makeLocalConnection} from '../LocalConnection';
 import {AsyncClientPromise} from './AsyncClientPromise';
-import {VoidListeners, TestFunctionRunner} from '../../block/spec/TestFunction';
+import {VoidListeners, TestFunctionRunner} from '@ticlo/core/block/__spec__/TestFunction';
 import {FunctionDesc} from '../../block/Descriptor';
 import {shouldHappen} from '../../util/test-util';
 import {JsFunction} from '../../functions/script/Js';

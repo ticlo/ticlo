@@ -2,7 +2,7 @@ import {expect} from 'vitest';
 import {Flow, Root} from '../../../block/Flow';
 import {JsFunction} from '../Js';
 import {Functions} from '../../../block/Functions';
-import {TestLogger} from '../../../util/spec/Logger.spec';
+import {TestLogger} from '@ticlo/core/util/__spec__/Logger.spec';
 import {Logger} from '../../../util/Logger';
 
 describe('Js Type', function () {

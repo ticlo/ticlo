@@ -21,7 +21,7 @@ export class TestLoader extends FileFlowStorage {
     super('.');
     this.timeout = options?.timeout ?? 5000;
     this.onDemandLoad = Boolean(options?.onDemandLoad);
-    this.ignoreFolders = options?.ignoreFolders ?? ['i18n', 'spec'];
+    this.ignoreFolders = options?.ignoreFolders ?? ['i18n'];
     for (let item of map) {
       let path: string;
       let flow: string;
@@ -161,7 +161,7 @@ export class TestLoader extends FileFlowStorage {
         let path = Path.join(dir, file);
         let stat = Fs.statSync(path);
         if (stat.isDirectory()) {
-          if (file !== 'tests' && !this.ignoreFolders.includes(file)) {
+          if (file !== 'tests' && !file.startsWith('__') && !this.ignoreFolders.includes(file)) {
             iterateDir(path, `${blockPath}.${file}`);
           }
         }

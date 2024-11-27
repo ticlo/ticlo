@@ -1,6 +1,6 @@
 import {expect} from 'vitest';
 import {Flow, Root} from '../../block/Flow';
-import {TestFunctionRunner, TestAsyncFunctionPromise} from '../../block/spec/TestFunction';
+import {TestFunctionRunner, TestAsyncFunctionPromise} from '@ticlo/core/block/__spec__/TestFunction';
 import '../../functions/math/Arithmetic';
 import '../MapFunction';
 import {DataMap} from '../../util/DataTypes';

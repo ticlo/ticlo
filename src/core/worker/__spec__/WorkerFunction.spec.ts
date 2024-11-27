@@ -1,7 +1,7 @@
 import {expect} from 'vitest';
 import {Flow, Root} from '../../block/Flow';
 import {WorkerFunctionGen} from '../WorkerFunctionGen';
-import {TestFunctionRunner} from '../../block/spec/TestFunction';
+import {TestFunctionRunner} from '@ticlo/core/block/__spec__/TestFunction';
 import '../../functions/math/Arithmetic';
 import {DataMap} from '../../util/DataTypes';
 

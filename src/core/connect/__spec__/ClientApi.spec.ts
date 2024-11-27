@@ -5,7 +5,7 @@ import {makeLocalConnection} from '../LocalConnection';
 import '../../functions/math/Arithmetic';
 import '../../functions/Categories';
 import {AsyncClientPromise} from './AsyncClientPromise';
-import {VoidListeners, TestFunctionRunner} from '../../block/spec/TestFunction';
+import {VoidListeners, TestFunctionRunner} from '@ticlo/core/block/__spec__/TestFunction';
 import {FunctionDesc} from '../../block/Descriptor';
 import {shouldHappen, shouldReject} from '../../util/test-util';
 import {JsFunction} from '../../functions/script/Js';
