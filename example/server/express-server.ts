@@ -40,5 +40,6 @@ import reactData from '../sample-data/react';
   app.listen(8010, () => {
     console.log('listening on 8010');
     console.log(getEditorUrl('ws://127.0.0.1:8010/ticlo', 'example'));
+    console.log('http://localhost:5173/example/editor/editor.html?host=ws://127.0.0.1:8010/ticlo&flow=example');
   });
 })();

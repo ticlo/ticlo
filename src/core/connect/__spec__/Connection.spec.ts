@@ -25,13 +25,10 @@ describe('Connection', function () {
 
     let [server, client] = makeLocalConnection(Root.instance, false);
 
-    let callbacks = new AsyncClientPromise();
-    client.getValue('Connection0.v', callbacks);
-    let result = await callbacks.promise;
+    let result = await client.getValue('Connection0.v');
     expect(result.value).toEqual(data);
 
     // clean up
-    callbacks.cancel();
     client.destroy();
     Root.instance.deleteValue('Connection0');
   });

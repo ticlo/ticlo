@@ -18,13 +18,6 @@ export class ObjectTree extends LazyUpdateComponent<Props, any> {
 
   loading = false;
   data: any;
-  getValueCallback = {
-    onUpdate: (response: DataMap) => {
-      this.data = response.value;
-      this.loading = false;
-      this.forceUpdate();
-    },
-  };
 
   constructor(props: Props) {
     super(props);
@@ -41,7 +34,11 @@ export class ObjectTree extends LazyUpdateComponent<Props, any> {
     const {conn, path} = this.props;
     if (isDataTruncated(data)) {
       this.loading = true;
-      conn.getValue(path, this.getValueCallback);
+      conn.getValue(path).then((response: DataMap) => {
+        this.data = response.value;
+        this.loading = false;
+        this.forceUpdate();
+      });
     } else {
       this.data = data;
     }

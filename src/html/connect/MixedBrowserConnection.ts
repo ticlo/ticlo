@@ -29,18 +29,21 @@ export class MixedBrowserConnection extends WsBrowserConnection {
     return promise;
   }
 
-  simpleRequest(data: DataMap, c: ClientCallbacks): Promise<any> | string {
+  simpleRequest(data: DataMap): Promise<any>;
+  simpleRequest(data: DataMap, c: ClientCallbacks): string;
+  simpleRequest(data: DataMap, c?: ClientCallbacks): Promise<any> | string {
     const {cmd} = data;
     switch (cmd) {
       // case 'get': {
       //   break;
       // }
+      case 'get':
       case 'set':
-      case 'update':
+      case 'update': {
+        return this._sendLargeData(data, c) ?? '';
+      }
       case 'executeCommand': {
-        if (measureObjSize(data) > WS_FRAME_SIZE) {
-          return this._sendLargeData(data, c) ?? '';
-        }
+        return this._sendLargeData(data, c) ?? '';
       }
     }
     return super.simpleRequest(data, c);

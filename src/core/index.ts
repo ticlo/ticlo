@@ -4,6 +4,7 @@ export {type FlowStorage, type Storage} from './block/Storage';
 export {BlockProperty, BlockIO} from './block/BlockProperty';
 export {BaseFunction, StatefulFunction, PureFunction} from './block/BlockFunction';
 export {Functions} from './block/Functions';
+export * from './block/FunctonData';
 export * from './block/Event';
 export * from './block/Descriptor';
 export {ServerConnection} from './connect/ServerConnection';

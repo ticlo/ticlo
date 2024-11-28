@@ -143,17 +143,15 @@ export class TextEditorPane extends React.PureComponent<Props, State> {
 
   loadData(path: string) {
     let {conn} = this.props;
-    conn.getValue(path, this.valueLoader);
+    conn
+      .getValue(path)
+      .then((response: DataMap) => {
+        this.setState({value: this.convertValue(response.value), loading: false});
+      })
+      .catch((error: string) => {
+        this.setState({value: '', loading: false, error});
+      });
   }
-  valueLoader = {
-    onError: (error: string) => {
-      this.setState({value: '', loading: false, error});
-    },
-    onUpdate: (response: DataMap) => {
-      this.setState({value: this.convertValue(response.value), loading: false});
-    },
-  };
-
   convertValue(value: any): string {
     let {asObject} = this.props;
     if (value === undefined) {

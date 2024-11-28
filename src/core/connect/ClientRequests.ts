@@ -185,15 +185,8 @@ export class SubscribeRequest extends MergedClientRequest {
   }
 
   _fullCallbackSet: Set<ClientCallbacks> = new Set();
-  _getValueReqId: string;
+  _getValuePromise: Promise<any>;
   _cachedFullValue: any;
-  fullValueCallbacks = {
-    onUpdate: (response: DataMap) => {
-      this._getValueReqId = null;
-      this._cachedFullValue = response.value;
-      this.updateFullValue();
-    },
-  };
 
   addFull(callbacks: SubscribeCallbacks) {
     let pendingLoad = this._fullCallbackSet.size === 0;
@@ -223,8 +216,13 @@ export class SubscribeRequest extends MergedClientRequest {
   }
 
   loadFullValue() {
-    if (!this._getValueReqId) {
-      this._getValueReqId = this.conn.getValue(this.path, this.fullValueCallbacks) as string;
+    if (!this._getValuePromise) {
+      this._getValuePromise = this.conn.getValue(this.path);
+      this._getValuePromise.then((response) => {
+        this._getValuePromise = null;
+        this._cachedFullValue = response.value;
+        this.updateFullValue();
+      });
     }
   }
 

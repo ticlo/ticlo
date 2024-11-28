@@ -45,7 +45,7 @@ export function connectTiclo(app: Express.Application, routeTicloPath: string) {
   });
 
   app.post(routeTicloPath, restServer.onHttpPost);
-  app.get(routeTicloPath, restServer.onHttpGet);
+  app.get(`${routeTicloPath}/*path`, restServer.onHttpGetFile);
 }
 
 export function getEditorUrl(host: string, defaultFlow: string) {

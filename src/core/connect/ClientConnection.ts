@@ -118,7 +118,9 @@ export abstract class ClientConnection extends Connection implements ClientConn 
 
     return {promise, callbacks};
   }
-  simpleRequest(data: DataMap, c: ClientCallbacks): Promise<any> | string {
+  simpleRequest(data: DataMap): Promise<any>;
+  simpleRequest(data: DataMap, c: ClientCallbacks): string;
+  simpleRequest(data: DataMap, c?: ClientCallbacks): Promise<any> | string {
     let {promise, callbacks} = this._initSimpleRequest(c);
     let id = this.uid.next();
     data.id = id;
@@ -228,8 +230,8 @@ export abstract class ClientConnection extends Connection implements ClientConn 
     }
   }
 
-  getValue(path: string, callbacks?: ClientCallbacks): Promise<any> | string {
-    return this.simpleRequest({cmd: 'get', path}, callbacks);
+  getValue(path: string): Promise<any> {
+    return this.simpleRequest({cmd: 'get', path});
   }
 
   addBlock(path: string, data?: DataMap, anyName = false, callbacks?: ClientCallbacks): Promise<any> | string {

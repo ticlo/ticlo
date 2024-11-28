@@ -14,10 +14,8 @@ describe('Connection Error', function () {
     flow.createBlock('validChild');
     let [server, client] = makeLocalConnection(Root.instance, false);
 
-    expect(await shouldReject(client.simpleRequest({cmd: 'invalid_command', path: ''}, null) as Promise<any>)).toEqual(
-      'invalid command'
-    );
-    expect(await shouldReject(client.simpleRequest({cmd: 'get'}, null) as Promise<any>)).toBe('invalid path');
+    expect(await shouldReject(client.simpleRequest({cmd: 'invalid_command', path: ''}))).toEqual('invalid command');
+    expect(await shouldReject(client.simpleRequest({cmd: 'get'}))).toBe('invalid path');
 
     expect(await shouldReject(client.setValue('ConnectionError1.a.b.c', 1, true) as Promise<any>)).toEqual(
       'invalid path'

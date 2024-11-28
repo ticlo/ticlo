@@ -29,7 +29,9 @@ export class RestServerConnection extends ServerConnection {
       }
     });
   };
-  onHttpGet = (req: Request, res: Response) => {
-    console.log('get', req.toString());
+
+  onHttpGetFile = (req: Request, res: Response) => {
+    console.log('getfile');
+    res.status(402).end();
   };
 }
