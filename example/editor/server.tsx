@@ -7,6 +7,7 @@ import {Logger} from '@ticlo/core/util/Logger';
 import {WorkerFunctionGen} from '@ticlo/core/worker/WorkerFunctionGen';
 import '../../src/react';
 import {FrameServerConnection} from '@ticlo/html';
+import {IndexDbFlowStorage} from '@ticlo/html/storage/IndexDbStorage';
 
 WorkerFunctionGen.registerType({'#is': ''}, {name: 'class1'}, 'WorkerEditor');
 
@@ -20,6 +21,8 @@ window.addEventListener('beforeunload', () => {
 });
 
 (async () => {
+  await Root.instance.setStorage(new IndexDbFlowStorage());
+
   let reactFlow = Root.instance.addFlow('example');
   reactFlow.load(reactData);
 

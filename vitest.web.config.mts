@@ -8,7 +8,7 @@ export default defineConfig({
   test: {
     isolate: false,
     globals: true,
-    include: ['src/react/**/*.spec.(ts|tsx)'],
+    include: ['src/core/**/*.spec.ts', 'src/html/**/*.spec.ts', 'src/react/**/*.spec.(ts|tsx)'],
     setupFiles: ['src/html/vitest.setup.ts'],
     browser: {
       enabled: true,

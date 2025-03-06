@@ -43,7 +43,7 @@ export class FunctionDispatcher extends PropDispatcher<FunctionClass> {
 const _functions: {[key: string]: FunctionDispatcher} = {};
 let _storage: FlowStorage;
 export class Functions {
-  static add(cls: FunctionClass, desc: FunctionDesc, namespace?: string, functionApi?: FunctionApi) {
+  static add(cls: FunctionClass | null, desc: FunctionDesc, namespace?: string, functionApi?: FunctionApi) {
     if (!desc.properties) {
       // function must have properties
       desc.properties = [];

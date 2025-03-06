@@ -10,6 +10,7 @@ export default defineConfig({
   base: '',
   server: {
     hmr: false,
+    port: 3003,
   },
   build: {
     assetsDir: './',

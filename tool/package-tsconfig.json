@@ -1,7 +1,7 @@
 {
   "compilerOptions": {
     "target": "es2017",
-    "module": "none",
+    "module": "es2020",
     "jsx": "react",
     "moduleResolution": "node",
     "esModuleInterop": true,
@@ -19,8 +19,13 @@
     "newLine": "lf",
     "typeRoots": [
       "../../@types",
-      "../../../@types"
-    ]
+      "../../../@types",
+      "../../node_modules/@types"
+    ],
+    "paths": {
+      "resize-observer-polyfill": ["../../@types/resize-observer-polyfill"],
+      "@ticlo/*": ["../*"]
+    }
   },
   "include": [
     "./**/*"
