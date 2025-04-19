@@ -3,7 +3,7 @@ import {DataMap} from '../util/DataTypes';
 import type {Flow} from './Flow';
 import {deepEqual} from '../util/Compare';
 
-// when an change is applied, need to restore history from the previous saved data
+// when a change is applied, need to restore history from the previous saved data
 const _historyCache = new Map<any, DataMap[]>();
 
 export class FlowHistory {

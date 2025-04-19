@@ -77,7 +77,7 @@ export function decodeDateTime(str: string): any {
   }
 }
 
-export function toDateTime(input: unknown, zone?: string) {
+export function toDateTime(input: unknown, zone?: string): DateTime {
   if (DateTime.isDateTime(input)) {
     return input;
   }

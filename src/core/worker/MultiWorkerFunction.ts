@@ -1,6 +1,6 @@
 import {Functions} from '../block/Functions';
-import {StatefulFunction} from '../block/BlockFunction';
-import {BlockIO, BlockProperty} from '../block/BlockProperty';
+import {BaseFunction, StatefulFunction} from '../block/BlockFunction';
+import {BlockConfig, BlockIO, BlockProperty} from '../block/BlockProperty';
 import {Block, BlockChildWatch} from '../block/Block';
 import {DataMap} from '../util/DataTypes';
 import {Event, EventType} from '../block/Event';
@@ -10,7 +10,7 @@ import {defaultConfigs} from '../block/Descriptor';
 import {FunctionOutput} from '../block/FunctonData';
 import {WorkerControl, type WorkerHost} from './WorkerControl';
 
-class ForEachOutput implements FunctionOutput {
+class MultiWorkerOutput implements FunctionOutput {
   constructor(
     public func: MultiWorkerFunction,
     public key: string
@@ -33,8 +33,8 @@ class ForEachOutput implements FunctionOutput {
   }
 }
 
-export class MultiWorkerFunction extends StatefulFunction implements BlockChildWatch, WorkerHost {
-  readonly workerField = 'use';
+export class MultiWorkerFunction extends BaseFunction<Block> implements BlockChildWatch, WorkerHost {
+  readonly workerField = '#use';
   readonly control: WorkerControl;
 
   _input: any;
@@ -48,15 +48,21 @@ export class MultiWorkerFunction extends StatefulFunction implements BlockChildW
   _outputCache: any;
   _currentOutput: any;
 
-  static inputMap = new Map([
-    ['input', MultiWorkerFunction.prototype._onInputChange],
-    ['use', WorkerControl.onUseChange],
-  ]);
-  getInputMap() {
-    return MultiWorkerFunction.inputMap;
+  initInputs() {
+    this._onInputChange(this._data.getValue('#input'));
+    this.control.onUseChange(this._data.getValue('#use'));
   }
 
-  _onInputChange(val: any): boolean {
+  configChanged(config: BlockConfig, val: unknown): boolean {
+    if (config._name === '#input') {
+      return this._onInputChange(config._value);
+    } else if (config._name === '#use') {
+      return this.control.onUseChange(config._value);
+    }
+    return super.configChanged(config, val);
+  }
+
+  _onInputChange(val: unknown): boolean {
     if (!Object.isExtensible(val)) {
       // validate the input
       val = null;
@@ -196,7 +202,7 @@ export class MultiWorkerFunction extends StatefulFunction implements BlockChildW
 
   _addWorker(key: string, input: any) {
     const {src, saveCallback} = this.control.getSaveParameter();
-    let output = new ForEachOutput(this, key);
+    let output = new MultiWorkerOutput(this, key);
     let child = this._funcBlock.createOutputFlow(RepeaterWorker, key, src, output, saveCallback);
     this._workers.set(key, child);
     child.updateInput(input);
@@ -292,8 +298,8 @@ Functions.add(MultiWorkerFunction, {
   icon: 'fas:list',
   configs: defaultConfigs.concat('#cancel'),
   properties: [
-    {name: 'input', pinned: true, type: 'object'},
-    {name: 'use', type: 'worker', init: ''},
+    {name: '#input', pinned: true, type: 'object'},
+    {name: '#use', type: 'worker', init: ''},
     {name: '#output', pinned: true, type: 'any', readonly: true},
   ],
   category: 'repeat',

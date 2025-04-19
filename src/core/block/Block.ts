@@ -137,6 +137,10 @@ export class Block implements Runnable, FunctionData, PropListener<FunctionClass
     return this._cachedFullPath;
   }
 
+  getName(): string {
+    return this._prop._name;
+  }
+
   onWait(val: unknown) {
     this._waiting = Boolean(val);
   }
