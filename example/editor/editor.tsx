@@ -1,6 +1,6 @@
 import * as React from 'react';
 import {Checkbox, ConfigProvider, Switch} from 'antd';
-import {Block, DataMap, decode, encodeSorted, FunctionDesc, Flow, PropDesc, Root} from '@ticlo/core';
+import {Block, DataMap, decode, encodeSorted, FunctionDesc, Flow, PropDesc, Root, addConsoleLogger} from '@ticlo/core';
 import {TicloI18nSettings} from '@ticlo/core/editor';
 import {makeLocalConnection} from '@ticlo/core/connect/LocalConnection';
 import {data} from '../sample-data/data';
@@ -253,7 +253,7 @@ class App extends React.PureComponent<Props, State> {
 
 (async () => {
   await initEditor();
-  await i18next.init({lng: 'zh'});
+  await i18next.init({lng: 'en'});
   i18next.addResourceBundle('zh', 'ticlo-editor', zhLocal);
   i18next.addResourceBundle('en', 'ticlo-editor', enLocal);
   i18next.addResourceBundle('zh', 'ticlo-core', zhMathLocal);
@@ -268,3 +268,4 @@ class App extends React.PureComponent<Props, State> {
 })();
 
 (window as any).Logger = Logger;
+// addConsoleLogger(Logger.TRACE_AND_ABOVE);

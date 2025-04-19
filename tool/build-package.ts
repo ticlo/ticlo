@@ -20,12 +20,12 @@ function makeDir(path: string) {
   shelljs.mkdir('-p', path);
 }
 
-async function buildPackage(name: string, replaceImport = true) {
-  let fromDir = `./src/${name}`;
+async function buildPackage(name: string) {
+  let fromDir = `src/${name}`;
   console.log(`building ${fromDir}`);
   // build package directly into node_modules, so one package can depend on the other
-  let targetDir = `./node_modules/@ticlo/${name}`;
-
+  let targetDir = `./build/${name}`;
+  console.log(targetDir);
   makeDir(targetDir);
   // copy tsconfig
   shelljs.cp('./tool/package-tsconfig.json', targetDir);
@@ -39,16 +39,13 @@ async function buildPackage(name: string, replaceImport = true) {
   let srcFiles: string[] = glob.sync(`${fromDir}/**/*.{ts,tsx}`, {posix: true});
   let sourceFiles: string[] = [`${targetDir}/tsconfig.json`]; // files to be deleted after compiling
   for (let tsFile of srcFiles) {
-    if (!tsFile.includes('/spec/')) {
+    if (!tsFile.includes('/__spec__/') && !tsFile.includes('/tests/')) {
       let data = fs.readFileSync(tsFile, {encoding: 'utf8'});
 
-      // analyze imports
-      regex.lastIndex = 0;
-      for (let result = regex.exec(data); result; result = regex.exec(data)) {
-        importedPackages.add(result[1]);
-      }
+      // analyze file, and fix file content
+      // TODO, nothing needs to be fixed for now
 
-      // copy file to node_modules/@ticlo
+      // copy file to build
       let newFile = tsFile.replace(fromDir, targetDir);
       sourceFiles.push(newFile);
       makeDir(newFile);
@@ -64,7 +61,7 @@ async function buildPackage(name: string, replaceImport = true) {
     if (!p.startsWith('@ticlo/')) {
       packageJson.dependencies[p] = dependencies[p];
     } else {
-      // delete packageJson.dependencies[p];
+      delete packageJson.dependencies[p];
     }
   }
   fs.writeFileSync(`${targetDir}/package.json`, JSON.stringify(packageJson, null, 2));
@@ -72,7 +69,7 @@ async function buildPackage(name: string, replaceImport = true) {
   // run tsc
   shelljs.pushd('-q', targetDir);
   console.log(`compiling ${targetDir}`);
-  shelljs.exec(normalize('../../.bin/tsc'));
+  shelljs.echo(shelljs.exec(normalize('../../node_modules/.bin/tsc')).stdout);
   shelljs.popd('-q');
 
   // delete ts files
@@ -80,23 +77,24 @@ async function buildPackage(name: string, replaceImport = true) {
 }
 
 async function main() {
-  makeDir('./node_modules/@ticlo');
+  makeDir('build');
   let packageJson = JSON.parse(fs.readFileSync('package.json', {encoding: 'utf8'}));
   version = packageJson.version;
   dependencies = {...packageJson.dependencies, ...packageJson.devDependencies};
 
-  await buildPackage('core', false);
+  await buildPackage('core');
 
   await buildPackage('html');
 
-  await buildPackage('editor');
-  shelljs.cp('./dist/*.css', './node_modules/@ticlo/editor');
-
-  await buildPackage('react');
-
-  await buildPackage('node');
-
-  await buildPackage('express');
+  // await buildPackage('editor');
+  // shelljs.cp('./dist/*.css', './build/editor');
+  //
+  // await buildPackage('react');
+  await buildPackage('react-hooks');
+  //
+  // await buildPackage('node');
+  //
+  // await buildPackage('express');
 }
 
 main();

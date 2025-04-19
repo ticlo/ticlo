@@ -337,7 +337,7 @@ class App extends React.PureComponent<Props, State> {
   addConsoleLogger();
   await initEditor();
 
-  await i18next.init({lng: 'zh'});
+  await i18next.init({lng: 'en'});
   i18next.addResourceBundle('zh', 'ticlo-editor', zhLocal);
   i18next.addResourceBundle('zh', 'ticlo-core', zhMathLocal);
   i18next.addResourceBundle('en', 'ticlo-core', enMathLocal);
