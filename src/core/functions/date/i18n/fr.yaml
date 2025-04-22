@@ -1,0 +1,72 @@
+scheduler:
+  '@name': Programmateur # auto translated from hash: /6rBeUxq
+
+'create-schedule':
+  start:
+    '@name': Commencer # auto translated from hash: phIqZeqm
+  duration:
+    '@name': Durée # auto translated from hash: 4C0q4D3p
+  repeat:
+    '@name': Répéter # auto translated from hash: cCBCbPsK
+    '@options':
+      daily: Quotidien # auto translated from hash: xRK2hUOP
+      weekly: Hebdomadaire # auto translated from hash: bCXmptqV
+      dates: Dattes # auto translated from hash: Xwyj6LN7
+      advanced: Avancé # auto translated from hash: m2VF5M6p
+  months:
+    '@name': Mois # auto translated from hash: 74MaewIG
+    '@options':
+      '@placeholder': Chaque mois # auto translated from hash: PzmbDeam
+      1: Janvier # auto translated from hash: hvWXjZuA
+      2: Février # auto translated from hash: ZZ5Z8GLH
+      3: Mars # auto translated from hash: +j5e2sYH
+      4: Avril # auto translated from hash: P88Ca7//
+      5: Mai # auto translated from hash: GV+7V//n
+      6: Juin # auto translated from hash: aIk3zK8q
+      7: Juillet # auto translated from hash: G1OfbzTo
+      8: Août # auto translated from hash: QbpwiR+2
+      9: Septembre # auto translated from hash: zF2QVp4c
+      10: Octobre # auto translated from hash: 7KYK6GET
+      11: Novembre # auto translated from hash: foI7N1ZN
+      12: Décembre # auto translated from hash: gjMVAxdK
+  years:
+    '@name': Années # auto translated from hash: 5KAEB/Th
+    '@options':
+      '@placeholder': Chaque année # auto translated from hash: WHBFLJWO
+  days:
+    '@name': Jours # auto translated from hash: 6AfTzPjS
+    '@options':
+      '@placeholder': Tous les jours # auto translated from hash: JOmWcZMV
+      '@dayUnit': ''
+      0: Jour # auto translated from hash: A3J6xIWV
+      1: Lundi # auto translated from hash: b4Ui4GEF
+      2: Mardi # auto translated from hash: V5IxXwml
+      3: Mercredi # auto translated from hash: eWwWNYny
+      4: Jeudi # auto translated from hash: eK5vDNGR
+      5: Vendredi # auto translated from hash: wzsTihY4
+      6: Samedi # auto translated from hash: i3BRGHuR
+      7: Dimanche # auto translated from hash: nRoJScOe
+      8: Jour de semaine # auto translated from hash: YbK6EuYg
+      9: En dehors des jours de la semaine # auto translated from hash: 9VH7EIlQ
+      'nth_ranged': -1~Dernier {{d}} ; 0~Tous les {{d}} ; 1~1er {{d}} ; 2~2ème {{d}} ; 3~3ème {{d}} # auto translated from hash: zG5/YrlL
+      'nth_other': "{{count}}ème {{d}}" # auto translated from hash: DnfCilKG
+  dates:
+    '@name': Dattes # auto translated from hash: Xwyj6LN7
+  wDays:
+    '@name': " " # auto translated from hash: chXunH2d
+  range:
+    '@name': Tous les jours entre les deux # auto translated from hash: 8Vka52ge
+  name:
+    '@name': Nom # auto translated from hash: Se4whzSO
+  priority:
+    '@name': Priorité # auto translated from hash: UCmW2XkD
+  after:
+    '@name': Pas avant # auto translated from hash: mtAxUNjY
+  before:
+    '@name': Pas après # auto translated from hash: JgISOD07
+  onlyWeekday:
+    '@name': Uniquement en semaine # auto translated from hash: l2mA8EJ1
+  key:
+    '@name': Clé # auto translated from hash: iXNWlUws
+  color:
+    '@name': Couleur # auto translated from hash: y1/rG3MU

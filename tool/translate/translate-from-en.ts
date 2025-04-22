@@ -22,7 +22,7 @@ async function main() {
     pkg.collectEn();
   }
 
-  for (let lan of ['zh'] /*lanToAntd.keys()*/) {
+  for (let lan of ['zh', 'fr'] /*lanToAntd.keys()*/) {
     let outputs: OutputYamlData[] = [];
     let translateMap = new Map<string, string>();
     for (let pkg of pkgs) {

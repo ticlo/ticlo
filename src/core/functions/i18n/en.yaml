@@ -27,6 +27,8 @@
     '@name': Value
   'config':
     '@name': Config
+  'use':
+    '@name': Use
   '#output':
     '@name': Output
   '#is':
@@ -60,6 +62,10 @@
     '@name': 'Inputs'
   '#outputs':
     '@name': 'Outputs'
+  '#input':
+    '@name': Input
+  '#use':
+    '@name': Use
 
   '@b-name':
     '@name': 'Name'

@@ -1,0 +1,19 @@
+'@namespace':
+  test:
+    '@name': Test # auto translated from hash: DLxmEfVU
+
+assert:
+  '@name': Affirmer # auto translated from hash: 1TD50blP
+  '@keywords': test
+  actual:
+    '@name': "Réel " # auto translated from hash: w2pkry/T
+  expect:
+    '@name': "Attendre " # auto translated from hash: FCVo1dIu
+    '@commands':
+      copyFromActual:
+        '@name': Copier à partir du réel # auto translated from hash: 29YPUdK0
+  matchMode:
+    '@name': Match Mode # auto translated from hash: vB/EagS4
+    '@options':
+      match-once: Match unique # auto translated from hash: bf8CiiVf
+      always-match: Toujours correspondre # auto translated from hash: wq4vzxHA

@@ -1,21 +1,21 @@
 join:
   '@name': 连接
-  '@keywords': 
+  '@keywords': concatenate
 split:
   '@name': 分割
   '@keywords':
 'start-with':
   '@name': 以之开始
-  '@keywords': 
+  '@keywords': starts with
   search:
     '@name': 搜索 # auto translated from hash: EzSEQsxq
 'end-with':
   '@name': 以之结尾
-  '@keywords': 
+  '@keywords': ends with
   search:
     '@name': 搜索 # auto translated from hash: EzSEQsxq
 contain:
   '@name': 包含 # auto translated from hash: DnXv8XdS
-  '@keywords': 
+  '@keywords': include
   search:
     '@name': 搜索 # auto translated from hash: EzSEQsxq

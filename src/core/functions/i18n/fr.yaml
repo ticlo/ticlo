@@ -1,0 +1,77 @@
+'@namespace':
+  math:
+    '@name': Mathématiques # auto translated from hash: pJlQqgR8
+  string:
+    '@name': Corde # auto translated from hash: JxGDJgBt
+  script:
+    '@name': Script # auto translated from hash: +QfmURZH
+  compare:
+    '@name': Comparer # auto translated from hash: fuzlHPOT
+  repeat:
+    '@name': Répéter # auto translated from hash: cCBCbPsK
+  data:
+    '@name': Données # auto translated from hash: 9gaNqinb
+
+'@shared':
+  '':
+    '@name': "Entrée " # auto translated from hash: 6EIpzKWh
+  'input':
+    '@name': Entrée # auto translated from hash: MkEYpnId
+  'separator':
+    '@name': Séparateur # auto translated from hash: BLLkGI1O
+  'regExp':
+    '@name': Exp récente # auto translated from hash: uHt9Bieo
+  'key':
+    '@name': Clé # auto translated from hash: iXNWlUws
+  'value':
+    '@name': Valeur # auto translated from hash: aJICQJ5I
+  'config':
+    '@name': Configurer # auto translated from hash: +lNf+yXh
+  'use':
+    '@name': Utiliser # auto translated from hash: rYeDCJ+C
+  '#output':
+    '@name': Sortie # auto translated from hash: KcLAKjYc
+  '#is':
+    '@name': Fonction # auto translated from hash: hkCFk8NK
+  '#call':
+    '@name': Appeler # auto translated from hash: w3VeYSAq
+  '#mode':
+    '@name': Mode # auto translated from hash: ZQvmGJK/
+    '@options':
+      auto: Auto # auto translated from hash: BrkoHjlt
+      onLoad: Sur charge # auto translated from hash: E7DolRJP
+      onChange: Sur le changement # auto translated from hash: nxXEf16N
+      onCall: Sur appel # auto translated from hash: t6CHEq85
+  '#priority':
+    '@name': Priorité # auto translated from hash: UCmW2XkD
+    '@options':
+      auto: Auto # auto translated from hash: BrkoHjlt
+  '#sync':
+    '@name': Synchroniser # auto translated from hash: sYuWDFen
+  '#disabled':
+    '@name': Handicapé # auto translated from hash: ufXHl+u/
+  '#wait':
+    '@name': Attendre # auto translated from hash: D2gQF3K9
+  '#cancel':
+    '@name': Annuler # auto translated from hash: 6keIcF5o
+  '#value':
+    '@name': Valeur # auto translated from hash: aJICQJ5I
+  '#render':
+    '@name': Rendre # auto translated from hash: XlINpTQf
+  '#inputs':
+    '@name': Entrées # auto translated from hash: 7mEci537
+  '#outputs':
+    '@name': Sorties # auto translated from hash: vzMkxmCA
+  '#input':
+    '@name': Entrée # auto translated from hash: MkEYpnId
+  '#use':
+    '@name': Utiliser # auto translated from hash: rYeDCJ+C
+
+  '@b-name':
+    '@name': Nom # auto translated from hash: Se4whzSO
+  '@b-p':
+    '@name': Liste des propriétés # auto translated from hash: 4f/Njq0y
+  '@b-xyw':
+    '@name': XYW # auto translated from hash: u7aAcUen
+  '@b-widget':
+    '@name': Widget # auto translated from hash: btVioNQ4

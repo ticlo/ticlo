@@ -212,8 +212,10 @@ export class OutputYamlData {
   applyTranslate(map: Map<string, string>) {
     for (let [key, row] of this.toBeTranslated) {
       row.translated = map.get(row.enRow.value);
-      let generatedStr = `${YamlRow.genertedFromHash}${row.enRow.valueHash}`;
-      row.comment = row.comment ? `${row.comment} ${generatedStr}` : `# ${generatedStr}`;
+      if (row.enRow.valueHash) {
+        let generatedStr = `${YamlRow.genertedFromHash}${row.enRow.valueHash}`;
+        row.comment = row.comment ? `${row.comment} ${generatedStr}` : `# ${generatedStr}`;
+      }
     }
     this.writeToYaml();
   }

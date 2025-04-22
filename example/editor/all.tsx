@@ -1,5 +1,5 @@
 import * as React from 'react';
-import {Checkbox, ConfigProvider, Switch} from 'antd';
+import {Checkbox, ConfigProvider, Switch, Radio} from 'antd';
 import {
   Block,
   DataMap,
@@ -49,18 +49,32 @@ import zhReactLocal from '../../i18n/react/zh.json';
 import zhTestLocal from '../../i18n/test/zh.json';
 
 // @ts-ignore
+import enLocal from '../../i18n/editor/en.json';
+// @ts-ignore
 import enMathLocal from '../../i18n/core/en.json';
 // @ts-ignore
 import enReactLocal from '../../i18n/react/en.json';
 // @ts-ignore
 import enTestLocal from '../../i18n/test/en.json';
 
+// @ts-ignore
+import frLocal from '../../i18n/editor/fr.json';
+// @ts-ignore
+import frMathLocal from '../../i18n/core/fr.json';
+// @ts-ignore
+import frReactLocal from '../../i18n/react/fr.json';
+// @ts-ignore
+import frTestLocal from '../../i18n/test/fr.json';
+
 import zhAntd from 'antd/lib/locale/zh_CN';
 import enAntd from 'antd/lib/locale/en_US';
+import frAntd from 'antd/lib/locale/fr_FR';
+import type {Locale} from 'antd/lib/locale-provider';
 import {LocalizedLabel, t} from '@ticlo/editor/component/LocalizedLabel';
 import {IndexDbFlowStorage} from '@ticlo/html/storage/IndexDbStorage';
 import {createRoot} from 'react-dom/client';
 import {SchedulePane} from '@ticlo/editor/dock/schedule/SchedulePane';
+import {RadioChangeEvent} from 'antd/lib/radio/interface';
 
 const layoutGroups = {
   blockStage: {
@@ -72,6 +86,13 @@ const layoutGroups = {
     maximizable: true,
     newWindow: true,
   },
+};
+
+const languages = ['en', 'fr', 'zh'];
+const antdLanMap: Record<string, Locale> = {
+  en: enAntd,
+  fr: frAntd,
+  zh: zhAntd,
 };
 
 interface Props {
@@ -179,16 +200,13 @@ class App extends React.PureComponent<Props, State> {
                     title: 'Test Language',
                     content: (
                       <div style={{margin: 12}}>
-                        <Switch
-                          checkedChildren="zh"
-                          unCheckedChildren="en"
-                          defaultChecked={this.lng === 'zh'}
-                          onChange={
-                            // tslint:disable-next-line:jsx-no-lambda
-                            (checked: boolean) => {
-                              this.switchLan(checked ? 'zh' : 'en');
-                            }
-                          }
+                        <Radio.Group
+                          options={languages}
+                          onChange={this.switchLan}
+                          defaultValue={this.lng}
+                          optionType="button"
+                          buttonStyle="solid"
+                          size="small"
                         />
                         <br />
                         <Checkbox
@@ -197,7 +215,7 @@ class App extends React.PureComponent<Props, State> {
                             // tslint:disable-next-line:jsx-no-lambda
                             (e) => {
                               TicloI18nSettings.shouldTranslateFunction = e.target.checked;
-                              this.switchLan(this.lng);
+                              this.switchLan();
                             }
                           }
                         >
@@ -255,14 +273,14 @@ class App extends React.PureComponent<Props, State> {
     };
   }
 
-  lng: string = 'zh';
+  lng: string = 'en';
   lngConfig = zhAntd;
-  switchLan = (lng: string) => {
-    this.lng = lng;
-    this.lngConfig = lng === 'zh' ? zhAntd : enAntd;
+  switchLan = (e?: RadioChangeEvent) => {
+    this.lng = e?.target.value || this.lng;
+    this.lngConfig = antdLanMap[this.lng];
     // force a reload of the context
-    this.ticloContext = {...this.ticloContext, language: lng};
-    i18next.changeLanguage(lng, this.forceUpdateImmediate);
+    this.ticloContext = {...this.ticloContext, language: this.lng};
+    i18next.changeLanguage(this.lng, this.forceUpdateImmediate);
   };
 
   forceUpdateLambda = () => this.forceUpdate();
@@ -339,12 +357,20 @@ class App extends React.PureComponent<Props, State> {
 
   await i18next.init({lng: 'en'});
   i18next.addResourceBundle('zh', 'ticlo-editor', zhLocal);
+  i18next.addResourceBundle('en', 'ticlo-editor', enLocal);
+  i18next.addResourceBundle('fr', 'ticlo-editor', frLocal);
+
   i18next.addResourceBundle('zh', 'ticlo-core', zhMathLocal);
   i18next.addResourceBundle('en', 'ticlo-core', enMathLocal);
+  i18next.addResourceBundle('fr', 'ticlo-core', frMathLocal);
+
   i18next.addResourceBundle('zh', 'ticlo-react', zhReactLocal);
   i18next.addResourceBundle('en', 'ticlo-react', enReactLocal);
+  i18next.addResourceBundle('fr', 'ticlo-react', frReactLocal);
+
   i18next.addResourceBundle('zh', 'ticlo-test', zhTestLocal);
   i18next.addResourceBundle('en', 'ticlo-test', enTestLocal);
+  i18next.addResourceBundle('fr', 'ticlo-test', frTestLocal);
 
   await Root.instance.setStorage(new IndexDbFlowStorage());
 

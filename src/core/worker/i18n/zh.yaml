@@ -1,6 +1,6 @@
 map:
   '@name': 映射
-  '@keywords': 
+  '@keywords': mapping
   thread:
     '@name': 线程数
   reuseWorker:

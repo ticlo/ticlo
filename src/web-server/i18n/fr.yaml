@@ -1,0 +1,20 @@
+# these functions are defined in core
+# but i18n need to have a top level folder for every namespace
+
+route:
+  server:
+    '@name': Serveur # auto translated from hash: mqGwOTSJ
+  path:
+    '@name': Chemin # auto translated from hash: rHBBLpOd
+  method:
+    '@name': Méthode # auto translated from hash: TDiAuwJ/
+  contentType:
+    '@name': Type de contenu # auto translated from hash: Lv+ljxMV
+
+'static-response':
+  data:
+    '@name': Données # auto translated from hash: 9gaNqinb
+  headers:
+    '@name': En-têtes # auto translated from hash: iD12FcTS
+  status:
+    '@name': Statut # auto translated from hash: 7FOoxPB7

@@ -27,6 +27,8 @@
     '@name': 值
   'config':
     '@name': 配置
+  'use':
+    '@name': 使用
   '#output':
     '@name': 输出 # auto translated from hash: KcLAKjYc
   '#is':
@@ -60,6 +62,10 @@
     '@name': 输入 # auto translated from hash: 7mEci537
   '#outputs':
     '@name': 输出 # auto translated from hash: vzMkxmCA
+  '#input':
+    '@name': 输入
+  '#use':
+    '@name': 使用
 
   '@b-name':
     '@name': 名称

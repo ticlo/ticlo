@@ -4,7 +4,7 @@
 
 assert:
   '@name': 匹配
-  '@keywords': 
+  '@keywords': test
   actual:
     '@name': 实际 # auto translated from hash: w2pkry/T
   expect:

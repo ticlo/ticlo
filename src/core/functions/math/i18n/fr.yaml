@@ -1,0 +1,34 @@
+add:
+  '@name': Ajouter # auto translated from hash: 7CEffCCv
+  '@keywords': plus,addition,+
+subtract:
+  '@name': Soustraire # auto translated from hash: HZuvB37o
+  '@keywords': minus,subtraction,-
+multiply:
+  '@name': Multiplier # auto translated from hash: 4lc3bZE/
+  '@keywords': multiplication,times,*
+divide:
+  '@name': Diviser # auto translated from hash: C5FOGWGC
+  '@keywords': division,/
+
+equal:
+  '@name': Égal # auto translated from hash: 9fKG5zva
+  '@keywords': equals to,=
+'not-equal':
+  '@name': Pas égal # auto translated from hash: ObkbcVwE
+  '@keywords': not equals to,!=
+'greater-than':
+  '@name': Plus grand que # auto translated from hash: cohFT6RC
+  '@keywords': ">"
+'less-than':
+  '@name': Moins de # auto translated from hash: Re0c4EvP
+  '@keywords': <
+'greater-equal':
+  '@name': Supérieur ou égal à # auto translated from hash: lI9/+50e
+  '@keywords': ">="
+'less-equal':
+  '@name': Inférieur ou égal # auto translated from hash: GJzo7CRE
+  '@keywords': <=
+'not':
+  '@name': Non # auto translated from hash: p0wF0IBi
+  '@keywords': "!"

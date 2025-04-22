@@ -1,0 +1,15 @@
+'@namespace':
+  react:
+    '@name': React # no translate
+  'react:elements':
+    '@name': Éléments # auto translated from hash: qlai5l2B
+
+'@shared':
+  '':
+    '@name': "Enfants " # auto translated from hash: 1cSvZNaY
+  style:
+    '@name': Style # auto translated from hash: rihPkA+d
+
+jsx:
+  script:
+    '@name': Script # auto translated from hash: +QfmURZH
