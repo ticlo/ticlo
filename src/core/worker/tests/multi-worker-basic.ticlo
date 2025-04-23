@@ -18,6 +18,30 @@
  ],
  "~actual0": "##.multi-worker.#output"
 },
+"assert1": {
+ "#is": "test:assert",
+ "@b-p": [
+  "actual0",
+  "expect0"
+ ],
+ "@b-xyw": [
+  612,
+  348,
+  324
+ ],
+ "expect0": [
+  {
+   "x": 3
+  },
+  {
+   "x": 4
+  },
+  {
+   "x": 9
+  }
+ ],
+ "~actual0": "##.multi-worker1.#output"
+},
 "multi-worker": {
  "#input": [
   1,
@@ -51,6 +75,90 @@
   60,
   84,
   143
+ ]
+},
+"multi-worker1": {
+ "#input": [
+  {
+   "a": 1,
+   "b": 2
+  },
+  {
+   "a": 1,
+   "b": 3
+  },
+  {
+   "a": 4,
+   "b": 5
+  }
+ ],
+ "#is": "multi-worker",
+ "#use": {
+  "#is": {
+   "#inputs": {
+    "#custom": [
+     {
+      "name": "a",
+      "pinned": true,
+      "type": "number"
+     },
+     {
+      "name": "b",
+      "pinned": true,
+      "type": "number"
+     }
+    ],
+    "#is": "",
+    "@b-p": [
+     "a",
+     "b"
+    ]
+   },
+   "#is": "",
+   "#outputs": {
+    "#custom": [
+     {
+      "name": "x",
+      "pinned": true,
+      "type": "number"
+     }
+    ],
+    "#is": "",
+    "@b-p": [
+     "x"
+    ],
+    "@b-xyw": [
+     394,
+     28,
+     143
+    ],
+    "~x": "##.add.#output"
+   },
+   "add": {
+    "#is": "add",
+    "@b-p": [
+     "0",
+     "1",
+     "#output"
+    ],
+    "@b-xyw": [
+     204,
+     204,
+     143
+    ],
+    "~0": "##.#inputs.a",
+    "~1": "##.#inputs.b"
+   }
+  }
+ },
+ "@b-p": [
+  "#input",
+  "#output"
+ ],
+ "@b-xyw": [
+  60,
+  324,
+  416
  ]
 }
 }
