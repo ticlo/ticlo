@@ -6,7 +6,7 @@ import {DataMap} from '../util/DataTypes';
 import {Event, EventType} from '../block/Event';
 import {RepeaterWorker} from './WorkerFlow';
 import {Resolver} from '../block/Resolver';
-import {defaultConfigs} from '../block/Descriptor';
+import {defaultConfigs, PropDesc, PropGroupDesc} from '../block/Descriptor';
 import {FunctionOutput} from '../block/FunctonData';
 import {WorkerControl, type WorkerHost} from './WorkerControl';
 
@@ -292,15 +292,17 @@ export class MultiWorkerFunction extends BaseFunction<Block> implements BlockChi
   }
 }
 
+export const MultiWorkerFunctionProperties: PropDesc[] = [
+  {name: '#input', pinned: true, type: 'object'},
+  {name: '#use', type: 'worker', init: ''},
+  {name: '#output', pinned: true, type: 'any', readonly: true},
+];
+
 Functions.add(MultiWorkerFunction, {
   name: 'multi-worker',
   priority: 1,
   icon: 'fas:list',
   configs: defaultConfigs.concat('#cancel'),
-  properties: [
-    {name: '#input', pinned: true, type: 'object'},
-    {name: '#use', type: 'worker', init: ''},
-    {name: '#output', pinned: true, type: 'any', readonly: true},
-  ],
+  properties: MultiWorkerFunctionProperties,
   category: 'repeat',
 });

@@ -1,6 +1,13 @@
 import {ReactNode, useEffect, useReducer, useRef, useState} from 'react';
-import {Block, BlockIO} from '@ticlo/core';
+import {Block, BlockIO, smartStrCompare} from '@ticlo/core';
 import {BlockChildWatch} from '@ticlo/core/block/Block';
+import {Values} from '../types/Values';
+import {useBlockProps} from './useBlockProps';
+
+const groupPropMap = {
+  '#children': {value: Values.array, pinned: true},
+  '#output': {value: Values.arrayOptional, pinned: true},
+};
 
 /**
  * Get the list of children blocks from #children config
@@ -8,43 +15,46 @@ import {BlockChildWatch} from '@ticlo/core/block/Block';
  */
 export function useChildren(block: Block): Block[] {
   const [, forceUpdate] = useReducer((x) => -x, 1);
-  const [childrenNames, setChildrenNames] = useState<string[]>([]);
+  const {'#children': children, '#output': output} = useBlockProps(block, groupPropMap);
   useEffect(() => {
-    const listener = {
-      onChange: (value: unknown) => {
-        if (Array.isArray(value)) {
-          setChildrenNames(value);
-        } else {
-          setChildrenNames([]);
-        }
-      },
-      onSourceChange: () => {},
-    };
-    const childrenProp = block.getProperty('#children', true);
-    childrenProp.listen(listener);
-    return () => {
-      childrenProp.unlisten(listener);
-    };
-  }, [block]);
-  useEffect(() => {
-    const listener = {
-      onChildChange: (property) => {
-        if (childrenNames.includes(property._name)) {
-          forceUpdate();
-        }
-      },
-    } as BlockChildWatch;
-    block.watch(listener);
-    return () => {
-      block.unwatch(listener);
-    };
-  }, [block]);
+    if (output) {
+      // repeater mode
+    } else {
+      // inline children
+      const listener = {
+        onChildChange: (property) => {
+          if (children.includes(property._name)) {
+            forceUpdate();
+          }
+        },
+      } as BlockChildWatch;
+      block.watch(listener);
+      return () => {
+        block.unwatch(listener);
+      };
+    }
+  }, [block, output, children]);
+
   let result: Block[] = [];
-  for (const name of childrenNames) {
-    const b = block.getValue(name);
-    if (b instanceof Block) {
-      result.push(b);
+  if (output) {
+    // repeater mode
+    for (const child of output as Record<string, unknown>[]) {
+      const root: unknown = child?.root;
+      if (root instanceof Block) {
+        result.push(root);
+      }
+    }
+  } else {
+    // inline children
+    for (const name of children) {
+      if (typeof name === 'string') {
+        const b = block.getValue(name);
+        if (b instanceof Block) {
+          result.push(b);
+        }
+      }
     }
   }
+
   return result;
 }

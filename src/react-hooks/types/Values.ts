@@ -1,10 +1,11 @@
 import {DateTime} from 'luxon';
 import {toDateTime} from '@ticlo/core/util/DateTime';
-import {Block, FunctionDesc, PropDesc} from '@ticlo/core';
+import {Block, PropDesc} from '@ticlo/core';
 import {getDefaultZone} from '@ticlo/core/util/Settings';
-import {ValueConverter} from './PropType';
 
 type DescOmit = Omit<PropDesc, 'name'>;
+
+const emptyArray: unknown[] = [];
 
 export const Values = {
   number: {
@@ -62,7 +63,17 @@ export const Values = {
     desc: {type: 'number'} as DescOmit,
   },
   select: {
-    convert: (value: unknown, block?: Block, desc?: Partial<FunctionDesc>) => {},
+    convert: (value: unknown, block?: Block, desc?: Partial<PropDesc>): string => {
+      if (typeof value === 'string') {
+        if (desc.options.includes(value)) {
+          return value as string;
+        }
+        if (desc.default !== undefined) {
+          return desc.default as string;
+        }
+      }
+      return undefined;
+    },
     desc: {type: 'select'} as DescOmit,
   },
   date: {
@@ -89,5 +100,38 @@ export const Values = {
       return toDateTime(value, timezone);
     },
     desc: {type: 'date'} as DescOmit,
+  },
+  array: {
+    convert: (value: unknown): unknown[] => {
+      if (Array.isArray(value)) {
+        return value;
+      }
+      return emptyArray;
+    },
+    desc: {type: 'array'} as DescOmit,
+  },
+  arrayOptional: {
+    convert: (value: unknown): unknown[] | undefined => {
+      if (Array.isArray(value)) {
+        return value;
+      }
+      return undefined;
+    },
+    desc: {type: 'array'} as DescOmit,
+  },
+  any: {
+    convert: (value: unknown): unknown => {
+      return value;
+    },
+    desc: {type: 'any'} as DescOmit,
+  },
+  block: {
+    convert: (value: unknown): Block => {
+      if (value instanceof Block) {
+        return value;
+      }
+      return undefined;
+    },
+    desc: {type: 'any'} as DescOmit,
   },
 };

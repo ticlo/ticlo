@@ -885,13 +885,13 @@ export class Block implements Runnable, FunctionData, PropListener<FunctionClass
   }
 
   // iterate all BlockIO with a value, ignores all undefined value
-  forEach(callback: (field: string, prop: BlockIO) => void) {
+  forEach(callback: (field: string, prop: BlockIO, value?: unknown) => void) {
     if (!this._ioCache) {
       this._initIoCache();
     }
     for (let [field, prop] of this._ioCache) {
       if (prop._value !== undefined) {
-        callback(field, prop);
+        callback(field, prop, prop._value);
       }
     }
   }

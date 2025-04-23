@@ -1,7 +1,7 @@
 import {Block, FunctionDesc, PropDesc, ValueType} from '@ticlo/core';
 
 export interface ValueConverter {
-  convert: (value: unknown, block?: Block, type?: Partial<FunctionDesc>) => any;
+  convert: (value: unknown, block?: Block, type?: Partial<PropDesc>) => any;
   desc: Omit<PropDesc, 'name'>;
 }
 
