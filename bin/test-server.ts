@@ -50,6 +50,11 @@ const packagesToTest = ['./src/core', './src/web-server', './src/node'];
   await Root.instance.setStorage(new TestLoader(packagesToTest, {onDemandLoad}));
 
   let app = Express();
+  app.all('/*aPath', function (req, res, next) {
+    res.header('Access-Control-Allow-Origin', '*');
+    res.header('Access-Control-Allow-Headers', 'content-type');
+    next();
+  });
   if (serve) {
     connectTiclo(app, '/ticlo');
   }

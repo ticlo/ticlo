@@ -1,0 +1,56 @@
+{
+"#is": "",
+"assert": {
+ "#is": "test:assert",
+ "@b-p": [
+  "actual0",
+  "expect0"
+ ],
+ "@b-xyw": [
+  276,
+  108,
+  179
+ ],
+ "expect0": [
+  1,
+  2,
+  3
+ ],
+ "~actual0": "##.multi-worker.#output"
+},
+"multi-worker": {
+ "#input": [
+  1,
+  2,
+  3
+ ],
+ "#is": "multi-worker",
+ "#use": {
+  "#is": {
+   "#inputs": {
+    "#is": "",
+    "@b-p": [
+     "#value"
+    ]
+   },
+   "#is": "",
+   "#outputs": {
+    "#is": "",
+    "@b-p": [
+     "#value"
+    ],
+    "~#value": "##.#inputs.#value"
+   }
+  }
+ },
+ "@b-p": [
+  "#input",
+  "#output"
+ ],
+ "@b-xyw": [
+  60,
+  84,
+  143
+ ]
+}
+}
