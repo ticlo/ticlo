@@ -12,15 +12,15 @@ export default defineConfig({
     hmr: false,
     port: 3003,
   },
+  root: './app',
   build: {
+    outDir: '../dist',
     assetsDir: './',
     rollupOptions: {
       input: {
-        'server-and-editor': fileURLToPath(
-          new URL('./example/simple-editor/server-and-editor-browser.html', import.meta.url)
-        ),
-        'editor': fileURLToPath(new URL('./example/simple-editor/editor.html', import.meta.url)),
-        'server': fileURLToPath(new URL('./example/simple-editor/server.html', import.meta.url)),
+        playground: fileURLToPath(new URL('./app/playground.html', import.meta.url)),
+        index: fileURLToPath(new URL('./app/editor.html', import.meta.url)),
+        server: fileURLToPath(new URL('./app/server.html', import.meta.url)),
       },
       output: {
         entryFileNames: `assets/[name].js`,

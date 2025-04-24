@@ -7,13 +7,13 @@ import {data} from '../sample-data/data';
 import reactData from '../sample-data/react';
 
 (async () => {
-  setStorageFunctionProvider(() => new FileStorage('./example/server/storage', '.str'));
+  setStorageFunctionProvider(() => new FileStorage('./app/server/storage', '.str'));
 
   // create some global blocks
   Root.instance._globalRoot.createBlock('^gAdd').setValue('#is', 'add');
   Root.instance._globalRoot.createBlock('^gSub').setValue('#is', 'subtract');
 
-  await Root.instance.setStorage(new FileFlowStorage('./example/server/flows'));
+  await Root.instance.setStorage(new FileFlowStorage('./app/server/flows'));
 
   if (!(Root.instance.getValue('example') instanceof Flow)) {
     console.log('initialize the database');
@@ -40,6 +40,6 @@ import reactData from '../sample-data/react';
   app.listen(8010, () => {
     console.log('listening on 8010');
     console.log(getEditorUrl('ws://127.0.0.1:8010/ticlo', 'example'));
-    console.log('http://localhost:5173/example/editor/editor.html?host=ws://127.0.0.1:8010/ticlo&flow=example');
+    console.log('http://localhost:5173/editor.html?host=ws://127.0.0.1:8010/ticlo&flow=example');
   });
 })();

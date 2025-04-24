@@ -38,8 +38,7 @@
     "bin/**/*",
     "src/**/*",
     "tool/**/*",
-    "example/**/*",
-    "playground/**/*"
+    "app/**/*",
   ],
   "exclude": [
     "node_modules"

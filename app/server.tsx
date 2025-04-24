@@ -1,11 +1,11 @@
 import {Block, FunctionDesc, Root} from '@ticlo/core';
 import {makeLocalConnection} from '@ticlo/core/connect/LocalConnection';
-import {data} from '../sample-data/data';
-import reactData from '../sample-data/react';
+import {data} from './sample-data/data';
+import reactData from './sample-data/react';
 import './sample-blocks';
 import {Logger} from '@ticlo/core/util/Logger';
 import {WorkerFunctionGen} from '@ticlo/core/worker/WorkerFunctionGen';
-import '../../src/react';
+import '../src/react';
 import {FrameServerConnection} from '@ticlo/html';
 import {IndexDbFlowStorage} from '@ticlo/html/storage/IndexDbStorage';
 
@@ -36,7 +36,7 @@ window.addEventListener('beforeunload', () => {
   let [server, client] = makeLocalConnection(Root.instance);
 
   document.querySelector('button').addEventListener('click', () => {
-    let w = window.open('/example/simple-editor/editor.html?flow=example', '_blank');
+    let w = window.open('/app/simple-editor/editor.html?flow=example', '_blank');
     editors.push(w);
     // tslint:disable-next-line:no-unused-expression
     new FrameServerConnection(w, Root.instance);

@@ -3,8 +3,8 @@ import {Checkbox, ConfigProvider, Switch, Radio} from 'antd';
 import {Block, DataMap, decode, encodeSorted, FunctionDesc, Flow, PropDesc, Root, addConsoleLogger} from '@ticlo/core';
 import {TicloI18nSettings} from '@ticlo/core/editor';
 import {makeLocalConnection} from '@ticlo/core/connect/LocalConnection';
-import {data} from '../sample-data/data';
-import reactData from '../sample-data/react';
+import {data} from './sample-data/data';
+import reactData from './sample-data/react';
 import {initEditor, PropertyList, BlockStage, NodeTree} from '@ticlo/editor';
 import {DragDropDiv, DragState, DockLayout, DockContextType} from 'rc-dock';
 import {ClientConnection} from '@ticlo/core/connect/ClientConnection';
@@ -23,31 +23,31 @@ import {FrameClientConnection} from '@ticlo/html/connect/FrameClientConnection';
 import {NodeTreePane} from '@ticlo/editor/dock/node-tree/NodeTreePane';
 import {TextEditorPane} from '@ticlo/editor/dock/text-editor/TextEditorPane';
 
-import '../../src/test';
+import '../src/test';
 import {FunctionSelect} from '@ticlo/editor/function-selector/FunctionSelector';
 
 import i18next from 'i18next';
 
 // @ts-ignore
-import zhLocal from '../../i18n/editor/zh.json';
+import zhLocal from '../i18n/editor/zh.json';
 // @ts-ignore
-import zhMathLocal from '../../i18n/core/zh.json';
+import zhMathLocal from '../i18n/core/zh.json';
 // @ts-ignore
-import zhTestLocal from '../../i18n/test/zh.json';
+import zhTestLocal from '../i18n/test/zh.json';
 
 // @ts-ignore
-import enLocal from '../../i18n/editor/en.json';
+import enLocal from '../i18n/editor/en.json';
 // @ts-ignore
-import enMathLocal from '../../i18n/core/en.json';
+import enMathLocal from '../i18n/core/en.json';
 // @ts-ignore
-import enTestLocal from '../../i18n/test/en.json';
+import enTestLocal from '../i18n/test/en.json';
 
 // @ts-ignore
-import frLocal from '../../i18n/editor/fr.json';
+import frLocal from '../i18n/editor/fr.json';
 // @ts-ignore
-import frMathLocal from '../../i18n/core/fr.json';
+import frMathLocal from '../i18n/core/fr.json';
 // @ts-ignore
-import frTestLocal from '../../i18n/test/fr.json';
+import frTestLocal from '../i18n/test/fr.json';
 
 import zhAntd from 'antd/lib/locale/zh_CN';
 import enAntd from 'antd/lib/locale/en_US';

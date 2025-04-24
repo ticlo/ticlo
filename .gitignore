@@ -11,12 +11,13 @@ build
 /dist
 /src/**/*.js
 /test/**/*.js
-/example/**/*.js
 *.map
 *.jsx
 /tool/**/*.js
 /temp
-/example/**/*.ticlo
+/app/**/*.js
+/app/**/*.ticlo
+/app/*.css
 en.base.yaml
 /i18n/*
 /icons/font-awesome/solid/removed

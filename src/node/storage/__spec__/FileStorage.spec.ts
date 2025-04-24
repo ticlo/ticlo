@@ -5,7 +5,7 @@ import {Flow, Root, decode, FlowFolder} from '@ticlo/core';
 import {shouldHappen, shouldReject, waitTick} from '@ticlo/core/util/test-util';
 import {FileFlowStorage, FileStorage} from '../FileStorage';
 
-const beforeAll = globalThis.beforeAll ?? globalThis.before;
+const beforeAll = globalThis.beforeAll ?? (globalThis as any).before;
 
 describe('FileStorage', function () {
   it('listen to value', async function () {
