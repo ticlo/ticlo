@@ -33,11 +33,10 @@ export function useFilteredBlocks(block: Block, filter?: (block: Block) => boole
 
   // rebuild the cache
   let result: Record<string, Block> = {};
-  block.forEach((field: string, prop: BlockIO) => {
-    const v = prop.getValue();
-    if (v instanceof Block) {
-      if (!filter || filter(v)) {
-        result[field] = v;
+  block.forEach((field: string, value: unknown) => {
+    if (value instanceof Block) {
+      if (!filter || filter(value)) {
+        result[field] = value;
       }
     }
   });

@@ -189,8 +189,8 @@ export class MultiWorkerFunction extends BaseFunction<Block> implements BlockChi
     this._outputCache = {};
     this._currentOutput = {};
     this._watchedInputBlock = block;
-    block.forEach((field: string, prop: BlockIO) => {
-      this._addWorker(field, prop._value);
+    block.forEach((field: string, value: unknown, prop: BlockIO) => {
+      this._addWorker(field, value);
     });
     block.watch(this);
   }

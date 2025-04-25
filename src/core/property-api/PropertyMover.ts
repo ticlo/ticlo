@@ -87,7 +87,7 @@ export class PropertyMover {
       }
       if (property._saved instanceof Block && property._saved.getValue('@b-xyw')) {
         this.syncChildren = [];
-        property._block.forEach((field: string, prop: BlockIO) => {
+        property._block.forEach((field: string, value: unknown, prop: BlockIO) => {
           if (prop !== property && prop._saved instanceof Block && prop._saved.getValue('@b-xyw') === oldName) {
             this.syncChildren.push(prop._saved);
           }

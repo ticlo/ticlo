@@ -101,15 +101,15 @@ export function convertToOutput(val: any, recursive: boolean = false): any {
       return overrideValue;
     }
     let result: any = {};
-    val.forEach((field: string, prop: BlockIO) => {
-      if (recursive && prop._value instanceof Block) {
-        if (prop._saved === prop._value) {
-          result[field] = convertToOutput(prop._value, true);
+    val.forEach((field: string, value: unknown, prop: BlockIO) => {
+      if (recursive && value instanceof Block) {
+        if (prop._saved === value) {
+          result[field] = convertToOutput(value, true);
         } else {
           result[field] = null;
         }
       } else {
-        result[field] = prop._value;
+        result[field] = value;
       }
     });
     return result;

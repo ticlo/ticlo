@@ -35,12 +35,12 @@ export const Values = {
     desc: {type: 'any', types: ['number', 'string']} as DescOmit,
   },
   string: {
-    convert: (value: unknown) => {
+    convert: (value: unknown): string => {
       if (typeof value === 'string') {
         return value;
       }
       if (value == null) {
-        return value;
+        return undefined;
       }
       return String(value);
     },

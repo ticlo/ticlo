@@ -239,9 +239,9 @@ class ServerWatch extends ServerRequest implements BlockChildWatch, PropListener
       changes = this._pendingChanges;
     } else {
       changes = {};
-      this.block.forEach((field: string, prop: BlockIO) => {
+      this.block.forEach((field: string, value: unknown, prop: BlockIO) => {
         if (prop._saved instanceof Block) {
-          changes[field] = (prop._value as Block)._blockId;
+          changes[field] = (value as Block)._blockId;
           this._cached.add(field);
         }
       });

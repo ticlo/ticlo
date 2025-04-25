@@ -45,8 +45,7 @@ export class FlowTestCase extends Flow implements TestsRunner {
   ): boolean {
     let loaded = super.load(src, funcId, applyChange, onStateChange);
     this.results.clear();
-    this.forEach((field: string, prop: BlockIO) => {
-      let value = prop._saved;
+    this.forEach((field: string, value: unknown, prop: BlockIO) => {
       if (value instanceof Block && value.getValue('#is') === 'test:assert') {
         this.results.set(value, TestState.NEW);
       }
@@ -97,8 +96,8 @@ export class FlowTestCase extends Flow implements TestsRunner {
   run() {
     this._queueToRun = false;
     if (!this._timeouted) {
-      let waiting = this.findFirst((field: string, prop: BlockIO) => {
-        if (prop._value instanceof Block && prop._value._waiting) {
+      let waiting = this.findFirst((field: string, value: unknown, prop: BlockIO) => {
+        if (value instanceof Block && value._waiting) {
           // return anything !== undefined is enough
           return true;
         }

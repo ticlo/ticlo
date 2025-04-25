@@ -180,7 +180,7 @@ function renameBlocks(parent: Block, data: DataMap, fields: string[]) {
 
 function collectBlockPositions(parent: Block): Map<number, number[]> {
   let result: Map<number, number[]> = new Map();
-  parent.forEach((key: string, prop) => {
+  parent.forEach((key: string, value: unknown, prop) => {
     if (prop._saved instanceof Block) {
       let xyw = prop._saved.getValue('@b-xyw');
       if (Array.isArray(xyw) && typeof xyw[0] === 'number' && typeof xyw[1] === 'number') {

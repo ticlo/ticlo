@@ -93,9 +93,9 @@ export function queryBlock(block: Block, query: Query | unknown) {
           switch (field.charAt(0)) {
             case '/': // RegExp
               const regex = toRegex(field);
-              block.forEach((name, prop) => {
+              block.forEach((name, value: unknown) => {
                 if (regex.test(name)) {
-                  result[name] = block.getValue(name);
+                  result[name] = value;
                 }
               });
               break;
@@ -115,9 +115,9 @@ export function queryBlock(block: Block, query: Query | unknown) {
         case '/': {
           // RegExp
           const regex = toRegex(key);
-          block.forEach((name, prop) => {
-            if (regex.test(name) && prop._value instanceof Block) {
-              const value = queryBlock(prop._value, query[key]);
+          block.forEach((name, block: unknown) => {
+            if (regex.test(name) && block instanceof Block) {
+              const value = queryBlock(block, query[key]);
               if (value !== undefined) {
                 result[name] = value;
               }

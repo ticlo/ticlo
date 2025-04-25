@@ -78,8 +78,7 @@ export class TestRunner {
         } else {
           let groups: FlowTestGroup[] = [];
           let testcases: FlowTestCase[] = [];
-          target.forEach((field: string, prop: BlockIO) => {
-            let value = prop.getValue();
+          target.forEach((field: string, value: unknown) => {
             if (value instanceof FlowTestCase) {
               testcases.push(value);
             } else if (value instanceof FlowTestGroup) {
