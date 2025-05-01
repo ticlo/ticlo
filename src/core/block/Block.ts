@@ -735,8 +735,13 @@ export class Block implements Runnable, FunctionData, PropListener<FunctionClass
     if (typeof funcId !== 'string') {
       funcId = null;
     }
-    if (this._flow._namespace && (funcId as string)?.startsWith(':')) {
-      funcId = `${this._flow._namespace}${funcId}`;
+    let flowNamespace = this._flow._namespace;
+    if (flowNamespace && typeof funcId === 'string') {
+      if (funcId.startsWith(':')) {
+        funcId = `${this._flow._namespace}${funcId}`;
+      } else if (funcId.includes('@:') && flowNamespace.includes('@')) {
+        funcId = funcId.replace('@', flowNamespace.substring(flowNamespace.indexOf('@')));
+      }
     }
     if (funcId === this._funcId) return;
     this._funcId = funcId as string;
