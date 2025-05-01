@@ -1,12 +1,37 @@
-import {defineConfig} from 'vite';
+import {defineConfig, Plugin} from 'vite';
 import react from '@vitejs/plugin-react';
 import {fileURLToPath} from 'url';
 import {nodePolyfills} from 'vite-plugin-node-polyfills';
 import tsconfigPaths from 'vite-tsconfig-paths';
 
+let checked = false; // shared across both hooks
+
+function checkFiles() {
+  if (checked) {
+    return;
+  }
+  checked = true;
+}
+
+function preProcess(): Plugin {
+  return {
+    name: 'prep-assets-once',
+
+    /** Runs once when you start `vite dev` */
+    async configureServer() {
+      checkFiles();
+    },
+
+    /** Runs once at the very start of `vite build` */
+    async buildStart() {
+      checkFiles();
+    },
+  };
+}
+
 // https://vitejs.dev/config/
 export default defineConfig({
-  plugins: [tsconfigPaths(), react(), nodePolyfills()],
+  plugins: [preProcess(), tsconfigPaths(), react(), nodePolyfills()],
   base: '',
   server: {
     hmr: false,
