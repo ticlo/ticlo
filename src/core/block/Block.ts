@@ -235,8 +235,8 @@ export class Block implements Runnable, FunctionData, PropListener<FunctionClass
         }
       }
     } else if (firstChar === 94) {
-      // ^ global
-      return this.createGlobalProperty(field);
+      // ^ context
+      return this.createContextProperty(field);
     } else if (!create) {
       return null;
     } else {
@@ -266,8 +266,8 @@ export class Block implements Runnable, FunctionData, PropListener<FunctionClass
     }
   }
 
-  createGlobalProperty(name: string): BlockProperty {
-    return this._flow.getGlobalProperty(name);
+  createContextProperty(name: string): BlockProperty {
+    return this._flow.getContextProperty(name);
   }
 
   createBinding(path: string, listener: PropListener<any>): BlockBindingSource {

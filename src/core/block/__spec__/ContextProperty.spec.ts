@@ -4,7 +4,7 @@ import {Flow, Root} from '../Flow';
 import {DataMap} from '../../util/DataTypes';
 import {WorkerFunctionGen} from '../../worker/WorkerFunctionGen';
 
-describe('GlobalProperty', function () {
+describe('ContextProperty', function () {
   it('global from nested flow', function () {
     let globalBlock: Block = Root.instance.getValue('#global') as Block;
     expect(globalBlock).toBeInstanceOf(Block);
@@ -12,13 +12,13 @@ describe('GlobalProperty', function () {
     let flow = new Flow();
     let aBlock = flow.createBlock('a');
 
-    aBlock.setValue('#is', 'GlobalProperty:class1');
+    aBlock.setValue('#is', 'ContextProperty:class1');
 
     let flowData: DataMap = {
       '#is': '',
       '~v': '^top.v',
     };
-    WorkerFunctionGen.registerType(flowData, {name: 'class1'}, 'GlobalProperty');
+    WorkerFunctionGen.registerType(flowData, {name: 'class1'}, 'ContextProperty');
 
     Root.run();
 
@@ -45,11 +45,11 @@ describe('GlobalProperty', function () {
     globalBlock._liveUpdate({}); // clear global object
     expect(impl.getValue('v')).toBe(undefined);
 
-    // global property is in use
+    // context property is in use
     expect(flow._props.has('^top')).toBe(true);
 
     flow.deleteValue('a');
-    // global property is no longer in use
+    // context property is no longer in use
     expect(flow._props.has('^top')).toBe(false);
   });
 });

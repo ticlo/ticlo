@@ -1,5 +1,5 @@
 import {Block, BlockChildWatch, InputsBlock, Runnable} from './Block';
-import {BlockConfig, BlockIO, BlockProperty, GlobalProperty} from './BlockProperty';
+import {BlockConfig, BlockIO, BlockProperty, ContextProperty} from './BlockProperty';
 import {Resolver} from './Resolver';
 import {BlockConstConfig, ConstTypeConfig, FlowConfigGenerators, FlowFolderConfigGenerators} from './BlockConfigs';
 import {Event} from './Event';
@@ -104,13 +104,13 @@ export class Flow extends Block {
     }
   }
 
-  createGlobalProperty(name: string): BlockProperty {
-    let prop = new GlobalProperty(this, name);
+  createContextProperty(name: string): BlockProperty {
+    let prop = new ContextProperty(this, name);
     this._props.set(name, prop);
     return prop;
   }
 
-  getGlobalProperty(name: string): BlockProperty {
+  getContextProperty(name: string): BlockProperty {
     return this.getProperty(name);
   }
 
@@ -333,8 +333,8 @@ class GlobalBlock extends Flow {
       return new BlockConfig(this, field);
     }
   }
-  createGlobalProperty(name: string): BlockProperty {
-    // inside the GlobalBlock, globalProperty is normal property
+  createContextProperty(name: string): BlockProperty {
+    // inside the GlobalBlock, context Property is normal property
     let prop = new BlockIO(this, name);
     this._props.set(name, prop);
     return prop;
@@ -433,11 +433,11 @@ export class Root extends FlowFolder {
     this._globalRoot.load(data, null, applyChange);
   }
 
-  createGlobalProperty(name: string): BlockProperty {
-    return this.getGlobalProperty(name);
+  createContextProperty(name: string): BlockProperty {
+    return this.getContextProperty(name);
   }
 
-  getGlobalProperty(name: string): BlockProperty {
+  getContextProperty(name: string): BlockProperty {
     return this._globalRoot.getProperty(name);
   }
 

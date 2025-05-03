@@ -367,7 +367,7 @@ export class BlockConfig extends BlockProperty {
   }
 }
 
-export class GlobalProperty extends BlockIO {
+export class ContextProperty extends BlockIO {
   constructor(block: Block, name: string) {
     super(block, name);
     this.listenToParentGlobal();
@@ -407,7 +407,7 @@ export class GlobalProperty extends BlockIO {
   }
 
   listenToParentGlobal() {
-    this._listenRaw(this._block._flow._parent._flow.getGlobalProperty(this._name));
+    this._listenRaw(this._block._flow._parent._flow.getContextProperty(this._name));
   }
 }
 
