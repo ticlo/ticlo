@@ -497,8 +497,8 @@ export class ServerConnection extends ServerConnectionCore {
           let fromProp = this.root.queryProperty(fromParts[0], true);
           if (fromProp) {
             let resolvedFrom: string;
-            if (from.startsWith('#global.^')) {
-              resolvedFrom = from.substring(8);
+            if (from.includes('.^')) {
+              resolvedFrom = from.substring(from.indexOf('.^') + 1);
             } else {
               let fromSharedPos = from.lastIndexOf('.#shared.');
               if (bindable === 'shared') {
