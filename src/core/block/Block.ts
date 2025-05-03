@@ -13,7 +13,6 @@ import {Task} from './Task';
 import {_strictMode} from './BlockSettings';
 import type {Flow, Root} from './Flow';
 import {BlockMode} from './Descriptor';
-import {encodeToUnknown} from '../util/Serialize';
 import {FunctionData, FunctionOutput} from './FunctonData';
 import {getMaxFlowDepth} from '../util/Settings';
 import {Logger} from '../util/Logger';
@@ -1014,8 +1013,6 @@ export class Block implements Runnable, FunctionData, PropListener<FunctionClass
     }
   }
 }
-// register the Block for serialization, it can be encoded for display purpose, but not decoded back to a Block
-encodeToUnknown(Block);
 
 export class InputsBlock extends Block {
   _createConfig(field: string): BlockProperty {

@@ -2,7 +2,7 @@ export class EscapedObject {
   constructor(public title: string) {}
 
   toString() {
-    return this.title;
+    return `͢:${this.title}`;
   }
   toJSON() {
     return `͢:${this.title}`;
