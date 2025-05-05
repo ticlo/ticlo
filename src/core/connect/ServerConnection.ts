@@ -490,22 +490,23 @@ export class ServerConnection extends ServerConnectionCore {
           }
         } else {
           let fromParts = from.split('..');
-          let bindable = isBindable(path, fromParts[0]);
+          let fromMain = fromParts[0];
+          let bindable = isBindable(path, fromMain);
           if (!bindable) {
             return 'invalid binding path';
           }
           let fromProp = this.root.queryProperty(fromParts[0], true);
           if (fromProp) {
             let resolvedFrom: string;
-            if (from.includes('.^')) {
-              resolvedFrom = from.substring(from.indexOf('.^') + 1);
+            if (fromMain.includes('.^')) {
+              resolvedFrom = fromMain.substring(fromMain.indexOf('.^') + 1);
             } else {
-              let fromSharedPos = from.lastIndexOf('.#shared.');
+              let fromSharedPos = fromMain.lastIndexOf('.#shared.');
               if (bindable === 'shared') {
-                let sharedPath = from.substring(0, fromSharedPos + 8); // path to #shared
+                let sharedPath = fromMain.substring(0, fromSharedPos + 8); // path to #shared
                 let sharedProp = this.root.queryProperty(sharedPath);
                 if (sharedProp instanceof SharedConfig) {
-                  let afterShared = from.substring(fromSharedPos + 9);
+                  let afterShared = fromMain.substring(fromSharedPos + 9);
                   resolvedFrom = `${propRelative(property._block, sharedProp)}.${afterShared}`;
                 }
               }
