@@ -14,24 +14,28 @@ async function checkFiles() {
   if (checked) {
     return;
   }
+  if (!fs.existsSync('i18n/core/en.json')) {
+    console.log('Building i18n files...');
+    const {stderr} = await execAsync('npm run build-i18n');
+    if (stderr) {
+      console.error(`Error: ${stderr}`);
+    }
+  }
   if (!fs.existsSync('app/editor.css')) {
-    const {stderr} = await exec('npm run build-less');
+    console.log('Building editor css...');
+    const {stderr} = await execAsync('npm run build-less');
     if (stderr) {
       console.error(`Error: ${stderr}`);
     }
   }
   if (!fs.existsSync('app/icons.css')) {
-    const {stderr} = await exec('npm run build-icons');
+    console.log('Building icons...');
+    const {stderr} = await execAsync('npm run build-icons');
     if (stderr) {
       console.error(`Error: ${stderr}`);
     }
   }
-  if (!fs.existsSync('i18n/core/en.json')) {
-    const {stderr} = await exec('npm run build-i18n');
-    if (stderr) {
-      console.error(`Error: ${stderr}`);
-    }
-  }
+
   checked = true;
 }
 
