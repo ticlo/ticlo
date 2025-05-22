@@ -17,9 +17,9 @@ jobs:
       - uses: actions/checkout@v2
       - name: enable corepack
         run: corepack enable
-      - run: yarn install
-      - run: yarn prettier-check
-#      - run: yarn build-package
+      - run: pnpm install
+      - run: pnpm run prettier-check
+#      - run: pnpm run build-package
 
   test-browser:
     runs-on: ubuntu-latest
@@ -30,18 +30,18 @@ jobs:
       - uses: actions/checkout@v2
       - name: enable corepack
         run: corepack enable
-      - run: yarn install
+      - run: pnpm install
       - name: make dir
         run: |
           mkdir coverage
           mkdir dist
-      - run: yarn build-icons
-      - run: yarn build-less
+      - run: pnpm run build-icons
+      - run: pnpm run build-less
       - name: Vitest Browser Build Cache
-        run: yarn test-browser-coverage
+        run: pnpm run test-browser-coverage
         continue-on-error: true
       - name: Vitest Browser
-        run: yarn test-browser-coverage
+        run: pnpm run test-browser-coverage
       - name: Coveralls Vitest Browser
         uses: coverallsapp/github-action@master
         env:
@@ -60,11 +60,11 @@ jobs:
       - uses: actions/checkout@v2
       - name: enable corepack
         run: corepack enable
-      - run: yarn install
+      - run: pnpm install
       - name: make dir
         run: mkdir coverage
       - name: Vitest
-        run: yarn test-coverage
+        run: pnpm run test-coverage
       - name: Coveralls Vitest
         uses: coverallsapp/github-action@master
         env:
@@ -75,7 +75,7 @@ jobs:
           parallel: true
           flag-name: strict
 #      - name: Test Node (Strict)
-#        run: yarn test-nyc-strict
+#        run: pnpm run test-nyc-strict
 #      - name: Coveralls Node Strict
 #        uses: coverallsapp/github-action@master
 #        env:
@@ -86,7 +86,7 @@ jobs:
 #          parallel: true
 #          flag-name: strict
       - name: Test Ticlo
-        run: yarn ticlo-test-nyc
+        run: pnpm run ticlo-test-nyc
       - name: Coveralls Ticlo
         uses: coverallsapp/github-action@master
         env:

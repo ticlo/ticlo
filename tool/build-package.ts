@@ -69,10 +69,7 @@ async function buildPackage(name: string) {
   // run tsc
   shelljs.pushd('-q', targetDir);
   console.log(`compiling ${targetDir}`);
-  // Execute tsc but don't let its potential errors stop the build-package script
-  // We are primarily interested in scaffolding package.json files for all modules.
-  // Actual TS errors in packages will be addressed separately.
-  shelljs.exec(normalize('../../node_modules/.bin/tsc'), { silent: true });
+  shelljs.echo(shelljs.exec(normalize('../../node_modules/.bin/tsc')).stdout);
   shelljs.popd('-q');
 
   // delete ts files
@@ -89,12 +86,15 @@ async function main() {
 
   await buildPackage('html');
 
-  await buildPackage('editor');
+  // await buildPackage('editor');
   // shelljs.cp('./dist/*.css', './build/editor');
-  await buildPackage('react');
+  //
+  // await buildPackage('react');
   await buildPackage('react-hooks');
-  await buildPackage('node');
-  await buildPackage('web-server');
+  //
+  // await buildPackage('node');
+  //
+  // await buildPackage('express');
 }
 
 main();
