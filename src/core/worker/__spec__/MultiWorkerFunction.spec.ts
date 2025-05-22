@@ -21,8 +21,8 @@ describe('MultiWorkerFunction', function () {
     });
     bBlock._load({
       '#is': 'multi-worker',
-      '~#input': '##.a',
-      '#use': {
+      '~input': '##.a',
+      'use': {
         '#is': {
           '#is': '',
           'test': {'#is': 'test-runner', '~#-log': '##.#inputs.v'},
@@ -34,8 +34,8 @@ describe('MultiWorkerFunction', function () {
     });
     cBlock._load({
       '#is': 'multi-worker',
-      '~#input': '##.b.#output',
-      '#use': {
+      '~input': '##.b.#output',
+      'use': {
         '#is': {
           '#is': '',
           'multiply': {'#is': 'multiply', '~0': '##.#inputs.v', '1': 2},
@@ -50,7 +50,7 @@ describe('MultiWorkerFunction', function () {
     expect(bBlock.getValue('#output')).toEqual({obj1: {v: 2}, obj2: {v: 3}, obj3: {v: 4}});
     expect(cBlock.getValue('#output')).toEqual({obj1: {v: 4}, obj2: {v: 6}, obj3: {v: 8}});
 
-    bBlock.updateValue('#use', {
+    bBlock.updateValue('use', {
       '#is': '',
       'test': {'#is': 'test-runner', '~#-log': '##.#inputs.v'},
       'subtract': {'#is': 'subtract', '~0': '##.#inputs.v', '1': 5},
@@ -103,8 +103,8 @@ describe('MultiWorkerFunction', function () {
     flow.updateValue('a', {obj1: {v: 1}, obj2: {v: 2}});
     bBlock._load({
       '#is': 'multi-worker',
-      '~#input': '##.a',
-      '#use': {
+      '~input': '##.a',
+      'use': {
         '#is': {
           '#is': '',
           'add': {'#is': 'add', '~0': '##.#inputs.v', '1': 1},
@@ -138,8 +138,8 @@ describe('MultiWorkerFunction', function () {
     });
     bBlock._load({
       '#is': 'multi-worker',
-      '~#input': '##.a',
-      '#use': {
+      '~input': '##.a',
+      'use': {
         '#is': {
           '#is': '',
           'add': {'#is': 'add', '~0': '##.#inputs.#value', '1': 1},
@@ -173,8 +173,8 @@ describe('MultiWorkerFunction', function () {
     aBlock._load({v1: 1});
     bBlock._load({
       '#is': 'multi-worker',
-      '~#input': '##.a',
-      '#use': {
+      '~input': '##.a',
+      'use': {
         '#is': {
           '#is': '',
           '#inputs': {'#is': ''},
@@ -186,7 +186,7 @@ describe('MultiWorkerFunction', function () {
     Root.run();
     expect(bBlock.getValue('#output')).toEqual({v1: 1});
 
-    bBlock.setValue('#use', null);
+    bBlock.setValue('use', null);
     Root.run();
     expect(bBlock.getValue('#output')).not.toBeDefined();
   });

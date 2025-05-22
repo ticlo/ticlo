@@ -39,7 +39,7 @@ export function useChildren(block: Block): Block[] {
   if (output) {
     // repeater mode
     for (const child of output as Record<string, unknown>[]) {
-      const root: unknown = child?.root;
+      const root: unknown = child?.['#root'];
       if (root instanceof Block) {
         result.push(root);
       }

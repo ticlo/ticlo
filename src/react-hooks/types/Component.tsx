@@ -1,6 +1,9 @@
 import React, {ComponentType, ReactNode} from 'react';
 import {type Block, FunctionDesc, Functions, PropDesc} from '@ticlo/core';
-import {MultiWorkerFunction, MultiWorkerFunctionProperties} from '@ticlo/core/worker/MultiWorkerFunction';
+import {
+  ConditionalWorkersFunction,
+  ConditionalWorkersFunctionProperties,
+} from '@ticlo/core/worker/ConditionalWorkersFunction';
 import {FunctionClass} from '@ticlo/core/block/BlockFunction';
 import {PropMap} from './PropType';
 
@@ -24,13 +27,13 @@ export function registerComponent(
     properties.push({...value.desc, ...rest, name: key});
   }
   let functionClass: FunctionClass | null = null;
-  if (isContainer) {
-    class ContainerFunction extends MultiWorkerFunction {}
-    functionClass = ContainerFunction;
-    for (let p of MultiWorkerFunctionProperties) {
-      properties.push(p);
-    }
-  }
+  // if (isContainer) {
+  //   class ContainerFunction extends ConditionalWorkersFunction {}
+  //   functionClass = ContainerFunction;
+  //   for (let p of ConditionalWorkersFunctionProperties) {
+  //     properties.push(p);
+  //   }
+  // }
 
   Functions.add(
     functionClass,
