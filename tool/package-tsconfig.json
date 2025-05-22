@@ -19,7 +19,6 @@
     "newLine": "lf",
     "typeRoots": [
       "../../@types",
-      "../../../@types",
       "../../node_modules/@types"
     ],
     "paths": {
