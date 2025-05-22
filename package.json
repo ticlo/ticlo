@@ -99,13 +99,12 @@
     "yaml": "^2.5.1"
   },
   "peerDependencies": {
-    "@ticlo/core": "workspace:*",
-    "@ticlo/editor": "workspace:*",
-    "@ticlo/html": "workspace:*",
-    "@ticlo/node": "workspace:*",
-    "@ticlo/react": "workspace:*",
-    "@ticlo/react-hooks": "workspace:*",
-    "@ticlo/express": "workspace:*"
+    "@ticlo/core": ">0.0.0",
+    "@ticlo/editor": ">0.0.0",
+    "@ticlo/html": ">0.0.0",
+    "@ticlo/node": ">0.0.0",
+    "@ticlo/test": ">0.0.0",
+    "@ticlo/web-server": ">0.0.0"
   },
   "scripts": {
     "vite-dev": "vite",
@@ -116,7 +115,7 @@
     "build-icons": " ts-node -r tsconfig-paths/register  tool/build-icons",
     "build-i18n": " ts-node -r tsconfig-paths/register  tool/merge-lng",
     "build-i18n-pre-collect-en": " ts-node -r tsconfig-paths/register  tool/collect-editor-en-locale.ts",
-    "build-package": "node tool/build_temp/build-package.js",
+    "build-package": " ts-node -r tsconfig-paths/register  tool/build-package.ts",
     "test": "cross-env NODE_ENV=TEST vitest",
     "test-coverage": "cross-env NODE_ENV=TEST vitest run --coverage",
     "test-browser": "cross-env NODE_ENV=TEST vitest -c vitest.web.config.mts",
