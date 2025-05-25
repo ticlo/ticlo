@@ -49,9 +49,9 @@
   3
  ],
  "#is": "multi-worker",
- "#use": {
+ "use": {
   "#is": {
-   "#inputs": {
+   "inputs": {
     "#is": "",
     "@b-p": [
      "#value"
@@ -63,7 +63,7 @@
     "@b-p": [
      "#value"
     ],
-    "~#value": "##.#inputs.#value"
+    "~#value": "##.inputs.#value"
    }
   }
  },
@@ -93,9 +93,9 @@
   }
  ],
  "#is": "multi-worker",
- "#use": {
+ "use": {
   "#is": {
-   "#inputs": {
+   "inputs": {
     "#custom": [
      {
       "name": "a",
@@ -146,8 +146,8 @@
      204,
      143
     ],
-    "~0": "##.#inputs.a",
-    "~1": "##.#inputs.b"
+    "~0": "##.inputs.a",
+    "~1": "##.inputs.b"
    }
   }
  },
