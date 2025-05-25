@@ -299,7 +299,7 @@ export const ConditionalWorkersFunctionProperties: PropDesc[] = [
 ];
 
 Functions.add(ConditionalWorkersFunction, {
-  name: 'multi-worker',
+  name: 'conditional-worker',
   priority: 1,
   icon: 'fas:list',
   configs: defaultConfigs.concat('#cancel'),

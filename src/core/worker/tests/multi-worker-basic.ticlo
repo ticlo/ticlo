@@ -43,7 +43,7 @@
  "~actual0": "##.multi-worker1.#output"
 },
 "multi-worker": {
- "#input": [
+ "input": [
   1,
   2,
   3
@@ -51,7 +51,7 @@
  "#is": "multi-worker",
  "use": {
   "#is": {
-   "inputs": {
+   "#inputs": {
     "#is": "",
     "@b-p": [
      "#value"
@@ -63,12 +63,12 @@
     "@b-p": [
      "#value"
     ],
-    "~#value": "##.inputs.#value"
+    "~#value": "##.#inputs.#value"
    }
   }
  },
  "@b-p": [
-  "#input",
+  "input",
   "#output"
  ],
  "@b-xyw": [
@@ -78,7 +78,7 @@
  ]
 },
 "multi-worker1": {
- "#input": [
+ "input": [
   {
    "a": 1,
    "b": 2
@@ -95,7 +95,7 @@
  "#is": "multi-worker",
  "use": {
   "#is": {
-   "inputs": {
+   "#inputs": {
     "#custom": [
      {
       "name": "a",
@@ -146,13 +146,13 @@
      204,
      143
     ],
-    "~0": "##.inputs.a",
-    "~1": "##.inputs.b"
+    "~0": "##.#inputs.a",
+    "~1": "##.#inputs.b"
    }
   }
  },
  "@b-p": [
-  "#input",
+  "input",
   "#output"
  ],
  "@b-xyw": [
