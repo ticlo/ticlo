@@ -3,4 +3,4 @@ export {useChildren} from './hooks/useChildren';
 export {useFilteredBlocks} from './hooks/useFilteredBlocks';
 export {useWatchBlock} from './hooks/useWatchBlock';
 export {Values} from './types/Values';
-export {registerComponent, findComponent, renderComponent, renderChildren} from './types/Component';
+export {registerComponent, findComponent, renderChildren, TicloFuncComp, isContainerFunction} from './types/Component';
