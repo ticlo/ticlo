@@ -1,18 +1,18 @@
 import {Functions} from '../block/Functions';
-import {StatefulFunction} from '../block/BlockFunction';
-import {BlockIO, BlockProperty} from '../block/BlockProperty';
+import {BaseFunction, StatefulFunction} from '../block/BlockFunction';
+import {BlockConfig, BlockIO, BlockProperty} from '../block/BlockProperty';
 import {Block, BlockChildWatch} from '../block/Block';
 import {DataMap} from '../util/DataTypes';
 import {Event, EventType} from '../block/Event';
 import {RepeaterWorker} from './WorkerFlow';
 import {Resolver} from '../block/Resolver';
-import {defaultConfigs} from '../block/Descriptor';
+import {defaultConfigs, PropDesc, PropGroupDesc} from '../block/Descriptor';
 import {FunctionOutput} from '../block/FunctonData';
 import {WorkerControl, type WorkerHost} from './WorkerControl';
 
-class MultiWorkerOutput implements FunctionOutput {
+class ConditionalWorkersOutput implements FunctionOutput {
   constructor(
-    public func: MultiWorkerFunction,
+    public func: ConditionalWorkersFunction,
     public key: string
   ) {}
 
@@ -33,8 +33,8 @@ class MultiWorkerOutput implements FunctionOutput {
   }
 }
 
-export class MultiWorkerFunction extends StatefulFunction implements BlockChildWatch, WorkerHost {
-  readonly workerField = 'use';
+export class ConditionalWorkersFunction extends BaseFunction<Block> implements BlockChildWatch, WorkerHost {
+  readonly workerField = '#use';
   readonly control: WorkerControl;
 
   _input: any;
@@ -48,15 +48,21 @@ export class MultiWorkerFunction extends StatefulFunction implements BlockChildW
   _outputCache: any;
   _currentOutput: any;
 
-  static inputMap = new Map([
-    ['input', MultiWorkerFunction.prototype._onInputChange],
-    ['use', WorkerControl.onUseChange],
-  ]);
-  getInputMap() {
-    return MultiWorkerFunction.inputMap;
+  initInputs() {
+    this._onInputChange(this._data.getValue('#input'));
+    this.control.onUseChange(this._data.getValue('#use'));
   }
 
-  _onInputChange(val: any): boolean {
+  configChanged(config: BlockConfig, val: unknown): boolean {
+    if (config._name === '#input') {
+      return this._onInputChange(config._value);
+    } else if (config._name === '#use') {
+      return this.control.onUseChange(config._value);
+    }
+    return super.configChanged(config, val);
+  }
+
+  _onInputChange(val: unknown): boolean {
     if (!Object.isExtensible(val)) {
       // validate the input
       val = null;
@@ -196,7 +202,7 @@ export class MultiWorkerFunction extends StatefulFunction implements BlockChildW
 
   _addWorker(key: string, input: any) {
     const {src, saveCallback} = this.control.getSaveParameter();
-    let output = new MultiWorkerOutput(this, key);
+    let output = new ConditionalWorkersOutput(this, key);
     let child = this._funcBlock.createOutputFlow(RepeaterWorker, key, src, output, saveCallback);
     this._workers.set(key, child);
     child.updateInput(input);
@@ -286,15 +292,17 @@ export class MultiWorkerFunction extends StatefulFunction implements BlockChildW
   }
 }
 
-Functions.add(MultiWorkerFunction, {
-  name: 'multi-worker',
+export const ConditionalWorkersFunctionProperties: PropDesc[] = [
+  {name: '#input', pinned: true, type: 'object'},
+  {name: '#use', type: 'worker', init: ''},
+  {name: '#output', pinned: true, type: 'any', readonly: true},
+];
+
+Functions.add(ConditionalWorkersFunction, {
+  name: 'conditional-worker',
   priority: 1,
   icon: 'fas:list',
   configs: defaultConfigs.concat('#cancel'),
-  properties: [
-    {name: 'input', pinned: true, type: 'object'},
-    {name: 'use', type: 'worker', init: ''},
-    {name: '#output', pinned: true, type: 'any', readonly: true},
-  ],
+  properties: ConditionalWorkersFunctionProperties,
   category: 'repeat',
 });

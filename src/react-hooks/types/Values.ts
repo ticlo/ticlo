@@ -111,11 +111,11 @@ export const Values = {
     desc: {type: 'array'} as DescOmit,
   },
   arrayOptional: {
-    convert: (value: unknown): unknown[] | undefined => {
+    convert: (value: unknown): unknown[] | null => {
       if (Array.isArray(value)) {
         return value;
       }
-      return undefined;
+      return null;
     },
     desc: {type: 'array'} as DescOmit,
   },

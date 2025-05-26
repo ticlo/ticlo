@@ -12,7 +12,7 @@ export class CssRules {
     let adoptedStyleSheets = (document as any).adoptedStyleSheets as any[];
     let idx = adoptedStyleSheets.indexOf(this.sheet);
     if (idx > -1) {
-      (document as any).adoptedStyleSheets = adoptedStyleSheets.splice(idx, 1);
+      (document as any).adoptedStyleSheets = adoptedStyleSheets.toSpliced(idx, 1);
     }
   }
 }

@@ -43,13 +43,13 @@
  "~actual0": "##.multi-worker1.#output"
 },
 "multi-worker": {
- "#input": [
+ "input": [
   1,
   2,
   3
  ],
  "#is": "multi-worker",
- "#use": {
+ "use": {
   "#is": {
    "#inputs": {
     "#is": "",
@@ -68,7 +68,7 @@
   }
  },
  "@b-p": [
-  "#input",
+  "input",
   "#output"
  ],
  "@b-xyw": [
@@ -78,7 +78,7 @@
  ]
 },
 "multi-worker1": {
- "#input": [
+ "input": [
   {
    "a": 1,
    "b": 2
@@ -93,7 +93,7 @@
   }
  ],
  "#is": "multi-worker",
- "#use": {
+ "use": {
   "#is": {
    "#inputs": {
     "#custom": [
@@ -152,7 +152,7 @@
   }
  },
  "@b-p": [
-  "#input",
+  "input",
   "#output"
  ],
  "@b-xyw": [
