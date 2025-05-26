@@ -7,7 +7,6 @@ on:
       - ghaction
 
 env:
-  YARN_IGNORE_NODE: 1
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE20: true
 
 jobs:
