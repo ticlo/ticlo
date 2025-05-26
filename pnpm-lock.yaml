@@ -134,7 +134,7 @@ importers:
         version: 4.23.12(@babel/runtime@7.27.1)(@codemirror/autocomplete@6.18.6)(@codemirror/language@6.11.0)(@codemirror/lint@6.8.5)(@codemirror/search@6.5.11)(@codemirror/state@6.5.2)(@codemirror/theme-one-dark@6.1.2)(@codemirror/view@6.36.8)(codemirror@6.0.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@vitejs/plugin-react':
         specifier: ^4.2.1
-        version: 4.4.1(vite@5.4.19(@types/node@20.17.50)(less@4.3.0))
+        version: 4.5.0(vite@5.4.19(@types/node@20.17.50)(less@4.3.0))
       '@vitest/browser':
         specifier: ^1.6.1
         version: 1.6.1(vitest@1.6.1)(webdriverio@8.44.1)
@@ -270,48 +270,6 @@ importers:
       yaml:
         specifier: ^2.5.1
         version: 2.8.0
-
-  build/core:
-    dependencies:
-      arrow-code:
-        specifier: ^0.3.0
-        version: 0.3.0
-      axios:
-        specifier: ^1.8.1
-        version: 1.9.0
-      denque:
-        specifier: ^2.1.0
-        version: 2.1.0
-      lodash:
-        specifier: ^4.17.21
-        version: 4.17.21
-      luxon:
-        specifier: ^3.5.0
-        version: 3.6.1
-      qs:
-        specifier: ^6.14.0
-        version: 6.14.0
-
-  build/html:
-    dependencies:
-      '@ticlo/core':
-        specifier: '>=0.0.2'
-        version: 0.0.6
-      idb:
-        specifier: ^7.0.0
-        version: 7.1.1
-
-  build/react-hooks:
-    dependencies:
-      '@ticlo/core':
-        specifier: '>=0.0.2'
-        version: 0.0.6
-      react:
-        specifier: '>=16.0.0'
-        version: 18.3.1
-      react-dom:
-        specifier: '>=16.0.0'
-        version: 18.3.1(react@18.3.1)
 
 packages:
 
@@ -1306,6 +1264,9 @@ packages:
     peerDependencies:
       react: '>=16.8.0'
 
+  '@rolldown/pluginutils@1.0.0-beta.9':
+    resolution: {integrity: sha512-e9MeMtVWo186sgvFFJOPGy7/d2j2mZhLJIdVW0C/xDluuOvymEATqz6zKsP0ZmXGzQtqlyjz5sC1sYQUoJG98w==}
+
   '@rollup/plugin-inject@5.0.5':
     resolution: {integrity: sha512-2+DEJbNBoPROPkgTDNe8/1YXWcqxbN5DTjASVIOx8HS+pITXushyNiBV56RB08zuptzz8gT3YfkqriTBVycepg==}
     engines: {node: '>=14.0.0'}
@@ -1620,8 +1581,8 @@ packages:
       react: '>=16.8.0'
       react-dom: '>=16.8.0'
 
-  '@vitejs/plugin-react@4.4.1':
-    resolution: {integrity: sha512-IpEm5ZmeXAP/osiBXVVP5KjFMzbWOonMs0NaQQl+xYnUAcq4oHUBsF2+p4MgKWG4YMmFYJU8A6sxRPuowllm6w==}
+  '@vitejs/plugin-react@4.5.0':
+    resolution: {integrity: sha512-JuLWaEqypaJmOJPLWwO335Ig6jSgC1FTONCWAxnqcQthLTK/Yc9aH6hr9z/87xciejbQcnP3GnA1FWUSWeXaeg==}
     engines: {node: ^14.18.0 || >=16.0.0}
     peerDependencies:
       vite: ^4.2.0 || ^5.0.0 || ^6.0.0
@@ -5967,6 +5928,8 @@ snapshots:
       dequal: 2.0.3
       react: 18.3.1
 
+  '@rolldown/pluginutils@1.0.0-beta.9': {}
+
   '@rollup/plugin-inject@5.0.5(rollup@4.41.0)':
     dependencies:
       '@rollup/pluginutils': 5.1.4(rollup@4.41.0)
@@ -6308,11 +6271,12 @@ snapshots:
       - '@codemirror/lint'
       - '@codemirror/search'
 
-  '@vitejs/plugin-react@4.4.1(vite@5.4.19(@types/node@20.17.50)(less@4.3.0))':
+  '@vitejs/plugin-react@4.5.0(vite@5.4.19(@types/node@20.17.50)(less@4.3.0))':
     dependencies:
       '@babel/core': 7.27.1
       '@babel/plugin-transform-react-jsx-self': 7.27.1(@babel/core@7.27.1)
       '@babel/plugin-transform-react-jsx-source': 7.27.1(@babel/core@7.27.1)
+      '@rolldown/pluginutils': 1.0.0-beta.9
       '@types/babel__core': 7.20.5
       react-refresh: 0.17.0
       vite: 5.4.19(@types/node@20.17.50)(less@4.3.0)
