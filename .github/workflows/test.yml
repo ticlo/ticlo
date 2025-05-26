@@ -42,7 +42,7 @@ jobs:
       - name: Vitest Browser
         run: pnpm run test-browser-coverage
       - name: Coveralls Vitest Browser
-        uses: coverallsapp/github-action@master
+        uses: coverallsapp/github-action@v2
         env:
           NODE_COVERALLS_DEBUG: 1
         with:
@@ -65,7 +65,7 @@ jobs:
       - name: Vitest
         run: pnpm run test-coverage
       - name: Coveralls Vitest
-        uses: coverallsapp/github-action@master
+        uses: coverallsapp/github-action@v2
         env:
           NODE_COVERALLS_DEBUG: 1
         with:
@@ -76,7 +76,7 @@ jobs:
 #      - name: Test Node (Strict)
 #        run: pnpm run test-nyc-strict
 #      - name: Coveralls Node Strict
-#        uses: coverallsapp/github-action@master
+#        uses: coverallsapp/github-action@v2
 #        env:
 #          NODE_COVERALLS_DEBUG: 1
 #        with:
@@ -87,7 +87,7 @@ jobs:
       - name: Test Ticlo
         run: pnpm run ticlo-test-nyc
       - name: Coveralls Ticlo
-        uses: coverallsapp/github-action@master
+        uses: coverallsapp/github-action@v2
         env:
           NODE_COVERALLS_DEBUG: 1
         with:
@@ -101,7 +101,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Coveralls Finished
-        uses: coverallsapp/github-action@master
+        uses: coverallsapp/github-action@v2
         with:
           github-token: ${{ secrets.github_token }}
           parallel-finished: true
