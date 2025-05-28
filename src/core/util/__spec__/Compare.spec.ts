@@ -1,4 +1,3 @@
-import {expect} from 'vitest';
 import {arrayEqual, deepEqual, shallowEqual} from '../Compare';
 
 describe('Compare', function () {
@@ -28,6 +27,33 @@ describe('Compare', function () {
     expect(deepEqual({a: 1}, {a: 2})).toBe(false);
     expect(deepEqual({a: 1, b: 1}, {a: 1})).toBe(false);
     expect(deepEqual({a: 1}, {a: 1, b: undefined})).toBe(false);
+  });
+
+  it('deepEqual on circular ref', function () {
+    // Test circular references
+    const obj1: any = {};
+    obj1.self = obj1;
+    const obj2: any = {};
+    obj2.self = obj2;
+    expect(deepEqual(obj1, obj2)).toBe(true);
+
+    const obj3: any = {};
+    const obj4: any = {};
+    obj3.other = obj4;
+    obj4.other = obj3;
+    const obj5: any = {};
+    const obj6: any = {};
+    obj5.other = obj6;
+    obj6.other = obj5;
+    expect(deepEqual(obj3, obj5)).toBe(true);
+
+    const obj7: any = {};
+    obj7.other = obj7;
+    expect(deepEqual(obj7, obj3)).toBe(false);
+
+    // Since we cache with left side as key, both obj3 and obj4 equal to obj7, so the result would be true.
+    // This is probably not the desired behavior, but the goal is to prevent dead loop, not to 100% understand graph hierarchy.
+    expect(deepEqual(obj3, obj7)).toBe(true);
   });
 
   it('shallowEqual', function () {

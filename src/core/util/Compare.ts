@@ -17,7 +17,7 @@ const isArray = Array.isArray;
 const keyList = Object.keys;
 
 // used to check of something has changed. so NaN should equal to NaN and invalid date should equal to invalid date
-export function deepEqual(a: any, b: any) {
+function _deepEqual(a: any, b: any, map: Map<unknown, unknown>) {
   if (Object.is(a, b)) {
     return true;
   }
@@ -28,12 +28,16 @@ export function deepEqual(a: any, b: any) {
     if (Cls !== Clsb) {
       return false;
     }
+    if (map.has(a)) {
+      return map.get(a) === b;
+    }
+    map.set(a, b);
 
     if (isArray(a)) {
       let length = a.length;
       if (length !== b.length) return false;
       for (let i = length - 1; i >= 0; --i) {
-        if (!deepEqual(a[i], b[i])) return false;
+        if (!_deepEqual(a[i], b[i], map)) return false;
       }
       return true;
     }
@@ -46,7 +50,7 @@ export function deepEqual(a: any, b: any) {
         }
 
         for (let key of keys) {
-          if (!deepEqual(a[key], b[key])) {
+          if (!_deepEqual(a[key], b[key], map)) {
             return false;
           }
         }
@@ -73,7 +77,9 @@ export function deepEqual(a: any, b: any) {
   }
   return false;
 }
-
+export function deepEqual(a: any, b: any) {
+  return _deepEqual(a, b, new Map<unknown, unknown>());
+}
 export function isValueEqual(a: any, b: any) {
   if (Object.is(a, b)) {
     return true;
