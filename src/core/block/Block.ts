@@ -220,6 +220,9 @@ export class Block implements Runnable, FunctionData, PropListener<FunctionClass
         case '###':
           prop = new BlockConstConfig(this, field, this._flow);
           break;
+        case '#lib':
+          prop = new BlockLibConfig(this, field, this._flow._namespace);
+          break;
         case '#':
           prop = new BlockConstConfig(this, field, this);
           break;

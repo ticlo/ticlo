@@ -11,6 +11,7 @@ import {FlowHistory} from './FlowHistory';
 import {GlobalConfigGenerators, SettingsBlock} from './SettingsBlock';
 import {updateGlobalSettings} from '../util/Settings';
 import {FunctionOutput} from './FunctonData';
+import {Namespace} from './Namespace';
 
 export enum FlowState {
   enabled,
@@ -153,12 +154,16 @@ export class Flow extends Block {
   _applyChange: (data: DataMap) => boolean;
   _onStateChange: (flow: Flow, state: FlowState) => void;
 
+  _loaded: boolean;
   load(
     src: DataMap,
     funcId?: string,
     applyChange?: (data: DataMap) => boolean,
     onStateChange?: (flow: Flow, state: FlowState) => void
   ): boolean {
+    if (this._loaded) {
+      throw new Error('can not load flow twice');
+    }
     this._loading = true;
     let loaded = false;
     if (funcId) {
@@ -194,6 +199,7 @@ export class Flow extends Block {
     if (loaded) {
       this._applyChange = applyChange;
       this._onStateChange = onStateChange;
+      this._loaded = true;
     }
     this._loading = false;
     return loaded;

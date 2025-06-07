@@ -1,6 +1,7 @@
 import {BlockConfig, BlockIO, BlockProperty} from './BlockProperty';
 import {Block, InputsBlock, OutputsBlock} from './Block';
 import type {Flow} from './Flow';
+import {Namespace} from '@ticlo/core/block/Namespace';
 
 class BlockFuncIdConfig extends BlockProperty {
   constructor(block: Block, name: string) {
@@ -147,6 +148,14 @@ export class BlockConstConfig extends BlockProperty {
   //     this.destroy();
   //   }
   // }
+}
+
+export class BlockLibConfig extends BlockConstConfig {
+  _ns: string;
+  constructor(block: Block, name: string, ns: string) {
+    super(block, name);
+    Namespace.bind(this, ns);
+  }
 }
 
 export function ConstTypeConfig(type: string): typeof BlockProperty {

@@ -23,6 +23,10 @@
 
 # CalendarEventEditor.tsx & OptionalPropertyList.tsx
 "Optional": "Optional"
+# WorkerEditor.tsx & FunctionSelector.tsx
+"Subflow": "Subflow"
+# WorkerEditor.tsx & FunctionSelector.tsx
+"Inline": "Inline"
 # PropertyDropdown.tsx & BlockDropdown.tsx
 "Execute Command": "Execute Command"
 # AddNewFlowDialog.tsx & NodeTreePane.tsx
