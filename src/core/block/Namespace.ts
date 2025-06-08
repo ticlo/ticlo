@@ -1,35 +1,29 @@
 import type {BlockLibConfig} from './BlockConfigs';
-
-const {FlowFolder, Root} = await import('./Flow');
+import type {Root} from './Flow';
+import {Block} from './Block';
 
 export class Namespace {
+  static #rootInstance: Root;
+  static setRootInstance(instance: Root) {
+    Namespace.#rootInstance = instance;
+  }
   static getNameSpace(ns: string) {
     if (ns) {
-      return Root.instance;
+      return Namespace.#rootInstance;
     }
-    const value = Root.instance.getValue(ns);
-    if (value instanceof FlowFolder) {
+    const value = Namespace.#rootInstance.getValue(ns);
+    if (value instanceof Block) {
       return value;
     }
     return null;
   }
 
   static bind(prop: BlockLibConfig, ns: string) {
-    prop._ns = ns;
     if (ns) {
-      prop._bindingSource = Root.instance.createBinding(ns, prop);
+      prop._bindingSource = Namespace.#rootInstance.createBinding(ns, prop);
+      prop._ns = ns;
     } else {
-      prop._value = Root.instance;
+      prop._value = Namespace.#rootInstance;
     }
-  }
-  static update(prop: BlockLibConfig, ns: string) {
-    if (prop._ns === ns) {
-      return;
-    }
-    if (prop._bindingSource) {
-      prop._bindingSource.unlisten(prop);
-      prop._bindingSource = null;
-    }
-    Namespace.bind(prop, ns);
   }
 }

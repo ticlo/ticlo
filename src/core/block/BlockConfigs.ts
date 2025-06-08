@@ -150,11 +150,24 @@ export class BlockConstConfig extends BlockProperty {
   // }
 }
 
-export class BlockLibConfig extends BlockConstConfig {
+export class BlockLibConfig extends BlockProperty {
   _ns: string;
   constructor(block: Block, name: string, ns: string) {
     super(block, name);
     Namespace.bind(this, ns);
+  }
+
+  updateValue(val: unknown): boolean {
+    // disable updateValue
+    return false;
+  }
+
+  setValue(val: unknown) {
+    // disable setValue
+  }
+
+  setBinding(path: string) {
+    // disable setBinding
   }
 }
 

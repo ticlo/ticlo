@@ -8,7 +8,13 @@ import {DoneEvent, ErrorEvent, Event, EventType, NO_EMIT, WAIT} from './Event';
 import {DataMap} from '../util/DataTypes';
 import {Uid} from '../util/Uid';
 import {voidProperty} from './Void';
-import {ConfigGenerators, BlockConstConfig, OutputsConfigGenerators, InputsConfigGenerators} from './BlockConfigs';
+import {
+  ConfigGenerators,
+  BlockConstConfig,
+  OutputsConfigGenerators,
+  InputsConfigGenerators,
+  BlockLibConfig,
+} from './BlockConfigs';
 import {Task} from './Task';
 import {_strictMode} from './BlockSettings';
 import type {Flow, Root} from './Flow';

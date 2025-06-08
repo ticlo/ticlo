@@ -159,7 +159,8 @@ export class Flow extends Block {
     src: DataMap,
     funcId?: string,
     applyChange?: (data: DataMap) => boolean,
-    onStateChange?: (flow: Flow, state: FlowState) => void
+    onStateChange?: (flow: Flow, state: FlowState) => void,
+    namespace?: string
   ): boolean {
     if (this._loaded) {
       throw new Error('can not load flow twice');
@@ -189,7 +190,12 @@ export class Flow extends Block {
         loaded = true;
       }
     } else {
-      this._namespace = this._parent._flow._namespace;
+      if (namespace) {
+        this._namespace = namespace;
+      } else {
+        this._namespace = this._parent._flow._namespace;
+      }
+
       this._loadFrom = null;
       if (src) {
         this._loadFlowData(src);
@@ -358,7 +364,11 @@ export class FlowFolder extends Flow {
 }
 
 export class Root extends FlowFolder {
-  private static _instance: Root = new Root();
+  private static _instance: Root = (function () {
+    const root = new Root();
+    Namespace.setRootInstance(root);
+    return root;
+  })();
   static get instance() {
     return this._instance;
   }
@@ -425,7 +435,7 @@ export class Root extends FlowFolder {
 
     // create the readolny global block
     this._globalRoot = this._createConstBlock('#global', (prop) => new GlobalBlock(this, this, prop, '#global'))._value;
-    this._globalRoot.load({'#settings': {'#is': '#flow:settings'}});
+    // this._globalRoot.load({'#settings': {'#is': '#flow:settings'}});
     this._tempRoot = this._createConstBlock('#temp', (prop) => new ConstBlock(this, this._globalRoot, prop))._value;
     this._sharedRoot = this._createConstBlock('#shared', (prop) => new ConstBlock(this, this._globalRoot, prop))._value;
 
@@ -433,9 +443,9 @@ export class Root extends FlowFolder {
   }
 
   loadGlobal(data: DataMap, applyChange?: (data: DataMap) => boolean) {
-    const settingBlock = this._globalRoot.getValue('#settings') as SettingsBlock;
-    settingBlock._preLoad(data['#settings']);
-    updateGlobalSettings(settingBlock);
+    // const settingBlock = this._globalRoot.getValue('#settings') as SettingsBlock;
+    // settingBlock._preLoad(data['#settings']);
+    // updateGlobalSettings(settingBlock);
     this._globalRoot.load(data, null, applyChange);
   }
 
