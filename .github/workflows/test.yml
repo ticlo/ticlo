@@ -26,9 +26,16 @@ jobs:
       - uses: MathRobin/timezone-action@v1.1
         with:
           timezoneLinux: "America/Los_Angeles"
-      - uses: actions/checkout@v2
       - name: enable corepack
         run: corepack enable
+      - name: Setup Chrome
+        uses: browser-actions/setup-chrome@v1
+        with:
+          chrome-version: 137
+      - name: Start Chromedriver
+        run: |
+          npx chromedriver --port=4444 --verbose --url-base=/wd/hub &
+      - uses: actions/checkout@v2
       - run: pnpm install
       - name: make dir
         run: |
