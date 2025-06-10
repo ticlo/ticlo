@@ -60,7 +60,7 @@ function propRelativeImpl(
   return resultPaths.join('.');
 }
 
-// find a optimized full path
+// find an optimized full path
 export function propRelative(base: Block, from: BlockProperty): string {
   let baseBlock = base;
   let fromBlock = from._block;

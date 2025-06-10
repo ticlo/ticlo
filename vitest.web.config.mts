@@ -6,15 +6,17 @@ import tsconfigPaths from 'vite-tsconfig-paths';
 export default defineConfig({
   plugins: [tsconfigPaths(), react(), nodePolyfills()],
   test: {
+    browser: {
+      provider: 'webdriverio',
+      enabled: true,
+      // at least one instance is required
+      instances: [{browser: 'chrome'}],
+    },
     isolate: false,
     globals: true,
     include: ['src/core/**/*.spec.ts', 'src/html/**/*.spec.ts', 'src/react/**/*.spec.(ts|tsx)'],
     setupFiles: ['src/html/vitest.setup.ts'],
-    browser: {
-      enabled: true,
-      headless: true,
-      name: 'chrome',
-    },
+
     coverage: {
       provider: 'istanbul',
       reporter: ['lcov'],
