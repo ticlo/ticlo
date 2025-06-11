@@ -32,10 +32,7 @@ jobs:
         uses: browser-actions/setup-chrome@v1
         with:
           chrome-version: 137
-      - name: Start Chromedriver
-        run: |
-          npx chromedriver --port=4444 --verbose --url-base=/wd/hub &
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
       - run: pnpm install
       - name: make dir
         run: |
