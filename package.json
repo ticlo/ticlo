@@ -94,7 +94,7 @@
     "vite-plugin-node-polyfills": "^0.23.0",
     "vite-tsconfig-paths": "^5.0.1",
     "vitest": "^3.2.2",
-    "webdriverio": "^8.44.1",
+    "webdriverio": "^9.15.0",
     "ws": "^8.18.0",
     "yaml": "^2.5.1"
   },

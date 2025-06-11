@@ -10,7 +10,18 @@ export default defineConfig({
       provider: 'webdriverio',
       enabled: true,
       // at least one instance is required
-      instances: [{browser: 'chrome'}],
+      instances: [
+        {
+          browser: 'chrome',
+          capabilities: {
+            'browserName': 'chrome',
+            'webSocketUrl': true,
+            'goog:chromeOptions': {
+              args: ['--headless=new', '--disable-gpu'],
+            },
+          },
+        },
+      ],
     },
     isolate: false,
     globals: true,
