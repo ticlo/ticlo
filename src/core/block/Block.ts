@@ -114,6 +114,14 @@ export class Block implements Runnable, FunctionData, PropListener<FunctionClass
 
   _proxy: object;
 
+  getBlockId() {
+    return this._blockId;
+  }
+
+  getParent() {
+    return this._parent;
+  }
+
   constructor(flow: Flow, parent: Block, prop: BlockProperty) {
     this._flow = flow;
     this._parent = parent;

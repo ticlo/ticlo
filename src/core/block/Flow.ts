@@ -1,16 +1,21 @@
 import {Block, BlockChildWatch, InputsBlock, Runnable} from './Block';
 import {BlockConfig, BlockIO, BlockProperty, ContextProperty} from './BlockProperty';
 import {Resolver} from './Resolver';
-import {BlockConstConfig, ConstTypeConfig, FlowConfigGenerators, FlowFolderConfigGenerators} from './BlockConfigs';
+import {
+  BlockConstConfig,
+  ConstTypeConfig,
+  FlowConfigGenerators,
+  FlowFolderConfigGenerators,
+  GlobalConfigGenerators,
+} from './BlockConfigs';
 import {Event} from './Event';
 import {DataMap} from '../util/DataTypes';
 import {FunctionDesc} from './Descriptor';
 import {Functions} from './Functions';
 import {FlowStorage} from './Storage';
 import {FlowHistory} from './FlowHistory';
-import {GlobalConfigGenerators, SettingsBlock} from './SettingsBlock';
-import {updateGlobalSettings} from '../util/Settings';
-import {FunctionOutput} from './FunctonData';
+import {getDefaultZone, updateGlobalSettings} from '../util/Settings';
+import {DataWrapper, FunctionOutput} from './FunctonData';
 import {Namespace} from './Namespace';
 
 export enum FlowState {
@@ -339,6 +344,9 @@ class ConstBlock extends Flow {
 
 class GlobalBlock extends Flow {
   _createConfig(field: string): BlockProperty {
+    if (field === '#timezone') {
+      return new BlockConstConfig(this, '#timezone', getDefaultZone());
+    }
     if (field in GlobalConfigGenerators) {
       return new GlobalConfigGenerators[field](this, field);
     } else {
@@ -443,9 +451,8 @@ export class Root extends FlowFolder {
   }
 
   loadGlobal(data: DataMap, applyChange?: (data: DataMap) => boolean) {
-    // const settingBlock = this._globalRoot.getValue('#settings') as SettingsBlock;
-    // settingBlock._preLoad(data['#settings']);
-    // updateGlobalSettings(settingBlock);
+    // preload the global settings before loading anything else
+    updateGlobalSettings(new DataWrapper(data));
     this._globalRoot.load(data, null, applyChange);
   }
 

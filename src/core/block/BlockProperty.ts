@@ -25,6 +25,10 @@ export class BlockProperty extends PropDispatcher<any> implements PropListener<a
 
   _saved: unknown;
 
+  getName() {
+    return this._name;
+  }
+
   constructor(block: Block, name: string) {
     super();
     this._block = block;

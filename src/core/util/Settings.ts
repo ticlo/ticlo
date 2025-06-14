@@ -11,18 +11,18 @@ let weekDays: Set<number>;
 let maxFlowDepth: number;
 
 export function updateGlobalSettings(source?: {getValue(field: string): unknown}) {
-  let firstDayOfWeekV = source?.getValue('firstDayOfWeek') as number;
+  let firstDayOfWeekV = source?.getValue('#firstDayOfWeek') as number;
   firstDayOfWeek =
     Number.isInteger(firstDayOfWeekV) && firstDayOfWeekV >= 1 && firstDayOfWeekV <= 7 ? firstDayOfWeekV : 7;
 
-  let timezoneV = source?.getValue('firstDayOfWeek') as string;
+  let timezoneV = source?.getValue('#timezone') as string;
   timezone = typeof timezoneV === 'string' ? timezoneV : systemZone;
 
-  let weekDaysV = source?.getValue('weekDays') as number[];
+  let weekDaysV = source?.getValue('#weekDays') as number[];
   weekDaysV = vl.check(weekDays, vl.num1n(7)) ? weekDaysV : [1, 2, 3, 4, 5];
   weekDays = new Set<number>(weekDaysV);
 
-  let maxFlowDepthV = source?.getValue('maxFlowDepth') as number;
+  let maxFlowDepthV = source?.getValue('#maxFlowDepth') as number;
   maxFlowDepth = maxFlowDepthV >= 8 ? maxFlowDepthV : DEFAULT_MAX_FLOW_DEPTH;
 }
 updateGlobalSettings();

@@ -43,6 +43,7 @@ const quickOpenAllowed = new Set<string>([
   'flow:main',
   'flow:test-case',
   'flow:const',
+  'flow:global',
 ]);
 const addFlowAllowed = ['flow:folder', 'flow:test-group'];
 const addFolderAllowed = ['flow:folder'];
@@ -359,7 +360,7 @@ export class NodeTreeRenderer extends PureDataRenderer<Props, any> {
         } else {
           icon = <FileIcon />;
         }
-      } else if (item.functionId === 'flow:const') {
+      } else if (item.functionId === 'flow:const' || item.functionId === 'flow:global') {
         icon = <GlobalIcon />;
       } else if (item.functionId === 'flow:folder') {
         icon = <FolderIcon />;
