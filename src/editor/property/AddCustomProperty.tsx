@@ -4,7 +4,8 @@ import {PropDesc, PropGroupDesc, ValueType, endsWithNumberReg, ClientConn, trans
 import {LazyUpdateComponent} from '../component/LazyUpdateComponent';
 import {FormInputItem, FormItem} from '../component/FormItem';
 import {t} from '../component/LocalizedLabel';
-import {TicloI18NConsumer} from '../component/LayoutContext';
+import {TicloI18NConsumer, TicloLayoutContext, TicloLayoutContextType} from '../component/LayoutContext';
+import {cacheCall} from '@ticlo/editor/util/CachedCallback';
 
 const RadioButton = Radio.Button;
 const RadioGroup = Radio.Group;
@@ -23,7 +24,10 @@ interface Props {
 type CustomValueType = ValueType | 'group';
 
 export class AddCustomPropertyMenu extends LazyUpdateComponent<Props, any> {
-  formItems = {
+  static contextType = TicloLayoutContextType;
+  declare context: TicloLayoutContext;
+
+  getFormItems = cacheCall((lan: string) => ({
     type: new FormItem<CustomValueType>(this, 'type', translateEditor('Type'), 'string'),
     name: new FormInputItem<string>(this, 'name', translateEditor('Name')),
     defaultLen: new FormItem<number>(this, 'defaultLen', translateEditor('Default Length'), 2),
@@ -35,12 +39,14 @@ export class AddCustomPropertyMenu extends LazyUpdateComponent<Props, any> {
     showAlpha: new FormItem<boolean>(this, 'showAlpha', translateEditor('Show Alpha'), false),
     showTime: new FormItem<boolean>(this, 'showTime', translateEditor('Show Alpha'), false),
     pinned: new FormInputItem<boolean>(this, 'pinned', translateEditor('Pinned'), true),
-  };
+  }));
 
   onSubmit = (e: React.FormEvent<HTMLElement>) => {
-    let {onAddProperty, group} = this.props;
-    let {type, name, defaultLen, placeholder, min, max, step, optionStr, showAlpha, showTime, pinned} = this.formItems;
     e.preventDefault();
+
+    let {onAddProperty, group} = this.props;
+    const formItems = this.getFormItems(this.context.language);
+    let {type, name, defaultLen, placeholder, min, max, step, optionStr, showAlpha, showTime, pinned} = formItems;
 
     let result: PropDesc | PropGroupDesc;
 
@@ -137,8 +143,8 @@ export class AddCustomPropertyMenu extends LazyUpdateComponent<Props, any> {
       onAddProperty(result);
       name.onChange(''); // reset name after adding property
     }
-    for (let key in this.formItems) {
-      let formItem = (this.formItems as any)[key];
+    for (let key in formItems) {
+      let formItem = (formItems as any)[key];
       if (errors.has(key)) {
         formItem.setError(errors.get(key));
       } else {
@@ -149,7 +155,8 @@ export class AddCustomPropertyMenu extends LazyUpdateComponent<Props, any> {
 
   renderImpl() {
     let {group, onClick} = this.props;
-    let {type, name, defaultLen, placeholder, min, max, step, optionStr, showAlpha, showTime, pinned} = this.formItems;
+    let {type, name, defaultLen, placeholder, min, max, step, optionStr, showAlpha, showTime, pinned} =
+      this.getFormItems(this.context.language);
     let typeValue = type.value;
     return (
       <Form onClick={onClick} className="ticl-add-custom-prop" labelCol={{span: 9}} wrapperCol={{span: 15}}>
