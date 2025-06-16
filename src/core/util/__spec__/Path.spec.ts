@@ -119,7 +119,7 @@ describe('Path', function () {
     let flow111 = Root.instance.addFlow('FolderRelative1.1.1', null, null, true);
     let folder1 = Root.instance.getValue('FolderRelative1') as FlowFolder;
 
-    expect(propRelative(folder1.queryValue('1.1') as Block, folder1.queryProperty('v', true))).toBe('##.###.##.v');
+    expect(propRelative(folder1.queryValue('1.1') as Block, folder1.queryProperty('v', true))).toBe('#lib.v');
 
     Root.instance.deleteValue('PropRelative1');
     Root.instance.deleteValue('PropRelative2');

@@ -161,7 +161,7 @@ export class Flow extends Block {
 
   _loaded: boolean;
   load(
-    src: DataMap,
+    src?: DataMap,
     funcId?: string,
     applyChange?: (data: DataMap) => boolean,
     onStateChange?: (flow: Flow, state: FlowState) => void,
@@ -530,10 +530,10 @@ export class Root extends FlowFolder {
       // overwrite @b-xyw value from parent flow
       data = {...data, '@b-xyw': propValue};
     }
-    if (!data) {
-      data = {};
-    }
     if (loader) {
+      if (!data) {
+        data = {};
+      }
       newFlow.load(data, null, loader.applyChange, loader.onStateChange);
       if (this._storage?.inited && Object.keys(data).length) {
         newFlow.applyChange();
