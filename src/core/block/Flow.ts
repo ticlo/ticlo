@@ -487,6 +487,12 @@ export class Root extends FlowFolder {
       newGroup = new FlowFolder(prop._block, null, prop);
     }
     prop.setValue(newGroup);
+    if (prop._block === this) {
+      // root folder automatically has the namespace with its name.
+      newGroup._namespace = prop._name;
+    } else {
+      newGroup._namespace = prop._block._flow._namespace;
+    }
     return newGroup;
   }
 
@@ -524,18 +530,16 @@ export class Root extends FlowFolder {
       // overwrite @b-xyw value from parent flow
       data = {...data, '@b-xyw': propValue};
     }
+    if (!data) {
+      data = {};
+    }
     if (loader) {
-      if (!data) {
-        data = {};
-      }
       newFlow.load(data, null, loader.applyChange, loader.onStateChange);
       if (this._storage?.inited && Object.keys(data).length) {
         newFlow.applyChange();
       }
     } else {
-      if (data) {
-        newFlow.load(data);
-      }
+      newFlow.load(data);
     }
     prop.setValue(newFlow);
     return newFlow;

@@ -480,6 +480,7 @@ export class ServerConnection extends ServerConnectionCore {
     let property = this.root.queryProperty(path, true);
     if (property) {
       if (absolute) {
+        // from is absolute path, need to find the relative binding path
         if (from == null) {
           // remove binding but keep current primitive value
           let val = property._value;
@@ -499,6 +500,7 @@ export class ServerConnection extends ServerConnectionCore {
           if (fromProp) {
             let resolvedFrom: string;
             if (fromMain.includes('.^')) {
+              // binding string can just start from ^ for context binding
               resolvedFrom = fromMain.substring(fromMain.indexOf('.^') + 1);
             } else {
               let fromSharedPos = fromMain.lastIndexOf('.#shared.');

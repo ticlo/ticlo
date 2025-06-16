@@ -1,5 +1,5 @@
 import {Block} from '../block/Block';
-import {Flow, Root} from '../block/Flow';
+import {Flow, FlowFolder, Root} from '../block/Flow';
 import {BlockProperty, HelperProperty} from '../block/BlockProperty';
 
 function propRelativeImpl(
@@ -86,9 +86,19 @@ export function propRelative(base: Block, from: BlockProperty): string {
     }
     let commonFlow: Flow = Root.instance;
     // find common flow
+    let commonLevel = 0;
     while (baseFlows.length && baseFlows.at(-1) === fromFlows.at(-1)) {
       commonFlow = baseFlows.pop();
       fromFlows.pop();
+      ++commonLevel;
+    }
+    // binding from #lib
+    if (
+      (commonLevel === 1 && commonFlow instanceof FlowFolder && commonFlow._namespace === base._flow._namespace) ||
+      (commonLevel === 0 && fromFlows[0] instanceof FlowFolder && fromFlows[0]._namespace === base._flow._namespace)
+    ) {
+      // get path from #lib
+      return `#lib${fromBlock.getFullPath().replace(/^[^.]+/, '')}.${from._name}`;
     }
 
     if (baseFlows.length === 0) {

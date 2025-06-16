@@ -95,6 +95,9 @@ export function encodeFileName(path: string) {
   return path.replace(encodeNameReg, escapeChar);
 }
 
+/**
+ * Whether this binding is allowed.
+ */
 export function isBindable(toPath: string, fromPath: string): boolean | 'shared' {
   if (toPath === fromPath) {
     return false;
