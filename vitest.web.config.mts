@@ -17,12 +17,22 @@ export default defineConfig({
             'browserName': 'chrome',
             'webSocketUrl': true,
             'goog:chromeOptions': {
-              args: ['--headless=new', '--disable-gpu'],
+              args: [
+                '--headless=new',
+                '--disable-gpu',
+                '--disable-dev-shm-usage',
+                '--no-sandbox',
+                '--disable-setuid-sandbox',
+                '--disable-web-security',
+                '--disable-features=VizDisplayCompositor'
+              ],
             },
           },
         },
       ],
     },
+    testTimeout: 30000,
+    hookTimeout: 30000,
     isolate: false,
     globals: true,
     include: ['packages/core/**/*.spec.ts', 'packages/html/**/*.spec.ts', 'packages/react/**/*.spec.(ts|tsx)'],
