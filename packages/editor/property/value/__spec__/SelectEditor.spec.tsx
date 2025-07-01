@@ -1,5 +1,5 @@
 import {expect} from 'vitest';
-import SimulateEvent from 'simulate-event';
+import { simulate } from 'simulate-event';
 import React from 'react';
 import {
   removeLastTemplate,
@@ -39,10 +39,10 @@ describe('SelectEditor', function () {
     let selectDiv = div.querySelector('.ant-select-selector');
 
     window.onerror = function (e) {};
-    SimulateEvent.simulate(selectDiv, 'mousedown');
+    simulate(selectDiv, 'mousedown');
     await shouldHappen(() => querySingle("//div.ant-select-item-option-content/span[text()='b']", document.body));
 
-    SimulateEvent.simulate(
+    simulate(
       querySingle("//div.ant-select-item-option-content/span[text()='b']", document.body),
       'click'
     );
@@ -64,10 +64,10 @@ describe('SelectEditor', function () {
     let selectDiv = div.querySelector('.ant-select-selector');
 
     window.onerror = function (e) {};
-    SimulateEvent.simulate(selectDiv, 'mousedown');
+    simulate(selectDiv, 'mousedown');
     await shouldHappen(() => querySingle("//div.ant-select-item-option-content/span[text()='b']", document.body));
 
-    SimulateEvent.simulate(
+    simulate(
       querySingle("//div.ant-select-item-option-content/span[text()='b']", document.body),
       'click'
     );

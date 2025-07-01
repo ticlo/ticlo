@@ -1,5 +1,5 @@
 import {expect} from 'vitest';
-import SimulateEvent from 'simulate-event';
+import { simulate } from 'simulate-event';
 import React from 'react';
 import {removeLastTemplate, loadTemplate, querySingle} from '../../../util/test-util';
 import {initEditor} from '../../../index';
@@ -31,7 +31,7 @@ describe('RadioButtonEditor', function () {
     await shouldHappen(() => div.querySelectorAll('.ant-radio-button').length === 3);
     let buttons = div.querySelectorAll('.ant-radio-button');
 
-    SimulateEvent.simulate(buttons[1], 'click');
+    simulate(buttons[1], 'click');
     await shouldHappen(() => value === 'b');
   });
 });

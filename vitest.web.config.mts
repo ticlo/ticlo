@@ -5,6 +5,17 @@ import tsconfigPaths from 'vite-tsconfig-paths';
 
 export default defineConfig({
   plugins: [tsconfigPaths(), react(), nodePolyfills()],
+  server: {
+    fs: {
+      allow: ['..']
+    },
+    watch: {
+      // Disable file watching in WSL to prevent reload issues
+      ignored: ['**/node_modules/**', '**/.git/**'],
+      usePolling: true,
+      interval: 1000
+    }
+  },
   test: {
     browser: {
       provider: 'webdriverio',
@@ -35,7 +46,12 @@ export default defineConfig({
     hookTimeout: 30000,
     isolate: false,
     globals: true,
-    include: ['packages/core/**/*.spec.ts', 'packages/html/**/*.spec.ts', 'packages/react/**/*.spec.(ts|tsx)'],
+    include: [
+      'packages/core/**/*.spec.ts',
+      'packages/html/**/*.spec.ts',
+      'packages/react/**/*.spec.(ts|tsx)',
+      'packages/editor/**/*.spec.(ts|tsx)',
+    ],
     setupFiles: ['packages/html/vitest.setup.ts'],
 
     coverage: {
@@ -48,7 +64,6 @@ export default defineConfig({
       '**/dist/**',
       '**/cypress/**',
       '**/.{idea,git,cache,output,temp}/**',
-      'packages/editor/**',
       'bin/**',
       'example/**',
       'tool/**',

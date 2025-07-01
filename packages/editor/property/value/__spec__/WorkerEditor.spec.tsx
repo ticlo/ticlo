@@ -1,5 +1,5 @@
 import {expect} from 'vitest';
-import SimulateEvent from 'simulate-event';
+import { simulate } from 'simulate-event';
 import React from 'react';
 import {removeLastTemplate, loadTemplate, querySingle, expandDocumentBody} from '../../../util/test-util';
 import {initEditor} from '../../../index';
@@ -38,19 +38,19 @@ describe('WorkerEditor', function () {
     );
 
     await shouldHappen(() => div.querySelector('.anticon-down'));
-    SimulateEvent.simulate(div.querySelector('.anticon-down'), 'click');
+    simulate(div.querySelector('.anticon-down'), 'click');
 
     await shouldHappen(() => querySingle("//div.ticl-tree-type/span[text()='WorkerEditor']", document.body));
 
     window.onerror = function (e) {};
-    SimulateEvent.simulate(
+    simulate(
       querySingle("//div.ticl-tree-type/span[text()='WorkerEditor']/../div.ticl-tree-arr", document.body),
       'click'
     );
 
     await shouldHappen(() => querySingle("//div.ticl-func-view/span[text()='class1']", document.body));
 
-    SimulateEvent.simulate(querySingle("//div.ticl-func-view/span[text()='class1']/..", document.body), 'click');
+    simulate(querySingle("//div.ticl-func-view/span[text()='class1']/..", document.body), 'click');
 
     await shouldHappen(() => value === 'WorkerEditor:class1');
 

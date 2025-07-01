@@ -1,5 +1,5 @@
 import {expect} from 'vitest';
-import SimulateEvent from 'simulate-event';
+import { simulate } from 'simulate-event';
 import React from 'react';
 import {removeLastTemplate, loadTemplate, querySingle} from '../../../util/test-util';
 import {initEditor} from '../../../index';
@@ -36,17 +36,17 @@ describe('TypeEditor', function () {
 
     // work around of browser size causing  ResizeObserver - loop limit exceeded  Error
     window.onerror = function (e) {};
-    SimulateEvent.simulate(div.querySelector('.anticon-down'), 'click');
+    simulate(div.querySelector('.anticon-down'), 'click');
     await shouldHappen(() => querySingle("//div.ticl-tree-type/span[text()='math']", document.body));
 
-    SimulateEvent.simulate(
+    simulate(
       querySingle("//div.ticl-tree-type/span[text()='math']/../div.ticl-tree-arr", document.body),
       'click'
     );
 
     await shouldHappen(() => querySingle("//div.ticl-func-view/span[text()='add']", document.body));
 
-    SimulateEvent.simulate(querySingle("//div.ticl-func-view/span[text()='add']/..", document.body), 'click');
+    simulate(querySingle("//div.ticl-func-view/span[text()='add']/..", document.body), 'click');
 
     await shouldHappen(() => value === 'add');
 

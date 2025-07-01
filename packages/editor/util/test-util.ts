@@ -16,9 +16,10 @@ function loadOneCss(url: string) {
 function loadCssInHeader() {
   if (!(window as any).ticloCssLoaded) {
     loadOneCss('https://fonts.googleapis.com/css?family=Fredoka+One');
-    loadOneCss('/base/dist/antd.css');
-    loadOneCss('/base/dist/editor.css');
-    loadOneCss('/base/dist/icons.css');
+    // For Vite, we need to use the correct paths
+    loadOneCss('/app/antd.css');
+    loadOneCss('/app/editor.css');
+    loadOneCss('/app/icons.css');
     (window as any).ticloCssLoaded = true;
   }
 }
@@ -31,6 +32,9 @@ export function loadTemplate<T extends Element>(element: any, style?: string): [
     loadCssInHeader();
   }
   _lastTemplateDiv = document.createElement('div');
+  _lastTemplateDiv.style.position = 'absolute';
+  _lastTemplateDiv.style.width = '1000px';
+  _lastTemplateDiv.style.height = '1000px';
   document.body.appendChild(_lastTemplateDiv);
   _lastTemplateRoot = createRoot(_lastTemplateDiv);
   return [_lastTemplateRoot.render(element), _lastTemplateDiv];

@@ -1,13 +1,12 @@
 import {expect} from 'vitest';
-import SimulateEvent from 'simulate-event';
+import { simulate } from 'simulate-event';
 import React from 'react';
 import {removeLastTemplate, loadTemplate, querySingle, fakeMouseEvent} from '../../../util/test-util';
 import {initEditor} from '../../../index';
 import {DateRangeEditor} from '../DateRangeEditor';
 import {shouldHappen, waitTick} from '@ticlo/core/util/test-util';
 import {blankFuncDesc, blankPropDesc, PropDesc} from '@ticlo/core';
-import dayjs, {Dayjs} from 'dayjs';
-import {DateEditor} from '../DateEditor';
+import {DateTime} from 'luxon';
 
 describe('DateRangeEditor', function () {
   beforeEach(async function () {
@@ -19,8 +18,8 @@ describe('DateRangeEditor', function () {
   });
 
   it('basic', async function () {
-    let values: Dayjs[] = null;
-    let onChange = (v: Dayjs[]) => {
+    let values: DateTime[] = null;
+    let onChange = (v: DateTime[]) => {
       values = v;
     };
     let desc: PropDesc = {name: '', type: 'date-range', showTime: false};
@@ -35,18 +34,18 @@ describe('DateRangeEditor', function () {
     // don't run the following test because of issue that karma skipping tests after this one
     window.onerror = function (e) {};
 
-    SimulateEvent.simulate(dateRangeDiv.querySelector('input'), 'mousedown', fakeMouseEvent());
+    simulate(dateRangeDiv.querySelector('input'), 'mousedown', fakeMouseEvent());
 
     await shouldHappen(() => document.querySelector('.ant-picker-panels'));
     let dateCell = document.querySelector('.ant-picker-cell-today');
     let dateStr = (dateCell as HTMLElement).title;
     // click twice
-    SimulateEvent.simulate(dateCell, 'click');
+    simulate(dateCell, 'click');
     await waitTick(1);
-    SimulateEvent.simulate(dateCell, 'click');
+    simulate(dateCell, 'click');
 
     await shouldHappen(() => values != null);
-    let clickedMoment = dayjs(dateStr, 'YYYY-MM-DD');
-    expect(clickedMoment.isBefore(values[1])).toBe(true);
+    let clickedDate = DateTime.fromFormat(dateStr, 'yyyy-MM-dd');
+    expect(clickedDate < values[1]).toBe(true);
   });
 });

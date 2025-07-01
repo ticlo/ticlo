@@ -1,5 +1,5 @@
 import {expect} from 'vitest';
-import SimulateEvent from 'simulate-event';
+import { simulate } from 'simulate-event';
 import React from 'react';
 import {removeLastTemplate, loadTemplate, querySingle} from '../../../util/test-util';
 import {initEditor} from '../../../index';
@@ -30,7 +30,7 @@ describe('ToggleEditor', function () {
     await shouldHappen(() => div.querySelector('.ant-switch'));
     let switchButton = div.querySelector('.ant-switch');
 
-    SimulateEvent.simulate(switchButton, 'click');
+    simulate(switchButton, 'click');
     expect(value).toBe(true);
   });
 
@@ -47,7 +47,7 @@ describe('ToggleEditor', function () {
     await shouldHappen(() => div.querySelector('.ant-switch'));
     let switchButton = div.querySelector('.ant-switch');
 
-    SimulateEvent.simulate(switchButton, 'click');
+    simulate(switchButton, 'click');
     expect(value).toBe(false);
   });
 
@@ -65,7 +65,7 @@ describe('ToggleEditor', function () {
     await shouldHappen(() => div.querySelector('.ant-switch'));
     let switchButton = div.querySelector('.ant-switch');
 
-    SimulateEvent.simulate(switchButton, 'click');
+    simulate(switchButton, 'click');
     expect(value).toBe('b');
   });
 
@@ -83,7 +83,7 @@ describe('ToggleEditor', function () {
     await shouldHappen(() => div.querySelector('.ant-switch'));
     let switchButton = div.querySelector('.ant-switch');
 
-    SimulateEvent.simulate(switchButton, 'click');
+    simulate(switchButton, 'click');
     expect(value).toBe('a');
   });
 });

@@ -1,5 +1,5 @@
 import {expect} from 'vitest';
-import SimulateEvent from 'simulate-event';
+import { simulate } from 'simulate-event';
 import React from 'react';
 import '../../index';
 import {PropertyEditor} from '../PropertyEditor';
@@ -107,7 +107,7 @@ describe('PropertyEditor', function () {
     expect(div.querySelector('.ticl-property-list')).toBeNull();
 
     // subblock should expand
-    SimulateEvent.simulate(expandIcon, 'click');
+    simulate(expandIcon, 'click');
     await shouldHappen(() => div.querySelector('.ticl-property-list'));
     // find the child property group for [] 0 1
     await shouldHappen(() => div.querySelector('.ticl-property-group'));

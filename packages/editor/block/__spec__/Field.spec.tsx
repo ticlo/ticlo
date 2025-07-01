@@ -1,5 +1,5 @@
 import {expect} from 'vitest';
-import SimulateEvent from 'simulate-event';
+import { simulate } from 'simulate-event';
 import React from 'react';
 import {BlockStage} from '../BlockStage';
 import {Block, Root} from '@ticlo/core';
@@ -122,14 +122,14 @@ describe('editor Block Field', function () {
     expect(fieldNames[2].textContent).toBe('1');
 
     // hide sub block
-    SimulateEvent.simulate(fieldNames[0], 'dblclick');
+    simulate(fieldNames[0], 'dblclick');
 
     await shouldHappen(() => subtractBlock.querySelectorAll('.ticl-field').length === 1);
     // wire should still exists
     expect(document.querySelector('svg')).not.toBeNull();
 
     // show sub block again
-    SimulateEvent.simulate(fieldNames[0], 'dblclick');
+    simulate(fieldNames[0], 'dblclick');
 
     await shouldHappen(() => subtractBlock.querySelectorAll('.ticl-field').length === 3);
 

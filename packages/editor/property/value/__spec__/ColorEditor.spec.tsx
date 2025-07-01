@@ -1,5 +1,5 @@
 import {expect} from 'vitest';
-import SimulateEvent from 'simulate-event';
+import { simulate } from 'simulate-event';
 import React from 'react';
 import {removeLastTemplate, loadTemplate, querySingle} from '../../../util/test-util';
 import {initEditor} from '../../../index';
@@ -30,7 +30,7 @@ describe('ColorEditor', function () {
     await shouldHappen(() => div.querySelector('.ticl-color-editor'), 200, 'editor should be created');
     let colorDiv = div.querySelector('.ticl-color-editor');
 
-    SimulateEvent.simulate(colorDiv, 'click');
+    simulate(colorDiv, 'click');
 
     await shouldHappen(
       () => querySingle("//div[@title='#FFFFFF']", document.body),
@@ -38,7 +38,7 @@ describe('ColorEditor', function () {
       'white block should show in color editor'
     );
 
-    SimulateEvent.simulate(querySingle("//div[@title='#FFFFFF']", document.body), 'click');
+    simulate(querySingle("//div[@title='#FFFFFF']", document.body), 'click');
 
     await shouldHappen(() => value === '#ffffff', 200, 'value should be white');
   });
