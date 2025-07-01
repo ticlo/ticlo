@@ -31,7 +31,7 @@ jobs:
       - name: Setup Chrome
         uses: browser-actions/setup-chrome@v1
         with:
-          chrome-version: 137
+          chrome-version: 138
           install-chromedriver: true
       - uses: actions/checkout@v4
       - run: pnpm install
