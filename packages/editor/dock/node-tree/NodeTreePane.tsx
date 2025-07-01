@@ -1,5 +1,5 @@
 import React from 'react';
-import {ClientConn} from '@ticlo/core';
+import {ClientConn} from '@ticlo/core/editor';
 import {TicloLayoutContext, TicloLayoutContextType} from '../../component/LayoutContext';
 import {NodeTree} from '../..';
 import {Button, Input, Menu, Tooltip} from 'antd';

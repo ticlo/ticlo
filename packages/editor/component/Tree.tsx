@@ -1,6 +1,6 @@
 import React from 'react';
 import {DataRendererItem, PureDataRenderer} from './DataRenderer';
-import {ClientConn} from '@ticlo/core';
+import {ClientConn} from '@ticlo/core/editor';
 
 export type ExpandState = 'opened' | 'closed' | 'loading' | 'empty' | 'disabled';
 

@@ -3,7 +3,7 @@ export * from './property/PropertyList';
 export * from './node-tree/NodeTree';
 export {cacheCall} from './util/CachedCallback';
 
-import * as ticloI18n from '@ticlo/core';
+import * as ticloI18n from '@ticlo/core/editor';
 
 // register special view
 

@@ -8,7 +8,7 @@ import PlusSquareIcon from '@ant-design/icons/PlusSquareOutlined';
 import SubnodeIcon from '@ant-design/icons/SubnodeOutlined';
 import InlineIcon from '@ant-design/icons/BorderlessTableOutlined';
 import {FunctionTree} from './FunctionTree';
-import {ClientConn, DataMap, FunctionDesc, encodeTicloName, translateEditor} from '@ticlo/core';
+import {ClientConn, DataMap, FunctionDesc, encodeTicloName, translateEditor} from '@ticlo/core/editor';
 import {OnFunctionClick} from './FunctionView';
 import {RadioChangeEvent} from 'antd/lib/radio';
 import {FunctionList} from './FunctionList';

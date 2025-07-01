@@ -41,6 +41,7 @@ export {StreamDispatcher} from './block/Dispatcher';
 export * from './util/Settings';
 export * from './util/test-util';
 export {scat} from './util/String';
+export {TicloI18nSettings} from './util/i18n';
 
 // Export for web-server package
 export * from './functions/web-server/HttpRequest';

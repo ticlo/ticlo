@@ -4,7 +4,7 @@ import MenuUnfoldIcon from '@ant-design/icons/MenuUnfoldOutlined';
 import MenuFoldIcon from '@ant-design/icons/MenuFoldOutlined';
 import {BlockStage, PropertyList} from '../..';
 import {Divider, TabData} from 'rc-dock';
-import {arrayEqual, ClientConn, getDisplayName, ValueSubscriber, ValueUpdate} from '@ticlo/core';
+import {arrayEqual, ClientConn, getDisplayName, ValueSubscriber, ValueUpdate} from '@ticlo/core/editor';
 import {BlockStageTabButton} from './BlockStageTabButton';
 import {LazyUpdateComponent} from '../../component/LazyUpdateComponent';
 import {TooltipIconButton} from '../../component/TooltipIconButton';

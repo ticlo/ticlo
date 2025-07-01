@@ -6,7 +6,7 @@ import {
   encodeTicloName,
   translateFunction,
   TicloI18nSettings,
-} from '@ticlo/core';
+} from '@ticlo/core/editor';
 import {TIcon} from '../icon/Icon';
 import {DragDropDiv, DragState} from 'rc-dock';
 import {getFuncStyleFromDesc} from '../util/BlockColors';

@@ -2,7 +2,7 @@ import React, {ReactElement} from 'react';
 import {Button, Input, Select} from 'antd';
 import PlusIcon from '@ant-design/icons/PlusOutlined';
 import EllipsisIcon from '@ant-design/icons/EllipsisOutlined';
-import {ClientConn, FunctionDesc, getDefaultFuncData, getSubBlockFuncData, PropDesc} from '@ticlo/core';
+import {ClientConn, FunctionDesc, getDefaultFuncData, getSubBlockFuncData, PropDesc} from '@ticlo/core/editor';
 import {Popup} from '../../component/ClickPopup';
 import {PropertyList} from '../PropertyList';
 

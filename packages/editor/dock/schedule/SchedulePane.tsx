@@ -1,5 +1,5 @@
 import React from 'react';
-import {ClientConn, decode, encode, DataMap, isDataTruncated, translateEditor} from '@ticlo/core';
+import {ClientConn, decode, encode, DataMap, isDataTruncated, translateEditor} from '@ticlo/core/editor';
 
 import {DockLayout} from 'rc-dock';
 import {EditorView} from '@codemirror/view';

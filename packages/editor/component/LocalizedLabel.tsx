@@ -7,7 +7,7 @@ import {
   translatePropContent,
   translateFunction,
   translateProperty,
-} from '@ticlo/core';
+} from '@ticlo/core/editor';
 import {TicloLayoutContextType} from './LayoutContext';
 
 export const LocalizedLabel = ({label, options}: {label: string; options?: DataMap}) => {

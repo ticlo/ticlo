@@ -6,7 +6,7 @@ import {
   ValueUpdate,
   FunctionDesc,
   PropGroupDesc,
-} from '@ticlo/core';
+} from '@ticlo/core/editor';
 import {MultiSelectComponent, MultiSelectLoader} from './MultiSelectComponent';
 import {PropertyEditor} from './PropertyEditor';
 import {CustomGroupPropertyReorder, CustomPropertyReorder, GroupPropertyReorder} from './PropertyReorder';

@@ -3,7 +3,7 @@ import {TRUNCATED, encodeDisplay} from '@ticlo/core';
 import {displayNumber} from '../util/Types';
 
 // render value for Block value field
-export function renderValue(val: any, getPopup?: (val: any) => void) {
+export function renderValue(val: any, getPopup?: (val: any) => React.ReactElement) {
   switch (typeof val) {
     case 'string':
       if (val.length > 512) {

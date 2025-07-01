@@ -1,7 +1,7 @@
 import {LazyUpdateComponent} from '../component/LazyUpdateComponent';
 import {Form, Input, Switch, Modal} from 'antd';
 import React from 'react';
-import {ClientConn, splitPathName, validateNodeName} from '@ticlo/core';
+import {ClientConn, splitPathName, validateNodeName} from '@ticlo/core/editor';
 import {FormInputItem, FormItem} from '../component/FormItem';
 import {t} from '../component/LocalizedLabel';
 

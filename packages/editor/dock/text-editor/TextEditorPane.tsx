@@ -1,5 +1,5 @@
 import React from 'react';
-import {ClientConn, encode, DataMap, isDataTruncated, translateEditor} from '@ticlo/core';
+import {ClientConn, encode, DataMap, isDataTruncated, translateEditor} from '@ticlo/core/editor';
 import {Menu, Dropdown, Button, Spin} from 'antd';
 import CodeMirror from '@uiw/react-codemirror';
 import {parse as ParseYaml} from 'yaml';

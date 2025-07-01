@@ -14,7 +14,7 @@ import {
   PropGroupDesc,
   deepEqual,
   mapConfigDesc,
-} from '@ticlo/core';
+} from '@ticlo/core/editor';
 import {PropertyEditor} from './PropertyEditor';
 import {GroupEditor} from './GroupEditor';
 import {MultiSelectComponent, MultiSelectLoader} from './MultiSelectComponent';

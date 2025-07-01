@@ -13,7 +13,9 @@ import {Functions} from '@ticlo/core/block/Functions';
 
 const PORT = 8082;
 
+// @ts-ignore
 const beforeAll = globalThis.beforeAll ?? globalThis.before;
+// @ts-ignore
 const afterAll = globalThis.afterAll ?? globalThis.after;
 
 describe('WsConnect', function () {

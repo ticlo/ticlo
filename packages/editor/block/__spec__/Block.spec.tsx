@@ -7,7 +7,7 @@ import {destroyLastLocalConnection, makeLocalConnection} from '@ticlo/core/conne
 import {shouldHappen, shouldReject} from '@ticlo/core/util/test-util';
 import {removeLastTemplate, loadTemplate, querySingle, fakeMouseEvent} from '../../util/test-util';
 import {initEditor} from '../../index';
-import {arrayEqual} from '@ticlo/core';
+import {arrayEqual} from '@ticlo/core/editor';
 
 describe('editor BlockStage', function () {
   beforeEach(async function () {

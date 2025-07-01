@@ -17,10 +17,10 @@ import {
   ValueSubscriber,
   voidFunction,
   getDisplayName,
-} from '@ticlo/core';
+} from '@ticlo/core/editor';
 import {TIcon} from '../icon/Icon';
 import {DragDropDiv, DragState} from 'rc-dock';
-import * as DragManager from 'rc-dock/packages/dragdrop/DragManager';
+import * as DragManager from 'rc-dock/src/dragdrop/DragManager';
 import {FieldValue} from './FieldValue';
 import {isBindable} from '@ticlo/core';
 import {LocalizedPropertyName} from '../component/LocalizedLabel';

@@ -17,7 +17,7 @@ import {
   DataMap,
   isBindable,
   getSubBlockFuncData,
-} from '@ticlo/core';
+} from '@ticlo/core/editor';
 import {MultiSelectComponent, MultiSelectLoader} from './MultiSelectComponent';
 import {DragDropDiv, DragState} from 'rc-dock';
 import {ExpandIcon} from '../component/Tree';

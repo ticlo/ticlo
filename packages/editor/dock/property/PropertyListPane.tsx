@@ -1,6 +1,6 @@
 import React, {ReactNode} from 'react';
 import {BlockStage, PropertyList} from '../..';
-import {ClientConn} from '@ticlo/core';
+import {ClientConn} from '@ticlo/core/editor';
 import {TicloLayoutContext, TicloLayoutContextType} from '../../component/LayoutContext';
 
 interface Props {

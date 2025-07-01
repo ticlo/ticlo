@@ -2,6 +2,7 @@ import {expect} from 'vitest';
 import * as i18n from '../i18n';
 import i18next from 'i18next';
 
+// @ts-ignore
 const beforeAll = globalThis.beforeAll ?? globalThis.before;
 
 describe('i18n', function () {

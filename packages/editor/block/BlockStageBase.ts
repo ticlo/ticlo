@@ -1,5 +1,5 @@
 import React from 'react';
-import {ClientConn, DataMap, deepEqual, forAllPathsBetween, ValueSubscriber, ValueUpdate} from '@ticlo/core';
+import {ClientConn, DataMap, deepEqual, forAllPathsBetween, ValueSubscriber, ValueUpdate} from '@ticlo/core/editor';
 import {DragState} from 'rc-dock';
 import {BlockItem, FieldItem, Stage} from './Field';
 import {LazyUpdateComponent} from '../component/LazyUpdateComponent';

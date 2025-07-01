@@ -1,5 +1,5 @@
 import React from 'react';
-import {ClientConn} from '@ticlo/core';
+import {ClientConn} from '@ticlo/core/editor';
 import {batchUpdateReact} from '../util/BatchUpdate';
 
 export abstract class DataRendererItem<T = any> {

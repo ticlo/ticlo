@@ -1,5 +1,5 @@
 import React from 'react';
-import {ClientConn, FunctionDesc} from '@ticlo/core';
+import {ClientConn, FunctionDesc} from '@ticlo/core/editor';
 import {FunctionTreeItem, FunctionTreeRoot} from './FunctionTreeItem';
 import VirtualList from '../component/Virtual';
 import {FunctionTreeRenderer} from './FunctionTreeRenderer';

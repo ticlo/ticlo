@@ -15,7 +15,9 @@ import {WorkerFunctionGen} from '../../worker/WorkerFunctionGen';
 import {FlowEditor} from '../../worker/FlowEditor';
 import {WorkerFlow} from '../../worker/WorkerFlow';
 
+// @ts-ignore
 const beforeAll = globalThis.beforeAll ?? globalThis.before;
+// @ts-ignore
 const afterAll = globalThis.afterAll ?? globalThis.after;
 
 describe('Connection Client API', function () {

@@ -21,6 +21,7 @@
     "@codemirror/lang-yaml": "^6.1.1",
     "@codemirror/view": "^6.26.0",
     "@ticlo/core": "workspace:*",
+    "@ticlo/html": "workspace:*",
     "@uiw/codemirror-theme-eclipse": "^4.21.25",
     "@uiw/react-codemirror": "^4.21.25",
     "antd": "4.24.16",
