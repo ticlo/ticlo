@@ -24,13 +24,8 @@
     "isolatedModules": true,
     "useDefineForClassFields": true,
     "typeRoots": [
-      "node_modules/@types",
-      "@types"
+      "node_modules/@types"
     ],
-    "paths": {
-      "resize-observer-polyfill": ["./@types/resize-observer-polyfill"],
-      "@ticlo/*": ["./packages/*"]
-    },
     "outDir": "es"
   },
   "compileOnSave": true,

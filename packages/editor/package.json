@@ -28,6 +28,7 @@
     "codemirror": "^6.0.1",
     "dompurify": "^3.2.4",
     "highlight.js": "11.9.0",
+    "lodash": "^4.17.21",
     "marked": "^12.0.1",
     "rc-dock": "^3.3.1",
     "rc-trigger": "^5.3.4",
