@@ -16,6 +16,7 @@
   "types": "./index.ts",
   "dependencies": {
     "@ticlo/core": "workspace:*",
+    "chalk": "^4.1.2",
     "pretty-format": "^29.7.0",
     "diff-sequences": "^29.6.3"
   }

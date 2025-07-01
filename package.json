@@ -17,6 +17,7 @@
     "@babel/preset-typescript": "^7.24.1",
     "@babel/register": "^7.23.7",
     "@babel/standalone": "^7.25.9",
+    "@ticlo/editor": "workspace:*",
     "@types/babel__preset-env": "^7.9.6",
     "@types/babel__standalone": "^7",
     "@types/express": "^5.0.0",
