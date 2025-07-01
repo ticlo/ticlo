@@ -29,16 +29,16 @@
     ],
     "paths": {
       "resize-observer-polyfill": ["./@types/resize-observer-polyfill"],
-      "@ticlo/*": ["./src/*"]
+      "@ticlo/*": ["./packages/*"]
     },
     "outDir": "es"
   },
   "compileOnSave": true,
   "include": [
     "bin/**/*",
-    "src/**/*",
+    "packages/**/*",
     "tool/**/*",
-    "app/**/*",
+    "app/**/*"
   ],
   "exclude": [
     "node_modules"

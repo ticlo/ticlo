@@ -1,0 +1,25 @@
+{
+  "name": "@ticlo/express",
+  "version": "0.0.11",
+  "description": "ticlo express",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ticlo/ticlo.git"
+  },
+  "author": {
+    "name": "Rick Zhou",
+    "email": "rinick@gmail.com"
+  },
+  "license": "MPL-2.0",
+  "main": "./index.ts",
+  "module": "./index.ts",
+  "types": "./index.ts",
+  "dependencies": {
+    "@ticlo/core": "workspace:*",
+    "@ticlo/node": "workspace:*"
+  },
+  "peerDependencies": {
+    "express": "^5.0.1",
+    "express-ws": "^5.0.2"
+  }
+}

@@ -5,7 +5,7 @@ import reactData from './sample-data/react';
 import './sample-blocks';
 import {Logger} from '@ticlo/core/util/Logger';
 import {WorkerFunctionGen} from '@ticlo/core/worker/WorkerFunctionGen';
-import '../src/react';
+import '../packages/react';
 import {FrameServerConnection} from '@ticlo/html';
 import {IndexDbFlowStorage} from '@ticlo/html/storage/IndexDbStorage';
 

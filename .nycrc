@@ -4,10 +4,10 @@
     ".ts"
   ],
   "include": [
-    "src/core/**/*",
-    "src/node/**/*",
-    "src/web-server/**/*",
-    "src/test/**/*"
+    "packages/core/**/*",
+    "packages/node/**/*",
+    "packages/web-server/**/*",
+    "packages/test/**/*"
   ],
   "exclude": [
     "**/*.d.ts",

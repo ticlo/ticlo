@@ -5,9 +5,9 @@ export default defineConfig({
   plugins: [tsconfigPaths()],
   test: {
     globals: true,
-    globalSetup: 'src/node/vitest.global.setup.ts',
-    setupFiles: 'src/node/vitest.setup.ts',
-    include: ['src/core/**/*.spec.ts', 'src/node/**/*.spec.ts'],
+    globalSetup: 'packages/node/vitest.global.setup.ts',
+    setupFiles: 'packages/node/vitest.setup.ts',
+    include: ['packages/core/**/*.spec.ts', 'packages/node/**/*.spec.ts'],
     coverage: {
       provider: 'v8',
       reporter: ['lcov'],
@@ -18,7 +18,7 @@ export default defineConfig({
       '**/dist/**',
       '**/cypress/**',
       '**/.{idea,git,cache,output,temp}/**',
-      'src/editor/**',
+      'packages/editor/**',
       'bin/**',
       'example/**',
       'tool/**',

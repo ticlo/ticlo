@@ -4,9 +4,9 @@ import fs from 'fs';
 
 const treg = /\b(?:t|translateEditor)\(['"](.*?)['"](\)|, \{)/g;
 
-const enyaml = './src/editor/i18n/en.yaml';
-const substrLen = 'src/editor/'.length;
-const commonPath = 'src/editor/util/i18n-common.ts';
+const enyaml = './packages/editor/i18n/en.yaml';
+const substrLen = 'packages/editor/'.length;
+const commonPath = 'packages/editor/util/i18n-common.ts';
 
 let sharedKeys = new Map<string, string>();
 let allFiles = new Map<string, string[]>();
@@ -14,7 +14,7 @@ let allFiles = new Map<string, string[]>();
 function main() {
   const existingEn = fs.readFileSync(enyaml, {encoding: 'utf-8'});
   const enMap: Record<string, string> = YAML.parse(existingEn);
-  let files: string[] = glob.sync(`./src/editor/**/*.{ts,tsx}`, {posix: true});
+  let files: string[] = glob.sync(`./packages/editor/**/*.{ts,tsx}`, {posix: true});
   files.unshift(commonPath);
   for (let path of files) {
     let data = fs.readFileSync(path, 'utf8');

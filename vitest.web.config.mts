@@ -25,8 +25,8 @@ export default defineConfig({
     },
     isolate: false,
     globals: true,
-    include: ['src/core/**/*.spec.ts', 'src/html/**/*.spec.ts', 'src/react/**/*.spec.(ts|tsx)'],
-    setupFiles: ['src/html/vitest.setup.ts'],
+    include: ['packages/core/**/*.spec.ts', 'packages/html/**/*.spec.ts', 'packages/react/**/*.spec.(ts|tsx)'],
+    setupFiles: ['packages/html/vitest.setup.ts'],
 
     coverage: {
       provider: 'istanbul',
@@ -38,7 +38,7 @@ export default defineConfig({
       '**/dist/**',
       '**/cypress/**',
       '**/.{idea,git,cache,output,temp}/**',
-      'src/editor/**',
+      'packages/editor/**',
       'bin/**',
       'example/**',
       'tool/**',

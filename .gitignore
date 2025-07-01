@@ -9,7 +9,7 @@ node_modules
 /.parcel-cache
 build
 /dist
-/src/**/*.js
+/packages/**/*.js
 /test/**/*.js
 *.map
 *.jsx

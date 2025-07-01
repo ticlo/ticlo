@@ -55,5 +55,5 @@ for (let pkg of ['editor', 'core', 'express', 'html', 'node', 'react', 'test']) 
   if (!fs.existsSync(outdir)) {
     fs.mkdirSync(outdir);
   }
-  mergeI18n(`./src/${pkg}/**/i18n`, outdir);
+  mergeI18n(`./packages/${pkg}/**/i18n`, outdir);
 }

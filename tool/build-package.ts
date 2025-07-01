@@ -21,7 +21,7 @@ function makeDir(path: string) {
 }
 
 async function buildPackage(name: string) {
-  let fromDir = `src/${name}`;
+  let fromDir = `packages/${name}`;
   console.log(`building ${fromDir}`);
   // build package directly into node_modules, so one package can depend on the other
   let targetDir = `./build/${name}`;

@@ -1,14 +1,14 @@
 import * as React from 'react';
 import {Checkbox, ConfigProvider, Switch, Radio} from 'antd';
 import {Block, DataMap, decode, encodeSorted, FunctionDesc, Flow, PropDesc, Root, addConsoleLogger} from '@ticlo/core';
-import {TicloI18nSettings} from '@ticlo/core/editor';
+import {TicloI18nSettings} from '@ticlo/core';
 import {makeLocalConnection} from '@ticlo/core/connect/LocalConnection';
 import {data} from './sample-data/data';
 import reactData from './sample-data/react';
 import {initEditor, PropertyList, BlockStage, NodeTree} from '@ticlo/editor';
 import {DragDropDiv, DragState, DockLayout, DockContextType} from 'rc-dock';
 import {ClientConnection} from '@ticlo/core/connect/ClientConnection';
-import {Functions} from '@ticlo/core/block/Functions';
+import {Functions} from '@ticlo/core';
 import {FunctionTree} from '@ticlo/editor/function-selector/FunctionTree';
 
 import './sample-blocks';
@@ -23,7 +23,7 @@ import {FrameClientConnection} from '@ticlo/html/connect/FrameClientConnection';
 import {NodeTreePane} from '@ticlo/editor/dock/node-tree/NodeTreePane';
 import {TextEditorPane} from '@ticlo/editor/dock/text-editor/TextEditorPane';
 
-import '../src/test';
+import '../packages/test';
 import {FunctionSelect} from '@ticlo/editor/function-selector/FunctionSelector';
 
 import i18next from 'i18next';

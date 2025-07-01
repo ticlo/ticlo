@@ -17,7 +17,7 @@ import {
   BlockProperty,
 } from '@ticlo/core';
 import {BlockStagePane} from '@ticlo/editor/dock/block/BlockStagePane';
-import {TicloI18nSettings} from '@ticlo/core/editor';
+import {TicloI18nSettings} from '@ticlo/core';
 import {makeLocalConnection} from '@ticlo/core/connect/LocalConnection';
 import {data} from './sample-data/data';
 import reactData from './sample-data/react';
@@ -32,9 +32,9 @@ import {TicloLayoutContext, TicloLayoutContextType} from '@ticlo/editor/componen
 import {PropertyListPane} from '@ticlo/editor/dock/property/PropertyListPane';
 import {NodeTreePane} from '@ticlo/editor/dock/node-tree/NodeTreePane';
 import {TextEditorPane} from '@ticlo/editor/dock/text-editor/TextEditorPane';
-import '../src/html';
-import '../src/react';
-import '../src/test';
+import '../packages/html';
+import '../packages/react';
+import '../packages/test';
 import {FunctionSelect} from '@ticlo/editor/function-selector/FunctionSelector';
 
 import i18next from 'i18next';
