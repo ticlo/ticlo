@@ -1,0 +1,22 @@
+{
+  "name": "@ticlo/test",
+  "version": "0.0.11",
+  "description": "ticlo test utilities",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ticlo/ticlo.git"
+  },
+  "author": {
+    "name": "Rick Zhou",
+    "email": "rinick@gmail.com"
+  },
+  "license": "MPL-2.0",
+  "main": "./index.ts",
+  "module": "./index.ts",
+  "types": "./index.ts",
+  "dependencies": {
+    "@ticlo/core": "workspace:*",
+    "pretty-format": "^29.7.0",
+    "diff-sequences": "^29.6.3"
+  }
+}
