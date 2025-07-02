@@ -1,5 +1,5 @@
 import {expect} from 'vitest';
-import { simulate } from 'simulate-event';
+import {simulate} from 'simulate-event';
 import React from 'react';
 import {NodeTree} from '../../index';
 import {Block, Root} from '@ticlo/core';
@@ -10,23 +10,23 @@ import {removeLastTemplate, loadTemplate, querySingle} from '../../util/test-uti
 describe('editor NodeTree', function () {
   let server: any;
   let client: any;
-  
+
   afterEach(async function () {
     // Clean up React component first to stop any active watches
     removeLastTemplate();
-    
+
     // Give React time to fully unmount and clean up
-    await new Promise(resolve => setTimeout(resolve, 100));
-    
+    await new Promise((resolve) => setTimeout(resolve, 100));
+
     // Clean up the flow after component is unmounted
     if (Root.instance.getValue('NodeTree')) {
       Root.instance.deleteValue('NodeTree');
       await shouldHappen(() => !Root.instance.getValue('NodeTree'), 100);
     }
-    
+
     // Then destroy the connection
     destroyLastLocalConnection();
-    
+
     server = null;
     client = null;
   });
@@ -59,10 +59,7 @@ describe('editor NodeTree', function () {
 
     // expand child
 
-    simulate(
-      querySingle("//div.ticl-tree-node-text[text()='NodeTree']/../../div.ticl-tree-arr", div),
-      'click'
-    );
+    simulate(querySingle("//div.ticl-tree-node-text[text()='NodeTree']/../../div.ticl-tree-arr", div), 'click');
     await shouldHappen(() => contentDiv.childNodes.length >= 11);
 
     // find block icon
@@ -104,17 +101,11 @@ describe('editor NodeTree', function () {
     flow.setValue('5', undefined);
 
     // close children
-    simulate(
-      querySingle("//div.ticl-tree-node-text[text()='NodeTree']/../../div.ticl-tree-arr", div),
-      'click'
-    );
+    simulate(querySingle("//div.ticl-tree-node-text[text()='NodeTree']/../../div.ticl-tree-arr", div), 'click');
     await shouldHappen(() => contentDiv.childNodes.length === 1);
 
     // reopen it, should still show cached nodes
-    simulate(
-      querySingle("//div.ticl-tree-node-text[text()='NodeTree']/../../div.ticl-tree-arr", div),
-      'click'
-    );
+    simulate(querySingle("//div.ticl-tree-node-text[text()='NodeTree']/../../div.ticl-tree-arr", div), 'click');
     await shouldHappen(() => contentDiv.childNodes.length === 14);
     // node is removed
     expect(querySingle("//div.ticl-tree-node-text[text()='5']")).toBeNull();

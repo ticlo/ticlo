@@ -1,5 +1,5 @@
 import {expect} from 'vitest';
-import { simulate } from 'simulate-event';
+import {simulate} from 'simulate-event';
 import React from 'react';
 import {removeLastTemplate, loadTemplate, querySingle, fakeMouseEvent} from '../../../util/test-util';
 import {initEditor} from '../../../index';
@@ -41,7 +41,7 @@ describe('DateEditor', function () {
     // The picker interaction seems to have issues in the test environment
     let testDate = DateTime.fromISO('2020-05-15');
     onChange(testDate);
-    
+
     expect(value).toBe(testDate);
     expect(value.toISODate()).toBe('2020-05-15');
   });

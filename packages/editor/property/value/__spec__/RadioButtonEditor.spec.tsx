@@ -1,5 +1,5 @@
 import {expect} from 'vitest';
-import { simulate } from 'simulate-event';
+import {simulate} from 'simulate-event';
 import React from 'react';
 import {removeLastTemplate, loadTemplate, querySingle} from '../../../util/test-util';
 import {initEditor} from '../../../index';

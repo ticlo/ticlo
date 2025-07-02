@@ -1,5 +1,5 @@
 import {expect} from 'vitest';
-import { simulate } from 'simulate-event';
+import {simulate} from 'simulate-event';
 import React from 'react';
 import {BlockStage} from '../BlockStage';
 import {Block, Root, Flow} from '@ticlo/core';
@@ -41,13 +41,17 @@ describe('editor BlockStage', function () {
     await shouldHappen(() => div.querySelector('.ticl-block'), 500, 'find block');
 
     let block = div.querySelector('.ticl-block') as HTMLDivElement;
-    
+
     // Wait for block to be positioned and CSS to apply
-    await shouldHappen(() => {
-      let computedStyle = window.getComputedStyle(block);
-      return computedStyle.position === 'absolute' && block.offsetWidth === 345;
-    }, 1000, 'block positioned');
-    
+    await shouldHappen(
+      () => {
+        let computedStyle = window.getComputedStyle(block);
+        return computedStyle.position === 'absolute' && block.offsetWidth === 345;
+      },
+      1000,
+      'block positioned'
+    );
+
     // If still not positioned, skip these assertions as it's an environment issue
     if (block.offsetLeft === 0 && block.offsetTop === 0) {
       console.warn('Block positioning not working in test environment, skipping position assertions');
@@ -117,13 +121,17 @@ describe('editor BlockStage', function () {
     await shouldHappen(() => div.querySelector('.ticl-block'));
 
     let block = div.querySelector('.ticl-stage-scroll .ticl-block') as HTMLDivElement;
-    
+
     // Wait for block to be positioned and CSS to apply
-    await shouldHappen(() => {
-      let computedStyle = window.getComputedStyle(block);
-      return computedStyle.position === 'absolute' && block.offsetWidth === 345;
-    }, 1000, 'block positioned');
-    
+    await shouldHappen(
+      () => {
+        let computedStyle = window.getComputedStyle(block);
+        return computedStyle.position === 'absolute' && block.offsetWidth === 345;
+      },
+      1000,
+      'block positioned'
+    );
+
     // mouse down
     simulate(document.querySelector('.ticl-stage-scroll .ticl-block-head'), 'mousedown', {
       clientX: 0,
@@ -248,10 +256,7 @@ describe('editor BlockStage', function () {
     expect(div.querySelector('svg')).toBe(wire);
 
     // click the other block
-    simulate(
-      querySingle("//div.ticl-block-head.ticl-block-head-label[text()='subtract']/..", div),
-      'mousedown'
-    );
+    simulate(querySingle("//div.ticl-block-head.ticl-block-head-label[text()='subtract']/..", div), 'mousedown');
     // addBlock is no longer selected
     await shouldHappen(() => !addBlock.classList.contains('ticl-block-selected'));
     // since subtract block is now selected, wire should still have zindex

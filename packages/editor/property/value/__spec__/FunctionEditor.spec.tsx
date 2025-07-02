@@ -1,5 +1,5 @@
 import {expect} from 'vitest';
-import { simulate } from 'simulate-event';
+import {simulate} from 'simulate-event';
 import React from 'react';
 import {removeLastTemplate, loadTemplate, querySingle} from '../../../util/test-util';
 import {initEditor} from '../../../index';
@@ -39,10 +39,7 @@ describe('TypeEditor', function () {
     simulate(div.querySelector('.anticon-down'), 'click');
     await shouldHappen(() => querySingle("//div.ticl-tree-type/span[text()='math']", document.body));
 
-    simulate(
-      querySingle("//div.ticl-tree-type/span[text()='math']/../div.ticl-tree-arr", document.body),
-      'click'
-    );
+    simulate(querySingle("//div.ticl-tree-type/span[text()='math']/../div.ticl-tree-arr", document.body), 'click');
 
     await shouldHappen(() => querySingle("//div.ticl-func-view/span[text()='add']", document.body));
 

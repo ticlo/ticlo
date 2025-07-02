@@ -1,5 +1,5 @@
 import {expect} from 'vitest';
-import { simulate } from 'simulate-event';
+import {simulate} from 'simulate-event';
 import React from 'react';
 import {BlockStage} from '../BlockStage';
 import {Block, Root} from '@ticlo/core';
