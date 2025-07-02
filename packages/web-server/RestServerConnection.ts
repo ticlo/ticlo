@@ -1,7 +1,7 @@
 import {FastifyRequest, FastifyReply} from 'fastify';
 import {ServerConnection, DataMap, Logger, decode, encode, decodeReviver} from '@ticlo/core';
 
-export class FastifyRestServerConnection extends ServerConnection {
+export class RestServerConnection extends ServerConnection {
   onHttpPost = async (req: FastifyRequest, res: FastifyReply) => {
     try {
       // Parse JSON body with reviver

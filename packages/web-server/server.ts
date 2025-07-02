@@ -1,31 +1,35 @@
-import Express, {Request, Response} from 'express';
-import ExpressWs from 'express-ws';
+import {FastifyInstance, FastifyRequest, FastifyReply} from 'fastify';
+import fastifyWebsocket from '@fastify/websocket';
 import {Root} from '@ticlo/core';
 import {WsServerConnection} from '@ticlo/node';
 import {requestHandlerSymbol, ServerFunction} from './ServerFunction';
-import {RestServerConnection} from '@ticlo/node';
+import {RestServerConnection} from './RestServerConnection';
 
 // force import
 ((v: any) => {})(ServerFunction);
 
 /**
- * open a port for the http:express-server service
+ * open a port for the http:server service
  * @param app
  * @param basePath
  * @param serverBlockName
  */
-export function routeTiclo(app: Express.Application, basePath: string, serverBlockName: string = '^local-server') {
+export async function routeTiclo(app: FastifyInstance, basePath: string, serverBlockName: string = '^local-server') {
   if (!serverBlockName.startsWith('^')) {
     serverBlockName = '^' + serverBlockName;
   }
   let globalServiceBlock = Root.instance._globalRoot.createBlock(serverBlockName, true);
-  globalServiceBlock._load({'#is': 'web-server:express-server'});
+  globalServiceBlock._load({'#is': 'web-server:server'});
   Root.run(); // output the requestHandler
-  const requestHandler: (basePath: string, req: Request, res: Response) => void = (
+  const requestHandler: (basePath: string, req: FastifyRequest, res: FastifyReply) => void = (
     globalServiceBlock.getValue('#output') as any
   )?.[requestHandlerSymbol];
+
   if (requestHandler) {
-    app.all(`${basePath}/*tPath`, (req: Request, res: Response) => {
+    app.all(`${basePath}/*`, async (request: FastifyRequest, reply: FastifyReply) => {
+      // Adapt Fastify request/reply to match expected interface
+      const req = request as any;
+      const res = reply as any;
       requestHandler(basePath, req, res);
     });
   }
@@ -36,16 +40,27 @@ export function routeTiclo(app: Express.Application, basePath: string, serverBlo
  * @param app
  * @param routeTicloPath
  */
-export function connectTiclo(app: Express.Application, routeTicloPath: string) {
+export async function connectTiclo(app: FastifyInstance, routeTicloPath: string) {
   const restServer = new RestServerConnection(Root.instance);
-  let expressWs = ExpressWs(app);
-  let wsapp = expressWs.app;
-  wsapp.ws(routeTicloPath, function (ws, req) {
-    let serverConn = new WsServerConnection(ws, Root.instance);
+
+  // Register WebSocket plugin
+  await app.register(fastifyWebsocket);
+
+  // WebSocket route
+  app.register(async function (fastify) {
+    fastify.get(routeTicloPath, {websocket: true}, (socket, request) => {
+      const serverConn = new WsServerConnection(socket, Root.instance);
+    });
   });
 
-  app.post(routeTicloPath, restServer.onHttpPost);
-  app.get(`${routeTicloPath}/*path`, restServer.onHttpGetFile);
+  // REST routes
+  app.post(routeTicloPath, async (request, reply) => {
+    return restServer.onHttpPost(request as any, reply as any);
+  });
+
+  app.get(`${routeTicloPath}/*`, async (request, reply) => {
+    return restServer.onHttpGetFile(request as any, reply as any);
+  });
 }
 
 export function getEditorUrl(host: string, defaultFlow: string) {

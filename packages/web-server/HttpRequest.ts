@@ -1,14 +1,23 @@
-import {Request} from 'express';
+import {FastifyRequest, FastifyReply} from 'fastify';
 import {Block, convertToObject, DataMap} from '@ticlo/core';
-import {HttpRequest} from '@ticlo/core/functions/web-server/HttpRequest';
-import {number} from 'yargs';
+import {HttpRequest as BaseHttpRequest} from '@ticlo/core/functions/web-server/HttpRequest';
 
-export class ExpressHttpRequest extends HttpRequest {
-  req: Request;
-  constructor(req: Request, basePath: string) {
-    let {method, url, path, body, query, headers} = req;
-    super({method, url, body, query, headers, path: path.substring(basePath.length)});
+export class HttpRequest extends BaseHttpRequest {
+  req: FastifyRequest;
+  res: FastifyReply;
+
+  constructor(req: FastifyRequest, res: FastifyReply, basePath: string) {
+    let {method, url, body, query, headers} = req;
+    // Extract path from URL, removing query parameters
+    let path = url || req.routeOptions?.url || '';
+    const queryIndex = path.indexOf('?');
+    if (queryIndex !== -1) {
+      path = path.substring(0, queryIndex);
+    }
+
+    super({method, url: url || req.routeOptions?.url || '', body, query, headers, path: path.substring(basePath.length)});
     this.req = req;
+    this.res = res;
   }
 
   onResolve(worker: Block, output: any): DataMap {
@@ -17,9 +26,14 @@ export class ExpressHttpRequest extends HttpRequest {
       let status = typeof response.status === 'number' ? response.status : 200;
       let data = response.data;
       let headers = response.headers;
+
       if (headers) {
-        this.req.res.set(convertToObject(headers));
+        const headerObj = convertToObject(headers);
+        for (const [key, value] of Object.entries(headerObj)) {
+          this.res.header(key, value);
+        }
       }
+
       if (data != null) {
         switch (typeof data) {
           case 'boolean':
@@ -33,30 +47,30 @@ export class ExpressHttpRequest extends HttpRequest {
           case 'object':
             if (data.constructor !== Object && !(data instanceof Uint8Array)) {
               // invalid data type
-              this.req.res.status(status).end();
+              this.res.code(status).send();
               return;
             }
             break;
           default:
             // invalid data type
-            this.req.res.status(status).end();
+            this.res.code(status).send();
             return;
         }
       }
 
-      this.req.res.status(status).send(data);
+      this.res.code(status).send(data);
     } else {
-      this.req.res.status(501).end();
+      this.res.code(501).send();
     }
     return response;
   }
 
   onTimeout(): any {
-    this.req.res.status(500).send('timeout');
+    this.res.code(500).send('timeout');
     return super.onTimeout();
   }
 
   onCancel(): void {
-    this.req.res.status(500).send('canceled');
+    this.res.code(500).send('canceled');
   }
 }

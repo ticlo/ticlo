@@ -6,18 +6,13 @@ import {
 } from '@ticlo/core/functions/web-server/RouteFunction';
 import {Functions} from '@ticlo/core';
 import {BaseFunction, StatefulFunction} from '@ticlo/core/block/BlockFunction';
-import * as Express from 'express';
+import {FastifyRequest, FastifyReply} from 'fastify';
 import {decodeReviver, encode} from '@ticlo/core/util/Serialize';
 import {escapedObject} from '@ticlo/core/util/EscapedObject';
 import {Uid} from '@ticlo/core/util/Uid';
-import {ExpressHttpRequest} from './HttpRequest';
+import {HttpRequest} from './HttpRequest';
 import {Resolver} from '@ticlo/core/block/Resolver';
 import type {Block} from '@ticlo/core';
-
-const urlencodedParser = Express.urlencoded({extended: false});
-const jsonParser = Express.json({reviver: decodeReviver});
-const textParser = Express.text();
-const bufferParser = Express.raw();
 
 const serviceId: Uid = new Uid();
 export const requestHandlerSymbol = Symbol('requestHandler');
@@ -26,7 +21,7 @@ export class ServerFunction extends BaseFunction<Block> {
   strictRoute: Map<string, Set<RouteFunction>> = new Map();
   wildcardRoute: Map<string, Set<RouteFunction>> = new Map();
 
-  pendingTasks: ExpressHttpRequest[] = [];
+  pendingTasks: HttpRequest[] = [];
 
   chooseRouteType(path: string): [Map<string, Set<RouteFunction>>, string] {
     let targetRoutes: Map<string, Set<RouteFunction>>;
@@ -42,35 +37,49 @@ export class ServerFunction extends BaseFunction<Block> {
     return [targetRoutes, path];
   }
 
-  requestHandler = (basePath: string, req: Express.Request, res: Express.Response) => {
+  requestHandler = async (basePath: string, req: FastifyRequest, res: FastifyReply) => {
     let contentType: RouteContentType;
-    let midware: Express.RequestHandler;
+    let body: any;
 
-    switch (req.headers['content-type']) {
-      case 'application/json':
+    // Parse content based on content-type
+    const contentTypeHeader = req.headers['content-type'] as string;
+
+    if (contentTypeHeader) {
+      if (contentTypeHeader.includes('application/json')) {
         contentType = 'json';
-        midware = jsonParser;
-        break;
-      case 'text/plain':
+        try {
+          body = typeof req.body === 'string' ? JSON.parse(req.body, decodeReviver) : req.body;
+        } catch (e) {
+          body = req.body;
+        }
+      } else if (contentTypeHeader.includes('text/plain')) {
         contentType = 'text';
-        midware = textParser;
-        break;
-      case 'application/x-www-form-urlencoded':
+        body = req.body;
+      } else if (contentTypeHeader.includes('application/x-www-form-urlencoded')) {
         contentType = 'urlencoded';
-        midware = urlencodedParser;
-        break;
-      // case 'multipart/form-data':
-      //   contentType = 'multi-part';
-      //   midware = multipartParser;
-      //   break;
-      case 'application/octet-stream':
+        body = req.body;
+      } else if (contentTypeHeader.includes('application/octet-stream')) {
         contentType = 'buffer';
-        midware = bufferParser;
-        break;
-      default:
+        body = req.body;
+      } else {
         contentType = 'empty';
+        body = undefined;
+      }
+    } else {
+      contentType = 'empty';
+      body = undefined;
     }
-    let path = req.path.substring(basePath.length);
+
+    // Create a modified request object with parsed body
+    const modifiedReq = Object.assign({}, req, {body});
+
+    let path = req.url.substring(basePath.length);
+    // Remove query string if present
+    const queryIndex = path.indexOf('?');
+    if (queryIndex !== -1) {
+      path = path.substring(0, queryIndex);
+    }
+
     let method: string = req.method;
     let targetRoute: RouteFunction[] = [];
 
@@ -112,12 +121,13 @@ export class ServerFunction extends BaseFunction<Block> {
         }
       }
     }
+
     if (targetRoute.length === 0) {
-      res.status(statusError).end();
-      return;
+      return res.code(statusError).send();
     }
+
     const emitTask = () => {
-      let request = new ExpressHttpRequest(req, basePath);
+      let request = new HttpRequest(modifiedReq as any, res, basePath);
       if (this.pendingTasks.length === 0) {
         Resolver.callLater(this.checkPendingTasks);
       }
@@ -126,14 +136,11 @@ export class ServerFunction extends BaseFunction<Block> {
         route.addRequest(request);
       }
     };
-    if (midware) {
-      midware(req, res, emitTask);
-    } else {
-      emitTask();
-    }
+
+    emitTask();
   };
 
-  service: RouteService = escapedObject(`express-server-${serviceId.next(10)}`, {
+  service: RouteService = escapedObject(`server-${serviceId.next(10)}`, {
     addRoute: (path: string, routeFunction: RouteFunction) => {
       let [targetRoute, targetPath] = this.chooseRouteType(path);
       let routes: Set<RouteFunction> = targetRoute.get(targetPath);
@@ -159,7 +166,7 @@ export class ServerFunction extends BaseFunction<Block> {
   checkPendingTasks = () => {
     for (let task of this.pendingTasks) {
       if (!task._handler) {
-        task.req.res.status(501).end();
+        task.res.code(501).send();
         // prevent handler to process in the future
         task._handler = task;
       }
@@ -175,7 +182,7 @@ export class ServerFunction extends BaseFunction<Block> {
 Functions.add(
   ServerFunction,
   {
-    name: 'express-server',
+    name: 'server',
     icon: 'fas:network-wired',
     properties: [{name: '#output', pinned: true, type: 'object', readonly: true}],
     tags: ['route-server'],
