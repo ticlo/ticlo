@@ -26,7 +26,6 @@
     "@uiw/react-codemirror": "^4.21.25",
     "antd": "4.24.16",
     "codemirror": "^6.0.1",
-    "dayjs": "^1.11.10",
     "dompurify": "^3.2.4",
     "highlight.js": "11.9.0",
     "lodash": "^4.17.21",
