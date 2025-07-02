@@ -9,10 +9,10 @@ export class FastifyRestServerConnection extends ServerConnection {
       if (typeof body === 'string') {
         body = JSON.parse(body, decodeReviver);
       }
-      
+
       const request = body;
       const cmd = request?.cmd as string;
-      
+
       if (typeof cmd === 'string' && Object.hasOwn(ServerConnection.prototype, cmd)) {
         let func: Function = (this as any)[cmd];
         if (typeof func === 'function' && func.length === 1 && !cmd.startsWith('on')) {

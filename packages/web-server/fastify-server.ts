@@ -24,7 +24,7 @@ export async function routeTiclo(app: FastifyInstance, basePath: string, serverB
   const requestHandler: (basePath: string, req: FastifyRequest, res: FastifyReply) => void = (
     globalServiceBlock.getValue('#output') as any
   )?.[requestHandlerSymbol];
-  
+
   if (requestHandler) {
     app.all(`${basePath}/*`, async (request: FastifyRequest, reply: FastifyReply) => {
       // Adapt Fastify request/reply to match expected interface
@@ -42,13 +42,13 @@ export async function routeTiclo(app: FastifyInstance, basePath: string, serverB
  */
 export async function connectTiclo(app: FastifyInstance, routeTicloPath: string) {
   const restServer = new FastifyRestServerConnection(Root.instance);
-  
+
   // Register WebSocket plugin
   await app.register(fastifyWebsocket);
-  
+
   // WebSocket route
   app.register(async function (fastify) {
-    fastify.get(routeTicloPath, { websocket: true }, (socket, request) => {
+    fastify.get(routeTicloPath, {websocket: true}, (socket, request) => {
       const serverConn = new WsServerConnection(socket, Root.instance);
     });
   });
@@ -57,7 +57,7 @@ export async function connectTiclo(app: FastifyInstance, routeTicloPath: string)
   app.post(routeTicloPath, async (request, reply) => {
     return restServer.onHttpPost(request as any, reply as any);
   });
-  
+
   app.get(`${routeTicloPath}/*`, async (request, reply) => {
     return restServer.onHttpGetFile(request as any, reply as any);
   });

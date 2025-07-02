@@ -28,9 +28,9 @@ import * as path from 'path';
     https: {
       allowHTTP1: true, // Allow HTTP/1.1 for compatibility
       key: fs.readFileSync(path.join(__dirname, 'server.key')),
-      cert: fs.readFileSync(path.join(__dirname, 'server.cert'))
+      cert: fs.readFileSync(path.join(__dirname, 'server.cert')),
     },
-    logger: true
+    logger: true,
   });
 
   // CORS middleware
@@ -41,10 +41,7 @@ import * as path from 'path';
 
   // Handle OPTIONS requests
   app.options('/*', async (request, reply) => {
-    reply
-      .header('Access-Control-Allow-Origin', '*')
-      .header('Access-Control-Allow-Headers', 'content-type')
-      .send();
+    reply.header('Access-Control-Allow-Origin', '*').header('Access-Control-Allow-Headers', 'content-type').send();
   });
 
   // Register Ticlo routes
@@ -57,7 +54,7 @@ import * as path from 'path';
   });
 
   try {
-    await app.listen({ port: 8010, host: '0.0.0.0' });
+    await app.listen({port: 8010, host: '0.0.0.0'});
     console.log('Server listening on https://localhost:8010 (HTTP/2)');
     console.log(getEditorUrl('wss://127.0.0.1:8010/ticlo', 'example'));
     console.log('https://localhost:5173/editor.html?host=wss://127.0.0.1:8010/ticlo&flow=example');

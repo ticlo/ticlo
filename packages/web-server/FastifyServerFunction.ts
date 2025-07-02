@@ -43,7 +43,7 @@ export class FastifyServerFunction extends BaseFunction<Block> {
 
     // Parse content based on content-type
     const contentTypeHeader = req.headers['content-type'] as string;
-    
+
     if (contentTypeHeader) {
       if (contentTypeHeader.includes('application/json')) {
         contentType = 'json';
@@ -71,15 +71,15 @@ export class FastifyServerFunction extends BaseFunction<Block> {
     }
 
     // Create a modified request object with parsed body
-    const modifiedReq = Object.assign({}, req, { body });
-    
+    const modifiedReq = Object.assign({}, req, {body});
+
     let path = req.url.substring(basePath.length);
     // Remove query string if present
     const queryIndex = path.indexOf('?');
     if (queryIndex !== -1) {
       path = path.substring(0, queryIndex);
     }
-    
+
     let method: string = req.method;
     let targetRoute: RouteFunction[] = [];
 
@@ -121,7 +121,7 @@ export class FastifyServerFunction extends BaseFunction<Block> {
         }
       }
     }
-    
+
     if (targetRoute.length === 0) {
       return res.code(statusError).send();
     }
@@ -136,7 +136,7 @@ export class FastifyServerFunction extends BaseFunction<Block> {
         route.addRequest(request);
       }
     };
-    
+
     emitTask();
   };
 

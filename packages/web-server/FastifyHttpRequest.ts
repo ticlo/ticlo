@@ -5,7 +5,7 @@ import {HttpRequest} from '@ticlo/core/functions/web-server/HttpRequest';
 export class FastifyHttpRequest extends HttpRequest {
   req: FastifyRequest;
   res: FastifyReply;
-  
+
   constructor(req: FastifyRequest, res: FastifyReply, basePath: string) {
     let {method, url, body, query, headers} = req;
     // Extract path from URL, removing query parameters
@@ -14,7 +14,7 @@ export class FastifyHttpRequest extends HttpRequest {
     if (queryIndex !== -1) {
       path = path.substring(0, queryIndex);
     }
-    
+
     super({method, url, body, query, headers, path: path.substring(basePath.length)});
     this.req = req;
     this.res = res;
@@ -26,14 +26,14 @@ export class FastifyHttpRequest extends HttpRequest {
       let status = typeof response.status === 'number' ? response.status : 200;
       let data = response.data;
       let headers = response.headers;
-      
+
       if (headers) {
         const headerObj = convertToObject(headers);
         for (const [key, value] of Object.entries(headerObj)) {
           this.res.header(key, value);
         }
       }
-      
+
       if (data != null) {
         switch (typeof data) {
           case 'boolean':
