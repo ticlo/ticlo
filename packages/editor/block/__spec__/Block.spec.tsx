@@ -52,13 +52,8 @@ describe('editor BlockStage', function () {
       'block positioned'
     );
 
-    // If still not positioned, skip these assertions as it's an environment issue
-    if (block.offsetLeft === 0 && block.offsetTop === 0) {
-      console.warn('Block positioning not working in test environment, skipping position assertions');
-    } else {
-      expect(block.offsetLeft).toBe(123);
-      expect(block.offsetTop).toBe(234);
-    }
+    expect(block.offsetLeft).toBe(123);
+    expect(block.offsetTop).toBe(234);
     expect(block.offsetWidth).toBe(345);
 
     // test all fields in the block body
@@ -141,11 +136,6 @@ describe('editor BlockStage', function () {
     await shouldHappen(() => block.classList.contains('ticl-block-selected'));
 
     // mouse move to drag
-    // If still not positioned, skip these assertions as it's an environment issue
-    if (block.offsetLeft === 0 && block.offsetTop === 0) {
-      console.warn('Block positioning not working in test environment, skipping drag test');
-      return;
-    }
     expect(block.offsetLeft).toBe(123);
     expect(block.offsetTop).toBe(234);
     simulate(document.body, 'mousemove', {
