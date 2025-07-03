@@ -1,14 +1,14 @@
 import Fastify from 'fastify';
 import yargs from 'yargs';
 import {Root} from '@ticlo/core';
-import '../packages/test';
-import '../packages/node';
+import '../../packages/test';
+import '../../packages/node';
 import {connectTiclo, routeTiclo, getEditorUrl} from '@ticlo/web-server/server';
 import {TestLoader} from '@ticlo/node/test-loader/TestLoader';
 import {TestRunner} from '@ticlo/test/TestRunner';
 import type {FlowTestGroup} from '@ticlo/test/FlowTestGroup';
 
-const packagesToTest = ['./packages/core', './packages/web-server', './packages/node'];
+const packagesToTest = ['../../packages/core', '../../packages/web-server', '../../packages/node'];
 
 (async () => {
   let parser = yargs

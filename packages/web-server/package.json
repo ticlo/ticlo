@@ -16,7 +16,8 @@
   "types": "./index.ts",
   "dependencies": {
     "@ticlo/core": "workspace:*",
-    "@ticlo/node": "workspace:*"
+    "@ticlo/node": "workspace:*",
+    "fastify": "^5.0.0"
   },
   "peerDependencies": {
     "fastify": "^5.0.0",

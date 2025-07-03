@@ -1,12 +1,17 @@
-import {Request, Response, json as expressJson} from 'express';
+import {FastifyRequest, FastifyReply} from 'fastify';
 import {ServerConnection, DataMap, Logger, decode, encode, decodeReviver} from '@ticlo/core';
 
-const parseArrowJson = expressJson({reviver: decodeReviver});
-
 export class RestServerConnection extends ServerConnection {
-  onHttpPost = (req: Request, res: Response) => {
-    parseArrowJson(req, res, () => {
-      const request = req.body;
+  onHttpPost = async (req: FastifyRequest, res: FastifyReply) => {
+    try {
+      // Parse JSON body with decodeReviver
+      let request: any;
+      if (typeof req.body === 'string') {
+        request = JSON.parse(req.body, decodeReviver);
+      } else {
+        request = req.body;
+      }
+      
       const cmd = request?.cmd as string;
       if (typeof cmd === 'string' && Object.hasOwn(ServerConnection.prototype, cmd)) {
         let func: Function = (this as any)[cmd];
@@ -14,24 +19,25 @@ export class RestServerConnection extends ServerConnection {
           const result = func.call(this, request);
           if (result) {
             if (typeof result === 'string') {
-              res.json({cmd: 'error', msg: result});
-              res.end();
+              return res.send({cmd: 'error', msg: result});
             } else {
-              res.send(encode(result));
-              res.end();
+              res.header('Content-Type', 'application/json');
+              return res.send(encode(result));
             }
           } else {
-            res.end();
+            return res.send('');
           }
         }
       } else {
-        res.status(400).end();
+        return res.status(400).send('');
       }
-    });
+    } catch (error) {
+      return res.status(400).send('');
+    }
   };
 
-  onHttpGetFile = (req: Request, res: Response) => {
+  onHttpGetFile = async (req: FastifyRequest, res: FastifyReply) => {
     console.log('getfile');
-    res.status(402).end();
+    return res.status(402).send('');
   };
 }

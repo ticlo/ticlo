@@ -89,8 +89,8 @@
     "test-browser-coverage": "cross-env NODE_ENV=TEST vitest run -c vitest.web.config.mts --coverage",
     "ticlo-server": "tsx app/server/ticlo-server.ts",
     "server": "tsx app/server/ticlo-server.ts",
-    "ticlo-test-server": "tsx bin/test-server --serve --run",
-    "ticlo-test-nyc": "nyc --silent --check-coverage=false tsx ./bin/test-server.ts --run --quitOnFinish && nyc report --reporter=text-lcov > coverage/nyc-ticlo.lcov",
+    "ticlo-test-server": "tsx app/test/test-server --serve --run",
+    "ticlo-test-nyc": "nyc --silent --check-coverage=false tsx ./app/test/test-server.ts --run --quitOnFinish && nyc report --reporter=text-lcov > coverage/nyc-ticlo.lcov",
     "prettier-check": "prettier --check \"(packages|tool|app)/**/*.+(ts|tsx|less)\"",
     "prettier-write": "prettier --write \"(packages|tool|app)/**/*.+(ts|tsx|less)\""
   },
