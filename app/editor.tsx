@@ -281,7 +281,7 @@ class App extends React.PureComponent<Props, State> {
 
   let client = window.opener
     ? new FrameClientConnection(window.opener) // used by server-window.html
-    : new MixedBrowserConnection(`http://127.0.0.1:8010/ticlo`); // used by express server
+    : new MixedBrowserConnection(`http://127.0.0.1:8010/ticlo`); // used by ticlo-server
   createRoot(document.getElementById('app')).render(<App conn={client} />);
 })();
 

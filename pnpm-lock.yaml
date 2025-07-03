@@ -32,6 +32,18 @@ importers:
       '@ticlo/editor':
         specifier: workspace:*
         version: link:packages/editor
+      '@ticlo/html':
+        specifier: workspace:*
+        version: link:packages/html
+      '@ticlo/react':
+        specifier: workspace:*
+        version: link:packages/react
+      '@ticlo/test':
+        specifier: workspace:*
+        version: link:packages/test
+      '@ticlo/web-server':
+        specifier: workspace:*
+        version: link:packages/web-server
       '@types/babel__preset-env':
         specifier: ^7.9.6
         version: 7.10.0
@@ -62,6 +74,9 @@ importers:
       '@types/react-dom':
         specifier: ^18.2.22
         version: 18.3.7(@types/react@18.3.22)
+      '@types/serve-static':
+        specifier: ^1.15.8
+        version: 1.15.8
       '@types/shelljs':
         specifier: ^0.8.15
         version: 0.8.16
@@ -203,6 +218,9 @@ importers:
       express-ws:
         specifier: ^5.0.2
         version: 5.0.2(express@5.1.0)
+      fastify:
+        specifier: ^5.0.0
+        version: 5.4.0
       i18next:
         specifier: ^23.10.1
         version: 23.16.8
@@ -1691,6 +1709,9 @@ packages:
 
   '@types/serve-static@1.15.7':
     resolution: {integrity: sha512-W8Ym+h8nhuRwaKPaDw34QUkwsGi6Rc4yYqvKFo5rm2FUEhCFbzVWrxXUxuKK8TASjWsysJY0nsmNCGhCOIsrOw==}
+
+  '@types/serve-static@1.15.8':
+    resolution: {integrity: sha512-roei0UY3LhpOJvjbIP6ZZFngyLKl5dskOtDhxY5THRSpO+ZI+nzJ+m5yUMzGrp89YRa7lvknKkMYjqQFGwA7Sg==}
 
   '@types/shelljs@0.8.16':
     resolution: {integrity: sha512-40SUXiH0tZfAg/oKkkGF1kdHPAmE4slv2xAmbfa8VtE6ztHYwdpW2phlzHTVdJh5JOGqA3Cx1Hzp7kxFalKHYA==}
@@ -6367,6 +6388,12 @@ snapshots:
       '@types/node': 20.17.50
 
   '@types/serve-static@1.15.7':
+    dependencies:
+      '@types/http-errors': 2.0.4
+      '@types/node': 20.17.50
+      '@types/send': 0.17.4
+
+  '@types/serve-static@1.15.8':
     dependencies:
       '@types/http-errors': 2.0.4
       '@types/node': 20.17.50

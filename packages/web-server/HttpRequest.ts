@@ -15,7 +15,14 @@ export class HttpRequest extends BaseHttpRequest {
       path = path.substring(0, queryIndex);
     }
 
-    super({method, url: url || req.routeOptions?.url || '', body, query, headers, path: path.substring(basePath.length)});
+    super({
+      method,
+      url: url || req.routeOptions?.url || '',
+      body,
+      query,
+      headers,
+      path: path.substring(basePath.length),
+    });
     this.req = req;
     this.res = res;
   }

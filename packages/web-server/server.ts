@@ -1,4 +1,4 @@
-import {FastifyInstance, FastifyRequest, FastifyReply} from 'fastify';
+import {FastifyInstance, FastifyRequest, FastifyReply, RawServerBase} from 'fastify';
 import fastifyWebsocket from '@fastify/websocket';
 import {Root} from '@ticlo/core';
 import {WsServerConnection} from '@ticlo/node';
@@ -14,7 +14,11 @@ import {RestServerConnection} from './RestServerConnection';
  * @param basePath
  * @param serverBlockName
  */
-export async function routeTiclo(app: FastifyInstance, basePath: string, serverBlockName: string = '^local-server') {
+export async function routeTiclo<TServer extends RawServerBase = RawServerBase>(
+  app: FastifyInstance<TServer>,
+  basePath: string,
+  serverBlockName: string = '^local-server'
+) {
   if (!serverBlockName.startsWith('^')) {
     serverBlockName = '^' + serverBlockName;
   }
@@ -26,7 +30,7 @@ export async function routeTiclo(app: FastifyInstance, basePath: string, serverB
   )?.[requestHandlerSymbol];
 
   if (requestHandler) {
-    app.all(`${basePath}/*`, async (request: FastifyRequest, reply: FastifyReply) => {
+    app.all(`${basePath}/*`, async (request, reply) => {
       // Adapt Fastify request/reply to match expected interface
       const req = request as any;
       const res = reply as any;
@@ -40,7 +44,10 @@ export async function routeTiclo(app: FastifyInstance, basePath: string, serverB
  * @param app
  * @param routeTicloPath
  */
-export async function connectTiclo(app: FastifyInstance, routeTicloPath: string) {
+export async function connectTiclo<TServer extends RawServerBase = RawServerBase>(
+  app: FastifyInstance<TServer>,
+  routeTicloPath: string
+) {
   const restServer = new RestServerConnection(Root.instance);
 
   // Register WebSocket plugin

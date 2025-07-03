@@ -4,7 +4,7 @@ import {
   RouteMethod,
   RouteService,
 } from '@ticlo/core/functions/web-server/RouteFunction';
-import {Functions} from '@ticlo/core';
+import {Functions, type Block} from '@ticlo/core';
 import {BaseFunction, StatefulFunction} from '@ticlo/core/block/BlockFunction';
 import {FastifyRequest, FastifyReply} from 'fastify';
 import {decodeReviver, encode} from '@ticlo/core/util/Serialize';
@@ -12,7 +12,6 @@ import {escapedObject} from '@ticlo/core/util/EscapedObject';
 import {Uid} from '@ticlo/core/util/Uid';
 import {HttpRequest} from './HttpRequest';
 import {Resolver} from '@ticlo/core/block/Resolver';
-import type {Block} from '@ticlo/core';
 
 const serviceId: Uid = new Uid();
 export const requestHandlerSymbol = Symbol('requestHandler');
@@ -71,7 +70,7 @@ export class ServerFunction extends BaseFunction<Block> {
     }
 
     // Create a modified request object with parsed body
-    const modifiedReq = Object.assign({}, req, {body});
+    const modifiedReq = {...req, body};
 
     let path = req.url.substring(basePath.length);
     // Remove query string if present
