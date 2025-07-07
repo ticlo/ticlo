@@ -1,0 +1,63 @@
+name: Deploy to ticlo.org
+
+on:
+  push:
+    branches: [ deploy ]
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout source code
+      uses: actions/checkout@v4
+      
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        
+    - name: Setup pnpm
+      uses: pnpm/action-setup@v4
+      with:
+        version: 10.11.0
+        
+    - name: Install dependencies
+      run: pnpm install
+      
+    - name: Build project
+      run: npm run vite-build
+      
+    - name: Checkout ticlo.org repository
+      uses: actions/checkout@v4
+      with:
+        repository: ticlo/ticlo.org
+        token: ${{ secrets.DEPLOY_TOKEN }}
+        path: ticlo-org
+        
+    - name: Preserve CNAME file
+      run: |
+        if [ -f ticlo-org/CNAME ]; then
+          cp ticlo-org/CNAME dist/CNAME
+        fi
+        
+    - name: Deploy to ticlo.org
+      run: |
+        cd ticlo-org
+        git config user.name "github-actions[bot]"
+        git config user.email "github-actions[bot]@users.noreply.github.com"
+        
+        # Sync files from dist to current directory
+        # This will only modify files that are actually different
+        rsync -av --delete --exclude='.git' ../dist/ ./
+        
+        # Add all changes
+        git add .
+        
+        # Commit if there are changes
+        if [ -n "$(git status --porcelain)" ]; then
+          git commit -m "Deploy from ticlo/ticlo@${{ github.sha }}"
+          git push
+        else
+          echo "No changes to deploy"
+        fi
