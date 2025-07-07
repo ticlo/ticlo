@@ -17,9 +17,9 @@ function loadCssInHeader() {
   if (!(window as any).ticloCssLoaded) {
     loadOneCss('https://fonts.googleapis.com/css?family=Fredoka+One');
     // For Vite, we need to use the correct paths
-    loadOneCss('/app/antd.css');
-    loadOneCss('/app/editor.css');
-    loadOneCss('/app/icons.css');
+    loadOneCss('/app/css/antd.css');
+    loadOneCss('/app/css/editor.css');
+    loadOneCss('/app/css/icons.css');
     (window as any).ticloCssLoaded = true;
   }
 }
