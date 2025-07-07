@@ -3,6 +3,7 @@ import fastifyWebsocket from '@fastify/websocket';
 import {Root} from '@ticlo/core';
 import {WsServerConnection, RestServerConnection} from '@ticlo/node';
 import {requestHandlerSymbol, ServerFunction} from './ServerFunction';
+import {RouteGenericInterface} from 'fastify/types/route';
 
 // force import
 ((v: any) => {})(ServerFunction);
@@ -24,16 +25,16 @@ export async function routeTiclo<TServer extends RawServerBase = RawServerBase>(
   let globalServiceBlock = Root.instance._globalRoot.createBlock(serverBlockName, true);
   globalServiceBlock._load({'#is': 'web-server:server'});
   Root.run(); // output the requestHandler
-  const requestHandler: (basePath: string, req: FastifyRequest, res: FastifyReply) => void = (
-    globalServiceBlock.getValue('#output') as any
-  )?.[requestHandlerSymbol];
+  const requestHandler: (
+    basePath: string,
+    req: FastifyRequest<RouteGenericInterface, TServer>,
+    res: FastifyReply<RouteGenericInterface, TServer>
+  ) => void = (globalServiceBlock.getValue('#output') as any)?.[requestHandlerSymbol];
 
   if (requestHandler) {
-    app.all(`${basePath}/*`, async (request, reply) => {
+    app.all(`${basePath}/*`, (request, reply) => {
       // Adapt Fastify request/reply to match expected interface
-      const req = request as any;
-      const res = reply as any;
-      requestHandler(basePath, req, res);
+      requestHandler(basePath, request, reply);
     });
   }
 }

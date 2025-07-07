@@ -26,7 +26,7 @@ import * as path from 'path';
   const app = Fastify({
     logger: true,
   });
-  
+
   // HTTP/2 configuration example (commented out):
   // const app = Fastify({
   //   http2: true,

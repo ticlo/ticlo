@@ -51,7 +51,7 @@ const packagesToTest = ['../../packages/core', '../../packages/web-server', '../
 
   // Create Fastify instance (HTTP/1.1 for test server compatibility)
   const app = Fastify({
-    logger: false
+    logger: false,
   });
 
   // CORS middleware
