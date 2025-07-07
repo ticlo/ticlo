@@ -9,7 +9,7 @@ export class HttpRequest extends BaseHttpRequest {
   constructor(req: FastifyRequest, res: FastifyReply, basePath: string) {
     let {method, url, body, query, headers} = req;
     // Extract path from URL, removing query parameters
-    let path = url || req.routeOptions?.url || '';
+    let path = url || req.raw.url || '';
     const queryIndex = path.indexOf('?');
     if (queryIndex !== -1) {
       path = path.substring(0, queryIndex);
@@ -17,7 +17,7 @@ export class HttpRequest extends BaseHttpRequest {
 
     super({
       method,
-      url: url || req.routeOptions?.url || '',
+      url: url || req.raw.url || '',
       body,
       query,
       headers,

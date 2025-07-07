@@ -8,7 +8,7 @@ import {TestLoader} from '@ticlo/node/test-loader/TestLoader';
 import {TestRunner} from '@ticlo/test/TestRunner';
 import type {FlowTestGroup} from '@ticlo/test/FlowTestGroup';
 
-const packagesToTest = ['../../packages/core', '../../packages/web-server', '../../packages/node'];
+const packagesToTest = ['packages/core', 'packages/web-server', 'packages/node'];
 
 (async () => {
   let parser = yargs
