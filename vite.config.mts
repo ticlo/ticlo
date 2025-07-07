@@ -22,6 +22,9 @@ async function checkFiles() {
       console.error(`Error: ${stderr}`);
     }
   }
+  if (!fs.existsSync('app/css')) {
+    fs.mkdirSync('app/css', {recursive: true});
+  }
   if (!fs.existsSync('app/css/editor.css')) {
     console.log('Building editor css...');
     const {stderr} = await execAsync('npm run build-less');
@@ -60,15 +63,15 @@ function preProcess(): Plugin {
 function getCssInputs() {
   const cssDir = './app/css';
   const inputs: Record<string, string> = {};
-  
+
   if (fs.existsSync(cssDir)) {
-    const cssFiles = fs.readdirSync(cssDir).filter(file => file.endsWith('.css'));
+    const cssFiles = fs.readdirSync(cssDir).filter((file) => file.endsWith('.css'));
     for (const file of cssFiles) {
       const name = path.basename(file, '.css');
       inputs[name] = fileURLToPath(new URL(`./app/css/${file}`, import.meta.url));
     }
   }
-  
+
   return inputs;
 }
 
