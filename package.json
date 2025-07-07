@@ -78,7 +78,7 @@
     "vite-build": "vite build",
     "test-nyc-strict": "cross-env NODE_ENV=TEST TS_NODE_PROJECT='tsconfig.node.json' nyc --skip-full --check-coverage=true mocha 'packages/core/**/*.spec.ts' 'packages/node/**/*.spec.ts' && nyc report --reporter=text-lcov > coverage/nyc-strict.lcov",
     "test-nyc": "cross-env TS_NODE_PROJECT='tsconfig.node.json' nyc --skip-full --check-coverage=true mocha 'packages/core/**/*.spec.ts' 'packages/node/**/*.spec.ts' && nyc report --reporter=text-lcov",
-    "build-less": "lessc --js packages/editor/style/antd.less app/antd.css && lessc --js packages/editor/style/index.less app/editor.css",
+    "build-less": "lessc --js packages/editor/style/antd.less app/css/antd.css && lessc --js packages/editor/style/index.less app/css/editor.css",
     "build-icons": "tsx tool/build-icons",
     "build-i18n": "tsx tool/merge-lng",
     "build-i18n-pre-collect-en": "tsx tool/collect-editor-en-locale.ts",

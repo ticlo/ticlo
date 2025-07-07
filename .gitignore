@@ -17,7 +17,7 @@ build
 /temp
 /app/**/*.js
 /app/**/*.ticlo
-/app/*.css
+/app/css/*.css
 en.base.yaml
 /i18n/*
 /icons/font-awesome/solid/removed

@@ -6,6 +6,7 @@ import tsconfigPaths from 'vite-tsconfig-paths';
 import fs from 'fs';
 import {exec} from 'child_process';
 import util from 'util';
+import path from 'path';
 
 const execAsync = util.promisify(exec);
 let checked = false; // shared across both hooks
@@ -21,14 +22,14 @@ async function checkFiles() {
       console.error(`Error: ${stderr}`);
     }
   }
-  if (!fs.existsSync('app/editor.css')) {
+  if (!fs.existsSync('app/css/editor.css')) {
     console.log('Building editor css...');
     const {stderr} = await execAsync('npm run build-less');
     if (stderr) {
       console.error(`Error: ${stderr}`);
     }
   }
-  if (!fs.existsSync('app/icons.css')) {
+  if (!fs.existsSync('app/css/icons.css')) {
     console.log('Building icons...');
     const {stderr} = await execAsync('npm run build-icons');
     if (stderr) {
@@ -55,6 +56,22 @@ function preProcess(): Plugin {
   };
 }
 
+// Get all CSS files from the css folder
+function getCssInputs() {
+  const cssDir = './app/css';
+  const inputs: Record<string, string> = {};
+  
+  if (fs.existsSync(cssDir)) {
+    const cssFiles = fs.readdirSync(cssDir).filter(file => file.endsWith('.css'));
+    for (const file of cssFiles) {
+      const name = path.basename(file, '.css');
+      inputs[name] = fileURLToPath(new URL(`./app/css/${file}`, import.meta.url));
+    }
+  }
+  
+  return inputs;
+}
+
 // https://vitejs.dev/config/
 export default defineConfig({
   plugins: [preProcess(), tsconfigPaths(), react(), nodePolyfills()],
@@ -72,11 +89,17 @@ export default defineConfig({
         playground: fileURLToPath(new URL('./app/playground.html', import.meta.url)),
         index: fileURLToPath(new URL('./app/editor.html', import.meta.url)),
         server: fileURLToPath(new URL('./app/server.html', import.meta.url)),
+        ...getCssInputs(),
       },
       output: {
         entryFileNames: `assets/[name].js`,
         chunkFileNames: `assets/[name].js`,
-        assetFileNames: `assets/[name].[ext]`,
+        assetFileNames: (assetInfo) => {
+          if (assetInfo.name?.endsWith('.css')) {
+            return `css/[name].[ext]`;
+          }
+          return `assets/[name].[ext]`;
+        },
       },
       // https://rollupjs.org/guide/en/#big-list-of-options
     },
