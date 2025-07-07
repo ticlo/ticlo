@@ -38,7 +38,7 @@ jobs:
       - name: make dir
         run: |
           mkdir coverage
-          mkdir dist
+          mkdir app/css
       - run: pnpm run build-icons
       - run: pnpm run build-less
       - name: Vitest Browser Build Cache
@@ -66,7 +66,9 @@ jobs:
         run: corepack enable
       - run: pnpm install
       - name: make dir
-        run: mkdir coverage
+        run: |
+          mkdir coverage
+          mkdir app/css
       - name: Vitest
         run: pnpm run test-coverage
       - name: Coveralls Vitest
