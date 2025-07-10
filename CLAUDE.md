@@ -2,6 +2,12 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+## Important Environment Note
+
+This project is located in the Windows file system (`/mnt/c/`). When running Node.js, pnpm, or any other development commands, they must be executed as Windows commands, not WSL/Linux commands. For example:
+- Use: `cmd.exe /c "pnpm dev:main"`
+- Not: `pnpm dev:main` (in WSL)
+
 ## Project Overview
 
 Ticlo is a general-purpose visual programming language built with TypeScript and React. It provides a block-based visual programming interface with real-time execution capabilities.
