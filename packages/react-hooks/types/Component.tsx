@@ -57,7 +57,7 @@ export function TicloFuncComp({block}: {block: Block}) {
     const propIs = block.getProperty('#is', true);
     propIs.listen(listener);
     return () => propIs.unlisten(listener);
-  }, []);
+  }, [block, listener]);
   const C = componentsMap.get(functionId);
   if (C) {
     return <C block={block} key={block.getName()} />;

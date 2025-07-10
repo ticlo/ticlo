@@ -1,5 +1,4 @@
 import {DateTime, Info, StringUnitLength} from 'luxon';
-// tslint:disable-next-line:no-implicit-dependencies
 import type {GenerateConfig} from 'rc-picker/es/generate';
 
 const weekDayFormatMap: {[key: string]: StringUnitLength} = {

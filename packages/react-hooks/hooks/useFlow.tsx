@@ -30,7 +30,7 @@ export function FlowRoot({
       return v;
     }
     return Root.instance.addFlow(name, flow);
-  }, [flow, name]);
+  }, [flow, name, tempId]);
 
   return <FlowContext.Provider value={f}>{children}</FlowContext.Provider>;
 }

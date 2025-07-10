@@ -1,6 +1,5 @@
 import {expect} from 'vitest';
 import '../RouteFunction';
-// tslint:disable-next-line:no-duplicate-imports
 import {RouteFunction} from '../RouteFunction';
 import '../../../worker/HandlerFunction';
 import {Block} from '../../../block/Block';

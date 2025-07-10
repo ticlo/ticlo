@@ -71,9 +71,9 @@ export function forAllPathsBetween(target: string, base: string, callback: (valu
   return false;
 }
 
-const invalidNameReg = /[\u0000-\u0019\\\/?*:|"<>]/;
-const encodeNameReg = /[\u0000-\u0019\\\/?*:|"<>]/g;
-const invalidPathReg = /[\u0000-\u0019\\\/?*:|"<>.]/;
+const invalidNameReg = /[\u0000-\u0019\\/?*:|"<>]/;
+const encodeNameReg = /[\u0000-\u0019\\/?*:|"<>]/g;
+const invalidPathReg = /[\u0000-\u0019\\/?*:|"<>.]/;
 export function validateNodeName(name: string) {
   return name?.search(invalidNameReg) < 0;
 }

@@ -1022,7 +1022,6 @@ export class BlockItem extends BaseBlockItem {
   _syncChild: BlockItem;
   _syncParent: BlockItem;
   set syncParent(parent: BlockItem) {
-    // tslint:disable-next-line:triple-equals
     if (parent == this._syncParent) {
       return;
     }
@@ -1040,7 +1039,6 @@ export class BlockItem extends BaseBlockItem {
   }
 
   set syncChild(child: BlockItem) {
-    // tslint:disable-next-line:triple-equals
     if (child == this._syncChild) {
       return;
     }

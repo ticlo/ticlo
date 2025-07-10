@@ -211,25 +211,19 @@ class App extends React.PureComponent<Props, State> {
                         <br />
                         <Checkbox
                           defaultChecked={TicloI18nSettings.shouldTranslateFunction}
-                          onChange={
-                            // tslint:disable-next-line:jsx-no-lambda
-                            (e) => {
-                              TicloI18nSettings.shouldTranslateFunction = e.target.checked;
-                              this.switchLan();
-                            }
-                          }
+                          onChange={(e) => {
+                            TicloI18nSettings.shouldTranslateFunction = e.target.checked;
+                            this.switchLan();
+                          }}
                         >
                           translate function
                         </Checkbox>
                         <br />
                         <Checkbox
                           defaultChecked={TicloI18nSettings.useLocalizedBlockName}
-                          onChange={
-                            // tslint:disable-next-line:jsx-no-lambda
-                            (e) => {
-                              TicloI18nSettings.useLocalizedBlockName = e.target.checked;
-                            }
-                          }
+                          onChange={(e) => {
+                            TicloI18nSettings.useLocalizedBlockName = e.target.checked;
+                          }}
                         >
                           localize block name
                         </Checkbox>

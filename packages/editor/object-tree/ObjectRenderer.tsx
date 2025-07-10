@@ -126,7 +126,6 @@ export class ObjectTreeRenderer extends PureDataRenderer<Props, any> {
           }
           break;
         }
-      // tslint:disable-next-line:no-switch-case-fall-through
       default:
         child = `${val}`;
     }

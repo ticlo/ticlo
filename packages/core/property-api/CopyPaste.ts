@@ -212,6 +212,7 @@ function moveBlockPositions(data0: DataMap, data1: DataMap, positions: Map<numbe
 
   // check block overlap and move positions
   let offset = 0;
+  // eslint-disable-next-line no-constant-condition
   nextoffset: for (; true; offset += 24) {
     for (let xyw of xyws) {
       let x = xyw[0] + offset;

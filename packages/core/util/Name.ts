@@ -8,7 +8,7 @@ function encodeTicloNameReplacer(str: string) {
 
 // escape everything and dot
 export function encodeTicloName(str: string) {
-  return str.replace(/[\u0000-\u0020.\\\/?%*"|:<>]/g, encodeTicloNameReplacer);
+  return str.replace(/[\u0000-\u0020.\\/?%*"|:<>]/g, encodeTicloNameReplacer);
 }
 
 // unescape name string to get a better display name

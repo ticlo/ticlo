@@ -90,7 +90,7 @@ Functions.add(XorFunction, {
 export class NotFunction extends PureFunction {
   run(): any {
     let v0 = this._data.getValue('input');
-    this._data.output(!Boolean(v0));
+    this._data.output(!v0);
   }
 }
 

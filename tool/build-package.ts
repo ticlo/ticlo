@@ -34,7 +34,7 @@ async function buildPackage(name: string) {
   // copy+analyze+convert ts files
 
   const importedPackages = new Set<string>();
-  const regex = / from '([^@'.\/]+|@[^'.\/]+\/[^'.\/]+)/g;
+  const regex = / from '([^@'./]+|@[^'./]+\/[^'./]+)/g;
 
   let srcFiles: string[] = glob.sync(`${fromDir}/**/*.{ts,tsx}`, {posix: true});
   let sourceFiles: string[] = [`${targetDir}/tsconfig.json`]; // files to be deleted after compiling

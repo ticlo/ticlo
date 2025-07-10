@@ -702,22 +702,10 @@ export class BlockStage extends BlockStageBase<BlockStageProps, StageState> {
             <Button key="cancel" onClick={this.closeModal}>
               Cancel
             </Button>,
-            <Button
-              key="rename"
-              onClick={
-                /* tslint:disable-next-line:jsx-no-lambda */
-                () => this.pasteData(data, 'rename')
-              }
-            >
+            <Button key="rename" onClick={() => this.pasteData(data, 'rename')}>
               Rename
             </Button>,
-            <Button
-              key="overwrite"
-              onClick={
-                /* tslint:disable-next-line:jsx-no-lambda */
-                () => this.pasteData(data, 'overwrite')
-              }
-            >
+            <Button key="overwrite" onClick={() => this.pasteData(data, 'overwrite')}>
               Overwrite
             </Button>,
           ]}

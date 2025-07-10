@@ -179,7 +179,6 @@ export class SchedulerEvent {
           }
         }
       }
-      // tslint:disable-next-line:no-switch-case-fall-through
       case 'weekly': {
         while (true) {
           for (const weekday of this.wDays) {
@@ -191,7 +190,6 @@ export class SchedulerEvent {
           }
         }
       }
-      // tslint:disable-next-line:no-switch-case-fall-through
       case 'dates': {
         for (let d of this.dates) {
           yield* checkAndYield(d);
@@ -246,7 +244,6 @@ export class SchedulerEvent {
                     break;
                   case 9: // non-week day
                     isDayTypeWeekend = true;
-                  // tslint:disable-next-line:no-switch-case-fall-through
                   case 8: // week day
                     if (dayCount === 0) {
                       for (let i = 1; i <= lastDay; ++i) {

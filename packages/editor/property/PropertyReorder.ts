@@ -28,7 +28,6 @@ export const CustomGroupPropertyReorder: PropertyReorder = {
             group = null;
           }
 
-          // tslint:disable-next-line:triple-equals
           if (moveToField !== moveCustomField && group == fromGroup) {
             return 'tico-fas-exchange-alt';
           }
@@ -62,7 +61,6 @@ export const CustomGroupPropertyReorder: PropertyReorder = {
           group = null;
         }
 
-        // tslint:disable-next-line:triple-equals
         if (moveToField !== moveCustomField && group == fromGroup) {
           for (let key of paths) {
             conn.moveCustomProp(key, moveCustomField, moveToField, fromGroup);

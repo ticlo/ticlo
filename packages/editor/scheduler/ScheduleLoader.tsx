@@ -116,7 +116,7 @@ class ConfigValuePair {
     if (this.config?.color) {
       style.borderLeftColor = this.config.color;
     }
-    if (!Boolean(this.value)) {
+    if (!this.value) {
       style.borderLeftStyle = 'dotted';
     }
     this.style = style;

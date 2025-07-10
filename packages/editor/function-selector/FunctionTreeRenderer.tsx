@@ -24,7 +24,6 @@ export class FunctionTreeRenderer extends PureDataRenderer<Props, any> {
         if (item.children.length === 0) {
           return;
         }
-      // tslint:disable-next-line:no-switch-case-fall-through
       case 'closed':
         item.open();
         break;

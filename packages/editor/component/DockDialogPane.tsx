@@ -30,10 +30,10 @@ export function DockDialogPane(props: Props) {
   const onCloseClicked = useCallback(() => {
     onCancel?.(true);
     onClose();
-  }, [onApply, onClose]);
+  }, [onCancel, onClose]);
   const onCancelClicked = useCallback(() => {
     onCancel?.(false);
-  }, [onApply, onClose]);
+  }, [onCancel]);
   return (
     <div className="ticl-dock-dialog" onKeyDownCapture={onKeyDownCapture}>
       {children}

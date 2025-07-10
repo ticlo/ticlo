@@ -38,7 +38,6 @@ window.addEventListener('beforeunload', () => {
   document.querySelector('button').addEventListener('click', () => {
     let w = window.open('/app/simple-editor/editor.html?flow=example', '_blank');
     editors.push(w);
-    // tslint:disable-next-line:no-unused-expression
     new FrameServerConnection(w, Root.instance);
   });
 })();

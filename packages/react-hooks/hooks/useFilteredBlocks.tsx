@@ -25,6 +25,7 @@ export function useFilteredBlocks(block: Block, filter?: (block: Block) => boole
   useMemo(() => {
     // clear the cache when filter changed
     cache.current = null;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [filter]);
 
   if (cache.current) {
