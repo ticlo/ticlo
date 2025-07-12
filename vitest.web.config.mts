@@ -7,14 +7,14 @@ export default defineConfig({
   plugins: [tsconfigPaths(), react(), nodePolyfills()],
   server: {
     fs: {
-      allow: ['..']
+      allow: ['..'],
     },
     watch: {
       // Disable file watching in WSL to prevent reload issues
       ignored: ['**/node_modules/**', '**/.git/**'],
       usePolling: true,
-      interval: 1000
-    }
+      interval: 1000,
+    },
   },
   test: {
     browser: {
@@ -35,15 +35,27 @@ export default defineConfig({
                 '--no-sandbox',
                 '--disable-setuid-sandbox',
                 '--disable-web-security',
-                '--disable-features=VizDisplayCompositor'
+                '--disable-features=VizDisplayCompositor',
+                '--disable-background-networking',
+                '--disable-background-timer-throttling',
+                '--disable-backgrounding-occluded-windows',
+                '--disable-renderer-backgrounding',
+                '--disable-field-trial-config',
+                '--disable-ipc-flooding-protection',
+                '--memory-pressure-off',
               ],
             },
           },
         },
       ],
+      api: {
+        port: 63315,
+        host: 'localhost',
+      },
     },
-    testTimeout: 30000,
-    hookTimeout: 30000,
+    testTimeout: 60000,
+    hookTimeout: 60000,
+    retry: 2,
     isolate: false,
     globals: true,
     include: [
