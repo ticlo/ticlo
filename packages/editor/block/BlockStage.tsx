@@ -1,6 +1,6 @@
 import React, {ClipboardEventHandler, CSSProperties, KeyboardEvent} from 'react';
-import {Button, notification, Modal} from 'antd';
-import {Icon} from '@blueprintjs/core';
+import {notification, Modal} from 'antd';
+import {Button, Icon} from '@blueprintjs/core';
 
 import {BlockView} from './Block';
 import {WireView} from './Wire';
@@ -554,9 +554,9 @@ export class BlockStage extends BlockStageBase<BlockStageProps, StageState> {
         </DragDropDiv>
         <div className="ticl-stage-zoom">
           <div className="ticl-hbox">
-            <Button className="ticl-icon-btn" shape="circle" icon={<Icon icon="zoom-out" />} onClick={this.zoomOut} />
+            <Button className="ticl-icon-btn" variant="minimal" icon="zoom-out" onClick={this.zoomOut} />
             <span className="ticl-stage-zoom-label">{Math.round(zoom * 100)}%</span>
-            <Button className="ticl-icon-btn" shape="circle" icon={<Icon icon="zoom-in" />} onClick={this.zoomIn} />
+            <Button className="ticl-icon-btn" variant="minimal" icon="zoom-in" onClick={this.zoomIn} />
           </div>
           {miniStage}
         </div>

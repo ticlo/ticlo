@@ -2,7 +2,7 @@
   white-space: pre-wrap;
 }
 
-.bp6-button.bp6-small.ticl-icon-btn {
+.bp6-button.ticl-icon-btn {
   height: 18px;
   width: 18px;
   min-width: 18px;
@@ -10,9 +10,10 @@
   line-height: 18px;
   padding: 0;
   font-size: 14px;
-  opacity: 0.4;
+  opacity: 0.5;
+  border-radius: 50%;
   border-style: none;
-  background: none;
+  background: none !important;
 
   &:hover,
   &:focus {
@@ -20,7 +21,11 @@
   }
 }
 
-.bp6-button.bp6-small > .bp6-icon > svg {
+.bp6-button.ticl-rounded-btn {
+  border-radius: 16px;
+}
+
+.bp6-button > .bp6-icon > svg {
   width: 14px;
   height: 14px;
 }

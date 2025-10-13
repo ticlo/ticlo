@@ -1,7 +1,7 @@
 import React from 'react';
 import {DateTime} from 'luxon';
-import {Button, Select} from 'antd';
-import {Icon} from '@blueprintjs/core';
+import {Select} from 'antd';
+import {Button} from '@blueprintjs/core';
 import {Calendar, Views, luxonLocalizer, Event, SlotInfo, View, EventCell} from 'ticlo-big-calendar';
 import {ClientConn} from '@ticlo/core/connect/ClientConn';
 import {LazyUpdateComponent} from '../component/LazyUpdateComponent';
@@ -153,8 +153,8 @@ export class ScheduleCalendar extends LazyUpdateComponent<Props, State> {
       <div className="ticl-schedule-row" key={event.id}>
         <Button
           className="ticl-icon-btn"
-          shape="circle"
-          icon={<Icon icon={event.parent.visible ? 'eye-open' : 'eye-off'} />}
+          variant="minimal"
+          icon={event.parent.visible ? 'eye-open' : 'eye-off'}
           onClick={() => event.parent.toggleVisible()}
         />
         <div

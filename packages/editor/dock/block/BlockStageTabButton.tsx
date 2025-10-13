@@ -58,8 +58,8 @@ export class BlockStageTabButton extends LazyUpdateComponent<Props, State> {
     if (onSave && hasChange) {
       closeButtun = (
         <div className="ticl-stage-panel-save">
-          <Button size="small" className="ticl-icon-btn" variant="minimal" icon="floppy-disk" onClick={this.onSave} />
-          <Button size="small" className="ticl-icon-btn" variant="minimal" icon="cross" onClick={this.onClose} />
+          <Button className="ticl-icon-btn" variant="minimal" icon="floppy-disk" onClick={this.onSave} />
+          <Button className="ticl-icon-btn" variant="minimal" icon="cross" onClick={this.onClose} />
         </div>
       );
     } else {

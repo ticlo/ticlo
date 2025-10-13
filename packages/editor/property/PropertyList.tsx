@@ -1,6 +1,6 @@
 import React from 'react';
-import {Button, Empty, Tooltip} from 'antd';
-import {Icon} from '@blueprintjs/core';
+import {Empty, Tooltip} from 'antd';
+import {Button} from '@blueprintjs/core';
 import {
   attributeList,
   ClientConn,
@@ -400,7 +400,7 @@ export class PropertyList extends MultiSelectComponent<Props, State, BlockLoader
               onPopupVisibleChange={this.onAddCustomPopup}
               popup={<AddCustomPropertyMenu conn={conn} onAddProperty={this.onAddCustom} />}
             >
-              <Button className="ticl-icon-btn" shape="circle" tabIndex={-1} icon={<Icon icon="add" />} />
+              <Button className="ticl-icon-btn" variant="minimal" tabIndex={-1} icon="add" />
             </Popup>
 
             <div className="ticl-h-line" />

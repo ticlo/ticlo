@@ -17,8 +17,8 @@ import {
   stopPropagation,
 } from '@ticlo/core';
 import {LocalizedPropCommand, LocalizedPropertyName, t} from '../component/LocalizedLabel';
-import {Button, Checkbox} from 'antd';
-import {Icon} from '@blueprintjs/core';
+import {Checkbox} from 'antd';
+import {Button} from '@blueprintjs/core';
 import {StringEditor} from '../property/value/StringEditor';
 import {AddCustomPropertyMenu} from '../property/AddCustomProperty';
 import {ClientConn, ValueSubscriber} from '@ticlo/core/connect/ClientConn';
@@ -253,9 +253,9 @@ export class PropertyDropdown extends React.PureComponent<Props, State> {
           {bindingPath ? (
             <Button
               className="ticl-icon-btn"
-              shape="circle"
+              variant="minimal"
               size="small"
-              icon={<Icon icon="trash" />}
+              icon="trash"
               onClick={this.onUnbindClick}
             />
           ) : null}
@@ -276,7 +276,7 @@ export class PropertyDropdown extends React.PureComponent<Props, State> {
       let resolvedValueDefined = valueDefined ?? valueDenfinedOverride;
       if (resolvedValueDefined || bindingPath) {
         menuItems.push(
-          <Button key="clear" shape="round" onClick={this.onClear}>
+          <Button key="clear" className="ticl-rounded-btn" onClick={this.onClear}>
             {t('Clear')}
           </Button>
         );
@@ -284,7 +284,7 @@ export class PropertyDropdown extends React.PureComponent<Props, State> {
 
       if (isTemp ?? isTempOverride) {
         menuItems.push(
-          <Button key="restoreSaved" shape="round" onClick={this.onRestoreSaved}>
+          <Button key="restoreSaved" className="ticl-rounded-btn" onClick={this.onRestoreSaved}>
             {t('Restore Saved Value')}
           </Button>
         );
@@ -294,12 +294,12 @@ export class PropertyDropdown extends React.PureComponent<Props, State> {
       let groupIndex = getTailingNumber(name);
       if (groupIndex > -1) {
         menuItems.push(
-          <Button key="insertIndex" shape="round" onClick={this.onInsertIndex}>
+          <Button key="insertIndex" className="ticl-rounded-btn" onClick={this.onInsertIndex}>
             {t('Insert at {{n}}', {n: groupIndex})}
           </Button>
         );
         menuItems.push(
-          <Button key="deleteIndex" shape="round" onClick={this.onDeleteIndex}>
+          <Button key="deleteIndex" className="ticl-rounded-btn" onClick={this.onDeleteIndex}>
             {t('Delete at {{n}}', {n: groupIndex})}
           </Button>
         );
@@ -313,7 +313,7 @@ export class PropertyDropdown extends React.PureComponent<Props, State> {
     );
     if (isCustom) {
       menuItems.push(
-        <Button key="removeFromCustom" shape="round" onClick={this.onRemoveCustom}>
+        <Button key="removeFromCustom" className="ticl-rounded-btn" onClick={this.onRemoveCustom}>
           {t('Remove Property')}
         </Button>
       );
