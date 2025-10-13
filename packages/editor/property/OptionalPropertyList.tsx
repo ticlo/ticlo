@@ -1,7 +1,6 @@
 import React from 'react';
 import {Button, Input, Tooltip} from 'antd';
-import SearchIcon from '@ant-design/icons/SearchOutlined';
-import CloseIcon from '@ant-design/icons/CloseCircleFilled';
+import {Icon} from '@blueprintjs/core';
 import {MultiSelectComponent, MultiSelectLoader} from './MultiSelectComponent';
 import {ClientConn, ValueSubscriber} from '@ticlo/core/connect/ClientConn';
 import {ValueUpdate} from '@ticlo/core/connect/ClientRequests';
@@ -196,7 +195,7 @@ export class OptionalPropertyList extends MultiSelectComponent<Props, State, Opt
               className="ticl-icon-btn"
               shape="circle"
               size="small"
-              icon={<SearchIcon />}
+              icon={<Icon icon="search" />}
               onClick={this.startSearch}
             />
           </Tooltip>
@@ -219,7 +218,7 @@ export class OptionalPropertyList extends MultiSelectComponent<Props, State, Opt
                   />
                 )}
               </TicloI18NConsumer>
-              <CloseIcon onClick={this.clearSearch} />
+              <Icon icon="cross-circle" onClick={this.clearSearch} />
             </>
           )}
         </div>

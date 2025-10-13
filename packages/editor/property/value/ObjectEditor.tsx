@@ -1,6 +1,6 @@
 import React from 'react';
 import {Button} from 'antd';
-import PlusSquareIcon from '@ant-design/icons/PlusSquareOutlined';
+import {Icon} from '@blueprintjs/core';
 import {ValueEditorProps} from './ValueEditorBase';
 import {renderValue} from '../../component/renderValue';
 import {getDefaultFuncData} from '@ticlo/core';
@@ -36,7 +36,7 @@ export class ObjectEditor extends React.PureComponent<ValueEditorProps, any> {
         create = create.substring(colonIndex + 1);
       }
       editor = (
-        <Button size="small" icon={<PlusSquareIcon />} onClick={this.createObject}>
+        <Button size="small" icon={<Icon icon="add" />} onClick={this.createObject}>
           {create}
         </Button>
       );

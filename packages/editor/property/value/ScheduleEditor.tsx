@@ -3,7 +3,7 @@ import {Button} from 'antd';
 import {ValueEditorProps} from './ValueEditorBase';
 import {renderValue} from '../../component/renderValue';
 import {TicloLayoutContext, TicloLayoutContextType} from '../../component/LayoutContext';
-import {CalendarOutlined} from '@ant-design/icons';
+import {Icon} from '@blueprintjs/core';
 
 export class ScheduleEditor extends React.PureComponent<ValueEditorProps, any> {
   static contextType = TicloLayoutContextType;
@@ -34,7 +34,7 @@ export class ScheduleEditor extends React.PureComponent<ValueEditorProps, any> {
     let editor = (
       <Button
         size="small"
-        icon={<CalendarOutlined />}
+        icon={<Icon icon="calendar" />}
         disabled={onChange == null || this.context?.editSchedule == null}
         onClick={this.onClick}
       >

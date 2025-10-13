@@ -1,9 +1,6 @@
 import React from 'react';
 import {Button, Tooltip, Dropdown, Input, Checkbox} from 'antd';
-import DeleteIcon from '@ant-design/icons/DeleteOutlined';
-import EditIcon from '@ant-design/icons/EditOutlined';
-import LockIcon from '@ant-design/icons/LockOutlined';
-import LockFilledIcon from '@ant-design/icons/LockFilled';
+import {Icon} from '@blueprintjs/core';
 import {
   ClientConn,
   getOutputDesc,
@@ -388,13 +385,13 @@ export class PropertyEditor extends MultiSelectComponent<PropertyEditorProps, St
     if (renderLockIcon) {
       if (unlocked) {
         locktooltip = t('Unlocked for editing\nDouble click to lock');
-        lockIcon = <EditIcon />;
+        lockIcon = <Icon icon="edit" />;
       } else if (bindingPath) {
         locktooltip = t('Editing blocked by binding\nDouble click to edit');
-        lockIcon = <LockFilledIcon />;
+        lockIcon = <Icon icon="lock" />;
       } else if (!valueSame) {
         locktooltip = t('Inconsistent values\nDouble click to edit');
-        lockIcon = <LockIcon />;
+        lockIcon = <Icon icon="warning-sign" />;
       }
     }
 

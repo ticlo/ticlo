@@ -19,6 +19,7 @@
     "test-server": "tsx test/test-server.ts"
   },
   "dependencies": {
+    "@fastify/websocket": "^11.0.0",
     "@ticlo/core": "workspace:*",
     "@ticlo/editor": "workspace:*",
     "@ticlo/html": "workspace:*",
@@ -28,14 +29,17 @@
     "@ticlo/web-server": "workspace:*",
     "antd": "4.24.16",
     "fastify": "^5.0.0",
-    "@fastify/websocket": "^11.0.0",
     "i18next": "^23.10.1",
-    "rc-dock": "^3.3.1",
+    "rc-dock": "^4.0.0-alpha.2",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "yargs": "^17.7.2"
   },
   "devDependencies": {
+    "@blueprintjs/core": "^6.3.1",
+    "@blueprintjs/datetime": "^6.0.5",
+    "@blueprintjs/icons": "^6.1.0",
+    "@blueprintjs/select": "^6.0.5",
     "@types/react": "^18.2.69",
     "@types/react-dom": "^18.2.22",
     "@types/yargs": "^17.0.32"

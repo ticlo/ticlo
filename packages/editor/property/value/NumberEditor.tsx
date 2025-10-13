@@ -1,7 +1,6 @@
 import React from 'react';
 import {Button} from 'antd';
-import MinusIcon from '@ant-design/icons/MinusOutlined';
-import PlusIcon from '@ant-design/icons/PlusOutlined';
+import {Icon} from '@blueprintjs/core';
 import {ValueEditorProps} from './ValueEditorBase';
 import {scat} from '@ticlo/core/util/String';
 
@@ -206,7 +205,7 @@ export class NumberEditor extends React.PureComponent<ValueEditorProps, any> {
     let disabled = onChange == null;
     return (
       <div className={scat('ticl-number-input', disabled && ' ticl-number-input-disabled')}>
-        <Button size="small" icon={<MinusIcon />} onClick={this.onMinusClick} disabled={disabled} />
+        <Button size="small" icon={<Icon icon="minus" />} onClick={this.onMinusClick} disabled={disabled} />
         <input
           className="ant-input ant-input-sm"
           type="text"
@@ -217,7 +216,7 @@ export class NumberEditor extends React.PureComponent<ValueEditorProps, any> {
           onBlur={this.onBlur}
           onKeyDown={this.onKeyDown}
         />
-        <Button size="small" icon={<PlusIcon />} onClick={this.onPlusClick} disabled={disabled} />
+        <Button size="small" icon={<Icon icon="plus" />} onClick={this.onPlusClick} disabled={disabled} />
         {desc.unit ? <div className="ticl-number-unit">{desc.unit}</div> : null}
       </div>
     );

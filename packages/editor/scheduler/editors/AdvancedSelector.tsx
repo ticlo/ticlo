@@ -1,11 +1,10 @@
 import React, {ReactElement} from 'react';
-import {Button, Checkbox, Select, Tag, Tooltip} from 'antd';
-import PlusIcon from '@ant-design/icons/PlusOutlined';
+import {Button, Checkbox, Select, Tooltip} from 'antd';
+import {Icon} from '@blueprintjs/core';
 import {SchedulerConfig} from '@ticlo/core/functions/date/Schedule/SchedulerEvent';
 import {cacheCall} from '../../util/CachedCallback';
 import {translateProperty, translatePropContent} from '@ticlo/core/util/i18n';
 import {TicloLayoutContext, TicloLayoutContextType} from '../../component/LayoutContext';
-import CloseOutlined from '@ant-design/icons/CloseOutlined';
 import {stopPropagation} from '@ticlo/core';
 import {LocalizedPropertyName, t} from '../../component/LocalizedLabel';
 import {FUNC, funcDesc} from './descs';
@@ -52,7 +51,7 @@ function DayTag({value, onClose}: {value: number | string; onClose: (e: React.Mo
         onMouseDown={stopPropagation}
         onClick={onClose}
       >
-        <CloseOutlined />
+        <Icon icon="cross" />
       </span>
     </span>
   );
@@ -286,7 +285,7 @@ export class AdvancedSelector extends React.PureComponent<Props, States> {
                 <Button
                   size="small"
                   shape="circle"
-                  icon={<PlusIcon />}
+                  icon={<Icon icon="add" />}
                   style={{marginRight: 4}}
                   onClick={this.addDay}
                 />

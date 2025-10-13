@@ -5,7 +5,7 @@ import {Radio, Tooltip} from 'antd';
 import React from 'react';
 import {ToolbarProps, View} from 'ticlo-big-calendar';
 import {t} from '../component/LocalizedLabel';
-import {AimOutlined, CaretLeftFilled, CaretRightFilled} from '@ant-design/icons';
+import {Icon} from '@blueprintjs/core';
 
 interface State {}
 
@@ -18,17 +18,17 @@ export class CalendarToolbar extends React.Component<ToolbarProps, State> {
         <div className="ticl-clndr-toolbar-group">
           <Tooltip title={t(`Previous ${capView}`)}>
             <Radio.Button onClick={this.prev}>
-              <CaretLeftFilled />
+              <Icon icon="chevron-left" />
             </Radio.Button>
           </Tooltip>
           <Tooltip title={t(`Current ${capView}`)}>
             <Radio.Button onClick={this.today}>
-              <AimOutlined />
+              <Icon icon="target" />
             </Radio.Button>
           </Tooltip>
           <Tooltip title={t(`Next ${capView}`)}>
             <Radio.Button onClick={this.next}>
-              <CaretRightFilled />
+              <Icon icon="chevron-right" />
             </Radio.Button>
           </Tooltip>
         </div>

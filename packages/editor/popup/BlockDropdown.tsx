@@ -2,16 +2,8 @@ import {showModal} from './ShowModal';
 import {AddNewFlowDialog} from './AddNewFlowDialog';
 import {NodeTreeItem} from '../node-tree/NodeRenderer';
 import React from 'react';
-import FileAddIcon from '@ant-design/icons/FileAddOutlined';
 import {LocalizedFuncCommand, LocalizedPropCommand, t} from '../component/LocalizedLabel';
-import BuildIcon from '@ant-design/icons/BuildOutlined';
-import SaveIcon from '@ant-design/icons/SaveOutlined';
-import DeleteIcon from '@ant-design/icons/DeleteOutlined';
-import EditIcon from '@ant-design/icons/EditOutlined';
-import PlayIcon from '@ant-design/icons/CaretRightOutlined';
-import PauseCircleOutlined from '@ant-design/icons/PauseCircleOutlined';
-import PlayCircleOutlined from '@ant-design/icons/PlayCircleOutlined';
-import SearchIcon from '@ant-design/icons/SearchOutlined';
+import {Icon} from '@blueprintjs/core';
 import {DataMap, FunctionDesc, PropDesc, smartStrCompare} from '@ticlo/core';
 import {ClientConn} from '@ticlo/core/connect/ClientConn';
 import {Popup, Menu, MenuItem} from '../component/ClickPopup';
@@ -123,7 +115,7 @@ export class BlockDropdown extends React.PureComponent<Props, State> {
     if (canApply) {
       menuitems.push(
         <MenuItem key="save" onClick={this.onSaveClicked}>
-          <SaveIcon />
+          <Icon icon="floppy-disk" />
           {t('Save')}
         </MenuItem>
       );
@@ -131,7 +123,7 @@ export class BlockDropdown extends React.PureComponent<Props, State> {
     if (!deleteForbidden.has(functionId)) {
       menuitems.push(
         <MenuItem key="delete" onClick={this.onDeleteClicked}>
-          <DeleteIcon />
+          <Icon icon="trash" />
           {t('Delete')}
         </MenuItem>
       );
@@ -139,7 +131,7 @@ export class BlockDropdown extends React.PureComponent<Props, State> {
     if (!renameForbidden.has(functionId)) {
       menuitems.push(
         <MenuItem key="rename" onClick={this.onRenameClicked}>
-          <EditIcon />
+          <Icon icon="edit" />
           {t('Rename')}
         </MenuItem>
       );
@@ -148,14 +140,14 @@ export class BlockDropdown extends React.PureComponent<Props, State> {
     if (disabled === true) {
       menuitems.push(
         <MenuItem key="enable" onClick={this.onEnableClicked}>
-          <PlayCircleOutlined />
+          <Icon icon="play" />
           {t('Enable')}
         </MenuItem>
       );
     } else if (disabled === false) {
       menuitems.push(
         <MenuItem key="disable" onClick={this.onDisableClicked}>
-          <PauseCircleOutlined />
+          <Icon icon="pause" />
           {t('Disable')}
         </MenuItem>
       );
@@ -191,7 +183,7 @@ export class BlockDropdown extends React.PureComponent<Props, State> {
       if (showCallMenu) {
         menuitems.push(
           <MenuItem key="call" onClick={this.onCallClicked}>
-            <PlayIcon />
+            <Icon icon="play" />
             {t('Call')}
           </MenuItem>
         );
