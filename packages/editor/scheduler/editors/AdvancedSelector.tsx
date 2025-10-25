@@ -1,6 +1,6 @@
 import React, {ReactElement} from 'react';
-import {Button, Checkbox, Select, Tooltip} from 'antd';
-import {Icon} from '@blueprintjs/core';
+import {Checkbox, Select, Tooltip} from 'antd';
+import {Button, Icon} from '@blueprintjs/core';
 import {SchedulerConfig} from '@ticlo/core/functions/date/Schedule/SchedulerEvent';
 import {cacheCall} from '../../util/CachedCallback';
 import {translateProperty, translatePropContent} from '@ticlo/core/util/i18n';
@@ -284,7 +284,7 @@ export class AdvancedSelector extends React.PureComponent<Props, States> {
               <Tooltip title={t('Add Day')}>
                 <Button
                   size="small"
-                  shape="circle"
+                  className="ticl-square-icon-btn"
                   icon={<Icon icon="add" />}
                   style={{marginRight: 4}}
                   onClick={this.addDay}

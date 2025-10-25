@@ -1,6 +1,6 @@
 import React from 'react';
-import {Button, Tooltip} from 'antd';
-import {ButtonProps} from 'antd/lib/button';
+import {Tooltip} from 'antd';
+import {Button, ButtonProps} from '@blueprintjs/core';
 import {TooltipPlacement} from 'antd/lib/tooltip';
 import {ClientConn, ValueSubscriber} from '@ticlo/core/connect/ClientConn';
 import {LazyUpdateComponent, LazyUpdateSubscriber} from './LazyUpdateComponent';
@@ -51,16 +51,20 @@ export class TooltipIconButton extends LazyUpdateComponent<Props, any> {
   renderImpl() {
     let {conn, path, mapEnabled, tooltip, tooltipPlacement, ...props} = this.props;
     let {disabled, tooltipVisible} = this.state;
+    const {className, size, disabled: disabledProp, ...rest} = props;
+    const effectiveClassName = className ? `ticl-icon-btn ${className}` : 'ticl-icon-btn';
+    const effectiveSize = size ?? 'small';
+    const effectiveDisabled = disabled || disabledProp;
 
     return (
       <Tooltip
         title={tooltip}
         mouseLeaveDelay={0}
         placement={tooltipPlacement}
-        open={tooltipVisible}
+        open={tooltipVisible && !effectiveDisabled}
         onOpenChange={this.onVisibleChange}
       >
-        <Button shape="circle" size="small" {...props} disabled={disabled} />
+        <Button className={effectiveClassName} size={effectiveSize} {...rest} disabled={effectiveDisabled} />
       </Tooltip>
     );
   }

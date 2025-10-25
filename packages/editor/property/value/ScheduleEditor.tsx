@@ -1,9 +1,8 @@
 import React from 'react';
-import {Button} from 'antd';
+import {Button, Icon} from '@blueprintjs/core';
 import {ValueEditorProps} from './ValueEditorBase';
 import {renderValue} from '../../component/renderValue';
 import {TicloLayoutContext, TicloLayoutContextType} from '../../component/LayoutContext';
-import {Icon} from '@blueprintjs/core';
 
 export class ScheduleEditor extends React.PureComponent<ValueEditorProps, any> {
   static contextType = TicloLayoutContextType;

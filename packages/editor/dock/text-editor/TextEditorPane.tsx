@@ -1,6 +1,7 @@
 import React from 'react';
 import {ClientConn, encode, DataMap, isDataTruncated, translateEditor} from '@ticlo/core/editor';
-import {Menu, Dropdown, Button, Spin} from 'antd';
+import {Menu, Dropdown, Spin} from 'antd';
+import {Button} from '@blueprintjs/core';
 import CodeMirror from '@uiw/react-codemirror';
 import {parse as ParseYaml} from 'yaml';
 

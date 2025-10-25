@@ -16,9 +16,9 @@ export class EventEditor extends React.PureComponent<ValueEditorProps, any> {
     const icon = 'play';
     return (
       <Button
+        className={value != null ? 'ticl-rounded-btn' : undefined}
         size="small"
         icon={icon}
-        // shape={value != null ? 'round' : undefined}
         disabled={onChange == null}
         onClick={this.onClick}
       >

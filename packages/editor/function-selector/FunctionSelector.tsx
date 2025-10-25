@@ -1,6 +1,6 @@
 import React, {MouseEventHandler} from 'react';
-import {Button, Input, Modal, Radio, Tooltip, message} from 'antd';
-import {Icon} from '@blueprintjs/core';
+import {Input, Modal, Radio, Tooltip, message} from 'antd';
+import {Button, Icon} from '@blueprintjs/core';
 import {FunctionTree} from './FunctionTree';
 import {ClientConn, DataMap, FunctionDesc, encodeTicloName, translateEditor} from '@ticlo/core/editor';
 import {OnFunctionClick} from './FunctionView';
@@ -148,7 +148,7 @@ export class FunctionSelect extends React.PureComponent<Props, State> {
         {useFlow && (
           <>
             <Button
-              type={currentValue === '#' ? 'primary' : 'default'}
+              intent={currentValue === '#' ? 'primary' : undefined}
               icon={<Icon icon="flow-branch" />}
               size="small"
               onClick={this.onSubflowClick}
@@ -156,7 +156,7 @@ export class FunctionSelect extends React.PureComponent<Props, State> {
               {t('Subflow')}
             </Button>
             <Button
-              type={typeof currentValue === 'object' ? 'primary' : 'default'}
+              intent={typeof currentValue === 'object' ? 'primary' : undefined}
               icon={<Icon icon="layout-grid" />}
               size="small"
               onClick={this.onInlineClick}

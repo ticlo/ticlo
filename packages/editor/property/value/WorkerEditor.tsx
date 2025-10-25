@@ -1,6 +1,5 @@
 import React from 'react';
-import {Button, Input} from 'antd';
-import {Icon} from '@blueprintjs/core';
+import {Button, Icon} from '@blueprintjs/core';
 import {DragDropDiv, DragState} from 'rc-dock';
 import {FunctionSelect} from '../../function-selector/FunctionSelector';
 import {Popup} from '../../component/ClickPopup';

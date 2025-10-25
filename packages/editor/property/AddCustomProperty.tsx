@@ -1,5 +1,6 @@
 import React, {ChangeEvent} from 'react';
-import {Button, Input, Select, Form, Switch, InputNumber, Radio} from 'antd';
+import {Input, Select, Form, Switch, InputNumber, Radio} from 'antd';
+import {Button} from '@blueprintjs/core';
 import {PropDesc, PropGroupDesc, ValueType, endsWithNumberReg, ClientConn, translateEditor} from '@ticlo/core/editor';
 import {LazyUpdateComponent} from '../component/LazyUpdateComponent';
 import {FormInputItem, FormItem} from '../component/FormItem';
@@ -217,7 +218,7 @@ export class AddCustomPropertyMenu extends LazyUpdateComponent<Props, any> {
           ? pinned.render(<Switch size="small" checked={pinned.value} onChange={pinned.onChange} />)
           : null}
         <Form.Item wrapperCol={{span: 15, offset: 9}}>
-          <Button type="primary" htmlType="submit" onClick={this.onSubmit}>
+          <Button intent="primary" type="submit" onClick={this.onSubmit}>
             {t('Add Property')}
           </Button>
         </Form.Item>

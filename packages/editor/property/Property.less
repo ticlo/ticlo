@@ -101,7 +101,8 @@
     resize: none;
   }
 
-  & .ant-btn[disabled] {
+  & .bp6-button[disabled],
+  & .bp6-button.bp6-disabled {
     border-color: @border-disabled-color;
   }
 
@@ -153,10 +154,6 @@
   }
 
   & > .ant-select {
-    width: 100%;
-  }
-
-  & > .ant-btn {
     width: 100%;
   }
 
@@ -230,7 +227,7 @@
     border-color: @border-hover-color;
   }
 
-  & .ant-btn-icon-only {
+  & .bp6-button.ticl-square-icon-btn {
     flex: 0 1 22px;
     padding: 0 !important;
     color: @border-disabled-color;

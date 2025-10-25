@@ -1,5 +1,5 @@
 import React, {KeyboardEvent, ReactNode} from 'react';
-import {Button, Tooltip} from 'antd';
+import {Tooltip} from 'antd';
 import {Icon} from '@blueprintjs/core';
 import {BlockStage, PropertyList} from '../..';
 import {Divider, TabData} from 'rc-dock';

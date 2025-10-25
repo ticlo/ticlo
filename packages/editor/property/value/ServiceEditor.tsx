@@ -1,6 +1,6 @@
 import React, {ReactElement} from 'react';
-import {Button, Select} from 'antd';
-import {Icon} from '@blueprintjs/core';
+import {Select} from 'antd';
+import {Button, Icon} from '@blueprintjs/core';
 import {ClientConn, FunctionDesc, getDefaultFuncData, getSubBlockFuncData, PropDesc} from '@ticlo/core/editor';
 import {Popup} from '../../component/ClickPopup';
 import {PropertyList} from '../PropertyList';

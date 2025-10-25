@@ -1,6 +1,5 @@
 import React from 'react';
-import {Button} from 'antd';
-import {Icon} from '@blueprintjs/core';
+import {Button, Icon} from '@blueprintjs/core';
 import {ValueEditorProps} from './ValueEditorBase';
 import {renderValue} from '../../component/renderValue';
 import {getDefaultFuncData} from '@ticlo/core';
