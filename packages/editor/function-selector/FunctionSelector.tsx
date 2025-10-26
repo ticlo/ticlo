@@ -1,10 +1,10 @@
 import React, {MouseEventHandler} from 'react';
-import {Input, Modal, Radio, Tooltip, message} from 'antd';
+import {Input, Modal, Tooltip, message} from 'antd';
 import {Button, Icon} from '@blueprintjs/core';
 import {FunctionTree} from './FunctionTree';
 import {ClientConn, DataMap, FunctionDesc, encodeTicloName, translateEditor} from '@ticlo/core/editor';
 import {OnFunctionClick} from './FunctionView';
-import {RadioChangeEvent} from 'antd/lib/radio';
+import ButtonRadioGroup from '../component/ButtonRadioGroup';
 import {FunctionList} from './FunctionList';
 import {
   TicloI18NConsumer,
@@ -44,8 +44,10 @@ export class FunctionSelect extends React.PureComponent<Props, State> {
     this.setState({search: ''});
   };
 
-  onToggleChange = (value: RadioChangeEvent) => {
-    this.setState({tab: value.target.value as string});
+  onToggleChange = (value?: string | number | null) => {
+    if (typeof value === 'string') {
+      this.setState({tab: value});
+    }
   };
 
   onFunctionNameChange = (e: React.SyntheticEvent) => {
@@ -89,6 +91,18 @@ export class FunctionSelect extends React.PureComponent<Props, State> {
   render() {
     let {conn, showPreset, onFunctionClick, onClick, filter, useFlow, currentValue} = this.props;
     let {tab, search, modelVisible} = this.state;
+    const toggleOptions = [
+      {
+        value: 'tree',
+        icon: 'function',
+        tooltip: t('Function Tree'),
+      },
+      {
+        value: 'recent',
+        icon: 'history',
+        tooltip: t('Recent'),
+      },
+    ];
 
     if (!conn) {
       return <div />;
@@ -96,18 +110,7 @@ export class FunctionSelect extends React.PureComponent<Props, State> {
     return (
       <div className="ticl-func-select" onClick={onClick}>
         <div className="tlcl-top-menu-box ticl-hbox">
-          <Radio.Group defaultValue="tree" size="small" onChange={this.onToggleChange}>
-            <Tooltip title={t('Function Tree')}>
-              <Radio.Button value="tree">
-                <Icon icon="function" />
-              </Radio.Button>
-            </Tooltip>
-            <Tooltip title={t('Recent')}>
-              <Radio.Button value="recent">
-                <Icon icon="history" />
-              </Radio.Button>
-            </Tooltip>
-          </Radio.Group>
+          <ButtonRadioGroup options={toggleOptions} value={tab} onChange={this.onToggleChange} />
           <TicloI18NConsumer>
             {() => (
               <Input

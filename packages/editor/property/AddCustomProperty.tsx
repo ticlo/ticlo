@@ -1,5 +1,5 @@
 import React, {ChangeEvent} from 'react';
-import {Input, Select, Form, Switch, InputNumber, Radio} from 'antd';
+import {Input, Select, Form, Switch, InputNumber} from 'antd';
 import {Button} from '@blueprintjs/core';
 import {PropDesc, PropGroupDesc, ValueType, endsWithNumberReg, ClientConn, translateEditor} from '@ticlo/core/editor';
 import {LazyUpdateComponent} from '../component/LazyUpdateComponent';
@@ -7,9 +7,6 @@ import {FormInputItem, FormItem} from '../component/FormItem';
 import {t} from '../component/LocalizedLabel';
 import {TicloI18NConsumer, TicloLayoutContext, TicloLayoutContextType} from '../component/LayoutContext';
 import {cacheCall} from '../util/CachedCallback';
-
-const RadioButton = Radio.Button;
-const RadioGroup = Radio.Group;
 
 const {Option} = Select;
 

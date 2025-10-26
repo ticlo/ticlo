@@ -1,5 +1,5 @@
 import * as React from 'react';
-import {Checkbox, ConfigProvider, Switch, Radio} from 'antd';
+import {Checkbox, ConfigProvider, Switch} from 'antd';
 import {
   Block,
   DataMap,
@@ -21,7 +21,7 @@ import {TicloI18nSettings} from '@ticlo/core';
 import {makeLocalConnection} from '@ticlo/core/connect/LocalConnection';
 import {data} from './sample-data/data';
 import reactData from './sample-data/react';
-import {initEditor, PropertyList, BlockStage, NodeTree} from '@ticlo/editor';
+import {initEditor, PropertyList, BlockStage, NodeTree, ButtonRadioGroup} from '@ticlo/editor';
 import {DragDropDiv, DragState, DockLayout, DockContextType} from 'rc-dock';
 import {ClientConnection} from '@ticlo/core/connect/ClientConnection';
 
@@ -74,7 +74,6 @@ import {LocalizedLabel, t} from '@ticlo/editor/component/LocalizedLabel';
 import {IndexDbFlowStorage} from '@ticlo/html/storage/IndexDbStorage';
 import {createRoot} from 'react-dom/client';
 import {SchedulePane} from '@ticlo/editor/dock/schedule/SchedulePane';
-import {RadioChangeEvent} from 'antd/lib/radio/interface';
 
 const layoutGroups = {
   blockStage: {
@@ -88,7 +87,12 @@ const layoutGroups = {
   },
 };
 
-const languages = ['en', 'fr', 'zh'];
+const languages = ['en', 'fr', 'zh'] as const;
+const languageOptions = languages.map((lan) => ({
+  value: lan,
+  children: lan,
+  small: true,
+}));
 const antdLanMap: Record<string, Locale> = {
   en: enAntd,
   fr: frAntd,
@@ -200,14 +204,7 @@ class App extends React.PureComponent<Props, State> {
                     title: 'Test Language',
                     content: (
                       <div style={{margin: 12}}>
-                        <Radio.Group
-                          options={languages}
-                          onChange={this.switchLan}
-                          defaultValue={this.lng}
-                          optionType="button"
-                          buttonStyle="solid"
-                          size="small"
-                        />
+                        <ButtonRadioGroup options={languageOptions} defaultValue={this.lng} onChange={this.switchLan} />
                         <br />
                         <Checkbox
                           defaultChecked={TicloI18nSettings.shouldTranslateFunction}
@@ -269,12 +266,15 @@ class App extends React.PureComponent<Props, State> {
 
   lng: string = 'en';
   lngConfig = zhAntd;
-  switchLan = (e?: RadioChangeEvent) => {
-    this.lng = e?.target.value || this.lng;
+  switchLan = (value?: string | number | null) => {
+    if (typeof value === 'string') {
+      this.lng = value;
+    }
     this.lngConfig = antdLanMap[this.lng];
     // force a reload of the context
     this.ticloContext = {...this.ticloContext, language: this.lng};
     i18next.changeLanguage(this.lng, this.forceUpdateImmediate);
+    console.log('switched language to ', this.lng);
   };
 
   forceUpdateLambda = () => this.forceUpdate();

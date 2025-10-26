@@ -1,41 +1,37 @@
 import React from 'react';
-import {Radio} from 'antd';
 import {ValueEditorProps} from './ValueEditorBase';
-import {RadioChangeEvent} from 'antd/lib/radio';
 import {LocalizedEnumOption} from '../../component/LocalizedLabel';
-
-const RadioButton = Radio.Button;
-const RadioGroup = Radio.Group;
+import {ButtonRadioGroup, ButtonRadioOption} from '../../component/ButtonRadioGroup';
 
 export class RadioButtonEditor extends React.PureComponent<ValueEditorProps, any> {
-  onValueChange = (e: RadioChangeEvent) => {
+  onValueChange = (nextValue?: string | number) => {
     let {onChange, name} = this.props;
-    onChange(e.target.value, name);
+    if (onChange) {
+      onChange(nextValue, name);
+    }
   };
 
   render() {
     let {desc, name, funcDesc, value, locked, onChange} = this.props;
     let {options} = desc;
-    let optionNodes: React.ReactNode[] = [];
+    let optionList: ButtonRadioOption[] = [];
     if (Array.isArray(options)) {
       for (let opt of options) {
-        optionNodes.push(
-          <RadioButton key={String(opt)} value={opt}>
-            <LocalizedEnumOption desc={funcDesc} propName={name} option={opt} />
-          </RadioButton>
-        );
+        if (typeof opt === 'string' || typeof opt === 'number') {
+          optionList.push({
+            value: opt,
+            children: <LocalizedEnumOption desc={funcDesc} propName={name} option={opt} />,
+          });
+        }
       }
     }
     return (
-      <RadioGroup
-        size="small"
-        buttonStyle="solid"
-        value={value}
+      <ButtonRadioGroup
+        options={optionList}
+        value={value as string | number}
         disabled={locked || onChange == null}
         onChange={this.onValueChange}
-      >
-        {optionNodes}
-      </RadioGroup>
+      />
     );
   }
 }

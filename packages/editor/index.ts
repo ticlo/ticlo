@@ -2,6 +2,7 @@ export * from './block/BlockStage';
 export * from './property/PropertyList';
 export * from './node-tree/NodeTree';
 export {cacheCall} from './util/CachedCallback';
+export * from './component/ButtonRadioGroup';
 
 import * as ticloI18n from '@ticlo/core/editor';
 import '@blueprintjs/icons/lib/css/blueprint-icons.css';
