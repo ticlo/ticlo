@@ -45,7 +45,7 @@ export const ButtonRadioGroup: FC<ButtonRadioGroupProps> = ({
             key={option.value as string | number}
             {...others}
             intent={selected ? 'primary' : undefined}
-            variant={selected ? undefined : 'outlined'}
+            variant="outlined"
             onClick={onButtonClick}
             disabled={disabled}
           >

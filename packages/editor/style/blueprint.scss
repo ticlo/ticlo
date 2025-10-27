@@ -1,0 +1,30 @@
+$blue1: #0070b0;
+$blue2: #0080e8;
+$blue3: #1294ff;
+$blue4: #40a9ff;
+$blue5: #7dc4ff;
+
+$pt-font-family:
+  PingFang SC,
+  Hiragino Sans GB,
+  Microsoft YaHei,
+  WenQuanYi Micro Hei,
+  Roboto,
+  -apple-system,
+  BlinkMacSystemFont,
+  Segoe UI,
+  Helvetica Neue,
+  Arial,
+  sans-serif,
+  'Apple Color Emoji',
+  'Segoe UI Emoji',
+  Segoe UI Symbol;
+
+@import '@blueprintjs/core/src/blueprint';
+@import '@blueprintjs/select/src/blueprint-select';
+@import '@blueprintjs/datetime/src/blueprint-datetime';
+@import '@blueprintjs/icons/src/blueprint-icons';
+
+.bp6-popover-transition-container {
+  z-index: 1050 !important;
+}

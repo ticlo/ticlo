@@ -1,14 +1,13 @@
-import React, {ChangeEvent} from 'react';
-import {Input, Select, Form, Switch, InputNumber} from 'antd';
-import {Button} from '@blueprintjs/core';
+import React from 'react';
+import {Input, Form, Switch, InputNumber} from 'antd';
+import {Button, MenuItem} from '@blueprintjs/core';
+import {Select as BlueprintSelect, type ItemRenderer} from '@blueprintjs/select';
 import {PropDesc, PropGroupDesc, ValueType, endsWithNumberReg, ClientConn, translateEditor} from '@ticlo/core/editor';
 import {LazyUpdateComponent} from '../component/LazyUpdateComponent';
 import {FormInputItem, FormItem} from '../component/FormItem';
 import {t} from '../component/LocalizedLabel';
 import {TicloI18NConsumer, TicloLayoutContext, TicloLayoutContextType} from '../component/LayoutContext';
 import {cacheCall} from '../util/CachedCallback';
-
-const {Option} = Select;
 
 interface Props {
   conn: ClientConn;
@@ -24,6 +23,42 @@ type CustomValueType = ValueType | 'group';
 export class AddCustomPropertyMenu extends LazyUpdateComponent<Props, any> {
   static contextType = TicloLayoutContextType;
   declare context: TicloLayoutContext;
+
+  private getTypeLabel = (value: CustomValueType): string => {
+    switch (value) {
+      case 'number':
+      case 'string':
+      case 'toggle':
+      case 'select':
+      case 'radio-button':
+      case 'color':
+      case 'date':
+      case 'date-range':
+      case 'password':
+        return t(value);
+      case 'any':
+        return t('dynamic');
+      case 'group':
+        return t('group');
+      default:
+        return value;
+    }
+  };
+
+  private renderTypeItem: ItemRenderer<CustomValueType> = (item, {handleClick, modifiers}) => {
+    if (!modifiers.matchesPredicate) {
+      return null;
+    }
+    return (
+      <MenuItem
+        key={item}
+        active={modifiers.active}
+        disabled={modifiers.disabled}
+        onClick={handleClick}
+        text={this.getTypeLabel(item)}
+      />
+    );
+  };
 
   getFormItems = cacheCall((lan: string) => ({
     type: new FormItem<CustomValueType>(this, 'type', translateEditor('Type'), 'string'),
@@ -156,25 +191,35 @@ export class AddCustomPropertyMenu extends LazyUpdateComponent<Props, any> {
     let {type, name, defaultLen, placeholder, min, max, step, optionStr, showAlpha, showTime, pinned} =
       this.getFormItems(this.context.language);
     let typeValue = type.value;
+    const typeItems: CustomValueType[] = [
+      'number',
+      'string',
+      'toggle',
+      'select',
+      'radio-button',
+      'color',
+      'date',
+      'date-range',
+      'password',
+      'any',
+    ];
+    if (group == null) {
+      typeItems.push('group');
+    }
     return (
       <Form onClick={onClick} className="ticl-add-custom-prop" labelCol={{span: 9}} wrapperCol={{span: 15}}>
         {name.render(<Input size="small" value={name.value} onChange={name.onInputChange} />)}
         {type.render(
-          <Select size="small" value={type.value} onChange={type.onChange}>
-            <Option value="number">{t('number')}</Option>
-            <Option value="string">{t('string')}</Option>
-            <Option value="toggle">{t('toggle')}</Option>
-            <Option value="select">{t('select')}</Option>
-            <Option value="radio-button">{t('radio-button')}</Option>
-            <Option value="color">{t('color')}</Option>
-            <Option value="date">{t('date')}</Option>
-            <Option value="date-range">{t('date-range')}</Option>
-            <Option value="password">{t('password')}</Option>
-            <Option value="any">{t('dynamic')}</Option>
-            {
-              group == null ? <Option value="group">{t('group')}</Option> : null // dont add group if it's in already a group
-            }
-          </Select>
+          <BlueprintSelect<CustomValueType>
+            items={typeItems}
+            activeItem={typeValue}
+            itemRenderer={this.renderTypeItem}
+            filterable={false}
+            onItemSelect={(item) => type.onChange(item)}
+            popoverProps={{matchTargetWidth: true, minimal: true}}
+          >
+            <Button fill size="small" endIcon="caret-down" text={this.getTypeLabel(typeValue)} />
+          </BlueprintSelect>
         )}
         {typeValue === 'group'
           ? defaultLen.render(
