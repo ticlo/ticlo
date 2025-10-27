@@ -28,3 +28,12 @@ $pt-font-family:
 .bp6-popover-transition-container {
   z-index: 1050 !important;
 }
+
+.bp6-button .bp6-button-text {
+  flex: 1 1 auto;
+  text-align: center;
+}
+
+.bp6-button.bp6-align-left .bp6-button-text {
+  text-align: left;
+}
