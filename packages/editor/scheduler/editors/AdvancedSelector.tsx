@@ -1,5 +1,5 @@
 import React, {ReactElement} from 'react';
-import {Checkbox, Select, Tooltip} from 'antd';
+import {Checkbox, Select as AntSelect, Tooltip} from 'antd';
 import {Button, Icon} from '@blueprintjs/core';
 import {SchedulerConfig} from '@ticlo/core/functions/date/Schedule/SchedulerEvent';
 import {cacheCall} from '../../util/CachedCallback';
@@ -8,6 +8,7 @@ import {TicloLayoutContext, TicloLayoutContextType} from '../../component/Layout
 import {stopPropagation} from '@ticlo/core';
 import {LocalizedPropertyName, t} from '../../component/LocalizedLabel';
 import {FUNC, funcDesc} from './descs';
+import {Select} from '../../component/Select';
 
 const CURRENT_YEAR = new Date().getFullYear();
 // create 20 years for the dropdown
@@ -67,9 +68,10 @@ interface States {
   dayType: number;
 }
 
+type SelectionValue = string | number | null | undefined;
 interface SelectOption {
   label: React.ReactNode;
-  value?: string | number | null;
+  value: SelectionValue;
 }
 
 export class AdvancedSelector extends React.PureComponent<Props, States> {
@@ -228,7 +230,7 @@ export class AdvancedSelector extends React.PureComponent<Props, States> {
         <div className="ticl-property">
           <div className="ticl-property-name">{yearsName}</div>
           <div className="ticl-property-value">
-            <Select
+            <AntSelect
               size="small"
               mode="tags"
               value={years}
@@ -241,7 +243,7 @@ export class AdvancedSelector extends React.PureComponent<Props, States> {
         <div className="ticl-property">
           <div className="ticl-property-name">{monthsName}</div>
           <div className="ticl-property-value">
-            <Select
+            <AntSelect
               size="small"
               mode="multiple"
               value={months}
@@ -254,7 +256,7 @@ export class AdvancedSelector extends React.PureComponent<Props, States> {
         <div className="ticl-property">
           <div className="ticl-property-name">{daysName}</div>
           <div className="ticl-property-value">
-            <Select
+            <AntSelect
               size="small"
               mode="multiple"
               value={days}
@@ -291,8 +293,8 @@ export class AdvancedSelector extends React.PureComponent<Props, States> {
                 />
               </Tooltip>
             </div>
-            <Select size="small" value={dayCount} options={dayCountOptions} onChange={this.onDayCountChange} />
-            <Select size="small" value={dayType} options={dayTypeOptions} onChange={this.onDayTypeChange} />
+            <Select<SelectionValue> value={dayCount} options={dayCountOptions} onChange={this.onDayCountChange} />
+            <Select<SelectionValue> value={dayType} options={dayTypeOptions} onChange={this.onDayTypeChange} />
           </div>
         </div>
       </>

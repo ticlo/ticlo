@@ -1,11 +1,9 @@
 import React, {ReactElement} from 'react';
-import {Select} from 'antd';
 import {Button, Icon} from '@blueprintjs/core';
 import {ClientConn, FunctionDesc, getDefaultFuncData, getSubBlockFuncData, PropDesc} from '@ticlo/core/editor';
 import {Popup} from '../../component/ClickPopup';
 import {PropertyList} from '../PropertyList';
-
-const {Option} = Select;
+import {Select} from '../../component/Select';
 
 export interface Props {
   conn?: ClientConn;
@@ -75,14 +73,7 @@ export class ServiceEditor extends React.PureComponent<Props, State> {
 
     let globalNames = conn.findGlobalBlocks(desc.options as string[]);
 
-    let optionNodes: React.ReactNode[] = [];
-    for (let name of globalNames) {
-      optionNodes.push(
-        <Option key={name} value={name}>
-          {name}
-        </Option>
-      );
-    }
+    const selectOptions = globalNames.map((name) => ({value: name, label: name}));
 
     let selectValue = bindingPath;
     if (typeof selectValue === 'string' && selectValue.endsWith('.#output')) {
@@ -101,14 +92,7 @@ export class ServiceEditor extends React.PureComponent<Props, State> {
 
     return (
       <div className="ticl-hbox ticl-service-editor">
-        <Select
-          size="small"
-          value={selectValue}
-          disabled={locked || onPathChange == null}
-          onChange={this.onGlobalBlockSelect}
-        >
-          {optionNodes}
-        </Select>
+        <Select value={selectValue} options={selectOptions} disabled={locked || onPathChange == null} onChange={this.onGlobalBlockSelect} />
         {button}
       </div>
     );

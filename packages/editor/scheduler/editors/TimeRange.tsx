@@ -3,13 +3,12 @@ import {ValueEditorProps} from '../../property/value/ValueEditorBase';
 import {DateTime} from 'luxon';
 import {TimePicker} from '../../component/DateTimePicker';
 import {LocalizedPropertyName, t} from '../../component/LocalizedLabel';
-import {InputNumber, Select} from 'antd';
+import {InputNumber} from 'antd';
 import {SchedulerConfig} from '@ticlo/core/functions/date/Schedule/SchedulerEvent';
 import type {FunctionDesc} from '@ticlo/core';
+import {Select} from '../../component/Select';
 
 const funcDesc: FunctionDesc = {name: 'create-schedule'};
-
-const {Option} = Select;
 
 const defaultTime = DateTime.fromFormat('00:00:00.000', 'HH:mm:ss.SSS', {zone: 'Factory'});
 
@@ -63,7 +62,7 @@ export class TimeRangeEditor extends React.PureComponent<Props, State> {
     this.setDuration(value * unit);
   };
 
-  onUnitChange = (unit: any) => {
+  onUnitChange = (unit: UnitSec) => {
     const {onChange, current} = this.props;
     const {duration} = current;
     this.setState({unit});
@@ -92,11 +91,16 @@ export class TimeRangeEditor extends React.PureComponent<Props, State> {
     }
 
     const unitSelector = (
-      <Select value={unit} size="small" onChange={this.onUnitChange} dropdownMatchSelectWidth={false}>
-        <Option value={1}>{t('M')}</Option>
-        <Option value={60}>{t('H')}</Option>
-        <Option value={-1}>{t('All Day')}</Option>
-      </Select>
+      <Select<UnitSec>
+        value={unit}
+        options={[
+          {value: 1, label: t('M')},
+          {value: 60, label: t('H')},
+          {value: -1, label: t('All Day')},
+        ]}
+        onChange={this.onUnitChange}
+        matchTargetWidth={false}
+      />
     );
 
     return (

@@ -1,6 +1,5 @@
 import React from 'react';
 import {DateTime} from 'luxon';
-import {Select} from 'antd';
 import {Button} from '@blueprintjs/core';
 import {Calendar, Views, luxonLocalizer, Event, SlotInfo, View, EventCell} from 'ticlo-big-calendar';
 import {ClientConn} from '@ticlo/core/connect/ClientConn';
@@ -13,6 +12,7 @@ import {CalendarEventEditor, sortDateItem} from './CalendarEventEditor';
 import {SchedulerConfig} from '@ticlo/core/functions/date/Schedule/SchedulerEvent';
 import {scat} from '@ticlo/core/util/String';
 import {toDateTime} from '@ticlo/core';
+import {Select} from '../component/Select';
 
 const CalendarT = Calendar<CalendarEvent>;
 
