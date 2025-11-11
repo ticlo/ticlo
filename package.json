@@ -95,6 +95,7 @@
     "build-i18n": "tsx tool/merge-lng",
     "build-i18n-pre-collect-en": "tsx tool/collect-editor-en-locale.ts",
     "build-package": "tsx tool/build-package.ts",
+    "build-cleanup": "tsx tool/cleanup-build-output.ts",
     "test": "cross-env NODE_ENV=TEST vitest run",
     "test-coverage": "cross-env NODE_ENV=TEST vitest run --coverage",
     "test-browser": "cross-env NODE_ENV=TEST vitest run -c vitest.web.config.mts",

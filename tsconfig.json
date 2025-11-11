@@ -19,14 +19,14 @@
     ],
     "alwaysStrict": true,
     "noImplicitAny": true,
-    "sourceMap": true,
+    "sourceMap": false,
+    "declaration": true,
     "skipLibCheck": true,
     "isolatedModules": true,
     "useDefineForClassFields": true,
     "typeRoots": [
       "node_modules/@types"
-    ],
-    "outDir": "es"
+    ]
   },
   "compileOnSave": true,
   "include": [

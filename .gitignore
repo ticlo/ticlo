@@ -26,3 +26,6 @@ en.base.yaml
 /js
 /.yarn
 /.claude
+/app/**/*.d.ts
+/packages/**/*.d.ts
+/tool/**/*.d.ts
