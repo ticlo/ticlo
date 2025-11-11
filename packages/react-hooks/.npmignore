@@ -1,0 +1,15 @@
+# Exclude TypeScript sources
+*.ts
+**/*.ts
+*.tsx
+**/*.tsx
+
+# Keep declaration files
+!*.d.ts
+!**/*.d.ts
+
+# Drop spec and test folders
+__spec__/
+**/__spec__/
+tests/
+**/tests/

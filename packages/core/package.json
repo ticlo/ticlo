@@ -11,9 +11,9 @@
     "email": "rinick@gmail.com"
   },
   "license": "MPL-2.0",
-  "main": "./index.ts",
-  "module": "./index.ts",
-  "types": "./index.ts",
+  "main": "./index.js",
+  "module": "./index.js",
+  "types": "./index.d.ts",
   "dependencies": {
     "arrow-code": "^0.3.0",
     "axios": "1.7.4",

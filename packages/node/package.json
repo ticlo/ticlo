@@ -11,9 +11,9 @@
     "email": "rinick@gmail.com"
   },
   "license": "MPL-2.0",
-  "main": "./index.ts",
-  "module": "./index.ts",
-  "types": "./index.ts",
+  "main": "./index.js",
+  "module": "./index.js",
+  "types": "./index.d.ts",
   "dependencies": {
     "@ticlo/core": "workspace:*",
     "ws": "^8.18.0",
