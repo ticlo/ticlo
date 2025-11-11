@@ -3,15 +3,15 @@ import {type Block, FunctionDesc, Functions, PropDesc} from '@ticlo/core';
 import {FunctionClass} from '@ticlo/core/block/BlockFunction';
 import {PropMap} from './PropType';
 
-interface ReactComponentProperties {
+interface BaseProps {
   block: Block;
 }
 
-const componentsMap = new Map<string, ComponentType<ReactComponentProperties>>();
+const componentsMap = new Map<string, ComponentType<BaseProps>>();
 const containerFuncIds = new Set<string>();
 
-export function registerComponent(
-  component: ComponentType<ReactComponentProperties>,
+export function registerComponent<T extends BaseProps>(
+  component: ComponentType<T>,
   name: string,
   propertyMap: PropMap,
   namespace: string = 'react-component',
@@ -50,7 +50,8 @@ export function registerComponent(
   componentsMap.set(key, component);
 }
 
-export function TicloFuncComp({block}: {block: Block}) {
+export function TicloFuncComp<T extends BaseProps>(props: T) {
+  const {block} = props;
   const [functionId, setFunctionId] = useState(block.getValue('#is') as string);
   const listener = useMemo(() => ({onChange: setFunctionId, onSourceChange: () => {}}), []);
   useEffect(() => {
@@ -58,23 +59,23 @@ export function TicloFuncComp({block}: {block: Block}) {
     propIs.listen(listener);
     return () => propIs.unlisten(listener);
   }, [block, listener]);
-  const C = componentsMap.get(functionId);
+  const C = componentsMap.get(functionId) as ComponentType<T> | undefined;
   if (C) {
-    return <C block={block} key={block.getName()} />;
+    return <C {...props} key={block.getName()} />;
   }
   return null;
 }
 
-export function renderChildren(blocks: Block[]) {
+export function renderChildren<T extends BaseProps>(blocks: Block[], others: Omit<T, 'block'>) {
   const result: ReactNode[] = [];
   for (const block of blocks) {
-    result.push(<TicloFuncComp block={block} key={block._blockId} />);
+    result.push(<TicloFuncComp {...others} block={block} key={block._blockId} />);
   }
   return result;
 }
 
-export function findComponent(funcId: string) {
-  return componentsMap.get(funcId);
+export function findComponent<T extends BaseProps>(funcId: string) {
+  return componentsMap.get(funcId) as ComponentType<T> | undefined;
 }
 
 export function isContainerFunction(funcId: unknown) {

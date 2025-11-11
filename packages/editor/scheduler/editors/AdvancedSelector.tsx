@@ -69,9 +69,9 @@ interface States {
 }
 
 type SelectionValue = string | number | null | undefined;
-interface SelectOption {
+interface SelectOption<T = SelectionValue> {
   label: React.ReactNode;
-  value: SelectionValue;
+  value: T;
 }
 
 export class AdvancedSelector extends React.PureComponent<Props, States> {
@@ -116,8 +116,8 @@ export class AdvancedSelector extends React.PureComponent<Props, States> {
   };
   getLocalizedOptions = cacheCall((context: unknown) => {
     const monthOptions: SelectOption[] = [];
-    const dayCountOptions: SelectOption[] = [];
-    const dayTypeOptions: SelectOption[] = [];
+    const dayCountOptions: SelectOption<number>[] = [];
+    const dayTypeOptions: SelectOption<number>[] = [];
     for (let i = 1; i <= 12; ++i) {
       monthOptions.push({
         label: translatePropContent(FUNC, 'months', i.toString()),
@@ -293,8 +293,8 @@ export class AdvancedSelector extends React.PureComponent<Props, States> {
                 />
               </Tooltip>
             </div>
-            <Select<SelectionValue> value={dayCount} options={dayCountOptions} onChange={this.onDayCountChange} />
-            <Select<SelectionValue> value={dayType} options={dayTypeOptions} onChange={this.onDayTypeChange} />
+            <Select<number> value={dayCount} options={dayCountOptions} onChange={this.onDayCountChange} />
+            <Select<number> value={dayType} options={dayTypeOptions} onChange={this.onDayTypeChange} />
           </div>
         </div>
       </>
