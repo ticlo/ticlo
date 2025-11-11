@@ -1,6 +1,6 @@
 import React from 'react';
 import {Tooltip, Dropdown, Input, Checkbox} from 'antd';
-import {Button, Icon} from '@blueprintjs/core';
+import {Button, Icon, type IconName} from '@blueprintjs/core';
 import {
   ClientConn,
   getOutputDesc,
@@ -381,7 +381,7 @@ export class PropertyEditor extends MultiSelectComponent<PropertyEditorProps, St
     let locked = bindingPath || !valueSame;
     let renderLockIcon = locked && !propDesc.readonly;
     let locktooltip: React.ReactNode;
-    let lockIcon: string;
+    let lockIcon: IconName | undefined;
     if (renderLockIcon) {
       if (unlocked) {
         locktooltip = t('Unlocked for editing\nDouble click to lock');

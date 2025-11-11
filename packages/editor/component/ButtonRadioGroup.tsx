@@ -1,7 +1,11 @@
-import React, {ReactNode, useMemo, type FC} from 'react';
+import React, {ReactElement, ReactNode, useMemo, type FC} from 'react';
 import {Button, ButtonGroup, Tooltip, type ButtonGroupProps, type ButtonProps} from '@blueprintjs/core';
 
-export type ButtonRadioOption = ButtonProps & {value: string | number; label?: string | ReactNode; tooltip?: string};
+export type ButtonRadioOption = ButtonProps & {
+  value: string | number;
+  label?: string | ReactNode;
+  tooltip?: string | ReactElement;
+};
 
 export interface ButtonRadioGroupProps extends Omit<ButtonGroupProps, 'children' | 'onChange'> {
   options: ButtonRadioOption[];

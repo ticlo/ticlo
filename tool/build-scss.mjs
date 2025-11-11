@@ -4,7 +4,6 @@ import * as sass from 'sass';
 import {fileURLToPath} from 'url';
 import {sassNodeModulesLoadPaths, sassSvgInlinerFactory} from '@blueprintjs/node-build-scripts';
 import postcss from 'postcss';
-import type {Root} from 'postcss';
 
 async function buildBlueprintStyles() {
   const __filename = fileURLToPath(import.meta.url);
@@ -42,10 +41,10 @@ buildBlueprintStyles().catch((error) => {
   process.exit(1);
 });
 
-async function stripFocusSelectors(css: string): Promise<string> {
+async function stripFocusSelectors(css) {
   const plugin = {
     postcssPlugin: 'strip-focus-selectors',
-    Once(root: Root) {
+    Once(root) {
       root.walkRules((rule) => {
         const selectors = rule.selectors;
         if (!selectors || selectors.length === 0) {

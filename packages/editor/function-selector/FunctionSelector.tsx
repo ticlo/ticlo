@@ -1,10 +1,10 @@
 import React, {MouseEventHandler} from 'react';
 import {Input, Modal, Tooltip, message} from 'antd';
-import {Button, Icon} from '@blueprintjs/core';
+import {Button, Icon, type IconName} from '@blueprintjs/core';
 import {FunctionTree} from './FunctionTree';
 import {ClientConn, DataMap, FunctionDesc, encodeTicloName, translateEditor} from '@ticlo/core/editor';
 import {OnFunctionClick} from './FunctionView';
-import ButtonRadioGroup from '../component/ButtonRadioGroup';
+import ButtonRadioGroup, {type ButtonRadioOption} from '../component/ButtonRadioGroup';
 import {FunctionList} from './FunctionList';
 import {
   TicloI18NConsumer,
@@ -91,15 +91,15 @@ export class FunctionSelect extends React.PureComponent<Props, State> {
   render() {
     let {conn, showPreset, onFunctionClick, onClick, filter, useFlow, currentValue} = this.props;
     let {tab, search, modelVisible} = this.state;
-    const toggleOptions = [
+    const toggleOptions: ButtonRadioOption[] = [
       {
         value: 'tree',
-        icon: 'function',
+        icon: 'function' as IconName,
         tooltip: t('Function Tree'),
       },
       {
         value: 'recent',
-        icon: 'history',
+        icon: 'history' as IconName,
         tooltip: t('Recent'),
       },
     ];
