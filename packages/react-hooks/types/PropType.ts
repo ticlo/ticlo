@@ -7,6 +7,9 @@ export interface ValueConverter {
 
 export type PropType = {value: ValueConverter} & Omit<PropDesc, 'name' | 'type'> & {
     type?: ValueType;
+    // if name is omitted, the key in the PropMap is used
+    // use name when 2 different converters share the same property name
+    name?: string;
   };
 
 export type PropMap = Record<string, PropType>;
