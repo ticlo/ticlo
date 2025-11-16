@@ -1,6 +1,6 @@
 {
   "name": "@ticlo/node",
-  "version": "0.0.12",
+  "version": "0.0.14",
   "description": "ticlo node",
   "repository": {
     "type": "git",
@@ -15,7 +15,7 @@
   "module": "./index.js",
   "types": "./index.d.ts",
   "dependencies": {
-    "@ticlo/core": "workspace:*",
+    "@ticlo/core": "workspace:^",
     "ws": "^8.18.0",
     "yargs": "^17.7.2"
   },

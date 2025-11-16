@@ -1,6 +1,6 @@
 {
   "name": "@ticlo/web-server",
-  "version": "0.0.12",
+  "version": "0.0.14",
   "description": "ticlo web server",
   "repository": {
     "type": "git",
@@ -15,8 +15,8 @@
   "module": "./index.js",
   "types": "./index.d.ts",
   "dependencies": {
-    "@ticlo/core": "workspace:*",
-    "@ticlo/node": "workspace:*",
+    "@ticlo/core": "workspace:^",
+    "@ticlo/node": "workspace:^",
     "fastify": "^5.0.0"
   },
   "peerDependencies": {

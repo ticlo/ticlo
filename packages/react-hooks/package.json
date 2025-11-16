@@ -1,6 +1,6 @@
 {
   "name": "@ticlo/react-hooks",
-  "version": "0.0.13",
+  "version": "0.0.14",
   "description": "ticlo react hooks",
   "repository": {
     "type": "git",
@@ -15,7 +15,7 @@
   "module": "./index.js",
   "types": "./index.d.ts",
   "dependencies": {
-    "@ticlo/core": "workspace:*"
+    "@ticlo/core": "workspace:^"
   },
   "peerDependencies": {
     "react": "^18.2.0",
