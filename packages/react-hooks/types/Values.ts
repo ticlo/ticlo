@@ -6,6 +6,7 @@ import {getDefaultZone} from '@ticlo/core/util/Settings';
 type DescOmit = Omit<PropDesc, 'name'>;
 
 const emptyArray: unknown[] = [];
+const emptyObject: object = {};
 
 export const Values = {
   number: {
@@ -118,6 +119,24 @@ export const Values = {
       return null;
     },
     desc: {type: 'array'} as DescOmit,
+  },
+  object: {
+    convert: (value: unknown): object => {
+      if (value && typeof value === 'object' && !Array.isArray(value)) {
+        return value;
+      }
+      return emptyObject;
+    },
+    desc: {type: 'object'} as DescOmit,
+  },
+  objectOptional: {
+    convert: (value: unknown): object => {
+      if (value && typeof value === 'object' && !Array.isArray(value)) {
+        return value;
+      }
+      return null;
+    },
+    desc: {type: 'object'} as DescOmit,
   },
   any: {
     convert: (value: unknown): unknown => {
