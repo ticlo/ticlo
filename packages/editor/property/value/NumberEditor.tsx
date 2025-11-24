@@ -205,7 +205,7 @@ export class NumberEditor extends React.PureComponent<ValueEditorProps, any> {
     return (
       <div className={scat('ticl-number-input', disabled && ' ticl-number-input-disabled')}>
         <Button
-          className="ticl-square-icon-btn"
+          className="ticl-icon-btn"
           size="small"
           icon={<Icon icon="minus" />}
           onClick={this.onMinusClick}
@@ -222,7 +222,7 @@ export class NumberEditor extends React.PureComponent<ValueEditorProps, any> {
           onKeyDown={this.onKeyDown}
         />
         <Button
-          className="ticl-square-icon-btn"
+          className="ticl-icon-btn"
           size="small"
           icon={<Icon icon="plus" />}
           onClick={this.onPlusClick}
