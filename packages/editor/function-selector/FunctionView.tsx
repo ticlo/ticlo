@@ -11,7 +11,9 @@ import {TIcon} from '../icon/Icon';
 import {DragDropDiv, DragState} from 'rc-dock';
 import {getFuncStyleFromDesc} from '../util/BlockColors';
 import {Dropdown, Menu} from 'antd';
-import {Icon} from '@blueprintjs/core';
+import BuildIcon from '@ant-design/icons/BuildOutlined';
+import DeleteIcon from '@ant-design/icons/DeleteOutlined';
+import EditIcon from '@ant-design/icons/EditOutlined';
 import {TicloLayoutContext, TicloLayoutContextType} from '../component/LayoutContext';
 import {LocalizedFunctionName, t} from '../component/LocalizedLabel';
 import {MenuProps} from 'antd/lib/menu';
@@ -82,7 +84,7 @@ export class FunctionView extends React.PureComponent<Props, any> {
           onClick: this.onEditClicked,
           label: (
             <>
-              <Icon icon="build" />
+              <BuildIcon />
               {t('Edit')}
             </>
           ),
@@ -91,7 +93,7 @@ export class FunctionView extends React.PureComponent<Props, any> {
           key: 'rename',
           label: (
             <>
-              <Icon icon="edit" />
+              <EditIcon />
               {t('Rename')}
             </>
           ),
@@ -101,7 +103,7 @@ export class FunctionView extends React.PureComponent<Props, any> {
           onClick: this.onEditClicked,
           label: (
             <>
-              <Icon icon="trash" />
+              <DeleteIcon />
               {t('Delete')}
             </>
           ),

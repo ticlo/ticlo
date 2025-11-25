@@ -1,6 +1,6 @@
 import React from 'react';
 import Trigger from 'rc-trigger';
-import {Icon} from '@blueprintjs/core';
+import RightIcon from '@ant-design/icons/RightOutlined';
 
 type ItemEventHandler = (event: 'show' | 'hide' | 'hover' | 'close') => void;
 
@@ -60,7 +60,7 @@ export class SubMenuItem extends React.PureComponent<SubMenuItemProps, SubMenuIt
       >
         <div className={cls} onMouseOver={this.onHover}>
           {children}
-          {popup ? <Icon icon="chevron-right" /> : null}
+          {popup ? <RightIcon /> : null}
         </div>
       </Trigger>
     );

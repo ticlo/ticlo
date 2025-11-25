@@ -1,5 +1,7 @@
 import React from 'react';
-import {Button, Icon} from '@blueprintjs/core';
+import {Button, Input} from 'antd';
+import DownIcon from '@ant-design/icons/DownOutlined';
+import EditIcon from '@ant-design/icons/EditOutlined';
 import {DragDropDiv, DragState} from 'rc-dock';
 import {FunctionSelect} from '../../function-selector/FunctionSelector';
 import {Popup} from '../../component/ClickPopup';
@@ -79,13 +81,13 @@ export class WorkerEditor extends FunctionEditor {
             />
           }
         >
-          <Button className="ticl-square-icon-btn" size="small" icon={<Icon icon="caret-down" />} onClick={this.openPopup} />
+          <Button className="ticl-square-icon-btn" size="small" icon={<DownIcon />} onClick={this.openPopup} />
         </Popup>
         <Button
           className="ticl-square-icon-btn"
           disabled={value == null}
           size="small"
-          icon={<Icon icon="edit" />}
+          icon={<EditIcon />}
           onClick={this.editWorker}
         />
       </DragDropDiv>

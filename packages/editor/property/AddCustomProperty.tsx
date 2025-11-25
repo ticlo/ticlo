@@ -1,27 +1,16 @@
-import React from 'react';
-import {Input, Form, Switch, InputNumber} from 'antd';
-import {Button} from '@blueprintjs/core';
+import React, {ChangeEvent} from 'react';
+import {Button, Input, Select, Form, Switch, InputNumber, Radio} from 'antd';
 import {PropDesc, PropGroupDesc, ValueType, endsWithNumberReg, ClientConn, translateEditor} from '@ticlo/core/editor';
 import {LazyUpdateComponent} from '../component/LazyUpdateComponent';
 import {FormInputItem, FormItem} from '../component/FormItem';
 import {t} from '../component/LocalizedLabel';
 import {TicloI18NConsumer, TicloLayoutContext, TicloLayoutContextType} from '../component/LayoutContext';
 import {cacheCall} from '../util/CachedCallback';
-import {Select} from '../component/Select';
 
-const typeOptions = [
-  {value: 'number', label: t('number')},
-  {value: 'string', label: t('string')},
-  {value: 'toggle', label: t('toggle')},
-  {value: 'select', label: t('select')},
-  {value: 'radio-button', label: t('radio-button')},
-  {value: 'color', label: t('color')},
-  {value: 'date', label: t('date')},
-  {value: 'date-range', label: t('date-range')},
-  {value: 'password', label: t('password')},
-  {value: 'any', label: t('dynamic')},
-];
-const typeGroupOptions = [...typeOptions, {value: 'group', label: t('group')}];
+const RadioButton = Radio.Button;
+const RadioGroup = Radio.Group;
+
+const {Option} = Select;
 
 interface Props {
   conn: ClientConn;
@@ -169,16 +158,25 @@ export class AddCustomPropertyMenu extends LazyUpdateComponent<Props, any> {
     let {type, name, defaultLen, placeholder, min, max, step, optionStr, showAlpha, showTime, pinned} =
       this.getFormItems(this.context.language);
     let typeValue = type.value;
-
     return (
       <Form onClick={onClick} className="ticl-add-custom-prop" labelCol={{span: 9}} wrapperCol={{span: 15}}>
         {name.render(<Input size="small" value={name.value} onChange={name.onInputChange} />)}
         {type.render(
-          <Select
-            value={type.value}
-            onChange={(value) => type.onChange(value as CustomValueType)}
-            options={group == null ? typeGroupOptions : typeOptions}
-          />
+          <Select size="small" value={type.value} onChange={type.onChange}>
+            <Option value="number">{t('number')}</Option>
+            <Option value="string">{t('string')}</Option>
+            <Option value="toggle">{t('toggle')}</Option>
+            <Option value="select">{t('select')}</Option>
+            <Option value="radio-button">{t('radio-button')}</Option>
+            <Option value="color">{t('color')}</Option>
+            <Option value="date">{t('date')}</Option>
+            <Option value="date-range">{t('date-range')}</Option>
+            <Option value="password">{t('password')}</Option>
+            <Option value="any">{t('dynamic')}</Option>
+            {
+              group == null ? <Option value="group">{t('group')}</Option> : null // dont add group if it's in already a group
+            }
+          </Select>
         )}
         {typeValue === 'group'
           ? defaultLen.render(
@@ -219,7 +217,7 @@ export class AddCustomPropertyMenu extends LazyUpdateComponent<Props, any> {
           ? pinned.render(<Switch size="small" checked={pinned.value} onChange={pinned.onChange} />)
           : null}
         <Form.Item wrapperCol={{span: 15, offset: 9}}>
-          <Button intent="primary" type="submit" onClick={this.onSubmit}>
+          <Button type="primary" htmlType="submit" onClick={this.onSubmit}>
             {t('Add Property')}
           </Button>
         </Form.Item>

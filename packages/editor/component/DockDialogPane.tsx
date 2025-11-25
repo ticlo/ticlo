@@ -1,5 +1,5 @@
 import React, {createContext, KeyboardEventHandler, useCallback, useContext} from 'react';
-import {Button} from '@blueprintjs/core';
+import {Button} from 'antd';
 import {DockLayout} from 'rc-dock';
 import {TabData} from 'rc-dock/src/DockData';
 import {t} from './LocalizedLabel';

@@ -1,10 +1,16 @@
 import React, {MouseEventHandler} from 'react';
-import {Input, Modal, Tooltip, message} from 'antd';
-import {Button, Icon, type IconName} from '@blueprintjs/core';
+import {Button, Input, Modal, Radio, Tooltip, message} from 'antd';
+import AppStoreIcon from '@ant-design/icons/AppstoreOutlined';
+import HistoryIcon from '@ant-design/icons/HistoryOutlined';
+import CloseCircleIcon from '@ant-design/icons/CloseCircleOutlined';
+import FilterIcon from '@ant-design/icons/FilterOutlined';
+import PlusSquareIcon from '@ant-design/icons/PlusSquareOutlined';
+import SubnodeIcon from '@ant-design/icons/SubnodeOutlined';
+import InlineIcon from '@ant-design/icons/BorderlessTableOutlined';
 import {FunctionTree} from './FunctionTree';
 import {ClientConn, DataMap, FunctionDesc, encodeTicloName, translateEditor} from '@ticlo/core/editor';
 import {OnFunctionClick} from './FunctionView';
-import ButtonRadioGroup, {type ButtonRadioOption} from '../component/ButtonRadioGroup';
+import {RadioChangeEvent} from 'antd/lib/radio';
 import {FunctionList} from './FunctionList';
 import {
   TicloI18NConsumer,
@@ -44,10 +50,8 @@ export class FunctionSelect extends React.PureComponent<Props, State> {
     this.setState({search: ''});
   };
 
-  onToggleChange = (value?: string | number | null) => {
-    if (typeof value === 'string') {
-      this.setState({tab: value});
-    }
+  onToggleChange = (value: RadioChangeEvent) => {
+    this.setState({tab: value.target.value as string});
   };
 
   onFunctionNameChange = (e: React.SyntheticEvent) => {
@@ -91,18 +95,6 @@ export class FunctionSelect extends React.PureComponent<Props, State> {
   render() {
     let {conn, showPreset, onFunctionClick, onClick, filter, useFlow, currentValue} = this.props;
     let {tab, search, modelVisible} = this.state;
-    const toggleOptions: ButtonRadioOption[] = [
-      {
-        value: 'tree',
-        icon: 'function' as IconName,
-        tooltip: t('Function Tree'),
-      },
-      {
-        value: 'recent',
-        icon: 'history' as IconName,
-        tooltip: t('Recent'),
-      },
-    ];
 
     if (!conn) {
       return <div />;
@@ -110,7 +102,18 @@ export class FunctionSelect extends React.PureComponent<Props, State> {
     return (
       <div className="ticl-func-select" onClick={onClick}>
         <div className="tlcl-top-menu-box ticl-hbox">
-          <ButtonRadioGroup options={toggleOptions} value={tab} onChange={this.onToggleChange} />
+          <Radio.Group defaultValue="tree" size="small" onChange={this.onToggleChange}>
+            <Tooltip title={t('Function Tree')}>
+              <Radio.Button value="tree">
+                <AppStoreIcon />
+              </Radio.Button>
+            </Tooltip>
+            <Tooltip title={t('Recent')}>
+              <Radio.Button value="recent">
+                <HistoryIcon />
+              </Radio.Button>
+            </Tooltip>
+          </Radio.Group>
           <TicloI18NConsumer>
             {() => (
               <Input
@@ -121,14 +124,9 @@ export class FunctionSelect extends React.PureComponent<Props, State> {
                 onChange={this.onFilterChange}
                 suffix={
                   search ? (
-                    <Icon
-                      icon="cross-circle"
-                      title={'clear'}
-                      style={{color: 'rgba(0,0,0,.45)'}}
-                      onClick={this.onFilterClear}
-                    />
+                    <CloseCircleIcon title={'clear'} style={{color: 'rgba(0,0,0,.45)'}} onClick={this.onFilterClear} />
                   ) : (
-                    <Icon icon="filter" style={{color: 'rgba(0,0,0,.45)'}} />
+                    <FilterIcon style={{color: 'rgba(0,0,0,.45)'}} />
                   )
                 }
               />
@@ -136,7 +134,7 @@ export class FunctionSelect extends React.PureComponent<Props, State> {
           </TicloI18NConsumer>
           {this.context?.editFlow ? (
             <Tooltip title={t('Add Function')}>
-              <Button size="small" onClick={this.onAddFunction} icon={<Icon icon="add" />} />
+              <Button size="small" onClick={this.onAddFunction} icon={<PlusSquareIcon />} />
             </Tooltip>
           ) : null}
           <Modal
@@ -151,16 +149,16 @@ export class FunctionSelect extends React.PureComponent<Props, State> {
         {useFlow && (
           <>
             <Button
-              intent={currentValue === '#' ? 'primary' : undefined}
-              icon={<Icon icon="flow-branch" />}
+              type={currentValue === '#' ? 'primary' : 'default'}
+              icon={<SubnodeIcon />}
               size="small"
               onClick={this.onSubflowClick}
             >
               {t('Subflow')}
             </Button>
             <Button
-              intent={typeof currentValue === 'object' ? 'primary' : undefined}
-              icon={<Icon icon="layout-grid" />}
+              type={typeof currentValue === 'object' ? 'primary' : 'default'}
+              icon={<InlineIcon />}
               size="small"
               onClick={this.onInlineClick}
             >

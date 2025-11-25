@@ -1,6 +1,9 @@
 import React, {ClipboardEventHandler, CSSProperties, KeyboardEvent} from 'react';
-import {notification, Modal} from 'antd';
-import {Button, Icon} from '@blueprintjs/core';
+import {Button, notification, Modal} from 'antd';
+import ZoomInIcon from '@ant-design/icons/ZoomInOutlined';
+import ZoomOutIcon from '@ant-design/icons/ZoomOutOutlined';
+import UndoIcon from '@ant-design/icons/UndoOutlined';
+import RedoIcon from '@ant-design/icons/ReloadOutlined';
 
 import {BlockView} from './Block';
 import {WireView} from './Wire';
@@ -554,9 +557,9 @@ export class BlockStage extends BlockStageBase<BlockStageProps, StageState> {
         </DragDropDiv>
         <div className="ticl-stage-zoom">
           <div className="ticl-hbox">
-            <Button className="ticl-icon-btn" variant="minimal" icon="zoom-out" onClick={this.zoomOut} />
+            <Button className="ticl-icon-btn" shape="circle" icon={<ZoomOutIcon />} onClick={this.zoomOut} />
             <span className="ticl-stage-zoom-label">{Math.round(zoom * 100)}%</span>
-            <Button className="ticl-icon-btn" variant="minimal" icon="zoom-in" onClick={this.zoomIn} />
+            <Button className="ticl-icon-btn" shape="circle" icon={<ZoomInIcon />} onClick={this.zoomIn} />
           </div>
           {miniStage}
         </div>
@@ -567,7 +570,7 @@ export class BlockStage extends BlockStageBase<BlockStageProps, StageState> {
             path={`${basePath}.@has-undo`}
             tooltip={t('Undo')}
             tooltipPlacement="left"
-            icon={<Icon icon="undo" />}
+            icon={<UndoIcon />}
             onClick={this.undo}
           />
           <TooltipIconButton
@@ -575,7 +578,7 @@ export class BlockStage extends BlockStageBase<BlockStageProps, StageState> {
             path={`${basePath}.@has-redo`}
             tooltip={t('Redo')}
             tooltipPlacement="left"
-            icon={<Icon icon="redo" />}
+            icon={<RedoIcon />}
             onClick={this.redo}
           />
         </div>

@@ -36,10 +36,6 @@
     "yargs": "^17.7.2"
   },
   "devDependencies": {
-    "@blueprintjs/core": "^6.3.1",
-    "@blueprintjs/datetime": "^6.0.5",
-    "@blueprintjs/icons": "^6.1.0",
-    "@blueprintjs/select": "^6.0.5",
     "@types/react": "^18.2.69",
     "@types/react-dom": "^18.2.22",
     "@types/yargs": "^17.0.32"

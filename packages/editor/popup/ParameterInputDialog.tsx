@@ -1,5 +1,5 @@
 import React from 'react';
-import {Modal} from 'antd';
+import {Modal, Button, Space} from 'antd';
 import {DataMap, FunctionDesc, PropDesc} from '@ticlo/core';
 import {typeEditorMap} from '../property/value';
 import {ReadonlyEditor} from '../property/value/ReadonlyEditor';
