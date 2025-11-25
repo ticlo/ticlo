@@ -41,12 +41,7 @@ async function removeIfExists(filePath: string) {
 
 async function deleteArtifacts(dtsFile: string) {
   const basePath = dtsFile.slice(0, -'.d.ts'.length);
-  const candidates = [
-    dtsFile,
-    `${basePath}.js`,
-    `${basePath}.js.map`,
-    `${basePath}.d.ts.map`,
-  ];
+  const candidates = [dtsFile, `${basePath}.js`, `${basePath}.js.map`, `${basePath}.d.ts.map`];
 
   for (const candidate of new Set(candidates)) {
     await removeIfExists(candidate);
@@ -54,7 +49,7 @@ async function deleteArtifacts(dtsFile: string) {
 }
 
 async function traverse(dir: string) {
-  const entries = await fsp.readdir(dir, { withFileTypes: true });
+  const entries = await fsp.readdir(dir, {withFileTypes: true});
   for (const entry of entries) {
     if (entry.name.startsWith('.')) {
       // allow hidden files but still skip directories we explicitly ignore
