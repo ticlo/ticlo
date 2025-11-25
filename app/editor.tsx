@@ -5,7 +5,7 @@ import {TicloI18nSettings} from '@ticlo/core';
 import {makeLocalConnection} from '@ticlo/core/connect/LocalConnection';
 import {data} from './sample-data/data';
 import reactData from './sample-data/react';
-import {initEditor, PropertyList, BlockStage, NodeTree, ButtonRadioGroup} from '@ticlo/editor';
+import {initEditor, PropertyList, BlockStage, NodeTree} from '@ticlo/editor';
 import {DragDropDiv, DragState, DockLayout, DockContextType} from 'rc-dock';
 import {ClientConnection} from '@ticlo/core/connect/ClientConnection';
 import {Functions} from '@ticlo/core';
@@ -67,7 +67,7 @@ const layoutGroups = {
   },
 };
 
-const languages = [{value: 'en'}, {value: 'fr'}, {value: 'zh'}];
+const languages = ['en', 'fr', 'zh'];
 const antdLanMap: Record<string, Locale> = {
   en: enAntd,
   fr: frAntd,
@@ -119,7 +119,14 @@ class App extends React.PureComponent<Props, State> {
                     title: 'Test Language',
                     content: (
                       <div style={{margin: 12}}>
-                        <ButtonRadioGroup options={languages} onChange={this.switchLan} defaultValue={this.lng} />
+                        <Radio.Group
+                          options={languages}
+                          onChange={this.switchLan}
+                          defaultValue={this.lng}
+                          optionType="button"
+                          buttonStyle="solid"
+                          size="small"
+                        />
                         <br />
                         <Checkbox
                           defaultChecked={TicloI18nSettings.shouldTranslateFunction}
@@ -177,10 +184,8 @@ class App extends React.PureComponent<Props, State> {
 
   lng: string = 'en';
   lngConfig = zhAntd;
-  switchLan = (value?: string | number | null) => {
-    if (typeof value === 'string') {
-      this.lng = value;
-    }
+  switchLan = (e?: RadioChangeEvent) => {
+    this.lng = e?.target.value || this.lng;
     this.lngConfig = antdLanMap[this.lng];
     // force a reload of the context
     this.ticloContext = {...this.ticloContext, language: this.lng};

@@ -1,9 +1,12 @@
 import React, {ReactElement} from 'react';
-import {Button, Icon} from '@blueprintjs/core';
+import {Button, Input, Select} from 'antd';
+import PlusIcon from '@ant-design/icons/PlusOutlined';
+import EllipsisIcon from '@ant-design/icons/EllipsisOutlined';
 import {ClientConn, FunctionDesc, getDefaultFuncData, getSubBlockFuncData, PropDesc} from '@ticlo/core/editor';
 import {Popup} from '../../component/ClickPopup';
 import {PropertyList} from '../PropertyList';
-import {Select} from '../../component/Select';
+
+const {Option} = Select;
 
 export interface Props {
   conn?: ClientConn;
@@ -73,7 +76,14 @@ export class ServiceEditor extends React.PureComponent<Props, State> {
 
     let globalNames = conn.findGlobalBlocks(desc.options as string[]);
 
-    const selectOptions = globalNames.map((name) => ({value: name, label: name}));
+    let optionNodes: React.ReactNode[] = [];
+    for (let name of globalNames) {
+      optionNodes.push(
+        <Option key={name} value={name}>
+          {name}
+        </Option>
+      );
+    }
 
     let selectValue = bindingPath;
     if (typeof selectValue === 'string' && selectValue.endsWith('.#output')) {
@@ -83,16 +93,23 @@ export class ServiceEditor extends React.PureComponent<Props, State> {
     if (bindingPath) {
       button = (
         <Popup popupVisible={opened} onPopupVisibleChange={this.onPopupClose} popup={this.getPopup}>
-          <Button className="ticl-square-icon-btn" size="small" icon={<Icon icon="more" />} onClick={this.openPopup} />
+          <Button className="ticl-square-icon-btn" size="small" icon={<EllipsisIcon />} onClick={this.openPopup} />
         </Popup>
       );
     } else if (!locked && create) {
-      button = <Button className="ticl-square-icon-btn" size="small" icon={<Icon icon="add" />} onClick={this.onCreate} />;
+      button = <Button className="ticl-square-icon-btn" size="small" icon={<PlusIcon />} onClick={this.onCreate} />;
     }
 
     return (
       <div className="ticl-hbox ticl-service-editor">
-        <Select value={selectValue} options={selectOptions} disabled={locked || onPathChange == null} onChange={this.onGlobalBlockSelect} />
+        <Select
+          size="small"
+          value={selectValue}
+          disabled={locked || onPathChange == null}
+          onChange={this.onGlobalBlockSelect}
+        >
+          {optionNodes}
+        </Select>
         {button}
       </div>
     );

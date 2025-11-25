@@ -1,5 +1,7 @@
 import React from 'react';
-import {Button} from '@blueprintjs/core';
+import {Button} from 'antd';
+import PlayIcon from '@ant-design/icons/CaretRightOutlined';
+import PlayCircleOutlined from '@ant-design/icons/PlayCircleOutlined';
 import {ValueEditorProps} from './ValueEditorBase';
 import {renderValue} from '../../component/renderValue';
 
@@ -13,12 +15,12 @@ export class EventEditor extends React.PureComponent<ValueEditorProps, any> {
 
   render() {
     let {desc, value, locked, onChange} = this.props;
-    const icon = 'play';
+    let icon = onChange ? <PlayIcon /> : <PlayCircleOutlined />;
     return (
       <Button
-        className={value != null ? 'ticl-rounded-btn' : undefined}
         size="small"
         icon={icon}
+        shape={value != null ? 'round' : undefined}
         disabled={onChange == null}
         onClick={this.onClick}
       >

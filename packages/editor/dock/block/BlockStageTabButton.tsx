@@ -1,5 +1,7 @@
 import React from 'react';
-import {Icon, Button} from '@blueprintjs/core';
+import {Button} from 'antd';
+import SaveIcon from '@ant-design/icons/SaveOutlined';
+import CloseIcon from '@ant-design/icons/CloseOutlined';
 import {DockContext, DockContextType} from 'rc-dock';
 import {LazyUpdateComponent} from '../../component/LazyUpdateComponent';
 import {ClientConn, ValueSubscriber, ValueUpdate} from '@ticlo/core/editor';
@@ -58,8 +60,8 @@ export class BlockStageTabButton extends LazyUpdateComponent<Props, State> {
     if (onSave && hasChange) {
       closeButtun = (
         <div className="ticl-stage-panel-save">
-          <Button className="ticl-icon-btn" variant="minimal" icon="floppy-disk" onClick={this.onSave} />
-          <Button className="ticl-icon-btn" variant="minimal" icon="cross" onClick={this.onClose} />
+          <Button className="ticl-icon-btn" shape="circle" icon={<SaveIcon />} onClick={this.onSave} />
+          <Button className="ticl-icon-btn" shape="circle" icon={<CloseIcon />} onClick={this.onClose} />
         </div>
       );
     } else {

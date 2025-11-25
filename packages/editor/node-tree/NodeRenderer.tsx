@@ -1,5 +1,14 @@
 import React from 'react';
-import {Icon} from '@blueprintjs/core';
+
+import BuildIcon from '@ant-design/icons/BuildOutlined';
+import PauseCircleOutlined from '@ant-design/icons/PauseCircleOutlined';
+import SaveIcon from '@ant-design/icons/SaveOutlined';
+import DeleteIcon from '@ant-design/icons/DeleteOutlined';
+import SearchIcon from '@ant-design/icons/SearchOutlined';
+import FileIcon from '@ant-design/icons/FileOutlined';
+import FolderIcon from '@ant-design/icons/FolderOpenOutlined';
+import FileExclamationIcon from '@ant-design/icons/FileTextOutlined';
+import GlobalIcon from '@ant-design/icons/GlobalOutlined';
 import {ExpandIcon, ExpandState, TreeItem} from '../component/Tree';
 import {PureDataRenderer} from '../component/DataRenderer';
 import {
@@ -22,6 +31,7 @@ import {LocalizedNodeName, t} from '../component/LocalizedLabel';
 import {BlockDropdown} from '../popup/BlockDropdown';
 import {showModal} from '../popup/ShowModal';
 import {AddNewFlowDialog} from '../popup/AddNewFlowDialog';
+import FileAddIcon from '@ant-design/icons/FileAddOutlined';
 import {MenuItem} from '../component/ClickPopup';
 import {LazyUpdateSubscriber} from '../component/LazyUpdateComponent';
 
@@ -227,7 +237,7 @@ export class NodeTreeRenderer extends PureDataRenderer<Props, any> {
     if (editFlow) {
       menuItems.push(
         <MenuItem key="open" onClick={this.onOpenBlock}>
-          <Icon icon="build" />
+          <BuildIcon />
           {t('Open')}
         </MenuItem>
       );
@@ -236,7 +246,7 @@ export class NodeTreeRenderer extends PureDataRenderer<Props, any> {
     if (addFlowAllowed.includes(item.functionId)) {
       menuItems.push(
         <MenuItem key="addFlow" value={item.key} onClick={this.onAddFlowClick}>
-          <Icon icon="insert" />
+          <FileAddIcon />
           {t('Add Dataflow')}
         </MenuItem>
       );
@@ -244,14 +254,14 @@ export class NodeTreeRenderer extends PureDataRenderer<Props, any> {
     if (addFolderAllowed.includes(item.functionId)) {
       menuItems.push(
         <MenuItem key="addFolder" value={item.key} onClick={this.onAddFolderClick}>
-          <Icon icon="folder-new" />
+          <FileAddIcon />
           {t('Add Folder')}
         </MenuItem>
       );
     }
     menuItems.push(
       <MenuItem key="search">
-        <Icon icon="search" />
+        <SearchIcon />
         {t('Search')}
       </MenuItem>
     );
@@ -346,14 +356,14 @@ export class NodeTreeRenderer extends PureDataRenderer<Props, any> {
     if (!dynamicStyle) {
       if (saveAllowed.has(item.functionId)) {
         if (this.hasChangeListener.value) {
-          icon = <Icon icon="changes" />;
+          icon = <FileExclamationIcon />;
         } else {
-          icon = <Icon icon="document" />;
+          icon = <FileIcon />;
         }
       } else if (item.functionId === 'flow:const' || item.functionId === 'flow:global') {
-        icon = <Icon icon="globe-network" />;
+        icon = <GlobalIcon />;
       } else if (item.functionId === 'flow:folder') {
-        icon = <Icon icon="folder-close" />;
+        icon = <FolderIcon />;
       }
     }
 
@@ -399,7 +409,7 @@ export class NodeTreeRenderer extends PureDataRenderer<Props, any> {
           >
             {icon}
             {nameNode}
-            {this.disabledListener.value ? <Icon icon="pause" /> : null}
+            {this.disabledListener.value ? <PauseCircleOutlined /> : null}
           </DragDropDiv>
         </BlockDropdown>
       </div>

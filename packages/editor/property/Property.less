@@ -101,8 +101,7 @@
     resize: none;
   }
 
-  & .bp6-button[disabled],
-  & .bp6-button.bp6-disabled {
+  & .ant-btn[disabled] {
     border-color: @border-disabled-color;
   }
 
@@ -157,7 +156,7 @@
     width: 100%;
   }
 
-  & > .bp6-button {
+  & > .ant-btn {
     width: 100%;
   }
 
@@ -227,7 +226,7 @@
     border-color: @border-hover-color;
   }
 
-  & .bp6-button.ticl-icon-btn {
+  & .ant-btn-icon-only {
     flex: 0 1 22px;
     padding: 0 !important;
     color: @border-disabled-color;
@@ -237,13 +236,9 @@
 
     &:hover {
       color: @primary-color;
-      background: none;
-      box-shadow: none;
     }
 
     border: 0 none;
-    background: none;
-    box-shadow: none;
   }
 
   &.ticl-number-input-disabled {

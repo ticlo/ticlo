@@ -1,14 +1,14 @@
 import React, {ReactElement} from 'react';
-import {Checkbox, Select as AntSelect, Tooltip} from 'antd';
-import {Button, Icon} from '@blueprintjs/core';
+import {Button, Checkbox, Select, Tag, Tooltip} from 'antd';
+import PlusIcon from '@ant-design/icons/PlusOutlined';
 import {SchedulerConfig} from '@ticlo/core/functions/date/Schedule/SchedulerEvent';
 import {cacheCall} from '../../util/CachedCallback';
 import {translateProperty, translatePropContent} from '@ticlo/core/util/i18n';
 import {TicloLayoutContext, TicloLayoutContextType} from '../../component/LayoutContext';
+import CloseOutlined from '@ant-design/icons/CloseOutlined';
 import {stopPropagation} from '@ticlo/core';
 import {LocalizedPropertyName, t} from '../../component/LocalizedLabel';
 import {FUNC, funcDesc} from './descs';
-import {Select} from '../../component/Select';
 
 const CURRENT_YEAR = new Date().getFullYear();
 // create 20 years for the dropdown
@@ -52,7 +52,7 @@ function DayTag({value, onClose}: {value: number | string; onClose: (e: React.Mo
         onMouseDown={stopPropagation}
         onClick={onClose}
       >
-        <Icon icon="cross" />
+        <CloseOutlined />
       </span>
     </span>
   );
@@ -68,10 +68,9 @@ interface States {
   dayType: number;
 }
 
-type SelectionValue = string | number | null | undefined;
-interface SelectOption<T = SelectionValue> {
+interface SelectOption {
   label: React.ReactNode;
-  value: T;
+  value?: string | number | null;
 }
 
 export class AdvancedSelector extends React.PureComponent<Props, States> {
@@ -116,8 +115,8 @@ export class AdvancedSelector extends React.PureComponent<Props, States> {
   };
   getLocalizedOptions = cacheCall((context: unknown) => {
     const monthOptions: SelectOption[] = [];
-    const dayCountOptions: SelectOption<number>[] = [];
-    const dayTypeOptions: SelectOption<number>[] = [];
+    const dayCountOptions: SelectOption[] = [];
+    const dayTypeOptions: SelectOption[] = [];
     for (let i = 1; i <= 12; ++i) {
       monthOptions.push({
         label: translatePropContent(FUNC, 'months', i.toString()),
@@ -230,7 +229,7 @@ export class AdvancedSelector extends React.PureComponent<Props, States> {
         <div className="ticl-property">
           <div className="ticl-property-name">{yearsName}</div>
           <div className="ticl-property-value">
-            <AntSelect
+            <Select
               size="small"
               mode="tags"
               value={years}
@@ -243,7 +242,7 @@ export class AdvancedSelector extends React.PureComponent<Props, States> {
         <div className="ticl-property">
           <div className="ticl-property-name">{monthsName}</div>
           <div className="ticl-property-value">
-            <AntSelect
+            <Select
               size="small"
               mode="multiple"
               value={months}
@@ -256,7 +255,7 @@ export class AdvancedSelector extends React.PureComponent<Props, States> {
         <div className="ticl-property">
           <div className="ticl-property-name">{daysName}</div>
           <div className="ticl-property-value">
-            <AntSelect
+            <Select
               size="small"
               mode="multiple"
               value={days}
@@ -286,15 +285,15 @@ export class AdvancedSelector extends React.PureComponent<Props, States> {
               <Tooltip title={t('Add Day')}>
                 <Button
                   size="small"
-                  className="ticl-square-icon-btn"
-                  icon={<Icon icon="add" />}
+                  shape="circle"
+                  icon={<PlusIcon />}
                   style={{marginRight: 4}}
                   onClick={this.addDay}
                 />
               </Tooltip>
             </div>
-            <Select<number> value={dayCount} options={dayCountOptions} onChange={this.onDayCountChange} />
-            <Select<number> value={dayType} options={dayTypeOptions} onChange={this.onDayTypeChange} />
+            <Select size="small" value={dayCount} options={dayCountOptions} onChange={this.onDayCountChange} />
+            <Select size="small" value={dayType} options={dayTypeOptions} onChange={this.onDayTypeChange} />
           </div>
         </div>
       </>
