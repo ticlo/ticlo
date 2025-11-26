@@ -22,7 +22,7 @@ import DeleteIcon from '@ant-design/icons/DeleteOutlined';
 import {StringEditor} from '../property/value/StringEditor';
 import {AddCustomPropertyMenu} from '../property/AddCustomProperty';
 import {ClientConn, ValueSubscriber} from '@ticlo/core/connect/ClientConn';
-import {CheckboxChangeEvent} from 'antd/lib/checkbox';
+import {CheckboxChangeEvent} from 'antd/es/checkbox';
 import {ParameterInputDialog} from './ParameterInputDialog';
 import {ExpandIcon} from '../component/Tree';
 import {ValueUpdate} from '@ticlo/core/connect/ClientRequests';

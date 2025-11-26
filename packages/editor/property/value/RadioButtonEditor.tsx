@@ -1,7 +1,7 @@
 import React from 'react';
 import {Radio} from 'antd';
 import {ValueEditorProps} from './ValueEditorBase';
-import {RadioChangeEvent} from 'antd/lib/radio';
+import {RadioChangeEvent} from 'antd';
 import {LocalizedEnumOption} from '../../component/LocalizedLabel';
 
 const RadioButton = Radio.Button;

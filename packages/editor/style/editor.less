@@ -37,9 +37,18 @@
 @import '../dock/block/BlockStagePane';
 @import '../dock/node-tree/NodeTreePane';
 
+body {
+  font-family: @font-family;
+  color: @text-color;
+  font-size: 14px;
+  line-height: 1.5715;
+  background-color: #fff;
+}
+
 div {
   scrollbar-color: #eee #fbfbfb;
   scrollbar-width: thin;
+  box-sizing: border-box;
 }
 
 div ::-webkit-scrollbar-track {

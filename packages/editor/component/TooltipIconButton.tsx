@@ -1,7 +1,7 @@
 import React from 'react';
 import {Button, Tooltip} from 'antd';
-import {ButtonProps} from 'antd/lib/button';
-import {TooltipPlacement} from 'antd/lib/tooltip';
+import {ButtonProps} from 'antd';
+import {TooltipPlacement} from 'antd/es/tooltip';
 import {ClientConn, ValueSubscriber} from '@ticlo/core/connect/ClientConn';
 import {LazyUpdateComponent, LazyUpdateSubscriber} from './LazyUpdateComponent';
 import {ValueUpdate} from '@ticlo/core/connect/ClientRequests';

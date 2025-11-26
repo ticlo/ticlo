@@ -49,16 +49,29 @@ import frMathLocal from '../i18n/core/fr.json';
 // @ts-ignore
 import frTestLocal from '../i18n/test/fr.json';
 
-import zhAntd from 'antd/lib/locale/zh_CN';
-import enAntd from 'antd/lib/locale/en_US';
-import frAntd from 'antd/lib/locale/fr_FR';
-import type {Locale} from 'antd/lib/locale-provider';
+import zhAntd from 'antd/locale/zh_CN';
+import enAntd from 'antd/locale/en_US';
+import frAntd from 'antd/locale/fr_FR';
+import type {Locale} from 'antd/es/locale';
 import {LocalizedLabel, t} from '@ticlo/editor/component/LocalizedLabel';
 import {FlowTestCase} from '@ticlo/test/FlowTestCase';
 import {createRoot} from 'react-dom/client';
 import {SchedulePane} from '@ticlo/editor/dock/schedule/SchedulePane';
 import {MixedBrowserConnection} from '@ticlo/html/connect/MixedBrowserConnection';
-import {RadioChangeEvent} from 'antd/lib/radio/interface';
+import {RadioChangeEvent} from 'antd';
+
+const theme = {
+  token: {
+    colorPrimary: '#40a9ff',
+    fontFamily:
+      "'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', 'WenQuanYi Micro Hei', Roboto, -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol'",
+    colorText: 'rgba(0, 0, 0, 0.75)',
+    colorTextSecondary: 'rgba(0, 0, 0, 0.50)',
+    colorTextHeading: 'rgba(0, 0, 0, 0.90)',
+    colorError: '#ff4d4f',
+    colorBorder: '#d9d9d9',
+  },
+};
 
 const layoutGroups = {
   blockStage: {
@@ -245,7 +258,7 @@ class App extends React.PureComponent<Props, State> {
     let {conn} = this.props;
     let {modal} = this.state;
     return (
-      <ConfigProvider locale={this.lngConfig}>
+      <ConfigProvider locale={this.lngConfig} theme={theme}>
         <TicloLayoutContextType.Provider value={this.ticloContext}>
           <DockLayout
             defaultLayout={this.defaultDockLayout}

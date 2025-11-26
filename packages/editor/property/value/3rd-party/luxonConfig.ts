@@ -65,7 +65,7 @@ const generateConfig: GenerateConfig<DateTime> = {
   getHour: (date: DateTime) => date.hour,
   getMinute: (date: DateTime) => date.minute,
   getSecond: (date: DateTime) => date.second,
-  //  getMillisecond: (date) => date.millisecond,
+  getMillisecond: (date: DateTime) => date.millisecond,
 
   // set
   addYear: (date: DateTime, diff: number) => date.plus({year: diff}),
@@ -77,7 +77,7 @@ const generateConfig: GenerateConfig<DateTime> = {
   setHour: (date: DateTime, hour: number) => date.set({hour}),
   setMinute: (date: DateTime, minute: number) => date.set({minute}),
   setSecond: (date: DateTime, second: number) => date.set({second}),
-  //  setMillisecond: (date, milliseconds) => date.set({millisecond: milliseconds}),
+  setMillisecond: (date: DateTime, millisecond: number) => date.set({millisecond}),
 
   // Compare
   isAfter: (date1: DateTime, date2: DateTime) => date1 > date2,

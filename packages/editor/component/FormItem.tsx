@@ -1,6 +1,6 @@
 import React, {ChangeEvent} from 'react';
 import {Form, InputNumber} from 'antd';
-import {RadioChangeEvent} from 'antd/lib/radio';
+import {RadioChangeEvent} from 'antd';
 import {LazyUpdateComponent} from './LazyUpdateComponent';
 
 const {Item} = Form;

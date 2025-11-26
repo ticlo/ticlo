@@ -16,7 +16,7 @@ import DeleteIcon from '@ant-design/icons/DeleteOutlined';
 import EditIcon from '@ant-design/icons/EditOutlined';
 import {TicloLayoutContext, TicloLayoutContextType} from '../component/LayoutContext';
 import {LocalizedFunctionName, t} from '../component/LocalizedLabel';
-import {MenuProps} from 'antd/lib/menu';
+import {MenuProps} from 'antd';
 
 export type OnFunctionClick = (name: string, desc: FunctionDesc, data: any) => void;
 
