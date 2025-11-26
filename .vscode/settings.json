@@ -20,5 +20,6 @@
   },
   "[typescriptreact]": {
     "editor.defaultFormatter": "esbenp.prettier-vscode"
-  }
+  },
+  "npm-scripts.showStartNotification": false
 }
