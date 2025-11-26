@@ -3,7 +3,7 @@ import {ClientConn, decode, encode, DataMap, isDataTruncated, translateEditor} f
 
 import {DockLayout} from 'rc-dock';
 import {EditorView} from '@codemirror/view';
-import {MenuProps} from 'antd/lib/menu';
+import {MenuProps} from 'antd';
 import {createDockDialog, DockDialogPane} from '../../component/DockDialogPane';
 import {ScheduleCalendar} from '../../scheduler/Calendar';
 
