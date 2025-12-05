@@ -61,6 +61,7 @@ import {MixedBrowserConnection} from '@ticlo/html/connect/MixedBrowserConnection
 import {RadioChangeEvent} from 'antd';
 
 const theme = {
+  zeroRuntime: true,
   token: {
     colorPrimary: '#40a9ff',
     fontFamily:
