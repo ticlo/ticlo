@@ -77,6 +77,7 @@ import {SchedulePane} from '@ticlo/editor/dock/schedule/SchedulePane';
 import {RadioChangeEvent} from 'antd';
 
 const theme = {
+  zeroRuntime: true,
   token: {
     colorPrimary: '#40a9ff',
     fontFamily:
