@@ -1,7 +1,7 @@
 import React from 'react';
 import {PureDataRenderer} from '../component/DataRenderer';
 import {TIcon} from '../icon/Icon';
-import {DragDropDiv, DragState} from 'rc-dock';
+import {DragDropDiv, DragDrop, DragState} from 'rc-dock';
 import {BaseBlockItem, BlockHeaderView, BlockItem, Stage, XYWRenderer} from './Field';
 import {LazyUpdateSubscriber} from '../component/LazyUpdateComponent';
 import {BlockWidget, BlockWidgetProps} from './view/BlockWidget';
@@ -307,7 +307,7 @@ export class BlockView extends PureDataRenderer<BlockViewProps, BlockViewState> 
             <div className="ticl-block-min-bound" />
             <BlockDropdown functionId={item.desc.id} conn={item.conn} path={item.path} displayName="" canApply={false}>
               <Tooltip title={getDisplayName(item.name, this.displayName.value)} mouseEnterDelay={0}>
-                <DragDropDiv
+                <DragDrop
                   className={headClasses}
                   directDragT={true}
                   onDoubleClick={this.expandBlock}
@@ -316,7 +316,7 @@ export class BlockView extends PureDataRenderer<BlockViewProps, BlockViewState> 
                   onDragEndT={this.onDragEnd}
                 >
                   <TIcon icon={icon} />
-                </DragDropDiv>
+                </DragDrop>
               </Tooltip>
             </BlockDropdown>
           </div>

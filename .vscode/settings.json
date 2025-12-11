@@ -12,14 +12,26 @@
   "files.eol": "\n",
   "editor.tabSize": 2,
   "editor.formatOnSave": true,
-  "editor.defaultFormatter": "esbenp.prettier-vscode",
+  "editor.defaultFormatter": "prettier.prettier-vscode",
   "typescript.format.enable": false,
-  "editor.codeActionsOnSave": null,
   "[typescript]": {
-    "editor.defaultFormatter": "esbenp.prettier-vscode"
+    "editor.formatOnSave": true
   },
   "[typescriptreact]": {
-    "editor.defaultFormatter": "esbenp.prettier-vscode"
+    "editor.formatOnSave": true
   },
-  "npm-scripts.showStartNotification": false
+  "npm-scripts.showStartNotification": false,
+  "npm.packageManager": "pnpm",
+  "npm.runSilent": true,
+  "[css]": {
+    "editor.defaultFormatter": "prettier.prettier-vscode"
+  },
+  "workbench.colorCustomizations": {
+    "activityBar.background": "#dde2ee",
+    "activityBar.foreground": "#000000",
+    "titleBar.activeBackground": "#333333",
+    "titleBar.activeForeground": "#ffffff",
+    "statusBar.background": "#333333",
+    "statusBar.foreground": "#ffffff"
+  }
 }

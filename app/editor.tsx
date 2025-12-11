@@ -60,18 +60,29 @@ import {SchedulePane} from '@ticlo/editor/dock/schedule/SchedulePane';
 import {MixedBrowserConnection} from '@ticlo/html/connect/MixedBrowserConnection';
 import {RadioChangeEvent} from 'antd';
 
+const themeTokens = {
+  fontFamily:
+    "'Nato Sans', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', 'WenQuanYi Micro Hei', Roboto, -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol'",
+  colorPrimary: '#40a9ff',
+  colorPrimaryHover: '#69c0ff',
+  colorInfo: '#1890ff',
+  colorError: '#ff4d4f',
+  colorLink: '#108ee9',
+  colorText: 'rgba(0, 0, 0, 0.75)',
+  colorTextSecondary: 'rgba(0, 0, 0, 0.5)',
+  colorTextTertiary: 'rgba(0, 0, 0, 0.35)',
+  colorTextHeading: 'rgba(0, 0, 0, 0.9)',
+  colorTextDisabled: 'rgba(0, 0, 0, 0.6)',
+  colorBorder: '#d9d9d9',
+  colorBorderSecondary: '#f0f0f0',
+  colorBgContainerDisabled: 'transparent',
+  controlItemBgHover: '#f5f5f5',
+  controlPaddingHorizontal: 12,
+};
+
 const theme = {
   zeroRuntime: true,
-  token: {
-    colorPrimary: '#40a9ff',
-    fontFamily:
-      "'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', 'WenQuanYi Micro Hei', Roboto, -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol'",
-    colorText: 'rgba(0, 0, 0, 0.75)',
-    colorTextSecondary: 'rgba(0, 0, 0, 0.50)',
-    colorTextHeading: 'rgba(0, 0, 0, 0.90)',
-    colorError: '#ff4d4f',
-    colorBorder: '#d9d9d9',
-  },
+  token: themeTokens,
 };
 
 const layoutGroups = {
