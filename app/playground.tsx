@@ -32,9 +32,10 @@ import {TicloLayoutContext, TicloLayoutContextType} from '@ticlo/editor/componen
 import {PropertyListPane} from '@ticlo/editor/dock/property/PropertyListPane';
 import {NodeTreePane} from '@ticlo/editor/dock/node-tree/NodeTreePane';
 import {TextEditorPane} from '@ticlo/editor/dock/text-editor/TextEditorPane';
-import '../packages/html';
-import '../packages/react';
-import '../packages/test';
+import '@ticlo/html';
+import '@ticlo/react';
+import '@ticlo/test';
+import {theme} from '@ticlo/editor/style/theme';
 import {FunctionSelect} from '@ticlo/editor/function-selector/FunctionSelector';
 
 import i18next from 'i18next';
@@ -75,29 +76,6 @@ import {IndexDbFlowStorage} from '@ticlo/html/storage/IndexDbStorage';
 import {createRoot} from 'react-dom/client';
 import {SchedulePane} from '@ticlo/editor/dock/schedule/SchedulePane';
 import {RadioChangeEvent} from 'antd';
-
-const theme = {
-  zeroRuntime: true,
-  token: {
-  fontFamily:
-    "'Nato Sans', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', 'WenQuanYi Micro Hei', Roboto, -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol'",
-  colorPrimary: '#40a9ff',
-  colorPrimaryHover: '#69c0ff',
-  colorInfo: '#1890ff',
-  colorError: '#ff4d4f',
-  colorLink: '#108ee9',
-  colorText: 'rgba(0, 0, 0, 0.75)',
-  colorTextSecondary: 'rgba(0, 0, 0, 0.5)',
-  colorTextTertiary: 'rgba(0, 0, 0, 0.35)',
-  colorTextHeading: 'rgba(0, 0, 0, 0.9)',
-  colorTextDisabled: 'rgba(0, 0, 0, 0.6)',
-  colorBorder: '#d9d9d9',
-  colorBorderSecondary: '#f0f0f0',
-  colorBgContainerDisabled: 'transparent',
-  controlItemBgHover: '#f5f5f5',
-  controlPaddingHorizontal: 12,
-},
-};
 
 const layoutGroups = {
   blockStage: {
