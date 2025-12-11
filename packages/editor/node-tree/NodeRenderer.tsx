@@ -25,7 +25,7 @@ import {
 } from '@ticlo/core/editor';
 import {TIcon} from '../icon/Icon';
 import {TicloLayoutContext, TicloLayoutContextType} from '../component/LayoutContext';
-import {DragDropDiv, DragState} from 'rc-dock';
+import {DragDrop, DragState} from 'rc-dock';
 import {getFuncStyleFromDesc} from '../util/BlockColors';
 import {LocalizedNodeName, t} from '../component/LocalizedLabel';
 import {BlockDropdown} from '../popup/BlockDropdown';
@@ -401,7 +401,7 @@ export class NodeTreeRenderer extends PureDataRenderer<Props, any> {
           getMenu={this.getMenu}
           disabled={disabled}
         >
-          <DragDropDiv
+          <DragDrop
             className={contentClassName}
             onClick={this.onClickContent}
             onDragStartT={this.onDragStart}
@@ -410,7 +410,7 @@ export class NodeTreeRenderer extends PureDataRenderer<Props, any> {
             {icon}
             {nameNode}
             {this.disabledListener.value ? <PauseCircleOutlined /> : null}
-          </DragDropDiv>
+          </DragDrop>
         </BlockDropdown>
       </div>
     );

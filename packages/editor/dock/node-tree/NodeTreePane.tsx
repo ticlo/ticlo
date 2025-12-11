@@ -7,7 +7,7 @@ import FileAddIcon from '@ant-design/icons/FileAddOutlined';
 import FolderAddIcon from '@ant-design/icons/FolderAddOutlined';
 import ReloadIcon from '@ant-design/icons/ReloadOutlined';
 import {AddNewFlowDialog} from '../../popup/AddNewFlowDialog';
-import {DragDropDiv, DragState} from 'rc-dock';
+import {DragDrop, DragState} from 'rc-dock';
 import {t} from '../../component/LocalizedLabel';
 import {showModal} from '../../popup/ShowModal';
 
@@ -99,14 +99,14 @@ export class NodeTreePane extends React.PureComponent<Props, State> {
               <Button size="small" icon={<ReloadIcon />} onClick={this.reload} />
             </Tooltip>
             <Tooltip title={t('New Dataflow')}>
-              <DragDropDiv onDragOverT={this.newFlowOrFolderDragOver} onDropT={this.newFlowDrop}>
+              <DragDrop onDragOverT={this.newFlowOrFolderDragOver} onDropT={this.newFlowDrop}>
                 <Button size="small" icon={<FileAddIcon />} onClick={this.showNewFlowModel} />
-              </DragDropDiv>
+              </DragDrop>
             </Tooltip>
             <Tooltip title={t('New Folder')}>
-              <DragDropDiv onDragOverT={this.newFlowOrFolderDragOver} onDropT={this.newFolderDrop}>
+              <DragDrop onDragOverT={this.newFlowOrFolderDragOver} onDropT={this.newFolderDrop}>
                 <Button size="small" icon={<FolderAddIcon />} onClick={this.showNewFolderModel} />
-              </DragDropDiv>
+              </DragDrop>
             </Tooltip>
           </div>
         ) : null}

@@ -11,33 +11,35 @@ import path from 'path';
 const execAsync = util.promisify(exec);
 let checked = false; // shared across both hooks
 
+async function runNpmScript(script: string) {
+  const {stderr} = await execAsync(`npm run ${script}`);
+  if (stderr) {
+    console.error(`Error: ${stderr}`);
+  }
+}
+
 async function checkFiles() {
   if (checked) {
     return;
   }
   if (!fs.existsSync('i18n/core/en.json')) {
     console.log('Building i18n files...');
-    const {stderr} = await execAsync('npm run build-i18n');
-    if (stderr) {
-      console.error(`Error: ${stderr}`);
-    }
+    await runNpmScript('build-i18n');
   }
   if (!fs.existsSync('app/css')) {
     fs.mkdirSync('app/css', {recursive: true});
   }
   if (!fs.existsSync('app/css/editor.css')) {
     console.log('Building editor css...');
-    const {stderr} = await execAsync('npm run build-less');
-    if (stderr) {
-      console.error(`Error: ${stderr}`);
-    }
+    await runNpmScript('build-less');
+  }
+  if (!fs.existsSync('app/css/antd.css')) {
+    console.log('Building antd css...');
+    await runNpmScript('build-antd-css');
   }
   if (!fs.existsSync('app/css/icons.css')) {
     console.log('Building icons...');
-    const {stderr} = await execAsync('npm run build-icons');
-    if (stderr) {
-      console.error(`Error: ${stderr}`);
-    }
+    await runNpmScript('build-icons');
   }
 
   checked = true;

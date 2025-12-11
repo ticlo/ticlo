@@ -19,7 +19,7 @@ import {
   getSubBlockFuncData,
 } from '@ticlo/core/editor';
 import {MultiSelectComponent, MultiSelectLoader} from './MultiSelectComponent';
-import {DragDropDiv, DragState} from 'rc-dock';
+import {DragDrop, DragState} from 'rc-dock';
 import {ExpandIcon} from '../component/Tree';
 import {PropertyList} from './PropertyList';
 import {ServiceEditor} from './value/ServiceEditor';
@@ -472,7 +472,7 @@ export class PropertyEditor extends MultiSelectComponent<PropertyEditorProps, St
           baseName={baseName}
           onAddSubBlock={this.onAddSubBlock}
         >
-          <DragDropDiv
+          <DragDrop
             className={nameClass}
             onDragStartT={this.onDragStart}
             useRightButtonDragT={reorder != null}
@@ -480,7 +480,7 @@ export class PropertyEditor extends MultiSelectComponent<PropertyEditorProps, St
             onDropT={this.onDrop}
           >
             {propertyName}
-          </DragDropDiv>
+          </DragDrop>
         </PropertyDropdown>
         {renderLockIcon ? (
           <Tooltip title={locktooltip} overlayClassName="ticl-tooltip">
