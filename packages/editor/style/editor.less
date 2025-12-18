@@ -2,17 +2,17 @@
 @ticl-color-prn: #a0a0a0;
 @ticl-color-prn-light: #ddd;
 
-@ticl-color-pr0: @blue-5;
-@ticl-color-pr0-light: @blue-3;
-@ticl-color-pr1: @cyan-6;
-@ticl-color-pr1-light: @cyan-3;
-@ticl-color-pr2: mix(@lime-6, @lime-7, 50%);
-@ticl-color-pr2-light: @lime-4;
-@ticl-color-pr3: mix(@red-4, @orange-6, 25%);
-@ticl-color-pr3-light: mix(@red-2, @orange-3, 25%);
+@ticl-color-pr0: #40a9ff;
+@ticl-color-pr0-light: #91d5ff;
+@ticl-color-pr1: #13c2c2;
+@ticl-color-pr1-light: #87e8de;
+@ticl-color-pr2: #8ec60b;
+@ticl-color-pr2-light: #d3f261;
+@ticl-color-pr3: #fb872e;
+@ticl-color-pr3-light: #ffbfa2;
 // repeater
-@ticl-color-prr: mix(@gold-6, @gold-7, 70%);
-@ticl-color-prr-light: @gold-3;
+@ticl-color-prr: #efa210;
+@ticl-color-prr-light: #ffe58f;
 
 @import 'rc-dock/style/index-light';
 
@@ -38,8 +38,8 @@
 @import '../dock/node-tree/NodeTreePane';
 
 body {
-  font-family: @font-family;
-  color: @text-color;
+  font-family: var(--ant-font-family);
+  color: var(--ant-color-text);
   font-size: 14px;
   line-height: 1.5715;
   background-color: #fff;
@@ -78,10 +78,10 @@ div ::-webkit-scrollbar:horizontal {
 
 .ticl-error-message {
   padding: 6px;
-  color: @error-color;
+  color: var(--ant-color-error);
 }
 .ticl-error-box {
-  border: 1px solid @error-color;
+  border: 1px solid var(--ant-color-error);
 }
 
 // fix component styles
@@ -90,7 +90,7 @@ div ::-webkit-scrollbar:horizontal {
   background-color: rgba(0, 0, 0, 0.25);
 
   &-checked {
-    background-color: @switch-color;
+    background-color: var(--ant-color-primary);
   }
 
   &:after {
