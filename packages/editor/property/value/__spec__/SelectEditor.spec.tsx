@@ -35,12 +35,13 @@ describe('SelectEditor', function () {
       'editor'
     );
 
-    await shouldHappen(() => div.querySelector('.ant-select-selector'));
-    let selectDiv = div.querySelector('.ant-select-selector');
+    await shouldHappen(() => div.querySelector('.ant-select'), 2000);
+    let selectDiv = div.querySelector('.ant-select');
 
-    window.onerror = function (e) {};
-    simulate(selectDiv, 'mousedown');
-    await shouldHappen(() => querySingle("//div.ant-select-item-option-content/span[text()='b']", document.body));
+    // window.onerror = function (e) {};
+    let trigger = div.querySelector('input') || div.querySelector('.ant-select-selector') || selectDiv;
+    simulate(trigger, 'mousedown');
+    await shouldHappen(() => querySingle("//div.ant-select-item-option-content/span[text()='b']", document.body), 3000);
 
     simulate(querySingle("//div.ant-select-item-option-content/span[text()='b']", document.body), 'click');
 
@@ -57,12 +58,14 @@ describe('SelectEditor', function () {
       <MultiSelectEditor value={['a']} funcDesc={blankFuncDesc} desc={desc} onChange={onChange} />,
       'editor'
     );
-    await shouldHappen(() => div.querySelector('.ant-select-selector'));
-    let selectDiv = div.querySelector('.ant-select-selector');
+    await shouldHappen(() => div.querySelector('.ant-select'), 2000);
+    let selectDiv = div.querySelector('.ant-select');
 
-    window.onerror = function (e) {};
-    simulate(selectDiv, 'mousedown');
-    await shouldHappen(() => querySingle("//div.ant-select-item-option-content/span[text()='b']", document.body));
+    // window.onerror = function (e) {};
+    let trigger = div.querySelector('input') || div.querySelector('.ant-select-selector') || selectDiv;
+    simulate(trigger, 'mousedown');
+
+    await shouldHappen(() => querySingle("//div.ant-select-item-option-content/span[text()='b']", document.body), 3000);
 
     simulate(querySingle("//div.ant-select-item-option-content/span[text()='b']", document.body), 'click');
 
