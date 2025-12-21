@@ -29,7 +29,7 @@ export class HtmlElementFunction extends StatefulFunction {
     return true;
   }
   configChanged(config: BlockConfig, val: any): boolean {
-    return config._name === '#optional';
+    return config._name === '+optional';
   }
 
   getComponent(): any {

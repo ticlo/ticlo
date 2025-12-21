@@ -28,7 +28,7 @@
   }
  ],
  "#is": "worker",
- "#use": {
+ "+use": {
   "#is": {
    "#inputs": {
     "#custom": [

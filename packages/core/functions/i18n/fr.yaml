@@ -14,7 +14,7 @@
 
 '@shared':
   '':
-    '@name': "Entrée " # auto translated from hash: 6EIpzKWh
+    '@name': 'Entrée ' # auto translated from hash: 6EIpzKWh
   'input':
     '@name': Entrée # auto translated from hash: MkEYpnId
   'separator':
@@ -64,7 +64,7 @@
     '@name': Sorties # auto translated from hash: vzMkxmCA
   '#input':
     '@name': Entrée # auto translated from hash: MkEYpnId
-  '#use':
+  '+use':
     '@name': Utiliser # auto translated from hash: rYeDCJ+C
 
   '@b-name':

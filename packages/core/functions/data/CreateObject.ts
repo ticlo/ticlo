@@ -9,7 +9,7 @@ export class CreateObjectFunction extends PureFunction {
   configChanged(config: BlockConfig, val: any): boolean {
     switch (config._name) {
       case '#custom':
-      case '#extend':
+      case '+extend':
         return true;
       default:
         return false;
@@ -17,7 +17,7 @@ export class CreateObjectFunction extends PureFunction {
   }
 
   run() {
-    let baseObj = this._data.getValue('#extend');
+    let baseObj = this._data.getValue('+extend');
     let output: DataMap = typeof baseObj === 'object' ? {...baseObj} : {};
     let custom = this._data.getValue('#custom') as PropDesc | PropGroupDesc[];
     if (Array.isArray(custom)) {
@@ -47,7 +47,7 @@ Functions.add(CreateObjectFunction, {
   name: 'create-object',
   icon: 'txt:{ }',
   properties: [{name: '#output', pinned: true, type: 'object', readonly: true}],
-  configs: ([{name: '#extend', type: 'object'}] as (string | PropDesc)[]).concat(defaultConfigs),
+  configs: ([{name: '+extend', type: 'object'}] as (string | PropDesc)[]).concat(defaultConfigs),
   category: 'data',
 });
 
@@ -55,8 +55,8 @@ Functions.add(CreateObjectFunction, {
 export class CreateObjectFunctionOptional extends PureFunction {
   configChanged(config: BlockConfig, val: any): boolean {
     switch (config._name) {
-      case '#extend':
-      case '#optional':
+      case '+extend':
+      case '+optional':
         return true;
       default:
         return false;
@@ -64,7 +64,7 @@ export class CreateObjectFunctionOptional extends PureFunction {
   }
 
   run() {
-    let baseObj = this._data.getValue('#extend');
+    let baseObj = this._data.getValue('+extend');
     let output: DataMap = typeof baseObj === 'object' ? {...baseObj} : {};
     for (let field of this._data.getOptionalProps()) {
       let value = this._data.getValue(field);

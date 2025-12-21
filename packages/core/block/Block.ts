@@ -803,7 +803,7 @@ export class Block implements Runnable, FunctionData, PropListener<FunctionClass
   }
 
   getOptionalProps(): string[] {
-    let optional = this.getValue('#optional');
+    let optional = this.getValue('+optional');
     if (Array.isArray(optional)) {
       return optional;
     }

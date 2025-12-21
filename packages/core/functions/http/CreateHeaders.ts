@@ -12,7 +12,7 @@ Functions.add(
     icon: 'txt:H',
     optional: HeadersDef,
     properties: [{name: '#output', pinned: true, type: 'object', readonly: true}],
-    configs: ([{name: '#extend', type: 'object'}] as (string | PropDesc)[]).concat(defaultConfigs),
+    configs: ([{name: '+extend', type: 'object'}] as (string | PropDesc)[]).concat(defaultConfigs),
   },
   'http'
 );

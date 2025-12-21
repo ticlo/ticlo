@@ -64,7 +64,7 @@
     '@name': 'Outputs'
   '#input':
     '@name': Input
-  '#use':
+  '+use':
     '@name': Use
 
   '@b-name':

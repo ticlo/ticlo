@@ -9,7 +9,7 @@ Functions.add(
     icon: 'fab:css3',
     optional: StyleDef,
     properties: [{name: '#output', pinned: true, type: 'object', readonly: true}],
-    configs: ([{name: '#extend', type: 'object'}] as (string | PropDesc)[]).concat(defaultConfigs),
+    configs: ([{name: '+extend', type: 'object'}] as (string | PropDesc)[]).concat(defaultConfigs),
   },
   'html'
 );

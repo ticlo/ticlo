@@ -27,7 +27,7 @@ describe('CreateObject', function () {
     let aBlock = flow.createBlock('a');
     aBlock._load({
       '#is': 'create-object',
-      '#extend': {v: 0, t: 1},
+      '+extend': {v: 0, t: 1},
       'v': 13,
       'u': 14,
       '#custom': [{name: 'v', type: 'number'}],

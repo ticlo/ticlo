@@ -34,7 +34,7 @@ class ConditionalWorkersOutput implements FunctionOutput {
 }
 
 export class ConditionalWorkersFunction extends BaseFunction<Block> implements BlockChildWatch, WorkerHost {
-  readonly workerField = '#use';
+  readonly workerField = '+use';
   readonly control: WorkerControl;
 
   _input: any;
@@ -50,13 +50,13 @@ export class ConditionalWorkersFunction extends BaseFunction<Block> implements B
 
   initInputs() {
     this._onInputChange(this._data.getValue('#input'));
-    this.control.onUseChange(this._data.getValue('#use'));
+    this.control.onUseChange(this._data.getValue('+use'));
   }
 
   configChanged(config: BlockConfig, val: unknown): boolean {
     if (config._name === '#input') {
       return this._onInputChange(config._value);
-    } else if (config._name === '#use') {
+    } else if (config._name === '+use') {
       return this.control.onUseChange(config._value);
     }
     return super.configChanged(config, val);
@@ -294,7 +294,7 @@ export class ConditionalWorkersFunction extends BaseFunction<Block> implements B
 
 export const ConditionalWorkersFunctionProperties: PropDesc[] = [
   {name: '#input', pinned: true, type: 'object'},
-  {name: '#use', type: 'worker', init: ''},
+  {name: '+use', type: 'worker', init: ''},
   {name: '#output', pinned: true, type: 'any', readonly: true},
 ];
 

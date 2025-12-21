@@ -47,7 +47,7 @@ export class WorkerCollector extends Event {
  * SubFlowFunction is the function to load another flow from storage, not as a reusable worker
  */
 export class WorkerFunction extends BaseFunction<Block> implements WorkerHost {
-  readonly workerField = '#use';
+  readonly workerField = '+use';
   readonly control: WorkerControl;
 
   _funcFlow: WorkerFlow;
@@ -63,14 +63,14 @@ export class WorkerFunction extends BaseFunction<Block> implements WorkerHost {
     switch (config._name) {
       case '#state':
         return true;
-      case '#use':
+      case '+use':
         return this.control.onUseChange(val);
       default:
         return false;
     }
   }
   initInputs() {
-    this.control.onUseChange(this._data.getValue('#use'));
+    this.control.onUseChange(this._data.getValue('+use'));
   }
 
   inputChanged(input: BlockIO, val: any): boolean {
@@ -187,7 +187,7 @@ Functions.add(
         default: WorkerMode.ON,
       },
       {
-        name: '#use',
+        name: '+use',
         type: 'worker',
       },
     ],

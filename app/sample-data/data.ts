@@ -69,7 +69,6 @@ export const data: any = {
       },
       '@b-p': ['0', '1'],
     },
-    '#length': 2,
     '@b-xyw': [400, 200, 150],
     '@b-p': ['0', '1', '#output'],
     '#custom': sharedCustom,
@@ -89,7 +88,7 @@ export const data: any = {
   css: {
     '#is': 'html:create-style',
     '@b-xyw': [100, 500, 150],
-    '#optional': ['width', 'height'],
+    '+optional': ['width', 'height'],
   },
 };
 
