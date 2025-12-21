@@ -40,7 +40,7 @@ async function main() {
 }`);
   }
 
-  fs.writeFileSync('app/css/icons.css', output.join('\n'));
+  fs.writeFileSync('css/icons.css', output.join('\n'));
 }
 
 main();

@@ -18,14 +18,14 @@ jobs:
         run: corepack enable
       - run: pnpm install
       - run: pnpm run prettier-check
-#      - run: pnpm run build-package
+  #      - run: pnpm run build-package
 
   test-browser:
     runs-on: ubuntu-latest
     steps:
       - uses: MathRobin/timezone-action@v1.1
         with:
-          timezoneLinux: "America/Los_Angeles"
+          timezoneLinux: 'America/Los_Angeles'
       - name: enable corepack
         run: corepack enable
       - name: Setup Chrome
@@ -38,7 +38,7 @@ jobs:
       - name: make dir
         run: |
           mkdir coverage
-          mkdir app/css
+          mkdir css
       - run: pnpm run build-icons
       - run: pnpm run build-less
       - name: Vitest Browser Build Cache
@@ -60,7 +60,7 @@ jobs:
     steps:
       - uses: MathRobin/timezone-action@v1.1
         with:
-          timezoneLinux: "America/Los_Angeles"
+          timezoneLinux: 'America/Los_Angeles'
       - uses: actions/checkout@v2
       - name: enable corepack
         run: corepack enable
@@ -68,7 +68,7 @@ jobs:
       - name: make dir
         run: |
           mkdir coverage
-          mkdir app/css
+          mkdir css
       - name: Vitest
         run: pnpm run test-coverage
       - name: Coveralls Vitest
@@ -80,17 +80,17 @@ jobs:
           path-to-lcov: ./coverage/node/lcov.info
           parallel: true
           flag-name: strict
-#      - name: Test Node (Strict)
-#        run: pnpm run test-nyc-strict
-#      - name: Coveralls Node Strict
-#        uses: coverallsapp/github-action@v2
-#        env:
-#          NODE_COVERALLS_DEBUG: 1
-#        with:
-#          github-token: ${{ secrets.github_token }}
-#          path-to-lcov: ./coverage/nyc-strict.lcov
-#          parallel: true
-#          flag-name: strict
+      #      - name: Test Node (Strict)
+      #        run: pnpm run test-nyc-strict
+      #      - name: Coveralls Node Strict
+      #        uses: coverallsapp/github-action@v2
+      #        env:
+      #          NODE_COVERALLS_DEBUG: 1
+      #        with:
+      #          github-token: ${{ secrets.github_token }}
+      #          path-to-lcov: ./coverage/nyc-strict.lcov
+      #          parallel: true
+      #          flag-name: strict
       - name: Test Ticlo
         run: pnpm run ticlo-test-nyc
       - name: Coveralls Ticlo

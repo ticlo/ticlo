@@ -14,7 +14,7 @@ export default [
       'dist/**',
       'coverage/**',
       '*.min.js',
-      'app/css/**',
+      'css/**',
       'packages/*/lib/**',
       'packages/*/build/**',
       'packages/*/dist/**',

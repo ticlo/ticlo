@@ -26,18 +26,18 @@ async function checkFiles() {
     console.log('Building i18n files...');
     await runNpmScript('build-i18n');
   }
-  if (!fs.existsSync('app/css')) {
-    fs.mkdirSync('app/css', {recursive: true});
+  if (!fs.existsSync('css')) {
+    fs.mkdirSync('css', {recursive: true});
   }
-  if (!fs.existsSync('app/css/editor.css')) {
+  if (!fs.existsSync('css/editor.css')) {
     console.log('Building editor css...');
     await runNpmScript('build-less');
   }
-  if (!fs.existsSync('app/css/antd.css')) {
+  if (!fs.existsSync('css/antd.css')) {
     console.log('Building antd css...');
     await runNpmScript('build-antd-css');
   }
-  if (!fs.existsSync('app/css/icons.css')) {
+  if (!fs.existsSync('css/icons.css')) {
     console.log('Building icons...');
     await runNpmScript('build-icons');
   }
@@ -63,14 +63,14 @@ function preProcess(): Plugin {
 
 // Get all CSS files from the css folder
 function getCssInputs() {
-  const cssDir = './app/css';
+  const cssDir = './css';
   const inputs: Record<string, string> = {};
 
   if (fs.existsSync(cssDir)) {
     const cssFiles = fs.readdirSync(cssDir).filter((file) => file.endsWith('.css'));
     for (const file of cssFiles) {
       const name = path.basename(file, '.css');
-      inputs[name] = fileURLToPath(new URL(`./app/css/${file}`, import.meta.url));
+      inputs[name] = fileURLToPath(new URL(`./css/${file}`, import.meta.url));
     }
   }
 
@@ -81,6 +81,11 @@ function getCssInputs() {
 export default defineConfig({
   plugins: [preProcess(), tsconfigPaths(), react(), nodePolyfills()],
   base: '',
+  resolve: {
+    alias: {
+      '/css': fileURLToPath(new URL('./css', import.meta.url)),
+    },
+  },
   server: {
     hmr: false,
     port: 3003,

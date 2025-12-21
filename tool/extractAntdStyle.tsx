@@ -6,4 +6,4 @@ import {theme} from '../packages/editor/style/theme';
 
 const cssText = extractStyle((node: JSX.Element) => <ConfigProvider theme={theme}>{node}</ConfigProvider>);
 
-fs.writeFileSync('app/css/antd.css', cssText);
+fs.writeFileSync('css/antd.css', cssText);
