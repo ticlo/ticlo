@@ -113,7 +113,7 @@ export class TimeRangeEditor extends React.PureComponent<Props, State> {
               size="small"
               value={d}
               showNow={false}
-              onSelect={this.onStartChange}
+              onChange={this.onStartChange}
             />
           </div>
         </div>

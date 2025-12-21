@@ -624,7 +624,7 @@ export class BlockStage extends BlockStageBase<BlockStageProps, StageState> {
       let data = await conn.copy(basePath, props);
       await window.navigator.clipboard.writeText(encode(data.value));
     } catch (e) {
-      notification.error({message: 'Failed to copy', description: String(e)});
+      notification.error({title: 'Failed to copy', description: String(e)});
     }
   };
   onPaste = async (e: ClipboardEvent) => {
@@ -635,10 +635,10 @@ export class BlockStage extends BlockStageBase<BlockStageProps, StageState> {
         if (data && typeof data === 'object') {
           this.pasteData(data);
         } else {
-          notification.error({message: 'Failed to paste', description: 'Invalid input'});
+          notification.error({title: 'Failed to paste', description: 'Invalid input'});
         }
       } catch (e) {
-        notification.error({message: 'Failed to paste', description: String(e)});
+        notification.error({title: 'Failed to paste', description: String(e)});
       }
     }
   };
@@ -686,7 +686,7 @@ export class BlockStage extends BlockStageBase<BlockStageProps, StageState> {
         }, 1);
       }
     } catch (e) {
-      notification.error({message: 'Failed to paste', description: String(e)});
+      notification.error({title: 'Failed to paste', description: String(e)});
     }
     this.closeModal();
   }

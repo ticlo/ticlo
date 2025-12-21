@@ -1,5 +1,5 @@
 import {DateTime, Info, StringUnitLength} from 'luxon';
-import type {GenerateConfig} from 'rc-picker/es/generate';
+import type {GenerateConfig} from '@rc-component/picker/es/generate';
 
 const weekDayFormatMap: {[key: string]: StringUnitLength} = {
   zh_CN: 'narrow',
