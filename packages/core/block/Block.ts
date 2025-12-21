@@ -225,7 +225,7 @@ export class Block implements Runnable, FunctionData, PropListener<FunctionClass
     let firstChar = field.charCodeAt(0);
 
     if (firstChar === 35) {
-      // # controls
+      // # config
       switch (field) {
         // read only const config, convert this to a Map if there are more than 10
         case '##':
@@ -264,6 +264,11 @@ export class Block implements Runnable, FunctionData, PropListener<FunctionClass
         case 64: {
           // @ attribute
           prop = new BlockProperty(this, field);
+          break;
+        }
+        case 43: {
+          // + function config
+          prop = new BlockConfig(this, field);
           break;
         }
         default:

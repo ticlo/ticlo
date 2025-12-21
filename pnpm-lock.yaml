@@ -373,8 +373,8 @@ importers:
         specifier: ticlo/simulate-event#master
         version: https://codeload.github.com/ticlo/simulate-event/tar.gz/179d0762a72ea8ea4a01d43fde9a3e3777d3669b
       ticlo-big-calendar:
-        specifier: ^1.12.6
-        version: 1.12.6(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+        specifier: ^2.0.0
+        version: 2.0.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       tinycolor2:
         specifier: ^1.6.0
         version: 1.6.0
@@ -5132,8 +5132,8 @@ packages:
   through@2.3.8:
     resolution: {integrity: sha512-w89qg7PI8wAdvX60bMDP+bFoD5Dvhm9oLheFp5O4a2QF0cSBGsBX4qZmadPMvVqlLJBBci+WqGGOAPvcDeNSVg==}
 
-  ticlo-big-calendar@1.12.6:
-    resolution: {integrity: sha512-42nXvtLDg7M+hKE6alEE4Gtz4C7dDQy9KVOGYgj9s+xkkAX3UreL4x7F1BnvmNoCIT2LH4PIWjTtFUFURvy6TQ==}
+  ticlo-big-calendar@2.0.0:
+    resolution: {integrity: sha512-/7315woU1/fkkX/x5TBRtonDS3RmuLy/uuKHE4Uk64rTJPF6EoA6wbWoy4b3+X9DaxxoLriYZ11MXXNzRkZMNw==}
     peerDependencies:
       react: ^16.14.0 || ^17 || ^18
       react-dom: ^16.14.0 || ^17 || ^18
@@ -8590,7 +8590,7 @@ snapshots:
 
   dom-helpers@5.2.1:
     dependencies:
-      '@babel/runtime': 7.27.1
+      '@babel/runtime': 7.28.4
       csstype: 3.1.3
 
   dom-serializer@2.0.0:
@@ -10607,7 +10607,7 @@ snapshots:
 
   react-overlays@5.2.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1):
     dependencies:
-      '@babel/runtime': 7.27.1
+      '@babel/runtime': 7.28.4
       '@popperjs/core': 2.11.8
       '@restart/hooks': 0.4.16(react@18.3.1)
       '@types/warning': 3.0.3
@@ -11204,9 +11204,9 @@ snapshots:
   through@2.3.8:
     optional: true
 
-  ticlo-big-calendar@1.12.6(react-dom@18.3.1(react@18.3.1))(react@18.3.1):
+  ticlo-big-calendar@2.0.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1):
     dependencies:
-      '@babel/runtime': 7.27.1
+      '@babel/runtime': 7.28.4
       clsx: 2.1.1
       date-arithmetic: 4.1.0
       dom-helpers: 5.2.1
@@ -11350,7 +11350,7 @@ snapshots:
 
   uncontrollable@7.2.1(react@18.3.1):
     dependencies:
-      '@babel/runtime': 7.27.1
+      '@babel/runtime': 7.28.4
       '@types/react': 18.3.22
       invariant: 2.2.4
       react: 18.3.1
