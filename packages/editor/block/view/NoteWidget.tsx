@@ -7,9 +7,7 @@ import {marked, MarkedOptions} from 'marked';
 import Dompurify from 'dompurify';
 import ResizeObserver from 'resize-observer-polyfill';
 import {encodeSorted} from '@ticlo/core';
-
 import {arrowReplacer, arrowReviver} from '@ticlo/core/util/Serialize';
-import {stringify} from 'yaml/dist/public-api';
 
 class CommentView extends LazyUpdateComponent<BlockWidgetProps, any> {
   static readonly viewProperties: PropDesc[] = [

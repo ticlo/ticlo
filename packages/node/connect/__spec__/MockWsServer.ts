@@ -3,7 +3,7 @@ import {Root} from '@ticlo/core';
 import {WsServerConnection} from '../WsServerConnection';
 
 export class MockWsServer {
-  server: Websocket.Server;
+  server: WebSocketServer;
   lastConnection: WsServerConnection;
 
   constructor(port: number) {

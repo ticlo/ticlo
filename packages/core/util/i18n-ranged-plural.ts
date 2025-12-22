@@ -1,11 +1,11 @@
 // A i18next module that allows xxx_range processor for plural numbers
 import {type PostProcessorModule} from 'i18next';
 
-export default {
+const rangedPostProcessor: PostProcessorModule = {
   name: 'ranged',
   type: 'postProcessor',
 
-  process(value: string, key: string | string[], options: any, translator: {translate: Function}) {
+  process(value: string, key: string | string[], options: any, translator: any) {
     const p = value.split(';');
 
     const {count} = options;
@@ -43,4 +43,6 @@ export default {
 
     return value;
   },
-} as PostProcessorModule;
+};
+
+export default rangedPostProcessor;

@@ -36,7 +36,11 @@
     "app/**/*"
   ],
   "exclude": [
-    "node_modules"
+    "node_modules",
+    "bin/**/*.d.ts",
+    "packages/**/*.d.ts",
+    "tool/**/*.d.ts",
+    "app/**/*.d.ts"
   ],
   "ts-node": {
     "compilerOptions": {

@@ -29,7 +29,6 @@ function getTargetDirectories(): string[] {
 async function removeIfExists(filePath: string) {
   try {
     await fsp.unlink(filePath);
-    console.log(`Removed ${path.relative(process.cwd(), filePath)}`);
     return true;
   } catch (err: any) {
     if (err?.code === 'ENOENT') {
