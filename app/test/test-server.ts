@@ -1,5 +1,6 @@
 import Fastify from 'fastify';
 import yargs from 'yargs';
+import {hideBin} from 'yargs/helpers';
 import {Root} from '@ticlo/core';
 import '../../packages/test';
 import '../../packages/node';
@@ -11,7 +12,7 @@ import type {FlowTestGroup} from '@ticlo/test/FlowTestGroup';
 const packagesToTest = ['packages/core', 'packages/web-server', 'packages/node'];
 
 (async () => {
-  let parser = yargs
+  let parser = yargs(hideBin(process.argv))
     .options({
       run: {
         default: false,
