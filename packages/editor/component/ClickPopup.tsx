@@ -1,7 +1,7 @@
 import React from 'react';
 import Trigger_ from 'rc-trigger';
 const Trigger = (Trigger_ as any).default || Trigger_;
-import {RightOutlined as RightIcon} from '@ant-design/icons';
+import {RightOutlined} from '@ant-design/icons';
 
 type ItemEventHandler = (event: 'show' | 'hide' | 'hover' | 'close') => void;
 
@@ -61,7 +61,7 @@ export class SubMenuItem extends React.PureComponent<SubMenuItemProps, SubMenuIt
       >
         <div className={cls} onMouseOver={this.onHover}>
           {children}
-          {popup ? <RightIcon /> : null}
+          {popup ? <RightOutlined /> : null}
         </div>
       </Trigger>
     );

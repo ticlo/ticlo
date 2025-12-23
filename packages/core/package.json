@@ -16,7 +16,7 @@
   "module": "./index.js",
   "types": "./index.d.ts",
   "dependencies": {
-    "arrow-code": "^0.3.1",
+    "arrow-code": "^0.3.2",
     "axios": "1.7.4",
     "denque": "^2.1.0",
     "i18next": "^23.10.1",

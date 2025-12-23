@@ -1,14 +1,14 @@
 import React from 'react';
 
-import {BuildOutlined as BuildIcon} from '@ant-design/icons';
-import {PauseCircleOutlined as PauseCircleOutlined} from '@ant-design/icons';
-import {SaveOutlined as SaveIcon} from '@ant-design/icons';
-import {DeleteOutlined as DeleteIcon} from '@ant-design/icons';
-import {SearchOutlined as SearchIcon} from '@ant-design/icons';
-import {FileOutlined as FileIcon} from '@ant-design/icons';
-import {FolderOpenOutlined as FolderIcon} from '@ant-design/icons';
-import {FileTextOutlined as FileExclamationIcon} from '@ant-design/icons';
-import {GlobalOutlined as GlobalIcon} from '@ant-design/icons';
+import {BuildOutlined, DeleteOutlined, FileAddOutlined, FileOutlined, FileTextOutlined, FolderOpenOutlined, GlobalOutlined, PauseCircleOutlined, SaveOutlined, SearchOutlined} from '@ant-design/icons';
+
+
+
+
+
+
+
+
 import {ExpandIcon, ExpandState, TreeItem} from '../component/Tree.js';
 import {PureDataRenderer} from '../component/DataRenderer.js';
 import {
@@ -31,7 +31,7 @@ import {LocalizedNodeName, t} from '../component/LocalizedLabel.js';
 import {BlockDropdown} from '../popup/BlockDropdown.js';
 import {showModal} from '../popup/ShowModal.js';
 import {AddNewFlowDialog} from '../popup/AddNewFlowDialog.js';
-import {FileAddOutlined as FileAddIcon} from '@ant-design/icons';
+
 import {MenuItem} from '../component/ClickPopup.js';
 import {LazyUpdateSubscriber} from '../component/LazyUpdateComponent.js';
 
@@ -237,7 +237,7 @@ export class NodeTreeRenderer extends PureDataRenderer<Props, any> {
     if (editFlow) {
       menuItems.push(
         <MenuItem key="open" onClick={this.onOpenBlock}>
-          <BuildIcon />
+          <BuildOutlined />
           {t('Open')}
         </MenuItem>
       );
@@ -246,7 +246,7 @@ export class NodeTreeRenderer extends PureDataRenderer<Props, any> {
     if (addFlowAllowed.includes(item.functionId)) {
       menuItems.push(
         <MenuItem key="addFlow" value={item.key} onClick={this.onAddFlowClick}>
-          <FileAddIcon />
+          <FileAddOutlined />
           {t('Add Dataflow')}
         </MenuItem>
       );
@@ -254,14 +254,14 @@ export class NodeTreeRenderer extends PureDataRenderer<Props, any> {
     if (addFolderAllowed.includes(item.functionId)) {
       menuItems.push(
         <MenuItem key="addFolder" value={item.key} onClick={this.onAddFolderClick}>
-          <FileAddIcon />
+          <FileAddOutlined />
           {t('Add Folder')}
         </MenuItem>
       );
     }
     menuItems.push(
       <MenuItem key="search">
-        <SearchIcon />
+        <SearchOutlined />
         {t('Search')}
       </MenuItem>
     );
@@ -356,14 +356,14 @@ export class NodeTreeRenderer extends PureDataRenderer<Props, any> {
     if (!dynamicStyle) {
       if (saveAllowed.has(item.functionId)) {
         if (this.hasChangeListener.value) {
-          icon = <FileExclamationIcon />;
+          icon = <FileTextOutlined />;
         } else {
-          icon = <FileIcon />;
+          icon = <FileOutlined />;
         }
       } else if (item.functionId === 'flow:const' || item.functionId === 'flow:global') {
-        icon = <GlobalIcon />;
+        icon = <GlobalOutlined />;
       } else if (item.functionId === 'flow:folder') {
-        icon = <FolderIcon />;
+        icon = <FolderOpenOutlined />;
       }
     }
 

@@ -1,7 +1,7 @@
 import React from 'react';
 import {Button} from 'antd';
-import {SaveOutlined as SaveIcon} from '@ant-design/icons';
-import {CloseOutlined as CloseIcon} from '@ant-design/icons';
+import {CloseOutlined, SaveOutlined} from '@ant-design/icons';
+
 import {DockContext, DockContextType} from 'rc-dock';
 import {LazyUpdateComponent} from '../../component/LazyUpdateComponent.js';
 import {ClientConn, ValueSubscriber, ValueUpdate} from '@ticlo/core/editor.js';
@@ -60,8 +60,8 @@ export class BlockStageTabButton extends LazyUpdateComponent<Props, State> {
     if (onSave && hasChange) {
       closeButtun = (
         <div className="ticl-stage-panel-save">
-          <Button className="ticl-icon-btn" shape="circle" icon={<SaveIcon />} onClick={this.onSave} />
-          <Button className="ticl-icon-btn" shape="circle" icon={<CloseIcon />} onClick={this.onClose} />
+          <Button className="ticl-icon-btn" shape="circle" icon={<SaveOutlined />} onClick={this.onSave} />
+          <Button className="ticl-icon-btn" shape="circle" icon={<CloseOutlined />} onClick={this.onClose} />
         </div>
       );
     } else {

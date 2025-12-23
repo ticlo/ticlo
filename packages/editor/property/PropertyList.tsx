@@ -1,6 +1,6 @@
 import React from 'react';
 import {Button, Empty, Tooltip} from 'antd';
-import {PlusSquareOutlined as PlusSquareIcon} from '@ant-design/icons';
+import {PlusSquareOutlined} from '@ant-design/icons';
 import {
   attributeList,
   ClientConn,
@@ -400,7 +400,7 @@ export class PropertyList extends MultiSelectComponent<Props, State, BlockLoader
               onPopupVisibleChange={this.onAddCustomPopup}
               popup={<AddCustomPropertyMenu conn={conn} onAddProperty={this.onAddCustom} />}
             >
-              <Button className="ticl-icon-btn" shape="circle" tabIndex={-1} icon={<PlusSquareIcon />} />
+              <Button className="ticl-icon-btn" shape="circle" tabIndex={-1} icon={<PlusSquareOutlined />} />
             </Popup>
 
             <div className="ticl-h-line" />

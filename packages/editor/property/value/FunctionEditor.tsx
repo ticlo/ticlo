@@ -1,6 +1,6 @@
 import React from 'react';
 import {Input} from 'antd';
-import {DownOutlined as DownIcon} from '@ant-design/icons';
+import {DownOutlined} from '@ant-design/icons';
 import {FunctionDesc, PropDesc} from '@ticlo/core';
 import {ValueEditorProps} from './ValueEditorBase.js';
 import {TIcon} from '../../icon/Icon.js';
@@ -89,7 +89,7 @@ export class FunctionEditor extends StringEditorBase {
             onChange={this.onInputChange}
             onBlur={this.onBlur}
             onKeyDown={this.onKeyDown}
-            suffix={<DownIcon style={{color: 'rgba(0,0,0,.45)'}} onClick={onChange ? this.openPopup : null} />}
+            suffix={<DownOutlined style={{color: 'rgba(0,0,0,.45)'}} onClick={onChange ? this.openPopup : null} />}
           />
         </Popup>
       </DragDropDiv>
