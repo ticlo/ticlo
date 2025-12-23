@@ -1,8 +1,8 @@
 import React, {CSSProperties} from 'react';
 import {ColorResult, SketchPicker} from 'react-color';
-import {ValueEditorProps} from './ValueEditorBase';
+import {ValueEditorProps} from './ValueEditorBase.js';
 import tinycolor from 'tinycolor2';
-import {Popup} from '../../component/ClickPopup';
+import {Popup} from '../../component/ClickPopup.js';
 
 export class ColorEditor extends React.PureComponent<ValueEditorProps, any> {
   onValueChange = (value: ColorResult) => {

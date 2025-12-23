@@ -1,5 +1,5 @@
 import {expect} from 'vitest';
-import {InfiniteQueue} from '../InfiniteQueue';
+import {InfiniteQueue} from '../InfiniteQueue.js';
 
 describe('InfiniteQueue', function () {
   it('basic', function () {

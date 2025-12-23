@@ -1,4 +1,4 @@
-import {Connection, ConnectionSendingData, ConnectionSend} from './Connection';
+import {Connection, ConnectionSendingData, ConnectionSend} from './Connection.js';
 import {
   BlockBindingSource,
   BlockIO,
@@ -6,37 +6,37 @@ import {
   BlockPropertyEvent,
   BlockPropertySubscriber,
   HelperProperty,
-} from '../block/BlockProperty';
-import {DataMap, isPrimitiveType} from '../util/DataTypes';
-import {truncateData} from '../util/DataTruncate';
-import {Block, BlockChildWatch, InputsBlock} from '../block/Block';
-import {Flow, Root} from '../block/Flow';
-import {FlowWithShared, SharedBlock, SharedConfig} from '../block/SharedBlock';
-import {PropDispatcher, PropListener} from '../block/Dispatcher';
-import {Functions, DescListener} from '../block/Functions';
-import {FunctionDesc, PropDesc, PropGroupDesc} from '../block/Descriptor';
-import {propRelative} from '../util/PropPath';
+} from '../block/BlockProperty.js';
+import {DataMap, isPrimitiveType} from '../util/DataTypes.js';
+import {truncateData} from '../util/DataTruncate.js';
+import {Block, BlockChildWatch, InputsBlock} from '../block/Block.js';
+import {Flow, Root} from '../block/Flow.js';
+import {FlowWithShared, SharedBlock, SharedConfig} from '../block/SharedBlock.js';
+import {PropDispatcher, PropListener} from '../block/Dispatcher.js';
+import {Functions, DescListener} from '../block/Functions.js';
+import {FunctionDesc, PropDesc, PropGroupDesc} from '../block/Descriptor.js';
+import {propRelative} from '../util/PropPath.js';
 import {
   insertGroupProperty,
   moveGroupProperty,
   removeGroupProperty,
   setGroupLength,
-} from '../property-api/GroupProperty';
-import {findPropertyForNewBlock} from '../property-api/PropertyName';
-import {hideProperties, moveShownProperty, showProperties} from '../property-api/PropertyShowHide';
-import {addCustomProperty, moveCustomProperty, removeCustomProperty} from '../property-api/CustomProperty';
-import {FlowEditor} from '../worker/FlowEditor';
-import {addOptionalProperty, moveOptionalProperty, removeOptionalProperty} from '../property-api/OptionalProperty';
-import {WorkerFunctionGen} from '../worker/WorkerFunctionGen';
-import {isBindable} from '../util/Path';
-import {ClientCallbacks} from './ClientRequests';
-import {copyProperties, createSharedBlock, deleteProperties, pasteProperties} from '../property-api/CopyPaste';
-import {moveProperty, PropertyMover} from '../property-api/PropertyMover';
-import {BlockInputsConfig, BlockOutputsConfig} from '../block/BlockConfigs';
-import {WorkerFlow} from '../worker/WorkerFlow';
-import {Query, queryBlock} from './Query';
-import {getGlobalSettingsData} from '../util/Settings';
-import {DoneEvent} from '../block/Event';
+} from '../property-api/GroupProperty.js';
+import {findPropertyForNewBlock} from '../property-api/PropertyName.js';
+import {hideProperties, moveShownProperty, showProperties} from '../property-api/PropertyShowHide.js';
+import {addCustomProperty, moveCustomProperty, removeCustomProperty} from '../property-api/CustomProperty.js';
+import {FlowEditor} from '../worker/FlowEditor.js';
+import {addOptionalProperty, moveOptionalProperty, removeOptionalProperty} from '../property-api/OptionalProperty.js';
+import {WorkerFunctionGen} from '../worker/WorkerFunctionGen.js';
+import {isBindable} from '../util/Path.js';
+import {ClientCallbacks} from './ClientRequests.js';
+import {copyProperties, createSharedBlock, deleteProperties, pasteProperties} from '../property-api/CopyPaste.js';
+import {moveProperty, PropertyMover} from '../property-api/PropertyMover.js';
+import {BlockInputsConfig, BlockOutputsConfig} from '../block/BlockConfigs.js';
+import {WorkerFlow} from '../worker/WorkerFlow.js';
+import {Query, queryBlock} from './Query.js';
+import {getGlobalSettingsData} from '../util/Settings.js';
+import {DoneEvent} from '../block/Event.js';
 
 export class ServerRequest extends ConnectionSendingData {
   id: string;

@@ -1,7 +1,7 @@
 import React from 'react';
 import {Flow} from '@ticlo/core';
-import {TicloComp} from '../TicloComp';
-import {creatReactRoot, ReactRoot} from './render';
+import {TicloComp} from '../TicloComp.js';
+import {creatReactRoot, ReactRoot} from './render.js';
 
 describe('TicloComp', function () {
   let root: ReactRoot;

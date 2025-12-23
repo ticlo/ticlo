@@ -1,16 +1,19 @@
 import React from 'react';
-import generatePicker, {PickerProps} from 'antd/es/date-picker/generatePicker';
-import type {RangePickerProps} from 'antd/es/date-picker/generatePicker/interface';
-import generateCalendar from 'antd/es/calendar/generateCalendar';
+import * as generatePickerNS from 'antd/es/date-picker/generatePicker/index.js';
+const generatePicker = generatePickerNS.default;
+import type {PickerProps} from 'antd/es/date-picker/generatePicker/index.js';
+import type {RangePickerProps} from 'antd/es/date-picker/generatePicker/interface.js';
+import * as generateCalendarNS from 'antd/es/calendar/generateCalendar.js';
+const generateCalendar = generateCalendarNS.default;
 import {DateTime} from 'luxon';
-import luxonConfig from '../property/value/3rd-party/luxonConfig';
+import luxonConfig from '../property/value/3rd-party/luxonConfig.js';
 
 type DatePickerType = React.ForwardRefExoticComponent<PickerProps<DateTime> & React.RefAttributes<any>> & {
   RangePicker: React.ComponentType<RangePickerProps<DateTime>>;
   [key: string]: any;
 };
 
-const DatePicker = generatePicker<DateTime>(luxonConfig) as unknown as DatePickerType;
+const DatePicker = (generatePicker as unknown as <T>(config: any) => any)<DateTime>(luxonConfig) as unknown as DatePickerType;
 
 const {RangePicker} = DatePicker;
 
@@ -22,6 +25,6 @@ const TimePicker = React.forwardRef<any, TimePickerProps>((props, ref) => {
 
 TimePicker.displayName = 'TimePicker';
 
-const Calendar = generateCalendar<DateTime>(luxonConfig);
+const Calendar = (generateCalendar as unknown as <T>(config: any) => any)<DateTime>(luxonConfig);
 
 export {DatePicker, RangePicker, TimePicker, Calendar};

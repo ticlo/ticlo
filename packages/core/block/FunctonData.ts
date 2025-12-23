@@ -1,5 +1,5 @@
-import {BlockProperty} from './BlockProperty';
-import {DataMap} from '../util/DataTypes';
+import {BlockProperty} from './BlockProperty.js';
+import {DataMap} from '../util/DataTypes.js';
 
 export const MAX_GROUP_LENGTH = 256;
 

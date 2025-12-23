@@ -1,10 +1,10 @@
 import {Functions} from '@ticlo/core';
-import './HtmlAttributes';
-import './Jsx';
-import './RenderDom';
-import './elements/CommonElements';
-import './elements/ImgElement';
-import './elements/InputElement';
+import './HtmlAttributes.js';
+import './Jsx.js';
+import './RenderDom.js';
+import './elements/CommonElements.js';
+import './elements/ImgElement.js';
+import './elements/InputElement.js';
 
 Functions.addCategory({
   id: 'react:',

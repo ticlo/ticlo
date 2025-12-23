@@ -1,7 +1,7 @@
 import {expect} from 'vitest';
-import {TestAsyncFunctionLog, TestAsyncFunctionPromise, TestFunctionRunner} from './TestFunction';
-import {Block} from '../Block';
-import {Flow, Root} from '../Flow';
+import {TestAsyncFunctionLog, TestAsyncFunctionPromise, TestFunctionRunner} from './TestFunction.js';
+import {Block} from '../Block.js';
+import {Flow, Root} from '../Flow.js';
 
 describe('BlockMode', function () {
   beforeEach(() => {

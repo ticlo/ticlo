@@ -1,13 +1,14 @@
 import React from 'react';
-import {BlockWidget, BlockWidgetProps} from './BlockWidget';
+import {BlockWidget, BlockWidgetProps} from './BlockWidget.js';
 import {stringify as stringifyYaml} from 'yaml';
-import {LazyUpdateComponent, LazyUpdateSubscriber} from '../../component/LazyUpdateComponent';
+import {LazyUpdateComponent, LazyUpdateSubscriber} from '../../component/LazyUpdateComponent.js';
 import {PropDesc} from '@ticlo/core';
 import {marked, MarkedOptions} from 'marked';
 import Dompurify from 'dompurify';
-import ResizeObserver from 'resize-observer-polyfill';
+import ResizeObserver_ from 'resize-observer-polyfill';
+const ResizeObserver = (ResizeObserver_ as any).default || ResizeObserver_;
 import {encodeSorted} from '@ticlo/core';
-import {arrowReplacer, arrowReviver} from '@ticlo/core/util/Serialize';
+import {arrowReplacer, arrowReviver} from '@ticlo/core/util/Serialize.js';
 
 class CommentView extends LazyUpdateComponent<BlockWidgetProps, any> {
   static readonly viewProperties: PropDesc[] = [

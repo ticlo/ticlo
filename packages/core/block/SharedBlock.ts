@@ -1,13 +1,13 @@
-import './Block';
-import {BlockConfig, BlockProperty} from './BlockProperty';
-import {DataMap, isSavedBlock} from '../util/DataTypes';
-import {ConstTypeConfig, FlowConfigGenerators} from './BlockConfigs';
-import {Flow, Root} from './Flow';
-import {Uid} from '../util/Uid';
-import {encodeTicloName} from '../util/Name';
-import {FunctionDispatcher, Functions} from './Functions';
-import {FunctionClass} from './BlockFunction';
-import {PropListener} from './Dispatcher';
+import './Block.js';
+import {BlockConfig, BlockProperty} from './BlockProperty.js';
+import {DataMap, isSavedBlock} from '../util/DataTypes.js';
+import {ConstTypeConfig, FlowConfigGenerators} from './BlockConfigs.js';
+import {Flow, Root} from './Flow.js';
+import {Uid} from '../util/Uid.js';
+import {encodeTicloName} from '../util/Name.js';
+import {FunctionDispatcher, Functions} from './Functions.js';
+import {FunctionClass} from './BlockFunction.js';
+import {PropListener} from './Dispatcher.js';
 
 export class SharedConfig extends BlockProperty {
   _load(val: unknown) {}

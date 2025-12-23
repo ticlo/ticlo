@@ -1,23 +1,24 @@
 import React, {ClipboardEventHandler, CSSProperties, KeyboardEvent} from 'react';
 import {Button, notification, Modal} from 'antd';
-import ZoomInIcon from '@ant-design/icons/ZoomInOutlined';
-import ZoomOutIcon from '@ant-design/icons/ZoomOutOutlined';
-import UndoIcon from '@ant-design/icons/UndoOutlined';
-import RedoIcon from '@ant-design/icons/ReloadOutlined';
+import {ZoomInOutlined as ZoomInIcon} from '@ant-design/icons';
+import {ZoomOutOutlined as ZoomOutIcon} from '@ant-design/icons';
+import {UndoOutlined as UndoIcon} from '@ant-design/icons';
+import {ReloadOutlined as RedoIcon} from '@ant-design/icons';
 
-import {BlockView} from './Block';
-import {WireView} from './Wire';
+import {BlockView} from './Block.js';
+import {WireView} from './Wire.js';
 import {DragDropDiv, DragState, GestureState} from 'rc-dock';
-import {cssNumber} from '../util/Types';
-import {onDragBlockOver, onDropBlock} from './DragDropBlock';
-import ResizeObserver from 'resize-observer-polyfill';
-import {BlockStageBase, StagePropsBase} from './BlockStageBase';
-import {MiniBlockView} from './MiniStage';
-import debounce from 'lodash/debounce';
-import clamp from 'lodash/clamp';
-import {TooltipIconButton} from '../component/TooltipIconButton';
+import {cssNumber} from '../util/Types.js';
+import {onDragBlockOver, onDropBlock} from './DragDropBlock.js';
+import ResizeObserver_ from 'resize-observer-polyfill';
+const ResizeObserver = (ResizeObserver_ as any).default || ResizeObserver_;
+import {BlockStageBase, StagePropsBase} from './BlockStageBase.js';
+import {MiniBlockView} from './MiniStage.js';
+import debounce from 'lodash/debounce.js';
+import clamp from 'lodash/clamp.js';
+import {TooltipIconButton} from '../component/TooltipIconButton.js';
 import {DataMap, decode, encode} from '@ticlo/core';
-import {t} from '../component/LocalizedLabel';
+import {t} from '../component/LocalizedLabel.js';
 
 const MINI_WINDOW_SIZE = 128;
 

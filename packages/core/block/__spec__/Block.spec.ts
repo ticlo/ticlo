@@ -1,8 +1,8 @@
 import {expect} from 'vitest';
-import {Block} from '../Block';
-import {Flow, Root} from '../Flow';
-import {PropDispatcher} from '../Dispatcher';
-import '../../functions/math/Arithmetic';
+import {Block} from '../Block.js';
+import {Flow, Root} from '../Flow.js';
+import {PropDispatcher} from '../Dispatcher.js';
+import '../../functions/math/Arithmetic.js';
 
 describe('Block', function () {
   it('basic', function () {

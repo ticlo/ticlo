@@ -1,9 +1,9 @@
 import {expect} from 'vitest';
-import {Block} from '../../../block/Block';
-import {Flow, Root} from '../../../block/Flow';
-import {WAIT} from '../../../block/Event';
-import {shouldReject, shouldTimeout} from '../../../util/test-util';
-import '../Js';
+import {Block} from '../../../block/Block.js';
+import {Flow, Root} from '../../../block/Flow.js';
+import {WAIT} from '../../../block/Event.js';
+import {shouldReject, shouldTimeout} from '../../../util/test-util.js';
+import '../Js.js';
 
 describe('Js', function () {
   it('basic', function () {

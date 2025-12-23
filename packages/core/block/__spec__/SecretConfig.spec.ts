@@ -1,7 +1,7 @@
-import {BaseFunction} from '../BlockFunction';
-import {Block, setSecretCipher} from '../Block';
-import {Functions} from '../Functions';
-import {Flow, Root} from '../Flow';
+import {BaseFunction} from '../BlockFunction.js';
+import {Block, setSecretCipher} from '../Block.js';
+import {Functions} from '../Functions.js';
+import {Flow, Root} from '../Flow.js';
 import {expect} from 'vitest';
 
 export class TestSecretFunction extends BaseFunction<Block> {

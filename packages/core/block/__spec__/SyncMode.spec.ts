@@ -1,7 +1,7 @@
 import {expect} from 'vitest';
-import {TestAsyncFunctionPromise, TestFunctionRunner} from './TestFunction';
-import {Flow, Root} from '../Flow';
-import {ErrorEvent} from '../Event';
+import {TestAsyncFunctionPromise, TestFunctionRunner} from './TestFunction.js';
+import {Flow, Root} from '../Flow.js';
+import {ErrorEvent} from '../Event.js';
 
 describe('SyncMode', function () {
   beforeEach(() => {

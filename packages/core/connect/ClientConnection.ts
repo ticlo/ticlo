@@ -1,7 +1,7 @@
-import {Connection} from './Connection';
-import {Uid} from '../util/Uid';
-import {DataMap} from '../util/DataTypes';
-import {FunctionDesc, PropDesc, PropGroupDesc} from '../block/Descriptor';
+import {Connection} from './Connection.js';
+import {Uid} from '../util/Uid.js';
+import {DataMap} from '../util/DataTypes.js';
+import {FunctionDesc, PropDesc, PropGroupDesc} from '../block/Descriptor.js';
 import {
   ClientCallbacks,
   ClientRequest,
@@ -13,14 +13,14 @@ import {
   SubscribeRequest,
   WatchRequest,
   MergedClientRequest,
-} from './ClientRequests';
-import {ClientConn} from './ClientConn';
-import {StreamDispatcher} from '../block/Dispatcher';
-import {Query} from './Query';
-import {updateGlobalSettings} from '../util/Settings';
-import {DataWrapper} from '../block/FunctonData';
+} from './ClientRequests.js';
+import {ClientConn} from './ClientConn.js';
+import {StreamDispatcher} from '../block/Dispatcher.js';
+import {Query} from './Query.js';
+import {updateGlobalSettings} from '../util/Settings.js';
+import {DataWrapper} from '../block/FunctonData.js';
 
-export type {ValueUpdate, ValueState} from './ClientRequests';
+export type {ValueUpdate, ValueState} from './ClientRequests.js';
 
 export abstract class ClientConnection extends Connection implements ClientConn {
   static addEditorDescriptor(id: string, desc: FunctionDesc) {

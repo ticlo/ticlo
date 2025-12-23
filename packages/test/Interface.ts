@@ -1,6 +1,6 @@
 import {Block} from '@ticlo/core';
-import type {FlowTestCase} from './FlowTestCase';
-import type {FlowTestGroup} from './FlowTestGroup';
+import type {FlowTestCase} from './FlowTestCase.js';
+import type {FlowTestGroup} from './FlowTestGroup.js';
 
 export enum TestState {
   REMOVED = -2,

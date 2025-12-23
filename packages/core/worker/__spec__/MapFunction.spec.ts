@@ -1,11 +1,11 @@
 import {expect} from 'vitest';
-import {Flow, Root} from '../../block/Flow';
-import {TestFunctionRunner, TestAsyncFunctionPromise} from '../../block/__spec__/TestFunction';
-import '../../functions/math/Arithmetic';
-import '../MapFunction';
-import {DataMap} from '../../util/DataTypes';
-import {ErrorEvent} from '../../block/Event';
-import {shouldTimeout} from '../../util/test-util';
+import {Flow, Root} from '../../block/Flow.js';
+import {TestFunctionRunner, TestAsyncFunctionPromise} from '../../block/__spec__/TestFunction.js';
+import '../../functions/math/Arithmetic.js';
+import '../MapFunction.js';
+import {DataMap} from '../../util/DataTypes.js';
+import {ErrorEvent} from '../../block/Event.js';
+import {shouldTimeout} from '../../util/test-util.js';
 
 describe('MapFunction non-thread', function () {
   beforeEach(() => {

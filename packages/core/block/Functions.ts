@@ -1,11 +1,11 @@
-import {Block} from './Block';
-import {FunctionClass} from './BlockFunction';
-import {PropDispatcher, PropListener} from './Dispatcher';
-import {BlockModeList, FunctionDesc} from './Descriptor';
-import {DataMap} from '../util/DataTypes';
-import {FlowStorage} from './Storage';
-import type {Flow} from './Flow';
-import {encode} from '../util/Serialize';
+import {Block} from './Block.js';
+import {FunctionClass} from './BlockFunction.js';
+import {PropDispatcher, PropListener} from './Dispatcher.js';
+import {BlockModeList, FunctionDesc} from './Descriptor.js';
+import {DataMap} from '../util/DataTypes.js';
+import {FlowStorage} from './Storage.js';
+import type {Flow} from './Flow.js';
+import {encode} from '../util/Serialize.js';
 
 export interface DescListener {
   onDescChange(id: string, desc: FunctionDesc): void;

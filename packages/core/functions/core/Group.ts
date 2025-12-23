@@ -1,7 +1,7 @@
-import {BaseFunction, StatefulFunction} from '../../block/BlockFunction';
-import {type BlockConfig} from '../../block/BlockProperty';
-import {Functions} from '../../block/Functions';
-import {type Block} from '../../block/Block';
+import {BaseFunction, StatefulFunction} from '../../block/BlockFunction.js';
+import {type BlockConfig} from '../../block/BlockProperty.js';
+import {Functions} from '../../block/Functions.js';
+import {type Block} from '../../block/Block.js';
 
 export class GroupFunction extends BaseFunction<Block> {
   #autoUpdate = true;

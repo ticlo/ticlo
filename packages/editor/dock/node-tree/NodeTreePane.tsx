@@ -1,15 +1,15 @@
 import React from 'react';
-import {ClientConn} from '@ticlo/core/editor';
-import {TicloLayoutContext, TicloLayoutContextType} from '../../component/LayoutContext';
-import {NodeTree} from '../..';
+import {ClientConn} from '@ticlo/core/editor.js';
+import {TicloLayoutContext, TicloLayoutContextType} from '../../component/LayoutContext.js';
+import {NodeTree} from '../../index.js';
 import {Button, Input, Menu, Tooltip} from 'antd';
-import FileAddIcon from '@ant-design/icons/FileAddOutlined';
-import FolderAddIcon from '@ant-design/icons/FolderAddOutlined';
-import ReloadIcon from '@ant-design/icons/ReloadOutlined';
-import {AddNewFlowDialog} from '../../popup/AddNewFlowDialog';
+import {FileAddOutlined as FileAddIcon} from '@ant-design/icons';
+import {FolderAddOutlined as FolderAddIcon} from '@ant-design/icons';
+import {ReloadOutlined as ReloadIcon} from '@ant-design/icons';
+import {AddNewFlowDialog} from '../../popup/AddNewFlowDialog.js';
 import {DragDrop, DragState} from 'rc-dock';
-import {t} from '../../component/LocalizedLabel';
-import {showModal} from '../../popup/ShowModal';
+import {t} from '../../component/LocalizedLabel.js';
+import {showModal} from '../../popup/ShowModal.js';
 
 interface Props {
   conn: ClientConn;

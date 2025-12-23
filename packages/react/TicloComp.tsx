@@ -1,8 +1,8 @@
 import React, {ErrorInfo} from 'react';
-import {Block} from '@ticlo/core/block/Block';
-import {PropDispatcher} from '@ticlo/core/block/Dispatcher';
-import {validateReactComponent} from './validateReactComponent';
-import {BlockProperty} from '@ticlo/core/block/BlockProperty';
+import {Block} from '@ticlo/core/block/Block.js';
+import {PropDispatcher} from '@ticlo/core/block/Dispatcher.js';
+import {validateReactComponent} from './validateReactComponent.js';
+import {BlockProperty} from '@ticlo/core/block/BlockProperty.js';
 
 interface Props {
   block: Block;

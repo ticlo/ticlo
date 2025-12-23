@@ -1,7 +1,7 @@
 import {expect} from 'vitest';
-import {Flow} from '../Flow';
-import {ErrorEvent} from '../Event';
-import {shouldReject} from '../../util/test-util';
+import {Flow} from '../Flow.js';
+import {ErrorEvent} from '../Event.js';
+import {shouldReject} from '../../util/test-util.js';
 
 describe('ListenPromise', function () {
   it('basic', async function () {

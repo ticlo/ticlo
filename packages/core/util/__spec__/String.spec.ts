@@ -1,6 +1,6 @@
 import {expect} from 'vitest';
-import {getPreNumber, getTailingNumber, isColorStr, nameFromPath, smartStrCompare} from '../String';
-import {encodeTicloName, getDisplayName} from '../Name';
+import {getPreNumber, getTailingNumber, isColorStr, nameFromPath, smartStrCompare} from '../String.js';
+import {encodeTicloName, getDisplayName} from '../Name.js';
 
 describe('String', function () {
   it('smartStrCompare', () => {

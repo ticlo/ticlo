@@ -1,21 +1,21 @@
 import React from 'react';
-import {DockDialogPane} from '../component/DockDialogPane';
-import {ScheduleEvent} from '@ticlo/core/util/SetSchedule';
-import {RepeatMode, RepeatModeList, SchedulerConfig} from '@ticlo/core/functions/date/Schedule/SchedulerEvent';
-import {LocalizedPropertyName, t} from '../component/LocalizedLabel';
-import {SelectEditor} from '../property/value/SelectEditor';
+import {DockDialogPane} from '../component/DockDialogPane.js';
+import {ScheduleEvent} from '@ticlo/core/util/SetSchedule.js';
+import {RepeatMode, RepeatModeList, SchedulerConfig} from '@ticlo/core/functions/date/Schedule/SchedulerEvent.js';
+import {LocalizedPropertyName, t} from '../component/LocalizedLabel.js';
+import {SelectEditor} from '../property/value/SelectEditor.js';
 import {type FunctionDesc, type PropDesc, PropGroupDesc, smartStrCompare} from '@ticlo/core';
-import {deepEqual} from '@ticlo/core/util/Compare';
-import {StringEditor} from '../property/value/StringEditor';
-import {ColorEditor} from '../property/value/ColorEditor';
-import {typeEditorMap} from '../property/value';
-import {TimeRangeEditor} from './editors/TimeRange';
-import {ExpandIcon} from '../component/Tree';
-import {PropertyEditor} from '../property/PropertyEditor';
-import {ClientConn} from '@ticlo/core/connect/ClientConn';
-import {DatesSelector} from './editors/DatesSelector';
-import {AdvancedSelector} from './editors/AdvancedSelector';
-import {descs, funcDesc} from './editors/descs';
+import {deepEqual} from '@ticlo/core/util/Compare.js';
+import {StringEditor} from '../property/value/StringEditor.js';
+import {ColorEditor} from '../property/value/ColorEditor.js';
+import {typeEditorMap} from '../property/value/index.js';
+import {TimeRangeEditor} from './editors/TimeRange.js';
+import {ExpandIcon} from '../component/Tree.js';
+import {PropertyEditor} from '../property/PropertyEditor.js';
+import {ClientConn} from '@ticlo/core/connect/ClientConn.js';
+import {DatesSelector} from './editors/DatesSelector.js';
+import {AdvancedSelector} from './editors/AdvancedSelector.js';
+import {descs, funcDesc} from './editors/descs.js';
 
 function P({
   field,

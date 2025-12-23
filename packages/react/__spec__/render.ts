@@ -1,7 +1,7 @@
 import {createRoot, Root} from 'react-dom/client';
 import {Root as TicloRoot} from '@ticlo/core';
 import {ReactNode} from 'react';
-import {setScheduledTimeout} from '@ticlo/core/util/SetSchedule';
+import {setScheduledTimeout} from '@ticlo/core/util/SetSchedule.js';
 
 export class ReactRoot {
   constructor(

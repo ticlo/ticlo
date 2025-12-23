@@ -1,6 +1,6 @@
 import React from 'react';
-import {Functions} from '@ticlo/core/block/Functions';
-import {FunctionDesc, PropDesc, PropGroupDesc} from '@ticlo/core/block/Descriptor';
+import {Functions} from '@ticlo/core/block/Functions.js';
+import {FunctionDesc, PropDesc, PropGroupDesc} from '@ticlo/core/block/Descriptor.js';
 import {
   elementChildrenProperty,
   elementClassProperty,
@@ -8,7 +8,7 @@ import {
   elementOutputProperty,
   elementStyleProperty,
   HtmlElementFunction,
-} from '../BaseElement';
+} from '../BaseElement.js';
 
 const divElementDesc: FunctionDesc = {
   name: 'div',

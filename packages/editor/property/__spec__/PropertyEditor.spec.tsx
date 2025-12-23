@@ -1,16 +1,16 @@
 import {expect} from 'vitest';
 import {simulate} from 'simulate-event';
 import React from 'react';
-import '../../index';
-import {PropertyEditor} from '../PropertyEditor';
+import '../../index.js';
+import {PropertyEditor} from '../PropertyEditor.js';
 import {Block, Root} from '@ticlo/core';
-import '../../../core/functions/math/Arithmetic';
-import {destroyLastLocalConnection, makeLocalConnection} from '@ticlo/core/connect/LocalConnection';
-import {shouldHappen, shouldReject} from '@ticlo/core/util/test-util';
-import {removeLastTemplate, loadTemplate, querySingle} from '../../util/test-util';
-import {initEditor} from '../../index';
+import '../../../core/functions/math/Arithmetic.js';
+import {destroyLastLocalConnection, makeLocalConnection} from '@ticlo/core/connect/LocalConnection.js';
+import {shouldHappen, shouldReject} from '@ticlo/core/util/test-util.js';
+import {removeLastTemplate, loadTemplate, querySingle} from '../../util/test-util.js';
+import {initEditor} from '../../index.js';
 import {FunctionDesc, PropDesc, PropGroupDesc} from '@ticlo/core';
-import {Functions} from '@ticlo/core/block/Functions';
+import {Functions} from '@ticlo/core/block/Functions.js';
 
 describe('PropertyEditor', function () {
   let [funcDesc] = Functions.getDescToSend('add');

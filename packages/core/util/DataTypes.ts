@@ -1,5 +1,5 @@
-import {Block} from '../block/Block';
-import {BlockIO} from '../block/BlockProperty';
+import {Block} from '../block/Block.js';
+import {BlockIO} from '../block/BlockProperty.js';
 
 export type DataMap = Record<string, unknown>;
 

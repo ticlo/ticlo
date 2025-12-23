@@ -5,7 +5,7 @@ import {
   elementOutputProperty,
   elementStyleProperty,
   HtmlElementFunction,
-} from '../BaseElement';
+} from '../BaseElement.js';
 
 const optional: {[key: string]: PropDesc} = {
   crossOrigin: {name: 'crossOrigin', type: 'select', options: ['anonymous', 'use-credentials']},

@@ -1,10 +1,10 @@
 import {expect} from 'vitest';
-import {Root} from '../../block/Flow';
-import {makeLocalConnection} from '../LocalConnection';
-import {AddFunction} from '../../functions/math/Arithmetic';
-import {DataMap} from '../../util/DataTypes';
-import {AsyncClientPromise} from './AsyncClientPromise';
-import {shouldReject} from '../../util/test-util';
+import {Root} from '../../block/Flow.js';
+import {makeLocalConnection} from '../LocalConnection.js';
+import {AddFunction} from '../../functions/math/Arithmetic.js';
+import {DataMap} from '../../util/DataTypes.js';
+import {AsyncClientPromise} from './AsyncClientPromise.js';
+import {shouldReject} from '../../util/test-util.js';
 
 const initAdd = AddFunction;
 

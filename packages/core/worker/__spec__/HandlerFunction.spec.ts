@@ -1,12 +1,12 @@
 import {expect} from 'vitest';
-import {Flow, Root} from '../../block/Flow';
-import {TestFunctionRunner, TestAsyncFunctionLog} from '../../block/__spec__/TestFunction';
-import '../../functions/math/Arithmetic';
-import '../HandlerFunction';
-import {DataMap} from '../../util/DataTypes';
-import {DoneEvent, Event, WAIT} from '../../block/Event';
-import {shouldHappen, shouldTimeout} from '../../util/test-util';
-import {Block} from '../../block/Block';
+import {Flow, Root} from '../../block/Flow.js';
+import {TestFunctionRunner, TestAsyncFunctionLog} from '../../block/__spec__/TestFunction.js';
+import '../../functions/math/Arithmetic.js';
+import '../HandlerFunction.js';
+import {DataMap} from '../../util/DataTypes.js';
+import {DoneEvent, Event, WAIT} from '../../block/Event.js';
+import {shouldHappen, shouldTimeout} from '../../util/test-util.js';
+import {Block} from '../../block/Block.js';
 
 class HandlerListener {
   ignoreEvent: boolean;

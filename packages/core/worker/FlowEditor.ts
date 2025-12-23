@@ -1,13 +1,13 @@
-import {Block, BlockChildWatch} from '../block/Block';
-import {DataMap} from '../util/DataTypes';
-import {WorkerFunctionGen} from './WorkerFunctionGen';
-import {FlowWithShared, FlowWithSharedConfigGenerators} from '../block/SharedBlock';
-import {BlockProperty} from '..';
-import {ConstTypeConfig} from '../block/BlockConfigs';
-import {BlockConfig} from '../block/BlockProperty';
-import {SubflowLoader} from './WorkerControl';
-import {defaultWorkerData} from '../defaults/DefaultFlows';
-import {getBlockStoragePath} from '../util/Path';
+import {Block, BlockChildWatch} from '../block/Block.js';
+import {DataMap} from '../util/DataTypes.js';
+import {WorkerFunctionGen} from './WorkerFunctionGen.js';
+import {FlowWithShared, FlowWithSharedConfigGenerators} from '../block/SharedBlock.js';
+import {BlockProperty} from '../index.js';
+import {ConstTypeConfig} from '../block/BlockConfigs.js';
+import {BlockConfig} from '../block/BlockProperty.js';
+import {SubflowLoader} from './WorkerControl.js';
+import {defaultWorkerData} from '../defaults/DefaultFlows.js';
+import {getBlockStoragePath} from '../util/Path.js';
 
 export const FlowEditorConfigGenerators: {[key: string]: typeof BlockProperty} = {
   ...FlowWithSharedConfigGenerators,

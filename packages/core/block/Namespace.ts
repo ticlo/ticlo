@@ -1,6 +1,6 @@
-import type {BlockLibConfig} from './BlockConfigs';
-import type {Root} from './Flow';
-import {Block} from './Block';
+import type {BlockLibConfig} from './BlockConfigs.js';
+import type {Root} from './Flow.js';
+import {Block} from './Block.js';
 
 export class Namespace {
   static #rootInstance: Root;

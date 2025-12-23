@@ -1,12 +1,12 @@
 import {expect} from 'vitest';
 import {simulate} from 'simulate-event';
 import React from 'react';
-import {removeLastTemplate, loadTemplate, querySingle} from '../../../util/test-util';
-import {initEditor} from '../../../index';
-import {RadioButtonEditor} from '../RadioButtonEditor';
-import {shouldHappen} from '@ticlo/core/util/test-util';
+import {removeLastTemplate, loadTemplate, querySingle} from '../../../util/test-util.js';
+import {initEditor} from '../../../index.js';
+import {RadioButtonEditor} from '../RadioButtonEditor.js';
+import {shouldHappen} from '@ticlo/core/util/test-util.js';
 import {blankFuncDesc, blankPropDesc, PropDesc} from '@ticlo/core';
-import {DateEditor} from '../DateEditor';
+import {DateEditor} from '../DateEditor.js';
 
 describe('RadioButtonEditor', function () {
   beforeEach(async function () {

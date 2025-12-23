@@ -1,4 +1,4 @@
-import {t} from '../component/LocalizedLabel';
+import {t} from '../component/LocalizedLabel.js';
 
 /*
 

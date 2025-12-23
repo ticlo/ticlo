@@ -1,10 +1,10 @@
 import axios from 'axios';
 import * as glob from 'glob';
 import fs from 'fs';
-import {lanToAntd} from '@ticlo/editor/util/Languages';
-import {TranslatePkg} from './TranslatePkg';
-import {OutputYamlData, YamlData} from './YamlData';
-import {translate} from './TranslateRequest';
+import {lanToAntd} from '@ticlo/editor/util/Languages.js';
+import {TranslatePkg} from './TranslatePkg.js';
+import {OutputYamlData, YamlData} from './YamlData.js';
+import {translate} from './TranslateRequest.js';
 
 const keyReg = /^[0-9a-f]{32}$/;
 

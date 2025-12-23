@@ -1,10 +1,10 @@
-import {FlowWithShared, FlowWithSharedConfigGenerators} from '../block/SharedBlock';
-import {Root} from '../block/Flow';
-import {ConstTypeConfig} from '../block/BlockConfigs';
-import {BlockConfig, BlockProperty} from '../block/BlockProperty';
-import {Resolver} from '../block/Resolver';
-import {DataMap} from '../util/DataTypes';
-import {FlowHistory} from '../block/FlowHistory';
+import {FlowWithShared, FlowWithSharedConfigGenerators} from '../block/SharedBlock.js';
+import {Root} from '../block/Flow.js';
+import {ConstTypeConfig} from '../block/BlockConfigs.js';
+import {BlockConfig, BlockProperty} from '../block/BlockProperty.js';
+import {Resolver} from '../block/Resolver.js';
+import {DataMap} from '../util/DataTypes.js';
+import {FlowHistory} from '../block/FlowHistory.js';
 
 export const WorkerFlowConfigGenerators: {[key: string]: typeof BlockProperty} = {
   ...FlowWithSharedConfigGenerators,

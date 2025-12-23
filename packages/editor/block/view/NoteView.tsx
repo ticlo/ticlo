@@ -1,12 +1,12 @@
 import React from 'react';
 import {marked, MarkedOptions} from 'marked';
 import Dompurify from 'dompurify';
-import {BlockWidgetProps} from './BlockWidget';
+import {BlockWidgetProps} from './BlockWidget.js';
 import {stringify as stringifyYaml} from 'yaml';
-import {LazyUpdateComponent, LazyUpdateSubscriber} from '../../component/LazyUpdateComponent';
+import {LazyUpdateComponent, LazyUpdateSubscriber} from '../../component/LazyUpdateComponent.js';
 import {ClientConnection} from '@ticlo/core';
 import {encodeSorted} from '@ticlo/core';
-import {arrowReplacer, arrowReviver} from '@ticlo/core/util/Serialize';
+import {arrowReplacer, arrowReviver} from '@ticlo/core/util/Serialize.js';
 
 class NoteView extends LazyUpdateComponent<BlockWidgetProps, any> {
   private _rootNode!: HTMLElement;

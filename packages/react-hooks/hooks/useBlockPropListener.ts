@@ -1,6 +1,6 @@
 import {useEffect, useMemo, useReducer} from 'react';
 import {Block, BlockProperty, FunctionInput} from '@ticlo/core';
-import {PropMap} from '../types/PropType';
+import {PropMap} from '../types/PropType.js';
 
 /**
  * Get an object with properties, more efficiently by listening to each property individually

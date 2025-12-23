@@ -1,5 +1,5 @@
-import {PureFunction} from '../../block/BlockFunction';
-import {Functions} from '../../block/Functions';
+import {PureFunction} from '../../block/BlockFunction.js';
+import {Functions} from '../../block/Functions.js';
 
 export class IfFunction extends PureFunction {
   run(): any {

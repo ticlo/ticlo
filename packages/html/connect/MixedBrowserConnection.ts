@@ -1,8 +1,8 @@
-import {WsBrowserConnection} from './WsBrowserConnection';
+import {WsBrowserConnection} from './WsBrowserConnection.js';
 import {DataMap, encode} from '@ticlo/core';
-import {ClientCallbacks} from '@ticlo/core/connect/ClientRequests';
+import {ClientCallbacks} from '@ticlo/core/connect/ClientRequests.js';
 import axios from 'axios';
-import {measureObjSize, WS_FRAME_SIZE} from '@ticlo/core/util/DataTypes';
+import {measureObjSize, WS_FRAME_SIZE} from '@ticlo/core/util/DataTypes.js';
 
 export class MixedBrowserConnection extends WsBrowserConnection {
   constructor(

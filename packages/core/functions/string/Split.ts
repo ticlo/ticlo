@@ -1,6 +1,6 @@
-import {Functions} from '../../block/Functions';
-import {PureFunction} from '../../block/BlockFunction';
-import {ErrorEvent} from '../../block/Event';
+import {Functions} from '../../block/Functions.js';
+import {PureFunction} from '../../block/BlockFunction.js';
+import {ErrorEvent} from '../../block/Event.js';
 
 export class SplitFunction extends PureFunction {
   run(): any {

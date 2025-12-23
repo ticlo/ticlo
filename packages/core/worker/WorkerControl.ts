@@ -1,11 +1,11 @@
-import {type Block} from '../block/Block';
-import {DataMap, isDataMap, isSavedBlock} from '../util/DataTypes';
-import {Root} from '../block/Flow';
-import {StreamDispatcher} from '../block/Dispatcher';
-import {BaseFunction, FunctionClass, StatefulFunction} from '../block/BlockFunction';
-import {getBlockStoragePath} from '../util/Path';
-import {WorkerFunctionGen} from './WorkerFunctionGen';
-import {FunctionDispatcher, Functions} from '../block/Functions';
+import {type Block} from '../block/Block.js';
+import {DataMap, isDataMap, isSavedBlock} from '../util/DataTypes.js';
+import {Root} from '../block/Flow.js';
+import {StreamDispatcher} from '../block/Dispatcher.js';
+import {BaseFunction, FunctionClass, StatefulFunction} from '../block/BlockFunction.js';
+import {getBlockStoragePath} from '../util/Path.js';
+import {WorkerFunctionGen} from './WorkerFunctionGen.js';
+import {FunctionDispatcher, Functions} from '../block/Functions.js';
 
 export interface WorkerHost {
   get control(): WorkerControl;

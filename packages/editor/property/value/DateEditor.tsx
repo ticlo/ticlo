@@ -2,8 +2,8 @@ import React from 'react';
 import {Tooltip} from 'antd';
 import {DateTime} from 'luxon';
 import {formatDate} from '@ticlo/core';
-import {ValueEditorProps} from './ValueEditorBase';
-import {DatePicker} from '../../component/DateTimePicker';
+import {ValueEditorProps} from './ValueEditorBase.js';
+import {DatePicker} from '../../component/DateTimePicker.js';
 
 const defaultTime = {defaultValue: DateTime.fromFormat('00:00:00.000', 'HH:mm:ss.SSS')};
 

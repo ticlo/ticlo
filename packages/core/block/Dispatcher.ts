@@ -1,4 +1,4 @@
-import {DataMap} from '../util/DataTypes';
+import {DataMap} from '../util/DataTypes.js';
 
 export interface PropListener<T = any> {
   onSourceChange?(prop: PropDispatcher<T>): void;

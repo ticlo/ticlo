@@ -1,4 +1,4 @@
-import './registerArrowCode';
+import './registerArrowCode.js';
 import {PureFunction, Functions, ErrorEvent, BaseFunction} from '@ticlo/core';
 
 export class QuerySelectorFunction extends BaseFunction {

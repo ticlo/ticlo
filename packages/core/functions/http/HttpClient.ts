@@ -1,8 +1,8 @@
 import {URL} from 'url';
 import axios, {AxiosPromise, AxiosRequestConfig, AxiosRequestHeaders, AxiosResponse} from 'axios';
-import {BaseFunction} from '../../block/BlockFunction';
-import {Functions} from '../../block/Functions';
-import {isDataMap} from '../../util/DataTypes';
+import {BaseFunction} from '../../block/BlockFunction.js';
+import {Functions} from '../../block/Functions.js';
+import {isDataMap} from '../../util/DataTypes.js';
 
 export interface HttpClient {
   request(config: AxiosRequestConfig): Promise<AxiosResponse>;

@@ -1,9 +1,9 @@
 import React from 'react';
-import {LocalizedPropertyName, t} from '../../component/LocalizedLabel';
+import {LocalizedPropertyName, t} from '../../component/LocalizedLabel.js';
 import {Checkbox, Select} from 'antd';
-import {Calendar} from '../../component/DateTimePicker';
+import {Calendar} from '../../component/DateTimePicker.js';
 import {DateTime} from 'luxon';
-import {funcDesc} from './descs';
+import {funcDesc} from './descs.js';
 
 interface Props {
   dates: string[];

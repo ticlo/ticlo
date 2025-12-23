@@ -1,6 +1,6 @@
 import {expect} from 'vitest';
-import {measureObjSize, TRUNCATED, DataMap, isDataTruncated} from '../DataTypes';
-import {truncateData} from '../DataTruncate';
+import {measureObjSize, TRUNCATED, DataMap, isDataTruncated} from '../DataTypes.js';
+import {truncateData} from '../DataTruncate.js';
 
 describe('truncateData', function () {
   let longstr = '1234567890';

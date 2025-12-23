@@ -1,10 +1,10 @@
-import {Block} from '../block/Block';
-import {HelperProperty} from '../block/BlockProperty';
-import {PropDesc, PropGroupDesc} from '../block/Descriptor';
-import {Functions} from '../block/Functions';
-import {hideProperties, showProperties} from './PropertyShowHide';
-import {PropertyMover} from './PropertyMover';
-import {getInputsLength, MAX_GROUP_LENGTH} from '../block/FunctonData';
+import {Block} from '../block/Block.js';
+import {HelperProperty} from '../block/BlockProperty.js';
+import {PropDesc, PropGroupDesc} from '../block/Descriptor.js';
+import {Functions} from '../block/Functions.js';
+import {hideProperties, showProperties} from './PropertyShowHide.js';
+import {PropertyMover} from './PropertyMover.js';
+import {getInputsLength, MAX_GROUP_LENGTH} from '../block/FunctonData.js';
 
 function findGroupDesc(block: Block, group: string): PropGroupDesc {
   let groupDesc: PropGroupDesc;

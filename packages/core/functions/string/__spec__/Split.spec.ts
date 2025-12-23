@@ -1,7 +1,7 @@
 import {expect} from 'vitest';
-import '../Split';
-import {Block} from '../../../block/Block';
-import {Flow, Root} from '../../../block/Flow';
+import '../Split.js';
+import {Block} from '../../../block/Block.js';
+import {Flow, Root} from '../../../block/Flow.js';
 
 describe('Split', function () {
   it('basic split', function () {

@@ -6,16 +6,16 @@ import {
   encodeTicloName,
   translateFunction,
   TicloI18nSettings,
-} from '@ticlo/core/editor';
-import {TIcon} from '../icon/Icon';
+} from '@ticlo/core/editor.js';
+import {TIcon} from '../icon/Icon.js';
 import {DragDropDiv, DragState} from 'rc-dock';
-import {getFuncStyleFromDesc} from '../util/BlockColors';
+import {getFuncStyleFromDesc} from '../util/BlockColors.js';
 import {Dropdown, Menu} from 'antd';
-import BuildIcon from '@ant-design/icons/BuildOutlined';
-import DeleteIcon from '@ant-design/icons/DeleteOutlined';
-import EditIcon from '@ant-design/icons/EditOutlined';
-import {TicloLayoutContext, TicloLayoutContextType} from '../component/LayoutContext';
-import {LocalizedFunctionName, t} from '../component/LocalizedLabel';
+import {BuildOutlined as BuildIcon} from '@ant-design/icons';
+import {DeleteOutlined as DeleteIcon} from '@ant-design/icons';
+import {EditOutlined as EditIcon} from '@ant-design/icons';
+import {TicloLayoutContext, TicloLayoutContextType} from '../component/LayoutContext.js';
+import {LocalizedFunctionName, t} from '../component/LocalizedLabel.js';
 import {MenuProps} from 'antd';
 
 export type OnFunctionClick = (name: string, desc: FunctionDesc, data: any) => void;

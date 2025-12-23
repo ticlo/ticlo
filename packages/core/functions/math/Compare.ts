@@ -1,6 +1,6 @@
-import {Functions} from '../../block/Functions';
-import {PureFunction} from '../../block/BlockFunction';
-import {FunctionDesc} from '../../block/Descriptor';
+import {Functions} from '../../block/Functions.js';
+import {PureFunction} from '../../block/BlockFunction.js';
+import {FunctionDesc} from '../../block/Descriptor.js';
 
 const descriptor: FunctionDesc = {
   name: '',

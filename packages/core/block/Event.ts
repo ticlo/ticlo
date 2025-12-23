@@ -1,4 +1,4 @@
-import {Uid} from '../util/Uid';
+import {Uid} from '../util/Uid.js';
 
 export enum EventType {
   TRIGGER = 0,

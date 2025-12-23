@@ -1,6 +1,6 @@
 import React from 'react';
-import {ValueEditorProps} from './ValueEditorBase';
-import {renderValue} from '../../component/renderValue';
+import {ValueEditorProps} from './ValueEditorBase.js';
+import {renderValue} from '../../component/renderValue.js';
 
 export class ReadonlyEditor extends React.PureComponent<ValueEditorProps, any> {
   render() {

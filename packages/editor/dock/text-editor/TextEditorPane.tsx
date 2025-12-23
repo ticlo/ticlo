@@ -1,5 +1,5 @@
 import React from 'react';
-import {ClientConn, encode, DataMap, isDataTruncated, translateEditor} from '@ticlo/core/editor';
+import {ClientConn, encode, DataMap, isDataTruncated, translateEditor} from '@ticlo/core/editor.js';
 import {Menu, Dropdown, Button, Spin} from 'antd';
 import CodeMirror from '@uiw/react-codemirror';
 import {parse as ParseYaml} from 'yaml';
@@ -11,9 +11,9 @@ import {yaml} from '@codemirror/lang-yaml';
 import {DockLayout} from 'rc-dock';
 import {EditorView} from '@codemirror/view';
 import {MenuProps} from 'antd';
-import {createDockDialog, DockDialogPane} from '../../component/DockDialogPane';
-import {t} from '../../component/LocalizedLabel';
-import {arrowReviver} from '@ticlo/core/util/Serialize';
+import {createDockDialog, DockDialogPane} from '../../component/DockDialogPane.js';
+import {t} from '../../component/LocalizedLabel.js';
+import {arrowReviver} from '@ticlo/core/util/Serialize.js';
 
 interface Props {
   conn: ClientConn;

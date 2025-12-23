@@ -1,8 +1,8 @@
 import {ReactNode, useEffect, useReducer, useRef, useState} from 'react';
 import {Block, BlockIO, smartStrCompare} from '@ticlo/core';
-import {BlockChildWatch} from '@ticlo/core/block/Block';
-import {Values} from '../types/Values';
-import {useBlockProps} from './useBlockProps';
+import {BlockChildWatch} from '@ticlo/core/block/Block.js';
+import {Values} from '../types/Values.js';
+import {useBlockProps} from './useBlockProps.js';
 
 const groupPropMap = {
   '#children': {value: Values.array, pinned: true},

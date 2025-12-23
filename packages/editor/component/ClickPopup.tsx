@@ -1,6 +1,7 @@
 import React from 'react';
-import Trigger from 'rc-trigger';
-import RightIcon from '@ant-design/icons/RightOutlined';
+import Trigger_ from 'rc-trigger';
+const Trigger = (Trigger_ as any).default || Trigger_;
+import {RightOutlined as RightIcon} from '@ant-design/icons';
 
 type ItemEventHandler = (event: 'show' | 'hide' | 'hover' | 'close') => void;
 

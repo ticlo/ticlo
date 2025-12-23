@@ -1,10 +1,10 @@
-import {AutoUpdateFunction} from '../base/AutoUpdateFunction';
-import {Functions} from '../../block/Functions';
-import {Event, EventType, NO_EMIT, ValueUpdateEvent, WAIT} from '../../block/Event';
-import type {Block} from '../../block/Block';
+import {AutoUpdateFunction} from '../base/AutoUpdateFunction.js';
+import {Functions} from '../../block/Functions.js';
+import {Event, EventType, NO_EMIT, ValueUpdateEvent, WAIT} from '../../block/Event.js';
+import type {Block} from '../../block/Block.js';
 import {DateTime} from 'luxon';
-import {getZoneObject} from '../../util/DateTime';
-import {BlockIO} from '../../block/BlockProperty';
+import {getZoneObject} from '../../util/DateTime.js';
+import {BlockIO} from '../../block/BlockProperty.js';
 
 // interval value in seconds
 const MIN_INTERVAL = 0.001;

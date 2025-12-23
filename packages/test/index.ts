@@ -1,9 +1,9 @@
-import './Assert';
-import './LogTime';
+import './Assert.js';
+import './LogTime.js';
 import {Functions} from '@ticlo/core';
 
-export {FlowTestGroup} from './FlowTestGroup';
-export {FlowTestCase} from './FlowTestCase';
+export {FlowTestGroup} from './FlowTestGroup.js';
+export {FlowTestCase} from './FlowTestCase.js';
 
 Functions.addCategory({
   id: 'test:',

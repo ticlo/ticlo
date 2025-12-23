@@ -1,24 +1,24 @@
 import React, {MouseEventHandler} from 'react';
 import {Button, Input, Modal, Radio, Tooltip, message} from 'antd';
-import AppStoreIcon from '@ant-design/icons/AppstoreOutlined';
-import HistoryIcon from '@ant-design/icons/HistoryOutlined';
-import CloseCircleIcon from '@ant-design/icons/CloseCircleOutlined';
-import FilterIcon from '@ant-design/icons/FilterOutlined';
-import PlusSquareIcon from '@ant-design/icons/PlusSquareOutlined';
-import SubnodeIcon from '@ant-design/icons/SubnodeOutlined';
-import InlineIcon from '@ant-design/icons/BorderlessTableOutlined';
-import {FunctionTree} from './FunctionTree';
-import {ClientConn, DataMap, FunctionDesc, encodeTicloName, translateEditor} from '@ticlo/core/editor';
-import {OnFunctionClick} from './FunctionView';
+import {AppstoreOutlined as AppStoreIcon} from '@ant-design/icons';
+import {HistoryOutlined as HistoryIcon} from '@ant-design/icons';
+import {CloseCircleOutlined as CloseCircleIcon} from '@ant-design/icons';
+import {FilterOutlined as FilterIcon} from '@ant-design/icons';
+import {PlusSquareOutlined as PlusSquareIcon} from '@ant-design/icons';
+import {SubnodeOutlined as SubnodeIcon} from '@ant-design/icons';
+import {BorderlessTableOutlined as InlineIcon} from '@ant-design/icons';
+import {FunctionTree} from './FunctionTree.js';
+import {ClientConn, DataMap, FunctionDesc, encodeTicloName, translateEditor} from '@ticlo/core/editor.js';
+import {OnFunctionClick} from './FunctionView.js';
 import {RadioChangeEvent} from 'antd';
-import {FunctionList} from './FunctionList';
+import {FunctionList} from './FunctionList.js';
 import {
   TicloI18NConsumer,
   TicloLayoutContext,
   TicloLayoutContextConsumer,
   TicloLayoutContextType,
-} from '../component/LayoutContext';
-import {t} from '../component/LocalizedLabel';
+} from '../component/LayoutContext.js';
+import {t} from '../component/LocalizedLabel.js';
 
 interface Props {
   conn: ClientConn;

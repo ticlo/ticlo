@@ -1,7 +1,7 @@
-import {Block} from '../block/Block';
-import {BlockIO, BlockProperty, HelperProperty} from '../block/BlockProperty';
-import {PropListener} from '../block/Dispatcher';
-import {BlockBinding} from '../block/BlockBinding';
+import {Block} from '../block/Block.js';
+import {BlockIO, BlockProperty, HelperProperty} from '../block/BlockProperty.js';
+import {PropListener} from '../block/Dispatcher.js';
+import {BlockBinding} from '../block/BlockBinding.js';
 
 // /**
 //  * @param block

@@ -1,9 +1,9 @@
-import {ServerConnection} from './ServerConnection';
-import {ClientConnection} from './ClientConnection';
-import {Root} from '../block/Flow';
-import {DataMap} from '../util/DataTypes';
-import {Logger} from '../util/Logger';
-import {encode, decode} from '../util/Serialize';
+import {ServerConnection} from './ServerConnection.js';
+import {ClientConnection} from './ClientConnection.js';
+import {Root} from '../block/Flow.js';
+import {DataMap} from '../util/DataTypes.js';
+import {Logger} from '../util/Logger.js';
+import {encode, decode} from '../util/Serialize.js';
 
 class LocalServerConnection extends ServerConnection {
   _client: LocalClientConnection;

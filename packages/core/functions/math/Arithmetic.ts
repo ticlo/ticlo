@@ -1,7 +1,7 @@
-import {Functions} from '../../block/Functions';
-import {PureFunction} from '../../block/BlockFunction';
-import {FunctionDesc} from '../../block/Descriptor';
-import {getInputsArray} from '../../block/FunctonData';
+import {Functions} from '../../block/Functions.js';
+import {PureFunction} from '../../block/BlockFunction.js';
+import {FunctionDesc} from '../../block/Descriptor.js';
+import {getInputsArray} from '../../block/FunctonData.js';
 
 const descriptorN: FunctionDesc = {
   name: '',

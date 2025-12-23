@@ -1,7 +1,7 @@
-import {BaseFunction, StatefulFunction} from '../../block/BlockFunction';
-import {HttpRequest} from './HttpRequest';
-import {Functions} from '../../block/Functions';
-import type {Block} from '../../block/Block';
+import {BaseFunction, StatefulFunction} from '../../block/BlockFunction.js';
+import {HttpRequest} from './HttpRequest.js';
+import {Functions} from '../../block/Functions.js';
+import type {Block} from '../../block/Block.js';
 
 export class StaticResponse extends BaseFunction<Block> {
   _called: HttpRequest[] = [];

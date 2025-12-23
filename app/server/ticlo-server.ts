@@ -1,10 +1,10 @@
 import Fastify from 'fastify';
 import {Flow, Root, setStorageFunctionProvider} from '@ticlo/core';
 import {FileFlowStorage, FileStorage} from '@ticlo/node';
-import {connectTiclo, routeTiclo, getEditorUrl} from '@ticlo/web-server/server';
+import {connectTiclo, routeTiclo, getEditorUrl} from '@ticlo/web-server/server.js';
 import '@ticlo/test';
-import {data} from '../sample-data/data';
-import reactData from '../sample-data/react';
+import {data} from '../sample-data/data.js';
+import reactData from '../sample-data/react.js';
 import * as fs from 'fs';
 import * as path from 'path';
 

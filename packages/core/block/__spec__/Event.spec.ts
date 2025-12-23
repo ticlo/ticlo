@@ -1,7 +1,7 @@
 import {expect} from 'vitest';
-import {Flow, Root} from '../Flow';
-import {Event} from '../Event';
-import {TestFunctionRunner} from './TestFunction';
+import {Flow, Root} from '../Flow.js';
+import {Event} from '../Event.js';
+import {TestFunctionRunner} from './TestFunction.js';
 
 describe('Event', function () {
   it('Event Uid Change in Root', function () {

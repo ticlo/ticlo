@@ -1,5 +1,5 @@
 import {expect} from 'vitest';
-import {decodeUnknown, EscapedObject} from '../EscapedObject';
+import {decodeUnknown, EscapedObject} from '../EscapedObject.js';
 
 describe('EscapedObject', function () {
   const encodedString = '"͢:title"';

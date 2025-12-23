@@ -1,6 +1,6 @@
 import {FastifyRequest, FastifyReply} from 'fastify';
 import {Block, convertToObject, DataMap} from '@ticlo/core';
-import {HttpRequest as BaseHttpRequest} from '@ticlo/core/functions/web-server/HttpRequest';
+import {HttpRequest as BaseHttpRequest} from '@ticlo/core/functions/web-server/HttpRequest.js';
 
 export class HttpRequest extends BaseHttpRequest {
   req: FastifyRequest;

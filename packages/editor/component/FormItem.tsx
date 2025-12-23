@@ -1,7 +1,7 @@
 import React, {ChangeEvent} from 'react';
 import {Form, InputNumber} from 'antd';
 import {RadioChangeEvent} from 'antd';
-import {LazyUpdateComponent} from './LazyUpdateComponent';
+import {LazyUpdateComponent} from './LazyUpdateComponent.js';
 
 const {Item} = Form;
 

@@ -1,27 +1,27 @@
-import {BlockProperty, BlockIO, HelperProperty, BlockBindingSource, BlockConfig} from './BlockProperty';
-import {ListenPromise} from './ListenPromise';
-import {BlockBinding} from './BlockBinding';
-import {FunctionClass, BaseFunction} from './BlockFunction';
-import {PropDispatcher, PropListener, Destroyable} from './Dispatcher';
-import {FunctionDispatcher, Functions} from './Functions';
-import {DoneEvent, ErrorEvent, Event, EventType, NO_EMIT, WAIT} from './Event';
-import {DataMap} from '../util/DataTypes';
-import {Uid} from '../util/Uid';
-import {voidProperty} from './Void';
+import {BlockProperty, BlockIO, HelperProperty, BlockBindingSource, BlockConfig} from './BlockProperty.js';
+import {ListenPromise} from './ListenPromise.js';
+import {BlockBinding} from './BlockBinding.js';
+import {FunctionClass, BaseFunction} from './BlockFunction.js';
+import {PropDispatcher, PropListener, Destroyable} from './Dispatcher.js';
+import {FunctionDispatcher, Functions} from './Functions.js';
+import {DoneEvent, ErrorEvent, Event, EventType, NO_EMIT, WAIT} from './Event.js';
+import {DataMap} from '../util/DataTypes.js';
+import {Uid} from '../util/Uid.js';
+import {voidProperty} from './Void.js';
 import {
   ConfigGenerators,
   BlockConstConfig,
   OutputsConfigGenerators,
   InputsConfigGenerators,
   BlockLibConfig,
-} from './BlockConfigs';
-import {Task} from './Task';
-import {_strictMode} from './BlockSettings';
-import type {Flow, Root} from './Flow';
-import {BlockMode} from './Descriptor';
-import {FunctionData, FunctionOutput} from './FunctonData';
-import {getMaxFlowDepth} from '../util/Settings';
-import {Logger} from '../util/Logger';
+} from './BlockConfigs.js';
+import {Task} from './Task.js';
+import {_strictMode} from './BlockSettings.js';
+import type {Flow, Root} from './Flow.js';
+import {BlockMode} from './Descriptor.js';
+import {FunctionData, FunctionOutput} from './FunctonData.js';
+import {getMaxFlowDepth} from '../util/Settings.js';
+import {Logger} from '../util/Logger.js';
 
 export interface BlockChildWatch {
   onChildChange(property: BlockProperty, saved?: boolean): void;

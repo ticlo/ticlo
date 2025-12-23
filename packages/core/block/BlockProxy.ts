@@ -1,4 +1,4 @@
-import {Block} from './Block';
+import {Block} from './Block.js';
 
 const defaultPropertyDescriptor = {
   writable: true,

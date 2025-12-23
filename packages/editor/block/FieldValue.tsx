@@ -1,10 +1,10 @@
 import React from 'react';
-import {LazyUpdateComponent, LazyUpdateSubscriber} from '../component/LazyUpdateComponent';
-import {ClientConn} from '@ticlo/core/editor';
-import {Popup} from '../component/ClickPopup';
-import {ObjectTree} from '../object-tree/ObjectTree';
-import {TicloLayoutContext, TicloLayoutContextType} from '../component/LayoutContext';
-import {renderValue} from '../component/renderValue';
+import {LazyUpdateComponent, LazyUpdateSubscriber} from '../component/LazyUpdateComponent.js';
+import {ClientConn} from '@ticlo/core/editor.js';
+import {Popup} from '../component/ClickPopup.js';
+import {ObjectTree} from '../object-tree/ObjectTree.js';
+import {TicloLayoutContext, TicloLayoutContextType} from '../component/LayoutContext.js';
+import {renderValue} from '../component/renderValue.js';
 
 interface Props {
   conn: ClientConn;

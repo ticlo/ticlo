@@ -1,7 +1,7 @@
-import {PropDispatcher, PropListener} from './Dispatcher';
-import {Block} from './Block';
-import {BlockBindingSource, BlockProperty} from './BlockProperty';
-import {DataMap} from '../util/DataTypes';
+import {PropDispatcher, PropListener} from './Dispatcher.js';
+import {Block} from './Block.js';
+import {BlockBindingSource, BlockProperty} from './BlockProperty.js';
+import {DataMap} from '../util/DataTypes.js';
 
 export class BlockBinding extends PropDispatcher implements PropListener, BlockBindingSource {
   private _block: Block;

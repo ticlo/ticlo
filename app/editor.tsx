@@ -2,30 +2,30 @@ import * as React from 'react';
 import {Checkbox, ConfigProvider, Switch, Radio} from 'antd';
 import {Block, DataMap, decode, encodeSorted, FunctionDesc, Flow, PropDesc, Root, addConsoleLogger} from '@ticlo/core';
 import {TicloI18nSettings} from '@ticlo/core';
-import {makeLocalConnection} from '@ticlo/core/connect/LocalConnection';
-import {data} from './sample-data/data';
-import reactData from './sample-data/react';
+import {makeLocalConnection} from '@ticlo/core/connect/LocalConnection.js';
+import {data} from './sample-data/data.js';
+import reactData from './sample-data/react.js';
 import {initEditor, PropertyList, BlockStage, NodeTree} from '@ticlo/editor';
 import {DragDropDiv, DragState, DockLayout, DockContextType} from 'rc-dock';
-import {ClientConnection} from '@ticlo/core/connect/ClientConnection';
+import {ClientConnection} from '@ticlo/core/connect/ClientConnection.js';
 import {Functions} from '@ticlo/core';
-import {FunctionTree} from '@ticlo/editor/function-selector/FunctionTree';
+import {FunctionTree} from '@ticlo/editor/function-selector/FunctionTree.js';
 
-import './sample-blocks';
-import {Logger} from '@ticlo/core/util/Logger';
-import {WorkerFunctionGen} from '@ticlo/core/worker/WorkerFunctionGen';
-import {BlockStagePane} from '@ticlo/editor/dock/block/BlockStagePane';
-import {TicloLayoutContext, TicloLayoutContextType} from '@ticlo/editor/component/LayoutContext';
-import {PropDispatcher} from '@ticlo/core/block/Dispatcher';
-import {PropertyListPane} from '@ticlo/editor/dock/property/PropertyListPane';
-import {WsBrowserConnection} from '@ticlo/html/connect/WsBrowserConnection';
-import {FrameClientConnection} from '@ticlo/html/connect/FrameClientConnection';
-import {NodeTreePane} from '@ticlo/editor/dock/node-tree/NodeTreePane';
-import {TextEditorPane} from '@ticlo/editor/dock/text-editor/TextEditorPane';
+import './sample-blocks.js';
+import {Logger} from '@ticlo/core/util/Logger.js';
+import {WorkerFunctionGen} from '@ticlo/core/worker/WorkerFunctionGen.js';
+import {BlockStagePane} from '@ticlo/editor/dock/block/BlockStagePane.js';
+import {TicloLayoutContext, TicloLayoutContextType} from '@ticlo/editor/component/LayoutContext.js';
+import {PropDispatcher} from '@ticlo/core/block/Dispatcher.js';
+import {PropertyListPane} from '@ticlo/editor/dock/property/PropertyListPane.js';
+import {WsBrowserConnection} from '@ticlo/html/connect/WsBrowserConnection.js';
+import {FrameClientConnection} from '@ticlo/html/connect/FrameClientConnection.js';
+import {NodeTreePane} from '@ticlo/editor/dock/node-tree/NodeTreePane.js';
+import {TextEditorPane} from '@ticlo/editor/dock/text-editor/TextEditorPane.js';
 
 import '@ticlo/test';
-import {theme} from '@ticlo/editor/style/theme';
-import {FunctionSelect} from '@ticlo/editor/function-selector/FunctionSelector';
+import {theme} from '@ticlo/editor/style/theme.js';
+import {FunctionSelect} from '@ticlo/editor/function-selector/FunctionSelector.js';
 
 import i18next from 'i18next';
 
@@ -50,15 +50,11 @@ import frMathLocal from '../i18n/core/fr.json';
 // @ts-ignore
 import frTestLocal from '../i18n/test/fr.json';
 
-import zhAntd from 'antd/locale/zh_CN';
-import enAntd from 'antd/locale/en_US';
-import frAntd from 'antd/locale/fr_FR';
-import type {Locale} from 'antd/es/locale';
-import {LocalizedLabel, t} from '@ticlo/editor/component/LocalizedLabel';
-import {FlowTestCase} from '@ticlo/test/FlowTestCase';
+import {LocalizedLabel, t} from '@ticlo/editor/component/LocalizedLabel.js';
+import {FlowTestCase} from '@ticlo/test/FlowTestCase.js';
 import {createRoot} from 'react-dom/client';
-import {SchedulePane} from '@ticlo/editor/dock/schedule/SchedulePane';
-import {MixedBrowserConnection} from '@ticlo/html/connect/MixedBrowserConnection';
+import {SchedulePane} from '@ticlo/editor/dock/schedule/SchedulePane.js';
+import {MixedBrowserConnection} from '@ticlo/html/connect/MixedBrowserConnection.js';
 import {RadioChangeEvent} from 'antd';
 
 const layoutGroups = {
@@ -68,11 +64,16 @@ const layoutGroups = {
   },
 };
 
+import zhAntd from 'antd/es/locale/zh_CN.js';
+import enAntd from 'antd/es/locale/en_US.js';
+import frAntd from 'antd/es/locale/fr_FR.js';
+import type {Locale} from 'antd/es/locale/index.js';
+
 const languages = ['en', 'fr', 'zh'];
 const antdLanMap: Record<string, Locale> = {
-  en: enAntd,
-  fr: frAntd,
-  zh: zhAntd,
+  en: enAntd as unknown as Locale,
+  fr: frAntd as unknown as Locale,
+  zh: zhAntd as unknown as Locale,
 };
 
 interface Props {
@@ -184,7 +185,7 @@ class App extends React.PureComponent<Props, State> {
   }
 
   lng: string = 'en';
-  lngConfig = zhAntd;
+  lngConfig = antdLanMap['en'];
   switchLan = (e?: RadioChangeEvent) => {
     this.lng = e?.target.value || this.lng;
     this.lngConfig = antdLanMap[this.lng];

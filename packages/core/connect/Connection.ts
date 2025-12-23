@@ -1,5 +1,5 @@
-import {DataMap, measureObjSize, WS_FRAME_SIZE} from '../util/DataTypes';
-import {Logger} from '../util/Logger';
+import {DataMap, measureObjSize, WS_FRAME_SIZE} from '../util/DataTypes.js';
+import {Logger} from '../util/Logger.js';
 
 export class ConnectionSendingData {
   /* istanbul ignore next */

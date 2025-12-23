@@ -1,10 +1,10 @@
 import Path from 'path';
 import Fs from 'fs';
 import {BlockProperty, DataMap, decode, Flow, Root} from '@ticlo/core';
-import {FlowLoader, FlowState} from '@ticlo/core/block/Flow';
+import {FlowLoader, FlowState} from '@ticlo/core/block/Flow.js';
 import {FlowTestGroup} from '@ticlo/test';
 import {FlowTestCase} from '@ticlo/test';
-import {FileFlowStorage, FlowIOTask} from '../storage/FileStorage';
+import {FileFlowStorage, FlowIOTask} from '../storage/FileStorage.js';
 
 interface TestLoaderOptions {
   timeout?: number;

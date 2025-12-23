@@ -1,10 +1,10 @@
 import React from 'react';
-import {JsFunction, SCRIPT_ERROR} from '@ticlo/core/functions/script/Js';
-import {Functions} from '@ticlo/core/block/Functions';
-import {Block} from '@ticlo/core/block/Block';
-import {TicloComp} from './TicloComp';
-import {validateReactComponent} from './validateReactComponent';
-import {elementConfigs} from './BaseElement';
+import {JsFunction, SCRIPT_ERROR} from '@ticlo/core/functions/script/Js.js';
+import {Functions} from '@ticlo/core/block/Functions.js';
+import {Block} from '@ticlo/core/block/Block.js';
+import {TicloComp} from './TicloComp.js';
+import {validateReactComponent} from './validateReactComponent.js';
+import {elementConfigs} from './BaseElement.js';
 import {BlockIO, ErrorEvent} from '@ticlo/core';
 
 const HOOKS = `const {

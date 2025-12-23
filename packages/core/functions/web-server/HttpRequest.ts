@@ -1,7 +1,7 @@
-import {Task} from '../../block/Task';
-import {Block} from '../../block/Block';
-import {convertToOutput, DataMap} from '../../util/DataTypes';
-import {ErrorEvent} from '../../block/Event';
+import {Task} from '../../block/Task.js';
+import {Block} from '../../block/Block.js';
+import {convertToOutput, DataMap} from '../../util/DataTypes.js';
+import {ErrorEvent} from '../../block/Event.js';
 
 export interface HttpRequestData {
   method: string;

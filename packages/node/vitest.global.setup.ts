@@ -1,4 +1,4 @@
-import {FileStorage} from './storage/FileStorage';
+import {FileStorage} from './storage/FileStorage.js';
 
 export default function setup() {
   // make sure storage folder is created before running other tests, so they don't conflict at creating the folder
