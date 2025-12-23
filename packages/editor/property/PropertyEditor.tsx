@@ -1,9 +1,9 @@
 import React from 'react';
 import {Button, Tooltip, Dropdown, Input, Checkbox} from 'antd';
-import {DeleteOutlined as DeleteIcon} from '@ant-design/icons';
-import {EditOutlined as EditIcon} from '@ant-design/icons';
-import {LockOutlined as LockIcon} from '@ant-design/icons';
-import {LockFilled as LockFilledIcon} from '@ant-design/icons';
+import {DeleteOutlined, EditOutlined, LockFilled, LockOutlined} from '@ant-design/icons';
+
+
+
 import {
   ClientConn,
   getOutputDesc,
@@ -388,13 +388,13 @@ export class PropertyEditor extends MultiSelectComponent<PropertyEditorProps, St
     if (renderLockIcon) {
       if (unlocked) {
         locktooltip = t('Unlocked for editing\nDouble click to lock');
-        lockIcon = <EditIcon />;
+        lockIcon = <EditOutlined />;
       } else if (bindingPath) {
         locktooltip = t('Editing blocked by binding\nDouble click to edit');
-        lockIcon = <LockFilledIcon />;
+        lockIcon = <LockFilled />;
       } else if (!valueSame) {
         locktooltip = t('Inconsistent values\nDouble click to edit');
-        lockIcon = <LockIcon />;
+        lockIcon = <LockOutlined />;
       }
     }
 

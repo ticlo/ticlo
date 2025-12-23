@@ -3,9 +3,9 @@ import {ClientConn} from '@ticlo/core/editor.js';
 import {TicloLayoutContext, TicloLayoutContextType} from '../../component/LayoutContext.js';
 import {NodeTree} from '../../index.js';
 import {Button, Input, Menu, Tooltip} from 'antd';
-import {FileAddOutlined as FileAddIcon} from '@ant-design/icons';
-import {FolderAddOutlined as FolderAddIcon} from '@ant-design/icons';
-import {ReloadOutlined as ReloadIcon} from '@ant-design/icons';
+import {FileAddOutlined, FolderAddOutlined, ReloadOutlined} from '@ant-design/icons';
+
+
 import {AddNewFlowDialog} from '../../popup/AddNewFlowDialog.js';
 import {DragDrop, DragState} from 'rc-dock';
 import {t} from '../../component/LocalizedLabel.js';
@@ -96,16 +96,16 @@ export class NodeTreePane extends React.PureComponent<Props, State> {
         {showMenu ? (
           <div className="tlcl-top-menu-box ticl-hbox">
             <Tooltip title={t('Reload')}>
-              <Button size="small" icon={<ReloadIcon />} onClick={this.reload} />
+              <Button size="small" icon={<ReloadOutlined />} onClick={this.reload} />
             </Tooltip>
             <Tooltip title={t('New Dataflow')}>
               <DragDrop onDragOverT={this.newFlowOrFolderDragOver} onDropT={this.newFlowDrop}>
-                <Button size="small" icon={<FileAddIcon />} onClick={this.showNewFlowModel} />
+                <Button size="small" icon={<FileAddOutlined />} onClick={this.showNewFlowModel} />
               </DragDrop>
             </Tooltip>
             <Tooltip title={t('New Folder')}>
               <DragDrop onDragOverT={this.newFlowOrFolderDragOver} onDropT={this.newFolderDrop}>
-                <Button size="small" icon={<FolderAddIcon />} onClick={this.showNewFolderModel} />
+                <Button size="small" icon={<FolderAddOutlined />} onClick={this.showNewFolderModel} />
               </DragDrop>
             </Tooltip>
           </div>

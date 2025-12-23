@@ -1,11 +1,11 @@
 import React, {ReactElement} from 'react';
 import {Button, Checkbox, Select, Tag, Tooltip} from 'antd';
-import {PlusOutlined as PlusIcon} from '@ant-design/icons';
+import {CloseOutlined, PlusOutlined} from '@ant-design/icons';
 import {SchedulerConfig} from '@ticlo/core/functions/date/Schedule/SchedulerEvent.js';
 import {cacheCall} from '../../util/CachedCallback.js';
 import {translateProperty, translatePropContent} from '@ticlo/core/util/i18n.js';
 import {TicloLayoutContext, TicloLayoutContextType} from '../../component/LayoutContext.js';
-import {CloseOutlined as CloseOutlined} from '@ant-design/icons';
+
 import {stopPropagation} from '@ticlo/core';
 import {LocalizedPropertyName, t} from '../../component/LocalizedLabel.js';
 import {FUNC, funcDesc} from './descs.js';
@@ -286,7 +286,7 @@ export class AdvancedSelector extends React.PureComponent<Props, States> {
                 <Button
                   size="small"
                   shape="circle"
-                  icon={<PlusIcon />}
+                  icon={<PlusOutlined />}
                   style={{marginRight: 4}}
                   onClick={this.addDay}
                 />

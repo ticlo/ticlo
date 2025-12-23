@@ -11,9 +11,9 @@ import {TIcon} from '../icon/Icon.js';
 import {DragDropDiv, DragState} from 'rc-dock';
 import {getFuncStyleFromDesc} from '../util/BlockColors.js';
 import {Dropdown, Menu} from 'antd';
-import {BuildOutlined as BuildIcon} from '@ant-design/icons';
-import {DeleteOutlined as DeleteIcon} from '@ant-design/icons';
-import {EditOutlined as EditIcon} from '@ant-design/icons';
+import {BuildOutlined, DeleteOutlined, EditOutlined} from '@ant-design/icons';
+
+
 import {TicloLayoutContext, TicloLayoutContextType} from '../component/LayoutContext.js';
 import {LocalizedFunctionName, t} from '../component/LocalizedLabel.js';
 import {MenuProps} from 'antd';
@@ -84,7 +84,7 @@ export class FunctionView extends React.PureComponent<Props, any> {
           onClick: this.onEditClicked,
           label: (
             <>
-              <BuildIcon />
+              <BuildOutlined />
               {t('Edit')}
             </>
           ),
@@ -93,7 +93,7 @@ export class FunctionView extends React.PureComponent<Props, any> {
           key: 'rename',
           label: (
             <>
-              <EditIcon />
+              <EditOutlined />
               {t('Rename')}
             </>
           ),
@@ -103,7 +103,7 @@ export class FunctionView extends React.PureComponent<Props, any> {
           onClick: this.onEditClicked,
           label: (
             <>
-              <DeleteIcon />
+              <DeleteOutlined />
               {t('Delete')}
             </>
           ),

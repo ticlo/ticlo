@@ -1,12 +1,12 @@
 import React, {MouseEventHandler} from 'react';
 import {Button, Input, Modal, Radio, Tooltip, message} from 'antd';
-import {AppstoreOutlined as AppStoreIcon} from '@ant-design/icons';
-import {HistoryOutlined as HistoryIcon} from '@ant-design/icons';
-import {CloseCircleOutlined as CloseCircleIcon} from '@ant-design/icons';
-import {FilterOutlined as FilterIcon} from '@ant-design/icons';
-import {PlusSquareOutlined as PlusSquareIcon} from '@ant-design/icons';
-import {SubnodeOutlined as SubnodeIcon} from '@ant-design/icons';
-import {BorderlessTableOutlined as InlineIcon} from '@ant-design/icons';
+import {AppstoreOutlined, BorderlessTableOutlined, CloseCircleOutlined, FilterOutlined, HistoryOutlined, PlusSquareOutlined, SubnodeOutlined} from '@ant-design/icons';
+
+
+
+
+
+
 import {FunctionTree} from './FunctionTree.js';
 import {ClientConn, DataMap, FunctionDesc, encodeTicloName, translateEditor} from '@ticlo/core/editor.js';
 import {OnFunctionClick} from './FunctionView.js';
@@ -105,12 +105,12 @@ export class FunctionSelect extends React.PureComponent<Props, State> {
           <Radio.Group defaultValue="tree" size="small" onChange={this.onToggleChange}>
             <Tooltip title={t('Function Tree')}>
               <Radio.Button value="tree">
-                <AppStoreIcon />
+                <AppstoreOutlined />
               </Radio.Button>
             </Tooltip>
             <Tooltip title={t('Recent')}>
               <Radio.Button value="recent">
-                <HistoryIcon />
+                <HistoryOutlined />
               </Radio.Button>
             </Tooltip>
           </Radio.Group>
@@ -124,9 +124,9 @@ export class FunctionSelect extends React.PureComponent<Props, State> {
                 onChange={this.onFilterChange}
                 suffix={
                   search ? (
-                    <CloseCircleIcon title={'clear'} style={{color: 'rgba(0,0,0,.45)'}} onClick={this.onFilterClear} />
+                    <CloseCircleOutlined title={'clear'} style={{color: 'rgba(0,0,0,.45)'}} onClick={this.onFilterClear} />
                   ) : (
-                    <FilterIcon style={{color: 'rgba(0,0,0,.45)'}} />
+                    <FilterOutlined style={{color: 'rgba(0,0,0,.45)'}} />
                   )
                 }
               />
@@ -134,7 +134,7 @@ export class FunctionSelect extends React.PureComponent<Props, State> {
           </TicloI18NConsumer>
           {this.context?.editFlow ? (
             <Tooltip title={t('Add Function')}>
-              <Button size="small" onClick={this.onAddFunction} icon={<PlusSquareIcon />} />
+              <Button size="small" onClick={this.onAddFunction} icon={<PlusSquareOutlined />} />
             </Tooltip>
           ) : null}
           <Modal
@@ -150,7 +150,7 @@ export class FunctionSelect extends React.PureComponent<Props, State> {
           <>
             <Button
               type={currentValue === '#' ? 'primary' : 'default'}
-              icon={<SubnodeIcon />}
+              icon={<SubnodeOutlined />}
               size="small"
               onClick={this.onSubflowClick}
             >
@@ -158,7 +158,7 @@ export class FunctionSelect extends React.PureComponent<Props, State> {
             </Button>
             <Button
               type={typeof currentValue === 'object' ? 'primary' : 'default'}
-              icon={<InlineIcon />}
+              icon={<BorderlessTableOutlined />}
               size="small"
               onClick={this.onInlineClick}
             >

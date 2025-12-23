@@ -1,9 +1,9 @@
 import React, {ClipboardEventHandler, CSSProperties, KeyboardEvent} from 'react';
 import {Button, notification, Modal} from 'antd';
-import {ZoomInOutlined as ZoomInIcon} from '@ant-design/icons';
-import {ZoomOutOutlined as ZoomOutIcon} from '@ant-design/icons';
-import {UndoOutlined as UndoIcon} from '@ant-design/icons';
-import {ReloadOutlined as RedoIcon} from '@ant-design/icons';
+import {ReloadOutlined, UndoOutlined, ZoomInOutlined, ZoomOutOutlined} from '@ant-design/icons';
+
+
+
 
 import {BlockView} from './Block.js';
 import {WireView} from './Wire.js';
@@ -558,9 +558,9 @@ export class BlockStage extends BlockStageBase<BlockStageProps, StageState> {
         </DragDropDiv>
         <div className="ticl-stage-zoom">
           <div className="ticl-hbox">
-            <Button className="ticl-icon-btn" shape="circle" icon={<ZoomOutIcon />} onClick={this.zoomOut} />
+            <Button className="ticl-icon-btn" shape="circle" icon={<ZoomOutOutlined />} onClick={this.zoomOut} />
             <span className="ticl-stage-zoom-label">{Math.round(zoom * 100)}%</span>
-            <Button className="ticl-icon-btn" shape="circle" icon={<ZoomInIcon />} onClick={this.zoomIn} />
+            <Button className="ticl-icon-btn" shape="circle" icon={<ZoomInOutlined />} onClick={this.zoomIn} />
           </div>
           {miniStage}
         </div>
@@ -571,7 +571,7 @@ export class BlockStage extends BlockStageBase<BlockStageProps, StageState> {
             path={`${basePath}.@has-undo`}
             tooltip={t('Undo')}
             tooltipPlacement="left"
-            icon={<UndoIcon />}
+            icon={<UndoOutlined />}
             onClick={this.undo}
           />
           <TooltipIconButton
@@ -579,7 +579,7 @@ export class BlockStage extends BlockStageBase<BlockStageProps, StageState> {
             path={`${basePath}.@has-redo`}
             tooltip={t('Redo')}
             tooltipPlacement="left"
-            icon={<RedoIcon />}
+            icon={<ReloadOutlined />}
             onClick={this.redo}
           />
         </div>

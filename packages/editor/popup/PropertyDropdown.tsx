@@ -18,7 +18,7 @@ import {
 } from '@ticlo/core';
 import {LocalizedPropCommand, LocalizedPropertyName, t} from '../component/LocalizedLabel.js';
 import {Button, Checkbox} from 'antd';
-import {DeleteOutlined as DeleteIcon} from '@ant-design/icons';
+import {DeleteOutlined} from '@ant-design/icons';
 import {StringEditor} from '../property/value/StringEditor.js';
 import {AddCustomPropertyMenu} from '../property/AddCustomProperty.js';
 import {ClientConn, ValueSubscriber} from '@ticlo/core/connect/ClientConn.js';
@@ -255,7 +255,7 @@ export class PropertyDropdown extends React.PureComponent<Props, State> {
               className="ticl-icon-btn"
               shape="circle"
               size="small"
-              icon={<DeleteIcon />}
+              icon={<DeleteOutlined />}
               onClick={this.onUnbindClick}
             />
           ) : null}

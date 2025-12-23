@@ -1,7 +1,7 @@
 import React, {KeyboardEvent, ReactNode} from 'react';
 import {Button, Tooltip} from 'antd';
-import {MenuUnfoldOutlined as MenuUnfoldIcon} from '@ant-design/icons';
-import {MenuFoldOutlined as MenuFoldIcon} from '@ant-design/icons';
+import {MenuFoldOutlined, MenuUnfoldOutlined} from '@ant-design/icons';
+
 import {BlockStage, PropertyList} from '../../index.js';
 import {Divider, TabData} from 'rc-dock';
 import {arrayEqual, ClientConn, getDisplayName, ValueSubscriber, ValueUpdate} from '@ticlo/core/editor.js';
@@ -143,7 +143,7 @@ export class BlockStagePane extends LazyUpdateComponent<Props, State> {
             toolButtons={
               <TooltipIconButton
                 conn={conn}
-                icon={showPropertyList ? <MenuUnfoldIcon /> : <MenuFoldIcon />}
+                icon={showPropertyList ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />}
                 onClick={this.onShowPropertyList}
                 tooltip={showPropertyList ? t('Hide Properties') : t('Show Properties')}
                 tooltipPlacement="left"
