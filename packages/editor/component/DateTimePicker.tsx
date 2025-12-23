@@ -13,7 +13,9 @@ type DatePickerType = React.ForwardRefExoticComponent<PickerProps<DateTime> & Re
   [key: string]: any;
 };
 
-const DatePicker = (generatePicker as unknown as <T>(config: any) => any)<DateTime>(luxonConfig) as unknown as DatePickerType;
+const DatePicker = (generatePicker as unknown as <T>(config: any) => any)<DateTime>(
+  luxonConfig
+) as unknown as DatePickerType;
 
 const {RangePicker} = DatePicker;
 

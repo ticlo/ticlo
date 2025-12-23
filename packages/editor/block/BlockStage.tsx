@@ -2,9 +2,6 @@ import React, {ClipboardEventHandler, CSSProperties, KeyboardEvent} from 'react'
 import {Button, notification, Modal} from 'antd';
 import {ReloadOutlined, UndoOutlined, ZoomInOutlined, ZoomOutOutlined} from '@ant-design/icons';
 
-
-
-
 import {BlockView} from './Block.js';
 import {WireView} from './Wire.js';
 import {DragDropDiv, DragState, GestureState} from 'rc-dock';

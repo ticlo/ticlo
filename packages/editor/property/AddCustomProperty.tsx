@@ -1,6 +1,13 @@
 import React, {ChangeEvent} from 'react';
 import {Button, Input, Select, Form, Switch, InputNumber, Radio} from 'antd';
-import {PropDesc, PropGroupDesc, ValueType, endsWithNumberReg, ClientConn, translateEditor} from '@ticlo/core/editor.js';
+import {
+  PropDesc,
+  PropGroupDesc,
+  ValueType,
+  endsWithNumberReg,
+  ClientConn,
+  translateEditor,
+} from '@ticlo/core/editor.js';
 import {LazyUpdateComponent} from '../component/LazyUpdateComponent.js';
 import {FormInputItem, FormItem} from '../component/FormItem.js';
 import {t} from '../component/LocalizedLabel.js';

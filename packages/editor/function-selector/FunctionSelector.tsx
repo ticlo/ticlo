@@ -1,11 +1,14 @@
 import React, {MouseEventHandler} from 'react';
 import {Button, Input, Modal, Radio, Tooltip, message} from 'antd';
-import {AppstoreOutlined, BorderlessTableOutlined, CloseCircleOutlined, FilterOutlined, HistoryOutlined, PlusSquareOutlined, SubnodeOutlined} from '@ant-design/icons';
-
-
-
-
-
+import {
+  AppstoreOutlined,
+  BorderlessTableOutlined,
+  CloseCircleOutlined,
+  FilterOutlined,
+  HistoryOutlined,
+  PlusSquareOutlined,
+  SubnodeOutlined,
+} from '@ant-design/icons';
 
 import {FunctionTree} from './FunctionTree.js';
 import {ClientConn, DataMap, FunctionDesc, encodeTicloName, translateEditor} from '@ticlo/core/editor.js';
@@ -124,7 +127,11 @@ export class FunctionSelect extends React.PureComponent<Props, State> {
                 onChange={this.onFilterChange}
                 suffix={
                   search ? (
-                    <CloseCircleOutlined title={'clear'} style={{color: 'rgba(0,0,0,.45)'}} onClick={this.onFilterClear} />
+                    <CloseCircleOutlined
+                      title={'clear'}
+                      style={{color: 'rgba(0,0,0,.45)'}}
+                      onClick={this.onFilterClear}
+                    />
                   ) : (
                     <FilterOutlined style={{color: 'rgba(0,0,0,.45)'}} />
                   )

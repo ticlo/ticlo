@@ -13,7 +13,6 @@ import {getFuncStyleFromDesc} from '../util/BlockColors.js';
 import {Dropdown, Menu} from 'antd';
 import {BuildOutlined, DeleteOutlined, EditOutlined} from '@ant-design/icons';
 
-
 import {TicloLayoutContext, TicloLayoutContextType} from '../component/LayoutContext.js';
 import {LocalizedFunctionName, t} from '../component/LocalizedLabel.js';
 import {MenuProps} from 'antd';

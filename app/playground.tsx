@@ -40,21 +40,21 @@ import {FunctionSelect} from '@ticlo/editor/function-selector/FunctionSelector.j
 
 import i18next from 'i18next';
 
-import zhLocal from '../i18n/editor/zh.json' with { type: "json" };
+import zhLocal from '../i18n/editor/zh.json' with {type: 'json'};
 
-import zhMathLocal from '../i18n/core/zh.json' with { type: "json" };
-import zhReactLocal from '../i18n/react/zh.json' with { type: "json" };
-import zhTestLocal from '../i18n/test/zh.json' with { type: "json" };
+import zhMathLocal from '../i18n/core/zh.json' with {type: 'json'};
+import zhReactLocal from '../i18n/react/zh.json' with {type: 'json'};
+import zhTestLocal from '../i18n/test/zh.json' with {type: 'json'};
 
-import enLocal from '../i18n/editor/en.json' with { type: "json" };
-import enMathLocal from '../i18n/core/en.json' with { type: "json" };
-import enReactLocal from '../i18n/react/en.json' with { type: "json" };
-import enTestLocal from '../i18n/test/en.json' with { type: "json" };
+import enLocal from '../i18n/editor/en.json' with {type: 'json'};
+import enMathLocal from '../i18n/core/en.json' with {type: 'json'};
+import enReactLocal from '../i18n/react/en.json' with {type: 'json'};
+import enTestLocal from '../i18n/test/en.json' with {type: 'json'};
 
-import frLocal from '../i18n/editor/fr.json' with { type: "json" };
-import frMathLocal from '../i18n/core/fr.json' with { type: "json" };
-import frReactLocal from '../i18n/react/fr.json' with { type: "json" };
-import frTestLocal from '../i18n/test/fr.json' with { type: "json" };
+import frLocal from '../i18n/editor/fr.json' with {type: 'json'};
+import frMathLocal from '../i18n/core/fr.json' with {type: 'json'};
+import frReactLocal from '../i18n/react/fr.json' with {type: 'json'};
+import frTestLocal from '../i18n/test/fr.json' with {type: 'json'};
 
 import zhAntd from 'antd/es/locale/zh_CN.js';
 import enAntd from 'antd/es/locale/en_US.js';

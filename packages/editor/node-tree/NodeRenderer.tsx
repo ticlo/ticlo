@@ -1,13 +1,17 @@
 import React from 'react';
 
-import {BuildOutlined, DeleteOutlined, FileAddOutlined, FileOutlined, FileTextOutlined, FolderOpenOutlined, GlobalOutlined, PauseCircleOutlined, SaveOutlined, SearchOutlined} from '@ant-design/icons';
-
-
-
-
-
-
-
+import {
+  BuildOutlined,
+  DeleteOutlined,
+  FileAddOutlined,
+  FileOutlined,
+  FileTextOutlined,
+  FolderOpenOutlined,
+  GlobalOutlined,
+  PauseCircleOutlined,
+  SaveOutlined,
+  SearchOutlined,
+} from '@ant-design/icons';
 
 import {ExpandIcon, ExpandState, TreeItem} from '../component/Tree.js';
 import {PureDataRenderer} from '../component/DataRenderer.js';

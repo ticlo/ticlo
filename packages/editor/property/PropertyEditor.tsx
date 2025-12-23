@@ -2,8 +2,6 @@ import React from 'react';
 import {Button, Tooltip, Dropdown, Input, Checkbox} from 'antd';
 import {DeleteOutlined, EditOutlined, LockFilled, LockOutlined} from '@ant-design/icons';
 
-
-
 import {
   ClientConn,
   getOutputDesc,

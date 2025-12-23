@@ -5,7 +5,6 @@ import {NodeTree} from '../../index.js';
 import {Button, Input, Menu, Tooltip} from 'antd';
 import {FileAddOutlined, FolderAddOutlined, ReloadOutlined} from '@ant-design/icons';
 
-
 import {AddNewFlowDialog} from '../../popup/AddNewFlowDialog.js';
 import {DragDrop, DragState} from 'rc-dock';
 import {t} from '../../component/LocalizedLabel.js';
