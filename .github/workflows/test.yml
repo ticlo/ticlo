@@ -91,6 +91,8 @@ jobs:
       #          path-to-lcov: ./coverage/nyc-strict.lcov
       #          parallel: true
       #          flag-name: strict
+      - name: make coverage dir again
+        run: mkdir coverage
       - name: Test Ticlo
         run: pnpm run ticlo-test-nyc
       - name: Coveralls Ticlo
