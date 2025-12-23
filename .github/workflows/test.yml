@@ -81,20 +81,18 @@ jobs:
           parallel: true
           flag-name: strict
       #      - name: Test Node (Strict)
-      #        run: pnpm run test-nyc-strict
+      #        run: pnpm run test-c8-strict
       #      - name: Coveralls Node Strict
       #        uses: coverallsapp/github-action@v2
       #        env:
       #          NODE_COVERALLS_DEBUG: 1
       #        with:
       #          github-token: ${{ secrets.github_token }}
-      #          path-to-lcov: ./coverage/nyc-strict.lcov
+      #          path-to-lcov: ./coverage/c8-strict.lcov
       #          parallel: true
       #          flag-name: strict
-      - name: make coverage dir again
-        run: mkdir -p coverage
       - name: Test Ticlo
-        run: pnpm run ticlo-test-nyc
+        run: pnpm run ticlo-test-c8
       - name: Coveralls Ticlo
         uses: coverallsapp/github-action@v2
         env:
