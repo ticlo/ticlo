@@ -29,26 +29,17 @@ import {FunctionSelect} from '@ticlo/editor/function-selector/FunctionSelector.j
 
 import i18next from 'i18next';
 
-// @ts-ignore
-import zhLocal from '../i18n/editor/zh.json';
-// @ts-ignore
-import zhMathLocal from '../i18n/core/zh.json';
-// @ts-ignore
-import zhTestLocal from '../i18n/test/zh.json';
+import zhLocal from '../i18n/editor/zh.json' with { type: 'json' };
+import zhMathLocal from '../i18n/core/zh.json' with { type: 'json' };
+import zhTestLocal from '../i18n/test/zh.json' with { type: 'json' };
 
-// @ts-ignore
-import enLocal from '../i18n/editor/en.json';
-// @ts-ignore
-import enMathLocal from '../i18n/core/en.json';
-// @ts-ignore
-import enTestLocal from '../i18n/test/en.json';
+import enLocal from '../i18n/editor/en.json' with { type: 'json' };
+import enMathLocal from '../i18n/core/en.json' with { type: 'json' };
+import enTestLocal from '../i18n/test/en.json' with { type: 'json' };
 
-// @ts-ignore
-import frLocal from '../i18n/editor/fr.json';
-// @ts-ignore
-import frMathLocal from '../i18n/core/fr.json';
-// @ts-ignore
-import frTestLocal from '../i18n/test/fr.json';
+import frLocal from '../i18n/editor/fr.json' with { type: 'json' };
+import frMathLocal from '../i18n/core/fr.json' with { type: 'json' };
+import frTestLocal from '../i18n/test/fr.json' with { type: 'json' };
 
 import {LocalizedLabel, t} from '@ticlo/editor/component/LocalizedLabel.js';
 import {FlowTestCase} from '@ticlo/test/FlowTestCase.js';
