@@ -1,6 +1,6 @@
 import {BaseFunction, defaultConfigs, Functions, PropDesc, PropGroupDesc} from '@ticlo/core';
-import StyleDef from './StyleDef';
-import {CreateObjectFunctionOptional} from '@ticlo/core/functions/data/CreateObject';
+import StyleDef from './StyleDef.js';
+import {CreateObjectFunctionOptional} from '@ticlo/core/functions/data/CreateObject.js';
 
 Functions.add(
   CreateObjectFunctionOptional,

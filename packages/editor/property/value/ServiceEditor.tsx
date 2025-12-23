@@ -1,10 +1,10 @@
 import React, {ReactElement} from 'react';
 import {Button, Input, Select} from 'antd';
-import PlusIcon from '@ant-design/icons/PlusOutlined';
-import EllipsisIcon from '@ant-design/icons/EllipsisOutlined';
-import {ClientConn, FunctionDesc, getDefaultFuncData, getSubBlockFuncData, PropDesc} from '@ticlo/core/editor';
-import {Popup} from '../../component/ClickPopup';
-import {PropertyList} from '../PropertyList';
+import {PlusOutlined as PlusIcon} from '@ant-design/icons';
+import {EllipsisOutlined as EllipsisIcon} from '@ant-design/icons';
+import {ClientConn, FunctionDesc, getDefaultFuncData, getSubBlockFuncData, PropDesc} from '@ticlo/core/editor.js';
+import {Popup} from '../../component/ClickPopup.js';
+import {PropertyList} from '../PropertyList.js';
 
 const {Option} = Select;
 

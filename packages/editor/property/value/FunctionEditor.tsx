@@ -1,15 +1,15 @@
 import React from 'react';
 import {Input} from 'antd';
-import DownIcon from '@ant-design/icons/DownOutlined';
+import {DownOutlined as DownIcon} from '@ant-design/icons';
 import {FunctionDesc, PropDesc} from '@ticlo/core';
-import {ValueEditorProps} from './ValueEditorBase';
-import {TIcon} from '../../icon/Icon';
+import {ValueEditorProps} from './ValueEditorBase.js';
+import {TIcon} from '../../icon/Icon.js';
 import {DragDropDiv, DragState} from 'rc-dock';
-import {StringEditorBase} from './StringEditorBase';
-import {FunctionSelect} from '../../function-selector/FunctionSelector';
-import {addRecentFunction} from '../../function-selector/FunctionList';
-import {Popup} from '../../component/ClickPopup';
-import {getFuncStyleFromDesc} from '../../util/BlockColors';
+import {StringEditorBase} from './StringEditorBase.js';
+import {FunctionSelect} from '../../function-selector/FunctionSelector.js';
+import {addRecentFunction} from '../../function-selector/FunctionList.js';
+import {Popup} from '../../component/ClickPopup.js';
+import {getFuncStyleFromDesc} from '../../util/BlockColors.js';
 
 interface State {
   opened: boolean;

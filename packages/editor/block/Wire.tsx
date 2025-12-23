@@ -1,7 +1,7 @@
 import React from 'react';
-import {DataRendererItem, PureDataRenderer} from '../component/DataRenderer';
-import {FieldItem} from './Field';
-import {cssNumber} from '../util/Types';
+import {DataRendererItem, PureDataRenderer} from '../component/DataRenderer.js';
+import {FieldItem} from './Field.js';
+import {cssNumber} from '../util/Types.js';
 
 export class WireItem extends DataRendererItem {
   source: FieldItem;

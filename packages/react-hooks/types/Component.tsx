@@ -1,7 +1,7 @@
 import React, {ComponentType, ReactNode, useEffect, useMemo, useReducer, useState} from 'react';
 import {type Block, FunctionDesc, Functions, PropDesc} from '@ticlo/core';
-import {FunctionClass} from '@ticlo/core/block/BlockFunction';
-import {PropMap} from './PropType';
+import {FunctionClass} from '@ticlo/core/block/BlockFunction.js';
+import {PropMap} from './PropType.js';
 
 interface BaseProps {
   block: Block;

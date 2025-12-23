@@ -1,4 +1,4 @@
-import {isDateSame} from './DateTime';
+import {isDateSame} from './DateTime.js';
 import {DateTime} from 'luxon';
 
 export function arrayEqual(a1: any[], a2: any[]) {

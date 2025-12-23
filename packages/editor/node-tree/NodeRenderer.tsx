@@ -1,16 +1,16 @@
 import React from 'react';
 
-import BuildIcon from '@ant-design/icons/BuildOutlined';
-import PauseCircleOutlined from '@ant-design/icons/PauseCircleOutlined';
-import SaveIcon from '@ant-design/icons/SaveOutlined';
-import DeleteIcon from '@ant-design/icons/DeleteOutlined';
-import SearchIcon from '@ant-design/icons/SearchOutlined';
-import FileIcon from '@ant-design/icons/FileOutlined';
-import FolderIcon from '@ant-design/icons/FolderOpenOutlined';
-import FileExclamationIcon from '@ant-design/icons/FileTextOutlined';
-import GlobalIcon from '@ant-design/icons/GlobalOutlined';
-import {ExpandIcon, ExpandState, TreeItem} from '../component/Tree';
-import {PureDataRenderer} from '../component/DataRenderer';
+import {BuildOutlined as BuildIcon} from '@ant-design/icons';
+import {PauseCircleOutlined as PauseCircleOutlined} from '@ant-design/icons';
+import {SaveOutlined as SaveIcon} from '@ant-design/icons';
+import {DeleteOutlined as DeleteIcon} from '@ant-design/icons';
+import {SearchOutlined as SearchIcon} from '@ant-design/icons';
+import {FileOutlined as FileIcon} from '@ant-design/icons';
+import {FolderOpenOutlined as FolderIcon} from '@ant-design/icons';
+import {FileTextOutlined as FileExclamationIcon} from '@ant-design/icons';
+import {GlobalOutlined as GlobalIcon} from '@ant-design/icons';
+import {ExpandIcon, ExpandState, TreeItem} from '../component/Tree.js';
+import {PureDataRenderer} from '../component/DataRenderer.js';
 import {
   DataMap,
   ValueUpdate,
@@ -22,18 +22,18 @@ import {
   getDisplayName,
   deepEqual,
   ClientConn,
-} from '@ticlo/core/editor';
-import {TIcon} from '../icon/Icon';
-import {TicloLayoutContext, TicloLayoutContextType} from '../component/LayoutContext';
+} from '@ticlo/core/editor.js';
+import {TIcon} from '../icon/Icon.js';
+import {TicloLayoutContext, TicloLayoutContextType} from '../component/LayoutContext.js';
 import {DragDrop, DragState} from 'rc-dock';
-import {getFuncStyleFromDesc} from '../util/BlockColors';
-import {LocalizedNodeName, t} from '../component/LocalizedLabel';
-import {BlockDropdown} from '../popup/BlockDropdown';
-import {showModal} from '../popup/ShowModal';
-import {AddNewFlowDialog} from '../popup/AddNewFlowDialog';
-import FileAddIcon from '@ant-design/icons/FileAddOutlined';
-import {MenuItem} from '../component/ClickPopup';
-import {LazyUpdateSubscriber} from '../component/LazyUpdateComponent';
+import {getFuncStyleFromDesc} from '../util/BlockColors.js';
+import {LocalizedNodeName, t} from '../component/LocalizedLabel.js';
+import {BlockDropdown} from '../popup/BlockDropdown.js';
+import {showModal} from '../popup/ShowModal.js';
+import {AddNewFlowDialog} from '../popup/AddNewFlowDialog.js';
+import {FileAddOutlined as FileAddIcon} from '@ant-design/icons';
+import {MenuItem} from '../component/ClickPopup.js';
+import {LazyUpdateSubscriber} from '../component/LazyUpdateComponent.js';
 
 const saveAllowed = new Set<string>(['flow:editor', 'flow:worker', 'flow:main', 'flow:test-case']);
 const quickOpenAllowed = new Set<string>([

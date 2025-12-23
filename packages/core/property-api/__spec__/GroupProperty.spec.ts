@@ -1,9 +1,9 @@
 import {expect} from 'vitest';
 
-import {Block} from '../../block/Block';
-import {Flow} from '../../block/Flow';
-import '../../functions/math/Arithmetic';
-import {insertGroupProperty, moveGroupProperty, removeGroupProperty, setGroupLength} from '../GroupProperty';
+import {Block} from '../../block/Block.js';
+import {Flow} from '../../block/Flow.js';
+import '../../functions/math/Arithmetic.js';
+import {insertGroupProperty, moveGroupProperty, removeGroupProperty, setGroupLength} from '../GroupProperty.js';
 
 describe('GroupProperty', function () {
   it('setGroupLength', function () {

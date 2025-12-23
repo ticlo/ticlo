@@ -1,5 +1,5 @@
 import {expect} from 'vitest';
-import {SecretCipher} from '../SecretCipher';
+import {SecretCipher} from '../SecretCipher.js';
 
 describe('SecretCipher', function () {
   it('encode length', function () {

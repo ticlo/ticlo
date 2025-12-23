@@ -1,10 +1,10 @@
 import React from 'react';
-import {ValueEditorProps} from '../../property/value/ValueEditorBase';
+import {ValueEditorProps} from '../../property/value/ValueEditorBase.js';
 import {DateTime} from 'luxon';
-import {TimePicker} from '../../component/DateTimePicker';
-import {LocalizedPropertyName, t} from '../../component/LocalizedLabel';
+import {TimePicker} from '../../component/DateTimePicker.js';
+import {LocalizedPropertyName, t} from '../../component/LocalizedLabel.js';
 import {InputNumber, Select} from 'antd';
-import {SchedulerConfig} from '@ticlo/core/functions/date/Schedule/SchedulerEvent';
+import {SchedulerConfig} from '@ticlo/core/functions/date/Schedule/SchedulerEvent.js';
 import type {FunctionDesc} from '@ticlo/core';
 
 const funcDesc: FunctionDesc = {name: 'create-schedule'};

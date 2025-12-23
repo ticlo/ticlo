@@ -1,11 +1,11 @@
 import React from 'react';
 import {Button} from 'antd';
-import SaveIcon from '@ant-design/icons/SaveOutlined';
-import CloseIcon from '@ant-design/icons/CloseOutlined';
+import {SaveOutlined as SaveIcon} from '@ant-design/icons';
+import {CloseOutlined as CloseIcon} from '@ant-design/icons';
 import {DockContext, DockContextType} from 'rc-dock';
-import {LazyUpdateComponent} from '../../component/LazyUpdateComponent';
-import {ClientConn, ValueSubscriber, ValueUpdate} from '@ticlo/core/editor';
-import {TabData} from 'rc-dock/src/DockData';
+import {LazyUpdateComponent} from '../../component/LazyUpdateComponent.js';
+import {ClientConn, ValueSubscriber, ValueUpdate} from '@ticlo/core/editor.js';
+import {TabData} from 'rc-dock/src/DockData.js';
 
 interface Props {
   conn: ClientConn;

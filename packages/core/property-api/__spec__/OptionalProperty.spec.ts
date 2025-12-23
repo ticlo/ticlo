@@ -1,7 +1,7 @@
 import {expect} from 'vitest';
 
-import {addOptionalProperty, moveOptionalProperty, removeOptionalProperty} from '../OptionalProperty';
-import {Flow} from '../../block/Flow';
+import {addOptionalProperty, moveOptionalProperty, removeOptionalProperty} from '../OptionalProperty.js';
+import {Flow} from '../../block/Flow.js';
 
 describe('Optional Property', function () {
   it('add remove OptionalProperty', function () {

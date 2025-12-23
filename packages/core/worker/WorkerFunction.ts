@@ -1,15 +1,15 @@
-import {BaseFunction, StatefulFunction} from '../block/BlockFunction';
-import {FunctionDesc, getDefaultDataFromCustom, PropDesc, PropGroupDesc} from '../block/Descriptor';
-import {BlockConfig, BlockIO} from '../block/BlockProperty';
-import {Flow, Root} from '../block/Flow';
-import {Event, EventType} from '../block/Event';
-import {DataMap} from '../util/DataTypes';
-import {RepeaterWorker, WorkerFlow} from './WorkerFlow';
-import {FlowStorage} from '../block/Storage';
-import {deepEqual} from '../util/Compare';
-import {Functions} from '../block/Functions';
-import {Block, BlockChildWatch} from '../block/Block';
-import {WorkerControl, type WorkerHost} from './WorkerControl';
+import {BaseFunction, StatefulFunction} from '../block/BlockFunction.js';
+import {FunctionDesc, getDefaultDataFromCustom, PropDesc, PropGroupDesc} from '../block/Descriptor.js';
+import {BlockConfig, BlockIO} from '../block/BlockProperty.js';
+import {Flow, Root} from '../block/Flow.js';
+import {Event, EventType} from '../block/Event.js';
+import {DataMap} from '../util/DataTypes.js';
+import {RepeaterWorker, WorkerFlow} from './WorkerFlow.js';
+import {FlowStorage} from '../block/Storage.js';
+import {deepEqual} from '../util/Compare.js';
+import {Functions} from '../block/Functions.js';
+import {Block, BlockChildWatch} from '../block/Block.js';
+import {WorkerControl, type WorkerHost} from './WorkerControl.js';
 
 export enum WorkerMode {
   ON = 'on',

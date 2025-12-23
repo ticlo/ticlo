@@ -1,6 +1,6 @@
 import React, {useContext, useMemo, createContext, ReactNode} from 'react';
 import {DataMap, Flow, Root} from '@ticlo/core';
-import {Uid} from '@ticlo/core/util/Uid';
+import {Uid} from '@ticlo/core/util/Uid.js';
 
 const tempFlowId = new Uid();
 

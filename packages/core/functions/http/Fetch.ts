@@ -1,10 +1,10 @@
 import axios, {AxiosRequestConfig, AxiosRequestHeaders, AxiosResponse, CanceledError, ResponseType} from 'axios';
-import {PureFunction, StatefulFunction, BaseFunction} from '../../block/BlockFunction';
-import {ErrorEvent, EventType, WAIT} from '../../block/Event';
-import {Functions} from '../../block/Functions';
-import {defaultConfigs, BlockMode} from '../../block/Descriptor';
-import {httpRequest, type HttpClient} from './HttpClient';
-import {DataMap} from '../../util/DataTypes';
+import {PureFunction, StatefulFunction, BaseFunction} from '../../block/BlockFunction.js';
+import {ErrorEvent, EventType, WAIT} from '../../block/Event.js';
+import {Functions} from '../../block/Functions.js';
+import {defaultConfigs, BlockMode} from '../../block/Descriptor.js';
+import {httpRequest, type HttpClient} from './HttpClient.js';
+import {DataMap} from '../../util/DataTypes.js';
 
 export type RouteMethod = 'GET' | 'POST' | 'PUT' | 'DELETE';
 const methodList: RouteMethod[] = ['GET', 'POST', 'PUT', 'DELETE'];

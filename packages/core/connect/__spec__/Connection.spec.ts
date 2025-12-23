@@ -1,21 +1,21 @@
 import {expect} from 'vitest';
-import {Block} from '../../block/Block';
-import {Flow, FlowFolder, Root} from '../../block/Flow';
-import {makeLocalConnection} from '../LocalConnection';
-import '../../functions/math/Arithmetic';
-import '../../functions/Categories';
-import {AsyncClientPromise} from './AsyncClientPromise';
-import {VoidListeners, TestFunctionRunner} from '../../block/__spec__/TestFunction';
-import {FunctionDesc} from '../../block/Descriptor';
-import {shouldHappen, shouldReject} from '../../util/test-util';
-import {JsFunction} from '../../functions/script/Js';
-import {Functions} from '../../block/Functions';
-import {DataMap, isDataTruncated} from '../../util/DataTypes';
-import {WorkerFunctionGen} from '../../worker/WorkerFunctionGen';
-import {FlowEditor} from '../../worker/FlowEditor';
-import {WorkerFlow} from '../../worker/WorkerFlow';
-import {Logger} from '../../util/Logger';
-import {ValueState} from '../ClientRequests';
+import {Block} from '../../block/Block.js';
+import {Flow, FlowFolder, Root} from '../../block/Flow.js';
+import {makeLocalConnection} from '../LocalConnection.js';
+import '../../functions/math/Arithmetic.js';
+import '../../functions/Categories.js';
+import {AsyncClientPromise} from './AsyncClientPromise.js';
+import {VoidListeners, TestFunctionRunner} from '../../block/__spec__/TestFunction.js';
+import {FunctionDesc} from '../../block/Descriptor.js';
+import {shouldHappen, shouldReject} from '../../util/test-util.js';
+import {JsFunction} from '../../functions/script/Js.js';
+import {Functions} from '../../block/Functions.js';
+import {DataMap, isDataTruncated} from '../../util/DataTypes.js';
+import {WorkerFunctionGen} from '../../worker/WorkerFunctionGen.js';
+import {FlowEditor} from '../../worker/FlowEditor.js';
+import {WorkerFlow} from '../../worker/WorkerFlow.js';
+import {Logger} from '../../util/Logger.js';
+import {ValueState} from '../ClientRequests.js';
 
 describe('Connection', function () {
   it('get', async function () {

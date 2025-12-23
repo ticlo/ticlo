@@ -1,6 +1,6 @@
 import React from 'react';
 import {Button, Empty, Tooltip} from 'antd';
-import PlusSquareIcon from '@ant-design/icons/PlusSquareOutlined';
+import {PlusSquareOutlined as PlusSquareIcon} from '@ant-design/icons';
 import {
   attributeList,
   ClientConn,
@@ -14,18 +14,18 @@ import {
   PropGroupDesc,
   deepEqual,
   mapConfigDesc,
-} from '@ticlo/core/editor';
-import {PropertyEditor} from './PropertyEditor';
-import {GroupEditor} from './GroupEditor';
-import {MultiSelectComponent, MultiSelectLoader} from './MultiSelectComponent';
-import {ExpandIcon, ExpandState} from '../component/Tree';
-import {AddCustomPropertyMenu} from './AddCustomProperty';
-import {Popup} from '../component/ClickPopup';
-import {BlockWidget} from '../block/view/BlockWidget';
-import {LazyUpdateComponent, LazyUpdateSubscriber} from '../component/LazyUpdateComponent';
-import {OptionalPropertyList} from './OptionalPropertyList';
-import {CustomPropertyReorder} from './PropertyReorder';
-import {t} from '../component/LocalizedLabel';
+} from '@ticlo/core/editor.js';
+import {PropertyEditor} from './PropertyEditor.js';
+import {GroupEditor} from './GroupEditor.js';
+import {MultiSelectComponent, MultiSelectLoader} from './MultiSelectComponent.js';
+import {ExpandIcon, ExpandState} from '../component/Tree.js';
+import {AddCustomPropertyMenu} from './AddCustomProperty.js';
+import {Popup} from '../component/ClickPopup.js';
+import {BlockWidget} from '../block/view/BlockWidget.js';
+import {LazyUpdateComponent, LazyUpdateSubscriber} from '../component/LazyUpdateComponent.js';
+import {OptionalPropertyList} from './OptionalPropertyList.js';
+import {CustomPropertyReorder} from './PropertyReorder.js';
+import {t} from '../component/LocalizedLabel.js';
 
 function descToEditor(conn: ClientConn, paths: string[], funcDesc: FunctionDesc, propDesc: PropDesc) {
   return (

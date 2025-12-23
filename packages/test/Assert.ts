@@ -10,12 +10,12 @@ import {
   NO_EMIT,
   BaseFunction,
 } from '@ticlo/core';
-import {deepEqual} from '@ticlo/core/util/Compare';
-import {isPrimitiveType} from '@ticlo/core/util/DataTypes';
-import {updateObjectValue} from '@ticlo/core/property-api/ObjectValue';
-import {FlowTestCase} from './FlowTestCase';
-import {TestState} from './Interface';
-import {getInputsArray} from '@ticlo/core/block/FunctonData';
+import {deepEqual} from '@ticlo/core/util/Compare.js';
+import {isPrimitiveType} from '@ticlo/core/util/DataTypes.js';
+import {updateObjectValue} from '@ticlo/core/property-api/ObjectValue.js';
+import {FlowTestCase} from './FlowTestCase.js';
+import {TestState} from './Interface.js';
+import {getInputsArray} from '@ticlo/core/block/FunctonData.js';
 
 const EXPECT = 'expect';
 const ACTUAL = 'actual';

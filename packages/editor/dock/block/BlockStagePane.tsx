@@ -1,14 +1,14 @@
 import React, {KeyboardEvent, ReactNode} from 'react';
 import {Button, Tooltip} from 'antd';
-import MenuUnfoldIcon from '@ant-design/icons/MenuUnfoldOutlined';
-import MenuFoldIcon from '@ant-design/icons/MenuFoldOutlined';
-import {BlockStage, PropertyList} from '../..';
+import {MenuUnfoldOutlined as MenuUnfoldIcon} from '@ant-design/icons';
+import {MenuFoldOutlined as MenuFoldIcon} from '@ant-design/icons';
+import {BlockStage, PropertyList} from '../../index.js';
 import {Divider, TabData} from 'rc-dock';
-import {arrayEqual, ClientConn, getDisplayName, ValueSubscriber, ValueUpdate} from '@ticlo/core/editor';
-import {BlockStageTabButton} from './BlockStageTabButton';
-import {LazyUpdateComponent} from '../../component/LazyUpdateComponent';
-import {TooltipIconButton} from '../../component/TooltipIconButton';
-import {LocalizedNodeName, t} from '../../component/LocalizedLabel';
+import {arrayEqual, ClientConn, getDisplayName, ValueSubscriber, ValueUpdate} from '@ticlo/core/editor.js';
+import {BlockStageTabButton} from './BlockStageTabButton.js';
+import {LazyUpdateComponent} from '../../component/LazyUpdateComponent.js';
+import {TooltipIconButton} from '../../component/TooltipIconButton.js';
+import {LocalizedNodeName, t} from '../../component/LocalizedLabel.js';
 
 interface Props {
   conn: ClientConn;

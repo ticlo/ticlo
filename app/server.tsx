@@ -1,13 +1,13 @@
 import {Block, FunctionDesc, Root} from '@ticlo/core';
-import {makeLocalConnection} from '@ticlo/core/connect/LocalConnection';
-import {data} from './sample-data/data';
-import reactData from './sample-data/react';
-import './sample-blocks';
-import {Logger} from '@ticlo/core/util/Logger';
-import {WorkerFunctionGen} from '@ticlo/core/worker/WorkerFunctionGen';
-import '../packages/react';
+import {makeLocalConnection} from '@ticlo/core/connect/LocalConnection.js';
+import {data} from './sample-data/data.js';
+import reactData from './sample-data/react.js';
+import './sample-blocks.js';
+import {Logger} from '@ticlo/core/util/Logger.js';
+import {WorkerFunctionGen} from '@ticlo/core/worker/WorkerFunctionGen.js';
+import '../packages/react/index.js';
 import {FrameServerConnection} from '@ticlo/html';
-import {IndexDbFlowStorage} from '@ticlo/html/storage/IndexDbStorage';
+import {IndexDbFlowStorage} from '@ticlo/html/storage/IndexDbStorage.js';
 
 WorkerFunctionGen.registerType({'#is': ''}, {name: 'class1'}, 'WorkerEditor');
 

@@ -3,15 +3,15 @@ import {
   RouteFunction,
   RouteMethod,
   RouteService,
-} from '@ticlo/core/functions/web-server/RouteFunction';
+} from '@ticlo/core/functions/web-server/RouteFunction.js';
 import {Functions, type Block} from '@ticlo/core';
-import {BaseFunction, StatefulFunction} from '@ticlo/core/block/BlockFunction';
+import {BaseFunction, StatefulFunction} from '@ticlo/core/block/BlockFunction.js';
 import {FastifyRequest, FastifyReply} from 'fastify';
-import {decodeReviver, encode} from '@ticlo/core/util/Serialize';
-import {escapedObject} from '@ticlo/core/util/EscapedObject';
-import {Uid} from '@ticlo/core/util/Uid';
-import {HttpRequest} from './HttpRequest';
-import {Resolver} from '@ticlo/core/block/Resolver';
+import {decodeReviver, encode} from '@ticlo/core/util/Serialize.js';
+import {escapedObject} from '@ticlo/core/util/EscapedObject.js';
+import {Uid} from '@ticlo/core/util/Uid.js';
+import {HttpRequest} from './HttpRequest.js';
+import {Resolver} from '@ticlo/core/block/Resolver.js';
 
 const serviceId: Uid = new Uid();
 export const requestHandlerSymbol = Symbol('requestHandler');

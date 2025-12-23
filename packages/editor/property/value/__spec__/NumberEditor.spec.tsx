@@ -1,13 +1,13 @@
 import {expect} from 'vitest';
 import {simulate} from 'simulate-event';
 import React from 'react';
-import {removeLastTemplate, loadTemplate, querySingle} from '../../../util/test-util';
-import {initEditor} from '../../../index';
-import {NumberEditor} from '../NumberEditor';
-import {shouldHappen} from '@ticlo/core/util/test-util';
+import {removeLastTemplate, loadTemplate, querySingle} from '../../../util/test-util.js';
+import {initEditor} from '../../../index.js';
+import {NumberEditor} from '../NumberEditor.js';
+import {shouldHappen} from '@ticlo/core/util/test-util.js';
 import {blankFuncDesc, blankPropDesc, FunctionDesc, PropDesc} from '@ticlo/core';
-import {simulateInput} from './simulate-input';
-import {DateEditor} from '../DateEditor';
+import {simulateInput} from './simulate-input.js';
+import {DateEditor} from '../DateEditor.js';
 
 describe('NumberEditor', function () {
   beforeEach(async function () {

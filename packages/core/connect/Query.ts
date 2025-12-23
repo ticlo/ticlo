@@ -1,6 +1,6 @@
-import {Block} from '../block/Block';
-import {DataMap} from '../util/DataTypes';
-import {deepEqual} from '../util/Compare';
+import {Block} from '../block/Block.js';
+import {DataMap} from '../util/DataTypes.js';
+import {deepEqual} from '../util/Compare.js';
 
 function toRegex(str: string): RegExp {
   const reg = str.replace(/^\/?/, '').replace(/\/?$/, '');

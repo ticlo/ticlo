@@ -1,17 +1,17 @@
 import React from 'react';
 import {Button, Tooltip} from 'antd';
 import {ButtonProps} from 'antd';
-import {TooltipPlacement} from 'antd/es/tooltip';
-import {ClientConn, ValueSubscriber} from '@ticlo/core/connect/ClientConn';
-import {LazyUpdateComponent, LazyUpdateSubscriber} from './LazyUpdateComponent';
-import {ValueUpdate} from '@ticlo/core/connect/ClientRequests';
+import type {TooltipProps} from 'antd';
+import {ClientConn, ValueSubscriber} from '@ticlo/core/connect/ClientConn.js';
+import {LazyUpdateComponent, LazyUpdateSubscriber} from './LazyUpdateComponent.js';
+import {ValueUpdate} from '@ticlo/core/connect/ClientRequests.js';
 
 interface Props extends ButtonProps {
   conn: ClientConn;
   path?: string;
   mapEnabled?: (value: any) => boolean;
   tooltip: React.ReactNode;
-  tooltipPlacement?: TooltipPlacement;
+  tooltipPlacement?: TooltipProps['placement'];
 }
 
 interface State {

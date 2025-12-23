@@ -1,9 +1,9 @@
 import {expect} from 'vitest';
-import {Flow, Root} from '../../block/Flow';
-import {WorkerFunctionGen} from '../WorkerFunctionGen';
-import {TestFunctionRunner} from '../../block/__spec__/TestFunction';
-import '../../functions/math/Arithmetic';
-import {DataMap} from '../../util/DataTypes';
+import {Flow, Root} from '../../block/Flow.js';
+import {WorkerFunctionGen} from '../WorkerFunctionGen.js';
+import {TestFunctionRunner} from '../../block/__spec__/TestFunction.js';
+import '../../functions/math/Arithmetic.js';
+import {DataMap} from '../../util/DataTypes.js';
 
 describe('WorkerFunction', function () {
   it('basic', function () {

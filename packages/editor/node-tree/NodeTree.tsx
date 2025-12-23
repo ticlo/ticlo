@@ -1,9 +1,9 @@
 import React from 'react';
-import {ExpandState} from '../component/Tree';
-import VirtualList from '../component/Virtual';
-import {ClientConn} from '@ticlo/core/editor';
-import {NodeTreeItem, NodeTreeRenderer} from './NodeRenderer';
-import {LazyUpdateComponent} from '../component/LazyUpdateComponent';
+import {ExpandState} from '../component/Tree.js';
+import VirtualList from '../component/Virtual.js';
+import {ClientConn} from '@ticlo/core/editor.js';
+import {NodeTreeItem, NodeTreeRenderer} from './NodeRenderer.js';
+import {LazyUpdateComponent} from '../component/LazyUpdateComponent.js';
 
 interface Props {
   conn: ClientConn;

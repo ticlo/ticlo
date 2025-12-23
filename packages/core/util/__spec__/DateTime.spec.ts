@@ -1,5 +1,5 @@
 import {DateTime} from 'luxon';
-import * as DateTimeUtil from '../DateTime';
+import * as DateTimeUtil from '../DateTime.js';
 
 describe('DateTime', () => {
   describe('formatDate', () => {

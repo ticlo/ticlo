@@ -1,9 +1,9 @@
 import {expect} from 'vitest';
-import '../../functions/math/Arithmetic';
-import {WorkerFlow} from '../../worker/WorkerFlow';
-import {copyProperties, deleteProperties, pasteProperties} from '../CopyPaste';
-import {DataMap} from '../../util/DataTypes';
-import type {Block} from '../../block/Block';
+import '../../functions/math/Arithmetic.js';
+import {WorkerFlow} from '../../worker/WorkerFlow.js';
+import {copyProperties, deleteProperties, pasteProperties} from '../CopyPaste.js';
+import {DataMap} from '../../util/DataTypes.js';
+import type {Block} from '../../block/Block.js';
 
 describe('Copy Paste', function () {
   const data = {

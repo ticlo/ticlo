@@ -1,8 +1,8 @@
 import React from 'react';
-import {ClientConn, DataMap, deepEqual, forAllPathsBetween, ValueSubscriber, ValueUpdate} from '@ticlo/core/editor';
+import {ClientConn, DataMap, deepEqual, forAllPathsBetween, ValueSubscriber, ValueUpdate} from '@ticlo/core/editor.js';
 import {DragState} from 'rc-dock';
-import {BlockItem, FieldItem, Stage} from './Field';
-import {LazyUpdateComponent} from '../component/LazyUpdateComponent';
+import {BlockItem, FieldItem, Stage} from './Field.js';
+import {LazyUpdateComponent} from '../component/LazyUpdateComponent.js';
 
 export interface StagePropsBase {
   conn: ClientConn;

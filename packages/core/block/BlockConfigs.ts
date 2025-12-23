@@ -1,7 +1,7 @@
-import {BlockConfig, BlockIO, BlockProperty} from './BlockProperty';
-import {Block, InputsBlock, OutputsBlock} from './Block';
-import type {Flow} from './Flow';
-import {Namespace} from './Namespace';
+import {BlockConfig, BlockIO, BlockProperty} from './BlockProperty.js';
+import {Block, InputsBlock, OutputsBlock} from './Block.js';
+import type {Flow} from './Flow.js';
+import {Namespace} from './Namespace.js';
 
 class BlockFuncIdConfig extends BlockProperty {
   constructor(block: Block, name: string) {

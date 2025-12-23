@@ -1,10 +1,10 @@
 import {expect} from 'vitest';
 import {simulate} from 'simulate-event';
 import React from 'react';
-import {removeLastTemplate, loadTemplate, querySingle, fakeMouseEvent} from '../../../util/test-util';
-import {initEditor} from '../../../index';
-import {DateEditor} from '../DateEditor';
-import {shouldHappen, waitTick} from '@ticlo/core/util/test-util';
+import {removeLastTemplate, loadTemplate, querySingle, fakeMouseEvent} from '../../../util/test-util.js';
+import {initEditor} from '../../../index.js';
+import {DateEditor} from '../DateEditor.js';
+import {shouldHappen, waitTick} from '@ticlo/core/util/test-util.js';
 import {blankFuncDesc, blankPropDesc, PropDesc} from '@ticlo/core';
 import {DateTime} from 'luxon';
 

@@ -1,5 +1,5 @@
 import {expect} from 'vitest';
-import {Flow, Root} from '../Flow';
+import {Flow, Root} from '../Flow.js';
 
 describe('LibConfig', function () {
   it('get #lib value', function () {

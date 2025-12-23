@@ -1,12 +1,12 @@
 import {expect} from 'vitest';
 import {simulate} from 'simulate-event';
 import React from 'react';
-import {removeLastTemplate, loadTemplate, querySingle} from '../../../util/test-util';
-import {initEditor} from '../../../index';
-import {ToggleEditor} from '../ToggleEditor';
-import {shouldHappen} from '@ticlo/core/util/test-util';
+import {removeLastTemplate, loadTemplate, querySingle} from '../../../util/test-util.js';
+import {initEditor} from '../../../index.js';
+import {ToggleEditor} from '../ToggleEditor.js';
+import {shouldHappen} from '@ticlo/core/util/test-util.js';
 import {blankFuncDesc, blankPropDesc, PropDesc} from '@ticlo/core';
-import {DateEditor} from '../DateEditor';
+import {DateEditor} from '../DateEditor.js';
 
 describe('ToggleEditor', function () {
   beforeEach(async function () {

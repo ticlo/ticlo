@@ -1,8 +1,8 @@
 import {expect} from 'vitest';
-import {Flow} from '../Flow';
-import {FlowHistory} from '../FlowHistory';
-import {shouldHappen} from '../../util/test-util';
-import {WorkerFlow} from '../../worker/WorkerFlow';
+import {Flow} from '../Flow.js';
+import {FlowHistory} from '../FlowHistory.js';
+import {shouldHappen} from '../../util/test-util.js';
+import {WorkerFlow} from '../../worker/WorkerFlow.js';
 
 describe('FlowHistory', function () {
   it('undo redo', function () {

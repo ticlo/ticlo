@@ -1,9 +1,9 @@
 import React from 'react';
 import {Modal, Button, Space} from 'antd';
 import {DataMap, FunctionDesc, PropDesc} from '@ticlo/core';
-import {typeEditorMap} from '../property/value';
-import {ReadonlyEditor} from '../property/value/ReadonlyEditor';
-import {LocalizedPropertyName} from '../component/LocalizedLabel';
+import {typeEditorMap} from '../property/value/index.js';
+import {ReadonlyEditor} from '../property/value/ReadonlyEditor.js';
+import {LocalizedPropertyName} from '../component/LocalizedLabel.js';
 
 interface Props {
   title: React.ReactNode | string;

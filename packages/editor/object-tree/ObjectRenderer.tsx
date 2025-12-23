@@ -1,10 +1,10 @@
 import React from 'react';
 
-import {ExpandIcon, ExpandState, TreeItem} from '../component/Tree';
-import {PureDataRenderer} from '../component/DataRenderer';
+import {ExpandIcon, ExpandState, TreeItem} from '../component/Tree.js';
+import {PureDataRenderer} from '../component/DataRenderer.js';
 import {DragDropDiv, DragState} from 'rc-dock';
 import {TRUNCATED, encodeDisplay} from '@ticlo/core';
-import {displayNumber} from '../util/Types';
+import {displayNumber} from '../util/Types.js';
 
 export class ObjectTreeItem extends TreeItem<ObjectTreeItem> {
   childPrefix: string;

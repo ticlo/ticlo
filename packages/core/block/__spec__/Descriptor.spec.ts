@@ -1,6 +1,6 @@
 import {expect} from 'vitest';
-import '../../functions/math/Arithmetic';
-import '../../functions/data/State';
+import '../../functions/math/Arithmetic.js';
+import '../../functions/data/State.js';
 import {
   blankPropDesc,
   buildPropDescCache,
@@ -13,8 +13,8 @@ import {
   mapConfigDesc,
   PropDesc,
   PropGroupDesc,
-} from '../Descriptor';
-import {Functions} from '../Functions';
+} from '../Descriptor.js';
+import {Functions} from '../Functions.js';
 
 describe('Descriptor', function () {
   it('mapConfigDesc', function () {

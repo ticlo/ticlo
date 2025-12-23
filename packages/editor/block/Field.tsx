@@ -1,6 +1,6 @@
 import React, {MouseEventHandler} from 'react';
-import {WireItem} from './Wire';
-import {DataRendererItem, PureDataRenderer} from '../component/DataRenderer';
+import {WireItem} from './Wire.js';
+import {DataRendererItem, PureDataRenderer} from '../component/DataRenderer.js';
 import {
   resolvePath,
   ClientConn,
@@ -17,15 +17,15 @@ import {
   ValueSubscriber,
   voidFunction,
   getDisplayName,
-} from '@ticlo/core/editor';
-import {TIcon} from '../icon/Icon';
+} from '@ticlo/core/editor.js';
+import {TIcon} from '../icon/Icon.js';
 import {DragDropDiv, DragState} from 'rc-dock';
-import * as DragManager from 'rc-dock/src/dragdrop/DragManager';
-import {FieldValue} from './FieldValue';
+import * as DragManager from 'rc-dock/src/dragdrop/DragManager.js';
+import {FieldValue} from './FieldValue.js';
 import {isBindable} from '@ticlo/core';
-import {LocalizedPropertyName} from '../component/LocalizedLabel';
-import {PropertyDropdown} from '../popup/PropertyDropdown';
-import {BlockDropdown} from '../popup/BlockDropdown';
+import {LocalizedPropertyName} from '../component/LocalizedLabel.js';
+import {PropertyDropdown} from '../popup/PropertyDropdown.js';
+import {BlockDropdown} from '../popup/BlockDropdown.js';
 
 export interface Stage {
   getBlock(path: string): BlockItem;

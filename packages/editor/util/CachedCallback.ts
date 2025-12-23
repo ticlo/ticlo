@@ -1,4 +1,4 @@
-import {deepEqual, shallowEqual} from '@ticlo/core/util/Compare';
+import {deepEqual, shallowEqual} from '@ticlo/core/util/Compare.js';
 
 // similar result as React.useMemo
 export function cacheCall<InType, OutType>(

@@ -1,10 +1,10 @@
 import React from 'react';
 import {Button} from 'antd';
-import PlusSquareIcon from '@ant-design/icons/PlusSquareOutlined';
-import {ValueEditorProps} from './ValueEditorBase';
-import {renderValue} from '../../component/renderValue';
+import {PlusSquareOutlined as PlusSquareIcon} from '@ant-design/icons';
+import {ValueEditorProps} from './ValueEditorBase.js';
+import {renderValue} from '../../component/renderValue.js';
 import {getDefaultFuncData} from '@ticlo/core';
-import {TicloLayoutContext, TicloLayoutContextType} from '../../component/LayoutContext';
+import {TicloLayoutContext, TicloLayoutContextType} from '../../component/LayoutContext.js';
 
 export class ObjectEditor extends React.PureComponent<ValueEditorProps, any> {
   static contextType = TicloLayoutContextType;

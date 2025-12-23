@@ -1,8 +1,8 @@
-import './CreateDate';
-import './ParseDate';
-import './FormatDate';
-import './ModifyDate';
+import './CreateDate.js';
+import './ParseDate.js';
+import './FormatDate.js';
+import './ModifyDate.js';
 
-import './GenerateRange';
+import './GenerateRange.js';
 
-import './Schedule/Scheduler';
+import './Schedule/Scheduler.js';

@@ -1,15 +1,15 @@
 import {expect} from 'vitest';
-import {Root} from '../../block/Flow';
-import {makeLocalConnection} from '../LocalConnection';
-import {AsyncClientPromise} from './AsyncClientPromise';
-import {VoidListeners, TestFunctionRunner} from '../../block/__spec__/TestFunction';
-import {FunctionDesc} from '../../block/Descriptor';
-import {shouldHappen} from '../../util/test-util';
-import {JsFunction} from '../../functions/script/Js';
-import {Functions} from '../../block/Functions';
-import {DataMap} from '../../util/DataTypes';
-import {BaseFunction} from '../../block/BlockFunction';
-import {addTestTypes, removeTestTypes} from './BulkTypes';
+import {Root} from '../../block/Flow.js';
+import {makeLocalConnection} from '../LocalConnection.js';
+import {AsyncClientPromise} from './AsyncClientPromise.js';
+import {VoidListeners, TestFunctionRunner} from '../../block/__spec__/TestFunction.js';
+import {FunctionDesc} from '../../block/Descriptor.js';
+import {shouldHappen} from '../../util/test-util.js';
+import {JsFunction} from '../../functions/script/Js.js';
+import {Functions} from '../../block/Functions.js';
+import {DataMap} from '../../util/DataTypes.js';
+import {BaseFunction} from '../../block/BlockFunction.js';
+import {addTestTypes, removeTestTypes} from './BulkTypes.js';
 
 describe('Connection Message Frames', function () {
   it('desc frames', async function () {

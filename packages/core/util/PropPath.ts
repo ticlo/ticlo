@@ -1,6 +1,6 @@
-import {Block} from '../block/Block';
-import {Flow, FlowFolder, Root} from '../block/Flow';
-import {BlockProperty, HelperProperty} from '../block/BlockProperty';
+import {Block} from '../block/Block.js';
+import {Flow, FlowFolder, Root} from '../block/Flow.js';
+import {BlockProperty, HelperProperty} from '../block/BlockProperty.js';
 
 function propRelativeImpl(
   flow: Flow,

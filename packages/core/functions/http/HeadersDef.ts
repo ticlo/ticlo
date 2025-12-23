@@ -1,4 +1,4 @@
-import {PropDesc} from '../../block/Descriptor';
+import {PropDesc} from '../../block/Descriptor.js';
 
 export default {
   'Accept': {name: 'Accept', type: 'string'},

@@ -1,9 +1,9 @@
 import React from 'react';
 import {Button, Tooltip, Dropdown, Input, Checkbox} from 'antd';
-import DeleteIcon from '@ant-design/icons/DeleteOutlined';
-import EditIcon from '@ant-design/icons/EditOutlined';
-import LockIcon from '@ant-design/icons/LockOutlined';
-import LockFilledIcon from '@ant-design/icons/LockFilled';
+import {DeleteOutlined as DeleteIcon} from '@ant-design/icons';
+import {EditOutlined as EditIcon} from '@ant-design/icons';
+import {LockOutlined as LockIcon} from '@ant-design/icons';
+import {LockFilled as LockFilledIcon} from '@ant-design/icons';
 import {
   ClientConn,
   getOutputDesc,
@@ -17,16 +17,16 @@ import {
   DataMap,
   isBindable,
   getSubBlockFuncData,
-} from '@ticlo/core/editor';
-import {MultiSelectComponent, MultiSelectLoader} from './MultiSelectComponent';
+} from '@ticlo/core/editor.js';
+import {MultiSelectComponent, MultiSelectLoader} from './MultiSelectComponent.js';
 import {DragDrop, DragState} from 'rc-dock';
-import {ExpandIcon} from '../component/Tree';
-import {PropertyList} from './PropertyList';
-import {ServiceEditor} from './value/ServiceEditor';
-import {ReadonlyEditor} from './value/ReadonlyEditor';
-import {LocalizedPropertyName, t} from '../component/LocalizedLabel';
-import {PropertyDropdown} from '../popup/PropertyDropdown';
-import {typeEditorMap} from './value';
+import {ExpandIcon} from '../component/Tree.js';
+import {PropertyList} from './PropertyList.js';
+import {ServiceEditor} from './value/ServiceEditor.js';
+import {ReadonlyEditor} from './value/ReadonlyEditor.js';
+import {LocalizedPropertyName, t} from '../component/LocalizedLabel.js';
+import {PropertyDropdown} from '../popup/PropertyDropdown.js';
+import {typeEditorMap} from './value/index.js';
 
 class PropertyLoader extends MultiSelectLoader<PropertyEditor> {
   name: string;

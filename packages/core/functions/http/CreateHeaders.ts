@@ -1,9 +1,9 @@
-import {BlockConfig} from '../../block/BlockProperty';
-import {BaseFunction} from '../../block/BlockFunction';
-import {Functions} from '../../block/Functions';
-import {defaultConfigs, PropDesc} from '../../block/Descriptor';
-import {CreateObjectFunctionOptional} from '../data/CreateObject';
-import HeadersDef from './HeadersDef';
+import {BlockConfig} from '../../block/BlockProperty.js';
+import {BaseFunction} from '../../block/BlockFunction.js';
+import {Functions} from '../../block/Functions.js';
+import {defaultConfigs, PropDesc} from '../../block/Descriptor.js';
+import {CreateObjectFunctionOptional} from '../data/CreateObject.js';
+import HeadersDef from './HeadersDef.js';
 
 Functions.add(
   CreateObjectFunctionOptional,

@@ -1,12 +1,12 @@
 import React from 'react';
-import {ExpandIcon} from '../component/Tree';
-import {TIcon} from '../icon/Icon';
+import {ExpandIcon} from '../component/Tree.js';
+import {TIcon} from '../icon/Icon.js';
 import {blankFuncDesc, FunctionDesc} from '@ticlo/core';
-import {FunctionView} from './FunctionView';
-import {FunctionTreeItem} from './FunctionTreeItem';
-import {PureDataRenderer} from '../component/DataRenderer';
-import {getFuncStyleFromDesc} from '../util/BlockColors';
-import {LocalizedFunctionName} from '../component/LocalizedLabel';
+import {FunctionView} from './FunctionView.js';
+import {FunctionTreeItem} from './FunctionTreeItem.js';
+import {PureDataRenderer} from '../component/DataRenderer.js';
+import {getFuncStyleFromDesc} from '../util/BlockColors.js';
+import {LocalizedFunctionName} from '../component/LocalizedLabel.js';
 
 interface Props {
   item: FunctionTreeItem;

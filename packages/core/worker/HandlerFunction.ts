@@ -1,14 +1,14 @@
-import {MapImpl, WorkerOutput} from './MapImpl';
-import {DataMap} from '../util/DataTypes';
-import {Block} from '../block/Block';
-import {Functions} from '../block/Functions';
-import {Event, EventType, WAIT, NO_EMIT} from '../block/Event';
+import {MapImpl, WorkerOutput} from './MapImpl.js';
+import {DataMap} from '../util/DataTypes.js';
+import {Block} from '../block/Block.js';
+import {Functions} from '../block/Functions.js';
+import {Event, EventType, WAIT, NO_EMIT} from '../block/Event.js';
 import Denque from 'denque';
-import {InfiniteQueue} from '../util/InfiniteQueue';
-import {DefaultTask, Task} from '../block/Task';
-import {RepeaterWorker} from './WorkerFlow';
-import {BlockMode, defaultConfigs} from '../block/Descriptor';
-import {WorkerControl} from './WorkerControl';
+import {InfiniteQueue} from '../util/InfiniteQueue.js';
+import {DefaultTask, Task} from '../block/Task.js';
+import {RepeaterWorker} from './WorkerFlow.js';
+import {BlockMode, defaultConfigs} from '../block/Descriptor.js';
+import {WorkerControl} from './WorkerControl.js';
 
 export class HandlerFunction extends MapImpl {
   _queue = new Denque<Task>();

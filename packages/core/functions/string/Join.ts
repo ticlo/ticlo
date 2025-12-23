@@ -1,6 +1,6 @@
-import {Functions} from '../../block/Functions';
-import {PureFunction} from '../../block/BlockFunction';
-import {getInputsArray} from '../../block/FunctonData';
+import {Functions} from '../../block/Functions.js';
+import {PureFunction} from '../../block/BlockFunction.js';
+import {getInputsArray} from '../../block/FunctonData.js';
 
 export class JoinFunction extends PureFunction {
   run(): any {

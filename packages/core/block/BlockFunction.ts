@@ -1,8 +1,8 @@
-import {BlockConfig, BlockIO, BlockProperty} from './BlockProperty';
-import {type Block} from './Block';
-import {EventType} from './Event';
-import {BlockMode} from './Descriptor';
-import {type FunctionData} from './FunctonData';
+import {BlockConfig, BlockIO, BlockProperty} from './BlockProperty.js';
+import {type Block} from './Block.js';
+import {EventType} from './Event.js';
+import {BlockMode} from './Descriptor.js';
+import {type FunctionData} from './FunctonData.js';
 
 export class BaseFunction<T extends FunctionData = FunctionData> {
   declare type?: string;

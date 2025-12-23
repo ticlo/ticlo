@@ -1,4 +1,4 @@
-import Validator from '../Validator';
+import Validator from '../Validator.js';
 
 describe('Validator', () => {
   describe('basic validation', () => {

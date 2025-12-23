@@ -1,7 +1,7 @@
 import {expect} from 'vitest';
-import '../Arithmetic';
-import {Block} from '../../../block/Block';
-import {Flow, Root} from '../../../block/Flow';
+import '../Arithmetic.js';
+import {Block} from '../../../block/Block.js';
+import {Flow, Root} from '../../../block/Flow.js';
 
 describe('Math', function () {
   it('basic add', function () {

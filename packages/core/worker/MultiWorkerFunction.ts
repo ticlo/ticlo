@@ -1,14 +1,14 @@
-import {Functions} from '../block/Functions';
-import {StatefulFunction} from '../block/BlockFunction';
-import {BlockIO, BlockProperty} from '../block/BlockProperty';
-import {Block, BlockChildWatch} from '../block/Block';
-import {DataMap} from '../util/DataTypes';
-import {Event, EventType} from '../block/Event';
-import {RepeaterWorker} from './WorkerFlow';
-import {Resolver} from '../block/Resolver';
-import {defaultConfigs} from '../block/Descriptor';
-import {FunctionOutput} from '../block/FunctonData';
-import {WorkerControl, type WorkerHost} from './WorkerControl';
+import {Functions} from '../block/Functions.js';
+import {StatefulFunction} from '../block/BlockFunction.js';
+import {BlockIO, BlockProperty} from '../block/BlockProperty.js';
+import {Block, BlockChildWatch} from '../block/Block.js';
+import {DataMap} from '../util/DataTypes.js';
+import {Event, EventType} from '../block/Event.js';
+import {RepeaterWorker} from './WorkerFlow.js';
+import {Resolver} from '../block/Resolver.js';
+import {defaultConfigs} from '../block/Descriptor.js';
+import {FunctionOutput} from '../block/FunctonData.js';
+import {WorkerControl, type WorkerHost} from './WorkerControl.js';
 
 class MultiWorkerOutput implements FunctionOutput {
   constructor(

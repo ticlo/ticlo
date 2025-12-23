@@ -1,9 +1,9 @@
-import {FunctionDesc, PropDesc, PropGroupDesc} from '../block/Descriptor';
-import {ClientCallbacks, ClientDescListener, SubscribeCallbacks, ValueUpdate} from './ClientRequests';
+import {FunctionDesc, PropDesc, PropGroupDesc} from '../block/Descriptor.js';
+import {ClientCallbacks, ClientDescListener, SubscribeCallbacks, ValueUpdate} from './ClientRequests.js';
 
-import {DataMap} from '../util/DataTypes';
-import {StreamDispatcher} from '../block/Dispatcher';
-import {Query} from './Query';
+import {DataMap} from '../util/DataTypes.js';
+import {StreamDispatcher} from '../block/Dispatcher.js';
+import {Query} from './Query.js';
 
 /**
  * interface for ClientConnect and its wrappers

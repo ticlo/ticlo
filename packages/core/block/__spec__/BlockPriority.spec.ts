@@ -1,6 +1,6 @@
 import {expect} from 'vitest';
-import {TestFunctionRunner} from './TestFunction';
-import {Flow, Root} from '../Flow';
+import {TestFunctionRunner} from './TestFunction.js';
+import {Flow, Root} from '../Flow.js';
 
 describe('BlockPriority', function () {
   beforeEach(() => {

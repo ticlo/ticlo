@@ -9,10 +9,10 @@ import {
   PropGroupDesc,
 } from '@ticlo/core';
 import React from 'react';
-import {TicloComp} from './TicloComp';
-import {htmlAttributes, htmlEventHandlers, optionalHtmlProperties} from './HtmlAttributes';
-import {BlockConfig} from '@ticlo/core/block/BlockProperty';
-import {getInputsArray} from '@ticlo/core/block/FunctonData';
+import {TicloComp} from './TicloComp.js';
+import {htmlAttributes, htmlEventHandlers, optionalHtmlProperties} from './HtmlAttributes.js';
+import {BlockConfig} from '@ticlo/core/block/BlockProperty.js';
+import {getInputsArray} from '@ticlo/core/block/FunctonData.js';
 
 export class HtmlElementFunction extends StatefulFunction {
   // _comp never changes, this prevents re-render of any parent component, TicloComp should handle all the changes internally

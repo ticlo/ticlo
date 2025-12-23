@@ -2,12 +2,12 @@ import Fastify from 'fastify';
 import yargs from 'yargs';
 import {hideBin} from 'yargs/helpers';
 import {Root} from '@ticlo/core';
-import '../../packages/test';
-import '../../packages/node';
-import {connectTiclo, routeTiclo, getEditorUrl} from '@ticlo/web-server/server';
-import {TestLoader} from '@ticlo/node/test-loader/TestLoader';
-import {TestRunner} from '@ticlo/test/TestRunner';
-import type {FlowTestGroup} from '@ticlo/test/FlowTestGroup';
+import '../../packages/test/index.js';
+import '../../packages/node/index.js';
+import {connectTiclo, routeTiclo, getEditorUrl} from '@ticlo/web-server/server.js';
+import {TestLoader} from '@ticlo/node/test-loader/TestLoader.js';
+import {TestRunner} from '@ticlo/test/TestRunner.js';
+import type {FlowTestGroup} from '@ticlo/test/FlowTestGroup.js';
 
 const packagesToTest = ['packages/core', 'packages/web-server', 'packages/node'];
 

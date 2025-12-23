@@ -1,11 +1,11 @@
-import {Functions} from '../block/Functions';
-import {BaseFunction, StatefulFunction} from '../block/BlockFunction';
-import {FunctionDesc, PropDesc, PropGroupDesc} from '../block/Descriptor';
-import {BlockIO} from '../block/BlockProperty';
-import {Flow} from '../block/Flow';
-import {DataMap} from '../util/DataTypes';
-import {WorkerFlow} from './WorkerFlow';
-import type {Block} from '../block/Block';
+import {Functions} from '../block/Functions.js';
+import {BaseFunction, StatefulFunction} from '../block/BlockFunction.js';
+import {FunctionDesc, PropDesc, PropGroupDesc} from '../block/Descriptor.js';
+import {BlockIO} from '../block/BlockProperty.js';
+import {Flow} from '../block/Flow.js';
+import {DataMap} from '../util/DataTypes.js';
+import {WorkerFlow} from './WorkerFlow.js';
+import type {Block} from '../block/Block.js';
 
 /**
  * WorkerFunction is the function wrapper for all custom functions

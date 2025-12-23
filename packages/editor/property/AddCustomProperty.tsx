@@ -1,11 +1,11 @@
 import React, {ChangeEvent} from 'react';
 import {Button, Input, Select, Form, Switch, InputNumber, Radio} from 'antd';
-import {PropDesc, PropGroupDesc, ValueType, endsWithNumberReg, ClientConn, translateEditor} from '@ticlo/core/editor';
-import {LazyUpdateComponent} from '../component/LazyUpdateComponent';
-import {FormInputItem, FormItem} from '../component/FormItem';
-import {t} from '../component/LocalizedLabel';
-import {TicloI18NConsumer, TicloLayoutContext, TicloLayoutContextType} from '../component/LayoutContext';
-import {cacheCall} from '../util/CachedCallback';
+import {PropDesc, PropGroupDesc, ValueType, endsWithNumberReg, ClientConn, translateEditor} from '@ticlo/core/editor.js';
+import {LazyUpdateComponent} from '../component/LazyUpdateComponent.js';
+import {FormInputItem, FormItem} from '../component/FormItem.js';
+import {t} from '../component/LocalizedLabel.js';
+import {TicloI18NConsumer, TicloLayoutContext, TicloLayoutContextType} from '../component/LayoutContext.js';
+import {cacheCall} from '../util/CachedCallback.js';
 
 const RadioButton = Radio.Button;
 const RadioGroup = Radio.Group;

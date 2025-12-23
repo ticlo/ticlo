@@ -1,11 +1,11 @@
-import {Block} from '../block/Block';
-import {DataMap, isDataMap} from '../util/DataTypes';
-import {BlockProperty} from '../block/BlockProperty';
-import {FlowWithShared, SharedBlock, SharedConfig} from '../block/SharedBlock';
-import {findPropertyForNewBlock} from './PropertyName';
-import {Flow} from '../block/Flow';
-import {addMapArray} from '../util/Map';
-import {cloneToLevel} from '../util/Clone';
+import {Block} from '../block/Block.js';
+import {DataMap, isDataMap} from '../util/DataTypes.js';
+import {BlockProperty} from '../block/BlockProperty.js';
+import {FlowWithShared, SharedBlock, SharedConfig} from '../block/SharedBlock.js';
+import {findPropertyForNewBlock} from './PropertyName.js';
+import {Flow} from '../block/Flow.js';
+import {addMapArray} from '../util/Map.js';
+import {cloneToLevel} from '../util/Clone.js';
 
 function getProperty(parent: Block, field: string, create = false): [BlockProperty, Block] {
   if (field.startsWith('#shared.')) {

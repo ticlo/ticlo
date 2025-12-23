@@ -1,15 +1,15 @@
 import React from 'react';
 import {Button, Input} from 'antd';
-import DownIcon from '@ant-design/icons/DownOutlined';
-import EditIcon from '@ant-design/icons/EditOutlined';
+import {DownOutlined as DownIcon} from '@ant-design/icons';
+import {EditOutlined as EditIcon} from '@ant-design/icons';
 import {DragDropDiv, DragState} from 'rc-dock';
-import {FunctionSelect} from '../../function-selector/FunctionSelector';
-import {Popup} from '../../component/ClickPopup';
-import {FunctionEditor} from './FunctionEditor';
+import {FunctionSelect} from '../../function-selector/FunctionSelector.js';
+import {Popup} from '../../component/ClickPopup.js';
+import {FunctionEditor} from './FunctionEditor.js';
 import {FunctionDesc} from '@ticlo/core';
-import {TicloLayoutContext, TicloLayoutContextType} from '../../component/LayoutContext';
-import {t} from '../../component/LocalizedLabel';
-import {defaultWorkerData} from '@ticlo/core/defaults/DefaultFlows';
+import {TicloLayoutContext, TicloLayoutContextType} from '../../component/LayoutContext.js';
+import {t} from '../../component/LocalizedLabel.js';
+import {defaultWorkerData} from '@ticlo/core/defaults/DefaultFlows.js';
 
 export class WorkerEditor extends FunctionEditor {
   static contextType = TicloLayoutContextType;

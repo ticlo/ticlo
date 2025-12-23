@@ -1,8 +1,8 @@
-import {Block} from '../block/Block';
-import {configDescs, PropDesc, PropGroupDesc} from '../block/Descriptor';
-import {Functions} from '../block/Functions';
-import {getPreNumber} from '../util/String';
-import {getInputsLength, MAX_GROUP_LENGTH} from '../block/FunctonData';
+import {Block} from '../block/Block.js';
+import {configDescs, PropDesc, PropGroupDesc} from '../block/Descriptor.js';
+import {Functions} from '../block/Functions.js';
+import {getPreNumber} from '../util/String.js';
+import {getInputsLength, MAX_GROUP_LENGTH} from '../block/FunctonData.js';
 
 const configList = Object.keys(configDescs).filter((str: string) => !str.endsWith(')'));
 

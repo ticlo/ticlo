@@ -1,5 +1,5 @@
 import Websocket from 'ws';
-import {ClientConnection} from '@ticlo/core/connect/ClientConnection';
+import {ClientConnection} from '@ticlo/core/connect/ClientConnection.js';
 import {DataMap, Logger, decode, encode} from '@ticlo/core';
 
 export class WsClientConnection extends ClientConnection {

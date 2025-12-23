@@ -1,14 +1,14 @@
 import React from 'react';
-import {PureDataRenderer} from '../component/DataRenderer';
-import {TIcon} from '../icon/Icon';
+import {PureDataRenderer} from '../component/DataRenderer.js';
+import {TIcon} from '../icon/Icon.js';
 import {DragDropDiv, DragDrop, DragState} from 'rc-dock';
-import {BaseBlockItem, BlockHeaderView, BlockItem, Stage, XYWRenderer} from './Field';
-import {LazyUpdateSubscriber} from '../component/LazyUpdateComponent';
-import {BlockWidget, BlockWidgetProps} from './view/BlockWidget';
-import {getFuncStyleFromDesc} from '../util/BlockColors';
+import {BaseBlockItem, BlockHeaderView, BlockItem, Stage, XYWRenderer} from './Field.js';
+import {LazyUpdateSubscriber} from '../component/LazyUpdateComponent.js';
+import {BlockWidget, BlockWidgetProps} from './view/BlockWidget.js';
+import {getFuncStyleFromDesc} from '../util/BlockColors.js';
 import {getDisplayName} from '@ticlo/core';
 import {Tooltip} from 'antd';
-import {BlockDropdown} from '../popup/BlockDropdown';
+import {BlockDropdown} from '../popup/BlockDropdown.js';
 
 interface BlockViewProps {
   item: BlockItem;

@@ -1,9 +1,9 @@
 import React from 'react';
 import {Button} from 'antd';
-import PlayIcon from '@ant-design/icons/CaretRightOutlined';
-import PlayCircleOutlined from '@ant-design/icons/PlayCircleOutlined';
-import {ValueEditorProps} from './ValueEditorBase';
-import {renderValue} from '../../component/renderValue';
+import {CaretRightOutlined as PlayIcon} from '@ant-design/icons';
+import {PlayCircleOutlined as PlayCircleOutlined} from '@ant-design/icons';
+import {ValueEditorProps} from './ValueEditorBase.js';
+import {renderValue} from '../../component/renderValue.js';
 
 export class EventEditor extends React.PureComponent<ValueEditorProps, any> {
   onClick = () => {

@@ -1,6 +1,6 @@
-import {PureFunction} from '../../block/BlockFunction';
-import {Functions} from '../../block/Functions';
-import {toDateTime} from '../../util/DateTime';
+import {PureFunction} from '../../block/BlockFunction.js';
+import {Functions} from '../../block/Functions.js';
+import {toDateTime} from '../../util/DateTime.js';
 
 export class ParseDateFunction extends PureFunction {
   run() {

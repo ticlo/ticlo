@@ -1,5 +1,5 @@
 import {expect} from 'vitest';
-import {Uid} from '../Uid';
+import {Uid} from '../Uid.js';
 
 describe('Uid', function () {
   it('uid', function () {

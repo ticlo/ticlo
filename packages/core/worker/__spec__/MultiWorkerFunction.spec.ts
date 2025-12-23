@@ -1,9 +1,9 @@
 import {expect} from 'vitest';
-import {Flow, Root} from '../../block/Flow';
-import {TestFunctionRunner} from '../../block/__spec__/TestFunction';
-import '../../functions/math/Arithmetic';
-import '../MultiWorkerFunction';
-import {DataMap} from '../../util/DataTypes';
+import {Flow, Root} from '../../block/Flow.js';
+import {TestFunctionRunner} from '../../block/__spec__/TestFunction.js';
+import '../../functions/math/Arithmetic.js';
+import '../MultiWorkerFunction.js';
+import {DataMap} from '../../util/DataTypes.js';
 
 describe('MultiWorkerFunction', function () {
   it('chain block', function () {

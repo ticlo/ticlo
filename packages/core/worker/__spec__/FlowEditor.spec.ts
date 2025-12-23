@@ -1,12 +1,12 @@
 import {expect} from 'vitest';
-import {Flow} from '../../block/Flow';
-import {FlowEditor} from '../FlowEditor';
-import {VoidListeners} from '../../block/__spec__/TestFunction';
-import {WorkerFunctionGen} from '../WorkerFunctionGen';
-import {Functions} from '../../block/Functions';
-import {PropDesc, PropGroupDesc} from '../../block/Descriptor';
-import {DataMap} from '../../util/DataTypes';
-import {SharedBlock} from '../../block/SharedBlock';
+import {Flow} from '../../block/Flow.js';
+import {FlowEditor} from '../FlowEditor.js';
+import {VoidListeners} from '../../block/__spec__/TestFunction.js';
+import {WorkerFunctionGen} from '../WorkerFunctionGen.js';
+import {Functions} from '../../block/Functions.js';
+import {PropDesc, PropGroupDesc} from '../../block/Descriptor.js';
+import {DataMap} from '../../util/DataTypes.js';
+import {SharedBlock} from '../../block/SharedBlock.js';
 
 describe('FlowEditor', function () {
   it('delete editor after unwatch', function () {

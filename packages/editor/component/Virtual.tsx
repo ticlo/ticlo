@@ -1,5 +1,6 @@
 import React from 'react';
-import ResizeObserver from 'resize-observer-polyfill';
+import ResizeObserver_ from 'resize-observer-polyfill';
+const ResizeObserver = (ResizeObserver_ as any).default || ResizeObserver_;
 
 interface Props {
   itemCount: number;

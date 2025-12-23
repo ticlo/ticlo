@@ -1,9 +1,9 @@
 import React from 'react';
 import {Button} from 'antd';
-import MinusIcon from '@ant-design/icons/MinusOutlined';
-import PlusIcon from '@ant-design/icons/PlusOutlined';
-import {ValueEditorProps} from './ValueEditorBase';
-import {scat} from '@ticlo/core/util/String';
+import {MinusOutlined as MinusIcon} from '@ant-design/icons';
+import {PlusOutlined as PlusIcon} from '@ant-design/icons';
+import {ValueEditorProps} from './ValueEditorBase.js';
+import {scat} from '@ticlo/core/util/String.js';
 
 // remove thousand separator
 const formatNumberRegx = /[,\s]+/g;

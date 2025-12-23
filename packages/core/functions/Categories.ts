@@ -1,4 +1,4 @@
-import {Functions} from '../block/Functions';
+import {Functions} from '../block/Functions.js';
 
 Functions.addCategory({
   id: 'math',

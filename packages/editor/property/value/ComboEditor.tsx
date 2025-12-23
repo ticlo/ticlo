@@ -1,8 +1,8 @@
 import React from 'react';
 import {AutoComplete} from 'antd';
 import {PropDesc} from '@ticlo/core';
-import {ValueEditorProps} from './ValueEditorBase';
-import {LocalizedEnumOption} from '../../component/LocalizedLabel';
+import {ValueEditorProps} from './ValueEditorBase.js';
+import {LocalizedEnumOption} from '../../component/LocalizedLabel.js';
 
 const {Option} = AutoComplete;
 

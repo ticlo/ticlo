@@ -1,7 +1,7 @@
 import {expect} from 'vitest';
-import '../Storage';
-import {Flow, Root} from '../../../block/Flow';
-import {shouldHappen, waitTick} from '../../../util/test-util';
+import '../Storage.js';
+import {Flow, Root} from '../../../block/Flow.js';
+import {shouldHappen, waitTick} from '../../../util/test-util.js';
 
 describe('Storage', function () {
   it('read and write storage', async function () {

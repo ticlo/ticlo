@@ -1,16 +1,16 @@
 import {expect} from 'vitest';
 import {simulate} from 'simulate-event';
 import React from 'react';
-import {removeLastTemplate, loadTemplate, querySingle, expandDocumentBody} from '../../../util/test-util';
-import {initEditor} from '../../../index';
-import {WorkerEditor} from '../WorkerEditor';
-import {shouldHappen, waitTick} from '@ticlo/core/util/test-util';
+import {removeLastTemplate, loadTemplate, querySingle, expandDocumentBody} from '../../../util/test-util.js';
+import {initEditor} from '../../../index.js';
+import {WorkerEditor} from '../WorkerEditor.js';
+import {shouldHappen, waitTick} from '@ticlo/core/util/test-util.js';
 import {blankFuncDesc, blankPropDesc, PropDesc} from '@ticlo/core';
-import {makeLocalConnection} from '@ticlo/core/connect/LocalConnection';
+import {makeLocalConnection} from '@ticlo/core/connect/LocalConnection.js';
 import {Root} from '@ticlo/core';
-import {WorkerFunctionGen} from '@ticlo/core/worker/WorkerFunctionGen';
-import {Functions} from '@ticlo/core/block/Functions';
-import {DateEditor} from '../DateEditor';
+import {WorkerFunctionGen} from '@ticlo/core/worker/WorkerFunctionGen.js';
+import {Functions} from '@ticlo/core/block/Functions.js';
+import {DateEditor} from '../DateEditor.js';
 
 describe('WorkerEditor', function () {
   beforeEach(async function () {

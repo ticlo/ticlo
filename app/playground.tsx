@@ -16,27 +16,27 @@ import {
   FlowStorage,
   BlockProperty,
 } from '@ticlo/core';
-import {BlockStagePane} from '@ticlo/editor/dock/block/BlockStagePane';
+import {BlockStagePane} from '@ticlo/editor/dock/block/BlockStagePane.js';
 import {TicloI18nSettings} from '@ticlo/core';
-import {makeLocalConnection} from '@ticlo/core/connect/LocalConnection';
-import {data} from './sample-data/data';
-import reactData from './sample-data/react';
+import {makeLocalConnection} from '@ticlo/core/connect/LocalConnection.js';
+import {data} from './sample-data/data.js';
+import reactData from './sample-data/react.js';
 import {initEditor, PropertyList, BlockStage, NodeTree} from '@ticlo/editor';
 import {DragDropDiv, DragState, DockLayout, DockContextType} from 'rc-dock';
-import {ClientConnection} from '@ticlo/core/connect/ClientConnection';
+import {ClientConnection} from '@ticlo/core/connect/ClientConnection.js';
 
-import './sample-blocks';
-import {WorkerFunctionGen} from '@ticlo/core/worker/WorkerFunctionGen';
+import './sample-blocks.js';
+import {WorkerFunctionGen} from '@ticlo/core/worker/WorkerFunctionGen.js';
 
-import {TicloLayoutContext, TicloLayoutContextType} from '@ticlo/editor/component/LayoutContext';
-import {PropertyListPane} from '@ticlo/editor/dock/property/PropertyListPane';
-import {NodeTreePane} from '@ticlo/editor/dock/node-tree/NodeTreePane';
-import {TextEditorPane} from '@ticlo/editor/dock/text-editor/TextEditorPane';
+import {TicloLayoutContext, TicloLayoutContextType} from '@ticlo/editor/component/LayoutContext.js';
+import {PropertyListPane} from '@ticlo/editor/dock/property/PropertyListPane.js';
+import {NodeTreePane} from '@ticlo/editor/dock/node-tree/NodeTreePane.js';
+import {TextEditorPane} from '@ticlo/editor/dock/text-editor/TextEditorPane.js';
 import '@ticlo/html';
 import '@ticlo/react';
 import '@ticlo/test';
-import {theme} from '@ticlo/editor/style/theme';
-import {FunctionSelect} from '@ticlo/editor/function-selector/FunctionSelector';
+import {theme} from '@ticlo/editor/style/theme.js';
+import {FunctionSelect} from '@ticlo/editor/function-selector/FunctionSelector.js';
 
 import i18next from 'i18next';
 // @ts-ignore
@@ -67,14 +67,14 @@ import frReactLocal from '../i18n/react/fr.json';
 // @ts-ignore
 import frTestLocal from '../i18n/test/fr.json';
 
-import zhAntd from 'antd/locale/zh_CN';
-import enAntd from 'antd/locale/en_US';
-import frAntd from 'antd/locale/fr_FR';
-import type {Locale} from 'antd/es/locale';
-import {LocalizedLabel, t} from '@ticlo/editor/component/LocalizedLabel';
-import {IndexDbFlowStorage} from '@ticlo/html/storage/IndexDbStorage';
+import zhAntd from 'antd/es/locale/zh_CN.js';
+import enAntd from 'antd/es/locale/en_US.js';
+import frAntd from 'antd/es/locale/fr_FR.js';
+import type {Locale} from 'antd/es/locale/index.js';
+import {LocalizedLabel, t} from '@ticlo/editor/component/LocalizedLabel.js';
+import {IndexDbFlowStorage} from '@ticlo/html/storage/IndexDbStorage.js';
 import {createRoot} from 'react-dom/client';
-import {SchedulePane} from '@ticlo/editor/dock/schedule/SchedulePane';
+import {SchedulePane} from '@ticlo/editor/dock/schedule/SchedulePane.js';
 import {RadioChangeEvent} from 'antd';
 
 const layoutGroups = {
@@ -91,9 +91,9 @@ const layoutGroups = {
 
 const languages = ['en', 'fr', 'zh'];
 const antdLanMap: Record<string, Locale> = {
-  en: enAntd,
-  fr: frAntd,
-  zh: zhAntd,
+  en: enAntd as unknown as Locale,
+  fr: frAntd as unknown as Locale,
+  zh: zhAntd as unknown as Locale,
 };
 
 interface Props {
@@ -269,7 +269,7 @@ class App extends React.PureComponent<Props, State> {
   }
 
   lng: string = 'en';
-  lngConfig = zhAntd;
+  lngConfig = antdLanMap['en'];
   switchLan = (e?: RadioChangeEvent) => {
     this.lng = e?.target.value || this.lng;
     this.lngConfig = antdLanMap[this.lng];

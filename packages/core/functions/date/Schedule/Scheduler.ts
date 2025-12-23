@@ -1,11 +1,11 @@
-import {Functions} from '../../../block/Functions';
-import {AutoUpdateFunction} from '../../base/AutoUpdateFunction';
-import {type EventOccur, SchedulerEvent} from './SchedulerEvent';
-import {BlockIO} from '../../../block/BlockProperty';
-import {toDateTime} from '../../../util/DateTime';
+import {Functions} from '../../../block/Functions.js';
+import {AutoUpdateFunction} from '../../base/AutoUpdateFunction.js';
+import {type EventOccur, SchedulerEvent} from './SchedulerEvent.js';
+import {BlockIO} from '../../../block/BlockProperty.js';
+import {toDateTime} from '../../../util/DateTime.js';
 import {DateTime} from 'luxon';
-import {getInputsArray} from '../../../block/FunctonData';
-import {getDefaultZone} from '../../../util/Settings';
+import {getInputsArray} from '../../../block/FunctonData.js';
+import {getDefaultZone} from '../../../util/Settings.js';
 
 export class ScheduleValue {
   static compare(a: ScheduleValue, b: ScheduleValue) {

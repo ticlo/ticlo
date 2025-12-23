@@ -1,7 +1,7 @@
-import {Block} from '../block/Block';
-import {BlockProperty} from '../block/BlockProperty';
-import {buildPropertiesOrder} from './PropertyShowHide';
-import {PropertyMover} from './PropertyMover';
+import {Block} from '../block/Block.js';
+import {BlockProperty} from '../block/BlockProperty.js';
+import {buildPropertiesOrder} from './PropertyShowHide.js';
+import {PropertyMover} from './PropertyMover.js';
 
 const trailingNumberReg = /\d+$/;
 

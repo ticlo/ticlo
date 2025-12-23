@@ -1,5 +1,5 @@
 import React from 'react';
-import {ClientConn} from '@ticlo/core/editor';
+import {ClientConn} from '@ticlo/core/editor.js';
 import {Modal, Input} from 'antd';
 import {DragState} from 'rc-dock';
 

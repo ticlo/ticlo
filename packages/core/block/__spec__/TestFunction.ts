@@ -1,11 +1,11 @@
-import {Functions} from '../Functions';
-import {PureFunction, StatefulFunction} from '../BlockFunction';
-import {BlockIO, BlockPropertyEvent} from '../BlockProperty';
-import {DoneEvent, ErrorEvent, Event, EventType, WAIT} from '../Event';
-import {PropDispatcher} from '../Dispatcher';
-import {Block} from '../Block';
-import {DataMap} from '../../util/DataTypes';
-import {BlockMode} from '../Descriptor';
+import {Functions} from '../Functions.js';
+import {PureFunction, StatefulFunction} from '../BlockFunction.js';
+import {BlockIO, BlockPropertyEvent} from '../BlockProperty.js';
+import {DoneEvent, ErrorEvent, Event, EventType, WAIT} from '../Event.js';
+import {PropDispatcher} from '../Dispatcher.js';
+import {Block} from '../Block.js';
+import {DataMap} from '../../util/DataTypes.js';
+import {BlockMode} from '../Descriptor.js';
 
 export class TestFunctionRunner extends PureFunction {
   static logs: unknown[] = [];

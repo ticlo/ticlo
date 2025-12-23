@@ -7,12 +7,12 @@ import {
   querySingle,
   fakeMouseEvent,
   expandDocumentBody,
-} from '../../../util/test-util';
-import {initEditor} from '../../../index';
-import {MultiSelectEditor, SelectEditor} from '../SelectEditor';
-import {shouldHappen, waitTick} from '@ticlo/core/util/test-util';
+} from '../../../util/test-util.js';
+import {initEditor} from '../../../index.js';
+import {MultiSelectEditor, SelectEditor} from '../SelectEditor.js';
+import {shouldHappen, waitTick} from '@ticlo/core/util/test-util.js';
 import {blankFuncDesc, blankPropDesc, PropDesc} from '@ticlo/core';
-import {DateEditor} from '../DateEditor';
+import {DateEditor} from '../DateEditor.js';
 
 describe('SelectEditor', function () {
   beforeEach(async function () {

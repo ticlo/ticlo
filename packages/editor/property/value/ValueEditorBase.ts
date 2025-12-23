@@ -1,5 +1,5 @@
 import React from 'react';
-import {FunctionDesc, PropDesc, ClientConn} from '@ticlo/core/editor';
+import {FunctionDesc, PropDesc, ClientConn} from '@ticlo/core/editor.js';
 
 // export type ChangeReason = 'minus' | 'plus' | 'enter' | 'blur';
 

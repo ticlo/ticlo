@@ -1,6 +1,6 @@
 import {Flow, Root} from '@ticlo/core';
 import {transform} from '@babel/standalone';
-import '../Jsx';
+import '../Jsx.js';
 
 describe('Jsx', function () {
   (window as any).Babel = {transform};

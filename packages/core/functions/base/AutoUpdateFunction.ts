@@ -1,10 +1,10 @@
-import {BaseFunction} from '../../block/BlockFunction';
-import {setSchedule} from '../../util/SetSchedule';
-import {Block} from '../../block/Block';
-import type {BlockConfig} from '../../block/BlockProperty';
-import type {FunctionData} from '../../block/FunctonData';
-import type {EventType} from '../../block/Event';
-import type {BlockMode} from '../../block/Descriptor';
+import {BaseFunction} from '../../block/BlockFunction.js';
+import {setSchedule} from '../../util/SetSchedule.js';
+import {Block} from '../../block/Block.js';
+import type {BlockConfig} from '../../block/BlockProperty.js';
+import type {FunctionData} from '../../block/FunctonData.js';
+import type {EventType} from '../../block/Event.js';
+import type {BlockMode} from '../../block/Descriptor.js';
 
 interface ScheduleListener {
   cancel(): void;

@@ -1,7 +1,7 @@
 import React from 'react';
 import {Select} from 'antd';
-import {ValueEditorProps} from './ValueEditorBase';
-import {LocalizedEnumOption} from '../../component/LocalizedLabel';
+import {ValueEditorProps} from './ValueEditorBase.js';
+import {LocalizedEnumOption} from '../../component/LocalizedLabel.js';
 
 const {Option} = Select;
 

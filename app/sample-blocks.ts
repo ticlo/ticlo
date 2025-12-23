@@ -1,4 +1,4 @@
-import {JsFunction} from '@ticlo/core/functions/script/Js';
+import {JsFunction} from '@ticlo/core/functions/script/Js.js';
 
 JsFunction.registerType(
   'this["out1"] = this["in1"]',

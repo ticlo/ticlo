@@ -2,8 +2,8 @@ import {FastifyInstance, FastifyRequest, FastifyReply, RawServerBase} from 'fast
 import fastifyWebsocket from '@fastify/websocket';
 import {Root} from '@ticlo/core';
 import {WsServerConnection, RestServerConnection} from '@ticlo/node';
-import {requestHandlerSymbol, ServerFunction} from './ServerFunction';
-import {RouteGenericInterface} from 'fastify/types/route';
+import {requestHandlerSymbol, ServerFunction} from './ServerFunction.js';
+import {RouteGenericInterface} from 'fastify';
 
 // force import
 ((v: any) => {})(ServerFunction);
