@@ -37,8 +37,8 @@ jobs:
       - run: pnpm install
       - name: make dir
         run: |
-          mkdir coverage
-          mkdir css
+          mkdir -p coverage
+          mkdir -p css
       - run: pnpm run build-icons
       - run: pnpm run build-less
       - name: Vitest Browser Build Cache
@@ -67,8 +67,8 @@ jobs:
       - run: pnpm install
       - name: make dir
         run: |
-          mkdir coverage
-          mkdir css
+          mkdir -p coverage
+          mkdir -p css
       - name: Vitest
         run: pnpm run test-coverage
       - name: Coveralls Vitest
@@ -92,7 +92,7 @@ jobs:
       #          parallel: true
       #          flag-name: strict
       - name: make coverage dir again
-        run: mkdir coverage
+        run: mkdir -p coverage
       - name: Test Ticlo
         run: pnpm run ticlo-test-nyc
       - name: Coveralls Ticlo
