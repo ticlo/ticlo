@@ -54,7 +54,7 @@
     "@vitest/coverage-istanbul": "^3.2.2",
     "@vitest/coverage-v8": "^3.2.2",
     "antd": "6.0.1",
-    "arrow-code": "^0.3.2",
+    "arrow-code": "^0.3.3",
     "axios": "1.10.0",
     "base64-js": "^1.5.1",
     "chalk": "^4.1.2",

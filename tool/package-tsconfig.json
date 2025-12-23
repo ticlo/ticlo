@@ -16,6 +16,7 @@
     "noImplicitAny": true,
     "sourceMap": false,
     "declaration": true,
+    "resolveJsonModule": true,
     "newLine": "lf",
     "typeRoots": [
       "../../@types",

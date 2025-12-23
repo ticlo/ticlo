@@ -17,6 +17,7 @@
     "skipLibCheck": true,
     "isolatedModules": true,
     "useDefineForClassFields": true,
+    "resolveJsonModule": true,
     "typeRoots": [
       "node_modules/@types"
     ]
