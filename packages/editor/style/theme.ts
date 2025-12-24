@@ -21,6 +21,11 @@ export const theme: ThemeConfig = {
     controlItemBgHover: '#f5f5f5',
     controlPaddingHorizontal: 12,
   },
+  components: {
+    Select: {
+      multipleItemBg: 'transparent',
+    },
+  },
 };
 
 export const darkTheme: ThemeConfig = {

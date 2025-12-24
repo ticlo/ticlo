@@ -38,7 +38,7 @@
     "react-color": "^2.19.3",
     "resize-observer-polyfill": "^1.5.1",
     "simulate-event": "ticlo/simulate-event#master",
-    "ticlo-big-calendar": "^2.0.0",
+    "ticlo-big-calendar": "^2.0.1",
     "tinycolor2": "^1.6.0"
   },
   "peerDependencies": {
