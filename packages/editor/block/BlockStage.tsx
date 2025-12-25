@@ -727,10 +727,8 @@ export class BlockStage extends BlockStageBase<BlockStageProps, StageState> {
     }
 
     this.onResizeDebounce.cancel();
-    this.onResizeDebounce = null;
 
     this.measureChildrenDebounce.cancel();
-    this.measureChildrenDebounce = null;
 
     super.componentWillUnmount();
   }
