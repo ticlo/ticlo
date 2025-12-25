@@ -183,7 +183,11 @@ export class AdvancedSelector extends React.PureComponent<Props, States> {
               onValueChange([...actualDays, i], 'days');
             };
       row.push(
-        <td key={i} className={`ant-picker-cell ant-picker-cell-in-view${pos >= 0 ? ' ant-picker-cell-selected' : ''}`} onClick={onClick}>
+        <td
+          key={i}
+          className={`ant-picker-cell ant-picker-cell-in-view${pos >= 0 ? ' ant-picker-cell-selected' : ''}`}
+          onClick={onClick}
+        >
           <div className="ant-picker-cell-inner">{i}</div>
         </td>
       );
