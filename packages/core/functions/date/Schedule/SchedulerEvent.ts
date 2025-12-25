@@ -12,6 +12,12 @@ export const RepeatModeList = [
 ] as const;
 export type RepeatMode = (typeof RepeatModeList)[number];
 
+/**
+ * Configuration interface for a scheduler event.
+ * Defines how an event repeats, its timing, priority, and other metadata.
+ * This is the JSON serializable representation of an event.
+ */
+
 export interface SchedulerConfig {
   repeat: RepeatMode;
   start: string; // hour:minute
@@ -65,10 +71,17 @@ const ConfigValidator = {
   }),
   color: vl.nullable('string'),
 };
+/**
+ * Validates a raw event configuration object against the schema.
+ * Returns true if valid, throws error otherwise (via vl.check).
+ */
 export function validateEventConfig(config: unknown) {
   return vl.check(config, ConfigValidator);
 }
 
+/**
+ * Represents a specific occurrence of an event, with a start and end timestamp.
+ */
 export class EventOccur {
   constructor(
     public start: number,
@@ -79,6 +92,11 @@ export class EventOccur {
   }
 }
 const expired = new EventOccur(Infinity, Infinity);
+
+/**
+ * The runtime representation of a scheduler event.
+ * Parses the configuration and provides methods to calculate event occurrences.
+ */
 export class SchedulerEvent {
   readonly repeat: RepeatMode;
   readonly start: [number, number]; // hour, minute
@@ -136,8 +154,15 @@ export class SchedulerEvent {
     return null;
   }
 
+  /**
+   * A generator that yields event occurrences (start, end) starting from a given timestamp.
+   * This handles all recurrence logic: daily, weekly, specific dates, and advanced patterns.
+   *
+   * @param fromTs The timestamp to start generating events from.
+   */
   *#generateEvent(fromTs: number): Generator<[number, number]> {
     let loopCount = 0;
+    // Helper to yield an event if it matches criteria (e.g. weekday check)
     const checkAndYield = function* _checkAndYield(startDate: DateTime): Generator<[number, number]> {
       let startTs = startDate.valueOf();
 
@@ -154,11 +179,16 @@ export class SchedulerEvent {
       }
     }.bind(this);
 
+    // Safety mechanism to prevent infinite loops if a configuration yields no valid dates for a long period.
+    // e.g., "Feb 30th" or filters that exclude all possibilities.
     function checkDeadLoop() {
       ++loopCount;
       return loopCount > 20;
     }
 
+    // Initialize the reference day.
+    // We normalize to noon (12:00) to avoid DST boundary issues when adding days/weeks,
+    // ensuring we stay on the correct calendar day.
     let refDay = DateTime.fromMillis(fromTs, {zone: this.timezone}).set({
       hour: 12,
       minute: 0,
@@ -197,6 +227,8 @@ export class SchedulerEvent {
         return;
       }
       case 'advanced': {
+        // Advanced mode: explicit control over years, months, and days.
+        // It iterates naturally by year:
         for (let year = refDay.year; true; ++year) {
           if (checkDeadLoop()) {
             return;
@@ -204,14 +236,20 @@ export class SchedulerEvent {
           if (this.years?.length && !this.years.includes(year)) {
             continue;
           }
+          // Then by month:
           for (let month = 1; month <= 12; ++month) {
             if (this.months?.length && !this.months.includes(month)) {
               continue;
             }
+            // Construct the month context
             const startOfMonth = DateTime.fromObject({year, month, day: 1}, {zone: this.timezone});
             const endOfMonth = startOfMonth.endOf('month');
             const lastDay = endOfMonth.day;
             const days: number[] = [];
+
+            // Resolve the specific days within this month based on configuration.
+            // Configurations can be simple numbers (1-31), or complex rules like "last day" (-1)
+            // or "nth weekday" (e.g. 2nd Friday).
             const daysConfig = this.days?.length ? this.days : [[0, 0]];
             loop: for (let v of daysConfig) {
               if (typeof v === 'number') {
@@ -327,6 +365,15 @@ export class SchedulerEvent {
 
   #currentCheckTs: number;
   #current: EventOccur;
+
+  /**
+   * Calculates the active or next occurrence of the event relative to the given timestamp.
+   *
+   * @param ts The reference timestamp
+   * @returns An EventOccur object. If the event is active at `ts`, returns that occurrence.
+   *          If not active, returns the next future occurrence.
+   *          If no future occurrence exists, returns an "expired" occurrence (Infinity).
+   */
   getOccur(ts: number): EventOccur {
     if (ts > this.before) {
       return expired;
@@ -339,17 +386,30 @@ export class SchedulerEvent {
 
     let fromTs = ts;
     if (this.after > ts) {
+      // optimization: if the event is constrained to start after a specific time, jump to it.
       fromTs = this.after;
     }
 
+    // We start searching for events a bit *before* the target time `ts`.
+    // Why? Because an event might have started before `ts` and is still ongoing (overlapping `ts`).
+    // Example: Event is 10:00 -> 11:00. Request `getOccur(10:30)`.
+    // If we generate starting from 10:30, we might get 10:30 (next, incorrect) or miss the start.
+    // By backing up `this.durationMs`, we ensure we catch any event starting at [ts - duration, ts].
     for (let [startTs, endTs] of this.#generateEvent(fromTs - this.durationMs)) {
       if (this.after - startTs > this.durationMs) {
+        // The event effectively ends before it is allowed to start (invalid state due to 'after' constraint), skip.
         continue;
       }
       if (endTs >= ts) {
+        // Found a candidate that ends after or at the current time.
         if (current) {
+          // If we already have a 'current' (which was created in a previous loop iteration but wasn't returned yet
+          // because we peeked ahead), and now we found a *new* startTs > ts, it means:
+          // 'current' handles the range around 'ts', and this new one is the NEXT occurrence.
           if (startTs > ts) {
-            // next one is in the future, the current can be returned
+            // Check for overlap between the current event and this next event.
+            // If they overlap, trim the current one to end just before the next one starts.
+            // This prevents overlapping occurrences of the same event definition.
             if (startTs < current.end) {
               current.end = startTs - 1;
             }

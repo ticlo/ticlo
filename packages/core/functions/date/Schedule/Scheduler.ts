@@ -7,7 +7,12 @@ import {DateTime} from 'luxon';
 import {getInputsArray} from '../../../block/FunctonData.js';
 import {getDefaultZone} from '../../../util/Settings.js';
 
+// Defines how multiple events are resolved when they overlap
 export class ScheduleValue {
+  /**
+   * Compares two ScheduleValues to determines which one should take precedence.
+   * Returns 1 if `a` generally replaces `b`, -1 otherwise.
+   */
   static compare(a: ScheduleValue, b: ScheduleValue) {
     if (a.shouldReplace(b)) {
       return 1;
@@ -25,6 +30,11 @@ export class ScheduleValue {
     this.occur = this.event.getOccur(ts);
     return this.occur;
   }
+
+  /**
+   * Determines if this event should replace the `current` active event.
+   * Based on priority (higher wins), start time (later wins if priority equal), and index (lower index wins if all else equal).
+   */
   shouldReplace(current: ScheduleValue) {
     if (!current) {
       return true;
@@ -53,13 +63,46 @@ export class ScheduleValue {
       if (this.occur.start === next.occur.start) {
         return this.shouldReplace(next);
       }
-      // we only care about the earliest event that happens next
+      // logic: we only care about if this event starts *before* the next confirmed event.
+      // If it starts before the next event, it has a chance to be the active event in that gap.
       return this.occur.start < next.occur.start;
     }
+    // If no current and no next, this event is the best candidate so far.
     return true;
   }
 }
 
+/**
+ * Scheduler Function
+ *
+ * This function manages time-based value scheduling. It allows users to define multiple "events",
+ * each with a Schedule Configuration (when it happens) and a Value (what is output).
+ * The function continuously updates its output based on the current time and the active events.
+ *
+ * algorithm Overview:
+ * 1. Collects all events (config + value pairs) and the default value.
+ * 2. Identifies which events are "active" at the current timestamp.
+ * 3. Resolves conflicts if multiple events are active based on `resolveMode`.
+ * 4. Outputs the final resolved value.
+ * 5. Optimizes performance by calculating the exact `nextTs` (next timestamp) to wake up,
+ *    avoiding unnecessary polling.
+ *
+ * Properties:
+ * - [Group List]: Defines the schedule events.
+ *   - `config`: The recurrence rule (Start time, Duration, Repeat mode: Daily/Weekly/etc, Priority).
+ *   - `value`: The data to output when this event is active.
+ * - `default`: The fallback value used when no events are active.
+ * - `override`: A manual value that temporarily bypasses the schedule.
+ *   - In 'overwrite' mode (default), this completely replaces the schedule output.
+ *   - In 'merge' mode, this is merged into the result.
+ * - `lockTime`: A fixed timestamp for debugging/previewing the schedule at a specific time.
+ * - `resolveMode`: Strategy for handling overlapping active events:
+ *   - 'overwrite': active event with highest priority wins. (Priority > Start Time > List Index)
+ *   - 'merge': Merges objects/key-values from all active events (useful for configuration objects).
+ *   - 'min': Selects the lowest numeric value among active events.
+ *   - 'max': Selects the highest numeric value among active events.
+ * - `timezone`: The specific timezone to use for all calculations (e.g. "America/New_York").
+ */
 export class ScheduleFunction extends AutoUpdateFunction {
   #cache = new WeakMap<object, ScheduleValue>();
   #events: ScheduleValue[];
@@ -78,6 +121,7 @@ export class ScheduleFunction extends AutoUpdateFunction {
   }
 
   run() {
+    // 1. Check for manual override
     const override = this._data.getValue('override');
     const resolveMode = this._data.getValue('resolveMode');
     const mergeMode = resolveMode === 'merge';
@@ -114,6 +158,8 @@ export class ScheduleFunction extends AutoUpdateFunction {
       }
       this.#cache = newCache;
     }
+
+    // 2. Determine the current reference time (default: now, or locked time)
     let ts = new Date().getTime();
     const lockTime = this._data.getValue('lockTime');
     let lockDt: DateTime;
@@ -127,7 +173,10 @@ export class ScheduleFunction extends AutoUpdateFunction {
 
     let candidates: ScheduleValue[] = [];
 
-    // check the current
+    // 3. Find all candidate events that are active at the current time ('ts')
+    // We iterate through all defined events. If an event is "happening" right now (occur.start <= ts <= occur.end),
+    // it goes into the candidate pool.
+    // getOccur(ts) automatically handles finding the relevant occurrence for 'ts'.
     for (let sv of this.#events) {
       const occur = sv.getOccur(ts);
       if (occur.isValid()) {
@@ -136,9 +185,13 @@ export class ScheduleFunction extends AutoUpdateFunction {
         }
       }
     }
+    // Sort candidates to find the "winner" based on priority logic.
+    // The last element in the sorted array is the highest priority/winner.
     candidates.sort(ScheduleValue.compare);
     let current = candidates.at(-1);
     let result: any;
+
+    // 4. Resolve the value based on the selected mode (overwrite, merge, min, max)
     switch (resolveMode) {
       case 'merge': {
         result = {};
@@ -185,13 +238,24 @@ export class ScheduleFunction extends AutoUpdateFunction {
         }
         break;
       default:
+        // 'overwrite' mode: only the highest priority event's value is used.
         result = current?.value;
     }
 
+    // 5. Calculate the next wake-up time (nextTs) for the scheduler.
+    // The scheduler needs to know the exact time when the output *might* change.
+    // This allows the system to sleep efficiently instead of polling.
+    // The next change happens when:
+    // a) The current event ends.
+    // b) A new event starts (that might override or merge with the current one).
+    // c) A higher priority event starts.
     if (!lockDt) {
       let nextTs = Infinity;
       switch (resolveMode) {
         case 'merge': {
+          // In merge mode, *any* event starting or ending can change the result.
+          // So we look for the earliest start > ts (some new data arriving)
+          // OR the earliest end < nextTs (some current data leaving).
           for (let sv of this.#events) {
             const occur = sv.occur;
             if (occur.isValid() && sv.value !== undefined) {
@@ -200,6 +264,8 @@ export class ScheduleFunction extends AutoUpdateFunction {
                   nextTs = occur.start;
                 }
               } else if (occur.end < nextTs) {
+                // Occur is currently active (implied by !(start > ts) and it's valid),
+                // so its end time is a candidate for next change.
                 nextTs = occur.end + 1;
               }
             }
@@ -207,11 +273,15 @@ export class ScheduleFunction extends AutoUpdateFunction {
           break;
         }
         case 'min': {
+          // In min mode, we only care about events that could produce a *smaller* value than current.
           const currentNum = current?.value ?? Infinity;
           if (current) {
+            // If the current winner ends, the value changes (likely goes up).
             nextTs = current.occur.end + 1;
           }
           for (let sv of this.#events) {
+            // Look for future events that start before our known next-change-time AND
+            // have a value smaller than current. Only those can interrupt the current state logic.
             if (sv.occur.isValid() && sv.occur.start > ts && sv.occur.start < nextTs && sv.value < currentNum) {
               nextTs = sv.occur.start;
             }
@@ -219,6 +289,7 @@ export class ScheduleFunction extends AutoUpdateFunction {
           break;
         }
         case 'max': {
+          // Symmetrical to min mode; only care about larger values interrupting.
           const currentNum = current?.value ?? -Infinity;
           if (current) {
             nextTs = current.occur.end + 1;
@@ -231,11 +302,16 @@ export class ScheduleFunction extends AutoUpdateFunction {
           break;
         }
         default: {
+          // 'overwrite' mode / default.
+          // We need to find the "next" event that would actually replace the "current" winner.
+          // This uses 'shouldReplaceNext' to determine if a future event is strong enough or early enough
+          // to take over.
           let next: ScheduleValue;
           for (let sv of this.#events) {
             const occur = sv.occur;
             if (occur.isValid()) {
               if (occur.start > ts) {
+                // Candidate for the next taking-over event.
                 if (sv.shouldReplaceNext(current, next)) {
                   next = sv;
                 }
@@ -245,6 +321,7 @@ export class ScheduleFunction extends AutoUpdateFunction {
           if (next) {
             nextTs = next.occur.start;
           } else if (current) {
+            // If no one takes over, the state changes when the current winner ends.
             nextTs = current.occur.end + 1;
           }
         }

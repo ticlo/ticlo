@@ -11,6 +11,7 @@ const funcDesc: FunctionDesc = {name: 'create-schedule'};
 
 const {Option} = Select;
 
+// Use Factory as an auto timezone, which will be converted to the current timezone when needed.
 const defaultTime = DateTime.fromFormat('00:00:00.000', 'HH:mm:ss.SSS', {zone: 'Factory'});
 
 interface Props {
@@ -88,6 +89,7 @@ export class TimeRangeEditor extends React.PureComponent<Props, State> {
 
     let d = defaultTime;
     if (typeof current.start === 'string') {
+      // Use Factory as an auto timezone, which will be converted to the current timezone when needed.
       d = DateTime.fromFormat(current.start, 'H:m', {zone: 'Factory'});
     }
 

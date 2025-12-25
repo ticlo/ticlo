@@ -382,8 +382,8 @@ importers:
         specifier: ticlo/simulate-event#master
         version: https://codeload.github.com/ticlo/simulate-event/tar.gz/179d0762a72ea8ea4a01d43fde9a3e3777d3669b
       ticlo-big-calendar:
-        specifier: ^2.0.1
-        version: 2.0.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+        specifier: ^2.1.0
+        version: 2.1.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       tinycolor2:
         specifier: ^1.6.0
         version: 1.6.0
@@ -5041,8 +5041,8 @@ packages:
   through@2.3.8:
     resolution: {integrity: sha512-w89qg7PI8wAdvX60bMDP+bFoD5Dvhm9oLheFp5O4a2QF0cSBGsBX4qZmadPMvVqlLJBBci+WqGGOAPvcDeNSVg==}
 
-  ticlo-big-calendar@2.0.1:
-    resolution: {integrity: sha512-gCiS0PprcpCIvIS+ebNlHXzV8Un07x5wc2c1s+nyPAd/kVfvPH+V42WnlSTbngG6AYjwmFG0bmeaVIwKpMlvKg==}
+  ticlo-big-calendar@2.1.0:
+    resolution: {integrity: sha512-0o7rULrESplNC+ievCfwQn0wwRa7F40RaAEBDRYF1Q+8sMljdQ7/eLs/odbmmq+prE2q+IOXRMwMMoydP39vrw==}
     peerDependencies:
       react: ^16.14.0 || ^17 || ^18
       react-dom: ^16.14.0 || ^17 || ^18
@@ -10936,7 +10936,7 @@ snapshots:
   through@2.3.8:
     optional: true
 
-  ticlo-big-calendar@2.0.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1):
+  ticlo-big-calendar@2.1.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1):
     dependencies:
       '@babel/runtime': 7.28.4
       clsx: 2.1.1

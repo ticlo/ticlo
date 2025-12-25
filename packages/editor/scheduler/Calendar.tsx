@@ -1,8 +1,7 @@
 import React from 'react';
-import {DateTime} from 'luxon';
 import {EyeFilled, EyeInvisibleOutlined} from '@ant-design/icons';
 import {Button, Select} from 'antd';
-import {Calendar, Views, luxonLocalizer, Event, SlotInfo, View, EventCell} from 'ticlo-big-calendar';
+import {Calendar, SlotInfo, View} from 'ticlo-big-calendar';
 import {ClientConn} from '@ticlo/core/connect/ClientConn.js';
 import {LazyUpdateComponent} from '../component/LazyUpdateComponent.js';
 import {deepEqual} from '@ticlo/core/util/Compare.js';
@@ -15,9 +14,6 @@ import {scat} from '@ticlo/core/util/String.js';
 import {toDateTime} from '@ticlo/core';
 
 const CalendarT = Calendar<CalendarEvent>;
-
-// todo, adjust first day of week based on server side setting
-const calendarLocalizer = luxonLocalizer(DateTime);
 
 interface Props {
   conn: ClientConn;
@@ -36,6 +32,10 @@ interface State {
   view: View;
   date?: Date;
 }
+/**
+ * Main Scheduler Editor Component.
+ * Displays a calendar with events, allows selecting/editing events, and managing the schedule.
+ */
 export class ScheduleCalendar extends LazyUpdateComponent<Props, State> {
   declare state: State;
   constructor(props: Props) {
@@ -77,6 +77,8 @@ export class ScheduleCalendar extends LazyUpdateComponent<Props, State> {
     this.scheduleLoader = new ScheduleLoader(this, conn, schedulePath);
   });
   onSelectSlot = (slot: SlotInfo) => {
+    // Handle user selecting a time slot on the calendar (drag/click)
+    // to update the currently selected event configuration with new start time/duration.
     const {selectedIdx} = this.state;
     const dummyEvents = this.scheduleLoader.getDummyEvents();
     const config = dummyEvents[selectedIdx]?.parent.config ?? ({} as SchedulerConfig);
@@ -195,7 +197,7 @@ export class ScheduleCalendar extends LazyUpdateComponent<Props, State> {
           allDayMaxRows={2}
           ref={this.getCalendarRef}
           components={{toolbar: CalendarToolbar}}
-          localizer={calendarLocalizer}
+          localizer={this.scheduleLoader.localizer}
           culture="zh"
           views={{day: true, week: true, month: true}}
           view={view}

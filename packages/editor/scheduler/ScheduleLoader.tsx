@@ -1,5 +1,5 @@
 import React, {CSSProperties} from 'react';
-import {Event} from 'ticlo-big-calendar';
+import {Event, luxonLocalizer} from 'ticlo-big-calendar';
 import {ClientConn, ValueSubscriber} from '@ticlo/core/connect/ClientConn.js';
 import {ValueUpdate} from '@ticlo/core/connect/ClientRequests.js';
 import {
@@ -13,6 +13,7 @@ import {deepEqual} from '@ticlo/core/util/Compare.js';
 import {encodeDisplay} from '@ticlo/core';
 import {stringify as stringifyYaml} from 'yaml';
 import {arrowReplacer} from '@ticlo/core/util/Serialize.js';
+import {DateTime} from 'luxon';
 
 const priorityStr = '⓿❶❷❸❹❺❻❼❽❾❿';
 
@@ -25,6 +26,9 @@ function getTitle(config: SchedulerConfig, value: unknown) {
   return parts.join('\n');
 }
 
+/**
+ * Adapter class to map SchedulerEvent occurences to react-big-calendar Event interface.
+ */
 export class CalendarEvent implements Event {
   readonly id: string;
   readonly start: Date;
@@ -60,6 +64,10 @@ export class CalendarEvent implements Event {
   }
 }
 
+/**
+ * Manages the subscription and state for a single Event configuration and its value.
+ * Bridges the network data (ClientConn) to the UI representation.
+ */
 class ConfigValuePair {
   configSub = new ValueSubscriber({
     onUpdate: (response: ValueUpdate) => {
@@ -169,6 +177,12 @@ class ConfigValuePair {
   }
 }
 
+const defaultLocalizer = luxonLocalizer(DateTime);
+
+/**
+ * Main loader class that manages a list of scheduled events.
+ * It subscribes to the array length and individual event items from the data source.
+ */
 export class ScheduleLoader {
   timezoneSub = new ValueSubscriber({
     onUpdate: (response: ValueUpdate) => {
@@ -180,6 +194,7 @@ export class ScheduleLoader {
       this.updateEventLength(response.cache.value);
     },
   });
+  localizer = defaultLocalizer;
   constructor(
     public readonly parent: {forceUpdate: Function},
     public readonly conn: ClientConn,
@@ -192,11 +207,12 @@ export class ScheduleLoader {
 
   zone: string = 'notReady';
   updateZone(z: string) {
-    let zone = z;
-    if (this.zone !== zone) {
-      this.zone = zone;
+    if (this.zone !== z) {
+      this.zone = z;
+      // todo: adjust first day of week based on server settings
+      this.localizer = luxonLocalizer(DateTime, {timezone: z});
       for (let sub of this.subs) {
-        sub.updateZone(zone);
+        sub.updateZone(z);
       }
     }
   }
