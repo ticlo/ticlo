@@ -103,6 +103,10 @@ export class NodeTree extends LazyUpdateComponent<Props, any> {
 
   constructor(props: Props) {
     super(props);
+  }
+
+  componentDidMount() {
+    super.componentDidMount();
     this.buildRoot();
   }
 
@@ -141,9 +145,11 @@ export class NodeTree extends LazyUpdateComponent<Props, any> {
   }
 
   componentWillUnmount(): void {
+    super.componentWillUnmount();
     this.props.conn.childrenChangeStream().unlisten(this.onChildrenChange);
     for (let node of this.rootList) {
       node.destroy();
     }
+    this.rootList = [];
   }
 }

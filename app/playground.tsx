@@ -1,10 +1,11 @@
 import * as React from 'react';
+import {StrictMode} from 'react';
 import {Checkbox, ConfigProvider, Switch, Radio} from 'antd';
 import {
   Block,
   DataMap,
   decode,
-  encodeSorted,
+  encodeSorted, 
   FunctionDesc,
   Functions,
   Logger,
@@ -319,19 +320,31 @@ class App extends React.PureComponent<Props, State> {
   render() {
     let {conn} = this.props;
     let {modal} = this.state;
-    return (
-      <ConfigProvider locale={this.lngConfig} theme={theme}>
-        <TicloLayoutContextType.Provider value={this.ticloContext}>
-          <DockLayout
-            defaultLayout={this.defaultDockLayout}
-            ref={this.getLayout}
-            groups={layoutGroups}
-            style={{position: 'absolute', left: 10, top: 10, right: 10, bottom: 10}}
-          />
-          {modal}
-        </TicloLayoutContextType.Provider>
-      </ConfigProvider>
+    const appContent = (
+      <TicloLayoutContextType.Provider value={this.ticloContext}>
+        <DockLayout
+          defaultLayout={this.defaultDockLayout}
+          ref={this.getLayout}
+          groups={layoutGroups}
+          style={{position: 'absolute', left: 10, top: 10, right: 10, bottom: 10}}
+        />
+        {modal}
+      </TicloLayoutContextType.Provider>
     );
+
+    if (location.hash.includes('strictMode')) {
+      return (
+        <ConfigProvider locale={this.lngConfig} theme={theme}>
+          <StrictMode>{appContent}</StrictMode>
+        </ConfigProvider>
+      );
+    } else {
+      return (
+        <ConfigProvider locale={this.lngConfig} theme={theme}>
+          {appContent}
+        </ConfigProvider>
+      );
+    }
   }
 }
 

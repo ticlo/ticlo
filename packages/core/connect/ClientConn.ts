@@ -176,10 +176,10 @@ export class ValueSubscriber {
   }
 
   subscribe(conn: ClientConn, path: string, fullValue = false) {
-    this.fullValue = fullValue;
-    if (this.conn === conn && this.path === path) {
+    if (this.conn === conn && this.path === path && this.fullValue === fullValue) {
       return;
     }
+    this.fullValue = fullValue;
     if (this.conn && this.path) {
       this.conn.unsubscribe(path, this);
     }

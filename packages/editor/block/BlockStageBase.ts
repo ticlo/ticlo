@@ -347,10 +347,15 @@ export abstract class BlockStageBase<Props extends StagePropsBase, State>
 
   protected constructor(props: Props) {
     super(props);
-    let {conn, basePath} = props;
+    let {basePath} = props;
     this._sharedPath = `${basePath}.#shared`;
     this.watchingPath = basePath;
-    conn.watch(basePath, this.watchListener);
+  }
+
+  componentDidMount() {
+    super.componentDidMount();
+    let {conn} = this.props;
+    conn.watch(this.watchingPath, this.watchListener);
     this.sharedListener.subscribe(conn, this._sharedPath);
   }
 
