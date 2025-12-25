@@ -32,8 +32,8 @@ export class DatesSelector extends React.PureComponent<Props, State> {
             onValueChange([...dates, s], 'dates');
           };
     return (
-      <div className={pos >= 0 ? 'ticl-calender-selected-cell' : null} onClick={onClick}>
-        <div className="ticl-calender-cell-content">{date.day}</div>
+      <div className={pos >= 0 ? 'ant-picker-cell-in-view ant-picker-cell-selected' : null} onClick={onClick}>
+        <div className="ant-picker-cell-inner">{date.day}</div>
       </div>
     );
   };

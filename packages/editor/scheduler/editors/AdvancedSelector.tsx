@@ -183,10 +183,8 @@ export class AdvancedSelector extends React.PureComponent<Props, States> {
               onValueChange([...actualDays, i], 'days');
             };
       row.push(
-        <td key={i} className="ant-picker-cell ant-picker-cell-in-view" onClick={onClick}>
-          <div className={pos >= 0 ? 'ticl-calender-selected-cell' : null}>
-            <div className="ticl-calender-cell-content">{i}</div>
-          </div>
+        <td key={i} className={`ant-picker-cell ant-picker-cell-in-view${pos >= 0 ? ' ant-picker-cell-selected' : ''}`} onClick={onClick}>
+          <div className="ant-picker-cell-inner">{i}</div>
         </td>
       );
       if (row.length === 7) {
@@ -196,7 +194,7 @@ export class AdvancedSelector extends React.PureComponent<Props, States> {
     }
     rows.push(<tr key={31}>{row}</tr>);
     return (
-      <div className="ticl-schedule-days-dropdown ant-picker-panel">
+      <div className="ticl-schedule-days-dropdown ant-picker-dropdown css-var-r0 ant-picker-css-var">
         <div className="ant-picker-date-panel">
           <div className="ant-picker-body">
             <table className="ant-picker-content">

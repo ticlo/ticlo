@@ -8,4 +8,6 @@ const cssText = extractStyle((node: JSX.Element) => (
   <ConfigProvider theme={{...theme, zeroRuntime: false}}>{node}</ConfigProvider>
 ));
 
-fs.writeFileSync('css/antd.css', cssText);
+const cssTextProd = cssText.replaceAll(/:where\(\.css-dev-only-do-not-override-[a-zA-Z0-9-]*\)/g, '');
+
+fs.writeFileSync('css/antd.css', cssTextProd);
