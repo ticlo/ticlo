@@ -1,5 +1,5 @@
 import React, {ComponentType, ReactNode, useEffect, useMemo, useReducer, useState} from 'react';
-import {type Block, FunctionDesc, Functions, PropDesc} from '@ticlo/core';
+import {Block, FunctionDesc, Functions, PropDesc} from '@ticlo/core';
 import {FunctionClass} from '@ticlo/core/block/BlockFunction.js';
 import {PropMap} from './PropType.js';
 
@@ -66,10 +66,14 @@ export function TicloFuncComp<T extends BaseProps>(props: T) {
   return null;
 }
 
-export function renderChildren<T extends BaseProps>(blocks: Block[], others: Omit<T, 'block'>) {
+export function renderChildren<T extends BaseProps>(blocks: (ReactNode | Block)[], others: Omit<T, 'block'>) {
   const result: ReactNode[] = [];
   for (const block of blocks) {
-    result.push(<TicloFuncComp {...others} block={block} key={block._blockId} />);
+    if (block instanceof Block) {
+      result.push(<TicloFuncComp {...others} block={block} key={block._blockId} />);
+    } else {
+      result.push(block);
+    }
   }
   return result;
 }

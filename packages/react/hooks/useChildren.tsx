@@ -1,4 +1,4 @@
-import {ReactNode, useEffect, useReducer, useRef, useState} from 'react';
+import {ReactNode, useEffect, useReducer, useRef, useState, isValidElement} from 'react';
 import {Block, BlockIO, smartStrCompare} from '@ticlo/core';
 import {BlockChildWatch} from '@ticlo/core/block/Block.js';
 import {Values} from '../types/Values.js';
@@ -9,15 +9,19 @@ const groupPropMap = {
   '+override': {value: Values.arrayOptional, pinned: true},
 };
 
-export function getChildren(block: Block, override?: unknown[], children?: unknown[]): Block[] {
+function isReactChild(child: unknown): child is ReactNode | Block {
+  return child instanceof Block || isValidElement(child) || typeof child === 'string' || typeof child === 'number';
+}
+
+export function getChildren(block: Block, override?: unknown[], children?: unknown[]): (ReactNode | Block)[] {
   if (override === undefined) {
     override = block.getValue('+override') as unknown[];
   }
-  let result: Block[] = [];
+  let result: (ReactNode | Block)[] = [];
   if (Array.isArray(override)) {
     // override children with an array of blocks
     for (const child of override) {
-      if (child instanceof Block) {
+      if (isReactChild(child)) {
         result.push(child);
       }
     }
@@ -42,7 +46,7 @@ export function getChildren(block: Block, override?: unknown[], children?: unkno
  * Get the list of children blocks from +children config
  * @param block
  */
-export function useChildren(block: Block): Block[] {
+export function useChildren(block: Block): (ReactNode | Block)[] {
   const [, forceUpdate] = useReducer((x) => -x, 1);
   const {'+children': children, '+override': override} = useBlockProps(block, groupPropMap);
   useEffect(() => {

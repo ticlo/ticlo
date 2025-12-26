@@ -1,5 +1,4 @@
 import {Functions} from '@ticlo/core';
-import './HtmlAttributes.js';
 import './Jsx.js';
 import './RenderDom.js';
 import './elements/CommonElements.js';

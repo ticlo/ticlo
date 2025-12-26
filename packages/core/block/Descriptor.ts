@@ -93,6 +93,13 @@ export interface FunctionDesc {
   icon?: string;
   /** namespace of the function */
   ns?: string;
+  /**
+   * how is this function defined
+   * worker: defined in a worker
+   * js: defined in js block function
+   * category: no src, just a category description
+   * hidden: no src, just description as base function
+   */
   src?: 'worker' | 'js' | 'category' | 'hidden';
   help?: string;
   /**
