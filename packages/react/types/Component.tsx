@@ -41,7 +41,7 @@ export function registerComponent<T extends BaseProps>(
       icon: 'fas:dice-d6',
       ...funcDesc,
       properties,
-      configs: isContainer ? [{name: '#children', type: 'array'}] : undefined,
+      configs: isContainer ? [{name: '+children', type: 'array'}] : undefined,
     },
     namespace
   );
@@ -61,7 +61,7 @@ export function TicloFuncComp<T extends BaseProps>(props: T) {
   }, [block, listener]);
   const C = componentsMap.get(functionId) as ComponentType<T> | undefined;
   if (C) {
-    return <C {...props} key={block.getName()} />;
+    return <C {...props} />;
   }
   return null;
 }

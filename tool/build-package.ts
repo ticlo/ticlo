@@ -89,8 +89,7 @@ async function main() {
   // await buildPackage('editor');
   // shelljs.cp('./dist/*.css', './build/editor');
   //
-  // await buildPackage('react');
-  await buildPackage('react-hooks');
+  await buildPackage('react');
   //
   // await buildPackage('node');
   //

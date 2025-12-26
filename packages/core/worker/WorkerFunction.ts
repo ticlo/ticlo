@@ -61,7 +61,7 @@ export class WorkerFunction extends BaseFunction<Block> implements WorkerHost {
 
   configChanged(config: BlockConfig, val: any): boolean {
     switch (config._name) {
-      case '#state':
+      case '+state':
         return true;
       case '+use':
         return this.control.onUseChange(val);
@@ -93,7 +93,7 @@ export class WorkerFunction extends BaseFunction<Block> implements WorkerHost {
     }
     if (this._funcFlow == null) {
       const {src, saveCallback} = this.control.getSaveParameter();
-      let subFlowMode = this._data.getValue('#state') ?? WorkerMode.ON;
+      let subFlowMode = this._data.getValue('+state') ?? WorkerMode.ON;
       if (subFlowMode === WorkerMode.ON) {
         this._funcFlow = this._data.createOutputFlow(RepeaterWorker, '#flow', src, this._data, saveCallback);
         this._funcFlow?.updateInput(this._data);
@@ -113,7 +113,7 @@ export class WorkerFunction extends BaseFunction<Block> implements WorkerHost {
       this.control._srcChanged = false;
     }
 
-    let subFlowMode = this._data.getValue('#state');
+    let subFlowMode = this._data.getValue('+state');
     switch (subFlowMode) {
       case WorkerMode.OFF: {
         if (this._funcFlow != null) {
@@ -181,7 +181,7 @@ Functions.add(
     priority: 3,
     properties: [
       {
-        name: '#state',
+        name: '+state',
         type: 'radio-button',
         options: WorkerModeOptions,
         default: WorkerMode.ON,

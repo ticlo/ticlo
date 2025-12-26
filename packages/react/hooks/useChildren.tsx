@@ -5,26 +5,25 @@ import {Values} from '../types/Values.js';
 import {useBlockProps} from './useBlockProps.js';
 
 const groupPropMap = {
-  '#children': {value: Values.array, pinned: true},
-  '#output': {value: Values.arrayOptional, pinned: true},
+  '+children': {value: Values.array, pinned: true},
+  '+override': {value: Values.arrayOptional, pinned: true},
 };
 
-export function getChildren(block: Block, output?: Record<string, unknown>[], children?: unknown[]): Block[] {
-  if (output === undefined) {
-    output = block.getValue('#output') as Record<string, unknown>[];
+export function getChildren(block: Block, override?: unknown[], children?: unknown[]): Block[] {
+  if (override === undefined) {
+    override = block.getValue('+override') as unknown[];
   }
   let result: Block[] = [];
-  if (Array.isArray(output)) {
-    // repeater mode
-    for (const child of output) {
-      const root: unknown = child?.['#root'];
-      if (root instanceof Block) {
-        result.push(root);
+  if (Array.isArray(override)) {
+    // override children with an array of blocks
+    for (const child of override) {
+      if (child instanceof Block) {
+        result.push(child);
       }
     }
   } else {
     if (children === undefined) {
-      children = block.getValue('#children') as unknown[] | [];
+      children = block.getValue('+children') as unknown[] | [];
     }
     // inline children
     for (const name of children) {
@@ -40,15 +39,15 @@ export function getChildren(block: Block, output?: Record<string, unknown>[], ch
 }
 
 /**
- * Get the list of children blocks from #children config
+ * Get the list of children blocks from +children config
  * @param block
  */
 export function useChildren(block: Block): Block[] {
   const [, forceUpdate] = useReducer((x) => -x, 1);
-  const {'#children': children, '#output': output} = useBlockProps(block, groupPropMap);
+  const {'+children': children, '+override': override} = useBlockProps(block, groupPropMap);
   useEffect(() => {
-    if (Array.isArray(output)) {
-      // repeater mode
+    if (Array.isArray(override)) {
+      // override mode
     } else {
       // inline children
       const listener = {
@@ -63,7 +62,7 @@ export function useChildren(block: Block): Block[] {
         block.unwatch(listener);
       };
     }
-  }, [block, output, children]);
+  }, [block, override, children]);
 
-  return getChildren(block, output as Record<string, unknown>[], children);
+  return getChildren(block, override, children);
 }

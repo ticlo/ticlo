@@ -5,7 +5,7 @@ import {
   Block,
   DataMap,
   decode,
-  encodeSorted, 
+  encodeSorted,
   FunctionDesc,
   Functions,
   Logger,

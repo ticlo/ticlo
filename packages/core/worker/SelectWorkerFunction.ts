@@ -21,9 +21,9 @@ export class SelectWorkerFunction extends BaseFunction<Block> {
 
   onCollect = (block: Block) => {
     if (block._prop._name === this._data.getValue('name')) {
-      block.updateValue('#state', 'on');
+      block.updateValue('+state', 'on');
     } else {
-      block.updateValue('#state', this._data.getValue('unusedFlow') || WorkerMode.DISABLE);
+      block.updateValue('+state', this._data.getValue('unusedFlow') || WorkerMode.DISABLE);
     }
   };
 }
