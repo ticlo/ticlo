@@ -10,3 +10,14 @@ export {
   TicloFuncComp,
   isContainerFunction,
 } from './types/Component.js';
+
+import {Functions} from '@ticlo/core';
+import './functions/ToComponent.js';
+
+Functions.addCategory({
+  id: 'react:',
+  name: 'react',
+  icon: 'fab:react',
+  color: '5ce',
+  ns: 'react',
+});

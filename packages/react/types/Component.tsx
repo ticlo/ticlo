@@ -50,7 +50,7 @@ export function registerComponent<T extends BaseProps>(
   componentsMap.set(key, component);
 }
 
-export function TicloFuncComp<T extends BaseProps>(props: T) {
+export function TicloFuncComp<T extends BaseProps = BaseProps>(props: T) {
   const {block} = props;
   const [functionId, setFunctionId] = useState(block.getValue('#is') as string);
   const listener = useMemo(() => ({onChange: setFunctionId, onSourceChange: () => {}}), []);
