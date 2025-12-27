@@ -206,7 +206,7 @@ export const OutputsConfigGenerators: {[key: string]: typeof BlockProperty} = {
   ...ConfigGenerators,
   '#is': ConstTypeConfig('flow:outputs'),
   '#call': BlockProperty, // call not allowed
-  '#value': BlockIO,
+  '#return': BlockIO,
   '#wait': BlockOutputWaitingConfig, // directly forward wait to parent flow
 };
 

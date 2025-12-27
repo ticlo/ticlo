@@ -19,7 +19,7 @@ class MultiWorkerOutput implements FunctionOutput {
   _overrideValue: any;
   _result: any = {};
   output(value: any, field?: string): void {
-    if (field === '#value') {
+    if (field === '#return') {
       this._overrideValue = value;
     } else {
       this._result = {...this._result, [field]: value};

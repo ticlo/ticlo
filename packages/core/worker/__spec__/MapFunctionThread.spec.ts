@@ -38,7 +38,7 @@ describe('MapFunction Thread', function () {
           '#is': '',
           'runner': {'#is': 'test-runner', '#mode': 'onLoad', '#-log': 0},
           'add': {'#is': 'add', '~0': '##.#inputs', '1': 1},
-          '#outputs': {'#is': '', '~#value': '##.add.#output'},
+          '#outputs': {'#is': '', '~#return': '##.add.#output'},
         },
       },
     });
@@ -133,7 +133,7 @@ describe('MapFunction Thread', function () {
           '#is': '',
           'runner': {'#is': 'test-runner', '#mode': 'onLoad', '#-log': 0},
           'add': {'#is': 'add', '~0': '##.#inputs', '1': 1},
-          '#outputs': {'#is': '', '~#value': '##.add.#output'},
+          '#outputs': {'#is': '', '~#return': '##.add.#output'},
         },
       },
     });
@@ -147,7 +147,7 @@ describe('MapFunction Thread', function () {
       '#is': '',
       'runner': {'#is': 'test-runner', '#mode': 'onLoad', '#-log': 0},
       'add': {'#is': 'add', '~0': '##.#inputs', '1': 2},
-      '#outputs': {'#is': '', '~#value': '##.add.#output'},
+      '#outputs': {'#is': '', '~#return': '##.add.#output'},
     });
 
     Root.run();
@@ -185,7 +185,7 @@ describe('MapFunction Thread', function () {
           },
           '#outputs': {
             '#is': '',
-            '~#value': '##.add.#output',
+            '~#return': '##.add.#output',
             '~#wait': '##.async.#wait',
           },
         },
@@ -253,7 +253,7 @@ describe('MapFunction Thread', function () {
           },
           '#outputs': {
             '#is': '',
-            '~#value': '##.add.#output',
+            '~#return': '##.add.#output',
             '~#wait': '##.async.#wait',
           },
         },
@@ -321,7 +321,7 @@ describe('MapFunction Thread', function () {
           },
           '#outputs': {
             '#is': '',
-            '~#value': '##.add.#output',
+            '~#return': '##.add.#output',
             '~#wait': '##.async.#wait',
           },
         },
@@ -385,7 +385,7 @@ describe('MapFunction Thread', function () {
           },
           '#outputs': {
             '#is': '',
-            '~#value': '##.add.#output',
+            '~#return': '##.add.#output',
             '~#wait': '##.async.#wait',
           },
         },

@@ -117,14 +117,14 @@
    "#outputs": {
     "#is": "",
     "@b-p": [
-     "#value"
+     "#return"
     ],
     "@b-xyw": [
      573,
      36,
      143
     ],
-    "~#value": "##.add.#output"
+    "~#return": "##.add.#output"
    },
    "add": {
     "#is": "add",
@@ -255,14 +255,14 @@
    "#outputs": {
     "#is": "",
     "@b-p": [
-     "#value"
+     "#return"
     ],
     "@b-xyw": [
      573,
      36,
      143
     ],
-    "~#value": "##.add.#output"
+    "~#return": "##.add.#output"
    },
    "add": {
     "#is": "add",

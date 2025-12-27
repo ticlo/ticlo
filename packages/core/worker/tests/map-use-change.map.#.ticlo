@@ -9,9 +9,9 @@
 "#outputs": {
  "#is": "",
  "@b-p": [
-  "#value"
+  "#return"
  ],
- "~#value": "##.add.#output"
+ "~#return": "##.add.#output"
 },
 "add": {
  "#is": "add",

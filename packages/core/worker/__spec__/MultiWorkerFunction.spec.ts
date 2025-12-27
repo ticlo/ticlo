@@ -144,7 +144,7 @@ describe('MultiWorkerFunction', function () {
           '#is': '',
           'add': {'#is': 'add', '~0': '##.#inputs.#value', '1': 1},
           '#inputs': {'#is': ''},
-          '#outputs': {'#is': '', '~#value': '##.add.#output'},
+          '#outputs': {'#is': '', '~#return': '##.add.#output'},
         },
       },
     });
@@ -178,7 +178,7 @@ describe('MultiWorkerFunction', function () {
         '#is': {
           '#is': '',
           '#inputs': {'#is': ''},
-          '#outputs': {'#is': '', '~#value': '##.#inputs.#value'},
+          '#outputs': {'#is': '', '~#return': '##.#inputs.#value'},
         },
       },
     });

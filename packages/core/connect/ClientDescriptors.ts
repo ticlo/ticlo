@@ -17,7 +17,7 @@ export const clientDescriptors: FunctionDesc[] = [
     icon: 'fas:circle-up',
     color: '9bd',
     properties: [],
-    configs: ['#value', '#wait(#outputs)'],
+    configs: ['#return', '#wait(#outputs)'],
   },
   {
     priority: 0,

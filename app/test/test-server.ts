@@ -90,6 +90,8 @@ const packagesToTest = ['packages/core', 'packages/web-server', 'packages/node']
             } else {
               process.exit(0);
             }
+          } else {
+            console.log('tests are finished, waiting for updates, press Ctrl+C to exit');
           }
         },
         serve // allow editing when editing server is enabled

@@ -35,7 +35,7 @@ describe('MapFunction non-thread', function () {
           '#is': '',
           'runner': {'#is': 'test-runner', '#mode': 'onLoad', '#-log': 0},
           'add': {'#is': 'add', '~0': '##.#inputs', '1': 1},
-          '#outputs': {'#is': '', '~#value': '##.add.#output'},
+          '#outputs': {'#is': '', '~#return': '##.add.#output'},
         },
       },
     });
@@ -97,7 +97,7 @@ describe('MapFunction non-thread', function () {
       'use': {
         '#is': {
           '#is': '',
-          '#outputs': {'#is': '', '~#value': '##.#inputs.a'},
+          '#outputs': {'#is': '', '~#return': '##.#inputs.a'},
         },
       },
     });
@@ -107,7 +107,7 @@ describe('MapFunction non-thread', function () {
     bBlock.setValue('use', {
       '#is': '',
       '#inputs': {'#is': ''},
-      '#outputs': {'#is': '', '~#value': '##.#inputs.#value.b'},
+      '#outputs': {'#is': '', '~#return': '##.#inputs.#value.b'},
     });
 
     Root.runAll(2);
@@ -116,7 +116,7 @@ describe('MapFunction non-thread', function () {
     bBlock.setValue('use', {
       '#is': '',
       '#inputs': {'#is': '', '#custom': [{name: 'a', type: 'number'}]},
-      '#outputs': {'#is': '', '~#value': '##.#inputs.a'},
+      '#outputs': {'#is': '', '~#return': '##.#inputs.a'},
     });
 
     Root.runAll(2);
@@ -178,7 +178,7 @@ describe('MapFunction non-thread', function () {
           '#is': '',
           'runner': {'#is': 'test-runner', '#mode': 'onLoad', '#-log': 0},
           'add': {'#is': 'add', '~0': '##.#inputs', '1': 1},
-          '#outputs': {'#is': '', '~#value': '##.add.#output'},
+          '#outputs': {'#is': '', '~#return': '##.add.#output'},
         },
       },
     });
@@ -191,7 +191,7 @@ describe('MapFunction non-thread', function () {
       '#is': '',
       'runner': {'#is': 'test-runner', '#mode': 'onLoad', '#-log': 0},
       'add': {'#is': 'add', '~0': '##.#inputs', '1': 2},
-      '#outputs': {'#is': '', '~#value': '##.add.#output'},
+      '#outputs': {'#is': '', '~#return': '##.add.#output'},
     });
 
     Root.runAll(2);
@@ -224,7 +224,7 @@ describe('MapFunction non-thread', function () {
           '#is': '',
           'runner': {'#is': 'test-runner', '#mode': 'onLoad', '#-log': 0},
           'add': {'#is': 'add', '~0': '##.#inputs', '1': 1},
-          '#outputs': {'#is': '', '~#value': '##.add.#output'},
+          '#outputs': {'#is': '', '~#return': '##.add.#output'},
         },
       },
     });
@@ -272,7 +272,7 @@ describe('MapFunction non-thread', function () {
           '#is': '',
           'runner': {'#is': 'test-runner', '#mode': 'onLoad', '#-log': 0},
           'add': {'#is': 'add', '~0': '##.#inputs', '1': 1},
-          '#outputs': {'#is': '', '~#value': '##.add.#output'},
+          '#outputs': {'#is': '', '~#return': '##.add.#output'},
         },
       },
     });
@@ -290,7 +290,7 @@ describe('MapFunction non-thread', function () {
     Root.runAll(2);
 
     expect(bBlock.getValue('#output')).toEqual({v1: 2, v2: 5, v4: 6});
-    expect(bBlock.queryValue('#flows.v3.#outputs.#value')).toBe(4);
+    expect(bBlock.queryValue('#flows.v3.#outputs.#return')).toBe(4);
 
     expect(TestFunctionRunner.popLogs().length).toBe(4);
 
@@ -364,7 +364,7 @@ describe('MapFunction non-thread', function () {
           },
           '#outputs': {
             '#is': '',
-            '~#value': '##.add.#output',
+            '~#return': '##.add.#output',
             '~#wait': '##.async.#wait',
           },
         },
@@ -451,7 +451,7 @@ describe('MapFunction non-thread', function () {
           '#is': '',
           'runner': {'#is': 'test-runner', '#mode': 'onLoad', '#-log': 0},
           'add': {'#is': 'add', '~0': '##.#inputs', '1': 1},
-          '#outputs': {'#is': '', '~#value': '##.add.#output'},
+          '#outputs': {'#is': '', '~#return': '##.add.#output'},
         },
       },
     });
@@ -511,7 +511,7 @@ describe('MapFunction non-thread', function () {
           },
           '#outputs': {
             '#is': '',
-            '~#value': '##.add.#output',
+            '~#return': '##.add.#output',
             '~#wait': '##.async.#wait',
           },
         },
@@ -574,7 +574,7 @@ describe('MapFunction non-thread', function () {
           },
           '#outputs': {
             '#is': '',
-            '~#value': '##.add.#output',
+            '~#return': '##.add.#output',
             '~#wait': '##.async.#wait',
           },
         },

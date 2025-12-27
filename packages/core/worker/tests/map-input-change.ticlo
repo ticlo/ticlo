@@ -79,9 +79,9 @@
    "#outputs": {
     "#is": "",
     "@b-p": [
-     "#value"
+     "#return"
     ],
-    "~#value": "##.#inputs.#value"
+    "~#return": "##.#inputs.#value"
    }
   }
  }

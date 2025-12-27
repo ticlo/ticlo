@@ -31,7 +31,7 @@ const handlerWorker = {
     'runner': {'#is': 'test-runner', '#mode': 'onLoad', '#-log': 0},
     'add': {'#is': 'add', '~0': '##.#inputs.#value', '1': 1},
     '#inputs': {'#is': ''},
-    '#outputs': {'#is': '', '~#value': '##.add.#output'},
+    '#outputs': {'#is': '', '~#return': '##.add.#output'},
   },
 };
 
@@ -204,7 +204,7 @@ describe('HandlerFunction', function () {
           'runner': {'#is': 'async-function-manual', '#mode': 'onLoad', '#-log': 0},
           'add': {'#is': 'add', '~0': '##.#inputs.#value', '1': 1},
           '#inputs': {'#is': ''},
-          '#outputs': {'#is': '', '~#value': '##.add.#output', '~#wait': '##.runner.#wait'},
+          '#outputs': {'#is': '', '~#return': '##.add.#output', '~#wait': '##.runner.#wait'},
         },
       },
     });

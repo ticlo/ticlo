@@ -1081,7 +1081,7 @@ export class OutputsBlock extends Block {
     super.configChanged(input, val);
     switch (input._name) {
       case '#custom':
-      case '#value':
+      case '#return':
         break;
       default:
         this._flow.outputChanged(input, val);
