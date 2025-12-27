@@ -129,6 +129,7 @@ export class NodeTree extends LazyUpdateComponent<Props, any> {
       this.rootList[0].open();
     }
     conn.childrenChangeStream().listen(this.onChildrenChange);
+    this.forceUpdate();
   }
 
   renderImpl() {
