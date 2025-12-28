@@ -46,7 +46,7 @@ class ImgElementFunction extends HtmlElementFunction {
     return undefined;
   }
   getProps(): [DataMap, string[]] {
-    let [result, optional] = super.getProps();
+    const [result, optional] = super.getProps();
     result.src = this._data.getValue('src');
     return [result, optional];
   }

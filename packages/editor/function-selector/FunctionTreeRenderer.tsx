@@ -15,7 +15,7 @@ interface Props {
 
 export class FunctionTreeRenderer extends PureDataRenderer<Props, any> {
   onExpandClicked = () => {
-    let {item} = this.props;
+    const {item} = this.props;
     switch (item.opened) {
       case 'opened':
         item.close();
@@ -31,16 +31,16 @@ export class FunctionTreeRenderer extends PureDataRenderer<Props, any> {
   };
 
   onFunctionClick = (name: string, desc: FunctionDesc, data: any) => {
-    let {onFunctionClick} = this.props.item.root;
+    const {onFunctionClick} = this.props.item.root;
     if (onFunctionClick) {
       onFunctionClick(name, desc, data);
     }
   };
 
   renderImpl() {
-    let {item, style} = this.props;
+    const {item, style} = this.props;
     let {name, connection, desc, data, key} = item;
-    let marginLeft = item.level * 24;
+    const marginLeft = item.level * 24;
     if (desc?.properties) {
       return (
         <div style={{...style, marginLeft}} className="ticl-tree-type">
@@ -51,14 +51,14 @@ export class FunctionTreeRenderer extends PureDataRenderer<Props, any> {
     } else {
       if (!desc) {
         if (name.includes(':')) {
-          let nameParts = name.split(':');
+          const nameParts = name.split(':');
           name = nameParts.at(-1);
           desc = {id: item.key, name, ns: nameParts[0]};
         } else {
           desc = {id: item.key, name};
         }
       }
-      let [colorClass, iconName] = getFuncStyleFromDesc(desc, item.getConn(), 'ticl-bg--');
+      const [colorClass, iconName] = getFuncStyleFromDesc(desc, item.getConn(), 'ticl-bg--');
       return (
         <div style={{...style, marginLeft}} className="ticl-tree-type">
           <ExpandIcon opened={item.opened} onClick={this.onExpandClicked} />

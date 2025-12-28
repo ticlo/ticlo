@@ -183,7 +183,7 @@ export class BlockProperty extends PropDispatcher<any> implements PropListener<a
     if (this._bindingPath) {
       map[`~${this._name}`] = this._saveBinding();
     } else {
-      let saved = this._saveValue();
+      const saved = this._saveValue();
       if (saved !== undefined) {
         map[this._name] = saved;
       }
@@ -197,7 +197,7 @@ export class BlockProperty extends PropDispatcher<any> implements PropListener<a
         this.onChange(val['#is'], true);
         return;
       }
-      let block = this.createBlock(undefined);
+      const block = this.createBlock(undefined);
       block._load(val);
       this.onChange(block, true);
     } else {
@@ -224,7 +224,7 @@ export class BlockProperty extends PropDispatcher<any> implements PropListener<a
         this._saved._liveUpdate(val);
       } else {
         // just do a normal loading
-        let block = this.createBlock(undefined);
+        const block = this.createBlock(undefined);
         block._load(val);
         this.onChange(block, true);
       }
@@ -259,7 +259,7 @@ export class BlockProperty extends PropDispatcher<any> implements PropListener<a
   }
 
   addEvent(event: BlockPropertyEvent) {
-    for (let subscriber of this._subscribers) {
+    for (const subscriber of this._subscribers) {
       subscriber.onPropertyEvent(event);
     }
   }
@@ -286,7 +286,7 @@ export class BlockProperty extends PropDispatcher<any> implements PropListener<a
   }
 
   createBlock(save: boolean) {
-    let block = new Block(this._block._flow, this._block, this);
+    const block = new Block(this._block._flow, this._block, this);
     if (save) {
       this.setValue(block);
     } else if (save === false) {
@@ -307,7 +307,7 @@ export class BlockProperty extends PropDispatcher<any> implements PropListener<a
     if (this._value instanceof Block && this._value._prop === this) {
       this._value.destroy();
     }
-    for (let listener of this._listeners) {
+    for (const listener of this._listeners) {
       listener?.onSourceChange(null);
     }
     this._listeners = null;
@@ -344,7 +344,7 @@ export class BlockIO extends BlockProperty {
   // outputs the value but doesn't notify the function
   setOutput(val: unknown): boolean {
     this._outputing = true;
-    let changed = this.onChange(val);
+    const changed = this.onChange(val);
     this._outputing = false;
     return changed;
   }
@@ -365,7 +365,7 @@ export class BlockConfig extends BlockProperty {
   // outputs the value but doesn't notify the function
   setOutput(val: unknown): boolean {
     this._outputing = true;
-    let changed = this.onChange(val);
+    const changed = this.onChange(val);
     this._outputing = false;
     return changed;
   }

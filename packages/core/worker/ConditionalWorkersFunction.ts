@@ -123,8 +123,8 @@ export class ConditionalWorkersFunction extends BaseFunction<Block> implements B
   _childChanges: Set<string> = new Set<string>();
 
   _checkChanges() {
-    for (let key of this._childChanges) {
-      let val = this._watchedInputBlock.getValue(key);
+    for (const key of this._childChanges) {
+      const val = this._watchedInputBlock.getValue(key);
       if (val !== undefined) {
         if (this._workers.has(key)) {
           this._workers.get(key).updateInput(val);
@@ -144,10 +144,10 @@ export class ConditionalWorkersFunction extends BaseFunction<Block> implements B
   _watchObject(obj: DataMap) {
     if (this._workers) {
       // update existing workers
-      let oldWorkers = this._workers;
+      const oldWorkers = this._workers;
       this._workers = new Map();
-      for (let key in obj) {
-        let input = obj[key];
+      for (const key in obj) {
+        const input = obj[key];
         if (input === undefined) {
           continue;
         }
@@ -161,7 +161,7 @@ export class ConditionalWorkersFunction extends BaseFunction<Block> implements B
         }
       }
       // destroy old workers
-      for (let [key, oldWorker] of oldWorkers) {
+      for (const [key, oldWorker] of oldWorkers) {
         if (oldWorker) {
           oldWorker.destroy();
           this._funcBlock.deleteValue(key);
@@ -177,7 +177,7 @@ export class ConditionalWorkersFunction extends BaseFunction<Block> implements B
         this._currentOutput = {};
       }
       this._workers = new Map();
-      for (let key in obj) {
+      for (const key in obj) {
         this._addWorker(key, obj[key]);
       }
     }
@@ -202,8 +202,8 @@ export class ConditionalWorkersFunction extends BaseFunction<Block> implements B
 
   _addWorker(key: string, input: any) {
     const {src, saveCallback} = this.control.getSaveParameter();
-    let output = new ConditionalWorkersOutput(this, key);
-    let child = this._funcBlock.createOutputFlow(RepeaterWorker, key, src, output, saveCallback);
+    const output = new ConditionalWorkersOutput(this, key);
+    const child = this._funcBlock.createOutputFlow(RepeaterWorker, key, src, output, saveCallback);
     this._workers.set(key, child);
     child.updateInput(input);
   }
@@ -251,7 +251,7 @@ export class ConditionalWorkersFunction extends BaseFunction<Block> implements B
 
   _clearWorkers() {
     if (this._workers) {
-      for (let [key, worker] of this._workers) {
+      for (const [key, worker] of this._workers) {
         this._removeWorker(key);
       }
       this._workers = null;

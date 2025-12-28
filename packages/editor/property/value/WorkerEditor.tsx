@@ -20,9 +20,9 @@ export class WorkerEditor extends FunctionEditor {
   }
 
   editWorker = () => {
-    let {conn, keys, desc} = this.props;
+    const {conn, keys, desc} = this.props;
     if (keys.length) {
-      let flowEditorPath = `${keys[0]}.#edit-${desc.name}`;
+      const flowEditorPath = `${keys[0]}.#edit-${desc.name}`;
       conn.editWorker(flowEditorPath, desc.name);
       this.context.editFlow(flowEditorPath, () => {
         conn.applyFlowChange(flowEditorPath);
@@ -43,8 +43,9 @@ export class WorkerEditor extends FunctionEditor {
   };
 
   render() {
-    let {desc, value, locked, onChange, conn} = this.props;
-    let {opened} = this.state;
+    const {desc, locked, conn} = this.props;
+    let {value, onChange} = this.props;
+    const {opened} = this.state;
 
     if (this._pendingValue != null) {
       value = this._pendingValue;

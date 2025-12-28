@@ -13,8 +13,8 @@ import {FunctionDesc, PropDesc, PropGroupDesc} from '@ticlo/core';
 import {Functions} from '@ticlo/core/block/Functions.js';
 
 describe('PropertyEditor', function () {
-  let [funcDesc] = Functions.getDescToSend('add');
-  let propDesc = (funcDesc.properties[0] as PropGroupDesc).properties[0];
+  const [funcDesc] = Functions.getDescToSend('add');
+  const propDesc = (funcDesc.properties[0] as PropGroupDesc).properties[0];
 
   beforeEach(async function () {
     await initEditor();
@@ -26,7 +26,7 @@ describe('PropertyEditor', function () {
   });
 
   it('editable', async function () {
-    let flow = Root.instance.addFlow('PropertyEditor1');
+    const flow = Root.instance.addFlow('PropertyEditor1');
     flow.load({
       add1: {
         '#is': 'add',
@@ -38,9 +38,9 @@ describe('PropertyEditor', function () {
       },
     });
 
-    let [server, client] = makeLocalConnection(Root.instance, true);
+    const [server, client] = makeLocalConnection(Root.instance, true);
 
-    let [component, div] = loadTemplate(
+    const [component, div] = loadTemplate(
       <PropertyEditor
         conn={client}
         paths={['PropertyEditor1.add1', 'PropertyEditor1.add2']}
@@ -52,7 +52,7 @@ describe('PropertyEditor', function () {
     );
 
     await shouldHappen(() => div.querySelector('.ticl-number-input'));
-    let input = div.querySelector('.ticl-number-input');
+    const input = div.querySelector('.ticl-number-input');
 
     // value is editable when value is same
     expect(input.classList.contains('ticl-number-input-disabled')).toBe(false);
@@ -73,7 +73,7 @@ describe('PropertyEditor', function () {
   });
 
   it('subblock', async function () {
-    let flow = Root.instance.addFlow('PropertyEditor2');
+    const flow = Root.instance.addFlow('PropertyEditor2');
     flow.load({
       add1: {
         '#is': 'add',
@@ -85,9 +85,9 @@ describe('PropertyEditor', function () {
       },
     });
 
-    let [server, client] = makeLocalConnection(Root.instance, true);
+    const [server, client] = makeLocalConnection(Root.instance, true);
 
-    let [component, div] = loadTemplate(
+    const [component, div] = loadTemplate(
       <PropertyEditor
         conn={client}
         paths={['PropertyEditor2.add1', 'PropertyEditor2.add2']}
@@ -99,9 +99,9 @@ describe('PropertyEditor', function () {
     );
 
     await shouldHappen(() => div.querySelector('.ticl-number-input'));
-    let input = div.querySelector('.ticl-number-input');
+    const input = div.querySelector('.ticl-number-input');
 
-    let expandIcon = div.querySelector('.ticl-tree-arr-expand');
+    const expandIcon = div.querySelector('.ticl-tree-arr-expand');
 
     expect(expandIcon).not.toBeNull();
     expect(div.querySelector('.ticl-property-list')).toBeNull();

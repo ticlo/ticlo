@@ -1,4 +1,4 @@
-let sharedCustom: any[] = [
+const sharedCustom: any[] = [
   {name: 'num', type: 'number'},
   {name: 'str', type: 'string'},
   {name: 'tog1', type: 'toggle'},
@@ -20,9 +20,9 @@ let sharedCustom: any[] = [
     outputs: [{name: 'result', type: 'string'}],
   },
 ];
-let len = sharedCustom.length;
+const len = sharedCustom.length;
 for (let i = 0; i < len; ++i) {
-  let r = {...sharedCustom[i], readonly: true};
+  const r = {...sharedCustom[i], readonly: true};
   r.name = r.name.toUpperCase();
   sharedCustom.push(r);
 }

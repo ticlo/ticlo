@@ -27,13 +27,13 @@ export class SharedConfig extends BlockProperty {
 
   _saveValue(): unknown {
     if (this._value instanceof SharedBlock) {
-      let result = this._value.save();
+      const result = this._value.save();
       // check if SharedBlock is needed even with no child block
       if ('#cacheMode' in result || '#custom' in result) {
         return result;
       }
       // check if there is a child block
-      for (let key in result) {
+      for (const key in result) {
         if (isSavedBlock(result[key])) {
           return result;
         }
@@ -52,7 +52,7 @@ export class SharedBlock extends Flow {
   static uid = new Uid();
   static _dict = new Map<any, SharedBlock>();
   static loadSharedBlock(flow: FlowWithShared, funcId: string, data: DataMap) {
-    let cacheKey = flow.getCacheKey(funcId, data);
+    const cacheKey = flow.getCacheKey(funcId, data);
     let sharedBlock: SharedBlock;
     if (typeof cacheKey === 'string') {
       sharedBlock = SharedBlock._loadFuncSharedBlock(flow, cacheKey, data);
@@ -67,10 +67,9 @@ export class SharedBlock extends Flow {
     if (SharedBlock._dict.has(funcId)) {
       return SharedBlock._dict.get(funcId);
     } else {
-      let sharedBlock: SharedBlock;
-      let sharedRoot = Root.instance._sharedRoot;
-      let prop = sharedRoot.getProperty(encodeTicloName(funcId));
-      sharedBlock = new SharedBlock(sharedRoot, sharedRoot, prop);
+      const sharedRoot = Root.instance._sharedRoot;
+      const prop = sharedRoot.getProperty(encodeTicloName(funcId));
+      const sharedBlock = new SharedBlock(sharedRoot, sharedRoot, prop);
       sharedBlock._funcDispatcher = Functions.listen(funcId, sharedBlock._funcListener);
       sharedBlock._cacheKey = funcId;
       sharedBlock._cacheMode = data['#cacheMode'];
@@ -89,8 +88,6 @@ export class SharedBlock extends Flow {
     if (cacheKey && SharedBlock._dict.has(cacheKey)) {
       return SharedBlock._dict.get(cacheKey);
     } else {
-      let sharedBlock: SharedBlock;
-
       // find a property to store the shared block
       let prop: BlockProperty;
       if (cacheKey instanceof BlockProperty) {
@@ -98,15 +95,15 @@ export class SharedBlock extends Flow {
         prop = cacheKey;
       } else {
         // find a property from global sharedRoot
-        let uid = SharedBlock.uid;
-        let sharedRoot = Root.instance._sharedRoot;
+        const uid = SharedBlock.uid;
+        const sharedRoot = Root.instance._sharedRoot;
         while (sharedRoot.getProperty(uid.next(), false)?._value) {
           // loop until find a usable id
         }
         prop = sharedRoot.getProperty(uid.current);
       }
 
-      sharedBlock = new SharedBlock(prop._block, null, prop);
+      const sharedBlock = new SharedBlock(prop._block, null, prop);
 
       if (cacheKey) {
         sharedBlock._cacheKey = cacheKey;

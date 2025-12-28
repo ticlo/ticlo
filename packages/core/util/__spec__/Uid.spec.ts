@@ -3,7 +3,7 @@ import {Uid} from '../Uid.js';
 
 describe('Uid', function () {
   it('uid', function () {
-    let uid = new Uid();
+    const uid = new Uid();
 
     expect(uid.current).toBe('0');
     expect(uid.next()).toBe('1');

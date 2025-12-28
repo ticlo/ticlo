@@ -120,11 +120,11 @@ export class CalendarEventEditor extends React.PureComponent<Props, State> {
       deleteField = true;
     }
     if (deleteField) {
-      let copy: any = {...current};
+      const copy: any = {...current};
       delete copy[field];
       this.onValuesChange(copy, true);
     } else {
-      let v = value;
+      const v = value;
       if (Array.isArray(v)) {
         v.sort(sortDateItem);
       }

@@ -14,14 +14,14 @@ const defaultTimes = {
 
 export class DateRangeEditor extends React.PureComponent<ValueEditorProps, any> {
   onValueChange = (range: [DateTime, DateTime]) => {
-    let {name, onChange} = this.props;
+    const {name, onChange} = this.props;
     onChange(range, name);
   };
 
   render() {
     let {desc, value, locked, onChange} = this.props;
-    let showTime = desc.showTime !== false;
-    let showTimeOption = showTime ? defaultTimes : null;
+    const showTime = desc.showTime !== false;
+    const showTimeOption = showTime ? defaultTimes : null;
 
     let title: string;
     if (Array.isArray(value) && value.length === 2) {

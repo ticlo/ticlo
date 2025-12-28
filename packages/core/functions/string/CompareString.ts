@@ -16,8 +16,8 @@ const descriptor: FunctionDesc = {
 
 export class StartWithFunction extends PureFunction {
   run(): any {
-    let v0 = this._data.getValue('input');
-    let v1 = this._data.getValue('search');
+    const v0 = this._data.getValue('input');
+    const v1 = this._data.getValue('search');
     if (Array.isArray(v0)) {
       if (v0.length) {
         this._data.output(Object.is(v0[0], v1));
@@ -40,8 +40,8 @@ Functions.add(StartWithFunction, {
 
 export class EndWithFunction extends PureFunction {
   run(): any {
-    let v0 = this._data.getValue('input');
-    let v1 = this._data.getValue('search');
+    const v0 = this._data.getValue('input');
+    const v1 = this._data.getValue('search');
     if (Array.isArray(v0)) {
       if (v0.length) {
         this._data.output(Object.is(v0.at(-1), v1));
@@ -64,8 +64,8 @@ Functions.add(EndWithFunction, {
 
 export class ContainFunction extends PureFunction {
   run(): any {
-    let v0 = this._data.getValue('input');
-    let v1 = this._data.getValue('search');
+    const v0 = this._data.getValue('input');
+    const v1 = this._data.getValue('search');
 
     if (Array.isArray(v0)) {
       this._data.output(v0.includes(v1));

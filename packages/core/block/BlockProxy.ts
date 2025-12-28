@@ -24,11 +24,11 @@ function getDefaultFunctions(block: Block, field: string) {
 export const BlockProxy = {
   get(block: Block, field: string, receiver: object): unknown {
     if (typeof field === 'string') {
-      let defaultFunction = getDefaultFunctions(block, field);
+      const defaultFunction = getDefaultFunctions(block, field);
       if (defaultFunction) {
         return defaultFunction;
       }
-      let prop = block.getProperty(field, false);
+      const prop = block.getProperty(field, false);
       if (prop) {
         return prop._value;
       }
@@ -38,7 +38,7 @@ export const BlockProxy = {
 
   set(block: Block, field: string, value: unknown, receiver: object): boolean {
     if (typeof field === 'string') {
-      let prop = block.getProperty(field);
+      const prop = block.getProperty(field);
       prop.updateValue(value);
       return true;
     }
@@ -49,11 +49,11 @@ export const BlockProxy = {
     if (block._destroyed) {
       return [];
     }
-    let result: string[] = [];
+    const result: string[] = [];
     if (!block._ioCache) {
       block._initIoCache();
     }
-    for (let [field, prop] of block._ioCache) {
+    for (const [field, prop] of block._ioCache) {
       if (prop._value !== undefined) {
         result.push(field);
       }
@@ -65,7 +65,7 @@ export const BlockProxy = {
   },
   has(block: Block, field: string): boolean {
     if (typeof field === 'string') {
-      let prop = block.getProperty(field, false);
+      const prop = block.getProperty(field, false);
       return prop && prop._value !== undefined;
     }
     return false;
@@ -80,13 +80,13 @@ export const BlockDeepProxy = {
 
   get(block: Block, field: string, receiver: object): unknown {
     if (typeof field === 'string') {
-      let defaultFunction = getDefaultFunctions(block, field);
+      const defaultFunction = getDefaultFunctions(block, field);
       if (defaultFunction) {
         return defaultFunction;
       }
-      let prop = block.getProperty(field, false);
+      const prop = block.getProperty(field, false);
       if (prop) {
-        let val = prop._value;
+        const val = prop._value;
         if (val instanceof Block) {
           return new Proxy(prop._value, BlockDeepProxy);
         }

@@ -12,11 +12,11 @@ describe('TicloComp', function () {
     root.remove();
   });
   it('basic render', async function () {
-    let flow = new Flow();
-    let aBlock = flow.createBlock('a');
+    const flow = new Flow();
+    const aBlock = flow.createBlock('a');
     aBlock.setValue('#render', <span />);
 
-    let comp = <TicloComp block={aBlock} />;
+    const comp = <TicloComp block={aBlock} />;
     await root.waitRender(comp);
     expect(root.div.children[0]).toBeInstanceOf(HTMLSpanElement);
   });

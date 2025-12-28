@@ -3,14 +3,14 @@ import * as path from 'path';
 import * as glob from 'glob';
 
 async function main() {
-  let output: string[] = [];
+  const output: string[] = [];
 
-  let faIcons: string[] = glob.sync(`icons/font-awesome/**/*.svg`, {posix: true});
-  for (let path of faIcons) {
-    let paths = path.split('/');
-    let fileName = paths.at(-1);
-    let name = fileName.substring(0, fileName.length - 4);
-    let folderName = paths[paths.length - 2];
+  const faIcons: string[] = glob.sync(`icons/font-awesome/**/*.svg`, {posix: true});
+  for (const path of faIcons) {
+    const paths = path.split('/');
+    const fileName = paths.at(-1);
+    const name = fileName.substring(0, fileName.length - 4);
+    const folderName = paths[paths.length - 2];
     let group: string;
     switch (folderName) {
       case 'solid':
@@ -25,7 +25,7 @@ async function main() {
       default:
         continue;
     }
-    let data = fs
+    const data = fs
       .readFileSync(path, 'utf8')
       .trim()
       .replace('<path ', "<path fill='white' ")

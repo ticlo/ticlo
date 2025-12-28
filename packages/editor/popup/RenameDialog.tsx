@@ -27,8 +27,8 @@ export class RenameDialog extends LazyUpdateComponent<Props, State> {
   };
 
   renameBlock = () => {
-    let {conn, path, displayName} = this.props;
-    let {nameEditor, dispEditor, changeDisp} = this.formItems;
+    const {conn, path, displayName} = this.props;
+    const {nameEditor, dispEditor, changeDisp} = this.formItems;
 
     if (!changeDisp.value && validateNodeName(nameEditor.value)) {
       nameEditor.setError('Contains Invalid Character');
@@ -41,10 +41,10 @@ export class RenameDialog extends LazyUpdateComponent<Props, State> {
         conn.setValue(`${path}.@b-name`, dispEditor.value || undefined);
       }
     } else {
-      let [parentPath, name] = splitPathName(path);
+      const [parentPath, name] = splitPathName(path);
       if (nameEditor.value !== name) {
         conn.renameProp(path, nameEditor.value);
-        let basePath = conn.childrenChangeStream().dispatch({path: parentPath});
+        const basePath = conn.childrenChangeStream().dispatch({path: parentPath});
       }
     }
     this.onClose();
@@ -55,11 +55,11 @@ export class RenameDialog extends LazyUpdateComponent<Props, State> {
   };
 
   renderImpl() {
-    let {path, displayName} = this.props;
-    let {visible} = this.state;
-    let {nameEditor, dispEditor, changeDisp} = this.formItems;
-    let name = path.split('.').pop();
-    let enabled = changeDisp.value ? dispEditor.value !== displayName : nameEditor.value !== name;
+    const {path, displayName} = this.props;
+    const {visible} = this.state;
+    const {nameEditor, dispEditor, changeDisp} = this.formItems;
+    const name = path.split('.').pop();
+    const enabled = changeDisp.value ? dispEditor.value !== displayName : nameEditor.value !== name;
     return (
       <Modal
         title={t('Rename')}

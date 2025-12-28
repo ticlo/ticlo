@@ -65,7 +65,7 @@ export class WorkerFunctionGen extends BaseFunction<Block> {
     if (namespace == null) {
       namespace = flow._namespace;
     }
-    let desc = WorkerFunctionGen.collectDesc(funcId, data);
+    const desc = WorkerFunctionGen.collectDesc(funcId, data);
     Functions.saveWorkerFunction(funcId, flow, data);
     WorkerFunctionGen.registerType(data, desc, namespace);
     return true;
@@ -73,14 +73,14 @@ export class WorkerFunctionGen extends BaseFunction<Block> {
 
   static collectDesc(funcId: string, data: DataMap): FunctionDesc {
     let name: string;
-    let pos = funcId.indexOf(':');
+    const pos = funcId.indexOf(':');
     if (pos > -1) {
       name = funcId.substring(pos + 1);
     } else {
       return null;
     }
     let desc: FunctionDesc = {name, properties: WorkerFunctionGen.collectProperties(data)};
-    let savedDesc = data['#desc'] as FunctionDesc;
+    const savedDesc = data['#desc'] as FunctionDesc;
     if (savedDesc && typeof savedDesc === 'object' && savedDesc.constructor === Object) {
       desc = {...savedDesc, ...desc};
     }
@@ -91,13 +91,13 @@ export class WorkerFunctionGen extends BaseFunction<Block> {
    * collect function parameters for creating worker function
    */
   static collectProperties(data: DataMap) {
-    let properties: (PropDesc | PropGroupDesc)[] = [];
-    let groups: Map<string, PropGroupDesc> = new Map();
+    const properties: (PropDesc | PropGroupDesc)[] = [];
+    const groups: Map<string, PropGroupDesc> = new Map();
     // add inputs
-    let inputs = (data['#inputs'] as DataMap)?.['#custom'];
+    const inputs = (data['#inputs'] as DataMap)?.['#custom'];
     if (Array.isArray(inputs)) {
-      for (let input of inputs) {
-        let copyInput = {...input};
+      for (const input of inputs) {
+        const copyInput = {...input};
         // input should not be readonly
         delete copyInput.readonly;
         properties.push(copyInput);
@@ -107,14 +107,14 @@ export class WorkerFunctionGen extends BaseFunction<Block> {
       }
     }
     // add outputs
-    let outputs = (data['#outputs'] as DataMap)?.['#custom'];
+    const outputs = (data['#outputs'] as DataMap)?.['#custom'];
     let mainOutput: PropDesc;
     if (Array.isArray(outputs)) {
-      for (let output of outputs) {
+      for (const output of outputs) {
         if (output.type === 'group' && groups.has(output.name)) {
-          let groupProperties = groups.get(output.name).properties;
+          const groupProperties = groups.get(output.name).properties;
           // merge output group with input group
-          for (let prop of output.properties) {
+          for (const prop of output.properties) {
             groupProperties.push({...prop, readonly: true});
           }
         } else {

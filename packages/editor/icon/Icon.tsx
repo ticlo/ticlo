@@ -5,7 +5,7 @@ const measureTable = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
 const offsetTable: boolean[] = new Array(127);
 offsetTable.fill(false);
 // characters that need y offset
-for (let charWithOff of [40, 41, 44, 59, 64, 91, 93, 103, 106, 112, 113, 121, 123, 124, 125]) {
+for (const charWithOff of [40, 41, 44, 59, 64, 91, 93, 103, 106, 112, 113, 121, 123, 124, 125]) {
   offsetTable[charWithOff] = true;
 }
 
@@ -18,17 +18,17 @@ interface Props {
 function iconNameWidth(str: string): [string, number, boolean] {
   let overrideSize = -1;
   if (str.length > 2) {
-    let colonPos = str.indexOf(':');
+    const colonPos = str.indexOf(':');
     if (colonPos > 0) {
       overrideSize = parseInt(str.substring(colonPos + 1));
       str = str.substring(0, colonPos);
     }
   }
-  let size = str.length;
+  const size = str.length;
   let width = 0;
   let needOffset = false;
   for (let i = 0; i < size; ++i) {
-    let code = str.charCodeAt(i);
+    const code = str.charCodeAt(i);
     if (code < 32) {
       return ['', -1, false];
     }
@@ -62,9 +62,9 @@ export function TIcon(props: Props) {
   }
   // TODO priority for repeater and group
 
-  let colonPos = icon.indexOf(':');
+  const colonPos = icon.indexOf(':');
   if (colonPos > 0) {
-    let iconType = icon.substring(0, colonPos);
+    const iconType = icon.substring(0, colonPos);
     let iconName = icon.substring(colonPos + 1);
     switch (iconType) {
       case 'fas':
@@ -83,7 +83,7 @@ export function TIcon(props: Props) {
         if (iconName.length > 3) {
           iconName = iconName.substring(0, 3);
         }
-        let [outName, fontSize, needOffset] = iconNameWidth(iconName);
+        const [outName, fontSize, needOffset] = iconNameWidth(iconName);
         if (fontSize > 0) {
           if (fontSize === 18) {
             if (needOffset) {

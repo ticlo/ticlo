@@ -5,7 +5,7 @@ import {Flow} from '../../block/Flow.js';
 
 describe('Optional Property', function () {
   it('add remove OptionalProperty', function () {
-    let flow = new Flow();
+    const flow = new Flow();
 
     // remove should do nothing when +optional is undefined
     removeOptionalProperty(flow, 'a');
@@ -34,7 +34,7 @@ describe('Optional Property', function () {
   });
 
   it('move OptionalProperty', function () {
-    let flow = new Flow();
+    const flow = new Flow();
 
     moveOptionalProperty(flow, 'a', 'b');
     expect(flow.getValue('+optional')).not.toBeDefined();

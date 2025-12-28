@@ -11,11 +11,11 @@ interface Props extends PropertyEditorProps {
 
 export class OptionalPropertyEditor extends React.PureComponent<Props, any> {
   onChange = (event: CheckboxChangeEvent) => {
-    let {onCheck, name} = this.props;
+    const {onCheck, name} = this.props;
     onCheck(name, event.target.checked);
   };
   render() {
-    let {checked, onCheck, reorder, ...others} = this.props;
+    const {checked, onCheck, reorder, ...others} = this.props;
     return (
       <div className="ticl-property-optional">
         <Checkbox checked={checked} onChange={this.onChange} />

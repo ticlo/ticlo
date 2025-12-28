@@ -13,8 +13,8 @@ export class SchedulePane {
       // invalid paths
       return;
     }
-    let id = `schedule-${parentPath}.${scheduleName}`;
-    let title = `${translateEditor('Schedule')} ${parentPath.split('.').at(-1)}`;
+    const id = `schedule-${parentPath}.${scheduleName}`;
+    const title = `${translateEditor('Schedule')} ${parentPath.split('.').at(-1)}`;
 
     createDockDialog(
       layout,

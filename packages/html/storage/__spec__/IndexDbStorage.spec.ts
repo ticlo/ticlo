@@ -54,7 +54,7 @@ describe('IndexDbStorage', function () {
     let flow = root.addFlow('flow1');
     flow.applyChange();
     await waitTick(20);
-    let savedData: string = await db.get(FLOW_STORE_NAME, 'flow1');
+    const savedData: string = await db.get(FLOW_STORE_NAME, 'flow1');
     expect(savedData).toBe('{\n"#is": ""\n}');
 
     root.deleteFlow('flow1');
@@ -71,19 +71,19 @@ describe('IndexDbStorage', function () {
     flow.setValue('value', 456);
     flow.applyChange();
     await waitTick(20);
-    let readResult = await storage.loadFlow('flow2');
+    const readResult = await storage.loadFlow('flow2');
     expect(readResult).toEqual({'#is': '', 'value': 456});
 
     root.destroy();
   });
   it('init loader', async function () {
-    let flowData = {'#is': '', 'value': 321};
-    let storage = new IndexDbFlowStorage(FLOW_STORE_NAME, dbPromise);
+    const flowData = {'#is': '', 'value': 321};
+    const storage = new IndexDbFlowStorage(FLOW_STORE_NAME, dbPromise);
 
     const db = await storage.dbPromise;
     await db.put(FLOW_STORE_NAME, JSON.stringify(flowData), 'folder5.subflow');
 
-    let root = new Root();
+    const root = new Root();
     await root.setStorage(storage);
 
     expect(root.queryValue('folder5')).instanceof(FlowFolder);

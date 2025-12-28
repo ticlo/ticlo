@@ -11,7 +11,7 @@ export function renderValue(val: any, getPopup?: (val: any) => React.ReactElemen
       }
       return <span className="ticl-string-value">{val}</span>;
     case 'object':
-      let display = encodeDisplay(val);
+      const display = encodeDisplay(val);
       if (val && (Array.isArray(val) || val.constructor === Object)) {
         return (
           <>

@@ -21,7 +21,7 @@ interface BlockViewState {
 
 function snapW(val: number): number {
   val = Math.round(val);
-  let m = val % 24;
+  const m = val % 24;
   if (m > 20) {
     return val - m + 23;
   } else if (m < 2) {
@@ -51,14 +51,14 @@ export class BlockView extends PureDataRenderer<BlockViewProps, BlockViewState> 
   }
 
   selectAndDrag = (e: DragState) => {
-    let {item} = this.props;
+    const {item} = this.props;
     if (e.event.ctrlKey) {
       item.stage.selectBlock(item.path, true);
     } else {
       item.stage.selectBlock(item.path);
     }
     if (item.selected) {
-      let draggingBlocks = item.stage.startDragBlock(e, item);
+      const draggingBlocks = item.stage.startDragBlock(e, item);
       if (draggingBlocks.length === 1 && item.w) {
         // when dragging 1 block that's not minimized, check if it can be dropped into block footer
         e.setData({moveBlock: item.path}, item.stage);
@@ -69,7 +69,7 @@ export class BlockView extends PureDataRenderer<BlockViewProps, BlockViewState> 
   };
 
   selectAndNotDrag = (e: DragState) => {
-    let {item} = this.props;
+    const {item} = this.props;
     if (e.event.ctrlKey) {
       item.stage.selectBlock(item.path, true);
     } else {
@@ -81,11 +81,11 @@ export class BlockView extends PureDataRenderer<BlockViewProps, BlockViewState> 
   };
 
   onDragMove = (e: DragState) => {
-    let {item} = this.props;
+    const {item} = this.props;
     if (item._syncParent && !item._syncParent.selected && e.moved()) {
       item.unLinkSyncParent();
     } else {
-      let dropOnFoot = BlockView._footDropMap.get(e);
+      const dropOnFoot = BlockView._footDropMap.get(e);
       if (dropOnFoot) {
         item.setXYW(dropOnFoot.x, dropOnFoot.y + dropOnFoot.h, dropOnFoot.w);
         return;
@@ -102,7 +102,7 @@ export class BlockView extends PureDataRenderer<BlockViewProps, BlockViewState> 
   };
 
   expandBlock = (e: React.MouseEvent) => {
-    let {item} = this.props;
+    const {item} = this.props;
     if (item._syncParent) {
       // Only allow user to double-click the parent block to expand/minimize the block.
       return;
@@ -117,7 +117,7 @@ export class BlockView extends PureDataRenderer<BlockViewProps, BlockViewState> 
   _baseW: number = -1;
 
   startDragW = (e: DragState) => {
-    let {item} = this.props;
+    const {item} = this.props;
     this._baseW = item.w;
     e.startDrag(null, null);
   };
@@ -143,11 +143,11 @@ export class BlockView extends PureDataRenderer<BlockViewProps, BlockViewState> 
 
   static _footDropMap: WeakMap<DragState, BlockItem> = new WeakMap<DragState, BlockItem>();
   onDragOverFoot = (e: DragState) => {
-    let {item} = this.props;
+    const {item} = this.props;
     if (item._syncChild) {
       return;
     }
-    let movingBlockKey: string = DragState.getData('moveBlock', item.stage);
+    const movingBlockKey: string = DragState.getData('moveBlock', item.stage);
     if (movingBlockKey && movingBlockKey !== item.path) {
       BlockView._footDropMap.set(e, item);
       e.accept('');
@@ -155,10 +155,10 @@ export class BlockView extends PureDataRenderer<BlockViewProps, BlockViewState> 
     }
   };
   onDropFoot = (e: DragState) => {
-    let {item} = this.props;
-    let movingBlockKey: string = DragState.getData('moveBlock', item.stage);
+    const {item} = this.props;
+    const movingBlockKey: string = DragState.getData('moveBlock', item.stage);
     if (movingBlockKey && movingBlockKey !== item.path) {
-      let block = item.stage.getBlock(movingBlockKey);
+      const block = item.stage.getBlock(movingBlockKey);
       if (block) {
         block.linkSyncParent(item);
       }
@@ -172,7 +172,7 @@ export class BlockView extends PureDataRenderer<BlockViewProps, BlockViewState> 
 
   widget = new LazyUpdateSubscriber((widgetName: string) => {
     if (!widgetName) {
-      let {item} = this.props;
+      const {item} = this.props;
       item.setViewH(0);
     }
     this.forceUpdate();
@@ -186,11 +186,11 @@ export class BlockView extends PureDataRenderer<BlockViewProps, BlockViewState> 
   }
 
   renderImpl() {
-    let {item} = this.props;
-    let {moving, footDropping} = this.state;
-    let FullView = item.desc.view as new () => React.Component<BlockWidgetProps>;
+    const {item} = this.props;
+    const {moving, footDropping} = this.state;
+    const FullView = item.desc.view as new () => React.Component<BlockWidgetProps>;
 
-    let classNames: string[] = [];
+    const classNames: string[] = [];
     if (item.selected) {
       classNames.push('ticl-block-selected');
     }
@@ -207,7 +207,7 @@ export class BlockView extends PureDataRenderer<BlockViewProps, BlockViewState> 
     if (FullView) {
       classNames.push('ticl-block-full-view');
       let width = item.w;
-      let widthDrag = item._syncParent ? null : (
+      const widthDrag = item._syncParent ? null : (
         <DragDropDiv
           className="ticl-width-drag"
           directDragT={true}
@@ -243,7 +243,7 @@ export class BlockView extends PureDataRenderer<BlockViewProps, BlockViewState> 
       let [colorClass, icon] = getFuncStyleFromDesc(item.desc, item.conn);
       classNames.push('ticl-block');
       if (item.dynamicStyle) {
-        let [dynamicColor, dynamicIcon] = getFuncStyleFromDesc(item.dynamicStyle, null);
+        const [dynamicColor, dynamicIcon] = getFuncStyleFromDesc(item.dynamicStyle, null);
         if (dynamicColor) {
           colorClass = dynamicColor;
         }
@@ -255,7 +255,7 @@ export class BlockView extends PureDataRenderer<BlockViewProps, BlockViewState> 
       if (item.w) {
         // not minimized
         let widget: React.ReactNode;
-        let WidgetType = BlockWidget.get(this.widget.value);
+        const WidgetType = BlockWidget.get(this.widget.value);
         if (WidgetType) {
           widget = (
             <div className="ticl-block-view" style={{minHeight: item.viewH}}>

@@ -30,7 +30,7 @@ export class HandlerFunction extends MapImpl {
   _keepOrderChanged: boolean;
 
   _onKeepOrderChange(val: any): boolean {
-    let keepOrder = Boolean(val);
+    const keepOrder = Boolean(val);
     if (keepOrder === this._keepOrder) {
       return false;
     }
@@ -55,9 +55,9 @@ export class HandlerFunction extends MapImpl {
   }
   _checkQueueSize() {
     if (this._queue.length > this._maxQueueSize) {
-      let countToRemove = this._queue.length - this._maxQueueSize;
+      const countToRemove = this._queue.length - this._maxQueueSize;
       for (let i = 0; i < countToRemove; ++i) {
-        let inputToRemove = this._queue.get(i).onCancel();
+        const inputToRemove = this._queue.get(i).onCancel();
       }
       this._queue.remove(0, countToRemove);
     }
@@ -69,7 +69,7 @@ export class HandlerFunction extends MapImpl {
       this._workers = new Map();
     }
     while (!this._queue.isEmpty()) {
-      let threadId = this._pool.next(null);
+      const threadId = this._pool.next(null);
       if (threadId === null) {
         return false;
       }
@@ -97,7 +97,7 @@ export class HandlerFunction extends MapImpl {
       field = this._outQueue.total;
       this._outQueue.newSlot();
     }
-    let input = this._queue.shift();
+    const input = this._queue.shift();
     (worker._outputObj as WorkerOutput).reset(
       field,
       this._timeout,
@@ -126,7 +126,7 @@ export class HandlerFunction extends MapImpl {
       this._clearWorkers();
     }
 
-    for (let val of this._called) {
+    for (const val of this._called) {
       if (val instanceof Task) {
         if (val.attachHandler(this)) {
           this._queue.push(val);
@@ -175,7 +175,7 @@ export class HandlerFunction extends MapImpl {
     if (timeout) {
       result = output.task.onTimeout();
     } else {
-      let worker = this._workers.get(output.key);
+      const worker = this._workers.get(output.key);
       result = output.task.onResolve(worker, worker.getValue('#outputs'));
     }
 
@@ -187,7 +187,7 @@ export class HandlerFunction extends MapImpl {
     if (this._keepOrder) {
       this._outQueue.setAt(output.field as number, result);
       while (this._outQueue.peekFront() !== undefined) {
-        let result = this._outQueue.shift();
+        const result = this._outQueue.shift();
         this._data.emitOnly(result);
       }
     } else {
@@ -198,7 +198,7 @@ export class HandlerFunction extends MapImpl {
 
   _clearWorkers() {
     if (this._workers) {
-      for (let [key, worker] of this._workers) {
+      for (const [key, worker] of this._workers) {
         if ((worker._outputObj as WorkerOutput).onReady) {
           (worker._outputObj as WorkerOutput).task.onCancel();
         }
@@ -240,7 +240,7 @@ function getDefaultWorker(block: Block, field: string, blockStack: Map<any, any>
     }
     blockStack.set(this, true);
     // proxy the default work to the original block
-    let fromProp = block.getProperty('#call', false)?._bindingSource?.getProperty();
+    const fromProp = block.getProperty('#call', false)?._bindingSource?.getProperty();
     if (fromProp) {
       return fromProp._block.getDefaultWorker(fromProp._name, blockStack);
     }

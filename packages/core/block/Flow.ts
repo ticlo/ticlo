@@ -69,7 +69,7 @@ export class Flow extends Block {
   }
 
   _disabledChanged(disabled: unknown) {
-    let newDisabled = this._parent._flow._disabled || Boolean(disabled);
+    const newDisabled = this._parent._flow._disabled || Boolean(disabled);
     if (newDisabled !== this._disabled) {
       this._disabled = newDisabled;
       if (newDisabled) {
@@ -92,8 +92,8 @@ export class Flow extends Block {
 
   _disableBlock() {
     this._onStateChange?.(this, FlowState.disabled);
-    for (let [key, prop] of this._props) {
-      let val = prop._value;
+    for (const [key, prop] of this._props) {
+      const val = prop._value;
       if (val instanceof Block && val._prop === prop) {
         val._flowDisabled();
       }
@@ -102,8 +102,8 @@ export class Flow extends Block {
 
   _enabledBlock() {
     this._onStateChange?.(this, FlowState.enabled);
-    for (let [key, prop] of this._props) {
-      let val = prop._value;
+    for (const [key, prop] of this._props) {
+      const val = prop._value;
       if (val instanceof Block && val._prop === prop) {
         val._flowEnabled();
       }
@@ -111,7 +111,7 @@ export class Flow extends Block {
   }
 
   createContextProperty(name: string): BlockProperty {
-    let prop = new ContextProperty(this, name);
+    const prop = new ContextProperty(this, name);
     this._props.set(name, prop);
     return prop;
   }
@@ -135,7 +135,7 @@ export class Flow extends Block {
   _lastInput: unknown;
   updateInput(val: unknown) {
     this._lastInput = val;
-    let prop = this.getProperty('#inputs');
+    const prop = this.getProperty('#inputs');
     if (prop._value instanceof InputsBlock) {
       prop._value._setInputValue(val);
     } else {
@@ -174,9 +174,9 @@ export class Flow extends Block {
     let loaded = false;
     if (funcId) {
       // load from worker class
-      let desc: FunctionDesc = Functions.getDescToSend(funcId)[0];
+      const desc: FunctionDesc = Functions.getDescToSend(funcId)[0];
       if (desc) {
-        let data = Functions.getWorkerData(funcId);
+        const data = Functions.getWorkerData(funcId);
         if (data) {
           this._namespace = desc.ns;
           this._loadFrom = funcId;
@@ -184,7 +184,7 @@ export class Flow extends Block {
           loaded = true;
         }
       } else if (src) {
-        let colonIndex = funcId.indexOf(':');
+        const colonIndex = funcId.indexOf(':');
         if (colonIndex >= 0) {
           this._namespace = funcId.substring(0, colonIndex);
         } else {
@@ -277,7 +277,7 @@ export class Flow extends Block {
       // check if history is still needed
       let needHistory = false;
       if (this._watchers) {
-        for (let watcher of this._watchers) {
+        for (const watcher of this._watchers) {
           if (watcher.watchHistory) {
             needHistory = true;
             break;
@@ -296,7 +296,7 @@ export class Flow extends Block {
       if (this._history) {
         return this._applyChange(this._history.save());
       } else {
-        let saved = this._applyChange(this.save());
+        const saved = this._applyChange(this.save());
         this.deleteValue('@has-change');
         return saved;
       }
@@ -355,7 +355,7 @@ class GlobalBlock extends Flow {
   }
   createContextProperty(name: string): BlockProperty {
     // inside the GlobalBlock, context Property is normal property
-    let prop = new BlockIO(this, name);
+    const prop = new BlockIO(this, name);
     this._props.set(name, prop);
     return prop;
   }
@@ -525,7 +525,7 @@ export class Root extends FlowFolder {
       newFlow = new Flow(prop._block, null, prop);
     }
 
-    let propValue = prop._value;
+    const propValue = prop._value;
     if (Array.isArray(propValue) && propValue.length === 3 && propValue.every((val) => typeof val === 'number')) {
       // overwrite @b-xyw value from parent flow
       data = {...data, '@b-xyw': propValue};
@@ -546,7 +546,7 @@ export class Root extends FlowFolder {
   }
 
   deleteFlow(path: string) {
-    let prop = this.queryProperty(path, false);
+    const prop = this.queryProperty(path, false);
     if (prop?._value instanceof Flow) {
       if (this._storage) {
         this._storage.delete(path);

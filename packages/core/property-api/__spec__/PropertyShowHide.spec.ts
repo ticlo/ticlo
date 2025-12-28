@@ -5,7 +5,7 @@ import {showProperties, hideProperties, moveShownProperty, hideGroupProperties} 
 
 describe('PropertyOrder', function () {
   it('show hide Property', function () {
-    let flow = new Flow();
+    const flow = new Flow();
     flow.load({
       '#is': 'add',
     });
@@ -26,8 +26,8 @@ describe('PropertyOrder', function () {
   });
 
   it('show hide Properties with order', function () {
-    let flow = new Flow();
-    let aBlock = flow.createBlock('a');
+    const flow = new Flow();
+    const aBlock = flow.createBlock('a');
     aBlock._load({
       '#is': 'add',
       '#custom': [
@@ -47,14 +47,14 @@ describe('PropertyOrder', function () {
   });
 
   it('hideGroupProperties', function () {
-    let descG: PropGroupDesc = {
+    const descG: PropGroupDesc = {
       name: 'g',
       type: 'group',
       defaultLen: 2,
       properties: [{name: 'a', type: 'string'}],
     };
 
-    let flow = new Flow();
+    const flow = new Flow();
 
     hideGroupProperties(flow, descG);
     hideGroupProperties(flow, descG, 'a');
@@ -73,7 +73,7 @@ describe('PropertyOrder', function () {
   });
 
   it('moveShownProperty', function () {
-    let flow = new Flow();
+    const flow = new Flow();
 
     moveShownProperty(flow, 'a', 'b');
     expect(flow.getValue('@b-p')).not.toBeDefined();

@@ -22,7 +22,7 @@ export async function routeTiclo<TServer extends RawServerBase = RawServerBase>(
   if (!serverBlockName.startsWith('^')) {
     serverBlockName = '^' + serverBlockName;
   }
-  let globalServiceBlock = Root.instance._globalRoot.createBlock(serverBlockName, true);
+  const globalServiceBlock = Root.instance._globalRoot.createBlock(serverBlockName, true);
   globalServiceBlock._load({'#is': 'web-server:server'});
   Root.run(); // output the requestHandler
   const requestHandler: (

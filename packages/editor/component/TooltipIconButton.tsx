@@ -24,7 +24,7 @@ export class TooltipIconButton extends LazyUpdateComponent<Props, any> {
 
   constructor(props: Props) {
     super(props);
-    let {conn, path} = props;
+    const {conn, path} = props;
     if (path) {
       this.subscriber.subscribe(conn, path);
     }
@@ -35,7 +35,7 @@ export class TooltipIconButton extends LazyUpdateComponent<Props, any> {
       if (!mapEnabled) {
         mapEnabled = Boolean;
       }
-      let enabled = mapEnabled(response.cache.value);
+      const enabled = mapEnabled(response.cache.value);
       if (enabled) {
         this.safeSetState({disabled: false});
       } else {
@@ -49,8 +49,8 @@ export class TooltipIconButton extends LazyUpdateComponent<Props, any> {
   };
 
   renderImpl() {
-    let {conn, path, mapEnabled, tooltip, tooltipPlacement, ...props} = this.props;
-    let {disabled, tooltipVisible} = this.state;
+    const {conn, path, mapEnabled, tooltip, tooltipPlacement, ...props} = this.props;
+    const {disabled, tooltipVisible} = this.state;
 
     return (
       <Tooltip

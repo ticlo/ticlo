@@ -12,7 +12,7 @@ import type {FlowTestGroup} from '@ticlo/test/FlowTestGroup.js';
 const packagesToTest = ['packages/core', 'packages/web-server', 'packages/node'];
 
 (async () => {
-  let parser = yargs(hideBin(process.argv))
+  const parser = yargs(hideBin(process.argv))
     .options({
       run: {
         default: false,
@@ -46,7 +46,7 @@ const packagesToTest = ['packages/core', 'packages/web-server', 'packages/node']
       },
     })
     .help();
-  let {onDemandLoad, serve, port, run, quitOnSuccess, quitOnFinish} = parser.parse() as any;
+  const {onDemandLoad, serve, port, run, quitOnSuccess, quitOnFinish} = parser.parse() as any;
 
   await Root.instance.setStorage(new TestLoader(packagesToTest, {onDemandLoad}));
 
@@ -66,7 +66,7 @@ const packagesToTest = ['packages/core', 'packages/web-server', 'packages/node']
   }
   await routeTiclo(app, '/api');
 
-  let globalClientBlock = Root.instance._globalRoot.createBlock('^local-client');
+  const globalClientBlock = Root.instance._globalRoot.createBlock('^local-client');
   globalClientBlock._load({'#is': 'http:client', 'url': `http://127.0.0.1:${port}/api/`});
 
   app.get('/', async (request, reply) => {
@@ -81,7 +81,7 @@ const packagesToTest = ['packages/core', 'packages/web-server', 'packages/node']
     }
 
     if (run) {
-      let testRunner = new TestRunner(
+      const testRunner = new TestRunner(
         Root.instance.getValue('tests') as FlowTestGroup,
         () => {
           if (quitOnFinish || (quitOnSuccess && testRunner.failed === 0)) {

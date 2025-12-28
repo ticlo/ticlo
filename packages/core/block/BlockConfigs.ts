@@ -55,7 +55,7 @@ class BlockPriorityConfig extends BlockProperty {
 
 export class BlockInputsConfig extends BlockIO {
   createBlock(save: boolean): Block {
-    let block = new InputsBlock(this._block._flow, this._block, this);
+    const block = new InputsBlock(this._block._flow, this._block, this);
     if (save) {
       this.setValue(block);
     } else if (save === false) {
@@ -68,7 +68,7 @@ export class BlockInputsConfig extends BlockIO {
 // extends from BlockIO so it shows in the tree
 export class BlockOutputsConfig extends BlockIO {
   createBlock(save: boolean): Block {
-    let block = new OutputsBlock(this._block._flow, this._block, this);
+    const block = new OutputsBlock(this._block._flow, this._block, this);
     if (save) {
       this.setValue(block);
     } else if (save === false) {

@@ -6,15 +6,15 @@ import {WorkerFunctionGen} from '../../worker/WorkerFunctionGen.js';
 
 describe('ContextProperty', function () {
   it('global from nested flow', function () {
-    let globalBlock: Block = Root.instance.getValue('#global') as Block;
+    const globalBlock: Block = Root.instance.getValue('#global') as Block;
     expect(globalBlock).toBeInstanceOf(Block);
 
-    let flow = new Flow();
-    let aBlock = flow.createBlock('a');
+    const flow = new Flow();
+    const aBlock = flow.createBlock('a');
 
     aBlock.setValue('#is', 'ContextProperty:class1');
 
-    let flowData: DataMap = {
+    const flowData: DataMap = {
       '#is': '',
       '~v': '^top.v',
     };
@@ -22,17 +22,17 @@ describe('ContextProperty', function () {
 
     Root.run();
 
-    let impl: Flow = aBlock.getValue('#flow') as Flow;
+    const impl: Flow = aBlock.getValue('#flow') as Flow;
     expect(impl).toBeInstanceOf(Flow);
     // v not ready yet
     expect(impl.getValue('v')).not.toBeDefined();
 
-    let top = globalBlock.createBlock('^top');
+    const top = globalBlock.createBlock('^top');
     top.setValue('v', 123);
     expect(impl.getValue('v')).toBe(123);
 
     // overwrite the global block in the local flow
-    let topOverwrite = flow.createBlock('^top');
+    const topOverwrite = flow.createBlock('^top');
     expect(impl.getValue('v')).not.toBeDefined();
 
     topOverwrite.setValue('v', 456);

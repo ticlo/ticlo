@@ -9,31 +9,31 @@ import {translate} from './TranslateRequest.js';
 const keyReg = /^[0-9a-f]{32}$/;
 
 async function main() {
-  let key = process.argv.at(-1);
+  const key = process.argv.at(-1);
 
   if (!keyReg.test(key)) {
     console.error('invalid key');
     return;
   }
 
-  let pkgs = glob.sync(`./packages/**/i18n/en.yaml`, {posix: true}).map((str: string) => new TranslatePkg(str));
+  const pkgs = glob.sync(`./packages/**/i18n/en.yaml`, {posix: true}).map((str: string) => new TranslatePkg(str));
 
-  for (let pkg of pkgs) {
+  for (const pkg of pkgs) {
     pkg.collectEn();
   }
 
-  for (let lan of ['zh', 'fr'] /*lanToAntd.keys()*/) {
-    let outputs: OutputYamlData[] = [];
-    let translateMap = new Map<string, string>();
-    for (let pkg of pkgs) {
-      let outputpkg = pkg.prepareOutput(lan);
+  for (const lan of ['zh', 'fr'] /*lanToAntd.keys()*/) {
+    const outputs: OutputYamlData[] = [];
+    const translateMap = new Map<string, string>();
+    for (const pkg of pkgs) {
+      const outputpkg = pkg.prepareOutput(lan);
       outputs.push(outputpkg);
-      for (let [key, row] of outputpkg.toBeTranslated) {
+      for (const [key, row] of outputpkg.toBeTranslated) {
         translateMap.set(row.enRow.value, null);
       }
     }
     await translate(translateMap, lan, key);
-    for (let output of outputs) {
+    for (const output of outputs) {
       output.applyTranslate(translateMap);
     }
   }

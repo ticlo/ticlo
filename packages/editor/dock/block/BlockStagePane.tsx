@@ -35,7 +35,7 @@ export class BlockStagePane extends LazyUpdateComponent<Props, State> {
     onSelect?: (keys: string[], handled: boolean) => void,
     onSave?: () => void
   ) {
-    let id = `blockEditor${BlockStagePane.editorCount++}`;
+    const id = `blockEditor${BlockStagePane.editorCount++}`;
     let tabName: string | React.ReactNode = getDisplayName(path.split('.').pop(), null);
     if ((tabName as string).startsWith('#')) {
       tabName = <LocalizedNodeName name={tabName as string} />;
@@ -58,7 +58,7 @@ export class BlockStagePane extends LazyUpdateComponent<Props, State> {
   blockListener = new ValueSubscriber({
     onUpdate: (response: ValueUpdate) => {
       if (response.cache.value) {
-        let blockKey = String(response.cache.value);
+        const blockKey = String(response.cache.value);
         if (!this.initialBlockKey) {
           this.initialBlockKey = blockKey;
         } else if (blockKey !== this.initialBlockKey) {
@@ -73,7 +73,7 @@ export class BlockStagePane extends LazyUpdateComponent<Props, State> {
 
   constructor(props: Props) {
     super(props);
-    let {conn, basePath} = props;
+    const {conn, basePath} = props;
     this.blockListener.subscribe(conn, basePath);
   }
 
@@ -83,8 +83,8 @@ export class BlockStagePane extends LazyUpdateComponent<Props, State> {
   };
 
   onSelect = (keys: string[]) => {
-    let {onSelect} = this.props;
-    let {showPropertyList, selectedKeys} = this.state;
+    const {onSelect} = this.props;
+    const {showPropertyList, selectedKeys} = this.state;
     if (arrayEqual(keys, selectedKeys)) {
       return;
     }
@@ -99,8 +99,8 @@ export class BlockStagePane extends LazyUpdateComponent<Props, State> {
 
   getDividerData = (idx: number) => {
     if (!this._rootNode) return null;
-    let blockStage = this._rootNode.querySelector('.ticl-stage') as HTMLDivElement;
-    let propertyList = this._rootNode.querySelector('.ticl-property-list') as HTMLDivElement;
+    const blockStage = this._rootNode.querySelector('.ticl-stage') as HTMLDivElement;
+    const propertyList = this._rootNode.querySelector('.ticl-property-list') as HTMLDivElement;
     return {
       element: this._rootNode,
       beforeDivider: [{size: blockStage.offsetWidth}],
@@ -114,7 +114,7 @@ export class BlockStagePane extends LazyUpdateComponent<Props, State> {
   };
 
   onKeyDown = (e: KeyboardEvent) => {
-    let {onSave} = this.props;
+    const {onSave} = this.props;
     switch (e.key) {
       case 's': {
         if (onSave && (e.ctrlKey || e.metaKey)) {
@@ -128,8 +128,8 @@ export class BlockStagePane extends LazyUpdateComponent<Props, State> {
   };
 
   renderImpl() {
-    let {conn, basePath, onSave} = this.props;
-    let {showPropertyList, selectedKeys, sizes, blockKey} = this.state;
+    const {conn, basePath, onSave} = this.props;
+    const {showPropertyList, selectedKeys, sizes, blockKey} = this.state;
 
     return (
       <div className="ticl-hbox ticl-stage-tab-content" ref={this.getRef} onKeyDown={this.onKeyDown} tabIndex={0}>

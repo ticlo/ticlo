@@ -7,9 +7,9 @@ import '../Js.js';
 
 describe('Js', function () {
   it('basic', function () {
-    let flow = new Flow();
+    const flow = new Flow();
 
-    let aBlock = flow.createBlock('a');
+    const aBlock = flow.createBlock('a');
 
     aBlock.setValue('#is', 'js');
     aBlock.setValue('script', 'this["out1"] = this["in1"]');
@@ -20,9 +20,9 @@ describe('Js', function () {
   });
 
   it('nested function', function () {
-    let flow = new Flow();
+    const flow = new Flow();
 
-    let aBlock = flow.createBlock('a');
+    const aBlock = flow.createBlock('a');
 
     aBlock.setValue('#is', 'js');
     aBlock.setValue('script', 'let temp = 456; return function(){this["out2"] = ++temp;}');
@@ -35,20 +35,20 @@ describe('Js', function () {
     expect(aBlock.getValue('out2')).toBe(458);
 
     // save load
-    let saved = flow.save();
-    let flow2 = new Flow();
+    const saved = flow.save();
+    const flow2 = new Flow();
     flow2.load(saved);
 
-    let aBlock2 = flow2.getValue('a') as Block;
+    const aBlock2 = flow2.getValue('a') as Block;
     expect(aBlock2).toBeInstanceOf(Block);
     Root.run();
     expect(aBlock2.getValue('out2')).toBe(457);
   });
 
   it('errors', async function () {
-    let flow = new Flow();
+    const flow = new Flow();
 
-    let aBlock = flow.createBlock('a');
+    const aBlock = flow.createBlock('a');
     aBlock.setValue('#is', 'js');
     aBlock.setValue('script', 'throw new Error("")');
     await shouldReject(aBlock.waitNextValue('#emit'));
@@ -62,17 +62,17 @@ describe('Js', function () {
     await shouldTimeout(aBlock.waitNextValue('#emit'), 5); // NOT_READY won't resolve the promise
     expect(aBlock.getValue('#emit')).toBe(WAIT);
 
-    let bBlock = flow.createBlock('b');
+    const bBlock = flow.createBlock('b');
     bBlock.setValue('#is', 'js');
     bBlock.setValue('script', 'return function(){throw new Error("");}'); // nested function
     await shouldReject(bBlock.waitNextValue('#emit'));
 
-    let cBlock = flow.createBlock('c');
+    const cBlock = flow.createBlock('c');
     cBlock.setValue('#is', 'js');
     cBlock.setValue('script', true); // invalid script
     await shouldReject(cBlock.waitNextValue('#emit'));
 
-    let dBlock = flow.createBlock('d');
+    const dBlock = flow.createBlock('d');
     dBlock.setValue('#is', 'js');
     dBlock.setValue('script', '}'); // invalid script
     await shouldReject(dBlock.waitNextValue('#emit'));

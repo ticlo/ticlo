@@ -21,7 +21,7 @@ export class WorkerFlow extends FlowWithShared {
   }
 
   onWait(val: any) {
-    let wait = Boolean(val);
+    const wait = Boolean(val);
     if (!wait && wait !== this._waiting) {
       this.scheduleCheckReady();
     }

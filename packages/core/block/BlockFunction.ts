@@ -71,9 +71,9 @@ export abstract class PureFunction<T extends FunctionData = FunctionData> extend
 
 export abstract class StatefulFunction extends BaseFunction<Block> {
   initInputs() {
-    let inputMap = this.getInputMap();
+    const inputMap = this.getInputMap();
     if (inputMap) {
-      for (let [key, callback] of inputMap) {
+      for (const [key, callback] of inputMap) {
         callback.call(this, this._data.getValue(key));
       }
     }
@@ -85,7 +85,7 @@ export abstract class StatefulFunction extends BaseFunction<Block> {
 
   // return true when it needs to be put in queue
   inputChanged(input: BlockIO, val: unknown): boolean {
-    let inputMap = this.getInputMap();
+    const inputMap = this.getInputMap();
     if (inputMap) {
       const inputCallback = this.getInputMap().get(input._name);
       if (inputCallback) {

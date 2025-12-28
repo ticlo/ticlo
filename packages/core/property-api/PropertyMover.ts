@@ -19,7 +19,7 @@ import {BlockBinding} from '../block/BlockBinding.js';
 // }
 
 function iterateListeners(listeners: Set<PropListener<any>>, callback: (property: BlockProperty) => void) {
-  for (let listener of listeners) {
+  for (const listener of listeners) {
     if (listener instanceof BlockBinding) {
       iterateListeners(listener._listeners, callback);
     } else if (listener instanceof BlockProperty) {
@@ -46,7 +46,7 @@ export class PropertyMover {
   constructor(block: Block, oldName: string, moveOutboundLinks = false) {
     this.block = block;
     this.oldName = oldName;
-    let property = block.getProperty(oldName, false);
+    const property = block.getProperty(oldName, false);
     if (property) {
       if (property._bindingPath) {
         this.binding = property._bindingPath;
@@ -61,13 +61,13 @@ export class PropertyMover {
       }
 
       const checkOutBound = (checkProp: BlockProperty) => {
-        let bindingPath = checkProp._bindingPath;
+        const bindingPath = checkProp._bindingPath;
         if (bindingPath) {
-          let names = bindingPath.split('.');
+          const names = bindingPath.split('.');
           for (let i = 0; i < names.length; ++i) {
             if (names[i] === oldName) {
               // double check if the binding path touches the property we are moving
-              let bindSourceProp = checkProp._block.queryProperty(names.slice(0, i + 1).join('.'));
+              const bindSourceProp = checkProp._block.queryProperty(names.slice(0, i + 1).join('.'));
               if (bindSourceProp === property) {
                 this.outboundLinks.push({
                   prop: checkProp,
@@ -99,7 +99,7 @@ export class PropertyMover {
 
   moveTo(newName: string) {
     if (this.outboundLinks) {
-      for (let {prop, preNames, postNames} of this.outboundLinks) {
+      for (const {prop, preNames, postNames} of this.outboundLinks) {
         preNames.push(newName);
         (prop as BlockProperty).setBinding(preNames.concat(postNames).join('.'));
       }
@@ -115,7 +115,7 @@ export class PropertyMover {
       this.block.getProperty(newName)._liveUpdate(this.saved);
     }
     if (this.syncChildren) {
-      for (let block of this.syncChildren) {
+      for (const block of this.syncChildren) {
         block.setValue('@b-xyw', newName);
       }
     }

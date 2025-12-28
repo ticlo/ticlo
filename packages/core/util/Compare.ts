@@ -23,8 +23,8 @@ function _deepEqual(a: any, b: any, map: Map<unknown, unknown>) {
   }
 
   if (a && b && typeof a === 'object' && typeof b === 'object') {
-    let Cls = a.constructor;
-    let Clsb = b.constructor;
+    const Cls = a.constructor;
+    const Clsb = b.constructor;
     if (Cls !== Clsb) {
       return false;
     }
@@ -34,7 +34,7 @@ function _deepEqual(a: any, b: any, map: Map<unknown, unknown>) {
     map.set(a, b);
 
     if (isArray(a)) {
-      let length = a.length;
+      const length = a.length;
       if (length !== b.length) return false;
       for (let i = length - 1; i >= 0; --i) {
         if (!_deepEqual(a[i], b[i], map)) return false;
@@ -44,12 +44,12 @@ function _deepEqual(a: any, b: any, map: Map<unknown, unknown>) {
 
     switch (Cls) {
       case Object: {
-        let keys = keyList(a);
+        const keys = keyList(a);
         if (keys.length !== keyList(b).length) {
           return false;
         }
 
-        for (let key of keys) {
+        for (const key of keys) {
           if (!_deepEqual(a[key], b[key], map)) {
             return false;
           }
@@ -63,12 +63,12 @@ function _deepEqual(a: any, b: any, map: Map<unknown, unknown>) {
       // TODO compare Map and Set ?
       default: {
         // default compare with shallow equal
-        let keys = keyList(a);
+        const keys = keyList(a);
         if (keys.length !== keyList(b).length) {
           return false;
         }
 
-        for (let key of keys) {
+        for (const key of keys) {
           if (!Object.is(a[key], b[key])) return false;
         }
         return true;
@@ -98,11 +98,11 @@ export function shallowEqual(a: any, b: any) {
   }
 
   if (a && b && typeof a === 'object' && typeof b === 'object') {
-    let arrA = isArray(a);
-    let arrB = isArray(b);
+    const arrA = isArray(a);
+    const arrB = isArray(b);
 
     if (arrA && arrB) {
-      let length = a.length;
+      const length = a.length;
       if (length !== b.length) return false;
       for (let i = length - 1; i >= 0; --i) {
         if (!isValueEqual(a[i], b[i])) return false;
@@ -112,13 +112,13 @@ export function shallowEqual(a: any, b: any) {
 
     if (arrA !== arrB) return false;
 
-    let keys = keyList(a);
+    const keys = keyList(a);
 
     if (keys.length !== keyList(b).length) {
       return false;
     }
 
-    for (let key of keys) {
+    for (const key of keys) {
       if (!isValueEqual(a[key], b[key])) {
         return false;
       }

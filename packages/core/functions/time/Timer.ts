@@ -106,7 +106,7 @@ class TimerFunction extends AutoUpdateFunction<Block> {
     }
     let nextTs: number;
     if (!this.getSchedule()) {
-      let interval = Math.round(((this._data.getValue('interval') as number) || 1) * 1000);
+      const interval = Math.round(((this._data.getValue('interval') as number) || 1) * 1000);
       if (interval > 0) {
         const aligned = this._data.getValue('aligned');
 

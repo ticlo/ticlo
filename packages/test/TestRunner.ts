@@ -42,7 +42,7 @@ export class TestRunner {
   }
 
   onPassed = (testCase: FlowTestCase) => {
-    let lastTask = this.getLastTask();
+    const lastTask = this.getLastTask();
     if (lastTask?.target === testCase) {
       ++this.passed;
       this.stack.pop();
@@ -54,7 +54,7 @@ export class TestRunner {
     }
   };
   onFailed = (testCase: FlowTestCase) => {
-    let lastTask = this.getLastTask();
+    const lastTask = this.getLastTask();
     if (lastTask?.target === testCase) {
       ++this.failed;
       this.stack.pop();
@@ -68,7 +68,7 @@ export class TestRunner {
   run = () => {
     let lastTask: TestTask;
     while ((lastTask = this.getLastTask())) {
-      let {target, processed} = lastTask;
+      const {target, processed} = lastTask;
       if (target instanceof FlowTestCase) {
         target.start(this.onPassed, this.onFailed);
         return;
@@ -76,8 +76,8 @@ export class TestRunner {
         if (processed) {
           this.stack.pop();
         } else {
-          let groups: FlowTestGroup[] = [];
-          let testcases: FlowTestCase[] = [];
+          const groups: FlowTestGroup[] = [];
+          const testcases: FlowTestCase[] = [];
           target.forEach((field: string, value: unknown) => {
             if (value instanceof FlowTestCase) {
               testcases.push(value);
@@ -85,10 +85,10 @@ export class TestRunner {
               groups.push(value);
             }
           });
-          for (let group of groups.sort().reverse()) {
+          for (const group of groups.sort().reverse()) {
             this.stack.push({target: group, processed: false});
           }
-          for (let testcase of testcases.sort().reverse()) {
+          for (const testcase of testcases.sort().reverse()) {
             this.stack.push({target: testcase, processed: false});
           }
           lastTask.processed = true;

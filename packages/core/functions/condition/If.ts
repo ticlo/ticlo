@@ -3,7 +3,7 @@ import {Functions} from '../../block/Functions.js';
 
 export class IfFunction extends PureFunction {
   run(): any {
-    let input = this._data.getValue('input');
+    const input = this._data.getValue('input');
     if (input) {
       this._data.output(this._data.getValue('then'));
     } else {

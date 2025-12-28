@@ -3,15 +3,15 @@ import {Flow, Root} from '../Flow.js';
 
 describe('HelperProperty', function () {
   it('save load', function () {
-    let flow = new Flow();
-    let helper = flow.createHelperBlock('v1');
+    const flow = new Flow();
+    const helper = flow.createHelperBlock('v1');
     helper.setValue('#output', 'hello'); // use setValue so it's serialized
 
     expect(flow.queryValue('~v1.#output')).toBe('hello');
     expect(flow.getProperty('v1')._bindingPath).toBe('~v1.#output');
     expect(flow.getValue('v1')).toBe('hello');
 
-    let saved = flow.save();
+    const saved = flow.save();
 
     expect(typeof saved['~v1']).toBe('object');
 
@@ -43,7 +43,7 @@ describe('HelperProperty', function () {
     expect(flow.getProperty('v1')._bindingPath).toBe('~v1.#output');
     expect(flow.getValue('v1')).toBe('hello');
 
-    let flow2 = new Flow();
+    const flow2 = new Flow();
 
     flow2.load(saved);
     expect(flow2.queryValue('~v1.#output')).toBe('hello');

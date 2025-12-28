@@ -77,10 +77,10 @@ const wirePadding = 2;
 
 export class WireView extends PureDataRenderer<WireViewProps, any> {
   renderImpl() {
-    let {item} = this.props;
-    let {source, target} = this.props.item;
+    const {item} = this.props;
+    const {source, target} = this.props.item;
 
-    let zIndex = source.block.selected || target.block.selected ? 100 : undefined;
+    const zIndex = source.block.selected || target.block.selected ? 100 : undefined;
 
     let className = 'ticl-block-wire';
     if (target._bindingTargetPath !== source.path) {
@@ -95,7 +95,7 @@ export class WireView extends PureDataRenderer<WireViewProps, any> {
   }
 
   renderNormal(zIndex: number, className: string) {
-    let {source, target} = this.props.item;
+    const {source, target} = this.props.item;
     let x0 = source.x + source.w + 4;
     let x1 = target.x - 4;
     let y0 = source.y;
@@ -106,11 +106,11 @@ export class WireView extends PureDataRenderer<WireViewProps, any> {
 
     let minx = Math.min(x0, x1) - wirePadding;
     let maxx = Math.max(x0, x1) + wirePadding;
-    let miny = Math.min(y0, y1) - wirePadding;
-    let maxy = Math.max(y0, y1) + wirePadding;
+    const miny = Math.min(y0, y1) - wirePadding;
+    const maxy = Math.max(y0, y1) + wirePadding;
 
     let xgap = 50;
-    let dy = Math.max(x0 - x1, Math.abs(y1 - y0)) / 2;
+    const dy = Math.max(x0 - x1, Math.abs(y1 - y0)) / 2;
     if (xgap > dy) {
       xgap = dy;
     }
@@ -119,14 +119,14 @@ export class WireView extends PureDataRenderer<WireViewProps, any> {
       mx1 = x0 * 0.4 + x1 * 0.6;
     } else if (x1 > x0) {
       // make a smooth transition between the 2 algorithms;
-      let r = ((x1 - x0) * 0.5) / xgap;
-      let offx = xgap + (x0 - x1) * 0.0625;
+      const r = ((x1 - x0) * 0.5) / xgap;
+      const offx = xgap + (x0 - x1) * 0.0625;
       mx0 = (x0 * 0.6 + x1 * 0.4) * r + (x0 + offx) * (1 - r);
       mx1 = (x0 * 0.4 + x1 * 0.6) * r + (x1 - offx) * (1 - r);
       minx -= 25;
       maxx += 25;
     } else {
-      let offx = xgap + (x0 - x1) * 0.0625;
+      const offx = xgap + (x0 - x1) * 0.0625;
       mx0 = x0 + offx;
       mx1 = x1 - offx;
       minx -= 25;
@@ -140,8 +140,8 @@ export class WireView extends PureDataRenderer<WireViewProps, any> {
     y0 -= miny;
     y1 -= miny;
 
-    let midx = (x0 + x1) * 0.5;
-    let midy = (y0 + y1) * 0.5;
+    const midx = (x0 + x1) * 0.5;
+    const midy = (y0 + y1) * 0.5;
 
     return (
       <svg
@@ -161,7 +161,7 @@ export class WireView extends PureDataRenderer<WireViewProps, any> {
   }
 
   renderRightSide(zIndex: number, className: string) {
-    let {source, target} = this.props.item;
+    const {source, target} = this.props.item;
     let x0 = source.x + source.w + 4;
     let x1 = target.x + target.w + 4;
     let y0 = source.y;
@@ -170,25 +170,25 @@ export class WireView extends PureDataRenderer<WireViewProps, any> {
     if (x0 === x1 && y0 === y1) {
       return null;
     }
-    let minx = x1 - wirePadding;
+    const minx = x1 - wirePadding;
     let maxx = x0 + wirePadding;
-    let miny = Math.min(y0, y1) - wirePadding;
-    let maxy = Math.max(y0, y1) + wirePadding;
+    const miny = Math.min(y0, y1) - wirePadding;
+    const maxy = Math.max(y0, y1) + wirePadding;
 
     x0 -= minx;
     x1 -= minx;
     y0 -= miny;
     y1 -= miny;
 
-    let gap = Math.pow(Math.abs(y1 - y0), 0.6) + 4;
-    let midx = x0 + gap;
-    let midy = (y0 + y1) * 0.5;
+    const gap = Math.pow(Math.abs(y1 - y0), 0.6) + 4;
+    const midx = x0 + gap;
+    const midy = (y0 + y1) * 0.5;
 
     maxx += gap;
 
-    let smidx = cssNumber(midx);
-    let sy0 = cssNumber(y0);
-    let sy1 = cssNumber(y1);
+    const smidx = cssNumber(midx);
+    const sy0 = cssNumber(y0);
+    const sy1 = cssNumber(y1);
 
     return (
       <svg

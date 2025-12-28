@@ -6,10 +6,10 @@ import {WorkerFlow} from '../../worker/WorkerFlow.js';
 
 describe('FlowHistory', function () {
   it('undo redo', function () {
-    let flow = new Flow();
+    const flow = new Flow();
     flow.setValue('a', 1);
     flow.startHistory();
-    let history = flow._history;
+    const history = flow._history;
 
     history.undo();
     expect(flow.getValue('@has-undo')).not.toBeDefined();
@@ -46,13 +46,13 @@ describe('FlowHistory', function () {
   });
 
   it('trackChange', async function () {
-    let debounceInterval = FlowHistory._debounceInterval;
+    const debounceInterval = FlowHistory._debounceInterval;
     FlowHistory._debounceInterval = 50;
 
-    let flow = new WorkerFlow();
+    const flow = new WorkerFlow();
     flow.load({a: 1}, null, (data) => true);
     flow.startHistory();
-    let history = flow._history;
+    const history = flow._history;
     flow.setValue('a', 2);
 
     flow.trackChange();

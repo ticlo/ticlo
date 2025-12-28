@@ -62,15 +62,15 @@ export class FunctionView extends React.PureComponent<Props, any> {
     }
   };
   onEditClicked = () => {
-    let {conn, desc} = this.props;
-    let editPath = `#temp.#edit-${encodeTicloName(desc.id)}`;
+    const {conn, desc} = this.props;
+    const editPath = `#temp.#edit-${encodeTicloName(desc.id)}`;
     conn.editWorker(editPath, null, desc.id);
     this.context.editFlow(editPath, () => {
       conn.applyFlowChange(editPath);
     });
   };
   onDeleteClicked = () => {
-    let {conn, desc} = this.props;
+    const {conn, desc} = this.props;
     conn.deleteFunction(desc.id);
   };
 
@@ -112,10 +112,10 @@ export class FunctionView extends React.PureComponent<Props, any> {
   };
 
   render() {
-    let {desc, conn} = this.props;
-    let {ns} = desc;
-    let [colorClass, iconName] = getFuncStyleFromDesc(desc, conn, 'ticl-bg--');
-    let typeView = (
+    const {desc, conn} = this.props;
+    const {ns} = desc;
+    const [colorClass, iconName] = getFuncStyleFromDesc(desc, conn, 'ticl-bg--');
+    const typeView = (
       <DragDropDiv className={`${colorClass} ticl-func-view`} onClick={this.onClick} onDragStartT={this.onDrag}>
         <TIcon icon={iconName} />
         {ns != null ? <span className="ticl-func-ns">{ns}</span> : null}

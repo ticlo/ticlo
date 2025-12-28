@@ -6,15 +6,15 @@ import {WorkerFlow} from '../../worker/WorkerFlow.js';
 
 describe('SharedBlock', function () {
   it('basic', function () {
-    let data = {'#is': '', '#shared': {'#is': ''}};
+    const data = {'#is': '', '#shared': {'#is': ''}};
 
-    let flow1 = new FlowWithShared();
+    const flow1 = new FlowWithShared();
     flow1.load(data);
-    let sharedBlock: SharedBlock = flow1.getValue('#shared') as SharedBlock;
+    const sharedBlock: SharedBlock = flow1.getValue('#shared') as SharedBlock;
     expect(sharedBlock).toBeInstanceOf(SharedBlock);
     expect(sharedBlock._cacheKey).toBe(data['#shared']);
 
-    let flow2 = new FlowWithShared();
+    const flow2 = new FlowWithShared();
     flow2.load(data);
     expect(flow2.getValue('#shared')).toBe(sharedBlock);
 
@@ -25,16 +25,16 @@ describe('SharedBlock', function () {
   });
 
   it('save load', function () {
-    let data = {'#is': '', '#shared': {'#is': ''}};
+    const data = {'#is': '', '#shared': {'#is': ''}};
 
-    let flow = new FlowWithShared();
+    const flow = new FlowWithShared();
     flow.load(data);
-    let sharedBlock: SharedBlock = flow.getValue('#shared') as SharedBlock;
-    let sharedProp = sharedBlock._prop;
+    const sharedBlock: SharedBlock = flow.getValue('#shared') as SharedBlock;
+    const sharedProp = sharedBlock._prop;
     sharedBlock.setValue('v', 1);
     sharedBlock.setValue('#custom', [{name: 'v', type: 'string'}]);
 
-    let saved = flow.save();
+    const saved = flow.save();
     expect(saved).toEqual({'#is': '', '#shared': {'#is': '', 'v': 1, '#custom': [{name: 'v', type: 'string'}]}});
 
     sharedBlock.setValue('v', 2);
@@ -51,16 +51,16 @@ describe('SharedBlock', function () {
   });
 
   it('cacheMode', function () {
-    let data = {'#is': '', '#shared': {'#is': '', '#cacheMode': 'persist'}};
+    const data = {'#is': '', '#shared': {'#is': '', '#cacheMode': 'persist'}};
     WorkerFunctionGen.registerType(data, {name: 'cacheModeWorker1', properties: []}, 'SharedBlock');
 
-    let flow = new WorkerFlow();
+    const flow = new WorkerFlow();
     flow.load(data, 'SharedBlock:cacheModeWorker1');
     expect(flow.save()).toEqual(data);
 
-    let sharedBlock: SharedBlock = flow.getValue('#shared') as SharedBlock;
+    const sharedBlock: SharedBlock = flow.getValue('#shared') as SharedBlock;
     expect(sharedBlock).toBeInstanceOf(SharedBlock);
-    let sharedProp = sharedBlock._prop;
+    const sharedProp = sharedBlock._prop;
 
     expect(flow.save()).toEqual(data);
 

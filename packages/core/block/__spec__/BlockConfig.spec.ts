@@ -4,9 +4,9 @@ import {Flow, Root} from '../Flow.js';
 
 describe('BlockConfig', function () {
   it('readonly control', function () {
-    let flow = new Flow();
+    const flow = new Flow();
 
-    let block = flow.createBlock('obj');
+    const block = flow.createBlock('obj');
 
     expect(block.getValue('##')).toBe(flow);
     expect(block.getValue('###')).toBe(flow);
@@ -24,9 +24,9 @@ describe('BlockConfig', function () {
   });
 
   it('#is', function () {
-    let flow = new Flow();
+    const flow = new Flow();
 
-    let block = flow.createBlock('obj');
+    const block = flow.createBlock('obj');
 
     expect(block.getValue('#is')).toBe('');
 

@@ -14,8 +14,8 @@ export class EventEditor extends React.PureComponent<ValueEditorProps, any> {
   };
 
   render() {
-    let {desc, value, locked, onChange} = this.props;
-    let icon = onChange ? <CaretRightOutlined /> : <PlayCircleOutlined />;
+    const {desc, value, locked, onChange} = this.props;
+    const icon = onChange ? <CaretRightOutlined /> : <PlayCircleOutlined />;
     return (
       <Button
         size="small"

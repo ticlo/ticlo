@@ -14,9 +14,9 @@ class LocalServerConnection extends ServerConnection {
   }
 
   doSend(datas: DataMap[]): void {
-    let str = encode(datas);
+    const str = encode(datas);
     Logger.trace(() => 'server send ' + str, this);
-    let decoded = decode(str);
+    const decoded = decode(str);
     this._client.onReceive(decoded);
   }
 }
@@ -41,9 +41,9 @@ class LocalClientConnection extends ClientConnection {
   }
 
   doSend(datas: DataMap[]): void {
-    let str = encode(datas);
+    const str = encode(datas);
     Logger.trace(() => 'client send ' + str, this);
-    let decoded = decode(str);
+    const decoded = decode(str);
     this._server.onReceive(decoded);
   }
 
@@ -56,8 +56,8 @@ class LocalClientConnection extends ClientConnection {
 let _lastClientConnection: ClientConnection;
 
 export function makeLocalConnection(root: Root, editorListeners: boolean = true): [ServerConnection, ClientConnection] {
-  let server = new LocalServerConnection(root);
-  let client = new LocalClientConnection(editorListeners);
+  const server = new LocalServerConnection(root);
+  const client = new LocalClientConnection(editorListeners);
   server._client = client;
   client._server = server;
   _lastClientConnection = client;

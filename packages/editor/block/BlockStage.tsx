@@ -31,7 +31,7 @@ interface StageState {
 const zooms = [0.25, 1 / 3, 0.5, 2 / 3, 0.75, 0.8, 0.9, 1, 1.1, 1.25, 1.5, 1.75, 2, 2.5, 3, 4];
 
 function getNextZoom(v: number) {
-  for (let z of zooms) {
+  for (const z of zooms) {
     if (z > v) {
       return z;
     }
@@ -41,7 +41,7 @@ function getNextZoom(v: number) {
 
 function getPrevZoom(v: number) {
   let result = 0.25;
-  for (let z of zooms) {
+  for (const z of zooms) {
     if (!(z < v)) {
       break;
     }
@@ -138,7 +138,7 @@ export class BlockStage extends BlockStageBase<BlockStageProps, StageState> {
 
   onSelectRectDragStart = (e: DragState) => {
     if (e.event.target === this._bgNode) {
-      let rect = this._bgNode.getBoundingClientRect();
+      const rect = this._bgNode.getBoundingClientRect();
       this._dragingSelect = [(e.clientX - rect.left) * e.component.scaleX, (e.clientY - rect.top) * e.component.scaleY];
       e.startDrag(null, null);
       this._selectRectNode.style.display = 'block';
@@ -147,9 +147,9 @@ export class BlockStage extends BlockStageBase<BlockStageProps, StageState> {
   };
 
   onDragSelectMove = (e: DragState) => {
-    let [x1, y1] = this._dragingSelect;
-    let x2 = e.dx + x1;
-    let y2 = e.dy + y1;
+    const [x1, y1] = this._dragingSelect;
+    const x2 = e.dx + x1;
+    const y2 = e.dy + y1;
     this._selectRectNode.style.left = `${cssNumber(Math.min(x1, x2))}px`;
     this._selectRectNode.style.width = `${cssNumber(Math.abs(x1 - x2))}px`;
     this._selectRectNode.style.top = `${cssNumber(Math.min(y1, y2))}px`;
@@ -160,15 +160,15 @@ export class BlockStage extends BlockStageBase<BlockStageProps, StageState> {
     if (e && e.event) {
       // when single click blank area closed some popups, skip the de-selecting
       if (!(e.dx === 0 && e.dy === 0 && this._hasPopup && !BlockStage.findOpenPopups())) {
-        let [x1, y1] = this._dragingSelect;
-        let x2 = e.dx + x1;
-        let y2 = e.dy + y1;
-        let left = Math.min(x1, x2) - 1;
-        let right = Math.max(x1, x2) + 1;
-        let top = Math.min(y1, y2) - 1;
-        let bottom = Math.max(y1, y2) + 1;
-        let addToSelect = e.event.shiftKey || e.event.ctrlKey;
-        for (let [blockKey, blockItem] of this._blocks) {
+        const [x1, y1] = this._dragingSelect;
+        const x2 = e.dx + x1;
+        const y2 = e.dy + y1;
+        const left = Math.min(x1, x2) - 1;
+        const right = Math.max(x1, x2) + 1;
+        const top = Math.min(y1, y2) - 1;
+        const bottom = Math.max(y1, y2) + 1;
+        const addToSelect = e.event.shiftKey || e.event.ctrlKey;
+        for (const [blockKey, blockItem] of this._blocks) {
           if (
             blockItem.x >= left &&
             blockItem.w + blockItem.x <= right &&
@@ -207,12 +207,12 @@ export class BlockStage extends BlockStageBase<BlockStageProps, StageState> {
   };
 
   onDragOver = (e: DragState) => {
-    let {conn} = this.props;
+    const {conn} = this.props;
     onDragBlockOver(conn, e);
   };
 
   onDrop = (e: DragState) => {
-    let {conn} = this.props;
+    const {conn} = this.props;
     onDropBlock(conn, e, this.createBlock, this._bgNode);
   };
 
@@ -257,12 +257,12 @@ export class BlockStage extends BlockStageBase<BlockStageProps, StageState> {
     e.startDrag(null, null);
   };
   onDragMoveScroll = (e: {dx: number; dy: number}, reverseDrag = false) => {
-    let {zoom, contentWidth, contentHeight, stageWidth, stageHeight} = this.state;
-    let viewWidth = Math.max(contentWidth, Math.floor(stageWidth / zoom));
-    let viewHeight = Math.max(contentHeight, Math.floor(stageHeight / zoom));
+    const {zoom, contentWidth, contentHeight, stageWidth, stageHeight} = this.state;
+    const viewWidth = Math.max(contentWidth, Math.floor(stageWidth / zoom));
+    const viewHeight = Math.max(contentHeight, Math.floor(stageHeight / zoom));
     let posRatio: number;
     if (!reverseDrag) {
-      let miniScale = Math.min(MINI_WINDOW_SIZE / viewWidth, MINI_WINDOW_SIZE / viewHeight);
+      const miniScale = Math.min(MINI_WINDOW_SIZE / viewWidth, MINI_WINDOW_SIZE / viewHeight);
       posRatio = zoom / miniScale;
     } else {
       posRatio = -1;
@@ -298,7 +298,7 @@ export class BlockStage extends BlockStageBase<BlockStageProps, StageState> {
     return true;
   };
   onGestureMove = (e: GestureState) => {
-    let {zoom} = this.state;
+    const {zoom} = this.state;
 
     if (this._baseZoomBeforeGesture === -1 && (e.scale > 1.1 || e.scale < 0.9) && e.dx === 0 && e.dy === 0) {
       // avoid too much zoom during drag location
@@ -306,9 +306,9 @@ export class BlockStage extends BlockStageBase<BlockStageProps, StageState> {
     }
 
     if (this._baseZoomBeforeGesture > 0) {
-      let newZoom = clamp(this._baseZoomBeforeGesture * e.scale, 0.25, 4);
-      let {touches} = e.event;
-      let event = {
+      const newZoom = clamp(this._baseZoomBeforeGesture * e.scale, 0.25, 4);
+      const {touches} = e.event;
+      const event = {
         clientX: (touches[0].clientX + touches[1].clientX) / 2,
         clientY: (touches[0].clientY + touches[1].clientY) / 2,
       };
@@ -328,27 +328,27 @@ export class BlockStage extends BlockStageBase<BlockStageProps, StageState> {
     minStageBgStyle?: CSSProperties;
     miniWindowStyle?: CSSProperties;
   } {
-    let {zoom, contentWidth, contentHeight, stageWidth, stageHeight} = this.state;
-    let viewWidth = Math.max(contentWidth, Math.floor(stageWidth / zoom));
-    let viewHeight = Math.max(contentHeight, Math.floor(stageHeight / zoom));
-    let miniScale = Math.min(MINI_WINDOW_SIZE / viewWidth, MINI_WINDOW_SIZE / viewHeight);
-    let miniWidth = miniScale * viewWidth;
-    let miniHeight = miniScale * viewHeight;
+    const {zoom, contentWidth, contentHeight, stageWidth, stageHeight} = this.state;
+    const viewWidth = Math.max(contentWidth, Math.floor(stageWidth / zoom));
+    const viewHeight = Math.max(contentHeight, Math.floor(stageHeight / zoom));
+    const miniScale = Math.min(MINI_WINDOW_SIZE / viewWidth, MINI_WINDOW_SIZE / viewHeight);
+    const miniWidth = miniScale * viewWidth;
+    const miniHeight = miniScale * viewHeight;
 
-    let windowWidth = (stageWidth * miniScale) / zoom;
-    let windowHeight = (stageHeight * miniScale) / zoom;
+    const windowWidth = (stageWidth * miniScale) / zoom;
+    const windowHeight = (stageHeight * miniScale) / zoom;
     if (!windowWidth || !windowHeight || (windowWidth > miniWidth - 1 && windowHeight > miniHeight - 1)) {
       return {};
     }
 
-    let miniStageStyle = {
+    const miniStageStyle = {
       transform: `scale(${miniScale},${miniScale})`,
     };
-    let minStageBgStyle = {
+    const minStageBgStyle = {
       width: Math.ceil(viewWidth * miniScale),
       height: Math.ceil(viewHeight * miniScale),
     };
-    let miniWindowStyle = {
+    const miniWindowStyle = {
       width: windowWidth,
       height: windowHeight,
       left: (this._scrollX * miniScale) / zoom,
@@ -369,39 +369,39 @@ export class BlockStage extends BlockStageBase<BlockStageProps, StageState> {
     }
   };
   zoomIn = (event: any) => {
-    let {zoom} = this.state;
+    const {zoom} = this.state;
     if (!(event instanceof MouseEvent)) {
       event = null;
     }
     if (zoom < 4) {
-      let newZoom = getNextZoom(zoom);
+      const newZoom = getNextZoom(zoom);
       this.changeZoom(newZoom, event);
       this.safeSetState({zoom: newZoom});
     }
   };
   zoomOut = (event: any) => {
-    let {zoom} = this.state;
+    const {zoom} = this.state;
     if (!(event instanceof MouseEvent)) {
       event = null;
     }
     if (zoom > 0.25) {
-      let newZoom = getPrevZoom(zoom);
+      const newZoom = getPrevZoom(zoom);
       this.changeZoom(newZoom, event);
       this.safeSetState({zoom: newZoom});
     }
   };
 
   changeZoom(newZoom: number, event?: {clientX: number; clientY: number}) {
-    let {zoom, stageWidth, stageHeight, contentWidth, contentHeight} = this.state;
+    const {zoom, stageWidth, stageHeight, contentWidth, contentHeight} = this.state;
     let offX = stageWidth / 2;
     let offY = stageWidth / 2;
     if (event) {
-      let rect = this._scrollNode.getBoundingClientRect();
+      const rect = this._scrollNode.getBoundingClientRect();
       offX = ((event.clientX - rect.left) * this._scrollNode.offsetWidth) / rect.width;
       offY = ((event.clientY - rect.top) * this._scrollNode.offsetHeight) / rect.height;
     }
-    let centerX = (this._scrollX + offX) / zoom;
-    let centerY = (this._scrollY + offY) / zoom;
+    const centerX = (this._scrollX + offX) / zoom;
+    const centerY = (this._scrollY + offY) / zoom;
     let pendingScrollX = centerX * newZoom - offX;
     let pendingScrollY = centerY * newZoom - offY;
     if (pendingScrollX < 0) {
@@ -434,7 +434,7 @@ export class BlockStage extends BlockStageBase<BlockStageProps, StageState> {
     let width = 0;
     let height = 0;
     // add blocks
-    for (let [key, blockItem] of this._blocks) {
+    for (const [key, blockItem] of this._blocks) {
       // TODO check width height other time
       if (blockItem.w + blockItem.x > width) {
         width = blockItem.w + blockItem.x;
@@ -457,51 +457,51 @@ export class BlockStage extends BlockStageBase<BlockStageProps, StageState> {
   }
 
   undo = () => {
-    let {conn, basePath} = this.props;
+    const {conn, basePath} = this.props;
     conn.undo(basePath);
   };
   redo = () => {
-    let {conn, basePath} = this.props;
+    const {conn, basePath} = this.props;
     conn.redo(basePath);
   };
 
   renderImpl() {
-    let {style, conn, basePath, toolButtons} = this.props;
-    let {zoom, contentWidth, contentHeight, stageWidth, stageHeight, modal} = this.state;
+    const {style, conn, basePath, toolButtons} = this.props;
+    const {zoom, contentWidth, contentHeight, stageWidth, stageHeight, modal} = this.state;
 
-    let children: React.ReactNode[] = [];
-    let miniChildren: React.ReactNode[] = [];
+    const children: React.ReactNode[] = [];
+    const miniChildren: React.ReactNode[] = [];
 
     // add wires
-    for (let [key, fieldItem] of this._fields) {
+    for (const [key, fieldItem] of this._fields) {
       if (fieldItem.inWire) {
         children.push(<WireView key={`~${key}`} item={fieldItem.inWire} />);
       }
     }
     // add blocks
-    for (let [key, blockItem] of this._blocks) {
+    for (const [key, blockItem] of this._blocks) {
       children.push(<BlockView key={key} item={blockItem} />);
       miniChildren.push(<MiniBlockView key={key} item={blockItem} />);
     }
 
-    let viewWidth = Math.max(contentWidth, Math.floor(stageWidth / zoom));
-    let viewHeight = Math.max(contentHeight, Math.floor(stageHeight / zoom));
+    const viewWidth = Math.max(contentWidth, Math.floor(stageWidth / zoom));
+    const viewHeight = Math.max(contentHeight, Math.floor(stageHeight / zoom));
 
     // work around of how browser calculate scroll content size
     // since the size before scale and after scale are both counted, we need to get the smaller one
-    let contentSizeZoom = zoom > 1 ? 1 : zoom;
+    const contentSizeZoom = zoom > 1 ? 1 : zoom;
 
-    let contentLayerStyle = {
+    const contentLayerStyle = {
       transform: `scale(${zoom},${zoom})`,
       width: viewWidth * contentSizeZoom,
       height: viewHeight * contentSizeZoom,
     };
-    let contentBgStyle = {
+    const contentBgStyle = {
       width: viewWidth,
       height: viewHeight,
     };
 
-    let {miniStageStyle, minStageBgStyle, miniWindowStyle} = this.getMiniStageStyle();
+    const {miniStageStyle, minStageBgStyle, miniWindowStyle} = this.getMiniStageStyle();
 
     let miniStage: React.ReactNode;
     if (miniWindowStyle) {
@@ -606,10 +606,10 @@ export class BlockStage extends BlockStageBase<BlockStageProps, StageState> {
 
   onCopy = async () => {
     try {
-      let {conn, basePath} = this.props;
-      let props: string[] = [];
-      let basePathDot = `${basePath}.`;
-      for (let [, blockItem] of this._blocks) {
+      const {conn, basePath} = this.props;
+      const props: string[] = [];
+      const basePathDot = `${basePath}.`;
+      for (const [, blockItem] of this._blocks) {
         if (blockItem.selected && blockItem.path.startsWith(basePathDot)) {
           props.push(blockItem.path.substring(basePathDot.length));
         }
@@ -619,7 +619,7 @@ export class BlockStage extends BlockStageBase<BlockStageProps, StageState> {
         return;
       }
 
-      let data = await conn.copy(basePath, props);
+      const data = await conn.copy(basePath, props);
       await window.navigator.clipboard.writeText(encode(data.value));
     } catch (e) {
       notification.error({title: 'Failed to copy', description: String(e)});
@@ -627,9 +627,9 @@ export class BlockStage extends BlockStageBase<BlockStageProps, StageState> {
   };
   onPaste = async (e: ClipboardEvent) => {
     if (this._rootNode && document.activeElement === this._rootNode) {
-      let txt = e.clipboardData.getData('Text');
+      const txt = e.clipboardData.getData('Text');
       try {
-        let data = decode(txt);
+        const data = decode(txt);
         if (data && typeof data === 'object') {
           this.pasteData(data);
         } else {
@@ -641,15 +641,15 @@ export class BlockStage extends BlockStageBase<BlockStageProps, StageState> {
     }
   };
   async pasteData(data: DataMap, resolve?: 'overwrite' | 'rename') {
-    let {conn, basePath} = this.props;
+    const {conn, basePath} = this.props;
     if (!resolve) {
-      let existing: string[] = [];
+      const existing: string[] = [];
       // check if object already exist
-      for (let key in data) {
+      for (const key in data) {
         if (key === '#shared') {
-          let shared = data['#shared'];
+          const shared = data['#shared'];
           if (shared && typeof shared === 'object') {
-            for (let skey in shared) {
+            for (const skey in shared) {
               if (this._blocks.has(`${basePath}.#shared.${skey}`)) {
                 existing.push(`#shared.${skey}`);
               }
@@ -665,13 +665,13 @@ export class BlockStage extends BlockStageBase<BlockStageProps, StageState> {
       }
     }
     try {
-      let response = await conn.paste(basePath, data, resolve);
+      const response = await conn.paste(basePath, data, resolve);
       if (Array.isArray(response.pasted) && response.pasted.length) {
         setTimeout(() => {
           // make sure this is not unmounted
           if (this._mounted) {
-            let paths = new Set(response.pasted.map((s: string) => `${basePath}.${s}`));
-            for (let [blockKey, blockItem] of this._blocks) {
+            const paths = new Set(response.pasted.map((s: string) => `${basePath}.${s}`));
+            for (const [blockKey, blockItem] of this._blocks) {
               if (paths.has(blockKey)) {
                 blockItem.setSelected(true);
               } else {

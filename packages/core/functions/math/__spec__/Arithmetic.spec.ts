@@ -5,7 +5,7 @@ import {Flow, Root} from '../../../block/Flow.js';
 
 describe('Math', function () {
   it('basic add', function () {
-    let flow = new Flow();
+    const flow = new Flow();
 
     let aBlock = flow.createBlock('a');
 
@@ -33,20 +33,20 @@ describe('Math', function () {
     expect(aBlock.getValue('#output')).toBe(6);
 
     // save load
-    let saved = flow.save();
-    let flow2 = new Flow();
+    const saved = flow.save();
+    const flow2 = new Flow();
     flow2.load(saved);
 
-    let aBlock2 = flow2.getValue('a2') as Block;
+    const aBlock2 = flow2.getValue('a2') as Block;
     expect(aBlock2).toBeInstanceOf(Block);
     Root.run();
     expect(aBlock2.getValue('#output')).toBe(6);
   });
 
   it('add multiple', function () {
-    let flow = new Flow();
+    const flow = new Flow();
 
-    let aBlock = flow.createBlock('a');
+    const aBlock = flow.createBlock('a');
     aBlock._load({'#is': 'add', '0': 2, '1': 3, '2': 4, '[]': 3});
 
     Root.run();
@@ -70,9 +70,9 @@ describe('Math', function () {
   });
 
   it('add array', function () {
-    let flow = new Flow();
+    const flow = new Flow();
 
-    let aBlock = flow.createBlock('a');
+    const aBlock = flow.createBlock('a');
     aBlock._load({'#is': 'add', '[]': [1, 2]});
 
     Root.run();
@@ -80,9 +80,9 @@ describe('Math', function () {
   });
 
   it('subtract', function () {
-    let flow = new Flow();
+    const flow = new Flow();
 
-    let aBlock = flow.createBlock('a');
+    const aBlock = flow.createBlock('a');
 
     aBlock.setValue('#is', 'subtract');
     aBlock.setValue('0', 7);
@@ -96,9 +96,9 @@ describe('Math', function () {
   });
 
   it('divide', function () {
-    let flow = new Flow();
+    const flow = new Flow();
 
-    let aBlock = flow.createBlock('a');
+    const aBlock = flow.createBlock('a');
 
     aBlock.setValue('#is', 'divide');
     aBlock.setValue('0', 7);
@@ -112,9 +112,9 @@ describe('Math', function () {
   });
 
   it('multiply', function () {
-    let flow = new Flow();
+    const flow = new Flow();
 
-    let aBlock = flow.createBlock('a');
+    const aBlock = flow.createBlock('a');
 
     aBlock.setValue('#is', 'multiply');
     aBlock.setValue('0', 2);

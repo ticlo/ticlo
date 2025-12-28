@@ -41,12 +41,12 @@ export function translateFunction(funcId: string, funcName?: string, namespace?:
     // function categories and namespaces should be translated from @namespace
     funcNameKey = `@namespace.${funcId.substring(0, funcId.length - 1)}`;
   } else {
-    let dotPos = funcName.lastIndexOf('.');
+    const dotPos = funcName.lastIndexOf('.');
     if (dotPos > 0 && dotPos < funcName.length - 1) {
       funcName = funcName.substring(dotPos + 1);
     }
   }
-  let i18ns = `ticlo-${namespace}`;
+  const i18ns = `ticlo-${namespace}`;
   return i18next.t(`${funcNameKey}.@name`, {ns: i18ns, defaultValue: funcName, lng});
 }
 
@@ -57,9 +57,9 @@ export function translateProperty(funcName: string, propName: string, namespace?
   if (!namespace) {
     namespace = 'core';
   }
-  let i18ns = `ticlo-${namespace}`;
-  let numMatch = propName.match(numberReg);
-  let baseName = numMatch ? propName.substring(0, numMatch.index) : propName;
+  const i18ns = `ticlo-${namespace}`;
+  const numMatch = propName.match(numberReg);
+  const baseName = numMatch ? propName.substring(0, numMatch.index) : propName;
 
   let translated: string;
   if (funcName) {
@@ -83,7 +83,7 @@ export function translateProperty(funcName: string, propName: string, namespace?
     });
   }
   if (numMatch) {
-    let numStr = propName.substring(numMatch.index);
+    const numStr = propName.substring(numMatch.index);
     return `${translated}${numStr}`;
   } else {
     return translated;
@@ -106,7 +106,7 @@ export function translatePropContent(
   if (!namespace) {
     namespace = 'core';
   }
-  let i18ns = `ticlo-${namespace}`;
+  const i18ns = `ticlo-${namespace}`;
   let translated: string;
   if (funcName) {
     translated = i18next.t(`${funcName}.${propName}.@options.${content}`, {
@@ -140,6 +140,6 @@ export function getKeywords(funcName: string, namespace?: string, lng?: string):
   if (!namespace) {
     namespace = 'core';
   }
-  let i18ns = `ticlo-${namespace}`;
+  const i18ns = `ticlo-${namespace}`;
   return i18next.t(`${funcName}.@keywords`, {ns: i18ns, defaultValue: null, lng});
 }

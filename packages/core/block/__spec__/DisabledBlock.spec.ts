@@ -4,9 +4,9 @@ import {Flow, Root} from '../Flow.js';
 
 describe('Disabled Block', function () {
   it('disabled block', function () {
-    let flow = new Flow();
+    const flow = new Flow();
 
-    let block = flow.createBlock('obj');
+    const block = flow.createBlock('obj');
     block.setValue('#mode', 'onLoad');
     block.setValue('#-log', 'obj');
     block.setValue('#is', 'test-runner');
@@ -41,15 +41,15 @@ describe('Disabled Block', function () {
   });
 
   it('disable flow', function () {
-    let flow = new Flow();
-    let flowProp = flow.getProperty('sub', true);
+    const flow = new Flow();
+    const flowProp = flow.getProperty('sub', true);
 
-    let subFlow = new Flow(flow, null, flowProp);
+    const subFlow = new Flow(flow, null, flowProp);
     flowProp.setValue(subFlow);
 
     subFlow.setValue('#disabled', true);
 
-    let block = subFlow.createBlock('obj');
+    const block = subFlow.createBlock('obj');
     block.setValue('#mode', 'onLoad');
     block.setValue('#-log', 'obj');
     block.setValue('#is', 'test-runner');

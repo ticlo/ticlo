@@ -8,11 +8,11 @@ import {DataMap} from '../../util/DataTypes.js';
 describe('MultiWorkerFunction', function () {
   it('chain block', function () {
     TestFunctionRunner.clearLog();
-    let flow = new Flow();
+    const flow = new Flow();
 
-    let aBlock = flow.createBlock('a');
-    let bBlock = flow.createBlock('b');
-    let cBlock = flow.createBlock('c');
+    const aBlock = flow.createBlock('a');
+    const bBlock = flow.createBlock('b');
+    const cBlock = flow.createBlock('c');
     aBlock._load({
       '#is': '',
       'obj1': {'#is': '', 'v': 1},
@@ -63,7 +63,7 @@ describe('MultiWorkerFunction', function () {
     expect(cBlock.getValue('#output')).toEqual({obj1: {v: -8}, obj2: {v: -6}, obj3: {v: -4}});
 
     aBlock.deleteValue('obj2');
-    let obj4 = aBlock.createBlock('obj4');
+    const obj4 = aBlock.createBlock('obj4');
     obj4.setValue('v', 4);
     aBlock.updateValue('obj5', {v: 5});
 
@@ -96,9 +96,9 @@ describe('MultiWorkerFunction', function () {
   });
 
   it('watch object', function () {
-    let flow = new Flow();
+    const flow = new Flow();
 
-    let bBlock = flow.createBlock('b');
+    const bBlock = flow.createBlock('b');
 
     flow.updateValue('a', {obj1: {v: 1}, obj2: {v: 2}});
     bBlock._load({
@@ -127,10 +127,10 @@ describe('MultiWorkerFunction', function () {
   });
 
   it('multi-worker primitive types', function () {
-    let flow = new Flow();
+    const flow = new Flow();
 
-    let aBlock = flow.createBlock('a');
-    let bBlock = flow.createBlock('b');
+    const aBlock = flow.createBlock('a');
+    const bBlock = flow.createBlock('b');
     aBlock._load({
       '#is': '',
       'v1': 1,
@@ -166,10 +166,10 @@ describe('MultiWorkerFunction', function () {
   });
 
   it('clear multi-worker use', function () {
-    let flow = new Flow();
+    const flow = new Flow();
 
-    let aBlock = flow.createBlock('a');
-    let bBlock = flow.createBlock('b');
+    const aBlock = flow.createBlock('a');
+    const bBlock = flow.createBlock('b');
     aBlock._load({v1: 1});
     bBlock._load({
       '#is': 'multi-worker',

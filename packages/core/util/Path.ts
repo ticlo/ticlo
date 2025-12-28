@@ -2,7 +2,7 @@ import {Logger} from './Logger.js';
 import {type Block} from '../block/Block.js';
 
 export function splitPathName(currentPath: string): [string, string] {
-  let dotPos = currentPath.lastIndexOf('.');
+  const dotPos = currentPath.lastIndexOf('.');
   if (dotPos > -1) {
     return [currentPath.substring(0, dotPos), currentPath.substring(dotPos + 1)];
   }
@@ -13,8 +13,8 @@ export function resolvePath(currentPath: string, relativePath: string): string {
   if (relativePath == null) {
     return null;
   }
-  let p1 = currentPath.split('.');
-  let p2 = relativePath.split('.');
+  const p1 = currentPath.split('.');
+  const p2 = relativePath.split('.');
 
   loopwhile: while (p2.length > 0 && p1.length > 0) {
     switch (p2[0]) {
@@ -41,13 +41,13 @@ export function getRelativePath(base: string, from: string): string {
   if (base === from) {
     return '';
   }
-  let p1 = base.split('.');
-  let p2 = from.split('.');
+  const p1 = base.split('.');
+  const p2 = from.split('.');
   let pos = 0;
   while (p1[pos] === p2[pos]) {
     ++pos;
   }
-  let str2 = p2.slice(pos).join('.');
+  const str2 = p2.slice(pos).join('.');
   return str2.padStart(str2.length + (p1.length - pos) * 3, '##.');
 }
 
@@ -60,8 +60,8 @@ export function forAllPathsBetween(target: string, base: string, callback: (valu
   if (callback(target)) {
     return true;
   }
-  let targetParts = target.split('.');
-  let baseParts = base.split('.');
+  const targetParts = target.split('.');
+  const baseParts = base.split('.');
 
   for (let len = targetParts.length - 1; len > baseParts.length; --len) {
     if (callback(targetParts.slice(0, len).join('.'))) {
@@ -102,8 +102,8 @@ export function isBindable(toPath: string, fromPath: string): boolean | 'shared'
   if (toPath === fromPath) {
     return false;
   }
-  let tpScope = toPath.substring(0, toPath.indexOf('.'));
-  let fromScope = fromPath.substring(0, fromPath.indexOf('.'));
+  const tpScope = toPath.substring(0, toPath.indexOf('.'));
+  const fromScope = fromPath.substring(0, fromPath.indexOf('.'));
   if (tpScope !== fromScope) {
     if ((tpScope === '#shared' || tpScope === '#temp') && fromScope !== '#global') {
       return false;
@@ -112,8 +112,8 @@ export function isBindable(toPath: string, fromPath: string): boolean | 'shared'
       return false;
     }
   }
-  let fromSharedPos = fromPath.lastIndexOf('.#shared.');
-  let toSharedPos = toPath.lastIndexOf('.#shared.');
+  const fromSharedPos = fromPath.lastIndexOf('.#shared.');
+  const toSharedPos = toPath.lastIndexOf('.#shared.');
   if (toSharedPos > fromSharedPos) {
     return false;
   }

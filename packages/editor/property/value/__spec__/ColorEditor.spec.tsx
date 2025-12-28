@@ -18,17 +18,17 @@ describe('ColorEditor', function () {
 
   it('basic', async function () {
     let value: string = null;
-    let onChange = (v: string) => {
+    const onChange = (v: string) => {
       value = v;
     };
-    let desc: PropDesc = {name: '', type: 'color'};
-    let [component, div] = loadTemplate(
+    const desc: PropDesc = {name: '', type: 'color'};
+    const [component, div] = loadTemplate(
       <ColorEditor value="#000000" funcDesc={blankFuncDesc} desc={desc} onChange={onChange} />,
       'editor'
     );
 
     await shouldHappen(() => div.querySelector('.ticl-color-editor'), 200, 'editor should be created');
-    let colorDiv = div.querySelector('.ticl-color-editor');
+    const colorDiv = div.querySelector('.ticl-color-editor');
 
     simulate(colorDiv, 'click');
 

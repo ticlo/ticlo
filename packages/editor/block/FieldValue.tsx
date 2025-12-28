@@ -19,19 +19,19 @@ export class FieldValue extends LazyUpdateComponent<Props, any> {
 
   constructor(props: Props) {
     super(props);
-    let {conn, path} = props;
+    const {conn, path} = props;
     this.valueSub.subscribe(conn, path);
   }
   getObjectMenu = () => {
-    let {conn, path} = this.props;
-    let val = this.valueSub.value;
+    const {conn, path} = this.props;
+    const val = this.valueSub.value;
     return <ObjectTree conn={conn} path={path} data={val} />;
   };
   objectTreeShown = false;
   onExpandObjectTree = (e: React.MouseEvent) => {
     if (this.context?.showObjectTree) {
-      let {path} = this.props;
-      let val = this.valueSub.value;
+      const {path} = this.props;
+      const val = this.valueSub.value;
       this.context.showObjectTree(path, val, e.target as HTMLElement, this);
       this.objectTreeShown = true;
       e.stopPropagation();
@@ -54,13 +54,13 @@ export class FieldValue extends LazyUpdateComponent<Props, any> {
   };
 
   renderImpl() {
-    let child = renderValue(this.valueSub.value, this.getObjectPopup);
+    const child = renderValue(this.valueSub.value, this.getObjectPopup);
     return <div className="ticl-field-value">{child}</div>;
   }
 
   componentWillUnmount(): void {
     if (this.objectTreeShown && this.context && this.context.closeObjectTree) {
-      let {path} = this.props;
+      const {path} = this.props;
       this.context.closeObjectTree(path, this);
     }
     this.valueSub.unsubscribe();

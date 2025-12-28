@@ -1,5 +1,5 @@
 function encodeTicloNameReplacer(str: string) {
-  let code = str.charCodeAt(0);
+  const code = str.charCodeAt(0);
   if (code < 32) {
     return '';
   }

@@ -33,8 +33,8 @@ describe('editor NodeTree', function () {
 
   function addTestChildren(block: Block, parentname: string, level: number) {
     for (let i = 0; i < 10; ++i) {
-      let name = `${parentname}${i}`;
-      let child = block.createBlock(name);
+      const name = `${parentname}${i}`;
+      const child = block.createBlock(name);
       child.setValue('#is', 'add');
       if (level > 0) {
         addTestChildren(child, name, level - 1);
@@ -43,18 +43,18 @@ describe('editor NodeTree', function () {
   }
 
   it('basic', async function () {
-    let flow = Root.instance.addFlow('NodeTree');
+    const flow = Root.instance.addFlow('NodeTree');
     addTestChildren(flow, '', 3);
 
     [server, client] = makeLocalConnection(Root.instance);
 
-    let [component, div] = loadTemplate(
+    const [component, div] = loadTemplate(
       <NodeTree conn={client} basePaths={['NodeTree']} style={{width: '600px', height: '600px'}} />,
       'editor'
     );
     await shouldHappen(() => div.querySelector('.ticl-node-tree'));
     await shouldHappen(() => div.querySelector('.ticl-v-scroll-content'));
-    let contentDiv = div.querySelector('.ticl-v-scroll-content');
+    const contentDiv = div.querySelector('.ticl-v-scroll-content');
     await shouldHappen(() => contentDiv.childNodes.length >= 1);
 
     // expand child

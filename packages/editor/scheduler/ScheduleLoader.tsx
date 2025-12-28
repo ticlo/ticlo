@@ -140,7 +140,7 @@ class ConfigValuePair {
       if (event) {
         let next = start;
         while (next <= end) {
-          let o = event.getOccur(next);
+          const o = event.getOccur(next);
           if (o.isValid()) {
             // event will change everytime config changes, so the cache is valid.
             result.push(new CalendarEvent(o.start, o.end, getTitle(this.config, value), this));
@@ -211,7 +211,7 @@ export class ScheduleLoader {
       this.zone = z;
       // todo: adjust first day of week based on server settings
       this.localizer = luxonLocalizer(DateTime, {timezone: z});
-      for (let sub of this.subs) {
+      for (const sub of this.subs) {
         sub.updateZone(z);
       }
     }
@@ -248,14 +248,14 @@ export class ScheduleLoader {
   }
   getEvents(start: number, end: number) {
     const result: CalendarEvent[] = [];
-    for (let pair of this.subs) {
+    for (const pair of this.subs) {
       result.push(...pair.getEvents(start, end));
     }
     return result;
   }
   getDummyEvents() {
     const result: CalendarEvent[] = [];
-    for (let pair of this.subs) {
+    for (const pair of this.subs) {
       result.push(pair.getDummyEvent());
     }
     return result;
@@ -264,7 +264,7 @@ export class ScheduleLoader {
   destroy(): void {
     this.timezoneSub.unsubscribe();
     this.eventsLenSub.unsubscribe();
-    for (let sub of this.subs) {
+    for (const sub of this.subs) {
       sub.destroy();
     }
   }

@@ -82,7 +82,7 @@ class App extends React.PureComponent<Props, State> {
   defaultDockLayout: any;
   constructor(props: Props) {
     super(props);
-    let {conn} = props;
+    const {conn} = props;
     this.defaultDockLayout = {
       dockbox: {
         mode: 'horizontal',
@@ -203,7 +203,7 @@ class App extends React.PureComponent<Props, State> {
     },
 
     editProperty: (paths: string[], propDesc: PropDesc, defaultValue?: any, mime?: string, readonly?: boolean) => {
-      let {conn} = this.props;
+      const {conn} = this.props;
       if (!mime) {
         if (propDesc.mime) {
           mime = propDesc.mime;
@@ -214,7 +214,7 @@ class App extends React.PureComponent<Props, State> {
       TextEditorPane.openFloatPanel(this.layout, conn, paths, defaultValue, mime, readonly);
     },
     editSchedule: (path: string, scheduleName?: string, index?: number) => {
-      let {conn} = this.props;
+      const {conn} = this.props;
       SchedulePane.openFloatPanel(this.layout, conn, path, scheduleName, index);
     },
     getSelectedPaths: () => this.selectedPaths,
@@ -230,13 +230,13 @@ class App extends React.PureComponent<Props, State> {
   };
 
   createBlockEditorTab(path: string, onSave?: () => void) {
-    let {conn} = this.props;
+    const {conn} = this.props;
     return BlockStagePane.createDockTab(path, conn, this.onSelect, onSave);
   }
 
   render() {
-    let {conn} = this.props;
-    let {modal} = this.state;
+    const {conn} = this.props;
+    const {modal} = this.state;
     return (
       <ConfigProvider locale={this.lngConfig} theme={theme}>
         <TicloLayoutContextType.Provider value={this.ticloContext}>
@@ -266,7 +266,7 @@ class App extends React.PureComponent<Props, State> {
   i18next.addResourceBundle('en', 'ticlo-test', enTestLocal);
   i18next.addResourceBundle('fr', 'ticlo-test', frTestLocal);
 
-  let client = window.opener
+  const client = window.opener
     ? new FrameClientConnection(window.opener) // used by server-window.html
     : new MixedBrowserConnection(`http://127.0.0.1:8010/ticlo`); // used by ticlo-server
   createRoot(document.getElementById('app')).render(<App conn={client} />);

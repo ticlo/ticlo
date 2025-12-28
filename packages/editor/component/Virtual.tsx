@@ -67,13 +67,13 @@ export default class VirtualList extends React.Component<Props, State> {
     const {height, offset, itemStyle} = this.state;
 
     if (this.state.height > 0 && itemCount > 0) {
-      let contentHeight = itemCount * itemHeight;
-      let start = Math.floor(offset / itemHeight);
+      const contentHeight = itemCount * itemHeight;
+      const start = Math.floor(offset / itemHeight);
       let end = Math.ceil((offset + height) / itemHeight);
       if (end > itemCount) {
         end = itemCount;
       }
-      let children: React.ReactNode[] = [];
+      const children: React.ReactNode[] = [];
       let paddingTop = '';
       if (end > start) {
         for (let i = start; i < end; ++i) {

@@ -42,7 +42,7 @@ export class FlowEditor extends FlowWithShared {
     forceLoad = false,
     applyChange?: (data: DataMap) => boolean
   ): FlowEditor {
-    let prop = parent.getProperty(field);
+    const prop = parent.getProperty(field);
     let flow: FlowEditor;
     if (prop._value instanceof FlowEditor) {
       // do not override the existing one that's being edited
@@ -60,7 +60,7 @@ export class FlowEditor extends FlowWithShared {
         return WorkerFunctionGen.applyChangeToFunc(flow, null, null, data);
       };
     }
-    let success = flow.load(src, funcId, applyChange);
+    const success = flow.load(src, funcId, applyChange);
     if (success) {
       return flow;
     } else {
@@ -69,7 +69,7 @@ export class FlowEditor extends FlowWithShared {
   }
 
   static createFromField(parent: Block, field: string, fromField: string): FlowEditor {
-    let fromValue = parent.getValue(fromField);
+    const fromValue = parent.getValue(fromField);
     let forceReload = false;
     // already has worker data ?
     if (fromValue && (typeof fromValue === 'string' || fromValue.constructor === Object)) {
@@ -104,7 +104,7 @@ export class FlowEditor extends FlowWithShared {
     }
 
     if (parent._funcId) {
-      let data = parent.getDefaultWorker(fromField) || defaultWorkerData;
+      const data = parent.getDefaultWorker(fromField) || defaultWorkerData;
       return FlowEditor.create(parent, field, data, null, forceReload, (data: DataMap) => {
         parent.setValue(fromField, data);
         return true;

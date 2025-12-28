@@ -55,7 +55,7 @@ export class FlowTestGroup extends FlowFolder implements TestsRunner {
     let passed = 0;
     let failed = 0;
     let waiting = 0;
-    for (let [block, state] of this.results) {
+    for (const [block, state] of this.results) {
       if (block instanceof FlowTestGroup) {
         passed += block.passed;
         failed += block.failed;
@@ -86,7 +86,7 @@ export class FlowTestGroup extends FlowFolder implements TestsRunner {
       this.passed = passed;
       this.failed = failed;
       this.waiting = waiting;
-      let detail = ` ${passed} / ${passed + failed + waiting}`;
+      const detail = ` ${passed} / ${passed + failed + waiting}`;
       if (waiting > 0) {
         updateObjectValue(this, '@b-style', {color: 'f44', detail});
         this.updateLabel('running');

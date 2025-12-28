@@ -19,7 +19,7 @@ describe('editor Block Field', function () {
   });
 
   it('single block', async function () {
-    let flow = Root.instance.addFlow('BlockField1');
+    const flow = Root.instance.addFlow('BlockField1');
     flow.load({
       add: {
         '#is': '',
@@ -33,16 +33,16 @@ describe('editor Block Field', function () {
       },
     });
 
-    let [server, client] = makeLocalConnection(Root.instance);
+    const [server, client] = makeLocalConnection(Root.instance);
 
-    let [component, div] = loadTemplate(
+    const [component, div] = loadTemplate(
       <BlockStage conn={client} basePath="BlockField1" style={{width: '800px', height: '800px'}} />,
       'editor'
     );
 
     await shouldHappen(() => div.querySelector('.ticl-field'));
 
-    let block = div.querySelector('.ticl-block') as HTMLDivElement;
+    const block = div.querySelector('.ticl-block') as HTMLDivElement;
 
     await shouldHappen(() => block.querySelectorAll('.ticl-field').length === 6);
 
@@ -81,7 +81,7 @@ describe('editor Block Field', function () {
   });
 
   it('sub block', async function () {
-    let flow = Root.instance.addFlow('BlockField2');
+    const flow = Root.instance.addFlow('BlockField2');
     flow.load({
       add: {
         '#is': 'add',
@@ -102,20 +102,20 @@ describe('editor Block Field', function () {
       },
     });
 
-    let [server, client] = makeLocalConnection(Root.instance);
+    const [server, client] = makeLocalConnection(Root.instance);
 
-    let [component, div] = loadTemplate(
+    const [component, div] = loadTemplate(
       <BlockStage conn={client} basePath="BlockField2" style={{width: '800px', height: '800px'}} />,
       'editor'
     );
 
     await shouldHappen(() => div.querySelector('.ticl-block'));
 
-    let subtractBlock = querySingle("//div.ticl-block-head.ticl-block-head-label[text()='subtract']/../..", div);
+    const subtractBlock = querySingle("//div.ticl-block-head.ticl-block-head-label[text()='subtract']/../..", div);
 
     await shouldHappen(() => subtractBlock.querySelectorAll('.ticl-field').length === 3);
 
-    let fieldNames = subtractBlock.querySelectorAll('.ticl-field-name');
+    const fieldNames = subtractBlock.querySelectorAll('.ticl-field-name');
     expect(fieldNames[0].textContent).toBe('0');
     // property from sub blocks
     expect(fieldNames[1].textContent).toBe('0');
@@ -137,7 +137,7 @@ describe('editor Block Field', function () {
   });
 
   it('indirect binding', async function () {
-    let flow = Root.instance.addFlow('BlockField3');
+    const flow = Root.instance.addFlow('BlockField3');
     flow.load({
       add: {
         '#is': 'add',
@@ -153,16 +153,16 @@ describe('editor Block Field', function () {
       },
     });
 
-    let [server, client] = makeLocalConnection(Root.instance);
+    const [server, client] = makeLocalConnection(Root.instance);
 
-    let [component, div] = loadTemplate(
+    const [component, div] = loadTemplate(
       <BlockStage conn={client} basePath="BlockField3" style={{width: '800px', height: '800px'}} />,
       'editor'
     );
 
     await shouldHappen(() => div.querySelector('.ticl-block-wire'));
 
-    let wire = div.querySelector('.ticl-block-wire');
+    const wire = div.querySelector('.ticl-block-wire');
 
     // indirect binding should have dash style
     expect(wire.classList.contains('ticl-wire-dash')).toBe(true);

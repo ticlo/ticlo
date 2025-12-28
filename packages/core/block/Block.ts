@@ -182,7 +182,7 @@ export class Block implements Runnable, FunctionData, PropListener<FunctionClass
   }
 
   queryValue(path: string): unknown {
-    let prop = this._queryProperty(path.split('.'), false);
+    const prop = this._queryProperty(path.split('.'), false);
     if (prop) {
       return prop._value;
     }
@@ -191,10 +191,10 @@ export class Block implements Runnable, FunctionData, PropListener<FunctionClass
 
   // return undefined if parent doesn't exist, return null if create=false
   _queryProperty(path: string[], create: boolean): BlockProperty {
-    let lastIdx = path.length - 1;
+    const lastIdx = path.length - 1;
     let block: Block = this;
     for (let i = 0; i < lastIdx; ++i) {
-      let property = block.getProperty(path[i], false);
+      const property = block.getProperty(path[i], false);
       if (property && property._value instanceof Block) {
         block = property._value;
       } else {
@@ -235,7 +235,7 @@ export class Block implements Runnable, FunctionData, PropListener<FunctionClass
     //   return this._prop;
     // }
 
-    let firstChar = field.charCodeAt(0);
+    const firstChar = field.charCodeAt(0);
 
     if (firstChar === 35) {
       // # config
@@ -312,9 +312,9 @@ export class Block implements Runnable, FunctionData, PropListener<FunctionClass
         return voidProperty;
       }
     }
-    let pos = path.lastIndexOf('.');
+    const pos = path.lastIndexOf('.');
     if (pos < 0) {
-      let prop = this.getProperty(path);
+      const prop = this.getProperty(path);
       prop.listen(listener);
       return prop;
     }
@@ -329,14 +329,14 @@ export class Block implements Runnable, FunctionData, PropListener<FunctionClass
     }
 
     if (this._bindings.has(path)) {
-      let binding = this._bindings.get(path);
+      const binding = this._bindings.get(path);
       binding.listen(listener);
       return binding;
     }
-    let parentPath = path.substring(0, pos);
-    let field = path.substring(pos + 1);
+    const parentPath = path.substring(0, pos);
+    const field = path.substring(pos + 1);
 
-    let binding = new BlockBinding(this, path, field);
+    const binding = new BlockBinding(this, path, field);
     this._bindings.set(path, binding);
 
     binding._parent = this.createBinding(parentPath, binding);
@@ -349,39 +349,39 @@ export class Block implements Runnable, FunctionData, PropListener<FunctionClass
   }
 
   waitValue(path: string, validator?: (val: unknown) => EventType | boolean): Promise<any> {
-    let listenPromise = new ListenPromise(validator);
+    const listenPromise = new ListenPromise(validator);
     listenPromise._valid = true;
     listenPromise._source = this.createBinding(path, listenPromise);
     return listenPromise._promise;
   }
 
   waitNextValue(path: string, validator?: (val: unknown) => EventType | boolean): Promise<any> {
-    let listenPromise = new ListenPromise(validator);
+    const listenPromise = new ListenPromise(validator);
     listenPromise._source = this.createBinding(path, listenPromise);
     listenPromise._valid = true;
     return listenPromise._promise;
   }
 
   _save(): DataMap {
-    let result: DataMap = {};
-    for (let [, prop] of this._props) {
+    const result: DataMap = {};
+    for (const [, prop] of this._props) {
       prop._saveToMap(result);
     }
     return result;
   }
 
   _load(map: DataMap) {
-    for (let key in map) {
+    for (const key in map) {
       if (key.charCodeAt(0) === 126) {
         // ~ for binding
-        let val = map[key];
+        const val = map[key];
         if (typeof val === 'string') {
           // normal binding
-          let name = key.substring(1);
+          const name = key.substring(1);
           this.setBinding(name, val);
         } else if (Object.isExtensible(val)) {
           // binding helper
-          let name = key.substring(1);
+          const name = key.substring(1);
           this.createHelperBlock(name)._load(val as DataMap);
         }
       } else {
@@ -397,18 +397,18 @@ export class Block implements Runnable, FunctionData, PropListener<FunctionClass
 
   // load the data but keep runtime values
   _liveUpdate(map: DataMap, clearUnused = true) {
-    let loadedFields: DataMap = {'#is': true};
-    for (let key in map) {
+    const loadedFields: DataMap = {'#is': true};
+    for (const key in map) {
       if (key.charCodeAt(0) === 126) {
         // ~ for binding
-        let val = map[key];
+        const val = map[key];
         if (typeof val === 'string') {
-          let name = key.substring(1);
+          const name = key.substring(1);
           this.setBinding(name, val);
           loadedFields[name] = true;
         } else if (Object.isExtensible(val)) {
           // binding helper
-          let name = key.substring(1);
+          const name = key.substring(1);
           this.createHelperBlock(name)._liveUpdate(val as DataMap);
           loadedFields[name] = true;
           loadedFields[key] = true;
@@ -419,7 +419,7 @@ export class Block implements Runnable, FunctionData, PropListener<FunctionClass
       }
     }
     if (clearUnused) {
-      for (let [key, prop] of this._props) {
+      for (const [key, prop] of this._props) {
         // clear properties that don't exist in saved data
         if (!Object.hasOwn(loadedFields, key)) {
           prop._liveClear();
@@ -447,7 +447,7 @@ export class Block implements Runnable, FunctionData, PropListener<FunctionClass
   }
 
   deleteValue(field: string): void {
-    let prop = this.getProperty(field, false)?.setValue(undefined);
+    const prop = this.getProperty(field, false)?.setValue(undefined);
   }
 
   setBinding(field: string, path: string): void {
@@ -455,7 +455,7 @@ export class Block implements Runnable, FunctionData, PropListener<FunctionClass
   }
 
   getValue(field: string): unknown {
-    let prop = this.getProperty(field, false);
+    const prop = this.getProperty(field, false);
     if (prop) {
       return prop.getValue();
     }
@@ -463,7 +463,7 @@ export class Block implements Runnable, FunctionData, PropListener<FunctionClass
   }
 
   createBlock(field: string, getIfExist = false): Block {
-    let prop = this.getProperty(field);
+    const prop = this.getProperty(field);
     if (!(prop._saved instanceof Block) || prop._saved._prop !== prop) {
       return prop.createBlock(true);
     }
@@ -475,7 +475,7 @@ export class Block implements Runnable, FunctionData, PropListener<FunctionClass
 
   // used by #global and #global.#temp #global.#shared
   _createConstBlock(field: string, generator: (prop: BlockProperty) => Block): BlockConstConfig {
-    let constProp = new BlockConstConfig(this, field);
+    const constProp = new BlockConstConfig(this, field);
     this._props.set(field, constProp);
     constProp._value = generator(constProp);
     return constProp;
@@ -486,8 +486,8 @@ export class Block implements Runnable, FunctionData, PropListener<FunctionClass
   }
 
   createHelperBlock(field: string): Block {
-    let prop = this.getProperty(field);
-    let helperProp = this.getProperty(`~${field}`) as HelperProperty;
+    const prop = this.getProperty(field);
+    const helperProp = this.getProperty(`~${field}`) as HelperProperty;
     let block: Block;
     if (!(helperProp._saved instanceof Block) || helperProp._saved._prop !== prop) {
       block = helperProp.createBlock(true);
@@ -510,8 +510,8 @@ export class Block implements Runnable, FunctionData, PropListener<FunctionClass
       Logger.error(`failed to create output flow at ${this.getFullPath()}.${field}`);
       return null;
     }
-    let prop = this.getProperty(field);
-    let flow = new FlowClass(this, output, prop);
+    const prop = this.getProperty(field);
+    const flow = new FlowClass(this, output, prop);
     prop.setOutput(flow);
     if (typeof src === 'string') {
       flow.load(null, src, applyChange);
@@ -536,7 +536,7 @@ export class Block implements Runnable, FunctionData, PropListener<FunctionClass
 
   _cancelFunction(reason: EventType) {
     if (this.#function) {
-      let result = this.#function.cancel(reason, this._mode);
+      const result = this.#function.cancel(reason, this._mode);
       if (result) {
         this._funcPromise = undefined;
         this.updateValue('#wait', undefined);
@@ -661,7 +661,7 @@ export class Block implements Runnable, FunctionData, PropListener<FunctionClass
               if (this._sync) {
                 if (this.#function.isPure && this._runOnChange && !this._queueToRun) {
                   // if function is pure, it can't be called synchronously without a change
-                  let prop = this._props.get('#emit');
+                  const prop = this._props.get('#emit');
                   if (prop && Object.isExtensible(prop._value) && prop._value.constructor === DoneEvent) {
                     // re-emit complete event
                     prop.updateValue(new DoneEvent());
@@ -722,8 +722,8 @@ export class Block implements Runnable, FunctionData, PropListener<FunctionClass
   _flowDisabled() {
     // disable parent before children
     this._disabledChanged(true);
-    for (let [key, prop] of this._props) {
-      let val = prop._value;
+    for (const [key, prop] of this._props) {
+      const val = prop._value;
       if (val instanceof Block && val._prop === prop) {
         val._flowDisabled();
       }
@@ -731,8 +731,8 @@ export class Block implements Runnable, FunctionData, PropListener<FunctionClass
   }
 
   _flowEnabled() {
-    for (let [key, prop] of this._props) {
-      let val = prop._value;
+    for (const [key, prop] of this._props) {
+      const val = prop._value;
       if (val instanceof Block && val._prop === prop) {
         val._flowEnabled();
       }
@@ -742,7 +742,7 @@ export class Block implements Runnable, FunctionData, PropListener<FunctionClass
   }
 
   _disabledChanged(disabled: unknown) {
-    let newDisabled = this._flow._disabled || Boolean(disabled);
+    const newDisabled = this._flow._disabled || Boolean(disabled);
     if (newDisabled !== this._disabled) {
       this._disabled = newDisabled;
       if (newDisabled) {
@@ -769,7 +769,7 @@ export class Block implements Runnable, FunctionData, PropListener<FunctionClass
     if (typeof funcId !== 'string') {
       funcId = null;
     }
-    let flowNamespace = this._flow._namespace;
+    const flowNamespace = this._flow._namespace;
     if (flowNamespace && typeof funcId === 'string') {
       if (funcId.startsWith(':')) {
         funcId = `${this._flow._namespace}${funcId}`;
@@ -816,7 +816,7 @@ export class Block implements Runnable, FunctionData, PropListener<FunctionClass
   }
 
   getOptionalProps(): string[] {
-    let optional = this.getValue('+optional');
+    const optional = this.getValue('+optional');
     if (Array.isArray(optional)) {
       return optional;
     }
@@ -858,7 +858,7 @@ export class Block implements Runnable, FunctionData, PropListener<FunctionClass
         }
         this.#function.initInputs();
         if (this._runOnLoad) {
-          let callValue = this.getValue('#call');
+          const callValue = this.getValue('#call');
           if (callValue !== undefined) {
             this.#function.onCall(callValue);
           }
@@ -909,14 +909,14 @@ export class Block implements Runnable, FunctionData, PropListener<FunctionClass
   }
 
   _onChildChanged(property: BlockProperty, saved?: boolean) {
-    for (let watcher of this._watchers) {
+    for (const watcher of this._watchers) {
       watcher.onChildChange(property, saved);
     }
   }
 
   _initIoCache() {
     this._ioCache = new Map();
-    for (let [field, prop] of this._props) {
+    for (const [field, prop] of this._props) {
       if (prop instanceof BlockIO) {
         this._ioCache.set(field, prop);
       }
@@ -928,7 +928,7 @@ export class Block implements Runnable, FunctionData, PropListener<FunctionClass
     if (!this._ioCache) {
       this._initIoCache();
     }
-    for (let [field, prop] of this._ioCache) {
+    for (const [field, prop] of this._ioCache) {
       if (prop._value !== undefined) {
         callback(field, prop._value, prop);
       }
@@ -940,9 +940,9 @@ export class Block implements Runnable, FunctionData, PropListener<FunctionClass
     if (!this._ioCache) {
       this._initIoCache();
     }
-    for (let [field, prop] of this._ioCache) {
+    for (const [field, prop] of this._ioCache) {
       if (prop._value !== undefined) {
-        let result = callback(field, prop._value, prop);
+        const result = callback(field, prop._value, prop);
         if (result !== undefined) {
           return result;
         }
@@ -988,10 +988,10 @@ export class Block implements Runnable, FunctionData, PropListener<FunctionClass
     // properties are destroyed but not removed
     // the final clean up is handled by GC
     // if the block is still kept in memory, it's still possible to save it after destroy
-    for (let [name, prop] of this._props) {
+    for (const [name, prop] of this._props) {
       prop.destroy();
     }
-    for (let [path, binding] of this._bindings) {
+    for (const [path, binding] of this._bindings) {
       binding.destroy();
     }
 
@@ -1066,17 +1066,17 @@ export class InputsBlock extends Block {
       this.updateValue('#value', val);
     }
     if (val instanceof Block) {
-      let customList = this.getValue('#custom');
+      const customList = this.getValue('#custom');
       if (Array.isArray(customList)) {
-        for (let customProp of customList) {
+        for (const customProp of customList) {
           // create raw binding
           this.getProperty(customProp.name)._listenRaw(val.getProperty(customProp.name));
         }
       }
     } else if (Object.isExtensible(val)) {
-      let customList = this.getValue('#custom');
+      const customList = this.getValue('#custom');
       if (Array.isArray(customList)) {
-        for (let customProp of customList) {
+        for (const customProp of customList) {
           this.updateValue(customProp.name, (val as DataMap)[customProp.name]);
         }
       }

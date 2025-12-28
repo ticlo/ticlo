@@ -185,9 +185,9 @@ export function mapConfigDesc(configs: (string | PropDesc)[]): PropDesc[] {
   if ((configs as any).mappedConfig) {
     return configs as PropDesc[];
   }
-  let result: PropDesc[] = [];
+  const result: PropDesc[] = [];
   (result as any).mappedConfig = true;
-  for (let config of configs) {
+  for (const config of configs) {
     if (typeof config === 'object') {
       result.push(config);
     } else if (Object.hasOwn(configDescs, config)) {
@@ -212,14 +212,14 @@ export function buildPropDescCache(
 ): {[key: string]: PropDesc} {
   if (!funcDesc) return null;
 
-  let result: {[key: string]: PropDesc} = {};
+  const result: {[key: string]: PropDesc} = {};
 
   function addProps(props: (PropDesc | PropGroupDesc)[]) {
     if (!props) return;
-    for (let prop of props) {
+    for (const prop of props) {
       if (prop.type === 'group') {
         result[`${prop.name}[]`] = lengthPropDesc;
-        for (let gprop of (prop as PropGroupDesc).properties) {
+        for (const gprop of (prop as PropGroupDesc).properties) {
           // add number index to the property name
           result[`${gprop.name}0`] = gprop;
         }
@@ -242,9 +242,9 @@ export function findPropDesc(name: string, cache: {[key: string]: PropDesc}): Pr
   if (!name || !cache) {
     return blankPropDesc;
   }
-  let numMatch = name.match(numberReg);
+  const numMatch = name.match(numberReg);
   if (numMatch) {
-    let baseName = name.substring(0, numMatch.index);
+    const baseName = name.substring(0, numMatch.index);
     name = `${baseName}0`;
   }
   if (Object.hasOwn(cache, name)) {
@@ -257,12 +257,12 @@ export function findPropDesc(name: string, cache: {[key: string]: PropDesc}): Pr
 }
 
 function initBlockProperties(data: DataMap, properties: (PropDesc | PropGroupDesc)[], pinAll: boolean = false) {
-  let props: string[] = [];
-  for (let propDesc of properties) {
+  const props: string[] = [];
+  for (const propDesc of properties) {
     if ((propDesc as PropGroupDesc).properties) {
       for (let i = 0; i < (propDesc as PropGroupDesc).defaultLen; ++i) {
-        for (let childDesc of (propDesc as PropGroupDesc).properties) {
-          let propName = `${childDesc.name}${i}`;
+        for (const childDesc of (propDesc as PropGroupDesc).properties) {
+          const propName = `${childDesc.name}${i}`;
           if (pinAll || childDesc.pinned) {
             props.push(propName);
           }
@@ -284,7 +284,7 @@ function initBlockProperties(data: DataMap, properties: (PropDesc | PropGroupDes
 }
 
 export function getDefaultFuncData(desc: FunctionDesc) {
-  let data: DataMap = {
+  const data: DataMap = {
     '#is': desc.id,
   };
   initBlockProperties(data, desc.properties);
@@ -302,14 +302,14 @@ export function getDefaultDataFromCustom(
   base: DataMap = {'#is': ''},
   pinAll: boolean = true
 ) {
-  let data: DataMap = {...base, '#custom': custom};
+  const data: DataMap = {...base, '#custom': custom};
   initBlockProperties(data, custom, pinAll);
   return data;
 }
 
 export function getOutputDesc(desc: FunctionDesc): PropDesc {
   if (desc && desc.properties?.length) {
-    let last = desc.properties.at(-1);
+    const last = desc.properties.at(-1);
     if (last.name === '#output' && last.type !== 'group') {
       return last;
     }

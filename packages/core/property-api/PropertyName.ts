@@ -6,9 +6,9 @@ import {PropertyMover} from './PropertyMover.js';
 const trailingNumberReg = /\d+$/;
 
 export function findPropertyForNewBlock(block: Block, baseName: string, reservedNames: string[] = []): BlockProperty {
-  let usedNames = buildPropertiesOrder(block).concat(reservedNames);
+  const usedNames = buildPropertiesOrder(block).concat(reservedNames);
   if (!usedNames.includes(baseName)) {
-    let p = block.getProperty(baseName);
+    const p = block.getProperty(baseName);
     if (p.isCleared()) {
       return p;
     }
@@ -16,9 +16,9 @@ export function findPropertyForNewBlock(block: Block, baseName: string, reserved
 
   baseName = baseName.replace(trailingNumberReg, '');
   for (let i = 1; ; ++i) {
-    let newName = `${baseName}${i}`;
+    const newName = `${baseName}${i}`;
     if (!usedNames.includes(newName)) {
-      let p = block.getProperty(`${baseName}${i}`);
+      const p = block.getProperty(`${baseName}${i}`);
       if (p.isCleared()) {
         return p;
       }

@@ -34,10 +34,10 @@ export class MiniBlockView extends PureDataRenderer<MiniBlockViewProps, any> imp
   }
 
   renderImpl() {
-    let {item} = this.props;
-    let SpecialView = item.desc.view;
+    const {item} = this.props;
+    const SpecialView = item.desc.view;
 
-    let classNames: string[] = [];
+    const classNames: string[] = [];
     if (item.selected) {
       classNames.push('ticl-block-selected');
     }
@@ -65,7 +65,7 @@ export class MiniBlockView extends PureDataRenderer<MiniBlockViewProps, any> imp
     } else if (item.w) {
       classNames.push('ticl-block');
 
-      let [colorClass, icon] = getFuncStyleFromDesc(item.desc, item.conn);
+      const [colorClass, icon] = getFuncStyleFromDesc(item.desc, item.conn);
       classNames.push(colorClass);
       return (
         <div
@@ -82,7 +82,7 @@ export class MiniBlockView extends PureDataRenderer<MiniBlockViewProps, any> imp
     } else if (item.descLoaded) {
       classNames.push('ticl-block');
       classNames.push('ticl-block-min');
-      let [colorClass, icon] = getFuncStyleFromDesc(item.desc, item.conn);
+      const [colorClass, icon] = getFuncStyleFromDesc(item.desc, item.conn);
       classNames.push(colorClass);
       return (
         <div ref={this.getRef} className={classNames.join(' ')} style={{top: item.y, left: item.x}}>
@@ -105,7 +105,7 @@ interface ZoomStageProps {
 
 export class MiniStage extends React.PureComponent<ZoomStageProps, any> {
   render() {
-    let {children, style} = this.props;
+    const {children, style} = this.props;
     return (
       <div className="ticl-mini-stage" style={style}>
         {children}

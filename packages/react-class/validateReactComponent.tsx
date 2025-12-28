@@ -14,9 +14,9 @@ export function validateReactComponent(component: any) {
     return '';
   } else if (typeof component === 'object') {
     if (Array.isArray(component)) {
-      let result: any[] = [];
-      for (let child of component) {
-        let validatedChild = validateSingleComponent(child);
+      const result: any[] = [];
+      for (const child of component) {
+        const validatedChild = validateSingleComponent(child);
         if (validatedChild != null) {
           result.push(validatedChild);
         }

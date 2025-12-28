@@ -8,7 +8,7 @@ export class FormatDateFunction extends PureFunction {
   run() {
     const base = this._data.getValue('base');
 
-    let d = toDateTime(base);
+    const d = toDateTime(base);
     if (d.isValid) {
       const op = this._data.getValue('op') || 'add';
       const count = Number(this._data.getValue('count') ?? 1);

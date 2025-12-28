@@ -23,9 +23,9 @@ export function FlowRoot({
     if (flow instanceof Flow) {
       return f;
     }
-    let flowName = name || tempId;
+    const flowName = name || tempId;
     // TODO isValidFlowName
-    let v = Root.instance.getValue(flowName);
+    const v = Root.instance.getValue(flowName);
     if (v instanceof Flow) {
       return v;
     }

@@ -48,8 +48,8 @@ export class ObjectTreeItem extends TreeItem<ObjectTreeItem> {
   }
 
   createChildren() {
-    let children: ObjectTreeItem[] = [];
-    for (let key of Object.keys(this.data)) {
+    const children: ObjectTreeItem[] = [];
+    for (const key of Object.keys(this.data)) {
       children.push(new ObjectTreeItem(this.rootPath, key, this.data[key], this));
     }
     this.children = children;
@@ -71,7 +71,7 @@ export class ObjectTreeRenderer extends PureDataRenderer<Props, any> {
   // declare context: TicloLayoutContext;
 
   onExpandClicked = () => {
-    let {item} = this.props;
+    const {item} = this.props;
     switch (item.opened) {
       case 'opened':
         item.close();
@@ -84,24 +84,24 @@ export class ObjectTreeRenderer extends PureDataRenderer<Props, any> {
 
   constructor(props: Props) {
     super(props);
-    let {item} = props;
+    const {item} = props;
   }
 
   onDragStart = (e: DragState) => {
-    let {item} = this.props;
+    const {item} = this.props;
 
-    let fields = [`${item.rootPath}..${item.key}`];
+    const fields = [`${item.rootPath}..${item.key}`];
     e.setData({fields}, item.connection.getBaseConn());
 
     e.startDrag();
   };
 
   renderImpl() {
-    let {item, style} = this.props;
-    let marginLeft = item.level * 16;
-    let onClick = item.opened !== 'empty' ? this.onExpandClicked : null;
+    const {item, style} = this.props;
+    const marginLeft = item.level * 16;
+    const onClick = item.opened !== 'empty' ? this.onExpandClicked : null;
 
-    let onDragStart = item.rootPath ? this.onDragStart : null;
+    const onDragStart = item.rootPath ? this.onDragStart : null;
 
     let child: React.ReactNode;
     let val = item.data;

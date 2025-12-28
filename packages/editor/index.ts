@@ -12,6 +12,6 @@ import './block/view/SliderWidget.js';
 import './block/view/NoteWidget.js';
 
 export async function initEditor() {
-  let lng = window.localStorage.getItem('ticlo-lng');
+  const lng = window.localStorage.getItem('ticlo-lng');
   await ticloI18n.init(lng);
 }

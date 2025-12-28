@@ -19,21 +19,21 @@ export class TestLogger {
 
 describe('Logger', function () {
   it('basic', function () {
-    let traceLogger1 = new TestLogger(Logger.TRACE);
-    let traceLogger2 = new TestLogger(Logger.TRACE_AND_ABOVE);
-    let debugLogger1 = new TestLogger(Logger.DEBUG);
-    let debugLogger2 = new TestLogger(Logger.DEBUG_AND_ABOVE);
-    let fineLogger1 = new TestLogger(Logger.FINE);
-    let fineLogger2 = new TestLogger(Logger.FINE_AND_ABOVE);
-    let warnLogger1 = new TestLogger(Logger.WARN);
-    let warnLogger2 = new TestLogger();
-    let infoLogger1 = new TestLogger(Logger.INFO);
-    let infoLogger2 = new TestLogger(Logger.INFO_AND_ABOVE);
-    let errorLogger1 = new TestLogger(Logger.ERROR);
-    let errorLogger2 = new TestLogger(Logger.ERROR_AND_ABOVE);
-    let configLogger1 = new TestLogger(Logger.CONFIG);
-    let configLogger2 = new TestLogger(Logger.CONFIG_AND_ABOVE);
-    let fatalLogger1 = new TestLogger(Logger.FATAL);
+    const traceLogger1 = new TestLogger(Logger.TRACE);
+    const traceLogger2 = new TestLogger(Logger.TRACE_AND_ABOVE);
+    const debugLogger1 = new TestLogger(Logger.DEBUG);
+    const debugLogger2 = new TestLogger(Logger.DEBUG_AND_ABOVE);
+    const fineLogger1 = new TestLogger(Logger.FINE);
+    const fineLogger2 = new TestLogger(Logger.FINE_AND_ABOVE);
+    const warnLogger1 = new TestLogger(Logger.WARN);
+    const warnLogger2 = new TestLogger();
+    const infoLogger1 = new TestLogger(Logger.INFO);
+    const infoLogger2 = new TestLogger(Logger.INFO_AND_ABOVE);
+    const errorLogger1 = new TestLogger(Logger.ERROR);
+    const errorLogger2 = new TestLogger(Logger.ERROR_AND_ABOVE);
+    const configLogger1 = new TestLogger(Logger.CONFIG);
+    const configLogger2 = new TestLogger(Logger.CONFIG_AND_ABOVE);
+    const fatalLogger1 = new TestLogger(Logger.FATAL);
 
     Logger.trace('trace');
     Logger.debug('debug');
@@ -78,9 +78,9 @@ describe('Logger', function () {
   });
 
   it('message lambda', function () {
-    let logger = new TestLogger();
+    const logger = new TestLogger();
     let count = 0;
-    let message = () => {
+    const message = () => {
       ++count;
       return 'message';
     };

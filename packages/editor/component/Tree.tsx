@@ -67,7 +67,7 @@ export abstract class TreeItem<T extends TreeItem<any>> extends DataRendererItem
       list.push(this);
     }
     if (this.opened === 'opened' && this.children) {
-      for (let child of this.children) {
+      for (const child of this.children) {
         child.addToList(list);
       }
     }
@@ -75,7 +75,7 @@ export abstract class TreeItem<T extends TreeItem<any>> extends DataRendererItem
 
   destroyChildren() {
     if (this.children) {
-      for (let child of this.children) {
+      for (const child of this.children) {
         child.destroy();
       }
       this.children = null;

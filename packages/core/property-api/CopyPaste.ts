@@ -9,7 +9,7 @@ import {cloneToLevel} from '../util/Clone.js';
 
 function getProperty(parent: Block, field: string, create = false): [BlockProperty, Block] {
   if (field.startsWith('#shared.')) {
-    let sharedBlock = parent.getValue('#shared');
+    const sharedBlock = parent.getValue('#shared');
     if (sharedBlock instanceof Block) {
       return [sharedBlock.getProperty(field.substring(8)), sharedBlock];
     } else {
@@ -21,20 +21,20 @@ function getProperty(parent: Block, field: string, create = false): [BlockProper
 }
 export function createSharedBlock(property: BlockProperty): SharedBlock {
   if (property instanceof SharedConfig) {
-    let value = property._value;
+    const value = property._value;
     if (value instanceof SharedBlock) {
       return value;
     }
-    let flow = property._block as FlowWithShared;
+    const flow = property._block as FlowWithShared;
     return SharedBlock.loadSharedBlock(flow, flow._loadFrom, {});
   }
   return null;
 }
 export function copyProperties(parent: Block, fields: string[]): DataMap | string {
-  let result: any = {};
+  const result: any = {};
   let sharedResult: any;
-  for (let field of fields) {
-    let [prop, sharedBlock] = getProperty(parent, field);
+  for (const field of fields) {
+    const [prop, sharedBlock] = getProperty(parent, field);
 
     if (prop) {
       if (sharedBlock) {
@@ -55,8 +55,8 @@ export function copyProperties(parent: Block, fields: string[]): DataMap | strin
 }
 
 export function deleteProperties(parent: Block, fields: string[]) {
-  for (let field of fields) {
-    let [prop] = getProperty(parent, field);
+  for (const field of fields) {
+    const [prop] = getProperty(parent, field);
     if (prop) {
       prop.setValue(undefined);
     }
@@ -70,21 +70,21 @@ export function pasteProperties(parent: Block, data: DataMap, resolve?: 'overwri
 
   let {'#shared': shared, ...others} = data;
   others = cloneToLevel(others, 3);
-  let sharedData = cloneToLevel(shared, 3) as DataMap;
+  const sharedData = cloneToLevel(shared, 3) as DataMap;
 
-  let sharedBlock = createSharedBlock(parent.getProperty('#shared', sharedData != null));
+  const sharedBlock = createSharedBlock(parent.getProperty('#shared', sharedData != null));
 
   if (resolve !== 'overwrite') {
-    let existingBlocks: string[] = [];
-    let existingSharedBlocks: string[] = [];
-    for (let field in others) {
+    const existingBlocks: string[] = [];
+    const existingSharedBlocks: string[] = [];
+    for (const field in others) {
       if (parent.getProperty(field, false)?._saved instanceof Block) {
         existingBlocks.push(field);
       }
     }
     if (sharedData && sharedBlock) {
       // ignore the shared block not allowed error here, handle it later
-      for (let field in sharedData) {
+      for (const field in sharedData) {
         if (sharedBlock.getProperty(field, false)?._saved instanceof Block) {
           existingSharedBlocks.push(field);
         }
@@ -135,23 +135,23 @@ function isParentBinding(str: string) {
 }
 
 function renameBlocks(parent: Block, data: DataMap, fields: string[]) {
-  let map: Map<string, string> = new Map();
-  let reservedNames: string[] = [];
+  const map: Map<string, string> = new Map();
+  const reservedNames: string[] = [];
   // move blocks
-  for (let field of fields) {
-    let newField = findPropertyForNewBlock(parent, field, reservedNames)._name;
+  for (const field of fields) {
+    const newField = findPropertyForNewBlock(parent, field, reservedNames)._name;
     map.set(field, newField);
     reservedNames.push(newField);
     data[newField] = data[field];
     delete data[field];
   }
-  let isFlow = parent instanceof Flow;
+  const isFlow = parent instanceof Flow;
   // move bindings
   function moveBinding(obj: DataMap, level: number) {
-    for (let key in obj) {
-      let val = obj[key];
+    for (const key in obj) {
+      const val = obj[key];
       if (key.startsWith('~') && typeof val === 'string') {
-        let parts = val.split('.');
+        const parts = val.split('.');
         if (isFlow && parts[0] === '###' && fields.includes(parts[1])) {
           // flow binding
           parts[1] = map.get(parts[1]);
@@ -167,10 +167,10 @@ function renameBlocks(parent: Block, data: DataMap, fields: string[]) {
   }
   moveBinding(data, 0);
   // move synced parent block
-  for (let key in data) {
-    let val = data[key];
+  for (const key in data) {
+    const val = data[key];
     if (isDataMap(val)) {
-      let xyw = val['@b-xyw'];
+      const xyw = val['@b-xyw'];
       if (typeof xyw === 'string' && fields.includes(xyw)) {
         val['@b-xyw'] = map.get(xyw);
       }
@@ -179,10 +179,10 @@ function renameBlocks(parent: Block, data: DataMap, fields: string[]) {
 }
 
 function collectBlockPositions(parent: Block): Map<number, number[]> {
-  let result: Map<number, number[]> = new Map();
+  const result: Map<number, number[]> = new Map();
   parent.forEach((key: string, value: unknown, prop) => {
     if (prop._saved instanceof Block) {
-      let xyw = prop._saved.getValue('@b-xyw');
+      const xyw = prop._saved.getValue('@b-xyw');
       if (Array.isArray(xyw) && typeof xyw[0] === 'number' && typeof xyw[1] === 'number') {
         addMapArray(result, xyw[0], xyw[1]);
       }
@@ -192,12 +192,12 @@ function collectBlockPositions(parent: Block): Map<number, number[]> {
 }
 
 function moveBlockPositions(data0: DataMap, data1: DataMap, positions: Map<number, number[]>) {
-  let xyws: number[][] = [];
+  const xyws: number[][] = [];
   function collectDataPosition(data: DataMap) {
-    for (let key in data) {
-      let value = data[key];
+    for (const key in data) {
+      const value = data[key];
       if (isDataMap(value)) {
-        let xyw = value['@b-xyw'];
+        const xyw = value['@b-xyw'];
         if (Array.isArray(xyw) && typeof xyw[0] === 'number' && typeof xyw[1] === 'number') {
           xyws.push(xyw);
         }
@@ -214,14 +214,14 @@ function moveBlockPositions(data0: DataMap, data1: DataMap, positions: Map<numbe
   let offset = 0;
   // eslint-disable-next-line no-constant-condition
   nextoffset: for (; true; offset += 24) {
-    for (let xyw of xyws) {
-      let x = xyw[0] + offset;
+    for (const xyw of xyws) {
+      const x = xyw[0] + offset;
       // find a range of y that we don't want to see another block
-      let ylow = xyw[1] + offset - 80;
-      let yhigh = ylow + 160;
-      let ys = positions.get(x);
+      const ylow = xyw[1] + offset - 80;
+      const yhigh = ylow + 160;
+      const ys = positions.get(x);
       if (ys) {
-        for (let y of ys) {
+        for (const y of ys) {
           if (y > ylow && y < yhigh) {
             continue nextoffset;
           }
@@ -231,7 +231,7 @@ function moveBlockPositions(data0: DataMap, data1: DataMap, positions: Map<numbe
     break;
   }
   if (offset > 0) {
-    for (let xyw of xyws) {
+    for (const xyw of xyws) {
       xyw[0] += offset;
       xyw[1] += offset;
     }

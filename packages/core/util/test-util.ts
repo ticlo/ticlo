@@ -31,17 +31,17 @@ export function shouldTimeout(promise: Promise<any>, ms: number): Promise<any> {
 
 export function shouldHappen(callback: () => any, timeoutMs: number = 500, errorMsg: string = 'timeout'): Promise<any> {
   // prepare a Error first to maintain the original call stack
-  let error = new Error(errorMsg);
+  const error = new Error(errorMsg);
 
-  let beginTime = new Date().getTime();
+  const beginTime = new Date().getTime();
   return new Promise<any>((resolve, reject) => {
-    let onTimer = () => {
-      let result = callback();
+    const onTimer = () => {
+      const result = callback();
       if (result) {
         resolve(result);
         return;
       }
-      let currentTime = new Date().getTime();
+      const currentTime = new Date().getTime();
       if (currentTime - beginTime > timeoutMs) {
         reject(error);
       } else {

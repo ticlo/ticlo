@@ -178,7 +178,7 @@ export class MapFunction extends MapImpl {
 
   _updateWorkerInput(worker: RepeaterWorker) {
     ++this._waitingWorker;
-    let key = this._pendingKeys.current();
+    const key = this._pendingKeys.current();
     (worker._outputObj as WorkerOutput).reset(key, this._timeout, (output: WorkerOutput, timeout: boolean) =>
       this._onWorkerReady(output, timeout)
     );
@@ -193,7 +193,7 @@ export class MapFunction extends MapImpl {
     }
     if (this._pendingKeys) {
       while (this._pendingKeys.hasCustom()) {
-        let threadId = this._pool.next(this._pendingKeys.current());
+        const threadId = this._pool.next(this._pendingKeys.current());
         if (threadId === null) {
           return false;
         }
@@ -232,7 +232,7 @@ export class MapFunction extends MapImpl {
     if (this._input) {
       if (this._reuseWorker) {
         if (this._workers) {
-          for (let [key, worker] of this._workers) {
+          for (const [key, worker] of this._workers) {
             if (worker) {
               worker.cancel();
               (worker._outputObj as WorkerOutput).cancel();

@@ -11,9 +11,9 @@ import {IndexDbFlowStorage} from '@ticlo/html/storage/IndexDbStorage.js';
 
 WorkerFunctionGen.registerType({'#is': ''}, {name: 'class1'}, 'WorkerEditor');
 
-let editors: Window[] = [];
+const editors: Window[] = [];
 window.addEventListener('beforeunload', () => {
-  for (let editor of editors) {
+  for (const editor of editors) {
     if (!editor.closed) {
       editor.close();
     }
@@ -23,20 +23,20 @@ window.addEventListener('beforeunload', () => {
 (async () => {
   await Root.instance.setStorage(new IndexDbFlowStorage());
 
-  let reactFlow = Root.instance.addFlow('example');
+  const reactFlow = Root.instance.addFlow('example');
   reactFlow.load(reactData);
 
-  let generalFlow = Root.instance.addFlow('example0');
+  const generalFlow = Root.instance.addFlow('example0');
   generalFlow.load(data);
 
   // create some global blocks
   Root.instance._globalRoot.createBlock('^gAdd').setValue('#is', 'add');
   Root.instance._globalRoot.createBlock('^gSub').setValue('#is', 'subtract');
 
-  let [server, client] = makeLocalConnection(Root.instance);
+  const [server, client] = makeLocalConnection(Root.instance);
 
   document.querySelector('button').addEventListener('click', () => {
-    let w = window.open('/app/simple-editor/editor.html?flow=example', '_blank');
+    const w = window.open('/app/simple-editor/editor.html?flow=example', '_blank');
     editors.push(w);
     new FrameServerConnection(w, Root.instance);
   });

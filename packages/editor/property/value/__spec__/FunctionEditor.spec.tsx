@@ -20,14 +20,14 @@ describe('TypeEditor', function () {
   });
 
   it('expand type editor', async function () {
-    let [server, client] = makeLocalConnection(Root.instance, true);
+    const [server, client] = makeLocalConnection(Root.instance, true);
 
     let value: string = null;
-    let onChange = (v: string) => {
+    const onChange = (v: string) => {
       value = v;
     };
-    let desc: PropDesc = {name: '', type: 'type'};
-    let [component, div] = loadTemplate(
+    const desc: PropDesc = {name: '', type: 'type'};
+    const [component, div] = loadTemplate(
       <FunctionEditor value="" conn={client} funcDesc={blankFuncDesc} desc={desc} onChange={onChange} />,
       'editor'
     );

@@ -53,7 +53,7 @@ export class OptionalPropertyList extends MultiSelectComponent<Props, State, Opt
   checkedFuncDesc: FunctionDesc;
 
   getProperties(): {[key: string]: PropDesc} {
-    let {funcDesc, conn} = this.props;
+    const {funcDesc, conn} = this.props;
     if (funcDesc !== this.checkedFuncDesc) {
       if (funcDesc) {
         this.cachedProperties = conn.getOptionalProps(funcDesc);
@@ -69,7 +69,7 @@ export class OptionalPropertyList extends MultiSelectComponent<Props, State, Opt
   }
 
   startSearch = () => {
-    let {search} = this.state;
+    const {search} = this.state;
     if (search == null) {
       this.setState({search: ''});
     }
@@ -82,13 +82,13 @@ export class OptionalPropertyList extends MultiSelectComponent<Props, State, Opt
   };
 
   onPropertyChecked = (name: string, checked: boolean) => {
-    let {conn, paths} = this.props;
+    const {conn, paths} = this.props;
     if (checked) {
-      for (let path of paths) {
+      for (const path of paths) {
         conn.addOptionalProp(path, name);
       }
     } else {
-      for (let path of paths) {
+      for (const path of paths) {
         conn.removeOptionalProp(path, name);
       }
     }
@@ -98,7 +98,7 @@ export class OptionalPropertyList extends MultiSelectComponent<Props, State, Opt
     if (e.key === 'Escape') {
       this.clearSearch();
     } else if (e.key === 'Enter') {
-      let {search} = this.state;
+      const {search} = this.state;
       if (this.getProperties()?.[search]) {
         this.onPropertyChecked(search, true);
         this.setState({search: ''});
@@ -107,9 +107,9 @@ export class OptionalPropertyList extends MultiSelectComponent<Props, State, Opt
   };
 
   renderImpl() {
-    let {paths, conn, funcDesc} = this.props;
-    let {search} = this.state;
-    let properties = this.getProperties();
+    const {paths, conn, funcDesc} = this.props;
+    const {search} = this.state;
+    const properties = this.getProperties();
     if (this.loaders.size === 0 || !properties) {
       return <div />;
     }
@@ -117,7 +117,7 @@ export class OptionalPropertyList extends MultiSelectComponent<Props, State, Opt
     let children: React.ReactElement[] = [];
 
     let optionalProps: string[];
-    for (let [path, loader] of this.loaders) {
+    for (const [path, loader] of this.loaders) {
       if (!loader.optionalProps) {
         optionalProps = [];
         break;
@@ -129,8 +129,8 @@ export class OptionalPropertyList extends MultiSelectComponent<Props, State, Opt
       }
     }
 
-    for (let name of optionalProps) {
-      let optionalPropDesc = properties[name];
+    for (const name of optionalProps) {
+      const optionalPropDesc = properties[name];
       children.push(
         <OptionalPropertyEditor
           key={name}
@@ -146,17 +146,17 @@ export class OptionalPropertyList extends MultiSelectComponent<Props, State, Opt
     }
     let showMore: React.ReactNode;
     if (search) {
-      let lsearch = search.toLowerCase();
-      let matchFirst: React.ReactElement[] = [];
-      let matchMiddle: React.ReactElement[] = [];
-      for (let name in properties) {
+      const lsearch = search.toLowerCase();
+      const matchFirst: React.ReactElement[] = [];
+      const matchMiddle: React.ReactElement[] = [];
+      for (const name in properties) {
         if (optionalProps.includes(name)) {
           continue;
         }
-        let lowerKey = name.toLowerCase();
+        const lowerKey = name.toLowerCase();
         if (lowerKey.includes(lsearch)) {
-          let optionalPropDesc = properties[name];
-          let editor = (
+          const optionalPropDesc = properties[name];
+          const editor = (
             <OptionalPropertyEditor
               key={name}
               name={name}

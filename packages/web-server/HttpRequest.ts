@@ -7,7 +7,7 @@ export class HttpRequest extends BaseHttpRequest {
   res: FastifyReply;
 
   constructor(req: FastifyRequest, res: FastifyReply, basePath: string) {
-    let {method, url, body, query, headers} = req;
+    const {method, url, body, query, headers} = req;
     // Extract path from URL, removing query parameters
     let path = url || req.raw.url || '';
     const queryIndex = path.indexOf('?');
@@ -28,11 +28,11 @@ export class HttpRequest extends BaseHttpRequest {
   }
 
   onResolve(worker: Block, output: any): DataMap {
-    let response = super.onResolve(worker, output);
+    const response = super.onResolve(worker, output);
     if (response) {
-      let status = typeof response.status === 'number' ? response.status : 200;
+      const status = typeof response.status === 'number' ? response.status : 200;
       let data = response.data;
-      let headers = response.headers;
+      const headers = response.headers;
 
       if (headers) {
         const headerObj = convertToObject(headers);

@@ -54,36 +54,36 @@ export class BlockDropdown extends React.PureComponent<Props, State> {
   };
 
   onSaveClicked = () => {
-    let {conn, path} = this.props;
+    const {conn, path} = this.props;
     conn.applyFlowChange(path);
   };
 
   onDeleteClicked = () => {
-    let {conn, path} = this.props;
+    const {conn, path} = this.props;
     conn.setValue(path, undefined);
     conn.childrenChangeStream().dispatch({path: splitPathName(path)[0]});
   };
 
   onRenameClicked = () => {
-    let {conn, path, displayName} = this.props;
+    const {conn, path, displayName} = this.props;
     showModal(<RenameDialog conn={conn} path={path} displayName={displayName} />, this.context.showModal);
   };
 
   onEnableClicked = () => {
-    let {conn, path} = this.props;
+    const {conn, path} = this.props;
     conn.updateValue(`${path}.#disabled`, undefined);
   };
   onDisableClicked = () => {
-    let {conn, path} = this.props;
+    const {conn, path} = this.props;
     conn.updateValue(`${path}.#disabled`, true);
   };
 
   onCallClicked = () => {
-    let {conn, path} = this.props;
+    const {conn, path} = this.props;
     conn.callFunction(path);
   };
   onAddNewFlowClick = (param: any) => {
-    let {conn, path} = this.props;
+    const {conn, path} = this.props;
     showModal(<AddNewFlowDialog conn={conn} basePath={`${path}.`} />, this.context.showModal);
   };
 
@@ -91,15 +91,15 @@ export class BlockDropdown extends React.PureComponent<Props, State> {
     this.setState({modal: null});
   };
   onExeCommand = (command: string) => {
-    let {conn, canApply, functionId, path} = this.props;
-    let funcDesc = conn.watchDesc(functionId);
-    let commandDesc = funcDesc.commands[command];
+    const {conn, canApply, functionId, path} = this.props;
+    const funcDesc = conn.watchDesc(functionId);
+    const commandDesc = funcDesc.commands[command];
     if (commandDesc.parameters?.length) {
-      let onConfirmCommandModal = (values: DataMap) => {
+      const onConfirmCommandModal = (values: DataMap) => {
         conn.executeCommand(path, command, {...values, property: name});
         this.onCloseCommandModal();
       };
-      let modal = (
+      const modal = (
         <ParameterInputDialog
           title={<LocalizedFuncCommand key={command} desc={funcDesc} command={command} />}
           funcName={`${funcDesc.name}.@commands.${command}`}
@@ -116,8 +116,8 @@ export class BlockDropdown extends React.PureComponent<Props, State> {
   };
 
   getMenu = () => {
-    let {conn, canApply, disabled, functionId, getMenu} = this.props;
-    let funcDesc = conn.watchDesc(functionId);
+    const {conn, canApply, disabled, functionId, getMenu} = this.props;
+    const funcDesc = conn.watchDesc(functionId);
 
     let menuitems: React.ReactElement[] = [];
     if (getMenu) {
@@ -164,14 +164,14 @@ export class BlockDropdown extends React.PureComponent<Props, State> {
       );
     }
 
-    let showCallMenu = !functionId.startsWith('flow:');
-    let commandMenus: React.ReactElement[] = [];
+    const showCallMenu = !functionId.startsWith('flow:');
+    const commandMenus: React.ReactElement[] = [];
 
     if (funcDesc?.commands) {
-      let commands = Object.keys(funcDesc.commands);
+      const commands = Object.keys(funcDesc.commands);
       if (commands.length) {
         commands.sort(smartStrCompare);
-        for (let command of commands) {
+        for (const command of commands) {
           commandMenus.push(
             <MenuItem key={`cmd-${command}`} value={command} onClick={this.onExeCommand}>
               <LocalizedFuncCommand key={command} desc={funcDesc} command={command} />
@@ -207,9 +207,9 @@ export class BlockDropdown extends React.PureComponent<Props, State> {
   };
 
   render(): any {
-    let {children} = this.props;
-    let {visible, modal} = this.state;
-    let popup = visible ? this.getMenu() : null;
+    const {children} = this.props;
+    const {visible, modal} = this.state;
+    const popup = visible ? this.getMenu() : null;
     return (
       <>
         <Popup

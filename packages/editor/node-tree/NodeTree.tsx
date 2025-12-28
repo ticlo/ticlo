@@ -24,7 +24,7 @@ export class NodeTree extends LazyUpdateComponent<Props, any> {
 
   lastClickedItem: NodeTreeItem;
   onItemClick = (item: NodeTreeItem, event: React.MouseEvent) => {
-    let {selectedKeys, onSelect} = this.props;
+    const {selectedKeys, onSelect} = this.props;
     if (!onSelect) {
       return;
     }
@@ -55,7 +55,7 @@ export class NodeTree extends LazyUpdateComponent<Props, any> {
             [idx0, idx1] = [idx1, idx0];
           }
           for (let i = idx0; i <= idx1; ++i) {
-            let childKey = item.parent.children[i].key;
+            const childKey = item.parent.children[i].key;
             if (!keys.includes(childKey)) {
               keys.push(childKey);
             }
@@ -73,7 +73,7 @@ export class NodeTree extends LazyUpdateComponent<Props, any> {
   };
 
   renderChild = (idx: number, style: React.CSSProperties) => {
-    let {selectedKeys} = this.props;
+    const {selectedKeys} = this.props;
     const item = this.list[idx];
     return (
       <NodeTreeRenderer
@@ -87,7 +87,7 @@ export class NodeTree extends LazyUpdateComponent<Props, any> {
   };
 
   onChildrenChange = ({path, showNode}: {path: string; showNode?: boolean}) => {
-    for (let node of this.rootList) {
+    for (const node of this.rootList) {
       node.onChildrenChange(path, false, showNode);
     }
   };
@@ -96,7 +96,7 @@ export class NodeTree extends LazyUpdateComponent<Props, any> {
 
   refreshList() {
     this.list.length = 0;
-    for (let item of this.rootList) {
+    for (const item of this.rootList) {
       item.addToList(this.list);
     }
   }
@@ -111,15 +111,15 @@ export class NodeTree extends LazyUpdateComponent<Props, any> {
   }
 
   reload() {
-    for (let node of this.rootList) {
+    for (const node of this.rootList) {
       node.open();
     }
   }
 
   buildRoot() {
-    let {conn, basePaths, hideRoot} = this.props;
-    for (let basePath of basePaths) {
-      let rootNode = new NodeTreeItem(basePath, '');
+    const {conn, basePaths, hideRoot} = this.props;
+    for (const basePath of basePaths) {
+      const rootNode = new NodeTreeItem(basePath, '');
       rootNode.connection = this.props.conn;
       rootNode.onListChange = this.forceUpdateLambda;
       this.rootList.push(rootNode);
@@ -148,7 +148,7 @@ export class NodeTree extends LazyUpdateComponent<Props, any> {
   componentWillUnmount(): void {
     super.componentWillUnmount();
     this.props.conn.childrenChangeStream().unlisten(this.onChildrenChange);
-    for (let node of this.rootList) {
+    for (const node of this.rootList) {
       node.destroy();
     }
     this.rootList = [];

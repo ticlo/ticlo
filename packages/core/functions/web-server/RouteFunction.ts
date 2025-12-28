@@ -118,7 +118,7 @@ export class RouteFunction extends StatefulFunction {
         this._data.emitOnly(this._pendingRequests[i]);
       }
       // let block use the default
-      let result = this._pendingRequests.at(-1);
+      const result = this._pendingRequests.at(-1);
       this._pendingRequests.length = 0;
       return result;
     }

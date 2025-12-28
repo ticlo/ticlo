@@ -11,16 +11,16 @@ export class StateFunction extends BaseFunction<Block> {
       // _data is null when function is destroyed
       return;
     }
-    let savable = this._data.getValue('savable');
-    let states = getInputsArray(this._data, '', 1, ['input', 'target']);
-    let len = states.length;
+    const savable = this._data.getValue('savable');
+    const states = getInputsArray(this._data, '', 1, ['input', 'target']);
+    const len = states.length;
     for (let i = 0; i < len; ++i) {
       const state = states[i];
       if (isDataMap(state)) {
-        let {input, target} = state;
+        const {input, target} = state;
         if (!Object.is(input, target)) {
-          let inputProp = this._data.getProperty(`input${i}`);
-          let sourceProp = inputProp?._bindingSource?.getProperty();
+          const inputProp = this._data.getProperty(`input${i}`);
+          const sourceProp = inputProp?._bindingSource?.getProperty();
           if (sourceProp) {
             if (savable) {
               sourceProp.setValue(target);
@@ -34,7 +34,7 @@ export class StateFunction extends BaseFunction<Block> {
   }
 
   run() {
-    let isAsync = this._data.getValue('async');
+    const isAsync = this._data.getValue('async');
     if (isAsync) {
       return new Promise((resolve) => {
         Resolver.callLater(() => {
@@ -48,12 +48,12 @@ export class StateFunction extends BaseFunction<Block> {
   }
 
   cleanup() {
-    let savable = this._data.getValue('savable');
+    const savable = this._data.getValue('savable');
     if (!savable) {
       const len = getInputsLength(this._data, '', 1);
       for (let i = 0; i < len; ++i) {
-        let inputProp = this._data.getProperty(`input${i}`);
-        let sourceProp = inputProp?._bindingSource?.getProperty();
+        const inputProp = this._data.getProperty(`input${i}`);
+        const sourceProp = inputProp?._bindingSource?.getProperty();
         if (sourceProp) {
           sourceProp.revertUpdate();
         }
@@ -65,13 +65,13 @@ export class StateFunction extends BaseFunction<Block> {
 const API = {
   commands: {
     saveSnapshot: (block: Block, params: {[key: string]: any}) => {
-      let property = params?.property;
-      let states = getInputsArray(block, '', 1, ['input', 'target']);
-      let len = states.length;
+      const property = params?.property;
+      const states = getInputsArray(block, '', 1, ['input', 'target']);
+      const len = states.length;
       for (let i = 0; i < len; ++i) {
         const state = states[i];
         if (isDataMap(state)) {
-          let {input, target} = state;
+          const {input, target} = state;
           if (input !== target && isPrimitiveType(input)) {
             block.setValue(`target${i}`, input);
           }

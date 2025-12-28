@@ -47,8 +47,8 @@ export abstract class ClientConnection extends Connection implements ClientConn 
       this._sendSettingsRequest();
 
       // watchDesc
-      let id = this.uid.next();
-      let data = {cmd: 'watchDesc', path: '', id};
+      const id = this.uid.next();
+      const data = {cmd: 'watchDesc', path: '', id};
       this.descReq = new DescRequest(data);
       this.requests.set(id, this.descReq);
       this.addSend(this.descReq);
@@ -75,7 +75,7 @@ export abstract class ClientConnection extends Connection implements ClientConn 
         this.requests.get(response.id).onUpdate(response);
         return;
       }
-      let req = this.requests.get(response.id);
+      const req = this.requests.get(response.id);
       if (req instanceof SubscribeRequest) {
         if (this.subscribes.get(req._data.path as string) === req) {
           this.subscribes.delete(req._data.path as string);
@@ -121,10 +121,10 @@ export abstract class ClientConnection extends Connection implements ClientConn 
   simpleRequest(data: DataMap): Promise<any>;
   simpleRequest(data: DataMap, c: ClientCallbacks): string;
   simpleRequest(data: DataMap, c?: ClientCallbacks): Promise<any> | string {
-    let {promise, callbacks} = this._initSimpleRequest(c);
-    let id = this.uid.next();
+    const {promise, callbacks} = this._initSimpleRequest(c);
+    const id = this.uid.next();
     data.id = id;
-    let req = new ClientRequest(data, callbacks);
+    const req = new ClientRequest(data, callbacks);
     this.requests.set(id, req);
     this.addSend(req);
     return promise ?? id;
@@ -158,11 +158,11 @@ export abstract class ClientConnection extends Connection implements ClientConn 
       }
     }
     if (this.setRequests.has(path)) {
-      let req = this.setRequests.get(path);
+      const req = this.setRequests.get(path);
       req.updateSet(value);
       return '';
     } else {
-      let req = new SetRequest(path, this.uid.next(), this);
+      const req = new SetRequest(path, this.uid.next(), this);
       req.updateSet(value);
       this.setRequests.set(path, req);
       this.addSend(req);
@@ -183,11 +183,11 @@ export abstract class ClientConnection extends Connection implements ClientConn 
       }
     }
     if (this.setRequests.has(path)) {
-      let req = this.setRequests.get(path);
+      const req = this.setRequests.get(path);
       req.updateUpdate(value);
       return '';
     } else {
-      let req = new SetRequest(path, this.uid.next(), this);
+      const req = new SetRequest(path, this.uid.next(), this);
       req.updateUpdate(value);
       this.setRequests.set(path, req);
       this.addSend(req);
@@ -210,7 +210,7 @@ export abstract class ClientConnection extends Connection implements ClientConn 
       if (this.setRequests.has(path)) {
         this.setRequests.get(path).cancel();
       }
-      let request: any = {cmd: 'bind', path, absolute, from};
+      const request: any = {cmd: 'bind', path, absolute, from};
       if (typeof important === 'object') {
         return this.simpleRequest(request, important);
       } else {
@@ -218,11 +218,11 @@ export abstract class ClientConnection extends Connection implements ClientConn 
       }
     }
     if (this.setRequests.has(path)) {
-      let req = this.setRequests.get(path);
+      const req = this.setRequests.get(path);
       req.updateBind(from, absolute);
       return '';
     } else {
-      let req = new SetRequest(path, this.uid.next(), this);
+      const req = new SetRequest(path, this.uid.next(), this);
       req.updateBind(from, absolute);
       this.setRequests.set(path, req);
       this.addSend(req);
@@ -235,19 +235,19 @@ export abstract class ClientConnection extends Connection implements ClientConn 
   }
 
   addBlock(path: string, data?: DataMap, findName = false, callbacks?: ClientCallbacks): Promise<any> | string {
-    let result = this.simpleRequest({cmd: 'addBlock', path, data, findName}, callbacks);
+    const result = this.simpleRequest({cmd: 'addBlock', path, data, findName}, callbacks);
     this._childrenChangeStream.dispatch({path: path.substring(0, path.lastIndexOf('.'))});
     return result;
   }
 
   addFlow(path: string, data?: DataMap, callbacks?: ClientCallbacks): Promise<any> | string {
-    let result = this.simpleRequest({cmd: 'addFlow', path, data}, callbacks);
+    const result = this.simpleRequest({cmd: 'addFlow', path, data}, callbacks);
     this._childrenChangeStream.dispatch({path: path.substring(0, path.lastIndexOf('.')), showNode: true});
     return result;
   }
 
   addFlowFolder(path: string, callbacks?: ClientCallbacks): Promise<any> | string {
-    let result = this.simpleRequest({cmd: 'addFlowFolder', path}, callbacks);
+    const result = this.simpleRequest({cmd: 'addFlowFolder', path}, callbacks);
     this._childrenChangeStream.dispatch({path: path.substring(0, path.lastIndexOf('.')), showNode: true});
     return result;
   }
@@ -262,16 +262,16 @@ export abstract class ClientConnection extends Connection implements ClientConn 
 
   subscribe(path: string, callbacks: SubscribeCallbacks, fullValue: boolean = false) {
     if (this.subscribes.has(path)) {
-      let sub = this.subscribes.get(path);
+      const sub = this.subscribes.get(path);
       if (fullValue) {
         sub.addFull(callbacks);
       } else {
         sub.add(callbacks);
       }
     } else {
-      let id = this.uid.next();
-      let data = {cmd: 'subscribe', path, id, fullValue};
-      let req = new SubscribeRequest(data, path, this);
+      const id = this.uid.next();
+      const data = {cmd: 'subscribe', path, id, fullValue};
+      const req = new SubscribeRequest(data, path, this);
       if (fullValue) {
         req.addFull(callbacks);
       } else {
@@ -284,11 +284,11 @@ export abstract class ClientConnection extends Connection implements ClientConn 
   }
 
   unsubscribe(path: string, callbacks: SubscribeCallbacks) {
-    let req = this.subscribes.get(path);
+    const req = this.subscribes.get(path);
     if (req) {
       req.remove(callbacks);
       if (req.isEmpty()) {
-        let id = String(req._data.id);
+        const id = String(req._data.id);
         req._data = {cmd: 'close', id};
         this.addSend(req);
         this.subscribes.delete(path);
@@ -301,9 +301,9 @@ export abstract class ClientConnection extends Connection implements ClientConn 
     if (this.watches.has(path)) {
       this.watches.get(path).add(callbacks);
     } else {
-      let id = this.uid.next();
-      let data = {cmd: 'watch', path, id};
-      let req = new WatchRequest(data, callbacks);
+      const id = this.uid.next();
+      const data = {cmd: 'watch', path, id};
+      const req = new WatchRequest(data, callbacks);
       this.requests.set(id, req);
       this.watches.set(path, req);
       this.addSend(req);
@@ -311,11 +311,11 @@ export abstract class ClientConnection extends Connection implements ClientConn 
   }
 
   unwatch(path: string, callbacks: ClientCallbacks): void {
-    let req = this.watches.get(path);
+    const req = this.watches.get(path);
     if (req) {
       req.remove(callbacks);
       if (req.isEmpty()) {
-        let id = String(req._data.id);
+        const id = String(req._data.id);
         req._data = {cmd: 'close', id};
         this.addSend(req);
         this.watches.delete(path);
@@ -452,7 +452,7 @@ export abstract class ClientConnection extends Connection implements ClientConn 
   }
 
   cancel(id: string) {
-    let req = this.requests.get(id);
+    const req = this.requests.get(id);
     if (req instanceof ClientRequest) {
       req.cancel();
       this.requests.delete(id);
@@ -464,7 +464,7 @@ export abstract class ClientConnection extends Connection implements ClientConn 
       this.descReq.listeners.set(listener, id);
       if (id === '*') {
         // listen to all descs
-        for (let [id, desc] of this.descReq.cache) {
+        for (const [id, desc] of this.descReq.cache) {
           listener(desc, id);
         }
       } else if (this.descReq.cache.has(id)) {
@@ -512,7 +512,7 @@ export abstract class ClientConnection extends Connection implements ClientConn 
       } else {
         // check if
         do {
-          let match = collected.indexOf(desc);
+          const match = collected.indexOf(desc);
           if (match >= 0) {
             if (match > commonMatch) {
               commonMatch = match;
@@ -551,12 +551,12 @@ export abstract class ClientConnection extends Connection implements ClientConn 
   }
 
   findGlobalBlocks(tags: string[]): string[] {
-    let result: string[] = [];
+    const result: string[] = [];
     if (this.globalWatch && Array.isArray(tags)) {
-      for (let [key, listener] of this.globalWatch.isListeners) {
-        let funcDesc = this.watchDesc(listener.value);
+      for (const [key, listener] of this.globalWatch.isListeners) {
+        const funcDesc = this.watchDesc(listener.value);
         if (funcDesc && funcDesc.tags) {
-          for (let tag of tags) {
+          for (const tag of tags) {
             if (funcDesc.tags.includes(tag)) {
               result.push(key);
               break;
@@ -583,7 +583,7 @@ export abstract class ClientConnection extends Connection implements ClientConn 
     super.onDisconnect();
     // remove requests from the map
     // or notify the disconnection
-    for (let [key, req] of this.requests) {
+    for (const [key, req] of this.requests) {
       if (req instanceof MergedClientRequest) {
         req.onDisconnect();
         this.addSend(req);
@@ -607,7 +607,7 @@ export abstract class ClientConnection extends Connection implements ClientConn 
   }
 
   destroy() {
-    for (let [key, req] of this.requests) {
+    for (const [key, req] of this.requests) {
       req.onError('disconnected');
     }
     if (this._reconnectTimeout) {

@@ -156,11 +156,11 @@ export class FieldItem extends DataRendererItem {
     if (this.inWire) {
       this.inWire.redraw(posChanged);
     }
-    for (let outWire of this.outWires) {
+    for (const outWire of this.outWires) {
       outWire.redraw(posChanged);
     }
     if (recursiv && this.subBlock) {
-      for (let [name, child] of this.subBlock.fieldItems) {
+      for (const [name, child] of this.subBlock.fieldItems) {
         child.redrawWire(true, posChanged);
       }
     }
@@ -177,7 +177,7 @@ export class FieldItem extends DataRendererItem {
   cache: any = {};
   listener = new ValueSubscriber({
     onUpdate: (response: ValueUpdate) => {
-      let change = response.change;
+      const change = response.change;
       if (!deepEqual(response.cache, this.cache)) {
         this.cache = response.cache;
         if (
@@ -270,9 +270,9 @@ interface BlockHeaderProps extends FieldViewProps {
 
 export class BlockHeaderView extends PureDataRenderer<BlockHeaderProps, any> {
   onDragOver = (e: DragState) => {
-    let {item} = this.props;
+    const {item} = this.props;
     if (e.dragType !== 'right') {
-      let fields: string[] = DragState.getData('fields', item.getBaseConn());
+      const fields: string[] = DragState.getData('fields', item.getBaseConn());
       if (Array.isArray(fields)) {
         if (!item.desc.readonly && fields.length === 1 && isBindable(item.path, fields[0])) {
           e.accept('tico-fas-play');
@@ -282,9 +282,9 @@ export class BlockHeaderView extends PureDataRenderer<BlockHeaderProps, any> {
     }
   };
   onDrop = (event: DragState) => {
-    let {item} = this.props;
+    const {item} = this.props;
     if (event.dragType !== 'right') {
-      let fields: string[] = DragState.getData('fields', item.getBaseConn());
+      const fields: string[] = DragState.getData('fields', item.getBaseConn());
       if (Array.isArray(fields) && fields.length === 1 && fields[0] !== item.path) {
         item.getConn().setBinding(item.path, fields[0], true);
       }
@@ -292,7 +292,8 @@ export class BlockHeaderView extends PureDataRenderer<BlockHeaderProps, any> {
   };
 
   renderImpl(): React.ReactNode {
-    let {item, shared, onDragStartT, onDragMoveT, onDragEndT, onDoubleClick, icon, blockItem, displayName} = this.props;
+    const {item, shared, onDragStartT, onDragMoveT, onDragEndT, onDoubleClick, icon, blockItem, displayName} =
+      this.props;
     let inBoundClass: string;
     let inBoundText: string;
     let inBoundTitle: string;
@@ -321,7 +322,7 @@ export class BlockHeaderView extends PureDataRenderer<BlockHeaderProps, any> {
       className = `${className} ticl-block-head-shared`;
     }
     let nameNode: React.ReactElement;
-    let nameLabel = getDisplayName(blockItem.name, displayName);
+    const nameLabel = getDisplayName(blockItem.name, displayName);
     if (nameLabel !== blockItem.name) {
       nameNode = (
         <u className="ticl-block-head-label" title={blockItem.name}>
@@ -371,7 +372,7 @@ export class BlockHeaderView extends PureDataRenderer<BlockHeaderProps, any> {
 
 export class FieldView extends PureDataRenderer<FieldViewProps, any> {
   onDragStart = (e: DragState) => {
-    let {item} = this.props;
+    const {item} = this.props;
     if (e.dragType === 'right') {
       e.setData({moveShownField: item.name, block: item.block}, item.getBaseConn());
     } else {
@@ -381,16 +382,16 @@ export class FieldView extends PureDataRenderer<FieldViewProps, any> {
     e.startDrag();
   };
   onDragOver = (e: DragState) => {
-    let {item} = this.props;
+    const {item} = this.props;
     if (e.dragType === 'right') {
-      let moveShownField = DragState.getData('moveShownField', item.getBaseConn());
-      let block = DragState.getData('block', item.getBaseConn());
+      const moveShownField = DragState.getData('moveShownField', item.getBaseConn());
+      const block = DragState.getData('block', item.getBaseConn());
       if (block === item.block && moveShownField !== item.name) {
         e.accept('tico-fas-exchange-alt');
         return;
       }
     } else {
-      let fields: string[] = DragState.getData('fields', item.getBaseConn());
+      const fields: string[] = DragState.getData('fields', item.getBaseConn());
       if (Array.isArray(fields)) {
         if (!item.desc.readonly && fields.length === 1 && isBindable(item.path, fields[0])) {
           e.accept('tico-fas-link');
@@ -402,15 +403,15 @@ export class FieldView extends PureDataRenderer<FieldViewProps, any> {
     e.reject();
   };
   onDrop = (event: DragState) => {
-    let {item} = this.props;
+    const {item} = this.props;
     if (event.dragType === 'right') {
-      let moveShownField = DragState.getData('moveShownField', item.getBaseConn());
-      let block = DragState.getData('block', item.getBaseConn());
+      const moveShownField = DragState.getData('moveShownField', item.getBaseConn());
+      const block = DragState.getData('block', item.getBaseConn());
       if (block === item.block) {
         item.getConn().moveShownProp(block.path, moveShownField, item.name);
       }
     } else {
-      let fields: string[] = DragState.getData('fields', item.getBaseConn());
+      const fields: string[] = DragState.getData('fields', item.getBaseConn());
       if (Array.isArray(fields) && fields.length === 1 && fields[0] !== item.path) {
         item.getConn().setBinding(item.path, fields[0], true);
       }
@@ -418,15 +419,15 @@ export class FieldView extends PureDataRenderer<FieldViewProps, any> {
   };
 
   onNameDoubleClick = (event: React.MouseEvent) => {
-    let {item} = this.props;
+    const {item} = this.props;
     if (item.subBlock) {
       item.getConn().setValue(`${item.subBlock.path}.@b-hide`, item.subBlock.hidden ? undefined : true);
     }
   };
 
   renderImpl(): React.ReactNode {
-    let {item} = this.props;
-    let desc = item.block.desc;
+    const {item} = this.props;
+    const desc = item.block.desc;
 
     let showOutBound = item.cache.hasListener || (item.subBlock && item.subBlock.hidden);
 
@@ -455,12 +456,12 @@ export class FieldView extends PureDataRenderer<FieldViewProps, any> {
     } else if (item.desc?.readonly) {
       inBoundClass = null;
     }
-    let indentChildren = [];
+    const indentChildren = [];
     for (let i = 0; i < item.indents.length; ++i) {
       indentChildren.push(<div key={i} className={`ticl-field-indent${item.indents[i]}`} />);
     }
 
-    let propName = (
+    const propName = (
       <PropertyDropdown
         funcDesc={item.block.desc}
         propDesc={item.desc}
@@ -552,7 +553,7 @@ export abstract class BaseBlockItem extends DataRendererItem<XYWRenderer> {
   isValue: string;
   isListener = new ValueSubscriber({
     onUpdate: (response: ValueUpdate) => {
-      let {value} = response.cache;
+      const {value} = response.cache;
       if (typeof value === 'string') {
         this.isValue = value;
         this.conn.watchDesc(value, this.descListener);
@@ -584,7 +585,7 @@ export abstract class BaseBlockItem extends DataRendererItem<XYWRenderer> {
   });
   pListener = new ValueSubscriber({
     onUpdate: (response: ValueUpdate) => {
-      let {value} = response.cache;
+      const {value} = response.cache;
       if (Array.isArray(value)) {
         this.setP(value);
       } else {
@@ -615,21 +616,21 @@ export abstract class BaseBlockItem extends DataRendererItem<XYWRenderer> {
   }
 
   createField(name: string): FieldItem {
-    let item = new FieldItem(this, name);
+    const item = new FieldItem(this, name);
     item.setDesc(findPropDesc(name, this.propDescCache));
     return item;
   }
 
   setP(fields: string[], forceRefresh = false) {
     if (!arrayEqual(fields, this.fields)) {
-      for (let f of this.fields) {
+      for (const f of this.fields) {
         if (!fields.includes(f)) {
           this.fieldItems.get(f).destroy();
           this.fieldItems.delete(f);
         }
       }
       this.fields = fields;
-      for (let f of fields) {
+      for (const f of fields) {
         if (!this.fieldItems.has(f)) {
           this.fieldItems.set(f, this.createField(f));
         }
@@ -643,20 +644,20 @@ export abstract class BaseBlockItem extends DataRendererItem<XYWRenderer> {
 
   updatePropCache() {
     this.propDescCache = buildPropDescCache(this.desc, this.custom);
-    for (let [key, item] of this.fieldItems) {
+    for (const [key, item] of this.fieldItems) {
       item.setDesc(findPropDesc(key, this.propDescCache));
     }
   }
 
   forceUpdateFields() {
-    for (let [key, item] of this.fieldItems) {
+    for (const [key, item] of this.fieldItems) {
       item.forceUpdate();
     }
   }
 
   renderFields(): React.ReactNode[] {
-    let result: React.ReactNode[] = [];
-    for (let field of this.getRenderFields()) {
+    const result: React.ReactNode[] = [];
+    for (const field of this.getRenderFields()) {
       result.push(this.fieldItems.get(field).render());
     }
     return result;
@@ -667,7 +668,7 @@ export abstract class BaseBlockItem extends DataRendererItem<XYWRenderer> {
     this.customListener.unsubscribe();
     this.pListener.unsubscribe();
     this.conn.unwatchDesc(this.descListener);
-    for (let [, fieldItem] of this.fieldItems) {
+    for (const [, fieldItem] of this.fieldItems) {
       fieldItem.destroy();
     }
     this.fieldItems.clear();
@@ -691,7 +692,7 @@ class SubBlockItem extends BaseBlockItem {
   hidden = true;
   hideListener = new ValueSubscriber({
     onUpdate: (response: ValueUpdate) => {
-      let hidden = Boolean(response.cache.value);
+      const hidden = Boolean(response.cache.value);
       if (hidden !== this.hidden) {
         this.hidden = hidden;
         this.onFieldsChanged();
@@ -725,14 +726,14 @@ class SubBlockItem extends BaseBlockItem {
   }
 
   updateFieldPos(x: number, y: number, w: number, dy: number, indents: number[]): number {
-    let newIndents = indents.concat([3]);
+    const newIndents = indents.concat([3]);
     for (let j = 0; j < indents.length; ++j) {
       if (newIndents[j] > 1) {
         newIndents[j] -= 2;
       }
     }
     for (let i = 0; i < this.fields.length; ++i) {
-      let field = this.fields[i];
+      const field = this.fields[i];
       if (i === this.fields.length - 1) {
         newIndents[indents.length] = 2;
       }
@@ -763,7 +764,7 @@ export class BlockItem extends BaseBlockItem {
   setH(h: number) {
     if (h !== this.h) {
       this.h = h;
-      for (let renderer of this._renderers) {
+      for (const renderer of this._renderers) {
         renderer.renderH(h);
       }
       this.stage.onChildrenSizeChanged();
@@ -776,10 +777,10 @@ export class BlockItem extends BaseBlockItem {
 
   setP(fields: string[]) {
     // in case actual fields changed but super.setP receive same array
-    let forceRefresh = fields.length !== this.actualFields.length;
+    const forceRefresh = fields.length !== this.actualFields.length;
 
     this.actualFields = fields;
-    let FullView = this.desc.view;
+    const FullView = this.desc.view;
     if (
       !(
         this._syncParent || // sync child block doesn't need extra #call item
@@ -828,7 +829,7 @@ export class BlockItem extends BaseBlockItem {
   dynamicStyle: {color?: string; icon?: string};
   styleListener = new ValueSubscriber({
     onUpdate: (response: ValueUpdate) => {
-      let style = response.cache.value;
+      const style = response.cache.value;
       if (deepEqual(style, this.dynamicStyle)) {
         return;
       }
@@ -844,7 +845,7 @@ export class BlockItem extends BaseBlockItem {
   synced = false;
   syncListener = new ValueSubscriber({
     onUpdate: (response: ValueUpdate) => {
-      let newSynced = Boolean(response.cache.value);
+      const newSynced = Boolean(response.cache.value);
       if (newSynced !== this.synced) {
         this.synced = newSynced;
         this.forceUpdate();
@@ -854,7 +855,7 @@ export class BlockItem extends BaseBlockItem {
 
   xywListener = new ValueSubscriber({
     onUpdate: (response: ValueUpdate) => {
-      let {value} = response.cache;
+      const {value} = response.cache;
       if (this.selected && this.stage.isDraggingBlock()) {
         // ignore xyw change from server during dragging
         return;
@@ -874,7 +875,7 @@ export class BlockItem extends BaseBlockItem {
   // height of special view area
   viewH: number = 0;
   setViewH = (h: number) => {
-    let h24 = Math.ceil(h / 24) * 24;
+    const h24 = Math.ceil(h / 24) * 24;
     if (h24 !== this.viewH) {
       this.viewH = h24;
       this.conn.callImmediate(this.updateFieldPosition);
@@ -900,7 +901,7 @@ export class BlockItem extends BaseBlockItem {
     if (val !== this.selected) {
       this.selected = val;
       this.forceUpdate();
-      for (let field of this.fields) {
+      for (const field of this.fields) {
         this.fieldItems.get(field).redrawWire(true);
       }
     }
@@ -921,7 +922,7 @@ export class BlockItem extends BaseBlockItem {
         this.forceUpdate();
       } else {
         this.w = w;
-        for (let renderer of this._renderers) {
+        for (const renderer of this._renderers) {
           renderer.renderXYW(x, y, w);
         }
       }
@@ -941,16 +942,16 @@ export class BlockItem extends BaseBlockItem {
   updateFieldPosition = () => {
     let {x, y, w} = this;
 
-    let FullView = this.desc.view;
+    const FullView = this.desc.view;
 
     if (FullView) {
       this.setH(this.viewH); // footer height
     } else if (!w) {
       // minimized block
-      let y1 = y + fieldYOffset + 1;
+      const y1 = y + fieldYOffset + 1;
       x -= 1;
       w = fieldHeight + 2;
-      for (let field of this.fields) {
+      for (const field of this.fields) {
         this.fieldItems.get(field).updateFieldPos(x, y1, w, 0);
       }
       this.setH(fieldHeight);
@@ -963,13 +964,13 @@ export class BlockItem extends BaseBlockItem {
       let y1 = y + 1; // top border;
       y1 += fieldYOffset;
 
-      let headerCallField = this.getHeaderCallField();
+      const headerCallField = this.getHeaderCallField();
       if (headerCallField) {
         headerCallField.updateFieldPos(x, y1, w, fieldHeight);
       }
 
       y1 += headerHeight;
-      for (let field of this.getRenderFields()) {
+      for (const field of this.getRenderFields()) {
         y1 = this.fieldItems.get(field).updateFieldPos(x, y1, w, fieldHeight);
       }
       this.setH(y1 - fieldYOffset + 23 - y); // footer height
@@ -1025,7 +1026,7 @@ export class BlockItem extends BaseBlockItem {
     if (parent == this._syncParent) {
       return;
     }
-    let oldParent = this._syncParent;
+    const oldParent = this._syncParent;
     this._syncParent = parent;
     if (oldParent && oldParent._syncChild === this) {
       oldParent.syncChild = null;
@@ -1042,7 +1043,7 @@ export class BlockItem extends BaseBlockItem {
     if (child == this._syncChild) {
       return;
     }
-    let oldChild = this._syncChild;
+    const oldChild = this._syncChild;
     this._syncChild = child;
     if (oldChild && oldChild._syncParent === this) {
       oldChild.syncParent = null;

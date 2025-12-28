@@ -26,7 +26,7 @@ export class FetchFunction extends BaseFunction {
 
   run(): any {
     let client: HttpClient = this._data.getValue('client') as HttpClient;
-    let url = this._data.getValue('url');
+    const url = this._data.getValue('url');
     if (typeof url === 'string' && url) {
       // cancel the previous request
       this._abortController?.abort();

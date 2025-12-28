@@ -112,7 +112,7 @@ export class ScheduleFunction extends AutoUpdateFunction {
       // re-generate events when config changes.
       this.#events = null;
     } else if (this.#events && input._name.startsWith('value')) {
-      let index = parseInt(input._name.substring(5 /* 'value'.length */));
+      const index = parseInt(input._name.substring(5 /* 'value'.length */));
       if (this.#events[index]) {
         this.#events[index].value = val;
       }
@@ -141,10 +141,10 @@ export class ScheduleFunction extends AutoUpdateFunction {
       this.#events = [];
       const newCache = new WeakMap<object, ScheduleValue>();
       for (let i = 0; i < eventsData.length; i++) {
-        let {config, value} = eventsData[i];
+        const {config, value} = eventsData[i];
         let sv = this.#cache.get(config as object);
         if (!sv) {
-          let event = SchedulerEvent.fromProperty(config, timezone);
+          const event = SchedulerEvent.fromProperty(config, timezone);
           if (!event) {
             continue;
           }
@@ -171,13 +171,13 @@ export class ScheduleFunction extends AutoUpdateFunction {
       }
     }
 
-    let candidates: ScheduleValue[] = [];
+    const candidates: ScheduleValue[] = [];
 
     // 3. Find all candidate events that are active at the current time ('ts')
     // We iterate through all defined events. If an event is "happening" right now (occur.start <= ts <= occur.end),
     // it goes into the candidate pool.
     // getOccur(ts) automatically handles finding the relevant occurrence for 'ts'.
-    for (let sv of this.#events) {
+    for (const sv of this.#events) {
       const occur = sv.getOccur(ts);
       if (occur.isValid()) {
         if (occur.start <= ts) {
@@ -205,7 +205,7 @@ export class ScheduleFunction extends AutoUpdateFunction {
           }
         }
         addResult(this._data.getValue('default'));
-        for (let candidate of candidates) {
+        for (const candidate of candidates) {
           addResult(candidate.value);
         }
         addResult(override);
@@ -214,8 +214,8 @@ export class ScheduleFunction extends AutoUpdateFunction {
       case 'min':
         if (candidates.length) {
           let currentNum = Infinity;
-          for (let candidate of candidates) {
-            let n = Number(candidate.value);
+          for (const candidate of candidates) {
+            const n = Number(candidate.value);
             if (n <= currentNum) {
               current = candidate;
               currentNum = n;
@@ -227,8 +227,8 @@ export class ScheduleFunction extends AutoUpdateFunction {
       case 'max':
         if (candidates.length) {
           let currentNum = -Infinity;
-          for (let candidate of candidates) {
-            let n = Number(candidate.value);
+          for (const candidate of candidates) {
+            const n = Number(candidate.value);
             if (n >= currentNum) {
               current = candidate;
               currentNum = n;
@@ -256,7 +256,7 @@ export class ScheduleFunction extends AutoUpdateFunction {
           // In merge mode, *any* event starting or ending can change the result.
           // So we look for the earliest start > ts (some new data arriving)
           // OR the earliest end < nextTs (some current data leaving).
-          for (let sv of this.#events) {
+          for (const sv of this.#events) {
             const occur = sv.occur;
             if (occur.isValid() && sv.value !== undefined) {
               if (occur.start > ts) {
@@ -279,7 +279,7 @@ export class ScheduleFunction extends AutoUpdateFunction {
             // If the current winner ends, the value changes (likely goes up).
             nextTs = current.occur.end + 1;
           }
-          for (let sv of this.#events) {
+          for (const sv of this.#events) {
             // Look for future events that start before our known next-change-time AND
             // have a value smaller than current. Only those can interrupt the current state logic.
             if (sv.occur.isValid() && sv.occur.start > ts && sv.occur.start < nextTs && sv.value < currentNum) {
@@ -294,7 +294,7 @@ export class ScheduleFunction extends AutoUpdateFunction {
           if (current) {
             nextTs = current.occur.end + 1;
           }
-          for (let sv of this.#events) {
+          for (const sv of this.#events) {
             if (sv.occur.isValid() && sv.occur.start > ts && sv.occur.start < nextTs && sv.value > currentNum) {
               nextTs = sv.occur.start;
             }
@@ -307,7 +307,7 @@ export class ScheduleFunction extends AutoUpdateFunction {
           // This uses 'shouldReplaceNext' to determine if a future event is strong enough or early enough
           // to take over.
           let next: ScheduleValue;
-          for (let sv of this.#events) {
+          for (const sv of this.#events) {
             const occur = sv.occur;
             if (occur.isValid()) {
               if (occur.start > ts) {

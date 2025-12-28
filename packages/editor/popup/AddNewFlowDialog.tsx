@@ -26,8 +26,8 @@ export class AddNewFlowDialog extends LazyUpdateComponent<Props, State> {
   };
 
   addFlow = () => {
-    let {conn, basePath, isFolder} = this.props;
-    let {name, data} = this.formItems;
+    const {conn, basePath, isFolder} = this.props;
+    const {name, data} = this.formItems;
     if (!name.value) {
       name.setError('Name is Empty');
       data.setError(null);
@@ -65,9 +65,9 @@ export class AddNewFlowDialog extends LazyUpdateComponent<Props, State> {
   };
 
   renderImpl() {
-    let {basePath, isFolder} = this.props;
-    let {visible} = this.state;
-    let {name, data} = this.formItems;
+    const {basePath, isFolder} = this.props;
+    const {visible} = this.state;
+    const {name, data} = this.formItems;
     return (
       <Modal
         title={isFolder ? t('New Folder') : t('New Dataflow')}

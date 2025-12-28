@@ -6,7 +6,7 @@ import * as glob from 'glob';
 let version: string;
 let dependencies: any;
 
-let dirHistory = new Set<string>();
+const dirHistory = new Set<string>();
 
 function makeDir(path: string) {
   if (path.lastIndexOf('.') > path.length - 5) {
@@ -21,10 +21,10 @@ function makeDir(path: string) {
 }
 
 async function buildPackage(name: string) {
-  let fromDir = `packages/${name}`;
+  const fromDir = `packages/${name}`;
   console.log(`building ${fromDir}`);
   // build package directly into node_modules, so one package can depend on the other
-  let targetDir = `./build/${name}`;
+  const targetDir = `./build/${name}`;
   console.log(targetDir);
   makeDir(targetDir);
   // copy tsconfig
@@ -36,17 +36,17 @@ async function buildPackage(name: string) {
   const importedPackages = new Set<string>();
   const regex = / from '([^@'./]+|@[^'./]+\/[^'./]+)/g;
 
-  let srcFiles: string[] = glob.sync(`${fromDir}/**/*.{ts,tsx}`, {posix: true});
-  let sourceFiles: string[] = [`${targetDir}/tsconfig.json`]; // files to be deleted after compiling
-  for (let tsFile of srcFiles) {
+  const srcFiles: string[] = glob.sync(`${fromDir}/**/*.{ts,tsx}`, {posix: true});
+  const sourceFiles: string[] = [`${targetDir}/tsconfig.json`]; // files to be deleted after compiling
+  for (const tsFile of srcFiles) {
     if (!tsFile.includes('/__spec__/') && !tsFile.includes('/tests/')) {
-      let data = fs.readFileSync(tsFile, {encoding: 'utf8'});
+      const data = fs.readFileSync(tsFile, {encoding: 'utf8'});
 
       // analyze file, and fix file content
       // TODO, nothing needs to be fixed for now
 
       // copy file to build
-      let newFile = tsFile.replace(fromDir, targetDir);
+      const newFile = tsFile.replace(fromDir, targetDir);
       sourceFiles.push(newFile);
       makeDir(newFile);
       fs.writeFileSync(newFile, data);
@@ -54,9 +54,9 @@ async function buildPackage(name: string) {
   }
 
   // update package.json
-  let packageJson: any = JSON.parse(fs.readFileSync(`${fromDir}/_package.json`, {encoding: 'utf8'}));
+  const packageJson: any = JSON.parse(fs.readFileSync(`${fromDir}/_package.json`, {encoding: 'utf8'}));
   packageJson.version = version;
-  for (let p of importedPackages) {
+  for (const p of importedPackages) {
     // sync dependencies
     if (!p.startsWith('@ticlo/')) {
       packageJson.dependencies[p] = dependencies[p];
@@ -78,7 +78,7 @@ async function buildPackage(name: string) {
 
 async function main() {
   makeDir('build');
-  let packageJson = JSON.parse(fs.readFileSync('package.json', {encoding: 'utf8'}));
+  const packageJson = JSON.parse(fs.readFileSync('package.json', {encoding: 'utf8'}));
   version = packageJson.version;
   dependencies = {...packageJson.dependencies, ...packageJson.devDependencies};
 

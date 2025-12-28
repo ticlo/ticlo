@@ -18,12 +18,12 @@ export function registerComponent<T extends BaseProps>(
   funcDesc?: Partial<FunctionDesc>,
   isContainer = false
 ) {
-  let properties: PropDesc[] = [];
-  for (let key of Object.keys(propertyMap)) {
-    let {value, ...rest} = propertyMap[key];
+  const properties: PropDesc[] = [];
+  for (const key of Object.keys(propertyMap)) {
+    const {value, ...rest} = propertyMap[key];
     properties.push({...value.desc, ...rest, name: key});
   }
-  let functionClass: FunctionClass | null = null;
+  const functionClass: FunctionClass | null = null;
   if (isContainer) {
     containerFuncIds.add(`${namespace}:${name}`);
     // class ContainerFunction extends ConditionalWorkersFunction {}

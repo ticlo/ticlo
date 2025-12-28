@@ -19,19 +19,19 @@ describe('DateEditor', function () {
 
   it('basic', async function () {
     let value: DateTime = null;
-    let onChange = (v: DateTime) => {
+    const onChange = (v: DateTime) => {
       value = v;
     };
-    let desc: PropDesc = {name: '', type: 'date'};
-    let [component, div] = loadTemplate(
+    const desc: PropDesc = {name: '', type: 'date'};
+    const [component, div] = loadTemplate(
       <DateEditor value="2019-01-01" funcDesc={blankFuncDesc} desc={desc} onChange={onChange} />,
       'editor'
     );
 
     await shouldHappen(() => div.querySelector('.ticl-date-editor > div'));
-    let editorDiv = div.querySelector('.ticl-date-editor > div');
+    const editorDiv = div.querySelector('.ticl-date-editor > div');
     await waitTick();
-    let inputDiv = editorDiv.querySelector('input');
+    const inputDiv = editorDiv.querySelector('input');
 
     // test if string input is converted to DateTime
     // The DatePicker might show time even when showTime is false
@@ -39,7 +39,7 @@ describe('DateEditor', function () {
 
     // Test onChange directly instead of through picker interaction
     // The picker interaction seems to have issues in the test environment
-    let testDate = DateTime.fromISO('2020-05-15');
+    const testDate = DateTime.fromISO('2020-05-15');
     onChange(testDate);
 
     expect(value).toBe(testDate);

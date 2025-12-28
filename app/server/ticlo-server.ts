@@ -19,7 +19,7 @@ import * as path from 'path';
 
   if (!(Root.instance.getValue('example') instanceof Flow)) {
     console.log('initialize the database');
-    let flow = Root.instance.addFlow('example', data);
+    const flow = Root.instance.addFlow('example', data);
   }
 
   // Create Fastify instance with HTTP support

@@ -39,7 +39,7 @@ export class FunctionTree extends React.PureComponent<Props, State> {
   };
 
   renderChild = (idx: number, style: React.CSSProperties) => {
-    let item = this.list[idx];
+    const item = this.list[idx];
     return <FunctionTreeRenderer item={item} key={item.key} style={style} />;
   };
 
@@ -47,7 +47,7 @@ export class FunctionTree extends React.PureComponent<Props, State> {
     let {search} = this.props;
     search = search.trim().toLowerCase();
     this.list.length = 0;
-    for (let item of this.rootNode.children) {
+    for (const item of this.rootNode.children) {
       item.addToList(this.list, search);
     }
   }
@@ -55,7 +55,7 @@ export class FunctionTree extends React.PureComponent<Props, State> {
   rendered: boolean = false;
 
   render() {
-    let {style} = this.props;
+    const {style} = this.props;
     this.refreshList();
     this.rendered = true;
     return (

@@ -26,7 +26,7 @@ export class BlockStageTabButton extends LazyUpdateComponent<Props, State> {
   state: State = {hasChange: false};
   constructor(props: Props) {
     super(props);
-    let {conn, path, onSave} = props;
+    const {conn, path, onSave} = props;
     if (onSave) {
       this.hasChangeListener.subscribe(conn, `${path}.@has-change`);
     }
@@ -39,7 +39,7 @@ export class BlockStageTabButton extends LazyUpdateComponent<Props, State> {
   });
 
   componentWillUnmount(): void {
-    let {conn, path} = this.props;
+    const {conn, path} = this.props;
     this.hasChangeListener.unsubscribe();
     super.componentWillUnmount();
   }

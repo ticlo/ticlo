@@ -6,7 +6,7 @@ import {isDataTruncated} from '../../util/DataTypes.js';
 
 describe('Query', function () {
   beforeAll(function () {
-    let flow = Root.instance.addFlow('QueryData');
+    const flow = Root.instance.addFlow('QueryData');
     flow.load({
       a: {
         '#is': '',
@@ -28,7 +28,7 @@ describe('Query', function () {
     Root.instance.deleteValue('QueryData');
   });
   it('basic', async function () {
-    let [server, client] = makeLocalConnection(Root.instance, false);
+    const [server, client] = makeLocalConnection(Root.instance, false);
 
     let result = await client.query('QueryData', {'?values': ['va']});
     expect(result.value).toEqual({va: 'v1'});
@@ -45,7 +45,7 @@ describe('Query', function () {
     client.destroy();
   });
   it('filter', async function () {
-    let [server, client] = makeLocalConnection(Root.instance, false);
+    const [server, client] = makeLocalConnection(Root.instance, false);
 
     let result = await client.query('QueryData', {
       a: {'/.*/': {'?values': ['#is', 'b'], '?filter': {type: '=', field: 'v', value: 3}}},

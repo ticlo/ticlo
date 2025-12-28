@@ -35,7 +35,7 @@ const descriptor2: FunctionDesc = {
 export class AddFunction extends PureFunction {
   run(): any {
     let sum = 0;
-    for (let val of getInputsArray(this._data)) {
+    for (const val of getInputsArray(this._data)) {
       if (val == null) {
         this._data.output(undefined);
         return;
@@ -55,7 +55,7 @@ Functions.add(AddFunction, {
 export class MultiplyFunction extends PureFunction {
   run(): any {
     let product = 1;
-    for (let val of getInputsArray(this._data)) {
+    for (const val of getInputsArray(this._data)) {
       if (val == null) {
         this._data.output(undefined);
         return;
@@ -74,8 +74,8 @@ Functions.add(MultiplyFunction, {
 
 export class SubtractFunction extends PureFunction {
   run(): any {
-    let v0 = this._data.getValue('0');
-    let v1 = this._data.getValue('1');
+    const v0 = this._data.getValue('0');
+    const v1 = this._data.getValue('1');
     if (v0 == null || v1 == null) {
       this._data.output(undefined);
     } else {
@@ -92,8 +92,8 @@ Functions.add(SubtractFunction, {
 
 export class DivideFunction extends PureFunction {
   run(): any {
-    let v0 = this._data.getValue('0');
-    let v1 = this._data.getValue('1');
+    const v0 = this._data.getValue('0');
+    const v1 = this._data.getValue('1');
     if (v0 == null || v1 == null) {
       this._data.output(undefined);
     } else {

@@ -5,7 +5,7 @@ import {ErrorEvent, Event} from '../Event.js';
 import {shouldReject, shouldTimeout} from '../../util/test-util.js';
 import '../../functions/math/Arithmetic.js';
 
-for (let typeName of ['async-function-promise', 'async-function-manual']) {
+for (const typeName of ['async-function-promise', 'async-function-manual']) {
   describe(typeName, function () {
     beforeEach(() => {
       TestAsyncFunctionLog.clearLog();
@@ -16,9 +16,9 @@ for (let typeName of ['async-function-promise', 'async-function-manual']) {
     });
 
     it('basic', async function () {
-      let flow = new Flow();
+      const flow = new Flow();
 
-      let block = flow.createBlock('obj');
+      const block = flow.createBlock('obj');
       block.setValue('#mode', 'onCall');
       block.setValue('#-log', 'obj');
       block.setValue('#is', typeName);
@@ -34,9 +34,9 @@ for (let typeName of ['async-function-promise', 'async-function-manual']) {
     });
 
     it('cancel call', async function () {
-      let flow = new Flow();
+      const flow = new Flow();
 
-      let block = flow.createBlock('obj');
+      const block = flow.createBlock('obj');
       block.setValue('#sync', true);
       block.setValue('#-log', 'obj');
       block.setValue('#is', typeName);
@@ -52,20 +52,20 @@ for (let typeName of ['async-function-promise', 'async-function-manual']) {
     });
 
     it('chain async call', async function () {
-      let flow = new Flow();
+      const flow = new Flow();
 
-      let block1 = flow.createBlock('obj1');
+      const block1 = flow.createBlock('obj1');
       block1.setValue('#sync', true);
       block1.setValue('#-log', 'obj1');
       block1.setValue('#is', typeName);
 
-      let block2 = flow.createBlock('obj2');
+      const block2 = flow.createBlock('obj2');
       block2.setValue('#sync', true);
       block2.setValue('#-log', 'obj2');
       block2.setValue('#is', typeName);
       block2.setBinding('#call', '##.obj1.#emit');
 
-      let block3 = flow.createBlock('obj3');
+      const block3 = flow.createBlock('obj3');
       block3.setValue('#is', 'add');
       block3.setBinding('#call', '##.obj2.#emit');
 
@@ -88,7 +88,7 @@ for (let typeName of ['async-function-promise', 'async-function-manual']) {
       expect(block2.getValue('#wait')).not.toBe(undefined);
       expect(block3.getValue('#wait')).toBe(undefined);
 
-      let block2EmitPromise = block2.waitNextValue('#emit');
+      const block2EmitPromise = block2.waitNextValue('#emit');
       // #emit need to have binding before next line, otherwise it wont emit
       block1.setValue('#call', new ErrorEvent(''));
       expect(block2.getValue('#wait')).not.toBeDefined();
@@ -100,9 +100,9 @@ for (let typeName of ['async-function-promise', 'async-function-manual']) {
     });
 
     it('cancel async call', async function () {
-      let flow = new Flow();
+      const flow = new Flow();
 
-      let block1 = flow.createBlock('obj1');
+      const block1 = flow.createBlock('obj1');
       block1.setValue('#sync', true);
       block1.setValue('#-log', 'obj1');
       block1.setValue('#is', typeName);
@@ -112,16 +112,16 @@ for (let typeName of ['async-function-promise', 'async-function-manual']) {
       await block1.waitNextValue('#emit');
       expect(TestAsyncFunctionLog.asyncLog).toEqual(['obj1']);
 
-      let emitPromise = block1.waitNextValue('#emit');
+      const emitPromise = block1.waitNextValue('#emit');
       block1.setValue('#call', {});
       block1.setValue('#cancel', 2);
       await shouldTimeout(emitPromise, 20);
     });
 
     it('reject async call', async function () {
-      let flow = new Flow();
+      const flow = new Flow();
 
-      let block1 = flow.createBlock('obj1');
+      const block1 = flow.createBlock('obj1');
       block1.setValue('#sync', true);
       block1.setValue('#-log', 'obj1');
       block1.setValue('#-reject', true);
@@ -132,9 +132,9 @@ for (let typeName of ['async-function-promise', 'async-function-manual']) {
     });
 
     it('async emit custom value', async function () {
-      let flow = new Flow();
+      const flow = new Flow();
 
-      let block1 = flow.createBlock('obj1');
+      const block1 = flow.createBlock('obj1');
       block1.setValue('#sync', true);
       block1.setValue('#-log', 'obj1');
       block1.setValue('#-resolve', 'ticlo');

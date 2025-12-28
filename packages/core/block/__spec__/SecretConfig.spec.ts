@@ -18,8 +18,8 @@ Functions.add(TestSecretFunction, {name: 'test-secret'}, null);
 
 describe('Secret Property', function () {
   it('set and read secret', function () {
-    let flow = new Flow();
-    let aBlock = flow.createBlock('a');
+    const flow = new Flow();
+    const aBlock = flow.createBlock('a');
     aBlock._load({'#is': 'test-secret'});
     aBlock.setValue('#secret', 'abc123');
     aBlock.setBinding('a', '#secret');
@@ -65,8 +65,8 @@ describe('Secret Property', function () {
       },
     };
     setSecretCipher(codec1);
-    let flow = new Flow();
-    let aBlock = flow.createBlock('a');
+    const flow = new Flow();
+    const aBlock = flow.createBlock('a');
     aBlock._load({'#is': 'test-secret', '#secret': '1abc'});
     Root.run();
     expect(aBlock.getValue('#output')).toBe('abc');

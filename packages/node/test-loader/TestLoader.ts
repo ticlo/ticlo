@@ -22,7 +22,7 @@ export class TestLoader extends FileFlowStorage {
     this.timeout = options?.timeout ?? 5000;
     this.onDemandLoad = Boolean(options?.onDemandLoad);
     this.ignoreFolders = options?.ignoreFolders ?? ['i18n'];
-    for (let item of map) {
+    for (const item of map) {
       let path: string;
       let flow: string;
       if (Array.isArray(item)) {
@@ -45,15 +45,15 @@ export class TestLoader extends FileFlowStorage {
     let filename: string;
     if (nameParts.includes('#')) {
       // subflow
-      let pos = nameParts.indexOf('#') - 2;
+      const pos = nameParts.indexOf('#') - 2;
       filename = nameParts.slice(pos).join('.');
       nameParts = nameParts.slice(0, pos);
     } else {
       filename = nameParts.pop();
     }
 
-    let specDir = `${nameParts.join('/')}/tests`;
-    let realPath = `${specDir}/${filename}`;
+    const specDir = `${nameParts.join('/')}/tests`;
+    const realPath = `${specDir}/${filename}`;
 
     if (this.tasks.has(realPath)) {
       return this.tasks.get(realPath);
@@ -61,14 +61,14 @@ export class TestLoader extends FileFlowStorage {
       if (!Fs.existsSync(specDir)) {
         Fs.mkdirSync(specDir);
       }
-      let task = new FlowIOTask(this, name, `${realPath}.ticlo`);
+      const task = new FlowIOTask(this, name, `${realPath}.ticlo`);
       this.tasks.set(name, task);
       return task;
     }
   }
   saveFlow(flow: Flow, data?: DataMap, overrideKey?: string) {
     if (flow?._disabled) {
-      let key = overrideKey ?? flow._storageKey;
+      const key = overrideKey ?? flow._storageKey;
       console.log(`unable to save disabled flow: ${key}`);
       return;
     }
@@ -79,7 +79,7 @@ export class TestLoader extends FileFlowStorage {
     if (prop == null || prop._block instanceof FlowTestGroup) {
       return {
         createFlow: (path: string, p: BlockProperty) => {
-          let testCase = new FlowTestCase(p._block, p, this.timeout, p._block as FlowTestGroup);
+          const testCase = new FlowTestCase(p._block, p, this.timeout, p._block as FlowTestGroup);
           if (!this.inited) {
             // test cases created during initialization should not start all at same time
             testCase.updateValue('#disabled', true);
@@ -99,10 +99,10 @@ export class TestLoader extends FileFlowStorage {
     if (this.onDemandLoad) {
       switch (state) {
         case FlowState.enabled: {
-          let task = this.getTask(key);
-          let str = await task.read();
+          const task = this.getTask(key);
+          const str = await task.read();
           try {
-            let data = decode(str);
+            const data = decode(str);
             flow.loadData(data);
           } catch (err) {
             console.log(`failed to load test:${task.path} ${err.toString()}`);
@@ -123,15 +123,15 @@ export class TestLoader extends FileFlowStorage {
         new FlowTestGroup(p._block, p, this.timeout, p._block instanceof FlowTestGroup ? p._block : null),
     };
 
-    let flowFiles: string[] = [];
+    const flowFiles: string[] = [];
     // let functionFiles: string[] = [];
 
     const loadSpec = (dir: string, parentBlockPath: string) => {
-      let specDir = Path.join(dir, 'tests');
+      const specDir = Path.join(dir, 'tests');
       if (Fs.existsSync(specDir)) {
-        let stat = Fs.statSync(specDir);
+        const stat = Fs.statSync(specDir);
         if (stat.isDirectory()) {
-          for (let file of Fs.readdirSync(specDir)) {
+          for (const file of Fs.readdirSync(specDir)) {
             if (
               file.endsWith('.ticlo') &&
               !file.startsWith('#') // Do not load subflow during initialization.
@@ -141,8 +141,8 @@ export class TestLoader extends FileFlowStorage {
                 if (!this.onDemandLoad) {
                   data = decode(Fs.readFileSync(Path.join(specDir, file), 'utf8'));
                 }
-                let name = file.substring(0, file.length - 6);
-                let blockPath = `${parentBlockPath}.${name}`;
+                const name = file.substring(0, file.length - 6);
+                const blockPath = `${parentBlockPath}.${name}`;
                 root.addFlow(blockPath, data, this.getFlowLoader(blockPath, null));
               } catch (e) {
                 console.log(`failed to load test:${file} ${e.toString()}`);
@@ -154,12 +154,12 @@ export class TestLoader extends FileFlowStorage {
     };
     const iterateDir = (dir: string, blockPath: string) => {
       root.addFlowFolder(blockPath, testGroupLoader);
-      for (let file of Fs.readdirSync(dir)) {
+      for (const file of Fs.readdirSync(dir)) {
         if (file.includes('.')) {
           continue;
         }
-        let path = Path.join(dir, file);
-        let stat = Fs.statSync(path);
+        const path = Path.join(dir, file);
+        const stat = Fs.statSync(path);
         if (stat.isDirectory()) {
           if (file !== 'tests' && !file.startsWith('__') && !this.ignoreFolders.includes(file)) {
             iterateDir(path, `${blockPath}.${file}`);
@@ -169,7 +169,7 @@ export class TestLoader extends FileFlowStorage {
       loadSpec(dir, blockPath);
     };
     root.addFlowFolder('tests', testGroupLoader);
-    for (let [flow, path] of this.flowToPathMap) {
+    for (const [flow, path] of this.flowToPathMap) {
       iterateDir(path, `tests.${flow}`);
     }
     this.inited = true;

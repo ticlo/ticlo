@@ -5,9 +5,9 @@ import {Flow, Root} from '../../../block/Flow.js';
 
 describe('CompareString', function () {
   it('start with', function () {
-    let flow = new Flow();
+    const flow = new Flow();
 
-    let aBlock = flow.createBlock('a');
+    const aBlock = flow.createBlock('a');
     aBlock._load({
       '#is': 'start-with',
       'input': 'abc',
@@ -44,9 +44,9 @@ describe('CompareString', function () {
   });
 
   it('end with', function () {
-    let flow = new Flow();
+    const flow = new Flow();
 
-    let aBlock = flow.createBlock('a');
+    const aBlock = flow.createBlock('a');
     aBlock._load({
       '#is': 'end-with',
       'input': 'abc',
@@ -83,9 +83,9 @@ describe('CompareString', function () {
   });
 
   it('contain', function () {
-    let flow = new Flow();
+    const flow = new Flow();
 
-    let aBlock = flow.createBlock('a');
+    const aBlock = flow.createBlock('a');
     aBlock._load({
       '#is': 'contain',
       'input': 'abc',

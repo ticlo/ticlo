@@ -29,7 +29,7 @@ export class WsBrowserConnection extends ClientConnection {
   };
 
   doSend(datas: DataMap[]): void {
-    let json = encode(datas);
+    const json = encode(datas);
     Logger.trace(() => 'server send ' + json, this);
     this._ws.send(json);
   }
@@ -37,7 +37,7 @@ export class WsBrowserConnection extends ClientConnection {
   onMessage = (e: MessageEvent) => {
     if (typeof e.data === 'string') {
       Logger.trace(() => 'server receive ' + e.data, this);
-      let decoded = decode(e.data);
+      const decoded = decode(e.data);
       if (Array.isArray(decoded)) {
         this.onReceive(decoded);
       }

@@ -91,7 +91,7 @@ class ServerSubscribe extends ServerRequest implements BlockPropertySubscriber, 
       return {data: null, size: 0};
     }
     let updateNeeded = false;
-    let data: DataMap = {id: this.id, cmd: 'update'};
+    const data: DataMap = {id: this.id, cmd: 'update'};
     let total = 0;
     if (this.valueChanged) {
       let value = this.property.getValue();
@@ -115,11 +115,11 @@ class ServerSubscribe extends ServerRequest implements BlockPropertySubscriber, 
       this.valueChanged = false;
       updateNeeded = true;
     }
-    let sendEvent: BlockPropertyEvent[] = [];
+    const sendEvent: BlockPropertyEvent[] = [];
     let bindingChanged = false;
     let listenerChanged = false;
     if (this.events.length) {
-      for (let e of this.events) {
+      for (const e of this.events) {
         if ('bind' in e) {
           // extract and merge binding event
           bindingChanged = true;
@@ -147,7 +147,7 @@ class ServerSubscribe extends ServerRequest implements BlockPropertySubscriber, 
     if (listenerChanged) {
       let hasListener = false;
       if (this.property._listeners) {
-        for (let listener of this.property._listeners) {
+        for (const listener of this.property._listeners) {
           if (listener instanceof PropDispatcher) {
             if (listener instanceof BlockProperty && listener._block instanceof InputsBlock && !listener._bindingPath) {
               // InputsBlock is a special case, don't show hasListener dot
@@ -218,7 +218,7 @@ class ServerWatch extends ServerRequest implements BlockChildWatch, PropListener
   // BlockChildWatch
   onChildChange(property: BlockProperty, saved?: boolean) {
     if (this._pendingChanges && property instanceof BlockIO) {
-      let val = property._saved;
+      const val = property._saved;
       if (saved && val instanceof Block) {
         this._cached.add(property._name);
         this._pendingChanges[property._name] = val._blockId;
@@ -248,7 +248,7 @@ class ServerWatch extends ServerRequest implements BlockChildWatch, PropListener
     }
     this._pendingChanges = {};
     let size = 0;
-    for (let name in changes) {
+    for (const name in changes) {
       size += name.length;
       if (changes[name]) {
         size += changes[name].length;
@@ -283,10 +283,10 @@ class ServerDescWatcher extends ServerRequest implements DescListener {
   }
 
   getSendingData(): {data: DataMap; size: number} {
-    let changes = [];
+    const changes = [];
     let totalSize = 0;
-    for (let id of this.pendingIds) {
-      let [desc, size] = Functions.getDescToSend(id);
+    for (const id of this.pendingIds) {
+      const [desc, size] = Functions.getDescToSend(id);
       if (desc) {
         changes.push(desc);
         totalSize += size;
@@ -318,9 +318,9 @@ function getTrackedFlow(block: Block, path: string, root: Root): Flow {
     flow = block._flow;
   }
   if (flow instanceof SharedBlock) {
-    let sharedPos = path.lastIndexOf('.#shared.');
+    const sharedPos = path.lastIndexOf('.#shared.');
     if (sharedPos > 0) {
-      let sharedProp = root.queryProperty(path.substring(0, sharedPos + 8));
+      const sharedProp = root.queryProperty(path.substring(0, sharedPos + 8));
       if (sharedProp instanceof SharedConfig) {
         flow = sharedProp._block._flow;
       }
@@ -355,9 +355,9 @@ class ServerConnectionCore extends Connection {
       }
       if (typeof request.path === 'string') {
         let result: string | DataMap | ServerRequest = 'invalid command';
-        let cmd: string = request.cmd;
+        const cmd: string = request.cmd;
         if (Object.hasOwn(ServerConnection.prototype, cmd)) {
-          let func: Function = (this as any)[cmd];
+          const func: Function = (this as any)[cmd];
           if (typeof func === 'function' && func.length === 1 && !cmd.startsWith('on')) {
             result = func.call(this, request);
           }
@@ -400,7 +400,7 @@ class ServerConnectionCore extends Connection {
   }
 
   destroy() {
-    for (let key in this.requests) {
+    for (const key in this.requests) {
       this.requests[key].close();
     }
     this.requests = null;
@@ -415,7 +415,7 @@ export class ServerConnection extends ServerConnectionCore {
 
   // set value
   set({path, value}: {path: string; value: any}): string {
-    let property = this.root.queryProperty(path, value !== undefined);
+    const property = this.root.queryProperty(path, value !== undefined);
     if (property) {
       if (property._value instanceof Flow) {
         this.root.deleteFlow(path);
@@ -430,7 +430,7 @@ export class ServerConnection extends ServerConnectionCore {
 
   // get value
   get({path}: {path: string}): DataMap | string {
-    let property = this.root.queryProperty(path);
+    const property = this.root.queryProperty(path);
     if (property === null) {
       // property === undefined, parent block exists but property is not created
       return {};
@@ -443,7 +443,7 @@ export class ServerConnection extends ServerConnectionCore {
   }
 
   query({path, query}: {path: string; query: Query}) {
-    let property = this.root.queryProperty(path);
+    const property = this.root.queryProperty(path);
     if (property && property._value instanceof Block) {
       return {value: queryBlock(property._value, query)};
     } else {
@@ -453,7 +453,7 @@ export class ServerConnection extends ServerConnectionCore {
 
   // update value
   update({path, value}: {path: string; value: any}): string {
-    let property = this.root.queryProperty(path, true);
+    const property = this.root.queryProperty(path, true);
     if (property) {
       property.updateValue(value);
       return null;
@@ -464,7 +464,7 @@ export class ServerConnection extends ServerConnectionCore {
 
   // restore saved value if current value not equal to saved value
   restoreSaved({path}: {path: string}): string {
-    let property = this.root.queryProperty(path, true);
+    const property = this.root.queryProperty(path, true);
     if (property) {
       if (!Object.is(property._saved, property._value) && !property._bindingSource) {
         property.updateValue(property._saved);
@@ -477,38 +477,38 @@ export class ServerConnection extends ServerConnectionCore {
 
   // set binding
   bind({path, from, absolute}: {path: string; from: string; absolute: boolean}): string {
-    let property = this.root.queryProperty(path, true);
+    const property = this.root.queryProperty(path, true);
     if (property) {
       if (absolute) {
         // from is absolute path, need to find the relative binding path
         if (from == null) {
           // remove binding but keep current primitive value
-          let val = property._value;
+          const val = property._value;
           if (isPrimitiveType(val)) {
             property.setValue(val);
           } else {
             property.setValue(undefined);
           }
         } else {
-          let fromParts = from.split('..');
-          let fromMain = fromParts[0];
-          let bindable = isBindable(path, fromMain);
+          const fromParts = from.split('..');
+          const fromMain = fromParts[0];
+          const bindable = isBindable(path, fromMain);
           if (!bindable) {
             return 'invalid binding path';
           }
-          let fromProp = this.root.queryProperty(fromParts[0], true);
+          const fromProp = this.root.queryProperty(fromParts[0], true);
           if (fromProp) {
             let resolvedFrom: string;
             if (fromMain.includes('.^')) {
               // binding string can just start from ^ for context binding
               resolvedFrom = fromMain.substring(fromMain.indexOf('.^') + 1);
             } else {
-              let fromSharedPos = fromMain.lastIndexOf('.#shared.');
+              const fromSharedPos = fromMain.lastIndexOf('.#shared.');
               if (bindable === 'shared') {
-                let sharedPath = fromMain.substring(0, fromSharedPos + 8); // path to #shared
-                let sharedProp = this.root.queryProperty(sharedPath);
+                const sharedPath = fromMain.substring(0, fromSharedPos + 8); // path to #shared
+                const sharedProp = this.root.queryProperty(sharedPath);
                 if (sharedProp instanceof SharedConfig) {
-                  let afterShared = fromMain.substring(fromSharedPos + 9);
+                  const afterShared = fromMain.substring(fromSharedPos + 9);
                   resolvedFrom = `${propRelative(property._block, sharedProp)}.${afterShared}`;
                 }
               }
@@ -552,8 +552,8 @@ export class ServerConnection extends ServerConnectionCore {
   addBlock({path, data, findName}: {path: string; data?: DataMap; findName?: boolean}): string | DataMap {
     let property = this.root.queryProperty(path, true);
     if (!property && /\.#shared\.[^.]+$/.test(path)) {
-      let sharedPath = path.substring(0, path.lastIndexOf('.'));
-      let sharedProp = this.root.queryProperty(sharedPath, true);
+      const sharedPath = path.substring(0, path.lastIndexOf('.'));
+      const sharedProp = this.root.queryProperty(sharedPath, true);
       // create shared block when possible
       if (createSharedBlock(sharedProp)) {
         // get the property again
@@ -563,15 +563,15 @@ export class ServerConnection extends ServerConnectionCore {
     if (property) {
       let keepSaved: any;
       let keepBinding: string;
-      let funcId = data?.['#is'];
+      const funcId = data?.['#is'];
       if (typeof funcId === 'string' && funcId.startsWith('flow:')) {
         if (funcId === 'flow:inputs') {
           property = property._block.getProperty('#inputs');
           if (property instanceof BlockInputsConfig && property.isCleared()) {
-            let inputBlock = property._block.createBlock('#inputs');
+            const inputBlock = property._block.createBlock('#inputs');
             if (property._block instanceof Flow) {
-              let defaultFlow = property._block._parent.getDefaultWorker(null);
-              let inputs = defaultFlow?.['#inputs'];
+              const defaultFlow = property._block._parent.getDefaultWorker(null);
+              const inputs = defaultFlow?.['#inputs'];
               if (Object.isExtensible(inputs)) {
                 inputBlock._load({...data, ...(inputs as DataMap)});
                 // Since data is already loaded, we can skip the next load.
@@ -585,10 +585,10 @@ export class ServerConnection extends ServerConnectionCore {
         } else if (funcId === 'flow:outputs') {
           property = property._block.getProperty('#outputs');
           if (property instanceof BlockOutputsConfig && property.isCleared()) {
-            let outputBlock = property._block.createBlock('#outputs');
+            const outputBlock = property._block.createBlock('#outputs');
             if (property._block instanceof Flow) {
-              let defaultFlow = property._block._parent.getDefaultWorker(null);
-              let inputs = defaultFlow?.['#outputs'];
+              const defaultFlow = property._block._parent.getDefaultWorker(null);
+              const inputs = defaultFlow?.['#outputs'];
               if (Object.isExtensible(inputs)) {
                 outputBlock._load({...data, ...(inputs as DataMap)});
                 // Since data is already loaded, we can skip the next load.
@@ -607,7 +607,7 @@ export class ServerConnection extends ServerConnectionCore {
       } else {
         if (property instanceof HelperProperty) {
           // create a sub block and move the current property into the sub block if possible
-          let baseProperty = property._block.getProperty(property._name.substring(1));
+          const baseProperty = property._block.getProperty(property._name.substring(1));
           // check the current value and binding
           if (baseProperty._saved !== undefined) {
             if (!(baseProperty._saved instanceof Block)) {
@@ -629,7 +629,7 @@ export class ServerConnection extends ServerConnectionCore {
       }
       if (typeof funcId === 'string' && data) {
         (property._value as Block)._load(data);
-        let desc = Functions.getDescToSend(funcId)[0];
+        const desc = Functions.getDescToSend(funcId)[0];
         if (desc && desc.recipient && !Object.hasOwn(data, desc.recipient)) {
           // transfer parent property to the recipient
           if (keepSaved !== undefined) {
@@ -647,24 +647,24 @@ export class ServerConnection extends ServerConnectionCore {
   }
 
   list({path, filter, max}: {path: string; filter: string; max: number}): string | DataMap {
-    let property = this.root.queryProperty(path, true);
+    const property = this.root.queryProperty(path, true);
     if (!(max > 0 && max < 1024)) {
       max = 16;
     }
     if (property && property._value instanceof Block) {
-      let block = property._value;
+      const block = property._value;
       let filterRegex: RegExp;
-      let children: DataMap = {};
+      const children: DataMap = {};
       if (filter) {
         filterRegex = new RegExp(filter);
       }
       let count = 0;
-      for (let [field, prop] of block._props) {
+      for (const [field, prop] of block._props) {
         if (prop._value instanceof Block && prop._value._prop === prop) {
           if (!filterRegex || filterRegex.test(field)) {
             // filter
             if (count < max) {
-              let result: any = {id: (prop._value as Block)._blockId};
+              const result: any = {id: (prop._value as Block)._blockId};
               if (prop._value instanceof Flow && prop._value._applyChange) {
                 result.canApply = true;
               }
@@ -681,9 +681,9 @@ export class ServerConnection extends ServerConnectionCore {
   }
 
   subscribe({path, id}: {path: string; id: string}): string | ServerSubscribe {
-    let property = this.root.queryProperty(path, true);
+    const property = this.root.queryProperty(path, true);
     if (property) {
-      let subscriber = new ServerSubscribe(this, id, property);
+      const subscriber = new ServerSubscribe(this, id, property);
       subscriber.source = this.root.createBinding(path, subscriber);
       return subscriber;
     } else {
@@ -692,9 +692,9 @@ export class ServerConnection extends ServerConnectionCore {
   }
 
   watch({path, id}: {path: string; id: string}): string | ServerWatch {
-    let property = this.root.queryProperty(path, true);
+    const property = this.root.queryProperty(path, true);
     if (property && property._value instanceof Block) {
-      let watch = new ServerWatch(this, id, property._value, property);
+      const watch = new ServerWatch(this, id, property._value, property);
       watch.source = this.root.createBinding(path, watch);
       return watch;
     } else {
@@ -710,10 +710,10 @@ export class ServerConnection extends ServerConnectionCore {
     if (typeof command !== 'string') {
       return 'invalid command';
     }
-    let property = this.root.queryProperty(path);
+    const property = this.root.queryProperty(path);
 
     if (property && property._value instanceof Block) {
-      let result = property._value.executeCommand(command, params);
+      const result = property._value.executeCommand(command, params);
       if (result != null) {
         return {result};
       }
@@ -735,7 +735,7 @@ export class ServerConnection extends ServerConnectionCore {
     fromFunction: string;
     defaultData: DataMap;
   }) {
-    let property = this.root.queryProperty(path, true);
+    const property = this.root.queryProperty(path, true);
 
     if (property && property._name.startsWith('#edit-')) {
       if (fromField) {
@@ -750,7 +750,7 @@ export class ServerConnection extends ServerConnectionCore {
   }
 
   applyFlowChange({path, funcId}: {path: string; funcId: string}) {
-    let property = this.root.queryProperty(path, true);
+    const property = this.root.queryProperty(path, true);
     if (property && property._value instanceof Flow) {
       if (funcId && property._value instanceof FlowEditor) {
         WorkerFunctionGen.applyChangeToFunc(property._value, funcId);
@@ -777,7 +777,7 @@ export class ServerConnection extends ServerConnectionCore {
     if (!Array.isArray(props)) {
       return 'invalid properties';
     }
-    let property = this.root.queryProperty(path);
+    const property = this.root.queryProperty(path);
 
     if (property && property._value instanceof Block) {
       showProperties(property._value, props);
@@ -792,7 +792,7 @@ export class ServerConnection extends ServerConnectionCore {
     if (!Array.isArray(props)) {
       return 'invalid properties';
     }
-    let property = this.root.queryProperty(path);
+    const property = this.root.queryProperty(path);
 
     if (property && property._value instanceof Block) {
       hideProperties(property._value, props);
@@ -804,7 +804,7 @@ export class ServerConnection extends ServerConnectionCore {
   }
 
   moveShownProp({path, propFrom, propTo}: {path: string; propFrom: string; propTo: string}) {
-    let property = this.root.queryProperty(path);
+    const property = this.root.queryProperty(path);
 
     if (property && property._value instanceof Block) {
       moveShownProperty(property._value, propFrom, propTo);
@@ -816,7 +816,7 @@ export class ServerConnection extends ServerConnectionCore {
   }
 
   setLen({path, group, length}: {path: string; group: string; length: number}) {
-    let property = this.root.queryProperty(path, true);
+    const property = this.root.queryProperty(path, true);
 
     if (property && property._value instanceof Block) {
       setGroupLength(property._value, group, length);
@@ -828,10 +828,10 @@ export class ServerConnection extends ServerConnectionCore {
   }
 
   renameProp({path, newName}: {path: string; newName: string}) {
-    let property = this.root.queryProperty(path, true);
+    const property = this.root.queryProperty(path, true);
 
     if (property) {
-      let existingProp = property._block.getProperty(newName, false);
+      const existingProp = property._block.getProperty(newName, false);
       if (existingProp?._saved instanceof Block) {
         return 'invalid new name';
       }
@@ -846,7 +846,7 @@ export class ServerConnection extends ServerConnectionCore {
       // TODO, full validation
       return 'invalid desc';
     }
-    let property = this.root.queryProperty(path);
+    const property = this.root.queryProperty(path);
 
     if (property && property._value instanceof Block) {
       addCustomProperty(property._value, desc, group);
@@ -858,7 +858,7 @@ export class ServerConnection extends ServerConnectionCore {
   }
 
   removeCustomProp({path, name, group}: {path: string; name: string; group: string}) {
-    let property = this.root.queryProperty(path);
+    const property = this.root.queryProperty(path);
 
     if (property && property._value instanceof Block) {
       removeCustomProperty(property._value, name, group);
@@ -870,7 +870,7 @@ export class ServerConnection extends ServerConnectionCore {
   }
 
   moveCustomProp({path, nameFrom, nameTo, group}: {path: string; nameFrom: string; nameTo: string; group: string}) {
-    let property = this.root.queryProperty(path);
+    const property = this.root.queryProperty(path);
 
     if (property && property._value instanceof Block) {
       moveCustomProperty(property._value, nameFrom, nameTo, group);
@@ -882,7 +882,7 @@ export class ServerConnection extends ServerConnectionCore {
   }
 
   addOptionalProp({path, name}: {path: string; name: string}) {
-    let property = this.root.queryProperty(path);
+    const property = this.root.queryProperty(path);
 
     if (property && property._value instanceof Block) {
       addOptionalProperty(property._value, name);
@@ -894,7 +894,7 @@ export class ServerConnection extends ServerConnectionCore {
   }
 
   removeOptionalProp({path, name}: {path: string; name: string}) {
-    let property = this.root.queryProperty(path);
+    const property = this.root.queryProperty(path);
 
     if (property && property._value instanceof Block) {
       removeOptionalProperty(property._value, name);
@@ -906,7 +906,7 @@ export class ServerConnection extends ServerConnectionCore {
   }
 
   moveOptionalProp({path, nameFrom, nameTo}: {path: string; nameFrom: string; nameTo: string}) {
-    let property = this.root.queryProperty(path);
+    const property = this.root.queryProperty(path);
 
     if (property && property._value instanceof Block) {
       moveOptionalProperty(property._value, nameFrom, nameTo);
@@ -918,7 +918,7 @@ export class ServerConnection extends ServerConnectionCore {
   }
 
   insertGroupProp({path, group, idx}: {path: string; group: string; idx: number}) {
-    let property = this.root.queryProperty(path);
+    const property = this.root.queryProperty(path);
 
     if (property && property._value instanceof Block) {
       insertGroupProperty(property._value, group, idx);
@@ -930,7 +930,7 @@ export class ServerConnection extends ServerConnectionCore {
   }
 
   removeGroupProp({path, group, idx}: {path: string; group: string; idx: number}) {
-    let property = this.root.queryProperty(path);
+    const property = this.root.queryProperty(path);
 
     if (property && property._value instanceof Block) {
       removeGroupProperty(property._value, group, idx);
@@ -942,7 +942,7 @@ export class ServerConnection extends ServerConnectionCore {
   }
 
   moveGroupProp({path, group, oldIdx, newIdx}: {path: string; group: string; oldIdx: number; newIdx: number}) {
-    let property = this.root.queryProperty(path);
+    const property = this.root.queryProperty(path);
 
     if (property && property._value instanceof Block) {
       moveGroupProperty(property._value, group, oldIdx, newIdx);
@@ -954,7 +954,7 @@ export class ServerConnection extends ServerConnectionCore {
   }
 
   undo({path}: {path: string}) {
-    let property = this.root.queryProperty(path);
+    const property = this.root.queryProperty(path);
     if (property && property._value instanceof Block) {
       getTrackedFlow(property._value, path, this.root).undo();
       return null;
@@ -964,7 +964,7 @@ export class ServerConnection extends ServerConnectionCore {
   }
 
   redo({path}: {path: string}) {
-    let property = this.root.queryProperty(path);
+    const property = this.root.queryProperty(path);
     if (property && property._value instanceof Block) {
       getTrackedFlow(property._value, path, this.root).redo();
       return null;
@@ -974,9 +974,9 @@ export class ServerConnection extends ServerConnectionCore {
   }
 
   copy({path, props, cut}: {path: string; props: string[]; cut: boolean}) {
-    let property = this.root.queryProperty(path);
+    const property = this.root.queryProperty(path);
     if (property && property._value instanceof Block) {
-      let value = copyProperties(property._value, props);
+      const value = copyProperties(property._value, props);
       if (typeof value === 'string') {
         return value;
       }
@@ -990,9 +990,9 @@ export class ServerConnection extends ServerConnectionCore {
   }
 
   paste({path, data, resolve}: {path: string; data: DataMap; resolve?: 'overwrite' | 'rename'}) {
-    let property = this.root.queryProperty(path);
+    const property = this.root.queryProperty(path);
     if (property && property._value instanceof Block) {
-      let result = pasteProperties(property._value, data, resolve);
+      const result = pasteProperties(property._value, data, resolve);
       if (typeof result === 'string') {
         return result;
       }
@@ -1004,7 +1004,7 @@ export class ServerConnection extends ServerConnectionCore {
   }
 
   callFunction({path}: {path: string}) {
-    let property = this.root.queryProperty(path);
+    const property = this.root.queryProperty(path);
     if (property && property._value instanceof Block) {
       if (property._value.getFunctionClass()) {
         property._value._onCall(new DoneEvent());

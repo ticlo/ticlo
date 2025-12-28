@@ -14,28 +14,28 @@ const MathDeg = (() => {
   const deg2rad = Math.PI / 180;
   const rad2deg = 180 / Math.PI;
 
-  let result: any = {};
+  const result: any = {};
 
-  for (let key of Object.getOwnPropertyNames(Math)) {
+  for (const key of Object.getOwnPropertyNames(Math)) {
     // move function from Math
     result[key] = (Math as any)[key];
-    let lower = key.toLowerCase();
+    const lower = key.toLowerCase();
     if (lower !== key) {
       result[lower] = result[key];
     }
   }
 
   // use degree instead of rad
-  for (let name of ['sin', 'cos', 'tan']) {
+  for (const name of ['sin', 'cos', 'tan']) {
     result[`${name}Rad`] = result[name];
-    let f: Function = result[name];
+    const f: Function = result[name];
     result[name] = function (input: number) {
       return f(input * deg2rad);
     };
   }
-  for (let name of ['asin', 'acos', 'atan', 'atan2']) {
+  for (const name of ['asin', 'acos', 'atan', 'atan2']) {
     result[`${name}Rad`] = result[name];
-    let f: Function = result[name];
+    const f: Function = result[name];
     result[name] = function () {
       return f(...arguments) * rad2deg;
     };
@@ -51,8 +51,8 @@ export class NumberEditor extends React.PureComponent<ValueEditorProps, any> {
     this._pendingValue = null;
     value = this.toNumber(value);
     if (value === value) {
-      let {desc} = this.props;
-      let {max, min, step} = desc;
+      const {desc} = this.props;
+      const {max, min, step} = desc;
       if (step) {
         value = Math.round(value / step) * step;
       }
@@ -72,7 +72,7 @@ export class NumberEditor extends React.PureComponent<ValueEditorProps, any> {
   }
 
   onInputChange = (e: React.SyntheticEvent) => {
-    let value = (e.target as HTMLInputElement).value;
+    const value = (e.target as HTMLInputElement).value;
     if (value !== this.props.value || this._pendingValue != null) {
       // when editorValue value already exists or server value is not the same
       this._pendingValue = value;
@@ -88,7 +88,7 @@ export class NumberEditor extends React.PureComponent<ValueEditorProps, any> {
 
   evalFormula(str: string): number {
     try {
-      let converted = str.replace(formulaNameRegx, (str: string) => {
+      const converted = str.replace(formulaNameRegx, (str: string) => {
         if (Object.hasOwn(MathDeg, str)) {
           return `(MathDeg.${str})`;
         }
@@ -116,7 +116,7 @@ export class NumberEditor extends React.PureComponent<ValueEditorProps, any> {
       case 'Enter': {
         if (this._pendingValue != null) {
           if (e.shiftKey) {
-            let formulaResult = this.evalFormula(this._pendingValue);
+            const formulaResult = this.evalFormula(this._pendingValue);
             if (formulaResult === formulaResult) {
               this.commitChange(formulaResult);
             } else {
@@ -145,8 +145,8 @@ export class NumberEditor extends React.PureComponent<ValueEditorProps, any> {
   };
 
   onMinusClick = (e: React.KeyboardEvent | React.MouseEvent) => {
-    let {desc} = this.props;
-    let value = this.currentValue();
+    const {desc} = this.props;
+    const value = this.currentValue();
     if (value === value) {
       let step = desc.step;
       if (!(step >= 0)) {
@@ -159,8 +159,8 @@ export class NumberEditor extends React.PureComponent<ValueEditorProps, any> {
     }
   };
   onPlusClick = (e: any) => {
-    let {desc} = this.props;
-    let value = this.currentValue();
+    const {desc} = this.props;
+    const value = this.currentValue();
     if (value === value) {
       let step = desc.step;
       if (!(step >= 0)) {
@@ -174,7 +174,8 @@ export class NumberEditor extends React.PureComponent<ValueEditorProps, any> {
   };
 
   currentValue(): number {
-    let {value, desc} = this.props;
+    const {desc} = this.props;
+    let {value} = this.props;
     if (this._pendingValue != null) {
       value = this._pendingValue;
     }
@@ -192,7 +193,8 @@ export class NumberEditor extends React.PureComponent<ValueEditorProps, any> {
   }
 
   render() {
-    let {desc, value, locked, onChange} = this.props;
+    const {desc, locked} = this.props;
+    let {value, onChange} = this.props;
     if (this._pendingValue != null) {
       value = this._pendingValue;
     } else if (locked) {
@@ -203,7 +205,7 @@ export class NumberEditor extends React.PureComponent<ValueEditorProps, any> {
     } else if (value !== value) {
       value = 'NaN';
     }
-    let disabled = onChange == null;
+    const disabled = onChange == null;
     return (
       <div className={scat('ticl-number-input', disabled && ' ticl-number-input-disabled')}>
         <Button size="small" icon={<MinusOutlined />} onClick={this.onMinusClick} disabled={disabled} />

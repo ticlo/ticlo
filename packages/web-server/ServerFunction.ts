@@ -79,13 +79,13 @@ export class ServerFunction extends BaseFunction<Block> {
       path = path.substring(0, queryIndex);
     }
 
-    let method: string = req.method;
-    let targetRoute: RouteFunction[] = [];
+    const method: string = req.method;
+    const targetRoute: RouteFunction[] = [];
 
     let statusError = 404;
     // check static route
     if (this.strictRoute.has(path)) {
-      for (let route of this.strictRoute.get(path)) {
+      for (const route of this.strictRoute.get(path)) {
         if (!route.methods.includes(method as RouteMethod)) {
           statusError = 405;
           continue;
@@ -99,11 +99,11 @@ export class ServerFunction extends BaseFunction<Block> {
     }
     // check dynamic route
     if (targetRoute.length === 0) {
-      let pathParts = path.split('/');
+      const pathParts = path.split('/');
       while (pathParts.pop()) {
-        let parentPath = pathParts.join('/');
+        const parentPath = pathParts.join('/');
         if (this.wildcardRoute.has(parentPath)) {
-          for (let route of this.wildcardRoute.get(parentPath)) {
+          for (const route of this.wildcardRoute.get(parentPath)) {
             if (!route.methods.includes(method as RouteMethod)) {
               statusError = 405;
               continue;
@@ -126,12 +126,12 @@ export class ServerFunction extends BaseFunction<Block> {
     }
 
     const emitTask = () => {
-      let request = new HttpRequest(modifiedReq as any, res, basePath);
+      const request = new HttpRequest(modifiedReq as any, res, basePath);
       if (this.pendingTasks.length === 0) {
         Resolver.callLater(this.checkPendingTasks);
       }
       this.pendingTasks.push(request);
-      for (let route of targetRoute) {
+      for (const route of targetRoute) {
         route.addRequest(request);
       }
     };
@@ -141,7 +141,7 @@ export class ServerFunction extends BaseFunction<Block> {
 
   service: RouteService = escapedObject(`server-${serviceId.next(10)}`, {
     addRoute: (path: string, routeFunction: RouteFunction) => {
-      let [targetRoute, targetPath] = this.chooseRouteType(path);
+      const [targetRoute, targetPath] = this.chooseRouteType(path);
       let routes: Set<RouteFunction> = targetRoute.get(targetPath);
       if (!routes) {
         routes = new Set();
@@ -150,8 +150,8 @@ export class ServerFunction extends BaseFunction<Block> {
       routes.add(routeFunction);
     },
     removeRoute: (path: string, routeFunction: RouteFunction) => {
-      let [targetRoute, targetPath] = this.chooseRouteType(path);
-      let routes: Set<RouteFunction> = targetRoute.get(targetPath);
+      const [targetRoute, targetPath] = this.chooseRouteType(path);
+      const routes: Set<RouteFunction> = targetRoute.get(targetPath);
       if (routes) {
         routes.delete(routeFunction);
         if (routes.size === 0) {
@@ -163,7 +163,7 @@ export class ServerFunction extends BaseFunction<Block> {
   });
 
   checkPendingTasks = () => {
-    for (let task of this.pendingTasks) {
+    for (const task of this.pendingTasks) {
       if (!task._handler) {
         task.res.code(501).send();
         // prevent handler to process in the future

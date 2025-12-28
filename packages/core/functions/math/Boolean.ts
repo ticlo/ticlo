@@ -4,7 +4,7 @@ import {getInputsArray} from '../../block/FunctonData.js';
 
 export class AndFunction extends PureFunction {
   run(): any {
-    for (let val of getInputsArray(this._data)) {
+    for (const val of getInputsArray(this._data)) {
       if (!val) {
         this._data.output(false);
         return;
@@ -32,7 +32,7 @@ Functions.add(AndFunction, {
 
 export class OrFunction extends PureFunction {
   run(): any {
-    for (let val of getInputsArray(this._data)) {
+    for (const val of getInputsArray(this._data)) {
       if (val) {
         this._data.output(val);
         return;
@@ -61,7 +61,7 @@ Functions.add(OrFunction, {
 export class XorFunction extends PureFunction {
   run(): any {
     let count = 0;
-    for (let val of getInputsArray(this._data)) {
+    for (const val of getInputsArray(this._data)) {
       if (val) {
         ++count;
       }
@@ -89,7 +89,7 @@ Functions.add(XorFunction, {
 
 export class NotFunction extends PureFunction {
   run(): any {
-    let v0 = this._data.getValue('input');
+    const v0 = this._data.getValue('input');
     this._data.output(!v0);
   }
 }

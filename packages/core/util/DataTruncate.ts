@@ -6,9 +6,9 @@ import {DateTime} from 'luxon';
 function truncateMap(val: DataMap, maxSize: number): [any, number, boolean] {
   let total = 0;
   let truncated = false;
-  let result: DataMap = {};
+  const result: DataMap = {};
   let count = 0;
-  for (let key in val) {
+  for (const key in val) {
     ++count;
     if (total >= maxSize || count > 9) {
       if (count < 5) {
@@ -18,7 +18,7 @@ function truncateMap(val: DataMap, maxSize: number): [any, number, boolean] {
       result[TRUNCATED] = 1;
       return [result, total, true];
     }
-    let [t, size, trunc] = truncateObj(val[key], (maxSize - total) * 0.75);
+    const [t, size, trunc] = truncateObj(val[key], (maxSize - total) * 0.75);
     result[key] = t;
     total += size + key.length;
     if (trunc) {
@@ -31,14 +31,14 @@ function truncateMap(val: DataMap, maxSize: number): [any, number, boolean] {
 function truncateArray(val: any[], maxSize: number): [any[], number, boolean] {
   let total = 0;
   let truncated = false;
-  let result: any[] = [];
+  const result: any[] = [];
 
   for (let i = 0; i < val.length; ++i) {
     if (total >= maxSize || i > 8) {
       result.push(TRUNCATED);
       return [result, total, true];
     }
-    let [t, size, trunc] = truncateObj(val[i], (maxSize - total) * 0.75);
+    const [t, size, trunc] = truncateObj(val[i], (maxSize - total) * 0.75);
     total += size;
     result.push(t);
     if (trunc) {
@@ -63,7 +63,7 @@ function truncateObj(val: any, maxSize: number = 1024): [any, number, boolean] {
     if (isBaseObject(val)) {
       return truncateMap(val, maxSize);
     }
-    let encoded = encodeRaw(val);
+    const encoded = encodeRaw(val);
     if (typeof encoded === 'string' && encoded.length < 100) {
       return [encoded, encoded.length, false];
     }
@@ -84,7 +84,7 @@ function truncateObj(val: any, maxSize: number = 1024): [any, number, boolean] {
 }
 
 export function truncateData(val: any, maxSize: number = 1024): [any, number] {
-  let [result, total, truncated] = truncateObj(val, maxSize);
+  const [result, total, truncated] = truncateObj(val, maxSize);
   if (truncated) {
     if (Array.isArray(result)) {
       if (result.at(-1) !== TRUNCATED) {

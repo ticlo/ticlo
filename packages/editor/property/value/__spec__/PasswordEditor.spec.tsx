@@ -20,14 +20,14 @@ describe('PasswordEditor', function () {
 
   it('basic', async function () {
     let editor: PasswordEditor;
-    let getRef = (e: PasswordEditor): void => {
+    const getRef = (e: PasswordEditor): void => {
       editor = e;
     };
     let value: string = null;
-    let onChange = (str: string) => {
+    const onChange = (str: string) => {
       value = str;
     };
-    let [component, div] = loadTemplate(
+    const [component, div] = loadTemplate(
       <PasswordEditor ref={getRef} value="1" funcDesc={blankFuncDesc} desc={blankPropDesc} onChange={onChange} />,
       'editor'
     );

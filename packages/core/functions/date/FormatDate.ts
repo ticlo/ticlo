@@ -6,7 +6,7 @@ export class FormatDateFunction extends PureFunction {
   run() {
     const input = this._data.getValue('input');
 
-    let d = toDateTime(input);
+    const d = toDateTime(input);
     if (d.isValid) {
       let format = this._data.getValue('format') as string;
       let locale = this._data.getValue('locale') as string;

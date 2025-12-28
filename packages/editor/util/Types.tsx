@@ -1,8 +1,8 @@
 import React from 'react';
 
 export function displayNumber(val: number): string {
-  let rslt1 = val.toString();
-  let rslt2 = val.toPrecision(4);
+  const rslt1 = val.toString();
+  const rslt2 = val.toPrecision(4);
   if (!rslt1.includes('.')) {
     return rslt1;
   }

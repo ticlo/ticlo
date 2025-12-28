@@ -72,7 +72,7 @@ export class BlockBinding extends PropDispatcher implements PropListener, BlockB
   private _propChanged(prop: BlockProperty): boolean {
     if (prop === this._prop) return false;
     if (this._prop) {
-      for (let listener of this._listeners) {
+      for (const listener of this._listeners) {
         this._prop.unlisten(listener);
         listener.onSourceChange(null);
       }
@@ -80,7 +80,7 @@ export class BlockBinding extends PropDispatcher implements PropListener, BlockB
     this._prop = prop;
     if (this._prop) {
       this._value = undefined;
-      for (let listener of this._listeners) {
+      for (const listener of this._listeners) {
         this._prop.listen(listener);
       }
     } else {

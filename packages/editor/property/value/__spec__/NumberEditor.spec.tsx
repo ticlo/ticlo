@@ -20,14 +20,14 @@ describe('NumberEditor', function () {
 
   it('basic', async function () {
     let editor: NumberEditor;
-    let getRef = (e: NumberEditor): void => {
+    const getRef = (e: NumberEditor): void => {
       editor = e;
     };
     let value: number = null;
-    let onChange = (n: number) => {
+    const onChange = (n: number) => {
       value = n;
     };
-    let [component, div] = loadTemplate(
+    const [component, div] = loadTemplate(
       <NumberEditor ref={getRef} value={1} funcDesc={blankFuncDesc} desc={blankPropDesc} onChange={onChange} />,
       'editor'
     );
@@ -94,21 +94,21 @@ describe('NumberEditor', function () {
 
   it('constraint', async function () {
     let editor: NumberEditor;
-    let getRef = (e: NumberEditor): void => {
+    const getRef = (e: NumberEditor): void => {
       editor = e;
     };
     let value: number = null;
-    let onChange = (n: number) => {
+    const onChange = (n: number) => {
       value = n;
     };
-    let desc: PropDesc = {
+    const desc: PropDesc = {
       name: '',
       type: 'number',
       max: 10,
       min: 2,
       step: 2,
     };
-    let [component, div] = loadTemplate(
+    const [component, div] = loadTemplate(
       <NumberEditor ref={getRef} value={6} funcDesc={blankFuncDesc} desc={desc} onChange={onChange} />,
       'editor'
     );

@@ -33,7 +33,7 @@ export class InfiniteQueue<T> extends Denque<T> {
     if (i !== (i | 0)) {
       throw new Error('invalid index');
     }
-    let len = this.size();
+    const len = this.size();
     if (i >= len || i < 0) {
       throw new Error('invalid index');
     }
@@ -43,7 +43,7 @@ export class InfiniteQueue<T> extends Denque<T> {
 
   newSlot() {
     // Denque doesn't allow push(undefined), use the following trick as work around
-    let tail = this._tail;
+    const tail = this._tail;
     super.push(null);
     this._list[tail] = undefined;
     return this.total++;

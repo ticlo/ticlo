@@ -7,9 +7,9 @@ import {Logger} from '../../../util/Logger.js';
 
 describe('Js Type', function () {
   it('basic', function () {
-    let flow = new Flow();
+    const flow = new Flow();
 
-    let aBlock = flow.createBlock('a');
+    const aBlock = flow.createBlock('a');
     aBlock.setValue('in1', 321);
     aBlock.setValue('#is', 'Js-type1');
 
@@ -29,9 +29,9 @@ describe('Js Type', function () {
   });
 
   it('unregister class', function () {
-    let flow = new Flow();
+    const flow = new Flow();
 
-    let aBlock = flow.createBlock('a');
+    const aBlock = flow.createBlock('a');
     aBlock.setValue('#is', 'Js-type2');
     JsFunction.registerType('this["out1"] = 1', {name: 'Js-type2'});
 
@@ -44,16 +44,16 @@ describe('Js Type', function () {
   });
 
   it('invalid script', function () {
-    let logger = new TestLogger(Logger.ERROR);
+    const logger = new TestLogger(Logger.ERROR);
     expect(JsFunction.registerType('[[', {name: 'Js-type3'})).toBe(false);
     expect(logger.logs).toEqual(['invalid script:\n[[']);
     logger.cancel();
   });
 
   it('trivial', function () {
-    let flow = new Flow();
+    const flow = new Flow();
 
-    let aBlock = flow.createBlock('a');
+    const aBlock = flow.createBlock('a');
     Functions.clear('');
     expect(Functions.getDescToSend('')).toEqual([null, 0]);
     expect(Functions.listen('', aBlock)).not.toBeDefined();

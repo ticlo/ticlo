@@ -141,7 +141,7 @@ export class PropertyEditor extends MultiSelectComponent<PropertyEditorProps, St
   subBlockPaths: string[];
 
   buildSubBlockPaths(props: PropertyEditorProps) {
-    let {name, paths} = props;
+    const {name, paths} = props;
     this.subBlockPaths = paths.map((s: string) => `${s}.~${name}`);
   }
 
@@ -153,7 +153,7 @@ export class PropertyEditor extends MultiSelectComponent<PropertyEditorProps, St
   };
 
   onChange = (value: any) => {
-    let {conn, paths, name, propDesc} = this.props;
+    const {conn, paths, name, propDesc} = this.props;
     if (value === propDesc.default) {
       switch (typeof value) {
         case 'number':
@@ -172,16 +172,16 @@ export class PropertyEditor extends MultiSelectComponent<PropertyEditorProps, St
           value = undefined;
       }
     }
-    for (let path of paths) {
+    for (const path of paths) {
       conn.setValue(`${path}.${name}`, value);
     }
   };
 
   onDragStart = (e: DragState) => {
-    let {conn, paths, name, reorder} = this.props;
+    const {conn, paths, name, reorder} = this.props;
 
     if (e.dragType === 'right') {
-      let data = reorder?.getDragData(this.props);
+      const data = reorder?.getDragData(this.props);
       if (data) {
         e.setData(data, conn.getBaseConn());
         e.startDrag();
@@ -189,23 +189,23 @@ export class PropertyEditor extends MultiSelectComponent<PropertyEditorProps, St
         return;
       }
     } else {
-      let fields = paths.map((s) => `${s}.${name}`);
+      const fields = paths.map((s) => `${s}.${name}`);
       e.setData({fields}, conn.getBaseConn());
       e.startDrag();
     }
   };
   onDragOver = (e: DragState) => {
-    let {conn, paths, name, propDesc, reorder} = this.props;
+    const {conn, paths, name, propDesc, reorder} = this.props;
     if (e.dragType === 'right') {
       // check reorder drag with right click
-      let accepted = reorder?.onDragOver(this.props, e);
+      const accepted = reorder?.onDragOver(this.props, e);
       if (accepted) {
         e.accept(accepted);
         return;
       }
     } else {
       // check drag from property
-      let dragFields: string[] = DragState.getData('fields', conn.getBaseConn());
+      const dragFields: string[] = DragState.getData('fields', conn.getBaseConn());
       if (Array.isArray(dragFields)) {
         if (!propDesc.readonly && (dragFields.length === 1 || dragFields.length === paths.length)) {
           if (dragFields.length === paths.length) {
@@ -226,10 +226,10 @@ export class PropertyEditor extends MultiSelectComponent<PropertyEditorProps, St
         }
       }
       // check drag from type
-      let blockData = DragState.getData('blockData', conn.getBaseConn());
+      const blockData = DragState.getData('blockData', conn.getBaseConn());
       if (blockData && blockData['#is']) {
-        let desc = conn.watchDesc(blockData['#is']);
-        let outProp = getOutputDesc(desc);
+        const desc = conn.watchDesc(blockData['#is']);
+        const outProp = getOutputDesc(desc);
         if (outProp) {
           e.accept('tico-fas-plus-square');
           return;
@@ -239,16 +239,16 @@ export class PropertyEditor extends MultiSelectComponent<PropertyEditorProps, St
     e.reject();
   };
   onDrop = (e: DragState) => {
-    let {conn, paths, name, reorder} = this.props;
+    const {conn, paths, name, reorder} = this.props;
     if (e.dragType === 'right') {
       reorder?.onDragDrop(this.props, e);
     } else {
       // check drag from property
-      let dragFields: string[] = DragState.getData('fields', conn.getBaseConn());
+      const dragFields: string[] = DragState.getData('fields', conn.getBaseConn());
       if (Array.isArray(dragFields)) {
-        let fields = paths.map((s) => `${s}.${name}`);
+        const fields = paths.map((s) => `${s}.${name}`);
         if (dragFields.length === 1) {
-          for (let field of fields) {
+          for (const field of fields) {
             if (dragFields[0] !== field) {
               conn.setBinding(field, dragFields[0], true);
             }
@@ -263,7 +263,7 @@ export class PropertyEditor extends MultiSelectComponent<PropertyEditorProps, St
         return;
       }
       // check drag from type
-      let blockData = DragState.getData('blockData', conn.getBaseConn());
+      const blockData = DragState.getData('blockData', conn.getBaseConn());
       if (blockData && blockData['#is']) {
         this.onAddSubBlock(blockData['#is'], null, getSubBlockFuncData(blockData));
         return;
@@ -272,17 +272,17 @@ export class PropertyEditor extends MultiSelectComponent<PropertyEditorProps, St
   };
 
   mergePropertyState(): PropertyState {
-    let it = this.loaders[Symbol.iterator]();
-    let [firstKey, firstLoader] = it.next().value;
-    let firstCache = firstLoader.cache;
+    const it = this.loaders[Symbol.iterator]();
+    const [firstKey, firstLoader] = it.next().value;
+    const firstCache = firstLoader.cache;
     if (!firstCache) {
       return notReadyState;
     }
 
-    let {name} = this.props;
+    const {name} = this.props;
 
-    let count = this.loaders.size;
-    let value = firstCache.value;
+    const count = this.loaders.size;
+    const value = firstCache.value;
     let valueSame = true;
     let isTemp = firstCache.temp;
     let bindingPath = firstCache.bindingPath;
@@ -291,8 +291,8 @@ export class PropertyEditor extends MultiSelectComponent<PropertyEditorProps, St
     let display = firstLoader.bProperties.includes(name);
     let displaySame = true;
 
-    for (let [key, loader] of it) {
-      let cache = loader.cache;
+    for (const [key, loader] of it) {
+      const cache = loader.cache;
       if (!cache) {
         return notReadyState;
       }
@@ -312,7 +312,7 @@ export class PropertyEditor extends MultiSelectComponent<PropertyEditorProps, St
       if (!loader.subBlock) {
         subBlock = false;
       }
-      let thisDisplay = loader.bProperties.includes(name) !== display;
+      const thisDisplay = loader.bProperties.includes(name) !== display;
       if (thisDisplay !== display) {
         displaySame = false;
         if (thisDisplay) {
@@ -324,11 +324,11 @@ export class PropertyEditor extends MultiSelectComponent<PropertyEditorProps, St
   }
 
   onBindChange = (str: string) => {
-    let {conn, paths, name} = this.props;
+    const {conn, paths, name} = this.props;
     if (str === '') {
       str = undefined;
     }
-    for (let key of paths) {
+    for (const key of paths) {
       conn.setBinding(`${key}.${name}`, str);
     }
   };
@@ -340,8 +340,8 @@ export class PropertyEditor extends MultiSelectComponent<PropertyEditorProps, St
 
   cachedPaths: string[] = [];
   renderImpl() {
-    let {conn, paths, funcDesc, propDesc, name, reorder, group, isCustom, baseName} = this.props;
-    let {unlocked, showSubBlock, showMenu} = this.state;
+    const {conn, paths, funcDesc, propDesc, name, reorder, group, isCustom, baseName} = this.props;
+    const {unlocked, showSubBlock, showMenu} = this.state;
 
     if (this.subBlockPaths && !arrayEqual(this.cachedPaths, paths)) {
       this.cachedPaths = paths;
@@ -350,11 +350,13 @@ export class PropertyEditor extends MultiSelectComponent<PropertyEditorProps, St
 
     const propertyName = isCustom ? <span>{name}</span> : <LocalizedPropertyName desc={funcDesc} name={name} />;
 
-    let onChange = propDesc.readonly ? null : this.onChange;
+    const onChange = propDesc.readonly ? null : this.onChange;
 
-    let isIndexed = group != null && !name.endsWith('[]');
+    const isIndexed = group != null && !name.endsWith('[]');
 
-    let {count, value, valueSame, isTemp, bindingPath, bindingSame, subBlock, display} = this.mergePropertyState();
+    const propertyState = this.mergePropertyState();
+    const {count, value, valueSame, isTemp, bindingSame, subBlock, display} = propertyState;
+    let {bindingPath} = propertyState;
     if (count === 0) {
       // not ready yet
       return (
@@ -397,7 +399,7 @@ export class PropertyEditor extends MultiSelectComponent<PropertyEditorProps, St
     }
 
     // expand icon
-    let renderSubBlock = subBlock && showSubBlock;
+    const renderSubBlock = subBlock && showSubBlock;
     if (renderSubBlock && !this.subBlockPaths) {
       this.buildSubBlockPaths(this.props);
     }
@@ -449,7 +451,7 @@ export class PropertyEditor extends MultiSelectComponent<PropertyEditorProps, St
       );
     }
 
-    let nameClass = `ticl-property-name${propDesc.readonly ? ' ticl-property-readonly' : ''}${
+    const nameClass = `ticl-property-name${propDesc.readonly ? ' ticl-property-readonly' : ''}${
       display ? ' ticl-property-display' : ''
     }`;
     return (

@@ -6,8 +6,8 @@ describe('Jsx', function () {
   (window as any).Babel = {transform};
 
   it('basic', async function () {
-    let flow = new Flow();
-    let aBlock = flow.createBlock('a');
+    const flow = new Flow();
+    const aBlock = flow.createBlock('a');
     aBlock.setValue('#is', 'react:jsx');
     aBlock.setValue('script', 'return <span />');
     Root.run();
@@ -15,8 +15,8 @@ describe('Jsx', function () {
   });
 
   it('functional', async function () {
-    let flow = new Flow();
-    let aBlock = flow.createBlock('a');
+    const flow = new Flow();
+    const aBlock = flow.createBlock('a');
     aBlock.setValue('#is', 'react:jsx');
     aBlock.setValue('value', 'v');
     aBlock.setValue(

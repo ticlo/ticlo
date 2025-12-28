@@ -10,7 +10,7 @@ describe('editor Icon', function () {
   });
 
   it('basic', async function () {
-    let [component, div] = loadTemplate(
+    const [component, div] = loadTemplate(
       <div style={{position: 'absolute'}}>
         <TIcon icon="fab:react" />
         <TIcon icon="fas:plus" colorClass="tico-pr1" />
@@ -30,7 +30,7 @@ describe('editor Icon', function () {
 
     await shouldHappen(() => document.querySelector('.tico'));
 
-    let icons: NodeListOf<HTMLDivElement> = document.querySelectorAll('.tico');
+    const icons: NodeListOf<HTMLDivElement> = document.querySelectorAll('.tico');
     expect(icons.length).toBe(11);
 
     expect(icons[0].children[0].classList.contains('tico-fab-react')).toBe(true);

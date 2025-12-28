@@ -75,9 +75,9 @@ class HttpClientObject implements HttpClient {
 
 class HttpClientFunction extends BaseFunction {
   run(): any {
-    let url = this._data.getValue('url');
-    let headers = this._data.getValue('headers');
-    let optionalHeaders = this._data.getValue('optionalHeaders');
+    const url = this._data.getValue('url');
+    const headers = this._data.getValue('headers');
+    const optionalHeaders = this._data.getValue('optionalHeaders');
     this._data.output(new HttpClientObject(url, headers, optionalHeaders));
   }
 }

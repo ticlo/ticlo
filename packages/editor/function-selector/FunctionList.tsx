@@ -3,9 +3,9 @@ import {ClientConn} from '@ticlo/core/editor.js';
 import {FunctionView} from './FunctionView.js';
 
 let _lastFunction: string;
-let _typeSet: Set<string> = new Set<string>();
+const _typeSet: Set<string> = new Set<string>();
 let _recentFunctionList: string[] = [];
-let _recentFunctionListener: Set<FunctionList> = new Set<FunctionList>();
+const _recentFunctionListener: Set<FunctionList> = new Set<FunctionList>();
 
 export function addRecentFunction(type: string) {
   if (type === _lastFunction) {
@@ -13,11 +13,11 @@ export function addRecentFunction(type: string) {
   }
   _lastFunction = type;
 
-  let types = _typeSet;
+  const types = _typeSet;
   types.delete(type);
   types.add(type);
   if (types.size > 32) {
-    for (let type of types) {
+    for (const type of types) {
       types.delete(type);
       if (types.size <= 32) {
         break;
@@ -25,7 +25,7 @@ export function addRecentFunction(type: string) {
     }
   }
   _recentFunctionList = Array.from(types.keys()).reverse();
-  for (let instance of _recentFunctionListener) {
+  for (const instance of _recentFunctionListener) {
     instance.forceUpdate();
   }
 }
@@ -52,9 +52,9 @@ export class FunctionList extends React.PureComponent<Props, any> {
     if (recent) {
       types = _recentFunctionList;
     }
-    let children: React.ReactNode[] = [];
-    for (let type of types) {
-      let desc = conn.watchDesc(type);
+    const children: React.ReactNode[] = [];
+    for (const type of types) {
+      const desc = conn.watchDesc(type);
       if (desc) {
         children.push(<FunctionView key={type} conn={conn} desc={desc} />);
       }

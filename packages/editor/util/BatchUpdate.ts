@@ -1,11 +1,11 @@
 import ReactDOM from 'react-dom';
 import {ClientConn} from '@ticlo/core/editor.js';
 
-let callbacks = new Set<() => void>();
+const callbacks = new Set<() => void>();
 let pending = false;
 
 function batch() {
-  for (let callback of callbacks) {
+  for (const callback of callbacks) {
     callback();
   }
   callbacks.clear();

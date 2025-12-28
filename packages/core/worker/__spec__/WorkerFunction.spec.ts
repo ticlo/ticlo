@@ -8,13 +8,13 @@ import {DataMap} from '../../util/DataTypes.js';
 describe('WorkerFunction', function () {
   it('basic', function () {
     TestFunctionRunner.clearLog();
-    let flow = new Flow();
+    const flow = new Flow();
 
-    let aBlock = flow.createBlock('a');
+    const aBlock = flow.createBlock('a');
 
     aBlock.setValue('#is', 'WorkerFunction:class1');
 
-    let flowData: DataMap = {
+    const flowData: DataMap = {
       '#is': '',
       'runner': {
         '#is': 'test-runner',
@@ -27,7 +27,7 @@ describe('WorkerFunction', function () {
     Root.run();
     expect(TestFunctionRunner.popLogs()).toEqual(['nest1']);
 
-    let impl: Flow = aBlock.getValue('#flow') as Flow;
+    const impl: Flow = aBlock.getValue('#flow') as Flow;
     expect(impl).toBeInstanceOf(Flow);
 
     expect(impl.save()).toEqual(flowData);
@@ -45,13 +45,13 @@ describe('WorkerFunction', function () {
   });
 
   it('output', function () {
-    let flow = new Flow();
+    const flow = new Flow();
 
-    let aBlock = flow.createBlock('a');
+    const aBlock = flow.createBlock('a');
 
     aBlock.setValue('#is', 'WorkerFunction:class2');
 
-    let flowData: DataMap = {
+    const flowData: DataMap = {
       '#is': '',
       'add': {'#is': 'add', '~0': '##.#inputs.in1', '1': 1},
       '#outputs': {'#is': '', '~out1': '##.add.#output'},
@@ -64,18 +64,18 @@ describe('WorkerFunction', function () {
   });
 
   it('namespace', function () {
-    let flow = new Flow();
+    const flow = new Flow();
 
-    let aBlock = flow.createBlock('a');
+    const aBlock = flow.createBlock('a');
     aBlock.setValue('in0', 2);
     aBlock.setValue('#is', 'test_namespace:class1');
 
-    let flowData1: DataMap = {
+    const flowData1: DataMap = {
       '#is': '',
       'nest': {'#is': ':class2', '~in1': '##.#inputs.in0'},
       '#outputs': {'#is': '', '~out1': '##.nest.out2'},
     };
-    let flowData2: DataMap = {
+    const flowData2: DataMap = {
       '#is': '',
       'add': {'#is': 'add', '~0': '##.#inputs.in1', '1': 1},
       '#outputs': {'#is': '', '~out2': '##.add.#output'},

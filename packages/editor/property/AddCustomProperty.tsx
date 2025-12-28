@@ -51,13 +51,13 @@ export class AddCustomPropertyMenu extends LazyUpdateComponent<Props, any> {
   onSubmit = (e: React.FormEvent<HTMLElement>) => {
     e.preventDefault();
 
-    let {onAddProperty, group} = this.props;
+    const {onAddProperty, group} = this.props;
     const formItems = this.getFormItems(this.context.language);
-    let {type, name, defaultLen, placeholder, min, max, step, optionStr, showAlpha, showTime, pinned} = formItems;
+    const {type, name, defaultLen, placeholder, min, max, step, optionStr, showAlpha, showTime, pinned} = formItems;
 
     let result: PropDesc | PropGroupDesc;
 
-    let errors = new Map<string, string>();
+    const errors = new Map<string, string>();
 
     if (
       typeof name.value !== 'string' ||
@@ -115,7 +115,7 @@ export class AddCustomPropertyMenu extends LazyUpdateComponent<Props, any> {
         }
         case 'select':
         case 'radio-button': {
-          let options: string[] = optionStr.value.split(',');
+          const options: string[] = optionStr.value.split(',');
           if (options.length < 2) {
             errors.set('option', translateEditor('Require more than one option'));
           } else {
@@ -125,7 +125,7 @@ export class AddCustomPropertyMenu extends LazyUpdateComponent<Props, any> {
         }
         case 'toggle': {
           if (optionStr.value) {
-            let options: string[] = optionStr.value.split(',');
+            const options: string[] = optionStr.value.split(',');
             if (options.length !== 2) {
               errors.set('optionErr', translateEditor('Must have 0 or 2 options'));
             } else {
@@ -150,8 +150,8 @@ export class AddCustomPropertyMenu extends LazyUpdateComponent<Props, any> {
       onAddProperty(result);
       name.onChange(''); // reset name after adding property
     }
-    for (let key in formItems) {
-      let formItem = (formItems as any)[key];
+    for (const key in formItems) {
+      const formItem = (formItems as any)[key];
       if (errors.has(key)) {
         formItem.setError(errors.get(key));
       } else {
@@ -161,10 +161,10 @@ export class AddCustomPropertyMenu extends LazyUpdateComponent<Props, any> {
   };
 
   renderImpl() {
-    let {group, onClick} = this.props;
-    let {type, name, defaultLen, placeholder, min, max, step, optionStr, showAlpha, showTime, pinned} =
+    const {group, onClick} = this.props;
+    const {type, name, defaultLen, placeholder, min, max, step, optionStr, showAlpha, showTime, pinned} =
       this.getFormItems(this.context.language);
-    let typeValue = type.value;
+    const typeValue = type.value;
     return (
       <Form onClick={onClick} className="ticl-add-custom-prop" labelCol={{span: 9}} wrapperCol={{span: 15}}>
         {name.render(<Input size="small" value={name.value} onChange={name.onInputChange} />)}

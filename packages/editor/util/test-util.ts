@@ -2,8 +2,8 @@ import ReactDOM from 'react-dom';
 import {createRoot, Root} from 'react-dom/client';
 
 function loadOneCss(url: string) {
-  let head = document.querySelector('head');
-  let link = document.createElement('link');
+  const head = document.querySelector('head');
+  const link = document.createElement('link');
   link.rel = 'stylesheet';
   link.type = 'text/css';
   link.href = url;
@@ -71,12 +71,12 @@ function xpathReplacer(match: string, g1: string, g2: string, str: string): stri
 
 // select a single element with a simplified xpath
 export function querySingle(query: string, element: HTMLElement = document.body): HTMLElement {
-  let xpath = query.replace(/\b(div|span|li)\.([\w\-.]+)/g, xpathReplacer);
+  const xpath = query.replace(/\b(div|span|li)\.([\w\-.]+)/g, xpathReplacer);
   return document.evaluate(xpath, element, null, 9, null).singleNodeValue as HTMLElement;
 }
 
 export function fakeMouseEvent(x = 0, y = 0, extra?: any) {
-  let result: any = {...extra};
+  const result: any = {...extra};
   result.clientX = x;
   result.clientY = y;
   result.pageX = x;

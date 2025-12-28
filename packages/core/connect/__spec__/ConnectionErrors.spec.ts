@@ -10,9 +10,9 @@ const initAdd = AddFunction;
 
 describe('Connection Error', function () {
   it('common errors', async function () {
-    let flow = Root.instance.addFlow('ConnectionError1');
+    const flow = Root.instance.addFlow('ConnectionError1');
     flow.createBlock('validChild');
-    let [server, client] = makeLocalConnection(Root.instance, false);
+    const [server, client] = makeLocalConnection(Root.instance, false);
 
     expect(await shouldReject(client.simpleRequest({cmd: 'invalid_command', path: ''}))).toEqual('invalid command');
     expect(await shouldReject(client.simpleRequest({cmd: 'get'}))).toBe('invalid path');
@@ -128,7 +128,7 @@ describe('Connection Error', function () {
 
     expect(await shouldReject(client.restoreSaved('ConnectionError1.a.b.c') as Promise<any>)).toBe('invalid path');
 
-    let callbacks = new AsyncClientPromise();
+    const callbacks = new AsyncClientPromise();
     client.watch('ConnectionError1.a.b.c', callbacks);
     expect(await shouldReject(callbacks.promise)).toBe('invalid path');
 
@@ -137,33 +137,33 @@ describe('Connection Error', function () {
   });
 
   it('parent removed', async function () {
-    let flow = Root.instance.addFlow('ConnectionError2');
-    let [server, client] = makeLocalConnection(Root.instance, false);
-    let a = flow.createBlock('a');
-    let b = a.createBlock('b');
+    const flow = Root.instance.addFlow('ConnectionError2');
+    const [server, client] = makeLocalConnection(Root.instance, false);
+    const a = flow.createBlock('a');
+    const b = a.createBlock('b');
     // bind c to b
     a.setBinding('c', 'b');
 
-    let callbacks1 = new AsyncClientPromise();
+    const callbacks1 = new AsyncClientPromise();
     client.subscribe('ConnectionError2.a.b', callbacks1);
 
-    let callbacks2 = new AsyncClientPromise();
+    const callbacks2 = new AsyncClientPromise();
     client.watch('ConnectionError2.a.b', callbacks2);
 
-    let callbacks3 = new AsyncClientPromise();
+    const callbacks3 = new AsyncClientPromise();
     client.watch('ConnectionError2.a.c', callbacks3);
 
     // wait for first response
     await Promise.all([callbacks1.promise, callbacks2.promise, callbacks3.promise]);
 
     a.createBlock('c');
-    let result3 = await shouldReject(callbacks3.promise);
+    const result3 = await shouldReject(callbacks3.promise);
     expect(result3).toBe('block changed');
     client.unwatch('ConnectionError2.a.c', callbacks3);
 
     flow.setValue('a', null);
 
-    let [result1, result2] = await Promise.all([shouldReject(callbacks1.promise), shouldReject(callbacks2.promise)]);
+    const [result1, result2] = await Promise.all([shouldReject(callbacks1.promise), shouldReject(callbacks2.promise)]);
 
     expect(result1).toBe('source changed');
     expect(result2).toBe('source changed');

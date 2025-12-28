@@ -12,7 +12,7 @@ export class MixedBrowserConnection extends WsBrowserConnection {
     super(_httpUrl.replace(/^http/, 'ws'), editorListeners);
   }
   _sendLargeData(data: DataMap, c: ClientCallbacks = null): Promise<any> | null {
-    let {promise, callbacks} = this._initSimpleRequest(c);
+    const {promise, callbacks} = this._initSimpleRequest(c);
     axios
       .post(this._httpUrl, encode(data), {headers: {'Content-Type': 'application/json'}})
       .then((response) => {

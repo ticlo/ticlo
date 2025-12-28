@@ -83,7 +83,7 @@ export class Connection {
   }
 
   executeImmediates = () => {
-    for (let callback of this._callImmediates) {
+    for (const callback of this._callImmediates) {
       callback();
     }
     this._callImmediates.clear();
@@ -99,7 +99,7 @@ export class Connection {
       this._schedule();
     }
     this._receiving = true;
-    for (let d of data) {
+    for (const d of data) {
       this.onData(d);
     }
     this._receiving = false;
@@ -131,9 +131,9 @@ export class Connection {
   }
 
   _doSend() {
-    let sending: DataMap[] = [];
+    const sending: DataMap[] = [];
     let sendingSize = 0;
-    for (let s of this._sending) {
+    for (const s of this._sending) {
       this._sending.delete(s);
       const {data, size} = s.getSendingData();
       if (data != null) {
@@ -174,8 +174,8 @@ export class ConnectionSend extends ConnectionSendingData {
 
   getSendingData(): {data: DataMap; size: number} {
     let size = 0;
-    for (let key in this._data) {
-      let v = this._data[key];
+    for (const key in this._data) {
+      const v = this._data[key];
       size += key.length;
       switch (typeof v) {
         case 'string':

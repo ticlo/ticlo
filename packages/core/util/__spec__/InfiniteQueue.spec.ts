@@ -3,7 +3,7 @@ import {InfiniteQueue} from '../InfiniteQueue.js';
 
 describe('InfiniteQueue', function () {
   it('basic', function () {
-    let q = new InfiniteQueue();
+    const q = new InfiniteQueue();
 
     q.push(1);
     expect(q.total).toBe(1);

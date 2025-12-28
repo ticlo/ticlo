@@ -8,22 +8,22 @@ const enyaml = './packages/editor/i18n/en.yaml';
 const substrLen = 'packages/editor/'.length;
 const commonPath = 'packages/editor/util/i18n-common.ts';
 
-let sharedKeys = new Map<string, string>();
-let allFiles = new Map<string, string[]>();
+const sharedKeys = new Map<string, string>();
+const allFiles = new Map<string, string[]>();
 
 function main() {
   const existingEn = fs.readFileSync(enyaml, {encoding: 'utf-8'});
   const enMap: Record<string, string> = YAML.parse(existingEn);
-  let files: string[] = glob.sync(`./packages/editor/**/*.{ts,tsx}`, {posix: true});
+  const files: string[] = glob.sync(`./packages/editor/**/*.{ts,tsx}`, {posix: true});
   files.unshift(commonPath);
-  for (let path of files) {
-    let data = fs.readFileSync(path, 'utf8');
-    let comment = path.substring(substrLen);
-    let keys: string[] = [];
-    for (let match of data.matchAll(treg)) {
-      let key = match[1];
+  for (const path of files) {
+    const data = fs.readFileSync(path, 'utf8');
+    const comment = path.substring(substrLen);
+    const keys: string[] = [];
+    for (const match of data.matchAll(treg)) {
+      const key = match[1];
       if (sharedKeys.has(key)) {
-        let previousComment = sharedKeys.get(key);
+        const previousComment = sharedKeys.get(key);
         if (!previousComment.includes(comment)) {
           sharedKeys.set(key, `${previousComment} & ${comment}`);
         }
@@ -37,9 +37,9 @@ function main() {
     }
   }
 
-  let common: string[] = [];
-  let multipleOccur: string[] = [];
-  for (let [key, comment] of sharedKeys) {
+  const common: string[] = [];
+  const multipleOccur: string[] = [];
+  for (const [key, comment] of sharedKeys) {
     if (comment.includes('util/i18n-common.ts')) {
       common.push(`"${key}": "${enMap[key] ?? key}"`);
     } else if (comment.includes(' & ')) {
@@ -54,12 +54,12 @@ function main() {
       sharedKeys.delete(key);
     }
   }
-  let out: string[] = ['# Common'].concat(common).concat(['']).concat(multipleOccur);
-  for (let [comment, keys] of allFiles) {
-    let uniqueKeys = keys.filter((key: string) => !sharedKeys.has(key));
+  const out: string[] = ['# Common'].concat(common).concat(['']).concat(multipleOccur);
+  for (const [comment, keys] of allFiles) {
+    const uniqueKeys = keys.filter((key: string) => !sharedKeys.has(key));
     if (uniqueKeys.length) {
       out.push(`\n# ${comment}`);
-      for (let key of uniqueKeys) {
+      for (const key of uniqueKeys) {
         out.push(`"${key}": "${enMap[key] ?? key}"`);
       }
     }

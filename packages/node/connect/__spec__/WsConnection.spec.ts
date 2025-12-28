@@ -35,21 +35,21 @@ describe('WsConnect', function () {
   });
 
   it('reconnect', async function () {
-    let flow = Root.instance.addFlow('WsConnect1');
-    let client = new WsClientConnection(`ws://127.0.0.1:${PORT}`, false);
+    const flow = Root.instance.addFlow('WsConnect1');
+    const client = new WsClientConnection(`ws://127.0.0.1:${PORT}`, false);
 
     flow.setValue('o', 1);
     flow.setBinding('a', 'o');
 
-    let subcallbacks = new AsyncClientPromise();
+    const subcallbacks = new AsyncClientPromise();
     client.subscribe('WsConnect1.a', subcallbacks);
     let result = await subcallbacks.promise;
     expect(result.cache.value).toBe(1);
 
-    let setcallbacks = new AsyncClientPromise();
+    const setcallbacks = new AsyncClientPromise();
     client.setValue('WsConnect1.a', 3, setcallbacks);
 
-    let promiseReject = shouldReject(setcallbacks.promise);
+    const promiseReject = shouldReject(setcallbacks.promise);
 
     server.lastConnection._ws.close(1000); // close ws froms erver side
 
@@ -69,7 +69,7 @@ describe('WsConnect', function () {
 
   it('desc frames', async function () {
     addTestTypes('A', 4000);
-    let client = new WsClientConnection(`ws://127.0.0.1:${PORT}`, true);
+    const client = new WsClientConnection(`ws://127.0.0.1:${PORT}`, true);
 
     await shouldHappen(() => client.watchDesc('A100'));
 

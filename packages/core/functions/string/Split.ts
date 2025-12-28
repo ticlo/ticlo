@@ -4,7 +4,7 @@ import {ErrorEvent} from '../../block/Event.js';
 
 export class SplitFunction extends PureFunction {
   run(): any {
-    let input = this._data.getValue('input');
+    const input = this._data.getValue('input');
     if (typeof input === 'string') {
       let separator: string | RegExp = this._data.getValue('separator') as string;
       if (typeof separator !== 'string') {

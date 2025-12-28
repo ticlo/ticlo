@@ -43,10 +43,10 @@ export class TextEditorPane extends React.PureComponent<Props, State> {
       // invalid paths
       return;
     }
-    let sortedPaths = [...paths].sort();
-    let id = `textEditor-${sortedPaths.join('..')}`;
+    const sortedPaths = [...paths].sort();
+    const id = `textEditor-${sortedPaths.join('..')}`;
 
-    let firstPathParts = paths[0].split('.');
+    const firstPathParts = paths[0].split('.');
     let title = `${translateEditor('Edit')} ${firstPathParts.slice(firstPathParts.length - 2).join('.')}`;
     if (paths.length > 1) {
       title = `${title} (+${paths.length - 1})`;
@@ -77,12 +77,12 @@ export class TextEditorPane extends React.PureComponent<Props, State> {
   onKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === 'F' && e.shiftKey && e.altKey) {
       // format code
-      let {mime} = this.props;
+      const {mime} = this.props;
       if (mime === 'application/json') {
-        let value = this._currentValue;
+        const value = this._currentValue;
         try {
           // parse yaml first, then convert it to json, and decode with arrow
-          let yamlParsed = ParseYaml(value, arrowReviver);
+          const yamlParsed = ParseYaml(value, arrowReviver);
           this._codeMirrorView?.dispatch({
             changes: {from: 0, to: this._codeMirrorView.state.doc.length, insert: value},
           });
@@ -124,10 +124,10 @@ export class TextEditorPane extends React.PureComponent<Props, State> {
 
   constructor(props: Props) {
     super(props);
-    let {defaultValue} = props;
+    const {defaultValue} = props;
 
     if (isDataTruncated(defaultValue)) {
-      let selectedPath = props.paths[0];
+      const selectedPath = props.paths[0];
       this.loadData(selectedPath);
       this.state = {value: this.convertValue(defaultValue), loading: true};
     } else {
@@ -142,7 +142,7 @@ export class TextEditorPane extends React.PureComponent<Props, State> {
   };
 
   loadData(path: string) {
-    let {conn} = this.props;
+    const {conn} = this.props;
     conn
       .getValue(path)
       .then((response: DataMap) => {
@@ -153,7 +153,7 @@ export class TextEditorPane extends React.PureComponent<Props, State> {
       });
   }
   convertValue(value: any): string {
-    let {asObject} = this.props;
+    const {asObject} = this.props;
     if (value === undefined) {
       return '';
     }
@@ -183,13 +183,13 @@ export class TextEditorPane extends React.PureComponent<Props, State> {
     this.loadData(e.key as string);
   };
   onReloadClick = () => {
-    let {paths} = this.props;
+    const {paths} = this.props;
     this.loadData(paths[0]);
   };
 
   onApply = () => {
-    let {asObject, paths, conn} = this.props;
-    let {loading} = this.state;
+    const {asObject, paths, conn} = this.props;
+    const {loading} = this.state;
     if (loading) {
       return false;
     }
@@ -202,25 +202,25 @@ export class TextEditorPane extends React.PureComponent<Props, State> {
         return false;
       }
     }
-    for (let path of paths) {
+    for (const path of paths) {
       conn.setValue(path, value);
     }
     return true;
   };
 
   getReloadMenu = (): MenuProps => {
-    let {paths} = this.props;
+    const {paths} = this.props;
 
-    let menu: MenuProps = {items: [], onClick: this.onReloadMenuClick};
-    for (let path of paths) {
+    const menu: MenuProps = {items: [], onClick: this.onReloadMenuClick};
+    for (const path of paths) {
       menu.items.push({label: path, key: path});
     }
     return menu;
   };
 
   render() {
-    let {mime, readonly, paths} = this.props;
-    let {value, error, loading} = this.state;
+    const {mime, readonly, paths} = this.props;
+    const {value, error, loading} = this.state;
     let extensions: any;
     switch (mime) {
       case 'application/json':

@@ -164,7 +164,7 @@ export class SchedulerEvent {
     let loopCount = 0;
     // Helper to yield an event if it matches criteria (e.g. weekday check)
     const checkAndYield = function* _checkAndYield(startDate: DateTime): Generator<[number, number]> {
-      let startTs = startDate.valueOf();
+      const startTs = startDate.valueOf();
 
       // this.onlyWeekday could be null, so do not use !==
       if (!isWeekDay(startDate.weekday) === this.onlyWeekday) {
@@ -221,7 +221,7 @@ export class SchedulerEvent {
         }
       }
       case 'dates': {
-        for (let d of this.dates) {
+        for (const d of this.dates) {
           yield* checkAndYield(d);
         }
         return;
@@ -251,7 +251,7 @@ export class SchedulerEvent {
             // Configurations can be simple numbers (1-31), or complex rules like "last day" (-1)
             // or "nth weekday" (e.g. 2nd Friday).
             const daysConfig = this.days?.length ? this.days : [[0, 0]];
-            loop: for (let v of daysConfig) {
+            loop: for (const v of daysConfig) {
               if (typeof v === 'number') {
                 if (v >= 1 && v <= 31) {
                   // check for 31 instead of lastDay, because overflow is allowed in range mode
@@ -285,7 +285,7 @@ export class SchedulerEvent {
                   case 8: // week day
                     if (dayCount === 0) {
                       for (let i = 1; i <= lastDay; ++i) {
-                        let targetDay = startOfMonth.set({day: i, hour: this.start[0], minute: this.start[1]});
+                        const targetDay = startOfMonth.set({day: i, hour: this.start[0], minute: this.start[1]});
                         if (isWeekDay(targetDay.weekday) !== isDayTypeWeekend) {
                           days.push(i);
                         }
@@ -293,7 +293,7 @@ export class SchedulerEvent {
                     } else if (dayCount > 0) {
                       let counter = 0;
                       for (let i = 1; i <= lastDay; ++i) {
-                        let targetDay = startOfMonth.set({day: i, hour: this.start[0], minute: this.start[1]});
+                        const targetDay = startOfMonth.set({day: i, hour: this.start[0], minute: this.start[1]});
                         if (isWeekDay(targetDay.weekday) !== isDayTypeWeekend) {
                           counter++;
                           if (counter === dayCount) {
@@ -305,7 +305,7 @@ export class SchedulerEvent {
                     } else if (dayCount < 0) {
                       let counter = 0;
                       for (let i = lastDay; i >= 1; --i) {
-                        let targetDay = startOfMonth.set({day: i, hour: this.start[0], minute: this.start[1]});
+                        const targetDay = startOfMonth.set({day: i, hour: this.start[0], minute: this.start[1]});
                         if (isWeekDay(targetDay.weekday) !== isDayTypeWeekend) {
                           counter--;
                           if (counter === dayCount) {
@@ -351,7 +351,7 @@ export class SchedulerEvent {
             } else {
               // remove duplicated days
               const uniqueDays = [...new Set(days)].sort((a, b) => a - b);
-              for (let day of uniqueDays) {
+              for (const day of uniqueDays) {
                 if (day <= lastDay) {
                   yield* checkAndYield(startOfMonth.set({day, hour: this.start[0], minute: this.start[1]}));
                 }
@@ -395,7 +395,7 @@ export class SchedulerEvent {
     // Example: Event is 10:00 -> 11:00. Request `getOccur(10:30)`.
     // If we generate starting from 10:30, we might get 10:30 (next, incorrect) or miss the start.
     // By backing up `this.durationMs`, we ensure we catch any event starting at [ts - duration, ts].
-    for (let [startTs, endTs] of this.#generateEvent(fromTs - this.durationMs)) {
+    for (const [startTs, endTs] of this.#generateEvent(fromTs - this.durationMs)) {
       if (this.after - startTs > this.durationMs) {
         // The event effectively ends before it is allowed to start (invalid state due to 'after' constraint), skip.
         continue;

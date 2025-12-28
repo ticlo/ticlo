@@ -22,7 +22,7 @@ export class SubMenuItem extends React.PureComponent<SubMenuItemProps, SubMenuIt
   state = {showPopup: false, hovered: false};
 
   showPopup = (visible: boolean) => {
-    let {onItemEvent} = this.props;
+    const {onItemEvent} = this.props;
     if (onItemEvent) {
       onItemEvent(visible ? 'show' : 'hide');
     } else {
@@ -35,12 +35,12 @@ export class SubMenuItem extends React.PureComponent<SubMenuItemProps, SubMenuIt
 
   render() {
     let {showPopup} = this.state;
-    let {popupVisible} = this.props;
+    const {popupVisible} = this.props;
     if (typeof popupVisible === 'boolean') {
       showPopup = popupVisible;
     }
 
-    let {children, popup} = this.props;
+    const {children, popup} = this.props;
 
     let cls = 'ticl-dropdown-menu-item';
     if (showPopup) {
@@ -83,14 +83,14 @@ export class MenuItem extends React.PureComponent<MenuItemProps, MenuItemState> 
     this.props.onItemEvent('hover');
   };
   onClick = (e: React.MouseEvent) => {
-    let {onClick, value, onItemEvent} = this.props;
+    const {onClick, value, onItemEvent} = this.props;
     if (onClick && onClick(value) !== true) {
       onItemEvent('close');
     }
   };
 
   render() {
-    let {children} = this.props;
+    const {children} = this.props;
     return (
       <div className="ticl-dropdown-menu-item" onMouseOver={this.onHover} onClick={this.onClick}>
         {children}
@@ -117,7 +117,7 @@ export class Menu extends React.PureComponent<MenuProps, MenuState> {
     if (this._visibleCallbackMap.has(key)) {
       return this._visibleCallbackMap.get(key);
     }
-    let callback = (event: 'show' | 'hide' | 'hover' | 'close') => {
+    const callback = (event: 'show' | 'hide' | 'hover' | 'close') => {
       switch (event) {
         case 'show':
           this.setState({subMenuKey: key});
@@ -142,15 +142,15 @@ export class Menu extends React.PureComponent<MenuProps, MenuState> {
   }
 
   render() {
-    let {children} = this.props;
-    let {subMenuKey} = this.state;
+    const {children} = this.props;
+    const {subMenuKey} = this.state;
 
-    let menuItems: React.ReactElement[] = [];
+    const menuItems: React.ReactElement[] = [];
     if (children) {
       for (let i = 0; i < children.length; ++i) {
-        let child = children[i];
+        const child = children[i];
         if (!child) continue;
-        let element = child as React.ReactElement;
+        const element = child as React.ReactElement;
         if (element.type === SubMenuItem) {
           menuItems.push(
             React.cloneElement(element, {
@@ -198,7 +198,7 @@ export class Popup extends React.PureComponent<PopupProps, PopupState> {
   state = {showPopup: false};
 
   popupVisibleChange = (visible: boolean) => {
-    let {onPopupVisibleChange} = this.props;
+    const {onPopupVisibleChange} = this.props;
     if (onPopupVisibleChange) {
       onPopupVisibleChange(visible);
     } else {
@@ -248,7 +248,7 @@ export class Popup extends React.PureComponent<PopupProps, PopupState> {
     } else if (!popupAlign.overflow) {
       popupAlign.overflow = {adjustX: true, adjustY: true};
     }
-    let builtinPlacements = {
+    const builtinPlacements = {
       topLeft: {points: ['tl', 'tl']},
     };
     let alignPoint: boolean;
@@ -257,7 +257,7 @@ export class Popup extends React.PureComponent<PopupProps, PopupState> {
       alignPoint = true;
     }
 
-    let {children, popup} = this.props;
+    const {children, popup} = this.props;
 
     let fixedPopup: React.ReactElement | (() => React.ReactElement);
     if (typeof popup === 'function') {

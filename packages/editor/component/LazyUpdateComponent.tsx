@@ -12,7 +12,7 @@ export abstract class LazyUpdateComponent<P extends LazyUpdateProps, S> extends 
 
   render(): React.ReactNode {
     this._rendering = true;
-    let result = this.renderImpl();
+    const result = this.renderImpl();
     this._rendering = false;
     return result;
   }

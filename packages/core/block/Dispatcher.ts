@@ -42,7 +42,7 @@ export class PropDispatcher<T = unknown> {
 
   protected _dispatch(): void {
     this._updating = true;
-    for (let listener of this._listeners) {
+    for (const listener of this._listeners) {
       listener.onChange(this._value);
     }
     this._updating = false;
@@ -70,7 +70,7 @@ export class StreamDispatcher<T = any> {
       listener(this.#value);
       return;
     }
-    let tempListener = (val: T) => {
+    const tempListener = (val: T) => {
       listener(val);
       this.unlisten(tempListener);
     };
@@ -82,7 +82,7 @@ export class StreamDispatcher<T = any> {
       return;
     }
     this.#value = value;
-    for (let listener of this._listeners) {
+    for (const listener of this._listeners) {
       listener(value);
     }
   }

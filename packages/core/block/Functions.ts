@@ -59,7 +59,7 @@ export class Functions {
       // make sure category is in the same name space
       desc.category = `${namespace}:${desc.category.split(':').pop()}`;
     }
-    let id = namespace != null ? `${namespace}:${desc.name}` : desc.name;
+    const id = namespace != null ? `${namespace}:${desc.name}` : desc.name;
     desc.id = id;
 
     if (cls) {
@@ -101,7 +101,7 @@ export class Functions {
   }
 
   static clear(id: string) {
-    let func = _functions[id];
+    const func = _functions[id];
 
     if (func) {
       if (func._listeners.size === 0) {
@@ -118,7 +118,7 @@ export class Functions {
   }
 
   static getWorkerData(id: string): DataMap {
-    let func = _functions[id];
+    const func = _functions[id];
     if (func?._value && (func._value as any).ticlWorkerData instanceof Object) {
       return (func._value as any).ticlWorkerData;
     }
@@ -153,14 +153,14 @@ export class Functions {
   }
 
   static dispatchDescChange(id: string, desc: FunctionDesc) {
-    for (let listener of Functions._listeners) {
+    for (const listener of Functions._listeners) {
       listener.onDescChange(id, desc);
     }
   }
 
   static getAllFunctionIds(): string[] {
-    let result = [];
-    for (let key in _functions) {
+    const result = [];
+    for (const key in _functions) {
       if (_functions[key]._desc) {
         result.push(key);
       }
@@ -169,7 +169,7 @@ export class Functions {
   }
 
   static getDescToSend(id: string): [FunctionDesc, number] {
-    let functionDispatcher = _functions[id];
+    const functionDispatcher = _functions[id];
 
     if (functionDispatcher) {
       return [functionDispatcher._desc, functionDispatcher._descSize];
@@ -179,7 +179,7 @@ export class Functions {
 
   static getDefaultWorker(id: string, block: Block, field: string, blockStack: Map<any, any>): DataMap {
     if (id) {
-      let dispatcher = _functions[id];
+      const dispatcher = _functions[id];
       if (dispatcher) {
         return dispatcher._functionApi?.getDefaultWorker?.(block, field, blockStack) || null;
       }
@@ -188,7 +188,7 @@ export class Functions {
   }
   static executeCommand(id: string, block: Block, command: string, params: DataMap): unknown {
     if (id) {
-      let dispatcher = _functions[id];
+      const dispatcher = _functions[id];
       if (dispatcher) {
         return dispatcher._functionApi?.commands?.[command]?.(block, params);
       }

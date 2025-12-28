@@ -43,11 +43,11 @@ export class DataWrapper implements FunctionData {
 }
 
 export function getInputsLength(input: FunctionInput, group?: string, defaultLength = 2, maxLength = MAX_GROUP_LENGTH) {
-  let result = input.getValue(`${group}[]`);
+  const result = input.getValue(`${group}[]`);
   if (Array.isArray(result)) {
     return 0;
   }
-  let realMaxLength = Number.isInteger(maxLength) ? maxLength : MAX_GROUP_LENGTH;
+  const realMaxLength = Number.isInteger(maxLength) ? maxLength : MAX_GROUP_LENGTH;
   if ((result as number) >= 0) {
     if ((result as number) <= realMaxLength) {
       return Number(result);
@@ -64,7 +64,7 @@ export function getInputsArray(
   fields?: string[],
   maxLength = MAX_GROUP_LENGTH
 ): unknown[] {
-  let lenOrArray = input.getValue(`${group}[]`);
+  const lenOrArray = input.getValue(`${group}[]`);
   if (Array.isArray(lenOrArray)) {
     // iterate native array
     return lenOrArray;
@@ -72,20 +72,20 @@ export function getInputsArray(
   let len: number;
   if ((lenOrArray as number) >= 0) {
     len = Number(lenOrArray);
-    let realMaxLength = Number.isInteger(maxLength) ? maxLength : MAX_GROUP_LENGTH;
+    const realMaxLength = Number.isInteger(maxLength) ? maxLength : MAX_GROUP_LENGTH;
     if (len > realMaxLength) {
       len = realMaxLength;
     }
   } else {
     len = defaultLength;
   }
-  let result: unknown[] = [];
+  const result: unknown[] = [];
   if (len >= 0 && fields) {
     // iterate block array with fields
     for (let i = 0; i < len; ++i) {
       // return object structure
-      let obj: DataMap = {};
-      for (let field of fields) {
+      const obj: DataMap = {};
+      for (const field of fields) {
         obj[field] = input.getValue(`${field}${i}`);
       }
       result.push(obj);

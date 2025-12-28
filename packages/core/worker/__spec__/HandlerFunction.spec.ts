@@ -45,10 +45,10 @@ describe('HandlerFunction', function () {
   });
 
   it('basic', function () {
-    let flow = new Flow();
+    const flow = new Flow();
 
-    let listener = new HandlerListener();
-    let aBlock = flow.createBlock('a');
+    const listener = new HandlerListener();
+    const aBlock = flow.createBlock('a');
 
     aBlock.getProperty('#emit').listen(listener);
     aBlock._load({
@@ -66,10 +66,10 @@ describe('HandlerFunction', function () {
   });
 
   it('syncInput', function () {
-    let flow = new Flow();
+    const flow = new Flow();
 
-    let listener = new HandlerListener();
-    let aBlock = flow.createBlock('a');
+    const listener = new HandlerListener();
+    const aBlock = flow.createBlock('a');
 
     aBlock.getProperty('#emit').listen(listener);
     aBlock._load({
@@ -93,10 +93,10 @@ describe('HandlerFunction', function () {
   });
 
   it('thread non-reuse', function () {
-    let flow = new Flow();
+    const flow = new Flow();
 
-    let listener = new HandlerListener();
-    let aBlock = flow.createBlock('a');
+    const listener = new HandlerListener();
+    const aBlock = flow.createBlock('a');
 
     aBlock.getProperty('#emit').listen(listener);
     aBlock._load({
@@ -120,10 +120,10 @@ describe('HandlerFunction', function () {
   });
 
   it('thread reuse', function () {
-    let flow = new Flow();
+    const flow = new Flow();
 
-    let listener = new HandlerListener();
-    let aBlock = flow.createBlock('a');
+    const listener = new HandlerListener();
+    const aBlock = flow.createBlock('a');
 
     aBlock.getProperty('#emit').listen(listener);
     aBlock._load({
@@ -154,10 +154,10 @@ describe('HandlerFunction', function () {
   });
 
   it('thread persist', function () {
-    let flow = new Flow();
+    const flow = new Flow();
 
-    let listener = new HandlerListener();
-    let aBlock = flow.createBlock('a');
+    const listener = new HandlerListener();
+    const aBlock = flow.createBlock('a');
 
     aBlock.getProperty('#emit').listen(listener);
     aBlock._load({
@@ -188,10 +188,10 @@ describe('HandlerFunction', function () {
   });
 
   it('keepOrder', async function () {
-    let flow = new Flow();
+    const flow = new Flow();
 
-    let listener = new HandlerListener(true);
-    let aBlock = flow.createBlock('a');
+    const listener = new HandlerListener(true);
+    const aBlock = flow.createBlock('a');
 
     aBlock.getProperty('#emit').listen(listener);
     aBlock._load({
@@ -225,10 +225,10 @@ describe('HandlerFunction', function () {
   });
 
   it('timeout', async function () {
-    let flow = new Flow();
+    const flow = new Flow();
 
-    let listener = new HandlerListener();
-    let aBlock = flow.createBlock('a');
+    const listener = new HandlerListener();
+    const aBlock = flow.createBlock('a');
 
     aBlock.getProperty('#emit').listen(listener);
     aBlock._load({
@@ -258,10 +258,10 @@ describe('HandlerFunction', function () {
   });
 
   it('maxQueueSize', async function () {
-    let flow = new Flow();
+    const flow = new Flow();
 
-    let listener = new HandlerListener(true);
-    let aBlock = flow.createBlock('a');
+    const listener = new HandlerListener(true);
+    const aBlock = flow.createBlock('a');
 
     aBlock.getProperty('#emit').listen(listener);
     aBlock._load({
@@ -289,7 +289,7 @@ describe('HandlerFunction', function () {
   });
 
   it('chain handler blocks', async function () {
-    let flow = new Flow();
+    const flow = new Flow();
 
     flow.load({
       a: {
@@ -302,9 +302,9 @@ describe('HandlerFunction', function () {
         'use': handlerWorker,
       },
     });
-    let listener = new HandlerListener();
+    const listener = new HandlerListener();
 
-    let aBlock = flow.getValue('a') as Block;
+    const aBlock = flow.getValue('a') as Block;
 
     flow.queryProperty('b.#emit', true).listen(listener);
 
@@ -320,10 +320,10 @@ describe('HandlerFunction', function () {
   });
 
   it('misc', async function () {
-    let flow = new Flow();
+    const flow = new Flow();
 
-    let listener = new HandlerListener(true);
-    let aBlock = flow.createBlock('a');
+    const listener = new HandlerListener(true);
+    const aBlock = flow.createBlock('a');
 
     aBlock.getProperty('#emit').listen(listener);
     aBlock._load({

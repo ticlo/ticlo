@@ -30,7 +30,7 @@ describe('Path', function () {
 
   it('forAllPathsBetween', function () {
     function getAllPathBetween(target: string, base: string): string[] {
-      let result: string[] = [];
+      const result: string[] = [];
       forAllPathsBetween(target, base, (v) => result.push(v) === -1);
       return result;
     }
@@ -41,17 +41,17 @@ describe('Path', function () {
   });
 
   it('propRelative', async function () {
-    let flow1 = Root.instance.addFlow('PropRelative1');
-    let flow2 = Root.instance.addFlow('PropRelative2');
+    const flow1 = Root.instance.addFlow('PropRelative1');
+    const flow2 = Root.instance.addFlow('PropRelative2');
 
-    let flowData1: DataMap = {
+    const flowData1: DataMap = {
       '#is': '',
       'A': {
         '#is': '',
         'B': {'#is': 'PropRelative:class2'},
       },
     };
-    let flowData2: DataMap = {
+    const flowData2: DataMap = {
       '#is': '',
       'C': {
         '#is': '',
@@ -116,8 +116,8 @@ describe('Path', function () {
       propRelative(flow1.queryValue('c.d.#flow.A') as Block, flow1.queryProperty('c.d.#flow.A.B.#flow.C.v', true))
     ).toEqual('B.#flow.C.v');
 
-    let flow111 = Root.instance.addFlow('FolderRelative1.1.1', null, null, true);
-    let folder1 = Root.instance.getValue('FolderRelative1') as FlowFolder;
+    const flow111 = Root.instance.addFlow('FolderRelative1.1.1', null, null, true);
+    const folder1 = Root.instance.getValue('FolderRelative1') as FlowFolder;
 
     expect(propRelative(folder1.queryValue('1.1') as Block, folder1.queryProperty('v', true))).toBe('#lib.v');
 

@@ -7,12 +7,12 @@ const defaultTime = DateTime.fromFormat('00:00:00.000', 'HH:mm:ss.SSS', {zone: '
 
 export class TimeEditor extends React.PureComponent<ValueEditorProps, any> {
   onValueChange = (day: DateTime) => {
-    let {name, onChange} = this.props;
+    const {name, onChange} = this.props;
     onChange([day.hour, day.minute], name);
   };
 
   render() {
-    let {value, locked, onChange} = this.props;
+    const {value, locked, onChange} = this.props;
 
     let d = defaultTime;
     if (Array.isArray(value)) {

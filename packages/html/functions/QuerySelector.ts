@@ -4,7 +4,7 @@ import {PureFunction, Functions, ErrorEvent, BaseFunction} from '@ticlo/core';
 export class QuerySelectorFunction extends BaseFunction {
   run() {
     let parent = this._data.getValue('parent');
-    let query = this._data.getValue('query');
+    const query = this._data.getValue('query');
     if (typeof query === 'string') {
       if (parent === 'document') {
         parent = document;

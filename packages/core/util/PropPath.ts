@@ -9,19 +9,19 @@ function propRelativeImpl(
   fromField: string,
   pathPrefix?: string
 ): string {
-  let fromBlocks: Block[] = [];
+  const fromBlocks: Block[] = [];
   while (fromBlock !== flow) {
     fromBlocks.push(fromBlock);
     fromBlock = fromBlock._parent;
   }
 
-  let resultPaths: string[] = [];
+  const resultPaths: string[] = [];
 
   // path go up
   if (pathPrefix) {
     resultPaths.push(pathPrefix);
   }
-  let baseBlocks: Block[] = [];
+  const baseBlocks: Block[] = [];
   let firstLayerBase = baseBlock._parent === flow;
   while (baseBlock !== flow) {
     baseBlocks.push(baseBlock);
@@ -45,7 +45,7 @@ function propRelativeImpl(
       }
       resultPaths.push('###');
     } else {
-      for (let block of baseBlocks) {
+      for (const block of baseBlocks) {
         resultPaths.push('##');
       }
     }
@@ -62,8 +62,8 @@ function propRelativeImpl(
 
 // find an optimized full path
 export function propRelative(base: Block, from: BlockProperty): string {
-  let baseBlock = base;
-  let fromBlock = from._block;
+  const baseBlock = base;
+  const fromBlock = from._block;
 
   if (baseBlock._flow === fromBlock._flow) {
     // base and from in same flow
@@ -72,8 +72,8 @@ export function propRelative(base: Block, from: BlockProperty): string {
     // base and from different flows
     let baseFlow = baseBlock._flow;
     let fromFlow = fromBlock._flow;
-    let fromFlows: Flow[] = [];
-    let baseFlows: Flow[] = [];
+    const fromFlows: Flow[] = [];
+    const baseFlows: Flow[] = [];
 
     // trace flow tree
     while (fromFlow && fromFlow !== Root.instance) {
@@ -106,8 +106,8 @@ export function propRelative(base: Block, from: BlockProperty): string {
       return propRelativeImpl(commonFlow, baseBlock, fromBlock, from._name);
     }
 
-    let resultPaths: string[] = [];
-    for (let flow of baseFlows) {
+    const resultPaths: string[] = [];
+    for (const flow of baseFlows) {
       if (flow === base._flow) {
         if (base !== flow) {
           resultPaths.unshift('###');

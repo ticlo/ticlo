@@ -16,7 +16,7 @@ const flowData = {
 };
 describe('RouteFunction', function () {
   it('register route', function () {
-    let flow = new Flow();
+    const flow = new Flow();
 
     const serviceLog: any[] = [];
     const mockService = {
@@ -28,7 +28,7 @@ describe('RouteFunction', function () {
       },
     };
 
-    let aBlock = flow.createBlock('a');
+    const aBlock = flow.createBlock('a');
     aBlock._load({
       '#is': 'web-server:route',
     });
@@ -52,7 +52,7 @@ describe('RouteFunction', function () {
   });
 
   it('emit', function () {
-    let flow = new Flow();
+    const flow = new Flow();
 
     let routeFunction: RouteFunction;
     const mockService = {
@@ -62,28 +62,28 @@ describe('RouteFunction', function () {
       removeRoute() {},
     };
 
-    let aBlock = flow.createBlock('a');
+    const aBlock = flow.createBlock('a');
     aBlock._load({
       '#is': 'web-server:route',
       'path': 'a',
       'server': mockService,
     });
     aBlock.getProperty('#emit');
-    let request = new HttpRequest({} as any);
+    const request = new HttpRequest({} as any);
     routeFunction.addRequest(request);
     Root.run();
     expect(aBlock.getValue('#emit')).toBe(request);
   });
 
   it('edit worker', function () {
-    let flow = new Flow();
+    const flow = new Flow();
     flow.load({
       '#is': '',
       'route': {'#is': 'web-server:route'},
       'handler': {'#is': 'handler', '~#call': '##.route.#emit'},
     });
-    let route = flow.getValue('route') as Block;
-    let handler = flow.getValue('handler') as Block;
+    const route = flow.getValue('route') as Block;
+    const handler = flow.getValue('handler') as Block;
     FlowEditor.createFromField(handler, '#edit-use', 'use');
 
     expect((handler.getValue('#edit-use') as Flow).save()).toEqual(route.getDefaultWorker('#emit'));

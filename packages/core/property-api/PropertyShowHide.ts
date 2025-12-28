@@ -7,16 +7,16 @@ import {getInputsLength, MAX_GROUP_LENGTH} from '../block/FunctonData.js';
 const configList = Object.keys(configDescs).filter((str: string) => !str.endsWith(')'));
 
 export function buildPropertiesOrder(block: Block): string[] {
-  let orders = [...configList];
+  const orders = [...configList];
 
   function addProps(props: (PropDesc | PropGroupDesc)[]) {
-    for (let propDesc of props) {
+    for (const propDesc of props) {
       if (propDesc.type === 'group') {
-        let lenField = `${propDesc.name}[]`;
+        const lenField = `${propDesc.name}[]`;
         orders.push(lenField);
-        let groupLength = getInputsLength(block, propDesc.name, propDesc.defaultLen, propDesc.maxLen);
+        const groupLength = getInputsLength(block, propDesc.name, propDesc.defaultLen, propDesc.maxLen);
         for (let i = 0; i < groupLength; ++i) {
-          for (let childDesc of (propDesc as PropGroupDesc).properties) {
+          for (const childDesc of (propDesc as PropGroupDesc).properties) {
             orders.push(`${childDesc.name}${i}`);
           }
         }
@@ -26,21 +26,21 @@ export function buildPropertiesOrder(block: Block): string[] {
     }
   }
 
-  let [desc, size] = Functions.getDescToSend(block.getValue('#is')?.toString());
+  const [desc, size] = Functions.getDescToSend(block.getValue('#is')?.toString());
   if (desc) {
     addProps(desc.properties);
   }
 
-  let optionalFields = block.getValue('+optional') as string[];
+  const optionalFields = block.getValue('+optional') as string[];
   if (Array.isArray(optionalFields)) {
-    for (let field of optionalFields) {
+    for (const field of optionalFields) {
       if (!orders.includes(field)) {
         orders.push(field);
       }
     }
   }
 
-  let customProps = block.getValue('#custom');
+  const customProps = block.getValue('#custom');
   if (Array.isArray(customProps)) {
     addProps(customProps);
   }
@@ -51,7 +51,7 @@ export function buildPropertiesOrder(block: Block): string[] {
  * automatically adjust the order
  */
 export function showProperties(block: Block, fields: string[]) {
-  let bp = block.getValue('@b-p');
+  const bp = block.getValue('@b-p');
   let changeNeeded = false;
   let blockProps: string[];
   if (!Array.isArray(bp)) {
@@ -64,8 +64,8 @@ export function showProperties(block: Block, fields: string[]) {
   } else {
     blockProps = [...bp];
   }
-  let searchForOrder: string[] = [];
-  for (let field of fields) {
+  const searchForOrder: string[] = [];
+  for (const field of fields) {
     if (!blockProps.includes(field)) {
       changeNeeded = true;
       if (field.startsWith('@')) {
@@ -77,18 +77,18 @@ export function showProperties(block: Block, fields: string[]) {
     }
   }
   if (searchForOrder.length) {
-    let orders = buildPropertiesOrder(block);
-    addField: for (let field of searchForOrder) {
-      let idx = orders.indexOf(field);
+    const orders = buildPropertiesOrder(block);
+    addField: for (const field of searchForOrder) {
+      const idx = orders.indexOf(field);
       if (idx < 0) {
         blockProps.push(field);
       } else {
-        let d = Math.max(idx, orders.length - 1 - idx);
+        const d = Math.max(idx, orders.length - 1 - idx);
         for (let i = 1; i <= d; ++i) {
           // insert after a reference field before it
-          let left = idx - i;
+          const left = idx - i;
           if (left >= 0) {
-            let refpos = blockProps.indexOf(orders[left]);
+            const refpos = blockProps.indexOf(orders[left]);
             if (refpos > -1) {
               blockProps.splice(refpos + 1, 0, field);
               continue addField;
@@ -96,9 +96,9 @@ export function showProperties(block: Block, fields: string[]) {
           }
 
           // insert before a reference field after it
-          let right = idx + i;
+          const right = idx + i;
           if (right < orders.length) {
-            let refpos = blockProps.indexOf(orders[right]);
+            const refpos = blockProps.indexOf(orders[right]);
             if (refpos > -1) {
               blockProps.splice(refpos, 0, field);
               continue addField;
@@ -119,14 +119,14 @@ export function showGroupProperties(block: Block, desc: PropGroupDesc, field?: s
   if (desc.type !== 'group') {
     return;
   }
-  let groupLength = getInputsLength(block, desc.name, desc.defaultLen, desc.maxLen);
-  let fields: string[] = [];
+  const groupLength = getInputsLength(block, desc.name, desc.defaultLen, desc.maxLen);
+  const fields: string[] = [];
   if (field != null) {
     for (let i = 0; i < groupLength; ++i) {
       fields.push(`${field}${i}`);
     }
   } else {
-    for (let prop of desc.properties) {
+    for (const prop of desc.properties) {
       if (prop.pinned) {
         for (let i = 0; i < groupLength; ++i) {
           fields.push(`${prop.name}${i}`);
@@ -138,14 +138,14 @@ export function showGroupProperties(block: Block, desc: PropGroupDesc, field?: s
 }
 
 export function hideProperties(block: Block, fields: string[]) {
-  let bp = block.getValue('@b-p');
+  const bp = block.getValue('@b-p');
   if (!Array.isArray(bp)) {
     return;
   }
-  let blockProps: string[] = [...bp];
+  const blockProps: string[] = [...bp];
   let changeNeeded = false;
-  for (let field of fields) {
-    let idx = blockProps.indexOf(field);
+  for (const field of fields) {
+    const idx = blockProps.indexOf(field);
     if (idx > -1) {
       blockProps.splice(idx, 1);
       changeNeeded = true;
@@ -164,25 +164,25 @@ export function hideGroupProperties(block: Block, desc: PropGroupDesc, field?: s
   if (desc.type !== 'group') {
     return;
   }
-  let bp = block.getValue('@b-p');
+  const bp = block.getValue('@b-p');
   if (!Array.isArray(bp)) {
     return;
   }
 
-  let fieldsToRemove = [];
+  const fieldsToRemove = [];
   if (field != null) {
     fieldsToRemove.push(field);
   } else {
-    for (let prop of desc.properties) {
+    for (const prop of desc.properties) {
       fieldsToRemove.push(prop.name);
     }
   }
 
-  let blockProps: string[] = [...bp];
+  const blockProps: string[] = [...bp];
   let changeNeeded = false;
-  for (let field of fieldsToRemove) {
+  for (const field of fieldsToRemove) {
     for (let i = 0; i < blockProps.length; ++i) {
-      let prop = blockProps[i];
+      const prop = blockProps[i];
       if (getPreNumber(prop) === field) {
         blockProps.splice(i, 1);
         --i;
@@ -205,8 +205,8 @@ export function moveShownProperty(block: Block, fieldFrom: string, fieldTo: stri
   if (!Array.isArray(bp) || fieldFrom === fieldTo) {
     return;
   }
-  let idxFrom = bp.indexOf(fieldFrom);
-  let idxTo = bp.indexOf(fieldTo);
+  const idxFrom = bp.indexOf(fieldFrom);
+  const idxTo = bp.indexOf(fieldTo);
 
   if (idxFrom > -1 && idxTo > -1) {
     bp = bp.concat(); // make a copy

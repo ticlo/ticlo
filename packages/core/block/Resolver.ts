@@ -3,7 +3,7 @@ import {Runnable} from './Block.js';
 export class Resolver implements Runnable {
   static _finalResolved: Set<() => void> = new Set<() => void>();
   static _executeFinalResolved() {
-    for (let onResolved of Resolver._finalResolved) {
+    for (const onResolved of Resolver._finalResolved) {
       onResolved();
     }
     Resolver._finalResolved.clear();
@@ -60,8 +60,8 @@ export class Resolver implements Runnable {
   private _splitQueue(priority: number) {
     let priorityChanged = false;
     for (let i = this._queueWait.length - 1; i >= 0; --i) {
-      let block = this._queueWait[i];
-      let blockPriority = block.getPriority();
+      const block = this._queueWait[i];
+      const blockPriority = block.getPriority();
       if (blockPriority >= 0 && blockPriority <= 3) {
         this._queue[blockPriority].push(block);
         if (priority > blockPriority) {
@@ -98,9 +98,9 @@ export class Resolver implements Runnable {
     this._splitQueue(0);
 
     whileResolver: while (true) {
-      let queue0 = this._queue[0];
+      const queue0 = this._queue[0];
       while (queue0.length) {
-        let block = queue0.at(-1);
+        const block = queue0.at(-1);
         if (block._queueToRun) {
           this._runBlock(block, 0);
         } else {
@@ -109,9 +109,9 @@ export class Resolver implements Runnable {
         }
       }
       for (let p = 1; p <= 3; ++p) {
-        let queueP = this._queue[p];
+        const queueP = this._queue[p];
         while (queueP.length) {
-          let block = queueP.at(-1);
+          const block = queueP.at(-1);
           if (block._queueToRun) {
             if (this._runBlock(block, p)) {
               continue whileResolver;

@@ -6,9 +6,9 @@ import {Flow, Root} from '../../../block/Flow.js';
 
 describe('Compare', function () {
   it('equal', function () {
-    let flow = new Flow();
+    const flow = new Flow();
 
-    let aBlock = flow.createBlock('a');
+    const aBlock = flow.createBlock('a');
     aBlock._load({
       '#is': 'equal',
       '0': 'a',
@@ -40,9 +40,9 @@ describe('Compare', function () {
   });
 
   it('not', function () {
-    let flow = new Flow();
+    const flow = new Flow();
 
-    let aBlock = flow.createBlock('a');
+    const aBlock = flow.createBlock('a');
     aBlock._load({
       '#is': 'not',
       'input': 'a',
@@ -57,9 +57,9 @@ describe('Compare', function () {
   });
 
   it('not equal', function () {
-    let flow = new Flow();
+    const flow = new Flow();
 
-    let aBlock = flow.createBlock('a');
+    const aBlock = flow.createBlock('a');
     aBlock._load({
       '#is': 'not-equal',
       '0': 'a',
@@ -91,9 +91,9 @@ describe('Compare', function () {
   });
 
   it('greater than', function () {
-    let flow = new Flow();
+    const flow = new Flow();
 
-    let aBlock = flow.createBlock('a');
+    const aBlock = flow.createBlock('a');
     aBlock._load({
       '#is': 'greater-than',
       '0': 'b',
@@ -113,9 +113,9 @@ describe('Compare', function () {
   });
 
   it('greater equal', function () {
-    let flow = new Flow();
+    const flow = new Flow();
 
-    let aBlock = flow.createBlock('a');
+    const aBlock = flow.createBlock('a');
     aBlock._load({
       '#is': 'greater-equal',
       '0': 'b',
@@ -135,9 +135,9 @@ describe('Compare', function () {
   });
 
   it('less than', function () {
-    let flow = new Flow();
+    const flow = new Flow();
 
-    let aBlock = flow.createBlock('a');
+    const aBlock = flow.createBlock('a');
     aBlock._load({
       '#is': 'less-than',
       '0': 'b',
@@ -157,9 +157,9 @@ describe('Compare', function () {
   });
 
   it('less equal', function () {
-    let flow = new Flow();
+    const flow = new Flow();
 
-    let aBlock = flow.createBlock('a');
+    const aBlock = flow.createBlock('a');
     aBlock._load({
       '#is': 'less-equal',
       '0': 'b',

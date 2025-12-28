@@ -29,7 +29,7 @@ export class Logger {
     Logger._loggers.set(logger, filter);
     Logger._preFilter = 0;
     // cache the level to improve logger performance
-    for (let [logger, filter] of Logger._loggers) {
+    for (const [logger, filter] of Logger._loggers) {
       Logger._preFilter |= filter;
     }
   }
@@ -45,7 +45,7 @@ export class Logger {
       msg = msg();
     }
 
-    for (let [logger, filter] of Logger._loggers) {
+    for (const [logger, filter] of Logger._loggers) {
       if ((filter & level) as number) {
         logger(msg, level, source);
       }

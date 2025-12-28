@@ -12,12 +12,12 @@ describe('BlockPriority', function () {
   });
 
   it('basic function order', function () {
-    let flow = new Flow();
+    const flow = new Flow();
 
-    let p0 = flow.createBlock('p0');
-    let p1 = flow.createBlock('p1');
-    let p2 = flow.createBlock('p2');
-    let p3 = flow.createBlock('p3');
+    const p0 = flow.createBlock('p0');
+    const p1 = flow.createBlock('p1');
+    const p2 = flow.createBlock('p2');
+    const p3 = flow.createBlock('p3');
 
     p0.setValue('#-log', 'p0');
     p1.setValue('#-log', 'p1');
@@ -57,12 +57,12 @@ describe('BlockPriority', function () {
   });
 
   it('order from binding', function () {
-    let flow = new Flow();
+    const flow = new Flow();
 
-    let p2 = flow.createBlock('p2');
-    let p0 = flow.createBlock('p0');
-    let p1 = flow.createBlock('p1');
-    let p3 = flow.createBlock('p3');
+    const p2 = flow.createBlock('p2');
+    const p0 = flow.createBlock('p0');
+    const p1 = flow.createBlock('p1');
+    const p3 = flow.createBlock('p3');
 
     p3.setValue('#mode', 'onChange');
     p0.setValue('#mode', 'onChange');
@@ -90,11 +90,11 @@ describe('BlockPriority', function () {
   });
 
   it('priority change during resolving', function () {
-    let flow = new Flow();
+    const flow = new Flow();
 
-    let p0 = flow.createBlock('p0');
-    let p1 = flow.createBlock('p1');
-    let p2 = flow.createBlock('p2');
+    const p0 = flow.createBlock('p0');
+    const p1 = flow.createBlock('p1');
+    const p2 = flow.createBlock('p2');
 
     p0.setValue('#-log', 'p0');
     p1.setValue('#-log', 'p1');

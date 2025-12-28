@@ -8,7 +8,7 @@ export class RenderDomFunction extends BaseFunction {
   _root: Root;
   run(): any {
     let container = this._data.getValue('container') as Element;
-    let component = this._data.getValue('component') as React.ReactNode;
+    const component = this._data.getValue('component') as React.ReactNode;
 
     // TODO validate component?
 

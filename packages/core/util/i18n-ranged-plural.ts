@@ -9,8 +9,8 @@ const rangedPostProcessor: PostProcessorModule = {
     const p = value.split(';');
 
     const {count} = options;
-    for (let item of p) {
-      let parts = item.split('~');
+    for (const item of p) {
+      const parts = item.split('~');
       switch (parts.length) {
         case 2:
           if (count === parseFloat(parts[0])) {
@@ -29,7 +29,7 @@ const rangedPostProcessor: PostProcessorModule = {
     }
 
     // not found, fallback to classical plural
-    let {postProcess, ...newOptions} = options;
+    const {postProcess, ...newOptions} = options;
 
     let newKeys;
     if (typeof key === 'string') {

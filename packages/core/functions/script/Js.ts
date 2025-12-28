@@ -66,7 +66,7 @@ export class JsFunction extends BaseFunction<Block> {
     if (!this._preProcessed) {
       this._preProcessed = true;
       if (this._compiledFunction == null) {
-        let script = this._data.getValue('script');
+        const script = this._data.getValue('script');
         if (typeof script === 'string') {
           try {
             this._compiledFunction = this.parseFunction(script);
@@ -99,7 +99,7 @@ export class JsFunction extends BaseFunction<Block> {
 
   static registerType(script: string, desc: FunctionDesc, namespace?: string): boolean {
     try {
-      let compiledFunction = new Function(script);
+      const compiledFunction = new Function(script);
 
       class CustomScriptFunction extends JsFunction {
         constructor(block: Block) {

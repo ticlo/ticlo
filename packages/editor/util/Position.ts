@@ -4,7 +4,7 @@ export function mapPointsBetweenElement(
   fromX: number,
   fromY: number
 ): [number, number] {
-  let rectfrom = fromElement.getBoundingClientRect();
+  const rectfrom = fromElement.getBoundingClientRect();
   let {x, y} = rectfrom;
   if (fromX !== 0) {
     x += (fromX * rectfrom.width) / fromElement.offsetWidth;
@@ -12,7 +12,7 @@ export function mapPointsBetweenElement(
   if (fromY !== 0) {
     y += (fromY * rectfrom.height) / fromElement.offsetHeight;
   }
-  let rectLayout = toElement.getBoundingClientRect();
+  const rectLayout = toElement.getBoundingClientRect();
   x -= rectLayout.x;
   y -= rectLayout.y;
   x *= toElement.offsetWidth / rectLayout.width;

@@ -66,9 +66,9 @@ export class FunctionSelect extends React.PureComponent<Props, State> {
   onAddFunctionOk = () => {
     // TODO validate function name;
     if (this.newFunctionName) {
-      let {conn} = this.props;
-      let funcId = `:${this.newFunctionName}`;
-      let editPath = `#temp.#edit-${encodeTicloName(funcId)}`;
+      const {conn} = this.props;
+      const funcId = `:${this.newFunctionName}`;
+      const editPath = `#temp.#edit-${encodeTicloName(funcId)}`;
       conn.editWorker(editPath, null, funcId, {'#inputs': {'#is': ''}, '#outputs': {'#is': ''}});
       this.context.editFlow(editPath, () => {
         conn.applyFlowChange(editPath);
@@ -84,20 +84,20 @@ export class FunctionSelect extends React.PureComponent<Props, State> {
     this.setState({modelVisible: false});
   };
   onSubflowClick = () => {
-    let {currentValue, onFunctionClick} = this.props;
+    const {currentValue, onFunctionClick} = this.props;
     if (currentValue !== '') {
       onFunctionClick('', {name: '', id: '#'}, null);
     }
   };
   onInlineClick = () => {
-    let {currentValue, onFunctionClick} = this.props;
+    const {currentValue, onFunctionClick} = this.props;
     if (!currentValue || currentValue.constructor !== Object) {
       this.props.onFunctionClick('', {name: 'inline', id: '{}'}, null);
     }
   };
   render() {
-    let {conn, showPreset, onFunctionClick, onClick, filter, useFlow, currentValue} = this.props;
-    let {tab, search, modelVisible} = this.state;
+    const {conn, showPreset, onFunctionClick, onClick, filter, useFlow, currentValue} = this.props;
+    const {tab, search, modelVisible} = this.state;
 
     if (!conn) {
       return <div />;

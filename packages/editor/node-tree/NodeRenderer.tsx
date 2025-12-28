@@ -120,7 +120,7 @@ export class NodeTreeItem extends TreeItem<NodeTreeItem> {
         this.open();
       }
     } else if (this.children && parentPath.startsWith(this.key)) {
-      for (let child of this.children) {
+      for (const child of this.children) {
         child.onChildrenChange(parentPath, isHidden, autoOpen);
       }
     }
@@ -128,9 +128,9 @@ export class NodeTreeItem extends TreeItem<NodeTreeItem> {
 
   // on children update
   onUpdate(response: DataMap): void {
-    let previousChildren = new Map<string, NodeTreeItem>();
+    const previousChildren = new Map<string, NodeTreeItem>();
     if (this.children) {
-      for (let child of this.children) {
+      for (const child of this.children) {
         previousChildren.set(child.name, child);
       }
     }
@@ -138,11 +138,11 @@ export class NodeTreeItem extends TreeItem<NodeTreeItem> {
     if (this.listingId) {
       this.listingId = null;
     }
-    let children = response.children as DataMap;
-    let names = Object.keys(children);
+    const children = response.children as DataMap;
+    const names = Object.keys(children);
     names.sort(smartStrCompare);
-    for (let key of names) {
-      let data = children[key] as DataMap;
+    for (const key of names) {
+      const data = children[key] as DataMap;
       if (previousChildren.get(key)?.id === data.id) {
         this.children.push(previousChildren.get(key));
         previousChildren.delete(key);
@@ -154,7 +154,7 @@ export class NodeTreeItem extends TreeItem<NodeTreeItem> {
     if (this.onListChange) {
       this.onListChange();
     }
-    for (let [, child] of previousChildren) {
+    for (const [, child] of previousChildren) {
       child.destroy();
     }
     this.forceUpdate();
@@ -197,7 +197,7 @@ export class NodeTreeRenderer extends PureDataRenderer<Props, any> {
   state: State = {desc: blankFuncDesc};
 
   onExpandClicked = () => {
-    let {item} = this.props;
+    const {item} = this.props;
     switch (item.opened) {
       case 'opened':
         item.close();
@@ -224,20 +224,20 @@ export class NodeTreeRenderer extends PureDataRenderer<Props, any> {
   };
 
   onAddFlowClick = (path: string) => {
-    let {item} = this.props;
+    const {item} = this.props;
     showModal(<AddNewFlowDialog conn={item.getConn()} basePath={`${path}.`} />, this.context.showModal);
   };
   onAddFolderClick = (path: string) => {
-    let {item} = this.props;
+    const {item} = this.props;
     showModal(<AddNewFlowDialog conn={item.getConn()} basePath={`${path}.`} isFolder={true} />, this.context.showModal);
   };
 
   getMenu = () => {
-    let {item} = this.props;
+    const {item} = this.props;
 
-    let menuItems: React.ReactElement[] = [];
+    const menuItems: React.ReactElement[] = [];
 
-    let editFlow = this.context?.editFlow;
+    const editFlow = this.context?.editFlow;
     if (editFlow) {
       menuItems.push(
         <MenuItem key="open" onClick={this.onOpenBlock}>
@@ -274,8 +274,8 @@ export class NodeTreeRenderer extends PureDataRenderer<Props, any> {
   };
 
   onDragStart = (e: DragState) => {
-    let {item} = this.props;
-    let {desc} = this.state;
+    const {item} = this.props;
+    const {desc} = this.state;
     let data: any = {path: item.key, functionId: item.functionId};
     if (getOutputDesc(desc)) {
       data = {...data, fields: [`${item.key}.#output`]};
@@ -286,7 +286,7 @@ export class NodeTreeRenderer extends PureDataRenderer<Props, any> {
 
   subscriptionListener = new ValueSubscriber({
     onUpdate: (response: ValueUpdate) => {
-      let {item} = this.props;
+      const {item} = this.props;
       item.functionId = response.cache.value;
       if (typeof item.functionId === 'string') {
         item.connection.watchDesc(item.functionId, this.descCallback);
@@ -304,7 +304,7 @@ export class NodeTreeRenderer extends PureDataRenderer<Props, any> {
 
   constructor(props: Props) {
     super(props);
-    let {item} = props;
+    const {item} = props;
     this.subscriptionListener.subscribe(item.connection, `${item.key}.#is`, true);
     this.disabledListener.subscribe(item.connection, `${item.key}.#disabled`, true);
     this.nameListener.subscribe(item.connection, `${item.key}.@b-name`);
@@ -318,7 +318,7 @@ export class NodeTreeRenderer extends PureDataRenderer<Props, any> {
     if (desc !== this.state.desc) {
       this.safeSetState({desc});
       if (desc.dynamicStyle) {
-        let {item} = this.props;
+        const {item} = this.props;
         this.styleListener.subscribe(item.connection, `${item.key}.@b-style`, true);
       } else {
         this.styleListener.unsubscribe();
@@ -333,11 +333,11 @@ export class NodeTreeRenderer extends PureDataRenderer<Props, any> {
   };
 
   renderImpl() {
-    let {item, style, selected} = this.props;
-    let {desc, error} = this.state;
-    let dynamicStyle = this.styleListener.value;
-    let displayName = this.nameListener.value;
-    let marginLeft = item.level * 20;
+    const {item, style, selected} = this.props;
+    const {desc, error} = this.state;
+    const dynamicStyle = this.styleListener.value;
+    const displayName = this.nameListener.value;
+    const marginLeft = item.level * 20;
     let contentClassName = 'ticl-tree-node-content';
     if (selected) {
       contentClassName += ' ticl-tree-node-selected';
@@ -347,7 +347,7 @@ export class NodeTreeRenderer extends PureDataRenderer<Props, any> {
     let [colorClass, iconName] = getFuncStyleFromDesc(desc, item.getConn(), 'ticl-bg--');
 
     if (dynamicStyle) {
-      let [dynamicColor, dynamicIcon] = getFuncStyleFromDesc(dynamicStyle, null, 'ticl-bg--');
+      const [dynamicColor, dynamicIcon] = getFuncStyleFromDesc(dynamicStyle, null, 'ticl-bg--');
       if (dynamicColor) {
         colorClass = dynamicColor;
       }
@@ -386,7 +386,7 @@ export class NodeTreeRenderer extends PureDataRenderer<Props, any> {
         </div>
       );
     }
-    let onDoubleClick = this.context?.editFlow && quickOpenAllowed.has(item.functionId) ? this.onOpenBlock : null;
+    const onDoubleClick = this.context?.editFlow && quickOpenAllowed.has(item.functionId) ? this.onOpenBlock : null;
 
     let disabled = this.disabledListener.value;
     if (disabled == null && saveAllowed.has(item.functionId)) {
@@ -421,7 +421,7 @@ export class NodeTreeRenderer extends PureDataRenderer<Props, any> {
   }
 
   componentWillUnmount() {
-    let {item} = this.props;
+    const {item} = this.props;
     this.subscriptionListener.unsubscribe();
     this.nameListener.unsubscribe();
     this.hasChangeListener.unsubscribe();

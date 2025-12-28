@@ -74,7 +74,7 @@ export class ThreadPool {
   }
 
   clearPending() {
-    for (let n of this._pending) {
+    for (const n of this._pending) {
       this._destroyCallback(n);
       this._ready.push(n);
     }
@@ -105,7 +105,7 @@ export class UnlimitedPool {
     if (preferred == null) {
       // no preferred value, automatically assign one
       if (this._pending.size) {
-        let value = this._pending.values().next().value;
+        const value = this._pending.values().next().value;
         this._pending.delete(value);
         return value;
       }
@@ -116,7 +116,7 @@ export class UnlimitedPool {
     return preferred;
   }
   clearPending() {
-    for (let n of this._pending) {
+    for (const n of this._pending) {
       this._destroyCallback(n);
     }
     this._pending.clear();

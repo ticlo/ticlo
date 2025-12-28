@@ -5,8 +5,8 @@ import {LocalizedEnumOption} from '../../component/LocalizedLabel.js';
 
 export class ToggleEditor extends React.PureComponent<ValueEditorProps, any> {
   onValueChange = (checked: boolean) => {
-    let {desc, onChange, name} = this.props;
-    let {options} = desc;
+    const {desc, onChange, name} = this.props;
+    const {options} = desc;
     if (options && options.length >= 2) {
       // convert string to boolean
       onChange(checked ? options[1] : options[0], name);
@@ -16,8 +16,9 @@ export class ToggleEditor extends React.PureComponent<ValueEditorProps, any> {
   };
 
   render() {
-    let {desc, value, locked, onChange, funcDesc, name} = this.props;
-    let {options} = desc;
+    const {desc, locked, onChange, funcDesc, name} = this.props;
+    let {value} = this.props;
+    const {options} = desc;
     let checkedChildren: React.ReactNode;
     let unCheckedChildren: React.ReactNode;
     if (options && options.length >= 2) {

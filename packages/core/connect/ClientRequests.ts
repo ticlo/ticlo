@@ -62,13 +62,13 @@ export class MergedClientRequest extends ConnectionSend implements ClientCallbac
   }
 
   onDone(): void {
-    for (let callbacks of this._callbackSet) {
+    for (const callbacks of this._callbackSet) {
       callbacks.onDone?.();
     }
   }
 
   onUpdate(response: DataMap): void {
-    for (let callbacks of this._callbackSet) {
+    for (const callbacks of this._callbackSet) {
       if (callbacks.onUpdate) {
         callbacks.onUpdate(response);
       }
@@ -77,7 +77,7 @@ export class MergedClientRequest extends ConnectionSend implements ClientCallbac
   }
 
   onError(error: string): void {
-    for (let callbacks of this._callbackSet) {
+    for (const callbacks of this._callbackSet) {
       if (callbacks.onError) {
         callbacks.onError(error);
       }
@@ -189,7 +189,7 @@ export class SubscribeRequest extends MergedClientRequest {
   _cachedFullValue: any;
 
   addFull(callbacks: SubscribeCallbacks) {
-    let pendingLoad = this._fullCallbackSet.size === 0;
+    const pendingLoad = this._fullCallbackSet.size === 0;
     this._fullCallbackSet.add(callbacks);
     if (pendingLoad) {
       this.loadFullValue();
@@ -227,7 +227,7 @@ export class SubscribeRequest extends MergedClientRequest {
   }
 
   updateFullValue() {
-    for (let callbacks of this._fullCallbackSet) {
+    for (const callbacks of this._fullCallbackSet) {
       if (callbacks.onUpdate) {
         callbacks.onUpdate({cache: {...this._cache, value: this._cachedFullValue}});
       }
@@ -304,9 +304,9 @@ export class WatchRequest extends MergedClientRequest {
   onUpdate(response: DataMap): void {
     if (this._disconnectd) {
       // after disconnect, server might not be aware of these changes, fill in them in client side
-      let changes = response.changes;
+      const changes = response.changes;
       if (isDataMap(changes)) {
-        for (let name in this._cachedMap) {
+        for (const name in this._cachedMap) {
           if (!Object.hasOwn(changes, name)) {
             changes[name] = null;
           } else if (changes[name] === this._cachedMap[name]) {
@@ -316,10 +316,10 @@ export class WatchRequest extends MergedClientRequest {
       }
     }
     if (Object.isExtensible(response.changes)) {
-      let changes = response.changes;
+      const changes = response.changes;
       if (isDataMap(changes)) {
-        for (let key in changes) {
-          let id = changes[key];
+        for (const key in changes) {
+          const id = changes[key];
           if (id == null) {
             delete this._cachedMap[key];
           } else if (typeof id === 'string') {
@@ -351,13 +351,13 @@ export class DescRequest extends ConnectionSend implements ClientCallbacks {
 
   onUpdate(response: DataMap): void {
     if (Array.isArray(response.changes)) {
-      for (let change of response.changes) {
+      for (const change of response.changes) {
         if (change && 'id' in change) {
-          let id = change.id;
+          const id = change.id;
           if ('removed' in change) {
             this.cache.delete(id);
             if (this.listeners.size) {
-              for (let [listener, lid] of this.listeners) {
+              for (const [listener, lid] of this.listeners) {
                 if (lid === '*' || id === lid) {
                   listener(null, id);
                 }
@@ -371,7 +371,7 @@ export class DescRequest extends ConnectionSend implements ClientCallbacks {
               this.categories.set(id.substring(0, id.length - 1), change);
             }
             if (this.listeners.size) {
-              for (let [listener, lid] of this.listeners) {
+              for (const [listener, lid] of this.listeners) {
                 if (lid === '*' || id === lid) {
                   listener(change, id);
                 }
@@ -411,13 +411,13 @@ export class GlobalWatch {
   }
 
   onUpdate(response: DataMap) {
-    let changes: {[key: string]: any} = response.changes;
-    for (let name in changes) {
+    const changes: {[key: string]: any} = response.changes;
+    for (const name in changes) {
       if (name.startsWith('^')) {
-        let value = changes[name];
+        const value = changes[name];
         if (value != null) {
           if (!this.isListeners.has(name)) {
-            let listener = new GlobalTypeListener();
+            const listener = new GlobalTypeListener();
             this.isListeners.set(name, listener);
             this.conn.subscribe(`#global.${name}.#is`, listener);
           }
@@ -432,6 +432,6 @@ export class GlobalWatch {
   }
 }
 
-for (let desc of clientDescriptors) {
+for (const desc of clientDescriptors) {
   DescRequest.editorCache.set(desc.id, desc);
 }

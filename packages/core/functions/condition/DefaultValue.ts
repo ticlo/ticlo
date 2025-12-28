@@ -3,7 +3,7 @@ import {Functions} from '../../block/Functions.js';
 
 export class DefaultValueFunction extends PureFunction {
   run(): any {
-    let input = this._data.getValue('input');
+    const input = this._data.getValue('input');
     if (input == null) {
       this._data.output(this._data.getValue('default'));
     } else {

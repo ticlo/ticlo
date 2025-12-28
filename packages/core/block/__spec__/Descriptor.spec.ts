@@ -21,7 +21,7 @@ describe('Descriptor', function () {
     expect(mapConfigDesc(null)).not.toBeDefined();
 
     const abcconfig: PropDesc = {name: '#abc', type: 'string'};
-    let mapped = mapConfigDesc(['#is', '#invalidConfig', abcconfig]);
+    const mapped = mapConfigDesc(['#is', '#invalidConfig', abcconfig]);
     expect([...mapped]).toEqual([configDescs['#is'], abcconfig]);
     expect(mapped).toBe(mapConfigDesc(mapped));
   });
@@ -30,7 +30,7 @@ describe('Descriptor', function () {
     expect(buildPropDescCache(null, null)).toBeNull();
     expect(findPropDesc('a', null)).toBe(blankPropDesc);
 
-    let cache = buildPropDescCache(Functions.getDescToSend('add')[0], null);
+    const cache = buildPropDescCache(Functions.getDescToSend('add')[0], null);
     expect(findPropDesc('', cache)).toBe(blankPropDesc);
     expect(findPropDesc('1', cache)).toBe(cache['0']);
   });
@@ -54,7 +54,7 @@ describe('Descriptor', function () {
   });
 
   it('getDefaultDataFromCustom', function () {
-    let custom: (PropDesc | PropGroupDesc)[] = [
+    const custom: (PropDesc | PropGroupDesc)[] = [
       {name: 'a', type: 'string', init: 'hello', pinned: true},
       {
         name: '',

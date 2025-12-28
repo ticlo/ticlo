@@ -26,16 +26,16 @@ export class ServiceEditor extends React.PureComponent<Props, State> {
   state: State = {};
 
   onGlobalBlockSelect = (value: string) => {
-    let {onPathChange} = this.props;
+    const {onPathChange} = this.props;
     onPathChange(`${value}.#output`);
   };
 
   onCreate = async () => {
-    let {conn, desc, onPathChange} = this.props;
-    let {create} = desc;
-    let funcDesc = conn.watchDesc(create);
+    const {conn, desc, onPathChange} = this.props;
+    const {create} = desc;
+    const funcDesc = conn.watchDesc(create);
     if (funcDesc) {
-      let createdBlock = await conn.addBlock(
+      const createdBlock = await conn.addBlock(
         `#global.^${funcDesc.name}`,
         getSubBlockFuncData(getDefaultFuncData(funcDesc))
       );
@@ -47,13 +47,13 @@ export class ServiceEditor extends React.PureComponent<Props, State> {
   };
 
   getPopup = () => {
-    let {bindingPath, conn, keys, desc, locked, onPathChange} = this.props;
+    const {bindingPath, conn, keys, desc, locked, onPathChange} = this.props;
     if (!this.state.opened) {
       // work around of the pop caching issue
       return <div />;
     }
-    let bindingParentPath = bindingPath.substring(0, bindingPath.lastIndexOf('.'));
-    let sourceKeys: string[] = keys.map((key) => `${key}.${bindingParentPath}`);
+    const bindingParentPath = bindingPath.substring(0, bindingPath.lastIndexOf('.'));
+    const sourceKeys: string[] = keys.map((key) => `${key}.${bindingParentPath}`);
     return (
       <PropertyList conn={conn} paths={sourceKeys} mode="minimal" style={{width: 300, minHeight: 160, padding: 16}} />
     );
@@ -69,14 +69,14 @@ export class ServiceEditor extends React.PureComponent<Props, State> {
   };
 
   render() {
-    let {bindingPath, value, conn, desc, locked, onPathChange} = this.props;
-    let {opened} = this.state;
-    let {create} = desc;
+    const {bindingPath, value, conn, desc, locked, onPathChange} = this.props;
+    const {opened} = this.state;
+    const {create} = desc;
 
-    let globalNames = conn.findGlobalBlocks(desc.options as string[]);
+    const globalNames = conn.findGlobalBlocks(desc.options as string[]);
 
-    let optionNodes: React.ReactNode[] = [];
-    for (let name of globalNames) {
+    const optionNodes: React.ReactNode[] = [];
+    for (const name of globalNames) {
       optionNodes.push(
         <Option key={name} value={name}>
           {name}

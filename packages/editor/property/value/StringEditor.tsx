@@ -11,7 +11,7 @@ export class StringEditor extends StringEditorBase {
   declare context: TicloLayoutContext;
 
   popup = () => {
-    let {keys, name, desc, value} = this.props;
+    const {keys, name, desc, value} = this.props;
     this.context.editProperty(
       keys.map((key) => `${key}.${name}`),
       desc,
@@ -22,7 +22,8 @@ export class StringEditor extends StringEditorBase {
   };
 
   render() {
-    let {desc, value, locked, onChange} = this.props;
+    const {desc, locked} = this.props;
+    let {value, onChange} = this.props;
     if (this._pendingValue != null) {
       value = this._pendingValue;
     } else if (locked) {
@@ -32,7 +33,7 @@ export class StringEditor extends StringEditorBase {
       // encode object
       value = encodeDisplay(value);
     }
-    let multiLine = typeof value === 'string' && value.length > 8;
+    const multiLine = typeof value === 'string' && value.length > 8;
     return (
       <>
         <TextArea

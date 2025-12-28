@@ -25,7 +25,7 @@ export function removeOptionalProperty(block: Block, name: string) {
 
   optionalProps = [...optionalProps];
   if (name) {
-    let propIndex = optionalProps.indexOf(name);
+    const propIndex = optionalProps.indexOf(name);
     if (propIndex > -1) {
       if (optionalProps.length > 1) {
         optionalProps.splice(propIndex, 1);
@@ -51,8 +51,8 @@ export function moveOptionalProperty(block: Block, nameFrom: string, nameTo: str
   }
   optionalProps = [...optionalProps];
 
-  let idxFrom = optionalProps.indexOf(nameFrom);
-  let idxTo = optionalProps.indexOf(nameTo);
+  const idxFrom = optionalProps.indexOf(nameFrom);
+  const idxTo = optionalProps.indexOf(nameTo);
   if (idxTo > -1) {
     if (idxFrom > -1) {
       optionalProps.splice(idxFrom, 1);

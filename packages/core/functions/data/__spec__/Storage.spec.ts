@@ -5,9 +5,9 @@ import {shouldHappen, waitTick} from '../../../util/test-util.js';
 
 describe('Storage', function () {
   it('read and write storage', async function () {
-    let flow = new Flow();
+    const flow = new Flow();
 
-    let aBlock = flow.createBlock('a');
+    const aBlock = flow.createBlock('a');
     aBlock._load({
       '#is': 'write-storage',
       'input': 'a',
@@ -18,7 +18,7 @@ describe('Storage', function () {
     aBlock.updateValue('#call', {});
     Root.run();
 
-    let bBlock = flow.createBlock('b');
+    const bBlock = flow.createBlock('b');
     bBlock._load({
       '#is': 'read-storage',
       'key': 'test',
@@ -30,9 +30,9 @@ describe('Storage', function () {
     flow.deleteValue('b');
   });
   it('auto refresh', async function () {
-    let flow = new Flow();
+    const flow = new Flow();
 
-    let aBlock = flow.createBlock('a');
+    const aBlock = flow.createBlock('a');
     aBlock._load({
       '#is': 'write-storage',
       '#mode': 'onLoad',
@@ -42,7 +42,7 @@ describe('Storage', function () {
 
     Root.run();
 
-    let bBlock = flow.createBlock('b');
+    const bBlock = flow.createBlock('b');
     bBlock._load({
       '#is': 'read-storage',
       'autoRefresh': true,

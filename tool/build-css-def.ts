@@ -12,12 +12,12 @@ abstract class Parser {
   abstract parseLine(line: string): Parser;
 }
 
-let keys = new Map<string, string[]>();
-let types = new Map<string, string[]>();
+const keys = new Map<string, string[]>();
+const types = new Map<string, string[]>();
 
 class InterfaceParser extends Parser {
   init(line: string): Parser {
-    for (let cls of [
+    for (const cls of [
       'interface StandardLonghandProperties<',
       'interface StandardShorthandProperties<',
       'interface SvgProperties<',
@@ -36,12 +36,12 @@ class InterfaceParser extends Parser {
       return new CommentParser(this);
     }
     if (line.includes('?: ') && line.endsWith(';')) {
-      let [key, types] = line
+      const [key, types] = line
         .substring(0, line.length - 1)
         .trim()
         .split('?: ');
-      let values: string[] = [];
-      for (let type of types.split('|')) {
+      const values: string[] = [];
+      for (const type of types.split('|')) {
         values.push(type.trim());
       }
       keys.set(key, values);
@@ -63,9 +63,9 @@ class IgnoreInterfaceParser extends Parser {
 class TypeParser extends Parser {
   init(line: string): Parser {
     if (line.endsWith(';')) {
-      let [before, after] = line.substring(0, line.length - 1).split(' = ');
-      let key = before.split(' ').pop();
-      let values = after.split(' | ');
+      const [before, after] = line.substring(0, line.length - 1).split(' = ');
+      const key = before.split(' ').pop();
+      const values = after.split(' | ');
       types.set(key, values);
     } else if (line.endsWith('=')) {
       return new MultiLineTypeParser().init(line);
@@ -117,11 +117,11 @@ class CommentParser extends Parser {
   }
 }
 
-let data = fs.readFileSync('./node_modules/csstype/index.d.ts', 'utf8');
-let lines = data.split('\n');
+const data = fs.readFileSync('./node_modules/csstype/index.d.ts', 'utf8');
+const lines = data.split('\n');
 
 let current: Parser;
-for (let line of lines) {
+for (const line of lines) {
   if (current) {
     current = current.parseLine(line);
   } else if (line.startsWith('export interface ')) {
@@ -134,7 +134,7 @@ for (let line of lines) {
   }
 }
 
-let resolved = new Set<string>(['string', 'number', 'Globals', 'TLength', 'Color']);
+const resolved = new Set<string>(['string', 'number', 'Globals', 'TLength', 'Color']);
 types.set('TLength', null);
 types.set('Globals', null);
 types.set('string', null);
@@ -146,9 +146,9 @@ function mapValues(values: string[]) {
     debugger;
   }
   for (let i = values.length - 1; i >= 0; --i) {
-    let value = values[i];
+    const value = values[i];
     if (!value.startsWith('"')) {
-      let mapValues = resolveType(value);
+      const mapValues = resolveType(value);
       if (mapValues) {
         values.splice(i, 1, ...mapValues);
       }
@@ -161,7 +161,7 @@ function mapValues(values: string[]) {
 function resolveType(type: string): string[] {
   if (!resolved.has(type)) {
     resolved.add(type);
-    let values = types.get(type);
+    const values = types.get(type);
     if (type.toLowerCase().includes('deprecate')) {
       values.length = 0;
     } else {
@@ -172,14 +172,14 @@ function resolveType(type: string): string[] {
   return types.get(type);
 }
 
-let def: {[key: string]: PropDesc} = {};
+const def: {[key: string]: PropDesc} = {};
 for (let [key, values] of keys) {
-  let prop: PropDesc = {name: key, type: 'any'};
+  const prop: PropDesc = {name: key, type: 'any'};
 
-  let dynamicTypes: ValueType[] = [];
+  const dynamicTypes: ValueType[] = [];
   values = [...new Set(mapValues(values))]; // get unique values
   let fixFirstType = false;
-  let lowerKey = key.toLowerCase();
+  const lowerKey = key.toLowerCase();
   if (values.includes('Color')) {
     dynamicTypes.push('color');
     if (lowerKey.endsWith('color')) {
@@ -200,7 +200,7 @@ for (let [key, values] of keys) {
       dynamicTypes.push('number');
     }
   }
-  let options: string[] = values.filter((s) => s.startsWith('"'));
+  const options: string[] = values.filter((s) => s.startsWith('"'));
   if (options.length > 1) {
     if (!fixFirstType && options.length > 3) {
       dynamicTypes.unshift('select');

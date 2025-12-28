@@ -48,7 +48,7 @@ export function addCustomProperty(block: Block, desc: PropDesc | PropGroupDesc, 
   customProps = deepClone(customProps);
 
   if (group != null) {
-    let groupIdx = customProps.findIndex((g: PropGroupDesc) => g.name === group);
+    const groupIdx = customProps.findIndex((g: PropGroupDesc) => g.name === group);
     if (groupIdx > -1) {
       if (groupDesc) {
         hideGroupProperties(block, customProps[groupIdx] as PropGroupDesc);
@@ -59,7 +59,7 @@ export function addCustomProperty(block: Block, desc: PropDesc | PropGroupDesc, 
       } else {
         // add property to existing group
         groupDesc = customProps[groupIdx] as PropGroupDesc;
-        let groupChildIdx = groupDesc.properties.findIndex((p: PropDesc) => p.name === propDesc.name);
+        const groupChildIdx = groupDesc.properties.findIndex((p: PropDesc) => p.name === propDesc.name);
         if (groupChildIdx > -1) {
           groupDesc.properties[groupChildIdx] = propDesc;
         } else {
@@ -77,7 +77,7 @@ export function addCustomProperty(block: Block, desc: PropDesc | PropGroupDesc, 
       showGroupProperties(block, groupDesc);
     }
   } else {
-    let propIndex = customProps.findIndex((g: PropDesc) => g.name === propDesc.name);
+    const propIndex = customProps.findIndex((g: PropDesc) => g.name === propDesc.name);
     if (propIndex > -1) {
       customProps[propIndex] = propDesc;
     } else {
@@ -99,17 +99,17 @@ export function removeCustomProperty(block: Block, name: string, group?: string)
 
   customProps = deepClone(customProps);
   if (group) {
-    let groupIdx = customProps.findIndex((g: PropGroupDesc) => g.name === group && g.type === 'group');
+    const groupIdx = customProps.findIndex((g: PropGroupDesc) => g.name === group && g.type === 'group');
     if (groupIdx > -1) {
-      let groupDesc: PropGroupDesc = customProps[groupIdx] as PropGroupDesc;
+      const groupDesc: PropGroupDesc = customProps[groupIdx] as PropGroupDesc;
       if (name) {
-        let groupChildIdx = groupDesc.properties.findIndex((p: PropDesc) => p.name === name);
+        const groupChildIdx = groupDesc.properties.findIndex((p: PropDesc) => p.name === name);
         if (groupChildIdx > -1) {
           groupDesc.properties.splice(groupChildIdx, 1);
           block.setValue('#custom', customProps);
           hideGroupProperties(block, groupDesc, name);
 
-          let gLength = getInputsLength(block, groupDesc.name, groupDesc.defaultLen, groupDesc.maxLen);
+          const gLength = getInputsLength(block, groupDesc.name, groupDesc.defaultLen, groupDesc.maxLen);
           for (let i = 0; i < gLength; ++i) {
             block.deleteValue(`${name}${i}`);
           }
@@ -118,9 +118,9 @@ export function removeCustomProperty(block: Block, name: string, group?: string)
         customProps.splice(groupIdx, 1);
         block.setValue('#custom', customProps);
         hideGroupProperties(block, groupDesc, null);
-        let gLength = getInputsLength(block, groupDesc.name, groupDesc.defaultLen, groupDesc.maxLen);
-        for (let prop of groupDesc.properties) {
-          let baseName = prop.name;
+        const gLength = getInputsLength(block, groupDesc.name, groupDesc.defaultLen, groupDesc.maxLen);
+        for (const prop of groupDesc.properties) {
+          const baseName = prop.name;
           for (let i = 0; i < gLength; ++i) {
             block.deleteValue(`${baseName}${i}`);
           }
@@ -128,7 +128,7 @@ export function removeCustomProperty(block: Block, name: string, group?: string)
       }
     }
   } else if (name) {
-    let propIndex = customProps.findIndex((g: PropDesc) => g.name === name);
+    const propIndex = customProps.findIndex((g: PropDesc) => g.name === name);
     if (propIndex > -1) {
       if (customProps.length > 1) {
         customProps.splice(propIndex, 1);
@@ -155,7 +155,7 @@ export function moveCustomProperty(block: Block, nameFrom: string, nameTo: strin
 
   let targetProps = customProps;
   if (group != null) {
-    let foundGroup = customProps.find((g: PropGroupDesc) => g.name === group && g.type === 'group') as PropGroupDesc;
+    const foundGroup = customProps.find((g: PropGroupDesc) => g.name === group && g.type === 'group') as PropGroupDesc;
     if (foundGroup) {
       targetProps = foundGroup.properties;
     } else {
@@ -163,10 +163,10 @@ export function moveCustomProperty(block: Block, nameFrom: string, nameTo: strin
     }
   }
 
-  let idxFrom = targetProps.findIndex((p: PropDesc | PropGroupDesc) => p.name === nameFrom);
-  let idxTo = targetProps.findIndex((p: PropDesc | PropGroupDesc) => p.name === nameTo);
+  const idxFrom = targetProps.findIndex((p: PropDesc | PropGroupDesc) => p.name === nameFrom);
+  const idxTo = targetProps.findIndex((p: PropDesc | PropGroupDesc) => p.name === nameTo);
   if (idxFrom > -1 && idxTo > -1) {
-    let from = targetProps.splice(idxFrom, 1)[0];
+    const from = targetProps.splice(idxFrom, 1)[0];
     targetProps.splice(idxTo, 0, from);
     block.setValue('#custom', customProps);
   }

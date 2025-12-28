@@ -82,14 +82,14 @@ describe('Connection Client API', function () {
   });
 
   it('getCommonfuncFunc', async function () {
-    let [server, client] = makeLocalConnection(Root.instance, true);
+    const [server, client] = makeLocalConnection(Root.instance, true);
     await client.getValue('doesnt_matter__just_wait_for_init');
 
-    let func1 = client.watchDesc('ClientConnection:func1');
-    let func2 = client.watchDesc('ClientConnection:func2');
-    let func3 = client.watchDesc('ClientConnection:func3');
-    let func4 = client.watchDesc('ClientConnection:func4');
-    let func5 = client.watchDesc('ClientConnection:func5');
+    const func1 = client.watchDesc('ClientConnection:func1');
+    const func2 = client.watchDesc('ClientConnection:func2');
+    const func3 = client.watchDesc('ClientConnection:func3');
+    const func4 = client.watchDesc('ClientConnection:func4');
+    const func5 = client.watchDesc('ClientConnection:func5');
 
     expect(client.getCommonBaseFunc(new Set([func5]))).toBe(func5);
     expect(client.getCommonBaseFunc(new Set([func3, func5]))).toBe(func2);
@@ -100,11 +100,11 @@ describe('Connection Client API', function () {
   });
 
   it('getOptionalProps', async function () {
-    let [server, client] = makeLocalConnection(Root.instance, true);
+    const [server, client] = makeLocalConnection(Root.instance, true);
     await client.getValue('doesnt_matter__just_wait_for_init');
 
-    let func1 = client.watchDesc('ClientConnection:func1');
-    let func5 = client.watchDesc('ClientConnection:func5');
+    const func1 = client.watchDesc('ClientConnection:func1');
+    const func5 = client.watchDesc('ClientConnection:func5');
 
     expect(Object.keys(client.getOptionalProps(func1))).toEqual(['p1']);
     expect(Object.keys(client.getOptionalProps(func5))).toEqual(['p1', 'p2', 'p5']);

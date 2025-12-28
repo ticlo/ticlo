@@ -17,13 +17,13 @@ describe('Copy Paste', function () {
   };
 
   it('basic', function () {
-    let flow1 = new WorkerFlow();
+    const flow1 = new WorkerFlow();
 
     flow1.load(data);
-    let copied = copyProperties(flow1, ['add', '#shared.subtract']) as DataMap;
+    const copied = copyProperties(flow1, ['add', '#shared.subtract']) as DataMap;
     expect(copied).toEqual(copy);
 
-    let flow2 = new WorkerFlow();
+    const flow2 = new WorkerFlow();
     expect(pasteProperties(flow2, copied)).toEqual(['add', '#shared.subtract']);
     expect(flow2.save()).toEqual(data);
 
@@ -35,13 +35,13 @@ describe('Copy Paste', function () {
   });
 
   it('rename', function () {
-    let flow1 = new WorkerFlow();
+    const flow1 = new WorkerFlow();
     flow1.load(data);
 
     flow1.createBlock('divide')._load({'#is': 'divide', '~0': '##.add.0', '@b-xyw': 'add'});
 
-    let copied1 = copyProperties(flow1, ['add', 'divide']) as DataMap;
-    let copied2 = copyProperties(flow1, ['#shared.subtract']) as DataMap;
+    const copied1 = copyProperties(flow1, ['add', 'divide']) as DataMap;
+    const copied2 = copyProperties(flow1, ['#shared.subtract']) as DataMap;
 
     pasteProperties(flow1, copied1, 'rename');
     pasteProperties(flow1, copied2, 'rename');
@@ -63,7 +63,7 @@ describe('Copy Paste', function () {
   });
 
   it('invalid copy paste', function () {
-    let flow1 = new WorkerFlow();
+    const flow1 = new WorkerFlow();
     expect(copyProperties(flow1, ['add', '#shared.subtract'])).toBe('nothing to copy');
     expect(pasteProperties(flow1, null)).toBe('invalid data');
     expect(pasteProperties(flow1, [] as any)).toBe('invalid data');

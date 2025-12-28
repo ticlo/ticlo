@@ -157,9 +157,9 @@ class PropertyDefMerger {
   add(props: (PropDesc | PropGroupDesc)[]) {
     if (this.map) {
       // merge with existing propMap, only show properties exist in all desc
-      let checkedProperties: Set<string> = new Set<string>();
-      for (let prop of props) {
-        let name = getPropDescName(prop);
+      const checkedProperties: Set<string> = new Set<string>();
+      for (const prop of props) {
+        const name = getPropDescName(prop);
         if (this.map.has(name) && !comparePropDesc(this.map.get(name), prop)) {
           // hide property if there is a conflict
           this.map.delete(name);
@@ -167,24 +167,24 @@ class PropertyDefMerger {
           checkedProperties.add(name);
         }
       }
-      for (let [name, prop] of this.map) {
+      for (const [name, prop] of this.map) {
         if (!checkedProperties.has(name)) {
           this.map.delete(name);
         }
       }
     } else {
       this.map = new Map<string, PropDesc | PropGroupDesc>();
-      for (let prop of props) {
-        let name = getPropDescName(prop);
+      for (const prop of props) {
+        const name = getPropDescName(prop);
         this.map.set(name, prop);
       }
     }
   }
 
   render(paths: string[], conn: ClientConn, funcDesc: FunctionDesc, isCustom?: boolean) {
-    let children: React.ReactNode[] = [];
+    const children: React.ReactNode[] = [];
     if (this.map) {
-      for (let [name, prop] of this.map) {
+      for (const [name, prop] of this.map) {
         if (prop.type === 'group') {
           children.push(
             <GroupEditor
@@ -247,25 +247,25 @@ export class PropertyList extends MultiSelectComponent<Props, State, BlockLoader
   };
 
   onAddCustom = (desc: PropDesc | PropGroupDesc) => {
-    let {conn} = this.props;
-    for (let [path, subscriber] of this.loaders) {
+    const {conn} = this.props;
+    for (const [path, subscriber] of this.loaders) {
       conn.addCustomProp(path, desc);
     }
     this.onAddCustomPopup(false);
   };
 
   renderImpl() {
-    let {conn, paths, style, mode} = this.props;
-    let {showConfig, showAttribute, showCustom, showAddCustomPopup} = this.state;
+    const {conn, paths, style, mode} = this.props;
+    const {showConfig, showAttribute, showCustom, showAddCustomPopup} = this.state;
 
-    let descChecked: Set<string> = new Set<string>();
-    let propMerger: PropertyDefMerger = new PropertyDefMerger();
-    let configMerger: PropertyDefMerger = new PropertyDefMerger();
-    let customMerger: PropertyDefMerger = new PropertyDefMerger();
+    const descChecked: Set<string> = new Set<string>();
+    const propMerger: PropertyDefMerger = new PropertyDefMerger();
+    const configMerger: PropertyDefMerger = new PropertyDefMerger();
+    const customMerger: PropertyDefMerger = new PropertyDefMerger();
 
     let isEmpty = true;
     let optionalDescs = new Set<FunctionDesc>();
-    for (let [path, subscriber] of this.loaders) {
+    for (const [path, subscriber] of this.loaders) {
       let desc = subscriber.desc;
       if (desc) {
         if (isEmpty) {
@@ -295,8 +295,8 @@ export class PropertyList extends MultiSelectComponent<Props, State, BlockLoader
       );
     }
 
-    let baseDesc = conn.getCommonBaseFunc(optionalDescs);
-    for (let [path, subscriber] of this.loaders) {
+    const baseDesc = conn.getCommonBaseFunc(optionalDescs);
+    for (const [path, subscriber] of this.loaders) {
       if (subscriber.desc) {
         if (!descChecked.has(subscriber.desc.name)) {
           descChecked.add(subscriber.desc.name);
@@ -311,19 +311,19 @@ export class PropertyList extends MultiSelectComponent<Props, State, BlockLoader
     if (mode === 'subBlock') {
       propMerger.remove('#output');
     }
-    let firstLoader: BlockLoader = this.loaders.entries().next().value[1];
+    const firstLoader: BlockLoader = this.loaders.entries().next().value[1];
     let funcDesc = firstLoader.desc;
     if (!funcDesc) {
       funcDesc = blankFuncDesc;
     }
-    let children = propMerger.render(paths, conn, funcDesc);
+    const children = propMerger.render(paths, conn, funcDesc);
 
     if (mode !== 'minimal') {
       // merge #config properties
 
       let configChildren: React.ReactNode[];
       if (showConfig) {
-        for (let [path, subscriber] of this.loaders) {
+        for (const [path, subscriber] of this.loaders) {
           if (subscriber.desc) {
             configMerger.add(mapConfigDesc(subscriber.desc.configs) || defaultConfigDescs);
           } else {
@@ -339,7 +339,7 @@ export class PropertyList extends MultiSelectComponent<Props, State, BlockLoader
 
       // merge #custom properties
       let customChildren: React.ReactNode[];
-      for (let [path, subscriber] of this.loaders) {
+      for (const [path, subscriber] of this.loaders) {
         if (subscriber.custom) {
           customMerger.add(subscriber.custom);
         } else {
@@ -352,7 +352,7 @@ export class PropertyList extends MultiSelectComponent<Props, State, BlockLoader
         customChildren = customMerger.render(paths, conn, funcDesc, true);
       }
 
-      let allowAttribute = mode == null && paths.length === 1;
+      const allowAttribute = mode == null && paths.length === 1;
 
       let customExpand: ExpandState = 'empty';
       if (customMerger.isNotEmpty()) {
@@ -455,17 +455,17 @@ class PropertyAttributeList extends LazyUpdateComponent<PropertyAttributeProps, 
   }
 
   renderImpl() {
-    let {conn, paths, funcDesc} = this.props;
+    const {conn, paths, funcDesc} = this.props;
     this.updatePaths(paths);
 
-    let attributeChildren = [];
-    for (let attributeDesc of attributeList) {
+    const attributeChildren = [];
+    for (const attributeDesc of attributeList) {
       attributeChildren.push(descToEditor(conn, paths, funcDesc, attributeDesc));
     }
     attributeChildren.push(descToEditor(conn, paths, funcDesc, BlockWidget.widgetDesc));
-    let widget = BlockWidget.get(this.widgetListener.value);
+    const widget = BlockWidget.get(this.widgetListener.value);
     if (widget) {
-      for (let propDesc of widget.viewProperties) {
+      for (const propDesc of widget.viewProperties) {
         attributeChildren.push(descToEditor(conn, paths, funcDesc, propDesc as PropDesc));
       }
     }

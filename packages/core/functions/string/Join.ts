@@ -5,7 +5,7 @@ import {getInputsArray} from '../../block/FunctonData.js';
 export class JoinFunction extends PureFunction {
   run(): any {
     let arr: any[] = [];
-    for (let val of getInputsArray(this._data)) {
+    for (const val of getInputsArray(this._data)) {
       if (val == null) {
         this._data.output(undefined);
         return;

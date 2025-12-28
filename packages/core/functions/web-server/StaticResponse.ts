@@ -14,7 +14,7 @@ export class StaticResponse extends BaseFunction<Block> {
   }
 
   run(): any {
-    for (let request of this._called) {
+    for (const request of this._called) {
       if (request.attachHandler(this)) {
         request.onResolve(this._data, this._data);
       }

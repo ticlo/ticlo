@@ -51,44 +51,44 @@ export class NodeTreePane extends React.PureComponent<Props, State> {
   };
 
   showNewFlowModel = () => {
-    let {conn} = this.props;
+    const {conn} = this.props;
     showModal(<AddNewFlowDialog conn={conn} basePath={null} />, this.context.showModal);
   };
   showNewFolderModel = () => {
-    let {conn} = this.props;
+    const {conn} = this.props;
     showModal(<AddNewFlowDialog conn={conn} basePath={null} isFolder={true} />, this.context.showModal);
   };
 
   newFlowOrFolderDragOver = (e: DragState) => {
-    let {conn} = this.props;
-    let functionId = DragState.getData('functionId', conn.getBaseConn());
+    const {conn} = this.props;
+    const functionId = DragState.getData('functionId', conn.getBaseConn());
     console.log(functionId);
     if (functionId !== 'flow:folder') {
       e.reject();
       return;
     }
-    let path = DragState.getData('path', conn.getBaseConn());
+    const path = DragState.getData('path', conn.getBaseConn());
     if (path) {
       e.accept('tico-fas-plus-square');
     }
   };
   newFlowDrop = (e: DragState) => {
-    let {conn} = this.props;
-    let path = DragState.getData('path', conn.getBaseConn());
+    const {conn} = this.props;
+    const path = DragState.getData('path', conn.getBaseConn());
     if (path) {
       showModal(<AddNewFlowDialog conn={conn} basePath={`${path}.`} />, this.context.showModal);
     }
   };
   newFolderDrop = (e: DragState) => {
-    let {conn} = this.props;
-    let path = DragState.getData('path', conn.getBaseConn());
+    const {conn} = this.props;
+    const path = DragState.getData('path', conn.getBaseConn());
     if (path) {
       showModal(<AddNewFlowDialog conn={conn} basePath={`${path}.`} isFolder={true} />, this.context.showModal);
     }
   };
   render() {
-    let {conn, basePaths, hideRoot, onSelect, showMenu} = this.props;
-    let {selectedKeys} = this.state;
+    const {conn, basePaths, hideRoot, onSelect, showMenu} = this.props;
+    const {selectedKeys} = this.state;
 
     return (
       <div className="ticl-node-tree-pane">

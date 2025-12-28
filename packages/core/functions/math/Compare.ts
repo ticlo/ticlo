@@ -16,8 +16,8 @@ const descriptor: FunctionDesc = {
 
 export class EqualFunction extends PureFunction {
   run(): any {
-    let v0 = this._data.getValue('0');
-    let v1 = this._data.getValue('1');
+    const v0 = this._data.getValue('0');
+    const v1 = this._data.getValue('1');
     this._data.output(v0 === v1);
   }
 }
@@ -35,8 +35,8 @@ Functions.add(EqualFunction, {
 
 export class NotEqualFunction extends PureFunction {
   run(): any {
-    let v0 = this._data.getValue('0');
-    let v1 = this._data.getValue('1');
+    const v0 = this._data.getValue('0');
+    const v1 = this._data.getValue('1');
     this._data.output(v0 !== v1);
   }
 }
@@ -54,8 +54,8 @@ Functions.add(NotEqualFunction, {
 
 export class GreaterThanFunction extends PureFunction {
   run(): any {
-    let v0 = this._data.getValue('0');
-    let v1 = this._data.getValue('1');
+    const v0 = this._data.getValue('0');
+    const v1 = this._data.getValue('1');
     if (v0 == null || v1 == null) {
       this._data.output(undefined);
     } else {
@@ -72,8 +72,8 @@ Functions.add(GreaterThanFunction, {
 
 export class LessThanFunction extends PureFunction {
   run(): any {
-    let v0 = this._data.getValue('0');
-    let v1 = this._data.getValue('1');
+    const v0 = this._data.getValue('0');
+    const v1 = this._data.getValue('1');
     if (v0 == null || v1 == null) {
       this._data.output(undefined);
     } else {
@@ -90,8 +90,8 @@ Functions.add(LessThanFunction, {
 
 export class GreaterEqualFunction extends PureFunction {
   run(): any {
-    let v0 = this._data.getValue('0');
-    let v1 = this._data.getValue('1');
+    const v0 = this._data.getValue('0');
+    const v1 = this._data.getValue('1');
     if (v0 == null || v1 == null) {
       this._data.output(undefined);
     } else {
@@ -108,8 +108,8 @@ Functions.add(GreaterEqualFunction, {
 
 export class LessEqualFunction extends PureFunction {
   run(): any {
-    let v0 = this._data.getValue('0');
-    let v1 = this._data.getValue('1');
+    const v0 = this._data.getValue('0');
+    const v1 = this._data.getValue('1');
     if (v0 == null || v1 == null) {
       this._data.output(undefined);
     } else {
@@ -126,9 +126,9 @@ Functions.add(LessEqualFunction, {
 
 export class WithinRangeFunction extends PureFunction {
   run(): any {
-    let input = this._data.getValue('input');
-    let min = this._data.getValue('min');
-    let max = this._data.getValue('max');
+    const input = this._data.getValue('input');
+    const min = this._data.getValue('min');
+    const max = this._data.getValue('max');
     if (input == null || min == null || max == null) {
       this._data.output(undefined);
     } else {
@@ -152,9 +152,9 @@ Functions.add(WithinRangeFunction, {
 
 export class WithinIntervalFunction extends PureFunction {
   run(): any {
-    let input = this._data.getValue('input');
-    let min = this._data.getValue('min');
-    let max = this._data.getValue('max');
+    const input = this._data.getValue('input');
+    const min = this._data.getValue('min');
+    const max = this._data.getValue('max');
     if (input == null || min == null || max == null) {
       this._data.output(undefined);
     } else {

@@ -13,9 +13,9 @@ describe('BlockMode', function () {
   });
 
   it('basic block mode', function () {
-    let flow = new Flow();
+    const flow = new Flow();
 
-    let block = flow.createBlock('obj');
+    const block = flow.createBlock('obj');
     block.setValue('#mode', 'onCall');
     block.setValue('#-log', 'obj');
     block.setValue('#is', 'test-runner');
@@ -43,18 +43,18 @@ describe('BlockMode', function () {
   });
 
   it('block mode on load', function () {
-    let flow = new Flow();
+    const flow = new Flow();
 
-    let b0 = flow.createBlock('onLoad');
+    const b0 = flow.createBlock('onLoad');
     b0.setValue('#mode', 'onLoad');
-    let b1 = flow.createBlock('onChange');
+    const b1 = flow.createBlock('onChange');
     b1.setValue('#mode', 'onChange');
-    let b2 = flow.createBlock('onCall');
+    const b2 = flow.createBlock('onCall');
     b2.setValue('#mode', 'onCall');
-    let b3 = flow.createBlock('sync');
+    const b3 = flow.createBlock('sync');
     b3.setValue('#mode', 'onCall');
     b3.setValue('#sync', true);
-    let b4 = flow.createBlock('disabled');
+    const b4 = flow.createBlock('disabled');
     b4.setValue('#disabled', true);
 
     b0.setValue('#-log', 'b0');
@@ -76,8 +76,8 @@ describe('BlockMode', function () {
     Root.run();
     expect(TestFunctionRunner.popLogs()).toEqual(['b0', 'b1']);
 
-    let saved = flow.save();
-    let flow2 = new Flow();
+    const saved = flow.save();
+    const flow2 = new Flow();
     flow2.load(saved);
 
     Root.run();
@@ -85,11 +85,11 @@ describe('BlockMode', function () {
   });
 
   it('block mode on liveUpdate', function () {
-    let flow = new Flow();
+    const flow = new Flow();
 
-    let b0 = flow.createBlock('b0');
+    const b0 = flow.createBlock('b0');
     b0.setValue('#mode', 'onLoad');
-    let b1 = flow.createBlock('b1');
+    const b1 = flow.createBlock('b1');
     b1.setValue('#mode', 'onChange');
 
     b0.setValue('#-log', 'b0');
@@ -101,11 +101,11 @@ describe('BlockMode', function () {
     Root.run();
     expect(TestFunctionRunner.popLogs()).toEqual(['b0', 'b1']);
 
-    let save1 = flow.save();
+    const save1 = flow.save();
 
-    let b2 = flow.createBlock('b2');
+    const b2 = flow.createBlock('b2');
     b2.setValue('#mode', 'onLoad');
-    let b3 = flow.createBlock('b3');
+    const b3 = flow.createBlock('b3');
     b3.setValue('#mode', 'onChange');
 
     b0.setValue('input', 2);
@@ -119,12 +119,12 @@ describe('BlockMode', function () {
 
     Root.run();
     expect(TestFunctionRunner.popLogs()).toEqual(['b0', 'b1', 'b2', 'b3']);
-    let save2 = flow.save();
+    const save2 = flow.save();
 
     flow.liveUpdate(save1);
     Root.run();
     expect(TestFunctionRunner.logs).toEqual(['b0']);
-    let save1New = flow.save();
+    const save1New = flow.save();
     expect(save1).toEqual(save1New);
     TestFunctionRunner.clearLog();
 
@@ -134,9 +134,9 @@ describe('BlockMode', function () {
   });
 
   it('binding route change', function () {
-    let flow = new Flow();
+    const flow = new Flow();
 
-    let block = flow.createBlock('obj');
+    const block = flow.createBlock('obj');
     block.setValue('#mode', 'onCall');
     block.setValue('#-log', 'obj');
     block.setValue('#is', 'test-runner');
@@ -145,7 +145,7 @@ describe('BlockMode', function () {
     Root.run();
     TestFunctionRunner.clearLog();
 
-    let blockA = block.createBlock('a');
+    const blockA = block.createBlock('a');
     blockA.setBinding('@parent', '##');
     block.setBinding('@child', 'a');
     block.setBinding('#call', '@child.@parent');
@@ -153,7 +153,7 @@ describe('BlockMode', function () {
     expect(block.getValue('#call')).toBe(block);
     expect(TestFunctionRunner.logs).toEqual([]);
 
-    let blockB = block.createBlock('b');
+    const blockB = block.createBlock('b');
     blockB.setBinding('@parent', '##');
     block.setBinding('@child', 'b');
     Root.run();

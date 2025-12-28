@@ -19,13 +19,13 @@ import {ValueState} from '../ClientRequests.js';
 
 describe('Connection', function () {
   it('get', async function () {
-    let flow = Root.instance.addFlow('Connection0');
-    let data = {a: 0};
+    const flow = Root.instance.addFlow('Connection0');
+    const data = {a: 0};
     flow.setValue('v', data);
 
-    let [server, client] = makeLocalConnection(Root.instance, false);
+    const [server, client] = makeLocalConnection(Root.instance, false);
 
-    let result = await client.getValue('Connection0.v');
+    const result = await client.getValue('Connection0.v');
     expect(result.value).toEqual(data);
 
     // clean up
@@ -34,13 +34,13 @@ describe('Connection', function () {
   });
 
   it('subscribe', async function () {
-    let flow = Root.instance.addFlow('Connection1');
-    let [server, client] = makeLocalConnection(Root.instance, false);
+    const flow = Root.instance.addFlow('Connection1');
+    const [server, client] = makeLocalConnection(Root.instance, false);
 
     await client.addBlock('Connection1.block1', {'#is': 'add'});
     expect(flow.queryValue('block1.#is')).toBe('add');
 
-    let callbacks = new AsyncClientPromise();
+    const callbacks = new AsyncClientPromise();
     client.subscribe('Connection1.block1.#output', callbacks);
     let result = await callbacks.promise;
     expect(result.cache.value).toBeUndefined();
@@ -57,10 +57,10 @@ describe('Connection', function () {
   });
 
   it('bind', async function () {
-    let flow = Root.instance.addFlow('Connection1-2');
-    let [server, client] = makeLocalConnection(Root.instance, false);
+    const flow = Root.instance.addFlow('Connection1-2');
+    const [server, client] = makeLocalConnection(Root.instance, false);
 
-    let callbacks = new AsyncClientPromise();
+    const callbacks = new AsyncClientPromise();
     client.subscribe('Connection1-2.v', callbacks);
 
     flow.setValue('a', 3);
@@ -78,7 +78,7 @@ describe('Connection', function () {
     await client.setBinding('Connection1-2.v', 'Connection1-2.o', true, true);
     expect(flow.getValue('v')).toEqual([{p: 'p'}]);
 
-    let nextPromise = callbacks.promise;
+    const nextPromise = callbacks.promise;
     await client.setBinding('Connection1-2.v', null, true, true);
     expect(flow.getValue('v')).toBe(undefined);
     expect((await nextPromise).cache.bindingPath).toBeNull();
@@ -89,7 +89,7 @@ describe('Connection', function () {
     expect(flow.getValue('v')).toBe(3);
 
     // binding from global block
-    let a = Root.instance._globalRoot.createBlock('^g');
+    const a = Root.instance._globalRoot.createBlock('^g');
     a.setValue('0', 'global');
 
     await client.setBinding('Connection1-2.v', '#global.^g.0', true, true);
@@ -104,18 +104,18 @@ describe('Connection', function () {
   });
 
   it('multiple subscribe binding', async function () {
-    let flow = Root.instance.addFlow('Connection2');
-    let [server, client] = makeLocalConnection(Root.instance, false);
+    const flow = Root.instance.addFlow('Connection2');
+    const [server, client] = makeLocalConnection(Root.instance, false);
 
     client.setBinding('Connection2.p', 'p0');
 
-    let callbacks1 = new AsyncClientPromise();
+    const callbacks1 = new AsyncClientPromise();
     client.subscribe('Connection2.p', callbacks1);
     let result1 = await callbacks1.promise;
     expect(result1.change.value).toBeUndefined();
     expect(result1.change.bindingPath).toBe('p0');
 
-    let callbacks2 = new AsyncClientPromise();
+    const callbacks2 = new AsyncClientPromise();
     client.subscribe('Connection2.p', callbacks2);
     let result2 = await callbacks2.firstPromise;
     expect(result1.change.bindingPath).toBe('p0');
@@ -124,15 +124,15 @@ describe('Connection', function () {
     client.setBinding('Connection2.p', 'p1');
     [result1, result2] = await Promise.all([callbacks1.promise, callbacks2.promise]);
 
-    let callbacks3 = new AsyncClientPromise();
+    const callbacks3 = new AsyncClientPromise();
     client.subscribe('Connection2.p', callbacks3); // subscribe when local cache exists
-    let result3 = await callbacks3.firstPromise;
+    const result3 = await callbacks3.firstPromise;
 
-    for (let obj of [result1.cache, result2.cache, result3.cache, result1.change, result2.change]) {
+    for (const obj of [result1.cache, result2.cache, result3.cache, result1.change, result2.change]) {
       expect(obj.value).toBe('hello');
       expect(obj.bindingPath).toBe('p1');
     }
-    let cachedPromise1 = callbacks1.promise;
+    const cachedPromise1 = callbacks1.promise;
 
     client.unsubscribe('Connection2.p', callbacks3);
     client.unsubscribe('Connection2.p', callbacks2);
@@ -152,27 +152,27 @@ describe('Connection', function () {
   });
 
   it('watch', async function () {
-    let flow = Root.instance.addFlow('Connection3-0');
-    let [server, client] = makeLocalConnection(Root.instance, false);
+    const flow = Root.instance.addFlow('Connection3-0');
+    const [server, client] = makeLocalConnection(Root.instance, false);
 
-    let child0 = flow.createBlock('c0');
+    const child0 = flow.createBlock('c0');
 
-    let callbacks1 = new AsyncClientPromise();
+    const callbacks1 = new AsyncClientPromise();
     client.watch('Connection3-0', callbacks1);
-    let result1 = await callbacks1.promise;
+    const result1 = await callbacks1.promise;
     expect(result1.changes).toEqual({c0: child0._blockId});
     expect(result1.cache).toEqual({c0: child0._blockId});
 
     flow.deleteValue('c0');
-    let result2 = await callbacks1.promise;
+    const result2 = await callbacks1.promise;
     expect(result2.changes).toEqual({c0: null});
 
-    let child1 = flow.createBlock('c1');
-    let result3 = await callbacks1.promise;
+    const child1 = flow.createBlock('c1');
+    const result3 = await callbacks1.promise;
     expect(result3.changes).toEqual({c1: child1._blockId});
 
     flow.deleteValue('c1');
-    let result4 = await callbacks1.promise;
+    const result4 = await callbacks1.promise;
     expect(result4.changes).toEqual({c1: null});
 
     // clean up
@@ -182,24 +182,24 @@ describe('Connection', function () {
   });
 
   it('multiple watch', async function () {
-    let flow = Root.instance.addFlow('Connection3');
-    let [server, client] = makeLocalConnection(Root.instance, false);
+    const flow = Root.instance.addFlow('Connection3');
+    const [server, client] = makeLocalConnection(Root.instance, false);
 
-    let child0 = flow.createBlock('c0');
+    const child0 = flow.createBlock('c0');
 
-    let callbacks1 = new AsyncClientPromise();
+    const callbacks1 = new AsyncClientPromise();
     client.watch('Connection3', callbacks1);
     let result1 = await callbacks1.promise;
     expect(result1.changes).toEqual({c0: child0._blockId});
     expect(result1.cache).toEqual({c0: child0._blockId});
 
-    let callbacks2 = new AsyncClientPromise();
+    const callbacks2 = new AsyncClientPromise();
     client.watch('Connection3', callbacks2);
     let result2 = await callbacks2.firstPromise;
     expect(result2.changes).toEqual({c0: child0._blockId});
     expect(result2.cache).toEqual({c0: child0._blockId});
 
-    let child1 = flow.createBlock('c1');
+    const child1 = flow.createBlock('c1');
     flow.createOutputBlock('t1'); // temp block shouldn't show in watch result
     [result1, result2] = await Promise.all([callbacks1.promise, callbacks2.promise]);
     expect(result1.changes).toEqual({c1: child1._blockId});
@@ -212,7 +212,7 @@ describe('Connection', function () {
     expect(result1.changes).toEqual({c0: null});
     expect(result1.cache).toEqual({c1: child1._blockId});
 
-    let cachedPromise1 = callbacks1.promise;
+    const cachedPromise1 = callbacks1.promise;
 
     client.unwatch('Connection3', callbacks2);
     client.unwatch('Connection3', callbacks1);
@@ -229,22 +229,22 @@ describe('Connection', function () {
   });
 
   it('list', async function () {
-    let flow = Root.instance.addFlow('Connection4');
-    let [server, client] = makeLocalConnection(Root.instance, false);
+    const flow = Root.instance.addFlow('Connection4');
+    const [server, client] = makeLocalConnection(Root.instance, false);
 
     for (let i = 0; i < 100; ++i) {
       flow.createBlock('a' + i);
       flow.createBlock('b' + i);
     }
 
-    let result1 = await client.list('Connection4', null, 32);
+    const result1 = await client.list('Connection4', null, 32);
     expect(Object.keys(result1.children).length).toBe(32);
     expect(result1.count).toBe(200);
 
-    let id2: string = client.list('Connection4', 'any', 32, VoidListeners) as string;
+    const id2: string = client.list('Connection4', 'any', 32, VoidListeners) as string;
     client.cancel(id2);
 
-    let result3 = await client.list('Connection4', 'a\\d+', 9999);
+    const result3 = await client.list('Connection4', 'a\\d+', 9999);
     expect(Object.keys(result3.children).length).toBe(16);
     expect(result3.count).toBe(100);
 
@@ -253,8 +253,8 @@ describe('Connection', function () {
   });
 
   it('watchDesc', async function () {
-    let flow = Root.instance.addFlow('Connection5');
-    let [server, client] = makeLocalConnection(Root.instance, true);
+    const flow = Root.instance.addFlow('Connection5');
+    const [server, client] = makeLocalConnection(Root.instance, true);
 
     let descCustom: FunctionDesc;
     client.watchDesc('Connection-watchDesc1', (desc: FunctionDesc) => {
@@ -293,16 +293,16 @@ describe('Connection', function () {
   it('merge set request', async function () {
     TestFunctionRunner.clearLog();
 
-    let flow = Root.instance.addFlow('Connection6');
-    let [server, client] = makeLocalConnection(Root.instance, false);
+    const flow = Root.instance.addFlow('Connection6');
+    const [server, client] = makeLocalConnection(Root.instance, false);
 
-    let b = flow.createBlock('b');
+    const b = flow.createBlock('b');
     b.setValue('#mode', 'onCall');
     b.setValue('#sync', true);
     b.setValue('#-log', 0);
     b.setValue('#is', 'test-runner');
 
-    let callbacks = new AsyncClientPromise();
+    const callbacks = new AsyncClientPromise();
 
     client.setValue('Connection6.b.#-log', 1);
     client.setValue('Connection6.b.#call', {});
@@ -323,16 +323,16 @@ describe('Connection', function () {
   it('merge update request', async function () {
     TestFunctionRunner.clearLog();
 
-    let flow = Root.instance.addFlow('Connection6-2');
-    let [server, client] = makeLocalConnection(Root.instance, false);
+    const flow = Root.instance.addFlow('Connection6-2');
+    const [server, client] = makeLocalConnection(Root.instance, false);
 
-    let b = flow.createBlock('b');
+    const b = flow.createBlock('b');
     b.updateValue('#mode', 'onCall');
     b.updateValue('#sync', true);
     b.updateValue('#-log', 0);
     b.updateValue('#is', 'test-runner');
 
-    let callbacks = new AsyncClientPromise();
+    const callbacks = new AsyncClientPromise();
 
     client.updateValue('Connection6-2.b.#-log', 1);
     client.updateValue('Connection6-2.b.#call', {});
@@ -353,10 +353,10 @@ describe('Connection', function () {
   it('merge bind request', async function () {
     TestFunctionRunner.clearLog();
 
-    let flow = Root.instance.addFlow('Connection6-3');
-    let [server, client] = makeLocalConnection(Root.instance, false);
+    const flow = Root.instance.addFlow('Connection6-3');
+    const [server, client] = makeLocalConnection(Root.instance, false);
 
-    let b = flow.createBlock('b');
+    const b = flow.createBlock('b');
     b.setValue('@1', 1);
     b.setValue('@2', 2);
     b.setValue('@3', 3);
@@ -367,7 +367,7 @@ describe('Connection', function () {
     b.setValue('#-log', 0);
     b.setValue('#is', 'test-runner');
 
-    let callbacks = new AsyncClientPromise();
+    const callbacks = new AsyncClientPromise();
 
     client.setBinding('Connection6-3.b.#-log', '@1');
     client.setBinding('Connection6-3.b.#call', '@1');
@@ -386,11 +386,11 @@ describe('Connection', function () {
   });
 
   it('subscribe listener', async function () {
-    let flow = Root.instance.addFlow('Connection7');
-    let [server, client] = makeLocalConnection(Root.instance, false);
+    const flow = Root.instance.addFlow('Connection7');
+    const [server, client] = makeLocalConnection(Root.instance, false);
 
     let lastUpdate: DataMap;
-    let callbacks = {
+    const callbacks = {
       onUpdate(response: DataMap) {
         lastUpdate = response;
       },
@@ -409,24 +409,24 @@ describe('Connection', function () {
   });
 
   it('callImmediate', async function () {
-    let flow = Root.instance.addFlow('Connection8');
-    let [server, client] = makeLocalConnection(Root.instance, false);
+    const flow = Root.instance.addFlow('Connection8');
+    const [server, client] = makeLocalConnection(Root.instance, false);
 
     let called = 0;
     let updated = 0;
-    let callback = () => called++;
+    const callback = () => called++;
 
     client.callImmediate(callback);
     expect(called).toBe(1);
 
-    let callbacks1 = {
+    const callbacks1 = {
       onUpdate(response: DataMap) {
         client.callImmediate(callback);
         updated++;
         expect(called).toBe(1);
       },
     };
-    let callbacks2 = {
+    const callbacks2 = {
       onUpdate(response: DataMap) {
         client.callImmediate(callback);
         updated++;
@@ -446,14 +446,14 @@ describe('Connection', function () {
   });
 
   it('set a saved block', async function () {
-    let flow = Root.instance.addFlow('Connection9');
-    let [server, client] = makeLocalConnection(Root.instance, false);
+    const flow = Root.instance.addFlow('Connection9');
+    const [server, client] = makeLocalConnection(Root.instance, false);
 
     await client.setValue('Connection9.v', {'#is': 'hello'});
 
-    let callbacks = new AsyncClientPromise();
+    const callbacks = new AsyncClientPromise();
     client.subscribe('Connection9.v', callbacks);
-    let result = await callbacks.promise;
+    const result = await callbacks.promise;
     expect(result.cache.value).toEqual({'#is': 'hello'});
 
     callbacks.cancel();
@@ -463,7 +463,7 @@ describe('Connection', function () {
   });
 
   it('auto bind', async function () {
-    let flow1 = Root.instance.addFlow('Connection10');
+    const flow1 = Root.instance.addFlow('Connection10');
 
     flow1.load({
       c: {
@@ -476,7 +476,7 @@ describe('Connection', function () {
       },
     });
 
-    let [server, client] = makeLocalConnection(Root.instance, false);
+    const [server, client] = makeLocalConnection(Root.instance, false);
 
     client.setBinding('Connection10.c.e.v1', 'Connection10.c.d.v1', true);
     client.setBinding('Connection10.c.e.v2', 'Connection10.c.e.v1', true);
@@ -493,23 +493,23 @@ describe('Connection', function () {
   });
 
   it('full value', async function () {
-    let flow1 = Root.instance.addFlow('Connection11');
+    const flow1 = Root.instance.addFlow('Connection11');
 
     flow1.load({
       '@v': [0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
     });
 
-    let [server, client] = makeLocalConnection(Root.instance, false);
+    const [server, client] = makeLocalConnection(Root.instance, false);
 
-    let callbacks1 = new AsyncClientPromise();
+    const callbacks1 = new AsyncClientPromise();
     client.subscribe('Connection11.@v', callbacks1);
-    let result1 = await callbacks1.promise;
+    const result1 = await callbacks1.promise;
 
     expect(isDataTruncated(result1.cache.value)).toBe(true);
 
-    let callbacks2 = new AsyncClientPromise();
+    const callbacks2 = new AsyncClientPromise();
     client.subscribe('Connection11.@v', callbacks2, true);
-    let result2 = await callbacks2.promise;
+    const result2 = await callbacks2.promise;
 
     expect(isDataTruncated(result2.cache.value)).toBe(false);
 
@@ -524,9 +524,9 @@ describe('Connection', function () {
   });
 
   it('helper property', async function () {
-    let flow1 = Root.instance.addFlow('Connection12');
+    const flow1 = Root.instance.addFlow('Connection12');
 
-    let [server, client] = makeLocalConnection(Root.instance, false);
+    const [server, client] = makeLocalConnection(Root.instance, false);
 
     await client.addBlock('Connection12.~a');
 
@@ -548,13 +548,13 @@ describe('Connection', function () {
   });
 
   it('autoName', async function () {
-    let flow1 = Root.instance.addFlow('Connection13');
+    const flow1 = Root.instance.addFlow('Connection13');
 
-    let [server, client] = makeLocalConnection(Root.instance, false);
+    const [server, client] = makeLocalConnection(Root.instance, false);
 
-    let response1 = await client.addBlock('Connection13.a', null, true);
-    let response2 = await client.addBlock('Connection13.a', null, true);
-    let response3 = await client.addBlock('Connection13.a', null, true);
+    const response1 = await client.addBlock('Connection13.a', null, true);
+    const response2 = await client.addBlock('Connection13.a', null, true);
+    const response3 = await client.addBlock('Connection13.a', null, true);
 
     // result names
     expect(response1.name).toBe('a');
@@ -569,18 +569,18 @@ describe('Connection', function () {
   });
 
   it('show hide move props', async function () {
-    let flow1 = Root.instance.addFlow('Connection14');
-    let block1 = flow1.createBlock('a');
+    const flow1 = Root.instance.addFlow('Connection14');
+    const block1 = flow1.createBlock('a');
 
-    let [server, client] = makeLocalConnection(Root.instance, false);
+    const [server, client] = makeLocalConnection(Root.instance, false);
 
-    let response1 = await client.showProps('Connection14.a', ['@a', '@b']);
+    const response1 = await client.showProps('Connection14.a', ['@a', '@b']);
     expect(block1.getValue('@b-p')).toEqual(['@a', '@b']);
 
-    let response2 = await client.moveShownProp('Connection14.a', '@a', '@b');
+    const response2 = await client.moveShownProp('Connection14.a', '@a', '@b');
     expect(block1.getValue('@b-p')).toEqual(['@b', '@a']);
 
-    let response3 = await client.hideProps('Connection14.a', ['@a', '@b']);
+    const response3 = await client.hideProps('Connection14.a', ['@a', '@b']);
     expect(block1.getValue('@b-p')).not.toBeDefined();
 
     client.destroy();
@@ -588,18 +588,18 @@ describe('Connection', function () {
   });
 
   it('add remove custom props', async function () {
-    let flow1 = Root.instance.addFlow('Connection15');
-    let block1 = flow1.createBlock('a');
+    const flow1 = Root.instance.addFlow('Connection15');
+    const block1 = flow1.createBlock('a');
 
-    let [server, client] = makeLocalConnection(Root.instance, false);
+    const [server, client] = makeLocalConnection(Root.instance, false);
 
-    let response1 = await client.addCustomProp('Connection15.a', {
+    const response1 = await client.addCustomProp('Connection15.a', {
       name: 'a',
       type: 'string',
     });
     expect(block1.getValue('#custom')).toEqual([{name: 'a', type: 'string'}]);
 
-    let response2 = await client.removeCustomProp('Connection15.a', 'a');
+    const response2 = await client.removeCustomProp('Connection15.a', 'a');
     expect(block1.getValue('#custom')).not.toBeDefined();
 
     client.destroy();
@@ -607,25 +607,25 @@ describe('Connection', function () {
   });
 
   it('insert remove group props', async function () {
-    let flow1 = Root.instance.addFlow('Connection16');
-    let block1 = flow1.createBlock('a');
+    const flow1 = Root.instance.addFlow('Connection16');
+    const block1 = flow1.createBlock('a');
     block1._load({
       '#is': 'add',
       '0': 0,
       '1': 1,
     });
 
-    let [server, client] = makeLocalConnection(Root.instance, false);
+    const [server, client] = makeLocalConnection(Root.instance, false);
 
-    let response1 = await client.insertGroupProp('Connection16.a', '', 0);
+    const response1 = await client.insertGroupProp('Connection16.a', '', 0);
     expect(block1.getValue('[]')).toBe(3);
     expect(block1.getValue('1')).toBe(0);
 
-    let response2 = await client.removeGroupProp('Connection16.a', '', 0);
+    const response2 = await client.removeGroupProp('Connection16.a', '', 0);
     expect(block1.getValue('[]')).toBe(2);
     expect(block1.getValue('0')).toBe(0);
 
-    let response3 = await client.moveGroupProp('Connection16.a', '', 0, 1);
+    const response3 = await client.moveGroupProp('Connection16.a', '', 0, 1);
     expect(block1.getValue('1')).toBe(0);
 
     client.destroy();
@@ -633,13 +633,13 @@ describe('Connection', function () {
   });
 
   it('set length', async function () {
-    let flow1 = Root.instance.addFlow('Connection16-2');
-    let block1 = flow1.createBlock('a');
+    const flow1 = Root.instance.addFlow('Connection16-2');
+    const block1 = flow1.createBlock('a');
     block1.setValue('#is', 'add');
 
-    let [server, client] = makeLocalConnection(Root.instance, false);
+    const [server, client] = makeLocalConnection(Root.instance, false);
 
-    let response1 = await client.setLen('Connection16-2.a', '', 3);
+    const response1 = await client.setLen('Connection16-2.a', '', 3);
     expect(block1.getValue('@b-p')).toEqual(['2']);
 
     client.destroy();
@@ -647,16 +647,16 @@ describe('Connection', function () {
   });
 
   it('move custom props', async function () {
-    let flow1 = Root.instance.addFlow('Connection17');
-    let block1 = flow1.createBlock('a');
+    const flow1 = Root.instance.addFlow('Connection17');
+    const block1 = flow1.createBlock('a');
     block1.setValue('#custom', [
       {name: 'a', type: 'string'},
       {name: 'b', type: 'string'},
     ]);
 
-    let [server, client] = makeLocalConnection(Root.instance, false);
+    const [server, client] = makeLocalConnection(Root.instance, false);
 
-    let response1 = await client.moveCustomProp('Connection17.a', 'a', 'b');
+    const response1 = await client.moveCustomProp('Connection17.a', 'a', 'b');
     expect(block1.getValue('#custom')).toEqual([
       {name: 'b', type: 'string'},
       {name: 'a', type: 'string'},
@@ -667,11 +667,11 @@ describe('Connection', function () {
   });
 
   it('findGlobalBlocks', async function () {
-    let [server, client] = makeLocalConnection(Root.instance, true);
+    const [server, client] = makeLocalConnection(Root.instance, true);
 
-    let a = Root.instance._globalRoot.createBlock('^a');
+    const a = Root.instance._globalRoot.createBlock('^a');
     a.setValue('#is', 'add');
-    let b = Root.instance._globalRoot.createBlock('^b');
+    const b = Root.instance._globalRoot.createBlock('^b');
     b.setValue('#is', 'subtract');
 
     await shouldHappen(() => client.findGlobalBlocks(['math']).length === 2);
@@ -690,14 +690,14 @@ describe('Connection', function () {
   });
 
   it('FlowEditor', async function () {
-    let flow1 = Root.instance.addFlow('Connection18');
-    let block1 = flow1.createBlock('a');
-    let data = {
+    const flow1 = Root.instance.addFlow('Connection18');
+    const block1 = flow1.createBlock('a');
+    const data = {
       '#is': '',
       'add': {'#is': 'add'},
     };
 
-    let [server, client] = makeLocalConnection(Root.instance, true);
+    const [server, client] = makeLocalConnection(Root.instance, true);
 
     // edit from field
     client.setValue('Connection18.a.use', data);
@@ -716,10 +716,10 @@ describe('Connection', function () {
   });
 
   it('applyFlowChange', async function () {
-    let flow1 = Root.instance.addFlow('Connection19');
-    let [server, client] = makeLocalConnection(Root.instance, true);
+    const flow1 = Root.instance.addFlow('Connection19');
+    const [server, client] = makeLocalConnection(Root.instance, true);
 
-    let editor = FlowEditor.create(flow1, '#edit-v', {}, null, false, (data: DataMap) => {
+    const editor = FlowEditor.create(flow1, '#edit-v', {}, null, false, (data: DataMap) => {
       flow1.setValue('v', data);
       return true;
     });
@@ -731,7 +731,7 @@ describe('Connection', function () {
   });
 
   it('createFlow and DeleteFlow', async function () {
-    let [server, client] = makeLocalConnection(Root.instance, true);
+    const [server, client] = makeLocalConnection(Root.instance, true);
 
     await client.addFlowFolder('Connection20');
     expect(Root.instance.getValue('Connection20')).toBeInstanceOf(FlowFolder);
@@ -746,10 +746,10 @@ describe('Connection', function () {
   });
 
   it('add remove move optional props', async function () {
-    let flow1 = Root.instance.addFlow('Connection21');
-    let block1 = flow1.createBlock('a');
+    const flow1 = Root.instance.addFlow('Connection21');
+    const block1 = flow1.createBlock('a');
 
-    let [server, client] = makeLocalConnection(Root.instance, false);
+    const [server, client] = makeLocalConnection(Root.instance, false);
 
     await client.addOptionalProp('Connection21.a', 'a');
     expect(block1.getValue('+optional')).toEqual(['a']);
@@ -768,14 +768,14 @@ describe('Connection', function () {
   });
 
   it('#shared #temp binding', async function () {
-    let flow1 = Root.instance.createOutputFlow(WorkerFlow, 'Connection22', {
+    const flow1 = Root.instance.createOutputFlow(WorkerFlow, 'Connection22', {
       '#is': '',
       'a': {'#is': ''},
       '#shared': {'#is': ''},
     });
     Root.instance.createOutputFlow(WorkerFlow, 'Connection22_2');
 
-    let [server, client] = makeLocalConnection(Root.instance, false);
+    const [server, client] = makeLocalConnection(Root.instance, false);
 
     await client.setBinding('Connection22.a.v', 'Connection22.#shared.a', true, true);
     expect(flow1.queryProperty('a.v')._bindingPath).toBe('##.#shared.a');
@@ -818,10 +818,10 @@ describe('Connection', function () {
   });
 
   it('undo redo', async function () {
-    let flow = Root.instance.addFlow('Connection23');
+    const flow = Root.instance.addFlow('Connection23');
     flow.load({'#is': '', 'a': 1}, null, (data: any) => true);
 
-    let [server, client] = makeLocalConnection(Root.instance, false);
+    const [server, client] = makeLocalConnection(Root.instance, false);
 
     client.watch('Connection23', {});
     client.setValue('Connection23.a', 2);
@@ -838,13 +838,13 @@ describe('Connection', function () {
   });
 
   it('copy paste', async function () {
-    let flow = Root.instance.addFlow('Connection24');
-    let data = {'#is': '', 'add': {'#is': 'add'}};
+    const flow = Root.instance.addFlow('Connection24');
+    const data = {'#is': '', 'add': {'#is': 'add'}};
     flow.load(data);
 
-    let [server, client] = makeLocalConnection(Root.instance, false);
+    const [server, client] = makeLocalConnection(Root.instance, false);
 
-    let copied = (await client.copy('Connection24', ['add'])).value;
+    const copied = (await client.copy('Connection24', ['add'])).value;
     expect(copied).toEqual({add: {'#is': 'add'}});
 
     flow.deleteValue('add');
@@ -857,10 +857,10 @@ describe('Connection', function () {
   });
 
   it('rename props', async function () {
-    let flow = Root.instance.addFlow('Connection25');
+    const flow = Root.instance.addFlow('Connection25');
     flow.setValue('a', 1);
 
-    let [server, client] = makeLocalConnection(Root.instance, false);
+    const [server, client] = makeLocalConnection(Root.instance, false);
 
     await client.renameProp('Connection25.a', 'b');
 
@@ -872,8 +872,8 @@ describe('Connection', function () {
   });
 
   it('call function', async function () {
-    let flow = Root.instance.addFlow('Connection26');
-    let addBlock = flow.createBlock('add');
+    const flow = Root.instance.addFlow('Connection26');
+    const addBlock = flow.createBlock('add');
     addBlock._load({
       '#mode': 'onCall',
       '#is': 'add',
@@ -884,7 +884,7 @@ describe('Connection', function () {
     Root.run();
     expect(addBlock.getValue('#output')).not.toBeDefined();
 
-    let [server, client] = makeLocalConnection(Root.instance, false);
+    const [server, client] = makeLocalConnection(Root.instance, false);
 
     await client.callFunction('Connection26.add');
     Root.run();
@@ -897,10 +897,10 @@ describe('Connection', function () {
 
   it('temp value and restoreSaved', async function () {
     // temp value (subscribed value not equal to saved value)
-    let flow = Root.instance.addFlow('Connection27');
-    let [server, client] = makeLocalConnection(Root.instance, false);
+    const flow = Root.instance.addFlow('Connection27');
+    const [server, client] = makeLocalConnection(Root.instance, false);
 
-    let callbacks = new AsyncClientPromise();
+    const callbacks = new AsyncClientPromise();
     client.subscribe('Connection27.a', callbacks);
 
     await client.setValue('Connection27.a', 2, true);

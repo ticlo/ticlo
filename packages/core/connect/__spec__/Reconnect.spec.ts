@@ -12,21 +12,21 @@ import {Logger} from '../../util/Logger.js';
 
 describe('Reconnect', function () {
   it('reconnect', async function () {
-    let flow = Root.instance.addFlow('Reconnect1');
-    let [server, client] = makeLocalConnection(Root.instance, false);
+    const flow = Root.instance.addFlow('Reconnect1');
+    const [server, client] = makeLocalConnection(Root.instance, false);
 
     flow.setValue('o', 1);
     flow.setBinding('a', 'o');
 
-    let subcallbacks = new AsyncClientPromise();
+    const subcallbacks = new AsyncClientPromise();
     client.subscribe('Reconnect1.a', subcallbacks);
     let result = await subcallbacks.promise;
     expect(result.cache.value).toBe(1);
 
-    let setcallbacks = new AsyncClientPromise();
+    const setcallbacks = new AsyncClientPromise();
     client.setValue('Reconnect1.a', 3, setcallbacks);
 
-    let promiseReject = shouldReject(setcallbacks.promise);
+    const promiseReject = shouldReject(setcallbacks.promise);
     client.onDisconnect();
     await promiseReject; // setValue should receive error
 
@@ -43,15 +43,15 @@ describe('Reconnect', function () {
   });
 
   it('watch object after reconnect ', async function () {
-    let flow = Root.instance.addFlow('Reconnect2');
-    let [server, client] = makeLocalConnection(Root.instance, false);
+    const flow = Root.instance.addFlow('Reconnect2');
+    const [server, client] = makeLocalConnection(Root.instance, false);
 
-    let child0 = flow.createBlock('c0');
-    let child1 = flow.createBlock('c1');
+    const child0 = flow.createBlock('c0');
+    const child1 = flow.createBlock('c1');
 
-    let callbacks1 = new AsyncClientPromise();
+    const callbacks1 = new AsyncClientPromise();
     client.watch('Reconnect2', callbacks1);
-    let result1 = await callbacks1.promise;
+    const result1 = await callbacks1.promise;
     expect(result1.cache).toEqual({
       c0: child0._blockId,
       c1: child1._blockId,
@@ -59,10 +59,10 @@ describe('Reconnect', function () {
 
     client.onDisconnect();
 
-    let child2 = flow.createBlock('c2');
+    const child2 = flow.createBlock('c2');
     flow.deleteValue('c1');
 
-    let result2 = await callbacks1.promise;
+    const result2 = await callbacks1.promise;
     expect(result2.cache).toEqual({
       c0: child0._blockId,
       c2: child2._blockId,
@@ -76,8 +76,8 @@ describe('Reconnect', function () {
   });
 
   it('watch desc after reconnect ', async function () {
-    let flow = Root.instance.addFlow('Reconnect3');
-    let [server, client] = makeLocalConnection(Root.instance, true);
+    const flow = Root.instance.addFlow('Reconnect3');
+    const [server, client] = makeLocalConnection(Root.instance, true);
 
     JsFunction.registerType('', {name: 'ReconnectType1'});
     await shouldHappen(() => client.watchDesc('ReconnectType1'));

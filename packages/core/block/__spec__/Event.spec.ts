@@ -5,7 +5,7 @@ import {TestFunctionRunner} from './TestFunction.js';
 
 describe('Event', function () {
   it('Event Uid Change in Root', function () {
-    let uid = Event.uid;
+    const uid = Event.uid;
     expect(uid).toBe(Event.uid);
     Root.run();
     expect(uid).not.toBe(Event.uid);
@@ -14,13 +14,13 @@ describe('Event', function () {
   it('event life cycle', function () {
     TestFunctionRunner.clearLog();
 
-    let flow = new Flow();
+    const flow = new Flow();
 
-    let block = flow.createBlock('obj');
+    const block = flow.createBlock('obj');
     block.setValue('#-log', 'obj');
     block.setValue('#is', 'test-runner');
 
-    let event = new Event('');
+    const event = new Event('');
     block.setValue('#call', event);
     Root.run();
     expect(TestFunctionRunner.popLogs()).toEqual(['obj']);

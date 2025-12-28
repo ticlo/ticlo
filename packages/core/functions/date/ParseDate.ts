@@ -5,7 +5,7 @@ import {toDateTime} from '../../util/DateTime.js';
 export class ParseDateFunction extends PureFunction {
   run() {
     const input = this._data.getValue('input');
-    let d = toDateTime(input);
+    const d = toDateTime(input);
     if (d.isValid) {
       this._data.output(d);
       this._data.output(d.year, 'year');

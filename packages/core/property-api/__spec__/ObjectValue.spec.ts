@@ -5,7 +5,7 @@ import {Flow} from '../../block/Flow.js';
 
 describe('ObjectValue', function () {
   it('updateObjectValue', function () {
-    let flow = new Flow();
+    const flow = new Flow();
 
     updateObjectValue(flow, 'v', {a: 1});
     expect(flow.getValue('v')).toEqual({a: 1});
@@ -14,7 +14,7 @@ describe('ObjectValue', function () {
     updateObjectValue(flow, 'v', {a: 3});
     expect(flow.getValue('v')).toEqual({a: 3, b: 2});
 
-    let currentValue = flow.getValue('v');
+    const currentValue = flow.getValue('v');
     updateObjectValue(flow, 'v', {b: 2});
     expect(flow.getValue('v')).toBe(currentValue);
   });

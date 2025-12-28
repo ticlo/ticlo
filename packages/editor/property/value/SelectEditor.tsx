@@ -7,16 +7,16 @@ const {Option} = Select;
 
 export class SelectEditor extends React.PureComponent<ValueEditorProps, any> {
   onValueChange = (value: string | number) => {
-    let {onChange, name} = this.props;
+    const {onChange, name} = this.props;
     onChange(value, name);
   };
 
   getOptions() {
-    let {desc, name, funcDesc} = this.props;
-    let {options} = desc;
-    let optionNodes: React.ReactNode[] = [];
+    const {desc, name, funcDesc} = this.props;
+    const {options} = desc;
+    const optionNodes: React.ReactNode[] = [];
     if (Array.isArray(options)) {
-      for (let opt of options) {
+      for (const opt of options) {
         optionNodes.push(
           <Option key={String(opt)} value={opt}>
             <LocalizedEnumOption desc={funcDesc} propName={name} option={opt} />
@@ -28,8 +28,8 @@ export class SelectEditor extends React.PureComponent<ValueEditorProps, any> {
   }
 
   render() {
-    let {desc, value, locked, onChange} = this.props;
-    let optionNodes = this.getOptions();
+    const {desc, value, locked, onChange} = this.props;
+    const optionNodes = this.getOptions();
     return (
       <Select size="small" value={value} disabled={locked || onChange == null} onChange={this.onValueChange}>
         {optionNodes}
@@ -40,13 +40,13 @@ export class SelectEditor extends React.PureComponent<ValueEditorProps, any> {
 
 export class MultiSelectEditor extends SelectEditor {
   onValuesChange = (value: string | number[]) => {
-    let {onChange, name} = this.props;
+    const {onChange, name} = this.props;
     onChange(value, name);
   };
 
   render() {
-    let {desc, value, locked, onChange} = this.props;
-    let optionNodes = this.getOptions();
+    const {desc, value, locked, onChange} = this.props;
+    const optionNodes = this.getOptions();
     return (
       <Select
         size="small"

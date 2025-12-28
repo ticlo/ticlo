@@ -14,7 +14,7 @@ export class RestServerConnection extends ServerConnection {
 
       const cmd = request?.cmd as string;
       if (typeof cmd === 'string' && Object.hasOwn(ServerConnection.prototype, cmd)) {
-        let func: Function = (this as any)[cmd];
+        const func: Function = (this as any)[cmd];
         if (typeof func === 'function' && func.length === 1 && !cmd.startsWith('on')) {
           const result = func.call(this, request);
           if (result) {

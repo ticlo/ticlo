@@ -74,8 +74,8 @@ class InputElementFunction extends HtmlElementFunction {
     return undefined;
   }
   getProps(): [DataMap, string[]] {
-    let [result, optional] = super.getProps();
-    let valueProp = this._data.getProperty('value');
+    const [result, optional] = super.getProps();
+    const valueProp = this._data.getProperty('value');
     if (!valueProp || valueProp.isCleared()) {
       if (!optional.includes('onChange')) {
         result.onChange = this.trackChange;

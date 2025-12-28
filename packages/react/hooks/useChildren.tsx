@@ -17,7 +17,7 @@ export function getChildren(block: Block, overrideChildren?: unknown[], children
   if (overrideChildren === undefined) {
     overrideChildren = block.getValue('children') as unknown[];
   }
-  let result: (ReactNode | Block)[] = [];
+  const result: (ReactNode | Block)[] = [];
   if (Array.isArray(overrideChildren)) {
     // overrideChildren children with an array of blocks
     for (const child of overrideChildren) {

@@ -19,17 +19,17 @@ describe('RadioButtonEditor', function () {
 
   it('basic', async function () {
     let value: string = null;
-    let onChange = (v: string) => {
+    const onChange = (v: string) => {
       value = v;
     };
-    let desc: PropDesc = {name: '', type: 'select', options: ['a', 'b', 'c']};
-    let [component, div] = loadTemplate(
+    const desc: PropDesc = {name: '', type: 'select', options: ['a', 'b', 'c']};
+    const [component, div] = loadTemplate(
       <RadioButtonEditor value="a" funcDesc={blankFuncDesc} desc={desc} onChange={onChange} />,
       'editor'
     );
 
     await shouldHappen(() => div.querySelectorAll('.ant-radio-button').length === 3);
-    let buttons = div.querySelectorAll('.ant-radio-button');
+    const buttons = div.querySelectorAll('.ant-radio-button');
 
     simulate(buttons[1], 'click');
     await shouldHappen(() => value === 'b');

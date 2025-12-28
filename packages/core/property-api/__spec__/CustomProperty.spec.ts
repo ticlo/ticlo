@@ -5,20 +5,20 @@ import {Flow} from '../../block/Flow.js';
 import {PropDesc, PropGroupDesc} from '../../block/Descriptor.js';
 
 describe('Custom Property', function () {
-  let descA: PropDesc = {name: 'a', type: 'string', pinned: true};
-  let descB: PropDesc = {name: 'b', type: 'number', pinned: true};
-  let descBNumber: PropDesc = {name: 'b0', type: 'number', pinned: true};
-  let descA2: PropDesc = {name: 'a', type: 'number'};
-  let descC: PropDesc = {name: 'c', type: 'toggle', pinned: true};
-  let descBlank: PropDesc = {name: '', type: 'string', pinned: true};
-  let descG: PropGroupDesc = {
+  const descA: PropDesc = {name: 'a', type: 'string', pinned: true};
+  const descB: PropDesc = {name: 'b', type: 'number', pinned: true};
+  const descBNumber: PropDesc = {name: 'b0', type: 'number', pinned: true};
+  const descA2: PropDesc = {name: 'a', type: 'number'};
+  const descC: PropDesc = {name: 'c', type: 'toggle', pinned: true};
+  const descBlank: PropDesc = {name: '', type: 'string', pinned: true};
+  const descG: PropGroupDesc = {
     name: 'g',
     type: 'group',
     defaultLen: 1,
     properties: [],
   };
-  let descG2: PropGroupDesc = {name: 'g', type: 'group'} as PropGroupDesc; // automatically fix group desc
-  let descG2Fix: PropGroupDesc = {
+  const descG2: PropGroupDesc = {name: 'g', type: 'group'} as PropGroupDesc; // automatically fix group desc
+  const descG2Fix: PropGroupDesc = {
     name: 'g',
     type: 'group',
     defaultLen: 2,
@@ -26,7 +26,7 @@ describe('Custom Property', function () {
   };
 
   it('add remove CustomProperty', function () {
-    let flow = new Flow();
+    const flow = new Flow();
 
     // remove should do nothing when #custom is undefined
     removeCustomProperty(flow, 'a');
@@ -127,7 +127,7 @@ describe('Custom Property', function () {
   });
 
   it('move CustomProperty', function () {
-    let flow = new Flow();
+    const flow = new Flow();
 
     moveCustomProperty(flow, 'a', 'b');
     expect(flow.getValue('#custom')).not.toBeDefined();

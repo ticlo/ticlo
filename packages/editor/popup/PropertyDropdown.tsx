@@ -57,13 +57,13 @@ export class PropertyDropdown extends React.PureComponent<Props, State> {
 
   subscriber = new ValueSubscriber({
     onUpdate: (response: ValueUpdate) => {
-      let {value, temp} = response.cache;
+      const {value, temp} = response.cache;
       this.setState({valueDenfinedOverride: value !== undefined, isTempOverride: temp});
     },
   });
 
   componentDidMount() {
-    let {conn, valueDefined, paths, name} = this.props;
+    const {conn, valueDefined, paths, name} = this.props;
     if (valueDefined === undefined && paths?.length === 1) {
       // when parent component doesn't know the value, subscribe the value inside the
       this.subscriber.subscribe(conn, `${paths[0]}.${name}`);
@@ -83,39 +83,39 @@ export class PropertyDropdown extends React.PureComponent<Props, State> {
   };
 
   onInsertIndex = () => {
-    let {conn, paths, name, group} = this.props;
-    let index = getTailingNumber(name);
-    for (let path of paths) {
+    const {conn, paths, name, group} = this.props;
+    const index = getTailingNumber(name);
+    for (const path of paths) {
       conn.insertGroupProp(path, group, index);
     }
     this.closeMenu();
   };
   onDeleteIndex = () => {
-    let {conn, paths, name, group} = this.props;
-    let index = getTailingNumber(name);
-    for (let path of paths) {
+    const {conn, paths, name, group} = this.props;
+    const index = getTailingNumber(name);
+    for (const path of paths) {
       conn.removeGroupProp(path, group, index);
     }
     this.closeMenu();
   };
 
   onClear = () => {
-    let {conn, paths, name} = this.props;
-    for (let path of paths) {
+    const {conn, paths, name} = this.props;
+    for (const path of paths) {
       conn.setValue(`${path}.${name}`, undefined);
     }
     this.closeMenu();
   };
   onRestoreSaved = () => {
-    let {conn, paths, name} = this.props;
-    for (let path of paths) {
+    const {conn, paths, name} = this.props;
+    for (const path of paths) {
       conn.restoreSaved(`${path}.${name}`);
     }
     this.closeMenu();
   };
   onShowHide = (e: CheckboxChangeEvent) => {
-    let {conn, paths, name} = this.props;
-    for (let path of paths) {
+    const {conn, paths, name} = this.props;
+    for (const path of paths) {
       if (e.target.checked) {
         conn.showProps(path, [name]);
       } else {
@@ -124,34 +124,34 @@ export class PropertyDropdown extends React.PureComponent<Props, State> {
     }
   };
   onBindChange = (str: string) => {
-    let {conn, paths, name} = this.props;
+    const {conn, paths, name} = this.props;
     if (str === '') {
       str = undefined;
     }
-    for (let key of paths) {
+    for (const key of paths) {
       conn.setBinding(`${key}.${name}`, str);
     }
   };
   onUnbindClick = (e: any) => {
-    let {conn, paths, name} = this.props;
-    for (let key of paths) {
+    const {conn, paths, name} = this.props;
+    for (const key of paths) {
       conn.setBinding(`${key}.${name}`, null, true);
     }
   };
   onRemoveCustom = () => {
     let {conn, paths, name, baseName, group} = this.props;
-    let removeField = baseName != null ? baseName : name;
+    const removeField = baseName != null ? baseName : name;
     if (group != null && name === `${group}[]`) {
       name = null;
     }
-    for (let path of paths) {
+    for (const path of paths) {
       conn.removeCustomProp(path, removeField, group);
     }
     this.closeMenu();
   };
   onAddCustomGroupChild = (desc: PropDesc | PropGroupDesc) => {
-    let {conn, group, paths} = this.props;
-    for (let path of paths) {
+    const {conn, group, paths} = this.props;
+    for (const path of paths) {
       conn.addCustomProp(path, desc, group);
     }
     this.closeMenu();
@@ -161,16 +161,16 @@ export class PropertyDropdown extends React.PureComponent<Props, State> {
   };
 
   onExeCommand = (command: string) => {
-    let {conn, paths, name, funcDesc, propDesc} = this.props;
-    let commandDesc = propDesc.commands[command];
+    const {conn, paths, name, funcDesc, propDesc} = this.props;
+    const commandDesc = propDesc.commands[command];
     if (commandDesc.parameters?.length) {
-      let onConfirmCommandModal = (values: DataMap) => {
-        for (let path of paths) {
+      const onConfirmCommandModal = (values: DataMap) => {
+        for (const path of paths) {
           conn.executeCommand(path, command, {...values, property: name});
         }
         this.onCloseCommandModal();
       };
-      let modal = (
+      const modal = (
         <ParameterInputDialog
           title={
             <LocalizedPropCommand key={command} funcDesc={funcDesc} propBaseName={propDesc.name} command={command} />
@@ -184,7 +184,7 @@ export class PropertyDropdown extends React.PureComponent<Props, State> {
       );
       this.setState({modal});
     } else {
-      for (let path of paths) {
+      for (const path of paths) {
         conn.executeCommand(path, command, {property: name});
       }
     }
@@ -200,7 +200,7 @@ export class PropertyDropdown extends React.PureComponent<Props, State> {
     desc?: FunctionDesc,
     data?: any
   ) {
-    let {conn, paths, name} = props;
+    const {conn, paths, name} = props;
     if (!desc) {
       desc = conn.watchDesc(funcId);
     }
@@ -212,21 +212,21 @@ export class PropertyDropdown extends React.PureComponent<Props, State> {
       data = getSubBlockFuncData(getDefaultFuncData(desc));
     }
 
-    for (let path of paths) {
+    for (const path of paths) {
       conn.addBlock(`${path}.~${name}`, data);
     }
   }
 
   onAddSubBlock = (id: string, desc?: FunctionDesc, data?: any) => {
-    let {onAddSubBlock} = this.props;
+    const {onAddSubBlock} = this.props;
     this.setState({visible: false});
     onAddSubBlock?.(id, desc, data);
   };
 
   getMenu() {
-    let {funcDesc, propDesc, bindingPath, group, name, conn, valueDefined, isCustom, isTemp, display} = this.props;
-    let {valueDenfinedOverride, isTempOverride} = this.state;
-    let menuItems: React.ReactElement[] = [];
+    const {funcDesc, propDesc, bindingPath, group, name, conn, valueDefined, isCustom, isTemp, display} = this.props;
+    const {valueDenfinedOverride, isTempOverride} = this.state;
+    const menuItems: React.ReactElement[] = [];
     if (!propDesc.readonly) {
       if (!bindingPath) {
         menuItems.push(
@@ -273,7 +273,7 @@ export class PropertyDropdown extends React.PureComponent<Props, State> {
       );
 
       // need this temporary variable to work around a compiler issue that () get removed and ?? and || can't be used together
-      let resolvedValueDefined = valueDefined ?? valueDenfinedOverride;
+      const resolvedValueDefined = valueDefined ?? valueDenfinedOverride;
       if (resolvedValueDefined || bindingPath) {
         menuItems.push(
           <Button key="clear" shape="round" onClick={this.onClear}>
@@ -291,7 +291,7 @@ export class PropertyDropdown extends React.PureComponent<Props, State> {
       }
     }
     if (group != null) {
-      let groupIndex = getTailingNumber(name);
+      const groupIndex = getTailingNumber(name);
       if (groupIndex > -1) {
         menuItems.push(
           <Button key="insertIndex" shape="round" onClick={this.onInsertIndex}>
@@ -329,11 +329,11 @@ export class PropertyDropdown extends React.PureComponent<Props, State> {
       }
     }
     if (propDesc.commands) {
-      let commands = Object.keys(propDesc.commands);
+      const commands = Object.keys(propDesc.commands);
       if (commands.length) {
         commands.sort(smartStrCompare);
-        let commandMenus: React.ReactElement[] = [];
-        for (let command of commands) {
+        const commandMenus: React.ReactElement[] = [];
+        for (const command of commands) {
           commandMenus.push(
             <MenuItem key={`cmd-${command}`} value={command} onClick={this.onExeCommand}>
               <LocalizedPropCommand key={command} funcDesc={funcDesc} propBaseName={propDesc.name} command={command} />
@@ -362,9 +362,9 @@ export class PropertyDropdown extends React.PureComponent<Props, State> {
   }
 
   render(): any {
-    let {children} = this.props;
-    let {visible, modal} = this.state;
-    let popup = visible ? this.getMenu() : null;
+    const {children} = this.props;
+    const {visible, modal} = this.state;
+    const popup = visible ? this.getMenu() : null;
     return (
       <>
         <Popup

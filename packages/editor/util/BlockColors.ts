@@ -16,9 +16,9 @@ export function addBlockColor(color: string) {
     return;
   }
   usedColors.add(color);
-  let rr = brighterColor(color.substring(0, 1));
-  let gg = brighterColor(color.substring(1, 2));
-  let bb = brighterColor(color.substring(2, 3));
+  const rr = brighterColor(color.substring(0, 1));
+  const gg = brighterColor(color.substring(1, 2));
+  const bb = brighterColor(color.substring(2, 3));
   globalStyle.addRule(`.ticl-block--${color}{border-color: #${color};}`);
   globalStyle.addRule(`.ticl-block--${color} .ticl-block-prbg, .ticl-bg--${color}{background: #${color};}`);
   globalStyle.addRule(`.ticl-block--${color}.ticl-block-selected{box-shadow: 0 0 4px 3px rgb(${rr},${gg},${bb});}`);
@@ -40,7 +40,7 @@ export function getFuncStyleFromDesc(
         category = desc.category || 'other'; // TODO remove other
       }
       if (category != null) {
-        let catDesc = conn.getCategory(category);
+        const catDesc = conn.getCategory(category);
         if (catDesc) {
           color = color || catDesc.color;
           icon = icon || catDesc.icon;

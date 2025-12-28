@@ -22,7 +22,7 @@ class NoteView extends LazyUpdateComponent<BlockWidgetProps, any> {
 
   constructor(props: BlockWidgetProps) {
     super(props);
-    let {conn, path} = props;
+    const {conn, path} = props;
     this.input.subscribe(conn, `${path}.input`, true);
     this.mode.subscribe(conn, `${path}.mode`, true);
     this.background.subscribe(conn, `${path}.background`, true);
@@ -32,8 +32,8 @@ class NoteView extends LazyUpdateComponent<BlockWidgetProps, any> {
 
   renderImpl(): React.ReactNode {
     let rawHtml: string;
-    let text = this.input.value;
-    let mode = this.mode.value;
+    const text = this.input.value;
+    const mode = this.mode.value;
     if (text) {
       if (mode === 'yaml') {
         rawHtml = `<pre>${Dompurify.sanitize(stringifyYaml(text, arrowReplacer))}</pre>`;
@@ -41,14 +41,14 @@ class NoteView extends LazyUpdateComponent<BlockWidgetProps, any> {
         rawHtml = `<pre>${Dompurify.sanitize(encodeSorted(text))}</pre>`;
       } else {
         // if (mode === 'markdown') {
-        let markedOptions: MarkedOptions = {
+        const markedOptions: MarkedOptions = {
           silent: true,
         };
         rawHtml = marked(text, markedOptions) as string;
         rawHtml = Dompurify.sanitize(rawHtml);
       }
     }
-    let style: React.CSSProperties = {};
+    const style: React.CSSProperties = {};
     if (typeof this.background.value === 'string') {
       style.background = this.background.value;
     }
@@ -69,7 +69,7 @@ class NoteView extends LazyUpdateComponent<BlockWidgetProps, any> {
   }
 
   componentDidUpdate(prevProps: Readonly<BlockWidgetProps>, prevState: Readonly<any>, snapshot?: any): void {
-    let {updateViewHeight} = this.props;
+    const {updateViewHeight} = this.props;
     updateViewHeight(this._rootNode.offsetHeight);
   }
 

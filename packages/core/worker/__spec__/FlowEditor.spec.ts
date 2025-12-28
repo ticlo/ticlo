@@ -10,9 +10,9 @@ import {SharedBlock} from '../../block/SharedBlock.js';
 
 describe('FlowEditor', function () {
   it('delete editor after unwatch', function () {
-    let flow = new Flow();
-    let editor1 = FlowEditor.create(flow, '#edit-1', {});
-    let editor2 = FlowEditor.create(flow, '#edit-2');
+    const flow = new Flow();
+    const editor1 = FlowEditor.create(flow, '#edit-1', {});
+    const editor2 = FlowEditor.create(flow, '#edit-2');
 
     expect(editor2).toBeNull();
     expect(flow.getValue('#edit-2')).toBeInstanceOf(FlowEditor);
@@ -26,9 +26,9 @@ describe('FlowEditor', function () {
   });
 
   it('createFromField', function () {
-    let flow = new Flow();
-    let block = flow.createBlock('a');
-    let data = {
+    const flow = new Flow();
+    const block = flow.createBlock('a');
+    const data = {
       '#is': '',
       'add': {
         '#is': 'add',
@@ -51,8 +51,8 @@ describe('FlowEditor', function () {
   });
 
   it('createFromFunction', function () {
-    let flow = new Flow();
-    let data = {
+    const flow = new Flow();
+    const data = {
       '#is': '',
       'add': {
         '#is': 'subtract',
@@ -71,8 +71,8 @@ describe('FlowEditor', function () {
   });
 
   it('applyChange', function () {
-    let flow = new Flow();
-    let editor = FlowEditor.create(flow, '#edit-v2', {}, null, false, (data: DataMap) => {
+    const flow = new Flow();
+    const editor = FlowEditor.create(flow, '#edit-v2', {}, null, false, (data: DataMap) => {
       flow.setValue('v2', data);
       return true;
     });
@@ -81,9 +81,9 @@ describe('FlowEditor', function () {
   });
 
   it('applyChange function', function () {
-    let flow = new Flow();
+    const flow = new Flow();
 
-    let expectedData = {
+    const expectedData = {
       '#inputs': {
         '#is': '',
         '#custom': [
@@ -113,7 +113,7 @@ describe('FlowEditor', function () {
       },
       '#desc': {icon: 'fas:plus'},
     };
-    let expectedDescProperties: (PropDesc | PropGroupDesc)[] = [
+    const expectedDescProperties: (PropDesc | PropGroupDesc)[] = [
       {
         name: 'g',
         type: 'group',
@@ -129,7 +129,7 @@ describe('FlowEditor', function () {
 
     WorkerFunctionGen.registerType({'#is': ''}, {name: 'worker3', properties: []}, 'FlowEditor');
 
-    let editor = FlowEditor.createFromFunction(flow, '#edit-func', 'FlowEditor:worker3', null);
+    const editor = FlowEditor.createFromFunction(flow, '#edit-func', 'FlowEditor:worker3', null);
     editor.createBlock('#inputs')._load(expectedData['#inputs']);
     editor.createBlock('#outputs')._load(expectedData['#outputs']);
     editor.setValue('#desc', expectedData['#desc']);
@@ -137,7 +137,7 @@ describe('FlowEditor', function () {
 
     expect(Functions.getWorkerData('FlowEditor:worker3')).toEqual(expectedData);
 
-    let desc = Functions.getDescToSend('FlowEditor:worker3')[0];
+    const desc = Functions.getDescToSend('FlowEditor:worker3')[0];
     expect(desc.icon).toBe('fas:plus');
     expect(desc.properties).toEqual(expectedDescProperties);
 
@@ -146,14 +146,14 @@ describe('FlowEditor', function () {
   });
 
   it('shared block', function () {
-    let flow = new Flow();
+    const flow = new Flow();
 
-    let editor = FlowEditor.createFromFunction(flow, '#edit-func', 'FlowEditor:worker4', {
+    const editor = FlowEditor.createFromFunction(flow, '#edit-func', 'FlowEditor:worker4', {
       '#is': '',
       '#shared': {'#is': ''},
     });
 
-    let block: SharedBlock = editor.getValue('#shared') as SharedBlock;
+    const block: SharedBlock = editor.getValue('#shared') as SharedBlock;
     expect(block).toBeInstanceOf(SharedBlock);
     expect(block._prop).toBe(editor.getProperty('#shared'));
 

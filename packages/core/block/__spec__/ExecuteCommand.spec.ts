@@ -4,9 +4,9 @@ import {Flow, Root} from '../Flow.js';
 
 describe('executeCommand', function () {
   it('execute Command', function () {
-    let flow = new Flow();
+    const flow = new Flow();
 
-    let block = flow.createBlock('obj');
+    const block = flow.createBlock('obj');
     block.setValue('#is', 'test-runner');
 
     block.executeCommand('test', {});

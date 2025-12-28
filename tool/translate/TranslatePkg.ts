@@ -11,14 +11,14 @@ export class TranslatePkg {
   enData: YamlData;
 
   collectEn() {
-    let str = fs.readFileSync(this.enPath, {encoding: 'utf8'});
+    const str = fs.readFileSync(this.enPath, {encoding: 'utf8'});
     this.enData = new YamlData(str);
     this.enData.calculateValueHash();
   }
 
   prepareOutput(locale: string): OutputYamlData {
-    let yamlPath = `${this.path}${locale}.yaml`;
-    let outputData = new OutputYamlData(this.enData, yamlPath);
+    const yamlPath = `${this.path}${locale}.yaml`;
+    const outputData = new OutputYamlData(this.enData, yamlPath);
     outputData.mergeExistingData();
     outputData.prepareTranslate();
     return outputData;

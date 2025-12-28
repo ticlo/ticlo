@@ -14,13 +14,13 @@ import {MAX_GROUP_LENGTH} from '@ticlo/core/block/FunctonData.js';
 
 class LengthPropertyEditor extends PropertyEditor {
   onChange = (value: any) => {
-    let {conn, paths, name, propDesc} = this.props;
+    const {conn, paths, name, propDesc} = this.props;
     if (name.endsWith('[]')) {
-      let group = name.substring(0, name.length - 2);
+      const group = name.substring(0, name.length - 2);
       if (value === propDesc.default) {
         value = undefined;
       }
-      for (let key of paths) {
+      for (const key of paths) {
         conn.setLen(key, group, value);
       }
     }
@@ -31,7 +31,7 @@ class GroupLoader extends MultiSelectLoader<GroupEditor> {
   len: number = -1;
   lenListener = new ValueSubscriber({
     onUpdate: (response: ValueUpdate) => {
-      let lenValue = response.cache.value;
+      const lenValue = response.cache.value;
       let len = -1;
       switch (typeof lenValue) {
         case 'number':
@@ -88,22 +88,22 @@ export class GroupEditor extends MultiSelectComponent<Props, State, GroupLoader>
   }
 
   renderImpl(): React.ReactNode {
-    let {conn, paths, funcDesc, groupDesc, isCustom} = this.props;
-    let children: React.ReactNode[] = [];
-    let {name: group} = groupDesc;
+    const {conn, paths, funcDesc, groupDesc, isCustom} = this.props;
+    const children: React.ReactNode[] = [];
+    const {name: group} = groupDesc;
 
-    let lenName = `${group}[]`;
-    let lenDesc = {...lengthPropDesc, default: groupDesc.defaultLen, name: lenName};
+    const lenName = `${group}[]`;
+    const lenDesc = {...lengthPropDesc, default: groupDesc.defaultLen, name: lenName};
 
     if (this.loaders.size) {
       // group editor doesn't support virtual scroll, limit it to 256 to prevent crash
       let minLen = MAX_GROUP_LENGTH;
-      for (let [key, loader] of this.loaders) {
+      for (const [key, loader] of this.loaders) {
         if (loader.len < minLen) minLen = loader.len;
       }
       for (let i = 0; i < minLen; ++i) {
-        for (let desc of groupDesc.properties) {
-          let name = `${desc.name}${i}`;
+        for (const desc of groupDesc.properties) {
+          const name = `${desc.name}${i}`;
           children.push(
             <PropertyEditor
               key={name}

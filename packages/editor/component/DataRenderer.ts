@@ -34,7 +34,7 @@ export abstract class DataRendererItem<T = any> {
   abstract getConn(): ClientConn;
 
   forceUpdate() {
-    for (let renderer of this._renderers) {
+    for (const renderer of this._renderers) {
       batchUpdateReact(renderer.forceUpdate, this.getConn());
     }
   }
@@ -62,14 +62,14 @@ export abstract class PureDataRenderer<P extends DataRendererProps<any>, S> exte
 
   attachedItem: DataRendererItem;
   render(): React.ReactNode {
-    let {item} = this.props;
+    const {item} = this.props;
     this._rendering = true;
     if (item !== this.attachedItem) {
       item?.attachedRenderer(this);
       this.attachedItem?.detachRenderer(this);
       this.attachedItem = item;
     }
-    let result = this.renderImpl();
+    const result = this.renderImpl();
     this._rendering = false;
     return result;
   }

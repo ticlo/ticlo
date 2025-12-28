@@ -9,14 +9,14 @@ const defaultTime = {defaultValue: DateTime.fromFormat('00:00:00.000', 'HH:mm:ss
 
 export class DateEditor extends React.PureComponent<ValueEditorProps, any> {
   onValueChange = (day: DateTime) => {
-    let {name, onChange} = this.props;
+    const {name, onChange} = this.props;
     onChange(day, name);
   };
 
   render() {
     let {desc, value, locked, onChange} = this.props;
-    let showTime = desc.showTime !== false;
-    let showTimeOption = showTime ? defaultTime : null;
+    const showTime = desc.showTime !== false;
+    const showTimeOption = showTime ? defaultTime : null;
     let title: string;
     if (typeof value === 'string') {
       value = DateTime.fromISO(value, {setZone: true});

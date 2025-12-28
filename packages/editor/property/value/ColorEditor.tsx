@@ -6,8 +6,8 @@ import {Popup} from '../../component/ClickPopup.js';
 
 export class ColorEditor extends React.PureComponent<ValueEditorProps, any> {
   onValueChange = (value: ColorResult) => {
-    let {onChange, name} = this.props;
-    let color = tinycolor(value.rgb);
+    const {onChange, name} = this.props;
+    const color = tinycolor(value.rgb);
     if (color.getAlpha() === 1) {
       onChange(value.hex, name);
     } else {
@@ -17,9 +17,9 @@ export class ColorEditor extends React.PureComponent<ValueEditorProps, any> {
 
   render() {
     let {desc, value, locked, onChange} = this.props;
-    let {disableAlpha} = desc;
+    const {disableAlpha} = desc;
 
-    let disabled = locked || onChange == null;
+    const disabled = locked || onChange == null;
     if (typeof value !== 'string') {
       value = '';
     }

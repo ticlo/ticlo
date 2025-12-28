@@ -10,10 +10,10 @@ import {_strictMode} from '../BlockSettings.js';
 describe('Destroyed Block', function () {
   it('throw on destroyed block in strict mode', function () {
     if (_strictMode) {
-      let flow = new Flow();
+      const flow = new Flow();
 
-      let block = flow.createBlock('a');
-      let propB = flow.getProperty('b');
+      const block = flow.createBlock('a');
+      const propB = flow.getProperty('b');
 
       flow.setValue('a', null);
 
@@ -33,10 +33,10 @@ describe('Destroyed Block', function () {
 
   it('void on destroyed block in normal mode', function () {
     if (!_strictMode) {
-      let flow = new Flow();
+      const flow = new Flow();
 
-      let block = flow.createBlock('a');
-      let propB = flow.getProperty('b');
+      const block = flow.createBlock('a');
+      const propB = flow.getProperty('b');
 
       flow.setValue('a', null);
 

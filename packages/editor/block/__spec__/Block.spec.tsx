@@ -20,7 +20,7 @@ describe('editor BlockStage', function () {
   });
 
   it('single block', async function () {
-    let flow = Root.instance.addFlow('BlockStage1');
+    const flow = Root.instance.addFlow('BlockStage1');
     flow.load({
       add: {
         '#is': 'add',
@@ -31,21 +31,21 @@ describe('editor BlockStage', function () {
       },
     });
 
-    let [server, client] = makeLocalConnection(Root.instance);
+    const [server, client] = makeLocalConnection(Root.instance);
 
-    let [component, div] = loadTemplate(
+    const [component, div] = loadTemplate(
       <BlockStage conn={client} basePath="BlockStage1" style={{width: '800px', height: '800px'}} />,
       'editor'
     );
 
     await shouldHappen(() => div.querySelector('.ticl-block'), 500, 'find block');
 
-    let block = div.querySelector('.ticl-block') as HTMLDivElement;
+    const block = div.querySelector('.ticl-block') as HTMLDivElement;
 
     // Wait for block to be positioned and CSS to apply
     await shouldHappen(
       () => {
-        let computedStyle = window.getComputedStyle(block);
+        const computedStyle = window.getComputedStyle(block);
         return computedStyle.position === 'absolute' && block.offsetWidth === 345;
       },
       1000,
@@ -97,7 +97,7 @@ describe('editor BlockStage', function () {
   });
 
   it('drag block', async function () {
-    let flow = Root.instance.addFlow('BlockStage2');
+    const flow = Root.instance.addFlow('BlockStage2');
     flow.load({
       add: {
         '#is': 'add',
@@ -106,21 +106,21 @@ describe('editor BlockStage', function () {
       },
     });
 
-    let [server, client] = makeLocalConnection(Root.instance);
+    const [server, client] = makeLocalConnection(Root.instance);
 
-    let [component, div] = loadTemplate(
+    const [component, div] = loadTemplate(
       <BlockStage conn={client} basePath="BlockStage2" style={{width: '800px', height: '800px'}} />,
       'editor'
     );
 
     await shouldHappen(() => div.querySelector('.ticl-block'));
 
-    let block = div.querySelector('.ticl-stage-scroll .ticl-block') as HTMLDivElement;
+    const block = div.querySelector('.ticl-stage-scroll .ticl-block') as HTMLDivElement;
 
     // Wait for block to be positioned and CSS to apply
     await shouldHappen(
       () => {
-        let computedStyle = window.getComputedStyle(block);
+        const computedStyle = window.getComputedStyle(block);
         return computedStyle.position === 'absolute' && block.offsetWidth === 345;
       },
       1000,
@@ -161,7 +161,7 @@ describe('editor BlockStage', function () {
   });
 
   it('drag block size', async function () {
-    let flow = Root.instance.addFlow('BlockStage3');
+    const flow = Root.instance.addFlow('BlockStage3');
     flow.load({
       add: {
         '#is': 'add',
@@ -170,16 +170,16 @@ describe('editor BlockStage', function () {
       },
     });
 
-    let [server, client] = makeLocalConnection(Root.instance);
+    const [server, client] = makeLocalConnection(Root.instance);
 
-    let [component, div] = loadTemplate(
+    const [component, div] = loadTemplate(
       <BlockStage conn={client} basePath="BlockStage3" style={{width: '800px', height: '800px'}} />,
       'editor'
     );
 
     await shouldHappen(() => div.querySelector('.ticl-block'));
 
-    let block = div.querySelector('.ticl-stage-scroll .ticl-block') as HTMLDivElement;
+    const block = div.querySelector('.ticl-stage-scroll .ticl-block') as HTMLDivElement;
     await shouldHappen(() => block.offsetWidth === 345);
     // mouse down
     simulate(document.querySelector('.ticl-width-drag'), 'mousedown', fakeMouseEvent());
@@ -200,7 +200,7 @@ describe('editor BlockStage', function () {
   });
 
   it('min block and wire', async function () {
-    let flow = Root.instance.addFlow('BlockStage4');
+    const flow = Root.instance.addFlow('BlockStage4');
     flow.load({
       add: {
         '#is': 'add',
@@ -216,9 +216,9 @@ describe('editor BlockStage', function () {
       },
     });
 
-    let [server, client] = makeLocalConnection(Root.instance);
+    const [server, client] = makeLocalConnection(Root.instance);
 
-    let [component, div] = loadTemplate(
+    const [component, div] = loadTemplate(
       <BlockStage conn={client} basePath="BlockStage4" style={{width: '800px', height: '800px'}} />,
       'editor'
     );
@@ -226,10 +226,10 @@ describe('editor BlockStage', function () {
     // wait for the wire
     await shouldHappen(() => div.querySelector('svg.ticl-block-wire'));
 
-    let addBlock = querySingle("//div.ticl-block-head.ticl-block-head-label[text()='add']/../..", div);
+    const addBlock = querySingle("//div.ticl-block-head.ticl-block-head-label[text()='add']/../..", div);
     expect(addBlock.offsetWidth).toBe(143);
 
-    let wire = div.querySelector('svg.ticl-block-wire') as SVGSVGElement;
+    const wire = div.querySelector('svg.ticl-block-wire') as SVGSVGElement;
 
     // mousedown to select
     simulate(addBlock.querySelector('.ticl-stage-scroll .ticl-block-head'), 'mousedown');
@@ -272,7 +272,7 @@ describe('editor BlockStage', function () {
   });
 
   it('rect select', async function () {
-    let flow = Root.instance.addFlow('BlockStage5');
+    const flow = Root.instance.addFlow('BlockStage5');
     flow.load({
       add: {
         '#is': 'add',
@@ -286,7 +286,7 @@ describe('editor BlockStage', function () {
       },
     });
 
-    let [server, client] = makeLocalConnection(Root.instance);
+    const [server, client] = makeLocalConnection(Root.instance);
 
     let selectedPaths: string[];
 
@@ -294,7 +294,7 @@ describe('editor BlockStage', function () {
       selectedPaths = paths;
     }
 
-    let [component, div] = loadTemplate(
+    const [component, div] = loadTemplate(
       <BlockStage conn={client} basePath="BlockStage5" onSelect={onSelect} style={{width: '800px', height: '800px'}} />,
       'editor'
     );
@@ -302,7 +302,7 @@ describe('editor BlockStage', function () {
     // wait for the field
     await shouldHappen(() => (div.querySelector('.ticl-stage-bg') as HTMLElement)?.offsetWidth);
     // background
-    let rectBg = div.querySelector('.ticl-stage-bg');
+    const rectBg = div.querySelector('.ticl-stage-bg');
 
     // select all
     simulate(rectBg, 'mousedown', fakeMouseEvent(90, 90));
@@ -333,14 +333,14 @@ describe('editor BlockStage', function () {
   });
 
   it('automatic assign xy', async function () {
-    let flow = Root.instance.addFlow('BlockStage6');
+    const flow = Root.instance.addFlow('BlockStage6');
     for (let i = 0; i < 10; ++i) {
       flow.createBlock(`a${i}`);
     }
 
-    let [server, client] = makeLocalConnection(Root.instance);
+    const [server, client] = makeLocalConnection(Root.instance);
 
-    let [component, div] = loadTemplate(
+    const [component, div] = loadTemplate(
       <BlockStage conn={client} basePath="BlockStage6" style={{width: '800px', height: '800px'}} />,
       'editor'
     );
@@ -348,11 +348,11 @@ describe('editor BlockStage', function () {
     await shouldHappen(() => div.querySelector('.ticl-block'));
     await shouldHappen(() => (div.querySelector('.ticl-block') as HTMLDivElement).offsetLeft > 0);
 
-    let blocks = div.querySelectorAll('.ticl-block');
-    let xarr = [36, 228, 36, 228, 420, 420, 36, 228, 420, 612];
-    let yarr = [36, 36, 228, 228, 36, 228, 420, 420, 420, 36];
+    const blocks = div.querySelectorAll('.ticl-block');
+    const xarr = [36, 228, 36, 228, 420, 420, 36, 228, 420, 612];
+    const yarr = [36, 36, 228, 228, 36, 228, 420, 420, 420, 36];
     for (let i = 0; i < 10; ++i) {
-      let block = blocks[i] as HTMLDivElement;
+      const block = blocks[i] as HTMLDivElement;
       expect(block.offsetLeft).toBe(xarr[i]);
       expect(block.offsetTop).toBe(yarr[i]);
     }

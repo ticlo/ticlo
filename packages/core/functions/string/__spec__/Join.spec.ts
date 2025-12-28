@@ -5,9 +5,9 @@ import {Flow, Root} from '../../../block/Flow.js';
 
 describe('Join', function () {
   it('basic join', function () {
-    let flow = new Flow();
+    const flow = new Flow();
 
-    let aBlock = flow.createBlock('a');
+    const aBlock = flow.createBlock('a');
     aBlock._load({
       '#is': 'join',
       '0': 2,

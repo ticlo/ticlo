@@ -41,8 +41,8 @@ export class JsxFunction extends JsFunction {
     const Babel = (window as any).Babel;
 
     if (Babel) {
-      let toTransform = `"use strict";const React={};${HOOKS}function _F_(){${script}}`;
-      let code = Babel.transform(toTransform, {presets: ['es2017', 'react']}).code;
+      const toTransform = `"use strict";const React={};${HOOKS}function _F_(){${script}}`;
+      const code = Babel.transform(toTransform, {presets: ['es2017', 'react']}).code;
       script = code.substring(33).replace('function _F_() ', '');
     }
     return new Function('React', script);

@@ -58,15 +58,15 @@ export function decodeDateTime(str: string): any {
     }
 
     let [ts, z] = str.split('@');
-    let isInDST = ts.endsWith('*');
+    const isInDST = ts.endsWith('*');
     if (isInDST) {
       ts = ts.substring(4, ts.length - 1);
     } else {
       ts = ts.substring(4);
     }
-    let result = DateTime.fromISO(ts, getZoneObject(z));
+    const result = DateTime.fromISO(ts, getZoneObject(z));
     if (isInDST !== result.isInDST) {
-      let r2 = result.plus({hour: isInDST ? -1 : +1});
+      const r2 = result.plus({hour: isInDST ? -1 : +1});
       if (isInDST === r2.isInDST) {
         return r2;
       }

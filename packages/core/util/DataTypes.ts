@@ -53,7 +53,7 @@ export function isDataTruncated(val: any): boolean {
 
 function measureMap(val: DataMap, maxSize: number): number {
   let total = 0;
-  for (let key in val) {
+  for (const key in val) {
     total += measureObjSize(val[key], maxSize);
     total += key.length;
     if (total >= maxSize) {
@@ -65,7 +65,7 @@ function measureMap(val: DataMap, maxSize: number): number {
 
 function measureArray(arr: any[], maxSize: number): number {
   let total = 0;
-  for (let v of arr) {
+  for (const v of arr) {
     total += measureObjSize(v);
     if (total >= maxSize) {
       return total;
@@ -96,11 +96,11 @@ export function measureObjSize(val: any, maxSize: number = 1024): number {
 // convert block to Object, used to convert worker #outputs block
 export function convertToOutput(val: any, recursive: boolean = false): any {
   if (val instanceof Block) {
-    let overrideValue = val.getValue('#return');
+    const overrideValue = val.getValue('#return');
     if (overrideValue !== undefined) {
       return overrideValue;
     }
-    let result: any = {};
+    const result: any = {};
     val.forEach((field: string, value: unknown, prop: BlockIO) => {
       if (recursive && value instanceof Block) {
         if (prop._saved === value) {

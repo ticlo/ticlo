@@ -43,7 +43,7 @@ export class FlowHistory {
   ) {
     if (savedData) {
       this._savedData = savedData;
-      let cachedHistory = _historyCache.get(savedData);
+      const cachedHistory = _historyCache.get(savedData);
       if (cachedHistory && cachedHistory.at(-1) === savedData) {
         // use cached history
         this._history = [..._historyCache.get(savedData)];
@@ -53,7 +53,7 @@ export class FlowHistory {
         this._history = [savedData];
       }
     } else {
-      let data = flow.save();
+      const data = flow.save();
       if (!flow.getValue('@has-change')) {
         this._savedData = data;
       }

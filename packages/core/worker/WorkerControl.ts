@@ -120,7 +120,7 @@ export class WorkerControl {
   };
 
   getSaveParameter(): {src?: string | DataMap; saveCallback?: (data: DataMap) => boolean} {
-    let src: string | DataMap = this._src;
+    const src: string | DataMap = this._src;
     if (src === '#') {
       return {src: this.loader?.value, saveCallback: this.saveStorage};
     }

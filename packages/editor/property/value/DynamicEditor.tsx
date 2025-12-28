@@ -40,7 +40,7 @@ const dynamicTypeIcon: {[key: string]: React.ReactElement} = {
 };
 
 const dynamicTypeMenuItem: {[key: string]: {key: string; label: React.ReactElement}} = {};
-for (let type in dynamicTypeIcon) {
+for (const type in dynamicTypeIcon) {
   dynamicTypeMenuItem[type] = {
     key: type,
     label: (
@@ -96,8 +96,8 @@ export class DynamicEditor extends React.PureComponent<ValueEditorProps, State> 
   }
 
   onValueChange = (value: any) => {
-    let {onChange, name} = this.props;
-    let {currentType} = this.state;
+    const {onChange, name} = this.props;
+    const {currentType} = this.state;
     // automatically set the currentType when there is a value change
     if (!currentType) {
       this.setState({currentType: this.getCurrentType()});
@@ -110,9 +110,9 @@ export class DynamicEditor extends React.PureComponent<ValueEditorProps, State> 
   };
 
   getCurrentType(): ValueType {
-    let {desc, value, onChange} = this.props;
+    const {desc, value, onChange} = this.props;
     let {currentType} = this.state;
-    let types = desc.types || defaultTypes;
+    const types = desc.types || defaultTypes;
     if (!onChange) {
       currentType = 'object';
     } else if (!currentType || !onChange) {
@@ -132,11 +132,11 @@ export class DynamicEditor extends React.PureComponent<ValueEditorProps, State> 
   }
 
   render() {
-    let {conn, keys, name, funcDesc, desc, value, locked, onChange, addSubBlock} = this.props;
-    let types = desc.types || defaultTypes;
-    let currentType = this.getCurrentType();
+    const {conn, keys, name, funcDesc, desc, value, locked, onChange, addSubBlock} = this.props;
+    const types = desc.types || defaultTypes;
+    const currentType = this.getCurrentType();
 
-    let EditorClass = dynamicEditorMap[currentType];
+    const EditorClass = dynamicEditorMap[currentType];
     let editor: React.ReactNode;
     if (EditorClass) {
       editor = (

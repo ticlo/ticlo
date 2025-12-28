@@ -50,7 +50,7 @@ export class TicloComp extends React.Component<Props, State> {
     // TODO log this error
   }
   render() {
-    let {toRender} = this.state;
+    const {toRender} = this.state;
     return validateReactComponent(toRender);
   }
 }

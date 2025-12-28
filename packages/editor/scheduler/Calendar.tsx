@@ -72,7 +72,7 @@ export class ScheduleCalendar extends LazyUpdateComponent<Props, State> {
   });
   scheduleLoader: ScheduleLoader;
   loadEvents = cacheCall((schedulePath: string) => {
-    let {conn} = this.props;
+    const {conn} = this.props;
     this.scheduleLoader?.destroy();
     this.scheduleLoader = new ScheduleLoader(this, conn, schedulePath);
   });
@@ -82,30 +82,30 @@ export class ScheduleCalendar extends LazyUpdateComponent<Props, State> {
     const {selectedIdx} = this.state;
     const dummyEvents = this.scheduleLoader.getDummyEvents();
     const config = dummyEvents[selectedIdx]?.parent.config ?? ({} as SchedulerConfig);
-    let startDate = toDateTime(slot.start);
-    let start = startDate.toFormat('HH:mm');
+    const startDate = toDateTime(slot.start);
+    const start = startDate.toFormat('HH:mm');
     let duration = (slot.end.valueOf() - slot.start.valueOf()) / 60000;
     if (slot.end.getHours() === 59 && slot.end.getMinutes() === 59) {
       duration = 0;
     }
-    let newConfig = {...config, start, duration};
+    const newConfig = {...config, start, duration};
     switch (config.repeat) {
       case 'weekly': {
-        let weekDay = startDate.weekday;
+        const weekDay = startDate.weekday;
         if (!config.wDays?.includes(weekDay)) {
           newConfig.wDays = [...(config.wDays ?? []), weekDay].sort();
         }
         break;
       }
       case 'dates': {
-        let date = startDate.toFormat('yyyy-MM-dd');
+        const date = startDate.toFormat('yyyy-MM-dd');
         if (!config.dates?.includes(date)) {
           newConfig.dates = [...(config.dates ?? []), date].sort(sortDateItem);
         }
         break;
       }
       case 'advanced': {
-        let day = startDate.day;
+        const day = startDate.day;
         if (!config.days?.includes(day)) {
           newConfig.days = [...(config.days ?? []), day].sort(sortDateItem);
         }
@@ -180,8 +180,8 @@ export class ScheduleCalendar extends LazyUpdateComponent<Props, State> {
   getCalendarRef = (c: any) => (this._calendar = c);
 
   renderImpl() {
-    let {parentPath, conn} = this.props;
-    let {scheduleOptions, selectedSchedule, timeRange, selectedId, selectedIdx, view, date} = this.state;
+    const {parentPath, conn} = this.props;
+    const {scheduleOptions, selectedSchedule, timeRange, selectedId, selectedIdx, view, date} = this.state;
 
     const schedulePath = `${parentPath}.${selectedSchedule}`;
     this.loadOptions(parentPath);

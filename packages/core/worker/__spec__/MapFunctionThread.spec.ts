@@ -14,8 +14,8 @@ describe('MapFunction Thread', function () {
     TestFunctionRunner.clearLog();
   });
 
-  let inputObj: any = {};
-  let inputArr: any[] = [];
+  const inputObj: any = {};
+  const inputArr: any[] = [];
 
   for (let i = 0; i < 20; ++i) {
     inputObj['v' + i] = i;
@@ -23,11 +23,11 @@ describe('MapFunction Thread', function () {
   }
 
   it('basic', async function () {
-    let flow = new Flow();
+    const flow = new Flow();
 
     flow.setValue('a', inputObj);
 
-    let bBlock = flow.createBlock('b');
+    const bBlock = flow.createBlock('b');
 
     bBlock._load({
       '#is': 'map',
@@ -66,7 +66,7 @@ describe('MapFunction Thread', function () {
     expect(TestFunctionRunner.popLogs().length).toBe(3);
 
     flow.setValue('a', inputArr);
-    let outputArr = await bBlock.waitNextValue('#output');
+    const outputArr = await bBlock.waitNextValue('#output');
     expect(outputArr.length).toBe(20);
 
     for (let i = 0; i < 20; ++i) {
@@ -80,7 +80,7 @@ describe('MapFunction Thread', function () {
   });
 
   it('input object', async function () {
-    let flow = new Flow();
+    const flow = new Flow();
 
     const data = {
       v1: {v: 1},
@@ -90,7 +90,7 @@ describe('MapFunction Thread', function () {
 
     flow.setValue('a', data);
 
-    let bBlock = flow.createBlock('b');
+    const bBlock = flow.createBlock('b');
 
     bBlock._load({
       '#is': 'map',
@@ -105,7 +105,7 @@ describe('MapFunction Thread', function () {
     });
 
     Root.run();
-    let output = await bBlock.waitValue('#output');
+    const output = await bBlock.waitValue('#output');
     expect(output).toEqual(data);
 
     // delete flow;
@@ -113,7 +113,7 @@ describe('MapFunction Thread', function () {
   });
 
   it('change use', async function () {
-    let flow = new Flow();
+    const flow = new Flow();
 
     flow.setValue('a', {
       v1: 1,
@@ -121,7 +121,7 @@ describe('MapFunction Thread', function () {
       v3: 3,
     });
 
-    let bBlock = flow.createBlock('b');
+    const bBlock = flow.createBlock('b');
 
     bBlock._load({
       '#is': 'map',
@@ -140,7 +140,7 @@ describe('MapFunction Thread', function () {
 
     Root.run();
 
-    let output = await bBlock.waitValue('#output');
+    const output = await bBlock.waitValue('#output');
     expect(output).toEqual({v1: 2, v2: 3, v3: 4});
 
     bBlock.setValue('use', {
@@ -161,11 +161,11 @@ describe('MapFunction Thread', function () {
   });
 
   it('async worker', async function () {
-    let flow = new Flow();
+    const flow = new Flow();
 
     flow.setValue('a', inputObj);
 
-    let bBlock = flow.createBlock('b');
+    const bBlock = flow.createBlock('b');
 
     bBlock._load({
       '#is': 'map',
@@ -214,7 +214,7 @@ describe('MapFunction Thread', function () {
     expect(TestFunctionRunner.popLogs().length).toBe(3);
 
     flow.setValue('a', inputArr);
-    let outputArr = await bBlock.waitNextValue('#output');
+    const outputArr = await bBlock.waitNextValue('#output');
     expect(outputArr.length).toBe(20);
 
     for (let i = 0; i < 20; ++i) {
@@ -228,11 +228,11 @@ describe('MapFunction Thread', function () {
   });
 
   it('async worker reuse', async function () {
-    let flow = new Flow();
+    const flow = new Flow();
 
     flow.setValue('a', inputObj);
 
-    let bBlock = flow.createBlock('b');
+    const bBlock = flow.createBlock('b');
 
     bBlock._load({
       '#is': 'map',
@@ -283,7 +283,7 @@ describe('MapFunction Thread', function () {
     expect(TestFunctionRunner.popLogs().length).toBe(3);
 
     flow.setValue('a', inputArr);
-    let outputArr = await bBlock.waitNextValue('#output');
+    const outputArr = await bBlock.waitNextValue('#output');
     expect(outputArr.length).toBe(20);
     expect(TestFunctionRunner.popLogs().length).toBe(5);
 
@@ -296,11 +296,11 @@ describe('MapFunction Thread', function () {
   });
 
   it('async worker persist', async function () {
-    let flow = new Flow();
+    const flow = new Flow();
 
     flow.setValue('a', inputObj);
 
-    let bBlock = flow.createBlock('b');
+    const bBlock = flow.createBlock('b');
 
     bBlock._load({
       '#is': 'map',
@@ -348,7 +348,7 @@ describe('MapFunction Thread', function () {
     expect(output).toEqual({v1: 2, v2: 5, v4: 6});
 
     flow.setValue('a', inputArr);
-    let outputArr = await bBlock.waitNextValue('#output');
+    const outputArr = await bBlock.waitNextValue('#output');
     expect(outputArr.length).toBe(20);
 
     for (let i = 0; i < 20; ++i) {
@@ -361,11 +361,11 @@ describe('MapFunction Thread', function () {
   });
 
   it('data race', async function () {
-    let flow = new Flow();
+    const flow = new Flow();
 
     flow.setValue('a', inputObj);
 
-    let bBlock = flow.createBlock('b');
+    const bBlock = flow.createBlock('b');
 
     bBlock._load({
       '#is': 'map',
@@ -404,10 +404,10 @@ describe('MapFunction Thread', function () {
     flow.setValue('a', inputObj);
     flow.setValue('a', inputArr);
 
-    let output = await bBlock.waitValue('#output');
+    const output = await bBlock.waitValue('#output');
     expect(Object.keys(output).length).toBe(20);
 
-    let outputArr = await bBlock.waitNextValue('#output');
+    const outputArr = await bBlock.waitNextValue('#output');
     expect(outputArr.length).toBe(20);
 
     for (let i = 0; i < 20; ++i) {

@@ -9,7 +9,7 @@ const beforeAll = globalThis.beforeAll ?? (globalThis as any).before;
 
 describe('FileStorage', function () {
   it('listen to value', async function () {
-    let storage = new FileStorage('./temp/storageTest');
+    const storage = new FileStorage('./temp/storageTest');
     storage.save('key1', 'value1');
     expect(await storage.load('key1')).toBe('value1');
     expect(await storage.load('invalid key')).toBeUndefined();
@@ -32,8 +32,8 @@ describe('FileStorage', function () {
   });
   it('save and delete flow', async function () {
     const path = './temp/storageTest/flow1.ticlo';
-    let root = new Root();
-    let storage = new FileFlowStorage('./temp/storageTest');
+    const root = new Root();
+    const storage = new FileFlowStorage('./temp/storageTest');
     await root.setStorage(storage);
 
     let flow = root.addFlow('flow1');
@@ -55,7 +55,7 @@ describe('FileStorage', function () {
     flow.setValue('value', 456);
     flow.applyChange();
     await waitTick(20);
-    let readResult = await storage.loadFlow('flow2');
+    const readResult = await storage.loadFlow('flow2');
     expect(readResult).toEqual({'#is': '', 'value': 456});
 
     // overwrite delete after write
@@ -78,11 +78,11 @@ describe('FileStorage', function () {
     root.destroy();
   });
   it('init loader', async function () {
-    let flowData = {'#is': '', 'value': 321};
+    const flowData = {'#is': '', 'value': 321};
     const path1 = './temp/storageTest/folder5.subflow.ticlo';
     Fs.writeFileSync(path1, JSON.stringify(flowData));
 
-    let root = new Root();
+    const root = new Root();
     await root.setStorage(new FileFlowStorage('./temp/storageTest'));
 
     expect(root.queryValue('folder5')).instanceof(FlowFolder);

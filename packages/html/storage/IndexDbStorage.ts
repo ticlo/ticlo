@@ -25,7 +25,7 @@ export class IndexDbStorage implements Storage {
         // use the default ticlo database
         this.dbPromise = openDB(DB_NAME, undefined, {
           upgrade(db, oldVersion, newVersion, transaction) {
-            for (let defaultStoreName of DEFAULT_STORES) {
+            for (const defaultStoreName of DEFAULT_STORES) {
               db.createObjectStore(defaultStoreName);
             }
           },
@@ -78,7 +78,7 @@ export class IndexDbStorage implements Storage {
   }
 
   unlisten(key: string, listener: (val: string) => void) {
-    let stream = this.streams.get(key);
+    const stream = this.streams.get(key);
     if (stream) {
       stream.unlisten(listener);
       if (stream.isEmpty()) {
@@ -115,8 +115,8 @@ export class IndexDbFlowStorage extends IndexDbStorage implements FlowStorage {
     if (!data) {
       data = flow.save();
     }
-    let key = overrideKey ?? flow._storageKey;
-    let str = encodeSorted(data);
+    const key = overrideKey ?? flow._storageKey;
+    const str = encodeSorted(data);
     if (key) {
       await this.save(key, str);
     }
@@ -124,7 +124,7 @@ export class IndexDbFlowStorage extends IndexDbStorage implements FlowStorage {
 
   async loadFlow(name: string) {
     try {
-      let str = await this.load(name);
+      const str = await this.load(name);
       return decode(str); // decode(null) will return null
     } catch (e) {
       return null;
@@ -134,11 +134,11 @@ export class IndexDbFlowStorage extends IndexDbStorage implements FlowStorage {
   inited = false;
 
   async init(root: Root) {
-    let db = await this.dbPromise;
-    let flowFiles: string[] = [];
-    let functionFiles: string[] = [];
+    const db = await this.dbPromise;
+    const flowFiles: string[] = [];
+    const functionFiles: string[] = [];
     let globalData = {'#is': ''};
-    for (let storeKey of (await db.getAllKeys(this.storeName)) as string[]) {
+    for (const storeKey of (await db.getAllKeys(this.storeName)) as string[]) {
       if (
         !storeKey.includes('.#') // Do not load subflow during initialization.
       ) {
@@ -157,10 +157,10 @@ export class IndexDbFlowStorage extends IndexDbStorage implements FlowStorage {
     }
 
     // load custom types
-    for (let name of functionFiles.sort()) {
+    for (const name of functionFiles.sort()) {
       try {
-        let data = decode(await db.get(this.storeName, `#.${name}`));
-        let desc = WorkerFunctionGen.collectDesc(`:${name}`, data);
+        const data = decode(await db.get(this.storeName, `#.${name}`));
+        const desc = WorkerFunctionGen.collectDesc(`:${name}`, data);
         WorkerFunctionGen.registerType(data, desc, '');
       } catch (err) {
         // TODO Logger
@@ -175,9 +175,9 @@ export class IndexDbFlowStorage extends IndexDbStorage implements FlowStorage {
 
     // load flow entries
     // sort the name to make sure parent Flow is loaded before children flows
-    for (let name of flowFiles.sort()) {
+    for (const name of flowFiles.sort()) {
       try {
-        let data = decode(await (this.db ?? (await this.dbPromise)).get(this.storeName, name));
+        const data = decode(await (this.db ?? (await this.dbPromise)).get(this.storeName, name));
         root.addFlow(name, data, null, true);
       } catch (err) {
         // TODO Logger

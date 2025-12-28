@@ -73,7 +73,7 @@ export class FlowIOTask extends StreamDispatcher<string> {
   onDone = () => {
     this.current = null;
     if (this.next) {
-      let {next, nextData} = this;
+      const {next, nextData} = this;
       this.next = null;
       this.nextData = null;
 
@@ -86,7 +86,7 @@ export class FlowIOTask extends StreamDispatcher<string> {
           return;
       }
     } else if (this.reading) {
-      let ignoredPromise = this.read();
+      const ignoredPromise = this.read();
     } else {
       this.loader.taskDone(this);
     }
@@ -112,7 +112,7 @@ export class FileStorage implements Storage {
     if (this.tasks.has(name)) {
       return this.tasks.get(name);
     } else {
-      let task = new FlowIOTask(this, name, Path.join(this.dir, `${encodeFileName(name)}${this.ext}`));
+      const task = new FlowIOTask(this, name, Path.join(this.dir, `${encodeFileName(name)}${this.ext}`));
       this.tasks.set(name, task);
       return task;
     }
@@ -127,7 +127,7 @@ export class FileStorage implements Storage {
     this.getTask(name).delete();
   }
   save(key: string, data: string): void {
-    let task = this.getTask(key);
+    const task = this.getTask(key);
     task.write(data);
   }
   async load(name: string) {
@@ -173,14 +173,14 @@ export class FileFlowStorage extends FileStorage implements FlowStorage {
     if (!data) {
       data = flow.save();
     }
-    let key = overrideKey ?? flow._storageKey;
-    let str = encodeSorted(data);
+    const key = overrideKey ?? flow._storageKey;
+    const str = encodeSorted(data);
     this.save(key, str);
   }
 
   async loadFlow(name: string) {
     try {
-      let str = await this.load(name);
+      const str = await this.load(name);
       return decode(str); // decode(null) will return null
     } catch (e) {}
     return null;
@@ -188,15 +188,15 @@ export class FileFlowStorage extends FileStorage implements FlowStorage {
 
   inited = false;
   init(root: Root): void {
-    let flowFiles: string[] = [];
-    let functionFiles: string[] = [];
+    const flowFiles: string[] = [];
+    const functionFiles: string[] = [];
     let globalData = {'#is': ''};
-    for (let file of Fs.readdirSync(this.dir)) {
+    for (const file of Fs.readdirSync(this.dir)) {
       if (
         file.endsWith(this.ext) &&
         !file.includes('.#') // Do not load subflow during initialization.
       ) {
-        let name = file.substring(0, file.length - this.ext.length);
+        const name = file.substring(0, file.length - this.ext.length);
         if (name === '#global') {
           try {
             globalData = decode(Fs.readFileSync(Path.join(this.dir, `${name}${this.ext}`), 'utf8'));
@@ -212,10 +212,10 @@ export class FileFlowStorage extends FileStorage implements FlowStorage {
     }
 
     // load custom types
-    for (let name of functionFiles.sort()) {
+    for (const name of functionFiles.sort()) {
       try {
-        let data = decode(Fs.readFileSync(Path.join(this.dir, `#.${name}${this.ext}`), 'utf8'));
-        let desc = WorkerFunctionGen.collectDesc(`:${name}`, data);
+        const data = decode(Fs.readFileSync(Path.join(this.dir, `#.${name}${this.ext}`), 'utf8'));
+        const desc = WorkerFunctionGen.collectDesc(`:${name}`, data);
         WorkerFunctionGen.registerType(data, desc, '');
       } catch (err) {
         // TODO Logger
@@ -230,9 +230,9 @@ export class FileFlowStorage extends FileStorage implements FlowStorage {
 
     // load flow entries
     // sort the name to make sure parent Flow is loaded before children flows
-    for (let name of flowFiles.sort()) {
+    for (const name of flowFiles.sort()) {
       try {
-        let data = decode(Fs.readFileSync(Path.join(this.dir, `${name}${this.ext}`), 'utf8'));
+        const data = decode(Fs.readFileSync(Path.join(this.dir, `${name}${this.ext}`), 'utf8'));
         root.addFlow(name, data, null, true);
       } catch (err) {
         // TODO Logger

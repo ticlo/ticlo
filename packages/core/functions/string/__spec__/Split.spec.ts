@@ -5,9 +5,9 @@ import {Flow, Root} from '../../../block/Flow.js';
 
 describe('Split', function () {
   it('basic split', function () {
-    let flow = new Flow();
+    const flow = new Flow();
 
-    let aBlock = flow.createBlock('a');
+    const aBlock = flow.createBlock('a');
     aBlock.setValue('#is', 'split');
     expect(aBlock.getValue('#output')).not.toBeDefined();
 

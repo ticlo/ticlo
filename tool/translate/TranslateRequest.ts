@@ -3,29 +3,29 @@ import axios from 'axios';
 export async function translate(map: Map<string, string>, lan: string, key: string) {
   console.log(`translating ${map.size} items to ${lan}`);
 
-  let texts = [...map.keys()];
-  let shotTexts = texts.filter((str: string) => str.length < 500);
-  let longTexts = texts.filter((str: string) => str.length >= 500);
+  const texts = [...map.keys()];
+  const shotTexts = texts.filter((str: string) => str.length < 500);
+  const longTexts = texts.filter((str: string) => str.length >= 500);
 
   for (let i = 0; i < shotTexts.length; i += 10) {
-    let end = Math.min(i + 10, shotTexts.length);
-    let toTranslate = shotTexts.slice(i, end);
-    let result = await request(toTranslate, lan, key);
+    const end = Math.min(i + 10, shotTexts.length);
+    const toTranslate = shotTexts.slice(i, end);
+    const result = await request(toTranslate, lan, key);
     for (let i = 0; i < toTranslate.length; ++i) {
       map.set(toTranslate[i], result[i]);
     }
   }
-  for (let text of longTexts) {
+  for (const text of longTexts) {
     if (text.length > 5000) {
       console.error(`invalid input, text too long: ${text}`);
     }
-    let result = await request([text], lan, key);
+    const result = await request([text], lan, key);
     map.set(text, result[0]);
   }
 }
 
 async function request(texts: string[], lan: string, key: string): Promise<string[]> {
-  let result = await axios.post(
+  const result = await axios.post(
     'https://api.cognitive.microsofttranslator.com/translate',
     texts.map((str: string) => {
       return {

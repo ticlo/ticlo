@@ -3,8 +3,8 @@ import {DateTime} from 'luxon';
 export function deepClone<T>(val: T): T {
   if (val != null && typeof val === 'object') {
     if (Array.isArray(val)) {
-      let arr: any[] = [];
-      for (let o of val) {
+      const arr: any[] = [];
+      for (const o of val) {
         arr.push(deepClone(o));
       }
       return arr as T;
@@ -15,8 +15,8 @@ export function deepClone<T>(val: T): T {
       }
       return val;
     }
-    let obj: any = {};
-    for (let k in val) {
+    const obj: any = {};
+    for (const k in val) {
       obj[k] = deepClone(val[k]);
     }
     return obj;
@@ -32,8 +32,8 @@ export function deepClone<T>(val: T): T {
 export function cloneToLevel<T>(val: T, level: number): T {
   if (level-- && val != null && typeof val === 'object') {
     if (Array.isArray(val)) {
-      let arr: any[] = [];
-      for (let o of val) {
+      const arr: any[] = [];
+      for (const o of val) {
         arr.push(cloneToLevel(o, level));
       }
       return arr as T;
@@ -44,8 +44,8 @@ export function cloneToLevel<T>(val: T, level: number): T {
       }
       return val;
     }
-    let obj: any = {};
-    for (let k in val) {
+    const obj: any = {};
+    for (const k in val) {
       obj[k] = cloneToLevel(val[k], level);
     }
     return obj;

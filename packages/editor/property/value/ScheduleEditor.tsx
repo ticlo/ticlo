@@ -10,7 +10,7 @@ export class ScheduleEditor extends React.PureComponent<ValueEditorProps, any> {
   declare context: TicloLayoutContext;
 
   popup = () => {
-    let {keys, name, desc, value} = this.props;
+    const {keys, name, desc, value} = this.props;
     this.context.editProperty(
       keys.map((key) => `${key}.${name}`),
       desc,
@@ -30,8 +30,8 @@ export class ScheduleEditor extends React.PureComponent<ValueEditorProps, any> {
   };
 
   render() {
-    let {value, desc, onChange} = this.props;
-    let editor = (
+    const {value, desc, onChange} = this.props;
+    const editor = (
       <Button
         size="small"
         icon={<CalendarOutlined />}

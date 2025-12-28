@@ -24,9 +24,9 @@ function writeYamlString(str: string, comment: string, indent: number) {
     if (comment) {
       firstRow = `|- ${comment}`;
     }
-    let indentStr = ''.padStart(indent + 2);
-    let results = [firstRow];
-    for (let line of str.split('\n')) {
+    const indentStr = ''.padStart(indent + 2);
+    const results = [firstRow];
+    for (const line of str.split('\n')) {
       results.push(`${indentStr}${line}`);
     }
     return results.join('\n');
@@ -47,10 +47,10 @@ export class YamlData {
   mapping = new Map<string, YamlRow>();
 
   constructor(data: string) {
-    let rawrows = data.split('\n');
+    const rawrows = data.split('\n');
     let current: YamlRow;
-    for (let row of rawrows) {
-      let yamlRow = new YamlRow(row.trimRight(), current);
+    for (const row of rawrows) {
+      const yamlRow = new YamlRow(row.trimRight(), current);
 
       if (yamlRow.key) {
         current = yamlRow;
@@ -65,7 +65,7 @@ export class YamlData {
   }
 
   calculateValueHash() {
-    for (let [key, row] of this.mapping) {
+    for (const [key, row] of this.mapping) {
       if (row.value) {
         row.valueHash = hashValue(row.value);
       }
@@ -95,7 +95,7 @@ class YamlRow {
     public raw: string,
     previous: YamlRow
   ) {
-    let match = raw.match(rowreg);
+    const match = raw.match(rowreg);
     if (match) {
       this.indent = match[1].length;
       while (previous && previous.indent >= this.indent) {
@@ -121,7 +121,7 @@ class YamlRow {
     } else if (previous?.multiLineIndent) {
       // handle multi-line
       if (raw.startsWith(previous.multiLineIndent)) {
-        let currentLine = raw.substring(previous.multiLineIndent.length);
+        const currentLine = raw.substring(previous.multiLineIndent.length);
         if (previous.value) {
           previous.value = `${previous.value}\n${currentLine}`;
         } else {
@@ -162,8 +162,8 @@ export class OutputYamlData {
     public enSource: YamlData,
     public yamlPath: string
   ) {
-    for (let row of enSource.rows) {
-      let outrow = new OutputRow(row);
+    for (const row of enSource.rows) {
+      const outrow = new OutputRow(row);
       this.rows.push(outrow);
       if (row.key && enSource.mapping.has(row.key)) {
         this.mapping.set(row.key, outrow);
@@ -173,15 +173,15 @@ export class OutputYamlData {
 
   mergeExistingData() {
     if (fs.existsSync(this.yamlPath)) {
-      let str = fs.readFileSync(this.yamlPath, {encoding: 'utf8'});
-      let oldData = new YamlData(str);
+      const str = fs.readFileSync(this.yamlPath, {encoding: 'utf8'});
+      const oldData = new YamlData(str);
 
-      for (let [key, oldRow] of oldData.mapping) {
+      for (const [key, oldRow] of oldData.mapping) {
         if (this.mapping.has(key)) {
-          let outrow = this.mapping.get(key);
-          let generatedPos = oldRow.comment?.indexOf(YamlRow.genertedFromHash);
+          const outrow = this.mapping.get(key);
+          const generatedPos = oldRow.comment?.indexOf(YamlRow.genertedFromHash);
           if (generatedPos > 0) {
-            let hash = oldRow.comment.substring(
+            const hash = oldRow.comment.substring(
               generatedPos + YamlRow.genertedFromHashLen,
               generatedPos + YamlRow.genertedFromHashLen + 8
             );
@@ -202,7 +202,7 @@ export class OutputYamlData {
   }
 
   prepareTranslate() {
-    for (let [key, outRow] of this.mapping) {
+    for (const [key, outRow] of this.mapping) {
       if (outRow.translated == null) {
         this.toBeTranslated.set(key, outRow);
       }
@@ -210,10 +210,10 @@ export class OutputYamlData {
   }
 
   applyTranslate(map: Map<string, string>) {
-    for (let [key, row] of this.toBeTranslated) {
+    for (const [key, row] of this.toBeTranslated) {
       row.translated = map.get(row.enRow.value);
       if (row.enRow.valueHash) {
-        let generatedStr = `${YamlRow.genertedFromHash}${row.enRow.valueHash}`;
+        const generatedStr = `${YamlRow.genertedFromHash}${row.enRow.valueHash}`;
         row.comment = row.comment ? `${row.comment} ${generatedStr}` : `# ${generatedStr}`;
       }
     }
@@ -221,18 +221,18 @@ export class OutputYamlData {
   }
   writeToYaml() {
     console.log(`writing to ${this.yamlPath}`);
-    let output: string[] = [];
+    const output: string[] = [];
     if (this.unused.length) {
       output.push('# no longer used');
-      for (let row of this.unused) {
+      for (const row of this.unused) {
         output.push(row.raw);
       }
       output.push('\n');
     }
-    for (let row of this.rows) {
-      let {rawkey, indent, raw, value} = row.enRow;
+    for (const row of this.rows) {
+      const {rawkey, indent, raw, value} = row.enRow;
       if (value != null) {
-        let rowValue = writeYamlString(row.translated, row.comment, indent);
+        const rowValue = writeYamlString(row.translated, row.comment, indent);
         if (rowValue) {
           output.push(`${''.padStart(indent)}${rawkey}: ${rowValue}`);
           continue;
@@ -240,7 +240,7 @@ export class OutputYamlData {
       }
       output.push(raw);
     }
-    let outputStr = output.join('\n');
+    const outputStr = output.join('\n');
     fs.writeFileSync(this.yamlPath, outputStr);
   }
 }

@@ -22,36 +22,36 @@ interface State {
 export class ParameterInputDialog extends React.PureComponent<Props, State> {
   constructor(props: Props) {
     super(props);
-    let defaultValues: DataMap = {};
-    for (let propDesc of props.parameters) {
+    const defaultValues: DataMap = {};
+    for (const propDesc of props.parameters) {
       defaultValues[propDesc.name] = propDesc.default;
     }
     this.state = {visible: true, values: {}};
   }
   onOk = () => {
-    let {onOk} = this.props;
-    let {values} = this.state;
+    const {onOk} = this.props;
+    const {values} = this.state;
     onOk?.(values);
   };
   render() {
-    let {title, parameters, funcName, ns, onCancel} = this.props;
-    let {visible, values} = this.state;
-    let funcDesc: FunctionDesc = {
+    const {title, parameters, funcName, ns, onCancel} = this.props;
+    const {visible, values} = this.state;
+    const funcDesc: FunctionDesc = {
       name: funcName,
       ns,
       properties: parameters,
     };
     console.log(funcDesc);
-    let children: React.ReactElement[] = [];
-    for (let propDesc of parameters) {
-      let name = propDesc.name;
-      let value = values[name];
+    const children: React.ReactElement[] = [];
+    for (const propDesc of parameters) {
+      const name = propDesc.name;
+      const value = values[name];
       let EditorClass = typeEditorMap[propDesc.type];
       if (!EditorClass) {
         EditorClass = ReadonlyEditor;
       }
-      let onChange = (val: any) => this.setState((oldState: State) => ({values: {...oldState.values, [name]: val}}));
-      let editor = <EditorClass value={value} funcDesc={funcDesc} desc={propDesc} onChange={onChange} />;
+      const onChange = (val: any) => this.setState((oldState: State) => ({values: {...oldState.values, [name]: val}}));
+      const editor = <EditorClass value={value} funcDesc={funcDesc} desc={propDesc} onChange={onChange} />;
       children.push(
         <div key={name} className="ticl-property">
           <div className="ticl-property-name">

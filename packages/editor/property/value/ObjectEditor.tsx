@@ -11,12 +11,12 @@ export class ObjectEditor extends React.PureComponent<ValueEditorProps, any> {
   declare context: TicloLayoutContext;
 
   createObject = () => {
-    let {conn, keys, desc, addSubBlock} = this.props;
+    const {conn, keys, desc, addSubBlock} = this.props;
     addSubBlock(desc.create, null, null);
   };
 
   popup = () => {
-    let {keys, name, desc, value} = this.props;
+    const {keys, name, desc, value} = this.props;
     this.context.editProperty(
       keys.map((key) => `${key}.${name}`),
       desc,
@@ -27,11 +27,11 @@ export class ObjectEditor extends React.PureComponent<ValueEditorProps, any> {
   };
 
   render() {
-    let {value, desc, onChange} = this.props;
+    const {value, desc, onChange} = this.props;
     let editor: React.ReactNode;
     if (value === undefined && onChange && desc.create) {
       let create = desc.create;
-      let colonIndex = create.indexOf(':');
+      const colonIndex = create.indexOf(':');
       if (colonIndex > -1) {
         create = create.substring(colonIndex + 1);
       }

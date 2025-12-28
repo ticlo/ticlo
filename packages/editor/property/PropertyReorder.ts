@@ -5,21 +5,21 @@ import {deepEqual} from '@ticlo/core/util/Compare.js';
 
 export const CustomGroupPropertyReorder: PropertyReorder = {
   getDragData(props: PropertyEditorProps): DataMap {
-    let {paths, name, group, baseName} = props;
-    let data: any = {paths, fromGroup: group};
+    const {paths, name, group, baseName} = props;
+    const data: any = {paths, fromGroup: group};
     data.moveCustomField = baseName;
     data.moveGroupIndex = getTailingNumber(name);
     return data;
   },
   onDragOver(props: PropertyEditorProps, e: DragState): string {
     let {conn, paths, group, baseName, name, isCustom} = props;
-    let moveFromPaths: string[] = DragState.getData('paths', conn.getBaseConn());
+    const moveFromPaths: string[] = DragState.getData('paths', conn.getBaseConn());
     if (moveFromPaths === paths) {
-      let isLen = group != null && name.endsWith('[]');
-      let fromGroup = DragState.getData('fromGroup', conn.getBaseConn());
+      const isLen = group != null && name.endsWith('[]');
+      const fromGroup = DragState.getData('fromGroup', conn.getBaseConn());
       if (isCustom) {
         // move custom property
-        let moveCustomField: string = DragState.getData('moveCustomField', conn.getBaseConn());
+        const moveCustomField: string = DragState.getData('moveCustomField', conn.getBaseConn());
 
         if (moveCustomField != null) {
           let moveToField = baseName != null ? baseName : name;
@@ -35,8 +35,8 @@ export const CustomGroupPropertyReorder: PropertyReorder = {
       }
       if (group != null && !isLen && group === fromGroup) {
         // move group index
-        let moveGroupIndex = DragState.getData('moveGroupIndex', conn.getBaseConn());
-        let currentGroupIndex = getTailingNumber(name);
+        const moveGroupIndex = DragState.getData('moveGroupIndex', conn.getBaseConn());
+        const currentGroupIndex = getTailingNumber(name);
         if (moveGroupIndex !== currentGroupIndex) {
           return 'tico-fas-random';
         }
@@ -47,13 +47,13 @@ export const CustomGroupPropertyReorder: PropertyReorder = {
   onDragDrop(props: PropertyEditorProps, e: DragState): void {
     let {conn, paths, group, baseName, name, isCustom} = props;
     // check reorder drag with right click
-    let isLen = group != null && name.endsWith('[]');
-    let fromGroup = DragState.getData('fromGroup', conn.getBaseConn());
-    let moveFromPaths: string[] = DragState.getData('paths', conn.getBaseConn());
+    const isLen = group != null && name.endsWith('[]');
+    const fromGroup = DragState.getData('fromGroup', conn.getBaseConn());
+    const moveFromPaths: string[] = DragState.getData('paths', conn.getBaseConn());
     if (moveFromPaths === paths) {
       if (isCustom) {
         // move custom property
-        let moveCustomField: string = DragState.getData('moveCustomField', conn.getBaseConn());
+        const moveCustomField: string = DragState.getData('moveCustomField', conn.getBaseConn());
 
         let moveToField = baseName != null ? baseName : name;
         if (isLen) {
@@ -62,7 +62,7 @@ export const CustomGroupPropertyReorder: PropertyReorder = {
         }
 
         if (moveToField !== moveCustomField && group == fromGroup) {
-          for (let key of paths) {
+          for (const key of paths) {
             conn.moveCustomProp(key, moveCustomField, moveToField, fromGroup);
           }
           return;
@@ -70,9 +70,9 @@ export const CustomGroupPropertyReorder: PropertyReorder = {
       }
       if (group != null && !isLen && group === fromGroup) {
         // move group index
-        let moveGroupIndex = DragState.getData('moveGroupIndex', conn.getBaseConn());
-        let currentGroupIndex = getTailingNumber(name);
-        for (let key of paths) {
+        const moveGroupIndex = DragState.getData('moveGroupIndex', conn.getBaseConn());
+        const currentGroupIndex = getTailingNumber(name);
+        for (const key of paths) {
           conn.moveGroupProp(key, fromGroup, moveGroupIndex, currentGroupIndex);
         }
       }
@@ -82,8 +82,8 @@ export const CustomGroupPropertyReorder: PropertyReorder = {
 
 export const GroupPropertyReorder: PropertyReorder = {
   getDragData(props: PropertyEditorProps): DataMap {
-    let {paths, name, group, baseName, isCustom} = props;
-    let data: any = {paths, fromGroup: group};
+    const {paths, name, group, baseName, isCustom} = props;
+    const data: any = {paths, fromGroup: group};
     data.moveGroupIndex = getTailingNumber(name);
     return data;
   },
@@ -93,8 +93,8 @@ export const GroupPropertyReorder: PropertyReorder = {
 
 export const CustomPropertyReorder: PropertyReorder = {
   getDragData(props: PropertyEditorProps): DataMap {
-    let {paths, name, group, baseName} = props;
-    let data: any = {paths};
+    const {paths, name, group, baseName} = props;
+    const data: any = {paths};
     // move custom property
     let moveCustomField = baseName != null ? baseName : name;
     if (group != null && name.endsWith('[]')) {
@@ -110,14 +110,14 @@ export const CustomPropertyReorder: PropertyReorder = {
 
 export const OptionalPropertyReorder: PropertyReorder = {
   getDragData(props: PropertyEditorProps): DataMap {
-    let {paths, name} = props;
+    const {paths, name} = props;
     return {paths, moveOptionalField: name};
   },
   onDragOver(props: PropertyEditorProps, e: DragState): string {
-    let {conn, paths, name} = props;
-    let moveFromPaths: string[] = DragState.getData('paths', conn.getBaseConn());
+    const {conn, paths, name} = props;
+    const moveFromPaths: string[] = DragState.getData('paths', conn.getBaseConn());
     if (moveFromPaths === paths) {
-      let moveOptionalField: string = DragState.getData('moveOptionalField', conn.getBaseConn());
+      const moveOptionalField: string = DragState.getData('moveOptionalField', conn.getBaseConn());
 
       if (moveOptionalField && moveOptionalField !== name) {
         return 'tico-fas-exchange-alt';
@@ -126,13 +126,13 @@ export const OptionalPropertyReorder: PropertyReorder = {
     return null;
   },
   onDragDrop(props: PropertyEditorProps, e: DragState) {
-    let {conn, paths, name} = props;
-    let moveFromPaths: string[] = DragState.getData('paths', conn.getBaseConn());
+    const {conn, paths, name} = props;
+    const moveFromPaths: string[] = DragState.getData('paths', conn.getBaseConn());
     if (moveFromPaths === paths) {
-      let moveOptionalField: string = DragState.getData('moveOptionalField', conn.getBaseConn());
+      const moveOptionalField: string = DragState.getData('moveOptionalField', conn.getBaseConn());
 
       if (moveOptionalField && moveOptionalField !== name) {
-        for (let key of paths) {
+        for (const key of paths) {
           conn.moveOptionalProp(key, moveOptionalField, name);
         }
       }

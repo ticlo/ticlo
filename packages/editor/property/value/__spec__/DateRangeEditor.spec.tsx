@@ -19,11 +19,11 @@ describe('DateRangeEditor', function () {
 
   it('basic', async function () {
     let values: DateTime[] = null;
-    let onChange = (v: DateTime[]) => {
+    const onChange = (v: DateTime[]) => {
       values = v;
     };
-    let desc: PropDesc = {name: '', type: 'date-range', showTime: false};
-    let [component, div] = loadTemplate(
+    const desc: PropDesc = {name: '', type: 'date-range', showTime: false};
+    const [component, div] = loadTemplate(
       <DateRangeEditor value={null} funcDesc={blankFuncDesc} desc={desc} onChange={onChange} />,
       'editor'
     );
@@ -35,22 +35,22 @@ describe('DateRangeEditor', function () {
 
     // In Antd 6, we need to click the input to open the picker
     await shouldHappen(() => div.querySelector('.ticl-date-range-editor'), 500);
-    let startInput = div.querySelector('input');
+    const startInput = div.querySelector('input');
     simulate(startInput, 'click');
 
     await shouldHappen(() => document.querySelector('.ant-picker-dropdown'), 3000);
 
     // Select Start Date (Today)
-    let todayCell = document.querySelector('.ant-picker-cell-today');
-    let dateStr = (todayCell as HTMLElement).title;
+    const todayCell = document.querySelector('.ant-picker-cell-today');
+    const dateStr = (todayCell as HTMLElement).title;
     simulate(todayCell, 'click');
     await waitTick(50); // Reduced wait
 
     // Select End Date (Next available cell)
-    let allCells = document.querySelectorAll('.ant-picker-cell-in-view');
+    const allCells = document.querySelectorAll('.ant-picker-cell-in-view');
     let targetCell: Element;
     // Find the cell that matches todayCell's title (the start date) to avoid it
-    let startCell = document.querySelector('.ant-picker-cell-range-start');
+    const startCell = document.querySelector('.ant-picker-cell-range-start');
 
     for (let i = 0; i < allCells.length; i++) {
       if (allCells[i] !== startCell && (allCells[i] as HTMLElement).title !== dateStr) {

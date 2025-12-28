@@ -7,7 +7,7 @@ import {findPropertyForNewBlock, renameProperty} from '../PropertyName.js';
 
 describe('PropertyUtil', function () {
   it('findPropertyForNewBlock', function () {
-    let flow = new Flow();
+    const flow = new Flow();
     flow.setValue('#custom', [{name: 'add4', type: 'sting'}]);
 
     flow.setBinding('add2', 'add1');
@@ -31,7 +31,7 @@ describe('PropertyUtil', function () {
   });
 
   it('renameProperty', function () {
-    let flow = new Flow();
+    const flow = new Flow();
 
     // move undefined property
     renameProperty(flow, 'a0', 'b0', true);
@@ -79,7 +79,7 @@ describe('PropertyUtil', function () {
     expect(flow.getProperty('c6')._bindingPath).toBe('b6.v');
 
     // move child binding with same children names
-    let a7 = flow.createBlock('a7');
+    const a7 = flow.createBlock('a7');
     a7.createBlock('a7').createBlock('a7').setValue('v', 6);
     flow.setBinding('c7', 'a7.a7.a7.v');
     renameProperty(a7, 'a7', 'b7', true);

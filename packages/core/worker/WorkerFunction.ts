@@ -93,7 +93,7 @@ export class WorkerFunction extends BaseFunction<Block> implements WorkerHost {
     }
     if (this._funcFlow == null) {
       const {src, saveCallback} = this.control.getSaveParameter();
-      let subFlowMode = this._data.getValue('+state') ?? WorkerMode.ON;
+      const subFlowMode = this._data.getValue('+state') ?? WorkerMode.ON;
       if (subFlowMode === WorkerMode.ON) {
         this._funcFlow = this._data.createOutputFlow(RepeaterWorker, '#flow', src, this._data, saveCallback);
         this._funcFlow?.updateInput(this._data);
@@ -113,7 +113,7 @@ export class WorkerFunction extends BaseFunction<Block> implements WorkerHost {
       this.control._srcChanged = false;
     }
 
-    let subFlowMode = this._data.getValue('+state');
+    const subFlowMode = this._data.getValue('+state');
     switch (subFlowMode) {
       case WorkerMode.OFF: {
         if (this._funcFlow != null) {
@@ -137,7 +137,7 @@ export class WorkerFunction extends BaseFunction<Block> implements WorkerHost {
     }
 
     if (this._collector) {
-      let result = this._collector;
+      const result = this._collector;
       this._collector = null;
       return result;
     }
@@ -157,11 +157,11 @@ function getDefaultWorker(block: Block, field: string, blockStack: Map<any, any>
   // only works with work instance #input #output
   // not for any field
   if (field == null) {
-    let custom = block.getValue('#custom');
+    const custom = block.getValue('#custom');
     if (Array.isArray(custom) && custom.length) {
-      let inputs = custom.filter((data) => !data.readonly);
-      let outputs = custom.filter((data) => data.readonly).map((data) => ({...data, readonly: false}));
-      let result: any = {'#is': ''};
+      const inputs = custom.filter((data) => !data.readonly);
+      const outputs = custom.filter((data) => data.readonly).map((data) => ({...data, readonly: false}));
+      const result: any = {'#is': ''};
       if (inputs.length) {
         result['#inputs'] = getDefaultDataFromCustom(inputs);
       }

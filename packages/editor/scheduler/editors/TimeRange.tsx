@@ -49,7 +49,7 @@ export class TimeRangeEditor extends React.PureComponent<Props, State> {
 
   state: State = {unit: 60};
   onStartChange = (day: DateTime) => {
-    let {onChange} = this.props;
+    const {onChange} = this.props;
     onChange({start: `${day.hour}:${day.minute}`});
   };
 
@@ -84,7 +84,7 @@ export class TimeRangeEditor extends React.PureComponent<Props, State> {
   };
 
   render() {
-    let {current} = this.props;
+    const {current} = this.props;
     const {unit} = this.state;
 
     let d = defaultTime;

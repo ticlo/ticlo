@@ -87,7 +87,7 @@ export class AssertFunction extends BaseFunction<Block> {
     if (this._state === TestState.PASSED && !this._alwaysMatch) {
       return NO_EMIT;
     }
-    let compares = getInputsArray(this._data, '', 1, [EXPECT, ACTUAL]) as {
+    const compares = getInputsArray(this._data, '', 1, [EXPECT, ACTUAL]) as {
       expect: any;
       actual: any;
     }[];
@@ -123,9 +123,9 @@ export class AssertFunction extends BaseFunction<Block> {
 const API = {
   commands: {
     copyFromActual: (block: Block, params: {[key: string]: any; property?: string}) => {
-      let property = params?.property;
+      const property = params?.property;
       if (typeof property === 'string' && property.startsWith(EXPECT)) {
-        let copyFrom = block.getProperty(`${ACTUAL}${property.substring(EXPECT.length)}`, false);
+        const copyFrom = block.getProperty(`${ACTUAL}${property.substring(EXPECT.length)}`, false);
         if (copyFrom) {
           block.getProperty(property).setValue(convertActual(copyFrom._value));
         }

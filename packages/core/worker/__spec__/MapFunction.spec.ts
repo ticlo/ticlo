@@ -17,7 +17,7 @@ describe('MapFunction non-thread', function () {
   });
 
   it('basic', function () {
-    let flow = new Flow();
+    const flow = new Flow();
 
     flow.setValue('a', {
       v1: 1,
@@ -25,7 +25,7 @@ describe('MapFunction non-thread', function () {
       v3: 3,
     });
 
-    let bBlock = flow.createBlock('b');
+    const bBlock = flow.createBlock('b');
 
     bBlock._load({
       '#is': 'map',
@@ -61,9 +61,9 @@ describe('MapFunction non-thread', function () {
   });
 
   it('empty input', function () {
-    let flow = new Flow();
+    const flow = new Flow();
 
-    let bBlock = flow.createBlock('b');
+    const bBlock = flow.createBlock('b');
 
     bBlock._load({
       '#is': 'map',
@@ -82,14 +82,14 @@ describe('MapFunction non-thread', function () {
   });
 
   it('#inputs', function () {
-    let flow = new Flow();
+    const flow = new Flow();
 
     flow.setValue('a', {
       v1: {a: 1, b: 2},
       v2: {a: 3, b: 4},
     });
 
-    let bBlock = flow.createBlock('b');
+    const bBlock = flow.createBlock('b');
 
     bBlock._load({
       '#is': 'map',
@@ -127,7 +127,7 @@ describe('MapFunction non-thread', function () {
   });
 
   it('input object', function () {
-    let flow = new Flow();
+    const flow = new Flow();
 
     const data = {
       v1: {v: 1},
@@ -137,7 +137,7 @@ describe('MapFunction non-thread', function () {
 
     flow.setValue('a', data);
 
-    let bBlock = flow.createBlock('b');
+    const bBlock = flow.createBlock('b');
 
     bBlock._load({
       '#is': 'map',
@@ -159,7 +159,7 @@ describe('MapFunction non-thread', function () {
   });
 
   it('change use', function () {
-    let flow = new Flow();
+    const flow = new Flow();
 
     flow.setValue('a', {
       v1: 1,
@@ -167,7 +167,7 @@ describe('MapFunction non-thread', function () {
       v3: 3,
     });
 
-    let bBlock = flow.createBlock('b');
+    const bBlock = flow.createBlock('b');
 
     bBlock._load({
       '#is': 'map',
@@ -205,7 +205,7 @@ describe('MapFunction non-thread', function () {
   });
 
   it('reuse worker', function () {
-    let flow = new Flow();
+    const flow = new Flow();
 
     flow.setValue('a', {
       v1: 1,
@@ -213,7 +213,7 @@ describe('MapFunction non-thread', function () {
       v3: 3,
     });
 
-    let bBlock = flow.createBlock('b');
+    const bBlock = flow.createBlock('b');
 
     bBlock._load({
       '#is': 'map',
@@ -253,7 +253,7 @@ describe('MapFunction non-thread', function () {
   });
 
   it('persist worker', function () {
-    let flow = new Flow();
+    const flow = new Flow();
 
     flow.setValue('a', {
       v1: 1,
@@ -261,7 +261,7 @@ describe('MapFunction non-thread', function () {
       v3: 3,
     });
 
-    let bBlock = flow.createBlock('b');
+    const bBlock = flow.createBlock('b');
 
     bBlock._load({
       '#is': 'map',
@@ -299,10 +299,10 @@ describe('MapFunction non-thread', function () {
   });
 
   it('conversion from Block', function () {
-    let flow = new Flow();
+    const flow = new Flow();
 
-    let aBlock = flow.createBlock('a');
-    let bBlock = flow.createBlock('b');
+    const aBlock = flow.createBlock('a');
+    const bBlock = flow.createBlock('b');
 
     aBlock._load({
       '#is': '',
@@ -337,7 +337,7 @@ describe('MapFunction non-thread', function () {
   });
 
   it('async worker', async function () {
-    let flow = new Flow();
+    const flow = new Flow();
 
     flow.setValue('a', {
       v1: 1,
@@ -345,7 +345,7 @@ describe('MapFunction non-thread', function () {
       v3: 3,
     });
 
-    let bBlock = flow.createBlock('b');
+    const bBlock = flow.createBlock('b');
 
     bBlock._load({
       '#is': 'map',
@@ -398,14 +398,14 @@ describe('MapFunction non-thread', function () {
   });
 
   it('timeout', async function () {
-    let flow = new Flow();
+    const flow = new Flow();
 
     flow.setValue('a', {
       v1: 1,
       v2: 2,
     });
 
-    let bBlock = flow.createBlock('b');
+    const bBlock = flow.createBlock('b');
 
     bBlock._load({
       '#is': 'map',
@@ -423,7 +423,7 @@ describe('MapFunction non-thread', function () {
 
     bBlock.setValue('timeout', 0.01);
 
-    let output = await bBlock.waitNextValue('#output');
+    const output = await bBlock.waitNextValue('#output');
 
     expect(output.v1).toBeInstanceOf(ErrorEvent);
     expect(output.v2).toBeInstanceOf(ErrorEvent);
@@ -433,7 +433,7 @@ describe('MapFunction non-thread', function () {
   });
 
   it('input race', function () {
-    let flow = new Flow();
+    const flow = new Flow();
 
     flow.setValue('a', {
       v1: 1,
@@ -441,7 +441,7 @@ describe('MapFunction non-thread', function () {
       v3: 3,
     });
 
-    let bBlock = flow.createBlock('b');
+    const bBlock = flow.createBlock('b');
 
     bBlock._load({
       '#is': 'map',
@@ -484,7 +484,7 @@ describe('MapFunction non-thread', function () {
   });
 
   it('cancel worker', async function () {
-    let flow = new Flow();
+    const flow = new Flow();
 
     flow.setValue('a', {
       v1: 1,
@@ -492,7 +492,7 @@ describe('MapFunction non-thread', function () {
       v3: 3,
     });
 
-    let bBlock = flow.createBlock('b');
+    const bBlock = flow.createBlock('b');
 
     bBlock._load({
       '#is': 'map',
@@ -546,7 +546,7 @@ describe('MapFunction non-thread', function () {
   });
 
   it('cancel worker reuse', async function () {
-    let flow = new Flow();
+    const flow = new Flow();
 
     flow.setValue('a', {
       v1: 1,
@@ -554,7 +554,7 @@ describe('MapFunction non-thread', function () {
       v3: 3,
     });
 
-    let bBlock = flow.createBlock('b');
+    const bBlock = flow.createBlock('b');
 
     bBlock._load({
       '#is': 'map',

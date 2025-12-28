@@ -14,7 +14,7 @@ class SliderView extends LazyUpdateComponent<BlockWidgetProps, any> {
   ];
 
   field = new LazyUpdateSubscriber((value: any) => {
-    let {conn, path} = this.props;
+    const {conn, path} = this.props;
     if (value && typeof value === 'string') {
       this.value.subscribe(conn, `${path}.${value}`);
     } else {
@@ -33,8 +33,8 @@ class SliderView extends LazyUpdateComponent<BlockWidgetProps, any> {
   _pendingValue: number = NaN;
 
   onValueChange = (value: number) => {
-    let {conn, path} = this.props;
-    let field = this.field.value;
+    const {conn, path} = this.props;
+    const field = this.field.value;
     this._pendingValue = value;
     if (field && typeof field === 'string') {
       conn.setValue(`${path}.${field}`, value);
@@ -48,7 +48,7 @@ class SliderView extends LazyUpdateComponent<BlockWidgetProps, any> {
 
   constructor(props: BlockWidgetProps) {
     super(props);
-    let {conn, path, updateViewHeight} = props;
+    const {conn, path, updateViewHeight} = props;
     this.field.subscribe(conn, `${path}.@b-w-field`);
     this.min.subscribe(conn, `${path}.@b-w-min`);
     this.max.subscribe(conn, `${path}.@b-w-max`);
@@ -62,8 +62,8 @@ class SliderView extends LazyUpdateComponent<BlockWidgetProps, any> {
     if (this._pendingValue === this._pendingValue) {
       value = this._pendingValue;
     }
-    let min = this.min.value;
-    let max = this.max.value;
+    const min = this.min.value;
+    const max = this.max.value;
 
     value = Number(value);
 

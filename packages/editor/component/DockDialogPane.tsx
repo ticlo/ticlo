@@ -20,7 +20,7 @@ interface Props {
 }
 
 export function DockDialogPane(props: Props) {
-  let {children, onApply, onCancel, error, saveDisabled, cancelDisabled, footerExtra, onKeyDownCapture} = props;
+  const {children, onApply, onCancel, error, saveDisabled, cancelDisabled, footerExtra, onKeyDownCapture} = props;
   const {onClose} = useContext(DialogContext);
   const onOK = useCallback(() => {
     if (onApply()) {
@@ -76,7 +76,7 @@ export function createDockDialog(
 ) {
   if (id) {
     // reuse the existing id if possible
-    let oldTab = layout.find(id) as TabData;
+    const oldTab = layout.find(id) as TabData;
     if (oldTab) {
       layout.dockMove(oldTab, null, 'front');
       return;
@@ -87,7 +87,7 @@ export function createDockDialog(
   }
 
   const onClose = () => {
-    let tab = layout.find(id) as TabData;
+    const tab = layout.find(id) as TabData;
     if (tab) {
       layout.dockMove(tab, null, 'remove');
     }
@@ -95,7 +95,7 @@ export function createDockDialog(
   const {preferredWidth, preferredHeight} = options;
   let w = preferredWidth || 500;
   let h = preferredHeight || 500;
-  let {width, height} = layout.getLayoutSize();
+  const {width, height} = layout.getLayoutSize();
   if (!width || !height) {
     return;
   }
@@ -106,10 +106,10 @@ export function createDockDialog(
   if (h > height) {
     h = height;
   }
-  let x = (width - w) >> 1;
-  let y = (height - h) >> 1;
+  const x = (width - w) >> 1;
+  const y = (height - h) >> 1;
 
-  let newPanel = {
+  const newPanel = {
     activeId: id,
     tabs: [
       {

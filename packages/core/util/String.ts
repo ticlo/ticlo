@@ -4,9 +4,9 @@ export const endsWithNumberReg = /\d$/;
  * when sorting string, "A200" should come after "A9"
  */
 export function smartStrCompare(str1: string, str2: string, checkNegative = true) {
-  let len1 = str1.length;
-  let len2 = str2.length;
-  let lenMin = len1 < len2 ? len1 : len2;
+  const len1 = str1.length;
+  const len2 = str2.length;
+  const lenMin = len1 < len2 ? len1 : len2;
 
   let numRslt = 0;
   let numSign = 1;
@@ -80,7 +80,7 @@ export function smartStrCompare(str1: string, str2: string, checkNegative = true
 const trailingNumbers = /\d+$/;
 
 export function getTailingNumber(str: string): number {
-  let numbers = str.match(trailingNumbers);
+  const numbers = str.match(trailingNumbers);
   if (numbers) {
     return parseInt(numbers[0]);
   }
@@ -88,7 +88,7 @@ export function getTailingNumber(str: string): number {
 }
 
 export function getPreNumber(str: string): string {
-  let numbers = str.match(trailingNumbers);
+  const numbers = str.match(trailingNumbers);
   if (numbers) {
     return str.substring(0, str.length - numbers[0].length);
   }
@@ -103,7 +103,7 @@ export function isColorStr(str: string) {
 
 export function nameFromPath(path: string) {
   if (path) {
-    let lastDot = path.lastIndexOf('.');
+    const lastDot = path.lastIndexOf('.');
     if (lastDot > -1) {
       return path.substring(lastDot + 1);
     }
@@ -114,7 +114,7 @@ export function nameFromPath(path: string) {
 // a faster way to concat string, can be used to generate css
 export function scat(...inputs: unknown[]): string {
   let out = '';
-  for (let s of inputs) {
+  for (const s of inputs) {
     if (typeof s === 'string') {
       out += (out && ' ') + s;
     }

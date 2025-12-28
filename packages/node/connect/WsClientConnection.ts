@@ -35,16 +35,16 @@ export class WsClientConnection extends ClientConnection {
   };
 
   doSend(datas: DataMap[]): void {
-    let json = encode(datas);
+    const json = encode(datas);
     Logger.trace(() => 'client send ' + json, this);
     this._ws.send(json);
   }
 
   onMessage = (data: string, isBinary: boolean) => {
     if (!isBinary) {
-      let str = data.toString();
+      const str = data.toString();
       Logger.trace(() => 'client receive ' + str, this);
-      let decoded = decode(str);
+      const decoded = decode(str);
       if (Array.isArray(decoded)) {
         this.onReceive(decoded);
       }

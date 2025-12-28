@@ -32,7 +32,7 @@ class CommentView extends LazyUpdateComponent<BlockWidgetProps, any> {
 
   constructor(props: BlockWidgetProps) {
     super(props);
-    let {conn, path} = props;
+    const {conn, path} = props;
     this.note.subscribe(conn, `${path}.@b-note`, true);
     this.mode.subscribe(conn, `${path}.@b-note-mode`, true);
   }
@@ -48,7 +48,7 @@ class CommentView extends LazyUpdateComponent<BlockWidgetProps, any> {
         rawHtml = `<pre>${Dompurify.sanitize(encodeSorted(text))}</pre>`;
       } else {
         // if (mode === 'markdown') {
-        let markedOptions: MarkedOptions = {
+        const markedOptions: MarkedOptions = {
           silent: true,
         };
         rawHtml = marked(text, markedOptions) as string;
@@ -63,13 +63,13 @@ class CommentView extends LazyUpdateComponent<BlockWidgetProps, any> {
   handleResize = () => {
     if (this.#rootNode.offsetHeight !== this.#lastHeight) {
       this.#lastHeight = this.#rootNode.offsetHeight;
-      let {updateViewHeight} = this.props;
+      const {updateViewHeight} = this.props;
       updateViewHeight(this.#rootNode.offsetHeight + 6); // + 2 padding px and 4 border px
     }
   };
 
   componentWillUnmount(): void {
-    let {conn, path} = this.props;
+    const {conn, path} = this.props;
     this.#resizeObserver?.disconnect();
     this.note.unsubscribe();
     super.componentWillUnmount();

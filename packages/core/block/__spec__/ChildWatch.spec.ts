@@ -4,10 +4,10 @@ import {BlockIO} from '../BlockProperty.js';
 
 describe('Block Child Watch', function () {
   it('basic', function () {
-    let flow = new Flow();
+    const flow = new Flow();
 
     let watchLog: any[] = [];
-    let watch = {
+    const watch = {
       onChildChange(property: BlockIO, saved: boolean) {
         watchLog.push([property._name, property._value != null, Boolean(saved)]);
       },

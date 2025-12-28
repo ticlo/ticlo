@@ -6,12 +6,12 @@ import '../../functions/math/Arithmetic.js';
 
 describe('Block', function () {
   it('basic', function () {
-    let flow = new Flow();
+    const flow = new Flow();
     flow.setValue('@a', 357);
     flow.setBinding('@b', '@a');
     expect(flow.getValue('@b')).toBe(357);
 
-    let block = flow.createBlock('obj');
+    const block = flow.createBlock('obj');
     expect(block instanceof Block).toBe(true);
     expect(block).toBe(flow.getValue('obj'));
     expect(flow.createBlock('obj')).toBeNull();
@@ -32,9 +32,9 @@ describe('Block', function () {
   });
 
   it('query property', function () {
-    let flow = new Flow();
-    let block1 = flow.createBlock('block1');
-    let block2 = block1.createBlock('block2');
+    const flow = new Flow();
+    const block1 = flow.createBlock('block1');
+    const block2 = block1.createBlock('block2');
     block2.setValue('p1', 1);
 
     expect(flow.queryProperty('block3.p2', true) == null).toBe(true);
@@ -48,9 +48,9 @@ describe('Block', function () {
   });
 
   it('query block field', function () {
-    let flow = new Flow();
-    let block1 = flow.createBlock('block1');
-    let block2 = block1.createBlock('block2');
+    const flow = new Flow();
+    const block1 = flow.createBlock('block1');
+    const block2 = block1.createBlock('block2');
     block2.setValue('p1', 1);
 
     {
@@ -87,10 +87,10 @@ describe('Block', function () {
   });
 
   it('destroy binding chain', function () {
-    let flow = new Flow();
-    let block1 = flow.createBlock('block1');
-    let block1c = block1.createOutputBlock('c');
-    let block2 = flow.createBlock('block2');
+    const flow = new Flow();
+    const block1 = flow.createBlock('block1');
+    const block1c = block1.createOutputBlock('c');
+    const block2 = flow.createBlock('block2');
     block2.setBinding('c', '##.block1.c');
 
     expect(block2.getValue('c')).toBe(block1c);
@@ -101,15 +101,15 @@ describe('Block', function () {
   });
 
   it('set same value', function () {
-    let flow = new Flow();
+    const flow = new Flow();
     flow.updateValue('a', 1);
     flow.setValue('a', 1);
     expect(flow.getProperty('a')._saved).toBe(1);
   });
 
   it('update listener within listener', function () {
-    let flow = new Flow();
-    let listener1 = {
+    const flow = new Flow();
+    const listener1 = {
       value: 0,
       onSourceChange(prop: PropDispatcher<any>) {
         // do nothing
@@ -121,7 +121,7 @@ describe('Block', function () {
         }
       },
     };
-    let listener2 = {
+    const listener2 = {
       value: 0,
       onSourceChange(prop: PropDispatcher<any>) {
         // do nothing
@@ -131,7 +131,7 @@ describe('Block', function () {
         binding1.unlisten(listener1);
       },
     };
-    let binding1 = flow.createBinding('a', listener1);
+    const binding1 = flow.createBinding('a', listener1);
     flow.setValue('a', 17);
     expect(listener2.value).toBe(17);
     flow.setValue('a', 19);
@@ -144,9 +144,9 @@ describe('Block', function () {
 
     expect(Root.instance.getValue('')).toBe(Root.instance);
 
-    let flow = Root.instance.addFlow();
+    const flow = Root.instance.addFlow();
 
-    let subflow = flow.createOutputBlock('sub');
+    const subflow = flow.createOutputBlock('sub');
     subflow._load({'#is': 'add', '0': 1, '1': 2});
     Root.run();
     expect(flow.queryValue('sub.#output')).toBe(3);

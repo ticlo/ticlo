@@ -12,12 +12,12 @@ export interface StagePropsBase {
 }
 
 function snapXY(x: number, y: number): [number, number] {
-  let xi = Math.round(x);
-  let yi = Math.round(y);
-  let xm = xi % 24;
-  let ym = yi % 24;
-  let dx = Math.abs(xm - 12);
-  let dy = Math.abs(ym - 12);
+  const xi = Math.round(x);
+  const yi = Math.round(y);
+  const xm = xi % 24;
+  const ym = yi % 24;
+  const dx = Math.abs(xm - 12);
+  const dy = Math.abs(ym - 12);
   if (dx + dy + Math.max(dx, dy) < 10) {
     return [xi - xm + 12, yi - ym + 12];
   }
@@ -48,7 +48,7 @@ export abstract class BlockStageBase<Props extends StagePropsBase, State>
    * C D E F
    */
   getNextXYW() {
-    let result: [number, number, number] = [this.nextBlockX * 192 + 36, this.nextBlockY * 192 + 36, 143];
+    const result: [number, number, number] = [this.nextBlockX * 192 + 36, this.nextBlockY * 192 + 36, 143];
     if (this.nextBlockX === this.nextBlockY) {
       this.nextBlockX = this.nextBlockY + 1;
       this.nextBlockY = 0;
@@ -71,10 +71,10 @@ export abstract class BlockStageBase<Props extends StagePropsBase, State>
   _fieldLinks: Map<string, Set<FieldItem>> = new Map<string, Set<FieldItem>>();
 
   onSelect() {
-    let {onSelect} = this.props;
+    const {onSelect} = this.props;
     if (onSelect) {
-      let selectedPaths: string[] = [];
-      for (let [, blockItem] of this._blocks) {
+      const selectedPaths: string[] = [];
+      for (const [, blockItem] of this._blocks) {
         if (blockItem.selected) {
           selectedPaths.push(blockItem.path);
         }
@@ -84,7 +84,7 @@ export abstract class BlockStageBase<Props extends StagePropsBase, State>
     this.selectionChanged = false;
   }
   onSelectBase() {
-    let {onSelect, basePath} = this.props;
+    const {onSelect, basePath} = this.props;
     if (onSelect) {
       onSelect([basePath]);
     }
@@ -95,7 +95,7 @@ export abstract class BlockStageBase<Props extends StagePropsBase, State>
 
   selectBlock(path: string, ctrl: boolean = false) {
     if (this._blocks.has(path)) {
-      let block = this._blocks.get(path);
+      const block = this._blocks.get(path);
       if (ctrl) {
         block.setSelected(!block.selected);
         this.selectionChanged = true;
@@ -103,7 +103,7 @@ export abstract class BlockStageBase<Props extends StagePropsBase, State>
         if (block.selected) {
           return;
         }
-        for (let [blockPath, blockItem] of this._blocks) {
+        for (const [blockPath, blockItem] of this._blocks) {
           if (path === blockPath) {
             if (!blockItem.selected) {
               blockItem.setSelected(true);
@@ -135,7 +135,7 @@ export abstract class BlockStageBase<Props extends StagePropsBase, State>
     // first item is the one being dragged
     this._draggingBlocks = [[item, item.x, item.y, item.w]];
 
-    for (let [, blockItem] of this._blocks) {
+    for (const [, blockItem] of this._blocks) {
       if (blockItem.selected && blockItem !== item) {
         this._draggingBlocks.push([blockItem, blockItem.x, blockItem.y, blockItem.w]);
       }
@@ -144,14 +144,14 @@ export abstract class BlockStageBase<Props extends StagePropsBase, State>
   }
 
   onDragBlockMove(e: DragState) {
-    let {conn} = this.props;
+    const {conn} = this.props;
     if (this._draggingBlocks?.length) {
       conn.lockImmediate(e);
-      let [firstItem, firstX, firstY] = this._draggingBlocks[0];
-      let [ax, ay] = snapXY(firstX + e.dx, firstY + e.dy);
-      let dx = ax - firstX;
-      let dy = ay - firstY;
-      for (let [blockItem, x, y, w] of this._draggingBlocks) {
+      const [firstItem, firstX, firstY] = this._draggingBlocks[0];
+      const [ax, ay] = snapXY(firstX + e.dx, firstY + e.dy);
+      const dx = ax - firstX;
+      const dy = ay - firstY;
+      for (const [blockItem, x, y, w] of this._draggingBlocks) {
         if (!blockItem._syncParent) {
           blockItem.setXYW(x + dx, y + dy, w, true);
         }
@@ -176,7 +176,7 @@ export abstract class BlockStageBase<Props extends StagePropsBase, State>
 
   linkParentBlock(parentPath: string, childBlock: BlockItem) {
     if (typeof childBlock === 'string') {
-      let block = this._blocks.get(childBlock);
+      const block = this._blocks.get(childBlock);
       if (block) {
         this.linkParentBlock(parentPath, block);
       }
@@ -192,7 +192,7 @@ export abstract class BlockStageBase<Props extends StagePropsBase, State>
   }
 
   unlinkParentBlock(parentPath: string, childBlock: BlockItem) {
-    let links = this._blockLinks.get(parentPath);
+    const links = this._blockLinks.get(parentPath);
     if (links) {
       links.delete(childBlock);
       if (links.size === 0) {
@@ -206,8 +206,8 @@ export abstract class BlockStageBase<Props extends StagePropsBase, State>
       this._fieldLinks.set(sourcePath, new Set<FieldItem>());
     }
     this._fieldLinks.get(sourcePath).add(targetField);
-    let sourceFound = forAllPathsBetween(sourcePath, this.props.basePath, (path) => {
-      let field = this._fields.get(path);
+    const sourceFound = forAllPathsBetween(sourcePath, this.props.basePath, (path) => {
+      const field = this._fields.get(path);
       if (field) {
         targetField.sourceChanged(field);
         return true;
@@ -219,7 +219,7 @@ export abstract class BlockStageBase<Props extends StagePropsBase, State>
   }
 
   unlinkField(sourcePath: string, targetField: FieldItem) {
-    let links = this._fieldLinks.get(sourcePath);
+    const links = this._fieldLinks.get(sourcePath);
     if (links) {
       links.delete(targetField);
       if (links.size === 0) {
@@ -231,15 +231,15 @@ export abstract class BlockStageBase<Props extends StagePropsBase, State>
   registerField(path: string, item: FieldItem) {
     this._fields.set(path, item);
     if (this._fieldLinks.has(path)) {
-      for (let target of this._fieldLinks.get(path)) {
+      for (const target of this._fieldLinks.get(path)) {
         target.sourceChanged(item);
       }
     }
-    let preFixPath = `${path}.`;
-    for (let [path, links] of this._fieldLinks) {
+    const preFixPath = `${path}.`;
+    for (const [path, links] of this._fieldLinks) {
       // search for children path to have a indirect binding wire
       if (path.startsWith(preFixPath)) {
-        for (let target of links) {
+        for (const target of links) {
           target.sourceChanged(item, true);
         }
       }
@@ -250,15 +250,15 @@ export abstract class BlockStageBase<Props extends StagePropsBase, State>
     if (this._fields.get(path) === item) {
       this._fields.delete(path);
       if (this._fieldLinks.has(path)) {
-        for (let target of this._fieldLinks.get(path)) {
+        for (const target of this._fieldLinks.get(path)) {
           target.sourceChanged(null);
         }
       } else {
-        let preFixPath = `${path}.`;
-        for (let [path, links] of this._fieldLinks) {
+        const preFixPath = `${path}.`;
+        for (const [path, links] of this._fieldLinks) {
           // search for children path to remove indirect binding wire
           if (path.startsWith(preFixPath)) {
-            for (let target of links) {
+            for (const target of links) {
               if (target.inWire.source === item) {
                 target.sourceChanged(null);
               }
@@ -270,11 +270,11 @@ export abstract class BlockStageBase<Props extends StagePropsBase, State>
   }
 
   onChildUpdate(changes: DataMap, basePath: string) {
-    for (let name in changes) {
-      let change = changes[name];
-      let path = `${basePath}.${name}`;
+    for (const name in changes) {
+      const change = changes[name];
+      const path = `${basePath}.${name}`;
       if (change === null) {
-        let block = this._blocks.get(path);
+        const block = this._blocks.get(path);
         if (block) {
           if (block.selected) {
             this.selectionChanged = true;
@@ -286,11 +286,11 @@ export abstract class BlockStageBase<Props extends StagePropsBase, State>
       } else {
         if (!this._blocks.has(path)) {
           // create new block
-          let newBlockItem = new BlockItem(this.props.conn, this, path, basePath === this._sharedPath);
+          const newBlockItem = new BlockItem(this.props.conn, this, path, basePath === this._sharedPath);
           this._blocks.set(path, newBlockItem);
           // update block links
           if (this._blockLinks.has(path)) {
-            for (let target of this._blockLinks.get(path)) {
+            for (const target of this._blockLinks.get(path)) {
               target.syncParent = newBlockItem;
             }
           }
@@ -314,7 +314,7 @@ export abstract class BlockStageBase<Props extends StagePropsBase, State>
   };
   clearSharedBlocks() {
     let changed = false;
-    for (let [key, block] of this._blocks) {
+    for (const [key, block] of this._blocks) {
       if (block.shared) {
         changed = true;
         if (block.selected) {
@@ -336,7 +336,7 @@ export abstract class BlockStageBase<Props extends StagePropsBase, State>
     onUpdate: (response: ValueUpdate) => {
       if (Object.hasOwn(response.change, 'value')) {
         if (String(response.cache.value).startsWith('SharedBlock ')) {
-          let {conn} = this.props;
+          const {conn} = this.props;
           conn.watch(this._sharedPath, this.sharedWatchListener);
         } else {
           this.clearSharedBlocks();
@@ -347,14 +347,14 @@ export abstract class BlockStageBase<Props extends StagePropsBase, State>
 
   protected constructor(props: Props) {
     super(props);
-    let {basePath} = props;
+    const {basePath} = props;
     this._sharedPath = `${basePath}.#shared`;
     this.watchingPath = basePath;
   }
 
   componentDidMount() {
     super.componentDidMount();
-    let {conn} = this.props;
+    const {conn} = this.props;
     conn.watch(this.watchingPath, this.watchListener);
     this.sharedListener.subscribe(conn, this._sharedPath);
   }
@@ -372,11 +372,11 @@ export abstract class BlockStageBase<Props extends StagePropsBase, State>
   }
 
   createBlock = async (name: string, blockData: {[key: string]: any}, shared: boolean) => {
-    let {conn, basePath} = this.props;
-    let parentPath = shared ? this._sharedPath : basePath;
+    const {conn, basePath} = this.props;
+    const parentPath = shared ? this._sharedPath : basePath;
     try {
-      let newName = (await conn.addBlock(`${parentPath}.${name}`, blockData, true)).name;
-      let newPath = `${parentPath}.${newName}`;
+      const newName = (await conn.addBlock(`${parentPath}.${name}`, blockData, true)).name;
+      const newPath = `${parentPath}.${newName}`;
       this.selectBlock(newPath, false);
       this.onSelect(); // update the property list
     } catch (e) {
@@ -385,8 +385,8 @@ export abstract class BlockStageBase<Props extends StagePropsBase, State>
   };
 
   deleteSelectedBlocks() {
-    let {conn, basePath} = this.props;
-    for (let [blockPath, blockItem] of this._blocks) {
+    const {conn, basePath} = this.props;
+    for (const [blockPath, blockItem] of this._blocks) {
       if (blockItem.selected) {
         conn.setValue(blockPath, undefined);
       }
@@ -399,7 +399,7 @@ export abstract class BlockStageBase<Props extends StagePropsBase, State>
   }
 
   componentWillUnmount() {
-    let {conn, basePath} = this.props;
+    const {conn, basePath} = this.props;
     this.sharedListener.unsubscribe();
     conn.unwatch(basePath, this.watchListener);
     conn.unwatch(this._sharedPath, this.sharedWatchListener);

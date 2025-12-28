@@ -12,8 +12,8 @@ describe('TicloComp', function () {
     root.remove();
   });
   it('basic render', async function () {
-    let flow = new Flow();
-    let aBlock = flow.createBlock('a');
+    const flow = new Flow();
+    const aBlock = flow.createBlock('a');
     aBlock.setValue('#is', 'react:render-dom');
     aBlock.setValue('component', <span />);
     aBlock.updateValue('container', root.div);

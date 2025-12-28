@@ -3,10 +3,10 @@ import {Flow} from '../Flow.js';
 
 describe('Property Save Load', function () {
   it('save object with #is', function () {
-    let flow = new Flow();
+    const flow = new Flow();
 
-    let v1Data = {'#is': 'add'};
-    let expectedSave = {
+    const v1Data = {'#is': 'add'};
+    const expectedSave = {
       '#is': '',
       'v1': {
         '#is': {'#is': 'add'},
@@ -15,7 +15,7 @@ describe('Property Save Load', function () {
 
     flow.setValue('v1', v1Data);
 
-    let saved = flow.save();
+    const saved = flow.save();
     expect(saved).toEqual(expectedSave);
 
     flow.load(expectedSave);

@@ -7,7 +7,7 @@ class TestFunction extends PureFunction {
 
 TestFunction.prototype.priority = 0;
 
-let testDesc = {
+const testDesc = {
   name: '',
   icon: 'fas:plus',
   properties: [

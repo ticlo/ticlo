@@ -27,7 +27,7 @@ const waitWorker = {
 class TestTask extends Task {
   static logs: any[] = [];
   static popLogs(): any[] {
-    let result = TestTask.logs;
+    const result = TestTask.logs;
     TestTask.logs = [];
     return result;
   }
@@ -42,7 +42,7 @@ class TestTask extends Task {
   }
 
   onResolve(worker: Block, output: any): DataMap {
-    let result = convertToOutput(output);
+    const result = convertToOutput(output);
     TestTask.logs.push(result);
     return result;
   }
@@ -59,9 +59,9 @@ class TestTask extends Task {
 
 describe('TaskHandlerFunction', function () {
   it('basic', function () {
-    let flow = new Flow();
+    const flow = new Flow();
 
-    let aBlock = flow.createBlock('a');
+    const aBlock = flow.createBlock('a');
 
     aBlock._load({
       '#is': 'handler',
@@ -79,9 +79,9 @@ describe('TaskHandlerFunction', function () {
   });
 
   it('timeout', async function () {
-    let flow = new Flow();
+    const flow = new Flow();
 
-    let aBlock = flow.createBlock('a');
+    const aBlock = flow.createBlock('a');
 
     aBlock._load({
       '#is': 'handler',
@@ -100,9 +100,9 @@ describe('TaskHandlerFunction', function () {
   });
 
   it('cancel', async function () {
-    let flow = new Flow();
+    const flow = new Flow();
 
-    let aBlock = flow.createBlock('a');
+    const aBlock = flow.createBlock('a');
 
     aBlock._load({
       '#is': 'handler',

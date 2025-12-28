@@ -11,7 +11,7 @@ export class TestFunctionRunner extends PureFunction {
   static logs: unknown[] = [];
 
   static popLogs(): unknown[] {
-    let result = TestFunctionRunner.logs;
+    const result = TestFunctionRunner.logs;
     TestFunctionRunner.logs = [];
     return result;
   }
@@ -64,7 +64,7 @@ export class TestAsyncFunctionPromise extends PureFunction {
   reject: Function;
 
   run(): unknown {
-    let promise = new Promise((resolve, reject) => {
+    const promise = new Promise((resolve, reject) => {
       this.reject = reject;
       TestAsyncFunctionLog.syncLog.push(this._data.getValue('#-log'));
       this.timeOut = setTimeout(() => {

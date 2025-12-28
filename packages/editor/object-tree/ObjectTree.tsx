@@ -57,7 +57,7 @@ export class ObjectTree extends LazyUpdateComponent<Props, any> {
   forceUpdateLambda = () => this.forceUpdate();
 
   buildRoot() {
-    let {conn, path} = this.props;
+    const {conn, path} = this.props;
     if (this.root && this.root.data === this.data) {
       return;
     }
@@ -70,7 +70,7 @@ export class ObjectTree extends LazyUpdateComponent<Props, any> {
   }
 
   renderImpl() {
-    let {style, data} = this.props;
+    const {style, data} = this.props;
     let child: React.ReactNode;
     this.checkTruncatedValue(data);
     if (this.loading) {

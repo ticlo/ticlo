@@ -42,16 +42,16 @@ export abstract class MultiSelectComponent<
 
     let added = false;
     let removed = false;
-    for (let key of paths) {
+    for (const key of paths) {
       if (!this.loaders.has(key)) {
-        let newLoader = this.createLoader(key);
+        const newLoader = this.createLoader(key);
         this.loaders.set(key, newLoader);
         newLoader.init();
         added = true;
       }
     }
     if (paths.length < this.loaders.size) {
-      for (let [key, subscriber] of this.loaders) {
+      for (const [key, subscriber] of this.loaders) {
         if (!paths.includes(key)) {
           subscriber.destroy();
           this.loaders.delete(key);
@@ -64,8 +64,8 @@ export abstract class MultiSelectComponent<
   }
 
   shouldComponentUpdate(nextProps: Readonly<P>, nextState: Readonly<S>): boolean {
-    let {paths} = nextProps;
-    let [added, removed] = this.updateLoaders(paths);
+    const {paths} = nextProps;
+    const [added, removed] = this.updateLoaders(paths);
     if (added) {
       return false;
     }
@@ -81,7 +81,7 @@ export abstract class MultiSelectComponent<
 
   componentWillUnmount() {
     super.componentWillUnmount();
-    for (let [key, loader] of this.loaders) {
+    for (const [key, loader] of this.loaders) {
       loader.destroy();
     }
   }

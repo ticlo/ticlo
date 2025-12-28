@@ -39,11 +39,11 @@ export class HtmlElementFunction extends StatefulFunction {
     return undefined;
   }
   getProps(): [DataMap, string[]] {
-    let result: DataMap = {style: this._data.getValue('style'), className: this._data.getValue('class')};
-    let optional = this._data.getOptionalProps();
-    for (let field of optional) {
+    const result: DataMap = {style: this._data.getValue('style'), className: this._data.getValue('class')};
+    const optional = this._data.getOptionalProps();
+    for (const field of optional) {
       if (Object.hasOwn(htmlAttributes, field)) {
-        let value = this._data.getValue(field);
+        const value = this._data.getValue(field);
         if (value !== undefined) {
           result[field] = value;
         }
@@ -58,7 +58,7 @@ export class HtmlElementFunction extends StatefulFunction {
         }
         result[field] = handler;
       } else {
-        let value = this.checkOptionalProp(field);
+        const value = this.checkOptionalProp(field);
         if (value !== undefined) {
           result[field] = value;
         }
@@ -67,15 +67,15 @@ export class HtmlElementFunction extends StatefulFunction {
     return [result, optional];
   }
   getChildren(): any[] {
-    let result = [];
-    for (let val of getInputsArray(this._data, '', 0)) {
+    const result = [];
+    for (const val of getInputsArray(this._data, '', 0)) {
       result.push(val);
     }
     return result;
   }
 
   run(): any {
-    let [props] = this.getProps();
+    const [props] = this.getProps();
     this._data.output(React.createElement(this.getComponent(), props, ...this.getChildren()), '#render');
     this._data.output(this._comp);
   }

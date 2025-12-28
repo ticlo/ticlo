@@ -40,8 +40,8 @@ export class FunctionEditor extends StringEditorBase {
   };
 
   onDragOver = (e: DragState) => {
-    let {conn} = this.props;
-    let blockData = DragState.getData('block', conn.getBaseConn());
+    const {conn} = this.props;
+    const blockData = DragState.getData('block', conn.getBaseConn());
 
     if (blockData && Object.hasOwn(blockData, '#is')) {
       e.accept('');
@@ -49,8 +49,8 @@ export class FunctionEditor extends StringEditorBase {
   };
 
   onDrop = (e: DragState) => {
-    let {conn} = this.props;
-    let blockData = DragState.getData('block', conn.getBaseConn());
+    const {conn} = this.props;
+    const blockData = DragState.getData('block', conn.getBaseConn());
 
     if (blockData && Object.hasOwn(blockData, '#is')) {
       this.commitChange(blockData['#is']);
@@ -59,7 +59,7 @@ export class FunctionEditor extends StringEditorBase {
 
   render() {
     let {desc, value, locked, onChange, conn} = this.props;
-    let {opened} = this.state;
+    const {opened} = this.state;
 
     if (this._pendingValue != null) {
       value = this._pendingValue;
@@ -69,7 +69,7 @@ export class FunctionEditor extends StringEditorBase {
 
     let iconName: string;
     let colorClass = 'ticl-bg--999';
-    let funcDesc = conn.watchDesc(value);
+    const funcDesc = conn.watchDesc(value);
     if (funcDesc) {
       [colorClass, iconName] = getFuncStyleFromDesc(funcDesc, conn, 'ticl-bg--');
     }

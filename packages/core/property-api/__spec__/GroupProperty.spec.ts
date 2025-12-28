@@ -7,8 +7,8 @@ import {insertGroupProperty, moveGroupProperty, removeGroupProperty, setGroupLen
 
 describe('GroupProperty', function () {
   it('setGroupLength', function () {
-    let flow = new Flow();
-    let aBlock = flow.createBlock('a');
+    const flow = new Flow();
+    const aBlock = flow.createBlock('a');
     aBlock._load({
       '#is': 'add',
     });
@@ -34,7 +34,7 @@ describe('GroupProperty', function () {
   });
 
   it('setGroupLength on #custom', function () {
-    let flow = new Flow();
+    const flow = new Flow();
     flow.load({
       '#is': '',
       '#custom': [
@@ -53,8 +53,8 @@ describe('GroupProperty', function () {
   });
 
   it('insertGroupProperty', function () {
-    let flow = new Flow();
-    let aBlock = flow.createBlock('a');
+    const flow = new Flow();
+    const aBlock = flow.createBlock('a');
     aBlock._load({
       '#is': 'add',
       '0': 0,
@@ -79,8 +79,8 @@ describe('GroupProperty', function () {
   });
 
   it('removeGroupProperty', function () {
-    let flow = new Flow();
-    let aBlock = flow.createBlock('a');
+    const flow = new Flow();
+    const aBlock = flow.createBlock('a');
     aBlock._load({
       '#is': 'add',
       '0': 0,
@@ -102,8 +102,8 @@ describe('GroupProperty', function () {
   });
 
   it('moveGroupProperty', function () {
-    let flow = new Flow();
-    let aBlock = flow.createBlock('a');
+    const flow = new Flow();
+    const aBlock = flow.createBlock('a');
     aBlock._load({
       '#is': 'add',
       '0': 0,

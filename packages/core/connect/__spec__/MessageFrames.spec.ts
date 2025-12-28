@@ -14,7 +14,7 @@ import {addTestTypes, removeTestTypes} from './BulkTypes.js';
 describe('Connection Message Frames', function () {
   it('desc frames', async function () {
     addTestTypes('a', 4000);
-    let [server, client] = makeLocalConnection(Root.instance);
+    const [server, client] = makeLocalConnection(Root.instance);
 
     await shouldHappen(() => client.watchDesc('a100'));
 

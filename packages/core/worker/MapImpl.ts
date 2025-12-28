@@ -51,7 +51,7 @@ export abstract class MapImpl extends StatefulFunction implements WorkerHost {
 
   _updateWorkerTimeout(seconds: number) {
     if (this._workers) {
-      for (let [key, worker] of this._workers) {
+      for (const [key, worker] of this._workers) {
         (worker._outputObj as WorkerOutput).updateTimeOut(seconds);
       }
     }
@@ -63,7 +63,7 @@ export abstract class MapImpl extends StatefulFunction implements WorkerHost {
   );
 
   _onThreadChanged(val: any): boolean {
-    let n = Number(val);
+    const n = Number(val);
     if (!(n >= 1)) {
       if (this._pool.constructor !== UnlimitedPool) {
         this.control._srcChanged = true;
@@ -99,10 +99,10 @@ export abstract class MapImpl extends StatefulFunction implements WorkerHost {
 
   _addWorker(key: string, field: string | number, input: any): RepeaterWorker {
     const {src, saveCallback} = this.control.getSaveParameter();
-    let output = new WorkerOutput(key, field, this._timeout, (output: WorkerOutput, timeout: boolean) =>
+    const output = new WorkerOutput(key, field, this._timeout, (output: WorkerOutput, timeout: boolean) =>
       this._onWorkerReady(output, timeout)
     );
-    let child = this._funcBlock.createOutputFlow(RepeaterWorker, key, src, output, saveCallback);
+    const child = this._funcBlock.createOutputFlow(RepeaterWorker, key, src, output, saveCallback);
     child.onReady = () => {
       output.workerReady();
     };
@@ -112,7 +112,7 @@ export abstract class MapImpl extends StatefulFunction implements WorkerHost {
   }
 
   _removeWorker(key: string | number) {
-    let worker = this._workers.get(key);
+    const worker = this._workers.get(key);
     if (worker) {
       (worker._outputObj as WorkerOutput).cancel();
       this._funcBlock.deleteValue(key.toString());
@@ -122,7 +122,7 @@ export abstract class MapImpl extends StatefulFunction implements WorkerHost {
 
   _clearWorkers() {
     if (this._workers) {
-      for (let [key, worker] of this._workers) {
+      for (const [key, worker] of this._workers) {
         this._removeWorker(key);
       }
       this._workers = null;
@@ -173,7 +173,7 @@ export class WorkerOutput implements FunctionOutput {
 
   onTimeout = () => {
     if (this.onReady) {
-      let onReady = this.onReady;
+      const onReady = this.onReady;
       this.onReady = null;
       onReady(this, true);
     }
@@ -188,7 +188,7 @@ export class WorkerOutput implements FunctionOutput {
       clearTimeout(this.timeout);
     }
     if (this.onReady) {
-      let onReady = this.onReady;
+      const onReady = this.onReady;
       this.onReady = null;
       onReady(this, false);
     }

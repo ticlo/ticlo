@@ -16,8 +16,8 @@ describe('Jsx', function () {
   });
 
   it('hook', async function () {
-    let flow = new Flow();
-    let aBlock = flow.createBlock('a');
+    const flow = new Flow();
+    const aBlock = flow.createBlock('a');
     aBlock.setValue('#is', 'react:jsx');
     aBlock.setValue(
       'script',
