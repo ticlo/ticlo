@@ -415,6 +415,7 @@ export class ContextProperty extends BlockIO {
   }
 }
 
+// start with ~, used for binding helper block
 export class HelperProperty extends BlockProperty {
   // a helper block should only be saved from original property
   _saveValue(): unknown {

@@ -550,44 +550,59 @@ export class ServerConnection extends ServerConnectionCore {
   }
 
   addBlock({path, data, findName}: {path: string; data?: DataMap; findName?: boolean}): string | DataMap {
-    let property = this.root.queryProperty(path, true);
-    if (!property && /\.#shared\.[^.]+$/.test(path)) {
-      const sharedPath = path.substring(0, path.lastIndexOf('.'));
-      const sharedProp = this.root.queryProperty(sharedPath, true);
-      // create shared block when possible
-      if (createSharedBlock(sharedProp)) {
-        // get the property again
-        property = this.root.queryProperty(path, true);
+    let [parentBlock, blockName, parentProp] = this.root.queryBlockField(path);
+    if (blockName.startsWith('~')) {
+      debugger;
+    }
+    if (!parentBlock) {
+      if (parentProp?._name === '#shared') {
+        if (createSharedBlock(parentProp)) {
+          // get the block again
+          [parentBlock, blockName] = this.root.queryBlockField(path);
+        }
+        if (!parentBlock) {
+          return 'invalid path';
+        }
+      } else {
+        return 'invalid path';
       }
     }
+    let property: BlockProperty;
+
+    if (findName) {
+      property = findPropertyForNewBlock(parentBlock, blockName);
+    } else {
+      property = parentBlock.getProperty(blockName);
+    }
+
     if (property) {
       let keepSaved: any;
       let keepBinding: string;
       const funcId = data?.['#is'];
       if (typeof funcId === 'string' && funcId.startsWith('flow:')) {
         if (funcId === 'flow:inputs') {
-          property = property._block.getProperty('#inputs');
+          property = parentBlock.getProperty('#inputs');
           if (property instanceof BlockInputsConfig && property.isCleared()) {
-            const inputBlock = property._block.createBlock('#inputs');
-            if (property._block instanceof Flow) {
-              const defaultFlow = property._block._parent.getDefaultWorker(null);
+            const inputBlock = parentBlock.createBlock('#inputs');
+            if (parentBlock instanceof Flow) {
+              const defaultFlow = parentBlock._parent.getDefaultWorker(null);
               const inputs = defaultFlow?.['#inputs'];
               if (Object.isExtensible(inputs)) {
                 inputBlock._load({...data, ...(inputs as DataMap)});
                 // Since data is already loaded, we can skip the next load.
                 data = null;
-                (property._block as WorkerFlow).updateInput(property._block._lastInput);
+                parentBlock.updateInput(parentBlock._lastInput);
               }
             }
           } else {
             return 'invalid path';
           }
         } else if (funcId === 'flow:outputs') {
-          property = property._block.getProperty('#outputs');
+          property = parentBlock.getProperty('#outputs');
           if (property instanceof BlockOutputsConfig && property.isCleared()) {
-            const outputBlock = property._block.createBlock('#outputs');
-            if (property._block instanceof Flow) {
-              const defaultFlow = property._block._parent.getDefaultWorker(null);
+            const outputBlock = parentBlock.createBlock('#outputs');
+            if (parentBlock instanceof Flow) {
+              const defaultFlow = parentBlock._parent.getDefaultWorker(null);
               const inputs = defaultFlow?.['#outputs'];
               if (Object.isExtensible(inputs)) {
                 outputBlock._load({...data, ...(inputs as DataMap)});
@@ -602,8 +617,8 @@ export class ServerConnection extends ServerConnectionCore {
           return 'invalid function';
         }
       } else if (findName) {
-        property = findPropertyForNewBlock(property._block, property._name);
-        property._block.createBlock(property._name);
+        // We can skip the next setion if we already adjusted the name
+        parentBlock.createBlock(property._name);
       } else {
         if (property instanceof HelperProperty) {
           // create a sub block and move the current property into the sub block if possible
@@ -627,6 +642,7 @@ export class ServerConnection extends ServerConnectionCore {
           property._block.createBlock(property._name);
         }
       }
+
       if (typeof funcId === 'string' && data) {
         (property._value as Block)._load(data);
         const desc = Functions.getDescToSend(funcId)[0];

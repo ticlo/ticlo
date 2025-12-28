@@ -4,7 +4,7 @@ import {Functions} from '../block/Functions.js';
 import {getPreNumber} from '../util/String.js';
 import {getInputsLength, MAX_GROUP_LENGTH} from '../block/FunctonData.js';
 
-const configList = Object.keys(configDescs).filter((str: string) => !str.endsWith(')'));
+export const configList = Object.keys(configDescs).filter((str: string) => !str.endsWith(')'));
 
 export function buildPropertiesOrder(block: Block): string[] {
   const orders = [...configList];

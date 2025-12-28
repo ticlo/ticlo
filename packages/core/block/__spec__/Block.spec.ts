@@ -73,7 +73,7 @@ describe('Block', function () {
 
     {
       const [block, name] = flow.queryBlockField('block3.p1');
-      expect(block).toBeNull();
+      expect(block).toBeUndefined();
       expect(name).toBe('p1');
     }
 
@@ -81,7 +81,7 @@ describe('Block', function () {
     block1.setValue('notABlock', 123);
     {
       const [block, name] = flow.queryBlockField('block1.notABlock.p1');
-      expect(block).toBeNull();
+      expect(block).toBeUndefined();
       expect(name).toBe('p1');
     }
   });
