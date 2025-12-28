@@ -31,7 +31,7 @@ export function buildPropertiesOrder(block: Block): string[] {
     addProps(desc.properties);
   }
 
-  const optionalFields = block.getValue('+optional') as string[];
+  const optionalFields = block.getValue('#optional') as string[];
   if (Array.isArray(optionalFields)) {
     for (const field of optionalFields) {
       if (!orders.includes(field)) {

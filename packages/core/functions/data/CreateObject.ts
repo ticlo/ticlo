@@ -56,7 +56,7 @@ export class CreateObjectFunctionOptional extends PureFunction {
   configChanged(config: BlockConfig, val: any): boolean {
     switch (config._name) {
       case '+extend':
-      case '+optional':
+      case '#optional':
         return true;
       default:
         return false;

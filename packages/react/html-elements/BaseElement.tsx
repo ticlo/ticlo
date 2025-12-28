@@ -29,7 +29,7 @@ export class HtmlElementFunction extends StatefulFunction {
     return true;
   }
   configChanged(config: BlockConfig, val: any): boolean {
-    return config._name === '+optional';
+    return config._name === '#optional';
   }
 
   getComponent(): any {
@@ -84,19 +84,3 @@ export class HtmlElementFunction extends StatefulFunction {
     this._data.deleteValue('#render');
   }
 }
-
-export const elementConfigs = defaultConfigs.concat('#render');
-
-export const elementStyleProperty: PropDesc = {
-  name: 'style',
-  type: 'object',
-  create: 'html:create-style',
-};
-export const elementClassProperty: PropDesc = {
-  name: 'class',
-  type: 'string',
-};
-export const elementChildrenProperty: PropDesc = {
-  name: 'children',
-  type: 'array',
-};

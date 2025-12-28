@@ -2,7 +2,7 @@ import {Block} from '../block/Block.js';
 import {hideProperties, showProperties} from './PropertyShowHide.js';
 
 export function addOptionalProperty(block: Block, name: string) {
-  let optionalProps: string[] = block.getValue('+optional') as string[];
+  let optionalProps: string[] = block.getValue('#optional') as string[];
 
   if (!Array.isArray(optionalProps)) {
     optionalProps = [name];
@@ -12,12 +12,12 @@ export function addOptionalProperty(block: Block, name: string) {
   } else {
     return;
   }
-  block.setValue('+optional', optionalProps);
+  block.setValue('#optional', optionalProps);
   showProperties(block, [name]);
 }
 
 export function removeOptionalProperty(block: Block, name: string) {
-  let optionalProps: string[] = block.getValue('+optional') as string[];
+  let optionalProps: string[] = block.getValue('#optional') as string[];
 
   if (!Array.isArray(optionalProps)) {
     return;
@@ -33,7 +33,7 @@ export function removeOptionalProperty(block: Block, name: string) {
         optionalProps = undefined;
       }
 
-      block.setValue('+optional', optionalProps);
+      block.setValue('#optional', optionalProps);
       hideProperties(block, [name]);
       block.deleteValue(name);
     }
@@ -45,7 +45,7 @@ export function moveOptionalProperty(block: Block, nameFrom: string, nameTo: str
     return;
   }
 
-  let optionalProps: string[] = block.getValue('+optional') as string[];
+  let optionalProps: string[] = block.getValue('#optional') as string[];
   if (!Array.isArray(optionalProps)) {
     return;
   }
@@ -57,10 +57,10 @@ export function moveOptionalProperty(block: Block, nameFrom: string, nameTo: str
     if (idxFrom > -1) {
       optionalProps.splice(idxFrom, 1);
       optionalProps.splice(idxTo, 0, nameFrom);
-      block.setValue('+optional', optionalProps);
+      block.setValue('#optional', optionalProps);
     } else {
       optionalProps.splice(idxTo, 0, nameFrom);
-      block.setValue('+optional', optionalProps);
+      block.setValue('#optional', optionalProps);
       showProperties(block, [nameFrom]);
     }
   }

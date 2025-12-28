@@ -170,6 +170,7 @@ export const configDescs: {[key: string]: PropDesc} = {
   '#order': {name: '#order', type: 'array'},
   '#inputs': {name: '#inputs', type: 'any'},
   '#outputs': {name: '#outputs', type: 'any'},
+  '#optional': {name: '#optional', type: 'array'},
   // used by worker function to collect user defined descriptor
   '#desc': {name: '#desc', type: 'object'},
   '#cacheMode': {name: '#cacheMode', type: 'radio-button', options: ['auto', 'persist'], default: 'auto'},

@@ -88,7 +88,7 @@ export const data: any = {
   css: {
     '#is': 'html:create-style',
     '@b-xyw': [100, 500, 150],
-    '+optional': ['width', 'height'],
+    '#optional': ['width', 'height'],
   },
 };
 

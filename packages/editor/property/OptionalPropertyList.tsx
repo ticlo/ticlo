@@ -28,7 +28,7 @@ class OptionalPropertyLoader extends MultiSelectLoader<OptionalPropertyList> {
   });
 
   init() {
-    this.defListener.subscribe(this.conn, `${this.path}.+optional`, true);
+    this.defListener.subscribe(this.conn, `${this.path}.#optional`, true);
   }
 
   destroy() {

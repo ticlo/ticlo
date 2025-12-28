@@ -45,7 +45,7 @@ Queue the block in the resolver to run it asynchronously, or run it instantly wh
 
 A list of additional property definition that will show in the property list
 
-### +optional
+### #optional
 
 **type** list of string
 

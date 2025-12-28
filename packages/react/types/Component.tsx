@@ -10,7 +10,7 @@ interface BaseProps {
 const componentsMap = new Map<string, ComponentType<BaseProps>>();
 const containerFuncIds = new Set<string>();
 
-export function registerComponent<T extends BaseProps>(
+export function registerComponent<T extends BaseProps = BaseProps>(
   component: ComponentType<T>,
   name: string,
   propertyMap: PropMap,

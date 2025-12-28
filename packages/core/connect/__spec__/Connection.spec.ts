@@ -752,16 +752,16 @@ describe('Connection', function () {
     const [server, client] = makeLocalConnection(Root.instance, false);
 
     await client.addOptionalProp('Connection21.a', 'a');
-    expect(block1.getValue('+optional')).toEqual(['a']);
+    expect(block1.getValue('#optional')).toEqual(['a']);
 
     await client.addOptionalProp('Connection21.a', 'b');
-    expect(block1.getValue('+optional')).toEqual(['a', 'b']);
+    expect(block1.getValue('#optional')).toEqual(['a', 'b']);
 
     await client.moveOptionalProp('Connection21.a', 'a', 'b');
-    expect(block1.getValue('+optional')).toEqual(['b', 'a']);
+    expect(block1.getValue('#optional')).toEqual(['b', 'a']);
 
     await client.removeOptionalProp('Connection21.a', 'a');
-    expect(block1.getValue('+optional')).toEqual(['b']);
+    expect(block1.getValue('#optional')).toEqual(['b']);
 
     client.destroy();
     Root.instance.deleteValue('Connection21');
