@@ -3,21 +3,21 @@ import {Block, BlockProperty, FunctionInput} from '@ticlo/core';
 import {PropMap} from '../types/PropType.js';
 
 /**
- * Get an object with properties, more efficiently by listening to each property individually
- * Use useBlockProps when there are many properties or when properties change frequently
+ * Get an object with properties/configs, more efficiently by listening to each property individually
+ * Use useBlockProps when there are many properties but no configs
  * @param block
  * @param propMap - properties to listen to
  */
-export function useBlockProps<T extends PropMap>(
+export function useBlockConfigs<T extends PropMap>(
   block: Block,
   propMap: T
 ): {[K in keyof T]: ReturnType<T[K]['value']['convert']>} {
-  const [, forceUpdate] = useReducer((x) => -x, 1);
+  const [tic, updateTic] = useReducer((x) => (x + 1) & 0xffff, 1);
 
   const fields = useMemo(() => Object.keys(propMap), [propMap]);
 
   useEffect(() => {
-    const listener = {onChange: forceUpdate, onSourceChange: () => {}};
+    const listener = {onChange: updateTic, onSourceChange: () => {}};
     // listen to each property
     const props: BlockProperty[] = [];
     if (block instanceof Block) {
@@ -33,12 +33,15 @@ export function useBlockProps<T extends PropMap>(
       }
     };
   }, [block, fields]);
-  const result: Record<string, unknown> = {};
-  if (block) {
-    for (const field of fields) {
-      result[field] = propMap[field].value.convert(block.getValue(field), block, propMap[field]);
+  const result: Record<string, unknown> = useMemo(() => {
+    const result: Record<string, unknown> = {};
+    if (block) {
+      for (const field of fields) {
+        result[field] = propMap[field].value.convert(block.getValue(field), block, propMap[field]);
+      }
     }
-  }
+    return result;
+  }, [block, fields, tic]);
 
   return result as {[K in keyof T]: ReturnType<T[K]['value']['convert']>};
 }
