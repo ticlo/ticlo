@@ -9,6 +9,7 @@
       "when": "$(basename).tsx"
     }
   },
+  "typescript.preferences.preferGoToSourceDefinition": true,
   "files.eol": "\n",
   "editor.tabSize": 2,
   "editor.formatOnSave": true,

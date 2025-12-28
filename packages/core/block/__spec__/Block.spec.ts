@@ -47,6 +47,45 @@ describe('Block', function () {
     expect(flow.queryValue('block1.block2.###')).toBe(flow);
   });
 
+  it('query block field', function () {
+    let flow = new Flow();
+    let block1 = flow.createBlock('block1');
+    let block2 = block1.createBlock('block2');
+    block2.setValue('p1', 1);
+
+    {
+      const [block, name] = flow.queryBlockField('block1.block2.p1');
+      expect(block).toBe(block2);
+      expect(name).toBe('p1');
+    }
+
+    {
+      const [block, name] = flow.queryBlockField('block1.p2');
+      expect(block).toBe(block1);
+      expect(name).toBe('p2');
+    }
+
+    {
+      const [block, name] = flow.queryBlockField('block1');
+      expect(block).toBe(flow);
+      expect(name).toBe('block1');
+    }
+
+    {
+      const [block, name] = flow.queryBlockField('block3.p1');
+      expect(block).toBeNull();
+      expect(name).toBe('p1');
+    }
+
+    // Test with non-block property in the middle
+    block1.setValue('notABlock', 123);
+    {
+      const [block, name] = flow.queryBlockField('block1.notABlock.p1');
+      expect(block).toBeNull();
+      expect(name).toBe('p1');
+    }
+  });
+
   it('destroy binding chain', function () {
     let flow = new Flow();
     let block1 = flow.createBlock('block1');

@@ -46,7 +46,7 @@ export interface ClientConn {
 
   getValue(path: string): Promise<any>;
 
-  addBlock(path: string, data?: DataMap, anyName?: boolean, callbacks?: ClientCallbacks): Promise<any> | string;
+  addBlock(path: string, data?: DataMap, findName?: boolean, callbacks?: ClientCallbacks): Promise<any> | string;
 
   addFlow(path: string, data?: DataMap, callbacks?: ClientCallbacks): Promise<any> | string;
 

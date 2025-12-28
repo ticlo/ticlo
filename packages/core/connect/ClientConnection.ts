@@ -234,8 +234,8 @@ export abstract class ClientConnection extends Connection implements ClientConn 
     return this.simpleRequest({cmd: 'get', path});
   }
 
-  addBlock(path: string, data?: DataMap, anyName = false, callbacks?: ClientCallbacks): Promise<any> | string {
-    let result = this.simpleRequest({cmd: 'addBlock', path, data, anyName}, callbacks);
+  addBlock(path: string, data?: DataMap, findName = false, callbacks?: ClientCallbacks): Promise<any> | string {
+    let result = this.simpleRequest({cmd: 'addBlock', path, data, findName}, callbacks);
     this._childrenChangeStream.dispatch({path: path.substring(0, path.lastIndexOf('.'))});
     return result;
   }

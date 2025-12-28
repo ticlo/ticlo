@@ -549,7 +549,7 @@ export class ServerConnection extends ServerConnectionCore {
     }
   }
 
-  addBlock({path, data, anyName}: {path: string; data?: DataMap; anyName?: boolean}): string | DataMap {
+  addBlock({path, data, findName}: {path: string; data?: DataMap; findName?: boolean}): string | DataMap {
     let property = this.root.queryProperty(path, true);
     if (!property && /\.#shared\.[^.]+$/.test(path)) {
       let sharedPath = path.substring(0, path.lastIndexOf('.'));
@@ -601,7 +601,7 @@ export class ServerConnection extends ServerConnectionCore {
         } else {
           return 'invalid function';
         }
-      } else if (anyName) {
+      } else if (findName) {
         property = findPropertyForNewBlock(property._block, property._name);
         property._block.createBlock(property._name);
       } else {

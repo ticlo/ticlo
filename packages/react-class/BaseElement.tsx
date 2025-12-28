@@ -10,7 +10,7 @@ import {
 } from '@ticlo/core';
 import React from 'react';
 import {TicloComp} from './TicloComp.js';
-import {htmlAttributes, htmlEventHandlers, optionalHtmlProperties} from '../react/attributes/HtmlAttributes.js';
+import {htmlAttributes, htmlEventHandlers, optionalHtmlProperties} from '../react/html-elements/HtmlAttributes.js';
 import {BlockConfig} from '@ticlo/core/block/BlockProperty.js';
 import {getInputsArray} from '@ticlo/core/block/FunctonData.js';
 

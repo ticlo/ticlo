@@ -164,6 +164,19 @@ export class Block implements Runnable, FunctionData, PropListener<FunctionClass
     }
   }
 
+  queryBlockField(path: string): [Block | null, string] {
+    const parts = path.split('.');
+    const name = parts.pop();
+    if (parts.length === 0) {
+      return [this, name];
+    }
+    const blockProp = this._queryProperty(parts, false);
+    if (blockProp && blockProp._value instanceof Block) {
+      return [blockProp._value, name];
+    }
+    return [null, name];
+  }
+
   queryProperty(path: string, create: boolean = false): BlockProperty {
     return this._queryProperty(path.split('.'), create);
   }
