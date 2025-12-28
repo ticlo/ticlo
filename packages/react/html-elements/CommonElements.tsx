@@ -8,7 +8,7 @@ import {
   elementOutputProperty,
   elementStyleProperty,
   HtmlElementFunction,
-} from '../BaseElement.js';
+} from './BaseElement.js';
 
 const divElementDesc: FunctionDesc = {
   name: 'div',

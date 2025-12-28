@@ -5,7 +5,7 @@ import {
   elementOutputProperty,
   elementStyleProperty,
   HtmlElementFunction,
-} from '../BaseElement.js';
+} from './BaseElement.js';
 import {ChangeEvent} from 'react';
 
 const optional: {[key: string]: PropDesc} = {

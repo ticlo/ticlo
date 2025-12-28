@@ -4,7 +4,7 @@ import {Functions} from '@ticlo/core/block/Functions.js';
 import {Block} from '@ticlo/core/block/Block.js';
 import {TicloComp} from './TicloComp.js';
 import {validateReactComponent} from './validateReactComponent.js';
-import {elementConfigs} from './BaseElement.js';
+import {elementConfigs} from '../react/html-elements/BaseElement.js';
 import {BlockIO, ErrorEvent} from '@ticlo/core';
 
 const HOOKS = `const {

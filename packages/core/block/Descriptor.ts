@@ -167,9 +167,10 @@ export const configDescs: {[key: string]: PropDesc} = {
   '#secret': {name: '#secret', type: 'password'},
   '#value': {name: '#value', type: 'any', readonly: true},
   '#return': {name: '#return', type: 'any'},
-  '#render': {name: '#render', type: 'object', readonly: true},
+  '#order': {name: '#order', type: 'array'},
   '#inputs': {name: '#inputs', type: 'any'},
   '#outputs': {name: '#outputs', type: 'any'},
+  // used by worker function to collect user defined descriptor
   '#desc': {name: '#desc', type: 'object'},
   '#cacheMode': {name: '#cacheMode', type: 'radio-button', options: ['auto', 'persist'], default: 'auto'},
 };

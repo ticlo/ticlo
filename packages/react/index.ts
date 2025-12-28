@@ -13,6 +13,10 @@ export {
 
 import {Functions} from '@ticlo/core';
 import './functions/ToComponent.js';
+import './html-elements/HtmlAttributes.js';
+import './html-elements/CommonElements.js';
+import './html-elements/ImgElement.js';
+import './html-elements/InputElement.js';
 
 Functions.addCategory({
   id: 'react:',

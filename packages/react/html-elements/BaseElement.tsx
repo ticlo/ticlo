@@ -9,8 +9,8 @@ import {
   PropGroupDesc,
 } from '@ticlo/core';
 import React from 'react';
-import {TicloComp} from './TicloComp.js';
-import {htmlAttributes, htmlEventHandlers, optionalHtmlProperties} from '../react/html-elements/HtmlAttributes.js';
+import {TicloComp} from '../../react-class/TicloComp.js';
+import {htmlAttributes, htmlEventHandlers, optionalHtmlProperties} from './HtmlAttributes.js';
 import {BlockConfig} from '@ticlo/core/block/BlockProperty.js';
 import {getInputsArray} from '@ticlo/core/block/FunctonData.js';
 
@@ -96,15 +96,7 @@ export const elementClassProperty: PropDesc = {
   name: 'class',
   type: 'string',
 };
-export const elementChildrenProperty: PropGroupDesc = {
-  name: '',
-  type: 'group',
-  defaultLen: 0,
-  properties: [{name: '', type: 'any'}],
-};
-export const elementOutputProperty: PropDesc = {
-  name: '#output',
-  pinned: true,
-  type: 'object',
-  readonly: true,
+export const elementChildrenProperty: PropDesc = {
+  name: 'children',
+  type: 'array',
 };
