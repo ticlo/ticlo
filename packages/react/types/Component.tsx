@@ -1,4 +1,4 @@
-import React, {ComponentType, ReactNode, useEffect, useMemo, useReducer, useState} from 'react';
+import React, {ComponentType, ReactNode, useEffect, useMemo, useRef, useState} from 'react';
 import {Block, FunctionDesc, Functions, PropDesc} from '@ticlo/core';
 import {FunctionClass} from '@ticlo/core/block/BlockFunction.js';
 import {PropMap} from './PropType.js';
@@ -50,6 +50,19 @@ export function registerComponent<T extends BaseProps = BaseProps>(
   componentsMap.set(key, component);
 }
 
+// custom shallow equal for props
+function isPropsEqual(a: Record<string, unknown>, b: Record<string, unknown>) {
+  if (a === b) return true;
+  const keysA = Object.keys(a);
+  if (keysA.length !== Object.keys(b).length) return false;
+  for (let key of keysA) {
+    if (!Object.is(a[key], b[key])) {
+      return false;
+    }
+  }
+  return true;
+}
+
 export function TicloFuncComp<T extends BaseProps = BaseProps>(props: T) {
   const {block} = props;
   const [functionId, setFunctionId] = useState(block.getValue('#is') as string);
@@ -59,11 +72,19 @@ export function TicloFuncComp<T extends BaseProps = BaseProps>(props: T) {
     propIs.listen(listener);
     return () => propIs.unlisten(listener);
   }, [block, listener]);
-  const C = componentsMap.get(functionId) as ComponentType<T> | undefined;
-  if (C) {
-    return <C {...props} />;
+
+  const propsRef = useRef(props);
+  if (!isPropsEqual(propsRef.current as Record<string, unknown>, props as Record<string, unknown>)) {
+    propsRef.current = props;
   }
-  return null;
+
+  return useMemo(() => {
+    const C = componentsMap.get(functionId) as ComponentType<T> | undefined;
+    if (C) {
+      return <C {...propsRef.current} />;
+    }
+    return null;
+  }, [functionId, propsRef.current]);
 }
 
 export function renderChildren<T extends BaseProps>(blocks: (ReactNode | Block)[], others: Omit<T, 'block'>) {
