@@ -6,7 +6,7 @@ export enum EventType {
   VOID = 2, // void event should be ignored
 }
 
-export class Event {
+export class Event<T = Record<string, unknown>> {
   static _uid = new Uid();
   static get uid(): string {
     return Event._uid.current;
@@ -14,7 +14,7 @@ export class Event {
   loopId: string;
   constructor(
     public readonly type: string,
-    public readonly data?: Record<string, unknown>
+    public readonly data?: T
   ) {
     this.loopId = Event.uid;
   }
@@ -30,6 +30,7 @@ export class Event {
   }
 
   check(): number {
+    // A event can only trigger block function in the same loop
     if (this.loopId === Event.uid) {
       return EventType.TRIGGER;
     }

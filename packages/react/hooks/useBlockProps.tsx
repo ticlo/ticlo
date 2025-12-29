@@ -1,6 +1,7 @@
 import {useEffect, useMemo, useReducer, useRef} from 'react';
 import {Block, BlockProperty, FunctionInput} from '@ticlo/core';
 import {PropMap} from '../types/PropType.js';
+import {useMemoRef, useMemoUpdate} from '../util/react-tools.js';
 
 /**
  * Get an object with all the properties
@@ -12,26 +13,10 @@ export function useBlockProps<T extends PropMap>(
   block: Block,
   propMap: T
 ): {[K in keyof T]: ReturnType<T[K]['value']['convert']>} {
-  // keep track of changes
-  const [tic, updateTic] = useReducer((x) => (x + 1) & 0xffff, 1);
+  // store fields list in ref to we don't need to unwatch and rewatch on propMap change
+  const fieldsRef = useMemoRef<string[]>(() => Object.keys(propMap).map((key) => propMap[key].name || key), [propMap]);
 
-  const fieldsRef = useRef<string[]>();
-  fieldsRef.current = useMemo(() => Object.keys(propMap).map((key) => propMap[key].name || key), [propMap]);
-
-  useEffect(() => {
-    const listener = {
-      onChildChange(property: BlockProperty) {
-        if (fieldsRef.current.includes(property._name)) {
-          updateTic();
-        }
-      },
-    };
-    block.watch(listener);
-    return () => {
-      block.unwatch(listener);
-    };
-  }, [block]);
-  const result: Record<string, unknown> = useMemo(() => {
+  const [result, updateResult] = useMemoUpdate(() => {
     const result: Record<string, unknown> = {};
     if (block) {
       for (const field in propMap) {
@@ -41,7 +26,21 @@ export function useBlockProps<T extends PropMap>(
       }
     }
     return result;
-  }, [block, propMap, tic]);
+  }, [block, propMap]);
+
+  useEffect(() => {
+    const listener = {
+      onChildChange(property: BlockProperty) {
+        if (fieldsRef.current.includes(property._name)) {
+          updateResult();
+        }
+      },
+    };
+    block.watch(listener);
+    return () => {
+      block.unwatch(listener);
+    };
+  }, [block]);
 
   return result as {[K in keyof T]: ReturnType<T[K]['value']['convert']>};
 }
