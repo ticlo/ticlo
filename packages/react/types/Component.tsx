@@ -63,7 +63,7 @@ function isPropsEqual(a: Record<string, unknown>, b: Record<string, unknown>) {
   return true;
 }
 
-export function TicloFuncComp<T extends BaseProps = BaseProps>(props: T) {
+export function TicloComp<T extends BaseProps = BaseProps>(props: T) {
   const {block} = props;
   const [functionId, setFunctionId] = useState(block.getValue('#is') as string);
   const listener = useMemo(() => ({onChange: setFunctionId, onSourceChange: () => {}}), []);
@@ -91,7 +91,7 @@ export function renderChildren<T extends BaseProps>(blocks: (ReactNode | Block)[
   const result: ReactNode[] = [];
   for (const block of blocks) {
     if (block instanceof Block) {
-      result.push(<TicloFuncComp {...others} block={block} key={block._blockId} />);
+      result.push(<TicloComp {...others} block={block} key={block._blockId} />);
     } else {
       result.push(block);
     }

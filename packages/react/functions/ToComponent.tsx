@@ -1,12 +1,12 @@
 import React from 'react';
 import {Block, Functions, PureFunction} from '@ticlo/core';
-import {TicloFuncComp} from '../types/Component.js';
+import {TicloComp} from '../types/Component.js';
 
 class ToReactComponentFunction extends PureFunction {
   run() {
     const block = this._data.getValue('input');
     if (block instanceof Block) {
-      this._data.output(<TicloFuncComp block={block} key={block._blockId} />);
+      this._data.output(<TicloComp block={block} key={block._blockId} />);
       return;
     }
     if (typeof block === 'string' || typeof block === 'number') {
