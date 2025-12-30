@@ -1,26 +1,24 @@
-import {describe, it, expect, beforeEach} from 'vitest';
+import {describe, it, expect, beforeEach, afterEach} from 'vitest';
 import {CssSheet} from '../CssSheet.js';
 
 describe('CssSheet', () => {
   let sheet: CssSheet;
+  const nextFrame = () => new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r)));
 
-  beforeEach(() => {
+  beforeEach(async () => {
     sheet = new CssSheet();
+    await nextFrame(); // Ensure the sheet from beforeEach is adopted
   });
 
-  const nextFrame = () => new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r)));
+  afterEach(async () => {
+    sheet.destroy();
+    await nextFrame(); // Ensure cleanup happens
+  });
 
   it('should add a basic rule after flush', async () => {
     sheet.addRule('.test', {color: 'red'});
-
-    // Check sheet content before flush (should be empty if batching works)
-    // Actually, we can't easily check internal #sheet content from outside,
-    // but we can check document.adoptedStyleSheets if we wanted to be very intrusive.
-    // However, the requested behavior is that it's grouped next frame.
-
     await nextFrame();
 
-    // We can use document.styleSheets or look at document.adoptedStyleSheets
     const adopted = document.adoptedStyleSheets;
     const s = adopted[adopted.length - 1];
     expect(s.cssRules.length).toBe(1);
@@ -41,7 +39,6 @@ describe('CssSheet', () => {
     const adopted = document.adoptedStyleSheets;
     const s = adopted[adopted.length - 1];
 
-    // 3 rules total
     expect(s.cssRules.length).toBe(3);
 
     const texts = Array.from(s.cssRules).map((r) => r.cssText);
@@ -61,11 +58,11 @@ describe('CssSheet', () => {
 
     h1.remove();
     await nextFrame();
-    expect(s.cssRules.length).toBe(1); // Still there because of h2
+    expect(s.cssRules.length).toBe(1);
 
     h2.remove();
     await nextFrame();
-    expect(s.cssRules.length).toBe(0); // Finally gone
+    expect(s.cssRules.length).toBe(0);
   });
 
   it('should optimize add/remove in same frame', async () => {
@@ -75,19 +72,26 @@ describe('CssSheet', () => {
     await nextFrame();
     const adopted = document.adoptedStyleSheets;
     const s = adopted[adopted.length - 1];
-    expect(s.cssRules.length).toBe(0); // Should never have been added
+    expect(s.cssRules.length).toBe(0);
   });
 
   it('should batch destroy', async () => {
+    const beforeCount = document.adoptedStyleSheets.length;
+
+    // 1. Immediate destruction should cancel adoption
     const s2 = new CssSheet();
-    s2.addRule('.gone', {opacity: 0});
     s2.destroy();
-
-    const beforeAdopted = document.adoptedStyleSheets.length;
     await nextFrame();
-    const afterAdopted = document.adoptedStyleSheets.length;
+    expect(document.adoptedStyleSheets.length).toBe(beforeCount);
 
-    expect(afterAdopted).toBe(beforeAdopted - 1);
+    // 2. Destruction after adoption should remove it
+    const s3 = new CssSheet();
+    await nextFrame();
+    expect(document.adoptedStyleSheets.length).toBe(beforeCount + 1);
+
+    s3.destroy();
+    await nextFrame();
+    expect(document.adoptedStyleSheets.length).toBe(beforeCount);
   });
 
   it('should support stable hash for same styles in addRuleGroup', () => {
