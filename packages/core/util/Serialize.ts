@@ -1,11 +1,11 @@
 import Arrow from 'arrow-code';
 import {DateTime} from 'luxon';
 import {decodeDateTime, encodeDateTime, formatDate} from './DateTime.js';
-import {decodeUnknown, encodeUnknown, EscapedObject} from './EscapedObject.js';
+import {decodeUnknown, encodeUnknown, NoSerialize} from './NoSerialize.js';
 
 const arrow = new Arrow({encodeDate: false});
 arrow.registerRaw('Ts', DateTime, encodeDateTime, decodeDateTime);
-arrow.registerRaw('', EscapedObject, encodeUnknown, decodeUnknown);
+arrow.registerRaw('', NoSerialize, encodeUnknown, decodeUnknown);
 
 export const arrowReplacer = arrow.replacer.bind(arrow);
 export const arrowReviver = arrow.reviver.bind(arrow);

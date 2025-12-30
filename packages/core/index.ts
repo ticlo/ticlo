@@ -26,7 +26,7 @@ export {setSecretCipher} from './block/Block.js';
 export * from './connect/ClientConnection.js';
 export * from './connect/LocalConnection.js';
 export {Uid} from './util/Uid.js';
-export {escapedObject} from './util/EscapedObject.js';
+export {escapedObject} from './util/NoSerialize.js';
 export {arrowReplacer, arrowReviver} from './util/Serialize.js';
 export {deepEqual, shallowEqual} from './util/Compare.js';
 export {Resolver} from './block/Resolver.js';
