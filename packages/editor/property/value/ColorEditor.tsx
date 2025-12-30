@@ -2,7 +2,6 @@ import React from 'react';
 import {ColorPicker} from 'antd';
 import {AggregationColor} from 'antd/es/color-picker/color.js';
 import {ValueEditorProps} from './ValueEditorBase.js';
-import tinycolor from 'tinycolor2';
 
 function colorToHex(color: AggregationColor) {
   return color.toHexString();
