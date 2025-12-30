@@ -40,14 +40,13 @@ export class CssSheet {
   // Keep track of active rules in order to manage sheet indices
   #activeRules: string[] = [];
   #pendingDestroy = false;
+  #pendingAdopt = false;
 
   constructor() {
     // 1. Create a pure CSSStyleSheet object (no DOM elements involved)
     this.#sheet = new CSSStyleSheet();
-
-    // 2. Adopt it into the document
-    // We must spread the existing sheets to avoid overwriting other styles
-    document.adoptedStyleSheets = [...document.adoptedStyleSheets, this.#sheet];
+    this.#pendingAdopt = true;
+    scheduleFlush(this);
   }
 
   /**
@@ -148,11 +147,19 @@ export class CssSheet {
     if (!this.#sheet) return;
 
     if (this.#pendingDestroy) {
-      document.adoptedStyleSheets = document.adoptedStyleSheets.filter((s) => s !== this.#sheet);
+      if (!this.#pendingAdopt) {
+        document.adoptedStyleSheets = document.adoptedStyleSheets.filter((s) => s !== this.#sheet);
+      }
       this.#sheet = null;
       this.#rules.clear();
       this.#activeRules = [];
+      this.#pendingAdopt = false;
       return;
+    }
+
+    if (this.#pendingAdopt) {
+      document.adoptedStyleSheets = [...document.adoptedStyleSheets, this.#sheet!];
+      this.#pendingAdopt = false;
     }
 
     // 1. Remove rules that have count 0
