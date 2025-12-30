@@ -3,7 +3,7 @@ import './functions/QuerySelector.js';
 import './functions/CreateStyle.js';
 
 export * from './connect/FrameServerConnection.js';
-export {globalStyle} from './style/CssRules.js';
+export {globalStyle} from './style/CssSheet.js';
 
 Functions.addCategory({
   id: 'html',

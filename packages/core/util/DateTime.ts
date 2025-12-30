@@ -73,7 +73,7 @@ export function decodeDateTime(str: string): any {
     }
     return result;
   } else {
-    return DateTime.invalid('invalid Arrow COde');
+    return DateTime.invalid('invalid Arrow Code');
   }
 }
 

@@ -19,9 +19,9 @@ export function addBlockColor(color: string) {
   const rr = brighterColor(color.substring(0, 1));
   const gg = brighterColor(color.substring(1, 2));
   const bb = brighterColor(color.substring(2, 3));
-  globalStyle.addRule(`.ticl-block--${color}{border-color: #${color};}`);
-  globalStyle.addRule(`.ticl-block--${color} .ticl-block-prbg, .ticl-bg--${color}{background: #${color};}`);
-  globalStyle.addRule(`.ticl-block--${color}.ticl-block-selected{box-shadow: 0 0 4px 3px rgb(${rr},${gg},${bb});}`);
+  globalStyle.addCssText(`.ticl-block--${color}{border-color: #${color};}`);
+  globalStyle.addCssText(`.ticl-block--${color} .ticl-block-prbg, .ticl-bg--${color}{background: #${color};}`);
+  globalStyle.addCssText(`.ticl-block--${color}.ticl-block-selected{box-shadow: 0 0 4px 3px rgb(${rr},${gg},${bb});}`);
 }
 
 const priorityColors = ['4af', '1bb', '8c1', 'f72'];

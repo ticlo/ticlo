@@ -1,0 +1,219 @@
+import {encodeSorted} from '@ticlo/core';
+
+// helper functions
+
+function hashStr(str: string): string {
+  let hash = 5381;
+  let i = str.length;
+  while (i) {
+    hash = (hash * 33) ^ str.charCodeAt(--i);
+  }
+  return (hash >>> 0).toString(36).substring(1);
+}
+
+function compile(selector: string, styles: StyleObject): string {
+  const props = Object.entries(styles)
+    .map(([key, value]) => `${toKebab(key)}:${value}`)
+    .join(';');
+  return `${selector} { ${props}; }`;
+}
+
+function toKebab(str: string): string {
+  return str.replace(/([a-z0-9])([A-Z])/g, '$1-$2').toLowerCase();
+}
+
+export type StyleObject = Record<string, string | number>;
+
+export interface RuleHandle {
+  className?: string;
+  remove: () => void;
+}
+
+export interface ScopeHandle extends RuleHandle {
+  className: string;
+}
+
+export class CssSheet {
+  #sheet: CSSStyleSheet | null = null;
+  // Map cssText -> { count, active }
+  #rules = new Map<string, {count: number; active: boolean}>();
+  // Keep track of active rules in order to manage sheet indices
+  #activeRules: string[] = [];
+  #pendingDestroy = false;
+
+  constructor() {
+    // 1. Create a pure CSSStyleSheet object (no DOM elements involved)
+    this.#sheet = new CSSStyleSheet();
+
+    // 2. Adopt it into the document
+    // We must spread the existing sheets to avoid overwriting other styles
+    document.adoptedStyleSheets = [...document.adoptedStyleSheets, this.#sheet];
+  }
+
+  /**
+   * Adds a raw CSS rule to the stylesheet.
+   */
+  addRule(selector: string, styles: StyleObject): RuleHandle {
+    return this.addCssText(compile(selector, styles));
+  }
+
+  addRuleGroup(
+    className: string,
+    styles: StyleObject,
+    additional: {selector: string; styles: StyleObject}[]
+  ): RuleHandle {
+    let finalClass = className;
+    if (className.includes('?')) {
+      const stableKey = encodeSorted(styles);
+      finalClass = className.replace('?', hashStr(stableKey));
+    }
+
+    const handles: RuleHandle[] = [];
+
+    // Main Rule
+    // Note: We use finalClass which might have hash now
+    const mainCss = compile(`.${finalClass}`, styles);
+    handles.push(this.addCssText(mainCss));
+
+    // Additional Rules
+    for (const add of additional) {
+      const sel = add.selector.replace(/&/g, `.${finalClass}`);
+      const css = compile(sel, add.styles);
+      handles.push(this.addCssText(css));
+    }
+
+    let removed = false;
+    return {
+      className: finalClass,
+      remove: () => {
+        if (removed) return;
+        removed = true;
+        handles.forEach((h) => h.remove());
+      },
+    };
+  }
+
+  addCssText(cssText: string): RuleHandle {
+    let record = this.#rules.get(cssText);
+    if (!record) {
+      record = {count: 0, active: false};
+      this.#rules.set(cssText, record);
+    }
+    record.count++;
+    scheduleFlush(this);
+
+    let removed = false;
+    return {
+      remove: () => {
+        if (removed) return;
+        removed = true;
+
+        // Re-fetch record? No, object ref is stable in Map value
+        // But we should check if it still exists or count > 0 safety
+        if (record.count > 0) {
+          record.count--;
+          scheduleFlush(this);
+        }
+      },
+    };
+  }
+
+  /**
+   * Generates a unique class name and attaches styles to it.
+   */
+  scope(styles: StyleObject): ScopeHandle {
+    const name = 'c-' + Math.random().toString(36).substring(2, 9);
+    const handle = this.addRule(`.${name}`, styles);
+
+    return {
+      className: name,
+      remove: handle.remove,
+    };
+  }
+
+  /**
+   * Detaches the sheet from the document and clears memory.
+   */
+  destroy(): void {
+    if (!this.#sheet) return;
+    this.#pendingDestroy = true;
+    scheduleFlush(this);
+  }
+
+  /**
+   * Applies pending changes to the CSSStyleSheet.
+   * This is called by the global batching loop.
+   */
+  flush() {
+    if (!this.#sheet) return;
+
+    if (this.#pendingDestroy) {
+      document.adoptedStyleSheets = document.adoptedStyleSheets.filter((s) => s !== this.#sheet);
+      this.#sheet = null;
+      this.#rules.clear();
+      this.#activeRules = [];
+      return;
+    }
+
+    // 1. Remove rules that have count 0
+    // Iterate backwards to preserve indices of earlier rules during deletion
+    for (let i = this.#activeRules.length - 1; i >= 0; i--) {
+      const cssText = this.#activeRules[i];
+      const record = this.#rules.get(cssText);
+
+      if (record && record.count === 0) {
+        try {
+          this.#sheet.deleteRule(i);
+        } catch (e) {
+          console.error(`CssSheet: Failed to delete rule at index ${i}`, e);
+        }
+        this.#activeRules.splice(i, 1);
+        record.active = false;
+        // Optional: Remove from Map to free memory if count stays 0?
+        // keeping it is fine for now, allows resurrection.
+        this.#rules.delete(cssText);
+      }
+    }
+
+    // 2. Add rules that are count > 0 but not active
+    // We iterate the Map to find pending additions.
+    // Order of iteration is insertion order, which is generally what we want.
+    for (const [cssText, record] of this.#rules) {
+      if (record.count > 0 && !record.active) {
+        try {
+          // Append to end
+          const index = this.#activeRules.length;
+          this.#sheet.insertRule(cssText, index);
+          this.#activeRules.push(cssText);
+          record.active = true;
+        } catch (e) {
+          console.error(`CssSheet: Failed to insert rule "${cssText}"`, e);
+          // If it fails, we still mark it as active effectively or remove it?
+          // Mark active to stop retry loop, but it's not in sheet.
+          record.active = true;
+        }
+      }
+    }
+  }
+}
+
+// Global batching system
+const flushQueue = new Set<CssSheet>();
+let flushScheduled = false;
+
+function scheduleFlush(sheet: CssSheet) {
+  flushQueue.add(sheet);
+  if (!flushScheduled) {
+    flushScheduled = true;
+    requestAnimationFrame(flushAll);
+  }
+}
+
+function flushAll() {
+  flushScheduled = false;
+  const queue = [...flushQueue];
+  flushQueue.clear();
+  queue.forEach((sheet) => sheet.flush());
+}
+
+export const globalStyle = new CssSheet();
