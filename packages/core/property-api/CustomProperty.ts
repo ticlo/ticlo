@@ -23,7 +23,7 @@ export function addCustomProperty(block: Block, desc: PropDesc | PropGroupDesc, 
       if (!desc.name) {
         return; // not allow empty property unless it's in a group
       }
-    } else if (desc.name.match(endsWithNumberReg)) {
+    } else if (endsWithNumberReg.test(desc.name)) {
       return; // group property should not end with number
     }
   }

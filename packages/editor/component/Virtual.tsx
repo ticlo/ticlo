@@ -25,8 +25,6 @@ export default class VirtualList extends React.Component<Props, State> {
     return {};
   }
 
-  static defaultProps = {};
-
   state: State = {offset: 0, height: 0};
   resizeObserver: any;
 

@@ -27,8 +27,8 @@ describe('CssSheet', () => {
 
   it('should implement addRuleGroup with hash and &', async () => {
     const handle = sheet.addRuleGroup('my-?-class', {color: 'blue'}, [
-      {selector: '&:hover', styles: {color: 'green'}},
-      {selector: 'div &', styles: {padding: '10px'}},
+      {selector: '&:hover', style: {color: 'green'}},
+      {selector: 'div &', style: {padding: '10px'}},
     ]);
 
     expect(handle.className).toMatch(/^my-.*-class$/);
@@ -80,12 +80,14 @@ describe('CssSheet', () => {
 
     // 1. Immediate destruction should cancel adoption
     const s2 = new CssSheet();
+    s2.addRule('.test2', {color: 'red'});
     s2.destroy();
     await nextFrame();
     expect(document.adoptedStyleSheets.length).toBe(beforeCount);
 
     // 2. Destruction after adoption should remove it
     const s3 = new CssSheet();
+    s3.addRule('.test3', {color: 'blue'});
     await nextFrame();
     expect(document.adoptedStyleSheets.length).toBe(beforeCount + 1);
 
@@ -94,7 +96,7 @@ describe('CssSheet', () => {
     expect(document.adoptedStyleSheets.length).toBe(beforeCount);
   });
 
-  it('should support stable hash for same styles in addRuleGroup', () => {
+  it('should support stable hash for same style in addRuleGroup', () => {
     const h1 = sheet.addRuleGroup('?-box', {display: 'flex', color: 'red'}, []);
     const h2 = sheet.addRuleGroup('?-box', {color: 'red', display: 'flex'}, []);
 
@@ -102,5 +104,19 @@ describe('CssSheet', () => {
 
     h1.remove();
     h2.remove();
+  });
+
+  it('should use default class name pattern if none provided', async () => {
+    const handle = sheet.addRuleGroup('', {color: 'purple'}, []);
+    expect(handle.className).toMatch(/^ticl-c-.*$/);
+
+    // Validate it actually applies
+    await nextFrame();
+    const adopted = document.adoptedStyleSheets;
+    const s = adopted[adopted.length - 1];
+
+    const cls = handle.className;
+    const texts = Array.from(s.cssRules).map((r) => r.cssText);
+    expect(texts).toContain(`.${cls} { color: purple; }`);
   });
 });

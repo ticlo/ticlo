@@ -66,7 +66,7 @@ export class AddCustomPropertyMenu extends LazyUpdateComponent<Props, any> {
         group !== '') // allow default group to have child with empty name
     ) {
       errors.set('name', translateEditor('Invalid Name'));
-    } else if (group != null && name.value.match(endsWithNumberReg)) {
+    } else if (group != null && endsWithNumberReg.test(name.value)) {
       errors.set('name', translateEditor('Number character not allowed'));
     }
     if (type.value === 'group') {

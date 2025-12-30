@@ -1,6 +1,7 @@
 import {Functions} from '@ticlo/core';
 import './functions/QuerySelector.js';
 import './functions/CreateStyle.js';
+import './functions/CssClass.js';
 
 export * from './connect/FrameServerConnection.js';
 export {globalStyle} from './style/CssSheet.js';

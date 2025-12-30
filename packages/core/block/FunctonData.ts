@@ -57,11 +57,25 @@ export function getInputsLength(input: FunctionInput, group?: string, defaultLen
   return defaultLength;
 }
 
+export function getInputsArray<T extends string>(
+  input: FunctionInput,
+  group: string | undefined,
+  defaultLength: number | undefined,
+  fields: readonly T[],
+  maxLength?: number
+): Record<T, unknown>[];
+export function getInputsArray(
+  input: FunctionInput,
+  group?: string,
+  defaultLength?: number,
+  fields?: undefined,
+  maxLength?: number
+): unknown[];
 export function getInputsArray(
   input: FunctionInput,
   group = '',
   defaultLength = 2,
-  fields?: string[],
+  fields?: readonly string[],
   maxLength = MAX_GROUP_LENGTH
 ): unknown[] {
   const lenOrArray = input.getValue(`${group}[]`);

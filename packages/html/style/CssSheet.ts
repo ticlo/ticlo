@@ -2,6 +2,7 @@ import {encodeSorted} from '@ticlo/core';
 
 // helper functions
 
+// DJB2 hash algorithm
 function hashStr(str: string): string {
   let hash = 5381;
   let i = str.length;
@@ -11,8 +12,11 @@ function hashStr(str: string): string {
   return (hash >>> 0).toString(36).substring(1);
 }
 
-function compile(selector: string, styles: StyleObject): string {
-  const props = Object.entries(styles)
+function compile(selector: string, style: StyleObject): string | null {
+  if (typeof selector !== 'string' || !Object.isExtensible(style)) {
+    return null;
+  }
+  const props = Object.entries(style)
     .map(([key, value]) => `${toKebab(key)}:${value}`)
     .join(';');
   return `${selector} { ${props}; }`;
@@ -21,6 +25,8 @@ function compile(selector: string, styles: StyleObject): string {
 function toKebab(str: string): string {
   return str.replace(/([a-z0-9])([A-Z])/g, '$1-$2').toLowerCase();
 }
+
+const voidRemove = {remove: () => {}};
 
 export type StyleObject = Record<string, string | number>;
 
@@ -46,39 +52,52 @@ export class CssSheet {
     // 1. Create a pure CSSStyleSheet object (no DOM elements involved)
     this.#sheet = new CSSStyleSheet();
     this.#pendingAdopt = true;
-    scheduleFlush(this);
   }
 
   /**
    * Adds a raw CSS rule to the stylesheet.
    */
-  addRule(selector: string, styles: StyleObject): RuleHandle {
-    return this.addCssText(compile(selector, styles));
+  addRule(selector: string, style: StyleObject): RuleHandle {
+    const css = compile(selector, style);
+    return css ? this.addCssText(css) : voidRemove;
   }
 
   addRuleGroup(
     className: string,
-    styles: StyleObject,
-    additional: {selector: string; styles: StyleObject}[]
+    style: StyleObject,
+    additional: {selector: string; style: StyleObject}[]
   ): RuleHandle {
-    let finalClass = className;
+    let finalClass: string;
+    if (!className) {
+      className = 'ticl-c-?';
+    }
+
     if (className.includes('?')) {
-      const stableKey = encodeSorted(styles);
+      // If we cannot compile the main style, we cannot generate a stable hash
+      if (!Object.isExtensible(style)) {
+        return voidRemove;
+      }
+      const stableKey = encodeSorted(style);
       finalClass = className.replace('?', hashStr(stableKey));
+    } else {
+      finalClass = className;
     }
 
     const handles: RuleHandle[] = [];
 
     // Main Rule
-    // Note: We use finalClass which might have hash now
-    const mainCss = compile(`.${finalClass}`, styles);
-    handles.push(this.addCssText(mainCss));
+    const mainCss = compile(`.${finalClass}`, style);
+    if (mainCss) {
+      handles.push(this.addCssText(mainCss));
+    }
 
     // Additional Rules
     for (const add of additional) {
       const sel = add.selector.replace(/&/g, `.${finalClass}`);
-      const css = compile(sel, add.styles);
-      handles.push(this.addCssText(css));
+      const css = compile(sel, add.style);
+      if (css) {
+        handles.push(this.addCssText(css));
+      }
     }
 
     let removed = false;
@@ -114,19 +133,6 @@ export class CssSheet {
           scheduleFlush(this);
         }
       },
-    };
-  }
-
-  /**
-   * Generates a unique class name and attaches styles to it.
-   */
-  scope(styles: StyleObject): ScopeHandle {
-    const name = 'c-' + Math.random().toString(36).substring(2, 9);
-    const handle = this.addRule(`.${name}`, styles);
-
-    return {
-      className: name,
-      remove: handle.remove,
     };
   }
 

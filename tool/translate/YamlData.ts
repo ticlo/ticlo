@@ -101,7 +101,7 @@ class YamlRow {
       while (previous && previous.indent >= this.indent) {
         previous = previous.parent;
       }
-      this.rawkey = match[2].trimRight();
+      this.rawkey = match[2].trimEnd();
       this.key = parseYamlString(this.rawkey);
       if (previous) {
         this.key = `${previous.key}.${this.key}`;
