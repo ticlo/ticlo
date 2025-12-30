@@ -1,18 +1,16 @@
-import React, {CSSProperties} from 'react';
-import {ColorResult, SketchPicker} from 'react-color';
+import React from 'react';
+import {ColorPicker} from 'antd';
+import {AggregationColor} from 'antd/es/color-picker/color.js';
 import {ValueEditorProps} from './ValueEditorBase.js';
 import tinycolor from 'tinycolor2';
-import {Popup} from '../../component/ClickPopup.js';
 
+function colorToHex(color: AggregationColor) {
+  return color.toHexString();
+}
 export class ColorEditor extends React.PureComponent<ValueEditorProps, any> {
-  onValueChange = (value: ColorResult) => {
+  onValueChange = (value: AggregationColor) => {
     const {onChange, name} = this.props;
-    const color = tinycolor(value.rgb);
-    if (color.getAlpha() === 1) {
-      onChange(value.hex, name);
-    } else {
-      onChange(color.toHex8String(), name);
-    }
+    onChange(colorToHex(value), name);
   };
 
   render() {
@@ -23,26 +21,16 @@ export class ColorEditor extends React.PureComponent<ValueEditorProps, any> {
     if (typeof value !== 'string') {
       value = '';
     }
-    let editorStyle: React.CSSProperties;
-    if (disabled) {
-      editorStyle = {cursor: 'not-allowed'};
-    }
 
     return (
-      <Popup
-        trigger={disabled ? [] : ['click']}
-        popup={
-          <SketchPicker color={value} width="224px" disableAlpha={disableAlpha} onChangeComplete={this.onValueChange} />
-        }
-      >
-        <div className="ticl-color-editor" style={editorStyle}>
-          <div className="ticl-color-editor-preview">
-            <div className="ticl-color-editor-bg" />
-            <div style={{background: value}} />
-          </div>
-          {value}
-        </div>
-      </Popup>
+      <ColorPicker
+        size="small"
+        value={value}
+        disabled={disabled}
+        disabledAlpha={disableAlpha}
+        onChange={this.onValueChange}
+        showText={colorToHex}
+      />
     );
   }
 }
