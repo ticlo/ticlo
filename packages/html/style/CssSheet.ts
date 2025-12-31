@@ -1,4 +1,5 @@
 import {encodeSorted} from '@ticlo/core';
+import {NoSerialize} from '@ticlo/core/util/NoSerialize.js';
 
 // helper functions
 
@@ -35,11 +36,13 @@ export interface RuleHandle {
   remove: () => void;
 }
 
-export interface ScopeHandle extends RuleHandle {
-  className: string;
+export interface ICssSheet {
+  addRule(selector: string, style: StyleObject): RuleHandle;
+  addRuleGroup(className: string, style: StyleObject, additional: {selector: string; style: StyleObject}[]): RuleHandle;
+  destroy(): void;
 }
 
-export class CssSheet {
+export class CssSheet extends NoSerialize implements ICssSheet {
   #sheet: CSSStyleSheet | null = null;
   // Map cssText -> { count, active }
   #rules = new Map<string, {count: number; active: boolean}>();
@@ -48,7 +51,8 @@ export class CssSheet {
   #pendingDestroy = false;
   #pendingAdopt = false;
 
-  constructor() {
+  constructor(public readonly defaultPrefix: string = 'ticl-c') {
+    super('CssSheet');
     // 1. Create a pure CSSStyleSheet object (no DOM elements involved)
     this.#sheet = new CSSStyleSheet();
     this.#pendingAdopt = true;
@@ -67,20 +71,19 @@ export class CssSheet {
     style: StyleObject,
     additional: {selector: string; style: StyleObject}[]
   ): RuleHandle {
-    let finalClass: string;
     if (!className) {
-      className = 'ticl-c-?';
+      className = this.defaultPrefix + '-?';
     }
-
-    if (className.includes('?')) {
-      // If we cannot compile the main style, we cannot generate a stable hash
-      if (!Object.isExtensible(style)) {
+    let finalClass = className;
+    if (finalClass.includes('?')) {
+      if (finalClass.startsWith('?-')) {
+        finalClass = this.defaultPrefix + finalClass.substring(1);
+      } else if (!Object.isExtensible(style)) {
+        // If we cannot compile the main style, we cannot generate a stable hash
         return voidRemove;
       }
       const stableKey = encodeSorted(style);
-      finalClass = className.replace('?', hashStr(stableKey));
-    } else {
-      finalClass = className;
+      finalClass = finalClass.replace('?', hashStr(stableKey));
     }
 
     const handles: RuleHandle[] = [];
@@ -207,6 +210,25 @@ export class CssSheet {
         }
       }
     }
+  }
+}
+
+export class DisabledCssSheet extends NoSerialize implements ICssSheet {
+  constructor() {
+    super('DisabledCssSheet');
+  }
+  addRule(selector: string, style: StyleObject): RuleHandle {
+    return voidRemove;
+  }
+  addRuleGroup(
+    className: string,
+    style: StyleObject,
+    additional: {selector: string; style: StyleObject}[]
+  ): RuleHandle {
+    return voidRemove;
+  }
+  destroy(): void {
+    return;
   }
 }
 

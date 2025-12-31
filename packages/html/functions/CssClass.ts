@@ -25,7 +25,11 @@ export class CssClassFunction extends BaseFunction {
       additional.push({selector: finalSelector, style: style as Record<string, string | number>});
     }
     this.#handles?.remove();
-    this.#handles = CssClassFunction.#sheet.addRuleGroup(
+    let cssSheet = this._data.getValue('cssSheet') as CssSheet;
+    if (typeof cssSheet?.addRuleGroup !== 'function') {
+      cssSheet = CssClassFunction.#sheet;
+    }
+    this.#handles = cssSheet.addRuleGroup(
       this._data.getValue('name') as string,
       this._data.getValue('style') as Record<string, string | number>,
       additional
@@ -51,6 +55,7 @@ Functions.add(
     icon: 'fab:css3',
     priority: 1,
     properties: [
+      {name: 'cssSheet', type: 'service', options: ['css-sheet']},
       {name: 'name', type: 'string', pinned: true},
       {name: 'style', type: 'object', create: 'html:create-style'},
       {

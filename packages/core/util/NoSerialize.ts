@@ -1,3 +1,4 @@
+// When object can't be serialized but we still want it to show it's name in the editor
 export class NoSerialize {
   constructor(public title: string) {}
 
