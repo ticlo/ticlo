@@ -1,55 +1,64 @@
 import React from 'react';
-import {Functions} from '@ticlo/core/block/Functions.js';
 import {FunctionDesc, PropDesc, PropGroupDesc} from '@ticlo/core/block/Descriptor.js';
-import {
-  elementChildrenProperty,
-  elementClassProperty,
-  elementConfigs,
-  elementOutputProperty,
-  elementStyleProperty,
-  HtmlElementFunction,
-} from './BaseElement.js';
+import {elementConfigs, elementProps} from '../types/CommontProps.js';
+import {Block} from '@ticlo/core';
+import {useTicloComp} from '../hooks/useTicloComp.js';
+import {registerComponent, renderChildren} from '../types/Component.js';
 
-const divElementDesc: FunctionDesc = {
-  name: 'div',
+const sharedElementDesc: FunctionDesc = {
+  name: '',
   base: 'react:element',
   configs: elementConfigs,
-  properties: [elementChildrenProperty, elementClassProperty, elementStyleProperty, elementOutputProperty],
+  properties: elementProps,
   category: 'react:elements',
 };
 
-class DivElementFunction extends HtmlElementFunction {
-  getComponent(): any {
-    return 'div';
-  }
+function DivElement({block}: {block: Block}) {
+  const {style, className, children, optionalHandlers} = useTicloComp(block);
+  return (
+    <div style={style} className={className} {...optionalHandlers}>
+      {renderChildren(children)}
+    </div>
+  );
 }
+registerComponent(DivElement, 'div', null, {...sharedElementDesc, name: 'div'}, 'react');
 
-Functions.add(DivElementFunction, divElementDesc, 'react');
-
-class SpanElementFunction extends HtmlElementFunction {
-  getComponent(): any {
-    return 'span';
-  }
+function SpanElement({block}: {block: Block}) {
+  const {style, className, children, optionalHandlers} = useTicloComp(block);
+  return (
+    <span style={style} className={className} {...optionalHandlers}>
+      {renderChildren(children)}
+    </span>
+  );
 }
-Functions.add(SpanElementFunction, {...divElementDesc, name: 'span'}, 'react');
+registerComponent(SpanElement, 'span', null, {...sharedElementDesc, name: 'span'}, 'react');
 
-class PElementFunction extends HtmlElementFunction {
-  getComponent(): any {
-    return 'p';
-  }
+function PElement({block}: {block: Block}) {
+  const {style, className, children, optionalHandlers} = useTicloComp(block);
+  return (
+    <p style={style} className={className} {...optionalHandlers}>
+      {renderChildren(children)}
+    </p>
+  );
 }
-Functions.add(PElementFunction, {...divElementDesc, name: 'p'}, 'react');
+registerComponent(PElement, 'p', null, {...sharedElementDesc, name: 'p'}, 'react');
 
-class PreElementFunction extends HtmlElementFunction {
-  getComponent(): any {
-    return 'pre';
-  }
+function PreElement({block}: {block: Block}) {
+  const {style, className, children, optionalHandlers} = useTicloComp(block);
+  return (
+    <pre style={style} className={className} {...optionalHandlers}>
+      {renderChildren(children)}
+    </pre>
+  );
 }
-Functions.add(PreElementFunction, {...divElementDesc, name: 'pre'}, 'react');
+registerComponent(PreElement, 'pre', null, {...sharedElementDesc, name: 'pre'}, 'react');
 
-class ButtonElementFunction extends HtmlElementFunction {
-  getComponent(): any {
-    return 'button';
-  }
+function ButtonElement({block}: {block: Block}) {
+  const {style, className, children, optionalHandlers} = useTicloComp(block);
+  return (
+    <button style={style} className={className} {...optionalHandlers}>
+      {renderChildren(children)}
+    </button>
+  );
 }
-Functions.add(ButtonElementFunction, {...divElementDesc, name: 'button'}, 'react');
+registerComponent(ButtonElement, 'button', null, {...sharedElementDesc, name: 'button'}, 'react');

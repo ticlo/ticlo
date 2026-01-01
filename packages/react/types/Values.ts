@@ -21,7 +21,7 @@ export const Values = {
     },
     desc: {type: 'number'} as DescOmit,
   },
-  cssSize: {
+  strOrNum: {
     convert: (value: unknown) => {
       if (typeof value === 'number') {
         if (Number.isFinite(value)) {

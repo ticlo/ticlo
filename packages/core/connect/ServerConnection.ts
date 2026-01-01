@@ -551,9 +551,6 @@ export class ServerConnection extends ServerConnectionCore {
 
   addBlock({path, data, findName}: {path: string; data?: DataMap; findName?: boolean}): string | DataMap {
     let [parentBlock, blockName, parentProp] = this.root.queryBlockField(path);
-    if (blockName.startsWith('~')) {
-      debugger;
-    }
     if (!parentBlock) {
       if (parentProp?._name === '#shared') {
         if (createSharedBlock(parentProp)) {

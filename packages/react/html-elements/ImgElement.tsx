@@ -1,11 +1,11 @@
-import {DataMap, FunctionDesc, Functions, PropDesc} from '@ticlo/core';
-import {
-  elementClassProperty,
-  elementConfigs,
-  elementOutputProperty,
-  elementStyleProperty,
-  HtmlElementFunction,
-} from './BaseElement.js';
+import {Block, DataMap, FunctionDesc, Functions, PropDesc} from '@ticlo/core';
+
+import {useTicloComp} from '../hooks/useTicloComp.js';
+import {registerComponent, renderChildren} from '../types/Component.js';
+import React from 'react';
+import {elementClassProperty, elementConfigs, elementStyleProperty} from '../types/CommontProps.js';
+import {useBlockConfigs} from '../hooks/useBlockConfigs.js';
+import {Values} from '../types/Values.js';
 
 const optional: {[key: string]: PropDesc} = {
   crossOrigin: {name: 'crossOrigin', type: 'select', options: ['anonymous', 'use-credentials']},
@@ -18,41 +18,31 @@ const optional: {[key: string]: PropDesc} = {
   useMap: {name: 'useMap', type: 'string'},
 };
 
+const imagePropMap = {
+  src: {value: Values.string},
+};
+
+function ImageElement({block}: {block: Block}) {
+  const {style, className, children, optionalHandlers} = useTicloComp(block);
+  const {src} = useBlockConfigs(block, imagePropMap);
+  return (
+    <img src={src} style={style} className={className} {...optionalHandlers}>
+      {renderChildren(children)}
+    </img>
+  );
+}
 const imgElementDesc: FunctionDesc = {
   name: 'img',
   base: 'react:element',
-  configs: elementConfigs,
   properties: [
     {
       name: 'src',
       type: 'string',
     },
-    elementClassProperty,
     elementStyleProperty,
-    elementOutputProperty,
+    elementClassProperty,
   ],
   optional,
   category: 'react:elements',
 };
-
-class ImgElementFunction extends HtmlElementFunction {
-  getComponent(): any {
-    return 'img';
-  }
-  checkOptionalProp(field: string): any {
-    if (Object.hasOwn(optional, field)) {
-      return this._data.getValue(field);
-    }
-    return undefined;
-  }
-  getProps(): [DataMap, string[]] {
-    const [result, optional] = super.getProps();
-    result.src = this._data.getValue('src');
-    return [result, optional];
-  }
-  getChildren(): any[] {
-    return [];
-  }
-}
-
-Functions.add(ImgElementFunction, imgElementDesc, 'react');
+registerComponent(ImageElement, 'img', null, imgElementDesc, 'react');

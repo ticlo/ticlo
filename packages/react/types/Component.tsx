@@ -8,40 +8,31 @@ interface BaseProps {
 }
 
 const componentsMap = new Map<string, ComponentType<BaseProps>>();
-const containerFuncIds = new Set<string>();
 
 export function registerComponent<T extends BaseProps = BaseProps>(
   component: ComponentType<T>,
   name: string,
-  propertyMap: PropMap,
-  namespace: string = 'react-component',
+  propertyMap?: PropMap,
   funcDesc?: Partial<FunctionDesc>,
-  isContainer = false
+  namespace: string = 'react-component'
 ) {
   const properties: PropDesc[] = [];
-  for (const key of Object.keys(propertyMap)) {
-    const {value, ...rest} = propertyMap[key];
-    properties.push({...value.desc, ...rest, name: key});
-  }
-  const functionClass: FunctionClass | null = null;
-  if (isContainer) {
-    containerFuncIds.add(`${namespace}:${name}`);
-    // class ContainerFunction extends ConditionalWorkersFunction {}
-    // functionClass = ContainerFunction;
-    // for (let p of ConditionalWorkersFunctionProperties) {
-    //   properties.push(p);
-    // }
+  if (propertyMap) {
+    for (const key of Object.keys(propertyMap)) {
+      const {value, ...rest} = propertyMap[key];
+      properties.push({...value.desc, ...rest, name: key});
+    }
   }
 
+  const functionClass: FunctionClass | null = null;
   Functions.add(
     functionClass,
     {
       name,
       color: '09d',
       icon: 'fas:dice-d6',
-      ...funcDesc,
       properties,
-      configs: isContainer ? [{name: '+children', type: 'array'}] : undefined,
+      ...funcDesc,
     },
     namespace
   );
@@ -87,7 +78,7 @@ export function TicloComp<T extends BaseProps = BaseProps>(props: T) {
   }, [functionId, propsRef.current]);
 }
 
-export function renderChildren<T extends BaseProps>(blocks: (ReactNode | Block)[], others: Omit<T, 'block'>) {
+export function renderChildren<T extends BaseProps>(blocks: (ReactNode | Block)[], others?: Omit<T, 'block'>) {
   const result: ReactNode[] = [];
   for (const block of blocks) {
     if (block instanceof Block) {

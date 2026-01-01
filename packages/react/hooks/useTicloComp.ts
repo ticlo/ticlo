@@ -1,4 +1,4 @@
-import {isValidElement, ReactNode, SyntheticEvent, useCallback, useEffect, useState} from 'react';
+import {isValidElement, ReactNode, SyntheticEvent, useCallback, useEffect, useRef, useState} from 'react';
 import {Block, BlockProperty, Event} from '@ticlo/core';
 import {PropMap} from '../types/PropType.js';
 import {Values} from '../types/Values.js';
@@ -15,7 +15,7 @@ function isReactChild(child: unknown): child is ReactNode | Block {
 }
 
 export function getChildren(block: Block, overrideChildren?: unknown[], order?: unknown[]): (ReactNode | Block)[] {
-  if (overrideChildren === undefined) {
+  if (!Array.isArray(overrideChildren)) {
     overrideChildren = block.getValue('children') as unknown[];
   }
   const result: (ReactNode | Block)[] = [];
@@ -27,15 +27,17 @@ export function getChildren(block: Block, overrideChildren?: unknown[], order?: 
       }
     }
   } else {
-    if (order === undefined) {
-      order = block.getValue('#order') as unknown[] | [];
+    if (!Array.isArray(order)) {
+      order = block.getValue('#order') as unknown[];
     }
     // inline children
-    for (const name of order) {
-      if (typeof name === 'string') {
-        const b = block.getValue(name);
-        if (b instanceof Block) {
-          result.push(b);
+    if (Array.isArray(order)) {
+      for (const name of order) {
+        if (typeof name === 'string') {
+          const b = block.getValue(name);
+          if (b instanceof Block) {
+            result.push(b);
+          }
         }
       }
     }
@@ -49,31 +51,60 @@ class ReactEvent extends Event<SyntheticEvent> {
   }
 }
 
-function buildOptionalHandlers(block: Block, optionalList: string[]) {
-  if (Array.isArray(optionalList)) {
-    const result: Record<string, unknown> = {};
-    for (const name of optionalList) {
-      if (!/^on[A-Z]/.test(name)) {
-        // build event handlers
-        result[name] = (event: SyntheticEvent) => {
-          block.updateValue(name, new ReactEvent(event));
-        };
-      } else if (name === 'ref') {
-        // build ref handler
-        result[name] = (value: unknown) => {
-          block.updateValue(name, value);
-        };
-      } else {
-        // other values are just passed through
-        result[name] = block.getValue(name);
+function useOptionalHandlers(
+  block: Block,
+  optionalList: string[],
+  optionalHandler?: (block: Block, name: string) => unknown
+) {
+  // cache handlers
+  const cache = useRef<Record<string, Function>>({});
+  return useMemoUpdate(() => {
+    if (Array.isArray(optionalList)) {
+      const result: Record<string, unknown> = {};
+      for (const name of optionalList) {
+        if (cache.current[name]) {
+          result[name] = cache.current[name];
+          continue;
+        }
+
+        if (optionalHandler) {
+          const handlerResult = optionalHandler(block, name);
+          if (handlerResult !== undefined) {
+            if (typeof handlerResult === 'function') {
+              cache.current[name] = handlerResult;
+              result[name] = cache.current[name];
+            } else {
+              result[name] = handlerResult;
+            }
+            continue;
+          }
+        }
+
+        if (!/^on[A-Z]/.test(name)) {
+          // build event handlers
+          cache.current[name] = (event: SyntheticEvent) => {
+            block.updateValue(name, new ReactEvent(event));
+          };
+          result[name] = cache.current[name];
+        } else if (name === 'ref') {
+          cache.current[name] = (value: unknown) => {
+            block.updateValue(name, value);
+          };
+          result[name] = cache.current[name];
+        } else {
+          result[name] = block.getValue(name);
+        }
       }
+      return result;
     }
-    return result;
-  }
-  return undefined;
+    return undefined;
+  }, [block, optionalList, optionalHandler]);
 }
 
-export function useTicloComp(block: Block) {
+export function useTicloComp(
+  block: Block,
+  {optionalHandler}: {optionalHandler?: (block: Block, name: string) => unknown} = {}
+) {
   const [style, setStyle] = useState(undefined);
   const [className, setClassName] = useState(undefined);
   const {'#order': orderList, '#optional': optionalList} = useBlockConfigs(block, configsMap);
@@ -88,10 +119,7 @@ export function useTicloComp(block: Block) {
 
   // resolve optional properties
   const optionalRef = useValueRef(optionalList);
-  const [optionalHandlers, updateOptionalHandlers] = useMemoUpdate(
-    () => buildOptionalHandlers(block, optionalList),
-    [block, optionalList]
-  );
+  const [optionalHandlers, updateOptionalHandlers] = useOptionalHandlers(block, optionalList, optionalHandler);
 
   const onPropertyChange = useCallback((property: BlockProperty, saved?: boolean) => {
     switch (property._name) {

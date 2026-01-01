@@ -18,8 +18,10 @@ export const elementChildrenProperty: PropDesc = {
   type: 'array',
 };
 
-export const elementProps: PropMap = {
+export const elementPropMap: PropMap = {
   style: {value: Values.any, type: 'object', create: 'html:create-style'},
   class: {value: Values.any, type: 'string'},
   children: {value: Values.any, type: 'array'},
 };
+
+export const elementProps: PropDesc[] = [elementClassProperty, elementStyleProperty, elementChildrenProperty];

@@ -1,6 +1,6 @@
 import {Functions} from '@ticlo/core';
 import './Jsx.js';
-import './RenderDom.js';
+import '../react/functions/RenderDom.js';
 
 Functions.addCategory({
   id: 'react:',
