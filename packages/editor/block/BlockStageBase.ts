@@ -161,6 +161,12 @@ export abstract class BlockStageBase<Props extends StagePropsBase, State>
   }
 
   onDragBlockEnd(e: DragState) {
+    if (e.event == null || e.dropped === 'field') {
+      // revert to previous position if drag is cancelled or a binding is created
+      for (const [blockItem, x, y, w] of this._draggingBlocks) {
+        blockItem.setXYW(x, y, w, true);
+      }
+    }
     this._draggingBlocks = null;
     if (this.selectionChanged) {
       // call the onSelect callback only when mouse up

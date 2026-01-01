@@ -371,6 +371,16 @@ export class BlockHeaderView extends PureDataRenderer<BlockHeaderProps, any> {
 }
 
 export class FieldView extends PureDataRenderer<FieldViewProps, any> {
+  getDraggingFields() {
+    return DragState.getData('fields', this.props.item.getBaseConn());
+  }
+  getMovingBlockPath() {
+    const {item} = this.props;
+    if (item.desc.type === 'block' || (item.desc.type === 'any' && item.desc.options?.includes('block'))) {
+      return DragState.getData('moveBlock', item.block.stage);
+    }
+    return null;
+  }
   onDragStart = (e: DragState) => {
     const {item} = this.props;
     if (e.dragType === 'right') {
@@ -384,6 +394,7 @@ export class FieldView extends PureDataRenderer<FieldViewProps, any> {
   onDragOver = (e: DragState) => {
     const {item} = this.props;
     if (e.dragType === 'right') {
+      // reorder shown fields
       const moveShownField = DragState.getData('moveShownField', item.getBaseConn());
       const block = DragState.getData('block', item.getBaseConn());
       if (block === item.block && moveShownField !== item.name) {
@@ -391,9 +402,15 @@ export class FieldView extends PureDataRenderer<FieldViewProps, any> {
         return;
       }
     } else {
-      const fields: string[] = DragState.getData('fields', item.getBaseConn());
+      // add binding
+      const fields: string[] = this.getDraggingFields();
       if (Array.isArray(fields)) {
         if (!item.desc.readonly && fields.length === 1 && isBindable(item.path, fields[0])) {
+          e.accept('tico-fas-link');
+          return;
+        }
+      } else {
+        if (this.getMovingBlockPath()) {
           e.accept('tico-fas-link');
           return;
         }
@@ -411,9 +428,16 @@ export class FieldView extends PureDataRenderer<FieldViewProps, any> {
         item.getConn().moveShownProp(block.path, moveShownField, item.name);
       }
     } else {
-      const fields: string[] = DragState.getData('fields', item.getBaseConn());
+      const fields: string[] = this.getDraggingFields();
       if (Array.isArray(fields) && fields.length === 1 && fields[0] !== item.path) {
         item.getConn().setBinding(item.path, fields[0], true);
+      } else {
+        const movingBlockPath = this.getMovingBlockPath();
+        if (movingBlockPath) {
+          item.getConn().setBinding(item.path, movingBlockPath, true);
+          // indicated that binding is set
+          return 'field';
+        }
       }
     }
   };

@@ -28,6 +28,7 @@ export type ValueType =
   | 'any'
   // special editors
   | 'type'
+  | 'block'
   | 'worker'
   | 'service'
   | 'schedule';
@@ -61,7 +62,8 @@ export interface PropDesc {
   step?: number;
   unit?: string;
 
-  // bool, select, multi-select, radio-button, service
+  // bool, select, multi-select, radio-button
+  // object and service type will also use it for binding source tag matching
   options?: readonly (string | number)[];
 
   // color
@@ -166,7 +168,11 @@ export const configDescs: {[key: string]: PropDesc} = {
   },
   '#secret': {name: '#secret', type: 'password'},
   '#value': {name: '#value', type: 'any', readonly: true},
-  '#return': {name: '#return', type: 'any'},
+  '#return': {
+    name: '#return',
+    type: 'any',
+    types: ['string', 'number', 'toggle', 'color', 'date', 'date-range', 'object', 'array', 'block'],
+  },
   '#order': {name: '#order', type: 'array'},
   '#inputs': {name: '#inputs', type: 'any'},
   '#outputs': {name: '#outputs', type: 'any'},

@@ -85,9 +85,9 @@ export class BlockView extends PureDataRenderer<BlockViewProps, BlockViewState> 
     if (item._syncParent && !item._syncParent.selected && e.moved()) {
       item.unLinkSyncParent();
     } else {
-      const dropOnFoot = BlockView._footDropMap.get(e);
-      if (dropOnFoot) {
-        item.setXYW(dropOnFoot.x, dropOnFoot.y + dropOnFoot.h, dropOnFoot.w);
+      const dropOnFooter = BlockView._footerDropMap.get(e);
+      if (dropOnFooter) {
+        item.setXYW(dropOnFooter.x, dropOnFooter.y + dropOnFooter.h, dropOnFooter.w);
         return;
       }
     }
@@ -141,7 +141,7 @@ export class BlockView extends PureDataRenderer<BlockViewProps, BlockViewState> 
     this._baseW = -1;
   };
 
-  static _footDropMap: WeakMap<DragState, BlockItem> = new WeakMap<DragState, BlockItem>();
+  static _footerDropMap: WeakMap<DragState, BlockItem> = new WeakMap<DragState, BlockItem>();
   onDragOverFoot = (e: DragState) => {
     const {item} = this.props;
     if (item._syncChild) {
@@ -149,7 +149,7 @@ export class BlockView extends PureDataRenderer<BlockViewProps, BlockViewState> 
     }
     const movingBlockKey: string = DragState.getData('moveBlock', item.stage);
     if (movingBlockKey && movingBlockKey !== item.path) {
-      BlockView._footDropMap.set(e, item);
+      BlockView._footerDropMap.set(e, item);
       e.accept('');
       this.safeSetState({footDropping: true});
     }

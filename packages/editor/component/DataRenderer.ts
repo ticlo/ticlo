@@ -74,6 +74,7 @@ export abstract class PureDataRenderer<P extends DataRendererProps<any>, S> exte
     return result;
   }
 
+  // allow state set in the middle of rendering
   safeSetState<K extends keyof S>(state: Pick<S, K> | S | null, callback?: () => void): void {
     if (this._rendering !== undefined) {
       super.setState(state, callback);

@@ -22,7 +22,7 @@ Functions.add(
   {
     name: 'to-component',
     properties: [
-      {name: 'input', type: 'any', pinned: true},
+      {name: 'input', type: 'block', pinned: true},
       {name: '#output', type: 'any', readonly: true, pinned: true},
     ],
   },
