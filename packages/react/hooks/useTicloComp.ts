@@ -9,6 +9,9 @@ const configsMap: PropMap = {
   '#order': {value: Values.arrayOptional, pinned: true},
   '#optional': {value: Values.arrayOptional, pinned: true},
 };
+const noChildrenConfigsMap: PropMap = {
+  '#optional': {value: Values.arrayOptional, pinned: true},
+};
 
 function isReactChild(child: unknown): child is ReactNode | Block {
   return child instanceof Block || isValidElement(child) || typeof child === 'string' || typeof child === 'number';
@@ -103,17 +106,24 @@ function useOptionalHandlers(
 
 export function useTicloComp(
   block: Block,
-  {optionalHandler}: {optionalHandler?: (block: Block, name: string) => unknown} = {}
+  {optionalHandler, noChildren}: {optionalHandler?: (block: Block, name: string) => unknown; noChildren?: boolean} = {}
 ) {
+  // put the noChildren option in a ref so it can never change
+  const needChildren = useRef(noChildren !== true).current;
   const [style, setStyle] = useState(() => block.getValue('style'));
-  const [className, setClassName] = useState(() => block.getValue('class'));
-  const {'#order': orderList, '#optional': optionalList} = useBlockConfigs(block, configsMap);
+  const [className, setClassName] = useState(() => block.getValue('class') as string);
+  const {'#order': orderList, '#optional': optionalList} = useBlockConfigs(
+    block,
+    noChildren ? noChildrenConfigsMap : configsMap
+  );
 
   // resolve children from override children or ordered children
-  const [children, setChildren, childrenRef] = useRefState(() => block.getValue('children'));
+  const [children, setChildren, childrenRef] = useRefState(() =>
+    needChildren ? block.getValue('children') : undefined
+  );
   const orderRef = useValueRef(orderList);
   const [resolvedChildren, updateResolvedChildren] = useMemoUpdate(
-    () => getChildren(block, children, orderList),
+    () => (needChildren ? getChildren(block, children, orderList) : []),
     [block, children, orderList]
   );
 
@@ -124,7 +134,9 @@ export function useTicloComp(
   const onPropertyChange = useCallback((property: BlockProperty, saved?: boolean) => {
     switch (property._name) {
       case 'children':
-        setChildren(property.getValue());
+        if (needChildren) {
+          setChildren(property.getValue());
+        }
         break;
       case 'style':
         setStyle(property.getValue());
@@ -134,6 +146,7 @@ export function useTicloComp(
         break;
     }
     if (
+      needChildren &&
       childrenRef.current !== undefined && // when children are set, there is no need to check orderList
       Array.isArray(orderRef.current) &&
       orderRef.current.includes(property._name)

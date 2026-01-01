@@ -61,7 +61,7 @@ export class BlockView extends PureDataRenderer<BlockViewProps, BlockViewState> 
       const draggingBlocks = item.stage.startDragBlock(e, item);
       if (draggingBlocks.length === 1 && item.w) {
         // when dragging 1 block that's not minimized, check if it can be dropped into block footer
-        e.setData({moveBlock: item.path}, item.stage);
+        e.setData({moveBlock: item.path, stage: item.stage}, item.conn.getBaseConn());
       }
       e.startDrag(null, null);
       item.stage.focus();
@@ -147,8 +147,9 @@ export class BlockView extends PureDataRenderer<BlockViewProps, BlockViewState> 
     if (item._syncChild) {
       return;
     }
-    const movingBlockKey: string = DragState.getData('moveBlock', item.stage);
-    if (movingBlockKey && movingBlockKey !== item.path) {
+    const movingBlockKey: string = DragState.getData('moveBlock', item.conn.getBaseConn());
+    const movingBlockStage = DragState.getData('stage', item.conn.getBaseConn());
+    if (movingBlockKey && movingBlockKey !== item.path && movingBlockStage === item.stage) {
       BlockView._footerDropMap.set(e, item);
       e.accept('');
       this.safeSetState({footDropping: true});
@@ -156,8 +157,9 @@ export class BlockView extends PureDataRenderer<BlockViewProps, BlockViewState> 
   };
   onDropFoot = (e: DragState) => {
     const {item} = this.props;
-    const movingBlockKey: string = DragState.getData('moveBlock', item.stage);
-    if (movingBlockKey && movingBlockKey !== item.path) {
+    const movingBlockKey: string = DragState.getData('moveBlock', item.conn.getBaseConn());
+    const movingBlockStage = DragState.getData('stage', item.conn.getBaseConn());
+    if (movingBlockKey && movingBlockKey !== item.path && movingBlockStage === item.stage) {
       const block = item.stage.getBlock(movingBlockKey);
       if (block) {
         block.linkSyncParent(item);

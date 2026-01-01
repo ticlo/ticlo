@@ -25,6 +25,7 @@ import {ReadonlyEditor} from './value/ReadonlyEditor.js';
 import {LocalizedPropertyName, t} from '../component/LocalizedLabel.js';
 import {PropertyDropdown} from '../popup/PropertyDropdown.js';
 import {typeEditorMap} from './value/index.js';
+import {propAcceptsBlock} from '@ticlo/core';
 
 class PropertyLoader extends MultiSelectLoader<PropertyEditor> {
   name: string;
@@ -225,6 +226,14 @@ export class PropertyEditor extends MultiSelectComponent<PropertyEditorProps, St
           return;
         }
       }
+      if (propAcceptsBlock(propDesc)) {
+        // bind from a block
+        const moveBlock = DragState.getData('moveBlock', conn.getBaseConn());
+        if (moveBlock) {
+          e.accept('tico-fas-link');
+          return;
+        }
+      }
       // check drag from type
       const blockData = DragState.getData('blockData', conn.getBaseConn());
       if (blockData && blockData['#is']) {
@@ -239,28 +248,40 @@ export class PropertyEditor extends MultiSelectComponent<PropertyEditorProps, St
     e.reject();
   };
   onDrop = (e: DragState) => {
-    const {conn, paths, name, reorder} = this.props;
+    const {conn, propDesc, paths, name, reorder} = this.props;
     if (e.dragType === 'right') {
       reorder?.onDragDrop(this.props, e);
     } else {
       // check drag from property
       const dragFields: string[] = DragState.getData('fields', conn.getBaseConn());
       if (Array.isArray(dragFields)) {
-        const fields = paths.map((s) => `${s}.${name}`);
         if (dragFields.length === 1) {
-          for (const field of fields) {
+          for (const path of paths) {
+            const field = `${path}.${name}`;
             if (dragFields[0] !== field) {
               conn.setBinding(field, dragFields[0], true);
             }
           }
-        } else if (dragFields.length === fields.length) {
-          for (let i = 0; i < fields.length; ++i) {
-            if (dragFields[i] !== fields[i]) {
-              conn.setBinding(fields[i], dragFields[i], true);
+        } else if (dragFields.length === paths.length) {
+          for (let i = 0; i < paths.length; ++i) {
+            const field = `${paths[i]}.${name}`;
+            if (dragFields[i] !== field) {
+              conn.setBinding(field, dragFields[i], true);
             }
           }
         }
         return;
+      }
+      if (propAcceptsBlock(propDesc)) {
+        // bind from a block
+        const moveBlock = DragState.getData('moveBlock', conn.getBaseConn());
+        if (moveBlock) {
+          for (const path of paths) {
+            conn.setBinding(`${path}.${name}`, moveBlock, true);
+          }
+          // return 'field' to indicate the value is dropped on a property, this reset the moving block to original position
+          return 'field';
+        }
       }
       // check drag from type
       const blockData = DragState.getData('blockData', conn.getBaseConn());

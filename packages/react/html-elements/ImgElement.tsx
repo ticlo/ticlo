@@ -18,12 +18,16 @@ const optional: {[key: string]: PropDesc} = {
   useMap: {name: 'useMap', type: 'string'},
 };
 
+const imageOptions = {
+  noChildren: true,
+};
+
 const imagePropMap = {
   src: {value: Values.string},
 };
 
 function ImageElement({block}: {block: Block}) {
-  const {style, className, children, optionalHandlers} = useTicloComp(block);
+  const {style, className, children, optionalHandlers} = useTicloComp(block, imageOptions);
   const {src} = useBlockConfigs(block, imagePropMap);
   return (
     <img src={src} style={style} className={className} {...optionalHandlers}>

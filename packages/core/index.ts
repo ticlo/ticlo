@@ -42,6 +42,7 @@ export * from './util/Settings.js';
 export * from './util/test-util.js';
 export {scat} from './util/String.js';
 export {TicloI18nSettings} from './util/i18n.js';
+export * from './util/DescriptorHelper.js';
 
 // Export for web-server package
 export * from './functions/web-server/HttpRequest.js';

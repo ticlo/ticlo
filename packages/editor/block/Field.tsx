@@ -22,7 +22,7 @@ import {TIcon} from '../icon/Icon.js';
 import {DragDropDiv, DragState} from 'rc-dock';
 import * as DragManager from 'rc-dock/src/dragdrop/DragManager.js';
 import {FieldValue} from './FieldValue.js';
-import {isBindable} from '@ticlo/core';
+import {isBindable, propAcceptsBlock} from '@ticlo/core';
 import {LocalizedPropertyName} from '../component/LocalizedLabel.js';
 import {PropertyDropdown} from '../popup/PropertyDropdown.js';
 import {BlockDropdown} from '../popup/BlockDropdown.js';
@@ -376,8 +376,11 @@ export class FieldView extends PureDataRenderer<FieldViewProps, any> {
   }
   getMovingBlockPath() {
     const {item} = this.props;
-    if (item.desc.type === 'block' || (item.desc.type === 'any' && item.desc.options?.includes('block'))) {
-      return DragState.getData('moveBlock', item.block.stage);
+    if (propAcceptsBlock(item.desc)) {
+      const stage = DragState.getData('stage', item.getBaseConn());
+      if (stage === item.block.stage) {
+        return DragState.getData('moveBlock', item.getBaseConn());
+      }
     }
     return null;
   }
@@ -435,7 +438,7 @@ export class FieldView extends PureDataRenderer<FieldViewProps, any> {
         const movingBlockPath = this.getMovingBlockPath();
         if (movingBlockPath) {
           item.getConn().setBinding(item.path, movingBlockPath, true);
-          // indicated that binding is set
+          // return 'field' to indicate the value is dropped on a property, this reset the moving block to original position
           return 'field';
         }
       }

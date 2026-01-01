@@ -41,6 +41,7 @@ const optional: {[key: string]: PropDesc} = {
 };
 
 const inputOptions = {
+  noChildren: true,
   optionalHandler(block: Block, name: string) {
     if (name === 'output') {
       return (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -104,7 +105,7 @@ const inputPropMap = {
   type: {value: Values.string},
 };
 function InputElement({block}: {block: Block}) {
-  const {style, className, children, optionalHandlers} = useTicloComp(block, inputOptions);
+  const {style, className, optionalHandlers} = useTicloComp(block, inputOptions);
   const {value, checked, defaultValue, defaultChecked, type} = useBlockConfigs(block, inputPropMap);
   return (
     <input
@@ -116,9 +117,7 @@ function InputElement({block}: {block: Block}) {
       style={style}
       className={className}
       {...optionalHandlers}
-    >
-      {renderChildren(children)}
-    </input>
+    />
   );
 }
 registerComponent(InputElement, 'input', null, inputElementDesc, 'react');
