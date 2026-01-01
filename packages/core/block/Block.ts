@@ -96,7 +96,7 @@ export class Block implements Runnable, FunctionData, PropListener<FunctionClass
   // a cache for blockIO, generated on demand
   _ioCache: Map<string, BlockIO>;
   _bindings: Map<string, BlockBinding> = new Map();
-  #function: BaseFunction;
+  private _function: BaseFunction;
   _funcPromise: PromiseWrapper;
   _funcId?: string;
   _funcSrc: FunctionDispatcher;
@@ -159,17 +159,18 @@ export class Block implements Runnable, FunctionData, PropListener<FunctionClass
   }
 
   onCancel(val: unknown): void {
-    if (this.#function && Event.check(val) === EventType.TRIGGER) {
+    if (this._function && Event.check(val) === EventType.TRIGGER) {
       this._cancelFunction(EventType.TRIGGER);
     }
   }
 
   queryBlockField(path: string): [Block | undefined, string, BlockProperty | undefined] {
+    const lastDot = path.lastIndexOf('.');
+    if (lastDot === -1) {
+      return [this, path, this._prop];
+    }
     const parts = path.split('.');
     const name = parts.pop();
-    if (parts.length === 0) {
-      return [this, name, this._prop];
-    }
     const parentProp = this._queryProperty(parts, false);
     if (parentProp && parentProp._value instanceof Block) {
       return [parentProp._value, name, parentProp];
@@ -178,10 +179,20 @@ export class Block implements Runnable, FunctionData, PropListener<FunctionClass
   }
 
   queryProperty(path: string, create: boolean = false): BlockProperty {
+    if (path.indexOf('.') === -1) {
+      return this.getProperty(path, create);
+    }
     return this._queryProperty(path.split('.'), create);
   }
 
   queryValue(path: string): unknown {
+    if (path.indexOf('.') === -1) {
+      const prop = this.getProperty(path, false);
+      if (prop) {
+        return prop._value;
+      }
+      return undefined;
+    }
     const prop = this._queryProperty(path.split('.'), false);
     if (prop) {
       return prop._value;
@@ -205,15 +216,16 @@ export class Block implements Runnable, FunctionData, PropListener<FunctionClass
   }
 
   getFunctionClass(): Function {
-    return this.#function?.constructor;
+    return this._function?.constructor;
   }
   // return true when there is no value or binding
   isPropertyUsed(field: string) {
     if (this._destroyed) {
       return false;
     }
-    if (this._props.has(field)) {
-      return !this._props.get(field).isCleared();
+    const prop = this._props.get(field);
+    if (prop) {
+      return !prop.isCleared();
     }
     return false;
   }
@@ -523,20 +535,20 @@ export class Block implements Runnable, FunctionData, PropListener<FunctionClass
   }
 
   inputChanged(input: BlockIO, val: unknown) {
-    if (this.#function && this.#function.inputChanged(input, val)) {
+    if (this._function && this._function.inputChanged(input, val)) {
       this._queueFunctionOnChange();
     }
   }
 
   configChanged(input: BlockConfig, val: unknown) {
-    if (this.#function && this.#function.configChanged(input, val)) {
+    if (this._function && this._function.configChanged(input, val)) {
       this._queueFunctionOnChange();
     }
   }
 
   _cancelFunction(reason: EventType) {
-    if (this.#function) {
-      const result = this.#function.cancel(reason, this._mode);
+    if (this._function) {
+      const result = this._function.cancel(reason, this._mode);
       if (result) {
         this._funcPromise = undefined;
         this.updateValue('#wait', undefined);
@@ -552,7 +564,7 @@ export class Block implements Runnable, FunctionData, PropListener<FunctionClass
       return;
     }
 
-    if (this.#function) {
+    if (this._function) {
       if (this._called && this._waiting) {
         // previous call is still running, cancel it first
         this._cancelFunction(EventType.VOID);
@@ -560,7 +572,7 @@ export class Block implements Runnable, FunctionData, PropListener<FunctionClass
       this._running = true;
       let result: unknown;
       try {
-        result = this.#function.run();
+        result = this._function.run();
       } catch (err) {
         result = new ErrorEvent('runtime error', err);
       }
@@ -588,18 +600,20 @@ export class Block implements Runnable, FunctionData, PropListener<FunctionClass
         return;
       }
     }
-    if (this._props.has('#emit')) {
+    const prop = this._props.get('#emit');
+    if (prop) {
       if (val === undefined) {
         val = new DoneEvent();
       }
-      this._props.get('#emit').updateValue(val);
+      prop.updateValue(val);
     }
   }
 
   // emit value but maintain the current #wait state
   emitOnly(val: unknown) {
-    if (this._props.has('#emit')) {
-      this._props.get('#emit').updateValue(val);
+    const prop = this._props.get('#emit');
+    if (prop) {
+      prop.updateValue(val);
     }
   }
 
@@ -621,15 +635,15 @@ export class Block implements Runnable, FunctionData, PropListener<FunctionClass
       }
     }
     this._configMode();
-    if (this._runOnLoad && this.#function != null) {
+    if (this._runOnLoad && this._function != null) {
       this._queueFunction();
     }
   }
 
   _configMode() {
     let resolvedMode = this._mode;
-    if (this._mode === 'auto' && this.#function != null) {
-      resolvedMode = this.#function.defaultMode;
+    if (this._mode === 'auto' && this._function != null) {
+      resolvedMode = this._function.defaultMode;
     }
     if (resolvedMode === 'onLoad') {
       this._runOnChange = true;
@@ -650,16 +664,16 @@ export class Block implements Runnable, FunctionData, PropListener<FunctionClass
       if (val === WAIT) {
         // ignore NOT_READY
       } else {
-        if (this.#function && !this.#function.onCall(val)) {
+        if (this._function && !this._function.onCall(val)) {
           // rejected by onCall
           // TODO: if #emit and #call is same, need to clear #emit value when #call become undefined
           return;
         }
         switch (Event.check(val)) {
           case EventType.TRIGGER: {
-            if (this.#function) {
+            if (this._function) {
               if (this._sync) {
-                if (this.#function.isPure && this._runOnChange && !this._queueToRun) {
+                if (this._function.isPure && this._runOnChange && !this._queueToRun) {
                   // if function is pure, it can't be called synchronously without a change
                   const prop = this._props.get('#emit');
                   if (prop && Object.isExtensible(prop._value) && prop._value.constructor === DoneEvent) {
@@ -809,8 +823,8 @@ export class Block implements Runnable, FunctionData, PropListener<FunctionClass
     if (this._controlPriority >= 0) {
       return this._controlPriority;
     }
-    if (this.#function) {
-      return this.#function.priority;
+    if (this._function) {
+      return this._function.priority;
     }
     return -1;
   }
@@ -831,9 +845,9 @@ export class Block implements Runnable, FunctionData, PropListener<FunctionClass
 
   // function class changed
   onChange(cls: FunctionClass): void {
-    if (this.#function) {
-      this.#function.cleanup();
-      this.#function.destroy();
+    if (this._function) {
+      this._function.cleanup();
+      this._function.destroy();
       this._funcPromise = undefined;
       this.updateValue('#wait', undefined);
       this.updateValue('#emit', undefined);
@@ -841,33 +855,33 @@ export class Block implements Runnable, FunctionData, PropListener<FunctionClass
     }
     if (cls) {
       if (this._flow._loading && cls !== this._pendingClass) {
-        // when function changed during load() or liveUpdate()
+        // when function changed during load()
         // don't create the function until loading is done
         this._pendingClass = cls;
-        if (this.#function) {
+        if (this._function) {
           if (this._queueToRun) {
             // set _queueToRun to null indicate it's not run yet
             this._queueToRun = null;
           }
-          this.#function = null;
+          this._function = null;
         }
       } else {
-        this.#function = new cls(this);
+        this._function = new cls(this);
         if (this._mode === 'auto') {
           this._configMode();
         }
-        this.#function.initInputs();
+        this._function.initInputs();
         if (this._runOnLoad) {
           const callValue = this.getValue('#call');
           if (callValue !== undefined) {
-            this.#function.onCall(callValue);
+            this._function.onCall(callValue);
           }
           this._queueFunction();
         }
       }
     } else {
-      if (this.#function) {
-        this.#function = null;
+      if (this._function) {
+        this._function = null;
         if (this._queueToRun) {
           // set _queueToRun to null indicate it's not run yet
           this._queueToRun = null;
@@ -975,9 +989,9 @@ export class Block implements Runnable, FunctionData, PropListener<FunctionClass
     this._destroyed = true;
 
     if (this._funcSrc) {
-      if (this.#function) {
-        this.#function.destroy();
-        this.#function = null;
+      if (this._function) {
+        this._function.destroy();
+        this._function = null;
         this._funcPromise = undefined;
         this._called = false;
       }
@@ -1021,7 +1035,7 @@ export class Block implements Runnable, FunctionData, PropListener<FunctionClass
   }
   // only allow the function to access the secret
   _getSecret(f: BaseFunction): string {
-    if (f === this.#function) {
+    if (f === this._function) {
       return this.#secret;
     }
     return null;

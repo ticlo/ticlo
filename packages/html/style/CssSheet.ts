@@ -43,19 +43,19 @@ export interface ICssSheet {
 }
 
 export class CssSheet extends NoSerialize implements ICssSheet {
-  #sheet: CSSStyleSheet | null = null;
+  private _sheet: CSSStyleSheet | null = null;
   // Map cssText -> { count, active }
-  #rules = new Map<string, {count: number; active: boolean}>();
+  private _rules = new Map<string, {count: number; active: boolean}>();
   // Keep track of active rules in order to manage sheet indices
-  #activeRules: string[] = [];
-  #pendingDestroy = false;
-  #pendingAdopt = false;
+  private _activeRules: string[] = [];
+  private _pendingDestroy = false;
+  private _pendingAdopt = false;
 
   constructor(public readonly defaultPrefix: string = 'ticl-c') {
     super('CssSheet');
     // 1. Create a pure CSSStyleSheet object (no DOM elements involved)
-    this.#sheet = new CSSStyleSheet();
-    this.#pendingAdopt = true;
+    this._sheet = new CSSStyleSheet();
+    this._pendingAdopt = true;
   }
 
   /**
@@ -115,10 +115,10 @@ export class CssSheet extends NoSerialize implements ICssSheet {
   }
 
   addCssText(cssText: string): RuleHandle {
-    let record = this.#rules.get(cssText);
+    let record = this._rules.get(cssText);
     if (!record) {
       record = {count: 0, active: false};
-      this.#rules.set(cssText, record);
+      this._rules.set(cssText, record);
     }
     record.count++;
     scheduleFlush(this);
@@ -143,8 +143,8 @@ export class CssSheet extends NoSerialize implements ICssSheet {
    * Detaches the sheet from the document and clears memory.
    */
   destroy(): void {
-    if (!this.#sheet) return;
-    this.#pendingDestroy = true;
+    if (!this._sheet) return;
+    this._pendingDestroy = true;
     scheduleFlush(this);
   }
 
@@ -153,54 +153,54 @@ export class CssSheet extends NoSerialize implements ICssSheet {
    * This is called by the global batching loop.
    */
   flush() {
-    if (!this.#sheet) return;
+    if (!this._sheet) return;
 
-    if (this.#pendingDestroy) {
-      if (!this.#pendingAdopt) {
-        document.adoptedStyleSheets = document.adoptedStyleSheets.filter((s) => s !== this.#sheet);
+    if (this._pendingDestroy) {
+      if (!this._pendingAdopt) {
+        document.adoptedStyleSheets = document.adoptedStyleSheets.filter((s) => s !== this._sheet);
       }
-      this.#sheet = null;
-      this.#rules.clear();
-      this.#activeRules = [];
-      this.#pendingAdopt = false;
+      this._sheet = null;
+      this._rules.clear();
+      this._activeRules = [];
+      this._pendingAdopt = false;
       return;
     }
 
-    if (this.#pendingAdopt) {
-      document.adoptedStyleSheets = [...document.adoptedStyleSheets, this.#sheet!];
-      this.#pendingAdopt = false;
+    if (this._pendingAdopt) {
+      document.adoptedStyleSheets = [...document.adoptedStyleSheets, this._sheet!];
+      this._pendingAdopt = false;
     }
 
     // 1. Remove rules that have count 0
     // Iterate backwards to preserve indices of earlier rules during deletion
-    for (let i = this.#activeRules.length - 1; i >= 0; i--) {
-      const cssText = this.#activeRules[i];
-      const record = this.#rules.get(cssText);
+    for (let i = this._activeRules.length - 1; i >= 0; i--) {
+      const cssText = this._activeRules[i];
+      const record = this._rules.get(cssText);
 
       if (record && record.count === 0) {
         try {
-          this.#sheet.deleteRule(i);
+          this._sheet.deleteRule(i);
         } catch (e) {
           console.error(`CssSheet: Failed to delete rule at index ${i}`, e);
         }
-        this.#activeRules.splice(i, 1);
+        this._activeRules.splice(i, 1);
         record.active = false;
         // Optional: Remove from Map to free memory if count stays 0?
         // keeping it is fine for now, allows resurrection.
-        this.#rules.delete(cssText);
+        this._rules.delete(cssText);
       }
     }
 
     // 2. Add rules that are count > 0 but not active
     // We iterate the Map to find pending additions.
     // Order of iteration is insertion order, which is generally what we want.
-    for (const [cssText, record] of this.#rules) {
+    for (const [cssText, record] of this._rules) {
       if (record.count > 0 && !record.active) {
         try {
           // Append to end
-          const index = this.#activeRules.length;
-          this.#sheet.insertRule(cssText, index);
-          this.#activeRules.push(cssText);
+          const index = this._activeRules.length;
+          this._sheet.insertRule(cssText, index);
+          this._activeRules.push(cssText);
           record.active = true;
         } catch (e) {
           console.error(`CssSheet: Failed to insert rule "${cssText}"`, e);

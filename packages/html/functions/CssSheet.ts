@@ -6,7 +6,7 @@ const cssNameRegex = /^[a-zA-Z0-9_\-]+$/;
 const disabledSheet = new DisabledCssSheet();
 
 export class CssSheetFunction extends BaseFunction {
-  #sheet: CssSheet;
+  private _sheet: CssSheet;
 
   run() {
     this.cleanup();
@@ -18,13 +18,13 @@ export class CssSheetFunction extends BaseFunction {
     if (typeof prefix !== 'string' || !cssNameRegex.test(prefix)) {
       prefix = undefined;
     }
-    this.#sheet = new CssSheet(prefix);
-    this._data.output(this.#sheet, '#output');
+    this._sheet = new CssSheet(prefix);
+    this._data.output(this._sheet, '#output');
   }
   cleanup(): void {
-    if (this.#sheet) {
-      this.#sheet.destroy();
-      this.#sheet = undefined;
+    if (this._sheet) {
+      this._sheet.destroy();
+      this._sheet = undefined;
     }
   }
   destroy(): void {

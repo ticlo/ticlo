@@ -29,9 +29,9 @@ class TimeoutListener implements ScheduleListener {
 }
 
 export abstract class AutoUpdateFunction<T extends FunctionData = FunctionData> extends BaseFunction<T> {
-  #schedule: ScheduleListener;
-  #onSchedule = (time: number) => {
-    this.#schedule = null;
+  private _schedule: ScheduleListener;
+  private _onSchedule = (time: number) => {
+    this._schedule = null;
     if (this.onSchedule) {
       this.onSchedule();
     } else {
@@ -42,13 +42,13 @@ export abstract class AutoUpdateFunction<T extends FunctionData = FunctionData> 
   };
   onSchedule: () => void;
 
-  #autoUpdate: boolean;
-  #setAutoUpdate(v: boolean) {
-    if (v !== this.#autoUpdate && this._data instanceof Block) {
-      this.#autoUpdate = v;
-      if (!v && this.#schedule) {
-        this.#schedule.cancel();
-        this.#schedule = null;
+  private _autoUpdate: boolean;
+  private _setAutoUpdate(v: boolean) {
+    if (v !== this._autoUpdate && this._data instanceof Block) {
+      this._autoUpdate = v;
+      if (!v && this._schedule) {
+        this._schedule.cancel();
+        this._schedule = null;
       }
       return true;
     }
@@ -56,54 +56,54 @@ export abstract class AutoUpdateFunction<T extends FunctionData = FunctionData> 
   }
 
   addSchedule(nextCheck: number): ScheduleListener {
-    if (this.#autoUpdate) {
-      if (nextCheck !== this.#schedule?.start) {
-        this.#schedule?.cancel();
-        this.#schedule = setSchedule(this.#onSchedule, nextCheck);
-        return this.#schedule;
+    if (this._autoUpdate) {
+      if (nextCheck !== this._schedule?.start) {
+        this._schedule?.cancel();
+        this._schedule = setSchedule(this._onSchedule, nextCheck);
+        return this._schedule;
       }
     }
     return null;
   }
   addTimeout(ms: number, start?: number): ScheduleListener {
-    if (this.#autoUpdate) {
-      this.#schedule?.cancel();
-      this.#schedule = new TimeoutListener(this.#onSchedule, ms, start);
-      return this.#schedule;
+    if (this._autoUpdate) {
+      this._schedule?.cancel();
+      this._schedule = new TimeoutListener(this._onSchedule, ms, start);
+      return this._schedule;
     }
     return null;
   }
   getSchedule() {
-    return this.#schedule;
+    return this._schedule;
   }
 
   constructor(data: T) {
     super(data);
-    this.#autoUpdate = data instanceof Block;
+    this._autoUpdate = data instanceof Block;
   }
 
   configChanged(config: BlockConfig, val: unknown): boolean {
     if (config._name === 'mode') {
-      return this.#setAutoUpdate(config._value == null || config._value === 'auto');
+      return this._setAutoUpdate(config._value == null || config._value === 'auto');
     }
     return false;
   }
 
   cancel(reason: EventType, mode: BlockMode): boolean {
-    if (this.#schedule) {
-      this.#schedule.cancel();
-      this.#schedule = null;
+    if (this._schedule) {
+      this._schedule.cancel();
+      this._schedule = null;
       return true;
     }
     return false;
   }
 
   cleanup() {
-    this.#schedule?.cancel();
+    this._schedule?.cancel();
     super.cleanup();
   }
   destroy() {
-    this.#schedule?.cancel();
+    this._schedule?.cancel();
     super.destroy();
   }
 }

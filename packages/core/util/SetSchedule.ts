@@ -2,22 +2,22 @@ type ScheduleCallback = (actualTime?: number) => void;
 const CHECK_INTERVAL = 60_000;
 
 export class ScheduleEvent {
-  #expire: number;
+  private _expire: number;
   constructor(
     public readonly callback: ScheduleCallback,
     public readonly start: number,
     expire: number = Infinity
   ) {
-    this.#expire = expire;
+    this._expire = expire;
   }
   cancel() {
-    if (this.#expire !== -Infinity) {
-      this.#expire = -Infinity;
+    if (this._expire !== -Infinity) {
+      this._expire = -Infinity;
       scheduleGroups.get(this.start)?.events.delete(this);
     }
   }
   run(current: number) {
-    if (current < this.#expire) {
+    if (current < this._expire) {
       this.callback(current);
     }
   }
@@ -83,13 +83,13 @@ export class ScheduleGroup {
     return ScheduleGroup.head.next.time;
   }
 
-  static #initHead() {
+  private static _initHead() {
     const head = new ScheduleGroup(NaN);
     head.prev = head;
     head.next = head;
     return head;
   }
-  static readonly head = ScheduleGroup.#initHead();
+  static readonly head = ScheduleGroup._initHead();
   static reset() {
     const head = ScheduleGroup.head;
     head.prev = head;

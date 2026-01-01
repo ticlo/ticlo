@@ -45,30 +45,30 @@ Functions.add(WriteStorageFunction, {
 });
 
 export class ReadStorageFunction extends BaseFunction {
-  #listeningKey: string = null;
-  #updateListener(key: unknown, autoRefresh: unknown) {
+  private _listeningKey: string = null;
+  private _updateListener(key: unknown, autoRefresh: unknown) {
     if (autoRefresh && key && typeof key === 'string') {
-      if (key !== this.#listeningKey) {
-        if (this.#listeningKey) {
-          storageInstance.unlisten(this.#listeningKey, this.#storageCallback);
+      if (key !== this._listeningKey) {
+        if (this._listeningKey) {
+          storageInstance.unlisten(this._listeningKey, this._storageCallback);
         }
-        this.#listeningKey = key;
-        storageInstance.listen(key, this.#storageCallback);
+        this._listeningKey = key;
+        storageInstance.listen(key, this._storageCallback);
       }
     } else {
-      if (this.#listeningKey) {
-        storageInstance.unlisten(this.#listeningKey, this.#storageCallback);
-        this.#listeningKey = null;
+      if (this._listeningKey) {
+        storageInstance.unlisten(this._listeningKey, this._storageCallback);
+        this._listeningKey = null;
       }
     }
   }
-  #storageCallback = (value: string) => {
+  private _storageCallback = (value: string) => {
     this._data.output(decode(value));
   };
 
   inputChanged(input: BlockIO, val: unknown): boolean {
     if (input._name === 'key' || input._name === 'autoRefresh') {
-      this.#updateListener(this._data.getValue('key'), this._data.getValue('autoRefresh'));
+      this._updateListener(this._data.getValue('key'), this._data.getValue('autoRefresh'));
     }
     return true;
   }
@@ -86,9 +86,9 @@ export class ReadStorageFunction extends BaseFunction {
   }
 
   destroy() {
-    if (this.#listeningKey) {
-      storageInstance.unlisten(this.#listeningKey, this.#storageCallback);
-      this.#listeningKey = null;
+    if (this._listeningKey) {
+      storageInstance.unlisten(this._listeningKey, this._storageCallback);
+      this._listeningKey = null;
     }
     super.destroy();
   }

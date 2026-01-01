@@ -22,6 +22,7 @@ export class Resolver implements Runnable {
 
   private _queueWait: Runnable[] = [];
 
+  // queue has 4 priority groups
   private _queue: Runnable[][] = [[], [], [], []];
 
   _resolving: boolean = false;
@@ -100,7 +101,7 @@ export class Resolver implements Runnable {
     whileResolver: while (true) {
       const queue0 = this._queue[0];
       while (queue0.length) {
-        const block = queue0.at(-1);
+        const block = queue0[queue0.length - 1];
         if (block._queueToRun) {
           this._runBlock(block, 0);
         } else {
@@ -108,10 +109,11 @@ export class Resolver implements Runnable {
           block._queued = false;
         }
       }
+      // run blocks in priority order
       for (let p = 1; p <= 3; ++p) {
         const queueP = this._queue[p];
         while (queueP.length) {
-          const block = queueP.at(-1);
+          const block = queueP[queueP.length - 1];
           if (block._queueToRun) {
             if (this._runBlock(block, p)) {
               continue whileResolver;

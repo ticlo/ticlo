@@ -4,10 +4,10 @@ import {Functions} from '../../block/Functions.js';
 import {type Block} from '../../block/Block.js';
 
 export class GroupFunction extends BaseFunction<Block> {
-  #autoUpdate = true;
-  #setAutoUpdate(v: boolean) {
-    if (v === this.#autoUpdate) {
-      this.#autoUpdate = v;
+  private _autoUpdate = true;
+  private _setAutoUpdate(v: boolean) {
+    if (v === this._autoUpdate) {
+      this._autoUpdate = v;
       return true;
     }
     return false;
@@ -15,7 +15,7 @@ export class GroupFunction extends BaseFunction<Block> {
 
   configChanged(config: BlockConfig, val: unknown): boolean {
     if (config._name === 'mode') {
-      return this.#setAutoUpdate(config._value == null || config._value === 'auto');
+      return this._setAutoUpdate(config._value == null || config._value === 'auto');
     }
     return false;
   }

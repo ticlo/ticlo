@@ -49,20 +49,20 @@ export function getNextAlignedSecond(currentTs: number, interval: number) {
 }
 
 class TimerFunction extends AutoUpdateFunction<Block> {
-  #currentValue = 0;
+  private _currentValue = 0;
   onCall(val: unknown): boolean {
     // timer is called, and should increase current value
-    this.#scheduleTriggered = false;
-    this.#currentValue = 0;
+    this._scheduleTriggered = false;
+    this._currentValue = 0;
     this._data.output(undefined);
     // clear the timer to start over
     this.cancel(EventType.TRIGGER, null);
     return super.onCall(val);
   }
 
-  #scheduleTriggered = false;
+  private _scheduleTriggered = false;
   onSchedule = () => {
-    this.#scheduleTriggered = true;
+    this._scheduleTriggered = true;
     this._data._queueFunction();
   };
 
@@ -90,17 +90,17 @@ class TimerFunction extends AutoUpdateFunction<Block> {
 
     const currentTs = new Date().getTime();
 
-    if (this.#scheduleTriggered) {
-      this.#scheduleTriggered = false;
-      ++this.#currentValue;
-      if (repeat && this.#currentValue >= max) {
-        this.#currentValue = 0;
+    if (this._scheduleTriggered) {
+      this._scheduleTriggered = false;
+      ++this._currentValue;
+      if (repeat && this._currentValue >= max) {
+        this._currentValue = 0;
       }
-      this._data.output(this.#currentValue);
+      this._data.output(this._currentValue);
 
-      toEmit = new ValueUpdateEvent(this.#currentValue, currentTs);
+      toEmit = new ValueUpdateEvent(this._currentValue, currentTs);
     }
-    if (!repeat && this.#currentValue >= max) {
+    if (!repeat && this._currentValue >= max) {
       // no repeat
       return toEmit;
     }

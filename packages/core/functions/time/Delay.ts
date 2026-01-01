@@ -9,24 +9,24 @@ const MIN_DELAY = 0.001;
 const DEFAULT_DELAY = 1;
 
 export class DelayFunction extends BaseFunction<Block> {
-  #timeout?: any;
-  #onTimer = () => {
-    this.#timeout = null;
-    this.#timerTriggered = true;
+  private _timeout?: any;
+  private _onTimer = () => {
+    this._timeout = null;
+    this._timerTriggered = true;
     this._data._queueFunction();
   };
-  #inputChanged = false;
-  #timerTriggered = false;
+  private _inputChanged = false;
+  private _timerTriggered = false;
   inputChanged(input: BlockIO, val: unknown): boolean {
     if (input._name === 'input') {
-      this.#inputChanged = true;
+      this._inputChanged = true;
     }
     return true;
   }
 
   initInputs() {
     if (this._data.getValue('input') !== undefined) {
-      this.#inputChanged = true;
+      this._inputChanged = true;
       const blockMode = this._data.getValue('#mode');
       if (blockMode == null || blockMode === 'onLoad') {
         this._data._queueFunction();
@@ -34,52 +34,52 @@ export class DelayFunction extends BaseFunction<Block> {
     }
   }
   run() {
-    if (this.#timerTriggered) {
-      this.#timerTriggered = false;
+    if (this._timerTriggered) {
+      this._timerTriggered = false;
       this._data.output(this._data.getValue('input'));
       return undefined;
     }
 
-    if (this.#inputChanged) {
-      this.#inputChanged = false;
+    if (this._inputChanged) {
+      this._inputChanged = false;
       const mode = this._data.getValue('mode');
-      if (mode === 'window' && this.#timeout) {
+      if (mode === 'window' && this._timeout) {
         return WAIT;
       }
-      if (this.#timeout) {
-        clearTimeout(this.#timeout);
+      if (this._timeout) {
+        clearTimeout(this._timeout);
       }
       let delay = Number(this._data.getValue('delay'));
       if (!Number.isFinite(delay) || delay < MIN_DELAY) {
         delay = DEFAULT_DELAY;
       }
-      this.#timeout = setTimeout(this.#onTimer, delay * 1000);
+      this._timeout = setTimeout(this._onTimer, delay * 1000);
       return WAIT;
     }
     return NO_EMIT;
   }
 
   cancel(reason: EventType, mode: BlockMode): boolean {
-    if (this.#timeout) {
-      clearTimeout(this.#timeout);
-      this.#timeout = null;
+    if (this._timeout) {
+      clearTimeout(this._timeout);
+      this._timeout = null;
       return true;
     }
-    this.#timerTriggered = false;
+    this._timerTriggered = false;
     return false;
   }
 
   cleanup() {
-    if (this.#timeout) {
-      clearTimeout(this.#timeout);
+    if (this._timeout) {
+      clearTimeout(this._timeout);
     }
     this._data.output(undefined);
     super.cleanup();
   }
 
   destroy() {
-    if (this.#timeout) {
-      clearTimeout(this.#timeout);
+    if (this._timeout) {
+      clearTimeout(this._timeout);
     }
     super.destroy();
   }

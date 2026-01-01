@@ -4,8 +4,8 @@ import {CssSheet, RuleHandle} from '../style/CssSheet.js';
 const cssNameRegex = /^[a-zA-Z0-9_\-]+$/;
 
 export class CssClassFunction extends BaseFunction {
-  static #sheet: CssSheet = new CssSheet();
-  #handles: RuleHandle;
+  private static _sheet: CssSheet = new CssSheet();
+  private _handles: RuleHandle;
 
   run() {
     const additional: {selector: string; style: Record<string, string | number>}[] = [];
@@ -24,22 +24,22 @@ export class CssClassFunction extends BaseFunction {
 
       additional.push({selector: finalSelector, style: style as Record<string, string | number>});
     }
-    this.#handles?.remove();
+    this._handles?.remove();
     let cssSheet = this._data.getValue('cssSheet') as CssSheet;
     if (typeof cssSheet?.addRuleGroup !== 'function') {
-      cssSheet = CssClassFunction.#sheet;
+      cssSheet = CssClassFunction._sheet;
     }
-    this.#handles = cssSheet.addRuleGroup(
+    this._handles = cssSheet.addRuleGroup(
       this._data.getValue('name') as string,
       this._data.getValue('style') as Record<string, string | number>,
       additional
     );
-    this._data.output(this.#handles.className);
+    this._data.output(this._handles.className);
   }
   cleanup(): void {
-    if (this.#handles) {
-      this.#handles.remove();
-      this.#handles = undefined;
+    if (this._handles) {
+      this._handles.remove();
+      this._handles = undefined;
     }
   }
   destroy(): void {

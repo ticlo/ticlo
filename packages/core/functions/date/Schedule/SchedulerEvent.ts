@@ -160,7 +160,7 @@ export class SchedulerEvent {
    *
    * @param fromTs The timestamp to start generating events from.
    */
-  *#generateEvent(fromTs: number): Generator<[number, number]> {
+  *_generateEvent(fromTs: number): Generator<[number, number]> {
     let loopCount = 0;
     // Helper to yield an event if it matches criteria (e.g. weekday check)
     const checkAndYield = function* _checkAndYield(startDate: DateTime): Generator<[number, number]> {
@@ -363,8 +363,8 @@ export class SchedulerEvent {
     }
   }
 
-  #currentCheckTs: number;
-  #current: EventOccur;
+  private _currentCheckTs: number;
+  private _current: EventOccur;
 
   /**
    * Calculates the active or next occurrence of the event relative to the given timestamp.
@@ -378,8 +378,8 @@ export class SchedulerEvent {
     if (ts > this.before) {
       return expired;
     }
-    if (this.#current && ts >= this.#currentCheckTs && this.#current.end >= ts) {
-      return this.#current;
+    if (this._current && ts >= this._currentCheckTs && this._current.end >= ts) {
+      return this._current;
     }
 
     let current: EventOccur;
@@ -395,7 +395,7 @@ export class SchedulerEvent {
     // Example: Event is 10:00 -> 11:00. Request `getOccur(10:30)`.
     // If we generate starting from 10:30, we might get 10:30 (next, incorrect) or miss the start.
     // By backing up `this.durationMs`, we ensure we catch any event starting at [ts - duration, ts].
-    for (const [startTs, endTs] of this.#generateEvent(fromTs - this.durationMs)) {
+    for (const [startTs, endTs] of this._generateEvent(fromTs - this.durationMs)) {
       if (this.after - startTs > this.durationMs) {
         // The event effectively ends before it is allowed to start (invalid state due to 'after' constraint), skip.
         continue;
@@ -431,11 +431,11 @@ export class SchedulerEvent {
       } else if (current.end > this.before) {
         current.end = this.before;
       }
-      this.#current = current;
+      this._current = current;
     } else {
-      this.#current = expired;
+      this._current = expired;
     }
-    this.#currentCheckTs = ts;
-    return this.#current;
+    this._currentCheckTs = ts;
+    return this._current;
   }
 }
