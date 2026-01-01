@@ -57,7 +57,7 @@ function isPropsEqual(a: Record<string, unknown>, b: Record<string, unknown>) {
 export function TicloComp<T extends BaseProps = BaseProps>(props: T) {
   const {block} = props;
   const [functionId, setFunctionId] = useState(block.getValue('#is') as string);
-  const listener = useMemo(() => ({onChange: setFunctionId, onSourceChange: () => {}}), []);
+  const listener = useRef({onChange: setFunctionId, onSourceChange: () => {}}).current;
   useEffect(() => {
     const propIs = block.getProperty('#is', true);
     propIs.listen(listener);

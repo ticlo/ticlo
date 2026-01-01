@@ -3,13 +3,10 @@ import {ColorPicker} from 'antd';
 import {AggregationColor} from 'antd/es/color-picker/color.js';
 import {ValueEditorProps} from './ValueEditorBase.js';
 
-function colorToHex(color: AggregationColor) {
-  return color.toHexString();
-}
 export class ColorEditor extends React.PureComponent<ValueEditorProps, any> {
   onValueChange = (value: AggregationColor) => {
     const {onChange, name} = this.props;
-    onChange(colorToHex(value), name);
+    onChange(value.toHexString(), name);
   };
 
   render() {
@@ -28,7 +25,8 @@ export class ColorEditor extends React.PureComponent<ValueEditorProps, any> {
         disabled={disabled}
         disabledAlpha={disableAlpha}
         onChange={this.onValueChange}
-        showText={colorToHex}
+        format="hex"
+        showText
       />
     );
   }

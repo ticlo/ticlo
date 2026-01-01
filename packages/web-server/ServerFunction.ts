@@ -8,7 +8,7 @@ import {Functions, type Block} from '@ticlo/core';
 import {BaseFunction, StatefulFunction} from '@ticlo/core/block/BlockFunction.js';
 import {FastifyRequest, FastifyReply} from 'fastify';
 import {decodeReviver, encode} from '@ticlo/core/util/Serialize.js';
-import {escapedObject} from '@ticlo/core/util/EscapedObject.js';
+import {escapedObject} from '@ticlo/core/util/NoSerialize.js';
 import {Uid} from '@ticlo/core/util/Uid.js';
 import {HttpRequest} from './HttpRequest.js';
 import {Resolver} from '@ticlo/core/block/Resolver.js';

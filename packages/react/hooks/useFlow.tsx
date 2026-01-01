@@ -1,4 +1,4 @@
-import React, {useContext, useMemo, createContext, ReactNode} from 'react';
+import React, {useContext, useMemo, createContext, ReactNode, useRef} from 'react';
 import {DataMap, Flow, Root} from '@ticlo/core';
 import {Uid} from '@ticlo/core/util/Uid.js';
 
@@ -17,7 +17,7 @@ export function FlowRoot({
   name?: string;
   children: ReactNode | ReactNode[];
 }) {
-  const tempId = useMemo(() => `temp-flow-${tempFlowId.next()}`, []);
+  const tempId = useRef(`temp-flow-${tempFlowId.next()}`).current;
 
   const f: Flow = useMemo(() => {
     if (flow instanceof Flow) {
