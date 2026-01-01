@@ -15,9 +15,10 @@ export function useMemoRef<T>(callback: () => T, dependencies: unknown[]) {
 }
 
 // useState but also keep the value in a ref
-export function useRefState<T>(value: T) {
-  const [val, setVal] = useState(value);
-  const ref = useRef(value);
+// writing value would cause re-render, but reading value won't need a dependency update
+export function useRefState<T>(init: () => T) {
+  const [val, setVal] = useState(init());
+  const ref = useRef(val);
   return [
     val,
     (value: T) => {

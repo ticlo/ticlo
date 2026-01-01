@@ -14,7 +14,7 @@ function isReactChild(child: unknown): child is ReactNode | Block {
   return child instanceof Block || isValidElement(child) || typeof child === 'string' || typeof child === 'number';
 }
 
-export function getChildren(block: Block, overrideChildren?: unknown[], order?: unknown[]): (ReactNode | Block)[] {
+export function getChildren(block: Block, overrideChildren?: unknown, order?: unknown): (ReactNode | Block)[] {
   if (!Array.isArray(overrideChildren)) {
     overrideChildren = block.getValue('children') as unknown[];
   }
@@ -105,12 +105,12 @@ export function useTicloComp(
   block: Block,
   {optionalHandler}: {optionalHandler?: (block: Block, name: string) => unknown} = {}
 ) {
-  const [style, setStyle] = useState(undefined);
-  const [className, setClassName] = useState(undefined);
+  const [style, setStyle] = useState(() => block.getValue('style'));
+  const [className, setClassName] = useState(() => block.getValue('class'));
   const {'#order': orderList, '#optional': optionalList} = useBlockConfigs(block, configsMap);
 
   // resolve children from override children or ordered children
-  const [children, setChildren, childrenRef] = useRefState(undefined);
+  const [children, setChildren, childrenRef] = useRefState(() => block.getValue('children'));
   const orderRef = useValueRef(orderList);
   const [resolvedChildren, updateResolvedChildren] = useMemoUpdate(
     () => getChildren(block, children, orderList),
