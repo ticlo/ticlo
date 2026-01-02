@@ -29,8 +29,6 @@ export function registerComponent<T extends BaseProps = BaseProps>(
     functionClass,
     {
       name,
-      color: '09d',
-      icon: 'fas:dice-d6',
       properties,
       ...funcDesc,
     },
