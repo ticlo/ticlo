@@ -1,7 +1,7 @@
 import {isValidElement, ReactNode, SyntheticEvent, useCallback, useEffect, useRef, useState} from 'react';
 import {Block, BlockProperty, Event} from '@ticlo/core';
-import {PropMap} from '../types/PropType.js';
-import {Values} from '../types/Values.js';
+import {PropMap} from '../comp/PropType.js';
+import {Values} from '../comp/Values.js';
 import {useBlockConfigs} from './useBlockConfigs.js';
 import {useMemoUpdate, useRefState, useValueRef} from '../util/react-tools.js';
 

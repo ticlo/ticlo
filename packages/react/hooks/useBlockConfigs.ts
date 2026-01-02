@@ -1,6 +1,6 @@
 import {useEffect, useMemo, useReducer} from 'react';
 import {Block, BlockProperty, FunctionInput} from '@ticlo/core';
-import {PropMap} from '../types/PropType.js';
+import {PropMap} from '../comp/PropType.js';
 import {useMemoUpdate} from '../util/react-tools.js';
 
 /**

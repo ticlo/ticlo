@@ -272,6 +272,8 @@ Functions.add(
   null,
   {
     name: 'element',
+    icon: 'fab:react',
+    color: '5ce',
     src: 'hidden',
     properties: [],
     optional: optionalHtmlProperties,

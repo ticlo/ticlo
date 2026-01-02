@@ -1,16 +1,16 @@
 export {useBlockProps} from './hooks/useBlockProps.js';
 export {useFilteredBlocks} from './hooks/useFilteredBlocks.js';
 export {useWatchBlock} from './hooks/useWatchBlock.js';
-export {Values} from './types/Values.js';
-export {registerComponent, findComponent, renderChildren, TicloComp, isContainerFunction} from './types/Component.js';
+export {Values} from './comp/Values.js';
+export {registerComponent, findComponent, renderChildren, TicloComp, isContainerFunction} from './comp/Component.js';
 
 import {Functions} from '@ticlo/core';
 import './functions/ToComponent.js';
 import './functions/RenderDom.js';
-import './html-elements/HtmlAttributes.js';
-import './html-elements/CommonElements.js';
-import './html-elements/ImgElement.js';
-import './html-elements/InputElement.js';
+import './elements/HtmlAttributes.js';
+import './elements/CommonElements.js';
+import './elements/ImgElement.js';
+import './elements/InputElement.js';
 
 Functions.addCategory({
   id: 'react:',

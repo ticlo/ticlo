@@ -1,10 +1,10 @@
 import {Block, DataMap, FunctionDesc, Functions, PropDesc} from '@ticlo/core';
 import {useTicloComp} from '../hooks/useTicloComp.js';
-import {Values} from '../types/Values.js';
+import {Values} from '../comp/Values.js';
 import {useBlockConfigs} from '../hooks/useBlockConfigs.js';
 import React from 'react';
-import {registerComponent, renderChildren} from '../types/Component.js';
-import {elementClassProperty, elementConfigs, elementStyleProperty} from '../types/CommontProps.js';
+import {registerComponent, renderChildren} from '../comp/Component.js';
+import {elementClassProperty, elementConfigs, elementStyleProperty} from '../comp/CommontProps.js';
 
 const optional: {[key: string]: PropDesc} = {
   output: {name: 'output', type: 'any', types: ['number', 'string'], readonly: true, pinned: true},
