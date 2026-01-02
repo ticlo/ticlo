@@ -1,7 +1,7 @@
 import {MapImpl, WorkerOutput} from './MapImpl.js';
 import {DataMap} from '../util/DataTypes.js';
 import {Block} from '../block/Block.js';
-import {Functions} from '../block/Functions.js';
+import {globalFunctions} from '../block/Functions.js';
 import {Event, EventType, WAIT, NO_EMIT} from '../block/Event.js';
 import Denque from 'denque';
 import {InfiniteQueue} from '../util/InfiniteQueue.js';
@@ -248,7 +248,7 @@ function getDefaultWorker(block: Block, field: string, blockStack: Map<any, any>
   return null;
 }
 
-Functions.add(
+globalFunctions.add(
   HandlerFunction,
   {
     name: 'handler',

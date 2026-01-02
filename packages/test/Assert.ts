@@ -6,9 +6,9 @@ import {
   encode,
   Event,
   EventType,
-  Functions,
   NO_EMIT,
   BaseFunction,
+  globalFunctions,
 } from '@ticlo/core';
 import {deepEqual} from '@ticlo/core/util/Compare.js';
 import {isPrimitiveType} from '@ticlo/core/util/DataTypes.js';
@@ -134,7 +134,7 @@ const API = {
   },
 };
 
-Functions.add(
+globalFunctions.add(
   AssertFunction,
   {
     name: 'assert',

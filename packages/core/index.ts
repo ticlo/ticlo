@@ -3,7 +3,7 @@ export {Root, Flow, FlowFolder} from './block/Flow.js';
 export {type FlowStorage, type Storage} from './block/Storage.js';
 export {BlockProperty, BlockIO} from './block/BlockProperty.js';
 export {BaseFunction, StatefulFunction, PureFunction} from './block/BlockFunction.js';
-export {Functions} from './block/Functions.js';
+export {Functions, globalFunctions} from './block/Functions.js';
 export * from './block/FunctonData.js';
 export * from './block/Event.js';
 export * from './block/Descriptor.js';

@@ -1,7 +1,7 @@
 import axios, {AxiosRequestConfig, AxiosRequestHeaders, AxiosResponse, CanceledError, ResponseType} from 'axios';
 import {PureFunction, StatefulFunction, BaseFunction} from '../../block/BlockFunction.js';
 import {ErrorEvent, EventType, WAIT} from '../../block/Event.js';
-import {Functions} from '../../block/Functions.js';
+import {globalFunctions} from '../../block/Functions.js';
 import {defaultConfigs, BlockMode} from '../../block/Descriptor.js';
 import {httpRequest, type HttpClient} from './HttpClient.js';
 import {DataMap} from '../../util/DataTypes.js';
@@ -87,7 +87,7 @@ export class FetchFunction extends BaseFunction {
   }
 }
 
-Functions.add(
+globalFunctions.add(
   FetchFunction,
   {
     name: 'fetch',

@@ -8,7 +8,7 @@ import reactData from './sample-data/react.js';
 import {initEditor, PropertyList, BlockStage, NodeTree} from '@ticlo/editor';
 import {DragDropDiv, DragState, DockLayout, DockContextType} from 'rc-dock';
 import {ClientConnection} from '@ticlo/core/connect/ClientConnection.js';
-import {Functions} from '@ticlo/core';
+import {globalFunctions} from '@ticlo/core';
 import {FunctionTree} from '@ticlo/editor/function-selector/FunctionTree.js';
 
 import './sample-blocks.js';

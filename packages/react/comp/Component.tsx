@@ -1,5 +1,5 @@
 import React, {ComponentType, ReactNode, useEffect, useMemo, useRef, useState} from 'react';
-import {Block, FunctionDesc, Functions, PropDesc} from '@ticlo/core';
+import {Block, FunctionDesc, globalFunctions, PropDesc} from '@ticlo/core';
 import {FunctionClass} from '@ticlo/core/block/BlockFunction.js';
 import {PropMap} from './PropType.js';
 
@@ -25,7 +25,7 @@ export function registerComponent<T extends BaseProps = BaseProps>(
   }
 
   const functionClass: FunctionClass | null = null;
-  Functions.add(
+  globalFunctions.add(
     functionClass,
     {
       name,

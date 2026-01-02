@@ -1,41 +1,41 @@
-import {Functions} from '../block/Functions.js';
+import {globalFunctions} from '../block/Functions.js';
 
-Functions.addCategory({
+globalFunctions.addCategory({
   id: 'math',
   name: 'math',
   icon: 'fas:plus',
   color: '4af',
 });
 
-Functions.addCategory({
+globalFunctions.addCategory({
   id: 'string',
   name: 'string',
   icon: 'txt:str',
   color: '4af',
 });
 
-Functions.addCategory({
+globalFunctions.addCategory({
   id: 'script',
   name: 'script',
   icon: 'txt:{ }',
   color: '1bb',
 });
 
-Functions.addCategory({
+globalFunctions.addCategory({
   id: 'compare',
   name: 'compare',
   icon: 'fas:equals',
   color: '4af',
 });
 
-Functions.addCategory({
+globalFunctions.addCategory({
   id: 'condition',
   name: 'condition',
   icon: 'txt:if',
   color: '4af',
 });
 
-Functions.addCategory({
+globalFunctions.addCategory({
   id: 'web-server',
   name: 'web-server',
   icon: 'fas:network-wired',
@@ -43,7 +43,7 @@ Functions.addCategory({
   ns: 'web-server',
 });
 
-Functions.addCategory({
+globalFunctions.addCategory({
   id: 'http',
   name: 'http',
   icon: 'txt:://',
@@ -51,14 +51,14 @@ Functions.addCategory({
   ns: 'http',
 });
 
-Functions.addCategory({
+globalFunctions.addCategory({
   id: 'other',
   name: 'other',
   icon: 'fas:question',
   color: '4af',
 });
 
-Functions.addCategory({
+globalFunctions.addCategory({
   id: 'repeat',
   name: 'repeat',
   icon: 'fas:grip-vertical',
@@ -66,27 +66,27 @@ Functions.addCategory({
   // color: 'e91',
 });
 
-Functions.addCategory({
+globalFunctions.addCategory({
   id: 'data',
   name: 'data',
   icon: 'fas:code-branch',
   color: '4af',
 });
 
-Functions.addCategory({
+globalFunctions.addCategory({
   id: 'date',
   name: 'date',
   icon: 'fas:clock',
   color: '4af',
 });
 
-Functions.addCategory({
+globalFunctions.addCategory({
   id: 'time',
   name: 'time',
   icon: 'fas:stopwatch',
   color: '4af',
 });
-Functions.addCategory({
+globalFunctions.addCategory({
   id: '',
   name: '',
   icon: 'fas:cubes',

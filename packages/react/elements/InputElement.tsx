@@ -1,4 +1,4 @@
-import {Block, DataMap, FunctionDesc, Functions, PropDesc} from '@ticlo/core';
+import {Block, DataMap, FunctionDesc, globalFunctions, PropDesc} from '@ticlo/core';
 import {useTicloComp} from '../hooks/useTicloComp.js';
 import {Values} from '../comp/Values.js';
 import {useBlockConfigs} from '../hooks/useBlockConfigs.js';

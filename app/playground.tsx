@@ -7,7 +7,6 @@ import {
   decode,
   encodeSorted,
   FunctionDesc,
-  Functions,
   Logger,
   addConsoleLogger,
   PropDispatcher,

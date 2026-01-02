@@ -1,7 +1,7 @@
 import {URL} from 'url';
 import axios, {AxiosPromise, AxiosRequestConfig, AxiosRequestHeaders, AxiosResponse} from 'axios';
 import {BaseFunction} from '../../block/BlockFunction.js';
-import {Functions} from '../../block/Functions.js';
+import {globalFunctions} from '../../block/Functions.js';
 import {isDataMap} from '../../util/DataTypes.js';
 
 export interface HttpClient {
@@ -82,7 +82,7 @@ class HttpClientFunction extends BaseFunction {
   }
 }
 
-Functions.add(
+globalFunctions.add(
   HttpClientFunction,
   {
     name: 'client',

@@ -3,7 +3,7 @@ import {Flow} from '../../block/Flow.js';
 import {FlowEditor} from '../FlowEditor.js';
 import {VoidListeners} from '../../block/__spec__/TestFunction.js';
 import {WorkerFunctionGen} from '../WorkerFunctionGen.js';
-import {Functions} from '../../block/Functions.js';
+import {globalFunctions} from '../../block/Functions.js';
 import {PropDesc, PropGroupDesc} from '../../block/Descriptor.js';
 import {DataMap} from '../../util/DataTypes.js';
 import {SharedBlock} from '../../block/SharedBlock.js';
@@ -47,7 +47,7 @@ describe('FlowEditor', function () {
     FlowEditor.createFromField(block, '#edit-use2', 'use2');
     expect((block.getValue('#edit-use2') as Flow).save()).toEqual(data);
 
-    Functions.clear('FlowEditor:func1');
+    globalFunctions.clear('FlowEditor:func1');
   });
 
   it('createFromFunction', function () {
@@ -67,7 +67,7 @@ describe('FlowEditor', function () {
     FlowEditor.createFromFunction(flow, '#edit-func', 'FlowEditor:worker2-2', data);
     expect((flow.getValue('#edit-func') as Flow).save()).toEqual(data);
 
-    Functions.clear('FlowEditor:worker2');
+    globalFunctions.clear('FlowEditor:worker2');
   });
 
   it('applyChange', function () {
@@ -135,13 +135,13 @@ describe('FlowEditor', function () {
     editor.setValue('#desc', expectedData['#desc']);
     WorkerFunctionGen.applyChangeToFunc(editor, 'FlowEditor:worker3');
 
-    expect(Functions.getWorkerData('FlowEditor:worker3')).toEqual(expectedData);
+    expect(globalFunctions.getWorkerData('FlowEditor:worker3')).toEqual(expectedData);
 
-    const desc = Functions.getDescToSend('FlowEditor:worker3')[0];
+    const desc = globalFunctions.getDescToSend('FlowEditor:worker3')[0];
     expect(desc.icon).toBe('fas:plus');
     expect(desc.properties).toEqual(expectedDescProperties);
 
-    Functions.clear('FlowEditor:worker3');
+    globalFunctions.clear('FlowEditor:worker3');
     flow.destroy();
   });
 

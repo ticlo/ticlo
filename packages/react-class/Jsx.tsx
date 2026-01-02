@@ -1,6 +1,6 @@
 import React from 'react';
 import {JsFunction, SCRIPT_ERROR} from '@ticlo/core/functions/script/Js.js';
-import {Functions} from '@ticlo/core/block/Functions.js';
+import {globalFunctions} from '@ticlo/core/block/Functions.js';
 import {Block} from '@ticlo/core/block/Block.js';
 import {TicloComp} from './TicloComp.js';
 import {validateReactComponent} from './validateReactComponent.js';
@@ -94,7 +94,7 @@ export class JsxFunction extends JsFunction {
   }
 }
 
-Functions.add(
+globalFunctions.add(
   JsxFunction,
   {
     name: 'jsx',

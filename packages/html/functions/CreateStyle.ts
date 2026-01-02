@@ -1,8 +1,8 @@
-import {BaseFunction, defaultConfigs, Functions, PropDesc, PropGroupDesc} from '@ticlo/core';
+import {BaseFunction, defaultConfigs, globalFunctions, PropDesc, PropGroupDesc} from '@ticlo/core';
 import StyleDef from './StyleDef.js';
 import {CreateObjectFunctionOptional} from '@ticlo/core/functions/data/CreateObject.js';
 
-Functions.add(
+globalFunctions.add(
   CreateObjectFunctionOptional,
   {
     name: 'create-style',

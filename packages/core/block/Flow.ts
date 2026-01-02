@@ -11,7 +11,7 @@ import {
 import {Event} from './Event.js';
 import {DataMap} from '../util/DataTypes.js';
 import {FunctionDesc} from './Descriptor.js';
-import {Functions} from './Functions.js';
+import {globalFunctions} from './Functions.js';
 import {FlowStorage} from './Storage.js';
 import {FlowHistory} from './FlowHistory.js';
 import {getDefaultZone, updateGlobalSettings} from '../util/Settings.js';
@@ -174,9 +174,9 @@ export class Flow extends Block {
     let loaded = false;
     if (funcId) {
       // load from worker class
-      const desc: FunctionDesc = Functions.getDescToSend(funcId)[0];
+      const desc: FunctionDesc = globalFunctions.getDescToSend(funcId)[0];
       if (desc) {
-        const data = Functions.getWorkerData(funcId);
+        const data = globalFunctions.getWorkerData(funcId);
         if (data) {
           this._namespace = desc.ns;
           this._loadFrom = funcId;
@@ -406,7 +406,7 @@ export class Root extends FlowFolder {
   }
 
   async setStorage(storage: FlowStorage) {
-    Functions.setStorage(storage);
+    globalFunctions.setStorage(storage);
     this._storage = storage;
     await storage.init(this);
   }

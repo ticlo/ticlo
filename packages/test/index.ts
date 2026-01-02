@@ -1,11 +1,11 @@
 import './Assert.js';
 import './LogTime.js';
-import {Functions} from '@ticlo/core';
+import {globalFunctions} from '@ticlo/core';
 
 export {FlowTestGroup} from './FlowTestGroup.js';
 export {FlowTestCase} from './FlowTestCase.js';
 
-Functions.addCategory({
+globalFunctions.addCategory({
   id: 'test:',
   name: 'test',
   icon: 'fas:vial',

@@ -1,6 +1,6 @@
 import {BaseFunction, StatefulFunction} from '../../block/BlockFunction.js';
 import {type BlockConfig} from '../../block/BlockProperty.js';
-import {Functions} from '../../block/Functions.js';
+import {globalFunctions} from '../../block/Functions.js';
 import {type Block} from '../../block/Block.js';
 
 export class GroupFunction extends BaseFunction<Block> {
@@ -25,7 +25,7 @@ export class GroupFunction extends BaseFunction<Block> {
   cleanup(): void {}
 }
 
-Functions.add(GroupFunction, {
+globalFunctions.add(GroupFunction, {
   name: 'group',
   icon: 'fas:folder',
   color: '9bd',

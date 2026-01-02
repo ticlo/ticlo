@@ -9,7 +9,7 @@ import {blankFuncDesc, blankPropDesc, PropDesc} from '@ticlo/core';
 import {makeLocalConnection} from '@ticlo/core/connect/LocalConnection.js';
 import {Root} from '@ticlo/core';
 import {WorkerFunctionGen} from '@ticlo/core/worker/WorkerFunctionGen.js';
-import {Functions} from '@ticlo/core/block/Functions.js';
+import {globalFunctions} from '@ticlo/core/block/Functions.js';
 import {DateEditor} from '../DateEditor.js';
 
 describe('WorkerEditor', function () {
@@ -56,6 +56,6 @@ describe('WorkerEditor', function () {
 
     client.destroy();
 
-    Functions.clear('WorkerEditor:class1');
+    globalFunctions.clear('WorkerEditor:class1');
   });
 });

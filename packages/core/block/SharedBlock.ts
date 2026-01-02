@@ -5,7 +5,7 @@ import {ConstTypeConfig, FlowConfigGenerators} from './BlockConfigs.js';
 import {Flow, Root} from './Flow.js';
 import {Uid} from '../util/Uid.js';
 import {encodeTicloName} from '../util/Name.js';
-import {FunctionDispatcher, Functions} from './Functions.js';
+import {FunctionDispatcher, globalFunctions} from './Functions.js';
 import {FunctionClass} from './BlockFunction.js';
 import {PropListener} from './Dispatcher.js';
 
@@ -70,7 +70,7 @@ export class SharedBlock extends Flow {
       const sharedRoot = Root.instance._sharedRoot;
       const prop = sharedRoot.getProperty(encodeTicloName(funcId));
       const sharedBlock = new SharedBlock(sharedRoot, sharedRoot, prop);
-      sharedBlock._funcDispatcher = Functions.listen(funcId, sharedBlock._funcListener);
+      sharedBlock._funcDispatcher = globalFunctions.listen(funcId, sharedBlock._funcListener);
       sharedBlock._cacheKey = funcId;
       sharedBlock._cacheMode = data['#cacheMode'];
       SharedBlock._dict.set(funcId, sharedBlock);

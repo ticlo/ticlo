@@ -13,7 +13,7 @@ import {Block, BlockChildWatch, InputsBlock} from '../block/Block.js';
 import {Flow, Root} from '../block/Flow.js';
 import {FlowWithShared, SharedBlock, SharedConfig} from '../block/SharedBlock.js';
 import {PropDispatcher, PropListener} from '../block/Dispatcher.js';
-import {Functions, DescListener} from '../block/Functions.js';
+import {globalFunctions, DescListener} from '../block/Functions.js';
 import {FunctionDesc, PropDesc, PropGroupDesc} from '../block/Descriptor.js';
 import {propRelative} from '../util/PropPath.js';
 import {
@@ -272,8 +272,8 @@ class ServerDescWatcher extends ServerRequest implements DescListener {
     super();
     this.id = id;
     this.connection = conn;
-    this.pendingIds = new Set(Functions.getAllFunctionIds());
-    Functions.listenDesc(this);
+    this.pendingIds = new Set(globalFunctions.getAllFunctionIds());
+    globalFunctions.listenDesc(this);
     this.connection.addSend(this);
   }
 
@@ -286,7 +286,7 @@ class ServerDescWatcher extends ServerRequest implements DescListener {
     const changes = [];
     let totalSize = 0;
     for (const id of this.pendingIds) {
-      const [desc, size] = Functions.getDescToSend(id);
+      const [desc, size] = globalFunctions.getDescToSend(id);
       if (desc) {
         changes.push(desc);
         totalSize += size;
@@ -306,7 +306,7 @@ class ServerDescWatcher extends ServerRequest implements DescListener {
   }
 
   close() {
-    Functions.unlistenDesc(this);
+    globalFunctions.unlistenDesc(this);
   }
 }
 
@@ -642,7 +642,7 @@ export class ServerConnection extends ServerConnectionCore {
 
       if (typeof funcId === 'string' && data) {
         (property._value as Block)._load(data);
-        const desc = Functions.getDescToSend(funcId)[0];
+        const desc = globalFunctions.getDescToSend(funcId)[0];
         if (desc && desc.recipient && !Object.hasOwn(data, desc.recipient)) {
           // transfer parent property to the recipient
           if (keepSaved !== undefined) {
@@ -781,7 +781,7 @@ export class ServerConnection extends ServerConnectionCore {
 
   deleteFunction({funcId}: {funcId: string}): string {
     if (funcId.startsWith(':')) {
-      Functions.clear(funcId);
+      globalFunctions.clear(funcId);
     }
     return null;
   }

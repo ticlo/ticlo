@@ -40,10 +40,12 @@ export class FunctionDispatcher extends PropDispatcher<FunctionClass> {
   }
 }
 
-const _functions: {[key: string]: FunctionDispatcher} = {};
-let _storage: FlowStorage;
 export class Functions {
-  static add(cls: FunctionClass | null, desc: FunctionDesc, namespace?: string, functionApi?: FunctionApi) {
+  _functions: {[key: string]: FunctionDispatcher} = {};
+  _storage: FlowStorage;
+  _listeners: Set<DescListener> = new Set<DescListener>();
+
+  add(cls: FunctionClass | null, desc: FunctionDesc, namespace?: string, functionApi?: FunctionApi) {
     if (!desc.properties) {
       // function must have properties
       desc.properties = [];
@@ -69,17 +71,18 @@ export class Functions {
       cls.prototype.isPure ||= Boolean(desc.isPure);
     }
 
-    let func = _functions[id];
+    let func = this._functions[id];
     if (!func) {
       func = new FunctionDispatcher(id);
-      _functions[id] = func;
+      this._functions[id] = func;
     }
     func.updateValue(cls);
     func.setDesc(desc);
     func._functionApi = functionApi;
-    Functions.dispatchDescChange(id, desc);
+    this.dispatchDescChange(id, desc);
   }
-  static addCategory(category: FunctionDesc) {
+
+  addCategory(category: FunctionDesc) {
     if (category.properties) {
       // category should not have properties
       delete category.properties;
@@ -91,50 +94,50 @@ export class Functions {
       category.id = id;
     }
 
-    let func = _functions[id];
+    let func = this._functions[id];
     if (!func) {
       func = new FunctionDispatcher(id);
-      _functions[id] = func;
+      this._functions[id] = func;
     }
     func.setDesc(category);
-    Functions.dispatchDescChange(id, category);
+    this.dispatchDescChange(id, category);
   }
 
-  static clear(id: string) {
-    const func = _functions[id];
+  clear(id: string) {
+    const func = this._functions[id];
 
     if (func) {
       if (func._listeners.size === 0) {
-        delete _functions[id];
+        delete this._functions[id];
       } else {
         func.updateValue(null);
         func.setDesc(null);
       }
       if (id.startsWith(':')) {
-        Functions.deleteFunction(id);
+        this.deleteFunction(id);
       }
-      Functions.dispatchDescChange(id, null);
+      this.dispatchDescChange(id, null);
     }
   }
 
-  static getWorkerData(id: string): DataMap {
-    const func = _functions[id];
+  getWorkerData(id: string): DataMap {
+    const func = this._functions[id];
     if (func?._value && (func._value as any).ticlWorkerData instanceof Object) {
       return (func._value as any).ticlWorkerData;
     }
     return null;
   }
 
-  static listen(id: string, block: PropListener<FunctionClass>): FunctionDispatcher {
+  listen(id: string, block: PropListener<FunctionClass>): FunctionDispatcher {
     if (!id) {
       return;
     }
 
-    let dispatcher = _functions[id];
+    let dispatcher = this._functions[id];
 
     if (!dispatcher) {
       dispatcher = new FunctionDispatcher(id);
-      _functions[id] = dispatcher;
+      this._functions[id] = dispatcher;
     }
     if (block) {
       dispatcher.listen(block);
@@ -142,34 +145,32 @@ export class Functions {
     return dispatcher;
   }
 
-  static _listeners: Set<DescListener> = new Set<DescListener>();
-
-  static listenDesc(listener: DescListener): void {
-    Functions._listeners.add(listener);
+  listenDesc(listener: DescListener): void {
+    this._listeners.add(listener);
   }
 
-  static unlistenDesc(listener: DescListener): void {
-    Functions._listeners.delete(listener);
+  unlistenDesc(listener: DescListener): void {
+    this._listeners.delete(listener);
   }
 
-  static dispatchDescChange(id: string, desc: FunctionDesc) {
-    for (const listener of Functions._listeners) {
+  dispatchDescChange(id: string, desc: FunctionDesc) {
+    for (const listener of this._listeners) {
       listener.onDescChange(id, desc);
     }
   }
 
-  static getAllFunctionIds(): string[] {
+  getAllFunctionIds(): string[] {
     const result = [];
-    for (const key in _functions) {
-      if (_functions[key]._desc) {
+    for (const key in this._functions) {
+      if (this._functions[key]._desc) {
         result.push(key);
       }
     }
     return result;
   }
 
-  static getDescToSend(id: string): [FunctionDesc, number] {
-    const functionDispatcher = _functions[id];
+  getDescToSend(id: string): [FunctionDesc, number] {
+    const functionDispatcher = this._functions[id];
 
     if (functionDispatcher) {
       return [functionDispatcher._desc, functionDispatcher._descSize];
@@ -177,18 +178,19 @@ export class Functions {
     return [null, 0];
   }
 
-  static getDefaultWorker(id: string, block: Block, field: string, blockStack: Map<any, any>): DataMap {
+  getDefaultWorker(id: string, block: Block, field: string, blockStack: Map<any, any>): DataMap {
     if (id) {
-      const dispatcher = _functions[id];
+      const dispatcher = this._functions[id];
       if (dispatcher) {
         return dispatcher._functionApi?.getDefaultWorker?.(block, field, blockStack) || null;
       }
     }
     return null;
   }
-  static executeCommand(id: string, block: Block, command: string, params: DataMap): unknown {
+
+  executeCommand(id: string, block: Block, command: string, params: DataMap): unknown {
     if (id) {
-      const dispatcher = _functions[id];
+      const dispatcher = this._functions[id];
       if (dispatcher) {
         return dispatcher._functionApi?.commands?.[command]?.(block, params);
       }
@@ -196,13 +198,17 @@ export class Functions {
     return null;
   }
 
-  static setStorage(storage: FlowStorage) {
-    _storage = storage;
+  setStorage(storage: FlowStorage) {
+    this._storage = storage;
   }
-  static saveWorkerFunction(funcId: string, flow: Flow, data: DataMap) {
-    _storage?.saveFlow(flow, data, `#.${funcId.substring(1)}`);
+
+  saveWorkerFunction(funcId: string, flow: Flow, data: DataMap) {
+    this._storage?.saveFlow(flow, data, `#.${funcId.substring(1)}`);
   }
-  static deleteFunction(funcId: string) {
-    _storage?.delete(`#.${funcId.substring(1)}`);
+
+  deleteFunction(funcId: string) {
+    this._storage?.delete(`#.${funcId.substring(1)}`);
   }
 }
+
+export const globalFunctions = new Functions();

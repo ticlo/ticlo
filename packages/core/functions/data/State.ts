@@ -1,5 +1,5 @@
 import {BaseFunction, StatefulFunction} from '../../block/BlockFunction.js';
-import {Functions} from '../../block/Functions.js';
+import {globalFunctions} from '../../block/Functions.js';
 import {type Block} from '../../block/Block.js';
 import {isDataMap, isPrimitiveType} from '../../util/DataTypes.js';
 import {Resolver} from '../../block/Resolver.js';
@@ -81,7 +81,7 @@ const API = {
   },
 };
 
-Functions.add(
+globalFunctions.add(
   StateFunction,
   {
     name: 'set-state',

@@ -1,4 +1,4 @@
-import {Functions} from '../block/Functions.js';
+import {globalFunctions} from '../block/Functions.js';
 import {StatefulFunction} from '../block/BlockFunction.js';
 import {BlockIO, BlockProperty} from '../block/BlockProperty.js';
 import {Block, BlockChildWatch} from '../block/Block.js';
@@ -286,7 +286,7 @@ export class MultiWorkerFunction extends StatefulFunction implements BlockChildW
   }
 }
 
-Functions.add(MultiWorkerFunction, {
+globalFunctions.add(MultiWorkerFunction, {
   name: 'multi-worker',
   priority: 1,
   icon: 'fas:list',

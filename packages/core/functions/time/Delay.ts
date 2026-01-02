@@ -1,4 +1,4 @@
-import {Functions} from '../../block/Functions.js';
+import {globalFunctions} from '../../block/Functions.js';
 import {BaseFunction, StatefulFunction} from '../../block/BlockFunction.js';
 import {BlockIO} from '../../block/BlockProperty.js';
 import {EventType, NO_EMIT, WAIT} from '../../block/Event.js';
@@ -85,7 +85,7 @@ export class DelayFunction extends BaseFunction<Block> {
   }
 }
 
-Functions.add(
+globalFunctions.add(
   DelayFunction,
   {
     name: 'delay',

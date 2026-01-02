@@ -1,5 +1,5 @@
 import {BaseFunction, StatefulFunction} from '../block/BlockFunction.js';
-import {Functions} from '../block/Functions.js';
+import {globalFunctions} from '../block/Functions.js';
 import {JsFunction} from '../functions/script/Js.js';
 import {WorkerCollector, WorkerMode, WorkerModeOptions} from './WorkerFunction.js';
 import {Flow, Root} from '../block/Flow.js';
@@ -28,7 +28,7 @@ export class SelectWorkerFunction extends BaseFunction<Block> {
   };
 }
 
-Functions.add(SelectWorkerFunction, {
+globalFunctions.add(SelectWorkerFunction, {
   name: 'select-worker',
   icon: 'fas:file-circle-question',
   priority: 2,

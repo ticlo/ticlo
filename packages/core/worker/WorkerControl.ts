@@ -5,7 +5,7 @@ import {StreamDispatcher} from '../block/Dispatcher.js';
 import {BaseFunction, FunctionClass, StatefulFunction} from '../block/BlockFunction.js';
 import {getBlockStoragePath} from '../util/Path.js';
 import {WorkerFunctionGen} from './WorkerFunctionGen.js';
-import {FunctionDispatcher, Functions} from '../block/Functions.js';
+import {FunctionDispatcher, globalFunctions} from '../block/Functions.js';
 
 export interface WorkerHost {
   get control(): WorkerControl;
@@ -81,7 +81,7 @@ export class WorkerControl {
       this._funcSrc = null;
     }
     if (typeof this._src === 'string' && this._src !== '#') {
-      this._funcSrc = Functions.listen(this._src, this);
+      this._funcSrc = globalFunctions.listen(this._src, this);
     }
     // # for stored worker
     if (val === '#') {

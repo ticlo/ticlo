@@ -1,4 +1,4 @@
-import {Functions, PropDesc} from '@ticlo/core';
+import {globalFunctions, PropDesc} from '@ticlo/core';
 
 export const htmlAttributes: {[key: string]: PropDesc} = {
   // React-specific Attributes
@@ -268,7 +268,7 @@ export const optionalHtmlProperties: {[key: string]: PropDesc} = {
   ...htmlAttributes,
   ...htmlEventHandlers,
 };
-Functions.add(
+globalFunctions.add(
   null,
   {
     name: 'element',

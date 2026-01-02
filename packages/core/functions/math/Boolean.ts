@@ -1,4 +1,4 @@
-import {Functions} from '../../block/Functions.js';
+import {globalFunctions} from '../../block/Functions.js';
 import {PureFunction} from '../../block/BlockFunction.js';
 import {getInputsArray} from '../../block/FunctonData.js';
 
@@ -14,7 +14,7 @@ export class AndFunction extends PureFunction {
   }
 }
 
-Functions.add(AndFunction, {
+globalFunctions.add(AndFunction, {
   name: 'and',
   icon: 'txt:and',
   properties: [
@@ -42,7 +42,7 @@ export class OrFunction extends PureFunction {
   }
 }
 
-Functions.add(OrFunction, {
+globalFunctions.add(OrFunction, {
   name: 'or',
   icon: 'txt:or',
   properties: [
@@ -71,7 +71,7 @@ export class XorFunction extends PureFunction {
   }
 }
 
-Functions.add(XorFunction, {
+globalFunctions.add(XorFunction, {
   name: 'xor',
   icon: 'txt:xor',
   properties: [
@@ -94,7 +94,7 @@ export class NotFunction extends PureFunction {
   }
 }
 
-Functions.add(NotFunction, {
+globalFunctions.add(NotFunction, {
   name: 'not',
   icon: 'txt:!',
   properties: [

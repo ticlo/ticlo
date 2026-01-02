@@ -1,5 +1,5 @@
 import {PureFunction} from '../../block/BlockFunction.js';
-import {Functions} from '../../block/Functions.js';
+import {globalFunctions} from '../../block/Functions.js';
 
 export class IfFunction extends PureFunction {
   run(): any {
@@ -12,7 +12,7 @@ export class IfFunction extends PureFunction {
   }
 }
 
-Functions.add(IfFunction, {
+globalFunctions.add(IfFunction, {
   name: 'if',
   icon: 'txt:if',
   properties: [

@@ -1,5 +1,5 @@
 import {PureFunction} from '../../block/BlockFunction.js';
-import {Functions} from '../../block/Functions.js';
+import {globalFunctions} from '../../block/Functions.js';
 import {toDateTime} from '../../util/DateTime.js';
 
 export class FormatDateFunction extends PureFunction {
@@ -25,7 +25,7 @@ export class FormatDateFunction extends PureFunction {
   }
 }
 
-Functions.add(
+globalFunctions.add(
   FormatDateFunction,
   {
     name: 'format',

@@ -1,4 +1,4 @@
-import {Functions} from '../block/Functions.js';
+import {globalFunctions} from '../block/Functions.js';
 import {BaseFunction, StatefulFunction} from '../block/BlockFunction.js';
 import {FunctionDesc, PropDesc, PropGroupDesc} from '../block/Descriptor.js';
 import {BlockIO} from '../block/BlockProperty.js';
@@ -46,7 +46,7 @@ export class WorkerFunctionGen extends BaseFunction<Block> {
 
     CustomWorkerFunction.prototype._namespace = namespace;
 
-    Functions.add(CustomWorkerFunction, desc, namespace);
+    globalFunctions.add(CustomWorkerFunction, desc, namespace);
   }
 
   /**
@@ -66,7 +66,7 @@ export class WorkerFunctionGen extends BaseFunction<Block> {
       namespace = flow._namespace;
     }
     const desc = WorkerFunctionGen.collectDesc(funcId, data);
-    Functions.saveWorkerFunction(funcId, flow, data);
+    globalFunctions.saveWorkerFunction(funcId, flow, data);
     WorkerFunctionGen.registerType(data, desc, namespace);
     return true;
   }

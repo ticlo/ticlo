@@ -1,4 +1,4 @@
-import {Functions} from '../../block/Functions.js';
+import {globalFunctions} from '../../block/Functions.js';
 import {PureFunction} from '../../block/BlockFunction.js';
 import {FunctionDesc} from '../../block/Descriptor.js';
 import {getInputsArray} from '../../block/FunctonData.js';
@@ -46,7 +46,7 @@ export class AddFunction extends PureFunction {
   }
 }
 
-Functions.add(AddFunction, {
+globalFunctions.add(AddFunction, {
   ...descriptorN,
   name: 'add',
   icon: 'fas:plus',
@@ -66,7 +66,7 @@ export class MultiplyFunction extends PureFunction {
   }
 }
 
-Functions.add(MultiplyFunction, {
+globalFunctions.add(MultiplyFunction, {
   ...descriptorN,
   name: 'multiply',
   icon: 'fas:xmark',
@@ -84,7 +84,7 @@ export class SubtractFunction extends PureFunction {
   }
 }
 
-Functions.add(SubtractFunction, {
+globalFunctions.add(SubtractFunction, {
   ...descriptor2,
   name: 'subtract',
   icon: 'fas:minus',
@@ -102,7 +102,7 @@ export class DivideFunction extends PureFunction {
   }
 }
 
-Functions.add(DivideFunction, {
+globalFunctions.add(DivideFunction, {
   ...descriptor2,
   name: 'divide',
   icon: 'fas:divide',

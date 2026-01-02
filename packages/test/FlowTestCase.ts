@@ -1,4 +1,4 @@
-import {Block, BlockIO, BlockProperty, DataMap, Flow, Functions} from '@ticlo/core';
+import {Block, BlockIO, BlockProperty, DataMap, Flow, globalFunctions} from '@ticlo/core';
 import {ConstTypeConfig, FlowConfigGenerators} from '@ticlo/core/block/BlockConfigs.js';
 import {BlockConfig} from '@ticlo/core/block/BlockProperty.js';
 import {updateObjectValue} from '@ticlo/core/property-api/ObjectValue.js';

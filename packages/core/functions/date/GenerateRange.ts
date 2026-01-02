@@ -1,4 +1,4 @@
-import {Functions} from '../../block/Functions.js';
+import {globalFunctions} from '../../block/Functions.js';
 import {DateTime} from 'luxon';
 import {invalidDate} from '../../util/DateTime.js';
 import {AutoUpdateFunction} from '../base/AutoUpdateFunction.js';
@@ -52,7 +52,7 @@ export class GenerateDateFunction extends AutoUpdateFunction {
   }
 }
 
-Functions.add(
+globalFunctions.add(
   GenerateDateFunction,
   {
     name: 'generate-range',

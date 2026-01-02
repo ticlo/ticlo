@@ -1,7 +1,7 @@
 import {expect} from 'vitest';
 import {FlowWithShared, SharedBlock} from '../SharedBlock.js';
 import {WorkerFunctionGen} from '../../worker/WorkerFunctionGen.js';
-import {Functions} from '../Functions.js';
+import {globalFunctions} from '../Functions.js';
 import {WorkerFlow} from '../../worker/WorkerFlow.js';
 
 describe('SharedBlock', function () {
@@ -68,7 +68,7 @@ describe('SharedBlock', function () {
     expect(sharedProp.getValue()).toBe(sharedBlock);
 
     // destroy persisted SharedBlock only when function is destroyed
-    Functions.clear('SharedBlock:cacheModeWorker1');
+    globalFunctions.clear('SharedBlock:cacheModeWorker1');
     expect(sharedProp.getValue()).not.toBeDefined();
   });
 });

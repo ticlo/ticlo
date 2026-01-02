@@ -4,7 +4,7 @@ import {
   RouteMethod,
   RouteService,
 } from '@ticlo/core/functions/web-server/RouteFunction.js';
-import {Functions, type Block} from '@ticlo/core';
+import {globalFunctions, type Block} from '@ticlo/core';
 import {BaseFunction, StatefulFunction} from '@ticlo/core/block/BlockFunction.js';
 import {FastifyRequest, FastifyReply} from 'fastify';
 import {decodeReviver, encode} from '@ticlo/core/util/Serialize.js';
@@ -178,7 +178,7 @@ export class ServerFunction extends BaseFunction<Block> {
   }
 }
 
-Functions.add(
+globalFunctions.add(
   ServerFunction,
   {
     name: 'server',

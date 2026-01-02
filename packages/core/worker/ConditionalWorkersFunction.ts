@@ -1,4 +1,4 @@
-import {Functions} from '../block/Functions.js';
+import {globalFunctions} from '../block/Functions.js';
 import {BaseFunction, StatefulFunction} from '../block/BlockFunction.js';
 import {BlockConfig, BlockIO, BlockProperty} from '../block/BlockProperty.js';
 import {Block, BlockChildWatch} from '../block/Block.js';
@@ -298,7 +298,7 @@ export const ConditionalWorkersFunctionProperties: PropDesc[] = [
   {name: '#output', pinned: true, type: 'any', readonly: true},
 ];
 
-Functions.add(ConditionalWorkersFunction, {
+globalFunctions.add(ConditionalWorkersFunction, {
   name: 'conditional-worker',
   priority: 1,
   icon: 'fas:list',

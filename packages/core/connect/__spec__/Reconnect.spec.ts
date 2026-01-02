@@ -7,7 +7,7 @@ import {AsyncClientPromise} from './AsyncClientPromise.js';
 import {shouldHappen, shouldReject} from '../../util/test-util.js';
 import {JsFunction} from '../../functions/script/Js.js';
 import {FunctionDesc} from '../../block/Descriptor.js';
-import {Functions} from '../../block/Functions.js';
+import {globalFunctions} from '../../block/Functions.js';
 import {Logger} from '../../util/Logger.js';
 
 describe('Reconnect', function () {
@@ -85,12 +85,12 @@ describe('Reconnect', function () {
     client.onDisconnect();
 
     JsFunction.registerType('', {name: 'ReconnectType2'});
-    Functions.clear('ReconnectType1');
+    globalFunctions.clear('ReconnectType1');
 
     await shouldHappen(() => client.watchDesc('ReconnectType2'), 1500);
     await shouldHappen(() => client.watchDesc('ReconnectType1') == null);
 
-    Functions.clear('ReconnectType2');
+    globalFunctions.clear('ReconnectType2');
 
     client.destroy();
     Root.instance.deleteValue('Reconnect3');

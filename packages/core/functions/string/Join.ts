@@ -1,4 +1,4 @@
-import {Functions} from '../../block/Functions.js';
+import {globalFunctions} from '../../block/Functions.js';
 import {PureFunction} from '../../block/BlockFunction.js';
 import {getInputsArray} from '../../block/FunctonData.js';
 
@@ -23,7 +23,7 @@ export class JoinFunction extends PureFunction {
   }
 }
 
-Functions.add(JoinFunction, {
+globalFunctions.add(JoinFunction, {
   name: 'join',
   icon: 'txt:j,o',
   properties: [

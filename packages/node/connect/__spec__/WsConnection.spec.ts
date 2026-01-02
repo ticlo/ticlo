@@ -9,7 +9,7 @@ import {Logger} from '@ticlo/core/util/Logger.js';
 import {addTestTypes, removeTestTypes} from '@ticlo/core/connect/__spec__/BulkTypes.js';
 import {makeLocalConnection} from '@ticlo/core/connect/LocalConnection.js';
 import {FunctionDesc} from '@ticlo/core/block/Descriptor.js';
-import {Functions} from '@ticlo/core/block/Functions.js';
+import {globalFunctions} from '@ticlo/core/block/Functions.js';
 
 const PORT = 8082;
 

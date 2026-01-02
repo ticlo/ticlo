@@ -1,5 +1,5 @@
 import './registerArrowCode.js';
-import {PureFunction, Functions, ErrorEvent, BaseFunction} from '@ticlo/core';
+import {PureFunction, globalFunctions, ErrorEvent, BaseFunction} from '@ticlo/core';
 
 export class QuerySelectorFunction extends BaseFunction {
   run() {
@@ -28,7 +28,7 @@ export class QuerySelectorFunction extends BaseFunction {
   }
 }
 
-Functions.add(
+globalFunctions.add(
   QuerySelectorFunction,
   {
     name: 'query-selector',

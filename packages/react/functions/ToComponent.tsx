@@ -1,5 +1,5 @@
 import React from 'react';
-import {Block, Functions, PureFunction} from '@ticlo/core';
+import {Block, globalFunctions, PureFunction} from '@ticlo/core';
 import {TicloComp} from '../comp/Component.js';
 
 class ToReactComponentFunction extends PureFunction {
@@ -17,7 +17,7 @@ class ToReactComponentFunction extends PureFunction {
   }
 }
 
-Functions.add(
+globalFunctions.add(
   ToReactComponentFunction,
   {
     name: 'to-component',
