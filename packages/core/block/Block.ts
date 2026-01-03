@@ -13,7 +13,7 @@ import {
   BlockConstConfig,
   OutputsConfigGenerators,
   InputsConfigGenerators,
-  BlockLibConfig,
+  ConstBinding,
 } from './BlockConfigs.js';
 import {Task} from './Task.js';
 import {_strictMode} from './BlockSettings.js';
@@ -22,6 +22,7 @@ import {BlockMode} from './Descriptor.js';
 import {FunctionData, FunctionOutput} from './FunctonData.js';
 import {getMaxFlowDepth} from '../util/Settings.js';
 import {Logger} from '../util/Logger.js';
+import {Namespace} from './Namespace.js';
 
 export interface BlockChildWatch {
   onChildChange(property: BlockProperty, saved?: boolean): void;
@@ -259,9 +260,6 @@ export class Block implements Runnable, FunctionData, PropListener<FunctionClass
         case '###':
           prop = new BlockConstConfig(this, field, this._flow);
           break;
-        case '#lib':
-          prop = new BlockLibConfig(this, field, this._flow._namespace);
-          break;
         case '#':
           prop = new BlockConstConfig(this, field, this);
           break;
@@ -269,9 +267,19 @@ export class Block implements Runnable, FunctionData, PropListener<FunctionClass
           prop = new BlockConstConfig(this, field, this._prop._name);
           break;
         default: {
+          if (field.charCodeAt(1) === 43) {
+            if (field.length === 2) {
+              // #+ points to current namespace
+              prop = new ConstBinding(this, field, Namespace.getProp(this._flow._namespace));
+            } else {
+              prop = new ConstBinding(this, field, Namespace.getProp(field));
+            }
+            break;
+          }
           if (!create) {
             return null;
           }
+          // shouldn't have value before they are created
           prop = this._createConfig(field);
         }
       }

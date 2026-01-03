@@ -2,7 +2,7 @@ import {expect} from 'vitest';
 import {getRelativePath, resolvePath, forAllPathsBetween, encodeFileName} from '../Path.js';
 import {WorkerFunctionGen} from '../../worker/WorkerFunctionGen.js';
 import type {FlowFolder} from '../../block/Flow.js';
-import { Root} from '../../block/Flow.js';
+import {Root} from '../../block/Flow.js';
 import type {DataMap} from '../DataTypes.js';
 import {propRelative} from '../PropPath.js';
 import type {Block} from '../../block/Block.js';
@@ -120,7 +120,7 @@ describe('Path', function () {
     const flow111 = Root.instance.addFlow('FolderRelative1.1.1', null, null, true);
     const folder1 = Root.instance.getValue('FolderRelative1') as FlowFolder;
 
-    expect(propRelative(folder1.queryValue('1.1') as Block, folder1.queryProperty('v', true))).toBe('#lib.v');
+    expect(propRelative(folder1.queryValue('1.1') as Block, folder1.queryProperty('v', true))).toBe('#+.v');
 
     Root.instance.deleteValue('PropRelative1');
     Root.instance.deleteValue('PropRelative2');

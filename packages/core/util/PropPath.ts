@@ -92,13 +92,13 @@ export function propRelative(base: Block, from: BlockProperty): string {
       fromFlows.pop();
       ++commonLevel;
     }
-    // binding from #lib
+    // binding from #+
     if (
       (commonLevel === 1 && commonFlow instanceof FlowFolder && commonFlow._namespace === base._flow._namespace) ||
       (commonLevel === 0 && fromFlows[0] instanceof FlowFolder && fromFlows[0]._namespace === base._flow._namespace)
     ) {
-      // get path from #lib
-      return `#lib${fromBlock.getFullPath().replace(/^[^.]+/, '')}.${from._name}`;
+      // get path from #+
+      return `#+${fromBlock.getFullPath().replace(/^[^.]+/, '')}.${from._name}`;
     }
 
     if (baseFlows.length === 0) {
