@@ -6,7 +6,7 @@ import '../HandlerFunction.js';
 import {DataMap} from '../../util/DataTypes.js';
 import {DoneEvent, Event, WAIT} from '../../block/Event.js';
 import {shouldHappen, shouldTimeout} from '../../util/test-util.js';
-import {Block} from '../../block/Block.js';
+import type {Block} from '../../block/Block.js';
 
 class HandlerListener {
   ignoreEvent: boolean;

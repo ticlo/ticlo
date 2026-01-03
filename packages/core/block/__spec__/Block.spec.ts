@@ -1,7 +1,7 @@
 import {expect} from 'vitest';
 import {Block} from '../Block.js';
 import {Flow, Root} from '../Flow.js';
-import {PropDispatcher} from '../Dispatcher.js';
+import type {PropDispatcher} from '../Dispatcher.js';
 import '../../functions/math/Arithmetic.js';
 
 describe('Block', function () {

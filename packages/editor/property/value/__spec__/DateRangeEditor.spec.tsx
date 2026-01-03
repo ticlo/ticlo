@@ -5,8 +5,9 @@ import {removeLastTemplate, loadTemplate, querySingle, fakeMouseEvent} from '../
 import {initEditor} from '../../../index.js';
 import {DateRangeEditor} from '../DateRangeEditor.js';
 import {shouldHappen, waitTick} from '@ticlo/core/util/test-util.js';
-import {blankFuncDesc, blankPropDesc, PropDesc} from '@ticlo/core';
-import {DateTime} from 'luxon';
+import type { PropDesc} from '@ticlo/core';
+import {blankFuncDesc, blankPropDesc} from '@ticlo/core';
+import type {DateTime} from 'luxon';
 
 describe('DateRangeEditor', function () {
   beforeEach(async function () {

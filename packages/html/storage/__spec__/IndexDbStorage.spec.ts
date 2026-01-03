@@ -1,6 +1,8 @@
 import {expect} from 'vitest';
-import {deleteDB, IDBPDatabase, openDB} from 'idb';
-import {Flow, Root, decode, FlowFolder} from '@ticlo/core';
+import type { IDBPDatabase} from 'idb';
+import {deleteDB, openDB} from 'idb';
+import type {Flow} from '@ticlo/core';
+import { Root, decode, FlowFolder} from '@ticlo/core';
 import {shouldHappen, shouldReject, waitTick} from '@ticlo/core/util/test-util.js';
 import {IndexDbFlowStorage, IndexDbStorage, FLOW_STORE_NAME} from '../IndexDbStorage.js';
 

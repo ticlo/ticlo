@@ -143,6 +143,7 @@ export default [
       '@typescript-eslint/no-unsafe-function-type': 'off',
       '@typescript-eslint/ban-ts-comment': 'off',
       '@typescript-eslint/no-empty-object-type': 'off',
+      '@typescript-eslint/consistent-type-imports': 'error',
       'no-undef': 'off',
       'no-case-declarations': 'off',
       'no-debugger': 'off',

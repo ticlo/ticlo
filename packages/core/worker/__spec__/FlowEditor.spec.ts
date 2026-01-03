@@ -4,8 +4,8 @@ import {FlowEditor} from '../FlowEditor.js';
 import {VoidListeners} from '../../block/__spec__/TestFunction.js';
 import {WorkerFunctionGen} from '../WorkerFunctionGen.js';
 import {globalFunctions} from '../../block/Functions.js';
-import {PropDesc, PropGroupDesc} from '../../block/Descriptor.js';
-import {DataMap} from '../../util/DataTypes.js';
+import type {PropDesc, PropGroupDesc} from '../../block/Descriptor.js';
+import type {DataMap} from '../../util/DataTypes.js';
 import {SharedBlock} from '../../block/SharedBlock.js';
 
 describe('FlowEditor', function () {

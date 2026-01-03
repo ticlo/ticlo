@@ -3,7 +3,7 @@ import {Flow, Root} from '../../block/Flow.js';
 import {WorkerFunctionGen} from '../WorkerFunctionGen.js';
 import {TestFunctionRunner} from '../../block/__spec__/TestFunction.js';
 import '../../functions/math/Arithmetic.js';
-import {DataMap} from '../../util/DataTypes.js';
+import type {DataMap} from '../../util/DataTypes.js';
 
 describe('WorkerFunction', function () {
   it('basic', function () {

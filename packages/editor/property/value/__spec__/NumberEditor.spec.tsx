@@ -5,7 +5,8 @@ import {removeLastTemplate, loadTemplate, querySingle} from '../../../util/test-
 import {initEditor} from '../../../index.js';
 import {NumberEditor} from '../NumberEditor.js';
 import {shouldHappen} from '@ticlo/core/util/test-util.js';
-import {blankFuncDesc, blankPropDesc, FunctionDesc, PropDesc} from '@ticlo/core';
+import type { PropDesc} from '@ticlo/core';
+import {blankFuncDesc, blankPropDesc, FunctionDesc} from '@ticlo/core';
 import {simulateInput} from './simulate-input.js';
 import {DateEditor} from '../DateEditor.js';
 

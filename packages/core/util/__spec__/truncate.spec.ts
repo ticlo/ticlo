@@ -1,5 +1,6 @@
 import {expect} from 'vitest';
-import {measureObjSize, TRUNCATED, DataMap, isDataTruncated} from '../DataTypes.js';
+import type { DataMap} from '../DataTypes.js';
+import {measureObjSize, TRUNCATED, isDataTruncated} from '../DataTypes.js';
 import {truncateData} from '../DataTruncate.js';
 
 describe('truncateData', function () {

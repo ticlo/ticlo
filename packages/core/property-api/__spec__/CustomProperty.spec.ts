@@ -2,7 +2,7 @@ import {expect} from 'vitest';
 
 import {addCustomProperty, moveCustomProperty, removeCustomProperty} from '../CustomProperty.js';
 import {Flow} from '../../block/Flow.js';
-import {PropDesc, PropGroupDesc} from '../../block/Descriptor.js';
+import type {PropDesc, PropGroupDesc} from '../../block/Descriptor.js';
 
 describe('Custom Property', function () {
   const descA: PropDesc = {name: 'a', type: 'string', pinned: true};

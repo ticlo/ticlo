@@ -1,6 +1,7 @@
 import {expect} from 'vitest';
 
-import {Flow, PropDesc, PropGroupDesc} from '../../index.js';
+import type { PropGroupDesc} from '../../index.js';
+import {Flow, PropDesc} from '../../index.js';
 import {showProperties, hideProperties, moveShownProperty, hideGroupProperties} from '../PropertyShowHide.js';
 
 describe('PropertyOrder', function () {

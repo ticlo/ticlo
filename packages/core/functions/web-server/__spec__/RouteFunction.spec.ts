@@ -1,8 +1,8 @@
 import {expect} from 'vitest';
 import '../RouteFunction.js';
-import {RouteFunction} from '../RouteFunction.js';
+import type {RouteFunction} from '../RouteFunction.js';
 import '../../../worker/HandlerFunction.js';
-import {Block} from '../../../block/Block.js';
+import type {Block} from '../../../block/Block.js';
 import {Flow, Root} from '../../../block/Flow.js';
 import {getDefaultFuncData} from '../../../block/Descriptor.js';
 import {globalFunctions} from '../../../block/Functions.js';

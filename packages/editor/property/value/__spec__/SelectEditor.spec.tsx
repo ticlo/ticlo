@@ -11,7 +11,8 @@ import {
 import {initEditor} from '../../../index.js';
 import {MultiSelectEditor, SelectEditor} from '../SelectEditor.js';
 import {shouldHappen, waitTick} from '@ticlo/core/util/test-util.js';
-import {blankFuncDesc, blankPropDesc, PropDesc} from '@ticlo/core';
+import type { PropDesc} from '@ticlo/core';
+import {blankFuncDesc, blankPropDesc} from '@ticlo/core';
 import {DateEditor} from '../DateEditor.js';
 
 describe('SelectEditor', function () {
