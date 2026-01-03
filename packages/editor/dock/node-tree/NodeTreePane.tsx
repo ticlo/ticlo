@@ -63,7 +63,7 @@ export class NodeTreePane extends React.PureComponent<Props, State> {
     const {conn} = this.props;
     const functionId = DragState.getData('functionId', conn.getBaseConn());
     console.log(functionId);
-    if (functionId !== 'flow:folder') {
+    if (functionId !== 'flow:folder' && functionId !== 'flow:namespace') {
       e.reject();
       return;
     }

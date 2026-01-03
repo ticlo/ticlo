@@ -3,15 +3,15 @@ import type {Root} from './Flow.js';
 import {Block} from './Block.js';
 
 export class Namespace {
-  static #rootInstance: Root;
+  private static _rootInstance: Root;
   static setRootInstance(instance: Root) {
-    Namespace.#rootInstance = instance;
+    Namespace._rootInstance = instance;
   }
   static getNameSpace(ns: string) {
     if (ns) {
-      return Namespace.#rootInstance;
+      return Namespace._rootInstance;
     }
-    const value = Namespace.#rootInstance.getValue(ns);
+    const value = Namespace._rootInstance.getValue(ns);
     if (value instanceof Block) {
       return value;
     }
@@ -20,10 +20,10 @@ export class Namespace {
 
   static bind(prop: BlockLibConfig, ns: string) {
     if (ns) {
-      prop._bindingSource = Namespace.#rootInstance.createBinding(ns, prop);
+      prop._bindingSource = Namespace._rootInstance.createBinding(ns, prop);
       prop._ns = ns;
     } else {
-      prop._value = Namespace.#rootInstance;
+      prop._value = Namespace._rootInstance;
     }
   }
 }

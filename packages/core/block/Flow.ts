@@ -6,6 +6,7 @@ import {
   ConstTypeConfig,
   FlowConfigGenerators,
   FlowFolderConfigGenerators,
+  FlowNamespaceConfigGenerators,
   GlobalConfigGenerators,
 } from './BlockConfigs.js';
 import {Event} from './Event.js';
@@ -370,6 +371,15 @@ export class FlowFolder extends Flow {
     }
   }
 }
+export class FlowNameSpace extends FlowFolder {
+  _createConfig(field: string): BlockProperty {
+    if (field in FlowNamespaceConfigGenerators) {
+      return new FlowNamespaceConfigGenerators[field](this, field);
+    } else {
+      return new BlockConfig(this, field);
+    }
+  }
+}
 
 export class Root extends FlowFolder {
   private static _instance: Root = (function () {
@@ -471,7 +481,18 @@ export class Root extends FlowFolder {
       this.addFlowFolder(path.substring(0, path.lastIndexOf('.')), loader);
       prop = this.queryProperty(path, true);
     }
-    if (!prop || prop._value instanceof Block) {
+    if (!prop) {
+      // invalid path
+      return null;
+    }
+    if (prop._name.startsWith('+') && prop._block === this && !(prop._value instanceof FlowNameSpace)) {
+      // folder with + under root is namespace
+      const newNamespace = new FlowNameSpace(prop._block, null, prop);
+      newNamespace._namespace = prop._name;
+      prop.setValue(newNamespace);
+      return newNamespace;
+    }
+    if (prop._value instanceof Block) {
       // invalid path
       return null;
     }
@@ -486,13 +507,8 @@ export class Root extends FlowFolder {
     } else {
       newGroup = new FlowFolder(prop._block, null, prop);
     }
+    newGroup._namespace = prop._block._flow._namespace;
     prop.setValue(newGroup);
-    if (prop._block === this) {
-      // root folder automatically has the namespace with its name.
-      newGroup._namespace = prop._name;
-    } else {
-      newGroup._namespace = prop._block._flow._namespace;
-    }
     return newGroup;
   }
 

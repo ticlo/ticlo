@@ -7,6 +7,7 @@ import {
   FileOutlined,
   FileTextOutlined,
   FolderOpenOutlined,
+  FolderOpenFilled,
   GlobalOutlined,
   PauseCircleOutlined,
   SaveOutlined,
@@ -49,8 +50,8 @@ const quickOpenAllowed = new Set<string>([
   'flow:const',
   'flow:global',
 ]);
-const addFlowAllowed = ['flow:folder', 'flow:test-group'];
-const addFolderAllowed = ['flow:folder'];
+const addFlowAllowed = ['flow:folder', 'flow:test-group', 'flow:namespace'];
+const addFolderAllowed = ['flow:folder', 'flow:namespace'];
 
 export class NodeTreeItem extends TreeItem<NodeTreeItem> {
   childPrefix: string;
@@ -368,6 +369,8 @@ export class NodeTreeRenderer extends PureDataRenderer<Props, any> {
         icon = <GlobalOutlined />;
       } else if (item.functionId === 'flow:folder') {
         icon = <FolderOpenOutlined />;
+      } else if (item.functionId === 'flow:namespace') {
+        icon = <FolderOpenFilled />;
       }
     }
 

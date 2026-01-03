@@ -1,4 +1,4 @@
-import {Block} from './Block.js';
+import {type Block} from './Block.js';
 import {FunctionClass} from './BlockFunction.js';
 import {PropDispatcher, PropListener} from './Dispatcher.js';
 import {BlockModeList, FunctionDesc} from './Descriptor.js';

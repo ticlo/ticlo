@@ -221,6 +221,10 @@ export const FlowFolderConfigGenerators: {[key: string]: typeof BlockProperty} =
   ...ConfigGenerators,
   '#is': ConstTypeConfig('flow:folder'),
 };
+export const FlowNamespaceConfigGenerators: {[key: string]: typeof BlockProperty} = {
+  ...ConfigGenerators,
+  '#is': ConstTypeConfig('flow:namespace'),
+};
 export const GlobalConfigGenerators: {[key: string]: typeof BlockProperty} = {
   ...ConfigGenerators,
   '#is': ConstTypeConfig('flow:global'),
