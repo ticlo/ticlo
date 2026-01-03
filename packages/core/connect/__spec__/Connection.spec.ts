@@ -11,7 +11,7 @@ import {shouldHappen, shouldReject} from '../../util/test-util.js';
 import {JsFunction} from '../../functions/script/Js.js';
 import {globalFunctions} from '../../block/Functions.js';
 import type {DataMap} from '../../util/DataTypes.js';
-import { isDataTruncated} from '../../util/DataTypes.js';
+import {isDataTruncated} from '../../util/DataTypes.js';
 import {WorkerFunctionGen} from '../../worker/WorkerFunctionGen.js';
 import {FlowEditor} from '../../worker/FlowEditor.js';
 import {WorkerFlow} from '../../worker/WorkerFlow.js';

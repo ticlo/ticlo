@@ -1,5 +1,5 @@
 import {expect} from 'vitest';
-import type { DataMap} from '../DataTypes.js';
+import type {DataMap} from '../DataTypes.js';
 import {measureObjSize, TRUNCATED, isDataTruncated} from '../DataTypes.js';
 import {truncateData} from '../DataTruncate.js';
 

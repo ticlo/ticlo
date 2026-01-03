@@ -1,9 +1,7 @@
 import {expect} from 'vitest';
 import '../../functions/math/Arithmetic.js';
 import '../../functions/data/State.js';
-import type {
-  PropDesc,
-  PropGroupDesc} from '../Descriptor.js';
+import type {PropDesc, PropGroupDesc} from '../Descriptor.js';
 import {
   blankPropDesc,
   buildPropDescCache,
@@ -13,7 +11,7 @@ import {
   getDefaultFuncData,
   getOutputDesc,
   getSubBlockFuncData,
-  mapConfigDesc
+  mapConfigDesc,
 } from '../Descriptor.js';
 import {globalFunctions} from '../Functions.js';
 

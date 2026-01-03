@@ -5,7 +5,7 @@ import {removeLastTemplate, loadTemplate, querySingle, expandDocumentBody} from 
 import {initEditor} from '../../../index.js';
 import {WorkerEditor} from '../WorkerEditor.js';
 import {shouldHappen, waitTick} from '@ticlo/core/util/test-util.js';
-import type { PropDesc} from '@ticlo/core';
+import type {PropDesc} from '@ticlo/core';
 import {blankFuncDesc, blankPropDesc} from '@ticlo/core';
 import {makeLocalConnection} from '@ticlo/core/connect/LocalConnection.js';
 import {Root} from '@ticlo/core';

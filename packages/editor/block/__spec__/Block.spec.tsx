@@ -2,7 +2,7 @@ import {expect} from 'vitest';
 import {simulate} from 'simulate-event';
 import React from 'react';
 import {BlockStage} from '../BlockStage.js';
-import type { Flow} from '@ticlo/core';
+import type {Flow} from '@ticlo/core';
 import {Block, Root} from '@ticlo/core';
 import {destroyLastLocalConnection, makeLocalConnection} from '@ticlo/core/connect/LocalConnection.js';
 import {shouldHappen, shouldReject} from '@ticlo/core/util/test-util.js';

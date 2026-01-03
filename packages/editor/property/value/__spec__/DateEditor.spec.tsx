@@ -5,7 +5,7 @@ import {removeLastTemplate, loadTemplate, querySingle, fakeMouseEvent} from '../
 import {initEditor} from '../../../index.js';
 import {DateEditor} from '../DateEditor.js';
 import {shouldHappen, waitTick} from '@ticlo/core/util/test-util.js';
-import type { PropDesc} from '@ticlo/core';
+import type {PropDesc} from '@ticlo/core';
 import {blankFuncDesc, blankPropDesc} from '@ticlo/core';
 import {DateTime} from 'luxon';
 

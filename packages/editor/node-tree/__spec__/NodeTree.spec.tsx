@@ -3,7 +3,7 @@ import {simulate} from 'simulate-event';
 import React from 'react';
 import {NodeTree} from '../../index.js';
 import type {Block} from '@ticlo/core';
-import { Root} from '@ticlo/core';
+import {Root} from '@ticlo/core';
 import {destroyLastLocalConnection, makeLocalConnection} from '@ticlo/core/connect/LocalConnection.js';
 import {shouldHappen} from '@ticlo/core/util/test-util.js';
 import {removeLastTemplate, loadTemplate, querySingle} from '../../util/test-util.js';

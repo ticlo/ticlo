@@ -5,7 +5,7 @@ import {removeLastTemplate, loadTemplate, querySingle} from '../../../util/test-
 import {initEditor} from '../../../index.js';
 import {ToggleEditor} from '../ToggleEditor.js';
 import {shouldHappen} from '@ticlo/core/util/test-util.js';
-import type { PropDesc} from '@ticlo/core';
+import type {PropDesc} from '@ticlo/core';
 import {blankFuncDesc, blankPropDesc} from '@ticlo/core';
 import {DateEditor} from '../DateEditor.js';
 

@@ -1,7 +1,7 @@
 import {Flow, Root} from '@ticlo/core';
 import {transform} from '@babel/standalone';
 import '../Jsx.js';
-import type { ReactRoot} from '../../react/functions/__spec__/render.js';
+import type {ReactRoot} from '../../react/functions/__spec__/render.js';
 import {creatReactRoot} from '../../react/functions/__spec__/render.js';
 import type {ReactNode} from 'react';
 

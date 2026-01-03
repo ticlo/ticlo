@@ -9,7 +9,7 @@ import {destroyLastLocalConnection, makeLocalConnection} from '@ticlo/core/conne
 import {shouldHappen, shouldReject} from '@ticlo/core/util/test-util.js';
 import {removeLastTemplate, loadTemplate, querySingle} from '../../util/test-util.js';
 import {initEditor} from '../../index.js';
-import type { PropGroupDesc} from '@ticlo/core';
+import type {PropGroupDesc} from '@ticlo/core';
 import {FunctionDesc, PropDesc} from '@ticlo/core';
 import {globalFunctions} from '@ticlo/core/block/Functions.js';
 
