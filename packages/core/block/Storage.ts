@@ -17,9 +17,15 @@ export interface Storage {
 export interface FlowStorage {
   delete(name: string): void;
 
-  saveFlow(flow: Flow, data: DataMap, overrideKey?: string): void;
+  saveFlow(flow: Flow, data: DataMap, overrideKey?: string): any;
 
   loadFlow(name: string): Promise<DataMap | null>;
+
+  initNamespace?: (ns: string) => any;
+
+  saveWorkers(ns: string, group: string, data: DataMap): any;
+
+  loadWorkers(ns: string, group: string): Promise<DataMap | null>;
 
   inited?: boolean;
   init(root: Root): unknown; // void or promise

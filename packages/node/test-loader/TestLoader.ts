@@ -55,14 +55,14 @@ export class TestLoader extends FileFlowStorage {
     const specDir = `${nameParts.join('/')}/tests`;
     const realPath = `${specDir}/${filename}`;
 
-    if (this.tasks.has(realPath)) {
-      return this.tasks.get(realPath);
+    if (this.tasks[realPath]) {
+      return this.tasks[realPath];
     } else {
       if (!Fs.existsSync(specDir)) {
         Fs.mkdirSync(specDir);
       }
       const task = new FlowIOTask(this, name, `${realPath}.ticlo`);
-      this.tasks.set(name, task);
+      this.tasks[name] = task;
       return task;
     }
   }

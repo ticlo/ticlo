@@ -106,20 +106,26 @@ export class FileStorage implements Storage {
     }
   }
 
-  tasks: Map<string, FlowIOTask> = new Map();
+  tasks: {[key: string]: FlowIOTask} = Object.create(null);
 
   getTask(name: string) {
-    if (this.tasks.has(name)) {
-      return this.tasks.get(name);
+    if (this.tasks[name]) {
+      return this.tasks[name];
     } else {
-      const task = new FlowIOTask(this, name, Path.join(this.dir, `${encodeFileName(name)}${this.ext}`));
-      this.tasks.set(name, task);
+      let task: FlowIOTask;
+      if (name.startsWith('+') && name.includes('/')) {
+        const [ns, nsName] = name.split('/');
+        task = new FlowIOTask(this, name, Path.join(this.dir, ns, `${encodeFileName(nsName)}${this.ext}`));
+      } else {
+        task = new FlowIOTask(this, name, Path.join(this.dir, `${encodeFileName(name)}${this.ext}`));
+      }
+      this.tasks[name] = task;
       return task;
     }
   }
   taskDone(task: FlowIOTask) {
-    if (this.tasks.get(task.name) === task) {
-      this.tasks.delete(task.name);
+    if (this.tasks[task.name] === task) {
+      delete this.tasks[task.name];
     }
   }
 
@@ -181,6 +187,23 @@ export class FileFlowStorage extends FileStorage implements FlowStorage {
   async loadFlow(name: string) {
     try {
       const str = await this.load(name);
+      return decode(str); // decode(null) will return null
+    } catch (e) {}
+    return null;
+  }
+
+  initNamespace(ns: string) {
+    const nsDir = Path.join(this.dir, ns);
+    shelljs.mkdir('-p', nsDir);
+  }
+
+  saveWorkers(ns: string, group: string, data: DataMap) {
+    this.save(`${ns}/${group}`, encodeSorted(data));
+  }
+
+  async loadWorkers(ns: string, group: string): Promise<DataMap | null> {
+    try {
+      const str = await this.load(`${ns}/${group}`);
       return decode(str); // decode(null) will return null
     } catch (e) {}
     return null;

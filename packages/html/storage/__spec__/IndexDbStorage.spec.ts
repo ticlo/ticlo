@@ -96,4 +96,19 @@ describe('IndexDbStorage', function () {
 
     root.destroy();
   });
+  it('save and load workers', async function () {
+    const storage = new IndexDbFlowStorage(FLOW_STORE_NAME, dbPromise);
+    const ns = 'testNs';
+    const group = 'testGroup';
+    const data = {worker: 'test'};
+
+    await storage.saveWorkers(ns, group, data);
+
+    const loaded = await storage.loadWorkers(ns, group);
+    expect(loaded).toEqual(data);
+
+    const db = await storage.dbPromise;
+    const raw = await db.get(FLOW_STORE_NAME, `${ns}/${group}`);
+    expect(JSON.parse(raw)).toEqual(data);
+  });
 });

@@ -93,4 +93,21 @@ describe('FileStorage', function () {
     root.deleteFlow('folder5.subflow');
     root.destroy();
   });
+  it('save and load workers', async function () {
+    const storage = new FileFlowStorage('./temp/storageTest');
+    const ns = 'testNs';
+    const group = 'testGroup';
+    const data = {worker: 'test'};
+
+    storage.saveWorkers(ns, group, data);
+    await waitTick(50);
+
+    const loaded = await storage.loadWorkers(ns, group);
+    expect(loaded).toEqual(data);
+
+    const expectedPath = './temp/storageTest/testNs%2ftestGroup.ticlo';
+    expect(Fs.existsSync(expectedPath)).toBe(true);
+
+    if (Fs.existsSync(expectedPath)) Fs.unlinkSync(expectedPath);
+  });
 });
