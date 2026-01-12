@@ -56,6 +56,6 @@ describe('Js Type', function () {
     const aBlock = flow.createBlock('a');
     globalFunctions.clear('');
     expect(globalFunctions.getDescToSend('')).toEqual([null, 0]);
-    expect(globalFunctions.listen('', aBlock)).not.toBeDefined();
+    expect(globalFunctions.listen('', aBlock)).toBeNull();
   });
 });

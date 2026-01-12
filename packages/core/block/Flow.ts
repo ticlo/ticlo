@@ -18,6 +18,7 @@ import {FlowHistory} from './FlowHistory.js';
 import {getDefaultZone, updateGlobalSettings} from '../util/Settings.js';
 import {DataWrapper, FunctionOutput} from './FunctonData.js';
 import {Namespace} from './Namespace.js';
+import {FunctionGroup} from './FunctionGroup.js';
 
 export enum FlowState {
   enabled,
@@ -35,7 +36,10 @@ export class Flow extends Block {
   _namespace: string;
   // function id, when Flow is loaded from a function
   _loadFrom: string;
-  _storageKey: string;
+  _funcGroup: FunctionGroup;
+  getFuncGroup(): FunctionGroup {
+    return this._funcGroup;
+  }
 
   _enabled: boolean = true;
   _loading: boolean = false;
@@ -46,13 +50,12 @@ export class Flow extends Block {
 
   readonly _depth: number;
 
-  constructor(parent: Block = Root.instance, output?: FunctionOutput, property?: BlockProperty, storageKey?: string) {
+  constructor(parent: Block = Root.instance, output?: FunctionOutput, property?: BlockProperty) {
     super(null, null, property);
     this._flow = this;
     this._parent = parent;
     this._depth = parent ? parent._flow._depth + 1 : 0;
     this._outputObj = output;
-    this._storageKey = storageKey;
     if (!property) {
       this._prop = new BlockProperty(this, '');
     }
@@ -154,7 +157,13 @@ export class Flow extends Block {
   }
 
   save(): DataMap {
-    return super._save();
+    const result = super._save();
+    // TODO funcGroup should never be undefined
+    const funcDict = this._funcGroup?.save();
+    if (funcDict) {
+      result['#funcDict'] = funcDict;
+    }
+    return result;
   }
 
   _applyChange: (data: DataMap) => boolean;
@@ -166,7 +175,8 @@ export class Flow extends Block {
     funcId?: string,
     applyChange?: (data: DataMap) => boolean,
     onStateChange?: (flow: Flow, state: FlowState) => void,
-    namespace?: string
+    namespace?: string,
+    funcGroup?: FunctionGroup
   ): boolean {
     if (this._loaded) {
       throw new Error('can not load flow twice');
@@ -174,7 +184,7 @@ export class Flow extends Block {
     this._loading = true;
     let loaded = false;
     if (funcId) {
-      // load from worker class
+      // load from worker class for editing
       const desc: FunctionDesc = globalFunctions.getDescToSend(funcId)[0];
       if (desc) {
         const data = globalFunctions.getWorkerData(funcId);
@@ -200,6 +210,11 @@ export class Flow extends Block {
         this._namespace = namespace;
       } else {
         this._namespace = this._parent._flow._namespace;
+      }
+      if (funcGroup) {
+        this._funcGroup = funcGroup;
+      } else {
+        this._funcGroup = this._parent._flow.getFuncGroup();
       }
 
       this._loadFrom = null;
@@ -370,8 +385,15 @@ export class FlowFolder extends Flow {
       return new BlockConfig(this, field);
     }
   }
+  getFuncGroup(): FunctionGroup {
+    return new FunctionGroup(this._namespace);
+  }
 }
 export class FlowNameSpace extends FlowFolder {
+  constructor(parent: Block = Root.instance, output?: FunctionOutput, property?: BlockProperty) {
+    super(parent, output, property);
+    this._namespace = property._name;
+  }
   _createConfig(field: string): BlockProperty {
     if (field in FlowNamespaceConfigGenerators) {
       return new FlowNamespaceConfigGenerators[field](this, field);
@@ -452,7 +474,7 @@ export class Root extends FlowFolder {
     });
 
     // create the readolny global block
-    this._globalRoot = this._createConstBlock('#global', (prop) => new GlobalBlock(this, this, prop, '#global'))._value;
+    this._globalRoot = this._createConstBlock('#global', (prop) => new GlobalBlock(this, this, prop))._value;
     // this._globalRoot.load({'#settings': {'#is': '#flow:settings'}});
     this._tempRoot = this._createConstBlock('#temp', (prop) => new ConstBlock(this, this._globalRoot, prop))._value;
     this._sharedRoot = this._createConstBlock('#shared', (prop) => new ConstBlock(this, this._globalRoot, prop))._value;
@@ -488,7 +510,7 @@ export class Root extends FlowFolder {
     if (prop._name.startsWith('+') && prop._block === this && !(prop._value instanceof FlowNameSpace)) {
       // folder with + under root is namespace
       const newNamespace = new FlowNameSpace(prop._block, null, prop);
-      newNamespace._namespace = prop._name;
+
       prop.setValue(newNamespace);
       return newNamespace;
     }
@@ -541,11 +563,11 @@ export class Root extends FlowFolder {
       newFlow = new Flow(prop._block, null, prop);
     }
 
-    const propValue = prop._value;
-    if (Array.isArray(propValue) && propValue.length === 3 && propValue.every((val) => typeof val === 'number')) {
-      // overwrite @b-xyw value from parent flow
-      data = {...data, '@b-xyw': propValue};
-    }
+    // const propValue = prop._value;
+    // if (Array.isArray(propValue) && propValue.length === 3 && propValue.every((val) => typeof val === 'number')) {
+    //   // overwrite @b-xyw value from parent flow
+    //   data = {...data, '@b-xyw': propValue};
+    // }
     if (loader) {
       if (!data) {
         data = {};

@@ -113,9 +113,15 @@ export class FileStorage implements Storage {
       return this.tasks[name];
     } else {
       let task: FlowIOTask;
-      if (name.startsWith('+') && name.includes('/')) {
-        const [ns, nsName] = name.split('/');
-        task = new FlowIOTask(this, name, Path.join(this.dir, ns, `${encodeFileName(nsName)}${this.ext}`));
+      if (name.startsWith('+')) {
+        const firstDot = name.indexOf('.');
+        const ns = name.slice(0, firstDot);
+        const nsName = name.slice(firstDot + 1);
+        task = new FlowIOTask(
+          this,
+          name,
+          Path.join(this.dir, encodeFileName(ns), `${encodeFileName(nsName)}${this.ext}`)
+        );
       } else {
         task = new FlowIOTask(this, name, Path.join(this.dir, `${encodeFileName(name)}${this.ext}`));
       }
@@ -175,11 +181,10 @@ export class FileFlowStorage extends FileStorage implements FlowStorage {
     }
   }
 
-  saveFlow(flow: Flow, data?: DataMap, overrideKey?: string) {
+  saveFlow(flow: Flow | null, data: DataMap | null, key: string) {
     if (!data) {
-      data = flow.save();
+      data = flow?.save();
     }
-    const key = overrideKey ?? flow._storageKey;
     const str = encodeSorted(data);
     this.save(key, str);
   }
@@ -193,17 +198,17 @@ export class FileFlowStorage extends FileStorage implements FlowStorage {
   }
 
   initNamespace(ns: string) {
-    const nsDir = Path.join(this.dir, ns);
+    const nsDir = Path.join(this.dir, encodeFileName(ns));
     shelljs.mkdir('-p', nsDir);
   }
 
   saveWorkers(ns: string, group: string, data: DataMap) {
-    this.save(`${ns}/${group}`, encodeSorted(data));
+    this.save(`${ns}.${group}.#`, encodeSorted(data));
   }
 
   async loadWorkers(ns: string, group: string): Promise<DataMap | null> {
     try {
-      const str = await this.load(`${ns}/${group}`);
+      const str = await this.load(`${ns}.${group}`);
       return decode(str); // decode(null) will return null
     } catch (e) {}
     return null;
@@ -247,7 +252,7 @@ export class FileFlowStorage extends FileStorage implements FlowStorage {
 
     // load global block
     root.loadGlobal(globalData, (saveData: DataMap) => {
-      this.saveFlow(root._globalRoot, saveData);
+      this.saveFlow(root._globalRoot, saveData, '#global');
       return true;
     });
 

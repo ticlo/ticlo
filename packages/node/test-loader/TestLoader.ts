@@ -66,13 +66,12 @@ export class TestLoader extends FileFlowStorage {
       return task;
     }
   }
-  saveFlow(flow: Flow, data?: DataMap, overrideKey?: string) {
+  saveFlow(flow: Flow | null, data: DataMap | null, key: string) {
     if (flow?._disabled) {
-      const key = overrideKey ?? flow._storageKey;
       console.log(`unable to save disabled flow: ${key}`);
       return;
     }
-    super.saveFlow(flow, data, overrideKey);
+    super.saveFlow(flow, data, key);
   }
 
   getFlowLoader(key: string, prop: BlockProperty): FlowLoader {

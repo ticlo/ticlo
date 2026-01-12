@@ -17,7 +17,7 @@ export interface Storage {
 export interface FlowStorage {
   delete(name: string): void;
 
-  saveFlow(flow: Flow, data: DataMap, overrideKey?: string): any;
+  saveFlow(flow: Flow | null, data: DataMap | null, key: string): any;
 
   loadFlow(name: string): Promise<DataMap | null>;
 

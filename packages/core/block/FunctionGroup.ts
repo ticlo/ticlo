@@ -1,0 +1,55 @@
+import {type FunctionClass} from '../block/BlockFunction.js';
+import {type FunctionDesc} from '../block/Descriptor.js';
+import {isDataMap, type DataMap} from '../util/DataTypes.js';
+import {Functions} from './Functions.js';
+
+export interface FunctionLoader {
+  load(data: DataMap): [FunctionClass, FunctionDesc];
+}
+export class FunctionGroup extends Functions {
+  static _loaders: Map<string, FunctionLoader> = new Map();
+  static registerType(funcType: string, loader: FunctionLoader) {
+    this._loaders.set(funcType, loader);
+  }
+
+  constructor(public readonly namespace?: string) {
+    super();
+  }
+
+  save() {
+    let result: DataMap | null = null;
+    for (const key in this._functions) {
+      if (this._functions[key]._desc) {
+        const funcData = this._functions[key].getValue()?.save?.();
+        if (funcData) {
+          result ??= {};
+          result[key] = funcData;
+        }
+      }
+    }
+    return result;
+  }
+  load(data: DataMap) {
+    for (const id in data) {
+      const funcData = data[id];
+      if (isDataMap(funcData) && typeof funcData.type === 'string') {
+        const loader = FunctionGroup._loaders.get(funcData.type);
+        if (loader) {
+          const [func, desc] = loader.load(funcData);
+          this.add(func, desc, this.namespace);
+        }
+      }
+    }
+  }
+}
+
+export class NsFunctionGroup extends FunctionGroup {
+  _loaded: boolean | 'loading' = false;
+
+  constructor(namespace: string) {
+    super(namespace);
+  }
+
+  saveToStorage() {}
+  loadFromStorage() {}
+}

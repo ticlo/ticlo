@@ -3,6 +3,7 @@ import {type Block} from './Block.js';
 import {EventType} from './Event.js';
 import {BlockMode} from './Descriptor.js';
 import {type FunctionData} from './FunctonData.js';
+import type {DataMap} from '../util/DataTypes.js';
 
 export class BaseFunction<T extends FunctionData = FunctionData> {
   declare type?: string;
@@ -105,4 +106,10 @@ export abstract class StatefulFunction extends BaseFunction<Block> {
   }
 }
 
-export type FunctionClass = new (block: FunctionData) => BaseFunction;
+export type FunctionClass = (new (block: FunctionData) => BaseFunction) & {
+  priority?: 0 | 1 | 2 | 3;
+  defaultMode?: BlockMode;
+  type?: string; // function id
+  isPure?: boolean;
+  save?: () => DataMap;
+};

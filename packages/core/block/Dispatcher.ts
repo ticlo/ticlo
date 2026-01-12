@@ -17,6 +17,10 @@ export class PropDispatcher<T = unknown> {
   _updating = false;
   _value: T;
 
+  getValue(): T {
+    return this._value;
+  }
+
   listen(listener: PropListener<T>) {
     this._listeners.add(listener);
 

@@ -111,11 +111,10 @@ export class IndexDbFlowStorage extends IndexDbStorage implements FlowStorage {
     }
   }
 
-  async saveFlow(flow: Flow, data?: DataMap, overrideKey?: string) {
+  async saveFlow(flow: Flow | null, data: DataMap | null, key: string) {
     if (!data) {
-      data = flow.save();
+      data = flow?.save();
     }
-    const key = overrideKey ?? flow._storageKey;
     const str = encodeSorted(data);
     if (key) {
       await this.save(key, str);
@@ -176,7 +175,7 @@ export class IndexDbFlowStorage extends IndexDbStorage implements FlowStorage {
 
     // load global block
     root.loadGlobal(globalData, (saveData: DataMap) => {
-      this.saveFlow(root._globalRoot, saveData);
+      this.saveFlow(root._globalRoot, saveData, '#global');
       return true;
     });
 

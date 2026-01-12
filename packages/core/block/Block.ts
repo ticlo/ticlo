@@ -270,9 +270,9 @@ export class Block implements Runnable, FunctionData, PropListener<FunctionClass
           if (field.charCodeAt(1) === 43) {
             if (field.length === 2) {
               // #+ points to current namespace
-              prop = new ConstBinding(this, field, Namespace.getProp(this._flow._namespace));
+              prop = new ConstBinding(this, field, Namespace.bind(this._flow._namespace));
             } else {
-              prop = new ConstBinding(this, field, Namespace.getProp(field));
+              prop = new ConstBinding(this, field, Namespace.bind(field));
             }
             break;
           }
@@ -810,7 +810,20 @@ export class Block implements Runnable, FunctionData, PropListener<FunctionClass
     if (this._funcSrc) {
       this._funcSrc.unlisten(this);
     }
-    if (funcId) {
+    const code0 = funcId.charCodeAt(0);
+    if (code0 === 58 /* : */) {
+      // local function
+      this._funcSrc = this._flow._funcGroup?.listen(funcId, this);
+    } else if (code0 === 43 /* + */) {
+      // namespace function
+      if (funcId.charCodeAt(1) === 58 /* +: */) {
+        // replace + with current namespace
+        this._funcSrc = Namespace.listen(this._flow._namespace + funcId.substring(1), this);
+      } else {
+        this._funcSrc = Namespace.listen(funcId, this);
+      }
+    } else if (code0 > 0) {
+      // global function
       this._funcSrc = globalFunctions.listen(funcId, this);
     } else {
       this._funcSrc = null;

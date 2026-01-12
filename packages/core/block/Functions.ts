@@ -130,7 +130,7 @@ export class Functions {
 
   listen(id: string, block: PropListener<FunctionClass>): FunctionDispatcher {
     if (!id) {
-      return;
+      return null;
     }
 
     let dispatcher = this._functions[id];
