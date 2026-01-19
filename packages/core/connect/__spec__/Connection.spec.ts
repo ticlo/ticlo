@@ -705,7 +705,7 @@ describe('Connection', function () {
     await client.editWorker('Connection18.a.#edit-use', 'use');
     expect((block1.getValue('#edit-use') as Flow).save()).toEqual(data);
 
-    WorkerFunctionGen.registerType(data, {name: 'func1'}, '');
+    WorkerFunctionGen.registerType(globalFunctions, data, {name: 'func1'}, '');
 
     // edit from worker function
     await client.editWorker('Connection18.a.#edit-func1', null, ':func1');
@@ -720,9 +720,10 @@ describe('Connection', function () {
     const flow1 = Root.instance.addFlow('Connection19');
     const [server, client] = makeLocalConnection(Root.instance, true);
 
-    const editor = FlowEditor.create(flow1, '#edit-v', {}, null, false, (data: DataMap) => {
+    const editor = FlowEditor.create(flow1, '#edit-v', {}, null, false, (flow: Flow) => {
+      const data = flow.save();
       flow1.setValue('v', data);
-      return true;
+      return data;
     });
     await client.applyFlowChange('Connection19.#edit-v');
     expect(flow1.getValue('v')).toEqual({'#is': ''});
@@ -820,7 +821,7 @@ describe('Connection', function () {
 
   it('undo redo', async function () {
     const flow = Root.instance.addFlow('Connection23');
-    flow.load({'#is': '', 'a': 1}, null, (data: any) => true);
+    flow.load({'#is': '', 'a': 1}, null, (flow: Flow) => flow.save());
 
     const [server, client] = makeLocalConnection(Root.instance, false);
 

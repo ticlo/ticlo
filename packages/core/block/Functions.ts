@@ -61,8 +61,13 @@ export class Functions {
       // make sure category is in the same name space
       desc.category = `${namespace}:${desc.category.split(':').pop()}`;
     }
-    const id = namespace != null ? `${namespace}:${desc.name}` : desc.name;
-    desc.id = id;
+    let id: string;
+    if (desc.id) {
+      id = desc.id;
+    } else {
+      id = namespace != null ? `${namespace}:${desc.name}` : desc.name;
+      desc.id = id;
+    }
 
     if (cls) {
       cls.prototype.priority = desc.priority;
@@ -200,10 +205,6 @@ export class Functions {
 
   setStorage(storage: FlowStorage) {
     this._storage = storage;
-  }
-
-  saveWorkerFunction(funcId: string, flow: Flow, data: DataMap) {
-    this._storage?.saveFlow(flow, data, `#.${funcId.substring(1)}`);
   }
 
   deleteFunction(funcId: string) {

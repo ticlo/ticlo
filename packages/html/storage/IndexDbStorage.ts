@@ -174,9 +174,10 @@ export class IndexDbFlowStorage extends IndexDbStorage implements FlowStorage {
     }
 
     // load global block
-    root.loadGlobal(globalData, (saveData: DataMap) => {
-      this.saveFlow(root._globalRoot, saveData, '#global');
-      return true;
+    root.loadGlobal(globalData, (flow: Flow) => {
+      const data = flow.save();
+      this.saveFlow(root._globalRoot, data, '#global');
+      return data;
     });
 
     // load flow entries

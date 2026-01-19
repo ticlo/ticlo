@@ -76,8 +76,8 @@ export class FlowHistory {
     this.checkUndoRedo(data);
   }
 
-  save() {
-    let data = this.flow.save();
+  save(preSavedData?: DataMap) {
+    let data = preSavedData ?? this.flow.save();
     if (this.checkAndAdd(data)) {
       this._savedData = data;
     } else {

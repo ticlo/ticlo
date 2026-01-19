@@ -3,6 +3,7 @@ import {Block} from '../Block.js';
 import {Flow, Root} from '../Flow.js';
 import type {DataMap} from '../../util/DataTypes.js';
 import {WorkerFunctionGen} from '../../worker/WorkerFunctionGen.js';
+import {globalFunctions} from '../Functions.js';
 
 describe('ContextProperty', function () {
   it('global from nested flow', function () {
@@ -18,7 +19,7 @@ describe('ContextProperty', function () {
       '#is': '',
       '~v': '^top.v',
     };
-    WorkerFunctionGen.registerType(flowData, {name: 'class1'}, 'ContextProperty');
+    WorkerFunctionGen.registerType(globalFunctions, flowData, {name: 'class1'}, 'ContextProperty');
 
     Root.run();
 

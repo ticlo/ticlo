@@ -2,6 +2,7 @@ import {BlockConfig, BlockIO, BlockProperty} from './BlockProperty.js';
 import {Block, InputsBlock, OutputsBlock} from './Block.js';
 import type {Flow} from './Flow.js';
 import {Namespace} from './Namespace.js';
+import {isDataMap} from '../util/DataTypes.js';
 
 class BlockFuncIdConfig extends BlockProperty {
   constructor(block: Block, name: string) {
@@ -170,6 +171,18 @@ export class ConstBinding extends BlockProperty {
   }
 }
 
+export class BlockFunctionsConfig extends BlockProperty {
+  onChange(val: unknown, save?: boolean): boolean {
+    if (isDataMap(val)) {
+      (this._block as Flow)._funcGroup?.load(val);
+    } else {
+      (this._block as Flow)._funcGroup?.load({});
+    }
+
+    return super.onChange(val, save);
+  }
+}
+
 export function ConstTypeConfig(type: string): typeof BlockProperty {
   class BlockConstTypeConfig extends BlockConstConfig {
     constructor(block: Block, name: string) {
@@ -214,6 +227,7 @@ export const FlowConfigGenerators: {[key: string]: typeof BlockProperty} = {
   '#is': ConstTypeConfig('flow:main'),
   '#inputs': BlockInputsConfig,
   '#outputs': BlockOutputsConfig,
+  '#functions': BlockFunctionsConfig,
 };
 
 export const FlowFolderConfigGenerators: {[key: string]: typeof BlockProperty} = {

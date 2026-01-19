@@ -112,4 +112,6 @@ export type FunctionClass = (new (block: FunctionData) => BaseFunction) & {
   type?: string; // function id
   isPure?: boolean;
   save?: () => DataMap;
+  equals?: (data: DataMap) => boolean;
+  ticlWorkerData?: DataMap;
 };

@@ -1,11 +1,13 @@
-import {globalFunctions} from '../block/Functions.js';
-import {BaseFunction, StatefulFunction} from '../block/BlockFunction.js';
+import {Functions, globalFunctions} from '../block/Functions.js';
+import {BaseFunction, FunctionClass, StatefulFunction} from '../block/BlockFunction.js';
 import {FunctionDesc, PropDesc, PropGroupDesc} from '../block/Descriptor.js';
 import {BlockIO} from '../block/BlockProperty.js';
 import {Flow} from '../block/Flow.js';
 import {DataMap} from '../util/DataTypes.js';
 import {WorkerFlow} from './WorkerFlow.js';
 import type {Block} from '../block/Block.js';
+import {Namespace} from '../block/Namespace.js';
+import {FunctionGroup} from '../block/FunctionGroup.js';
 
 /**
  * WorkerFunction is the function wrapper for all custom functions
@@ -20,10 +22,10 @@ export class WorkerFunctionGen extends BaseFunction<Block> {
   }
 
   run(): any {
-    let applyChange: (data: DataMap) => boolean;
+    let applyChange: (flow: Flow) => DataMap;
     if (this._namespace === '') {
-      applyChange = (data: DataMap) => {
-        return WorkerFunctionGen.applyChangeToFunc(this._funcFlow, null, null, data);
+      applyChange = (flow: Flow) => {
+        return WorkerFunctionGen.applyChangeToFunc(this._funcFlow, null);
       };
     }
     this._funcFlow = this._data.createOutputFlow(WorkerFlow, '#flow', this.type, this._data, applyChange);
@@ -34,46 +36,63 @@ export class WorkerFunctionGen extends BaseFunction<Block> {
     this._data.deleteValue('#flow');
   }
 
-  static registerType(data: DataMap, desc: FunctionDesc, namespace?: string) {
+  static generate(data: DataMap, funcId: string, namespace?: string): [FunctionClass, FunctionDesc] {
+    const desc = WorkerFunctionGen.collectDesc(funcId, data);
     class CustomWorkerFunction extends WorkerFunctionGen {
       static ticlWorkerData = data;
+      _namespace = namespace;
+      static save() {
+        return {
+          type: 'worker',
+          worker: CustomWorkerFunction.ticlWorkerData,
+        };
+      }
+      static equals(other: DataMap) {
+        return other['type'] === 'worker' && other['worker'] === data;
+      }
     }
 
     if (!desc.priority) {
       desc.priority = 1;
     }
     desc.src = 'worker';
+    return [CustomWorkerFunction, desc];
+  }
 
-    CustomWorkerFunction.prototype._namespace = namespace;
-
-    globalFunctions.add(CustomWorkerFunction, desc, namespace);
+  static registerType(functionGroup: Functions, data: DataMap, desc: FunctionDesc, namespace?: string) {
+    if (!functionGroup) {
+      return;
+    }
+    const fullId = namespace ? `${namespace}:${desc.id}` : desc.id;
+    const [func, generatedDesc] = WorkerFunctionGen.generate(data, fullId, namespace);
+    functionGroup.add(func, {...desc, ...generatedDesc}, namespace);
   }
 
   /**
    * save the worker to a function
    */
-  static applyChangeToFunc(flow: Flow, funcId: string, namespace?: string, data?: DataMap) {
-    if (!data) {
-      data = flow.save();
-    }
+  static applyChangeToFunc(flow: Flow, funcId: string) {
+    const data = flow.save();
+
     if (!funcId) {
       funcId = flow._loadFrom;
     }
     if (!funcId) {
-      return false;
+      return null;
     }
-    if (namespace == null) {
-      namespace = flow._namespace;
+    const namespace = flow._namespace;
+    const [func, desc] = WorkerFunctionGen.generate(data, funcId, namespace);
+    let functionGroup = Namespace.getFunctions(funcId, flow);
+    if (functionGroup instanceof FunctionGroup) {
+      functionGroup.add(func, desc, namespace);
     }
-    const desc = WorkerFunctionGen.collectDesc(funcId, data);
-    globalFunctions.saveWorkerFunction(funcId, flow, data);
-    WorkerFunctionGen.registerType(data, desc, namespace);
-    return true;
+
+    return data;
   }
 
   static collectDesc(funcId: string, data: DataMap): FunctionDesc {
     let name: string;
-    const pos = funcId.indexOf(':');
+    const pos = funcId.lastIndexOf(':');
     if (pos > -1) {
       name = funcId.substring(pos + 1);
     } else {
@@ -133,3 +152,11 @@ export class WorkerFunctionGen extends BaseFunction<Block> {
     return properties;
   }
 }
+
+FunctionGroup.registerType('worker', {
+  load(data: DataMap, localFuncId: string, idPrefix: string, namespace?: string) {
+    const fullId = `${idPrefix}:${localFuncId}`;
+    const workerData = data['worker'] as DataMap;
+    return WorkerFunctionGen.generate(workerData, fullId, namespace);
+  },
+});

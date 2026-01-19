@@ -132,6 +132,8 @@ export interface FunctionDesc {
   // block color and icon can change with @b-style={color,icon}
   dynamicStyle?: boolean;
 
+  // to orginize functions in groups
+  // category is not used for +namespace functions, their id always match their positions in function tree
   category?: string;
 }
 

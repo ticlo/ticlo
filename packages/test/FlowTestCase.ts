@@ -40,7 +40,7 @@ export class FlowTestCase extends Flow implements TestsRunner {
   load(
     src: DataMap,
     funcId?: string,
-    applyChange?: (data: DataMap) => boolean,
+    applyChange?: (flow: Flow) => DataMap,
     onStateChange?: (flow: Flow, state: FlowState) => void
   ): boolean {
     const loaded = super.load(src, funcId, applyChange, onStateChange);

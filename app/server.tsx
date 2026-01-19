@@ -8,8 +8,14 @@ import {WorkerFunctionGen} from '@ticlo/core/worker/WorkerFunctionGen.js';
 import '../packages/react/index.js';
 import {FrameServerConnection} from '@ticlo/html';
 import {IndexDbFlowStorage} from '@ticlo/html/storage/IndexDbStorage.js';
+import {Namespace} from '@ticlo/core/block/Namespace.js';
 
-WorkerFunctionGen.registerType({'#is': ''}, {name: 'class1'}, 'WorkerEditor');
+WorkerFunctionGen.registerType(
+  Namespace.getFunctionGroup('+WorkerEditor::'),
+  {'#is': ''},
+  {name: 'class1'},
+  '+WorkerEditor'
+);
 
 const editors: Window[] = [];
 window.addEventListener('beforeunload', () => {

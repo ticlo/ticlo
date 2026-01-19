@@ -28,7 +28,7 @@ export enum FlowState {
 export interface FlowLoader {
   createFlow?(path: string, prop: BlockProperty): Flow;
   createFolder?(path: string, prop: BlockProperty): FlowFolder;
-  applyChange?(data: DataMap): boolean;
+  applyChange?(flow: Flow): DataMap;
   onStateChange?(flow: Flow, state: FlowState): void;
 }
 
@@ -157,23 +157,17 @@ export class Flow extends Block {
   }
 
   save(): DataMap {
-    const result = super._save();
-    // TODO funcGroup should never be undefined
-    const funcDict = this._funcGroup?.save();
-    if (funcDict) {
-      result['#funcDict'] = funcDict;
-    }
-    return result;
+    return super._save();
   }
 
-  _applyChange: (data: DataMap) => boolean;
+  _applyChange: (flow: Flow) => DataMap;
   _onStateChange: (flow: Flow, state: FlowState) => void;
 
   _loaded: boolean;
   load(
     src?: DataMap,
     funcId?: string,
-    applyChange?: (data: DataMap) => boolean,
+    applyChange?: (flow: Flow) => DataMap,
     onStateChange?: (flow: Flow, state: FlowState) => void,
     namespace?: string,
     funcGroup?: FunctionGroup
@@ -309,15 +303,17 @@ export class Flow extends Block {
 
   applyChange() {
     if (this._applyChange) {
-      if (this._history) {
-        return this._applyChange(this._history.save());
-      } else {
-        const saved = this._applyChange(this.save());
-        this.deleteValue('@has-change');
-        return saved;
+      let savedData = this._applyChange(this);
+      if (savedData) {
+        if (this._history) {
+          savedData = this._history.save(savedData);
+        } else {
+          this.deleteValue('@has-change');
+        }
+        return savedData;
       }
     }
-    return false;
+    return null;
   }
 
   cancelChange() {}
@@ -482,7 +478,7 @@ export class Root extends FlowFolder {
     this._props.set('', new BlockConstConfig(this, '', this));
   }
 
-  loadGlobal(data: DataMap, applyChange?: (data: DataMap) => boolean) {
+  loadGlobal(data: DataMap, applyChange?: (flow: Flow) => DataMap) {
     // preload the global settings before loading anything else
     updateGlobalSettings(new DataWrapper(data));
     this._globalRoot.load(data, null, applyChange);
@@ -598,7 +594,7 @@ export class Root extends FlowFolder {
     return null;
   }
 
-  load(map: DataMap, funcId?: string, applyChange?: (data: DataMap) => boolean) {
+  load(map: DataMap, funcId?: string, applyChange?: (flow: Flow) => DataMap) {
     // not allowed
     return false;
   }

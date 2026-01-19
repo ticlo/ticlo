@@ -373,8 +373,8 @@ importers:
         specifier: ticlo/simulate-event#master
         version: https://codeload.github.com/ticlo/simulate-event/tar.gz/179d0762a72ea8ea4a01d43fde9a3e3777d3669b
       ticlo-big-calendar:
-        specifier: ^2.1.0
-        version: 2.1.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+        specifier: ^2.1.2
+        version: 2.1.2(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
 
   packages/html:
     dependencies:
@@ -2277,9 +2277,6 @@ packages:
 
   '@types/react@18.3.27':
     resolution: {integrity: sha512-cisd7gxkzjBKU2GgdYrTdtQx1SORymWyaAFhaxQPK9bYO9ot3Y5OikQRvY0VYQtvwjeQnizCINJAenh/V7MK2w==}
-
-  '@types/react@19.2.7':
-    resolution: {integrity: sha512-MWtvHrGZLFttgeEj28VXHxpmwYbor/ATPYbBfSFZEIRK0ecCFLl2Qo55z52Hss+UV9CRN7trSeq1zbgx7YDWWg==}
 
   '@types/send@0.17.4':
     resolution: {integrity: sha512-x2EM6TJOybec7c52BX0ZspPodMsQUd5L6PRwOunVyVUhXiBSKf3AezDL8Dgvgt5o0UfKNfuA0eMLr2wLT4AiBA==}
@@ -5242,8 +5239,8 @@ packages:
   through@2.3.8:
     resolution: {integrity: sha512-w89qg7PI8wAdvX60bMDP+bFoD5Dvhm9oLheFp5O4a2QF0cSBGsBX4qZmadPMvVqlLJBBci+WqGGOAPvcDeNSVg==}
 
-  ticlo-big-calendar@2.1.0:
-    resolution: {integrity: sha512-0o7rULrESplNC+ievCfwQn0wwRa7F40RaAEBDRYF1Q+8sMljdQ7/eLs/odbmmq+prE2q+IOXRMwMMoydP39vrw==}
+  ticlo-big-calendar@2.1.2:
+    resolution: {integrity: sha512-PU/OcoFS0Vx03k37htKN+IggoMQ3rZwXKdfS8Z8M97t7gSN0QGF9+mmJsgO3hZd7jwXdOQQ5WV0ydDKmaipCkw==}
     peerDependencies:
       react: ^16.14.0 || ^17 || ^18
       react-dom: ^16.14.0 || ^17 || ^18
@@ -7764,10 +7761,6 @@ snapshots:
   '@types/react@18.3.27':
     dependencies:
       '@types/prop-types': 15.7.14
-      csstype: 3.2.3
-
-  '@types/react@19.2.7':
-    dependencies:
       csstype: 3.2.3
 
   '@types/send@0.17.4':
@@ -11507,7 +11500,7 @@ snapshots:
   through@2.3.8:
     optional: true
 
-  ticlo-big-calendar@2.1.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1):
+  ticlo-big-calendar@2.1.2(react-dom@18.3.1(react@18.3.1))(react@18.3.1):
     dependencies:
       '@babel/runtime': 7.28.4
       clsx: 2.1.1
@@ -11651,7 +11644,7 @@ snapshots:
   uncontrollable@7.2.1(react@18.3.1):
     dependencies:
       '@babel/runtime': 7.28.4
-      '@types/react': 19.2.7
+      '@types/react': 18.3.27
       invariant: 2.2.4
       react: 18.3.1
       react-lifecycles-compat: 3.0.4

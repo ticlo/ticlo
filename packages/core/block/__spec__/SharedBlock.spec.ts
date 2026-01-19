@@ -52,7 +52,7 @@ describe('SharedBlock', function () {
 
   it('cacheMode', function () {
     const data = {'#is': '', '#shared': {'#is': '', '#cacheMode': 'persist'}};
-    WorkerFunctionGen.registerType(data, {name: 'cacheModeWorker1', properties: []}, 'SharedBlock');
+    WorkerFunctionGen.registerType(globalFunctions, data, {name: 'cacheModeWorker1', properties: []}, 'SharedBlock');
 
     const flow = new WorkerFlow();
     flow.load(data, 'SharedBlock:cacheModeWorker1');

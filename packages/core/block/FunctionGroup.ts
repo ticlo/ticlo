@@ -4,7 +4,7 @@ import {isDataMap, type DataMap} from '../util/DataTypes.js';
 import {Functions} from './Functions.js';
 
 export interface FunctionLoader {
-  load(data: DataMap): [FunctionClass, FunctionDesc];
+  load(data: DataMap, localFuncId: string, fullId: string, namespace?: string): [FunctionClass, FunctionDesc];
 }
 export class FunctionGroup extends Functions {
   static _loaders: Map<string, FunctionLoader> = new Map();
@@ -14,6 +14,9 @@ export class FunctionGroup extends Functions {
 
   constructor(public readonly namespace?: string) {
     super();
+  }
+  getFullId(localId: string) {
+    return localId;
   }
 
   save() {
@@ -30,14 +33,27 @@ export class FunctionGroup extends Functions {
     return result;
   }
   load(data: DataMap) {
-    for (const id in data) {
-      const funcData = data[id];
+    const usedFullId: Record<string, boolean> = {};
+    for (const localFuncId in data) {
+      const funcData = data[localFuncId];
       if (isDataMap(funcData) && typeof funcData.type === 'string') {
+        const fullId = this.getFullId(localFuncId);
+        usedFullId[fullId] = true;
+        if (this._functions[fullId]?._value?.equals?.(funcData)) {
+          // no need to update existing function
+          continue;
+        }
         const loader = FunctionGroup._loaders.get(funcData.type);
         if (loader) {
-          const [func, desc] = loader.load(funcData);
+          const [func, desc] = loader.load(funcData, localFuncId, fullId, this.namespace);
           this.add(func, desc, this.namespace);
         }
+      }
+    }
+    for (const existingId in this._functions) {
+      if (!(existingId in usedFullId)) {
+        // todo, clean shared Flow
+        this._functions[existingId].updateValue(undefined);
       }
     }
   }
@@ -46,8 +62,15 @@ export class FunctionGroup extends Functions {
 export class NsFunctionGroup extends FunctionGroup {
   _loaded: boolean | 'loading' = false;
 
-  constructor(namespace: string) {
+  constructor(
+    namespace: string,
+    public readonly groupName: string
+  ) {
     super(namespace);
+  }
+
+  getFullId(localId: string) {
+    return `${this.namespace}:${this.groupName}:${localId}`;
   }
 
   saveToStorage() {}

@@ -11,7 +11,7 @@ import {CalendarToolbar} from './CalendarToolbar.js';
 import {CalendarEventEditor, sortDateItem} from './CalendarEventEditor.js';
 import {SchedulerConfig} from '@ticlo/core/functions/date/Schedule/SchedulerEvent.js';
 import {scat} from '@ticlo/core/util/String.js';
-import {toDateTime} from '@ticlo/core';
+import {DateTime} from 'luxon';
 
 const CalendarT = Calendar<CalendarEvent>;
 
@@ -30,7 +30,7 @@ interface State {
   selectedId?: string;
   selectedIdx?: number;
   view: View;
-  date?: Date;
+  date?: DateTime;
 }
 /**
  * Main Scheduler Editor Component.
@@ -82,10 +82,10 @@ export class ScheduleCalendar extends LazyUpdateComponent<Props, State> {
     const {selectedIdx} = this.state;
     const dummyEvents = this.scheduleLoader.getDummyEvents();
     const config = dummyEvents[selectedIdx]?.parent.config ?? ({} as SchedulerConfig);
-    const startDate = toDateTime(slot.start);
+    const startDate = slot.start;
     const start = startDate.toFormat('HH:mm');
-    let duration = (slot.end.valueOf() - slot.start.valueOf()) / 60000;
-    if (slot.end.getHours() === 59 && slot.end.getMinutes() === 59) {
+    let duration = slot.end.diff(startDate, 'minutes').minutes;
+    if (slot.end.hour === 23 && slot.end.minute === 59) {
       duration = 0;
     }
     const newConfig = {...config, start, duration};
@@ -127,17 +127,17 @@ export class ScheduleCalendar extends LazyUpdateComponent<Props, State> {
     this.safeSetState({selectedId: event.id});
     this.safeSetState({selectedIdx: parseInt(event.id.split('-')[0])});
   };
-  onRangeChange = (range: {start: Date; end: Date}, view?: View) => {
-    this.setState({timeRange: [range.start.getTime(), range.end.getTime()]});
+  onRangeChange = (range: {start: DateTime; end: DateTime}, view?: View) => {
+    this.setState({timeRange: [range.start.toMillis(), range.end.toMillis()]});
   };
 
-  onNavigate = (date: Date) => {
+  onNavigate = (date: DateTime) => {
     this.setState({date});
   };
   onView = (view: View) => {
     this.setState({view});
   };
-  eventPropGetter = (event: CalendarEvent, start: Date, end: Date, isSelected: boolean) => {
+  eventPropGetter = (event: CalendarEvent, start: DateTime, end: DateTime, isSelected: boolean) => {
     const {selectedIdx, selectedId} = this.state;
     const className: string = selectedId == null && selectedIdx === event.parent.idx ? 'rbc-selected' : undefined;
     return {className, style: event.parent.style};
@@ -198,7 +198,6 @@ export class ScheduleCalendar extends LazyUpdateComponent<Props, State> {
           ref={this.getCalendarRef}
           components={{toolbar: CalendarToolbar}}
           localizer={this.scheduleLoader.localizer}
-          culture="zh"
           views={{day: true, week: true, month: true}}
           view={view}
           date={date}

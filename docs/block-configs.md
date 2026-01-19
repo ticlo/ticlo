@@ -6,7 +6,7 @@
 `#is` define the function that will be attached to the block.
 
 - When value is string, it is the global function name.
-- When value is object, it will be deserialized as a child block in the `#func` config
+- When value is object, it will be deserialized as a child block in the `#flow` config
 
 ### #mode
 
@@ -49,11 +49,11 @@ A list of additional property definition that will show in the property list
 
 **type** list of string
 
-### #func
+### #flow
 
 **type**: Block
 
-A temporary block maintained by the block function, block will always destroy the #func block when function changed
+A temporary block maintained by the block function, block will always destroy the #flow block when function changed
 
 ### #wait
 

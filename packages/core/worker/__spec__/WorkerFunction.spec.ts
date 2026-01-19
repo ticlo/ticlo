@@ -4,6 +4,7 @@ import {WorkerFunctionGen} from '../WorkerFunctionGen.js';
 import {TestFunctionRunner} from '../../block/__spec__/TestFunction.js';
 import '../../functions/math/Arithmetic.js';
 import type {DataMap} from '../../util/DataTypes.js';
+import {globalFunctions} from '../../block/Functions.js';
 
 describe('WorkerFunction', function () {
   it('basic', function () {
@@ -22,7 +23,7 @@ describe('WorkerFunction', function () {
         '~#call': '##.#inputs.in1',
       },
     };
-    WorkerFunctionGen.registerType(flowData, {name: 'class1'}, 'WorkerFunction');
+    WorkerFunctionGen.registerType(globalFunctions, flowData, {name: 'class1'}, 'WorkerFunction');
 
     Root.run();
     expect(TestFunctionRunner.popLogs()).toEqual(['nest1']);
@@ -56,7 +57,7 @@ describe('WorkerFunction', function () {
       'add': {'#is': 'add', '~0': '##.#inputs.in1', '1': 1},
       '#outputs': {'#is': '', '~out1': '##.add.#output'},
     };
-    WorkerFunctionGen.registerType(flowData, {name: 'class2'}, 'WorkerFunction');
+    WorkerFunctionGen.registerType(globalFunctions, flowData, {name: 'class2'}, 'WorkerFunction');
     aBlock.setValue('in1', 2);
     Root.run();
 
@@ -80,8 +81,8 @@ describe('WorkerFunction', function () {
       'add': {'#is': 'add', '~0': '##.#inputs.in1', '1': 1},
       '#outputs': {'#is': '', '~out2': '##.add.#output'},
     };
-    WorkerFunctionGen.registerType(flowData1, {name: 'class1'}, 'test_namespace');
-    WorkerFunctionGen.registerType(flowData2, {name: 'class2'}, 'test_namespace');
+    WorkerFunctionGen.registerType(globalFunctions, flowData1, {name: 'class1'}, 'test_namespace');
+    WorkerFunctionGen.registerType(globalFunctions, flowData2, {name: 'class2'}, 'test_namespace');
     Root.run();
 
     expect(aBlock.getValue('out1')).toBe(3);

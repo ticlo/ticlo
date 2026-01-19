@@ -46,6 +46,7 @@ import {FlowTestCase} from '@ticlo/test/FlowTestCase.js';
 import {createRoot} from 'react-dom/client';
 import {SchedulePane} from '@ticlo/editor/dock/schedule/SchedulePane.js';
 import {MixedBrowserConnection} from '@ticlo/html/connect/MixedBrowserConnection.js';
+import {Namespace} from '@ticlo/core/block/Namespace.js';
 import {RadioChangeEvent} from 'antd';
 
 const layoutGroups = {
@@ -75,7 +76,12 @@ interface State {
   modal?: React.ReactElement;
 }
 
-WorkerFunctionGen.registerType({'#is': ''}, {name: 'class1'}, 'WorkerEditor');
+WorkerFunctionGen.registerType(
+  Namespace.getFunctionGroup('+WorkerEditor::'),
+  {'#is': ''},
+  {name: 'class1'},
+  '+WorkerEditor'
+);
 
 class App extends React.PureComponent<Props, State> {
   state: State = {};

@@ -6,6 +6,7 @@ import {Root} from '../../block/Flow.js';
 import type {DataMap} from '../DataTypes.js';
 import {propRelative} from '../PropPath.js';
 import type {Block} from '../../block/Block.js';
+import {globalFunctions} from '../../block/Functions.js';
 
 describe('Path', function () {
   it('resolve', function () {
@@ -59,8 +60,8 @@ describe('Path', function () {
         'D': {'#is': ''},
       },
     };
-    WorkerFunctionGen.registerType(flowData1, {name: 'class1'}, 'PropRelative');
-    WorkerFunctionGen.registerType(flowData2, {name: 'class2'}, 'PropRelative');
+    WorkerFunctionGen.registerType(globalFunctions, flowData1, {name: 'class1'}, 'PropRelative');
+    WorkerFunctionGen.registerType(globalFunctions, flowData2, {name: 'class2'}, 'PropRelative');
 
     flow1.load({
       c: {

@@ -1,6 +1,6 @@
-import type {Root} from './Flow.js';
+import type {Flow, Root} from './Flow.js';
 import {Block} from './Block.js';
-import {FunctionDispatcher, Functions} from './Functions.js';
+import {FunctionDispatcher, Functions, globalFunctions} from './Functions.js';
 import {FunctionClass} from './BlockFunction.js';
 import {PropListener} from './Dispatcher.js';
 import {DataMap} from '../editor.js';
@@ -32,14 +32,17 @@ export class Namespace {
 
   static getFunctionGroup(id: string) {
     const parts = id.split(':');
-    const ns = parts[0];
-    let namespace = Namespace._dict[ns];
-    if (namespace == null) {
-      namespace = new Namespace(ns);
-      Namespace._dict[ns] = namespace;
-    }
-    if (ns.length > 2 && parts[1]) {
-      return namespace.getGroup(parts[1]);
+    if (parts.length > 1) {
+      const ns = parts[0];
+      if (ns.length > 1) {
+        // single character namespace is not allowed
+        let namespace = Namespace._dict[ns];
+        if (namespace == null) {
+          namespace = new Namespace(ns);
+          Namespace._dict[ns] = namespace;
+        }
+        return namespace.getGroup(parts[1]);
+      }
     }
     return undefined;
   }
@@ -59,6 +62,26 @@ export class Namespace {
     return null;
   }
 
+  static getFunctions(funcId: string, flow: Flow): Functions {
+    const code0 = funcId.charCodeAt(0);
+    if (code0 === 58 /* : */) {
+      // local function
+      return flow.getFuncGroup();
+    } else if (code0 === 43 /* + */) {
+      // namespace function
+      if (funcId.charCodeAt(1) === 58 /* +: */) {
+        // replace + with current namespace
+        return Namespace.getFunctionGroup(flow._namespace + funcId.substring(1));
+      } else {
+        return Namespace.getFunctionGroup(funcId);
+      }
+    } else if (code0 > 0) {
+      // global function
+      return globalFunctions;
+    }
+    return null;
+  }
+
   static loadNs(ns: string) {}
 
   _groups: Record<string, NsFunctionGroup> = {};
@@ -73,7 +96,7 @@ export class Namespace {
   getGroup(group: string) {
     let g = this._groups[group];
     if (!g) {
-      g = new NsFunctionGroup(this.ns);
+      g = new NsFunctionGroup(this.ns, group);
       this._groups[group] = g;
       if (this._loaded === false) {
         g.loadFromStorage();

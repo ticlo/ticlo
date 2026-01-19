@@ -35,7 +35,7 @@ describe('FlowEditor', function () {
       },
     };
 
-    WorkerFunctionGen.registerType(data, {name: 'func1'}, 'FlowEditor');
+    WorkerFunctionGen.registerType(globalFunctions, data, {name: 'func1'}, 'FlowEditor');
 
     // editor with map data
     block.setValue('use1', data);
@@ -59,7 +59,7 @@ describe('FlowEditor', function () {
       },
     };
 
-    WorkerFunctionGen.registerType(data, {name: 'worker2'}, 'FlowEditor');
+    WorkerFunctionGen.registerType(globalFunctions, data, {name: 'worker2'}, 'FlowEditor');
 
     FlowEditor.createFromFunction(flow, '#edit-func', 'FlowEditor:worker2', null);
     expect((flow.getValue('#edit-func') as Flow).save()).toEqual(data);
@@ -72,9 +72,10 @@ describe('FlowEditor', function () {
 
   it('applyChange', function () {
     const flow = new Flow();
-    const editor = FlowEditor.create(flow, '#edit-v2', {}, null, false, (data: DataMap) => {
+    const editor = FlowEditor.create(flow, '#edit-v2', {}, null, false, (f: Flow) => {
+      const data = f.save();
       flow.setValue('v2', data);
-      return true;
+      return data;
     });
     editor.applyChange();
     expect(flow.getValue('v2')).toEqual({'#is': ''});
@@ -127,7 +128,7 @@ describe('FlowEditor', function () {
       {name: 'b', type: 'number', readonly: true},
     ];
 
-    WorkerFunctionGen.registerType({'#is': ''}, {name: 'worker3', properties: []}, 'FlowEditor');
+    WorkerFunctionGen.registerType(globalFunctions, {'#is': ''}, {name: 'worker3', properties: []}, 'FlowEditor');
 
     const editor = FlowEditor.createFromFunction(flow, '#edit-func', 'FlowEditor:worker3', null);
     editor.createBlock('#inputs')._load(expectedData['#inputs']);

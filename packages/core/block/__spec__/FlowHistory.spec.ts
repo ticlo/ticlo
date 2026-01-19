@@ -50,7 +50,7 @@ describe('FlowHistory', function () {
     FlowHistory._debounceInterval = 50;
 
     const flow = new WorkerFlow();
-    flow.load({a: 1}, null, (data) => true);
+    flow.load({a: 1}, null, (flow) => flow.save());
     flow.startHistory();
     const history = flow._history;
     flow.setValue('a', 2);

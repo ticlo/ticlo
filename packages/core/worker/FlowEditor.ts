@@ -1,4 +1,5 @@
 import {Block, BlockChildWatch} from '../block/Block.js';
+import type {Flow} from '../block/Flow.js';
 import {DataMap} from '../util/DataTypes.js';
 import {WorkerFunctionGen} from './WorkerFunctionGen.js';
 import {FlowWithShared, FlowWithSharedConfigGenerators} from '../block/SharedBlock.js';
@@ -40,7 +41,7 @@ export class FlowEditor extends FlowWithShared {
     src?: DataMap,
     funcId?: string,
     forceLoad = false,
-    applyChange?: (data: DataMap) => boolean
+    applyChange?: (flow: Flow) => DataMap
   ): FlowEditor {
     const prop = parent.getProperty(field);
     let flow: FlowEditor;
@@ -56,8 +57,8 @@ export class FlowEditor extends FlowWithShared {
       prop.setOutput(flow);
     }
     if (funcId?.startsWith(':') && !applyChange) {
-      applyChange = (data: DataMap) => {
-        return WorkerFunctionGen.applyChangeToFunc(flow, null, null, data);
+      applyChange = (flow: Flow) => {
+        return WorkerFunctionGen.applyChangeToFunc(flow, null);
       };
     }
     const success = flow.load(src, funcId, applyChange);
@@ -79,9 +80,10 @@ export class FlowEditor extends FlowWithShared {
           const loader = SubflowLoader.getLoader(getBlockStoragePath(parent));
           loader.load((data: DataMap) => {
             if (!parent.isDestroyed() && parent.getValue(fromField) === '#') {
-              newFlow = FlowEditor.create(parent, field, data ?? defaultWorkerData, null, false, (data: DataMap) => {
+              newFlow = FlowEditor.create(parent, field, data ?? defaultWorkerData, null, false, (flow: Flow) => {
+                const data = flow.save();
                 loader.save(data);
-                return true;
+                return data;
               });
             }
           });
@@ -90,9 +92,10 @@ export class FlowEditor extends FlowWithShared {
           newFlow = FlowEditor.create(parent, field, null, fromValue);
         }
       } else {
-        newFlow = FlowEditor.create(parent, field, fromValue as DataMap, null, false, (data: DataMap) => {
+        newFlow = FlowEditor.create(parent, field, fromValue as DataMap, null, false, (flow: Flow) => {
+          const data = flow.save();
           parent.setValue(fromField, data);
-          return true;
+          return data;
         });
       }
 
@@ -105,9 +108,10 @@ export class FlowEditor extends FlowWithShared {
 
     if (parent._funcId) {
       const data = parent.getDefaultWorker(fromField) || defaultWorkerData;
-      return FlowEditor.create(parent, field, data, null, forceReload, (data: DataMap) => {
+      return FlowEditor.create(parent, field, data, null, forceReload, (flow: Flow) => {
+        const data = flow.save();
         parent.setValue(fromField, data);
-        return true;
+        return data;
       });
     }
 

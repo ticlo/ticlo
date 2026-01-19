@@ -65,6 +65,7 @@ import {IndexDbFlowStorage} from '@ticlo/html/storage/IndexDbStorage.js';
 import {createRoot} from 'react-dom/client';
 import {SchedulePane} from '@ticlo/editor/dock/schedule/SchedulePane.js';
 import {RadioChangeEvent} from 'antd';
+import {Namespace} from '@ticlo/core/block/Namespace.js';
 
 const layoutGroups = {
   blockStage: {
@@ -94,6 +95,7 @@ interface State {
 }
 
 WorkerFunctionGen.registerType(
+  Namespace.getFunctionGroup('+WorkerEditor::'),
   {
     '#is': '',
     '#shared': {
@@ -143,7 +145,7 @@ WorkerFunctionGen.registerType(
       {name: 'ooo', type: 'number'},
     ],
   },
-  ''
+  '+WorkerEditor'
 );
 
 class App extends React.PureComponent<Props, State> {

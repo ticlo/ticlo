@@ -524,7 +524,7 @@ export class Block implements Runnable, FunctionData, PropListener<FunctionClass
     field: string,
     src?: DataMap | string,
     output?: FunctionOutput,
-    applyChange?: (data: DataMap) => boolean
+    applyChange?: (flow: Flow) => DataMap
   ): T {
     if (this._flow._depth >= getMaxFlowDepth()) {
       Logger.error(`failed to create output flow at ${this.getFullPath()}.${field}`);
@@ -791,14 +791,6 @@ export class Block implements Runnable, FunctionData, PropListener<FunctionClass
     if (typeof funcId !== 'string') {
       funcId = null;
     }
-    const flowNamespace = this._flow._namespace;
-    if (flowNamespace && typeof funcId === 'string') {
-      if (funcId.startsWith(':')) {
-        funcId = `${this._flow._namespace}${funcId}`;
-      } else if (funcId.includes('@:') && flowNamespace.includes('@')) {
-        funcId = funcId.replace('@', flowNamespace.substring(flowNamespace.indexOf('@')));
-      }
-    }
     if (funcId === this._funcId) return;
     this._funcId = funcId as string;
     if (!this._disabled) {
@@ -810,21 +802,9 @@ export class Block implements Runnable, FunctionData, PropListener<FunctionClass
     if (this._funcSrc) {
       this._funcSrc.unlisten(this);
     }
-    const code0 = funcId.charCodeAt(0);
-    if (code0 === 58 /* : */) {
-      // local function
-      this._funcSrc = this._flow._funcGroup?.listen(funcId, this);
-    } else if (code0 === 43 /* + */) {
-      // namespace function
-      if (funcId.charCodeAt(1) === 58 /* +: */) {
-        // replace + with current namespace
-        this._funcSrc = Namespace.listen(this._flow._namespace + funcId.substring(1), this);
-      } else {
-        this._funcSrc = Namespace.listen(funcId, this);
-      }
-    } else if (code0 > 0) {
-      // global function
-      this._funcSrc = globalFunctions.listen(funcId, this);
+    const functions = Namespace.getFunctions(funcId, this._flow);
+    if (functions) {
+      this._funcSrc = functions.listen(funcId, this);
     } else {
       this._funcSrc = null;
       this.onChange(null);

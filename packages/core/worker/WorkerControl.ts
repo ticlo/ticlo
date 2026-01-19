@@ -1,6 +1,6 @@
 import {type Block} from '../block/Block.js';
 import {DataMap, isDataMap, isSavedBlock} from '../util/DataTypes.js';
-import {Root} from '../block/Flow.js';
+import {Flow, Root} from '../block/Flow.js';
 import {StreamDispatcher} from '../block/Dispatcher.js';
 import {BaseFunction, FunctionClass, StatefulFunction} from '../block/BlockFunction.js';
 import {getBlockStoragePath} from '../util/Path.js';
@@ -110,31 +110,26 @@ export class WorkerControl {
     return this._src != null;
   }
 
-  saveInline = (data: DataMap) => {
+  saveInline = (flow: Flow) => {
+    const data = flow.save();
     this.block.setValue(this.func.workerField, data);
-    return true;
+    return data;
   };
-  saveStorage = (data: DataMap) => {
+  saveStorage = (flow: Flow) => {
+    const data = flow.save();
     Root.instance._storage.saveFlow(null, data, this.storagePath);
-    return true;
+    return data;
   };
 
-  getSaveParameter(): {src?: string | DataMap; saveCallback?: (data: DataMap) => boolean} {
+  getSaveParameter(): {src?: string | DataMap; saveCallback?: (flow: Flow) => DataMap} {
     const src: string | DataMap = this._src;
-    if (src === '#') {
-      return {src: this.loader?.value, saveCallback: this.saveStorage};
-    }
     if (typeof src === 'string') {
-      if (src.startsWith(':')) {
-        return {
-          src,
-          saveCallback: (data: DataMap) => {
-            return WorkerFunctionGen.applyChangeToFunc(null, src, '', data);
-          },
-        };
-      }
-      // readonly
-      return {src};
+      return {
+        src,
+        saveCallback: (flow: Flow) => {
+          return WorkerFunctionGen.applyChangeToFunc(flow, src);
+        },
+      };
     }
     if (isDataMap(src)) {
       return {src, saveCallback: this.saveInline};

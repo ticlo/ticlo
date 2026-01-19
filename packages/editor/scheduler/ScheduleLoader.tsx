@@ -1,5 +1,6 @@
 import React, {CSSProperties} from 'react';
-import {Event, luxonLocalizer} from 'ticlo-big-calendar';
+import {luxonLocalizer} from 'ticlo-big-calendar';
+import type {CalendarEvent as BaseEvent} from 'ticlo-big-calendar/es/types.js';
 import {ClientConn, ValueSubscriber} from '@ticlo/core/connect/ClientConn.js';
 import {ValueUpdate} from '@ticlo/core/connect/ClientRequests.js';
 import {
@@ -29,10 +30,11 @@ function getTitle(config: SchedulerConfig, value: unknown) {
 /**
  * Adapter class to map SchedulerEvent occurences to react-big-calendar Event interface.
  */
-export class CalendarEvent implements Event {
+export class CalendarEvent implements BaseEvent {
+  [key: string]: any;
   readonly id: string;
-  readonly start: Date;
-  readonly end: Date;
+  readonly start: DateTime;
+  readonly end: DateTime;
   allDay?: boolean;
   icon?: React.ReactNode;
   constructor(
@@ -41,15 +43,10 @@ export class CalendarEvent implements Event {
     public readonly title: string,
     public readonly parent: ConfigValuePair
   ) {
-    this.start = new Date(start);
-    this.end = new Date(end);
-    this.id = `${parent.idx}-${this.start.getMonth()}-${this.start.getDate()}`;
-    if (
-      this.start.getHours() === 0 &&
-      this.start.getMinutes() === 0 &&
-      this.end.getHours() === 23 &&
-      this.end.getMinutes() === 59
-    ) {
+    this.start = DateTime.fromMillis(start);
+    this.end = DateTime.fromMillis(end);
+    this.id = `${parent.idx}-${this.start.month}-${this.start.day}`;
+    if (this.start.hour === 0 && this.start.minute === 0 && this.end.hour === 23 && this.end.minute === 59) {
       this.allDay = true;
     }
     const priority = parent?.event?.priority;
