@@ -91,7 +91,3 @@ export function renderChildren<T extends BaseProps>(blocks: (ReactNode | Block)[
 export function findComponent<T extends BaseProps>(funcId: string) {
   return componentsMap.get(funcId) as ComponentType<T> | undefined;
 }
-
-export function isContainerFunction(funcId: unknown) {
-  return typeof funcId === 'string' && containerFuncIds.has(funcId);
-}

@@ -95,9 +95,10 @@ export class IndexDbFlowStorage extends IndexDbStorage implements FlowStorage {
 
   getFlowLoader(key: string, prop: BlockProperty): FlowLoader {
     return {
-      applyChange: (data: DataMap) => {
+      applyChange: (flow: Flow) => {
+        const data = flow.save();
         this.saveFlow(null, data, key);
-        return true;
+        return data;
       },
       onStateChange: (flow: Flow, state: FlowState) => this.flowStateChanged(flow, key, state),
     };
@@ -142,7 +143,6 @@ export class IndexDbFlowStorage extends IndexDbStorage implements FlowStorage {
   async init(root: Root) {
     const db = await this.dbPromise;
     const flowFiles: string[] = [];
-    const functionFiles: string[] = [];
     let globalData = {'#is': ''};
     for (const storeKey of (await db.getAllKeys(this.storeName)) as string[]) {
       if (
@@ -154,22 +154,9 @@ export class IndexDbFlowStorage extends IndexDbStorage implements FlowStorage {
           } catch (err) {
             // TODO Logger
           }
-        } else if (storeKey.startsWith('#.')) {
-          functionFiles.push(storeKey.substring(2));
         } else {
           flowFiles.push(storeKey);
         }
-      }
-    }
-
-    // load custom types
-    for (const name of functionFiles.sort()) {
-      try {
-        const data = decode(await db.get(this.storeName, `#.${name}`));
-        const desc = WorkerFunctionGen.collectDesc(`:${name}`, data);
-        WorkerFunctionGen.registerType(data, desc, '');
-      } catch (err) {
-        // TODO Logger
       }
     }
 

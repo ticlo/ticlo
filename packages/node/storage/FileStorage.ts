@@ -165,9 +165,10 @@ export class FileFlowStorage extends FileStorage implements FlowStorage {
 
   getFlowLoader(key: string, prop: BlockProperty): FlowLoader {
     return {
-      applyChange: (data: DataMap) => {
+      applyChange: (flow: Flow) => {
+        const data = flow.save();
         this.saveFlow(null, data, key);
-        return true;
+        return data;
       },
       onStateChange: (flow: Flow, state: FlowState) => this.flowStateChanged(flow, key, state),
     };
@@ -217,7 +218,6 @@ export class FileFlowStorage extends FileStorage implements FlowStorage {
   inited = false;
   init(root: Root): void {
     const flowFiles: string[] = [];
-    const functionFiles: string[] = [];
     let globalData = {'#is': ''};
     for (const file of Fs.readdirSync(this.dir)) {
       if (
@@ -231,22 +231,9 @@ export class FileFlowStorage extends FileStorage implements FlowStorage {
           } catch (err) {
             // TODO Logger
           }
-        } else if (file.startsWith('#.')) {
-          functionFiles.push(name.substring(2));
         } else {
           flowFiles.push(name);
         }
-      }
-    }
-
-    // load custom types
-    for (const name of functionFiles.sort()) {
-      try {
-        const data = decode(Fs.readFileSync(Path.join(this.dir, `#.${name}${this.ext}`), 'utf8'));
-        const desc = WorkerFunctionGen.collectDesc(`:${name}`, data);
-        WorkerFunctionGen.registerType(data, desc, '');
-      } catch (err) {
-        // TODO Logger
       }
     }
 

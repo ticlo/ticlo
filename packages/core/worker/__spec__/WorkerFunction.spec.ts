@@ -5,6 +5,7 @@ import {TestFunctionRunner} from '../../block/__spec__/TestFunction.js';
 import '../../functions/math/Arithmetic.js';
 import type {DataMap} from '../../util/DataTypes.js';
 import {globalFunctions} from '../../block/Functions.js';
+import {Namespace} from '../../block/Namespace.js';
 
 describe('WorkerFunction', function () {
   it('basic', function () {
@@ -13,7 +14,7 @@ describe('WorkerFunction', function () {
 
     const aBlock = flow.createBlock('a');
 
-    aBlock.setValue('#is', 'WorkerFunction:class1');
+    aBlock.setValue('#is', '+WorkerFunction::class1');
 
     const flowData: DataMap = {
       '#is': '',
@@ -23,7 +24,12 @@ describe('WorkerFunction', function () {
         '~#call': '##.#inputs.in1',
       },
     };
-    WorkerFunctionGen.registerType(globalFunctions, flowData, {name: 'class1'}, 'WorkerFunction');
+    WorkerFunctionGen.registerType(
+      Namespace.getFunctionGroup('+WorkerFunction::'),
+      flowData,
+      {name: 'class1'},
+      '+WorkerFunction'
+    );
 
     Root.run();
     expect(TestFunctionRunner.popLogs()).toEqual(['nest1']);

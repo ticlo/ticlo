@@ -229,8 +229,8 @@ function SelectElement({block}: {block: Block}) {
   const {value, defaultValue, multiple} = useBlockConfigs(block, selectPropMap);
   return (
     <select
-      value={value}
-      defaultValue={defaultValue}
+      value={value as any}
+      defaultValue={defaultValue as any}
       multiple={multiple}
       style={style}
       className={className}

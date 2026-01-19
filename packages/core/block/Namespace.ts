@@ -47,22 +47,7 @@ export class Namespace {
     return undefined;
   }
 
-  static listen(id: string, block: PropListener<FunctionClass>): FunctionDispatcher {
-    const parts = id.split(':');
-    const ns = parts[0];
-    let namespace = Namespace._dict[ns];
-    if (namespace == null) {
-      namespace = new Namespace(ns);
-      Namespace._dict[ns] = namespace;
-    }
-    if (ns.length > 2) {
-      // the default group (parts[1]) can be empty string
-      return namespace.listen(parts[1], id, block);
-    }
-    return null;
-  }
-
-  static getFunctions(funcId: string, flow: Flow): Functions {
+  static getFunctions(funcId: string, flow?: Flow, namespace?: string): Functions {
     const code0 = funcId.charCodeAt(0);
     if (code0 === 58 /* : */) {
       // local function
@@ -71,7 +56,7 @@ export class Namespace {
       // namespace function
       if (funcId.charCodeAt(1) === 58 /* +: */) {
         // replace + with current namespace
-        return Namespace.getFunctionGroup(flow._namespace + funcId.substring(1));
+        return Namespace.getFunctionGroup(flow?._namespace ?? namespace + funcId.substring(1));
       } else {
         return Namespace.getFunctionGroup(funcId);
       }
@@ -103,8 +88,5 @@ export class Namespace {
       }
     }
     return g;
-  }
-  listen(group: string, id: string, block: PropListener<FunctionClass>): FunctionDispatcher {
-    return this.getGroup(group).listen(id, block);
   }
 }

@@ -63,7 +63,7 @@ export class WorkerFunctionGen extends BaseFunction<Block> {
     if (!functionGroup) {
       return;
     }
-    const fullId = namespace ? `${namespace}:${desc.id}` : desc.id;
+    const fullId = desc.id ?? `${namespace}::${desc.name}`;
     const [func, generatedDesc] = WorkerFunctionGen.generate(data, fullId, namespace);
     functionGroup.add(func, {...desc, ...generatedDesc}, namespace);
   }

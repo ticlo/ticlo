@@ -2,7 +2,7 @@ export {useBlockProps} from './hooks/useBlockProps.js';
 export {useFilteredBlocks} from './hooks/useFilteredBlocks.js';
 export {useWatchBlock} from './hooks/useWatchBlock.js';
 export {Values} from './comp/Values.js';
-export {registerComponent, findComponent, renderChildren, TicloComp, isContainerFunction} from './comp/Component.js';
+export {registerComponent, findComponent, renderChildren, TicloComp} from './comp/Component.js';
 
 import {globalFunctions} from '@ticlo/core';
 import './functions/ToComponent.js';

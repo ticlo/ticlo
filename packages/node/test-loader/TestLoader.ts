@@ -85,9 +85,10 @@ export class TestLoader extends FileFlowStorage {
           }
           return testCase;
         },
-        applyChange: (data: DataMap) => {
+        applyChange: (flow: Flow) => {
+          const data = flow.save();
           this.saveFlow(null, data, key);
-          return true;
+          return data;
         },
         onStateChange: (flow: Flow, state: FlowState) => this.flowStateChanged(flow, key, state),
       };

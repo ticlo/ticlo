@@ -1,7 +1,8 @@
 import {type FunctionClass} from '../block/BlockFunction.js';
 import {type FunctionDesc} from '../block/Descriptor.js';
 import {isDataMap, type DataMap} from '../util/DataTypes.js';
-import {Functions} from './Functions.js';
+import {type PropListener} from './Dispatcher.js';
+import {type FunctionDispatcher, Functions} from './Functions.js';
 
 export interface FunctionLoader {
   load(data: DataMap, localFuncId: string, fullId: string, namespace?: string): [FunctionClass, FunctionDesc];
@@ -62,11 +63,23 @@ export class FunctionGroup extends Functions {
 export class NsFunctionGroup extends FunctionGroup {
   _loaded: boolean | 'loading' = false;
 
+  readonly prefix: string;
   constructor(
     namespace: string,
     public readonly groupName: string
   ) {
     super(namespace);
+    this.prefix = `${namespace}:${groupName}`;
+  }
+  listen(id: string, block: PropListener<FunctionClass>): FunctionDispatcher {
+    let fullId = id;
+    if (id.charCodeAt(0) === 58 /* : */) {
+      fullId = `${this.prefix}${id}`;
+    } else if (id.charCodeAt(1) === 58 /* : */) {
+      // replace +: with current prefix
+      fullId = `${this.namespace}${id.substring(1)}`;
+    }
+    return super.listen(fullId, block);
   }
 
   getFullId(localId: string) {
