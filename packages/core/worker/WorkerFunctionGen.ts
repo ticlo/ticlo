@@ -23,6 +23,7 @@ export class WorkerFunctionGen extends BaseFunction<Block> {
 
   run(): any {
     let applyChange: (flow: Flow) => DataMap;
+    // todo: fix applyChange
     if (this._namespace === '') {
       applyChange = (flow: Flow) => {
         return WorkerFunctionGen.applyChangeToFunc(this._funcFlow, null);
@@ -59,13 +60,19 @@ export class WorkerFunctionGen extends BaseFunction<Block> {
     return [CustomWorkerFunction, desc];
   }
 
-  static registerType(functionGroup: Functions, data: DataMap, desc: FunctionDesc, namespace?: string) {
-    if (!functionGroup) {
-      return;
-    }
+  static registerType(data: DataMap, desc: FunctionDesc, namespace?: string, functionGroup?: Functions) {
     const fullId = desc.id ?? `${namespace}::${desc.name}`;
+    let functions: Functions = functionGroup;
+    if (!functions) {
+      if (fullId.startsWith('+')) {
+        functions = Namespace.getFunctionGroup(fullId);
+      } else {
+        functions = globalFunctions;
+      }
+    }
+
     const [func, generatedDesc] = WorkerFunctionGen.generate(data, fullId, namespace);
-    functionGroup.add(func, {...desc, ...generatedDesc}, namespace);
+    functions.add(func, {...desc, ...generatedDesc}, namespace);
   }
 
   /**

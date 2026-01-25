@@ -50,7 +50,7 @@ describe('Path', function () {
       '#is': '',
       'A': {
         '#is': '',
-        'B': {'#is': 'PropRelative:class2'},
+        'B': {'#is': '+PropRelative::class2'},
       },
     };
     const flowData2: DataMap = {
@@ -60,13 +60,13 @@ describe('Path', function () {
         'D': {'#is': ''},
       },
     };
-    WorkerFunctionGen.registerType(globalFunctions, flowData1, {name: 'class1'}, 'PropRelative');
-    WorkerFunctionGen.registerType(globalFunctions, flowData2, {name: 'class2'}, 'PropRelative');
+    WorkerFunctionGen.registerType(flowData1, {name: 'class1'}, '+PropRelative');
+    WorkerFunctionGen.registerType(flowData2, {name: 'class2'}, '+PropRelative');
 
     flow1.load({
       c: {
         '#is': '',
-        'd': {'#is': 'PropRelative:class1'},
+        'd': {'#is': '+PropRelative::class1'},
         'e': {'#is': ''},
       },
       f: {
@@ -74,14 +74,14 @@ describe('Path', function () {
         '~g': {
           '#is': '',
         },
-        'h': {'#is': 'PropRelative:class1'},
+        'h': {'#is': '+PropRelative::class1'},
       },
     });
 
     flow2.load({
       o: {
         '#is': '',
-        'p': {'#is': 'PropRelative:class1'},
+        'p': {'#is': '+PropRelative::class1'},
         'q': {'#is': ''},
       },
     });

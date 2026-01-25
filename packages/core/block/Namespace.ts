@@ -3,8 +3,9 @@ import {Block} from './Block.js';
 import {FunctionDispatcher, Functions, globalFunctions} from './Functions.js';
 import {FunctionClass} from './BlockFunction.js';
 import {PropListener} from './Dispatcher.js';
-import {DataMap} from '../editor.js';
-import {NsFunctionGroup} from './FunctionGroup.js';
+import {FunctionDesc} from './Descriptor.js';
+import {DataMap} from '../util/DataTypes.js';
+import {FunctionGroup, NsFunctionGroup} from './FunctionGroup.js';
 
 export class Namespace {
   private static _rootInstance: Root;
@@ -67,23 +68,43 @@ export class Namespace {
     return null;
   }
 
+  static getWorker(id: string, flow?: Flow): [FunctionDesc, DataMap, FunctionGroup] {
+    const functions = Namespace.getFunctions(id, flow);
+    if (functions) {
+      const workerData = functions.getWorkerData(id);
+      if (workerData) {
+        const [desc] = functions.getDescToSend(id);
+        const functionGroup = functions instanceof FunctionGroup ? functions : null;
+        return [desc, workerData, functionGroup];
+      }
+    }
+
+    return [undefined, undefined, undefined];
+  }
+
   static loadNs(ns: string) {}
 
   _groups: Record<string, NsFunctionGroup> = {};
 
   constructor(public readonly ns: string) {}
+  _enabled: boolean = false;
   _loaded: boolean | 'loading' = false;
   load() {
+    this._enabled = true;
     if (this._loaded === false) {
       this._loaded = 'loading';
     }
+    // todo: load namespace flows
+  }
+  unload() {
+    this._enabled = false;
   }
   getGroup(group: string) {
     let g = this._groups[group];
     if (!g) {
       g = new NsFunctionGroup(this.ns, group);
       this._groups[group] = g;
-      if (this._loaded === false) {
+      if (this._enabled) {
         g.loadFromStorage();
       }
     }

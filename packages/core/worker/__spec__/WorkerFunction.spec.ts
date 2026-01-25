@@ -24,12 +24,7 @@ describe('WorkerFunction', function () {
         '~#call': '##.#inputs.in1',
       },
     };
-    WorkerFunctionGen.registerType(
-      Namespace.getFunctionGroup('+WorkerFunction::'),
-      flowData,
-      {name: 'class1'},
-      '+WorkerFunction'
-    );
+    WorkerFunctionGen.registerType(flowData, {name: 'class1'}, '+WorkerFunction');
 
     Root.run();
     expect(TestFunctionRunner.popLogs()).toEqual(['nest1']);
@@ -56,14 +51,14 @@ describe('WorkerFunction', function () {
 
     const aBlock = flow.createBlock('a');
 
-    aBlock.setValue('#is', 'WorkerFunction:class2');
+    aBlock.setValue('#is', '+WorkerFunction::class2');
 
     const flowData: DataMap = {
       '#is': '',
       'add': {'#is': 'add', '~0': '##.#inputs.in1', '1': 1},
       '#outputs': {'#is': '', '~out1': '##.add.#output'},
     };
-    WorkerFunctionGen.registerType(globalFunctions, flowData, {name: 'class2'}, 'WorkerFunction');
+    WorkerFunctionGen.registerType(flowData, {name: 'class2'}, '+WorkerFunction');
     aBlock.setValue('in1', 2);
     Root.run();
 
@@ -75,7 +70,7 @@ describe('WorkerFunction', function () {
 
     const aBlock = flow.createBlock('a');
     aBlock.setValue('in0', 2);
-    aBlock.setValue('#is', 'test_namespace:class1');
+    aBlock.setValue('#is', '+test_namespace::class1');
 
     const flowData1: DataMap = {
       '#is': '',
@@ -87,8 +82,8 @@ describe('WorkerFunction', function () {
       'add': {'#is': 'add', '~0': '##.#inputs.in1', '1': 1},
       '#outputs': {'#is': '', '~out2': '##.add.#output'},
     };
-    WorkerFunctionGen.registerType(globalFunctions, flowData1, {name: 'class1'}, 'test_namespace');
-    WorkerFunctionGen.registerType(globalFunctions, flowData2, {name: 'class2'}, 'test_namespace');
+    WorkerFunctionGen.registerType(flowData1, {name: 'class1'}, '+test_namespace');
+    WorkerFunctionGen.registerType(flowData2, {name: 'class2'}, '+test_namespace');
     Root.run();
 
     expect(aBlock.getValue('out1')).toBe(3);

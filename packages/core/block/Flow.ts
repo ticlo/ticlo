@@ -179,13 +179,13 @@ export class Flow extends Block {
     let loaded = false;
     if (funcId) {
       // load from worker class for editing
-      const desc: FunctionDesc = globalFunctions.getDescToSend(funcId)[0];
+      const [desc, workerData, funcGroup] = Namespace.getWorker(funcId, this);
       if (desc) {
-        const data = globalFunctions.getWorkerData(funcId);
-        if (data) {
+        if (workerData) {
           this._namespace = desc.ns;
           this._loadFrom = funcId;
-          this._loadFlowData(data, funcId);
+          this._funcGroup = funcGroup;
+          this._loadFlowData(workerData, funcId);
           loaded = true;
         }
       } else if (src) {

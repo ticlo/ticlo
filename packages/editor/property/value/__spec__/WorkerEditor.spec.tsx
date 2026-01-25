@@ -24,7 +24,7 @@ describe('WorkerEditor', function () {
   });
 
   it('expand type editor', async function () {
-    WorkerFunctionGen.registerType(globalFunctions, {'#is': ''}, {name: 'class1'}, 'WorkerEditor');
+    WorkerFunctionGen.registerType({'#is': ''}, {name: 'class1'}, '+WorkerEditor');
 
     const [server, client] = makeLocalConnection(Root.instance, true);
 

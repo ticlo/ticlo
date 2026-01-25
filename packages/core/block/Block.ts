@@ -802,13 +802,15 @@ export class Block implements Runnable, FunctionData, PropListener<FunctionClass
     if (this._funcSrc) {
       this._funcSrc.unlisten(this);
     }
-    const functions = Namespace.getFunctions(funcId, this._flow);
-    if (functions) {
-      this._funcSrc = functions.listen(funcId, this);
-    } else {
-      this._funcSrc = null;
-      this.onChange(null);
+    if (funcId) {
+      const functions = Namespace.getFunctions(funcId, this._flow);
+      if (functions) {
+        this._funcSrc = functions.listen(funcId, this);
+        return;
+      }
     }
+    this._funcSrc = null;
+    this.onChange(null);
   }
 
   // value from #priority

@@ -76,12 +76,7 @@ interface State {
   modal?: React.ReactElement;
 }
 
-WorkerFunctionGen.registerType(
-  Namespace.getFunctionGroup('+WorkerEditor::'),
-  {'#is': ''},
-  {name: 'class1'},
-  '+WorkerEditor'
-);
+WorkerFunctionGen.registerType({'#is': ''}, {name: 'class1'}, '+WorkerEditor');
 
 class App extends React.PureComponent<Props, State> {
   state: State = {};

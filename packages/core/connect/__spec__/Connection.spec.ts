@@ -705,7 +705,7 @@ describe('Connection', function () {
     await client.editWorker('Connection18.a.#edit-use', 'use');
     expect((block1.getValue('#edit-use') as Flow).save()).toEqual(data);
 
-    WorkerFunctionGen.registerType(globalFunctions, data, {name: 'func1'}, '');
+    WorkerFunctionGen.registerType(data, {name: 'func1'}, '');
 
     // edit from worker function
     await client.editWorker('Connection18.a.#edit-func1', null, ':func1');

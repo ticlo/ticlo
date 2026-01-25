@@ -13,13 +13,13 @@ describe('ContextProperty', function () {
     const flow = new Flow();
     const aBlock = flow.createBlock('a');
 
-    aBlock.setValue('#is', 'ContextProperty:class1');
+    aBlock.setValue('#is', '+ContextProperty::class1');
 
     const flowData: DataMap = {
       '#is': '',
       '~v': '^top.v',
     };
-    WorkerFunctionGen.registerType(globalFunctions, flowData, {name: 'class1'}, 'ContextProperty');
+    WorkerFunctionGen.registerType(flowData, {name: 'class1'}, '+ContextProperty');
 
     Root.run();
 

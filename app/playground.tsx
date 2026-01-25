@@ -95,7 +95,6 @@ interface State {
 }
 
 WorkerFunctionGen.registerType(
-  Namespace.getFunctionGroup('+WorkerEditor::'),
   {
     '#is': '',
     '#shared': {

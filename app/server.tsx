@@ -10,12 +10,7 @@ import {FrameServerConnection} from '@ticlo/html';
 import {IndexDbFlowStorage} from '@ticlo/html/storage/IndexDbStorage.js';
 import {Namespace} from '@ticlo/core/block/Namespace.js';
 
-WorkerFunctionGen.registerType(
-  Namespace.getFunctionGroup('+WorkerEditor::'),
-  {'#is': ''},
-  {name: 'class1'},
-  '+WorkerEditor'
-);
+WorkerFunctionGen.registerType({'#is': ''}, {name: 'class1'}, '+WorkerEditor');
 
 const editors: Window[] = [];
 window.addEventListener('beforeunload', () => {
