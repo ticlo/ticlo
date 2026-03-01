@@ -6,12 +6,17 @@ import {PropListener} from './Dispatcher.js';
 import {FunctionDesc} from './Descriptor.js';
 import {DataMap} from '../util/DataTypes.js';
 import {FunctionGroup, NsFunctionGroup} from './FunctionGroup.js';
+import type {FlowStorage} from './Storage.js';
 
 export class Namespace {
   private static _rootInstance: Root;
+  private static _storage: FlowStorage;
   static setRootInstance(instance: Root) {
     // need this function to avoid circular dependency
     Namespace._rootInstance = instance;
+  }
+  static setStorage(storage: FlowStorage) {
+    Namespace._storage = storage;
   }
 
   // return property for binding
@@ -31,17 +36,23 @@ export class Namespace {
 
   static _dict: Record<string, Namespace> = {};
 
+  static getNameSpace(ns: string) {
+    // single character namespace is not allowed
+    if (ns.length > 1) {
+      let namespace = Namespace._dict[ns];
+      if (namespace == null) {
+        namespace = new Namespace(ns);
+        Namespace._dict[ns] = namespace;
+      }
+      return namespace;
+    }
+    return undefined;
+  }
   static getFunctionGroup(id: string) {
     const parts = id.split(':');
     if (parts.length > 1) {
-      const ns = parts[0];
-      if (ns.length > 1) {
-        // single character namespace is not allowed
-        let namespace = Namespace._dict[ns];
-        if (namespace == null) {
-          namespace = new Namespace(ns);
-          Namespace._dict[ns] = namespace;
-        }
+      const namespace = Namespace.getNameSpace(parts[0]);
+      if (namespace) {
         return namespace.getGroup(parts[1]);
       }
     }
@@ -82,14 +93,29 @@ export class Namespace {
     return [undefined, undefined, undefined];
   }
 
-  static loadNs(ns: string) {}
+  static loadNameSpaces(namespaces: string[], unloadOthers = true) {
+    const usedNs = new Set(namespaces);
+    for (const ns of namespaces) {
+      const namespace = Namespace.getNameSpace(ns);
+      if (namespace) {
+        namespace.load(usedNs);
+      }
+    }
+    if (unloadOthers) {
+      for (const ns in Namespace._dict) {
+        if (!usedNs.has(ns)) {
+          Namespace._dict[ns].unload();
+        }
+      }
+    }
+  }
 
   _groups: Record<string, NsFunctionGroup> = {};
 
   constructor(public readonly ns: string) {}
   _enabled: boolean = false;
   _loaded: boolean | 'loading' = false;
-  load() {
+  async load(usedNs?: Set<string>) {
     this._enabled = true;
     if (this._loaded === false) {
       this._loaded = 'loading';
@@ -102,7 +128,7 @@ export class Namespace {
   getGroup(group: string) {
     let g = this._groups[group];
     if (!g) {
-      g = new NsFunctionGroup(this.ns, group);
+      g = new NsFunctionGroup(this.ns, group, Namespace._storage);
       this._groups[group] = g;
       if (this._enabled) {
         g.loadFromStorage();

@@ -3,6 +3,7 @@ import {type FunctionDesc} from '../block/Descriptor.js';
 import {isDataMap, type DataMap} from '../util/DataTypes.js';
 import {type PropListener} from './Dispatcher.js';
 import {type FunctionDispatcher, Functions} from './Functions.js';
+import {FlowStorage} from './Storage.js';
 
 export interface FunctionLoader {
   load(data: DataMap, localFuncId: string, fullId: string, namespace?: string): [FunctionClass, FunctionDesc];
@@ -66,7 +67,8 @@ export class NsFunctionGroup extends FunctionGroup {
   readonly prefix: string;
   constructor(
     namespace: string,
-    public readonly groupName: string
+    public readonly groupName: string,
+    private readonly storage: FlowStorage
   ) {
     super(namespace);
     this.prefix = `${namespace}:${groupName}`;

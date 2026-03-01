@@ -434,8 +434,8 @@ export class Root extends FlowFolder {
   }
 
   async setStorage(storage: FlowStorage) {
-    globalFunctions.setStorage(storage);
     this._storage = storage;
+    Namespace.setStorage(storage);
     await storage.init(this);
   }
 

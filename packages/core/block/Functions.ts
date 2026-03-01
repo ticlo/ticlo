@@ -42,7 +42,6 @@ export class FunctionDispatcher extends PropDispatcher<FunctionClass> {
 
 export class Functions {
   _functions: {[key: string]: FunctionDispatcher} = {};
-  _storage: FlowStorage;
   _listeners: Set<DescListener> = new Set<DescListener>();
 
   add(cls: FunctionClass | null, desc: FunctionDesc, namespace?: string, functionApi?: FunctionApi) {
@@ -201,14 +200,6 @@ export class Functions {
       }
     }
     return null;
-  }
-
-  setStorage(storage: FlowStorage) {
-    this._storage = storage;
-  }
-
-  deleteFunction(funcId: string) {
-    this._storage?.delete(`#.${funcId.substring(1)}`);
   }
 }
 

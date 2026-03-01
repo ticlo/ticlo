@@ -7,6 +7,7 @@ import {globalFunctions} from '../../block/Functions.js';
 import type {PropDesc, PropGroupDesc} from '../../block/Descriptor.js';
 import type {DataMap} from '../../util/DataTypes.js';
 import {SharedBlock} from '../../block/SharedBlock.js';
+import { Namespace } from '../../block/Namespace.js';
 
 describe('FlowEditor', function () {
   it('delete editor after unwatch', function () {
@@ -35,7 +36,7 @@ describe('FlowEditor', function () {
       },
     };
 
-    WorkerFunctionGen.registerType(data, {name: 'func1'}, 'FlowEditor');
+    WorkerFunctionGen.registerType(data, {name: 'func1'}, '+FlowEditor');
 
     // editor with map data
     block.setValue('use1', data);
@@ -43,11 +44,11 @@ describe('FlowEditor', function () {
     expect((block.getValue('#edit-use1') as Flow).save()).toEqual(data);
 
     // editor with registered worker function
-    block.setValue('use2', 'FlowEditor:func1');
+    block.setValue('use2', '+FlowEditor::func1');
     FlowEditor.createFromField(block, '#edit-use2', 'use2');
     expect((block.getValue('#edit-use2') as Flow).save()).toEqual(data);
 
-    globalFunctions.clear('FlowEditor:func1');
+    globalFunctions.clear('+FlowEditor::func1');
   });
 
   it('createFromFunction', function () {
@@ -59,15 +60,15 @@ describe('FlowEditor', function () {
       },
     };
 
-    WorkerFunctionGen.registerType(data, {name: 'worker2'}, 'FlowEditor');
+    WorkerFunctionGen.registerType(data, {name: 'worker2'}, '+FlowEditor');
 
-    FlowEditor.createFromFunction(flow, '#edit-func', 'FlowEditor:worker2', null);
+    FlowEditor.createFromFunction(flow, '#edit-func', '+FlowEditor::worker2', null);
     expect((flow.getValue('#edit-func') as Flow).save()).toEqual(data);
 
-    FlowEditor.createFromFunction(flow, '#edit-func', 'FlowEditor:worker2-2', data);
+    FlowEditor.createFromFunction(flow, '#edit-func', '+FlowEditor::worker2-2', data);
     expect((flow.getValue('#edit-func') as Flow).save()).toEqual(data);
 
-    globalFunctions.clear('FlowEditor:worker2');
+    globalFunctions.clear('+FlowEditor::worker2');
   });
 
   it('applyChange', function () {
@@ -128,17 +129,16 @@ describe('FlowEditor', function () {
       {name: 'b', type: 'number', readonly: true},
     ];
 
-    WorkerFunctionGen.registerType({'#is': ''}, {name: 'worker3', properties: []}, 'FlowEditor');
+    WorkerFunctionGen.registerType({'#is': ''}, {name: 'worker3', properties: []}, '+FlowEditor');
 
-    const editor = FlowEditor.createFromFunction(flow, '#edit-func', 'FlowEditor:worker3', null);
+    const editor = FlowEditor.createFromFunction(flow, '#edit-func', '+FlowEditor::worker3', null);
     editor.createBlock('#inputs')._load(expectedData['#inputs']);
     editor.createBlock('#outputs')._load(expectedData['#outputs']);
     editor.setValue('#desc', expectedData['#desc']);
-    WorkerFunctionGen.applyChangeToFunc(editor, 'FlowEditor:worker3');
+    WorkerFunctionGen.applyChangeToFunc(editor, '+FlowEditor::worker3');
 
-    expect(globalFunctions.getWorkerData('FlowEditor:worker3')).toEqual(expectedData);
-
-    const desc = globalFunctions.getDescToSend('FlowEditor:worker3')[0];
+    const [desc, workerData, functionGroup] = Namespace.getWorker('+FlowEditor::worker3');
+    expect(workerData).toEqual(expectedData);
     expect(desc.icon).toBe('fas:plus');
     expect(desc.properties).toEqual(expectedDescProperties);
 
@@ -149,7 +149,7 @@ describe('FlowEditor', function () {
   it('shared block', function () {
     const flow = new Flow();
 
-    const editor = FlowEditor.createFromFunction(flow, '#edit-func', 'FlowEditor:worker4', {
+    const editor = FlowEditor.createFromFunction(flow, '#edit-func', '+FlowEditor::worker4', {
       '#is': '',
       '#shared': {'#is': ''},
     });
