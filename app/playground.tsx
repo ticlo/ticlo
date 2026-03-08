@@ -370,6 +370,7 @@ class App extends React.PureComponent<Props, State> {
   i18next.addResourceBundle('fr', 'ticlo-test', frTestLocal);
 
   await Root.instance.setStorage(new IndexDbFlowStorage());
+  Namespace.loadNameSpaces(['+demo']);
 
   if (!(Root.instance.getValue('example') instanceof Flow)) {
     console.log('initialize the database');

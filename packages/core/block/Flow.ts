@@ -503,8 +503,11 @@ export class Root extends FlowFolder {
       // invalid path
       return null;
     }
-    if (prop._name.startsWith('+') && prop._block === this && !(prop._value instanceof FlowNameSpace)) {
+    if (prop._name.startsWith('+') && prop._block === this) {
       // folder with + under root is namespace
+      if (prop._value instanceof FlowNameSpace) {
+        return prop._value;
+      }
       const newNamespace = new FlowNameSpace(prop._block, null, prop);
 
       prop.setValue(newNamespace);

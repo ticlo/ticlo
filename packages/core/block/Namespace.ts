@@ -120,6 +120,7 @@ export class Namespace {
     if (this._loaded === false) {
       this._loaded = 'loading';
     }
+    Namespace._rootInstance.addFlowFolder(this.ns);
     // todo: load namespace flows
   }
   unload() {
