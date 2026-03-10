@@ -1,7 +1,7 @@
 import {expect} from 'vitest';
 import {Flow, Root} from '../../../block/Flow.js';
 import {JsFunction} from '../Js.js';
-import {globalFunctions} from '../../../block/Functions.js';
+import {coreFunctions} from '../../../block/FunctionGroup.js';
 import {TestLogger} from '../../../util/__spec__/Logger.spec.js';
 import {Logger} from '../../../util/Logger.js';
 
@@ -25,7 +25,7 @@ describe('Js Type', function () {
 
     Root.run();
     expect(aBlock.getValue('out1')).toBe(321);
-    globalFunctions.clear('Js-type1');
+    coreFunctions.clear('Js-type1');
   });
 
   it('unregister class', function () {
@@ -36,11 +36,11 @@ describe('Js Type', function () {
     JsFunction.registerType('this["out1"] = 1', {name: 'Js-type2'});
 
     expect(aBlock._queued).toBeTruthy();
-    globalFunctions.clear('Js-type2');
+    coreFunctions.clear('Js-type2');
     Root.run();
     expect(!aBlock._queued).toBeTruthy();
     expect(aBlock.getValue('out1')).not.toBeDefined();
-    globalFunctions.clear('Js-type2');
+    coreFunctions.clear('Js-type2');
   });
 
   it('invalid script', function () {
@@ -54,8 +54,8 @@ describe('Js Type', function () {
     const flow = new Flow();
 
     const aBlock = flow.createBlock('a');
-    globalFunctions.clear('');
-    expect(globalFunctions.getDescToSend('')).toEqual([null, 0]);
-    expect(globalFunctions.listen('', aBlock)).toBeNull();
+    coreFunctions.clear('');
+    expect(coreFunctions.getDescToSend('')).toEqual([null, 0]);
+    expect(coreFunctions.listen('', aBlock)).toBeNull();
   });
 });

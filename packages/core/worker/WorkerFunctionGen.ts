@@ -1,4 +1,4 @@
-import {Functions, globalFunctions} from '../block/Functions.js';
+import {FunctionGroup, coreFunctions} from '../block/FunctionGroup.js';
 import {BaseFunction, FunctionClass, StatefulFunction} from '../block/BlockFunction.js';
 import {FunctionDesc, PropDesc, PropGroupDesc} from '../block/Descriptor.js';
 import {BlockIO} from '../block/BlockProperty.js';
@@ -7,7 +7,7 @@ import {DataMap} from '../util/DataTypes.js';
 import {WorkerFlow} from './WorkerFlow.js';
 import type {Block} from '../block/Block.js';
 import {Namespace} from '../block/Namespace.js';
-import {FunctionGroup} from '../block/FunctionGroup.js';
+import {PersistentFunctionGroup} from '../block/NSFunctionGroup.js';
 
 /**
  * WorkerFunction is the function wrapper for all custom functions
@@ -60,14 +60,14 @@ export class WorkerFunctionGen extends BaseFunction<Block> {
     return [CustomWorkerFunction, desc];
   }
 
-  static registerType(data: DataMap, desc: FunctionDesc, namespace?: string, functionGroup?: Functions) {
+  static registerType(data: DataMap, desc: FunctionDesc, namespace?: string, functionGroup?: FunctionGroup) {
     const fullId = desc.id ?? `${namespace}::${desc.name}`;
-    let functions: Functions = functionGroup;
+    let functions: FunctionGroup = functionGroup;
     if (!functions) {
       if (fullId.startsWith('+')) {
         functions = Namespace.getFunctionGroup(fullId);
       } else {
-        functions = globalFunctions;
+        functions = coreFunctions;
       }
     }
 
@@ -90,7 +90,7 @@ export class WorkerFunctionGen extends BaseFunction<Block> {
     const namespace = flow._namespace;
     const [func, desc] = WorkerFunctionGen.generate(data, funcId, namespace);
     let functionGroup = Namespace.getFunctions(funcId, flow);
-    if (functionGroup instanceof FunctionGroup) {
+    if (functionGroup instanceof PersistentFunctionGroup) {
       functionGroup.add(func, desc, namespace);
     }
 
@@ -160,7 +160,7 @@ export class WorkerFunctionGen extends BaseFunction<Block> {
   }
 }
 
-FunctionGroup.registerType('worker', {
+PersistentFunctionGroup.registerType('worker', {
   load(data: DataMap, localFuncId: string, idPrefix: string, namespace?: string) {
     const fullId = `${idPrefix}:${localFuncId}`;
     const workerData = data['worker'] as DataMap;

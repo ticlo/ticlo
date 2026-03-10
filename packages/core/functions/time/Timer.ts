@@ -1,5 +1,5 @@
 import {AutoUpdateFunction} from '../base/AutoUpdateFunction.js';
-import {globalFunctions} from '../../block/Functions.js';
+import {coreFunctions} from '../../block/FunctionGroup.js';
 import {Event, EventType, NO_EMIT, ValueUpdateEvent, WAIT} from '../../block/Event.js';
 import type {Block} from '../../block/Block.js';
 import {DateTime} from 'luxon';
@@ -135,7 +135,7 @@ class TimerFunction extends AutoUpdateFunction<Block> {
   }
 }
 
-globalFunctions.add(
+coreFunctions.add(
   TimerFunction,
   {
     name: 'timer',

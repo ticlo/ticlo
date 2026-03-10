@@ -7,7 +7,7 @@ import {DataMap} from '../util/DataTypes.js';
 import {RepeaterWorker, WorkerFlow} from './WorkerFlow.js';
 import {FlowStorage} from '../block/Storage.js';
 import {deepEqual} from '../util/Compare.js';
-import {globalFunctions} from '../block/Functions.js';
+import {coreFunctions} from '../block/FunctionGroup.js';
 import {Block, BlockChildWatch} from '../block/Block.js';
 import {WorkerControl, type WorkerHost} from './WorkerControl.js';
 
@@ -174,7 +174,7 @@ function getDefaultWorker(block: Block, field: string, blockStack: Map<any, any>
   return null;
 }
 
-globalFunctions.add(
+coreFunctions.add(
   WorkerFunction,
   {
     name: 'worker',

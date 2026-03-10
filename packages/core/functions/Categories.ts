@@ -1,41 +1,41 @@
-import {globalFunctions} from '../block/Functions.js';
+import {coreFunctions} from '../block/FunctionGroup.js';
 
-globalFunctions.addCategory({
+coreFunctions.addCategory({
   id: 'math',
   name: 'math',
   icon: 'fas:plus',
   color: '4af',
 });
 
-globalFunctions.addCategory({
+coreFunctions.addCategory({
   id: 'string',
   name: 'string',
   icon: 'txt:str',
   color: '4af',
 });
 
-globalFunctions.addCategory({
+coreFunctions.addCategory({
   id: 'script',
   name: 'script',
   icon: 'txt:{ }',
   color: '1bb',
 });
 
-globalFunctions.addCategory({
+coreFunctions.addCategory({
   id: 'compare',
   name: 'compare',
   icon: 'fas:equals',
   color: '4af',
 });
 
-globalFunctions.addCategory({
+coreFunctions.addCategory({
   id: 'condition',
   name: 'condition',
   icon: 'txt:if',
   color: '4af',
 });
 
-globalFunctions.addCategory({
+coreFunctions.addCategory({
   id: 'web-server',
   name: 'web-server',
   icon: 'fas:network-wired',
@@ -43,7 +43,7 @@ globalFunctions.addCategory({
   ns: 'web-server',
 });
 
-globalFunctions.addCategory({
+coreFunctions.addCategory({
   id: 'http',
   name: 'http',
   icon: 'txt:://',
@@ -51,14 +51,14 @@ globalFunctions.addCategory({
   ns: 'http',
 });
 
-globalFunctions.addCategory({
+coreFunctions.addCategory({
   id: 'other',
   name: 'other',
   icon: 'fas:question',
   color: '4af',
 });
 
-globalFunctions.addCategory({
+coreFunctions.addCategory({
   id: 'repeat',
   name: 'repeat',
   icon: 'fas:grip-vertical',
@@ -66,27 +66,27 @@ globalFunctions.addCategory({
   // color: 'e91',
 });
 
-globalFunctions.addCategory({
+coreFunctions.addCategory({
   id: 'data',
   name: 'data',
   icon: 'fas:code-branch',
   color: '4af',
 });
 
-globalFunctions.addCategory({
+coreFunctions.addCategory({
   id: 'date',
   name: 'date',
   icon: 'fas:clock',
   color: '4af',
 });
 
-globalFunctions.addCategory({
+coreFunctions.addCategory({
   id: 'time',
   name: 'time',
   icon: 'fas:stopwatch',
   color: '4af',
 });
-globalFunctions.addCategory({
+coreFunctions.addCategory({
   id: '',
   name: '',
   icon: 'fas:cubes',

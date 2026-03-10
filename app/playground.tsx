@@ -28,6 +28,7 @@ import {ClientConnection} from '@ticlo/core/connect/ClientConnection.js';
 import './sample-blocks.js';
 import {WorkerFunctionGen} from '@ticlo/core/worker/WorkerFunctionGen.js';
 
+
 import {TicloLayoutContext, TicloLayoutContextType} from '@ticlo/editor/component/LayoutContext.js';
 import {PropertyListPane} from '@ticlo/editor/dock/property/PropertyListPane.js';
 import {NodeTreePane} from '@ticlo/editor/dock/node-tree/NodeTreePane.js';
@@ -94,58 +95,7 @@ interface State {
   modal?: React.ReactElement;
 }
 
-WorkerFunctionGen.registerType(
-  {
-    '#is': '',
-    '#shared': {
-      '#is': '',
-      'add': {
-        '0': 1,
-        '1': 2,
-        '#is': 'add',
-        '@b-p': ['0', '1', '#output'],
-        '@b-xyw': [11, 212, 150],
-      },
-    },
-    '#inputs': {
-      '#is': '',
-      '@b-xyw': [100, 100, 150],
-      '#custom': [
-        {
-          name: 'num',
-          type: 'number',
-        },
-      ],
-    },
-    '#outputs': {
-      '#is': '',
-      '@b-xyw': [388, 93, 150],
-      '#custom': [
-        {
-          name: 'ooo',
-          type: 'number',
-        },
-      ],
-      '@b-p': ['ooo'],
-      '~ooo': '##.multiply.#output',
-    },
-    'multiply': {
-      '0': 1,
-      '#is': 'multiply',
-      '@b-p': ['0', '1', '#output'],
-      '@b-xyw': [269, 239, 150],
-      '~1': '##.#shared.add.#output',
-    },
-  },
-  {
-    name: 'class1',
-    properties: [
-      {name: 'num', type: 'number'},
-      {name: 'ooo', type: 'number'},
-    ],
-  },
-  '+WorkerEditor'
-);
+
 
 class App extends React.PureComponent<Props, State> {
   state: State = {};
@@ -371,6 +321,59 @@ class App extends React.PureComponent<Props, State> {
 
   await Root.instance.setStorage(new IndexDbFlowStorage());
   Namespace.loadNameSpaces(['+demo']);
+
+  WorkerFunctionGen.registerType(
+    {
+      '#is': '',
+      '#shared': {
+        '#is': '',
+        'add': {
+          '0': 1,
+          '1': 2,
+          '#is': 'add',
+          '@b-p': ['0', '1', '#output'],
+          '@b-xyw': [11, 212, 150],
+        },
+      },
+      '#inputs': {
+        '#is': '',
+        '@b-xyw': [100, 100, 150],
+        '#custom': [
+          {
+            name: 'num',
+            type: 'number',
+          },
+        ],
+      },
+      '#outputs': {
+        '#is': '',
+        '@b-xyw': [388, 93, 150],
+        '#custom': [
+          {
+            name: 'ooo',
+            type: 'number',
+          },
+        ],
+        '@b-p': ['ooo'],
+        '~ooo': '##.multiply.#output',
+      },
+      'multiply': {
+        '0': 1,
+        '#is': 'multiply',
+        '@b-p': ['0', '1', '#output'],
+        '@b-xyw': [269, 239, 150],
+        '~1': '##.#shared.add.#output',
+      },
+    },
+    {
+      name: 'class1',
+      properties: [
+        {name: 'num', type: 'number'},
+        {name: 'ooo', type: 'number'},
+      ],
+    },
+    '+demo'
+  );
 
   if (!(Root.instance.getValue('example') instanceof Flow)) {
     console.log('initialize the database');

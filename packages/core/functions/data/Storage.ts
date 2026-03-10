@@ -1,5 +1,5 @@
 import {StatefulFunction, BaseFunction, PureFunction} from '../../block/BlockFunction.js';
-import {globalFunctions} from '../../block/Functions.js';
+import {coreFunctions} from '../../block/FunctionGroup.js';
 import {Storage, voidStorage} from '../../block/Storage.js';
 import {encode, decode} from '../../util/Serialize.js';
 import {BlockIO} from '../../block/BlockProperty.js';
@@ -31,7 +31,7 @@ export class WriteStorageFunction extends BaseFunction {
   }
 }
 
-globalFunctions.add(WriteStorageFunction, {
+coreFunctions.add(WriteStorageFunction, {
   name: 'write-storage',
   icon: 'fas:file-arrow-up',
   mode: 'onCall',
@@ -94,7 +94,7 @@ export class ReadStorageFunction extends BaseFunction {
   }
 }
 
-globalFunctions.add(ReadStorageFunction, {
+coreFunctions.add(ReadStorageFunction, {
   name: 'read-storage',
   icon: 'fas:file-arrow-down',
   mode: 'onLoad',

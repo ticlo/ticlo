@@ -11,10 +11,10 @@ import {removeLastTemplate, loadTemplate, querySingle} from '../../util/test-uti
 import {initEditor} from '../../index.js';
 import type {PropGroupDesc} from '@ticlo/core';
 import {FunctionDesc, PropDesc} from '@ticlo/core';
-import {globalFunctions} from '@ticlo/core/block/Functions.js';
+import {coreFunctions} from '@ticlo/core/block/Functions.js';
 
 describe('PropertyEditor', function () {
-  const [funcDesc] = globalFunctions.getDescToSend('add');
+  const [funcDesc] = coreFunctions.getDescToSend('add');
   const propDesc = (funcDesc.properties[0] as PropGroupDesc).properties[0];
 
   beforeEach(async function () {

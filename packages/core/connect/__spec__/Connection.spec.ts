@@ -9,7 +9,7 @@ import {VoidListeners, TestFunctionRunner} from '../../block/__spec__/TestFuncti
 import type {FunctionDesc} from '../../block/Descriptor.js';
 import {shouldHappen, shouldReject} from '../../util/test-util.js';
 import {JsFunction} from '../../functions/script/Js.js';
-import {globalFunctions} from '../../block/Functions.js';
+import {coreFunctions} from '../../block/FunctionGroup.js';
 import type {DataMap} from '../../util/DataTypes.js';
 import {isDataTruncated} from '../../util/DataTypes.js';
 import {WorkerFunctionGen} from '../../worker/WorkerFunctionGen.js';
@@ -282,7 +282,7 @@ describe('Connection', function () {
       name: 'Connection-watchDesc1',
     });
     await shouldHappen(() => descCustom != null);
-    globalFunctions.clear('Connection-watchDesc1');
+    coreFunctions.clear('Connection-watchDesc1');
     await shouldHappen(() => descCustom == null);
 
     expect(client.getCategory('math').color).toBe('4af');
@@ -711,7 +711,7 @@ describe('Connection', function () {
     await client.editWorker('Connection18.a.#edit-func1', null, ':func1');
     expect((block1.getValue('#edit-func1') as Flow).save()).toEqual(data);
 
-    globalFunctions.clear(':func1');
+    coreFunctions.clear(':func1');
     client.destroy();
     Root.instance.deleteValue('Connection18');
   });

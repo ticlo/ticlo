@@ -1,4 +1,4 @@
-import {globalFunctions} from '../Functions.js';
+import {coreFunctions} from '../FunctionGroup.js';
 import {PureFunction, StatefulFunction} from '../BlockFunction.js';
 import {BlockIO, BlockPropertyEvent} from '../BlockProperty.js';
 import {DoneEvent, ErrorEvent, Event, EventType, WAIT} from '../Event.js';
@@ -33,12 +33,12 @@ const TestFunctionApi = {
     },
   },
 };
-globalFunctions.add(TestFunctionRunner, {name: 'test-runner'}, null, TestFunctionApi);
+coreFunctions.add(TestFunctionRunner, {name: 'test-runner'}, null, TestFunctionApi);
 
 class TestFunctionRunnerImmutable extends TestFunctionRunner {
   isPure = true;
 }
-globalFunctions.add(TestFunctionRunnerImmutable, {name: 'test-runner-immutable'});
+coreFunctions.add(TestFunctionRunnerImmutable, {name: 'test-runner-immutable'});
 
 class TestFunctionRunnerWontCancel extends TestFunctionRunner {
   cancel(reason: EventType = EventType.TRIGGER, mode: BlockMode = 'auto') {
@@ -46,7 +46,7 @@ class TestFunctionRunnerWontCancel extends TestFunctionRunner {
   }
 }
 
-globalFunctions.add(TestFunctionRunnerWontCancel, {name: 'test-runner-wont-cancel'});
+coreFunctions.add(TestFunctionRunnerWontCancel, {name: 'test-runner-wont-cancel'});
 
 export class TestAsyncFunctionLog {
   static syncLog: unknown[] = [];
@@ -94,7 +94,7 @@ export class TestAsyncFunctionPromise extends PureFunction {
   }
 }
 
-globalFunctions.add(TestAsyncFunctionPromise, {
+coreFunctions.add(TestAsyncFunctionPromise, {
   name: 'async-function-promise',
   mode: 'onCall',
 });
@@ -136,7 +136,7 @@ export class TestAsyncFunctionManual extends StatefulFunction {
   }
 }
 
-globalFunctions.add(TestAsyncFunctionManual, {
+coreFunctions.add(TestAsyncFunctionManual, {
   name: 'async-function-manual',
   priority: 1,
   mode: 'onCall',

@@ -1,5 +1,5 @@
 import {PureFunction} from '../../block/BlockFunction.js';
-import {globalFunctions} from '../../block/Functions.js';
+import {coreFunctions} from '../../block/FunctionGroup.js';
 
 class TestFunction extends PureFunction {
   run() {}
@@ -21,12 +21,12 @@ const testDesc = {
 
 export function addTestTypes(prefix: string, count: number) {
   for (let i = 0; i < count; ++i) {
-    globalFunctions.add(TestFunction, {...testDesc, name: `${prefix}${i}`} as any);
+    coreFunctions.add(TestFunction, {...testDesc, name: `${prefix}${i}`} as any);
   }
 }
 
 export function removeTestTypes(prefix: string, count: number) {
   for (let i = 0; i < count; ++i) {
-    globalFunctions.clear(`${prefix}${i}`);
+    coreFunctions.clear(`${prefix}${i}`);
   }
 }

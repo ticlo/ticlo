@@ -1,5 +1,5 @@
 import {PureFunction} from '../../block/BlockFunction.js';
-import {globalFunctions} from '../../block/Functions.js';
+import {coreFunctions} from '../../block/FunctionGroup.js';
 import {DATE_UNITS, invalidDate, toDateTime} from '../../util/DateTime.js';
 import {Duration} from 'luxon';
 
@@ -33,7 +33,7 @@ export class FormatDateFunction extends PureFunction {
   }
 }
 
-globalFunctions.add(
+coreFunctions.add(
   FormatDateFunction,
   {
     name: 'modify',

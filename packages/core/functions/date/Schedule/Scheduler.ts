@@ -1,4 +1,4 @@
-import {globalFunctions} from '../../../block/Functions.js';
+import {coreFunctions} from '../../../block/FunctionGroup.js';
 import {AutoUpdateFunction} from '../../base/AutoUpdateFunction.js';
 import {type EventOccur, SchedulerEvent} from './SchedulerEvent.js';
 import {BlockIO} from '../../../block/BlockProperty.js';
@@ -338,7 +338,7 @@ export class ScheduleFunction extends AutoUpdateFunction {
   }
 }
 
-globalFunctions.add(ScheduleFunction, {
+coreFunctions.add(ScheduleFunction, {
   name: 'scheduler',
   icon: 'fas:calendar-days',
   priority: 1,

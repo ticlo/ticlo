@@ -9,7 +9,7 @@ import {VoidListeners, TestFunctionRunner} from '../../block/__spec__/TestFuncti
 import {FunctionDesc} from '../../block/Descriptor.js';
 import {shouldHappen, shouldReject} from '../../util/test-util.js';
 import {JsFunction} from '../../functions/script/Js.js';
-import {globalFunctions} from '../../block/Functions.js';
+import {coreFunctions} from '../../block/FunctionGroup.js';
 import {DataMap, isDataTruncated} from '../../util/DataTypes.js';
 import {WorkerFunctionGen} from '../../worker/WorkerFunctionGen.js';
 import {FlowEditor} from '../../worker/FlowEditor.js';
@@ -22,7 +22,7 @@ const afterAll = globalThis.afterAll ?? globalThis.after;
 
 describe('Connection Client API', function () {
   beforeAll(function () {
-    globalFunctions.add(
+    coreFunctions.add(
       null,
       {
         name: 'func1',
@@ -31,7 +31,7 @@ describe('Connection Client API', function () {
       },
       'ClientConnection'
     );
-    globalFunctions.add(
+    coreFunctions.add(
       null,
       {
         base: 'ClientConnection:func1',
@@ -41,7 +41,7 @@ describe('Connection Client API', function () {
       },
       'ClientConnection'
     );
-    globalFunctions.add(
+    coreFunctions.add(
       null,
       {
         base: 'ClientConnection:func2',
@@ -51,7 +51,7 @@ describe('Connection Client API', function () {
       },
       'ClientConnection'
     );
-    globalFunctions.add(
+    coreFunctions.add(
       null,
       {
         base: 'ClientConnection:func1',
@@ -61,7 +61,7 @@ describe('Connection Client API', function () {
       },
       'ClientConnection'
     );
-    globalFunctions.add(
+    coreFunctions.add(
       null,
       {
         base: 'ClientConnection:func2',
@@ -74,11 +74,11 @@ describe('Connection Client API', function () {
   });
 
   afterAll(function () {
-    globalFunctions.deleteFunction('ClientConnection:func1');
-    globalFunctions.deleteFunction('ClientConnection:func2');
-    globalFunctions.deleteFunction('ClientConnection:func3');
-    globalFunctions.deleteFunction('ClientConnection:func4');
-    globalFunctions.deleteFunction('ClientConnection:func5');
+    coreFunctions.deleteFunction('ClientConnection:func1');
+    coreFunctions.deleteFunction('ClientConnection:func2');
+    coreFunctions.deleteFunction('ClientConnection:func3');
+    coreFunctions.deleteFunction('ClientConnection:func4');
+    coreFunctions.deleteFunction('ClientConnection:func5');
   });
 
   it('getCommonfuncFunc', async function () {

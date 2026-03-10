@@ -1,11 +1,11 @@
 import {BlockConfig} from '../../block/BlockProperty.js';
 import {BaseFunction} from '../../block/BlockFunction.js';
-import {globalFunctions} from '../../block/Functions.js';
+import {coreFunctions} from '../../block/FunctionGroup.js';
 import {defaultConfigs, PropDesc} from '../../block/Descriptor.js';
 import {CreateObjectFunctionOptional} from '../data/CreateObject.js';
 import HeadersDef from './HeadersDef.js';
 
-globalFunctions.add(
+coreFunctions.add(
   CreateObjectFunctionOptional,
   {
     name: 'create-headers',

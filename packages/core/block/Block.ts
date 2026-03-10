@@ -3,7 +3,7 @@ import {ListenPromise} from './ListenPromise.js';
 import {BlockBinding} from './BlockBinding.js';
 import {FunctionClass, BaseFunction} from './BlockFunction.js';
 import {PropDispatcher, PropListener, Destroyable} from './Dispatcher.js';
-import {FunctionDispatcher, globalFunctions} from './Functions.js';
+import {FunctionDispatcher, coreFunctions} from './FunctionGroup.js';
 import {DoneEvent, ErrorEvent, Event, EventType, NO_EMIT, WAIT} from './Event.js';
 import {DataMap} from '../util/DataTypes.js';
 import {Uid} from '../util/Uid.js';
@@ -973,14 +973,14 @@ export class Block implements Runnable, FunctionData, PropListener<FunctionClass
       if (!blockStack) {
         blockStack = new Map();
       }
-      return globalFunctions.getDefaultWorker(this._funcId, this, field, blockStack);
+      return coreFunctions.getDefaultWorker(this._funcId, this, field, blockStack);
     }
     return null;
   }
 
   executeCommand(command: string, params: DataMap): unknown {
     if (this._funcId) {
-      return globalFunctions.executeCommand(this._funcId, this, command, params);
+      return coreFunctions.executeCommand(this._funcId, this, command, params);
     }
     return null;
   }

@@ -1,11 +1,11 @@
 import type {Flow, Root} from './Flow.js';
 import {Block} from './Block.js';
-import {FunctionDispatcher, Functions, globalFunctions} from './Functions.js';
+import {FunctionDispatcher, FunctionGroup, coreFunctions} from './FunctionGroup.js';
 import {FunctionClass} from './BlockFunction.js';
 import {PropListener} from './Dispatcher.js';
 import {FunctionDesc} from './Descriptor.js';
 import {DataMap} from '../util/DataTypes.js';
-import {FunctionGroup, NsFunctionGroup} from './FunctionGroup.js';
+import {PersistentFunctionGroup, NsFunctionGroup} from './NSFunctionGroup.js';
 import type {FlowStorage} from './Storage.js';
 
 export class Namespace {
@@ -59,7 +59,7 @@ export class Namespace {
     return undefined;
   }
 
-  static getFunctions(funcId: string, flow?: Flow, namespace?: string): Functions {
+  static getFunctions(funcId: string, flow?: Flow, namespace?: string): FunctionGroup {
     const code0 = funcId.charCodeAt(0);
     if (code0 === 58 /* : */) {
       // local function
@@ -74,18 +74,18 @@ export class Namespace {
       }
     } else if (code0 > 0) {
       // global function
-      return globalFunctions;
+      return coreFunctions;
     }
     return null;
   }
 
-  static getWorker(id: string, flow?: Flow): [FunctionDesc, DataMap, FunctionGroup] {
+  static getWorker(id: string, flow?: Flow): [FunctionDesc, DataMap, PersistentFunctionGroup] {
     const functions = Namespace.getFunctions(id, flow);
     if (functions) {
       const workerData = functions.getWorkerData(id);
       if (workerData) {
         const [desc] = functions.getDescToSend(id);
-        const functionGroup = functions instanceof FunctionGroup ? functions : null;
+        const functionGroup = functions instanceof PersistentFunctionGroup ? functions : null;
         return [desc, workerData, functionGroup];
       }
     }

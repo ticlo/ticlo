@@ -1,6 +1,6 @@
 import {BaseFunction, StatefulFunction} from '../../block/BlockFunction.js';
 import {HttpRequest} from './HttpRequest.js';
-import {globalFunctions} from '../../block/Functions.js';
+import {coreFunctions} from '../../block/FunctionGroup.js';
 import type {Block} from '../../block/Block.js';
 
 export class StaticResponse extends BaseFunction<Block> {
@@ -23,7 +23,7 @@ export class StaticResponse extends BaseFunction<Block> {
   }
 }
 
-globalFunctions.add(
+coreFunctions.add(
   StaticResponse,
   {
     name: 'static-response',

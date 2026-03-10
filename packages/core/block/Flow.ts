@@ -12,13 +12,13 @@ import {
 import {Event} from './Event.js';
 import {DataMap} from '../util/DataTypes.js';
 import {FunctionDesc} from './Descriptor.js';
-import {globalFunctions} from './Functions.js';
+import {coreFunctions} from './FunctionGroup.js';
 import {FlowStorage} from './Storage.js';
 import {FlowHistory} from './FlowHistory.js';
 import {getDefaultZone, updateGlobalSettings} from '../util/Settings.js';
 import {DataWrapper, FunctionOutput} from './FunctonData.js';
 import {Namespace} from './Namespace.js';
-import {FunctionGroup} from './FunctionGroup.js';
+import {PersistentFunctionGroup} from './NSFunctionGroup.js';
 
 export enum FlowState {
   enabled,
@@ -36,8 +36,8 @@ export class Flow extends Block {
   _namespace: string;
   // function id, when Flow is loaded from a function
   _loadFrom: string;
-  _funcGroup: FunctionGroup;
-  getFuncGroup(): FunctionGroup {
+  _funcGroup: PersistentFunctionGroup;
+  getFuncGroup(): PersistentFunctionGroup {
     return this._funcGroup;
   }
 
@@ -170,7 +170,7 @@ export class Flow extends Block {
     applyChange?: (flow: Flow) => DataMap,
     onStateChange?: (flow: Flow, state: FlowState) => void,
     namespace?: string,
-    funcGroup?: FunctionGroup
+    funcGroup?: PersistentFunctionGroup
   ): boolean {
     if (this._loaded) {
       throw new Error('can not load flow twice');
@@ -381,8 +381,8 @@ export class FlowFolder extends Flow {
       return new BlockConfig(this, field);
     }
   }
-  getFuncGroup(): FunctionGroup {
-    return new FunctionGroup(this._namespace);
+  getFuncGroup(): PersistentFunctionGroup {
+    return new PersistentFunctionGroup(this._namespace);
   }
 }
 export class FlowNameSpace extends FlowFolder {

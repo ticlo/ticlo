@@ -4,7 +4,7 @@ import {WorkerFunctionGen} from '../WorkerFunctionGen.js';
 import {TestFunctionRunner} from '../../block/__spec__/TestFunction.js';
 import '../../functions/math/Arithmetic.js';
 import type {DataMap} from '../../util/DataTypes.js';
-import {globalFunctions} from '../../block/Functions.js';
+import {coreFunctions} from '../../block/FunctionGroup.js';
 import {Namespace} from '../../block/Namespace.js';
 
 describe('WorkerFunction', function () {

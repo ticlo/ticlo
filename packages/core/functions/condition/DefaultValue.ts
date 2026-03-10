@@ -1,5 +1,5 @@
 import {PureFunction} from '../../block/BlockFunction.js';
-import {globalFunctions} from '../../block/Functions.js';
+import {coreFunctions} from '../../block/FunctionGroup.js';
 
 export class DefaultValueFunction extends PureFunction {
   run(): any {
@@ -12,7 +12,7 @@ export class DefaultValueFunction extends PureFunction {
   }
 }
 
-globalFunctions.add(DefaultValueFunction, {
+coreFunctions.add(DefaultValueFunction, {
   name: 'default-value',
   icon: 'fas:circle-dot',
   properties: [

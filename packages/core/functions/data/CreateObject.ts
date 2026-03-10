@@ -1,5 +1,5 @@
 import {PureFunction} from '../../block/BlockFunction.js';
-import {globalFunctions} from '../../block/Functions.js';
+import {coreFunctions} from '../../block/FunctionGroup.js';
 import {defaultConfigs, PropDesc, PropGroupDesc} from '../../block/Descriptor.js';
 import {BlockConfig} from '../../block/BlockProperty.js';
 import {DataMap} from '../../util/DataTypes.js';
@@ -43,7 +43,7 @@ export class CreateObjectFunction extends PureFunction {
   }
 }
 
-globalFunctions.add(CreateObjectFunction, {
+coreFunctions.add(CreateObjectFunction, {
   name: 'create-object',
   icon: 'txt:{ }',
   properties: [{name: '#output', pinned: true, type: 'object', readonly: true}],

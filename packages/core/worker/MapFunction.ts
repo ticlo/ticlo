@@ -1,4 +1,4 @@
-import {globalFunctions} from '../block/Functions.js';
+import {coreFunctions} from '../block/FunctionGroup.js';
 import {Block} from '../block/Block.js';
 import {convertToOutput} from '../util/DataTypes.js';
 import {ErrorEvent, Event, EventType, WAIT} from '../block/Event.js';
@@ -268,7 +268,7 @@ export class MapFunction extends MapImpl {
   }
 }
 
-globalFunctions.add(MapFunction, {
+coreFunctions.add(MapFunction, {
   name: 'map',
   priority: 3,
   configs: defaultConfigs.concat('#cancel'),

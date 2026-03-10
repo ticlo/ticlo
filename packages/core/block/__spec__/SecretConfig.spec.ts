@@ -1,7 +1,7 @@
 import {BaseFunction} from '../BlockFunction.js';
 import type {Block} from '../Block.js';
 import {setSecretCipher} from '../Block.js';
-import {globalFunctions} from '../Functions.js';
+import {coreFunctions} from '../FunctionGroup.js';
 import {Flow, Root} from '../Flow.js';
 import {expect} from 'vitest';
 
@@ -15,7 +15,7 @@ export class TestSecretFunction extends BaseFunction<Block> {
   }
 }
 
-globalFunctions.add(TestSecretFunction, {name: 'test-secret'}, null);
+coreFunctions.add(TestSecretFunction, {name: 'test-secret'}, null);
 
 describe('Secret Property', function () {
   it('set and read secret', function () {

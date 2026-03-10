@@ -1,6 +1,6 @@
 import {Block} from '../block/Block.js';
 import {configDescs, PropDesc, PropGroupDesc} from '../block/Descriptor.js';
-import {globalFunctions} from '../block/Functions.js';
+import {coreFunctions} from '../block/FunctionGroup.js';
 import {getPreNumber} from '../util/String.js';
 import {getInputsLength, MAX_GROUP_LENGTH} from '../block/FunctonData.js';
 
@@ -26,7 +26,7 @@ export function buildPropertiesOrder(block: Block): string[] {
     }
   }
 
-  const [desc, size] = globalFunctions.getDescToSend(block.getValue('#is')?.toString());
+  const [desc, size] = coreFunctions.getDescToSend(block.getValue('#is')?.toString());
   if (desc) {
     addProps(desc.properties);
   }

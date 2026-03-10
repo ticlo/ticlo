@@ -1,5 +1,5 @@
 import {PureFunction} from '../../block/BlockFunction.js';
-import {globalFunctions} from '../../block/Functions.js';
+import {coreFunctions} from '../../block/FunctionGroup.js';
 import {FunctionDesc} from '../../block/Descriptor.js';
 
 const descriptor: FunctionDesc = {
@@ -32,7 +32,7 @@ export class StartWithFunction extends PureFunction {
   }
 }
 
-globalFunctions.add(StartWithFunction, {
+coreFunctions.add(StartWithFunction, {
   ...descriptor,
   name: 'start-with',
   icon: 'txt:a~',
@@ -56,7 +56,7 @@ export class EndWithFunction extends PureFunction {
   }
 }
 
-globalFunctions.add(EndWithFunction, {
+coreFunctions.add(EndWithFunction, {
   ...descriptor,
   name: 'end-with',
   icon: 'txt:~a',
@@ -77,7 +77,7 @@ export class ContainFunction extends PureFunction {
   }
 }
 
-globalFunctions.add(ContainFunction, {
+coreFunctions.add(ContainFunction, {
   ...descriptor,
   name: 'contain',
   icon: 'txt:.a.',
