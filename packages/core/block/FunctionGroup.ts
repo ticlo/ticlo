@@ -203,4 +203,4 @@ export class FunctionGroup {
   }
 }
 
-export const coreFunctions = new FunctionGroup();
+export const globalFunctions = new FunctionGroup();

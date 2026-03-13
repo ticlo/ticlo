@@ -1,4 +1,4 @@
-import {coreFunctions} from '../../block/FunctionGroup.js';
+import {globalFunctions} from '../../block/FunctionGroup.js';
 import {PureFunction} from '../../block/BlockFunction.js';
 import {ErrorEvent} from '../../block/Event.js';
 
@@ -25,7 +25,7 @@ export class SplitFunction extends PureFunction {
   }
 }
 
-coreFunctions.add(SplitFunction, {
+globalFunctions.add(SplitFunction, {
   name: 'split',
   icon: 'txt:s,p',
   properties: [

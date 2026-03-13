@@ -1,5 +1,5 @@
 import {PureFunction} from '../../block/BlockFunction.js';
-import {coreFunctions} from '../../block/FunctionGroup.js';
+import {globalFunctions} from '../../block/FunctionGroup.js';
 import {DateTime} from 'luxon';
 import {getZoneObject, invalidDate} from '../../util/DateTime.js';
 
@@ -26,7 +26,7 @@ export class CreateDateFunction extends PureFunction {
   }
 }
 
-coreFunctions.add(
+globalFunctions.add(
   CreateDateFunction,
   {
     name: 'create',

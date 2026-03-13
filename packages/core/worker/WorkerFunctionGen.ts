@@ -1,4 +1,4 @@
-import {FunctionGroup, coreFunctions} from '../block/FunctionGroup.js';
+import {FunctionGroup, globalFunctions} from '../block/FunctionGroup.js';
 import {BaseFunction, FunctionClass, StatefulFunction} from '../block/BlockFunction.js';
 import {FunctionDesc, PropDesc, PropGroupDesc} from '../block/Descriptor.js';
 import {BlockIO} from '../block/BlockProperty.js';
@@ -67,7 +67,7 @@ export class WorkerFunctionGen extends BaseFunction<Block> {
       if (fullId.startsWith('+')) {
         functions = Namespace.getFunctionGroup(fullId);
       } else {
-        functions = coreFunctions;
+        functions = globalFunctions;
       }
     }
 

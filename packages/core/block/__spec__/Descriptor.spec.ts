@@ -13,7 +13,7 @@ import {
   getSubBlockFuncData,
   mapConfigDesc,
 } from '../Descriptor.js';
-import {coreFunctions} from '../FunctionGroup.js';
+import {globalFunctions} from '../FunctionGroup.js';
 
 describe('Descriptor', function () {
   it('mapConfigDesc', function () {
@@ -29,7 +29,7 @@ describe('Descriptor', function () {
     expect(buildPropDescCache(null, null)).toBeNull();
     expect(findPropDesc('a', null)).toBe(blankPropDesc);
 
-    const cache = buildPropDescCache(coreFunctions.getDescToSend('add')[0], null);
+    const cache = buildPropDescCache(globalFunctions.getDescToSend('add')[0], null);
     expect(findPropDesc('', cache)).toBe(blankPropDesc);
     expect(findPropDesc('1', cache)).toBe(cache['0']);
   });
@@ -37,16 +37,16 @@ describe('Descriptor', function () {
   it('getOutputDesc', function () {
     expect(getOutputDesc(null)).toBeNull();
     expect(getOutputDesc({name: ''})).toBeNull();
-    expect(getOutputDesc(coreFunctions.getDescToSend('set-state')[0])).toBeNull();
-    expect(getOutputDesc(coreFunctions.getDescToSend('add')[0])).not.toBeNull();
+    expect(getOutputDesc(globalFunctions.getDescToSend('set-state')[0])).toBeNull();
+    expect(getOutputDesc(globalFunctions.getDescToSend('add')[0])).not.toBeNull();
   });
 
   it('getDefaultFuncData', function () {
-    expect(getSubBlockFuncData(getDefaultFuncData(coreFunctions.getDescToSend('add')[0]))).toEqual({
+    expect(getSubBlockFuncData(getDefaultFuncData(globalFunctions.getDescToSend('add')[0]))).toEqual({
       '#is': 'add',
       '@b-p': ['0', '1'],
     });
-    expect(getDefaultFuncData(coreFunctions.getDescToSend('add')[0])).toEqual({
+    expect(getDefaultFuncData(globalFunctions.getDescToSend('add')[0])).toEqual({
       '#is': 'add',
       '@b-p': ['0', '1', '#output'],
     });

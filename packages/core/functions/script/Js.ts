@@ -1,4 +1,4 @@
-import {coreFunctions} from '../../block/FunctionGroup.js';
+import {globalFunctions} from '../../block/FunctionGroup.js';
 import {BaseFunction, StatefulFunction} from '../../block/BlockFunction.js';
 import {BlockIO} from '../../block/BlockProperty.js';
 import {ErrorEvent, WAIT} from '../../block/Event.js';
@@ -116,7 +116,7 @@ export class JsFunction extends BaseFunction<Block> {
       }
       desc.src = 'js';
 
-      coreFunctions.add(CustomScriptFunction, desc, namespace);
+      globalFunctions.add(CustomScriptFunction, desc, namespace);
       return true;
     } catch (err) {
       Logger.error(`invalid script:\n${script}`);
@@ -125,7 +125,7 @@ export class JsFunction extends BaseFunction<Block> {
   }
 }
 
-coreFunctions.add(JsFunction, {
+globalFunctions.add(JsFunction, {
   name: 'js',
   icon: 'txt:js',
   priority: 1,

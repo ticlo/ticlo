@@ -1,6 +1,6 @@
 import type {Flow, Root} from './Flow.js';
 import {Block} from './Block.js';
-import {FunctionDispatcher, FunctionGroup, coreFunctions} from './FunctionGroup.js';
+import {FunctionDispatcher, FunctionGroup, globalFunctions} from './FunctionGroup.js';
 import {FunctionClass} from './BlockFunction.js';
 import {PropListener} from './Dispatcher.js';
 import {FunctionDesc} from './Descriptor.js';
@@ -74,7 +74,7 @@ export class Namespace {
       }
     } else if (code0 > 0) {
       // global function
-      return coreFunctions;
+      return globalFunctions;
     }
     return null;
   }

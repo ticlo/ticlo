@@ -6,7 +6,7 @@ import {VoidListeners, TestFunctionRunner} from '../../block/__spec__/TestFuncti
 import {FunctionDesc} from '../../block/Descriptor.js';
 import {shouldHappen} from '../../util/test-util.js';
 import {JsFunction} from '../../functions/script/Js.js';
-import {coreFunctions} from '../../block/FunctionGroup.js';
+import {globalFunctions} from '../../block/FunctionGroup.js';
 import {DataMap} from '../../util/DataTypes.js';
 import {BaseFunction} from '../../block/BlockFunction.js';
 import {addTestTypes, removeTestTypes} from './BulkTypes.js';
@@ -31,6 +31,6 @@ describe('Connection Message Frames', function () {
     removeTestTypes('a', 4000);
     removeTestTypes('b', 4000);
 
-    expect(coreFunctions.getAllFunctionIds().length < 4000).toBe(true);
+    expect(globalFunctions.getAllFunctionIds().length < 4000).toBe(true);
   });
 });

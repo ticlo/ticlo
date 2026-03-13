@@ -1,5 +1,5 @@
 import {PureFunction} from '../../block/BlockFunction.js';
-import {coreFunctions} from '../../block/FunctionGroup.js';
+import {globalFunctions} from '../../block/FunctionGroup.js';
 import {toDateTime} from '../../util/DateTime.js';
 
 export class ParseDateFunction extends PureFunction {
@@ -35,7 +35,7 @@ export class ParseDateFunction extends PureFunction {
   }
 }
 
-coreFunctions.add(
+globalFunctions.add(
   ParseDateFunction,
   {
     name: 'parse',

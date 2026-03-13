@@ -5,7 +5,7 @@ import '../../../worker/HandlerFunction.js';
 import type {Block} from '../../../block/Block.js';
 import {Flow, Root} from '../../../block/Flow.js';
 import {getDefaultFuncData} from '../../../block/Descriptor.js';
-import {coreFunctions} from '../../../block/FunctionGroup.js';
+import {globalFunctions} from '../../../block/FunctionGroup.js';
 import {HttpRequest} from '../HttpRequest.js';
 import {FlowEditor} from '../../../worker/FlowEditor.js';
 

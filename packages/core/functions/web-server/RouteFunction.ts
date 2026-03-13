@@ -1,6 +1,6 @@
 import {StatefulFunction} from '../../block/BlockFunction.js';
 import {NO_EMIT} from '../../block/Event.js';
-import {coreFunctions} from '../../block/FunctionGroup.js';
+import {globalFunctions} from '../../block/FunctionGroup.js';
 import {HttpRequest} from './HttpRequest.js';
 import {deepEqual} from '../../util/Compare.js';
 import {DataMap} from '../../util/DataTypes.js';
@@ -140,7 +140,7 @@ function getDefaultWorker(block: any, field: string, blockStack: Map<any, any>):
   return null;
 }
 
-coreFunctions.add(
+globalFunctions.add(
   RouteFunction,
   {
     name: 'route',

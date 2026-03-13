@@ -1,4 +1,4 @@
-import {coreFunctions} from '../../block/FunctionGroup.js';
+import {globalFunctions} from '../../block/FunctionGroup.js';
 import {PureFunction} from '../../block/BlockFunction.js';
 import {FunctionDesc} from '../../block/Descriptor.js';
 
@@ -22,7 +22,7 @@ export class EqualFunction extends PureFunction {
   }
 }
 
-coreFunctions.add(EqualFunction, {
+globalFunctions.add(EqualFunction, {
   ...descriptor,
   name: 'equal',
   icon: 'fas:equals',
@@ -41,7 +41,7 @@ export class NotEqualFunction extends PureFunction {
   }
 }
 
-coreFunctions.add(NotEqualFunction, {
+globalFunctions.add(NotEqualFunction, {
   ...descriptor,
   name: 'not-equal',
   icon: 'fas:not-equal',
@@ -64,7 +64,7 @@ export class GreaterThanFunction extends PureFunction {
   }
 }
 
-coreFunctions.add(GreaterThanFunction, {
+globalFunctions.add(GreaterThanFunction, {
   ...descriptor,
   name: 'greater-than',
   icon: 'fas:greater-than',
@@ -82,7 +82,7 @@ export class LessThanFunction extends PureFunction {
   }
 }
 
-coreFunctions.add(LessThanFunction, {
+globalFunctions.add(LessThanFunction, {
   ...descriptor,
   name: 'less-than',
   icon: 'fas:less-than',
@@ -100,7 +100,7 @@ export class GreaterEqualFunction extends PureFunction {
   }
 }
 
-coreFunctions.add(GreaterEqualFunction, {
+globalFunctions.add(GreaterEqualFunction, {
   ...descriptor,
   name: 'greater-equal',
   icon: 'fas:greater-than-equal',
@@ -118,7 +118,7 @@ export class LessEqualFunction extends PureFunction {
   }
 }
 
-coreFunctions.add(LessEqualFunction, {
+globalFunctions.add(LessEqualFunction, {
   ...descriptor,
   name: 'less-equal',
   icon: 'fas:less-than-equal',
@@ -137,7 +137,7 @@ export class WithinRangeFunction extends PureFunction {
   }
 }
 
-coreFunctions.add(WithinRangeFunction, {
+globalFunctions.add(WithinRangeFunction, {
   ...descriptor,
   name: 'within-range',
   icon: 'txt:[,]',
@@ -163,7 +163,7 @@ export class WithinIntervalFunction extends PureFunction {
   }
 }
 
-coreFunctions.add(WithinIntervalFunction, {
+globalFunctions.add(WithinIntervalFunction, {
   ...descriptor,
   name: 'within-interval',
   icon: 'txt:[,)',

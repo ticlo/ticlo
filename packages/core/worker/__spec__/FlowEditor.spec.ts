@@ -3,7 +3,7 @@ import {Flow} from '../../block/Flow.js';
 import {FlowEditor} from '../FlowEditor.js';
 import {VoidListeners} from '../../block/__spec__/TestFunction.js';
 import {WorkerFunctionGen} from '../WorkerFunctionGen.js';
-import {coreFunctions} from '../../block/FunctionGroup.js';
+import {globalFunctions} from '../../block/FunctionGroup.js';
 import type {PropDesc, PropGroupDesc} from '../../block/Descriptor.js';
 import type {DataMap} from '../../util/DataTypes.js';
 import {SharedBlock} from '../../block/SharedBlock.js';
@@ -48,7 +48,7 @@ describe('FlowEditor', function () {
     FlowEditor.createFromField(block, '#edit-use2', 'use2');
     expect((block.getValue('#edit-use2') as Flow).save()).toEqual(data);
 
-    coreFunctions.clear('+FlowEditor::func1');
+    globalFunctions.clear('+FlowEditor::func1');
   });
 
   it('createFromFunction', function () {
@@ -68,7 +68,7 @@ describe('FlowEditor', function () {
     FlowEditor.createFromFunction(flow, '#edit-func', '+FlowEditor::worker2-2', data);
     expect((flow.getValue('#edit-func') as Flow).save()).toEqual(data);
 
-    coreFunctions.clear('+FlowEditor::worker2');
+    globalFunctions.clear('+FlowEditor::worker2');
   });
 
   it('applyChange', function () {
@@ -142,7 +142,7 @@ describe('FlowEditor', function () {
     expect(desc.icon).toBe('fas:plus');
     expect(desc.properties).toEqual(expectedDescProperties);
 
-    coreFunctions.clear('FlowEditor:worker3');
+    globalFunctions.clear('FlowEditor:worker3');
     flow.destroy();
   });
 
