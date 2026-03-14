@@ -13,7 +13,7 @@ import {Block, BlockChildWatch, InputsBlock} from '../block/Block.js';
 import {Flow, Root} from '../block/Flow.js';
 import {FlowWithShared, SharedBlock, SharedConfig} from '../block/SharedBlock.js';
 import {PropDispatcher, PropListener} from '../block/Dispatcher.js';
-import {globalFunctions, DescListener} from '../block/FunctionGroup.js';
+import {DescListener} from '../block/FunctionGroup.js';
 import {FunctionDesc, PropDesc, PropGroupDesc} from '../block/Descriptor.js';
 import {propRelative} from '../util/PropPath.js';
 import {
@@ -37,6 +37,7 @@ import {WorkerFlow} from '../worker/WorkerFlow.js';
 import {Query, queryBlock} from './Query.js';
 import {getGlobalSettingsData} from '../util/Settings.js';
 import {DoneEvent} from '../block/Event.js';
+import {Namespace} from '../block/Namespace.js';
 
 export class ServerRequest extends ConnectionSendingData {
   id: string;
@@ -272,8 +273,8 @@ class ServerDescWatcher extends ServerRequest implements DescListener {
     super();
     this.id = id;
     this.connection = conn;
-    this.pendingIds = new Set(globalFunctions.getAllFunctionIds());
-    globalFunctions.listenDesc(this);
+    this.pendingIds = new Set(Namespace.getAllFunctionIds());
+    Namespace.listenDesc(this);
     this.connection.addSend(this);
   }
 
@@ -286,7 +287,7 @@ class ServerDescWatcher extends ServerRequest implements DescListener {
     const changes = [];
     let totalSize = 0;
     for (const id of this.pendingIds) {
-      const [desc, size] = globalFunctions.getDescToSend(id);
+      const [desc, size] = Namespace.getDescToSend(id);
       if (desc) {
         changes.push(desc);
         totalSize += size;
@@ -306,7 +307,7 @@ class ServerDescWatcher extends ServerRequest implements DescListener {
   }
 
   close() {
-    globalFunctions.unlistenDesc(this);
+    Namespace.unlistenDesc(this);
   }
 }
 
@@ -642,7 +643,7 @@ export class ServerConnection extends ServerConnectionCore {
 
       if (typeof funcId === 'string' && data) {
         (property._value as Block)._load(data);
-        const desc = globalFunctions.getDescToSend(funcId)[0];
+        const desc = Namespace.getDescToSend(funcId)[0];
         if (desc && desc.recipient && !Object.hasOwn(data, desc.recipient)) {
           // transfer parent property to the recipient
           if (keepSaved !== undefined) {
@@ -781,7 +782,7 @@ export class ServerConnection extends ServerConnectionCore {
 
   deleteFunction({funcId}: {funcId: string}): string {
     if (funcId.startsWith(':')) {
-      globalFunctions.clear(funcId);
+      Namespace.clear(funcId);
     }
     return null;
   }

@@ -1,6 +1,6 @@
 import type {Flow, Root} from './Flow.js';
 import {Block} from './Block.js';
-import {FunctionDispatcher, FunctionGroup, globalFunctions} from './FunctionGroup.js';
+import {FunctionDispatcher, FunctionGroup, globalFunctions, type DescListener} from './FunctionGroup.js';
 import {FunctionClass} from './BlockFunction.js';
 import {PropListener} from './Dispatcher.js';
 import {FunctionDesc} from './Descriptor.js';
@@ -57,6 +57,66 @@ export class Namespace {
       }
     }
     return undefined;
+  }
+
+  // --- Static aggregation methods covering globalFunctions + all NsFunctionGroups ---
+
+  static _descListeners: Set<DescListener> = new Set<DescListener>();
+
+  /**
+   * Iterate over all NsFunctionGroup instances across all namespaces.
+   */
+  private static _forEachGroup(callback: (group: NsFunctionGroup) => void) {
+    for (const ns in Namespace._dict) {
+      const namespace = Namespace._dict[ns];
+      for (const groupName in namespace._groups) {
+        callback(namespace._groups[groupName]);
+      }
+    }
+  }
+
+  static listenDesc(listener: DescListener): void {
+    Namespace._descListeners.add(listener);
+    globalFunctions.listenDesc(listener);
+    Namespace._forEachGroup((group) => group.listenDesc(listener));
+  }
+
+  static unlistenDesc(listener: DescListener): void {
+    Namespace._descListeners.delete(listener);
+    globalFunctions.unlistenDesc(listener);
+    Namespace._forEachGroup((group) => group.unlistenDesc(listener));
+  }
+
+  static getAllFunctionIds(): string[] {
+    const result = globalFunctions.getAllFunctionIds();
+    Namespace._forEachGroup((group) => {
+      result.push(...group.getAllFunctionIds());
+    });
+    return result;
+  }
+
+  static getDescToSend(id: string): [FunctionDesc, number] {
+    // Try globalFunctions first
+    const [desc, size] = globalFunctions.getDescToSend(id);
+    if (desc) {
+      return [desc, size];
+    }
+    // Try namespace function groups
+    const functionGroup = Namespace.getFunctionGroup(id);
+    if (functionGroup) {
+      return functionGroup.getDescToSend(id);
+    }
+    return [null, 0];
+  }
+
+  static clear(id: string): void {
+    // Determine which function group owns this id
+    const functionGroup = Namespace.getFunctionGroup(id);
+    if (functionGroup) {
+      functionGroup.clear(id);
+    } else {
+      globalFunctions.clear(id);
+    }
   }
 
   static getFunctions(funcId: string, flow?: Flow, namespace?: string): FunctionGroup {
@@ -131,6 +191,10 @@ export class Namespace {
     if (!g) {
       g = new NsFunctionGroup(this.ns, group, Namespace._storage);
       this._groups[group] = g;
+      // Register any existing desc listeners on the new group
+      for (const listener of Namespace._descListeners) {
+        g.listenDesc(listener);
+      }
       if (this._enabled) {
         g.loadFromStorage();
       }

@@ -117,9 +117,6 @@ export class FunctionGroup {
         func.updateValue(null);
         func.setDesc(null);
       }
-      if (id.startsWith(':')) {
-        this.deleteFunction(id);
-      }
       this.dispatchDescChange(id, null);
     }
   }
