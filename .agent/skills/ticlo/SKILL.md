@@ -1,151 +1,38 @@
 ---
-name: ticlo-file-skill
-description: Instructions for reading, understanding, and generating Ticlo files (.ticlo), which use a JSON format to describe Ticlo flows.
+name: ticlo-project-architecture
+description: High-level overview of the Ticlo monorepo, its packages, and architecture. Helps understand how the different components of Ticlo integrate together.
 ---
 
-# Ticlo File Format Skill
+# Ticlo Architecture Overview
 
-This skill provides the knowledge required to understand and generate `.ticlo` files. A Ticlo file is a JSON document that describes a "Flow" and its component blocks.
+This document provides a high-level overview of the Ticlo project. Ticlo is a monorepo that encapsulates a dataflow-based execution engine, a visual Node/Block-based editor, and various integration layers for the web and Node.js environments.
 
-## Core Concepts
+## Packages Structure
 
-A Ticlo Flow is structured as a tree of **Blocks**. The `.ticlo` file represents the root Flow, and JSON properties represent configuration, inputs, bindings, or child blocks.
+The project code is divided into several packages under the `packages/` directory:
 
-### JSON Structure
+| Package                  | Responsibility                                                                                                                                                                                                                                                                                |
+| :----------------------- | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **`@ticlo/core`**        | **The most important package.** The foundational engine of the Ticlo ecosystem. It provides the Flow parser, AST representations (`Block`, `Flow`), built-in execution functions, serialization, and synchronization connections. For a deep dive, read [core-package.md](./core-package.md). |
+| **`@ticlo/editor`**      | The frontend visual editor application, built with React and Ant Design (`antd`). It includes components for a canvas (Dataflow Editor), property panels, function selectors, scheduler UI, and code editors. Relies on `@ticlo/core`.                                                        |
+| **`@ticlo/html`**        | Web-specific utilities and bindings, bridging `@ticlo/core` behavior to browser-specific capabilities. Uses `idb` for browser-based IndexedDB local storage.                                                                                                                                  |
+| **`@ticlo/node`**        | Node.js integration for Ticlo. Contains backend bridges (like WebSockets) to securely run or sync `@ticlo/core` flows outside the browser environments.                                                                                                                                       |
+| **`@ticlo/react`**       | Generic React bindings and components designed for consuming and interacting with Ticlo flows in custom React frontends.                                                                                                                                                                      |
+| **`@ticlo/react-class`** | Additional React integrations, possibly using class components or alternative object-oriented React bindings.                                                                                                                                                                                 |
+| **`@ticlo/test`**        | Test utilities for validating Ticlo flows and data properties. Uses tools like `chalk`, `pretty-format`, and `diff-sequences`.                                                                                                                                                                |
+| **`@ticlo/web-server`**  | A server implementation designed to host/run Ticlo files using `fastify` and WebSocket implementations (`@fastify/websocket`). Relies on `@ticlo/core` and `@ticlo/node`.                                                                                                                     |
 
-The file is a standard JSON object (`DataMap`).
+## The Ticlo Core Execution Engine
 
-```json
-{
-  "#is": "",
-  "blockName": {
-    "#is": "blockType",
-    "param": "value"
-  }
-}
-```
+Ticlo flows run on `@ticlo/core`. This engine is designed around reactive, node-based programming. Instead of direct code strings, logic is parsed from `.ticlo` files (a highly specific JSON schema).
 
-## Special Prefixes
+The engine uses `Connection` classes (`ServerConnection.ts`, `ClientConnection.ts`) to permit external programs (like the visual `editor`) to monitor or dispatch changes across the flow over a network or locally.
 
-Ticlo uses special prefixes for object keys to distinguish between different types of properties.
+For a deep dive into how `@ticlo/core` is structured, please read the [Core Package Details](./core-package.md).
 
-### 1. Configuration (`#`)
+## File Format & Serialization
 
-Keys starting with `#` configure the block's behavior or metadata.
+Ticlo flows are structured as a tree of **Blocks** represented in JSON (`.ticlo` files).
+Understanding the `.ticlo` format is critical for creating or modifying flow files without the visual editor.
 
-- `#is`: **Required**. Specifies the type/class of the block.
-  - `""` (empty string): No special function attached to the block, usually used for flow's root block.
-  - `"flow:folder"`: A folder for organizing flows.
-  - `"flow:namespace"`: A namespace definition.
-  - `"flow:global"`: Global settings.
-  - `"flow:inputs"`: The inputs definition block.
-  - `"flow:outputs"`: The outputs definition block.
-  - `"function_name"`: For child blocks, the identifier of the function (e.g., `"math:add"`, `"test:assert"`).
-- `#inputs`: Defines the input interface of the flow (configures the `flow:inputs` block).
-- `#outputs`: Defines the output interface of the flow (configures the `flow:outputs` block).
-- `#functions`: Defines a group of local functions.
-- `#disabled`: `true` to disable the block/flow.
-- `#mode`: Execution mode.
-  - `"auto"` (default), `"onLoad"`, `"onChange"`, `"onCall"`.
-- `#sync`: `true` to force synchronous execution.
-- `#wait`: Initial waiting state.
-- `#priority`: Number indicating execution priority.
-- `#call`: A property used to trigger the block (often used in `onCall` mode).
-- `#cancel`: A property used to cancel execution.
-- `#secret`: Configuration for secret values.
-- `#name`: (Read-only) The name of the block.
-
-### 2. Bindings (`~`)
-
-Keys starting with `~` (tilde) denote bindings, which link a property to another block's value.
-
-- **Format 1 (String Path)**: `"~targetProperty": "sourcePath"`
-  - Sets the property to the value at `sourcePath`.
-    - **Example**: `"~value": "##.step1.#output"`
-    - Sets the `value` property of the current block to the `#output` of `step1` (found in the parent scope `##`).
-- **Format 2 (Helper Block)**: `"~targetProperty": { "#is": "...", ... }`
-  - Defines a "Helper Block" (often an unnamed or implicitly named block).
-  - The `targetProperty` is automatically bound to the `#output` of this helper block.
-
-### 3. Context (`^`)
-
-Keys starting with `^` are context properties. They typically connect to global or parent context definitions.
-
-### 4. Attributes (`@`)
-
-Keys starting with `@` are attributes. These are used primarily by the Ticlo Dataflow Editor (e.g., for layout, positioning, or comments) and do **not** affect the runtime logic of the flow.
-
-- **Important**: If these keys are removed, the flow's execution behavior remains exactly the same.
-- `@b-p`: Block properties layout instructions (ordering of properties in the editor).
-- `@b-xyw`: Layout coordinates `[x, y, width]`.
-
-## Path Navigation
-
-When defining bindings, use these references:
-
-- `#`: The current block.
-- `##`: The parent block.
-- `###`: The Flow itself.
-- `block.prop`: Navigation dot-syntax.
-
-## Examples
-
-### Basic Arithmetic Flow
-
-A flow that adds two numbers.
-
-```json
-{
-  "#is": "",
-  "#inputs": {
-    "num1": 0,
-    "num2": 0
-  },
-  "adder": {
-    "#is": "math:add",
-    "~0": "##.#inputs.num1",
-    "~1": "##.#inputs.num2"
-  },
-  "#outputs": {
-    "~result": "##.adder.#output"
-  }
-}
-```
-
-### Worker Flow Definition
-
-Example of a worker definition with custom types.
-
-```json
-{
-  "#is": "worker",
-  "#custom": [{"name": "inputA", "type": "number", "pinned": true}],
-  "internalLogic": {
-    "#is": "someLogic",
-    "~val": "##.inputA"
-  }
-}
-```
-
-## How to Edit
-
-1.  **Adding a Block**: Add a new key to the JSON object.
-    ```json
-    "newBlock": {
-      "#is": "functionName",
-      "inputProp": "value"
-    }
-    ```
-2.  **Creating a Link**: Use the `~` prefix.
-    ```json
-    "~inputProp": "##.sourceBlock.#output"
-    ```
-3.  **Setting Input Values**: Set the property directly.
-    ```json
-    "inputProp": 123
-    ```
-
-## Validation Checklist
-
-- **Blocks vs Values**: Does every object intended to be a Block have an `#is` property? (Objects without `#is` are treated as plain JSON values).
-- **Bindings**: Binding paths (`~`) generally point to valid sources, but the runtime does **not** enforce this. An invalid path simply results in `undefined` without throwing an error.
+For details on the `.ticlo` file format, syntax, configuration prefixes (`#`, `~`, `^`, `@`), and valid examples, please read the [Ticlo File Format Documentation](./file-format.md).
