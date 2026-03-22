@@ -86,9 +86,3 @@ globalFunctions.addCategory({
   icon: 'fas:stopwatch',
   color: '4af',
 });
-globalFunctions.addCategory({
-  id: '',
-  name: '',
-  icon: 'fas:cubes',
-  color: '9bd',
-});

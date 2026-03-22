@@ -96,7 +96,7 @@ export class FunctionTreeItem extends TreeItem<FunctionTreeItem> {
       if (item.key === key) {
         this.children.splice(i, 1);
         if (this.children.length === 0 && !this.desc) {
-          this.parent.removeChild(this.key);
+          this.root.deleteItem(this.key);
         } else if (this.opened === 'opened') {
           this.onListChange();
         }
@@ -178,6 +178,14 @@ export class FunctionTreeRoot extends FunctionTreeItem {
 
   typeMap: Map<string, FunctionTreeItem> = new Map<string, FunctionTreeItem>();
 
+  deleteItem(key: string) {
+    const item = this.typeMap.get(key);
+    if (item) {
+      this.typeMap.delete(key);
+      item.parent.removeChild(key);
+    }
+  }
+
   updateCategory(catKey: string, name: string, desc?: FunctionDesc): FunctionTreeItem {
     let catItem: FunctionTreeItem;
     if (this.typeMap.has(catKey)) {
@@ -205,12 +213,8 @@ export class FunctionTreeRoot extends FunctionTreeItem {
   }
 
   onDesc = (desc: FunctionDesc, key: string) => {
-    const item = this.typeMap.get(key);
-    if (item && item.desc) {
-      // remove existing function first
-      this.typeMap.delete(key);
-      item.parent.removeChild(key);
-    }
+    // remove existing function first
+    this.deleteItem(key + ':');
 
     if (desc) {
       if (desc.src === 'hidden') {
@@ -232,6 +236,7 @@ export class FunctionTreeRoot extends FunctionTreeItem {
 
       if (desc.properties) {
         this.typeMap.set(desc.id, parentItem.addChild(key, desc));
+        ``;
       } else {
         this.updateCategory(desc.id, desc.name, desc);
       }

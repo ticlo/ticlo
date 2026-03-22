@@ -366,6 +366,7 @@ class App extends React.PureComponent<Props, State> {
       },
     },
     {
+      id: '+demo:g:class1',
       name: 'class1',
       properties: [
         {name: 'num', type: 'number'},

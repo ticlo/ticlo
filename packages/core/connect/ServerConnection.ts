@@ -754,7 +754,7 @@ export class ServerConnection extends ServerConnectionCore {
     if (property && property._name.startsWith('#edit-')) {
       if (fromField) {
         FlowEditor.createFromField(property._block, property._name, fromField);
-      } else if (fromFunction && fromFunction.startsWith(':')) {
+      } else if (fromFunction && fromFunction.startsWith('+')) {
         FlowEditor.createFromFunction(property._block, property._name, fromFunction, defaultData);
       }
       return null;
@@ -781,7 +781,7 @@ export class ServerConnection extends ServerConnectionCore {
   }
 
   deleteFunction({funcId}: {funcId: string}): string {
-    if (funcId.startsWith(':')) {
+    if (funcId.startsWith('+')) {
       Namespace.clear(funcId);
     }
     return null;

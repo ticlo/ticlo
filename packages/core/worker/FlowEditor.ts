@@ -56,9 +56,13 @@ export class FlowEditor extends FlowWithShared {
       flow = new FlowEditor(parent, null, prop);
       prop.setOutput(flow);
     }
-    if (funcId?.startsWith(':') && !applyChange) {
+    if (!applyChange && (funcId?.startsWith(':') || funcId?.startsWith('+'))) {
       applyChange = (flow: Flow) => {
-        return WorkerFunctionGen.applyChangeToFunc(flow, null);
+        if (funcId?.startsWith('+')) {
+          return WorkerFunctionGen.applyChangeToFunc(flow, funcId);
+        } else {
+          return WorkerFunctionGen.applyChangeToFunc(flow, null);
+        }
       };
     }
     const success = flow.load(src, funcId, applyChange);
