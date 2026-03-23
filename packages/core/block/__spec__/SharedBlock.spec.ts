@@ -68,7 +68,7 @@ describe('SharedBlock', function () {
     expect(sharedProp.getValue()).toBe(sharedBlock);
 
     // destroy persisted SharedBlock only when function is destroyed
-    globalFunctions.clear('SharedBlock:cacheModeWorker1');
+    globalFunctions.delete('SharedBlock:cacheModeWorker1');
     expect(sharedProp.getValue()).not.toBeDefined();
   });
 });

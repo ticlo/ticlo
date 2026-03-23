@@ -85,12 +85,12 @@ describe('Reconnect', function () {
     client.onDisconnect();
 
     JsFunction.registerType('', {name: 'ReconnectType2'});
-    globalFunctions.clear('ReconnectType1');
+    globalFunctions.delete('ReconnectType1');
 
     await shouldHappen(() => client.watchDesc('ReconnectType2'), 1500);
     await shouldHappen(() => client.watchDesc('ReconnectType1') == null);
 
-    globalFunctions.clear('ReconnectType2');
+    globalFunctions.delete('ReconnectType2');
 
     client.destroy();
     Root.instance.deleteValue('Reconnect3');

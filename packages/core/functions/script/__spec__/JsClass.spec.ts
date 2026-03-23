@@ -25,7 +25,7 @@ describe('Js Type', function () {
 
     Root.run();
     expect(aBlock.getValue('out1')).toBe(321);
-    globalFunctions.clear('Js-type1');
+    globalFunctions.delete('Js-type1');
   });
 
   it('unregister class', function () {
@@ -36,11 +36,11 @@ describe('Js Type', function () {
     JsFunction.registerType('this["out1"] = 1', {name: 'Js-type2'});
 
     expect(aBlock._queued).toBeTruthy();
-    globalFunctions.clear('Js-type2');
+    globalFunctions.delete('Js-type2');
     Root.run();
     expect(!aBlock._queued).toBeTruthy();
     expect(aBlock.getValue('out1')).not.toBeDefined();
-    globalFunctions.clear('Js-type2');
+    globalFunctions.delete('Js-type2');
   });
 
   it('invalid script', function () {
@@ -54,7 +54,7 @@ describe('Js Type', function () {
     const flow = new Flow();
 
     const aBlock = flow.createBlock('a');
-    globalFunctions.clear('');
+    globalFunctions.delete('');
     expect(globalFunctions.getDescToSend('')).toEqual([null, 0]);
     expect(globalFunctions.listen('', aBlock)).toBeNull();
   });

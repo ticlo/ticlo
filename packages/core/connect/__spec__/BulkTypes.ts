@@ -27,6 +27,6 @@ export function addTestTypes(prefix: string, count: number) {
 
 export function removeTestTypes(prefix: string, count: number) {
   for (let i = 0; i < count; ++i) {
-    globalFunctions.clear(`${prefix}${i}`);
+    globalFunctions.delete(`${prefix}${i}`);
   }
 }

@@ -282,7 +282,7 @@ describe('Connection', function () {
       name: 'Connection-watchDesc1',
     });
     await shouldHappen(() => descCustom != null);
-    globalFunctions.clear('Connection-watchDesc1');
+    globalFunctions.delete('Connection-watchDesc1');
     await shouldHappen(() => descCustom == null);
 
     expect(client.getCategory('math').color).toBe('4af');
@@ -711,7 +711,7 @@ describe('Connection', function () {
     await client.editWorker('Connection18.a.#edit-func1', null, ':func1');
     expect((block1.getValue('#edit-func1') as Flow).save()).toEqual(data);
 
-    globalFunctions.clear(':func1');
+    globalFunctions.delete(':func1');
     client.destroy();
     Root.instance.deleteValue('Connection18');
   });

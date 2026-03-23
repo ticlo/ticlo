@@ -132,10 +132,10 @@ export class IndexDbFlowStorage extends IndexDbStorage implements FlowStorage {
   }
 
   saveWorkers(ns: string, group: string, data: DataMap) {
-    return this.save(`${ns}/${group}`, encodeSorted(data));
+    return this.save(`${ns}.#.${group}`, encodeSorted(data));
   }
   loadWorkers(ns: string, group: string) {
-    return this.loadFlow(`${ns}/${group}`);
+    return this.loadFlow(`${ns}.#.${group}`);
   }
 
   inited = false;

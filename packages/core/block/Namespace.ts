@@ -113,9 +113,9 @@ export class Namespace {
     // Determine which function group owns this id
     const functionGroup = Namespace.getFunctionGroup(id);
     if (functionGroup) {
-      functionGroup.clear(id);
+      functionGroup.delete(id);
     } else {
-      globalFunctions.clear(id);
+      globalFunctions.delete(id);
     }
   }
 

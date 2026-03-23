@@ -107,7 +107,7 @@ export class FunctionGroup {
     this.dispatchDescChange(id, category);
   }
 
-  clear(id: string) {
+  delete(id: string) {
     const func = this._functions[id];
 
     if (func) {

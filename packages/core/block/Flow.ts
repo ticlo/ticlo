@@ -303,6 +303,7 @@ export class Flow extends Block {
 
   applyChange() {
     if (this._applyChange) {
+      console.log('applyChange', this._namespace);
       let savedData = this._applyChange(this);
       if (savedData) {
         if (this._history) {

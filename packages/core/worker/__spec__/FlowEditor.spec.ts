@@ -48,7 +48,7 @@ describe('FlowEditor', function () {
     FlowEditor.createFromField(block, '#edit-use2', 'use2');
     expect((block.getValue('#edit-use2') as Flow).save()).toEqual(data);
 
-    globalFunctions.clear('+FlowEditor::func1');
+    globalFunctions.delete('+FlowEditor::func1');
   });
 
   it('createFromFunction', function () {
@@ -68,7 +68,7 @@ describe('FlowEditor', function () {
     FlowEditor.createFromFunction(flow, '#edit-func', '+FlowEditor::worker2-2', data);
     expect((flow.getValue('#edit-func') as Flow).save()).toEqual(data);
 
-    globalFunctions.clear('+FlowEditor::worker2');
+    globalFunctions.delete('+FlowEditor::worker2');
   });
 
   it('applyChange', function () {
@@ -142,7 +142,7 @@ describe('FlowEditor', function () {
     expect(desc.icon).toBe('fas:plus');
     expect(desc.properties).toEqual(expectedDescProperties);
 
-    globalFunctions.clear('FlowEditor:worker3');
+    globalFunctions.delete('FlowEditor:worker3');
     flow.destroy();
   });
 

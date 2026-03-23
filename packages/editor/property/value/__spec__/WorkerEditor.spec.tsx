@@ -57,6 +57,6 @@ describe('WorkerEditor', function () {
 
     client.destroy();
 
-    globalFunctions.clear('WorkerEditor:class1');
+    globalFunctions.delete('WorkerEditor:class1');
   });
 });

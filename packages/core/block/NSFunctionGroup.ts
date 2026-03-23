@@ -8,6 +8,7 @@ import {FlowStorage} from './Storage.js';
 export interface FunctionLoader {
   load(data: DataMap, localFuncId: string, fullId: string, namespace?: string): [FunctionClass, FunctionDesc];
 }
+// A PersistentFunctionGroup is a FunctionGroup that can be saved and loaded inside a Flow.
 export class PersistentFunctionGroup extends FunctionGroup {
   static _loaders: Map<string, FunctionLoader> = new Map();
   static registerType(funcType: string, loader: FunctionLoader) {
@@ -61,6 +62,7 @@ export class PersistentFunctionGroup extends FunctionGroup {
   }
 }
 
+// A NsFunctionGroup is a PersistentFunctionGroup that is associated with a namespace and a group name.
 export class NsFunctionGroup extends PersistentFunctionGroup {
   _loaded: boolean | 'loading' = false;
 
@@ -88,6 +90,24 @@ export class NsFunctionGroup extends PersistentFunctionGroup {
     return `${this.namespace}:${this.groupName}:${localId}`;
   }
 
-  saveToStorage() {}
-  loadFromStorage() {}
+  saveToStorage() {
+    const data = {'#is': 'flow:functions', '#functions': this.save()};
+    this.storage.saveWorkers(this.namespace, this.groupName, data);
+  }
+  async loadFromStorage() {
+    const data = await this.storage.loadWorkers(this.namespace, this.groupName);
+    if (data && data['#functions']) {
+      this.load(data['#functions'] as DataMap);
+    }
+  }
+
+  add(func: FunctionClass, desc: FunctionDesc, namespace?: string) {
+    super.add(func, desc, namespace);
+    this.saveToStorage();
+  }
+
+  delete(id: string): void {
+    super.delete(id);
+    this.saveToStorage();
+  }
 }
