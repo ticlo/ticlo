@@ -21,6 +21,9 @@ export class PersistentFunctionGroup extends FunctionGroup {
   getFullId(localId: string) {
     return localId;
   }
+  getLocalId(fullId: string) {
+    return fullId;
+  }
 
   save() {
     let result: DataMap | null = null;
@@ -29,7 +32,7 @@ export class PersistentFunctionGroup extends FunctionGroup {
         const funcData = this._functions[key].getValue()?.save?.();
         if (funcData) {
           result ??= {};
-          result[key] = funcData;
+          result[this.getLocalId(key)] = funcData;
         }
       }
     }
@@ -90,6 +93,13 @@ export class NsFunctionGroup extends PersistentFunctionGroup {
     return `${this.namespace}:${this.groupName}:${localId}`;
   }
 
+  getLocalId(fullId: string) {
+    if (fullId.startsWith(this.prefix + ':')) {
+      return fullId.substring(this.prefix.length + 1);
+    }
+    return fullId;
+  }
+
   saveToStorage() {
     const data = {'#is': 'flow:functions', '#functions': this.save()};
     this.storage.saveWorkers(this.namespace, this.groupName, data);
@@ -104,6 +114,7 @@ export class NsFunctionGroup extends PersistentFunctionGroup {
   add(func: FunctionClass, desc: FunctionDesc, namespace?: string) {
     super.add(func, desc, namespace);
     this.saveToStorage();
+    console.log('added', func, desc);
   }
 
   delete(id: string): void {

@@ -1,5 +1,6 @@
 import {FunctionGroup, globalFunctions} from '../block/FunctionGroup.js';
 import {BaseFunction, FunctionClass, StatefulFunction} from '../block/BlockFunction.js';
+import {deepEqual} from '../util/Compare.js';
 import {FunctionDesc, PropDesc, PropGroupDesc} from '../block/Descriptor.js';
 import {BlockIO} from '../block/BlockProperty.js';
 import {Flow} from '../block/Flow.js';
@@ -49,7 +50,7 @@ export class WorkerFunctionGen extends BaseFunction<Block> {
         };
       }
       static equals(other: DataMap) {
-        return other['type'] === 'worker' && other['worker'] === data;
+        return other['type'] === 'worker' && deepEqual(other['worker'], data);
       }
     }
 
@@ -161,8 +162,7 @@ export class WorkerFunctionGen extends BaseFunction<Block> {
 }
 
 PersistentFunctionGroup.registerType('worker', {
-  load(data: DataMap, localFuncId: string, idPrefix: string, namespace?: string) {
-    const fullId = `${idPrefix}:${localFuncId}`;
+  load(data: DataMap, localFuncId: string, fullId: string, namespace?: string) {
     const workerData = data['worker'] as DataMap;
     return WorkerFunctionGen.generate(workerData, fullId, namespace);
   },
