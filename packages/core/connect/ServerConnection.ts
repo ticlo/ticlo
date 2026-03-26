@@ -38,6 +38,7 @@ import {Query, queryBlock} from './Query.js';
 import {getGlobalSettingsData} from '../util/Settings.js';
 import {DoneEvent} from '../block/Event.js';
 import {Namespace} from '../block/Namespace.js';
+import {PersistentFunctionGroup} from '../block/NSFunctionGroup.js';
 
 export class ServerRequest extends ConnectionSendingData {
   id: string;
@@ -268,13 +269,25 @@ class ServerWatch extends ServerRequest implements BlockChildWatch, PropListener
 
 class ServerDescWatcher extends ServerRequest implements DescListener {
   pendingIds: Set<string>;
+  private _funcGroup: PersistentFunctionGroup;
 
-  constructor(conn: ServerConnection, id: string) {
+  constructor(conn: ServerConnection, id: string, path?: string) {
     super();
     this.id = id;
     this.connection = conn;
-    this.pendingIds = new Set(Namespace.getAllFunctionIds());
-    Namespace.listenDesc(this);
+    if (path) {
+      const property = conn.root.queryProperty(path);
+      if (property?._value instanceof Flow) {
+        this._funcGroup = property._value.getFuncGroup();
+      }
+    }
+    if (this._funcGroup) {
+      this.pendingIds = new Set(this._funcGroup.getAllFunctionIds());
+      this._funcGroup.listenDesc(this);
+    } else {
+      this.pendingIds = new Set(Namespace.getAllFunctionIds());
+      Namespace.listenDesc(this);
+    }
     this.connection.addSend(this);
   }
 
@@ -283,11 +296,18 @@ class ServerDescWatcher extends ServerRequest implements DescListener {
     this.connection.addSend(this);
   }
 
+  _getDescToSend(id: string): [FunctionDesc, number] {
+    if (this._funcGroup) {
+      return this._funcGroup.getDescToSend(id);
+    }
+    return Namespace.getDescToSend(id);
+  }
+
   getSendingData(): {data: DataMap; size: number} {
     const changes = [];
     let totalSize = 0;
     for (const id of this.pendingIds) {
-      const [desc, size] = Namespace.getDescToSend(id);
+      const [desc, size] = this._getDescToSend(id);
       if (desc) {
         changes.push(desc);
         totalSize += size;
@@ -307,7 +327,11 @@ class ServerDescWatcher extends ServerRequest implements DescListener {
   }
 
   close() {
-    Namespace.unlistenDesc(this);
+    if (this._funcGroup) {
+      this._funcGroup.unlistenDesc(this);
+    } else {
+      Namespace.unlistenDesc(this);
+    }
   }
 }
 
@@ -716,8 +740,8 @@ export class ServerConnection extends ServerConnectionCore {
     }
   }
 
-  watchDesc({id}: {id: string}): ServerDescWatcher {
-    return new ServerDescWatcher(this, id);
+  watchDesc({id, path}: {id: string; path: string}): ServerDescWatcher {
+    return new ServerDescWatcher(this, id, path);
   }
 
   executeCommand({path, command, params}: {path: string; command: string; params: DataMap}) {
