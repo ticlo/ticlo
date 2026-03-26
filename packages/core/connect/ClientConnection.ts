@@ -38,20 +38,20 @@ export abstract class ClientConnection extends Connection implements ClientConn 
   // path as key
   watches: Map<string, WatchRequest> = new Map();
 
-  readonly descReq: DescRequest;
+  readonly descRequests: Map<string, DescRequest> = new Map();
+  /** Maps each listener to the path of its DescRequest */
+  readonly descListenerPaths: Map<ClientDescListener, string> = new Map();
   readonly globalWatch: GlobalWatch;
+  private _editorListeners: boolean;
 
   protected constructor(editorListeners: boolean) {
     super();
+    this._editorListeners = editorListeners;
     if (editorListeners) {
       this._sendSettingsRequest();
 
-      // watchDesc
-      const id = this.uid.next();
-      const data = {cmd: 'watchDesc', path: '', id};
-      this.descReq = new DescRequest(data);
-      this.requests.set(id, this.descReq);
-      this.addSend(this.descReq);
+      // watchDesc - create global DescRequest
+      this._getOrCreateDescRequest('');
 
       // watch #global
       this.globalWatch = new GlobalWatch(this);
@@ -459,31 +459,67 @@ export abstract class ClientConnection extends Connection implements ClientConn 
     }
   }
 
-  watchDesc(id: string, listener?: ClientDescListener): FunctionDesc {
+  /** Get or create a DescRequest for the given path */
+  private _getOrCreateDescRequest(path: string): DescRequest {
+    let descReq = this.descRequests.get(path);
+    if (!descReq) {
+      const id = this.uid.next();
+      const data = {cmd: 'watchDesc', path: path || '', id};
+      descReq = new DescRequest(data);
+      this.descRequests.set(path, descReq);
+      this.requests.set(id, descReq);
+      this.addSend(descReq);
+    }
+    return descReq;
+  }
+
+  watchDesc(funcId: string, path?: string, listener?: ClientDescListener): FunctionDesc {
+    const resolvedPath = path || '';
     if (listener) {
-      this.descReq.listeners.set(listener, id);
-      if (id === '*') {
+      const descReq = this._getOrCreateDescRequest(resolvedPath);
+      descReq.listeners.set(listener, funcId);
+      this.descListenerPaths.set(listener, resolvedPath);
+      if (funcId === '*') {
         // listen to all descs
-        for (const [id, desc] of this.descReq.cache) {
+        for (const [id, desc] of descReq.cache) {
           listener(desc, id);
         }
-      } else if (this.descReq.cache.has(id)) {
-        listener(this.descReq.cache.get(id), id);
+      } else if (descReq.cache.has(funcId)) {
+        listener(descReq.cache.get(funcId), funcId);
       } else {
-        listener(null, id);
+        listener(null, funcId);
       }
     } else {
-      return this.descReq.cache.get(id);
+      // cache lookup uses the resolved path's DescRequest
+      const req = this.descRequests.get(resolvedPath);
+      return req?.cache.get(funcId);
     }
     return null;
   }
 
   unwatchDesc(listener: ClientDescListener) {
-    this.descReq.listeners.delete(listener);
+    const path = this.descListenerPaths.get(listener);
+    if (path == null) {
+      return;
+    }
+    this.descListenerPaths.delete(listener);
+    const descReq = this.descRequests.get(path);
+    if (!descReq) {
+      return;
+    }
+    descReq.listeners.delete(listener);
+    // If no listeners remain and it's not the permanent global DescRequest, close it
+    if (descReq.listeners.size === 0 && !(path === '' && this._editorListeners)) {
+      const id = String(descReq._data.id);
+      descReq._data = {cmd: 'close', id};
+      this.addSend(descReq);
+      this.descRequests.delete(path);
+      this.requests.delete(id);
+    }
   }
 
   getCategory(category: string): FunctionDesc {
-    return this.descReq.categories.get(category);
+    return this.descRequests.get('')?.categories.get(category);
   }
 
   // find the common base Desc
@@ -493,6 +529,10 @@ export abstract class ClientConnection extends Connection implements ClientConn 
     }
     if (set.size === 1) {
       return set[Symbol.iterator]().next().value;
+    }
+    const globalCache = this.descRequests.get('')?.cache;
+    if (!globalCache) {
+      return null;
     }
     let collected: FunctionDesc[];
     let commonMatch: number;
@@ -504,7 +544,7 @@ export abstract class ClientConnection extends Connection implements ClientConn 
         do {
           collected.push(desc);
           if (desc.base) {
-            desc = this.descReq.cache.get(desc.base);
+            desc = globalCache.get(desc.base);
           } else {
             break;
           }
@@ -520,7 +560,7 @@ export abstract class ClientConnection extends Connection implements ClientConn 
             break;
           }
           if (desc.base) {
-            desc = this.descReq.cache.get(desc.base);
+            desc = globalCache.get(desc.base);
           } else {
             // no match and no base to check
             return null;
@@ -532,6 +572,7 @@ export abstract class ClientConnection extends Connection implements ClientConn 
   }
 
   getOptionalProps(desc: FunctionDesc): {[key: string]: PropDesc} {
+    const globalCache = this.descRequests.get('')?.cache;
     let result: {[key: string]: PropDesc};
     do {
       if (desc.optional) {
@@ -541,8 +582,8 @@ export abstract class ClientConnection extends Connection implements ClientConn 
           result = desc.optional;
         }
       }
-      if (desc.base) {
-        desc = this.descReq.cache.get(desc.base);
+      if (desc.base && globalCache) {
+        desc = globalCache.get(desc.base);
       } else {
         break;
       }
@@ -587,9 +628,9 @@ export abstract class ClientConnection extends Connection implements ClientConn 
       if (req instanceof MergedClientRequest) {
         req.onDisconnect();
         this.addSend(req);
-      } else if (req === this.descReq) {
-        this.descReq.onDisconnect();
-        this.addSend(this.descReq);
+      } else if (req instanceof DescRequest) {
+        req.onDisconnect();
+        this.addSend(req);
       } else {
         req.onError('disconnected');
         this.requests.delete(key);

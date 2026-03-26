@@ -290,7 +290,7 @@ export class NodeTreeRenderer extends PureDataRenderer<Props, any> {
       const {item} = this.props;
       item.functionId = response.cache.value;
       if (typeof item.functionId === 'string') {
-        item.connection.watchDesc(item.functionId, this.descCallback);
+        item.connection.watchDesc(item.functionId, undefined, this.descCallback);
       } else {
         item.connection.unwatchDesc(this.descCallback);
         this.safeSetState({desc: blankFuncDesc});

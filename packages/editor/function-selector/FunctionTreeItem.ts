@@ -258,7 +258,7 @@ export class FunctionTreeRoot extends FunctionTreeItem {
     this.onListChange = onListChange;
     this.onFunctionClick = onFunctionClick;
     this.filter = filter;
-    conn.watchDesc('*', this.onDesc);
+    conn.watchDesc('*', undefined, this.onDesc);
   }
 
   destroy() {

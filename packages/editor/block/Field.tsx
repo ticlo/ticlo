@@ -583,7 +583,7 @@ export abstract class BaseBlockItem extends DataRendererItem<XYWRenderer> {
       const {value} = response.cache;
       if (typeof value === 'string') {
         this.isValue = value;
-        this.conn.watchDesc(value, this.descListener);
+        this.conn.watchDesc(value, undefined, this.descListener);
       } else {
         this.isValue = null;
         this.conn.unwatchDesc(this.descListener);

@@ -259,12 +259,12 @@ describe('Connection', function () {
     const [server, client] = makeLocalConnection(Root.instance, true);
 
     let descCustom: FunctionDesc;
-    client.watchDesc('Connection-watchDesc1', (desc: FunctionDesc) => {
+    client.watchDesc('Connection-watchDesc1', undefined, (desc: FunctionDesc) => {
       descCustom = desc;
     });
 
     let descResult1: FunctionDesc;
-    client.watchDesc('add', (desc: FunctionDesc) => {
+    client.watchDesc('add', undefined, (desc: FunctionDesc) => {
       descResult1 = desc;
     });
     await shouldHappen(() => descResult1 != null);
@@ -273,7 +273,7 @@ describe('Connection', function () {
 
     // try it again
     let descResult2: FunctionDesc;
-    client.watchDesc('add', (desc: FunctionDesc) => {
+    client.watchDesc('add', undefined, (desc: FunctionDesc) => {
       descResult2 = desc;
     });
     await shouldHappen(() => descResult2 != null);
@@ -305,7 +305,7 @@ describe('Connection', function () {
 
     // Wait for the global watchDesc to be initialized (it should receive global descs like 'add')
     let globalAddDesc: FunctionDesc;
-    client.watchDesc('add', (desc: FunctionDesc) => {
+    client.watchDesc('add', undefined, (desc: FunctionDesc) => {
       globalAddDesc = desc;
     });
     await shouldHappen(() => globalAddDesc != null);
@@ -315,21 +315,24 @@ describe('Connection', function () {
 
     // Now send a flow-scoped watchDesc request
     const flowDescChanges: FunctionDesc[] = [];
-    const flowDescId = client.simpleRequest(
-      {cmd: 'watchDesc', path: 'ConnectionWatchDescFlow', id: undefined},
-      {
-        onUpdate(response: DataMap) {
-          if (Array.isArray(response.changes)) {
-            flowDescChanges.push(...response.changes);
-          }
-        },
-        onDone() {},
-        onError() {},
-      }
+    let flowListener: any;
+    client.watchDesc(
+      '*',
+      'ConnectionWatchDescFlow',
+      (flowListener = (desc: any, id: any) => {
+        if (desc) {
+          flowDescChanges.push(desc);
+        } else {
+          flowDescChanges.push({id, removed: true} as any);
+        }
+      })
     );
 
-    // Wait for the flow-scoped watchDesc to send initial descs
-    await shouldHappen(() => flowDescChanges.length > 0);
+    // Wait for the flow-scoped watchDesc to receive local-func1
+    await shouldHappen(() => flowDescChanges.some((d) => d.id === 'local-func1'));
+    console.log('flowDescChanges', flowDescChanges);
+
+    // Test synchronous cache lookup functionality for flow-scoped watcher
 
     // The flow-scoped watchDesc should contain flow-local functions
     const localFunc1Desc = flowDescChanges.find((d: FunctionDesc) => d.id === 'local-func1');
@@ -363,7 +366,7 @@ describe('Connection', function () {
     // clean up
     globalFunctions.delete('Connection-global-only-func');
     funcGroup.delete('local-func1');
-    client.cancel(flowDescId as string);
+    client.unwatchDesc(flowListener);
     client.destroy();
     Root.instance.deleteValue('ConnectionWatchDescFlow');
   });

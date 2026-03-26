@@ -43,7 +43,7 @@ function descToEditor(conn: ClientConn, paths: string[], funcDesc: FunctionDesc,
 class BlockLoader extends MultiSelectLoader<PropertyList> {
   isListener = new ValueSubscriber({
     onUpdate: (response: ValueUpdate) => {
-      this.conn.watchDesc(response.cache.value, this.onDesc);
+      this.conn.watchDesc(response.cache.value, undefined, this.onDesc);
     },
   });
 
