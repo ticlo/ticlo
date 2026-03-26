@@ -434,11 +434,16 @@ class ServerConnectionCore extends Connection {
 }
 
 export class ServerConnection extends ServerConnectionCore {
+  /**
+   * Gets the global settings data.
+   */
   getSettings({id}: {id: string}) {
     return getGlobalSettingsData();
   }
 
-  // set value
+  /**
+   * Sets the value of a property at the given path.
+   */
   set({path, value}: {path: string; value: any}): string {
     const property = this.root.queryProperty(path, value !== undefined);
     if (property) {
@@ -453,7 +458,9 @@ export class ServerConnection extends ServerConnectionCore {
     }
   }
 
-  // get value
+  /**
+   * Retrieves the current value of the property.
+   */
   get({path}: {path: string}): DataMap | string {
     const property = this.root.queryProperty(path);
     if (property === null) {
@@ -467,6 +474,9 @@ export class ServerConnection extends ServerConnectionCore {
     }
   }
 
+  /**
+   * Queries specific data from a block at the given path based on the queried fields.
+   */
   query({path, query}: {path: string; query: Query}) {
     const property = this.root.queryProperty(path);
     if (property && property._value instanceof Block) {
@@ -476,7 +486,10 @@ export class ServerConnection extends ServerConnectionCore {
     }
   }
 
-  // update value
+  /**
+   * Updates the value of a property at the given path without replacing the entire property.
+   * Calls `property.updateValue(value)`, which is useful for partial object updates.
+   */
   update({path, value}: {path: string; value: any}): string {
     const property = this.root.queryProperty(path, true);
     if (property) {
@@ -487,7 +500,10 @@ export class ServerConnection extends ServerConnectionCore {
     }
   }
 
-  // restore saved value if current value not equal to saved value
+  /**
+   * Restores a property to its internally saved state (`_saved`).
+   * This is used when the current working value diverges from the saved value.
+   */
   restoreSaved({path}: {path: string}): string {
     const property = this.root.queryProperty(path, true);
     if (property) {
@@ -500,7 +516,9 @@ export class ServerConnection extends ServerConnectionCore {
     }
   }
 
-  // set binding
+  /**
+   * Creates a data binding from a property to a source path.
+   */
   bind({path, from, absolute}: {path: string; from: string; absolute: boolean}): string {
     const property = this.root.queryProperty(path, true);
     if (property) {
@@ -558,6 +576,9 @@ export class ServerConnection extends ServerConnectionCore {
     return 'invalid path';
   }
 
+  /**
+   * Creates a new Flow.
+   */
   addFlow({path, data}: {path: string; data?: DataMap}): string | DataMap {
     if (this.root.addFlow(path, data)) {
       return null;
@@ -566,6 +587,9 @@ export class ServerConnection extends ServerConnectionCore {
     }
   }
 
+  /**
+   * Creates a new FlowFolder to organize multiple flows.
+   */
   addFlowFolder({path}: {path: string}): string | DataMap {
     if (this.root.addFlowFolder(path)) {
       return null;
@@ -574,6 +598,9 @@ export class ServerConnection extends ServerConnectionCore {
     }
   }
 
+  /**
+   * Creates a new child Block. The server extracts the parent block and the new block's name from `path`.
+   */
   addBlock({path, data, findName}: {path: string; data?: DataMap; findName?: boolean}): string | DataMap {
     let [parentBlock, blockName, parentProp] = this.root.queryBlockField(path);
     if (!parentBlock) {
@@ -684,6 +711,9 @@ export class ServerConnection extends ServerConnectionCore {
     }
   }
 
+  /**
+   * Lists the block children of a Block as an overview.
+   */
   list({path, filter, max}: {path: string; filter: string; max: number}): string | DataMap {
     const property = this.root.queryProperty(path, true);
     if (!(max > 0 && max < 1024)) {
@@ -718,6 +748,9 @@ export class ServerConnection extends ServerConnectionCore {
     }
   }
 
+  /**
+   * Subscribes to value changes for a property, creating a continuous tracker.
+   */
   subscribe({path, id}: {path: string; id: string}): string | ServerSubscribe {
     const property = this.root.queryProperty(path, true);
     if (property) {
@@ -729,6 +762,9 @@ export class ServerConnection extends ServerConnectionCore {
     }
   }
 
+  /**
+   * Subscribes to structural changes, child configurations, and value changes within the Block.
+   */
   watch({path, id}: {path: string; id: string}): string | ServerWatch {
     const property = this.root.queryProperty(path, true);
     if (property && property._value instanceof Block) {
@@ -740,10 +776,16 @@ export class ServerConnection extends ServerConnectionCore {
     }
   }
 
-  watchDesc({id, path}: {id: string; path: string}): ServerDescWatcher {
+  /**
+   * Tells the Server-side Desc Watcher to proactively start relaying function signature modifications taking place under `id`.
+   */
+  watchDesc({id, path}: {id: string; path?: string}): ServerDescWatcher {
     return new ServerDescWatcher(this, id, path);
   }
 
+  /**
+   * Relays a generic block-specific command (`command` parameter) payload down to the Component/Block implementation for executing bespoke logics.
+   */
   executeCommand({path, command, params}: {path: string; command: string; params: DataMap}) {
     if (typeof command !== 'string') {
       return 'invalid command';
@@ -762,6 +804,10 @@ export class ServerConnection extends ServerConnectionCore {
     }
   }
 
+  /**
+   * Opens a FlowEditor block dynamically either from a specific user field or a base worker function.
+   * The server matches the path to `#edit-...` and creates/loads the proper context so it can be viewed and edited in the UI.
+   */
   editWorker({
     path,
     fromField,
@@ -787,6 +833,9 @@ export class ServerConnection extends ServerConnectionCore {
     }
   }
 
+  /**
+   * Commits and applies any pending internal changes generated by `Flow` into worker function.
+   */
   applyFlowChange({path, funcId}: {path: string; funcId: string}) {
     const property = this.root.queryProperty(path, true);
     if (property && property._value instanceof Flow) {
@@ -804,6 +853,9 @@ export class ServerConnection extends ServerConnectionCore {
     }
   }
 
+  /**
+   * Deletes a registered namespace worker function.
+   */
   deleteFunction({funcId}: {funcId: string}): string {
     if (funcId.startsWith('+')) {
       Namespace.delete(funcId);
@@ -811,6 +863,9 @@ export class ServerConnection extends ServerConnectionCore {
     return null;
   }
 
+  /**
+   * Shows properties within a Block so they're exposed in the UI.
+   */
   showProps({path, props}: {path: string; props: string[]}) {
     if (!Array.isArray(props)) {
       return 'invalid properties';
@@ -826,6 +881,9 @@ export class ServerConnection extends ServerConnectionCore {
     }
   }
 
+  /**
+   * Hides properties within a Block so they're not exposed in the UI.
+   */
   hideProps({path, props}: {path: string; props: string[]}) {
     if (!Array.isArray(props)) {
       return 'invalid properties';
@@ -841,6 +899,9 @@ export class ServerConnection extends ServerConnectionCore {
     }
   }
 
+  /**
+   * Reorders a shown property relative to another sibling property in the block's shown properties list.
+   */
   moveShownProp({path, propFrom, propTo}: {path: string; propFrom: string; propTo: string}) {
     const property = this.root.queryProperty(path);
 
@@ -853,6 +914,9 @@ export class ServerConnection extends ServerConnectionCore {
     }
   }
 
+  /**
+   * Modifies the array length of a Group property array dynamically.
+   */
   setLen({path, group, length}: {path: string; group: string; length: number}) {
     const property = this.root.queryProperty(path, true);
 
@@ -865,6 +929,9 @@ export class ServerConnection extends ServerConnectionCore {
     }
   }
 
+  /**
+   * Renames a property on a Block. Finds the property via the given path and moves it to `newName` on the parent Block.
+   */
   renameProp({path, newName}: {path: string; newName: string}) {
     const property = this.root.queryProperty(path, true);
 
@@ -879,6 +946,9 @@ export class ServerConnection extends ServerConnectionCore {
     }
   }
 
+  /**
+   * Adds a user-defined custom property schema to a Block.
+   */
   addCustomProp({path, desc, group}: {path: string; desc: PropDesc | PropGroupDesc; group: string}) {
     if (!(desc instanceof Object && typeof desc.name === 'string')) {
       // TODO, full validation
@@ -895,6 +965,9 @@ export class ServerConnection extends ServerConnectionCore {
     }
   }
 
+  /**
+   * Removes a user-defined custom property from the Block.
+   */
   removeCustomProp({path, name, group}: {path: string; name: string; group: string}) {
     const property = this.root.queryProperty(path);
 
@@ -907,6 +980,9 @@ export class ServerConnection extends ServerConnectionCore {
     }
   }
 
+  /**
+   * Changes the ordering metadata of a custom property in the Block.
+   */
   moveCustomProp({path, nameFrom, nameTo, group}: {path: string; nameFrom: string; nameTo: string; group: string}) {
     const property = this.root.queryProperty(path);
 
@@ -919,6 +995,9 @@ export class ServerConnection extends ServerConnectionCore {
     }
   }
 
+  /**
+   * Instantiates or enables a predefined optional property on a Block.
+   */
   addOptionalProp({path, name}: {path: string; name: string}) {
     const property = this.root.queryProperty(path);
 
@@ -931,6 +1010,9 @@ export class ServerConnection extends ServerConnectionCore {
     }
   }
 
+  /**
+   * Removes an optional property from the Block.
+   */
   removeOptionalProp({path, name}: {path: string; name: string}) {
     const property = this.root.queryProperty(path);
 
@@ -943,6 +1025,9 @@ export class ServerConnection extends ServerConnectionCore {
     }
   }
 
+  /**
+   * Changes the ordering metadata of an optional property in the Block.
+   */
   moveOptionalProp({path, nameFrom, nameTo}: {path: string; nameFrom: string; nameTo: string}) {
     const property = this.root.queryProperty(path);
 
@@ -955,6 +1040,9 @@ export class ServerConnection extends ServerConnectionCore {
     }
   }
 
+  /**
+   * Inserts an unassigned new element inside a dynamic Block Group at `idx`.
+   */
   insertGroupProp({path, group, idx}: {path: string; group: string; idx: number}) {
     const property = this.root.queryProperty(path);
 
@@ -967,6 +1055,9 @@ export class ServerConnection extends ServerConnectionCore {
     }
   }
 
+  /**
+   * Splicing removes the element spanning index `idx` from a dynamic Block Group.
+   */
   removeGroupProp({path, group, idx}: {path: string; group: string; idx: number}) {
     const property = this.root.queryProperty(path);
 
@@ -979,6 +1070,9 @@ export class ServerConnection extends ServerConnectionCore {
     }
   }
 
+  /**
+   * Transposes the element in a dynamic Block Group sequence from an origin index to a new displacement index.
+   */
   moveGroupProp({path, group, oldIdx, newIdx}: {path: string; group: string; oldIdx: number; newIdx: number}) {
     const property = this.root.queryProperty(path);
 
@@ -991,6 +1085,9 @@ export class ServerConnection extends ServerConnectionCore {
     }
   }
 
+  /**
+   * Resolves the tracked parent runtime `Flow` belonging to the block at `path` and reverses the latest operational change (undo stack).
+   */
   undo({path}: {path: string}) {
     const property = this.root.queryProperty(path);
     if (property && property._value instanceof Block) {
@@ -1001,6 +1098,9 @@ export class ServerConnection extends ServerConnectionCore {
     }
   }
 
+  /**
+   * Resolves the tracked parent runtime `Flow` belonging to the block at `path` and re-applies an undone state slice (redo stack).
+   */
   redo({path}: {path: string}) {
     const property = this.root.queryProperty(path);
     if (property && property._value instanceof Block) {
@@ -1011,6 +1111,10 @@ export class ServerConnection extends ServerConnectionCore {
     }
   }
 
+  /**
+   * Extracts specific serialized properties from a block entirely and returns the copied stringified structure.
+   * If cut is true, the extracted properties are deleted from the block.
+   */
   copy({path, props, cut}: {path: string; props: string[]; cut: boolean}) {
     const property = this.root.queryProperty(path);
     if (property && property._value instanceof Block) {
@@ -1027,6 +1131,10 @@ export class ServerConnection extends ServerConnectionCore {
     }
   }
 
+  /**
+   * Loads serialized data structures onto the destination Block.
+   * Evaluates logic resolution if keys/nodes collide using the literal `resolve` operation mode.
+   */
   paste({path, data, resolve}: {path: string; data: DataMap; resolve?: 'overwrite' | 'rename'}) {
     const property = this.root.queryProperty(path);
     if (property && property._value instanceof Block) {
@@ -1041,6 +1149,9 @@ export class ServerConnection extends ServerConnectionCore {
     }
   }
 
+  /**
+   * Directly triggers the function of a Block, like the default `onCall` hook behavior
+   */
   callFunction({path}: {path: string}) {
     const property = this.root.queryProperty(path);
     if (property && property._value instanceof Block) {
