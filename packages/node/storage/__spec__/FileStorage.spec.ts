@@ -95,7 +95,7 @@ describe('FileStorage', function () {
   });
   it('save and load workers', async function () {
     const storage = new FileFlowStorage('./temp/storageTest');
-    const ns = 'testNs';
+    const ns = '+testNs';
     const group = 'testGroup';
     const data = {worker: 'test'};
 
@@ -105,7 +105,7 @@ describe('FileStorage', function () {
     const loaded = await storage.loadWorkers(ns, group);
     expect(loaded).toEqual(data);
 
-    const expectedPath = './temp/storageTest/testNs%2ftestGroup.ticlo';
+    const expectedPath = './temp/storageTest/+testNs/testGroup.ticlo';
     expect(Fs.existsSync(expectedPath)).toBe(true);
 
     if (Fs.existsSync(expectedPath)) Fs.unlinkSync(expectedPath);

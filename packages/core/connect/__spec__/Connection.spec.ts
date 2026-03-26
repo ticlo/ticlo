@@ -13,6 +13,7 @@ import {globalFunctions} from '../../block/FunctionGroup.js';
 import type {DataMap} from '../../util/DataTypes.js';
 import {isDataTruncated} from '../../util/DataTypes.js';
 import {WorkerFunctionGen} from '../../worker/WorkerFunctionGen.js';
+import {Namespace} from '../../block/Namespace.js';
 import {FlowEditor} from '../../worker/FlowEditor.js';
 import {WorkerFlow} from '../../worker/WorkerFlow.js';
 import {Logger} from '../../util/Logger.js';
@@ -289,6 +290,82 @@ describe('Connection', function () {
 
     client.destroy();
     Root.instance.deleteValue('Connection5');
+  });
+
+  it('watchDesc with flow path', async function () {
+    // Create a flow with a funcGroup
+    const flow = Root.instance.addFlow('ConnectionWatchDescFlow');
+    const funcGroup = flow.getFuncGroup();
+
+    // Register a function in the flow's funcGroup using add() directly
+    funcGroup.add(null, {id: 'local-func1', name: 'local-func1'});
+
+    // Create connection with editorListeners=true (which sets up the global watchDesc)
+    const [server, client] = makeLocalConnection(Root.instance, true);
+
+    // Wait for the global watchDesc to be initialized (it should receive global descs like 'add')
+    let globalAddDesc: FunctionDesc;
+    client.watchDesc('add', (desc: FunctionDesc) => {
+      globalAddDesc = desc;
+    });
+    await shouldHappen(() => globalAddDesc != null);
+
+    // The global watchDesc should NOT contain flow-local functions
+    expect(client.watchDesc('local-func1')).toBeUndefined();
+
+    // Now send a flow-scoped watchDesc request
+    const flowDescChanges: FunctionDesc[] = [];
+    const flowDescId = client.simpleRequest(
+      {cmd: 'watchDesc', path: 'ConnectionWatchDescFlow', id: undefined},
+      {
+        onUpdate(response: DataMap) {
+          if (Array.isArray(response.changes)) {
+            flowDescChanges.push(...response.changes);
+          }
+        },
+        onDone() {},
+        onError() {},
+      }
+    );
+
+    // Wait for the flow-scoped watchDesc to send initial descs
+    await shouldHappen(() => flowDescChanges.length > 0);
+
+    // The flow-scoped watchDesc should contain flow-local functions
+    const localFunc1Desc = flowDescChanges.find((d: FunctionDesc) => d.id === 'local-func1');
+    expect(localFunc1Desc).toBeDefined();
+
+    // The flow-scoped watchDesc should NOT contain global functions like 'add'
+    const globalAddInFlow = flowDescChanges.find((d: FunctionDesc) => d.id === 'add');
+    expect(globalAddInFlow).toBeUndefined();
+
+    // Register a new function in the flow's funcGroup and verify it's pushed
+    flowDescChanges.length = 0;
+    funcGroup.add(null, {id: 'local-func2', name: 'local-func2'});
+    await shouldHappen(() => flowDescChanges.some((d: FunctionDesc) => d.id === 'local-func2'));
+
+    // Delete a function from funcGroup and verify it's pushed as removed
+    flowDescChanges.length = 0;
+    funcGroup.delete('local-func2');
+    await shouldHappen(() => flowDescChanges.some((d: any) => d.id === 'local-func2' && d.removed));
+
+    // Register a global function and verify it does NOT appear in the flow-scoped desc watcher
+    flowDescChanges.length = 0;
+    JsFunction.registerType('this["out"] = 1', {
+      name: 'Connection-global-only-func',
+    });
+    // Give it some time, then verify it was received by the global watcher
+    await shouldHappen(() => client.watchDesc('Connection-global-only-func') != null);
+    // But not by the flow-scoped watcher
+    const globalOnlyInFlow = flowDescChanges.find((d: FunctionDesc) => d.id === 'Connection-global-only-func');
+    expect(globalOnlyInFlow).toBeUndefined();
+
+    // clean up
+    globalFunctions.delete('Connection-global-only-func');
+    funcGroup.delete('local-func1');
+    client.cancel(flowDescId as string);
+    client.destroy();
+    Root.instance.deleteValue('ConnectionWatchDescFlow');
   });
 
   it('merge set request', async function () {
@@ -705,13 +782,13 @@ describe('Connection', function () {
     await client.editWorker('Connection18.a.#edit-use', 'use');
     expect((block1.getValue('#edit-use') as Flow).save()).toEqual(data);
 
-    WorkerFunctionGen.registerType(data, {name: 'func1'}, '');
+    WorkerFunctionGen.registerType(data, {name: 'func1'}, '+Connection');
 
     // edit from worker function
-    await client.editWorker('Connection18.a.#edit-func1', null, ':func1');
+    await client.editWorker('Connection18.a.#edit-func1', null, '+Connection::func1');
     expect((block1.getValue('#edit-func1') as Flow).save()).toEqual(data);
 
-    globalFunctions.delete(':func1');
+    Namespace.delete('+Connection::func1');
     client.destroy();
     Root.instance.deleteValue('Connection18');
   });

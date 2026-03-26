@@ -74,11 +74,11 @@ describe('Connection Client API', function () {
   });
 
   afterAll(function () {
-    globalFunctions.deleteFunction('ClientConnection:func1');
-    globalFunctions.deleteFunction('ClientConnection:func2');
-    globalFunctions.deleteFunction('ClientConnection:func3');
-    globalFunctions.deleteFunction('ClientConnection:func4');
-    globalFunctions.deleteFunction('ClientConnection:func5');
+    globalFunctions.delete('ClientConnection:func1');
+    globalFunctions.delete('ClientConnection:func2');
+    globalFunctions.delete('ClientConnection:func3');
+    globalFunctions.delete('ClientConnection:func4');
+    globalFunctions.delete('ClientConnection:func5');
   });
 
   it('getCommonfuncFunc', async function () {

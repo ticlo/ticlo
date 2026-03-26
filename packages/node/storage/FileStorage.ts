@@ -204,6 +204,7 @@ export class FileFlowStorage extends FileStorage implements FlowStorage {
   }
 
   saveWorkers(ns: string, group: string, data: DataMap) {
+    this.initNamespace(ns);
     this.save(`${ns}.${group}`, encodeSorted(data));
   }
 

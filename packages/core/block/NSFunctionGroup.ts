@@ -101,10 +101,16 @@ export class NsFunctionGroup extends PersistentFunctionGroup {
   }
 
   saveToStorage() {
+    if (!this.storage) {
+      return;
+    }
     const data = {'#is': 'flow:functions', '#functions': this.save()};
     this.storage.saveWorkers(this.namespace, this.groupName, data);
   }
   async loadFromStorage() {
+    if (!this.storage) {
+      return;
+    }
     const data = await this.storage.loadWorkers(this.namespace, this.groupName);
     if (data && data['#functions']) {
       this.load(data['#functions'] as DataMap);
@@ -114,7 +120,6 @@ export class NsFunctionGroup extends PersistentFunctionGroup {
   add(func: FunctionClass, desc: FunctionDesc, namespace?: string) {
     super.add(func, desc, namespace);
     this.saveToStorage();
-    console.log('added', func, desc);
   }
 
   delete(id: string): void {

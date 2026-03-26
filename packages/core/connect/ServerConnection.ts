@@ -806,7 +806,7 @@ export class ServerConnection extends ServerConnectionCore {
 
   deleteFunction({funcId}: {funcId: string}): string {
     if (funcId.startsWith('+')) {
-      Namespace.clear(funcId);
+      Namespace.delete(funcId);
     }
     return null;
   }

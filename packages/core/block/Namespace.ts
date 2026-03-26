@@ -109,7 +109,7 @@ export class Namespace {
     return [null, 0];
   }
 
-  static clear(id: string): void {
+  static delete(id: string): void {
     // Determine which function group owns this id
     const functionGroup = Namespace.getFunctionGroup(id);
     if (functionGroup) {
