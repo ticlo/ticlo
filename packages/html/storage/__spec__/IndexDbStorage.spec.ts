@@ -108,7 +108,7 @@ describe('IndexDbStorage', function () {
     expect(loaded).toEqual(data);
 
     const db = await storage.dbPromise;
-    const raw = await db.get(FLOW_STORE_NAME, `${ns}/${group}`);
+    const raw = await db.get(FLOW_STORE_NAME, `${ns}.#.${group}`);
     expect(JSON.parse(raw)).toEqual(data);
   });
 });

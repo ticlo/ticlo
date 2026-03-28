@@ -131,7 +131,7 @@ export class FunctionView extends React.PureComponent<Props, any> {
       </DragDropDiv>
     );
 
-    if (ns?.startsWith('+') && desc.src === 'worker' && this.context.editFlow) {
+    if (ns?.startsWith('+') && desc.src === 'worker' && this.context?.editFlow) {
       return (
         <Dropdown menu={this.getMenu()} trigger={['contextMenu']}>
           {typeView}

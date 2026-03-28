@@ -330,7 +330,6 @@ describe('Connection', function () {
 
     // Wait for the flow-scoped watchDesc to receive local-func1
     await shouldHappen(() => flowDescChanges.some((d) => d.id === 'local-func1'));
-    console.log('flowDescChanges', flowDescChanges);
 
     // Test synchronous cache lookup functionality for flow-scoped watcher
 

@@ -11,6 +11,7 @@ import {makeLocalConnection} from '@ticlo/core/connect/LocalConnection.js';
 import {Root} from '@ticlo/core';
 import {WorkerFunctionGen} from '@ticlo/core/worker/WorkerFunctionGen.js';
 import {globalFunctions} from '@ticlo/core/block/FunctionGroup.js';
+import {Namespace} from '@ticlo/core/block/Namespace.js';
 import {DateEditor} from '../DateEditor.js';
 
 describe('WorkerEditor', function () {
@@ -41,11 +42,11 @@ describe('WorkerEditor', function () {
     await shouldHappen(() => div.querySelector('.anticon-down'));
     simulate(div.querySelector('.anticon-down'), 'click');
 
-    await shouldHappen(() => querySingle("//div.ticl-tree-type/span[text()='WorkerEditor']", document.body));
+    await shouldHappen(() => querySingle("//div.ticl-tree-type/span[text()='+WorkerEditor']", document.body));
 
     window.onerror = function (e) {};
     simulate(
-      querySingle("//div.ticl-tree-type/span[text()='WorkerEditor']/../div.ticl-tree-arr", document.body),
+      querySingle("//div.ticl-tree-type/span[text()='+WorkerEditor']/../div.ticl-tree-arr", document.body),
       'click'
     );
 
@@ -53,10 +54,10 @@ describe('WorkerEditor', function () {
 
     simulate(querySingle("//div.ticl-func-view/span[text()='class1']/..", document.body), 'click');
 
-    await shouldHappen(() => value === 'WorkerEditor:class1');
+    await shouldHappen(() => value === '+WorkerEditor::class1');
 
     client.destroy();
 
-    globalFunctions.delete('WorkerEditor:class1');
+    Namespace.delete('+WorkerEditor::class1');
   });
 });
