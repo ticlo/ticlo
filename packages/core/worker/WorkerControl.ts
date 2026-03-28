@@ -123,6 +123,9 @@ export class WorkerControl {
 
   getSaveParameter(): {src?: string | DataMap; saveCallback?: (flow: Flow) => DataMap} {
     const src: string | DataMap = this._src;
+    if (src === '#') {
+      return {src: this.loader?.value, saveCallback: this.saveStorage};
+    }
     if (typeof src === 'string') {
       return {
         src,
