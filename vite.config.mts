@@ -35,7 +35,7 @@ async function checkFiles() {
   }
   if (!fs.existsSync('css/antd.css')) {
     console.log('Building antd css...');
-    await runNpmScript('build-antd-css');
+    await runNpmScript('build-antd-style');
   }
   if (!fs.existsSync('css/icons.css')) {
     console.log('Building icons...');
