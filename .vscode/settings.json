@@ -33,6 +33,7 @@
     "titleBar.activeBackground": "#333333",
     "titleBar.activeForeground": "#ffffff",
     "statusBar.background": "#333333",
-    "statusBar.foreground": "#ffffff"
+    "statusBar.foreground": "#ffffff",
+    "statusBarItem.hoverForeground": "#aaccff"
   }
 }
