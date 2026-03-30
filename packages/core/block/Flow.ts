@@ -177,6 +177,18 @@ export class Flow extends Block {
     }
     this._loading = true;
     let loaded = false;
+
+    if (namespace) {
+      this._namespace = namespace;
+    } else {
+      this._namespace = this._parent?._flow?._namespace;
+    }
+    if (funcGroup) {
+      this._funcGroup = funcGroup;
+    } else {
+      this._funcGroup = this._parent?._flow?.getFuncGroup();
+    }
+
     if (funcId) {
       // load from worker class for editing
       const [desc, workerData, funcGroup] = Namespace.getWorker(funcId, this);
@@ -200,17 +212,6 @@ export class Flow extends Block {
         loaded = true;
       }
     } else {
-      if (namespace) {
-        this._namespace = namespace;
-      } else {
-        this._namespace = this._parent._flow._namespace;
-      }
-      if (funcGroup) {
-        this._funcGroup = funcGroup;
-      } else {
-        this._funcGroup = this._parent._flow.getFuncGroup();
-      }
-
       this._loadFrom = null;
       if (src) {
         this._loadFlowData(src);

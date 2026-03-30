@@ -181,6 +181,11 @@ export class BlockFunctionsConfig extends BlockProperty {
 
     return super.onChange(val, save);
   }
+
+  _saveValue(): unknown {
+    const data = (this._block as Flow)._funcGroup?.save();
+    return data && Object.keys(data).length > 0 ? data : undefined;
+  }
 }
 
 export function ConstTypeConfig(type: string): typeof BlockProperty {

@@ -6,9 +6,7 @@ import {FlowWithShared, FlowWithSharedConfigGenerators} from '../block/SharedBlo
 import {BlockProperty} from '../index.js';
 import {ConstTypeConfig} from '../block/BlockConfigs.js';
 import {BlockConfig} from '../block/BlockProperty.js';
-import {SubflowLoader} from './WorkerControl.js';
 import {defaultWorkerData} from '../defaults/DefaultFlows.js';
-import {getBlockStoragePath} from '../util/Path.js';
 
 export const FlowEditorConfigGenerators: {[key: string]: typeof BlockProperty} = {
   ...FlowWithSharedConfigGenerators,
@@ -80,21 +78,7 @@ export class FlowEditor extends FlowWithShared {
     if (fromValue && (typeof fromValue === 'string' || fromValue.constructor === Object)) {
       let newFlow: FlowEditor;
       if (typeof fromValue === 'string') {
-        if (fromValue === '#') {
-          const loader = SubflowLoader.getLoader(getBlockStoragePath(parent));
-          loader.load((data: DataMap) => {
-            if (!parent.isDestroyed() && parent.getValue(fromField) === '#') {
-              newFlow = FlowEditor.create(parent, field, data ?? defaultWorkerData, null, false, (flow: Flow) => {
-                const data = flow.save();
-                loader.save(data);
-                return data;
-              });
-            }
-          });
-          return null;
-        } else {
-          newFlow = FlowEditor.create(parent, field, null, fromValue);
-        }
+        newFlow = FlowEditor.create(parent, field, null, fromValue);
       } else {
         newFlow = FlowEditor.create(parent, field, fromValue as DataMap, null, false, (flow: Flow) => {
           const data = flow.save();

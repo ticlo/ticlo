@@ -102,6 +102,7 @@
     "test-browser-coverage": "cross-env NODE_ENV=TEST vitest run -c vitest.web.config.mts --coverage",
     "ticlo-server": "tsx app/server/ticlo-server.ts",
     "server": "tsx app/server/ticlo-server.ts",
+    "ticlo-test": "tsx app/test/test-server --serve --run --quitOnFinish",
     "ticlo-test-server": "tsx app/test/test-server --serve --run",
     "ticlo-test-c8": "c8 tsx ./app/test/test-server.ts --run --quitOnFinish && c8 report --reporter=text-lcov > coverage/nyc-ticlo.lcov",
     "prettier-check": "prettier --check \"(packages|tool|app)/**/*.+(ts|tsx|less)\"",

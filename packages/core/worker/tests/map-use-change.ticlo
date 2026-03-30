@@ -1,4 +1,40 @@
 {
+"#functions": {
+ ":my-worker": {
+  "type": "worker",
+  "worker": {
+   "#inputs": {
+    "#is": "",
+    "@b-p": [
+     "#value"
+    ]
+   },
+   "#is": "",
+   "#outputs": {
+    "#is": "",
+    "@b-p": [
+     "#return"
+    ],
+    "~#return": "##.add.#output"
+   },
+   "add": {
+    "#is": "add",
+    "1": 1,
+    "@b-p": [
+     "0",
+     "1",
+     "#output"
+    ],
+    "@b-xyw": [
+     204,
+     204,
+     143
+    ],
+    "~0": "##.#inputs.#value"
+   }
+  }
+ }
+},
 "#is": "",
 "assert": {
  "#is": "test:assert",
@@ -74,8 +110,8 @@
   "#output"
  ],
  "@b-xyw": [
-  121,
-  112,
+  132,
+  108,
   212
  ],
  "input": [
@@ -153,7 +189,7 @@
  ],
  "@b-xyw": "assert3",
  "async": true,
- "target0": "#",
+ "target0": ":my-worker",
  "~#call": "##.assert3.#emit",
  "~input0": "##.map.use"
 }

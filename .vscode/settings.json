@@ -1,4 +1,7 @@
 {
+  "files.associations": {
+    "*.ticlo": "json"
+  },
   "files.exclude": {
     "**/.git": true,
     "**/*.js.map": true,
