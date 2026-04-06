@@ -15,7 +15,7 @@ import './sample-blocks.js';
 import {Logger} from '@ticlo/core/util/Logger.js';
 import {WorkerFunctionGen} from '@ticlo/core/worker/WorkerFunctionGen.js';
 import {BlockStagePane} from '@ticlo/editor/dock/block/BlockStagePane.js';
-import {TicloLayoutContext, TicloLayoutContextType} from '@ticlo/editor/component/LayoutContext.js';
+import {TicloContextProvider, TicloLayoutContext} from '@ticlo/editor/component/LayoutContext.js';
 import {PropDispatcher} from '@ticlo/core/block/Dispatcher.js';
 import {PropertyListPane} from '@ticlo/editor/dock/property/PropertyListPane.js';
 import {WsBrowserConnection} from '@ticlo/html/connect/WsBrowserConnection.js';
@@ -240,7 +240,7 @@ class App extends React.PureComponent<Props, State> {
     const {modal} = this.state;
     return (
       <ConfigProvider locale={this.lngConfig} theme={theme}>
-        <TicloLayoutContextType.Provider value={this.ticloContext}>
+        <TicloContextProvider value={this.ticloContext}>
           <DockLayout
             defaultLayout={this.defaultDockLayout}
             ref={this.getLayout}
@@ -248,7 +248,7 @@ class App extends React.PureComponent<Props, State> {
             style={{position: 'absolute', left: 10, top: 10, right: 10, bottom: 10}}
           />
           {modal}
-        </TicloLayoutContextType.Provider>
+        </TicloContextProvider>
       </ConfigProvider>
     );
   }

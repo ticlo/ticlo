@@ -28,7 +28,7 @@ import {ClientConnection} from '@ticlo/core/connect/ClientConnection.js';
 import './sample-blocks.js';
 import {WorkerFunctionGen} from '@ticlo/core/worker/WorkerFunctionGen.js';
 
-import {TicloLayoutContext, TicloLayoutContextType} from '@ticlo/editor/component/LayoutContext.js';
+import {TicloContextProvider, TicloLayoutContext, TicloLayoutContextType} from '@ticlo/editor/component/LayoutContext.js';
 import {PropertyListPane} from '@ticlo/editor/dock/property/PropertyListPane.js';
 import {NodeTreePane} from '@ticlo/editor/dock/node-tree/NodeTreePane.js';
 import {TextEditorPane} from '@ticlo/editor/dock/text-editor/TextEditorPane.js';
@@ -268,7 +268,7 @@ class App extends React.PureComponent<Props, State> {
     const {conn} = this.props;
     const {modal} = this.state;
     const appContent = (
-      <TicloLayoutContextType.Provider value={this.ticloContext}>
+      <TicloContextProvider value={this.ticloContext}>
         <DockLayout
           defaultLayout={this.defaultDockLayout}
           ref={this.getLayout}
@@ -276,7 +276,7 @@ class App extends React.PureComponent<Props, State> {
           style={{position: 'absolute', left: 10, top: 10, right: 10, bottom: 10}}
         />
         {modal}
-      </TicloLayoutContextType.Provider>
+      </TicloContextProvider>
     );
 
     if (location.hash.includes('strictMode')) {
