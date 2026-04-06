@@ -4,6 +4,7 @@ import {
   AppstoreOutlined,
   BorderlessTableOutlined,
   CloseCircleOutlined,
+  FileOutlined,
   FilterOutlined,
   HistoryOutlined,
   PlusSquareOutlined,
@@ -31,6 +32,7 @@ interface Props {
   filter?: (desc: FunctionDesc) => boolean;
   useFlow?: boolean;
   currentValue?: unknown;
+  flowPath?: string;
 }
 
 interface State {
@@ -69,7 +71,7 @@ export class FunctionSelect extends React.PureComponent<Props, State> {
       const {conn} = this.props;
       const funcId = `:${this.newFunctionName}`;
       const editPath = `#temp.#edit-${encodeTicloName(funcId)}`;
-      conn.editWorker(editPath, null, funcId, {'#inputs': {'#is': ''}, '#outputs': {'#is': ''}});
+      conn.editWorker(editPath, undefined, funcId, {'#inputs': {'#is': ''}, '#outputs': {'#is': ''}});
       this.context.editFlow(editPath, () => {
         conn.applyFlowChange(editPath);
       });
@@ -106,7 +108,12 @@ export class FunctionSelect extends React.PureComponent<Props, State> {
       <div className="ticl-func-select" onClick={onClick}>
         <div className="tlcl-top-menu-box ticl-hbox">
           <Radio.Group defaultValue="tree" size="small" onChange={this.onToggleChange}>
-            <Tooltip title={t('Function Tree')}>
+            <Tooltip title={t('Local')}>
+              <Radio.Button value="local">
+                <FileOutlined />
+              </Radio.Button>
+            </Tooltip>
+            <Tooltip title={t('Global')}>
               <Radio.Button value="tree">
                 <AppstoreOutlined />
               </Radio.Button>
@@ -123,7 +130,7 @@ export class FunctionSelect extends React.PureComponent<Props, State> {
                 size="small"
                 value={search}
                 placeholder={translateEditor('Search')}
-                style={{display: tab === 'tree' ? '' : 'none'}}
+                style={{display: tab === 'tree' || tab === 'local' ? '' : 'none'}}
                 onChange={this.onFilterChange}
                 suffix={
                   search ? (
@@ -173,6 +180,19 @@ export class FunctionSelect extends React.PureComponent<Props, State> {
             </Button>
           </>
         )}
+        {conn && tab === 'local' ? (
+          this.props.flowPath ? (
+            <FunctionTree
+              conn={conn}
+              showPreset={showPreset}
+              search={search}
+              filter={filter}
+              onFunctionClick={onFunctionClick}
+              path={this.props.flowPath}
+              style={{display: ''}}
+            />
+          ) : null
+        ) : null}
         <FunctionTree
           conn={conn}
           showPreset={showPreset}

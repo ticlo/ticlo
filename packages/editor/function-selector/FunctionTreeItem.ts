@@ -248,7 +248,8 @@ export class FunctionTreeRoot extends FunctionTreeItem {
     onListChange: () => void,
     onFunctionClick?: OnFunctionClick,
     showPreset?: boolean,
-    filter?: (desc: FunctionDesc) => boolean
+    filter?: (desc: FunctionDesc) => boolean,
+    path?: string
   ) {
     super(null, null, '');
     this.level = -1;
@@ -258,7 +259,7 @@ export class FunctionTreeRoot extends FunctionTreeItem {
     this.onListChange = onListChange;
     this.onFunctionClick = onFunctionClick;
     this.filter = filter;
-    conn.watchDesc('*', undefined, this.onDesc);
+    conn.watchDesc('*', path, this.onDesc);
   }
 
   destroy() {

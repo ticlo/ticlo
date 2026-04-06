@@ -11,6 +11,7 @@ interface Props {
   filter?: (desc: FunctionDesc) => boolean;
   showPreset?: boolean;
   onFunctionClick?: OnFunctionClick;
+  path?: string;
   style?: React.CSSProperties;
 }
 
@@ -27,7 +28,8 @@ export class FunctionTree extends React.PureComponent<Props, State> {
       this.forceUpdateImmediate,
       props.onFunctionClick,
       props.showPreset,
-      props.filter
+      props.filter,
+      props.path
     );
   }
 
