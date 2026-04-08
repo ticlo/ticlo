@@ -24,8 +24,8 @@ function loadCssInHeader() {
   }
 }
 
-let _lastTemplateDiv: HTMLDivElement;
-let _lastTemplateRoot: Root;
+let _lastTemplateDiv: HTMLDivElement | null = null;
+let _lastTemplateRoot: Root | null = null;
 
 export function loadTemplate<T extends Element>(element: any, style?: string): [any, HTMLDivElement] {
   if (style === 'editor') {
@@ -50,7 +50,7 @@ export function expandDocumentBody() {
 export function removeLastTemplate() {
   if (_lastTemplateRoot) {
     _lastTemplateRoot.unmount();
-    if (_lastTemplateDiv.parentElement) {
+    if (_lastTemplateDiv?.parentElement) {
       _lastTemplateDiv.parentElement.removeChild(_lastTemplateDiv);
     }
     _lastTemplateDiv = null;
