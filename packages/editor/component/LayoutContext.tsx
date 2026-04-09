@@ -1,4 +1,4 @@
-import React, {createContext, useMemo, ReactElement, useState, ReactNode} from 'react';
+import React, {createContext, useMemo, ReactElement, useState, ReactNode, useRef} from 'react';
 import {PropDesc, PropDispatcher} from '@ticlo/core';
 
 export interface TicloLayoutContext {
@@ -14,7 +14,8 @@ export interface TicloLayoutContext {
 
   getSelectedPaths(): PropDispatcher<string[]>;
 
-  setCurrentFlowPath?(path: string): void;
+  onFlowFocus?(path: string, onBlur?: () => void): void;
+  onFlowClosed?(path: string): void;
 
   language: string;
 }
@@ -28,25 +29,40 @@ export const TicloLayoutContextConsumer = TicloLayoutContextType.Consumer;
 // alias name to make it easier to read code
 export const TicloI18NConsumer = TicloLayoutContextConsumer;
 
-export function TicloContextProvider({value,children}: {
-  value: TicloLayoutContext;
-  children?: ReactNode;
-}) {
-  const [currentPath, setCurrentPath] = useState<string|null>(null);
+export function TicloContextProvider({value, children}: {value: TicloLayoutContext; children?: ReactNode}) {
+  const [currentPath, setCurrentPath] = useState<string | null>(null);
+  const onBlurRef = useRef<() => void>(undefined);
   const wrappedLayoutContext: TicloLayoutContext = useMemo(() => {
     return {
       ...value,
-      setCurrentFlowPath: (path: string)=>{
-        setCurrentPath(path);
-        value.setCurrentFlowPath?.(path);
-      }
-    }
+      onFlowFocus: (path: string, onBlur?: () => void) => {
+        setCurrentPath((prev) => {
+          if (prev === path) {
+            return prev;
+          }
+          if (onBlurRef.current) {
+            onBlurRef.current();
+          }
+          onBlurRef.current = onBlur;
+          return path;
+        });
+        value.onFlowFocus?.(path, onBlur);
+      },
+      onFlowClosed: (path: string) => {
+        setCurrentPath((prev) => {
+          if (prev === path) {
+            return null;
+          }
+          onBlurRef.current = undefined;
+          return prev;
+        });
+        value.onFlowClosed?.(path);
+      },
+    };
   }, [value]);
   return (
     <TicloCurrentFlowContext.Provider value={currentPath}>
-      <TicloLayoutContextType.Provider value={wrappedLayoutContext}>
-        {children}
-      </TicloLayoutContextType.Provider>
+      <TicloLayoutContextType.Provider value={wrappedLayoutContext}>{children}</TicloLayoutContextType.Provider>
     </TicloCurrentFlowContext.Provider>
   );
 }
