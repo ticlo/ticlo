@@ -28,7 +28,11 @@ import {ClientConnection} from '@ticlo/core/connect/ClientConnection.js';
 import './sample-blocks.js';
 import {WorkerFunctionGen} from '@ticlo/core/worker/WorkerFunctionGen.js';
 
-import {TicloContextProvider, TicloLayoutContext, TicloLayoutContextType} from '@ticlo/editor/component/LayoutContext.js';
+import {
+  TicloContextProvider,
+  TicloLayoutContext,
+  TicloLayoutContextType,
+} from '@ticlo/editor/component/LayoutContext.js';
 import {PropertyListPane} from '@ticlo/editor/dock/property/PropertyListPane.js';
 import {NodeTreePane} from '@ticlo/editor/dock/node-tree/NodeTreePane.js';
 import {TextEditorPane} from '@ticlo/editor/dock/text-editor/TextEditorPane.js';

@@ -2,30 +2,9 @@ import {defineConfig} from 'vitest/config';
 import react from '@vitejs/plugin-react';
 import {nodePolyfills} from 'vite-plugin-node-polyfills';
 import tsconfigPaths from 'vite-tsconfig-paths';
-
-import {webdriverio} from '@vitest/browser-webdriverio';
+import {playwright} from '@vitest/browser-playwright';
 
 const isHeadless = process.env.HEADLESS !== 'false';
-
-const chromeArgs = [
-  '--disable-gpu',
-  '--disable-dev-shm-usage',
-  '--no-sandbox',
-  '--disable-setuid-sandbox',
-  '--disable-web-security',
-  '--disable-features=VizDisplayCompositor',
-  '--disable-background-networking',
-  '--disable-background-timer-throttling',
-  '--disable-backgrounding-occluded-windows',
-  '--disable-renderer-backgrounding',
-  '--disable-field-trial-config',
-  '--disable-ipc-flooding-protection',
-  '--memory-pressure-off',
-];
-
-if (isHeadless) {
-  chromeArgs.unshift('--headless=new');
-}
 
 export default defineConfig({
   plugins: [tsconfigPaths(), react(), nodePolyfills()],
@@ -42,20 +21,31 @@ export default defineConfig({
   },
   test: {
     browser: {
-      provider: webdriverio({
-        capabilities: {
-          browserName: 'chrome',
-          webSocketUrl: true,
-          'goog:chromeOptions': {
-            args: chromeArgs,
-          },
+      provider: playwright({
+        launchOptions: {
+          args: [
+            '--disable-gpu',
+            '--disable-dev-shm-usage',
+            '--no-sandbox',
+            '--disable-setuid-sandbox',
+            '--disable-web-security',
+            '--disable-features=VizDisplayCompositor',
+            '--disable-background-networking',
+            '--disable-background-timer-throttling',
+            '--disable-backgrounding-occluded-windows',
+            '--disable-renderer-backgrounding',
+            '--disable-field-trial-config',
+            '--disable-ipc-flooding-protection',
+            '--memory-pressure-off',
+          ],
         },
       }),
+      headless: isHeadless,
       enabled: true,
       ui: true,
       instances: [
         {
-          browser: 'chrome',
+          browser: 'chromium',
         },
       ],
       api: {

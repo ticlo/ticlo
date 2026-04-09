@@ -28,13 +28,10 @@ jobs:
           timezoneLinux: 'America/Los_Angeles'
       - name: enable corepack
         run: corepack enable
-      - name: Setup Chrome
-        uses: browser-actions/setup-chrome@v1
-        with:
-          chrome-version: 138
-          install-chromedriver: true
       - uses: actions/checkout@v4
       - run: pnpm install
+      - name: Install Playwright Browsers
+        run: pnpm exec playwright install chromium --with-deps
       - name: make dir
         run: |
           mkdir -p coverage
