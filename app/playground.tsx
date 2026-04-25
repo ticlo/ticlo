@@ -30,6 +30,7 @@ import {WorkerFunctionGen} from '@ticlo/core/worker/WorkerFunctionGen.js';
 
 import {
   TicloContextProvider,
+  TicloCurrentFlowConsumer,
   TicloLayoutContext,
   TicloLayoutContextType,
 } from '@ticlo/editor/component/LayoutContext.js';
@@ -181,7 +182,11 @@ class App extends React.PureComponent<Props, State> {
                     id: 'Functions',
                     title: t('Functions'),
                     cached: true,
-                    content: <FunctionSelect conn={conn} />,
+                    content: (
+                      <TicloCurrentFlowConsumer>
+                        {({currentPath}) => <FunctionSelect conn={conn} flowPath={currentPath} />}
+                      </TicloCurrentFlowConsumer>
+                    ),
                   },
                   {
                     group: 'tool',

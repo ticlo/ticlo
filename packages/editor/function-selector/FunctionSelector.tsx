@@ -98,7 +98,7 @@ export class FunctionSelect extends React.PureComponent<Props, State> {
     }
   };
   render() {
-    const {conn, showPreset, onFunctionClick, onClick, filter, useFlow, currentValue} = this.props;
+    const {conn, showPreset, onFunctionClick, onClick, filter, useFlow, currentValue, flowPath} = this.props;
     const {tab, search, modelVisible} = this.state;
 
     if (!conn) {
@@ -181,14 +181,14 @@ export class FunctionSelect extends React.PureComponent<Props, State> {
           </>
         )}
         {conn && tab === 'local' ? (
-          this.props.flowPath ? (
+          flowPath ? (
             <FunctionTree
               conn={conn}
               showPreset={showPreset}
               search={search}
               filter={filter}
               onFunctionClick={onFunctionClick}
-              path={this.props.flowPath}
+              path={flowPath}
               style={{display: ''}}
             />
           ) : null

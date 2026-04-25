@@ -15,7 +15,7 @@ import './sample-blocks.js';
 import {Logger} from '@ticlo/core/util/Logger.js';
 import {WorkerFunctionGen} from '@ticlo/core/worker/WorkerFunctionGen.js';
 import {BlockStagePane} from '@ticlo/editor/dock/block/BlockStagePane.js';
-import {TicloContextProvider, TicloLayoutContext} from '@ticlo/editor/component/LayoutContext.js';
+import {TicloContextProvider, TicloCurrentFlowConsumer, TicloLayoutContext} from '@ticlo/editor/component/LayoutContext.js';
 import {PropDispatcher} from '@ticlo/core/block/Dispatcher.js';
 import {PropertyListPane} from '@ticlo/editor/dock/property/PropertyListPane.js';
 import {WsBrowserConnection} from '@ticlo/html/connect/WsBrowserConnection.js';
@@ -151,7 +151,11 @@ class App extends React.PureComponent<Props, State> {
                     id: 'Functions',
                     title: t('Functions'),
                     cached: true,
-                    content: <FunctionSelect conn={conn} />,
+                    content: (
+                      <TicloCurrentFlowConsumer>
+                        {({currentPath}) => <FunctionSelect conn={conn} flowPath={currentPath} />}
+                      </TicloCurrentFlowConsumer>
+                    ),
                   },
                   {
                     id: 'Properties',

@@ -16,6 +16,7 @@ import clamp from 'lodash/clamp.js';
 import {TooltipIconButton} from '../component/TooltipIconButton.js';
 import {DataMap, decode, encode} from '@ticlo/core';
 import {t} from '../component/LocalizedLabel.js';
+import { TicloCurrentFlowContext } from '../component/LayoutContext.js';
 
 const MINI_WINDOW_SIZE = 128;
 
@@ -55,6 +56,8 @@ interface BlockStageProps extends StagePropsBase {
 }
 
 export class BlockStage extends BlockStageBase<BlockStageProps, StageState> {
+  static contextType = TicloCurrentFlowContext;
+
   private _rootNode!: HTMLElement;
   private getRootRef = (node: HTMLDivElement): void => {
     this._rootNode = node;

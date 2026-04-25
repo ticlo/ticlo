@@ -3,6 +3,7 @@ import {ClientConn, DataMap, deepEqual, forAllPathsBetween, ValueSubscriber, Val
 import {DragState} from 'rc-dock';
 import {BlockItem, FieldItem, Stage} from './Field.js';
 import {LazyUpdateComponent} from '../component/LazyUpdateComponent.js';
+import {TicloCurrentFlowContext} from '../component/LayoutContext.js';
 
 export interface StagePropsBase {
   conn: ClientConn;
@@ -31,6 +32,9 @@ export abstract class BlockStageBase<Props extends StagePropsBase, State>
   extends LazyUpdateComponent<Props, State>
   implements Stage
 {
+  static contextType = TicloCurrentFlowContext;
+  declare context: React.ContextType<typeof TicloCurrentFlowContext>;
+
   abstract getRefElement(): HTMLElement;
 
   abstract getRootElement(): HTMLElement;
@@ -400,12 +404,29 @@ export abstract class BlockStageBase<Props extends StagePropsBase, State>
     conn.childrenChangeStream().dispatch({path: basePath});
   }
 
+  _isSelected: boolean = false;
+
+  onBlur = () => {
+    if (!this._isSelected) {
+      return;
+    }
+    this._isSelected = false;
+    this.getRootElement()?.classList.remove('ticl-selected-stage');
+  };
+
   focus() {
-    this.getRootElement().focus({preventScroll: true});
+    if (this._isSelected) {
+      return;
+    }
+    this._isSelected = true;
+    this.getRootElement()?.classList.add('ticl-selected-stage');
+    this.getRootElement()?.focus({preventScroll: true});
+    this.context.onFlowFocus(this.props.basePath, this.onBlur);
   }
 
   componentWillUnmount() {
     const {conn, basePath} = this.props;
+    this.context.onFlowClosed(basePath);
     this.sharedListener.unsubscribe();
     conn.unwatch(basePath, this.watchListener);
     conn.unwatch(this._sharedPath, this.sharedWatchListener);

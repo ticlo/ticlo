@@ -1,7 +1,13 @@
 import React, {createContext, useMemo, ReactElement, useState, ReactNode, useRef} from 'react';
 import {PropDesc, PropDispatcher} from '@ticlo/core';
 
-export interface TicloLayoutContext {
+export interface TicloCurrentFlow {
+  currentPath?: string | null;
+  onFlowFocus?: (path: string, onBlur?: () => void) => void;
+  onFlowClosed?: (path: string) => void;
+}
+
+export interface TicloLayoutContext extends TicloCurrentFlow {
   editFlow?(path: string, onSave: () => void): void;
 
   editProperty?(paths: string[], propDesc: PropDesc, defaultValue?: any, mime?: string, readonly?: boolean): void;
@@ -12,18 +18,15 @@ export interface TicloLayoutContext {
 
   showModal?(model: ReactElement): void;
 
-  getSelectedPaths(): PropDispatcher<string[]>;
+  getSelectedPaths?(): PropDispatcher<string[]>;
 
-  onFlowFocus?(path: string, onBlur?: () => void): void;
-  onFlowClosed?(path: string): void;
-
-  language: string;
+  language?: string;
 }
 
-export const TicloCurrentFlowContext = createContext<string | undefined>(undefined);
+export const TicloCurrentFlowContext = createContext<TicloCurrentFlow>({});
 export const TicloCurrentFlowConsumer = TicloCurrentFlowContext.Consumer;
 
-export const TicloLayoutContextType = createContext<TicloLayoutContext>(null);
+export const TicloLayoutContextType = createContext<TicloLayoutContext>({});
 export const TicloLayoutContextConsumer = TicloLayoutContextType.Consumer;
 
 // alias name to make it easier to read code
@@ -32,10 +35,9 @@ export const TicloI18NConsumer = TicloLayoutContextConsumer;
 export function TicloContextProvider({value, children}: {value: TicloLayoutContext; children?: ReactNode}) {
   const [currentPath, setCurrentPath] = useState<string | null>(null);
   const onBlurRef = useRef<() => void>(undefined);
-  const wrappedLayoutContext: TicloLayoutContext = useMemo(() => {
-    return {
-      ...value,
-      onFlowFocus: (path: string, onBlur?: () => void) => {
+const currentFlow = useMemo(()=>({
+  currentPath,
+  onFlowFocus: (path: string, onBlur?: () => void) => {
         setCurrentPath((prev) => {
           if (prev === path) {
             return prev;
@@ -57,11 +59,16 @@ export function TicloContextProvider({value, children}: {value: TicloLayoutConte
           return prev;
         });
         value.onFlowClosed?.(path);
-      },
+      }
+    }),[currentPath]);
+  const wrappedLayoutContext: TicloLayoutContext = useMemo(() => {
+    return {
+      ...value,
+      ...currentFlow,
     };
-  }, [value]);
+  }, [value, currentFlow]);
   return (
-    <TicloCurrentFlowContext.Provider value={currentPath}>
+    <TicloCurrentFlowContext.Provider value={currentFlow}>
       <TicloLayoutContextType.Provider value={wrappedLayoutContext}>{children}</TicloLayoutContextType.Provider>
     </TicloCurrentFlowContext.Provider>
   );
