@@ -33,6 +33,21 @@ export class FunctionTree extends React.PureComponent<Props, State> {
     );
   }
 
+  componentDidUpdate(prevProps: Props) {
+    if (prevProps.path !== this.props.path || prevProps.conn !== this.props.conn) {
+      this.rootNode.destroy();
+      this.rootNode = new FunctionTreeRoot(
+        this.props.conn,
+        this.forceUpdateImmediate,
+        this.props.onFunctionClick,
+        this.props.showPreset,
+        this.props.filter,
+        this.props.path
+      );
+      this.forceUpdate();
+    }
+  }
+
   forceUpdateLambda = () => this.forceUpdate();
   forceUpdateImmediate = () => {
     if (this.rendered) {

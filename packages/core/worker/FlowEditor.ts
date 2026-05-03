@@ -7,6 +7,7 @@ import {BlockProperty} from '../index.js';
 import {ConstTypeConfig} from '../block/BlockConfigs.js';
 import {BlockConfig} from '../block/BlockProperty.js';
 import {defaultWorkerData} from '../defaults/DefaultFlows.js';
+import {PersistentFunctionGroup} from '../block/NSFunctionGroup.js';
 
 export const FlowEditorConfigGenerators: {[key: string]: typeof BlockProperty} = {
   ...FlowWithSharedConfigGenerators,
@@ -39,7 +40,8 @@ export class FlowEditor extends FlowWithShared {
     src?: DataMap,
     funcId?: string,
     forceLoad = false,
-    applyChange?: (flow: Flow) => DataMap
+    applyChange?: (flow: Flow) => DataMap,
+    funcGroup?: PersistentFunctionGroup
   ): FlowEditor {
     const prop = parent.getProperty(field);
     let flow: FlowEditor;
@@ -63,7 +65,7 @@ export class FlowEditor extends FlowWithShared {
         }
       };
     }
-    const success = flow.load(src, funcId, applyChange);
+    const success = flow.load(src, funcId, applyChange, undefined, undefined, funcGroup);
     if (success) {
       return flow;
     } else {
@@ -106,9 +108,15 @@ export class FlowEditor extends FlowWithShared {
     return null;
   }
 
-  static createFromFunction(parent: Block, field: string, fromFunction: string, defaultData: DataMap): FlowEditor {
+  static createFromFunction(
+    parent: Block,
+    field: string,
+    fromFunction: string,
+    defaultData: DataMap,
+    funcGroup?: PersistentFunctionGroup
+  ): FlowEditor {
     if (typeof fromFunction === 'string') {
-      return FlowEditor.create(parent, field, defaultData, fromFunction);
+      return FlowEditor.create(parent, field, defaultData, fromFunction, false, undefined, funcGroup);
     }
     return null;
   }

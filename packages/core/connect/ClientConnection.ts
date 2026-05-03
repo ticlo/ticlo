@@ -329,9 +329,10 @@ export abstract class ClientConnection extends Connection implements ClientConn 
     fromField?: string,
     fromFunction?: string,
     defaultData?: DataMap,
+    funcScope?: string,
     callbacks?: ClientCallbacks
   ): Promise<any> | string {
-    return this.simpleRequest({cmd: 'editWorker', path, fromField, fromFunction, defaultData}, callbacks);
+    return this.simpleRequest({cmd: 'editWorker', path, fromField, fromFunction, defaultData, funcScope}, callbacks);
   }
 
   applyFlowChange(path: string, funcId?: string, callbacks?: ClientCallbacks): Promise<any> | string {
@@ -465,7 +466,7 @@ export abstract class ClientConnection extends Connection implements ClientConn 
     if (!descReq) {
       const id = this.uid.next();
       const data = {cmd: 'watchDesc', path: path || '', id};
-      descReq = new DescRequest(data);
+      descReq = new DescRequest(data, !!path);
       this.descRequests.set(path, descReq);
       this.requests.set(id, descReq);
       this.addSend(descReq);

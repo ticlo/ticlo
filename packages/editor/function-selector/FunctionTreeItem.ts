@@ -175,6 +175,7 @@ export class FunctionTreeRoot extends FunctionTreeItem {
   showPreset: boolean;
   onFunctionClick: OnFunctionClick;
   filter: (desc: FunctionDesc) => boolean;
+  inFlow: boolean;
 
   typeMap: Map<string, FunctionTreeItem> = new Map<string, FunctionTreeItem>();
 
@@ -214,7 +215,11 @@ export class FunctionTreeRoot extends FunctionTreeItem {
 
   onDesc = (desc: FunctionDesc, key: string) => {
     // remove existing function first
-    this.deleteItem(key + ':');
+    if (this.inFlow) {
+      this.deleteItem(key);
+    } else {
+      this.deleteItem(key + ':');
+    }
 
     if (desc) {
       if (desc.src === 'hidden') {
@@ -223,6 +228,17 @@ export class FunctionTreeRoot extends FunctionTreeItem {
       if (this.filter && !this.filter(desc)) {
         return;
       }
+
+      if (this.inFlow) {
+        // In-Flow mode: show items flat by their local name (after the last ':'), no categories
+        if (desc.properties) {
+          const inFlowName = key.includes(':') ? key.substring(key.lastIndexOf(':') + 1) : key;
+          const inFlowDesc: FunctionDesc = {...desc, name: inFlowName, properties: undefined};
+          this.typeMap.set(key, this.addChild(key, inFlowDesc));
+        }
+        return;
+      }
+
       let category = desc.category || desc.ns;
       if (category == null && desc.properties) {
         category = 'other'; // TODO remove other
@@ -259,6 +275,7 @@ export class FunctionTreeRoot extends FunctionTreeItem {
     this.onListChange = onListChange;
     this.onFunctionClick = onFunctionClick;
     this.filter = filter;
+    this.inFlow = !!path;
     conn.watchDesc('*', path, this.onDesc);
   }
 

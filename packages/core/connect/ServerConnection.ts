@@ -813,19 +813,31 @@ export class ServerConnection extends ServerConnectionCore {
     fromField,
     fromFunction,
     defaultData,
+    funcScope,
   }: {
     path: string;
     fromField: string;
     fromFunction: string;
     defaultData: DataMap;
+    funcScope?: string;
   }) {
     const property = this.root.queryProperty(path, true);
 
     if (property && property._name.startsWith('#edit-')) {
       if (fromField) {
         FlowEditor.createFromField(property._block, property._name, fromField);
-      } else if (fromFunction && fromFunction.startsWith('+')) {
-        FlowEditor.createFromFunction(property._block, property._name, fromFunction, defaultData);
+      } else if (fromFunction) {
+        let funcGroup: PersistentFunctionGroup | undefined;
+        if (fromFunction.startsWith(':') && funcScope) {
+          // Local flow function - resolve the funcGroup from the host flow
+          const flowProp = this.root.queryProperty(funcScope);
+          if (flowProp?._value instanceof Flow) {
+            funcGroup = flowProp._value.getFuncGroup();
+          }
+        }
+        if (fromFunction.startsWith('+') || fromFunction.startsWith(':')) {
+          FlowEditor.createFromFunction(property._block, property._name, fromFunction, defaultData, funcGroup);
+        }
       }
       return null;
     } else {

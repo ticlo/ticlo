@@ -122,7 +122,7 @@ export class Namespace {
   static getFunctions(funcId: string, flow?: Flow, namespace?: string): FunctionGroup {
     const code0 = funcId.charCodeAt(0);
     if (code0 === 58 /* : */) {
-      // local function
+      // in-flow function
       return flow.getFuncGroup();
     } else if (code0 === 43 /* + */) {
       // namespace function

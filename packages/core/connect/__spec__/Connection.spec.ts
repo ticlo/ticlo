@@ -310,7 +310,7 @@ describe('Connection', function () {
     });
     await shouldHappen(() => globalAddDesc != null);
 
-    // The global watchDesc should NOT contain flow-local functions
+    // The global watchDesc should NOT contain in-flow functions
     expect(client.watchDesc('local-func1')).toBeUndefined();
 
     // Now send a flow-scoped watchDesc request
@@ -333,7 +333,7 @@ describe('Connection', function () {
 
     // Test synchronous cache lookup functionality for flow-scoped watcher
 
-    // The flow-scoped watchDesc should contain flow-local functions
+    // The flow-scoped watchDesc should contain in-flow functions
     const localFunc1Desc = flowDescChanges.find((d: FunctionDesc) => d.id === 'local-func1');
     expect(localFunc1Desc).toBeDefined();
 
@@ -793,6 +793,36 @@ describe('Connection', function () {
     Namespace.delete('+Connection::func1');
     client.destroy();
     Root.instance.deleteValue('Connection18');
+  });
+
+  it('editWorker with funcScope persists to flow funcGroup', async function () {
+    const flow = Root.instance.addFlow('Connection18b');
+    // Force the flow's funcGroup to be created so we can observe it.
+    const funcGroup = flow.getFuncGroup();
+    expect(funcGroup).toBeDefined();
+
+    const [server, client] = makeLocalConnection(Root.instance, true);
+
+    const editPath = '#temp.#edit-%3aFunc1';
+    const funcId = ':Func1';
+    // Open editor for a brand-new in-flow function in the flow.
+    await client.editWorker(
+      editPath,
+      undefined,
+      funcId,
+      {'#inputs': {'#is': ''}, '#outputs': {'#is': ''}},
+      'Connection18b'
+    );
+
+    // Apply the change; this should write the function into flow's funcGroup.
+    await client.applyFlowChange(editPath, funcId);
+
+    await shouldHappen(() => funcGroup.getAllFunctionIds().includes(funcId));
+    expect(funcGroup.getAllFunctionIds()).toContain(funcId);
+
+    funcGroup.delete(funcId);
+    client.destroy();
+    Root.instance.deleteValue('Connection18b');
   });
 
   it('applyFlowChange', async function () {

@@ -340,11 +340,14 @@ export class DescRequest extends ConnectionSend implements ClientCallbacks {
 
   listeners: Map<ClientDescListener, string> = new Map<ClientDescListener, string>();
 
-  categories: Map<string, FunctionDesc> = new Map<string, FunctionDesc>(DescRequest.editorCache);
-  cache: Map<string, FunctionDesc> = new Map<string, FunctionDesc>(DescRequest.editorCache);
+  categories: Map<string, FunctionDesc>;
+  cache: Map<string, FunctionDesc>;
 
-  constructor(data: DataMap) {
+  constructor(data: DataMap, localPath = false) {
     super(data);
+    const fixedCache = localPath ? undefined : DescRequest.editorCache;
+    this.categories = new Map<string, FunctionDesc>(fixedCache);
+    this.cache = new Map<string, FunctionDesc>(fixedCache);
   }
 
   onDone(): void {}

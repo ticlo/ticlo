@@ -32,7 +32,7 @@ interface Props {
   filter?: (desc: FunctionDesc) => boolean;
   useFlow?: boolean;
   currentValue?: unknown;
-  flowPath?: string;
+  funcScope?: string;
 }
 
 interface State {
@@ -68,10 +68,10 @@ export class FunctionSelect extends React.PureComponent<Props, State> {
   onAddFunctionOk = () => {
     // TODO validate function name;
     if (this.newFunctionName) {
-      const {conn} = this.props;
+      const {conn, funcScope} = this.props;
       const funcId = `:${this.newFunctionName}`;
       const editPath = `#temp.#edit-${encodeTicloName(funcId)}`;
-      conn.editWorker(editPath, undefined, funcId, {'#inputs': {'#is': ''}, '#outputs': {'#is': ''}});
+      conn.editWorker(editPath, undefined, funcId, {'#inputs': {'#is': ''}, '#outputs': {'#is': ''}}, funcScope);
       this.context.editFlow(editPath, () => {
         conn.applyFlowChange(editPath);
       });
@@ -98,7 +98,7 @@ export class FunctionSelect extends React.PureComponent<Props, State> {
     }
   };
   render() {
-    const {conn, showPreset, onFunctionClick, onClick, filter, useFlow, currentValue, flowPath} = this.props;
+    const {conn, showPreset, onFunctionClick, onClick, filter, useFlow, currentValue, funcScope} = this.props;
     const {tab, search, modelVisible} = this.state;
 
     if (!conn) {
@@ -108,8 +108,8 @@ export class FunctionSelect extends React.PureComponent<Props, State> {
       <div className="ticl-func-select" onClick={onClick}>
         <div className="tlcl-top-menu-box ticl-hbox">
           <Radio.Group defaultValue="tree" size="small" onChange={this.onToggleChange}>
-            <Tooltip title={t('Local')}>
-              <Radio.Button value="local">
+            <Tooltip title={t('In-Flow')}>
+              <Radio.Button value="inFlow">
                 <FileOutlined />
               </Radio.Button>
             </Tooltip>
@@ -130,7 +130,7 @@ export class FunctionSelect extends React.PureComponent<Props, State> {
                 size="small"
                 value={search}
                 placeholder={translateEditor('Search')}
-                style={{display: tab === 'tree' || tab === 'local' ? '' : 'none'}}
+                style={{display: tab === 'tree' || tab === 'inFlow' ? '' : 'none'}}
                 onChange={this.onFilterChange}
                 suffix={
                   search ? (
@@ -180,15 +180,15 @@ export class FunctionSelect extends React.PureComponent<Props, State> {
             </Button>
           </>
         )}
-        {conn && tab === 'local' ? (
-          flowPath ? (
+        {conn && tab === 'inFlow' ? (
+          funcScope ? (
             <FunctionTree
               conn={conn}
               showPreset={showPreset}
               search={search}
               filter={filter}
               onFunctionClick={onFunctionClick}
-              path={flowPath}
+              path={funcScope}
               style={{display: ''}}
             />
           ) : null

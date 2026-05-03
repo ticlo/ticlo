@@ -145,6 +145,7 @@ export interface ClientConn {
    * @param fromField if specified, editing starts based on an existing property field inside the block
    * @param fromFunction if specified, editing starts based on an existing global worker function
    * @param defaultData default data to initialize the editing context
+   * @param funcScope optional path to the host flow whose `_funcGroup` should own the resulting function (used for `:funcId` editing)
    * @param callbacks request callbacks
    */
   editWorker(
@@ -152,6 +153,7 @@ export interface ClientConn {
     fromField?: string,
     fromFunction?: string,
     defaultData?: DataMap,
+    funcScope?: string,
     callbacks?: ClientCallbacks
   ): Promise<any> | string;
 
