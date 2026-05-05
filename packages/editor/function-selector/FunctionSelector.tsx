@@ -70,9 +70,10 @@ export class FunctionSelect extends React.PureComponent<Props, State> {
     const {newFunctionName} = this.state;
     if (newFunctionName) {
       const {conn, funcScope} = this.props;
-      const funcId = `:${newFunctionName}`;
+      const isGlobal = newFunctionName.startsWith('+');
+      const funcId = isGlobal ? newFunctionName : `:${newFunctionName}`;
       const editPath = `#temp.#edit-${encodeTicloName(funcId)}`;
-      conn.editWorker(editPath, undefined, funcId, {'#inputs': {'#is': ''}, '#outputs': {'#is': ''}}, funcScope);
+      conn.editWorker(editPath, undefined, funcId, {'#inputs': {'#is': ''}, '#outputs': {'#is': ''}}, isGlobal ? undefined : funcScope);
       this.context.editFlow(editPath, () => {
         conn.applyFlowChange(editPath);
       });
