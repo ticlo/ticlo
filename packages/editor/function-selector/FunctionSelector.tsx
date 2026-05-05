@@ -39,14 +39,14 @@ interface State {
   tab: string;
   search: string;
   modelVisible: boolean;
+  newFunctionName: string;
 }
 
 export class FunctionSelect extends React.PureComponent<Props, State> {
   static contextType = TicloLayoutContextType;
   declare context: TicloLayoutContext;
 
-  state = {tab: 'tree', search: '', modelVisible: false};
-  newFunctionName: string = '';
+  state = {tab: 'tree', search: '', modelVisible: false, newFunctionName: ''};
 
   onFilterChange = (e: React.SyntheticEvent) => {
     this.setState({search: (e.target as HTMLInputElement).value});
@@ -60,24 +60,24 @@ export class FunctionSelect extends React.PureComponent<Props, State> {
   };
 
   onFunctionNameChange = (e: React.SyntheticEvent) => {
-    this.newFunctionName = (e.target as HTMLInputElement).value;
+    this.setState({newFunctionName: (e.target as HTMLInputElement).value});
   };
   onAddFunction = () => {
     this.setState({modelVisible: true});
   };
   onAddFunctionOk = () => {
     // TODO validate function name;
-    if (this.newFunctionName) {
+    const {newFunctionName} = this.state;
+    if (newFunctionName) {
       const {conn, funcScope} = this.props;
-      const funcId = `:${this.newFunctionName}`;
+      const funcId = `:${newFunctionName}`;
       const editPath = `#temp.#edit-${encodeTicloName(funcId)}`;
       conn.editWorker(editPath, undefined, funcId, {'#inputs': {'#is': ''}, '#outputs': {'#is': ''}}, funcScope);
       this.context.editFlow(editPath, () => {
         conn.applyFlowChange(editPath);
       });
 
-      this.newFunctionName = '';
-      this.setState({modelVisible: false});
+      this.setState({modelVisible: false, newFunctionName: ''});
     } else {
       message.error('Invalid function name.');
     }
@@ -99,7 +99,7 @@ export class FunctionSelect extends React.PureComponent<Props, State> {
   };
   render() {
     const {conn, showPreset, onFunctionClick, onClick, filter, useFlow, currentValue, funcScope} = this.props;
-    const {tab, search, modelVisible} = this.state;
+    const {tab, search, modelVisible, newFunctionName} = this.state;
 
     if (!conn) {
       return <div />;
@@ -157,7 +157,7 @@ export class FunctionSelect extends React.PureComponent<Props, State> {
             onOk={this.onAddFunctionOk}
             onCancel={this.onAddFunctionCancel}
           >
-            <Input size="small" defaultValue={this.newFunctionName} onChange={this.onFunctionNameChange} />
+            <Input size="small" value={newFunctionName} onChange={this.onFunctionNameChange} />
           </Modal>
         </div>
         {useFlow && (
@@ -180,19 +180,15 @@ export class FunctionSelect extends React.PureComponent<Props, State> {
             </Button>
           </>
         )}
-        {conn && tab === 'inFlow' ? (
-          funcScope ? (
-            <FunctionTree
-              conn={conn}
-              showPreset={showPreset}
-              search={search}
-              filter={filter}
-              onFunctionClick={onFunctionClick}
-              path={funcScope}
-              style={{display: ''}}
-            />
-          ) : null
-        ) : null}
+        <FunctionTree
+          conn={conn}
+          showPreset={showPreset}
+          search={search}
+          filter={filter}
+          onFunctionClick={onFunctionClick}
+          path={funcScope ?? ''}
+          style={{display: tab === 'inFlow' ? '' : 'none'}}
+        />
         <FunctionTree
           conn={conn}
           showPreset={showPreset}

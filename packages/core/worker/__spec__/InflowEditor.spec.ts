@@ -104,7 +104,12 @@ describe('InflowEditor', function () {
       {name: 'b', type: 'number', readonly: true},
     ];
 
-    WorkerFunctionGen.registerType({'#is': ''}, {id: ':worker3', name: 'worker3', properties: []}, undefined, funcGroup);
+    WorkerFunctionGen.registerType(
+      {'#is': ''},
+      {id: ':worker3', name: 'worker3', properties: []},
+      undefined,
+      funcGroup
+    );
 
     const editor = FlowEditor.createFromFunction(flow, '#edit-func', ':worker3', null);
     editor.createBlock('#inputs')._load(expectedData['#inputs']);

@@ -15,7 +15,11 @@ import './sample-blocks.js';
 import {Logger} from '@ticlo/core/util/Logger.js';
 import {WorkerFunctionGen} from '@ticlo/core/worker/WorkerFunctionGen.js';
 import {BlockStagePane} from '@ticlo/editor/dock/block/BlockStagePane.js';
-import {TicloContextProvider, TicloCurrentFlowConsumer, TicloLayoutContext} from '@ticlo/editor/component/LayoutContext.js';
+import {
+  TicloContextProvider,
+  TicloCurrentFlowConsumer,
+  TicloLayoutContext,
+} from '@ticlo/editor/component/LayoutContext.js';
 import {PropDispatcher} from '@ticlo/core/block/Dispatcher.js';
 import {PropertyListPane} from '@ticlo/editor/dock/property/PropertyListPane.js';
 import {WsBrowserConnection} from '@ticlo/html/connect/WsBrowserConnection.js';

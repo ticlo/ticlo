@@ -35,9 +35,10 @@ export const TicloI18NConsumer = TicloLayoutContextConsumer;
 export function TicloContextProvider({value, children}: {value: TicloLayoutContext; children?: ReactNode}) {
   const [currentPath, setCurrentPath] = useState<string | null>(null);
   const onBlurRef = useRef<() => void>(undefined);
-const currentFlow = useMemo(()=>({
-  currentPath,
-  onFlowFocus: (path: string, onBlur?: () => void) => {
+  const currentFlow = useMemo(
+    () => ({
+      currentPath,
+      onFlowFocus: (path: string, onBlur?: () => void) => {
         setCurrentPath((prev) => {
           if (prev === path) {
             return prev;
@@ -46,6 +47,9 @@ const currentFlow = useMemo(()=>({
             onBlurRef.current();
           }
           onBlurRef.current = onBlur;
+          if (path?.startsWith('#temp.#edit-')) {
+            return prev;
+          }
           return path;
         });
         value.onFlowFocus?.(path, onBlur);
@@ -59,8 +63,10 @@ const currentFlow = useMemo(()=>({
           return prev;
         });
         value.onFlowClosed?.(path);
-      }
-    }),[currentPath]);
+      },
+    }),
+    [currentPath]
+  );
   const wrappedLayoutContext: TicloLayoutContext = useMemo(() => {
     return {
       ...value,

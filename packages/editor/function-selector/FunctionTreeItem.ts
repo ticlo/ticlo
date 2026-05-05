@@ -233,13 +233,18 @@ export class FunctionTreeRoot extends FunctionTreeItem {
         // In-Flow mode: show items flat by their local name (after the last ':'), no categories
         if (desc.properties) {
           const inFlowName = key.includes(':') ? key.substring(key.lastIndexOf(':') + 1) : key;
-          const inFlowDesc: FunctionDesc = {...desc, name: inFlowName, properties: undefined};
+          const inFlowDesc: FunctionDesc = {...desc, name: inFlowName};
           this.typeMap.set(key, this.addChild(key, inFlowDesc));
         }
+        this.onListChange();
         return;
       }
 
       let category = desc.category || desc.ns;
+      const lastColon = key.lastIndexOf(':');
+      if (lastColon > 0) {
+        category = key.substring(0, lastColon);
+      }
       if (category == null && desc.properties) {
         category = 'other'; // TODO remove other
       }
@@ -247,7 +252,7 @@ export class FunctionTreeRoot extends FunctionTreeItem {
 
       let parentItem: FunctionTreeItem = this;
       if (category != null) {
-        parentItem = this.updateCategory(catKey, category);
+        parentItem = this.updateCategory(catKey, category.split(':').pop());
       }
 
       if (desc.properties) {
@@ -275,8 +280,12 @@ export class FunctionTreeRoot extends FunctionTreeItem {
     this.onListChange = onListChange;
     this.onFunctionClick = onFunctionClick;
     this.filter = filter;
-    this.inFlow = !!path;
-    conn.watchDesc('*', path, this.onDesc);
+    this.inFlow = path != null;
+    // path == null for global functions, and string for in-flow functions
+    // path = '' is for in-flow functions that are not in any node
+    if (path !== '') {
+      conn.watchDesc('*', path, this.onDesc);
+    }
   }
 
   destroy() {

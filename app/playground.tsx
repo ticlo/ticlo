@@ -184,7 +184,9 @@ class App extends React.PureComponent<Props, State> {
                     cached: true,
                     content: (
                       <TicloCurrentFlowConsumer>
-                        {({currentPath}) => <FunctionSelect conn={conn} funcScope={currentPath} />}
+                        {({currentPath}) => {
+                          return <FunctionSelect conn={conn} funcScope={currentPath} />;
+                        }}
                       </TicloCurrentFlowConsumer>
                     ),
                   },
@@ -397,3 +399,4 @@ class App extends React.PureComponent<Props, State> {
 })();
 
 (window as any).Logger = Logger;
+addConsoleLogger(Logger.TRACE_AND_ABOVE);
