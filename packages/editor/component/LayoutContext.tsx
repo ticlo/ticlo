@@ -23,10 +23,16 @@ export interface TicloLayoutContext extends TicloCurrentFlow {
   language?: string;
 }
 
-export const TicloCurrentFlowContext = createContext<TicloCurrentFlow>({onFlowFocus: voidFunction, onFlowClosed: voidFunction});
+export const TicloCurrentFlowContext = createContext<TicloCurrentFlow>({
+  onFlowFocus: voidFunction,
+  onFlowClosed: voidFunction,
+});
 export const TicloCurrentFlowConsumer = TicloCurrentFlowContext.Consumer;
 
-export const TicloLayoutContextType = createContext<TicloLayoutContext>({onFlowFocus: voidFunction, onFlowClosed: voidFunction});
+export const TicloLayoutContextType = createContext<TicloLayoutContext>({
+  onFlowFocus: voidFunction,
+  onFlowClosed: voidFunction,
+});
 export const TicloLayoutContextConsumer = TicloLayoutContextType.Consumer;
 
 // alias name to make it easier to read code

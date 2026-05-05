@@ -86,6 +86,9 @@ export class FunctionTreeItem extends TreeItem<FunctionTreeItem> {
     this.children.sort(FunctionTreeItem.sort);
     if (this.opened === 'opened') {
       this.onListChange();
+    } else if (this.opened === 'empty') {
+      this.opened = 'closed';
+      this.forceUpdate();
     }
     return child;
   }
@@ -97,8 +100,14 @@ export class FunctionTreeItem extends TreeItem<FunctionTreeItem> {
         this.children.splice(i, 1);
         if (this.children.length === 0 && !this.desc) {
           this.root.deleteItem(this.key);
-        } else if (this.opened === 'opened') {
-          this.onListChange();
+        } else {
+          if (this.opened === 'opened') {
+            this.onListChange();
+          }
+          if (this.children.length === 0 && this.desc?.properties) {
+            this.opened = 'empty';
+            this.forceUpdate();
+          }
         }
         return;
       }
@@ -203,6 +212,10 @@ export class FunctionTreeRoot extends FunctionTreeItem {
           const parentCateName = parentCateKey.split(':').pop();
           parentItem = this.updateCategory(parentCateKey + ':', parentCateName);
         }
+      }
+
+      if (name === '' && !desc) {
+        return parentItem;
       }
 
       catItem = new FunctionTreeItem(parentItem, this, catKey, name, desc);
