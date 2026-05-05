@@ -1,10 +1,10 @@
 import React, {createContext, useMemo, ReactElement, useState, ReactNode, useRef} from 'react';
-import {PropDesc, PropDispatcher} from '@ticlo/core';
+import {PropDesc, PropDispatcher, voidFunction} from '@ticlo/core';
 
 export interface TicloCurrentFlow {
   currentPath?: string | null;
-  onFlowFocus?: (path: string, onBlur?: () => void) => void;
-  onFlowClosed?: (path: string) => void;
+  onFlowFocus: (path: string, onBlur?: () => void) => void;
+  onFlowClosed: (path: string) => void;
 }
 
 export interface TicloLayoutContext extends TicloCurrentFlow {
@@ -23,10 +23,10 @@ export interface TicloLayoutContext extends TicloCurrentFlow {
   language?: string;
 }
 
-export const TicloCurrentFlowContext = createContext<TicloCurrentFlow>({});
+export const TicloCurrentFlowContext = createContext<TicloCurrentFlow>({onFlowFocus: voidFunction, onFlowClosed: voidFunction});
 export const TicloCurrentFlowConsumer = TicloCurrentFlowContext.Consumer;
 
-export const TicloLayoutContextType = createContext<TicloLayoutContext>({});
+export const TicloLayoutContextType = createContext<TicloLayoutContext>({onFlowFocus: voidFunction, onFlowClosed: voidFunction});
 export const TicloLayoutContextConsumer = TicloLayoutContextType.Consumer;
 
 // alias name to make it easier to read code
