@@ -166,11 +166,12 @@ export interface ClientConn {
   applyFlowChange(path: string, funcId?: string, callbacks?: ClientCallbacks): Promise<any> | string;
 
   /**
-   * Deletes a registered namespace worker function.
-   * @param funcId the global string identifier of the worker function
+   * Deletes a registered worker function.
+   * @param funcId the string identifier of the worker function
+   * @param funcScope optional path to the host flow whose `_funcGroup` owns an in-flow function
    * @param callbacks request callbacks
    */
-  deleteFunction(funcId: string, callbacks?: ClientCallbacks): Promise<any> | string;
+  deleteFunction(funcId: string, funcScope?: string, callbacks?: ClientCallbacks): Promise<any> | string;
 
   /**
    * Shows properties within a Block so they're exposed in the UI.

@@ -73,7 +73,13 @@ export class FunctionSelect extends React.PureComponent<Props, State> {
       const isGlobal = newFunctionName.startsWith('+');
       const funcId = isGlobal ? newFunctionName : `:${newFunctionName}`;
       const editPath = `#temp.#edit-${encodeTicloName(funcId)}`;
-      conn.editWorker(editPath, undefined, funcId, {'#inputs': {'#is': ''}, '#outputs': {'#is': ''}}, isGlobal ? undefined : funcScope);
+      conn.editWorker(
+        editPath,
+        undefined,
+        funcId,
+        {'#inputs': {'#is': ''}, '#outputs': {'#is': ''}},
+        isGlobal ? undefined : funcScope
+      );
       this.context.editFlow(editPath, () => {
         conn.applyFlowChange(editPath);
       });
@@ -198,7 +204,12 @@ export class FunctionSelect extends React.PureComponent<Props, State> {
           onFunctionClick={onFunctionClick}
           style={{display: tab === 'tree' ? '' : 'none'}}
         />
-        <FunctionList conn={conn} recent={true} style={{display: tab === 'recent' ? '' : 'none'}} />
+        <FunctionList
+          conn={conn}
+          recent={true}
+          funcScope={funcScope}
+          style={{display: tab === 'recent' ? '' : 'none'}}
+        />
       </div>
     );
   }

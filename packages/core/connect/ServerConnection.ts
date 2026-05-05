@@ -866,11 +866,16 @@ export class ServerConnection extends ServerConnectionCore {
   }
 
   /**
-   * Deletes a registered namespace worker function.
+   * Deletes a registered worker function.
    */
-  deleteFunction({funcId}: {funcId: string}): string {
+  deleteFunction({funcId, funcScope}: {funcId: string; funcScope?: string}): string {
     if (funcId.startsWith('+')) {
       Namespace.delete(funcId);
+    } else if (funcId.startsWith(':') && funcScope) {
+      const flowProp = this.root.queryProperty(funcScope);
+      if (flowProp?._value instanceof Flow) {
+        flowProp._value.getFuncGroup().delete(funcId);
+      }
     }
     return null;
   }

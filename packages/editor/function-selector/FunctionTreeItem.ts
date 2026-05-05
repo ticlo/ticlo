@@ -185,6 +185,7 @@ export class FunctionTreeRoot extends FunctionTreeItem {
   onFunctionClick: OnFunctionClick;
   filter: (desc: FunctionDesc) => boolean;
   inFlow: boolean;
+  funcScope?: string;
 
   typeMap: Map<string, FunctionTreeItem> = new Map<string, FunctionTreeItem>();
 
@@ -294,6 +295,7 @@ export class FunctionTreeRoot extends FunctionTreeItem {
     this.onFunctionClick = onFunctionClick;
     this.filter = filter;
     this.inFlow = path != null;
+    this.funcScope = path;
     // path == null for global functions, and string for in-flow functions
     // path = '' is for in-flow functions that are not in any node
     if (path !== '') {

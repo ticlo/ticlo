@@ -45,7 +45,14 @@ export class FunctionTreeRenderer extends PureDataRenderer<Props, any> {
       return (
         <div style={{...style, marginLeft}} className="ticl-tree-type">
           <ExpandIcon opened={item.opened} onClick={this.onExpandClicked} />
-          <FunctionView conn={connection} onClick={this.onFunctionClick} desc={desc} name={name} data={data} />
+          <FunctionView
+            conn={connection}
+            onClick={this.onFunctionClick}
+            desc={desc}
+            name={name}
+            data={data}
+            funcScope={item.root.funcScope}
+          />
         </div>
       );
     } else {

@@ -35,6 +35,7 @@ interface Props {
   recent?: boolean;
   types?: string[];
   style?: React.CSSProperties;
+  funcScope?: string;
 }
 
 export class FunctionList extends React.PureComponent<Props, any> {
@@ -48,7 +49,7 @@ export class FunctionList extends React.PureComponent<Props, any> {
   }
 
   render() {
-    let {conn, recent, types, style} = this.props;
+    let {conn, recent, types, style, funcScope} = this.props;
     if (recent) {
       types = _recentFunctionList;
     }
@@ -56,7 +57,7 @@ export class FunctionList extends React.PureComponent<Props, any> {
     for (const type of types) {
       const desc = conn.watchDesc(type);
       if (desc) {
-        children.push(<FunctionView key={type} conn={conn} desc={desc} />);
+        children.push(<FunctionView key={type} conn={conn} desc={desc} funcScope={funcScope} />);
       }
     }
     return (

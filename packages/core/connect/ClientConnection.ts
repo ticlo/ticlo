@@ -339,12 +339,13 @@ export abstract class ClientConnection extends Connection implements ClientConn 
     return this.simpleRequest({cmd: 'applyFlowChange', path, funcId}, callbacks);
   }
 
-  deleteFunction(funcId?: string, callbacks?: ClientCallbacks): Promise<any> | string {
+  deleteFunction(funcId?: string, funcScope?: string, callbacks?: ClientCallbacks): Promise<any> | string {
     return this.simpleRequest(
       {
         cmd: 'deleteFunction',
         path: '#', // just to prevent the invalid path error
         funcId,
+        funcScope,
       },
       callbacks
     );

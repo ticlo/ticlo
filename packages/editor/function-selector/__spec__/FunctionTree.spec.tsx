@@ -7,10 +7,93 @@ import {WorkerFunctionGen} from '@ticlo/core/worker/WorkerFunctionGen.js';
 import {DescRequest} from '@ticlo/core/connect/ClientRequests.js';
 import {FunctionTreeRoot} from '../FunctionTreeItem.js';
 import {FunctionTreeRenderer} from '../FunctionTreeRenderer.js';
+import {FunctionView} from '../FunctionView.js';
 import {loadTemplate, querySingle, removeLastTemplate} from '../../util/test-util.js';
 import {Namespace} from '@ticlo/core/block/Namespace.js';
 
 describe('FunctionTree', function () {
+  it('passes funcScope when editing an in-flow function', function () {
+    let editRequest: any;
+    const view = new FunctionView({
+      conn: {
+        editWorker: (...args: any[]) => {
+          editRequest = args;
+        },
+        applyFlowChange: () => {},
+      },
+      desc: {id: ':a', name: 'a', src: 'worker'},
+      funcScope: 'FunctionTreeScope',
+    } as any);
+    view.context = {
+      onFlowFocus: () => {},
+      onFlowClosed: () => {},
+      editFlow: () => {},
+    };
+
+    view.onEditClicked();
+
+    expect(editRequest).toEqual(['#temp.#edit-%3aa', null, ':a', undefined, 'FunctionTreeScope']);
+  });
+
+  it('passes funcScope when deleting an in-flow function', function () {
+    let deleteRequest: any;
+    const view = new FunctionView({
+      conn: {
+        deleteFunction: (...args: any[]) => {
+          deleteRequest = args;
+        },
+      },
+      desc: {id: ':a', name: 'a', src: 'worker'},
+      funcScope: 'FunctionTreeScope',
+    } as any);
+
+    view.onDeleteClicked();
+
+    expect(deleteRequest).toEqual([':a', 'FunctionTreeScope']);
+  });
+
+  it('does not pass funcScope when editing a global function', function () {
+    let editRequest: any;
+    const view = new FunctionView({
+      conn: {
+        editWorker: (...args: any[]) => {
+          editRequest = args;
+        },
+        applyFlowChange: () => {},
+      },
+      desc: {id: '+demo:test', name: 'test', src: 'worker'},
+      funcScope: 'FunctionTreeScope',
+    } as any);
+    view.context = {
+      onFlowFocus: () => {},
+      onFlowClosed: () => {},
+      editFlow: () => {},
+    };
+
+    view.onEditClicked();
+
+    expect(editRequest).toEqual(['#temp.#edit-+demo%3atest', null, '+demo:test', undefined, undefined]);
+  });
+
+  it('shows the context menu for an in-flow function', function () {
+    const view = new FunctionView({
+      conn: {
+        getCategory: () => undefined,
+      },
+      desc: {id: ':a', name: 'a', src: 'worker'},
+      funcScope: 'FunctionTreeScope',
+    } as any);
+    view.context = {
+      onFlowFocus: () => {},
+      onFlowClosed: () => {},
+      editFlow: () => {},
+    };
+
+    const rendered = view.render();
+
+    expect((rendered as any).props.trigger).toEqual(['contextMenu']);
+  });
+
   it('shows inflow functions as flat function items', async function () {
     const flowPath = `FunctionTreeInflow${Math.random().toString(36).slice(2)}`;
     const flow = Root.instance.addFlow(flowPath);

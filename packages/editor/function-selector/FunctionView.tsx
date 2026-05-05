@@ -25,6 +25,7 @@ interface Props {
   name?: any;
   data?: any;
   onClick?: OnFunctionClick;
+  funcScope?: string;
 }
 
 export class FunctionView extends React.PureComponent<Props, any> {
@@ -62,16 +63,16 @@ export class FunctionView extends React.PureComponent<Props, any> {
     }
   };
   onEditClicked = () => {
-    const {conn, desc} = this.props;
+    const {conn, desc, funcScope} = this.props;
     const editPath = `#temp.#edit-${encodeTicloName(desc.id)}`;
-    conn.editWorker(editPath, null, desc.id);
+    conn.editWorker(editPath, null, desc.id, undefined, desc.id.startsWith(':') ? funcScope : undefined);
     this.context.editFlow(editPath, () => {
       conn.applyFlowChange(editPath);
     });
   };
   onDeleteClicked = () => {
-    const {conn, desc} = this.props;
-    conn.deleteFunction(desc.id);
+    const {conn, desc, funcScope} = this.props;
+    conn.deleteFunction(desc.id, desc.id.startsWith(':') ? funcScope : undefined);
   };
 
   getMenu = (): MenuProps => {
@@ -99,7 +100,7 @@ export class FunctionView extends React.PureComponent<Props, any> {
         },
         {
           key: 'delete',
-          onClick: this.onEditClicked,
+          onClick: this.onDeleteClicked,
           label: (
             <>
               <DeleteOutlined />
@@ -131,7 +132,11 @@ export class FunctionView extends React.PureComponent<Props, any> {
       </DragDropDiv>
     );
 
-    if (ns?.startsWith('+') && desc.src === 'worker' && this.context?.editFlow) {
+    if (
+      (ns?.startsWith('+') || (id.startsWith(':') && this.props.funcScope != null)) &&
+      desc.src === 'worker' &&
+      this.context?.editFlow
+    ) {
       return (
         <Dropdown menu={this.getMenu()} trigger={['contextMenu']}>
           {typeView}

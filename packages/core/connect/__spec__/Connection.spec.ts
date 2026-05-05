@@ -825,6 +825,24 @@ describe('Connection', function () {
     Root.instance.deleteValue('Connection18b');
   });
 
+  it('deleteFunction with funcScope removes from flow funcGroup', async function () {
+    const flow = Root.instance.addFlow('Connection18c');
+    const funcGroup = flow.getFuncGroup();
+    const funcId = ':Func1';
+    WorkerFunctionGen.registerType({'#is': ''}, {id: funcId, name: 'Func1'}, undefined, funcGroup);
+
+    const [server, client] = makeLocalConnection(Root.instance, true);
+
+    await shouldHappen(() => funcGroup.getAllFunctionIds().includes(funcId));
+    await client.deleteFunction(funcId, 'Connection18c');
+
+    await shouldHappen(() => !funcGroup.getAllFunctionIds().includes(funcId));
+    expect(funcGroup.getAllFunctionIds()).not.toContain(funcId);
+
+    client.destroy();
+    Root.instance.deleteValue('Connection18c');
+  });
+
   it('applyFlowChange', async function () {
     const flow1 = Root.instance.addFlow('Connection19');
     const [server, client] = makeLocalConnection(Root.instance, true);
