@@ -5,43 +5,60 @@ description: Details on how WorkerControl and subflows work in Ticlo, specifical
 
 # Ticlo Worker Architecture
 
-The `@ticlo/core/worker` package is responsible for handling execution of subflows (workers) asynchronously or repeatedly (e.g., `map`, `worker`, `multi-worker`).
+The `@ticlo/core/worker` package is responsible for flow-backed functions: reusable custom worker functions, inline worker definitions, repeaters such as `map`, and task handlers.
 
 ## WorkerControl and Worker Sources
 
-At the heart of the worker architecture is the `WorkerControl` class, which manages how a subflow or worker is loaded, bound to a block, and saved.
+At the heart of the worker architecture is `WorkerControl`, which manages how a subflow/worker source is loaded, watched, and saved.
 
-Functions that host workers (like `WorkerFunction`, `MapFunction`) implement the `WorkerHost` interface and have a `workerField` (typically `use` or `+use`).
+Functions that host workers implement `WorkerHost` and expose:
+
+- `workerField`: the field that stores the source (`use` for map/handler/multi-worker, `+use` for `worker`).
+- `control`: the `WorkerControl` attached to the host function.
+
+Worker hosts usually wire `WorkerControl.onUseChange` into a `StatefulFunction` input map.
 
 The source (`src`) of a worker flow can take several forms, stored in `WorkerControl._src`:
 
-1.  **Inline DataMap**: The flow definition is stored directly in the `use` field as a JSON object (`DataMap`). The subflow is saved back directly into the parent block's property.
-2.  **Function Reference (String)**: A string reference to a registered function.
-    - `":local-function"`: Points to a function in the local flow.
-    - `"+namespace:function"`: Points to a function in a specific namespace.
-    - `"global-function"`: Points to a globally registered function.
-    - When using string references, `WorkerControl` listens to the `FunctionDispatcher` (via `Namespace.getFunctions()`) to watch for changes.
-3.  **Local Flow Functions (`:functionId`)**: A string reference to a local function defined within the flow's `#functions` config property (e.g., `:my-worker`).
-    - The function content is managed by the flow's `_funcGroup`.
-    - `WorkerControl` observes these localized descriptors and spawns flows identically to global functions.
+1. **Inline `DataMap`**: The flow definition is stored directly in the worker field. Edits save back into that property.
+2. **Global function id**: A plain string such as `add` or a generated worker id. It resolves through `globalFunctions`.
+3. **Local flow function id**: `:functionId`, stored in the owning flow's `#functions` config and managed by its `PersistentFunctionGroup`.
+4. **Namespace function id**: `+namespace:group:functionId`, stored in `NsFunctionGroup` and optionally backed by `FlowStorage`.
+
+For string sources, `WorkerControl` listens to the corresponding `FunctionDispatcher`; when the function definition changes, `_srcChanged` is set and the host block is queued.
 
 ## The `getSaveParameter()` Lifecycle
 
 When the worker engine needs to create or apply changes to a worker flow, it calls `WorkerControl.getSaveParameter()`. This method must correctly determine the initial flow data (`src`) and the `saveCallback` based on `_src`:
 
-- **If `src` is a regular string (Function ID)**:
-  - The `src` remains the string.
-  - The `saveCallback` calls `WorkerFunctionGen.applyChangeToFunc(flow, src)` to update the registered function.
-- **If `src` is an inline `DataMap`**:
-  - The `src` is the DataMap itself.
-  - The `saveCallback` uses `this.saveInline` to write the JSON back to the parent block's property.
+- If `src` is a string, `saveCallback` calls `WorkerFunctionGen.applyChangeToFunc(flow, src)`.
+- If `src` is inline data, `saveCallback` calls `saveInline()`, which writes `flow.save()` back into the host block's worker field.
+- If no valid source exists, the host should return `WAIT` or avoid creating a flow.
 
-## Execution via createOutputFlow
+## Flow Classes
 
-Once the parameters are resolved, a `WorkerFlow` (or its subclass like `RepeaterWorker`) is spawned using the block execution API:
+- `WorkerFlow`: a `FlowWithShared` with `flow:worker` config. It schedules `onReady` after inputs update and `#wait` clears.
+- `RepeaterWorker`: a `WorkerFlow` used by repeated hosts. With inline data and `#cacheMode`, it can key shared blocks off the host's `#shared` property.
+- `FlowEditor`: an editable `FlowWithShared` created under `#edit-*` properties. It never globally caches its shared block during editing.
 
-```typescript
-this._data.createOutputFlow(RepeaterWorker, '#flow', src, outputField, saveCallback);
+Workers are spawned through `Block.createOutputFlow()`:
+
+```ts
+this._data.createOutputFlow(RepeaterWorker, '#flow', src, outputTarget, saveCallback);
 ```
 
-This creates the isolated child flow tree. Standard execution then involves sending inputs via `worker.updateInput()`, resolving results, and handling execution modes contextually (e.g., `WorkerMode.ON`, `OFF`, `DISABLE`).
+The output target implements `FunctionOutput`, so each host can decide how child flow outputs are collected.
+
+## Host Patterns
+
+- `WorkerFunction`: creates one child flow at `#flow`. `+state` controls `on`, `off`, `disable`, or `lazy`. It can participate in `select-worker` via `WorkerCollector`.
+- `MapFunction`: maps array/object input to multiple worker runs and emits a final array/object when every assigned worker is ready. It supports fixed thread pools, unlimited keyed workers, reuse, persist, and timeout.
+- `MultiWorkerFunction`: maintains one worker per input key and updates output as individual child workers change. If the input is a `Block`, it watches child property changes.
+- `HandlerFunction`: queues calls/tasks and assigns them to workers. With `keepOrder`, it stores results in an `InfiniteQueue` and emits completed tasks in original call order.
+- `SelectWorkerFunction`: emits a `WorkerCollector`; downstream `worker` blocks use it to turn one named worker on and set others to `disable` or the configured unused state.
+
+## Thread Pools and Output
+
+`ThreadPool` is a fixed-size slot allocator. `_pending` stores completed workers that can be reused without destroying their flow; `_ready` stores slots whose old flow has been torn down. `UnlimitedPool` uses the input key itself as the slot when possible, which preserves stable identity for object maps.
+
+`WorkerOutput` sits between a child worker flow and the host function. Child flow outputs do not write directly to the host block; the host receives readiness/timeout callbacks and chooses how to shape the final result.

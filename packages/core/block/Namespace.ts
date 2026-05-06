@@ -121,6 +121,9 @@ export class Namespace {
 
   static getFunctions(funcId: string, flow?: Flow, namespace?: string): FunctionGroup {
     const code0 = funcId.charCodeAt(0);
+    // Function ids encode their lookup scope:
+    // :id lives in the current flow's #functions, +ns:group:id lives in a
+    // namespace worker group, and every other non-empty id is global.
     if (code0 === 58 /* : */) {
       // in-flow function
       return flow.getFuncGroup();

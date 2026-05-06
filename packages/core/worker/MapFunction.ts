@@ -193,6 +193,8 @@ export class MapFunction extends MapImpl {
     }
     if (this._pendingKeys) {
       while (this._pendingKeys.hasCustom()) {
+        // ThreadPool may return either the current data key or a reusable worker
+        // slot. The pool owns lifecycle; this function only assigns inputs.
         const threadId = this._pool.next(this._pendingKeys.current());
         if (threadId === null) {
           return false;

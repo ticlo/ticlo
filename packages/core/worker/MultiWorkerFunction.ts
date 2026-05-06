@@ -206,6 +206,8 @@ export class MultiWorkerFunction extends StatefulFunction implements BlockChildW
   _output(key: string, value: any): any {
     if (value === this._currentOutput[key]) {
       if (value && value.constructor === Object) {
+        // Re-emit an object with a fresh identity so downstream shallow-change
+        // checks see nested field changes from the worker.
         value = {...value};
       } else {
         return value;

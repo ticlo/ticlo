@@ -32,6 +32,9 @@ export interface FlowLoader {
   onStateChange?(flow: Flow, state: FlowState): void;
 }
 
+// Flow is the persistence and execution boundary around a block tree. It is a
+// Block for binding and property traversal, but it queues work through its parent
+// flow/root and is saved explicitly rather than as a child property value.
 export class Flow extends Block {
   _namespace: string;
   // function id, when Flow is loaded from a function
@@ -471,7 +474,9 @@ export class Root extends FlowFolder {
       setTimeout(this._run, 0);
     });
 
-    // create the readolny global block
+    // Create the readonly top-level service flows. #global stores context,
+    // #temp stores transient generated flows, and #shared stores reusable
+    // subflows whose lifetime can outlive one function instance.
     this._globalRoot = this._createConstBlock('#global', (prop) => new GlobalBlock(this, this, prop))._value;
     // this._globalRoot.load({'#settings': {'#is': '#flow:settings'}});
     this._tempRoot = this._createConstBlock('#temp', (prop) => new ConstBlock(this, this._globalRoot, prop))._value;

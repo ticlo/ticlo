@@ -140,6 +140,9 @@ export class SubscribeRequest extends MergedClientRequest {
 
   onUpdate(response: ValueState): void {
     if (this._disconnectd) {
+      // After reconnect the server sends its current diff, not a diff against
+      // this client's stale cache. Fill missing fields with clears so listeners
+      // see a coherent transition from the old local cache to the new server view.
       // after disconnect, server might not be aware of these changes, fill in them in client side
       if (this._cache.value !== undefined && !Object.hasOwn(response, 'value')) {
         response.value = undefined;
@@ -268,6 +271,8 @@ export class SetRequest extends ConnectionSend {
 
   getSendingData(): {data: DataMap; size: number} {
     if (this.conn) {
+      // Once the merged request is serialized it is no longer mergeable; remove
+      // it from the per-path table before the frame leaves the client.
       this.conn.setRequests.delete(this.path);
       this.conn = null;
     }

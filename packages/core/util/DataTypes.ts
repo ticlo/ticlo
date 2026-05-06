@@ -4,6 +4,9 @@ import {BlockIO} from '../block/BlockProperty.js';
 export type DataMap = Record<string, unknown>;
 
 export function isDataMap(val: unknown): val is DataMap {
+  // The core treats arrays and class instances as traversable runtime data in a
+  // few places, so this intentionally checks extensibility rather than
+  // `constructor === Object`. Use isBaseObject when only plain objects are valid.
   return Object.isExtensible(val);
 }
 

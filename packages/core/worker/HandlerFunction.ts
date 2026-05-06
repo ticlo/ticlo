@@ -94,6 +94,8 @@ export class HandlerFunction extends MapImpl {
     ++this._waitingWorker;
     let field: any;
     if (this._keepOrder) {
+      // field is a monotonically increasing output slot, not a worker id. This
+      // lets faster later tasks finish early while emitOnly still preserves order.
       field = this._outQueue.total;
       this._outQueue.newSlot();
     }

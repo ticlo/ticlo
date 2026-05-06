@@ -6,6 +6,8 @@ This document provides the knowledge required to understand and generate `.ticlo
 
 A Ticlo Flow is structured as a tree of **Blocks**. The `.ticlo` file represents the root Flow, and JSON properties represent configuration, inputs, bindings, or child blocks.
 
+Runtime state and saved file state are intentionally different. A property can have a saved value, a runtime value produced by a function, or a binding source. Only saved values and binding declarations are serialized.
+
 ### JSON Structure
 
 The file is a standard JSON object (`DataMap`).
@@ -35,10 +37,11 @@ Keys starting with `#` configure the block's behavior or metadata.
   - `"flow:global"`: Global settings.
   - `"flow:inputs"`: The inputs definition block.
   - `"flow:outputs"`: The outputs definition block.
-  - `"function_name"`: For child blocks, the identifier of the function (e.g., `"math:add"`, `"test:assert"`).
+  - `"function_name"`: For child blocks, the identifier of the function (e.g., `"add"`, `"test:assert"`).
 - `#inputs`: Defines the input interface of the flow (configures the `flow:inputs` block).
 - `#outputs`: Defines the output interface of the flow (configures the `flow:outputs` block).
 - `#functions`: Defines a group of local functions.
+- `#shared`: Defines shared subflow content used by `FlowWithShared`/worker flows. It is loaded before normal flow data so bindings can resolve into shared content.
 - `#disabled`: `true` to disable the block/flow.
 - `#mode`: Execution mode.
   - `"auto"` (default), `"onLoad"`, `"onChange"`, `"onCall"`.
@@ -62,6 +65,8 @@ Keys starting with `~` (tilde) denote bindings, which link a property to another
   - Defines a "Helper Block" (often an unnamed or implicitly named block).
   - The `targetProperty` is automatically bound to the `#output` of this helper block.
 
+When saving a plain object that itself contains `#is` or `~#is`, the runtime wraps it as `{ "#is": { ... } }` so it will reload as a value rather than as a child block.
+
 ### 3. Context (`^`)
 
 Keys starting with `^` are context properties. They typically connect to global or parent context definitions.
@@ -81,6 +86,7 @@ When defining bindings, use these references:
 - `#`: The current block.
 - `##`: The parent block.
 - `###`: The Flow itself.
+- `#+`: The current namespace root, used when a relative binding crosses namespace-managed flows.
 - `block.prop`: Navigation dot-syntax.
 
 ## Examples
@@ -97,7 +103,7 @@ A flow that adds two numbers.
     "num2": 0
   },
   "adder": {
-    "#is": "math:add",
+    "#is": "add",
     "~0": "##.#inputs.num1",
     "~1": "##.#inputs.num2"
   },
@@ -122,6 +128,28 @@ Example of a worker definition with custom types.
 }
 ```
 
+### Local Function Definition
+
+`#functions` stores custom worker functions local to a flow. Blocks can reference them with `:functionName`.
+
+```json
+{
+  "#is": "",
+  "#functions": {
+    ":double": {
+      "type": "worker",
+      "worker": {
+        "#is": "",
+        "#inputs": {"#is": "", "#custom": [{"name": "value", "type": "number"}]},
+        "#outputs": {"#is": "", "~#output": "##.multiply.#output"},
+        "multiply": {"#is": "multiply", "~0": "##.#inputs.value", "1": 2}
+      }
+    }
+  },
+  "useIt": {"#is": ":double", "value": 4}
+}
+```
+
 ## How to Edit
 
 1.  **Adding a Block**: Add a new key to the JSON object.
@@ -143,4 +171,5 @@ Example of a worker definition with custom types.
 ## Validation Checklist
 
 - **Blocks vs Values**: Does every object intended to be a Block have an `#is` property? (Objects without `#is` are treated as plain JSON values).
+- **Ambiguous Values**: If a plain object value must contain `#is`, wrap it so the outer value is `{ "#is": <plain object> }`.
 - **Bindings**: Binding paths (`~`) generally point to valid sources, but the runtime does **not** enforce this. An invalid path simply results in `undefined` without throwing an error.

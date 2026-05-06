@@ -338,6 +338,8 @@ class ServerDescWatcher extends ServerRequest implements DescListener {
 function getTrackedFlow(block: Block, path: string, root: Root): Flow {
   let flow: Flow;
   if (path.endsWith('.@b-xyw')) {
+    // Synced block-position attributes can be stored on a child while the edit
+    // belongs to the parent canvas flow's undo/history boundary.
     flow = block._parent._flow;
   } else {
     flow = block._flow;
@@ -381,6 +383,8 @@ class ServerConnectionCore extends Connection {
       if (typeof request.path === 'string') {
         let result: string | DataMap | ServerRequest = 'invalid command';
         const cmd: string = request.cmd;
+        // Commands are dispatched by method name, but only public one-argument
+        // methods defined on ServerConnection are callable from the wire.
         if (Object.hasOwn(ServerConnection.prototype, cmd)) {
           const func: Function = (this as any)[cmd];
           if (typeof func === 'function' && func.length === 1 && !cmd.startsWith('on')) {
@@ -533,6 +537,8 @@ export class ServerConnection extends ServerConnectionCore {
             property.setValue(undefined);
           }
         } else {
+          // `..` carries a suffix after the selected property, used by the editor
+          // when binding to a nested object member inside the selected source.
           const fromParts = from.split('..');
           const fromMain = fromParts[0];
           const bindable = isBindable(path, fromMain);

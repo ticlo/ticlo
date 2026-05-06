@@ -40,6 +40,9 @@ export class FunctionDispatcher extends PropDispatcher<FunctionClass> {
   }
 }
 
+// FunctionGroup is both a registry and a live dispatcher. Blocks listen to a
+// FunctionDispatcher by id, so replacing or deleting a function class updates
+// every block currently using that id.
 export class FunctionGroup {
   _functions: {[key: string]: FunctionDispatcher} = {};
   _listeners: Set<DescListener> = new Set<DescListener>();
@@ -69,6 +72,8 @@ export class FunctionGroup {
     }
 
     if (cls) {
+      // Copy descriptor defaults onto the prototype so block execution can read
+      // mode and priority cheaply from the instantiated function.
       cls.prototype.priority = desc.priority;
       cls.prototype.defaultMode = desc.mode;
       cls.prototype.type = id;

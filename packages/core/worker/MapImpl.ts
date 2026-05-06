@@ -99,6 +99,8 @@ export abstract class MapImpl extends StatefulFunction implements WorkerHost {
 
   _addWorker(key: string, field: string | number, input: any): RepeaterWorker {
     const {src, saveCallback} = this.control.getSaveParameter();
+    // The child flow writes into WorkerOutput instead of directly into the host
+    // block. That lets map/handler decide ordering, timeout, and final shape.
     const output = new WorkerOutput(key, field, this._timeout, (output: WorkerOutput, timeout: boolean) =>
       this._onWorkerReady(output, timeout)
     );

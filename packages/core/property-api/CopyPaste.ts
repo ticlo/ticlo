@@ -68,6 +68,8 @@ export function pasteProperties(parent: Block, data: DataMap, resolve?: 'overwri
     return 'invalid data';
   }
 
+  // #shared content is pasted into the attached shared block, while all other
+  // fields are pasted into the selected parent block.
   let {'#shared': shared, ...others} = data;
   others = cloneToLevel(others, 3);
   const sharedData = cloneToLevel(shared, 3) as DataMap;

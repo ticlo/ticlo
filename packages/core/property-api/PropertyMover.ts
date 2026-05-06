@@ -48,6 +48,8 @@ export class PropertyMover {
     this.oldName = oldName;
     const property = block.getProperty(oldName, false);
     if (property) {
+      // Capture the old property's saved value or binding before clearing it so
+      // moveTo() can recreate the same semantic property under a different name.
       if (property._bindingPath) {
         this.binding = property._bindingPath;
         if (property._helperProperty) {
@@ -82,6 +84,8 @@ export class PropertyMover {
       };
 
       if (moveOutboundLinks) {
+        // Outbound links are found through listener chains, so renaming can move
+        // both the property and the bindings that currently point to it.
         this.outboundLinks = [];
         iterateListeners(property._listeners, checkOutBound);
       }

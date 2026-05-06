@@ -10,6 +10,9 @@ export class ConnectionSendingData {
   }
 }
 
+// Bidirectional transport base class. Requests are batched into frames and each
+// receive cycle forces an acknowledgement frame, even if there is no payload, so
+// both sides can continue draining queued sends without a separate ping protocol.
 export class Connection {
   // null for new connection
   // false for not connected but scheduled
@@ -70,7 +73,7 @@ export class Connection {
     }
   }
 
-  // prevenent callImmediate to be run until unlocked
+  // Prevent callImmediate callbacks from running until unlocked.
   lockImmediate(source: any) {
     this._immediateLock++;
   }

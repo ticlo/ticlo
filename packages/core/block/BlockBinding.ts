@@ -3,6 +3,9 @@ import {Block} from './Block.js';
 import {BlockBindingSource, BlockProperty} from './BlockProperty.js';
 import {DataMap} from '../util/DataTypes.js';
 
+// Represents one segment of a dotted binding path. Each segment listens to its
+// parent segment, then either follows a Block property or drills into a plain
+// object field before dispatching the resolved value to its listeners.
 export class BlockBinding extends PropDispatcher implements PropListener, BlockBindingSource {
   private _block: Block;
   private _path: string;

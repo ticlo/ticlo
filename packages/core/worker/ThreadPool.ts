@@ -1,3 +1,6 @@
+// Fixed-size worker slot allocator. `_pending` keeps completed workers that can
+// be reused without destroying their flow, while `_ready` keeps slots whose old
+// flow has already been torn down.
 export class ThreadPool {
   _size: number;
   // contains all the available numbers
@@ -88,6 +91,8 @@ export class ThreadPool {
   }
 }
 
+// UnlimitedPool uses the input key itself as the worker slot whenever possible,
+// which preserves stable worker identity for object maps without a hard cap.
 export class UnlimitedPool {
   // contain numbers that's not fully destroyed, reuse these first
   _pending = new Set<number | string>();

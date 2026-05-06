@@ -88,7 +88,9 @@ export class SharedBlock extends Flow {
     if (cacheKey && SharedBlock._dict.has(cacheKey)) {
       return SharedBlock._dict.get(cacheKey);
     } else {
-      // find a property to store the shared block
+      // A cache key decides ownership. A BlockProperty key pins the shared flow
+      // under that property; any other truthy key stores it in Root.#shared and
+      // lets multiple FlowWithShared instances attach to the same runtime flow.
       let prop: BlockProperty;
       if (cacheKey instanceof BlockProperty) {
         // usually used by repeater blocks
@@ -200,6 +202,8 @@ export class FlowWithShared extends Flow {
 
   _loadFlowData(map: DataMap, funcId?: string) {
     if (isSavedBlock(map['#shared'])) {
+      // #shared is loaded before normal flow data so bindings inside the main
+      // flow can immediately resolve paths that cross into the shared block.
       SharedBlock.loadSharedBlock(this, funcId, map['#shared']);
     }
     super._load(map);

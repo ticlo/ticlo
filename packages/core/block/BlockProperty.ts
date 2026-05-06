@@ -16,6 +16,9 @@ export interface BlockPropertySubscriber {
   onPropertyEvent(change: BlockPropertyEvent): void;
 }
 
+// A property owns three related states: `_saved` is what persistence writes,
+// `_value` is the current runtime value, and `_bindingSource` can replace both
+// with a live subscription. Most editing APIs work by moving between those states.
 export class BlockProperty extends PropDispatcher<any> implements PropListener<any>, BlockBindingSource {
   readonly _block: Block;
   readonly _name: string;
@@ -97,6 +100,8 @@ export class BlockProperty extends PropDispatcher<any> implements PropListener<a
 
   setValue(val: unknown) {
     if (this._bindingSource) {
+      // A direct user value breaks both normal bindings and helper-block bindings.
+      // Helper content is cleared too because it is serialized through the binding.
       this._bindingSource.unlisten(this);
       if (this._helperProperty) {
         this._helperProperty.setValue(undefined);
@@ -165,7 +170,8 @@ export class BlockProperty extends PropDispatcher<any> implements PropListener<a
         return this._saved._save();
       }
       if (isSavedBlock(this._saved)) {
-        // when saved object is ambiguous, wrapped it with another layer of #is:{}
+        // Objects containing #is or ~#is would otherwise be parsed as child
+        // blocks on load, so wrap them to preserve them as plain values.
         return {'#is': this._saved};
       }
       return this._saved;
@@ -207,6 +213,8 @@ export class BlockProperty extends PropDispatcher<any> implements PropListener<a
 
   _liveUpdate(val: unknown) {
     if (this._bindingSource) {
+      // Live updates represent authoritative saved data, so any local binding is
+      // detached before the new saved/runtime state is applied.
       this._bindingSource.unlisten(this);
       this._bindingSource = null;
       this._bindingPath = null;
@@ -399,6 +407,8 @@ export class ContextProperty extends BlockIO {
   checkInUse() {
     if (this._saved === undefined && this._bindingPath == null) {
       if (this._listeners.size === 0) {
+        // Context properties are demand-created mirrors of parent/global values.
+        // Drop the local mirror once nothing listens to or overrides it.
         this._block._props.delete(this._name);
         if (this._block._ioCache) {
           this._block._ioCache.delete(this._name);

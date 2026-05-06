@@ -74,6 +74,9 @@ class PromiseWrapper {
   }
 }
 
+// A Block is both a data node and a schedulable function host. Its properties keep
+// saved editor state separately from runtime values, while the block coordinates
+// function registration, binding listeners, and resolver queueing.
 export class Block implements Runnable, FunctionData, PropListener<FunctionClass>, Destroyable {
   private static _uid = new Uid();
 
@@ -250,6 +253,9 @@ export class Block implements Runnable, FunctionData, PropListener<FunctionClass
 
     const firstChar = field.charCodeAt(0);
 
+    // Property prefixes are part of the file format contract:
+    // # is engine config, ^ is inherited context, ~ is a helper block,
+    // @ is editor metadata, + is function-specific config, everything else is IO.
     if (firstChar === 35) {
       // # config
       switch (field) {
@@ -356,6 +362,8 @@ export class Block implements Runnable, FunctionData, PropListener<FunctionClass
     const parentPath = path.substring(0, pos);
     const field = path.substring(pos + 1);
 
+    // Cache each multi-step binding on the owning block so multiple listeners on
+    // the same path share the same parent-chain subscriptions.
     const binding = new BlockBinding(this, path, field);
     this._bindings.set(path, binding);
 
@@ -408,7 +416,8 @@ export class Block implements Runnable, FunctionData, PropListener<FunctionClass
         this.getProperty(key)._load(map[key]);
       }
     }
-    // function should change after all the properties
+    // Function construction waits until every saved property has loaded so
+    // initInputs() sees the same state a fully loaded block will expose.
     if (this._pendingClass) {
       this.onChange(this._pendingClass);
       this._pendingClass = null;
@@ -447,7 +456,8 @@ export class Block implements Runnable, FunctionData, PropListener<FunctionClass
       }
     }
 
-    // function should change after all the properties
+    // Function construction waits until every saved property has loaded so
+    // initInputs() sees the same state a fully loaded block will expose.
     if (this._pendingClass) {
       this.onChange(this._pendingClass);
       this._pendingClass = null;
@@ -530,6 +540,8 @@ export class Block implements Runnable, FunctionData, PropListener<FunctionClass
       Logger.error(`failed to create output flow at ${this.getFullPath()}.${field}`);
       return null;
     }
+    // Output flows are runtime children of a function block, but they load and
+    // save through their own Flow boundary via the optional applyChange callback.
     const prop = this.getProperty(field);
     const flow = new FlowClass(this, output, prop);
     prop.setOutput(flow);
@@ -587,6 +599,8 @@ export class Block implements Runnable, FunctionData, PropListener<FunctionClass
       this._running = false;
       this._called = false;
       if (result?.constructor === Promise) {
+        // Only the latest promise is allowed to emit. PromiseWrapper checks the
+        // current token so stale async results cannot overwrite a newer run.
         this._funcPromise = new PromiseWrapper(this);
         this._funcPromise.listen(result);
         if (this._funcPromise === null) {

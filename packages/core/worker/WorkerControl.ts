@@ -48,6 +48,8 @@ export class WorkerControl {
       this._funcSrc = null;
     }
     if (typeof this._src === 'string' && this._src !== '') {
+      // String worker sources are live function references. Keep listening to
+      // their FunctionDispatcher so workers are rebuilt when the definition changes.
       const functionGroup = Namespace.getFunctions(this._src, this.block._flow);
       if (functionGroup) {
         this._funcSrc = functionGroup.listen(this._src, this);
@@ -78,6 +80,7 @@ export class WorkerControl {
   getSaveParameter(): {src?: string | DataMap; saveCallback?: (flow: Flow) => DataMap} {
     const src: string | DataMap = this._src;
     if (typeof src === 'string') {
+      // Editing a referenced worker writes back into the function registry.
       return {
         src,
         saveCallback: (flow: Flow) => {
@@ -86,6 +89,7 @@ export class WorkerControl {
       };
     }
     if (isDataMap(src)) {
+      // Editing inline worker data writes the new flow JSON back to the host block.
       return {src, saveCallback: this.saveInline};
     }
     return {};
