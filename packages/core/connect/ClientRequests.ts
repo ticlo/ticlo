@@ -270,14 +270,15 @@ export class SetRequest extends ConnectionSend {
   }
 
   getSendingData(): {data: DataMap; size: number} {
-    if (this.conn) {
+    const conn = this.conn;
+    if (conn) {
       // Once the merged request is serialized it is no longer mergeable; remove
       // it from the per-path table before the frame leaves the client.
-      this.conn.setRequests.delete(this.path);
+      conn.setRequests.delete(this.path);
       this.conn = null;
     }
     const size = measureObjSize(this._data, WS_FRAME_SIZE);
-    if (size > WS_FRAME_SIZE && this.conn._sendLargeData(this._data)) {
+    if (size > WS_FRAME_SIZE && conn?._sendLargeData(this._data)) {
       // TODO, handle in rest api
       return {data: null, size: 0};
     }
@@ -431,7 +432,7 @@ export class GlobalWatch {
           }
         } else {
           if (this.isListeners.has(name)) {
-            this.conn.subscribe(`#global.${name}.#is`, this.isListeners.get(name));
+            this.conn.unsubscribe(`#global.${name}.#is`, this.isListeners.get(name));
             this.isListeners.delete(name);
           }
         }

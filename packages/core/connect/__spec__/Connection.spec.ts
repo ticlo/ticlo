@@ -11,13 +11,13 @@ import {shouldHappen, shouldReject} from '../../util/test-util.js';
 import {JsFunction} from '../../functions/script/Js.js';
 import {globalFunctions} from '../../block/FunctionGroup.js';
 import type {DataMap} from '../../util/DataTypes.js';
-import {isDataTruncated} from '../../util/DataTypes.js';
+import {isDataTruncated, WS_FRAME_SIZE} from '../../util/DataTypes.js';
 import {WorkerFunctionGen} from '../../worker/WorkerFunctionGen.js';
 import {Namespace} from '../../block/Namespace.js';
 import {FlowEditor} from '../../worker/FlowEditor.js';
 import {WorkerFlow} from '../../worker/WorkerFlow.js';
 import {Logger} from '../../util/Logger.js';
-import type {ValueState} from '../ClientRequests.js';
+import {GlobalWatch, SetRequest, type ValueState} from '../ClientRequests.js';
 
 describe('Connection', function () {
   it('get', async function () {
@@ -1048,5 +1048,44 @@ describe('Connection', function () {
     callbacks.cancel();
     client.destroy();
     Root.instance.deleteValue('Connection27');
+  });
+
+  it('serializes large merged set requests after removing them from merge cache', function () {
+    const fakeConn: any = {
+      setRequests: new Map(),
+      _sendLargeData: () => false,
+    };
+    const request = new SetRequest('ConnectionLarge.a', 'set-large', fakeConn);
+    fakeConn.setRequests.set('ConnectionLarge.a', request);
+    request.updateSet({payload: 'x'.repeat(WS_FRAME_SIZE + 1)});
+
+    const sending = request.getSendingData();
+
+    expect(sending.data).toEqual({
+      cmd: 'set',
+      id: 'set-large',
+      path: 'ConnectionLarge.a',
+      value: {payload: 'x'.repeat(WS_FRAME_SIZE + 1)},
+    });
+    expect(fakeConn.setRequests.has('ConnectionLarge.a')).toBe(false);
+  });
+
+  it('unsubscribes global type listeners when global blocks disappear', function () {
+    const calls: unknown[] = [];
+    const fakeConn: any = {
+      subscribe: (path: string, listener: unknown) => calls.push(['subscribe', path, listener]),
+      unsubscribe: (path: string, listener: unknown) => calls.push(['unsubscribe', path, listener]),
+    };
+    const watch = new GlobalWatch(fakeConn);
+
+    watch.onUpdate({changes: {'^service': 'block-id'}});
+    const listener = watch.isListeners.get('^service');
+    watch.onUpdate({changes: {'^service': null}});
+
+    expect(calls).toEqual([
+      ['subscribe', '#global.^service.#is', listener],
+      ['unsubscribe', '#global.^service.#is', listener],
+    ]);
+    expect(watch.isListeners.has('^service')).toBe(false);
   });
 });
