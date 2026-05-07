@@ -840,8 +840,21 @@ export class ServerConnection extends ServerConnectionCore {
           if (flowProp?._value instanceof Flow) {
             funcGroup = flowProp._value.getFuncGroup();
           }
+        } else if (fromFunction.startsWith('+')) {
+          const functions = Namespace.getFunctions(fromFunction, property._block._flow);
+          if (functions instanceof PersistentFunctionGroup) {
+            funcGroup = functions;
+          }
         }
         if (fromFunction.startsWith('+') || fromFunction.startsWith(':')) {
+          if (defaultData && funcGroup && !funcGroup.getWorkerData(fromFunction)) {
+            WorkerFunctionGen.registerType(
+              defaultData,
+              WorkerFunctionGen.collectDesc(fromFunction, defaultData),
+              undefined,
+              funcGroup
+            );
+          }
           FlowEditor.createFromFunction(property._block, property._name, fromFunction, defaultData, funcGroup);
         }
       }

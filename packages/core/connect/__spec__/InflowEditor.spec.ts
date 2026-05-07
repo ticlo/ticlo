@@ -4,8 +4,52 @@ import {makeLocalConnection} from '../LocalConnection.js';
 import '../../functions/math/Arithmetic.js';
 import '../../functions/Categories.js';
 import {shouldHappen} from '../../util/test-util.js';
+import {Namespace} from '../../block/Namespace.js';
 
 describe('InflowEditor Connection Workflow', function () {
+  it('creates an inflow function before opening its editor', async function () {
+    const flowPath = 'InflowEditorWorkflowCreateFirst';
+    const funcId = ':draftWorker';
+    const editPath = `#temp.#edit-${encodeURIComponent(funcId)}`;
+
+    const [server, client] = makeLocalConnection(Root.instance, true);
+
+    await client.addFlow(flowPath, {});
+    const flow = Root.instance.queryValue(flowPath) as Flow;
+    let watchedDesc: any;
+    const descListener = (desc: any, id: string) => {
+      if (id === funcId) {
+        watchedDesc = desc;
+      }
+    };
+    client.watchDesc('*', flowPath, descListener);
+
+    await client.editWorker(editPath, undefined, funcId, {'#is': '', '#inputs': {'#is': ''}, '#outputs': {'#is': ''}}, flowPath);
+
+    expect(flow.getFuncGroup().getAllFunctionIds()).toContain(funcId);
+    await shouldHappen(() => watchedDesc);
+
+    client.unwatchDesc(descListener);
+    client.destroy();
+    Root.instance.deleteValue(flowPath);
+  });
+
+  it('creates a namespace function before opening its editor', async function () {
+    const funcId = '+InflowEditorWorkflow:createFirst:draftWorker';
+    const editPath = `#temp.#edit-${encodeURIComponent(funcId)}`;
+
+    const [server, client] = makeLocalConnection(Root.instance, true);
+
+    await client.editWorker(editPath, undefined, funcId, {'#is': '', '#inputs': {'#is': ''}, '#outputs': {'#is': ''}});
+
+    await shouldHappen(() => client.watchDesc(funcId));
+    const [desc] = Namespace.getDescToSend(funcId);
+    expect(desc?.id).toBe(funcId);
+
+    Namespace.delete(funcId);
+    client.destroy();
+  });
+
   it('creates, edits, and runs an inflow function through the connection', async function () {
     const flowPath = 'InflowEditorWorkflow0';
     const funcId = ':plusOne';
