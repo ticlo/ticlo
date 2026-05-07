@@ -40,6 +40,7 @@ interface Props {
   funcDesc: FunctionDesc;
   conn: ClientConn;
   paths: string[];
+  funcScope?: string;
 }
 
 interface State {
@@ -51,12 +52,15 @@ export class OptionalPropertyList extends MultiSelectComponent<Props, State, Opt
 
   cachedProperties: {[key: string]: PropDesc};
   checkedFuncDesc: FunctionDesc;
+  checkedFuncScope: string;
 
   getProperties(): {[key: string]: PropDesc} {
-    const {funcDesc, conn} = this.props;
-    if (funcDesc !== this.checkedFuncDesc) {
+    const {funcDesc, conn, funcScope} = this.props;
+    if (funcDesc !== this.checkedFuncDesc || funcScope !== this.checkedFuncScope) {
+      this.checkedFuncDesc = funcDesc;
+      this.checkedFuncScope = funcScope;
       if (funcDesc) {
-        this.cachedProperties = conn.getOptionalProps(funcDesc);
+        this.cachedProperties = conn.getOptionalProps(funcDesc, funcScope);
       } else {
         this.cachedProperties = null;
       }
@@ -107,7 +111,7 @@ export class OptionalPropertyList extends MultiSelectComponent<Props, State, Opt
   };
 
   renderImpl() {
-    const {paths, conn, funcDesc} = this.props;
+    const {paths, conn, funcDesc, funcScope} = this.props;
     const {search} = this.state;
     const properties = this.getProperties();
     if (this.loaders.size === 0 || !properties) {
@@ -141,6 +145,7 @@ export class OptionalPropertyList extends MultiSelectComponent<Props, State, Opt
           propDesc={optionalPropDesc}
           checked={true}
           onCheck={this.onPropertyChecked}
+          funcScope={funcScope}
         />
       );
     }
@@ -166,6 +171,7 @@ export class OptionalPropertyList extends MultiSelectComponent<Props, State, Opt
               propDesc={optionalPropDesc}
               checked={false}
               onCheck={this.onPropertyChecked}
+              funcScope={funcScope}
             />
           );
           if (lowerKey.startsWith(lsearch)) {

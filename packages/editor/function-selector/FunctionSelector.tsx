@@ -193,7 +193,7 @@ export class FunctionSelect extends React.PureComponent<Props, State> {
           search={search}
           filter={filter}
           onFunctionClick={onFunctionClick}
-          path={funcScope ?? ''}
+          funcScope={funcScope ?? ''}
           style={{display: tab === 'inFlow' ? '' : 'none'}}
         />
         <FunctionTree

@@ -22,6 +22,7 @@ interface State {
   selectedKeys: string[];
   sizes: number[];
   blockKey: string;
+  funcScope?: string;
 }
 
 export class BlockStagePane extends LazyUpdateComponent<Props, State> {
@@ -71,10 +72,21 @@ export class BlockStagePane extends LazyUpdateComponent<Props, State> {
     },
   });
 
+  scopeListener = new ValueSubscriber({
+    onUpdate: (response: ValueUpdate) => {
+      const {basePath} = this.props;
+      const funcScope = typeof response.cache.value === 'string' ? response.cache.value : basePath;
+      if (funcScope !== this.state.funcScope) {
+        this.safeSetState({funcScope});
+      }
+    },
+  });
+
   constructor(props: Props) {
     super(props);
     const {conn, basePath} = props;
     this.blockListener.subscribe(conn, basePath);
+    this.scopeListener.subscribe(conn, `${basePath}.^#scope`, true);
   }
 
   onShowPropertyList = () => {
@@ -129,7 +141,7 @@ export class BlockStagePane extends LazyUpdateComponent<Props, State> {
 
   renderImpl() {
     const {conn, basePath, onSave} = this.props;
-    const {showPropertyList, selectedKeys, sizes, blockKey} = this.state;
+    const {showPropertyList, selectedKeys, sizes, blockKey, funcScope = basePath} = this.state;
 
     return (
       <div className="ticl-hbox ticl-stage-tab-content" ref={this.getRef} onKeyDown={this.onKeyDown} tabIndex={0}>
@@ -138,6 +150,7 @@ export class BlockStagePane extends LazyUpdateComponent<Props, State> {
             key={blockKey}
             conn={conn}
             basePath={basePath}
+            funcScope={funcScope}
             onSelect={this.onSelect}
             style={{width: sizes[0], height: '100%'}}
             toolButtons={
@@ -158,7 +171,12 @@ export class BlockStagePane extends LazyUpdateComponent<Props, State> {
         {showPropertyList ? (
           <>
             <Divider key="divider" idx={1} getDividerData={this.getDividerData} changeSizes={this.changeSizes} />
-            <PropertyList conn={conn} paths={selectedKeys} style={{width: sizes[1], height: '100%', padding: '8px'}} />
+            <PropertyList
+              conn={conn}
+              paths={selectedKeys}
+              funcScope={funcScope}
+              style={{width: sizes[1], height: '100%', padding: '8px'}}
+            />
           </>
         ) : null}
       </div>
@@ -166,6 +184,7 @@ export class BlockStagePane extends LazyUpdateComponent<Props, State> {
   }
   componentWillUnmount() {
     this.blockListener.unsubscribe();
+    this.scopeListener.unsubscribe();
     super.componentWillUnmount();
   }
 }

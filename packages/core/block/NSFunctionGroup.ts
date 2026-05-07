@@ -15,8 +15,14 @@ export class PersistentFunctionGroup extends FunctionGroup {
     this._loaders.set(funcType, loader);
   }
 
-  constructor(public readonly namespace?: string) {
+  constructor(
+    public readonly namespace?: string,
+    private readonly scopePath?: string
+  ) {
     super();
+  }
+  getScopePath(): string | null {
+    return this.scopePath ?? null;
   }
   getFullId(localId: string) {
     return localId;

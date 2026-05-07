@@ -22,6 +22,7 @@ import {RenameDialog} from './RenameDialog.js';
 import {splitPathName} from '@ticlo/core/util/Path.js';
 import {ParameterInputDialog} from './ParameterInputDialog.js';
 import {TicloLayoutContext, TicloLayoutContextType} from '../component/LayoutContext.js';
+import {getDescScope} from '../util/FunctionScope.js';
 
 const deleteForbidden = new Set<string>(['flow:test-group', 'flow:const']);
 const renameForbidden = new Set<string>(['flow:test-group', 'flow:const']);
@@ -33,6 +34,7 @@ interface Props {
   path: string;
   displayName: string;
   canApply: boolean;
+  funcScope?: string;
   // When disabled is null, don't show the menu item.
   disabled?: boolean;
   getMenu?: () => React.ReactElement[];
@@ -91,8 +93,8 @@ export class BlockDropdown extends React.PureComponent<Props, State> {
     this.setState({modal: null});
   };
   onExeCommand = (command: string) => {
-    const {conn, canApply, functionId, path} = this.props;
-    const funcDesc = conn.watchDesc(functionId);
+    const {conn, canApply, functionId, path, funcScope} = this.props;
+    const funcDesc = conn.watchDesc(functionId, getDescScope(functionId, funcScope));
     const commandDesc = funcDesc.commands[command];
     if (commandDesc.parameters?.length) {
       const onConfirmCommandModal = (values: DataMap) => {
@@ -116,8 +118,8 @@ export class BlockDropdown extends React.PureComponent<Props, State> {
   };
 
   getMenu = () => {
-    const {conn, canApply, disabled, functionId, getMenu} = this.props;
-    const funcDesc = conn.watchDesc(functionId);
+    const {conn, canApply, disabled, functionId, getMenu, funcScope} = this.props;
+    const funcDesc = conn.watchDesc(functionId, getDescScope(functionId, funcScope));
 
     let menuitems: React.ReactElement[] = [];
     if (getMenu) {

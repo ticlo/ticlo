@@ -47,6 +47,10 @@ export class FunctionGroup {
   _functions: {[key: string]: FunctionDispatcher} = {};
   _listeners: Set<DescListener> = new Set<DescListener>();
 
+  getScopePath(): string | null {
+    return null;
+  }
+
   add(cls: FunctionClass | null, desc: FunctionDesc, namespace?: string, functionApi?: FunctionApi) {
     if (!desc.properties) {
       // function must have properties

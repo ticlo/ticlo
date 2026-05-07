@@ -406,7 +406,7 @@ export class ContextProperty extends BlockIO {
 
   checkInUse() {
     if (this._saved === undefined && this._bindingPath == null) {
-      if (this._listeners.size === 0) {
+      if (!this._listeners || this._listeners.size === 0) {
         // Context properties are demand-created mirrors of parent/global values.
         // Drop the local mirror once nothing listens to or overrides it.
         this._block._props.delete(this._name);

@@ -71,6 +71,8 @@ When saving a plain object that itself contains `#is` or `~#is`, the runtime wra
 
 Keys starting with `^` are context properties. They typically connect to global or parent context definitions.
 
+`^#scope` is reserved runtime context metadata for editor descriptor lookup. It is set with `updateValue()` when a Flow runs with an in-flow function scope and must not be written with `setValue()` or included in saved `.ticlo` JSON.
+
 ### 4. Attributes (`@`)
 
 Keys starting with `@` are attributes. These are used primarily by the Ticlo Dataflow Editor (e.g., for layout, positioning, or comments) and do **not** affect the runtime logic of the flow.

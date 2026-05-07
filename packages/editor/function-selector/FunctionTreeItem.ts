@@ -284,7 +284,7 @@ export class FunctionTreeRoot extends FunctionTreeItem {
     onFunctionClick?: OnFunctionClick,
     showPreset?: boolean,
     filter?: (desc: FunctionDesc) => boolean,
-    path?: string
+    funcScope?: string
   ) {
     super(null, null, '');
     this.level = -1;
@@ -294,12 +294,12 @@ export class FunctionTreeRoot extends FunctionTreeItem {
     this.onListChange = onListChange;
     this.onFunctionClick = onFunctionClick;
     this.filter = filter;
-    this.inFlow = path != null;
-    this.funcScope = path;
-    // path == null for global functions, and string for in-flow functions
-    // path = '' is for in-flow functions that are not in any node
-    if (path !== '') {
-      conn.watchDesc('*', path, this.onDesc);
+    this.inFlow = funcScope != null;
+    this.funcScope = funcScope;
+    // scopePath == null for global functions, and string for in-flow functions
+    // scopePath = '' is for in-flow functions that are not in any node
+    if (funcScope !== '') {
+      conn.watchDesc('*', funcScope, this.onDesc);
     }
   }
 

@@ -1,5 +1,5 @@
 import {expect} from 'vitest';
-import {Flow} from '../../block/Flow.js';
+import {Flow, Root} from '../../block/Flow.js';
 import {FlowEditor} from '../FlowEditor.js';
 import {WorkerFunctionGen} from '../WorkerFunctionGen.js';
 
@@ -8,8 +8,33 @@ import type {DataMap} from '../../util/DataTypes.js';
 import {SharedBlock} from '../../block/SharedBlock.js';
 import {PersistentFunctionGroup} from '../../block/NSFunctionGroup.js';
 import {Namespace} from '../../block/Namespace.js';
+import {FunctionGroup, globalFunctions} from '../../block/FunctionGroup.js';
 
 describe('InflowEditor', function () {
+  it('scope path metadata is runtime only', function () {
+    const flow = Root.instance.addFlow('InflowEditorScope', {});
+    const funcGroup = flow.getFuncGroup();
+
+    expect(new FunctionGroup().getScopePath()).toBeNull();
+    expect(globalFunctions.getScopePath()).toBeNull();
+    expect(Namespace.getFunctionGroup('+InflowEditorScope:test:worker').getScopePath()).toBeNull();
+    expect(funcGroup.getScopePath()).toBe('InflowEditorScope');
+
+    const data = {
+      '#is': '',
+      'add': {
+        '#is': 'add',
+      },
+    };
+    WorkerFunctionGen.registerType(data, {id: ':workerScope', name: 'workerScope'}, undefined, funcGroup);
+
+    const editor = FlowEditor.createFromFunction(flow, '#edit-scope', ':workerScope', null);
+    expect(editor.getValue('^#scope')).toBe('InflowEditorScope');
+    expect(editor.save()).toEqual(data);
+
+    Root.instance.deleteValue('InflowEditorScope');
+  });
+
   it('createFromField', function () {
     const flow = new Flow();
     flow.load({});

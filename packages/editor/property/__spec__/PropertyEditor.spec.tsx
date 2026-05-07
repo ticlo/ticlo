@@ -4,6 +4,7 @@ import React from 'react';
 import '../../index.js';
 import {PropertyEditor} from '../PropertyEditor.js';
 import {Block, Root} from '@ticlo/core';
+import {PropertyList} from '../PropertyList.js';
 import '../../../core/functions/math/Arithmetic.js';
 import {destroyLastLocalConnection, makeLocalConnection} from '@ticlo/core/connect/LocalConnection.js';
 import {shouldHappen, shouldReject} from '@ticlo/core/util/test-util.js';
@@ -12,6 +13,7 @@ import {initEditor} from '../../index.js';
 import type {PropGroupDesc} from '@ticlo/core';
 import {FunctionDesc, PropDesc} from '@ticlo/core';
 import {globalFunctions} from '@ticlo/core/block/FunctionGroup.js';
+import {WorkerFunctionGen} from '@ticlo/core/worker/WorkerFunctionGen.js';
 
 describe('PropertyEditor', function () {
   const [funcDesc] = globalFunctions.getDescToSend('add');
@@ -114,5 +116,32 @@ describe('PropertyEditor', function () {
     await shouldHappen(() => div.querySelector('.ticl-property-group'));
 
     Root.instance.deleteValue('PropertyEditor2');
+  });
+
+  it('uses funcScope for in-flow function descriptors', async function () {
+    const flow = Root.instance.addFlow('PropertyEditorScopedDesc', {});
+    const data = {
+      '#is': '',
+      '#inputs': {'#is': '', '#custom': [{name: 'value', type: 'number'}]},
+      '#outputs': {'#is': ''},
+    };
+    WorkerFunctionGen.registerType(data, {id: ':scopedWorker', name: 'scopedWorker'}, undefined, flow.getFuncGroup());
+    flow.createBlock('calc').setValue('#is', ':scopedWorker');
+
+    const [server, client] = makeLocalConnection(Root.instance, true);
+
+    const [component, div] = loadTemplate(
+      <PropertyList
+        conn={client}
+        paths={['PropertyEditorScopedDesc.calc']}
+        funcScope="PropertyEditorScopedDesc"
+        style={{width: 300, height: 300}}
+      />,
+      'editor'
+    );
+
+    await shouldHappen(() => querySingle("//div[contains(@class,'ticl-property-name')]/span[text()='value']", div));
+
+    Root.instance.deleteValue('PropertyEditorScopedDesc');
   });
 });

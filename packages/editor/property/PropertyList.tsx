@@ -26,8 +26,15 @@ import {LazyUpdateComponent, LazyUpdateSubscriber} from '../component/LazyUpdate
 import {OptionalPropertyList} from './OptionalPropertyList.js';
 import {CustomPropertyReorder} from './PropertyReorder.js';
 import {t} from '../component/LocalizedLabel.js';
+import {getDescScope} from '../util/FunctionScope.js';
 
-function descToEditor(conn: ClientConn, paths: string[], funcDesc: FunctionDesc, propDesc: PropDesc) {
+function descToEditor(
+  conn: ClientConn,
+  paths: string[],
+  funcDesc: FunctionDesc,
+  propDesc: PropDesc,
+  funcScope?: string
+) {
   return (
     <PropertyEditor
       key={propDesc.name}
@@ -36,14 +43,35 @@ function descToEditor(conn: ClientConn, paths: string[], funcDesc: FunctionDesc,
       conn={conn}
       funcDesc={funcDesc}
       propDesc={propDesc}
+      funcScope={funcScope}
     />
   );
 }
 
 class BlockLoader extends MultiSelectLoader<PropertyList> {
+  funcId: string;
+  funcScope: string;
+
+  watchDesc(funcId?: string) {
+    this.conn.unwatchDesc(this.onDesc);
+    this.funcId = funcId;
+    this.funcScope = this.parent.props.funcScope;
+    if (typeof funcId === 'string') {
+      this.conn.watchDesc(funcId, getDescScope(funcId, this.funcScope), this.onDesc);
+    } else {
+      this.onDesc(null);
+    }
+  }
+
+  updateFuncScope() {
+    if (this.funcId != null && this.funcScope !== this.parent.props.funcScope) {
+      this.watchDesc(this.funcId);
+    }
+  }
+
   isListener = new ValueSubscriber({
     onUpdate: (response: ValueUpdate) => {
-      this.conn.watchDesc(response.cache.value, undefined, this.onDesc);
+      this.watchDesc(response.cache.value);
     },
   });
 
@@ -134,6 +162,7 @@ function comparePropDesc(a: PropDesc | PropGroupDesc, b: PropDesc | PropGroupDes
 interface Props {
   conn: ClientConn;
   paths: string[];
+  funcScope?: string;
   style?: React.CSSProperties;
 
   // minimal is used when PropertyList is shown as popup, like in the ServiceEditor
@@ -181,7 +210,7 @@ class PropertyDefMerger {
     }
   }
 
-  render(paths: string[], conn: ClientConn, funcDesc: FunctionDesc, isCustom?: boolean) {
+  render(paths: string[], conn: ClientConn, funcDesc: FunctionDesc, isCustom?: boolean, funcScope?: string) {
     const children: React.ReactNode[] = [];
     if (this.map) {
       for (const [name, prop] of this.map) {
@@ -194,6 +223,7 @@ class PropertyDefMerger {
               isCustom={isCustom}
               funcDesc={funcDesc}
               groupDesc={prop as PropGroupDesc}
+              funcScope={funcScope}
             />
           );
         } else if (prop.name) {
@@ -207,6 +237,7 @@ class PropertyDefMerger {
               funcDesc={funcDesc}
               propDesc={prop as PropDesc}
               reorder={isCustom ? CustomPropertyReorder : null}
+              funcScope={funcScope}
             />
           );
         }
@@ -255,7 +286,7 @@ export class PropertyList extends MultiSelectComponent<Props, State, BlockLoader
   };
 
   renderImpl() {
-    const {conn, paths, style, mode} = this.props;
+    const {conn, paths, style, mode, funcScope} = this.props;
     const {showConfig, showAttribute, showCustom, showAddCustomPopup} = this.state;
 
     const descChecked: Set<string> = new Set<string>();
@@ -266,6 +297,7 @@ export class PropertyList extends MultiSelectComponent<Props, State, BlockLoader
     let isEmpty = true;
     let optionalDescs = new Set<FunctionDesc>();
     for (const [path, subscriber] of this.loaders) {
+      subscriber.updateFuncScope();
       let desc = subscriber.desc;
       if (desc) {
         if (isEmpty) {
@@ -274,7 +306,12 @@ export class PropertyList extends MultiSelectComponent<Props, State, BlockLoader
         if (optionalDescs) {
           if (desc.optional) {
             optionalDescs.add(desc);
-          } else if (desc.base && (desc = conn.watchDesc(desc.base)) /*set value and convert to bool*/) {
+          } else if (
+            desc.base &&
+            (desc =
+              conn.watchDesc(desc.base, getDescScope(desc.base, funcScope)) ||
+              conn.watchDesc(desc.base)) /*set value and convert to bool*/
+          ) {
             optionalDescs.add(desc);
           } else {
             // no need for optioanl properties
@@ -295,7 +332,7 @@ export class PropertyList extends MultiSelectComponent<Props, State, BlockLoader
       );
     }
 
-    const baseDesc = conn.getCommonBaseFunc(optionalDescs);
+    const baseDesc = conn.getCommonBaseFunc(optionalDescs, funcScope);
     for (const [path, subscriber] of this.loaders) {
       if (subscriber.desc) {
         if (!descChecked.has(subscriber.desc.name)) {
@@ -316,7 +353,7 @@ export class PropertyList extends MultiSelectComponent<Props, State, BlockLoader
     if (!funcDesc) {
       funcDesc = blankFuncDesc;
     }
-    const children = propMerger.render(paths, conn, funcDesc);
+    const children = propMerger.render(paths, conn, funcDesc, undefined, funcScope);
 
     if (mode !== 'minimal') {
       // merge #config properties
@@ -333,7 +370,7 @@ export class PropertyList extends MultiSelectComponent<Props, State, BlockLoader
           }
         }
         if (configMerger.isNotEmpty()) {
-          configChildren = configMerger.render(paths, conn, funcDesc, true);
+          configChildren = configMerger.render(paths, conn, funcDesc, true, funcScope);
         }
       }
 
@@ -349,7 +386,7 @@ export class PropertyList extends MultiSelectComponent<Props, State, BlockLoader
         }
       }
       if (customMerger.isNotEmpty() && showCustom) {
-        customChildren = customMerger.render(paths, conn, funcDesc, true);
+        customChildren = customMerger.render(paths, conn, funcDesc, true, funcScope);
       }
 
       const allowAttribute = mode == null && paths.length === 1;
@@ -360,7 +397,14 @@ export class PropertyList extends MultiSelectComponent<Props, State, BlockLoader
       }
       return (
         <div className="ticl-property-list" style={style}>
-          <PropertyEditor name="#is" paths={paths} conn={conn} funcDesc={funcDesc} propDesc={configDescs['#is']} />
+          <PropertyEditor
+            name="#is"
+            paths={paths}
+            conn={conn}
+            funcDesc={funcDesc}
+            propDesc={configDescs['#is']}
+            funcScope={funcScope}
+          />
 
           {children.length ? (
             <div className="ticl-property-divider">
@@ -369,7 +413,9 @@ export class PropertyList extends MultiSelectComponent<Props, State, BlockLoader
           ) : null}
           {children}
 
-          {baseDesc ? <OptionalPropertyList conn={conn} paths={paths} funcDesc={baseDesc} /> : null}
+          {baseDesc ? (
+            <OptionalPropertyList conn={conn} paths={paths} funcDesc={baseDesc} funcScope={funcScope} />
+          ) : null}
 
           <div className="ticl-property-divider">
             <div className="ticl-h-line" style={{maxWidth: '16px'}} />
@@ -388,7 +434,7 @@ export class PropertyList extends MultiSelectComponent<Props, State, BlockLoader
             </div>
           ) : null}
           {allowAttribute && showAttribute ? (
-            <PropertyAttributeList conn={conn} paths={paths} funcDesc={funcDesc} />
+            <PropertyAttributeList conn={conn} paths={paths} funcDesc={funcDesc} funcScope={funcScope} />
           ) : null}
 
           <div className="ticl-property-divider">
@@ -418,6 +464,7 @@ export class PropertyList extends MultiSelectComponent<Props, State, BlockLoader
             conn={conn}
             funcDesc={funcDesc}
             propDesc={configDescs['#is(readonly)']}
+            funcScope={funcScope}
           />
           <div className="ticl-property-divider">
             <div className="ticl-h-line" />
@@ -434,6 +481,7 @@ interface PropertyAttributeProps {
   conn: ClientConn;
   paths: string[];
   funcDesc: FunctionDesc;
+  funcScope?: string;
 }
 
 class PropertyAttributeList extends LazyUpdateComponent<PropertyAttributeProps, any> {
@@ -455,18 +503,18 @@ class PropertyAttributeList extends LazyUpdateComponent<PropertyAttributeProps, 
   }
 
   renderImpl() {
-    const {conn, paths, funcDesc} = this.props;
+    const {conn, paths, funcDesc, funcScope} = this.props;
     this.updatePaths(paths);
 
     const attributeChildren = [];
     for (const attributeDesc of attributeList) {
-      attributeChildren.push(descToEditor(conn, paths, funcDesc, attributeDesc));
+      attributeChildren.push(descToEditor(conn, paths, funcDesc, attributeDesc, funcScope));
     }
-    attributeChildren.push(descToEditor(conn, paths, funcDesc, BlockWidget.widgetDesc));
+    attributeChildren.push(descToEditor(conn, paths, funcDesc, BlockWidget.widgetDesc, funcScope));
     const widget = BlockWidget.get(this.widgetListener.value);
     if (widget) {
       for (const propDesc of widget.viewProperties) {
-        attributeChildren.push(descToEditor(conn, paths, funcDesc, propDesc as PropDesc));
+        attributeChildren.push(descToEditor(conn, paths, funcDesc, propDesc as PropDesc, funcScope));
       }
     }
     return attributeChildren;

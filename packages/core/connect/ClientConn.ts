@@ -371,10 +371,10 @@ export interface ClientConn {
   /**
    * Tells the Server-side Desc Watcher to proactively start relaying function signature modifications taking place under `id`.
    * @param funcId the function id to watch, use '*' to watch all functions
-   * @param path optional path of Block, if omitted, it will watch the global function descs
+   * @param funcScope optional path of the Flow whose in-flow function descs should be watched
    * @param listener local listener hook interface mapping desc changes
    */
-  watchDesc(funcId: string, path?: string, listener?: ClientDescListener): FunctionDesc;
+  watchDesc(funcId: string, funcScope?: string, listener?: ClientDescListener): FunctionDesc;
 
   /**
    * Removes a desc listener
@@ -384,9 +384,9 @@ export interface ClientConn {
 
   getCategory(category: string): FunctionDesc;
 
-  getCommonBaseFunc(set: Set<FunctionDesc>): FunctionDesc;
+  getCommonBaseFunc(set: Set<FunctionDesc>, funcScope?: string): FunctionDesc;
 
-  getOptionalProps(desc: FunctionDesc): {[key: string]: PropDesc};
+  getOptionalProps(desc: FunctionDesc, funcScope?: string): {[key: string]: PropDesc};
 
   findGlobalBlocks(tags: string[]): string[];
 

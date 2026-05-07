@@ -11,7 +11,7 @@ interface Props {
   filter?: (desc: FunctionDesc) => boolean;
   showPreset?: boolean;
   onFunctionClick?: OnFunctionClick;
-  path?: string;
+  funcScope?: string;
   style?: React.CSSProperties;
 }
 
@@ -29,12 +29,12 @@ export class FunctionTree extends React.PureComponent<Props, State> {
       props.onFunctionClick,
       props.showPreset,
       props.filter,
-      props.path
+      props.funcScope
     );
   }
 
   componentDidUpdate(prevProps: Props) {
-    if (prevProps.path !== this.props.path || prevProps.conn !== this.props.conn) {
+    if (prevProps.funcScope !== this.props.funcScope || prevProps.conn !== this.props.conn) {
       this.rootNode.destroy();
       this.rootNode = new FunctionTreeRoot(
         this.props.conn,
@@ -42,7 +42,7 @@ export class FunctionTree extends React.PureComponent<Props, State> {
         this.props.onFunctionClick,
         this.props.showPreset,
         this.props.filter,
-        this.props.path
+        this.props.funcScope
       );
       this.forceUpdate();
     }

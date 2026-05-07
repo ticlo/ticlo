@@ -39,7 +39,7 @@ export abstract class ClientConnection extends Connection implements ClientConn 
   watches: Map<string, WatchRequest> = new Map();
 
   readonly descRequests: Map<string, DescRequest> = new Map();
-  /** Maps each listener to the path of its DescRequest */
+  /** Maps each listener to the function scope of its DescRequest. */
   readonly descListenerPaths: Map<ClientDescListener, string> = new Map();
   readonly globalWatch: GlobalWatch;
   private _editorListeners: boolean;
@@ -461,26 +461,26 @@ export abstract class ClientConnection extends Connection implements ClientConn 
     }
   }
 
-  /** Get or create a DescRequest for the given path */
-  private _getOrCreateDescRequest(path: string): DescRequest {
-    let descReq = this.descRequests.get(path);
+  /** Get or create a DescRequest for the given function scope. */
+  private _getOrCreateDescRequest(funcScope: string): DescRequest {
+    let descReq = this.descRequests.get(funcScope);
     if (!descReq) {
       const id = this.uid.next();
-      const data = {cmd: 'watchDesc', path: path || '', id};
-      descReq = new DescRequest(data, !!path);
-      this.descRequests.set(path, descReq);
+      const data = {cmd: 'watchDesc', path: funcScope || '', id};
+      descReq = new DescRequest(data, !!funcScope);
+      this.descRequests.set(funcScope, descReq);
       this.requests.set(id, descReq);
       this.addSend(descReq);
     }
     return descReq;
   }
 
-  watchDesc(funcId: string, path?: string, listener?: ClientDescListener): FunctionDesc {
-    const resolvedPath = path || '';
+  watchDesc(funcId: string, funcScope?: string, listener?: ClientDescListener): FunctionDesc {
+    const resolvedScopePath = funcScope || '';
     if (listener) {
-      const descReq = this._getOrCreateDescRequest(resolvedPath);
+      const descReq = this._getOrCreateDescRequest(resolvedScopePath);
       descReq.listeners.set(listener, funcId);
-      this.descListenerPaths.set(listener, resolvedPath);
+      this.descListenerPaths.set(listener, resolvedScopePath);
       if (funcId === '*') {
         // listen to all descs
         for (const [id, desc] of descReq.cache) {
@@ -492,8 +492,8 @@ export abstract class ClientConnection extends Connection implements ClientConn 
         listener(null, funcId);
       }
     } else {
-      // cache lookup uses the resolved path's DescRequest
-      const req = this.descRequests.get(resolvedPath);
+      // cache lookup uses the resolved function scope's DescRequest
+      const req = this.descRequests.get(resolvedScopePath);
       return req?.cache.get(funcId);
     }
     return null;
@@ -525,16 +525,16 @@ export abstract class ClientConnection extends Connection implements ClientConn 
   }
 
   // find the common base Desc
-  getCommonBaseFunc(set: Set<FunctionDesc>): FunctionDesc {
+  _getCachedDesc(id: string, funcScope?: string): FunctionDesc {
+    return this.descRequests.get(funcScope || '')?.cache.get(id) || this.descRequests.get('')?.cache.get(id);
+  }
+
+  getCommonBaseFunc(set: Set<FunctionDesc>, funcScope?: string): FunctionDesc {
     if (!set || set.size === 0) {
       return null;
     }
     if (set.size === 1) {
       return set[Symbol.iterator]().next().value;
-    }
-    const globalCache = this.descRequests.get('')?.cache;
-    if (!globalCache) {
-      return null;
     }
     let collected: FunctionDesc[];
     let commonMatch: number;
@@ -546,7 +546,7 @@ export abstract class ClientConnection extends Connection implements ClientConn 
         do {
           collected.push(desc);
           if (desc.base) {
-            desc = globalCache.get(desc.base);
+            desc = this._getCachedDesc(desc.base, funcScope);
           } else {
             break;
           }
@@ -562,7 +562,7 @@ export abstract class ClientConnection extends Connection implements ClientConn 
             break;
           }
           if (desc.base) {
-            desc = globalCache.get(desc.base);
+            desc = this._getCachedDesc(desc.base, funcScope);
           } else {
             // no match and no base to check
             return null;
@@ -573,8 +573,7 @@ export abstract class ClientConnection extends Connection implements ClientConn 
     return collected[commonMatch];
   }
 
-  getOptionalProps(desc: FunctionDesc): {[key: string]: PropDesc} {
-    const globalCache = this.descRequests.get('')?.cache;
+  getOptionalProps(desc: FunctionDesc, funcScope?: string): {[key: string]: PropDesc} {
     let result: {[key: string]: PropDesc};
     do {
       if (desc.optional) {
@@ -584,8 +583,8 @@ export abstract class ClientConnection extends Connection implements ClientConn 
           result = desc.optional;
         }
       }
-      if (desc.base && globalCache) {
-        desc = globalCache.get(desc.base);
+      if (desc.base) {
+        desc = this._getCachedDesc(desc.base, funcScope);
       } else {
         break;
       }

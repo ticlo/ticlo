@@ -5,6 +5,7 @@ import '../../functions/math/Arithmetic.js';
 import '../../functions/Categories.js';
 import {shouldHappen} from '../../util/test-util.js';
 import {Namespace} from '../../block/Namespace.js';
+import {WorkerFunctionGen} from '../../worker/WorkerFunctionGen.js';
 
 describe('InflowEditor Connection Workflow', function () {
   it('keeps folder and child-flow function groups stable and separate', async function () {
@@ -73,6 +74,34 @@ describe('InflowEditor Connection Workflow', function () {
 
     Namespace.delete(funcId);
     client.destroy();
+  });
+
+  it('scopes descriptor watches through ^#scope', async function () {
+    const flowPath = 'InflowEditorDescriptorScope';
+    const funcId = ':scopedDesc';
+    const data = {
+      '#is': '',
+      '#inputs': {'#is': '', '#custom': [{name: 'value', type: 'number'}]},
+      '#outputs': {'#is': ''},
+    };
+
+    Root.instance.addFlow(flowPath, {});
+    const flow = Root.instance.queryValue(flowPath) as Flow;
+    WorkerFunctionGen.registerType(data, {id: funcId, name: 'scopedDesc'}, undefined, flow.getFuncGroup());
+
+    const [server, client] = makeLocalConnection(Root.instance, true);
+
+    let scopedDesc: any;
+    client.watchDesc(funcId, flowPath, (desc) => {
+      scopedDesc = desc;
+    });
+
+    await shouldHappen(() => scopedDesc?.id === funcId);
+    expect(client.watchDesc(funcId)).toBeUndefined();
+    expect(client.watchDesc(funcId, flowPath)?.properties.some((prop) => prop.name === 'value')).toBe(true);
+
+    client.destroy();
+    Root.instance.deleteValue(flowPath);
   });
 
   it('creates, edits, and runs an inflow function through the connection', async function () {

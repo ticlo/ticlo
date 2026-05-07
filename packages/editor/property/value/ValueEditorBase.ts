@@ -13,4 +13,5 @@ export interface ValueEditorProps {
   locked?: boolean;
   onChange?: (value: any, field: string) => void;
   addSubBlock?: (id: string, desc?: FunctionDesc, data?: any) => void;
+  funcScope?: string;
 }

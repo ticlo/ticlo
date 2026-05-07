@@ -26,6 +26,7 @@ import {isBindable, propAcceptsBlock} from '@ticlo/core';
 import {LocalizedPropertyName} from '../component/LocalizedLabel.js';
 import {PropertyDropdown} from '../popup/PropertyDropdown.js';
 import {BlockDropdown} from '../popup/BlockDropdown.js';
+import {getDescScope} from '../util/FunctionScope.js';
 
 export interface Stage {
   getBlock(path: string): BlockItem;
@@ -63,6 +64,10 @@ export interface Stage {
 
   // since DragDropDiv prevent default focus, need to manually trigger it
   focus(): void;
+
+  getFuncScope(): string;
+
+  onBlockDescScopeChanged(): void;
 }
 
 export class FieldItem extends DataRendererItem {
@@ -362,6 +367,7 @@ export class BlockHeaderView extends PureDataRenderer<BlockHeaderProps, any> {
           path={blockItem.path}
           displayName={displayName}
           canApply={false}
+          funcScope={blockItem.stage.getFuncScope()}
         >
           {nameNode}
         </BlockDropdown>
@@ -578,12 +584,27 @@ export abstract class BaseBlockItem extends DataRendererItem<XYWRenderer> {
   abstract onFieldsChanged(): void;
 
   isValue: string;
+  descScope: string;
+  watchDesc() {
+    this.conn.unwatchDesc(this.descListener);
+    this.descScope = this.stage.getFuncScope();
+    if (typeof this.isValue === 'string') {
+      this.conn.watchDesc(this.isValue, getDescScope(this.isValue, this.descScope), this.descListener);
+    }
+  }
+
+  onDescScopeChanged() {
+    if (this.isValue != null && this.descScope !== this.stage.getFuncScope()) {
+      this.watchDesc();
+    }
+  }
+
   isListener = new ValueSubscriber({
     onUpdate: (response: ValueUpdate) => {
       const {value} = response.cache;
       if (typeof value === 'string') {
         this.isValue = value;
-        this.conn.watchDesc(value, undefined, this.descListener);
+        this.watchDesc();
       } else {
         this.isValue = null;
         this.conn.unwatchDesc(this.descListener);

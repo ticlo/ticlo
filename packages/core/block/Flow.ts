@@ -42,7 +42,7 @@ export class Flow extends Block {
   _funcGroup: FunctionGroup;
   getFuncGroup(): FunctionGroup {
     if (!this._funcGroup) {
-      this._funcGroup = new PersistentFunctionGroup(this._namespace);
+      this._funcGroup = new PersistentFunctionGroup(this._namespace, this.getFullPath());
     }
     return this._funcGroup;
   }
@@ -191,6 +191,10 @@ export class Flow extends Block {
     }
     if (funcGroup) {
       this._funcGroup = funcGroup;
+    }
+    const scopePath = this.getFuncGroup().getScopePath();
+    if (scopePath) {
+      this.updateValue('^#scope', scopePath);
     }
 
     if (funcId) {

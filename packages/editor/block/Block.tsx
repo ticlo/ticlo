@@ -307,7 +307,14 @@ export class BlockView extends PureDataRenderer<BlockViewProps, BlockViewState> 
         return (
           <div ref={this.getRef} className={classNames.join(' ')} style={{top: item.y, left: item.x}}>
             <div className="ticl-block-min-bound" />
-            <BlockDropdown functionId={item.desc.id} conn={item.conn} path={item.path} displayName="" canApply={false}>
+            <BlockDropdown
+              functionId={item.desc.id}
+              conn={item.conn}
+              path={item.path}
+              displayName=""
+              canApply={false}
+              funcScope={item.stage.getFuncScope()}
+            >
               <Tooltip title={getDisplayName(item.name, this.displayName.value)} mouseEnterDelay={0}>
                 <DragDrop
                   className={headClasses}

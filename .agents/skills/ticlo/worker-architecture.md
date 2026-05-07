@@ -25,6 +25,8 @@ The source (`src`) of a worker flow can take several forms, stored in `WorkerCon
 3. **Local flow function id**: `:functionId`, stored in the owning flow's `#functions` config and managed by its `PersistentFunctionGroup`.
 4. **Namespace function id**: `+namespace:group:functionId`, stored in `NsFunctionGroup` and optionally backed by `FlowStorage`.
 
+Local flow functions have a descriptor scope. Flow-owned `PersistentFunctionGroup.getScopePath()` returns the owning Flow path, while global and namespace groups return `null`. Worker and editor flows loaded from an in-flow function group expose that owner path through the runtime-only context property `^#scope`, so UI code can watch descriptors with `watchDesc(':functionId', scopePath)`.
+
 For string sources, `WorkerControl` listens to the corresponding `FunctionDispatcher`; when the function definition changes, `_srcChanged` is set and the host block is queued.
 
 ## The `getSaveParameter()` Lifecycle
@@ -48,6 +50,8 @@ this._data.createOutputFlow(RepeaterWorker, '#flow', src, outputTarget, saveCall
 ```
 
 The output target implements `FunctionOutput`, so each host can decide how child flow outputs are collected.
+
+When passing in-flow or inline worker sources into a child flow, keep the parent flow's function group attached so `^#scope` continues to point at the function owner. Do not rediscover the scope from a deep block path in editor code; Block view should pass its current `funcScope` down to descriptor consumers.
 
 ## Host Patterns
 

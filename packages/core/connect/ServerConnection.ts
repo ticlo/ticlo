@@ -270,12 +270,12 @@ class ServerDescWatcher extends ServerRequest implements DescListener {
   pendingIds: Set<string>;
   private _funcGroup: FunctionGroup;
 
-  constructor(conn: ServerConnection, id: string, path?: string) {
+  constructor(conn: ServerConnection, id: string, funcScope?: string) {
     super();
     this.id = id;
     this.connection = conn;
-    if (path) {
-      const property = conn.root.queryProperty(path);
+    if (funcScope) {
+      const property = conn.root.queryProperty(funcScope);
       if (property?._value instanceof Flow) {
         this._funcGroup = property._value.getFuncGroup();
       }
@@ -784,8 +784,8 @@ export class ServerConnection extends ServerConnectionCore {
   /**
    * Tells the Server-side Desc Watcher to proactively start relaying function signature modifications taking place under `id`.
    */
-  watchDesc({id, path}: {id: string; path?: string}): ServerDescWatcher {
-    return new ServerDescWatcher(this, id, path);
+  watchDesc({id, path: funcScope}: {id: string; path?: string}): ServerDescWatcher {
+    return new ServerDescWatcher(this, id, funcScope);
   }
 
   /**

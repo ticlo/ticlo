@@ -26,6 +26,7 @@ import {CheckboxChangeEvent} from 'antd';
 import {ParameterInputDialog} from './ParameterInputDialog.js';
 import {ExpandIcon} from '../component/Tree.js';
 import {ValueUpdate} from '@ticlo/core/connect/ClientRequests.js';
+import {getDescScope} from '../util/FunctionScope.js';
 
 interface Props {
   children: React.ReactElement;
@@ -42,6 +43,7 @@ interface Props {
   paths: string[];
   name: string;
   baseName?: string;
+  funcScope?: string;
   onAddSubBlock: (id: string, desc?: FunctionDesc, data?: any) => void;
 }
 
@@ -195,14 +197,15 @@ export class PropertyDropdown extends React.PureComponent<Props, State> {
       conn: ClientConn;
       paths: string[];
       name: string;
+      funcScope?: string;
     },
     funcId: string,
     desc?: FunctionDesc,
     data?: any
   ) {
-    const {conn, paths, name} = props;
+    const {conn, paths, name, funcScope} = props;
     if (!desc) {
-      desc = conn.watchDesc(funcId);
+      desc = conn.watchDesc(funcId, getDescScope(funcId, funcScope));
     }
     if (!data) {
       if (!desc) {
@@ -224,7 +227,8 @@ export class PropertyDropdown extends React.PureComponent<Props, State> {
   };
 
   getMenu() {
-    const {funcDesc, propDesc, bindingPath, group, name, conn, valueDefined, isCustom, isTemp, display} = this.props;
+    const {funcDesc, propDesc, bindingPath, group, name, conn, valueDefined, isCustom, isTemp, display, funcScope} =
+      this.props;
     const {valueDenfinedOverride, isTempOverride} = this.state;
     const menuItems: React.ReactElement[] = [];
     if (!propDesc.readonly) {
@@ -239,6 +243,7 @@ export class PropertyDropdown extends React.PureComponent<Props, State> {
                 conn={conn}
                 showPreset={true}
                 onFunctionClick={this.onAddSubBlock}
+                funcScope={funcScope}
               />
               // </Menu.Item>
             }
