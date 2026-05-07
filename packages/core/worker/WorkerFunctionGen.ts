@@ -90,10 +90,8 @@ export class WorkerFunctionGen extends BaseFunction<Block> {
     }
     const namespace = flow._namespace;
     const [func, desc] = WorkerFunctionGen.generate(data, funcId, namespace);
-    let functionGroup = Namespace.getFunctions(funcId, flow);
-    if (functionGroup instanceof PersistentFunctionGroup) {
-      functionGroup.add(func, desc, namespace);
-    }
+    const functionGroup = Namespace.getFunctions(funcId, flow);
+    functionGroup?.add(func, desc, namespace);
 
     return data;
   }

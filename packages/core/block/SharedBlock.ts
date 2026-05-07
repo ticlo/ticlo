@@ -5,9 +5,10 @@ import {ConstTypeConfig, FlowConfigGenerators} from './BlockConfigs.js';
 import {Flow, Root} from './Flow.js';
 import {Uid} from '../util/Uid.js';
 import {encodeTicloName} from '../util/Name.js';
-import {FunctionDispatcher, globalFunctions} from './FunctionGroup.js';
+import {FunctionDispatcher} from './FunctionGroup.js';
 import {FunctionClass} from './BlockFunction.js';
 import {PropListener} from './Dispatcher.js';
+import {Namespace} from './Namespace.js';
 
 export class SharedConfig extends BlockProperty {
   _load(val: unknown) {}
@@ -70,7 +71,7 @@ export class SharedBlock extends Flow {
       const sharedRoot = Root.instance._sharedRoot;
       const prop = sharedRoot.getProperty(encodeTicloName(funcId));
       const sharedBlock = new SharedBlock(sharedRoot, sharedRoot, prop);
-      sharedBlock._funcDispatcher = globalFunctions.listen(funcId, sharedBlock._funcListener);
+      sharedBlock._funcDispatcher = Namespace.getFunctions(funcId, flow)?.listen(funcId, sharedBlock._funcListener);
       sharedBlock._cacheKey = funcId;
       sharedBlock._cacheMode = data['#cacheMode'];
       SharedBlock._dict.set(funcId, sharedBlock);
@@ -79,7 +80,8 @@ export class SharedBlock extends Flow {
       if (funcId.includes(':')) {
         sharedId = `${funcId}__shared`;
       }
-      sharedBlock.load(data, sharedId);
+      const functions = Namespace.getFunctions(funcId, flow);
+      sharedBlock.load(data, sharedId, undefined, undefined, undefined, functions);
       return sharedBlock;
     }
   }
@@ -122,7 +124,7 @@ export class SharedBlock extends Flow {
       } else if (flow._namespace != null) {
         tempFuncId = `${flow._namespace}:__shared`;
       }
-      sharedBlock.load(data, tempFuncId);
+      sharedBlock.load(data, tempFuncId, undefined, undefined, undefined, flow.getFuncGroup());
       return sharedBlock;
     }
   }
@@ -189,6 +191,9 @@ export class FlowWithShared extends Flow {
   _sharedBlock: SharedBlock;
 
   getCacheKey(funcId: string, data: DataMap): unknown {
+    if (funcId?.startsWith(':')) {
+      return data;
+    }
     return funcId || data;
   }
 

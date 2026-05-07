@@ -13,7 +13,7 @@ import {Block, BlockChildWatch, InputsBlock} from '../block/Block.js';
 import {Flow, Root} from '../block/Flow.js';
 import {FlowWithShared, SharedBlock, SharedConfig} from '../block/SharedBlock.js';
 import {PropDispatcher, PropListener} from '../block/Dispatcher.js';
-import {DescListener} from '../block/FunctionGroup.js';
+import {DescListener, FunctionGroup} from '../block/FunctionGroup.js';
 import {FunctionDesc, PropDesc, PropGroupDesc} from '../block/Descriptor.js';
 import {propRelative} from '../util/PropPath.js';
 import {
@@ -38,7 +38,6 @@ import {Query, queryBlock} from './Query.js';
 import {getGlobalSettingsData} from '../util/Settings.js';
 import {DoneEvent} from '../block/Event.js';
 import {Namespace} from '../block/Namespace.js';
-import {PersistentFunctionGroup} from '../block/NSFunctionGroup.js';
 
 export class ServerRequest extends ConnectionSendingData {
   id: string;
@@ -269,7 +268,7 @@ class ServerWatch extends ServerRequest implements BlockChildWatch, PropListener
 
 class ServerDescWatcher extends ServerRequest implements DescListener {
   pendingIds: Set<string>;
-  private _funcGroup: PersistentFunctionGroup;
+  private _funcGroup: FunctionGroup;
 
   constructor(conn: ServerConnection, id: string, path?: string) {
     super();
@@ -833,7 +832,7 @@ export class ServerConnection extends ServerConnectionCore {
       if (fromField) {
         FlowEditor.createFromField(property._block, property._name, fromField);
       } else if (fromFunction) {
-        let funcGroup: PersistentFunctionGroup | undefined;
+        let funcGroup: FunctionGroup | undefined;
         if (fromFunction.startsWith(':') && funcScope) {
           // Local flow function - resolve the funcGroup from the host flow
           const flowProp = this.root.queryProperty(funcScope);
@@ -841,10 +840,7 @@ export class ServerConnection extends ServerConnectionCore {
             funcGroup = flowProp._value.getFuncGroup();
           }
         } else if (fromFunction.startsWith('+')) {
-          const functions = Namespace.getFunctions(fromFunction, property._block._flow);
-          if (functions instanceof PersistentFunctionGroup) {
-            funcGroup = functions;
-          }
+          funcGroup = Namespace.getFunctions(fromFunction, property._block._flow);
         }
         if (fromFunction.startsWith('+') || fromFunction.startsWith(':')) {
           if (defaultData && funcGroup && !funcGroup.getWorkerData(fromFunction)) {

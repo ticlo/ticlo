@@ -26,13 +26,15 @@ describe('InflowEditor', function () {
 
     // editor with map data
     block.setValue('use1', data);
-    FlowEditor.createFromField(block, '#edit-use1', 'use1');
-    expect((block.getValue('#edit-use1') as Flow).save()).toEqual(data);
+    const inlineEditor = FlowEditor.createFromField(block, '#edit-use1', 'use1');
+    expect(inlineEditor.save()).toEqual(data);
+    expect(inlineEditor.getFuncGroup()).toBe(funcGroup);
 
     // editor with registered in-flow worker function
     block.setValue('use2', ':func1');
-    FlowEditor.createFromField(block, '#edit-use2', 'use2');
-    expect((block.getValue('#edit-use2') as Flow).save()).toEqual(data);
+    const registeredEditor = FlowEditor.createFromField(block, '#edit-use2', 'use2');
+    expect(registeredEditor.save()).toEqual(data);
+    expect(registeredEditor.getFuncGroup()).toBe(funcGroup);
   });
 
   it('createFromFunction', function () {
@@ -48,11 +50,13 @@ describe('InflowEditor', function () {
 
     WorkerFunctionGen.registerType(data, {id: ':worker2', name: 'worker2'}, undefined, funcGroup);
 
-    FlowEditor.createFromFunction(flow, '#edit-func', ':worker2', null);
-    expect((flow.getValue('#edit-func') as Flow).save()).toEqual(data);
+    const existingEditor = FlowEditor.createFromFunction(flow, '#edit-func', ':worker2', null);
+    expect(existingEditor.save()).toEqual(data);
+    expect(existingEditor.getFuncGroup()).toBe(funcGroup);
 
-    FlowEditor.createFromFunction(flow, '#edit-func-default', ':worker2-2', data);
-    expect((flow.getValue('#edit-func-default') as Flow).save()).toEqual(data);
+    const newEditor = FlowEditor.createFromFunction(flow, '#edit-func-default', ':worker2-2', data);
+    expect(newEditor.save()).toEqual(data);
+    expect(newEditor.getFuncGroup()).toBe(funcGroup);
   });
 
   it('applyChange function', function () {

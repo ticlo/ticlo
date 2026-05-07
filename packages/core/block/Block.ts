@@ -546,9 +546,10 @@ export class Block implements Runnable, FunctionData, PropListener<FunctionClass
     const flow = new FlowClass(this, output, prop);
     prop.setOutput(flow);
     if (typeof src === 'string') {
-      flow.load(null, src, applyChange);
+      const functions = Namespace.getFunctions(src, this._flow);
+      flow.load(null, src, applyChange, undefined, undefined, functions);
     } else {
-      flow.load(src, null, applyChange);
+      flow.load(src, null, applyChange, undefined, undefined, this._flow.getFuncGroup());
     }
 
     return flow;

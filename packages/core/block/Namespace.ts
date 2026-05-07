@@ -5,7 +5,7 @@ import {FunctionClass} from './BlockFunction.js';
 import {PropListener} from './Dispatcher.js';
 import {FunctionDesc} from './Descriptor.js';
 import {DataMap} from '../util/DataTypes.js';
-import {PersistentFunctionGroup, NsFunctionGroup} from './NSFunctionGroup.js';
+import {NsFunctionGroup} from './NSFunctionGroup.js';
 import type {FlowStorage} from './Storage.js';
 
 export class Namespace {
@@ -142,14 +142,13 @@ export class Namespace {
     return null;
   }
 
-  static getWorker(id: string, flow?: Flow): [FunctionDesc, DataMap, PersistentFunctionGroup] {
+  static getWorker(id: string, flow?: Flow): [FunctionDesc, DataMap, FunctionGroup] {
     const functions = Namespace.getFunctions(id, flow);
     if (functions) {
       const workerData = functions.getWorkerData(id);
       if (workerData) {
         const [desc] = functions.getDescToSend(id);
-        const functionGroup = functions instanceof PersistentFunctionGroup ? functions : null;
-        return [desc, workerData, functionGroup];
+        return [desc, workerData, functions];
       }
     }
 

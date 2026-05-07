@@ -55,7 +55,7 @@ describe('SharedBlock', function () {
     WorkerFunctionGen.registerType(data, {name: 'cacheModeWorker1', properties: []}, 'SharedBlock');
 
     const flow = new WorkerFlow();
-    flow.load(data, 'SharedBlock:cacheModeWorker1');
+    flow.load(data, 'SharedBlock:cacheModeWorker1', undefined, undefined, undefined, globalFunctions);
     expect(flow.save()).toEqual(data);
 
     const sharedBlock: SharedBlock = flow.getValue('#shared') as SharedBlock;

@@ -12,7 +12,7 @@ import {
 import {Event} from './Event.js';
 import {DataMap} from '../util/DataTypes.js';
 import {FunctionDesc} from './Descriptor.js';
-import {globalFunctions} from './FunctionGroup.js';
+import {FunctionGroup} from './FunctionGroup.js';
 import {FlowStorage} from './Storage.js';
 import {FlowHistory} from './FlowHistory.js';
 import {getDefaultZone, updateGlobalSettings} from '../util/Settings.js';
@@ -39,8 +39,11 @@ export class Flow extends Block {
   _namespace: string;
   // function id, when Flow is loaded from a function
   _loadFrom: string;
-  _funcGroup: PersistentFunctionGroup;
-  getFuncGroup(): PersistentFunctionGroup {
+  _funcGroup: FunctionGroup;
+  getFuncGroup(): FunctionGroup {
+    if (!this._funcGroup) {
+      this._funcGroup = new PersistentFunctionGroup(this._namespace);
+    }
     return this._funcGroup;
   }
 
@@ -173,7 +176,7 @@ export class Flow extends Block {
     applyChange?: (flow: Flow) => DataMap,
     onStateChange?: (flow: Flow, state: FlowState) => void,
     namespace?: string,
-    funcGroup?: PersistentFunctionGroup
+    funcGroup?: FunctionGroup
   ): boolean {
     if (this._loaded) {
       throw new Error('can not load flow twice');
@@ -188,21 +191,18 @@ export class Flow extends Block {
     }
     if (funcGroup) {
       this._funcGroup = funcGroup;
-    } else {
-      this._funcGroup = this._parent?._flow?.getFuncGroup();
     }
 
     if (funcId) {
       // load from worker class for editing
-      const [desc, workerData, funcGroup] = Namespace.getWorker(funcId, this);
-      if (desc) {
-        if (workerData) {
-          this._namespace = desc.ns;
-          this._loadFrom = funcId;
-          this._funcGroup = funcGroup;
-          this._loadFlowData(workerData, funcId);
-          loaded = true;
-        }
+      const functions = this.getFuncGroup();
+      const workerData = functions.getWorkerData(funcId);
+      if (workerData) {
+        const [desc] = functions.getDescToSend(funcId);
+        this._namespace = desc?.ns;
+        this._loadFrom = funcId;
+        this._loadFlowData(workerData, funcId);
+        loaded = true;
       } else if (src) {
         const colonIndex = funcId.indexOf(':');
         if (colonIndex >= 0) {
@@ -385,9 +385,6 @@ export class FlowFolder extends Flow {
     } else {
       return new BlockConfig(this, field);
     }
-  }
-  getFuncGroup(): PersistentFunctionGroup {
-    return new PersistentFunctionGroup(this._namespace);
   }
 }
 export class FlowNameSpace extends FlowFolder {

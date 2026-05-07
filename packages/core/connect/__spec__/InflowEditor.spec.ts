@@ -7,6 +7,25 @@ import {shouldHappen} from '../../util/test-util.js';
 import {Namespace} from '../../block/Namespace.js';
 
 describe('InflowEditor Connection Workflow', function () {
+  it('keeps folder and child-flow function groups stable and separate', async function () {
+    const folderPath = 'InflowEditorFunctionGroupFolder';
+    const childPath = `${folderPath}.child`;
+
+    Root.instance.addFlowFolder(folderPath);
+    const folder = Root.instance.queryValue(folderPath) as Flow;
+    const folderGroup = folder.getFuncGroup();
+
+    expect(folder.getFuncGroup()).toBe(folderGroup);
+
+    Root.instance.addFlow(childPath, {});
+    const child = Root.instance.queryValue(childPath) as Flow;
+
+    expect(child.getFuncGroup()).not.toBe(folderGroup);
+    expect(child.getFuncGroup()).toBe(child.getFuncGroup());
+
+    Root.instance.deleteValue(folderPath);
+  });
+
   it('creates an inflow function before opening its editor', async function () {
     const flowPath = 'InflowEditorWorkflowCreateFirst';
     const funcId = ':draftWorker';
@@ -24,7 +43,13 @@ describe('InflowEditor Connection Workflow', function () {
     };
     client.watchDesc('*', flowPath, descListener);
 
-    await client.editWorker(editPath, undefined, funcId, {'#is': '', '#inputs': {'#is': ''}, '#outputs': {'#is': ''}}, flowPath);
+    await client.editWorker(
+      editPath,
+      undefined,
+      funcId,
+      {'#is': '', '#inputs': {'#is': ''}, '#outputs': {'#is': ''}},
+      flowPath
+    );
 
     expect(flow.getFuncGroup().getAllFunctionIds()).toContain(funcId);
     await shouldHappen(() => watchedDesc);
@@ -98,6 +123,33 @@ describe('InflowEditor Connection Workflow', function () {
     Root.runAll();
 
     expect(flow.queryValue('calc.result')).toBe(3);
+
+    client.destroy();
+    Root.instance.deleteValue(flowPath);
+  });
+
+  it('resolves an inflow function class on a flow folder', async function () {
+    const flowPath = 'InflowEditorWorkflowFolder';
+    const funcId = ':folderDouble';
+    const editPath = `#temp.#edit-${encodeURIComponent(funcId)}`;
+
+    const [server, client] = makeLocalConnection(Root.instance, true);
+
+    await client.addFlowFolder(flowPath);
+    const flow = Root.instance.queryValue(flowPath) as Flow;
+
+    await client.editWorker(
+      editPath,
+      undefined,
+      funcId,
+      {'#is': '', '#inputs': {'#is': ''}, '#outputs': {'#is': ''}},
+      flowPath
+    );
+    await client.applyFlowChange(editPath);
+
+    await client.addBlock(`${flowPath}.calc`, {'#is': funcId});
+
+    expect(flow.queryValue('calc.#')?.getFunctionClass()).toBeDefined();
 
     client.destroy();
     Root.instance.deleteValue(flowPath);

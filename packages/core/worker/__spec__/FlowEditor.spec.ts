@@ -62,11 +62,12 @@ describe('FlowEditor', function () {
 
     WorkerFunctionGen.registerType(data, {name: 'worker2'}, '+FlowEditor');
 
-    FlowEditor.createFromFunction(flow, '#edit-func', '+FlowEditor::worker2', null);
-    expect((flow.getValue('#edit-func') as Flow).save()).toEqual(data);
+    const existingEditor = FlowEditor.createFromFunction(flow, '#edit-func', '+FlowEditor::worker2', null);
+    expect(existingEditor.save()).toEqual(data);
+    expect(existingEditor.getFuncGroup()).toBe(Namespace.getFunctions('+FlowEditor::worker2'));
 
-    FlowEditor.createFromFunction(flow, '#edit-func', '+FlowEditor::worker2-2', data);
-    expect((flow.getValue('#edit-func') as Flow).save()).toEqual(data);
+    const newEditor = FlowEditor.createFromFunction(flow, '#edit-func', '+FlowEditor::worker2-2', data);
+    expect(newEditor.save()).toEqual(data);
 
     Namespace.delete('+FlowEditor::worker2');
   });
