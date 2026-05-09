@@ -6,6 +6,7 @@ import {DockContext, DockContextType} from 'rc-dock';
 import {LazyUpdateComponent} from '../../component/LazyUpdateComponent.js';
 import {ClientConn, ValueSubscriber, ValueUpdate} from '@ticlo/core/editor.js';
 import {TabData} from 'rc-dock/src/DockData.js';
+import {TicloCurrentFlowContext} from '../../component/LayoutContext.js';
 
 interface Props {
   conn: ClientConn;
@@ -44,17 +45,19 @@ export class BlockStageTabButton extends LazyUpdateComponent<Props, State> {
     super.componentWillUnmount();
   }
 
-  onClose = () => {
+  onClose = (e: React.MouseEvent) => {
+    e.stopPropagation();
     const {id} = this.props;
     this.context.dockMove(this.context.find(id) as TabData, null, 'remove');
   };
-  onSave = () => {
+  onSave = (e: React.MouseEvent) => {
+    e.stopPropagation();
     const {onSave} = this.props;
     onSave?.();
   };
 
   renderImpl() {
-    const {title, conn, onSave} = this.props;
+    const {title, onSave} = this.props;
     const {hasChange} = this.state;
     let closeButtun: React.ReactElement;
     if (onSave && hasChange) {
@@ -68,10 +71,17 @@ export class BlockStageTabButton extends LazyUpdateComponent<Props, State> {
       closeButtun = <div className="dock-tab-close-btn" onClick={this.onClose} />;
     }
     return (
-      <span className="ticl-stage-panel-tab">
-        {title}
-        {closeButtun}
-      </span>
+      <TicloCurrentFlowContext.Consumer>
+        {(currentFlow) => (
+          <span
+            className={`ticl-stage-panel-tab${currentFlow.currentPath === this.props.path ? ' ticl-stage-panel-tab-focused' : ''}`}
+            onClick={() => currentFlow.onFlowFocus(this.props.path)}
+          >
+            <span className="ticl-stage-panel-tab-title">{title}</span>
+            {closeButtun}
+          </span>
+        )}
+      </TicloCurrentFlowContext.Consumer>
     );
   }
 }

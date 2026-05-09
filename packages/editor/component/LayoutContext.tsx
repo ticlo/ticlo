@@ -1,9 +1,9 @@
-import React, {createContext, useMemo, ReactElement, useState, ReactNode, useRef} from 'react';
+import React, {createContext, useMemo, ReactElement, useState, ReactNode} from 'react';
 import {PropDesc, PropDispatcher, voidFunction} from '@ticlo/core';
 
 export interface TicloCurrentFlow {
   currentPath?: string | null;
-  onFlowFocus: (path: string, onBlur?: () => void) => void;
+  onFlowFocus: (path: string) => void;
   onFlowClosed: (path: string) => void;
 }
 
@@ -40,38 +40,32 @@ export const TicloI18NConsumer = TicloLayoutContextConsumer;
 
 export function TicloContextProvider({value, children}: {value: TicloLayoutContext; children?: ReactNode}) {
   const [currentPath, setCurrentPath] = useState<string | null>(null);
-  const onBlurRef = useRef<() => void>(undefined);
   const currentFlow = useMemo(
     () => ({
       currentPath,
-      onFlowFocus: (path: string, onBlur?: () => void) => {
+      onFlowFocus: (path: string) => {
         setCurrentPath((prev) => {
           if (prev === path) {
             return prev;
           }
-          if (onBlurRef.current) {
-            onBlurRef.current();
-          }
-          onBlurRef.current = onBlur;
           if (path?.startsWith('#temp.#edit-')) {
             return prev;
           }
           return path;
         });
-        value.onFlowFocus?.(path, onBlur);
+        value.onFlowFocus?.(path);
       },
       onFlowClosed: (path: string) => {
         setCurrentPath((prev) => {
           if (prev === path) {
             return null;
           }
-          onBlurRef.current = undefined;
           return prev;
         });
         value.onFlowClosed?.(path);
       },
     }),
-    [currentPath]
+    [currentPath, value]
   );
   const wrappedLayoutContext: TicloLayoutContext = useMemo(() => {
     return {

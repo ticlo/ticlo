@@ -438,24 +438,11 @@ export abstract class BlockStageBase<Props extends StagePropsBase, State>
     conn.childrenChangeStream().dispatch({path: basePath});
   }
 
-  _isSelected: boolean = false;
-
-  onBlur = () => {
-    if (!this._isSelected) {
-      return;
-    }
-    this._isSelected = false;
-    this.getRootElement()?.classList.remove('ticl-selected-stage');
-  };
-
   focus() {
-    if (this._isSelected) {
-      return;
-    }
-    this._isSelected = true;
-    this.getRootElement()?.classList.add('ticl-selected-stage');
     this.getRootElement()?.focus({preventScroll: true});
-    this.context.onFlowFocus(this.props.basePath, this.onBlur);
+    if (this.context.currentPath !== this.props.basePath) {
+      this.context.onFlowFocus(this.props.basePath);
+    }
   }
 
   componentWillUnmount() {

@@ -528,7 +528,7 @@ export class BlockStage extends BlockStageBase<BlockStageProps, StageState> {
     return (
       <div
         style={style}
-        className="ticl-stage"
+        className={`ticl-stage${this.context.currentPath === basePath ? ' ticl-selected-stage' : ''}`}
         ref={this.getRootRef}
         onKeyDown={this.onKeyDown}
         onMouseDown={this.onMouseDown}
