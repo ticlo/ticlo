@@ -3,7 +3,7 @@ import {Button, Input} from 'antd';
 import {DownOutlined, EditOutlined} from '@ant-design/icons';
 
 import {DragDropDiv, DragState} from 'rc-dock';
-import {FunctionSelect} from '../../function-selector/FunctionSelector.js';
+import {FunctionSelect} from '../../function-selector/FunctionSelect.js';
 import {Popup} from '../../component/ClickPopup.js';
 import {FunctionEditor} from './FunctionEditor.js';
 import {FunctionDesc} from '@ticlo/core';

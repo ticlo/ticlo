@@ -28,8 +28,8 @@ import {ClientConnection} from '@ticlo/core/connect/ClientConnection.js';
 import './sample-blocks.js';
 import {WorkerFunctionGen} from '@ticlo/core/worker/WorkerFunctionGen.js';
 
+import {TicloApp} from '@ticlo/editor/component/TicloApp.js';
 import {
-  TicloContextProvider,
   TicloCurrentFlowConsumer,
   TicloLayoutContext,
   TicloLayoutContextType,
@@ -41,7 +41,7 @@ import '@ticlo/html';
 import '@ticlo/react';
 import '@ticlo/test';
 import {theme} from '@ticlo/editor/style/theme.js';
-import {FunctionSelect} from '@ticlo/editor/function-selector/FunctionSelector.js';
+import {FunctionSelect} from '@ticlo/editor/function-selector/FunctionSelect.js';
 
 import i18next from 'i18next';
 
@@ -279,7 +279,7 @@ class App extends React.PureComponent<Props, State> {
     const {conn} = this.props;
     const {modal} = this.state;
     const appContent = (
-      <TicloContextProvider value={this.ticloContext}>
+      <TicloApp value={this.ticloContext}>
         <DockLayout
           defaultLayout={this.defaultDockLayout}
           ref={this.getLayout}
@@ -287,7 +287,7 @@ class App extends React.PureComponent<Props, State> {
           style={{position: 'absolute', left: 10, top: 10, right: 10, bottom: 10}}
         />
         {modal}
-      </TicloContextProvider>
+      </TicloApp>
     );
 
     if (location.hash.includes('strictMode')) {

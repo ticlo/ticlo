@@ -23,9 +23,9 @@
 
 # CalendarEventEditor.tsx & OptionalPropertyList.tsx
 "Optional": "Optional"
-# WorkerEditor.tsx & FunctionSelector.tsx
+# WorkerEditor.tsx & FunctionSelect.tsx
 "Subflow": "Subflow"
-# WorkerEditor.tsx & FunctionSelector.tsx
+# WorkerEditor.tsx & FunctionSelect.tsx
 "Inline": "Inline"
 # PropertyDropdown.tsx & BlockDropdown.tsx
 "Execute Command": "Execute Command"
@@ -122,7 +122,7 @@
 "Add Dataflow": "Add Dataflow"
 "Add Folder": "Add Folder"
 
-# function-selector/FunctionSelector.tsx
+# function-selector/FunctionSelect.tsx
 "Function Tree": "Function Tree"
 "Recent": "Recent"
 "Add Function": "Add Function"

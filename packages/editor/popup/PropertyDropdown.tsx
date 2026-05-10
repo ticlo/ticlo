@@ -1,6 +1,6 @@
 import React from 'react';
 import {Menu, Popup, SubMenuItem, MenuItem} from '../component/ClickPopup.js';
-import {FunctionSelect} from '../function-selector/FunctionSelector.js';
+import {FunctionSelect} from '../function-selector/FunctionSelect.js';
 import {
   blankFuncDesc,
   blankPropDesc,

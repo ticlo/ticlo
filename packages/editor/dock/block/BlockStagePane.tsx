@@ -1,4 +1,4 @@
-import React, {KeyboardEvent, ReactNode} from 'react';
+import React, {ReactNode} from 'react';
 import {Button, Tooltip} from 'antd';
 import {MenuFoldOutlined, MenuUnfoldOutlined} from '@ant-design/icons';
 
@@ -125,32 +125,19 @@ export class BlockStagePane extends LazyUpdateComponent<Props, State> {
     this.setState({sizes});
   };
 
-  onKeyDown = (e: KeyboardEvent) => {
-    const {onSave} = this.props;
-    switch (e.key) {
-      case 's': {
-        if (onSave && (e.ctrlKey || e.metaKey)) {
-          onSave();
-          e.preventDefault();
-          e.stopPropagation();
-        }
-        return;
-      }
-    }
-  };
-
   renderImpl() {
     const {conn, basePath, onSave} = this.props;
     const {showPropertyList, selectedKeys, sizes, blockKey, funcScope = basePath} = this.state;
 
     return (
-      <div className="ticl-hbox ticl-stage-tab-content" ref={this.getRef} onKeyDown={this.onKeyDown} tabIndex={0}>
+      <div className="ticl-hbox ticl-stage-tab-content" ref={this.getRef} tabIndex={0}>
         {blockKey ? (
           <BlockStage
             key={blockKey}
             conn={conn}
             basePath={basePath}
             funcScope={funcScope}
+            onSave={onSave}
             onSelect={this.onSelect}
             style={{width: sizes[0], height: '100%'}}
             toolButtons={

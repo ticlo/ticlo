@@ -15,11 +15,8 @@ import './sample-blocks.js';
 import {Logger} from '@ticlo/core/util/Logger.js';
 import {WorkerFunctionGen} from '@ticlo/core/worker/WorkerFunctionGen.js';
 import {BlockStagePane} from '@ticlo/editor/dock/block/BlockStagePane.js';
-import {
-  TicloContextProvider,
-  TicloCurrentFlowConsumer,
-  TicloLayoutContext,
-} from '@ticlo/editor/component/LayoutContext.js';
+import {TicloApp} from '@ticlo/editor/component/TicloApp.js';
+import {TicloCurrentFlowConsumer, TicloLayoutContext} from '@ticlo/editor/component/LayoutContext.js';
 import {PropDispatcher} from '@ticlo/core/block/Dispatcher.js';
 import {PropertyListPane} from '@ticlo/editor/dock/property/PropertyListPane.js';
 import {WsBrowserConnection} from '@ticlo/html/connect/WsBrowserConnection.js';
@@ -29,7 +26,7 @@ import {TextEditorPane} from '@ticlo/editor/dock/text-editor/TextEditorPane.js';
 
 import '@ticlo/test';
 import {theme} from '@ticlo/editor/style/theme.js';
-import {FunctionSelect} from '@ticlo/editor/function-selector/FunctionSelector.js';
+import {FunctionSelect} from '@ticlo/editor/function-selector/FunctionSelect.js';
 
 import i18next from 'i18next';
 
@@ -248,7 +245,7 @@ class App extends React.PureComponent<Props, State> {
     const {modal} = this.state;
     return (
       <ConfigProvider locale={this.lngConfig} theme={theme}>
-        <TicloContextProvider value={this.ticloContext}>
+        <TicloApp value={this.ticloContext}>
           <DockLayout
             defaultLayout={this.defaultDockLayout}
             ref={this.getLayout}
@@ -256,7 +253,7 @@ class App extends React.PureComponent<Props, State> {
             style={{position: 'absolute', left: 10, top: 10, right: 10, bottom: 10}}
           />
           {modal}
-        </TicloContextProvider>
+        </TicloApp>
       </ConfigProvider>
     );
   }

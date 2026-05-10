@@ -1,4 +1,4 @@
-import React, {ClipboardEventHandler, CSSProperties, KeyboardEvent} from 'react';
+import React, {CSSProperties} from 'react';
 import {Button, notification, Modal} from 'antd';
 import {ReloadOutlined, UndoOutlined, ZoomInOutlined, ZoomOutOutlined} from '@ant-design/icons';
 
@@ -16,7 +16,7 @@ import clamp from 'lodash/clamp.js';
 import {TooltipIconButton} from '../component/TooltipIconButton.js';
 import {DataMap, decode, encode} from '@ticlo/core';
 import {t} from '../component/LocalizedLabel.js';
-import {TicloCurrentFlowContext} from '../component/LayoutContext.js';
+import {TicloCurrentFlowContext, TicloStageCommands} from '../component/LayoutContext.js';
 
 const MINI_WINDOW_SIZE = 128;
 
@@ -53,9 +53,10 @@ function getPrevZoom(v: number) {
 
 interface BlockStageProps extends StagePropsBase {
   toolButtons?: React.ReactNode;
+  onSave?: () => void;
 }
 
-export class BlockStage extends BlockStageBase<BlockStageProps, StageState> {
+export class BlockStage extends BlockStageBase<BlockStageProps, StageState> implements TicloStageCommands {
   static contextType = TicloCurrentFlowContext;
 
   private _rootNode!: HTMLElement;
@@ -109,15 +110,13 @@ export class BlockStage extends BlockStageBase<BlockStageProps, StageState> {
 
   componentDidMount() {
     super.componentDidMount();
+    this.context.registerStage(this.props.basePath, this);
     this._scrollNode.addEventListener('scroll', this.handleScroll, {
       passive: true,
     });
 
     this.resizeObserver = new ResizeObserver(this.handleResize);
     this.resizeObserver.observe(this._rootNode);
-
-    // TODO figure out why directly adding listener on this._rootNode doesn't work
-    document.body.addEventListener('paste', this.onPaste);
   }
 
   _hasPopup = false;
@@ -237,6 +236,10 @@ export class BlockStage extends BlockStageBase<BlockStageProps, StageState> {
   };
 
   componentDidUpdate(prevProps: Readonly<StagePropsBase>, prevState: Readonly<StageState>, snapshot?: any): void {
+    if (prevProps.basePath !== this.props.basePath) {
+      this.context.unregisterStage(prevProps.basePath, this);
+      this.context.registerStage(this.props.basePath, this);
+    }
     if (this._pendingScroll) {
       this._scrollX = this._pendingScroll[0];
       if (this._scrollX > this._scrollNode.scrollWidth - this._scrollNode.clientWidth) {
@@ -462,10 +465,12 @@ export class BlockStage extends BlockStageBase<BlockStageProps, StageState> {
   undo = () => {
     const {conn, basePath} = this.props;
     conn.undo(basePath);
+    return true;
   };
   redo = () => {
     const {conn, basePath} = this.props;
     conn.redo(basePath);
+    return true;
   };
 
   renderImpl() {
@@ -530,7 +535,6 @@ export class BlockStage extends BlockStageBase<BlockStageProps, StageState> {
         style={style}
         className={`ticl-stage${this.context.currentPath === basePath ? ' ticl-selected-stage' : ''}`}
         ref={this.getRootRef}
-        onKeyDown={this.onKeyDown}
         onMouseDown={this.onMouseDown}
         tabIndex={0}
       >
@@ -599,60 +603,76 @@ export class BlockStage extends BlockStageBase<BlockStageProps, StageState> {
     this.focus();
   };
 
-  onKeyDown = (e: KeyboardEvent) => {
-    switch (e.key) {
-      case 'Delete': {
-        this.deleteSelectedBlocks();
-        e.preventDefault();
-        e.stopPropagation();
-        return;
-      }
-      case 'c': {
-        if (e.ctrlKey || e.metaKey) {
-          this.onCopy();
-          e.preventDefault();
-          e.stopPropagation();
-        }
-        return;
-      }
+  save = () => {
+    const {onSave} = this.props;
+    if (onSave) {
+      onSave();
+      return true;
     }
+    return false;
   };
 
-  onCopy = async () => {
+  deleteSelection = () => {
+    if (!this.hasSelectedBlocks()) {
+      return false;
+    }
+    this.deleteSelectedBlocks();
+    return true;
+  };
+
+  copy = () => {
+    const props = this.getSelectedBlockProps();
+    if (!props.length) {
+      return false;
+    }
+    this.copyProps(props);
+    return true;
+  };
+
+  async copyProps(props: string[]) {
     try {
       const {conn, basePath} = this.props;
-      const props: string[] = [];
-      const basePathDot = `${basePath}.`;
-      for (const [, blockItem] of this._blocks) {
-        if (blockItem.selected && blockItem.path.startsWith(basePathDot)) {
-          props.push(blockItem.path.substring(basePathDot.length));
-        }
-      }
-      if (!props.length) {
-        // nothing to copy
-        return;
-      }
-
       const data = await conn.copy(basePath, props);
       await window.navigator.clipboard.writeText(encode(data.value));
     } catch (e) {
       notification.error({title: 'Failed to copy', description: String(e)});
     }
-  };
-  onPaste = async (e: ClipboardEvent) => {
-    if (this._rootNode && document.activeElement === this._rootNode) {
-      const txt = e.clipboardData.getData('Text');
-      try {
-        const data = decode(txt);
-        if (data && typeof data === 'object') {
-          this.pasteData(data);
-        } else {
-          notification.error({title: 'Failed to paste', description: 'Invalid input'});
-        }
-      } catch (e) {
-        notification.error({title: 'Failed to paste', description: String(e)});
+  }
+
+  hasSelectedBlocks() {
+    for (const [, blockItem] of this._blocks) {
+      if (blockItem.selected) {
+        return true;
       }
     }
+    return false;
+  }
+
+  getSelectedBlockProps() {
+    const {basePath} = this.props;
+    const props: string[] = [];
+    const basePathDot = `${basePath}.`;
+    for (const [, blockItem] of this._blocks) {
+      if (blockItem.selected && blockItem.path.startsWith(basePathDot)) {
+        props.push(blockItem.path.substring(basePathDot.length));
+      }
+    }
+    return props;
+  }
+
+  paste = (e: React.ClipboardEvent) => {
+    const txt = e.clipboardData.getData('Text');
+    try {
+      const data = decode(txt);
+      if (data && typeof data === 'object') {
+        this.pasteData(data);
+      } else {
+        notification.error({title: 'Failed to paste', description: 'Invalid input'});
+      }
+    } catch (e) {
+      notification.error({title: 'Failed to paste', description: String(e)});
+    }
+    return true;
   };
   async pasteData(data: DataMap, resolve?: 'overwrite' | 'rename') {
     const {conn, basePath} = this.props;
@@ -734,7 +754,7 @@ export class BlockStage extends BlockStageBase<BlockStageProps, StageState> {
   };
 
   componentWillUnmount() {
-    document.body.removeEventListener('paste', this.onPaste);
+    this.context.unregisterStage(this.props.basePath, this);
 
     if (this.resizeObserver) {
       this.resizeObserver.disconnect();

@@ -6,7 +6,7 @@ import {ValueEditorProps} from './ValueEditorBase.js';
 import {TIcon} from '../../icon/Icon.js';
 import {DragDropDiv, DragState} from 'rc-dock';
 import {StringEditorBase} from './StringEditorBase.js';
-import {FunctionSelect} from '../../function-selector/FunctionSelector.js';
+import {FunctionSelect} from '../../function-selector/FunctionSelect.js';
 import {addRecentFunction} from '../../function-selector/FunctionList.js';
 import {Popup} from '../../component/ClickPopup.js';
 import {getFuncStyleFromDesc} from '../../util/BlockColors.js';
