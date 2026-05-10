@@ -124,7 +124,7 @@ export class SharedBlock extends Flow {
       } else if (flow._namespace != null) {
         tempFuncId = `${flow._namespace}:__shared`;
       }
-      sharedBlock.load(data, tempFuncId, undefined, undefined, undefined, flow.getFuncGroup());
+      sharedBlock.load(data, tempFuncId, undefined, undefined, undefined, flow.getFuncLib());
       return sharedBlock;
     }
   }

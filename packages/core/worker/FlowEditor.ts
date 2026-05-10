@@ -42,7 +42,7 @@ export class FlowEditor extends FlowWithShared {
     funcId?: string,
     forceLoad = false,
     applyChange?: (flow: Flow) => DataMap,
-    funcGroup?: FunctionGroup
+    funcLib?: FunctionGroup
   ): FlowEditor {
     const prop = parent.getProperty(field);
     let flow: FlowEditor;
@@ -66,14 +66,14 @@ export class FlowEditor extends FlowWithShared {
         }
       };
     }
-    if (!funcGroup) {
+    if (!funcLib) {
       if (funcId) {
-        funcGroup = Namespace.getFunctions(funcId, parent._flow);
+        funcLib = Namespace.getFunctions(funcId, parent._flow);
       } else if (parent !== parent._flow || field.startsWith('#edit-')) {
-        funcGroup = parent._flow.getFuncGroup();
+        funcLib = parent._flow.getFuncLib();
       }
     }
-    const success = flow.load(src, funcId, applyChange, undefined, undefined, funcGroup);
+    const success = flow.load(src, funcId, applyChange, undefined, undefined, funcLib);
     if (success) {
       return flow;
     } else {
@@ -121,10 +121,10 @@ export class FlowEditor extends FlowWithShared {
     field: string,
     fromFunction: string,
     defaultData: DataMap,
-    funcGroup?: FunctionGroup
+    funcLib?: FunctionGroup
   ): FlowEditor {
     if (typeof fromFunction === 'string') {
-      return FlowEditor.create(parent, field, defaultData, fromFunction, false, undefined, funcGroup);
+      return FlowEditor.create(parent, field, defaultData, fromFunction, false, undefined, funcLib);
     }
     return null;
   }

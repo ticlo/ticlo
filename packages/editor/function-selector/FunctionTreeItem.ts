@@ -185,7 +185,7 @@ export class FunctionTreeRoot extends FunctionTreeItem {
   onFunctionClick: OnFunctionClick;
   filter: (desc: FunctionDesc) => boolean;
   inFlow: boolean;
-  funcScope?: string;
+  funcLib?: string;
 
   typeMap: Map<string, FunctionTreeItem> = new Map<string, FunctionTreeItem>();
 
@@ -271,7 +271,6 @@ export class FunctionTreeRoot extends FunctionTreeItem {
 
       if (desc.properties) {
         this.typeMap.set(desc.id, parentItem.addChild(key, desc));
-        ``;
       } else {
         this.updateCategory(desc.id, desc.name, desc);
       }
@@ -284,7 +283,7 @@ export class FunctionTreeRoot extends FunctionTreeItem {
     onFunctionClick?: OnFunctionClick,
     showPreset?: boolean,
     filter?: (desc: FunctionDesc) => boolean,
-    funcScope?: string
+    funcLib?: string
   ) {
     super(null, null, '');
     this.level = -1;
@@ -294,12 +293,12 @@ export class FunctionTreeRoot extends FunctionTreeItem {
     this.onListChange = onListChange;
     this.onFunctionClick = onFunctionClick;
     this.filter = filter;
-    this.inFlow = funcScope != null;
-    this.funcScope = funcScope;
+    this.inFlow = funcLib != null;
+    this.funcLib = funcLib;
     // scopePath == null for global functions, and string for in-flow functions
     // scopePath = '' is for in-flow functions that are not in any node
-    if (funcScope !== '') {
-      conn.watchDesc('*', funcScope, this.onDesc);
+    if (funcLib !== '') {
+      conn.watchDesc('*', funcLib, this.onDesc);
     }
   }
 

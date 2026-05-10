@@ -22,7 +22,7 @@ interface State {
   selectedKeys: string[];
   sizes: number[];
   blockKey: string;
-  funcScope?: string;
+  funcLib?: string;
 }
 
 export class BlockStagePane extends LazyUpdateComponent<Props, State> {
@@ -75,9 +75,9 @@ export class BlockStagePane extends LazyUpdateComponent<Props, State> {
   scopeListener = new ValueSubscriber({
     onUpdate: (response: ValueUpdate) => {
       const {basePath} = this.props;
-      const funcScope = typeof response.cache.value === 'string' ? response.cache.value : basePath;
-      if (funcScope !== this.state.funcScope) {
-        this.safeSetState({funcScope});
+      const funcLib = typeof response.cache.value === 'string' ? response.cache.value : basePath;
+      if (funcLib !== this.state.funcLib) {
+        this.safeSetState({funcLib});
       }
     },
   });
@@ -86,7 +86,7 @@ export class BlockStagePane extends LazyUpdateComponent<Props, State> {
     super(props);
     const {conn, basePath} = props;
     this.blockListener.subscribe(conn, basePath);
-    this.scopeListener.subscribe(conn, `${basePath}.^#scope`, true);
+    this.scopeListener.subscribe(conn, `${basePath}.^#lib`, true);
   }
 
   onShowPropertyList = () => {
@@ -127,7 +127,7 @@ export class BlockStagePane extends LazyUpdateComponent<Props, State> {
 
   renderImpl() {
     const {conn, basePath, onSave} = this.props;
-    const {showPropertyList, selectedKeys, sizes, blockKey, funcScope = basePath} = this.state;
+    const {showPropertyList, selectedKeys, sizes, blockKey, funcLib = basePath} = this.state;
 
     return (
       <div className="ticl-hbox ticl-stage-tab-content" ref={this.getRef} tabIndex={0}>
@@ -136,7 +136,7 @@ export class BlockStagePane extends LazyUpdateComponent<Props, State> {
             key={blockKey}
             conn={conn}
             basePath={basePath}
-            funcScope={funcScope}
+            funcLib={funcLib}
             onSave={onSave}
             onSelect={this.onSelect}
             style={{width: sizes[0], height: '100%'}}
@@ -161,7 +161,7 @@ export class BlockStagePane extends LazyUpdateComponent<Props, State> {
             <PropertyList
               conn={conn}
               paths={selectedKeys}
-              funcScope={funcScope}
+              funcLib={funcLib}
               style={{width: sizes[1], height: '100%', padding: '8px'}}
             />
           </>

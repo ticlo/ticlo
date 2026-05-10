@@ -313,7 +313,7 @@ export class BlockView extends PureDataRenderer<BlockViewProps, BlockViewState> 
               path={item.path}
               displayName=""
               canApply={false}
-              funcScope={item.stage.getFuncScope()}
+              funcLib={item.stage.getFuncLib()}
             >
               <Tooltip title={getDisplayName(item.name, this.displayName.value)} mouseEnterDelay={0}>
                 <DragDrop

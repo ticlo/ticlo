@@ -154,7 +154,7 @@ class App extends React.PureComponent<Props, State> {
                     cached: true,
                     content: (
                       <TicloCurrentFlowConsumer>
-                        {({currentPath}) => <FunctionSelect conn={conn} funcScope={currentPath} />}
+                        {({currentPath}) => <FunctionSelect conn={conn} funcLib={currentPath} />}
                       </TicloCurrentFlowConsumer>
                     ),
                   },

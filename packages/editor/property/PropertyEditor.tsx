@@ -26,7 +26,7 @@ import {LocalizedPropertyName, t} from '../component/LocalizedLabel.js';
 import {PropertyDropdown} from '../popup/PropertyDropdown.js';
 import {typeEditorMap} from './value/index.js';
 import {propAcceptsBlock} from '@ticlo/core';
-import {getDescScope} from '../util/FunctionScope.js';
+import {getDescLib} from '../util/FunctionLib.js';
 
 class PropertyLoader extends MultiSelectLoader<PropertyEditor> {
   name: string;
@@ -97,7 +97,7 @@ export interface PropertyEditorProps {
   group?: string;
   baseName?: string; // the name used in propDesc.name
   reorder?: PropertyReorder;
-  funcScope?: string;
+  funcLib?: string;
 }
 
 interface State {
@@ -239,7 +239,7 @@ export class PropertyEditor extends MultiSelectComponent<PropertyEditorProps, St
       // check drag from type
       const blockData = DragState.getData('blockData', conn.getBaseConn());
       if (blockData && blockData['#is']) {
-        const desc = conn.watchDesc(blockData['#is'], getDescScope(blockData['#is'], this.props.funcScope));
+        const desc = conn.watchDesc(blockData['#is'], getDescLib(blockData['#is'], this.props.funcLib));
         const outProp = getOutputDesc(desc);
         if (outProp) {
           e.accept('tico-fas-plus-square');
@@ -363,7 +363,7 @@ export class PropertyEditor extends MultiSelectComponent<PropertyEditorProps, St
 
   cachedPaths: string[] = [];
   renderImpl() {
-    const {conn, paths, funcDesc, propDesc, name, reorder, group, isCustom, baseName, funcScope} = this.props;
+    const {conn, paths, funcDesc, propDesc, name, reorder, group, isCustom, baseName, funcLib} = this.props;
     const {unlocked, showSubBlock, showMenu} = this.state;
 
     if (this.subBlockPaths && !arrayEqual(this.cachedPaths, paths)) {
@@ -448,7 +448,7 @@ export class PropertyEditor extends MultiSelectComponent<PropertyEditorProps, St
           bindingPath={bindingPath}
           locked={locked && !unlocked}
           onPathChange={this.onBindChange}
-          funcScope={funcScope}
+          funcLib={funcLib}
         />
       );
     } else {
@@ -471,7 +471,7 @@ export class PropertyEditor extends MultiSelectComponent<PropertyEditorProps, St
           locked={locked && !unlocked}
           onChange={onChange}
           addSubBlock={this.onAddSubBlock}
-          funcScope={funcScope}
+          funcLib={funcLib}
         />
       );
     }
@@ -496,7 +496,7 @@ export class PropertyEditor extends MultiSelectComponent<PropertyEditorProps, St
           name={name}
           baseName={baseName}
           onAddSubBlock={this.onAddSubBlock}
-          funcScope={funcScope}
+          funcLib={funcLib}
         >
           <DragDrop
             className={nameClass}
@@ -522,7 +522,7 @@ export class PropertyEditor extends MultiSelectComponent<PropertyEditorProps, St
         {subBlock ? <ExpandIcon opened={showSubBlock ? 'opened' : 'closed'} onClick={this.expandSubBlock} /> : null}
         <div className="ticl-property-value">{editor}</div>
         {renderSubBlock ? (
-          <PropertyList conn={conn} paths={this.subBlockPaths} mode="subBlock" funcScope={funcScope} />
+          <PropertyList conn={conn} paths={this.subBlockPaths} mode="subBlock" funcLib={funcLib} />
         ) : null}
       </div>
     );

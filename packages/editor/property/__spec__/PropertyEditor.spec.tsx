@@ -118,14 +118,14 @@ describe('PropertyEditor', function () {
     Root.instance.deleteValue('PropertyEditor2');
   });
 
-  it('uses funcScope for in-flow function descriptors', async function () {
+  it('uses funcLib for in-flow function descriptors', async function () {
     const flow = Root.instance.addFlow('PropertyEditorScopedDesc', {});
     const data = {
       '#is': '',
       '#inputs': {'#is': '', '#custom': [{name: 'value', type: 'number'}]},
       '#outputs': {'#is': ''},
     };
-    WorkerFunctionGen.registerType(data, {id: ':scopedWorker', name: 'scopedWorker'}, undefined, flow.getFuncGroup());
+    WorkerFunctionGen.registerType(data, {id: ':scopedWorker', name: 'scopedWorker'}, undefined, flow.getFuncLib());
     flow.createBlock('calc').setValue('#is', ':scopedWorker');
 
     const [server, client] = makeLocalConnection(Root.instance, true);
@@ -134,7 +134,7 @@ describe('PropertyEditor', function () {
       <PropertyList
         conn={client}
         paths={['PropertyEditorScopedDesc.calc']}
-        funcScope="PropertyEditorScopedDesc"
+        funcLib="PropertyEditorScopedDesc"
         style={{width: 300, height: 300}}
       />,
       'editor'

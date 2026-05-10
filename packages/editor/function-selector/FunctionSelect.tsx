@@ -32,7 +32,7 @@ interface Props {
   filter?: (desc: FunctionDesc) => boolean;
   useFlow?: boolean;
   currentValue?: unknown;
-  funcScope?: string;
+  funcLib?: string;
 }
 
 interface State {
@@ -69,7 +69,7 @@ export class FunctionSelect extends React.PureComponent<Props, State> {
     // TODO validate function name;
     const {newFunctionName} = this.state;
     if (newFunctionName) {
-      const {conn, funcScope} = this.props;
+      const {conn, funcLib} = this.props;
       const isGlobal = newFunctionName.startsWith('+');
       const funcId = isGlobal ? newFunctionName : `:${newFunctionName}`;
       const editPath = `#temp.#edit-${encodeTicloName(funcId)}`;
@@ -78,7 +78,7 @@ export class FunctionSelect extends React.PureComponent<Props, State> {
         undefined,
         funcId,
         {'#inputs': {'#is': ''}, '#outputs': {'#is': ''}},
-        isGlobal ? undefined : funcScope
+        isGlobal ? undefined : funcLib
       );
       this.context.editFlow(editPath, () => {
         conn.applyFlowChange(editPath);
@@ -105,7 +105,7 @@ export class FunctionSelect extends React.PureComponent<Props, State> {
     }
   };
   render() {
-    const {conn, showPreset, onFunctionClick, onClick, filter, useFlow, currentValue, funcScope} = this.props;
+    const {conn, showPreset, onFunctionClick, onClick, filter, useFlow, currentValue, funcLib} = this.props;
     const {tab, search, modelVisible, newFunctionName} = this.state;
 
     if (!conn) {
@@ -193,7 +193,7 @@ export class FunctionSelect extends React.PureComponent<Props, State> {
           search={search}
           filter={filter}
           onFunctionClick={onFunctionClick}
-          funcScope={funcScope ?? ''}
+          funcLib={funcLib ?? ''}
           style={{display: tab === 'inFlow' ? '' : 'none'}}
         />
         <FunctionTree
@@ -207,7 +207,7 @@ export class FunctionSelect extends React.PureComponent<Props, State> {
         <FunctionList
           conn={conn}
           recent={true}
-          funcScope={funcScope}
+          funcLib={funcLib}
           style={{display: tab === 'recent' ? '' : 'none'}}
         />
       </div>

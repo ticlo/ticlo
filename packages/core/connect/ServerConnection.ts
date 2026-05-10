@@ -268,21 +268,21 @@ class ServerWatch extends ServerRequest implements BlockChildWatch, PropListener
 
 class ServerDescWatcher extends ServerRequest implements DescListener {
   pendingIds: Set<string>;
-  private _funcGroup: FunctionGroup;
+  private _funcLib: FunctionGroup;
 
-  constructor(conn: ServerConnection, id: string, funcScope?: string) {
+  constructor(conn: ServerConnection, id: string, funcLib?: string) {
     super();
     this.id = id;
     this.connection = conn;
-    if (funcScope) {
-      const property = conn.root.queryProperty(funcScope);
+    if (funcLib) {
+      const property = conn.root.queryProperty(funcLib);
       if (property?._value instanceof Flow) {
-        this._funcGroup = property._value.getFuncGroup();
+        this._funcLib = property._value.getFuncLib();
       }
     }
-    if (this._funcGroup) {
-      this.pendingIds = new Set(this._funcGroup.getAllFunctionIds());
-      this._funcGroup.listenDesc(this);
+    if (this._funcLib) {
+      this.pendingIds = new Set(this._funcLib.getAllFunctionIds());
+      this._funcLib.listenDesc(this);
     } else {
       this.pendingIds = new Set(Namespace.getAllFunctionIds());
       Namespace.listenDesc(this);
@@ -296,8 +296,8 @@ class ServerDescWatcher extends ServerRequest implements DescListener {
   }
 
   _getDescToSend(id: string): [FunctionDesc, number] {
-    if (this._funcGroup) {
-      return this._funcGroup.getDescToSend(id);
+    if (this._funcLib) {
+      return this._funcLib.getDescToSend(id);
     }
     return Namespace.getDescToSend(id);
   }
@@ -326,8 +326,8 @@ class ServerDescWatcher extends ServerRequest implements DescListener {
   }
 
   close() {
-    if (this._funcGroup) {
-      this._funcGroup.unlistenDesc(this);
+    if (this._funcLib) {
+      this._funcLib.unlistenDesc(this);
     } else {
       Namespace.unlistenDesc(this);
     }
@@ -784,8 +784,8 @@ export class ServerConnection extends ServerConnectionCore {
   /**
    * Tells the Server-side Desc Watcher to proactively start relaying function signature modifications taking place under `id`.
    */
-  watchDesc({id, path: funcScope}: {id: string; path?: string}): ServerDescWatcher {
-    return new ServerDescWatcher(this, id, funcScope);
+  watchDesc({id, path: funcLib}: {id: string; path?: string}): ServerDescWatcher {
+    return new ServerDescWatcher(this, id, funcLib);
   }
 
   /**
@@ -818,13 +818,13 @@ export class ServerConnection extends ServerConnectionCore {
     fromField,
     fromFunction,
     defaultData,
-    funcScope,
+    funcLib,
   }: {
     path: string;
     fromField: string;
     fromFunction: string;
     defaultData: DataMap;
-    funcScope?: string;
+    funcLib?: string;
   }) {
     const property = this.root.queryProperty(path, true);
 
@@ -832,26 +832,26 @@ export class ServerConnection extends ServerConnectionCore {
       if (fromField) {
         FlowEditor.createFromField(property._block, property._name, fromField);
       } else if (fromFunction) {
-        let funcGroup: FunctionGroup | undefined;
-        if (fromFunction.startsWith(':') && funcScope) {
-          // Local flow function - resolve the funcGroup from the host flow
-          const flowProp = this.root.queryProperty(funcScope);
+        let resolvedFuncLib: FunctionGroup | undefined;
+        if (fromFunction.startsWith(':') && funcLib) {
+          // Local flow function - resolve the funcLib from the host flow
+          const flowProp = this.root.queryProperty(funcLib);
           if (flowProp?._value instanceof Flow) {
-            funcGroup = flowProp._value.getFuncGroup();
+            resolvedFuncLib = flowProp._value.getFuncLib();
           }
         } else if (fromFunction.startsWith('+')) {
-          funcGroup = Namespace.getFunctions(fromFunction, property._block._flow);
+          resolvedFuncLib = Namespace.getFunctions(fromFunction, property._block._flow);
         }
         if (fromFunction.startsWith('+') || fromFunction.startsWith(':')) {
-          if (defaultData && funcGroup && !funcGroup.getWorkerData(fromFunction)) {
+          if (defaultData && resolvedFuncLib && !resolvedFuncLib.getWorkerData(fromFunction)) {
             WorkerFunctionGen.registerType(
               defaultData,
               WorkerFunctionGen.collectDesc(fromFunction, defaultData),
               undefined,
-              funcGroup
+              resolvedFuncLib
             );
           }
-          FlowEditor.createFromFunction(property._block, property._name, fromFunction, defaultData, funcGroup);
+          FlowEditor.createFromFunction(property._block, property._name, fromFunction, defaultData, resolvedFuncLib);
         }
       }
       return null;
@@ -883,13 +883,13 @@ export class ServerConnection extends ServerConnectionCore {
   /**
    * Deletes a registered worker function.
    */
-  deleteFunction({funcId, funcScope}: {funcId: string; funcScope?: string}): string {
+  deleteFunction({funcId, funcLib}: {funcId: string; funcLib?: string}): string {
     if (funcId.startsWith('+')) {
       Namespace.delete(funcId);
-    } else if (funcId.startsWith(':') && funcScope) {
-      const flowProp = this.root.queryProperty(funcScope);
+    } else if (funcId.startsWith(':') && funcLib) {
+      const flowProp = this.root.queryProperty(funcLib);
       if (flowProp?._value instanceof Flow) {
-        flowProp._value.getFuncGroup().delete(funcId);
+        flowProp._value.getFuncLib().delete(funcId);
       }
     }
     return null;

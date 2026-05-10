@@ -64,7 +64,7 @@ describe('FlowEditor', function () {
 
     const existingEditor = FlowEditor.createFromFunction(flow, '#edit-func', '+FlowEditor::worker2', null);
     expect(existingEditor.save()).toEqual(data);
-    expect(existingEditor.getFuncGroup()).toBe(Namespace.getFunctions('+FlowEditor::worker2'));
+    expect(existingEditor.getFuncLib()).toBe(Namespace.getFunctions('+FlowEditor::worker2'));
 
     const newEditor = FlowEditor.createFromFunction(flow, '#edit-func', '+FlowEditor::worker2-2', data);
     expect(newEditor.save()).toEqual(data);

@@ -173,18 +173,18 @@ export class ConstBinding extends BlockProperty {
 
 export class BlockFunctionsConfig extends BlockProperty {
   onChange(val: unknown, save?: boolean): boolean {
-    const funcGroup = (this._block as Flow).getFuncGroup() as PersistentFunctionGroup;
+    const funcLib = (this._block as Flow).getFuncLib() as PersistentFunctionGroup;
     if (isDataMap(val)) {
-      funcGroup.load(val);
+      funcLib.load(val);
     } else {
-      funcGroup.load({});
+      funcLib.load({});
     }
 
     return super.onChange(val, save);
   }
 
   _saveValue(): unknown {
-    const data = ((this._block as Flow).getFuncGroup() as PersistentFunctionGroup).save();
+    const data = ((this._block as Flow).getFuncLib() as PersistentFunctionGroup).save();
     return data && Object.keys(data).length > 0 ? data : undefined;
   }
 }

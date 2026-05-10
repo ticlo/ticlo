@@ -145,7 +145,7 @@ export interface ClientConn {
    * @param fromField if specified, editing starts based on an existing property field inside the block
    * @param fromFunction if specified, editing starts based on an existing global worker function
    * @param defaultData default data to initialize the editing context
-   * @param funcScope optional path to the host flow whose `_funcGroup` should own the resulting function (used for `:funcId` editing)
+   * @param funcLib optional path to the host flow whose `_funcLib` should own the resulting function (used for `:funcId` editing)
    * @param callbacks request callbacks
    */
   editWorker(
@@ -153,7 +153,7 @@ export interface ClientConn {
     fromField?: string,
     fromFunction?: string,
     defaultData?: DataMap,
-    funcScope?: string,
+    funcLib?: string,
     callbacks?: ClientCallbacks
   ): Promise<any> | string;
 
@@ -168,10 +168,10 @@ export interface ClientConn {
   /**
    * Deletes a registered worker function.
    * @param funcId the string identifier of the worker function
-   * @param funcScope optional path to the host flow whose `_funcGroup` owns an in-flow function
+   * @param funcLib optional path to the host flow whose `_funcLib` owns an in-flow function
    * @param callbacks request callbacks
    */
-  deleteFunction(funcId: string, funcScope?: string, callbacks?: ClientCallbacks): Promise<any> | string;
+  deleteFunction(funcId: string, funcLib?: string, callbacks?: ClientCallbacks): Promise<any> | string;
 
   /**
    * Shows properties within a Block so they're exposed in the UI.
@@ -371,10 +371,10 @@ export interface ClientConn {
   /**
    * Tells the Server-side Desc Watcher to proactively start relaying function signature modifications taking place under `id`.
    * @param funcId the function id to watch, use '*' to watch all functions
-   * @param funcScope optional path of the Flow whose in-flow function descs should be watched
+   * @param funcLib optional path of the Flow whose in-flow function descs should be watched
    * @param listener local listener hook interface mapping desc changes
    */
-  watchDesc(funcId: string, funcScope?: string, listener?: ClientDescListener): FunctionDesc;
+  watchDesc(funcId: string, funcLib?: string, listener?: ClientDescListener): FunctionDesc;
 
   /**
    * Removes a desc listener
@@ -384,9 +384,9 @@ export interface ClientConn {
 
   getCategory(category: string): FunctionDesc;
 
-  getCommonBaseFunc(set: Set<FunctionDesc>, funcScope?: string): FunctionDesc;
+  getCommonBaseFunc(set: Set<FunctionDesc>, funcLib?: string): FunctionDesc;
 
-  getOptionalProps(desc: FunctionDesc, funcScope?: string): {[key: string]: PropDesc};
+  getOptionalProps(desc: FunctionDesc, funcLib?: string): {[key: string]: PropDesc};
 
   findGlobalBlocks(tags: string[]): string[];
 

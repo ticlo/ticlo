@@ -293,12 +293,12 @@ describe('Connection', function () {
   });
 
   it('watchDesc with flow path', async function () {
-    // Create a flow with a funcGroup
+    // Create a flow with a funcLib
     const flow = Root.instance.addFlow('ConnectionWatchDescFlow');
-    const funcGroup = flow.getFuncGroup();
+    const funcLib = flow.getFuncLib();
 
-    // Register a function in the flow's funcGroup using add() directly
-    funcGroup.add(null, {id: 'local-func1', name: 'local-func1'});
+    // Register a function in the flow's funcLib using add() directly
+    funcLib.add(null, {id: 'local-func1', name: 'local-func1'});
 
     // Create connection with editorListeners=true (which sets up the global watchDesc)
     const [server, client] = makeLocalConnection(Root.instance, true);
@@ -341,14 +341,14 @@ describe('Connection', function () {
     const globalAddInFlow = flowDescChanges.find((d: FunctionDesc) => d.id === 'add');
     expect(globalAddInFlow).toBeUndefined();
 
-    // Register a new function in the flow's funcGroup and verify it's pushed
+    // Register a new function in the flow's funcLib and verify it's pushed
     flowDescChanges.length = 0;
-    funcGroup.add(null, {id: 'local-func2', name: 'local-func2'});
+    funcLib.add(null, {id: 'local-func2', name: 'local-func2'});
     await shouldHappen(() => flowDescChanges.some((d: FunctionDesc) => d.id === 'local-func2'));
 
-    // Delete a function from funcGroup and verify it's pushed as removed
+    // Delete a function from funcLib and verify it's pushed as removed
     flowDescChanges.length = 0;
-    funcGroup.delete('local-func2');
+    funcLib.delete('local-func2');
     await shouldHappen(() => flowDescChanges.some((d: any) => d.id === 'local-func2' && d.removed));
 
     // Register a global function and verify it does NOT appear in the flow-scoped desc watcher
@@ -364,7 +364,7 @@ describe('Connection', function () {
 
     // clean up
     globalFunctions.delete('Connection-global-only-func');
-    funcGroup.delete('local-func1');
+    funcLib.delete('local-func1');
     client.unwatchDesc(flowListener);
     client.destroy();
     Root.instance.deleteValue('ConnectionWatchDescFlow');
@@ -795,11 +795,11 @@ describe('Connection', function () {
     Root.instance.deleteValue('Connection18');
   });
 
-  it('editWorker with funcScope persists to flow funcGroup', async function () {
+  it('editWorker with funcLib persists to flow funcLib', async function () {
     const flow = Root.instance.addFlow('Connection18b');
-    // Force the flow's funcGroup to be created so we can observe it.
-    const funcGroup = flow.getFuncGroup();
-    expect(funcGroup).toBeDefined();
+    // Force the flow's funcLib to be created so we can observe it.
+    const funcLib = flow.getFuncLib();
+    expect(funcLib).toBeDefined();
 
     const [server, client] = makeLocalConnection(Root.instance, true);
 
@@ -814,30 +814,30 @@ describe('Connection', function () {
       'Connection18b'
     );
 
-    // Apply the change; this should write the function into flow's funcGroup.
+    // Apply the change; this should write the function into flow's funcLib.
     await client.applyFlowChange(editPath, funcId);
 
-    await shouldHappen(() => funcGroup.getAllFunctionIds().includes(funcId));
-    expect(funcGroup.getAllFunctionIds()).toContain(funcId);
+    await shouldHappen(() => funcLib.getAllFunctionIds().includes(funcId));
+    expect(funcLib.getAllFunctionIds()).toContain(funcId);
 
-    funcGroup.delete(funcId);
+    funcLib.delete(funcId);
     client.destroy();
     Root.instance.deleteValue('Connection18b');
   });
 
-  it('deleteFunction with funcScope removes from flow funcGroup', async function () {
+  it('deleteFunction with funcLib removes from flow funcLib', async function () {
     const flow = Root.instance.addFlow('Connection18c');
-    const funcGroup = flow.getFuncGroup();
+    const funcLib = flow.getFuncLib();
     const funcId = ':Func1';
-    WorkerFunctionGen.registerType({'#is': ''}, {id: funcId, name: 'Func1'}, undefined, funcGroup);
+    WorkerFunctionGen.registerType({'#is': ''}, {id: funcId, name: 'Func1'}, undefined, funcLib);
 
     const [server, client] = makeLocalConnection(Root.instance, true);
 
-    await shouldHappen(() => funcGroup.getAllFunctionIds().includes(funcId));
+    await shouldHappen(() => funcLib.getAllFunctionIds().includes(funcId));
     await client.deleteFunction(funcId, 'Connection18c');
 
-    await shouldHappen(() => !funcGroup.getAllFunctionIds().includes(funcId));
-    expect(funcGroup.getAllFunctionIds()).not.toContain(funcId);
+    await shouldHappen(() => !funcLib.getAllFunctionIds().includes(funcId));
+    expect(funcLib.getAllFunctionIds()).not.toContain(funcId);
 
     client.destroy();
     Root.instance.deleteValue('Connection18c');

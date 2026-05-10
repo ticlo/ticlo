@@ -25,7 +25,7 @@ interface Props {
   name?: any;
   data?: any;
   onClick?: OnFunctionClick;
-  funcScope?: string;
+  funcLib?: string;
 }
 
 export class FunctionView extends React.PureComponent<Props, any> {
@@ -63,16 +63,16 @@ export class FunctionView extends React.PureComponent<Props, any> {
     }
   };
   onEditClicked = () => {
-    const {conn, desc, funcScope} = this.props;
+    const {conn, desc, funcLib} = this.props;
     const editPath = `#temp.#edit-${encodeTicloName(desc.id)}`;
-    conn.editWorker(editPath, null, desc.id, undefined, desc.id.startsWith(':') ? funcScope : undefined);
+    conn.editWorker(editPath, null, desc.id, undefined, desc.id.startsWith(':') ? funcLib : undefined);
     this.context.editFlow(editPath, () => {
       conn.applyFlowChange(editPath);
     });
   };
   onDeleteClicked = () => {
-    const {conn, desc, funcScope} = this.props;
-    conn.deleteFunction(desc.id, desc.id.startsWith(':') ? funcScope : undefined);
+    const {conn, desc, funcLib} = this.props;
+    conn.deleteFunction(desc.id, desc.id.startsWith(':') ? funcLib : undefined);
   };
 
   getMenu = (): MenuProps => {
@@ -133,7 +133,7 @@ export class FunctionView extends React.PureComponent<Props, any> {
     );
 
     if (
-      (ns?.startsWith('+') || (id.startsWith(':') && this.props.funcScope != null)) &&
+      (ns?.startsWith('+') || (id.startsWith(':') && this.props.funcLib != null)) &&
       desc.src === 'worker' &&
       this.context?.editFlow
     ) {

@@ -36,7 +36,7 @@ import {LocalizedNodeName, t} from '../component/LocalizedLabel.js';
 import {BlockDropdown} from '../popup/BlockDropdown.js';
 import {showModal} from '../popup/ShowModal.js';
 import {AddNewFlowDialog} from '../popup/AddNewFlowDialog.js';
-import {getDescScope} from '../util/FunctionScope.js';
+import {getDescLib} from '../util/FunctionLib.js';
 
 import {MenuItem} from '../component/ClickPopup.js';
 import {LazyUpdateSubscriber} from '../component/LazyUpdateComponent.js';
@@ -197,7 +197,7 @@ export class NodeTreeRenderer extends PureDataRenderer<Props, any> {
   declare context: TicloLayoutContext;
 
   state: State = {desc: blankFuncDesc};
-  funcScope: string;
+  funcLib: string;
 
   onExpandClicked = () => {
     const {item} = this.props;
@@ -291,7 +291,7 @@ export class NodeTreeRenderer extends PureDataRenderer<Props, any> {
     const {item} = this.props;
     item.connection.unwatchDesc(this.descCallback);
     if (typeof item.functionId === 'string') {
-      item.connection.watchDesc(item.functionId, getDescScope(item.functionId, this.funcScope), this.descCallback);
+      item.connection.watchDesc(item.functionId, getDescLib(item.functionId, this.funcLib), this.descCallback);
     }
   }
 
@@ -312,8 +312,8 @@ export class NodeTreeRenderer extends PureDataRenderer<Props, any> {
     onUpdate: (response: ValueUpdate) => {
       const {item} = this.props;
       const nextScope = typeof response.cache.value === 'string' ? response.cache.value : undefined;
-      if (nextScope !== this.funcScope) {
-        this.funcScope = nextScope;
+      if (nextScope !== this.funcLib) {
+        this.funcLib = nextScope;
         this.watchDesc();
       }
     },
@@ -328,7 +328,7 @@ export class NodeTreeRenderer extends PureDataRenderer<Props, any> {
     super(props);
     const {item} = props;
     this.subscriptionListener.subscribe(item.connection, `${item.key}.#is`, true);
-    this.scopeListener.subscribe(item.connection, `${item.key}.^#scope`, true);
+    this.scopeListener.subscribe(item.connection, `${item.key}.^#lib`, true);
     this.disabledListener.subscribe(item.connection, `${item.key}.#disabled`, true);
     this.nameListener.subscribe(item.connection, `${item.key}.@b-name`);
     if (item.canApply) {
@@ -429,7 +429,7 @@ export class NodeTreeRenderer extends PureDataRenderer<Props, any> {
           canApply={item.canApply}
           getMenu={this.getMenu}
           disabled={disabled}
-          funcScope={this.funcScope}
+          funcLib={this.funcLib}
         >
           <DragDrop
             className={contentClassName}

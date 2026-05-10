@@ -16,7 +16,7 @@ export interface Props {
   desc: PropDesc;
   locked?: boolean;
   onPathChange?: (path: string) => void;
-  funcScope?: string;
+  funcLib?: string;
 }
 
 interface State {
@@ -48,7 +48,7 @@ export class ServiceEditor extends React.PureComponent<Props, State> {
   };
 
   getPopup = () => {
-    const {bindingPath, conn, keys, desc, locked, onPathChange, funcScope} = this.props;
+    const {bindingPath, conn, keys, desc, locked, onPathChange, funcLib} = this.props;
     if (!this.state.opened) {
       // work around of the pop caching issue
       return <div />;
@@ -60,7 +60,7 @@ export class ServiceEditor extends React.PureComponent<Props, State> {
         conn={conn}
         paths={sourceKeys}
         mode="minimal"
-        funcScope={funcScope}
+        funcLib={funcLib}
         style={{width: 300, minHeight: 160, padding: 16}}
       />
     );

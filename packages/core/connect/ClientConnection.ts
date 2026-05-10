@@ -329,23 +329,23 @@ export abstract class ClientConnection extends Connection implements ClientConn 
     fromField?: string,
     fromFunction?: string,
     defaultData?: DataMap,
-    funcScope?: string,
+    funcLib?: string,
     callbacks?: ClientCallbacks
   ): Promise<any> | string {
-    return this.simpleRequest({cmd: 'editWorker', path, fromField, fromFunction, defaultData, funcScope}, callbacks);
+    return this.simpleRequest({cmd: 'editWorker', path, fromField, fromFunction, defaultData, funcLib}, callbacks);
   }
 
   applyFlowChange(path: string, funcId?: string, callbacks?: ClientCallbacks): Promise<any> | string {
     return this.simpleRequest({cmd: 'applyFlowChange', path, funcId}, callbacks);
   }
 
-  deleteFunction(funcId?: string, funcScope?: string, callbacks?: ClientCallbacks): Promise<any> | string {
+  deleteFunction(funcId?: string, funcLib?: string, callbacks?: ClientCallbacks): Promise<any> | string {
     return this.simpleRequest(
       {
         cmd: 'deleteFunction',
         path: '#', // just to prevent the invalid path error
         funcId,
-        funcScope,
+        funcLib,
       },
       callbacks
     );
@@ -462,21 +462,21 @@ export abstract class ClientConnection extends Connection implements ClientConn 
   }
 
   /** Get or create a DescRequest for the given function scope. */
-  private _getOrCreateDescRequest(funcScope: string): DescRequest {
-    let descReq = this.descRequests.get(funcScope);
+  private _getOrCreateDescRequest(funcLib: string): DescRequest {
+    let descReq = this.descRequests.get(funcLib);
     if (!descReq) {
       const id = this.uid.next();
-      const data = {cmd: 'watchDesc', path: funcScope || '', id};
-      descReq = new DescRequest(data, !!funcScope);
-      this.descRequests.set(funcScope, descReq);
+      const data = {cmd: 'watchDesc', path: funcLib || '', id};
+      descReq = new DescRequest(data, !!funcLib);
+      this.descRequests.set(funcLib, descReq);
       this.requests.set(id, descReq);
       this.addSend(descReq);
     }
     return descReq;
   }
 
-  watchDesc(funcId: string, funcScope?: string, listener?: ClientDescListener): FunctionDesc {
-    const resolvedScopePath = funcScope || '';
+  watchDesc(funcId: string, funcLib?: string, listener?: ClientDescListener): FunctionDesc {
+    const resolvedScopePath = funcLib || '';
     if (listener) {
       const descReq = this._getOrCreateDescRequest(resolvedScopePath);
       descReq.listeners.set(listener, funcId);
@@ -525,11 +525,11 @@ export abstract class ClientConnection extends Connection implements ClientConn 
   }
 
   // find the common base Desc
-  _getCachedDesc(id: string, funcScope?: string): FunctionDesc {
-    return this.descRequests.get(funcScope || '')?.cache.get(id) || this.descRequests.get('')?.cache.get(id);
+  _getCachedDesc(id: string, funcLib?: string): FunctionDesc {
+    return this.descRequests.get(funcLib || '')?.cache.get(id) || this.descRequests.get('')?.cache.get(id);
   }
 
-  getCommonBaseFunc(set: Set<FunctionDesc>, funcScope?: string): FunctionDesc {
+  getCommonBaseFunc(set: Set<FunctionDesc>, funcLib?: string): FunctionDesc {
     if (!set || set.size === 0) {
       return null;
     }
@@ -546,7 +546,7 @@ export abstract class ClientConnection extends Connection implements ClientConn 
         do {
           collected.push(desc);
           if (desc.base) {
-            desc = this._getCachedDesc(desc.base, funcScope);
+            desc = this._getCachedDesc(desc.base, funcLib);
           } else {
             break;
           }
@@ -562,7 +562,7 @@ export abstract class ClientConnection extends Connection implements ClientConn 
             break;
           }
           if (desc.base) {
-            desc = this._getCachedDesc(desc.base, funcScope);
+            desc = this._getCachedDesc(desc.base, funcLib);
           } else {
             // no match and no base to check
             return null;
@@ -573,7 +573,7 @@ export abstract class ClientConnection extends Connection implements ClientConn 
     return collected[commonMatch];
   }
 
-  getOptionalProps(desc: FunctionDesc, funcScope?: string): {[key: string]: PropDesc} {
+  getOptionalProps(desc: FunctionDesc, funcLib?: string): {[key: string]: PropDesc} {
     let result: {[key: string]: PropDesc};
     do {
       if (desc.optional) {
@@ -584,7 +584,7 @@ export abstract class ClientConnection extends Connection implements ClientConn 
         }
       }
       if (desc.base) {
-        desc = this._getCachedDesc(desc.base, funcScope);
+        desc = this._getCachedDesc(desc.base, funcLib);
       } else {
         break;
       }

@@ -40,7 +40,7 @@ interface Props {
   funcDesc: FunctionDesc;
   conn: ClientConn;
   paths: string[];
-  funcScope?: string;
+  funcLib?: string;
 }
 
 interface State {
@@ -52,15 +52,15 @@ export class OptionalPropertyList extends MultiSelectComponent<Props, State, Opt
 
   cachedProperties: {[key: string]: PropDesc};
   checkedFuncDesc: FunctionDesc;
-  checkedFuncScope: string;
+  checkedFuncLib: string;
 
   getProperties(): {[key: string]: PropDesc} {
-    const {funcDesc, conn, funcScope} = this.props;
-    if (funcDesc !== this.checkedFuncDesc || funcScope !== this.checkedFuncScope) {
+    const {funcDesc, conn, funcLib} = this.props;
+    if (funcDesc !== this.checkedFuncDesc || funcLib !== this.checkedFuncLib) {
       this.checkedFuncDesc = funcDesc;
-      this.checkedFuncScope = funcScope;
+      this.checkedFuncLib = funcLib;
       if (funcDesc) {
-        this.cachedProperties = conn.getOptionalProps(funcDesc, funcScope);
+        this.cachedProperties = conn.getOptionalProps(funcDesc, funcLib);
       } else {
         this.cachedProperties = null;
       }
@@ -111,7 +111,7 @@ export class OptionalPropertyList extends MultiSelectComponent<Props, State, Opt
   };
 
   renderImpl() {
-    const {paths, conn, funcDesc, funcScope} = this.props;
+    const {paths, conn, funcDesc, funcLib} = this.props;
     const {search} = this.state;
     const properties = this.getProperties();
     if (this.loaders.size === 0 || !properties) {
@@ -145,7 +145,7 @@ export class OptionalPropertyList extends MultiSelectComponent<Props, State, Opt
           propDesc={optionalPropDesc}
           checked={true}
           onCheck={this.onPropertyChecked}
-          funcScope={funcScope}
+          funcLib={funcLib}
         />
       );
     }
@@ -171,7 +171,7 @@ export class OptionalPropertyList extends MultiSelectComponent<Props, State, Opt
               propDesc={optionalPropDesc}
               checked={false}
               onCheck={this.onPropertyChecked}
-              funcScope={funcScope}
+              funcLib={funcLib}
             />
           );
           if (lowerKey.startsWith(lsearch)) {

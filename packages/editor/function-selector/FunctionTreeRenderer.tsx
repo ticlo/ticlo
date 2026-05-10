@@ -51,7 +51,7 @@ export class FunctionTreeRenderer extends PureDataRenderer<Props, any> {
             desc={desc}
             name={name}
             data={data}
-            funcScope={item.root.funcScope}
+            funcLib={item.root.funcLib}
           />
         </div>
       );

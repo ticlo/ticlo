@@ -14,15 +14,15 @@ describe('InflowEditor Connection Workflow', function () {
 
     Root.instance.addFlowFolder(folderPath);
     const folder = Root.instance.queryValue(folderPath) as Flow;
-    const folderGroup = folder.getFuncGroup();
+    const folderGroup = folder.getFuncLib();
 
-    expect(folder.getFuncGroup()).toBe(folderGroup);
+    expect(folder.getFuncLib()).toBe(folderGroup);
 
     Root.instance.addFlow(childPath, {});
     const child = Root.instance.queryValue(childPath) as Flow;
 
-    expect(child.getFuncGroup()).not.toBe(folderGroup);
-    expect(child.getFuncGroup()).toBe(child.getFuncGroup());
+    expect(child.getFuncLib()).not.toBe(folderGroup);
+    expect(child.getFuncLib()).toBe(child.getFuncLib());
 
     Root.instance.deleteValue(folderPath);
   });
@@ -52,7 +52,7 @@ describe('InflowEditor Connection Workflow', function () {
       flowPath
     );
 
-    expect(flow.getFuncGroup().getAllFunctionIds()).toContain(funcId);
+    expect(flow.getFuncLib().getAllFunctionIds()).toContain(funcId);
     await shouldHappen(() => watchedDesc);
 
     client.unwatchDesc(descListener);
@@ -76,7 +76,7 @@ describe('InflowEditor Connection Workflow', function () {
     client.destroy();
   });
 
-  it('scopes descriptor watches through ^#scope', async function () {
+  it('scopes descriptor watches through ^#lib', async function () {
     const flowPath = 'InflowEditorDescriptorScope';
     const funcId = ':scopedDesc';
     const data = {
@@ -87,7 +87,7 @@ describe('InflowEditor Connection Workflow', function () {
 
     Root.instance.addFlow(flowPath, {});
     const flow = Root.instance.queryValue(flowPath) as Flow;
-    WorkerFunctionGen.registerType(data, {id: funcId, name: 'scopedDesc'}, undefined, flow.getFuncGroup());
+    WorkerFunctionGen.registerType(data, {id: funcId, name: 'scopedDesc'}, undefined, flow.getFuncLib());
 
     const [server, client] = makeLocalConnection(Root.instance, true);
 
@@ -138,9 +138,9 @@ describe('InflowEditor Connection Workflow', function () {
 
     await client.applyFlowChange(editPath, funcId);
 
-    await shouldHappen(() => flow.getFuncGroup().getAllFunctionIds().includes(funcId));
+    await shouldHappen(() => flow.getFuncLib().getAllFunctionIds().includes(funcId));
 
-    const [desc] = flow.getFuncGroup().getDescToSend(funcId);
+    const [desc] = flow.getFuncLib().getDescToSend(funcId);
     expect(desc.base).toBe('add');
     expect(desc.properties).toEqual([
       {name: 'n', type: 'number'},

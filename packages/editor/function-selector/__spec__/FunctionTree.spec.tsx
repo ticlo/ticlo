@@ -12,7 +12,7 @@ import {loadTemplate, querySingle, removeLastTemplate} from '../../util/test-uti
 import {Namespace} from '@ticlo/core/block/Namespace.js';
 
 describe('FunctionTree', function () {
-  it('passes funcScope when editing an in-flow function', function () {
+  it('passes funcLib when editing an in-flow function', function () {
     let editRequest: any;
     const view = new FunctionView({
       conn: {
@@ -22,7 +22,7 @@ describe('FunctionTree', function () {
         applyFlowChange: () => {},
       },
       desc: {id: ':a', name: 'a', src: 'worker'},
-      funcScope: 'FunctionTreeScope',
+      funcLib: 'FunctionTreeScope',
     } as any);
     view.context = {
       onFlowFocus: () => {},
@@ -35,7 +35,7 @@ describe('FunctionTree', function () {
     expect(editRequest).toEqual(['#temp.#edit-%3aa', null, ':a', undefined, 'FunctionTreeScope']);
   });
 
-  it('passes funcScope when deleting an in-flow function', function () {
+  it('passes funcLib when deleting an in-flow function', function () {
     let deleteRequest: any;
     const view = new FunctionView({
       conn: {
@@ -44,7 +44,7 @@ describe('FunctionTree', function () {
         },
       },
       desc: {id: ':a', name: 'a', src: 'worker'},
-      funcScope: 'FunctionTreeScope',
+      funcLib: 'FunctionTreeScope',
     } as any);
 
     view.onDeleteClicked();
@@ -52,7 +52,7 @@ describe('FunctionTree', function () {
     expect(deleteRequest).toEqual([':a', 'FunctionTreeScope']);
   });
 
-  it('does not pass funcScope when editing a global function', function () {
+  it('does not pass funcLib when editing a global function', function () {
     let editRequest: any;
     const view = new FunctionView({
       conn: {
@@ -62,7 +62,7 @@ describe('FunctionTree', function () {
         applyFlowChange: () => {},
       },
       desc: {id: '+demo:test', name: 'test', src: 'worker'},
-      funcScope: 'FunctionTreeScope',
+      funcLib: 'FunctionTreeScope',
     } as any);
     view.context = {
       onFlowFocus: () => {},
@@ -81,7 +81,7 @@ describe('FunctionTree', function () {
         getCategory: () => undefined,
       },
       desc: {id: ':a', name: 'a', src: 'worker'},
-      funcScope: 'FunctionTreeScope',
+      funcLib: 'FunctionTreeScope',
     } as any);
     view.context = {
       onFlowFocus: () => {},
@@ -100,7 +100,7 @@ describe('FunctionTree', function () {
     const [server, client] = makeLocalConnection(Root.instance, true);
     DescRequest.editorCache.clear();
 
-    WorkerFunctionGen.registerType({'#is': ''}, {id: ':a', name: 'a'}, undefined, flow.getFuncGroup());
+    WorkerFunctionGen.registerType({'#is': ''}, {id: ':a', name: 'a'}, undefined, flow.getFuncLib());
 
     let selected: string;
     const root = new FunctionTreeRoot(

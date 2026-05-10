@@ -39,12 +39,12 @@ export class Flow extends Block {
   _namespace: string;
   // function id, when Flow is loaded from a function
   _loadFrom: string;
-  _funcGroup: FunctionGroup;
-  getFuncGroup(): FunctionGroup {
-    if (!this._funcGroup) {
-      this._funcGroup = new PersistentFunctionGroup(this._namespace, this.getFullPath());
+  _funcLib: FunctionGroup;
+  getFuncLib(): FunctionGroup {
+    if (!this._funcLib) {
+      this._funcLib = new PersistentFunctionGroup(this._namespace, this.getFullPath());
     }
-    return this._funcGroup;
+    return this._funcLib;
   }
 
   _enabled: boolean = true;
@@ -176,7 +176,7 @@ export class Flow extends Block {
     applyChange?: (flow: Flow) => DataMap,
     onStateChange?: (flow: Flow, state: FlowState) => void,
     namespace?: string,
-    funcGroup?: FunctionGroup
+    funcLib?: FunctionGroup
   ): boolean {
     if (this._loaded) {
       throw new Error('can not load flow twice');
@@ -189,17 +189,17 @@ export class Flow extends Block {
     } else {
       this._namespace = this._parent?._flow?._namespace;
     }
-    if (funcGroup) {
-      this._funcGroup = funcGroup;
+    if (funcLib) {
+      this._funcLib = funcLib;
     }
-    const scopePath = this.getFuncGroup().getScopePath();
+    const scopePath = this.getFuncLib().getScopePath();
     if (scopePath) {
-      this.updateValue('^#scope', scopePath);
+      this.updateValue('^#lib', scopePath);
     }
 
     if (funcId) {
       // load from worker class for editing
-      const functions = this.getFuncGroup();
+      const functions = this.getFuncLib();
       const workerData = functions.getWorkerData(funcId);
       if (workerData) {
         const [desc] = functions.getDescToSend(funcId);

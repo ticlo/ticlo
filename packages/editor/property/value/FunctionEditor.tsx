@@ -10,7 +10,7 @@ import {FunctionSelect} from '../../function-selector/FunctionSelect.js';
 import {addRecentFunction} from '../../function-selector/FunctionList.js';
 import {Popup} from '../../component/ClickPopup.js';
 import {getFuncStyleFromDesc} from '../../util/BlockColors.js';
-import {getDescScope} from '../../util/FunctionScope.js';
+import {getDescLib} from '../../util/FunctionLib.js';
 
 interface State {
   opened: boolean;
@@ -21,7 +21,7 @@ export class FunctionEditor extends StringEditorBase {
 
   commitChange(value: string) {
     super.commitChange(value);
-    if (typeof value === 'string' && this.props.conn.watchDesc(value, getDescScope(value, this.props.funcScope))) {
+    if (typeof value === 'string' && this.props.conn.watchDesc(value, getDescLib(value, this.props.funcLib))) {
       addRecentFunction(value);
     }
   }
@@ -59,7 +59,7 @@ export class FunctionEditor extends StringEditorBase {
   };
 
   render() {
-    let {desc, value, locked, onChange, conn, funcScope} = this.props;
+    let {desc, value, locked, onChange, conn, funcLib} = this.props;
     const {opened} = this.state;
 
     if (this._pendingValue != null) {
@@ -70,7 +70,7 @@ export class FunctionEditor extends StringEditorBase {
 
     let iconName: string;
     let colorClass = 'ticl-bg--999';
-    const funcDesc = conn.watchDesc(value, getDescScope(value, funcScope));
+    const funcDesc = conn.watchDesc(value, getDescLib(value, funcLib));
     if (funcDesc) {
       [colorClass, iconName] = getFuncStyleFromDesc(funcDesc, conn, 'ticl-bg--');
     }
@@ -81,7 +81,7 @@ export class FunctionEditor extends StringEditorBase {
         <Popup
           popupVisible={opened}
           onPopupVisibleChange={this.onPopupClose}
-          popup={<FunctionSelect conn={conn} onFunctionClick={this.onFunctionClick} funcScope={funcScope} />}
+          popup={<FunctionSelect conn={conn} onFunctionClick={this.onFunctionClick} funcLib={funcLib} />}
         >
           <Input
             value={value}

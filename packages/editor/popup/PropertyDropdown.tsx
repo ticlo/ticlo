@@ -26,7 +26,7 @@ import {CheckboxChangeEvent} from 'antd';
 import {ParameterInputDialog} from './ParameterInputDialog.js';
 import {ExpandIcon} from '../component/Tree.js';
 import {ValueUpdate} from '@ticlo/core/connect/ClientRequests.js';
-import {getDescScope} from '../util/FunctionScope.js';
+import {getDescLib} from '../util/FunctionLib.js';
 
 interface Props {
   children: React.ReactElement;
@@ -43,7 +43,7 @@ interface Props {
   paths: string[];
   name: string;
   baseName?: string;
-  funcScope?: string;
+  funcLib?: string;
   onAddSubBlock: (id: string, desc?: FunctionDesc, data?: any) => void;
 }
 
@@ -197,15 +197,15 @@ export class PropertyDropdown extends React.PureComponent<Props, State> {
       conn: ClientConn;
       paths: string[];
       name: string;
-      funcScope?: string;
+      funcLib?: string;
     },
     funcId: string,
     desc?: FunctionDesc,
     data?: any
   ) {
-    const {conn, paths, name, funcScope} = props;
+    const {conn, paths, name, funcLib} = props;
     if (!desc) {
-      desc = conn.watchDesc(funcId, getDescScope(funcId, funcScope));
+      desc = conn.watchDesc(funcId, getDescLib(funcId, funcLib));
     }
     if (!data) {
       if (!desc) {
@@ -227,7 +227,7 @@ export class PropertyDropdown extends React.PureComponent<Props, State> {
   };
 
   getMenu() {
-    const {funcDesc, propDesc, bindingPath, group, name, conn, valueDefined, isCustom, isTemp, display, funcScope} =
+    const {funcDesc, propDesc, bindingPath, group, name, conn, valueDefined, isCustom, isTemp, display, funcLib} =
       this.props;
     const {valueDenfinedOverride, isTempOverride} = this.state;
     const menuItems: React.ReactElement[] = [];
@@ -243,7 +243,7 @@ export class PropertyDropdown extends React.PureComponent<Props, State> {
                 conn={conn}
                 showPreset={true}
                 onFunctionClick={this.onAddSubBlock}
-                funcScope={funcScope}
+                funcLib={funcLib}
               />
               // </Menu.Item>
             }

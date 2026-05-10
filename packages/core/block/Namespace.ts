@@ -126,7 +126,7 @@ export class Namespace {
     // namespace worker group, and every other non-empty id is global.
     if (code0 === 58 /* : */) {
       // in-flow function
-      return flow.getFuncGroup();
+      return flow.getFuncLib();
     } else if (code0 === 43 /* + */) {
       // namespace function
       if (funcId.charCodeAt(1) === 58 /* +: */) {
