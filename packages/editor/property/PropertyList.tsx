@@ -28,13 +28,7 @@ import {CustomPropertyReorder} from './PropertyReorder.js';
 import {t} from '../component/LocalizedLabel.js';
 import {getDescLib} from '../util/FunctionLib.js';
 
-function descToEditor(
-  conn: ClientConn,
-  paths: string[],
-  funcDesc: FunctionDesc,
-  propDesc: PropDesc,
-  funcLib?: string
-) {
+function descToEditor(conn: ClientConn, paths: string[], funcDesc: FunctionDesc, propDesc: PropDesc, funcLib?: string) {
   return (
     <PropertyEditor
       key={propDesc.name}
@@ -413,9 +407,7 @@ export class PropertyList extends MultiSelectComponent<Props, State, BlockLoader
           ) : null}
           {children}
 
-          {baseDesc ? (
-            <OptionalPropertyList conn={conn} paths={paths} funcDesc={baseDesc} funcLib={funcLib} />
-          ) : null}
+          {baseDesc ? <OptionalPropertyList conn={conn} paths={paths} funcDesc={baseDesc} funcLib={funcLib} /> : null}
 
           <div className="ticl-property-divider">
             <div className="ticl-h-line" style={{maxWidth: '16px'}} />

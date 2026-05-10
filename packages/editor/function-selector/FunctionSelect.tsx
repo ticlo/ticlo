@@ -204,12 +204,7 @@ export class FunctionSelect extends React.PureComponent<Props, State> {
           onFunctionClick={onFunctionClick}
           style={{display: tab === 'tree' ? '' : 'none'}}
         />
-        <FunctionList
-          conn={conn}
-          recent={true}
-          funcLib={funcLib}
-          style={{display: tab === 'recent' ? '' : 'none'}}
-        />
+        <FunctionList conn={conn} recent={true} funcLib={funcLib} style={{display: tab === 'recent' ? '' : 'none'}} />
       </div>
     );
   }
