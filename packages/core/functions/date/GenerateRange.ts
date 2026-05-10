@@ -1,4 +1,4 @@
-import {globalFunctions} from '../../block/FunctionGroup.js';
+import {globalFunctions} from '../../block/FunctionLib.js';
 import {DateTime} from 'luxon';
 import {invalidDate} from '../../util/DateTime.js';
 import {AutoUpdateFunction} from '../base/AutoUpdateFunction.js';

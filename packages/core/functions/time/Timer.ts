@@ -1,5 +1,5 @@
 import {AutoUpdateFunction} from '../base/AutoUpdateFunction.js';
-import {globalFunctions} from '../../block/FunctionGroup.js';
+import {globalFunctions} from '../../block/FunctionLib.js';
 import {Event, EventType, NO_EMIT, ValueUpdateEvent, WAIT} from '../../block/Event.js';
 import type {Block} from '../../block/Block.js';
 import {DateTime} from 'luxon';

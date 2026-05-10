@@ -1,5 +1,5 @@
 import {BaseFunction, StatefulFunction} from '../block/BlockFunction.js';
-import {globalFunctions} from '../block/FunctionGroup.js';
+import {globalFunctions} from '../block/FunctionLib.js';
 import {JsFunction} from '../functions/script/Js.js';
 import {WorkerCollector, WorkerMode, WorkerModeOptions} from './WorkerFunction.js';
 import {Flow, Root} from '../block/Flow.js';

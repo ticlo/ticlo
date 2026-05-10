@@ -1,4 +1,4 @@
-import {globalFunctions} from '../../block/FunctionGroup.js';
+import {globalFunctions} from '../../block/FunctionLib.js';
 import {BaseFunction, StatefulFunction} from '../../block/BlockFunction.js';
 import {BlockIO} from '../../block/BlockProperty.js';
 import {ErrorEvent, WAIT} from '../../block/Event.js';

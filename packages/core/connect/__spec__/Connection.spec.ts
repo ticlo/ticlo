@@ -9,7 +9,7 @@ import {VoidListeners, TestFunctionRunner} from '../../block/__spec__/TestFuncti
 import type {FunctionDesc} from '../../block/Descriptor.js';
 import {shouldHappen, shouldReject} from '../../util/test-util.js';
 import {JsFunction} from '../../functions/script/Js.js';
-import {globalFunctions} from '../../block/FunctionGroup.js';
+import {globalFunctions} from '../../block/FunctionLib.js';
 import type {DataMap} from '../../util/DataTypes.js';
 import {isDataTruncated, WS_FRAME_SIZE} from '../../util/DataTypes.js';
 import {WorkerFunctionGen} from '../../worker/WorkerFunctionGen.js';

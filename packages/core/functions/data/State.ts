@@ -1,5 +1,5 @@
 import {BaseFunction, StatefulFunction} from '../../block/BlockFunction.js';
-import {globalFunctions} from '../../block/FunctionGroup.js';
+import {globalFunctions} from '../../block/FunctionLib.js';
 import {type Block} from '../../block/Block.js';
 import {isDataMap, isPrimitiveType} from '../../util/DataTypes.js';
 import {Resolver} from '../../block/Resolver.js';

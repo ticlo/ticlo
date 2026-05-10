@@ -7,7 +7,7 @@ import {DataMap} from '../util/DataTypes.js';
 import {RepeaterWorker, WorkerFlow} from './WorkerFlow.js';
 import {FlowStorage} from '../block/Storage.js';
 import {deepEqual} from '../util/Compare.js';
-import {globalFunctions} from '../block/FunctionGroup.js';
+import {globalFunctions} from '../block/FunctionLib.js';
 import {Block, BlockChildWatch} from '../block/Block.js';
 import {WorkerControl, type WorkerHost} from './WorkerControl.js';
 

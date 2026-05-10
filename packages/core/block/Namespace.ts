@@ -1,11 +1,11 @@
 import type {Flow, Root} from './Flow.js';
 import {Block} from './Block.js';
-import {FunctionDispatcher, FunctionGroup, globalFunctions, type DescListener} from './FunctionGroup.js';
+import {FunctionDispatcher, FunctionLib, globalFunctions, type DescListener} from './FunctionLib.js';
 import {FunctionClass} from './BlockFunction.js';
 import {PropListener} from './Dispatcher.js';
 import {FunctionDesc} from './Descriptor.js';
 import {DataMap} from '../util/DataTypes.js';
-import {NsFunctionGroup} from './NSFunctionGroup.js';
+import {NsFunctionLib} from './NSFunctionLib.js';
 import type {FlowStorage} from './Storage.js';
 
 export class Namespace {
@@ -48,29 +48,29 @@ export class Namespace {
     }
     return undefined;
   }
-  static getFunctionGroup(id: string) {
+  static getFunctionLib(id: string) {
     const parts = id.split(':');
     if (parts.length > 1) {
       const namespace = Namespace.getNameSpace(parts[0]);
       if (namespace) {
-        return namespace.getGroup(parts[1]);
+        return namespace.getLib(parts[1]);
       }
     }
     return undefined;
   }
 
-  // --- Static aggregation methods covering globalFunctions + all NsFunctionGroups ---
+  // --- Static aggregation methods covering globalFunctions + all NsFunctionLibs ---
 
   static _descListeners: Set<DescListener> = new Set<DescListener>();
 
   /**
-   * Iterate over all NsFunctionGroup instances across all namespaces.
+   * Iterate over all NsFunctionLib instances across all namespaces.
    */
-  private static _forEachGroup(callback: (group: NsFunctionGroup) => void) {
+  private static _forEachLib(callback: (lib: NsFunctionLib) => void) {
     for (const ns in Namespace._dict) {
       const namespace = Namespace._dict[ns];
-      for (const groupName in namespace._groups) {
-        callback(namespace._groups[groupName]);
+      for (const libName in namespace._libs) {
+        callback(namespace._libs[libName]);
       }
     }
   }
@@ -78,19 +78,19 @@ export class Namespace {
   static listenDesc(listener: DescListener): void {
     Namespace._descListeners.add(listener);
     globalFunctions.listenDesc(listener);
-    Namespace._forEachGroup((group) => group.listenDesc(listener));
+    Namespace._forEachLib((lib) => lib.listenDesc(listener));
   }
 
   static unlistenDesc(listener: DescListener): void {
     Namespace._descListeners.delete(listener);
     globalFunctions.unlistenDesc(listener);
-    Namespace._forEachGroup((group) => group.unlistenDesc(listener));
+    Namespace._forEachLib((lib) => lib.unlistenDesc(listener));
   }
 
   static getAllFunctionIds(): string[] {
     const result = globalFunctions.getAllFunctionIds();
-    Namespace._forEachGroup((group) => {
-      result.push(...group.getAllFunctionIds());
+    Namespace._forEachLib((lib) => {
+      result.push(...lib.getAllFunctionIds());
     });
     return result;
   }
@@ -101,29 +101,29 @@ export class Namespace {
     if (desc) {
       return [desc, size];
     }
-    // Try namespace function groups
-    const functionGroup = Namespace.getFunctionGroup(id);
-    if (functionGroup) {
-      return functionGroup.getDescToSend(id);
+    // Try namespace function libs
+    const functionLib = Namespace.getFunctionLib(id);
+    if (functionLib) {
+      return functionLib.getDescToSend(id);
     }
     return [null, 0];
   }
 
   static delete(id: string): void {
-    // Determine which function group owns this id
-    const functionGroup = Namespace.getFunctionGroup(id);
-    if (functionGroup) {
-      functionGroup.delete(id);
+    // Determine which function lib owns this id
+    const functionLib = Namespace.getFunctionLib(id);
+    if (functionLib) {
+      functionLib.delete(id);
     } else {
       globalFunctions.delete(id);
     }
   }
 
-  static getFunctions(funcId: string, flow?: Flow, namespace?: string): FunctionGroup {
+  static getFunctions(funcId: string, flow?: Flow, namespace?: string): FunctionLib {
     const code0 = funcId.charCodeAt(0);
     // Function ids encode their lookup scope:
-    // :id lives in the current flow's #functions, +ns:group:id lives in a
-    // namespace worker group, and every other non-empty id is global.
+    // :id lives in the current flow's #functions, +ns:lib:id lives in a
+    // namespace worker lib, and every other non-empty id is global.
     if (code0 === 58 /* : */) {
       // in-flow function
       return flow.getFuncLib();
@@ -131,9 +131,9 @@ export class Namespace {
       // namespace function
       if (funcId.charCodeAt(1) === 58 /* +: */) {
         // replace + with current namespace
-        return Namespace.getFunctionGroup(flow?._namespace ?? namespace + funcId.substring(1));
+        return Namespace.getFunctionLib(flow?._namespace ?? namespace + funcId.substring(1));
       } else {
-        return Namespace.getFunctionGroup(funcId);
+        return Namespace.getFunctionLib(funcId);
       }
     } else if (code0 > 0) {
       // global function
@@ -142,7 +142,7 @@ export class Namespace {
     return null;
   }
 
-  static getWorker(id: string, flow?: Flow): [FunctionDesc, DataMap, FunctionGroup] {
+  static getWorker(id: string, flow?: Flow): [FunctionDesc, DataMap, FunctionLib] {
     const functions = Namespace.getFunctions(id, flow);
     if (functions) {
       const workerData = functions.getWorkerData(id);
@@ -172,7 +172,7 @@ export class Namespace {
     }
   }
 
-  _groups: Record<string, NsFunctionGroup> = {};
+  _libs: Record<string, NsFunctionLib> = {};
 
   constructor(public readonly ns: string) {}
   _enabled: boolean = false;
@@ -188,19 +188,19 @@ export class Namespace {
   unload() {
     this._enabled = false;
   }
-  getGroup(group: string) {
-    let g = this._groups[group];
-    if (!g) {
-      g = new NsFunctionGroup(this.ns, group, Namespace._storage);
-      this._groups[group] = g;
-      // Register any existing desc listeners on the new group
+  getLib(libName: string) {
+    let lib = this._libs[libName];
+    if (!lib) {
+      lib = new NsFunctionLib(this.ns, libName, Namespace._storage);
+      this._libs[libName] = lib;
+      // Register any existing desc listeners on the new lib
       for (const listener of Namespace._descListeners) {
-        g.listenDesc(listener);
+        lib.listenDesc(listener);
       }
       if (this._enabled) {
-        g.loadFromStorage();
+        lib.loadFromStorage();
       }
     }
-    return g;
+    return lib;
   }
 }

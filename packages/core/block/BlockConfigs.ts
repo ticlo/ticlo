@@ -1,7 +1,7 @@
 import {BlockConfig, BlockIO, BlockProperty} from './BlockProperty.js';
 import {Block, InputsBlock, OutputsBlock} from './Block.js';
 import type {Flow} from './Flow.js';
-import {PersistentFunctionGroup} from './NSFunctionGroup.js';
+import {PersistentFunctionLib} from './NSFunctionLib.js';
 import {isDataMap} from '../util/DataTypes.js';
 
 class BlockFuncIdConfig extends BlockProperty {
@@ -173,7 +173,7 @@ export class ConstBinding extends BlockProperty {
 
 export class BlockFunctionsConfig extends BlockProperty {
   onChange(val: unknown, save?: boolean): boolean {
-    const funcLib = (this._block as Flow).getFuncLib() as PersistentFunctionGroup;
+    const funcLib = (this._block as Flow).getFuncLib() as PersistentFunctionLib;
     if (isDataMap(val)) {
       funcLib.load(val);
     } else {
@@ -184,7 +184,7 @@ export class BlockFunctionsConfig extends BlockProperty {
   }
 
   _saveValue(): unknown {
-    const data = ((this._block as Flow).getFuncLib() as PersistentFunctionGroup).save();
+    const data = ((this._block as Flow).getFuncLib() as PersistentFunctionLib).save();
     return data && Object.keys(data).length > 0 ? data : undefined;
   }
 }

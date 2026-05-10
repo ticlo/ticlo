@@ -1,7 +1,7 @@
 import {Block} from '../block/Block.js';
 import {BlockProperty} from '../block/BlockProperty.js';
 import {configDescs, FunctionDesc, PropDesc, PropGroupDesc} from '../block/Descriptor.js';
-import {globalFunctions} from '../block/FunctionGroup.js';
+import {globalFunctions} from '../block/FunctionLib.js';
 import {configList} from './PropertyShowHide.js';
 import {PropertyMover} from './PropertyMover.js';
 

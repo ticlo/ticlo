@@ -1,7 +1,7 @@
 import {expect} from 'vitest';
 import {Flow, Root} from '../../../block/Flow.js';
 import {JsFunction} from '../Js.js';
-import {globalFunctions} from '../../../block/FunctionGroup.js';
+import {globalFunctions} from '../../../block/FunctionLib.js';
 import {TestLogger} from '../../../util/__spec__/Logger.spec.js';
 import {Logger} from '../../../util/Logger.js';
 

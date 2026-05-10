@@ -22,10 +22,10 @@ The source (`src`) of a worker flow can take several forms, stored in `WorkerCon
 
 1. **Inline `DataMap`**: The flow definition is stored directly in the worker field. Edits save back into that property.
 2. **Global function id**: A plain string such as `add` or a generated worker id. It resolves through `globalFunctions`.
-3. **Local flow function id**: `:functionId`, stored in the owning flow's `#functions` config and managed by its `PersistentFunctionGroup`.
-4. **Namespace function id**: `+namespace:group:functionId`, stored in `NsFunctionGroup` and optionally backed by `FlowStorage`.
+3. **Local flow function id**: `:functionId`, stored in the owning flow's `#functions` config and managed by its `PersistentFunctionLib`.
+4. **Namespace function id**: `+namespace:lib:functionId`, stored in `NsFunctionLib` and optionally backed by `FlowStorage`.
 
-Local flow functions have a descriptor scope. Flow-owned `PersistentFunctionGroup.getScopePath()` returns the owning Flow path, while global and namespace groups return `null`. Worker and editor flows loaded from an in-flow function group expose that owner path through the runtime-only context property `^#scope`, so UI code can watch descriptors with `watchDesc(':functionId', scopePath)`.
+Local flow functions have a descriptor lib. Flow-owned `PersistentFunctionLib.getScopePath()` returns the owning Flow path, while global and namespace libs return `null`. Worker and editor flows loaded from an in-flow function lib expose that owner path through the runtime-only context property `^#lib`, so UI code can watch descriptors with `watchDesc(':functionId', libPath)`.
 
 For string sources, `WorkerControl` listens to the corresponding `FunctionDispatcher`; when the function definition changes, `_srcChanged` is set and the host block is queued.
 
@@ -51,7 +51,7 @@ this._data.createOutputFlow(RepeaterWorker, '#flow', src, outputTarget, saveCall
 
 The output target implements `FunctionOutput`, so each host can decide how child flow outputs are collected.
 
-When passing in-flow or inline worker sources into a child flow, keep the parent flow's function group attached so `^#scope` continues to point at the function owner. Do not rediscover the scope from a deep block path in editor code; Block view should pass its current `funcScope` down to descriptor consumers.
+When passing in-flow or inline worker sources into a child flow, keep the parent flow's function lib attached so `^#lib` continues to point at the function owner. Do not rediscover the lib from a deep block path in editor code; Block view should pass its current `funcLib` down to descriptor consumers.
 
 ## Host Patterns
 

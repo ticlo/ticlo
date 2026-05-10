@@ -7,7 +7,7 @@ import {AsyncClientPromise} from './AsyncClientPromise.js';
 import {shouldHappen, shouldReject} from '../../util/test-util.js';
 import {JsFunction} from '../../functions/script/Js.js';
 import {FunctionDesc} from '../../block/Descriptor.js';
-import {globalFunctions} from '../../block/FunctionGroup.js';
+import {globalFunctions} from '../../block/FunctionLib.js';
 import {Logger} from '../../util/Logger.js';
 
 describe('Reconnect', function () {

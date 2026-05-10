@@ -3,7 +3,7 @@ import {ListenPromise} from './ListenPromise.js';
 import {BlockBinding} from './BlockBinding.js';
 import {FunctionClass, BaseFunction} from './BlockFunction.js';
 import {PropDispatcher, PropListener, Destroyable} from './Dispatcher.js';
-import {FunctionDispatcher, globalFunctions} from './FunctionGroup.js';
+import {FunctionDispatcher, globalFunctions} from './FunctionLib.js';
 import {DoneEvent, ErrorEvent, Event, EventType, NO_EMIT, WAIT} from './Event.js';
 import {DataMap} from '../util/DataTypes.js';
 import {Uid} from '../util/Uid.js';

@@ -1,7 +1,7 @@
 import {Block} from '../block/Block.js';
 import {HelperProperty} from '../block/BlockProperty.js';
 import {PropDesc, PropGroupDesc} from '../block/Descriptor.js';
-import {globalFunctions} from '../block/FunctionGroup.js';
+import {globalFunctions} from '../block/FunctionLib.js';
 import {hideProperties, showProperties} from './PropertyShowHide.js';
 import {PropertyMover} from './PropertyMover.js';
 import {getInputsLength, MAX_GROUP_LENGTH} from '../block/FunctonData.js';

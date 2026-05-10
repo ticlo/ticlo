@@ -1,4 +1,4 @@
-import {globalFunctions} from '../../../block/FunctionGroup.js';
+import {globalFunctions} from '../../../block/FunctionLib.js';
 import {AutoUpdateFunction} from '../../base/AutoUpdateFunction.js';
 import {type EventOccur, SchedulerEvent} from './SchedulerEvent.js';
 import {BlockIO} from '../../../block/BlockProperty.js';

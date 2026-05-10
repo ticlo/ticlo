@@ -1,7 +1,7 @@
 import {expect} from 'vitest';
 import {FlowWithShared, SharedBlock} from '../SharedBlock.js';
 import {WorkerFunctionGen} from '../../worker/WorkerFunctionGen.js';
-import {globalFunctions} from '../FunctionGroup.js';
+import {globalFunctions} from '../FunctionLib.js';
 import {WorkerFlow} from '../../worker/WorkerFlow.js';
 
 describe('SharedBlock', function () {

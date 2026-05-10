@@ -7,7 +7,7 @@ import {BlockProperty} from '../index.js';
 import {ConstTypeConfig} from '../block/BlockConfigs.js';
 import {BlockConfig} from '../block/BlockProperty.js';
 import {defaultWorkerData} from '../defaults/DefaultFlows.js';
-import {FunctionGroup} from '../block/FunctionGroup.js';
+import {FunctionLib} from '../block/FunctionLib.js';
 import {Namespace} from '../block/Namespace.js';
 
 export const FlowEditorConfigGenerators: {[key: string]: typeof BlockProperty} = {
@@ -42,7 +42,7 @@ export class FlowEditor extends FlowWithShared {
     funcId?: string,
     forceLoad = false,
     applyChange?: (flow: Flow) => DataMap,
-    funcLib?: FunctionGroup
+    funcLib?: FunctionLib
   ): FlowEditor {
     const prop = parent.getProperty(field);
     let flow: FlowEditor;
@@ -121,7 +121,7 @@ export class FlowEditor extends FlowWithShared {
     field: string,
     fromFunction: string,
     defaultData: DataMap,
-    funcLib?: FunctionGroup
+    funcLib?: FunctionLib
   ): FlowEditor {
     if (typeof fromFunction === 'string') {
       return FlowEditor.create(parent, field, defaultData, fromFunction, false, undefined, funcLib);

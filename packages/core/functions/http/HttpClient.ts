@@ -1,7 +1,7 @@
 import {URL} from 'url';
 import axios, {AxiosPromise, AxiosRequestConfig, AxiosRequestHeaders, AxiosResponse} from 'axios';
 import {BaseFunction} from '../../block/BlockFunction.js';
-import {globalFunctions} from '../../block/FunctionGroup.js';
+import {globalFunctions} from '../../block/FunctionLib.js';
 import {isDataMap} from '../../util/DataTypes.js';
 
 export interface HttpClient {

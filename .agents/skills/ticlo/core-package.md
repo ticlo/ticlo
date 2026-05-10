@@ -4,7 +4,7 @@ The `@ticlo/core` package is the runtime engine for Ticlo flows. It owns block-t
 
 ## Directory Structure
 
-- `block/`: Runtime primitives. `Block` hosts properties and functions; `Flow` is the persistence/execution boundary; `BlockProperty` stores saved vs runtime state; `BlockBinding` resolves dotted bindings; `FunctionGroup` and `Namespace` register and resolve functions.
+- `block/`: Runtime primitives. `Block` hosts properties and functions; `Flow` is the persistence/execution boundary; `BlockProperty` stores saved vs runtime state; `BlockBinding` resolves dotted bindings; `FunctionLib` and `Namespace` register and resolve functions.
 - `connect/`: Batched request/response protocol for editor and client APIs. `ClientConnection` creates requests and caches subscriptions; `ServerConnection` dispatches commands into a `Root`; `LocalConnection` loops both sides together through serialization for tests/local UI.
 - `functions/`: Built-in function nodes. Most are small `PureFunction` or `BaseFunction` classes registered into `globalFunctions`; date/time functions use `AutoUpdateFunction` to schedule future runs.
 - `worker/`: Flow-backed functions. `WorkerFunction`, `MapFunction`, `MultiWorkerFunction`, and `HandlerFunction` create child `WorkerFlow`/`RepeaterWorker` instances and route inputs/outputs through `WorkerControl`.
@@ -40,13 +40,13 @@ Bindings are dotted paths resolved relative to the owning block. Single-segment 
 
 `#is` selects a function class through `Namespace.getFunctions()`:
 
-- `:local` resolves against the current flow's `#functions` group.
-- `+namespace:group:name` resolves against namespace worker groups.
+- `:local` resolves against the current flow's `#functions` lib.
+- `+namespace:lib:name` resolves against namespace worker libs.
 - other non-empty ids resolve against `globalFunctions`.
 
-Function descriptors are registered through `FunctionGroup.add()`. Descriptor defaults are copied to the function prototype for fast access to priority and default mode. During block load, function construction is deferred until all properties are loaded so `initInputs()` sees stable data.
+Function descriptors are registered through `FunctionLib.add()`. Descriptor defaults are copied to the function prototype for fast access to priority and default mode. During block load, function construction is deferred until all properties are loaded so `initInputs()` sees stable data.
 
-`FunctionGroup.getScopePath()` returns the Flow path that owns a local in-flow function group, or `null` for global and namespace groups. Flow-owned `PersistentFunctionGroup` instances use this to expose the runtime-only context property `^#scope`. Editor descriptor watches for in-flow functions must pass this scope path to `ClientConn.watchDesc(funcId, scopePath)`; otherwise only global descriptors are visible.
+`FunctionLib.getScopePath()` returns the Flow path that owns a local in-flow function lib, or `null` for global and namespace libs. Flow-owned `PersistentFunctionLib` instances use this to expose the runtime-only context property `^#lib`. Editor descriptor watches for in-flow functions must pass this lib path to `ClientConn.watchDesc(funcId, libPath)`; otherwise only global descriptors are visible.
 
 Function modes:
 
@@ -77,9 +77,9 @@ The `Resolver` batches queued blocks into four priority queues. Async function r
 
 - `ServerSubscribe`: property value, binding, listener-dot, and error updates.
 - `ServerWatch`: block child structure updates plus flow history tracking.
-- `ServerDescWatcher`: function descriptor updates globally or for a local flow function group.
+- `ServerDescWatcher`: function descriptor updates globally or for a local flow function lib.
 
-In Block view, `BlockStage` owns the current function scope and passes it to `PropertyList`, block renderers, and function selectors. Standalone editor components should keep global descriptor behavior unless a `funcScope` is explicitly supplied.
+In Block view, `BlockStage` owns the current function lib and passes it to `PropertyList`, block renderers, and function selectors. Standalone editor components should keep global descriptor behavior unless a `funcLib` is explicitly supplied.
 
 ## Built-In Functions
 

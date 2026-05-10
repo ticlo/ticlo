@@ -1,7 +1,7 @@
 import {MapImpl, WorkerOutput} from './MapImpl.js';
 import {DataMap} from '../util/DataTypes.js';
 import {Block} from '../block/Block.js';
-import {globalFunctions} from '../block/FunctionGroup.js';
+import {globalFunctions} from '../block/FunctionLib.js';
 import {Event, EventType, WAIT, NO_EMIT} from '../block/Event.js';
 import Denque from 'denque';
 import {InfiniteQueue} from '../util/InfiniteQueue.js';

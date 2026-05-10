@@ -12,7 +12,7 @@ import {removeLastTemplate, loadTemplate, querySingle} from '../../util/test-uti
 import {initEditor} from '../../index.js';
 import type {PropGroupDesc} from '@ticlo/core';
 import {FunctionDesc, PropDesc} from '@ticlo/core';
-import {globalFunctions} from '@ticlo/core/block/FunctionGroup.js';
+import {globalFunctions} from '@ticlo/core/block/FunctionLib.js';
 import {WorkerFunctionGen} from '@ticlo/core/worker/WorkerFunctionGen.js';
 
 describe('PropertyEditor', function () {

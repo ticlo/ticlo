@@ -6,18 +6,18 @@ import {WorkerFunctionGen} from '../WorkerFunctionGen.js';
 import type {PropDesc, PropGroupDesc} from '../../block/Descriptor.js';
 import type {DataMap} from '../../util/DataTypes.js';
 import {SharedBlock} from '../../block/SharedBlock.js';
-import {PersistentFunctionGroup} from '../../block/NSFunctionGroup.js';
+import {PersistentFunctionLib} from '../../block/NSFunctionLib.js';
 import {Namespace} from '../../block/Namespace.js';
-import {FunctionGroup, globalFunctions} from '../../block/FunctionGroup.js';
+import {FunctionLib, globalFunctions} from '../../block/FunctionLib.js';
 
 describe('InflowEditor', function () {
   it('scope path metadata is runtime only', function () {
     const flow = Root.instance.addFlow('InflowEditorScope', {});
     const funcLib = flow.getFuncLib();
 
-    expect(new FunctionGroup().getScopePath()).toBeNull();
+    expect(new FunctionLib().getScopePath()).toBeNull();
     expect(globalFunctions.getScopePath()).toBeNull();
-    expect(Namespace.getFunctionGroup('+InflowEditorScope:test:worker').getScopePath()).toBeNull();
+    expect(Namespace.getFunctionLib('+InflowEditorScope:test:worker').getScopePath()).toBeNull();
     expect(funcLib.getScopePath()).toBe('InflowEditorScope');
 
     const data = {
@@ -146,12 +146,12 @@ describe('InflowEditor', function () {
     editor.setValue('#desc', expectedData['#desc']);
     WorkerFunctionGen.applyChangeToFunc(editor, ':worker3');
 
-    const [desc, workerData, functionGroup] = Namespace.getWorker(':worker3', flow);
+    const [desc, workerData, functionLib] = Namespace.getWorker(':worker3', flow);
     expect(workerData).toEqual(expectedData);
     expect(desc.icon).toBe('fas:plus');
     expect(desc.properties).toEqual(expectedDescProperties);
-    expect(functionGroup).toBeInstanceOf(PersistentFunctionGroup);
-    expect(functionGroup).toBe(funcLib);
+    expect(functionLib).toBeInstanceOf(PersistentFunctionLib);
+    expect(functionLib).toBe(funcLib);
   });
 
   it('shared block', function () {

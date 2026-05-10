@@ -13,7 +13,7 @@ import {Block, BlockChildWatch, InputsBlock} from '../block/Block.js';
 import {Flow, Root} from '../block/Flow.js';
 import {FlowWithShared, SharedBlock, SharedConfig} from '../block/SharedBlock.js';
 import {PropDispatcher, PropListener} from '../block/Dispatcher.js';
-import {DescListener, FunctionGroup} from '../block/FunctionGroup.js';
+import {DescListener, FunctionLib} from '../block/FunctionLib.js';
 import {FunctionDesc, PropDesc, PropGroupDesc} from '../block/Descriptor.js';
 import {propRelative} from '../util/PropPath.js';
 import {
@@ -268,7 +268,7 @@ class ServerWatch extends ServerRequest implements BlockChildWatch, PropListener
 
 class ServerDescWatcher extends ServerRequest implements DescListener {
   pendingIds: Set<string>;
-  private _funcLib: FunctionGroup;
+  private _funcLib: FunctionLib;
 
   constructor(conn: ServerConnection, id: string, funcLib?: string) {
     super();
@@ -832,7 +832,7 @@ export class ServerConnection extends ServerConnectionCore {
       if (fromField) {
         FlowEditor.createFromField(property._block, property._name, fromField);
       } else if (fromFunction) {
-        let resolvedFuncLib: FunctionGroup | undefined;
+        let resolvedFuncLib: FunctionLib | undefined;
         if (fromFunction.startsWith(':') && funcLib) {
           // Local flow function - resolve the funcLib from the host flow
           const flowProp = this.root.queryProperty(funcLib);

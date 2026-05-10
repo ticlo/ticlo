@@ -1,6 +1,6 @@
 import {Block} from '../block/Block.js';
 import {configDescs, PropDesc, PropGroupDesc} from '../block/Descriptor.js';
-import {globalFunctions} from '../block/FunctionGroup.js';
+import {globalFunctions} from '../block/FunctionLib.js';
 import {getPreNumber} from '../util/String.js';
 import {getInputsLength, MAX_GROUP_LENGTH} from '../block/FunctonData.js';
 

@@ -5,7 +5,7 @@ import {ConstTypeConfig, FlowConfigGenerators} from './BlockConfigs.js';
 import {Flow, Root} from './Flow.js';
 import {Uid} from '../util/Uid.js';
 import {encodeTicloName} from '../util/Name.js';
-import {FunctionDispatcher} from './FunctionGroup.js';
+import {FunctionDispatcher} from './FunctionLib.js';
 import {FunctionClass} from './BlockFunction.js';
 import {PropListener} from './Dispatcher.js';
 import {Namespace} from './Namespace.js';

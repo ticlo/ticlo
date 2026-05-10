@@ -1,5 +1,5 @@
 import {PureFunction} from '../../block/BlockFunction.js';
-import {globalFunctions} from '../../block/FunctionGroup.js';
+import {globalFunctions} from '../../block/FunctionLib.js';
 import {defaultConfigs, PropDesc, PropGroupDesc} from '../../block/Descriptor.js';
 import {BlockConfig} from '../../block/BlockProperty.js';
 import {DataMap} from '../../util/DataTypes.js';

@@ -1,6 +1,6 @@
 import {BaseFunction, StatefulFunction} from '../../block/BlockFunction.js';
 import {type BlockConfig} from '../../block/BlockProperty.js';
-import {globalFunctions} from '../../block/FunctionGroup.js';
+import {globalFunctions} from '../../block/FunctionLib.js';
 import {type Block} from '../../block/Block.js';
 
 export class GroupFunction extends BaseFunction<Block> {

@@ -10,7 +10,7 @@ import {blankFuncDesc, blankPropDesc} from '@ticlo/core';
 import {makeLocalConnection} from '@ticlo/core/connect/LocalConnection.js';
 import {Root} from '@ticlo/core';
 import {WorkerFunctionGen} from '@ticlo/core/worker/WorkerFunctionGen.js';
-import {globalFunctions} from '@ticlo/core/block/FunctionGroup.js';
+import {globalFunctions} from '@ticlo/core/block/FunctionLib.js';
 import {Namespace} from '@ticlo/core/block/Namespace.js';
 import {DateEditor} from '../DateEditor.js';
 

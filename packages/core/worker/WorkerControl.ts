@@ -4,7 +4,7 @@ import {Flow, Root} from '../block/Flow.js';
 import {StreamDispatcher} from '../block/Dispatcher.js';
 import {BaseFunction, FunctionClass, StatefulFunction} from '../block/BlockFunction.js';
 import {WorkerFunctionGen} from './WorkerFunctionGen.js';
-import {FunctionDispatcher} from '../block/FunctionGroup.js';
+import {FunctionDispatcher} from '../block/FunctionLib.js';
 import {Namespace} from '../block/Namespace.js';
 
 export interface WorkerHost {
@@ -50,9 +50,9 @@ export class WorkerControl {
     if (typeof this._src === 'string' && this._src !== '') {
       // String worker sources are live function references. Keep listening to
       // their FunctionDispatcher so workers are rebuilt when the definition changes.
-      const functionGroup = Namespace.getFunctions(this._src, this.block._flow);
-      if (functionGroup) {
-        this._funcSrc = functionGroup.listen(this._src, this);
+      const functionLib = Namespace.getFunctions(this._src, this.block._flow);
+      if (functionLib) {
+        this._funcSrc = functionLib.listen(this._src, this);
       }
     }
     return true;

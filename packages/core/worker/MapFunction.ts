@@ -1,4 +1,4 @@
-import {globalFunctions} from '../block/FunctionGroup.js';
+import {globalFunctions} from '../block/FunctionLib.js';
 import {Block} from '../block/Block.js';
 import {convertToOutput} from '../util/DataTypes.js';
 import {ErrorEvent, Event, EventType, WAIT} from '../block/Event.js';

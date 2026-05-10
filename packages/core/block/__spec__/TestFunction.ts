@@ -1,4 +1,4 @@
-import {globalFunctions} from '../FunctionGroup.js';
+import {globalFunctions} from '../FunctionLib.js';
 import {PureFunction, StatefulFunction} from '../BlockFunction.js';
 import {BlockIO, BlockPropertyEvent} from '../BlockProperty.js';
 import {DoneEvent, ErrorEvent, Event, EventType, WAIT} from '../Event.js';

@@ -9,7 +9,7 @@ import {WorkerFunctionGen} from '../../worker/WorkerFunctionGen.js';
 
 describe('InflowEditor Connection Workflow', function () {
   it('keeps folder and child-flow function groups stable and separate', async function () {
-    const folderPath = 'InflowEditorFunctionGroupFolder';
+    const folderPath = 'InflowEditorFunctionLibFolder';
     const childPath = `${folderPath}.child`;
 
     Root.instance.addFlowFolder(folderPath);

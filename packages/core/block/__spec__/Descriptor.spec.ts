@@ -13,7 +13,7 @@ import {
   getSubBlockFuncData,
   mapConfigDesc,
 } from '../Descriptor.js';
-import {globalFunctions} from '../FunctionGroup.js';
+import {globalFunctions} from '../FunctionLib.js';
 
 describe('Descriptor', function () {
   it('mapConfigDesc', function () {

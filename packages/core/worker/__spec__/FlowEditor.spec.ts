@@ -138,7 +138,7 @@ describe('FlowEditor', function () {
     editor.setValue('#desc', expectedData['#desc']);
     WorkerFunctionGen.applyChangeToFunc(editor, '+FlowEditor::worker3');
 
-    const [desc, workerData, functionGroup] = Namespace.getWorker('+FlowEditor::worker3');
+    const [desc, workerData, functionLib] = Namespace.getWorker('+FlowEditor::worker3');
     expect(workerData).toEqual(expectedData);
     expect(desc.icon).toBe('fas:plus');
     expect(desc.properties).toEqual(expectedDescProperties);

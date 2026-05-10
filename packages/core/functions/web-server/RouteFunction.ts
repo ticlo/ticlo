@@ -1,6 +1,6 @@
 import {StatefulFunction} from '../../block/BlockFunction.js';
 import {NO_EMIT} from '../../block/Event.js';
-import {globalFunctions} from '../../block/FunctionGroup.js';
+import {globalFunctions} from '../../block/FunctionLib.js';
 import {HttpRequest} from './HttpRequest.js';
 import {deepEqual} from '../../util/Compare.js';
 import {DataMap} from '../../util/DataTypes.js';

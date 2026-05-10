@@ -12,13 +12,13 @@ import {
 import {Event} from './Event.js';
 import {DataMap} from '../util/DataTypes.js';
 import {FunctionDesc} from './Descriptor.js';
-import {FunctionGroup} from './FunctionGroup.js';
+import {FunctionLib} from './FunctionLib.js';
 import {FlowStorage} from './Storage.js';
 import {FlowHistory} from './FlowHistory.js';
 import {getDefaultZone, updateGlobalSettings} from '../util/Settings.js';
 import {DataWrapper, FunctionOutput} from './FunctonData.js';
 import {Namespace} from './Namespace.js';
-import {PersistentFunctionGroup} from './NSFunctionGroup.js';
+import {PersistentFunctionLib} from './NSFunctionLib.js';
 
 export enum FlowState {
   enabled,
@@ -39,10 +39,10 @@ export class Flow extends Block {
   _namespace: string;
   // function id, when Flow is loaded from a function
   _loadFrom: string;
-  _funcLib: FunctionGroup;
-  getFuncLib(): FunctionGroup {
+  _funcLib: FunctionLib;
+  getFuncLib(): FunctionLib {
     if (!this._funcLib) {
-      this._funcLib = new PersistentFunctionGroup(this._namespace, this.getFullPath());
+      this._funcLib = new PersistentFunctionLib(this._namespace, this.getFullPath());
     }
     return this._funcLib;
   }
@@ -176,7 +176,7 @@ export class Flow extends Block {
     applyChange?: (flow: Flow) => DataMap,
     onStateChange?: (flow: Flow, state: FlowState) => void,
     namespace?: string,
-    funcLib?: FunctionGroup
+    funcLib?: FunctionLib
   ): boolean {
     if (this._loaded) {
       throw new Error('can not load flow twice');

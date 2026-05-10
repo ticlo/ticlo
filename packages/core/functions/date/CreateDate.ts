@@ -1,5 +1,5 @@
 import {PureFunction} from '../../block/BlockFunction.js';
-import {globalFunctions} from '../../block/FunctionGroup.js';
+import {globalFunctions} from '../../block/FunctionLib.js';
 import {DateTime} from 'luxon';
 import {getZoneObject, invalidDate} from '../../util/DateTime.js';
 

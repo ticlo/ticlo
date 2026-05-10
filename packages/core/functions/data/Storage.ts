@@ -1,5 +1,5 @@
 import {StatefulFunction, BaseFunction, PureFunction} from '../../block/BlockFunction.js';
-import {globalFunctions} from '../../block/FunctionGroup.js';
+import {globalFunctions} from '../../block/FunctionLib.js';
 import {Storage, voidStorage} from '../../block/Storage.js';
 import {encode, decode} from '../../util/Serialize.js';
 import {BlockIO} from '../../block/BlockProperty.js';

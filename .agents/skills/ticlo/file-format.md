@@ -71,7 +71,7 @@ When saving a plain object that itself contains `#is` or `~#is`, the runtime wra
 
 Keys starting with `^` are context properties. They typically connect to global or parent context definitions.
 
-`^#scope` is reserved runtime context metadata for editor descriptor lookup. It is set with `updateValue()` when a Flow runs with an in-flow function scope and must not be written with `setValue()` or included in saved `.ticlo` JSON.
+`^#lib` is reserved runtime context metadata for editor descriptor lookup. It is set with `updateValue()` when a Flow runs with an in-flow function lib and must not be written with `setValue()` or included in saved `.ticlo` JSON.
 
 ### 4. Attributes (`@`)
 

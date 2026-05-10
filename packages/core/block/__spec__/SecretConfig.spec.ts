@@ -1,7 +1,7 @@
 import {BaseFunction} from '../BlockFunction.js';
 import type {Block} from '../Block.js';
 import {setSecretCipher} from '../Block.js';
-import {globalFunctions} from '../FunctionGroup.js';
+import {globalFunctions} from '../FunctionLib.js';
 import {Flow, Root} from '../Flow.js';
 import {expect} from 'vitest';
 
