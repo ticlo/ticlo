@@ -4,6 +4,7 @@ import {isDataMap, type DataMap} from '../util/DataTypes.js';
 import {type PropListener} from './Dispatcher.js';
 import {type FunctionDispatcher, FunctionLib} from './FunctionLib.js';
 import {FlowStorage} from './Storage.js';
+import {type Flow} from './Flow.js';
 
 export interface FunctionLoader {
   load(data: DataMap, localFuncId: string, fullId: string, namespace?: string): [FunctionClass, FunctionDesc];
@@ -79,9 +80,10 @@ export class NsFunctionLib extends PersistentFunctionLib {
   constructor(
     namespace: string,
     public readonly libName: string,
-    private readonly storage: FlowStorage
+    private readonly storage: FlowStorage,
+    private readonly flow?: Flow
   ) {
-    super(namespace);
+    super(namespace, flow?.getFullPath());
     this.prefix = `${namespace}:${libName}`;
   }
   listen(id: string, block: PropListener<FunctionClass>): FunctionDispatcher {
@@ -96,12 +98,15 @@ export class NsFunctionLib extends PersistentFunctionLib {
   }
 
   getFullId(localId: string) {
-    return `${this.namespace}:${this.libName}:${localId}`;
+    if (localId.charCodeAt(0) === 58 /* : */) {
+      return `${this.prefix}${localId}`;
+    }
+    return `${this.prefix}:${localId}`;
   }
 
   getLocalId(fullId: string) {
     if (fullId.startsWith(this.prefix + ':')) {
-      return fullId.substring(this.prefix.length + 1);
+      return fullId.substring(this.prefix.length);
     }
     return fullId;
   }
@@ -110,7 +115,7 @@ export class NsFunctionLib extends PersistentFunctionLib {
     if (!this.storage) {
       return;
     }
-    const data = {'#is': 'flow:functions', '#functions': this.save()};
+    const data = this.flow?.save() ?? {'#is': '', '#functions': this.save()};
     this.storage.saveWorkers(this.namespace, this.libName, data);
   }
   async loadFromStorage() {
@@ -118,18 +123,32 @@ export class NsFunctionLib extends PersistentFunctionLib {
       return;
     }
     const data = await this.storage.loadWorkers(this.namespace, this.libName);
-    if (data && data['#functions']) {
-      this.load(data['#functions'] as DataMap);
+    if (data) {
+      if (this.flow?._loaded) {
+        this.flow.liveUpdate(data);
+      } else if (data['#functions']) {
+        this.load(data['#functions'] as DataMap);
+      }
     }
+  }
+
+  load(data: DataMap) {
+    this._loaded = 'loading';
+    super.load(data);
+    this._loaded = true;
   }
 
   add(func: FunctionClass, desc: FunctionDesc, namespace?: string) {
     super.add(func, desc, namespace);
-    this.saveToStorage();
+    if (this._loaded !== 'loading') {
+      this.saveToStorage();
+    }
   }
 
   delete(id: string): void {
     super.delete(id);
-    this.saveToStorage();
+    if (this._loaded !== 'loading') {
+      this.saveToStorage();
+    }
   }
 }

@@ -7,6 +7,7 @@ import {
   FlowConfigGenerators,
   FlowFolderConfigGenerators,
   FlowNamespaceConfigGenerators,
+  FlowLibConfigGenerators,
   GlobalConfigGenerators,
 } from './BlockConfigs.js';
 import {Event} from './Event.js';
@@ -391,6 +392,26 @@ export class FlowFolder extends Flow {
     }
   }
 }
+
+export class FlowLib extends Flow {
+  constructor(parent: Block, output?: FunctionOutput, property?: BlockProperty) {
+    super(parent, output, property);
+    this.getProperty('#functions', true);
+  }
+
+  getFuncLib(): FunctionLib {
+    return this._funcLib;
+  }
+
+  _createConfig(field: string): BlockProperty {
+    if (field in FlowLibConfigGenerators) {
+      return new FlowLibConfigGenerators[field](this, field);
+    } else {
+      return new BlockConfig(this, field);
+    }
+  }
+}
+
 export class FlowNameSpace extends FlowFolder {
   constructor(parent: Block = Root.instance, output?: FunctionOutput, property?: BlockProperty) {
     super(parent, output, property);
@@ -588,6 +609,18 @@ export class Root extends FlowFolder {
     }
     prop.setValue(newFlow);
     return newFlow;
+  }
+
+  addFlowLib(ns: string, libName: string): FlowLib {
+    const path = `${ns}.:${libName}`;
+    const prop = this.queryProperty(path, true);
+    if (!prop || prop._value instanceof Block) {
+      return prop?._value instanceof FlowLib ? prop._value : null;
+    }
+
+    const flow = new FlowLib(prop._block, null, prop);
+    prop.setValue(flow);
+    return flow;
   }
 
   deleteFlow(path: string) {

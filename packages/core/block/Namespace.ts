@@ -174,7 +174,9 @@ export class Namespace {
 
   _libs: Record<string, NsFunctionLib> = {};
 
-  constructor(public readonly ns: string) {}
+  constructor(public readonly ns: string) {
+    Namespace._rootInstance.addFlowFolder(ns);
+  }
   _enabled: boolean = false;
   _loaded: boolean | 'loading' = false;
   async load(usedNs?: Set<string>) {
@@ -182,7 +184,6 @@ export class Namespace {
     if (this._loaded === false) {
       this._loaded = 'loading';
     }
-    Namespace._rootInstance.addFlowFolder(this.ns);
     // todo: load namespace flows
   }
   unload() {
@@ -191,7 +192,27 @@ export class Namespace {
   getLib(libName: string) {
     let lib = this._libs[libName];
     if (!lib) {
-      lib = new NsFunctionLib(this.ns, libName, Namespace._storage);
+      const flow = Namespace._rootInstance.addFlowLib(this.ns, libName);
+      lib = flow?.getFuncLib() as NsFunctionLib;
+      if (!lib) {
+        lib = new NsFunctionLib(this.ns, libName, Namespace._storage, flow);
+      }
+      if (flow && !flow._loaded) {
+        flow.load(
+          {'#is': ''},
+          null,
+          Namespace._storage
+            ? (changedFlow: Flow) => {
+                const data = changedFlow.save();
+                Namespace._storage.saveWorkers(this.ns, libName, data);
+                return data;
+              }
+            : undefined,
+          undefined,
+          undefined,
+          lib
+        );
+      }
       this._libs[libName] = lib;
       // Register any existing desc listeners on the new lib
       for (const listener of Namespace._descListeners) {

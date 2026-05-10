@@ -1,5 +1,5 @@
 import {expect} from 'vitest';
-import {Flow, Root} from '../../block/Flow.js';
+import {Flow, FlowLib, Root} from '../../block/Flow.js';
 import {FlowEditor} from '../FlowEditor.js';
 import {WorkerFunctionGen} from '../WorkerFunctionGen.js';
 
@@ -17,7 +17,7 @@ describe('InflowEditor', function () {
 
     expect(new FunctionLib().getScopePath()).toBeNull();
     expect(globalFunctions.getScopePath()).toBeNull();
-    expect(Namespace.getFunctionLib('+InflowEditorScope:test:worker').getScopePath()).toBeNull();
+    expect(Namespace.getFunctionLib('+InflowEditorScope:test:worker').getScopePath()).toBe('+InflowEditorScope.:test');
     expect(funcLib.getScopePath()).toBe('InflowEditorScope');
 
     const data = {
@@ -33,6 +33,50 @@ describe('InflowEditor', function () {
     expect(editor.save()).toEqual(data);
 
     Root.instance.deleteValue('InflowEditorScope');
+  });
+
+  it('stores namespace function libraries as namespace flows', function () {
+    const data = {'#is': '', 'add': {'#is': 'add'}};
+    const lib = Namespace.getFunctionLib('+NsFlowLib:g:a');
+    const libFlow = Root.instance.queryValue('+NsFlowLib.:g') as FlowLib;
+
+    expect(libFlow).toBeInstanceOf(FlowLib);
+    expect(libFlow.getValue('#is')).toBe('#flow:lib');
+
+    WorkerFunctionGen.registerType(data, {id: '+NsFlowLib:g:a', name: 'a'}, undefined, lib);
+
+    expect(libFlow.save()).toEqual({
+      '#is': '',
+      '#functions': {
+        ':a': {
+          type: 'worker',
+          worker: data,
+        },
+      },
+    });
+
+    Namespace.delete('+NsFlowLib:g:a');
+    Root.instance.deleteValue('+NsFlowLib');
+  });
+
+  it('uses : as the flow name for an empty namespace function library name', function () {
+    const data = {'#is': '', 'add': {'#is': 'add'}};
+    const lib = Namespace.getFunctionLib('+NsFlowLibEmpty::a');
+    const libFlow = Root.instance.queryValue('+NsFlowLibEmpty.:') as FlowLib;
+
+    expect(libFlow).toBeInstanceOf(FlowLib);
+
+    WorkerFunctionGen.registerType(data, {id: '+NsFlowLibEmpty::a', name: 'a'}, undefined, lib);
+
+    expect(libFlow.save()['#functions']).toEqual({
+      ':a': {
+        type: 'worker',
+        worker: data,
+      },
+    });
+
+    Namespace.delete('+NsFlowLibEmpty::a');
+    Root.instance.deleteValue('+NsFlowLibEmpty');
   });
 
   it('createFromField', function () {
