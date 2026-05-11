@@ -184,8 +184,13 @@ export class BlockFunctionsConfig extends BlockProperty {
   }
 
   _saveValue(): unknown {
-    const data = ((this._block as Flow).getFuncLib() as PersistentFunctionLib).save();
-    return data && Object.keys(data).length > 0 ? data : undefined;
+    if (
+      (this._block as Flow)._funcLib instanceof PersistentFunctionLib &&
+      ((this._block as Flow)._funcLib as PersistentFunctionLib).flow === this._block
+    ) {
+      return ((this._block as Flow)._funcLib as PersistentFunctionLib).save();
+    }
+    return undefined;
   }
 }
 

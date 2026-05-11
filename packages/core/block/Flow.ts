@@ -43,7 +43,8 @@ export class Flow extends Block {
   _funcLib: FunctionLib;
   getFuncLib(): FunctionLib {
     if (!this._funcLib) {
-      this._funcLib = new PersistentFunctionLib(this._namespace, this.getFullPath());
+      this._funcLib = new PersistentFunctionLib(this._namespace, this);
+      this.getProperty('#functions', true);
     }
     return this._funcLib;
   }
@@ -396,6 +397,7 @@ export class FlowFolder extends Flow {
 export class FlowLib extends Flow {
   constructor(parent: Block, output?: FunctionOutput, property?: BlockProperty) {
     super(parent, output, property);
+    // FlowLib should always initialize #functions property
     this.getProperty('#functions', true);
   }
 

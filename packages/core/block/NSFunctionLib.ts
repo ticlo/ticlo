@@ -16,11 +16,15 @@ export class PersistentFunctionLib extends FunctionLib {
     this._loaders.set(funcType, loader);
   }
 
+  private readonly scopePath?: string;
   constructor(
     public readonly namespace?: string,
-    private readonly scopePath?: string
+    public readonly flow?: Flow
   ) {
     super();
+    if (flow) {
+      this.scopePath = flow.getFullPath();
+    }
   }
   getScopePath(): string | null {
     return this.scopePath ?? null;
@@ -33,7 +37,7 @@ export class PersistentFunctionLib extends FunctionLib {
   }
 
   save() {
-    let result: DataMap | null = null;
+    let result: DataMap | undefined = undefined;
     for (const key in this._functions) {
       if (this._functions[key]._desc) {
         const funcData = this._functions[key].getValue()?.save?.();
@@ -83,7 +87,7 @@ export class NsFunctionLib extends PersistentFunctionLib {
     private readonly storage: FlowStorage,
     private readonly flow?: Flow
   ) {
-    super(namespace, flow?.getFullPath());
+    super(namespace, flow);
     this.prefix = `${namespace}:${libName}`;
   }
   listen(id: string, block: PropListener<FunctionClass>): FunctionDispatcher {

@@ -35,6 +35,21 @@ describe('InflowEditor', function () {
     Root.instance.deleteValue('InflowEditorScope');
   });
 
+  it('serializes the in-flow function lib into flow data', function () {
+    const data = {'#is': '', 'add': {'#is': 'add'}};
+    const flow = new Flow();
+    flow.load({});
+
+    WorkerFunctionGen.registerType(data, {id: ':savedWorker', name: 'savedWorker'}, undefined, flow.getFuncLib());
+
+    expect(flow.save()['#functions']).toEqual({
+      ':savedWorker': {
+        type: 'worker',
+        worker: data,
+      },
+    });
+  });
+
   it('stores namespace function libraries as namespace flows', function () {
     const data = {'#is': '', 'add': {'#is': 'add'}};
     const lib = Namespace.getFunctionLib('+NsFlowLib:g:a');
