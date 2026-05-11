@@ -9,6 +9,8 @@ import {SharedBlock} from '../../block/SharedBlock.js';
 import {PersistentFunctionLib} from '../../block/NSFunctionLib.js';
 import {Namespace} from '../../block/Namespace.js';
 import {FunctionLib, globalFunctions} from '../../block/FunctionLib.js';
+import type {FlowStorage} from '../../block/Storage.js';
+import '../../functions/math/Arithmetic.js';
 
 describe('InflowEditor', function () {
   it('scope path metadata is runtime only', function () {
@@ -74,6 +76,54 @@ describe('InflowEditor', function () {
     Root.instance.deleteValue('+NsFlowLib');
   });
 
+  it('saves namespace function libraries through their flow', function () {
+    const saved: {key?: string; data?: DataMap; workerSaved?: boolean} = {};
+    const storage: FlowStorage = {
+      delete() {},
+      saveFlow(flow, data, key) {
+        saved.key = key;
+        saved.data = data;
+      },
+      async loadFlow() {
+        return null;
+      },
+      saveWorkers() {
+        saved.workerSaved = true;
+      },
+      async loadWorkers() {
+        return null;
+      },
+      init() {},
+      getFlowLoader() {
+        return {};
+      },
+    };
+    Namespace.setStorage(storage);
+
+    try {
+      const data = {'#is': '', 'add': {'#is': 'add'}};
+      const lib = Namespace.getFunctionLib('+NsFlowSave:g:a');
+
+      WorkerFunctionGen.registerType(data, {id: '+NsFlowSave:g:a', name: 'a'}, undefined, lib);
+
+      expect(saved.key).toBe('+NsFlowSave.:g');
+      expect(saved.data).toEqual({
+        '#is': '',
+        '#functions': {
+          ':a': {
+            type: 'worker',
+            worker: data,
+          },
+        },
+      });
+      expect(saved.workerSaved).not.toBe(true);
+    } finally {
+      Namespace.delete('+NsFlowSave:g:a');
+      Root.instance.deleteValue('+NsFlowSave');
+      Namespace.setStorage(undefined as any);
+    }
+  });
+
   it('uses : as the flow name for an empty namespace function library name', function () {
     const data = {'#is': '', 'add': {'#is': 'add'}};
     const lib = Namespace.getFunctionLib('+NsFlowLibEmpty::a');
@@ -92,6 +142,116 @@ describe('InflowEditor', function () {
 
     Namespace.delete('+NsFlowLibEmpty::a');
     Root.instance.deleteValue('+NsFlowLibEmpty');
+  });
+
+  it('runs namespace worker functions from a regular flow', function () {
+    const data = {
+      '#is': '',
+      '#inputs': {'#is': '', '#custom': [{name: 'n', type: 'number'}]},
+      '#outputs': {'#is': '', '#custom': [{name: 'result', type: 'number'}], '~result': '##.add.#output'},
+      'add': {'#is': 'add', '1': 1, '~0': '##.#inputs.n'},
+    };
+    const funcId = '+NsFlowRuntime:g:f1';
+    const lib = Namespace.getFunctionLib(funcId);
+
+    WorkerFunctionGen.registerType(data, {id: funcId, name: 'f1'}, undefined, lib);
+
+    expect(Namespace.getDescToSend(funcId)[0]?.id).toBe(funcId);
+
+    const flow = Root.instance.addFlow('NsFlowRuntimeUse', {});
+    flow.createBlock('calc')._load({'#is': funcId, 'n': 2});
+    Root.runAll();
+
+    expect(flow.queryValue('calc.result')).toBe(3);
+
+    Root.instance.deleteValue('NsFlowRuntimeUse');
+    Namespace.delete(funcId);
+    Root.instance.deleteValue('+NsFlowRuntime');
+  });
+
+  it('loads saved namespace function libraries as FlowLibs', function () {
+    const worker = {
+      '#is': '',
+      '#inputs': {'#is': '', '#custom': [{name: 'n', type: 'number'}]},
+      '#outputs': {'#is': '', '#custom': [{name: 'result', type: 'number'}], '~result': '##.add.#output'},
+      'add': {'#is': 'add', '1': 1, '~0': '##.#inputs.n'},
+    };
+    const flowData = {
+      '#is': '',
+      '#functions': {
+        ':f1': {
+          type: 'worker',
+          worker,
+        },
+      },
+    };
+    const funcId = '+NsFlowLoad:g:f1';
+
+    const libFlow = Root.instance.addFlow('+NsFlowLoad.:g', flowData, null, true);
+
+    expect(libFlow).toBeInstanceOf(FlowLib);
+    expect(Namespace.getAllFunctionIds()).toContain(funcId);
+    expect(Namespace.getDescToSend(funcId)[0]?.id).toBe(funcId);
+
+    const flow = Root.instance.addFlow('NsFlowLoadUse', {});
+    flow.createBlock('calc')._load({'#is': funcId, 'n': 2});
+    Root.runAll();
+
+    expect(flow.queryValue('calc.result')).toBe(3);
+
+    Root.instance.deleteValue('NsFlowLoadUse');
+    Namespace.delete(funcId);
+    Root.instance.deleteValue('+NsFlowLoad');
+  });
+
+  it('resolves local ids inside namespace function libraries', function () {
+    const bbWorker = {
+      '#is': '',
+      '#inputs': {'#is': '', '#custom': [{name: 'n', type: 'number'}]},
+      '#outputs': {'#is': '', '#custom': [{name: 'result', type: 'number'}], '~result': '##.add.#output'},
+      'add': {'#is': 'add', '1': 1, '~0': '##.#inputs.n'},
+    };
+    const aaWorker = {
+      '#is': '',
+      '#inputs': {'#is': '', '#custom': [{name: 'n', type: 'number'}]},
+      '#outputs': {'#is': '', '#custom': [{name: 'result', type: 'number'}], '~result': '##.bb.result'},
+      'bb': {'#is': ':bb', '~n': '##.#inputs.n'},
+    };
+    const flowData = {
+      '#is': '',
+      '#functions': {
+        ':aa': {
+          type: 'worker',
+          worker: aaWorker,
+        },
+        ':bb': {
+          type: 'worker',
+          worker: bbWorker,
+        },
+      },
+    };
+    const libFlow = Root.instance.addFlow('+NsFlowLocal.:g', flowData, null, true);
+    const lib = libFlow.getFuncLib();
+
+    expect(lib.getDescToSend(':aa')[0]?.id).toBe(':aa');
+    expect(lib.getDescToSend('+NsFlowLocal:g:aa')[0]?.id).toBe('+NsFlowLocal:g:aa');
+    expect(lib.getWorkerData(':aa')).toEqual(aaWorker);
+    expect(lib.getWorkerData('+NsFlowLocal:g:aa')).toEqual(aaWorker);
+
+    libFlow.createBlock('calc')._load({'#is': ':aa', 'n': 2});
+    Root.runAll();
+    expect(libFlow.queryValue('calc.result')).toBe(3);
+
+    const flow = Root.instance.addFlow('NsFlowLocalUse', {});
+    flow.createBlock('calc')._load({'#is': '+NsFlowLocal:g:aa', 'n': 2});
+    Root.runAll();
+    expect(flow.queryValue('calc.result')).toBe(3);
+    expect(libFlow.save()['#functions']).toEqual(flowData['#functions']);
+
+    Root.instance.deleteValue('NsFlowLocalUse');
+    Namespace.delete('+NsFlowLocal:g:aa');
+    Namespace.delete('+NsFlowLocal:g:bb');
+    Root.instance.deleteValue('+NsFlowLocal');
   });
 
   it('createFromField', function () {

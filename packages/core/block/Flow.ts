@@ -19,7 +19,7 @@ import {FlowHistory} from './FlowHistory.js';
 import {getDefaultZone, updateGlobalSettings} from '../util/Settings.js';
 import {DataWrapper, FunctionOutput} from './FunctonData.js';
 import {Namespace} from './Namespace.js';
-import {PersistentFunctionLib} from './NSFunctionLib.js';
+import {NsFunctionLib, PersistentFunctionLib} from './NSFunctionLib.js';
 
 export enum FlowState {
   enabled,
@@ -31,6 +31,14 @@ export interface FlowLoader {
   createFolder?(path: string, prop: BlockProperty): FlowFolder;
   applyChange?(flow: Flow): DataMap;
   onStateChange?(flow: Flow, state: FlowState): void;
+}
+
+function parseFlowLibPath(path: string): [string, string] | null {
+  const libPos = path?.indexOf('.:');
+  if (libPos > 0 && path.charCodeAt(0) === 43 /* + */ && path.indexOf('.', libPos + 2) === -1) {
+    return [path.substring(0, libPos), path.substring(libPos + 2)];
+  }
+  return null;
 }
 
 // Flow is the persistence and execution boundary around a block tree. It is a
@@ -587,8 +595,13 @@ export class Root extends FlowFolder {
       loader = this._storage.getFlowLoader(path, prop);
     }
     let newFlow: Flow;
+    let funcLib: FunctionLib;
+    const flowLibPath = parseFlowLibPath(path);
     if (loader?.createFlow) {
       newFlow = loader.createFlow(path, prop);
+    } else if (flowLibPath) {
+      newFlow = new FlowLib(prop._block, null, prop);
+      funcLib = new NsFunctionLib(flowLibPath[0], flowLibPath[1], this._storage, newFlow);
     } else {
       newFlow = new Flow(prop._block, null, prop);
     }
@@ -602,14 +615,17 @@ export class Root extends FlowFolder {
       if (!data) {
         data = {};
       }
-      newFlow.load(data, null, loader.applyChange, loader.onStateChange);
+      newFlow.load(data, null, loader.applyChange, loader.onStateChange, undefined, funcLib);
       if (this._storage?.inited && Object.keys(data).length) {
         newFlow.applyChange();
       }
     } else {
-      newFlow.load(data);
+      newFlow.load(data, null, undefined, undefined, undefined, funcLib);
     }
     prop.setValue(newFlow);
+    if (flowLibPath) {
+      Namespace.getNameSpace(flowLibPath[0])?.getLib(flowLibPath[1]);
+    }
     return newFlow;
   }
 

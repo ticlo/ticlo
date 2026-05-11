@@ -1,8 +1,7 @@
 import {type FunctionClass} from './BlockFunction.js';
 import {type FunctionDesc} from './Descriptor.js';
 import {isDataMap, type DataMap} from '../util/DataTypes.js';
-import {type PropListener} from './Dispatcher.js';
-import {type FunctionDispatcher, FunctionLib} from './FunctionLib.js';
+import {FunctionLib} from './FunctionLib.js';
 import {FlowStorage} from './Storage.js';
 import {type Flow} from './Flow.js';
 
@@ -85,23 +84,15 @@ export class NsFunctionLib extends PersistentFunctionLib {
     namespace: string,
     public readonly libName: string,
     private readonly storage: FlowStorage,
-    private readonly flow?: Flow
+    flow?: Flow
   ) {
     super(namespace, flow);
     this.prefix = `${namespace}:${libName}`;
   }
-  listen(id: string, block: PropListener<FunctionClass>): FunctionDispatcher {
-    let fullId = id;
-    if (id.charCodeAt(0) === 58 /* : */) {
-      fullId = `${this.prefix}${id}`;
-    } else if (id.charCodeAt(1) === 58 /* : */) {
-      // replace +: with current prefix
-      fullId = `${this.namespace}${id.substring(1)}`;
-    }
-    return super.listen(fullId, block);
-  }
-
   getFullId(localId: string) {
+    if (localId.charCodeAt(0) === 43 /* + */) {
+      return localId;
+    }
     if (localId.charCodeAt(0) === 58 /* : */) {
       return `${this.prefix}${localId}`;
     }
@@ -115,42 +106,81 @@ export class NsFunctionLib extends PersistentFunctionLib {
     return fullId;
   }
 
+  save() {
+    let result: DataMap | undefined = undefined;
+    for (const key in this._functions) {
+      if (key.charCodeAt(0) === 43 /* + */) {
+        continue;
+      }
+      if (this._functions[key]._desc) {
+        const funcData = this._functions[key].getValue()?.save?.();
+        if (funcData) {
+          result ??= {};
+          result[key] = funcData;
+        }
+      }
+    }
+    return result;
+  }
+
   saveToStorage() {
     if (!this.storage) {
       return;
     }
-    const data = this.flow?.save() ?? {'#is': '', '#functions': this.save()};
-    this.storage.saveWorkers(this.namespace, this.libName, data);
-  }
-  async loadFromStorage() {
-    if (!this.storage) {
-      return;
-    }
-    const data = await this.storage.loadWorkers(this.namespace, this.libName);
-    if (data) {
-      if (this.flow?._loaded) {
-        this.flow.liveUpdate(data);
-      } else if (data['#functions']) {
-        this.load(data['#functions'] as DataMap);
+    if (this.flow) {
+      if (this.flow._loaded) {
+        this.flow.applyChange();
+      } else {
+        this.storage.saveFlow(null, this.flow.save(), this.flow.getFullPath());
       }
     }
   }
-
   load(data: DataMap) {
     this._loaded = 'loading';
-    super.load(data);
+    const usedFullId: Record<string, boolean> = {};
+    for (const localFuncId in data) {
+      const funcData = data[localFuncId];
+      if (isDataMap(funcData) && typeof funcData.type === 'string') {
+        const fullId = this.getFullId(localFuncId);
+        const localId = this.getLocalId(fullId);
+        usedFullId[fullId] = true;
+        usedFullId[localId] = true;
+        if (
+          this._functions[fullId]?._value?.equals?.(funcData) &&
+          this._functions[localId]?._value?.equals?.(funcData)
+        ) {
+          continue;
+        }
+        const loader = PersistentFunctionLib._loaders.get(funcData.type);
+        if (loader) {
+          const [func, desc] = loader.load(funcData, localId, fullId, this.namespace);
+          this.add(func, desc, this.namespace);
+        }
+      }
+    }
+    for (const existingId in this._functions) {
+      if (!(existingId in usedFullId)) {
+        this._functions[existingId].updateValue(undefined);
+      }
+    }
     this._loaded = true;
   }
 
   add(func: FunctionClass, desc: FunctionDesc, namespace?: string) {
-    super.add(func, desc, namespace);
+    const fullId = this.getFullId(desc.id);
+    const localId = this.getLocalId(fullId);
+    super.add(func, {...desc, id: localId}, namespace);
+    super.add(func, {...desc, id: fullId}, namespace);
     if (this._loaded !== 'loading') {
       this.saveToStorage();
     }
   }
 
   delete(id: string): void {
-    super.delete(id);
+    const fullId = this.getFullId(id);
+    const localId = this.getLocalId(fullId);
+    super.delete(localId);
+    super.delete(fullId);
     if (this._loaded !== 'loading') {
       this.saveToStorage();
     }

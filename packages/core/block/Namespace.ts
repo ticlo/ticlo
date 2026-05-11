@@ -204,7 +204,7 @@ export class Namespace {
           Namespace._storage
             ? (changedFlow: Flow) => {
                 const data = changedFlow.save();
-                Namespace._storage.saveWorkers(this.ns, libName, data);
+                Namespace._storage.saveFlow(null, data, changedFlow.getFullPath());
                 return data;
               }
             : undefined,
@@ -218,8 +218,12 @@ export class Namespace {
       for (const listener of Namespace._descListeners) {
         lib.listenDesc(listener);
       }
-      if (this._enabled) {
-        lib.loadFromStorage();
+      if (this._enabled && flow && Namespace._storage) {
+        Namespace._storage.loadFlow(flow.getFullPath()).then((data) => {
+          if (data) {
+            flow.liveUpdate(data);
+          }
+        });
       }
     }
     return lib;
