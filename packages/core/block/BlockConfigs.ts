@@ -255,5 +255,5 @@ export const GlobalConfigGenerators: {[key: string]: typeof BlockProperty} = {
 };
 export const FlowLibConfigGenerators: {[key: string]: typeof BlockProperty} = {
   ...FlowConfigGenerators,
-  '#is': ConstTypeConfig('#flow:lib'),
+  '#is': ConstTypeConfig('flow:lib'),
 };

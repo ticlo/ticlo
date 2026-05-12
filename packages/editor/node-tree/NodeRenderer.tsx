@@ -1,6 +1,7 @@
 import React from 'react';
 
 import {
+  BookFilled,
   BuildOutlined,
   DeleteOutlined,
   FileAddOutlined,
@@ -52,7 +53,8 @@ const quickOpenAllowed = new Set<string>([
   'flow:global',
 ]);
 const addFlowAllowed = ['flow:folder', 'flow:test-group', 'flow:namespace'];
-const addFolderAllowed = ['flow:folder', 'flow:namespace'];
+const addFolderAllowed = ['flow:folder'];
+const addLibraryAllowed = ['flow:namespace'];
 
 export class NodeTreeItem extends TreeItem<NodeTreeItem> {
   childPrefix: string;
@@ -234,6 +236,10 @@ export class NodeTreeRenderer extends PureDataRenderer<Props, any> {
     const {item} = this.props;
     showModal(<AddNewFlowDialog conn={item.getConn()} basePath={`${path}.`} isFolder={true} />, this.context.showModal);
   };
+  onAddLibraryClick = (path: string) => {
+    const {item} = this.props;
+    showModal(<AddNewFlowDialog conn={item.getConn()} basePath={`${path}.:`} />, this.context.showModal);
+  };
 
   getMenu = () => {
     const {item} = this.props;
@@ -263,6 +269,14 @@ export class NodeTreeRenderer extends PureDataRenderer<Props, any> {
         <MenuItem key="addFolder" value={item.key} onClick={this.onAddFolderClick}>
           <FileAddOutlined />
           {t('Add Folder')}
+        </MenuItem>
+      );
+    }
+    if (addLibraryAllowed.includes(item.functionId)) {
+      menuItems.push(
+        <MenuItem key="addLibrary" value={item.key} onClick={this.onAddLibraryClick}>
+          <FileAddOutlined />
+          {t('Add Library')}
         </MenuItem>
       );
     }
@@ -393,6 +407,8 @@ export class NodeTreeRenderer extends PureDataRenderer<Props, any> {
         icon = <FolderOpenOutlined />;
       } else if (item.functionId === 'flow:namespace') {
         icon = <FolderOpenFilled />;
+      } else if (item.functionId === 'flow:lib') {
+        icon = <BookFilled />;
       }
     }
 

@@ -2,6 +2,7 @@ import React, {MouseEventHandler} from 'react';
 import {Button, Input, Modal, Radio, Tooltip, message} from 'antd';
 import {
   AppstoreOutlined,
+  BookOutlined,
   BorderlessTableOutlined,
   CloseCircleOutlined,
   FileOutlined,
@@ -117,7 +118,7 @@ export class FunctionSelect extends React.PureComponent<Props, State> {
           <Radio.Group defaultValue="tree" size="small" onChange={this.onToggleChange}>
             <Tooltip title={t('In-Flow')}>
               <Radio.Button value="inFlow">
-                <FileOutlined />
+                <BookOutlined />
               </Radio.Button>
             </Tooltip>
             <Tooltip title={t('Global')}>

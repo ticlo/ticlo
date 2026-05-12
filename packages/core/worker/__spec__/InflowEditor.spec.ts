@@ -58,7 +58,7 @@ describe('InflowEditor', function () {
     const libFlow = Root.instance.queryValue('+NsFlowLib.:g') as FlowLib;
 
     expect(libFlow).toBeInstanceOf(FlowLib);
-    expect(libFlow.getValue('#is')).toBe('#flow:lib');
+    expect(libFlow.getValue('#is')).toBe('flow:lib');
 
     WorkerFunctionGen.registerType(data, {id: '+NsFlowLib:g:a', name: 'a'}, undefined, lib);
 
