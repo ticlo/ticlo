@@ -1,8 +1,7 @@
 import {serve} from '@hono/node-server';
-import {Hono} from 'hono';
 import {Flow, Root, setStorageFunctionProvider} from '@ticlo/core';
 import {FileFlowStorage, FileStorage} from '@ticlo/node';
-import {connectTiclo, routeTiclo, getEditorUrl} from '@ticlo/web-server/server.js';
+import {createTicloApp, getEditorUrl} from '@ticlo/web-server/server.js';
 import '@ticlo/test';
 import {data} from '../sample-data/data.js';
 import reactData from '../sample-data/react.js';
@@ -21,30 +20,11 @@ import reactData from '../sample-data/react.js';
     const flow = Root.instance.addFlow('example', data);
   }
 
-  const app = new Hono();
-
-  app.use('*', async (c, next) => {
-    if (c.req.header('upgrade') === 'websocket') {
-      return next();
-    }
-    c.header('Access-Control-Allow-Origin', '*');
-    c.header('Access-Control-Allow-Headers', 'content-type');
-    if (c.req.method === 'OPTIONS') {
-      return c.body(null);
-    }
-    await next();
-  });
-
-  // Register Ticlo routes
-  const ticloWs = await connectTiclo(app, '/ticlo');
-  await routeTiclo(app, '/api');
-
-  // Root route
-  app.get('/', (c) => c.text(''));
+  const {app, ticloWs} = await createTicloApp({enableEditor: true});
 
   try {
     const server = serve({fetch: app.fetch, port: 8010, hostname: '0.0.0.0'});
-    ticloWs.injectWebSocket(server);
+    ticloWs?.injectWebSocket(server);
     server.on('listening', () => {
       console.log('Server listening on http://localhost:8010');
       console.log(getEditorUrl('ws://127.0.0.1:8010/ticlo', 'example'));

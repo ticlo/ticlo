@@ -1,5 +1,5 @@
 import {createNodeWebSocket} from '@hono/node-ws';
-import type {Hono} from 'hono';
+import {Hono} from 'hono';
 import {Root} from '@ticlo/core';
 import {WsServerConnection, RestServerConnection} from '@ticlo/node';
 import {decodeReviver} from '@ticlo/core/util/Serialize.js';
@@ -10,6 +10,21 @@ import {HonoRequestData, HonoResponse} from './HttpRequest.js';
 ((v: any) => {})(ServerFunction);
 
 type HonoApp = Hono<any>;
+
+export interface TicloAppOptions {
+  app?: HonoApp;
+  apiPath?: string;
+  editorPath?: string;
+  serverBlockName?: string;
+  enableEditor?: boolean;
+  cors?: boolean;
+  rootRoute?: boolean;
+}
+
+export interface TicloApp {
+  app: HonoApp;
+  ticloWs?: Awaited<ReturnType<typeof connectTiclo>>;
+}
 
 function getQuery(url: string): {[key: string]: string} {
   return Object.fromEntries(new URL(url).searchParams.entries());
@@ -130,6 +145,34 @@ export async function connectTiclo(app: HonoApp, routeTicloPath: string) {
   });
 
   return {injectWebSocket};
+}
+
+export async function createTicloApp(options: TicloAppOptions = {}): Promise<TicloApp> {
+  const app = options.app ?? new Hono();
+
+  if (options.cors !== false) {
+    app.use('*', async (c, next) => {
+      if (c.req.header('upgrade') === 'websocket') {
+        return next();
+      }
+      c.header('Access-Control-Allow-Origin', '*');
+      c.header('Access-Control-Allow-Headers', 'content-type');
+      c.header('Access-Control-Allow-Methods', 'GET,POST,OPTIONS');
+      if (c.req.method === 'OPTIONS') {
+        return c.body(null, 204);
+      }
+      await next();
+    });
+  }
+
+  const ticloWs = options.enableEditor ? await connectTiclo(app, options.editorPath ?? '/ticlo') : undefined;
+  await routeTiclo(app, options.apiPath ?? '/api', options.serverBlockName);
+
+  if (options.rootRoute !== false) {
+    app.get('/', (c) => c.text(''));
+  }
+
+  return {app, ticloWs};
 }
 
 export function getEditorUrl(host: string, defaultFlow: string) {

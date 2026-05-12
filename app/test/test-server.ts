@@ -1,11 +1,10 @@
 import {serve as serveHono} from '@hono/node-server';
-import {Hono} from 'hono';
 import yargs from 'yargs';
 import {hideBin} from 'yargs/helpers';
 import {Root} from '@ticlo/core';
 import '../../packages/test/index.js';
 import '../../packages/node/index.js';
-import {connectTiclo, routeTiclo, getEditorUrl} from '@ticlo/web-server/server.js';
+import {createTicloApp, getEditorUrl} from '@ticlo/web-server/server.js';
 import {TestLoader} from '@ticlo/node/test-loader/TestLoader.js';
 import {TestRunner} from '@ticlo/test/TestRunner.js';
 import type {FlowTestGroup} from '@ticlo/test/FlowTestGroup.js';
@@ -51,30 +50,10 @@ const packagesToTest = ['packages/core', 'packages/web-server', 'packages/node']
 
   await Root.instance.setStorage(new TestLoader(packagesToTest, {onDemandLoad}));
 
-  const app = new Hono();
-
-  app.use('*', async (c, next) => {
-    if (c.req.header('upgrade') === 'websocket') {
-      return next();
-    }
-    c.header('Access-Control-Allow-Origin', '*');
-    c.header('Access-Control-Allow-Headers', 'content-type');
-    if (c.req.method === 'OPTIONS') {
-      return c.body(null);
-    }
-    await next();
-  });
-
-  let ticloWs: Awaited<ReturnType<typeof connectTiclo>> | undefined;
-  if (serve) {
-    ticloWs = await connectTiclo(app, '/ticlo');
-  }
-  await routeTiclo(app, '/api');
+  const {app, ticloWs} = await createTicloApp({enableEditor: serve});
 
   const globalClientBlock = Root.instance._globalRoot.createBlock('^local-client');
   globalClientBlock._load({'#is': 'http:client', 'url': `http://127.0.0.1:${port}/api/`});
-
-  app.get('/', (c) => c.text(''));
 
   try {
     const server = serveHono({fetch: app.fetch, port, hostname: '127.0.0.1'});
