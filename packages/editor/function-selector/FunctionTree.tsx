@@ -11,6 +11,7 @@ interface Props {
   filter?: (desc: FunctionDesc) => boolean;
   showPreset?: boolean;
   onFunctionClick?: OnFunctionClick;
+  onAddFunction?: (prefix: string) => void;
   funcLib?: string;
   style?: React.CSSProperties;
 }
@@ -29,12 +30,17 @@ export class FunctionTree extends React.PureComponent<Props, State> {
       props.onFunctionClick,
       props.showPreset,
       props.filter,
-      props.funcLib
+      props.funcLib,
+      props.onAddFunction
     );
   }
 
   componentDidUpdate(prevProps: Props) {
-    if (prevProps.funcLib !== this.props.funcLib || prevProps.conn !== this.props.conn) {
+    if (
+      prevProps.funcLib !== this.props.funcLib ||
+      prevProps.conn !== this.props.conn ||
+      prevProps.onAddFunction !== this.props.onAddFunction
+    ) {
       this.rootNode.destroy();
       this.rootNode = new FunctionTreeRoot(
         this.props.conn,
@@ -42,7 +48,8 @@ export class FunctionTree extends React.PureComponent<Props, State> {
         this.props.onFunctionClick,
         this.props.showPreset,
         this.props.filter,
-        this.props.funcLib
+        this.props.funcLib,
+        this.props.onAddFunction
       );
       this.forceUpdate();
     }

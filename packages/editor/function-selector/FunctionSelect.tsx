@@ -41,13 +41,14 @@ interface State {
   search: string;
   modelVisible: boolean;
   newFunctionName: string;
+  addFunctionPrefix: string;
 }
 
 export class FunctionSelect extends React.PureComponent<Props, State> {
   static contextType = TicloLayoutContextType;
   declare context: TicloLayoutContext;
 
-  state = {tab: 'tree', search: '', modelVisible: false, newFunctionName: ''};
+  state = {tab: 'tree', search: '', modelVisible: false, newFunctionName: '', addFunctionPrefix: ':'};
 
   onFilterChange = (e: React.SyntheticEvent) => {
     this.setState({search: (e.target as HTMLInputElement).value});
@@ -63,16 +64,19 @@ export class FunctionSelect extends React.PureComponent<Props, State> {
   onFunctionNameChange = (e: React.SyntheticEvent) => {
     this.setState({newFunctionName: (e.target as HTMLInputElement).value});
   };
-  onAddFunction = () => {
-    this.setState({modelVisible: true});
+  onAddFunction = (prefix: string) => {
+    this.setState({modelVisible: true, addFunctionPrefix: prefix});
+  };
+  onAddInFlowFunction = () => {
+    this.onAddFunction(':');
   };
   onAddFunctionOk = () => {
     // TODO validate function name;
-    const {newFunctionName} = this.state;
+    const {newFunctionName, addFunctionPrefix} = this.state;
     if (newFunctionName) {
       const {conn, funcLib} = this.props;
-      const isGlobal = newFunctionName.startsWith('+');
-      const funcId = isGlobal ? newFunctionName : `:${newFunctionName}`;
+      const isGlobal = addFunctionPrefix.startsWith('+');
+      const funcId = `${addFunctionPrefix}${newFunctionName}`;
       const editPath = `#temp.#edit-${encodeTicloName(funcId)}`;
       conn.editWorker(
         editPath,
@@ -107,7 +111,7 @@ export class FunctionSelect extends React.PureComponent<Props, State> {
   };
   render() {
     const {conn, showPreset, onFunctionClick, onClick, filter, useFlow, currentValue, funcLib} = this.props;
-    const {tab, search, modelVisible, newFunctionName} = this.state;
+    const {tab, search, modelVisible, newFunctionName, addFunctionPrefix} = this.state;
 
     if (!conn) {
       return <div />;
@@ -161,7 +165,12 @@ export class FunctionSelect extends React.PureComponent<Props, State> {
             onOk={this.onAddFunctionOk}
             onCancel={this.onAddFunctionCancel}
           >
-            <Input size="small" value={newFunctionName} onChange={this.onFunctionNameChange} />
+            <Input
+              size="small"
+              addonBefore={addFunctionPrefix}
+              value={newFunctionName}
+              onChange={this.onFunctionNameChange}
+            />
           </Modal>
         </div>
         {useFlow && (
@@ -190,7 +199,7 @@ export class FunctionSelect extends React.PureComponent<Props, State> {
               <Button
                 className="ticl-func-tree-add-btn"
                 shape="circle"
-                onClick={this.onAddFunction}
+                onClick={this.onAddInFlowFunction}
                 icon={<PlusOutlined />}
               />
             </Tooltip>
@@ -201,6 +210,7 @@ export class FunctionSelect extends React.PureComponent<Props, State> {
             search={search}
             filter={filter}
             onFunctionClick={onFunctionClick}
+            onAddFunction={this.onAddFunction}
             funcLib={funcLib ?? ''}
           />
         </div>
@@ -210,6 +220,7 @@ export class FunctionSelect extends React.PureComponent<Props, State> {
           search={search}
           filter={filter}
           onFunctionClick={onFunctionClick}
+          onAddFunction={this.onAddFunction}
           style={{display: tab === 'tree' ? '' : 'none'}}
         />
         <FunctionList conn={conn} recent={true} funcLib={funcLib} style={{display: tab === 'recent' ? '' : 'none'}} />

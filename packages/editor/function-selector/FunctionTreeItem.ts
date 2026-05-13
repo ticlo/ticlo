@@ -183,6 +183,7 @@ export class FunctionTreeItem extends TreeItem<FunctionTreeItem> {
 export class FunctionTreeRoot extends FunctionTreeItem {
   showPreset: boolean;
   onFunctionClick: OnFunctionClick;
+  onAddFunction: (prefix: string) => void;
   filter: (desc: FunctionDesc) => boolean;
   inFlow: boolean;
   funcLib?: string;
@@ -283,7 +284,8 @@ export class FunctionTreeRoot extends FunctionTreeItem {
     onFunctionClick?: OnFunctionClick,
     showPreset?: boolean,
     filter?: (desc: FunctionDesc) => boolean,
-    funcLib?: string
+    funcLib?: string,
+    onAddFunction?: (prefix: string) => void
   ) {
     super(null, null, '');
     this.level = -1;
@@ -292,6 +294,7 @@ export class FunctionTreeRoot extends FunctionTreeItem {
     this.connection = conn;
     this.onListChange = onListChange;
     this.onFunctionClick = onFunctionClick;
+    this.onAddFunction = onAddFunction;
     this.filter = filter;
     this.inFlow = funcLib != null;
     this.funcLib = funcLib;
