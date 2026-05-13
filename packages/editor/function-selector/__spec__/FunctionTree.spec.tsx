@@ -7,11 +7,23 @@ import {WorkerFunctionGen} from '@ticlo/core/worker/WorkerFunctionGen.js';
 import {DescRequest} from '@ticlo/core/connect/ClientRequests.js';
 import {FunctionTreeRoot} from '../FunctionTreeItem.js';
 import {FunctionTreeRenderer} from '../FunctionTreeRenderer.js';
+import {FunctionSelect} from '../FunctionSelect.js';
 import {FunctionView} from '../FunctionView.js';
 import {loadTemplate, querySingle, removeLastTemplate} from '../../util/test-util.js';
 import {Namespace} from '@ticlo/core/block/Namespace.js';
 
 describe('FunctionTree', function () {
+  function findElements(node: any, predicate: (element: any) => boolean): any[] {
+    if (Array.isArray(node)) {
+      return node.flatMap((child) => findElements(child, predicate));
+    }
+    if (!React.isValidElement(node)) {
+      return [];
+    }
+    const matches = predicate(node) ? [node] : [];
+    return matches.concat(findElements((node.props as any).children, predicate));
+  }
+
   it('passes funcLib when editing an in-flow function', function () {
     let editRequest: any;
     const view = new FunctionView({
@@ -78,7 +90,7 @@ describe('FunctionTree', function () {
   it('shows the context menu for an in-flow function', function () {
     const view = new FunctionView({
       conn: {
-        getCategory: () => undefined,
+        getCategory: (): undefined => undefined,
       },
       desc: {id: ':a', name: 'a', src: 'worker'},
       funcLib: 'FunctionTreeScope',
@@ -92,6 +104,26 @@ describe('FunctionTree', function () {
     const rendered = view.render();
 
     expect((rendered as any).props.trigger).toEqual(['contextMenu']);
+  });
+
+  it('shows add function only on the selected in-flow tree', function () {
+    const select = new FunctionSelect({conn: {}} as any);
+    select.context = {
+      onFlowFocus: () => {},
+      onFlowClosed: () => {},
+      editFlow: () => {},
+    };
+
+    let rendered = select.render();
+    expect(findElements(rendered, (element) => element.props.className === 'ticl-func-tree-add-btn')).toHaveLength(0);
+
+    select.state = {...select.state, tab: 'inFlow'};
+    rendered = select.render();
+
+    const addButtons = findElements(rendered, (element) => element.props.className === 'ticl-func-tree-add-btn');
+    const treeWrappers = findElements(rendered, (element) => element.props.className === 'ticl-func-tree-wrap');
+    expect(addButtons).toHaveLength(1);
+    expect(findElements(treeWrappers[0], (element) => element.props.className === 'ticl-func-tree-add-btn')).toHaveLength(1);
   });
 
   it('shows inflow functions as flat function items', async function () {

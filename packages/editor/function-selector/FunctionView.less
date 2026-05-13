@@ -63,9 +63,26 @@
   display: flex;
   flex-direction: column;
 
+  & > .ticl-func-tree-wrap,
   & > .ticl-func-tree,
   & > .ticl-func-list {
     flex: 1;
+    min-height: 0;
+  }
+
+  & > .ticl-func-tree-wrap {
+    position: relative;
+
+    & > .ticl-func-tree {
+      height: 100%;
+    }
+  }
+
+  .ticl-func-tree-add-btn {
+    position: absolute;
+    top: 6px;
+    right: 8px;
+    z-index: 2;
   }
 
   & > div {

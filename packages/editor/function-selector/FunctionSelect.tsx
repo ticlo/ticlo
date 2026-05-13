@@ -8,7 +8,7 @@ import {
   FileOutlined,
   FilterOutlined,
   HistoryOutlined,
-  PlusSquareOutlined,
+  PlusOutlined,
   SubnodeOutlined,
 } from '@ant-design/icons';
 
@@ -112,6 +112,7 @@ export class FunctionSelect extends React.PureComponent<Props, State> {
     if (!conn) {
       return <div />;
     }
+    const showAddFunction = Boolean(this.context?.editFlow && tab === 'inFlow');
     return (
       <div className="ticl-func-select" onClick={onClick}>
         <div className="tlcl-top-menu-box ticl-hbox">
@@ -154,11 +155,6 @@ export class FunctionSelect extends React.PureComponent<Props, State> {
               />
             )}
           </TicloI18NConsumer>
-          {this.context?.editFlow ? (
-            <Tooltip title={t('Add Function')}>
-              <Button size="small" onClick={this.onAddFunction} icon={<PlusSquareOutlined />} />
-            </Tooltip>
-          ) : null}
           <Modal
             title={t('Function Name?')}
             open={this.state.modelVisible}
@@ -188,15 +184,26 @@ export class FunctionSelect extends React.PureComponent<Props, State> {
             </Button>
           </>
         )}
-        <FunctionTree
-          conn={conn}
-          showPreset={showPreset}
-          search={search}
-          filter={filter}
-          onFunctionClick={onFunctionClick}
-          funcLib={funcLib ?? ''}
-          style={{display: tab === 'inFlow' ? '' : 'none'}}
-        />
+        <div className="ticl-func-tree-wrap" style={{display: tab === 'inFlow' ? '' : 'none'}}>
+          {showAddFunction ? (
+            <Tooltip title={t('Add Function')}>
+              <Button
+                className="ticl-func-tree-add-btn"
+                shape="circle"
+                onClick={this.onAddFunction}
+                icon={<PlusOutlined />}
+              />
+            </Tooltip>
+          ) : null}
+          <FunctionTree
+            conn={conn}
+            showPreset={showPreset}
+            search={search}
+            filter={filter}
+            onFunctionClick={onFunctionClick}
+            funcLib={funcLib ?? ''}
+          />
+        </div>
         <FunctionTree
           conn={conn}
           showPreset={showPreset}
