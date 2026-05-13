@@ -20,7 +20,7 @@
     "test-server": "tsx test/test-server.ts"
   },
   "dependencies": {
-    "@fastify/websocket": "^11.0.0",
+    "@hono/node-server": "^1.19.14",
     "@ticlo/core": "workspace:*",
     "@ticlo/editor": "workspace:*",
     "@ticlo/html": "workspace:*",
@@ -29,7 +29,7 @@
     "@ticlo/test": "workspace:*",
     "@ticlo/web-server": "workspace:*",
     "antd": "^6.0.1",
-    "fastify": "^5.0.0",
+    "hono": "^4.12.18",
     "i18next": "^23.10.1",
     "rc-dock": "^4.0.0-alpha.3",
     "react": "^18.2.0",

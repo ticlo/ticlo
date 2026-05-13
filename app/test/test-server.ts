@@ -1,4 +1,5 @@
-import Fastify from 'fastify';
+import {serve as serveHono} from '@hono/node-server';
+import {Hono} from 'hono';
 import yargs from 'yargs';
 import {hideBin} from 'yargs/helpers';
 import {Root} from '@ticlo/core';
@@ -50,35 +51,44 @@ const packagesToTest = ['packages/core', 'packages/web-server', 'packages/node']
 
   await Root.instance.setStorage(new TestLoader(packagesToTest, {onDemandLoad}));
 
-  // Create Fastify instance (HTTP/1.1 for test server compatibility)
-  const app = Fastify({
-    logger: false,
+  const app = new Hono();
+
+  app.use('*', async (c, next) => {
+    if (c.req.header('upgrade') === 'websocket') {
+      return next();
+    }
+    c.header('Access-Control-Allow-Origin', '*');
+    c.header('Access-Control-Allow-Headers', 'content-type');
+    if (c.req.method === 'OPTIONS') {
+      return c.body(null);
+    }
+    await next();
   });
 
-  // CORS middleware
-  app.addHook('onRequest', async (request, reply) => {
-    reply.header('Access-Control-Allow-Origin', '*');
-    reply.header('Access-Control-Allow-Headers', 'content-type');
-  });
-
+  let ticloWs: Awaited<ReturnType<typeof connectTiclo>> | undefined;
   if (serve) {
-    await connectTiclo(app, '/ticlo');
+    ticloWs = await connectTiclo(app, '/ticlo');
   }
   await routeTiclo(app, '/api');
 
   const globalClientBlock = Root.instance._globalRoot.createBlock('^local-client');
   globalClientBlock._load({'#is': 'http:client', 'url': `http://127.0.0.1:${port}/api/`});
 
-  app.get('/', async (request, reply) => {
-    return '';
-  });
+  app.get('/', (c) => c.text(''));
 
   try {
-    await app.listen({port, host: '127.0.0.1'});
-    console.log(`listening on ${port}`);
-    if (serve) {
-      console.log(getEditorUrl(`ws://127.0.0.1:${port}/ticlo`, 'example'));
-    }
+    const server = serveHono({fetch: app.fetch, port, hostname: '127.0.0.1'});
+    ticloWs?.injectWebSocket(server);
+    server.on('listening', () => {
+      console.log(`listening on ${port}`);
+      if (serve) {
+        console.log(getEditorUrl(`ws://127.0.0.1:${port}/ticlo`, 'example'));
+      }
+    });
+    server.on('error', (err) => {
+      console.error('Server failed to start:', err);
+      process.exit(1);
+    });
 
     if (run) {
       const testRunner = new TestRunner(

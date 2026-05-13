@@ -6,11 +6,10 @@ import {
 } from '@ticlo/core/functions/web-server/RouteFunction.js';
 import {globalFunctions, type Block} from '@ticlo/core';
 import {BaseFunction, StatefulFunction} from '@ticlo/core/block/BlockFunction.js';
-import {FastifyRequest, FastifyReply} from 'fastify';
 import {decodeReviver, encode} from '@ticlo/core/util/Serialize.js';
 import {escapedObject} from '@ticlo/core/util/NoSerialize.js';
 import {Uid} from '@ticlo/core/util/Uid.js';
-import {HttpRequest} from './HttpRequest.js';
+import {HonoRequestData, HonoResponse, HttpRequest} from './HttpRequest.js';
 import {Resolver} from '@ticlo/core/block/Resolver.js';
 
 const serviceId: Uid = new Uid();
@@ -36,12 +35,12 @@ export class ServerFunction extends BaseFunction<Block> {
     return [targetRoutes, path];
   }
 
-  requestHandler = async (basePath: string, req: FastifyRequest, res: FastifyReply) => {
+  requestHandler = async (basePath: string, req: HonoRequestData, res: HonoResponse) => {
     let contentType: RouteContentType;
     let body: any;
 
     // Parse content based on content-type
-    const contentTypeHeader = req.headers['content-type'] as string;
+    const contentTypeHeader = req.headers['content-type'];
 
     if (contentTypeHeader) {
       if (contentTypeHeader.includes('application/json')) {

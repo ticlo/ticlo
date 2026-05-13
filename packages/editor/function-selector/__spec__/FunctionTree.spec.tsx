@@ -123,7 +123,9 @@ describe('FunctionTree', function () {
     const addButtons = findElements(rendered, (element) => element.props.className === 'ticl-func-tree-add-btn');
     const treeWrappers = findElements(rendered, (element) => element.props.className === 'ticl-func-tree-wrap');
     expect(addButtons).toHaveLength(1);
-    expect(findElements(treeWrappers[0], (element) => element.props.className === 'ticl-func-tree-add-btn')).toHaveLength(1);
+    expect(
+      findElements(treeWrappers[0], (element) => element.props.className === 'ticl-func-tree-add-btn')
+    ).toHaveLength(1);
   });
 
   it('shows inflow functions as flat function items', async function () {

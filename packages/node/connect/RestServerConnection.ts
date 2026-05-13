@@ -1,8 +1,17 @@
-import {FastifyRequest, FastifyReply} from 'fastify';
 import {ServerConnection, DataMap, Logger, decode, encode, decodeReviver} from '@ticlo/core';
 
+interface RestRequest {
+  body: any;
+}
+
+interface RestResponse {
+  send(data?: any): unknown;
+  status(status: number): RestResponse;
+  header(key: string, value: unknown): RestResponse;
+}
+
 export class RestServerConnection extends ServerConnection {
-  onHttpPost = async (req: FastifyRequest, res: FastifyReply) => {
+  onHttpPost = async (req: RestRequest, res: RestResponse) => {
     try {
       // Parse JSON body with decodeReviver
       let request: any;
@@ -36,7 +45,7 @@ export class RestServerConnection extends ServerConnection {
     }
   };
 
-  onHttpGetFile = async (req: FastifyRequest, res: FastifyReply) => {
+  onHttpGetFile = async (req: RestRequest, res: RestResponse) => {
     console.log('getfile');
     return res.status(402).send('');
   };

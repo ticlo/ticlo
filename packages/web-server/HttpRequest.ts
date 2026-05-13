@@ -1,15 +1,72 @@
-import {FastifyRequest, FastifyReply} from 'fastify';
 import {Block, convertToObject, DataMap} from '@ticlo/core';
 import {HttpRequest as BaseHttpRequest} from '@ticlo/core/functions/web-server/HttpRequest.js';
 
-export class HttpRequest extends BaseHttpRequest {
-  req: FastifyRequest;
-  res: FastifyReply;
+export interface HonoRequestData {
+  method: string;
+  url: string;
+  body: any;
+  query: {[key: string]: string};
+  headers: {[key: string]: string};
+}
 
-  constructor(req: FastifyRequest, res: FastifyReply, basePath: string) {
+export class HonoResponse {
+  private _headers = new Headers();
+  private _status = 200;
+  private _sent = false;
+  private _resolve!: (response: Response) => void;
+
+  response: Promise<Response>;
+
+  constructor() {
+    this.response = new Promise<Response>((resolve) => {
+      this._resolve = resolve;
+    });
+  }
+
+  code(status: number) {
+    this._status = status;
+    return this;
+  }
+
+  status(status: number) {
+    return this.code(status);
+  }
+
+  header(key: string, value: unknown) {
+    this._headers.set(key, String(value));
+    return this;
+  }
+
+  send(data?: any) {
+    if (this._sent) {
+      return;
+    }
+    this._sent = true;
+
+    let body: BodyInit | null = null;
+    if (data != null) {
+      if (typeof data === 'string' || data instanceof Uint8Array || data instanceof ArrayBuffer) {
+        body = data;
+      } else {
+        if (!this._headers.has('Content-Type')) {
+          this._headers.set('Content-Type', 'application/json');
+        }
+        body = JSON.stringify(data);
+      }
+    }
+
+    this._resolve(new Response(body, {status: this._status, headers: this._headers}));
+  }
+}
+
+export class HttpRequest extends BaseHttpRequest {
+  req: HonoRequestData;
+  res: HonoResponse;
+
+  constructor(req: HonoRequestData, res: HonoResponse, basePath: string) {
     const {method, url, body, query, headers} = req;
     // Extract path from URL, removing query parameters
-    let path = url || req.raw.url || '';
+    let path = url || '';
     const queryIndex = path.indexOf('?');
     if (queryIndex !== -1) {
       path = path.substring(0, queryIndex);
@@ -17,7 +74,7 @@ export class HttpRequest extends BaseHttpRequest {
 
     super({
       method,
-      url: url || req.raw.url || '',
+      url,
       body,
       query,
       headers,
