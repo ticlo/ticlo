@@ -4,9 +4,10 @@ import {HttpRequest as BaseHttpRequest} from '@ticlo/core/functions/web-server/H
 export interface HonoRequestData {
   method: string;
   url: string;
-  body: any;
+  body?: any;
   query: {[key: string]: string};
   headers: {[key: string]: string};
+  getBody(): Promise<any>;
 }
 
 export class HonoResponse {

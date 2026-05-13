@@ -1,7 +1,9 @@
 import {ServerConnection, DataMap, Logger, decode, encode, decodeReviver} from '@ticlo/core';
 
 interface RestRequest {
-  body: any;
+  method?: string;
+  url?: string;
+  body?: any;
 }
 
 interface RestResponse {

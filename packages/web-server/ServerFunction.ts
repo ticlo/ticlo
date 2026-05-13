@@ -6,7 +6,6 @@ import {
 } from '@ticlo/core/functions/web-server/RouteFunction.js';
 import {globalFunctions, type Block} from '@ticlo/core';
 import {BaseFunction, StatefulFunction} from '@ticlo/core/block/BlockFunction.js';
-import {decodeReviver, encode} from '@ticlo/core/util/Serialize.js';
 import {escapedObject} from '@ticlo/core/util/NoSerialize.js';
 import {Uid} from '@ticlo/core/util/Uid.js';
 import {HonoRequestData, HonoResponse, HttpRequest} from './HttpRequest.js';
@@ -37,39 +36,24 @@ export class ServerFunction extends BaseFunction<Block> {
 
   requestHandler = async (basePath: string, req: HonoRequestData, res: HonoResponse) => {
     let contentType: RouteContentType;
-    let body: any;
 
-    // Parse content based on content-type
     const contentTypeHeader = req.headers['content-type'];
 
     if (contentTypeHeader) {
       if (contentTypeHeader.includes('application/json')) {
         contentType = 'json';
-        try {
-          body = typeof req.body === 'string' ? JSON.parse(req.body, decodeReviver) : req.body;
-        } catch (e) {
-          body = req.body;
-        }
       } else if (contentTypeHeader.includes('text/plain')) {
         contentType = 'text';
-        body = req.body;
       } else if (contentTypeHeader.includes('application/x-www-form-urlencoded')) {
         contentType = 'urlencoded';
-        body = req.body;
       } else if (contentTypeHeader.includes('application/octet-stream')) {
         contentType = 'buffer';
-        body = req.body;
       } else {
         contentType = 'empty';
-        body = undefined;
       }
     } else {
       contentType = 'empty';
-      body = undefined;
     }
-
-    // Create a modified request object with parsed body
-    const modifiedReq = {...req, body};
 
     let path = req.url.substring(basePath.length);
     // Remove query string if present
@@ -124,8 +108,12 @@ export class ServerFunction extends BaseFunction<Block> {
       return res.code(statusError).send();
     }
 
+    if (contentType !== 'empty') {
+      req = {...req, body: await req.getBody()};
+    }
+
     const emitTask = () => {
-      const request = new HttpRequest(modifiedReq as any, res, basePath);
+      const request = new HttpRequest(req, res, basePath);
       if (this.pendingTasks.length === 0) {
         Resolver.callLater(this.checkPendingTasks);
       }
