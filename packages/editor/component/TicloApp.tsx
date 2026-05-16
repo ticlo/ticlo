@@ -51,9 +51,6 @@ function useTicloContext(value: TicloLayoutContext) {
           if (prev === path) {
             return prev;
           }
-          if (path?.startsWith('#temp.#edit-')) {
-            return prev;
-          }
           return path;
         });
         value.onFlowFocus?.(path);
