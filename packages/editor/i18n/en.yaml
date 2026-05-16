@@ -24,8 +24,6 @@
 # CalendarEventEditor.tsx & OptionalPropertyList.tsx
 "Optional": "Optional"
 # WorkerEditor.tsx & FunctionSelect.tsx
-"Subflow": "Subflow"
-# WorkerEditor.tsx & FunctionSelect.tsx
 "Inline": "Inline"
 # PropertyDropdown.tsx & BlockDropdown.tsx
 "Execute Command": "Execute Command"

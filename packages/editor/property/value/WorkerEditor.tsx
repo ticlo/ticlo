@@ -1,5 +1,5 @@
 import React from 'react';
-import {Button, Input} from 'antd';
+import {Button} from 'antd';
 import {DownOutlined, EditOutlined} from '@ant-design/icons';
 
 import {DragDropDiv, DragState} from 'rc-dock';
@@ -55,11 +55,7 @@ export class WorkerEditor extends FunctionEditor {
 
     let label: string | React.ReactNode;
     if (typeof value === 'string') {
-      if (value === '#') {
-        label = t('Subflow');
-      } else {
-        label = value;
-      }
+      label = value;
     } else if (value && value.constructor === Object) {
       label = t('Inline');
     }

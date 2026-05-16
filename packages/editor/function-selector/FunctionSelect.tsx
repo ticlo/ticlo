@@ -1,28 +1,21 @@
-import React, {MouseEventHandler} from 'react';
+import React from 'react';
 import {Button, Input, Modal, Radio, Tooltip, message} from 'antd';
 import {
   AppstoreOutlined,
   BookOutlined,
   BorderlessTableOutlined,
   CloseCircleOutlined,
-  FileOutlined,
   FilterOutlined,
   HistoryOutlined,
   PlusOutlined,
-  SubnodeOutlined,
 } from '@ant-design/icons';
 
 import {FunctionTree} from './FunctionTree.js';
-import {ClientConn, DataMap, FunctionDesc, encodeTicloName, translateEditor} from '@ticlo/core/editor.js';
+import {ClientConn, FunctionDesc, encodeTicloName, translateEditor} from '@ticlo/core/editor.js';
 import {OnFunctionClick} from './FunctionView.js';
 import {RadioChangeEvent} from 'antd';
 import {FunctionList} from './FunctionList.js';
-import {
-  TicloI18NConsumer,
-  TicloLayoutContext,
-  TicloLayoutContextConsumer,
-  TicloLayoutContextType,
-} from '../component/LayoutContext.js';
+import {TicloI18NConsumer, TicloLayoutContext, TicloLayoutContextType} from '../component/LayoutContext.js';
 import {t} from '../component/LocalizedLabel.js';
 
 interface Props {
@@ -74,7 +67,7 @@ export class FunctionSelect extends React.PureComponent<Props, State> {
     // TODO validate function name;
     const {newFunctionName, addFunctionPrefix} = this.state;
     if (newFunctionName) {
-      const {conn, funcLib} = this.props;
+      const {conn, funcLib, onFunctionClick} = this.props;
       const isGlobal = addFunctionPrefix.startsWith('+');
       const funcId = `${addFunctionPrefix}${newFunctionName}`;
       const editPath = `#temp.#edit-${encodeTicloName(funcId)}`;
@@ -90,18 +83,13 @@ export class FunctionSelect extends React.PureComponent<Props, State> {
       });
 
       this.setState({modelVisible: false, newFunctionName: ''});
+      onFunctionClick?.(newFunctionName, {name: newFunctionName, id: funcId, src: 'worker'}, null);
     } else {
       message.error('Invalid function name.');
     }
   };
   onAddFunctionCancel = () => {
     this.setState({modelVisible: false});
-  };
-  onSubflowClick = () => {
-    const {currentValue, onFunctionClick} = this.props;
-    if (currentValue !== '') {
-      onFunctionClick('', {name: '', id: '#'}, null);
-    }
   };
   onInlineClick = () => {
     const {currentValue, onFunctionClick} = this.props;
@@ -174,24 +162,14 @@ export class FunctionSelect extends React.PureComponent<Props, State> {
           </Modal>
         </div>
         {useFlow && (
-          <>
-            <Button
-              type={currentValue === '#' ? 'primary' : 'default'}
-              icon={<SubnodeOutlined />}
-              size="small"
-              onClick={this.onSubflowClick}
-            >
-              {t('Subflow')}
-            </Button>
-            <Button
-              type={typeof currentValue === 'object' ? 'primary' : 'default'}
-              icon={<BorderlessTableOutlined />}
-              size="small"
-              onClick={this.onInlineClick}
-            >
-              {t('Inline')}
-            </Button>
-          </>
+          <Button
+            type={typeof currentValue === 'object' ? 'primary' : 'default'}
+            icon={<BorderlessTableOutlined />}
+            size="small"
+            onClick={this.onInlineClick}
+          >
+            {t('Inline')}
+          </Button>
         )}
         <div className="ticl-func-tree-wrap" style={{display: tab === 'inFlow' ? '' : 'none'}}>
           {showAddFunction ? (
