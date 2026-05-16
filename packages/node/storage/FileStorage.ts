@@ -203,14 +203,14 @@ export class FileFlowStorage extends FileStorage implements FlowStorage {
     shelljs.mkdir('-p', nsDir);
   }
 
-  saveWorkers(ns: string, group: string, data: DataMap) {
+  saveLib(ns: string, lib: string, data: DataMap) {
     this.initNamespace(ns);
-    this.save(`${ns}.${group}`, encodeSorted(data));
+    this.save(`${ns}.${lib}`, encodeSorted(data));
   }
 
-  async loadWorkers(ns: string, group: string): Promise<DataMap | null> {
+  async loadLib(ns: string, lib: string): Promise<DataMap | null> {
     try {
-      const str = await this.load(`${ns}.${group}`);
+      const str = await this.load(`${ns}.${lib}`);
       return decode(str); // decode(null) will return null
     } catch (e) {}
     return null;

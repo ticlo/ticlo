@@ -96,19 +96,19 @@ describe('IndexDbStorage', function () {
 
     root.destroy();
   });
-  it('save and load workers', async function () {
+  it('save and load libs', async function () {
     const storage = new IndexDbFlowStorage(FLOW_STORE_NAME, dbPromise);
     const ns = 'testNs';
-    const group = 'testGroup';
+    const lib = 'testLib';
     const data = {worker: 'test'};
 
-    await storage.saveWorkers(ns, group, data);
+    await storage.saveLib(ns, lib, data);
 
-    const loaded = await storage.loadWorkers(ns, group);
+    const loaded = await storage.loadLib(ns, lib);
     expect(loaded).toEqual(data);
 
     const db = await storage.dbPromise;
-    const raw = await db.get(FLOW_STORE_NAME, `${ns}.#.${group}`);
+    const raw = await db.get(FLOW_STORE_NAME, `${ns}.#.${lib}`);
     expect(JSON.parse(raw)).toEqual(data);
   });
 });

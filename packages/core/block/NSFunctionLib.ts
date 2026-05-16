@@ -127,13 +127,11 @@ export class NsFunctionLib extends PersistentFunctionLib {
     if (!this.storage) {
       return;
     }
-    if (this.flow) {
-      if (this.flow._loaded) {
-        this.flow.applyChange();
-      } else {
-        this.storage.saveFlow(null, this.flow.save(), this.flow.getFullPath());
-      }
-    }
+    this.storage.saveLib(
+      this.namespace,
+      this.libName,
+      this.flow?.save() ?? {'#is': '', '#functions': this.save() ?? {}}
+    );
   }
   load(data: DataMap) {
     this._loaded = 'loading';

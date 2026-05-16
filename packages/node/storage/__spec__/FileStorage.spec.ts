@@ -93,19 +93,19 @@ describe('FileStorage', function () {
     root.deleteFlow('folder5.subflow');
     root.destroy();
   });
-  it('save and load workers', async function () {
+  it('save and load libs', async function () {
     const storage = new FileFlowStorage('./temp/storageTest');
     const ns = '+testNs';
-    const group = 'testGroup';
+    const lib = 'testLib';
     const data = {worker: 'test'};
 
-    storage.saveWorkers(ns, group, data);
+    storage.saveLib(ns, lib, data);
     await waitTick(50);
 
-    const loaded = await storage.loadWorkers(ns, group);
+    const loaded = await storage.loadLib(ns, lib);
     expect(loaded).toEqual(data);
 
-    const expectedPath = './temp/storageTest/+testNs/testGroup.ticlo';
+    const expectedPath = './temp/storageTest/+testNs/testLib.ticlo';
     expect(Fs.existsSync(expectedPath)).toBe(true);
 
     if (Fs.existsSync(expectedPath)) Fs.unlinkSync(expectedPath);

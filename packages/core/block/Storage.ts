@@ -23,9 +23,9 @@ export interface FlowStorage {
 
   initNamespace?: (ns: string) => any;
 
-  saveWorkers(ns: string, group: string, data: DataMap): any;
+  saveLib(ns: string, lib: string, data: DataMap): any;
 
-  loadWorkers(ns: string, group: string): Promise<DataMap | null>;
+  loadLib(ns: string, lib: string): Promise<DataMap | null>;
 
   inited?: boolean;
   init(root: Root): unknown; // void or promise
