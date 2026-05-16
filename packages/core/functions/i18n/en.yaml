@@ -71,6 +71,8 @@
     '@name': 'Name'
   '@b-p':
     '@name': 'Property List'
+  '@b-pself':
+    '@name': 'Self Property'
   '@b-xyw':
     '@name': 'XYW'
   '@b-widget':

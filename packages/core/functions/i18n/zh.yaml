@@ -71,6 +71,8 @@
     '@name': 名称
   '@b-p':
     '@name': 属性列表
+  '@b-pself':
+    '@name': 自身属性 # translated from: Self Property
   '@b-xyw':
     '@name': XYW
   '@b-widget':

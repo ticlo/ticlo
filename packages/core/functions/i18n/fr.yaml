@@ -71,6 +71,8 @@
     '@name': Nom # translated from: Name
   '@b-p':
     '@name': Liste des propriétés # translated from: Property List
+  '@b-pself':
+    '@name': Propriété propre # translated from: Self Property
   '@b-xyw':
     '@name': XYW # translated from: XYW
   '@b-widget':

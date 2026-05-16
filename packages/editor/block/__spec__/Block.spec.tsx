@@ -200,6 +200,36 @@ describe('editor BlockStage', function () {
     Root.instance.deleteValue('BlockStage3');
   });
 
+  it('shows block self property drag handle', async function () {
+    const flow = Root.instance.addFlow('BlockStageSelfProperty');
+    flow.load({
+      add: {
+        '#is': 'add',
+        '@b-pself': true,
+        '@b-xyw': [100, 100, 143],
+        '@b-p': ['0'],
+      },
+    });
+
+    const [server, client] = makeLocalConnection(Root.instance);
+
+    const [component, div] = loadTemplate(
+      <BlockStage conn={client} basePath="BlockStageSelfProperty" style={{width: '800px', height: '800px'}} />,
+      'editor'
+    );
+
+    await shouldHappen(() => div.querySelector('.ticl-block-self-drag'));
+
+    const selfDrag = div.querySelector('.ticl-block-self-drag') as HTMLDivElement;
+    expect(selfDrag.classList.contains('ticl-block-prbg')).toBe(true);
+    expect(selfDrag.nextElementSibling.classList.contains('ticl-width-drag')).toBe(true);
+
+    flow.queryProperty('add.@b-pself').setValue(undefined);
+    await shouldHappen(() => !div.querySelector('.ticl-block-self-drag'));
+
+    Root.instance.deleteValue('BlockStageSelfProperty');
+  });
+
   it('min block and wire', async function () {
     const flow = Root.instance.addFlow('BlockStage4');
     flow.load({

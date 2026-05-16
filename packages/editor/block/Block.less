@@ -110,6 +110,9 @@
 .ticl-block-body {
   width: 100%;
 }
+.ticl-field {
+    cursor: alias;
+}
 
 .ticl-block-view {
   width: 100%;
@@ -137,6 +140,21 @@
   height: 22px;
   cursor: ew-resize;
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='22' viewBox='0 0 16 22'%3E%3Cpath fill='%23DDD' d='M0 12 L6 18 L6 6z M 14 12 L8 18 L8 6'/%3E%3C/svg%3E");
+}
+
+.ticl-block-self-drag {
+  position: absolute;
+  bottom: 0;
+  right: 16px;
+  width: 14px;
+  height: 14px;
+  border-radius: 0 6px;
+  margin: 4px;
+  cursor: alias;
+
+  &:active {
+    cursor: grabbing;
+  }
 }
 
 .ticl-block-wire {

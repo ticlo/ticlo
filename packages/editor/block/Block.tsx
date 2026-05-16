@@ -122,6 +122,12 @@ export class BlockView extends PureDataRenderer<BlockViewProps, BlockViewState> 
     e.startDrag(null, null);
   };
 
+  startDragSelf = (e: DragState) => {
+    const {item} = this.props;
+    e.setData({fields: [item.path]}, item.conn.getBaseConn());
+    e.startDrag();
+  };
+
   onDragWMove = (e: DragState) => {
     let {item} = this.props;
     let newW = snapW(this._baseW + e.dx);
@@ -172,6 +178,8 @@ export class BlockView extends PureDataRenderer<BlockViewProps, BlockViewState> 
 
   displayName = new LazyUpdateSubscriber(this);
 
+  showSelfProperty = new LazyUpdateSubscriber(this, false);
+
   widget = new LazyUpdateSubscriber((widgetName: string) => {
     if (!widgetName) {
       const {item} = this.props;
@@ -184,6 +192,7 @@ export class BlockView extends PureDataRenderer<BlockViewProps, BlockViewState> 
     super(props);
     this.state = {moving: false, footDropping: false};
     this.displayName.subscribe(props.item.conn, `${props.item.path}.@b-name`);
+    this.showSelfProperty.subscribe(props.item.conn, `${props.item.path}.@b-pself`);
     this.widget.subscribe(props.item.conn, `${props.item.path}.@b-widget`);
   }
 
@@ -288,6 +297,9 @@ export class BlockView extends PureDataRenderer<BlockViewProps, BlockViewState> 
               onDropT={this.onDropFoot}
               onDragLeaveT={this.onDragLeaveFoot}
             >
+              {this.showSelfProperty.value ? (
+                <DragDropDiv className="ticl-block-self-drag ticl-block-prbg" onDragStartT={this.startDragSelf} />
+              ) : null}
               <DragDropDiv
                 className="ticl-width-drag"
                 onDragStartT={this.startDragW}
@@ -335,6 +347,7 @@ export class BlockView extends PureDataRenderer<BlockViewProps, BlockViewState> 
   }
   componentWillUnmount() {
     this.displayName.unsubscribe();
+    this.showSelfProperty.unsubscribe();
     this.widget.unsubscribe();
     super.componentWillUnmount();
   }
