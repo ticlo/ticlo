@@ -2,14 +2,14 @@
   react:
     '@name': React # no translate
   'react:elements':
-    '@name': Éléments # auto translated from hash: qlai5l2B
+    '@name': Éléments # translated from: Elements
 
 '@shared':
   '':
-    '@name': "Enfants " # auto translated from hash: 1cSvZNaY
+    '@name': "Enfants " # translated from: Children\s
   style:
-    '@name': Style # auto translated from hash: rihPkA+d
+    '@name': Style # translated from: Style
 
 jsx:
   script:
-    '@name': Script # auto translated from hash: +QfmURZH
+    '@name': Script # translated from: Script

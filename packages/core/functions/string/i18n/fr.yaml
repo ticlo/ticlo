@@ -1,21 +1,21 @@
 join:
-  '@name': Unir # auto translated from hash: oobZmRxq
+  '@name': Unir # translated from: Join
   '@keywords': concatenate
 split:
-  '@name': fendre # auto translated from hash: 7v7DAwea
+  '@name': fendre # translated from: split
   '@keywords':
 'start-with':
-  '@name': Commencez par # auto translated from hash: WGPZwc7G
+  '@name': Commencez par # translated from: Start With
   '@keywords': starts with
   search:
-    '@name': Rechercher # auto translated from hash: EzSEQsxq
+    '@name': Rechercher # translated from: Search
 'end-with':
-  '@name': Terminez par # auto translated from hash: sipuKMmZ
+  '@name': Terminez par # translated from: End With
   '@keywords': ends with
   search:
-    '@name': Rechercher # auto translated from hash: EzSEQsxq
+    '@name': Rechercher # translated from: Search
 contain:
-  '@name': Contenir # auto translated from hash: DnXv8XdS
+  '@name': Contenir # translated from: Contain
   '@keywords': include
   search:
-    '@name': Rechercher # auto translated from hash: EzSEQsxq
+    '@name': Rechercher # translated from: Search

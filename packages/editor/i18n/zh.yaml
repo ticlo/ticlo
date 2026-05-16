@@ -12,10 +12,10 @@
 "Name": 名称
 "Type": 类型
 "Block": 数据块
-"Open": 打开 # auto translated from hash: w79Efqvm
+"Open": 打开 # translated from: Open
 "Save": 保存
-"Edit": 编辑 # auto translated from hash: fc4SIASW
-"Delete": 删除 # auto translated from hash: 8qbEmPuQ
+"Edit": 编辑 # translated from: Edit
+"Delete": 删除 # translated from: Delete
 "Search": 搜索
 "Error": 错误
 "Rename": 重命名
@@ -36,7 +36,7 @@
 # PropertyDropdown.tsx & BlockDropdown.tsx
 "Execute Command": 执行指令
 # AddNewFlowDialog.tsx & NodeTreePane.tsx
-"New Folder": 新建文件夹 # auto translated from hash: UUiQXttG
+"New Folder": 新建文件夹 # translated from: New Folder
 # AddNewFlowDialog.tsx & NodeTreePane.tsx
 "New Dataflow": 新建数据流
 # TextEditorPane.tsx & NodeTreePane.tsx
@@ -62,23 +62,23 @@
 "All Day": 全天
 
 # scheduler/editors/DatesSelector.tsx
-"Dates": 日期 # auto translated from hash: Xwyj6LN7
+"Dates": 日期 # translated from: Dates
 
 # scheduler/editors/AdvancedSelector.tsx
-"Add Day": 添加日期 # auto translated from hash: irtCt9Xi
+"Add Day": 添加日期 # translated from: Add Day
 
 # property/PropertyList.tsx
 "Config": 设置
 "Custom": 自定义
 
 # property/PropertyEditor.tsx
-"Unlocked for editing\nDouble click to lock": |- # auto translated from hash: DtUOcgdR
+"Unlocked for editing\nDouble click to lock": |- # translated from: Unlocked for editing-DtUOcgdR
   已解锁编辑
   双击锁定
-"Editing blocked by binding\nDouble click to edit": |- # auto translated from hash: YWf4ParO
+"Editing blocked by binding\nDouble click to edit": |- # translated from: Editing blocked by b-YWf4ParO
   编辑被绑定阻止
   双击编辑
-"Inconsistent values\nDouble click to edit": |- # auto translated from hash: inF4uHrI
+"Inconsistent values\nDouble click to edit": |- # translated from: Inconsistent values\n-inF4uHrI
   值不一致
   双击编辑
 
@@ -109,14 +109,14 @@
 "Add Property": 添加属性
 
 # popup/RenameDialog.tsx
-"Change": 改变 # auto translated from hash: 9OxfV71N
-"Display Name": 显示名称 # auto translated from hash: tIlo4ckS
+"Change": 改变 # translated from: Change
+"Display Name": 显示名称 # translated from: Display Name
 
 # popup/PropertyDropdown.tsx
 "Add Sub Block": 添加子块
-"Binding": 绑定 # auto translated from hash: ouv+Do4W
+"Binding": 绑定 # translated from: Binding
 "Clear": 清空
-"Restore Saved Value": 恢复保存值 # auto translated from hash: 7f4LJ/i0
+"Restore Saved Value": 恢复保存值 # translated from: Restore Saved Value
 "Insert at {{n}}": 在{{n}}处插入
 "Delete at {{n}}": 在{{n}}处删除
 "Remove Property": 删除属性
@@ -124,15 +124,15 @@
 
 # popup/BlockDropdown.tsx
 "Enable": 启用
-"Disable": 禁用 # auto translated from hash: vPrM6/dF
+"Disable": 禁用 # translated from: Disable
 "Call": 触发
 
 # popup/AddNewFlowDialog.tsx
-"Data": 数据 # auto translated from hash: 9gaNqinb
+"Data": 数据 # translated from: Data
 
 # node-tree/NodeRenderer.tsx
-"Add Dataflow": 添加数据流 # auto translated from hash: im4EONli
-"Add Folder": 添加文件夹 # auto translated from hash: 8jHIxVXQ
+"Add Dataflow": 添加数据流 # translated from: Add Dataflow
+"Add Folder": 添加文件夹 # translated from: Add Folder
 
 # function-selector/FunctionSelect.tsx
 "Function Tree": 功能目录
@@ -144,8 +144,8 @@
 "Schedule": 日程表
 
 # dock/block/BlockStagePane.tsx
-"Hide Properties": 隐藏属性 # auto translated from hash: vJTYlQYF
-"Show Properties": 显示属性 # auto translated from hash: btIcJj0g
+"Hide Properties": 隐藏属性 # translated from: Hide Properties
+"Show Properties": 显示属性 # translated from: Show Properties
 
 # component/DockDialogPane.tsx
 "OK": 确定

@@ -8,14 +8,14 @@ split:
   '@name': 以之开始
   '@keywords': starts with
   search:
-    '@name': 搜索 # auto translated from hash: EzSEQsxq
+    '@name': 搜索 # translated from: Search
 'end-with':
   '@name': 以之结尾
   '@keywords': ends with
   search:
-    '@name': 搜索 # auto translated from hash: EzSEQsxq
+    '@name': 搜索 # translated from: Search
 contain:
-  '@name': 包含 # auto translated from hash: DnXv8XdS
+  '@name': 包含 # translated from: Contain
   '@keywords': include
   search:
-    '@name': 搜索 # auto translated from hash: EzSEQsxq
+    '@name': 搜索 # translated from: Search

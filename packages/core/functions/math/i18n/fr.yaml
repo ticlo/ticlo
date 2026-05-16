@@ -1,34 +1,34 @@
 add:
-  '@name': Ajouter # auto translated from hash: 7CEffCCv
+  '@name': Ajouter # translated from: Add
   '@keywords': plus,addition,+
 subtract:
-  '@name': Soustraire # auto translated from hash: HZuvB37o
+  '@name': Soustraire # translated from: Subtract
   '@keywords': minus,subtraction,-
 multiply:
-  '@name': Multiplier # auto translated from hash: 4lc3bZE/
+  '@name': Multiplier # translated from: Multiply
   '@keywords': multiplication,times,*
 divide:
-  '@name': Diviser # auto translated from hash: C5FOGWGC
+  '@name': Diviser # translated from: Divide
   '@keywords': division,/
 
 equal:
-  '@name': Égal # auto translated from hash: 9fKG5zva
+  '@name': Égal # translated from: Equal
   '@keywords': equals to,=
 'not-equal':
-  '@name': Pas égal # auto translated from hash: ObkbcVwE
+  '@name': Pas égal # translated from: Not Equal
   '@keywords': not equals to,!=
 'greater-than':
-  '@name': Plus grand que # auto translated from hash: cohFT6RC
+  '@name': Plus grand que # translated from: Greater Than
   '@keywords': ">"
 'less-than':
-  '@name': Moins de # auto translated from hash: Re0c4EvP
+  '@name': Moins de # translated from: Less Than
   '@keywords': <
 'greater-equal':
-  '@name': Supérieur ou égal à # auto translated from hash: lI9/+50e
+  '@name': Supérieur ou égal à # translated from: Greater Than or Equal
   '@keywords': ">="
 'less-equal':
-  '@name': Inférieur ou égal # auto translated from hash: GJzo7CRE
+  '@name': Inférieur ou égal # translated from: Less Than or Equal
   '@keywords': <=
 'not':
-  '@name': Non # auto translated from hash: p0wF0IBi
+  '@name': Non # translated from: Not
   '@keywords': "!"

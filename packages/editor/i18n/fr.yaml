@@ -1,148 +1,148 @@
 # Common
-"Name": Nom # auto translated from hash: Se4whzSO
-"Type": Type # auto translated from hash: ofond5JC
-"Block": Bloquer # auto translated from hash: 4eTIyczZ
-"Open": Ouvrir # auto translated from hash: w79Efqvm
-"Save": Sauvegarder # auto translated from hash: ycyMziR+
-"Edit": Éditer # auto translated from hash: fc4SIASW
-"Delete": Supprimer # auto translated from hash: 8qbEmPuQ
-"Search": Rechercher # auto translated from hash: EzSEQsxq
-"Error": Erreur # auto translated from hash: kCsNVf3e
-"Rename": Renommer # auto translated from hash: kEqDBAVt
-"Navigation": Navigation # auto translated from hash: hGSV+c7t
-"Properties": Propriétés # auto translated from hash: n8LSjAXt
-"Functions": Fonctions # auto translated from hash: 6TrLFG4R
-"Pinned": Épinglé # auto translated from hash: PF6JG/8H
-"#global": "#global" # auto translated from hash: Wei5cA6y
-"#shared": "#shared" # auto translated from hash: E+4meTVm
-"#temp": "#temp" # auto translated from hash: AhmsTPr9
-"#edit": "#edit" # auto translated from hash: qT4ZtsCQ
-"-running-#": " ( En cours d’exécution {{- détail, facultatif}} )" # auto translated from hash: jKAWBBW8
-"-passed-#": " ( Passé {{- détail, facultatif}} )" # auto translated from hash: xh0/0HQ7
-"-failed-#": " ( Échec {{- détail, facultatif}} )" # auto translated from hash: lJvy+AWK
+"Name": Nom # translated from: Name
+"Type": Type # translated from: Type
+"Block": Bloquer # translated from: Block
+"Open": Ouvrir # translated from: Open
+"Save": Sauvegarder # translated from: Save
+"Edit": Éditer # translated from: Edit
+"Delete": Supprimer # translated from: Delete
+"Search": Rechercher # translated from: Search
+"Error": Erreur # translated from: Error
+"Rename": Renommer # translated from: Rename
+"Navigation": Navigation # translated from: Navigation
+"Properties": Propriétés # translated from: Properties
+"Functions": Fonctions # translated from: Functions
+"Pinned": Épinglé # translated from: Pinned
+"#global": "#global" # translated from: #global
+"#shared": "#shared" # translated from: #shared
+"#temp": "#temp" # translated from: #temp
+"#edit": "#edit" # translated from: #edit
+"-running-#": " ( En cours d’exécution {{- détail, facultatif}} )" # translated from: \s( Running {{- detai-jKAWBBW8
+"-passed-#": " ( Passé {{- détail, facultatif}} )" # translated from: \s( Passed {{- detail-xh0/0HQ7
+"-failed-#": " ( Échec {{- détail, facultatif}} )" # translated from: \s( Failed {{- detail-lJvy+AWK
 
 # CalendarEventEditor.tsx & OptionalPropertyList.tsx
-"Optional": Optionnel # auto translated from hash: 67BhlTwE
+"Optional": Optionnel # translated from: Optional
 # PropertyDropdown.tsx & BlockDropdown.tsx
-"Execute Command": Exécuter la commande # auto translated from hash: KagPUFwq
+"Execute Command": Exécuter la commande # translated from: Execute Command
 # AddNewFlowDialog.tsx & NodeTreePane.tsx
-"New Folder": Nouveau dossier # auto translated from hash: UUiQXttG
+"New Folder": Nouveau dossier # translated from: New Folder
 # AddNewFlowDialog.tsx & NodeTreePane.tsx
-"New Dataflow": Nouveau flux de données # auto translated from hash: SaNshY92
+"New Dataflow": Nouveau flux de données # translated from: New Dataflow
 # TextEditorPane.tsx & NodeTreePane.tsx
-"Reload": Recharger # auto translated from hash: TRyCY7oQ
+"Reload": Recharger # translated from: Reload
 
 # scheduler/CalendarToolbar.tsx
-"Day": Jour # auto translated from hash: A3J6xIWV
-"Week": Semaine # auto translated from hash: 0s4AlZTc
-"Month": Mois # auto translated from hash: fLuIWqEW
-"Previous Day": Jour précédent # auto translated from hash: IIXhqRne
-"Current Day": Jour actuel # auto translated from hash: 799v+8+o
-"Next Day": Lendemain # auto translated from hash: 642HHU3a
-"Previous Week": Semaine précédente # auto translated from hash: RY3wEIKF
-"Current Week": Semaine en cours # auto translated from hash: ent3lPpx
-"Next Week": La semaine prochaine # auto translated from hash: JdwHgBXn
-"Previous Month": Mois précédent # auto translated from hash: ntisiiMg
-"Current Month": Mois en cours # auto translated from hash: jDthy9JL
-"Next Month": Prochain # auto translated from hash: Az2xcudQ
+"Day": Jour # translated from: Day
+"Week": Semaine # translated from: Week
+"Month": Mois # translated from: Month
+"Previous Day": Jour précédent # translated from: Previous Day
+"Current Day": Jour actuel # translated from: Current Day
+"Next Day": Lendemain # translated from: Next Day
+"Previous Week": Semaine précédente # translated from: Previous Week
+"Current Week": Semaine en cours # translated from: Current Week
+"Next Week": La semaine prochaine # translated from: Next Week
+"Previous Month": Mois précédent # translated from: Previous Month
+"Current Month": Mois en cours # translated from: Current Month
+"Next Month": Prochain # translated from: Next Month
 
 # scheduler/editors/TimeRange.tsx
-"M": M # auto translated from hash: aWkce9zD
-"H": H # auto translated from hash: wdn1D4aC
-"All Day": Toute la journée # auto translated from hash: NvAuM02m
+"M": M # translated from: M
+"H": H # translated from: H
+"All Day": Toute la journée # translated from: All Day
 
 # scheduler/editors/DatesSelector.tsx
-"Dates": Dattes # auto translated from hash: Xwyj6LN7
+"Dates": Dattes # translated from: Dates
 
 # scheduler/editors/AdvancedSelector.tsx
-"Add Day": Ajouter un jour # auto translated from hash: irtCt9Xi
+"Add Day": Ajouter un jour # translated from: Add Day
 
 # property/PropertyList.tsx
-"Config": Configurer # auto translated from hash: +lNf+yXh
-"Custom": Coutume # auto translated from hash: kFicR/Bu
+"Config": Configurer # translated from: Config
+"Custom": Coutume # translated from: Custom
 
 # property/PropertyEditor.tsx
-"Unlocked for editing\nDouble click to lock": |- # auto translated from hash: DtUOcgdR
+"Unlocked for editing\nDouble click to lock": |- # translated from: Unlocked for editing-DtUOcgdR
   Déverrouillé pour l’édition
   Double-clic pour verrouiller
-"Editing blocked by binding\nDouble click to edit": |- # auto translated from hash: YWf4ParO
+"Editing blocked by binding\nDouble click to edit": |- # translated from: Editing blocked by b-YWf4ParO
   Modification bloquée par la liaison
   Double-cliquez pour modifier
-"Inconsistent values\nDouble click to edit": |- # auto translated from hash: inF4uHrI
+"Inconsistent values\nDouble click to edit": |- # translated from: Inconsistent values\n-inF4uHrI
   Valeurs incohérentes
   Double-cliquez pour modifier
 
 # property/AddCustomProperty.tsx
-"Default Length": Longueur par défaut # auto translated from hash: pRJglLi4
-"Min": Min # auto translated from hash: eNgR6YUU
-"Max": Max # auto translated from hash: agYTE9Iu
-"Step": Pas # auto translated from hash: SMfEG3Lh
-"Place Holder": Espace réservé # auto translated from hash: vA3vqzNf
-"Options": Options # auto translated from hash: 2uis4Yvc
-"Show Alpha": Afficher Alpha # auto translated from hash: eFzJFsnQ
-"Invalid Name": Nom non valide # auto translated from hash: v9mVWYV9
-"Number character not allowed": Caractère numérique non autorisé # auto translated from hash: 3CemVQ1p
-"Require more than one option": Nécessite plus d’une option # auto translated from hash: 1velMbhB
-"Must have 0 or 2 options": Doit avoir 0 ou 2 options # auto translated from hash: cGcwWqpU
-"number": nombre # auto translated from hash: sbwkin/y
-"string": corde # auto translated from hash: tFz/4ITd
-"toggle": cabillot # auto translated from hash: QfmEuwgq
-"select": choisir # auto translated from hash: mZOCgvBA
-"radio-button": bouton radio # auto translated from hash: tDDz3b/z
-"color": Couleur # auto translated from hash: cN2l37gF
-"date": date # auto translated from hash: X8cyMRkF
-"date-range": plage-dates # auto translated from hash: pOUaxj9A
-"password": mot de passe # auto translated from hash: X03MO1qn
-"dynamic": dynamique # auto translated from hash: ty8705G6
-"group": groupe # auto translated from hash: 2w9vN+vr
-"Comma separated": Séparés par des virgules # auto translated from hash: Flr/6mHc
-"Add Property": Ajouter une propriété # auto translated from hash: mkde4XQH
+"Default Length": Longueur par défaut # translated from: Default Length
+"Min": Min # translated from: Min
+"Max": Max # translated from: Max
+"Step": Pas # translated from: Step
+"Place Holder": Espace réservé # translated from: Place Holder
+"Options": Options # translated from: Options
+"Show Alpha": Afficher Alpha # translated from: Show Alpha
+"Invalid Name": Nom non valide # translated from: Invalid Name
+"Number character not allowed": Caractère numérique non autorisé # translated from: Number character not-3CemVQ1p
+"Require more than one option": Nécessite plus d’une option # translated from: Require more than on-1velMbhB
+"Must have 0 or 2 options": Doit avoir 0 ou 2 options # translated from: Must have 0 or 2 options
+"number": nombre # translated from: number
+"string": corde # translated from: string
+"toggle": cabillot # translated from: toggle
+"select": choisir # translated from: select
+"radio-button": bouton radio # translated from: radio-button
+"color": Couleur # translated from: color
+"date": date # translated from: date
+"date-range": plage-dates # translated from: date-range
+"password": mot de passe # translated from: password
+"dynamic": dynamique # translated from: dynamic
+"group": groupe # translated from: group
+"Comma separated": Séparés par des virgules # translated from: Comma separated
+"Add Property": Ajouter une propriété # translated from: Add Property
 
 # popup/RenameDialog.tsx
-"Change": Changement # auto translated from hash: 9OxfV71N
-"Display Name": Nom d’affichage # auto translated from hash: tIlo4ckS
+"Change": Changement # translated from: Change
+"Display Name": Nom d’affichage # translated from: Display Name
 
 # popup/PropertyDropdown.tsx
-"Add Sub Block": Ajouter un sous-bloc # auto translated from hash: wsV25Wgi
-"Binding": Reliure # auto translated from hash: ouv+Do4W
-"Clear": Clair # auto translated from hash: 3DC8DHkU
-"Restore Saved Value": Restaurer la valeur enregistrée # auto translated from hash: 7f4LJ/i0
-"Insert at {{n}}": Insérer à {{n}} # auto translated from hash: ap83dmdQ
-"Delete at {{n}}": Supprimer à {{n}} # auto translated from hash: T3NUiW42
-"Remove Property": Supprimer la propriété # auto translated from hash: sD8BZXLb
-"Add Child Property": Ajouter une propriété enfant # auto translated from hash: EJgLYrec
+"Add Sub Block": Ajouter un sous-bloc # translated from: Add Sub Block
+"Binding": Reliure # translated from: Binding
+"Clear": Clair # translated from: Clear
+"Restore Saved Value": Restaurer la valeur enregistrée # translated from: Restore Saved Value
+"Insert at {{n}}": Insérer à {{n}} # translated from: Insert at {{n}}
+"Delete at {{n}}": Supprimer à {{n}} # translated from: Delete at {{n}}
+"Remove Property": Supprimer la propriété # translated from: Remove Property
+"Add Child Property": Ajouter une propriété enfant # translated from: Add Child Property
 
 # popup/BlockDropdown.tsx
-"Enable": Activer # auto translated from hash: L67B+fjM
-"Disable": Désactiver # auto translated from hash: vPrM6/dF
-"Call": Appeler # auto translated from hash: w3VeYSAq
+"Enable": Activer # translated from: Enable
+"Disable": Désactiver # translated from: Disable
+"Call": Appeler # translated from: Call
 
 # popup/AddNewFlowDialog.tsx
-"Data": Données # auto translated from hash: 9gaNqinb
+"Data": Données # translated from: Data
 
 # node-tree/NodeRenderer.tsx
-"Add Dataflow": Ajouter un flux de données # auto translated from hash: im4EONli
-"Add Folder": Ajouter un dossier # auto translated from hash: 8jHIxVXQ
+"Add Dataflow": Ajouter un flux de données # translated from: Add Dataflow
+"Add Folder": Ajouter un dossier # translated from: Add Folder
 
 # function-selector/FunctionSelect.tsx
-"Function Tree": Arborescence des fonctions # auto translated from hash: 66vv0lqp
-"Recent": Récent # auto translated from hash: 2uUrgHEe
-"Add Function": Ajouter une fonction # auto translated from hash: oWl67Lrh
-"Function Name?": Nom de la fonction ? # auto translated from hash: aLeUIb8m
+"Function Tree": Arborescence des fonctions # translated from: Function Tree
+"Recent": Récent # translated from: Recent
+"Add Function": Ajouter une fonction # translated from: Add Function
+"Function Name?": Nom de la fonction ? # translated from: Function Name?
 
 # dock/schedule/SchedulePane.tsx
-"Schedule": Horaire # auto translated from hash: Jfc0cja1
+"Schedule": Horaire # translated from: Schedule
 
 # dock/block/BlockStagePane.tsx
-"Hide Properties": Masquer les propriétés # auto translated from hash: vJTYlQYF
-"Show Properties": Afficher les propriétés # auto translated from hash: btIcJj0g
+"Hide Properties": Masquer les propriétés # translated from: Hide Properties
+"Show Properties": Afficher les propriétés # translated from: Show Properties
 
 # component/DockDialogPane.tsx
-"OK": D’ACCORD # auto translated from hash: 4KoCHiHd
-"Apply": Appliquer # auto translated from hash: ljnjLKsk
-"Cancel": Annuler # auto translated from hash: 6keIcF5o
-"Close": Fermer # auto translated from hash: 09LmFzNf
+"OK": D’ACCORD # translated from: OK
+"Apply": Appliquer # translated from: Apply
+"Cancel": Annuler # translated from: Cancel
+"Close": Fermer # translated from: Close
 
 # block/BlockStage.tsx
-"Undo": Défaire # auto translated from hash: HNwHayj3
-"Redo": Refaire # auto translated from hash: Wv6roHTv
+"Undo": Défaire # translated from: Undo
+"Redo": Refaire # translated from: Redo

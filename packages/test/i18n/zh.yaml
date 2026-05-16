@@ -1,19 +1,19 @@
 '@namespace':
   test:
-    '@name': 测试 # auto translated from hash: DLxmEfVU
+    '@name': 测试 # translated from: Test
 
 assert:
   '@name': 匹配
   '@keywords': test
   actual:
-    '@name': 实际 # auto translated from hash: w2pkry/T
+    '@name': 实际 # translated from: Actual\s
   expect:
     '@name': 预期
     '@commands':
       copyFromActual:
-        '@name': 从实际复制 # auto translated from hash: 29YPUdK0
+        '@name': 从实际复制 # translated from: Copy from Actual
   matchMode:
-    '@name': 匹配模式 # auto translated from hash: vB/EagS4
+    '@name': 匹配模式 # translated from: Match Mode
     '@options':
-      match-once: 匹配一次 # auto translated from hash: bf8CiiVf
-      always-match: 始终匹配 # auto translated from hash: wq4vzxHA
+      match-once: 匹配一次 # translated from: Match Once
+      always-match: 始终匹配 # translated from: Always Match

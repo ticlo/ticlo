@@ -14,9 +14,9 @@
 
 '@shared':
   '':
-    '@name': 输入 # auto translated from hash: 6EIpzKWh
+    '@name': 输入 # translated from: Input\s
   'input':
-    '@name': 输入 # auto translated from hash: MkEYpnId
+    '@name': 输入 # translated from: Input
   'separator':
     '@name': 分隔符
   'regExp':
@@ -30,38 +30,38 @@
   'use':
     '@name': 使用
   '#output':
-    '@name': 输出 # auto translated from hash: KcLAKjYc
+    '@name': 输出 # translated from: Output
   '#is':
     '@name': 功能
   '#call':
     '@name': 触发
   '#mode':
-    '@name': 模式 # auto translated from hash: ZQvmGJK/
+    '@name': 模式 # translated from: Mode
     '@options':
-      auto: 自动 # auto translated from hash: BrkoHjlt
-      onLoad: 加载时 # auto translated from hash: E7DolRJP
-      onChange: 更改时 # auto translated from hash: nxXEf16N
+      auto: 自动 # translated from: Auto
+      onLoad: 加载时 # translated from: On Load
+      onChange: 更改时 # translated from: On Change
       onCall: 触发时
   '#priority':
     '@name': 优先级
     '@options':
-      auto: 自动 # auto translated from hash: BrkoHjlt
+      auto: 自动 # translated from: Auto
   '#sync':
-    '@name': 同步 # auto translated from hash: sYuWDFen
+    '@name': 同步 # translated from: Synchronize
   '#disabled':
     '@name': 停用
   '#wait':
-    '@name': 等待 # auto translated from hash: D2gQF3K9
+    '@name': 等待 # translated from: Wait
   '#cancel':
-    '@name': 取消 # auto translated from hash: 6keIcF5o
+    '@name': 取消 # translated from: Cancel
   '#value':
     '@name': 值
   '#render':
     '@name': 渲染
   '#inputs':
-    '@name': 输入 # auto translated from hash: 7mEci537
+    '@name': 输入 # translated from: Inputs
   '#outputs':
-    '@name': 输出 # auto translated from hash: vzMkxmCA
+    '@name': 输出 # translated from: Outputs
   '#input':
     '@name': 输入
   '+use':

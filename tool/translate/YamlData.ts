@@ -18,6 +18,29 @@ function hashValue(str: string | Buffer): string {
   return hash.digest().toString('base64').substring(0, 8);
 }
 
+export function translationSourceKey(str: string): string {
+  const key = str.length > 25 ? `${str.substring(0, 20)}-${hashValue(str)}` : str;
+  return key
+    .replace(/\\/g, '\\\\')
+    .replace(/\r/g, '\\r')
+    .replace(/\n/g, '\\n')
+    .replace(/^ +/, (spaces) => '\\s'.repeat(spaces.length))
+    .replace(/ +$/, (spaces) => '\\s'.repeat(spaces.length));
+}
+
+function appendGeneratedComment(comment: string, sourceKey: string) {
+  const generatedStr = `${YamlRow.generatedFrom}${sourceKey}`;
+  return comment ? `${comment} # ${generatedStr}` : `# ${generatedStr}`;
+}
+
+function replaceGeneratedComment(comment: string, generatedPos: number, sourceKey: string) {
+  let preservedComment = comment.substring(0, generatedPos).trimEnd();
+  if (preservedComment.endsWith('#')) {
+    preservedComment = preservedComment.substring(0, preservedComment.length - 1).trimEnd();
+  }
+  return appendGeneratedComment(preservedComment, sourceKey);
+}
+
 function writeYamlString(str: string, comment: string, indent: number) {
   if (str.includes('\n')) {
     let firstRow = '|-';
@@ -68,14 +91,17 @@ export class YamlData {
     for (const [key, row] of this.mapping) {
       if (row.value) {
         row.valueHash = hashValue(row.value);
+        row.sourceKey = translationSourceKey(row.value);
       }
     }
   }
 }
 
 class YamlRow {
-  static genertedFromHash = 'auto translated from hash: ';
-  static genertedFromHashLen = YamlRow.genertedFromHash.length;
+  static generatedFrom = 'translated from: ';
+  static generatedFromLen = YamlRow.generatedFrom.length;
+  static oldGeneratedFromHash = 'auto translated from hash: ';
+  static oldGeneratedFromHashLen = YamlRow.oldGeneratedFromHash.length;
 
   parent: YamlRow;
   indent: number;
@@ -84,6 +110,7 @@ class YamlRow {
   value: string;
   comment: string;
   valueHash: string;
+  sourceKey: string;
 
   // when the value uses multi-line format
   multiLineIndent: string;
@@ -179,20 +206,35 @@ export class OutputYamlData {
       for (const [key, oldRow] of oldData.mapping) {
         if (this.mapping.has(key)) {
           const outrow = this.mapping.get(key);
-          const generatedPos = oldRow.comment?.indexOf(YamlRow.genertedFromHash);
-          if (generatedPos > 0) {
-            const hash = oldRow.comment.substring(
-              generatedPos + YamlRow.genertedFromHashLen,
-              generatedPos + YamlRow.genertedFromHashLen + 8
-            );
-            if (hash !== outrow.enRow.valueHash) {
+          const generatedPos = oldRow.comment?.indexOf(YamlRow.generatedFrom) ?? -1;
+          if (generatedPos >= 0) {
+            const sourceKey = oldRow.comment.substring(generatedPos + YamlRow.generatedFromLen);
+            if (sourceKey !== outrow.enRow.sourceKey) {
               continue;
+            }
+            oldRow.comment = replaceGeneratedComment(oldRow.comment, generatedPos, outrow.enRow.sourceKey);
+          } else {
+            const oldGeneratedPos = oldRow.comment?.indexOf(YamlRow.oldGeneratedFromHash) ?? -1;
+            if (oldGeneratedPos >= 0) {
+              const hash = oldRow.comment.substring(
+                oldGeneratedPos + YamlRow.oldGeneratedFromHashLen,
+                oldGeneratedPos + YamlRow.oldGeneratedFromHashLen + 8
+              );
+              if (hash !== outrow.enRow.valueHash) {
+                continue;
+              }
+              oldRow.comment = replaceGeneratedComment(oldRow.comment, oldGeneratedPos, outrow.enRow.sourceKey);
             }
           }
           outrow.translated = oldRow.value;
           outrow.comment = oldRow.comment;
         } else {
-          if (!key.includes('.') && oldRow.value && !oldRow.comment?.includes(YamlRow.genertedFromHash)) {
+          if (
+            !key.includes('.') &&
+            oldRow.value &&
+            !oldRow.comment?.includes(YamlRow.generatedFrom) &&
+            !oldRow.comment?.includes(YamlRow.oldGeneratedFromHash)
+          ) {
             // top level manual translation need to be kept
             this.unused.push(oldRow);
           }
@@ -212,9 +254,8 @@ export class OutputYamlData {
   applyTranslate(map: Map<string, string>) {
     for (const [key, row] of this.toBeTranslated) {
       row.translated = map.get(row.enRow.value);
-      if (row.enRow.valueHash) {
-        const generatedStr = `${YamlRow.genertedFromHash}${row.enRow.valueHash}`;
-        row.comment = row.comment ? `${row.comment} ${generatedStr}` : `# ${generatedStr}`;
+      if (row.enRow.sourceKey) {
+        row.comment = appendGeneratedComment(row.comment, row.enRow.sourceKey);
       }
     }
     this.writeToYaml();

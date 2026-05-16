@@ -5,20 +5,20 @@ subtract:
   '@name': 减法
   '@keywords': minus,subtraction,-
 multiply:
-  '@name': 乘法 # auto translated from hash: 4lc3bZE/
+  '@name': 乘法 # translated from: Multiply
   '@keywords': multiplication,times,*
 divide:
-  '@name': 除法 # auto translated from hash: C5FOGWGC
+  '@name': 除法 # translated from: Divide
   '@keywords': division,/
 
 equal:
   '@name': 相等
   '@keywords': 等于
 'not-equal':
-  '@name': 不相等 # auto translated from hash: ObkbcVwE
+  '@name': 不相等 # translated from: Not Equal
   '@keywords': 不等于
 'greater-than':
-  '@name': 大于 # auto translated from hash: cohFT6RC
+  '@name': 大于 # translated from: Greater Than
   '@keywords': ">"
 'less-than':
   '@name': 小于

@@ -3,18 +3,18 @@
 
 route:
   server:
-    '@name': Serveur # auto translated from hash: mqGwOTSJ
+    '@name': Serveur # translated from: Server
   path:
-    '@name': Chemin # auto translated from hash: rHBBLpOd
+    '@name': Chemin # translated from: Path
   method:
-    '@name': Méthode # auto translated from hash: TDiAuwJ/
+    '@name': Méthode # translated from: Method
   contentType:
-    '@name': Type de contenu # auto translated from hash: Lv+ljxMV
+    '@name': Type de contenu # translated from: Content Type
 
 'static-response':
   data:
-    '@name': Données # auto translated from hash: 9gaNqinb
+    '@name': Données # translated from: Data
   headers:
-    '@name': En-têtes # auto translated from hash: iD12FcTS
+    '@name': En-têtes # translated from: Headers
   status:
-    '@name': Statut # auto translated from hash: 7FOoxPB7
+    '@name': Statut # translated from: Status

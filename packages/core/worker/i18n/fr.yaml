@@ -1,11 +1,11 @@
 map:
-  '@name': Carte # auto translated from hash: RvPqBWyq
+  '@name': Carte # translated from: Map
   '@keywords': mapping
   thread:
-    '@name': Nombre de fils # auto translated from hash: YjaHm/kj
+    '@name': Nombre de fils # translated from: Number of Thread
   reuseWorker:
-    '@name': Travailleur de réutilisation # auto translated from hash: P92RNZwV
+    '@name': Travailleur de réutilisation # translated from: Reuse Worker
     '@options':
-      none: Aucun # auto translated from hash: at+X+DrP
-      reuse: Réutiliser # auto translated from hash: 5cMD2C6L
-      persist: Persister # auto translated from hash: Wn2stum1
+      none: Aucun # translated from: None
+      reuse: Réutiliser # translated from: Reuse
+      persist: Persister # translated from: Persist

@@ -1,77 +1,77 @@
 '@namespace':
   math:
-    '@name': Mathématiques # auto translated from hash: pJlQqgR8
+    '@name': Mathématiques # translated from: Math
   string:
-    '@name': Corde # auto translated from hash: JxGDJgBt
+    '@name': Corde # translated from: String
   script:
-    '@name': Script # auto translated from hash: +QfmURZH
+    '@name': Script # translated from: Script
   compare:
-    '@name': Comparer # auto translated from hash: fuzlHPOT
+    '@name': Comparer # translated from: Compare
   repeat:
-    '@name': Répéter # auto translated from hash: cCBCbPsK
+    '@name': Répéter # translated from: Repeat
   data:
-    '@name': Données # auto translated from hash: 9gaNqinb
+    '@name': Données # translated from: Data
 
 '@shared':
   '':
-    '@name': 'Entrée ' # auto translated from hash: 6EIpzKWh
+    '@name': 'Entrée ' # translated from: Input\s
   'input':
-    '@name': Entrée # auto translated from hash: MkEYpnId
+    '@name': Entrée # translated from: Input
   'separator':
-    '@name': Séparateur # auto translated from hash: BLLkGI1O
+    '@name': Séparateur # translated from: Separator
   'regExp':
-    '@name': Exp récente # auto translated from hash: uHt9Bieo
+    '@name': Exp récente # translated from: RegExp
   'key':
-    '@name': Clé # auto translated from hash: iXNWlUws
+    '@name': Clé # translated from: Key
   'value':
-    '@name': Valeur # auto translated from hash: aJICQJ5I
+    '@name': Valeur # translated from: Value
   'config':
-    '@name': Configurer # auto translated from hash: +lNf+yXh
+    '@name': Configurer # translated from: Config
   'use':
-    '@name': Utiliser # auto translated from hash: rYeDCJ+C
+    '@name': Utiliser # translated from: Use
   '#output':
-    '@name': Sortie # auto translated from hash: KcLAKjYc
+    '@name': Sortie # translated from: Output
   '#is':
-    '@name': Fonction # auto translated from hash: hkCFk8NK
+    '@name': Fonction # translated from: Function
   '#call':
-    '@name': Appeler # auto translated from hash: w3VeYSAq
+    '@name': Appeler # translated from: Call
   '#mode':
-    '@name': Mode # auto translated from hash: ZQvmGJK/
+    '@name': Mode # translated from: Mode
     '@options':
-      auto: Auto # auto translated from hash: BrkoHjlt
-      onLoad: Sur charge # auto translated from hash: E7DolRJP
-      onChange: Sur le changement # auto translated from hash: nxXEf16N
-      onCall: Sur appel # auto translated from hash: t6CHEq85
+      auto: Auto # translated from: Auto
+      onLoad: Sur charge # translated from: On Load
+      onChange: Sur le changement # translated from: On Change
+      onCall: Sur appel # translated from: On Call
   '#priority':
-    '@name': Priorité # auto translated from hash: UCmW2XkD
+    '@name': Priorité # translated from: Priority
     '@options':
-      auto: Auto # auto translated from hash: BrkoHjlt
+      auto: Auto # translated from: Auto
   '#sync':
-    '@name': Synchroniser # auto translated from hash: sYuWDFen
+    '@name': Synchroniser # translated from: Synchronize
   '#disabled':
-    '@name': Handicapé # auto translated from hash: ufXHl+u/
+    '@name': Handicapé # translated from: Disabled
   '#wait':
-    '@name': Attendre # auto translated from hash: D2gQF3K9
+    '@name': Attendre # translated from: Wait
   '#cancel':
-    '@name': Annuler # auto translated from hash: 6keIcF5o
+    '@name': Annuler # translated from: Cancel
   '#value':
-    '@name': Valeur # auto translated from hash: aJICQJ5I
+    '@name': Valeur # translated from: Value
   '#render':
-    '@name': Rendre # auto translated from hash: XlINpTQf
+    '@name': Rendre # translated from: Render
   '#inputs':
-    '@name': Entrées # auto translated from hash: 7mEci537
+    '@name': Entrées # translated from: Inputs
   '#outputs':
-    '@name': Sorties # auto translated from hash: vzMkxmCA
+    '@name': Sorties # translated from: Outputs
   '#input':
-    '@name': Entrée # auto translated from hash: MkEYpnId
+    '@name': Entrée # translated from: Input
   '+use':
-    '@name': Utiliser # auto translated from hash: rYeDCJ+C
+    '@name': Utiliser # translated from: Use
 
   '@b-name':
-    '@name': Nom # auto translated from hash: Se4whzSO
+    '@name': Nom # translated from: Name
   '@b-p':
-    '@name': Liste des propriétés # auto translated from hash: 4f/Njq0y
+    '@name': Liste des propriétés # translated from: Property List
   '@b-xyw':
-    '@name': XYW # auto translated from hash: u7aAcUen
+    '@name': XYW # translated from: XYW
   '@b-widget':
-    '@name': Widget # auto translated from hash: btVioNQ4
+    '@name': Widget # translated from: Widget

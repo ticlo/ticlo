@@ -3,18 +3,18 @@
 
 route:
   server:
-    '@name': 服务器 # auto translated from hash: mqGwOTSJ
+    '@name': 服务器 # translated from: Server
   path:
-    '@name': 路径 # auto translated from hash: rHBBLpOd
+    '@name': 路径 # translated from: Path
   method:
-    '@name': 方法 # auto translated from hash: TDiAuwJ/
+    '@name': 方法 # translated from: Method
   contentType:
-    '@name': 内容类型 # auto translated from hash: Lv+ljxMV
+    '@name': 内容类型 # translated from: Content Type
 
 'static-response':
   data:
-    '@name': 数据 # auto translated from hash: 9gaNqinb
+    '@name': 数据 # translated from: Data
   headers:
-    '@name': 头 # auto translated from hash: iD12FcTS
+    '@name': 头 # translated from: Headers
   status:
-    '@name': 地位 # auto translated from hash: 7FOoxPB7
+    '@name': 地位 # translated from: Status

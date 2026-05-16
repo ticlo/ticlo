@@ -1,19 +1,19 @@
 '@namespace':
   test:
-    '@name': Test # auto translated from hash: DLxmEfVU
+    '@name': Test # translated from: Test
 
 assert:
-  '@name': Affirmer # auto translated from hash: 1TD50blP
+  '@name': Affirmer # translated from: Assert
   '@keywords': test
   actual:
-    '@name': "Réel " # auto translated from hash: w2pkry/T
+    '@name': "Réel " # translated from: Actual\s
   expect:
-    '@name': "Attendre " # auto translated from hash: FCVo1dIu
+    '@name': "Attendre " # translated from: Expect\s
     '@commands':
       copyFromActual:
-        '@name': Copier à partir du réel # auto translated from hash: 29YPUdK0
+        '@name': Copier à partir du réel # translated from: Copy from Actual
   matchMode:
-    '@name': Match Mode # auto translated from hash: vB/EagS4
+    '@name': Match Mode # translated from: Match Mode
     '@options':
-      match-once: Match unique # auto translated from hash: bf8CiiVf
-      always-match: Toujours correspondre # auto translated from hash: wq4vzxHA
+      match-once: Match unique # translated from: Match Once
+      always-match: Toujours correspondre # translated from: Always Match

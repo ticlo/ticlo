@@ -2,7 +2,7 @@
   react:
     '@name': React # no translate
   'react:elements':
-    '@name': 元素 # auto translated from hash: qlai5l2B
+    '@name': 元素 # translated from: Elements
 
 '@shared':
   '':
@@ -12,4 +12,4 @@
 
 jsx:
   script:
-    '@name': 脚本 # auto translated from hash: +QfmURZH
+    '@name': 脚本 # translated from: Script

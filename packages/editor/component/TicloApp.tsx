@@ -74,6 +74,12 @@ function useTicloContext(value: TicloLayoutContext) {
     () => ({
       ...value,
       ...currentFlow,
+      editFlow: value.editFlow
+        ? (path: string, onSave: () => void) => {
+            value.editFlow(path, onSave);
+            currentFlow.onFlowFocus(path);
+          }
+        : undefined,
     }),
     [value, currentFlow]
   );
