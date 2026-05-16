@@ -31,6 +31,8 @@
 "New Folder": "New Folder"
 # AddNewFlowDialog.tsx & NodeTreePane.tsx
 "New Dataflow": "New Dataflow"
+# FunctionTreeRenderer.tsx & FunctionSelect.tsx
+"Add Function": "Add Function"
 # TextEditorPane.tsx & NodeTreePane.tsx
 "Reload": "Reload"
 
@@ -119,11 +121,12 @@
 # node-tree/NodeRenderer.tsx
 "Add Dataflow": "Add Dataflow"
 "Add Folder": "Add Folder"
+"Add Library": "Add Library"
 
 # function-selector/FunctionSelect.tsx
-"Function Tree": "Function Tree"
+"In-Flow": "In-Flow"
+"Global": "Global"
 "Recent": "Recent"
-"Add Function": "Add Function"
 "Function Name?": "Function Name?"
 
 # dock/schedule/SchedulePane.tsx

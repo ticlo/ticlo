@@ -14,7 +14,11 @@ const allFiles = new Map<string, string[]>();
 function main() {
   const existingEn = fs.readFileSync(enyaml, {encoding: 'utf-8'});
   const enMap: Record<string, string> = YAML.parse(existingEn);
-  const files: string[] = glob.sync(`./packages/editor/**/*.{ts,tsx}`, {posix: true});
+  const files: string[] = glob.sync(`./packages/editor/**/*.{ts,tsx}`, {
+    posix: true,
+    nodir: true,
+    ignore: ['**/node_modules/**'],
+  });
   files.unshift(commonPath);
   for (const path of files) {
     const data = fs.readFileSync(path, 'utf8');
@@ -65,7 +69,7 @@ function main() {
     }
   }
 
-  fs.writeFileSync(enyaml, out.join('\n'));
+  fs.writeFileSync(enyaml, `${out.join('\n')}\n`);
 }
 
 main();
