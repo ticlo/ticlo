@@ -195,11 +195,11 @@ export class FieldItem extends DataRendererItem {
     },
   });
 
-  constructor(block: BaseBlockItem, name: string) {
+  constructor(block: BaseBlockItem, name: string, overridePath?: string) {
     super();
     this.name = name;
     this.block = block;
-    this.path = `${block.path}.${name}`;
+    this.path = overridePath ?? `${block.path}.${name}`;
     this.pathArrayCache = [block.path];
     this.listener.subscribe(this.block.conn, this.path);
     this.block.stage.registerField(this.path, this);
@@ -728,6 +728,22 @@ export abstract class BaseBlockItem extends DataRendererItem<XYWRenderer> {
   }
 }
 
+// Hidden source anchor for @b-pself. It registers block.path so bindings to the
+// block's own property can draw outbound wires without creating a draggable row.
+class BlockSelfFieldItem extends FieldItem {
+  constructor(block: BlockItem) {
+    super(block, '', block.path);
+  }
+
+  forceUpdate() {
+    this.block.forceUpdate();
+  }
+
+  render(): React.ReactNode {
+    return null;
+  }
+}
+
 class SubBlockItem extends BaseBlockItem {
   parentField: FieldItem;
 
@@ -822,6 +838,8 @@ export class BlockItem extends BaseBlockItem {
   selected: boolean = false;
 
   actualFields: string[] = [];
+  headerCallField = false;
+  selfField: BlockSelfFieldItem;
 
   setP(fields: string[]) {
     // in case actual fields changed but super.setP receive same array
@@ -829,6 +847,7 @@ export class BlockItem extends BaseBlockItem {
 
     this.actualFields = fields;
     const FullView = this.desc.view;
+    this.headerCallField = false;
     if (
       !(
         this._syncParent || // sync child block doesn't need extra #call item
@@ -837,12 +856,16 @@ export class BlockItem extends BaseBlockItem {
       ) // fullView block doesn't need extra #call item
     ) {
       fields = fields.concat(['#call']);
+      this.headerCallField = true;
     }
     super.setP(fields, forceRefresh);
   }
 
   getHeaderCallField(): FieldItem {
-    if (this.fields !== this.actualFields) {
+    // #call can be a synthetic header-only field that is not part of @b-p.
+    // Keep this explicit because other synthetic fields, such as @b-pself's
+    // block-own source anchor, should not affect header rendering.
+    if (this.headerCallField) {
       return this.fieldItems.get('#call');
     }
     return null;
@@ -860,6 +883,7 @@ export class BlockItem extends BaseBlockItem {
   startSubscribe() {
     super.startSubscribe();
     this.syncListener.subscribe(this.conn, `${this.path}.#sync`, true);
+    this.pselfListener.subscribe(this.conn, `${this.path}.@b-pself`, true);
     this.xywListener.subscribe(this.conn, `${this.path}.@b-xyw`, true);
   }
 
@@ -898,6 +922,23 @@ export class BlockItem extends BaseBlockItem {
         this.synced = newSynced;
         this.forceUpdate();
       }
+    },
+  });
+
+  pselfListener = new ValueSubscriber({
+    onUpdate: (response: ValueUpdate) => {
+      const showSelfField = Boolean(response.cache.value);
+      if (showSelfField === Boolean(this.selfField)) {
+        return;
+      }
+      if (showSelfField) {
+        this.selfField = new BlockSelfFieldItem(this);
+        this.updateFieldPosition();
+      } else {
+        this.selfField.destroy();
+        this.selfField = null;
+      }
+      this.forceUpdate();
     },
   });
 
@@ -993,6 +1034,7 @@ export class BlockItem extends BaseBlockItem {
     const FullView = this.desc.view;
 
     if (FullView) {
+      this.selfField?.updateFieldPos(x, y + this.viewH, w, 0);
       this.setH(this.viewH); // footer height
     } else if (!w) {
       // minimized block
@@ -1002,6 +1044,7 @@ export class BlockItem extends BaseBlockItem {
       for (const field of this.fields) {
         this.fieldItems.get(field).updateFieldPos(x, y1, w, 0);
       }
+      this.selfField?.updateFieldPos(x, y1, w, 0);
       this.setH(fieldHeight);
     } else {
       let headerHeight = fieldHeight;
@@ -1021,7 +1064,11 @@ export class BlockItem extends BaseBlockItem {
       for (const field of this.getRenderFields()) {
         y1 = this.fieldItems.get(field).updateFieldPos(x, y1, w, fieldHeight);
       }
-      this.setH(y1 - fieldYOffset + 23 - y); // footer height
+      const h = y1 - fieldYOffset + 23 - y; // footer height
+      // Align the synthetic source with .ticl-block-foot's outbound marker,
+      // not the smaller .ticl-block-self-drag square inside the footer.
+      this.selfField?.updateFieldPos(x, y + h - 11, w, 0);
+      this.setH(h);
     }
     if (this._syncChild) {
       this._syncChild.setXYW(this.x, this.y + this.h, this.w);
@@ -1113,11 +1160,14 @@ export class BlockItem extends BaseBlockItem {
       this._syncParent = null;
     }
     this.syncListener.unsubscribe();
+    this.pselfListener.unsubscribe();
     this.xywListener.unsubscribe();
     this.styleListener.unsubscribe();
     if (this._syncChild?._syncParent === this) {
       this._syncChild._syncParent = null;
     }
+    this.selfField?.destroy();
+    this.selfField = null;
     super.destroy();
     this.actualFields = [];
   }

@@ -209,6 +209,12 @@ describe('editor BlockStage', function () {
         '@b-xyw': [100, 100, 143],
         '@b-p': ['0'],
       },
+      subtract: {
+        '#is': 'subtract',
+        '~0': '##.add',
+        '@b-xyw': [300, 100, 143],
+        '@b-p': ['0'],
+      },
     });
 
     const [server, client] = makeLocalConnection(Root.instance);
@@ -223,6 +229,8 @@ describe('editor BlockStage', function () {
     const selfDrag = div.querySelector('.ticl-block-self-drag') as HTMLDivElement;
     expect(selfDrag.classList.contains('ticl-block-prbg')).toBe(true);
     expect(selfDrag.nextElementSibling.classList.contains('ticl-width-drag')).toBe(true);
+    await shouldHappen(() => div.querySelector('.ticl-block-wire'));
+    await shouldHappen(() => div.querySelector('.ticl-block-foot > .ticl-outbound'));
 
     flow.queryProperty('add.@b-pself').setValue(undefined);
     await shouldHappen(() => !div.querySelector('.ticl-block-self-drag'));

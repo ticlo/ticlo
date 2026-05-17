@@ -79,6 +79,7 @@ Keys starting with `@` are attributes. These are used primarily by the Ticlo Dat
 
 - **Important**: If these keys are removed, the flow's execution behavior remains exactly the same.
 - `@b-p`: Block properties layout instructions (ordering of properties in the editor).
+- `@b-pself`: Boolean/toggle, default `false`. When `true`, the editor shows the block's own property in the footer for binding from the block path (for example `flow.block1`).
 - `@b-xyw`: Layout coordinates `[x, y, width]`.
 
 ## Path Navigation
