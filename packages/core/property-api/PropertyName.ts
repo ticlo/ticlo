@@ -42,7 +42,7 @@ function getReservedNames(funcId: unknown): [Set<string>, string[]] {
 
   if (desc) {
     const [usedNames0, groupNames0] = collectNames(desc.properties);
-    const [usedNames1, groupNames1] = collectNames(Object.values(desc.optional));
+    const [usedNames1, groupNames1] = collectNames(Object.values(desc.optional ?? {}));
     let baseUsedNames: Set<string>;
     let baseGroupNames: string[];
     if (desc.base) {
@@ -50,9 +50,9 @@ function getReservedNames(funcId: unknown): [Set<string>, string[]] {
     }
     const result = [
       // use Set to improve performance
-      new Set([...configList, ...baseUsedNames, ...(usedNames0 ?? []), ...(usedNames1 ?? [])]),
+      new Set([...configList, ...(baseUsedNames ?? []), ...(usedNames0 ?? []), ...(usedNames1 ?? [])]),
       // small Array is faster than Set, but we still need to remove duplicates with Set
-      [...new Set([...baseGroupNames, ...(groupNames0 ?? []), ...(groupNames1 ?? [])]).values()],
+      [...new Set([...(baseGroupNames ?? []), ...(groupNames0 ?? []), ...(groupNames1 ?? [])]).values()],
     ] as [Set<string>, string[]];
     cachedReserveTable.set(desc, result);
     return result;

@@ -5,6 +5,7 @@
 .ticl-tree-node-content {
   cursor: pointer;
   display: flex;
+  position: relative;
   background: #ffffff;
   flex-grow: 1;
 
@@ -23,6 +24,18 @@
       height: 16px;
     }
   }
+}
+
+.ticl-tree-node-ordered > .ticl-tree-node-content::before {
+    content: '';
+    position: absolute;
+    left: -4px;
+    top: 12px;
+    width: 3px;
+    height: 3px;
+    border-radius: 50%;
+    background: currentColor;
+    pointer-events: none;
 }
 
 .ticl-tree-node-selected {

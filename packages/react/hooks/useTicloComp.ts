@@ -17,10 +17,7 @@ function isReactChild(child: unknown): child is ReactNode | Block {
   return child instanceof Block || isValidElement(child) || typeof child === 'string' || typeof child === 'number';
 }
 
-export function getChildren(block: Block, overrideChildren?: unknown, order?: unknown): (ReactNode | Block)[] {
-  if (!Array.isArray(overrideChildren)) {
-    overrideChildren = block.getValue('children') as unknown[];
-  }
+export function getChildren(block: Block, order?: unknown, overrideChildren?: unknown): (ReactNode | Block)[] {
   const result: (ReactNode | Block)[] = [];
   if (Array.isArray(overrideChildren)) {
     // overrideChildren children with an array of blocks
@@ -117,14 +114,10 @@ export function useTicloComp(
     noChildren ? noChildrenConfigsMap : configsMap
   );
 
-  // resolve children from override children or ordered children
-  const [children, setChildren, childrenRef] = useRefState(() =>
-    needChildren ? block.getValue('children') : undefined
-  );
   const orderRef = useValueRef(orderList);
   const [resolvedChildren, updateResolvedChildren] = useMemoUpdate(
-    () => (needChildren ? getChildren(block, children, orderList) : []),
-    [block, children, orderList]
+    () => (needChildren ? getChildren(block, orderList) : []),
+    [block, orderList]
   );
 
   // resolve optional properties
@@ -133,11 +126,6 @@ export function useTicloComp(
 
   const onPropertyChange = useCallback((property: BlockProperty, saved?: boolean) => {
     switch (property._name) {
-      case 'children':
-        if (needChildren) {
-          setChildren(property.getValue());
-        }
-        break;
       case 'style':
         setStyle(property.getValue());
         break;
@@ -147,7 +135,6 @@ export function useTicloComp(
     }
     if (
       needChildren &&
-      childrenRef.current !== undefined && // when children are set, there is no need to check orderList
       Array.isArray(orderRef.current) &&
       orderRef.current.includes(property._name)
     ) {

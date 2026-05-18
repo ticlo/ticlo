@@ -13,15 +13,10 @@ export const elementClassProperty: PropDesc = {
   name: 'class',
   type: 'string',
 };
-export const elementChildrenProperty: PropDesc = {
-  name: 'children',
-  type: 'array',
-};
 
 export const elementPropMap: PropMap = {
   style: {value: Values.any, type: 'object', create: 'html:create-style'},
   class: {value: Values.any, type: 'string'},
-  children: {value: Values.any, type: 'array'},
 };
 
-export const elementProps: PropDesc[] = [elementClassProperty, elementStyleProperty, elementChildrenProperty];
+export const elementProps: PropDesc[] = [elementClassProperty, elementStyleProperty];

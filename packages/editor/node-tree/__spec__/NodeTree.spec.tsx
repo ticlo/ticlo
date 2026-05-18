@@ -43,6 +43,10 @@ describe('editor NodeTree', function () {
     }
   }
 
+  function getVisibleNodeNames(div: HTMLElement) {
+    return Array.from(div.querySelectorAll('.ticl-tree-node-text')).map((node) => node.textContent);
+  }
+
   it('basic', async function () {
     const flow = Root.instance.addFlow('NodeTree');
     addTestChildren(flow, '', 3);
@@ -113,5 +117,51 @@ describe('editor NodeTree', function () {
 
     // Test is complete, no additional cleanup needed here
     // The flow will be cleaned up in afterEach
+  });
+
+  it('uses #order config for child order', async function () {
+    const flow = Root.instance.addFlow('NodeTree');
+    addTestChildren(flow, '', 1);
+
+    [server, client] = makeLocalConnection(Root.instance);
+
+    const [, div] = loadTemplate(
+      <NodeTree conn={client} basePaths={['NodeTree']} style={{width: '600px', height: '900px'}} />,
+      'editor'
+    );
+    await shouldHappen(() => div.querySelector('.ticl-node-tree'));
+    await shouldHappen(() => div.querySelector('.ticl-v-scroll-content'));
+    const contentDiv = div.querySelector('.ticl-v-scroll-content');
+    await shouldHappen(() => contentDiv.childNodes.length >= 1);
+
+    simulate(querySingle("//div.ticl-tree-node-text[text()='NodeTree']/../../div.ticl-tree-arr", div), 'click');
+    await shouldHappen(() => contentDiv.childNodes.length >= 11);
+    expect(getVisibleNodeNames(div).slice(0, 5)).toEqual(['NodeTree', '0', '1', '2', '3']);
+
+    flow.setValue('#order', ['0']);
+    await shouldHappen(() =>
+      querySingle("//div.ticl-tree-node-text[text()='0']/../..", div).classList.contains('ticl-tree-node-ordered')
+    );
+
+    flow.setValue('#order', ['9', '2', 5, 'missing', '4']);
+    await shouldHappen(() => getVisibleNodeNames(div).slice(0, 5).join(',') === 'NodeTree,9,2,4,0');
+    expect(querySingle("//div.ticl-tree-node-text[text()='9']/../..", div).classList).toContain(
+      'ticl-tree-node-ordered'
+    );
+    expect(querySingle("//div.ticl-tree-node-text[text()='2']/../..", div).classList).toContain(
+      'ticl-tree-node-ordered'
+    );
+    expect(querySingle("//div.ticl-tree-node-text[text()='0']/../..", div).classList).not.toContain(
+      'ticl-tree-node-ordered'
+    );
+
+    simulate(querySingle("//div.ticl-tree-node-text[text()='2']/../../div.ticl-tree-arr", div), 'click');
+    await shouldHappen(() => getVisibleNodeNames(div).slice(0, 8).join(',') === 'NodeTree,9,2,20,21,22,23,24');
+
+    (flow.getValue('2') as Block).setValue('#order', ['29', '21']);
+    await shouldHappen(() => getVisibleNodeNames(div).slice(0, 8).join(',') === 'NodeTree,9,2,29,21,20,22,23');
+    expect(querySingle("//div.ticl-tree-node-text[text()='29']/../..", div).classList).toContain(
+      'ticl-tree-node-ordered'
+    );
   });
 });

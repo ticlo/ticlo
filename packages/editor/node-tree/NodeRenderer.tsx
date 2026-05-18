@@ -59,6 +59,8 @@ const addLibraryAllowed = ['flow:namespace'];
 export class NodeTreeItem extends TreeItem<NodeTreeItem> {
   childPrefix: string;
   name: string;
+  order: unknown;
+  ordered = false;
 
   // updated by the renderer
   functionId: string;
@@ -88,6 +90,7 @@ export class NodeTreeItem extends TreeItem<NodeTreeItem> {
         this.name = 'Root';
       }
     }
+    this.subscribeOrder();
   }
 
   addToList(list: NodeTreeItem[]) {
@@ -119,7 +122,7 @@ export class NodeTreeItem extends TreeItem<NodeTreeItem> {
     isHidden = isHidden || (this.opened === 'closed' && !autoOpen);
     if (parentPath === this.key) {
       if (isHidden) {
-        this.children = null;
+        this.destroyChildren();
       } else {
         this.open();
       }
@@ -154,6 +157,7 @@ export class NodeTreeItem extends TreeItem<NodeTreeItem> {
         this.children.push(new NodeTreeItem(key, data.id?.toString(), this, Boolean(data.canApply)));
       }
     }
+    this.applyOrder();
     this.opened = 'opened';
     if (this.onListChange) {
       this.onListChange();
@@ -162,6 +166,62 @@ export class NodeTreeItem extends TreeItem<NodeTreeItem> {
       child.destroy();
     }
     this.forceUpdate();
+  }
+
+  orderListener = new ValueSubscriber({
+    onUpdate: (response: ValueUpdate) => {
+      const order = response.cache.value;
+      if (!deepEqual(order, this.order)) {
+        this.order = order;
+        if (this.children) {
+          this.applyOrder();
+          if (this.onListChange) {
+            this.onListChange();
+          }
+          this.forceUpdate();
+        }
+      }
+    },
+  });
+
+  subscribeOrder() {
+    if (this.connection && this.key != null) {
+      this.orderListener.subscribe(this.connection, this.key ? `${this.key}.#order` : '#order', true);
+    }
+  }
+
+  applyOrder() {
+    if (!this.children) {
+      return;
+    }
+    const children = new Map<string, NodeTreeItem>();
+    for (const child of this.children) {
+      children.set(child.name, child);
+    }
+    const orderedChildren: NodeTreeItem[] = [];
+    const orderedNames = new Set<string>();
+    if (Array.isArray(this.order)) {
+      for (const name of this.order) {
+        if (typeof name === 'string') {
+          const child = children.get(name);
+          if (child) {
+            orderedChildren.push(child);
+            orderedNames.add(name);
+            children.delete(name);
+          }
+        }
+      }
+    }
+    for (const child of this.children) {
+      const ordered = orderedNames.has(child.name);
+      if (child.ordered !== ordered) {
+        child.ordered = ordered;
+        child.forceUpdate();
+      }
+    }
+    const otherChildren = Array.from(children.values());
+    otherChildren.sort((a, b) => smartStrCompare(a.name, b.name));
+    this.children = orderedChildren.concat(otherChildren);
   }
 
   // on children error
@@ -178,6 +238,7 @@ export class NodeTreeItem extends TreeItem<NodeTreeItem> {
 
   destroy() {
     this.cancelLoad();
+    this.orderListener.unsubscribe();
     super.destroy();
   }
 }
@@ -434,8 +495,12 @@ export class NodeTreeRenderer extends PureDataRenderer<Props, any> {
       // Force the DropDown to show the disable menu by not giving it null value
       disabled = false;
     }
+    let nodeClassName = 'ticl-tree-node';
+    if (item.ordered) {
+      nodeClassName += ' ticl-tree-node-ordered';
+    }
     return (
-      <div style={{...style, marginLeft}} className="ticl-tree-node">
+      <div style={{...style, marginLeft}} className={nodeClassName}>
         <ExpandIcon opened={item.opened} onClick={this.onExpandClicked} />
         <BlockDropdown
           conn={item.getConn()}
