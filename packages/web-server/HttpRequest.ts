@@ -46,8 +46,10 @@ export class HonoResponse {
 
     let body: BodyInit | null = null;
     if (data != null) {
-      if (typeof data === 'string' || data instanceof Uint8Array || data instanceof ArrayBuffer) {
+      if (typeof data === 'string' || data instanceof ArrayBuffer) {
         body = data;
+      } else if (data instanceof Uint8Array) {
+        body = data.slice().buffer;
       } else {
         if (!this._headers.has('Content-Type')) {
           this._headers.set('Content-Type', 'application/json');

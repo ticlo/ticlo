@@ -48,8 +48,8 @@ export class Flow extends Block {
   _namespace: string;
   // function id, when Flow is loaded from a function
   _loadFrom: string;
-  _funcLib: FlowFunctionLib;
-  getFuncLib(): FlowFunctionLib {
+  _funcLib: FunctionLib;
+  getFuncLib(): FunctionLib {
     if (!this._funcLib) {
       this._funcLib = new FlowFunctionLib(this._namespace, this);
       this.getProperty('#functions', true);

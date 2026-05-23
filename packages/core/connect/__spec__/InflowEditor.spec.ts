@@ -1,5 +1,6 @@
 import {expect} from 'vitest';
 import {Flow, Root} from '../../block/Flow.js';
+import {type Block} from '../../block/Block.js';
 import {makeLocalConnection} from '../LocalConnection.js';
 import '../../functions/math/Arithmetic.js';
 import '../../functions/Categories.js';
@@ -178,7 +179,7 @@ describe('InflowEditor Connection Workflow', function () {
 
     await client.addBlock(`${flowPath}.calc`, {'#is': funcId});
 
-    expect(flow.queryValue('calc.#')?.getFunctionClass()).toBeDefined();
+    expect((flow.queryValue('calc.#') as Block)?.getFunctionClass()).toBeDefined();
 
     client.destroy();
     Root.instance.deleteValue(flowPath);
