@@ -48,6 +48,40 @@ describe('InflowEditor', function () {
     });
   });
 
+  it('tracks history when saving in-flow functions', function () {
+    const data = {'#is': '', 'add': {'#is': 'add'}};
+    const flow = new Flow();
+    flow.load({}, null, (flow) => flow.save());
+    flow.startHistory();
+
+    WorkerFunctionGen.registerType(data, {id: ':trackedWorker', name: 'trackedWorker'}, undefined, flow.getFuncLib());
+
+    expect(flow.getValue('@has-change')).toBe(true);
+    expect(flow.getValue('@has-undo')).toBe(true);
+    expect(flow.save()['#functions']).toEqual({
+      ':trackedWorker': {
+        type: 'worker',
+        worker: data,
+      },
+    });
+
+    flow.undo();
+
+    expect(flow.getValue('@has-change')).not.toBeDefined();
+    expect(flow.getValue('@has-redo')).toBe(true);
+    expect(flow.save()['#functions']).not.toBeDefined();
+
+    flow.redo();
+
+    expect(flow.getValue('@has-change')).toBe(true);
+    expect(flow.save()['#functions']).toEqual({
+      ':trackedWorker': {
+        type: 'worker',
+        worker: data,
+      },
+    });
+  });
+
   it('stores namespace function libraries as namespace flows', function () {
     const data = {'#is': '', 'add': {'#is': 'add'}};
     const lib = Namespace.getFunctionLib('+NsFlowLib:g:a');

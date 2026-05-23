@@ -4,6 +4,7 @@ import {isDataMap, type DataMap} from '../util/DataTypes.js';
 import {FunctionLib} from './FunctionLib.js';
 import {FlowStorage} from './Storage.js';
 import {type Flow} from './Flow.js';
+import {deepEqual} from '../util/Compare.js';
 
 export interface FunctionLoader {
   load(data: DataMap, localFuncId: string, fullId: string, namespace?: string): [FunctionClass, FunctionDesc];
@@ -15,12 +16,33 @@ export class FlowFunctionLib extends FunctionLib {
     this._loaders.set(funcType, loader);
   }
 
+  protected _loading = false;
+
   constructor(
     flow: Flow,
     public readonly namespace: string | undefined
   ) {
     super(flow);
   }
+
+  protected trackFlowChange(previous: DataMap | undefined) {
+    if (!this._loading && previous && !deepEqual(previous, this.flow.save())) {
+      this.flow.trackChange();
+    }
+  }
+
+  add(func: FunctionClass | null, desc: FunctionDesc, namespace?: string) {
+    const previous = this.flow?.save();
+    super.add(func, desc, namespace);
+    this.trackFlowChange(previous);
+  }
+
+  delete(id: string): void {
+    const previous = this.flow?.save();
+    super.delete(id);
+    this.trackFlowChange(previous);
+  }
+
   getFullId(localId: string) {
     return localId;
   }
@@ -42,28 +64,33 @@ export class FlowFunctionLib extends FunctionLib {
     return result;
   }
   load(data: DataMap) {
-    const usedFullId: Record<string, boolean> = {};
-    for (const localFuncId in data) {
-      const funcData = data[localFuncId];
-      if (isDataMap(funcData) && typeof funcData.type === 'string') {
-        const fullId = this.getFullId(localFuncId);
-        usedFullId[fullId] = true;
-        if (this._functions[fullId]?._value?.equals?.(funcData)) {
-          // no need to update existing function
-          continue;
-        }
-        const loader = FlowFunctionLib._loaders.get(funcData.type);
-        if (loader) {
-          const [func, desc] = loader.load(funcData, localFuncId, fullId, this.namespace);
-          this.add(func, desc, this.namespace);
+    this._loading = true;
+    try {
+      const usedFullId: Record<string, boolean> = {};
+      for (const localFuncId in data) {
+        const funcData = data[localFuncId];
+        if (isDataMap(funcData) && typeof funcData.type === 'string') {
+          const fullId = this.getFullId(localFuncId);
+          usedFullId[fullId] = true;
+          if (this._functions[fullId]?._value?.equals?.(funcData)) {
+            // no need to update existing function
+            continue;
+          }
+          const loader = FlowFunctionLib._loaders.get(funcData.type);
+          if (loader) {
+            const [func, desc] = loader.load(funcData, localFuncId, fullId, this.namespace);
+            this.add(func, desc, this.namespace);
+          }
         }
       }
-    }
-    for (const existingId in this._functions) {
-      if (!(existingId in usedFullId)) {
-        // todo, clean shared Flow
-        this._functions[existingId].updateValue(undefined);
+      for (const existingId in this._functions) {
+        if (!(existingId in usedFullId)) {
+          // todo, clean shared Flow
+          this.delete(existingId);
+        }
       }
+    } finally {
+      this._loading = false;
     }
   }
 }
@@ -128,33 +155,38 @@ export class NsFunctionLib extends FlowFunctionLib {
   }
   load(data: DataMap) {
     this._loaded = 'loading';
-    const usedFullId: Record<string, boolean> = {};
-    for (const localFuncId in data) {
-      const funcData = data[localFuncId];
-      if (isDataMap(funcData) && typeof funcData.type === 'string') {
-        const fullId = this.getFullId(localFuncId);
-        const localId = this.getLocalId(fullId);
-        usedFullId[fullId] = true;
-        usedFullId[localId] = true;
-        if (
-          this._functions[fullId]?._value?.equals?.(funcData) &&
-          this._functions[localId]?._value?.equals?.(funcData)
-        ) {
-          continue;
-        }
-        const loader = FlowFunctionLib._loaders.get(funcData.type);
-        if (loader) {
-          const [func, desc] = loader.load(funcData, localId, fullId, this.namespace);
-          this.add(func, desc, this.namespace);
+    this._loading = true;
+    try {
+      const usedFullId: Record<string, boolean> = {};
+      for (const localFuncId in data) {
+        const funcData = data[localFuncId];
+        if (isDataMap(funcData) && typeof funcData.type === 'string') {
+          const fullId = this.getFullId(localFuncId);
+          const localId = this.getLocalId(fullId);
+          usedFullId[fullId] = true;
+          usedFullId[localId] = true;
+          if (
+            this._functions[fullId]?._value?.equals?.(funcData) &&
+            this._functions[localId]?._value?.equals?.(funcData)
+          ) {
+            continue;
+          }
+          const loader = FlowFunctionLib._loaders.get(funcData.type);
+          if (loader) {
+            const [func, desc] = loader.load(funcData, localId, fullId, this.namespace);
+            this.add(func, desc, this.namespace);
+          }
         }
       }
-    }
-    for (const existingId in this._functions) {
-      if (!(existingId in usedFullId)) {
-        this._functions[existingId].updateValue(undefined);
+      for (const existingId in this._functions) {
+        if (!(existingId in usedFullId)) {
+          this.delete(existingId);
+        }
       }
+      this._loaded = true;
+    } finally {
+      this._loading = false;
     }
-    this._loaded = true;
   }
 
   add(func: FunctionClass, desc: FunctionDesc, namespace?: string) {

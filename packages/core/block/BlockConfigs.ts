@@ -192,6 +192,11 @@ export class BlockFunctionsConfig extends BlockProperty {
     }
     return undefined;
   }
+
+  _liveClear() {
+    ((this._block as Flow).getFuncLib() as FlowFunctionLib).load({});
+    super._liveClear();
+  }
 }
 
 export function ConstTypeConfig(type: string): typeof BlockProperty {
