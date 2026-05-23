@@ -1,9 +1,15 @@
 import {spawnSync} from 'node:child_process';
+import {existsSync} from 'node:fs';
 
 const prettierPattern = /^(packages|tool|app)\/.*\.(ts|tsx|less)$/;
+const prettierScript = 'node_modules/prettier/bin/prettier.cjs';
 
 function run(command, args) {
   const result = spawnSync(command, args, {stdio: 'inherit'});
+  if (result.error) {
+    console.error(`Failed to run ${command}: ${result.error.message}`);
+    process.exit(1);
+  }
   if (result.status !== 0) {
     process.exit(result.status ?? 1);
   }
@@ -25,5 +31,10 @@ if (files.length === 0) {
   process.exit(0);
 }
 
-run('prettier', ['--write', ...files]);
+if (!existsSync(prettierScript)) {
+  console.error(`Prettier was not found at ${prettierScript}. Run pnpm install first.`);
+  process.exit(1);
+}
+
+run(process.execPath, [prettierScript, '--write', ...files]);
 run('git', ['add', '--', ...files]);
