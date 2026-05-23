@@ -4,7 +4,7 @@ import {PropDispatcher, PropListener} from './Dispatcher.js';
 import {BlockModeList, FunctionDesc} from './Descriptor.js';
 import {DataMap} from '../util/DataTypes.js';
 import {FlowStorage} from './Storage.js';
-import type {Flow} from './Flow.js';
+import type {Flow, Root} from './Flow.js';
 import {encode} from '../util/Serialize.js';
 
 export interface DescListener {
@@ -46,6 +46,8 @@ export class FunctionDispatcher extends PropDispatcher<FunctionClass> {
 export class FunctionLib {
   _functions: {[key: string]: FunctionDispatcher} = {};
   _listeners: Set<DescListener> = new Set<DescListener>();
+
+  constructor(public flow?: Flow) {}
 
   getScopePath(): string | null {
     return null;
@@ -210,3 +212,6 @@ export class FunctionLib {
 }
 
 export const globalFunctions = new FunctionLib();
+export function getGlobalFunctionRoot() {
+  return globalFunctions.flow as Root;
+}

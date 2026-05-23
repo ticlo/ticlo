@@ -15,18 +15,16 @@ export class FlowFunctionLib extends FunctionLib {
     this._loaders.set(funcType, loader);
   }
 
-  private readonly scopePath?: string;
+  private readonly scopePath: string;
   constructor(
-    public readonly namespace?: string,
-    public readonly flow?: Flow
+    flow: Flow,
+    public readonly namespace: string | undefined
   ) {
-    super();
-    if (flow) {
-      this.scopePath = flow.getFullPath();
-    }
+    super(flow);
+    this.scopePath = flow.getFullPath();
   }
   getScopePath(): string | null {
-    return this.scopePath ?? null;
+    return this.scopePath;
   }
   getFullId(localId: string) {
     return localId;
@@ -81,12 +79,12 @@ export class NsFunctionLib extends FlowFunctionLib {
 
   readonly prefix: string;
   constructor(
+    flow: Flow,
     namespace: string,
     public readonly libName: string,
-    private readonly storage: FlowStorage,
-    flow?: Flow
+    private readonly storage: FlowStorage
   ) {
-    super(namespace, flow);
+    super(flow, namespace);
     this.prefix = `${namespace}:${libName}`;
   }
   getFullId(localId: string) {

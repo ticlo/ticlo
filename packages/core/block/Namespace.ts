@@ -1,6 +1,12 @@
 import type {Flow, Root} from './Flow.js';
 import {Block} from './Block.js';
-import {FunctionDispatcher, FunctionLib, globalFunctions, type DescListener} from './FunctionLib.js';
+import {
+  FunctionDispatcher,
+  FunctionLib,
+  globalFunctions,
+  getGlobalFunctionRoot,
+  type DescListener,
+} from './FunctionLib.js';
 import {FunctionClass} from './BlockFunction.js';
 import {PropListener} from './Dispatcher.js';
 import {FunctionDesc} from './Descriptor.js';
@@ -9,25 +15,20 @@ import {NsFunctionLib} from './NSFunctionLib.js';
 import type {FlowStorage} from './Storage.js';
 
 export class Namespace {
-  private static _rootInstance: Root;
   private static _storage: FlowStorage;
-  static setRootInstance(instance: Root) {
-    // need this function to avoid circular dependency
-    Namespace._rootInstance = instance;
-  }
   static setStorage(storage: FlowStorage) {
     Namespace._storage = storage;
   }
 
   // return property for binding
   static bind(ns: string) {
-    return Namespace._rootInstance?.getProperty(ns);
+    return getGlobalFunctionRoot()?.getProperty(ns);
   }
   static getNsRoot(ns: string) {
     if (!ns) {
-      return Namespace._rootInstance;
+      return globalFunctions.flow as Root;
     }
-    const value = Namespace._rootInstance.getValue(ns);
+    const value = getGlobalFunctionRoot().getValue(ns);
     if (value instanceof Block) {
       return value;
     }
@@ -175,7 +176,7 @@ export class Namespace {
   _libs: Record<string, NsFunctionLib> = {};
 
   constructor(public readonly ns: string) {
-    Namespace._rootInstance.addFlowFolder(ns);
+    getGlobalFunctionRoot().addFlowFolder(ns);
   }
   _enabled: boolean = false;
   _loaded: boolean | 'loading' = false;
@@ -192,10 +193,13 @@ export class Namespace {
   getLib(libName: string) {
     let lib = this._libs[libName];
     if (!lib) {
-      const flow = Namespace._rootInstance.addFlowLib(this.ns, libName);
+      const flow = getGlobalFunctionRoot().addFlowLib(this.ns, libName);
+      if (!flow) {
+        return undefined;
+      }
       lib = flow?.getFuncLib() as NsFunctionLib;
       if (!lib) {
-        lib = new NsFunctionLib(this.ns, libName, Namespace._storage, flow);
+        lib = new NsFunctionLib(flow, this.ns, libName, Namespace._storage);
       }
       if (flow && !flow._loaded) {
         flow.load(

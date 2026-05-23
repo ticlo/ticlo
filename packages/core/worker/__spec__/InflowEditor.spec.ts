@@ -16,10 +16,15 @@ describe('InflowEditor', function () {
   it('scope path metadata is runtime only', function () {
     const flow = Root.instance.addFlow('InflowEditorScope', {});
     const funcLib = flow.getFuncLib();
+    const baseLib = new FunctionLib();
+    const nsLib = Namespace.getFunctionLib('+InflowEditorScope:test:worker');
 
-    expect(new FunctionLib().getScopePath()).toBeNull();
+    expect(globalFunctions.flow).toBe(Root.instance);
+    expect(funcLib.flow).toBe(flow);
+    expect(nsLib.flow.getFullPath()).toBe('+InflowEditorScope.:test');
+    expect(baseLib.getScopePath()).toBeNull();
     expect(globalFunctions.getScopePath()).toBeNull();
-    expect(Namespace.getFunctionLib('+InflowEditorScope:test:worker').getScopePath()).toBe('+InflowEditorScope.:test');
+    expect(nsLib.getScopePath()).toBe('+InflowEditorScope.:test');
     expect(funcLib.getScopePath()).toBe('InflowEditorScope');
 
     const data = {
@@ -58,6 +63,7 @@ describe('InflowEditor', function () {
     const libFlow = Root.instance.queryValue('+NsFlowLib.:g') as FlowLib;
 
     expect(libFlow).toBeInstanceOf(FlowLib);
+    expect(lib.flow).toBe(libFlow);
     expect(libFlow.getValue('#is')).toBe('flow:lib');
 
     WorkerFunctionGen.registerType(data, {id: '+NsFlowLib:g:a', name: 'a'}, undefined, lib);

@@ -13,7 +13,7 @@ import {
 import {Event} from './Event.js';
 import {DataMap} from '../util/DataTypes.js';
 import {FunctionDesc} from './Descriptor.js';
-import {FunctionLib} from './FunctionLib.js';
+import {FunctionLib, globalFunctions} from './FunctionLib.js';
 import {FlowStorage} from './Storage.js';
 import {FlowHistory} from './FlowHistory.js';
 import {getDefaultZone, updateGlobalSettings} from '../util/Settings.js';
@@ -51,7 +51,7 @@ export class Flow extends Block {
   _funcLib: FunctionLib;
   getFuncLib(): FunctionLib {
     if (!this._funcLib) {
-      this._funcLib = new FlowFunctionLib(this._namespace, this);
+      this._funcLib = new FlowFunctionLib(this, this._namespace);
       this.getProperty('#functions', true);
     }
     return this._funcLib;
@@ -439,7 +439,7 @@ export class FlowNameSpace extends FlowFolder {
 export class Root extends FlowFolder {
   private static _instance: Root = (function () {
     const root = new Root();
-    Namespace.setRootInstance(root);
+    globalFunctions.flow = root;
     return root;
   })();
   static get instance() {
@@ -601,7 +601,7 @@ export class Root extends FlowFolder {
       newFlow = loader.createFlow(path, prop);
     } else if (flowLibPath) {
       newFlow = new FlowLib(prop._block, null, prop);
-      funcLib = new NsFunctionLib(flowLibPath[0], flowLibPath[1], this._storage, newFlow);
+      funcLib = new NsFunctionLib(newFlow, flowLibPath[0], flowLibPath[1], this._storage);
     } else {
       newFlow = new Flow(prop._block, null, prop);
     }
