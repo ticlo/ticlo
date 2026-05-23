@@ -133,11 +133,7 @@ export function useTicloComp(
         setClassName(property.getValue());
         break;
     }
-    if (
-      needChildren &&
-      Array.isArray(orderRef.current) &&
-      orderRef.current.includes(property._name)
-    ) {
+    if (needChildren && Array.isArray(orderRef.current) && orderRef.current.includes(property._name)) {
       updateResolvedChildren();
     } else if (Array.isArray(optionalRef.current) && optionalRef.current.includes(property._name)) {
       updateOptionalHandlers();
