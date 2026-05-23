@@ -1,7 +1,9 @@
-import React, {ComponentType, ReactNode, useEffect, useMemo, useRef, useState} from 'react';
+import React, {ComponentType, ReactNode, isValidElement, useMemo, useRef} from 'react';
 import {Block, FunctionDesc, globalFunctions, PropDesc} from '@ticlo/core';
+import {Namespace} from '@ticlo/core/block/Namespace.js';
 import {FunctionClass} from '@ticlo/core/block/BlockFunction.js';
 import {PropMap} from './PropType.js';
+import {useBlockPropertyValue} from '../hooks/useBlockPropertyValue.js';
 
 interface BaseProps {
   block: Block;
@@ -52,15 +54,29 @@ function isPropsEqual(a: Record<string, unknown>, b: Record<string, unknown>) {
   return true;
 }
 
+function hasDynamicOutput(block: Block, functionId: string) {
+  const desc = Namespace.getFunctions(functionId, block._flow)?.getDescToSend(functionId)[0];
+  return desc?.properties?.some((prop) => {
+    return prop.type === 'any' && prop.name === '#output' && prop.readonly;
+  });
+}
+
+export function TicloOutputComp<T extends BaseProps = BaseProps>(props: T) {
+  const {block} = props;
+  const output = useBlockPropertyValue(block, '#output');
+
+  if (output instanceof Block) {
+    return <TicloComp {...props} block={output} key={output._blockId} />;
+  }
+  if (isValidElement(output)) {
+    return output;
+  }
+  return null;
+}
+
 export function TicloComp<T extends BaseProps = BaseProps>(props: T) {
   const {block} = props;
-  const [functionId, setFunctionId] = useState(block.getValue('#is') as string);
-  const listener = useRef({onChange: setFunctionId, onSourceChange: () => {}}).current;
-  useEffect(() => {
-    const propIs = block.getProperty('#is', true);
-    propIs.listen(listener);
-    return () => propIs.unlisten(listener);
-  }, [block, listener]);
+  const functionId = useBlockPropertyValue<string>(block, '#is');
 
   const propsRef = useRef(props);
   if (!isPropsEqual(propsRef.current as Record<string, unknown>, props as Record<string, unknown>)) {
@@ -71,6 +87,9 @@ export function TicloComp<T extends BaseProps = BaseProps>(props: T) {
     const C = componentsMap.get(functionId) as ComponentType<T> | undefined;
     if (C) {
       return <C {...propsRef.current} />;
+    }
+    if (hasDynamicOutput(block, functionId)) {
+      return <TicloOutputComp {...propsRef.current} />;
     }
     return null;
   }, [functionId, propsRef.current]);
