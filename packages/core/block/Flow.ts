@@ -19,7 +19,7 @@ import {FlowHistory} from './FlowHistory.js';
 import {getDefaultZone, updateGlobalSettings} from '../util/Settings.js';
 import {DataWrapper, FunctionOutput} from './FunctonData.js';
 import {Namespace} from './Namespace.js';
-import {NsFunctionLib, PersistentFunctionLib} from './NSFunctionLib.js';
+import {NsFunctionLib, FlowFunctionLib} from './NSFunctionLib.js';
 
 export enum FlowState {
   enabled,
@@ -48,10 +48,10 @@ export class Flow extends Block {
   _namespace: string;
   // function id, when Flow is loaded from a function
   _loadFrom: string;
-  _funcLib: FunctionLib;
-  getFuncLib(): FunctionLib {
+  _funcLib: FlowFunctionLib;
+  getFuncLib(): FlowFunctionLib {
     if (!this._funcLib) {
-      this._funcLib = new PersistentFunctionLib(this._namespace, this);
+      this._funcLib = new FlowFunctionLib(this._namespace, this);
       this.getProperty('#functions', true);
     }
     return this._funcLib;

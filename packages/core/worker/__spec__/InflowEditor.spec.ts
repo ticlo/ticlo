@@ -6,7 +6,7 @@ import {WorkerFunctionGen} from '../WorkerFunctionGen.js';
 import type {PropDesc, PropGroupDesc} from '../../block/Descriptor.js';
 import type {DataMap} from '../../util/DataTypes.js';
 import {SharedBlock} from '../../block/SharedBlock.js';
-import {PersistentFunctionLib} from '../../block/NSFunctionLib.js';
+import {FlowFunctionLib} from '../../block/NSFunctionLib.js';
 import {Namespace} from '../../block/Namespace.js';
 import {FunctionLib, globalFunctions} from '../../block/FunctionLib.js';
 import type {FlowStorage} from '../../block/Storage.js';
@@ -410,7 +410,7 @@ describe('InflowEditor', function () {
     expect(workerData).toEqual(expectedData);
     expect(desc.icon).toBe('fas:plus');
     expect(desc.properties).toEqual(expectedDescProperties);
-    expect(functionLib).toBeInstanceOf(PersistentFunctionLib);
+    expect(functionLib).toBeInstanceOf(FlowFunctionLib);
     expect(functionLib).toBe(funcLib);
   });
 

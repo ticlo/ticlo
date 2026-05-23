@@ -8,7 +8,7 @@ import {DataMap} from '../util/DataTypes.js';
 import {WorkerFlow} from './WorkerFlow.js';
 import type {Block} from '../block/Block.js';
 import {Namespace} from '../block/Namespace.js';
-import {PersistentFunctionLib} from '../block/NSFunctionLib.js';
+import {FlowFunctionLib} from '../block/NSFunctionLib.js';
 
 /**
  * WorkerFunction is the function wrapper for all custom functions
@@ -159,7 +159,7 @@ export class WorkerFunctionGen extends BaseFunction<Block> {
   }
 }
 
-PersistentFunctionLib.registerType('worker', {
+FlowFunctionLib.registerType('worker', {
   load(data: DataMap, localFuncId: string, fullId: string, namespace?: string) {
     const workerData = data['worker'] as DataMap;
     return WorkerFunctionGen.generate(workerData, fullId, namespace);

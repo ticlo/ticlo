@@ -8,8 +8,8 @@ import {type Flow} from './Flow.js';
 export interface FunctionLoader {
   load(data: DataMap, localFuncId: string, fullId: string, namespace?: string): [FunctionClass, FunctionDesc];
 }
-// A PersistentFunctionLib is a FunctionLib that can be saved and loaded inside a Flow.
-export class PersistentFunctionLib extends FunctionLib {
+// A FlowFunctionLib is a FunctionLib that can be saved and loaded inside a Flow.
+export class FlowFunctionLib extends FunctionLib {
   static _loaders: Map<string, FunctionLoader> = new Map();
   static registerType(funcType: string, loader: FunctionLoader) {
     this._loaders.set(funcType, loader);
@@ -59,7 +59,7 @@ export class PersistentFunctionLib extends FunctionLib {
           // no need to update existing function
           continue;
         }
-        const loader = PersistentFunctionLib._loaders.get(funcData.type);
+        const loader = FlowFunctionLib._loaders.get(funcData.type);
         if (loader) {
           const [func, desc] = loader.load(funcData, localFuncId, fullId, this.namespace);
           this.add(func, desc, this.namespace);
@@ -75,8 +75,8 @@ export class PersistentFunctionLib extends FunctionLib {
   }
 }
 
-// A NsFunctionLib is a PersistentFunctionLib that is associated with a namespace and a lib name.
-export class NsFunctionLib extends PersistentFunctionLib {
+// A NsFunctionLib is a FlowFunctionLib that is associated with a namespace and a lib name.
+export class NsFunctionLib extends FlowFunctionLib {
   _loaded: boolean | 'loading' = false;
 
   readonly prefix: string;
@@ -149,7 +149,7 @@ export class NsFunctionLib extends PersistentFunctionLib {
         ) {
           continue;
         }
-        const loader = PersistentFunctionLib._loaders.get(funcData.type);
+        const loader = FlowFunctionLib._loaders.get(funcData.type);
         if (loader) {
           const [func, desc] = loader.load(funcData, localId, fullId, this.namespace);
           this.add(func, desc, this.namespace);
