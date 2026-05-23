@@ -9,6 +9,7 @@ import {BlockStageTabButton} from './BlockStageTabButton.js';
 import {LazyUpdateComponent} from '../../component/LazyUpdateComponent.js';
 import {TooltipIconButton} from '../../component/TooltipIconButton.js';
 import {LocalizedNodeName, t} from '../../component/LocalizedLabel.js';
+import {getFuncLibPath} from '../../util/FunctionLib.js';
 
 interface Props {
   conn: ClientConn;
@@ -75,7 +76,7 @@ export class BlockStagePane extends LazyUpdateComponent<Props, State> {
   scopeListener = new ValueSubscriber({
     onUpdate: (response: ValueUpdate) => {
       const {basePath} = this.props;
-      const funcLib = typeof response.cache.value === 'string' ? response.cache.value : basePath;
+      const funcLib = getFuncLibPath(response.cache.value, basePath);
       if (funcLib !== this.state.funcLib) {
         this.safeSetState({funcLib});
       }

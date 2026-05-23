@@ -36,7 +36,7 @@ describe('InflowEditor', function () {
     WorkerFunctionGen.registerType(data, {id: ':workerScope', name: 'workerScope'}, undefined, funcLib);
 
     const editor = FlowEditor.createFromFunction(flow, '#edit-scope', ':workerScope', null);
-    expect(editor.getValue('#lib')).toBe('InflowEditorScope');
+    expect(editor.getValue('#lib')).toBe(flow);
     expect(editor.save()).toEqual(data);
 
     Root.instance.deleteValue('InflowEditorScope');

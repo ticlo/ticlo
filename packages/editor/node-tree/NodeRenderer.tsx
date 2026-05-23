@@ -37,7 +37,7 @@ import {LocalizedNodeName, t} from '../component/LocalizedLabel.js';
 import {BlockDropdown} from '../popup/BlockDropdown.js';
 import {showModal} from '../popup/ShowModal.js';
 import {AddNewFlowDialog} from '../popup/AddNewFlowDialog.js';
-import {getDescLib} from '../util/FunctionLib.js';
+import {getDescLib, getFuncLibPath} from '../util/FunctionLib.js';
 
 import {MenuItem} from '../component/ClickPopup.js';
 import {LazyUpdateSubscriber} from '../component/LazyUpdateComponent.js';
@@ -386,7 +386,7 @@ export class NodeTreeRenderer extends PureDataRenderer<Props, any> {
   scopeListener = new ValueSubscriber({
     onUpdate: (response: ValueUpdate) => {
       const {item} = this.props;
-      const nextScope = typeof response.cache.value === 'string' ? response.cache.value : undefined;
+      const nextScope = getFuncLibPath(response.cache.value);
       if (nextScope !== this.funcLib) {
         this.funcLib = nextScope;
         this.watchDesc();

@@ -1,6 +1,14 @@
 // When object can't be serialized but we still want it to show it's name in the editor
 export class NoSerialize {
-  constructor(public title: string) {}
+  type: string;
+  value: string;
+  constructor(public title: string) {
+    const colonIndex = title.indexOf(':');
+    if (colonIndex > 0) {
+      this.type = title.substring(0, colonIndex);
+      this.value = title.substring(colonIndex + 1);
+    }
+  }
 
   toString() {
     return `${this.title}`;

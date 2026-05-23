@@ -46,7 +46,7 @@ Bindings are dotted paths resolved relative to the owning block. Single-segment 
 
 Function descriptors are registered through `FunctionLib.add()`. Descriptor defaults are copied to the function prototype for fast access to priority and default mode. During block load, function construction is deferred until all properties are loaded so `initInputs()` sees stable data.
 
-`FunctionLib.getScopePath()` returns the Flow path that owns a local in-flow function lib, or `null` for global and namespace libs. Flow-owned `FlowFunctionLib` instances use this to expose the runtime-only config property `#lib`. Editor descriptor watches for in-flow functions must pass this lib path to `ClientConn.watchDesc(funcId, libPath)`; otherwise only global descriptors are visible.
+`FunctionLib.getScopePath()` returns the Flow path that owns a local in-flow function lib, or `null` for global and namespace libs. Flow-owned `FlowFunctionLib` instances expose the runtime-only config property `#lib` as the owning Flow object. Across client serialization this arrives as a `NoSerialize` Block value whose `value` field is the Flow path. Editor descriptor watches for in-flow functions must extract that path and pass it to `ClientConn.watchDesc(funcId, libPath)`; otherwise only global descriptors are visible.
 
 Function modes:
 

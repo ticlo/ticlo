@@ -51,7 +51,7 @@ Keys starting with `#` configure the block's behavior or metadata.
 - `#call`: A property used to trigger the block (often used in `onCall` mode).
 - `#cancel`: A property used to cancel execution.
 - `#secret`: Configuration for secret values.
-- `#lib`: Runtime-only metadata for editor descriptor lookup when a Flow runs with an in-flow function lib. It is set with `updateValue()` and must not be written with `setValue()` or included in saved `.ticlo` JSON.
+- `#lib`: Runtime-only metadata for editor descriptor lookup when a Flow runs with an in-flow function lib. Its runtime value is the owning Flow object. When subscribed over a client connection it serializes as a `NoSerialize` Block value whose `value` field is the Flow path. It is set with `updateValue()`/const config behavior and must not be written with `setValue()` or included in saved `.ticlo` JSON.
 - `#name`: (Read-only) The name of the block.
 
 ### 2. Bindings (`~`)

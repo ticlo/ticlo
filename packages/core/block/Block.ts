@@ -266,6 +266,9 @@ export class Block implements Runnable, FunctionData, PropListener<FunctionClass
         case '#flow':
           prop = new BlockConstConfig(this, field, this._flow);
           break;
+        case '#lib':
+          prop = new BlockConstConfig(this, field, this._flow.getFuncLib()?.flow);
+          break;
         case '#':
           prop = new BlockConstConfig(this, field, this);
           break;
@@ -1037,7 +1040,7 @@ export class Block implements Runnable, FunctionData, PropListener<FunctionClass
   }
 
   toArrow() {
-    return `͢:${this.getFullPath()}`;
+    return `͢:Block:${this.getFullPath()}`;
   }
 
   #secret?: string;

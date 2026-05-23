@@ -202,10 +202,6 @@ export class Flow extends Block {
     if (funcLib) {
       this._funcLib = funcLib;
     }
-    const scopePath = this.getFuncLib().getScopePath();
-    if (scopePath) {
-      this.updateValue('#lib', scopePath);
-    }
 
     if (funcId) {
       // load from worker class for editing

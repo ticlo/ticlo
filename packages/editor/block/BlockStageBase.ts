@@ -4,6 +4,7 @@ import {DragState} from 'rc-dock';
 import {BlockItem, FieldItem, Stage} from './Field.js';
 import {LazyUpdateComponent} from '../component/LazyUpdateComponent.js';
 import {TicloCurrentFlowContext} from '../component/LayoutContext.js';
+import {getFuncLibPath} from '../util/FunctionLib.js';
 
 export interface StagePropsBase {
   conn: ClientConn;
@@ -370,7 +371,7 @@ export abstract class BlockStageBase<Props extends StagePropsBase, State>
   scopeListener = new ValueSubscriber({
     onUpdate: (response: ValueUpdate) => {
       const {basePath, funcLib} = this.props;
-      const nextScope = funcLib ?? (typeof response.cache.value === 'string' ? response.cache.value : basePath);
+      const nextScope = funcLib ?? getFuncLibPath(response.cache.value, basePath);
       if (nextScope !== this._funcLib) {
         this._funcLib = nextScope;
         this.onBlockDescScopeChanged();
