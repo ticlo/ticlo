@@ -49,10 +49,6 @@ export class FunctionLib {
 
   constructor(public flow?: Flow) {}
 
-  getScopePath(): string | null {
-    return null;
-  }
-
   add(cls: FunctionClass | null, desc: FunctionDesc, namespace?: string, functionApi?: FunctionApi) {
     if (!desc.properties) {
       // function must have properties

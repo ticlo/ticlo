@@ -15,16 +15,11 @@ export class FlowFunctionLib extends FunctionLib {
     this._loaders.set(funcType, loader);
   }
 
-  private readonly scopePath: string;
   constructor(
     flow: Flow,
     public readonly namespace: string | undefined
   ) {
     super(flow);
-    this.scopePath = flow.getFullPath();
-  }
-  getScopePath(): string | null {
-    return this.scopePath;
   }
   getFullId(localId: string) {
     return localId;

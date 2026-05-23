@@ -298,8 +298,8 @@ export class FunctionTreeRoot extends FunctionTreeItem {
     this.filter = filter;
     this.inFlow = funcLib != null;
     this.funcLib = funcLib;
-    // scopePath == null for global functions, and string for in-flow functions
-    // scopePath = '' is for in-flow functions that are not in any node
+    // funcLib == null for global functions, and string for in-flow functions.
+    // funcLib = '' is for in-flow functions that are not in any node.
     if (funcLib !== '') {
       conn.watchDesc('*', funcLib, this.onDesc);
     }

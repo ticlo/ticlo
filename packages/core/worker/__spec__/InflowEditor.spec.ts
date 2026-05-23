@@ -8,7 +8,6 @@ import type {DataMap} from '../../util/DataTypes.js';
 import {SharedBlock} from '../../block/SharedBlock.js';
 import {FlowFunctionLib} from '../../block/NSFunctionLib.js';
 import {Namespace} from '../../block/Namespace.js';
-import {FunctionLib, globalFunctions} from '../../block/FunctionLib.js';
 import type {FlowStorage} from '../../block/Storage.js';
 import '../../functions/math/Arithmetic.js';
 
@@ -16,16 +15,8 @@ describe('InflowEditor', function () {
   it('scope path metadata is runtime only', function () {
     const flow = Root.instance.addFlow('InflowEditorScope', {});
     const funcLib = flow.getFuncLib();
-    const baseLib = new FunctionLib();
-    const nsLib = Namespace.getFunctionLib('+InflowEditorScope:test:worker');
 
-    expect(globalFunctions.flow).toBe(Root.instance);
     expect(funcLib.flow).toBe(flow);
-    expect(nsLib.flow.getFullPath()).toBe('+InflowEditorScope.:test');
-    expect(baseLib.getScopePath()).toBeNull();
-    expect(globalFunctions.getScopePath()).toBeNull();
-    expect(nsLib.getScopePath()).toBe('+InflowEditorScope.:test');
-    expect(funcLib.getScopePath()).toBe('InflowEditorScope');
 
     const data = {
       '#is': '',

@@ -25,7 +25,7 @@ The source (`src`) of a worker flow can take several forms, stored in `WorkerCon
 3. **Local flow function id**: `:functionId`, stored in the owning flow's `#functions` config and managed by its `FlowFunctionLib`.
 4. **Namespace function id**: `+namespace:lib:functionId`, stored in `NsFunctionLib` and optionally backed by `FlowStorage`.
 
-Local flow functions have a descriptor lib. Flow-owned `FlowFunctionLib.getScopePath()` returns the owning Flow path, while global and namespace libs return `null`. Worker and editor flows loaded from an in-flow function lib expose the owning Flow through the runtime-only config property `#lib`. UI subscriptions receive it as a serialized `NoSerialize` Block value, so editor code must read its `value` path before calling `watchDesc(':functionId', libPath)`.
+Local flow functions have a descriptor lib. Worker and editor flows loaded from an in-flow function lib expose the owning Flow through the runtime-only config property `#lib`. UI subscriptions receive it as a serialized `NoSerialize` Block value, so editor code must read its `value` path before calling `watchDesc(':functionId', libPath)`.
 
 For string sources, `WorkerControl` listens to the corresponding `FunctionDispatcher`; when the function definition changes, `_srcChanged` is set and the host block is queued.
 
