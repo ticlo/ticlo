@@ -30,12 +30,12 @@ export class WorkerFunctionGen extends BaseFunction<Block> {
         return WorkerFunctionGen.applyChangeToFunc(this._funcFlow, null);
       };
     }
-    this._funcFlow = this._data.createOutputFlow(WorkerFlow, '#flow', this.type, this._data, applyChange);
+    this._funcFlow = this._data.createOutputFlow(WorkerFlow, '#worker', this.type, this._data, applyChange);
     this._funcFlow.updateInput(this._data);
   }
 
   cleanup(): void {
-    this._data.deleteValue('#flow');
+    this._data.deleteValue('#worker');
   }
 
   static generate(data: DataMap, funcId: string, namespace?: string): [FunctionClass, FunctionDesc] {

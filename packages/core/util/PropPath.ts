@@ -38,12 +38,12 @@ function propRelativeImpl(
   }
   if (baseBlocks.length) {
     if (commonParent === flow && !firstLayerBase) {
-      // first layer binding should use ## instead of ###, to make it easy to copy paste blocks to other layer
+      // first layer binding should use ## instead of #flow, to make it easy to copy paste blocks to other layer
       if (pathPrefix != null) {
-        // pathPrefix point to child flow root, so ### would point to self, need ##.###
+        // pathPrefix points to child flow root, so #flow would point to self, need ##.#flow
         resultPaths.push('##');
       }
-      resultPaths.push('###');
+      resultPaths.push('#flow');
     } else {
       for (const block of baseBlocks) {
         resultPaths.push('##');
@@ -113,10 +113,10 @@ export function propRelative(base: Block, from: BlockProperty): string {
     for (const flow of baseFlows) {
       if (flow === base._flow) {
         if (base !== flow) {
-          resultPaths.unshift('###');
+          resultPaths.unshift('#flow');
         }
       } else {
-        resultPaths.push('##.###');
+        resultPaths.push('##.#flow');
       }
     }
     return propRelativeImpl(commonFlow, baseFlows.at(-1), fromBlock, from._name, resultPaths.join('.'));

@@ -565,7 +565,7 @@ describe('Connection', function () {
 
     await shouldHappen(() => flow1.queryProperty('c.e.v2', true)._bindingPath === 'v1');
     await shouldHappen(() => flow1.queryProperty('c.e.v1', true)._bindingPath === '##.d.v1');
-    await shouldHappen(() => flow1.queryProperty('c.e.v3', true)._bindingPath === '###.f.v3');
+    await shouldHappen(() => flow1.queryProperty('c.e.v3', true)._bindingPath === '#flow.f.v3');
     await shouldHappen(() => flow1.queryProperty('c.v4', true)._bindingPath === '##.f.v4');
 
     client.destroy();

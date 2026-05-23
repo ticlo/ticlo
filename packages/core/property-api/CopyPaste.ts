@@ -154,7 +154,7 @@ function renameBlocks(parent: Block, data: DataMap, fields: string[]) {
       const val = obj[key];
       if (key.startsWith('~') && typeof val === 'string') {
         const parts = val.split('.');
-        if (isFlow && parts[0] === '###' && fields.includes(parts[1])) {
+        if (isFlow && parts[0] === '#flow' && fields.includes(parts[1])) {
           // flow binding
           parts[1] = map.get(parts[1]);
           obj[key] = parts.join('.');

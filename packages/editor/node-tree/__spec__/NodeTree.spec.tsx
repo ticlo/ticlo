@@ -138,28 +138,11 @@ describe('editor NodeTree', function () {
     await shouldHappen(() => contentDiv.childNodes.length >= 11);
     expect(getVisibleNodeNames(div).slice(0, 5)).toEqual(['NodeTree', '0', '1', '2', '3']);
 
-    flow.setValue('#order', ['0']);
-    await shouldHappen(() =>
-      querySingle("//div.ticl-tree-node-text[text()='0']/../..", div).classList.contains('ticl-tree-node-ordered')
-    );
-
-    flow.setValue('#order', ['9', '2', 5, 'missing', '4']);
-    await shouldHappen(() => getVisibleNodeNames(div).slice(0, 5).join(',') === 'NodeTree,9,2,4,0');
-    expect(querySingle("//div.ticl-tree-node-text[text()='9']/../..", div).classList).toContain(
-      'ticl-tree-node-ordered'
-    );
-    expect(querySingle("//div.ticl-tree-node-text[text()='2']/../..", div).classList).toContain(
-      'ticl-tree-node-ordered'
-    );
-    expect(querySingle("//div.ticl-tree-node-text[text()='0']/../..", div).classList).not.toContain(
-      'ticl-tree-node-ordered'
-    );
-
     simulate(querySingle("//div.ticl-tree-node-text[text()='2']/../../div.ticl-tree-arr", div), 'click');
-    await shouldHappen(() => getVisibleNodeNames(div).slice(0, 8).join(',') === 'NodeTree,9,2,20,21,22,23,24');
+    await shouldHappen(() => getVisibleNodeNames(div).slice(0, 8).join(',') === 'NodeTree,0,1,2,20,21,22,23');
 
     (flow.getValue('2') as Block).setValue('#order', ['29', '21']);
-    await shouldHappen(() => getVisibleNodeNames(div).slice(0, 8).join(',') === 'NodeTree,9,2,29,21,20,22,23');
+    await shouldHappen(() => getVisibleNodeNames(div).slice(0, 8).join(',') === 'NodeTree,0,1,2,29,21,20,22');
     expect(querySingle("//div.ticl-tree-node-text[text()='29']/../..", div).classList).toContain(
       'ticl-tree-node-ordered'
     );

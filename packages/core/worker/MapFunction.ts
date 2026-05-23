@@ -124,7 +124,7 @@ export class MapFunction extends MapImpl {
     // clear running workers update on sync run
 
     if (!this._funcBlock) {
-      this._funcBlock = this._data.createOutputBlock('#flows');
+      this._funcBlock = this._data.createOutputBlock('#workers');
     }
 
     if (!this.control.isReady()) {
@@ -260,7 +260,7 @@ export class MapFunction extends MapImpl {
 
   cleanup(): void {
     this._data.deleteValue('#output');
-    this._data.deleteValue('#flows');
+    this._data.deleteValue('#workers');
   }
 
   destroy(): void {

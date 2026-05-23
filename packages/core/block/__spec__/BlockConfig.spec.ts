@@ -9,7 +9,7 @@ describe('BlockConfig', function () {
     const block = flow.createBlock('obj');
 
     expect(block.getValue('##')).toBe(flow);
-    expect(block.getValue('###')).toBe(flow);
+    expect(block.getValue('#flow')).toBe(flow);
     expect(block.getValue('#name')).toBe('obj');
 
     block.setValue('##', 1);

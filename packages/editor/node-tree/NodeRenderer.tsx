@@ -403,7 +403,7 @@ export class NodeTreeRenderer extends PureDataRenderer<Props, any> {
     super(props);
     const {item} = props;
     this.subscriptionListener.subscribe(item.connection, `${item.key}.#is`, true);
-    this.scopeListener.subscribe(item.connection, `${item.key}.^#lib`, true);
+    this.scopeListener.subscribe(item.connection, `${item.key}.#lib`, true);
     this.disabledListener.subscribe(item.connection, `${item.key}.#disabled`, true);
     this.nameListener.subscribe(item.connection, `${item.key}.@b-name`);
     if (item.canApply) {

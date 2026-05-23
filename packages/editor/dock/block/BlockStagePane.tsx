@@ -86,7 +86,7 @@ export class BlockStagePane extends LazyUpdateComponent<Props, State> {
     super(props);
     const {conn, basePath} = props;
     this.blockListener.subscribe(conn, basePath);
-    this.scopeListener.subscribe(conn, `${basePath}.^#lib`, true);
+    this.scopeListener.subscribe(conn, `${basePath}.#lib`, true);
   }
 
   onShowPropertyList = () => {

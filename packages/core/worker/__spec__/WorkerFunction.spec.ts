@@ -29,7 +29,7 @@ describe('WorkerFunction', function () {
     Root.run();
     expect(TestFunctionRunner.popLogs()).toEqual(['nest1']);
 
-    const impl: Flow = aBlock.getValue('#flow') as Flow;
+    const impl: Flow = aBlock.getValue('#worker') as Flow;
     expect(impl).toBeInstanceOf(Flow);
 
     expect(impl.save()).toEqual(flowData);

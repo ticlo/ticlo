@@ -26,7 +26,7 @@ export function resolvePath(currentPath: string, relativePath: string): string {
         // shift is slow, but this should not be a common thing in binding
         p2.shift();
         break;
-      case '###':
+      case '#flow':
         // stage path can't be resolved just from the path string, can not resolve
         Logger.warn(`can not resolve base path ${currentPath} with ${relativePath}`);
         return relativePath;

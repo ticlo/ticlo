@@ -23,7 +23,7 @@ describe('ContextProperty', function () {
 
     Root.run();
 
-    const impl: Flow = aBlock.getValue('#flow') as Flow;
+    const impl: Flow = aBlock.getValue('#worker') as Flow;
     expect(impl).toBeInstanceOf(Flow);
     // v not ready yet
     expect(impl.getValue('v')).not.toBeDefined();

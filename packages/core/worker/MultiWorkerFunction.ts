@@ -76,7 +76,7 @@ export class MultiWorkerFunction extends StatefulFunction implements BlockChildW
 
   run(): any {
     if (!this._funcBlock) {
-      this._funcBlock = this._data.createOutputBlock('#flows');
+      this._funcBlock = this._data.createOutputBlock('#workers');
     }
     if (this.control._srcChanged) {
       this._clearWorkers();
@@ -270,7 +270,7 @@ export class MultiWorkerFunction extends StatefulFunction implements BlockChildW
   cleanup(): void {
     this.control.destroy();
     this._data.deleteValue('#output');
-    this._data.deleteValue('#flows');
+    this._data.deleteValue('#workers');
     if (this._watchedInputBlock) {
       this._watchedInputBlock.unwatch(this);
       this._watchedInputBlock = null;

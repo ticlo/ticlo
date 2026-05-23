@@ -14,7 +14,7 @@ describe('Path', function () {
     expect(resolvePath('c.d.e', '##.f')).toBe('c.d.f');
     expect(resolvePath('g.h', '#.i')).toBe('g.h.i');
     expect(resolvePath('j', '##.##.k')).toBe('##.k');
-    expect(resolvePath('l', '###.m')).toBe('###.m');
+    expect(resolvePath('l', '#flow.m')).toBe('#flow.m');
     expect(resolvePath('n', null)).toBe(null);
   });
 
@@ -91,32 +91,32 @@ describe('Path', function () {
     // same flow
     expect(propRelative(flow1.queryValue('c.e') as Block, flow1.queryProperty('c.e.v', true))).toBe('v');
     expect(propRelative(flow1.queryValue('c.e') as Block, flow1.queryProperty('c.d.v', true))).toBe('##.d.v');
-    expect(propRelative(flow1.queryValue('c.e') as Block, flow1.queryProperty('f.v', true))).toBe('###.f.v');
+    expect(propRelative(flow1.queryValue('c.e') as Block, flow1.queryProperty('f.v', true))).toBe('#flow.f.v');
     expect(propRelative(flow1.queryValue('c') as Block, flow1.queryProperty('f.v', true))).toBe('##.f.v');
     expect(propRelative(flow1.queryValue('f.~g') as Block, flow1.queryProperty('c.v', true))).toBe('##.##.c.v');
 
     // different flow
     expect(propRelative(flow1.queryValue('c') as Block, flow2.queryProperty('o.v', true))).toBe(
-      '###.##.PropRelative2.o.v'
+      '#flow.##.PropRelative2.o.v'
     );
-    expect(propRelative(flow1.queryValue('c.d.#flow.A') as Block, flow1.queryProperty('c.v', true))).toBe(
-      '###.##.##.v'
+    expect(propRelative(flow1.queryValue('c.d.#worker.A') as Block, flow1.queryProperty('c.v', true))).toBe(
+      '#flow.##.##.v'
     );
-    expect(propRelative(flow1.queryValue('c') as Block, flow1.queryProperty('c.d.#flow.A.v', true))).toBe(
-      'd.#flow.A.v'
+    expect(propRelative(flow1.queryValue('c') as Block, flow1.queryProperty('c.d.#worker.A.v', true))).toBe(
+      'd.#worker.A.v'
     );
-    expect(propRelative(flow1.queryValue('f') as Block, flow1.queryProperty('c.d.#flow.A.v', true))).toBe(
-      '##.c.d.#flow.A.v'
+    expect(propRelative(flow1.queryValue('f') as Block, flow1.queryProperty('c.d.#worker.A.v', true))).toBe(
+      '##.c.d.#worker.A.v'
     );
-    expect(propRelative(flow1.queryValue('f.h') as Block, flow1.queryProperty('c.d.#flow.A.v', true))).toEqual(
-      '###.c.d.#flow.A.v'
-    );
-    expect(propRelative(flow1.queryValue('c.d.#flow.A') as Block, flow1.queryProperty('f.h.#flow.A.v', true))).toEqual(
-      '###.##.###.f.h.#flow.A.v'
+    expect(propRelative(flow1.queryValue('f.h') as Block, flow1.queryProperty('c.d.#worker.A.v', true))).toEqual(
+      '#flow.c.d.#worker.A.v'
     );
     expect(
-      propRelative(flow1.queryValue('c.d.#flow.A') as Block, flow1.queryProperty('c.d.#flow.A.B.#flow.C.v', true))
-    ).toEqual('B.#flow.C.v');
+      propRelative(flow1.queryValue('c.d.#worker.A') as Block, flow1.queryProperty('f.h.#worker.A.v', true))
+    ).toEqual('#flow.##.#flow.f.h.#worker.A.v');
+    expect(
+      propRelative(flow1.queryValue('c.d.#worker.A') as Block, flow1.queryProperty('c.d.#worker.A.B.#worker.C.v', true))
+    ).toEqual('B.#worker.C.v');
 
     const flow111 = Root.instance.addFlow('FolderRelative1.1.1', null, null, true);
     const folder1 = Root.instance.getValue('FolderRelative1') as FlowFolder;

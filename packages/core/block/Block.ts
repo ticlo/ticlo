@@ -263,7 +263,7 @@ export class Block implements Runnable, FunctionData, PropListener<FunctionClass
         case '##':
           prop = new BlockConstConfig(this, field, this._parent);
           break;
-        case '###':
+        case '#flow':
           prop = new BlockConstConfig(this, field, this._flow);
           break;
         case '#':
@@ -349,8 +349,8 @@ export class Block implements Runnable, FunctionData, PropListener<FunctionClass
       if (path.startsWith('##.')) {
         return this._parent.createBinding(path.substring(3), listener);
       }
-      if (path.startsWith('###.')) {
-        return this._flow.createBinding(path.substring(4), listener);
+      if (path.startsWith('#flow.')) {
+        return this._flow.createBinding(path.substring(6), listener);
       }
     }
 
@@ -1037,7 +1037,7 @@ export class Block implements Runnable, FunctionData, PropListener<FunctionClass
   }
 
   toArrow() {
-    return `͢:${this._blockId}`;
+    return `͢:${this.getFullPath()}`;
   }
 
   #secret?: string;

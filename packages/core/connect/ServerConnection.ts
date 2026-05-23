@@ -684,7 +684,7 @@ export class ServerConnection extends ServerConnectionCore {
             }
           } else if (baseProperty._bindingPath) {
             keepBinding = baseProperty._bindingPath;
-            if (!(keepBinding.startsWith('###.') || keepBinding.startsWith('^'))) {
+            if (!(keepBinding.startsWith('#flow.') || keepBinding.startsWith('^'))) {
               // point the binding path to parent object
               keepBinding = `##.${keepBinding}`;
             }

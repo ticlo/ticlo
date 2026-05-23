@@ -204,7 +204,7 @@ export class Flow extends Block {
     }
     const scopePath = this.getFuncLib().getScopePath();
     if (scopePath) {
-      this.updateValue('^#lib', scopePath);
+      this.updateValue('#lib', scopePath);
     }
 
     if (funcId) {

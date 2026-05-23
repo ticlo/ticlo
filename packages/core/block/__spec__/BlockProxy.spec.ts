@@ -16,7 +16,7 @@ describe('BlockProxy', function () {
     bBlock.createHelperBlock('v4').output(4); // property helper should not be iterated
     const b: any = new Proxy(bBlock, BlockDeepProxy);
 
-    expect(b['###'].v1).toBe(1);
+    expect(b['#flow'].v1).toBe(1);
     expect(b.v2).toBe(2);
     expect(b['@v']).toBe('0');
     expect(b['@notExist']).toBe(undefined);
@@ -41,7 +41,7 @@ describe('BlockProxy', function () {
     // Proxy should act like an empty Object
 
     if (!_strictMode) {
-      expect(b['###']).toBe(undefined);
+      expect(b['#flow']).toBe(undefined);
       b.v2 = 22;
       expect(b.v2).toBe(undefined);
       expect(Object.keys(b)).toEqual([]);
@@ -60,7 +60,7 @@ describe('BlockProxy', function () {
     bBlock.createHelperBlock('v4').output(4); // property helper should not be iterated
     const b: any = new Proxy(bBlock, BlockProxy);
 
-    expect(b['###']).toBe(flow);
+    expect(b['#flow']).toBe(flow);
     expect(b.v2).toBe(2);
     expect(b['@v']).toBe('0');
     expect(b['@notExist']).toBe(undefined);
@@ -85,7 +85,7 @@ describe('BlockProxy', function () {
     // Proxy should act like an empty Object
 
     if (!_strictMode) {
-      expect(b['###']).toBe(undefined);
+      expect(b['#flow']).toBe(undefined);
       b.v2 = 22;
       expect(b.v2).toBe(undefined);
       expect(Object.keys(b)).toEqual([]);

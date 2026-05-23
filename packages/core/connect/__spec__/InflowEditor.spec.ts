@@ -76,7 +76,7 @@ describe('InflowEditor Connection Workflow', function () {
     client.destroy();
   });
 
-  it('scopes descriptor watches through ^#lib', async function () {
+  it('scopes descriptor watches through #lib', async function () {
     const flowPath = 'InflowEditorDescriptorScope';
     const funcId = ':scopedDesc';
     const data = {

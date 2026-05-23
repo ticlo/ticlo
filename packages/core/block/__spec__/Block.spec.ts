@@ -24,7 +24,7 @@ describe('Block', function () {
     block.setBinding('@e', '##.@b');
     expect(block.getValue('@e')).toBe(357);
 
-    block.setBinding('@f', '###.@a');
+    block.setBinding('@f', '#flow.@a');
     expect(block.getValue('@f')).toBe(357);
 
     flow.setBinding('@d', null);
@@ -44,7 +44,7 @@ describe('Block', function () {
 
     expect(flow.queryValue('block1.block2.#')).toBe(block2);
     expect(flow.queryValue('block1.block2.##')).toBe(block1);
-    expect(flow.queryValue('block1.block2.###')).toBe(flow);
+    expect(flow.queryValue('block1.block2.#flow')).toBe(flow);
   });
 
   it('query block field', function () {

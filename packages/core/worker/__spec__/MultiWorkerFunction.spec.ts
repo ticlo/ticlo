@@ -123,7 +123,7 @@ describe('MultiWorkerFunction', function () {
 
     bBlock.setValue('#is', '');
     expect(bBlock.getValue('#output')).not.toBeDefined();
-    expect(bBlock.getValue('#flow')).not.toBeDefined();
+    expect(bBlock.getValue('#worker')).not.toBeDefined();
   });
 
   it('multi-worker primitive types', function () {

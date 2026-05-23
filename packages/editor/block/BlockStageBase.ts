@@ -391,7 +391,7 @@ export abstract class BlockStageBase<Props extends StagePropsBase, State>
     const {conn} = this.props;
     conn.watch(this.watchingPath, this.watchListener);
     this.sharedListener.subscribe(conn, this._sharedPath);
-    this.scopeListener.subscribe(conn, `${this.props.basePath}.^#lib`, true);
+    this.scopeListener.subscribe(conn, `${this.props.basePath}.#lib`, true);
   }
 
   watchingPath: string;
@@ -409,7 +409,7 @@ export abstract class BlockStageBase<Props extends StagePropsBase, State>
       this._funcLib = this.props.funcLib ?? basePath;
       this.props.conn.watch(basePath, this.watchListener);
       this.sharedListener.subscribe(this.props.conn, this._sharedPath);
-      this.scopeListener.subscribe(this.props.conn, `${basePath}.^#lib`, true);
+      this.scopeListener.subscribe(this.props.conn, `${basePath}.#lib`, true);
       this.onBlockDescScopeChanged();
     }
     return super.render();

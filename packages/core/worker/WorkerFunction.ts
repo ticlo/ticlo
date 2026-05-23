@@ -95,7 +95,7 @@ export class WorkerFunction extends BaseFunction<Block> implements WorkerHost {
       const {src, saveCallback} = this.control.getSaveParameter();
       const subFlowMode = this._data.getValue('+state') ?? WorkerMode.ON;
       if (subFlowMode === WorkerMode.ON) {
-        this._funcFlow = this._data.createOutputFlow(RepeaterWorker, '#flow', src, this._data, saveCallback);
+        this._funcFlow = this._data.createOutputFlow(RepeaterWorker, '#worker', src, this._data, saveCallback);
         this._funcFlow?.updateInput(this._data);
       }
     } else {
@@ -108,7 +108,7 @@ export class WorkerFunction extends BaseFunction<Block> implements WorkerHost {
       this._collector.addSubFlow(this._data);
     }
     if (this.control._srcChanged) {
-      this._data.deleteValue('#flow');
+      this._data.deleteValue('#worker');
       this._funcFlow = null;
       this.control._srcChanged = false;
     }
@@ -117,7 +117,7 @@ export class WorkerFunction extends BaseFunction<Block> implements WorkerHost {
     switch (subFlowMode) {
       case WorkerMode.OFF: {
         if (this._funcFlow != null) {
-          this._data.deleteValue('#flow');
+          this._data.deleteValue('#worker');
           this._funcFlow = null;
         }
         break;
@@ -144,7 +144,7 @@ export class WorkerFunction extends BaseFunction<Block> implements WorkerHost {
   }
 
   cleanup(): void {
-    this._data.deleteValue('#flow');
+    this._data.deleteValue('#worker');
   }
 
   destroy() {

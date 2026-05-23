@@ -25,7 +25,7 @@ The source (`src`) of a worker flow can take several forms, stored in `WorkerCon
 3. **Local flow function id**: `:functionId`, stored in the owning flow's `#functions` config and managed by its `PersistentFunctionLib`.
 4. **Namespace function id**: `+namespace:lib:functionId`, stored in `NsFunctionLib` and optionally backed by `FlowStorage`.
 
-Local flow functions have a descriptor lib. Flow-owned `PersistentFunctionLib.getScopePath()` returns the owning Flow path, while global and namespace libs return `null`. Worker and editor flows loaded from an in-flow function lib expose that owner path through the runtime-only context property `^#lib`, so UI code can watch descriptors with `watchDesc(':functionId', libPath)`.
+Local flow functions have a descriptor lib. Flow-owned `PersistentFunctionLib.getScopePath()` returns the owning Flow path, while global and namespace libs return `null`. Worker and editor flows loaded from an in-flow function lib expose that owner path through the runtime-only config property `#lib`, so UI code can watch descriptors with `watchDesc(':functionId', libPath)`.
 
 For string sources, `WorkerControl` listens to the corresponding `FunctionDispatcher`; when the function definition changes, `_srcChanged` is set and the host block is queued.
 
@@ -46,16 +46,16 @@ When the worker engine needs to create or apply changes to a worker flow, it cal
 Workers are spawned through `Block.createOutputFlow()`:
 
 ```ts
-this._data.createOutputFlow(RepeaterWorker, '#flow', src, outputTarget, saveCallback);
+this._data.createOutputFlow(RepeaterWorker, '#worker', src, outputTarget, saveCallback);
 ```
 
 The output target implements `FunctionOutput`, so each host can decide how child flow outputs are collected.
 
-When passing in-flow or inline worker sources into a child flow, keep the parent flow's function lib attached so `^#lib` continues to point at the function owner. Do not rediscover the lib from a deep block path in editor code; Block view should pass its current `funcLib` down to descriptor consumers.
+When passing in-flow or inline worker sources into a child flow, keep the parent flow's function lib attached so `#lib` continues to point at the function owner. Do not rediscover the lib from a deep block path in editor code; Block view should pass its current `funcLib` down to descriptor consumers.
 
 ## Host Patterns
 
-- `WorkerFunction`: creates one child flow at `#flow`. `+state` controls `on`, `off`, `disable`, or `lazy`. It can participate in `select-worker` via `WorkerCollector`.
+- `WorkerFunction`: creates one child flow at `#worker`. `+state` controls `on`, `off`, `disable`, or `lazy`. It can participate in `select-worker` via `WorkerCollector`.
 - `MapFunction`: maps array/object input to multiple worker runs and emits a final array/object when every assigned worker is ready. It supports fixed thread pools, unlimited keyed workers, reuse, persist, and timeout.
 - `MultiWorkerFunction`: maintains one worker per input key and updates output as individual child workers change. If the input is a `Block`, it watches child property changes.
 - `HandlerFunction`: queues calls/tasks and assigns them to workers. With `keepOrder`, it stores results in an `InfiniteQueue` and emits completed tasks in original call order.

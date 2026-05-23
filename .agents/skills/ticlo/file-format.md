@@ -51,6 +51,7 @@ Keys starting with `#` configure the block's behavior or metadata.
 - `#call`: A property used to trigger the block (often used in `onCall` mode).
 - `#cancel`: A property used to cancel execution.
 - `#secret`: Configuration for secret values.
+- `#lib`: Runtime-only metadata for editor descriptor lookup when a Flow runs with an in-flow function lib. It is set with `updateValue()` and must not be written with `setValue()` or included in saved `.ticlo` JSON.
 - `#name`: (Read-only) The name of the block.
 
 ### 2. Bindings (`~`)
@@ -71,8 +72,6 @@ When saving a plain object that itself contains `#is` or `~#is`, the runtime wra
 
 Keys starting with `^` are context properties. They typically connect to global or parent context definitions.
 
-`^#lib` is reserved runtime context metadata for editor descriptor lookup. It is set with `updateValue()` when a Flow runs with an in-flow function lib and must not be written with `setValue()` or included in saved `.ticlo` JSON.
-
 ### 4. Attributes (`@`)
 
 Keys starting with `@` are attributes. These are used primarily by the Ticlo Dataflow Editor (e.g., for layout, positioning, or comments) and do **not** affect the runtime logic of the flow.
@@ -88,7 +87,7 @@ When defining bindings, use these references:
 
 - `#`: The current block.
 - `##`: The parent block.
-- `###`: The Flow itself.
+- `#flow`: The current Flow itself.
 - `#+`: The current namespace root, used when a relative binding crosses namespace-managed flows.
 - `block.prop`: Navigation dot-syntax.
 
