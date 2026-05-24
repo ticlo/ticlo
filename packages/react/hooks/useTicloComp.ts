@@ -17,31 +17,33 @@ function isReactChild(child: unknown): child is ReactNode | Block {
   return child instanceof Block || isValidElement(child) || typeof child === 'string' || typeof child === 'number';
 }
 
-export function getChildren(block: Block, order?: unknown, overrideChildren?: unknown): (ReactNode | Block)[] {
+export function getChildren(block: Block, order?: unknown, content?: unknown): (ReactNode | Block)[] {
   const result: (ReactNode | Block)[] = [];
-  if (Array.isArray(overrideChildren)) {
-    // overrideChildren children with an array of blocks
-    for (const child of overrideChildren) {
+  if (isReactChild(content)) {
+    result.push(content);
+  } else if (Array.isArray(content)) {
+    for (const child of content) {
       if (isReactChild(child)) {
         result.push(child);
       }
     }
-  } else {
-    if (!Array.isArray(order)) {
-      order = block.getValue('#order') as unknown[];
-    }
-    // inline children
-    if (Array.isArray(order)) {
-      for (const name of order) {
-        if (typeof name === 'string') {
-          const b = block.getValue(name);
-          if (b instanceof Block) {
-            result.push(b);
-          }
+  }
+
+  if (!Array.isArray(order)) {
+    order = block.getValue('#order') as unknown[];
+  }
+  // inline children
+  if (Array.isArray(order)) {
+    for (const name of order) {
+      if (typeof name === 'string') {
+        const b = block.getValue(name);
+        if (b instanceof Block) {
+          result.push(b);
         }
       }
     }
   }
+
   return result;
 }
 
@@ -114,10 +116,13 @@ export function useTicloComp(
     noChildren ? noChildrenConfigsMap : configsMap
   );
 
+  // resolve content from override children or ordered children
+  const [content, setContext] = useState(needChildren ? block.getValue('content') : undefined);
+
   const orderRef = useValueRef(orderList);
   const [resolvedChildren, updateResolvedChildren] = useMemoUpdate(
-    () => (needChildren ? getChildren(block, orderList) : []),
-    [block, orderList]
+    () => (needChildren ? getChildren(block, orderList, content) : []),
+    [block, orderList, content]
   );
 
   // resolve optional properties
@@ -126,6 +131,11 @@ export function useTicloComp(
 
   const onPropertyChange = useCallback((property: BlockProperty, saved?: boolean) => {
     switch (property._name) {
+      case 'content':
+        if (needChildren) {
+          setContext(property.getValue());
+        }
+        break;
       case 'style':
         setStyle(property.getValue());
         break;
