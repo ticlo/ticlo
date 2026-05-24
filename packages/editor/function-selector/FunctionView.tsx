@@ -47,6 +47,7 @@ export class FunctionView extends React.PureComponent<Props, any> {
       {
         blockName: name,
         blockData: data,
+        isStaticBlock: e.event.altKey,
       },
       conn.getBaseConn()
     );

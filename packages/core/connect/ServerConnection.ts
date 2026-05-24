@@ -11,7 +11,7 @@ import {DataMap, isPrimitiveType} from '../util/DataTypes.js';
 import {truncateData} from '../util/DataTruncate.js';
 import {Block, BlockChildWatch, InputsBlock} from '../block/Block.js';
 import {Flow, Root} from '../block/Flow.js';
-import {FlowWithShared, SharedBlock, SharedConfig} from '../block/SharedBlock.js';
+import {FlowWithStatic, StaticConfig} from '../block/StaticBlock.js';
 import {PropDispatcher, PropListener} from '../block/Dispatcher.js';
 import {DescListener, FunctionLib} from '../block/FunctionLib.js';
 import {FunctionDesc, PropDesc, PropGroupDesc} from '../block/Descriptor.js';
@@ -30,7 +30,7 @@ import {addOptionalProperty, moveOptionalProperty, removeOptionalProperty} from 
 import {WorkerFunctionGen} from '../worker/WorkerFunctionGen.js';
 import {isBindable} from '../util/Path.js';
 import {ClientCallbacks} from './ClientRequests.js';
-import {copyProperties, createSharedBlock, deleteProperties, pasteProperties} from '../property-api/CopyPaste.js';
+import {copyProperties, createStaticBlock, deleteProperties, pasteProperties} from '../property-api/CopyPaste.js';
 import {moveProperty, PropertyMover} from '../property-api/PropertyMover.js';
 import {BlockInputsConfig, BlockOutputsConfig} from '../block/BlockConfigs.js';
 import {WorkerFlow} from '../worker/WorkerFlow.js';
@@ -343,15 +343,6 @@ function getTrackedFlow(block: Block, path: string, root: Root): Flow {
   } else {
     flow = block._flow;
   }
-  if (flow instanceof SharedBlock) {
-    const sharedPos = path.lastIndexOf('.#shared.');
-    if (sharedPos > 0) {
-      const sharedProp = root.queryProperty(path.substring(0, sharedPos + 8));
-      if (sharedProp instanceof SharedConfig) {
-        flow = sharedProp._block._flow;
-      }
-    }
-  }
   return flow;
 }
 
@@ -551,13 +542,13 @@ export class ServerConnection extends ServerConnectionCore {
               // binding string can just start from ^ for context binding
               resolvedFrom = fromMain.substring(fromMain.indexOf('.^') + 1);
             } else {
-              const fromSharedPos = fromMain.lastIndexOf('.#shared.');
-              if (bindable === 'shared') {
-                const sharedPath = fromMain.substring(0, fromSharedPos + 8); // path to #shared
-                const sharedProp = this.root.queryProperty(sharedPath);
-                if (sharedProp instanceof SharedConfig) {
-                  const afterShared = fromMain.substring(fromSharedPos + 9);
-                  resolvedFrom = `${propRelative(property._block, sharedProp)}.${afterShared}`;
+              const fromStaticPos = fromMain.lastIndexOf('.#static.');
+              if (bindable === 'static') {
+                const staticPath = fromMain.substring(0, fromStaticPos + 8); // path to #static
+                const staticProp = this.root.queryProperty(staticPath);
+                if (staticProp instanceof StaticConfig) {
+                  const afterStatic = fromMain.substring(fromStaticPos + 9);
+                  resolvedFrom = `${propRelative(property._block, staticProp)}.${afterStatic}`;
                 }
               }
             }
@@ -609,8 +600,18 @@ export class ServerConnection extends ServerConnectionCore {
   addBlock({path, data, findName}: {path: string; data?: DataMap; findName?: boolean}): string | DataMap {
     let [parentBlock, blockName, parentProp] = this.root.queryBlockField(path);
     if (!parentBlock) {
-      if (parentProp?._name === '#shared') {
-        if (createSharedBlock(parentProp)) {
+      if (!parentProp) {
+        const parentPath = path.substring(0, path.lastIndexOf('.'));
+        if (parentPath.endsWith('.#static')) {
+          const staticOwnerPath = parentPath.substring(0, parentPath.length - 8);
+          const staticOwner = this.root.queryProperty(staticOwnerPath, false)?._value;
+          if (staticOwner instanceof FlowWithStatic) {
+            parentProp = staticOwner.getProperty('#static', true);
+          }
+        }
+      }
+      if (parentProp?._name === '#static') {
+        if (createStaticBlock(parentProp)) {
           // get the block again
           [parentBlock, blockName] = this.root.queryBlockField(path);
         }

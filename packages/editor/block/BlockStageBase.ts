@@ -69,7 +69,7 @@ export abstract class BlockStageBase<Props extends StagePropsBase, State>
     return result;
   }
 
-  _sharedPath: string;
+  _staticPath: string;
 
   _blocks: Map<string, BlockItem> = new Map<string, BlockItem>();
   _blockLinks: Map<string, Set<BlockItem>> = new Map<string, Set<BlockItem>>();
@@ -309,7 +309,7 @@ export abstract class BlockStageBase<Props extends StagePropsBase, State>
       } else {
         if (!this._blocks.has(path)) {
           // create new block
-          const newBlockItem = new BlockItem(this.props.conn, this, path, basePath === this._sharedPath);
+          const newBlockItem = new BlockItem(this.props.conn, this, path, basePath === this._staticPath);
           this._blocks.set(path, newBlockItem);
           // update block links
           if (this._blockLinks.has(path)) {
@@ -330,15 +330,15 @@ export abstract class BlockStageBase<Props extends StagePropsBase, State>
       this.onChildUpdate(response.changes as DataMap, this.props.basePath);
     },
   };
-  sharedWatchListener = {
+  staticWatchListener = {
     onUpdate: (response: DataMap) => {
-      this.onChildUpdate(response.changes as DataMap, this._sharedPath);
+      this.onChildUpdate(response.changes as DataMap, this._staticPath);
     },
   };
-  clearSharedBlocks() {
+  clearStaticBlocks() {
     let changed = false;
     for (const [key, block] of this._blocks) {
-      if (block.shared) {
+      if (block.isStatic) {
         changed = true;
         if (block.selected) {
           this.selectionChanged = true;
@@ -355,15 +355,14 @@ export abstract class BlockStageBase<Props extends StagePropsBase, State>
     }
   }
 
-  sharedListener = new ValueSubscriber({
+  staticListener = new ValueSubscriber({
     onUpdate: (response: ValueUpdate) => {
-      if (Object.hasOwn(response.change, 'value')) {
-        if (String(response.cache.value).startsWith('SharedBlock ')) {
-          const {conn} = this.props;
-          conn.watch(this._sharedPath, this.sharedWatchListener);
-        } else {
-          this.clearSharedBlocks();
-        }
+      if (response.cache.value != null) {
+        const {conn} = this.props;
+        conn.watch(this._staticPath, this.staticWatchListener);
+      } else {
+        this.props.conn.unwatch(this._staticPath, this.staticWatchListener);
+        this.clearStaticBlocks();
       }
     },
   });
@@ -382,7 +381,7 @@ export abstract class BlockStageBase<Props extends StagePropsBase, State>
   protected constructor(props: Props) {
     super(props);
     const {basePath} = props;
-    this._sharedPath = `${basePath}.#shared`;
+    this._staticPath = `${basePath}.#static`;
     this.watchingPath = basePath;
     this._funcLib = props.funcLib ?? basePath;
   }
@@ -391,7 +390,7 @@ export abstract class BlockStageBase<Props extends StagePropsBase, State>
     super.componentDidMount();
     const {conn} = this.props;
     conn.watch(this.watchingPath, this.watchListener);
-    this.sharedListener.subscribe(conn, this._sharedPath);
+    this.staticListener.subscribe(conn, this._staticPath);
     this.scopeListener.subscribe(conn, `${this.props.basePath}.#lib`, true);
   }
 
@@ -406,19 +405,19 @@ export abstract class BlockStageBase<Props extends StagePropsBase, State>
       // TODO clear cached blocks
       this.props.conn.unwatch(this.watchingPath, this.watchListener);
       this.watchingPath = basePath;
-      this._sharedPath = `${basePath}.#shared`;
+      this._staticPath = `${basePath}.#static`;
       this._funcLib = this.props.funcLib ?? basePath;
       this.props.conn.watch(basePath, this.watchListener);
-      this.sharedListener.subscribe(this.props.conn, this._sharedPath);
+      this.staticListener.subscribe(this.props.conn, this._staticPath);
       this.scopeListener.subscribe(this.props.conn, `${basePath}.#lib`, true);
       this.onBlockDescScopeChanged();
     }
     return super.render();
   }
 
-  createBlock = async (name: string, blockData: {[key: string]: any}, shared: boolean) => {
+  createBlock = async (name: string, blockData: {[key: string]: any}, isStatic: boolean) => {
     const {conn, basePath} = this.props;
-    const parentPath = shared ? this._sharedPath : basePath;
+    const parentPath = isStatic ? this._staticPath : basePath;
     try {
       const newName = (await conn.addBlock(`${parentPath}.${name}`, blockData, true)).name;
       const newPath = `${parentPath}.${newName}`;
@@ -449,10 +448,10 @@ export abstract class BlockStageBase<Props extends StagePropsBase, State>
   componentWillUnmount() {
     const {conn, basePath} = this.props;
     this.context.onFlowClosed(basePath);
-    this.sharedListener.unsubscribe();
+    this.staticListener.unsubscribe();
     this.scopeListener.unsubscribe();
     conn.unwatch(basePath, this.watchListener);
-    conn.unwatch(this._sharedPath, this.sharedWatchListener);
+    conn.unwatch(this._staticPath, this.staticWatchListener);
     super.componentWillUnmount();
   }
 }

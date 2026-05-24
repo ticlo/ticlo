@@ -41,7 +41,7 @@ Keys starting with `#` configure the block's behavior or metadata.
 - `#inputs`: Defines the input interface of the flow (configures the `flow:inputs` block).
 - `#outputs`: Defines the output interface of the flow (configures the `flow:outputs` block).
 - `#functions`: Defines a group of local functions.
-- `#shared`: Defines shared subflow content used by `FlowWithShared`/worker flows. It is loaded before normal flow data so bindings can resolve into shared content.
+- `#static`: Defines static block content used by `FlowWithStatic`/named worker flows. It is loaded before normal flow data so bindings can resolve into static content. The block reports `#is: "flow:static"` at runtime, but the saved JSON usually stores `"#is": ""` because const runtime types do not need to be serialized.
 - `#disabled`: `true` to disable the block/flow.
 - `#mode`: Execution mode.
   - `"auto"` (default), `"onLoad"`, `"onChange"`, `"onCall"`.
@@ -53,6 +53,8 @@ Keys starting with `#` configure the block's behavior or metadata.
 - `#secret`: Configuration for secret values.
 - `#lib`: Runtime-only metadata for editor descriptor lookup when a Flow runs with an in-flow function lib. Its runtime value is the owning Flow object. When subscribed over a client connection it serializes as a `NoSerialize` Block value whose `value` field is the Flow path. It is set with `updateValue()`/const config behavior and must not be written with `setValue()` or included in saved `.ticlo` JSON.
 - `#name`: (Read-only) The name of the block.
+
+`#static` is a named-worker feature. Inline worker flow data should not create or save static blocks. At runtime, each function library flow also has a `#shared` owner block that contains one static child per function. That owner is deliberately still called `#shared`, has runtime type `flow:const`, is visible in the node tree, and must not be written to `.ticlo` JSON.
 
 ### 2. Bindings (`~`)
 

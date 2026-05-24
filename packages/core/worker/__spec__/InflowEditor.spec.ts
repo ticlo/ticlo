@@ -5,9 +5,10 @@ import {WorkerFunctionGen} from '../WorkerFunctionGen.js';
 
 import type {PropDesc, PropGroupDesc} from '../../block/Descriptor.js';
 import type {DataMap} from '../../util/DataTypes.js';
-import {SharedBlock} from '../../block/SharedBlock.js';
+import {StaticBlock} from '../../block/StaticBlock.js';
 import {FlowFunctionLib} from '../../block/NSFunctionLib.js';
 import {Namespace} from '../../block/Namespace.js';
+import {encodeTicloName} from '../../util/Name.js';
 import type {FlowStorage} from '../../block/Storage.js';
 import '../../functions/math/Arithmetic.js';
 
@@ -445,18 +446,19 @@ describe('InflowEditor', function () {
     expect(functionLib).toBe(funcLib);
   });
 
-  it('shared block', function () {
+  it('static block', function () {
     const flow = new Flow();
     flow.load({});
 
     const editor = FlowEditor.createFromFunction(flow, '#edit-func', ':worker4', {
       '#is': '',
-      '#shared': {'#is': ''},
+      '#static': {'#is': ''},
     });
 
-    const block: SharedBlock = editor.getValue('#shared') as SharedBlock;
-    expect(block).toBeInstanceOf(SharedBlock);
-    expect(block._prop).toBe(editor.getProperty('#shared'));
+    const block: StaticBlock = editor.getValue('#static') as StaticBlock;
+    expect(block).toBeInstanceOf(StaticBlock);
+    expect(block._prop._block).toBe(editor.getFuncLib().flow.getValue('#shared'));
+    expect(block._prop._name).toBe(encodeTicloName(':worker4'));
 
     flow.destroy();
   });

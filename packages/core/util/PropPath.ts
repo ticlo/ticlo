@@ -71,7 +71,7 @@ export function propRelative(base: Block, from: BlockProperty): string {
   } else {
     // Cross-flow binding paths must cross an explicit Flow property boundary.
     // This keeps copied blocks portable while still allowing bindings into
-    // child output/shared flows.
+    // child output/static flows.
     // base and from different flows
     let baseFlow = baseBlock._flow;
     let fromFlow = fromBlock._flow;

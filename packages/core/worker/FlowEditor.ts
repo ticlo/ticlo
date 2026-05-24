@@ -2,7 +2,7 @@ import {Block, BlockChildWatch} from '../block/Block.js';
 import type {Flow} from '../block/Flow.js';
 import {DataMap} from '../util/DataTypes.js';
 import {WorkerFunctionGen} from './WorkerFunctionGen.js';
-import {FlowWithShared, FlowWithSharedConfigGenerators} from '../block/SharedBlock.js';
+import {FlowWithStatic, FlowWithStaticConfigGenerators} from '../block/StaticBlock.js';
 import {BlockProperty} from '../index.js';
 import {ConstTypeConfig} from '../block/BlockConfigs.js';
 import {BlockConfig} from '../block/BlockProperty.js';
@@ -11,15 +11,10 @@ import {FunctionLib} from '../block/FunctionLib.js';
 import {Namespace} from '../block/Namespace.js';
 
 export const FlowEditorConfigGenerators: {[key: string]: typeof BlockProperty} = {
-  ...FlowWithSharedConfigGenerators,
+  ...FlowWithStaticConfigGenerators,
   '#is': ConstTypeConfig('flow:editor'),
 };
-export class FlowEditor extends FlowWithShared {
-  getCacheKey(funcId: string, data: DataMap): any {
-    // do not cache shared block during editing
-    return this.getProperty('#shared', true);
-  }
-
+export class FlowEditor extends FlowWithStatic {
   unwatch(watcher: BlockChildWatch) {
     super.unwatch(watcher);
     if (!this._watchers) {

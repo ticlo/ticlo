@@ -1,17 +1,17 @@
 import {Block} from '../block/Block.js';
 import {DataMap, isDataMap} from '../util/DataTypes.js';
 import {BlockProperty} from '../block/BlockProperty.js';
-import {FlowWithShared, SharedBlock, SharedConfig} from '../block/SharedBlock.js';
+import {FlowWithStatic, StaticBlock, StaticConfig} from '../block/StaticBlock.js';
 import {findPropertyForNewBlock} from './PropertyName.js';
 import {Flow} from '../block/Flow.js';
 import {addMapArray} from '../util/Map.js';
 import {cloneToLevel} from '../util/Clone.js';
 
 function getProperty(parent: Block, field: string, create = false): [BlockProperty, Block] {
-  if (field.startsWith('#shared.')) {
-    const sharedBlock = parent.getValue('#shared');
-    if (sharedBlock instanceof Block) {
-      return [sharedBlock.getProperty(field.substring(8)), sharedBlock];
+  if (field.startsWith('#static.')) {
+    const staticBlock = parent.getValue('#static');
+    if (staticBlock instanceof Block) {
+      return [staticBlock.getProperty(field.substring(8)), staticBlock];
     } else {
       return [null, null];
     }
@@ -19,30 +19,30 @@ function getProperty(parent: Block, field: string, create = false): [BlockProper
     return [parent.getProperty(field), null];
   }
 }
-export function createSharedBlock(property: BlockProperty): SharedBlock {
-  if (property instanceof SharedConfig) {
+export function createStaticBlock(property: BlockProperty): StaticBlock {
+  if (property instanceof StaticConfig) {
     const value = property._value;
-    if (value instanceof SharedBlock) {
+    if (value instanceof StaticBlock) {
       return value;
     }
-    const flow = property._block as FlowWithShared;
-    return SharedBlock.loadSharedBlock(flow, flow._loadFrom, {});
+    const flow = property._block as FlowWithStatic;
+    return StaticBlock.loadStaticBlock(flow, flow._loadFrom, {});
   }
   return null;
 }
 export function copyProperties(parent: Block, fields: string[]): DataMap | string {
   const result: any = {};
-  let sharedResult: any;
+  let staticResult: any;
   for (const field of fields) {
-    const [prop, sharedBlock] = getProperty(parent, field);
+    const [prop, staticBlock] = getProperty(parent, field);
 
     if (prop) {
-      if (sharedBlock) {
-        if (!sharedResult) {
-          sharedResult = {};
-          result['#shared'] = sharedResult;
+      if (staticBlock) {
+        if (!staticResult) {
+          staticResult = {};
+          result['#static'] = staticResult;
         }
-        prop._saveToMap(sharedResult);
+        prop._saveToMap(staticResult);
       } else {
         prop._saveToMap(result);
       }
@@ -68,42 +68,42 @@ export function pasteProperties(parent: Block, data: DataMap, resolve?: 'overwri
     return 'invalid data';
   }
 
-  // #shared content is pasted into the attached shared block, while all other
+  // #static content is pasted into the attached static block, while all other
   // fields are pasted into the selected parent block.
-  let {'#shared': shared, ...others} = data;
+  let {'#static': staticValue, ...others} = data;
   others = cloneToLevel(others, 3);
-  const sharedData = cloneToLevel(shared, 3) as DataMap;
+  const staticData = cloneToLevel(staticValue, 3) as DataMap;
 
-  const sharedBlock = createSharedBlock(parent.getProperty('#shared', sharedData != null));
+  const staticBlock = createStaticBlock(parent.getProperty('#static', staticData != null));
 
   if (resolve !== 'overwrite') {
     const existingBlocks: string[] = [];
-    const existingSharedBlocks: string[] = [];
+    const existingStaticBlocks: string[] = [];
     for (const field in others) {
       if (parent.getProperty(field, false)?._saved instanceof Block) {
         existingBlocks.push(field);
       }
     }
-    if (sharedData && sharedBlock) {
-      // ignore the shared block not allowed error here, handle it later
-      for (const field in sharedData) {
-        if (sharedBlock.getProperty(field, false)?._saved instanceof Block) {
-          existingSharedBlocks.push(field);
+    if (staticData && staticBlock) {
+      // ignore the static block not allowed error here, handle it later
+      for (const field in staticData) {
+        if (staticBlock.getProperty(field, false)?._saved instanceof Block) {
+          existingStaticBlocks.push(field);
         }
       }
     }
-    if (existingBlocks.length || existingSharedBlocks.length) {
+    if (existingBlocks.length || existingStaticBlocks.length) {
       if (resolve === 'rename') {
         if (existingBlocks.length) {
           renameBlocks(parent, others, existingBlocks);
         }
-        if (existingSharedBlocks.length) {
-          renameBlocks(sharedBlock, sharedData, existingSharedBlocks);
+        if (existingStaticBlocks.length) {
+          renameBlocks(staticBlock, staticData, existingStaticBlocks);
         }
       } else {
         if (existingBlocks.length) {
-          return `block already exists: ${existingBlocks.join(',')},${existingSharedBlocks
-            .map((field) => `#shared.${field}`)
+          return `block already exists: ${existingBlocks.join(',')},${existingStaticBlocks
+            .map((field) => `#static.${field}`)
             .join(',')}`;
         }
       }
@@ -111,22 +111,22 @@ export function pasteProperties(parent: Block, data: DataMap, resolve?: 'overwri
   }
 
   let positions = collectBlockPositions(parent);
-  if (sharedBlock) {
-    positions = new Map([...positions, ...collectBlockPositions(sharedBlock)]);
+  if (staticBlock) {
+    positions = new Map([...positions, ...collectBlockPositions(staticBlock)]);
   }
-  moveBlockPositions(others, sharedData, positions);
+  moveBlockPositions(others, staticData, positions);
 
-  if (sharedData) {
-    if (sharedBlock == null) {
-      return '#shared properties not allowed in this Block';
+  if (staticData) {
+    if (staticBlock == null) {
+      return '#static properties not allowed in this Block';
     }
-    sharedBlock._liveUpdate(sharedData, false);
+    staticBlock._liveUpdate(staticData, false);
   }
   parent._liveUpdate(others, false);
 
   let result = [...Object.keys(others)];
-  if (sharedData) {
-    result = [...result, ...Object.keys(sharedData).map((name: string) => `#shared.${name}`)];
+  if (staticData) {
+    result = [...result, ...Object.keys(staticData).map((name: string) => `#static.${name}`)];
   }
 
   return result;

@@ -896,31 +896,40 @@ describe('Connection', function () {
     Root.instance.deleteValue('Connection21');
   });
 
-  it('#shared #temp binding', async function () {
-    const flow1 = Root.instance.createOutputFlow(WorkerFlow, 'Connection22', {
+  it('#static #temp binding', async function () {
+    const workerData = {
       '#is': '',
       'a': {'#is': ''},
-      '#shared': {'#is': ''},
-    });
+      '#static': {'#is': ''},
+    };
+    const hostFlow = Root.instance.addFlow('Connection22Host');
+    const funcLib = hostFlow.getFuncLib();
+    WorkerFunctionGen.registerType(
+      workerData,
+      {id: ':staticBindingWorker', name: 'staticBindingWorker', properties: []},
+      undefined,
+      funcLib
+    );
+    const flow1 = hostFlow.createOutputFlow(WorkerFlow, 'worker', ':staticBindingWorker');
     Root.instance.createOutputFlow(WorkerFlow, 'Connection22_2');
 
     const [server, client] = makeLocalConnection(Root.instance, false);
 
-    await client.setBinding('Connection22.a.v', 'Connection22.#shared.a', true, true);
-    expect(flow1.queryProperty('a.v')._bindingPath).toBe('##.#shared.a');
+    await client.setBinding('Connection22Host.worker.a.v', 'Connection22Host.worker.#static.a', true, true);
+    expect(flow1.queryProperty('a.v')._bindingPath).toBe('##.#static.a');
 
-    await client.setBinding('Connection22.#shared.v', 'Connection22.#shared.a', true, true);
-    expect(flow1.queryProperty('#shared.v')._bindingPath).toBe('a');
+    await client.setBinding('Connection22Host.worker.#static.v', 'Connection22Host.worker.#static.a', true, true);
+    expect(flow1.queryProperty('#static.v')._bindingPath).toBe('a');
 
     // can't bind to different flow
     let error = await shouldReject(
-      client.setBinding('Connection22_2.v1', 'Connection22.#shared.a', true, true) as Promise<any>
+      client.setBinding('Connection22_2.v1', 'Connection22Host.worker.#static.a', true, true) as Promise<any>
     );
     expect(error).toBe('invalid binding path');
 
-    // can't bind into #shared
+    // can't bind into #static
     error = await shouldReject(
-      client.setBinding('Connection22.#shared.a', 'Connection22.v1', true, true) as Promise<any>
+      client.setBinding('Connection22Host.worker.#static.a', 'Connection22Host.worker.v1', true, true) as Promise<any>
     );
     expect(error).toBe('invalid binding path');
 
@@ -928,21 +937,21 @@ describe('Connection', function () {
     error = await shouldReject(client.setBinding('Connection22_2.v2', '#temp.v', true, true) as Promise<any>);
     expect(error).toBe('invalid binding path');
 
-    // can't bind to global #shared object
-    error = await shouldReject(client.setBinding('#shared.v', 'Connection22_2.v', true, true) as Promise<any>);
-    expect(error).toBe('invalid binding path');
+    // there is no top-level #static object
+    error = await shouldReject(client.setBinding('#static.v', 'Connection22_2.v', true, true) as Promise<any>);
+    expect(error).toBe('invalid path');
 
     // can't bind to global #temp object
     error = await shouldReject(client.setBinding('#temp.v', 'Connection22_2.v', true, true) as Promise<any>);
     expect(error).toBe('invalid binding path');
 
-    // binding to #shared is allowed only when it's from #global
+    // binding to #static is allowed only when it's from #global
     await client.setBinding('#temp.v', '#global.v', true, true);
     expect(Root.instance.queryProperty('#temp.v')._bindingPath).toBe('##.#global.v');
 
     client.destroy();
     client.setValue('#temp.v', undefined, true);
-    Root.instance.deleteValue('Connection22');
+    Root.instance.deleteValue('Connection22Host');
     Root.instance.deleteValue('Connection22_2');
   });
 

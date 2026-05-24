@@ -39,9 +39,11 @@ When the worker engine needs to create or apply changes to a worker flow, it cal
 
 ## Flow Classes
 
-- `WorkerFlow`: a `FlowWithShared` with `flow:worker` config. It schedules `onReady` after inputs update and `#wait` clears.
-- `RepeaterWorker`: a `WorkerFlow` used by repeated hosts. With inline data and `#cacheMode`, it can key shared blocks off the host's `#shared` property.
-- `FlowEditor`: an editable `FlowWithShared` created under `#edit-*` properties. It never globally caches its shared block during editing.
+- `WorkerFlow`: a `FlowWithStatic` with `flow:worker` config. It schedules `onReady` after inputs update and `#wait` clears.
+- `RepeaterWorker`: a `WorkerFlow` used by repeated hosts. Inline worker flow data does not support `#static`.
+- `FlowEditor`: an editable `FlowWithStatic` created under `#edit-*` properties. Named worker functions expose static content through `#static`.
+
+Static worker content is saved in the worker definition under `#static`, and the corresponding runtime block has type `flow:static`. The actual runtime owner lives under the function library flow's `#shared` block, one child per function id. That `#shared` owner is a `flow:const` node-tree container only; it is not serialized, and new feature work should not treat it as the public saved path.
 
 Workers are spawned through `Block.createOutputFlow()`:
 

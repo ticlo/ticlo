@@ -21,6 +21,7 @@ t('Pinned');
 
 t('#global');
 t('#shared');
+t('#static');
 t('#temp');
 t('#edit');
 

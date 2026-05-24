@@ -490,7 +490,6 @@ export class Root extends FlowFolder {
   }
 
   _globalRoot: Flow;
-  _sharedRoot: Flow;
   _tempRoot: Flow;
 
   constructor() {
@@ -502,13 +501,11 @@ export class Root extends FlowFolder {
       setTimeout(this._run, 0);
     });
 
-    // Create the readonly top-level service flows. #global stores context,
-    // #temp stores transient generated flows, and #shared stores reusable
-    // subflows whose lifetime can outlive one function instance.
+    // Create the readonly top-level service flows. #global stores context and
+    // #temp stores transient generated flows.
     this._globalRoot = this._createConstBlock('#global', (prop) => new GlobalBlock(this, this, prop))._value;
     // this._globalRoot.load({'#settings': {'#is': '#flow:settings'}});
     this._tempRoot = this._createConstBlock('#temp', (prop) => new ConstBlock(this, this._globalRoot, prop))._value;
-    this._sharedRoot = this._createConstBlock('#shared', (prop) => new ConstBlock(this, this._globalRoot, prop))._value;
 
     this._props.set('', new BlockConstConfig(this, '', this));
   }

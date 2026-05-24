@@ -6,8 +6,9 @@ import {WorkerFunctionGen} from '../WorkerFunctionGen.js';
 
 import type {PropDesc, PropGroupDesc} from '../../block/Descriptor.js';
 import type {DataMap} from '../../util/DataTypes.js';
-import {SharedBlock} from '../../block/SharedBlock.js';
+import {StaticBlock} from '../../block/StaticBlock.js';
 import {Namespace} from '../../block/Namespace.js';
+import {encodeTicloName} from '../../util/Name.js';
 
 describe('FlowEditor', function () {
   it('delete editor after unwatch', function () {
@@ -147,17 +148,18 @@ describe('FlowEditor', function () {
     flow.destroy();
   });
 
-  it('shared block', function () {
+  it('static block', function () {
     const flow = new Flow();
 
     const editor = FlowEditor.createFromFunction(flow, '#edit-func', '+FlowEditor::worker4', {
       '#is': '',
-      '#shared': {'#is': ''},
+      '#static': {'#is': ''},
     });
 
-    const block: SharedBlock = editor.getValue('#shared') as SharedBlock;
-    expect(block).toBeInstanceOf(SharedBlock);
-    expect(block._prop).toBe(editor.getProperty('#shared'));
+    const block: StaticBlock = editor.getValue('#static') as StaticBlock;
+    expect(block).toBeInstanceOf(StaticBlock);
+    expect(block._prop._block).toBe(Namespace.getFunctions('+FlowEditor::worker4', flow).flow.getValue('#shared'));
+    expect(block._prop._name).toBe(encodeTicloName(':worker4'));
 
     flow.destroy();
   });

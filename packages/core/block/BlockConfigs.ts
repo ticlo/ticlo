@@ -131,7 +131,10 @@ export class BlockConstConfig extends BlockProperty {
   }
 
   setValue(val: unknown) {
-    // disable setValue
+    // allow initial runtime value but disable later changes
+    if (this._value === undefined) {
+      super.onChange(val, true);
+    }
   }
 
   setBinding(path: string) {
@@ -244,6 +247,7 @@ export const FlowConfigGenerators: {[key: string]: typeof BlockProperty} = {
   '#inputs': BlockInputsConfig,
   '#outputs': BlockOutputsConfig,
   '#functions': BlockFunctionsConfig,
+  '#shared': BlockConstConfig,
 };
 
 export const FlowFolderConfigGenerators: {[key: string]: typeof BlockProperty} = {

@@ -31,7 +31,7 @@ export class WorkerControl {
   // When use field is changed
   onUseChange(val: any): boolean {
     if (this._src) {
-      this.block.deleteValue('#shared');
+      this.block.deleteValue('#static');
     }
     if (val === this._src) {
       return false;

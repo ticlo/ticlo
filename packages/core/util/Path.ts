@@ -98,31 +98,31 @@ export function encodeFileName(path: string) {
 /**
  * Whether this binding is allowed.
  */
-export function isBindable(toPath: string, fromPath: string): boolean | 'shared' {
+export function isBindable(toPath: string, fromPath: string): boolean | 'static' {
   if (toPath === fromPath) {
     return false;
   }
   const tpScope = toPath.substring(0, toPath.indexOf('.'));
   const fromScope = fromPath.substring(0, fromPath.indexOf('.'));
   if (tpScope !== fromScope) {
-    if ((tpScope === '#shared' || tpScope === '#temp') && fromScope !== '#global') {
+    if ((tpScope === '#static' || tpScope === '#temp') && fromScope !== '#global') {
       return false;
     }
-    if (fromScope === '#shared' || fromScope === '#temp') {
+    if (fromScope === '#static' || fromScope === '#temp') {
       return false;
     }
   }
-  const fromSharedPos = fromPath.lastIndexOf('.#shared.');
-  const toSharedPos = toPath.lastIndexOf('.#shared.');
-  if (toSharedPos > fromSharedPos) {
+  const fromStaticPos = fromPath.lastIndexOf('.#static.');
+  const toStaticPos = toPath.lastIndexOf('.#static.');
+  if (toStaticPos > fromStaticPos) {
     return false;
   }
-  if (fromSharedPos > 0) {
-    if (!toPath.startsWith(fromPath.substring(0, fromSharedPos + 1))) {
+  if (fromStaticPos > 0) {
+    if (!toPath.startsWith(fromPath.substring(0, fromStaticPos + 1))) {
       return false;
     }
-    if (fromSharedPos !== toSharedPos) {
-      return 'shared';
+    if (fromStaticPos !== toStaticPos) {
+      return 'static';
     }
   }
   return true;

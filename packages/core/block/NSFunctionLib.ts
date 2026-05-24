@@ -85,7 +85,7 @@ export class FlowFunctionLib extends FunctionLib {
       }
       for (const existingId in this._functions) {
         if (!(existingId in usedFullId)) {
-          // todo, clean shared Flow
+          // todo, clean static block
           this.delete(existingId);
         }
       }

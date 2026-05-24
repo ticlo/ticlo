@@ -680,12 +680,12 @@ export class BlockStage extends BlockStageBase<BlockStageProps, StageState> impl
       const existing: string[] = [];
       // check if object already exist
       for (const key in data) {
-        if (key === '#shared') {
-          const shared = data['#shared'];
-          if (shared && typeof shared === 'object') {
-            for (const skey in shared) {
-              if (this._blocks.has(`${basePath}.#shared.${skey}`)) {
-                existing.push(`#shared.${skey}`);
+        if (key === '#static') {
+          const staticData = data['#static'];
+          if (staticData && typeof staticData === 'object') {
+            for (const skey in staticData) {
+              if (this._blocks.has(`${basePath}.#static.${skey}`)) {
+                existing.push(`#static.${skey}`);
               }
             }
           }

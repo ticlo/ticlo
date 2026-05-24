@@ -263,7 +263,7 @@ interface FieldViewProps {
 }
 
 interface BlockHeaderProps extends FieldViewProps {
-  shared: boolean;
+  isStatic: boolean;
   onDragStartT?: DragManager.DragHandler;
   onDragMoveT?: DragManager.DragHandler;
   onDragEndT?: DragManager.DragHandler;
@@ -297,7 +297,7 @@ export class BlockHeaderView extends PureDataRenderer<BlockHeaderProps, any> {
   };
 
   renderImpl(): React.ReactNode {
-    const {item, shared, onDragStartT, onDragMoveT, onDragEndT, onDoubleClick, icon, blockItem, displayName} =
+    const {item, isStatic, onDragStartT, onDragMoveT, onDragEndT, onDoubleClick, icon, blockItem, displayName} =
       this.props;
     let inBoundClass: string;
     let inBoundText: string;
@@ -323,8 +323,8 @@ export class BlockHeaderView extends PureDataRenderer<BlockHeaderProps, any> {
       }
     }
     let className = 'ticl-block-head ticl-block-prbg';
-    if (shared) {
-      className = `${className} ticl-block-head-shared`;
+    if (isStatic) {
+      className = `${className} ticl-block-head-static`;
     }
     let nameNode: React.ReactElement;
     const nameLabel = getDisplayName(blockItem.name, displayName);
@@ -875,7 +875,7 @@ export class BlockItem extends BaseBlockItem {
     connection: ClientConn,
     stage: Stage,
     path: string,
-    public shared?: boolean
+    public isStatic?: boolean
   ) {
     super(connection, stage, path);
   }

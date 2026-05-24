@@ -506,7 +506,7 @@ export class Block implements Runnable, FunctionData, PropListener<FunctionClass
     return null;
   }
 
-  // used by #global and #global.#temp #global.#shared
+  // used by #global and #global.#temp
   _createConstBlock(field: string, generator: (prop: BlockProperty) => Block): BlockConstConfig {
     const constProp = new BlockConstConfig(this, field);
     this._props.set(field, constProp);

@@ -34,7 +34,7 @@ Property prefixes are runtime contracts:
 
 ### Binding
 
-Bindings are dotted paths resolved relative to the owning block. Single-segment bindings listen directly to a property. Multi-segment bindings are cached as `BlockBinding` chains; each segment follows either a child `BlockProperty` or a plain object field. `propRelative()` generates portable relative paths and has special handling for flow boundaries, namespaces (`#+`), and `#shared`.
+Bindings are dotted paths resolved relative to the owning block. Single-segment bindings listen directly to a property. Multi-segment bindings are cached as `BlockBinding` chains; each segment follows either a child `BlockProperty` or a plain object field. `propRelative()` generates portable relative paths and has special handling for flow boundaries, namespaces (`#+`), and `#static`.
 
 ### Function Lifecycle
 
@@ -59,13 +59,14 @@ The `Resolver` batches queued blocks into four priority queues. Async function r
 
 ### Flows and Root
 
-`Flow` extends `Block`, but it is a persistence boundary. A flow's `_save()` returns `undefined` when embedded in a parent block; callers must use `flow.save()` explicitly. Root owns three special const flows:
+`Flow` extends `Block`, but it is a persistence boundary. A flow's `_save()` returns `undefined` when embedded in a parent block; callers must use `flow.save()` explicitly. Root owns two special const flows:
 
 - `#global`: global context/settings.
 - `#temp`: transient generated flows.
-- `#shared`: reusable shared subflows.
 
-`FlowHistory` watches flow-level changes for undo/redo and debounces edits. Server mutations use `trackChange()` to pick the right flow boundary, including special handling for synced block-position attributes and shared-block edits.
+Named worker functions can have `#static` content in their serialized worker data. Runtime static blocks are exposed to the worker/editor flow as `flow.#static`, but are owned under the function library flow's runtime-only `#shared` container, one child per function. That owner container is a `flow:const` block used only for node-tree visibility and runtime ownership; it must not be serialized. Inline worker flows do not support `#static`.
+
+`FlowHistory` watches flow-level changes for undo/redo and debounces edits. Server mutations use `trackChange()` to pick the right flow boundary, including special handling for synced block-position attributes and static-block edits.
 
 ## Connection Layer
 
@@ -98,5 +99,5 @@ Important groups:
 The property API mutates block metadata and saved data in ways that preserve runtime semantics:
 
 - `PropertyMover` snapshots saved value or binding, clears the old property, recreates it under a new name, and can update outbound bindings.
-- `CopyPaste` separates `#shared` payloads from normal block payloads, renames colliding pasted blocks, adjusts bindings, and offsets stage coordinates to avoid overlap.
+- `CopyPaste` separates `#static` payloads from normal block payloads, renames colliding pasted blocks, adjusts bindings, and offsets stage coordinates to avoid overlap.
 - `PropertyShowHide` maintains `@b-p` display order from descriptor, optional, and custom-property order.

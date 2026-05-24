@@ -11,7 +11,7 @@ export function onDragBlockOver(conn: ClientConn, e: DragState) {
   }
 }
 
-type CreateBlockCallback = (name: string, data: {[key: string]: any}, shared: boolean) => void;
+type CreateBlockCallback = (name: string, data: {[key: string]: any}, isStatic: boolean) => void;
 
 function alignXY(val: number) {
   return Math.floor((val - 12) / 24) * 24 + 12;
@@ -41,7 +41,7 @@ export function onDropBlock(conn: ClientConn, e: DragState, createBlock: CreateB
         }
       }
       blockData['@b-xyw'] = xyw;
-      createBlock(name, blockData, e.event.altKey);
+      createBlock(name, blockData, e.event.altKey || Boolean(DragState.getData('isStaticBlock', conn.getBaseConn())));
     };
     if (blockName.includes('.')) {
       blockName = blockName.split('.').pop();

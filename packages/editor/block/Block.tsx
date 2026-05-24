@@ -275,7 +275,7 @@ export class BlockView extends PureDataRenderer<BlockViewProps, BlockViewState> 
           <div ref={this.getRef} className={classNames.join(' ')} style={{top: item.y, left: item.x, width: item.w}}>
             <BlockHeaderView
               item={item.getHeaderCallField()}
-              shared={item.shared}
+              isStatic={item.isStatic}
               onDoubleClick={this.expandBlock}
               onDragStartT={this.selectAndDrag}
               onDragMoveT={this.onDragMove}
@@ -311,8 +311,8 @@ export class BlockView extends PureDataRenderer<BlockViewProps, BlockViewState> 
         // minimized block
         classNames.push('ticl-block-min');
         let headClasses = 'ticl-block-head ticl-block-prbg';
-        if (item.shared) {
-          headClasses = `${headClasses} ticl-block-head-shared`;
+        if (item.isStatic) {
+          headClasses = `${headClasses} ticl-block-head-static`;
         }
         return (
           <div ref={this.getRef} className={classNames.join(' ')} style={{top: item.y, left: item.x}}>

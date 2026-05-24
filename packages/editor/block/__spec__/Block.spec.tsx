@@ -2,9 +2,11 @@ import {expect} from 'vitest';
 import {simulate} from 'simulate-event';
 import React from 'react';
 import {BlockStage} from '../BlockStage.js';
+import {FunctionView} from '../../function-selector/FunctionView.js';
 import type {Flow} from '@ticlo/core';
 import {Block, Root} from '@ticlo/core';
 import {destroyLastLocalConnection, makeLocalConnection} from '@ticlo/core/connect/LocalConnection.js';
+import {FlowEditor} from '@ticlo/core/worker/FlowEditor.js';
 import {shouldHappen, shouldReject} from '@ticlo/core/util/test-util.js';
 import {removeLastTemplate, loadTemplate, querySingle, fakeMouseEvent} from '../../util/test-util.js';
 import {initEditor} from '../../index.js';
@@ -236,6 +238,79 @@ describe('editor BlockStage', function () {
     await shouldHappen(() => !div.querySelector('.ticl-block-self-drag'));
 
     Root.instance.deleteValue('BlockStageSelfProperty');
+  });
+
+  it('shows static blocks created after stage mounts', async function () {
+    Root.instance.deleteValue('BlockStageStaticCreate');
+    const flow = Root.instance.addFlow('BlockStageStaticCreate');
+    FlowEditor.createFromFunction(flow, '#edit-func', ':worker-static-create', {'#is': ''});
+
+    const [server, client] = makeLocalConnection(Root.instance);
+
+    const [component, div] = loadTemplate(
+      <BlockStage
+        conn={client}
+        basePath="BlockStageStaticCreate.#edit-func"
+        style={{width: '800px', height: '800px'}}
+      />,
+      'editor'
+    );
+
+    await client.addBlock('BlockStageStaticCreate.#edit-func.#static.add', {
+      '#is': 'add',
+      '@b-xyw': [100, 120, 143],
+    });
+
+    await shouldHappen(
+      () => {
+        const label = div.querySelector('.ticl-block-head-static .ticl-block-head-label');
+        return label?.textContent === 'add' ? label.closest('.ticl-block') : null;
+      },
+      1000,
+      'find static block'
+    );
+
+    const block = div.querySelector('.ticl-block-head-static')?.closest('.ticl-block') as HTMLDivElement;
+    expect(block.offsetLeft).toBe(100);
+    expect(block.offsetTop).toBe(120);
+
+    Root.instance.deleteValue('BlockStageStaticCreate');
+  });
+
+  it('alt dragging a function creates a static block', async function () {
+    Root.instance.deleteValue('BlockStageAltStaticCreate');
+    const flow = Root.instance.addFlow('BlockStageAltStaticCreate');
+    FlowEditor.createFromFunction(flow, '#edit-func', ':worker-alt-static-create', {'#is': ''});
+
+    const [server, client] = makeLocalConnection(Root.instance);
+    const desc: any = {id: 'add', name: 'add', properties: []};
+
+    const [component, div] = loadTemplate(
+      <>
+        <div style={{height: '32px'}}>
+          <FunctionView conn={client} desc={desc} />
+        </div>
+        <BlockStage
+          conn={client}
+          basePath="BlockStageAltStaticCreate.#edit-func"
+          style={{width: '800px', height: '800px'}}
+        />
+      </>,
+      'editor'
+    );
+
+    await shouldHappen(() => div.querySelector('.ticl-func-view') && div.querySelector('.ticl-stage-scroll'));
+
+    const funcView = div.querySelector('.ticl-func-view') as HTMLDivElement;
+    simulate(funcView, 'mousedown', fakeMouseEvent(16, 16, {button: 0, altKey: true}));
+    simulate(document.body, 'mousemove', fakeMouseEvent(80, 80, {altKey: true}));
+    simulate(document.body, 'mousemove', fakeMouseEvent(180, 180, {altKey: true}));
+    simulate(document.body, 'mouseup', fakeMouseEvent(180, 180));
+
+    await shouldHappen(() => flow.queryValue('#edit-func.#static.add'));
+    expect(flow.queryValue('#edit-func.add')).not.toBeDefined();
+
+    Root.instance.deleteValue('BlockStageAltStaticCreate');
   });
 
   it('min block and wire', async function () {

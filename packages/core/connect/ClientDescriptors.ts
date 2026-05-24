@@ -76,8 +76,8 @@ export const clientDescriptors: FunctionDesc[] = [
   },
   {
     priority: 0,
-    name: 'shared',
-    id: 'flow:shared',
+    name: 'static',
+    id: 'flow:static',
     properties: [],
     icon: 'fas:file',
     color: '4af',

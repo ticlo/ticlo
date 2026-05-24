@@ -1,4 +1,4 @@
-import {FlowWithShared, FlowWithSharedConfigGenerators} from '../block/SharedBlock.js';
+import {FlowWithStatic, FlowWithStaticConfigGenerators} from '../block/StaticBlock.js';
 import {Root} from '../block/Flow.js';
 import {ConstTypeConfig} from '../block/BlockConfigs.js';
 import {BlockConfig, BlockProperty} from '../block/BlockProperty.js';
@@ -7,11 +7,11 @@ import {DataMap} from '../util/DataTypes.js';
 import {FlowHistory} from '../block/FlowHistory.js';
 
 export const WorkerFlowConfigGenerators: {[key: string]: typeof BlockProperty} = {
-  ...FlowWithSharedConfigGenerators,
+  ...FlowWithStaticConfigGenerators,
   '#is': ConstTypeConfig('flow:worker'),
 };
 
-export class WorkerFlow extends FlowWithShared {
+export class WorkerFlow extends FlowWithStatic {
   _createConfig(field: string): BlockProperty {
     if (field in WorkerFlowConfigGenerators) {
       return new WorkerFlowConfigGenerators[field](this, field);
@@ -71,11 +71,4 @@ export class WorkerFlow extends FlowWithShared {
   }
 }
 
-export class RepeaterWorker extends WorkerFlow {
-  getCacheKey(funcId: string, data: DataMap): any {
-    if (!funcId && data['#cacheMode']) {
-      return this._parent._parent.getProperty('#shared', true);
-    }
-    return super.getCacheKey(funcId, data);
-  }
-}
+export class RepeaterWorker extends WorkerFlow {}

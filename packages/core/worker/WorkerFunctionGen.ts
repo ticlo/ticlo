@@ -10,9 +10,6 @@ import type {Block} from '../block/Block.js';
 import {Namespace} from '../block/Namespace.js';
 import {FlowFunctionLib} from '../block/NSFunctionLib.js';
 
-/**
- * WorkerFunction is the function wrapper for all custom functions
- */
 export class WorkerFunctionGen extends BaseFunction<Block> {
   declare readonly type: string;
   declare _namespace: string;
