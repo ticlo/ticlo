@@ -20,13 +20,7 @@ export class WorkerFunctionGen extends BaseFunction<Block> {
   }
 
   run(): any {
-    let applyChange: (flow: Flow) => DataMap;
-    // todo: fix applyChange
-    if (this._namespace === '') {
-      applyChange = (flow: Flow) => {
-        return WorkerFunctionGen.applyChangeToFunc(this._funcFlow, null);
-      };
-    }
+    const applyChange = (flow: Flow) => WorkerFunctionGen.applyChangeToFunc(flow, null);
     this._funcFlow = this._data.createOutputFlow(WorkerFlow, '#worker', this.type, this._data, applyChange);
     this._funcFlow.updateInput(this._data);
   }

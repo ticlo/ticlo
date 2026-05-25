@@ -336,7 +336,17 @@ class ServerDescWatcher extends ServerRequest implements DescListener {
 
 function getTrackedFlow(block: Block, path: string, root: Root): Flow {
   let flow: Flow;
-  if (path.endsWith('.@b-xyw')) {
+  const staticPath = '.#static';
+  const staticIndex = path.indexOf(staticPath);
+  // Only treat `.#static` specially when it appears as a complete path segment,
+  // so similar substrings inside other property names are ignored.
+  if (
+    staticIndex >= 0 &&
+    (path.length === staticIndex + staticPath.length || path[staticIndex + staticPath.length] === '.')
+  ) {
+    const owner = root.queryProperty(path.substring(0, staticIndex))?._value;
+    flow = owner instanceof FlowWithStatic ? owner : block._flow;
+  } else if (path.endsWith('.@b-xyw')) {
     // Synced block-position attributes can be stored on a child while the edit
     // belongs to the parent canvas flow's undo/history boundary.
     flow = block._parent._flow;

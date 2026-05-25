@@ -975,6 +975,54 @@ describe('Connection', function () {
     Root.instance.deleteValue('Connection23');
   });
 
+  it('tracks worker static edits on the edited worker flow', async function () {
+    const workerData = {'#is': '', '#static': {'#is': ''}};
+    const flow = Root.instance.addFlow('Connection23StaticEdit');
+    flow.load(
+      {
+        '#is': '',
+        '#functions': {
+          ':staticWorker': {
+            type: 'worker',
+            worker: workerData,
+          },
+        },
+      },
+      null,
+      (flow: Flow) => flow.save()
+    );
+    const editor = FlowEditor.createFromFunction(flow, '#edit-staticWorker', ':staticWorker', null);
+
+    const [, client] = makeLocalConnection(Root.instance, false);
+    const editPath = 'Connection23StaticEdit.#edit-staticWorker';
+    client.watch('Connection23StaticEdit', {});
+    client.watch(editPath, {});
+
+    await client.addBlock(`${editPath}.#static.inner`, {'#is': 'add'});
+    expect(editor.getValue('@has-change')).toBe(true);
+    expect(editor.getValue('@has-undo')).toBe(true);
+    expect(flow.getValue('@has-change')).not.toBeDefined();
+
+    await client.undo(editPath);
+    expect(editor.queryValue('#static.inner')).not.toBeDefined();
+    expect(flow.getValue('@has-change')).not.toBeDefined();
+
+    await client.redo(editPath);
+    await client.applyFlowChange(editPath);
+
+    expect(editor.getValue('@has-change')).not.toBeDefined();
+    expect(flow.getValue('@has-change')).toBe(true);
+    expect(flow.save()['#functions']).toEqual({
+      ':staticWorker': {
+        type: 'worker',
+        worker: {'#is': '', '#static': {'#is': '', 'inner': {'#is': 'add'}}},
+      },
+    });
+
+    client.destroy();
+    Root.instance.deleteValue('Connection23StaticEdit');
+  });
+
   it('copy paste', async function () {
     const flow = Root.instance.addFlow('Connection24');
     const data = {'#is': '', 'add': {'#is': 'add'}};
