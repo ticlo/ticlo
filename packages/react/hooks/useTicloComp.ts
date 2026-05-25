@@ -17,23 +17,15 @@ function isReactChild(child: unknown): child is ReactNode | Block {
   return child instanceof Block || isValidElement(child) || typeof child === 'string' || typeof child === 'number';
 }
 
-export function getChildren(block: Block, order?: unknown, content?: unknown): (ReactNode | Block)[] {
+export function getChildren(block: Block, order?: unknown[], content?: unknown): (ReactNode | Block)[] {
   const result: (ReactNode | Block)[] = [];
-  if (isReactChild(content)) {
+  // content should be skipped if it's already included in order list
+  if (!order?.includes('content') && isReactChild(content)) {
     result.push(content);
-  } else if (Array.isArray(content)) {
-    for (const child of content) {
-      if (isReactChild(child)) {
-        result.push(child);
-      }
-    }
   }
 
-  if (!Array.isArray(order)) {
-    order = block.getValue('#order') as unknown[];
-  }
   // inline children
-  if (Array.isArray(order)) {
+  if (order) {
     for (const name of order) {
       if (typeof name === 'string') {
         const b = block.getValue(name);
@@ -117,7 +109,7 @@ export function useTicloComp(
   );
 
   // resolve content from override children or ordered children
-  const [content, setContext] = useState(needChildren ? block.getValue('content') : undefined);
+  const [content, setContent] = useState(needChildren ? block.getValue('content') : undefined);
 
   const orderRef = useValueRef(orderList);
   const [resolvedChildren, updateResolvedChildren] = useMemoUpdate(
@@ -133,7 +125,7 @@ export function useTicloComp(
     switch (property._name) {
       case 'content':
         if (needChildren) {
-          setContext(property.getValue());
+          setContent(property.getValue());
         }
         break;
       case 'style':
