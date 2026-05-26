@@ -27,7 +27,7 @@ The source (`src`) of a worker flow can take several forms, stored in `WorkerCon
 
 Local flow functions have a descriptor lib. Worker and editor flows loaded from an in-flow function lib expose the owning Flow through the runtime-only config property `#lib`. UI subscriptions receive it as a serialized `NoSerialize` Block value, so editor code must read its `value` path before calling `watchDesc(':functionId', libPath)`.
 
-For string sources, `WorkerControl` listens to the corresponding `FunctionDispatcher`; when the function definition changes, `_srcChanged` is set and the host block is queued.
+For string sources, `WorkerControl` listens to the corresponding `FunctionDispatcher`; when the registered `FunctionFactory` changes, `_srcChanged` is set and the host block is queued.
 
 ## The `getSaveParameter()` Lifecycle
 

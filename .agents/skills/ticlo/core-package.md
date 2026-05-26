@@ -38,13 +38,13 @@ Bindings are dotted paths resolved relative to the owning block. Single-segment 
 
 ### Function Lifecycle
 
-`#is` selects a function class through `Namespace.getFunctions()`:
+`#is` selects a function factory through `Namespace.getFunctions()`:
 
 - `:local` resolves against the current flow's `#functions` lib.
 - `+namespace:lib:name` resolves against namespace worker libs.
 - other non-empty ids resolve against `globalFunctions`.
 
-Function descriptors are registered through `FunctionLib.add()`. Descriptor defaults are copied to the function prototype for fast access to priority and default mode. During block load, function construction is deferred until all properties are loaded so `initInputs()` sees stable data.
+Functions are registered as `FunctionFactory` values. Use `FunctionLib.addFactory(cls, desc, namespace?, functionApi?, options?)` for normal class-backed or descriptor-only functions, and `FunctionLib.add(factory, namespace?, functionApi?)` only when a caller already has a factory object. Descriptor defaults are copied to `factory.cls.prototype` for fast access to priority, default mode, type, and purity. Dynamic runtime metadata belongs in `factory.meta` and can be read with `factory.getMeta(key)` or `FunctionLib.getMeta(id, key)`. During block load, function construction is deferred until all properties are loaded so `initInputs()` sees stable data.
 
 Flow-owned `FlowFunctionLib` instances expose the runtime-only config property `#lib` as the owning Flow object. Across client serialization this arrives as a `NoSerialize` Block value whose `value` field is the Flow path. Editor descriptor watches for in-flow functions must extract that path and pass it to `ClientConn.watchDesc(funcId, libPath)`; otherwise only global descriptors are visible.
 
