@@ -12,6 +12,7 @@ import './elements/HtmlAttributes.js';
 import './elements/CommonElements.js';
 import './elements/ImgElement.js';
 import './elements/InputElement.js';
+import './jsx/JsxComponent.js';
 
 globalFunctions.addCategory({
   id: 'react:',
