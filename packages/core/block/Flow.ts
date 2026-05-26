@@ -317,16 +317,16 @@ export class Flow extends Block {
 
   applyChange() {
     if (this._applyChange) {
-      console.log('applyChange', this._namespace);
       let savedData = this._applyChange(this);
-      if (savedData) {
+      // _applyChange callback may destroy this flow when editing live worker data.
+      if (savedData && !this._destroyed) {
         if (this._history) {
           savedData = this._history.save(savedData);
         } else {
           this.deleteValue('@has-change');
         }
-        return savedData;
       }
+      return savedData;
     }
     return null;
   }
