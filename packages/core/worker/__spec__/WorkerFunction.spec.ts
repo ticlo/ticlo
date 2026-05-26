@@ -102,7 +102,7 @@ describe('WorkerFunction', function () {
     Root.run();
 
     const workerPath = 'WorkerFunctionRuntimeEdit.fn.#worker';
-    const worker = Root.instance.queryValue(workerPath) as Flow;
+    let worker = Root.instance.queryValue(workerPath) as Flow;
     const [, client] = makeLocalConnection(Root.instance, false);
 
     client.watch(workerPath, {});
@@ -119,6 +119,8 @@ describe('WorkerFunction', function () {
     await client.applyFlowChange(workerPath);
     const [, workerData] = Namespace.getWorker(funcId);
     expect(workerData).toEqual({...flowData, extra: 1});
+    Root.run();
+    worker = Root.instance.queryValue(workerPath) as Flow;
     expect(worker.getValue('@has-change')).not.toBeDefined();
 
     client.destroy();
