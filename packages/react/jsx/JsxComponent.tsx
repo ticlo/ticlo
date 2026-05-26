@@ -4,8 +4,9 @@ import {useTicloComp} from '../hooks/useTicloComp.js';
 import {registerComponent, renderChildren} from '../comp/Component.js';
 import {elementClassProperty, elementConfigs, elementStyleProperty} from '../comp/CommontProps.js';
 import {useBlockConfigs} from '../hooks/useBlockConfigs.js';
+import {useBlockProps} from '../hooks/useBlockProps.js';
 import {Values} from '../comp/Values.js';
-import {useBlockPropertyValue} from '../hooks/useBlockPropertyValue.js';
+import {useBlockValue} from '../hooks/useBlockValue.js';
 
 const PRECODE = `
 const {block, React} = props;
@@ -14,8 +15,14 @@ const {
   useEffect,
   useCallback,
   useMemo,
-  useRef
+  useRef,
+  useTicloComp,
+  useBlockConfigs,
+  useBlockProps,
+  useBlockValue
 } = React;`;
+
+const ReactExtra = {...React, useTicloComp, useBlockConfigs, useBlockProps, useBlockValue};
 
 function parseJsx(script: string): ComponentType<{block: Block; React: any}> {
   if (!script || typeof script !== 'string') {
@@ -36,11 +43,11 @@ function parseJsx(script: string): ComponentType<{block: Block; React: any}> {
 }
 
 function JsxComponent({block}: {block: Block}) {
-  const script = useBlockPropertyValue<string>(block, 'script');
+  const script = useBlockValue<string>(block, 'script');
 
   const ParsedCompnent = useMemo(() => parseJsx(script), [script]);
   if (ParsedCompnent) {
-    return <ParsedCompnent block={block} React={React} />;
+    return <ParsedCompnent block={block} React={ReactExtra} />;
   }
   return null;
 }

@@ -3,7 +3,7 @@ import {Block, FunctionDesc, globalFunctions, PropDesc} from '@ticlo/core';
 import {Namespace} from '@ticlo/core/block/Namespace.js';
 import {FunctionClass} from '@ticlo/core/block/BlockFunction.js';
 import {PropMap} from './PropType.js';
-import {useBlockPropertyValue} from '../hooks/useBlockPropertyValue.js';
+import {useBlockValue} from '../hooks/useBlockValue.js';
 
 interface BaseProps {
   block: Block;
@@ -63,7 +63,7 @@ function hasDynamicOutput(block: Block, functionId: string) {
 
 export function TicloOutputComp<T extends BaseProps = BaseProps>(props: T) {
   const {block} = props;
-  const output = useBlockPropertyValue(block, '#output');
+  const output = useBlockValue(block, '#output');
 
   if (output instanceof Block) {
     return <TicloComp {...props} block={output} key={output._blockId} />;
@@ -76,7 +76,7 @@ export function TicloOutputComp<T extends BaseProps = BaseProps>(props: T) {
 
 export function TicloComp<T extends BaseProps = BaseProps>(props: T) {
   const {block} = props;
-  const functionId = useBlockPropertyValue<string>(block, '#is');
+  const functionId = useBlockValue<string>(block, '#is');
 
   const propsRef = useRef(props);
   if (!isPropsEqual(propsRef.current as Record<string, unknown>, props as Record<string, unknown>)) {

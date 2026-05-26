@@ -1,5 +1,5 @@
 export {useBlockProps} from './hooks/useBlockProps.js';
-export {useBlockPropertyValue} from './hooks/useBlockPropertyValue.js';
+export {useBlockValue} from './hooks/useBlockValue.js';
 export {useFilteredBlocks} from './hooks/useFilteredBlocks.js';
 export {useWatchBlock} from './hooks/useWatchBlock.js';
 export {Values} from './comp/Values.js';
