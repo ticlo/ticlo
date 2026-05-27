@@ -1,7 +1,7 @@
 import React, {useMemo, ComponentType} from 'react';
 import {Block, DataMap, FunctionDesc, globalFunctions, PropDesc} from '@ticlo/core';
 import {useTicloComp} from '../hooks/useTicloComp.js';
-import {registerComponent, renderChildren} from '../comp/Component.js';
+import {metaKey} from '../comp/Component.js';
 import {elementClassProperty, elementConfigs, elementStyleProperty} from '../comp/CommontProps.js';
 import {useBlockConfigs} from '../hooks/useBlockConfigs.js';
 import {useBlockProps} from '../hooks/useBlockProps.js';
@@ -66,4 +66,6 @@ const jsxComponentDesc: FunctionDesc = {
   ],
   category: 'react:elements',
 };
-registerComponent(JsxComponent, 'jsx', null, jsxComponentDesc, 'react');
+globalFunctions.addFactory(null, jsxComponentDesc, 'react', undefined, {
+  meta: {[metaKey]: JsxComponent},
+});

@@ -1,7 +1,23 @@
 import React from 'react';
-import {Flow, globalFunctions} from '@ticlo/core';
-import {TicloComp} from '../Component.js';
+import {Block, Flow, globalFunctions} from '@ticlo/core';
+import {Namespace} from '@ticlo/core/block/Namespace.js';
+import {metaKey, TicloComp} from '../Component.js';
 import {creatReactRoot, type ReactRoot} from '../../functions/__spec__/render.js';
+
+function MetaComponent({block}: {block: Block}) {
+  return <span>{block.getValue('label') as string}</span>;
+}
+
+globalFunctions.addFactory(
+  null,
+  {
+    name: 'meta-component',
+    properties: [{name: 'label', type: 'string'}],
+  },
+  'react-test',
+  undefined,
+  {meta: {[metaKey]: MetaComponent}}
+);
 
 globalFunctions.addFactory(
   null,
@@ -68,5 +84,62 @@ describe('TicloComp', function () {
 
     await root.waitRender(<TicloComp block={block} />);
     expect(root.div.children.length).toBe(0);
+  });
+
+  it('renders components registered in global function metadata', async function () {
+    const flow = new Flow();
+    const block = flow.createBlock('a');
+    block.setValue('#is', 'react-test:meta-component');
+    block.setValue('label', 'global');
+
+    await root.waitRender(<TicloComp block={block} />);
+    expect(root.div.children[0]).toBeInstanceOf(HTMLSpanElement);
+    expect(root.div.textContent).toBe('global');
+  });
+
+  it('renders components registered in flow function metadata', async function () {
+    const flow = new Flow();
+    flow.getFuncLib().addFactory(
+      null,
+      {
+        id: ':local-meta-component',
+        name: 'local-meta-component',
+        properties: [{name: 'label', type: 'string'}],
+      },
+      undefined,
+      undefined,
+      {meta: {[metaKey]: MetaComponent}}
+    );
+    const block = flow.createBlock('a');
+    block.setValue('#is', ':local-meta-component');
+    block.setValue('label', 'flow');
+
+    await root.waitRender(<TicloComp block={block} />);
+    expect(root.div.children[0]).toBeInstanceOf(HTMLSpanElement);
+    expect(root.div.textContent).toBe('flow');
+  });
+
+  it('renders components registered in namespace function metadata', async function () {
+    const lib = Namespace.getFunctionLib('+NsReactMeta:g');
+    lib.addFactory(
+      null,
+      {
+        id: 'ns-meta-component',
+        name: 'ns-meta-component',
+        properties: [{name: 'label', type: 'string'}],
+      },
+      undefined,
+      undefined,
+      {meta: {[metaKey]: MetaComponent}}
+    );
+
+    const flow = new Flow();
+    const block = flow.createBlock('a');
+    block.setValue('#is', '+NsReactMeta:g:ns-meta-component');
+    block.setValue('label', 'namespace');
+
+    await root.waitRender(<TicloComp block={block} />);
+    expect(root.div.children[0]).toBeInstanceOf(HTMLSpanElement);
+    expect(root.div.textContent).toBe('namespace');
   });
 });

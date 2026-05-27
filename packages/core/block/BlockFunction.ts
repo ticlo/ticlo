@@ -118,6 +118,8 @@ export interface FunctionFactory {
   create: (block: FunctionData) => BaseFunction | null;
   desc: FunctionDesc;
   functionApi?: FunctionApi;
+  meta: Record<string, any>;
+  getMeta(key: string): any;
   save?: () => DataMap;
   equals?: (data: DataMap) => boolean;
   ticlWorkerData?: DataMap;
@@ -130,17 +132,27 @@ export interface FunctionApi {
   };
 }
 
-export type FunctionFactoryOptions = Omit<FunctionFactory, 'cls' | 'create' | 'desc' | 'functionApi'>;
+export interface FunctionFactoryOptions {
+  meta?: Record<string, any>;
+  save?: () => DataMap;
+  equals?: (data: DataMap) => boolean;
+  ticlWorkerData?: DataMap;
+}
 
 export function createFunctionFactory(
   cls: FunctionClass | null,
   desc: FunctionDesc,
   options?: FunctionFactoryOptions
 ): FunctionFactory {
+  const meta = options?.meta ?? {};
   return {
     cls,
     create: cls ? (block: FunctionData) => new cls(block) : () => null,
     desc,
+    meta,
+    getMeta(key: string) {
+      return this.meta?.[key];
+    },
     save: options?.save ?? cls?.save,
     equals: options?.equals ?? cls?.equals,
     ticlWorkerData: options?.ticlWorkerData ?? cls?.ticlWorkerData,

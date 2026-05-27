@@ -1,43 +1,20 @@
 import React, {ComponentType, ReactNode, isValidElement, useMemo, useRef} from 'react';
-import {Block, FunctionDesc, globalFunctions, PropDesc} from '@ticlo/core';
+import {Block} from '@ticlo/core';
 import {Namespace} from '@ticlo/core/block/Namespace.js';
-import {PropMap} from './PropType.js';
 import {useBlockValue} from '../hooks/useBlockValue.js';
 
-interface BaseProps {
+export interface BaseProps {
   block: Block;
 }
 
-const componentsMap = new Map<string, ComponentType<BaseProps>>();
-
-export function registerComponent<T extends BaseProps = BaseProps>(
-  component: ComponentType<T>,
-  name: string,
-  propertyMap?: PropMap,
-  funcDesc?: Partial<FunctionDesc>,
-  namespace: string = 'react-component'
-) {
-  const properties: PropDesc[] = [];
-  if (propertyMap) {
-    for (const key of Object.keys(propertyMap)) {
-      const {value, ...rest} = propertyMap[key];
-      properties.push({...value.desc, ...rest, name: key});
-    }
+export function findComponent<T extends BaseProps>(funcId: string, block?: Block) {
+  if (!funcId) {
+    return undefined;
   }
-
-  globalFunctions.addFactory(
-    null,
-    {
-      name,
-      properties,
-      ...funcDesc,
-    },
-    namespace
-  );
-
-  const key = namespace ? `${namespace}:${name}` : name;
-  componentsMap.set(key, component);
+  return Namespace.getFunctions(funcId, block?._flow)?.getMeta(funcId, metaKey) as ComponentType<T> | undefined;
 }
+
+export const metaKey = 'react';
 
 // custom shallow equal for props
 function isPropsEqual(a: Record<string, unknown>, b: Record<string, unknown>) {
@@ -53,6 +30,9 @@ function isPropsEqual(a: Record<string, unknown>, b: Record<string, unknown>) {
 }
 
 function hasDynamicOutput(block: Block, functionId: string) {
+  if (!functionId) {
+    return false;
+  }
   const desc = Namespace.getFunctions(functionId, block._flow)?.getDescToSend(functionId)[0];
   return desc?.properties?.some((prop) => {
     return prop.type === 'any' && prop.name === '#output' && prop.readonly;
@@ -82,7 +62,7 @@ export function TicloComp<T extends BaseProps = BaseProps>(props: T) {
   }
 
   return useMemo(() => {
-    const C = componentsMap.get(functionId) as ComponentType<T> | undefined;
+    const C = findComponent<T>(functionId, block);
     if (C) {
       return <C {...propsRef.current} />;
     }
@@ -103,8 +83,4 @@ export function renderChildren<T extends BaseProps>(blocks: (ReactNode | Block)[
     }
   }
   return result;
-}
-
-export function findComponent<T extends BaseProps>(funcId: string) {
-  return componentsMap.get(funcId) as ComponentType<T> | undefined;
 }

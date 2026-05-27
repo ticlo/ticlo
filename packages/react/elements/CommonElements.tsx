@@ -1,9 +1,9 @@
 import React from 'react';
 import {FunctionDesc, PropDesc, PropGroupDesc} from '@ticlo/core/block/Descriptor.js';
 import {elementConfigs, elementProps} from '../comp/CommontProps.js';
-import {Block} from '@ticlo/core';
+import {Block, globalFunctions} from '@ticlo/core';
 import {useTicloComp} from '../hooks/useTicloComp.js';
-import {registerComponent, renderChildren} from '../comp/Component.js';
+import {metaKey, renderChildren} from '../comp/Component.js';
 
 const sharedElementDesc: FunctionDesc = {
   name: '',
@@ -21,7 +21,9 @@ function DivElement({block}: {block: Block}) {
     </div>
   );
 }
-registerComponent(DivElement, 'div', null, {...sharedElementDesc, name: 'div'}, 'react');
+globalFunctions.addFactory(null, {...sharedElementDesc, name: 'div'}, 'react', undefined, {
+  meta: {[metaKey]: DivElement},
+});
 
 function SpanElement({block}: {block: Block}) {
   const {style, className, children, optionalHandlers} = useTicloComp(block);
@@ -31,7 +33,9 @@ function SpanElement({block}: {block: Block}) {
     </span>
   );
 }
-registerComponent(SpanElement, 'span', null, {...sharedElementDesc, name: 'span'}, 'react');
+globalFunctions.addFactory(null, {...sharedElementDesc, name: 'span'}, 'react', undefined, {
+  meta: {[metaKey]: SpanElement},
+});
 
 function PElement({block}: {block: Block}) {
   const {style, className, children, optionalHandlers} = useTicloComp(block);
@@ -41,7 +45,9 @@ function PElement({block}: {block: Block}) {
     </p>
   );
 }
-registerComponent(PElement, 'p', null, {...sharedElementDesc, name: 'p'}, 'react');
+globalFunctions.addFactory(null, {...sharedElementDesc, name: 'p'}, 'react', undefined, {
+  meta: {[metaKey]: PElement},
+});
 
 function PreElement({block}: {block: Block}) {
   const {style, className, children, optionalHandlers} = useTicloComp(block);
@@ -51,7 +57,9 @@ function PreElement({block}: {block: Block}) {
     </pre>
   );
 }
-registerComponent(PreElement, 'pre', null, {...sharedElementDesc, name: 'pre'}, 'react');
+globalFunctions.addFactory(null, {...sharedElementDesc, name: 'pre'}, 'react', undefined, {
+  meta: {[metaKey]: PreElement},
+});
 
 function ButtonElement({block}: {block: Block}) {
   const {style, className, children, optionalHandlers} = useTicloComp(block);
@@ -61,4 +69,6 @@ function ButtonElement({block}: {block: Block}) {
     </button>
   );
 }
-registerComponent(ButtonElement, 'button', null, {...sharedElementDesc, name: 'button'}, 'react');
+globalFunctions.addFactory(null, {...sharedElementDesc, name: 'button'}, 'react', undefined, {
+  meta: {[metaKey]: ButtonElement},
+});

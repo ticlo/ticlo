@@ -3,7 +3,7 @@ import {useTicloComp} from '../hooks/useTicloComp.js';
 import {Values} from '../comp/Values.js';
 import {useBlockConfigs} from '../hooks/useBlockConfigs.js';
 import React from 'react';
-import {registerComponent, renderChildren} from '../comp/Component.js';
+import {metaKey, renderChildren} from '../comp/Component.js';
 import {elementClassProperty, elementConfigs, elementStyleProperty} from '../comp/CommontProps.js';
 
 const optional: {[key: string]: PropDesc} = {
@@ -120,7 +120,9 @@ function InputElement({block}: {block: Block}) {
     />
   );
 }
-registerComponent(InputElement, 'input', null, inputElementDesc, 'react');
+globalFunctions.addFactory(null, inputElementDesc, 'react', undefined, {
+  meta: {[metaKey]: InputElement},
+});
 
 const textareaOptional: {[key: string]: PropDesc} = {
   output: {name: 'output', type: 'any', types: ['string'], readonly: true, pinned: true},
@@ -176,7 +178,9 @@ function TextareaElement({block}: {block: Block}) {
     </textarea>
   );
 }
-registerComponent(TextareaElement, 'textarea', null, textareaElementDesc, 'react');
+globalFunctions.addFactory(null, textareaElementDesc, 'react', undefined, {
+  meta: {[metaKey]: TextareaElement},
+});
 
 const selectOptional: {[key: string]: PropDesc} = {
   output: {name: 'output', type: 'any', types: ['string', 'number', 'array'], readonly: true, pinned: true},
@@ -240,4 +244,6 @@ function SelectElement({block}: {block: Block}) {
     </select>
   );
 }
-registerComponent(SelectElement, 'select', null, selectElementDesc, 'react');
+globalFunctions.addFactory(null, selectElementDesc, 'react', undefined, {
+  meta: {[metaKey]: SelectElement},
+});

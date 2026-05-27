@@ -1,7 +1,7 @@
 import {Block, DataMap, FunctionDesc, globalFunctions, PropDesc} from '@ticlo/core';
 
 import {useTicloComp} from '../hooks/useTicloComp.js';
-import {registerComponent, renderChildren} from '../comp/Component.js';
+import {metaKey, renderChildren} from '../comp/Component.js';
 import React from 'react';
 import {elementClassProperty, elementConfigs, elementStyleProperty} from '../comp/CommontProps.js';
 import {useBlockConfigs} from '../hooks/useBlockConfigs.js';
@@ -49,4 +49,6 @@ const imgElementDesc: FunctionDesc = {
   optional,
   category: 'react:elements',
 };
-registerComponent(ImageElement, 'img', null, imgElementDesc, 'react');
+globalFunctions.addFactory(null, imgElementDesc, 'react', undefined, {
+  meta: {[metaKey]: ImageElement},
+});

@@ -55,7 +55,11 @@ export class FunctionLib {
     }
 
     factory.desc = desc;
-    factory.functionApi = functionApi;
+    factory.functionApi = functionApi ?? factory.functionApi;
+    factory.meta ??= {};
+    factory.getMeta ??= function (key: string) {
+      return this.meta?.[key];
+    };
     const cls = factory.cls;
     if (cls) {
       // Copy descriptor defaults onto the prototype so block execution can read
@@ -176,6 +180,10 @@ export class FunctionLib {
       return [desc, encode(desc).length];
     }
     return [null, 0];
+  }
+
+  getMeta(id: string, key: string): any {
+    return this._functions[id]?.getValue()?.getMeta(key);
   }
 
   getDefaultWorker(id: string, block: Block, field: string, blockStack: Map<any, any>): DataMap {

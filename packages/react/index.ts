@@ -3,7 +3,7 @@ export {useBlockValue} from './hooks/useBlockValue.js';
 export {useFilteredBlocks} from './hooks/useFilteredBlocks.js';
 export {useWatchBlock} from './hooks/useWatchBlock.js';
 export {Values} from './comp/Values.js';
-export {registerComponent, findComponent, renderChildren, TicloComp} from './comp/Component.js';
+export {findComponent, metaKey, renderChildren, TicloComp} from './comp/Component.js';
 
 import {globalFunctions} from '@ticlo/core';
 import './functions/ToComponent.js';
