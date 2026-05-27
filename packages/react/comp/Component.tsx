@@ -1,5 +1,6 @@
-import React, {ComponentType, ReactNode, isValidElement, useMemo, useRef} from 'react';
+import React, {ComponentType, ReactNode, isValidElement, useEffect, useMemo, useRef, useState} from 'react';
 import {Block} from '@ticlo/core';
+import {FunctionFactory} from '@ticlo/core/block/BlockFunction.js';
 import {Namespace} from '@ticlo/core/block/Namespace.js';
 import {useBlockValue} from '../hooks/useBlockValue.js';
 
@@ -7,11 +8,38 @@ export interface BaseProps {
   block: Block;
 }
 
-export function findComponent<T extends BaseProps>(funcId: string, block?: Block) {
-  if (!funcId) {
-    return undefined;
-  }
-  return Namespace.getFunctions(funcId, block?._flow)?.getMeta(funcId, metaKey) as ComponentType<T> | undefined;
+export function useComponentUpdate<T extends BaseProps>(funcId: string, block?: Block) {
+  const [component, setComponent] = useState<ComponentType<T> | undefined>(() => {
+    if (!funcId) {
+      return undefined;
+    }
+    const functionLib = Namespace.getFunctions(funcId, block?._flow);
+    return functionLib?.getMeta(funcId, metaKey) as ComponentType<T> | undefined;
+  });
+
+  useEffect(() => {
+    if (!funcId) {
+      setComponent(undefined);
+      return;
+    }
+    const functionLib = Namespace.getFunctions(funcId, block?._flow);
+    const dispatcher = functionLib?.listen(funcId, null);
+    if (!dispatcher) {
+      setComponent(undefined);
+      return;
+    }
+
+    const listener = {
+      onChange(factory: FunctionFactory | null) {
+        const nextComponent = factory?.getMeta(metaKey) as ComponentType<T> | undefined;
+        setComponent(() => nextComponent);
+      },
+    };
+    dispatcher.listen(listener);
+    return () => dispatcher.unlisten(listener);
+  }, [funcId, block]);
+
+  return component;
 }
 
 export const metaKey = 'react';
@@ -55,6 +83,7 @@ export function TicloOutputComp<T extends BaseProps = BaseProps>(props: T) {
 export function TicloComp<T extends BaseProps = BaseProps>(props: T) {
   const {block} = props;
   const functionId = useBlockValue<string>(block, '#is');
+  const C = useComponentUpdate<T>(functionId, block);
 
   const propsRef = useRef(props);
   if (!isPropsEqual(propsRef.current as Record<string, unknown>, props as Record<string, unknown>)) {
@@ -62,7 +91,6 @@ export function TicloComp<T extends BaseProps = BaseProps>(props: T) {
   }
 
   return useMemo(() => {
-    const C = findComponent<T>(functionId, block);
     if (C) {
       return <C {...propsRef.current} />;
     }
@@ -70,7 +98,7 @@ export function TicloComp<T extends BaseProps = BaseProps>(props: T) {
       return <TicloOutputComp {...propsRef.current} />;
     }
     return null;
-  }, [functionId, propsRef.current]);
+  }, [functionId, C, propsRef.current]);
 }
 
 export function renderChildren<T extends BaseProps>(blocks: (ReactNode | Block)[], others?: Omit<T, 'block'>) {

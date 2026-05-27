@@ -8,6 +8,10 @@ function MetaComponent({block}: {block: Block}) {
   return <span>{block.getValue('label') as string}</span>;
 }
 
+function AltMetaComponent({block}: {block: Block}) {
+  return <strong>{block.getValue('label') as string}</strong>;
+}
+
 globalFunctions.addFactory(
   null,
   {
@@ -141,5 +145,44 @@ describe('TicloComp', function () {
     await root.waitRender(<TicloComp block={block} />);
     expect(root.div.children[0]).toBeInstanceOf(HTMLSpanElement);
     expect(root.div.textContent).toBe('namespace');
+  });
+
+  it('updates when function factory component metadata changes', async function () {
+    const flow = new Flow();
+    const block = flow.createBlock('a');
+    block.setValue('#is', 'react-test:live-meta-component');
+    block.setValue('label', 'live');
+
+    await root.waitRender(<TicloComp block={block} />);
+    expect(root.div.children.length).toBe(0);
+
+    globalFunctions.addFactory(
+      null,
+      {
+        name: 'live-meta-component',
+        properties: [{name: 'label', type: 'string'}],
+      },
+      'react-test',
+      undefined,
+      {meta: {[metaKey]: MetaComponent}}
+    );
+    await root.waitRender();
+    expect(root.div.children[0]).toBeInstanceOf(HTMLSpanElement);
+    expect(root.div.textContent).toBe('live');
+
+    globalFunctions.addFactory(
+      null,
+      {
+        name: 'live-meta-component',
+        properties: [{name: 'label', type: 'string'}],
+      },
+      'react-test',
+      undefined,
+      {meta: {[metaKey]: AltMetaComponent}}
+    );
+    await root.waitRender();
+    expect(root.div.children[0]).toBeInstanceOf(HTMLElement);
+    expect(root.div.children[0].tagName).toBe('STRONG');
+    expect(root.div.textContent).toBe('live');
   });
 });
