@@ -52,7 +52,7 @@ export class FlowFunctionLib extends FunctionLib {
   save() {
     let result: DataMap | undefined = undefined;
     for (const key in this._functions) {
-      if (this._functions[key]._desc) {
+      if (this._functions[key].getValue()?.desc) {
         const funcData = this._functions[key].getValue()?.save?.();
         if (funcData) {
           result ??= {};
@@ -71,7 +71,7 @@ export class FlowFunctionLib extends FunctionLib {
         if (isDataMap(funcData) && typeof funcData.type === 'string') {
           const fullId = this.getFullId(localFuncId);
           usedFullId[fullId] = true;
-          if (this._functions[fullId]?._value?.equals?.(funcData)) {
+          if (this._functions[fullId]?.getValue()?.equals?.(funcData)) {
             // no need to update existing function
             continue;
           }
@@ -130,7 +130,7 @@ export class NsFunctionLib extends FlowFunctionLib {
       if (key.charCodeAt(0) === 43 /* + */) {
         continue;
       }
-      if (this._functions[key]._desc) {
+      if (this._functions[key].getValue()?.desc) {
         const funcData = this._functions[key].getValue()?.save?.();
         if (funcData) {
           result ??= {};
@@ -164,8 +164,8 @@ export class NsFunctionLib extends FlowFunctionLib {
           usedFullId[fullId] = true;
           usedFullId[localId] = true;
           if (
-            this._functions[fullId]?._value?.equals?.(funcData) &&
-            this._functions[localId]?._value?.equals?.(funcData)
+            this._functions[fullId]?.getValue()?.equals?.(funcData) &&
+            this._functions[localId]?.getValue()?.equals?.(funcData)
           ) {
             continue;
           }

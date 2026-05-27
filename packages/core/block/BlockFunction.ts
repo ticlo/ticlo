@@ -117,12 +117,20 @@ export interface FunctionFactory {
   cls?: FunctionClass | null;
   create: (block: FunctionData) => BaseFunction | null;
   desc: FunctionDesc;
+  functionApi?: FunctionApi;
   save?: () => DataMap;
   equals?: (data: DataMap) => boolean;
   ticlWorkerData?: DataMap;
 }
 
-export type FunctionFactoryOptions = Omit<FunctionFactory, 'cls' | 'create' | 'desc'>;
+export interface FunctionApi {
+  getDefaultWorker?(block: Block, field: string, blockStack: Map<any, any>): DataMap;
+  commands?: {
+    [key: string]: (block: Block, params: {[key: string]: unknown; property?: string}) => unknown;
+  };
+}
+
+export type FunctionFactoryOptions = Omit<FunctionFactory, 'cls' | 'create' | 'desc' | 'functionApi'>;
 
 export function createFunctionFactory(
   cls: FunctionClass | null,

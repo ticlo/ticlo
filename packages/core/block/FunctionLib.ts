@@ -1,6 +1,7 @@
 import {type Block} from './Block.js';
 import {
   type FunctionClass,
+  type FunctionApi,
   type FunctionFactory,
   type FunctionFactoryOptions,
   createFunctionFactory,
@@ -17,34 +18,7 @@ export interface DescListener {
   onDescChange(id: string, desc: FunctionDesc): void;
 }
 
-interface FunctionApi {
-  getDefaultWorker?(block: Block, field: string, blockStack: Map<any, any>): DataMap;
-  commands?: {
-    // commands
-    [key: string]: (block: Block, params: {[key: string]: unknown; property?: string}) => unknown;
-  };
-}
-
-export class FunctionDispatcher extends PropDispatcher<FunctionFactory | null> {
-  _id: string;
-  _desc: FunctionDesc;
-  _descSize: number = 0;
-  _functionApi: FunctionApi;
-
-  constructor(id: string) {
-    super();
-    this._id = id;
-  }
-
-  setDesc(desc?: FunctionDesc) {
-    this._desc = desc;
-    if (desc) {
-      this._descSize = encode(desc).length;
-    } else {
-      this._descSize = 0;
-    }
-  }
-}
+export class FunctionDispatcher extends PropDispatcher<FunctionFactory | null> {}
 
 // FunctionLib is both a registry and a live dispatcher. Blocks listen to a
 // FunctionDispatcher by id, so replacing or deleting a function factory updates
@@ -81,6 +55,7 @@ export class FunctionLib {
     }
 
     factory.desc = desc;
+    factory.functionApi = functionApi;
     const cls = factory.cls;
     if (cls) {
       // Copy descriptor defaults onto the prototype so block execution can read
@@ -93,12 +68,10 @@ export class FunctionLib {
 
     let func = this._functions[id];
     if (!func) {
-      func = new FunctionDispatcher(id);
+      func = new FunctionDispatcher();
       this._functions[id] = func;
     }
     func.updateValue(factory);
-    func.setDesc(desc);
-    func._functionApi = functionApi;
     this.dispatchDescChange(id, desc);
   }
 
@@ -126,10 +99,10 @@ export class FunctionLib {
 
     let func = this._functions[id];
     if (!func) {
-      func = new FunctionDispatcher(id);
+      func = new FunctionDispatcher();
       this._functions[id] = func;
     }
-    func.setDesc(category);
+    func.updateValue(createFunctionFactory(null, category));
     this.dispatchDescChange(id, category);
   }
 
@@ -141,16 +114,15 @@ export class FunctionLib {
         delete this._functions[id];
       } else {
         func.updateValue(null);
-        func.setDesc(null);
       }
       this.dispatchDescChange(id, null);
     }
   }
 
   getWorkerData(id: string): DataMap {
-    const func = this._functions[id];
-    if (func?._value && (func._value as any).ticlWorkerData instanceof Object) {
-      return (func._value as any).ticlWorkerData;
+    const factory = this._functions[id]?.getValue();
+    if (factory?.ticlWorkerData instanceof Object) {
+      return factory.ticlWorkerData;
     }
     return null;
   }
@@ -163,7 +135,7 @@ export class FunctionLib {
     let dispatcher = this._functions[id];
 
     if (!dispatcher) {
-      dispatcher = new FunctionDispatcher(id);
+      dispatcher = new FunctionDispatcher();
       this._functions[id] = dispatcher;
     }
     if (block) {
@@ -189,7 +161,7 @@ export class FunctionLib {
   getAllFunctionIds(): string[] {
     const result = [];
     for (const key in this._functions) {
-      if (this._functions[key]._desc) {
+      if (this._functions[key].getValue()?.desc) {
         result.push(key);
       }
     }
@@ -198,9 +170,10 @@ export class FunctionLib {
 
   getDescToSend(id: string): [FunctionDesc, number] {
     const functionDispatcher = this._functions[id];
+    const desc = functionDispatcher?.getValue()?.desc;
 
-    if (functionDispatcher) {
-      return [functionDispatcher._desc, functionDispatcher._descSize];
+    if (desc) {
+      return [desc, encode(desc).length];
     }
     return [null, 0];
   }
@@ -209,7 +182,7 @@ export class FunctionLib {
     if (id) {
       const dispatcher = this._functions[id];
       if (dispatcher) {
-        return dispatcher._functionApi?.getDefaultWorker?.(block, field, blockStack) || null;
+        return dispatcher.getValue()?.functionApi?.getDefaultWorker?.(block, field, blockStack) || null;
       }
     }
     return null;
@@ -219,7 +192,7 @@ export class FunctionLib {
     if (id) {
       const dispatcher = this._functions[id];
       if (dispatcher) {
-        return dispatcher._functionApi?.commands?.[command]?.(block, params);
+        return dispatcher.getValue()?.functionApi?.commands?.[command]?.(block, params);
       }
     }
     return null;
