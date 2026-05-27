@@ -338,7 +338,7 @@ export class ScheduleFunction extends AutoUpdateFunction {
   }
 }
 
-globalFunctions.add(ScheduleFunction, {
+globalFunctions.addFactory(ScheduleFunction, {
   name: 'scheduler',
   icon: 'fas:calendar-days',
   priority: 1,

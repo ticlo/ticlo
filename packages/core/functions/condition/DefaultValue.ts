@@ -12,7 +12,7 @@ export class DefaultValueFunction extends PureFunction {
   }
 }
 
-globalFunctions.add(DefaultValueFunction, {
+globalFunctions.addFactory(DefaultValueFunction, {
   name: 'default-value',
   icon: 'fas:circle-dot',
   properties: [

@@ -26,7 +26,7 @@ export class CreateDateFunction extends PureFunction {
   }
 }
 
-globalFunctions.add(
+globalFunctions.addFactory(
   CreateDateFunction,
   {
     name: 'create',

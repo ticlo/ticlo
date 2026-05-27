@@ -1,5 +1,4 @@
-import {type FunctionClass} from './BlockFunction.js';
-import {type FunctionDesc} from './Descriptor.js';
+import {type FunctionFactory} from './BlockFunction.js';
 import {isDataMap, type DataMap} from '../util/DataTypes.js';
 import {FunctionLib} from './FunctionLib.js';
 import {FlowStorage} from './Storage.js';
@@ -7,7 +6,7 @@ import {type Flow} from './Flow.js';
 import {deepEqual} from '../util/Compare.js';
 
 export interface FunctionLoader {
-  load(data: DataMap, localFuncId: string, fullId: string, namespace?: string): [FunctionClass, FunctionDesc];
+  load(data: DataMap, localFuncId: string, fullId: string, namespace?: string): FunctionFactory;
 }
 // A FlowFunctionLib is a FunctionLib that can be saved and loaded inside a Flow.
 export class FlowFunctionLib extends FunctionLib {
@@ -31,9 +30,9 @@ export class FlowFunctionLib extends FunctionLib {
     }
   }
 
-  add(func: FunctionClass | null, desc: FunctionDesc, namespace?: string) {
+  add(factory: FunctionFactory, namespace?: string | null) {
     const previous = this.flow?.save();
-    super.add(func, desc, namespace);
+    super.add(factory, namespace);
     this.trackFlowChange(previous);
   }
 
@@ -78,8 +77,7 @@ export class FlowFunctionLib extends FunctionLib {
           }
           const loader = FlowFunctionLib._loaders.get(funcData.type);
           if (loader) {
-            const [func, desc] = loader.load(funcData, localFuncId, fullId, this.namespace);
-            this.add(func, desc, this.namespace);
+            this.add(loader.load(funcData, localFuncId, fullId, this.namespace), this.namespace);
           }
         }
       }
@@ -173,8 +171,7 @@ export class NsFunctionLib extends FlowFunctionLib {
           }
           const loader = FlowFunctionLib._loaders.get(funcData.type);
           if (loader) {
-            const [func, desc] = loader.load(funcData, localId, fullId, this.namespace);
-            this.add(func, desc, this.namespace);
+            this.add(loader.load(funcData, localId, fullId, this.namespace), this.namespace);
           }
         }
       }
@@ -189,11 +186,11 @@ export class NsFunctionLib extends FlowFunctionLib {
     }
   }
 
-  add(func: FunctionClass, desc: FunctionDesc, namespace?: string) {
-    const fullId = this.getFullId(desc.id);
+  add(factory: FunctionFactory, namespace?: string | null) {
+    const fullId = this.getFullId(factory.desc.id);
     const localId = this.getLocalId(fullId);
-    super.add(func, {...desc, id: localId}, namespace);
-    super.add(func, {...desc, id: fullId}, namespace);
+    super.add({...factory, desc: {...factory.desc, id: localId}}, namespace);
+    super.add({...factory, desc: {...factory.desc, id: fullId}}, namespace);
     if (this._loaded !== 'loading') {
       this.saveToStorage();
     }

@@ -28,7 +28,7 @@ export class SelectWorkerFunction extends BaseFunction<Block> {
   };
 }
 
-globalFunctions.add(SelectWorkerFunction, {
+globalFunctions.addFactory(SelectWorkerFunction, {
   name: 'select-worker',
   icon: 'fas:file-circle-question',
   priority: 2,

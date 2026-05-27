@@ -1,11 +1,17 @@
 import {type Block} from './Block.js';
-import {FunctionClass} from './BlockFunction.js';
+import {
+  type FunctionClass,
+  type FunctionFactory,
+  type FunctionFactoryOptions,
+  createFunctionFactory,
+} from './BlockFunction.js';
 import {PropDispatcher, PropListener} from './Dispatcher.js';
 import {BlockModeList, FunctionDesc} from './Descriptor.js';
 import {DataMap} from '../util/DataTypes.js';
-import {FlowStorage} from './Storage.js';
 import type {Flow, Root} from './Flow.js';
 import {encode} from '../util/Serialize.js';
+
+export {createFunctionFactory};
 
 export interface DescListener {
   onDescChange(id: string, desc: FunctionDesc): void;
@@ -19,7 +25,7 @@ interface FunctionApi {
   };
 }
 
-export class FunctionDispatcher extends PropDispatcher<FunctionClass> {
+export class FunctionDispatcher extends PropDispatcher<FunctionFactory | null> {
   _id: string;
   _desc: FunctionDesc;
   _descSize: number = 0;
@@ -41,7 +47,7 @@ export class FunctionDispatcher extends PropDispatcher<FunctionClass> {
 }
 
 // FunctionLib is both a registry and a live dispatcher. Blocks listen to a
-// FunctionDispatcher by id, so replacing or deleting a function class updates
+// FunctionDispatcher by id, so replacing or deleting a function factory updates
 // every block currently using that id.
 export class FunctionLib {
   _functions: {[key: string]: FunctionDispatcher} = {};
@@ -49,7 +55,8 @@ export class FunctionLib {
 
   constructor(public flow?: Flow) {}
 
-  add(cls: FunctionClass | null, desc: FunctionDesc, namespace?: string, functionApi?: FunctionApi) {
+  add(factory: FunctionFactory, namespace?: string | null, functionApi?: FunctionApi) {
+    const desc = factory.desc;
     if (!desc.properties) {
       // function must have properties
       desc.properties = [];
@@ -73,6 +80,8 @@ export class FunctionLib {
       desc.id = id;
     }
 
+    factory.desc = desc;
+    const cls = factory.cls;
     if (cls) {
       // Copy descriptor defaults onto the prototype so block execution can read
       // mode and priority cheaply from the instantiated function.
@@ -87,10 +96,20 @@ export class FunctionLib {
       func = new FunctionDispatcher(id);
       this._functions[id] = func;
     }
-    func.updateValue(cls);
+    func.updateValue(factory);
     func.setDesc(desc);
     func._functionApi = functionApi;
     this.dispatchDescChange(id, desc);
+  }
+
+  addFactory(
+    cls: FunctionClass | null,
+    desc: FunctionDesc,
+    namespace?: string | null,
+    functionApi?: FunctionApi,
+    options?: FunctionFactoryOptions
+  ) {
+    this.add(createFunctionFactory(cls, desc, options), namespace, functionApi);
   }
 
   addCategory(category: FunctionDesc) {
@@ -136,7 +155,7 @@ export class FunctionLib {
     return null;
   }
 
-  listen(id: string, block: PropListener<FunctionClass>): FunctionDispatcher {
+  listen(id: string, block: PropListener<FunctionFactory | null>): FunctionDispatcher {
     if (!id) {
       return null;
     }

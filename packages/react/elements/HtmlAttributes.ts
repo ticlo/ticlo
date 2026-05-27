@@ -268,7 +268,7 @@ export const optionalHtmlProperties: {[key: string]: PropDesc} = {
   ...htmlAttributes,
   ...htmlEventHandlers,
 };
-globalFunctions.add(
+globalFunctions.addFactory(
   null,
   {
     name: 'element',

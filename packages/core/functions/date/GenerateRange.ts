@@ -52,7 +52,7 @@ export class GenerateDateFunction extends AutoUpdateFunction {
   }
 }
 
-globalFunctions.add(
+globalFunctions.addFactory(
   GenerateDateFunction,
   {
     name: 'generate-range',

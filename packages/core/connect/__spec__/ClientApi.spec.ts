@@ -22,7 +22,7 @@ const afterAll = globalThis.afterAll ?? globalThis.after;
 
 describe('Connection Client API', function () {
   beforeAll(function () {
-    globalFunctions.add(
+    globalFunctions.addFactory(
       null,
       {
         name: 'func1',
@@ -31,7 +31,7 @@ describe('Connection Client API', function () {
       },
       'ClientConnection'
     );
-    globalFunctions.add(
+    globalFunctions.addFactory(
       null,
       {
         base: 'ClientConnection:func1',
@@ -41,7 +41,7 @@ describe('Connection Client API', function () {
       },
       'ClientConnection'
     );
-    globalFunctions.add(
+    globalFunctions.addFactory(
       null,
       {
         base: 'ClientConnection:func2',
@@ -51,7 +51,7 @@ describe('Connection Client API', function () {
       },
       'ClientConnection'
     );
-    globalFunctions.add(
+    globalFunctions.addFactory(
       null,
       {
         base: 'ClientConnection:func1',
@@ -61,7 +61,7 @@ describe('Connection Client API', function () {
       },
       'ClientConnection'
     );
-    globalFunctions.add(
+    globalFunctions.addFactory(
       null,
       {
         base: 'ClientConnection:func2',

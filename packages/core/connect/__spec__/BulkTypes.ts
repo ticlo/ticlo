@@ -5,8 +5,6 @@ class TestFunction extends PureFunction {
   run() {}
 }
 
-TestFunction.prototype.priority = 0;
-
 const testDesc = {
   name: '',
   icon: 'fas:plus',
@@ -21,7 +19,7 @@ const testDesc = {
 
 export function addTestTypes(prefix: string, count: number) {
   for (let i = 0; i < count; ++i) {
-    globalFunctions.add(TestFunction, {...testDesc, name: `${prefix}${i}`} as any);
+    globalFunctions.addFactory(TestFunction, {...testDesc, name: `${prefix}${i}`} as any);
   }
 }
 

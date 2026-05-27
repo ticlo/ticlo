@@ -140,7 +140,7 @@ function getDefaultWorker(block: any, field: string, blockStack: Map<any, any>):
   return null;
 }
 
-globalFunctions.add(
+globalFunctions.addFactory(
   RouteFunction,
   {
     name: 'route',

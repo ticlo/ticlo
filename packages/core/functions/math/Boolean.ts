@@ -14,7 +14,7 @@ export class AndFunction extends PureFunction {
   }
 }
 
-globalFunctions.add(AndFunction, {
+globalFunctions.addFactory(AndFunction, {
   name: 'and',
   icon: 'txt:and',
   properties: [
@@ -42,7 +42,7 @@ export class OrFunction extends PureFunction {
   }
 }
 
-globalFunctions.add(OrFunction, {
+globalFunctions.addFactory(OrFunction, {
   name: 'or',
   icon: 'txt:or',
   properties: [
@@ -71,7 +71,7 @@ export class XorFunction extends PureFunction {
   }
 }
 
-globalFunctions.add(XorFunction, {
+globalFunctions.addFactory(XorFunction, {
   name: 'xor',
   icon: 'txt:xor',
   properties: [
@@ -94,7 +94,7 @@ export class NotFunction extends PureFunction {
   }
 }
 
-globalFunctions.add(NotFunction, {
+globalFunctions.addFactory(NotFunction, {
   name: 'not',
   icon: 'txt:!',
   properties: [

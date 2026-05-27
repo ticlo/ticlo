@@ -33,7 +33,7 @@ export class FormatDateFunction extends PureFunction {
   }
 }
 
-globalFunctions.add(
+globalFunctions.addFactory(
   FormatDateFunction,
   {
     name: 'modify',

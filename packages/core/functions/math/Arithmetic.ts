@@ -46,7 +46,7 @@ export class AddFunction extends PureFunction {
   }
 }
 
-globalFunctions.add(AddFunction, {
+globalFunctions.addFactory(AddFunction, {
   ...descriptorN,
   name: 'add',
   icon: 'fas:plus',
@@ -66,7 +66,7 @@ export class MultiplyFunction extends PureFunction {
   }
 }
 
-globalFunctions.add(MultiplyFunction, {
+globalFunctions.addFactory(MultiplyFunction, {
   ...descriptorN,
   name: 'multiply',
   icon: 'fas:xmark',
@@ -84,7 +84,7 @@ export class SubtractFunction extends PureFunction {
   }
 }
 
-globalFunctions.add(SubtractFunction, {
+globalFunctions.addFactory(SubtractFunction, {
   ...descriptor2,
   name: 'subtract',
   icon: 'fas:minus',
@@ -102,7 +102,7 @@ export class DivideFunction extends PureFunction {
   }
 }
 
-globalFunctions.add(DivideFunction, {
+globalFunctions.addFactory(DivideFunction, {
   ...descriptor2,
   name: 'divide',
   icon: 'fas:divide',

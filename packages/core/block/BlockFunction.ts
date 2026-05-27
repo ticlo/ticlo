@@ -4,6 +4,7 @@ import {EventType} from './Event.js';
 import {BlockMode} from './Descriptor.js';
 import {type FunctionData} from './FunctonData.js';
 import type {DataMap} from '../util/DataTypes.js';
+import type {FunctionDesc} from './Descriptor.js';
 
 export class BaseFunction<T extends FunctionData = FunctionData> {
   declare type?: string;
@@ -107,11 +108,33 @@ export abstract class StatefulFunction extends BaseFunction<Block> {
 }
 
 export type FunctionClass = (new (block: FunctionData) => BaseFunction) & {
-  priority?: 0 | 1 | 2 | 3;
-  defaultMode?: BlockMode;
-  type?: string; // function id
-  isPure?: boolean;
   save?: () => DataMap;
   equals?: (data: DataMap) => boolean;
   ticlWorkerData?: DataMap;
 };
+
+export interface FunctionFactory {
+  cls?: FunctionClass | null;
+  create: (block: FunctionData) => BaseFunction | null;
+  desc: FunctionDesc;
+  save?: () => DataMap;
+  equals?: (data: DataMap) => boolean;
+  ticlWorkerData?: DataMap;
+}
+
+export type FunctionFactoryOptions = Omit<FunctionFactory, 'cls' | 'create' | 'desc'>;
+
+export function createFunctionFactory(
+  cls: FunctionClass | null,
+  desc: FunctionDesc,
+  options?: FunctionFactoryOptions
+): FunctionFactory {
+  return {
+    cls,
+    create: cls ? (block: FunctionData) => new cls(block) : () => null,
+    desc,
+    save: options?.save ?? cls?.save,
+    equals: options?.equals ?? cls?.equals,
+    ticlWorkerData: options?.ticlWorkerData ?? cls?.ticlWorkerData,
+  };
+}

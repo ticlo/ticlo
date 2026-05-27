@@ -25,7 +25,7 @@ export class SplitFunction extends PureFunction {
   }
 }
 
-globalFunctions.add(SplitFunction, {
+globalFunctions.addFactory(SplitFunction, {
   name: 'split',
   icon: 'txt:s,p',
   properties: [

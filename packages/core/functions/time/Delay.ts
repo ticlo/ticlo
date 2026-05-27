@@ -85,7 +85,7 @@ export class DelayFunction extends BaseFunction<Block> {
   }
 }
 
-globalFunctions.add(
+globalFunctions.addFactory(
   DelayFunction,
   {
     name: 'delay',

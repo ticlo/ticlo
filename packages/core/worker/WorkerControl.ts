@@ -2,7 +2,7 @@ import {type Block} from '../block/Block.js';
 import {DataMap, isDataMap, isSavedBlock} from '../util/DataTypes.js';
 import {Flow, Root} from '../block/Flow.js';
 import {StreamDispatcher} from '../block/Dispatcher.js';
-import {BaseFunction, FunctionClass, StatefulFunction} from '../block/BlockFunction.js';
+import {BaseFunction, FunctionFactory, StatefulFunction} from '../block/BlockFunction.js';
 import {WorkerFunctionGen} from './WorkerFunctionGen.js';
 import {FunctionDispatcher} from '../block/FunctionLib.js';
 import {Namespace} from '../block/Namespace.js';
@@ -58,7 +58,7 @@ export class WorkerControl {
     return true;
   }
   // When registered function is changed
-  onChange(value: FunctionClass) {
+  onChange(value: FunctionFactory | null) {
     this._srcChanged = true;
     this.block._queueFunction();
   }

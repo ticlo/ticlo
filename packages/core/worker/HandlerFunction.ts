@@ -250,7 +250,7 @@ function getDefaultWorker(block: Block, field: string, blockStack: Map<any, any>
   return null;
 }
 
-globalFunctions.add(
+globalFunctions.addFactory(
   HandlerFunction,
   {
     name: 'handler',

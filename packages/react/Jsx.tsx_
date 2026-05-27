@@ -94,7 +94,7 @@ export class JsxFunction extends JsFunction {
   }
 }
 
-globalFunctions.add(
+globalFunctions.addFactory(
   JsxFunction,
   {
     name: 'jsx',

@@ -48,7 +48,7 @@ export class CssClassFunction extends BaseFunction {
   }
 }
 
-globalFunctions.add(
+globalFunctions.addFactory(
   CssClassFunction,
   {
     name: 'css-class',

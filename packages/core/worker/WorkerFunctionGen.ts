@@ -1,5 +1,5 @@
 import {FunctionLib, globalFunctions} from '../block/FunctionLib.js';
-import {BaseFunction, FunctionClass, StatefulFunction} from '../block/BlockFunction.js';
+import {BaseFunction, createFunctionFactory, FunctionFactory, StatefulFunction} from '../block/BlockFunction.js';
 import {deepEqual} from '../util/Compare.js';
 import {FunctionDesc, PropDesc, PropGroupDesc} from '../block/Descriptor.js';
 import {BlockIO} from '../block/BlockProperty.js';
@@ -29,27 +29,28 @@ export class WorkerFunctionGen extends BaseFunction<Block> {
     this._data.deleteValue('#worker');
   }
 
-  static generate(data: DataMap, funcId: string, namespace?: string): [FunctionClass, FunctionDesc] {
+  static generate(data: DataMap, funcId: string, namespace?: string): FunctionFactory {
     const desc = WorkerFunctionGen.collectDesc(funcId, data);
     class CustomWorkerFunction extends WorkerFunctionGen {
-      static ticlWorkerData = data;
       _namespace = namespace;
-      static save() {
-        return {
-          type: 'worker',
-          worker: CustomWorkerFunction.ticlWorkerData,
-        };
-      }
-      static equals(other: DataMap) {
-        return other['type'] === 'worker' && deepEqual(other['worker'], data);
-      }
     }
 
     if (!desc.priority) {
       desc.priority = 1;
     }
     desc.src = 'worker';
-    return [CustomWorkerFunction, desc];
+    return createFunctionFactory(CustomWorkerFunction, desc, {
+      ticlWorkerData: data,
+      save() {
+        return {
+          type: 'worker',
+          worker: data,
+        };
+      },
+      equals(other: DataMap) {
+        return other['type'] === 'worker' && deepEqual(other['worker'], data);
+      },
+    });
   }
 
   static registerType(data: DataMap, desc: FunctionDesc, namespace?: string, functionLib?: FunctionLib) {
@@ -63,8 +64,8 @@ export class WorkerFunctionGen extends BaseFunction<Block> {
       }
     }
 
-    const [func, generatedDesc] = WorkerFunctionGen.generate(data, fullId, namespace);
-    functions.add(func, {...desc, ...generatedDesc}, namespace);
+    const factory = WorkerFunctionGen.generate(data, fullId, namespace);
+    functions.add({...factory, desc: {...desc, ...factory.desc}}, namespace);
   }
 
   /**
@@ -80,9 +81,9 @@ export class WorkerFunctionGen extends BaseFunction<Block> {
       return null;
     }
     const namespace = flow._namespace;
-    const [func, desc] = WorkerFunctionGen.generate(data, funcId, namespace);
+    const factory = WorkerFunctionGen.generate(data, funcId, namespace);
     const functionLib = Namespace.getFunctions(funcId, flow);
-    functionLib?.add(func, desc, namespace);
+    functionLib?.add(factory, namespace);
 
     return data;
   }

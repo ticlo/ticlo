@@ -17,7 +17,7 @@ class ToReactComponentFunction extends PureFunction {
   }
 }
 
-globalFunctions.add(
+globalFunctions.addFactory(
   ToReactComponentFunction,
   {
     name: 'to-component',

@@ -1,7 +1,6 @@
 import React, {ComponentType, ReactNode, isValidElement, useMemo, useRef} from 'react';
 import {Block, FunctionDesc, globalFunctions, PropDesc} from '@ticlo/core';
 import {Namespace} from '@ticlo/core/block/Namespace.js';
-import {FunctionClass} from '@ticlo/core/block/BlockFunction.js';
 import {PropMap} from './PropType.js';
 import {useBlockValue} from '../hooks/useBlockValue.js';
 
@@ -26,9 +25,8 @@ export function registerComponent<T extends BaseProps = BaseProps>(
     }
   }
 
-  const functionClass: FunctionClass | null = null;
-  globalFunctions.add(
-    functionClass,
+  globalFunctions.addFactory(
+    null,
     {
       name,
       properties,

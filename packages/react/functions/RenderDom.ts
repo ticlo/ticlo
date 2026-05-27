@@ -48,7 +48,7 @@ export class RenderDomFunction extends BaseFunction {
   }
 }
 
-globalFunctions.add(
+globalFunctions.addFactory(
   RenderDomFunction,
   {
     name: 'render-dom',

@@ -23,7 +23,7 @@ export class StaticResponse extends BaseFunction<Block> {
   }
 }
 
-globalFunctions.add(
+globalFunctions.addFactory(
   StaticResponse,
   {
     name: 'static-response',

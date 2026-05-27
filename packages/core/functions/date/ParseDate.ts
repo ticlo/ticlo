@@ -35,7 +35,7 @@ export class ParseDateFunction extends PureFunction {
   }
 }
 
-globalFunctions.add(
+globalFunctions.addFactory(
   ParseDateFunction,
   {
     name: 'parse',

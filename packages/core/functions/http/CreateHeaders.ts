@@ -5,7 +5,7 @@ import {defaultConfigs, PropDesc} from '../../block/Descriptor.js';
 import {CreateObjectFunctionOptional} from '../data/CreateObject.js';
 import HeadersDef from './HeadersDef.js';
 
-globalFunctions.add(
+globalFunctions.addFactory(
   CreateObjectFunctionOptional,
   {
     name: 'create-headers',

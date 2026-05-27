@@ -43,7 +43,7 @@ export class CreateObjectFunction extends PureFunction {
   }
 }
 
-globalFunctions.add(CreateObjectFunction, {
+globalFunctions.addFactory(CreateObjectFunction, {
   name: 'create-object',
   icon: 'txt:{ }',
   properties: [{name: '#output', pinned: true, type: 'object', readonly: true}],

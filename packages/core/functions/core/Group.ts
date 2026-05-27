@@ -25,7 +25,7 @@ export class GroupFunction extends BaseFunction<Block> {
   cleanup(): void {}
 }
 
-globalFunctions.add(GroupFunction, {
+globalFunctions.addFactory(GroupFunction, {
   name: 'group',
   icon: 'fas:folder',
   color: '9bd',

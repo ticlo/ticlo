@@ -2,7 +2,7 @@ import {BaseFunction, defaultConfigs, globalFunctions, PropDesc, PropGroupDesc} 
 import StyleDef from './StyleDef.js';
 import {CreateObjectFunctionOptional} from '@ticlo/core/functions/data/CreateObject.js';
 
-globalFunctions.add(
+globalFunctions.addFactory(
   CreateObjectFunctionOptional,
   {
     name: 'create-style',

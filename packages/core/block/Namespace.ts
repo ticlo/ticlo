@@ -1,14 +1,6 @@
 import type {Flow, Root} from './Flow.js';
 import {Block} from './Block.js';
-import {
-  FunctionDispatcher,
-  FunctionLib,
-  globalFunctions,
-  getGlobalFunctionRoot,
-  type DescListener,
-} from './FunctionLib.js';
-import {FunctionClass} from './BlockFunction.js';
-import {PropListener} from './Dispatcher.js';
+import {FunctionLib, globalFunctions, getGlobalFunctionRoot, type DescListener} from './FunctionLib.js';
 import {FunctionDesc} from './Descriptor.js';
 import {DataMap} from '../util/DataTypes.js';
 import {NsFunctionLib} from './NSFunctionLib.js';

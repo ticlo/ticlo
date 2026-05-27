@@ -6,7 +6,7 @@ import {ConfigGenerators, ConstTypeConfig, FlowConfigGenerators} from './BlockCo
 import {Flow} from './Flow.js';
 import {encodeTicloName} from '../util/Name.js';
 import {FunctionDispatcher} from './FunctionLib.js';
-import {FunctionClass} from './BlockFunction.js';
+import {FunctionFactory} from './BlockFunction.js';
 import {PropListener} from './Dispatcher.js';
 import {Namespace} from './Namespace.js';
 
@@ -113,9 +113,9 @@ export class StaticBlock extends Block {
   }
 
   _funcDispatcher: FunctionDispatcher;
-  _funcListener: PropListener<FunctionClass> = {
+  _funcListener: PropListener<FunctionFactory | null> = {
     onSourceChange(prop: unknown) {},
-    onChange: (val: FunctionClass) => {
+    onChange: (val: FunctionFactory | null) => {
       // _source is set after listener is attached, so the first change will be skipped
       if (this._cacheKey != null) {
         // force detach when the owning function changes or is deleted

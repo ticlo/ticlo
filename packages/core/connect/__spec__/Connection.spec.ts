@@ -298,7 +298,7 @@ describe('Connection', function () {
     const funcLib = flow.getFuncLib();
 
     // Register a function in the flow's funcLib using add() directly
-    funcLib.add(null, {id: 'local-func1', name: 'local-func1'});
+    funcLib.addFactory(null, {id: 'local-func1', name: 'local-func1'});
 
     // Create connection with editorListeners=true (which sets up the global watchDesc)
     const [server, client] = makeLocalConnection(Root.instance, true);
@@ -343,7 +343,7 @@ describe('Connection', function () {
 
     // Register a new function in the flow's funcLib and verify it's pushed
     flowDescChanges.length = 0;
-    funcLib.add(null, {id: 'local-func2', name: 'local-func2'});
+    funcLib.addFactory(null, {id: 'local-func2', name: 'local-func2'});
     await shouldHappen(() => flowDescChanges.some((d: FunctionDesc) => d.id === 'local-func2'));
 
     // Delete a function from funcLib and verify it's pushed as removed

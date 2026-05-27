@@ -23,7 +23,7 @@ export class JoinFunction extends PureFunction {
   }
 }
 
-globalFunctions.add(JoinFunction, {
+globalFunctions.addFactory(JoinFunction, {
   name: 'join',
   icon: 'txt:j,o',
   properties: [

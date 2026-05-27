@@ -288,7 +288,7 @@ export class MultiWorkerFunction extends StatefulFunction implements BlockChildW
   }
 }
 
-globalFunctions.add(MultiWorkerFunction, {
+globalFunctions.addFactory(MultiWorkerFunction, {
   name: 'multi-worker',
   priority: 1,
   icon: 'fas:list',

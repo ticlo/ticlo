@@ -33,7 +33,7 @@ export class CssSheetFunction extends BaseFunction {
   }
 }
 
-globalFunctions.add(
+globalFunctions.addFactory(
   CssSheetFunction,
   {
     name: 'css-sheet',

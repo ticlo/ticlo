@@ -135,7 +135,7 @@ class TimerFunction extends AutoUpdateFunction<Block> {
   }
 }
 
-globalFunctions.add(
+globalFunctions.addFactory(
   TimerFunction,
   {
     name: 'timer',

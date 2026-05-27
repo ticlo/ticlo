@@ -82,7 +82,7 @@ class HttpClientFunction extends BaseFunction {
   }
 }
 
-globalFunctions.add(
+globalFunctions.addFactory(
   HttpClientFunction,
   {
     name: 'client',

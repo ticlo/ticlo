@@ -22,7 +22,7 @@ export class EqualFunction extends PureFunction {
   }
 }
 
-globalFunctions.add(EqualFunction, {
+globalFunctions.addFactory(EqualFunction, {
   ...descriptor,
   name: 'equal',
   icon: 'fas:equals',
@@ -41,7 +41,7 @@ export class NotEqualFunction extends PureFunction {
   }
 }
 
-globalFunctions.add(NotEqualFunction, {
+globalFunctions.addFactory(NotEqualFunction, {
   ...descriptor,
   name: 'not-equal',
   icon: 'fas:not-equal',
@@ -64,7 +64,7 @@ export class GreaterThanFunction extends PureFunction {
   }
 }
 
-globalFunctions.add(GreaterThanFunction, {
+globalFunctions.addFactory(GreaterThanFunction, {
   ...descriptor,
   name: 'greater-than',
   icon: 'fas:greater-than',
@@ -82,7 +82,7 @@ export class LessThanFunction extends PureFunction {
   }
 }
 
-globalFunctions.add(LessThanFunction, {
+globalFunctions.addFactory(LessThanFunction, {
   ...descriptor,
   name: 'less-than',
   icon: 'fas:less-than',
@@ -100,7 +100,7 @@ export class GreaterEqualFunction extends PureFunction {
   }
 }
 
-globalFunctions.add(GreaterEqualFunction, {
+globalFunctions.addFactory(GreaterEqualFunction, {
   ...descriptor,
   name: 'greater-equal',
   icon: 'fas:greater-than-equal',
@@ -118,7 +118,7 @@ export class LessEqualFunction extends PureFunction {
   }
 }
 
-globalFunctions.add(LessEqualFunction, {
+globalFunctions.addFactory(LessEqualFunction, {
   ...descriptor,
   name: 'less-equal',
   icon: 'fas:less-than-equal',
@@ -137,7 +137,7 @@ export class WithinRangeFunction extends PureFunction {
   }
 }
 
-globalFunctions.add(WithinRangeFunction, {
+globalFunctions.addFactory(WithinRangeFunction, {
   ...descriptor,
   name: 'within-range',
   icon: 'txt:[,]',
@@ -163,7 +163,7 @@ export class WithinIntervalFunction extends PureFunction {
   }
 }
 
-globalFunctions.add(WithinIntervalFunction, {
+globalFunctions.addFactory(WithinIntervalFunction, {
   ...descriptor,
   name: 'within-interval',
   icon: 'txt:[,)',

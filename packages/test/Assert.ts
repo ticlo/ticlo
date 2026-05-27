@@ -134,7 +134,7 @@ const API = {
   },
 };
 
-globalFunctions.add(
+globalFunctions.addFactory(
   AssertFunction,
   {
     name: 'assert',

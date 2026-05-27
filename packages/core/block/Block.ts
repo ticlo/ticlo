@@ -1,7 +1,7 @@
 import {BlockProperty, BlockIO, HelperProperty, BlockBindingSource, BlockConfig} from './BlockProperty.js';
 import {ListenPromise} from './ListenPromise.js';
 import {BlockBinding} from './BlockBinding.js';
-import {FunctionClass, BaseFunction} from './BlockFunction.js';
+import {FunctionFactory, BaseFunction} from './BlockFunction.js';
 import {PropDispatcher, PropListener, Destroyable} from './Dispatcher.js';
 import {FunctionDispatcher, globalFunctions} from './FunctionLib.js';
 import {DoneEvent, ErrorEvent, Event, EventType, NO_EMIT, WAIT} from './Event.js';
@@ -77,7 +77,7 @@ class PromiseWrapper {
 // A Block is both a data node and a schedulable function host. Its properties keep
 // saved editor state separately from runtime values, while the block coordinates
 // function registration, binding listeners, and resolver queueing.
-export class Block implements Runnable, FunctionData, PropListener<FunctionClass>, Destroyable {
+export class Block implements Runnable, FunctionData, PropListener<FunctionFactory | null>, Destroyable {
   private static _uid = new Uid();
 
   static nextUid(): string {
@@ -421,9 +421,9 @@ export class Block implements Runnable, FunctionData, PropListener<FunctionClass
     }
     // Function construction waits until every saved property has loaded so
     // initInputs() sees the same state a fully loaded block will expose.
-    if (this._pendingClass) {
-      this.onChange(this._pendingClass);
-      this._pendingClass = null;
+    if (this._pendingFactory) {
+      this.onChange(this._pendingFactory);
+      this._pendingFactory = null;
     }
   }
 
@@ -461,9 +461,9 @@ export class Block implements Runnable, FunctionData, PropListener<FunctionClass
 
     // Function construction waits until every saved property has loaded so
     // initInputs() sees the same state a fully loaded block will expose.
-    if (this._pendingClass) {
-      this.onChange(this._pendingClass);
-      this._pendingClass = null;
+    if (this._pendingFactory) {
+      this.onChange(this._pendingFactory);
+      this._pendingFactory = null;
     }
   }
 
@@ -858,14 +858,14 @@ export class Block implements Runnable, FunctionData, PropListener<FunctionClass
     return [];
   }
 
-  _pendingClass: FunctionClass;
+  _pendingFactory: FunctionFactory;
 
-  onSourceChange(prop: PropDispatcher<FunctionClass>): void {
+  onSourceChange(prop: PropDispatcher<FunctionFactory | null>): void {
     // not needed
   }
 
-  // function class changed
-  onChange(cls: FunctionClass): void {
+  // function factory changed
+  onChange(factory: FunctionFactory | null): void {
     if (this._function) {
       this._function.cleanup();
       this._function.destroy();
@@ -874,11 +874,11 @@ export class Block implements Runnable, FunctionData, PropListener<FunctionClass
       this.updateValue('#emit', undefined);
       this._called = false;
     }
-    if (cls) {
-      if (this._flow._loading && cls !== this._pendingClass) {
+    if (factory) {
+      if (this._flow._loading && factory !== this._pendingFactory) {
         // when function changed during load()
         // don't create the function until loading is done
-        this._pendingClass = cls;
+        this._pendingFactory = factory;
         if (this._function) {
           if (this._queueToRun) {
             // set _queueToRun to null indicate it's not run yet
@@ -887,17 +887,19 @@ export class Block implements Runnable, FunctionData, PropListener<FunctionClass
           this._function = null;
         }
       } else {
-        this._function = new cls(this);
+        this._function = factory.create(this);
         if (this._mode === 'auto') {
           this._configMode();
         }
-        this._function.initInputs();
-        if (this._runOnLoad) {
-          const callValue = this.getValue('#call');
-          if (callValue !== undefined) {
-            this._function.onCall(callValue);
+        if (this._function) {
+          this._function.initInputs();
+          if (this._runOnLoad) {
+            const callValue = this.getValue('#call');
+            if (callValue !== undefined) {
+              this._function.onCall(callValue);
+            }
+            this._queueFunction();
           }
-          this._queueFunction();
         }
       }
     } else {
@@ -913,8 +915,8 @@ export class Block implements Runnable, FunctionData, PropListener<FunctionClass
           this._runOnLoad = false;
         }
       }
-      if (this._pendingClass) {
-        this._pendingClass = null;
+      if (this._pendingFactory) {
+        this._pendingFactory = null;
       }
     }
   }

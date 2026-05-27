@@ -81,7 +81,7 @@ const API = {
   },
 };
 
-globalFunctions.add(
+globalFunctions.addFactory(
   StateFunction,
   {
     name: 'set-state',

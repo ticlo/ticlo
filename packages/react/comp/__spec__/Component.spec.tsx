@@ -3,7 +3,7 @@ import {Flow, globalFunctions} from '@ticlo/core';
 import {TicloComp} from '../Component.js';
 import {creatReactRoot, type ReactRoot} from '../../functions/__spec__/render.js';
 
-globalFunctions.add(
+globalFunctions.addFactory(
   null,
   {
     name: 'dynamic-output',
@@ -12,7 +12,7 @@ globalFunctions.add(
   'react-test'
 );
 
-globalFunctions.add(
+globalFunctions.addFactory(
   null,
   {
     name: 'fixed-output',

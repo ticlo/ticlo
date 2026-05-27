@@ -116,7 +116,7 @@ export class JsFunction extends BaseFunction<Block> {
       }
       desc.src = 'js';
 
-      globalFunctions.add(CustomScriptFunction, desc, namespace);
+      globalFunctions.addFactory(CustomScriptFunction, desc, namespace);
       return true;
     } catch (err) {
       Logger.error(`invalid script:\n${script}`);
@@ -125,7 +125,7 @@ export class JsFunction extends BaseFunction<Block> {
   }
 }
 
-globalFunctions.add(JsFunction, {
+globalFunctions.addFactory(JsFunction, {
   name: 'js',
   icon: 'txt:js',
   priority: 1,

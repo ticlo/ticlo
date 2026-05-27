@@ -15,7 +15,7 @@ export class TestSecretFunction extends BaseFunction<Block> {
   }
 }
 
-globalFunctions.add(TestSecretFunction, {name: 'test-secret'}, null);
+globalFunctions.addFactory(TestSecretFunction, {name: 'test-secret'}, null);
 
 describe('Secret Property', function () {
   it('set and read secret', function () {

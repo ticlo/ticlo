@@ -8,7 +8,7 @@ export class LogTimeFunction extends PureFunction {
   }
 }
 
-globalFunctions.add(
+globalFunctions.addFactory(
   LogTimeFunction,
   {
     name: 'log-time',

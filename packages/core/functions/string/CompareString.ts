@@ -32,7 +32,7 @@ export class StartWithFunction extends PureFunction {
   }
 }
 
-globalFunctions.add(StartWithFunction, {
+globalFunctions.addFactory(StartWithFunction, {
   ...descriptor,
   name: 'start-with',
   icon: 'txt:a~',
@@ -56,7 +56,7 @@ export class EndWithFunction extends PureFunction {
   }
 }
 
-globalFunctions.add(EndWithFunction, {
+globalFunctions.addFactory(EndWithFunction, {
   ...descriptor,
   name: 'end-with',
   icon: 'txt:~a',
@@ -77,7 +77,7 @@ export class ContainFunction extends PureFunction {
   }
 }
 
-globalFunctions.add(ContainFunction, {
+globalFunctions.addFactory(ContainFunction, {
   ...descriptor,
   name: 'contain',
   icon: 'txt:.a.',

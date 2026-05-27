@@ -165,7 +165,7 @@ export class ServerFunction extends BaseFunction<Block> {
   }
 }
 
-globalFunctions.add(
+globalFunctions.addFactory(
   ServerFunction,
   {
     name: 'server',

@@ -12,7 +12,7 @@ export class IfFunction extends PureFunction {
   }
 }
 
-globalFunctions.add(IfFunction, {
+globalFunctions.addFactory(IfFunction, {
   name: 'if',
   icon: 'txt:if',
   properties: [

@@ -270,7 +270,7 @@ export class MapFunction extends MapImpl {
   }
 }
 
-globalFunctions.add(MapFunction, {
+globalFunctions.addFactory(MapFunction, {
   name: 'map',
   priority: 3,
   configs: defaultConfigs.concat('#cancel'),

@@ -28,7 +28,7 @@ export class QuerySelectorFunction extends BaseFunction {
   }
 }
 
-globalFunctions.add(
+globalFunctions.addFactory(
   QuerySelectorFunction,
   {
     name: 'query-selector',

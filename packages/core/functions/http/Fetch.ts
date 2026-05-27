@@ -87,7 +87,7 @@ export class FetchFunction extends BaseFunction {
   }
 }
 
-globalFunctions.add(
+globalFunctions.addFactory(
   FetchFunction,
   {
     name: 'fetch',
