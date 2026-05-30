@@ -4,6 +4,7 @@ import {Root} from '../block/Flow.js';
 import {DataMap} from '../util/DataTypes.js';
 import {Logger} from '../util/Logger.js';
 import {encode, decode} from '../util/Serialize.js';
+import {Restricted} from '../restricted/Restricted.js';
 
 class LocalServerConnection extends ServerConnection {
   _client: LocalClientConnection;
@@ -24,8 +25,8 @@ class LocalServerConnection extends ServerConnection {
 class LocalClientConnection extends ClientConnection {
   _server: LocalServerConnection;
 
-  constructor(editorListeners: boolean) {
-    super(editorListeners);
+  constructor(editorListeners: boolean, restricted?: Restricted) {
+    super(editorListeners, restricted);
     this.onConnect();
   }
 
@@ -55,9 +56,13 @@ class LocalClientConnection extends ClientConnection {
 
 let _lastClientConnection: ClientConnection;
 
-export function makeLocalConnection(root: Root, editorListeners: boolean = true): [ServerConnection, ClientConnection] {
+export function makeLocalConnection(
+  root: Root,
+  editorListeners: boolean = true,
+  restricted?: Restricted
+): [ServerConnection, ClientConnection] {
   const server = new LocalServerConnection(root);
-  const client = new LocalClientConnection(editorListeners);
+  const client = new LocalClientConnection(editorListeners, restricted);
   server._client = client;
   client._server = server;
   _lastClientConnection = client;

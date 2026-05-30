@@ -19,6 +19,7 @@ import {WorkerFlow} from '../../worker/WorkerFlow.js';
 import {Logger} from '../../util/Logger.js';
 import {ConnectionSend} from '../Connection.js';
 import {GlobalWatch, SetRequest, type ValueState} from '../ClientRequests.js';
+import {Restricted} from '../../restricted/Restricted.js';
 
 describe('Connection', function () {
   it('returns send data without measuring size', function () {
@@ -33,6 +34,44 @@ describe('Connection', function () {
     const request = new ConnectionSend(data);
 
     expect(request.getData()).toBe(data);
+  });
+
+  it('checks restricted command, path, and property lists', function () {
+    const restricted = new Restricted();
+    restricted.allowCmds = ['get', 'set'];
+    restricted.denyCmds = ['set'];
+    restricted.allowPaths = ['Allowed'];
+    restricted.denyPaths = ['Allowed.secret'];
+    restricted.allowProps = ['value'];
+    restricted.denyProps = ['secret'];
+
+    expect(restricted.isRestricted({cmd: 'set', path: 'Allowed.value'})).toBe('restricted command');
+    expect(restricted.isRestricted({cmd: 'update', path: 'Allowed.value'})).toBe('restricted command');
+
+    restricted.denyCmds = [];
+    expect(restricted.isRestricted({cmd: 'set', path: 'Blocked.value'})).toBe('restricted path');
+    expect(restricted.isRestricted({cmd: 'set', path: 'Allowed.secret'})).toBe('restricted path');
+    expect(restricted.isRestricted({cmd: 'set', path: 'Allowed.other'})).toBe('restricted property');
+    expect(restricted.isRestricted({cmd: 'get', path: 'Allowed.other'})).toBe(null);
+    expect(restricted.isRestricted({cmd: 'set', path: 'Allowed.value'})).toBe(null);
+  });
+
+  it('rejects restricted client sends through onData', async function () {
+    const flow = Root.instance.addFlow('ConnectionRestricted');
+    const restricted = new Restricted();
+    restricted.denyCmds = ['set'];
+    const [, client] = makeLocalConnection(Root.instance, false, restricted);
+
+    await expect(client.setValue('ConnectionRestricted.a', 1, true)).rejects.toBe('restricted command');
+    expect(flow.getValue('a')).toBeUndefined();
+    expect(client.requests.size).toBe(0);
+
+    client.setValue('ConnectionRestricted.a', 2);
+    expect(flow.getValue('a')).toBeUndefined();
+    expect(client.setRequests.size).toBe(0);
+
+    client.destroy();
+    Root.instance.deleteValue('ConnectionRestricted');
   });
 
   it('get', async function () {

@@ -25,6 +25,7 @@ export {setSecretCipher} from './block/Block.js';
 // Export additional commonly used utilities
 export * from './connect/ClientConnection.js';
 export * from './connect/LocalConnection.js';
+export {Restricted} from './restricted/Restricted.js';
 export {Uid} from './util/Uid.js';
 export {escapedObject} from './util/NoSerialize.js';
 export {arrowReplacer, arrowReviver} from './util/Serialize.js';

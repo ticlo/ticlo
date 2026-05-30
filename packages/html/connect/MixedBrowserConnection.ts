@@ -3,13 +3,15 @@ import {DataMap, encode} from '@ticlo/core';
 import {ClientCallbacks} from '@ticlo/core/connect/ClientRequests.js';
 import axios from 'axios';
 import {measureObjSize, WS_FRAME_SIZE} from '@ticlo/core/util/DataTypes.js';
+import type {Restricted} from '@ticlo/core/restricted/Restricted.js';
 
 export class MixedBrowserConnection extends WsBrowserConnection {
   constructor(
     private readonly _httpUrl: string,
-    editorListeners = true
+    editorListeners = true,
+    restricted?: Restricted
   ) {
-    super(_httpUrl.replace(/^http/, 'ws'), editorListeners);
+    super(_httpUrl.replace(/^http/, 'ws'), editorListeners, restricted);
   }
   _sendLargeData(data: DataMap, c: ClientCallbacks = null): Promise<any> | null {
     const {promise, callbacks} = this._initSimpleRequest(c);

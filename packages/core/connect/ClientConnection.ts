@@ -1,4 +1,4 @@
-import {Connection} from './Connection.js';
+import {Connection, ConnectionSendingData} from './Connection.js';
 import {Uid} from '../util/Uid.js';
 import {DataMap} from '../util/DataTypes.js';
 import {FunctionDesc, PropDesc, PropGroupDesc} from '../block/Descriptor.js';
@@ -65,6 +65,22 @@ export abstract class ClientConnection extends Connection implements ClientConn 
 
   getBaseConn() {
     return this;
+  }
+
+  addSend(data: ConnectionSendingData) {
+    const requestData = data.getData();
+    const error = this._restricted?.isRestricted(requestData);
+    if (error) {
+      if (data instanceof SetRequest && data.conn) {
+        data.conn.setRequests.delete(data.path);
+        data.conn = null;
+      }
+      if (typeof requestData?.id === 'string') {
+        this.onData({cmd: 'error', id: requestData.id, msg: error});
+      }
+      return;
+    }
+    super.addSend(data);
   }
 
   _childrenChangeStream = new StreamDispatcher<{path: string; showNode?: boolean}>();

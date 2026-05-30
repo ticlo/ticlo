@@ -1,13 +1,14 @@
 import Websocket from 'ws';
 import {ClientConnection} from '@ticlo/core/connect/ClientConnection.js';
 import {DataMap, Logger, decode, encode} from '@ticlo/core';
+import type {Restricted} from '@ticlo/core/restricted/Restricted.js';
 
 export class WsClientConnection extends ClientConnection {
   _ws: Websocket;
   _url: string;
 
-  constructor(url: string, editorListeners = true) {
-    super(editorListeners);
+  constructor(url: string, editorListeners = true, restricted?: Restricted) {
+    super(editorListeners, restricted);
     if (url.startsWith('http')) {
       url = url.replace('http', 'ws');
     }
