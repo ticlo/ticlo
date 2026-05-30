@@ -19,6 +19,7 @@ import {StreamDispatcher} from '../block/Dispatcher.js';
 import {Query} from './Query.js';
 import {updateGlobalSettings} from '../util/Settings.js';
 import {DataWrapper} from '../block/FunctonData.js';
+import {Restricted} from '../restricted/Restricted.js';
 
 export type {ValueUpdate, ValueState} from './ClientRequests.js';
 
@@ -44,7 +45,10 @@ export abstract class ClientConnection extends Connection implements ClientConn 
   readonly globalWatch: GlobalWatch;
   private _editorListeners: boolean;
 
-  protected constructor(editorListeners: boolean) {
+  protected constructor(
+    editorListeners: boolean,
+    private _restricted?: Restricted
+  ) {
     super();
     this._editorListeners = editorListeners;
     if (editorListeners) {

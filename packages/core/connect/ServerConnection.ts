@@ -43,7 +43,6 @@ export class ServerRequest extends ConnectionSendingData {
   id: string;
   connection: ServerConnection;
 
-  /* istanbul ignore next */
   close(): void {
     // to be overridden
   }

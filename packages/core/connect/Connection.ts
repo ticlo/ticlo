@@ -2,10 +2,9 @@ import {DataMap, measureObjSize, WS_FRAME_SIZE} from '../util/DataTypes.js';
 import {Logger} from '../util/Logger.js';
 
 export class ConnectionSendingData {
-  /* istanbul ignore next */
   getSendingData(): {data: DataMap; size: number} {
     // to be overridden
-    /* istanbul ignore next */
+
     throw new Error('not implemented');
   }
 }
@@ -25,17 +24,15 @@ export class Connection {
   // must send something to the other side as an ack
   _mustSend = false;
 
-  /* istanbul ignore next */
   doSend(datas: DataMap[]): void {
     // to be overridden
-    /* istanbul ignore next */
+
     throw new Error('not implemented');
   }
 
-  /* istanbul ignore next */
   onData(data: DataMap): void {
     // to be overridden
-    /* istanbul ignore next */
+
     throw new Error('not implemented');
   }
 

@@ -144,31 +144,24 @@ globalFunctions.addFactory(TestAsyncFunctionManual, {
 
 export const VoidListeners = {
   onSourceChange(prop: PropDispatcher<any>) {
-    /* istanbul ignore next */
     throw new Error('should not be called');
   },
   onChange(val: unknown) {
-    /* istanbul ignore next */
     throw new Error('should not be called');
   },
   onPropertyEvent(change: BlockPropertyEvent) {
-    /* istanbul ignore next */
     throw new Error('should not be called');
   },
   onChildChange(property: BlockIO, saved?: boolean) {
-    /* istanbul ignore next */
     throw new Error('should not be called');
   },
   onDone(): void {
-    /* istanbul ignore next */
     throw new Error('should not be called');
   },
   onUpdate(response: DataMap): void {
-    /* istanbul ignore next */
     throw new Error('should not be called');
   },
   onError(error: string, data?: DataMap): void {
-    /* istanbul ignore next */
     throw new Error('should not be called');
   },
 };
