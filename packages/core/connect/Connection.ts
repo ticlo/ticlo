@@ -2,6 +2,12 @@ import {DataMap, measureObjSize, WS_FRAME_SIZE} from '../util/DataTypes.js';
 import {Logger} from '../util/Logger.js';
 
 export class ConnectionSendingData {
+  getData(): DataMap {
+    // to be overridden
+
+    throw new Error('not implemented');
+  }
+
   getSendingData(): {data: DataMap; size: number} {
     // to be overridden
 
@@ -172,10 +178,15 @@ export class ConnectionSend extends ConnectionSendingData {
     this._data = data;
   }
 
+  getData(): DataMap {
+    return this._data;
+  }
+
   getSendingData(): {data: DataMap; size: number} {
+    const data = this.getData();
     let size = 0;
-    for (const key in this._data) {
-      const v = this._data[key];
+    for (const key in data) {
+      const v = data[key];
       size += key.length;
       switch (typeof v) {
         case 'string':
@@ -188,6 +199,6 @@ export class ConnectionSend extends ConnectionSendingData {
           size += 4;
       }
     }
-    return {data: this._data, size};
+    return {data, size};
   }
 }

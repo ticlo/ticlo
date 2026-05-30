@@ -17,9 +17,24 @@ import {Namespace} from '../../block/Namespace.js';
 import {FlowEditor} from '../../worker/FlowEditor.js';
 import {WorkerFlow} from '../../worker/WorkerFlow.js';
 import {Logger} from '../../util/Logger.js';
+import {ConnectionSend} from '../Connection.js';
 import {GlobalWatch, SetRequest, type ValueState} from '../ClientRequests.js';
 
 describe('Connection', function () {
+  it('returns send data without measuring size', function () {
+    const data: DataMap = {};
+    Object.defineProperty(data, 'payload', {
+      enumerable: true,
+      get() {
+        throw new Error('size calculated');
+      },
+    });
+
+    const request = new ConnectionSend(data);
+
+    expect(request.getData()).toBe(data);
+  });
+
   it('get', async function () {
     const flow = Root.instance.addFlow('Connection0');
     const data = {a: 0};
