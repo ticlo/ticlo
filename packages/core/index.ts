@@ -61,6 +61,7 @@ import './functions/math/Compare.js';
 import './functions/math/Boolean.js';
 import './functions/string/CompareString.js';
 import './functions/string/Join.js';
+import './functions/string/Slice.js';
 import './functions/string/Split.js';
 import './functions/data/CreateObject.js';
 import './functions/web-server/HttpRequest.js';
