@@ -1,6 +1,9 @@
 join:
   '@name': Unir # translated from: Join
   '@keywords': concatenate
+slice:
+  '@name': Tranche # translated from: Slice
+  '@keywords': substring
 split:
   '@name': fendre # translated from: split
   '@keywords':

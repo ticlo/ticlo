@@ -1,6 +1,9 @@
 join:
   '@name': Join
   '@keywords': 'concatenate'
+slice:
+  '@name': Slice
+  '@keywords': 'substring'
 split:
   '@name': split
   '@keywords':

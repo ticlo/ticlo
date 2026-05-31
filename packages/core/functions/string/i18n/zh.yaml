@@ -1,6 +1,9 @@
 join:
   '@name': 连接
   '@keywords': concatenate
+slice:
+  '@name': 切分
+  '@keywords': substring
 split:
   '@name': 分割
   '@keywords':
