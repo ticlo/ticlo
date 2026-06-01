@@ -10,6 +10,33 @@ multiply:
 divide:
   '@name': Diviser # translated from: Divide
   '@keywords': division,/
+modulo:
+  '@name': Modulo # translated from: Modulo
+  '@keywords': remainder,%
+power:
+  '@name': Puissance # translated from: Power
+  '@keywords': exponent,**
+round:
+  '@name': Arrondir # translated from: Round
+  '@keywords': nearest integer
+floor:
+  '@name': Plancher # translated from: Floor
+  '@keywords': round down
+ceil:
+  '@name': Plafond # translated from: Ceil
+  '@keywords': round up,ceiling
+abs:
+  '@name': Valeur absolue # translated from: Abs
+  '@keywords': absolute value
+clamp:
+  '@name': Limiter # translated from: Clamp
+  '@keywords': limit,range
+min:
+  '@name': Minimum # translated from: Min
+  '@keywords': minimum
+max:
+  '@name': Maximum # translated from: Max
+  '@keywords': maximum
 
 equal:
   '@name': Égal # translated from: Equal

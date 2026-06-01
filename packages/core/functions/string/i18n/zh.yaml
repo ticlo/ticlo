@@ -1,9 +1,18 @@
 join:
   '@name': 连接
   '@keywords': concatenate
+replace:
+  '@name': 替换 # translated from: Replace
+  '@keywords': substitute
+'replace-regex':
+  '@name': 正则替换 # translated from: Replace Regex
+  '@keywords': regexp,regular expression
 slice:
   '@name': 切分
   '@keywords': substring
+substring:
+  '@name': 子字符串 # translated from: Substring
+  '@keywords': slice
 split:
   '@name': 分割
   '@keywords':

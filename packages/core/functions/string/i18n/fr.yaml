@@ -1,9 +1,18 @@
 join:
   '@name': Unir # translated from: Join
   '@keywords': concatenate
+replace:
+  '@name': Remplacer # translated from: Replace
+  '@keywords': substitute
+'replace-regex':
+  '@name': Remplacer Regex # translated from: Replace Regex
+  '@keywords': regexp,regular expression
 slice:
   '@name': Tranche # translated from: Slice
   '@keywords': substring
+substring:
+  '@name': Sous-chaîne # translated from: Substring
+  '@keywords': slice
 split:
   '@name': fendre # translated from: split
   '@keywords':

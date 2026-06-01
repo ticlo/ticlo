@@ -31,6 +31,17 @@ const descriptor2: FunctionDesc = {
   tags: ['math', 'math-2'],
   category: 'math',
 };
+const descriptor1: FunctionDesc = {
+  name: '',
+  icon: '',
+  properties: [
+    {name: 'input', type: 'number', pinned: true},
+    {name: '#output', pinned: true, type: 'number', readonly: true},
+  ],
+  recipient: 'input',
+  tags: ['math', 'math-1'],
+  category: 'math',
+};
 
 export class AddFunction extends PureFunction {
   run(): any {
@@ -106,4 +117,163 @@ globalFunctions.addFactory(DivideFunction, {
   ...descriptor2,
   name: 'divide',
   icon: 'fas:divide',
+});
+
+export class ModuloFunction extends PureFunction {
+  run(): any {
+    const v0 = this._data.getValue('0');
+    const v1 = this._data.getValue('1');
+    if (v0 == null || v1 == null) {
+      this._data.output(undefined);
+    } else {
+      this._data.output(Number(v0) % Number(v1));
+    }
+  }
+}
+
+globalFunctions.addFactory(ModuloFunction, {
+  ...descriptor2,
+  name: 'modulo',
+  icon: 'txt:%',
+});
+
+export class PowerFunction extends PureFunction {
+  run(): any {
+    const v0 = this._data.getValue('0');
+    const v1 = this._data.getValue('1');
+    if (v0 == null || v1 == null) {
+      this._data.output(undefined);
+    } else {
+      this._data.output(Number(v0) ** Number(v1));
+    }
+  }
+}
+
+globalFunctions.addFactory(PowerFunction, {
+  ...descriptor2,
+  name: 'power',
+  icon: 'txt:x^',
+});
+
+export class RoundFunction extends PureFunction {
+  run(): any {
+    const input = this._data.getValue('input');
+    this._data.output(input == null ? undefined : Math.round(Number(input)));
+  }
+}
+
+globalFunctions.addFactory(RoundFunction, {
+  ...descriptor1,
+  name: 'round',
+  icon: 'txt:~',
+});
+
+export class FloorFunction extends PureFunction {
+  run(): any {
+    const input = this._data.getValue('input');
+    this._data.output(input == null ? undefined : Math.floor(Number(input)));
+  }
+}
+
+globalFunctions.addFactory(FloorFunction, {
+  ...descriptor1,
+  name: 'floor',
+  icon: 'txt:[~',
+});
+
+export class CeilFunction extends PureFunction {
+  run(): any {
+    const input = this._data.getValue('input');
+    this._data.output(input == null ? undefined : Math.ceil(Number(input)));
+  }
+}
+
+globalFunctions.addFactory(CeilFunction, {
+  ...descriptor1,
+  name: 'ceil',
+  icon: 'txt:~]',
+});
+
+export class AbsFunction extends PureFunction {
+  run(): any {
+    const input = this._data.getValue('input');
+    this._data.output(input == null ? undefined : Math.abs(Number(input)));
+  }
+}
+
+globalFunctions.addFactory(AbsFunction, {
+  ...descriptor1,
+  name: 'abs',
+  icon: 'txt:|x|',
+});
+
+export class ClampFunction extends PureFunction {
+  run(): any {
+    const input = this._data.getValue('input');
+    const min = this._data.getValue('min');
+    const max = this._data.getValue('max');
+    if (input == null || min == null || max == null) {
+      this._data.output(undefined);
+    } else {
+      this._data.output(Math.min(Math.max(Number(input), Number(min)), Number(max)));
+    }
+  }
+}
+
+globalFunctions.addFactory(ClampFunction, {
+  name: 'clamp',
+  icon: 'txt:[x]',
+  properties: [
+    {name: 'input', type: 'number', pinned: true},
+    {name: 'min', type: 'number', pinned: true},
+    {name: 'max', type: 'number', pinned: true},
+    {name: '#output', pinned: true, type: 'number', readonly: true},
+  ],
+  recipient: 'input',
+  tags: ['math'],
+  category: 'math',
+});
+
+export class MinFunction extends PureFunction {
+  run(): any {
+    let result = Infinity;
+    let hasValue = false;
+    for (const val of getInputsArray(this._data)) {
+      if (val == null) {
+        this._data.output(undefined);
+        return;
+      }
+      result = Math.min(result, Number(val));
+      hasValue = true;
+    }
+    this._data.output(hasValue ? result : undefined);
+  }
+}
+
+globalFunctions.addFactory(MinFunction, {
+  ...descriptorN,
+  name: 'min',
+  icon: 'txt:min',
+});
+
+export class MaxFunction extends PureFunction {
+  run(): any {
+    let result = -Infinity;
+    let hasValue = false;
+    for (const val of getInputsArray(this._data)) {
+      if (val == null) {
+        this._data.output(undefined);
+        return;
+      }
+      result = Math.max(result, Number(val));
+      hasValue = true;
+    }
+    this._data.output(hasValue ? result : undefined);
+  }
+}
+
+globalFunctions.addFactory(MaxFunction, {
+  ...descriptorN,
+  name: 'max',
+  icon: 'txt:max',
 });

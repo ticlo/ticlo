@@ -1,9 +1,18 @@
 join:
   '@name': Join
   '@keywords': 'concatenate'
+replace:
+  '@name': Replace
+  '@keywords': 'substitute'
+'replace-regex':
+  '@name': Replace Regex
+  '@keywords': 'regexp,regular expression'
 slice:
   '@name': Slice
   '@keywords': 'substring'
+substring:
+  '@name': Substring
+  '@keywords': 'slice'
 split:
   '@name': split
   '@keywords':

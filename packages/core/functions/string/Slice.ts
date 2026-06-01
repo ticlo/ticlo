@@ -16,7 +16,35 @@ export class SliceFunction extends PureFunction {
 
 globalFunctions.addFactory(SliceFunction, {
   name: 'slice',
-  icon: 'txt:sl',
+  icon: 'fas:scissors',
+  properties: [
+    {name: 'input', pinned: true, type: 'string'},
+    {name: 'start', pinned: true, type: 'number', default: 0},
+    {name: 'end', type: 'number'},
+    {name: '#output', pinned: true, type: 'string', readonly: true},
+  ],
+  recipient: '0',
+  category: 'string',
+});
+
+export class SubstringFunction extends PureFunction {
+  run(): any {
+    const input = this._data.getValue('input');
+    if (typeof input === 'string') {
+      const start = this._data.getValue('start');
+      const end = this._data.getValue('end');
+      this._data.output(
+        input.substring(typeof start === 'number' ? start : 0, typeof end === 'number' ? end : undefined)
+      );
+    } else {
+      this._data.output(undefined);
+    }
+  }
+}
+
+globalFunctions.addFactory(SubstringFunction, {
+  name: 'substring',
+  icon: 'txt:sub',
   properties: [
     {name: 'input', pinned: true, type: 'string'},
     {name: 'start', pinned: true, type: 'number', default: 0},

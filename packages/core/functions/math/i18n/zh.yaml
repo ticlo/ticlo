@@ -10,6 +10,33 @@ multiply:
 divide:
   '@name': 除法 # translated from: Divide
   '@keywords': division,/
+modulo:
+  '@name': 取模 # translated from: Modulo
+  '@keywords': remainder,%
+power:
+  '@name': 幂 # translated from: Power
+  '@keywords': exponent,**
+round:
+  '@name': 四舍五入 # translated from: Round
+  '@keywords': nearest integer
+floor:
+  '@name': 向下取整 # translated from: Floor
+  '@keywords': round down
+ceil:
+  '@name': 向上取整 # translated from: Ceil
+  '@keywords': round up,ceiling
+abs:
+  '@name': 绝对值 # translated from: Abs
+  '@keywords': absolute value
+clamp:
+  '@name': 限制 # translated from: Clamp
+  '@keywords': limit,range
+min:
+  '@name': 最小值 # translated from: Min
+  '@keywords': minimum
+max:
+  '@name': 最大值 # translated from: Max
+  '@keywords': maximum
 
 equal:
   '@name': 相等

@@ -10,6 +10,33 @@ multiply:
 divide:
   '@name': Divide
   '@keywords': 'division,/'
+modulo:
+  '@name': Modulo
+  '@keywords': 'remainder,%'
+power:
+  '@name': Power
+  '@keywords': 'exponent,**'
+round:
+  '@name': Round
+  '@keywords': 'nearest integer'
+floor:
+  '@name': Floor
+  '@keywords': 'round down'
+ceil:
+  '@name': Ceil
+  '@keywords': 'round up,ceiling'
+abs:
+  '@name': Abs
+  '@keywords': 'absolute value'
+clamp:
+  '@name': Clamp
+  '@keywords': 'limit,range'
+min:
+  '@name': Min
+  '@keywords': 'minimum'
+max:
+  '@name': Max
+  '@keywords': 'maximum'
 
 equal:
   '@name': Equal
