@@ -10,8 +10,8 @@ replace:
 slice:
   '@name': Tranche # translated from: Slice
   '@keywords': substring
-substring:
-  '@name': Sous-chaîne # translated from: Substring
+substr:
+  '@name': Sous-chaîne # translated from: Substr
   '@keywords': slice
 split:
   '@name': fendre # translated from: split

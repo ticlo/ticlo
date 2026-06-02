@@ -10,8 +10,8 @@ replace:
 slice:
   '@name': 切分
   '@keywords': substring
-substring:
-  '@name': 子字符串 # translated from: Substring
+substr:
+  '@name': 子字符串 # translated from: Substr
   '@keywords': slice
 split:
   '@name': 分割

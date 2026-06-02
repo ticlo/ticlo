@@ -27,14 +27,14 @@ globalFunctions.addFactory(SliceFunction, {
   category: 'string',
 });
 
-export class SubstringFunction extends PureFunction {
+export class SubstrFunction extends PureFunction {
   run(): any {
     const input = this._data.getValue('input');
     if (typeof input === 'string') {
       const start = this._data.getValue('start');
-      const end = this._data.getValue('end');
+      const length = this._data.getValue('length');
       this._data.output(
-        input.substring(typeof start === 'number' ? start : 0, typeof end === 'number' ? end : undefined)
+        input.substr(typeof start === 'number' ? start : 0, typeof length === 'number' ? length : undefined)
       );
     } else {
       this._data.output(undefined);
@@ -42,13 +42,13 @@ export class SubstringFunction extends PureFunction {
   }
 }
 
-globalFunctions.addFactory(SubstringFunction, {
-  name: 'substring',
+globalFunctions.addFactory(SubstrFunction, {
+  name: 'substr',
   icon: 'txt:sub',
   properties: [
     {name: 'input', pinned: true, type: 'string'},
     {name: 'start', pinned: true, type: 'number', default: 0},
-    {name: 'end', type: 'number'},
+    {name: 'length', type: 'number'},
     {name: '#output', pinned: true, type: 'string', readonly: true},
   ],
   recipient: '0',

@@ -10,8 +10,8 @@ replace:
 slice:
   '@name': Slice
   '@keywords': 'substring'
-substring:
-  '@name': Substring
+substr:
+  '@name': Substr
   '@keywords': 'slice'
 split:
   '@name': split

@@ -32,21 +32,25 @@ describe('Slice', function () {
     expect(aBlock.getValue('#output')).toBe(undefined);
   });
 
-  it('substrings string input', function () {
+  it('substrs string input', function () {
     const flow = new Flow();
 
     const aBlock = flow.createBlock('a');
-    aBlock.setValue('#is', 'substring');
+    aBlock.setValue('#is', 'substr');
     aBlock.setValue('input', 'abcdef');
-    aBlock.setValue('start', 4);
-    aBlock.setValue('end', 2);
+    aBlock.setValue('start', 2);
+    aBlock.setValue('length', 3);
     Root.run();
-    expect(aBlock.getValue('#output')).toBe('cd');
+    expect(aBlock.getValue('#output')).toBe('cde');
 
-    aBlock.setValue('start', -2);
-    aBlock.setValue('end', 3);
+    aBlock.setValue('start', -3);
+    aBlock.setValue('length', 2);
     Root.run();
-    expect(aBlock.getValue('#output')).toBe('abc');
+    expect(aBlock.getValue('#output')).toBe('de');
+
+    aBlock.setValue('length', undefined);
+    Root.run();
+    expect(aBlock.getValue('#output')).toBe('def');
 
     aBlock.setValue('input', 123);
     Root.run();
