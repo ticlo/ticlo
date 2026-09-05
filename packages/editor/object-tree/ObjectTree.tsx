@@ -97,7 +97,7 @@ export class ObjectTree extends LazyUpdateComponent<Props, any> {
   }
 
   componentWillUnmount(): void {
-    this.root.destroy();
+    this.root?.destroy();
     super.componentWillUnmount();
   }
 }

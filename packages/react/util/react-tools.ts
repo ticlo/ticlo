@@ -17,7 +17,7 @@ export function useMemoRef<T>(callback: () => T, dependencies: unknown[]) {
 // useState but also keep the value in a ref
 // writing value would cause re-render, but reading value won't need a dependency update
 export function useRefState<T>(init: () => T) {
-  const [val, setVal] = useState(init());
+  const [val, setVal] = useState(init);
   const ref = useRef(val);
   return [
     val,
@@ -32,6 +32,5 @@ export function useRefState<T>(init: () => T) {
 export function useMemoUpdate<T>(callback: () => T, dependencies: unknown[]) {
   // keep track of changes
   const [tic, update] = useReducer((x) => (x + 1) & 0xffffff, 1);
-  dependencies.push(tic);
-  return [useMemo(callback, dependencies), update] as const;
+  return [useMemo(callback, [...dependencies, tic]), update] as const;
 }

@@ -28,6 +28,7 @@ export class FlowTestCase extends Flow implements TestsRunner {
     this.onPassed = onPassed;
     this.onFailed = onFailed;
     this.clearTimeout();
+    this._timeouted = false;
     if (this.timeoutMs > 0) {
       this._timeout = setTimeout(this.onTimeout, this.timeoutMs);
     }
@@ -159,8 +160,9 @@ export class FlowTestCase extends Flow implements TestsRunner {
     }
   }
   destroy() {
-    if (!this._pending) {
+    if (this._pending) {
       clearTimeout(this._pending);
+      this._pending = null;
     }
     this.clearTimeout();
     this.testParent?.updateTestState(this, TestState.REMOVED);

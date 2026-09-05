@@ -159,6 +159,11 @@ describe('MultiWorkerFunction', function () {
 
     expect(bBlock.getValue('#output')).toEqual({v2: 3, v3: 4});
 
+    aBlock.setValue('v1', 4);
+    Root.run();
+
+    expect(bBlock.getValue('#output')).toEqual({v1: 5, v2: 3, v3: 4});
+
     flow.setValue('a', 1);
 
     Root.run();

@@ -92,10 +92,10 @@ export function TicloComp<T extends BaseProps = BaseProps>(props: T) {
 
   return useMemo(() => {
     if (C) {
-      return <C {...propsRef.current} />;
+      return <C {...propsRef.current} key={block._blockId} />;
     }
     if (hasDynamicOutput(block, functionId)) {
-      return <TicloOutputComp {...propsRef.current} />;
+      return <TicloOutputComp {...propsRef.current} key={block._blockId} />;
     }
     return null;
   }, [functionId, C, propsRef.current]);

@@ -16,7 +16,7 @@ globalFunctions.addFactory(
     mode: 'onCall',
     properties: [
       {name: 'always', type: 'toggle'},
-      {name: '#output', type: 'toggle', readonly: true, pinned: true},
+      {name: '#output', type: 'number', readonly: true, pinned: true},
     ],
     dynamicStyle: true,
   },

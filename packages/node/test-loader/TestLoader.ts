@@ -14,6 +14,7 @@ interface TestLoaderOptions {
 
 export class TestLoader extends FileFlowStorage {
   flowToPathMap = new Map<string, string>();
+  private readonly onDemandGeneration = new WeakMap<Flow, number>();
   timeout: number;
   onDemandLoad: boolean;
   ignoreFolders: string[];
@@ -55,8 +56,8 @@ export class TestLoader extends FileFlowStorage {
     const specDir = `${nameParts.join('/')}/tests`;
     const realPath = `${specDir}/${filename}`;
 
-    if (this.tasks[realPath]) {
-      return this.tasks[realPath];
+    if (this.tasks[name]) {
+      return this.tasks[name];
     } else {
       if (!Fs.existsSync(specDir)) {
         Fs.mkdirSync(specDir);
@@ -97,20 +98,41 @@ export class TestLoader extends FileFlowStorage {
   }
   async flowStateChanged(flow: Flow, key: string, state: FlowState) {
     if (this.onDemandLoad) {
+      const generation = (this.onDemandGeneration.get(flow) ?? 0) + 1;
+      this.onDemandGeneration.set(flow, generation);
       switch (state) {
         case FlowState.enabled: {
+          const runtimeDisabled = flow.getValue('#disabled');
           const task = this.getTask(key);
-          const str = await task.read();
           try {
+            const str = await task.read();
+            if (
+              this.onDemandGeneration.get(flow) !== generation ||
+              flow._disabled ||
+              flow.isDestroyed() ||
+              flow._prop?._value !== flow
+            ) {
+              break;
+            }
             const data = decode(str);
-            flow.loadData(data);
+            const onStateChange = flow._onStateChange;
+            flow._onStateChange = undefined;
+            try {
+              flow._loaded = false;
+              flow.loadData(data);
+              flow.updateValue('#disabled', runtimeDisabled);
+            } finally {
+              flow._onStateChange = onStateChange;
+            }
           } catch (err) {
             console.log(`failed to load test:${task.path} ${err.toString()}`);
           }
           break;
         }
         case FlowState.disabled: {
-          flow._liveUpdate({});
+          // Unload the test body while preserving the local disabled setting.
+          // Clearing #disabled here would immediately re-enable and reload it.
+          flow.liveUpdate({'#disabled': flow.getValue('#disabled')});
           break;
         }
       }

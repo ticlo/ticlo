@@ -54,7 +54,10 @@ export function getRelativePath(base: string, from: string): string {
 // call all paths in between, including the target path but not the base path
 // callback: return true to break
 export function forAllPathsBetween(target: string, base: string, callback: (value: string) => boolean) {
-  if (!target.startsWith(base)) {
+  if (
+    base &&
+    (!target.startsWith(base) || (target.length > base.length && target.charCodeAt(base.length) !== 46) /* . */)
+  ) {
     return false;
   }
   if (callback(target)) {

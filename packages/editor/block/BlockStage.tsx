@@ -400,7 +400,7 @@ export class BlockStage extends BlockStageBase<BlockStageProps, StageState> impl
   changeZoom(newZoom: number, event?: {clientX: number; clientY: number}) {
     const {zoom, stageWidth, stageHeight, contentWidth, contentHeight} = this.state;
     let offX = stageWidth / 2;
-    let offY = stageWidth / 2;
+    let offY = stageHeight / 2;
     if (event) {
       const rect = this._scrollNode.getBoundingClientRect();
       offX = ((event.clientX - rect.left) * this._scrollNode.offsetWidth) / rect.width;

@@ -1,5 +1,4 @@
-import {expect} from 'vitest';
-import shelljs from 'shelljs';
+import {expect, vi} from 'vitest';
 import Fs from 'fs';
 import type {Flow} from '@ticlo/core';
 import {Root, decode, FlowFolder} from '@ticlo/core';
@@ -30,6 +29,62 @@ describe('FileStorage', function () {
     storage.delete('key2');
     await waitTick(20);
     await shouldHappen(() => !Fs.existsSync('./temp/storageTest/key1') && !Fs.existsSync('./temp/storageTest/key2'));
+  });
+  it('caches completed I/O until the value is deleted', async function () {
+    const storage = new FileStorage('./temp/storageTest');
+    const readSpy = vi.spyOn(Fs, 'readFile');
+
+    storage.save('cached-task', 'value');
+    const task = storage.tasks['cached-task'];
+    await shouldHappen(() => !task.current);
+    expect(await storage.load('cached-task')).toBe('value');
+    expect(await storage.load('cached-task')).toBe('value');
+    expect(readSpy).not.toHaveBeenCalled();
+    expect(storage.tasks['cached-task']).toBe(task);
+
+    storage.delete('cached-task');
+    await shouldHappen(() => storage.tasks['cached-task'] === undefined);
+    expect(await storage.load('cached-task')).toBeUndefined();
+    expect(readSpy).toHaveBeenCalledOnce();
+    readSpy.mockRestore();
+  });
+  it('serializes reads behind queued file mutations', async function () {
+    const storage = new FileStorage('./temp/storageTest');
+    let unlinkDone: (err: NodeJS.ErrnoException | null) => void;
+    let writeDone: (err: NodeJS.ErrnoException | null) => void;
+    const unlinkSpy = vi.spyOn(Fs, 'unlink').mockImplementation(((_path: string, callback: any) => {
+      unlinkDone = callback;
+    }) as any);
+    const writeSpy = vi.spyOn(Fs, 'writeFile').mockImplementation(((_path: string, _data: any, callback: any) => {
+      writeDone = callback;
+    }) as any);
+    const readSpy = vi.spyOn(Fs, 'readFile').mockImplementation((() => {
+      throw new Error('readFile must not run while a mutation is queued');
+    }) as any);
+
+    try {
+      storage.delete('serialized-task');
+      const task = storage.tasks['serialized-task'];
+      storage.save('serialized-task', 'new value');
+
+      expect(await storage.load('serialized-task')).toBe('new value');
+      expect(readSpy).not.toHaveBeenCalled();
+
+      unlinkDone(null);
+      expect(task.current).toBe('write');
+      expect(storage.tasks['serialized-task']).toBe(task);
+      expect(writeSpy).toHaveBeenCalledTimes(1);
+      expect(await storage.load('serialized-task')).toBe('new value');
+
+      writeDone(null);
+      expect(task.current).toBeNull();
+      expect(storage.tasks['serialized-task']).toBe(task);
+      expect(await storage.load('serialized-task')).toBe('new value');
+    } finally {
+      unlinkSpy.mockRestore();
+      writeSpy.mockRestore();
+      readSpy.mockRestore();
+    }
   });
   it('save and delete flow', async function () {
     const path = './temp/storageTest/flow1.ticlo';

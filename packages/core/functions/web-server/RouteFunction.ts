@@ -96,7 +96,7 @@ export class RouteFunction extends StatefulFunction {
   }
   _server: RouteService = null;
   _onServerChange(val: any) {
-    if (Object.isExtensible(val) && !('addRoute' in val && 'removeRoute' in val)) {
+    if (typeof val?.addRoute !== 'function' || typeof val?.removeRoute !== 'function') {
       val = null;
     }
     if (val === this._server) {

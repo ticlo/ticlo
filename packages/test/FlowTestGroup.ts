@@ -87,14 +87,14 @@ export class FlowTestGroup extends FlowFolder implements TestsRunner {
       this.failed = failed;
       this.waiting = waiting;
       const detail = ` ${passed} / ${passed + failed + waiting}`;
-      if (waiting > 0) {
-        updateObjectValue(this, '@b-style', {color: 'f44', detail});
-        this.updateLabel('running');
-      }
       if (failed > 0) {
         updateObjectValue(this, '@b-style', {color: 'f44', detail});
         this.updateLabel('failed');
         this.testParent?.updateTestState(this, TestState.FAILED);
+      } else if (waiting > 0) {
+        updateObjectValue(this, '@b-style', {color: 'f44', detail});
+        this.updateLabel('running');
+        this.testParent?.updateTestState(this, TestState.RUNNING);
       } else {
         updateObjectValue(this, '@b-style', {color: '4b2', detail});
         this.updateLabel('passed');

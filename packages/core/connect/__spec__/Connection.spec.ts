@@ -18,10 +18,40 @@ import {FlowEditor} from '../../worker/FlowEditor.js';
 import {WorkerFlow} from '../../worker/WorkerFlow.js';
 import {Logger} from '../../util/Logger.js';
 import {ConnectionSend} from '../Connection.js';
-import {GlobalWatch, SetRequest, type ValueState} from '../ClientRequests.js';
+import {DescRequest, GlobalWatch, SetRequest, type ValueState} from '../ClientRequests.js';
 import {Restricted} from '../../restricted/Restricted.js';
 
 describe('Connection', function () {
+  it('removes deleted categories from the descriptor cache', function () {
+    const request = new DescRequest({cmd: 'watchDesc', id: 'category-cache', path: ''});
+    const category = {id: 'temporary-category:', name: 'temporary-category'};
+
+    request.onUpdate({changes: [category]});
+    expect(request.categories.get('temporary-category')).toBe(category);
+
+    request.onUpdate({changes: [{id: category.id, removed: true}]});
+    expect(request.categories.has('temporary-category')).toBe(false);
+
+    request.onUpdate({changes: [category]});
+    request.onDisconnect();
+    expect(request.categories.has('temporary-category')).toBe(false);
+  });
+
+  it('keeps local descriptor caches isolated after disconnect', function () {
+    const request = new DescRequest({cmd: 'watchDesc', id: 'local-cache', path: 'flow'}, true);
+    request.onUpdate({
+      changes: [
+        {id: 'local:', name: 'local'},
+        {id: ':local-function', name: 'local-function'},
+      ],
+    });
+
+    request.onDisconnect();
+
+    expect(request.cache.size).toBe(0);
+    expect(request.categories.size).toBe(0);
+  });
+
   it('returns send data without measuring size', function () {
     const data: DataMap = {};
     Object.defineProperty(data, 'payload', {

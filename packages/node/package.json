@@ -17,8 +17,7 @@
   "types": "./index.d.ts",
   "dependencies": {
     "@ticlo/core": "workspace:^",
-    "ws": "^8.18.0",
-    "yargs": "^17.7.2"
+    "ws": "^8.18.0"
   },
   "peerDependencies": {
     "express": "^5.0.1"

@@ -1,7 +1,7 @@
 import {BaseFunction, globalFunctions, getInputsArray} from '@ticlo/core';
 import {CssSheet, RuleHandle} from '../style/CssSheet.js';
 
-const cssNameRegex = /^[a-zA-Z0-9_\-]+$/;
+const cssNameRegex = /^[a-zA-Z0-9_-]+$/;
 
 export class CssClassFunction extends BaseFunction {
   private static _sheet: CssSheet = new CssSheet();

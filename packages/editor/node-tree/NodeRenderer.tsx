@@ -531,8 +531,10 @@ export class NodeTreeRenderer extends PureDataRenderer<Props, any> {
     const {item} = this.props;
     this.subscriptionListener.unsubscribe();
     this.scopeListener.unsubscribe();
+    this.disabledListener.unsubscribe();
     this.nameListener.unsubscribe();
     this.hasChangeListener.unsubscribe();
+    this.styleListener.unsubscribe();
     item.connection.unwatchDesc(this.descCallback);
     super.componentWillUnmount();
   }

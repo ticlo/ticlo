@@ -148,6 +148,57 @@ describe('FlowEditor', function () {
     flow.destroy();
   });
 
+  it('does not mutate worker data while collecting grouped properties', function () {
+    const data: DataMap = {
+      '#inputs': {
+        '#custom': [
+          {
+            name: 'items',
+            type: 'group',
+            defaultLen: 1,
+            properties: [{name: 'input', type: 'number'}],
+          },
+        ],
+      },
+      '#outputs': {
+        '#custom': [
+          {
+            name: 'items',
+            type: 'group',
+            defaultLen: 1,
+            properties: [{name: 'output', type: 'number'}],
+          },
+        ],
+      },
+    };
+    const expected = [
+      {
+        name: 'items',
+        type: 'group',
+        defaultLen: 1,
+        properties: [
+          {name: 'input', type: 'number'},
+          {name: 'output', type: 'number', readonly: true},
+        ],
+      },
+    ];
+
+    expect(WorkerFunctionGen.collectProperties(data)).toEqual(expected);
+    expect(WorkerFunctionGen.collectProperties(data)).toEqual(expected);
+    const inputGroups = (data['#inputs'] as DataMap)['#custom'] as PropGroupDesc[];
+    expect(inputGroups[0].properties).toEqual([{name: 'input', type: 'number'}]);
+  });
+
+  it('handles grouped properties whose child list is omitted', function () {
+    const group = {name: 'items', type: 'group', defaultLen: 0};
+    const data: DataMap = {
+      '#inputs': {'#custom': [group]},
+      '#outputs': {'#custom': [group]},
+    };
+
+    expect(WorkerFunctionGen.collectProperties(data)).toEqual([group]);
+  });
+
   it('static block', function () {
     const flow = new Flow();
 

@@ -74,7 +74,7 @@ function useOptionalHandlers(
           }
         }
 
-        if (!/^on[A-Z]/.test(name)) {
+        if (/^on[A-Z]/.test(name)) {
           // build event handlers
           cache.current[name] = (event: SyntheticEvent) => {
             block.updateValue(name, new ReactEvent(event));

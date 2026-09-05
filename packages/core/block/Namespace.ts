@@ -124,7 +124,8 @@ export class Namespace {
       // namespace function
       if (funcId.charCodeAt(1) === 58 /* +: */) {
         // replace + with current namespace
-        return Namespace.getFunctionLib(flow?._namespace ?? namespace + funcId.substring(1));
+        const currentNamespace = flow?._namespace ?? namespace;
+        return currentNamespace ? Namespace.getFunctionLib(`${currentNamespace}${funcId.substring(1)}`) : undefined;
       } else {
         return Namespace.getFunctionLib(funcId);
       }

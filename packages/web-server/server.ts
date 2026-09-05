@@ -176,13 +176,10 @@ export async function createTicloApp(options: TicloAppOptions = {}): Promise<Tic
 }
 
 export function getEditorUrl(host: string, defaultFlow: string) {
-  let protocol = 'http';
-  if (host.startsWith('wss://')) {
-    protocol = 'https';
-  }
-  let url = `${protocol}://ticlo.org/editor.html?host=${host}`;
+  const url = new URL(`${host.startsWith('wss://') ? 'https' : 'http'}://ticlo.org/editor.html`);
+  url.searchParams.set('host', host);
   if (defaultFlow) {
-    url += `&flow=${defaultFlow}`;
+    url.searchParams.set('flow', defaultFlow);
   }
-  return url;
+  return url.toString();
 }

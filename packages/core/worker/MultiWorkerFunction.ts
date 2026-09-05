@@ -191,6 +191,7 @@ export class MultiWorkerFunction extends StatefulFunction implements BlockChildW
 
   _removeWorker(key: string) {
     this._funcBlock.deleteValue(key);
+    this._workers.delete(key);
     this._output(key, undefined);
   }
 

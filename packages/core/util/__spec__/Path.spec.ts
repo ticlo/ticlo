@@ -38,6 +38,7 @@ describe('Path', function () {
     }
 
     expect(getAllPathBetween('a.b', 'c.d')).toEqual([]);
+    expect(getAllPathBetween('alpha.child', 'a')).toEqual([]);
     expect(getAllPathBetween('e.f', 'e.f')).toEqual(['e.f']);
     expect(getAllPathBetween('g.h.i.j.k', 'g.h')).toEqual(['g.h.i.j.k', 'g.h.i.j', 'g.h.i']);
   });

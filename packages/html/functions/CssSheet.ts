@@ -1,7 +1,7 @@
 import {BaseFunction, globalFunctions, getInputsArray} from '@ticlo/core';
 import {CssSheet, DisabledCssSheet, RuleHandle} from '../style/CssSheet.js';
 
-const cssNameRegex = /^[a-zA-Z0-9_\-]+$/;
+const cssNameRegex = /^[a-zA-Z0-9_-]+$/;
 
 const disabledSheet = new DisabledCssSheet();
 

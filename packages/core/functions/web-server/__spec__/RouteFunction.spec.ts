@@ -46,6 +46,9 @@ describe('RouteFunction', function () {
       ['-', '2'],
       ['+', '2'],
     ]);
+    expect(() => aBlock.setValue('server', 1)).not.toThrow();
+    expect(serviceLog.at(-1)).toEqual(['-', '2']);
+    aBlock.setValue('server', mockService);
     serviceLog.length = 0;
     aBlock.setValue('#is', '');
     expect(serviceLog).toEqual([['-', '2']]);

@@ -72,6 +72,7 @@ class CommentView extends LazyUpdateComponent<BlockWidgetProps, any> {
     const {conn, path} = this.props;
     this.#resizeObserver?.disconnect();
     this.note.unsubscribe();
+    this.mode.unsubscribe();
     super.componentWillUnmount();
   }
 }

@@ -49,4 +49,13 @@ describe('truncateData', function () {
     const size2 = measureObjSize(bigObj, Infinity);
     expect(size2).toBeGreaterThan(size1);
   });
+
+  it('uses the requested limit for objects nested in arrays', function () {
+    const child: DataMap = {};
+    for (let i = 0; i < 32; ++i) {
+      child[i] = 'x'.repeat(100);
+    }
+
+    expect(measureObjSize([child], Infinity)).toBe(measureObjSize(child, Infinity));
+  });
 });

@@ -1,8 +1,7 @@
-import React, {useContext, useMemo, createContext, ReactNode, useRef} from 'react';
+import React, {useContext, useEffect, useId, useMemo, createContext, ReactNode} from 'react';
 import {DataMap, Flow, Root} from '@ticlo/core';
-import {Uid} from '@ticlo/core/util/Uid.js';
 
-const tempFlowId = new Uid();
+const retainedTempFlows = new WeakSet<Flow>();
 
 export const FlowContext = createContext<Flow>(null);
 
@@ -17,11 +16,12 @@ export function FlowRoot({
   name?: string;
   children: ReactNode | ReactNode[];
 }) {
-  const tempId = useRef(`temp-flow-${tempFlowId.next()}`).current;
+  const reactId = useId();
+  const tempId = useMemo(() => `temp-flow-${reactId.replace(/\W/g, '')}`, [reactId]);
 
   const f: Flow = useMemo(() => {
     if (flow instanceof Flow) {
-      return f;
+      return flow;
     }
     const flowName = name || tempId;
     // TODO isValidFlowName
@@ -29,8 +29,24 @@ export function FlowRoot({
     if (v instanceof Flow) {
       return v;
     }
-    return Root.instance.addFlow(name, flow);
+    return Root.instance.addFlow(flowName, flow);
   }, [flow, name, tempId]);
+
+  const ownsTempFlow = !(flow instanceof Flow) && !name;
+  useEffect(() => {
+    if (!ownsTempFlow) {
+      return;
+    }
+    retainedTempFlows.add(f);
+    return () => {
+      retainedTempFlows.delete(f);
+      queueMicrotask(() => {
+        if (!retainedTempFlows.has(f) && Root.instance.getValue(tempId) === f) {
+          Root.instance.deleteValue(tempId);
+        }
+      });
+    };
+  }, [f, ownsTempFlow, tempId]);
 
   return <FlowContext.Provider value={f}>{children}</FlowContext.Provider>;
 }

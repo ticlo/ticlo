@@ -16,6 +16,7 @@
   "module": "./index.js",
   "types": "./index.d.ts",
   "dependencies": {
+    "@types/luxon": "^3",
     "arrow-code": "^0.3.3",
     "axios": "1.7.4",
     "denque": "^2.1.0",

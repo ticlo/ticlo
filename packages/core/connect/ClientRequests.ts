@@ -341,19 +341,30 @@ export class WatchRequest extends MergedClientRequest {
 
 export type ClientDescListener = (desc: FunctionDesc, id: string) => void;
 
+function getDescCategories(cache?: Map<string, FunctionDesc>) {
+  const categories = new Map<string, FunctionDesc>();
+  for (const [id, desc] of cache ?? []) {
+    if (id.endsWith(':')) {
+      categories.set(id.substring(0, id.length - 1), desc);
+    }
+  }
+  return categories;
+}
+
 export class DescRequest extends ConnectionSend implements ClientCallbacks {
   static editorCache: Map<string, FunctionDesc> = new Map<string, FunctionDesc>();
 
   listeners: Map<ClientDescListener, string> = new Map<ClientDescListener, string>();
 
+  readonly fixedCache?: Map<string, FunctionDesc>;
   categories: Map<string, FunctionDesc>;
   cache: Map<string, FunctionDesc>;
 
   constructor(data: DataMap, localPath = false) {
     super(data);
-    const fixedCache = localPath ? undefined : DescRequest.editorCache;
-    this.categories = new Map<string, FunctionDesc>(fixedCache);
-    this.cache = new Map<string, FunctionDesc>(fixedCache);
+    this.fixedCache = localPath ? undefined : DescRequest.editorCache;
+    this.categories = getDescCategories(this.fixedCache);
+    this.cache = new Map<string, FunctionDesc>(this.fixedCache);
   }
 
   onDone(): void {}
@@ -365,6 +376,9 @@ export class DescRequest extends ConnectionSend implements ClientCallbacks {
           const id = change.id;
           if ('removed' in change) {
             this.cache.delete(id);
+            if (id.endsWith(':')) {
+              this.categories.delete(id.substring(0, id.length - 1));
+            }
             if (this.listeners.size) {
               for (const [listener, lid] of this.listeners) {
                 if (lid === '*' || id === lid) {
@@ -395,7 +409,8 @@ export class DescRequest extends ConnectionSend implements ClientCallbacks {
   onError(error: string, data?: DataMap): void {}
 
   onDisconnect() {
-    this.cache = new Map<string, FunctionDesc>(DescRequest.editorCache);
+    this.categories = getDescCategories(this.fixedCache);
+    this.cache = new Map<string, FunctionDesc>(this.fixedCache);
   }
 }
 

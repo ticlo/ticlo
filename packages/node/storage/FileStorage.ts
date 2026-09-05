@@ -5,7 +5,6 @@ import {WorkerFunctionGen} from '@ticlo/core/worker/WorkerFunctionGen.js';
 import {FlowLoader, FlowState} from '@ticlo/core/block/Flow.js';
 import {StreamDispatcher} from '@ticlo/core/block/Dispatcher.js';
 import {encodeFileName} from '@ticlo/core/util/Path.js';
-import shelljs from 'shelljs';
 
 export class FlowIOTask extends StreamDispatcher<string> {
   current?: 'write' | 'delete' | 'read';
@@ -23,13 +22,22 @@ export class FlowIOTask extends StreamDispatcher<string> {
   }
 
   read() {
-    if (!this.reading) {
-      this.reading = new Promise<string>((resolve) => {
-        this._resolveReading = resolve;
-      });
-      this.current = 'read';
-      Fs.readFile(this.path, 'utf8', this.onRead);
+    // Reads observe the latest queued mutation and never start a second file
+    // operation while one is already in progress for this key.
+    if (!this.current && this.reading) {
+      return this.reading;
     }
+    if (this.next) {
+      return Promise.resolve(this.next === 'write' ? this.nextData : undefined);
+    }
+    if (this.current) {
+      return this.current === 'delete' ? Promise.resolve(undefined) : this.reading;
+    }
+    this.reading = new Promise<string>((resolve) => {
+      this._resolveReading = resolve;
+    });
+    this.current = 'read';
+    Fs.readFile(this.path, 'utf8', this.onRead);
     return this.reading;
   }
   onRead = (err: NodeJS.ErrnoException | null, data: string) => {
@@ -71,6 +79,7 @@ export class FlowIOTask extends StreamDispatcher<string> {
   }
 
   onDone = () => {
+    const completed = this.current;
     this.current = null;
     if (this.next) {
       const {next, nextData} = this;
@@ -85,10 +94,11 @@ export class FlowIOTask extends StreamDispatcher<string> {
           this.write(nextData);
           return;
       }
-    } else if (this.reading) {
-      const ignoredPromise = this.read();
-    } else {
-      this.loader.taskDone(this);
+    } else if (completed === 'delete') {
+      this.reading = undefined;
+      if (this.isEmpty()) {
+        this.loader.taskDone(this);
+      }
     }
   };
 }
@@ -102,7 +112,7 @@ export class FileStorage implements Storage {
   ) {
     this.dir = Path.resolve(dir);
     if (!Fs.existsSync(this.dir)) {
-      shelljs.mkdir('-p', this.dir);
+      Fs.mkdirSync(this.dir, {recursive: true});
     }
   }
 
@@ -155,7 +165,13 @@ export class FileStorage implements Storage {
   }
 
   unlisten(key: string, listener: (val: string) => void) {
-    this.getTask(key)?.unlisten(listener);
+    const task = this.tasks[key];
+    if (task) {
+      task.unlisten(listener);
+      if (task.isEmpty() && !task.current && !task.next && !task.reading) {
+        this.taskDone(task);
+      }
+    }
   }
 }
 export class FileFlowStorage extends FileStorage implements FlowStorage {
@@ -200,7 +216,7 @@ export class FileFlowStorage extends FileStorage implements FlowStorage {
 
   initNamespace(ns: string) {
     const nsDir = Path.join(this.dir, encodeFileName(ns));
-    shelljs.mkdir('-p', nsDir);
+    Fs.mkdirSync(nsDir, {recursive: true});
   }
 
   saveLib(ns: string, lib: string, data: DataMap) {

@@ -16,7 +16,9 @@
   "module": "./index.js",
   "types": "./index.d.ts",
   "dependencies": {
-    "@ticlo/core": "workspace:^"
+    "@ticlo/core": "workspace:^",
+    "@types/luxon": "^3",
+    "luxon": "^3.4.4"
   },
   "peerDependencies": {
     "react": "^18.2.0",

@@ -1,8 +1,9 @@
 import React from 'react';
-import {Block, Flow, globalFunctions} from '@ticlo/core';
+import {Event as TicloEvent, Flow, globalFunctions, type Block} from '@ticlo/core';
 import {Namespace} from '@ticlo/core/block/Namespace.js';
 import {metaKey, TicloComp} from '../Component.js';
 import {creatReactRoot, type ReactRoot} from '../../functions/__spec__/render.js';
+import '../../elements/CommonElements.js';
 
 function MetaComponent({block}: {block: Block}) {
   return <span>{block.getValue('label') as string}</span>;
@@ -99,6 +100,48 @@ describe('TicloComp', function () {
     await root.waitRender(<TicloComp block={block} />);
     expect(root.div.children[0]).toBeInstanceOf(HTMLSpanElement);
     expect(root.div.textContent).toBe('global');
+  });
+
+  it('maps optional attributes, refs, and events to their React semantics', async function () {
+    const flow = new Flow();
+    const block = flow.createBlock('element');
+    block.setValue('#is', 'react:div');
+    block.setValue('#optional', ['id', 'ref', 'onClick']);
+    block.setValue('id', 'optional-id');
+
+    await root.waitRender(<TicloComp block={block} />);
+
+    const element = root.div.firstElementChild as HTMLDivElement;
+    expect(element.id).toBe('optional-id');
+    expect(block.getValue('ref')).toBe(element);
+    element.click();
+    expect(block.getValue('onClick')).toBeInstanceOf(TicloEvent);
+    flow.destroy();
+  });
+
+  it('remounts block-specific hooks when the rendered block changes', async function () {
+    const flow = new Flow();
+    const first = flow.createBlock('first');
+    const second = flow.createBlock('second');
+    for (const block of [first, second]) {
+      block.setValue('#is', 'react:div');
+      block.setValue('#optional', ['onClick']);
+    }
+    first.setValue('class', 'first-class');
+    first.setValue('content', 'first-content');
+    second.setValue('class', 'second-class');
+    second.setValue('content', 'second-content');
+
+    await root.waitRender(<TicloComp block={first} />);
+    await root.waitRender(<TicloComp block={second} />);
+
+    const element = root.div.firstElementChild as HTMLDivElement;
+    expect(element.className).toBe('second-class');
+    expect(element.textContent).toBe('second-content');
+    element.click();
+    expect(first.getValue('onClick')).toBeUndefined();
+    expect(second.getValue('onClick')).toBeInstanceOf(TicloEvent);
+    flow.destroy();
   });
 
   it('renders components registered in flow function metadata', async function () {

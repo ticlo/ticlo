@@ -54,6 +54,7 @@ export function isDataTruncated(val: any): boolean {
   return false;
 }
 
+// maxSize is a soft per-child limit; do not subtract total from it.
 function measureMap(val: DataMap, maxSize: number): number {
   let total = 0;
   for (const key in val) {
@@ -69,7 +70,7 @@ function measureMap(val: DataMap, maxSize: number): number {
 function measureArray(arr: any[], maxSize: number): number {
   let total = 0;
   for (const v of arr) {
-    total += measureObjSize(v);
+    total += measureObjSize(v, maxSize);
     if (total >= maxSize) {
       return total;
     }

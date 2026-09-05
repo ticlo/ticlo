@@ -23,9 +23,13 @@ export class WsServerConnection extends ServerConnection {
     if (!isBinary) {
       const str = data.toString();
       Logger.trace(() => 'server receive ' + str, this);
-      const decoded = decode(str);
-      if (Array.isArray(decoded)) {
-        this.onReceive(decoded);
+      try {
+        const decoded = decode(str);
+        if (Array.isArray(decoded)) {
+          this.onReceive(decoded);
+        }
+      } catch (error) {
+        Logger.warn('server received an invalid websocket message', this);
       }
     }
   };

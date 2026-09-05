@@ -6,6 +6,8 @@ import '../../functions/math/Arithmetic.js';
 import type {DataMap} from '../../util/DataTypes.js';
 import {Namespace} from '../../block/Namespace.js';
 import {makeLocalConnection} from '../../connect/LocalConnection.js';
+import {WorkerMode} from '../WorkerFunction.js';
+import {Event} from '../../block/Event.js';
 
 describe('WorkerFunction', function () {
   it('basic', function () {
@@ -87,6 +89,43 @@ describe('WorkerFunction', function () {
     Root.run();
 
     expect(aBlock.getValue('out1')).toBe(3);
+  });
+
+  it('does not load a disabled worker until it is enabled', function () {
+    TestFunctionRunner.clearLog();
+    const flow = new Flow();
+    const block = flow.createBlock('worker');
+    block._load({
+      '#is': 'worker',
+      '+state': WorkerMode.DISABLE,
+      '+use': {
+        '#is': {
+          '#is': '',
+          '#inputs': {'#is': '', '#custom': [{name: 'in1', type: 'event'}]},
+          'runner': {
+            '#is': 'test-runner',
+            '#sync': true,
+            '#-log': 'disabled-side-effect',
+            '~#call': '##.#inputs.in1',
+          },
+        },
+      },
+    });
+    block.setValue('in1', new Event('call'));
+
+    Root.run();
+    expect(block.getValue('#worker')).toBeUndefined();
+    expect(TestFunctionRunner.logs).toEqual([]);
+
+    block.setValue('+state', WorkerMode.ON);
+    Root.run();
+    const worker = block.getValue('#worker') as Flow;
+    expect(worker).toBeInstanceOf(Flow);
+    expect(worker.getValue('#disabled')).toBeUndefined();
+    expect(TestFunctionRunner.popLogs()).toEqual(['disabled-side-effect']);
+
+    flow.destroy();
+    TestFunctionRunner.clearLog();
   });
 
   it('supports save and undo from runtime worker flow', async function () {

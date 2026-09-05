@@ -55,7 +55,7 @@ export class AssertFunction extends BaseFunction<Block> {
 
   inputChanged(input: BlockIO, val: any): boolean {
     if (input._name === 'matchMode') {
-      this._alwaysMatch = Boolean(input._value);
+      this._alwaysMatch = val === 'always-match';
     }
     if (this._data._sync && !this._calledSync) {
       return false;

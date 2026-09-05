@@ -1,7 +1,7 @@
 import {Block, DataMap, FunctionDesc, globalFunctions, PropDesc} from '@ticlo/core';
 
 import {useTicloComp} from '../hooks/useTicloComp.js';
-import {metaKey, renderChildren} from '../comp/Component.js';
+import {metaKey} from '../comp/Component.js';
 import React from 'react';
 import {elementClassProperty, elementConfigs, elementStyleProperty} from '../comp/CommontProps.js';
 import {useBlockConfigs} from '../hooks/useBlockConfigs.js';
@@ -27,13 +27,9 @@ const imagePropMap = {
 };
 
 function ImageElement({block}: {block: Block}) {
-  const {style, className, children, optionalHandlers} = useTicloComp(block, imageOptions);
+  const {style, className, optionalHandlers} = useTicloComp(block, imageOptions);
   const {src} = useBlockConfigs(block, imagePropMap);
-  return (
-    <img src={src} style={style} className={className} {...optionalHandlers}>
-      {renderChildren(children)}
-    </img>
-  );
+  return <img src={src} style={style} className={className} {...optionalHandlers} />;
 }
 const imgElementDesc: FunctionDesc = {
   name: 'img',

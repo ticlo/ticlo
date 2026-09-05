@@ -19,7 +19,7 @@ export class MixedBrowserConnection extends WsBrowserConnection {
       .post(this._httpUrl, encode(data), {headers: {'Content-Type': 'application/json'}})
       .then((response) => {
         if (response.data.cmd === 'error') {
-          callbacks.onError?.(response.data.message);
+          callbacks.onError?.(response.data.msg ?? response.data.message);
         } else {
           callbacks.onUpdate?.(response.data);
           callbacks.onDone?.();

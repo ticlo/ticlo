@@ -6,7 +6,7 @@ import {copyProperties, deleteProperties, pasteProperties} from '../CopyPaste.js
 import type {DataMap} from '../../util/DataTypes.js';
 import type {Block} from '../../block/Block.js';
 import {Flow} from '../../block/Flow.js';
-import {StaticBlock} from '../../block/StaticBlock.js';
+import type {StaticBlock} from '../../block/StaticBlock.js';
 
 describe('Copy Paste', function () {
   const data = {

@@ -39,9 +39,8 @@ export class RestServerConnection extends ServerConnection {
             return res.send('');
           }
         }
-      } else {
-        return res.status(400).send('');
       }
+      return res.status(400).send('');
     } catch (error) {
       return res.status(400).send('');
     }

@@ -117,10 +117,10 @@ export class WorkerFunctionGen extends BaseFunction<Block> {
         const copyInput = {...input};
         // input should not be readonly
         delete copyInput.readonly;
-        properties.push(copyInput);
         if (input.type === 'group') {
-          groups.set(input.name, input);
+          groups.set(input.name, copyInput as PropGroupDesc);
         }
+        properties.push(copyInput);
       }
     }
     // add outputs
@@ -128,11 +128,17 @@ export class WorkerFunctionGen extends BaseFunction<Block> {
     let mainOutput: PropDesc;
     if (Array.isArray(outputs)) {
       for (const output of outputs) {
-        if (output.type === 'group' && groups.has(output.name)) {
-          const groupProperties = groups.get(output.name).properties;
-          // merge output group with input group
-          for (const prop of output.properties) {
-            groupProperties.push({...prop, readonly: true});
+        const group = output.type === 'group' && groups.get(output.name);
+        if (group) {
+          if (Array.isArray(output.properties) && output.properties.length > 0) {
+            const groupProperties = Array.isArray(group.properties)
+              ? group.properties.map((prop: PropDesc) => ({...prop}))
+              : [];
+            group.properties = groupProperties;
+            // merge output group with input group
+            for (const prop of output.properties) {
+              groupProperties.push({...prop, readonly: true});
+            }
           }
         } else {
           if (output.name === '#output') {

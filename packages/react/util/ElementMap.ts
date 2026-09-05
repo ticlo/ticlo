@@ -18,7 +18,7 @@ export function findBlockByElement(element: Element) {
 
 export function findBlockFromParent(element: Element, scope: Element | null = null) {
   for (let target: Element | null = element; target && target !== scope; target = target.parentElement) {
-    const block = elementToBlockMap.get(element);
+    const block = elementToBlockMap.get(target);
     if (block) {
       return block;
     }

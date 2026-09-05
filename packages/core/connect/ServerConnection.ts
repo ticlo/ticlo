@@ -739,7 +739,11 @@ export class ServerConnection extends ServerConnectionCore {
       let filterRegex: RegExp;
       const children: DataMap = {};
       if (filter) {
-        filterRegex = new RegExp(filter);
+        try {
+          filterRegex = new RegExp(filter);
+        } catch (err) {
+          return 'invalid filter';
+        }
       }
       let count = 0;
       for (const [field, prop] of block._props) {

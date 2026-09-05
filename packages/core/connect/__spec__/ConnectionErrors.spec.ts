@@ -30,6 +30,8 @@ describe('Connection Error', function () {
     expect(await shouldReject(client.getValue('ConnectionError1.a.b.c') as Promise<any>)).toBe('invalid path');
 
     expect(await shouldReject(client.list('ConnectionError1.a.b.c') as Promise<any>)).toBe('invalid path');
+    expect(() => server.list({path: 'ConnectionError1', filter: '[', max: 16})).not.toThrow();
+    expect(server.list({path: 'ConnectionError1', filter: '[', max: 16})).toBe('invalid filter');
 
     expect(await shouldReject(client.addBlock('ConnectionError1.a.b.c') as Promise<any>)).toBe('invalid path');
 

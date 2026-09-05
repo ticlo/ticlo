@@ -7,7 +7,12 @@ export default defineConfig({
     globals: true,
     globalSetup: 'packages/node/vitest.global.setup.ts',
     setupFiles: 'packages/node/vitest.setup.ts',
-    include: ['packages/core/**/*.spec.ts', 'packages/node/**/*.spec.ts'],
+    include: [
+      'packages/core/**/*.spec.ts',
+      'packages/node/**/*.spec.ts',
+      'packages/test/**/*.spec.ts',
+      'packages/web-server/**/*.spec.ts',
+    ],
     coverage: {
       provider: 'v8',
       reporter: ['lcov'],

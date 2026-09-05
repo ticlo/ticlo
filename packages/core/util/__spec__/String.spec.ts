@@ -37,6 +37,9 @@ describe('String', function () {
     expect(isColorStr('rgba(1,2,3,0.5)')).toBe(true);
 
     expect(isColorStr(' #aaa')).toBe(false);
+    expect(isColorStr('#aaab')).toBe(true);
+    expect(isColorStr('#aaab-invalid')).toBe(false);
+    expect(isColorStr('prefix-rgb(1, 2, 3)')).toBe(false);
     expect(isColorStr('rgb()')).toBe(false);
   });
 

@@ -3,10 +3,34 @@ import {normalize} from 'path';
 import shelljs from 'shelljs';
 import * as glob from 'glob';
 
-let version: string;
-let dependencies: any;
-
 const dirHistory = new Set<string>();
+const temporaryPaths: string[] = [];
+const workspaceVersions = new Map<string, string>();
+
+for (const manifestPath of glob.sync('packages/*/package.json', {posix: true})) {
+  const manifest = JSON.parse(fs.readFileSync(manifestPath, 'utf8'));
+  workspaceVersions.set(manifest.name, manifest.version);
+}
+
+function resolveWorkspaceDependencies(manifest: any) {
+  for (const sectionName of ['dependencies', 'optionalDependencies', 'peerDependencies', 'devDependencies']) {
+    const section = manifest[sectionName];
+    if (!section) {
+      continue;
+    }
+    for (const [name, specifier] of Object.entries(section)) {
+      if (typeof specifier !== 'string' || !specifier.startsWith('workspace:')) {
+        continue;
+      }
+      const version = workspaceVersions.get(name);
+      if (!version) {
+        throw new Error(`unable to resolve workspace dependency ${name}`);
+      }
+      const range = specifier.substring('workspace:'.length);
+      section[name] = range === '*' ? version : range === '^' || range === '~' ? `${range}${version}` : range;
+    }
+  }
+}
 
 function makeDir(path: string) {
   if (path.lastIndexOf('.') > path.length - 5) {
@@ -16,16 +40,17 @@ function makeDir(path: string) {
   if (dirHistory.has(path)) {
     return;
   }
-  dirHistory.add('path');
+  dirHistory.add(path);
   shelljs.mkdir('-p', path);
 }
 
 async function buildPackage(name: string) {
   const fromDir = `packages/${name}`;
   console.log(`building ${fromDir}`);
-  // build package directly into node_modules, so one package can depend on the other
+  // Build packages in dependency order so later packages can use earlier output.
   const targetDir = `./build/${name}`;
   console.log(targetDir);
+  shelljs.rm('-rf', targetDir);
   makeDir(targetDir);
   // copy tsconfig
   shelljs.cp('./tool/package-tsconfig.json', targetDir);
@@ -33,10 +58,11 @@ async function buildPackage(name: string) {
 
   // copy+analyze+convert ts files
 
-  const importedPackages = new Set<string>();
-  const regex = / from '([^@'./]+|@[^'./]+\/[^'./]+)/g;
-
-  const srcFiles: string[] = glob.sync(`${fromDir}/**/*.{ts,tsx}`, {posix: true});
+  const srcFiles: string[] = glob.sync(`${fromDir}/**/*.{ts,tsx}`, {
+    posix: true,
+    nodir: true,
+    ignore: ['**/node_modules/**'],
+  });
   const sourceFiles: string[] = [`${targetDir}/tsconfig.json`]; // files to be deleted after compiling
   for (const tsFile of srcFiles) {
     if (!tsFile.includes('/__spec__/') && !tsFile.includes('/tests/')) {
@@ -54,46 +80,50 @@ async function buildPackage(name: string) {
   }
 
   // update package.json
-  const packageJson: any = JSON.parse(fs.readFileSync(`${fromDir}/_package.json`, {encoding: 'utf8'}));
-  packageJson.version = version;
-  for (const p of importedPackages) {
-    // sync dependencies
-    if (!p.startsWith('@ticlo/')) {
-      packageJson.dependencies[p] = dependencies[p];
-    } else {
-      delete packageJson.dependencies[p];
-    }
-  }
+  const packageJson: any = JSON.parse(fs.readFileSync(`${fromDir}/package.json`, {encoding: 'utf8'}));
+  resolveWorkspaceDependencies(packageJson);
   fs.writeFileSync(`${targetDir}/package.json`, JSON.stringify(packageJson, null, 2));
+
+  // pnpm keeps dependencies under each workspace package. Make them available
+  // while compiling the copied sources, then remove the temporary link.
+  const nodeModulesPath = `${targetDir}/node_modules`;
+  shelljs.ln('-s', normalize(`../../${fromDir}/node_modules`), nodeModulesPath);
+  temporaryPaths.push(nodeModulesPath);
 
   // run tsc
   shelljs.pushd('-q', targetDir);
   console.log(`compiling ${targetDir}`);
-  shelljs.echo(shelljs.exec(normalize('../../node_modules/.bin/tsc')).stdout);
+  const result = shelljs.exec(normalize('../../node_modules/.bin/tsc'));
   shelljs.popd('-q');
 
   // delete ts files
   shelljs.rm(sourceFiles);
+  if (result.code !== 0) {
+    throw new Error(`failed to compile ${fromDir}`);
+  }
 }
 
 async function main() {
   makeDir('build');
-  const packageJson = JSON.parse(fs.readFileSync('package.json', {encoding: 'utf8'}));
-  version = packageJson.version;
-  dependencies = {...packageJson.dependencies, ...packageJson.devDependencies};
+  try {
+    await buildPackage('core');
 
-  await buildPackage('core');
+    await buildPackage('html');
 
-  await buildPackage('html');
-
-  // await buildPackage('editor');
-  // shelljs.cp('./dist/*.css', './build/editor');
-  //
-  await buildPackage('react');
-  //
-  // await buildPackage('node');
-  //
-  // await buildPackage('express');
+    // await buildPackage('editor');
+    // shelljs.cp('./dist/*.css', './build/editor');
+    //
+    await buildPackage('react');
+    //
+    // await buildPackage('node');
+    //
+    // await buildPackage('express');
+  } finally {
+    shelljs.rm(temporaryPaths);
+  }
 }
 
-main();
+main().catch((err) => {
+  console.error(err);
+  process.exitCode = 1;
+});
