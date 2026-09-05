@@ -56,7 +56,7 @@ export function getRelativePath(base: string, from: string): string {
 export function forAllPathsBetween(target: string, base: string, callback: (value: string) => boolean) {
   if (
     base &&
-    (!target.startsWith(base) || (target.length > base.length && target.charCodeAt(base.length) !== 46) /* . */)
+    (!target.startsWith(base) || (target.length > base.length && target.charCodeAt(base.length) !== 46)) /* . */
   ) {
     return false;
   }
