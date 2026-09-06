@@ -29,8 +29,10 @@ export function useRefState<T>(init: () => T) {
   ] as const;
 }
 
-export function useMemoUpdate<T>(callback: () => T, dependencies: unknown[]) {
+// Pass a fresh, unshared array each render; the update tick is appended in place.
+export function useMemoUpdate<T>(callback: () => T, mutableDependencies: unknown[]) {
   // keep track of changes
   const [tic, update] = useReducer((x) => (x + 1) & 0xffffff, 1);
-  return [useMemo(callback, [...dependencies, tic]), update] as const;
+  mutableDependencies.push(tic);
+  return [useMemo(callback, mutableDependencies), update] as const;
 }

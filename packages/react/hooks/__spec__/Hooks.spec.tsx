@@ -17,10 +17,18 @@ function FilteredBlockNames({block}: {block: Block}) {
   return <span>{Object.keys(useFilteredBlocks(block)).join(',')}</span>;
 }
 
-function MemoProbe({dependencies, init}: {dependencies: unknown[]; init: () => string}) {
+function MemoProbe({
+  dependency,
+  init,
+  calculate,
+}: {
+  dependency: number;
+  init: () => string;
+  calculate: (state: string, dependency: number) => string;
+}) {
   const [state] = useRefState(init);
-  const [memo] = useMemoUpdate(() => state, dependencies);
-  return <span>{memo}</span>;
+  const [memo, update] = useMemoUpdate(() => calculate(state, dependency), [state, dependency, calculate]);
+  return <button onClick={update}>{memo}</button>;
 }
 
 describe('react hooks', function () {
@@ -111,14 +119,22 @@ describe('react hooks', function () {
     expect(root.div.textContent).toBe('second');
   });
 
-  it('does not mutate memo dependencies or rerun state initializers', async function () {
-    const dependencies: unknown[] = [];
+  it('memoizes fresh dependencies and recalculates on explicit updates or dependency changes', async function () {
     const init = vi.fn(() => 'value');
+    const calculate = vi.fn((state: string, dependency: number) => `${state}:${dependency}`);
 
-    await root.waitRender(<MemoProbe dependencies={dependencies} init={init} />);
-    await root.waitRender(<MemoProbe dependencies={dependencies} init={init} />);
+    await root.waitRender(<MemoProbe dependency={1} init={init} calculate={calculate} />);
+    await root.waitRender(<MemoProbe dependency={1} init={init} calculate={calculate} />);
+    expect(calculate).toHaveBeenCalledTimes(1);
+    expect(root.div.textContent).toBe('value:1');
 
-    expect(dependencies).toEqual([]);
+    root.div.querySelector('button').click();
+    await root.waitRender();
+    expect(calculate).toHaveBeenCalledTimes(2);
+
+    await root.waitRender(<MemoProbe dependency={2} init={init} calculate={calculate} />);
+    expect(calculate).toHaveBeenCalledTimes(3);
+    expect(root.div.textContent).toBe('value:2');
     expect(init).toHaveBeenCalledTimes(1);
   });
 });
