@@ -47,7 +47,7 @@ describe('react hooks', function () {
     expect(capture.current).toBe(flow);
   });
 
-  it('uses its stable temporary name when creating a Flow from data', async function () {
+  it('releases its named temporary Flow when switching to a provided Flow', async function () {
     const capture: {current?: Flow} = {};
 
     await root.waitRender(
@@ -60,9 +60,20 @@ describe('react hooks', function () {
     expect(name).toMatch(/^temp-flow-/);
     expect(Root.instance.getValue(name)).toBe(capture.current);
 
+    const providedFlow = new Flow();
+    await root.waitRender(
+      <FlowRoot flow={providedFlow}>
+        <FlowName capture={capture} />
+      </FlowRoot>
+    );
+    await Promise.resolve();
+    expect(capture.current).toBe(providedFlow);
+    expect(Root.instance.getValue(name)).toBeUndefined();
+
     await root.waitRender(<></>);
     await Promise.resolve();
-    expect(Root.instance.getValue(name)).toBeUndefined();
+    expect(providedFlow.isDestroyed()).toBe(false);
+    providedFlow.destroy();
   });
 
   it('keeps its temporary Flow during StrictMode effect replay', async function () {

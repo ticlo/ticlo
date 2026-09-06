@@ -1,7 +1,5 @@
-import React, {useContext, useEffect, useId, useMemo, createContext, ReactNode} from 'react';
+import React, {useContext, useEffect, useId, useMemo, useRef, createContext, ReactNode} from 'react';
 import {DataMap, Flow, Root} from '@ticlo/core';
-
-const retainedTempFlows = new WeakSet<Flow>();
 
 export const FlowContext = createContext<Flow>(null);
 
@@ -32,16 +30,17 @@ export function FlowRoot({
     return Root.instance.addFlow(flowName, flow);
   }, [flow, name, tempId]);
 
+  const retainedTempFlow = useRef<Flow | null>(null);
   const ownsTempFlow = !(flow instanceof Flow) && !name;
   useEffect(() => {
     if (!ownsTempFlow) {
       return;
     }
-    retainedTempFlows.add(f);
+    retainedTempFlow.current = f;
     return () => {
-      retainedTempFlows.delete(f);
+      retainedTempFlow.current = null;
       queueMicrotask(() => {
-        if (!retainedTempFlows.has(f) && Root.instance.getValue(tempId) === f) {
+        if (retainedTempFlow.current !== f && Root.instance.getValue(tempId) === f) {
           Root.instance.deleteValue(tempId);
         }
       });
