@@ -1,7 +1,7 @@
 import {expect} from 'vitest';
-import '../CompareString.js';
-import {Block} from '../../../block/Block.js';
-import {Flow, Root} from '../../../block/Flow.js';
+import '../CompareString.ts';
+import {Block} from '../../../block/Block.ts';
+import {Flow, Root} from '../../../block/Flow.ts';
 
 describe('CompareString', function () {
   it('start with', function () {

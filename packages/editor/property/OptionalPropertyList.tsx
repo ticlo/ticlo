@@ -2,14 +2,14 @@ import React from 'react';
 import {Button, Input, Tooltip} from 'antd';
 import {CloseCircleFilled, SearchOutlined} from '@ant-design/icons';
 
-import {MultiSelectComponent, MultiSelectLoader} from './MultiSelectComponent.js';
-import {ClientConn, ValueSubscriber} from '@ticlo/core/connect/ClientConn.js';
-import {ValueUpdate} from '@ticlo/core/connect/ClientRequests.js';
-import {OptionalPropertyEditor} from './OptionalPropertyEditor.js';
+import {MultiSelectComponent, MultiSelectLoader} from './MultiSelectComponent.tsx';
+import {ClientConn, ValueSubscriber} from '@ticlo/core/connect/ClientConn.ts';
+import {ValueUpdate} from '@ticlo/core/connect/ClientRequests.ts';
+import {OptionalPropertyEditor} from './OptionalPropertyEditor.tsx';
 import {FunctionDesc, PropDesc} from '@ticlo/core';
-import {TicloI18NConsumer} from '../component/LayoutContext.js';
-import {translateEditor} from '@ticlo/core/util/i18n.js';
-import {t} from '../component/LocalizedLabel.js';
+import {TicloI18NConsumer} from '../component/LayoutContext.ts';
+import {translateEditor} from '@ticlo/core/util/i18n.ts';
+import {t} from '../component/LocalizedLabel.tsx';
 
 class OptionalPropertyLoader extends MultiSelectLoader<OptionalPropertyList> {
   optionalProps: string[];

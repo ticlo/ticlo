@@ -1,5 +1,5 @@
 import {encodeSorted} from '@ticlo/core';
-import {NoSerialize} from '@ticlo/core/util/NoSerialize.js';
+import {NoSerialize} from '@ticlo/core/util/NoSerialize.ts';
 
 // helper functions
 

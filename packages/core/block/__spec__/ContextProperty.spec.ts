@@ -1,9 +1,9 @@
 import {expect} from 'vitest';
-import {Block} from '../Block.js';
-import {Flow, Root} from '../Flow.js';
-import type {DataMap} from '../../util/DataTypes.js';
-import {WorkerFunctionGen} from '../../worker/WorkerFunctionGen.js';
-import {globalFunctions} from '../FunctionLib.js';
+import {Block} from '../Block.ts';
+import {Flow, Root} from '../Flow.ts';
+import type {DataMap} from '../../util/DataTypes.ts';
+import {WorkerFunctionGen} from '../../worker/WorkerFunctionGen.ts';
+import {globalFunctions} from '../FunctionLib.ts';
 
 describe('ContextProperty', function () {
   it('global from nested flow', function () {

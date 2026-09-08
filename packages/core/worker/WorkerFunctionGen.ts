@@ -1,14 +1,14 @@
-import {FunctionLib, globalFunctions} from '../block/FunctionLib.js';
-import {BaseFunction, createFunctionFactory, FunctionFactory, StatefulFunction} from '../block/BlockFunction.js';
-import {deepEqual} from '../util/Compare.js';
-import {FunctionDesc, PropDesc, PropGroupDesc} from '../block/Descriptor.js';
-import {BlockIO} from '../block/BlockProperty.js';
-import {Flow} from '../block/Flow.js';
-import {DataMap} from '../util/DataTypes.js';
-import {WorkerFlow} from './WorkerFlow.js';
-import type {Block} from '../block/Block.js';
-import {Namespace} from '../block/Namespace.js';
-import {FlowFunctionLib} from '../block/NSFunctionLib.js';
+import {FunctionLib, globalFunctions} from '../block/FunctionLib.ts';
+import {BaseFunction, createFunctionFactory, FunctionFactory, StatefulFunction} from '../block/BlockFunction.ts';
+import {deepEqual} from '../util/Compare.ts';
+import {FunctionDesc, PropDesc, PropGroupDesc} from '../block/Descriptor.ts';
+import {BlockIO} from '../block/BlockProperty.ts';
+import {Flow} from '../block/Flow.ts';
+import {DataMap} from '../util/DataTypes.ts';
+import {WorkerFlow} from './WorkerFlow.ts';
+import type {Block} from '../block/Block.ts';
+import {Namespace} from '../block/Namespace.ts';
+import {FlowFunctionLib} from '../block/NSFunctionLib.ts';
 
 export class WorkerFunctionGen extends BaseFunction<Block> {
   declare readonly type: string;

@@ -4,6 +4,8 @@
     "module": "nodenext",
     "jsx": "react",
     "moduleResolution": "nodenext",
+    "allowImportingTsExtensions": true,
+    "noEmit": true,
     "esModuleInterop": true,
     "lib": [
       "esnext",

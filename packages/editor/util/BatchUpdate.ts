@@ -1,5 +1,5 @@
 import ReactDOM from 'react-dom';
-import {ClientConn} from '@ticlo/core/editor.js';
+import {ClientConn} from '@ticlo/core/editor.ts';
 
 const callbacks = new Set<() => void>();
 let pending = false;

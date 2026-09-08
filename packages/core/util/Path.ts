@@ -1,5 +1,5 @@
-import {Logger} from './Logger.js';
-import {type Block} from '../block/Block.js';
+import {Logger} from './Logger.ts';
+import {type Block} from '../block/Block.ts';
 
 export function splitPathName(currentPath: string): [string, string] {
   const dotPos = currentPath.lastIndexOf('.');

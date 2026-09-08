@@ -1,10 +1,10 @@
-import {BlockConfig, BlockIO, BlockProperty} from './BlockProperty.js';
-import {type Block} from './Block.js';
-import {EventType} from './Event.js';
-import {BlockMode} from './Descriptor.js';
-import {type FunctionData} from './FunctonData.js';
-import type {DataMap} from '../util/DataTypes.js';
-import type {FunctionDesc} from './Descriptor.js';
+import {BlockConfig, BlockIO, BlockProperty} from './BlockProperty.ts';
+import {type Block} from './Block.ts';
+import {EventType} from './Event.ts';
+import {BlockMode} from './Descriptor.ts';
+import {type FunctionData} from './FunctonData.ts';
+import type {DataMap} from '../util/DataTypes.ts';
+import type {FunctionDesc} from './Descriptor.ts';
 
 export class BaseFunction<T extends FunctionData = FunctionData> {
   declare type?: string;

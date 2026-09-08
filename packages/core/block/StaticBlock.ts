@@ -1,14 +1,14 @@
-import './Block.js';
-import {Block} from './Block.js';
-import {BlockConfig, BlockProperty} from './BlockProperty.js';
-import {DataMap, isSavedBlock} from '../util/DataTypes.js';
-import {ConfigGenerators, ConstTypeConfig, FlowConfigGenerators} from './BlockConfigs.js';
-import {Flow} from './Flow.js';
-import {encodeTicloName} from '../util/Name.js';
-import {FunctionDispatcher} from './FunctionLib.js';
-import {FunctionFactory} from './BlockFunction.js';
-import {PropListener} from './Dispatcher.js';
-import {Namespace} from './Namespace.js';
+import './Block.ts';
+import {Block} from './Block.ts';
+import {BlockConfig, BlockProperty} from './BlockProperty.ts';
+import {DataMap, isSavedBlock} from '../util/DataTypes.ts';
+import {ConfigGenerators, ConstTypeConfig, FlowConfigGenerators} from './BlockConfigs.ts';
+import {Flow} from './Flow.ts';
+import {encodeTicloName} from '../util/Name.ts';
+import {FunctionDispatcher} from './FunctionLib.ts';
+import {FunctionFactory} from './BlockFunction.ts';
+import {PropListener} from './Dispatcher.ts';
+import {Namespace} from './Namespace.ts';
 
 export class StaticConfig extends BlockProperty {
   _load(val: unknown) {}

@@ -1,4 +1,4 @@
-import {arrayEqual, deepEqual, shallowEqual} from '../Compare.js';
+import {arrayEqual, deepEqual, shallowEqual} from '../Compare.ts';
 
 describe('Compare', function () {
   it('arrayEqual', function () {

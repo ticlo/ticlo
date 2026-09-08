@@ -1,18 +1,18 @@
 import {expect} from 'vitest';
 import {simulate} from 'simulate-event';
 import React from 'react';
-import {removeLastTemplate, loadTemplate, querySingle, expandDocumentBody} from '../../../util/test-util.js';
-import {initEditor} from '../../../index.js';
-import {WorkerEditor} from '../WorkerEditor.js';
-import {shouldHappen, waitTick} from '@ticlo/core/util/test-util.js';
+import {removeLastTemplate, loadTemplate, querySingle, expandDocumentBody} from '../../../util/test-util.ts';
+import {initEditor} from '../../../index.ts';
+import {WorkerEditor} from '../WorkerEditor.tsx';
+import {shouldHappen, waitTick} from '@ticlo/core/util/test-util.ts';
 import type {PropDesc} from '@ticlo/core';
 import {blankFuncDesc, blankPropDesc} from '@ticlo/core';
-import {makeLocalConnection} from '@ticlo/core/connect/LocalConnection.js';
+import {makeLocalConnection} from '@ticlo/core/connect/LocalConnection.ts';
 import {Root} from '@ticlo/core';
-import {WorkerFunctionGen} from '@ticlo/core/worker/WorkerFunctionGen.js';
-import {globalFunctions} from '@ticlo/core/block/FunctionLib.js';
-import {Namespace} from '@ticlo/core/block/Namespace.js';
-import {DateEditor} from '../DateEditor.js';
+import {WorkerFunctionGen} from '@ticlo/core/worker/WorkerFunctionGen.ts';
+import {globalFunctions} from '@ticlo/core/block/FunctionLib.ts';
+import {Namespace} from '@ticlo/core/block/Namespace.ts';
+import {DateEditor} from '../DateEditor.tsx';
 
 describe('WorkerEditor', function () {
   beforeEach(async function () {

@@ -1,9 +1,9 @@
 import {isValidElement, ReactNode, SyntheticEvent, useCallback, useEffect, useRef, useState} from 'react';
 import {Block, BlockProperty, Event} from '@ticlo/core';
-import {PropMap} from '../comp/PropType.js';
-import {Values} from '../comp/Values.js';
-import {useBlockConfigs} from './useBlockConfigs.js';
-import {useMemoUpdate, useRefState, useValueRef} from '../util/react-tools.js';
+import {PropMap} from '../comp/PropType.ts';
+import {Values} from '../comp/Values.ts';
+import {useBlockConfigs} from './useBlockConfigs.ts';
+import {useMemoUpdate, useRefState, useValueRef} from '../util/react-tools.ts';
 
 const configsMap: PropMap = {
   '#order': {value: Values.arrayOptional, pinned: true},

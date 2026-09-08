@@ -1,4 +1,4 @@
-import {DataMap} from '../index.js';
+import {DataMap} from '../index.ts';
 
 export const BlockModeList = [
   'auto', // defined by function, this mode also allows block to update by itself automatically, like with internal timer

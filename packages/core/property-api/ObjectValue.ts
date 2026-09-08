@@ -1,4 +1,4 @@
-import {Block, BlockProperty, DataMap} from '../index.js';
+import {Block, BlockProperty, DataMap} from '../index.ts';
 
 export function updateObjectValue(block: Block, field: string, value: DataMap) {
   const prop = block.getProperty(field);

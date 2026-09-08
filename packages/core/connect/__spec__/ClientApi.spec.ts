@@ -1,19 +1,19 @@
 import {expect} from 'vitest';
-import {Block} from '../../block/Block.js';
-import {Flow, Root} from '../../block/Flow.js';
-import {makeLocalConnection} from '../LocalConnection.js';
-import '../../functions/math/Arithmetic.js';
-import '../../functions/Categories.js';
-import {AsyncClientPromise} from './AsyncClientPromise.js';
-import {VoidListeners, TestFunctionRunner} from '../../block/__spec__/TestFunction.js';
-import {FunctionDesc} from '../../block/Descriptor.js';
-import {shouldHappen, shouldReject} from '../../util/test-util.js';
-import {JsFunction} from '../../functions/script/Js.js';
-import {globalFunctions} from '../../block/FunctionLib.js';
-import {DataMap, isDataTruncated} from '../../util/DataTypes.js';
-import {WorkerFunctionGen} from '../../worker/WorkerFunctionGen.js';
-import {FlowEditor} from '../../worker/FlowEditor.js';
-import {WorkerFlow} from '../../worker/WorkerFlow.js';
+import {Block} from '../../block/Block.ts';
+import {Flow, Root} from '../../block/Flow.ts';
+import {makeLocalConnection} from '../LocalConnection.ts';
+import '../../functions/math/Arithmetic.ts';
+import '../../functions/Categories.ts';
+import {AsyncClientPromise} from './AsyncClientPromise.ts';
+import {VoidListeners, TestFunctionRunner} from '../../block/__spec__/TestFunction.ts';
+import {FunctionDesc} from '../../block/Descriptor.ts';
+import {shouldHappen, shouldReject} from '../../util/test-util.ts';
+import {JsFunction} from '../../functions/script/Js.ts';
+import {globalFunctions} from '../../block/FunctionLib.ts';
+import {DataMap, isDataTruncated} from '../../util/DataTypes.ts';
+import {WorkerFunctionGen} from '../../worker/WorkerFunctionGen.ts';
+import {FlowEditor} from '../../worker/FlowEditor.ts';
+import {WorkerFlow} from '../../worker/WorkerFlow.ts';
 
 // @ts-ignore
 const beforeAll = globalThis.beforeAll ?? globalThis.before;

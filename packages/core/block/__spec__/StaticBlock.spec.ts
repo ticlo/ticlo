@@ -1,10 +1,10 @@
 import {expect} from 'vitest';
-import {FlowWithStatic, StaticBlock} from '../StaticBlock.js';
-import {WorkerFunctionGen} from '../../worker/WorkerFunctionGen.js';
-import {WorkerFlow} from '../../worker/WorkerFlow.js';
-import {Flow} from '../Flow.js';
-import {encodeTicloName} from '../../util/Name.js';
-import {Block} from '../Block.js';
+import {FlowWithStatic, StaticBlock} from '../StaticBlock.ts';
+import {WorkerFunctionGen} from '../../worker/WorkerFunctionGen.ts';
+import {WorkerFlow} from '../../worker/WorkerFlow.ts';
+import {Flow} from '../Flow.ts';
+import {encodeTicloName} from '../../util/Name.ts';
+import {Block} from '../Block.ts';
 
 describe('StaticBlock', function () {
   it('does not support inline worker flows', function () {

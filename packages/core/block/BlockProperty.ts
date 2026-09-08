@@ -1,6 +1,6 @@
-import {PropDispatcher, PropListener, Destroyable} from './Dispatcher.js';
-import {Block} from './Block.js';
-import {DataMap, isSavedBlock} from '../util/DataTypes.js';
+import {PropDispatcher, PropListener, Destroyable} from './Dispatcher.ts';
+import {Block} from './Block.ts';
+import {DataMap, isSavedBlock} from '../util/DataTypes.ts';
 
 export interface BlockBindingSource extends PropDispatcher<any>, Destroyable {
   getProperty(): BlockProperty;

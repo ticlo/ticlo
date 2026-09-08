@@ -1,4 +1,4 @@
-import {Connection, ConnectionSendingData, ConnectionSend} from './Connection.js';
+import {Connection, ConnectionSendingData, ConnectionSend} from './Connection.ts';
 import {
   BlockBindingSource,
   BlockIO,
@@ -6,38 +6,38 @@ import {
   BlockPropertyEvent,
   BlockPropertySubscriber,
   HelperProperty,
-} from '../block/BlockProperty.js';
-import {DataMap, isPrimitiveType} from '../util/DataTypes.js';
-import {truncateData} from '../util/DataTruncate.js';
-import {Block, BlockChildWatch, InputsBlock} from '../block/Block.js';
-import {Flow, Root} from '../block/Flow.js';
-import {FlowWithStatic, StaticConfig} from '../block/StaticBlock.js';
-import {PropDispatcher, PropListener} from '../block/Dispatcher.js';
-import {DescListener, FunctionLib} from '../block/FunctionLib.js';
-import {FunctionDesc, PropDesc, PropGroupDesc} from '../block/Descriptor.js';
-import {propRelative} from '../util/PropPath.js';
+} from '../block/BlockProperty.ts';
+import {DataMap, isPrimitiveType} from '../util/DataTypes.ts';
+import {truncateData} from '../util/DataTruncate.ts';
+import {Block, BlockChildWatch, InputsBlock} from '../block/Block.ts';
+import {Flow, Root} from '../block/Flow.ts';
+import {FlowWithStatic, StaticConfig} from '../block/StaticBlock.ts';
+import {PropDispatcher, PropListener} from '../block/Dispatcher.ts';
+import {DescListener, FunctionLib} from '../block/FunctionLib.ts';
+import {FunctionDesc, PropDesc, PropGroupDesc} from '../block/Descriptor.ts';
+import {propRelative} from '../util/PropPath.ts';
 import {
   insertGroupProperty,
   moveGroupProperty,
   removeGroupProperty,
   setGroupLength,
-} from '../property-api/GroupProperty.js';
-import {findPropertyForNewBlock} from '../property-api/PropertyName.js';
-import {hideProperties, moveShownProperty, showProperties} from '../property-api/PropertyShowHide.js';
-import {addCustomProperty, moveCustomProperty, removeCustomProperty} from '../property-api/CustomProperty.js';
-import {FlowEditor} from '../worker/FlowEditor.js';
-import {addOptionalProperty, moveOptionalProperty, removeOptionalProperty} from '../property-api/OptionalProperty.js';
-import {WorkerFunctionGen} from '../worker/WorkerFunctionGen.js';
-import {isBindable} from '../util/Path.js';
-import {ClientCallbacks} from './ClientRequests.js';
-import {copyProperties, createStaticBlock, deleteProperties, pasteProperties} from '../property-api/CopyPaste.js';
-import {moveProperty, PropertyMover} from '../property-api/PropertyMover.js';
-import {BlockInputsConfig, BlockOutputsConfig} from '../block/BlockConfigs.js';
-import {WorkerFlow} from '../worker/WorkerFlow.js';
-import {Query, queryBlock} from './Query.js';
-import {getGlobalSettingsData} from '../util/Settings.js';
-import {DoneEvent} from '../block/Event.js';
-import {Namespace} from '../block/Namespace.js';
+} from '../property-api/GroupProperty.ts';
+import {findPropertyForNewBlock} from '../property-api/PropertyName.ts';
+import {hideProperties, moveShownProperty, showProperties} from '../property-api/PropertyShowHide.ts';
+import {addCustomProperty, moveCustomProperty, removeCustomProperty} from '../property-api/CustomProperty.ts';
+import {FlowEditor} from '../worker/FlowEditor.ts';
+import {addOptionalProperty, moveOptionalProperty, removeOptionalProperty} from '../property-api/OptionalProperty.ts';
+import {WorkerFunctionGen} from '../worker/WorkerFunctionGen.ts';
+import {isBindable} from '../util/Path.ts';
+import {ClientCallbacks} from './ClientRequests.ts';
+import {copyProperties, createStaticBlock, deleteProperties, pasteProperties} from '../property-api/CopyPaste.ts';
+import {moveProperty, PropertyMover} from '../property-api/PropertyMover.ts';
+import {BlockInputsConfig, BlockOutputsConfig} from '../block/BlockConfigs.ts';
+import {WorkerFlow} from '../worker/WorkerFlow.ts';
+import {Query, queryBlock} from './Query.ts';
+import {getGlobalSettingsData} from '../util/Settings.ts';
+import {DoneEvent} from '../block/Event.ts';
+import {Namespace} from '../block/Namespace.ts';
 
 export class ServerRequest extends ConnectionSendingData {
   id: string;

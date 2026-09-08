@@ -1,5 +1,5 @@
 import {describe, it, expect, beforeEach, afterEach} from 'vitest';
-import {CssSheet} from '../CssSheet.js';
+import {CssSheet} from '../CssSheet.ts';
 
 describe('CssSheet', () => {
   let sheet: CssSheet;

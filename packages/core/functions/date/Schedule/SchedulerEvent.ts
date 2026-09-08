@@ -1,6 +1,6 @@
 import {DateTime, Duration} from 'luxon';
-import vl from '../../../util/Validator.js';
-import {isWeekDay} from '../../../util/Settings.js';
+import vl from '../../../util/Validator.ts';
+import {isWeekDay} from '../../../util/Settings.ts';
 
 const ONE_MINUTE = 60_000;
 

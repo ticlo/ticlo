@@ -1,6 +1,6 @@
 import {expect} from 'vitest';
-import {TestFunctionRunner} from './TestFunction.js';
-import {Flow, Root} from '../Flow.js';
+import {TestFunctionRunner} from './TestFunction.ts';
+import {Flow, Root} from '../Flow.ts';
 
 describe('Disabled Block', function () {
   it('disabled block', function () {

@@ -1,9 +1,9 @@
-import './Assert.js';
-import './LogTime.js';
+import './Assert.ts';
+import './LogTime.ts';
 import {globalFunctions} from '@ticlo/core';
 
-export {FlowTestGroup} from './FlowTestGroup.js';
-export {FlowTestCase} from './FlowTestCase.js';
+export {FlowTestGroup} from './FlowTestGroup.ts';
+export {FlowTestCase} from './FlowTestCase.ts';
 
 globalFunctions.addCategory({
   id: 'test:',

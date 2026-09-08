@@ -1,13 +1,13 @@
-import {globalFunctions} from '../block/FunctionLib.js';
-import {Block} from '../block/Block.js';
-import {convertToOutput} from '../util/DataTypes.js';
-import {ErrorEvent, Event, EventType, WAIT} from '../block/Event.js';
-import {MapImpl, WorkerOutput} from './MapImpl.js';
-import {BlockProxy} from '../block/BlockProxy.js';
-import {UnlimitedPool} from './ThreadPool.js';
-import {RepeaterWorker} from './WorkerFlow.js';
-import {defaultConfigs} from '../block/Descriptor.js';
-import {WorkerControl} from './WorkerControl.js';
+import {globalFunctions} from '../block/FunctionLib.ts';
+import {Block} from '../block/Block.ts';
+import {convertToOutput} from '../util/DataTypes.ts';
+import {ErrorEvent, Event, EventType, WAIT} from '../block/Event.ts';
+import {MapImpl, WorkerOutput} from './MapImpl.ts';
+import {BlockProxy} from '../block/BlockProxy.ts';
+import {UnlimitedPool} from './ThreadPool.ts';
+import {RepeaterWorker} from './WorkerFlow.ts';
+import {defaultConfigs} from '../block/Descriptor.ts';
+import {WorkerControl} from './WorkerControl.ts';
 
 interface KeyIterator {
   current(): string;

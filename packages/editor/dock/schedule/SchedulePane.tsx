@@ -1,11 +1,11 @@
 import React from 'react';
-import {ClientConn, decode, encode, DataMap, isDataTruncated, translateEditor} from '@ticlo/core/editor.js';
+import {ClientConn, decode, encode, DataMap, isDataTruncated, translateEditor} from '@ticlo/core/editor.ts';
 
 import {DockLayout} from 'rc-dock';
 import {EditorView} from '@codemirror/view';
 import {MenuProps} from 'antd';
-import {createDockDialog, DockDialogPane} from '../../component/DockDialogPane.js';
-import {ScheduleCalendar} from '../../scheduler/Calendar.js';
+import {createDockDialog, DockDialogPane} from '../../component/DockDialogPane.tsx';
+import {ScheduleCalendar} from '../../scheduler/Calendar.tsx';
 
 export class SchedulePane {
   static openFloatPanel(layout: DockLayout, conn: ClientConn, parentPath: string, scheduleName: string, index: number) {

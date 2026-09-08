@@ -1,6 +1,6 @@
 import React from 'react';
 import {Input} from 'antd';
-import {ValueEditorProps} from './ValueEditorBase.js';
+import {ValueEditorProps} from './ValueEditorBase.ts';
 
 const {TextArea} = Input;
 

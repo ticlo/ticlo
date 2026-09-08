@@ -1,6 +1,6 @@
 import React, {MouseEventHandler} from 'react';
-import {WireItem} from './Wire.js';
-import {DataRendererItem, PureDataRenderer} from '../component/DataRenderer.js';
+import {WireItem} from './Wire.tsx';
+import {DataRendererItem, PureDataRenderer} from '../component/DataRenderer.ts';
 import {
   resolvePath,
   ClientConn,
@@ -17,16 +17,16 @@ import {
   ValueSubscriber,
   voidFunction,
   getDisplayName,
-} from '@ticlo/core/editor.js';
-import {TIcon} from '../icon/Icon.js';
+} from '@ticlo/core/editor.ts';
+import {TIcon} from '../icon/Icon.tsx';
 import {DragDropDiv, DragState} from 'rc-dock';
 import type {DragHandler} from 'rc-dock/lib/dragdrop/DragManager.js';
-import {FieldValue} from './FieldValue.js';
+import {FieldValue} from './FieldValue.tsx';
 import {isBindable, propAcceptsBlock} from '@ticlo/core';
-import {LocalizedPropertyName} from '../component/LocalizedLabel.js';
-import {PropertyDropdown} from '../popup/PropertyDropdown.js';
-import {BlockDropdown} from '../popup/BlockDropdown.js';
-import {getDescLib} from '../util/FunctionLib.js';
+import {LocalizedPropertyName} from '../component/LocalizedLabel.tsx';
+import {PropertyDropdown} from '../popup/PropertyDropdown.tsx';
+import {BlockDropdown} from '../popup/BlockDropdown.tsx';
+import {getDescLib} from '../util/FunctionLib.ts';
 
 export interface Stage {
   getBlock(path: string): BlockItem;

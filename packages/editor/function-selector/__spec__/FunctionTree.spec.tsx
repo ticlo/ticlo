@@ -1,16 +1,16 @@
 import {expect} from 'vitest';
 import React from 'react';
-import {shouldHappen} from '@ticlo/core/util/test-util.js';
-import {makeLocalConnection} from '@ticlo/core/connect/LocalConnection.js';
+import {shouldHappen} from '@ticlo/core/util/test-util.ts';
+import {makeLocalConnection} from '@ticlo/core/connect/LocalConnection.ts';
 import {Root} from '@ticlo/core';
-import {WorkerFunctionGen} from '@ticlo/core/worker/WorkerFunctionGen.js';
-import {DescRequest} from '@ticlo/core/connect/ClientRequests.js';
-import {FunctionTreeRoot} from '../FunctionTreeItem.js';
-import {FunctionTreeRenderer} from '../FunctionTreeRenderer.js';
-import {FunctionSelect} from '../FunctionSelect.js';
-import {FunctionView} from '../FunctionView.js';
-import {loadTemplate, querySingle, removeLastTemplate} from '../../util/test-util.js';
-import {Namespace} from '@ticlo/core/block/Namespace.js';
+import {WorkerFunctionGen} from '@ticlo/core/worker/WorkerFunctionGen.ts';
+import {DescRequest} from '@ticlo/core/connect/ClientRequests.ts';
+import {FunctionTreeRoot} from '../FunctionTreeItem.ts';
+import {FunctionTreeRenderer} from '../FunctionTreeRenderer.tsx';
+import {FunctionSelect} from '../FunctionSelect.tsx';
+import {FunctionView} from '../FunctionView.tsx';
+import {loadTemplate, querySingle, removeLastTemplate} from '../../util/test-util.ts';
+import {Namespace} from '@ticlo/core/block/Namespace.ts';
 
 describe('FunctionTree', function () {
   function findElements(node: any, predicate: (element: any) => boolean): any[] {

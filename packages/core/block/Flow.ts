@@ -1,6 +1,6 @@
-import {Block, BlockChildWatch, InputsBlock, Runnable} from './Block.js';
-import {BlockConfig, BlockIO, BlockProperty, ContextProperty} from './BlockProperty.js';
-import {Resolver} from './Resolver.js';
+import {Block, BlockChildWatch, InputsBlock, Runnable} from './Block.ts';
+import {BlockConfig, BlockIO, BlockProperty, ContextProperty} from './BlockProperty.ts';
+import {Resolver} from './Resolver.ts';
 import {
   BlockConstConfig,
   ConstTypeConfig,
@@ -9,17 +9,17 @@ import {
   FlowNamespaceConfigGenerators,
   FlowLibConfigGenerators,
   GlobalConfigGenerators,
-} from './BlockConfigs.js';
-import {Event} from './Event.js';
-import {DataMap} from '../util/DataTypes.js';
-import {FunctionDesc} from './Descriptor.js';
-import {FunctionLib, globalFunctions} from './FunctionLib.js';
-import {FlowStorage} from './Storage.js';
-import {FlowHistory} from './FlowHistory.js';
-import {getDefaultZone, updateGlobalSettings} from '../util/Settings.js';
-import {DataWrapper, FunctionOutput} from './FunctonData.js';
-import {Namespace} from './Namespace.js';
-import {NsFunctionLib, FlowFunctionLib} from './NSFunctionLib.js';
+} from './BlockConfigs.ts';
+import {Event} from './Event.ts';
+import {DataMap} from '../util/DataTypes.ts';
+import {FunctionDesc} from './Descriptor.ts';
+import {FunctionLib, globalFunctions} from './FunctionLib.ts';
+import {FlowStorage} from './Storage.ts';
+import {FlowHistory} from './FlowHistory.ts';
+import {getDefaultZone, updateGlobalSettings} from '../util/Settings.ts';
+import {DataWrapper, FunctionOutput} from './FunctonData.ts';
+import {Namespace} from './Namespace.ts';
+import {NsFunctionLib, FlowFunctionLib} from './NSFunctionLib.ts';
 
 export enum FlowState {
   enabled,

@@ -1,11 +1,11 @@
 import {expect} from 'vitest';
-import {Block} from '../Block.js';
-import {Flow, Root} from '../Flow.js';
-import {PropDispatcher} from '../Dispatcher.js';
-import {voidProperty} from '../Void.js';
-import {BlockIO} from '../BlockProperty.js';
-import {VoidListeners} from './TestFunction.js';
-import {_strictMode} from '../BlockSettings.js';
+import {Block} from '../Block.ts';
+import {Flow, Root} from '../Flow.ts';
+import {PropDispatcher} from '../Dispatcher.ts';
+import {voidProperty} from '../Void.ts';
+import {BlockIO} from '../BlockProperty.ts';
+import {VoidListeners} from './TestFunction.ts';
+import {_strictMode} from '../BlockSettings.ts';
 
 describe('Destroyed Block', function () {
   it('throw on destroyed block in strict mode', function () {

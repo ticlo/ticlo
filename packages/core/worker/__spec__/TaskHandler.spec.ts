@@ -1,13 +1,13 @@
 import {expect} from 'vitest';
-import type {Block} from '../../block/Block.js';
-import {Flow, Root} from '../../block/Flow.js';
-import '../../functions/math/Arithmetic.js';
-import '../HandlerFunction.js';
-import type {DataMap} from '../../util/DataTypes.js';
-import {convertToOutput} from '../../util/DataTypes.js';
-import {DoneEvent, ErrorEvent, Event, WAIT} from '../../block/Event.js';
-import {shouldHappen, shouldTimeout} from '../../util/test-util.js';
-import {Task} from '../../block/Task.js';
+import type {Block} from '../../block/Block.ts';
+import {Flow, Root} from '../../block/Flow.ts';
+import '../../functions/math/Arithmetic.ts';
+import '../HandlerFunction.ts';
+import type {DataMap} from '../../util/DataTypes.ts';
+import {convertToOutput} from '../../util/DataTypes.ts';
+import {DoneEvent, ErrorEvent, Event, WAIT} from '../../block/Event.ts';
+import {shouldHappen, shouldTimeout} from '../../util/test-util.ts';
+import {Task} from '../../block/Task.ts';
 
 const handlerWorker = {
   '#is': {

@@ -1,5 +1,5 @@
 import {expect} from 'vitest';
-import {Flow, Root} from '../Flow.js';
+import {Flow, Root} from '../Flow.ts';
 
 describe('HelperProperty', function () {
   it('save load', function () {

@@ -1,5 +1,5 @@
 import {expect} from 'vitest';
-import * as i18n from '../i18n.js';
+import * as i18n from '../i18n.ts';
 import i18next from 'i18next';
 
 // @ts-ignore

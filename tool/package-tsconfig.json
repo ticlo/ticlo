@@ -4,6 +4,7 @@
     "module": "nodenext",
     "jsx": "react",
     "moduleResolution": "nodenext",
+    "rewriteRelativeImportExtensions": true,
     "esModuleInterop": true,
     "lib": [
       "esnext",

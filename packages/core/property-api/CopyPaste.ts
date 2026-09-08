@@ -1,11 +1,11 @@
-import {Block} from '../block/Block.js';
-import {DataMap, isDataMap} from '../util/DataTypes.js';
-import {BlockProperty} from '../block/BlockProperty.js';
-import {FlowWithStatic, StaticBlock, StaticConfig} from '../block/StaticBlock.js';
-import {findPropertyForNewBlock} from './PropertyName.js';
-import {Flow} from '../block/Flow.js';
-import {addMapArray} from '../util/Map.js';
-import {cloneToLevel} from '../util/Clone.js';
+import {Block} from '../block/Block.ts';
+import {DataMap, isDataMap} from '../util/DataTypes.ts';
+import {BlockProperty} from '../block/BlockProperty.ts';
+import {FlowWithStatic, StaticBlock, StaticConfig} from '../block/StaticBlock.ts';
+import {findPropertyForNewBlock} from './PropertyName.ts';
+import {Flow} from '../block/Flow.ts';
+import {addMapArray} from '../util/Map.ts';
+import {cloneToLevel} from '../util/Clone.ts';
 
 function getProperty(parent: Block, field: string, create = false): [BlockProperty, Block] {
   if (field.startsWith('#static.')) {

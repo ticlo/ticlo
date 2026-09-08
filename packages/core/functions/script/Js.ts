@@ -1,11 +1,11 @@
-import {globalFunctions} from '../../block/FunctionLib.js';
-import {BaseFunction, StatefulFunction} from '../../block/BlockFunction.js';
-import {BlockIO} from '../../block/BlockProperty.js';
-import {ErrorEvent, WAIT} from '../../block/Event.js';
-import {Block} from '../../block/Block.js';
-import {BlockDeepProxy} from '../../block/BlockProxy.js';
-import {FunctionDesc} from '../../block/Descriptor.js';
-import {Logger} from '../../util/Logger.js';
+import {globalFunctions} from '../../block/FunctionLib.ts';
+import {BaseFunction, StatefulFunction} from '../../block/BlockFunction.ts';
+import {BlockIO} from '../../block/BlockProperty.ts';
+import {ErrorEvent, WAIT} from '../../block/Event.ts';
+import {Block} from '../../block/Block.ts';
+import {BlockDeepProxy} from '../../block/BlockProxy.ts';
+import {FunctionDesc} from '../../block/Descriptor.ts';
+import {Logger} from '../../util/Logger.ts';
 
 export const SCRIPT_ERROR = 'scriptError';
 

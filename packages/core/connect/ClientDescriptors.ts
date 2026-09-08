@@ -1,4 +1,4 @@
-import {FunctionDesc} from '../block/Descriptor.js';
+import {FunctionDesc} from '../block/Descriptor.ts';
 
 export const clientDescriptors: FunctionDesc[] = [
   {

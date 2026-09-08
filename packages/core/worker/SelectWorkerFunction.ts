@@ -1,9 +1,9 @@
-import {BaseFunction, StatefulFunction} from '../block/BlockFunction.js';
-import {globalFunctions} from '../block/FunctionLib.js';
-import {JsFunction} from '../functions/script/Js.js';
-import {WorkerCollector, WorkerMode, WorkerModeOptions} from './WorkerFunction.js';
-import {Flow, Root} from '../block/Flow.js';
-import {Block} from '../block/Block.js';
+import {BaseFunction, StatefulFunction} from '../block/BlockFunction.ts';
+import {globalFunctions} from '../block/FunctionLib.ts';
+import {JsFunction} from '../functions/script/Js.ts';
+import {WorkerCollector, WorkerMode, WorkerModeOptions} from './WorkerFunction.ts';
+import {Flow, Root} from '../block/Flow.ts';
+import {Block} from '../block/Block.ts';
 
 export class SelectWorkerFunction extends BaseFunction<Block> {
   collector: WorkerCollector;

@@ -1,7 +1,7 @@
 import {useEffect, useMemo, useReducer} from 'react';
 import {Block, BlockProperty, FunctionInput} from '@ticlo/core';
-import {PropMap} from '../comp/PropType.js';
-import {useMemoUpdate} from '../util/react-tools.js';
+import {PropMap} from '../comp/PropType.ts';
+import {useMemoUpdate} from '../util/react-tools.ts';
 
 /**
  * Get an object with properties/configs, more efficiently by listening to each property individually

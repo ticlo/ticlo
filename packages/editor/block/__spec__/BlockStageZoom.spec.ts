@@ -1,4 +1,4 @@
-import {BlockStage} from '../BlockStage.js';
+import {BlockStage} from '../BlockStage.tsx';
 
 describe('BlockStage zoom', function () {
   it('keeps the vertical and horizontal viewport centers fixed', function () {

@@ -1,7 +1,7 @@
 import {expect, describe, it} from 'vitest';
-import '../CssClass.js';
-import '../CreateStyle.js';
-import '../CssSheet.js';
+import '../CssClass.ts';
+import '../CreateStyle.ts';
+import '../CssSheet.ts';
 import {Flow, Root} from '@ticlo/core';
 
 describe('CssClass', function () {

@@ -1,9 +1,9 @@
 import React from 'react';
-import {ClientConn, FunctionDesc} from '@ticlo/core/editor.js';
-import {FunctionTreeItem, FunctionTreeRoot} from './FunctionTreeItem.js';
-import VirtualList from '../component/Virtual.js';
-import {FunctionTreeRenderer} from './FunctionTreeRenderer.js';
-import {OnFunctionClick} from './FunctionView.js';
+import {ClientConn, FunctionDesc} from '@ticlo/core/editor.ts';
+import {FunctionTreeItem, FunctionTreeRoot} from './FunctionTreeItem.ts';
+import VirtualList from '../component/Virtual.tsx';
+import {FunctionTreeRenderer} from './FunctionTreeRenderer.tsx';
+import {OnFunctionClick} from './FunctionView.tsx';
 
 interface Props {
   conn: ClientConn;

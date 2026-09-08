@@ -1,5 +1,5 @@
 import {expect} from 'vitest';
-import {Logger} from '../Logger.js';
+import {Logger} from '../Logger.ts';
 
 export class TestLogger {
   logs: string[] = [];

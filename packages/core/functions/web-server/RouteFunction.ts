@@ -1,10 +1,10 @@
-import {StatefulFunction} from '../../block/BlockFunction.js';
-import {NO_EMIT} from '../../block/Event.js';
-import {globalFunctions} from '../../block/FunctionLib.js';
-import {HttpRequest} from './HttpRequest.js';
-import {deepEqual} from '../../util/Compare.js';
-import {DataMap} from '../../util/DataTypes.js';
-import {getDefaultDataFromCustom} from '../../block/Descriptor.js';
+import {StatefulFunction} from '../../block/BlockFunction.ts';
+import {NO_EMIT} from '../../block/Event.ts';
+import {globalFunctions} from '../../block/FunctionLib.ts';
+import {HttpRequest} from './HttpRequest.ts';
+import {deepEqual} from '../../util/Compare.ts';
+import {DataMap} from '../../util/DataTypes.ts';
+import {getDefaultDataFromCustom} from '../../block/Descriptor.ts';
 
 const defaultRouteWorker = {
   '#is': '',

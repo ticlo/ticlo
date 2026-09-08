@@ -1,7 +1,7 @@
 import chalk from 'chalk';
-import {FlowTestCase} from './FlowTestCase.js';
-import {FlowTestGroup} from './FlowTestGroup.js';
-import {Resolver} from '@ticlo/core/block/Resolver.js';
+import {FlowTestCase} from './FlowTestCase.ts';
+import {FlowTestGroup} from './FlowTestGroup.ts';
+import {Resolver} from '@ticlo/core/block/Resolver.ts';
 import {Block, BlockIO} from '@ticlo/core';
 
 interface TestTask {

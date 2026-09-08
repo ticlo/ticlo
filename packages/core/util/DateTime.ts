@@ -1,5 +1,5 @@
 import {DateTime} from 'luxon';
-import {getDefaultZone, systemZone} from './Settings.js';
+import {getDefaultZone, systemZone} from './Settings.ts';
 
 export const invalidDate = DateTime.invalid('invalid input');
 

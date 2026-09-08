@@ -2,31 +2,31 @@ import * as React from 'react';
 import {Checkbox, ConfigProvider, Switch, Radio} from 'antd';
 import {Block, DataMap, decode, encodeSorted, FunctionDesc, Flow, PropDesc, Root, addConsoleLogger} from '@ticlo/core';
 import {TicloI18nSettings} from '@ticlo/core';
-import {makeLocalConnection} from '@ticlo/core/connect/LocalConnection.js';
-import {data} from './sample-data/data.js';
-import reactData from './sample-data/react.js';
+import {makeLocalConnection} from '@ticlo/core/connect/LocalConnection.ts';
+import {data} from './sample-data/data.ts';
+import reactData from './sample-data/react.ts';
 import {initEditor, PropertyList, BlockStage, NodeTree} from '@ticlo/editor';
 import {DragDropDiv, DragState, DockLayout, DockContextType} from 'rc-dock';
-import {ClientConnection} from '@ticlo/core/connect/ClientConnection.js';
+import {ClientConnection} from '@ticlo/core/connect/ClientConnection.ts';
 import {globalFunctions} from '@ticlo/core';
-import {FunctionTree} from '@ticlo/editor/function-selector/FunctionTree.js';
+import {FunctionTree} from '@ticlo/editor/function-selector/FunctionTree.tsx';
 
-import './sample-blocks.js';
-import {Logger} from '@ticlo/core/util/Logger.js';
-import {WorkerFunctionGen} from '@ticlo/core/worker/WorkerFunctionGen.js';
-import {BlockStagePane} from '@ticlo/editor/dock/block/BlockStagePane.js';
-import {TicloApp} from '@ticlo/editor/component/TicloApp.js';
-import {TicloCurrentFlowConsumer, TicloLayoutContext} from '@ticlo/editor/component/LayoutContext.js';
-import {PropDispatcher} from '@ticlo/core/block/Dispatcher.js';
-import {PropertyListPane} from '@ticlo/editor/dock/property/PropertyListPane.js';
-import {WsBrowserConnection} from '@ticlo/html/connect/WsBrowserConnection.js';
-import {FrameClientConnection} from '@ticlo/html/connect/FrameClientConnection.js';
-import {NodeTreePane} from '@ticlo/editor/dock/node-tree/NodeTreePane.js';
-import {TextEditorPane} from '@ticlo/editor/dock/text-editor/TextEditorPane.js';
+import './sample-blocks.ts';
+import {Logger} from '@ticlo/core/util/Logger.ts';
+import {WorkerFunctionGen} from '@ticlo/core/worker/WorkerFunctionGen.ts';
+import {BlockStagePane} from '@ticlo/editor/dock/block/BlockStagePane.tsx';
+import {TicloApp} from '@ticlo/editor/component/TicloApp.tsx';
+import {TicloCurrentFlowConsumer, TicloLayoutContext} from '@ticlo/editor/component/LayoutContext.ts';
+import {PropDispatcher} from '@ticlo/core/block/Dispatcher.ts';
+import {PropertyListPane} from '@ticlo/editor/dock/property/PropertyListPane.tsx';
+import {WsBrowserConnection} from '@ticlo/html/connect/WsBrowserConnection.ts';
+import {FrameClientConnection} from '@ticlo/html/connect/FrameClientConnection.ts';
+import {NodeTreePane} from '@ticlo/editor/dock/node-tree/NodeTreePane.tsx';
+import {TextEditorPane} from '@ticlo/editor/dock/text-editor/TextEditorPane.tsx';
 
 import '@ticlo/test';
-import {theme} from '@ticlo/editor/style/theme.js';
-import {FunctionSelect} from '@ticlo/editor/function-selector/FunctionSelect.js';
+import {theme} from '@ticlo/editor/style/theme.ts';
+import {FunctionSelect} from '@ticlo/editor/function-selector/FunctionSelect.tsx';
 
 import i18next from 'i18next';
 
@@ -42,12 +42,12 @@ import frLocal from '../i18n/editor/fr.json' with {type: 'json'};
 import frMathLocal from '../i18n/core/fr.json' with {type: 'json'};
 import frTestLocal from '../i18n/test/fr.json' with {type: 'json'};
 
-import {LocalizedLabel, t} from '@ticlo/editor/component/LocalizedLabel.js';
-import {FlowTestCase} from '@ticlo/test/FlowTestCase.js';
+import {LocalizedLabel, t} from '@ticlo/editor/component/LocalizedLabel.tsx';
+import {FlowTestCase} from '@ticlo/test/FlowTestCase.ts';
 import {createRoot} from 'react-dom/client';
-import {SchedulePane} from '@ticlo/editor/dock/schedule/SchedulePane.js';
-import {MixedBrowserConnection} from '@ticlo/html/connect/MixedBrowserConnection.js';
-import {Namespace} from '@ticlo/core/block/Namespace.js';
+import {SchedulePane} from '@ticlo/editor/dock/schedule/SchedulePane.tsx';
+import {MixedBrowserConnection} from '@ticlo/html/connect/MixedBrowserConnection.ts';
+import {Namespace} from '@ticlo/core/block/Namespace.ts';
 import {RadioChangeEvent} from 'antd';
 
 const layoutGroups = {

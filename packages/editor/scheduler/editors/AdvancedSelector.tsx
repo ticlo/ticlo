@@ -1,14 +1,14 @@
 import React, {ReactElement} from 'react';
 import {Button, Checkbox, Select, Tag, Tooltip} from 'antd';
 import {CloseOutlined, PlusOutlined} from '@ant-design/icons';
-import {SchedulerConfig} from '@ticlo/core/functions/date/Schedule/SchedulerEvent.js';
-import {cacheCall} from '../../util/CachedCallback.js';
-import {translateProperty, translatePropContent} from '@ticlo/core/util/i18n.js';
-import {TicloLayoutContext, TicloLayoutContextType} from '../../component/LayoutContext.js';
+import {SchedulerConfig} from '@ticlo/core/functions/date/Schedule/SchedulerEvent.ts';
+import {cacheCall} from '../../util/CachedCallback.ts';
+import {translateProperty, translatePropContent} from '@ticlo/core/util/i18n.ts';
+import {TicloLayoutContext, TicloLayoutContextType} from '../../component/LayoutContext.ts';
 
 import {stopPropagation} from '@ticlo/core';
-import {LocalizedPropertyName, t} from '../../component/LocalizedLabel.js';
-import {FUNC, funcDesc} from './descs.js';
+import {LocalizedPropertyName, t} from '../../component/LocalizedLabel.tsx';
+import {FUNC, funcDesc} from './descs.ts';
 
 const CURRENT_YEAR = new Date().getFullYear();
 // create 20 years for the dropdown

@@ -1,6 +1,6 @@
 import {expect} from 'vitest';
-import {Flow} from '../Flow.js';
-import type {BlockIO} from '../BlockProperty.js';
+import {Flow} from '../Flow.ts';
+import type {BlockIO} from '../BlockProperty.ts';
 
 describe('Block Child Watch', function () {
   it('basic', function () {

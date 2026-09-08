@@ -1,7 +1,7 @@
 import {expect} from 'vitest';
 
-import {updateObjectValue} from '../ObjectValue.js';
-import {Flow} from '../../block/Flow.js';
+import {updateObjectValue} from '../ObjectValue.ts';
+import {Flow} from '../../block/Flow.ts';
 
 describe('ObjectValue', function () {
   it('updateObjectValue', function () {

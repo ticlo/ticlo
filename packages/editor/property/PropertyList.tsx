@@ -14,19 +14,19 @@ import {
   PropGroupDesc,
   deepEqual,
   mapConfigDesc,
-} from '@ticlo/core/editor.js';
-import {PropertyEditor} from './PropertyEditor.js';
-import {GroupEditor} from './GroupEditor.js';
-import {MultiSelectComponent, MultiSelectLoader} from './MultiSelectComponent.js';
-import {ExpandIcon, ExpandState} from '../component/Tree.js';
-import {AddCustomPropertyMenu} from './AddCustomProperty.js';
-import {Popup} from '../component/ClickPopup.js';
-import {BlockWidget} from '../block/view/BlockWidget.js';
-import {LazyUpdateComponent, LazyUpdateSubscriber} from '../component/LazyUpdateComponent.js';
-import {OptionalPropertyList} from './OptionalPropertyList.js';
-import {CustomPropertyReorder} from './PropertyReorder.js';
-import {t} from '../component/LocalizedLabel.js';
-import {getDescLib} from '../util/FunctionLib.js';
+} from '@ticlo/core/editor.ts';
+import {PropertyEditor} from './PropertyEditor.tsx';
+import {GroupEditor} from './GroupEditor.tsx';
+import {MultiSelectComponent, MultiSelectLoader} from './MultiSelectComponent.tsx';
+import {ExpandIcon, ExpandState} from '../component/Tree.tsx';
+import {AddCustomPropertyMenu} from './AddCustomProperty.tsx';
+import {Popup} from '../component/ClickPopup.tsx';
+import {BlockWidget} from '../block/view/BlockWidget.ts';
+import {LazyUpdateComponent, LazyUpdateSubscriber} from '../component/LazyUpdateComponent.tsx';
+import {OptionalPropertyList} from './OptionalPropertyList.tsx';
+import {CustomPropertyReorder} from './PropertyReorder.ts';
+import {t} from '../component/LocalizedLabel.tsx';
+import {getDescLib} from '../util/FunctionLib.ts';
 
 function descToEditor(conn: ClientConn, paths: string[], funcDesc: FunctionDesc, propDesc: PropDesc, funcLib?: string) {
   return (

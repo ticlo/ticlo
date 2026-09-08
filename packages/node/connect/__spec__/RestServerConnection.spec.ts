@@ -1,6 +1,6 @@
 import {describe, expect, it} from 'vitest';
 import {Root} from '@ticlo/core';
-import {RestServerConnection} from '../RestServerConnection.js';
+import {RestServerConnection} from '../RestServerConnection.ts';
 
 describe('RestServerConnection', () => {
   it('rejects prototype members that are not commands', async () => {

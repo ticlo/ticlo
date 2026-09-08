@@ -1,15 +1,15 @@
-export * from './block/BlockStage.js';
-export * from './property/PropertyList.js';
-export * from './node-tree/NodeTree.js';
-export {cacheCall} from './util/CachedCallback.js';
+export * from './block/BlockStage.tsx';
+export * from './property/PropertyList.tsx';
+export * from './node-tree/NodeTree.tsx';
+export {cacheCall} from './util/CachedCallback.ts';
 
-import * as ticloI18n from '@ticlo/core/editor.js';
+import * as ticloI18n from '@ticlo/core/editor.ts';
 
 // register special view
 
-import './block/view/NoteView.js';
-import './block/view/SliderWidget.js';
-import './block/view/NoteWidget.js';
+import './block/view/NoteView.tsx';
+import './block/view/SliderWidget.tsx';
+import './block/view/NoteWidget.tsx';
 
 export async function initEditor() {
   const lng = window.localStorage.getItem('ticlo-lng');

@@ -1,4 +1,4 @@
-import {cloneToLevel, deepClone} from '../Clone.js';
+import {cloneToLevel, deepClone} from '../Clone.ts';
 import {DateTime} from 'luxon';
 
 const data = {

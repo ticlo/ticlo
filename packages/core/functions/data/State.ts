@@ -1,9 +1,9 @@
-import {BaseFunction, StatefulFunction} from '../../block/BlockFunction.js';
-import {globalFunctions} from '../../block/FunctionLib.js';
-import {type Block} from '../../block/Block.js';
-import {isDataMap, isPrimitiveType} from '../../util/DataTypes.js';
-import {Resolver} from '../../block/Resolver.js';
-import {getInputsArray, getInputsLength} from '../../block/FunctonData.js';
+import {BaseFunction, StatefulFunction} from '../../block/BlockFunction.ts';
+import {globalFunctions} from '../../block/FunctionLib.ts';
+import {type Block} from '../../block/Block.ts';
+import {isDataMap, isPrimitiveType} from '../../util/DataTypes.ts';
+import {Resolver} from '../../block/Resolver.ts';
+import {getInputsArray, getInputsLength} from '../../block/FunctonData.ts';
 
 export class StateFunction extends BaseFunction<Block> {
   writeState() {

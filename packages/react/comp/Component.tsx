@@ -1,8 +1,8 @@
 import React, {ComponentType, ReactNode, isValidElement, useEffect, useMemo, useRef, useState} from 'react';
 import {Block} from '@ticlo/core';
-import {FunctionFactory} from '@ticlo/core/block/BlockFunction.js';
-import {Namespace} from '@ticlo/core/block/Namespace.js';
-import {useBlockValue} from '../hooks/useBlockValue.js';
+import {FunctionFactory} from '@ticlo/core/block/BlockFunction.ts';
+import {Namespace} from '@ticlo/core/block/Namespace.ts';
+import {useBlockValue} from '../hooks/useBlockValue.ts';
 
 export interface BaseProps {
   block: Block;

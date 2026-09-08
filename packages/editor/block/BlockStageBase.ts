@@ -1,10 +1,10 @@
 import React from 'react';
-import {ClientConn, DataMap, deepEqual, forAllPathsBetween, ValueSubscriber, ValueUpdate} from '@ticlo/core/editor.js';
+import {ClientConn, DataMap, deepEqual, forAllPathsBetween, ValueSubscriber, ValueUpdate} from '@ticlo/core/editor.ts';
 import {DragState} from 'rc-dock';
-import {BlockItem, FieldItem, Stage} from './Field.js';
-import {LazyUpdateComponent} from '../component/LazyUpdateComponent.js';
-import {TicloCurrentFlowContext} from '../component/LayoutContext.js';
-import {getFuncLibPath} from '../util/FunctionLib.js';
+import {BlockItem, FieldItem, Stage} from './Field.tsx';
+import {LazyUpdateComponent} from '../component/LazyUpdateComponent.tsx';
+import {TicloCurrentFlowContext} from '../component/LayoutContext.ts';
+import {getFuncLibPath} from '../util/FunctionLib.ts';
 
 export interface StagePropsBase {
   conn: ClientConn;

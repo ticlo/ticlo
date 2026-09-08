@@ -1,6 +1,6 @@
-import {globalFunctions} from '../../block/FunctionLib.js';
-import {PureFunction} from '../../block/BlockFunction.js';
-import {ErrorEvent} from '../../block/Event.js';
+import {globalFunctions} from '../../block/FunctionLib.ts';
+import {PureFunction} from '../../block/BlockFunction.ts';
+import {ErrorEvent} from '../../block/Event.ts';
 
 export class SplitFunction extends PureFunction {
   run(): any {

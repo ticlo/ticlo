@@ -1,8 +1,8 @@
-import {BlockConfig, BlockIO, BlockProperty} from './BlockProperty.js';
-import {Block, InputsBlock, OutputsBlock} from './Block.js';
-import type {Flow} from './Flow.js';
-import {FlowFunctionLib} from './NSFunctionLib.js';
-import {isDataMap} from '../util/DataTypes.js';
+import {BlockConfig, BlockIO, BlockProperty} from './BlockProperty.ts';
+import {Block, InputsBlock, OutputsBlock} from './Block.ts';
+import type {Flow} from './Flow.ts';
+import {FlowFunctionLib} from './NSFunctionLib.ts';
+import {isDataMap} from '../util/DataTypes.ts';
 
 class BlockFuncIdConfig extends BlockProperty {
   constructor(block: Block, name: string) {

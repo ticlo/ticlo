@@ -1,7 +1,7 @@
 import debounce from 'lodash/debounce.js';
-import {DataMap} from '../util/DataTypes.js';
-import type {Flow} from './Flow.js';
-import {deepEqual} from '../util/Compare.js';
+import {DataMap} from '../util/DataTypes.ts';
+import type {Flow} from './Flow.ts';
+import {deepEqual} from '../util/Compare.ts';
 
 // when a change is applied, need to restore history from the previous saved data
 const _historyCache = new Map<any, DataMap[]>();

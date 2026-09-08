@@ -1,6 +1,6 @@
 import React from 'react';
 import {Input} from 'antd';
-import {StringEditorBase} from './StringEditorBase.js';
+import {StringEditorBase} from './StringEditorBase.ts';
 
 const {Password} = Input;
 

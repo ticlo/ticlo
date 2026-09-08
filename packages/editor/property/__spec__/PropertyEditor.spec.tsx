@@ -1,19 +1,19 @@
 import {expect} from 'vitest';
 import {simulate} from 'simulate-event';
 import React from 'react';
-import '../../index.js';
-import {PropertyEditor} from '../PropertyEditor.js';
+import '../../index.ts';
+import {PropertyEditor} from '../PropertyEditor.tsx';
 import {Block, Root} from '@ticlo/core';
-import {PropertyList} from '../PropertyList.js';
-import '../../../core/functions/math/Arithmetic.js';
-import {destroyLastLocalConnection, makeLocalConnection} from '@ticlo/core/connect/LocalConnection.js';
-import {shouldHappen, shouldReject} from '@ticlo/core/util/test-util.js';
-import {removeLastTemplate, loadTemplate, querySingle} from '../../util/test-util.js';
-import {initEditor} from '../../index.js';
+import {PropertyList} from '../PropertyList.tsx';
+import '../../../core/functions/math/Arithmetic.ts';
+import {destroyLastLocalConnection, makeLocalConnection} from '@ticlo/core/connect/LocalConnection.ts';
+import {shouldHappen, shouldReject} from '@ticlo/core/util/test-util.ts';
+import {removeLastTemplate, loadTemplate, querySingle} from '../../util/test-util.ts';
+import {initEditor} from '../../index.ts';
 import type {PropGroupDesc} from '@ticlo/core';
 import {FunctionDesc, PropDesc} from '@ticlo/core';
-import {globalFunctions} from '@ticlo/core/block/FunctionLib.js';
-import {WorkerFunctionGen} from '@ticlo/core/worker/WorkerFunctionGen.js';
+import {globalFunctions} from '@ticlo/core/block/FunctionLib.ts';
+import {WorkerFunctionGen} from '@ticlo/core/worker/WorkerFunctionGen.ts';
 
 describe('PropertyEditor', function () {
   const [funcDesc] = globalFunctions.getDescToSend('add');

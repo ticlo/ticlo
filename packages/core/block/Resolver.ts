@@ -1,4 +1,4 @@
-import {Runnable} from './Block.js';
+import {Runnable} from './Block.ts';
 
 export class Resolver implements Runnable {
   static _finalResolved: Set<() => void> = new Set<() => void>();

@@ -1,12 +1,12 @@
 import React, {useMemo, ComponentType} from 'react';
 import {Block, DataMap, FunctionDesc, globalFunctions, PropDesc} from '@ticlo/core';
-import {useTicloComp} from '../hooks/useTicloComp.js';
-import {metaKey} from '../comp/Component.js';
-import {elementClassProperty, elementConfigs, elementStyleProperty} from '../comp/CommontProps.js';
-import {useBlockConfigs} from '../hooks/useBlockConfigs.js';
-import {useBlockProps} from '../hooks/useBlockProps.js';
-import {Values} from '../comp/Values.js';
-import {useBlockValue} from '../hooks/useBlockValue.js';
+import {useTicloComp} from '../hooks/useTicloComp.ts';
+import {metaKey} from '../comp/Component.tsx';
+import {elementClassProperty, elementConfigs, elementStyleProperty} from '../comp/CommontProps.ts';
+import {useBlockConfigs} from '../hooks/useBlockConfigs.ts';
+import {useBlockProps} from '../hooks/useBlockProps.tsx';
+import {Values} from '../comp/Values.ts';
+import {useBlockValue} from '../hooks/useBlockValue.ts';
 
 const PRECODE = `
 const {block, React} = props;

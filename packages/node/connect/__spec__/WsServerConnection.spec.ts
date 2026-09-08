@@ -1,7 +1,7 @@
 import {EventEmitter} from 'node:events';
 import {describe, expect, it, vi} from 'vitest';
 import {Root} from '@ticlo/core';
-import {WsServerConnection} from '../WsServerConnection.js';
+import {WsServerConnection} from '../WsServerConnection.ts';
 
 class MockWebSocket extends EventEmitter {
   send = vi.fn();

@@ -1,9 +1,9 @@
 import {expect} from 'vitest';
-import {TestAsyncFunctionLog} from './TestFunction.js';
-import {Flow, Root} from '../Flow.js';
-import {ErrorEvent, Event} from '../Event.js';
-import {shouldReject, shouldTimeout} from '../../util/test-util.js';
-import '../../functions/math/Arithmetic.js';
+import {TestAsyncFunctionLog} from './TestFunction.ts';
+import {Flow, Root} from '../Flow.ts';
+import {ErrorEvent, Event} from '../Event.ts';
+import {shouldReject, shouldTimeout} from '../../util/test-util.ts';
+import '../../functions/math/Arithmetic.ts';
 
 for (const typeName of ['async-function-promise', 'async-function-manual']) {
   describe(typeName, function () {

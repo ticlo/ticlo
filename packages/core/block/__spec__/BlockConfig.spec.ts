@@ -1,6 +1,6 @@
 import {expect} from 'vitest';
-import {TestFunctionRunner} from './TestFunction.js';
-import {Flow, Root} from '../Flow.js';
+import {TestFunctionRunner} from './TestFunction.ts';
+import {Flow, Root} from '../Flow.ts';
 
 describe('BlockConfig', function () {
   it('readonly control', function () {

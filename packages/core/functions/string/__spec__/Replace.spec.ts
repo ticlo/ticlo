@@ -1,6 +1,6 @@
 import {expect} from 'vitest';
-import '../Replace.js';
-import {Flow, Root} from '../../../block/Flow.js';
+import '../Replace.ts';
+import {Flow, Root} from '../../../block/Flow.ts';
 
 describe('Replace', function () {
   it('replaces string search text', function () {

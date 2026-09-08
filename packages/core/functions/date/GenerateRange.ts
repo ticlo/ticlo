@@ -1,7 +1,7 @@
-import {globalFunctions} from '../../block/FunctionLib.js';
+import {globalFunctions} from '../../block/FunctionLib.ts';
 import {DateTime} from 'luxon';
-import {invalidDate} from '../../util/DateTime.js';
-import {AutoUpdateFunction} from '../base/AutoUpdateFunction.js';
+import {invalidDate} from '../../util/DateTime.ts';
+import {AutoUpdateFunction} from '../base/AutoUpdateFunction.ts';
 
 const UNIT_OPTIONS = ['year', 'month', 'day', 'hour', 'minute', 'week'] as const;
 export type UNIT_TYPE = (typeof UNIT_OPTIONS)[number];

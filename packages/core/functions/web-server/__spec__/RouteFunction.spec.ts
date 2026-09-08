@@ -1,13 +1,13 @@
 import {expect} from 'vitest';
-import '../RouteFunction.js';
-import type {RouteFunction} from '../RouteFunction.js';
-import '../../../worker/HandlerFunction.js';
-import type {Block} from '../../../block/Block.js';
-import {Flow, Root} from '../../../block/Flow.js';
-import {getDefaultFuncData} from '../../../block/Descriptor.js';
-import {globalFunctions} from '../../../block/FunctionLib.js';
-import {HttpRequest} from '../HttpRequest.js';
-import {FlowEditor} from '../../../worker/FlowEditor.js';
+import '../RouteFunction.ts';
+import type {RouteFunction} from '../RouteFunction.ts';
+import '../../../worker/HandlerFunction.ts';
+import type {Block} from '../../../block/Block.ts';
+import {Flow, Root} from '../../../block/Flow.ts';
+import {getDefaultFuncData} from '../../../block/Descriptor.ts';
+import {globalFunctions} from '../../../block/FunctionLib.ts';
+import {HttpRequest} from '../HttpRequest.ts';
+import {FlowEditor} from '../../../worker/FlowEditor.ts';
 
 const flowData = {
   '#is': '',

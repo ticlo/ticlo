@@ -1,4 +1,4 @@
-import type {DataMap} from '../util/DataTypes.js';
+import type {DataMap} from '../util/DataTypes.ts';
 
 export class Restricted {
   allowPaths?: string[];

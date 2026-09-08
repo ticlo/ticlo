@@ -1,9 +1,9 @@
 import React from 'react';
-import {FunctionDesc, PropDesc, PropGroupDesc} from '@ticlo/core/block/Descriptor.js';
-import {elementConfigs, elementProps} from '../comp/CommontProps.js';
+import {FunctionDesc, PropDesc, PropGroupDesc} from '@ticlo/core/block/Descriptor.ts';
+import {elementConfigs, elementProps} from '../comp/CommontProps.ts';
 import {Block, globalFunctions} from '@ticlo/core';
-import {useTicloComp} from '../hooks/useTicloComp.js';
-import {metaKey, renderChildren} from '../comp/Component.js';
+import {useTicloComp} from '../hooks/useTicloComp.ts';
+import {metaKey, renderChildren} from '../comp/Component.tsx';
 
 const sharedElementDesc: FunctionDesc = {
   name: '',

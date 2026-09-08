@@ -3,13 +3,13 @@ import {Button} from 'antd';
 import {DownOutlined, EditOutlined} from '@ant-design/icons';
 
 import {DragDropDiv, DragState} from 'rc-dock';
-import {FunctionSelect} from '../../function-selector/FunctionSelect.js';
-import {Popup} from '../../component/ClickPopup.js';
-import {FunctionEditor} from './FunctionEditor.js';
+import {FunctionSelect} from '../../function-selector/FunctionSelect.tsx';
+import {Popup} from '../../component/ClickPopup.tsx';
+import {FunctionEditor} from './FunctionEditor.tsx';
 import {FunctionDesc} from '@ticlo/core';
-import {TicloLayoutContext, TicloLayoutContextType} from '../../component/LayoutContext.js';
-import {t} from '../../component/LocalizedLabel.js';
-import {defaultWorkerData} from '@ticlo/core/defaults/DefaultFlows.js';
+import {TicloLayoutContext, TicloLayoutContextType} from '../../component/LayoutContext.ts';
+import {t} from '../../component/LocalizedLabel.tsx';
+import {defaultWorkerData} from '@ticlo/core/defaults/DefaultFlows.ts';
 
 export class WorkerEditor extends FunctionEditor {
   static contextType = TicloLayoutContextType;

@@ -1,8 +1,8 @@
 import {afterEach, describe, expect, it, vi} from 'vitest';
 import axios from 'axios';
 import {Logger} from '@ticlo/core';
-import {MixedBrowserConnection} from '../MixedBrowserConnection.js';
-import {WsBrowserConnection} from '../WsBrowserConnection.js';
+import {MixedBrowserConnection} from '../MixedBrowserConnection.ts';
+import {WsBrowserConnection} from '../WsBrowserConnection.ts';
 
 class MockWebSocket extends EventTarget {
   close = vi.fn();

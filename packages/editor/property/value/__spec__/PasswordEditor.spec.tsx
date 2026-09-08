@@ -1,13 +1,13 @@
 import {expect} from 'vitest';
 import {simulate} from 'simulate-event';
 import React from 'react';
-import {removeLastTemplate, loadTemplate, querySingle} from '../../../util/test-util.js';
-import {initEditor} from '../../../index.js';
-import {PasswordEditor} from '../PasswordEditor.js';
-import {shouldHappen} from '@ticlo/core/util/test-util.js';
+import {removeLastTemplate, loadTemplate, querySingle} from '../../../util/test-util.ts';
+import {initEditor} from '../../../index.ts';
+import {PasswordEditor} from '../PasswordEditor.tsx';
+import {shouldHappen} from '@ticlo/core/util/test-util.ts';
 import {blankFuncDesc, blankPropDesc} from '@ticlo/core';
-import {simulateInput} from './simulate-input.js';
-import {DateEditor} from '../DateEditor.js';
+import {simulateInput} from './simulate-input.ts';
+import {DateEditor} from '../DateEditor.tsx';
 
 describe('PasswordEditor', function () {
   beforeEach(async function () {

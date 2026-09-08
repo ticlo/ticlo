@@ -3,8 +3,8 @@ import React from 'react';
 import {DateTime} from 'luxon';
 import {Calendar, luxonLocalizer} from 'ticlo-big-calendar';
 import type {View} from 'ticlo-big-calendar';
-import {shouldHappen} from '@ticlo/core/util/test-util.js';
-import {loadTemplate, removeLastTemplate} from '../../util/test-util.js';
+import {shouldHappen} from '@ticlo/core/util/test-util.ts';
+import {loadTemplate, removeLastTemplate} from '../../util/test-util.ts';
 
 afterEach(removeLastTemplate);
 

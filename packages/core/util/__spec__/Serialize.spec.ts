@@ -1,7 +1,7 @@
 import {expect} from 'vitest';
-import {encode, decode, encodeDisplay} from '../Serialize.js';
+import {encode, decode, encodeDisplay} from '../Serialize.ts';
 import {DateTime} from 'luxon';
-import {formatDate, isDateSame} from '../DateTime.js';
+import {formatDate, isDateSame} from '../DateTime.ts';
 
 describe('Serialize', function () {
   it('DateTime local', function () {

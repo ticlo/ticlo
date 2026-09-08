@@ -1,10 +1,10 @@
-import type {Flow, Root} from './Flow.js';
-import {Block} from './Block.js';
-import {FunctionLib, globalFunctions, getGlobalFunctionRoot, type DescListener} from './FunctionLib.js';
-import {FunctionDesc} from './Descriptor.js';
-import {DataMap} from '../util/DataTypes.js';
-import {NsFunctionLib} from './NSFunctionLib.js';
-import type {FlowStorage} from './Storage.js';
+import type {Flow, Root} from './Flow.ts';
+import {Block} from './Block.ts';
+import {FunctionLib, globalFunctions, getGlobalFunctionRoot, type DescListener} from './FunctionLib.ts';
+import {FunctionDesc} from './Descriptor.ts';
+import {DataMap} from '../util/DataTypes.ts';
+import {NsFunctionLib} from './NSFunctionLib.ts';
+import type {FlowStorage} from './Storage.ts';
 
 export class Namespace {
   private static _storage: FlowStorage;

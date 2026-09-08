@@ -1,9 +1,9 @@
 import React from 'react';
 import {Event as TicloEvent, Flow, globalFunctions, type Block} from '@ticlo/core';
-import {Namespace} from '@ticlo/core/block/Namespace.js';
-import {metaKey, TicloComp} from '../Component.js';
-import {creatReactRoot, type ReactRoot} from '../../functions/__spec__/render.js';
-import '../../elements/CommonElements.js';
+import {Namespace} from '@ticlo/core/block/Namespace.ts';
+import {metaKey, TicloComp} from '../Component.tsx';
+import {creatReactRoot, type ReactRoot} from '../../functions/__spec__/render.ts';
+import '../../elements/CommonElements.tsx';
 
 function MetaComponent({block}: {block: Block}) {
   return <span>{block.getValue('label') as string}</span>;

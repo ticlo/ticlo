@@ -1,6 +1,6 @@
 import {expect} from 'vitest';
-import '../CreateObject.js';
-import {Flow, Root} from '../../../block/Flow.js';
+import '../CreateObject.ts';
+import {Flow, Root} from '../../../block/Flow.ts';
 
 describe('CreateObject', function () {
   it('basic', function () {

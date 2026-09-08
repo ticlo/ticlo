@@ -1,6 +1,6 @@
 import React from 'react';
-import {ClientConn} from '@ticlo/core/editor.js';
-import {FunctionView} from './FunctionView.js';
+import {ClientConn} from '@ticlo/core/editor.ts';
+import {FunctionView} from './FunctionView.tsx';
 
 let _lastFunction: string;
 const _typeSet: Set<string> = new Set<string>();

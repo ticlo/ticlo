@@ -1,10 +1,10 @@
 import {serve} from '@hono/node-server';
 import {Flow, Root, setStorageFunctionProvider} from '@ticlo/core';
 import {FileFlowStorage, FileStorage} from '@ticlo/node';
-import {createTicloApp, getEditorUrl} from '@ticlo/web-server/server.js';
+import {createTicloApp, getEditorUrl} from '@ticlo/web-server/server.ts';
 import '@ticlo/test';
-import {data} from '../sample-data/data.js';
-import reactData from '../sample-data/react.js';
+import {data} from '../sample-data/data.ts';
+import reactData from '../sample-data/react.ts';
 
 (async () => {
   setStorageFunctionProvider(() => new FileStorage('./app/server/storage', '.str'));

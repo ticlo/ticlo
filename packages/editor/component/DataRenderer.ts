@@ -1,6 +1,6 @@
 import React from 'react';
-import {ClientConn} from '@ticlo/core/editor.js';
-import {batchUpdateReact} from '../util/BatchUpdate.js';
+import {ClientConn} from '@ticlo/core/editor.ts';
+import {batchUpdateReact} from '../util/BatchUpdate.ts';
 
 export abstract class DataRendererItem<T = any> {
   _renderers: Set<PureDataRenderer<any, any> & T> = new Set<PureDataRenderer<any, any> & T>();

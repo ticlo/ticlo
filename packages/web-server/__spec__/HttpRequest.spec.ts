@@ -1,5 +1,5 @@
 import {describe, expect, it} from 'vitest';
-import {HonoResponse} from '../HttpRequest.js';
+import {HonoResponse} from '../HttpRequest.ts';
 
 describe('HonoResponse', () => {
   it('sends only the bytes inside a Buffer view', async () => {

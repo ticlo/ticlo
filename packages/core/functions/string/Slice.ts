@@ -1,5 +1,5 @@
-import {globalFunctions} from '../../block/FunctionLib.js';
-import {PureFunction} from '../../block/BlockFunction.js';
+import {globalFunctions} from '../../block/FunctionLib.ts';
+import {PureFunction} from '../../block/BlockFunction.ts';
 
 export class SliceFunction extends PureFunction {
   run(): any {

@@ -1,5 +1,5 @@
 import {Block, convertToObject, DataMap} from '@ticlo/core';
-import {HttpRequest as BaseHttpRequest} from '@ticlo/core/functions/web-server/HttpRequest.js';
+import {HttpRequest as BaseHttpRequest} from '@ticlo/core/functions/web-server/HttpRequest.ts';
 
 export interface HonoRequestData {
   method: string;

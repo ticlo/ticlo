@@ -1,7 +1,7 @@
 import {afterEach, describe, expect, it, vi} from 'vitest';
 import {Root} from '@ticlo/core';
-import {FlowTestCase} from '../FlowTestCase.js';
-import {TestState} from '../Interface.js';
+import {FlowTestCase} from '../FlowTestCase.ts';
+import {TestState} from '../Interface.ts';
 
 describe('FlowTestCase', () => {
   afterEach(() => {

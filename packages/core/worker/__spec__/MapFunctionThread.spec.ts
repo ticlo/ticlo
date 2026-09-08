@@ -1,9 +1,9 @@
 import {expect} from 'vitest';
-import {Flow, Root} from '../../block/Flow.js';
-import {TestFunctionRunner, TestAsyncFunctionPromise} from '../../block/__spec__/TestFunction.js';
-import '../../functions/math/Arithmetic.js';
-import '../MapFunction.js';
-import {shouldHappen} from '../../util/test-util.js';
+import {Flow, Root} from '../../block/Flow.ts';
+import {TestFunctionRunner, TestAsyncFunctionPromise} from '../../block/__spec__/TestFunction.ts';
+import '../../functions/math/Arithmetic.ts';
+import '../MapFunction.ts';
+import {shouldHappen} from '../../util/test-util.ts';
 
 describe('MapFunction Thread', function () {
   beforeEach(() => {

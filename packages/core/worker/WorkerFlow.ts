@@ -1,10 +1,10 @@
-import {FlowWithStatic, FlowWithStaticConfigGenerators} from '../block/StaticBlock.js';
-import {Root} from '../block/Flow.js';
-import {ConstTypeConfig} from '../block/BlockConfigs.js';
-import {BlockConfig, BlockProperty} from '../block/BlockProperty.js';
-import {Resolver} from '../block/Resolver.js';
-import {DataMap} from '../util/DataTypes.js';
-import {FlowHistory} from '../block/FlowHistory.js';
+import {FlowWithStatic, FlowWithStaticConfigGenerators} from '../block/StaticBlock.ts';
+import {Root} from '../block/Flow.ts';
+import {ConstTypeConfig} from '../block/BlockConfigs.ts';
+import {BlockConfig, BlockProperty} from '../block/BlockProperty.ts';
+import {Resolver} from '../block/Resolver.ts';
+import {DataMap} from '../util/DataTypes.ts';
+import {FlowHistory} from '../block/FlowHistory.ts';
 
 export const WorkerFlowConfigGenerators: {[key: string]: typeof BlockProperty} = {
   ...FlowWithStaticConfigGenerators,

@@ -1,8 +1,8 @@
 import React from 'react';
 import {Button} from 'antd';
-import {ValueEditorProps} from './ValueEditorBase.js';
-import {renderValue} from '../../component/renderValue.js';
-import {TicloLayoutContext, TicloLayoutContextType} from '../../component/LayoutContext.js';
+import {ValueEditorProps} from './ValueEditorBase.ts';
+import {renderValue} from '../../component/renderValue.tsx';
+import {TicloLayoutContext, TicloLayoutContextType} from '../../component/LayoutContext.ts';
 import {CalendarOutlined} from '@ant-design/icons';
 
 export class ScheduleEditor extends React.PureComponent<ValueEditorProps, any> {

@@ -10,13 +10,13 @@ import {
   PlusOutlined,
 } from '@ant-design/icons';
 
-import {FunctionTree} from './FunctionTree.js';
-import {ClientConn, FunctionDesc, encodeTicloName, translateEditor} from '@ticlo/core/editor.js';
-import {OnFunctionClick} from './FunctionView.js';
+import {FunctionTree} from './FunctionTree.tsx';
+import {ClientConn, FunctionDesc, encodeTicloName, translateEditor} from '@ticlo/core/editor.ts';
+import {OnFunctionClick} from './FunctionView.tsx';
 import {RadioChangeEvent} from 'antd';
-import {FunctionList} from './FunctionList.js';
-import {TicloI18NConsumer, TicloLayoutContext, TicloLayoutContextType} from '../component/LayoutContext.js';
-import {t} from '../component/LocalizedLabel.js';
+import {FunctionList} from './FunctionList.tsx';
+import {TicloI18NConsumer, TicloLayoutContext, TicloLayoutContextType} from '../component/LayoutContext.ts';
+import {t} from '../component/LocalizedLabel.tsx';
 
 interface Props {
   conn: ClientConn;

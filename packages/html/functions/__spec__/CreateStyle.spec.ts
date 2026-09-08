@@ -1,5 +1,5 @@
 import {expect, describe, it} from 'vitest';
-import '../CreateStyle.js';
+import '../CreateStyle.ts';
 import {Flow, Root} from '@ticlo/core';
 
 describe('CreateStyle', function () {

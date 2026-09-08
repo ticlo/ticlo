@@ -3,13 +3,13 @@ import {
   RouteFunction,
   RouteMethod,
   RouteService,
-} from '@ticlo/core/functions/web-server/RouteFunction.js';
+} from '@ticlo/core/functions/web-server/RouteFunction.ts';
 import {globalFunctions, type Block} from '@ticlo/core';
-import {BaseFunction, StatefulFunction} from '@ticlo/core/block/BlockFunction.js';
-import {escapedObject} from '@ticlo/core/util/NoSerialize.js';
-import {Uid} from '@ticlo/core/util/Uid.js';
-import {HonoRequestData, HonoResponse, HttpRequest} from './HttpRequest.js';
-import {Resolver} from '@ticlo/core/block/Resolver.js';
+import {BaseFunction, StatefulFunction} from '@ticlo/core/block/BlockFunction.ts';
+import {escapedObject} from '@ticlo/core/util/NoSerialize.ts';
+import {Uid} from '@ticlo/core/util/Uid.ts';
+import {HonoRequestData, HonoResponse, HttpRequest} from './HttpRequest.ts';
+import {Resolver} from '@ticlo/core/block/Resolver.ts';
 
 const serviceId: Uid = new Uid();
 export const requestHandlerSymbol = Symbol('requestHandler');

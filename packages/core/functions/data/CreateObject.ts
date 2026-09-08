@@ -1,9 +1,9 @@
-import {PureFunction} from '../../block/BlockFunction.js';
-import {globalFunctions} from '../../block/FunctionLib.js';
-import {defaultConfigs, PropDesc, PropGroupDesc} from '../../block/Descriptor.js';
-import {BlockConfig} from '../../block/BlockProperty.js';
-import {DataMap} from '../../util/DataTypes.js';
-import {getInputsArray} from '../../block/FunctonData.js';
+import {PureFunction} from '../../block/BlockFunction.ts';
+import {globalFunctions} from '../../block/FunctionLib.ts';
+import {defaultConfigs, PropDesc, PropGroupDesc} from '../../block/Descriptor.ts';
+import {BlockConfig} from '../../block/BlockProperty.ts';
+import {DataMap} from '../../util/DataTypes.ts';
+import {getInputsArray} from '../../block/FunctonData.ts';
 
 export class CreateObjectFunction extends PureFunction {
   configChanged(config: BlockConfig, val: any): boolean {

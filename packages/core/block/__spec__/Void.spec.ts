@@ -1,11 +1,11 @@
 import {expect} from 'vitest';
 
-import '../Flow.js';
-import {voidProperty} from '../Void.js';
-import {BlockPropertyEvent} from '../BlockProperty.js';
-import {PropDispatcher} from '../Dispatcher.js';
-import {VoidListeners} from './TestFunction.js';
-import {_strictMode} from '../BlockSettings.js';
+import '../Flow.ts';
+import {voidProperty} from '../Void.ts';
+import {BlockPropertyEvent} from '../BlockProperty.ts';
+import {PropDispatcher} from '../Dispatcher.ts';
+import {VoidListeners} from './TestFunction.ts';
+import {_strictMode} from '../BlockSettings.ts';
 
 describe('VoidProperty', function () {
   it('basic', function () {

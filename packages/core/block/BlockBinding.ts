@@ -1,7 +1,7 @@
-import {PropDispatcher, PropListener} from './Dispatcher.js';
-import {Block} from './Block.js';
-import {BlockBindingSource, BlockProperty} from './BlockProperty.js';
-import {DataMap} from '../util/DataTypes.js';
+import {PropDispatcher, PropListener} from './Dispatcher.ts';
+import {Block} from './Block.ts';
+import {BlockBindingSource, BlockProperty} from './BlockProperty.ts';
+import {DataMap} from '../util/DataTypes.ts';
 
 // Represents one segment of a dotted binding path. Each segment listens to its
 // parent segment, then either follows a Block property or drills into a plain

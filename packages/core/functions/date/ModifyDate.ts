@@ -1,6 +1,6 @@
-import {PureFunction} from '../../block/BlockFunction.js';
-import {globalFunctions} from '../../block/FunctionLib.js';
-import {DATE_UNITS, invalidDate, toDateTime} from '../../util/DateTime.js';
+import {PureFunction} from '../../block/BlockFunction.ts';
+import {globalFunctions} from '../../block/FunctionLib.ts';
+import {DATE_UNITS, invalidDate, toDateTime} from '../../util/DateTime.ts';
 import {Duration} from 'luxon';
 
 const OPERATIONS = ['add', 'subtract', 'set'];

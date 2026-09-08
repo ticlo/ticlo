@@ -1,9 +1,9 @@
 import {expect} from 'vitest';
-import {Flow, Root} from '../../../block/Flow.js';
-import {JsFunction} from '../Js.js';
-import {globalFunctions} from '../../../block/FunctionLib.js';
-import {TestLogger} from '../../../util/__spec__/Logger.spec.js';
-import {Logger} from '../../../util/Logger.js';
+import {Flow, Root} from '../../../block/Flow.ts';
+import {JsFunction} from '../Js.ts';
+import {globalFunctions} from '../../../block/FunctionLib.ts';
+import {TestLogger} from '../../../util/__spec__/Logger.spec.ts';
+import {Logger} from '../../../util/Logger.ts';
 
 describe('Js Type', function () {
   it('basic', function () {

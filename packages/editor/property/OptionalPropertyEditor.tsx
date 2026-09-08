@@ -1,8 +1,8 @@
 import React from 'react';
-import {PropertyEditor, PropertyEditorProps} from './PropertyEditor.js';
+import {PropertyEditor, PropertyEditorProps} from './PropertyEditor.tsx';
 import {Checkbox} from 'antd';
 import {CheckboxChangeEvent} from 'antd';
-import {OptionalPropertyReorder} from './PropertyReorder.js';
+import {OptionalPropertyReorder} from './PropertyReorder.ts';
 
 interface Props extends PropertyEditorProps {
   checked: boolean;

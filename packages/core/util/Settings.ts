@@ -1,4 +1,4 @@
-import vl from './Validator.js';
+import vl from './Validator.ts';
 import {DateTime} from 'luxon';
 
 const DEFAULT_MAX_FLOW_DEPTH = 1024;

@@ -1,9 +1,9 @@
-import {LazyUpdateComponent} from '../component/LazyUpdateComponent.js';
+import {LazyUpdateComponent} from '../component/LazyUpdateComponent.tsx';
 import {Form, Input, Switch, Modal} from 'antd';
 import React from 'react';
-import {ClientConn, splitPathName, validateNodeName} from '@ticlo/core/editor.js';
-import {FormInputItem, FormItem} from '../component/FormItem.js';
-import {t} from '../component/LocalizedLabel.js';
+import {ClientConn, splitPathName, validateNodeName} from '@ticlo/core/editor.ts';
+import {FormInputItem, FormItem} from '../component/FormItem.tsx';
+import {t} from '../component/LocalizedLabel.tsx';
 
 const {TextArea} = Input;
 

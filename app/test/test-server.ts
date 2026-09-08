@@ -2,12 +2,12 @@ import {serve as serveHono} from '@hono/node-server';
 import yargs from 'yargs';
 import {hideBin} from 'yargs/helpers';
 import {Root} from '@ticlo/core';
-import '../../packages/test/index.js';
-import '../../packages/node/index.js';
-import {createTicloApp, getEditorUrl} from '@ticlo/web-server/server.js';
-import {TestLoader} from '@ticlo/node/test-loader/TestLoader.js';
-import {TestRunner} from '@ticlo/test/TestRunner.js';
-import type {FlowTestGroup} from '@ticlo/test/FlowTestGroup.js';
+import '../../packages/test/index.ts';
+import '../../packages/node/index.ts';
+import {createTicloApp, getEditorUrl} from '@ticlo/web-server/server.ts';
+import {TestLoader} from '@ticlo/node/test-loader/TestLoader.ts';
+import {TestRunner} from '@ticlo/test/TestRunner.ts';
+import type {FlowTestGroup} from '@ticlo/test/FlowTestGroup.ts';
 
 const packagesToTest = ['packages/core', 'packages/web-server', 'packages/node'];
 

@@ -1,5 +1,5 @@
 import {Flow} from '@ticlo/core';
-import {connectElementToBlock, findBlockFromParent} from '../ElementMap.js';
+import {connectElementToBlock, findBlockFromParent} from '../ElementMap.ts';
 
 describe('ElementMap', function () {
   it('finds a block connected to an ancestor element', function () {

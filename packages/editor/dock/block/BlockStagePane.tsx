@@ -2,14 +2,14 @@ import React, {ReactNode} from 'react';
 import {Button, Tooltip} from 'antd';
 import {MenuFoldOutlined, MenuUnfoldOutlined} from '@ant-design/icons';
 
-import {BlockStage, PropertyList} from '../../index.js';
+import {BlockStage, PropertyList} from '../../index.ts';
 import {Divider, TabData} from 'rc-dock';
-import {arrayEqual, ClientConn, getDisplayName, ValueSubscriber, ValueUpdate} from '@ticlo/core/editor.js';
-import {BlockStageTabButton} from './BlockStageTabButton.js';
-import {LazyUpdateComponent} from '../../component/LazyUpdateComponent.js';
-import {TooltipIconButton} from '../../component/TooltipIconButton.js';
-import {LocalizedNodeName, t} from '../../component/LocalizedLabel.js';
-import {getFuncLibPath} from '../../util/FunctionLib.js';
+import {arrayEqual, ClientConn, getDisplayName, ValueSubscriber, ValueUpdate} from '@ticlo/core/editor.ts';
+import {BlockStageTabButton} from './BlockStageTabButton.tsx';
+import {LazyUpdateComponent} from '../../component/LazyUpdateComponent.tsx';
+import {TooltipIconButton} from '../../component/TooltipIconButton.tsx';
+import {LocalizedNodeName, t} from '../../component/LocalizedLabel.tsx';
+import {getFuncLibPath} from '../../util/FunctionLib.ts';
 
 interface Props {
   conn: ClientConn;

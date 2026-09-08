@@ -1,14 +1,14 @@
 import {expect} from 'vitest';
-import {Block} from '../../block/Block.js';
-import {Root} from '../../block/Flow.js';
-import {makeLocalConnection} from '../LocalConnection.js';
-import '../../functions/math/Arithmetic.js';
-import {AsyncClientPromise} from './AsyncClientPromise.js';
-import {shouldHappen, shouldReject} from '../../util/test-util.js';
-import {JsFunction} from '../../functions/script/Js.js';
-import {FunctionDesc} from '../../block/Descriptor.js';
-import {globalFunctions} from '../../block/FunctionLib.js';
-import {Logger} from '../../util/Logger.js';
+import {Block} from '../../block/Block.ts';
+import {Root} from '../../block/Flow.ts';
+import {makeLocalConnection} from '../LocalConnection.ts';
+import '../../functions/math/Arithmetic.ts';
+import {AsyncClientPromise} from './AsyncClientPromise.ts';
+import {shouldHappen, shouldReject} from '../../util/test-util.ts';
+import {JsFunction} from '../../functions/script/Js.ts';
+import {FunctionDesc} from '../../block/Descriptor.ts';
+import {globalFunctions} from '../../block/FunctionLib.ts';
+import {Logger} from '../../util/Logger.ts';
 
 describe('Reconnect', function () {
   it('reconnect', async function () {

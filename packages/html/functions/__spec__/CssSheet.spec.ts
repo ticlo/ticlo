@@ -1,8 +1,8 @@
 import {expect, describe, it} from 'vitest';
-import '../CssSheet.js';
+import '../CssSheet.ts';
 import {Flow, Root} from '@ticlo/core';
-import type {CssSheet} from '../../style/CssSheet.js';
-import {DisabledCssSheet} from '../../style/CssSheet.js';
+import type {CssSheet} from '../../style/CssSheet.ts';
+import {DisabledCssSheet} from '../../style/CssSheet.ts';
 
 describe('CssSheet', function () {
   it('create sheet', function () {

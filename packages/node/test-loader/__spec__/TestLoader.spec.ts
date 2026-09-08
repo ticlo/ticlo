@@ -1,8 +1,8 @@
 import {encode, Root} from '@ticlo/core';
-import {FlowState} from '@ticlo/core/block/Flow.js';
+import {FlowState} from '@ticlo/core/block/Flow.ts';
 import {FlowTestCase} from '@ticlo/test';
 import {describe, expect, it, vi} from 'vitest';
-import {TestLoader} from '../TestLoader.js';
+import {TestLoader} from '../TestLoader.ts';
 
 describe('TestLoader', () => {
   it('reuses the task for the same test path', () => {

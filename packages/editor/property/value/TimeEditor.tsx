@@ -1,7 +1,7 @@
 import React from 'react';
 import {DateTime} from 'luxon';
-import {ValueEditorProps} from './ValueEditorBase.js';
-import {TimePicker} from '../../component/DateTimePicker.js';
+import {ValueEditorProps} from './ValueEditorBase.ts';
+import {TimePicker} from '../../component/DateTimePicker.tsx';
 
 const defaultTime = DateTime.fromFormat('00:00:00.000', 'HH:mm:ss.SSS', {zone: 'UTC'});
 

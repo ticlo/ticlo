@@ -1,8 +1,8 @@
-import {Root} from '../../block/Flow.js';
-import {makeLocalConnection} from '../LocalConnection.js';
-import {AsyncClientPromise} from './AsyncClientPromise.js';
+import {Root} from '../../block/Flow.ts';
+import {makeLocalConnection} from '../LocalConnection.ts';
+import {AsyncClientPromise} from './AsyncClientPromise.ts';
 import {expect} from 'vitest';
-import {isDataTruncated} from '../../util/DataTypes.js';
+import {isDataTruncated} from '../../util/DataTypes.ts';
 
 describe('Query', function () {
   beforeAll(function () {

@@ -1,6 +1,6 @@
-import {ErrorEvent, Event, EventType} from './Event.js';
-import {PropDispatcher, PropListener} from './Dispatcher.js';
-import {BlockBindingSource} from './BlockProperty.js';
+import {ErrorEvent, Event, EventType} from './Event.ts';
+import {PropDispatcher, PropListener} from './Dispatcher.ts';
+import {BlockBindingSource} from './BlockProperty.ts';
 
 /// a helper class to use async await on Dispatcher
 export class ListenPromise<T> implements PropListener<T> {

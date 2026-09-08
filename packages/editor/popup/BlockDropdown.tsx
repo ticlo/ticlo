@@ -1,6 +1,6 @@
-import {showModal} from './ShowModal.js';
-import {AddNewFlowDialog} from './AddNewFlowDialog.js';
-import {NodeTreeItem} from '../node-tree/NodeRenderer.js';
+import {showModal} from './ShowModal.tsx';
+import {AddNewFlowDialog} from './AddNewFlowDialog.tsx';
+import {NodeTreeItem} from '../node-tree/NodeRenderer.tsx';
 import React from 'react';
 import {
   BuildOutlined,
@@ -13,16 +13,16 @@ import {
   SaveOutlined,
   SearchOutlined,
 } from '@ant-design/icons';
-import {LocalizedFuncCommand, LocalizedPropCommand, t} from '../component/LocalizedLabel.js';
+import {LocalizedFuncCommand, LocalizedPropCommand, t} from '../component/LocalizedLabel.tsx';
 
 import {DataMap, FunctionDesc, PropDesc, smartStrCompare} from '@ticlo/core';
-import {ClientConn} from '@ticlo/core/connect/ClientConn.js';
-import {Popup, Menu, MenuItem} from '../component/ClickPopup.js';
-import {RenameDialog} from './RenameDialog.js';
-import {splitPathName} from '@ticlo/core/util/Path.js';
-import {ParameterInputDialog} from './ParameterInputDialog.js';
-import {TicloLayoutContext, TicloLayoutContextType} from '../component/LayoutContext.js';
-import {getDescLib} from '../util/FunctionLib.js';
+import {ClientConn} from '@ticlo/core/connect/ClientConn.ts';
+import {Popup, Menu, MenuItem} from '../component/ClickPopup.tsx';
+import {RenameDialog} from './RenameDialog.tsx';
+import {splitPathName} from '@ticlo/core/util/Path.ts';
+import {ParameterInputDialog} from './ParameterInputDialog.tsx';
+import {TicloLayoutContext, TicloLayoutContextType} from '../component/LayoutContext.ts';
+import {getDescLib} from '../util/FunctionLib.ts';
 
 const deleteForbidden = new Set<string>(['flow:test-group', 'flow:const']);
 const renameForbidden = new Set<string>(['flow:test-group', 'flow:const']);

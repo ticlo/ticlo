@@ -1,9 +1,9 @@
-import {blankFuncDesc} from '@ticlo/core/editor.js';
-import type {ClientConn} from '@ticlo/core/editor.js';
-import {BlockWidget} from '../../block/view/BlockWidget.js';
-import '../../block/view/NoteWidget.js';
-import {NodeTreeItem, NodeTreeRenderer} from '../../node-tree/NodeRenderer.js';
-import {ObjectTree} from '../../object-tree/ObjectTree.js';
+import {blankFuncDesc} from '@ticlo/core/editor.ts';
+import type {ClientConn} from '@ticlo/core/editor.ts';
+import {BlockWidget} from '../../block/view/BlockWidget.ts';
+import '../../block/view/NoteWidget.tsx';
+import {NodeTreeItem, NodeTreeRenderer} from '../../node-tree/NodeRenderer.tsx';
+import {ObjectTree} from '../../object-tree/ObjectTree.tsx';
 
 function createConnection() {
   const subscriptions = new Map<object, string>();

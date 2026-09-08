@@ -1,12 +1,12 @@
 import {expect} from 'vitest';
-import '../../functions/math/Arithmetic.js';
-import {WorkerFlow} from '../../worker/WorkerFlow.js';
-import {WorkerFunctionGen} from '../../worker/WorkerFunctionGen.js';
-import {copyProperties, deleteProperties, pasteProperties} from '../CopyPaste.js';
-import type {DataMap} from '../../util/DataTypes.js';
-import type {Block} from '../../block/Block.js';
-import {Flow} from '../../block/Flow.js';
-import type {StaticBlock} from '../../block/StaticBlock.js';
+import '../../functions/math/Arithmetic.ts';
+import {WorkerFlow} from '../../worker/WorkerFlow.ts';
+import {WorkerFunctionGen} from '../../worker/WorkerFunctionGen.ts';
+import {copyProperties, deleteProperties, pasteProperties} from '../CopyPaste.ts';
+import type {DataMap} from '../../util/DataTypes.ts';
+import type {Block} from '../../block/Block.ts';
+import {Flow} from '../../block/Flow.ts';
+import type {StaticBlock} from '../../block/StaticBlock.ts';
 
 describe('Copy Paste', function () {
   const data = {

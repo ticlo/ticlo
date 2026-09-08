@@ -1,7 +1,7 @@
 import React, {ReactNode} from 'react';
-import {BlockStage, PropertyList} from '../../index.js';
-import {ClientConn} from '@ticlo/core/editor.js';
-import {TicloLayoutContext, TicloLayoutContextType} from '../../component/LayoutContext.js';
+import {BlockStage, PropertyList} from '../../index.ts';
+import {ClientConn} from '@ticlo/core/editor.ts';
+import {TicloLayoutContext, TicloLayoutContextType} from '../../component/LayoutContext.ts';
 
 interface Props {
   conn: ClientConn;

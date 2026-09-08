@@ -1,19 +1,19 @@
 import React, {CSSProperties} from 'react';
 import {luxonLocalizer} from 'ticlo-big-calendar';
 import type {CalendarEvent as BaseEvent} from 'ticlo-big-calendar/es/types.js';
-import {ClientConn, ValueSubscriber} from '@ticlo/core/connect/ClientConn.js';
-import {ValueUpdate} from '@ticlo/core/connect/ClientRequests.js';
+import {ClientConn, ValueSubscriber} from '@ticlo/core/connect/ClientConn.ts';
+import {ValueUpdate} from '@ticlo/core/connect/ClientRequests.ts';
 import {
   EventOccur,
   SchedulerConfig,
   SchedulerEvent,
   validateEventConfig,
-} from '@ticlo/core/functions/date/Schedule/SchedulerEvent.js';
-import {cacheCall} from '../util/CachedCallback.js';
-import {deepEqual} from '@ticlo/core/util/Compare.js';
+} from '@ticlo/core/functions/date/Schedule/SchedulerEvent.ts';
+import {cacheCall} from '../util/CachedCallback.ts';
+import {deepEqual} from '@ticlo/core/util/Compare.ts';
 import {encodeDisplay} from '@ticlo/core';
 import {stringify as stringifyYaml} from 'yaml';
-import {arrowReplacer} from '@ticlo/core/util/Serialize.js';
+import {arrowReplacer} from '@ticlo/core/util/Serialize.ts';
 import {DateTime} from 'luxon';
 
 const priorityStr = '⓿❶❷❸❹❺❻❼❽❾❿';

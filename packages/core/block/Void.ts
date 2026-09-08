@@ -1,6 +1,6 @@
-import {BlockProperty, BlockPropertyEvent, BlockPropertySubscriber} from './BlockProperty.js';
-import {PropListener} from './Dispatcher.js';
-import {_strictMode} from './BlockSettings.js';
+import {BlockProperty, BlockPropertyEvent, BlockPropertySubscriber} from './BlockProperty.ts';
+import {PropListener} from './Dispatcher.ts';
+import {_strictMode} from './BlockSettings.ts';
 
 class VoidProperty extends BlockProperty {
   static readonly instance = new VoidProperty(null, '');

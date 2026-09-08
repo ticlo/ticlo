@@ -1,16 +1,16 @@
 import {expect} from 'vitest';
 import {simulate} from 'simulate-event';
 import React from 'react';
-import {BlockStage} from '../BlockStage.js';
-import {FunctionView} from '../../function-selector/FunctionView.js';
+import {BlockStage} from '../BlockStage.tsx';
+import {FunctionView} from '../../function-selector/FunctionView.tsx';
 import type {Flow} from '@ticlo/core';
 import {Block, Root} from '@ticlo/core';
-import {destroyLastLocalConnection, makeLocalConnection} from '@ticlo/core/connect/LocalConnection.js';
-import {FlowEditor} from '@ticlo/core/worker/FlowEditor.js';
-import {shouldHappen, shouldReject} from '@ticlo/core/util/test-util.js';
-import {removeLastTemplate, loadTemplate, querySingle, fakeMouseEvent} from '../../util/test-util.js';
-import {initEditor} from '../../index.js';
-import {arrayEqual} from '@ticlo/core/editor.js';
+import {destroyLastLocalConnection, makeLocalConnection} from '@ticlo/core/connect/LocalConnection.ts';
+import {FlowEditor} from '@ticlo/core/worker/FlowEditor.ts';
+import {shouldHappen, shouldReject} from '@ticlo/core/util/test-util.ts';
+import {removeLastTemplate, loadTemplate, querySingle, fakeMouseEvent} from '../../util/test-util.ts';
+import {initEditor} from '../../index.ts';
+import {arrayEqual} from '@ticlo/core/editor.ts';
 
 describe('editor BlockStage', function () {
   beforeEach(async function () {

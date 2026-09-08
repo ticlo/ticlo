@@ -1,10 +1,10 @@
 import Fs from 'fs';
 import Path from 'path';
 import {BlockProperty, DataMap, decode, encodeSorted, Flow, Root, FlowStorage, Storage} from '@ticlo/core';
-import {WorkerFunctionGen} from '@ticlo/core/worker/WorkerFunctionGen.js';
-import {FlowLoader, FlowState} from '@ticlo/core/block/Flow.js';
-import {StreamDispatcher} from '@ticlo/core/block/Dispatcher.js';
-import {encodeFileName} from '@ticlo/core/util/Path.js';
+import {WorkerFunctionGen} from '@ticlo/core/worker/WorkerFunctionGen.ts';
+import {FlowLoader, FlowState} from '@ticlo/core/block/Flow.ts';
+import {StreamDispatcher} from '@ticlo/core/block/Dispatcher.ts';
+import {encodeFileName} from '@ticlo/core/util/Path.ts';
 
 export class FlowIOTask extends StreamDispatcher<string> {
   current?: 'write' | 'delete' | 'read';

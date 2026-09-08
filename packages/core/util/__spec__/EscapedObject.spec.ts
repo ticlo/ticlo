@@ -1,5 +1,5 @@
 import {expect} from 'vitest';
-import {decodeUnknown, NoSerialize} from '../NoSerialize.js';
+import {decodeUnknown, NoSerialize} from '../NoSerialize.ts';
 
 describe('EscapedObject', function () {
   const encodedString = '"͢:title"';

@@ -3,9 +3,9 @@ import {once} from 'node:events';
 import {serve} from '@hono/node-server';
 import {Hono} from 'hono';
 import {Root} from '@ticlo/core';
-import {WsClientConnection} from '@ticlo/node/connect/WsClientConnection.js';
-import {AsyncClientPromise} from '@ticlo/core/connect/__spec__/AsyncClientPromise.js';
-import {connectTiclo, getEditorUrl} from '../server.js';
+import {WsClientConnection} from '@ticlo/node/connect/WsClientConnection.ts';
+import {AsyncClientPromise} from '@ticlo/core/connect/__spec__/AsyncClientPromise.ts';
+import {connectTiclo, getEditorUrl} from '../server.ts';
 
 describe('connectTiclo', () => {
   it('upgrades editor WebSockets and exchanges flow values through the Node adapter', async () => {

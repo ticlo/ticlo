@@ -1,8 +1,8 @@
-import {ClientConnection} from '@ticlo/core/connect/ClientConnection.js';
-import {DataMap} from '@ticlo/core/util/DataTypes.js';
-import {Logger} from '@ticlo/core/util/Logger.js';
-import {decode, encode} from '@ticlo/core/util/Serialize.js';
-import type {Restricted} from '@ticlo/core/restricted/Restricted.js';
+import {ClientConnection} from '@ticlo/core/connect/ClientConnection.ts';
+import {DataMap} from '@ticlo/core/util/DataTypes.ts';
+import {Logger} from '@ticlo/core/util/Logger.ts';
+import {decode, encode} from '@ticlo/core/util/Serialize.ts';
+import type {Restricted} from '@ticlo/core/restricted/Restricted.ts';
 
 export class FrameClientConnection extends ClientConnection {
   constructor(

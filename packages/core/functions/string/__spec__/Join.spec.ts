@@ -1,7 +1,7 @@
 import {expect} from 'vitest';
-import '../Join.js';
-import {Block} from '../../../block/Block.js';
-import {Flow, Root} from '../../../block/Flow.js';
+import '../Join.ts';
+import {Block} from '../../../block/Block.ts';
+import {Flow, Root} from '../../../block/Flow.ts';
 
 describe('Join', function () {
   it('basic join', function () {

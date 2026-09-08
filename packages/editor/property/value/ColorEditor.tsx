@@ -1,7 +1,7 @@
 import React from 'react';
 import {ColorPicker} from 'antd';
 import {AggregationColor} from 'antd/es/color-picker/color.js';
-import {ValueEditorProps} from './ValueEditorBase.js';
+import {ValueEditorProps} from './ValueEditorBase.ts';
 
 export class ColorEditor extends React.PureComponent<ValueEditorProps, any> {
   onValueChange = (value: AggregationColor) => {

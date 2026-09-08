@@ -3,10 +3,10 @@ import {Button} from 'antd';
 import {CloseOutlined, SaveOutlined} from '@ant-design/icons';
 
 import {DockContext, DockContextType} from 'rc-dock';
-import {LazyUpdateComponent} from '../../component/LazyUpdateComponent.js';
-import {ClientConn, ValueSubscriber, ValueUpdate} from '@ticlo/core/editor.js';
+import {LazyUpdateComponent} from '../../component/LazyUpdateComponent.tsx';
+import {ClientConn, ValueSubscriber, ValueUpdate} from '@ticlo/core/editor.ts';
 import {TabData} from 'rc-dock';
-import {TicloCurrentFlowContext} from '../../component/LayoutContext.js';
+import {TicloCurrentFlowContext} from '../../component/LayoutContext.ts';
 
 interface Props {
   conn: ClientConn;

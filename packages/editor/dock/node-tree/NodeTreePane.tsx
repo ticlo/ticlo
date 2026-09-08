@@ -1,14 +1,14 @@
 import React from 'react';
-import {ClientConn} from '@ticlo/core/editor.js';
-import {TicloLayoutContext, TicloLayoutContextType} from '../../component/LayoutContext.js';
-import {NodeTree} from '../../index.js';
+import {ClientConn} from '@ticlo/core/editor.ts';
+import {TicloLayoutContext, TicloLayoutContextType} from '../../component/LayoutContext.ts';
+import {NodeTree} from '../../index.ts';
 import {Button, Input, Menu, Tooltip} from 'antd';
 import {FileAddOutlined, FolderAddOutlined, ReloadOutlined} from '@ant-design/icons';
 
-import {AddNewFlowDialog} from '../../popup/AddNewFlowDialog.js';
+import {AddNewFlowDialog} from '../../popup/AddNewFlowDialog.tsx';
 import {DragDrop, DragState} from 'rc-dock';
-import {t} from '../../component/LocalizedLabel.js';
-import {showModal} from '../../popup/ShowModal.js';
+import {t} from '../../component/LocalizedLabel.tsx';
+import {showModal} from '../../popup/ShowModal.tsx';
 
 interface Props {
   conn: ClientConn;

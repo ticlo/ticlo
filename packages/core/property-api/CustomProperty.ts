@@ -1,9 +1,9 @@
-import {PropDesc, PropGroupDesc} from '../block/Descriptor.js';
-import {Block} from '../block/Block.js';
-import {deepClone} from '../util/Clone.js';
-import {endsWithNumberReg} from '../util/String.js';
-import {hideGroupProperties, hideProperties, showGroupProperties, showProperties} from './PropertyShowHide.js';
-import {getInputsLength, MAX_GROUP_LENGTH} from '../block/FunctonData.js';
+import {PropDesc, PropGroupDesc} from '../block/Descriptor.ts';
+import {Block} from '../block/Block.ts';
+import {deepClone} from '../util/Clone.ts';
+import {endsWithNumberReg} from '../util/String.ts';
+import {hideGroupProperties, hideProperties, showGroupProperties, showProperties} from './PropertyShowHide.ts';
+import {getInputsLength, MAX_GROUP_LENGTH} from '../block/FunctonData.ts';
 
 export function addCustomProperty(block: Block, desc: PropDesc | PropGroupDesc, group?: string) {
   let propDesc: PropDesc;

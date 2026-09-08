@@ -1,6 +1,6 @@
-import {PureFunction} from '../../block/BlockFunction.js';
-import {ErrorEvent} from '../../block/Event.js';
-import {globalFunctions} from '../../block/FunctionLib.js';
+import {PureFunction} from '../../block/BlockFunction.ts';
+import {ErrorEvent} from '../../block/Event.ts';
+import {globalFunctions} from '../../block/FunctionLib.ts';
 
 const descriptor = {
   recipient: '0',

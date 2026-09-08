@@ -2,9 +2,9 @@ import {createNodeWebSocket} from '@hono/node-ws';
 import {Hono} from 'hono';
 import {Root} from '@ticlo/core';
 import {WsServerConnection, RestServerConnection} from '@ticlo/node';
-import {decodeReviver} from '@ticlo/core/util/Serialize.js';
-import {requestHandlerSymbol, ServerFunction} from './ServerFunction.js';
-import {HonoRequestData, HonoResponse} from './HttpRequest.js';
+import {decodeReviver} from '@ticlo/core/util/Serialize.ts';
+import {requestHandlerSymbol, ServerFunction} from './ServerFunction.ts';
+import {HonoRequestData, HonoResponse} from './HttpRequest.ts';
 
 // force import
 ((v: any) => {})(ServerFunction);

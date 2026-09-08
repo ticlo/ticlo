@@ -1,5 +1,5 @@
-import {PureFunction} from '../../block/BlockFunction.js';
-import {globalFunctions} from '../../block/FunctionLib.js';
+import {PureFunction} from '../../block/BlockFunction.ts';
+import {globalFunctions} from '../../block/FunctionLib.ts';
 
 export class DefaultValueFunction extends PureFunction {
   run(): any {

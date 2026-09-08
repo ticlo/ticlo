@@ -1,11 +1,11 @@
 import {Block, DataMap, FunctionDesc, globalFunctions, PropDesc} from '@ticlo/core';
 
-import {useTicloComp} from '../hooks/useTicloComp.js';
-import {metaKey} from '../comp/Component.js';
+import {useTicloComp} from '../hooks/useTicloComp.ts';
+import {metaKey} from '../comp/Component.tsx';
 import React from 'react';
-import {elementClassProperty, elementConfigs, elementStyleProperty} from '../comp/CommontProps.js';
-import {useBlockConfigs} from '../hooks/useBlockConfigs.js';
-import {Values} from '../comp/Values.js';
+import {elementClassProperty, elementConfigs, elementStyleProperty} from '../comp/CommontProps.ts';
+import {useBlockConfigs} from '../hooks/useBlockConfigs.ts';
+import {Values} from '../comp/Values.ts';
 
 const optional: {[key: string]: PropDesc} = {
   crossOrigin: {name: 'crossOrigin', type: 'select', options: ['anonymous', 'use-credentials']},

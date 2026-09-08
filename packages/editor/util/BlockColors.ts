@@ -1,6 +1,6 @@
 import {globalStyle} from '@ticlo/html';
 import {FunctionDesc} from '@ticlo/core';
-import {ClientConn} from '@ticlo/core/editor.js';
+import {ClientConn} from '@ticlo/core/editor.ts';
 
 const usedColors = new Set<string>();
 

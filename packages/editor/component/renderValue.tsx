@@ -1,6 +1,6 @@
 import React from 'react';
 import {TRUNCATED, encodeDisplay} from '@ticlo/core';
-import {displayNumber} from '../util/Types.js';
+import {displayNumber} from '../util/Types.tsx';
 
 // render value for Block value field
 export function renderValue(val: any, getPopup?: (val: any) => React.ReactElement) {

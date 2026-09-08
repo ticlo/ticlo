@@ -66,10 +66,11 @@ async function buildPackage(name: string) {
   const sourceFiles: string[] = [`${targetDir}/tsconfig.json`]; // files to be deleted after compiling
   for (const tsFile of srcFiles) {
     if (!tsFile.includes('/__spec__/') && !tsFile.includes('/tests/')) {
-      const data = fs.readFileSync(tsFile, {encoding: 'utf8'});
-
-      // analyze file, and fix file content
-      // TODO, nothing needs to be fixed for now
+      // TypeScript rewrites relative imports; workspace package imports need
+      // JavaScript extensions too because published packages contain no sources.
+      const data = fs
+        .readFileSync(tsFile, {encoding: 'utf8'})
+        .replace(/(['"])(@ticlo\/[^'"\s]+)\.tsx?\1/g, '$1$2.js$1');
 
       // copy file to build
       const newFile = tsFile.replace(fromDir, targetDir);

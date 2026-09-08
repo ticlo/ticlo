@@ -1,14 +1,14 @@
-import {Block, BlockChildWatch} from '../block/Block.js';
-import type {Flow} from '../block/Flow.js';
-import {DataMap} from '../util/DataTypes.js';
-import {WorkerFunctionGen} from './WorkerFunctionGen.js';
-import {FlowWithStatic, FlowWithStaticConfigGenerators} from '../block/StaticBlock.js';
-import {BlockProperty} from '../index.js';
-import {ConstTypeConfig} from '../block/BlockConfigs.js';
-import {BlockConfig} from '../block/BlockProperty.js';
-import {defaultWorkerData} from '../defaults/DefaultFlows.js';
-import {FunctionLib} from '../block/FunctionLib.js';
-import {Namespace} from '../block/Namespace.js';
+import {Block, BlockChildWatch} from '../block/Block.ts';
+import type {Flow} from '../block/Flow.ts';
+import {DataMap} from '../util/DataTypes.ts';
+import {WorkerFunctionGen} from './WorkerFunctionGen.ts';
+import {FlowWithStatic, FlowWithStaticConfigGenerators} from '../block/StaticBlock.ts';
+import {BlockProperty} from '../index.ts';
+import {ConstTypeConfig} from '../block/BlockConfigs.ts';
+import {BlockConfig} from '../block/BlockProperty.ts';
+import {defaultWorkerData} from '../defaults/DefaultFlows.ts';
+import {FunctionLib} from '../block/FunctionLib.ts';
+import {Namespace} from '../block/Namespace.ts';
 
 export const FlowEditorConfigGenerators: {[key: string]: typeof BlockProperty} = {
   ...FlowWithStaticConfigGenerators,

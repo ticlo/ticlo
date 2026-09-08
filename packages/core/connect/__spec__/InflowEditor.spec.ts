@@ -1,12 +1,12 @@
 import {expect} from 'vitest';
-import {Flow, Root} from '../../block/Flow.js';
-import {type Block} from '../../block/Block.js';
-import {makeLocalConnection} from '../LocalConnection.js';
-import '../../functions/math/Arithmetic.js';
-import '../../functions/Categories.js';
-import {shouldHappen} from '../../util/test-util.js';
-import {Namespace} from '../../block/Namespace.js';
-import {WorkerFunctionGen} from '../../worker/WorkerFunctionGen.js';
+import {Flow, Root} from '../../block/Flow.ts';
+import {type Block} from '../../block/Block.ts';
+import {makeLocalConnection} from '../LocalConnection.ts';
+import '../../functions/math/Arithmetic.ts';
+import '../../functions/Categories.ts';
+import {shouldHappen} from '../../util/test-util.ts';
+import {Namespace} from '../../block/Namespace.ts';
+import {WorkerFunctionGen} from '../../worker/WorkerFunctionGen.ts';
 
 describe('InflowEditor Connection Workflow', function () {
   it('keeps folder and child-flow function groups stable and separate', async function () {

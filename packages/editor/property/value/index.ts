@@ -1,14 +1,14 @@
-import {DynamicEditor, dynamicEditorMap} from './DynamicEditor.js';
-import {MultiSelectEditor, SelectEditor} from './SelectEditor.js';
-import {ComboEditor} from './ComboEditor.js';
-import {PasswordEditor} from './PasswordEditor.js';
-import {RadioButtonEditor} from './RadioButtonEditor.js';
-import {FunctionEditor} from './FunctionEditor.js';
-import {WorkerEditor} from './WorkerEditor.js';
-import {ReadonlyEditor} from './ReadonlyEditor.js';
-import {EventEditor} from './EventEditor.js';
-import {ScheduleEditor} from './ScheduleEditor.js';
-import {TimeEditor} from './TimeEditor.js';
+import {DynamicEditor, dynamicEditorMap} from './DynamicEditor.tsx';
+import {MultiSelectEditor, SelectEditor} from './SelectEditor.tsx';
+import {ComboEditor} from './ComboEditor.tsx';
+import {PasswordEditor} from './PasswordEditor.tsx';
+import {RadioButtonEditor} from './RadioButtonEditor.tsx';
+import {FunctionEditor} from './FunctionEditor.tsx';
+import {WorkerEditor} from './WorkerEditor.tsx';
+import {ReadonlyEditor} from './ReadonlyEditor.tsx';
+import {EventEditor} from './EventEditor.tsx';
+import {ScheduleEditor} from './ScheduleEditor.tsx';
+import {TimeEditor} from './TimeEditor.tsx';
 
 export const typeEditorMap: {[key: string]: any} = {
   ...dynamicEditorMap,

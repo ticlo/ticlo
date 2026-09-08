@@ -1,7 +1,7 @@
 import {DateTime} from 'luxon';
-import {toDateTime} from '@ticlo/core/util/DateTime.js';
+import {toDateTime} from '@ticlo/core/util/DateTime.ts';
 import {Block, PropDesc} from '@ticlo/core';
-import {getDefaultZone} from '@ticlo/core/util/Settings.js';
+import {getDefaultZone} from '@ticlo/core/util/Settings.ts';
 
 type DescOmit = Omit<PropDesc, 'name'>;
 

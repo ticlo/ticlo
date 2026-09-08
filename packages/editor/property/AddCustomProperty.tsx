@@ -7,12 +7,12 @@ import {
   endsWithNumberReg,
   ClientConn,
   translateEditor,
-} from '@ticlo/core/editor.js';
-import {LazyUpdateComponent} from '../component/LazyUpdateComponent.js';
-import {FormInputItem, FormItem} from '../component/FormItem.js';
-import {t} from '../component/LocalizedLabel.js';
-import {TicloI18NConsumer, TicloLayoutContext, TicloLayoutContextType} from '../component/LayoutContext.js';
-import {cacheCall} from '../util/CachedCallback.js';
+} from '@ticlo/core/editor.ts';
+import {LazyUpdateComponent} from '../component/LazyUpdateComponent.tsx';
+import {FormInputItem, FormItem} from '../component/FormItem.tsx';
+import {t} from '../component/LocalizedLabel.tsx';
+import {TicloI18NConsumer, TicloLayoutContext, TicloLayoutContextType} from '../component/LayoutContext.ts';
+import {cacheCall} from '../util/CachedCallback.ts';
 
 const RadioButton = Radio.Button;
 const RadioGroup = Radio.Group;

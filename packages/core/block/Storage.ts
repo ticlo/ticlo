@@ -1,6 +1,6 @@
-import {Flow, FlowLoader, Root} from './Flow.js';
-import {DataMap} from '../util/DataTypes.js';
-import {BlockProperty} from './BlockProperty.js';
+import {Flow, FlowLoader, Root} from './Flow.ts';
+import {DataMap} from '../util/DataTypes.ts';
+import {BlockProperty} from './BlockProperty.ts';
 
 export interface Storage {
   delete(key: string): void;

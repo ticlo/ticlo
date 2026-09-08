@@ -1,5 +1,5 @@
-import {DataMap, isBaseObject, TRUNCATED} from './DataTypes.js';
-import {decode, encodeRaw} from './Serialize.js';
+import {DataMap, isBaseObject, TRUNCATED} from './DataTypes.ts';
+import {decode, encodeRaw} from './Serialize.ts';
 import QS from 'qs';
 import {DateTime} from 'luxon';
 

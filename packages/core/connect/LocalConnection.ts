@@ -1,10 +1,10 @@
-import {ServerConnection} from './ServerConnection.js';
-import {ClientConnection} from './ClientConnection.js';
-import {Root} from '../block/Flow.js';
-import {DataMap} from '../util/DataTypes.js';
-import {Logger} from '../util/Logger.js';
-import {encode, decode} from '../util/Serialize.js';
-import {Restricted} from '../restricted/Restricted.js';
+import {ServerConnection} from './ServerConnection.ts';
+import {ClientConnection} from './ClientConnection.ts';
+import {Root} from '../block/Flow.ts';
+import {DataMap} from '../util/DataTypes.ts';
+import {Logger} from '../util/Logger.ts';
+import {encode, decode} from '../util/Serialize.ts';
+import {Restricted} from '../restricted/Restricted.ts';
 
 class LocalServerConnection extends ServerConnection {
   _client: LocalClientConnection;

@@ -1,7 +1,7 @@
 import {describe, expect, it, vi} from 'vitest';
 import {Root} from '@ticlo/core';
-import {FlowTestGroup} from '../FlowTestGroup.js';
-import {TestState} from '../Interface.js';
+import {FlowTestGroup} from '../FlowTestGroup.ts';
+import {TestState} from '../Interface.ts';
 
 describe('FlowTestGroup', () => {
   it('reports running while a child test is still waiting', () => {

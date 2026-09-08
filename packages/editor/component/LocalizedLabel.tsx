@@ -7,8 +7,8 @@ import {
   translatePropContent,
   translateFunction,
   translateProperty,
-} from '@ticlo/core/editor.js';
-import {TicloLayoutContextType} from './LayoutContext.js';
+} from '@ticlo/core/editor.ts';
+import {TicloLayoutContextType} from './LayoutContext.ts';
 
 export const LocalizedLabel = ({label, options}: {label: string; options?: DataMap}) => {
   useContext(TicloLayoutContextType);

@@ -1,16 +1,16 @@
 import React from 'react';
 import {Menu, Dropdown} from 'antd';
-import {ValueEditorProps} from './ValueEditorBase.js';
+import {ValueEditorProps} from './ValueEditorBase.ts';
 import {ValueType, isColorStr} from '@ticlo/core';
-import {NumberEditor} from './NumberEditor.js';
-import {StringEditor} from './StringEditor.js';
-import {ToggleEditor} from './ToggleEditor.js';
-import {ColorEditor} from './ColorEditor.js';
-import {DateEditor} from './DateEditor.js';
-import {DateRangeEditor} from './DateRangeEditor.js';
-import {ReadonlyEditor} from './ReadonlyEditor.js';
-import {ObjectEditor} from './ObjectEditor.js';
-import {SelectEditor} from './SelectEditor.js';
+import {NumberEditor} from './NumberEditor.tsx';
+import {StringEditor} from './StringEditor.tsx';
+import {ToggleEditor} from './ToggleEditor.tsx';
+import {ColorEditor} from './ColorEditor.tsx';
+import {DateEditor} from './DateEditor.tsx';
+import {DateRangeEditor} from './DateRangeEditor.tsx';
+import {ReadonlyEditor} from './ReadonlyEditor.tsx';
+import {ObjectEditor} from './ObjectEditor.tsx';
+import {SelectEditor} from './SelectEditor.tsx';
 import {DateTime} from 'luxon';
 
 const defaultTypes: ValueType[] = ['string', 'number', 'toggle', 'color', 'date', 'date-range', 'object', 'array'];

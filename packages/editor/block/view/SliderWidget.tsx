@@ -1,8 +1,8 @@
 import React from 'react';
-import {BlockWidget, BlockWidgetProps} from './BlockWidget.js';
-import {LazyUpdateComponent, LazyUpdateSubscriber} from '../../component/LazyUpdateComponent.js';
+import {BlockWidget, BlockWidgetProps} from './BlockWidget.ts';
+import {LazyUpdateComponent, LazyUpdateSubscriber} from '../../component/LazyUpdateComponent.tsx';
 import {Slider} from 'antd';
-import {displayNumber} from '../../util/Types.js';
+import {displayNumber} from '../../util/Types.tsx';
 import {PropDesc} from '@ticlo/core';
 
 class SliderView extends LazyUpdateComponent<BlockWidgetProps, any> {

@@ -1,5 +1,5 @@
-import {ScheduleGroup, setSchedule, setScheduledTimeout} from '../SetSchedule.js';
-import {CallbackLogger, shouldHappen} from '../test-util.js';
+import {ScheduleGroup, setSchedule, setScheduledTimeout} from '../SetSchedule.ts';
+import {CallbackLogger, shouldHappen} from '../test-util.ts';
 
 describe('Schedule', function () {
   beforeAll(function () {

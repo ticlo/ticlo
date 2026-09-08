@@ -2,8 +2,8 @@ import {beforeAll, expect, vi} from 'vitest';
 import Fs from 'fs';
 import type {Flow} from '@ticlo/core';
 import {Root, decode, FlowFolder} from '@ticlo/core';
-import {shouldHappen, shouldReject, waitTick} from '@ticlo/core/util/test-util.js';
-import {FileFlowStorage, FileStorage} from '../FileStorage.js';
+import {shouldHappen, shouldReject, waitTick} from '@ticlo/core/util/test-util.ts';
+import {FileFlowStorage, FileStorage} from '../FileStorage.ts';
 
 describe('FileStorage', function () {
   it('listen to value', async function () {

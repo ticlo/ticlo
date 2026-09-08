@@ -1,5 +1,5 @@
-import {DataMap, measureObjSize, WS_FRAME_SIZE} from '../util/DataTypes.js';
-import {Logger} from '../util/Logger.js';
+import {DataMap, measureObjSize, WS_FRAME_SIZE} from '../util/DataTypes.ts';
+import {Logger} from '../util/Logger.ts';
 
 export class ConnectionSendingData {
   getData(): DataMap {

@@ -1,12 +1,12 @@
 import {expect} from 'vitest';
-import {getRelativePath, resolvePath, forAllPathsBetween, encodeFileName} from '../Path.js';
-import {WorkerFunctionGen} from '../../worker/WorkerFunctionGen.js';
-import type {FlowFolder} from '../../block/Flow.js';
-import {Root} from '../../block/Flow.js';
-import type {DataMap} from '../DataTypes.js';
-import {propRelative} from '../PropPath.js';
-import type {Block} from '../../block/Block.js';
-import {globalFunctions} from '../../block/FunctionLib.js';
+import {getRelativePath, resolvePath, forAllPathsBetween, encodeFileName} from '../Path.ts';
+import {WorkerFunctionGen} from '../../worker/WorkerFunctionGen.ts';
+import type {FlowFolder} from '../../block/Flow.ts';
+import {Root} from '../../block/Flow.ts';
+import type {DataMap} from '../DataTypes.ts';
+import {propRelative} from '../PropPath.ts';
+import type {Block} from '../../block/Block.ts';
+import {globalFunctions} from '../../block/FunctionLib.ts';
 
 describe('Path', function () {
   it('resolve', function () {

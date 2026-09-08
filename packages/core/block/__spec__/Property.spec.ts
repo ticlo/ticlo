@@ -1,5 +1,5 @@
 import {expect} from 'vitest';
-import {Flow} from '../Flow.js';
+import {Flow} from '../Flow.ts';
 
 describe('Property Save Load', function () {
   it('save object with #is', function () {

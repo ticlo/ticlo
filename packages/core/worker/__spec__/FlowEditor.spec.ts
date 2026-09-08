@@ -1,14 +1,14 @@
 import {expect} from 'vitest';
-import {Flow} from '../../block/Flow.js';
-import {FlowEditor} from '../FlowEditor.js';
-import {VoidListeners} from '../../block/__spec__/TestFunction.js';
-import {WorkerFunctionGen} from '../WorkerFunctionGen.js';
+import {Flow} from '../../block/Flow.ts';
+import {FlowEditor} from '../FlowEditor.ts';
+import {VoidListeners} from '../../block/__spec__/TestFunction.ts';
+import {WorkerFunctionGen} from '../WorkerFunctionGen.ts';
 
-import type {PropDesc, PropGroupDesc} from '../../block/Descriptor.js';
-import type {DataMap} from '../../util/DataTypes.js';
-import {StaticBlock} from '../../block/StaticBlock.js';
-import {Namespace} from '../../block/Namespace.js';
-import {encodeTicloName} from '../../util/Name.js';
+import type {PropDesc, PropGroupDesc} from '../../block/Descriptor.ts';
+import type {DataMap} from '../../util/DataTypes.ts';
+import {StaticBlock} from '../../block/StaticBlock.ts';
+import {Namespace} from '../../block/Namespace.ts';
+import {encodeTicloName} from '../../util/Name.ts';
 
 describe('FlowEditor', function () {
   it('delete editor after unwatch', function () {

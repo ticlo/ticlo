@@ -1,5 +1,5 @@
 import {BaseFunction, globalFunctions, getInputsArray} from '@ticlo/core';
-import {CssSheet, DisabledCssSheet, RuleHandle} from '../style/CssSheet.js';
+import {CssSheet, DisabledCssSheet, RuleHandle} from '../style/CssSheet.ts';
 
 const cssNameRegex = /^[a-zA-Z0-9_-]+$/;
 

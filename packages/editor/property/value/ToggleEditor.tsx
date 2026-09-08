@@ -1,7 +1,7 @@
 import React from 'react';
 import {Switch} from 'antd';
-import {ValueEditorProps} from './ValueEditorBase.js';
-import {LocalizedEnumOption} from '../../component/LocalizedLabel.js';
+import {ValueEditorProps} from './ValueEditorBase.ts';
+import {LocalizedEnumOption} from '../../component/LocalizedLabel.tsx';
 
 export class ToggleEditor extends React.PureComponent<ValueEditorProps, any> {
   onValueChange = (checked: boolean) => {

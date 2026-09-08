@@ -1,16 +1,16 @@
 import {expect} from 'vitest';
-import {Flow, FlowLib, Root} from '../../block/Flow.js';
-import {FlowEditor} from '../FlowEditor.js';
-import {WorkerFunctionGen} from '../WorkerFunctionGen.js';
+import {Flow, FlowLib, Root} from '../../block/Flow.ts';
+import {FlowEditor} from '../FlowEditor.ts';
+import {WorkerFunctionGen} from '../WorkerFunctionGen.ts';
 
-import type {PropDesc, PropGroupDesc} from '../../block/Descriptor.js';
-import type {DataMap} from '../../util/DataTypes.js';
-import {StaticBlock} from '../../block/StaticBlock.js';
-import {FlowFunctionLib} from '../../block/NSFunctionLib.js';
-import {Namespace} from '../../block/Namespace.js';
-import {encodeTicloName} from '../../util/Name.js';
-import type {FlowStorage} from '../../block/Storage.js';
-import '../../functions/math/Arithmetic.js';
+import type {PropDesc, PropGroupDesc} from '../../block/Descriptor.ts';
+import type {DataMap} from '../../util/DataTypes.ts';
+import {StaticBlock} from '../../block/StaticBlock.ts';
+import {FlowFunctionLib} from '../../block/NSFunctionLib.ts';
+import {Namespace} from '../../block/Namespace.ts';
+import {encodeTicloName} from '../../util/Name.ts';
+import type {FlowStorage} from '../../block/Storage.ts';
+import '../../functions/math/Arithmetic.ts';
 
 describe('InflowEditor', function () {
   it('scope path metadata is runtime only', function () {

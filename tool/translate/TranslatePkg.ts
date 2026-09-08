@@ -1,4 +1,4 @@
-import {OutputYamlData, YamlData} from './YamlData.js';
+import {OutputYamlData, YamlData} from './YamlData.ts';
 import fs from 'fs';
 
 export class TranslatePkg {

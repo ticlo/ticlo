@@ -1,6 +1,6 @@
 import {expect} from 'vitest';
-import {Flow, Root} from '../Flow.js';
-import {Namespace} from '../Namespace.js';
+import {Flow, Root} from '../Flow.ts';
+import {Namespace} from '../Namespace.ts';
 
 describe('NamespaceConfig', function () {
   it('get #+ value', function () {

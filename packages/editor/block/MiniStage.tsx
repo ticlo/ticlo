@@ -1,9 +1,9 @@
 import React, {ReactNode} from 'react';
-import {PureDataRenderer} from '../component/DataRenderer.js';
-import {TIcon} from '../icon/Icon.js';
-import {BaseBlockItem, BlockItem, Stage, XYWRenderer} from './Field.js';
-import {getFuncStyleFromDesc} from '../util/BlockColors.js';
-import {DataMap} from '@ticlo/core/util/DataTypes.js';
+import {PureDataRenderer} from '../component/DataRenderer.ts';
+import {TIcon} from '../icon/Icon.tsx';
+import {BaseBlockItem, BlockItem, Stage, XYWRenderer} from './Field.tsx';
+import {getFuncStyleFromDesc} from '../util/BlockColors.ts';
+import {DataMap} from '@ticlo/core/util/DataTypes.ts';
 
 interface MiniBlockViewProps {
   item: BlockItem;

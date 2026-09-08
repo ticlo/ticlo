@@ -1,6 +1,6 @@
 import {defaultConfigs, PropDesc} from '@ticlo/core';
-import {Values} from './Values.js';
-import {PropMap} from './PropType.js';
+import {Values} from './Values.ts';
+import {PropMap} from './PropType.ts';
 
 export const elementConfigs = defaultConfigs.concat('#order');
 

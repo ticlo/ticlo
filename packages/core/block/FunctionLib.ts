@@ -1,16 +1,16 @@
-import {type Block} from './Block.js';
+import {type Block} from './Block.ts';
 import {
   type FunctionClass,
   type FunctionApi,
   type FunctionFactory,
   type FunctionFactoryOptions,
   createFunctionFactory,
-} from './BlockFunction.js';
-import {PropDispatcher, PropListener} from './Dispatcher.js';
-import {BlockModeList, FunctionDesc} from './Descriptor.js';
-import {DataMap} from '../util/DataTypes.js';
-import type {Flow, Root} from './Flow.js';
-import {encode} from '../util/Serialize.js';
+} from './BlockFunction.ts';
+import {PropDispatcher, PropListener} from './Dispatcher.ts';
+import {BlockModeList, FunctionDesc} from './Descriptor.ts';
+import {DataMap} from '../util/DataTypes.ts';
+import type {Flow, Root} from './Flow.ts';
+import {encode} from '../util/Serialize.ts';
 
 export {createFunctionFactory};
 

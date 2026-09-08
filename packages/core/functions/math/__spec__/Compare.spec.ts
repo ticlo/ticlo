@@ -1,8 +1,8 @@
 import {expect} from 'vitest';
-import '../Compare.js';
-import '../Boolean.js';
-import {Block} from '../../../block/Block.js';
-import {Flow, Root} from '../../../block/Flow.js';
+import '../Compare.ts';
+import '../Boolean.ts';
+import {Block} from '../../../block/Block.ts';
+import {Flow, Root} from '../../../block/Flow.ts';
 
 describe('Compare', function () {
   it('equal', function () {

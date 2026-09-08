@@ -1,5 +1,5 @@
 import {expect} from 'vitest';
-import {SchedulerEvent} from '../SchedulerEvent.js';
+import {SchedulerEvent} from '../SchedulerEvent.ts';
 import {DateTime} from 'luxon';
 
 describe('ScheduleEvent', function () {

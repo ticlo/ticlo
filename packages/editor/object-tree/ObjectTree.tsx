@@ -1,9 +1,9 @@
 import React from 'react';
 import {Spin} from 'antd';
-import {ClientConn, deepEqual, DataMap, isDataTruncated} from '@ticlo/core/editor.js';
-import VirtualList from '../component/Virtual.js';
-import {ObjectTreeItem, ObjectTreeRenderer} from './ObjectRenderer.js';
-import {LazyUpdateComponent} from '../component/LazyUpdateComponent.js';
+import {ClientConn, deepEqual, DataMap, isDataTruncated} from '@ticlo/core/editor.ts';
+import VirtualList from '../component/Virtual.tsx';
+import {ObjectTreeItem, ObjectTreeRenderer} from './ObjectRenderer.tsx';
+import {LazyUpdateComponent} from '../component/LazyUpdateComponent.tsx';
 
 interface Props {
   conn: ClientConn;

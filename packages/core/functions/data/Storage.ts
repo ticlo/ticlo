@@ -1,8 +1,8 @@
-import {StatefulFunction, BaseFunction, PureFunction} from '../../block/BlockFunction.js';
-import {globalFunctions} from '../../block/FunctionLib.js';
-import {Storage, voidStorage} from '../../block/Storage.js';
-import {encode, decode} from '../../util/Serialize.js';
-import {BlockIO} from '../../block/BlockProperty.js';
+import {StatefulFunction, BaseFunction, PureFunction} from '../../block/BlockFunction.ts';
+import {globalFunctions} from '../../block/FunctionLib.ts';
+import {Storage, voidStorage} from '../../block/Storage.ts';
+import {encode, decode} from '../../util/Serialize.ts';
+import {BlockIO} from '../../block/BlockProperty.ts';
 
 let storageInstance: Storage = voidStorage;
 export function setStorageFunctionProvider(getStorage: () => Storage) {

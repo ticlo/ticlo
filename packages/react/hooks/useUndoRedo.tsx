@@ -1,7 +1,7 @@
 import {useCallback, useContext, useMemo} from 'react';
-import {FlowContext} from './useFlow.js';
-import {useBlockProps} from './useBlockProps.js';
-import {Values} from '../comp/Values.js';
+import {FlowContext} from './useFlow.tsx';
+import {useBlockProps} from './useBlockProps.tsx';
+import {Values} from '../comp/Values.ts';
 
 const BlockStates = {
   '@has-redo': {value: Values.boolean},

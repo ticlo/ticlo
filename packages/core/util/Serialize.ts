@@ -1,7 +1,7 @@
 import Arrow from 'arrow-code';
 import {DateTime} from 'luxon';
-import {decodeDateTime, encodeDateTime, formatDate} from './DateTime.js';
-import {decodeUnknown, encodeUnknown, NoSerialize} from './NoSerialize.js';
+import {decodeDateTime, encodeDateTime, formatDate} from './DateTime.ts';
+import {decodeUnknown, encodeUnknown, NoSerialize} from './NoSerialize.ts';
 
 const arrow = new Arrow({encodeDate: false});
 arrow.registerRaw('Ts', DateTime, encodeDateTime, decodeDateTime);

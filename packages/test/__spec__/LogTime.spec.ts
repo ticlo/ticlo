@@ -1,6 +1,6 @@
 import {describe, expect, it} from 'vitest';
 import {globalFunctions} from '@ticlo/core';
-import '../LogTime.js';
+import '../LogTime.ts';
 
 describe('LogTimeFunction', () => {
   it('declares its timestamp output as a number', () => {

@@ -6,11 +6,11 @@ import {
   ValueUpdate,
   FunctionDesc,
   PropGroupDesc,
-} from '@ticlo/core/editor.js';
-import {MultiSelectComponent, MultiSelectLoader} from './MultiSelectComponent.js';
-import {PropertyEditor} from './PropertyEditor.js';
-import {CustomGroupPropertyReorder, CustomPropertyReorder, GroupPropertyReorder} from './PropertyReorder.js';
-import {MAX_GROUP_LENGTH} from '@ticlo/core/block/FunctonData.js';
+} from '@ticlo/core/editor.ts';
+import {MultiSelectComponent, MultiSelectLoader} from './MultiSelectComponent.tsx';
+import {PropertyEditor} from './PropertyEditor.tsx';
+import {CustomGroupPropertyReorder, CustomPropertyReorder, GroupPropertyReorder} from './PropertyReorder.ts';
+import {MAX_GROUP_LENGTH} from '@ticlo/core/block/FunctonData.ts';
 
 class LengthPropertyEditor extends PropertyEditor {
   onChange = (value: any) => {

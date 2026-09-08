@@ -1,8 +1,8 @@
 import React from 'react';
 import {Radio} from 'antd';
-import {ValueEditorProps} from './ValueEditorBase.js';
+import {ValueEditorProps} from './ValueEditorBase.ts';
 import {RadioChangeEvent} from 'antd';
-import {LocalizedEnumOption} from '../../component/LocalizedLabel.js';
+import {LocalizedEnumOption} from '../../component/LocalizedLabel.tsx';
 
 const RadioButton = Radio.Button;
 const RadioGroup = Radio.Group;

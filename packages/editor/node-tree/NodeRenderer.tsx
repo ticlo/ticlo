@@ -15,8 +15,8 @@ import {
   SearchOutlined,
 } from '@ant-design/icons';
 
-import {ExpandIcon, ExpandState, TreeItem} from '../component/Tree.js';
-import {PureDataRenderer} from '../component/DataRenderer.js';
+import {ExpandIcon, ExpandState, TreeItem} from '../component/Tree.tsx';
+import {PureDataRenderer} from '../component/DataRenderer.ts';
 import {
   DataMap,
   ValueUpdate,
@@ -28,19 +28,19 @@ import {
   getDisplayName,
   deepEqual,
   ClientConn,
-} from '@ticlo/core/editor.js';
-import {TIcon} from '../icon/Icon.js';
-import {TicloLayoutContext, TicloLayoutContextType} from '../component/LayoutContext.js';
+} from '@ticlo/core/editor.ts';
+import {TIcon} from '../icon/Icon.tsx';
+import {TicloLayoutContext, TicloLayoutContextType} from '../component/LayoutContext.ts';
 import {DragDrop, DragState} from 'rc-dock';
-import {getFuncStyleFromDesc} from '../util/BlockColors.js';
-import {LocalizedNodeName, t} from '../component/LocalizedLabel.js';
-import {BlockDropdown} from '../popup/BlockDropdown.js';
-import {showModal} from '../popup/ShowModal.js';
-import {AddNewFlowDialog} from '../popup/AddNewFlowDialog.js';
-import {getDescLib, getFuncLibPath} from '../util/FunctionLib.js';
+import {getFuncStyleFromDesc} from '../util/BlockColors.ts';
+import {LocalizedNodeName, t} from '../component/LocalizedLabel.tsx';
+import {BlockDropdown} from '../popup/BlockDropdown.tsx';
+import {showModal} from '../popup/ShowModal.tsx';
+import {AddNewFlowDialog} from '../popup/AddNewFlowDialog.tsx';
+import {getDescLib, getFuncLibPath} from '../util/FunctionLib.ts';
 
-import {MenuItem} from '../component/ClickPopup.js';
-import {LazyUpdateSubscriber} from '../component/LazyUpdateComponent.js';
+import {MenuItem} from '../component/ClickPopup.tsx';
+import {LazyUpdateSubscriber} from '../component/LazyUpdateComponent.tsx';
 
 const saveAllowed = new Set<string>(['flow:editor', 'flow:worker', 'flow:main', 'flow:test-case']);
 const quickOpenAllowed = new Set<string>([

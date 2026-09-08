@@ -1,11 +1,11 @@
-import {globalFunctions} from '../../../block/FunctionLib.js';
-import {AutoUpdateFunction} from '../../base/AutoUpdateFunction.js';
-import {type EventOccur, SchedulerEvent} from './SchedulerEvent.js';
-import {BlockIO} from '../../../block/BlockProperty.js';
-import {toDateTime} from '../../../util/DateTime.js';
+import {globalFunctions} from '../../../block/FunctionLib.ts';
+import {AutoUpdateFunction} from '../../base/AutoUpdateFunction.ts';
+import {type EventOccur, SchedulerEvent} from './SchedulerEvent.ts';
+import {BlockIO} from '../../../block/BlockProperty.ts';
+import {toDateTime} from '../../../util/DateTime.ts';
 import {DateTime} from 'luxon';
-import {getInputsArray} from '../../../block/FunctonData.js';
-import {getDefaultZone} from '../../../util/Settings.js';
+import {getInputsArray} from '../../../block/FunctonData.ts';
+import {getDefaultZone} from '../../../util/Settings.ts';
 
 // Defines how multiple events are resolved when they overlap
 export class ScheduleValue {

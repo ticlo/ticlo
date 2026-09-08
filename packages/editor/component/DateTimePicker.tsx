@@ -6,7 +6,7 @@ import type {RangePickerProps} from 'antd/es/date-picker/generatePicker/interfac
 import * as generateCalendarNS from 'antd/es/calendar/generateCalendar.js';
 const generateCalendar = generateCalendarNS.default;
 import {DateTime} from 'luxon';
-import luxonConfig from '../property/value/3rd-party/luxonConfig.js';
+import luxonConfig from '../property/value/3rd-party/luxonConfig.ts';
 
 type DatePickerType = React.ForwardRefExoticComponent<PickerProps<DateTime> & React.RefAttributes<any>> & {
   RangePicker: React.ComponentType<RangePickerProps<DateTime>>;

@@ -1,5 +1,5 @@
 import {expect, it} from 'vitest';
-import {getFuncLibPath} from '../FunctionLib.js';
+import {getFuncLibPath} from '../FunctionLib.ts';
 
 it('gets function lib path from serialized #lib value', function () {
   expect(getFuncLibPath('FlowPath')).toBe('FlowPath');

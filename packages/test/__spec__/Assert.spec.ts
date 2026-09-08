@@ -1,5 +1,5 @@
 import {describe, expect, it} from 'vitest';
-import {AssertFunction} from '../Assert.js';
+import {AssertFunction} from '../Assert.ts';
 
 describe('AssertFunction', () => {
   it('distinguishes match-once from always-match', () => {

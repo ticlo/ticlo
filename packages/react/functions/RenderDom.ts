@@ -1,7 +1,7 @@
 import type React from 'react';
 import {createRoot, Root} from 'react-dom/client';
-import {BaseFunction, PureFunction} from '@ticlo/core/block/BlockFunction.js';
-import {globalFunctions} from '@ticlo/core/block/FunctionLib.js';
+import {BaseFunction, PureFunction} from '@ticlo/core/block/BlockFunction.ts';
+import {globalFunctions} from '@ticlo/core/block/FunctionLib.ts';
 
 export class RenderDomFunction extends BaseFunction {
   _container: Element;

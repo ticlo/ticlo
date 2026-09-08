@@ -4,7 +4,7 @@ import {
   TicloLayoutContext,
   TicloLayoutContextType,
   TicloStageCommands,
-} from './LayoutContext.js';
+} from './LayoutContext.ts';
 
 interface TicloAppProps {
   value: TicloLayoutContext;

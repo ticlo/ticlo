@@ -1,6 +1,6 @@
 import React from 'react';
-import {Menu, Popup, SubMenuItem, MenuItem} from '../component/ClickPopup.js';
-import {FunctionSelect} from '../function-selector/FunctionSelect.js';
+import {Menu, Popup, SubMenuItem, MenuItem} from '../component/ClickPopup.tsx';
+import {FunctionSelect} from '../function-selector/FunctionSelect.tsx';
 import {
   blankFuncDesc,
   blankPropDesc,
@@ -16,17 +16,17 @@ import {
   smartStrCompare,
   stopPropagation,
 } from '@ticlo/core';
-import {LocalizedPropCommand, LocalizedPropertyName, t} from '../component/LocalizedLabel.js';
+import {LocalizedPropCommand, LocalizedPropertyName, t} from '../component/LocalizedLabel.tsx';
 import {Button, Checkbox} from 'antd';
 import {DeleteOutlined} from '@ant-design/icons';
-import {StringEditor} from '../property/value/StringEditor.js';
-import {AddCustomPropertyMenu} from '../property/AddCustomProperty.js';
-import {ClientConn, ValueSubscriber} from '@ticlo/core/connect/ClientConn.js';
+import {StringEditor} from '../property/value/StringEditor.tsx';
+import {AddCustomPropertyMenu} from '../property/AddCustomProperty.tsx';
+import {ClientConn, ValueSubscriber} from '@ticlo/core/connect/ClientConn.ts';
 import {CheckboxChangeEvent} from 'antd';
-import {ParameterInputDialog} from './ParameterInputDialog.js';
-import {ExpandIcon} from '../component/Tree.js';
-import {ValueUpdate} from '@ticlo/core/connect/ClientRequests.js';
-import {getDescLib} from '../util/FunctionLib.js';
+import {ParameterInputDialog} from './ParameterInputDialog.tsx';
+import {ExpandIcon} from '../component/Tree.tsx';
+import {ValueUpdate} from '@ticlo/core/connect/ClientRequests.ts';
+import {getDescLib} from '../util/FunctionLib.ts';
 
 interface Props {
   children: React.ReactElement;

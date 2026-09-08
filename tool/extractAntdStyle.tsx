@@ -2,7 +2,7 @@ import React from 'react';
 import fs from 'fs';
 import {ConfigProvider} from 'antd';
 import {extractStyle} from '@ant-design/static-style-extract';
-import {theme} from '../packages/editor/style/theme.js';
+import {theme} from '../packages/editor/style/theme.ts';
 
 const cssText = extractStyle((node: React.JSX.Element) => (
   <ConfigProvider theme={{...theme, zeroRuntime: false, hashed: false}}>{node}</ConfigProvider>

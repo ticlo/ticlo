@@ -1,6 +1,6 @@
-import {TreeItem} from '../component/Tree.js';
-import {ClientConn, FunctionDesc, getKeywords, translateFunction} from '@ticlo/core/editor.js';
-import {OnFunctionClick} from './FunctionView.js';
+import {TreeItem} from '../component/Tree.tsx';
+import {ClientConn, FunctionDesc, getKeywords, translateFunction} from '@ticlo/core/editor.ts';
+import {OnFunctionClick} from './FunctionView.tsx';
 import i18next from 'i18next';
 
 export class FunctionTreeItem extends TreeItem<FunctionTreeItem> {

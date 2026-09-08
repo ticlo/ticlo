@@ -1,6 +1,6 @@
 import React from 'react';
 import {Block, globalFunctions, PureFunction} from '@ticlo/core';
-import {TicloComp} from '../comp/Component.js';
+import {TicloComp} from '../comp/Component.tsx';
 
 class ToReactComponentFunction extends PureFunction {
   run() {

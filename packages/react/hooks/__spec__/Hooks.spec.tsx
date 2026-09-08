@@ -2,10 +2,10 @@ import React from 'react';
 import {vi} from 'vitest';
 import {Flow, Root} from '@ticlo/core';
 import type {Block} from '@ticlo/core';
-import {creatReactRoot, type ReactRoot} from '../../functions/__spec__/render.js';
-import {FlowRoot, useFlow} from '../useFlow.js';
-import {useFilteredBlocks} from '../useFilteredBlocks.js';
-import {useMemoUpdate, useRefState} from '../../util/react-tools.js';
+import {creatReactRoot, type ReactRoot} from '../../functions/__spec__/render.ts';
+import {FlowRoot, useFlow} from '../useFlow.tsx';
+import {useFilteredBlocks} from '../useFilteredBlocks.tsx';
+import {useMemoUpdate, useRefState} from '../../util/react-tools.ts';
 
 function FlowName({capture}: {capture: {current?: Flow}}) {
   const flow = useFlow();

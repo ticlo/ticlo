@@ -1,5 +1,5 @@
 import {expect} from 'vitest';
-import {getNextAlignedMinute, getNextAlignedSecond} from '../Timer.js';
+import {getNextAlignedMinute, getNextAlignedSecond} from '../Timer.ts';
 import {DateTime} from 'luxon';
 
 const ONE_MINUTE = 60_000;

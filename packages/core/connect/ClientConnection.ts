@@ -1,7 +1,7 @@
-import {Connection, ConnectionSendingData} from './Connection.js';
-import {Uid} from '../util/Uid.js';
-import {DataMap} from '../util/DataTypes.js';
-import {FunctionDesc, PropDesc, PropGroupDesc} from '../block/Descriptor.js';
+import {Connection, ConnectionSendingData} from './Connection.ts';
+import {Uid} from '../util/Uid.ts';
+import {DataMap} from '../util/DataTypes.ts';
+import {FunctionDesc, PropDesc, PropGroupDesc} from '../block/Descriptor.ts';
 import {
   ClientCallbacks,
   ClientRequest,
@@ -13,15 +13,15 @@ import {
   SubscribeRequest,
   WatchRequest,
   MergedClientRequest,
-} from './ClientRequests.js';
-import {ClientConn} from './ClientConn.js';
-import {StreamDispatcher} from '../block/Dispatcher.js';
-import {Query} from './Query.js';
-import {updateGlobalSettings} from '../util/Settings.js';
-import {DataWrapper} from '../block/FunctonData.js';
-import {Restricted} from '../restricted/Restricted.js';
+} from './ClientRequests.ts';
+import {ClientConn} from './ClientConn.ts';
+import {StreamDispatcher} from '../block/Dispatcher.ts';
+import {Query} from './Query.ts';
+import {updateGlobalSettings} from '../util/Settings.ts';
+import {DataWrapper} from '../block/FunctonData.ts';
+import {Restricted} from '../restricted/Restricted.ts';
 
-export type {ValueUpdate, ValueState} from './ClientRequests.js';
+export type {ValueUpdate, ValueState} from './ClientRequests.ts';
 
 export abstract class ClientConnection extends Connection implements ClientConn {
   static addEditorDescriptor(id: string, desc: FunctionDesc) {

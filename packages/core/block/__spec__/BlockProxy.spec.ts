@@ -1,7 +1,7 @@
 import {expect} from 'vitest';
-import {Flow, Root} from '../Flow.js';
-import {BlockDeepProxy, BlockProxy} from '../BlockProxy.js';
-import {_strictMode} from '../BlockSettings.js';
+import {Flow, Root} from '../Flow.ts';
+import {BlockDeepProxy, BlockProxy} from '../BlockProxy.ts';
+import {_strictMode} from '../BlockSettings.ts';
 
 describe('BlockProxy', function () {
   it('deep proxy', function () {

@@ -15,18 +15,18 @@ import {
   DataMap,
   isBindable,
   getSubBlockFuncData,
-} from '@ticlo/core/editor.js';
-import {MultiSelectComponent, MultiSelectLoader} from './MultiSelectComponent.js';
+} from '@ticlo/core/editor.ts';
+import {MultiSelectComponent, MultiSelectLoader} from './MultiSelectComponent.tsx';
 import {DragDrop, DragState} from 'rc-dock';
-import {ExpandIcon} from '../component/Tree.js';
-import {PropertyList} from './PropertyList.js';
-import {ServiceEditor} from './value/ServiceEditor.js';
-import {ReadonlyEditor} from './value/ReadonlyEditor.js';
-import {LocalizedPropertyName, t} from '../component/LocalizedLabel.js';
-import {PropertyDropdown} from '../popup/PropertyDropdown.js';
-import {typeEditorMap} from './value/index.js';
+import {ExpandIcon} from '../component/Tree.tsx';
+import {PropertyList} from './PropertyList.tsx';
+import {ServiceEditor} from './value/ServiceEditor.tsx';
+import {ReadonlyEditor} from './value/ReadonlyEditor.tsx';
+import {LocalizedPropertyName, t} from '../component/LocalizedLabel.tsx';
+import {PropertyDropdown} from '../popup/PropertyDropdown.tsx';
+import {typeEditorMap} from './value/index.ts';
 import {propAcceptsBlock} from '@ticlo/core';
-import {getDescLib} from '../util/FunctionLib.js';
+import {getDescLib} from '../util/FunctionLib.ts';
 
 class PropertyLoader extends MultiSelectLoader<PropertyEditor> {
   name: string;

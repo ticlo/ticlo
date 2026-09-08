@@ -16,32 +16,32 @@ import {
   FlowStorage,
   BlockProperty,
 } from '@ticlo/core';
-import {BlockStagePane} from '@ticlo/editor/dock/block/BlockStagePane.js';
+import {BlockStagePane} from '@ticlo/editor/dock/block/BlockStagePane.tsx';
 import {TicloI18nSettings} from '@ticlo/core';
-import {makeLocalConnection} from '@ticlo/core/connect/LocalConnection.js';
-import {data} from './sample-data/data.js';
-import reactData from './sample-data/react.js';
+import {makeLocalConnection} from '@ticlo/core/connect/LocalConnection.ts';
+import {data} from './sample-data/data.ts';
+import reactData from './sample-data/react.ts';
 import {initEditor, PropertyList, BlockStage, NodeTree} from '@ticlo/editor';
 import {DragDropDiv, DragState, DockLayout, DockContextType} from 'rc-dock';
-import {ClientConnection} from '@ticlo/core/connect/ClientConnection.js';
+import {ClientConnection} from '@ticlo/core/connect/ClientConnection.ts';
 
-import './sample-blocks.js';
-import {WorkerFunctionGen} from '@ticlo/core/worker/WorkerFunctionGen.js';
+import './sample-blocks.ts';
+import {WorkerFunctionGen} from '@ticlo/core/worker/WorkerFunctionGen.ts';
 
-import {TicloApp} from '@ticlo/editor/component/TicloApp.js';
+import {TicloApp} from '@ticlo/editor/component/TicloApp.tsx';
 import {
   TicloCurrentFlowConsumer,
   TicloLayoutContext,
   TicloLayoutContextType,
-} from '@ticlo/editor/component/LayoutContext.js';
-import {PropertyListPane} from '@ticlo/editor/dock/property/PropertyListPane.js';
-import {NodeTreePane} from '@ticlo/editor/dock/node-tree/NodeTreePane.js';
-import {TextEditorPane} from '@ticlo/editor/dock/text-editor/TextEditorPane.js';
+} from '@ticlo/editor/component/LayoutContext.ts';
+import {PropertyListPane} from '@ticlo/editor/dock/property/PropertyListPane.tsx';
+import {NodeTreePane} from '@ticlo/editor/dock/node-tree/NodeTreePane.tsx';
+import {TextEditorPane} from '@ticlo/editor/dock/text-editor/TextEditorPane.tsx';
 import '@ticlo/html';
 import '@ticlo/react';
 import '@ticlo/test';
-import {theme} from '@ticlo/editor/style/theme.js';
-import {FunctionSelect} from '@ticlo/editor/function-selector/FunctionSelect.js';
+import {theme} from '@ticlo/editor/style/theme.ts';
+import {FunctionSelect} from '@ticlo/editor/function-selector/FunctionSelect.tsx';
 
 import i18next from 'i18next';
 
@@ -65,12 +65,12 @@ import zhAntd from 'antd/es/locale/zh_CN.js';
 import enAntd from 'antd/es/locale/en_US.js';
 import frAntd from 'antd/es/locale/fr_FR.js';
 import type {Locale} from 'antd/es/locale/index.js';
-import {LocalizedLabel, t} from '@ticlo/editor/component/LocalizedLabel.js';
-import {IndexDbFlowStorage} from '@ticlo/html/storage/IndexDbStorage.js';
+import {LocalizedLabel, t} from '@ticlo/editor/component/LocalizedLabel.tsx';
+import {IndexDbFlowStorage} from '@ticlo/html/storage/IndexDbStorage.ts';
 import {createRoot} from 'react-dom/client';
-import {SchedulePane} from '@ticlo/editor/dock/schedule/SchedulePane.js';
+import {SchedulePane} from '@ticlo/editor/dock/schedule/SchedulePane.tsx';
 import {RadioChangeEvent} from 'antd';
-import {Namespace} from '@ticlo/core/block/Namespace.js';
+import {Namespace} from '@ticlo/core/block/Namespace.ts';
 
 const layoutGroups = {
   blockStage: {

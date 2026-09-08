@@ -1,7 +1,7 @@
 import i18next from 'i18next';
-import rangePlural from './i18n-ranged-plural.js';
-import {nameFromPath} from './String.js';
-import {DataMap} from './DataTypes.js';
+import rangePlural from './i18n-ranged-plural.ts';
+import {nameFromPath} from './String.ts';
+import {DataMap} from './DataTypes.ts';
 
 export async function init(lng?: string) {
   await new Promise((receive, reject) => {

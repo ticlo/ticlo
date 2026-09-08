@@ -1,6 +1,6 @@
 import {expect} from 'vitest';
-import '../Slice.js';
-import {Flow, Root} from '../../../block/Flow.js';
+import '../Slice.ts';
+import {Flow, Root} from '../../../block/Flow.ts';
 
 describe('Slice', function () {
   it('slices string input', function () {

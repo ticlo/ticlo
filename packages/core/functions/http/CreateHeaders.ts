@@ -1,9 +1,9 @@
-import {BlockConfig} from '../../block/BlockProperty.js';
-import {BaseFunction} from '../../block/BlockFunction.js';
-import {globalFunctions} from '../../block/FunctionLib.js';
-import {defaultConfigs, PropDesc} from '../../block/Descriptor.js';
-import {CreateObjectFunctionOptional} from '../data/CreateObject.js';
-import HeadersDef from './HeadersDef.js';
+import {BlockConfig} from '../../block/BlockProperty.ts';
+import {BaseFunction} from '../../block/BlockFunction.ts';
+import {globalFunctions} from '../../block/FunctionLib.ts';
+import {defaultConfigs, PropDesc} from '../../block/Descriptor.ts';
+import {CreateObjectFunctionOptional} from '../data/CreateObject.ts';
+import HeadersDef from './HeadersDef.ts';
 
 globalFunctions.addFactory(
   CreateObjectFunctionOptional,

@@ -1,9 +1,9 @@
 import {Block, BlockProperty, DataMap, Flow, FlowFolder} from '@ticlo/core';
-import {ConstTypeConfig, FlowConfigGenerators} from '@ticlo/core/block/BlockConfigs.js';
-import {BlockConfig} from '@ticlo/core/block/BlockProperty.js';
-import {TestsRunner, TestState} from './Interface.js';
-import {updateObjectValue} from '@ticlo/core/property-api/ObjectValue.js';
-import {FlowTestConfigGenerators} from './FlowTestCase.js';
+import {ConstTypeConfig, FlowConfigGenerators} from '@ticlo/core/block/BlockConfigs.ts';
+import {BlockConfig} from '@ticlo/core/block/BlockProperty.ts';
+import {TestsRunner, TestState} from './Interface.ts';
+import {updateObjectValue} from '@ticlo/core/property-api/ObjectValue.ts';
+import {FlowTestConfigGenerators} from './FlowTestCase.ts';
 
 export const FlowTestGroupConfigGenerators: {[key: string]: typeof BlockProperty} = {
   ...FlowConfigGenerators,

@@ -1,14 +1,14 @@
 import React from 'react';
-import {ExpandIcon} from '../component/Tree.js';
-import {TIcon} from '../icon/Icon.js';
+import {ExpandIcon} from '../component/Tree.tsx';
+import {TIcon} from '../icon/Icon.tsx';
 import {Dropdown, MenuProps} from 'antd';
 import {PlusOutlined} from '@ant-design/icons';
 import {blankFuncDesc, FunctionDesc} from '@ticlo/core';
-import {FunctionView} from './FunctionView.js';
-import {FunctionTreeItem} from './FunctionTreeItem.js';
-import {PureDataRenderer} from '../component/DataRenderer.js';
-import {getFuncStyleFromDesc} from '../util/BlockColors.js';
-import {LocalizedFunctionName, t} from '../component/LocalizedLabel.js';
+import {FunctionView} from './FunctionView.tsx';
+import {FunctionTreeItem} from './FunctionTreeItem.ts';
+import {PureDataRenderer} from '../component/DataRenderer.ts';
+import {getFuncStyleFromDesc} from '../util/BlockColors.ts';
+import {LocalizedFunctionName, t} from '../component/LocalizedLabel.tsx';
 
 interface Props {
   item: FunctionTreeItem;

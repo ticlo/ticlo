@@ -1,6 +1,6 @@
-import {convertToOutput, DataMap} from '../util/DataTypes.js';
-import {Block} from './Block.js';
-import {ErrorEvent} from './Event.js';
+import {convertToOutput, DataMap} from '../util/DataTypes.ts';
+import {Block} from './Block.ts';
+import {ErrorEvent} from './Event.ts';
 
 export class Task {
   _handler: unknown = null;

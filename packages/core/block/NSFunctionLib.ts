@@ -1,9 +1,9 @@
-import {type FunctionFactory} from './BlockFunction.js';
-import {isDataMap, type DataMap} from '../util/DataTypes.js';
-import {FunctionLib} from './FunctionLib.js';
-import {FlowStorage} from './Storage.js';
-import {type Flow} from './Flow.js';
-import {deepEqual} from '../util/Compare.js';
+import {type FunctionFactory} from './BlockFunction.ts';
+import {isDataMap, type DataMap} from '../util/DataTypes.ts';
+import {FunctionLib} from './FunctionLib.ts';
+import {FlowStorage} from './Storage.ts';
+import {type Flow} from './Flow.ts';
+import {deepEqual} from '../util/Compare.ts';
 
 export interface FunctionLoader {
   load(data: DataMap, localFuncId: string, fullId: string, namespace?: string): FunctionFactory;

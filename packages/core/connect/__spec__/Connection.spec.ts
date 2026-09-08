@@ -1,25 +1,25 @@
 import {expect} from 'vitest';
-import {Block} from '../../block/Block.js';
-import {Flow, FlowFolder, Root} from '../../block/Flow.js';
-import {makeLocalConnection} from '../LocalConnection.js';
-import '../../functions/math/Arithmetic.js';
-import '../../functions/Categories.js';
-import {AsyncClientPromise} from './AsyncClientPromise.js';
-import {VoidListeners, TestFunctionRunner} from '../../block/__spec__/TestFunction.js';
-import type {FunctionDesc} from '../../block/Descriptor.js';
-import {shouldHappen, shouldReject} from '../../util/test-util.js';
-import {JsFunction} from '../../functions/script/Js.js';
-import {globalFunctions} from '../../block/FunctionLib.js';
-import type {DataMap} from '../../util/DataTypes.js';
-import {isDataTruncated, WS_FRAME_SIZE} from '../../util/DataTypes.js';
-import {WorkerFunctionGen} from '../../worker/WorkerFunctionGen.js';
-import {Namespace} from '../../block/Namespace.js';
-import {FlowEditor} from '../../worker/FlowEditor.js';
-import {WorkerFlow} from '../../worker/WorkerFlow.js';
-import {Logger} from '../../util/Logger.js';
-import {ConnectionSend} from '../Connection.js';
-import {DescRequest, GlobalWatch, SetRequest, type ValueState} from '../ClientRequests.js';
-import {Restricted} from '../../restricted/Restricted.js';
+import {Block} from '../../block/Block.ts';
+import {Flow, FlowFolder, Root} from '../../block/Flow.ts';
+import {makeLocalConnection} from '../LocalConnection.ts';
+import '../../functions/math/Arithmetic.ts';
+import '../../functions/Categories.ts';
+import {AsyncClientPromise} from './AsyncClientPromise.ts';
+import {VoidListeners, TestFunctionRunner} from '../../block/__spec__/TestFunction.ts';
+import type {FunctionDesc} from '../../block/Descriptor.ts';
+import {shouldHappen, shouldReject} from '../../util/test-util.ts';
+import {JsFunction} from '../../functions/script/Js.ts';
+import {globalFunctions} from '../../block/FunctionLib.ts';
+import type {DataMap} from '../../util/DataTypes.ts';
+import {isDataTruncated, WS_FRAME_SIZE} from '../../util/DataTypes.ts';
+import {WorkerFunctionGen} from '../../worker/WorkerFunctionGen.ts';
+import {Namespace} from '../../block/Namespace.ts';
+import {FlowEditor} from '../../worker/FlowEditor.ts';
+import {WorkerFlow} from '../../worker/WorkerFlow.ts';
+import {Logger} from '../../util/Logger.ts';
+import {ConnectionSend} from '../Connection.ts';
+import {DescRequest, GlobalWatch, SetRequest, type ValueState} from '../ClientRequests.ts';
+import {Restricted} from '../../restricted/Restricted.ts';
 
 describe('Connection', function () {
   it('removes deleted categories from the descriptor cache', function () {

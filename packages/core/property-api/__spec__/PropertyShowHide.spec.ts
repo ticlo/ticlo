@@ -1,8 +1,8 @@
 import {expect} from 'vitest';
 
-import type {PropGroupDesc} from '../../index.js';
-import {Flow, PropDesc} from '../../index.js';
-import {showProperties, hideProperties, moveShownProperty, hideGroupProperties} from '../PropertyShowHide.js';
+import type {PropGroupDesc} from '../../index.ts';
+import {Flow, PropDesc} from '../../index.ts';
+import {showProperties, hideProperties, moveShownProperty, hideGroupProperties} from '../PropertyShowHide.ts';
 
 describe('PropertyOrder', function () {
   it('show hide Property', function () {

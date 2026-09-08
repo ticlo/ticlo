@@ -2,21 +2,21 @@ import React, {CSSProperties} from 'react';
 import {Button, notification, Modal} from 'antd';
 import {ReloadOutlined, UndoOutlined, ZoomInOutlined, ZoomOutOutlined} from '@ant-design/icons';
 
-import {BlockView} from './Block.js';
-import {WireView} from './Wire.js';
+import {BlockView} from './Block.tsx';
+import {WireView} from './Wire.tsx';
 import {DragDropDiv, DragState, GestureState} from 'rc-dock';
-import {cssNumber} from '../util/Types.js';
-import {onDragBlockOver, onDropBlock} from './DragDropBlock.js';
+import {cssNumber} from '../util/Types.tsx';
+import {onDragBlockOver, onDropBlock} from './DragDropBlock.tsx';
 import ResizeObserver_ from 'resize-observer-polyfill';
 const ResizeObserver = (ResizeObserver_ as any).default || ResizeObserver_;
-import {BlockStageBase, StagePropsBase} from './BlockStageBase.js';
-import {MiniBlockView} from './MiniStage.js';
+import {BlockStageBase, StagePropsBase} from './BlockStageBase.ts';
+import {MiniBlockView} from './MiniStage.tsx';
 import debounce from 'lodash/debounce.js';
 import clamp from 'lodash/clamp.js';
-import {TooltipIconButton} from '../component/TooltipIconButton.js';
+import {TooltipIconButton} from '../component/TooltipIconButton.tsx';
 import {DataMap, decode, encode} from '@ticlo/core';
-import {t} from '../component/LocalizedLabel.js';
-import {TicloCurrentFlowContext, TicloStageCommands} from '../component/LayoutContext.js';
+import {t} from '../component/LocalizedLabel.tsx';
+import {TicloCurrentFlowContext, TicloStageCommands} from '../component/LayoutContext.ts';
 
 const MINI_WINDOW_SIZE = 128;
 

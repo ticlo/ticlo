@@ -1,28 +1,28 @@
-import {BlockProperty, BlockIO, HelperProperty, BlockBindingSource, BlockConfig} from './BlockProperty.js';
-import {ListenPromise} from './ListenPromise.js';
-import {BlockBinding} from './BlockBinding.js';
-import {FunctionFactory, BaseFunction} from './BlockFunction.js';
-import {PropDispatcher, PropListener, Destroyable} from './Dispatcher.js';
-import {FunctionDispatcher, globalFunctions} from './FunctionLib.js';
-import {DoneEvent, ErrorEvent, Event, EventType, NO_EMIT, WAIT} from './Event.js';
-import {DataMap} from '../util/DataTypes.js';
-import {Uid} from '../util/Uid.js';
-import {voidProperty} from './Void.js';
+import {BlockProperty, BlockIO, HelperProperty, BlockBindingSource, BlockConfig} from './BlockProperty.ts';
+import {ListenPromise} from './ListenPromise.ts';
+import {BlockBinding} from './BlockBinding.ts';
+import {FunctionFactory, BaseFunction} from './BlockFunction.ts';
+import {PropDispatcher, PropListener, Destroyable} from './Dispatcher.ts';
+import {FunctionDispatcher, globalFunctions} from './FunctionLib.ts';
+import {DoneEvent, ErrorEvent, Event, EventType, NO_EMIT, WAIT} from './Event.ts';
+import {DataMap} from '../util/DataTypes.ts';
+import {Uid} from '../util/Uid.ts';
+import {voidProperty} from './Void.ts';
 import {
   ConfigGenerators,
   BlockConstConfig,
   OutputsConfigGenerators,
   InputsConfigGenerators,
   ConstBinding,
-} from './BlockConfigs.js';
-import {Task} from './Task.js';
-import {_strictMode} from './BlockSettings.js';
-import type {Flow, Root} from './Flow.js';
-import {BlockMode} from './Descriptor.js';
-import {FunctionData, FunctionOutput} from './FunctonData.js';
-import {getMaxFlowDepth} from '../util/Settings.js';
-import {Logger} from '../util/Logger.js';
-import {Namespace} from './Namespace.js';
+} from './BlockConfigs.ts';
+import {Task} from './Task.ts';
+import {_strictMode} from './BlockSettings.ts';
+import type {Flow, Root} from './Flow.ts';
+import {BlockMode} from './Descriptor.ts';
+import {FunctionData, FunctionOutput} from './FunctonData.ts';
+import {getMaxFlowDepth} from '../util/Settings.ts';
+import {Logger} from '../util/Logger.ts';
+import {Namespace} from './Namespace.ts';
 
 export interface BlockChildWatch {
   onChildChange(property: BlockProperty, saved?: boolean): void;

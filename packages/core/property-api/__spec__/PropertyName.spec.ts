@@ -1,9 +1,9 @@
 import {expect} from 'vitest';
 
-import {Block} from '../../block/Block.js';
-import {Flow} from '../../block/Flow.js';
-import '../../functions/math/Arithmetic.js';
-import {findPropertyForNewBlock, renameProperty} from '../PropertyName.js';
+import {Block} from '../../block/Block.ts';
+import {Flow} from '../../block/Flow.ts';
+import '../../functions/math/Arithmetic.ts';
+import {findPropertyForNewBlock, renameProperty} from '../PropertyName.ts';
 
 describe('PropertyUtil', function () {
   it('findPropertyForNewBlock', function () {

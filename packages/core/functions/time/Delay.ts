@@ -1,9 +1,9 @@
-import {globalFunctions} from '../../block/FunctionLib.js';
-import {BaseFunction, StatefulFunction} from '../../block/BlockFunction.js';
-import {BlockIO} from '../../block/BlockProperty.js';
-import {EventType, NO_EMIT, WAIT} from '../../block/Event.js';
-import type {Block} from '../../block/Block.js';
-import {BlockMode} from '../../block/Descriptor.js';
+import {globalFunctions} from '../../block/FunctionLib.ts';
+import {BaseFunction, StatefulFunction} from '../../block/BlockFunction.ts';
+import {BlockIO} from '../../block/BlockProperty.ts';
+import {EventType, NO_EMIT, WAIT} from '../../block/Event.ts';
+import type {Block} from '../../block/Block.ts';
+import {BlockMode} from '../../block/Descriptor.ts';
 
 const MIN_DELAY = 0.001;
 const DEFAULT_DELAY = 1;

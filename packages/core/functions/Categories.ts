@@ -1,4 +1,4 @@
-import {globalFunctions} from '../block/FunctionLib.js';
+import {globalFunctions} from '../block/FunctionLib.ts';
 
 globalFunctions.addCategory({
   id: 'math',

@@ -1,8 +1,8 @@
-import {DataMap, isDataMap, isDataTruncated, measureObjSize, WS_FRAME_SIZE} from '../util/DataTypes.js';
-import {ConnectionSend} from './Connection.js';
-import {FunctionDesc, mapConfigDesc} from '../block/Descriptor.js';
-import {ClientConnection} from './ClientConnection.js';
-import {clientDescriptors} from './ClientDescriptors.js';
+import {DataMap, isDataMap, isDataTruncated, measureObjSize, WS_FRAME_SIZE} from '../util/DataTypes.ts';
+import {ConnectionSend} from './Connection.ts';
+import {FunctionDesc, mapConfigDesc} from '../block/Descriptor.ts';
+import {ClientConnection} from './ClientConnection.ts';
+import {clientDescriptors} from './ClientDescriptors.ts';
 
 export interface ClientCallbacks {
   // parameter should not be used

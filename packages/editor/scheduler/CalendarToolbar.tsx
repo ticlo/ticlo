@@ -4,7 +4,7 @@
 import {Radio, Tooltip} from 'antd';
 import React from 'react';
 import {ToolbarProps, View} from 'ticlo-big-calendar';
-import {t} from '../component/LocalizedLabel.js';
+import {t} from '../component/LocalizedLabel.tsx';
 import {AimOutlined, CaretLeftFilled, CaretRightFilled} from '@ant-design/icons';
 
 interface State {}

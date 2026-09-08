@@ -1,5 +1,5 @@
-import {Block} from '../block/Block.js';
-import {hideProperties, showProperties} from './PropertyShowHide.js';
+import {Block} from '../block/Block.ts';
+import {hideProperties, showProperties} from './PropertyShowHide.ts';
 
 export function addOptionalProperty(block: Block, name: string) {
   let optionalProps: string[] = block.getValue('#optional') as string[];

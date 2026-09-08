@@ -1,8 +1,8 @@
 import React from 'react';
 import {Flow} from '@ticlo/core';
-import {TicloComp} from '../../comp/Component.js';
-import {creatReactRoot, type ReactRoot} from '../../functions/__spec__/render.js';
-import '../../index.js';
+import {TicloComp} from '../../comp/Component.tsx';
+import {creatReactRoot, type ReactRoot} from '../../functions/__spec__/render.ts';
+import '../../index.ts';
 
 describe('react img element', function () {
   let root: ReactRoot;

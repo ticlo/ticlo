@@ -1,7 +1,7 @@
 import * as fs from 'fs';
 import * as glob from 'glob';
 import YAML from 'yaml';
-import {DataMap} from '@ticlo/core/util/DataTypes.js';
+import {DataMap} from '@ticlo/core/util/DataTypes.ts';
 
 function mergeData(to: DataMap, from: DataMap) {
   for (const key in from) {

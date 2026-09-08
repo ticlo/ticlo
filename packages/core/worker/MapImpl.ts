@@ -1,11 +1,11 @@
-import {StatefulFunction} from '../block/BlockFunction.js';
-import {DataMap, isSavedBlock} from '../util/DataTypes.js';
-import {type Block} from '../block/Block.js';
-import {ThreadPool, UnlimitedPool, WorkerPool} from './ThreadPool.js';
-import {Task} from '../block/Task.js';
-import {RepeaterWorker} from './WorkerFlow.js';
-import {FunctionOutput} from '../block/FunctonData.js';
-import {WorkerControl, WorkerHost} from './WorkerControl.js';
+import {StatefulFunction} from '../block/BlockFunction.ts';
+import {DataMap, isSavedBlock} from '../util/DataTypes.ts';
+import {type Block} from '../block/Block.ts';
+import {ThreadPool, UnlimitedPool, WorkerPool} from './ThreadPool.ts';
+import {Task} from '../block/Task.ts';
+import {RepeaterWorker} from './WorkerFlow.ts';
+import {FunctionOutput} from '../block/FunctonData.ts';
+import {WorkerControl, WorkerHost} from './WorkerControl.ts';
 
 export type MapWorkerMode = undefined | 'reuse' | 'persist';
 

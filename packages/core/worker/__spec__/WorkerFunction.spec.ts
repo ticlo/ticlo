@@ -1,13 +1,13 @@
 import {expect} from 'vitest';
-import {Flow, Root} from '../../block/Flow.js';
-import {WorkerFunctionGen} from '../WorkerFunctionGen.js';
-import {TestFunctionRunner} from '../../block/__spec__/TestFunction.js';
-import '../../functions/math/Arithmetic.js';
-import type {DataMap} from '../../util/DataTypes.js';
-import {Namespace} from '../../block/Namespace.js';
-import {makeLocalConnection} from '../../connect/LocalConnection.js';
-import {WorkerMode} from '../WorkerFunction.js';
-import {Event} from '../../block/Event.js';
+import {Flow, Root} from '../../block/Flow.ts';
+import {WorkerFunctionGen} from '../WorkerFunctionGen.ts';
+import {TestFunctionRunner} from '../../block/__spec__/TestFunction.ts';
+import '../../functions/math/Arithmetic.ts';
+import type {DataMap} from '../../util/DataTypes.ts';
+import {Namespace} from '../../block/Namespace.ts';
+import {makeLocalConnection} from '../../connect/LocalConnection.ts';
+import {WorkerMode} from '../WorkerFunction.ts';
+import {Event} from '../../block/Event.ts';
 
 describe('WorkerFunction', function () {
   it('basic', function () {

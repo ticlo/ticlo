@@ -1,8 +1,8 @@
 import React from 'react';
 import {Input} from 'antd';
-import {StringEditorBase} from './StringEditorBase.js';
+import {StringEditorBase} from './StringEditorBase.ts';
 import {encodeDisplay} from '@ticlo/core';
-import {TicloLayoutContext, TicloLayoutContextType} from '../../component/LayoutContext.js';
+import {TicloLayoutContext, TicloLayoutContextType} from '../../component/LayoutContext.ts';
 
 const {TextArea} = Input;
 

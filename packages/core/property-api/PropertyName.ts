@@ -1,9 +1,9 @@
-import {Block} from '../block/Block.js';
-import {BlockProperty} from '../block/BlockProperty.js';
-import {configDescs, FunctionDesc, PropDesc, PropGroupDesc} from '../block/Descriptor.js';
-import {globalFunctions} from '../block/FunctionLib.js';
-import {configList} from './PropertyShowHide.js';
-import {PropertyMover} from './PropertyMover.js';
+import {Block} from '../block/Block.ts';
+import {BlockProperty} from '../block/BlockProperty.ts';
+import {configDescs, FunctionDesc, PropDesc, PropGroupDesc} from '../block/Descriptor.ts';
+import {globalFunctions} from '../block/FunctionLib.ts';
+import {configList} from './PropertyShowHide.ts';
+import {PropertyMover} from './PropertyMover.ts';
 
 const trailingNumberReg = /\d+$/;
 

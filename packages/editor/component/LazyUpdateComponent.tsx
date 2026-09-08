@@ -1,6 +1,6 @@
 import React from 'react';
-import {ClientConn, ValueState, ValueUpdate, DataMap, shallowEqual, ValueSubscriber} from '@ticlo/core/editor.js';
-import {batchUpdateReact} from '../util/BatchUpdate.js';
+import {ClientConn, ValueState, ValueUpdate, DataMap, shallowEqual, ValueSubscriber} from '@ticlo/core/editor.ts';
+import {batchUpdateReact} from '../util/BatchUpdate.ts';
 
 interface LazyUpdateProps {
   conn: ClientConn;
