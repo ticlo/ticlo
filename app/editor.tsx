@@ -54,6 +54,7 @@ const layoutGroups = {
   blockStage: {
     animated: false,
     floatable: true,
+    maximizable: true,
   },
 };
 
