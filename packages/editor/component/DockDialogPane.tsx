@@ -1,7 +1,7 @@
 import React, {createContext, KeyboardEventHandler, useCallback, useContext} from 'react';
 import {Button} from 'antd';
 import {DockLayout} from 'rc-dock';
-import {TabData} from 'rc-dock/src/DockData.js';
+import {TabData} from 'rc-dock';
 import {t} from './LocalizedLabel.js';
 
 export const DialogContext = createContext<{onClose?: () => void}>({});

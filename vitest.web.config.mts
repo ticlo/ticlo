@@ -1,7 +1,6 @@
 import {defineConfig} from 'vitest/config';
 import react from '@vitejs/plugin-react';
 import {nodePolyfills} from 'vite-plugin-node-polyfills';
-import tsconfigPaths from 'vite-tsconfig-paths';
 import {playwright} from '@vitest/browser-playwright';
 import {fileURLToPath} from 'node:url';
 
@@ -9,8 +8,9 @@ const isHeadless = process.env.HEADLESS !== 'false';
 const coreNodeModules = (name: string) => fileURLToPath(new URL(`./packages/core/node_modules/${name}`, import.meta.url));
 
 export default defineConfig({
-  plugins: [tsconfigPaths(), react(), nodePolyfills()],
+  plugins: [react(), nodePolyfills()],
   resolve: {
+    tsconfigPaths: true,
     // Browser tests run through Vite's dependency optimizer. On a cold cache,
     // duplicate dependency instances can make constructor-identity checks fail
     // before the optimized deps are warmed.
@@ -79,10 +79,10 @@ export default defineConfig({
           browser: 'chromium',
         },
       ],
-      api: {
-        port: 63315,
-        host: 'localhost',
-      },
+    },
+    api: {
+      port: 63315,
+      host: 'localhost',
     },
     testTimeout: 60000,
     hookTimeout: 60000,

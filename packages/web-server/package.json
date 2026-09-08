@@ -18,8 +18,8 @@
   "dependencies": {
     "@ticlo/core": "workspace:^",
     "@ticlo/node": "workspace:^",
-    "@hono/node-server": "^1.19.14",
-    "@hono/node-ws": "^1.3.0",
-    "hono": "^4.12.18"
+    "@hono/node-server": "^2.1.1",
+    "@hono/node-ws": "^1.3.1",
+    "hono": "^4.13.7"
   }
 }

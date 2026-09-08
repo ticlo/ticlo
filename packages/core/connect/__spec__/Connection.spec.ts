@@ -204,7 +204,7 @@ describe('Connection', function () {
     const callbacks2 = new AsyncClientPromise();
     client.subscribe('Connection2.p', callbacks2);
     let result2 = await callbacks2.firstPromise;
-    expect(result1.change.bindingPath).toBe('p0');
+    expect(result2.change.bindingPath).toBe('p0');
 
     client.setValue('Connection2.p1', 'hello');
     client.setBinding('Connection2.p', 'p1');

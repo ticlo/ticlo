@@ -1,11 +1,9 @@
-import {expect, vi} from 'vitest';
+import {beforeAll, expect, vi} from 'vitest';
 import Fs from 'fs';
 import type {Flow} from '@ticlo/core';
 import {Root, decode, FlowFolder} from '@ticlo/core';
 import {shouldHappen, shouldReject, waitTick} from '@ticlo/core/util/test-util.js';
 import {FileFlowStorage, FileStorage} from '../FileStorage.js';
-
-const beforeAll = globalThis.beforeAll ?? (globalThis as any).before;
 
 describe('FileStorage', function () {
   it('listen to value', async function () {
@@ -118,15 +116,15 @@ describe('FileStorage', function () {
     flow = root.addFlow('flow3');
     flow.applyChange();
     root.deleteFlow('flow3');
-    flow = root.addFlow('flow3');
+    root.addFlow('flow3');
     root.deleteFlow('flow3');
     await waitTick(20);
     await shouldHappen(() => !Fs.existsSync('./temp/storageTest/flow3.ticlo'));
 
     // overwirte delete after delete
-    flow = root.addFlow('flow4');
+    root.addFlow('flow4');
     root.deleteFlow('flow4');
-    flow = root.addFlow('flow4');
+    root.addFlow('flow4');
     root.deleteFlow('flow4');
     await waitTick(40);
     expect(Fs.existsSync('./temp/storageTest/flow4.ticlo')).toBe(false);

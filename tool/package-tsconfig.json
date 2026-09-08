@@ -1,9 +1,9 @@
 {
   "compilerOptions": {
     "target": "es2017",
-    "module": "es2020",
+    "module": "nodenext",
     "jsx": "react",
-    "moduleResolution": "node",
+    "moduleResolution": "nodenext",
     "esModuleInterop": true,
     "lib": [
       "esnext",
@@ -13,10 +13,12 @@
       "dom"
     ],
     "alwaysStrict": true,
+    "strict": false,
     "noImplicitAny": true,
     "sourceMap": false,
     "declaration": true,
     "resolveJsonModule": true,
+    "types": ["node"],
     "newLine": "lf",
     "typeRoots": [
       "../../@types",
@@ -24,7 +26,7 @@
     ],
     "paths": {
       "resize-observer-polyfill": ["../../@types/resize-observer-polyfill"],
-      "@ticlo/*": ["../*"]
+      "@ticlo/*": ["../*/index.d.ts", "../*"]
     }
   },
   "include": [

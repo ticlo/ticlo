@@ -5,95 +5,89 @@ on:
     branches:
       - master
       - ghaction
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
 
 env:
-  FORCE_JAVASCRIPT_ACTIONS_TO_NODE20: true
+  TZ: America/Los_Angeles
 
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
-      - name: enable corepack
-        run: corepack enable
-      - run: pnpm install
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: '24'
+      - uses: pnpm/action-setup@v6
+        with:
+          cache: true
+      - run: pnpm install --frozen-lockfile
       - run: pnpm run prettier-check
-  #      - run: pnpm run build-package
+      - run: pnpm run build-i18n
+      - run: pnpm run eslint
+      - run: pnpm exec tsgo --noEmit
+      - run: pnpm run build-package
+      - run: pnpm run vite-build
 
   test-browser:
     runs-on: ubuntu-latest
     steps:
-      - uses: MathRobin/timezone-action@v1.1
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
         with:
-          timezoneLinux: 'America/Los_Angeles'
-      - name: enable corepack
-        run: corepack enable
-      - uses: actions/checkout@v4
-      - run: pnpm install
-      - name: Install Playwright Browsers
-        run: npx playwright install chromium --with-deps
-      - name: make dir
-        run: |
-          mkdir -p coverage
-          mkdir -p css
+          node-version: '24'
+      - uses: pnpm/action-setup@v6
+        with:
+          cache: true
+      - run: pnpm install --frozen-lockfile
+      - name: Install Playwright Chromium
+        run: pnpm exec playwright install chromium --with-deps
+      - run: mkdir -p coverage css
       - run: pnpm run build-icons
       - run: pnpm run build-less
-      - name: Vitest Browser Build Cache
-        run: pnpm run test-browser-coverage
-        continue-on-error: true
+      - run: pnpm run build-antd-style
       - name: Vitest Browser
         run: pnpm run test-browser-coverage
       - name: Coveralls Vitest Browser
+        if: github.event_name != 'pull_request'
         uses: coverallsapp/github-action@v2
-        env:
-          NODE_COVERALLS_DEBUG: 1
         with:
           github-token: ${{ secrets.github_token }}
           path-to-lcov: ./coverage/browser/lcov.info
           parallel: true
           flag-name: browser
+
   test:
     runs-on: ubuntu-latest
     steps:
-      - uses: MathRobin/timezone-action@v1.1
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
         with:
-          timezoneLinux: 'America/Los_Angeles'
-      - uses: actions/checkout@v2
-      - name: enable corepack
-        run: corepack enable
-      - run: pnpm install
-      - name: make dir
-        run: |
-          mkdir -p coverage
-          mkdir -p css
+          node-version: '24'
+      - uses: pnpm/action-setup@v6
+        with:
+          cache: true
+      - run: pnpm install --frozen-lockfile
+      - run: mkdir -p coverage css
       - name: Vitest
         run: pnpm run test-coverage
       - name: Coveralls Vitest
+        if: github.event_name != 'pull_request'
         uses: coverallsapp/github-action@v2
-        env:
-          NODE_COVERALLS_DEBUG: 1
         with:
           github-token: ${{ secrets.github_token }}
           path-to-lcov: ./coverage/node/lcov.info
           parallel: true
           flag-name: strict
-      #      - name: Test Node (Strict)
-      #        run: pnpm run test-c8-strict
-      #      - name: Coveralls Node Strict
-      #        uses: coverallsapp/github-action@v2
-      #        env:
-      #          NODE_COVERALLS_DEBUG: 1
-      #        with:
-      #          github-token: ${{ secrets.github_token }}
-      #          path-to-lcov: ./coverage/c8-strict.lcov
-      #          parallel: true
-      #          flag-name: strict
       - name: Test Ticlo
         run: pnpm run ticlo-test-c8
       - name: Coveralls Ticlo
+        if: github.event_name != 'pull_request'
         uses: coverallsapp/github-action@v2
-        env:
-          NODE_COVERALLS_DEBUG: 1
         with:
           github-token: ${{ secrets.github_token }}
           path-to-lcov: ./coverage/nyc-ticlo.lcov
@@ -102,6 +96,7 @@ jobs:
 
   finish-coverage:
     needs: [test, test-browser]
+    if: always() && github.event_name != 'pull_request'
     runs-on: ubuntu-latest
     steps:
       - name: Coveralls Finished

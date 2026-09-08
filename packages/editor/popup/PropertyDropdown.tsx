@@ -141,11 +141,8 @@ export class PropertyDropdown extends React.PureComponent<Props, State> {
     }
   };
   onRemoveCustom = () => {
-    let {conn, paths, name, baseName, group} = this.props;
+    const {conn, paths, name, baseName, group} = this.props;
     const removeField = baseName != null ? baseName : name;
-    if (group != null && name === `${group}[]`) {
-      name = null;
-    }
     for (const path of paths) {
       conn.removeCustomProp(path, removeField, group);
     }

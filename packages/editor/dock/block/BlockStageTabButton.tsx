@@ -5,7 +5,7 @@ import {CloseOutlined, SaveOutlined} from '@ant-design/icons';
 import {DockContext, DockContextType} from 'rc-dock';
 import {LazyUpdateComponent} from '../../component/LazyUpdateComponent.js';
 import {ClientConn, ValueSubscriber, ValueUpdate} from '@ticlo/core/editor.js';
-import {TabData} from 'rc-dock/src/DockData.js';
+import {TabData} from 'rc-dock';
 import {TicloCurrentFlowContext} from '../../component/LayoutContext.js';
 
 interface Props {

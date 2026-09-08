@@ -170,9 +170,7 @@ class App extends React.PureComponent<Props, State> {
           },
           {
             size: 800,
-            tabs: [
-              /*this.createBlockEditorTab('test')*/
-            ],
+            tabs: [/*this.createBlockEditorTab('test')*/],
             id: 'main',
             panelLock: {panelStyle: 'main'},
           },

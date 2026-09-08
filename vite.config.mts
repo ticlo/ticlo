@@ -2,7 +2,6 @@ import {defineConfig, Plugin} from 'vite';
 import react from '@vitejs/plugin-react';
 import {fileURLToPath} from 'url';
 import {nodePolyfills} from 'vite-plugin-node-polyfills';
-import tsconfigPaths from 'vite-tsconfig-paths';
 import fs from 'fs';
 import {exec} from 'child_process';
 import util from 'util';
@@ -14,7 +13,7 @@ let checked = false; // shared across both hooks
 async function runNpmScript(script: string) {
   const {stderr} = await execAsync(`npm run ${script}`);
   if (stderr) {
-    console.error(`Error: ${stderr}`);
+    process.stderr.write(stderr);
   }
 }
 
@@ -79,9 +78,10 @@ function getCssInputs() {
 
 // https://vitejs.dev/config/
 export default defineConfig({
-  plugins: [preProcess(), tsconfigPaths(), react(), nodePolyfills()],
+  plugins: [preProcess(), react(), nodePolyfills()],
   base: '',
   resolve: {
+    tsconfigPaths: true,
     alias: {
       '/css': fileURLToPath(new URL('./css', import.meta.url)),
     },

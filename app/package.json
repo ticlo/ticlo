@@ -20,7 +20,7 @@
     "test-server": "tsx test/test-server.ts"
   },
   "dependencies": {
-    "@hono/node-server": "^1.19.14",
+    "@hono/node-server": "^2.1.1",
     "@ticlo/core": "workspace:*",
     "@ticlo/editor": "workspace:*",
     "@ticlo/html": "workspace:*",
@@ -28,17 +28,17 @@
     "@ticlo/react": "workspace:*",
     "@ticlo/test": "workspace:*",
     "@ticlo/web-server": "workspace:*",
-    "antd": "^6.0.1",
-    "hono": "^4.12.18",
-    "i18next": "^23.10.1",
+    "antd": "^6.6.3",
+    "hono": "^4.13.7",
+    "i18next": "^26.4.2",
     "rc-dock": "^4.0.0-alpha.3",
-    "react": "^18.2.0",
-    "react-dom": "^18.2.0",
-    "yargs": "^17.7.2"
+    "react": "^19.2.8",
+    "react-dom": "^19.2.8",
+    "yargs": "^18.1.0"
   },
   "devDependencies": {
-    "@types/react": "^18.2.69",
-    "@types/react-dom": "^18.2.22",
-    "@types/yargs": "^17.0.32"
+    "@types/react": "^19.2.18",
+    "@types/react-dom": "^19.2.7",
+    "@types/yargs": "^17.0.35"
   }
 }

@@ -42,7 +42,7 @@ export class ThreadPool {
 
   next(key: string): string {
     for (;;) {
-      let result = Infinity;
+      let result: number;
       if (this._pending.length) {
         result = this._pending.pop() as number;
       } else if (this._ready.length) {

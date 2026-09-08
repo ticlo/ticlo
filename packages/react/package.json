@@ -17,11 +17,11 @@
   "types": "./index.d.ts",
   "dependencies": {
     "@ticlo/core": "workspace:^",
-    "@types/luxon": "^3",
-    "luxon": "^3.4.4"
+    "@types/luxon": "^3.7.5",
+    "luxon": "^3.7.2"
   },
   "peerDependencies": {
-    "react": "^18.2.0",
-    "react-dom": "^18.2.0"
+    "react": "^19.2.8",
+    "react-dom": "^19.2.8"
   }
 }

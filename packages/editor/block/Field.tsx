@@ -20,7 +20,7 @@ import {
 } from '@ticlo/core/editor.js';
 import {TIcon} from '../icon/Icon.js';
 import {DragDropDiv, DragState} from 'rc-dock';
-import * as DragManager from 'rc-dock/src/dragdrop/DragManager.js';
+import type {DragHandler} from 'rc-dock/lib/dragdrop/DragManager.js';
 import {FieldValue} from './FieldValue.js';
 import {isBindable, propAcceptsBlock} from '@ticlo/core';
 import {LocalizedPropertyName} from '../component/LocalizedLabel.js';
@@ -264,9 +264,9 @@ interface FieldViewProps {
 
 interface BlockHeaderProps extends FieldViewProps {
   isStatic: boolean;
-  onDragStartT?: DragManager.DragHandler;
-  onDragMoveT?: DragManager.DragHandler;
-  onDragEndT?: DragManager.DragHandler;
+  onDragStartT?: DragHandler;
+  onDragMoveT?: DragHandler;
+  onDragEndT?: DragHandler;
   onDoubleClick?: MouseEventHandler;
   icon: string;
   displayName: string;

@@ -16,13 +16,13 @@
   "module": "./index.js",
   "types": "./index.d.ts",
   "dependencies": {
-    "@types/luxon": "^3",
+    "@types/luxon": "^3.7.5",
     "arrow-code": "^0.3.3",
-    "axios": "1.7.4",
+    "axios": "1.20.0",
     "denque": "^2.1.0",
-    "i18next": "^23.10.1",
-    "lodash": "^4.17.21",
-    "luxon": "^3.4.4",
-    "qs": "^6.12.0"
+    "i18next": "^26.4.2",
+    "lodash": "^4.18.1",
+    "luxon": "^3.7.2",
+    "qs": "^6.16.0"
   }
 }

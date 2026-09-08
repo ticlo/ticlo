@@ -9,7 +9,7 @@ export function useValueRef<T>(value: T) {
 
 // A ref that always points to the latest value computed by a callback
 export function useMemoRef<T>(callback: () => T, dependencies: unknown[]) {
-  const ref = useRef<T>();
+  const ref = useRef<T>(undefined);
   ref.current = useMemo(callback, dependencies);
   return ref;
 }

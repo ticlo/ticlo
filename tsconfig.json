@@ -11,6 +11,7 @@
       "dom"
     ],
     "alwaysStrict": true,
+    "strict": false,
     "noImplicitAny": true,
     "sourceMap": false,
     "declaration": true,
@@ -18,9 +19,7 @@
     "isolatedModules": true,
     "useDefineForClassFields": true,
     "resolveJsonModule": true,
-    "typeRoots": [
-      "node_modules/@types"
-    ]
+    "types": ["node", "vitest/globals"]
   },
   "compileOnSave": true,
   "include": [

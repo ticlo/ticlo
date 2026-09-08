@@ -93,7 +93,7 @@ async function buildPackage(name: string) {
   // run tsc
   shelljs.pushd('-q', targetDir);
   console.log(`compiling ${targetDir}`);
-  const result = shelljs.exec(normalize('../../node_modules/.bin/tsc'));
+  const result = shelljs.exec(normalize('../../node_modules/.bin/tsgo'));
   shelljs.popd('-q');
 
   // delete ts files

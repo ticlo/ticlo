@@ -17,6 +17,6 @@
   "types": "./index.d.ts",
   "dependencies": {
     "@ticlo/core": "workspace:^",
-    "chalk": "^4.1.2"
+    "chalk": "^6.0.0"
   }
 }

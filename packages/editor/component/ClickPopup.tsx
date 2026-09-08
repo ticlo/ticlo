@@ -153,14 +153,14 @@ export class Menu extends React.PureComponent<MenuProps, MenuState> {
         const element = child as React.ReactElement;
         if (element.type === SubMenuItem) {
           menuItems.push(
-            React.cloneElement(element, {
+            React.cloneElement(element as React.ReactElement<SubMenuItemProps>, {
               popupVisible: element.key === subMenuKey,
               onItemEvent: this._getVisibleCallback(element.key as string),
             })
           );
         } else if (element.type === MenuItem) {
           menuItems.push(
-            React.cloneElement(element, {
+            React.cloneElement(element as React.ReactElement<MenuItemProps>, {
               key: element.key ?? `${i}`,
               onItemEvent: this._getVisibleCallback(element.key as string),
             })
@@ -213,7 +213,7 @@ export class Popup extends React.PureComponent<PopupProps, PopupState> {
 
   fixMenu(element: React.ReactElement): React.ReactElement {
     if (element?.type === Menu) {
-      return React.cloneElement(element, {closeMenu: this.hidePopup});
+      return React.cloneElement(element as React.ReactElement<MenuProps>, {closeMenu: this.hidePopup});
     }
     return element;
   }
