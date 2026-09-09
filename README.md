@@ -12,3 +12,5 @@ ___
 <a href="https://app.fossa.io/projects/git%2Bgithub.com%2Fticlo%2Fticlo?ref=badge_shield" alt="FOSSA Status"><img src="https://app.fossa.io/api/projects/git%2Bgithub.com%2Fticlo%2Fticlo.svg?type=shield"/></a>
 [![Discord](https://img.shields.io/discord/434106806503997445.svg?color=7289DA&logo=discord&logoColor=white
 )](https://discord.gg/d3NcyAw)
+
+Build and deployment: [GitHub Pages setup](docs/github-pages.md).

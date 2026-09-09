@@ -87,6 +87,7 @@
   "scripts": {
     "vite-dev": "vite",
     "vite-build": "vite build",
+    "build-pages": "mkdir -p css i18n && pnpm run build-i18n && pnpm run build-less && pnpm run build-antd-style && pnpm run build-icons && pnpm run vite-build --base=/ticlo/",
     "test-c8-strict": "pnpm run test-coverage && node -e \"require('fs').copyFileSync('coverage/node/lcov.info', 'coverage/c8-strict.lcov')\"",
     "test-c8": "pnpm run test-coverage",
     "build-less": "lessc --js packages/editor/style/index.less css/editor.css",
