@@ -4,7 +4,7 @@ import {ReloadOutlined, UndoOutlined, ZoomInOutlined, ZoomOutOutlined} from '@an
 
 import {BlockView} from './Block.tsx';
 import {WireView} from './Wire.tsx';
-import {DragDropDiv, DragState, GestureState} from 'rc-dock';
+import {DragDropDiv, DragState} from 'rc-dock';
 import {cssNumber} from '../util/Types.tsx';
 import {onDragBlockOver, onDropBlock} from './DragDropBlock.tsx';
 import ResizeObserver_ from 'resize-observer-polyfill';
@@ -69,7 +69,25 @@ export class BlockStage extends BlockStageBase<BlockStageProps, StageState> impl
 
   private _scrollNode!: HTMLElement;
   private getScrollLayerRef = (node: HTMLDivElement): void => {
+    if (this._scrollNode) {
+      this._scrollNode.removeEventListener('scroll', this.handleScroll);
+      this._scrollNode.removeEventListener('touchstart', this.onTouchStart, true);
+      const doc = this._scrollNode.ownerDocument;
+      doc.removeEventListener('touchmove', this.onTouchMove, true);
+      doc.removeEventListener('touchend', this.onTouchEnd, true);
+      doc.removeEventListener('touchcancel', this.onTouchEnd, true);
+    }
     this._scrollNode = node;
+    this._touchGesture = null;
+    this._handlingTouchGesture = false;
+    if (node) {
+      node.addEventListener('scroll', this.handleScroll, {passive: true});
+      node.addEventListener('touchstart', this.onTouchStart, {capture: true, passive: false});
+      const doc = node.ownerDocument;
+      doc.addEventListener('touchmove', this.onTouchMove, {capture: true, passive: false});
+      doc.addEventListener('touchend', this.onTouchEnd, true);
+      doc.addEventListener('touchcancel', this.onTouchEnd, true);
+    }
   };
 
   private _bgNode!: HTMLElement;
@@ -111,10 +129,6 @@ export class BlockStage extends BlockStageBase<BlockStageProps, StageState> impl
   componentDidMount() {
     super.componentDidMount();
     this.context.registerStage(this.props.basePath, this);
-    this._scrollNode.addEventListener('scroll', this.handleScroll, {
-      passive: true,
-    });
-
     this.resizeObserver = new ResizeObserver(this.handleResize);
     this.resizeObserver.observe(this._rootNode);
   }
@@ -297,36 +311,80 @@ export class BlockStage extends BlockStageBase<BlockStageProps, StageState> impl
     this._dragScrollPos = null;
   };
 
-  _baseZoomBeforeGesture: number = -1;
-  onGestureStart = (e: GestureState) => {
-    this._dragScrollPos = [this._scrollX, this._scrollY];
-    this._baseZoomBeforeGesture = -1;
-    return true;
-  };
-  onGestureMove = (e: GestureState) => {
-    const {zoom} = this.state;
+  private _handlingTouchGesture = false;
+  private _touchGesture: {ids: number[]; distance: number; zoom: number; x: number; y: number};
 
-    if (this._baseZoomBeforeGesture === -1 && (e.scale > 1.1 || e.scale < 0.9) && e.dx === 0 && e.dy === 0) {
-      // avoid too much zoom during drag location
-      this._baseZoomBeforeGesture = this.state.zoom;
+  private touchPosition(touches: TouchList) {
+    const [first, second] = Array.from(touches);
+    const rect = this._scrollNode.getBoundingClientRect();
+    return {
+      x: (((first.clientX + second.clientX) / 2 - rect.left) * this._scrollNode.offsetWidth) / rect.width,
+      y: (((first.clientY + second.clientY) / 2 - rect.top) * this._scrollNode.offsetHeight) / rect.height,
+      distance: Math.hypot(first.clientX - second.clientX, first.clientY - second.clientY),
+    };
+  }
+
+  private onTouchStart = (e: TouchEvent) => {
+    if (e.touches.length < 2) {
+      return;
     }
-
-    if (this._baseZoomBeforeGesture > 0) {
-      const newZoom = clamp(this._baseZoomBeforeGesture * e.scale, 0.25, 4);
-      const {touches} = e.event;
-      const event = {
-        clientX: (touches[0].clientX + touches[1].clientX) / 2,
-        clientY: (touches[0].clientY + touches[1].clientY) / 2,
-      };
-
-      if (newZoom !== zoom) {
-        this.changeZoom(newZoom, event);
-        this.onDragMoveScroll(e, true);
-        this.safeSetState({zoom: newZoom});
-        return;
+    if (!Array.from(e.touches).every((touch) => this._scrollNode.contains(touch.target as Node))) {
+      return;
+    }
+    // rc-dock cancels active block, wire and selection drags on Escape.
+    if (!this._handlingTouchGesture) {
+      this._scrollNode.ownerDocument.dispatchEvent(new KeyboardEvent('keydown', {key: 'Escape'}));
+    }
+    this._handlingTouchGesture = true;
+    e.preventDefault();
+    e.stopPropagation();
+    this._touchGesture = null;
+    if (e.touches.length === 2) {
+      const {x, y, distance} = this.touchPosition(e.touches);
+      if (distance > 0) {
+        const {zoom} = this.state;
+        const [scrollX, scrollY] = this._pendingScroll ?? [this._scrollNode.scrollLeft, this._scrollNode.scrollTop];
+        this._touchGesture = {
+          ids: Array.from(e.touches, (touch) => touch.identifier),
+          distance,
+          zoom,
+          x: (scrollX + x) / zoom,
+          y: (scrollY + y) / zoom,
+        };
       }
     }
-    this.onDragMoveScroll(e, true);
+  };
+
+  private onTouchMove = (e: TouchEvent) => {
+    if (!this._handlingTouchGesture) {
+      return;
+    }
+    e.preventDefault();
+    // Keep rc-dock's pending single-finger drags from starting during a pinch.
+    e.stopImmediatePropagation();
+    const gesture = this._touchGesture;
+    if (!gesture || e.touches.length !== 2) {
+      return;
+    }
+    const {x, y, distance} = this.touchPosition(e.touches);
+    const zoom = clamp((gesture.zoom * distance) / gesture.distance, 0.25, 4);
+    this._pendingScroll = [Math.max(0, gesture.x * zoom - x), Math.max(0, gesture.y * zoom - y)];
+    this.safeSetState({zoom});
+    // Panning also needs a commit when the zoom is unchanged.
+    this.forceUpdate();
+  };
+
+  private onTouchEnd = (e: TouchEvent) => {
+    if (
+      e.type === 'touchcancel' ||
+      !this._touchGesture?.ids.every((id) => Array.from(e.touches).some((t) => t.identifier === id))
+    ) {
+      this._touchGesture = null;
+    }
+    // Do not turn the remaining finger into a block drag.
+    if (e.touches.length === 0) {
+      this._handlingTouchGesture = false;
+    }
   };
 
   getMiniStageStyle(): {
@@ -551,8 +609,6 @@ export class BlockStage extends BlockStageBase<BlockStageProps, StageState> impl
             onDragMoveT={this.onRightDragMove}
             onDragEndT={this.onRightDragEnd}
             useRightButtonDragT={true}
-            onGestureStartT={this.onGestureStart}
-            onGestureMoveT={this.onGestureMove}
           >
             <DragDropDiv
               className="ticl-stage-bg"
