@@ -16,7 +16,7 @@
   "files.eol": "\n",
   "editor.tabSize": 2,
   "editor.formatOnSave": true,
-  "editor.defaultFormatter": "esbenp.prettier-vscode",
+  "editor.defaultFormatter": "oxc.oxc-vscode",
   "typescript.format.enable": false,
   "[typescript]": {
     "editor.formatOnSave": true
@@ -28,7 +28,7 @@
   "npm.packageManager": "pnpm",
   "npm.runSilent": true,
   "[css]": {
-    "editor.defaultFormatter": "esbenp.prettier-vscode"
+    "editor.defaultFormatter": "oxc.oxc-vscode"
   },
   "workbench.colorCustomizations": {
     "activityBar.background": "#dde2ee",

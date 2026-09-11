@@ -26,9 +26,9 @@ jobs:
         with:
           cache: true
       - run: pnpm install --frozen-lockfile
-      - run: pnpm run prettier-check
+      - run: pnpm run oxfmt-check
       - run: pnpm run build-i18n
-      - run: pnpm run eslint
+      - run: pnpm run oxlint
       - run: pnpm exec tsgo --noEmit
       - run: pnpm run build-package
       - run: pnpm run vite-build

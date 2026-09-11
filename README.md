@@ -14,3 +14,11 @@ ___
 )](https://discord.gg/d3NcyAw)
 
 Build and deployment: [GitHub Pages setup](docs/github-pages.md).
+
+Lint with `pnpm run oxlint` and check formatting with `pnpm run oxfmt-check`.
+Use `pnpm run oxlint-fix` or `pnpm run oxfmt-write` to apply fixes.
+The staged-file formatter is `node tool/oxfmt-changed.mjs`.
+
+For Zed, install the [Oxc extension](https://zed.dev/extensions/oxc).
+Project settings enable Oxlint and Oxfmt and disable Prettier.
+For VS Code, install the recommended Oxc extension.

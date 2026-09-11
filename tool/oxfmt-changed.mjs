@@ -1,8 +1,8 @@
 import {spawnSync} from 'node:child_process';
 import {existsSync} from 'node:fs';
 
-const prettierPattern = /^(packages|tool|app)\/.*\.(ts|tsx|less)$/;
-const prettierScript = 'node_modules/prettier/bin/prettier.cjs';
+const formatPattern = /^(packages|tool|app)\/.*\.(ts|tsx|less)$/;
+const formatterScript = 'node_modules/oxfmt/bin/oxfmt';
 
 function run(command, args) {
   const result = spawnSync(command, args, {stdio: 'inherit'});
@@ -24,17 +24,17 @@ if (diff.status !== 0) {
 const files = diff.stdout
   .split('\n')
   .map((file) => file.trim())
-  .filter((file) => prettierPattern.test(file));
+  .filter((file) => formatPattern.test(file));
 
 if (files.length === 0) {
-  console.log('No staged prettier files changed.');
+  console.log('No staged format files changed.');
   process.exit(0);
 }
 
-if (!existsSync(prettierScript)) {
-  console.error(`Prettier was not found at ${prettierScript}. Run pnpm install first.`);
+if (!existsSync(formatterScript)) {
+  console.error(`Oxfmt was not found at ${formatterScript}. Run pnpm install first.`);
   process.exit(1);
 }
 
-run(process.execPath, [prettierScript, '--write', ...files]);
+run(process.execPath, [formatterScript, '--write', ...files]);
 run('git', ['add', '--', ...files]);
