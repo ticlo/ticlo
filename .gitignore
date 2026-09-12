@@ -26,6 +26,9 @@ en.base.yaml
 /js
 /.yarn
 /.claude
+/.opencode/
+/.zed/
+/.vscode/
 /app/**/*.d.ts
 /packages/**/*.d.ts
 /tool/**/*.d.ts
