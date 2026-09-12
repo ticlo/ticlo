@@ -13,6 +13,8 @@ import {initEditor} from '../../index.ts';
 import {arrayEqual} from '@ticlo/core/editor.ts';
 
 describe('editor BlockStage', function () {
+  let flow: Flow;
+
   beforeEach(async function () {
     await initEditor();
   });
@@ -20,10 +22,14 @@ describe('editor BlockStage', function () {
   afterEach(function () {
     removeLastTemplate();
     destroyLastLocalConnection();
+    if (flow) {
+      Root.instance.deleteValue(flow.getName());
+      flow = null;
+    }
   });
 
   it('single block', async function () {
-    const flow = Root.instance.addFlow('BlockStage1');
+    flow = Root.instance.addFlow('BlockStage1');
     flow.load({
       add: {
         '#is': 'add',
@@ -68,9 +74,11 @@ describe('editor BlockStage', function () {
     expect(
       querySingle("//div.ticl-field-name/span[text()='1']/..//../../div.ticl-field-value[text()='2']", div)
     ).not.toBeNull();
-    expect(
-      querySingle("//div.ticl-field-name/span[text()='#output']/..//../../div.ticl-field-value[text()='3']", div)
-    ).not.toBeNull();
+    await shouldHappen(
+      () => querySingle("//div.ticl-field-name/span[text()='#output']/..//../../div.ticl-field-value[text()='3']", div),
+      500,
+      'find output 3'
+    );
 
     // check block icon
     expect(querySingle('//div.tico-icon-svg.tico-fas-plus', div)).not.toBeNull();
@@ -82,9 +90,11 @@ describe('editor BlockStage', function () {
       100,
       'find field 5'
     );
-    expect(
-      querySingle("//div.ticl-field-name/span[text()='#output']/..//../../div.ticl-field-value[text()='7']", div)
-    ).not.toBeNull();
+    await shouldHappen(
+      () => querySingle("//div.ticl-field-name/span[text()='#output']/..//../../div.ticl-field-value[text()='7']", div),
+      500,
+      'find output 7'
+    );
 
     // test change type
     flow.queryProperty('add.#is').setValue('subtract');
@@ -95,12 +105,10 @@ describe('editor BlockStage', function () {
     );
     // check block icon again
     expect(querySingle('//div.tico-icon-svg.tico-fas-minus', div)).not.toBeNull();
-
-    Root.instance.deleteValue('BlockStage1');
   });
 
   it('drag block', async function () {
-    const flow = Root.instance.addFlow('BlockStage2');
+    flow = Root.instance.addFlow('BlockStage2');
     flow.load({
       add: {
         '#is': 'add',
@@ -159,12 +167,10 @@ describe('editor BlockStage', function () {
       clientY: 200,
     });
     await shouldReject(shouldHappen(() => block.offsetLeft !== 223));
-
-    Root.instance.deleteValue('BlockStage2');
   });
 
   it('drag block size', async function () {
-    const flow = Root.instance.addFlow('BlockStage3');
+    flow = Root.instance.addFlow('BlockStage3');
     flow.load({
       add: {
         '#is': 'add',
@@ -198,12 +204,10 @@ describe('editor BlockStage', function () {
 
     // mouse up to stop dragging
     simulate(document.body, 'mouseup');
-
-    Root.instance.deleteValue('BlockStage3');
   });
 
   it('shows block self property drag handle', async function () {
-    const flow = Root.instance.addFlow('BlockStageSelfProperty');
+    flow = Root.instance.addFlow('BlockStageSelfProperty');
     flow.load({
       add: {
         '#is': 'add',
@@ -236,13 +240,10 @@ describe('editor BlockStage', function () {
 
     flow.queryProperty('add.@b-pself').setValue(undefined);
     await shouldHappen(() => !div.querySelector('.ticl-block-self-drag'));
-
-    Root.instance.deleteValue('BlockStageSelfProperty');
   });
 
   it('shows static blocks created after stage mounts', async function () {
-    Root.instance.deleteValue('BlockStageStaticCreate');
-    const flow = Root.instance.addFlow('BlockStageStaticCreate');
+    flow = Root.instance.addFlow('BlockStageStaticCreate');
     FlowEditor.createFromFunction(flow, '#edit-func', ':worker-static-create', {'#is': ''});
 
     const [server, client] = makeLocalConnection(Root.instance);
@@ -273,13 +274,10 @@ describe('editor BlockStage', function () {
     const block = div.querySelector('.ticl-block-head-static')?.closest('.ticl-block') as HTMLDivElement;
     expect(block.offsetLeft).toBe(100);
     expect(block.offsetTop).toBe(120);
-
-    Root.instance.deleteValue('BlockStageStaticCreate');
   });
 
   it('alt dragging a function creates a static block', async function () {
-    Root.instance.deleteValue('BlockStageAltStaticCreate');
-    const flow = Root.instance.addFlow('BlockStageAltStaticCreate');
+    flow = Root.instance.addFlow('BlockStageAltStaticCreate');
     FlowEditor.createFromFunction(flow, '#edit-func', ':worker-alt-static-create', {'#is': ''});
 
     const [server, client] = makeLocalConnection(Root.instance);
@@ -309,12 +307,10 @@ describe('editor BlockStage', function () {
 
     await shouldHappen(() => flow.queryValue('#edit-func.#static.add'));
     expect(flow.queryValue('#edit-func.add')).not.toBeDefined();
-
-    Root.instance.deleteValue('BlockStageAltStaticCreate');
   });
 
   it('min block and wire', async function () {
-    const flow = Root.instance.addFlow('BlockStage4');
+    flow = Root.instance.addFlow('BlockStage4');
     flow.load({
       add: {
         '#is': 'add',
@@ -381,12 +377,10 @@ describe('editor BlockStage', function () {
     // wire should disappear when unbound
     flow.queryProperty('subtract.0').setValue(1);
     await shouldHappen(() => div.querySelector('svg.ticl-block-wire') == null);
-
-    Root.instance.deleteValue('BlockStage4');
   });
 
   it('rect select', async function () {
-    const flow = Root.instance.addFlow('BlockStage5');
+    flow = Root.instance.addFlow('BlockStage5');
     flow.load({
       add: {
         '#is': 'add',
@@ -442,12 +436,10 @@ describe('editor BlockStage', function () {
     // one block selected
     await shouldHappen(() => div.querySelectorAll('.ticl-block-selected').length === 0);
     expect(selectedPaths).toEqual([]);
-
-    Root.instance.deleteValue('BlockStage5');
   });
 
   it('automatic assign xy', async function () {
-    const flow = Root.instance.addFlow('BlockStage6');
+    flow = Root.instance.addFlow('BlockStage6');
     for (let i = 0; i < 10; ++i) {
       flow.createBlock(`a${i}`);
     }
@@ -470,6 +462,5 @@ describe('editor BlockStage', function () {
       expect(block.offsetLeft).toBe(xarr[i]);
       expect(block.offsetTop).toBe(yarr[i]);
     }
-    Root.instance.deleteValue('BlockStage6');
   });
 });
