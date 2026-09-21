@@ -14,6 +14,8 @@ import {getFuncLibPath} from '../../util/FunctionLib.ts';
 interface Props {
   conn: ClientConn;
   basePath: string;
+  /** Hide the property list and its toggle button. */
+  disablePropertyList?: boolean;
   onSelect?: (keys: string[], handled: boolean) => void;
   onSave?: () => void;
 }
@@ -96,7 +98,7 @@ export class BlockStagePane extends LazyUpdateComponent<Props, State> {
   };
 
   onSelect = (keys: string[]) => {
-    const {onSelect} = this.props;
+    const {onSelect, disablePropertyList} = this.props;
     const {showPropertyList, selectedKeys} = this.state;
     if (arrayEqual(keys, selectedKeys)) {
       return;
@@ -106,7 +108,7 @@ export class BlockStagePane extends LazyUpdateComponent<Props, State> {
 
     // send selection to parent
     if (onSelect) {
-      onSelect(keys, showPropertyList);
+      onSelect(keys, showPropertyList && !disablePropertyList);
     }
   };
 
@@ -127,7 +129,7 @@ export class BlockStagePane extends LazyUpdateComponent<Props, State> {
   };
 
   renderImpl() {
-    const {conn, basePath, onSave} = this.props;
+    const {conn, basePath, onSave, disablePropertyList} = this.props;
     const {showPropertyList, selectedKeys, sizes, blockKey, funcLib = basePath} = this.state;
 
     return (
@@ -142,13 +144,15 @@ export class BlockStagePane extends LazyUpdateComponent<Props, State> {
             onSelect={this.onSelect}
             style={{width: sizes[0], height: '100%'}}
             toolButtons={
-              <TooltipIconButton
-                conn={conn}
-                icon={showPropertyList ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />}
-                onClick={this.onShowPropertyList}
-                tooltip={showPropertyList ? t('Hide Properties') : t('Show Properties')}
-                tooltipPlacement="left"
-              />
+              !disablePropertyList && (
+                <TooltipIconButton
+                  conn={conn}
+                  icon={showPropertyList ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />}
+                  onClick={this.onShowPropertyList}
+                  tooltip={showPropertyList ? t('Hide Properties') : t('Show Properties')}
+                  tooltipPlacement="left"
+                />
+              )
             }
           />
         ) : (
@@ -156,7 +160,7 @@ export class BlockStagePane extends LazyUpdateComponent<Props, State> {
         )}
 
         <div className="ticl-stage-header">{basePath}</div>
-        {showPropertyList ? (
+        {showPropertyList && !disablePropertyList ? (
           <>
             <Divider key="divider" idx={1} getDividerData={this.getDividerData} changeSizes={this.changeSizes} />
             <PropertyList

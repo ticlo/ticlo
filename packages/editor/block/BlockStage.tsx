@@ -327,7 +327,7 @@ export class BlockStage extends BlockStageBase<BlockStageProps, StageState> impl
   };
 
   private _handlingTouchGesture = false;
-  private _touchGesture: {ids: number[]; distance: number; zoom: number; x: number; y: number};
+  private _touchGesture: {ids: number[]; distance: number; zoom: number; zoomEnabled: boolean; x: number; y: number};
 
   private touchPosition(touches: TouchList) {
     const [first, second] = Array.from(touches);
@@ -363,6 +363,7 @@ export class BlockStage extends BlockStageBase<BlockStageProps, StageState> impl
           ids: Array.from(e.touches, (touch) => touch.identifier),
           distance,
           zoom,
+          zoomEnabled: false,
           x: (scrollX + x) / zoom,
           y: (scrollY + y) / zoom,
         };
@@ -382,7 +383,11 @@ export class BlockStage extends BlockStageBase<BlockStageProps, StageState> impl
       return;
     }
     const {x, y, distance} = this.touchPosition(e.touches);
-    const zoom = clamp((gesture.zoom * distance) / gesture.distance, 0.25, 4);
+    const ratio = distance / gesture.distance;
+    if (ratio < 0.75 || ratio > 1.25) {
+      gesture.zoomEnabled = true;
+    }
+    const zoom = gesture.zoomEnabled ? clamp(gesture.zoom * ratio, 0.25, 4) : gesture.zoom;
     this._pendingScroll = [Math.max(0, gesture.x * zoom - x), Math.max(0, gesture.y * zoom - y)];
     this.safeSetState({zoom});
     // Panning also needs a commit when the zoom is unchanged.

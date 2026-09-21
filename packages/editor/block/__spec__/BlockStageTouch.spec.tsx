@@ -81,6 +81,48 @@ describe('BlockStage touch gestures', function () {
     dispatch('touchend', [], [touch(1, 140, 130), touch(2, 740, 130)]);
   });
 
+  it('only pans while the pinch stays within 25% of its starting distance', async function () {
+    dispatch('touchstart', [touch(1, 200, 100), touch(2, 400, 100)]);
+    for (const [distance, x, y] of [
+      [220, 350, 130],
+      [180, 320, 110],
+      [250, 360, 140],
+      [150, 340, 120],
+    ]) {
+      dispatch('touchmove', [touch(1, x - distance / 2, y), touch(2, x + distance / 2, y)]);
+      await shouldHappen(() => scroll.scrollLeft === 700 - x && scroll.scrollTop === 400 - y);
+      expect(stage.state.zoom).toBe(1);
+    }
+    dispatch('touchend', [], [touch(1, 265, 120), touch(2, 415, 120)]);
+  });
+
+  it.each([260, 140])('keeps zoom enabled after the pinch distance crosses 25% to %i', async function (distance) {
+    dispatch('touchstart', [touch(1, 200, 100), touch(2, 400, 100)]);
+    const withinThreshold = distance > 200 ? 220 : 180;
+    dispatch('touchmove', [touch(1, 300 - withinThreshold / 2, 100), touch(2, 300 + withinThreshold / 2, 100)]);
+    expect(stage.state.zoom).toBe(1);
+    for (const nextDistance of [distance, 220, 200, 180]) {
+      dispatch('touchmove', [touch(1, 300 - nextDistance / 2, 100), touch(2, 300 + nextDistance / 2, 100)]);
+      await shouldHappen(() => stage.state.zoom === nextDistance / 200);
+      expect(scroll.scrollLeft).toBeCloseTo(700 * stage.state.zoom - 300, 0);
+      expect(scroll.scrollTop).toBeCloseTo(400 * stage.state.zoom - 100, 0);
+    }
+    dispatch('touchend', [], [touch(1, 210, 100), touch(2, 390, 100)]);
+  });
+
+  it.each(['touchend', 'touchcancel'])('resets the zoom threshold after %s', async function (type) {
+    dispatch('touchstart', [touch(1, 200, 100), touch(2, 400, 100)]);
+    dispatch('touchmove', [touch(1, 150, 100), touch(2, 450, 100)]);
+    await shouldHappen(() => stage.state.zoom === 1.5);
+    dispatch(type, [], [touch(1, 150, 100), touch(2, 450, 100)]);
+
+    dispatch('touchstart', [touch(3, 200, 100), touch(4, 400, 100)]);
+    dispatch('touchmove', [touch(3, 240, 130), touch(4, 460, 130)]);
+    await shouldHappen(() => scroll.scrollLeft === 700 && scroll.scrollTop === 470);
+    expect(stage.state.zoom).toBe(1.5);
+    dispatch('touchend', [], [touch(3, 240, 130), touch(4, 460, 130)]);
+  });
+
   it('cancels a block drag and does not drag with the remaining finger', async function () {
     const block = scroll.querySelector('.ticl-block-head-label') as HTMLElement;
     expect(block).toBeTruthy();
