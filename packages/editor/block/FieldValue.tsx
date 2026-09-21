@@ -1,9 +1,9 @@
-import React from 'react';
-import {LazyUpdateComponent, LazyUpdateSubscriber} from '../component/LazyUpdateComponent.tsx';
+import React, {useContext, useEffect, useRef} from 'react';
+import {useConnectionValue} from '../component/useConnectionValue.ts';
 import {ClientConn} from '@ticlo/core/editor.ts';
 import {Popup} from '../component/ClickPopup.tsx';
 import {ObjectTree} from '../object-tree/ObjectTree.tsx';
-import {TicloLayoutContext, TicloLayoutContextType} from '../component/LayoutContext.ts';
+import {TicloLayoutContextType} from '../component/LayoutContext.ts';
 import {renderValue} from '../component/renderValue.tsx';
 
 interface Props {
@@ -11,59 +11,40 @@ interface Props {
   path: string;
 }
 
-export class FieldValue extends LazyUpdateComponent<Props, any> {
-  static contextType = TicloLayoutContextType;
-  declare context: TicloLayoutContext;
+export const FieldValue = React.memo(function FieldValue({conn, path}: Props) {
+  const value = useConnectionValue(conn, path);
+  const context = useContext(TicloLayoutContextType);
+  const objectTree = useRef<{close?: () => void}>({});
 
-  valueSub = new LazyUpdateSubscriber(this);
+  useEffect(() => {
+    const source = objectTree.current;
+    return () => {
+      source.close?.();
+      source.close = undefined;
+    };
+  }, [conn, path]);
 
-  constructor(props: Props) {
-    super(props);
-    const {conn, path} = props;
-    this.valueSub.subscribe(conn, path);
-  }
-  getObjectMenu = () => {
-    const {conn, path} = this.props;
-    const val = this.valueSub.value;
-    return <ObjectTree conn={conn} path={path} data={val} />;
-  };
-  objectTreeShown = false;
-  onExpandObjectTree = (e: React.MouseEvent) => {
-    if (this.context?.showObjectTree) {
-      const {path} = this.props;
-      const val = this.valueSub.value;
-      this.context.showObjectTree(path, val, e.target as HTMLElement, this);
-      this.objectTreeShown = true;
+  const getObjectMenu = () => <ObjectTree conn={conn} path={path} data={value} />;
+  const onExpandObjectTree = (e: React.MouseEvent) => {
+    if (context?.showObjectTree) {
+      context.showObjectTree(path, value, e.target as HTMLElement, objectTree.current);
+      const source = objectTree.current;
+      source.close = () => context.closeObjectTree?.(path, source);
       e.stopPropagation();
     }
   };
 
-  getObjectPopup = (val: any) => {
-    return (
-      // show as popup menu
-      <Popup
-        popup={this.getObjectMenu}
-        popupAlign={{
-          points: ['tl', 'tr'],
-          offset: [-6, 0],
-        }}
-      >
-        <div className="ticl-tree-arr ticl-tree-arr-expand" onDoubleClick={this.onExpandObjectTree} />
-      </Popup>
-    );
-  };
+  const getObjectPopup = () => (
+    <Popup
+      popup={getObjectMenu}
+      popupAlign={{
+        points: ['tl', 'tr'],
+        offset: [-6, 0],
+      }}
+    >
+      <div className="ticl-tree-arr ticl-tree-arr-expand" onDoubleClick={onExpandObjectTree} />
+    </Popup>
+  );
 
-  renderImpl() {
-    const child = renderValue(this.valueSub.value, this.getObjectPopup);
-    return <div className="ticl-field-value">{child}</div>;
-  }
-
-  componentWillUnmount(): void {
-    if (this.objectTreeShown && this.context && this.context.closeObjectTree) {
-      const {path} = this.props;
-      this.context.closeObjectTree(path, this);
-    }
-    this.valueSub.unsubscribe();
-    super.componentWillUnmount();
-  }
-}
+  return <div className="ticl-field-value">{renderValue(value, getObjectPopup)}</div>;
+});

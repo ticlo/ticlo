@@ -1,5 +1,5 @@
 import React from 'react';
-import {ClientConn, ValueState, ValueUpdate, DataMap, shallowEqual, ValueSubscriber} from '@ticlo/core/editor.ts';
+import {ClientConn, ValueUpdate, DataMap, shallowEqual, ValueSubscriber} from '@ticlo/core/editor.ts';
 import {batchUpdateReact} from '../util/BatchUpdate.ts';
 
 interface LazyUpdateProps {
@@ -67,24 +67,25 @@ export class LazyUpdateSubscriber extends ValueSubscriber {
   }
 
   onUpdate(response: ValueUpdate) {
-    this.error = null;
     let newValue = response.cache.value;
     if (newValue === undefined) {
       newValue = this.defaultValue;
     }
-    if (!Object.is(newValue, this.value)) {
-      this.value = newValue;
-      this.update();
-    }
-    if (response.cache.bindingPath !== this.bindingPath) {
-      this.bindingPath = response.cache.bindingPath;
+    const changed =
+      !Object.is(newValue, this.value) || response.cache.bindingPath !== this.bindingPath || this.error != null;
+    this.value = newValue;
+    this.bindingPath = response.cache.bindingPath;
+    this.error = null;
+    if (changed) {
       this.update();
     }
   }
 
   onError(error: string, data?: DataMap) {
-    this.error = error;
-    this.update();
+    if (error !== this.error) {
+      this.error = error;
+      this.update();
+    }
   }
   update() {
     if (typeof this.parent === 'function') {

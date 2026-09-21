@@ -196,6 +196,8 @@ describe('editor EditPolicy', () => {
     expect(Root.instance.queryValue('PolicyUI.wrongType')).toBeUndefined();
     await stage.createBlock('allowed', {'#is': 'add'}, false);
     expect(Root.instance.queryValue('PolicyUI.allowed')).toBeDefined();
+    // Let the new block's subscriptions finish before teardown disconnects the client.
+    await shouldHappen(() => stage.getBlock('PolicyUI.allowed')?.descLoaded);
   });
 
   it.each([
