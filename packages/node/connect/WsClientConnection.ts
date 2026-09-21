@@ -54,7 +54,10 @@ export class WsClientConnection extends ClientConnection {
   destroy() {
     super.destroy();
     if (this._ws) {
-      this._ws.close();
+      const ws = this._ws;
+      this._ws = null;
+      ws.off('message', this.onMessage);
+      ws.close();
     }
   }
 }

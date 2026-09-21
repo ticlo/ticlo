@@ -1,4 +1,5 @@
-import {expect} from 'vitest';
+import {once} from 'node:events';
+import {expect, vi} from 'vitest';
 import {Root} from '@ticlo/core/block/Flow.ts';
 import {AsyncClientPromise} from '@ticlo/core/connect/__spec__/AsyncClientPromise.ts';
 import {shouldHappen, shouldReject} from '@ticlo/core/util/test-util.ts';
@@ -32,6 +33,32 @@ describe('WsConnect', function () {
 
   afterAll(function () {
     server.close();
+  });
+
+  it('ignores messages and close callbacks after destruction', async function () {
+    const client = new WsClientConnection(`ws://127.0.0.1:${PORT}`, false);
+    await shouldHappen(() => client._connected);
+    const socket = client._ws;
+    const closed = once(socket, 'close');
+    const receive = vi.spyOn(client, 'onReceive');
+    const disconnect = vi.spyOn(client, 'onDisconnect');
+    try {
+      client.destroy();
+
+      // A frame already in flight can arrive while the close handshake is pending.
+      expect(() => socket.emit('message', Buffer.from('[]'), false)).not.toThrow();
+      expect(() => socket.emit('message', Buffer.from('[{"cmd":"editPolicy"}]'), false)).not.toThrow();
+      expect(receive).not.toHaveBeenCalled();
+
+      await closed;
+      expect(disconnect).not.toHaveBeenCalled();
+    } finally {
+      socket.terminate();
+      client.destroy();
+      await closed;
+      receive.mockRestore();
+      disconnect.mockRestore();
+    }
   });
 
   it('reconnect', async function () {
