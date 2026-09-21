@@ -71,6 +71,10 @@ import {createRoot} from 'react-dom/client';
 import {SchedulePane} from '@ticlo/editor/dock/schedule/SchedulePane.tsx';
 import {RadioChangeEvent} from 'antd';
 import {Namespace} from '@ticlo/core/block/Namespace.ts';
+import {EditPolicyProvider} from '@ticlo/editor/component/EditPolicyContext.tsx';
+import {PolicyPanel} from './PolicyPanel.tsx';
+import {PlaygroundConnection, PlaygroundConnectionContext} from './PlaygroundConnection.tsx';
+import type {ClientConn, EditPolicy} from '@ticlo/core';
 
 const layoutGroups = {
   blockStage: {
@@ -97,11 +101,18 @@ interface Props {
 }
 
 interface State {
+  conn: ClientConn;
   modal?: React.ReactElement;
 }
 
 class App extends React.PureComponent<Props, State> {
-  state: State = {};
+  state: State = {conn: this.props.conn};
+  get conn() {
+    return this.state.conn;
+  }
+  changePolicy = (policy?: EditPolicy) => {
+    this.setState({conn: this.props.conn.withPolicy(policy)});
+  };
   defaultDockLayout: any;
   constructor(props: Props) {
     super(props);
@@ -137,6 +148,13 @@ class App extends React.PureComponent<Props, State> {
                     title: 'Test UI',
                     cached: true,
                     content: <div id="main" />,
+                  },
+                  {
+                    group: 'tool',
+                    id: 'Policy',
+                    title: 'Policy',
+                    cached: true,
+                    content: <PolicyPanel onChange={this.changePolicy} />,
                   },
                   {
                     group: 'tool',
@@ -196,7 +214,11 @@ class App extends React.PureComponent<Props, State> {
                     id: 'Properties',
                     title: t('Properties'),
                     cached: true,
-                    content: <PropertyListPane conn={conn} />,
+                    content: (
+                      <PlaygroundConnection>
+                        <PropertyListPane conn={conn} />
+                      </PlaygroundConnection>
+                    ),
                   },
                 ],
               },
@@ -206,7 +228,7 @@ class App extends React.PureComponent<Props, State> {
             size: 800,
             tabs: [
               this.createBlockEditorTab('example', () => {
-                conn.applyFlowChange('example');
+                this.conn.applyFlowChange('example');
               }),
             ],
             id: 'main',
@@ -245,7 +267,7 @@ class App extends React.PureComponent<Props, State> {
     },
 
     editProperty: (paths: string[], propDesc: PropDesc, defaultValue?: any, mime?: string, readonly?: boolean) => {
-      const {conn} = this.props;
+      const conn = this.conn;
       if (!mime) {
         if (propDesc.mime) {
           mime = propDesc.mime;
@@ -256,7 +278,7 @@ class App extends React.PureComponent<Props, State> {
       TextEditorPane.openFloatPanel(this.layout, conn, paths, defaultValue, mime, readonly);
     },
     editSchedule: (path: string, scheduleName?: string, index?: number) => {
-      const {conn} = this.props;
+      const conn = this.conn;
       SchedulePane.openFloatPanel(this.layout, conn, path, scheduleName, index);
     },
     getSelectedPaths: () => this.selectedPaths,
@@ -272,23 +294,32 @@ class App extends React.PureComponent<Props, State> {
   };
 
   createBlockEditorTab(path: string, onSave?: () => void) {
-    const {conn} = this.props;
-    return BlockStagePane.createDockTab(path, conn, this.onSelect, onSave);
+    const conn = this.conn;
+    const tab = BlockStagePane.createDockTab(path, conn, this.onSelect, onSave);
+    tab.content = <PlaygroundConnection>{tab.content as React.ReactElement<{conn: ClientConn}>}</PlaygroundConnection>;
+    if (React.isValidElement<{conn: ClientConn}>(tab.title)) {
+      tab.title = <PlaygroundConnection>{tab.title}</PlaygroundConnection>;
+    }
+    return tab;
   }
 
   render() {
-    const {conn} = this.props;
+    const conn = this.conn;
     const {modal} = this.state;
     const appContent = (
-      <TicloApp value={this.ticloContext}>
-        <DockLayout
-          defaultLayout={this.defaultDockLayout}
-          ref={this.getLayout}
-          groups={layoutGroups}
-          style={{position: 'absolute', left: 10, top: 10, right: 10, bottom: 10}}
-        />
-        {modal}
-      </TicloApp>
+      <PlaygroundConnectionContext.Provider value={conn}>
+        <EditPolicyProvider conn={conn}>
+          <TicloApp value={this.ticloContext}>
+            <DockLayout
+              defaultLayout={this.defaultDockLayout}
+              ref={this.getLayout}
+              groups={layoutGroups}
+              style={{position: 'absolute', left: 10, top: 10, right: 10, bottom: 10}}
+            />
+            {modal}
+          </TicloApp>
+        </EditPolicyProvider>
+      </PlaygroundConnectionContext.Provider>
     );
 
     if (location.hash.includes('strictMode')) {

@@ -1,10 +1,8 @@
 import React from 'react';
-import {ClientConn, decode, encode, DataMap, isDataTruncated, translateEditor} from '@ticlo/core/editor.ts';
+import {ClientConn, translateEditor} from '@ticlo/core/editor.ts';
 
 import {DockLayout} from 'rc-dock';
-import {EditorView} from '@codemirror/view';
-import {MenuProps} from 'antd';
-import {createDockDialog, DockDialogPane} from '../../component/DockDialogPane.tsx';
+import {createDockDialog} from '../../component/DockDialogPane.tsx';
 import {ScheduleCalendar} from '../../scheduler/Calendar.tsx';
 
 export class SchedulePane {
@@ -21,10 +19,7 @@ export class SchedulePane {
       title,
       <ScheduleCalendar conn={conn} parentPath={parentPath} scheduleName={scheduleName} index={index} />,
       id,
-      {
-        preferredWidth: 1440,
-        preferredHeight: 960,
-      }
+      {preferredWidth: 1440, preferredHeight: 960}
     );
   }
 }

@@ -26,11 +26,13 @@ export const LocalizedFunctionName = ({desc, className}: {desc: FunctionDesc; cl
 };
 
 export const LocalizedPropertyName = ({
+  ref,
   desc,
   className,
   name,
   onContextMenu,
 }: {
+  ref?: React.Ref<HTMLSpanElement>;
   desc: FunctionDesc;
   name: string;
   className?: string;
@@ -38,7 +40,7 @@ export const LocalizedPropertyName = ({
 }) => {
   useContext(TicloLayoutContextType);
   return (
-    <span className={className} onContextMenu={onContextMenu}>
+    <span ref={ref} className={className} onContextMenu={onContextMenu}>
       {translateProperty(desc.name, name, desc.ns)}
     </span>
   );

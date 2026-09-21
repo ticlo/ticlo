@@ -248,25 +248,8 @@ export class SetRequest extends ConnectionSend {
     this.conn = conn;
   }
 
-  updateSet(value: any) {
-    delete this._data.from;
-    delete this._data.absolute;
-    this._data.cmd = 'set';
-    this._data.value = value;
-  }
-
-  updateUpdate(value: any) {
-    delete this._data.from;
-    delete this._data.absolute;
-    this._data.cmd = 'update';
-    this._data.value = value;
-  }
-
-  updateBind(from: string, absolute: boolean) {
-    delete this._data.value;
-    this._data.cmd = 'bind';
-    this._data.from = from;
-    this._data.absolute = absolute;
+  update(data: DataMap) {
+    this._data = {...data, id: this._data.id};
   }
 
   getSendingData(): {data: DataMap; size: number} {

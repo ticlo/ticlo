@@ -24,8 +24,9 @@ export {setSecretCipher} from './block/Block.ts';
 
 // Export additional commonly used utilities
 export * from './connect/ClientConnection.ts';
+export * from './connect/PolicyConnection.ts';
 export * from './connect/LocalConnection.ts';
-export {Restricted} from './restricted/Restricted.ts';
+export * from './policy/EditPolicy.ts';
 export {Uid} from './util/Uid.ts';
 export {escapedObject} from './util/NoSerialize.ts';
 export {arrowReplacer, arrowReviver} from './util/Serialize.ts';
@@ -83,3 +84,5 @@ import './worker/MultiWorkerFunction.ts';
 import './worker/HandlerFunction.ts';
 import './worker/WorkerFunction.ts';
 import './worker/SelectWorkerFunction.ts';
+
+export * from './connect/ClientConn.ts';

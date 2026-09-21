@@ -4,10 +4,12 @@ import React from 'react';
 import {ClientConn, splitPathName, validateNodeName} from '@ticlo/core/editor.ts';
 import {FormInputItem, FormItem} from '../component/FormItem.tsx';
 import {t} from '../component/LocalizedLabel.tsx';
+import {EditPolicyContext} from '../component/EditPolicyContext.tsx';
 
 const {TextArea} = Input;
 
 interface Props {
+  checkPolicy?: boolean;
   conn: ClientConn;
   path: string;
   displayName: string;
@@ -18,6 +20,19 @@ interface State {
 }
 
 export class RenameDialog extends LazyUpdateComponent<Props, State> {
+  static contextType = EditPolicyContext;
+  declare context: React.ContextType<typeof EditPolicyContext>;
+
+  canRename() {
+    if (!this.props.checkPolicy) return true;
+    const {path} = this.props;
+    const {nameEditor, dispEditor, changeDisp} = this.formItems;
+    return this.context.can(
+      changeDisp.value
+        ? {cmd: 'set', path: `${path}.@b-name`, value: dispEditor.value}
+        : {cmd: 'renameProp', path, newName: nameEditor.value}
+    );
+  }
   state: State = {visible: true};
 
   formItems = {
@@ -27,6 +42,7 @@ export class RenameDialog extends LazyUpdateComponent<Props, State> {
   };
 
   renameBlock = () => {
+    if (!this.canRename()) return;
     const {conn, path, displayName} = this.props;
     const {nameEditor, dispEditor, changeDisp} = this.formItems;
 
@@ -66,7 +82,7 @@ export class RenameDialog extends LazyUpdateComponent<Props, State> {
         open={visible}
         onOk={this.renameBlock}
         onCancel={this.onClose}
-        okButtonProps={{disabled: !enabled}}
+        okButtonProps={{disabled: !enabled || !this.canRename()}}
       >
         <Form labelCol={{span: 4}} wrapperCol={{span: 20}}>
           {changeDisp.render(

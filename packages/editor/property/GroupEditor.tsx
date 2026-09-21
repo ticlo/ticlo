@@ -14,6 +14,7 @@ import {MAX_GROUP_LENGTH} from '@ticlo/core/block/FunctonData.ts';
 
 class LengthPropertyEditor extends PropertyEditor {
   onChange = (value: any) => {
+    if (!this.canWrite(value, true)) return;
     const {conn, paths, name, propDesc} = this.props;
     if (name.endsWith('[]')) {
       const group = name.substring(0, name.length - 2);

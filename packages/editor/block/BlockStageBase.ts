@@ -37,6 +37,20 @@ export abstract class BlockStageBase<Props extends StagePropsBase, State>
   static contextType = TicloCurrentFlowContext;
   declare context: React.ContextType<typeof TicloCurrentFlowContext>;
 
+  get policy() {
+    return this.props.conn.getEditPolicyView();
+  }
+
+  getConn() {
+    return this.props.conn;
+  }
+
+  componentDidUpdate(prevProps: Readonly<Props>, prevState: Readonly<State>) {
+    if (prevProps.conn !== this.props.conn) {
+      for (const block of this._blocks.values()) block.forceRendererChildren();
+    }
+  }
+
   abstract getRefElement(): HTMLElement;
 
   abstract getRootElement(): HTMLElement;
@@ -149,14 +163,16 @@ export abstract class BlockStageBase<Props extends StagePropsBase, State>
 
   // drag a block, return true when the dragging is started
   startDragBlock(e: DragState, item: BlockItem) {
-    // first item is the one being dragged
-    this._draggingBlocks = [[item, item.x, item.y, item.w]];
-
-    for (const [, blockItem] of this._blocks) {
-      if (blockItem.selected && blockItem !== item) {
-        this._draggingBlocks.push([blockItem, blockItem.x, blockItem.y, blockItem.w]);
-      }
+    const moving = [item, ...[...this._blocks.values()].filter((block) => block.selected && block !== item)];
+    if (
+      !moving.every((block) => this.policy.canWriteField(`${block.path}.@b-xyw`)) ||
+      (item._syncParent && !item._syncParent.selected && !item.canSync())
+    ) {
+      this.onSelect();
+      return [];
     }
+    // first item is the one being dragged
+    this._draggingBlocks = moving.map((block) => [block, block.x, block.y, block.w]);
     return this._draggingBlocks;
   }
 
@@ -178,6 +194,7 @@ export abstract class BlockStageBase<Props extends StagePropsBase, State>
   }
 
   onDragBlockEnd(e: DragState) {
+    if (!this._draggingBlocks) return;
     if (e.event == null || e.dropped === 'field') {
       // revert to previous position if drag is cancelled or a binding is created
       for (const [blockItem, x, y, w] of this._draggingBlocks) {
@@ -309,7 +326,7 @@ export abstract class BlockStageBase<Props extends StagePropsBase, State>
       } else {
         if (!this._blocks.has(path)) {
           // create new block
-          const newBlockItem = new BlockItem(this.props.conn, this, path, basePath === this._staticPath);
+          const newBlockItem = new BlockItem(this, path, basePath === this._staticPath);
           this._blocks.set(path, newBlockItem);
           // update block links
           if (this._blockLinks.has(path)) {
@@ -418,6 +435,7 @@ export abstract class BlockStageBase<Props extends StagePropsBase, State>
   createBlock = async (name: string, blockData: {[key: string]: any}, isStatic: boolean) => {
     const {conn, basePath} = this.props;
     const parentPath = isStatic ? this._staticPath : basePath;
+    if (!this.policy.can({cmd: 'addBlock', path: `${parentPath}.${name}`, data: blockData, findName: true})) return;
     try {
       const newName = (await conn.addBlock(`${parentPath}.${name}`, blockData, true)).name;
       const newPath = `${parentPath}.${newName}`;
@@ -430,12 +448,19 @@ export abstract class BlockStageBase<Props extends StagePropsBase, State>
 
   deleteSelectedBlocks() {
     const {conn, basePath} = this.props;
+    if (
+      ![...this._blocks.values()]
+        .filter((block) => block.selected)
+        .every((block) => this.policy.canDeleteBlock(block.path))
+    )
+      return false;
     for (const [blockPath, blockItem] of this._blocks) {
       if (blockItem.selected) {
         conn.setValue(blockPath, undefined);
       }
     }
     conn.childrenChangeStream().dispatch({path: basePath});
+    return true;
   }
 
   focus() {

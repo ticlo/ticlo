@@ -28,7 +28,7 @@ import {addCustomProperty, moveCustomProperty, removeCustomProperty} from '../pr
 import {FlowEditor} from '../worker/FlowEditor.ts';
 import {addOptionalProperty, moveOptionalProperty, removeOptionalProperty} from '../property-api/OptionalProperty.ts';
 import {WorkerFunctionGen} from '../worker/WorkerFunctionGen.ts';
-import {isBindable} from '../util/Path.ts';
+import {isBindable, splitPathName} from '../util/Path.ts';
 import {ClientCallbacks} from './ClientRequests.ts';
 import {copyProperties, createStaticBlock, deleteProperties, pasteProperties} from '../property-api/CopyPaste.ts';
 import {moveProperty, PropertyMover} from '../property-api/PropertyMover.ts';
@@ -38,10 +38,12 @@ import {Query, queryBlock} from './Query.ts';
 import {getGlobalSettingsData} from '../util/Settings.ts';
 import {DoneEvent} from '../block/Event.ts';
 import {Namespace} from '../block/Namespace.ts';
+import {checkEditPolicy, type EditPolicy} from '../policy/EditPolicy.ts';
 
 export class ServerRequest extends ConnectionSendingData {
   id: string;
   connection: ServerConnection;
+  request: DataMap;
 
   close(): void {
     // to be overridden
@@ -141,7 +143,7 @@ class ServerSubscribe extends ServerRequest implements BlockPropertySubscriber, 
       this.events = [];
     }
     if (bindingChanged) {
-      data.bindingPath = this.property._bindingPath;
+      data.bindingPath = this.property._bindingPath ?? null;
       updateNeeded = true;
     }
     if (listenerChanged) {
@@ -151,9 +153,9 @@ class ServerSubscribe extends ServerRequest implements BlockPropertySubscriber, 
           if (listener instanceof PropDispatcher) {
             if (listener instanceof BlockProperty && listener._block instanceof InputsBlock && !listener._bindingPath) {
               // InputsBlock is a special case, don't show hasListener dot
-            } else {
-              hasListener = true;
+              continue;
             }
+            hasListener = true;
             break;
           }
         }
@@ -362,14 +364,118 @@ function trackChange(property: BlockProperty, path: string, root: Root) {
 class ServerConnectionCore extends Connection {
   requests: {[key: string]: ServerRequest} = {};
 
-  constructor(public root: Root) {
+  constructor(
+    public root: Root,
+    private _editPolicy?: EditPolicy
+  ) {
     super();
   }
 
-  addRequest(id: string, req: ServerRequest) {
-    if (Object.hasOwn(this.requests, id)) {
-      this.requests[id].close();
+  getEditPolicy() {
+    return this._editPolicy;
+  }
+
+  setEditPolicy(policy?: EditPolicy) {
+    this._editPolicy = policy;
+    this.sendEditPolicy();
+    for (const request of Object.values(this.requests)) {
+      this.checkPolicyBeforeSend(request);
     }
+  }
+
+  private sendEditPolicy() {
+    this.addSend(new ConnectionSend({cmd: 'editPolicy', policy: this._editPolicy ?? null}));
+  }
+
+  onConnect() {
+    super.onConnect();
+    this.sendEditPolicy();
+  }
+
+  /** Shared by framed transports and REST. Kept off the wire-command prototype. */
+  executeRequest(request: DataMap): string | DataMap | ServerRequest {
+    const cmd = request.cmd as string;
+    if (typeof request.path !== 'string') return 'invalid path';
+    if (!Object.hasOwn(ServerConnection.prototype, cmd)) return 'invalid command';
+    const func: Function = (this as any)[cmd];
+    if (typeof func !== 'function' || func.length !== 1 || cmd.startsWith('on')) return 'invalid command';
+    if (this._editPolicy) {
+      if (cmd === 'addBlock') {
+        const type = (request.data as DataMap)?.['#is'];
+        // These block types have fixed names, regardless of the requested name.
+        if (type === 'flow:inputs' || type === 'flow:outputs') {
+          request = {
+            ...request,
+            path: `${request.path.slice(0, request.path.lastIndexOf('.') + 1)}#${type.slice(5)}`,
+            findName: false,
+          };
+        }
+      }
+      const error = this.checkRequestPolicy(request);
+      if (error) return error;
+    }
+    const result = func.call(this, request);
+    if (result instanceof ServerRequest) result.request = request;
+    return result;
+  }
+
+  protected checkRequestPolicy(request: DataMap): string | null {
+    if (this._editPolicy) {
+      const cmd = request.cmd as string;
+      // Settings are global, regardless of a caller-supplied path.
+      if (cmd === 'getSettings') return checkEditPolicy(this._editPolicy, {...request, path: ''}, undefined, 'server');
+      const lookup = (path: string) => {
+        const prop = this.root.queryProperty(path, false);
+        return (
+          prop?._value instanceof Block ||
+          prop?._saved instanceof Block ||
+          prop?._helperProperty?._saved instanceof Block
+        );
+      };
+      const checkAt = (path: string) => checkEditPolicy(this._editPolicy, {...request, path}, lookup, 'server');
+      const error = checkAt(request.path as string);
+      if (error) return error;
+      // A path through a block-valued reference must also be allowed at its owner.
+      const [parent, name] = this.root.queryBlockField(request.path as string);
+      if (parent && parent !== this.root) {
+        const ownerPath = `${parent.getFullPath()}.${name}`;
+        if (ownerPath !== request.path) {
+          const ownerError = checkAt(ownerPath);
+          if (ownerError) return ownerError;
+        }
+      }
+      // Block commands can follow references to a different owner.
+      if (!['set', 'update', 'bind', 'restoreSaved', 'addBlock', 'addFlow', 'addFlowFolder'].includes(cmd)) {
+        const block = this.root.queryProperty(request.path as string, false)?._value;
+        if (block instanceof Block) {
+          const scope =
+            cmd === 'applyFlowChange' && block instanceof FlowEditor
+              ? ''
+              : cmd === 'undo' || cmd === 'redo'
+                ? getTrackedFlow(block, request.path as string, this.root).getFullPath()
+                : block.getFullPath();
+          const scopeError = checkAt(scope);
+          if (scopeError) return scopeError;
+        }
+      }
+    }
+    return null;
+  }
+
+  protected checkPolicyBeforeSend(data: ConnectionSendingData): boolean {
+    if (data instanceof ServerRequest) {
+      const error = this.checkRequestPolicy(data.request);
+      if (error) {
+        this.close(data.id);
+        this.sendError(data.id, error);
+        return false;
+      }
+    }
+    return true;
+  }
+
+  addRequest(id: string, req: ServerRequest) {
+    this.close(id);
     this.requests[id] = req;
   }
 
@@ -380,16 +486,7 @@ class ServerConnectionCore extends Connection {
         return;
       }
       if (typeof request.path === 'string') {
-        let result: string | DataMap | ServerRequest = 'invalid command';
-        const cmd: string = request.cmd;
-        // Commands are dispatched by method name, but only public one-argument
-        // methods defined on ServerConnection are callable from the wire.
-        if (Object.hasOwn(ServerConnection.prototype, cmd)) {
-          const func: Function = (this as any)[cmd];
-          if (typeof func === 'function' && func.length === 1 && !cmd.startsWith('on')) {
-            result = func.call(this, request);
-          }
-        }
+        const result = this.executeRequest(request);
 
         if (result instanceof ServerRequest) {
           this.addRequest(request.id, result);
@@ -422,6 +519,7 @@ class ServerConnectionCore extends Connection {
 
   close(id: string) {
     if (Object.hasOwn(this.requests, id)) {
+      this._sending.delete(this.requests[id]);
       this.requests[id].close();
       delete this.requests[id];
     }
@@ -1164,6 +1262,26 @@ export class ServerConnection extends ServerConnectionCore {
   copy({path, props, cut}: {path: string; props: string[]; cut: boolean}) {
     const property = this.root.queryProperty(path);
     if (property && property._value instanceof Block) {
+      if (this.getEditPolicy()) {
+        const blocks = new Set<Block>();
+        const collectBlock = (prop: BlockProperty) => {
+          const saved = prop?._bindingPath ? prop._helperProperty?._saved : prop?._saved;
+          if (saved instanceof Block) blocks.add(saved);
+        };
+        for (const name of props) {
+          const target = path ? `${path}.${name}` : name;
+          const error = this.checkRequestPolicy({cmd: 'get', path: target});
+          if (error) return error;
+          collectBlock(this.root.queryProperty(target));
+        }
+        // Saved references and binding helpers can serialize blocks outside the requested subtree.
+        for (const block of blocks) {
+          const [parent, name] = splitPathName(block.getFullPath());
+          const error = this.checkRequestPolicy({cmd: 'copy', path: parent, props: [name]});
+          if (error) return error;
+          for (const prop of block._props.values()) collectBlock(prop);
+        }
+      }
       const value = copyProperties(property._value, props);
       if (typeof value === 'string') {
         return value;

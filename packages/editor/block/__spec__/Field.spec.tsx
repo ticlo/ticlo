@@ -136,6 +136,36 @@ describe('editor Block Field', function () {
     Root.instance.deleteValue('BlockField2');
   });
 
+  it('opens and closes a field context menu', async function () {
+    const flow = Root.instance.addFlow('BlockFieldMenu');
+    flow.load({
+      add: {
+        '#is': 'add',
+        '0': 1,
+        '@b-xyw': [100, 100, 143],
+        '@b-p': ['0'],
+      },
+    });
+    const [server, client] = makeLocalConnection(Root.instance);
+    const [, div] = loadTemplate(<BlockStage conn={client} basePath="BlockFieldMenu" />, 'editor');
+
+    try {
+      const fieldName = await shouldHappen(() => div.querySelector('.ticl-field-name > span'));
+      simulate(fieldName, 'contextmenu', {clientX: 150, clientY: 140});
+
+      const menu = await shouldHappen(() => document.querySelector('.ticl-dropdown:not(.ticl-dropdown-hidden)'));
+      expect(menu.textContent).toContain('Binding');
+      expect(menu.textContent).toContain('Pinned');
+      expect(div.querySelector('.ticl-block')).not.toBeNull();
+
+      simulate(document.body, 'keydown', {key: 'Escape'});
+      await shouldHappen(() => !document.querySelector('.ticl-dropdown:not(.ticl-dropdown-hidden)'));
+      expect(div.querySelector('.ticl-block')).not.toBeNull();
+    } finally {
+      Root.instance.deleteValue('BlockFieldMenu');
+    }
+  });
+
   it('indirect binding', async function () {
     const flow = Root.instance.addFlow('BlockField3');
     flow.load({

@@ -2,15 +2,13 @@ import {ClientConnection} from '@ticlo/core/connect/ClientConnection.ts';
 import {DataMap} from '@ticlo/core/util/DataTypes.ts';
 import {Logger} from '@ticlo/core/util/Logger.ts';
 import {decode, encode} from '@ticlo/core/util/Serialize.ts';
-import type {Restricted} from '@ticlo/core/restricted/Restricted.ts';
 
 export class FrameClientConnection extends ClientConnection {
   constructor(
     public remote: Window,
-    editorListeners = true,
-    restricted?: Restricted
+    editorListeners = true
   ) {
-    super(editorListeners, restricted);
+    super(editorListeners);
     this.reconnect();
   }
 

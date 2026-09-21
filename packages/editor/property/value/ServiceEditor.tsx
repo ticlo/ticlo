@@ -4,6 +4,7 @@ import {EllipsisOutlined, PlusOutlined} from '@ant-design/icons';
 import {ClientConn, FunctionDesc, getDefaultFuncData, getSubBlockFuncData, PropDesc} from '@ticlo/core/editor.ts';
 import {Popup} from '../../component/ClickPopup.tsx';
 import {PropertyList} from '../PropertyList.tsx';
+import {EditPolicyContext} from '../../component/EditPolicyContext.tsx';
 
 const {Option} = Select;
 
@@ -24,15 +25,31 @@ interface State {
 }
 
 export class ServiceEditor extends React.PureComponent<Props, State> {
+  static contextType = EditPolicyContext;
+  declare context: React.ContextType<typeof EditPolicyContext>;
   state: State = {};
 
   onGlobalBlockSelect = (value: string) => {
-    const {onPathChange} = this.props;
-    onPathChange(`${value}.#output`);
+    if (!this.props.locked) this.props.onPathChange?.(`${value}.#output`);
   };
 
+  canCreate() {
+    const {conn, desc, onPathChange, locked} = this.props;
+    if (!onPathChange || locked || !desc.create) return false;
+    const funcDesc = conn.watchDesc(desc.create);
+    return (
+      funcDesc &&
+      this.context.can({
+        cmd: 'addBlock',
+        path: `#global.^${funcDesc.name}`,
+        data: getSubBlockFuncData(getDefaultFuncData(funcDesc)),
+      })
+    );
+  }
+
   onCreate = async () => {
-    const {conn, desc, onPathChange} = this.props;
+    if (!this.canCreate()) return;
+    const {conn, desc} = this.props;
     const {create} = desc;
     const funcDesc = conn.watchDesc(create);
     if (funcDesc) {
@@ -40,8 +57,8 @@ export class ServiceEditor extends React.PureComponent<Props, State> {
         `#global.^${funcDesc.name}`,
         getSubBlockFuncData(getDefaultFuncData(funcDesc))
       );
-      if (createdBlock && Object.hasOwn(createdBlock, 'name')) {
-        onPathChange(`${createdBlock.name}.#output`);
+      if (createdBlock && Object.hasOwn(createdBlock, 'name') && this.props.onPathChange && !this.props.locked) {
+        this.props.onPathChange(`${createdBlock.name}.#output`);
         this.openPopup();
       }
     }
@@ -103,7 +120,15 @@ export class ServiceEditor extends React.PureComponent<Props, State> {
         </Popup>
       );
     } else if (!locked && create) {
-      button = <Button className="ticl-square-icon-btn" size="small" icon={<PlusOutlined />} onClick={this.onCreate} />;
+      button = (
+        <Button
+          className="ticl-square-icon-btn"
+          size="small"
+          icon={<PlusOutlined />}
+          onClick={this.onCreate}
+          disabled={!this.canCreate()}
+        />
+      );
     }
 
     return (

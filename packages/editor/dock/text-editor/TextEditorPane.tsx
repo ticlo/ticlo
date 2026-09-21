@@ -14,6 +14,7 @@ import {MenuProps} from 'antd';
 import {createDockDialog, DockDialogPane} from '../../component/DockDialogPane.tsx';
 import {t} from '../../component/LocalizedLabel.tsx';
 import {arrowReviver} from '@ticlo/core/util/Serialize.ts';
+import {EditPolicyContext} from '../../component/EditPolicyContext.tsx';
 
 interface Props {
   conn: ClientConn;
@@ -31,6 +32,8 @@ interface State {
 }
 
 export class TextEditorPane extends React.PureComponent<Props, State> {
+  static contextType = EditPolicyContext;
+  declare context: React.ContextType<typeof EditPolicyContext>;
   static openFloatPanel(
     layout: DockLayout,
     conn: ClientConn,
@@ -190,7 +193,7 @@ export class TextEditorPane extends React.PureComponent<Props, State> {
   onApply = () => {
     const {asObject, paths, conn} = this.props;
     const {loading} = this.state;
-    if (loading) {
+    if (loading || this.props.readonly) {
       return false;
     }
     let value: any = this._currentValue;
@@ -199,6 +202,13 @@ export class TextEditorPane extends React.PureComponent<Props, State> {
         value = ParseYaml(value, arrowReviver);
       } catch (e) {
         this.setState({error: e.toString()});
+        return false;
+      }
+    }
+    for (const path of paths) {
+      const error = this.context.check({cmd: 'set', path, value});
+      if (error) {
+        this.setState({error});
         return false;
       }
     }
@@ -219,7 +229,8 @@ export class TextEditorPane extends React.PureComponent<Props, State> {
   };
 
   render() {
-    const {mime, readonly, paths} = this.props;
+    const {mime, paths} = this.props;
+    const readonly = this.props.readonly || !paths.every((path) => this.context.canWriteField(path));
     const {value, error, loading} = this.state;
     let extensions: any;
     switch (mime) {
@@ -264,6 +275,7 @@ export class TextEditorPane extends React.PureComponent<Props, State> {
             ref={this.getCodeMirror}
             className={error ? 'ticl-text-codemirror ticl-error-box' : 'ticl-text-codemirror'}
             value={value}
+            readOnly={readonly}
             theme="light"
             autoFocus={true}
             extensions={extensions}

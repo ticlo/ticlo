@@ -224,13 +224,27 @@ export class BlockStage extends BlockStageBase<BlockStageProps, StageState> impl
 
   onDragOver = (e: DragState) => {
     const {conn} = this.props;
+    // Only new-block drops are handled here; other drags may simply move existing UI.
+    if (!DragState.getData('blockData', conn.getBaseConn())) return;
+    if (!this.canDropBlock(e)) return e.reject();
     onDragBlockOver(conn, e);
   };
 
   onDrop = (e: DragState) => {
     const {conn} = this.props;
+    if (!this.canDropBlock(e)) return;
     onDropBlock(conn, e, this.createBlock, this._bgNode);
   };
+
+  canDropBlock(e: DragState) {
+    const {conn, basePath} = this.props;
+    const data = DragState.getData('blockData', conn.getBaseConn());
+    if (!data) return false;
+    const name = (DragState.getData('blockName', conn.getBaseConn()) || data['#is'] || '').split('.').pop();
+    const parent =
+      e.event.altKey || DragState.getData('isStaticBlock', conn.getBaseConn()) ? this._staticPath : basePath;
+    return this.policy.can({cmd: 'addBlock', path: `${parent}.${name}`, data, findName: true});
+  }
 
   handleResize = () => {
     if (this.onResizeDebounce) {
@@ -250,6 +264,7 @@ export class BlockStage extends BlockStageBase<BlockStageProps, StageState> impl
   };
 
   componentDidUpdate(prevProps: Readonly<StagePropsBase>, prevState: Readonly<StageState>, snapshot?: any): void {
+    super.componentDidUpdate(prevProps, prevState);
     if (prevProps.basePath !== this.props.basePath) {
       this.context.unregisterStage(prevProps.basePath, this);
       this.context.registerStage(this.props.basePath, this);
@@ -661,6 +676,7 @@ export class BlockStage extends BlockStageBase<BlockStageProps, StageState> impl
 
   save = () => {
     const {onSave} = this.props;
+    if (!this.policy.can({cmd: 'applyFlowChange', path: this.props.basePath})) return false;
     if (onSave) {
       onSave();
       return true;
@@ -672,8 +688,7 @@ export class BlockStage extends BlockStageBase<BlockStageProps, StageState> impl
     if (!this.hasSelectedBlocks()) {
       return false;
     }
-    this.deleteSelectedBlocks();
-    return true;
+    return this.deleteSelectedBlocks();
   };
 
   copy = () => {
@@ -732,6 +747,11 @@ export class BlockStage extends BlockStageBase<BlockStageProps, StageState> impl
   };
   async pasteData(data: DataMap, resolve?: 'overwrite' | 'rename') {
     const {conn, basePath} = this.props;
+    const error = this.policy.check({cmd: 'paste', path: basePath, data, resolve}, (path) => this._blocks.has(path));
+    if (error) {
+      notification.error({title: 'Failed to paste', description: error});
+      return;
+    }
     if (!resolve) {
       const existing: string[] = [];
       // check if object already exist

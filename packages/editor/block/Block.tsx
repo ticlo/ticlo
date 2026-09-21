@@ -9,6 +9,7 @@ import {getFuncStyleFromDesc} from '../util/BlockColors.ts';
 import {getDisplayName} from '@ticlo/core';
 import {Tooltip} from 'antd';
 import {BlockDropdown} from '../popup/BlockDropdown.tsx';
+import {EditPolicyContext} from '../component/EditPolicyContext.tsx';
 
 interface BlockViewProps {
   item: BlockItem;
@@ -31,6 +32,8 @@ function snapW(val: number): number {
 }
 
 export class BlockView extends PureDataRenderer<BlockViewProps, BlockViewState> implements XYWRenderer {
+  static contextType = EditPolicyContext;
+  declare context: React.ContextType<typeof EditPolicyContext>;
   private _rootNode!: HTMLElement;
   private getRef = (node: HTMLDivElement): void => {
     this._rootNode = node;
@@ -59,9 +62,16 @@ export class BlockView extends PureDataRenderer<BlockViewProps, BlockViewState> 
     }
     if (item.selected) {
       const draggingBlocks = item.stage.startDragBlock(e, item);
+      if (!draggingBlocks.length) {
+        item.stage.focus();
+        return;
+      }
       if (draggingBlocks.length === 1 && item.w) {
         // when dragging 1 block that's not minimized, check if it can be dropped into block footer
-        e.setData({moveBlock: item.path, stage: item.stage}, item.conn.getBaseConn());
+        e.setData(
+          {moveBlock: item.path, syncBlock: item.canSync() ? item.path : null, stage: item.stage},
+          item.conn.getBaseConn()
+        );
       }
       e.startDrag(null, null);
       item.stage.focus();
@@ -117,7 +127,11 @@ export class BlockView extends PureDataRenderer<BlockViewProps, BlockViewState> 
   _baseW: number = -1;
 
   startDragW = (e: DragState) => {
-    const {item} = this.props;
+    let {item} = this.props;
+    while (item._syncParent) {
+      item = item._syncParent;
+    }
+    if (!this.context.canWriteField(`${item.path}.@b-xyw`)) return;
     this._baseW = item.w;
     e.startDrag(null, null);
   };
@@ -153,7 +167,7 @@ export class BlockView extends PureDataRenderer<BlockViewProps, BlockViewState> 
     if (item._syncChild) {
       return;
     }
-    const movingBlockKey: string = DragState.getData('moveBlock', item.conn.getBaseConn());
+    const movingBlockKey: string = DragState.getData('syncBlock', item.conn.getBaseConn());
     const movingBlockStage = DragState.getData('stage', item.conn.getBaseConn());
     if (movingBlockKey && movingBlockKey !== item.path && movingBlockStage === item.stage) {
       BlockView._footerDropMap.set(e, item);
@@ -163,7 +177,7 @@ export class BlockView extends PureDataRenderer<BlockViewProps, BlockViewState> 
   };
   onDropFoot = (e: DragState) => {
     const {item} = this.props;
-    const movingBlockKey: string = DragState.getData('moveBlock', item.conn.getBaseConn());
+    const movingBlockKey: string = DragState.getData('syncBlock', item.conn.getBaseConn());
     const movingBlockStage = DragState.getData('stage', item.conn.getBaseConn());
     if (movingBlockKey && movingBlockKey !== item.path && movingBlockStage === item.stage) {
       const block = item.stage.getBlock(movingBlockKey);
@@ -215,15 +229,16 @@ export class BlockView extends PureDataRenderer<BlockViewProps, BlockViewState> 
     if (FullView) {
       classNames.push('ticl-block-full-view');
       let width = item.w;
-      const widthDrag = item._syncParent ? null : (
-        <DragDropDiv
-          className="ticl-width-drag"
-          directDragT={true}
-          onDragStartT={this.startDragW}
-          onDragMoveT={this.onDragWMove}
-          onDragEndT={this.onDragWEnd}
-        />
-      );
+      const widthDrag =
+        item._syncParent || !this.context.canWriteField(`${item.path}.@b-xyw`) ? null : (
+          <DragDropDiv
+            className="ticl-width-drag"
+            directDragT={true}
+            onDragStartT={this.startDragW}
+            onDragMoveT={this.onDragWMove}
+            onDragEndT={this.onDragWEnd}
+          />
+        );
       if (!(width > 80)) {
         width = 143;
       }
@@ -300,6 +315,7 @@ export class BlockView extends PureDataRenderer<BlockViewProps, BlockViewState> 
               ) : null}
               <DragDropDiv
                 className="ticl-width-drag"
+                style={this.context.canWriteField(`${item.path}.@b-xyw`) ? undefined : {display: 'none'}}
                 onDragStartT={this.startDragW}
                 onDragMoveT={this.onDragWMove}
                 onDragEndT={this.onDragWEnd}
@@ -318,6 +334,7 @@ export class BlockView extends PureDataRenderer<BlockViewProps, BlockViewState> 
           <div ref={this.getRef} className={classNames.join(' ')} style={{top: item.y, left: item.x}}>
             <div className="ticl-block-min-bound" />
             <BlockDropdown
+              checkPolicy
               functionId={item.desc.id}
               conn={item.conn}
               path={item.path}

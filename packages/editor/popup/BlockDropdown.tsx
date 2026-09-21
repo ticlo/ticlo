@@ -23,11 +23,13 @@ import {splitPathName} from '@ticlo/core/util/Path.ts';
 import {ParameterInputDialog} from './ParameterInputDialog.tsx';
 import {TicloLayoutContext, TicloLayoutContextType} from '../component/LayoutContext.ts';
 import {getDescLib} from '../util/FunctionLib.ts';
+import {EditPolicyContext} from '../component/EditPolicyContext.tsx';
 
 const deleteForbidden = new Set<string>(['flow:test-group', 'flow:const']);
 const renameForbidden = new Set<string>(['flow:test-group', 'flow:const']);
 
 interface Props {
+  checkPolicy?: boolean;
   children: React.ReactElement;
   functionId: string;
   conn: ClientConn;
@@ -51,36 +53,53 @@ export class BlockDropdown extends React.PureComponent<Props, State> {
 
   state: State = {visible: false};
 
+  can(cmd: string, data: DataMap = {}) {
+    if (!this.props.checkPolicy) return true;
+    const {conn, path} = this.props;
+    const policy = conn.getEditPolicyView();
+    if (cmd === 'delete') return policy.canDeleteBlock(path);
+    return policy.can({cmd, path, ...data});
+  }
+
   onMenuVisibleChange = (visible: boolean) => {
     this.setState({visible});
   };
 
   onSaveClicked = () => {
+    if (!this.can('applyFlowChange')) return;
     const {conn, path} = this.props;
     conn.applyFlowChange(path);
   };
 
   onDeleteClicked = () => {
+    if (!this.can('delete')) return;
     const {conn, path} = this.props;
     conn.setValue(path, undefined);
     conn.childrenChangeStream().dispatch({path: splitPathName(path)[0]});
   };
 
   onRenameClicked = () => {
+    if (!this.can('renameProp')) return;
     const {conn, path, displayName} = this.props;
-    showModal(<RenameDialog conn={conn} path={path} displayName={displayName} />, this.context.showModal);
+    showModal(
+      <RenameDialog conn={conn} path={path} displayName={displayName} checkPolicy={this.props.checkPolicy} />,
+      this.context.showModal
+    );
   };
 
   onEnableClicked = () => {
     const {conn, path} = this.props;
+    if (!this.can('update', {path: `${path}.#disabled`})) return;
     conn.updateValue(`${path}.#disabled`, undefined);
   };
   onDisableClicked = () => {
     const {conn, path} = this.props;
+    if (!this.can('update', {path: `${path}.#disabled`})) return;
     conn.updateValue(`${path}.#disabled`, true);
   };
 
   onCallClicked = () => {
+    if (!this.can('callFunction')) return;
     const {conn, path} = this.props;
     conn.callFunction(path);
   };
@@ -93,11 +112,13 @@ export class BlockDropdown extends React.PureComponent<Props, State> {
     this.setState({modal: null});
   };
   onExeCommand = (command: string) => {
+    if (!this.can('executeCommand', {command})) return;
     const {conn, canApply, functionId, path, funcLib} = this.props;
     const funcDesc = conn.watchDesc(functionId, getDescLib(functionId, funcLib));
     const commandDesc = funcDesc.commands[command];
     if (commandDesc.parameters?.length) {
       const onConfirmCommandModal = (values: DataMap) => {
+        if (!this.can('executeCommand', {command, params: values})) return;
         conn.executeCommand(path, command, {...values, property: name});
         this.onCloseCommandModal();
       };
@@ -125,7 +146,7 @@ export class BlockDropdown extends React.PureComponent<Props, State> {
     if (getMenu) {
       menuitems = menuitems.concat(getMenu());
     }
-    if (canApply) {
+    if (canApply && this.can('applyFlowChange')) {
       menuitems.push(
         <MenuItem key="save" onClick={this.onSaveClicked}>
           <SaveOutlined />
@@ -133,7 +154,7 @@ export class BlockDropdown extends React.PureComponent<Props, State> {
         </MenuItem>
       );
     }
-    if (!deleteForbidden.has(functionId)) {
+    if (!deleteForbidden.has(functionId) && this.can('delete')) {
       menuitems.push(
         <MenuItem key="delete" onClick={this.onDeleteClicked}>
           <DeleteOutlined />
@@ -141,7 +162,7 @@ export class BlockDropdown extends React.PureComponent<Props, State> {
         </MenuItem>
       );
     }
-    if (!renameForbidden.has(functionId)) {
+    if (!renameForbidden.has(functionId) && this.can('renameProp')) {
       menuitems.push(
         <MenuItem key="rename" onClick={this.onRenameClicked}>
           <EditOutlined />
@@ -150,14 +171,14 @@ export class BlockDropdown extends React.PureComponent<Props, State> {
       );
     }
 
-    if (disabled === true) {
+    if (disabled === true && this.can('update', {path: `${this.props.path}.#disabled`})) {
       menuitems.push(
         <MenuItem key="enable" onClick={this.onEnableClicked}>
           <PlayCircleOutlined />
           {t('Enable')}
         </MenuItem>
       );
-    } else if (disabled === false) {
+    } else if (disabled === false && this.can('update', {path: `${this.props.path}.#disabled`})) {
       menuitems.push(
         <MenuItem key="disable" onClick={this.onDisableClicked}>
           <PauseCircleOutlined />
@@ -166,7 +187,7 @@ export class BlockDropdown extends React.PureComponent<Props, State> {
       );
     }
 
-    const showCallMenu = !functionId.startsWith('flow:');
+    const showCallMenu = !functionId.startsWith('flow:') && this.can('callFunction');
     const commandMenus: React.ReactElement[] = [];
 
     if (funcDesc?.commands) {
@@ -174,6 +195,7 @@ export class BlockDropdown extends React.PureComponent<Props, State> {
       if (commands.length) {
         commands.sort(smartStrCompare);
         for (const command of commands) {
+          if (!this.can('executeCommand', {command})) continue;
           commandMenus.push(
             <MenuItem key={`cmd-${command}`} value={command} onClick={this.onExeCommand}>
               <LocalizedFuncCommand key={command} desc={funcDesc} command={command} />
@@ -205,25 +227,28 @@ export class BlockDropdown extends React.PureComponent<Props, State> {
       menuitems.push(...commandMenus);
     }
 
-    return <Menu>{menuitems}</Menu>;
+    return menuitems.length ? <Menu>{menuitems}</Menu> : null;
   };
 
   render(): any {
     const {children} = this.props;
     const {visible, modal} = this.state;
-    const popup = visible ? this.getMenu() : null;
     return (
-      <>
-        <Popup
-          popup={popup}
-          trigger={['contextMenu']}
-          popupVisible={visible}
-          onPopupVisibleChange={this.onMenuVisibleChange}
-        >
-          {children}
-        </Popup>
-        {modal}
-      </>
+      <EditPolicyContext.Consumer>
+        {() => (
+          <>
+            <Popup
+              popup={visible ? this.getMenu() : null}
+              trigger={['contextMenu']}
+              popupVisible={visible}
+              onPopupVisibleChange={this.onMenuVisibleChange}
+            >
+              {children}
+            </Popup>
+            {modal}
+          </>
+        )}
+      </EditPolicyContext.Consumer>
     );
   }
 }

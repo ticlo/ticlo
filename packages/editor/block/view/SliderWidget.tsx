@@ -4,8 +4,11 @@ import {LazyUpdateComponent, LazyUpdateSubscriber} from '../../component/LazyUpd
 import {Slider} from 'antd';
 import {displayNumber} from '../../util/Types.tsx';
 import {PropDesc} from '@ticlo/core';
+import {EditPolicyContext} from '../../component/EditPolicyContext.tsx';
 
 class SliderView extends LazyUpdateComponent<BlockWidgetProps, any> {
+  static contextType = EditPolicyContext;
+  declare context: React.ContextType<typeof EditPolicyContext>;
   static readonly viewProperties: PropDesc[] = [
     {name: '@b-w-field', type: 'string'},
     {name: '@b-w-min', type: 'number', default: 0},
@@ -75,7 +78,9 @@ class SliderView extends LazyUpdateComponent<BlockWidgetProps, any> {
           max={max}
           step={this.step.value}
           onChange={this.onValueChange}
-          disabled={this.value.bindingPath != null}
+          disabled={
+            this.value.bindingPath != null || !this.context.canWriteField(`${this.props.path}.${this.field.value}`)
+          }
         />
         <div className="ticl-slider-view-markers">
           <span className="ticl-slider-view-marker">{displayNumber(min)}</span>

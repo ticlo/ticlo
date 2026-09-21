@@ -8,14 +8,14 @@ interface MultiSelectProps {
 }
 
 export abstract class MultiSelectLoader<T extends MultiSelectComponent<any, any, any>> {
-  conn: ClientConn;
+  get conn(): ClientConn {
+    return (this.parent.props as MultiSelectProps).conn;
+  }
 
   constructor(
     public path: string,
     public parent: T
-  ) {
-    this.conn = (parent.props as MultiSelectProps).conn;
-  }
+  ) {}
 
   abstract init(): void;
 

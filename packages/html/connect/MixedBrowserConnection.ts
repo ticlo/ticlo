@@ -3,15 +3,13 @@ import {DataMap, encode} from '@ticlo/core';
 import {ClientCallbacks} from '@ticlo/core/connect/ClientRequests.ts';
 import axios from 'axios';
 import {measureObjSize, WS_FRAME_SIZE} from '@ticlo/core/util/DataTypes.ts';
-import type {Restricted} from '@ticlo/core/restricted/Restricted.ts';
 
 export class MixedBrowserConnection extends WsBrowserConnection {
   constructor(
     private readonly _httpUrl: string,
-    editorListeners = true,
-    restricted?: Restricted
+    editorListeners = true
   ) {
-    super(_httpUrl.replace(/^http/, 'ws'), editorListeners, restricted);
+    super(_httpUrl.replace(/^http/, 'ws'), editorListeners);
   }
   _sendLargeData(data: DataMap, c: ClientCallbacks = null): Promise<any> | null {
     const {promise, callbacks} = this._initSimpleRequest(c);
@@ -31,9 +29,7 @@ export class MixedBrowserConnection extends WsBrowserConnection {
     return promise;
   }
 
-  simpleRequest(data: DataMap): Promise<any>;
-  simpleRequest(data: DataMap, c: ClientCallbacks): string;
-  simpleRequest(data: DataMap, c?: ClientCallbacks): Promise<any> | string {
+  protected sendRequest(data: DataMap, c?: ClientCallbacks): Promise<any> | string {
     const {cmd} = data;
     switch (cmd) {
       // case 'get': {
@@ -48,6 +44,6 @@ export class MixedBrowserConnection extends WsBrowserConnection {
         return this._sendLargeData(data, c) ?? '';
       }
     }
-    return super.simpleRequest(data, c);
+    return super.sendRequest(data, c);
   }
 }

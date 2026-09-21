@@ -274,7 +274,7 @@ export class Popup extends React.PureComponent<PopupProps, PopupState> {
         popupPlacement="topLeft"
         builtinPlacements={builtinPlacements}
         prefixCls="ticl-dropdown"
-        popupVisible={showPopup}
+        popupVisible={showPopup && !!fixedPopup}
         onPopupVisibleChange={this.popupVisibleChange}
         popup={fixedPopup}
       >

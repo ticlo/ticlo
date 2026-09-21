@@ -7,6 +7,7 @@ import {LazyUpdateComponent} from '../../component/LazyUpdateComponent.tsx';
 import {ClientConn, ValueSubscriber, ValueUpdate} from '@ticlo/core/editor.ts';
 import {TabData} from 'rc-dock';
 import {TicloCurrentFlowContext} from '../../component/LayoutContext.ts';
+import {EditPolicyContext} from '../../component/EditPolicyContext.tsx';
 
 interface Props {
   conn: ClientConn;
@@ -53,6 +54,7 @@ export class BlockStageTabButton extends LazyUpdateComponent<Props, State> {
   onSave = (e: React.MouseEvent) => {
     e.stopPropagation();
     const {onSave} = this.props;
+    if (this.props.conn.getEditPolicyView().can({cmd: 'applyFlowChange', path: this.props.path}) === false) return;
     onSave?.();
   };
 
@@ -63,7 +65,17 @@ export class BlockStageTabButton extends LazyUpdateComponent<Props, State> {
     if (onSave && hasChange) {
       closeButtun = (
         <div className="ticl-stage-panel-save">
-          <Button className="ticl-icon-btn" shape="circle" icon={<SaveOutlined />} onClick={this.onSave} />
+          <EditPolicyContext.Consumer>
+            {(policy) => (
+              <Button
+                className="ticl-icon-btn"
+                shape="circle"
+                icon={<SaveOutlined />}
+                onClick={this.onSave}
+                disabled={!policy.can({cmd: 'applyFlowChange', path: this.props.path})}
+              />
+            )}
+          </EditPolicyContext.Consumer>
           <Button className="ticl-icon-btn" shape="circle" icon={<CloseOutlined />} onClick={this.onClose} />
         </div>
       );

@@ -4,13 +4,13 @@ import {Root} from '../block/Flow.ts';
 import {DataMap} from '../util/DataTypes.ts';
 import {Logger} from '../util/Logger.ts';
 import {encode, decode} from '../util/Serialize.ts';
-import {Restricted} from '../restricted/Restricted.ts';
+import type {EditPolicy} from '../policy/EditPolicy.ts';
 
 class LocalServerConnection extends ServerConnection {
   _client: LocalClientConnection;
 
-  constructor(root: Root) {
-    super(root);
+  constructor(root: Root, policy?: EditPolicy) {
+    super(root, policy);
     this.onConnect();
   }
 
@@ -25,8 +25,8 @@ class LocalServerConnection extends ServerConnection {
 class LocalClientConnection extends ClientConnection {
   _server: LocalServerConnection;
 
-  constructor(editorListeners: boolean, restricted?: Restricted) {
-    super(editorListeners, restricted);
+  constructor(editorListeners: boolean) {
+    super(editorListeners);
     this.onConnect();
   }
 
@@ -36,7 +36,7 @@ class LocalClientConnection extends ClientConnection {
   }
 
   reconnect(): void {
-    this._server = new LocalServerConnection(this._server.root);
+    this._server = new LocalServerConnection(this._server.root, this._server.getEditPolicy());
     this._server._client = this;
     this.onConnect();
   }
@@ -59,10 +59,10 @@ let _lastClientConnection: ClientConnection;
 export function makeLocalConnection(
   root: Root,
   editorListeners: boolean = true,
-  restricted?: Restricted
+  serverPolicy?: EditPolicy
 ): [ServerConnection, ClientConnection] {
-  const server = new LocalServerConnection(root);
-  const client = new LocalClientConnection(editorListeners, restricted);
+  const server = new LocalServerConnection(root, serverPolicy);
+  const client = new LocalClientConnection(editorListeners);
   server._client = client;
   client._server = server;
   _lastClientConnection = client;

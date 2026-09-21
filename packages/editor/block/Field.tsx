@@ -27,8 +27,10 @@ import {LocalizedPropertyName} from '../component/LocalizedLabel.tsx';
 import {PropertyDropdown} from '../popup/PropertyDropdown.tsx';
 import {BlockDropdown} from '../popup/BlockDropdown.tsx';
 import {getDescLib} from '../util/FunctionLib.ts';
+import {EditPolicyContext} from '../component/EditPolicyContext.tsx';
 
 export interface Stage {
+  getConn(): ClientConn;
   getBlock(path: string): BlockItem;
 
   getNextXYW(): [number, number, number];
@@ -108,7 +110,7 @@ export class FieldItem extends DataRendererItem {
       if (this._bindingTargetPath) {
         if (this._bindingPath === `~${this.name}.#output`) {
           // binding block
-          this.subBlock = new SubBlockItem(this.block.conn, this.block.stage, `${this.block.path}.~${this.name}`, this);
+          this.subBlock = new SubBlockItem(this.block.stage, `${this.block.path}.~${this.name}`, this);
           this.removeInWire();
         } else {
           // binding wire
@@ -274,12 +276,19 @@ interface BlockHeaderProps extends FieldViewProps {
 }
 
 export class BlockHeaderView extends PureDataRenderer<BlockHeaderProps, any> {
+  static contextType = EditPolicyContext;
+  declare context: React.ContextType<typeof EditPolicyContext>;
   onDragOver = (e: DragState) => {
     const {item} = this.props;
     if (e.dragType !== 'right') {
       const fields: string[] = DragState.getData('fields', item.getBaseConn());
       if (Array.isArray(fields)) {
-        if (!item.desc.readonly && fields.length === 1 && isBindable(item.path, fields[0])) {
+        if (
+          !item.desc.readonly &&
+          this.context.canBindField(item.path) &&
+          fields.length === 1 &&
+          isBindable(item.path, fields[0])
+        ) {
           e.accept('tico-fas-play');
           return;
         }
@@ -362,6 +371,7 @@ export class BlockHeaderView extends PureDataRenderer<BlockHeaderProps, any> {
         ) : null}
         <TIcon icon={icon} />
         <BlockDropdown
+          checkPolicy
           functionId={blockItem.desc.id}
           conn={blockItem.conn}
           path={blockItem.path}
@@ -377,6 +387,8 @@ export class BlockHeaderView extends PureDataRenderer<BlockHeaderProps, any> {
 }
 
 export class FieldView extends PureDataRenderer<FieldViewProps, any> {
+  static contextType = EditPolicyContext;
+  declare context: React.ContextType<typeof EditPolicyContext>;
   getDraggingFields() {
     return DragState.getData('fields', this.props.item.getBaseConn());
   }
@@ -393,6 +405,7 @@ export class FieldView extends PureDataRenderer<FieldViewProps, any> {
   onDragStart = (e: DragState) => {
     const {item} = this.props;
     if (e.dragType === 'right') {
+      if (!this.context.can({cmd: 'moveShownProp', path: item.block.path})) return;
       e.setData({moveShownField: item.name, block: item.block}, item.getBaseConn());
     } else {
       e.setData({fields: [item.path]}, item.getBaseConn());
@@ -414,12 +427,17 @@ export class FieldView extends PureDataRenderer<FieldViewProps, any> {
       // add binding
       const fields: string[] = this.getDraggingFields();
       if (Array.isArray(fields)) {
-        if (!item.desc.readonly && fields.length === 1 && isBindable(item.path, fields[0])) {
+        if (
+          !item.desc.readonly &&
+          this.context.canBindField(item.path) &&
+          fields.length === 1 &&
+          isBindable(item.path, fields[0])
+        ) {
           e.accept('tico-fas-link');
           return;
         }
       } else {
-        if (this.getMovingBlockPath()) {
+        if (this.getMovingBlockPath() && this.context.canBindField(item.path)) {
           e.accept('tico-fas-link');
           return;
         }
@@ -453,7 +471,7 @@ export class FieldView extends PureDataRenderer<FieldViewProps, any> {
 
   onNameDoubleClick = (event: React.MouseEvent) => {
     const {item} = this.props;
-    if (item.subBlock) {
+    if (item.subBlock && this.context.canWriteField(`${item.subBlock.path}.@b-hide`)) {
       item.getConn().setValue(`${item.subBlock.path}.@b-hide`, item.subBlock.hidden ? undefined : true);
     }
   };
@@ -486,7 +504,7 @@ export class FieldView extends PureDataRenderer<FieldViewProps, any> {
         inBoundClass += ' ticl-inbound-path';
         inBoundText = item.cache.bindingPath;
       }
-    } else if (item.desc?.readonly) {
+    } else if (item.desc?.readonly || !this.context.canBindField(item.path)) {
       inBoundClass = null;
     }
     const indentChildren = [];
@@ -549,7 +567,9 @@ export interface XYWRenderer {
 }
 
 export abstract class BaseBlockItem extends DataRendererItem<XYWRenderer> {
-  conn: ClientConn;
+  get conn(): ClientConn {
+    return this.stage.getConn();
+  }
   x: number = 0;
   y: number = 0;
   w: number = 0;
@@ -569,12 +589,10 @@ export abstract class BaseBlockItem extends DataRendererItem<XYWRenderer> {
   abstract get selected(): boolean;
 
   constructor(
-    connection: ClientConn,
     public stage: Stage,
     public path: string
   ) {
     super();
-    this.conn = connection;
     this.name = path.substring(path.lastIndexOf('.') + 1);
   }
 
@@ -747,8 +765,8 @@ class BlockSelfFieldItem extends FieldItem {
 class SubBlockItem extends BaseBlockItem {
   parentField: FieldItem;
 
-  constructor(connection: ClientConn, stage: Stage, path: string, field: FieldItem) {
-    super(connection, stage, path);
+  constructor(stage: Stage, path: string, field: FieldItem) {
+    super(stage, path);
     this.parentField = field;
     this.startSubscribe();
   }
@@ -872,12 +890,11 @@ export class BlockItem extends BaseBlockItem {
   }
 
   constructor(
-    connection: ClientConn,
     stage: Stage,
     path: string,
     public isStatic?: boolean
   ) {
-    super(connection, stage, path);
+    super(stage, path);
   }
 
   startSubscribe() {
@@ -1081,6 +1098,15 @@ export class BlockItem extends BaseBlockItem {
 
   onDetached() {
     this.destroy();
+  }
+
+  canSync() {
+    const policy = this.conn.getEditPolicyView();
+    return (
+      policy.canWriteField(`${this.path}.@b-xyw`) &&
+      policy.canWriteField(`${this.path}.#sync`) &&
+      policy.canBindField(`${this.path}.#call`)
+    );
   }
 
   linkSyncParent(parent: BlockItem) {

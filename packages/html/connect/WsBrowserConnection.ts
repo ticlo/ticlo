@@ -2,14 +2,13 @@ import {ClientConnection} from '@ticlo/core/connect/ClientConnection.ts';
 import {DataMap} from '@ticlo/core/util/DataTypes.ts';
 import {Logger} from '@ticlo/core/util/Logger.ts';
 import {decode, encode} from '@ticlo/core/util/Serialize.ts';
-import type {Restricted} from '@ticlo/core/restricted/Restricted.ts';
 
 export class WsBrowserConnection extends ClientConnection {
   _ws: WebSocket;
   _wsUrl: string;
 
-  constructor(url: string, editorListeners = true, restricted?: Restricted) {
-    super(editorListeners, restricted);
+  constructor(url: string, editorListeners = true) {
+    super(editorListeners);
     this._wsUrl = url;
     this.reconnect();
   }

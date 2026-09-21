@@ -79,7 +79,20 @@ function isQuery(val: any): val is Query {
   return val && typeof val === 'object' && (val['?values'] == null || Array.isArray(val['?values']));
 }
 
+function isInSubtree(block: Block, root: Block): boolean {
+  while (block !== root) {
+    if (!block || block._parent === block) return false;
+    block = block._parent;
+  }
+  return true;
+}
+
+/** Query only within the starting block's subtree; skip references that leave it. */
 export function queryBlock(block: Block, query: Query | unknown) {
+  return querySubtree(block, query, block);
+}
+
+function querySubtree(block: Block, query: unknown, root: Block) {
   if (isQuery(query)) {
     if (query['?filter']) {
       if (!checkFilter(query['?filter'], block)) {
@@ -115,9 +128,9 @@ export function queryBlock(block: Block, query: Query | unknown) {
         case '/': {
           // RegExp
           const regex = toRegex(key);
-          block.forEach((name, block: unknown) => {
-            if (regex.test(name) && block instanceof Block) {
-              const value = queryBlock(block, query[key]);
+          block.forEach((name, child: unknown) => {
+            if (regex.test(name) && child instanceof Block && (child._parent === block || isInSubtree(child, root))) {
+              const value = querySubtree(child, query[key], root);
               if (value !== undefined) {
                 result[name] = value;
               }
@@ -127,8 +140,9 @@ export function queryBlock(block: Block, query: Query | unknown) {
         }
         default: // other children
           const child = block.getValue(key);
-          if (child instanceof Block) {
-            const value = queryBlock(child, query[key]);
+          // Owned children stay in scope without walking their ancestors.
+          if (child instanceof Block && (child._parent === block || isInSubtree(child, root))) {
+            const value = querySubtree(child, query[key], root);
             if (value !== undefined) {
               result[key] = value;
             }

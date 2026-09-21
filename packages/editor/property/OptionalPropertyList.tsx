@@ -10,6 +10,7 @@ import {FunctionDesc, PropDesc} from '@ticlo/core';
 import {TicloI18NConsumer} from '../component/LayoutContext.ts';
 import {translateEditor} from '@ticlo/core/util/i18n.ts';
 import {t} from '../component/LocalizedLabel.tsx';
+import {EditPolicyContext} from '../component/EditPolicyContext.tsx';
 
 class OptionalPropertyLoader extends MultiSelectLoader<OptionalPropertyList> {
   optionalProps: string[];
@@ -48,6 +49,8 @@ interface State {
 }
 
 export class OptionalPropertyList extends MultiSelectComponent<Props, State, OptionalPropertyLoader> {
+  static contextType = EditPolicyContext;
+  declare context: React.ContextType<typeof EditPolicyContext>;
   state: State = {};
 
   cachedProperties: {[key: string]: PropDesc};
@@ -87,6 +90,8 @@ export class OptionalPropertyList extends MultiSelectComponent<Props, State, Opt
 
   onPropertyChecked = (name: string, checked: boolean) => {
     const {conn, paths} = this.props;
+    if (!paths.every((path) => this.context.can({cmd: checked ? 'addOptionalProp' : 'removeOptionalProp', path, name})))
+      return;
     if (checked) {
       for (const path of paths) {
         conn.addOptionalProp(path, name);

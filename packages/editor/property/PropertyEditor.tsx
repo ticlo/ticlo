@@ -27,6 +27,7 @@ import {PropertyDropdown} from '../popup/PropertyDropdown.tsx';
 import {typeEditorMap} from './value/index.ts';
 import {propAcceptsBlock} from '@ticlo/core';
 import {getDescLib} from '../util/FunctionLib.ts';
+import {EditPolicyContext} from '../component/EditPolicyContext.tsx';
 
 class PropertyLoader extends MultiSelectLoader<PropertyEditor> {
   name: string;
@@ -129,6 +130,30 @@ const notReadyState = {
 };
 
 export class PropertyEditor extends MultiSelectComponent<PropertyEditorProps, State, PropertyLoader> {
+  static contextType = EditPolicyContext;
+  declare context: React.ContextType<typeof EditPolicyContext>;
+
+  canWrite(value?: any, hasValue = false) {
+    const {paths, name, propDesc} = this.props;
+    return (
+      !propDesc.readonly &&
+      paths.every((path) =>
+        this.context.can(
+          name.endsWith('[]')
+            ? {cmd: 'setLen', path, group: name.slice(0, -2), length: value}
+            : {cmd: 'set', path: `${path}.${name}`, ...(hasValue ? {value} : {})}
+        )
+      )
+    );
+  }
+
+  canBind() {
+    return (
+      !this.props.propDesc.readonly &&
+      this.props.paths.every((path) => this.context.canBindField(`${path}.${this.props.name}`))
+    );
+  }
+
   constructor(props: Readonly<PropertyEditorProps>) {
     super(props);
     this.state = {unlocked: false, showSubBlock: false, showMenu: false};
@@ -157,6 +182,7 @@ export class PropertyEditor extends MultiSelectComponent<PropertyEditorProps, St
 
   onChange = (value: any) => {
     const {conn, paths, name, propDesc} = this.props;
+    if (!this.canWrite(value, true)) return;
     if (value === propDesc.default) {
       switch (typeof value) {
         case 'number':
@@ -210,6 +236,7 @@ export class PropertyEditor extends MultiSelectComponent<PropertyEditorProps, St
       // check drag from property
       const dragFields: string[] = DragState.getData('fields', conn.getBaseConn());
       if (Array.isArray(dragFields)) {
+        if (!this.canBind()) return e.reject();
         if (!propDesc.readonly && (dragFields.length === 1 || dragFields.length === paths.length)) {
           if (dragFields.length === paths.length) {
             let bindable = false;
@@ -231,7 +258,7 @@ export class PropertyEditor extends MultiSelectComponent<PropertyEditorProps, St
       if (propAcceptsBlock(propDesc)) {
         // bind from a block
         const moveBlock = DragState.getData('moveBlock', conn.getBaseConn());
-        if (moveBlock) {
+        if (moveBlock && this.canBind()) {
           e.accept('tico-fas-link');
           return;
         }
@@ -239,6 +266,8 @@ export class PropertyEditor extends MultiSelectComponent<PropertyEditorProps, St
       // check drag from type
       const blockData = DragState.getData('blockData', conn.getBaseConn());
       if (blockData && blockData['#is']) {
+        if (!paths.every((path) => this.context.canCreateBlock(`${path}.~${name}`, blockData['#is'])))
+          return e.reject();
         const desc = conn.watchDesc(blockData['#is'], getDescLib(blockData['#is'], this.props.funcLib));
         const outProp = getOutputDesc(desc);
         if (outProp) {
@@ -347,6 +376,7 @@ export class PropertyEditor extends MultiSelectComponent<PropertyEditorProps, St
   }
 
   onBindChange = (str: string) => {
+    if (!this.canBind()) return;
     const {conn, paths, name} = this.props;
     if (str === '') {
       str = undefined;
@@ -357,13 +387,16 @@ export class PropertyEditor extends MultiSelectComponent<PropertyEditorProps, St
   };
 
   onAddSubBlock = (id: string, desc?: FunctionDesc, data?: any) => {
+    if (!this.props.paths.every((path) => this.context.canCreateBlock(`${path}.~${this.props.name}`, id))) return;
     PropertyDropdown.addSubBlock(this.props, id, desc, data);
     this.safeSetState({showSubBlock: true});
   };
 
   cachedPaths: string[] = [];
   renderImpl() {
-    const {conn, paths, funcDesc, propDesc, name, reorder, group, isCustom, baseName, funcLib} = this.props;
+    const {conn, paths, funcDesc, name, reorder, group, isCustom, baseName, funcLib} = this.props;
+    const {propDesc} = this.props;
+    const readonly = !this.canWrite();
     const {unlocked, showSubBlock, showMenu} = this.state;
 
     if (this.subBlockPaths && !arrayEqual(this.cachedPaths, paths)) {
@@ -373,7 +406,7 @@ export class PropertyEditor extends MultiSelectComponent<PropertyEditorProps, St
 
     const propertyName = isCustom ? <span>{name}</span> : <LocalizedPropertyName desc={funcDesc} name={name} />;
 
-    const onChange = propDesc.readonly ? null : this.onChange;
+    const onChange = readonly ? null : this.onChange;
 
     const isIndexed = group != null && !name.endsWith('[]');
 
@@ -399,13 +432,13 @@ export class PropertyEditor extends MultiSelectComponent<PropertyEditorProps, St
       if (!bindingSame) {
         bindingPath = '???';
       }
-    } else if (!propDesc.readonly) {
+    } else if (!readonly) {
       inBoundClass = 'ticl-property-input';
     }
 
     // lock icon
     let locked = bindingPath || !valueSame;
-    let renderLockIcon = locked && !propDesc.readonly;
+    let renderLockIcon = locked && !readonly;
     let locktooltip: React.ReactNode;
     let lockIcon: React.ReactNode;
     if (renderLockIcon) {
@@ -430,7 +463,7 @@ export class PropertyEditor extends MultiSelectComponent<PropertyEditorProps, St
     let editor: React.ReactNode;
     if (propDesc.type === 'service') {
       locked = bindingPath && !bindingSame;
-      renderLockIcon = locked && !propDesc.readonly;
+      renderLockIcon = locked && !readonly;
       if (renderLockIcon) {
         if (unlocked) {
           locktooltip = t('Unlocked for editing\nDouble click to lock');
@@ -447,7 +480,7 @@ export class PropertyEditor extends MultiSelectComponent<PropertyEditorProps, St
           desc={propDesc}
           bindingPath={bindingPath}
           locked={locked && !unlocked}
-          onPathChange={this.onBindChange}
+          onPathChange={this.canBind() ? this.onBindChange : null}
           funcLib={funcLib}
         />
       );
@@ -476,7 +509,7 @@ export class PropertyEditor extends MultiSelectComponent<PropertyEditorProps, St
       );
     }
 
-    const nameClass = `ticl-property-name${propDesc.readonly ? ' ticl-property-readonly' : ''}${
+    const nameClass = `ticl-property-name${readonly ? ' ticl-property-readonly' : ''}${
       display ? ' ticl-property-display' : ''
     }`;
     return (
@@ -484,7 +517,7 @@ export class PropertyEditor extends MultiSelectComponent<PropertyEditorProps, St
         {inBoundClass ? <div className={inBoundClass} title={bindingPath} /> : null}
         <PropertyDropdown
           funcDesc={funcDesc}
-          propDesc={propDesc}
+          propDesc={this.props.propDesc}
           bindingPath={bindingPath}
           conn={conn}
           group={group}

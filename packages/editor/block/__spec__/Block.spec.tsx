@@ -107,7 +107,7 @@ describe('editor BlockStage', function () {
     expect(querySingle('//div.tico-icon-svg.tico-fas-minus', div)).not.toBeNull();
   });
 
-  it('drag block', async function () {
+  it.each([undefined, {allowCreateBlock: false}])('drag block cursor with policy %j', async function (policy) {
     flow = Root.instance.addFlow('BlockStage2');
     flow.load({
       add: {
@@ -117,7 +117,8 @@ describe('editor BlockStage', function () {
       },
     });
 
-    const [server, client] = makeLocalConnection(Root.instance);
+    const [, base] = makeLocalConnection(Root.instance);
+    const client = base.withPolicy(policy);
 
     const [component, div] = loadTemplate(
       <BlockStage conn={client} basePath="BlockStage2" style={{width: '800px', height: '800px'}} />,
@@ -153,11 +154,15 @@ describe('editor BlockStage', function () {
       clientX: 100,
       clientY: 100,
     });
-    await shouldHappen(() => block.offsetLeft === 223);
-    expect(block.offsetTop).toBe(334);
-
-    // mouse up to stop dragging
-    simulate(document.body, 'mouseup');
+    try {
+      await shouldHappen(() => block.offsetLeft === 223);
+      expect(block.offsetTop).toBe(334);
+      expect(document.querySelector('.dragging-layer')).not.toBeNull();
+      expect(document.querySelector('.dragging-layer .drag-accept-reject')).toBeNull();
+    } finally {
+      // mouse up to stop dragging, including when a cursor assertion fails
+      simulate(document.body, 'mouseup');
+    }
 
     await shouldHappen(() => arrayEqual((flow as Flow).queryValue('add.@b-xyw') as unknown[], [223, 334, 345]));
 
@@ -276,11 +281,25 @@ describe('editor BlockStage', function () {
     expect(block.offsetTop).toBe(120);
   });
 
-  it('alt dragging a function creates a static block', async function () {
+  it.each([
+    {policy: undefined, blocked: false},
+    {policy: {allowCreateBlock: false}, blocked: true},
+    {
+      policy: {
+        allowPaths: [
+          'BlockStageAltStaticCreate.#edit-func.#static.add',
+          'BlockStageAltStaticCreate.#edit-func.#static.add.**',
+        ],
+      },
+      blocked: true,
+    },
+    {policy: {allowPaths: ['BlockStageAltStaticCreate.#edit-func.#static.**']}, blocked: false},
+  ])('alt drag creation with policy $policy', async function ({policy, blocked}) {
     flow = Root.instance.addFlow('BlockStageAltStaticCreate');
     FlowEditor.createFromFunction(flow, '#edit-func', ':worker-alt-static-create', {'#is': ''});
 
-    const [server, client] = makeLocalConnection(Root.instance);
+    const [, base] = makeLocalConnection(Root.instance);
+    const client = base.withPolicy(policy);
     const desc: any = {id: 'add', name: 'add', properties: []};
 
     const [component, div] = loadTemplate(
@@ -303,9 +322,20 @@ describe('editor BlockStage', function () {
     simulate(funcView, 'mousedown', fakeMouseEvent(16, 16, {button: 0, altKey: true}));
     simulate(document.body, 'mousemove', fakeMouseEvent(80, 80, {altKey: true}));
     simulate(document.body, 'mousemove', fakeMouseEvent(180, 180, {altKey: true}));
-    simulate(document.body, 'mouseup', fakeMouseEvent(180, 180));
+    try {
+      expect(document.querySelector('.dragging-layer')).not.toBeNull();
+      expect(Boolean(document.querySelector('.dragging-layer .drag-accept-reject'))).toBe(blocked);
+    } finally {
+      simulate(document.body, 'mouseup', fakeMouseEvent(180, 180));
+    }
 
-    await shouldHappen(() => flow.queryValue('#edit-func.#static.add'));
+    // Wait for the drop's request/response cycle before tearing down its connection.
+    await client.getValue('BlockStageAltStaticCreate.#edit-func.#static');
+    if (blocked) {
+      expect(flow.queryValue('#edit-func.#static.add')).toBeUndefined();
+    } else {
+      await shouldHappen(() => flow.queryValue('#edit-func.#static.add'));
+    }
     expect(flow.queryValue('#edit-func.add')).not.toBeDefined();
   });
 

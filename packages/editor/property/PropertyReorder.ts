@@ -1,15 +1,19 @@
 import {DataMap, getTailingNumber} from '@ticlo/core';
 import {PropertyEditorProps, PropertyReorder} from './PropertyEditor.tsx';
 import {DragState} from 'rc-dock';
-import {deepEqual} from '@ticlo/core/util/Compare.ts';
+
+function canReorder({conn, paths}: PropertyEditorProps, cmd: string) {
+  const policy = conn.getEditPolicyView();
+  return paths.every((path) => policy.can({cmd, path}));
+}
 
 export const CustomGroupPropertyReorder: PropertyReorder = {
   getDragData(props: PropertyEditorProps): DataMap {
     const {paths, name, group, baseName} = props;
-    const data: any = {paths, fromGroup: group};
-    data.moveCustomField = baseName;
-    data.moveGroupIndex = getTailingNumber(name);
-    return data;
+    const data: DataMap = {paths, fromGroup: group};
+    if (canReorder(props, 'moveCustomProp')) data.moveCustomField = baseName;
+    if (canReorder(props, 'moveGroupProp')) data.moveGroupIndex = getTailingNumber(name);
+    return data.moveCustomField != null || data.moveGroupIndex != null ? data : null;
   },
   onDragOver(props: PropertyEditorProps, e: DragState): string {
     let {conn, paths, group, baseName, name, isCustom} = props;
@@ -37,7 +41,7 @@ export const CustomGroupPropertyReorder: PropertyReorder = {
         // move group index
         const moveGroupIndex = DragState.getData('moveGroupIndex', conn.getBaseConn());
         const currentGroupIndex = getTailingNumber(name);
-        if (moveGroupIndex !== currentGroupIndex) {
+        if (moveGroupIndex != null && moveGroupIndex !== currentGroupIndex) {
           return 'tico-fas-random';
         }
       }
@@ -61,7 +65,7 @@ export const CustomGroupPropertyReorder: PropertyReorder = {
           group = null;
         }
 
-        if (moveToField !== moveCustomField && group == fromGroup) {
+        if (moveCustomField != null && moveToField !== moveCustomField && group == fromGroup) {
           for (const key of paths) {
             conn.moveCustomProp(key, moveCustomField, moveToField, fromGroup);
           }
@@ -72,8 +76,10 @@ export const CustomGroupPropertyReorder: PropertyReorder = {
         // move group index
         const moveGroupIndex = DragState.getData('moveGroupIndex', conn.getBaseConn());
         const currentGroupIndex = getTailingNumber(name);
-        for (const key of paths) {
-          conn.moveGroupProp(key, fromGroup, moveGroupIndex, currentGroupIndex);
+        if (moveGroupIndex != null && moveGroupIndex !== currentGroupIndex) {
+          for (const key of paths) {
+            conn.moveGroupProp(key, fromGroup, moveGroupIndex, currentGroupIndex);
+          }
         }
       }
     }
@@ -82,10 +88,9 @@ export const CustomGroupPropertyReorder: PropertyReorder = {
 
 export const GroupPropertyReorder: PropertyReorder = {
   getDragData(props: PropertyEditorProps): DataMap {
-    const {paths, name, group, baseName, isCustom} = props;
-    const data: any = {paths, fromGroup: group};
-    data.moveGroupIndex = getTailingNumber(name);
-    return data;
+    if (!canReorder(props, 'moveGroupProp')) return null;
+    const {paths, name, group} = props;
+    return {paths, fromGroup: group, moveGroupIndex: getTailingNumber(name)};
   },
   onDragOver: CustomGroupPropertyReorder.onDragOver,
   onDragDrop: CustomGroupPropertyReorder.onDragDrop,
@@ -93,16 +98,14 @@ export const GroupPropertyReorder: PropertyReorder = {
 
 export const CustomPropertyReorder: PropertyReorder = {
   getDragData(props: PropertyEditorProps): DataMap {
+    if (!canReorder(props, 'moveCustomProp')) return null;
     const {paths, name, group, baseName} = props;
-    const data: any = {paths};
     // move custom property
     let moveCustomField = baseName != null ? baseName : name;
     if (group != null && name.endsWith('[]')) {
       moveCustomField = group;
     }
-    data.moveCustomField = moveCustomField;
-
-    return data;
+    return {paths, moveCustomField};
   },
   onDragOver: CustomGroupPropertyReorder.onDragOver,
   onDragDrop: CustomGroupPropertyReorder.onDragDrop,
@@ -110,6 +113,7 @@ export const CustomPropertyReorder: PropertyReorder = {
 
 export const OptionalPropertyReorder: PropertyReorder = {
   getDragData(props: PropertyEditorProps): DataMap {
+    if (!canReorder(props, 'moveOptionalProp')) return null;
     const {paths, name} = props;
     return {paths, moveOptionalField: name};
   },

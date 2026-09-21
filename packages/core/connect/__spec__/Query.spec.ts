@@ -1,8 +1,7 @@
 import {Root} from '../../block/Flow.ts';
 import {makeLocalConnection} from '../LocalConnection.ts';
-import {AsyncClientPromise} from './AsyncClientPromise.ts';
-import {expect} from 'vitest';
-import {isDataTruncated} from '../../util/DataTypes.ts';
+import {expect, vi} from 'vitest';
+import {queryBlock} from '../Query.ts';
 
 describe('Query', function () {
   beforeAll(function () {
@@ -124,5 +123,55 @@ describe('Query', function () {
 
     // clean up
     client.destroy();
+  });
+
+  it('skips external references before evaluating their values or filters', () => {
+    const root = new Root();
+    const otherRoot = new Root();
+    try {
+      const main = root.addFlow('Main', {value: 1});
+      const outside = root.addFlow('Other', {value: 2});
+      const samePath = otherRoot.addFlow('Main').createBlock('child');
+      main.setValue('outside', outside);
+      main.setValue('otherRoot', samePath);
+      const readOutside = vi.spyOn(outside, 'getValue');
+      const readOtherRoot = vi.spyOn(samePath, 'getValue');
+      const query = {'?filter': {field: 'value', type: '=' as const, value: 2}, '?values': ['value']};
+
+      expect(queryBlock(main, {'outside': query, 'otherRoot': query, '##': {Other: query}})).toEqual({});
+      expect(queryBlock(main, {'/outside|otherRoot/': query})).toEqual({});
+      expect(readOutside).not.toHaveBeenCalled();
+      expect(readOtherRoot).not.toHaveBeenCalled();
+    } finally {
+      root.destroy();
+      otherRoot.destroy();
+    }
+  });
+
+  it('keeps the original boundary through internal references and parent links', () => {
+    const root = new Root();
+    try {
+      const main = root.addFlow('Main', {value: 1});
+      const child = main.createBlock('child');
+      child.setValue('value', 2);
+      const nested = child.createBlock('nested');
+      nested.setValue('value', 3);
+      main.setValue('alias', nested);
+      child.setValue('self', child);
+      const values = {'?values': ['value']};
+
+      expect(queryBlock(main, {alias: values, child: {'nested': values, '##': values}})).toEqual({
+        alias: {value: 3},
+        child: {'nested': {value: 3}, '##': {value: 1}},
+      });
+      expect(queryBlock(main, {'/alias/': values})).toEqual({alias: {value: 3}});
+      expect(queryBlock(child, {'##': values, '#flow': values, 'self': values, 'nested': {'##': values}})).toEqual({
+        self: {value: 2},
+        nested: {'##': {value: 2}},
+      });
+      expect(queryBlock(child, {nested: {'##': {'##': values}}})).toEqual({nested: {'##': {}}});
+    } finally {
+      root.destroy();
+    }
   });
 });

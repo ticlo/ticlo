@@ -11,7 +11,7 @@ export abstract class StringEditorBase extends React.PureComponent<ValueEditorPr
   commitChange(value: string) {
     const {onChange, name} = this.props;
     this._pendingValue = null;
-    onChange(value, name);
+    onChange?.(value, name);
   }
 
   onInputChange = (e: React.SyntheticEvent) => {

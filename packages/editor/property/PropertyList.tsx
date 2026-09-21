@@ -27,6 +27,7 @@ import {OptionalPropertyList} from './OptionalPropertyList.tsx';
 import {CustomPropertyReorder} from './PropertyReorder.ts';
 import {t} from '../component/LocalizedLabel.tsx';
 import {getDescLib} from '../util/FunctionLib.ts';
+import {EditPolicyContext} from '../component/EditPolicyContext.tsx';
 
 function descToEditor(conn: ClientConn, paths: string[], funcDesc: FunctionDesc, propDesc: PropDesc, funcLib?: string) {
   return (
@@ -248,6 +249,8 @@ class PropertyDefMerger {
 }
 
 export class PropertyList extends MultiSelectComponent<Props, State, BlockLoader> {
+  static contextType = EditPolicyContext;
+  declare context: React.ContextType<typeof EditPolicyContext>;
   constructor(props: Readonly<Props>) {
     super(props);
     this.state = {showConfig: false, showAttribute: false, showCustom: true, showAddCustomPopup: false};
@@ -273,6 +276,7 @@ export class PropertyList extends MultiSelectComponent<Props, State, BlockLoader
 
   onAddCustom = (desc: PropDesc | PropGroupDesc) => {
     const {conn} = this.props;
+    if (!this.props.paths.every((path) => this.context.can({cmd: 'addCustomProp', path, desc}))) return;
     for (const [path, subscriber] of this.loaders) {
       conn.addCustomProp(path, desc);
     }
@@ -434,11 +438,17 @@ export class PropertyList extends MultiSelectComponent<Props, State, BlockLoader
             <ExpandIcon opened={customExpand} onClick={this.onShowCustomClick} />
             {t('Custom')}
             <Popup
-              popupVisible={showAddCustomPopup}
+              popupVisible={showAddCustomPopup && paths.every((path) => this.context.can({cmd: 'addCustomProp', path}))}
               onPopupVisibleChange={this.onAddCustomPopup}
               popup={<AddCustomPropertyMenu conn={conn} onAddProperty={this.onAddCustom} />}
             >
-              <Button className="ticl-icon-btn" shape="circle" tabIndex={-1} icon={<PlusSquareOutlined />} />
+              <Button
+                className="ticl-icon-btn"
+                shape="circle"
+                tabIndex={-1}
+                icon={<PlusSquareOutlined />}
+                disabled={!paths.every((path) => this.context.can({cmd: 'addCustomProp', path}))}
+              />
             </Popup>
 
             <div className="ticl-h-line" />

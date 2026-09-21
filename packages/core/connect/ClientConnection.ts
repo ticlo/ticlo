@@ -1,7 +1,7 @@
 import {Connection, ConnectionSendingData} from './Connection.ts';
 import {Uid} from '../util/Uid.ts';
 import {DataMap} from '../util/DataTypes.ts';
-import {FunctionDesc, PropDesc, PropGroupDesc} from '../block/Descriptor.ts';
+import {FunctionDesc, PropDesc} from '../block/Descriptor.ts';
 import {
   ClientCallbacks,
   ClientRequest,
@@ -16,14 +16,39 @@ import {
 } from './ClientRequests.ts';
 import {ClientConn} from './ClientConn.ts';
 import {StreamDispatcher} from '../block/Dispatcher.ts';
-import {Query} from './Query.ts';
 import {updateGlobalSettings} from '../util/Settings.ts';
 import {DataWrapper} from '../block/FunctonData.ts';
-import {Restricted} from '../restricted/Restricted.ts';
+import {checkEditPolicy, type EditPolicy, EditPolicyView} from '../policy/EditPolicy.ts';
+import {PolicyConnection} from './PolicyConnection.ts';
+import {NoSerialize} from '../util/NoSerialize.ts';
 
 export type {ValueUpdate, ValueState} from './ClientRequests.ts';
 
-export abstract class ClientConnection extends Connection implements ClientConn {
+export abstract class ClientConnection extends ClientConn {
+  private readonly transport = new ClientTransport(this);
+
+  get _connected() {
+    return this.transport._connected;
+  }
+  get _destroyed() {
+    return this.transport._destroyed;
+  }
+
+  abstract doSend(data: DataMap[]): void;
+
+  onReceive(data: DataMap[]) {
+    this.transport.onReceive(data);
+  }
+  callImmediate(f: () => void) {
+    this.transport.callImmediate(f);
+  }
+  lockImmediate(source: any) {
+    this.transport.lockImmediate(source);
+  }
+  unlockImmediate(source: any) {
+    this.transport.unlockImmediate(source);
+  }
+
   static addEditorDescriptor(id: string, desc: FunctionDesc) {
     DescRequest.editorCache.set(id, desc);
   }
@@ -45,11 +70,9 @@ export abstract class ClientConnection extends Connection implements ClientConn 
   readonly globalWatch: GlobalWatch;
   private _editorListeners: boolean;
 
-  protected constructor(
-    editorListeners: boolean,
-    private _restricted?: Restricted
-  ) {
+  protected constructor(editorListeners: boolean) {
     super();
+    this.updateServerPolicy(undefined, false);
     this._editorListeners = editorListeners;
     if (editorListeners) {
       this._sendSettingsRequest();
@@ -67,20 +90,37 @@ export abstract class ClientConnection extends Connection implements ClientConn 
     return this;
   }
 
+  private readonly _policyChanges = new StreamDispatcher<EditPolicyView>();
+
+  withPolicy(policy?: EditPolicy): ClientConn {
+    return policy == null ? this : new PolicyConnection(this, policy);
+  }
+
+  getEditPolicyView() {
+    return this._policyChanges.value;
+  }
+
+  editPolicyChanges() {
+    return this._policyChanges;
+  }
+
+  private updateServerPolicy(policy?: EditPolicy, ready = true) {
+    this._policyChanges.dispatch(new EditPolicyView(policy, ready));
+  }
+
+  checkEditRequest(data: DataMap, policy?: EditPolicy): string | null {
+    return checkEditPolicy(policy, data, (path) => {
+      const value = this.subscribes.get(path)?._cache?.value;
+      if (value instanceof NoSerialize && value.type === 'Block') return true;
+      if (this.watches.has(path)) return true;
+      const dot = path.lastIndexOf('.');
+      if (this.watches.get(path.slice(0, dot))?._cachedMap?.[path.slice(dot + 1)]) return true;
+      return false;
+    });
+  }
+
   addSend(data: ConnectionSendingData) {
-    const requestData = data.getData();
-    const error = this._restricted?.isRestricted(requestData);
-    if (error) {
-      if (data instanceof SetRequest && data.conn) {
-        data.conn.setRequests.delete(data.path);
-        data.conn = null;
-      }
-      if (typeof requestData?.id === 'string') {
-        this.onData({cmd: 'error', id: requestData.id, msg: error});
-      }
-      return;
-    }
-    super.addSend(data);
+    this.transport.addSend(data);
   }
 
   _childrenChangeStream = new StreamDispatcher<{path: string; showNode?: boolean}>();
@@ -121,6 +161,8 @@ export abstract class ClientConnection extends Connection implements ClientConn 
           // 'done'
           req.onDone();
       }
+    } else if (response.cmd === 'editPolicy') {
+      this.updateServerPolicy((response.policy as EditPolicy) ?? undefined);
     }
   }
   _initSimpleRequest(c: ClientCallbacks): {promise: Promise<any>; callbacks: ClientCallbacks} {
@@ -139,8 +181,14 @@ export abstract class ClientConnection extends Connection implements ClientConn 
     return {promise, callbacks};
   }
   simpleRequest(data: DataMap): Promise<any>;
-  simpleRequest(data: DataMap, c: ClientCallbacks): string;
-  simpleRequest(data: DataMap, c?: ClientCallbacks): Promise<any> | string {
+  simpleRequest(data: DataMap, c: ClientCallbacks, policy?: EditPolicy): Promise<any> | string;
+  simpleRequest(data: DataMap, c?: ClientCallbacks, policy?: EditPolicy): Promise<any> | string {
+    const error = this.checkEditRequest(data, policy);
+    if (error) return this.rejectRequest(data, c, error);
+    return this.sendRequest(data, c);
+  }
+
+  protected sendRequest(data: DataMap, c?: ClientCallbacks): Promise<any> | string {
     const {promise, callbacks} = this._initSimpleRequest(c);
     const id = this.uid.next();
     data.id = id;
@@ -148,6 +196,37 @@ export abstract class ClientConnection extends Connection implements ClientConn 
     this.requests.set(id, req);
     this.addSend(req);
     return promise ?? id;
+  }
+
+  private rejectRequest(data: DataMap, callbacks: ClientCallbacks, error: string): Promise<any> | string {
+    if (!callbacks) return Promise.reject(error);
+    const id = this.uid.next();
+    callbacks.onError?.(error, {...data, id});
+    return id;
+  }
+
+  sendValueRequest(
+    data: DataMap,
+    important: boolean | ClientCallbacks = false,
+    policy?: EditPolicy
+  ): Promise<any> | string {
+    // Check before merging or cancelling: rejection in one view must not change another view's queued edit.
+    const error = this.checkEditRequest(data, policy);
+    if (error)
+      return important ? this.rejectRequest(data, typeof important === 'object' ? important : undefined, error) : '';
+    const path = data.path as string;
+    let req = this.setRequests.get(path);
+    if (important) {
+      req?.cancel();
+      return this.sendRequest(data, typeof important === 'object' ? important : undefined);
+    }
+    if (!req) {
+      req = new SetRequest(path, this.uid.next(), this);
+      this.setRequests.set(path, req);
+    }
+    req.update(data);
+    this.addSend(req);
+    return '';
   }
 
   _sendSettingsRequest() {
@@ -162,122 +241,6 @@ export abstract class ClientConnection extends Connection implements ClientConn 
   }
   _sendLargeData(data: DataMap, c: ClientCallbacks = null): Promise<any> | null {
     return null;
-  }
-
-  // important request will always be sent
-  // unimportant request may be merged with other set request on same path
-  setValue(path: string, value: any, important: boolean | ClientCallbacks = false): Promise<any> | string {
-    if (important) {
-      if (this.setRequests.has(path)) {
-        this.setRequests.get(path).cancel();
-      }
-      if (typeof important === 'object') {
-        return this.simpleRequest({cmd: 'set', path, value}, important);
-      } else {
-        return this.simpleRequest({cmd: 'set', path, value}, null);
-      }
-    }
-    if (this.setRequests.has(path)) {
-      const req = this.setRequests.get(path);
-      req.updateSet(value);
-      return '';
-    } else {
-      const req = new SetRequest(path, this.uid.next(), this);
-      req.updateSet(value);
-      this.setRequests.set(path, req);
-      this.addSend(req);
-      return '';
-    }
-  }
-
-  updateValue(path: string, value: any, important: boolean | ClientCallbacks = false): Promise<any> | string {
-    // return this.simpleRequest({cmd: 'update', path, value}, callbacks);
-    if (important) {
-      if (this.setRequests.has(path)) {
-        this.setRequests.get(path).cancel();
-      }
-      if (typeof important === 'object') {
-        return this.simpleRequest({cmd: 'update', path, value}, important);
-      } else {
-        return this.simpleRequest({cmd: 'update', path, value}, null);
-      }
-    }
-    if (this.setRequests.has(path)) {
-      const req = this.setRequests.get(path);
-      req.updateUpdate(value);
-      return '';
-    } else {
-      const req = new SetRequest(path, this.uid.next(), this);
-      req.updateUpdate(value);
-      this.setRequests.set(path, req);
-      this.addSend(req);
-      return '';
-    }
-  }
-
-  restoreSaved(path: string, callbacks?: ClientCallbacks): Promise<any> | string {
-    return this.simpleRequest({cmd: 'restoreSaved', path}, callbacks);
-  }
-
-  setBinding(
-    path: string,
-    from: string,
-    absolute = false,
-    important: boolean | ClientCallbacks = false
-  ): Promise<any> | string {
-    // return this.simpleRequest({cmd: 'bind', path, from}, callbacks);
-    if (important) {
-      if (this.setRequests.has(path)) {
-        this.setRequests.get(path).cancel();
-      }
-      const request: any = {cmd: 'bind', path, absolute, from};
-      if (typeof important === 'object') {
-        return this.simpleRequest(request, important);
-      } else {
-        return this.simpleRequest(request, null);
-      }
-    }
-    if (this.setRequests.has(path)) {
-      const req = this.setRequests.get(path);
-      req.updateBind(from, absolute);
-      return '';
-    } else {
-      const req = new SetRequest(path, this.uid.next(), this);
-      req.updateBind(from, absolute);
-      this.setRequests.set(path, req);
-      this.addSend(req);
-      return '';
-    }
-  }
-
-  getValue(path: string): Promise<any> {
-    return this.simpleRequest({cmd: 'get', path});
-  }
-
-  addBlock(path: string, data?: DataMap, findName = false, callbacks?: ClientCallbacks): Promise<any> | string {
-    const result = this.simpleRequest({cmd: 'addBlock', path, data, findName}, callbacks);
-    this._childrenChangeStream.dispatch({path: path.substring(0, path.lastIndexOf('.'))});
-    return result;
-  }
-
-  addFlow(path: string, data?: DataMap, callbacks?: ClientCallbacks): Promise<any> | string {
-    const result = this.simpleRequest({cmd: 'addFlow', path, data}, callbacks);
-    this._childrenChangeStream.dispatch({path: path.substring(0, path.lastIndexOf('.')), showNode: true});
-    return result;
-  }
-
-  addFlowFolder(path: string, callbacks?: ClientCallbacks): Promise<any> | string {
-    const result = this.simpleRequest({cmd: 'addFlowFolder', path}, callbacks);
-    this._childrenChangeStream.dispatch({path: path.substring(0, path.lastIndexOf('.')), showNode: true});
-    return result;
-  }
-
-  list(path: string, filter?: string, max: number = 16, callbacks?: ClientCallbacks): Promise<any> | string {
-    return this.simpleRequest({cmd: 'list', path, filter, max}, callbacks);
-  }
-
-  query(path: string, query: Query, callbacks?: ClientCallbacks): Promise<any> | string {
-    return this.simpleRequest({cmd: 'query', path, query}, callbacks);
   }
 
   subscribe(path: string, callbacks: SubscribeCallbacks, fullValue: boolean = false) {
@@ -342,135 +305,6 @@ export abstract class ClientConnection extends Connection implements ClientConn 
         this.requests.delete(id);
       }
     }
-  }
-
-  editWorker(
-    path: string,
-    fromField?: string,
-    fromFunction?: string,
-    defaultData?: DataMap,
-    funcLib?: string,
-    callbacks?: ClientCallbacks
-  ): Promise<any> | string {
-    return this.simpleRequest({cmd: 'editWorker', path, fromField, fromFunction, defaultData, funcLib}, callbacks);
-  }
-
-  applyFlowChange(path: string, funcId?: string, callbacks?: ClientCallbacks): Promise<any> | string {
-    return this.simpleRequest({cmd: 'applyFlowChange', path, funcId}, callbacks);
-  }
-
-  deleteFunction(funcId?: string, funcLib?: string, callbacks?: ClientCallbacks): Promise<any> | string {
-    return this.simpleRequest(
-      {
-        cmd: 'deleteFunction',
-        path: '#', // just to prevent the invalid path error
-        funcId,
-        funcLib,
-      },
-      callbacks
-    );
-  }
-
-  showProps(path: string, props: string[], callbacks?: ClientCallbacks): Promise<any> | string {
-    return this.simpleRequest({cmd: 'showProps', path, props}, callbacks);
-  }
-
-  hideProps(path: string, props: string[], callbacks?: ClientCallbacks): Promise<any> | string {
-    return this.simpleRequest({cmd: 'hideProps', path, props}, callbacks);
-  }
-
-  moveShownProp(path: string, propFrom: string, propTo: string, callbacks?: ClientCallbacks): Promise<any> | string {
-    return this.simpleRequest({cmd: 'moveShownProp', path, propFrom, propTo}, callbacks);
-  }
-
-  setLen(path: string, group: string, length: number, callbacks?: ClientCallbacks): Promise<any> | string {
-    return this.simpleRequest({cmd: 'setLen', path, group, length}, callbacks);
-  }
-
-  renameProp(path: string, newName: string, callbacks?: ClientCallbacks): Promise<any> | string {
-    return this.simpleRequest({cmd: 'renameProp', path, newName}, callbacks);
-  }
-
-  addCustomProp(
-    path: string,
-    desc: PropDesc | PropGroupDesc,
-    group?: string,
-    callbacks?: ClientCallbacks
-  ): Promise<any> | string {
-    return this.simpleRequest({cmd: 'addCustomProp', path, desc, group}, callbacks);
-  }
-
-  removeCustomProp(path: string, name: string, group?: string, callbacks?: ClientCallbacks): Promise<any> | string {
-    return this.simpleRequest({cmd: 'removeCustomProp', path, name, group}, callbacks);
-  }
-
-  moveCustomProp(
-    path: string,
-    nameFrom: string,
-    nameTo: string,
-    group?: string,
-    callbacks?: ClientCallbacks
-  ): Promise<any> | string {
-    return this.simpleRequest({cmd: 'moveCustomProp', path, nameFrom, nameTo, group}, callbacks);
-  }
-
-  addOptionalProp(path: string, name: string, callbacks?: ClientCallbacks): Promise<any> | string {
-    return this.simpleRequest({cmd: 'addOptionalProp', path, name}, callbacks);
-  }
-
-  removeOptionalProp(path: string, name: string, callbacks?: ClientCallbacks): Promise<any> | string {
-    return this.simpleRequest({cmd: 'removeOptionalProp', path, name}, callbacks);
-  }
-
-  moveOptionalProp(path: string, nameFrom: string, nameTo: string, callbacks?: ClientCallbacks): Promise<any> | string {
-    return this.simpleRequest({cmd: 'moveOptionalProp', path, nameFrom, nameTo}, callbacks);
-  }
-
-  insertGroupProp(path: string, group: string, idx: number, callbacks?: ClientCallbacks): Promise<any> | string {
-    return this.simpleRequest({cmd: 'insertGroupProp', path, group, idx}, callbacks);
-  }
-
-  removeGroupProp(path: string, group: string, idx: number, callbacks?: ClientCallbacks): Promise<any> | string {
-    return this.simpleRequest({cmd: 'removeGroupProp', path, group, idx}, callbacks);
-  }
-
-  moveGroupProp(
-    path: string,
-    group: string,
-    oldIdx: number,
-    newIdx: number,
-    callbacks?: ClientCallbacks
-  ): Promise<any> | string {
-    return this.simpleRequest({cmd: 'moveGroupProp', path, group, oldIdx, newIdx}, callbacks);
-  }
-
-  undo(path: string, callbacks?: ClientCallbacks): Promise<any> | string {
-    return this.simpleRequest({cmd: 'undo', path}, callbacks);
-  }
-
-  redo(path: string, callbacks?: ClientCallbacks): Promise<any> | string {
-    return this.simpleRequest({cmd: 'redo', path}, callbacks);
-  }
-
-  copy(path: string, props: string[], cut?: boolean, callbacks?: ClientCallbacks): Promise<any> | string {
-    return this.simpleRequest({cmd: 'copy', path, props, cut}, callbacks);
-  }
-
-  executeCommand(path: string, command: string, params?: DataMap, callbacks?: ClientCallbacks): Promise<any> | string {
-    return this.simpleRequest({cmd: 'executeCommand', path, command, params}, callbacks);
-  }
-
-  paste(
-    path: string,
-    data: DataMap,
-    resolve?: 'overwrite' | 'rename',
-    callbacks?: ClientCallbacks
-  ): Promise<any> | string {
-    return this.simpleRequest({cmd: 'paste', path, data, resolve}, callbacks);
-  }
-
-  callFunction(path: string, callbacks?: ClientCallbacks): Promise<any> | string {
-    return this.simpleRequest({cmd: 'callFunction', path}, callbacks);
   }
 
   cancel(id: string) {
@@ -636,13 +470,14 @@ export abstract class ClientConnection extends Connection implements ClientConn 
   _reconnectTimeout: any;
 
   onConnect() {
-    super.onConnect();
+    this.transport.onConnect();
     // TODO: add some delay to make sure the connection is correct
     this._reconnectInterval = 1;
   }
 
   onDisconnect() {
-    super.onDisconnect();
+    this.transport.onDisconnect();
+    this.updateServerPolicy(undefined, false);
     // remove requests from the map
     // or notify the disconnection
     for (const [key, req] of this.requests) {
@@ -655,7 +490,7 @@ export abstract class ClientConnection extends Connection implements ClientConn 
       } else {
         req.onError('disconnected');
         this.requests.delete(key);
-        this._sending.delete(req as any);
+        this.transport._sending.delete(req as any);
       }
     }
     this._sendSettingsRequest();
@@ -675,6 +510,19 @@ export abstract class ClientConnection extends Connection implements ClientConn 
     if (this._reconnectTimeout) {
       clearTimeout(this._reconnectTimeout);
     }
-    super.destroy();
+    this.transport.destroy();
+  }
+}
+
+/** The physical transport is shared by every policy view of a client connection. */
+class ClientTransport extends Connection {
+  constructor(private readonly client: ClientConnection) {
+    super();
+  }
+  doSend(data: DataMap[]) {
+    this.client.doSend(data);
+  }
+  onData(data: DataMap) {
+    this.client.onData(data);
   }
 }

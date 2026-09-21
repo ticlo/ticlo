@@ -27,6 +27,7 @@ import {ParameterInputDialog} from './ParameterInputDialog.tsx';
 import {ExpandIcon} from '../component/Tree.tsx';
 import {ValueUpdate} from '@ticlo/core/connect/ClientRequests.ts';
 import {getDescLib} from '../util/FunctionLib.ts';
+import {EditPolicyContext} from '../component/EditPolicyContext.tsx';
 
 interface Props {
   children: React.ReactElement;
@@ -55,6 +56,21 @@ interface State {
   modal?: React.ReactElement;
 }
 export class PropertyDropdown extends React.PureComponent<Props, State> {
+  static contextType = EditPolicyContext;
+  declare context: React.ContextType<typeof EditPolicyContext>;
+
+  can(cmd: string, data: DataMap = {}) {
+    const {paths, name, propDesc} = this.props;
+    const fieldCommand = ['set', 'bind', 'restoreSaved'].includes(cmd);
+    if (fieldCommand && propDesc.readonly) return false;
+    return paths.every((path) =>
+      this.context.can({
+        cmd,
+        path: cmd === 'addBlock' ? `${path}.~${name}` : fieldCommand ? `${path}.${name}` : path,
+        ...data,
+      })
+    );
+  }
   state: State = {visible: false};
 
   subscriber = new ValueSubscriber({
@@ -85,6 +101,7 @@ export class PropertyDropdown extends React.PureComponent<Props, State> {
   };
 
   onInsertIndex = () => {
+    if (!this.can('insertGroupProp')) return;
     const {conn, paths, name, group} = this.props;
     const index = getTailingNumber(name);
     for (const path of paths) {
@@ -93,6 +110,7 @@ export class PropertyDropdown extends React.PureComponent<Props, State> {
     this.closeMenu();
   };
   onDeleteIndex = () => {
+    if (!this.can('removeGroupProp')) return;
     const {conn, paths, name, group} = this.props;
     const index = getTailingNumber(name);
     for (const path of paths) {
@@ -102,6 +120,7 @@ export class PropertyDropdown extends React.PureComponent<Props, State> {
   };
 
   onClear = () => {
+    if (!this.can('set')) return;
     const {conn, paths, name} = this.props;
     for (const path of paths) {
       conn.setValue(`${path}.${name}`, undefined);
@@ -109,6 +128,7 @@ export class PropertyDropdown extends React.PureComponent<Props, State> {
     this.closeMenu();
   };
   onRestoreSaved = () => {
+    if (!this.can('restoreSaved')) return;
     const {conn, paths, name} = this.props;
     for (const path of paths) {
       conn.restoreSaved(`${path}.${name}`);
@@ -116,6 +136,7 @@ export class PropertyDropdown extends React.PureComponent<Props, State> {
     this.closeMenu();
   };
   onShowHide = (e: CheckboxChangeEvent) => {
+    if (!this.can(e.target.checked ? 'showProps' : 'hideProps')) return;
     const {conn, paths, name} = this.props;
     for (const path of paths) {
       if (e.target.checked) {
@@ -126,6 +147,7 @@ export class PropertyDropdown extends React.PureComponent<Props, State> {
     }
   };
   onBindChange = (str: string) => {
+    if (!this.can('bind')) return;
     const {conn, paths, name} = this.props;
     if (str === '') {
       str = undefined;
@@ -135,12 +157,14 @@ export class PropertyDropdown extends React.PureComponent<Props, State> {
     }
   };
   onUnbindClick = (e: any) => {
+    if (!this.can('bind')) return;
     const {conn, paths, name} = this.props;
     for (const key of paths) {
       conn.setBinding(`${key}.${name}`, null, true);
     }
   };
   onRemoveCustom = () => {
+    if (!this.can('removeCustomProp')) return;
     const {conn, paths, name, baseName, group} = this.props;
     const removeField = baseName != null ? baseName : name;
     for (const path of paths) {
@@ -149,6 +173,7 @@ export class PropertyDropdown extends React.PureComponent<Props, State> {
     this.closeMenu();
   };
   onAddCustomGroupChild = (desc: PropDesc | PropGroupDesc) => {
+    if (!this.can('addCustomProp')) return;
     const {conn, group, paths} = this.props;
     for (const path of paths) {
       conn.addCustomProp(path, desc, group);
@@ -160,10 +185,12 @@ export class PropertyDropdown extends React.PureComponent<Props, State> {
   };
 
   onExeCommand = (command: string) => {
+    if (!this.can('executeCommand')) return;
     const {conn, paths, name, funcDesc, propDesc} = this.props;
     const commandDesc = propDesc.commands[command];
     if (commandDesc.parameters?.length) {
       const onConfirmCommandModal = (values: DataMap) => {
+        if (!this.can('executeCommand')) return;
         for (const path of paths) {
           conn.executeCommand(path, command, {...values, property: name});
         }
@@ -212,12 +239,14 @@ export class PropertyDropdown extends React.PureComponent<Props, State> {
       data = getSubBlockFuncData(getDefaultFuncData(desc));
     }
 
+    if (!paths.every((path) => conn.getEditPolicyView().canCreateBlock(`${path}.~${name}`, funcId))) return;
     for (const path of paths) {
       conn.addBlock(`${path}.~${name}`, data);
     }
   }
 
   onAddSubBlock = (id: string, desc?: FunctionDesc, data?: any) => {
+    if (!this.can('addBlock', {data: data ?? {'#is': id}})) return;
     const {onAddSubBlock} = this.props;
     this.setState({visible: false});
     onAddSubBlock?.(id, desc, data);
@@ -229,7 +258,7 @@ export class PropertyDropdown extends React.PureComponent<Props, State> {
     const {valueDenfinedOverride, isTempOverride} = this.state;
     const menuItems: React.ReactElement[] = [];
     if (!propDesc.readonly) {
-      if (!bindingPath) {
+      if (!bindingPath && this.can('addBlock')) {
         menuItems.push(
           <SubMenuItem
             key="addSubBlock"
@@ -249,34 +278,34 @@ export class PropertyDropdown extends React.PureComponent<Props, State> {
           </SubMenuItem>
         );
       }
-      menuItems.push(
-        <div key="deleteBinding" className="ticl-hbox">
-          <span style={{flex: '0 1 100%'}}>{t('Binding')}:</span>
-          {bindingPath ? (
-            <Button
-              className="ticl-icon-btn"
-              shape="circle"
-              size="small"
-              icon={<DeleteOutlined />}
-              onClick={this.onUnbindClick}
+      if (this.can('bind')) {
+        menuItems.push(
+          <div key="deleteBinding" className="ticl-hbox">
+            <span style={{flex: '0 1 100%'}}>{t('Binding')}:</span>
+            {bindingPath ? (
+              <Button
+                className="ticl-icon-btn"
+                shape="circle"
+                size="small"
+                icon={<DeleteOutlined />}
+                onClick={this.onUnbindClick}
+              />
+            ) : null}
+          </div>,
+          <div key="bindingInput" className="ticl-hbox">
+            <StringEditor
+              value={bindingPath || ''}
+              funcDesc={blankFuncDesc}
+              desc={blankPropDesc}
+              onChange={this.onBindChange}
             />
-          ) : null}
-        </div>
-      );
-      menuItems.push(
-        <div key="bindingInput" className="ticl-hbox">
-          <StringEditor
-            value={bindingPath || ''}
-            funcDesc={blankFuncDesc}
-            desc={blankPropDesc}
-            onChange={this.onBindChange}
-          />
-        </div>
-      );
+          </div>
+        );
+      }
 
       // need this temporary variable to work around a compiler issue that () get removed and ?? and || can't be used together
       const resolvedValueDefined = valueDefined ?? valueDenfinedOverride;
-      if (resolvedValueDefined || bindingPath) {
+      if ((resolvedValueDefined || bindingPath) && this.can('set')) {
         menuItems.push(
           <Button key="clear" shape="round" onClick={this.onClear}>
             {t('Clear')}
@@ -284,7 +313,7 @@ export class PropertyDropdown extends React.PureComponent<Props, State> {
         );
       }
 
-      if (isTemp ?? isTempOverride) {
+      if ((isTemp ?? isTempOverride) && this.can('restoreSaved')) {
         menuItems.push(
           <Button key="restoreSaved" shape="round" onClick={this.onRestoreSaved}>
             {t('Restore Saved Value')}
@@ -295,31 +324,39 @@ export class PropertyDropdown extends React.PureComponent<Props, State> {
     if (group != null) {
       const groupIndex = getTailingNumber(name);
       if (groupIndex > -1) {
-        menuItems.push(
-          <Button key="insertIndex" shape="round" onClick={this.onInsertIndex}>
-            {t('Insert at {{n}}', {n: groupIndex})}
-          </Button>
-        );
-        menuItems.push(
-          <Button key="deleteIndex" shape="round" onClick={this.onDeleteIndex}>
-            {t('Delete at {{n}}', {n: groupIndex})}
-          </Button>
-        );
+        if (this.can('insertGroupProp')) {
+          menuItems.push(
+            <Button key="insertIndex" shape="round" onClick={this.onInsertIndex}>
+              {t('Insert at {{n}}', {n: groupIndex})}
+            </Button>
+          );
+        }
+        if (this.can('removeGroupProp')) {
+          menuItems.push(
+            <Button key="deleteIndex" shape="round" onClick={this.onDeleteIndex}>
+              {t('Delete at {{n}}', {n: groupIndex})}
+            </Button>
+          );
+        }
       }
     }
 
-    menuItems.push(
-      <Checkbox key="showHide" onChange={this.onShowHide} checked={display}>
-        {t('Pinned')}
-      </Checkbox>
-    );
-    if (isCustom) {
+    if (this.can(display ? 'hideProps' : 'showProps')) {
       menuItems.push(
-        <Button key="removeFromCustom" shape="round" onClick={this.onRemoveCustom}>
-          {t('Remove Property')}
-        </Button>
+        <Checkbox key="showHide" onChange={this.onShowHide} checked={display}>
+          {t('Pinned')}
+        </Checkbox>
       );
-      if (group != null) {
+    }
+    if (isCustom) {
+      if (this.can('removeCustomProp')) {
+        menuItems.push(
+          <Button key="removeFromCustom" shape="round" onClick={this.onRemoveCustom}>
+            {t('Remove Property')}
+          </Button>
+        );
+      }
+      if (group != null && this.can('addCustomProp')) {
         menuItems.push(
           <SubMenuItem
             key="addCustomProp"
@@ -336,6 +373,7 @@ export class PropertyDropdown extends React.PureComponent<Props, State> {
         commands.sort(smartStrCompare);
         const commandMenus: React.ReactElement[] = [];
         for (const command of commands) {
+          if (!this.can('executeCommand', {command})) continue;
           commandMenus.push(
             <MenuItem key={`cmd-${command}`} value={command} onClick={this.onExeCommand}>
               <LocalizedPropCommand key={command} funcDesc={funcDesc} propBaseName={propDesc.name} command={command} />
@@ -360,7 +398,7 @@ export class PropertyDropdown extends React.PureComponent<Props, State> {
         // );
       }
     }
-    return <Menu>{menuItems}</Menu>;
+    return menuItems.length ? <Menu>{menuItems}</Menu> : null;
   }
 
   render(): any {

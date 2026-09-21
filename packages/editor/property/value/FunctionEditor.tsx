@@ -27,6 +27,7 @@ export class FunctionEditor extends StringEditorBase {
   }
 
   openPopup = () => {
+    if (!this.props.onChange || this.props.locked) return;
     this.setState({opened: true});
   };
   onPopupClose = (visible?: boolean) => {
@@ -41,6 +42,7 @@ export class FunctionEditor extends StringEditorBase {
   };
 
   onDragOver = (e: DragState) => {
+    if (!this.props.onChange || this.props.locked) return e.reject();
     const {conn} = this.props;
     const blockData = DragState.getData('block', conn.getBaseConn());
 
@@ -50,6 +52,7 @@ export class FunctionEditor extends StringEditorBase {
   };
 
   onDrop = (e: DragState) => {
+    if (!this.props.onChange || this.props.locked) return;
     const {conn} = this.props;
     const blockData = DragState.getData('block', conn.getBaseConn());
 
@@ -79,7 +82,7 @@ export class FunctionEditor extends StringEditorBase {
       <DragDropDiv className="ticl-type-editor ticl-hbox" onDragOverT={this.onDragOver} onDropT={this.onDrop}>
         <TIcon icon={iconName} colorClass={colorClass} />
         <Popup
-          popupVisible={opened}
+          popupVisible={opened && onChange != null}
           onPopupVisibleChange={this.onPopupClose}
           popup={<FunctionSelect conn={conn} onFunctionClick={this.onFunctionClick} funcLib={funcLib} />}
         >

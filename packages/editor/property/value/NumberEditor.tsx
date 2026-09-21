@@ -65,7 +65,7 @@ export class NumberEditor extends React.PureComponent<ValueEditorProps, any> {
         this.forceUpdate();
       }
       const {onChange, name} = this.props;
-      onChange(value, name);
+      onChange?.(value, name);
     } else {
       this.forceUpdate();
     }

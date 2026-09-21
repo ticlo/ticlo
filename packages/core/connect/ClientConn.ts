@@ -4,21 +4,31 @@ import {ClientCallbacks, ClientDescListener, SubscribeCallbacks, ValueUpdate} fr
 import {DataMap} from '../util/DataTypes.ts';
 import {StreamDispatcher} from '../block/Dispatcher.ts';
 import {Query} from './Query.ts';
+import type {EditPolicy, EditPolicyView} from '../policy/EditPolicy.ts';
+import type {ClientConnection} from './ClientConnection.ts';
 
-/**
- * interface for ClientConnect and its wrappers
- */
+/** Shared command API for physical connections and policy views. */
 
-export interface ClientConn {
-  getBaseConn(): ClientConn;
+export abstract class ClientConn {
+  /** Creates an independent policy view of the base connection. Omit policy to use the base itself. */
+  abstract withPolicy(policy?: EditPolicy): ClientConn;
 
-  childrenChangeStream(): StreamDispatcher<{path: string; showNode?: boolean}>;
+  abstract simpleRequest(data: DataMap): Promise<any>;
+  abstract simpleRequest(data: DataMap, callbacks: ClientCallbacks): Promise<any> | string;
+  abstract sendValueRequest(data: DataMap, important?: boolean | ClientCallbacks): Promise<any> | string;
 
-  callImmediate(f: () => void): void;
+  abstract getEditPolicyView(): EditPolicyView;
+  abstract editPolicyChanges(): StreamDispatcher<EditPolicyView>;
 
-  lockImmediate(source: any): void;
+  abstract getBaseConn(): ClientConnection;
 
-  unlockImmediate(source: any): void;
+  abstract childrenChangeStream(): StreamDispatcher<{path: string; showNode?: boolean}>;
+
+  abstract callImmediate(f: () => void): void;
+
+  abstract lockImmediate(source: any): void;
+
+  abstract unlockImmediate(source: any): void;
 
   /**
    * Sets the value of a property at the given path.
@@ -27,7 +37,9 @@ export interface ClientConn {
    * @param value new value to set
    * @param important whether the request is important and shouldn't be merged
    */
-  setValue(path: string, value: any, important?: boolean | ClientCallbacks): Promise<any> | string;
+  setValue(path: string, value: any, important: boolean | ClientCallbacks = false): Promise<any> | string {
+    return this.sendValueRequest({cmd: 'set', path, value}, important);
+  }
 
   /**
    * Updates the value of a property at the given path without replacing the entire property.
@@ -37,7 +49,9 @@ export interface ClientConn {
    * @param value partial or new value to update
    * @param important whether the request is important and shouldn't be merged
    */
-  updateValue(path: string, value: any, important?: boolean | ClientCallbacks): Promise<any> | string;
+  updateValue(path: string, value: any, important: boolean | ClientCallbacks = false): Promise<any> | string {
+    return this.sendValueRequest({cmd: 'update', path, value}, important);
+  }
 
   /**
    * Restores a property to its internally saved state (`_saved`).
@@ -45,7 +59,9 @@ export interface ClientConn {
    * @param path path of the property to restore
    * @param callbacks request callbacks
    */
-  restoreSaved(path: string, callbacks?: ClientCallbacks): Promise<any> | string;
+  restoreSaved(path: string, callbacks?: ClientCallbacks): Promise<any> | string {
+    return this.simpleRequest({cmd: 'restoreSaved', path}, callbacks);
+  }
 
   /**
    * Creates a data binding from a property to a source path.
@@ -58,15 +74,19 @@ export interface ClientConn {
   setBinding(
     path: string,
     from: string,
-    absolute?: boolean,
-    important?: boolean | ClientCallbacks
-  ): Promise<any> | string;
+    absolute = false,
+    important: boolean | ClientCallbacks = false
+  ): Promise<any> | string {
+    return this.sendValueRequest({cmd: 'bind', path, from, absolute}, important);
+  }
 
   /**
    * Retrieves the current value of the property.
    * @param path path of the property
    */
-  getValue(path: string): Promise<any>;
+  getValue(path: string): Promise<any> {
+    return this.simpleRequest({cmd: 'get', path});
+  }
 
   /**
    * Creates a new child Block. The server extracts the parent block and the new block's name from `path`.
@@ -75,7 +95,11 @@ export interface ClientConn {
    * @param findName if true, the server auto-generates a unique name if a block with that name already exists
    * @param callbacks request callbacks
    */
-  addBlock(path: string, data?: DataMap, findName?: boolean, callbacks?: ClientCallbacks): Promise<any> | string;
+  addBlock(path: string, data?: DataMap, findName = false, callbacks?: ClientCallbacks): Promise<any> | string {
+    const result = this.simpleRequest({cmd: 'addBlock', path, data, findName}, callbacks);
+    this.childrenChangeStream().dispatch({path: path.substring(0, path.lastIndexOf('.'))});
+    return result;
+  }
 
   /**
    * Creates a new Flow.
@@ -83,14 +107,22 @@ export interface ClientConn {
    * @param data initial data to load into the newly created Flow
    * @param callbacks request callbacks
    */
-  addFlow(path: string, data?: DataMap, callbacks?: ClientCallbacks): Promise<any> | string;
+  addFlow(path: string, data?: DataMap, callbacks?: ClientCallbacks): Promise<any> | string {
+    const result = this.simpleRequest({cmd: 'addFlow', path, data}, callbacks);
+    this.childrenChangeStream().dispatch({path: path.substring(0, path.lastIndexOf('.')), showNode: true});
+    return result;
+  }
 
   /**
    * Creates a new FlowFolder to organize multiple flows.
    * @param path path for the new folder
    * @param callbacks request callbacks
    */
-  addFlowFolder(path: string, callbacks?: ClientCallbacks): Promise<any> | string;
+  addFlowFolder(path: string, callbacks?: ClientCallbacks): Promise<any> | string {
+    const result = this.simpleRequest({cmd: 'addFlowFolder', path}, callbacks);
+    this.childrenChangeStream().dispatch({path: path.substring(0, path.lastIndexOf('.')), showNode: true});
+    return result;
+  }
 
   /**
    * Lists the block children of a Block as an overview.
@@ -99,7 +131,9 @@ export interface ClientConn {
    * @param max maximum number of child block references to return (default 16, max 1024)
    * @param callbacks request callbacks
    */
-  list(path: string, filter?: string, max?: number, callbacks?: ClientCallbacks): Promise<any> | string;
+  list(path: string, filter?: string, max: number = 16, callbacks?: ClientCallbacks): Promise<any> | string {
+    return this.simpleRequest({cmd: 'list', path, filter, max}, callbacks);
+  }
 
   /**
    * Executes a tree query starting from a block to search or extract specific fields within its descendants.
@@ -107,7 +141,9 @@ export interface ClientConn {
    * @param query the structural query object defining how to filter and map the nested blocks/properties
    * @param callbacks request callbacks
    */
-  query(path: string, query: Query, callbacks?: ClientCallbacks): Promise<any> | string;
+  query(path: string, query: Query, callbacks?: ClientCallbacks): Promise<any> | string {
+    return this.simpleRequest({cmd: 'query', path, query}, callbacks);
+  }
 
   /**
    * Subscribes to value changes for a property, creating a continuous tracker.
@@ -115,28 +151,28 @@ export interface ClientConn {
    * @param callbacks subscriber callbacks
    * @param fullValue if not true, long value will be truncated
    */
-  subscribe(path: string, callbacks: SubscribeCallbacks, fullValue?: boolean): void;
+  abstract subscribe(path: string, callbacks: SubscribeCallbacks, fullValue?: boolean): void;
 
   /**
    * Unsubscribes from the property's value changes.
    * @param path path of the tracked property
    * @param callbacks subscriber callbacks to remove
    */
-  unsubscribe(path: string, callbacks: SubscribeCallbacks): void;
+  abstract unsubscribe(path: string, callbacks: SubscribeCallbacks): void;
 
   /**
    * Subscribes to structural changes, child configurations, and value changes within the Block.
    * @param path path to the Block to watch
    * @param callbacks request callbacks
    */
-  watch(path: string, callbacks: ClientCallbacks): void;
+  abstract watch(path: string, callbacks: ClientCallbacks): void;
 
   /**
    * Stops the watch on the given Block.
    * @param path path to the watched Block
    * @param callbacks request callbacks to remove
    */
-  unwatch(path: string, callbacks: ClientCallbacks): void;
+  abstract unwatch(path: string, callbacks: ClientCallbacks): void;
 
   /**
    * Opens a FlowEditor block dynamically either from a specific user field or a base worker function.
@@ -155,7 +191,9 @@ export interface ClientConn {
     defaultData?: DataMap,
     funcLib?: string,
     callbacks?: ClientCallbacks
-  ): Promise<any> | string;
+  ): Promise<any> | string {
+    return this.simpleRequest({cmd: 'editWorker', path, fromField, fromFunction, defaultData, funcLib}, callbacks);
+  }
 
   /**
    * Commits and applies any pending internal changes generated by `Flow` into worker function.
@@ -163,7 +201,9 @@ export interface ClientConn {
    * @param funcId optional function id to directly assign the generated changes to
    * @param callbacks request callbacks
    */
-  applyFlowChange(path: string, funcId?: string, callbacks?: ClientCallbacks): Promise<any> | string;
+  applyFlowChange(path: string, funcId?: string, callbacks?: ClientCallbacks): Promise<any> | string {
+    return this.simpleRequest({cmd: 'applyFlowChange', path, funcId}, callbacks);
+  }
 
   /**
    * Deletes a registered worker function.
@@ -171,7 +211,17 @@ export interface ClientConn {
    * @param funcLib optional path to the host flow whose `_funcLib` owns an in-flow function
    * @param callbacks request callbacks
    */
-  deleteFunction(funcId: string, funcLib?: string, callbacks?: ClientCallbacks): Promise<any> | string;
+  deleteFunction(funcId?: string, funcLib?: string, callbacks?: ClientCallbacks): Promise<any> | string {
+    return this.simpleRequest(
+      {
+        cmd: 'deleteFunction',
+        path: '#', // just to prevent the invalid path error
+        funcId,
+        funcLib,
+      },
+      callbacks
+    );
+  }
 
   /**
    * Shows properties within a Block so they're exposed in the UI.
@@ -179,7 +229,9 @@ export interface ClientConn {
    * @param props array of property names to alter visibility for
    * @param callbacks request callbacks
    */
-  showProps(path: string, props: string[], callbacks?: ClientCallbacks): Promise<any> | string;
+  showProps(path: string, props: string[], callbacks?: ClientCallbacks): Promise<any> | string {
+    return this.simpleRequest({cmd: 'showProps', path, props}, callbacks);
+  }
 
   /**
    * Hides properties within a Block so they're not exposed in the UI.
@@ -187,7 +239,9 @@ export interface ClientConn {
    * @param props array of property names to hide
    * @param callbacks request callbacks
    */
-  hideProps(path: string, props: string[], callbacks?: ClientCallbacks): Promise<any> | string;
+  hideProps(path: string, props: string[], callbacks?: ClientCallbacks): Promise<any> | string {
+    return this.simpleRequest({cmd: 'hideProps', path, props}, callbacks);
+  }
 
   /**
    * Reorders a shown property relative to another sibling property in the block's shown properties list.
@@ -196,7 +250,9 @@ export interface ClientConn {
    * @param propTo the target sibling property name to move at
    * @param callbacks request callbacks
    */
-  moveShownProp(path: string, propFrom: string, propTo: string, callbacks?: ClientCallbacks): Promise<any> | string;
+  moveShownProp(path: string, propFrom: string, propTo: string, callbacks?: ClientCallbacks): Promise<any> | string {
+    return this.simpleRequest({cmd: 'moveShownProp', path, propFrom, propTo}, callbacks);
+  }
 
   /**
    * Modifies the array length of a Group property array dynamically.
@@ -205,7 +261,9 @@ export interface ClientConn {
    * @param length the new designated length of the group array
    * @param callbacks request callbacks
    */
-  setLen(path: string, group: string, length: number, callbacks?: ClientCallbacks): Promise<any> | string;
+  setLen(path: string, group: string, length: number, callbacks?: ClientCallbacks): Promise<any> | string {
+    return this.simpleRequest({cmd: 'setLen', path, group, length}, callbacks);
+  }
 
   /**
    * Renames a property on a Block. Finds the property via the given path and moves it to `newName` on the parent Block.
@@ -213,7 +271,9 @@ export interface ClientConn {
    * @param newName the new string name for the property
    * @param callbacks request callbacks
    */
-  renameProp(path: string, newName: string, callbacks?: ClientCallbacks): Promise<any> | string;
+  renameProp(path: string, newName: string, callbacks?: ClientCallbacks): Promise<any> | string {
+    return this.simpleRequest({cmd: 'renameProp', path, newName}, callbacks);
+  }
 
   /**
    * Adds a user-defined custom property schema to a Block.
@@ -227,7 +287,9 @@ export interface ClientConn {
     desc: PropDesc | PropGroupDesc,
     group?: string,
     callbacks?: ClientCallbacks
-  ): Promise<any> | string;
+  ): Promise<any> | string {
+    return this.simpleRequest({cmd: 'addCustomProp', path, desc, group}, callbacks);
+  }
 
   /**
    * Removes a user-defined custom property from the Block.
@@ -236,7 +298,9 @@ export interface ClientConn {
    * @param group optional name of a group if the custom property is nested inside it
    * @param callbacks request callbacks
    */
-  removeCustomProp(path: string, name: string, group?: string, callbacks?: ClientCallbacks): Promise<any> | string;
+  removeCustomProp(path: string, name: string, group?: string, callbacks?: ClientCallbacks): Promise<any> | string {
+    return this.simpleRequest({cmd: 'removeCustomProp', path, name, group}, callbacks);
+  }
 
   /**
    * Changes the ordering metadata of a custom property in the Block.
@@ -252,7 +316,9 @@ export interface ClientConn {
     nameTo: string,
     group?: string,
     callbacks?: ClientCallbacks
-  ): Promise<any> | string;
+  ): Promise<any> | string {
+    return this.simpleRequest({cmd: 'moveCustomProp', path, nameFrom, nameTo, group}, callbacks);
+  }
 
   /**
    * Instantiates or enables a predefined optional property on a Block.
@@ -260,7 +326,9 @@ export interface ClientConn {
    * @param name name of the optional property
    * @param callbacks request callbacks
    */
-  addOptionalProp(path: string, name: string, callbacks?: ClientCallbacks): Promise<any> | string;
+  addOptionalProp(path: string, name: string, callbacks?: ClientCallbacks): Promise<any> | string {
+    return this.simpleRequest({cmd: 'addOptionalProp', path, name}, callbacks);
+  }
 
   /**
    * Removes an optional property from the Block.
@@ -268,7 +336,9 @@ export interface ClientConn {
    * @param name name of the optional property to remove
    * @param callbacks request callbacks
    */
-  removeOptionalProp(path: string, name: string, callbacks?: ClientCallbacks): Promise<any> | string;
+  removeOptionalProp(path: string, name: string, callbacks?: ClientCallbacks): Promise<any> | string {
+    return this.simpleRequest({cmd: 'removeOptionalProp', path, name}, callbacks);
+  }
 
   /**
    * Changes the ordering metadata of an optional property in the Block.
@@ -277,7 +347,9 @@ export interface ClientConn {
    * @param nameTo target location
    * @param callbacks request callbacks
    */
-  moveOptionalProp(path: string, nameFrom: string, nameTo: string, callbacks?: ClientCallbacks): Promise<any> | string;
+  moveOptionalProp(path: string, nameFrom: string, nameTo: string, callbacks?: ClientCallbacks): Promise<any> | string {
+    return this.simpleRequest({cmd: 'moveOptionalProp', path, nameFrom, nameTo}, callbacks);
+  }
 
   /**
    * Inserts an unassigned new element inside a dynamic Block Group at `idx`.
@@ -286,7 +358,9 @@ export interface ClientConn {
    * @param idx index defining where the new element is inserted
    * @param callbacks request callbacks
    */
-  insertGroupProp(path: string, group: string, idx: number, callbacks?: ClientCallbacks): Promise<any> | string;
+  insertGroupProp(path: string, group: string, idx: number, callbacks?: ClientCallbacks): Promise<any> | string {
+    return this.simpleRequest({cmd: 'insertGroupProp', path, group, idx}, callbacks);
+  }
 
   /**
    * Splicing removes the element spanning index `idx` from a dynamic Block Group.
@@ -295,7 +369,9 @@ export interface ClientConn {
    * @param idx index to prune from the group
    * @param callbacks request callbacks
    */
-  removeGroupProp(path: string, group: string, idx: number, callbacks?: ClientCallbacks): Promise<any> | string;
+  removeGroupProp(path: string, group: string, idx: number, callbacks?: ClientCallbacks): Promise<any> | string {
+    return this.simpleRequest({cmd: 'removeGroupProp', path, group, idx}, callbacks);
+  }
 
   /**
    * Transposes the element in a dynamic Block Group sequence from an origin index to a new displacement index.
@@ -311,21 +387,27 @@ export interface ClientConn {
     oldIdx: number,
     newIdx: number,
     callbacks?: ClientCallbacks
-  ): Promise<any> | string;
+  ): Promise<any> | string {
+    return this.simpleRequest({cmd: 'moveGroupProp', path, group, oldIdx, newIdx}, callbacks);
+  }
 
   /**
    * Resolves the tracked parent runtime `Flow` belonging to the block at `path` and reverses the latest operational change (undo stack).
    * @param path path to a block or property inside the target Flow context
    * @param callbacks request callbacks
    */
-  undo(path: string, callbacks?: ClientCallbacks): Promise<any> | string;
+  undo(path: string, callbacks?: ClientCallbacks): Promise<any> | string {
+    return this.simpleRequest({cmd: 'undo', path}, callbacks);
+  }
 
   /**
    * Resolves the tracked parent runtime `Flow` belonging to the block at `path` and re-applies an undone state slice (redo stack).
    * @param path path to a block or property inside the target Flow context
    * @param callbacks request callbacks
    */
-  redo(path: string, callbacks?: ClientCallbacks): Promise<any> | string;
+  redo(path: string, callbacks?: ClientCallbacks): Promise<any> | string {
+    return this.simpleRequest({cmd: 'redo', path}, callbacks);
+  }
 
   /**
    * Extracts specific serialized properties from a block entirely and returns the copied stringified structure.
@@ -335,7 +417,9 @@ export interface ClientConn {
    * @param cut whether to delete the properties after copying
    * @param callbacks request callbacks
    */
-  copy(path: string, props: string[], cut?: boolean, callbacks?: ClientCallbacks): Promise<any> | string;
+  copy(path: string, props: string[], cut?: boolean, callbacks?: ClientCallbacks): Promise<any> | string {
+    return this.simpleRequest({cmd: 'copy', path, props, cut}, callbacks);
+  }
 
   /**
    * Relays a generic block-specific command (`command` parameter) payload down to the Component/Block implementation for executing bespoke logics.
@@ -344,7 +428,9 @@ export interface ClientConn {
    * @param params optional object arguments for the command
    * @param callbacks request callbacks
    */
-  executeCommand(path: string, command: string, params?: DataMap, callbacks?: ClientCallbacks): Promise<any> | string;
+  executeCommand(path: string, command: string, params?: DataMap, callbacks?: ClientCallbacks): Promise<any> | string {
+    return this.simpleRequest({cmd: 'executeCommand', path, command, params}, callbacks);
+  }
 
   /**
    * Loads serialized data structures onto the destination Block.
@@ -359,14 +445,18 @@ export interface ClientConn {
     data: DataMap,
     resolve?: 'overwrite' | 'rename',
     callbacks?: ClientCallbacks
-  ): Promise<any> | string;
+  ): Promise<any> | string {
+    return this.simpleRequest({cmd: 'paste', path, data, resolve}, callbacks);
+  }
 
   /**
    * Directly triggers the function of a Block, like the default `onCall` hook behavior
    * @param path path of Block
    * @param callbacks request callbacks
    */
-  callFunction(path: string, callbacks?: ClientCallbacks): Promise<any> | string;
+  callFunction(path: string, callbacks?: ClientCallbacks): Promise<any> | string {
+    return this.simpleRequest({cmd: 'callFunction', path}, callbacks);
+  }
 
   /**
    * Tells the Server-side Desc Watcher to proactively start relaying function signature modifications taking place under `id`.
@@ -374,23 +464,23 @@ export interface ClientConn {
    * @param funcLib optional path of the Flow whose in-flow function descs should be watched
    * @param listener local listener hook interface mapping desc changes
    */
-  watchDesc(funcId: string, funcLib?: string, listener?: ClientDescListener): FunctionDesc;
+  abstract watchDesc(funcId: string, funcLib?: string, listener?: ClientDescListener): FunctionDesc;
 
   /**
    * Removes a desc listener
    * @param listener local listener hook interface mapping desc changes
    */
-  unwatchDesc(listener: ClientDescListener): void;
+  abstract unwatchDesc(listener: ClientDescListener): void;
 
-  getCategory(category: string): FunctionDesc;
+  abstract getCategory(category: string): FunctionDesc;
 
-  getCommonBaseFunc(set: Set<FunctionDesc>, funcLib?: string): FunctionDesc;
+  abstract getCommonBaseFunc(set: Set<FunctionDesc>, funcLib?: string): FunctionDesc;
 
-  getOptionalProps(desc: FunctionDesc, funcLib?: string): {[key: string]: PropDesc};
+  abstract getOptionalProps(desc: FunctionDesc, funcLib?: string): {[key: string]: PropDesc};
 
-  findGlobalBlocks(tags: string[]): string[];
+  abstract findGlobalBlocks(tags: string[]): string[];
 
-  cancel(id: string): void;
+  abstract cancel(id: string): void;
 }
 
 export class ValueSubscriber {
@@ -419,9 +509,19 @@ export class ValueSubscriber {
     if (this.conn === conn && this.path === path && this.fullValue === fullValue) {
       return;
     }
+    if (
+      this.conn &&
+      conn &&
+      this.conn.getBaseConn() === conn.getBaseConn() &&
+      this.path === path &&
+      this.fullValue === fullValue
+    ) {
+      this.conn = conn;
+      return;
+    }
     this.fullValue = fullValue;
     if (this.conn && this.path) {
-      this.conn.unsubscribe(path, this);
+      this.conn.unsubscribe(this.path, this);
     }
     this.conn = conn;
     this.path = path;

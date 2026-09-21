@@ -1,5 +1,7 @@
 export * from './connect/ClientConn.ts';
+export * from './policy/EditPolicy.ts';
 export * from './connect/ClientConnection.ts';
+export * from './connect/PolicyConnection.ts';
 export * from './block/Descriptor.ts';
 export * from './util/i18n.ts';
 export * from './util/Compare.ts';
