@@ -211,7 +211,7 @@ describe('editor BlockStage', function () {
     simulate(document.body, 'mouseup');
   });
 
-  it('shows block self property drag handle', async function () {
+  it('shows and drags block self property handle', async function () {
     flow = Root.instance.addFlow('BlockStageSelfProperty');
     flow.load({
       add: {
@@ -242,6 +242,32 @@ describe('editor BlockStage', function () {
     expect(selfDrag.nextElementSibling.classList.contains('ticl-width-drag')).toBe(true);
     await shouldHappen(() => div.querySelector('.ticl-block-wire'));
     await shouldHappen(() => div.querySelector('.ticl-block-foot > .ticl-outbound'));
+
+    await shouldHappen(() => selfDrag.offsetWidth === 14);
+    const sourceStyle = window.getComputedStyle(selfDrag);
+    const color = sourceStyle.backgroundColor;
+    const borderRadius = sourceStyle.borderRadius;
+    expect(color).not.toBe('rgba(0, 0, 0, 0)');
+    const rect = selfDrag.getBoundingClientRect();
+    const x = rect.x + rect.width / 2;
+    const y = rect.y + rect.height / 2;
+    simulate(selfDrag, 'mousedown', fakeMouseEvent(x, y));
+    try {
+      simulate(document.body, 'mousemove', fakeMouseEvent(x + 40, y + 30));
+      const preview = document.querySelector('.dragging-layer > :first-child') as HTMLElement;
+      expect(preview).not.toBeNull();
+      const previewStyle = window.getComputedStyle(preview);
+      expect(previewStyle.backgroundColor).toBe(color);
+      expect(previewStyle.borderRadius).toBe(borderRadius);
+      const previewRect = preview.getBoundingClientRect();
+      expect(previewRect.width).toBe(selfDrag.offsetWidth);
+      expect(previewRect.height).toBe(selfDrag.offsetHeight);
+      expect(previewRect.x + previewRect.width / 2).toBeCloseTo(x + 40);
+      expect(previewRect.y + previewRect.height / 2).toBeCloseTo(y + 30);
+    } finally {
+      simulate(document.body, 'mouseup');
+    }
+    expect(document.querySelector('.dragging-layer')).toBeNull();
 
     flow.queryProperty('add.@b-pself').setValue(undefined);
     await shouldHappen(() => !div.querySelector('.ticl-block-self-drag'));

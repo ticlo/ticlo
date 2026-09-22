@@ -65,7 +65,7 @@
     "playwright": "^1.63.0",
     "postcss": "^8.5.28",
     "pretty-format": "^30.5.1",
-    "rc-dock": "^4.0.0-alpha.3",
+    "rc-dock": "^4.0.1",
     "react": "^19.2.8",
     "react-dom": "^19.2.8",
     "shelljs": "^0.10.0",

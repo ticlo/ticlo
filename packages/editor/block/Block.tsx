@@ -73,7 +73,7 @@ export class BlockView extends PureDataRenderer<BlockViewProps, BlockViewState> 
           item.conn.getBaseConn()
         );
       }
-      e.startDrag(null, null);
+      e.startDrag(null, null, {opacity: 0.8});
       item.stage.focus();
     }
   };
@@ -133,13 +133,22 @@ export class BlockView extends PureDataRenderer<BlockViewProps, BlockViewState> 
     }
     if (!this.context.canWriteField(`${item.path}.@b-xyw`)) return;
     this._baseW = item.w;
-    e.startDrag(null, null);
+    e.startDrag(null, null, {opacity: 0.8});
   };
 
   startDragSelf = (e: DragState) => {
     const {item} = this.props;
     e.setData({fields: [item.path]}, item.conn.getBaseConn());
-    e.startDrag();
+    const source = e.component.element;
+    const style = window.getComputedStyle(source);
+    const preview = source.ownerDocument.createElement('div');
+    Object.assign(preview.style, {
+      width: style.width,
+      height: style.height,
+      borderRadius: style.borderRadius,
+      backgroundColor: style.backgroundColor,
+    });
+    e.startDrag(source, preview, {opacity: 0.8});
   };
 
   onDragWMove = (e: DragState) => {

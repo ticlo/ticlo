@@ -156,7 +156,7 @@ export class BlockStage extends BlockStageBase<BlockStageProps, StageState> impl
     if (e.event.target === this._bgNode) {
       const rect = this._bgNode.getBoundingClientRect();
       this._dragingSelect = [(e.clientX - rect.left) * e.component.scaleX, (e.clientY - rect.top) * e.component.scaleY];
-      e.startDrag(null, null);
+      e.startDrag(null, null, {opacity: 0.8});
       this._selectRectNode.style.display = 'block';
       this._hasPopup = BlockStage.findOpenPopups();
     }
@@ -212,7 +212,7 @@ export class BlockStage extends BlockStageBase<BlockStageProps, StageState> impl
   onRightDragStart = (e: DragState) => {
     if (e.dragType === 'right') {
       this._dragScrollPos = [this._scrollX, this._scrollY];
-      e.startDrag(null, null);
+      e.startDrag(null, null, {opacity: 0.8});
     }
   };
   onRightDragMove = (e: DragState) => {
@@ -289,7 +289,7 @@ export class BlockStage extends BlockStageBase<BlockStageProps, StageState> impl
   _dragScrollPos?: [number, number];
   onZoomWindowDragStart = (e: DragState) => {
     this._dragScrollPos = [this._scrollX, this._scrollY];
-    e.startDrag(null, null);
+    e.startDrag(null, null, {opacity: 0.8});
   };
   onDragMoveScroll = (e: {dx: number; dy: number}, reverseDrag = false) => {
     const {zoom, contentWidth, contentHeight, stageWidth, stageHeight} = this.state;

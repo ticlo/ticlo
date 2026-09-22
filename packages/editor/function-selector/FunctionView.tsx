@@ -51,7 +51,7 @@ export class FunctionView extends React.PureComponent<Props, any> {
       },
       conn.getBaseConn()
     );
-    e.startDrag();
+    e.startDrag(undefined, undefined, {opacity: 0.8});
   };
 
   onClick = (e: React.MouseEvent) => {
