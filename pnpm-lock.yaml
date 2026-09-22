@@ -285,8 +285,8 @@ importers:
         specifier: ^30.5.1
         version: 30.5.1
       rc-dock:
-        specifier: ^4.0.1
-        version: 4.0.1(react-dom@19.2.8(react@19.2.8))(react@19.2.8)
+        specifier: ^4.0.2
+        version: 4.0.2(react-dom@19.2.8(react@19.2.8))(react@19.2.8)
       react:
         specifier: ^19.2.8
         version: 19.2.8
@@ -354,8 +354,8 @@ importers:
         specifier: ^26.4.2
         version: 26.4.2(typescript@6.0.3)
       rc-dock:
-        specifier: ^4.0.1
-        version: 4.0.1(react-dom@19.2.8(react@19.2.8))(react@19.2.8)
+        specifier: ^4.0.2
+        version: 4.0.2(react-dom@19.2.8(react@19.2.8))(react@19.2.8)
       react:
         specifier: ^19.2.8
         version: 19.2.8
@@ -463,8 +463,8 @@ importers:
         specifier: ^18.0.12
         version: 18.0.12
       rc-dock:
-        specifier: ^4.0.1
-        version: 4.0.1(react-dom@19.2.8(react@19.2.8))(react@19.2.8)
+        specifier: ^4.0.2
+        version: 4.0.2(react-dom@19.2.8(react@19.2.8))(react@19.2.8)
       rc-trigger:
         specifier: ^5.3.4
         version: 5.3.4(react-dom@19.2.8(react@19.2.8))(react@19.2.8)
@@ -3698,8 +3698,8 @@ packages:
       react: '>=16.9.0'
       react-dom: '>=16.9.0'
 
-  rc-dock@4.0.1:
-    resolution: {integrity: sha512-TpiQLocotZ53cnxBgxVkEJ4/8qZRsv2ACy/nDk1IM20x+TMddlFEPDVbNBN3y+h+d3GZdtoRn1ztIreyJepGIQ==}
+  rc-dock@4.0.2:
+    resolution: {integrity: sha512-VXaOYYS6hsOoj2gKp/hT+7BnzizHCbMbsr/HkHKvHHAkrRj9gHzY/ytPkRGHg5mnCCUcQLCL8KgGU7IE3V2mDQ==}
     peerDependencies:
       react: '>=18.0.0'
       react-dom: '>=18.0.0'
@@ -7607,7 +7607,7 @@ snapshots:
       react-dom: 19.2.8(react@19.2.8)
       resize-observer-polyfill: 1.5.1
 
-  rc-dock@4.0.1(react-dom@19.2.8(react@19.2.8))(react@19.2.8):
+  rc-dock@4.0.2(react-dom@19.2.8(react@19.2.8))(react@19.2.8):
     dependencies:
       '@rc-component/dropdown': 1.0.3(react-dom@19.2.8(react@19.2.8))(react@19.2.8)
       '@rc-component/menu': 1.5.0(react-dom@19.2.8(react@19.2.8))(react@19.2.8)
