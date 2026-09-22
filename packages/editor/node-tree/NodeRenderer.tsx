@@ -359,7 +359,7 @@ export class NodeTreeRenderer extends PureDataRenderer<Props, any> {
       data = {...data, fields: [`${item.key}.#output`]};
     }
     e.setData(data, item.getBaseConn());
-    e.startDrag(undefined, undefined, {opacity: 0.8});
+    e.startDrag(undefined, undefined, {opacity: 0.9});
   };
 
   watchDesc() {

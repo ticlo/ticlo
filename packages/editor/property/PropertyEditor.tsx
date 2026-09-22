@@ -213,14 +213,14 @@ export class PropertyEditor extends MultiSelectComponent<PropertyEditorProps, St
       const data = reorder?.getDragData(this.props);
       if (data) {
         e.setData(data, conn.getBaseConn());
-        e.startDrag(undefined, undefined, {opacity: 0.8});
+        e.startDrag(undefined, undefined, {opacity: 0.9});
       } else {
         return;
       }
     } else {
       const fields = paths.map((s) => `${s}.${name}`);
       e.setData({fields}, conn.getBaseConn());
-      e.startDrag(undefined, undefined, {opacity: 0.8});
+      e.startDrag(undefined, undefined, {opacity: 0.9});
     }
   };
   onDragOver = (e: DragState) => {

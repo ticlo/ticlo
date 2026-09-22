@@ -411,7 +411,7 @@ export class FieldView extends PureDataRenderer<FieldViewProps, any> {
       e.setData({fields: [item.path]}, item.getBaseConn());
     }
 
-    e.startDrag(undefined, undefined, {opacity: 0.8});
+    e.startDrag(undefined, undefined, {opacity: 0.9});
   };
   onDragOver = (e: DragState) => {
     const {item} = this.props;

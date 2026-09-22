@@ -93,7 +93,7 @@ export class ObjectTreeRenderer extends PureDataRenderer<Props, any> {
     const fields = [`${item.rootPath}..${item.key}`];
     e.setData({fields}, item.connection.getBaseConn());
 
-    e.startDrag(undefined, undefined, {opacity: 0.8});
+    e.startDrag(undefined, undefined, {opacity: 0.9});
   };
 
   renderImpl() {

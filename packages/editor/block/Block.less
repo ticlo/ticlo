@@ -110,10 +110,16 @@
 .ticl-block-body {
   width: 100%;
 }
-body:not(.dock-dragging) .ticl-field {
-  cursor: alias;
-}
+body:not(.dock-dragging) {
+  .ticl-field,
+  .ticl-block-self-drag {
+    cursor: alias;
+  }
 
+  .ticl-block-head {
+    cursor: move;
+  }
+}
 .ticl-block-view {
   width: 100%;
   padding: 1px 4px;
@@ -150,11 +156,6 @@ body:not(.dock-dragging) .ticl-field {
   height: 14px;
   border-radius: 0 6px;
   margin: 4px;
-  cursor: alias;
-
-  &:active {
-    cursor: grabbing;
-  }
 }
 
 .ticl-block-wire {
