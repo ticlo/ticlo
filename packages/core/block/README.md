@@ -1,41 +1,46 @@
-### Block  
+# Blocks, properties, and flows
 
-- Collection of key-value pairs (**Properties**) 
-- An optional **Function** can be attached to Block, based on its #is value 
-- Keeps track of bindings relative to this block 
+## Block
 
-### Property 
+A `Block` owns named `BlockProperty` values and resolves bindings relative to
+itself. Its `#is` value selects an optional function. Functions implemented in
+TypeScript and flow-backed worker functions use the same block interface.
 
-- Store current value and saved value (property._value and property._saved)
-- value can be a child **Block**, thus create a tree structure of **Block**s
-- Saved value will be saved in during save/load 
-  - for manual value change: _saved === _value
-  - for runtime change from Function: _saved === undefined, _value != _saved 
-- Dispatch change event 
+## Property
 
-### Function
+`BlockProperty._value` is the current runtime value; `_saved` is the value used
+for persistence. Either can refer to a child block.
 
-- a function attached to **Block**
-- native functions are compiled in js code
-- custom functions are defined in a **Flow**
+- `setValue()` updates both values and removes an existing binding.
+- `updateValue()` and `setOutput()` update runtime state without saving it.
+  An earlier saved value can remain; `_saved` is not necessarily `undefined`.
+- `setBinding()` clears the saved value and subscribes to the source. The binding
+  path is serialized instead of its current resolved value.
 
-### Flow (extends Block)
-- **Flow** is the entry point of save load
-  - it saves everything in the tree, but skips children **Flow**s
-- **Flow** handles history, (undo / redo)
+Properties dispatch changes to listeners. Owned child blocks are destroyed
+when replaced, and their saved reference is cleared.
 
-### Block Config (extends Property)
-- **Config**'s name always starts with **#**
-- **Config**s are used to keep general properties that are required by the **Block** no matter what the function is.
-- **Config** can also be used as function parameter if the function supports dynamic parameters. so it defines properties as configs to avoid any potential conflict with the dynamic parameter names.
-#### Examples:
-  - **#is**: ID of the **Function**
-  - **#output**: main output of the **Function**
-  - **#priority**: used to override the default priority of the **Function**
+## Flow
 
-### Block Attribute (extends Property)
-- **Attribute**'s name always starts with **@**
-- **Attribute**'s are only for editing purpose. At runtime, dataflow logic and UI component should still work the same way with or without **Attributes**.
-#### Examples:
-  - **@b-xyw**: x, y, width of a **Block**
-  - **@b-p**: a list of properties to be displayed directly in block view on the stage
+`Flow` extends `Block` and defines a save/load boundary. `flow.save()` serializes
+saved properties and bindings, skipping nested `Flow` instances. Those flows
+are saved separately. `FlowHistory` provides undo/redo and tracks unsaved edits.
+
+`flow.applyChange()` calls the persistence callback, which may return a promise.
+Failed saves retain unsaved state; edits made during a pending save remain
+unsaved after that save completes.
+
+## Configs and attributes
+
+`#` properties are engine configs and controls; `+` properties are
+function-specific configs. Specialized config classes handle values such as
+`#is`, `#mode`, and `#call`. Functions can use configs such as `#output` to avoid
+collisions with dynamic input names.
+
+`@` properties hold editor metadata, including `@b-xyw` for position/width and
+`@b-p` for displayed property order. Saved layout attributes are distinct from
+runtime status such as `@save-error`.
+
+See [block configuration](../../../docs/block-configs.md), the
+[file format](../../../.agents/skills/ticlo/file-format.md), and the
+[core architecture](../../../.agents/skills/ticlo/core-package.md) for details.

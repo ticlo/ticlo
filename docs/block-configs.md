@@ -1,77 +1,73 @@
-## Basic Configs
+# Block configuration
 
-### #is
+See [BlockConfigs.ts](../packages/core/block/BlockConfigs.ts) for config classes
+and [Block.ts](../packages/core/block/Block.ts) for execution behavior.
 
-**type**: string | object
-`#is` define the function that will be attached to the block.
+## `#is`
 
-- When value is string, it is the global function name.
-- When value is object, it will be deserialized as a child block in the `#flow` config
+A string selecting the function attached to a block: a global ID such as `add`,
+a local function such as `:double`, or a namespace function such as
+`+main:tools:double`. An empty string means no function.
 
-### #mode
+Runtime types such as `flow:main`, `flow:inputs`, and `flow:worker` are supplied
+by the owning block class. They are not ordinary function IDs. In saved data,
+an object-valued `#is` wraps a plain object value; it does not define a subflow.
+See the [file format](../.agents/skills/ticlo/file-format.md).
 
-**type**: 'auto' | 'onLoad' | 'onChange' | 'onCall' | 'disabled'
+## `#mode` and `#disabled`
 
-**Block Modes:**
+`#mode` accepts `auto`, `onLoad`, `onChange`, or `onCall`. `auto` uses the
+function's default mode.
 
-|                       | onLoad | onChange | onCall | disabled |
-| :-------------------: | :----: | :------: | :----: | :------: |
-|  #call is triggered   |   ✔️   |    ✔️    |   ✔️   |    -     |
-|   input is changed    |   ✔️   |    ✔️    |   -    |    -     |
-| block is deserialized |   ✔️   |    -     |   -    |    -     |
-| duplicated sync call  |   -    |    ✔️    |   ✔️   |    -     |
+| Trigger | `onLoad` | `onChange` | `onCall` |
+| --- | --- | --- | --- |
+| Block loaded | Yes | No | No |
+| Input changed | Yes | Yes | No |
+| Accepted `#call` | Yes | Yes | Yes |
 
-- By default, block mode is 'auto', which means using the default mode from the block function. you can override block mode by changing the `#mode` config value
-- If `#call` is triggered when block `#sync`=**true**. The block will only run with there is no
+Use `#disabled: true` to disable execution. `disabled` is not a mode value.
+Individual functions can reject calls through their `onCall()` handler.
 
-### #sync
+## `#call` and `#sync`
 
-**type**: boolean
+An accepted `#call` queues the block in the resolver. With `#sync: true`, it runs
+immediately. This changes call handling, not ordinary input-change scheduling.
+A pure function in an input-driven mode can skip a repeated synchronous call
+when no input change is pending.
 
-- When `#sync`=**true**, the block will be run as soon as `#call` is changed, before any other property change or block queue taking effect
+`null`, `undefined`, `false`, and `WAIT` do not trigger calls. Ordinary `Event`
+instances trigger only in the resolver loop in which they were created.
+Specialized events can override that behavior.
 
-### #call
+## `#custom` and `#optional`
 
-**type**: trigger
+`#custom` is an array of property descriptors defining additional properties.
+`#optional` is an array of names selecting optional descriptor properties to
+show in the editor. The [property API](../packages/core/property-api) maintains
+these lists and their values.
 
-Queue the block in the resolver to run it asynchronously, or run it instantly when `#sync`=**true**
+## Runtime references
 
-- Changing `#call` to **null** or **undefined** will be ignored
-- Event can directly `#call` a block when it just gets dispatched. But if it's stored in a property and being set to #call later, the block will ignore it.
+These properties are read-only references and should not be written into flow files:
 
-### #custom
+- `#`: the current block.
+- `##`: its parent.
+- `#flow`: the containing flow.
+- `#lib`: the flow owning the current function library, when available.
+- `#name`: the block's name.
+- `#+`: the current namespace root.
 
-**type**: list of property descriptor
+## Worker data and readiness
 
-A list of additional property definition that will show in the property list
+Workers receive inputs through `#inputs` and publish values through `#outputs`.
+Within those blocks, `#input` and `#output` are conventional default property
+names; named inputs and outputs are also supported.
 
-### #optional
+`#wait` is true while work is pending. Clearing it lets a `WorkerFlow` report
+readiness after resolution. Setting `#wait` on the worker's `#outputs` block
+forwards readiness to the worker flow. `map`, `multi-worker`, and `handler`
+use worker readiness when collecting results or reusing workers.
 
-**type** list of string
-
-### #flow
-
-**type**: Block
-
-A temporary block maintained by the block function, block will always destroy the #flow block when function changed
-
-### #wait
-
-**type**: boolean
-indicate when the worker's task is finished and the output data is ready
-
-in MapObject and MapStream function, the #waiting config is used to determine if the current worker is ready and can be destroyed/reused
-
-## Worker Configs
-
-these configs are only used in worker related functions
-
-### #input
-
-**type**: any
-the input data of the worker
-
-### #output
-
-**type**: any
-the output data of the worker
+The `worker` function stores its source in `+use` and its running child flow at
+`#worker`. `map`, `multi-worker`, and `handler` use `use` for their source.
+See [worker architecture](../.agents/skills/ticlo/worker-architecture.md).

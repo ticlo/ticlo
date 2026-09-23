@@ -5,7 +5,7 @@ description: Details on how WorkerControl and subflows work in Ticlo, specifical
 
 # Ticlo Worker Architecture
 
-The `@ticlo/core/worker` package is responsible for flow-backed functions: reusable custom worker functions, inline worker definitions, repeaters such as `map`, and task handlers.
+The `packages/core/worker/` directory in `@ticlo/core` is responsible for flow-backed functions: reusable custom worker functions, inline worker definitions, repeaters such as `map`, and task handlers.
 
 ## WorkerControl and Worker Sources
 
@@ -36,6 +36,8 @@ When the worker engine needs to create or apply changes to a worker flow, it cal
 - If `src` is a string, `saveCallback` calls `WorkerFunctionGen.applyChangeToFunc(flow, src)`.
 - If `src` is inline data, `saveCallback` calls `saveInline()`, which writes `flow.save()` back into the host block's worker field.
 - If no valid source exists, the host should return `WAIT` or avoid creating a flow.
+
+For storage-backed namespace libraries, `applyChangeToFunc()` waits for `NsFunctionLib.pendingSave` before returning saved data. Worker/editor save callbacks may return promises; callers must preserve and await them so failed saves remain visible and unsaved.
 
 ## Flow Classes
 

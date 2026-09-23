@@ -10,7 +10,7 @@ Runtime state and saved file state are intentionally different. A property can h
 
 ### JSON Structure
 
-The file is a standard JSON object (`DataMap`).
+The file is a JSON object (`DataMap`). Use Ticlo's `encodeSorted()` and `decode()` helpers when storing runtime values such as Luxon dates; they handle the `arrow-code` representations inside JSON.
 
 ```json
 {
@@ -30,14 +30,12 @@ Ticlo uses special prefixes for object keys to distinguish between different typ
 
 Keys starting with `#` configure the block's behavior or metadata.
 
-- `#is`: **Required**. Specifies the type/class of the block.
-  - `""` (empty string): No special function attached to the block, usually used for flow's root block.
-  - `"flow:folder"`: A folder for organizing flows.
-  - `"flow:namespace"`: A namespace definition.
-  - `"flow:global"`: Global settings.
-  - `"flow:inputs"`: The inputs definition block.
-  - `"flow:outputs"`: The outputs definition block.
-  - `"function_name"`: For child blocks, the identifier of the function (e.g., `"add"`, `"test:assert"`).
+- `#is`: Marks a saved child block and selects its function. A `~#is` binding can supply the function ID instead.
+  - `""` (empty string): No function attached; also used when saving flows and their input/output blocks.
+  - `"add"`: A registered global function ID.
+  - `":double"`: A function in the current flow's `#functions` library.
+  - `"+main:tools:double"`: A function in a namespace library.
+  - Types such as `flow:main`, `flow:folder`, `flow:global`, `flow:inputs`, and `flow:outputs` are supplied by runtime classes. Writing these strings on an ordinary block does not construct those classes; use the corresponding flow/folder APIs.
 - `#inputs`: Defines the input interface of the flow (configures the `flow:inputs` block).
 - `#outputs`: Defines the output interface of the flow (configures the `flow:outputs` block).
 - `#functions`: Defines a group of local functions.
@@ -45,13 +43,13 @@ Keys starting with `#` configure the block's behavior or metadata.
 - `#disabled`: `true` to disable the block/flow.
 - `#mode`: Execution mode.
   - `"auto"` (default), `"onLoad"`, `"onChange"`, `"onCall"`.
-- `#sync`: `true` to force synchronous execution.
-- `#wait`: Initial waiting state.
-- `#priority`: Number indicating execution priority.
+- `#sync`: `true` to run accepted `#call` triggers immediately; input changes still use the resolver queue.
+- `#wait`: Whether work is still pending. Workers report readiness after it clears.
+- `#priority`: Execution priority from `0` (highest) to `3` (lowest).
 - `#call`: A property used to trigger the block (often used in `onCall` mode).
 - `#cancel`: A property used to cancel execution.
 - `#secret`: Configuration for secret values.
-- `#lib`: Runtime-only metadata for editor descriptor lookup when a Flow runs with an in-flow function lib. Its runtime value is the owning Flow object. When subscribed over a client connection it serializes as a `NoSerialize` Block value whose `value` field is the Flow path. It is set with `updateValue()`/const config behavior and must not be written with `setValue()` or included in saved `.ticlo` JSON.
+- `#lib`: Runtime-only metadata for editor descriptor lookup when a Flow runs with an in-flow function lib. Its runtime value is the owning Flow object. When subscribed over a client connection it serializes as a `NoSerialize` Block value whose `value` field is the Flow path. It is a read-only reference supplied by the runtime and must not be set by application code or included in saved `.ticlo` JSON.
 - `#name`: (Read-only) The name of the block.
 
 `#static` is a named-worker feature. Inline worker flow data should not create or save static blocks. At runtime, each function library flow also has a `#shared` owner block that contains one static child per function. That owner is deliberately still called `#shared`, has runtime type `flow:const`, is visible in the node tree, and must not be written to `.ticlo` JSON.
@@ -76,12 +74,15 @@ Keys starting with `^` are context properties. They typically connect to global 
 
 ### 4. Attributes (`@`)
 
-Keys starting with `@` are attributes. These are used primarily by the Ticlo Dataflow Editor (e.g., for layout, positioning, or comments) and do **not** affect the runtime logic of the flow.
+Keys starting with `@` are editor attributes, such as layout, positioning, or comments. They are not function inputs. Saved layout attributes should be preserved when editing a flow file. Runtime status attributes such as `@has-change` and `@save-error` are not part of the saved layout.
 
-- **Important**: If these keys are removed, the flow's execution behavior remains exactly the same.
 - `@b-p`: Block properties layout instructions (ordering of properties in the editor).
 - `@b-pself`: Boolean/toggle, default `false`. When `true`, the editor shows the block's own property in the footer for binding from the block path (for example `flow.block1`).
 - `@b-xyw`: Layout coordinates `[x, y, width]`.
+
+### 5. Function-specific configuration (`+`)
+
+Keys starting with `+` configure a particular function, for example `+use` and `+state` on `worker`. Inline worker definitions are plain data values: wrap them with an object-valued `#is` so loading does not create a child block in the config property.
 
 ## Path Navigation
 
@@ -103,8 +104,9 @@ A flow that adds two numbers.
 {
   "#is": "",
   "#inputs": {
-    "num1": 0,
-    "num2": 0
+    "#is": "",
+    "num1": 2,
+    "num2": 3
   },
   "adder": {
     "#is": "add",
@@ -112,22 +114,31 @@ A flow that adds two numbers.
     "~1": "##.#inputs.num2"
   },
   "#outputs": {
+    "#is": "",
     "~result": "##.adder.#output"
   }
 }
 ```
 
-### Worker Flow Definition
+### Inline Worker
 
-Example of a worker definition with custom types.
+This flow passes `4` into an inline worker and receives `8` at `double.#output`.
+The outer `#is` under `+use` wraps the worker definition as a plain value.
 
 ```json
 {
-  "#is": "worker",
-  "#custom": [{"name": "inputA", "type": "number", "pinned": true}],
-  "internalLogic": {
-    "#is": "someLogic",
-    "~val": "##.inputA"
+  "#is": "",
+  "double": {
+    "#is": "worker",
+    "value": 4,
+    "+use": {
+      "#is": {
+        "#is": "",
+        "#inputs": {"#is": "", "#custom": [{"name": "value", "type": "number"}]},
+        "multiply": {"#is": "multiply", "~0": "##.#inputs.value", "1": 2},
+        "#outputs": {"#is": "", "~#output": "##.multiply.#output"}
+      }
+    }
   }
 }
 ```
@@ -174,6 +185,6 @@ Example of a worker definition with custom types.
 
 ## Validation Checklist
 
-- **Blocks vs Values**: Does every object intended to be a Block have an `#is` property? (Objects without `#is` are treated as plain JSON values).
-- **Ambiguous Values**: If a plain object value must contain `#is`, wrap it so the outer value is `{ "#is": <plain object> }`.
+- **Blocks vs Values**: Objects intended as child blocks need `#is` or `~#is`. Without either marker, a nested object is loaded as a plain value. The top-level object passed to `Flow.load()` is already flow data.
+- **Ambiguous Values**: If a plain object value must contain `#is` or `~#is`, wrap it so the outer value is `{ "#is": <plain object> }`.
 - **Bindings**: Binding paths (`~`) generally point to valid sources, but the runtime does **not** enforce this. An invalid path simply results in `undefined` without throwing an error.

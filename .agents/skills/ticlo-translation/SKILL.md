@@ -10,7 +10,7 @@ Use this skill when changing Ticlo UI/function translations, locale YAML files, 
 ## File Layout
 
 - Source translations live in package-local YAML files: `packages/**/i18n/*.yaml`.
-- English source files are `en.yaml`. Other locale files, such as `fr.yaml` and `zh.yaml`, are derived from English and may contain manual or generated translations.
+- English source files are `en.yaml`; `en.base.yaml` files are skipped by the JSON merger. Other locale files, such as `fr.yaml` and `zh.yaml`, are derived from English and may contain manual or generated translations.
 - Generated runtime files live under root `i18n/<package>/<locale>.json`.
 - Do not hand-edit generated JSON unless the task is specifically about generated output. Edit YAML, then run `pnpm build-i18n` to regenerate JSON.
 
@@ -42,19 +42,20 @@ add:
 
 Rows with `translated from:` were produced by the auto translation API or by AI-assisted translation. Auto-translation tooling may update these rows when the English source changes.
 
-Rows without a `translated from:` comment are manually translated. Treat them as owned by humans: do not replace, retranslate, or normalize them with auto translation unless the user explicitly asks to change that manual translation.
+Rows without either `translated from:` or the legacy `auto translated from hash:` marker are manually translated. Treat them as owned by humans: do not replace, retranslate, or normalize them with auto translation unless the user explicitly asks to change that manual translation.
 
-When adding AI-generated translations yourself, include the same `# translated from: <source>` comment so future tooling can distinguish generated content from manual content.
+When adding AI-generated translations yourself, include `# translated from: <sourceKey>`. Compute the key with `translationSourceKey()` in `tool/translate/YamlData.ts`: short sources use their text, while sources longer than 25 characters use a prefix and hash; backslashes, newlines, and edge spaces are escaped. Use this helper rather than copying long or multiline English text into the marker.
 
 ## Generated JSON
 
 - `tool/merge-lng.ts` merges package YAML files into `i18n/<package>/<locale>.json`.
 - JSON files do not preserve YAML comments, so the manual/generated ownership signal exists only in YAML.
-- Regenerated JSON may omit entries whose translated value equals the key, matching the current merge behavior.
+- The merger skips top-level identity entries (`key: key`) when first creating a locale output. It does not recursively remove all identity translations.
 
 ## Auto-Translation Tooling
 
 - Auto-translation code is under `tool/translate/`.
-- `tool/translate/YamlData.ts` preserves existing translations only when the `translated from:` source still matches the current English source.
+- `tool/translate/YamlData.ts` preserves manual translations for keys still in the English source. Generated translations are reused only when their source key (or legacy hash) still matches; changed sources are eligible for retranslation. Removed top-level manual entries are retained under `# no longer used`; removed nested entries are not retained by the current merger.
 - If an existing locale row lacks `translated from:` or the old `auto translated from hash:` comment, it is treated as manual and should not be overwritten by automatic translation.
+- `pnpm build-i18n-pre-collect-en` collects literal editor translation keys into `packages/editor/i18n/en.yaml`. It rewrites that file, so review its diff for dynamically referenced keys before using the result.
 - Use `pnpm build-i18n` after YAML changes to refresh generated JSON.

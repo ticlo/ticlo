@@ -8,6 +8,7 @@ The `@ticlo/core` package is the runtime engine for Ticlo flows. It owns block-t
 - `connect/`: Batched request/response protocol for editor and client APIs. `ClientConnection` creates requests and caches subscriptions; `ServerConnection` dispatches commands into a `Root`; `LocalConnection` loops both sides together through serialization for tests/local UI.
 - `functions/`: Built-in function nodes. Most are small `PureFunction` or `BaseFunction` classes registered into `globalFunctions`; date/time functions use `AutoUpdateFunction` to schedule future runs.
 - `worker/`: Flow-backed functions. `WorkerFunction`, `MapFunction`, `MultiWorkerFunction`, and `HandlerFunction` create child `WorkerFlow`/`RepeaterWorker` instances and route inputs/outputs through `WorkerControl`.
+- `policy/`: Shared editing limits. `PolicyConnection` applies client restrictions; `ServerConnection` enforces its own policy against runtime state. Editor restrictions alone do not secure a server.
 - `property-api/`: Editor mutation helpers for custom/optional/group properties, copy/paste, rename/move, and property visibility order (`@b-p`).
 - `util/`: Serialization (`arrow-code`), path math, relative binding generation, equality/clone helpers, date/time settings, logging, schedule timers, and value truncation for transport.
 
@@ -46,7 +47,7 @@ Bindings are dotted paths resolved relative to the owning block. Single-segment 
 
 Functions are registered as `FunctionFactory` values. Use `FunctionLib.addFactory(cls, desc, namespace?, functionApi?, options?)` for normal class-backed or descriptor-only functions, and `FunctionLib.add(factory, namespace?, functionApi?)` only when a caller already has a factory object. Descriptor defaults are copied to `factory.cls.prototype` for fast access to priority, default mode, type, and purity. Dynamic runtime metadata belongs in `factory.meta` and can be read with `factory.getMeta(key)` or `FunctionLib.getMeta(id, key)`. During block load, function construction is deferred until all properties are loaded so `initInputs()` sees stable data.
 
-Flow-owned `FlowFunctionLib` instances expose the runtime-only config property `#lib` as the owning Flow object. Across client serialization this arrives as a `NoSerialize` Block value whose `value` field is the Flow path. Editor descriptor watches for in-flow functions must extract that path and pass it to `ClientConn.watchDesc(funcId, libPath)`; otherwise only global descriptors are visible.
+Flows using a `FlowFunctionLib` expose the runtime-only config property `#lib` as that library's owning Flow object. Across client serialization this arrives as a `NoSerialize` Block value whose `value` field is the Flow path. Editor descriptor watches for in-flow functions must extract that path and pass it to `ClientConn.watchDesc(funcId, libPath)`; otherwise descriptors for those local functions are unavailable.
 
 Function modes:
 
@@ -68,9 +69,17 @@ Named worker functions can have `#static` content in their serialized worker dat
 
 `FlowHistory` watches flow-level changes for undo/redo and debounces edits. Server mutations use `trackChange()` to pick the right flow boundary, including special handling for synced block-position attributes and static-block edits.
 
+### Persistence
+
+`Storage` stores string values; `FlowStorage` loads/saves flows and function libraries. `await root.setStorage(storage)` initializes the flow storage. The browser has IndexedDB and static HTTP adapters; Node has filesystem storage; `@ticlo/remote-storage` adds writable HTTP storage.
+
+`FlowLoader.applyChange` and `Flow.applyChange()` return saved data or a promise of saved data. Await asynchronous saves before reporting success. Failed saves set `@save-error` and preserve unsaved state; `FlowHistory.saveCompleted()` keeps later edits dirty when they were made during a pending save. Explicit flow deletion goes through `Root.deleteFlow()`, which can also return a promise. The static and remote adapters do not delete files when a runtime flow is destroyed; the existing filesystem and IndexedDB adapters still handle destruction through their storage callbacks.
+
+See [static storage](../../../docs/static-storage.md) and [remote storage](../../../docs/remote-storage.md) for project layout and dependency loading.
+
 ## Connection Layer
 
-`Connection` batches `ConnectionSendingData` into frames capped by `WS_FRAME_SIZE`. A receive cycle forces an acknowledgement frame, even with no payload, so both sides can continue draining queued sends.
+`Connection` batches `ConnectionSendingData`, stopping a frame once its estimated size reaches `WS_FRAME_SIZE`; an individual message can exceed that threshold. Receiving a nonempty frame requires an acknowledgement, which may be empty. Empty acknowledgement frames do not themselves require a reply.
 
 `ClientConnection` exposes the editor API. Non-important `set`, `update`, and `bind` requests are merged by path until serialized. Subscriptions and watches keep client-side caches so reconnects can produce coherent clears/replays.
 
@@ -79,6 +88,8 @@ Named worker functions can have `#static` content in their serialized worker dat
 - `ServerSubscribe`: property value, binding, listener-dot, and error updates.
 - `ServerWatch`: block child structure updates plus flow history tracking.
 - `ServerDescWatcher`: function descriptor updates globally or for a local flow function lib.
+
+`ServerConnection` waits for asynchronous command results before sending completion or an error. Storage-backed commands must propagate their promises through this boundary.
 
 In Block view, `BlockStage` owns the current function lib and passes it to `PropertyList`, block renderers, and function selectors. Standalone editor components should keep global descriptor behavior unless a `funcLib` is explicitly supplied.
 
