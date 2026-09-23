@@ -17,7 +17,7 @@ import {
 } from './BlockConfigs.ts';
 import {Task} from './Task.ts';
 import {_strictMode} from './BlockSettings.ts';
-import type {Flow, Root} from './Flow.ts';
+import type {Flow, FlowLoader, Root} from './Flow.ts';
 import {BlockMode} from './Descriptor.ts';
 import {FunctionData, FunctionOutput} from './FunctonData.ts';
 import {getMaxFlowDepth} from '../util/Settings.ts';
@@ -537,7 +537,7 @@ export class Block implements Runnable, FunctionData, PropListener<FunctionFacto
     field: string,
     src?: DataMap | string,
     output?: FunctionOutput,
-    applyChange?: (flow: Flow) => DataMap
+    applyChange?: FlowLoader['applyChange']
   ): T {
     if (this._flow._depth >= getMaxFlowDepth()) {
       Logger.error(`failed to create output flow at ${this.getFullPath()}.${field}`);

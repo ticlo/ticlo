@@ -102,11 +102,12 @@ export class Namespace {
     return [null, 0];
   }
 
-  static delete(id: string): void {
+  static delete(id: string): void | Promise<void> {
     // Determine which function lib owns this id
     const functionLib = Namespace.getFunctionLib(id);
     if (functionLib) {
       functionLib.delete(id);
+      return functionLib.pendingSave;
     } else {
       globalFunctions.delete(id);
     }
@@ -201,7 +202,8 @@ export class Namespace {
           Namespace._storage
             ? (changedFlow: Flow) => {
                 const data = changedFlow.save();
-                Namespace._storage.saveLib(this.ns, libName, data);
+                const saved = Namespace._storage.saveLib(this.ns, libName, data);
+                if (saved instanceof Promise) return saved.then(() => data);
                 return data;
               }
             : undefined,
@@ -216,11 +218,14 @@ export class Namespace {
         lib.listenDesc(listener);
       }
       if (flow && Namespace._storage) {
-        Namespace._storage.loadLib(this.ns, libName).then((data) => {
-          if (data) {
-            flow.liveUpdate(data);
+        Namespace._storage.loadLib(this.ns, libName).then(
+          (data) => {
+            if (data && !flow._destroyed) flow.liveUpdate(data);
+          },
+          (error) => {
+            if (!flow._destroyed) flow.updateValue('@load-error', String(error));
           }
-        });
+        );
       }
     }
     return lib;

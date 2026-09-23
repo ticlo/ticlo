@@ -24,6 +24,7 @@ import {ParameterInputDialog} from './ParameterInputDialog.tsx';
 import {TicloLayoutContext, TicloLayoutContextType} from '../component/LayoutContext.ts';
 import {getDescLib} from '../util/FunctionLib.ts';
 import {EditPolicyContext} from '../component/EditPolicyContext.tsx';
+import {requestCallbacks} from '../util/RequestCallbacks.ts';
 
 const deleteForbidden = new Set<string>(['flow:test-group', 'flow:const']);
 const renameForbidden = new Set<string>(['flow:test-group', 'flow:const']);
@@ -68,14 +69,16 @@ export class BlockDropdown extends React.PureComponent<Props, State> {
   onSaveClicked = () => {
     if (!this.can('applyFlowChange')) return;
     const {conn, path} = this.props;
-    conn.applyFlowChange(path);
+    conn.applyFlowChange(path, undefined, requestCallbacks);
   };
 
   onDeleteClicked = () => {
     if (!this.can('delete')) return;
     const {conn, path} = this.props;
-    conn.setValue(path, undefined);
-    conn.childrenChangeStream().dispatch({path: splitPathName(path)[0]});
+    conn.setValue(path, undefined, {
+      ...requestCallbacks,
+      onDone: () => conn.childrenChangeStream().dispatch({path: splitPathName(path)[0]}),
+    });
   };
 
   onRenameClicked = () => {

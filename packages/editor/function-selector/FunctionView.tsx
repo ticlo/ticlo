@@ -16,6 +16,7 @@ import {BuildOutlined, DeleteOutlined, EditOutlined} from '@ant-design/icons';
 import {TicloLayoutContext, TicloLayoutContextType} from '../component/LayoutContext.ts';
 import {LocalizedFunctionName, t} from '../component/LocalizedLabel.tsx';
 import {MenuProps} from 'antd';
+import {requestCallbacks} from '../util/RequestCallbacks.ts';
 
 export type OnFunctionClick = (name: string, desc: FunctionDesc, data: any) => void;
 
@@ -68,12 +69,12 @@ export class FunctionView extends React.PureComponent<Props, any> {
     const editPath = `#temp.#edit-${encodeTicloName(desc.id)}`;
     conn.editWorker(editPath, null, desc.id, undefined, desc.id.startsWith(':') ? funcLib : undefined);
     this.context.editFlow(editPath, () => {
-      conn.applyFlowChange(editPath);
+      conn.applyFlowChange(editPath, undefined, requestCallbacks);
     });
   };
   onDeleteClicked = () => {
     const {conn, desc, funcLib} = this.props;
-    conn.deleteFunction(desc.id, desc.id.startsWith(':') ? funcLib : undefined);
+    conn.deleteFunction(desc.id, desc.id.startsWith(':') ? funcLib : undefined, requestCallbacks);
   };
 
   getMenu = (): MenuProps => {

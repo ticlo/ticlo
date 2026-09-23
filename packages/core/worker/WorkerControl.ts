@@ -77,7 +77,7 @@ export class WorkerControl {
     return data;
   };
 
-  getSaveParameter(): {src?: string | DataMap; saveCallback?: (flow: Flow) => DataMap} {
+  getSaveParameter(): {src?: string | DataMap; saveCallback?: Flow['_applyChange']} {
     const src: string | DataMap = this._src;
     if (typeof src === 'string') {
       // Editing a referenced worker writes back into the function registry.

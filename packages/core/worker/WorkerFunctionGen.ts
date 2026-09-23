@@ -8,7 +8,7 @@ import {DataMap} from '../util/DataTypes.ts';
 import {WorkerFlow} from './WorkerFlow.ts';
 import type {Block} from '../block/Block.ts';
 import {Namespace} from '../block/Namespace.ts';
-import {FlowFunctionLib} from '../block/NSFunctionLib.ts';
+import {FlowFunctionLib, NsFunctionLib} from '../block/NSFunctionLib.ts';
 
 export class WorkerFunctionGen extends BaseFunction<Block> {
   declare readonly type: string;
@@ -84,7 +84,9 @@ export class WorkerFunctionGen extends BaseFunction<Block> {
     const factory = WorkerFunctionGen.generate(data, funcId, namespace);
     const functionLib = Namespace.getFunctions(funcId, flow);
     functionLib?.add(factory, namespace);
-
+    if (functionLib instanceof NsFunctionLib && functionLib.pendingSave) {
+      return functionLib.pendingSave.then(() => data);
+    }
     return data;
   }
 

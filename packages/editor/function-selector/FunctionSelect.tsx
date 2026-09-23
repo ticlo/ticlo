@@ -17,6 +17,7 @@ import {RadioChangeEvent} from 'antd';
 import {FunctionList} from './FunctionList.tsx';
 import {TicloI18NConsumer, TicloLayoutContext, TicloLayoutContextType} from '../component/LayoutContext.ts';
 import {t} from '../component/LocalizedLabel.tsx';
+import {requestCallbacks} from '../util/RequestCallbacks.ts';
 
 interface Props {
   conn: ClientConn;
@@ -79,7 +80,7 @@ export class FunctionSelect extends React.PureComponent<Props, State> {
         isGlobal ? undefined : funcLib
       );
       this.context.editFlow(editPath, () => {
-        conn.applyFlowChange(editPath);
+        conn.applyFlowChange(editPath, undefined, requestCallbacks);
       });
 
       this.setState({modelVisible: false, newFunctionName: ''});

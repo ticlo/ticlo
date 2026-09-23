@@ -5,6 +5,7 @@ import './functions/CssClass.ts';
 import './functions/CssSheet.ts';
 
 export * from './connect/FrameServerConnection.ts';
+export {StaticStorage, StaticFlowStorage} from './storage/StaticStorage.ts';
 export {globalStyle} from './style/CssSheet.ts';
 
 globalFunctions.addCategory({

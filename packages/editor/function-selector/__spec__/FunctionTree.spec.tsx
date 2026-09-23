@@ -61,7 +61,7 @@ describe('FunctionTree', function () {
 
     view.onDeleteClicked();
 
-    expect(deleteRequest).toEqual([':a', 'FunctionTreeScope']);
+    expect(deleteRequest).toEqual([':a', 'FunctionTreeScope', {onError: expect.any(Function)}]);
   });
 
   it('does not pass funcLib when editing a global function', function () {

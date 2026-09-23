@@ -96,6 +96,7 @@ export class FlowFunctionLib extends FunctionLib {
 // A NsFunctionLib is a FlowFunctionLib that is associated with a namespace and a lib name.
 export class NsFunctionLib extends FlowFunctionLib {
   _loaded: boolean | 'loading' = false;
+  pendingSave: Promise<void> | undefined;
 
   readonly prefix: string;
   constructor(
@@ -145,11 +146,20 @@ export class NsFunctionLib extends FlowFunctionLib {
     if (!this.storage) {
       return;
     }
-    this.storage.saveLib(
+    const saved = this.storage.saveLib(
       this.namespace,
       this.libName,
       this.flow?.save() ?? {'#is': '', '#functions': this.save() ?? {}}
     );
+    if (saved instanceof Promise) {
+      this.pendingSave = saved;
+      saved.catch((error) => {
+        this.flow?.updateValue('@save-error', String(error));
+        this.flow?.trackChange();
+      });
+    } else {
+      this.pendingSave = undefined;
+    }
   }
   load(data: DataMap) {
     this._loaded = 'loading';

@@ -1,5 +1,5 @@
 import {Block, BlockChildWatch} from '../block/Block.ts';
-import type {Flow} from '../block/Flow.ts';
+import type {Flow, FlowLoader} from '../block/Flow.ts';
 import {DataMap} from '../util/DataTypes.ts';
 import {WorkerFunctionGen} from './WorkerFunctionGen.ts';
 import {FlowWithStatic, FlowWithStaticConfigGenerators} from '../block/StaticBlock.ts';
@@ -36,7 +36,7 @@ export class FlowEditor extends FlowWithStatic {
     src?: DataMap,
     funcId?: string,
     forceLoad = false,
-    applyChange?: (flow: Flow) => DataMap,
+    applyChange?: FlowLoader['applyChange'],
     funcLib?: FunctionLib
   ): FlowEditor {
     const prop = parent.getProperty(field);

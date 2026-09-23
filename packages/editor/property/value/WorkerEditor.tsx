@@ -11,6 +11,7 @@ import {TicloLayoutContext, TicloLayoutContextType} from '../../component/Layout
 import {t} from '../../component/LocalizedLabel.tsx';
 import {defaultWorkerData} from '@ticlo/core/defaults/DefaultFlows.ts';
 import {EditPolicyContext} from '../../component/EditPolicyContext.tsx';
+import {requestCallbacks} from '../../util/RequestCallbacks.ts';
 
 export class WorkerEditor extends FunctionEditor {
   static contextType = TicloLayoutContextType;
@@ -37,7 +38,7 @@ export class WorkerEditor extends FunctionEditor {
     const flowEditorPath = `${keys[0]}.#edit-${desc.name}`;
     conn.editWorker(flowEditorPath, desc.name);
     this.context.editFlow(flowEditorPath, () => {
-      conn.applyFlowChange(flowEditorPath);
+      conn.applyFlowChange(flowEditorPath, undefined, requestCallbacks);
     });
   };
 

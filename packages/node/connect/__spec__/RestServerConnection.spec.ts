@@ -3,6 +3,52 @@ import {Root} from '@ticlo/core';
 import {RestServerConnection} from '../RestServerConnection.ts';
 
 describe('RestServerConnection', () => {
+  it('waits for persistence and reports asynchronous save failures', async () => {
+    const root = new Root();
+    let finish: () => void;
+    const pending = new Promise<void>((resolve) => {
+      finish = resolve;
+    });
+    const flow = root.addFlow(
+      'Main',
+      {},
+      {
+        applyChange: async (flow) => {
+          await pending;
+          return flow.save();
+        },
+      }
+    );
+    const connection = new RestServerConnection(root);
+    let result: unknown;
+    const response = {
+      send(data: unknown) {
+        result = data;
+      },
+      status() {
+        return this;
+      },
+      header() {
+        return this;
+      },
+    };
+    try {
+      const saving = connection.onHttpPost({body: {cmd: 'applyFlowChange', path: 'Main'}}, response);
+      await Promise.resolve();
+      expect(result).toBeUndefined();
+      finish();
+      await saving;
+      expect(result).toBe('');
+      flow._applyChange = async () => {
+        throw new Error('save failed');
+      };
+      await connection.onHttpPost({body: {cmd: 'applyFlowChange', path: 'Main'}}, response);
+      expect(result).toEqual({cmd: 'error', msg: 'Error: save failed'});
+    } finally {
+      connection.destroy();
+      root.destroy();
+    }
+  });
   it('enforces editing policy on HTTP requests', async () => {
     const root = new Root();
     const flow = root.addFlow('Main');

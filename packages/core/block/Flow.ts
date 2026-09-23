@@ -20,6 +20,8 @@ import {getDefaultZone, updateGlobalSettings} from '../util/Settings.ts';
 import {DataWrapper, FunctionOutput} from './FunctonData.ts';
 import {Namespace} from './Namespace.ts';
 import {NsFunctionLib, FlowFunctionLib} from './NSFunctionLib.ts';
+import {deepEqual} from '../util/Compare.ts';
+import {voidFunction} from '../util/Functions.ts';
 
 export enum FlowState {
   enabled,
@@ -29,7 +31,7 @@ export enum FlowState {
 export interface FlowLoader {
   createFlow?(path: string, prop: BlockProperty): Flow;
   createFolder?(path: string, prop: BlockProperty): FlowFolder;
-  applyChange?(flow: Flow): DataMap;
+  applyChange?(flow: Flow): DataMap | Promise<DataMap>;
   onStateChange?(flow: Flow, state: FlowState): void;
 }
 
@@ -176,14 +178,14 @@ export class Flow extends Block {
     return super._save();
   }
 
-  _applyChange: (flow: Flow) => DataMap;
+  _applyChange: FlowLoader['applyChange'];
   _onStateChange: (flow: Flow, state: FlowState) => void;
 
   _loaded: boolean;
   load(
     src?: DataMap,
     funcId?: string,
-    applyChange?: (flow: Flow) => DataMap,
+    applyChange?: FlowLoader['applyChange'],
     onStateChange?: (flow: Flow, state: FlowState) => void,
     namespace?: string,
     funcLib?: FunctionLib
@@ -315,18 +317,47 @@ export class Flow extends Block {
     }
   }
 
-  applyChange() {
-    if (this._applyChange) {
-      let savedData = this._applyChange(this);
-      // _applyChange callback may destroy this flow when editing live worker data.
-      if (savedData && !this._destroyed) {
-        if (this._history) {
-          savedData = this._history.save(savedData);
-        } else {
-          this.deleteValue('@has-change');
-        }
+  private saveCompleted(savedData: DataMap, asynchronous: boolean) {
+    // The callback may destroy this flow when editing live worker data.
+    if (savedData && !this._destroyed) {
+      this.deleteValue('@save-error');
+      if (this._history) {
+        savedData = asynchronous ? this._history.saveCompleted(savedData) : this._history.save(savedData);
+      } else if (asynchronous) {
+        this.updateValue('@has-change', !deepEqual(this.save(), savedData) || undefined);
+      } else {
+        this.deleteValue('@has-change');
       }
-      return savedData;
+    }
+    return savedData;
+  }
+
+  private saveFailed(error: unknown): never {
+    if (!this._destroyed) {
+      this.updateValue('@save-error', String(error));
+      this.trackChange();
+    }
+    throw error;
+  }
+
+  applyChange(): DataMap | Promise<DataMap> {
+    if (this._applyChange) {
+      try {
+        const savedData = this._applyChange(this);
+        if (savedData instanceof Promise) {
+          const pending = savedData.then(
+            (data) => this.saveCompleted(data, true),
+            (error) => this.saveFailed(error)
+          );
+          // Automatic saves have no caller to await them; retain the error on the flow.
+          pending.catch(voidFunction);
+          return pending;
+        }
+        // Synchronous saves cannot overlap later edits; reuse the saved snapshot.
+        return this.saveCompleted(savedData, false);
+      } catch (error) {
+        return this.saveFailed(error);
+      }
     }
     return null;
   }
@@ -510,7 +541,7 @@ export class Root extends FlowFolder {
     this._props.set('', new BlockConstConfig(this, '', this));
   }
 
-  loadGlobal(data: DataMap, applyChange?: (flow: Flow) => DataMap) {
+  loadGlobal(data: DataMap, applyChange?: FlowLoader['applyChange']) {
     // preload the global settings before loading anything else
     updateGlobalSettings(new DataWrapper(data));
     this._globalRoot.load(data, null, applyChange);
@@ -637,10 +668,14 @@ export class Root extends FlowFolder {
   deleteFlow(path: string) {
     const prop = this.queryProperty(path, false);
     if (prop?._value instanceof Flow) {
-      if (this._storage) {
-        this._storage.delete(path);
+      const flow = prop._value;
+      const deleted = this._storage?.delete(path);
+      if (deleted instanceof Promise) {
+        return deleted.then(() => {
+          if (!this._destroyed && !flow._destroyed && prop._value === flow) prop.setValue(undefined);
+        });
       }
-      prop.setValue(undefined);
+      if (!this._destroyed && !flow._destroyed && prop._value === flow) prop.setValue(undefined);
     }
   }
 
@@ -649,7 +684,7 @@ export class Root extends FlowFolder {
     return null;
   }
 
-  load(map: DataMap, funcId?: string, applyChange?: (flow: Flow) => DataMap) {
+  load(map: DataMap, funcId?: string, applyChange?: FlowLoader['applyChange']) {
     // not allowed
     return false;
   }

@@ -17,6 +17,7 @@ build
 /temp
 /app/**/*.js
 /app/**/*.ticlo
+/app/server/files/
 /css/*.css
 en.base.yaml
 /i18n/*

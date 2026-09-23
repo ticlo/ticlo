@@ -38,6 +38,7 @@ import {BlockDropdown} from '../popup/BlockDropdown.tsx';
 import {showModal} from '../popup/ShowModal.tsx';
 import {AddNewFlowDialog} from '../popup/AddNewFlowDialog.tsx';
 import {getDescLib, getFuncLibPath} from '../util/FunctionLib.ts';
+import {requestCallbacks} from '../util/RequestCallbacks.ts';
 
 import {MenuItem} from '../component/ClickPopup.tsx';
 import {LazyUpdateSubscriber} from '../component/LazyUpdateComponent.tsx';
@@ -282,7 +283,7 @@ export class NodeTreeRenderer extends PureDataRenderer<Props, any> {
         item.key,
         item.canApply
           ? () => {
-              item.getConn().applyFlowChange(item.key);
+              item.getConn().applyFlowChange(item.key, undefined, requestCallbacks);
             }
           : null
       );

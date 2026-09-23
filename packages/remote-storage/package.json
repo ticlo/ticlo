@@ -1,0 +1,14 @@
+{
+  "name": "@ticlo/remote-storage",
+  "version": "0.0.1",
+  "description": "Ticlo storage backed by the Ticlo file server",
+  "license": "MPL-2.0",
+  "type": "module",
+  "main": "./index.js",
+  "module": "./index.js",
+  "types": "./index.d.ts",
+  "dependencies": {
+    "@ticlo/core": "workspace:^",
+    "@ticlo/file-client": "^0.0.2"
+  }
+}

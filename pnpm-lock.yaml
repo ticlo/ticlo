@@ -161,6 +161,9 @@ importers:
       '@ticlo/editor':
         specifier: workspace:*
         version: link:packages/editor
+      '@ticlo/file-server':
+        specifier: ^0.1.0
+        version: 0.1.0(hono@4.13.7)
       '@ticlo/html':
         specifier: workspace:*
         version: link:packages/html
@@ -170,12 +173,18 @@ importers:
       '@ticlo/react':
         specifier: workspace:*
         version: link:packages/react
+      '@ticlo/remote-storage':
+        specifier: workspace:*
+        version: link:packages/remote-storage
       '@ticlo/test':
         specifier: workspace:*
         version: link:packages/test
       '@ticlo/web-server':
         specifier: workspace:*
         version: link:packages/web-server
+      '@types/adm-zip':
+        specifier: ^0.5.7
+        version: 0.5.8
       '@types/babel__preset-env':
         specifier: ^7.10.0
         version: 7.10.0
@@ -329,6 +338,9 @@ importers:
       '@ticlo/editor':
         specifier: workspace:*
         version: link:../packages/editor
+      '@ticlo/file-server':
+        specifier: ^0.1.0
+        version: 0.1.0(hono@4.13.7)
       '@ticlo/html':
         specifier: workspace:*
         version: link:../packages/html
@@ -338,6 +350,9 @@ importers:
       '@ticlo/react':
         specifier: workspace:*
         version: link:../packages/react
+      '@ticlo/remote-storage':
+        specifier: workspace:*
+        version: link:../packages/remote-storage
       '@ticlo/test':
         specifier: workspace:*
         version: link:../packages/test
@@ -528,6 +543,15 @@ importers:
       react-dom:
         specifier: ^19.2.8
         version: 19.2.8(react@19.2.8)
+
+  packages/remote-storage:
+    dependencies:
+      '@ticlo/core':
+        specifier: workspace:^
+        version: link:../core
+      '@ticlo/file-client':
+        specifier: ^0.0.2
+        version: 0.0.2(debug@4.4.3(supports-color@8.1.1))(supports-color@8.1.1)
 
   packages/test:
     dependencies:
@@ -2129,6 +2153,17 @@ packages:
   '@sinclair/typebox@0.34.52':
     resolution: {integrity: sha512-XiMQh7qqVlxZzcVD+kkGMNGMzcTrDMLWI7S4x7z1MkCkbDPrekpZXEUK0eZqZFMuHQg2a2DZOcDIh9o5v3Gonw==}
 
+  '@ticlo/file-client@0.0.2':
+    resolution: {integrity: sha512-5mn6zm2ynBgYesrt6iUP47qr+59HxzjCmeW9hdDvFj7lfea+z8TcaBNyXBCmDbCdI2B5SrYJj/7vPNG84irmkA==}
+
+  '@ticlo/file-server@0.1.0':
+    resolution: {integrity: sha512-+1tn6/ub20qdsBntwR5+q8Z2vbDbsIoFFQYvD4M4colwq/mUeQZ73PwE0ykN+UuzeNIOgS50yqbel8d6TCWk9A==}
+    peerDependencies:
+      hono: ^4.13.7
+
+  '@types/adm-zip@0.5.8':
+    resolution: {integrity: sha512-RVVH7QvZYbN+ihqZ4kX/dMiowf6o+Jk1fNwiSdx0NahBJLU787zkULhGhJM8mf/obmLGmgdMM0bXsQTmyfbR7Q==}
+
   '@types/babel__core@7.20.5':
     resolution: {integrity: sha512-qoQprZvz5wQFJwMDqeseRXWv3rqMvhgpbXFfVyWhbx9X47POIA6i/+dXefEmZKoAgOaTdaIgNSMqMIU61yRyzA==}
 
@@ -2385,6 +2420,10 @@ packages:
   accepts@2.0.0:
     resolution: {integrity: sha512-5cvg6CtKwfgdmVqY1WIiXKc3Q1bkRqGLi+2W/6ao+6Y7gu/RCwRuAhGEzh5B4KlszSuTLgZYuqFqo5bImjNKng==}
     engines: {node: '>= 0.6'}
+
+  adm-zip@0.5.18:
+    resolution: {integrity: sha512-ufJnssQGbxzLNS1Ho9bCtX4rQKCCvoVuDLHoJyc3F9dOGDB4BkWs2Ci0kv53lqocAEQ/Cbi+I2XCsNYGqVYqng==}
+    engines: {node: '>=12.0'}
 
   agent-base@6.0.2:
     resolution: {integrity: sha512-RZNwNclF7+MS/8bDg70amg32dyeZGZxiDuQmZxKLAlQjr3jGyLx+4Kkk58UO7D2QdgFIQCovuSuZESne6RG6XQ==}
@@ -5835,6 +5874,22 @@ snapshots:
 
   '@sinclair/typebox@0.34.52': {}
 
+  '@ticlo/file-client@0.0.2(debug@4.4.3(supports-color@8.1.1))(supports-color@8.1.1)':
+    dependencies:
+      axios: 1.20.0(debug@4.4.3(supports-color@8.1.1))(supports-color@8.1.1)
+    transitivePeerDependencies:
+      - debug
+      - supports-color
+
+  '@ticlo/file-server@0.1.0(hono@4.13.7)':
+    dependencies:
+      adm-zip: 0.5.18
+      hono: 4.13.7
+
+  '@types/adm-zip@0.5.8':
+    dependencies:
+      '@types/node': 26.5.0
+
   '@types/babel__core@7.20.5':
     dependencies:
       '@babel/parser': 7.29.8
@@ -6132,6 +6187,8 @@ snapshots:
     dependencies:
       mime-types: 3.0.2
       negotiator: 1.1.0
+
+  adm-zip@0.5.18: {}
 
   agent-base@6.0.2(supports-color@8.1.1):
     dependencies:

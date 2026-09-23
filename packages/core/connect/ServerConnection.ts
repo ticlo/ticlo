@@ -393,7 +393,7 @@ class ServerConnectionCore extends Connection {
   }
 
   /** Shared by framed transports and REST. Kept off the wire-command prototype. */
-  executeRequest(request: DataMap): string | DataMap | ServerRequest {
+  executeRequest(request: DataMap): string | DataMap | ServerRequest | Promise<string | DataMap | ServerRequest> {
     const cmd = request.cmd as string;
     if (typeof request.path !== 'string') return 'invalid path';
     if (!Object.hasOwn(ServerConnection.prototype, cmd)) return 'invalid command';
@@ -479,6 +479,19 @@ class ServerConnectionCore extends Connection {
     this.requests[id] = req;
   }
 
+  private sendResult(id: string, result: string | DataMap | ServerRequest) {
+    if (this._destroyed) return;
+    if (result instanceof ServerRequest) {
+      this.addRequest(id, result);
+    } else if (typeof result === 'string') {
+      this.sendError(id, result);
+    } else if (result) {
+      this.sendFinal(id, result);
+    } else {
+      this.sendDone(id);
+    }
+  }
+
   onData(request: DataMap) {
     if (typeof request.cmd === 'string' && typeof request.id === 'string') {
       if (request.cmd === 'close') {
@@ -486,18 +499,20 @@ class ServerConnectionCore extends Connection {
         return;
       }
       if (typeof request.path === 'string') {
-        const result = this.executeRequest(request);
-
-        if (result instanceof ServerRequest) {
-          this.addRequest(request.id, result);
-        } else if (result) {
-          if (typeof result === 'string') {
-            this.sendError(request.id, result);
+        try {
+          const result = this.executeRequest(request);
+          if (result instanceof Promise) {
+            result.then(
+              (data) => this.sendResult(request.id as string, data),
+              (error) => {
+                if (!this._destroyed) this.sendError(request.id as string, String(error));
+              }
+            );
           } else {
-            this.sendFinal(request.id, result);
+            this.sendResult(request.id, result);
           }
-        } else {
-          this.sendDone(request.id);
+        } catch (error) {
+          this.sendError(request.id, String(error));
         }
       } else {
         this.sendError(request.id, 'invalid path');
@@ -545,11 +560,18 @@ export class ServerConnection extends ServerConnectionCore {
   /**
    * Sets the value of a property at the given path.
    */
-  set({path, value}: {path: string; value: any}): string {
+  set({path, value}: {path: string; value: any}): string | Promise<string> {
     const property = this.root.queryProperty(path, value !== undefined);
     if (property) {
       if (property._value instanceof Flow) {
-        this.root.deleteFlow(path);
+        const deleted = this.root.deleteFlow(path);
+        if (deleted instanceof Promise) {
+          return deleted.then((): string => {
+            property.setValue(value);
+            trackChange(property, path, this.root);
+            return null;
+          });
+        }
       }
       property.setValue(value);
       trackChange(property, path, this.root);
@@ -979,12 +1001,17 @@ export class ServerConnection extends ServerConnectionCore {
     const property = this.root.queryProperty(path, true);
     if (property && property._value instanceof Flow) {
       if (funcId && property._value instanceof FlowEditor) {
-        WorkerFunctionGen.applyChangeToFunc(property._value, funcId);
+        const result = WorkerFunctionGen.applyChangeToFunc(property._value, funcId);
+        if (result instanceof Promise) return result.then((): string => null);
       } else {
-        property._value.applyChange();
-        if (property._block._flow._history?.hasChange()) {
-          trackChange(property, path, this.root);
+        const result = property._value.applyChange();
+        if (result instanceof Promise) {
+          return result.then((): string => {
+            if (property._block._flow._history?.hasChange()) trackChange(property, path, this.root);
+            return null;
+          });
         }
+        if (property._block._flow._history?.hasChange()) trackChange(property, path, this.root);
       }
       return null;
     } else {
@@ -995,9 +1022,10 @@ export class ServerConnection extends ServerConnectionCore {
   /**
    * Deletes a registered worker function.
    */
-  deleteFunction({funcId, funcLib}: {funcId: string; funcLib?: string}): string {
+  deleteFunction({funcId, funcLib}: {funcId: string; funcLib?: string}): string | Promise<string> {
     if (funcId.startsWith('+')) {
-      Namespace.delete(funcId);
+      const deleted = Namespace.delete(funcId);
+      if (deleted instanceof Promise) return deleted.then((): string => null);
     } else if (funcId.startsWith(':') && funcLib) {
       const flowProp = this.root.queryProperty(funcLib);
       if (flowProp?._value instanceof Flow) {

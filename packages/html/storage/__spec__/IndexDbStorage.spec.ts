@@ -59,7 +59,7 @@ describe('IndexDbStorage', function () {
     const savedData: string = await db.get(FLOW_STORE_NAME, 'flow1');
     expect(savedData).toBe('{\n"#is": ""\n}');
 
-    root.deleteFlow('flow1');
+    await root.deleteFlow('flow1');
     await waitTick(20);
     expect(await db.get(FLOW_STORE_NAME, 'flow1')).not.toBeDefined();
 
@@ -68,7 +68,7 @@ describe('IndexDbStorage', function () {
     flow.applyChange();
     flow.setValue('value', 123);
     flow.applyChange();
-    root.deleteFlow('flow2');
+    await root.deleteFlow('flow2');
     flow = root.addFlow('flow2');
     flow.setValue('value', 456);
     flow.applyChange();
@@ -92,7 +92,7 @@ describe('IndexDbStorage', function () {
     expect(root.queryValue('folder5.subflow.value')).toBe(321);
     expect((root.queryValue('folder5.subflow') as Flow).save()).toEqual(flowData);
 
-    root.deleteFlow('folder5.subflow');
+    await root.deleteFlow('folder5.subflow');
 
     root.destroy();
   });

@@ -3,9 +3,9 @@ import {DataMap} from '../util/DataTypes.ts';
 import {BlockProperty} from './BlockProperty.ts';
 
 export interface Storage {
-  delete(key: string): void;
+  delete(key: string): void | Promise<void>;
 
-  save(key: string, data: string): void;
+  save(key: string, data: string): void | Promise<void>;
 
   load(key: string): Promise<string>;
 
@@ -15,7 +15,7 @@ export interface Storage {
 }
 
 export interface FlowStorage {
-  delete(name: string): void;
+  delete(name: string): void | Promise<void>;
 
   saveFlow(flow: Flow | null, data: DataMap | null, key: string): any;
 

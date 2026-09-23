@@ -110,6 +110,7 @@ async function main() {
     await buildPackage('core');
 
     await buildPackage('html');
+    await buildPackage('remote-storage');
 
     // await buildPackage('editor');
     // shelljs.cp('./dist/*.css', './build/editor');

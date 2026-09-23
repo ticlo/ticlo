@@ -82,6 +82,7 @@ export default defineConfig({
   base: '',
   resolve: {
     tsconfigPaths: true,
+    dedupe: ['axios'],
     alias: {
       '/css': fileURLToPath(new URL('./css', import.meta.url)),
     },
@@ -101,6 +102,8 @@ export default defineConfig({
         'stage-test': fileURLToPath(new URL('./app/stage-test.html', import.meta.url)),
         'index': fileURLToPath(new URL('./app/editor.html', import.meta.url)),
         'server': fileURLToPath(new URL('./app/server.html', import.meta.url)),
+        'static-server': fileURLToPath(new URL('./app/static-server.html', import.meta.url)),
+        'file-server': fileURLToPath(new URL('./app/file-server.html', import.meta.url)),
         ...getCssInputs(),
       },
       output: {

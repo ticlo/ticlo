@@ -1,0 +1,19 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width" />
+    <title>Ticlo file storage</title>
+    <link rel="stylesheet" href="/css/antd.css" />
+    <link rel="stylesheet" href="/css/editor.css" />
+    <link rel="stylesheet" href="/css/icons.css" />
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js" async></script>
+  </head>
+  <body>
+    <button disabled>open editor</button>
+    <p id="status">Loading flows…</p>
+    <p>Saved changes are persisted to the file server.</p>
+    <div id="main"></div>
+    <script type="module" src="./file-server.ts"></script>
+  </body>
+</html>

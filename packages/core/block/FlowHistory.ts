@@ -88,6 +88,17 @@ export class FlowHistory {
     return data;
   }
 
+  saveCompleted(data: DataMap) {
+    const current = this.flow.save();
+    if (deepEqual(current, data)) return this.save(data);
+    // Acknowledging an older snapshot must not move undo history backwards or
+    // clear edits made while persistence was pending.
+    this._savedData = this._history.find((entry) => deepEqual(entry, data)) ?? data;
+    this.checkAndAdd(current);
+    this.setHasChange(true);
+    return this._savedData;
+  }
+
   undo() {
     if (this._tracking) {
       this.checkAndAdd(this.flow.save());
