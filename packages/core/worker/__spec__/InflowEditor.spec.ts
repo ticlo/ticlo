@@ -108,7 +108,7 @@ describe('InflowEditor', function () {
     Root.instance.deleteValue('+NsFlowLib');
   });
 
-  it('saves namespace function libraries through lib storage', function () {
+  it('saves namespace function libraries through lib storage', async function () {
     const saved: {ns?: string; lib?: string; data?: DataMap; flowSaved?: boolean} = {};
     const storage: FlowStorage = {
       delete() {},
@@ -131,11 +131,12 @@ describe('InflowEditor', function () {
         return {};
       },
     };
-    Namespace.setStorage(storage);
+    const root = new Root();
+    await root.setStorage(storage);
 
     try {
       const data = {'#is': '', 'add': {'#is': 'add'}};
-      const lib = Namespace.getFunctionLib('+NsFlowSave:g:a');
+      const lib = Namespace.getFunctionLib('+NsFlowSave:g:a', root);
 
       WorkerFunctionGen.registerType(data, {id: '+NsFlowSave:g:a', name: 'a'}, undefined, lib);
 
@@ -152,9 +153,7 @@ describe('InflowEditor', function () {
       });
       expect(saved.flowSaved).not.toBe(true);
     } finally {
-      Namespace.delete('+NsFlowSave:g:a');
-      Root.instance.deleteValue('+NsFlowSave');
-      Namespace.setStorage(undefined as any);
+      root.destroy();
     }
   });
 
@@ -187,20 +186,19 @@ describe('InflowEditor', function () {
         return {};
       },
     };
-    Namespace.setStorage(storage);
+    const root = new Root();
+    await root.setStorage(storage);
 
     try {
-      await Root.instance.enableNamespace('NsFlowLoadStorage');
-      const lib = Namespace.getFunctionLib('+NsFlowLoadStorage:g:a');
-      await new Promise((resolve) => setTimeout(resolve, 0));
+      await root.enableNamespace('NsFlowLoadStorage');
+      const lib = Namespace.getFunctionLib('+NsFlowLoadStorage:g:a', root);
+      await root.loadFlow({namespace: 'NsFlowLoadStorage', kind: 'library', name: 'g'});
 
       expect(lib.getWorkerData('+NsFlowLoadStorage:g:a')).toEqual(data);
-      expect((Root.instance.queryValue('+NsFlowLoadStorage.:g') as FlowLib).save()).toEqual(flowData);
+      expect((root.queryValue('+NsFlowLoadStorage.:g') as FlowLib).save()).toEqual(flowData);
     } finally {
-      await Root.instance.stop({discardChanges: true});
-      Namespace.delete('+NsFlowLoadStorage:g:a');
-      Root.instance.deleteValue('+NsFlowLoadStorage');
-      Namespace.setStorage(undefined as any);
+      await root.stop({discardChanges: true});
+      root.destroy();
     }
   });
 

@@ -10,7 +10,6 @@ import {FunctionTreeRenderer} from '../FunctionTreeRenderer.tsx';
 import {FunctionSelect} from '../FunctionSelect.tsx';
 import {FunctionView} from '../FunctionView.tsx';
 import {loadTemplate, querySingle, removeLastTemplate} from '../../util/test-util.ts';
-import {Namespace} from '@ticlo/core/block/Namespace.ts';
 
 describe('FunctionTree', function () {
   function findElements(node: any, predicate: (element: any) => boolean): any[] {
@@ -189,26 +188,30 @@ describe('FunctionTree', function () {
   });
 
   it('updates global tree after saving a new namespace worker function', async function () {
-    const [server, client] = makeLocalConnection(Root.instance, true);
+    const runtime = new Root();
+    await runtime.start({demo: {}});
+    const [server, client] = makeLocalConnection(runtime, true);
     const root = new FunctionTreeRoot(client, () => {}, undefined, false, undefined, undefined);
     const editPath = '#temp.#edit-%2Bdemo%3Ag%3Atest';
 
-    Namespace.loadNameSpaces(['+demo']);
-    await client.editWorker(editPath, undefined, '+demo:g:test', {'#inputs': {'#is': ''}, '#outputs': {'#is': ''}});
-    await client.setValue(`${editPath}.#desc`, {icon: 'fas:plus'}, true);
-    await client.applyFlowChange(editPath);
+    try {
+      await client.editWorker(editPath, undefined, '+demo:g:test', {'#inputs': {'#is': ''}, '#outputs': {'#is': ''}});
+      await client.setValue(`${editPath}.#desc`, {icon: 'fas:plus'}, true);
+      await client.applyFlowChange(editPath);
 
-    await shouldHappen(() => client.watchDesc('+demo:g:test'));
-    const demo = root.typeMap.get('+demo:');
-    const group = root.typeMap.get('+demo:g:');
-    const test = root.typeMap.get('+demo:g:test');
-    expect(demo?.name).toBe('+demo');
-    expect(group?.name).toBe('g');
-    expect(test?.name).toBe('test');
-    expect(test?.desc.id).toBe('+demo:g:test');
-
-    root.destroy();
-    client.destroy();
-    Namespace.delete('+demo:g:test');
+      await shouldHappen(() => client.watchDesc('+demo:g:test'));
+      const demo = root.typeMap.get('+demo:');
+      const group = root.typeMap.get('+demo:g:');
+      const test = root.typeMap.get('+demo:g:test');
+      expect(demo?.name).toBe('+demo');
+      expect(group?.name).toBe('g');
+      expect(test?.name).toBe('test');
+      expect(test?.desc.id).toBe('+demo:g:test');
+    } finally {
+      root.destroy();
+      client.destroy();
+      await runtime.stop({discardChanges: true});
+      runtime.destroy();
+    }
   });
 });
