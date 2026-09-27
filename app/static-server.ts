@@ -17,10 +17,12 @@ const button = document.querySelector('button');
 const status = document.getElementById('status');
 const params = new URLSearchParams(location.search);
 const host = params.get('host') || 'http://127.0.0.1:8011';
-const storage = new StaticFlowStorage(host, params.get('project') || '_root');
+const project = params.get('project') || '#root';
+const storage = new StaticFlowStorage(host);
 
 (async () => {
   await Root.instance.setStorage(storage);
+  await Root.instance.start({[project]: {flows: params.getAll('flow')}});
   status.textContent = `Loaded projects: ${[...storage.projects].join(', ')}`;
   button.disabled = false;
   button.addEventListener('click', () => {

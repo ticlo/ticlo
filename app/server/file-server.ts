@@ -19,9 +19,9 @@ async function seed(path: string, content: string) {
 }
 
 async function start() {
-  const rootProject = join(rootDir, 'proj/_root');
+  const rootProject = join(rootDir, 'proj/#root');
   await mkdir(rootProject, {recursive: true});
-  await seed(join(rootProject, '_proj.json'), JSON.stringify({id: '_root', name: 'Root'}));
+  await seed(join(rootProject, '_proj.json'), JSON.stringify({id: '#root', name: 'Root'}));
   await seed(join(rootProject, '#global.ticlo'), encodeSorted({'#is': ''}));
   await seed(join(rootProject, 'example.ticlo'), encodeSorted(data));
 

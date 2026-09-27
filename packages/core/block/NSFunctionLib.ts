@@ -1,8 +1,9 @@
 import {type FunctionFactory} from './BlockFunction.ts';
 import {isDataMap, type DataMap} from '../util/DataTypes.ts';
-import {FunctionLib} from './FunctionLib.ts';
+import {FunctionDispatcher, FunctionLib} from './FunctionLib.ts';
 import {FlowStorage} from './Storage.ts';
 import {type Flow} from './Flow.ts';
+import type {PropListener} from './Dispatcher.ts';
 import {deepEqual} from '../util/Compare.ts';
 
 export interface FunctionLoader {
@@ -95,6 +96,47 @@ export class FlowFunctionLib extends FunctionLib {
 
 // A NsFunctionLib is a FlowFunctionLib that is associated with a namespace and a lib name.
 export class NsFunctionLib extends FlowFunctionLib {
+  private available = true;
+  private readonly runtimeFunctions = new Map<string, FunctionDispatcher>();
+
+  hasRuntimeListeners() {
+    return [...this.runtimeFunctions.values()].some((dispatcher) => dispatcher._listeners.size > 0);
+  }
+
+  setAvailable(available: boolean) {
+    this.available = available;
+    for (const [id, dispatcher] of this.runtimeFunctions) {
+      dispatcher.updateValue(available ? (this._functions[id]?.getValue() ?? null) : null);
+    }
+  }
+
+  listen(id: string, listener: PropListener<FunctionFactory | null>): FunctionDispatcher {
+    id = this.getFullId(id.startsWith('+:') ? id.slice(id.indexOf(':', 2) + 1) : id);
+    let dispatcher = this.runtimeFunctions.get(id);
+    if (!dispatcher) {
+      dispatcher = new FunctionDispatcher();
+      dispatcher.updateValue(this.available ? (this._functions[id]?.getValue() ?? null) : null);
+      this.runtimeFunctions.set(id, dispatcher);
+    }
+    if (listener) dispatcher.listen(listener);
+    return dispatcher;
+  }
+
+  getWorkerData(id: string): DataMap {
+    if (!this.available) return null;
+    if (id.startsWith('+:')) id = id.slice(id.indexOf(':', 2) + 1);
+    return super.getWorkerData(this.getFullId(id));
+  }
+
+  getDescToSend(id: string): [import('./Descriptor.ts').FunctionDesc, number] {
+    return super.getDescToSend(id.startsWith('+:') ? this.getFullId(id) : id);
+  }
+
+  dispatchDescChange(id: string, desc: import('./Descriptor.ts').FunctionDesc) {
+    super.dispatchDescChange(id, desc);
+    this.runtimeFunctions.get(id)?.updateValue(this.available ? (this._functions[id]?.getValue() ?? null) : null);
+  }
+
   _loaded: boolean | 'loading' = false;
   pendingSave: Promise<void> | undefined;
 
@@ -109,6 +151,7 @@ export class NsFunctionLib extends FlowFunctionLib {
     this.prefix = `${namespace}:${libName}`;
   }
   getFullId(localId: string) {
+    if (localId.startsWith('+:')) localId = localId.slice(localId.indexOf(':', 2) + 1);
     if (localId.charCodeAt(0) === 43 /* + */) {
       return localId;
     }
@@ -147,7 +190,7 @@ export class NsFunctionLib extends FlowFunctionLib {
       return;
     }
     const saved = this.storage.saveLib(
-      this.namespace,
+      this.namespace === '+#root' ? '' : this.namespace,
       this.libName,
       this.flow?.save() ?? {'#is': '', '#functions': this.save() ?? {}}
     );

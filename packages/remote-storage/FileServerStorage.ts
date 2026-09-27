@@ -1,15 +1,23 @@
 import {DataMap, decode, encodeSorted, Flow, FlowStorage, Root, Storage} from '@ticlo/core';
+import {NamespaceMetadata} from '@ticlo/core/block/Storage.ts';
+import {readNamespaceMetadata, validateNamespace} from '@ticlo/core/util/NamespaceMetadata.ts';
 import {FlowLoader} from '@ticlo/core/block/Flow.ts';
 import {StreamDispatcher} from '@ticlo/core/block/Dispatcher.ts';
 import {encodeFileName, validateNodePath} from '@ticlo/core/util/Path.ts';
 import {TicloFileClient} from '@ticlo/file-client';
+import {
+  flowStoragePath,
+  reservedFlowFolders,
+  splitFlowStorageKey,
+  validFlowEntry,
+} from '@ticlo/core/util/FlowStoragePath.ts';
 
 /** HTTP storage with serialized mutations and optimistic concurrency control. */
 export class FileServerStorage implements Storage {
   readonly streams = new Map<string, StreamDispatcher<string>>();
   readonly errors = new StreamDispatcher<Error>();
-  private readonly revisions = new Map<string, string>();
-  private readonly pending = new Map<string, Promise<unknown>>();
+  protected readonly revisions = new Map<string, string>();
+  protected readonly pending = new Map<string, Promise<unknown>>();
 
   constructor(
     public readonly client: TicloFileClient,
@@ -21,7 +29,7 @@ export class FileServerStorage implements Storage {
     return `${this.dir}/${encodeFileName(key)}${this.ext}`;
   }
 
-  private enqueue<T>(path: string, operation: () => Promise<T>): Promise<T> {
+  protected enqueue<T>(path: string, operation: () => Promise<T>): Promise<T> {
     const pending = (this.pending.get(path) ?? Promise.resolve()).catch(() => {}).then(operation);
     this.pending.set(path, pending);
     const result = pending.finally(() => {
@@ -31,7 +39,7 @@ export class FileServerStorage implements Storage {
     return result;
   }
 
-  private async read(path: string): Promise<string> {
+  protected async read(path: string): Promise<string> {
     try {
       const response = await this.client.getFile(path);
       const revision = response.headers.etag;
@@ -91,7 +99,7 @@ export class FileServerStorage implements Storage {
   }
 }
 
-const ROOT_PROJECT = '_root';
+const ROOT_PROJECT = '#root';
 function validProject(id: string) {
   return Boolean(id) && validateNodePath(id);
 }
@@ -109,18 +117,34 @@ export class FileServerFlowStorage extends FileServerStorage implements FlowStor
   }
 
   protected getPath(key: string) {
-    let project = ROOT_PROJECT;
-    if (key.startsWith('+')) {
-      const dot = key.indexOf('.');
-      project = key.slice(1, dot);
-      key = key.slice(dot + 1);
-      if (dot < 2 || !validProject(project)) throw new Error('Invalid namespace');
-    }
-    const name = key.startsWith(':') ? `libs/${encodeFileName(key.slice(1))}` : encodeFileName(key);
-    return `proj/${project}/${name}${this.ext}`;
+    const [namespace, name] = splitFlowStorageKey(key);
+    return `proj/${namespace || ROOT_PROJECT}/${flowStoragePath(name)}`;
+  }
+
+  private folderPath(key: string) {
+    const [namespace, name] = splitFlowStorageKey(key);
+    return `proj/${namespace || ROOT_PROJECT}/${flowStoragePath(name, true)}`;
+  }
+
+  createFolder(key: string) {
+    const path = this.folderPath(key);
+    return this.enqueue(path, () => this.client.createDirectory(path));
+  }
+
+  deleteFolder(key: string) {
+    const path = this.folderPath(key);
+    const children = [...this.pending].filter(([entry]) => entry.startsWith(`${path}/`)).map(([, pending]) => pending);
+    return this.enqueue(path, async () => {
+      await Promise.all(children);
+      await this.client.deleteFile(path);
+      for (const entry of this.revisions.keys()) {
+        if (entry.startsWith(`${path}/`)) this.revisions.delete(entry);
+      }
+    });
   }
 
   getFlowLoader(key: string): FlowLoader {
+    this.getPath(key);
     return {
       applyChange: async (flow) => {
         const data = flow.save();
@@ -147,32 +171,57 @@ export class FileServerFlowStorage extends FileServerStorage implements FlowStor
     return this.loadFlow(`${ns ? `${ns}.` : ''}:${lib}`);
   }
 
-  async init(root: Root) {
-    await this.client.readProject(ROOT_PROJECT);
-    const globalData = await this.loadFlow('#global');
-    root.loadGlobal(globalData ?? {'#is': ''}, this.getFlowLoader('#global').applyChange);
+  async getNamespaceMetadata(namespace: string): Promise<NamespaceMetadata> {
+    validateNamespace(namespace);
+    const path = `proj/${namespace}/ticlo.json`;
+    const text = await this.enqueue(path, () => this.read(path));
+    if (text == null) await this.client.getFileInfo(`proj/${namespace}`);
+    this.projects.add(namespace);
+    return readNamespaceMetadata(text == null ? undefined : JSON.parse(text));
+  }
 
-    const loadProject = async (project: string) => {
-      if (this.projects.has(project)) return;
-      await this.client.readProject(project);
-      this.projects.add(project);
-      if (project !== ROOT_PROJECT) root.addFlowFolder(`+${project}`);
-      const deps = await this.client.listFiles(`proj/${project}/deps`);
-      for (const entry of deps.sort((a, b) => a.name.localeCompare(b.name))) {
-        if (entry.type === 'folder' && validProject(entry.name)) await loadProject(entry.name);
-      }
-      const files = await this.client.listFiles(`proj/${project}`);
-      for (const file of files.sort((a, b) => a.name.localeCompare(b.name))) {
-        if (file.type !== 'file' || !file.name.endsWith(this.ext)) continue;
-        const name = file.name.slice(0, -this.ext.length);
-        // Subflows and libraries are loaded on demand, not as ordinary flows.
-        if (!name.split('.').every((part) => part && validateNodePath(part) && !/^[#+:]/.test(part))) continue;
-        const key = project === ROOT_PROJECT ? name : `+${project}.${name}`;
-        const data = await this.loadFlow(key);
-        if (data) root.addFlow(key, data, null, true);
+  async saveNamespaceMetadata(namespace: string, metadata: NamespaceMetadata): Promise<void> {
+    validateNamespace(namespace);
+    readNamespaceMetadata(metadata);
+    const path = `proj/${namespace}/ticlo.json`;
+    await this.enqueue(path, async () => {
+      const text = await this.read(path);
+      if (text == null) await this.client.getFileInfo(`proj/${namespace}`);
+      const data = metadata;
+      const response = await this.client.uploadFileResponse(
+        path,
+        JSON.stringify(data, null, 2),
+        {},
+        {
+          headers: text == null ? {'If-None-Match': '*'} : {'If-Match': this.revisions.get(path)},
+        }
+      );
+      this.revisions.set(path, response.headers.etag);
+    });
+  }
+
+  async listFlows(namespace: string, folders?: string[]): Promise<string[]> {
+    validateNamespace(namespace);
+    const result: string[] = [];
+    const visit = async (path: string, prefix = '') => {
+      for (const file of await this.client.listFiles(path)) {
+        if (file.type === 'folder' && validFlowEntry(file.name)) {
+          folders?.push(`${prefix}${file.name}`);
+          await visit(`${path}/${file.name}`, `${prefix}${file.name}.`);
+        } else if (file.type === 'file' && file.name.endsWith(this.ext)) {
+          const name = file.name.slice(0, -this.ext.length);
+          if (validFlowEntry(name)) result.push(`${prefix}${name}`);
+        }
       }
     };
-    await loadProject(this.initialProject);
+    await visit(`proj/${namespace}`);
+    return result.sort();
+  }
+
+  async init(root: Root) {
+    await this.client.getFileInfo(`proj/${ROOT_PROJECT}`);
+    const globalData = await this.loadFlow('#global');
+    root.loadGlobal(globalData ?? {'#is': ''}, this.getFlowLoader('#global').applyChange);
     this.inited = true;
   }
 }

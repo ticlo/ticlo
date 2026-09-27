@@ -279,9 +279,9 @@ export class Block implements Runnable, FunctionData, PropListener<FunctionFacto
           if (field.charCodeAt(1) === 43) {
             if (field.length === 2) {
               // #+ points to current namespace
-              prop = new ConstBinding(this, field, Namespace.bind(this._flow._namespace));
+              prop = new ConstBinding(this, field, Namespace.bind(this._flow._namespace, this._flow));
             } else {
-              prop = new ConstBinding(this, field, Namespace.bind(field));
+              prop = new ConstBinding(this, field, Namespace.bind(field.slice(1), this._flow));
             }
             break;
           }

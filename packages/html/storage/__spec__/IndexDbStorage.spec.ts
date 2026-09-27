@@ -17,6 +17,7 @@ describe('IndexDbStorage', function () {
       upgrade(db, oldVersion, newVersion, transaction) {
         db.createObjectStore('store');
         db.createObjectStore(FLOW_STORE_NAME);
+        db.createObjectStore('namespaces');
       },
       blocked() {},
       blocking() {},
@@ -50,6 +51,7 @@ describe('IndexDbStorage', function () {
     const root = new Root();
     const storage = new IndexDbFlowStorage(FLOW_STORE_NAME, dbPromise);
     await root.setStorage(storage);
+    await root.start({'#root': {flows: ['**']}});
 
     const db = await storage.dbPromise;
 
@@ -87,6 +89,7 @@ describe('IndexDbStorage', function () {
 
     const root = new Root();
     await root.setStorage(storage);
+    await root.start({'#root': {flows: ['**']}});
 
     expect(root.queryValue('folder5')).instanceof(FlowFolder);
     expect(root.queryValue('folder5.subflow.value')).toBe(321);
@@ -110,5 +113,48 @@ describe('IndexDbStorage', function () {
     const db = await storage.dbPromise;
     const raw = await db.get(FLOW_STORE_NAME, `${ns}.#.${lib}`);
     expect(JSON.parse(raw)).toEqual(data);
+  });
+
+  it('persists namespace metadata and disabled state without persisting the loaded set', async () => {
+    const storage = new IndexDbFlowStorage(FLOW_STORE_NAME, dbPromise);
+    await storage.saveNamespaceMetadata('metaMain', {dependencies: ['metaShared']});
+    await storage.saveNamespaceMetadata('metaShared', {serviceLibraries: ['service']});
+    await storage.saveLib('+metaShared', 'service', {'#disabled': true});
+    await storage.saveFlow(null, {value: 1}, '+metaMain.entry');
+    const root = new Root();
+    try {
+      await root.setStorage(storage);
+      await root.start({metaMain: {}});
+      const entry = {namespace: 'metaMain', kind: 'flow', name: 'entry'} as const;
+      const service = {namespace: 'metaShared', kind: 'library', name: 'service'} as const;
+      expect(root.getFlowState(service)).toBe('disabled');
+      expect(root.getFlowState(entry)).toBe('unloaded');
+      await root.loadFlow(entry);
+      await root.disableFlow(entry, {persist: true});
+      await root.stop();
+      expect(await storage.loadFlow('+metaMain.entry')).toMatchObject({'#disabled': true});
+      await root.start({metaMain: {}});
+      expect(root.getFlowState(entry)).toBe('unloaded');
+      await root.loadFlow(entry);
+      expect(root.getFlowState(entry)).toBe('disabled');
+    } finally {
+      await root.stop({discardChanges: true});
+      root.destroy();
+    }
+  });
+
+  it('keeps dotted keys and reloads deeply nested namespace folders', async () => {
+    const storage = new IndexDbFlowStorage(FLOW_STORE_NAME, dbPromise);
+    const key = '+folderNs.libs.deep.nested.flow';
+    await storage.saveFlow(null, {value: 42}, key);
+    const db = await dbPromise;
+    expect(await db.get(FLOW_STORE_NAME, key)).toBeDefined();
+    const root = new Root();
+    await root.setStorage(storage);
+    await root.start({folderNs: {flows: ['**']}});
+    expect(root.queryValue(`${key}.value`)).toBe(42);
+    expect(root.queryValue('+folderNs.libs.deep.nested')).toBeInstanceOf(FlowFolder);
+    expect((root.queryValue(key) as Flow)._namespace).toBe('+folderNs');
+    root.destroy();
   });
 });

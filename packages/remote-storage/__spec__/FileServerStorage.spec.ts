@@ -1,11 +1,11 @@
-import {afterEach, beforeEach, describe, expect, it} from 'vitest';
+import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest';
 import {mkdtemp, mkdir, readFile, rm, writeFile} from 'node:fs/promises';
 import {tmpdir} from 'node:os';
 import {join} from 'node:path';
 import {serve} from '@hono/node-server';
 import {Hono} from 'hono';
 import {routeFileStorage} from '@ticlo/file-server';
-import {Root, encodeSorted} from '@ticlo/core';
+import {Root, FlowFolder, encodeSorted} from '@ticlo/core';
 import {FileServerFlowStorage, FileServerStorage, TicloFileClient} from '../index.ts';
 
 describe('FileServerStorage integration', () => {
@@ -26,7 +26,7 @@ describe('FileServerStorage integration', () => {
 
   beforeEach(async () => {
     dir = await mkdtemp(join(tmpdir(), 'ticlo-storage-'));
-    await project('_root', {'#global.ticlo': {'#is': '', '^value': 42}});
+    await project('#root', {'#global.ticlo': {'#is': '', '^value': 42}});
     const app = new Hono();
     routeFileStorage(app, {rootDir: dir});
     await new Promise<void>((resolve) => {
@@ -46,30 +46,38 @@ describe('FileServerStorage integration', () => {
     await rm(dir, {recursive: true, force: true});
   });
 
-  it('loads recursive and circular deps once, skips invalid files, and always reads globals from _root', async () => {
-    await project('_root', {'#global.ticlo': {'#is': '', '^value': 42}, 'unused.ticlo': {value: 9}});
+  it('loads recursive and circular deps once, skips invalid files, and always reads globals from #root', async () => {
+    await project('#root', {'#global.ticlo': {'#is': '', '^value': 42}, 'unused.ticlo': {value: 9}});
     await project('main', {'run.ticlo': {value: 1}, 'bad:name.ticlo': {value: 99}, '#global.ticlo': {'^value': 99}});
-    await project('shared', {'folder.flow.ticlo': {value: 2}});
+    await project('shared', {'folder/flow.ticlo': {value: 2}});
     await project('common', {'run.ticlo': {value: 3}});
     await project('unrelated', {'run.ticlo': {value: 4}});
-    for (const path of ['main/deps/shared', 'main/deps/common', 'shared/deps/common', 'common/deps/main']) {
-      await mkdir(join(dir, 'proj', path), {recursive: true});
+    for (const [name, dependencies] of Object.entries({
+      main: ['shared', 'common'],
+      shared: ['common'],
+      common: ['main'],
+    })) {
+      await writeFile(join(dir, 'proj', name, 'ticlo.json'), JSON.stringify({dependencies}));
     }
     const storage = new FileServerFlowStorage(client, 'main');
     await root.setStorage(storage);
+    await root.start({[storage.initialProject]: {flows: ['**']}});
     expect([...storage.projects].sort()).toEqual(['common', 'main', 'shared']);
     expect(root.queryValue('+main.run.value')).toBe(1);
-    expect(root.queryValue('+shared.folder.flow.value')).toBe(2);
-    expect(root.queryValue('+common.run.value')).toBe(3);
+    expect(root.queryValue('+shared.folder.flow.value')).toBeUndefined();
+    expect(root.queryValue('+common.run.value')).toBeUndefined();
     expect(root.queryValue('+main.bad:name')).toBeUndefined();
     expect(root.queryValue('+unrelated')).toBeUndefined();
     expect(root.queryValue('unused')).toBeUndefined();
     expect(root._globalRoot.getValue('^value')).toBe(42);
   });
 
-  it('defaults to _root and persists flows and globals without deleting them on shutdown', async () => {
+  it('defaults to #root and persists flows and globals without deleting them on shutdown', async () => {
     const storage = new FileServerFlowStorage(client);
     await root.setStorage(storage);
+    await root.start({[storage.initialProject]: {flows: ['**']}});
+    expect((await client.readProject('#root')).id).toBe('#root');
+    expect([...storage.projects]).toEqual(['#root']);
     const flow = root.addFlow('newFlow', {value: 1});
     flow.setValue('value', 2);
     await flow.applyChange();
@@ -79,29 +87,43 @@ describe('FileServerStorage integration', () => {
     root.destroy();
     root = new Root();
     await root.setStorage(new FileServerFlowStorage(client));
+    await root.start({'#root': {flows: ['**']}});
     expect(root.queryValue('newFlow.value')).toBe(2);
     expect(root._globalRoot.getValue('^value')).toBe(43);
     await root.deleteFlow('newFlow');
     expect(await storage.loadFlow('newFlow')).toBeNull();
   });
 
-  it('keeps libraries separate from ordinary flows and preserves filename escaping', async () => {
-    await project('main', {'same.ticlo': {value: 'flow'}, 'libs/same.ticlo': {value: 'library'}});
+  it('loads #root as a dependency without creating a namespace for it', async () => {
+    await project('#root', {'plain.ticlo': {value: 7}});
+    await project('main');
+    await writeFile(join(dir, 'proj/main/ticlo.json'), JSON.stringify({dependencies: ['#root']}));
     const storage = new FileServerFlowStorage(client, 'main');
     await root.setStorage(storage);
+    await root.start({[storage.initialProject]: {flows: ['**']}});
+    expect(root.queryValue('plain.value')).toBeUndefined();
+    expect(root.queryValue('+#root')).toBeUndefined();
+    expect(storage.projects.has('#root')).toBe(true);
+  });
+
+  it('keeps libraries separate from ordinary flows and preserves filename escaping', async () => {
+    await project('main', {'same.ticlo': {value: 'flow'}, '#libs/same.ticlo': {value: 'library'}});
+    const storage = new FileServerFlowStorage(client, 'main');
+    await root.setStorage(storage);
+    await root.start({[storage.initialProject]: {flows: ['**']}});
     expect(await storage.loadLib('+main', 'same')).toEqual({value: 'library'});
     await storage.saveLib('+main', 'same', {value: 'updated library'});
     expect((await storage.loadFlow('+main.same')).value).toBe('flow');
     expect(await storage.loadFlow('+main.:same')).toEqual({value: 'updated library'});
-    const values = new FileServerStorage(client, 'proj/main/storage', '.str');
+    const values = new FileServerStorage(client, 'proj/main/#storage', '.str');
     await values.save('a/b?#%', 'value');
     expect(await values.load('a/b?#%')).toBe('value');
-    expect(await readFile(join(dir, 'proj/main/storage/a%2fb%3f#%.str'), 'utf8')).toBe('value');
+    expect(await readFile(join(dir, 'proj/main/#storage/a%2fb%3f#%.str'), 'utf8')).toBe('value');
   });
 
   it('orders saves and deletes, notifies only after success, and detects another writer', async () => {
-    const a = new FileServerStorage(client, 'proj/_root/storage', '.str');
-    const b = new FileServerStorage(client, 'proj/_root/storage', '.str');
+    const a = new FileServerStorage(client, 'proj/#root/#storage', '.str');
+    const b = new FileServerStorage(client, 'proj/#root/#storage', '.str');
     const values: string[] = [];
     a.listen('key', (value) => values.push(value));
     await Promise.all([a.save('key', 'one'), a.save('key', 'two'), a.delete('key'), a.save('key', 'three')]);
@@ -115,10 +137,72 @@ describe('FileServerStorage integration', () => {
     expect(await a.load('key')).toBe('five');
   });
 
-  it('rejects missing dependency projects instead of silently running a partial graph', async () => {
-    await mkdir(join(dir, 'proj/_root/deps/missing'), {recursive: true});
+  it('persists real namespace folders, empty folders and ordinary libs/deps/storage folders', async () => {
+    await project('main');
+    const storage = new FileServerFlowStorage(client, 'main');
+    await root.setStorage(storage);
+    await root.start({[storage.initialProject]: {flows: ['**']}});
+    for (const name of ['libs', 'deps', 'storage', '_libs', '_deps', '_storage']) {
+      await root.addFlowFolder(`+main.${name}`).pendingCreate;
+      await root.addFlowFolder(`+main.${name}.nested`).pendingCreate;
+      const flow = root.addFlow(`+main.${name}.nested.flow`, {value: name});
+      await flow.applyChange();
+      expect(JSON.parse(await readFile(join(dir, `proj/main/${name}/nested/flow.ticlo`), 'utf8')).value).toBe(name);
+    }
+    await root.addFlowFolder('+main.empty').pendingCreate;
+    await storage.saveLib('+main', 'tools', {worker: 'library'});
+    root.destroy();
+    root = new Root();
+    const reloaded = new FileServerFlowStorage(client, 'main');
+    await root.setStorage(reloaded);
+    await root.start({main: {flows: ['**']}});
+    expect(root.queryValue('+main.empty')).toBeInstanceOf(FlowFolder);
+    expect(root.queryValue('+main.libs.nested.flow.value')).toBe('libs');
+    expect(await reloaded.loadLib('+main', 'tools')).toEqual({worker: 'library'});
+    expect(root.queryValue('+main.#libs')).toBeUndefined();
+    for (const name of ['#libs', '#deps', '#storage']) {
+      expect(() => root.addFlowFolder(`+main.${name}`)).toThrow('Reserved folder');
+    }
+    await root.deleteFlow('+main.libs');
+    expect(root.queryValue('+main.libs')).toBeUndefined();
+    expect(await client.listFiles('proj/main/libs')).toEqual([]);
+    expect(await reloaded.loadFlow('+main.libs.nested.flow')).toBeNull();
+    expect(await reloaded.loadLib('+main', 'tools')).toEqual({worker: 'library'});
+    await root.deleteFlow('+main.empty');
+    expect((await client.listFiles('proj/main')).some((entry) => entry.name === 'empty')).toBe(false);
+  });
+
+  it('reads and writes ticlo.json without fetching or changing project management metadata', async () => {
+    await project('main', {'#libs/service.ticlo': {'#disabled': true}, 'unused.ticlo': {value: 9}});
+    const projectPath = join(dir, 'proj/main/_proj.json');
+    const original = await readFile(projectPath, 'utf8');
+    const get = vi.spyOn(client, 'getFile');
+    const readProject = vi.spyOn(client, 'readProject');
     const storage = new FileServerFlowStorage(client);
-    await expect(root.setStorage(storage)).rejects.toMatchObject({response: {status: 404}});
-    expect(storage.inited).toBe(false);
+    expect(await storage.getNamespaceMetadata('main')).toEqual({});
+    await storage.saveNamespaceMetadata('main', {serviceLibraries: ['service']});
+    expect(JSON.parse(await readFile(join(dir, 'proj/main/ticlo.json'), 'utf8'))).toEqual({
+      serviceLibraries: ['service'],
+    });
+    await root.setStorage(storage);
+    await root.start({main: {}});
+    const service = {namespace: 'main', kind: 'library', name: 'service'} as const;
+    expect(root.getFlowState(service)).toBe('disabled');
+    expect(root.queryValue('+main.unused')).toBeUndefined();
+    await root.setServiceLibrary('main', 'service', false);
+    expect(await storage.getNamespaceMetadata('main')).toEqual({serviceLibraries: []});
+    expect(await readFile(projectPath, 'utf8')).toBe(original);
+    expect(readProject).not.toHaveBeenCalled();
+    expect(get.mock.calls.every(([path]) => !path.endsWith('_proj.json') && !path.endsWith('#proj.json'))).toBe(true);
+    await root.stop();
+    expect(await storage.loadLib('+main', 'service')).toEqual({'#disabled': true});
+  });
+
+  it('rejects missing dependency projects instead of silently running a partial graph', async () => {
+    await writeFile(join(dir, 'proj/#root/ticlo.json'), JSON.stringify({dependencies: ['missing']}));
+    const storage = new FileServerFlowStorage(client);
+    await root.setStorage(storage);
+    await expect(root.start()).rejects.toMatchObject({response: {status: 404}});
+    expect(root._lifecycle.started).toBe(false);
   });
 });

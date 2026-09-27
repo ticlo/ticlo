@@ -14,6 +14,7 @@ import {DataMap, isDataTruncated} from '../../util/DataTypes.ts';
 import {WorkerFunctionGen} from '../../worker/WorkerFunctionGen.ts';
 import {FlowEditor} from '../../worker/FlowEditor.ts';
 import {WorkerFlow} from '../../worker/WorkerFlow.ts';
+import {MemoryFlowStorage} from '../../block/MemoryFlowStorage.ts';
 
 // @ts-ignore
 const beforeAll = globalThis.beforeAll ?? globalThis.before;
@@ -21,6 +22,38 @@ const beforeAll = globalThis.beforeAll ?? globalThis.before;
 const afterAll = globalThis.afterAll ?? globalThis.after;
 
 describe('Connection Client API', function () {
+  it('loads and toggles stored flows through lifecycle commands with server policy checks', async () => {
+    const root = new Root();
+    const storage = new MemoryFlowStorage();
+    storage.saveFlow(null, {value: 1}, 'entry');
+    await root.setStorage(storage);
+    await root.start();
+    const [server, client] = makeLocalConnection(root, false);
+    try {
+      expect(await client.getFlowState('entry')).toMatchObject({state: 'unloaded'});
+      await client.loadFlow('entry');
+      expect(await client.getFlowState('entry')).toMatchObject({state: 'enabled'});
+      await client.disableFlow('entry', {persist: true});
+      expect(await client.getFlowState('entry')).toMatchObject({state: 'disabled'});
+      await client.unloadFlow('entry');
+      await client.loadFlow('entry');
+      expect(await client.getFlowState('entry')).toMatchObject({state: 'disabled'});
+      server.setEditPolicy({allowCmds: []});
+      await expect(client.enableFlow('entry')).rejects.toBe('restricted command');
+      expect(await client.getFlowState('entry')).toMatchObject({state: 'disabled'});
+      server.setEditPolicy({});
+      await client.enableFlow('entry');
+      expect(await client.getFlowState('entry')).toMatchObject({state: 'enabled'});
+      server.setEditPolicy({denyPaths: ['entry', 'entry.**']});
+      await expect(client.disableFlow('+#root.entry')).rejects.toContain('unqualified');
+      await expect(client.getFlowState('entry')).rejects.toBe('restricted path');
+      expect(root.getFlowState({namespace: '#root', kind: 'flow', name: 'entry'})).toBe('enabled');
+    } finally {
+      client.destroy();
+      await root.stop({discardChanges: true});
+      root.destroy();
+    }
+  });
   beforeAll(function () {
     globalFunctions.addFactory(
       null,

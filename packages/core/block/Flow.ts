@@ -13,7 +13,7 @@ import {
 import {Event} from './Event.ts';
 import {DataMap} from '../util/DataTypes.ts';
 import {FunctionDesc} from './Descriptor.ts';
-import {FunctionLib, globalFunctions} from './FunctionLib.ts';
+import {FunctionLib, globalFunctions, type DescListener} from './FunctionLib.ts';
 import {FlowStorage} from './Storage.ts';
 import {FlowHistory} from './FlowHistory.ts';
 import {getDefaultZone, updateGlobalSettings} from '../util/Settings.ts';
@@ -22,6 +22,7 @@ import {Namespace} from './Namespace.ts';
 import {NsFunctionLib, FlowFunctionLib} from './NSFunctionLib.ts';
 import {deepEqual} from '../util/Compare.ts';
 import {voidFunction} from '../util/Functions.ts';
+import {FlowRuntime, type StartOptions, type FlowRef, type UnloadOptions} from './FlowRuntime.ts';
 
 export enum FlowState {
   enabled,
@@ -36,6 +37,7 @@ export interface FlowLoader {
 }
 
 function parseFlowLibPath(path: string): [string, string] | null {
+  if (path?.startsWith(':') && !path.includes('.')) return ['+#root', path.slice(1)];
   const libPos = path?.indexOf('.:');
   if (libPos > 0 && path.charCodeAt(0) === 43 /* + */ && path.indexOf('.', libPos + 2) === -1) {
     return [path.substring(0, libPos), path.substring(libPos + 2)];
@@ -60,9 +62,11 @@ export class Flow extends Block {
   }
 
   _enabled: boolean = true;
+  _runtimeDisabled?: boolean;
   _loading: boolean = false;
 
   _outputObj?: FunctionOutput;
+  private _outputFields = new Set<string>();
 
   _history: FlowHistory;
 
@@ -91,7 +95,7 @@ export class Flow extends Block {
   }
 
   _disabledChanged(disabled: unknown) {
-    const newDisabled = this._parent._flow._disabled || Boolean(disabled);
+    const newDisabled = this._parent._flow._disabled || (this._runtimeDisabled ?? Boolean(disabled));
     if (newDisabled !== this._disabled) {
       this._disabled = newDisabled;
       if (newDisabled) {
@@ -113,6 +117,7 @@ export class Flow extends Block {
   }
 
   _disableBlock() {
+    if (this._funcLib instanceof NsFunctionLib && this._funcLib.flow === this) this._funcLib.setAvailable(false);
     this._onStateChange?.(this, FlowState.disabled);
     for (const [key, prop] of this._props) {
       const val = prop._value;
@@ -123,6 +128,7 @@ export class Flow extends Block {
   }
 
   _enabledBlock() {
+    if (this._funcLib instanceof NsFunctionLib && this._funcLib.flow === this) this._funcLib.setAvailable(true);
     this._onStateChange?.(this, FlowState.enabled);
     for (const [key, prop] of this._props) {
       const val = prop._value;
@@ -149,6 +155,7 @@ export class Flow extends Block {
   // return true when the related output block need to be put in queue
   outputChanged(input: BlockIO, val: unknown): boolean {
     if (this._outputObj) {
+      this._outputFields.add(input._name);
       this._outputObj.output(val, input._name);
     }
     return false;
@@ -204,6 +211,7 @@ export class Flow extends Block {
     if (funcLib) {
       this._funcLib = funcLib;
     }
+    this._disabledChanged(this.getValue('#disabled'));
 
     if (funcId) {
       // load from worker class for editing
@@ -247,6 +255,7 @@ export class Flow extends Block {
   }
 
   _loadFlowData(map: DataMap, funcId?: string) {
+    if ('#disabled' in map) this._disabledChanged(map['#disabled']);
     super._load(map);
     if (this._history) {
       this.destroyHistory();
@@ -375,6 +384,10 @@ export class Flow extends Block {
   }
 
   destroy(): void {
+    if (!(this._outputObj instanceof Block) || !this._outputObj._destroyed) {
+      for (const field of this._outputFields) this._outputObj?.output(undefined, field);
+    }
+    this._outputFields.clear();
     if (this._history) {
       this._history.destroy();
       this._history = null;
@@ -420,6 +433,8 @@ class GlobalBlock extends Flow {
 }
 
 export class FlowFolder extends Flow {
+  pendingCreate?: Promise<void>;
+
   _createConfig(field: string): BlockProperty {
     if (field in FlowFolderConfigGenerators) {
       return new FlowFolderConfigGenerators[field](this, field);
@@ -492,6 +507,43 @@ export class Root extends FlowFolder {
 
   _resolver: Resolver;
   _storage: FlowStorage;
+  readonly _namespaceDescListeners = new Set<DescListener>();
+  readonly _namespaces: Record<string, Namespace> = Object.create(null);
+  readonly _lifecycle = new FlowRuntime(this);
+
+  start(options?: StartOptions) {
+    return this._lifecycle.start(options);
+  }
+  stop(options?: UnloadOptions) {
+    return this._lifecycle.stop(options);
+  }
+  enableNamespace(name: string, options?: {flows?: string[]}) {
+    return this._lifecycle.enableNamespace(name, options);
+  }
+  disableNamespace(name: string, options?: UnloadOptions & {cascade?: boolean}) {
+    return this._lifecycle.disableNamespace(name, options);
+  }
+  loadFlow(ref: FlowRef) {
+    return this._lifecycle.loadFlow(ref);
+  }
+  unloadFlow(ref: FlowRef, options?: UnloadOptions) {
+    return this._lifecycle.unloadFlow(ref, options);
+  }
+  enableFlow(ref: FlowRef, options?: {persist?: boolean}) {
+    return this._lifecycle.setEnabled(ref, true, options);
+  }
+  disableFlow(ref: FlowRef, options?: {persist?: boolean}) {
+    return this._lifecycle.setEnabled(ref, false, options);
+  }
+  listFlows(namespace: string) {
+    return this._lifecycle.listFlows(namespace);
+  }
+  setServiceLibrary(namespace: string, name: string, service: boolean) {
+    return this._lifecycle.setServiceLibrary(namespace, name, service);
+  }
+  getFlowState(ref: FlowRef) {
+    return this._lifecycle.getFlowState(ref);
+  }
 
   queueBlock(block: Runnable) {
     this._resolver.queueBlock(block);
@@ -499,7 +551,6 @@ export class Root extends FlowFolder {
 
   async setStorage(storage: FlowStorage) {
     this._storage = storage;
-    Namespace.setStorage(storage);
     await storage.init(this);
   }
 
@@ -526,6 +577,7 @@ export class Root extends FlowFolder {
   constructor() {
     super(null);
     this._parent = this;
+    this._namespace = '+#root';
     this._resolver = new Resolver((resolver: Resolver) => {
       resolver._queued = true;
       resolver._queueToRun = true;
@@ -544,6 +596,8 @@ export class Root extends FlowFolder {
   loadGlobal(data: DataMap, applyChange?: FlowLoader['applyChange']) {
     // preload the global settings before loading anything else
     updateGlobalSettings(new DataWrapper(data));
+    // Storage initialization reads settings without starting executable content.
+    if (this._storage) this._globalRoot._runtimeDisabled = true;
     this._globalRoot.load(data, null, applyChange);
   }
 
@@ -559,7 +613,9 @@ export class Root extends FlowFolder {
     let prop = this.queryProperty(path, true);
     if (!prop && autoCreateFolder) {
       // get the prop again
-      this.addFlowFolder(path.substring(0, path.lastIndexOf('.')), loader);
+      const dot = path.lastIndexOf('.');
+      if (dot < 0) return null;
+      this.addFlowFolder(path.substring(0, dot), loader, true);
       prop = this.queryProperty(path, true);
     }
     if (!prop) {
@@ -585,25 +641,35 @@ export class Root extends FlowFolder {
       return null;
     }
 
-    let newGroup: Flow;
+    let newGroup: FlowFolder;
     if (loader?.createFolder) {
       newGroup = loader.createFolder(path, prop);
     } else {
       newGroup = new FlowFolder(prop._block, null, prop);
     }
     newGroup._namespace = prop._block._flow._namespace;
+    if (!loader && this._storage?.inited && this._storage.createFolder) {
+      const created = this._storage.createFolder(path);
+      if (created instanceof Promise) {
+        newGroup.pendingCreate = created.catch((error) => {
+          if (prop._value === newGroup) prop.setValue(undefined);
+          throw error;
+        });
+        newGroup.pendingCreate.catch(voidFunction);
+      }
+    }
     prop.setValue(newGroup);
     return newGroup;
   }
 
-  addFlow(path?: string, data?: DataMap, loader?: FlowLoader, autoCreateFolder?: boolean): Flow {
+  addFlow(path?: string, data?: DataMap, loader?: FlowLoader, autoCreateFolder?: boolean, fromStorage = false): Flow {
     if (!path) {
       path = Block.nextUid();
     }
     let prop = this.queryProperty(path, true);
     if (!prop && autoCreateFolder) {
       // get the prop again
-      this.addFlowFolder(path.substring(0, path.lastIndexOf('.')), loader, autoCreateFolder);
+      this.addFlowFolder(path.substring(0, path.lastIndexOf('.')), fromStorage ? {} : loader, autoCreateFolder);
       prop = this.queryProperty(path, true);
     }
     if (!prop || prop._value instanceof Block) {
@@ -625,7 +691,8 @@ export class Root extends FlowFolder {
       newFlow = loader.createFlow(path, prop);
     } else if (flowLibPath) {
       newFlow = new FlowLib(prop._block, null, prop);
-      funcLib = new NsFunctionLib(newFlow, flowLibPath[0], flowLibPath[1], this._storage);
+      funcLib = Namespace.getNameSpace(flowLibPath[0], this).getLib(flowLibPath[1], false);
+      funcLib.flow = newFlow;
     } else {
       newFlow = new Flow(prop._block, null, prop);
     }
@@ -640,7 +707,7 @@ export class Root extends FlowFolder {
         data = {};
       }
       newFlow.load(data, null, loader.applyChange, loader.onStateChange, undefined, funcLib);
-      if (this._storage?.inited && Object.keys(data).length) {
+      if (!fromStorage && this._storage?.inited && Object.keys(data).length) {
         newFlow.applyChange();
       }
     } else {
@@ -648,13 +715,28 @@ export class Root extends FlowFolder {
     }
     prop.setValue(newFlow);
     if (flowLibPath) {
-      Namespace.getNameSpace(flowLibPath[0])?.getLib(flowLibPath[1]);
+      const ns = Namespace.getNameSpace(flowLibPath[0], this);
+      ns._libs[flowLibPath[1]] = funcLib as NsFunctionLib;
+      (funcLib as NsFunctionLib).setAvailable(ns._enabled && !newFlow._disabled);
+      if (this._storage && !fromStorage) {
+        this._lifecycle.trackFlow({namespace: flowLibPath[0].slice(1), kind: 'library', name: flowLibPath[1]}, newFlow);
+      }
+    }
+    if (this._storage && !fromStorage && !flowLibPath) {
+      const parts = path.split('.');
+      const namespace = path.startsWith('+') ? parts.shift().slice(1) : '#root';
+      this._lifecycle.trackFlow({namespace, kind: 'flow', name: parts.join('.')}, newFlow);
     }
     return newFlow;
   }
 
+  destroy() {
+    void this.stop({discardChanges: true});
+    super.destroy();
+  }
+
   addFlowLib(ns: string, libName: string): FlowLib {
-    const path = `${ns}.:${libName}`;
+    const path = ns === '+#root' ? `:${libName}` : `${ns}.:${libName}`;
     const prop = this.queryProperty(path, true);
     if (!prop || prop._value instanceof Block) {
       return prop?._value instanceof FlowLib ? prop._value : null;
@@ -669,7 +751,10 @@ export class Root extends FlowFolder {
     const prop = this.queryProperty(path, false);
     if (prop?._value instanceof Flow) {
       const flow = prop._value;
-      const deleted = this._storage?.delete(path);
+      const deleted =
+        flow instanceof FlowFolder && this._storage?.deleteFolder
+          ? this._storage.deleteFolder(path)
+          : this._storage?.delete(path);
       if (deleted instanceof Promise) {
         return deleted.then(() => {
           if (!this._destroyed && !flow._destroyed && prop._value === flow) prop.setValue(undefined);

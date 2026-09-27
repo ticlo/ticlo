@@ -72,7 +72,7 @@ export class TestLoader extends FileFlowStorage {
       console.log(`unable to save disabled flow: ${key}`);
       return;
     }
-    super.saveFlow(flow, data, key);
+    return super.saveFlow(flow, data, key);
   }
 
   getFlowLoader(key: string, prop: BlockProperty): FlowLoader {
@@ -137,7 +137,6 @@ export class TestLoader extends FileFlowStorage {
         }
       }
     }
-    super.flowStateChanged(flow, key, state);
   }
   init(root: Root): void {
     const testGroupLoader = {

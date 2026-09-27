@@ -23,6 +23,7 @@ window.addEventListener('beforeunload', () => {
 
 (async () => {
   await Root.instance.setStorage(new IndexDbFlowStorage());
+  await Root.instance.start({'#root': {flows: ['**']}});
 
   const reactFlow = Root.instance.addFlow('example');
   reactFlow.load(reactData);

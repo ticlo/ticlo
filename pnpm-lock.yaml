@@ -162,7 +162,7 @@ importers:
         specifier: workspace:*
         version: link:packages/editor
       '@ticlo/file-server':
-        specifier: ^0.1.0
+        specifier: 0.1.0
         version: 0.1.0(hono@4.13.7)
       '@ticlo/html':
         specifier: workspace:*
@@ -339,7 +339,7 @@ importers:
         specifier: workspace:*
         version: link:../packages/editor
       '@ticlo/file-server':
-        specifier: ^0.1.0
+        specifier: 0.1.0
         version: 0.1.0(hono@4.13.7)
       '@ticlo/html':
         specifier: workspace:*

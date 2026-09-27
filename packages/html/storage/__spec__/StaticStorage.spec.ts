@@ -3,7 +3,7 @@ import {Flow, FlowFolder, Root, encodeSorted} from '@ticlo/core';
 import {StaticFlowStorage, StaticStorage} from '../StaticStorage.ts';
 
 const baseUrl = 'http://static.test';
-const rootUrl = `${baseUrl}/proj/_root`;
+const rootUrl = `${baseUrl}/proj/%23root`;
 
 function mockFiles(files: Record<string, string>) {
   const fetchMock = vi.fn(async (url: string) => {
@@ -20,13 +20,13 @@ describe('StaticStorage', () => {
 
   it('uses file-server filenames with URL escaping and separate library folders', async () => {
     const fetchMock = mockFiles({
-      [`${rootUrl}/storage/a%252fb%253fc%23%25%20d.str`]: 'value',
-      [`${rootUrl}/storage/%2BtestNs.key.str`]: 'literal key',
-      [`${baseUrl}/proj/testNs/libs/lib.%23.worker.ticlo`]: '{"worker":"test"}',
+      [`${rootUrl}/%23storage/a%252fb%253fc%23%25%20d.str`]: 'value',
+      [`${rootUrl}/%23storage/%2BtestNs.key.str`]: 'literal key',
+      [`${baseUrl}/proj/testNs/%23libs/lib.%23.worker.ticlo`]: '{"worker":"test"}',
       [`${baseUrl}/proj/testNs/main.%23.worker.ticlo`]: '{"value":"subflow"}',
-      [`${rootUrl}/libs/lib.ticlo`]: '{"worker":"root"}',
+      [`${rootUrl}/%23libs/lib.ticlo`]: '{"worker":"root"}',
     });
-    const storage = new StaticStorage(`${rootUrl}/storage/`, '.str');
+    const storage = new StaticStorage(`${rootUrl}/%23storage/`, '.str');
     expect(await storage.load('a/b?c#% d')).toBe('value');
     expect(await storage.load('+testNs.key')).toBe('literal key');
     const flows = new StaticFlowStorage(baseUrl);
@@ -98,24 +98,25 @@ describe('StaticFlowStorage', () => {
   it('loads globals first and folder flows in name order, skipping subflows', async () => {
     const fetchMock = mockFiles({
       [`${rootUrl}/.list.json`]: JSON.stringify([
-        'folder.child.ticlo',
+        'folder/',
         'first.ticlo',
-        'folder.flow.ticlo',
         '#global.ticlo',
         'first.#.worker.ticlo',
-        'libs/',
+        '#libs/',
         'broken.ticlo',
         'notes.txt',
       ]),
       [`${rootUrl}/%23global.ticlo`]: encodeSorted({'#is': '', '^value': 42}),
       [`${rootUrl}/first.ticlo`]: encodeSorted({'#is': '', 'value': 1}),
-      [`${rootUrl}/folder.child.ticlo`]: encodeSorted({'#is': '', 'value': 2}),
-      [`${rootUrl}/folder.flow.ticlo`]: encodeSorted({'#is': '', 'value': 3}),
+      [`${rootUrl}/folder/.list.json`]: '["child.ticlo","flow.ticlo"]',
+      [`${rootUrl}/folder/child.ticlo`]: encodeSorted({'#is': '', 'value': 2}),
+      [`${rootUrl}/folder/flow.ticlo`]: encodeSorted({'#is': '', 'value': 3}),
       [`${rootUrl}/broken.ticlo`]: '{invalid',
     });
     root = new Root();
     const storage = new StaticFlowStorage(baseUrl);
     await root.setStorage(storage);
+    await root.start({[storage.initialProject]: {flows: ['first', 'folder.**']}});
 
     expect(storage.inited).toBe(true);
     expect(root._globalRoot.getValue('^value')).toBe(42);
@@ -123,13 +124,11 @@ describe('StaticFlowStorage', () => {
     expect(root.queryValue('folder.child.value')).toBe(2);
     expect(root.queryValue('folder')).toBeInstanceOf(FlowFolder);
     expect(root.queryValue('folder.flow.value')).toBe(3);
-    expect(fetchMock.mock.calls.map(([url]) => url)).toEqual([
-      `${rootUrl}/.list.json`,
+    expect(fetchMock.mock.calls.map(([url]) => url).filter((url) => url.endsWith('.ticlo'))).toEqual([
       `${rootUrl}/%23global.ticlo`,
-      `${rootUrl}/broken.ticlo`,
       `${rootUrl}/first.ticlo`,
-      `${rootUrl}/folder.child.ticlo`,
-      `${rootUrl}/folder.flow.ticlo`,
+      `${rootUrl}/folder/child.ticlo`,
+      `${rootUrl}/folder/flow.ticlo`,
     ]);
 
     const flow = root.queryValue('first') as Flow;
@@ -141,7 +140,6 @@ describe('StaticFlowStorage', () => {
     expect((await storage.loadFlow('#global'))['^value']).toBe(43);
     root.deleteFlow('folder.child');
     expect(await storage.loadFlow('folder.child')).toBeNull();
-    expect(fetchMock).toHaveBeenCalledTimes(6);
   });
 
   it('supports new flows and library saves without HTTP writes', async () => {
@@ -161,14 +159,53 @@ describe('StaticFlowStorage', () => {
     expect(fetchMock.mock.calls.map(([url]) => url)).toEqual([`${rootUrl}/.list.json`, `${rootUrl}/%23global.ticlo`]);
   });
 
-  it('loads only the selected project and recursive deps, with globals always from _root', async () => {
+  it('loads empty and nested user folders, reserves system directories, and deletes folders only in memory', async () => {
+    const files: Record<string, string> = {
+      [`${rootUrl}/.list.json`]: '[]',
+      [`${baseUrl}/proj/main/.list.json`]:
+        '["libs/","deps/","storage/","_libs/","_deps/","_storage/","empty/","#libs/","#storage/"]',
+      [`${baseUrl}/proj/main/empty/.list.json`]: '[]',
+      [`${baseUrl}/proj/main/%23libs/tools.ticlo`]: encodeSorted({worker: 'library'}),
+    };
+    for (const name of ['libs', 'deps', 'storage', '_libs', '_deps', '_storage']) {
+      files[`${baseUrl}/proj/main/${name}/.list.json`] = '["nested/"]';
+      files[`${baseUrl}/proj/main/${name}/nested/.list.json`] = '["flow.ticlo"]';
+      files[`${baseUrl}/proj/main/${name}/nested/flow.ticlo`] = encodeSorted({value: name});
+    }
+    mockFiles(files);
+    root = new Root();
+    const storage = new StaticFlowStorage(baseUrl, 'main');
+    await root.setStorage(storage);
+    await root.start({main: {flows: ['**']}});
+    expect(root.queryValue('+main.empty')).toBeInstanceOf(FlowFolder);
+    for (const name of ['libs', 'deps', 'storage', '_libs', '_deps', '_storage']) {
+      expect(root.queryValue(`+main.${name}.nested.flow.value`)).toBe(name);
+    }
+    for (const name of ['#libs', '#deps', '#storage']) {
+      expect(root.queryValue(`+main.${name}`)).toBeUndefined();
+      expect(() => root.addFlowFolder(`+main.${name}`)).toThrow('Reserved folder');
+    }
+    const flow = root.queryValue('+main.libs.nested.flow') as Flow;
+    flow.setValue('value', 'temporary');
+    flow.applyChange();
+    root.deleteFlow('+main.libs');
+    expect(await storage.loadFlow('+main.libs.nested.flow')).toBeNull();
+    expect(await storage.loadLib('+main', 'tools')).toEqual({worker: 'library'});
+    root.destroy();
+    root = new Root();
+    await root.setStorage(new StaticFlowStorage(baseUrl, 'main'));
+    await root.start({main: {flows: ['**']}});
+    expect(root.queryValue('+main.libs.nested.flow.value')).toBe('libs');
+  });
+
+  it('loads only the selected project and recursive deps, with globals always from #root', async () => {
     const fetchMock = mockFiles({
       [`${rootUrl}/.list.json`]: '["#global.ticlo","unused.ticlo"]',
       [`${rootUrl}/%23global.ticlo`]: encodeSorted({'#is': '', '^value': 42}),
       [`${baseUrl}/proj/main/.list.json`]: JSON.stringify([
         'run.ticlo',
-        'deps/',
-        'libs/',
+        'ticlo.json',
+        '#libs/',
         '#global.ticlo',
         'bad:name.ticlo',
         'bad..name.ticlo',
@@ -176,32 +213,32 @@ describe('StaticFlowStorage', () => {
         '+other.ticlo',
         'run.#.worker.ticlo',
       ]),
-      [`${baseUrl}/proj/main/deps/.list.json`]: '["shared/","common/","bad.name/","bad/path/","not-a-folder"]',
+      [`${baseUrl}/proj/main/ticlo.json`]: JSON.stringify({dependencies: ['shared', 'common']}),
       [`${baseUrl}/proj/main/run.ticlo`]: encodeSorted({value: 1}),
       [`${baseUrl}/proj/main/%23global.ticlo`]: encodeSorted({'^value': 99}),
-      [`${baseUrl}/proj/shared/.list.json`]: '["folder.child.ticlo","deps/"]',
-      [`${baseUrl}/proj/shared/deps/.list.json`]: '["common/"]',
-      [`${baseUrl}/proj/shared/folder.child.ticlo`]: encodeSorted({value: 2}),
-      [`${baseUrl}/proj/common/.list.json`]: '["run.ticlo","deps/"]',
-      [`${baseUrl}/proj/common/deps/.list.json`]: '["main/"]',
+      [`${baseUrl}/proj/shared/.list.json`]: '["folder/","ticlo.json"]',
+      [`${baseUrl}/proj/shared/ticlo.json`]: JSON.stringify({dependencies: ['common']}),
+      [`${baseUrl}/proj/shared/folder/.list.json`]: '["child.ticlo"]',
+      [`${baseUrl}/proj/shared/folder/child.ticlo`]: encodeSorted({value: 2}),
+      [`${baseUrl}/proj/common/.list.json`]: '["run.ticlo","ticlo.json"]',
+      [`${baseUrl}/proj/common/ticlo.json`]: JSON.stringify({dependencies: ['main']}),
       [`${baseUrl}/proj/common/run.ticlo`]: encodeSorted({value: 3}),
       [`${baseUrl}/proj/unrelated/.list.json`]: '["run.ticlo"]',
     });
     root = new Root();
     const storage = new StaticFlowStorage(baseUrl, 'main');
     await root.setStorage(storage);
+    await root.start({main: {flows: ['**']}});
     expect([...storage.projects].sort()).toEqual(['common', 'main', 'shared']);
     expect(root._globalRoot.getValue('^value')).toBe(42);
     expect(root.queryValue('+main.run.value')).toBe(1);
-    expect(root.queryValue('+shared.folder.child.value')).toBe(2);
-    expect(root.queryValue('+common.run.value')).toBe(3);
+    expect(root.queryValue('+shared.folder.child.value')).toBeUndefined();
+    expect(root.queryValue('+common.run.value')).toBeUndefined();
     expect(root.queryValue('unused')).toBeUndefined();
     expect(root.queryValue('+unrelated')).toBeUndefined();
     const urls = fetchMock.mock.calls.map(([url]) => url);
     expect(urls.filter((url) => url.endsWith('.ticlo'))).toEqual([
       `${rootUrl}/%23global.ticlo`,
-      `${baseUrl}/proj/common/run.ticlo`,
-      `${baseUrl}/proj/shared/folder.child.ticlo`,
       `${baseUrl}/proj/main/run.ticlo`,
     ]);
     expect(urls.filter((url) => url === `${baseUrl}/proj/common/.list.json`)).toHaveLength(1);
@@ -210,13 +247,14 @@ describe('StaticFlowStorage', () => {
   it('keeps libraries separate from flows and retains temporary saves when a root shuts down', async () => {
     mockFiles({
       [`${rootUrl}/.list.json`]: '[]',
-      [`${baseUrl}/proj/main/.list.json`]: '["same.ticlo","libs/"]',
+      [`${baseUrl}/proj/main/.list.json`]: '["same.ticlo","#libs/"]',
       [`${baseUrl}/proj/main/same.ticlo`]: encodeSorted({value: 'flow'}),
-      [`${baseUrl}/proj/main/libs/same.ticlo`]: encodeSorted({value: 'library'}),
+      [`${baseUrl}/proj/main/%23libs/same.ticlo`]: encodeSorted({value: 'library'}),
     });
     root = new Root();
     const storage = new StaticFlowStorage(baseUrl, 'main');
     await root.setStorage(storage);
+    await root.start({main: {flows: ['**']}});
     expect(await storage.loadLib('+main', 'same')).toEqual({value: 'library'});
     storage.saveLib('+main', 'same', {value: 'temporary library'});
     const flow = root.queryValue('+main.same') as Flow;
@@ -230,28 +268,47 @@ describe('StaticFlowStorage', () => {
     expect(await reloaded.loadLib('+main', 'same')).toEqual({value: 'library'});
   });
 
-  it('loads ordinary _root flows when _root is a dependency', async () => {
+  it('enables #root dependencies without loading ordinary flows', async () => {
     mockFiles({
       [`${rootUrl}/.list.json`]: '["plain.ticlo"]',
       [`${rootUrl}/plain.ticlo`]: encodeSorted({value: 7}),
-      [`${baseUrl}/proj/main/.list.json`]: '["deps/"]',
-      [`${baseUrl}/proj/main/deps/.list.json`]: '["_root/"]',
+      [`${baseUrl}/proj/main/.list.json`]: '["ticlo.json"]',
+      [`${baseUrl}/proj/main/ticlo.json`]: JSON.stringify({dependencies: ['#root']}),
     });
     root = new Root();
     await root.setStorage(new StaticFlowStorage(baseUrl, 'main'));
-    expect(root.queryValue('plain.value')).toBe(7);
-    expect(root.queryValue('+_root')).toBeUndefined();
+    await root.start({main: {}});
+    expect(root.queryValue('plain.value')).toBeUndefined();
+    expect(root.queryValue('+#root')).toBeUndefined();
   });
 
-  it.each([false, true])('rejects a missing dependency index or project (has deps index: %s)', async (hasIndex) => {
+  it('rejects missing dependencies declared in project metadata', async () => {
     mockFiles({
-      [`${rootUrl}/.list.json`]: '["deps/"]',
-      ...(hasIndex ? {[`${rootUrl}/deps/.list.json`]: '["missing/"]'} : {}),
+      [`${rootUrl}/.list.json`]: '["ticlo.json"]',
+      [`${rootUrl}/ticlo.json`]: JSON.stringify({dependencies: ['missing']}),
     });
     root = new Root();
-    const storage = new StaticFlowStorage(baseUrl);
-    await expect(root.setStorage(storage)).rejects.toThrow('HTTP 404');
-    expect(storage.inited).toBe(false);
+    await root.setStorage(new StaticFlowStorage(baseUrl));
+    await expect(root.start()).rejects.toThrow('HTTP 404');
+    expect(root._lifecycle.started).toBe(false);
+  });
+
+  it('preloads disabled services and rejects persistent mutations', async () => {
+    const fetchMock = mockFiles({
+      [`${rootUrl}/.list.json`]: '["ticlo.json", "#libs/", "unused.ticlo"]',
+      [`${rootUrl}/ticlo.json`]: JSON.stringify({serviceLibraries: ['service']}),
+      [`${rootUrl}/%23libs/service.ticlo`]: JSON.stringify({'#disabled': true}),
+    });
+    root = new Root();
+    await root.setStorage(new StaticFlowStorage(baseUrl));
+    await root.start();
+    const ref = {namespace: '#root', kind: 'library', name: 'service'} as const;
+    expect(root.getFlowState(ref)).toBe('disabled');
+    expect(fetchMock).not.toHaveBeenCalledWith(`${rootUrl}/unused.ticlo`);
+    await expect(root.enableFlow(ref, {persist: true})).rejects.toThrow('persistence');
+    await expect(root.setServiceLibrary('#root', 'service', false)).rejects.toThrow('persistence');
+    await root.enableFlow(ref);
+    expect(root.getFlowState(ref)).toBe('enabled');
   });
 
   it.each(['bad.name', 'bad/name', ''])('rejects an invalid initial project: %s', (project) => {

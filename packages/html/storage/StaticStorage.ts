@@ -1,7 +1,15 @@
 import {DataMap, decode, encodeSorted, Flow, Root, FlowStorage, Storage} from '@ticlo/core';
+import {NamespaceMetadata} from '@ticlo/core/block/Storage.ts';
+import {readNamespaceMetadata, validateNamespace} from '@ticlo/core/util/NamespaceMetadata.ts';
 import {FlowLoader} from '@ticlo/core/block/Flow.ts';
 import {StreamDispatcher} from '@ticlo/core/block/Dispatcher.ts';
 import {encodeFileName, validateNodePath} from '@ticlo/core/util/Path.ts';
+import {
+  flowStoragePath,
+  reservedFlowFolders,
+  splitFlowStorageKey,
+  validFlowEntry,
+} from '@ticlo/core/util/FlowStoragePath.ts';
 
 /** Reads static files over HTTP. Writes and deletions last only for this instance. */
 export class StaticStorage implements Storage {
@@ -68,7 +76,7 @@ export class StaticStorage implements Storage {
   }
 }
 
-const ROOT_PROJECT = '_root';
+const ROOT_PROJECT = '#root';
 function validProject(id: string) {
   return Boolean(id) && validateNodePath(id);
 }
@@ -76,6 +84,7 @@ function validProject(id: string) {
 export class StaticFlowStorage extends StaticStorage implements FlowStorage {
   inited = false;
   readonly projects = new Set<string>();
+  private readonly deletedFolders = new Set<string>();
 
   constructor(
     dir: string,
@@ -86,19 +95,31 @@ export class StaticFlowStorage extends StaticStorage implements FlowStorage {
   }
 
   getUrl(key: string) {
-    let project = ROOT_PROJECT;
-    if (key.startsWith('+')) {
-      const dot = key.indexOf('.');
-      project = key.slice(1, dot);
-      key = key.slice(dot + 1);
-      if (dot < 2 || !validProject(project)) throw new Error('Invalid namespace');
+    const [namespace, name] = splitFlowStorageKey(key);
+    const file = flowStoragePath(name).split('/').map(encodeURIComponent).join('/');
+    return `${this.dir}/proj/${encodeURIComponent(namespace || ROOT_PROJECT)}/${file}`;
+  }
+
+  createFolder(key: string) {
+    flowStoragePath(splitFlowStorageKey(key)[1], true);
+  }
+
+  deleteFolder(key: string) {
+    this.createFolder(key);
+    this.deletedFolders.add(`${key}.`);
+    for (const entry of this.values.keys()) {
+      if (entry.startsWith(`${key}.`)) this.delete(entry);
     }
-    const library = key.startsWith(':');
-    const file = encodeURIComponent(`${encodeFileName(library ? key.slice(1) : key)}${this.ext}`);
-    return `${this.dir}/proj/${encodeURIComponent(project)}/${library ? 'libs/' : ''}${file}`;
+  }
+
+  async load(key: string) {
+    const data = await super.load(key);
+    if (!this.values.has(key) && [...this.deletedFolders].some((prefix) => key.startsWith(prefix))) return null;
+    return data;
   }
 
   getFlowLoader(key: string): FlowLoader {
+    this.getUrl(key);
     return {
       applyChange: (flow: Flow) => {
         const data = flow.save();
@@ -129,7 +150,7 @@ export class StaticFlowStorage extends StaticStorage implements FlowStorage {
   }
 
   private async listFolder(path: string): Promise<string[]> {
-    const url = `${this.dir}/${path}/.list.json`;
+    const url = `${this.dir}/${path.split('/').map(encodeURIComponent).join('/')}/.list.json`;
     const response = await fetch(url);
     if (!response.ok) {
       throw new Error(`Failed to load ${url}: HTTP ${response.status}`);
@@ -141,34 +162,56 @@ export class StaticFlowStorage extends StaticStorage implements FlowStorage {
     return files;
   }
 
-  async init(root: Root) {
-    const rootFiles = await this.listFolder(`proj/${ROOT_PROJECT}`);
-    const globalData = await this.loadFlow('#global');
-    root.loadGlobal(globalData ?? {'#is': ''}, this.getFlowLoader('#global').applyChange);
+  readonly persistent = false;
 
-    const loadProject = async (project: string) => {
-      if (this.projects.has(project)) return;
-      const path = `proj/${encodeURIComponent(project)}`;
-      const files = project === ROOT_PROJECT ? rootFiles : await this.listFolder(path);
-      this.projects.add(project);
-      if (project !== ROOT_PROJECT) root.addFlowFolder(`+${project}`);
-      if (files.includes('deps/')) {
-        const deps = await this.listFolder(`${path}/deps`);
-        for (const entry of deps.sort()) {
-          const id = entry.slice(0, -1);
-          if (entry.endsWith('/') && validProject(id)) await loadProject(id);
+  async getNamespaceMetadata(namespace: string): Promise<NamespaceMetadata> {
+    validateNamespace(namespace);
+    const files = await this.listFolder(`proj/${namespace}`);
+    this.projects.add(namespace);
+    if (!files.includes('ticlo.json')) return {};
+    const url = `${this.dir}/proj/${encodeURIComponent(namespace)}/ticlo.json`;
+    const response = await fetch(url);
+    if (!response.ok) throw new Error(`Failed to load ${url}: HTTP ${response.status}`);
+    return readNamespaceMetadata(await response.json());
+  }
+
+  async saveNamespaceMetadata(namespace: string, metadata: NamespaceMetadata): Promise<void> {
+    throw new Error('StaticStorage does not support persistence');
+  }
+
+  async listFlows(namespace: string, folders?: string[]): Promise<string[]> {
+    validateNamespace(namespace);
+    const result = new Set<string>();
+    const visit = async (path: string, prefix = '') => {
+      for (const file of await this.listFolder(path)) {
+        if (file.endsWith('/') && validFlowEntry(file.slice(0, -1))) {
+          const name = file.slice(0, -1);
+          folders?.push(`${prefix}${name}`);
+          await visit(`${path}/${name}`, `${prefix}${name}.`);
+        } else if (file.endsWith(this.ext)) {
+          const name = file.slice(0, -this.ext.length);
+          if (validFlowEntry(name)) result.add(`${prefix}${name}`);
         }
       }
-      const names = files.filter((file) => file.endsWith(this.ext)).map((file) => file.slice(0, -this.ext.length));
-      for (const name of names.sort()) {
-        // Subflows and libraries load on demand; invalid filenames are ignored.
-        if (!name.split('.').every((part) => part && validateNodePath(part) && !/^[#+:]/.test(part))) continue;
-        const key = project === ROOT_PROJECT ? name : `+${project}.${name}`;
-        const data = await this.loadFlow(key);
-        if (data) root.addFlow(key, data, null, true);
-      }
     };
-    await loadProject(this.initialProject);
+    await visit(`proj/${namespace}`);
+    const prefix = namespace === '#root' ? '' : `+${namespace}.`;
+    for (const [key, value] of this.values) {
+      const [ns, name] = splitFlowStorageKey(key);
+      if ((ns || '#root') === namespace && name.split('.').every(validFlowEntry)) {
+        if (value == null) result.delete(name);
+        else result.add(name);
+      }
+    }
+    return [...result]
+      .filter((name) => ![...this.deletedFolders].some((folder) => `${prefix}${name}`.startsWith(folder)))
+      .sort();
+  }
+
+  async init(root: Root) {
+    await this.listFolder(`proj/${ROOT_PROJECT}`);
+    const globalData = await this.loadFlow('#global');
+    root.loadGlobal(globalData ?? {'#is': ''}, this.getFlowLoader('#global').applyChange);
     this.inited = true;
   }
 }

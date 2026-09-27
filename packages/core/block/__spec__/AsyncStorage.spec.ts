@@ -186,14 +186,16 @@ describe('asynchronous persistence', () => {
   it('waits for library worker persistence and keeps failed edits dirty', async () => {
     root = new Root();
     let nextSave = Promise.resolve();
-    Namespace.setStorage({loadLib: async (): Promise<DataMap> => null, saveLib: () => nextSave} as any);
+    root._storage = {loadLib: async (): Promise<DataMap> => ({'#is': ''}), saveLib: () => nextSave} as any;
+    await root.enableNamespace('asyncStorage');
+    await root.loadFlow({namespace: 'asyncStorage', kind: 'library', name: 'library'});
     const ns = '+asyncStorage';
     const id = `${ns}:library:worker`;
     try {
-      const lib = Namespace.getFunctionLib(id);
+      const lib = Namespace.getFunctionLib(id, root);
       await Promise.resolve();
       WorkerFunctionGen.registerType({'#is': ''}, {id, name: 'worker'}, ns, lib);
-      const flow = root.addFlow('flow');
+      const flow = root.addFlow('flow', undefined, {});
       const editor = FlowEditor.createFromFunction(flow, '#edit-worker', id, null);
       editor.startHistory();
       editor.setValue('value', 1);
@@ -211,9 +213,7 @@ describe('asynchronous persistence', () => {
       await expect(editor.applyChange()).rejects.toThrow('library conflict');
       expect(editor.getValue('@has-change')).toBe(true);
     } finally {
-      Namespace.setStorage(undefined);
-      delete Namespace._dict[ns];
-      getGlobalFunctionRoot().deleteValue(ns);
+      await root.stop({discardChanges: true});
     }
   });
 });

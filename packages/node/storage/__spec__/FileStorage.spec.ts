@@ -6,6 +6,29 @@ import {shouldHappen, shouldReject, waitTick} from '@ticlo/core/util/test-util.t
 import {FileFlowStorage, FileStorage} from '../FileStorage.ts';
 
 describe('FileStorage', function () {
+  it('rejects persistent lifecycle toggles when a file write fails and allows retry', async () => {
+    const storage = new FileFlowStorage('./temp/storageWriteFailure');
+    await storage.saveFlow(null, {value: 1}, 'entry');
+    const root = new Root();
+    await root.setStorage(storage);
+    await root.start({'#root': {flows: ['entry']}});
+    const entry = {namespace: '#root', kind: 'flow', name: 'entry'} as const;
+    const write = vi.spyOn(Fs, 'writeFile').mockImplementationOnce(((_path: string, _data: string, done: any) => {
+      queueMicrotask(() => done(new Error('write failed')));
+    }) as any);
+    try {
+      await expect(root.disableFlow(entry, {persist: true})).rejects.toThrow('write failed');
+      expect(root.getFlowState(entry)).toBe('enabled');
+      expect((await storage.loadFlow('entry'))['#disabled']).toBeUndefined();
+      await root.disableFlow(entry, {persist: true});
+      expect(root.getFlowState(entry)).toBe('disabled');
+      expect(JSON.parse(Fs.readFileSync('./temp/storageWriteFailure/entry.ticlo', 'utf8'))['#disabled']).toBe(true);
+    } finally {
+      write.mockRestore();
+      await root.stop({discardChanges: true});
+      root.destroy();
+    }
+  });
   it('listen to value', async function () {
     const storage = new FileStorage('./temp/storageTest');
     storage.save('key1', 'value1');
@@ -133,11 +156,13 @@ describe('FileStorage', function () {
   });
   it('init loader', async function () {
     const flowData = {'#is': '', 'value': 321};
-    const path1 = './temp/storageTest/folder5.subflow.ticlo';
+    const path1 = './temp/storageTest/folder5/subflow.ticlo';
+    Fs.mkdirSync('./temp/storageTest/folder5', {recursive: true});
     Fs.writeFileSync(path1, JSON.stringify(flowData));
 
     const root = new Root();
     await root.setStorage(new FileFlowStorage('./temp/storageTest'));
+    await root.start({'#root': {flows: ['**']}});
 
     expect(root.queryValue('folder5')).instanceof(FlowFolder);
     expect(root.queryValue('folder5.subflow.value')).toBe(321);
@@ -158,9 +183,78 @@ describe('FileStorage', function () {
     const loaded = await storage.loadLib(ns, lib);
     expect(loaded).toEqual(data);
 
-    const expectedPath = './temp/storageTest/+testNs/testLib.ticlo';
+    const expectedPath = './temp/storageTest/+testNs/#libs/testLib.ticlo';
     expect(Fs.existsSync(expectedPath)).toBe(true);
 
     if (Fs.existsSync(expectedPath)) Fs.unlinkSync(expectedPath);
+  });
+
+  it('uses ticlo.json for dependency services and keeps unloading separate from file deletion', async () => {
+    const dir = Fs.mkdtempSync('./temp/namespace-config-');
+    const root = new Root();
+    try {
+      const storage = new FileFlowStorage(dir);
+      Fs.mkdirSync(`${dir}/+main`);
+      Fs.mkdirSync(`${dir}/+shared`);
+      Fs.writeFileSync(`${dir}/+main/_proj.json`, '{"owner":"unchanged"}');
+      await storage.saveNamespaceMetadata('main', {dependencies: ['shared']});
+      await storage.saveNamespaceMetadata('shared', {serviceLibraries: ['service']});
+      await storage.saveLib('+shared', 'service', {'#disabled': true});
+      await storage.saveFlow(null, {value: 1}, '+main.entry');
+      await root.setStorage(storage);
+      await root.start({main: {}});
+      expect(root.getFlowState({namespace: 'shared', kind: 'library', name: 'service'})).toBe('disabled');
+      expect(root.queryValue('+main.entry')).toBeUndefined();
+      const entry = {namespace: 'main', kind: 'flow', name: 'entry'} as const;
+      await root.loadFlow(entry);
+      await root.disableFlow(entry, {persist: true});
+      await root.unloadFlow(entry);
+      expect(Fs.existsSync(`${dir}/+main/entry.ticlo`)).toBe(true);
+      await root.loadFlow(entry);
+      expect(root.getFlowState(entry)).toBe('disabled');
+      await root.stop();
+      expect(JSON.parse(Fs.readFileSync(`${dir}/+main/ticlo.json`, 'utf8'))).toEqual({dependencies: ['shared']});
+      expect(Fs.readFileSync(`${dir}/+main/_proj.json`, 'utf8')).toBe('{"owner":"unchanged"}');
+    } finally {
+      root.destroy();
+      Fs.rmSync(dir, {recursive: true, force: true});
+    }
+  });
+
+  it('creates and reloads namespace directories, including empty folders', async () => {
+    const dir = Fs.mkdtempSync('./temp/namespace-folders-');
+    const root = new Root();
+    const reloaded = new Root();
+    try {
+      const storage = new FileFlowStorage(dir);
+      await root.setStorage(storage);
+      root.addFlowFolder('+main');
+      root.addFlowFolder('+main.empty');
+      root.addFlowFolder('+main.libs.nested', null, true);
+      const flow = root.addFlow('+main.libs.nested.flow', {value: 42});
+      flow.applyChange();
+      await storage.getTask('+main.libs.nested.flow').whenIdle();
+      expect(JSON.parse(Fs.readFileSync(`${dir}/+main/libs/nested/flow.ticlo`, 'utf8')).value).toBe(42);
+      storage.saveLib('+main', 'tools', {worker: 'library'});
+      await storage.getTask('+main.:tools').whenIdle();
+      await reloaded.setStorage(new FileFlowStorage(dir));
+      await reloaded.start({main: {flows: ['**']}});
+      expect(reloaded.queryValue('+main.libs.nested.flow.value')).toBe(42);
+      expect(reloaded.queryValue('+main.empty')).toBeInstanceOf(FlowFolder);
+      expect(reloaded.queryValue('+main.#libs')).toBeUndefined();
+      expect(await reloaded._storage.loadLib('+main', 'tools')).toEqual({worker: 'library'});
+      await reloaded.deleteFlow('+main.libs');
+      expect(Fs.existsSync(`${dir}/+main/libs`)).toBe(false);
+      expect(Fs.existsSync(`${dir}/+main/#libs/tools.ticlo`)).toBe(true);
+    } finally {
+      root.destroy();
+      reloaded.destroy();
+      await Promise.all(
+        [root, reloaded].flatMap((item) =>
+          Object.values((item._storage as FileFlowStorage)?.tasks ?? {}).map((task) => task.whenIdle())
+        )
+      );
+      Fs.rmSync(dir, {recursive: true, force: true});
+    }
   });
 });

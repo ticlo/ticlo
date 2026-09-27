@@ -7,14 +7,13 @@ import {NsFunctionLib} from './NSFunctionLib.ts';
 import type {FlowStorage} from './Storage.ts';
 
 export class Namespace {
-  private static _storage: FlowStorage;
   static setStorage(storage: FlowStorage) {
-    Namespace._storage = storage;
+    getGlobalFunctionRoot()._storage = storage;
   }
 
   // return property for binding
-  static bind(ns: string) {
-    return getGlobalFunctionRoot()?.getProperty(ns);
+  static bind(ns: string, flow?: Flow) {
+    return this.rootOf(flow)?.getProperty(ns === '+#root' ? '' : ns);
   }
   static getNsRoot(ns: string) {
     if (!ns) {
@@ -27,26 +26,34 @@ export class Namespace {
     return null;
   }
 
-  static _dict: Record<string, Namespace> = {};
+  static get _dict(): Record<string, Namespace> {
+    return getGlobalFunctionRoot()._namespaces;
+  }
 
-  static getNameSpace(ns: string) {
+  static rootOf(flow?: Flow): Root {
+    if (!flow) return getGlobalFunctionRoot();
+    while (flow._parent && flow._parent !== flow) flow = flow._parent._flow;
+    return flow as Root;
+  }
+
+  static getNameSpace(ns: string, root = getGlobalFunctionRoot()) {
     // single character namespace is not allowed
     if (ns.length > 1) {
-      let namespace = Namespace._dict[ns];
+      let namespace = root._namespaces[ns];
       if (namespace == null) {
-        namespace = new Namespace(ns);
-        Namespace._dict[ns] = namespace;
+        namespace = new Namespace(ns, root);
+        root._namespaces[ns] = namespace;
       }
       return namespace;
     }
     return undefined;
   }
-  static getFunctionLib(id: string) {
+  static getFunctionLib(id: string, root = getGlobalFunctionRoot(), autoload = true) {
     const parts = id.split(':');
     if (parts.length > 1) {
-      const namespace = Namespace.getNameSpace(parts[0]);
+      const namespace = Namespace.getNameSpace(parts[0], root);
       if (namespace) {
-        return namespace.getLib(parts[1]);
+        return namespace.getLib(parts[1], autoload);
       }
     }
     return undefined;
@@ -54,57 +61,59 @@ export class Namespace {
 
   // --- Static aggregation methods covering globalFunctions + all NsFunctionLibs ---
 
-  static _descListeners: Set<DescListener> = new Set<DescListener>();
+  static get _descListeners() {
+    return getGlobalFunctionRoot()._namespaceDescListeners;
+  }
 
   /**
    * Iterate over all NsFunctionLib instances across all namespaces.
    */
-  private static _forEachLib(callback: (lib: NsFunctionLib) => void) {
-    for (const ns in Namespace._dict) {
-      const namespace = Namespace._dict[ns];
+  private static _forEachLib(callback: (lib: NsFunctionLib) => void, root = getGlobalFunctionRoot()) {
+    for (const ns in root._namespaces) {
+      const namespace = root._namespaces[ns];
       for (const libName in namespace._libs) {
         callback(namespace._libs[libName]);
       }
     }
   }
 
-  static listenDesc(listener: DescListener): void {
-    Namespace._descListeners.add(listener);
+  static listenDesc(listener: DescListener, root = getGlobalFunctionRoot()): void {
+    root._namespaceDescListeners.add(listener);
     globalFunctions.listenDesc(listener);
-    Namespace._forEachLib((lib) => lib.listenDesc(listener));
+    Namespace._forEachLib((lib) => lib.listenDesc(listener), root);
   }
 
-  static unlistenDesc(listener: DescListener): void {
-    Namespace._descListeners.delete(listener);
+  static unlistenDesc(listener: DescListener, root = getGlobalFunctionRoot()): void {
+    root._namespaceDescListeners.delete(listener);
     globalFunctions.unlistenDesc(listener);
-    Namespace._forEachLib((lib) => lib.unlistenDesc(listener));
+    Namespace._forEachLib((lib) => lib.unlistenDesc(listener), root);
   }
 
-  static getAllFunctionIds(): string[] {
+  static getAllFunctionIds(root = getGlobalFunctionRoot()): string[] {
     const result = globalFunctions.getAllFunctionIds();
     Namespace._forEachLib((lib) => {
       result.push(...lib.getAllFunctionIds());
-    });
+    }, root);
     return result;
   }
 
-  static getDescToSend(id: string): [FunctionDesc, number] {
+  static getDescToSend(id: string, root = getGlobalFunctionRoot()): [FunctionDesc, number] {
     // Try globalFunctions first
     const [desc, size] = globalFunctions.getDescToSend(id);
     if (desc) {
       return [desc, size];
     }
     // Try namespace function libs
-    const functionLib = Namespace.getFunctionLib(id);
+    const functionLib = Namespace.getFunctionLib(id, root, false);
     if (functionLib) {
       return functionLib.getDescToSend(id);
     }
     return [null, 0];
   }
 
-  static delete(id: string): void | Promise<void> {
+  static delete(id: string, root = getGlobalFunctionRoot()): void | Promise<void> {
     // Determine which function lib owns this id
-    const functionLib = Namespace.getFunctionLib(id);
+    const functionLib = Namespace.getFunctionLib(id, root, false);
     if (functionLib) {
       functionLib.delete(id);
       return functionLib.pendingSave;
@@ -126,9 +135,11 @@ export class Namespace {
       if (funcId.charCodeAt(1) === 58 /* +: */) {
         // replace + with current namespace
         const currentNamespace = flow?._namespace ?? namespace;
-        return currentNamespace ? Namespace.getFunctionLib(`${currentNamespace}${funcId.substring(1)}`) : undefined;
+        return currentNamespace
+          ? Namespace.getFunctionLib(`${currentNamespace}${funcId.substring(1)}`, Namespace.rootOf(flow))
+          : undefined;
       } else {
-        return Namespace.getFunctionLib(funcId);
+        return Namespace.getFunctionLib(funcId, Namespace.rootOf(flow));
       }
     } else if (code0 > 0) {
       // global function
@@ -150,82 +161,44 @@ export class Namespace {
     return [undefined, undefined, undefined];
   }
 
-  static loadNameSpaces(namespaces: string[], unloadOthers = true) {
-    const usedNs = new Set(namespaces);
-    for (const ns of namespaces) {
-      const namespace = Namespace.getNameSpace(ns);
-      if (namespace) {
-        namespace.load(usedNs);
-      }
-    }
-    if (unloadOthers) {
-      for (const ns in Namespace._dict) {
-        if (!usedNs.has(ns)) {
-          Namespace._dict[ns].unload();
-        }
-      }
-    }
+  static async loadNameSpaces(namespaces: string[], unloadOthers = true) {
+    const root = getGlobalFunctionRoot();
+    if (unloadOthers) await root.stop();
+    for (const ns of namespaces) await root.enableNamespace(ns.replace(/^\+/, ''));
   }
 
-  _libs: Record<string, NsFunctionLib> = {};
+  _libs: Record<string, NsFunctionLib> = Object.create(null);
+  _enabled = false;
 
-  constructor(public readonly ns: string) {
-    getGlobalFunctionRoot().addFlowFolder(ns);
+  constructor(
+    public readonly ns: string,
+    public readonly root = getGlobalFunctionRoot()
+  ) {
+    // Programmatically defined libraries remain usable without a storage-backed run.
+    this._enabled = !root._storage && !root._lifecycle.started;
   }
-  _enabled: boolean = false;
-  _loaded: boolean | 'loading' = false;
-  async load(usedNs?: Set<string>) {
-    this._enabled = true;
-    if (this._loaded === false) {
-      this._loaded = 'loading';
-    }
-    // todo: load namespace flows
+
+  get name() {
+    return this.ns === '+#root' ? '#root' : this.ns.slice(1);
   }
-  unload() {
-    this._enabled = false;
-  }
-  getLib(libName: string) {
+
+  getLib(libName: string, autoload = true) {
     let lib = this._libs[libName];
     if (!lib) {
-      const flow = getGlobalFunctionRoot().addFlowLib(this.ns, libName);
-      if (!flow) {
-        return undefined;
-      }
-      lib = flow?.getFuncLib() as NsFunctionLib;
-      if (!lib) {
-        lib = new NsFunctionLib(flow, this.ns, libName, Namespace._storage);
-      }
-      if (flow && !flow._loaded) {
-        flow.load(
-          {'#is': ''},
-          null,
-          Namespace._storage
-            ? (changedFlow: Flow) => {
-                const data = changedFlow.save();
-                const saved = Namespace._storage.saveLib(this.ns, libName, data);
-                if (saved instanceof Promise) return saved.then(() => data);
-                return data;
-              }
-            : undefined,
-          undefined,
-          undefined,
-          lib
-        );
-      }
+      lib = new NsFunctionLib(undefined, this.ns, libName, this.root._storage);
+      lib.setAvailable(false);
       this._libs[libName] = lib;
-      // Register any existing desc listeners on the new lib
-      for (const listener of Namespace._descListeners) {
-        lib.listenDesc(listener);
-      }
-      if (flow && Namespace._storage) {
-        Namespace._storage.loadLib(this.ns, libName).then(
-          (data) => {
-            if (data && !flow._destroyed) flow.liveUpdate(data);
-          },
-          (error) => {
-            if (!flow._destroyed) flow.updateValue('@load-error', String(error));
-          }
-        );
+      for (const listener of this.root._namespaceDescListeners) lib.listenDesc(listener);
+    }
+    if (autoload && this._enabled && !lib.flow) {
+      if (!this.root._storage && !this.root._lifecycle.started) {
+        if (this.name !== '#root') this.root.addFlowFolder(this.ns, {});
+        const flow = this.root.addFlowLib(this.ns, libName);
+        lib.flow = flow;
+        flow.load({'#is': ''}, null, undefined, undefined, this.ns, lib);
+        lib.setAvailable(true);
+      } else {
+        this.root._lifecycle.loadLibraryOnDemand(this.name, libName);
       }
     }
     return lib;

@@ -54,7 +54,7 @@ const quickOpenAllowed = new Set<string>([
   'flow:global',
 ]);
 const addFlowAllowed = ['flow:folder', 'flow:test-group', 'flow:namespace'];
-const addFolderAllowed = ['flow:folder'];
+const addFolderAllowed = ['flow:folder', 'flow:namespace'];
 const addLibraryAllowed = ['flow:namespace'];
 
 export class NodeTreeItem extends TreeItem<NodeTreeItem> {

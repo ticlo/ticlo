@@ -1,6 +1,7 @@
 export {Block} from './block/Block.ts';
 export {Root, Flow, FlowFolder} from './block/Flow.ts';
-export {type FlowStorage, type Storage} from './block/Storage.ts';
+export type {StartOptions, FlowRef, UnloadOptions} from './block/FlowRuntime.ts';
+export {type FlowStorage, type Storage, type NamespaceMetadata} from './block/Storage.ts';
 export {BlockProperty, BlockIO} from './block/BlockProperty.ts';
 export {BaseFunction, StatefulFunction, PureFunction} from './block/BlockFunction.ts';
 export {FunctionLib as Functions, globalFunctions as globalFunctions} from './block/FunctionLib.ts';
@@ -86,3 +87,5 @@ import './worker/WorkerFunction.ts';
 import './worker/SelectWorkerFunction.ts';
 
 export * from './connect/ClientConn.ts';
+
+export {MemoryFlowStorage} from './block/MemoryFlowStorage.ts';

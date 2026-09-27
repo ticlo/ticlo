@@ -3,6 +3,15 @@ import {checkEditPolicy, type EditPolicy, EditPolicyView, matchEditPath} from '.
 import '../../functions/math/Arithmetic.ts';
 
 describe('EditPolicy', () => {
+  it('checks lifecycle mutations against the entire flow and leaves state reads available', () => {
+    for (const cmd of ['loadFlow', 'unloadFlow', 'enableFlow', 'disableFlow']) {
+      expect(checkEditPolicy({allowPaths: ['+main.**']}, {cmd, path: '+main.entry'})).toBeNull();
+      expect(checkEditPolicy({allowPaths: ['+main.**']}, {cmd, path: '+shared.:tools'})).toBe('restricted path');
+      expect(checkEditPolicy({denyPaths: ['+main.entry.secret']}, {cmd, path: '+main.entry'})).toBe('restricted path');
+      expect(checkEditPolicy({denyCmds: [cmd]}, {cmd, path: '+main.entry'})).toBe('restricted command');
+    }
+    expect(checkEditPolicy({allowCmds: [], allowPaths: []}, {cmd: 'getFlowState', path: '+main.entry'})).toBeNull();
+  });
   it('matches path segments, recursive wildcards and literal punctuation', () => {
     for (const path of ['Main.a', 'Main.a.value']) expect(matchEditPath('Main.**', path)).toBe(true);
     expect(matchEditPath('Main.**', 'Main')).toBe(false);

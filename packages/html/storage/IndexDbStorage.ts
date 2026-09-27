@@ -1,14 +1,17 @@
-import {openDB, deleteDB, wrap, unwrap, IDBPDatabase} from 'idb';
+import {openDB, IDBPDatabase} from 'idb';
 import {BlockProperty, DataMap, decode, encodeSorted, Flow, Root, FlowStorage, Storage} from '@ticlo/core';
-import {WorkerFunctionGen} from '@ticlo/core/worker/WorkerFunctionGen.ts';
-import {FlowLoader, FlowState} from '@ticlo/core/block/Flow.ts';
+import {NamespaceMetadata} from '@ticlo/core/block/Storage.ts';
+import {readNamespaceMetadata, validateNamespace} from '@ticlo/core/util/NamespaceMetadata.ts';
+import {splitFlowStorageKey, validFlowEntry} from '@ticlo/core/util/FlowStoragePath.ts';
+import {FlowLoader} from '@ticlo/core/block/Flow.ts';
 import {StreamDispatcher} from '@ticlo/core/block/Dispatcher.ts';
 
 export const DB_NAME = 'ticlo';
 
 export const FLOW_STORE_NAME = 'flows';
 export const FUNCTION_STORE_NAME = 'storageFunction';
-const DEFAULT_STORES = [FLOW_STORE_NAME, FUNCTION_STORE_NAME];
+export const NAMESPACE_STORE_NAME = 'namespaces';
+const DEFAULT_STORES = [FLOW_STORE_NAME, FUNCTION_STORE_NAME, NAMESPACE_STORE_NAME];
 export class IndexDbStorage implements Storage {
   readonly dbPromise: Promise<IDBPDatabase>;
   readonly streams: Map<string, StreamDispatcher<string>> = new Map();
@@ -23,24 +26,29 @@ export class IndexDbStorage implements Storage {
     } else {
       if (DEFAULT_STORES.includes(storeName)) {
         // use the default ticlo database
-        this.dbPromise = openDB(DB_NAME, undefined, {
+        this.dbPromise = openDB(DB_NAME, 2, {
           upgrade(db, oldVersion, newVersion, transaction) {
             for (const defaultStoreName of DEFAULT_STORES) {
-              db.createObjectStore(defaultStoreName);
+              if (!db.objectStoreNames.contains(defaultStoreName)) db.createObjectStore(defaultStoreName);
             }
           },
           blocked() {},
-          blocking() {},
+          blocking: () => {
+            void this.dbPromise.then((db) => db.close());
+          },
           terminated() {},
         });
       } else {
         // create a new database that contains single object store
-        this.dbPromise = openDB(storeName, undefined, {
+        this.dbPromise = openDB(storeName, 2, {
           upgrade(db, oldVersion, newVersion, transaction) {
-            db.createObjectStore(storeName);
+            if (!db.objectStoreNames.contains(storeName)) db.createObjectStore(storeName);
+            if (!db.objectStoreNames.contains(NAMESPACE_STORE_NAME)) db.createObjectStore(NAMESPACE_STORE_NAME);
           },
           blocked() {},
-          blocking() {},
+          blocking: () => {
+            void this.dbPromise.then((db) => db.close());
+          },
           terminated() {},
         });
       }
@@ -97,19 +105,9 @@ export class IndexDbFlowStorage extends IndexDbStorage implements FlowStorage {
     return {
       applyChange: (flow: Flow) => {
         const data = flow.save();
-        this.saveFlow(null, data, key);
-        return data;
+        return this.saveFlow(null, data, key).then(() => data);
       },
-      onStateChange: (flow: Flow, state: FlowState) => this.flowStateChanged(flow, key, state),
     };
-  }
-
-  flowStateChanged(flow: Flow, key: string, state: FlowState) {
-    switch (state) {
-      case FlowState.destroyed:
-        this.delete(key);
-        break;
-    }
   }
 
   async saveFlow(flow: Flow | null, data: DataMap | null, key: string) {
@@ -145,43 +143,42 @@ export class IndexDbFlowStorage extends IndexDbStorage implements FlowStorage {
 
   inited = false;
 
-  async init(root: Root) {
+  async getNamespaceMetadata(namespace: string): Promise<NamespaceMetadata> {
+    validateNamespace(namespace);
     const db = await this.dbPromise;
-    const flowFiles: string[] = [];
-    let globalData = {'#is': ''};
-    for (const storeKey of (await db.getAllKeys(this.storeName)) as string[]) {
-      if (
-        !storeKey.includes('.#') // Do not load subflow during initialization.
-      ) {
-        if (storeKey === '#global') {
-          try {
-            globalData = decode(await db.get(this.storeName, storeKey));
-          } catch (err) {
-            // TODO Logger
-          }
-        } else {
-          flowFiles.push(storeKey);
-        }
+    const metadata = await db.get(NAMESPACE_STORE_NAME, namespace);
+    if (metadata == null && namespace !== '#root') {
+      const keys = await db.getAllKeys(this.storeName);
+      if (!keys.some((key) => typeof key === 'string' && key.startsWith(`+${namespace}.`))) {
+        throw new Error(`Missing namespace: ${namespace}`);
       }
     }
+    return readNamespaceMetadata(metadata);
+  }
 
-    // load global block
-    root.loadGlobal(globalData, (flow: Flow) => {
+  async saveNamespaceMetadata(namespace: string, metadata: NamespaceMetadata): Promise<void> {
+    validateNamespace(namespace);
+    await (await this.dbPromise).put(NAMESPACE_STORE_NAME, readNamespaceMetadata(metadata), namespace);
+  }
+
+  async listFlows(namespace: string): Promise<string[]> {
+    validateNamespace(namespace);
+    const result: string[] = [];
+    for (const key of await (await this.dbPromise).getAllKeys(this.storeName)) {
+      if (typeof key !== 'string') continue;
+      const [ns, name] = splitFlowStorageKey(key);
+      if ((ns || '#root') === namespace && name.split('.').every(validFlowEntry)) result.push(name);
+    }
+    return result.sort();
+  }
+
+  async init(root: Root) {
+    const globalData = await this.loadFlow('#global');
+    root.loadGlobal(globalData ?? {'#is': ''}, async (flow: Flow) => {
       const data = flow.save();
-      this.saveFlow(root._globalRoot, data, '#global');
+      await this.saveFlow(null, data, '#global');
       return data;
     });
-
-    // load flow entries
-    // sort the name to make sure parent Flow is loaded before children flows
-    for (const name of flowFiles.sort()) {
-      try {
-        const data = decode(await (this.db ?? (await this.dbPromise)).get(this.storeName, name));
-        root.addFlow(name, data, null, true);
-      } catch (err) {
-        // TODO Logger
-      }
-    }
     this.inited = true;
   }
 }

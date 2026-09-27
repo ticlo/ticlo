@@ -11,6 +11,7 @@ import {DataMap, isPrimitiveType} from '../util/DataTypes.ts';
 import {truncateData} from '../util/DataTruncate.ts';
 import {Block, BlockChildWatch, InputsBlock} from '../block/Block.ts';
 import {Flow, Root} from '../block/Flow.ts';
+import {flowRefFromPath} from '../block/FlowRuntime.ts';
 import {FlowWithStatic, StaticConfig} from '../block/StaticBlock.ts';
 import {PropDispatcher, PropListener} from '../block/Dispatcher.ts';
 import {DescListener, FunctionLib} from '../block/FunctionLib.ts';
@@ -285,8 +286,8 @@ class ServerDescWatcher extends ServerRequest implements DescListener {
       this.pendingIds = new Set(this._funcLib.getAllFunctionIds());
       this._funcLib.listenDesc(this);
     } else {
-      this.pendingIds = new Set(Namespace.getAllFunctionIds());
-      Namespace.listenDesc(this);
+      this.pendingIds = new Set(Namespace.getAllFunctionIds(conn.root));
+      Namespace.listenDesc(this, conn.root);
     }
     this.connection.addSend(this);
   }
@@ -300,7 +301,7 @@ class ServerDescWatcher extends ServerRequest implements DescListener {
     if (this._funcLib) {
       return this._funcLib.getDescToSend(id);
     }
-    return Namespace.getDescToSend(id);
+    return Namespace.getDescToSend(id, this.connection.root);
   }
 
   getSendingData(): {data: DataMap; size: number} {
@@ -330,7 +331,7 @@ class ServerDescWatcher extends ServerRequest implements DescListener {
     if (this._funcLib) {
       this._funcLib.unlistenDesc(this);
     } else {
-      Namespace.unlistenDesc(this);
+      Namespace.unlistenDesc(this, this.connection.root);
     }
   }
 }
@@ -704,6 +705,30 @@ export class ServerConnection extends ServerConnectionCore {
   /**
    * Creates a new Flow.
    */
+  async loadFlow({path}: {path: string}): Promise<null> {
+    await this.root.loadFlow(flowRefFromPath(path));
+    return null;
+  }
+
+  async unloadFlow({path, discardChanges}: {path: string; discardChanges?: boolean}): Promise<null> {
+    await this.root.unloadFlow(flowRefFromPath(path), {discardChanges});
+    return null;
+  }
+
+  async enableFlow({path, persist}: {path: string; persist?: boolean}): Promise<null> {
+    await this.root.enableFlow(flowRefFromPath(path), {persist});
+    return null;
+  }
+
+  async disableFlow({path, persist}: {path: string; persist?: boolean}): Promise<null> {
+    await this.root.disableFlow(flowRefFromPath(path), {persist});
+    return null;
+  }
+
+  getFlowState({path}: {path: string}) {
+    return {state: this.root.getFlowState(flowRefFromPath(path))};
+  }
+
   addFlow({path, data}: {path: string; data?: DataMap}): string | DataMap {
     if (this.root.addFlow(path, data)) {
       return null;
@@ -715,9 +740,10 @@ export class ServerConnection extends ServerConnectionCore {
   /**
    * Creates a new FlowFolder to organize multiple flows.
    */
-  addFlowFolder({path}: {path: string}): string | DataMap {
-    if (this.root.addFlowFolder(path)) {
-      return null;
+  addFlowFolder({path}: {path: string}): string | DataMap | Promise<null> {
+    const folder = this.root.addFlowFolder(path);
+    if (folder) {
+      return folder.pendingCreate ? folder.pendingCreate.then((): null => null) : null;
     } else {
       return 'invalid path';
     }
@@ -829,7 +855,7 @@ export class ServerConnection extends ServerConnectionCore {
 
       if (typeof funcId === 'string' && data) {
         (property._value as Block)._load(data);
-        const desc = Namespace.getDescToSend(funcId)[0];
+        const desc = Namespace.getDescToSend(funcId, this.root)[0];
         if (desc && desc.recipient && !Object.hasOwn(data, desc.recipient)) {
           // transfer parent property to the recipient
           if (keepSaved !== undefined) {
@@ -1024,7 +1050,7 @@ export class ServerConnection extends ServerConnectionCore {
    */
   deleteFunction({funcId, funcLib}: {funcId: string; funcLib?: string}): string | Promise<string> {
     if (funcId.startsWith('+')) {
-      const deleted = Namespace.delete(funcId);
+      const deleted = Namespace.delete(funcId, this.root);
       if (deleted instanceof Promise) return deleted.then((): string => null);
     } else if (funcId.startsWith(':') && funcLib) {
       const flowProp = this.root.queryProperty(funcLib);

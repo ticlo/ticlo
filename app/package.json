@@ -24,7 +24,7 @@
     "@ticlo/core": "workspace:*",
     "@ticlo/editor": "workspace:*",
     "@ticlo/remote-storage": "workspace:*",
-    "@ticlo/file-server": "^0.1.0",
+    "@ticlo/file-server": "0.1.0",
     "@ticlo/html": "workspace:*",
     "@ticlo/node": "workspace:*",
     "@ticlo/react": "workspace:*",

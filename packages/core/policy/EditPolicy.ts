@@ -38,6 +38,7 @@ const unrestrictedCommands = new Set([
   'watch',
   'watchDesc',
   'getSettings',
+  'getFlowState',
   'close',
   'undo',
   'redo',
@@ -310,6 +311,10 @@ export function checkEditPolicy(
         (request.newName == null ? null : checkProp(`${splitPathName(path)[0]}.${request.newName}`))
       );
     }
+    case 'loadFlow':
+    case 'unloadFlow':
+    case 'enableFlow':
+    case 'disableFlow':
     case 'applyFlowChange':
       return checkWhole(path);
     case 'callFunction':

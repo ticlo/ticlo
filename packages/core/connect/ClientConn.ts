@@ -30,6 +30,22 @@ export abstract class ClientConn {
 
   abstract unlockImmediate(source: any): void;
 
+  loadFlow(path: string): Promise<any> {
+    return this.simpleRequest({cmd: 'loadFlow', path});
+  }
+  unloadFlow(path: string, options: {discardChanges?: boolean} = {}): Promise<any> {
+    return this.simpleRequest({cmd: 'unloadFlow', path, ...options});
+  }
+  enableFlow(path: string, options: {persist?: boolean} = {}): Promise<any> {
+    return this.simpleRequest({cmd: 'enableFlow', path, ...options});
+  }
+  disableFlow(path: string, options: {persist?: boolean} = {}): Promise<any> {
+    return this.simpleRequest({cmd: 'disableFlow', path, ...options});
+  }
+  getFlowState(path: string): Promise<any> {
+    return this.simpleRequest({cmd: 'getFlowState', path});
+  }
+
   /**
    * Sets the value of a property at the given path.
    * unimportant request may be merged with other set request on same path

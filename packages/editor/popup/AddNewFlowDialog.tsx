@@ -25,7 +25,7 @@ export class AddNewFlowDialog extends LazyUpdateComponent<Props, State> {
     data: new FormInputItem<string>(this, 'data', t('Data')),
   };
 
-  addFlow = () => {
+  addFlow = async () => {
     const {conn, basePath, isFolder} = this.props;
     const {name, data} = this.formItems;
     if (!name.value) {
@@ -48,13 +48,12 @@ export class AddNewFlowDialog extends LazyUpdateComponent<Props, State> {
         path = `${basePath}${path}`;
       }
       if (isFolder) {
-        conn.addFlowFolder(path);
+        await conn.addFlowFolder(path);
       } else {
-        conn.addFlow(path, dataData);
+        await conn.addFlow(path, dataData);
       }
     } catch (e) {
-      data.setError(String(e));
-      name.setError(null);
+      (isFolder ? name : data).setError(String(e));
       return;
     }
     this.onClose();

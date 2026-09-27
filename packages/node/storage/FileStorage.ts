@@ -1,10 +1,17 @@
 import Fs from 'fs';
 import Path from 'path';
 import {BlockProperty, DataMap, decode, encodeSorted, Flow, Root, FlowStorage, Storage} from '@ticlo/core';
-import {WorkerFunctionGen} from '@ticlo/core/worker/WorkerFunctionGen.ts';
-import {FlowLoader, FlowState} from '@ticlo/core/block/Flow.ts';
+import {NamespaceMetadata} from '@ticlo/core/block/Storage.ts';
+import {readNamespaceMetadata, validateNamespace} from '@ticlo/core/util/NamespaceMetadata.ts';
+import {FlowLoader} from '@ticlo/core/block/Flow.ts';
 import {StreamDispatcher} from '@ticlo/core/block/Dispatcher.ts';
 import {encodeFileName} from '@ticlo/core/util/Path.ts';
+import {
+  flowStoragePath,
+  reservedFlowFolders,
+  splitFlowStorageKey,
+  validFlowEntry,
+} from '@ticlo/core/util/FlowStoragePath.ts';
 
 export class FlowIOTask extends StreamDispatcher<string> {
   current?: 'write' | 'delete' | 'read';
@@ -12,6 +19,13 @@ export class FlowIOTask extends StreamDispatcher<string> {
   reading: Promise<string>;
   _resolveReading: Function;
   nextData: string;
+  private idleResolvers: {resolve: () => void; reject: (error: Error) => void}[] = [];
+  private writeError: Error;
+
+  whenIdle(): Promise<void> {
+    if (!this.current && !this.next) return this.writeError ? Promise.reject(this.writeError) : Promise.resolve();
+    return new Promise((resolve, reject) => this.idleResolvers.push({resolve, reject}));
+  }
 
   constructor(
     public readonly loader: FileStorage,
@@ -53,6 +67,7 @@ export class FlowIOTask extends StreamDispatcher<string> {
       this.next = 'write';
       this.nextData = data;
     } else {
+      if (!this.idleResolvers.length) this.writeError = undefined;
       this.current = 'write';
       Fs.writeFile(this.path, data, this.onDone);
       this.reading = Promise.resolve(data);
@@ -78,8 +93,12 @@ export class FlowIOTask extends StreamDispatcher<string> {
     }
   }
 
-  onDone = () => {
+  onDone = (error?: NodeJS.ErrnoException | null) => {
     const completed = this.current;
+    if (error && completed === 'write') {
+      this.writeError = error;
+      this.reading = undefined;
+    }
     this.current = null;
     if (this.next) {
       const {next, nextData} = this;
@@ -99,6 +118,10 @@ export class FlowIOTask extends StreamDispatcher<string> {
       if (this.isEmpty()) {
         this.loader.taskDone(this);
       }
+    }
+    for (const {resolve, reject} of this.idleResolvers.splice(0)) {
+      if (this.writeError) reject(this.writeError);
+      else resolve();
     }
   };
 }
@@ -122,23 +145,23 @@ export class FileStorage implements Storage {
     if (this.tasks[name]) {
       return this.tasks[name];
     } else {
-      let task: FlowIOTask;
-      if (name.startsWith('+')) {
-        const firstDot = name.indexOf('.');
-        const ns = name.slice(0, firstDot);
-        const nsName = name.slice(firstDot + 1);
-        task = new FlowIOTask(
-          this,
-          name,
-          Path.join(this.dir, encodeFileName(ns), `${encodeFileName(nsName)}${this.ext}`)
-        );
-      } else {
-        task = new FlowIOTask(this, name, Path.join(this.dir, `${encodeFileName(name)}${this.ext}`));
-      }
+      const task = new FlowIOTask(this, name, this.getPath(name));
       this.tasks[name] = task;
       return task;
     }
   }
+  protected getPath(name: string) {
+    if (name.startsWith('+')) {
+      const firstDot = name.indexOf('.');
+      return Path.join(
+        this.dir,
+        encodeFileName(name.slice(0, firstDot)),
+        `${encodeFileName(name.slice(firstDot + 1))}${this.ext}`
+      );
+    }
+    return Path.join(this.dir, `${encodeFileName(name)}${this.ext}`);
+  }
+
   taskDone(task: FlowIOTask) {
     if (this.tasks[task.name] === task) {
       delete this.tasks[task.name];
@@ -179,23 +202,42 @@ export class FileFlowStorage extends FileStorage implements FlowStorage {
     super(dir, '.ticlo');
   }
 
+  protected getPath(key: string) {
+    const [namespace, name] = splitFlowStorageKey(key);
+    return Path.join(this.dir, namespace ? `+${namespace}` : '', flowStoragePath(name));
+  }
+
+  private folderPath(key: string) {
+    const [namespace, name] = splitFlowStorageKey(key);
+    return Path.join(this.dir, namespace ? `+${namespace}` : '', flowStoragePath(name, true));
+  }
+
+  createFolder(key: string) {
+    Fs.mkdirSync(this.folderPath(key), {recursive: true});
+  }
+
+  async deleteFolder(key: string) {
+    const path = this.folderPath(key);
+    const tasks = Object.values(this.tasks).filter((task) => task.path.startsWith(`${path}${Path.sep}`));
+    await Promise.all(tasks.map((task) => task.whenIdle()));
+    await Fs.promises.rm(path, {recursive: true, force: true});
+    for (const task of tasks) delete this.tasks[task.name];
+  }
+
+  save(key: string, data: string) {
+    Fs.mkdirSync(Path.dirname(this.getPath(key)), {recursive: true});
+    super.save(key, data);
+    return this.getTask(key).whenIdle();
+  }
+
   getFlowLoader(key: string, prop: BlockProperty): FlowLoader {
+    this.getPath(key);
     return {
       applyChange: (flow: Flow) => {
         const data = flow.save();
-        this.saveFlow(null, data, key);
-        return data;
+        return this.saveFlow(null, data, key).then(() => data);
       },
-      onStateChange: (flow: Flow, state: FlowState) => this.flowStateChanged(flow, key, state),
     };
-  }
-
-  flowStateChanged(flow: Flow, name: string, state: FlowState) {
-    switch (state) {
-      case FlowState.destroyed:
-        this.delete(name);
-        break;
-    }
   }
 
   saveFlow(flow: Flow | null, data: DataMap | null, key: string) {
@@ -203,7 +245,7 @@ export class FileFlowStorage extends FileStorage implements FlowStorage {
       data = flow?.save();
     }
     const str = encodeSorted(data);
-    this.save(key, str);
+    return this.save(key, str);
   }
 
   async loadFlow(name: string) {
@@ -221,12 +263,12 @@ export class FileFlowStorage extends FileStorage implements FlowStorage {
 
   saveLib(ns: string, lib: string, data: DataMap) {
     this.initNamespace(ns);
-    this.save(`${ns}.${lib}`, encodeSorted(data));
+    return this.save(`${ns ? `${ns}.` : ''}:${lib}`, encodeSorted(data));
   }
 
   async loadLib(ns: string, lib: string): Promise<DataMap | null> {
     try {
-      const str = await this.load(`${ns}.${lib}`);
+      const str = await this.load(`${ns ? `${ns}.` : ''}:${lib}`);
       return decode(str); // decode(null) will return null
     } catch (e) {}
     return null;
@@ -234,43 +276,55 @@ export class FileFlowStorage extends FileStorage implements FlowStorage {
 
   inited = false;
   init(root: Root): void {
-    const flowFiles: string[] = [];
     let globalData = {'#is': ''};
-    for (const file of Fs.readdirSync(this.dir)) {
-      if (
-        file.endsWith(this.ext) &&
-        !file.includes('.#') // Do not load subflow during initialization.
-      ) {
-        const name = file.substring(0, file.length - this.ext.length);
-        if (name === '#global') {
-          try {
-            globalData = decode(Fs.readFileSync(Path.join(this.dir, `${name}${this.ext}`), 'utf8'));
-          } catch (err) {
-            // TODO Logger
-          }
-        } else {
-          flowFiles.push(name);
-        }
-      }
-    }
-
-    // load global block
+    const globalPath = this.getPath('#global');
+    if (Fs.existsSync(globalPath)) globalData = decode(Fs.readFileSync(globalPath, 'utf8'));
     root.loadGlobal(globalData, (flow: Flow) => {
       const data = flow.save();
-      this.saveFlow(root._globalRoot, data, '#global');
+      this.saveFlow(flow, data, '#global');
       return data;
     });
 
-    // load flow entries
-    // sort the name to make sure parent Flow is loaded before children flows
-    for (const name of flowFiles.sort()) {
-      try {
-        const data = decode(Fs.readFileSync(Path.join(this.dir, `${name}${this.ext}`), 'utf8'));
-        root.addFlow(name, data, null, true);
-      } catch (err) {
-        // TODO Logger
-      }
-    }
     this.inited = true;
+  }
+
+  private namespaceDir(namespace: string) {
+    validateNamespace(namespace);
+    return Path.join(this.dir, namespace === '#root' ? '' : `+${namespace}`);
+  }
+
+  async getNamespaceMetadata(namespace: string): Promise<NamespaceMetadata> {
+    const dir = this.namespaceDir(namespace);
+    await Fs.promises.access(dir);
+    try {
+      const data = JSON.parse(await Fs.promises.readFile(Path.join(dir, 'ticlo.json'), 'utf8'));
+      return readNamespaceMetadata(data);
+    } catch (error) {
+      if ((error as NodeJS.ErrnoException).code === 'ENOENT') return {};
+      throw error;
+    }
+  }
+
+  async saveNamespaceMetadata(namespace: string, metadata: NamespaceMetadata): Promise<void> {
+    readNamespaceMetadata(metadata);
+    const path = Path.join(this.namespaceDir(namespace), 'ticlo.json');
+    await Fs.promises.writeFile(path, JSON.stringify(metadata, null, 2));
+  }
+
+  async listFlows(namespace: string, folders?: string[]): Promise<string[]> {
+    const result: string[] = [];
+    const visit = async (path: string, prefix = '') => {
+      for (const entry of await Fs.promises.readdir(path, {withFileTypes: true})) {
+        if (entry.isDirectory() && validFlowEntry(entry.name)) {
+          folders?.push(`${prefix}${entry.name}`);
+          await visit(Path.join(path, entry.name), `${prefix}${entry.name}.`);
+        } else if (entry.isFile() && entry.name.endsWith(this.ext)) {
+          const name = entry.name.slice(0, -this.ext.length);
+          if (validFlowEntry(name)) result.push(`${prefix}${name}`);
+        }
+      }
+    };
+    await visit(this.namespaceDir(namespace));
+    return result.sort();
   }
 }

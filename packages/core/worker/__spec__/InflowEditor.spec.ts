@@ -190,12 +190,14 @@ describe('InflowEditor', function () {
     Namespace.setStorage(storage);
 
     try {
+      await Root.instance.enableNamespace('NsFlowLoadStorage');
       const lib = Namespace.getFunctionLib('+NsFlowLoadStorage:g:a');
       await new Promise((resolve) => setTimeout(resolve, 0));
 
       expect(lib.getWorkerData('+NsFlowLoadStorage:g:a')).toEqual(data);
       expect((Root.instance.queryValue('+NsFlowLoadStorage.:g') as FlowLib).save()).toEqual(flowData);
     } finally {
+      await Root.instance.stop({discardChanges: true});
       Namespace.delete('+NsFlowLoadStorage:g:a');
       Root.instance.deleteValue('+NsFlowLoadStorage');
       Namespace.setStorage(undefined as any);

@@ -34,10 +34,10 @@ async function seed(path: string, content: string) {
 }
 
 async function start() {
-  const rootProject = Path.join(dir, 'proj/_root');
+  const rootProject = Path.join(dir, 'proj/#root');
   await Fs.mkdir(rootProject, {recursive: true});
   await Fs.mkdir(Path.join(dir, 'usr'), {recursive: true});
-  await seed(Path.join(rootProject, '_proj.json'), JSON.stringify({id: '_root', name: 'Root'}));
+  await seed(Path.join(rootProject, '_proj.json'), JSON.stringify({id: '#root', name: 'Root'}));
   await seed(Path.join(rootProject, '#global.ticlo'), encodeSorted({'#is': ''}));
   await seed(Path.join(rootProject, 'example.ticlo'), encodeSorted(data));
   await indexFolder(dir);

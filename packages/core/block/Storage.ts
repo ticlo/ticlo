@@ -15,7 +15,16 @@ export interface Storage {
 }
 
 export interface FlowStorage {
+  /** Metadata and catalog reads must not instantiate flows. */
+  getNamespaceMetadata?(namespace: string): Promise<NamespaceMetadata>;
+  saveNamespaceMetadata?(namespace: string, metadata: NamespaceMetadata): Promise<void>;
+  listFlows?(namespace: string, folders?: string[]): Promise<string[]>;
+  readonly persistent?: boolean;
   delete(name: string): void | Promise<void>;
+
+  createFolder?(name: string): void | Promise<void>;
+
+  deleteFolder?(name: string): void | Promise<void>;
 
   saveFlow(flow: Flow | null, data: DataMap | null, key: string): any;
 
@@ -32,6 +41,11 @@ export interface FlowStorage {
 
   // return [applyChange,onStateChange] of a flow
   getFlowLoader(key: string, prop: BlockProperty): FlowLoader;
+}
+
+export interface NamespaceMetadata {
+  dependencies?: string[];
+  serviceLibraries?: string[];
 }
 
 export const voidStorage = {

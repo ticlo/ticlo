@@ -7,7 +7,8 @@ import './sample-blocks.ts';
 
 const params = new URLSearchParams(location.search);
 const client = new TicloFileClient({baseURL: params.get('host') || 'http://127.0.0.1:8012/file'});
-const storage = new FileServerFlowStorage(client, params.get('project') || '_root');
+const project = params.get('project') || '#root';
+const storage = new FileServerFlowStorage(client);
 const button = document.querySelector('button');
 const status = document.getElementById('status');
 const editors: Window[] = [];
@@ -23,6 +24,7 @@ window.addEventListener('beforeunload', () => {
 
 Root.instance
   .setStorage(storage)
+  .then(() => Root.instance.start({[project]: {flows: params.getAll('flow')}}))
   .then(() => {
     status.textContent = `Loaded projects: ${[...storage.projects].join(', ')}`;
     button.disabled = false;

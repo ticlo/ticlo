@@ -6,6 +6,7 @@ import {BaseFunction, FunctionFactory, StatefulFunction} from '../block/BlockFun
 import {WorkerFunctionGen} from './WorkerFunctionGen.ts';
 import {FunctionDispatcher} from '../block/FunctionLib.ts';
 import {Namespace} from '../block/Namespace.ts';
+import {EventType} from '../block/Event.ts';
 
 export interface WorkerHost {
   get control(): WorkerControl;
@@ -57,8 +58,16 @@ export class WorkerControl {
     }
     return true;
   }
+  private available = false;
   // When registered function is changed
   onChange(value: FunctionFactory | null) {
+    if (!value && this.available) {
+      // Cancel work immediately; the resolver will rebuild an empty worker.
+      this.block._cancelFunction(EventType.TRIGGER);
+      this.block.deleteValue('#worker');
+      this.block.output(undefined);
+    }
+    this.available = Boolean(value);
     this._srcChanged = true;
     this.block._queueFunction();
   }
