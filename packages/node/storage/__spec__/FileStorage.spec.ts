@@ -6,6 +6,45 @@ import {shouldHappen, shouldReject, waitTick} from '@ticlo/core/util/test-util.t
 import {FileFlowStorage, FileStorage} from '../FileStorage.ts';
 
 describe('FileStorage', function () {
+  it.each([undefined, {}])(
+    'starts every project and ordinary flow when no project is selected (%j)',
+    async (options) => {
+      const dir = Fs.mkdtempSync('./temp/default-projects-');
+      const root = new Root();
+      try {
+        const storage = new FileFlowStorage(dir);
+        await storage.saveFlow(null, {value: 1}, 'entry');
+        await storage.saveFlow(null, {value: 2}, 'folder.nested');
+        await storage.saveFlow(null, {value: 3}, '+main.jobs.daily');
+        await storage.saveFlow(null, {'value': 4, '#disabled': true}, '+shared.entry');
+        await storage.saveLib('+main', 'service', {value: 5});
+        await storage.saveLib('+main', 'unused', {value: 6});
+        await storage.saveNamespaceMetadata('main', {serviceLibraries: ['service']});
+        await root.setStorage(storage);
+        await root.start(options);
+        expect(root.queryValue('entry.value')).toBe(1);
+        expect(root.queryValue('folder.nested.value')).toBe(2);
+        expect(root.queryValue('+main.jobs.daily.value')).toBe(3);
+        expect(root.queryValue('+shared.entry.value')).toBe(4);
+        expect(root.getFlowState({namespace: 'shared', kind: 'flow', name: 'entry'})).toBe('disabled');
+        expect(root.queryValue('+main.:service.value')).toBe(5);
+        expect(root.queryValue('+main.:unused')).toBeUndefined();
+        await root.stop();
+        // An explicit empty root selection must not trigger discovery or load ordinary flows.
+        const discover = vi.spyOn(storage, 'getDefaultStartOptions');
+        await root.start({'#root': {}});
+        expect(discover).not.toHaveBeenCalled();
+        expect(root.queryValue('entry')).toBeUndefined();
+        expect(root.queryValue('folder.nested')).toBeUndefined();
+        expect(root.queryValue('+main.jobs.daily')).toBeUndefined();
+        expect(root.queryValue('+main.:service')).toBeUndefined();
+      } finally {
+        await root.stop({discardChanges: true});
+        root.destroy();
+        Fs.rmSync(dir, {recursive: true, force: true});
+      }
+    }
+  );
   it('rejects persistent lifecycle toggles when a file write fails and allows retry', async () => {
     const storage = new FileFlowStorage('./temp/storageWriteFailure');
     await storage.saveFlow(null, {value: 1}, 'entry');

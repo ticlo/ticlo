@@ -61,8 +61,11 @@ export class FlowRuntime {
     if (this.started) throw new Error('The runtime has already started; call stop() first');
     this.started = true;
     const generation = this.generation;
-    const selected = Object.keys(options).length ? options : {'#root': {}};
     try {
+      const selected = Object.keys(options).length
+        ? options
+        : ((await this.root._storage?.getDefaultStartOptions?.()) ?? {'#root': {}});
+      this.checkGeneration(generation);
       // Discover every dependency before running anything, including cyclic graphs.
       await this.activate(Object.keys(selected), generation);
       for (const [name, config] of Object.entries(selected)) {

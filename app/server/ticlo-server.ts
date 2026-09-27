@@ -14,7 +14,7 @@ import reactData from '../sample-data/react.ts';
   Root.instance._globalRoot.createBlock('^gSub').setValue('#is', 'subtract');
 
   await Root.instance.setStorage(new FileFlowStorage('./app/server/flows'));
-  await Root.instance.start({'#root': {flows: ['**']}});
+  await Root.instance.start();
 
   if (!(Root.instance.getValue('example') instanceof Flow)) {
     console.log('initialize the database');

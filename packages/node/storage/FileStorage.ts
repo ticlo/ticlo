@@ -4,6 +4,7 @@ import {BlockProperty, DataMap, decode, encodeSorted, Flow, Root, FlowStorage, S
 import {NamespaceMetadata} from '@ticlo/core/block/Storage.ts';
 import {readNamespaceMetadata, validateNamespace} from '@ticlo/core/util/NamespaceMetadata.ts';
 import {FlowLoader} from '@ticlo/core/block/Flow.ts';
+import type {StartOptions} from '@ticlo/core/block/FlowRuntime.ts';
 import {StreamDispatcher} from '@ticlo/core/block/Dispatcher.ts';
 import {encodeFileName} from '@ticlo/core/util/Path.ts';
 import {
@@ -200,6 +201,17 @@ export class FileStorage implements Storage {
 export class FileFlowStorage extends FileStorage implements FlowStorage {
   constructor(dir: string) {
     super(dir, '.ticlo');
+  }
+
+  async getDefaultStartOptions(): Promise<StartOptions> {
+    const namespaces = ['#root'];
+    const entries = await Fs.promises.readdir(this.dir, {withFileTypes: true});
+    for (const entry of entries) {
+      if (entry.isDirectory() && entry.name.startsWith('+') && validFlowEntry(entry.name.slice(1))) {
+        namespaces.push(entry.name.slice(1));
+      }
+    }
+    return Object.fromEntries(namespaces.map((name) => [name, {flows: ['**']}]));
   }
 
   protected getPath(key: string) {

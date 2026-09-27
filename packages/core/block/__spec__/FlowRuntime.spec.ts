@@ -35,16 +35,32 @@ describe('runtime lifecycle', () => {
     root.destroy();
   });
 
-  it('defaults to #root services without loading ordinary flows', async () => {
+  it.each([undefined, {}])('defaults to #root services without loading ordinary flows (%j)', async (options) => {
     await storage.saveNamespaceMetadata('#root', {serviceLibraries: ['service']});
     storage.saveLib('', 'service', libData);
     storage.saveFlow(null, {value: 1}, 'entry');
     const read = vi.spyOn(storage, 'loadFlow');
-    await root.start({});
+    await root.start(options);
     expect(root.getFlowState(ref('#root', 'entry'))).toBe('unloaded');
     expect(root.getFlowState(ref('#root', 'service', 'library'))).toBe('enabled');
     expect(read).not.toHaveBeenCalledWith('entry');
     expect(root.getValue('+#root')).toBeUndefined();
+  });
+
+  it('cancels startup while storage is discovering default projects', async () => {
+    let resolve: (options: Record<string, {flows?: string[]}>) => void;
+    Object.assign(storage, {
+      getDefaultStartOptions: () =>
+        new Promise((done) => {
+          resolve = done;
+        }),
+    });
+    const starting = root.start();
+    await root.stop();
+    resolve({main: {flows: ['**']}});
+    await expect(starting).rejects.toThrow('cancelled');
+    expect(root.getValue('+main')).toBeUndefined();
+    expect(root._lifecycle.started).toBe(false);
   });
 
   it('uses policy globs per namespace and enables cyclic dependencies without ordinary dependency flows', async () => {

@@ -11,8 +11,15 @@ await root.start({
 });
 ```
 
-`start()` and `start({})` mean `start({'#root': {}})`. Empty or omitted `flows`
-loads no ordinary flows. Dependencies activate recursively, including their Service
+`start()` and `start({})` use the storage's default selection. FileFlowStorage
+discovers every project (`#root` and the `+namespace` directories) and loads all
+ordinary flows, including nested folders. Other storage types select only `#root`
+with no initial ordinary flows. Service Libraries still load as usual, and saved
+`#disabled` flags are honored.
+
+An explicit project selection always takes precedence: `start({'#root': {}})`
+selects only `#root` with no initial ordinary flows, even with FileFlowStorage.
+Empty or omitted `flows` loads no ordinary flows. Dependencies activate recursively, including their Service
 Libraries, but their ordinary flows need an explicit selection too. Cycles are
 allowed. A missing dependency or required library rejects startup and tears down
 the new runtime. Call `stop()` before starting again.

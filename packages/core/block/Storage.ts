@@ -1,6 +1,7 @@
 import {Flow, FlowLoader, Root} from './Flow.ts';
 import {DataMap} from '../util/DataTypes.ts';
 import {BlockProperty} from './BlockProperty.ts';
+import type {StartOptions} from './FlowRuntime.ts';
 
 export interface Storage {
   delete(key: string): void | Promise<void>;
@@ -15,6 +16,8 @@ export interface Storage {
 }
 
 export interface FlowStorage {
+  /** Startup selection when start() receives no projects. Defaults to {'#root': {}}. */
+  getDefaultStartOptions?(): Promise<StartOptions>;
   /** Metadata and catalog reads must not instantiate flows. */
   getNamespaceMetadata?(namespace: string): Promise<NamespaceMetadata>;
   saveNamespaceMetadata?(namespace: string, metadata: NamespaceMetadata): Promise<void>;
