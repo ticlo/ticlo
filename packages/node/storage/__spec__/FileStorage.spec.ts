@@ -6,6 +6,10 @@ import {shouldHappen, shouldReject, waitTick} from '@ticlo/core/util/test-util.t
 import {FileFlowStorage, FileStorage} from '../FileStorage.ts';
 
 describe('FileStorage', function () {
+  beforeAll(() => {
+    Fs.mkdirSync('./temp', {recursive: true});
+  });
+
   it.each([undefined, {}])(
     'starts every project and ordinary flow when no project is selected (%j)',
     async (options) => {
