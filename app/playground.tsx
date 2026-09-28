@@ -67,6 +67,7 @@ import frAntd from 'antd/es/locale/fr_FR.js';
 import type {Locale} from 'antd/es/locale/index.js';
 import {LocalizedLabel, t} from '@ticlo/editor/component/LocalizedLabel.tsx';
 import {IndexDbFlowStorage} from '@ticlo/html/storage/IndexDbStorage.ts';
+import {FileServerFlowStorage, TicloFileClient} from '@ticlo/remote-storage';
 import {createRoot} from 'react-dom/client';
 import {SchedulePane} from '@ticlo/editor/dock/schedule/SchedulePane.tsx';
 import {RadioChangeEvent} from 'antd';
@@ -98,6 +99,7 @@ const antdLanMap: Record<string, Locale> = {
 
 interface Props {
   conn: ClientConnection;
+  initialFlow?: string;
 }
 
 interface State {
@@ -116,7 +118,7 @@ class App extends React.PureComponent<Props, State> {
   defaultDockLayout: any;
   constructor(props: Props) {
     super(props);
-    const {conn} = props;
+    const {conn, initialFlow} = props;
     this.defaultDockLayout = {
       dockbox: {
         mode: 'horizontal',
@@ -226,11 +228,9 @@ class App extends React.PureComponent<Props, State> {
           },
           {
             size: 800,
-            tabs: [
-              this.createBlockEditorTab('example', () => {
-                this.conn.applyFlowChange('example');
-              }),
-            ],
+            tabs: initialFlow
+              ? [this.createBlockEditorTab(initialFlow, () => this.conn.applyFlowChange(initialFlow))]
+              : [],
             id: 'main',
             panelLock: {panelStyle: 'main'},
           },
@@ -338,6 +338,8 @@ class App extends React.PureComponent<Props, State> {
   }
 }
 
+window.addEventListener('hashchange', () => location.reload());
+
 (async () => {
   addConsoleLogger();
   await initEditor();
@@ -359,23 +361,40 @@ class App extends React.PureComponent<Props, State> {
   i18next.addResourceBundle('en', 'ticlo-test', enTestLocal);
   i18next.addResourceBundle('fr', 'ticlo-test', frTestLocal);
 
-  await Root.instance.setStorage(new IndexDbFlowStorage());
-  await Root.instance._storage.saveNamespaceMetadata('demo', {});
-  await Root.instance.start({'#root': {flows: ['**']}, 'demo': {}});
+  const params = new URLSearchParams(location.hash.slice(1));
+  const host = params.get('host');
+  const root = Root.instance;
+  let initialFlow: string;
+  if (host) {
+    const client = new TicloFileClient({baseURL: host});
+    const project = params.get('project') || '#root';
+    await root.setStorage(new FileServerFlowStorage(client));
+    await root.start({[project]: {flows: params.getAll('flow')}});
+    const firstFlow = (await root.listFlows(project)).find(({state}) => state !== 'unloaded');
+    if (firstFlow) initialFlow = project === '#root' ? firstFlow.name : `+${project}.${firstFlow.name}`;
+  } else {
+    await root.setStorage(new IndexDbFlowStorage());
+    await root._storage.saveNamespaceMetadata('demo', {});
+    await root.start({'#root': {flows: ['**']}, 'demo': {}});
 
-  if (!(Root.instance.getValue('example') instanceof Flow)) {
-    console.log('initialize the database');
-    Root.instance.addFlow('example', reactData);
-    Root.instance.addFlow('example0', data);
+    if (!(root.getValue('example') instanceof Flow)) {
+      console.log('initialize the database');
+      root.addFlow('example', reactData);
+      root.addFlow('example0', data);
+    }
+
+    // create some global blocks
+    root._globalRoot.createBlock('^gAdd')?.setValue('#is', 'add');
+    root._globalRoot.createBlock('^gSub')?.setValue('#is', 'subtract');
+    initialFlow = 'example';
   }
 
-  // create some global blocks
-  Root.instance._globalRoot.createBlock('^gAdd')?.setValue('#is', 'add');
-  Root.instance._globalRoot.createBlock('^gSub')?.setValue('#is', 'subtract');
-
-  const [server, client] = makeLocalConnection(Root.instance);
-  createRoot(document.getElementById('app')).render(<App conn={client} />);
-})();
+  const [server, client] = makeLocalConnection(root);
+  createRoot(document.getElementById('app')).render(<App conn={client} initialFlow={initialFlow} />);
+})().catch((error) => {
+  console.error(error);
+  document.getElementById('app').textContent = `Failed to load playground: ${error.message}`;
+});
 
 (window as any).Logger = Logger;
 addConsoleLogger(Logger.TRACE_AND_ABOVE);

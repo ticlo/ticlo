@@ -120,6 +120,24 @@ host page runs selected flows and connects `editor.html` through window messages
 Keep it open while editing. Add `?project=main&flow=entry&flow=jobs.**` to select a project and initial flows, or
 `?host=https://example.com/file&project=main` to select another file host.
 
+The playground can connect directly to remote storage using its URL hash:
+
+```text
+http://localhost:3003/playground.html#host=http://127.0.0.1:8010/file&project=main&flow=entry&flow=jobs.**
+```
+
+Providing a nonempty `host` selects remote storage at that file endpoint.
+`project` defaults to `#root` (encode it as `%23root`
+if included explicitly). Repeat `flow` to select initial flows; glob patterns use
+the runtime's existing policy glob syntax. With no `flow`, only Service Libraries
+start; `flow=**` loads all ordinary flows in the selected project. The first loaded
+flow opens in an editor tab. Remote mode does not create playground demo data.
+
+Without `host`, the playground uses IndexedDB and its local demo data.
+Changing the hash reloads the page with the selected storage. The
+existing `strictMode` flag can be combined with either storage, for example
+`#host=http://127.0.0.1:8010/file&flow=**&strictMode`.
+
 `pnpm server`, `pnpm ticlo-server`, and `pnpm file-server` start the same combined
 development server on `127.0.0.1:8010`:
 
