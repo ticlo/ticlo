@@ -6,7 +6,7 @@ import '@ticlo/test';
 import './sample-blocks.ts';
 
 const params = new URLSearchParams(location.search);
-const client = new TicloFileClient({baseURL: params.get('host') || 'http://127.0.0.1:8012/file'});
+const client = new TicloFileClient({baseURL: params.get('host') || 'http://127.0.0.1:8010/file'});
 const project = params.get('project') || '#root';
 const storage = new FileServerFlowStorage(client);
 const button = document.querySelector('button');

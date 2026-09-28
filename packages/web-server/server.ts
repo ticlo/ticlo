@@ -3,11 +3,8 @@ import {Hono} from 'hono';
 import {Root} from '@ticlo/core';
 import {WsServerConnection, RestServerConnection} from '@ticlo/node';
 import {decodeReviver} from '@ticlo/core/util/Serialize.ts';
-import {requestHandlerSymbol, ServerFunction} from './ServerFunction.ts';
+import {ServerFunction} from './ServerFunction.ts';
 import {HonoRequestData, HonoResponse} from './HttpRequest.ts';
-
-// force import
-((v: any) => {})(ServerFunction);
 
 type HonoApp = Hono<any>;
 
@@ -95,19 +92,14 @@ export async function routeTiclo(app: HonoApp, basePath: string, serverBlockName
     serverBlockName = '^' + serverBlockName;
   }
   const globalServiceBlock = Root.instance._globalRoot.createBlock(serverBlockName, true);
-  globalServiceBlock._load({'#is': 'web-server:server'});
-  Root.run(); // output the requestHandler
-  let requestHandler: (basePath: string, req: HonoRequestData, res: HonoResponse) => void = (
-    globalServiceBlock.getValue('#output') as any
-  )?.[requestHandlerSymbol];
+  // This service is provided by the host, even when stored #global flows are disabled.
+  globalServiceBlock._load({'#is': ''});
+  const service = new ServerFunction(globalServiceBlock);
+  service.run();
 
   app.all(`${basePath}/*`, async (c) => {
-    requestHandler ??= (globalServiceBlock.getValue('#output') as any)?.[requestHandlerSymbol];
-    if (!requestHandler) {
-      return new Response(null, {status: 404});
-    }
     const res = new HonoResponse();
-    Promise.resolve(requestHandler(basePath, getRequestData(c), res)).catch(() => res.code(400).send());
+    Promise.resolve(service.requestHandler(basePath, getRequestData(c), res)).catch(() => res.code(400).send());
     return res.response;
   });
 }

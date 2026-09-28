@@ -8,7 +8,7 @@ for flows, using `TicloFileClient` from `@ticlo/file-client`.
 import {Root} from '@ticlo/core';
 import {FileServerFlowStorage, TicloFileClient} from '@ticlo/remote-storage';
 
-const client = new TicloFileClient({baseURL: 'http://127.0.0.1:8012/file'});
+const client = new TicloFileClient({baseURL: 'http://127.0.0.1:8010/file'});
 await Root.instance.setStorage(new FileServerFlowStorage(client));
 await Root.instance.start({main: {flows: ['example']}});
 ```
@@ -110,7 +110,7 @@ Ticlo uses the published npm packages `@ticlo/file-server` and
 
 ```sh
 pnpm install
-pnpm file-server
+pnpm server
 # In another terminal:
 pnpm vite-dev
 ```
@@ -120,8 +120,28 @@ host page runs selected flows and connects `editor.html` through window messages
 Keep it open while editing. Add `?project=main&flow=entry&flow=jobs.**` to select a project and initial flows, or
 `?host=https://example.com/file&project=main` to select another file host.
 
-The dev server listens on `127.0.0.1:8012` and stores files in the ignored
-`app/server/files` folder. It seeds `#root` and an example flow without
-overwriting existing data. Its CORS middleware allows local development
-origins and exposes ETags. CORS configuration belongs to the hosting app;
+`pnpm server`, `pnpm ticlo-server`, and `pnpm file-server` start the same combined
+development server on `127.0.0.1:8010`:
+
+| Endpoint | Purpose |
+| --- | --- |
+| `WS /ticlo` | Editor connection to server-side running flows |
+| `POST /ticlo` | Runtime commands over HTTP |
+| `GET/POST /file?op=…` | Project and file management |
+| `GET /file/*` | Stored file downloads |
+| `/api/*` | HTTP endpoints defined by running flows |
+| `GET /health` | Process health (`{"status":"ok"}`) |
+| `GET /` | Endpoint overview |
+
+The file endpoint stores projects in the ignored `app/server/files` folder and
+creates `#root` with its project metadata only if the project directory is absent.
+Existing projects are left unchanged. No example or `#global.ticlo` files are
+generated; a missing `#global.ticlo` loads as an empty global flow. The server
+runtime continues to use `app/server/flows`; uploading a project through `/file`
+does not load or reload it in that runtime. The browser host page runs its own
+runtime using the file endpoint.
+
+File-route CORS allows local development origins, accepts `If-Match` and
+`If-None-Match`, and exposes `ETag`. Runtime CORS is scoped to `/ticlo` and `/api`
+so it cannot override those file-route rules. CORS belongs to the hosting app;
 `@ticlo/file-server` does not add it.

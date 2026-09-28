@@ -2,8 +2,6 @@ import Fs from 'node:fs/promises';
 import Path from 'node:path';
 import {createServer} from 'node:http';
 import {fileURLToPath} from 'node:url';
-import {encodeSorted} from '@ticlo/core';
-import {data} from '../sample-data/data.ts';
 
 const dir = fileURLToPath(new URL('./files/', import.meta.url));
 
@@ -23,23 +21,12 @@ async function indexFolder(folder: string) {
   await Fs.writeFile(Path.join(folder, '.list.json'), JSON.stringify(files.sort(), null, 2));
 }
 
-async function seed(path: string, content: string) {
-  try {
-    await Fs.writeFile(path, content, {flag: 'wx'});
-  } catch (error) {
-    if ((error as NodeJS.ErrnoException).code !== 'EEXIST') {
-      throw error;
-    }
-  }
-}
-
 async function start() {
   const rootProject = Path.join(dir, 'proj/#root');
-  await Fs.mkdir(rootProject, {recursive: true});
+  if (await Fs.mkdir(rootProject, {recursive: true})) {
+    await Fs.writeFile(Path.join(rootProject, '_proj.json'), JSON.stringify({id: '#root', name: 'Root'}), {flag: 'wx'});
+  }
   await Fs.mkdir(Path.join(dir, 'usr'), {recursive: true});
-  await seed(Path.join(rootProject, '_proj.json'), JSON.stringify({id: '#root', name: 'Root'}));
-  await seed(Path.join(rootProject, '#global.ticlo'), encodeSorted({'#is': ''}));
-  await seed(Path.join(rootProject, 'example.ticlo'), encodeSorted(data));
   await indexFolder(dir);
 
   const server = createServer(async (req, res) => {

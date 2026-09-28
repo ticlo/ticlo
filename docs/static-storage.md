@@ -93,10 +93,11 @@ page hosts the flows, and `editor.html` connects to it through window messages.
 Keep the host page open while editing.
 
 The test server serves `app/server/files` at `http://127.0.0.1:8011`, sharing the
-same files as `pnpm file-server`. It seeds `#root` and an example flow without
-overwriting existing data, then writes `.list.json` files recursively at
+same files as the combined server's `/file` endpoint (`pnpm server`). It creates `#root`
+only if absent, without generating any flows, then writes `.list.json` files recursively at
 startup. Restart it after adding or removing files through the file server or
-on disk. Old `app/server/flows` files must be moved into `files/proj/#root`.
+on disk. To serve flows from `app/server/flows` statically, copy them into
+`app/server/files/proj/#root`; the server runtime still uses its own flow directory.
 
 Add `?project=main&flow=entry&flow=jobs.**` to select initial flows, or
 `?host=https://example.com/files&project=main` to use another static host. The

@@ -101,7 +101,7 @@
     "ticlo-server": "tsx app/server/ticlo-server.ts",
     "server": "tsx app/server/ticlo-server.ts",
     "static-server": "tsx app/server/static-server.ts",
-    "file-server": "tsx app/server/file-server.ts",
+    "file-server": "tsx app/server/ticlo-server.ts",
     "ticlo-test": "tsx app/test/test-server --serve --run --quitOnFinish",
     "ticlo-test-server": "tsx app/test/test-server --serve --run",
     "ticlo-test-c8": "c8 tsx ./app/test/test-server.ts --run --quitOnFinish && c8 report --reporter=text-lcov > coverage/nyc-ticlo.lcov",

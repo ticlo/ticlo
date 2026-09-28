@@ -10,6 +10,22 @@ describe('FileStorage', function () {
     Fs.mkdirSync('./temp', {recursive: true});
   });
 
+  it('starts with an empty global flow without generating files in empty storage', async () => {
+    const dir = Fs.mkdtempSync('./temp/empty-storage-');
+    const root = new Root();
+    try {
+      await root.setStorage(new FileFlowStorage(dir));
+      await root.start();
+      expect(root._globalRoot.save()).toEqual({'#is': ''});
+      expect(await root.listFlows('#root')).toEqual([]);
+      expect(Fs.readdirSync(dir)).toEqual([]);
+    } finally {
+      await root.stop({discardChanges: true});
+      root.destroy();
+      Fs.rmSync(dir, {recursive: true, force: true});
+    }
+  });
+
   it.each([undefined, {}])(
     'starts every project and ordinary flow when no project is selected (%j)',
     async (options) => {
