@@ -1,72 +1,60 @@
----
-name: ticlo-worker-architecture
-description: Details on how WorkerControl and subflows work in Ticlo, specifically how worker flows are loaded, resolved, and saved. Local worker flows are stored in the '#functions' config property.
----
+# Worker architecture
 
-# Ticlo Worker Architecture
+`packages/core/worker/` implements flow-backed functions. `WorkerHost` exposes a
+`control: WorkerControl` and `workerField`: `+use` for `worker`, `use` for
+`map`, `handler`, and `multi-worker`. Hosts usually connect
+`WorkerControl.onUseChange` to a `StatefulFunction` input map.
 
-The `packages/core/worker/` directory in `@ticlo/core` is responsible for flow-backed functions: reusable custom worker functions, inline worker definitions, repeaters such as `map`, and task handlers.
+## Sources and saves
 
-## WorkerControl and Worker Sources
+| Source (`WorkerControl._src`) | Resolution | Save callback from `getSaveParameter()` |
+| --- | --- | --- |
+| Inline `DataMap` | Embedded flow definition | `saveInline()` writes `flow.save()` to the worker field |
+| Global ID | `globalFunctions` | `WorkerFunctionGen.applyChangeToFunc(flow, src)` |
+| `:functionId` | Owning flow's `#functions` / `FlowFunctionLib` | Same string-source callback |
+| `+namespace:lib:functionId` | `NsFunctionLib`, optionally storage-backed | Same string-source callback |
 
-At the heart of the worker architecture is `WorkerControl`, which manages how a subflow/worker source is loaded, watched, and saved.
+Without a valid source, return `WAIT` or avoid creating a flow. String sources
+subscribe to their `FunctionDispatcher`; factory changes set `_srcChanged` and
+queue the host. Namespace saves await `NsFunctionLib.pendingSave`. Preserve and
+await promises through worker/editor callbacks so failures leave changes unsaved.
+See [file examples](./file-format.md#examples) for inline wrappers and local definitions.
 
-Functions that host workers implement `WorkerHost` and expose:
+## Flow classes and static content
 
-- `workerField`: the field that stores the source (`use` for map/handler/multi-worker, `+use` for `worker`).
-- `control`: the `WorkerControl` attached to the host function.
+- `WorkerFlow`: `FlowWithStatic` with type `flow:worker`; schedules `onReady`
+  after inputs update and `#wait` clears.
+- `RepeaterWorker`: worker used by repeated hosts.
+- `FlowEditor`: editable `FlowWithStatic` under `#edit-*` properties.
 
-Worker hosts usually wire `WorkerControl.onUseChange` into a `StatefulFunction` input map.
+Named workers save static content under `#static` (runtime type `flow:static`).
+Its runtime owner is the library flow's `#shared` container, one child per
+function. That `flow:const` container provides ownership/node-tree visibility
+and is never serialized. Inline workers do not support static content.
 
-The source (`src`) of a worker flow can take several forms, stored in `WorkerControl._src`:
-
-1. **Inline `DataMap`**: The flow definition is stored directly in the worker field. Edits save back into that property.
-2. **Global function id**: A plain string such as `add` or a generated worker id. It resolves through `globalFunctions`.
-3. **Local flow function id**: `:functionId`, stored in the owning flow's `#functions` config and managed by its `FlowFunctionLib`.
-4. **Namespace function id**: `+namespace:lib:functionId`, stored in `NsFunctionLib` and optionally backed by `FlowStorage`.
-
-Local flow functions have a descriptor lib. Worker and editor flows loaded from an in-flow function lib expose the owning Flow through the runtime-only config property `#lib`. UI subscriptions receive it as a serialized `NoSerialize` Block value, so editor code must read its `value` path before calling `watchDesc(':functionId', libPath)`.
-
-For string sources, `WorkerControl` listens to the corresponding `FunctionDispatcher`; when the registered `FunctionFactory` changes, `_srcChanged` is set and the host block is queued.
-
-## The `getSaveParameter()` Lifecycle
-
-When the worker engine needs to create or apply changes to a worker flow, it calls `WorkerControl.getSaveParameter()`. This method must correctly determine the initial flow data (`src`) and the `saveCallback` based on `_src`:
-
-- If `src` is a string, `saveCallback` calls `WorkerFunctionGen.applyChangeToFunc(flow, src)`.
-- If `src` is inline data, `saveCallback` calls `saveInline()`, which writes `flow.save()` back into the host block's worker field.
-- If no valid source exists, the host should return `WAIT` or avoid creating a flow.
-
-For storage-backed namespace libraries, `applyChangeToFunc()` waits for `NsFunctionLib.pendingSave` before returning saved data. Worker/editor save callbacks may return promises; callers must preserve and await them so failed saves remain visible and unsaved.
-
-## Flow Classes
-
-- `WorkerFlow`: a `FlowWithStatic` with `flow:worker` config. It schedules `onReady` after inputs update and `#wait` clears.
-- `RepeaterWorker`: a `WorkerFlow` used by repeated hosts. Inline worker flow data does not support `#static`.
-- `FlowEditor`: an editable `FlowWithStatic` created under `#edit-*` properties. Named worker functions expose static content through `#static`.
-
-Static worker content is saved in the worker definition under `#static`, and the corresponding runtime block has type `flow:static`. The actual runtime owner lives under the function library flow's `#shared` block, one child per function id. That `#shared` owner is a `flow:const` node-tree container only; it is not serialized, and new feature work should not treat it as the public saved path.
-
-Workers are spawned through `Block.createOutputFlow()`:
+Create workers through `Block.createOutputFlow()`:
 
 ```ts
 this._data.createOutputFlow(RepeaterWorker, '#worker', src, outputTarget, saveCallback);
 ```
 
-The output target implements `FunctionOutput`, so each host can decide how child flow outputs are collected.
+`outputTarget` implements `FunctionOutput`. `WorkerOutput` forwards child output,
+readiness, and timeout to the host, which shapes the result.
 
-When passing in-flow or inline worker sources into a child flow, keep the parent flow's function lib attached so `#lib` continues to point at the function owner Flow. Do not rediscover the lib from a deep block path in editor code; Block view should pass its current `funcLib` path down to descriptor consumers.
+Inline/in-flow child sources must retain their parent's function library.
+For editor descriptor lookup, pass the current `funcLib` down; do not reconstruct
+it from a deep block path. See [the `#lib` connection contract](./core-package.md#connection-layer).
 
-## Host Patterns
+## Host patterns
 
-- `WorkerFunction`: creates one child flow at `#worker`. `+state` controls `on`, `off`, `disable`, or `lazy`. It can participate in `select-worker` via `WorkerCollector`.
-- `MapFunction`: maps array/object input to multiple worker runs and emits a final array/object when every assigned worker is ready. It supports fixed thread pools, unlimited keyed workers, reuse, persist, and timeout.
-- `MultiWorkerFunction`: maintains one worker per input key and updates output as individual child workers change. If the input is a `Block`, it watches child property changes.
-- `HandlerFunction`: queues calls/tasks and assigns them to workers. With `keepOrder`, it stores results in an `InfiniteQueue` and emits completed tasks in original call order.
-- `SelectWorkerFunction`: emits a `WorkerCollector`; downstream `worker` blocks use it to turn one named worker on and set others to `disable` or the configured unused state.
+| Host | Behavior |
+| --- | --- |
+| `WorkerFunction` | One `#worker`; `+state`: `on`, `off`, `disable`, `lazy`; accepts `WorkerCollector` |
+| `MapFunction` | Array/object results after all assigned workers are ready; fixed/unlimited pools, reuse, persist, timeout |
+| `MultiWorkerFunction` | One worker per key; emits incremental results; watches child changes for Block inputs |
+| `HandlerFunction` | Queues tasks; `keepOrder` uses `InfiniteQueue` to emit in call order |
+| `SelectWorkerFunction` | Emits `WorkerCollector`; selects one downstream worker and disables others or applies their unused state |
 
-## Thread Pools and Output
-
-`ThreadPool` is a fixed-size slot allocator. `_pending` stores completed workers that can be reused without destroying their flow; `_ready` stores slots whose old flow has been torn down. `UnlimitedPool` uses the input key itself as the slot when possible, which preserves stable identity for object maps.
-
-`WorkerOutput` sits between a child worker flow and the host function. Child flow outputs do not write directly to the host block; the host receives readiness/timeout callbacks and chooses how to shape the final result.
+`ThreadPool._pending` holds completed reusable workers; `_ready` holds slots whose
+old flows were torn down. `UnlimitedPool` uses input keys as slots when possible,
+preserving object-map identity.

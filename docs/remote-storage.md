@@ -1,8 +1,7 @@
 # Remote storage
 
-The `packages/remote-storage` workspace package is named `@ticlo/remote-storage`.
-It exports `FileServerStorage` for string values and `FileServerFlowStorage`
-for flows, using `TicloFileClient` from `@ticlo/file-client`.
+`@ticlo/remote-storage` exports `FileServerStorage` for strings and
+`FileServerFlowStorage` for flows, using `TicloFileClient` from `@ticlo/file-client`.
 
 ```ts
 import {Root} from '@ticlo/core';
@@ -13,101 +12,67 @@ await Root.instance.setStorage(new FileServerFlowStorage(client));
 await Root.instance.start({main: {flows: ['example']}});
 ```
 
-Each file-server project represents a namespace. `#root` contains flows without
-a namespace and is the default initial project. Global data always loads from
-`proj/#root/#global.ticlo`, including when the initial project is named.
+## Project layout
 
-```text
-files/proj/
-  #root/
-    _proj.json
-    ticlo.json
-    #global.ticlo
-    example.ticlo
-  main/
-    _proj.json
-    ticlo.json
-    example.ticlo
-    folder/
-      child.ticlo
-    #libs/
-      tools.ticlo
-  shared/
-    _proj.json
-    ticlo.json
-    example.ticlo
-  common/
-    _proj.json
-    ticlo.json
-```
+Remote and [static storage](./static-storage.md) share this layout. Each project
+is a namespace; `#root` holds unqualified flows. Global settings always load from
+`proj/#root/#global.ticlo`, even when starting a named project.
 
-Namespace dependencies and Service Libraries are declared in a separate
-`ticlo.json`, for example:
+| Path under `proj/` | Purpose / runtime path |
+| --- | --- |
+| `#root/#global.ticlo` | Global settings; missing file means an empty global flow |
+| `#root/example.ticlo` | `example` |
+| `main/_proj.json` | File-server project metadata; runtime storage never reads/writes it |
+| `main/ticlo.json` | Namespace dependencies and Service Libraries |
+| `main/folder/child.ticlo` | `+main.folder.child` |
+| `main/#libs/tools.ticlo` | Library for `+main:tools:worker`, separate from ordinary flows |
+| `main/folder/flow.#.worker.ticlo` | `+main.folder.flow.#.worker`; subflows load on demand |
+| `main/#storage/key.str` | Generic string storage |
 
-```json
-{"dependencies":["shared"],"serviceLibraries":["tools"]}
-```
+For `ticlo.json`, startup selection, and library loading, see
+[runtime lifecycle](./runtime-lifecycle.md). Project IDs cannot contain dots.
+`#libs`, `#deps`, and `#storage` are reserved root folder names, although dependencies
+use metadata, not a directory. User folders named `libs`, `deps`, and `storage`
+are allowed. These conventions belong to flow adapters; the file server handles
+generic directories and its client encodes `#` in HTTP paths.
 
-Startup recursively enables dependencies and their Service Libraries. `start()`
-and `start({})` load all ordinary flows in `#root`, including nested folders.
-Explicit startup selections and `loadFlow()` load the requested flows. Missing
-dependencies fail startup; project IDs cannot contain dots. See
-[runtime lifecycle](./runtime-lifecycle.md) for API and persistence rules.
+Remote initialization lists folders recursively, including empty folders, through
+the file-server API; it needs no `.list.json`. Folder creation persists immediately:
+await `folder.pendingCreate` in direct runtime calls (the editor already does).
+Deletion removes the directory and contents before removing the runtime node.
+Flows and folders cannot share a runtime name.
 
-Libraries load on demand from `#libs/<library>.ticlo`; `+main:tools:worker` uses
-`proj/main/#libs/tools.ticlo`. This keeps libraries separate from ordinary flows with
-the same name. Subflows also load on demand. Directory contents come from the
-file-server listing API, so `.list.json` is unnecessary for this storage.
+## Writes and conflicts
 
-User folders map to physical directories: `+main.folder.child` is stored at
-`proj/main/folder/child.ticlo`. Initialization reads folders recursively, including
-empty folders. Folder creation persists immediately; direct runtime callers can
-await the returned folder's `pendingCreate`. The editor waits for creation to
-finish. Deleting a folder removes its directory and contents before removing it
-from the runtime tree. A flow and folder cannot share a runtime name.
+Saves/deletions return promises and serialize per file. Reads capture ETags;
+updates/deletions send `If-Match`. A first save without a read sends
+`If-None-Match: *`, allowing creation only. HTTP 412 means a stale revision;
+reload before retrying. Failed saves and edits made during a pending save remain
+unsaved. Closing the host page does not delete files.
 
-`#libs` and `#storage` are reserved directory names at each project root.
-User folders named `libs`, `deps`, and `storage` are allowed. These conventions
-belong to the flow storage adapters; the file server provides generic directories.
-`#root` is the special project for unqualified flows. File server 0.1.0 keeps its
-project management metadata in `_proj.json`; runtime storage does not read or
-write that file. `ticlo.json` contains only namespace configuration and is readable
-with the other project files. The file client encodes `#` in HTTP paths.
-Worker subflow suffixes stay in filenames: `+main.folder.flow.#.worker` maps to
-`proj/main/folder/flow.#.worker.ticlo` and loads only on demand.
-
-File saves and deletions return promises and serialize per file. Reads capture the
-server's ETag; updates and deletions send `If-Match`. A first save without a
-prior read uses `If-None-Match: *`, so it can only create a missing file. A stale
-revision fails with HTTP 412. Reload the current file before retrying; failed
-saves do not clear the flow's unsaved state. Edits made during a pending save
-also remain unsaved. Closing the host page does not delete saved flows.
-
-For string values, construct `new FileServerStorage(client, 'proj/main/#storage',
-'.str')`. Namespace selection for the generic storage function provider is
-deferred; the demo installs only flow storage.
+For strings, use `new FileServerStorage(client, 'proj/main/#storage', '.str')`.
+Namespace selection for the generic storage function provider is deferred;
+browser demos install only flow storage.
 
 ## Storage format change
 
-There is no fallback to the old layout. Before using an existing project:
+There is no legacy-layout fallback. Migrate existing files:
 
-1. Keep project metadata named `_proj.json`. Rename the special project `_root`
-   to `#root` and update its metadata id.
-2. Rename internal `libs` and `storage` to `#libs` and `#storage`. Move dependency
-   names from old `deps`/`#deps` folders into `dependencies` in `ticlo.json`.
-3. Move dotted flow filenames into directories: `folder.child.ticlo` becomes
-   `folder/child.ticlo`. Keep any `.#...` worker suffix on the filename.
-4. Regenerate `.list.json` indexes if the same files are served by static storage.
+1. Keep `_proj.json`; rename special project `_root` to `#root` and update its
+   metadata ID.
+2. Rename internal `libs`/`storage` to `#libs`/`#storage`. Move dependency names
+   from `deps`/`#deps` folders into `ticlo.json`'s `dependencies` array.
+3. Move dotted flow names into folders: `folder.child.ticlo` → `folder/child.ticlo`.
+   Preserve `.#...` worker suffixes on filenames.
+4. Regenerate `.list.json` indexes for static hosting.
 
-Node's `FileFlowStorage` also uses real folders, retaining its existing namespace
-location: `+main/folder/child.ticlo` under its configured directory. Namespace
-libraries now live in `+main/#libs/`. IndexedDB continues to use dotted keys and
-reconstructs folders from saved flows; empty folders have no separate key.
+Node `FileFlowStorage` uses real folders under its existing namespace path:
+`<dir>/+main/folder/child.ticlo`, with libraries in `<dir>/+main/#libs/`.
+IndexedDB keeps dotted keys and reconstructs folders; empty folders have no key.
 
 ## Local development
 
-Ticlo uses the published npm packages `@ticlo/file-server` and
-`@ticlo/file-client`. Run these commands in the Ticlo repository:
+Use the published `@ticlo/file-server` and `@ticlo/file-client` packages:
 
 ```sh
 pnpm install
@@ -116,53 +81,43 @@ pnpm server
 pnpm vite-dev
 ```
 
-Open `http://localhost:3003/file-server.html` and click **open editor**. The
-host page runs selected flows and connects `editor.html` through window messages.
-Keep it open while editing. Add `?project=main&flow=entry&flow=jobs.**` to select a project and initial flows, or
-`?host=https://example.com/file&project=main` to select another file host.
-With neither `project` nor `flow`, all ordinary flows in `#root` load by default.
+Open `http://localhost:3003/file-server.html`, then **open editor**. Keep the host
+page open: it runs flows and connects `editor.html` through window messages.
+Select flows with `?project=main&flow=entry&flow=jobs.**`, or another file endpoint
+with `?host=https://example.com/file&project=main`.
 
-The playground can connect directly to remote storage using its URL hash:
+The playground uses the same options in its hash:
 
 ```text
 http://localhost:3003/playground.html#host=http://127.0.0.1:8010/file&project=main&flow=entry&flow=jobs.**
 ```
 
-Providing a nonempty `host` selects remote storage at that file endpoint.
-`project` defaults to `#root` (encode it as `%23root`
-if included explicitly). Repeat `flow` to select initial flows; glob patterns use
-the runtime's existing policy glob syntax. With neither `project` nor `flow`, all
-ordinary flows in `#root` load. An explicit `project` without `flow` starts only
-Service Libraries; `flow=**` loads all ordinary flows in the selected project. The
-first loaded flow opens in an editor tab. Remote mode does not create playground demo data.
-
-Without `host`, the playground uses IndexedDB and its local demo data.
-Changing the hash reloads the page with the selected storage. The
-existing `strictMode` flag can be combined with either storage, for example
-`#host=http://127.0.0.1:8010/file&flow=**&strictMode`.
+- `project` defaults to `#root`; encode it as `%23root` in URLs.
+- Repeat `flow` for [startup patterns](./runtime-lifecycle.md). With neither
+  `project` nor `flow`, all ordinary `#root` flows load. An explicit project with
+  no `flow` starts only Service Libraries; `flow=**` selects all its ordinary flows.
+- A nonempty playground `host` selects remote storage without demo data and
+  opens the first loaded flow. Without `host`, it uses IndexedDB/local demo data.
+  Changing the hash reloads the page. Append `&strictMode` for either storage.
 
 `pnpm server`, `pnpm ticlo-server`, and `pnpm file-server` start the same combined
-development server on `127.0.0.1:8010`:
+server on `127.0.0.1:8010`:
 
 | Endpoint | Purpose |
 | --- | --- |
-| `WS /ticlo` | Editor connection to server-side running flows |
-| `POST /ticlo` | Runtime commands over HTTP |
-| `GET/POST /file?op=…` | Project and file management |
-| `GET /file/*` | Stored file downloads |
-| `/api/*` | HTTP endpoints defined by running flows |
-| `GET /health` | Process health (`{"status":"ok"}`) |
+| `WS /ticlo` | Editor connection to server-side flows |
+| `POST /ticlo` | Runtime commands |
+| `GET/POST /file?op=…` | Project/file management |
+| `GET /file/*` | File downloads |
+| `/api/*` | Flow-defined HTTP endpoints |
+| `GET /health` | `{"status":"ok"}` |
 | `GET /` | Endpoint overview |
 
-The file endpoint stores projects in the ignored `app/server/files` folder and
-creates `#root` with its project metadata only if the project directory is absent.
-Existing projects are left unchanged. No example or `#global.ticlo` files are
-generated; a missing `#global.ticlo` loads as an empty global flow. The server
-runtime continues to use `app/server/flows`; uploading a project through `/file`
-does not load or reload it in that runtime. The browser host page runs its own
-runtime using the file endpoint.
+Files live in ignored `app/server/files`. The server creates `#root` and its
+metadata only when absent; it generates no flow files. The server runtime uses
+`app/server/flows`: uploading through `/file` does not load/reload that runtime.
+The browser host has its own runtime using `/file`.
 
-File-route CORS allows local development origins, accepts `If-Match` and
-`If-None-Match`, and exposes `ETag`. Runtime CORS is scoped to `/ticlo` and `/api`
-so it cannot override those file-route rules. CORS belongs to the hosting app;
-`@ticlo/file-server` does not add it.
+File-route CORS allows local dev origins, accepts `If-Match`/`If-None-Match`, and
+exposes `ETag`. Runtime CORS is scoped to `/ticlo` and `/api` to preserve those
+rules. The host app owns CORS; `@ticlo/file-server` does not add it.

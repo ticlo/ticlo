@@ -1,61 +1,53 @@
 ---
 name: ticlo-translation
-description: Work with Ticlo translation and i18n files, including translation lookup logic, source YAML locale files, generated JSON locale files, and auto-translation rules that must preserve manual translations.
+description: Edit Ticlo translations and i18n tooling while preserving manual translations and regenerating locale JSON.
 ---
 
-# Ticlo Translation
+# Ticlo translation
 
-Use this skill when changing Ticlo UI/function translations, locale YAML files, generated i18n JSON files, or translation tooling.
+Edit `packages/**/i18n/*.yaml`, then run `pnpm build-i18n` to generate
+`i18n/<package>/<locale>.json`. Hand-edit JSON only when explicitly working on
+generated output. English sources are `en.yaml`; the merger skips `en.base.yaml`.
 
-## File Layout
+## Translation ownership
 
-- Source translations live in package-local YAML files: `packages/**/i18n/*.yaml`.
-- English source files are `en.yaml`; `en.base.yaml` files are skipped by the JSON merger. Other locale files, such as `fr.yaml` and `zh.yaml`, are derived from English and may contain manual or generated translations.
-- Generated runtime files live under root `i18n/<package>/<locale>.json`.
-- Do not hand-edit generated JSON unless the task is specifically about generated output. Edit YAML, then run `pnpm build-i18n` to regenerate JSON.
+Rows without `translated from:` or legacy `auto translated from hash:` comments
+are manual. Do not replace, retranslate, or normalize them through automatic/AI
+translation unless the user explicitly asks to change that manual translation.
+Ownership exists only in YAML comments, not generated JSON.
 
-## Translation Logic
-
-- Runtime translation helpers are in `packages/core/util/i18n.ts`.
-- Translation namespaces use `ticlo-<package>`, for example `ticlo-core`, `ticlo-editor`, and `ticlo-test`.
-- Function names are looked up as `<function>.@name`.
-- Property names are looked up as `<function>.<property>.@name`, then fall back to `@shared.<property>.@name` in the current namespace, then `@shared.<property>.@name` in `ticlo-core`.
-- Property option values are looked up as `<function>.<property>.@options.<value>`, then fall back to `@shared.<property>.@options.<value>` in `ticlo-core`.
-- Editor strings use `translateEditor(key)` and are stored in the editor namespace.
-
-## YAML Rules
-
-- Keep keys and nesting aligned with `en.yaml`.
-- Quote keys that contain special YAML characters, such as `@`, `#`, `:`, or leading/trailing spaces.
-- Use `@name` for display names, `@keywords` for search keywords, and `@options` for option labels.
-- Use the existing style in nearby locale files for quoting, comments, and multiline strings.
-- If an English row has a `# no translate` comment, keep the value unchanged in locale outputs.
-
-## Auto vs Manual Translation
-
-Auto-generated translations are marked in YAML comments with `translated from:`, for example:
+For AI-generated rows, add `# translated from: <sourceKey>`:
 
 ```yaml
 add:
   '@name': Ajouter # translated from: Add
 ```
 
-Rows with `translated from:` were produced by the auto translation API or by AI-assisted translation. Auto-translation tooling may update these rows when the English source changes.
+Compute markers with `translationSourceKey()` in `tool/translate/YamlData.ts`.
+It uses source text up to 25 characters, prefix/hash for longer text, and escapes
+backslashes, newlines, and edge spaces. Do not build markers by hand for complex text.
+Generated rows can be reused only while the source key/legacy hash matches;
+changed sources may be retranslated. Keep values marked `# no translate` unchanged.
 
-Rows without either `translated from:` or the legacy `auto translated from hash:` marker are manually translated. Treat them as owned by humans: do not replace, retranslate, or normalize them with auto translation unless the user explicitly asks to change that manual translation.
+## Lookup
 
-When adding AI-generated translations yourself, include `# translated from: <sourceKey>`. Compute the key with `translationSourceKey()` in `tool/translate/YamlData.ts`: short sources use their text, while sources longer than 25 characters use a prefix and hash; backslashes, newlines, and edge spaces are escaped. Use this helper rather than copying long or multiline English text into the marker.
+Runtime helpers: `packages/core/util/i18n.ts`. Namespaces: `ticlo-<package>`.
 
-## Generated JSON
+| Value | Lookup and fallback |
+| --- | --- |
+| Function name | `<function>.@name` |
+| Property name | `<function>.<property>.@name` → `@shared.<property>.@name` in current namespace → same in `ticlo-core` |
+| Option label | `<function>.<property>.@options.<value>` → `@shared.<property>.@options.<value>` in `ticlo-core` |
+| Editor string | `translateEditor(key)` in `ticlo-editor` |
 
-- `tool/merge-lng.ts` merges package YAML files into `i18n/<package>/<locale>.json`.
-- JSON files do not preserve YAML comments, so the manual/generated ownership signal exists only in YAML.
-- The merger skips top-level identity entries (`key: key`) when first creating a locale output. It does not recursively remove all identity translations.
+## YAML and tooling
 
-## Auto-Translation Tooling
-
-- Auto-translation code is under `tool/translate/`.
-- `tool/translate/YamlData.ts` preserves manual translations for keys still in the English source. Generated translations are reused only when their source key (or legacy hash) still matches; changed sources are eligible for retranslation. Removed top-level manual entries are retained under `# no longer used`; removed nested entries are not retained by the current merger.
-- If an existing locale row lacks `translated from:` or the old `auto translated from hash:` comment, it is treated as manual and should not be overwritten by automatic translation.
-- `pnpm build-i18n-pre-collect-en` collects literal editor translation keys into `packages/editor/i18n/en.yaml`. It rewrites that file, so review its diff for dynamically referenced keys before using the result.
-- Use `pnpm build-i18n` after YAML changes to refresh generated JSON.
+- Match `en.yaml` keys/nesting and nearby quoting, comments, and multiline style.
+  Quote special keys (`@`, `#`, `:`, edge spaces). `@name` holds display names,
+  `@keywords` search terms, and `@options` option labels.
+- `tool/merge-lng.ts` skips top-level identity entries (`key: key`) when first
+  creating a locale output; it does not recursively strip identity translations.
+- `tool/translate/YamlData.ts` preserves current manual keys. Removed top-level
+  manual entries go under `# no longer used`; removed nested entries are not retained.
+- `pnpm build-i18n-pre-collect-en` collects literal editor keys and rewrites
+  `packages/editor/i18n/en.yaml`; review the diff for dynamically referenced keys.

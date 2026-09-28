@@ -1,43 +1,34 @@
 ---
 name: ticlo-project-architecture
-description: High-level overview of the Ticlo monorepo, its packages, and architecture. Helps understand how the different components of Ticlo integrate together.
+description: Navigate Ticlo packages and find task-specific runtime, flow-format, worker, editor, and storage references.
 ---
 
-# Ticlo Architecture Overview
+# Ticlo architecture
 
-Ticlo combines a reactive dataflow engine, a React visual editor, and browser
-and Node.js integrations. Code lives under `packages/`; `app/` contains demo
-pages and development servers, and `tool/` contains build and translation tools.
+Ticlo combines a reactive dataflow runtime, React visual editor, and browser/Node
+integrations. Packages live in `packages/`; demos and dev servers in `app/`;
+build and translation tools in `tool/`.
 
-## Packages
-
-| Directory | Package | Responsibility |
-| --- | --- | --- |
-| `core` | `@ticlo/core` | Block/flow runtime, bindings, scheduling, built-in functions, serialization, and client/server synchronization. |
-| `editor` | `@ticlo/editor` | React and Ant Design visual editor, property panels, function selectors, scheduler UI, and code editors. |
-| `html` | `@ticlo/html` | Browser connections, IndexedDB storage, and HTTP static storage with temporary in-memory edits. |
-| `node` | `@ticlo/node` | Filesystem storage, WebSocket/REST connections, secrets, and flow test loading. |
-| `remote-storage` | `@ticlo/remote-storage` | Writable HTTP storage using `@ticlo/file-client`. The external host package is named `@ticlo/file-server`. |
-| `react` | `@ticlo/react` | React bindings and components for consuming Ticlo flows. |
-| `test` | `@ticlo/test` | Flow assertions and test utilities. |
-| `web-server` | `@ticlo/web-server` | Hono HTTP server and WebSocket integration using `@hono/node-server` and `@hono/node-ws`. |
-
-`.ticlo` files serialize block trees as JSON. `Root` loads flows through a
-`FlowStorage`; `Storage` provides generic string values. `ServerConnection`
-and `ClientConnection` synchronize runtime state and editor commands through
-local, window-message, or network transports.
+| Package (`@ticlo/…`) | Responsibility |
+| --- | --- |
+| `core` | Blocks, bindings, functions, scheduling, persistence, client/server sync |
+| `editor` | React/Ant Design editor, property panels, function selectors |
+| `html` | Browser connections, IndexedDB, static HTTP storage |
+| `node` | Filesystem storage, WebSocket/REST connections, secrets, flow test loading |
+| `remote-storage` | Writable HTTP storage via `@ticlo/file-client`; host: `@ticlo/file-server` |
+| `react` | Flow bindings and components |
+| `test` | Flow assertions and test utilities |
+| `web-server` | Hono HTTP/WebSocket server using `@hono/node-server` and `@hono/node-ws` |
 
 ## References
 
-Read the relevant reference for the area being changed:
+Read only the references relevant to the task:
 
-- [Core package](./core-package.md): runtime lifecycle, bindings, persistence, and connections.
-- [File format](./file-format.md): saved block data, configuration, bindings, and examples.
-- [Worker architecture](./worker-architecture.md): inline and named workers, static content, and saving worker edits.
-- [Static storage](../../../docs/static-storage.md): `proj/<project>` layout, `.list.json` indexes, and the static demo.
-- [Remote storage](../../../docs/remote-storage.md): the same project layout with writable APIs, ETags, and development setup.
-
-Static and remote storage map projects to namespaces, use `_root` for
-unqualified flows and global data, and load dependencies from `deps/`.
-Their layout differs from Node's existing `FileFlowStorage`; do not assume
-these adapters use identical on-disk namespace/library paths.
+- [Core](./core-package.md): execution, bindings, functions, connections, editing helpers.
+- [Lifecycle](../../../docs/runtime-lifecycle.md): startup, namespaces, load/unload, persistence.
+- [File format](./file-format.md): saved `.ticlo` JSON, property prefixes, binding examples.
+- [Workers](./worker-architecture.md): sources, static content, save callbacks, host patterns.
+- [Block controls](../../../docs/block-configs.md) and [property editors](../../../docs/editor.md).
+- [Remote storage](../../../docs/remote-storage.md): project layout, writes, conflicts, dev server.
+- [Static storage](../../../docs/static-storage.md): HTTP indexes and temporary edits.
+- [Translations](../ticlo-translation/SKILL.md): locale ownership and generation.

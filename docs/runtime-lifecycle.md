@@ -1,64 +1,49 @@
 # Runtime lifecycle
 
-`setStorage()` attaches storage and reads global settings. It does not start stored
-flows. Select namespaces and ordinary flows explicitly:
+`setStorage()` attaches storage and reads global settings without starting stored
+flows. Startup selects namespaces and ordinary flows:
 
 ```ts
 await root.setStorage(storage);
-await root.start({
-  main: {flows: ['entry', 'jobs.**']},
-  shared: {},
-});
+await root.start({main: {flows: ['entry', 'jobs.**']}, shared: {}});
 ```
 
-`start()` and `start({})` select `#root` and load all its ordinary flows, including
-nested folders, for every storage type. This is equivalent to
-`start({'#root': {flows: ['**']}})`. Other projects are not selected automatically.
-Service Libraries still load as usual, and saved `#disabled` flags are honored.
+- `start()` / `start({})` select all ordinary `#root` flows, including nested
+  folders: equivalent to `start({'#root': {flows: ['**']}})`.
+- Explicit selections take precedence. Empty/omitted `flows` loads no ordinary
+  flows; `start({'#root': {}})` starts only its Service Libraries.
+- Dependencies activate recursively with their Service Libraries; their ordinary
+  flows need explicit selection. Cycles are allowed. Missing dependencies or
+  required libraries reject startup and tear down the new runtime.
+- Saved `#disabled` flags are honored. Call `stop()` before restarting a running runtime.
 
-An explicit project selection always takes precedence: `start({'#root': {}})`
-selects only `#root` with no initial ordinary flows.
-Empty or omitted `flows` loads no ordinary flows. Dependencies activate recursively, including their Service
-Libraries, but their ordinary flows need an explicit selection too. Cycles are
-allowed. A missing dependency or required library rejects startup and tears down
-the new runtime. Call `stop()` before starting again.
-
-Patterns reuse policy `matchEditPath`: dot-separated logical paths, `*` within a
-segment, `**` across segments, and `?` for one or more digits. A trailing `.**`
-requires a descendant. Patterns select ordinary flows once at startup; they do
-not select libraries, folders, or newly created flows. A missing exact flow name
-is an error; an unmatched wildcard selects nothing.
+Patterns use policy `matchEditPath`: dot-separated paths, `*` within a segment,
+`**` across segments, `?` for one or more digits. Trailing `.**` requires a
+descendant. Selection runs once and excludes libraries, folders, and future flows.
+Missing exact names error; unmatched wildcards select nothing.
 
 ## Namespace metadata
 
-RemoteStorage and StaticStorage read each namespace's `ticlo.json`:
+Remote/static storage read `proj/<namespace>/ticlo.json`:
 
 ```json
-{
-  "dependencies": ["shared"],
-  "serviceLibraries": ["http", "scheduler"]
-}
+{"dependencies": ["shared"], "serviceLibraries": ["http", "scheduler"]}
 ```
 
-File-server project management metadata remains in `_proj.json`; runtime storage
-does not read or write it. There is no `#deps` directory lookup. Dependencies are namespace names in the same
-storage. Service names are exact library names, not globs. Omitted fields mean
-empty arrays. Existing projects without Ticlo metadata have no dependencies or
-services. Invalid metadata rejects activation.
+Dependencies name namespaces in the same storage; services are exact library
+names, not globs. Missing fields/files mean empty arrays; invalid metadata rejects
+activation. File-server `_proj.json` is separate project metadata; runtime storage
+never reads/writes it. Dependencies do not use a `#deps` directory.
 
-- FileFlowStorage uses `<dir>/ticlo.json` and `<dir>/+main/ticlo.json` with the same
-  namespace configuration.
-- IndexedDB uses a `namespaces` object store keyed by `#root`, `main`, etc.; its
-  values are `{dependencies?, serviceLibraries?}`. The default database upgrades
-  to version 2. A caller-supplied database must include this object store. Flow
-  keys remain dotted.
-- MemoryFlowStorage uses a namespace metadata Map and serialized flow Map. Values
-  survive stop/start on the same storage instance.
-- StaticStorage reads metadata but rejects persistent lifecycle mutations. Deploy
-  edited JSON files to change its saved configuration.
+| Adapter | Metadata and persistence |
+| --- | --- |
+| `FileFlowStorage` | `<dir>/ticlo.json`, `<dir>/+main/ticlo.json` |
+| IndexedDB | `namespaces` store keyed by `#root`, `main`, etc., with `{dependencies?, serviceLibraries?}` values; default DB version 2; custom DBs must provide the store; flow keys stay dotted |
+| `MemoryFlowStorage` | Metadata and serialized-flow Maps survive stop/start on the same instance |
+| `StaticFlowStorage` | Reads metadata; rejects persistent lifecycle mutations; update deployed JSON |
 
-Storage adapters expose `getNamespaceMetadata`, `saveNamespaceMetadata`, and
-`listFlows`; catalog reads must not instantiate or run flows.
+Adapters expose `getNamespaceMetadata`, `saveNamespaceMetadata`, and `listFlows`.
+Catalog reads must not instantiate or run flows.
 
 ## Flow operations
 
@@ -72,31 +57,27 @@ await root.enableFlow(flow, {persist: true});  // save #disabled: false
 await root.unloadFlow(flow);
 
 root.getFlowState(flow); // unloaded | loading | enabled | disabled
-await root.listFlows('main'); // catalog entries: {name, state}
+await root.listFlows('main'); // {name, state} entries
 await root.setServiceLibrary('shared', 'tools', true);
 ```
 
-Loading requires an enabled namespace and honors the saved `#disabled` before
+Loading requires an enabled namespace and honors saved `#disabled` before
 constructing executable blocks. Enable/disable requires a loaded flow. Temporary
-state is separate from saved data; saving other edits does not persist a temporary
-state override. A persistent toggle writes only `#disabled`, preserving unrelated
-unsaved edits. Enable means eligible to execute according to the flow's modes.
+overrides stay separate from saved data, even when saving other edits. Persistent
+toggles write only `#disabled`, preserving unrelated unsaved edits. Enabled flows
+execute according to their modes.
 
-Ordinary libraries load on demand when called from an enabled namespace, and
-remain loaded until explicitly unloaded. Inactive namespaces return empty workers
-without reading library files. Service Libraries load on namespace activation;
-a disabled service is read but does not execute or expose callable definitions.
-Exported functions execute only when called, even inside a Service Library.
+Ordinary libraries load on demand in enabled namespaces and stay loaded until
+unloaded. Inactive namespaces return empty workers without reading files.
+Service Libraries load on activation; disabled services are read but neither run
+nor expose callable definitions. Exported functions run only when called.
 
-Disabling or unloading a library stops existing workers and clears their outputs.
-References stay subscribed and rebind when the library becomes available again.
-An explicit unload suppresses automatic reload for this run, until explicit load
-or namespace reactivation. Changing the Service Library flag persists metadata;
-marking a library as a service loads it immediately in an active namespace.
-Removing the service flag does not unload it.
+Disabling/unloading a library stops workers and clears outputs. References remain
+subscribed and rebind when available. Explicit unload suppresses automatic reload
+until explicit load or namespace reactivation. Service flags persist; adding one
+loads the library immediately in an active namespace, removing one does not unload it.
 
-Unload and stop never delete stored files. Unsaved edits block unloading unless
-`{discardChanges: true}` is supplied. Use `deleteFlow` for actual deletion.
+## Namespace operations
 
 ```ts
 await root.enableNamespace('main', {flows: ['entry']});
@@ -105,17 +86,26 @@ await root.disableNamespace('shared', {cascade: true});
 await root.stop();
 ```
 
-Disabling a namespace unloads its flows. Active dependents prevent disabling it
-unless `cascade: true` is specified. Shared dependencies are not automatically
-removed when one consumer stops. Late storage reads cannot restore unloaded flows.
-Loaded sets, startup patterns, and unload suppression are never persisted.
-
-The client connection exposes `loadFlow(path)`, `unloadFlow(path, options)`,
-`enableFlow(path, options)`, `disableFlow(path, options)`, and `getFlowState(path)`.
-Client paths use the runtime tree: `+main.jobs.daily`, `+shared.:tools`, or
-`:tools` for a root library. These commands are checked against server policies.
-Root library function ids use `+#root:tools:function`; `+:tools:function` resolves
-against the calling flow's namespace.
-
+Disabling unloads the namespace's flows. Active dependents require `cascade: true`;
+shared dependencies remain when a consumer stops. Late reads cannot restore
+unloaded flows. Loaded sets, startup patterns, and unload suppression are not saved.
 `#global` remains available for settings/context but its stored executable blocks
-are not started implicitly. Move startup work into a Service Library.
+are not started implicitly; put startup work in a Service Library.
+
+## Persistence
+
+`FlowLoader.applyChange` / `Flow.applyChange()` return saved data or a promise.
+Await saves before reporting success. Failures set `@save-error` and retain unsaved
+state; `FlowHistory.saveCompleted()` keeps edits made during a pending save dirty.
+
+Unload/stop never delete files. Unsaved edits block unloading unless
+`{discardChanges: true}` is supplied. Use `Root.deleteFlow()` for deletion and
+propagate its possible promise. Destroying runtime flows does not delete saved files.
+
+## Client commands
+
+`ClientConnection` exposes `loadFlow`, `unloadFlow`, `enableFlow`, `disableFlow`,
+and `getFlowState` using paths (plus options where supported). Server policies
+check these commands. Paths use the runtime tree: `+main.jobs.daily`,
+`+shared.:tools`, or `:tools` for a root library. Root library function IDs use
+`+#root:tools:function`; `+:tools:function` uses the calling flow's namespace.

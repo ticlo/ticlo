@@ -1,114 +1,94 @@
-# Ticlo Core Package Architecture
+# Core architecture
 
-The `@ticlo/core` package is the runtime engine for Ticlo flows. It owns block-tree data, binding resolution, function registration, scheduling, persistence boundaries, worker subflows, and the client/server sync protocol used by the editor.
+`@ticlo/core` owns the reactive block tree and editor synchronization.
 
-## Directory Structure
+## Directory structure
 
-- `block/`: Runtime primitives. `Block` hosts properties and functions; `Flow` is the persistence/execution boundary; `BlockProperty` stores saved vs runtime state; `BlockBinding` resolves dotted bindings; `FunctionLib` and `Namespace` register and resolve functions.
-- `connect/`: Batched request/response protocol for editor and client APIs. `ClientConnection` creates requests and caches subscriptions; `ServerConnection` dispatches commands into a `Root`; `LocalConnection` loops both sides together through serialization for tests/local UI.
-- `functions/`: Built-in function nodes. Most are small `PureFunction` or `BaseFunction` classes registered into `globalFunctions`; date/time functions use `AutoUpdateFunction` to schedule future runs.
-- `worker/`: Flow-backed functions. `WorkerFunction`, `MapFunction`, `MultiWorkerFunction`, and `HandlerFunction` create child `WorkerFlow`/`RepeaterWorker` instances and route inputs/outputs through `WorkerControl`.
-- `policy/`: Shared editing limits. `PolicyConnection` applies client restrictions; `ServerConnection` enforces its own policy against runtime state. Editor restrictions alone do not secure a server.
-- `property-api/`: Editor mutation helpers for custom/optional/group properties, copy/paste, rename/move, and property visibility order (`@b-p`).
-- `util/`: Serialization (`arrow-code`), path math, relative binding generation, equality/clone helpers, date/time settings, logging, schedule timers, and value truncation for transport.
+| Directory | Responsibility |
+| --- | --- |
+| `block/` | Blocks, flows, properties, bindings, function libraries, namespaces, resolver |
+| `connect/` | Batched client/server protocol; `LocalConnection` serializes both sides for tests/local UI |
+| `functions/` | Built-ins registered through `packages/core/index.ts` |
+| `worker/` | Flow-backed functions; see [workers](./worker-architecture.md) |
+| `policy/` | Client restrictions and independent server enforcement; editor restrictions do not secure a server |
+| `property-api/` | Custom/optional/group properties, copy/paste, move/rename, visibility |
+| `util/` | Serialization, paths, equality/cloning, dates, timers, logging, transport truncation |
 
-## Runtime Model
+## Blocks and bindings
 
-### Blocks and Properties
+`Block` hosts properties and an optional function. `BlockProperty` separates
+saved data (`_saved`), runtime data (`_value`), and binding subscriptions
+(`_bindingSource`/`_bindingPath`). See [property mutations](../../../packages/core/block/README.md)
+and [file format](./file-format.md) for persistence markers and prefixes.
 
-`Block` is both a data node and a function host. Every property is a `BlockProperty` with:
+Bindings resolve relative to the owning block. Single segments listen directly
+to a property; dotted paths use cached `BlockBinding` chains through child
+properties or plain object fields. `propRelative()` handles flow boundaries,
+namespaces (`#+`), and `#static` when generating portable paths.
 
-- `_saved`: the value that will be serialized, usually from user/editor changes.
-- `_value`: the current runtime value, which may be a computed output.
-- `_bindingSource` / `_bindingPath`: a live subscription that drives `_value` from another property.
+## Functions and execution
 
-Objects with `#is` or `~#is` are interpreted as child block data. If such an object must remain a plain value, `BlockProperty._saveValue()` wraps it as `{ "#is": <object> }` to remove ambiguity on load.
+`Namespace.getFunctions()` resolves `#is` IDs; see [function IDs](./file-format.md#function-ids).
+Register class-backed or descriptor-only functions with
+`FunctionLib.addFactory(cls, desc, namespace?, functionApi?, options?)`.
+Use `FunctionLib.add(factory, namespace?, functionApi?)` for existing factories.
 
-Property prefixes are runtime contracts:
+Descriptor defaults are copied to `factory.cls.prototype` (priority, mode, type,
+purity). Dynamic metadata belongs in `factory.meta`, read with `factory.getMeta(key)`
+or `FunctionLib.getMeta(id, key)`. Construction waits until all block properties
+load so `initInputs()` sees stable data.
 
-- `#`: engine config and control, such as `#is`, `#call`, `#outputs`, `#wait`.
-- `~`: binding/helper block data. `~foo` stores a helper block whose `#output` drives `foo`.
-- `^`: context property linked to parent/global context.
-- `@`: editor-only metadata.
-- `+`: function-specific config.
-- no prefix: normal IO.
+`Resolver` batches blocks into four priority queues. `PromiseWrapper` prevents
+stale async completions from emitting after a newer run. See
+[execution modes and calls](../../../docs/block-configs.md).
 
-### Binding
+`PureFunction` clears output on cleanup. `StatefulFunction.getInputMap()` handles
+selected input changes. `AutoUpdateFunction` schedules future runs, including
+Luxon-based date/time functions.
 
-Bindings are dotted paths resolved relative to the owning block. Single-segment bindings listen directly to a property. Multi-segment bindings are cached as `BlockBinding` chains; each segment follows either a child `BlockProperty` or a plain object field. `propRelative()` generates portable relative paths and has special handling for flow boundaries, namespaces (`#+`), and `#static`.
+## Flows and persistence
 
-### Function Lifecycle
+`Flow` is a save/load boundary: embedded `Flow._save()` returns `undefined`;
+use `flow.save()` and save nested flows separately. `Root` owns `#global` for
+settings/context and `#temp` for transient generated flows.
 
-`#is` selects a function factory through `Namespace.getFunctions()`:
+`FlowHistory` debounces edits and tracks undo/redo. Server `trackChange()` selects
+the flow boundary, including synced positions and static-block edits. See
+[worker static ownership](./worker-architecture.md#flow-classes-and-static-content)
+and [save/lifecycle rules](../../../docs/runtime-lifecycle.md).
 
-- `:local` resolves against the current flow's `#functions` lib.
-- `+namespace:lib:name` resolves against namespace worker libs.
-- other non-empty ids resolve against `globalFunctions`.
+`Storage` holds strings; `FlowStorage` handles flows and libraries. Adapters live
+in `html` (IndexedDB/static HTTP), `node` (filesystem), and `remote-storage`
+(writable HTTP). Their layouts differ; use the adapter's reference.
 
-Functions are registered as `FunctionFactory` values. Use `FunctionLib.addFactory(cls, desc, namespace?, functionApi?, options?)` for normal class-backed or descriptor-only functions, and `FunctionLib.add(factory, namespace?, functionApi?)` only when a caller already has a factory object. Descriptor defaults are copied to `factory.cls.prototype` for fast access to priority, default mode, type, and purity. Dynamic runtime metadata belongs in `factory.meta` and can be read with `factory.getMeta(key)` or `FunctionLib.getMeta(id, key)`. During block load, function construction is deferred until all properties are loaded so `initInputs()` sees stable data.
+## Connection layer
 
-Flows using a `FlowFunctionLib` expose the runtime-only config property `#lib` as that library's owning Flow object. Across client serialization this arrives as a `NoSerialize` Block value whose `value` field is the Flow path. Editor descriptor watches for in-flow functions must extract that path and pass it to `ClientConn.watchDesc(funcId, libPath)`; otherwise descriptors for those local functions are unavailable.
+`Connection` batches `ConnectionSendingData` until estimated size reaches
+`WS_FRAME_SIZE`; a single message may exceed it. Nonempty frames require an
+acknowledgement, which may be empty; empty acknowledgements require no reply.
 
-Function modes:
+`ClientConnection` merges non-important `set`, `update`, and `bind` requests by
+path until serialization. Subscription/watch caches support reconnect clears
+and replays. `ServerConnection` dispatches `{cmd, id, path, ...}` only to its
+one-argument methods and awaits async results before sending completion/errors.
+Storage-backed commands must propagate promises.
 
-- `auto`: use function default.
-- `onLoad`: run on load, changes, and calls.
-- `onChange`: run on changes and calls.
-- `onCall`: run only when `#call` receives a trigger.
+| Server request | Watches |
+| --- | --- |
+| `ServerSubscribe` | Values, bindings, listener dots, errors |
+| `ServerWatch` | Child structure and flow history |
+| `ServerDescWatcher` | Global or flow-local function descriptors |
 
-The `Resolver` batches queued blocks into four priority queues. Async function results are guarded by `PromiseWrapper`, so stale promise completions cannot emit after a newer run has replaced them.
+Flows using `FlowFunctionLib` expose its owner through runtime-only `#lib`.
+Clients receive a `NoSerialize` Block whose `value` is the Flow path; pass that
+path to `ClientConn.watchDesc(funcId, libPath)` for local descriptors.
+`BlockStage` passes its `funcLib` to property lists, renderers, and selectors.
+Standalone components retain global lookup unless given a `funcLib`.
 
-### Flows and Root
+## Editing helpers
 
-`Flow` extends `Block`, but it is a persistence boundary. A flow's `_save()` returns `undefined` when embedded in a parent block; callers must use `flow.save()` explicitly. Root owns two special const flows:
-
-- `#global`: global context/settings.
-- `#temp`: transient generated flows.
-
-Named worker functions can have `#static` content in their serialized worker data. Runtime static blocks are exposed to the worker/editor flow as `flow.#static`, but are owned under the function library flow's runtime-only `#shared` container, one child per function. That owner container is a `flow:const` block used only for node-tree visibility and runtime ownership; it must not be serialized. Inline worker flows do not support `#static`.
-
-`FlowHistory` watches flow-level changes for undo/redo and debounces edits. Server mutations use `trackChange()` to pick the right flow boundary, including special handling for synced block-position attributes and static-block edits.
-
-### Persistence
-
-`Storage` stores string values; `FlowStorage` loads/saves flows and function libraries. `await root.setStorage(storage)` initializes the flow storage. The browser has IndexedDB and static HTTP adapters; Node has filesystem storage; `@ticlo/remote-storage` adds writable HTTP storage.
-
-`FlowLoader.applyChange` and `Flow.applyChange()` return saved data or a promise of saved data. Await asynchronous saves before reporting success. Failed saves set `@save-error` and preserve unsaved state; `FlowHistory.saveCompleted()` keeps later edits dirty when they were made during a pending save. Explicit flow deletion goes through `Root.deleteFlow()`, which can also return a promise. The static and remote adapters do not delete files when a runtime flow is destroyed; the existing filesystem and IndexedDB adapters still handle destruction through their storage callbacks.
-
-See [static storage](../../../docs/static-storage.md) and [remote storage](../../../docs/remote-storage.md) for project layout and dependency loading.
-
-## Connection Layer
-
-`Connection` batches `ConnectionSendingData`, stopping a frame once its estimated size reaches `WS_FRAME_SIZE`; an individual message can exceed that threshold. Receiving a nonempty frame requires an acknowledgement, which may be empty. Empty acknowledgement frames do not themselves require a reply.
-
-`ClientConnection` exposes the editor API. Non-important `set`, `update`, and `bind` requests are merged by path until serialized. Subscriptions and watches keep client-side caches so reconnects can produce coherent clears/replays.
-
-`ServerConnection` receives `{cmd, id, path, ...}` maps and dispatches only one-argument methods defined on `ServerConnection`. Long-lived server requests include:
-
-- `ServerSubscribe`: property value, binding, listener-dot, and error updates.
-- `ServerWatch`: block child structure updates plus flow history tracking.
-- `ServerDescWatcher`: function descriptor updates globally or for a local flow function lib.
-
-`ServerConnection` waits for asynchronous command results before sending completion or an error. Storage-backed commands must propagate their promises through this boundary.
-
-In Block view, `BlockStage` owns the current function lib and passes it to `PropertyList`, block renderers, and function selectors. Standalone editor components should keep global descriptor behavior unless a `funcLib` is explicitly supplied.
-
-## Built-In Functions
-
-Built-ins register themselves from `packages/core/index.ts`. Function code usually lives in a small class plus a descriptor. `PureFunction` clears output on cleanup. `StatefulFunction` can use `getInputMap()` to handle selected input changes without re-running for every property.
-
-Important groups:
-
-- `math`, `string`, `condition`, and `data`: straightforward pure/state helpers.
-- `script`: JS execution through a controlled function block.
-- `date/time`: Luxon-based parsing/formatting, timers, delays, and scheduler events.
-- `web-server` and `http`: request/route/fetch primitives used by server packages.
-- `worker`: flow-backed custom functions and repeat/handler patterns.
-
-## Editing Helpers
-
-The property API mutates block metadata and saved data in ways that preserve runtime semantics:
-
-- `PropertyMover` snapshots saved value or binding, clears the old property, recreates it under a new name, and can update outbound bindings.
-- `CopyPaste` separates `#static` payloads from normal block payloads, renames colliding pasted blocks, adjusts bindings, and offsets stage coordinates to avoid overlap.
-- `PropertyShowHide` maintains `@b-p` display order from descriptor, optional, and custom-property order.
+- `PropertyMover` snapshots saved values/bindings, recreates the property under
+  its new name, and can update outbound bindings.
+- `CopyPaste` separates static payloads, renames collisions, adjusts bindings,
+  and offsets coordinates.
+- `PropertyShowHide` derives `@b-p` order from descriptor, optional, and custom properties.
