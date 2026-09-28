@@ -11,14 +11,13 @@ await root.start({
 });
 ```
 
-`start()` and `start({})` use the storage's default selection. FileFlowStorage
-discovers every project (`#root` and the `+namespace` directories) and loads all
-ordinary flows, including nested folders. Other storage types select only `#root`
-with no initial ordinary flows. Service Libraries still load as usual, and saved
-`#disabled` flags are honored.
+`start()` and `start({})` select `#root` and load all its ordinary flows, including
+nested folders, for every storage type. This is equivalent to
+`start({'#root': {flows: ['**']}})`. Other projects are not selected automatically.
+Service Libraries still load as usual, and saved `#disabled` flags are honored.
 
 An explicit project selection always takes precedence: `start({'#root': {}})`
-selects only `#root` with no initial ordinary flows, even with FileFlowStorage.
+selects only `#root` with no initial ordinary flows.
 Empty or omitted `flows` loads no ordinary flows. Dependencies activate recursively, including their Service
 Libraries, but their ordinary flows need an explicit selection too. Cycles are
 allowed. A missing dependency or required library rejects startup and tears down

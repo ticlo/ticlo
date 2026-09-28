@@ -293,18 +293,22 @@ describe('StaticFlowStorage', () => {
     expect(root._lifecycle.started).toBe(false);
   });
 
-  it('preloads disabled services and rejects persistent mutations', async () => {
-    const fetchMock = mockFiles({
-      [`${rootUrl}/.list.json`]: '["ticlo.json", "#libs/", "unused.ticlo"]',
+  it.each([undefined, {}])('defaults to all #root flows and preserves disabled services (%j)', async (options) => {
+    mockFiles({
+      [`${rootUrl}/.list.json`]: '["ticlo.json", "#libs/", "entry.ticlo", "folder/"]',
       [`${rootUrl}/ticlo.json`]: JSON.stringify({serviceLibraries: ['service']}),
       [`${rootUrl}/%23libs/service.ticlo`]: JSON.stringify({'#disabled': true}),
+      [`${rootUrl}/entry.ticlo`]: JSON.stringify({value: 1}),
+      [`${rootUrl}/folder/.list.json`]: '["nested.ticlo"]',
+      [`${rootUrl}/folder/nested.ticlo`]: JSON.stringify({value: 2}),
     });
     root = new Root();
     await root.setStorage(new StaticFlowStorage(baseUrl));
-    await root.start();
+    await root.start(options);
     const ref = {namespace: '#root', kind: 'library', name: 'service'} as const;
     expect(root.getFlowState(ref)).toBe('disabled');
-    expect(fetchMock).not.toHaveBeenCalledWith(`${rootUrl}/unused.ticlo`);
+    expect(root.queryValue('entry.value')).toBe(1);
+    expect(root.queryValue('folder.nested.value')).toBe(2);
     await expect(root.enableFlow(ref, {persist: true})).rejects.toThrow('persistence');
     await expect(root.setServiceLibrary('#root', 'service', false)).rejects.toThrow('persistence');
     await root.enableFlow(ref);

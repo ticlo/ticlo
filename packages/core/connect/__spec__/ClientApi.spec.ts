@@ -27,7 +27,7 @@ describe('Connection Client API', function () {
     const storage = new MemoryFlowStorage();
     storage.saveFlow(null, {value: 1}, 'entry');
     await root.setStorage(storage);
-    await root.start();
+    await root.start({'#root': {}});
     const [server, client] = makeLocalConnection(root, false);
     try {
       expect(await client.getFlowState('entry')).toMatchObject({state: 'unloaded'});

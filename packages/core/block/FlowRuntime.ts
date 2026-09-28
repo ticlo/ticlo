@@ -62,9 +62,7 @@ export class FlowRuntime {
     this.started = true;
     const generation = this.generation;
     try {
-      const selected = Object.keys(options).length
-        ? options
-        : ((await this.root._storage?.getDefaultStartOptions?.()) ?? {'#root': {}});
+      const selected = Object.keys(options).length ? options : {'#root': {flows: this.root._storage ? ['**'] : []}};
       this.checkGeneration(generation);
       // Discover every dependency before running anything, including cyclic graphs.
       await this.activate(Object.keys(selected), generation);

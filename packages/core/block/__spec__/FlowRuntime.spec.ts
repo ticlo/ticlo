@@ -35,31 +35,39 @@ describe('runtime lifecycle', () => {
     root.destroy();
   });
 
-  it.each([undefined, {}])('defaults to #root services without loading ordinary flows (%j)', async (options) => {
+  it.each([undefined, {}])('defaults to all #root flows and services (%j)', async (options) => {
     await storage.saveNamespaceMetadata('#root', {serviceLibraries: ['service']});
     storage.saveLib('', 'service', libData);
     storage.saveFlow(null, {value: 1}, 'entry');
+    storage.saveFlow(null, {'#disabled': true, 'value': 2}, 'folder.nested');
+    storage.saveFlow(null, {}, '+main.entry');
     const read = vi.spyOn(storage, 'loadFlow');
     await root.start(options);
-    expect(root.getFlowState(ref('#root', 'entry'))).toBe('unloaded');
+    expect(root.getFlowState(ref('#root', 'entry'))).toBe('enabled');
+    expect(root.queryValue('folder.nested.value')).toBe(2);
+    expect(root.getFlowState(ref('#root', 'folder.nested'))).toBe('disabled');
     expect(root.getFlowState(ref('#root', 'service', 'library'))).toBe('enabled');
-    expect(read).not.toHaveBeenCalledWith('entry');
+    expect(read).toHaveBeenCalledWith('entry');
+    expect(read).not.toHaveBeenCalledWith('+main.entry');
     expect(root.getValue('+#root')).toBeUndefined();
+    await root.stop();
+    await root.start({'#root': {}});
+    expect(root.getFlowState(ref('#root', 'entry'))).toBe('unloaded');
+    expect(root.getFlowState(ref('#root', 'folder.nested'))).toBe('unloaded');
   });
 
-  it('cancels startup while storage is discovering default projects', async () => {
-    let resolve: (options: Record<string, {flows?: string[]}>) => void;
-    Object.assign(storage, {
-      getDefaultStartOptions: () =>
-        new Promise((done) => {
-          resolve = done;
-        }),
-    });
+  it('cancels startup while storage is reading root metadata', async () => {
+    let resolve: (metadata: object) => void;
+    vi.spyOn(storage, 'getNamespaceMetadata').mockReturnValueOnce(
+      new Promise((done) => {
+        resolve = done;
+      })
+    );
     const starting = root.start();
     await root.stop();
-    resolve({main: {flows: ['**']}});
+    resolve({});
     await expect(starting).rejects.toThrow('cancelled');
-    expect(root.getValue('+main')).toBeUndefined();
+    expect(Namespace.getNameSpace('+#root', root)._enabled).toBe(false);
     expect(root._lifecycle.started).toBe(false);
   });
 

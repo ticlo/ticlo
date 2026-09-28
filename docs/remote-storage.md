@@ -48,8 +48,9 @@ Namespace dependencies and Service Libraries are declared in a separate
 {"dependencies":["shared"],"serviceLibraries":["tools"]}
 ```
 
-Startup recursively enables dependencies and their Service Libraries. Ordinary
-flows load only when explicitly selected by `start()` or `loadFlow()`. Missing
+Startup recursively enables dependencies and their Service Libraries. `start()`
+and `start({})` load all ordinary flows in `#root`, including nested folders.
+Explicit startup selections and `loadFlow()` load the requested flows. Missing
 dependencies fail startup; project IDs cannot contain dots. See
 [runtime lifecycle](./runtime-lifecycle.md) for API and persistence rules.
 
@@ -119,6 +120,7 @@ Open `http://localhost:3003/file-server.html` and click **open editor**. The
 host page runs selected flows and connects `editor.html` through window messages.
 Keep it open while editing. Add `?project=main&flow=entry&flow=jobs.**` to select a project and initial flows, or
 `?host=https://example.com/file&project=main` to select another file host.
+With neither `project` nor `flow`, all ordinary flows in `#root` load by default.
 
 The playground can connect directly to remote storage using its URL hash:
 
@@ -129,9 +131,10 @@ http://localhost:3003/playground.html#host=http://127.0.0.1:8010/file&project=ma
 Providing a nonempty `host` selects remote storage at that file endpoint.
 `project` defaults to `#root` (encode it as `%23root`
 if included explicitly). Repeat `flow` to select initial flows; glob patterns use
-the runtime's existing policy glob syntax. With no `flow`, only Service Libraries
-start; `flow=**` loads all ordinary flows in the selected project. The first loaded
-flow opens in an editor tab. Remote mode does not create playground demo data.
+the runtime's existing policy glob syntax. With neither `project` nor `flow`, all
+ordinary flows in `#root` load. An explicit `project` without `flow` starts only
+Service Libraries; `flow=**` loads all ordinary flows in the selected project. The
+first loaded flow opens in an editor tab. Remote mode does not create playground demo data.
 
 Without `host`, the playground uses IndexedDB and its local demo data.
 Changing the hash reloads the page with the selected storage. The

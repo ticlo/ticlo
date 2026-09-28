@@ -27,7 +27,7 @@ describe('FileStorage', function () {
   });
 
   it.each([undefined, {}])(
-    'starts every project and ordinary flow when no project is selected (%j)',
+    'starts all root flows without starting other projects when no project is selected (%j)',
     async (options) => {
       const dir = Fs.mkdtempSync('./temp/default-projects-');
       const root = new Root();
@@ -44,16 +44,12 @@ describe('FileStorage', function () {
         await root.start(options);
         expect(root.queryValue('entry.value')).toBe(1);
         expect(root.queryValue('folder.nested.value')).toBe(2);
-        expect(root.queryValue('+main.jobs.daily.value')).toBe(3);
-        expect(root.queryValue('+shared.entry.value')).toBe(4);
-        expect(root.getFlowState({namespace: 'shared', kind: 'flow', name: 'entry'})).toBe('disabled');
-        expect(root.queryValue('+main.:service.value')).toBe(5);
+        expect(root.queryValue('+main')).toBeUndefined();
+        expect(root.queryValue('+shared')).toBeUndefined();
         expect(root.queryValue('+main.:unused')).toBeUndefined();
         await root.stop();
-        // An explicit empty root selection must not trigger discovery or load ordinary flows.
-        const discover = vi.spyOn(storage, 'getDefaultStartOptions');
+        // An explicit empty root selection loads no ordinary flows.
         await root.start({'#root': {}});
-        expect(discover).not.toHaveBeenCalled();
         expect(root.queryValue('entry')).toBeUndefined();
         expect(root.queryValue('folder.nested')).toBeUndefined();
         expect(root.queryValue('+main.jobs.daily')).toBeUndefined();

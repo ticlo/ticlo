@@ -58,10 +58,11 @@ Use `%23` for `#` in HTTP URLs, including `?project=%23root`. Directory names
 and `.list.json` entries contain literal `#` characters; the flow adapter encodes
 request paths automatically.
 
-`start()` defaults to `#root` with no ordinary flows selected. Global settings
-always load from `proj/#root/#global.ticlo`. Dependencies activate recursively,
-but only Service Libraries and explicitly selected flows start. Other libraries
-load when called from active namespaces. See [runtime lifecycle](./runtime-lifecycle.md).
+`start()` and `start({})` load all ordinary flows in `#root`, including nested
+folders. Global settings always load from `proj/#root/#global.ticlo`. Dependencies
+activate recursively, starting their Service Libraries; their ordinary flows
+require explicit selection. Other libraries load when called from active
+namespaces. See [runtime lifecycle](./runtime-lifecycle.md).
 
 Libraries such as `+main:tools:worker` load from `proj/main/#libs/tools.ticlo`,
 separate from ordinary flows of the same name. Invalid ordinary flow filenames
@@ -102,3 +103,4 @@ on disk. To serve flows from `app/server/flows` statically, copy them into
 Add `?project=main&flow=entry&flow=jobs.**` to select initial flows, or
 `?host=https://example.com/files&project=main` to use another static host. The
 host URL should contain the `proj` folder, rather than point inside a project.
+With neither `project` nor `flow`, all ordinary flows in `#root` load by default.

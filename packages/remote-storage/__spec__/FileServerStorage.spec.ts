@@ -72,12 +72,17 @@ describe('FileServerStorage integration', () => {
     expect(root._globalRoot.getValue('^value')).toBe(42);
   });
 
-  it('defaults to #root and persists flows and globals without deleting them on shutdown', async () => {
+  it.each([undefined, {}])('loads all root flows by default (%j)', async (options) => {
+    await project('#root', {'entry.ticlo': {value: 1}, 'folder/nested.ticlo': {value: 2}});
+    await project('main', {'entry.ticlo': {value: 3}});
     const storage = new FileServerFlowStorage(client);
     await root.setStorage(storage);
-    await root.start({[storage.initialProject]: {flows: ['**']}});
+    await root.start(options);
     expect((await client.readProject('#root')).id).toBe('#root');
     expect([...storage.projects]).toEqual(['#root']);
+    expect(root.queryValue('entry.value')).toBe(1);
+    expect(root.queryValue('folder.nested.value')).toBe(2);
+    expect(root.queryValue('+main')).toBeUndefined();
     const flow = root.addFlow('newFlow', {value: 1});
     flow.setValue('value', 2);
     await flow.applyChange();

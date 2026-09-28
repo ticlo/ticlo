@@ -369,7 +369,9 @@ window.addEventListener('hashchange', () => location.reload());
     const client = new TicloFileClient({baseURL: host});
     const project = params.get('project') || '#root';
     await root.setStorage(new FileServerFlowStorage(client));
-    await root.start({[project]: {flows: params.getAll('flow')}});
+    await root.start(
+      params.has('project') || params.has('flow') ? {[project]: {flows: params.getAll('flow')}} : undefined
+    );
     const firstFlow = (await root.listFlows(project)).find(({state}) => state !== 'unloaded');
     if (firstFlow) initialFlow = project === '#root' ? firstFlow.name : `+${project}.${firstFlow.name}`;
   } else {

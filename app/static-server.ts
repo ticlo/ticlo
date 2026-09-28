@@ -22,7 +22,9 @@ const storage = new StaticFlowStorage(host);
 
 (async () => {
   await Root.instance.setStorage(storage);
-  await Root.instance.start({[project]: {flows: params.getAll('flow')}});
+  await Root.instance.start(
+    params.has('project') || params.has('flow') ? {[project]: {flows: params.getAll('flow')}} : undefined
+  );
   status.textContent = `Loaded projects: ${[...storage.projects].join(', ')}`;
   button.disabled = false;
   button.addEventListener('click', () => {

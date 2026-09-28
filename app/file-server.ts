@@ -24,7 +24,11 @@ window.addEventListener('beforeunload', () => {
 
 Root.instance
   .setStorage(storage)
-  .then(() => Root.instance.start({[project]: {flows: params.getAll('flow')}}))
+  .then(() =>
+    Root.instance.start(
+      params.has('project') || params.has('flow') ? {[project]: {flows: params.getAll('flow')}} : undefined
+    )
+  )
   .then(() => {
     status.textContent = `Loaded projects: ${[...storage.projects].join(', ')}`;
     button.disabled = false;

@@ -80,7 +80,7 @@ describe('IndexDbStorage', function () {
 
     root.destroy();
   });
-  it('init loader', async function () {
+  it.each([undefined, {}])('loads all root flows by default (%j)', async function (options) {
     const flowData = {'#is': '', 'value': 321};
     const storage = new IndexDbFlowStorage(FLOW_STORE_NAME, dbPromise);
 
@@ -89,7 +89,7 @@ describe('IndexDbStorage', function () {
 
     const root = new Root();
     await root.setStorage(storage);
-    await root.start({'#root': {flows: ['**']}});
+    await root.start(options);
 
     expect(root.queryValue('folder5')).instanceof(FlowFolder);
     expect(root.queryValue('folder5.subflow.value')).toBe(321);
