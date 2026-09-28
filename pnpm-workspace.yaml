@@ -15,4 +15,4 @@ minimumReleaseAgeExclude:
   - marked@18.0.12
   - rc-dock@4.0.2
   - '@ticlo/file-client@0.0.2'
-  - '@ticlo/file-server@0.1.0'
+  - '@ticlo/file-server@0.1.0 || 0.1.2'

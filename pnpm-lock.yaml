@@ -6,9 +6,6 @@ importers:
   .:
     configDependencies: {}
     packageManagerDependencies:
-      '@pnpm/exe':
-        specifier: 12.3.4
-        version: 12.3.4
       pnpm:
         specifier: 12.3.4
         version: 12.3.4
@@ -59,11 +56,6 @@ packages:
     cpu: [x64]
     os: [win32]
 
-  '@pnpm/exe@12.3.4':
-    resolution: {integrity: sha512-Rq7JokWAyYF9IFfn8zofB/q2AgnZlmoMuH5fMHB2+Ta61I9aD7sNm+woZpx6iH+5vb38chdSoYRvOtSqlH72YQ==}
-    engines: {node: '>=18.*'}
-    hasBin: true
-
   pnpm@12.3.4:
     resolution: {integrity: sha512-lhqkH7B32joEpEHZ+OFevAyW2o73ELLrZ7+e58sGEOq9SPH9hfUc/+c4RnhfoPh8VqOocqHYk/hEZ0G1zORUVw==}
     engines: {node: '>=18.*'}
@@ -94,17 +86,6 @@ snapshots:
 
   '@pnpm/exe.win32-x64@12.3.4':
     optional: true
-
-  '@pnpm/exe@12.3.4':
-    optionalDependencies:
-      '@pnpm/exe.darwin-arm64': 12.3.4
-      '@pnpm/exe.darwin-x64': 12.3.4
-      '@pnpm/exe.linux-arm64': 12.3.4
-      '@pnpm/exe.linux-arm64-musl': 12.3.4
-      '@pnpm/exe.linux-x64': 12.3.4
-      '@pnpm/exe.linux-x64-musl': 12.3.4
-      '@pnpm/exe.win32-arm64': 12.3.4
-      '@pnpm/exe.win32-x64': 12.3.4
 
   pnpm@12.3.4:
     optionalDependencies:
@@ -162,8 +143,8 @@ importers:
         specifier: workspace:*
         version: link:packages/editor
       '@ticlo/file-server':
-        specifier: 0.1.0
-        version: 0.1.0(hono@4.13.7)
+        specifier: ^0.1.2
+        version: 0.1.2(hono@4.13.7)
       '@ticlo/html':
         specifier: workspace:*
         version: link:packages/html
@@ -339,8 +320,8 @@ importers:
         specifier: workspace:*
         version: link:../packages/editor
       '@ticlo/file-server':
-        specifier: 0.1.0
-        version: 0.1.0(hono@4.13.7)
+        specifier: ^0.1.2
+        version: 0.1.2(hono@4.13.7)
       '@ticlo/html':
         specifier: workspace:*
         version: link:../packages/html
@@ -2156,8 +2137,8 @@ packages:
   '@ticlo/file-client@0.0.2':
     resolution: {integrity: sha512-5mn6zm2ynBgYesrt6iUP47qr+59HxzjCmeW9hdDvFj7lfea+z8TcaBNyXBCmDbCdI2B5SrYJj/7vPNG84irmkA==}
 
-  '@ticlo/file-server@0.1.0':
-    resolution: {integrity: sha512-+1tn6/ub20qdsBntwR5+q8Z2vbDbsIoFFQYvD4M4colwq/mUeQZ73PwE0ykN+UuzeNIOgS50yqbel8d6TCWk9A==}
+  '@ticlo/file-server@0.1.2':
+    resolution: {integrity: sha512-GNuUMaACrdznhUFeLXO3uPFNEl0lRnQ3U4G7rWFfHR3hvo23/sk501SVUnZezhincH8wKirh2uE1hutgbrkLOA==}
     peerDependencies:
       hono: ^4.13.7
 
@@ -5881,7 +5862,7 @@ snapshots:
       - debug
       - supports-color
 
-  '@ticlo/file-server@0.1.0(hono@4.13.7)':
+  '@ticlo/file-server@0.1.2(hono@4.13.7)':
     dependencies:
       adm-zip: 0.5.18
       hono: 4.13.7

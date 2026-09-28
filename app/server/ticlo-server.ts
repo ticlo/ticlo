@@ -3,7 +3,7 @@ import {FileFlowStorage, FileStorage} from '@ticlo/node';
 import '@ticlo/test';
 import {Hono} from 'hono';
 import {cors} from 'hono/cors';
-import {routeFileStorage, devUserAuth} from '@ticlo/file-server';
+import {routeRemoteStorage, devUserAuth} from '@ticlo/file-server';
 import {Root, setStorageFunctionProvider} from '@ticlo/core';
 import {createTicloApp, getEditorUrl} from '@ticlo/web-server/server.ts';
 import {mkdir, writeFile} from 'node:fs/promises';
@@ -26,7 +26,7 @@ export async function createServerApp(rootDir = fileURLToPath(new URL('./files/'
       exposeHeaders: ['ETag'],
     })
   );
-  routeFileStorage(app, {rootDir, authProvider: () => devUserAuth});
+  routeRemoteStorage(app, {rootDir, authProvider: () => devUserAuth});
 
   const runtimeCors = cors({allowMethods: ['GET', 'POST', 'OPTIONS'], allowHeaders: ['Content-Type']});
   for (const path of ['/ticlo', '/ticlo/*', '/api', '/api/*']) {

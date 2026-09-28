@@ -4,7 +4,7 @@ import {tmpdir} from 'node:os';
 import {join} from 'node:path';
 import {serve} from '@hono/node-server';
 import {Hono} from 'hono';
-import {routeFileStorage} from '@ticlo/file-server';
+import {routeRemoteStorage} from '@ticlo/file-server';
 import {Root, FlowFolder, encodeSorted} from '@ticlo/core';
 import {FileServerFlowStorage, FileServerStorage, TicloFileClient} from '../index.ts';
 
@@ -28,7 +28,7 @@ describe('FileServerStorage integration', () => {
     dir = await mkdtemp(join(tmpdir(), 'ticlo-storage-'));
     await project('#root', {'#global.ticlo': {'#is': '', '^value': 42}});
     const app = new Hono();
-    routeFileStorage(app, {rootDir: dir});
+    routeRemoteStorage(app, {rootDir: dir});
     await new Promise<void>((resolve) => {
       const server = serve({fetch: app.fetch, hostname: '127.0.0.1', port: 0}, (address) => {
         client = new TicloFileClient({baseURL: `http://127.0.0.1:${address.port}/file`});
