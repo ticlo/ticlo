@@ -81,6 +81,7 @@
     "yaml": "^2.9.0"
   },
   "scripts": {
+    "dev": "pnpm run \"/^(ticlo-server|vite-dev)$/\"",
     "vite-dev": "vite",
     "vite-build": "vite build",
     "build-pages": "mkdir -p css i18n && pnpm run build-i18n && pnpm run build-less && pnpm run build-antd-style && pnpm run build-icons && pnpm run vite-build --base=/ticlo/",

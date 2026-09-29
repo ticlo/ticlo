@@ -534,9 +534,15 @@ importers:
       '@types/luxon':
         specifier: ^3.7.5
         version: 3.7.5
+      dompurify:
+        specifier: ^3.4.15
+        version: 3.4.15
       luxon:
         specifier: ^3.7.2
         version: 3.7.2
+      marked:
+        specifier: ^18.0.12
+        version: 18.0.12
       react:
         specifier: ^19.2.8
         version: 19.2.8

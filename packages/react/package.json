@@ -18,7 +18,9 @@
   "dependencies": {
     "@ticlo/core": "workspace:^",
     "@types/luxon": "^3.7.5",
-    "luxon": "^3.7.2"
+    "dompurify": "^3.4.15",
+    "luxon": "^3.7.2",
+    "marked": "^18.0.12"
   },
   "peerDependencies": {
     "react": "^19.2.8",
