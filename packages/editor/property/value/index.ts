@@ -9,6 +9,7 @@ import {ReadonlyEditor} from './ReadonlyEditor.tsx';
 import {EventEditor} from './EventEditor.tsx';
 import {ScheduleEditor} from './ScheduleEditor.tsx';
 import {TimeEditor} from './TimeEditor.tsx';
+import {TableEditor} from './TableEditor.tsx';
 
 export const typeEditorMap: {[key: string]: any} = {
   ...dynamicEditorMap,
@@ -26,4 +27,5 @@ export const typeEditorMap: {[key: string]: any} = {
   // special editor
   'event': EventEditor,
   'schedule': ScheduleEditor,
+  'table': TableEditor,
 };

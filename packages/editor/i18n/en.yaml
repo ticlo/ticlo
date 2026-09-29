@@ -145,3 +145,15 @@
 # block/BlockStage.tsx
 "Undo": "Undo"
 "Redo": "Redo"
+
+# property/value/TableEditor.tsx
+"Edit table": "Edit table"
+"Add row": "Add row"
+"Actions": "Actions"
+"Move up": "Move up"
+"Move down": "Move down"
+"Duplicate row": "Duplicate row"
+"Delete row": "Delete row"
+"Invalid table columns": "Invalid table columns"
+"Invalid table rows": "Invalid table rows"
+"Value changed. Reload to continue.": "Value changed. Reload to continue."

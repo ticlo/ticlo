@@ -156,3 +156,15 @@
 # block/BlockStage.tsx
 "Undo": 撤消
 "Redo": 重做
+
+# property/value/TableEditor.tsx
+"Edit table": "编辑表格" # translated from: Edit table
+"Add row": "新增行" # translated from: Add row
+"Actions": "操作" # translated from: Actions
+"Move up": "上移" # translated from: Move up
+"Move down": "下移" # translated from: Move down
+"Duplicate row": "复制行" # translated from: Duplicate row
+"Delete row": "删除行" # translated from: Delete row
+"Invalid table columns": "表格列配置无效" # translated from: Invalid table columns
+"Invalid table rows": "表格行结构无效" # translated from: Invalid table rows
+"Value changed. Reload to continue.": "值已改变，请重新载入后继续。" # translated from: Value changed. Reloa-kqB2bmX2

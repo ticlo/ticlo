@@ -24,6 +24,7 @@ export type ValueType =
   | 'js'
   | 'object'
   | 'array'
+  | 'table'
   | 'none' // editor not allowed
   | 'any'
   // special editors
@@ -78,7 +79,16 @@ export interface PropDesc {
   // allowed types in editor for dynamic types
   types?: ValueType[];
 
+  // table editor
+  rowType?: 'object' | 'array';
+  columns?: TableColumnDesc[];
+
   commands?: {[key: string]: FunctionCommandDesc};
+}
+
+export interface TableColumnDesc extends Omit<PropDesc, 'name'> {
+  key: string | number;
+  title?: string;
 }
 
 export interface PropGroupDesc {
