@@ -29,7 +29,20 @@ globalFunctions.addFactory(
   {
     name: 'markdown',
     base: 'react:element',
-    properties: [{name: 'source', type: 'string', mime: 'text/x-markdown'}, elementStyleProperty, elementClassProperty],
+    properties: [
+      {name: 'source', type: 'string', mime: 'text/x-markdown'},
+      {
+        name: 'renderers',
+        type: 'table',
+        rowType: 'object',
+        columns: [
+          {key: 'type', type: 'string'},
+          {key: 'renderer', type: 'worker'},
+        ],
+      },
+      elementStyleProperty,
+      elementClassProperty,
+    ],
     category: 'react:elements',
   },
   'react',

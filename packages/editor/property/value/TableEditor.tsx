@@ -7,8 +7,9 @@ import {deepClone} from '@ticlo/core/util/Clone.ts';
 import {ValueEditorProps} from './ValueEditorBase.ts';
 import {typeEditorMap} from './index.ts';
 import {ReadonlyEditor} from './ReadonlyEditor.tsx';
-import {TicloLayoutContextType} from '../../component/LayoutContext.ts';
+import {TicloLayoutContextType, type TicloLayoutContext} from '../../component/LayoutContext.ts';
 import {LocalizedPropertyName, t} from '../../component/LocalizedLabel.tsx';
+import {TableWorkerEditor} from './TableWorkerEditor.tsx';
 
 type RowValue = Record<string, unknown> | unknown[];
 interface Row {
@@ -46,6 +47,9 @@ function isRow(value: unknown, rowType: PropDesc['rowType']): value is RowValue 
 }
 
 export class TableEditor extends React.PureComponent<ValueEditorProps, State> {
+  static contextType = TicloLayoutContextType;
+  declare context: TicloLayoutContext;
+
   state: State = {open: false, rows: [], loading: false};
   private nextId = 0;
   private requestId = 0;
@@ -73,6 +77,11 @@ export class TableEditor extends React.PureComponent<ValueEditorProps, State> {
     const {locked, onChange, desc} = this.props;
     return Boolean(onChange) && !locked && !desc.readonly;
   }
+
+  popup = () => {
+    const {desc, value} = this.props;
+    this.context.editProperty(this.paths(), desc, value, 'object', !this.editable());
+  };
 
   private schemaError() {
     const {rowType, columns} = this.props.desc;
@@ -178,11 +187,18 @@ export class TableEditor extends React.PureComponent<ValueEditorProps, State> {
   private cell(row: Row, column: TableColumnDesc, disabled: boolean) {
     const name = String(column.key);
     const desc: PropDesc = {...column, name, create: undefined};
-    const Editor = cellEditors.has(column.type) ? typeEditorMap[column.type] : ReadonlyEditor;
+    const Editor =
+      column.type === 'worker' && this.props.conn
+        ? TableWorkerEditor
+        : cellEditors.has(column.type)
+          ? typeEditorMap[column.type]
+          : ReadonlyEditor;
     const value = Object.hasOwn(row.value, column.key) ? Reflect.get(row.value, column.key) : undefined;
     return (
       <div className="ticl-property-value ticl-table-cell">
         <Editor
+          conn={this.props.conn}
+          funcLib={this.props.funcLib}
           name={name}
           desc={desc}
           funcDesc={this.props.funcDesc}
@@ -212,6 +228,11 @@ export class TableEditor extends React.PureComponent<ValueEditorProps, State> {
         <Button size="small" icon={<TableOutlined />} onClick={this.load} disabled={!this.editable()}>
           {t('Edit table')} {Array.isArray(value) && !isDataTruncated(value) ? `(${value.length})` : null}
         </Button>
+        {this.context?.editProperty && this.props.keys?.length ? (
+          <div className="ticl-expand-button" title="Edit" onClick={this.popup}>
+            <div className="ticl-expand-icon-11" />
+          </div>
+        ) : null}
         {open ? (
           <Modal
             title={<LocalizedPropertyName desc={funcDesc} name={name ?? desc.name} />}

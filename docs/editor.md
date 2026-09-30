@@ -61,9 +61,15 @@ does not initialize saved data. OK submits the entire array through the parent
 property's change handler; Cancel discards the draft. Connected properties load
 their complete value before editing. If the property changes while the dialog
 is open, Reload starts a new draft from its current value.
+The expand icon opens the same raw JSON/YAML editor used by object and array
+properties.
 
 Cells reuse value editors for strings, numbers, toggles, selections, colors,
-dates, times, passwords, and dynamic values. Editors requiring their own Block
+dates, times, passwords, and dynamic values. Connected worker cells support
+function selection and a nested flow editor. Inline worker edits stay in the
+table draft until OK; named workers save to their function library, as in the
+regular worker editor. Local function lookup uses the table's `funcLib`.
+Other editors requiring their own Block
 path, including nested object/array editing, are displayed read-only. Locked
 and read-only properties cannot open the editor; individual columns may also
 be read-only. `type: 'array'` continues to select its existing editor.

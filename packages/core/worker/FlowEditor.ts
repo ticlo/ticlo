@@ -76,20 +76,28 @@ export class FlowEditor extends FlowWithStatic {
     }
   }
 
-  static createFromField(parent: Block, field: string, fromField: string): FlowEditor {
+  static createFromField(parent: Block, field: string, fromField: string, funcLib?: FunctionLib): FlowEditor {
     const fromValue = parent.getValue(fromField);
     let forceReload = false;
     // already has worker data ?
     if (fromValue && (typeof fromValue === 'string' || fromValue.constructor === Object)) {
       let newFlow: FlowEditor;
       if (typeof fromValue === 'string') {
-        newFlow = FlowEditor.create(parent, field, null, fromValue);
+        newFlow = FlowEditor.create(parent, field, null, fromValue, false, undefined, funcLib);
       } else {
-        newFlow = FlowEditor.create(parent, field, fromValue as DataMap, null, false, (flow: Flow) => {
-          const data = flow.save();
-          parent.setValue(fromField, data);
-          return data;
-        });
+        newFlow = FlowEditor.create(
+          parent,
+          field,
+          fromValue as DataMap,
+          null,
+          false,
+          (flow: Flow) => {
+            const data = flow.save();
+            parent.setValue(fromField, data);
+            return data;
+          },
+          funcLib
+        );
       }
 
       if (newFlow) {

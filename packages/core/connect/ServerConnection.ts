@@ -990,7 +990,13 @@ export class ServerConnection extends ServerConnectionCore {
 
     if (property && property._name.startsWith('#edit-')) {
       if (fromField) {
-        FlowEditor.createFromField(property._block, property._name, fromField);
+        const libraryFlow = funcLib ? this.root.queryProperty(funcLib)?._value : undefined;
+        FlowEditor.createFromField(
+          property._block,
+          property._name,
+          fromField,
+          libraryFlow instanceof Flow ? libraryFlow.getFuncLib() : undefined
+        );
       } else if (fromFunction) {
         let resolvedFuncLib: FunctionLib | undefined;
         if (fromFunction.startsWith(':') && funcLib) {

@@ -22,18 +22,23 @@ export class WorkerEditor extends FunctionEditor {
   }
 
   canEditWorker(policy?: EditPolicyView) {
-    const {conn, keys, desc, value, onChange, locked} = this.props;
+    const {conn, keys, desc, value, onChange, locked, onEditWorker} = this.props;
     return (
       value != null &&
       onChange != null &&
       !locked &&
-      keys?.length > 0 &&
-      (policy ?? conn.getEditPolicyView()).can({cmd: 'editWorker', path: `${keys[0]}.#edit-${desc.name}`})
+      (onEditWorker ||
+        (keys?.length > 0 &&
+          (policy ?? conn.getEditPolicyView()).can({cmd: 'editWorker', path: `${keys[0]}.#edit-${desc.name}`})))
     );
   }
 
   editWorker = () => {
     if (!this.canEditWorker()) return;
+    if (this.props.onEditWorker) {
+      this.props.onEditWorker();
+      return;
+    }
     const {conn, keys, desc} = this.props;
     const flowEditorPath = `${keys[0]}.#edit-${desc.name}`;
     conn.editWorker(flowEditorPath, desc.name);

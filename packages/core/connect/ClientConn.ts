@@ -197,7 +197,7 @@ export abstract class ClientConn {
    * @param fromField if specified, editing starts based on an existing property field inside the block
    * @param fromFunction if specified, editing starts based on an existing global worker function
    * @param defaultData default data to initialize the editing context
-   * @param funcLib optional path to the host flow whose `_funcLib` should own the resulting function (used for `:funcId` editing)
+   * @param funcLib optional host flow path providing the function library for inline or local workers
    * @param callbacks request callbacks
    */
   editWorker(

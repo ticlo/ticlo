@@ -1,14 +1,17 @@
 import React from 'react';
 import {flushSync} from 'react-dom';
 import {page, userEvent} from 'vitest/browser';
-import {blankFuncDesc, Root, type PropDesc} from '@ticlo/core';
+import {blankFuncDesc, Root, type PropDesc, type Flow} from '@ticlo/core';
 import {destroyLastLocalConnection, makeLocalConnection} from '@ticlo/core/connect/LocalConnection.ts';
-import {shouldHappen} from '@ticlo/core/util/test-util.ts';
+import {shouldHappen, waitTick} from '@ticlo/core/util/test-util.ts';
+import {defaultWorkerData} from '@ticlo/core/defaults/DefaultFlows.ts';
+import {WorkerFunctionGen} from '@ticlo/core/worker/WorkerFunctionGen.ts';
 import {initEditor} from '../../../index.ts';
 import {loadTemplate, removeLastTemplate} from '../../../util/test-util.ts';
 import {PropertyEditor} from '../../PropertyEditor.tsx';
 import {TableEditor} from '../TableEditor.tsx';
 import type {ValueEditorProps} from '../ValueEditorBase.ts';
+import {TicloLayoutContextType, type TicloLayoutContext} from '../../../component/LayoutContext.ts';
 
 const objectDesc: PropDesc = {
   name: 'items',
@@ -21,12 +24,18 @@ const objectDesc: PropDesc = {
   ],
 };
 
-function mount(props: Partial<ValueEditorProps>) {
+function mount(props: Partial<ValueEditorProps>, context: TicloLayoutContext = {}) {
   let current = props;
   let redraw: () => void;
   function Template() {
     [, redraw] = React.useReducer((n) => n + 1, 0);
-    return <TableEditor value={undefined} name="items" funcDesc={blankFuncDesc} desc={objectDesc} {...current} />;
+    return (
+      <TicloLayoutContextType.Provider value={context}>
+        <div className="ticl-property-value" style={{width: 300, position: 'relative'}}>
+          <TableEditor value={undefined} name="items" funcDesc={blankFuncDesc} desc={objectDesc} {...current} />
+        </div>
+      </TicloLayoutContextType.Provider>
+    );
   }
   loadTemplate(<Template />, 'editor');
   return (props: Partial<ValueEditorProps>) =>
@@ -54,8 +63,9 @@ describe('TableEditor', () => {
     await initEditor();
   });
 
-  afterEach(() => {
+  afterEach(async () => {
     removeLastTemplate();
+    await waitTick(30);
     destroyLastLocalConnection();
     Root.instance.deleteValue('TableEditorTest');
   });
@@ -74,6 +84,95 @@ describe('TableEditor', () => {
     expect(document.querySelector('.ticl-table-editor')).toBeNull();
   });
 
+  it('expands raw JSON/YAML using the property paths and read-only state', async () => {
+    const value = [{label: 'Raw'}];
+    const editProperty = vi.fn();
+    const update = mount({keys: ['first', 'second'], value, onChange: vi.fn()}, {editProperty});
+    await shouldHappen(() => document.querySelector('.ticl-expand-button'));
+    await userEvent.click(document.querySelector('.ticl-expand-button'));
+    expect(editProperty).toHaveBeenLastCalledWith(['first.items', 'second.items'], objectDesc, value, 'object', false);
+    expect(document.querySelector('.ticl-table-editor')).toBeNull();
+    update({locked: true});
+    await userEvent.click(document.querySelector('.ticl-expand-button'));
+    expect(editProperty).toHaveBeenLastCalledWith(['first.items', 'second.items'], objectDesc, value, 'object', true);
+  });
+
+  it('selects local workers in the table draft and discards them on cancel', async () => {
+    const flow = Root.instance.addFlow('TableEditorTest');
+    WorkerFunctionGen.registerType(defaultWorkerData, {id: ':render', name: 'render'}, undefined, flow.getFuncLib());
+    const [, conn] = makeLocalConnection(Root.instance, true);
+    const onChange = vi.fn();
+    mount({
+      conn,
+      funcLib: 'TableEditorTest',
+      value: [{renderer: undefined}],
+      onChange,
+      desc: {...objectDesc, columns: [{key: 'renderer', type: 'worker'}]},
+    });
+    await open();
+    await userEvent.click(rows()[0].querySelector('.anticon-down'));
+    await shouldHappen(() => document.querySelector('.ticl-func-select'));
+    await userEvent.click(document.querySelector('.ticl-func-select .anticon-book'));
+    await page.getByText('render', {exact: true}).click({timeout: 3000});
+    expect(rows()[0].querySelector('.ticl-worker-editor').textContent).toContain(':render');
+    expect(onChange).not.toHaveBeenCalled();
+    await button('Cancel').click();
+    expect(onChange).not.toHaveBeenCalled();
+    await open();
+    expect(rows()[0].querySelector('.ticl-object-editor').textContent).toBe('');
+    await userEvent.click(rows()[0].querySelector('.anticon-down'));
+    await page.getByRole('button', {name: /Inline/}).click({timeout: 3000});
+    await button('OK').click();
+    expect(onChange).toHaveBeenCalledExactlyOnceWith([{renderer: defaultWorkerData}], 'items');
+  });
+
+  it('edits inline workers in a child dialog without writing through the table draft', async () => {
+    const renderer = {...defaultWorkerData, child: {'#is': ':render'}};
+    const original = [{renderer}];
+    const flow = Root.instance.addFlow('TableEditorTest', {
+      data: {'#is': '', 'items': original},
+    });
+    WorkerFunctionGen.registerType(defaultWorkerData, {id: ':render', name: 'render'}, undefined, flow.getFuncLib());
+    const [, conn] = makeLocalConnection(Root.instance, true);
+    const onChange = vi.fn();
+    const editWorker = vi.spyOn(conn, 'editWorker');
+    mount({
+      conn,
+      keys: ['TableEditorTest.data'],
+      funcLib: 'TableEditorTest',
+      value: original,
+      onChange,
+      desc: {...objectDesc, columns: [{key: 'renderer', type: 'worker'}]},
+    });
+    await open();
+    await userEvent.click(rows()[0].querySelector('.anticon-edit'));
+    await shouldHappen(() => document.querySelector('.ticl-table-worker-editor .ticl-stage'));
+    const path = editWorker.mock.calls[0][0];
+    const draft = Root.instance.queryValue(path) as Flow;
+    expect(draft.getFuncLib()).toBe(flow.getFuncLib());
+    await conn.setValue(`${path}.child.test`, 'draft', true);
+    const workerDialog = document.querySelector('.ticl-table-worker-editor');
+    await userEvent.click(workerDialog.querySelector('.ant-modal-footer .ant-btn-primary'));
+    await shouldHappen(() => !document.querySelector('.ticl-table-worker-editor'));
+    expect(flow.queryValue('data.items')).toEqual(original);
+    expect(onChange).not.toHaveBeenCalled();
+    await userEvent.click(rows()[0].querySelector('.anticon-edit'));
+    await shouldHappen(() => document.querySelector('.ticl-table-worker-editor .ticl-stage'));
+    expect(Root.instance.queryValue(`${path}.child.test`)).toBe('draft');
+    await conn.setValue(`${path}.child.test`, 'discard', true);
+    await userEvent.click(document.querySelector('.ticl-table-worker-editor .ant-modal-footer .ant-btn-default'));
+    await shouldHappen(() => !document.querySelector('.ticl-table-worker-editor'));
+    await button('OK').click();
+    expect(onChange).toHaveBeenCalledExactlyOnceWith(
+      [{renderer: {...renderer, child: {'#is': ':render', 'test': 'draft'}}}],
+      'items'
+    );
+    const tempPath = path.slice(0, path.lastIndexOf('.'));
+    await shouldHappen(() => Root.instance.queryValue(tempPath) === undefined);
+    expect(flow.queryValue('data.items')).toEqual(original);
+    editWorker.mockRestore();
+  });
+
   it('cancels cell and row changes without mutating the input', async () => {
     const original = [{label: 'Keep', count: 0, enabled: false}];
     const onChange = vi.fn();
@@ -87,6 +186,37 @@ describe('TableEditor', () => {
     await open();
     expect(rows()).toHaveLength(1);
     expect(rows()[0].querySelector('.ant-switch').getAttribute('aria-checked')).toBe('false');
+  });
+
+  it('edits a named worker in its original local function library', async () => {
+    const flow = Root.instance.addFlow('TableEditorTest');
+    WorkerFunctionGen.registerType(defaultWorkerData, {id: ':render', name: 'render'}, undefined, flow.getFuncLib());
+    const [, conn] = makeLocalConnection(Root.instance, true);
+    const editWorker = vi.spyOn(conn, 'editWorker');
+    const onChange = vi.fn();
+    mount({
+      conn,
+      funcLib: 'TableEditorTest',
+      value: [{renderer: ':render'}],
+      onChange,
+      desc: {...objectDesc, columns: [{key: 'renderer', type: 'worker'}]},
+    });
+    await open();
+    await userEvent.click(rows()[0].querySelector('.anticon-edit'));
+    await shouldHappen(() => document.querySelector('.ticl-table-worker-editor .ticl-stage'));
+    const path = editWorker.mock.calls[0][0];
+    expect(editWorker).toHaveBeenCalledWith(path, undefined, ':render', undefined, 'TableEditorTest');
+    await conn.addBlock(`${path}.child`, {'#is': '', 'value': 'saved'});
+    await userEvent.click(document.querySelector('.ticl-table-worker-editor .ant-modal-footer .ant-btn-primary'));
+    await shouldHappen(() => !document.querySelector('.ticl-table-worker-editor'));
+    expect(flow.getFuncLib().getWorkerData(':render')).toEqual({
+      ...defaultWorkerData,
+      child: {'#is': '', 'value': 'saved'},
+    });
+    await button('OK').click();
+    expect(onChange).toHaveBeenCalledExactlyOnceWith([{renderer: ':render'}], 'items');
+    await shouldHappen(() => Root.instance.queryValue(path) === undefined);
+    editWorker.mockRestore();
   });
 
   it('supports array rows, initial values, duplication, reordering and removal', async () => {
