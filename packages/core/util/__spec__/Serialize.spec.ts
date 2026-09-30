@@ -1,9 +1,25 @@
 import {expect} from 'vitest';
-import {encode, decode, encodeDisplay} from '../Serialize.ts';
+import {encode, decode, encodeDisplay, hashData} from '../Serialize.ts';
 import {DateTime} from 'luxon';
 import {formatDate, isDateSame} from '../DateTime.ts';
 
 describe('Serialize', function () {
+  it('hashes clipboard data consistently across key ordering and Arrow roundtrips', () => {
+    const data = {
+      '#_copy_from': 'Main.source',
+      'a': {
+        '#is': '',
+        'date': DateTime.fromISO('2025-01-01T12:00:00.000Z', {setZone: true}),
+        'values': [NaN, undefined, -Infinity, new Uint8Array([1, 2, 3])],
+      },
+    };
+    const reordered = {'a': {'values': data.a.values, 'date': data.a.date, '#is': ''}, '#_copy_from': 'Main.source'};
+    expect(hashData(reordered)).toBe(hashData(data));
+    expect(hashData(decode(encode(data)))).toBe(hashData(data));
+    expect(hashData({...data, '#_copy_from': 'Main.target'})).not.toBe(hashData(data));
+    expect(hashData({...data, a: {...data.a, values: [...data.a.values].reverse()}})).not.toBe(hashData(data));
+  });
+
   it('DateTime local', function () {
     const dateStr = '2014-11-27T11:07:00.000';
     const date = DateTime.fromISO(dateStr);

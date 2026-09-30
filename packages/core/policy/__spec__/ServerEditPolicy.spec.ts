@@ -186,7 +186,10 @@ describe('Server edit policy paths', () => {
 
   it('checks the full copied subtree and does not let readonly access authorize cutting', async () => {
     server.setEditPolicy({allowPaths: [], readonlyPaths: ['Main', 'Main.**'], denyPaths: ['Main.child.hidden']});
-    expect((await client.copy('Main', ['value'])).value).toEqual({value: 1});
+    expect((await client.copy('Main', ['value'])).value).toEqual({
+      'value': 1,
+      '#_copy_from': 'Main',
+    });
     await expect(client.copy('Main', ['child'])).rejects.toBe('restricted path');
     await expect(client.copy('Main', ['value'], true)).rejects.toBe('restricted path');
     expect(root.queryValue('Main.value')).toBe(1);

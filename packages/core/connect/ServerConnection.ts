@@ -31,7 +31,13 @@ import {addOptionalProperty, moveOptionalProperty, removeOptionalProperty} from 
 import {WorkerFunctionGen} from '../worker/WorkerFunctionGen.ts';
 import {isBindable, splitPathName} from '../util/Path.ts';
 import {ClientCallbacks} from './ClientRequests.ts';
-import {copyProperties, createStaticBlock, deleteProperties, pasteProperties} from '../property-api/CopyPaste.ts';
+import {
+  copyProperties,
+  createStaticBlock,
+  deleteProperties,
+  moveBlocks,
+  pasteProperties,
+} from '../property-api/CopyPaste.ts';
 import {moveProperty, PropertyMover} from '../property-api/PropertyMover.ts';
 import {BlockInputsConfig, BlockOutputsConfig} from '../block/BlockConfigs.ts';
 import {WorkerFlow} from '../worker/WorkerFlow.ts';
@@ -1371,6 +1377,30 @@ export class ServerConnection extends ServerConnectionCore {
     } else {
       return 'invalid path';
     }
+  }
+
+  /** Moves child blocks between parents using the copy/paste binding rules. */
+  move({path, props, to, resolve}: {path: string; props: string[]; to: string; resolve?: 'overwrite' | 'rename'}) {
+    if (typeof to !== 'string') return 'invalid path';
+    const source = this.root.queryProperty(path)?._value;
+    const target = this.root.queryProperty(to)?._value;
+    if (!(source instanceof Block) || !(target instanceof Block)) return 'invalid path';
+    const error = this.checkRequestPolicy({
+      cmd: 'move',
+      path: source.getFullPath(),
+      props,
+      to: target.getFullPath(),
+      resolve,
+    });
+    if (error) return error;
+    // Apply the same read checks as copy, including saved references inside the blocks.
+    const copied = this.copy({path, props, cut: false});
+    if (typeof copied === 'string') return copied;
+    const result = moveBlocks(source, target, props, resolve);
+    if (typeof result === 'string') return result;
+    getTrackedFlow(source, path, this.root).trackChange();
+    getTrackedFlow(target, to, this.root).trackChange();
+    return {moved: result};
   }
 
   /**

@@ -54,6 +54,7 @@ export * from './functions/web-server/RouteFunction.ts';
 // Export common data functions
 export * from './functions/data/CreateObject.ts';
 export * from './property-api/ObjectValue.ts';
+export {moveBlocks} from './property-api/CopyPaste.ts';
 
 // register functions
 import './functions/core/Group.ts';

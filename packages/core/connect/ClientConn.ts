@@ -6,6 +6,7 @@ import {StreamDispatcher} from '../block/Dispatcher.ts';
 import {Query} from './Query.ts';
 import type {EditPolicy, EditPolicyView} from '../policy/EditPolicy.ts';
 import type {ClientConnection} from './ClientConnection.ts';
+import {hashData} from '../util/Serialize.ts';
 
 /** Shared command API for physical connections and policy views. */
 
@@ -437,6 +438,17 @@ export abstract class ClientConn {
     return this.simpleRequest({cmd: 'copy', path, props, cut}, callbacks);
   }
 
+  /** Moves child blocks to a different parent, without rewriting bindings elsewhere. */
+  move(
+    path: string,
+    props: string[],
+    to: string,
+    resolve?: 'overwrite' | 'rename',
+    callbacks?: ClientCallbacks
+  ): Promise<any> | string {
+    return this.simpleRequest({cmd: 'move', path, props, to, resolve}, callbacks);
+  }
+
   /**
    * Relays a generic block-specific command (`command` parameter) payload down to the Component/Block implementation for executing bespoke logics.
    * @param path path of Block
@@ -462,6 +474,18 @@ export abstract class ClientConn {
     resolve?: 'overwrite' | 'rename',
     callbacks?: ClientCallbacks
   ): Promise<any> | string {
+    const staticData = data?.['#static'] as DataMap;
+    if (
+      (typeof data?.['#_copy_from'] === 'string' || typeof staticData?.['#_copy_from'] === 'string') &&
+      hashData(data) !== this.getBaseConn().copiedData
+    ) {
+      data = {...data};
+      delete data['#_copy_from'];
+      if (typeof staticData?.['#_copy_from'] === 'string') {
+        data['#static'] = {...staticData};
+        delete (data['#static'] as DataMap)['#_copy_from'];
+      }
+    }
     return this.simpleRequest({cmd: 'paste', path, data, resolve}, callbacks);
   }
 

@@ -31,6 +31,16 @@ export function encodeSorted(value: any, space = 1): string {
   return arrow.stringifySorted(value, space);
 }
 
+// Hash the wire representation with stable object key ordering.
+export function hashData(value: unknown): number {
+  const str = encodeSorted(JSON.parse(encode(value)), 0);
+  let hash = 0x811c9dc5;
+  for (let i = 0; i < str.length; ++i) {
+    hash = Math.imul(hash ^ str.charCodeAt(i), 0x01000193);
+  }
+  return hash >>> 0;
+}
+
 export function decode(str: string): any {
   return arrow.parse(str);
 }

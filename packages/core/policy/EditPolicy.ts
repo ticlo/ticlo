@@ -178,6 +178,7 @@ export function checkEditPolicy(
 
   const checkData = (target: string, data: DataMap, creating = false): string | null => {
     for (const [name, value] of Object.entries(data)) {
+      if (!creating && name === '#_copy_from') continue; // Clipboard metadata is not written to the block.
       const field = name.startsWith('~') && typeof value === 'string' ? name.slice(1) : name;
       let error: string;
       if (name === '#static' && value && typeof value === 'object') {
@@ -285,6 +286,14 @@ export function checkEditPolicy(
         if (error) return error;
       }
       return null;
+    case 'move':
+      if (typeof request.to !== 'string') return 'invalid path';
+      if (policy.allowCreateBlock === false) return 'restricted block creation';
+      for (const name of (request.props as string[]) ?? []) {
+        const error = checkDelete(`${path}.${name}`);
+        if (error) return error;
+      }
+      return checkWhole(request.to);
     case 'showProps':
     case 'hideProps':
     case 'moveShownProp':

@@ -21,6 +21,7 @@ import {DataWrapper} from '../block/FunctonData.ts';
 import {checkEditPolicy, type EditPolicy, EditPolicyView} from '../policy/EditPolicy.ts';
 import {PolicyConnection} from './PolicyConnection.ts';
 import {NoSerialize} from '../util/NoSerialize.ts';
+import {hashData} from '../util/Serialize.ts';
 
 export type {ValueUpdate, ValueState} from './ClientRequests.ts';
 
@@ -54,6 +55,8 @@ export abstract class ClientConnection extends ClientConn {
   }
 
   uid: Uid = new Uid();
+  /** Hash of the last successful copy, shared by every policy view. */
+  copiedData?: number;
 
   // id as key
   requests: Map<string, ClientCallbacks> = new Map();
@@ -149,6 +152,9 @@ export abstract class ClientConnection extends ClientConn {
       this.requests.delete(response.id);
       switch (response.cmd) {
         case 'final': {
+          if (req instanceof ClientRequest && req._data.cmd === 'copy') {
+            this.copiedData = hashData(response.value);
+          }
           req.onUpdate(response);
           req.onDone();
           break;
@@ -470,12 +476,14 @@ export abstract class ClientConnection extends ClientConn {
   _reconnectTimeout: any;
 
   onConnect() {
+    this.copiedData = undefined;
     this.transport.onConnect();
     // TODO: add some delay to make sure the connection is correct
     this._reconnectInterval = 1;
   }
 
   onDisconnect() {
+    this.copiedData = undefined;
     this.transport.onDisconnect();
     this.updateServerPolicy(undefined, false);
     // remove requests from the map
@@ -504,6 +512,7 @@ export abstract class ClientConnection extends ClientConn {
   }
 
   destroy() {
+    this.copiedData = undefined;
     for (const [key, req] of this.requests) {
       req.onError('disconnected');
     }

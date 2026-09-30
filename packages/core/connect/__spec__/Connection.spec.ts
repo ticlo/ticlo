@@ -1076,7 +1076,7 @@ describe('Connection', function () {
     const [server, client] = makeLocalConnection(Root.instance, false);
 
     const copied = (await client.copy('Connection24', ['add'])).value;
-    expect(copied).toEqual({add: {'#is': 'add'}});
+    expect(copied).toEqual({'add': {'#is': 'add'}, '#_copy_from': 'Connection24'});
 
     flow.deleteValue('add');
 
