@@ -12,6 +12,8 @@ import {FunctionView} from '../FunctionView.tsx';
 import {loadTemplate, querySingle, removeLastTemplate} from '../../util/test-util.ts';
 
 describe('FunctionTree', function () {
+  const scopeSuffixes = ['', '.#lib', '.child.#lib', '.child.nested.#lib'];
+
   function findElements(node: any, predicate: (element: any) => boolean): any[] {
     if (Array.isArray(node)) {
       return node.flatMap((child) => findElements(child, predicate));
@@ -127,9 +129,11 @@ describe('FunctionTree', function () {
     ).toHaveLength(1);
   });
 
-  it('shows inflow functions as flat function items', async function () {
+  it.each(scopeSuffixes)('shows inflow functions as flat items (%s)', async function (scopeSuffix) {
     const flowPath = `FunctionTreeInflow${Math.random().toString(36).slice(2)}`;
     const flow = Root.instance.addFlow(flowPath);
+    flow.createBlock('child').createBlock('nested');
+    const scopePath = `${flowPath}${scopeSuffix}`;
     const [server, client] = makeLocalConnection(Root.instance, true);
     DescRequest.editorCache.clear();
 
@@ -144,10 +148,10 @@ describe('FunctionTree', function () {
       },
       false,
       undefined,
-      flowPath
+      scopePath
     );
 
-    await shouldHappen(() => client.watchDesc(':a', flowPath));
+    await shouldHappen(() => client.watchDesc(':a', scopePath));
 
     expect(root.children.length).toBe(1);
     expect(root.children[0].key).toBe(':a');
@@ -168,19 +172,26 @@ describe('FunctionTree', function () {
     Root.instance.deleteValue(flowPath);
   });
 
-  it('updates inflow tree after saving a new local worker function', async function () {
+  it.each(scopeSuffixes)('updates inflow tree after saving and deleting (%s)', async function (scopeSuffix) {
     const flowPath = `FunctionTreeSave${Math.random().toString(36).slice(2)}`;
     const flow = Root.instance.addFlow(flowPath, {});
+    flow.createBlock('child').createBlock('nested');
+    const scopePath = `${flowPath}${scopeSuffix}`;
     const [server, client] = makeLocalConnection(Root.instance, true);
-    const root = new FunctionTreeRoot(client, () => {}, undefined, false, undefined, flowPath);
+    const root = new FunctionTreeRoot(client, () => {}, undefined, false, undefined, scopePath);
     const editPath = '#temp.#edit-%3aa';
 
-    await client.editWorker(editPath, undefined, ':a', {'#inputs': {'#is': ''}, '#outputs': {'#is': ''}}, flowPath);
+    await client.editWorker(editPath, undefined, ':a', {'#inputs': {'#is': ''}, '#outputs': {'#is': ''}}, scopePath);
     await client.setValue(`${editPath}.#desc`, {icon: 'fas:plus'}, true);
     await client.applyFlowChange(editPath);
 
-    await shouldHappen(() => client.watchDesc(':a', flowPath));
+    await shouldHappen(() => client.watchDesc(':a', scopePath));
     expect(root.children.map((child) => [child.key, child.name])).toEqual([[':a', 'a']]);
+    expect(flow.getFuncLib().getAllFunctionIds()).toContain(':a');
+
+    await client.deleteFunction(':a', scopePath);
+    await shouldHappen(() => root.children.length === 0);
+    expect(flow.getFuncLib().getAllFunctionIds()).not.toContain(':a');
 
     root.destroy();
     client.destroy();
