@@ -146,13 +146,6 @@ class App extends React.PureComponent<Props, State> {
                   },
                   {
                     group: 'tool',
-                    id: 'Test UI',
-                    title: 'Test UI',
-                    cached: true,
-                    content: <div id="main" />,
-                  },
-                  {
-                    group: 'tool',
                     id: 'Policy',
                     title: 'Policy',
                     cached: true,
@@ -235,6 +228,26 @@ class App extends React.PureComponent<Props, State> {
               : [],
             id: 'main',
             panelLock: {panelStyle: 'main'},
+          },
+        ],
+      },
+      floatbox: {
+        mode: 'float',
+        children: [
+          {
+            w: 400,
+            h: 400,
+            // DockLayout is inset 10px, so these anchors leave a 16px viewport gap.
+            floatAnchor: {right: 6, bottom: 6},
+            tabs: [
+              {
+                group: 'tool',
+                id: 'Test UI',
+                title: 'Test UI',
+                cached: true,
+                content: <div id="main" />,
+              },
+            ],
           },
         ],
       },
