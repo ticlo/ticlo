@@ -54,6 +54,8 @@ function JsxComponent({block}: {block: Block}) {
 const jsxComponentDesc: FunctionDesc = {
   name: 'jsx',
   base: 'react:element',
+  tags: ['react-comp'],
+  childrenTags: ['react-comp'],
   properties: [
     {
       name: 'script',

@@ -21,6 +21,7 @@ globalFunctions.addFactory(
   ToReactComponentFunction,
   {
     name: 'to-component',
+    tags: ['react-comp'],
     properties: [
       {name: 'input', type: 'block', pinned: true},
       {name: '#output', type: 'any', readonly: true, pinned: true},

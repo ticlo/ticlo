@@ -54,6 +54,7 @@ const inputOptions = {
 const inputElementDesc: FunctionDesc = {
   name: 'input',
   base: 'react:element',
+  tags: ['react-comp'],
   properties: [
     {
       name: 'value',
@@ -159,6 +160,8 @@ const textareaPropMap = {
 const textareaElementDesc: FunctionDesc = {
   name: 'textarea',
   base: 'react:element',
+  tags: ['react-comp'],
+  childrenTags: ['react-comp'],
   properties: [
     {name: 'value', type: 'string'},
     {name: 'defaultValue', type: 'string'},
@@ -218,6 +221,8 @@ const selectPropMap = {
 const selectElementDesc: FunctionDesc = {
   name: 'select',
   base: 'react:element',
+  tags: ['react-comp'],
+  childrenTags: ['react-comp'],
   properties: [
     {name: 'value', type: 'any'},
     {name: 'defaultValue', type: 'any'},

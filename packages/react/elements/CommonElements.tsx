@@ -8,6 +8,8 @@ import {metaKey, renderChildren} from '../comp/Component.tsx';
 const sharedElementDesc: FunctionDesc = {
   name: '',
   base: 'react:element',
+  tags: ['react-comp'],
+  childrenTags: ['react-comp'],
   configs: elementConfigs,
   properties: elementProps,
   category: 'react:elements',

@@ -134,6 +134,8 @@ export interface FunctionDesc {
   recipient?: string;
   // used by service editor to filter global blocks
   tags?: string[];
+  // tags of functions allowed as children in this component's #order
+  childrenTags?: string[];
   // a React class to display special component in block UI in the editor
   // not used on server side
   view?: unknown;

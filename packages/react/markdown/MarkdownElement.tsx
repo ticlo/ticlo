@@ -29,6 +29,7 @@ globalFunctions.addFactory(
   {
     name: 'markdown',
     base: 'react:element',
+    tags: ['react-comp'],
     properties: [
       {name: 'source', type: 'string', mime: 'text/x-markdown'},
       {

@@ -34,6 +34,7 @@ function ImageElement({block}: {block: Block}) {
 const imgElementDesc: FunctionDesc = {
   name: 'img',
   base: 'react:element',
+  tags: ['react-comp'],
   properties: [
     {
       name: 'src',
