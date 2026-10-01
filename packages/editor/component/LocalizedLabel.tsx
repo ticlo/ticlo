@@ -31,16 +31,18 @@ export const LocalizedPropertyName = ({
   className,
   name,
   onContextMenu,
+  onMouseDownCapture,
 }: {
   ref?: React.Ref<HTMLSpanElement>;
   desc: FunctionDesc;
   name: string;
   className?: string;
   onContextMenu?: MouseEventHandler<HTMLSpanElement>;
+  onMouseDownCapture?: MouseEventHandler<HTMLSpanElement>;
 }) => {
   useContext(TicloLayoutContextType);
   return (
-    <span ref={ref} className={className} onContextMenu={onContextMenu}>
+    <span ref={ref} className={className} onContextMenu={onContextMenu} onMouseDownCapture={onMouseDownCapture}>
       {translateProperty(desc.name, name, desc.ns)}
     </span>
   );

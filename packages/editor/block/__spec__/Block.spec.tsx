@@ -107,6 +107,26 @@ describe('editor BlockStage', function () {
     expect(querySingle('//div.tico-icon-svg.tico-fas-minus', div)).not.toBeNull();
   });
 
+  it('opens block context menus on mouseup by default', async () => {
+    flow = Root.instance.addFlow('BlockStageMenu', {
+      block: {'#is': 'add', '@b-xyw': [100, 100, 200]},
+    });
+    const [, client] = makeLocalConnection(Root.instance);
+    const [, div] = loadTemplate(<BlockStage conn={client} basePath="BlockStageMenu" />, 'editor');
+    await shouldHappen(() => div.querySelector('.tico-fas-plus'));
+    const label = await shouldHappen(() => div.querySelector('.ticl-block-head-label'));
+    const mouse = {button: 2, clientX: 150, clientY: 110};
+    simulate(label, 'mousedown', {...mouse, buttons: 2});
+    simulate(label, 'contextmenu', mouse);
+    await new Promise<void>((resolve) => requestAnimationFrame(() => resolve()));
+    expect(document.querySelector('.ticl-dropdown:not(.ticl-dropdown-hidden)')).toBeNull();
+    simulate(label, 'mouseup', mouse);
+    const menu = await shouldHappen(() => document.querySelector('.ticl-dropdown:not(.ticl-dropdown-hidden)'));
+    expect(menu.textContent).toContain('Rename');
+    simulate(document.body, 'keydown', {key: 'Escape'});
+    await shouldHappen(() => !document.querySelector('.ticl-dropdown:not(.ticl-dropdown-hidden)'));
+  });
+
   it.each([undefined, {allowCreateBlock: false}])('drag block cursor with policy %j', async function (policy) {
     flow = Root.instance.addFlow('BlockStage2');
     flow.load({

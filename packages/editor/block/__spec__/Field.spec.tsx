@@ -136,7 +136,7 @@ describe('editor Block Field', function () {
     Root.instance.deleteValue('BlockField2');
   });
 
-  it('opens and closes a field context menu', async function () {
+  it.each(['mousedown', 'mouseup'])('opens a field menu on release when contextmenu follows %s', async (timing) => {
     const flow = Root.instance.addFlow('BlockFieldMenu');
     flow.load({
       add: {
@@ -151,7 +151,13 @@ describe('editor Block Field', function () {
 
     try {
       const fieldName = await shouldHappen(() => div.querySelector('.ticl-field-name > span'));
-      simulate(fieldName, 'contextmenu', {clientX: 150, clientY: 140});
+      const mouse = {button: 2, clientX: 150, clientY: 140};
+      simulate(fieldName, 'mousedown', {...mouse, buttons: 2});
+      if (timing === 'mousedown') simulate(fieldName, 'contextmenu', mouse);
+      await new Promise<void>((resolve) => requestAnimationFrame(() => resolve()));
+      expect(document.querySelector('.ticl-dropdown:not(.ticl-dropdown-hidden)')).toBeNull();
+      simulate(fieldName, 'mouseup', mouse);
+      if (timing === 'mouseup') simulate(fieldName, 'contextmenu', mouse);
 
       const menu = await shouldHappen(() => document.querySelector('.ticl-dropdown:not(.ticl-dropdown-hidden)'));
       expect(menu.textContent).toContain('Binding');
@@ -163,6 +169,35 @@ describe('editor Block Field', function () {
       expect(div.querySelector('.ticl-block')).not.toBeNull();
     } finally {
       Root.instance.deleteValue('BlockFieldMenu');
+    }
+  });
+
+  it('reorders fields with the right button without opening a menu', async () => {
+    const flow = Root.instance.addFlow('BlockFieldReorderMenu', {
+      block: {'#is': '', 'a': 1, 'b': 2, '@b-xyw': [100, 100, 200], '@b-p': ['a', 'b']},
+    });
+    const [, client] = makeLocalConnection(Root.instance);
+    const [, div] = loadTemplate(<BlockStage conn={client} basePath="BlockFieldReorderMenu" />, 'editor');
+    try {
+      await shouldHappen(() => div.querySelectorAll('.ticl-field-name > span').length === 2);
+      const [source, target] = div.querySelectorAll('.ticl-field-name > span');
+      const from = source.getBoundingClientRect();
+      const to = target.getBoundingClientRect();
+      const down = {button: 2, buttons: 2, clientX: from.x + from.width / 2, clientY: from.y + from.height / 2};
+      const move = {button: 2, buttons: 2, clientX: to.x + to.width / 2, clientY: to.y + to.height / 2};
+      simulate(source, 'mousedown', down);
+      simulate(source, 'contextmenu', down);
+      await new Promise<void>((resolve) => requestAnimationFrame(() => resolve()));
+      expect(document.querySelector('.ticl-dropdown:not(.ticl-dropdown-hidden)')).toBeNull();
+      simulate(target, 'mousemove', move);
+      simulate(target, 'mouseup', {...move, buttons: 0});
+      simulate(target, 'contextmenu', {...move, buttons: 0});
+      await shouldHappen(() => (flow.queryValue('block.@b-p') as string[])[0] === 'b');
+      expect(flow.queryValue('block.@b-p')).toEqual(['b', 'a']);
+      await new Promise<void>((resolve) => requestAnimationFrame(() => resolve()));
+      expect(document.querySelector('.ticl-dropdown:not(.ticl-dropdown-hidden)')).toBeNull();
+    } finally {
+      Root.instance.deleteValue('BlockFieldReorderMenu');
     }
   });
 

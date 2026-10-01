@@ -197,7 +197,14 @@ interface PopupState {
 export class Popup extends React.PureComponent<PopupProps, PopupState> {
   state = {showPopup: false};
 
+  requestContextMenu?: () => void;
+  cancelContextMenu?: () => void;
+
   popupVisibleChange = (visible: boolean) => {
+    if (visible && this.requestContextMenu) {
+      this.requestContextMenu();
+      return;
+    }
     const {onPopupVisibleChange} = this.props;
     if (onPopupVisibleChange) {
       onPopupVisibleChange(visible);
@@ -207,6 +214,60 @@ export class Popup extends React.PureComponent<PopupProps, PopupState> {
   };
   hidePopup = () => {
     this.popupVisibleChange(false);
+  };
+
+  onContextMouseDown = (e: React.MouseEvent) => {
+    if (e.button !== 2) return;
+    this.cancelContextMenu?.();
+    this.hidePopup();
+    const doc = e.currentTarget.ownerDocument;
+    const win = doc.defaultView;
+    const {clientX, clientY} = e;
+    let moved = false;
+    let requested = false;
+    let timeout: ReturnType<typeof setTimeout>;
+    this.requestContextMenu = () => {
+      requested = true;
+    };
+    const onMove = (event: MouseEvent) => {
+      if (event.clientX !== clientX || event.clientY !== clientY) moved = true;
+    };
+    const onContextMenu = (event: MouseEvent) => {
+      if (moved) {
+        event.preventDefault();
+        event.stopPropagation();
+      }
+    };
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') moved = true;
+    };
+    const stopTracking = () => {
+      this.requestContextMenu = undefined;
+      doc.removeEventListener('mousemove', onMove, true);
+      doc.removeEventListener('mouseup', onUp, true);
+      doc.removeEventListener('keydown', onKeyDown, true);
+      win?.removeEventListener('blur', cancel);
+    };
+    const cancel = () => {
+      stopTracking();
+      clearTimeout(timeout);
+      doc.removeEventListener('contextmenu', onContextMenu, true);
+      this.cancelContextMenu = undefined;
+    };
+    const onUp = (event: MouseEvent) => {
+      if (event.button !== 2) return;
+      onMove(event);
+      stopTracking();
+      // A native contextmenu can follow mouseup, including on a different drop target.
+      timeout = setTimeout(cancel, 0);
+      if (!moved && requested) this.popupVisibleChange(true);
+    };
+    this.cancelContextMenu = cancel;
+    doc.addEventListener('mousemove', onMove, true);
+    doc.addEventListener('mouseup', onUp, true);
+    doc.addEventListener('contextmenu', onContextMenu, true);
+    doc.addEventListener('keydown', onKeyDown, true);
+    win?.addEventListener('blur', cancel);
   };
 
   onBodyKeydown: (e: KeyboardEvent) => void;
@@ -258,6 +319,16 @@ export class Popup extends React.PureComponent<PopupProps, PopupState> {
     }
 
     const {children, popup} = this.props;
+    let child = children;
+    if (trigger.includes('contextMenu')) {
+      const element = children as React.ReactElement<React.HTMLAttributes<HTMLElement>>;
+      child = React.cloneElement(element, {
+        onMouseDownCapture: (e) => {
+          this.onContextMouseDown(e);
+          element.props.onMouseDownCapture?.(e);
+        },
+      });
+    }
 
     let fixedPopup: React.ReactElement | (() => React.ReactElement);
     if (typeof popup === 'function') {
@@ -278,12 +349,13 @@ export class Popup extends React.PureComponent<PopupProps, PopupState> {
         onPopupVisibleChange={this.popupVisibleChange}
         popup={fixedPopup}
       >
-        {children}
+        {child}
       </Trigger>
     );
   }
 
   componentWillUnmount(): void {
+    this.cancelContextMenu?.();
     if (this.onBodyKeydown) {
       document.body.removeEventListener('keydown', this.onBodyKeydown);
       this.onBodyKeydown = null;

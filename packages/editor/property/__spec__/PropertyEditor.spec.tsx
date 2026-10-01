@@ -144,4 +144,52 @@ describe('PropertyEditor', function () {
 
     Root.instance.deleteValue('PropertyEditorScopedDesc');
   });
+
+  it('reorders custom properties with the right button without opening a menu', async () => {
+    const flow = Root.instance.addFlow('PropertyEditorReorderMenu', {
+      block: {
+        '#is': '',
+        '#custom': [
+          {name: 'a', type: 'number'},
+          {name: 'b', type: 'number'},
+        ],
+        'a': 1,
+        'b': 2,
+      },
+    });
+    const [, client] = makeLocalConnection(Root.instance);
+    const [, div] = loadTemplate(
+      <PropertyList conn={client} paths={['PropertyEditorReorderMenu.block']} style={{width: 300, height: 300}} />,
+      'editor'
+    );
+    try {
+      const source = await shouldHappen(() =>
+        querySingle("//div.ticl-property-name.drag-initiator/span[text()='a']/..", div)
+      );
+      const target = await shouldHappen(() =>
+        querySingle("//div.ticl-property-name.drag-initiator/span[text()='b']/..", div)
+      );
+      const from = source.getBoundingClientRect();
+      const to = target.getBoundingClientRect();
+      const down = {button: 2, buttons: 2, clientX: from.x + from.width / 2, clientY: from.y + from.height / 2};
+      const move = {button: 2, buttons: 2, clientX: to.x + to.width / 2, clientY: to.y + to.height / 2};
+      simulate(source, 'mousedown', down);
+      simulate(source, 'contextmenu', down);
+      await new Promise<void>((resolve) => requestAnimationFrame(() => resolve()));
+      expect(document.querySelector('.ticl-dropdown:not(.ticl-dropdown-hidden)')).toBeNull();
+      simulate(target, 'mousemove', move);
+      simulate(target, 'mouseup', {...move, buttons: 0});
+      simulate(target, 'contextmenu', {...move, buttons: 0});
+      await shouldHappen(() => (flow.queryValue('block.#custom') as PropDesc[])[0].name === 'b');
+      expect((flow.queryValue('block.#custom') as PropDesc[]).map((prop) => prop.name)).toEqual(['b', 'a']);
+      await new Promise<void>((resolve) => requestAnimationFrame(() => resolve()));
+      expect(document.querySelector('.ticl-dropdown:not(.ticl-dropdown-hidden)')).toBeNull();
+
+      // A later context-menu request still opens normally, including keyboard requests.
+      simulate(source, 'contextmenu', down);
+      await shouldHappen(() => document.querySelector('.ticl-dropdown:not(.ticl-dropdown-hidden)'));
+    } finally {
+      Root.instance.deleteValue('PropertyEditorReorderMenu');
+    }
+  });
 });
